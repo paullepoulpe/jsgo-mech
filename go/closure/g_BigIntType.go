@@ -31,13 +31,13 @@ func new_BigIntType(registry *JSTypeRegistry) *BigIntType {
 	return this
 }
 
-func (this *BigIntType) getTypeClass_impl() *JSTypeClass {
+func (this *BigIntType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_BIGINT
 }
 
-func (this *BigIntType) testForEquality_impl(that *JSType) *Tri {
-	var result *Tri = this.ValueType.testForEquality_impl(that)
-	if result != nil {
+func (this *BigIntType) testForEquality_impl(that *JSType) Tri {
+	var result Tri = this.ValueType.testForEquality_impl(that)
+	if result != 0 {
 		return result
 	}
 	if ((((that.isUnknownType() || that.isSubtypeOf(this.getNativeType(JSTypeNative_OBJECT_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_NUMBER_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_STRING_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BOOLEAN_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_TYPE)) {
@@ -66,7 +66,7 @@ func (this *BigIntType) getDisplayName_impl() Optional[string] {
 	return Optional_of[string]("bigint")
 }
 
-func (this *BigIntType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *BigIntType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
@@ -76,4 +76,84 @@ func (this *BigIntType) visitUntyped_impl(visitor Visitor) any {
 
 func (this *BigIntType) autoboxesTo_impl() *JSType {
 	return this.getNativeType(JSTypeNative_BIGINT_OBJECT_TYPE)
+}
+
+// getTypeClass: an object that is exactly a BigIntType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *BigIntType) getTypeClass() JSTypeClass {
+	if p, _ := this.self_.(*BigIntType); p == this {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.getTypeClass_impl()
+}
+
+// testForEquality: an object that is exactly a BigIntType calls its testForEquality_impl directly (post-flip); others dispatch.
+func (this *BigIntType) testForEquality(p0 *JSType) Tri {
+	if p, _ := this.self_.(*BigIntType); p == this {
+		return this.testForEquality_impl(p0)
+	}
+	return this.self_.testForEquality_impl(p0)
+}
+
+// isBigIntValueType: an object that is exactly a BigIntType calls its isBigIntValueType_impl directly (post-flip); others dispatch.
+func (this *BigIntType) isBigIntValueType() bool {
+	if p, _ := this.self_.(*BigIntType); p == this {
+		return this.isBigIntValueType_impl()
+	}
+	return this.self_.isBigIntValueType_impl()
+}
+
+// matchesNumberContext: an object that is exactly a BigIntType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
+func (this *BigIntType) matchesNumberContext() bool {
+	if p, _ := this.self_.(*BigIntType); p == this {
+		return this.matchesNumberContext_impl()
+	}
+	return this.self_.matchesNumberContext_impl()
+}
+
+// matchesStringContext: an object that is exactly a BigIntType calls its matchesStringContext_impl directly (post-flip); others dispatch.
+func (this *BigIntType) matchesStringContext() bool {
+	if p, _ := this.self_.(*BigIntType); p == this {
+		return this.matchesStringContext_impl()
+	}
+	return this.self_.matchesStringContext_impl()
+}
+
+// matchesObjectContext: an object that is exactly a BigIntType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
+func (this *BigIntType) matchesObjectContext() bool {
+	if p, _ := this.self_.(*BigIntType); p == this {
+		return this.matchesObjectContext_impl()
+	}
+	return this.self_.matchesObjectContext_impl()
+}
+
+// getDisplayName: an object that is exactly a BigIntType calls its getDisplayName_impl directly (post-flip); others dispatch.
+func (this *BigIntType) getDisplayName() Optional[string] {
+	if p, _ := this.self_.(*BigIntType); p == this {
+		return this.getDisplayName_impl()
+	}
+	return this.self_.getDisplayName_impl()
+}
+
+// getPossibleToBooleanOutcomes: an object that is exactly a BigIntType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
+func (this *BigIntType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
+	if p, _ := this.self_.(*BigIntType); p == this {
+		return this.getPossibleToBooleanOutcomes_impl()
+	}
+	return this.self_.getPossibleToBooleanOutcomes_impl()
+}
+
+// visitUntyped: an object that is exactly a BigIntType calls its visitUntyped_impl directly (post-flip); others dispatch.
+func (this *BigIntType) visitUntyped(p0 Visitor) any {
+	if p, _ := this.self_.(*BigIntType); p == this {
+		return this.visitUntyped_impl(p0)
+	}
+	return this.self_.visitUntyped_impl(p0)
+}
+
+// autoboxesTo: an object that is exactly a BigIntType calls its autoboxesTo_impl directly (post-flip); others dispatch.
+func (this *BigIntType) autoboxesTo() *JSType {
+	if p, _ := this.self_.(*BigIntType); p == this {
+		return this.autoboxesTo_impl()
+	}
+	return this.self_.autoboxesTo_impl()
 }

@@ -31,7 +31,7 @@ func (this *CompilerExecutor) getExecutorService() ExecutorService {
 }
 
 func CompilerExecutor_getDefaultExecutorService() ExecutorService {
-	return Executors_newSingleThreadExecutor(icast_ThreadFactory(obj_(new_CompilerExecutor_1())))
+	return Executors_newSingleThreadExecutor(new_CompilerExecutor_1())
 }
 
 func (this *CompilerExecutor) disableThreads() {
@@ -46,23 +46,24 @@ func (this *CompilerExecutor) setDebugMessage(debugMessage string) {
 	this.debugMessage = Optional_of[string](debugMessage)
 }
 
-func (this *CompilerExecutor) runInCompilerThread(callable CallableOf[any], dumpTraceReport bool) any {
+func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTraceReport bool) any {
 	var executor ExecutorService = this.getExecutorService()
 	var result any = nil
 	var exception []*Throwable = make([]*Throwable, 1)
-	Preconditions_checkState_boolean_Object(((this.compilerThread == nil) || (this.compilerThread == Thread_currentThread())), strobj_("Please do not share the Compiler across threads"))
+	if this.compilerThread != nil && this.compilerThread != Thread_currentThread() {
+		panic(new_IllegalStateException_String("Please do not share the Compiler across threads"))
+	}
 	if this.useThreads && (this.compilerThread == nil) {
-		_ = func() (code_ int) {
+		func() {
 			defer func() {
 				executor.shutdown()
 			}()
 			defer func() {
 				if r_ := recover(); r_ != nil {
 					ex_ := catch_(r_)
-					if is_InterruptedException(ex_) || is_TimeoutException(ex_) || is_ExecutionException(ex_) {
+					if is_ExecutionException(ex_) {
 						var e *Exception = to_Exception(ex_)
-						panic(new_RuntimeException_Throwable(e.up_Throwable()).self())
-						return
+						panic(new_RuntimeException_Throwable(e.up_Throwable()))
 					}
 					panic(r_)
 				}
@@ -80,8 +81,8 @@ func (this *CompilerExecutor) runInCompilerThread(callable CallableOf[any], dump
 					defer func() {
 						if r_ := recover(); r_ != nil {
 							ex_ := catch_(r_)
-							if is_Throwable(ex_) {
-								var e *Throwable = to_Throwable(ex_)
+							if p, ok := ex_.(Throwable_as); ok {
+								var e *Throwable = p.as_Throwable()
 								exception[0] = e
 								return
 							}
@@ -92,15 +93,13 @@ func (this *CompilerExecutor) runInCompilerThread(callable CallableOf[any], dump
 					if dumpTraceReport {
 						Tracer_initCurrentThreadTrace_0()
 					}
-					ret_2 = callable.call()
+					ret_2 = callable()
 					return 1
-					return 0
 				}()
 				if code_2 == 1 {
 					return ret_2
 				}
 				return nil
-				panic("unreachable")
 			}}
 			var future FutureOf[any] = executor.submit(bootCompilerThread)
 			if this.timeout > 0 {
@@ -108,31 +107,29 @@ func (this *CompilerExecutor) runInCompilerThread(callable CallableOf[any], dump
 			} else {
 				result = future.get()
 			}
-			return 0
 		}()
 	} else {
-		_ = func() (code_ int) {
+		func() {
 			defer func() {
 				if r_ := recover(); r_ != nil {
 					ex_ := catch_(r_)
-					if is_Exception(ex_) {
-						var e *Exception = to_Exception(ex_)
+					if p2, ok2 := ex_.(Exception_as); ok2 {
+						var e *Exception = p2.as_Exception()
 						exception[0] = e.up_Throwable()
 						return
 					}
 					panic(r_)
 				}
 			}()
-			result = callable.call()
-			return 0
+			result = callable()
 		}()
 	}
 	if exception[0] != nil {
 		if this.debugMessage.isPresent() {
-			panic(new_RuntimeException_String_Throwable(("Exception during compilation: " + sstr_(this.debugMessage.get())), exception[0]).self())
+			panic(new_RuntimeException_String_Throwable(("Exception during compilation: " + sstr_(this.debugMessage.get())), exception[0]))
 		}
 		Throwables_throwIfUnchecked(exception[0])
-		panic(new_RuntimeException_Throwable(exception[0]).self())
+		panic(new_RuntimeException_Throwable(exception[0]))
 	}
 	return result
 }

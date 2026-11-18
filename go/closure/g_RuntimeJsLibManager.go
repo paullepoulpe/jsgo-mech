@@ -2,10 +2,12 @@
 
 package closure
 
+import "strings"
+
 type RuntimeJsLibManager struct {
 	changeTracker        *ChangeTracker
-	mode_                *RuntimeJsLibManager_RuntimeLibraryMode
-	resourceProvider     RuntimeJsLibManager_ResourceProvider
+	mode_                RuntimeJsLibManager_RuntimeLibraryMode
+	resourceProvider     func(string, string) Node
 	nodeForCodeInsertion SupplierOf[Node]
 	injectedLibs         *JTSet[string]
 	internedFields       *JTMap[string, *RuntimeJsLibManager_InternalField]
@@ -18,7 +20,7 @@ func (this *RuntimeJsLibManager) finit_RuntimeJsLibManager() {
 	this.lastInjectedLibrary = 0
 }
 
-func (this *RuntimeJsLibManager) init_RuntimeJsLibManager(changeTracker *ChangeTracker, mode *RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider RuntimeJsLibManager_ResourceProvider, nodeForCodeInsertion SupplierOf[Node]) {
+func (this *RuntimeJsLibManager) init_RuntimeJsLibManager(changeTracker *ChangeTracker, mode RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider func(string, string) Node, nodeForCodeInsertion SupplierOf[Node]) {
 	this.finit_RuntimeJsLibManager()
 	this.mode_ = mode
 	this.changeTracker = changeTracker
@@ -26,13 +28,13 @@ func (this *RuntimeJsLibManager) init_RuntimeJsLibManager(changeTracker *ChangeT
 	this.nodeForCodeInsertion = nodeForCodeInsertion
 }
 
-func new_RuntimeJsLibManager(changeTracker *ChangeTracker, mode *RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider RuntimeJsLibManager_ResourceProvider, nodeForCodeInsertion SupplierOf[Node]) *RuntimeJsLibManager {
+func new_RuntimeJsLibManager(changeTracker *ChangeTracker, mode RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider func(string, string) Node, nodeForCodeInsertion SupplierOf[Node]) *RuntimeJsLibManager {
 	this := &RuntimeJsLibManager{}
 	this.init_RuntimeJsLibManager(changeTracker, mode, resourceProvider, nodeForCodeInsertion)
 	return this
 }
 
-func RuntimeJsLibManager_create(mode *RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider RuntimeJsLibManager_ResourceProvider, changeTracker *ChangeTracker, nodeForCodeInsertion SupplierOf[Node]) *RuntimeJsLibManager {
+func RuntimeJsLibManager_create(mode RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider func(string, string) Node, changeTracker *ChangeTracker, nodeForCodeInsertion SupplierOf[Node]) *RuntimeJsLibManager {
 	return new_RuntimeJsLibManager(changeTracker, mode, resourceProvider, nodeForCodeInsertion)
 }
 
@@ -44,44 +46,50 @@ func (this *RuntimeJsLibManager) hasInjectedLibrary(resourceName string) bool {
 	return this.injectedLibs.has(resourceName)
 }
 
-func (this *RuntimeJsLibManager) getInjectedLibraries() ImmutableListOf[string] {
-	return ImmutableList_copyOf(Collection(this.injectedLibs.asSet()))
+func (this *RuntimeJsLibManager) getInjectedLibraries() *ImmutableList[string] {
+	return immutableListCopyOf_(tc_string, Collection(this.injectedLibs.asSet()))
 }
 
-func (this *RuntimeJsLibManager) getExternedFields() ImmutableListOf[RuntimeJsLibManager_ExternedField] {
+func (this *RuntimeJsLibManager) getExternedFields() []RuntimeJsLibManager_ExternedField {
 	if this.mode_ != RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
-		return ImmutableList_of()
+		return []RuntimeJsLibManager_ExternedField{}
 	}
-	var result ImmutableList_BuilderOf[RuntimeJsLibManager_ExternedField] = ImmutableList_builder()
+	var result []RuntimeJsLibManager_ExternedField
 	it_1 := this.internedFields.eachValue()
 	for it_1.next() {
 		var field *RuntimeJsLibManager_InternalField = it_1.v
 		if field.isInjected() {
-			result.add(obj_(field))
+			result = immAddObj_(tc_RuntimeJsLibManager_ExternedField, result, obj_(field))
 		}
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return immBuilt_(result)
 }
 
 func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibManager_InternalField {
-	Preconditions_checkArgument_boolean_Object(!String_isEmpty(fieldName), strobj_(fieldName))
-	var parts ListOf[string] = Splitter_on('.').splitToList(strobj_(fieldName))
-	Preconditions_checkArgument_boolean_String_Object((parts.size() >= 2), "Field name must start with $jscomp., found %s", strobj_(fieldName))
-	Preconditions_checkArgument_boolean_String_Object((str_(parts.get(0)) == "$jscomp"), "Field name must start with $jscomp, found %s", strobj_(fieldName))
-	var propName string = str_(parts.get(1))
-	var resource Optional[string] = Optional_ofNullable[string](str_(Map_get_s(RuntimeJsLibManager_FieldsTable_INSTANCE, propName)))
+	if fieldName == "" {
+		panic(new_IllegalArgumentException_String(sstr_(fieldName)))
+	}
+	var parts []string = sliceImm_(tc_string, Splitter_on('.').splitToList_s(fieldName))
+	if int32(len(parts)) < 2 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp., found %s", []any{strobj_(fieldName)})))
+	}
+	if sliceAt_(parts, 0) != "$jscomp" {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp, found %s", []any{strobj_(fieldName)})))
+	}
+	var propName string = sliceAt_(parts, 1)
+	var resource Optional[string] = Optional_ofNullable[string](RuntimeJsLibManager_FieldsTable_INSTANCE.Get(propName))
 	if resource.isEmpty() {
-		panic(new_NullPointerException_String(("Cannot find definition of " + sstr_(fieldName))).self())
+		panic(new_NullPointerException_String(("Cannot find definition of " + sstr_(fieldName))))
 	}
 	var resourceName string = resource.get()
 	var compiledName string = func() string {
 		switch this.mode_ {
 		case RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES:
-			return String_replace_char_char(fieldName, '.', '_')
+			return strings.ReplaceAll(fieldName, ".", "_")
 		case RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_INJECT:
 			return fieldName
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	return new_RuntimeJsLibManager_InternalField(this, resourceName, compiledName, fieldName)
 }
@@ -102,7 +110,9 @@ func (this *RuntimeJsLibManager) injectLibForField(fieldName string) {
 	field.markInjected()
 	if this.mode_ == RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
 		var externRoot Node = Node_of_(this.nodeForCodeInsertion.get())
-		Preconditions_checkState_boolean_Object(externRoot.isFromExterns(), externRoot.box_())
+		if !externRoot.isFromExterns() {
+			panic(new_IllegalStateException_String(tostr_(externRoot)))
+		}
 		var declaration Node = IR_var_Node(IR_name(field.qualifiedName()))
 		declaration.getFirstChild().putBooleanProp(Node_IS_CONSTANT_NAME, true)
 		externRoot.addChildToBack(declaration)
@@ -125,8 +135,8 @@ func (this *RuntimeJsLibManager) ensureLibraryInjected(resourceName string, forc
 		return this.lastInjectedLibrary
 	}
 	this.recordLibraryInjected(resourceName)
-	var path string = String_join_CharSequence_CharSequenceArr(strobj_(""), []any{strobj_(RuntimeJsLibManager_RUNTIME_LIB_DIR), strobj_(resourceName), strobj_(".js")})
-	var ast Node = this.resourceProvider.parse(resourceName, path)
+	var path string = (RuntimeJsLibManager_RUNTIME_LIB_DIR + sstr_(resourceName) + ".js")
+	var ast Node = this.resourceProvider(resourceName, path)
 	this.injectLibraryDependencies(ast, force)
 	return this.injectLibrary(ast)
 }
@@ -159,13 +169,13 @@ func (this *RuntimeJsLibManager) injectLibraryDependencies(ast Node, force bool)
 		var node Node = ast.getFirstChild()
 		for ; ((node != 0) && node.isExprResult()) && node.getFirstChild().isStringLit(); node = ast.getFirstChild() {
 			var directive string = node.getFirstChild().getString()
-			var words ListOf[string] = Splitter_on(' ').limit(2).splitToList(strobj_(directive))
-			switch str_(words.get(0)) {
+			var words []string = sliceImm_(tc_string, Splitter_on(' ').limit(2).splitToList_s(directive))
+			switch sliceAt_(words, 0) {
 			case "use":
 			case "require":
-				this.ensureLibraryInjected(str_(words.get(1)), force)
+				this.ensureLibraryInjected(sliceAt_(words, 1), force)
 			default:
-				panic(new_IllegalStateException_String(("Bad directive: " + sstr_(directive))).self())
+				panic(new_IllegalStateException_String(("Bad directive: " + sstr_(directive))))
 			}
 			node.detach()
 		}
@@ -182,47 +192,70 @@ func (this *RuntimeJsLibManager) getLastInjectedLibrary() Node {
 
 const RuntimeJsLibManager_RUNTIME_LIB_DIR string = "src/com/google/javascript/jscomp/js/"
 
-type RuntimeJsLibManager_RuntimeLibraryMode struct {
-	Enum
+type RuntimeJsLibManager_RuntimeLibraryMode uint8
+
+// RuntimeJsLibManager_RuntimeLibraryMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var RuntimeJsLibManager_RuntimeLibraryMode_enum_ = [5]Enum{
+	{self_: RuntimeJsLibManager_RuntimeLibraryMode_INJECT, name_: "INJECT", ordinal_: 0},
+	{self_: RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, name_: "NO_OP", ordinal_: 1},
+	{self_: RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY, name_: "RECORD_ONLY", ordinal_: 2},
+	{self_: RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, name_: "RECORD_AND_VALIDATE_FIELDS", ordinal_: 3},
+	{self_: RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES, name_: "EXTERN_FIELD_NAMES", ordinal_: 4},
 }
 
-func (this *RuntimeJsLibManager_RuntimeLibraryMode) up_Enum() *Enum {
-	if this == nil {
+func (this RuntimeJsLibManager_RuntimeLibraryMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &RuntimeJsLibManager_RuntimeLibraryMode_enum_[this-1]
 }
 
-func (this *RuntimeJsLibManager_RuntimeLibraryMode) init_RuntimeJsLibManager_RuntimeLibraryMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this RuntimeJsLibManager_RuntimeLibraryMode) name() string {
+	return this.enum_().name_
 }
 
-func new_RuntimeJsLibManager_RuntimeLibraryMode(name_ string, ordinal_ int32) *RuntimeJsLibManager_RuntimeLibraryMode {
-	this := &RuntimeJsLibManager_RuntimeLibraryMode{}
-	this.self_ = this
-	this.init_RuntimeJsLibManager_RuntimeLibraryMode(name_, ordinal_)
+func (this RuntimeJsLibManager_RuntimeLibraryMode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this RuntimeJsLibManager_RuntimeLibraryMode) toString() string {
+	return this.enum_().name_
+}
+
+func (this RuntimeJsLibManager_RuntimeLibraryMode) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this RuntimeJsLibManager_RuntimeLibraryMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func RuntimeJsLibManager_RuntimeLibraryMode_values() []*RuntimeJsLibManager_RuntimeLibraryMode {
-	return append([]*RuntimeJsLibManager_RuntimeLibraryMode(nil), RuntimeJsLibManager_RuntimeLibraryMode_values_...)
+func RuntimeJsLibManager_RuntimeLibraryMode_values() []RuntimeJsLibManager_RuntimeLibraryMode {
+	return append([]RuntimeJsLibManager_RuntimeLibraryMode(nil), RuntimeJsLibManager_RuntimeLibraryMode_values_...)
 }
 
-func RuntimeJsLibManager_RuntimeLibraryMode_valueOf(name string) *RuntimeJsLibManager_RuntimeLibraryMode {
+func RuntimeJsLibManager_RuntimeLibraryMode_valueOf(name string) RuntimeJsLibManager_RuntimeLibraryMode {
 	for _, v := range RuntimeJsLibManager_RuntimeLibraryMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("RuntimeLibraryMode", name))
 }
 
-var RuntimeJsLibManager_RuntimeLibraryMode_INJECT *RuntimeJsLibManager_RuntimeLibraryMode
-var RuntimeJsLibManager_RuntimeLibraryMode_NO_OP *RuntimeJsLibManager_RuntimeLibraryMode
-var RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY *RuntimeJsLibManager_RuntimeLibraryMode
-var RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS *RuntimeJsLibManager_RuntimeLibraryMode
-var RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES *RuntimeJsLibManager_RuntimeLibraryMode
-var RuntimeJsLibManager_RuntimeLibraryMode_values_ []*RuntimeJsLibManager_RuntimeLibraryMode
+const RuntimeJsLibManager_RuntimeLibraryMode_INJECT RuntimeJsLibManager_RuntimeLibraryMode = 1
+const RuntimeJsLibManager_RuntimeLibraryMode_NO_OP RuntimeJsLibManager_RuntimeLibraryMode = 2
+const RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY RuntimeJsLibManager_RuntimeLibraryMode = 3
+const RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS RuntimeJsLibManager_RuntimeLibraryMode = 4
+const RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES RuntimeJsLibManager_RuntimeLibraryMode = 5
+
+var RuntimeJsLibManager_RuntimeLibraryMode_values_ []RuntimeJsLibManager_RuntimeLibraryMode
 
 var RuntimeJsLibManager_RuntimeLibraryMode_clinit_done bool
 
@@ -231,27 +264,12 @@ func RuntimeJsLibManager_RuntimeLibraryMode_clinit() {
 		return
 	}
 	RuntimeJsLibManager_RuntimeLibraryMode_clinit_done = true
-	RuntimeJsLibManager_RuntimeLibraryMode_INJECT = new_RuntimeJsLibManager_RuntimeLibraryMode("INJECT", 0)
-	RuntimeJsLibManager_RuntimeLibraryMode_NO_OP = new_RuntimeJsLibManager_RuntimeLibraryMode("NO_OP", 1)
-	RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY = new_RuntimeJsLibManager_RuntimeLibraryMode("RECORD_ONLY", 2)
-	RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS = new_RuntimeJsLibManager_RuntimeLibraryMode("RECORD_AND_VALIDATE_FIELDS", 3)
-	RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES = new_RuntimeJsLibManager_RuntimeLibraryMode("EXTERN_FIELD_NAMES", 4)
-	RuntimeJsLibManager_RuntimeLibraryMode_values_ = []*RuntimeJsLibManager_RuntimeLibraryMode{RuntimeJsLibManager_RuntimeLibraryMode_INJECT, RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES}
+	RuntimeJsLibManager_RuntimeLibraryMode_values_ = []RuntimeJsLibManager_RuntimeLibraryMode{RuntimeJsLibManager_RuntimeLibraryMode_INJECT, RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES}
 	registerEnum_("com.google.javascript.jscomp.js.RuntimeJsLibManager.RuntimeLibraryMode", enumValues_(RuntimeJsLibManager_RuntimeLibraryMode_values_))
 
 }
 
-type RuntimeJsLibManager_ResourceProvider interface {
-	parse(string, string) Node
-}
-
-type RuntimeJsLibManager_ResourceProvider_fn struct {
-	f func(string, string) Node
-}
-
-func (this *RuntimeJsLibManager_ResourceProvider_fn) parse(p0 string, p1 string) Node {
-	return this.f(p0, p1)
-}
+type RuntimeJsLibManager_ResourceProvider = *funcObj_[func(string, string) Node]
 
 type RuntimeJsLibManager_FieldsTable struct {
 }
@@ -266,22 +284,22 @@ func new_RuntimeJsLibManager_FieldsTable() *RuntimeJsLibManager_FieldsTable {
 	return this
 }
 
-func RuntimeJsLibManager_FieldsTable_loadFields() ImmutableMapOf[string, string] {
+func RuntimeJsLibManager_FieldsTable_loadFields() *ImmutableMap[string, string] {
 	var transpilationLibsTxt string = ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/transpilation_libs.txt"))
-	var allFields ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_1 := foreach_(any(Splitter_on('\n').omitEmptyStrings().split(strobj_(transpilationLibsTxt))))
-	for it_1.next() {
-		var line string = str_(it_1.v)
-		var tokens ListOf[string] = Splitter_on(',').limit(2).splitToList(strobj_(line))
-		Preconditions_checkState_boolean_Object((tokens.size() == 2), any(tokens))
-		var fieldName string = str_(tokens.get(0))
-		var resourcePath string = str_(tokens.get(1))
-		allFields.put(strobj_(fieldName), strobj_(resourcePath))
+	var allFields *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
+	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt), str_) {
+		var tokens []string = sliceImm_(tc_string, Splitter_on(',').limit(2).splitToList_s(line))
+		if int32(len(tokens)) != 2 {
+			panic(new_IllegalStateException_String(objstr_(sliceView_(tc_string, tokens))))
+		}
+		var fieldName string = sliceAt_(tokens, 0)
+		var resourcePath string = sliceAt_(tokens, 1)
+		allFields.put(fieldName, resourcePath)
 	}
 	return allFields.buildOrThrow()
 }
 
-var RuntimeJsLibManager_FieldsTable_INSTANCE *ImmutableMap
+var RuntimeJsLibManager_FieldsTable_INSTANCE *ImmutableMap[string, string]
 
 var RuntimeJsLibManager_FieldsTable_clinit_done bool
 
@@ -339,9 +357,11 @@ func (this *RuntimeJsLibManager_InternalField) assertInjected() RuntimeJsLibMana
 	switch this.outer_.mode_ {
 	case RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY:
 	case RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_INJECT, RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES:
-		Preconditions_checkState_boolean_String_Object(this.injected, "Field %s is not injected", strobj_(this.uncompiledNameField))
+		if !this.injected {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Field %s is not injected", []any{strobj_(this.uncompiledNameField)})))
+		}
 	}
-	return icast_RuntimeJsLibManager_InjectedJsLibField(any(this))
+	return this
 }
 
 func (this *RuntimeJsLibManager_InternalField) matches(node Node) bool {

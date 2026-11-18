@@ -8,19 +8,19 @@ type ScriptNodeDeserializer struct {
 	sourceMappingURL Optional[string]
 	colorPoolShard   Optional_baseOf[*ColorPool_ShardView]
 	stringPool       *StringPool
-	filePool         ImmutableListOf[*SourceFile_jscomp]
+	filePool         []*SourceFile_jscomp
 }
 
-func (this *ScriptNodeDeserializer) init_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard Optional_baseOf[*ColorPool_ShardView], filePool ImmutableListOf[*SourceFile_jscomp]) {
+func (this *ScriptNodeDeserializer) init_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard Optional_baseOf[*ColorPool_ShardView], filePool []*SourceFile_jscomp) {
 	this.scriptBytes = ast.getScript()
-	this.sourceFile = cast_[*SourceFile_jscomp](filePool.get((ast.getSourceFile() - 1)))
+	this.sourceFile = sliceAt_(filePool, (ast.getSourceFile() - 1))
 	this.sourceMappingURL = Optional_ofNullable[string](ast.getSourceMappingUrl())
 	this.colorPoolShard = colorPoolShard
 	this.stringPool = stringPool
 	this.filePool = filePool
 }
 
-func new_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard Optional_baseOf[*ColorPool_ShardView], filePool ImmutableListOf[*SourceFile_jscomp]) *ScriptNodeDeserializer {
+func new_ScriptNodeDeserializer(ast *LazyAst, stringPool *StringPool, colorPoolShard Optional_baseOf[*ColorPool_ShardView], filePool []*SourceFile_jscomp) *ScriptNodeDeserializer {
 	this := &ScriptNodeDeserializer{}
 	this.init_ScriptNodeDeserializer(ast, stringPool, colorPoolShard, filePool)
 	return this
@@ -50,13 +50,13 @@ func (this *ScriptNodeDeserializer) setOriginalNameIfPresent(astNode *AstNode, n
 	}
 }
 
-func (this *ScriptNodeDeserializer) stringNode(token *Token_rhino, n *AstNode, templateNode Node) Node {
+func (this *ScriptNodeDeserializer) stringNode(token Token_rhino, n *AstNode, templateNode Node) Node {
 	var str Node = Node_newString_Token_LazyInternedStringList_int(token, this.stringPool.getInternedStrings(), n.getStringValuePointer())
 	str.clonePropsFrom(templateNode)
 	return str
 }
 
-func (this *ScriptNodeDeserializer) newNodeFromTemplate(token *Token_rhino, templateNode Node) Node {
+func (this *ScriptNodeDeserializer) newNodeFromTemplate(token Token_rhino, templateNode Node) Node {
 	var n Node = templateNode.cloneTree()
 	n.setToken(token)
 	return n
@@ -334,13 +334,13 @@ func (this *ScriptNodeDeserializer) deserializeSingleNode(n *AstNode, templateNo
 		return this.newNodeFromTemplate(Token_rhino_DEFAULT_VALUE, templateNode)
 	case NodeKind_RENAMABLE_GETTER_DEF, NodeKind_QUOTED_GETTER_DEF:
 		var getterDef Node = this.stringNode(Token_rhino_GETTER_DEF, n, templateNode)
-		if Object_equals(obj_(n.getKind()), obj_(NodeKind_QUOTED_GETTER_DEF)) {
+		if equalsId_(n.getKind(), NodeKind_QUOTED_GETTER_DEF) {
 			getterDef.setQuotedStringKey()
 		}
 		return getterDef
 	case NodeKind_RENAMABLE_SETTER_DEF, NodeKind_QUOTED_SETTER_DEF:
 		var setterDef Node = this.stringNode(Token_rhino_SETTER_DEF, n, templateNode)
-		if Object_equals(obj_(n.getKind()), obj_(NodeKind_QUOTED_SETTER_DEF)) {
+		if equalsId_(n.getKind(), NodeKind_QUOTED_SETTER_DEF) {
 			setterDef.setQuotedStringKey()
 		}
 		return setterDef
@@ -366,7 +366,7 @@ func (this *ScriptNodeDeserializer) deserializeSingleNode(n *AstNode, templateNo
 		return this.newNodeFromTemplate(Token_rhino_OBJECT_SPREAD, templateNode)
 	case NodeKind_NODE_KIND_UNSPECIFIED, NodeKind_UNRECOGNIZED:
 	}
-	panic(new_IllegalStateException_String(("Unexpected serialized kind for AstNode: " + objstr_(obj_(n)))).self())
+	panic(new_IllegalStateException_String(("Unexpected serialized kind for AstNode: " + tostr_(n))))
 }
 
 func (this *ScriptNodeDeserializer) filterOutCastProp(nodeProperties int64) int64 {
@@ -400,43 +400,33 @@ func new_ScriptNodeDeserializer_Runner(outer_ *ScriptNodeDeserializer) *ScriptNo
 	return this
 }
 
-func (this *ScriptNodeDeserializer_Runner) run() Node {
-	var ret_1 Node
-	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_IOException(ex_) {
-					var ex *IOException = to_IOException(ex_)
-					panic(obj_(new_MalformedTypedAstException_Object_Throwable(obj_(this.owner().sourceFile), ex.up_Throwable())))
-					return
-				}
-				panic(r_)
+func (this *ScriptNodeDeserializer_Runner) run() (ret_1 Node) {
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if p, ok := ex_.(IOException_as); ok {
+				var ex *IOException = p.as_IOException()
+				panic(new_MalformedTypedAstException_Object_Throwable(obj_(this.owner().sourceFile), ex.up_Throwable()))
 			}
-		}()
-		var astStream *CodedInputStream = this.owner().scriptBytes.newCodedInput()
-		astStream.setRecursionLimit(int32(2147483647))
-		var contextStack *JTList[*FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
-		SequencedCollection_addLast(SequencedCollection(contextStack.asList()), obj_(FeatureCollector_FeatureContext_NONE))
-		var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), contextStack, this.owner().createSourceInfoTemplate(this.owner().sourceFile))
-		scriptNode.setFeatureSet(obj_(this.featureCollector.allFeatures()))
-		ret_1 = scriptNode
-		return 1
-		return 0
+			panic(r_)
+		}
 	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	var astStream *CodedInputStream = this.owner().scriptBytes.newCodedInput()
+	astStream.setRecursionLimit(int32(2147483647))
+	var contextStack *JTList[FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
+	SequencedCollection_addLast(SequencedCollection(contextStack.asList()), obj_(FeatureCollector_FeatureContext_NONE))
+	var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), contextStack, this.owner().createSourceInfoTemplate(this.owner().sourceFile))
+	scriptNode.setFeatureSet(this.featureCollector.allFeatures())
+	return scriptNode
 }
 
 func (this *ScriptNodeDeserializer_Runner) owner() *ScriptNodeDeserializer {
 	return this.outer_
 }
 
-func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *JTList[*FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
+func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *JTList[FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
 	if (sourceFileTemplate == 0) || (astNode.getSourceFile() != 0) {
-		sourceFileTemplate = this.owner().createSourceInfoTemplate(cast_[*SourceFile_jscomp](this.owner().filePool.get((astNode.getSourceFile() - 1))))
+		sourceFileTemplate = this.owner().createSourceInfoTemplate(sliceAt_(this.owner().filePool, (astNode.getSourceFile() - 1)))
 	}
 	var currentLine int32 = (this.previousLine + astNode.getRelativeLine())
 	var currentColumn int32 = (this.previousColumn + astNode.getRelativeColumn())

@@ -17,17 +17,13 @@ func new_InferConsts(compiler *AbstractCompiler) *InferConsts {
 }
 
 func (this *InferConsts) process_2(externs Node, js Node) {
-	var collector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_DO_NOTHING_BEHAVIOR, icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))))
+	var collector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_DO_NOTHING_BEHAVIOR, new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))
 	collector.process(js)
-	it_1 := foreach_(any(collector.getAllSymbols()))
-	for it_1.next() {
-		var v *Var = cast_[*Var](it_1.v)
+	for v := range elemsAs_[*Var](collector.getAllSymbols()) {
 		this.considerVar(v, collector.getReferences_Var(v))
 	}
 	var globalExternsScope *Scope = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScope(externs, nil)
-	it_3 := foreach_(any(globalExternsScope.getAllSymbols()))
-	for it_3.next() {
-		var v *Var = cast_[*Var](it_3.v)
+	for v := range elemsAs_[*Var](globalExternsScope.getAllSymbols()) {
 		this.considerVar(v, nil)
 	}
 }
@@ -56,7 +52,7 @@ func InferConsts_isInferredConst(v *Var, refCollection *ReferenceCollection) boo
 	if v.isImplicitGoogNamespace() {
 		return false
 	}
-	var declarationType *Token_rhino = v.declarationType()
+	var declarationType Token_rhino = v.declarationType()
 	return func() bool {
 		switch declarationType {
 		case Token_rhino_LET:
@@ -68,8 +64,7 @@ func InferConsts_isInferredConst(v *Var, refCollection *ReferenceCollection) boo
 		case Token_rhino_VAR:
 			return (refCollection.firstReferenceIsAssigningDeclaration() && refCollection.isWellDefined())
 		default:
-			panic(new_IllegalStateException_String(("Unrecognized declaration type " + objstr_(obj_(declarationType)))).self())
+			panic(new_IllegalStateException_String(("Unrecognized declaration type " + tostr_(declarationType))))
 		}
-		panic("unreachable")
 	}()
 }

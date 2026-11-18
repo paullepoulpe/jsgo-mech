@@ -17,7 +17,7 @@ func new_CheckNestedNames(compiler *AbstractCompiler) *CheckNestedNames {
 }
 
 func (this *CheckNestedNames) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckNestedNames) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
@@ -28,7 +28,9 @@ func (this *CheckNestedNames) shouldTraverse(nodeTraversal *NodeTraversal, n Nod
 }
 
 func (this *CheckNestedNames) visit(t *NodeTraversal, n Node, parent Node) {
-	Preconditions_checkArgument(t.inGlobalOrModuleScope())
+	if !t.inGlobalOrModuleScope() {
+		panic(new_IllegalArgumentException_0())
+	}
 	if !n.isGetProp() || !n.isQualifiedName() {
 		return
 	}
@@ -39,16 +41,18 @@ func (this *CheckNestedNames) visit(t *NodeTraversal, n Node, parent Node) {
 			return
 		}
 		var ownerName string = owner.getString()
-		var declarationKind *CheckNestedNames_DeclarationKind = this.getNestedDeclarationKind(n, parent)
-		if CheckNestedNames_NESTED_KIND_TO_REPORT.containsKey(obj_(declarationKind)) {
-			var nestedKind string = str_(CheckNestedNames_NESTED_KIND_TO_REPORT.get(obj_(declarationKind)))
+		var declarationKind CheckNestedNames_DeclarationKind = this.getNestedDeclarationKind(n, parent)
+		if CheckNestedNames_NESTED_KIND_TO_REPORT.Has(declarationKind) {
+			var nestedKind string = CheckNestedNames_NESTED_KIND_TO_REPORT.Get(declarationKind)
 			t.report(targetGetProp, CheckNestedNames_NESTED_NAME_IN_GOOG_MODULE, []string{nestedKind, ownerName})
 		}
 	}
 }
 
 func CheckNestedNames_getTargetGetProp(n Node) Node {
-	Preconditions_checkArgument_boolean_Object(n.isGetProp(), n.box_())
+	if !n.isGetProp() {
+		panic(new_IllegalArgumentException_String(tostr_(n)))
+	}
 	if n.getFirstChild().isGetProp() {
 		return CheckNestedNames_getTargetGetProp(n.getFirstChild())
 	}
@@ -59,8 +63,10 @@ func CheckNestedNames_isDotPrototype(getProp Node) bool {
 	return (getProp.isGetProp() && (getProp.getString() == "prototype"))
 }
 
-func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) *CheckNestedNames_DeclarationKind {
-	Preconditions_checkArgument_boolean_Object(lhs.isFirstChildOf(parent), lhs.box_())
+func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) CheckNestedNames_DeclarationKind {
+	if !lhs.isFirstChildOf(parent) {
+		panic(new_IllegalArgumentException_String(tostr_(lhs)))
+	}
 	if lhs.getTypedefTypeProp() != nil {
 		return CheckNestedNames_DeclarationKind_TYPEDEF
 	}
@@ -74,11 +80,11 @@ func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) *C
 			return CheckNestedNames_DeclarationKind_CLASS
 		}
 	}
-	return nil
+	return 0
 }
 
 var CheckNestedNames_NESTED_NAME_IN_GOOG_MODULE *DiagnosticType
-var CheckNestedNames_NESTED_KIND_TO_REPORT *ImmutableMap
+var CheckNestedNames_NESTED_KIND_TO_REPORT *ImmutableMap[CheckNestedNames_DeclarationKind, string]
 
 var CheckNestedNames_clinit_done bool
 
@@ -88,50 +94,72 @@ func CheckNestedNames_clinit() {
 	}
 	CheckNestedNames_clinit_done = true
 	CheckNestedNames_NESTED_NAME_IN_GOOG_MODULE = DiagnosticType_disabled("JSC_NESTED_NAME_IN_GOOG_MODULE", "A nested {0} is created on the name `{1}`. Fix this linter finding by converting the module-level static property assignment on `{1}` into a module-level flat name (i.e. change `{1}.prop = ...` into `{1}_prop = ...`. You can (if required) export this flat name using named exports (`exports.{1}_prop = {1}_prop`).")
-	CheckNestedNames_NESTED_KIND_TO_REPORT = ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object(obj_(CheckNestedNames_DeclarationKind_CLASS), strobj_("class"), obj_(CheckNestedNames_DeclarationKind_ENUM), strobj_("enum"), obj_(CheckNestedNames_DeclarationKind_INTERFACE), strobj_("interface"), obj_(CheckNestedNames_DeclarationKind_TYPEDEF), strobj_("typedef"))
+	CheckNestedNames_NESTED_KIND_TO_REPORT = immutableMapOf_(tc_CheckNestedNames_DeclarationKind, tc_string, []CheckNestedNames_DeclarationKind{CheckNestedNames_DeclarationKind_CLASS, CheckNestedNames_DeclarationKind_ENUM, CheckNestedNames_DeclarationKind_INTERFACE, CheckNestedNames_DeclarationKind_TYPEDEF}, []string{"class", "enum", "interface", "typedef"})
 
 }
 
-type CheckNestedNames_DeclarationKind struct {
-	Enum
+type CheckNestedNames_DeclarationKind uint8
+
+// CheckNestedNames_DeclarationKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CheckNestedNames_DeclarationKind_enum_ = [4]Enum{
+	{self_: CheckNestedNames_DeclarationKind_CLASS, name_: "CLASS", ordinal_: 0},
+	{self_: CheckNestedNames_DeclarationKind_ENUM, name_: "ENUM", ordinal_: 1},
+	{self_: CheckNestedNames_DeclarationKind_TYPEDEF, name_: "TYPEDEF", ordinal_: 2},
+	{self_: CheckNestedNames_DeclarationKind_INTERFACE, name_: "INTERFACE", ordinal_: 3},
 }
 
-func (this *CheckNestedNames_DeclarationKind) up_Enum() *Enum {
-	if this == nil {
+func (this CheckNestedNames_DeclarationKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CheckNestedNames_DeclarationKind_enum_[this-1]
 }
 
-func (this *CheckNestedNames_DeclarationKind) init_CheckNestedNames_DeclarationKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CheckNestedNames_DeclarationKind) name() string {
+	return this.enum_().name_
 }
 
-func new_CheckNestedNames_DeclarationKind(name_ string, ordinal_ int32) *CheckNestedNames_DeclarationKind {
-	this := &CheckNestedNames_DeclarationKind{}
-	this.self_ = this
-	this.init_CheckNestedNames_DeclarationKind(name_, ordinal_)
+func (this CheckNestedNames_DeclarationKind) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this CheckNestedNames_DeclarationKind) toString() string {
+	return this.enum_().name_
+}
+
+func (this CheckNestedNames_DeclarationKind) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this CheckNestedNames_DeclarationKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CheckNestedNames_DeclarationKind_values() []*CheckNestedNames_DeclarationKind {
-	return append([]*CheckNestedNames_DeclarationKind(nil), CheckNestedNames_DeclarationKind_values_...)
+func CheckNestedNames_DeclarationKind_values() []CheckNestedNames_DeclarationKind {
+	return append([]CheckNestedNames_DeclarationKind(nil), CheckNestedNames_DeclarationKind_values_...)
 }
 
-func CheckNestedNames_DeclarationKind_valueOf(name string) *CheckNestedNames_DeclarationKind {
+func CheckNestedNames_DeclarationKind_valueOf(name string) CheckNestedNames_DeclarationKind {
 	for _, v := range CheckNestedNames_DeclarationKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("DeclarationKind", name))
 }
 
-var CheckNestedNames_DeclarationKind_CLASS *CheckNestedNames_DeclarationKind
-var CheckNestedNames_DeclarationKind_ENUM *CheckNestedNames_DeclarationKind
-var CheckNestedNames_DeclarationKind_TYPEDEF *CheckNestedNames_DeclarationKind
-var CheckNestedNames_DeclarationKind_INTERFACE *CheckNestedNames_DeclarationKind
-var CheckNestedNames_DeclarationKind_values_ []*CheckNestedNames_DeclarationKind
+const CheckNestedNames_DeclarationKind_CLASS CheckNestedNames_DeclarationKind = 1
+const CheckNestedNames_DeclarationKind_ENUM CheckNestedNames_DeclarationKind = 2
+const CheckNestedNames_DeclarationKind_TYPEDEF CheckNestedNames_DeclarationKind = 3
+const CheckNestedNames_DeclarationKind_INTERFACE CheckNestedNames_DeclarationKind = 4
+
+var CheckNestedNames_DeclarationKind_values_ []CheckNestedNames_DeclarationKind
 
 var CheckNestedNames_DeclarationKind_clinit_done bool
 
@@ -140,11 +168,7 @@ func CheckNestedNames_DeclarationKind_clinit() {
 		return
 	}
 	CheckNestedNames_DeclarationKind_clinit_done = true
-	CheckNestedNames_DeclarationKind_CLASS = new_CheckNestedNames_DeclarationKind("CLASS", 0)
-	CheckNestedNames_DeclarationKind_ENUM = new_CheckNestedNames_DeclarationKind("ENUM", 1)
-	CheckNestedNames_DeclarationKind_TYPEDEF = new_CheckNestedNames_DeclarationKind("TYPEDEF", 2)
-	CheckNestedNames_DeclarationKind_INTERFACE = new_CheckNestedNames_DeclarationKind("INTERFACE", 3)
-	CheckNestedNames_DeclarationKind_values_ = []*CheckNestedNames_DeclarationKind{CheckNestedNames_DeclarationKind_CLASS, CheckNestedNames_DeclarationKind_ENUM, CheckNestedNames_DeclarationKind_TYPEDEF, CheckNestedNames_DeclarationKind_INTERFACE}
+	CheckNestedNames_DeclarationKind_values_ = []CheckNestedNames_DeclarationKind{CheckNestedNames_DeclarationKind_CLASS, CheckNestedNames_DeclarationKind_ENUM, CheckNestedNames_DeclarationKind_TYPEDEF, CheckNestedNames_DeclarationKind_INTERFACE}
 	registerEnum_("com.google.javascript.jscomp.lint.CheckNestedNames.DeclarationKind", enumValues_(CheckNestedNames_DeclarationKind_values_))
 
 }

@@ -9,11 +9,6 @@ type GraphReachability[N any, E any] struct {
 
 func (this *GraphReachability[N, E]) isa_GraphReachability_() {}
 
-func is_GraphReachability(v any) bool {
-	_, ok := v.(interface{ isa_GraphReachability_() })
-	return ok
-}
-
 func (this *GraphReachability[N, E]) init_GraphReachability_DiGraph(graph *DiGraph[N]) {
 	this.init_GraphReachability_DiGraph_Predicate(graph, nil)
 }
@@ -37,7 +32,7 @@ func new_GraphReachability_DiGraph_Predicate[N any, E any](graph *DiGraph[N], ed
 
 func (this *GraphReachability[N, E]) compute(entry N) {
 	this.graph.clearNodeAnnotations()
-	cast_[DiGraph_DiGraphNode[N]](this.graph.getNode(entry)).setAnnotation(GraphReachability_REACHABLE)
+	this.graph.getNode(entry).(DiGraph_DiGraphNode[N]).setAnnotation(GraphReachability_REACHABLE)
 	FixedPointGraphTraversal_newTraversal[N, E](func() FixedPointGraphTraversal_EdgeCallback[N, E] {
 		if v := this; v != nil {
 			return v
@@ -48,7 +43,9 @@ func (this *GraphReachability[N, E]) compute(entry N) {
 
 func (this *GraphReachability[N, E]) recompute(reachableNode N) {
 	var newReachable GraphNode[N] = this.graph.getNode(reachableNode)
-	Preconditions_checkState((Annotatable_getAnnotation(Annotatable(newReachable)) != GraphReachability_REACHABLE))
+	if Annotatable_getAnnotation(Annotatable(newReachable)) == GraphReachability_REACHABLE {
+		panic(new_IllegalStateException_0())
+	}
 	newReachable.setAnnotation(GraphReachability_REACHABLE)
 	FixedPointGraphTraversal_newTraversal[N, E](func() FixedPointGraphTraversal_EdgeCallback[N, E] {
 		if v := this; v != nil {
@@ -78,7 +75,7 @@ func GraphReachability_clinit() {
 		return
 	}
 	GraphReachability_clinit_done = true
-	GraphReachability_REACHABLE = icast_Annotation_graph(obj_(new_GraphReachability_1()))
+	GraphReachability_REACHABLE = new_GraphReachability_1()
 
 }
 
@@ -88,11 +85,6 @@ type GraphReachability_EdgeTuple[N any, E any] struct {
 }
 
 func (this *GraphReachability_EdgeTuple[N, E]) isa_GraphReachability_EdgeTuple_() {}
-
-func is_GraphReachability_EdgeTuple(v any) bool {
-	_, ok := v.(interface{ isa_GraphReachability_EdgeTuple_() })
-	return ok
-}
 
 func (this *GraphReachability_EdgeTuple[N, E]) zero_GraphReachability_EdgeTuple() {
 	this.sourceNode_ = jnull_[N]()

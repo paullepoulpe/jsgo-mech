@@ -4,21 +4,21 @@ package closure
 
 type InlineSimpleMethods struct {
 	nonInlineableProperties *JTSet[string]
-	methodDefinitions       *SimpleSetMultimap
+	methodDefinitions       *SimpleSetMultimap[any, Node]
 	compiler_               *AbstractCompiler
 	astAnalyzer             *AstAnalyzer
 }
 
 func (this *InlineSimpleMethods) finit_InlineSimpleMethods() {
 	this.nonInlineableProperties = jnewTSet_(jtc_string)
-	this.methodDefinitions = SimpleSetMultimap_createInsertionOrdered()
+	this.methodDefinitions = SimpleSetMultimap_createInsertionOrdered[any, Node]()
 }
 
 func (this *InlineSimpleMethods) init_InlineSimpleMethods(compiler *AbstractCompiler) {
 	this.finit_InlineSimpleMethods()
 	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
-	this.nonInlineableProperties.asSet().addAll(icast_Collection(obj_(compiler.getExternProperties())))
+	this.nonInlineableProperties.asSet().addAll(icast_Collection(obj_(compiler.getExternProperties().asImm())))
 }
 
 func new_InlineSimpleMethods(compiler *AbstractCompiler) *InlineSimpleMethods {
@@ -28,11 +28,17 @@ func new_InlineSimpleMethods(compiler *AbstractCompiler) *InlineSimpleMethods {
 }
 
 func (this *InlineSimpleMethods) process_2(externs Node, root Node) {
-	Preconditions_checkState_boolean_Object(this.compiler_.getLifeCycleStage().isNormalized(), obj_(this.compiler_.getLifeCycleStage()))
-	Preconditions_checkState(this.methodDefinitions.isEmpty())
-	Preconditions_checkState((externs != 0))
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_InlineSimpleMethods_GatherSignatures(this))), externs, root)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_InlineSimpleMethods_InlineTrivialAccessors(this))))
+	if ok_, a1_ := this.compiler_.getLifeCycleStage().isNormalized(), this.compiler_.getLifeCycleStage(); !ok_ {
+		panic(new_IllegalStateException_String(tostr_(a1_)))
+	}
+	if !this.methodDefinitions.isEmpty() {
+		panic(new_IllegalStateException_0())
+	}
+	if externs == 0 {
+		panic(new_IllegalStateException_0())
+	}
+	NodeTraversal_traverseRoots(this.compiler_, new_InlineSimpleMethods_GatherSignatures(this), externs, root)
+	NodeTraversal_traverse(this.compiler_, root, new_InlineSimpleMethods_InlineTrivialAccessors(this))
 }
 
 func InlineSimpleMethods_isPropertyTree(expectedGetprop Node) bool {
@@ -73,7 +79,7 @@ func InlineSimpleMethods_isEmptyMethod(fn Node) bool {
 
 func (this *InlineSimpleMethods) allDefinitionsEquivalent(definitions SetOf[Node]) bool {
 	var first Node = 0
-	it_1 := foreach_(any(definitions))
+	it_1 := foreach_(definitions)
 	for it_1.next() {
 		var n Node = Node_of_(it_1.v)
 		if first == 0 {
@@ -86,7 +92,7 @@ func (this *InlineSimpleMethods) allDefinitionsEquivalent(definitions SetOf[Node
 }
 
 func (this *InlineSimpleMethods) anyDefinitionsNotInlineable(definitions SetOf[Node]) bool {
-	it_1 := foreach_(any(definitions))
+	it_1 := foreach_(definitions)
 	for it_1.next() {
 		var n Node = Node_of_(it_1.v)
 		if n.isAsyncFunction() || n.isGeneratorFunction() {
@@ -152,7 +158,7 @@ func (this *InlineSimpleMethods) addSignature(name string, function Node) {
 	if this.nonInlineableProperties.has(name) {
 		return
 	}
-	this.methodDefinitions.put(strobj_(name), function.box_())
+	this.methodDefinitions.put_s(name, function)
 }
 
 func InlineSimpleMethods_getPropName(getPropElem Node) Optional[string] {
@@ -163,7 +169,6 @@ func InlineSimpleMethods_getPropName(getPropElem Node) Optional[string] {
 	} else {
 		return Optional_empty[string]()
 	}
-	panic("unreachable")
 }
 
 type InlineSimpleMethods_InlineTrivialAccessors struct {
@@ -201,7 +206,7 @@ func (this *InlineSimpleMethods_InlineTrivialAccessors) visit_4_impl(t *NodeTrav
 	if this.outer_.nonInlineableProperties.has(callName) {
 		return
 	}
-	var definitions SetOf[Node] = this.outer_.methodDefinitions.get(strobj_(callName))
+	var definitions SetOf[Node] = this.outer_.methodDefinitions.get_s(callName)
 	if (definitions == nil) || definitions.isEmpty() {
 		return
 	}
@@ -213,7 +218,7 @@ func (this *InlineSimpleMethods_InlineTrivialAccessors) visit_4_impl(t *NodeTrav
 		this.outer_.nonInlineableProperties.add(callName)
 		return
 	}
-	var firstDefinition Node = Node_of_(definitions.iterator().next())
+	var firstDefinition Node = Node_of_(first_(definitions))
 	if !this.outer_.argsMayHaveSideEffects(callNode) && !NodeUtil_referencesSuper(callNode) {
 		var returned Node = InlineSimpleMethods_returnedExpression(firstDefinition)
 		if returned != 0 {
@@ -270,14 +275,14 @@ func (this *InlineSimpleMethods_GatherSignatures) visit_impl(t *NodeTraversal, n
 		{
 			var key Node = n.getFirstChild()
 			for ; key != 0; key = key.getNext() {
-				switch key.getToken() {
-				case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_STRING_KEY:
+				switch key.ns_().token {
+				case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_STRING_KEY:
 					this.outer_.addPossibleSignature(key.getString(), key.getFirstChild())
-				case Token_rhino_SETTER_DEF, Token_rhino_GETTER_DEF:
+				case tokOrd1_SETTER_DEF, tokOrd1_GETTER_DEF:
 					this.outer_.nonInlineableProperties.add(key.getString())
-				case Token_rhino_COMPUTED_PROP, Token_rhino_OBJECT_SPREAD, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_BLOCK:
+				case tokOrd1_COMPUTED_PROP, tokOrd1_OBJECT_SPREAD, tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_BLOCK:
 				default:
-					panic(new_IllegalStateException_String(("Unexpected " + objstr_(obj_(n.getToken())) + " key: " + objstr_(key.box_()))).self())
+					panic(new_IllegalStateException_String(("Unexpected " + tostr_(n.getToken()) + " key: " + tostr_(key))))
 				}
 			}
 		}
@@ -290,8 +295,8 @@ func (this *InlineSimpleMethods_GatherSignatures) visit_impl(t *NodeTraversal, n
 }
 
 func (this *InlineSimpleMethods_GatherSignatures) processPrototypeParent(n Node) {
-	switch n.getToken() {
-	case Token_rhino_GETPROP, Token_rhino_GETELEM:
+	switch n.ns_().token {
+	case tokOrd1_GETPROP, tokOrd1_GETELEM:
 		var grandparent Node = n.getGrandparent()
 		var name Optional[string] = InlineSimpleMethods_getPropName(n)
 		if name.isPresent() && grandparent.isAssign() {
@@ -300,4 +305,22 @@ func (this *InlineSimpleMethods_GatherSignatures) processPrototypeParent(n Node)
 		}
 	default:
 	}
+}
+
+// visit_4: an object that is exactly a InlineSimpleMethods_InlineTrivialAccessors calls its visit_4_impl directly (post-flip); others dispatch.
+func (this *InlineSimpleMethods_InlineTrivialAccessors) visit_4(p0 *NodeTraversal, p1 Node, p2 Node, p3 string) {
+	if p, _ := this.self_.(*InlineSimpleMethods_InlineTrivialAccessors); p == this {
+		this.visit_4_impl(p0, p1, p2, p3)
+		return
+	}
+	this.self_.(*InlineSimpleMethods_InlineTrivialAccessors).visit_4_impl(p0, p1, p2, p3)
+}
+
+// visit: an object that is exactly a InlineSimpleMethods_GatherSignatures calls its visit_impl directly (post-flip); others dispatch.
+func (this *InlineSimpleMethods_GatherSignatures) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*InlineSimpleMethods_GatherSignatures); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

@@ -42,7 +42,7 @@ func (this *RecordTypeBuilder) build() *JSType {
 	}
 	var m ImmutableSortedMap_BuilderOf[string, *RecordTypeBuilder_RecordProperty] = ImmutableSortedMap_naturalOrder()
 	m.putAll(this.properties.asMap())
-	return new_RecordType(this.registry, icast_Map(obj_(m.buildOrThrow())), this.isDeclared).up_JSType()
+	return new_RecordType(this.registry, tmapFrom_(tc_string, tc_p_RecordTypeBuilder_RecordProperty, m.buildOrThrow(), true), this.isDeclared).up_JSType()
 }
 
 type RecordTypeBuilder_RecordProperty struct {
@@ -70,5 +70,5 @@ func (this *RecordTypeBuilder_RecordProperty) getPropertyNode() Node {
 }
 
 func (this *RecordTypeBuilder_RecordProperty) toString() string {
-	return ("RecordProperty{type: " + objstr_(this.type__.self()) + ", node: " + objstr_(this.propertyNode.box_()) + "}")
+	return ("RecordProperty{type: " + objstr_(this.type__.self()) + ", node: " + tostr_(this.propertyNode) + "}")
 }

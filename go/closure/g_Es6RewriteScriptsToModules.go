@@ -40,18 +40,28 @@ func (this *Es6RewriteScriptsToModules) process_2(externs Node, root Node) {
 	{
 		var file Node = root.getFirstChild()
 		for ; file != 0; file = file.getNext() {
-			Preconditions_checkArgument(file.isScript())
-			NodeTraversal_traverse(this.compiler_, file, icast_NodeTraversal_Callback(obj_(this)))
+			if !file.isScript() {
+				panic(new_IllegalArgumentException_0())
+			}
+			NodeTraversal_traverse(this.compiler_, file, this)
 		}
 	}
 }
 
 func (this *Es6RewriteScriptsToModules) shouldTraverse_impl(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	if n.isScript() {
-		var moduleType *CompilerInput_ModuleType = this.compiler_.getInput(n.getInputId()).getJsModuleType()
+		var moduleType CompilerInput_ModuleType = this.compiler_.getInput(n.getInputId()).getJsModuleType()
 		if moduleType == CompilerInput_ModuleType_IMPORTED_SCRIPT {
 			this.forceToEs6Module(n)
 		}
 	}
 	return false
+}
+
+// shouldTraverse: an object that is exactly a Es6RewriteScriptsToModules calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *Es6RewriteScriptsToModules) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if p, _ := this.self_.(*Es6RewriteScriptsToModules); p == this {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

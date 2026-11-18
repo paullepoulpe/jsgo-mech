@@ -2,13 +2,15 @@
 
 package closure
 
+import "strings"
+
 type FindModuleDependencies struct {
 	compiler_               *AbstractCompiler
 	supportsEs6Modules      bool
 	supportsCommonJsModules bool
-	moduleType_             *CompilerInput_ModuleType
+	moduleType_             CompilerInput_ModuleType
 	dynamicImportScope      *Scope
-	inputPathByWebpackId    ImmutableMapOf[string, string]
+	inputPathByWebpackId    *ImmutableMap[string, string]
 }
 
 func (this *FindModuleDependencies) finit_FindModuleDependencies() {
@@ -16,7 +18,7 @@ func (this *FindModuleDependencies) finit_FindModuleDependencies() {
 	this.dynamicImportScope = nil
 }
 
-func (this *FindModuleDependencies) init_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId ImmutableMapOf[string, string]) {
+func (this *FindModuleDependencies) init_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId *ImmutableMap[string, string]) {
 	this.finit_FindModuleDependencies()
 	this.compiler_ = compiler
 	this.supportsEs6Modules = supportsEs6Modules
@@ -24,25 +26,27 @@ func (this *FindModuleDependencies) init_FindModuleDependencies(compiler *Abstra
 	this.inputPathByWebpackId = inputPathByWebpackId
 }
 
-func new_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId ImmutableMapOf[string, string]) *FindModuleDependencies {
+func new_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId *ImmutableMap[string, string]) *FindModuleDependencies {
 	this := &FindModuleDependencies{}
 	this.init_FindModuleDependencies(compiler, supportsEs6Modules, supportsCommonJsModules, inputPathByWebpackId)
 	return this
 }
 
 func (this *FindModuleDependencies) process(root Node) {
-	Preconditions_checkArgument(root.isScript())
+	if !root.isScript() {
+		panic(new_IllegalArgumentException_0())
+	}
 	if Es6RewriteModules_isEs6ModuleRoot(root) {
 		this.moduleType_ = CompilerInput_ModuleType_ES6
 	}
 	var input *CompilerInput = this.compiler_.getInput(root.getInputId())
-	if input.getRequires().contains(obj_(DependencyInfo_Require_BASE)) {
+	if input.getRequires().asImm().contains(obj_(DependencyInfo_Require_BASE)) {
 		input.addOrderedRequire(DependencyInfo_Require_BASE)
 	}
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	if this.moduleType_ == CompilerInput_ModuleType_ES6 {
 		this.convertToEs6Module(root, true)
-	} else if ((this.moduleType_ == CompilerInput_ModuleType_NONE) && (this.inputPathByWebpackId != nil)) && this.inputPathByWebpackId.containsValue(strobj_(input.getPath().toString())) {
+	} else if ((this.moduleType_ == CompilerInput_ModuleType_NONE) && (this.inputPathByWebpackId != nil)) && this.inputPathByWebpackId.asImm().containsValue(strobj_(input.getPath().toString())) {
 		this.moduleType_ = CompilerInput_ModuleType_IMPORTED_SCRIPT
 	}
 	input.addProvide(input.getPath().toModuleName())
@@ -60,7 +64,7 @@ func (this *FindModuleDependencies) shouldTraverse(t *NodeTraversal, n Node, par
 }
 
 func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node) {
-	var resolutionMode *ModuleLoader_ResolutionMode = this.compiler_.getOptions().getModuleResolutionMode()
+	var resolutionMode ModuleLoader_ResolutionMode = this.compiler_.getOptions().getModuleResolutionMode()
 	if NodeUtil_isShallowStatementTree(parent) {
 		if n.isExprResult() {
 			var maybeGetProp Node = n.getFirstFirstChild()
@@ -82,7 +86,7 @@ func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node)
 	} else if this.supportsEs6Modules && n.isImport() {
 		this.moduleType_ = CompilerInput_ModuleType_ES6
 		this.addEs6ModuleImportToGraph(t, n)
-	} else if (this.supportsEs6Modules && (n.getToken() == Token_rhino_DYNAMIC_IMPORT)) && n.getFirstChild().isString() {
+	} else if (this.supportsEs6Modules && (n.ns_().token == tokOrd1_DYNAMIC_IMPORT)) && n.getFirstChild().isString() {
 		var path string = n.getFirstChild().getString()
 		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModuleSilently(path)
 		if modulePath != nil {
@@ -94,7 +98,7 @@ func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node)
 		} else if ProcessCommonJSModules_isCommonJsImport(n, resolutionMode) {
 			var path string = ProcessCommonJSModules_getCommonJsImportPath(n, resolutionMode)
 			var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(path, Optional_of[string](n.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			}}), n.getLineno(), n.getCharno())
 			if modulePath != nil {
 				if (this.dynamicImportScope != nil) || ProcessCommonJSModules_isCommonJsDynamicImportCallback(NodeUtil_getEnclosingFunction(n), resolutionMode) {
@@ -107,7 +111,7 @@ func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node)
 	}
 	if ((((parent != 0) && (parent.isExprResult() || !t.inGlobalHoistScope())) && NodeUtil_isGoogRequireCall(n)) && (n.getSecondChild() != 0)) && n.getSecondChild().isStringLit() {
 		var namespace string = n.getSecondChild().getString()
-		if String_startsWith(namespace, "goog.") {
+		if strings.HasPrefix(namespace, "goog.") {
 			t.getInput().addOrderedRequire(DependencyInfo_Require_BASE)
 		}
 		t.getInput().addOrderedRequire(DependencyInfo_Require_googRequireSymbol(namespace))
@@ -126,7 +130,7 @@ func (this *FindModuleDependencies) exitScope(t *NodeTraversal) {
 
 func (this *FindModuleDependencies) addEs6ModuleImportToGraph(t *NodeTraversal, n Node) {
 	var moduleName string = this.getEs6ModuleNameFromImportNode(t, n)
-	if String_startsWith(moduleName, "goog.") {
+	if strings.HasPrefix(moduleName, "goog.") {
 		t.getInput().addOrderedRequire(DependencyInfo_Require_BASE)
 	}
 	t.getInput().addOrderedRequire(DependencyInfo_Require_es6Import(moduleName, n.getLastChild().getString()))
@@ -134,19 +138,18 @@ func (this *FindModuleDependencies) addEs6ModuleImportToGraph(t *NodeTraversal, 
 
 func (this *FindModuleDependencies) getEs6ModuleNameFromImportNode(t *NodeTraversal, n Node) string {
 	var importName string = n.getLastChild().getString()
-	var isNamespaceImport bool = String_startsWith(importName, "goog:")
+	var isNamespaceImport bool = strings.HasPrefix(importName, "goog:")
 	if isNamespaceImport {
-		return String_substring_int(importName, String_length("goog:"))
+		return importName[len("goog:"):]
 	} else {
 		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of[string](n.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}}), n.getLineno(), n.getCharno())
 		if modulePath == nil {
 			modulePath = t.getInput().getPath().resolveModuleAsPath(importName)
 		}
 		return modulePath.toModuleName()
 	}
-	panic("unreachable")
 }
 
 func (this *FindModuleDependencies) convertToEs6Module(root Node, skipGoogProvideModuleCheck bool) bool {
@@ -155,7 +158,7 @@ func (this *FindModuleDependencies) convertToEs6Module(root Node, skipGoogProvid
 	}
 	if !skipGoogProvideModuleCheck {
 		var finder *FindModuleDependencies_FindGoogProvideOrGoogModule = new_FindModuleDependencies_FindGoogProvideOrGoogModule()
-		NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(finder)))
+		NodeTraversal_traverse(this.compiler_, root, finder)
 		if finder.isFound() {
 			return false
 		}
@@ -223,4 +226,12 @@ func (this *FindModuleDependencies_FindGoogProvideOrGoogModule) shouldTraverse_i
 		return true
 	}
 	return false
+}
+
+// shouldTraverse: an object that is exactly a FindModuleDependencies_FindGoogProvideOrGoogModule calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *FindModuleDependencies_FindGoogProvideOrGoogModule) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if p, _ := this.self_.(*FindModuleDependencies_FindGoogProvideOrGoogModule); p == this {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

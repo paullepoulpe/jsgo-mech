@@ -38,7 +38,9 @@ func (this *PeepholeCollectPropertyAssignments) optimizeSubtree_impl(subtree Nod
 			if !PeepholeCollectPropertyAssignments_isPropertyAssignmentToName(child.getNext()) {
 				continue
 			}
-			Preconditions_checkState(child.hasOneChild())
+			if !child.hasOneChild() {
+				panic(new_IllegalStateException_0())
+			}
 			var name Node = PeepholeCollectPropertyAssignments_getName(child)
 			if !name.isName() {
 				continue
@@ -72,7 +74,7 @@ func PeepholeCollectPropertyAssignments_getName(n Node) Node {
 	} else if NodeUtil_isExprAssign(n) {
 		return n.getFirstFirstChild()
 	}
-	panic(new_IllegalStateException_0().self())
+	panic(new_IllegalStateException_0())
 }
 
 func PeepholeCollectPropertyAssignments_getValue(n Node) Node {
@@ -81,7 +83,7 @@ func PeepholeCollectPropertyAssignments_getValue(n Node) Node {
 	} else if NodeUtil_isExprAssign(n) {
 		return n.getFirstChild().getLastChild()
 	}
-	panic(new_IllegalStateException_0().self())
+	panic(new_IllegalStateException_0())
 }
 
 func PeepholeCollectPropertyAssignments_isInterestingValue(n Node) bool {
@@ -119,17 +121,17 @@ func (this *PeepholeCollectPropertyAssignments) collectProperty(propertyCandidat
 	if !NodeUtil_isLiteralValue(rhs, true) && PeepholeCollectPropertyAssignments_mightContainForwardReference(rhs, name) {
 		return false
 	}
-	switch value.getToken() {
-	case Token_rhino_ARRAYLIT:
+	switch value.ns_().token {
+	case tokOrd1_ARRAYLIT:
 		if !PeepholeCollectPropertyAssignments_collectArrayProperty(value, propertyCandidate) {
 			return false
 		}
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		if !this.collectObjectProperty(value, propertyCandidate) {
 			return false
 		}
 	default:
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return true
 }
@@ -207,7 +209,9 @@ func (this *PeepholeCollectPropertyAssignments) collectObjectProperty(objectLite
 	var lhs Node = assignment.getFirstChild()
 	var rhs Node = lhs.getNext()
 	var obj Node = lhs.getFirstChild()
-	Preconditions_checkState_boolean_Object((lhs.isGetProp() || lhs.isGetElem()), lhs.box_())
+	if !lhs.isGetProp() && !lhs.isGetElem() {
+		panic(new_IllegalStateException_String(tostr_(lhs)))
+	}
 	var propertyName Optional[string]
 	if lhs.isGetElem() {
 		var property Node = obj.getNext()
@@ -279,4 +283,12 @@ func PeepholeCollectPropertyAssignments_mightContainForwardReference(node Node, 
 		}
 	}
 	return false
+}
+
+// optimizeSubtree: an object that is exactly a PeepholeCollectPropertyAssignments calls its optimizeSubtree_impl directly (post-flip); others dispatch.
+func (this *PeepholeCollectPropertyAssignments) optimizeSubtree(p0 Node) Node {
+	if p, _ := this.self_.(*PeepholeCollectPropertyAssignments); p == this {
+		return this.optimizeSubtree_impl(p0)
+	}
+	return this.self_.optimizeSubtree_impl(p0)
 }

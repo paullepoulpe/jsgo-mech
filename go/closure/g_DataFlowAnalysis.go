@@ -21,11 +21,6 @@ type DataFlowAnalysis_vt_[N any, L LatticeElement] interface {
 
 func (this *DataFlowAnalysis[N, L]) isa_DataFlowAnalysis_() {}
 
-func is_DataFlowAnalysis(v any) bool {
-	_, ok := v.(interface{ isa_DataFlowAnalysis_() })
-	return ok
-}
-
 func (this *DataFlowAnalysis[N, L]) as_DataFlowAnalysis() *DataFlowAnalysis[N, L] { return this }
 
 func (this *DataFlowAnalysis[N, L]) as_DataFlowAnalysis_() any { return this }
@@ -48,7 +43,9 @@ func (this *DataFlowAnalysis[N, L]) init_DataFlowAnalysis(cfg *ControlFlowGraph[
 	this.cfg = cfg
 	this.workQueue = new_DataFlowAnalysis_UniqueQueue[DiGraph_DiGraphNode[N]](cfg.getOptionalNodeComparator(this.isForward()))
 	if this.isBranched() {
-		Preconditions_checkState(this.isForward())
+		if !this.isForward() {
+			panic(new_IllegalStateException_0())
+		}
 	}
 }
 
@@ -68,18 +65,18 @@ func (this *DataFlowAnalysis[N, L]) join(latticeA L, latticeB L) L {
 }
 
 func (this *DataFlowAnalysis[N, L]) createFlowBrancher_impl(node N, output L) DataFlowAnalysis_FlowBrancher[L] {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *DataFlowAnalysis[N, L]) analyze() {
 	this.initialize()
 	for !this.workQueue.isEmpty() {
 		var curNode DiGraph_DiGraphNode[N] = this.workQueue.removeFirst()
-		var curState *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(curNode)))
+		var curState *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(curNode)))
 		var stepCount int32 = curState.stepCount
 		curState.stepCount++
 		if stepCount > DataFlowAnalysis_MAX_STEPS_PER_NODE {
-			panic(new_IllegalStateException_String(("Dataflow analysis appears to diverge around: " + objstr_(any(curNode)))).self())
+			panic(new_IllegalStateException_String(("Dataflow analysis appears to diverge around: " + objstr_(curNode))))
 		}
 		this.joinInputs(curNode)
 		if this.flow(curNode) {
@@ -89,9 +86,7 @@ func (this *DataFlowAnalysis[N, L]) analyze() {
 				}
 				return this.cfg.getDirectedPredNodesDiGraphNode(curNode)
 			}()
-			it_2 := foreach_(any(nextNodes))
-			for it_2.next() {
-				var nextNode DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](it_2.v)
+			for nextNode := range elemsAs_[DiGraph_DiGraphNode[N]](nextNodes) {
 				if nextNode != this.cfg.getImplicitReturn() {
 					this.workQueue.add(nextNode)
 				}
@@ -105,38 +100,32 @@ func (this *DataFlowAnalysis[N, L]) analyze() {
 
 func (this *DataFlowAnalysis[N, L]) initialize() {
 	this.workQueue.clear()
-	it_1 := foreach_(any(this.cfg.getNodes()))
-	for it_1.next() {
-		var node DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](it_1.v)
-		node.setAnnotation(icast_Annotation_graph(obj_(new_DataFlowAnalysis_LinearFlowState(boxT_(this.createInitialEstimateLattice()), boxT_(this.createInitialEstimateLattice())))))
+	for node := range elemsAs_[DiGraph_DiGraphNode[N]](this.cfg.getNodes()) {
+		node.setAnnotation(new_DataFlowAnalysis_LinearFlowState(boxT_(this.createInitialEstimateLattice()), boxT_(this.createInitialEstimateLattice())))
 		if node != this.cfg.getImplicitReturn() {
 			this.workQueue.add(node)
 		}
 	}
 	if this.isBranched() {
-		it_3 := foreach_(any(this.cfg.getEdges()))
-		for it_3.next() {
-			var edge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_3.v)
+		for edge := range elemsAs_[DiGraph_DiGraphEdge[N]](this.cfg.getEdges()) {
 			edge.setAnnotation(icast_Annotation_graph(boxT_(this.createInitialEstimateLattice())))
 		}
 	}
 }
 
 func (this *DataFlowAnalysis[N, L]) flow(node DiGraph_DiGraphNode[N]) bool {
-	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
+	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
 	if this.isForward() {
 		var outBefore L = junboxT_[L](state.getOut())
 		state.setOut(boxT_(this.flowThrough(node.getValue(), junboxT_[L](state.getIn()))))
 		var changed bool = !equalsTT_(outBefore, junboxT_[L](state.getOut()))
 		if this.isBranched() {
 			var brancher DataFlowAnalysis_FlowBrancher[L] = this.createFlowBrancher(node.getValue(), junboxT_[L](state.getOut()))
-			it_1 := foreach_(any(node.getOutEdges()))
-			for it_1.next() {
-				var outEdge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_1.v)
-				var outBranchBefore L = junboxT_[L](any(Annotatable_getAnnotation(Annotatable(outEdge))))
-				outEdge.setAnnotation(icast_Annotation_graph(boxT_(brancher.branchFlow(cast_[*ControlFlowGraph_Branch](outEdge.getValue())))))
+			for outEdge := range elemsAs_[DiGraph_DiGraphEdge[N]](node.getOutEdges()) {
+				var outBranchBefore L = junboxT_[L](Annotatable_getAnnotation(Annotatable(outEdge)))
+				outEdge.setAnnotation(icast_Annotation_graph(boxT_(brancher.branchFlow(cast_[ControlFlowGraph_Branch](outEdge.getValue())))))
 				if !changed {
-					changed = !jequalsT_(outBranchBefore, any(Annotatable_getAnnotation(Annotatable(outEdge))))
+					changed = !jequalsT_(outBranchBefore, Annotatable_getAnnotation(Annotatable(outEdge)))
 				}
 			}
 		}
@@ -146,11 +135,10 @@ func (this *DataFlowAnalysis[N, L]) flow(node DiGraph_DiGraphNode[N]) bool {
 		state.setIn(boxT_(this.flowThrough(node.getValue(), junboxT_[L](state.getOut()))))
 		return !equalsTT_(inBefore, junboxT_[L](state.getIn()))
 	}
-	panic("unreachable")
 }
 
 func (this *DataFlowAnalysis[N, L]) joinInputs(node DiGraph_DiGraphNode[N]) {
-	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
+	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
 	if this.isForward() && (this.cfg.getEntry() == node) {
 		state.setIn(boxT_(this.createEntryLattice()))
 		return
@@ -169,9 +157,7 @@ func (this *DataFlowAnalysis[N, L]) joinInputs(node DiGraph_DiGraphNode[N]) {
 		result = this.getInputFromEdge(cast_[DiGraph_DiGraphEdge[N]](inEdges.get(0)))
 	default:
 		var joiner DataFlowAnalysis_FlowJoiner[L] = this.createFlowJoiner()
-		it_2 := foreach_(any(inEdges))
-		for it_2.next() {
-			var inEdge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_2.v)
+		for inEdge := range elemsAs_[DiGraph_DiGraphEdge[N]](inEdges) {
 			joiner.joinFlow(this.getInputFromEdge(inEdge))
 		}
 		result = joiner.finish()
@@ -185,23 +171,24 @@ func (this *DataFlowAnalysis[N, L]) joinInputs(node DiGraph_DiGraphNode[N]) {
 
 func (this *DataFlowAnalysis[N, L]) getInputFromEdge(edge DiGraph_DiGraphEdge[N]) L {
 	if this.isBranched() {
-		return junboxT_[L](any(Annotatable_getAnnotation(Annotatable(edge))))
+		return junboxT_[L](Annotatable_getAnnotation(Annotatable(edge)))
 	} else if this.isForward() {
-		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(edge.getSource())))
+		var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(edge.getSource())))
 		return junboxT_[L](state.getOut())
 	} else {
 		var node DiGraph_DiGraphNode[N] = edge.getDestination()
 		if node == this.cfg.getImplicitReturn() {
 			return this.createEntryLattice()
 		}
-		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
+		var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
 		return junboxT_[L](state.getIn())
 	}
-	panic("unreachable")
 }
 
 func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped *JTSet[*Var], compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsInFn *JTMap[string, *Var]) {
-	Preconditions_checkArgument(jsScope.isFunctionScope())
+	if !jsScope.isFunctionScope() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var finder *NodeTraversal_AbstractPostOrderCallback = new_DataFlowAnalysis_1(jsScope, escaped).up_NodeTraversal_AbstractPostOrderCallback()
 	NodeTraversal_builder().setCompiler(compiler).setCallback(icast_NodeTraversal_Callback(finder.self())).setScopeCreator(scopeCreator).traverseAtScope(jsScope.up_AbstractScope())
 	it_1 := allVarsInFn.eachValue()
@@ -262,65 +249,73 @@ type DataFlowAnalysis_FlowJoiner[L any] interface {
 }
 
 type DataFlowAnalysis_FlowBrancher[L any] interface {
-	branchFlow(*ControlFlowGraph_Branch) L
+	branchFlow(ControlFlowGraph_Branch) L
 }
 
 type DataFlowAnalysis_FlowBrancher_fn[L any] struct {
-	f func(*ControlFlowGraph_Branch) L
+	f func(ControlFlowGraph_Branch) L
 }
 
-func (this *DataFlowAnalysis_FlowBrancher_fn[L]) branchFlow(p0 *ControlFlowGraph_Branch) L {
+func (this *DataFlowAnalysis_FlowBrancher_fn[L]) branchFlow(p0 ControlFlowGraph_Branch) L {
 	return this.f(p0)
 }
 
-type DataFlowAnalysis_LinearFlowState struct {
+type DataFlowAnalysis_LinearFlowState[L comparable] struct {
 	stepCount int32
-	in        any
-	out       any
+	in        L
+	out       L
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) finit_DataFlowAnalysis_LinearFlowState() {
+func (this *DataFlowAnalysis_LinearFlowState[L]) finit_DataFlowAnalysis_LinearFlowState() {
 	this.stepCount = 0
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) init_DataFlowAnalysis_LinearFlowState(in any, out any) {
+func (this *DataFlowAnalysis_LinearFlowState[L]) init_DataFlowAnalysis_LinearFlowState(in L, out L) {
 	this.finit_DataFlowAnalysis_LinearFlowState()
-	Preconditions_checkNotNull(in)
-	Preconditions_checkNotNull(out)
+	if in == null_[L]() {
+		panic(new_NullPointerException_0())
+	}
+	if out == null_[L]() {
+		panic(new_NullPointerException_0())
+	}
 	this.in = in
 	this.out = out
 }
 
-func new_DataFlowAnalysis_LinearFlowState(in any, out any) *DataFlowAnalysis_LinearFlowState {
-	this := &DataFlowAnalysis_LinearFlowState{}
+func new_DataFlowAnalysis_LinearFlowState[L comparable](in L, out L) *DataFlowAnalysis_LinearFlowState[L] {
+	this := &DataFlowAnalysis_LinearFlowState[L]{in: null_[L](), out: null_[L]()}
 	this.init_DataFlowAnalysis_LinearFlowState(in, out)
 	return this
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) getStepCount() int32 {
+func (this *DataFlowAnalysis_LinearFlowState[L]) getStepCount() int32 {
 	return this.stepCount
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) getIn() any {
+func (this *DataFlowAnalysis_LinearFlowState[L]) getIn() L {
 	return this.in
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) setIn(in any) {
-	Preconditions_checkNotNull(in)
+func (this *DataFlowAnalysis_LinearFlowState[L]) setIn(in L) {
+	if in == null_[L]() {
+		panic(new_NullPointerException_0())
+	}
 	this.in = in
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) getOut() any {
+func (this *DataFlowAnalysis_LinearFlowState[L]) getOut() L {
 	return this.out
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) setOut(out any) {
-	Preconditions_checkNotNull(out)
+func (this *DataFlowAnalysis_LinearFlowState[L]) setOut(out L) {
+	if out == null_[L]() {
+		panic(new_NullPointerException_0())
+	}
 	this.out = out
 }
 
-func (this *DataFlowAnalysis_LinearFlowState) toString() string {
-	return String_format("IN: %s OUT: %s", []any{this.in, this.out})
+func (this *DataFlowAnalysis_LinearFlowState[L]) toString() string {
+	return String_format("IN: %s OUT: %s", []any{boxNull_(this.in), boxNull_(this.out)})
 }
 
 type DataFlowAnalysis_UniqueQueue[T any] struct {
@@ -330,11 +325,6 @@ type DataFlowAnalysis_UniqueQueue[T any] struct {
 
 func (this *DataFlowAnalysis_UniqueQueue[T]) isa_DataFlowAnalysis_UniqueQueue_() {}
 
-func is_DataFlowAnalysis_UniqueQueue(v any) bool {
-	_, ok := v.(interface{ isa_DataFlowAnalysis_UniqueQueue_() })
-	return ok
-}
-
 func (this *DataFlowAnalysis_UniqueQueue[T]) finit_DataFlowAnalysis_UniqueQueue() {
 	this.seenSet = new_LinkedHashSet()
 }
@@ -343,9 +333,9 @@ func (this *DataFlowAnalysis_UniqueQueue[T]) init_DataFlowAnalysis_UniqueQueue(p
 	this.finit_DataFlowAnalysis_UniqueQueue()
 	this.queue = func() Queue {
 		if priority == nil {
-			return icast_Queue(obj_(new_ArrayDeque()))
+			return new_ArrayDeque()
 		}
-		return icast_Queue(obj_(new_PriorityQueue(priority)))
+		return new_PriorityQueue(priority)
 	}()
 }
 
@@ -411,7 +401,7 @@ func (this *DataFlowAnalysis_1) visit_impl(t *NodeTraversal, n Node, parent Node
 	if var_ == nil {
 		return
 	}
-	var variableCfgScope *Scope = cast_[*Scope](cast_[*Scope](var_.getScope()).getClosestCfgRootScope().self())
+	var variableCfgScope *Scope = cast_[*Scope](var_.getScope().(*Scope).getClosestCfgRootScope().self())
 	if variableCfgScope != this.cap_jsScope {
 		return
 	}
@@ -419,4 +409,13 @@ func (this *DataFlowAnalysis_1) visit_impl(t *NodeTraversal, n Node, parent Node
 	if (referenceCfgScope != variableCfgScope) || DataFlowAnalysis_isReferencedInNonStaticClassField(t.getScope(), variableCfgScope) {
 		this.cap_escaped.add(var_)
 	}
+}
+
+// visit: an object that is exactly a DataFlowAnalysis_1 calls its visit_impl directly (post-flip); others dispatch.
+func (this *DataFlowAnalysis_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*DataFlowAnalysis_1); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

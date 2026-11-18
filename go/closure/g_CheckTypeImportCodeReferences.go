@@ -27,7 +27,7 @@ func new_CheckTypeImportCodeReferences(compiler *AbstractCompiler) *CheckTypeImp
 }
 
 func (this *CheckTypeImportCodeReferences) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckTypeImportCodeReferences) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -71,4 +71,13 @@ func CheckTypeImportCodeReferences_clinit() {
 	CheckTypeImportCodeReferences_TYPE_IMPORT_CODE_REFERENCE = DiagnosticType_error("JSC_TYPE_IMPORT_CODE_REFERENCE", "Cannot reference goog.requireType()''d name {0} outside of a type annotation.")
 	CheckTypeImportCodeReferences_GOOG_REQUIRE_TYPE = IR_getprop_Node_String(IR_name("goog"), "requireType")
 
+}
+
+// visit: an object that is exactly a CheckTypeImportCodeReferences calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckTypeImportCodeReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckTypeImportCodeReferences); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

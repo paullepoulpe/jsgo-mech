@@ -3,13 +3,13 @@
 package closure
 
 type DiagnosticGroup struct {
-	types ImmutableSetOf[*DiagnosticType]
+	types *ImmutableSet[*DiagnosticType]
 	name_ Optional[string]
 }
 
 func (this *DiagnosticGroup) init_DiagnosticGroup_Optional_DiagnosticTypeArr(name Optional[string], types []*DiagnosticType) {
 	this.name_ = name
-	this.types = ImmutableSet_copyOf(Collection(Arrays_asList(arrmap_(types, func(v_ *DiagnosticType) any { return obj_(v_) }))))
+	this.types = immutableSetCopyOf_(tch_p_DiagnosticType, Collection(Arrays_asList(arrmap_(types, func(v_ *DiagnosticType) any { return obj_(v_) }))))
 }
 
 func new_DiagnosticGroup_Optional_DiagnosticTypeArr(name Optional[string], types []*DiagnosticType) *DiagnosticGroup {
@@ -37,11 +37,11 @@ func DiagnosticGroup_createFromGroups_DiagnosticGroupArr(groups []*DiagnosticGro
 }
 
 func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name Optional[string], groups []*DiagnosticGroup) *DiagnosticGroup {
-	var set ImmutableSet_BuilderOf[*DiagnosticType] = ImmutableSet_builder()
+	var set *ImmutableSet_Builder[*DiagnosticType] = immutableSetBuilder_(tc_p_DiagnosticType)
 	for _, group := range groups {
-		set.addAll(icast_Iterable(obj_(group.types)))
+		set.addAll(icast_Iterable(obj_(group.types.asImm())))
 	}
-	return new_DiagnosticGroup_Optional_DiagnosticTypeArr(name, arrmap_(cast_[*ImmutableSet](obj_(set.build())).toArray(arrmap_(make([]*DiagnosticType, 0), func(v_ *DiagnosticType) any { return obj_(v_) })), func(v_ any) *DiagnosticType { return cast_[*DiagnosticType](v_) }))
+	return new_DiagnosticGroup_Optional_DiagnosticTypeArr(name, arrmap_(set.buildErased().toArray(arrmap_(make([]*DiagnosticType, 0), func(v_ *DiagnosticType) any { return obj_(v_) })), func(v_ any) *DiagnosticType { return cast_[*DiagnosticType](v_) }))
 }
 
 func DiagnosticGroup_forType(type_ *DiagnosticType) *DiagnosticGroup {
@@ -54,10 +54,10 @@ func (this *DiagnosticGroup) matches(error_ *JSError) bool {
 }
 
 func (this *DiagnosticGroup) matchesDiagnosticType(type_ *DiagnosticType) bool {
-	return this.types.contains(obj_(type_))
+	return this.types.Has(type_)
 }
 
-func (this *DiagnosticGroup) getTypes() ImmutableSetOf[*DiagnosticType] {
+func (this *DiagnosticGroup) getTypes() *ImmutableSet[*DiagnosticType] {
 	return this.types
 }
 

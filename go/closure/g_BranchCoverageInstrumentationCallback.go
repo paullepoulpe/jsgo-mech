@@ -63,10 +63,8 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 	if node.isIf() {
 		var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
 		var hasDefaultBlock bool = false
-		it_1 := foreach_(any(cfg.getOutEdges(node)))
-		for it_1.next() {
-			var outEdge DiGraph_DiGraphEdge[Node] = cast_[DiGraph_DiGraphEdge[Node]](it_1.v)
-			if cast_[*ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
+		for outEdge := range elemsAs_[DiGraph_DiGraphEdge[Node]](cfg.getOutEdges(node)) {
+			if cast_[ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
 				var destination Node = outEdge.getDestination().getValue()
 				if (((destination != 0) && destination.isBlock()) && (destination.getParent() != 0)) && destination.getParent().isIf() {
 					hasDefaultBlock = true
@@ -89,10 +87,8 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 	} else if NodeUtil_isLoopStructure(node) {
 		var blocks *JTList[Node] = this.getChildrenBlocks(node)
 		var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
-		it_3 := foreach_(any(cfg.getOutEdges(node)))
-		for it_3.next() {
-			var outEdge DiGraph_DiGraphEdge[Node] = cast_[DiGraph_DiGraphEdge[Node]](it_3.v)
-			if cast_[*ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
+		for outEdge := range elemsAs_[DiGraph_DiGraphEdge[Node]](cfg.getOutEdges(node)) {
+			if cast_[ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
 				var destination Node = outEdge.getDestination().getValue()
 				if (destination != 0) && destination.isBlock() {
 					blocks.add(destination)
@@ -186,7 +182,9 @@ func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *Node
 		}
 		return nil
 	}()
-	Preconditions_checkNotNull(obj_(data))
+	if data == nil {
+		panic(new_NullPointerException_0())
+	}
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
 	var nodes *JTList[Node] = jnewTList_(jtc_Node)
 	nodes.add(this.newArrayDeclarationNode(traversal))
@@ -218,3 +216,12 @@ func (this *BranchCoverageInstrumentationCallback) newBranchesInLineNode(name st
 }
 
 const BranchCoverageInstrumentationCallback_BRANCH_ARRAY_NAME_PREFIX string = "JSCompiler_lcov_branch_data_"
+
+// visit: an object that is exactly a BranchCoverageInstrumentationCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *BranchCoverageInstrumentationCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*BranchCoverageInstrumentationCallback); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}

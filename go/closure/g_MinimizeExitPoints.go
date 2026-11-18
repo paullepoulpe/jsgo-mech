@@ -25,30 +25,32 @@ func new_MinimizeExitPoints() *MinimizeExitPoints {
 }
 
 func (this *MinimizeExitPoints) optimizeSubtree_impl(n Node) Node {
-	Preconditions_checkState_boolean_Object(this.isASTNormalized(), strobj_("MinimizeExitPoints requires the AST to be normalized"))
-	switch n.getToken() {
-	case Token_rhino_LABEL:
+	if !this.isASTNormalized() {
+		panic(new_IllegalStateException_String("MinimizeExitPoints requires the AST to be normalized"))
+	}
+	switch n.ns_().token {
+	case tokOrd1_LABEL:
 		this.tryMinimizeExits(n.getLastChild(), Token_rhino_BREAK, Optional_of[string](n.getFirstChild().getString()))
-	case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_WHILE:
+	case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_WHILE:
 		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, Optional_empty[string]())
-	case Token_rhino_DO:
+	case tokOrd1_DO:
 		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, Optional_empty[string]())
 		var cond Node = NodeUtil_getConditionExpression(n)
 		if this.getSideEffectFreeBooleanValue(cond) == Tri_FALSE {
 			this.tryMinimizeExits(n.getFirstChild(), Token_rhino_BREAK, Optional_empty[string]())
 		}
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if n.hasParent() && n.getParent().isFunction() {
 			this.tryMinimizeExits(n, Token_rhino_RETURN, Optional_empty[string]())
 		}
-	case Token_rhino_SWITCH:
+	case tokOrd1_SWITCH:
 		this.tryMinimizeSwitchExits(n, Token_rhino_BREAK, Optional_empty[string]())
 	default:
 	}
 	return n
 }
 
-func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType *Token_rhino, labelName Optional[string]) {
+func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType Token_rhino, labelName Optional[string]) {
 	if MinimizeExitPoints_matchingExitNode(n, exitType, labelName) {
 		this.reportChangeToEnclosingScope(n)
 		NodeUtil_removeChild(n.getParent(), n)
@@ -68,7 +70,9 @@ func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType *Token_rhino, 
 		this.tryMinimizeExits(tryBlock, exitType, labelName)
 		var allCatchNodes Node = NodeUtil_getCatchBlock(n)
 		if NodeUtil_hasCatchHandler(allCatchNodes) {
-			Preconditions_checkState(allCatchNodes.hasOneChild())
+			if !allCatchNodes.hasOneChild() {
+				panic(new_IllegalStateException_0())
+			}
 			var catchNode Node = allCatchNodes.getFirstChild()
 			var catchCodeBlock Node = catchNode.getLastChild()
 			this.tryMinimizeExits(catchCodeBlock, exitType, labelName)
@@ -115,8 +119,10 @@ func (this *MinimizeExitPoints) tryMinimizeExits(n Node, exitType *Token_rhino, 
 	}
 }
 
-func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType *Token_rhino, labelName Optional[string]) {
-	Preconditions_checkState(n.isSwitch())
+func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType Token_rhino, labelName Optional[string]) {
+	if !n.isSwitch() {
+		panic(new_IllegalStateException_0())
+	}
 	var switchBody Node = n.getSecondChild()
 	{
 		var c Node = switchBody.getFirstChild()
@@ -130,9 +136,13 @@ func (this *MinimizeExitPoints) tryMinimizeSwitchExits(n Node, exitType *Token_r
 	}
 }
 
-func (this *MinimizeExitPoints) tryMinimizeSwitchCaseExits(n Node, exitType *Token_rhino, labelName Optional[string]) {
-	Preconditions_checkState(NodeUtil_isSwitchCase(n))
-	Preconditions_checkState((n != n.getParent().getLastChild()))
+func (this *MinimizeExitPoints) tryMinimizeSwitchCaseExits(n Node, exitType Token_rhino, labelName Optional[string]) {
+	if !NodeUtil_isSwitchCase(n) {
+		panic(new_IllegalStateException_0())
+	}
+	if n == n.getParent().getLastChild() {
+		panic(new_IllegalStateException_0())
+	}
 	var block Node = n.getLastChild()
 	var maybeBreak Node = block.getLastChild()
 	if ((maybeBreak == 0) || !maybeBreak.isBreak()) || maybeBreak.hasChildren() {
@@ -149,7 +159,7 @@ func (this *MinimizeExitPoints) tryMinimizeSwitchCaseExits(n Node, exitType *Tok
 	}
 }
 
-func (this *MinimizeExitPoints) tryMinimizeIfBlockExits(srcBlock Node, destBlock Node, ifNode Node, exitType *Token_rhino, labelName Optional[string]) {
+func (this *MinimizeExitPoints) tryMinimizeIfBlockExits(srcBlock Node, destBlock Node, ifNode Node, exitType Token_rhino, labelName Optional[string]) {
 	var exitNodeParent Node = 0
 	var exitNode Node = 0
 	if srcBlock.isBlock() {
@@ -185,7 +195,7 @@ func (this *MinimizeExitPoints) tryMinimizeIfBlockExits(srcBlock Node, destBlock
 	}
 }
 
-func MinimizeExitPoints_matchingExitNode(n Node, type_ *Token_rhino, labelName Optional[string]) bool {
+func MinimizeExitPoints_matchingExitNode(n Node, type_ Token_rhino, labelName Optional[string]) bool {
 	if n.getToken() == type_ {
 		if type_ == Token_rhino_RETURN {
 			return !n.hasChildren()
@@ -240,4 +250,12 @@ func MinimizeExitPoints_hasBlockScopedVarsFollowing(start Node) bool {
 		}
 	}
 	return false
+}
+
+// optimizeSubtree: an object that is exactly a MinimizeExitPoints calls its optimizeSubtree_impl directly (post-flip); others dispatch.
+func (this *MinimizeExitPoints) optimizeSubtree(p0 Node) Node {
+	if p, _ := this.self_.(*MinimizeExitPoints); p == this {
+		return this.optimizeSubtree_impl(p0)
+	}
+	return this.self_.optimizeSubtree_impl(p0)
 }

@@ -3,23 +3,21 @@
 package closure
 
 type PassConfig struct {
-	self_    any
+	self_    PassConfig_I
 	options_ *CompilerOptions
 }
 
+// PassConfig_I holds the methods the dispatchers of PassConfig's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type PassConfig_I interface {
+	getChecks_impl() *PassListBuilder
+	getFinalizations_impl() *PassListBuilder
+	getOptimizations_impl() *PassListBuilder
+	getTranspileOnlyPasses_impl() *PassListBuilder
+	getWhitespaceOnlyPasses_impl() *PassListBuilder
+}
+
 func (this *PassConfig) as_PassConfig() *PassConfig { return this }
-
-func to_PassConfig(v any) *PassConfig {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_PassConfig() *PassConfig }).as_PassConfig()
-}
-
-func is_PassConfig(v any) bool {
-	_, ok := v.(interface{ as_PassConfig() *PassConfig })
-	return ok
-}
 
 func (this *PassConfig) self() any {
 	if this == nil {
@@ -42,12 +40,10 @@ func (this *PassConfig) getTranspileOnlyPasses_impl() *PassListBuilder {
 
 func (this *PassConfig) getPassGraph() GraphvizGraph {
 	var graph *LinkedDirectedGraph[string, string] = LinkedDirectedGraph_createWithoutAnnotations[string, string]()
-	var allPasses IterableOf[*PassFactory] = Iterables_concat(icast_Iterable(obj_(this.getChecks().build())), icast_Iterable(obj_(this.getOptimizations().build())))
+	var allPasses IterableOf[*PassFactory] = Iterables_concat(icast_Iterable(obj_(this.getChecks().build().asImm())), icast_Iterable(obj_(this.getOptimizations().build().asImm())))
 	var lastPass Optional[string] = Optional_empty[string]()
 	var loopStart Optional[string] = Optional_empty[string]()
-	it_1 := foreach_(any(allPasses))
-	for it_1.next() {
-		var pass *PassFactory = cast_[*PassFactory](it_1.v)
+	for pass := range elemsAs_[*PassFactory](allPasses) {
 		var passName string = pass.getName()
 		var i int32 = 1
 		for graph.hasNode(passName) {
@@ -78,23 +74,23 @@ func (this *PassConfig) getBasePassConfig() *PassConfig {
 }
 
 func (this *PassConfig) getChecks() *PassListBuilder {
-	return this.self_.(interface{ getChecks_impl() *PassListBuilder }).getChecks_impl()
+	return this.self_.getChecks_impl()
 }
 
 func (this *PassConfig) getOptimizations() *PassListBuilder {
-	return this.self_.(interface{ getOptimizations_impl() *PassListBuilder }).getOptimizations_impl()
+	return this.self_.getOptimizations_impl()
 }
 
 func (this *PassConfig) getTranspileOnlyPasses() *PassListBuilder {
-	return this.self_.(interface{ getTranspileOnlyPasses_impl() *PassListBuilder }).getTranspileOnlyPasses_impl()
+	return this.self_.getTranspileOnlyPasses_impl()
 }
 
 func (this *PassConfig) getWhitespaceOnlyPasses() *PassListBuilder {
-	return this.self_.(interface{ getWhitespaceOnlyPasses_impl() *PassListBuilder }).getWhitespaceOnlyPasses_impl()
+	return this.self_.getWhitespaceOnlyPasses_impl()
 }
 
 func (this *PassConfig) getFinalizations() *PassListBuilder {
-	return this.self_.(interface{ getFinalizations_impl() *PassListBuilder }).getFinalizations_impl()
+	return this.self_.getFinalizations_impl()
 }
 
 type PassConfig_PassConfigDelegate struct {
@@ -102,23 +98,30 @@ type PassConfig_PassConfigDelegate struct {
 	delegate *PassConfig
 }
 
+// PassConfig_PassConfigDelegate_as is implemented by PassConfig_PassConfigDelegate and the classes that extend it: a cast to PassConfig_PassConfigDelegate asserts to it
+// (post-flip).
+type PassConfig_PassConfigDelegate_as interface {
+	as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate
+}
+
 func (this *PassConfig_PassConfigDelegate) as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate {
 	return this
 }
 
 func to_PassConfig_PassConfigDelegate(v any) *PassConfig_PassConfigDelegate {
-	if v == nil {
+	switch p := v.(type) {
+	case *LintPassConfig:
+		return p.as_PassConfig_PassConfigDelegate()
+	case *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig:
+		return p.as_PassConfig_PassConfigDelegate()
+	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate
-	}).as_PassConfig_PassConfigDelegate()
+	return v.(PassConfig_PassConfigDelegate_as).as_PassConfig_PassConfigDelegate()
 }
 
 func is_PassConfig_PassConfigDelegate(v any) bool {
-	_, ok := v.(interface {
-		as_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate
-	})
+	_, ok := v.(PassConfig_PassConfigDelegate_as)
 	return ok
 }
 
@@ -166,4 +169,44 @@ func (this *PassConfig_PassConfigDelegate) getFinalizations_impl() *PassListBuil
 
 func (this *PassConfig_PassConfigDelegate) getTranspileOnlyPasses_impl() *PassListBuilder {
 	return this.delegate.getTranspileOnlyPasses()
+}
+
+// getWhitespaceOnlyPasses: an object that is exactly a PassConfig_PassConfigDelegate calls its getWhitespaceOnlyPasses_impl directly (post-flip); others dispatch.
+func (this *PassConfig_PassConfigDelegate) getWhitespaceOnlyPasses() *PassListBuilder {
+	if p, _ := this.self_.(*PassConfig_PassConfigDelegate); p == this {
+		return this.getWhitespaceOnlyPasses_impl()
+	}
+	return this.self_.getWhitespaceOnlyPasses_impl()
+}
+
+// getChecks: an object that is exactly a PassConfig_PassConfigDelegate calls its getChecks_impl directly (post-flip); others dispatch.
+func (this *PassConfig_PassConfigDelegate) getChecks() *PassListBuilder {
+	if p, _ := this.self_.(*PassConfig_PassConfigDelegate); p == this {
+		return this.getChecks_impl()
+	}
+	return this.self_.getChecks_impl()
+}
+
+// getOptimizations: an object that is exactly a PassConfig_PassConfigDelegate calls its getOptimizations_impl directly (post-flip); others dispatch.
+func (this *PassConfig_PassConfigDelegate) getOptimizations() *PassListBuilder {
+	if p, _ := this.self_.(*PassConfig_PassConfigDelegate); p == this {
+		return this.getOptimizations_impl()
+	}
+	return this.self_.getOptimizations_impl()
+}
+
+// getFinalizations: an object that is exactly a PassConfig_PassConfigDelegate calls its getFinalizations_impl directly (post-flip); others dispatch.
+func (this *PassConfig_PassConfigDelegate) getFinalizations() *PassListBuilder {
+	if p, _ := this.self_.(*PassConfig_PassConfigDelegate); p == this {
+		return this.getFinalizations_impl()
+	}
+	return this.self_.getFinalizations_impl()
+}
+
+// getTranspileOnlyPasses: an object that is exactly a PassConfig_PassConfigDelegate calls its getTranspileOnlyPasses_impl directly (post-flip); others dispatch.
+func (this *PassConfig_PassConfigDelegate) getTranspileOnlyPasses() *PassListBuilder {
+	if p, _ := this.self_.(*PassConfig_PassConfigDelegate); p == this {
+		return this.getTranspileOnlyPasses_impl()
+	}
+	return this.self_.getTranspileOnlyPasses_impl()
 }

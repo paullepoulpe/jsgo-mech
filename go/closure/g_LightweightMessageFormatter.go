@@ -4,7 +4,7 @@ package closure
 
 type LightweightMessageFormatter struct {
 	AbstractMessageFormatter
-	defaultFormat   *SourceExcerptProvider_SourceExcerpt
+	defaultFormat   SourceExcerptProvider_SourceExcerpt
 	includeLocation bool
 	includeLevel    bool
 }
@@ -45,14 +45,16 @@ func new_LightweightMessageFormatter_SourceExcerptProvider(source SourceExcerptP
 	return this
 }
 
-func (this *LightweightMessageFormatter) init_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source SourceExcerptProvider, defaultFormat *SourceExcerptProvider_SourceExcerpt) {
+func (this *LightweightMessageFormatter) init_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source SourceExcerptProvider, defaultFormat SourceExcerptProvider_SourceExcerpt) {
 	this.AbstractMessageFormatter.init_AbstractMessageFormatter(source)
 	this.finit_LightweightMessageFormatter()
-	Preconditions_checkNotNull(any(source))
+	if source == nil {
+		panic(new_NullPointerException_0())
+	}
 	this.defaultFormat = defaultFormat
 }
 
-func new_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source SourceExcerptProvider, defaultFormat *SourceExcerptProvider_SourceExcerpt) *LightweightMessageFormatter {
+func new_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source SourceExcerptProvider, defaultFormat SourceExcerptProvider_SourceExcerpt) *LightweightMessageFormatter {
 	this := &LightweightMessageFormatter{}
 	this.self_ = this
 	this.init_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source, defaultFormat)
@@ -86,8 +88,8 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 	var sourceName Optional[string] = error_.sourceName()
 	var lineNumber int32 = error_.getLineNumber()
 	var charno int32 = error_.charno()
-	var b *StringBuilder = new_StringBuilder()
-	var boldLine *StringBuilder = new_StringBuilder()
+	var b strBuilder_
+	var boldLine strBuilder_
 	var mapping *Mapping_OriginalMapping = func() *Mapping_OriginalMapping {
 		if source == nil {
 			return nil
@@ -96,16 +98,16 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 	}()
 	if this.includeLocation {
 		if mapping != nil {
-			LightweightMessageFormatter_appendPosition(b, sourceName, lineNumber, charno)
+			LightweightMessageFormatter_appendPosition(&b, sourceName, lineNumber, charno)
 			sourceName = Optional_ofNullable[string](mapping.getOriginalFile())
 			lineNumber = mapping.getLineNumber()
 			charno = mapping.getColumnPosition()
 			b.append("\nOriginally at:\n")
 		}
-		LightweightMessageFormatter_appendPosition(boldLine, sourceName, lineNumber, charno)
+		LightweightMessageFormatter_appendPosition(&boldLine, sourceName, lineNumber, charno)
 	}
 	if this.includeLevel {
-		boldLine.append(this.getLevelName(func() *CheckLevel {
+		boldLine.append(this.getLevelName(func() CheckLevel {
 			if warning {
 				return CheckLevel_WARNING
 			}
@@ -116,9 +118,9 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 		boldLine.append("] ")
 	}
 	boldLine.append(error_.description())
-	b.append(this.maybeEmbolden(Object_toString(obj_(boldLine))))
+	b.append(this.maybeEmbolden(boldLine.toString()))
 	b.append_char('\n')
-	var sourceExcerptWithPosition Optional[string] = this.getExcerptWithPosition_5(error_, sourceName, lineNumber, charno, func() *SourceExcerptProvider_SourceExcerpt {
+	var sourceExcerptWithPosition Optional[string] = this.getExcerptWithPosition_5(error_, sourceName, lineNumber, charno, func() SourceExcerptProvider_SourceExcerpt {
 		if mapping != nil {
 			return SourceExcerptProvider_SourceExcerpt_LINE
 		}
@@ -127,20 +129,20 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 	if sourceExcerptWithPosition.isPresent() {
 		b.append(sourceExcerptWithPosition.get())
 	}
-	return Object_toString(obj_(b))
+	return b.toString()
 }
 
 func (this *LightweightMessageFormatter) getExcerptWithPosition(error_ *JSError) string {
 	return this.getExcerptWithPosition_6(error_, error_.sourceName(), error_.getLineNumber(), error_.charno(), error_.length(), this.defaultFormat)
 }
 
-func (this *LightweightMessageFormatter) getExcerptWithPosition_5(error_ *JSError, sourceName Optional[string], lineNumber int32, charno int32, format *SourceExcerptProvider_SourceExcerpt) Optional[string] {
+func (this *LightweightMessageFormatter) getExcerptWithPosition_5(error_ *JSError, sourceName Optional[string], lineNumber int32, charno int32, format SourceExcerptProvider_SourceExcerpt) Optional[string] {
 	var nodeLength int32 = error_.length()
 	return Optional_of[string](this.getExcerptWithPosition_6(error_, sourceName, lineNumber, charno, nodeLength, format))
 }
 
-func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSError, sourceName Optional[string], lineNumber int32, charno int32, length int32, format *SourceExcerptProvider_SourceExcerpt) string {
-	var b *StringBuilder = new_StringBuilder()
+func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSError, sourceName Optional[string], lineNumber int32, charno int32, length int32, format SourceExcerptProvider_SourceExcerpt) string {
+	var b strBuilder_
 	var source SourceExcerptProvider = this.getSource()
 	var cookedLength int32 = func() int32 {
 		if (charno >= 0) && (length >= 0) {
@@ -157,16 +159,16 @@ func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSErro
 	if sourceExcerpt.isEmpty() {
 		return ""
 	}
-	var success bool = this.padSourceExcerpt(error_, sourceExcerpt.get(), charno, length, format, b)
+	var success bool = this.padSourceExcerpt(error_, sourceExcerpt.get(), charno, length, format, &b)
 	if success {
-		return Object_toString(obj_(b))
+		return b.toString()
 	}
 	var message string = "Source excerpt could not be formatted. This may indicate a bug in the compiler."
 	return message
 }
 
-func (this *LightweightMessageFormatter) padSourceExcerpt(error_ *JSError, sourceExcerpt string, charno int32, length int32, format *SourceExcerptProvider_SourceExcerpt, b *StringBuilder) bool {
-	if Object_equals(format.self(), SourceExcerptProvider_SourceExcerpt_FULL.self()) {
+func (this *LightweightMessageFormatter) padSourceExcerpt(error_ *JSError, sourceExcerpt string, charno int32, length int32, format SourceExcerptProvider_SourceExcerpt, b *strBuilder_) bool {
+	if equalsId_(format, SourceExcerptProvider_SourceExcerpt_FULL) {
 		if charno >= 0 {
 			var success bool = this.padMultipleLines(charno, sourceExcerpt, b, error_.node())
 			if !success {
@@ -179,7 +181,7 @@ func (this *LightweightMessageFormatter) padSourceExcerpt(error_ *JSError, sourc
 	} else {
 		b.append(sourceExcerpt)
 		b.append_char('\n')
-		if (Object_equals(format.self(), SourceExcerptProvider_SourceExcerpt_LINE.self()) && (0 <= charno)) && (charno <= String_length(sourceExcerpt)) {
+		if (equalsId_(format, SourceExcerptProvider_SourceExcerpt_LINE) && (0 <= charno)) && (charno <= String_length(sourceExcerpt)) {
 			var success bool = this.padLine(charno, sourceExcerpt, b, length, error_.node())
 			if !success {
 				return false
@@ -189,25 +191,26 @@ func (this *LightweightMessageFormatter) padSourceExcerpt(error_ *JSError, sourc
 	return true
 }
 
-func LightweightMessageFormatter_appendPosition(b *StringBuilder, sourceName Optional[string], lineNumber int32, charno int32) {
+func LightweightMessageFormatter_appendPosition(b *strBuilder_, sourceName Optional[string], lineNumber int32, charno int32) {
 	if sourceName.isPresent() {
 		b.append(sourceName.get())
 		if lineNumber > 0 {
-			cast_[*StringBuilder](b.append_char(':')).append_int(lineNumber)
+			b.append_char(':').append_int(lineNumber)
 			if charno >= 0 {
-				cast_[*StringBuilder](b.append_char(':')).append_int(charno)
+				b.append_char(':').append_int(charno)
 			}
 		}
 		b.append(": ")
 	}
 }
 
-func (this *LightweightMessageFormatter) padLine(charno int32, sourceExcerpt string, b *StringBuilder, errLength int32, errorNode Node) bool {
-	if charno > String_length(sourceExcerpt) {
+func (this *LightweightMessageFormatter) padLine(charno int32, sourceExcerpt string, b *strBuilder_, errLength int32, errorNode Node) bool {
+	sourceExcerptU16 := utf16Of_(sourceExcerpt)
+	if charno > sourceExcerptU16.length() {
 		return false
 	}
 	for i := int32(0); i < charno; i++ {
-		var c uint16 = String_charAt(sourceExcerpt, i)
+		var c uint16 = sourceExcerptU16.charAt(i)
 		if TokenUtil_isWhitespace(int32(c)) {
 			b.append_char(c)
 		} else {
@@ -217,7 +220,7 @@ func (this *LightweightMessageFormatter) padLine(charno int32, sourceExcerpt str
 	if errorNode == 0 {
 		b.append("^")
 	} else {
-		var length int32 = Math_max(1, Math_min(errLength, (String_length(sourceExcerpt)-charno)))
+		var length int32 = Math_max(1, Math_min(errLength, (sourceExcerptU16.length()-charno)))
 		for i := int32(0); i < length; i++ {
 			b.append("^")
 		}
@@ -226,26 +229,27 @@ func (this *LightweightMessageFormatter) padLine(charno int32, sourceExcerpt str
 	return true
 }
 
-func (this *LightweightMessageFormatter) padMultipleLines(startCharno int32, sourceExcerpt string, b *StringBuilder, errorNode Node) bool {
+func (this *LightweightMessageFormatter) padMultipleLines(startCharno int32, sourceExcerpt string, b *strBuilder_, errorNode Node) bool {
 	if errorNode == 0 {
 		b.append(sourceExcerpt)
 		b.append("\n")
 		var charWithLineNumberOffset int32 = ((startCharno + String_indexOf(sourceExcerpt, 124)) + 2)
 		return this.padLine(charWithLineNumberOffset, sourceExcerpt, b, -1, 0)
 	}
-	var lines ListOf[string] = Splitter_on('\n').splitToList(strobj_(sourceExcerpt))
-	var requiresTruncation bool = (lines.size() > LightweightMessageFormatter_MAX_MULTILINE_ERROR_LENGTH)
+	var lines []string = sliceImm_(tc_string, Splitter_on('\n').splitToList_s(sourceExcerpt))
+	var requiresTruncation bool = (int32(len(lines)) > LightweightMessageFormatter_MAX_MULTILINE_ERROR_LENGTH)
 	var truncationStart int32 = 2
-	var truncationEnd int32 = (lines.size() - 2)
+	var truncationEnd int32 = (int32(len(lines)) - 2)
 	var remainingLength int32 = errorNode.getLength()
 	var charno int32 = startCharno
-	for i := int32(0); i < lines.size(); i++ {
-		var line string = str_(lines.get(i))
+	for i := int32(0); i < int32(len(lines)); i++ {
+		var line string = sliceAt_(lines, i)
 		if requiresTruncation && (i == truncationStart) {
 			b.append("...\n")
 		}
 		var shouldPrintLine bool = ((!requiresTruncation || (i < truncationStart)) || (i >= truncationEnd))
-		var charWithLineNumberOffset int32 = ((charno + String_indexOf(line, 124)) + 2)
+		lineU16 := utf16Of_(line)
+		var charWithLineNumberOffset int32 = ((charno + lineU16.indexOf(124)) + 2)
 		if shouldPrintLine {
 			b.append(line)
 			b.append("\n")
@@ -254,7 +258,7 @@ func (this *LightweightMessageFormatter) padMultipleLines(startCharno int32, sou
 				return false
 			}
 		}
-		remainingLength -= ((String_length(line) + 1) - charWithLineNumberOffset)
+		remainingLength -= ((lineU16.length() + 1) - charWithLineNumberOffset)
 		charno = 0
 	}
 	return true
@@ -271,7 +275,7 @@ func LightweightMessageFormatter_clinit() {
 		return
 	}
 	LightweightMessageFormatter_clinit_done = true
-	LightweightMessageFormatter_excerptFormatter = icast_SourceExcerptProvider_ExcerptFormatter(obj_(new_LightweightMessageFormatter_LineNumberingFormatter()))
+	LightweightMessageFormatter_excerptFormatter = new_LightweightMessageFormatter_LineNumberingFormatter()
 
 }
 
@@ -297,26 +301,27 @@ func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(reg
 		return Optional_empty[string]()
 	}
 	var code string = region.getSourceExcerpt()
-	if String_isEmpty(code) {
+	if code == "" {
 		return Optional_empty[string]()
 	}
-	var numberLength int32 = String_length(Integer_toString(region.getEndingLineNumber()))
-	var builder *StringBuilder = new_StringBuilder_int((String_length(code) * 2))
+	var numberLength int32 = int32(len(Integer_toString(region.getEndingLineNumber())))
+	var builder strBuilder_
+	builder.grow((int32(len(code)) * 2))
 	var start int32 = 0
-	var end int32 = String_indexOf_int_int(code, 10, start)
+	var end int32 = indexByteFrom_(code, '\n', start)
 	var lineNumber int32 = region.getBeginningLineNumber()
 	for start >= 0 {
 		var line string
 		if end < 0 {
-			line = String_substring_int(code, start)
-			if String_isEmpty(line) {
+			line = code[start:]
+			if line == "" {
 				return Optional_of[string](builder.substring(0, (builder.length() - 1)))
 			}
 		} else {
-			line = String_substring(code, start, end)
+			line = cutBytes_(code, start, end)
 		}
 		builder.append("  ")
-		var spaces int32 = (numberLength - String_length(Integer_toString(lineNumber)))
+		var spaces int32 = (numberLength - int32(len(Integer_toString(lineNumber))))
 		builder.repeat(strobj_(" "), spaces)
 		builder.append_int(lineNumber)
 		builder.append("| ")
@@ -327,9 +332,25 @@ func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(reg
 			builder.append(line)
 			builder.append_char('\n')
 			start = (end + 1)
-			end = String_indexOf_int_int(code, 10, start)
+			end = indexByteFrom_(code, '\n', start)
 			lineNumber++
 		}
 	}
-	return Optional_of[string](Object_toString(obj_(builder)))
+	return Optional_of[string](builder.toString())
+}
+
+// formatError: an object that is exactly a LightweightMessageFormatter calls its formatError_impl directly (post-flip); others dispatch.
+func (this *LightweightMessageFormatter) formatError(p0 *JSError) string {
+	if p, _ := this.self_.(*LightweightMessageFormatter); p == this {
+		return this.formatError_impl(p0)
+	}
+	return this.self_.formatError_impl(p0)
+}
+
+// formatWarning: an object that is exactly a LightweightMessageFormatter calls its formatWarning_impl directly (post-flip); others dispatch.
+func (this *LightweightMessageFormatter) formatWarning(p0 *JSError) string {
+	if p, _ := this.self_.(*LightweightMessageFormatter); p == this {
+		return this.formatWarning_impl(p0)
+	}
+	return this.self_.formatWarning_impl(p0)
 }

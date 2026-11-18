@@ -2,14 +2,16 @@
 
 package closure
 
+import "strings"
+
 type ExpressionDecomposer struct {
 	compiler_              *AbstractCompiler
 	astAnalyzer            *AstAnalyzer
 	astFactory_            *AstFactory
 	safeNameIdSupplier_    SupplierOf[string]
-	knownConstantFunctions ImmutableSetOf[string]
+	knownConstantFunctions *ImmutableSet[string]
 	scope_                 *Scope
-	enabledWorkarounds     EnumSetOf[*ExpressionDecomposer_Workaround]
+	enabledWorkarounds     EnumSetOf[ExpressionDecomposer_Workaround]
 	unknownType            *JSType
 	tempNamePrefix         string
 	resultNamePrefix       string
@@ -25,11 +27,17 @@ func (this *ExpressionDecomposer) finit_ExpressionDecomposer() {
 	this.resultNamePrefix = "JSCompiler_inline_result"
 }
 
-func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames ImmutableSetOf[string], scope *Scope, enabledWorkarounds EnumSetOf[*ExpressionDecomposer_Workaround]) {
+func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *ImmutableSet[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) {
 	this.finit_ExpressionDecomposer()
-	Preconditions_checkNotNull(compiler.self())
-	Preconditions_checkNotNull(any(safeNameIdSupplier))
-	Preconditions_checkNotNull(obj_(constFunctionNames))
+	if compiler == nil {
+		panic(new_NullPointerException_0())
+	}
+	if safeNameIdSupplier == nil {
+		panic(new_NullPointerException_0())
+	}
+	if constFunctionNames == nil {
+		panic(new_NullPointerException_0())
+	}
 	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
 	this.astFactory_ = compiler.createAstFactory()
@@ -45,7 +53,7 @@ func (this *ExpressionDecomposer) init_ExpressionDecomposer(compiler *AbstractCo
 	}()
 }
 
-func new_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames ImmutableSetOf[string], scope *Scope, enabledWorkarounds EnumSetOf[*ExpressionDecomposer_Workaround]) *ExpressionDecomposer {
+func new_ExpressionDecomposer(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], constFunctionNames *ImmutableSet[string], scope *Scope, enabledWorkarounds EnumSetOf[ExpressionDecomposer_Workaround]) *ExpressionDecomposer {
 	this := &ExpressionDecomposer{}
 	this.zero_ExpressionDecomposer()
 	this.init_ExpressionDecomposer(compiler, safeNameIdSupplier, constFunctionNames, scope, enabledWorkarounds)
@@ -56,11 +64,11 @@ func (this *ExpressionDecomposer) maybeExposeExpression(expression Node) {
 	var i int32 = 0
 	for ExpressionDecomposer_DecompositionType_DECOMPOSABLE == this.canExposeExpression(expression) {
 		if !this.exposeExpression(expression) {
-			panic(new_IllegalStateException_String(("exposeExpression exposed nothing for:\n" + sstr_(expression.toStringTree()))).self())
+			panic(new_IllegalStateException_String(("exposeExpression exposed nothing for:\n" + sstr_(expression.toStringTree()))))
 		}
 		i++
 		if i > ExpressionDecomposer_MAX_ITERATIONS {
-			panic(new_IllegalStateException_String(("exposeExpression depth exceeded on:\n" + sstr_(expression.toStringTree()))).self())
+			panic(new_IllegalStateException_String(("exposeExpression depth exceeded on:\n" + sstr_(expression.toStringTree()))))
 		}
 	}
 }
@@ -68,8 +76,12 @@ func (this *ExpressionDecomposer) maybeExposeExpression(expression Node) {
 func (this *ExpressionDecomposer) exposeExpression(expression Node) bool {
 	this.rewriteAllContainingOptionalChains(expression)
 	var expressionRoot Node = ExpressionDecomposer_findExpressionRoot(expression)
-	Preconditions_checkNotNull(expressionRoot.box_())
-	Preconditions_checkState_boolean_Object(NodeUtil_isStatement(expressionRoot), expressionRoot.box_())
+	if expressionRoot == 0 {
+		panic(new_NullPointerException_0())
+	}
+	if !NodeUtil_isStatement(expressionRoot) {
+		panic(new_IllegalStateException_String(tostr_(expressionRoot)))
+	}
 	return this.exposeExpression_2(expressionRoot, expression)
 }
 
@@ -85,17 +97,19 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 	var expressionToExpose Node = nodeWithNonconditionalParent
 	var expressionParent Node = expressionToExpose.getParent()
 	for expressionParent != expressionRoot {
-		Preconditions_checkState_boolean_Object((!ExpressionDecomposer_isConditionalOp(expressionParent) || expressionToExpose.isFirstChildOf(expressionParent)), expressionParent.box_())
+		if ExpressionDecomposer_isConditionalOp(expressionParent) && !expressionToExpose.isFirstChildOf(expressionParent) {
+			panic(new_IllegalStateException_String(tostr_(expressionParent)))
+		}
 		if expressionParent.isAssign() {
 			if this.isSafeAssign(expressionParent, state.sideEffects) {
 			} else if !expressionToExpose.isFirstChildOf(expressionParent) {
 				var left Node = expressionParent.getFirstChild()
-				switch left.getToken() {
-				case Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
-				case Token_rhino_GETELEM, Token_rhino_GETPROP:
+				switch left.ns_().token {
+				case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
+				case tokOrd1_GETELEM, tokOrd1_GETPROP:
 					exposedSomething = (this.decomposeSubExpressions(left.getFirstChild(), 0, state) || exposedSomething)
 				default:
-					panic(new_IllegalStateException_String(("Expected a property access or destructuring pattern: " + sstr_(left.toStringTree()))).self())
+					panic(new_IllegalStateException_String(("Expected a property access or destructuring pattern: " + sstr_(left.toStringTree()))))
 				}
 			}
 		} else if expressionParent.isCall() && NodeUtil_isNormalGet(expressionParent.getFirstChild()) {
@@ -126,7 +140,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 }
 
 func (this *ExpressionDecomposer) rewriteAllContainingOptionalChains(subExpression Node) {
-	var optChainRewriterBuilder *OptionalChainRewriter_Builder = OptionalChainRewriter_builder(this.compiler_).setTmpVarNameCreator(&OptionalChainRewriter_TmpVarNameCreator_fn{func() string { return this.getTempConstantValueName() }}).setScope(this.scope_)
+	var optChainRewriterBuilder *OptionalChainRewriter_Builder = OptionalChainRewriter_builder(this.compiler_).setTmpVarNameCreator(newFuncObj_(func() string { return this.getTempConstantValueName() })).setScope(this.scope_)
 	var rewriters *TDeque[*OptionalChainRewriter] = newTDeque_(jtc_p_OptionalChainRewriter)
 	{
 		var exprParent Node = subExpression.getParent()
@@ -151,10 +165,16 @@ func (this *ExpressionDecomposer) rewriteAllContainingOptionalChains(subExpressi
 func (this *ExpressionDecomposer) moveExpression(expression Node) {
 	var resultName string = this.getResultValueName()
 	var injectionPoint Node = ExpressionDecomposer_findInjectionPoint(expression)
-	Preconditions_checkNotNull(injectionPoint.box_())
+	if injectionPoint == 0 {
+		panic(new_NullPointerException_0())
+	}
 	var injectionPointParent Node = injectionPoint.getParent()
-	Preconditions_checkNotNull(injectionPointParent.box_())
-	Preconditions_checkState(NodeUtil_isStatementBlock(injectionPointParent))
+	if injectionPointParent == 0 {
+		panic(new_NullPointerException_0())
+	}
+	if !NodeUtil_isStatementBlock(injectionPointParent) {
+		panic(new_IllegalStateException_0())
+	}
 	expression.replaceWith(IR_name(resultName).copyTypeFrom(expression))
 	var newExpressionRoot Node = NodeUtil_newVarNode(resultName, expression)
 	newExpressionRoot.getFirstChild().copyTypeFrom(expression)
@@ -222,18 +242,18 @@ func (this *ExpressionDecomposer) extractConditional(expr Node, injectionPoint N
 	var cond Node = 0
 	var trueExpr Node = this.astFactory_.createBlock([]Node{}).srcref(expr)
 	var falseExpr Node = this.astFactory_.createBlock([]Node{}).srcref(expr)
-	switch expr.getToken() {
-	case Token_rhino_HOOK:
+	switch expr.ns_().token {
+	case tokOrd1_HOOK:
 		cond = first
 		trueExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(second, needResult, tempName)))
 		falseExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(last, needResult, tempName)))
-	case Token_rhino_AND:
+	case tokOrd1_AND:
 		cond = ExpressionDecomposer_buildResultExpression(first, needResult, tempName)
 		trueExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(last, needResult, tempName)))
-	case Token_rhino_OR:
+	case tokOrd1_OR:
 		cond = ExpressionDecomposer_buildResultExpression(first, needResult, tempName)
 		falseExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(last, needResult, tempName)))
-	case Token_rhino_COALESCE:
+	case tokOrd1_COALESCE:
 		var tempNameAssign string = this.getTempValueName()
 		var tempVarNodeAssign Node = this.astFactory_.createSingleVarNameDeclaration(tempNameAssign).srcrefTreeIfMissing(expr)
 		tempVarNodeAssign.insertBefore(injectionPoint)
@@ -243,7 +263,7 @@ func (this *ExpressionDecomposer) extractConditional(expr Node, injectionPoint N
 		trueExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(this.astFactory_.createName(tempNameAssign, AstFactory_type_Node(first)).srcref(expr), needResult, tempName)))
 		falseExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(last, needResult, tempName)))
 	default:
-		panic(new_IllegalStateException_String(("Unexpected expression: " + objstr_(expr.box_()))).self())
+		panic(new_IllegalStateException_String(("Unexpected expression: " + tostr_(expr))))
 	}
 	var ifNode Node
 	if falseExpr.hasChildren() {
@@ -259,7 +279,9 @@ func (this *ExpressionDecomposer) extractConditional(expr Node, injectionPoint N
 		var replacementValueNode Node = IR_name(tempName).copyTypeFrom(expr)
 		expr.replaceWith(replacementValueNode)
 	} else {
-		Preconditions_checkArgument(parent.isExprResult())
+		if !parent.isExprResult() {
+			panic(new_IllegalArgumentException_0())
+		}
 		parent.replaceWith(ifNode)
 	}
 	return ifNode
@@ -271,15 +293,16 @@ func ExpressionDecomposer_buildResultExpression(expr Node, needResult bool, temp
 	} else {
 		return expr
 	}
-	panic("unreachable")
 }
 
 func (this *ExpressionDecomposer) isConstantNameNode(n Node) bool {
-	return (n.isName() && (NodeUtil_isConstantVar(n, this.scope_) || Collection_contains_s(this.knownConstantFunctions, n.getString())))
+	return (n.isName() && (NodeUtil_isConstantVar(n, this.scope_) || this.knownConstantFunctions.Has(n.getString())))
 }
 
 func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint Node) Node {
-	Preconditions_checkState_boolean_Object(!NodeUtil_isLogicalAssignmentOp(expr), expr.box_())
+	if NodeUtil_isLogicalAssignmentOp(expr) {
+		panic(new_IllegalStateException_String(tostr_(expr)))
+	}
 	var parent Node = expr.getParent()
 	var isLhsOfAssignOp bool = ((NodeUtil_isAssignmentOp(parent) && !parent.isAssign()) && expr.isFirstChildOf(parent))
 	var firstExtractedNode Node = 0
@@ -302,7 +325,9 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 	var replacementValueNode Node = IR_name(tempName).copyTypeFrom(expr).srcref(expr)
 	var tempNameValue Node
 	if isLhsOfAssignOp {
-		Preconditions_checkState_boolean_Object((expr.isName() || NodeUtil_isNormalGet(expr)), expr.box_())
+		if !expr.isName() && !NodeUtil_isNormalGet(expr) {
+			panic(new_IllegalStateException_String(tostr_(expr)))
+		}
 		var opNode Node = new_Node_Token(NodeUtil_getOpFromAssignmentOp(parent)).copyTypeFrom(parent).srcrefIfMissing(parent)
 		var rightOperand Node = parent.getLastChild()
 		parent.setToken(Token_rhino_ASSIGN)
@@ -315,15 +340,14 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 		spreadCopy.addChildToBack(replacementValueNode)
 		expr.replaceWith(spreadCopy)
 		tempNameValue = func() Node {
-			switch parent.getToken() {
-			case Token_rhino_ARRAYLIT, Token_rhino_CALL, Token_rhino_NEW:
+			switch parent.ns_().token {
+			case tokOrd1_ARRAYLIT, tokOrd1_CALL, tokOrd1_NEW:
 				return this.astFactory_.createArraylit([]Node{expr}).srcref(expr.getOnlyChild())
-			case Token_rhino_OBJECTLIT:
+			case tokOrd1_OBJECTLIT:
 				return this.astFactory_.createObjectLit([]Node{expr}).srcref(expr.getOnlyChild())
 			default:
-				panic(new_IllegalStateException_String(("Unexpected parent of SPREAD:" + sstr_(parent.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected parent of SPREAD:" + sstr_(parent.toStringTree()))))
 			}
-			panic("unreachable")
 		}()
 	} else {
 		expr.replaceWith(replacementValueNode)
@@ -338,14 +362,20 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 	if firstExtractedNode == 0 {
 		firstExtractedNode = tempVarNode
 	}
-	Preconditions_checkState(firstExtractedNode.isVar())
+	if !firstExtractedNode.isVar() {
+		panic(new_IllegalStateException_0())
+	}
 	return firstExtractedNode
 }
 
 func (this *ExpressionDecomposer) rewriteCallExpression(call Node, state *ExpressionDecomposer_DecompositionState) {
-	Preconditions_checkArgument_boolean_Object(call.isCall(), call.box_())
+	if !call.isCall() {
+		panic(new_IllegalArgumentException_String(tostr_(call)))
+	}
 	var first Node = call.getFirstChild()
-	Preconditions_checkArgument_boolean_Object(NodeUtil_isNormalGet(first), first.box_())
+	if !NodeUtil_isNormalGet(first) {
+		panic(new_IllegalArgumentException_String(tostr_(first)))
+	}
 	var fnCallType *JSType = nil
 	if this.astFactory_.isAddingTypes() {
 		var fnType *JSType = first.getJSType()
@@ -364,7 +394,9 @@ func (this *ExpressionDecomposer) rewriteCallExpression(call Node, state *Expres
 		return
 	}
 	var getExprNode Node = getVarNode.getFirstFirstChild()
-	Preconditions_checkArgument_boolean_Object(NodeUtil_isNormalGet(getExprNode), getExprNode.box_())
+	if !NodeUtil_isNormalGet(getExprNode) {
+		panic(new_IllegalArgumentException_String(tostr_(getExprNode)))
+	}
 	var origThisValue Node = getExprNode.getFirstChild()
 	var receiverNode Node
 	if origThisValue.isThis() {
@@ -403,31 +435,34 @@ func (this *ExpressionDecomposer) getTempConstantValueName() string {
 }
 
 func (this *ExpressionDecomposer) isTempConstantValueName(name Node) bool {
-	return (name.isName() && String_startsWith(name.getString(), (sstr_(this.tempNamePrefix)+"_const"+sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))))
+	return (name.isName() && strings.HasPrefix(name.getString(), (sstr_(this.tempNamePrefix)+"_const"+sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))))
 }
 
 func ExpressionDecomposer_findInjectionPoint(subExpression Node) Node {
 	var expressionRoot Node = ExpressionDecomposer_findExpressionRoot(subExpression)
-	Preconditions_checkNotNull(expressionRoot.box_())
+	if expressionRoot == 0 {
+		panic(new_NullPointerException_0())
+	}
 	var injectionPoint Node = expressionRoot
 	var parent Node = injectionPoint.getParent()
 	for parent.isLabel() {
 		injectionPoint = parent
 		parent = injectionPoint.getParent()
 	}
-	Preconditions_checkState_boolean_Object(NodeUtil_isStatementBlock(parent), parent.box_())
+	if !NodeUtil_isStatementBlock(parent) {
+		panic(new_IllegalStateException_String(tostr_(parent)))
+	}
 	return injectionPoint
 }
 
 func ExpressionDecomposer_isConditionalOp(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_HOOK, Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_CALL:
+		switch n.ns_().token {
+		case tokOrd1_HOOK, tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_CALL:
 			return true
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -437,30 +472,32 @@ func ExpressionDecomposer_findExpressionRoot(subExpression Node) Node {
 	for it_1.next() {
 		var current Node = Node_of_(it_1.v)
 		var parent Node = current.getParent()
-		switch current.getToken() {
-		case Token_rhino_EXPR_RESULT, Token_rhino_IF, Token_rhino_SWITCH, Token_rhino_RETURN, Token_rhino_THROW:
-			Preconditions_checkState(child.isFirstChildOf(current))
+		switch current.ns_().token {
+		case tokOrd1_EXPR_RESULT, tokOrd1_IF, tokOrd1_SWITCH, tokOrd1_RETURN, tokOrd1_THROW:
+			if !child.isFirstChildOf(current) {
+				panic(new_IllegalStateException_0())
+			}
 			return current
-		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 			if NodeUtil_isAnyFor(parent) {
 				break
 			}
 			return current
-		case Token_rhino_FOR:
+		case tokOrd1_FOR:
 			if child.isFirstChildOf(current) {
 				return current
 			}
 			fallthrough
-		case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_DO, Token_rhino_WHILE, Token_rhino_SCRIPT, Token_rhino_BLOCK, Token_rhino_LABEL, Token_rhino_CASE, Token_rhino_SWITCH_BODY, Token_rhino_DEFAULT_CASE, Token_rhino_DEFAULT_VALUE, Token_rhino_PARAM_LIST, Token_rhino_CLASS:
+		case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_DO, tokOrd1_WHILE, tokOrd1_SCRIPT, tokOrd1_BLOCK, tokOrd1_LABEL, tokOrd1_CASE, tokOrd1_SWITCH_BODY, tokOrd1_DEFAULT_CASE, tokOrd1_DEFAULT_VALUE, tokOrd1_PARAM_LIST, tokOrd1_CLASS:
 			return 0
 		default:
 		}
 		child = current
 	}
-	panic(new_IllegalStateException_String("Unexpected AST structure.").self())
+	panic(new_IllegalStateException_String("Unexpected AST structure."))
 }
 
-func (this *ExpressionDecomposer) canExposeExpression(subExpression Node) *ExpressionDecomposer_DecompositionType {
+func (this *ExpressionDecomposer) canExposeExpression(subExpression Node) ExpressionDecomposer_DecompositionType {
 	var expressionRoot Node = ExpressionDecomposer_findExpressionRoot(subExpression)
 	if expressionRoot != 0 {
 		return this.isSubexpressionMovable(expressionRoot, subExpression)
@@ -468,7 +505,7 @@ func (this *ExpressionDecomposer) canExposeExpression(subExpression Node) *Expre
 	return ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE
 }
 
-func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, subExpression Node) *ExpressionDecomposer_DecompositionType {
+func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, subExpression Node) ExpressionDecomposer_DecompositionType {
 	var requiresDecomposition bool = false
 	var seenSideEffects bool = this.astAnalyzer.mayHaveSideEffects(subExpression)
 	if NodeUtil_isOptChainNode(subExpression) && !NodeUtil_isEndOfFullOptChain(subExpression) {
@@ -485,7 +522,7 @@ func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, su
 			return ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE
 		}
 		if parent == expressionRoot {
-			return func() *ExpressionDecomposer_DecompositionType {
+			return func() ExpressionDecomposer_DecompositionType {
 				if requiresDecomposition {
 					return ExpressionDecomposer_DecompositionType_DECOMPOSABLE
 				}
@@ -499,7 +536,7 @@ func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, su
 		} else {
 			if this.isSafeAssign(parent, seenSideEffects) {
 			} else {
-				var direction *ExpressionDecomposer_EvaluationDirection = ExpressionDecomposer_getEvaluationDirection(parent)
+				var direction ExpressionDecomposer_EvaluationDirection = ExpressionDecomposer_getEvaluationDirection(parent)
 				{
 					var n Node = this.getFirstEvaluatedChild(parent, direction)
 					for ; n != 0; n = this.getNextEvaluatedSibling(n, direction) {
@@ -520,12 +557,12 @@ func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, su
 		}
 		child = parent
 	}
-	panic(new_IllegalStateException_String("Unexpected.").self())
+	panic(new_IllegalStateException_String("Unexpected."))
 }
 
-func ExpressionDecomposer_getEvaluationDirection(node Node) *ExpressionDecomposer_EvaluationDirection {
-	switch node.getToken() {
-	case Token_rhino_DESTRUCTURING_LHS, Token_rhino_ASSIGN, Token_rhino_DEFAULT_VALUE:
+func ExpressionDecomposer_getEvaluationDirection(node Node) ExpressionDecomposer_EvaluationDirection {
+	switch node.ns_().token {
+	case tokOrd1_DESTRUCTURING_LHS, tokOrd1_ASSIGN, tokOrd1_DEFAULT_VALUE:
 		if node.getFirstChild().isDestructuringPattern() {
 			return ExpressionDecomposer_EvaluationDirection_REVERSE
 		}
@@ -533,10 +570,9 @@ func ExpressionDecomposer_getEvaluationDirection(node Node) *ExpressionDecompose
 	default:
 		return ExpressionDecomposer_EvaluationDirection_FORWARD
 	}
-	panic("unreachable")
 }
 
-func (this *ExpressionDecomposer) getFirstEvaluatedChild(parent Node, direction *ExpressionDecomposer_EvaluationDirection) Node {
+func (this *ExpressionDecomposer) getFirstEvaluatedChild(parent Node, direction ExpressionDecomposer_EvaluationDirection) Node {
 	return func() Node {
 		if direction == ExpressionDecomposer_EvaluationDirection_FORWARD {
 			return parent.getFirstChild()
@@ -545,7 +581,7 @@ func (this *ExpressionDecomposer) getFirstEvaluatedChild(parent Node, direction 
 	}()
 }
 
-func (this *ExpressionDecomposer) getNextEvaluatedSibling(node Node, direction *ExpressionDecomposer_EvaluationDirection) Node {
+func (this *ExpressionDecomposer) getNextEvaluatedSibling(node Node, direction ExpressionDecomposer_EvaluationDirection) Node {
 	return func() Node {
 		if direction == ExpressionDecomposer_EvaluationDirection_FORWARD {
 			return node.getNext()
@@ -557,12 +593,12 @@ func (this *ExpressionDecomposer) getNextEvaluatedSibling(node Node, direction *
 func (this *ExpressionDecomposer) isSafeAssign(n Node, seenSideEffects bool) bool {
 	if n.isAssign() {
 		var lhs Node = n.getFirstChild()
-		switch lhs.getToken() {
-		case Token_rhino_NAME:
+		switch lhs.ns_().token {
+		case tokOrd1_NAME:
 			return true
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			return !this.isExpressionTreeUnsafe(lhs.getFirstChild(), seenSideEffects)
-		case Token_rhino_GETELEM:
+		case tokOrd1_GETELEM:
 			return (!this.isExpressionTreeUnsafe(lhs.getFirstChild(), seenSideEffects) && !this.isExpressionTreeUnsafe(lhs.getLastChild(), seenSideEffects))
 		default:
 		}
@@ -585,18 +621,17 @@ func (this *ExpressionDecomposer) isExpressionTreeUnsafe(tree Node, followingSid
 				}
 				return tree
 			}()
-			if tree.isFirstChildOf(parent) && (this.isTempConstantValueName(callee) || Collection_contains_s(this.knownConstantFunctions, callee.getQualifiedName())) {
+			if tree.isFirstChildOf(parent) && (this.isTempConstantValueName(callee) || this.knownConstantFunctions.Has(callee.getQualifiedName())) {
 				return false
 			}
 		}
 		if this.enabledWorkarounds.contains(obj_(ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN)) && ExpressionDecomposer_WINDOW_LOCATION_ASSIGN.matches(tree) {
 			return false
 		}
-		return NodeUtil_canBeSideEffected_Node_Set_Scope(tree, icast_Set(obj_(this.knownConstantFunctions)), this.scope_)
+		return NodeUtil_canBeSideEffected_Node_Set_Scope(tree, setImm_(tc_string, this.knownConstantFunctions.asImm()), this.scope_)
 	} else {
 		return this.astAnalyzer.mayHaveSideEffects(tree)
 	}
-	panic("unreachable")
 }
 
 const ExpressionDecomposer_MAX_ITERATIONS int32 = 1000
@@ -614,45 +649,66 @@ func ExpressionDecomposer_clinit() {
 
 }
 
-type ExpressionDecomposer_DecompositionType struct {
-	Enum
+type ExpressionDecomposer_DecompositionType uint8
+
+// ExpressionDecomposer_DecompositionType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ExpressionDecomposer_DecompositionType_enum_ = [3]Enum{
+	{self_: ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE, name_: "UNDECOMPOSABLE", ordinal_: 0},
+	{self_: ExpressionDecomposer_DecompositionType_MOVABLE, name_: "MOVABLE", ordinal_: 1},
+	{self_: ExpressionDecomposer_DecompositionType_DECOMPOSABLE, name_: "DECOMPOSABLE", ordinal_: 2},
 }
 
-func (this *ExpressionDecomposer_DecompositionType) up_Enum() *Enum {
-	if this == nil {
+func (this ExpressionDecomposer_DecompositionType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ExpressionDecomposer_DecompositionType_enum_[this-1]
 }
 
-func (this *ExpressionDecomposer_DecompositionType) init_ExpressionDecomposer_DecompositionType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ExpressionDecomposer_DecompositionType) name() string {
+	return this.enum_().name_
 }
 
-func new_ExpressionDecomposer_DecompositionType(name_ string, ordinal_ int32) *ExpressionDecomposer_DecompositionType {
-	this := &ExpressionDecomposer_DecompositionType{}
-	this.self_ = this
-	this.init_ExpressionDecomposer_DecompositionType(name_, ordinal_)
+func (this ExpressionDecomposer_DecompositionType) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ExpressionDecomposer_DecompositionType) toString() string {
+	return this.enum_().name_
+}
+
+func (this ExpressionDecomposer_DecompositionType) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ExpressionDecomposer_DecompositionType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ExpressionDecomposer_DecompositionType_values() []*ExpressionDecomposer_DecompositionType {
-	return append([]*ExpressionDecomposer_DecompositionType(nil), ExpressionDecomposer_DecompositionType_values_...)
+func ExpressionDecomposer_DecompositionType_values() []ExpressionDecomposer_DecompositionType {
+	return append([]ExpressionDecomposer_DecompositionType(nil), ExpressionDecomposer_DecompositionType_values_...)
 }
 
-func ExpressionDecomposer_DecompositionType_valueOf(name string) *ExpressionDecomposer_DecompositionType {
+func ExpressionDecomposer_DecompositionType_valueOf(name string) ExpressionDecomposer_DecompositionType {
 	for _, v := range ExpressionDecomposer_DecompositionType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("DecompositionType", name))
 }
 
-var ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE *ExpressionDecomposer_DecompositionType
-var ExpressionDecomposer_DecompositionType_MOVABLE *ExpressionDecomposer_DecompositionType
-var ExpressionDecomposer_DecompositionType_DECOMPOSABLE *ExpressionDecomposer_DecompositionType
-var ExpressionDecomposer_DecompositionType_values_ []*ExpressionDecomposer_DecompositionType
+const ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE ExpressionDecomposer_DecompositionType = 1
+const ExpressionDecomposer_DecompositionType_MOVABLE ExpressionDecomposer_DecompositionType = 2
+const ExpressionDecomposer_DecompositionType_DECOMPOSABLE ExpressionDecomposer_DecompositionType = 3
+
+var ExpressionDecomposer_DecompositionType_values_ []ExpressionDecomposer_DecompositionType
 
 var ExpressionDecomposer_DecompositionType_clinit_done bool
 
@@ -661,51 +717,67 @@ func ExpressionDecomposer_DecompositionType_clinit() {
 		return
 	}
 	ExpressionDecomposer_DecompositionType_clinit_done = true
-	ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE = new_ExpressionDecomposer_DecompositionType("UNDECOMPOSABLE", 0)
-	ExpressionDecomposer_DecompositionType_MOVABLE = new_ExpressionDecomposer_DecompositionType("MOVABLE", 1)
-	ExpressionDecomposer_DecompositionType_DECOMPOSABLE = new_ExpressionDecomposer_DecompositionType("DECOMPOSABLE", 2)
-	ExpressionDecomposer_DecompositionType_values_ = []*ExpressionDecomposer_DecompositionType{ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE, ExpressionDecomposer_DecompositionType_MOVABLE, ExpressionDecomposer_DecompositionType_DECOMPOSABLE}
+	ExpressionDecomposer_DecompositionType_values_ = []ExpressionDecomposer_DecompositionType{ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE, ExpressionDecomposer_DecompositionType_MOVABLE, ExpressionDecomposer_DecompositionType_DECOMPOSABLE}
 	registerEnum_("com.google.javascript.jscomp.ExpressionDecomposer.DecompositionType", enumValues_(ExpressionDecomposer_DecompositionType_values_))
 
 }
 
-type ExpressionDecomposer_Workaround struct {
-	Enum
+type ExpressionDecomposer_Workaround uint8
+
+// ExpressionDecomposer_Workaround_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ExpressionDecomposer_Workaround_enum_ = [1]Enum{
+	{self_: ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN, name_: "BROKEN_IE11_LOCATION_ASSIGN", ordinal_: 0},
 }
 
-func (this *ExpressionDecomposer_Workaround) up_Enum() *Enum {
-	if this == nil {
+func (this ExpressionDecomposer_Workaround) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ExpressionDecomposer_Workaround_enum_[this-1]
 }
 
-func (this *ExpressionDecomposer_Workaround) init_ExpressionDecomposer_Workaround(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ExpressionDecomposer_Workaround) name() string {
+	return this.enum_().name_
 }
 
-func new_ExpressionDecomposer_Workaround(name_ string, ordinal_ int32) *ExpressionDecomposer_Workaround {
-	this := &ExpressionDecomposer_Workaround{}
-	this.self_ = this
-	this.init_ExpressionDecomposer_Workaround(name_, ordinal_)
+func (this ExpressionDecomposer_Workaround) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ExpressionDecomposer_Workaround) toString() string {
+	return this.enum_().name_
+}
+
+func (this ExpressionDecomposer_Workaround) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ExpressionDecomposer_Workaround) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ExpressionDecomposer_Workaround_values() []*ExpressionDecomposer_Workaround {
-	return append([]*ExpressionDecomposer_Workaround(nil), ExpressionDecomposer_Workaround_values_...)
+func ExpressionDecomposer_Workaround_values() []ExpressionDecomposer_Workaround {
+	return append([]ExpressionDecomposer_Workaround(nil), ExpressionDecomposer_Workaround_values_...)
 }
 
-func ExpressionDecomposer_Workaround_valueOf(name string) *ExpressionDecomposer_Workaround {
+func ExpressionDecomposer_Workaround_valueOf(name string) ExpressionDecomposer_Workaround {
 	for _, v := range ExpressionDecomposer_Workaround_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Workaround", name))
 }
 
-var ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN *ExpressionDecomposer_Workaround
-var ExpressionDecomposer_Workaround_values_ []*ExpressionDecomposer_Workaround
+const ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN ExpressionDecomposer_Workaround = 1
+
+var ExpressionDecomposer_Workaround_values_ []ExpressionDecomposer_Workaround
 
 var ExpressionDecomposer_Workaround_clinit_done bool
 
@@ -714,8 +786,7 @@ func ExpressionDecomposer_Workaround_clinit() {
 		return
 	}
 	ExpressionDecomposer_Workaround_clinit_done = true
-	ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN = new_ExpressionDecomposer_Workaround("BROKEN_IE11_LOCATION_ASSIGN", 0)
-	ExpressionDecomposer_Workaround_values_ = []*ExpressionDecomposer_Workaround{ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN}
+	ExpressionDecomposer_Workaround_values_ = []ExpressionDecomposer_Workaround{ExpressionDecomposer_Workaround_BROKEN_IE11_LOCATION_ASSIGN}
 	registerEnum_("com.google.javascript.jscomp.ExpressionDecomposer.Workaround", enumValues_(ExpressionDecomposer_Workaround_values_))
 
 }
@@ -736,47 +807,67 @@ func new_ExpressionDecomposer_DecompositionState() *ExpressionDecomposer_Decompo
 }
 
 func (this *ExpressionDecomposer_DecompositionState) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add_String_boolean("sideEffects", this.sideEffects).add("extractBeforeStatement", this.extractBeforeStatement.box_())))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add_String_boolean("sideEffects", this.sideEffects).add("extractBeforeStatement", this.extractBeforeStatement.box_()))
 }
 
-type ExpressionDecomposer_EvaluationDirection struct {
-	Enum
+type ExpressionDecomposer_EvaluationDirection uint8
+
+// ExpressionDecomposer_EvaluationDirection_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ExpressionDecomposer_EvaluationDirection_enum_ = [2]Enum{
+	{self_: ExpressionDecomposer_EvaluationDirection_FORWARD, name_: "FORWARD", ordinal_: 0},
+	{self_: ExpressionDecomposer_EvaluationDirection_REVERSE, name_: "REVERSE", ordinal_: 1},
 }
 
-func (this *ExpressionDecomposer_EvaluationDirection) up_Enum() *Enum {
-	if this == nil {
+func (this ExpressionDecomposer_EvaluationDirection) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ExpressionDecomposer_EvaluationDirection_enum_[this-1]
 }
 
-func (this *ExpressionDecomposer_EvaluationDirection) init_ExpressionDecomposer_EvaluationDirection(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ExpressionDecomposer_EvaluationDirection) name() string {
+	return this.enum_().name_
 }
 
-func new_ExpressionDecomposer_EvaluationDirection(name_ string, ordinal_ int32) *ExpressionDecomposer_EvaluationDirection {
-	this := &ExpressionDecomposer_EvaluationDirection{}
-	this.self_ = this
-	this.init_ExpressionDecomposer_EvaluationDirection(name_, ordinal_)
+func (this ExpressionDecomposer_EvaluationDirection) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ExpressionDecomposer_EvaluationDirection) toString() string {
+	return this.enum_().name_
+}
+
+func (this ExpressionDecomposer_EvaluationDirection) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ExpressionDecomposer_EvaluationDirection) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ExpressionDecomposer_EvaluationDirection_values() []*ExpressionDecomposer_EvaluationDirection {
-	return append([]*ExpressionDecomposer_EvaluationDirection(nil), ExpressionDecomposer_EvaluationDirection_values_...)
+func ExpressionDecomposer_EvaluationDirection_values() []ExpressionDecomposer_EvaluationDirection {
+	return append([]ExpressionDecomposer_EvaluationDirection(nil), ExpressionDecomposer_EvaluationDirection_values_...)
 }
 
-func ExpressionDecomposer_EvaluationDirection_valueOf(name string) *ExpressionDecomposer_EvaluationDirection {
+func ExpressionDecomposer_EvaluationDirection_valueOf(name string) ExpressionDecomposer_EvaluationDirection {
 	for _, v := range ExpressionDecomposer_EvaluationDirection_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("EvaluationDirection", name))
 }
 
-var ExpressionDecomposer_EvaluationDirection_FORWARD *ExpressionDecomposer_EvaluationDirection
-var ExpressionDecomposer_EvaluationDirection_REVERSE *ExpressionDecomposer_EvaluationDirection
-var ExpressionDecomposer_EvaluationDirection_values_ []*ExpressionDecomposer_EvaluationDirection
+const ExpressionDecomposer_EvaluationDirection_FORWARD ExpressionDecomposer_EvaluationDirection = 1
+const ExpressionDecomposer_EvaluationDirection_REVERSE ExpressionDecomposer_EvaluationDirection = 2
+
+var ExpressionDecomposer_EvaluationDirection_values_ []ExpressionDecomposer_EvaluationDirection
 
 var ExpressionDecomposer_EvaluationDirection_clinit_done bool
 
@@ -785,9 +876,7 @@ func ExpressionDecomposer_EvaluationDirection_clinit() {
 		return
 	}
 	ExpressionDecomposer_EvaluationDirection_clinit_done = true
-	ExpressionDecomposer_EvaluationDirection_FORWARD = new_ExpressionDecomposer_EvaluationDirection("FORWARD", 0)
-	ExpressionDecomposer_EvaluationDirection_REVERSE = new_ExpressionDecomposer_EvaluationDirection("REVERSE", 1)
-	ExpressionDecomposer_EvaluationDirection_values_ = []*ExpressionDecomposer_EvaluationDirection{ExpressionDecomposer_EvaluationDirection_FORWARD, ExpressionDecomposer_EvaluationDirection_REVERSE}
+	ExpressionDecomposer_EvaluationDirection_values_ = []ExpressionDecomposer_EvaluationDirection{ExpressionDecomposer_EvaluationDirection_FORWARD, ExpressionDecomposer_EvaluationDirection_REVERSE}
 	registerEnum_("com.google.javascript.jscomp.ExpressionDecomposer.EvaluationDirection", enumValues_(ExpressionDecomposer_EvaluationDirection_values_))
 
 }

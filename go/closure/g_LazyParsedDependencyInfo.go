@@ -6,13 +6,22 @@ type LazyParsedDependencyInfo struct {
 	delegate   DependencyInfo
 	ast        *CompilerInput
 	compiler_  *AbstractCompiler
-	loadFlags_ ImmutableMapOf[string, string]
+	loadFlags_ *ImmutableMap[string, string]
 }
 
 func (this *LazyParsedDependencyInfo) init_LazyParsedDependencyInfo(delegate DependencyInfo, ast *CompilerInput, compiler *AbstractCompiler) {
-	this.delegate = icast_DependencyInfo(Preconditions_checkNotNull(any(delegate)))
-	this.ast = cast_[*CompilerInput](Preconditions_checkNotNull(obj_(ast)))
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	if delegate == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.delegate = delegate
+	if ast == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.ast = ast
+	if compiler == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.compiler_ = compiler
 }
 
 func new_LazyParsedDependencyInfo(delegate DependencyInfo, ast *CompilerInput, compiler *AbstractCompiler) *LazyParsedDependencyInfo {
@@ -29,24 +38,24 @@ func (this *LazyParsedDependencyInfo) isGoogModule() bool {
 	return this.delegate.isGoogModule()
 }
 
-func (this *LazyParsedDependencyInfo) getLoadFlags() ImmutableMapOf[string, string] {
+func (this *LazyParsedDependencyInfo) getLoadFlags() *ImmutableMap[string, string] {
 	if this.loadFlags_ == nil {
-		var loadFlagsBuilder MapOf[string, string] = icast_Map(obj_(new_TreeMap()))
+		var loadFlagsBuilder *TTreeMap[string, string] = newTTreeMap_(tc_string, tc_string)
 		var hadSourceInMemory bool = this.ast.getSourceFile().hasSourceInMemory()
-		loadFlagsBuilder.putAll(icast_Map(obj_(this.delegate.getLoadFlags())))
+		loadFlagsBuilder.asMap().putAll(icast_Map(obj_(this.delegate.getLoadFlags().asImm())))
 		var features *FeatureSet = this.ast.getFeatures(this.compiler_)
 		if features.has(FeatureSet_Feature_MODULES) {
-			var previousModule Optional[string] = Optional_ofNullable[string](str_(Map_get_s(loadFlagsBuilder, "module")))
+			var previousModule Optional[string] = Optional_ofNullable[string](loadFlagsBuilder.get("module"))
 			if previousModule.isPresent() && !(previousModule.get() == "es6") {
 				this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](this.getName()), -1, -1, ModuleLoader_MODULE_CONFLICT, []string{this.getName()}))
 			}
-			Map_put_s(loadFlagsBuilder, "module", strobj_("es6"))
+			loadFlagsBuilder.put("module", "es6")
 		}
 		var version string = features.version()
 		if !(version == "es3") {
-			Map_put_s(loadFlagsBuilder, "lang", strobj_(version))
+			loadFlagsBuilder.put("lang", version)
 		}
-		this.loadFlags_ = ImmutableMap_copyOf(loadFlagsBuilder)
+		this.loadFlags_ = immutableMapCopyOf_(tc_string, tc_string, loadFlagsBuilder.asMap())
 		if !hadSourceInMemory {
 			this.ast.getSourceFile().clearCachedSource()
 		}
@@ -63,15 +72,15 @@ func (this *LazyParsedDependencyInfo) getPathRelativeToClosureBase() string {
 	return this.delegate.getPathRelativeToClosureBase()
 }
 
-func (this *LazyParsedDependencyInfo) getRequires() ImmutableListOf[*DependencyInfo_Require] {
+func (this *LazyParsedDependencyInfo) getRequires() *ImmutableList[*DependencyInfo_Require] {
 	return this.delegate.getRequires()
 }
 
-func (this *LazyParsedDependencyInfo) getTypeRequires() ImmutableListOf[string] {
+func (this *LazyParsedDependencyInfo) getTypeRequires() *ImmutableList[string] {
 	return this.delegate.getTypeRequires()
 }
 
-func (this *LazyParsedDependencyInfo) getProvides() ImmutableListOf[string] {
+func (this *LazyParsedDependencyInfo) getProvides() *ImmutableList[string] {
 	return this.delegate.getProvides()
 }
 
@@ -83,6 +92,6 @@ func (this *LazyParsedDependencyInfo) getHasNoCompileAnnotation() bool {
 	return this.delegate.getHasNoCompileAnnotation()
 }
 
-func (this *LazyParsedDependencyInfo) getRequiredSymbols() *ImmutableList {
-	return DependencyInfo_getRequiredSymbols_default(icast_DependencyInfo(any(this)))
+func (this *LazyParsedDependencyInfo) getRequiredSymbols() *ImmutableList[string] {
+	return DependencyInfo_getRequiredSymbols_default(this)
 }

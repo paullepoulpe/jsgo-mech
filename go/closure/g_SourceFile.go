@@ -2,9 +2,11 @@
 
 package closure
 
+import "strings"
+
 type SourceFile_jscomp struct {
 	fileName                                     string
-	kind_                                        *StaticSourceFile_SourceKind
+	kind_                                        StaticSourceFile_SourceKind
 	loader                                       *SourceFile_CodeLoader
 	isStubSourceFileForAlreadyProvidedInputField bool
 	lineOffsets                                  []int32
@@ -27,20 +29,20 @@ func (this *SourceFile_jscomp) finit_SourceFile_jscomp() {
 	this.isClosureUnawareCodeField = false
 }
 
-func (this *SourceFile_jscomp) init_SourceFile_jscomp(loader *SourceFile_CodeLoader, fileName string, kind *StaticSourceFile_SourceKind) {
+func (this *SourceFile_jscomp) init_SourceFile_jscomp(loader *SourceFile_CodeLoader, fileName string, kind StaticSourceFile_SourceKind) {
 	this.finit_SourceFile_jscomp()
 	if Strings_isNullOrEmpty(fileName) {
-		panic(new_IllegalArgumentException_String("a source must have a name").self())
+		panic(new_IllegalArgumentException_String("a source must have a name"))
 	}
 	if !("/" == Platform_getFileSeperator()) {
-		fileName = String_replace(fileName, strobj_(Platform_getFileSeperator()), strobj_("/"))
+		fileName = strings.ReplaceAll(fileName, csStr_(Platform_getFileSeperator()), "/")
 	}
 	this.loader = loader
 	this.fileName = fileName
 	this.kind_ = kind
 }
 
-func new_SourceFile_jscomp(loader *SourceFile_CodeLoader, fileName string, kind *StaticSourceFile_SourceKind) *SourceFile_jscomp {
+func new_SourceFile_jscomp(loader *SourceFile_CodeLoader, fileName string, kind StaticSourceFile_SourceKind) *SourceFile_jscomp {
 	this := &SourceFile_jscomp{}
 	this.zero_SourceFile_jscomp()
 	this.init_SourceFile_jscomp(loader, fileName, kind)
@@ -58,7 +60,7 @@ func (this *SourceFile_jscomp) setIsStubSourceFileForAlreadyProvidedInput(isStub
 func (this *SourceFile_jscomp) getLineOffset(lineno int32) int32 {
 	this.findLineOffsets()
 	if (lineno < 1) || (lineno > int32(len(this.lineOffsets))) {
-		panic(new_IllegalArgumentException_String(("Expected line number between 1 and " + istr_(int64(int32(len(this.lineOffsets)))) + "\nActual: " + istr_(int64(lineno)))).self())
+		panic(new_IllegalArgumentException_String(("Expected line number between 1 and " + istr_(int64(int32(len(this.lineOffsets)))) + "\nActual: " + istr_(int64(lineno)))))
 	}
 	return this.lineOffsets[(lineno - 1)]
 }
@@ -94,7 +96,6 @@ func SourceFile_jscomp_isLineTerminator(ch uint16) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -114,17 +115,20 @@ func (this *SourceFile_jscomp) findLineOffsets() {
 	}
 	var offsets []int32 = make([]int32, this.numLines)
 	var index int32 = 1
-	for i := int32(0); i < String_length(localCode.get()); i++ {
-		var ch uint16 = String_charAt(localCode.get(), i)
+	var localCodeU16 utf16_
+	for i := int32(0); i < localCodeU16.of(localCode.get()).length(); i++ {
+		var ch uint16 = localCodeU16.of(localCode.get()).charAt(i)
 		if SourceFile_jscomp_isLineTerminator(ch) {
-			if ((ch == '\r') && ((i + 1) < String_length(localCode.get()))) && (String_charAt(localCode.get(), (i+1)) == '\n') {
+			if ((ch == '\r') && ((i + 1) < localCodeU16.of(localCode.get()).length())) && (localCodeU16.of(localCode.get()).charAt((i + 1)) == '\n') {
 				i++
 			}
 			offsets[index] = (i + 1)
 			index++
 		}
 	}
-	Preconditions_checkState((index == int32(len(offsets))))
+	if index != int32(len(offsets)) {
+		panic(new_IllegalStateException_0())
+	}
 	this.lineOffsets = offsets
 }
 
@@ -165,15 +169,16 @@ func (this *SourceFile_jscomp) setCodeAndDoBookkeeping(sourceCode Optional[strin
 	this.code_ = Optional_empty[string]()
 	this.lineOffsets = nil
 	if sourceCode.isPresent() {
-		if String_startsWith(sourceCode.get(), SourceFile_jscomp_UTF8_BOM) {
-			sourceCode = Optional_of[string](String_substring_int(sourceCode.get(), String_length(SourceFile_jscomp_UTF8_BOM)))
+		if strings.HasPrefix(sourceCode.get(), SourceFile_jscomp_UTF8_BOM) {
+			sourceCode = Optional_of[string](sourceCode.get()[len(SourceFile_jscomp_UTF8_BOM):])
 		}
-		this.numBytes = String_length(sourceCode.get())
+		var sourceCodeU16 utf16_
+		this.numBytes = sourceCodeU16.of(sourceCode.get()).length()
 		var numLines int32 = 1
-		for i := int32(0); i < String_length(sourceCode.get()); i++ {
-			var ch uint16 = String_charAt(sourceCode.get(), i)
+		for i := int32(0); i < sourceCodeU16.of(sourceCode.get()).length(); i++ {
+			var ch uint16 = sourceCodeU16.of(sourceCode.get()).charAt(i)
 			if SourceFile_jscomp_isLineTerminator(ch) {
-				if ((ch == '\r') && ((i + 1) < String_length(sourceCode.get()))) && (String_charAt(sourceCode.get(), (i+1)) == '\n') {
+				if ((ch == '\r') && ((i + 1) < sourceCodeU16.of(sourceCode.get()).length())) && (sourceCodeU16.of(sourceCode.get()).charAt((i + 1)) == '\n') {
 					i++
 				}
 				numLines++
@@ -200,11 +205,11 @@ func (this *SourceFile_jscomp) getName() string {
 	return this.fileName
 }
 
-func (this *SourceFile_jscomp) getKind() *StaticSourceFile_SourceKind {
+func (this *SourceFile_jscomp) getKind() StaticSourceFile_SourceKind {
 	return this.kind_
 }
 
-func (this *SourceFile_jscomp) setKind(kind *StaticSourceFile_SourceKind) {
+func (this *SourceFile_jscomp) setKind(kind StaticSourceFile_SourceKind) {
 	this.kind_ = kind
 }
 
@@ -217,7 +222,9 @@ func (this *SourceFile_jscomp) markAsClosureUnawareCode() {
 }
 
 func (this *SourceFile_jscomp) getLineOfOffset(offset int32) int32 {
-	Preconditions_checkArgument_boolean_String_int((offset >= 0), "offset must be non-negative: %s", offset)
+	if offset < 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("offset must be non-negative: %s", []any{offset})))
+	}
 	this.findLineOffsets()
 	var search int32 = Arrays_binarySearch(this.lineOffsets, offset)
 	if search >= 0 {
@@ -226,7 +233,6 @@ func (this *SourceFile_jscomp) getLineOfOffset(offset int32) int32 {
 		var insertionPoint int32 = (-1 * (search + 1))
 		return (Math_min((insertionPoint-1), (int32(len(this.lineOffsets))-1)) + 1)
 	}
-	panic("unreachable")
 }
 
 func (this *SourceFile_jscomp) getColumnOfOffset(offset int32) int32 {
@@ -248,21 +254,21 @@ func (this *SourceFile_jscomp) getLine(lineNumber int32) Optional[string] {
 		lineNumber = 1
 	}
 	var pos int32 = this.lineOffsets[(lineNumber - 1)]
+	jsU16 := utf16Of_(js)
 	if lineNumber < int32(len(this.lineOffsets)) {
 		var nextPos int32 = this.lineOffsets[lineNumber]
 		var endPos int32 = (nextPos - 1)
-		if ((String_charAt(js, endPos) == '\n') && (endPos > pos)) && (String_charAt(js, (endPos-1)) == '\r') {
+		if ((jsU16.charAt(endPos) == '\n') && (endPos > pos)) && (jsU16.charAt((endPos - 1)) == '\r') {
 			endPos--
 		}
-		return Optional_of[string](String_substring(js, pos, endPos))
+		return Optional_of[string](jsU16.substring(pos, endPos))
 	} else {
-		if pos >= String_length(js) {
+		if pos >= jsU16.length() {
 			return Optional_empty[string]()
 		} else {
-			return Optional_of[string](String_substring_int(js, pos))
+			return Optional_of[string](jsU16.substring_int(pos))
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *SourceFile_jscomp) getLines(lineNumber int32, length int32) Region {
@@ -282,8 +288,9 @@ func (this *SourceFile_jscomp) getLines(lineNumber int32, length int32) Region {
 		length = 1
 	}
 	var pos int32 = this.lineOffsets[(lineNumber - 1)]
-	if pos == String_length(js) {
-		return icast_Region(obj_(new_SimpleRegion(lineNumber, lineNumber, "")))
+	jsU16 := utf16Of_(js)
+	if pos == jsU16.length() {
+		return new_SimpleRegion(lineNumber, lineNumber, "")
 	}
 	var endChar int32 = pos
 	var endLine int32 = lineNumber
@@ -292,20 +299,20 @@ func (this *SourceFile_jscomp) getLines(lineNumber int32, length int32) Region {
 			if endLine < int32(len(this.lineOffsets)) {
 				return this.lineOffsets[endLine]
 			}
-			return String_length(js)
+			return jsU16.length()
 		}()
 	}
 	if endChar > pos {
-		if String_charAt(js, (endChar-1)) == '\n' {
-			if ((endChar - 1) > pos) && (String_charAt(js, (endChar-2)) == '\r') {
-				return icast_Region(obj_(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-2)))))
+		if jsU16.charAt((endChar - 1)) == '\n' {
+			if ((endChar - 1) > pos) && (jsU16.charAt((endChar - 2)) == '\r') {
+				return new_SimpleRegion(lineNumber, endLine, jsU16.substring(pos, (endChar-2)))
 			}
-			return icast_Region(obj_(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-1)))))
-		} else if SourceFile_jscomp_isLineTerminator(String_charAt(js, (endChar - 1))) {
-			return icast_Region(obj_(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-1)))))
+			return new_SimpleRegion(lineNumber, endLine, jsU16.substring(pos, (endChar-1)))
+		} else if SourceFile_jscomp_isLineTerminator(jsU16.charAt((endChar - 1))) {
+			return new_SimpleRegion(lineNumber, endLine, jsU16.substring(pos, (endChar-1)))
 		}
 	}
-	return icast_Region(obj_(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, endChar))))
+	return new_SimpleRegion(lineNumber, endLine, jsU16.substring(pos, endChar))
 }
 
 func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
@@ -317,7 +324,7 @@ func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
 	var pos int32 = 0
 	var startLine int32 = Math_max(1, ((lineNumber - 3) + 1))
 	for n := int32(1); n < startLine; n++ {
-		var nextpos int32 = String_indexOf_int_int(js, 10, pos)
+		var nextpos int32 = indexByteFrom_(js, '\n', pos)
 		if nextpos == -1 {
 			break
 		}
@@ -334,7 +341,7 @@ func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
 		if !(n < SourceFile_jscomp_SOURCE_EXCERPT_REGION_LENGTH) {
 			break
 		}
-		end = String_indexOf_int_int(js, 10, end)
+		end = indexByteFrom_(js, '\n', end)
 		if end == -1 {
 			break
 		}
@@ -344,16 +351,15 @@ func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
 		return nil
 	}
 	if end == -1 {
-		var last int32 = (String_length(js) - 1)
-		if String_charAt(js, last) == '\n' {
-			return icast_Region(obj_(new_SimpleRegion(startLine, endLine, String_substring(js, pos, last))))
+		var last int32 = (int32(len(js)) - 1)
+		if byteAt_(js, last) == '\n' {
+			return new_SimpleRegion(startLine, endLine, cutBytes_(js, pos, last))
 		} else {
-			return icast_Region(obj_(new_SimpleRegion(startLine, endLine, String_substring_int(js, pos))))
+			return new_SimpleRegion(startLine, endLine, js[pos:])
 		}
 	} else {
-		return icast_Region(obj_(new_SimpleRegion(startLine, endLine, String_substring(js, pos, end))))
+		return new_SimpleRegion(startLine, endLine, cutBytes_(js, pos, end))
 	}
-	panic("unreachable")
 }
 
 func (this *SourceFile_jscomp) toString() string {
@@ -382,7 +388,7 @@ func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *JTList[stri
 	it_1 := entryNames.each()
 	for it_1.next() {
 		var entryName string = it_1.v
-		if !String_endsWith(entryName, ".js") {
+		if !strings.HasSuffix(entryName, ".js") {
 			continue
 		}
 		sourceFiles.add(SourceFile_jscomp_builder().withCharset(inputCharset).withOriginalPath((sstr_(zipName) + sstr_(SourceFile_jscomp_BANG_SLASH) + sstr_(entryName))).withZipEntryPath(absoluteZipPath, entryName).build())
@@ -398,7 +404,7 @@ func SourceFile_jscomp_fromFile_String(fileName string) *SourceFile_jscomp {
 	return SourceFile_jscomp_builder().withPath(fileName).build()
 }
 
-func SourceFile_jscomp_fromCode_String_String_SourceKind(fileName string, code string, kind *StaticSourceFile_SourceKind) *SourceFile_jscomp {
+func SourceFile_jscomp_fromCode_String_String_SourceKind(fileName string, code string, kind StaticSourceFile_SourceKind) *SourceFile_jscomp {
 	return SourceFile_jscomp_builder().withPath(fileName).withKind(kind).withContent(code).build()
 }
 
@@ -406,35 +412,35 @@ func SourceFile_jscomp_fromCode_String_String(fileName string, code string) *Sou
 	return SourceFile_jscomp_builder().withPath(fileName).withContent(code).build()
 }
 
-func SourceFile_jscomp_stubSourceFile(fileName string, kind *StaticSourceFile_SourceKind) *SourceFile_jscomp {
+func SourceFile_jscomp_stubSourceFile(fileName string, kind StaticSourceFile_SourceKind) *SourceFile_jscomp {
 	return SourceFile_jscomp_builder().withPath(fileName).withKind(kind).setIsStubSourceFileForAlreadyProvidedInput().build()
 }
 
 func SourceFile_jscomp_stripConfigSegment(path string) string {
-	if String_startsWith(path, "bin/") {
-		return String_substring_int(path, 4)
+	if strings.HasPrefix(path, "bin/") {
+		return path[4:]
 	}
-	if String_startsWith(path, "genfiles/") {
-		return String_substring_int(path, 9)
+	if strings.HasPrefix(path, "genfiles/") {
+		return path[9:]
 	}
-	if String_startsWith(path, "testlogs/") {
-		return String_substring_int(path, 9)
+	if strings.HasPrefix(path, "testlogs/") {
+		return path[9:]
 	}
-	var blazeOutIdx int32 = String_indexOf_String(path, "blaze-out/")
+	var blazeOutIdx int32 = int32(strings.Index(path, "blaze-out/"))
 	if blazeOutIdx == -1 {
-		blazeOutIdx = String_indexOf_String(path, "bazel-out/")
+		blazeOutIdx = int32(strings.Index(path, "bazel-out/"))
 	}
 	if blazeOutIdx != -1 {
-		var nextSlash int32 = String_indexOf_int_int(path, 47, (blazeOutIdx + 10))
+		var nextSlash int32 = indexByteFrom_(path, '/', (blazeOutIdx + 10))
 		if nextSlash != -1 {
-			if String_startsWith_String_int(path, "bin/", (nextSlash + 1)) {
-				return String_substring_int(path, (nextSlash + 5))
+			if hasPrefixAt_(path, "bin/", (nextSlash + 1)) {
+				return path[(nextSlash + 5):]
 			}
-			if String_startsWith_String_int(path, "genfiles/", (nextSlash + 1)) {
-				return String_substring_int(path, (nextSlash + 10))
+			if hasPrefixAt_(path, "genfiles/", (nextSlash + 1)) {
+				return path[(nextSlash + 10):]
 			}
-			if String_startsWith_String_int(path, "testlogs/", (nextSlash + 1)) {
-				return String_substring_int(path, (nextSlash + 10))
+			if hasPrefixAt_(path, "testlogs/", (nextSlash + 1)) {
+				return path[(nextSlash + 10):]
 			}
 		}
 	}
@@ -446,14 +452,22 @@ func SourceFile_jscomp_canonicalizePathForMatching(path string) string {
 }
 
 func (this *SourceFile_jscomp) restoreCachedStateFrom(protoSourceFile *SourceFileProto) {
-	Preconditions_checkState_boolean_String_Object_Object(((protoSourceFile.getFilename() == this.getName()) || (SourceFile_jscomp_canonicalizePathForMatching(protoSourceFile.getFilename()) == SourceFile_jscomp_canonicalizePathForMatching(this.getName()))), "Cannot restore state for %s from %s", strobj_(this.getName()), strobj_(protoSourceFile.getFilename()))
+	if ok_, a1_, a2_ := ((protoSourceFile.getFilename() == this.getName()) || (SourceFile_jscomp_canonicalizePathForMatching(protoSourceFile.getFilename()) == SourceFile_jscomp_canonicalizePathForMatching(this.getName()))), this.getName(), protoSourceFile.getFilename(); !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot restore state for %s from %s", []any{strobj_(a1_), strobj_(a2_)})))
+	}
 	if protoSourceFile.getSourceKind() == SourceFileProto_SourceKind_EXTERN {
-		Preconditions_checkState_boolean_String_Object((this.getKind() == StaticSourceFile_SourceKind_EXTERN), "TypedAST compilations must pass all extern files as externs, not js, but found %s", strobj_(this.getName()))
+		if ok_, a1_ := (this.getKind() == StaticSourceFile_SourceKind_EXTERN), this.getName(); !ok_ {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("TypedAST compilations must pass all extern files as externs, not js, but found %s", []any{strobj_(a1_)})))
+		}
 	}
 	var protoNumLines int32 = (protoSourceFile.getNumLinesPlusOne() - 1)
 	var protoNumBytes int32 = (protoSourceFile.getNumBytesPlusOne() - 1)
-	Preconditions_checkState_boolean_String_int((protoNumLines >= -1), "protoNumLines must be >= -1: %s", protoNumLines)
-	Preconditions_checkState_boolean_String_int((protoNumBytes >= -1), "protoNumBytes must be >= -1: %s", protoNumBytes)
+	if protoNumLines < -1 {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumLines must be >= -1: %s", []any{protoNumLines})))
+	}
+	if protoNumBytes < -1 {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumBytes must be >= -1: %s", []any{protoNumBytes})))
+	}
 	this.numLines = func() int32 {
 		if protoNumLines != -1 {
 			return protoNumLines
@@ -470,12 +484,16 @@ func (this *SourceFile_jscomp) restoreCachedStateFrom(protoSourceFile *SourceFil
 }
 
 func SourceFile_jscomp_fromProto_SourceFileProto(protoSourceFile *SourceFileProto) *SourceFile_jscomp {
-	var sourceKind *StaticSourceFile_SourceKind = SourceFile_jscomp_getSourceKindFromProto(protoSourceFile)
+	var sourceKind StaticSourceFile_SourceKind = SourceFile_jscomp_getSourceKindFromProto(protoSourceFile)
 	var sourceFile *SourceFile_jscomp = SourceFile_jscomp_fromProto_SourceFileProto_SourceKind(protoSourceFile, sourceKind)
 	var protoNumLines int32 = (protoSourceFile.getNumLinesPlusOne() - 1)
 	var protoNumBytes int32 = (protoSourceFile.getNumBytesPlusOne() - 1)
-	Preconditions_checkState_boolean_String_int((protoNumLines >= -1), "protoNumLines must be >= -1: %s", protoNumLines)
-	Preconditions_checkState_boolean_String_int((protoNumBytes >= -1), "protoNumBytes must be >= -1: %s", protoNumBytes)
+	if protoNumLines < -1 {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumLines must be >= -1: %s", []any{protoNumLines})))
+	}
+	if protoNumBytes < -1 {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("protoNumBytes must be >= -1: %s", []any{protoNumBytes})))
+	}
 	sourceFile.numLines = protoNumLines
 	sourceFile.numBytes = protoNumBytes
 	if protoSourceFile.getIsClosureUnawareCode() {
@@ -484,13 +502,13 @@ func SourceFile_jscomp_fromProto_SourceFileProto(protoSourceFile *SourceFileProt
 	return sourceFile
 }
 
-func SourceFile_jscomp_fromProto_SourceFileProto_SourceKind(protoSourceFile *SourceFileProto, sourceKind *StaticSourceFile_SourceKind) *SourceFile_jscomp {
+func SourceFile_jscomp_fromProto_SourceFileProto_SourceKind(protoSourceFile *SourceFileProto, sourceKind StaticSourceFile_SourceKind) *SourceFile_jscomp {
 	switch protoSourceFile.getLoaderCase() {
 	case SourceFileProto_LoaderCase_PRELOADED_CONTENTS:
 		return SourceFile_jscomp_fromCode_String_String_SourceKind(protoSourceFile.getFilename(), protoSourceFile.getPreloadedContents(), sourceKind)
 	case SourceFileProto_LoaderCase_FILE_ON_DISK:
 		var pathOnDisk string = func() string {
-			if String_isEmpty(protoSourceFile.getFileOnDisk().getActualPath()) {
+			if protoSourceFile.getFileOnDisk().getActualPath() == "" {
 				return protoSourceFile.getFilename()
 			}
 			return protoSourceFile.getFileOnDisk().getActualPath()
@@ -503,25 +521,25 @@ func SourceFile_jscomp_fromProto_SourceFileProto_SourceKind(protoSourceFile *Sou
 		return SourceFile_jscomp_builder().withKind(sourceKind).withOriginalPath(protoSourceFile.getFilename()).setIsStubSourceFileForAlreadyProvidedInput().build()
 	case SourceFileProto_LoaderCase_LOADER_NOT_SET:
 	}
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
-func SourceFile_jscomp_getSourceKindFromProto(protoSourceFile *SourceFileProto) *StaticSourceFile_SourceKind {
-	return func() *StaticSourceFile_SourceKind {
+func SourceFile_jscomp_getSourceKindFromProto(protoSourceFile *SourceFileProto) StaticSourceFile_SourceKind {
+	return func() StaticSourceFile_SourceKind {
 		switch protoSourceFile.getSourceKind() {
 		case SourceFileProto_SourceKind_EXTERN:
 			return StaticSourceFile_SourceKind_EXTERN
 		case SourceFileProto_SourceKind_CODE:
 			return StaticSourceFile_SourceKind_STRONG
 		case SourceFileProto_SourceKind_NOT_SPECIFIED, SourceFileProto_SourceKind_UNRECOGNIZED:
-			panic(new_AssertionError_Object(strobj_(Object_toString(obj_(protoSourceFile.getSourceKind())))).self())
+			panic(new_AssertionError_Object(strobj_(tostrNN_(protoSourceFile.getSourceKind()))))
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
 func SourceFile_jscomp_toCharset(protoCharset string) string {
-	if String_isEmpty(protoCharset) {
+	if protoCharset == "" {
 		return Charsets_UTF_8
 	}
 	return protoCharset
@@ -535,38 +553,38 @@ func (this *SourceFile_jscomp) getProto() *SourceFileProto {
 	return cast_[*SourceFileProto](this.loader.toProtoLocationBuilder(this.getName()).setFilename(this.getName()).setSourceKind(SourceFile_jscomp_sourceKindToProto(this.getKind())).setIsClosureUnawareCode(this.isClosureUnawareCodeField).setNumLinesPlusOne((this.numLines + 1)).setNumBytesPlusOne((this.numBytes + 1)).build())
 }
 
-func SourceFile_jscomp_sourceKindToProto(sourceKind *StaticSourceFile_SourceKind) *SourceFileProto_SourceKind {
-	return func() *SourceFileProto_SourceKind {
+func SourceFile_jscomp_sourceKindToProto(sourceKind StaticSourceFile_SourceKind) SourceFileProto_SourceKind {
+	return func() SourceFileProto_SourceKind {
 		switch sourceKind {
 		case StaticSourceFile_SourceKind_EXTERN:
 			return SourceFileProto_SourceKind_EXTERN
 		case StaticSourceFile_SourceKind_STRONG, StaticSourceFile_SourceKind_WEAK:
 			return SourceFileProto_SourceKind_CODE
 		case StaticSourceFile_SourceKind_NON_CODE:
-			panic(new_AssertionError_Object(strobj_(Object_toString(obj_(sourceKind)))).self())
+			panic(new_AssertionError_Object(strobj_(tostrNN_(sourceKind))))
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
 func (this *SourceFile_jscomp) isStrong() bool {
-	return StaticSourceFile_isStrong_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isStrong_default(this)
 }
 
 func (this *SourceFile_jscomp) isWeak() bool {
-	return StaticSourceFile_isWeak_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isWeak_default(this)
 }
 
 func (this *SourceFile_jscomp) isExtern() bool {
-	return StaticSourceFile_isExtern_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isExtern_default(this)
 }
 
 func (this *SourceFile_jscomp) isNonCode() bool {
-	return StaticSourceFile_isNonCode_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isNonCode_default(this)
 }
 
 func (this *SourceFile_jscomp) isTypeScriptSource() bool {
-	return StaticSourceFile_isTypeScriptSource_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isTypeScriptSource_default(this)
 }
 
 const SourceFile_jscomp_UTF8_BOM string = "\ufeff"
@@ -587,13 +605,13 @@ func SourceFile_jscomp_clinit() {
 }
 
 type SourceFile_Builder struct {
-	kind_                                    *StaticSourceFile_SourceKind
+	kind_                                    StaticSourceFile_SourceKind
 	charset                                  string
 	originalPath                             Optional[string]
 	isStubSourceFileForAlreadyProvidedInput_ bool
 	path_                                    Optional[string]
 	zipEntryPath                             Optional[string]
-	lazyContent                              SupplierOf[string]
+	lazyContent                              func() any
 }
 
 func (this *SourceFile_Builder) zero_SourceFile_Builder() {
@@ -621,7 +639,7 @@ func new_SourceFile_Builder() *SourceFile_Builder {
 	return this
 }
 
-func (this *SourceFile_Builder) withKind(kind *StaticSourceFile_SourceKind) *SourceFile_Builder {
+func (this *SourceFile_Builder) withKind(kind StaticSourceFile_SourceKind) *SourceFile_Builder {
 	this.kind_ = kind
 	return this
 }
@@ -636,7 +654,7 @@ func (this *SourceFile_Builder) withPath(path string) *SourceFile_Builder {
 }
 
 func (this *SourceFile_Builder) withContent(x string) *SourceFile_Builder {
-	this.lazyContent = &Supplier_tfn_string{func() string { return String_toString(x) }}
+	this.lazyContent = (&Supplier_tfn_string{func() string { return x }}).get
 	return this
 }
 
@@ -674,7 +692,7 @@ func (this *SourceFile_Builder) build() *SourceFile_jscomp {
 		return file
 	}
 	if this.lazyContent != nil {
-		return new_SourceFile_jscomp(new_SourceFile_CodeLoader_Preloaded(str_(this.lazyContent.get())).up_SourceFile_CodeLoader(), displayPath.get(), this.kind_)
+		return new_SourceFile_jscomp(new_SourceFile_CodeLoader_Preloaded(str_(this.lazyContent())).up_SourceFile_CodeLoader(), displayPath.get(), this.kind_)
 	}
 	if this.zipEntryPath.isPresent() {
 		return new_SourceFile_jscomp(new_SourceFile_CodeLoader_AtZip(this.path_.orElse(nullstr_), this.zipEntryPath.get(), this.charset).up_SourceFile_CodeLoader(), displayPath.get(), this.kind_)
@@ -683,11 +701,12 @@ func (this *SourceFile_Builder) build() *SourceFile_jscomp {
 }
 
 func (this *SourceFile_Builder) withPathInternal(path string) *SourceFile_Builder {
-	var bangSlashIndex int32 = String_indexOf_String(path, SourceFile_jscomp_BANG_SLASH)
+	pathU16 := utf16Of_(path)
+	var bangSlashIndex int32 = pathU16.indexOf_String(SourceFile_jscomp_BANG_SLASH)
 	if bangSlashIndex >= 0 {
-		var zipPath string = String_substring(path, 0, bangSlashIndex)
-		var entryPath string = String_substring_int(path, (bangSlashIndex + String_length(SourceFile_jscomp_BANG_SLASH)))
-		if String_endsWith(zipPath, ".zip") && (String_endsWith(entryPath, ".js") || String_endsWith(entryPath, ".js.map")) {
+		var zipPath string = pathU16.substring(0, bangSlashIndex)
+		var entryPath string = pathU16.substring_int((bangSlashIndex + int32(len(SourceFile_jscomp_BANG_SLASH))))
+		if strings.HasSuffix(zipPath, ".zip") && (strings.HasSuffix(entryPath, ".js") || strings.HasSuffix(entryPath, ".js.map")) {
 			return this.withZipEntryPath(zipPath, entryPath)
 		}
 	}
@@ -696,22 +715,18 @@ func (this *SourceFile_Builder) withPathInternal(path string) *SourceFile_Builde
 }
 
 type SourceFile_CodeLoader struct {
-	self_ any
+	self_ SourceFile_CodeLoader_I
+}
+
+// SourceFile_CodeLoader_I holds the methods the dispatchers of SourceFile_CodeLoader's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type SourceFile_CodeLoader_I interface {
+	loadUncachedCode_impl() *Outcome_base[string]
+	loadUncachedText_impl() *Outcome_base[string]
+	toProtoLocationBuilder_impl(string) *SourceFileProto_Builder
 }
 
 func (this *SourceFile_CodeLoader) as_SourceFile_CodeLoader() *SourceFile_CodeLoader { return this }
-
-func to_SourceFile_CodeLoader(v any) *SourceFile_CodeLoader {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_SourceFile_CodeLoader() *SourceFile_CodeLoader }).as_SourceFile_CodeLoader()
-}
-
-func is_SourceFile_CodeLoader(v any) bool {
-	_, ok := v.(interface{ as_SourceFile_CodeLoader() *SourceFile_CodeLoader })
-	return ok
-}
 
 func (this *SourceFile_CodeLoader) self() any {
 	if this == nil {
@@ -725,7 +740,7 @@ func (this *SourceFile_CodeLoader) init_SourceFile_CodeLoader() {
 }
 
 func (this *SourceFile_CodeLoader) loadUncachedCode_impl() *Outcome_base[string] {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func (this *SourceFile_CodeLoader) loadUncachedText_impl() *Outcome_base[string] {
@@ -733,17 +748,15 @@ func (this *SourceFile_CodeLoader) loadUncachedText_impl() *Outcome_base[string]
 }
 
 func (this *SourceFile_CodeLoader) loadUncachedCode() *Outcome_base[string] {
-	return this.self_.(interface{ loadUncachedCode_impl() *Outcome_base[string] }).loadUncachedCode_impl()
+	return this.self_.loadUncachedCode_impl()
 }
 
 func (this *SourceFile_CodeLoader) toProtoLocationBuilder(p0 string) *SourceFileProto_Builder {
-	return this.self_.(interface {
-		toProtoLocationBuilder_impl(string) *SourceFileProto_Builder
-	}).toProtoLocationBuilder_impl(p0)
+	return this.self_.toProtoLocationBuilder_impl(p0)
 }
 
 func (this *SourceFile_CodeLoader) loadUncachedText() *Outcome_base[string] {
-	return this.self_.(interface{ loadUncachedText_impl() *Outcome_base[string] }).loadUncachedText_impl()
+	return this.self_.loadUncachedText_impl()
 }
 
 type SourceFile_CodeLoader_Preloaded struct {
@@ -808,7 +821,7 @@ func new_SourceFile_CodeLoader_StubSourceFileCodeLoader() *SourceFile_CodeLoader
 }
 
 func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) loadUncachedCode_impl() *Outcome_base[string] {
-	panic(new_UnsupportedOperationException_String("Attempting to load code from a stub SourceFile.").self())
+	panic(new_UnsupportedOperationException_String("Attempting to load code from a stub SourceFile."))
 }
 
 func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) toProtoLocationBuilder_impl(fileName string) *SourceFileProto_Builder {
@@ -931,3 +944,83 @@ func (this *SourceFile_CodeLoader_AtZip) toProtoLocationBuilder_impl(fileName st
 }
 
 const SourceFile_CodeLoader_AtZip_serialVersionUID int64 = 1
+
+// loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_Preloaded calls its loadUncachedCode_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_Preloaded) loadUncachedCode() *Outcome_base[string] {
+	if p, _ := this.self_.(*SourceFile_CodeLoader_Preloaded); p == this {
+		return this.loadUncachedCode_impl()
+	}
+	return this.self_.loadUncachedCode_impl()
+}
+
+// toProtoLocationBuilder: an object that is exactly a SourceFile_CodeLoader_Preloaded calls its toProtoLocationBuilder_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_Preloaded) toProtoLocationBuilder(p0 string) *SourceFileProto_Builder {
+	if p, _ := this.self_.(*SourceFile_CodeLoader_Preloaded); p == this {
+		return this.toProtoLocationBuilder_impl(p0)
+	}
+	return this.self_.toProtoLocationBuilder_impl(p0)
+}
+
+// loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_StubSourceFileCodeLoader calls its loadUncachedCode_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) loadUncachedCode() *Outcome_base[string] {
+	if p, _ := this.self_.(*SourceFile_CodeLoader_StubSourceFileCodeLoader); p == this {
+		return this.loadUncachedCode_impl()
+	}
+	return this.self_.loadUncachedCode_impl()
+}
+
+// toProtoLocationBuilder: an object that is exactly a SourceFile_CodeLoader_StubSourceFileCodeLoader calls its toProtoLocationBuilder_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) toProtoLocationBuilder(p0 string) *SourceFileProto_Builder {
+	if p, _ := this.self_.(*SourceFile_CodeLoader_StubSourceFileCodeLoader); p == this {
+		return this.toProtoLocationBuilder_impl(p0)
+	}
+	return this.self_.toProtoLocationBuilder_impl(p0)
+}
+
+// loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_OnDisk calls its loadUncachedCode_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_OnDisk) loadUncachedCode() *Outcome_base[string] {
+	if p, _ := this.self_.(*SourceFile_CodeLoader_OnDisk); p == this {
+		return this.loadUncachedCode_impl()
+	}
+	return this.self_.loadUncachedCode_impl()
+}
+
+// loadUncachedText: an object that is exactly a SourceFile_CodeLoader_OnDisk calls its loadUncachedText_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_OnDisk) loadUncachedText() *Outcome_base[string] {
+	if p, _ := this.self_.(*SourceFile_CodeLoader_OnDisk); p == this {
+		return this.loadUncachedText_impl()
+	}
+	return this.self_.loadUncachedText_impl()
+}
+
+// toProtoLocationBuilder: an object that is exactly a SourceFile_CodeLoader_OnDisk calls its toProtoLocationBuilder_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_OnDisk) toProtoLocationBuilder(p0 string) *SourceFileProto_Builder {
+	if p, _ := this.self_.(*SourceFile_CodeLoader_OnDisk); p == this {
+		return this.toProtoLocationBuilder_impl(p0)
+	}
+	return this.self_.toProtoLocationBuilder_impl(p0)
+}
+
+// loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_AtZip calls its loadUncachedCode_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_AtZip) loadUncachedCode() *Outcome_base[string] {
+	if p, _ := this.self_.(*SourceFile_CodeLoader_AtZip); p == this {
+		return this.loadUncachedCode_impl()
+	}
+	return this.self_.loadUncachedCode_impl()
+}
+
+// loadUncachedText: an object that is exactly a SourceFile_CodeLoader_AtZip calls its loadUncachedText_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_AtZip) loadUncachedText() *Outcome_base[string] {
+	if p, _ := this.self_.(*SourceFile_CodeLoader_AtZip); p == this {
+		return this.loadUncachedText_impl()
+	}
+	return this.self_.loadUncachedText_impl()
+}
+
+// toProtoLocationBuilder: an object that is exactly a SourceFile_CodeLoader_AtZip calls its toProtoLocationBuilder_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_AtZip) toProtoLocationBuilder(p0 string) *SourceFileProto_Builder {
+	if p, _ := this.self_.(*SourceFile_CodeLoader_AtZip); p == this {
+		return this.toProtoLocationBuilder_impl(p0)
+	}
+	return this.self_.toProtoLocationBuilder_impl(p0)
+}

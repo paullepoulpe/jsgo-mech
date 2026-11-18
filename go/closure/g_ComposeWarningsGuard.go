@@ -21,18 +21,18 @@ func (this *ComposeWarningsGuard) up_WarningsGuard() *WarningsGuard {
 func (this *ComposeWarningsGuard) finit_ComposeWarningsGuard() {
 	this.orderOfAddition = jnewTMap_(jtc_p_WarningsGuard, tc_Integer)
 	this.numberOfAdds = 0
-	this.guardComparator = icast_Comparator(obj_(new_ComposeWarningsGuard_GuardComparator(this.orderOfAddition)))
+	this.guardComparator = new_ComposeWarningsGuard_GuardComparator(this.orderOfAddition)
 	this.demoteErrors = false
 	this.guards = new_TreeSet_Comparator(this.guardComparator)
 }
 
-func (this *ComposeWarningsGuard) init_ComposeWarningsGuard(guards ListOf[*WarningsGuard]) {
+func (this *ComposeWarningsGuard) init_ComposeWarningsGuard(guards *[]*WarningsGuard) {
 	this.WarningsGuard.init_WarningsGuard()
 	this.finit_ComposeWarningsGuard()
-	this.addGuards(Iterable(guards))
+	this.addGuards(Iterable(slicePtrView_(tc_p_WarningsGuard, guards)))
 }
 
-func new_ComposeWarningsGuard(guards ListOf[*WarningsGuard]) *ComposeWarningsGuard {
+func new_ComposeWarningsGuard(guards *[]*WarningsGuard) *ComposeWarningsGuard {
 	this := &ComposeWarningsGuard{}
 	this.self_ = this
 	this.init_ComposeWarningsGuard(guards)
@@ -40,7 +40,7 @@ func new_ComposeWarningsGuard(guards ListOf[*WarningsGuard]) *ComposeWarningsGua
 }
 
 func ComposeWarningsGuard_createFromGuards(guards []*WarningsGuard) *ComposeWarningsGuard {
-	return new_ComposeWarningsGuard(icast_List(obj_(ImmutableList_copyOf_ObjectArr(arrmap_(guards, func(v_ *WarningsGuard) any { return v_.self() })))))
+	return new_ComposeWarningsGuard(slicePtrImm_(tc_p_WarningsGuard, ImmutableList_copyOf_ObjectArr(arrmap_(guards, func(v_ *WarningsGuard) any { return v_.self() }))))
 }
 
 func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
@@ -48,16 +48,17 @@ func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
 	_ = composeGuard
 	if func() bool {
 		v_ := guard.self()
-		if !is_[*ComposeWarningsGuard](v_) {
+		p, ok := v_.(*ComposeWarningsGuard)
+		if !ok {
 			return false
 		}
-		composeGuard = cast_[*ComposeWarningsGuard](v_)
+		composeGuard = p
 		return true
 	}() {
 		if composeGuard.demoteErrors {
 			this.demoteErrors = composeGuard.demoteErrors
 		}
-		this.addGuards(icast_Iterable(new_ArrayList_Collection(Collection(composeGuard.guards.descendingSet())).self()))
+		this.addGuards(new_ArrayList_Collection(Collection(composeGuard.guards.descendingSet())).self().(Iterable))
 	} else {
 		this.numberOfAdds++
 		this.orderOfAddition.put(guard, any(int32(this.numberOfAdds)))
@@ -67,32 +68,32 @@ func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
 }
 
 func (this *ComposeWarningsGuard) addGuards(guards IterableOf[*WarningsGuard]) {
-	it_1 := foreach_(any(guards))
-	for it_1.next() {
-		var guard *WarningsGuard = to_WarningsGuard(it_1.v)
+	for guard := range elemsBy_(guards, to_WarningsGuard) {
 		this.addGuard(guard)
 	}
 }
 
-func (this *ComposeWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
+func (this *ComposeWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	it_1 := foreach_(obj_(this.guards))
 	for it_1.next() {
 		var guard *WarningsGuard = to_WarningsGuard(it_1.v)
-		var newLevel *CheckLevel = guard.level(error_)
-		if newLevel != nil {
+		var newLevel CheckLevel = guard.level(error_)
+		if newLevel != 0 {
 			if this.demoteErrors && (newLevel == CheckLevel_ERROR) {
 				return CheckLevel_WARNING
 			}
 			return newLevel
 		}
 	}
-	return nil
+	return 0
 }
 
-func (this *ComposeWarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) *Tri {
+func (this *ComposeWarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) Tri {
 	var enable bool = this.enables(group)
 	var disable bool = this.disables(group)
-	Preconditions_checkState_boolean_String_Object_Object((!enable || !disable), "%s applied to %s", obj_(this), obj_(group))
+	if enable && disable {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s applied to %s", []any{obj_(this), obj_(group)})))
+	}
 	if enable {
 		return Tri_TRUE
 	} else if disable {
@@ -100,14 +101,12 @@ func (this *ComposeWarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) *Tr
 	} else {
 		return Tri_UNKNOWN
 	}
-	panic("unreachable")
 }
 
 func (this *ComposeWarningsGuard) disables(group *DiagnosticGroup) bool {
-	it_1 := foreach_(obj_(group.getTypes()))
 nextSingleton_:
-	for it_1.next() {
-		var type_ *DiagnosticType = cast_[*DiagnosticType](it_1.v)
+	for _, el_1 := range group.getTypes().keys {
+		var type_ *DiagnosticType = el_1
 		var singleton *DiagnosticGroup = DiagnosticGroup_forType(type_)
 		it_2 := foreach_(obj_(this.guards))
 		for it_2.next() {
@@ -177,3 +176,19 @@ func (this *ComposeWarningsGuard_GuardComparator) compare(a_ any, b_ any) int32 
 }
 
 const ComposeWarningsGuard_GuardComparator_serialVersionUID int64 = 1
+
+// level: an object that is exactly a ComposeWarningsGuard calls its level_impl directly (post-flip); others dispatch.
+func (this *ComposeWarningsGuard) level(p0 *JSError) CheckLevel {
+	if p, _ := this.self_.(*ComposeWarningsGuard); p == this {
+		return this.level_impl(p0)
+	}
+	return this.self_.level_impl(p0)
+}
+
+// mustRunChecks: an object that is exactly a ComposeWarningsGuard calls its mustRunChecks_impl directly (post-flip); others dispatch.
+func (this *ComposeWarningsGuard) mustRunChecks(p0 *DiagnosticGroup) Tri {
+	if p, _ := this.self_.(*ComposeWarningsGuard); p == this {
+		return this.mustRunChecks_impl(p0)
+	}
+	return this.self_.mustRunChecks_impl(p0)
+}

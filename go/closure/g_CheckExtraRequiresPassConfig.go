@@ -36,11 +36,27 @@ func (this *CheckExtraRequiresPassConfig) getChecks_impl() *PassListBuilder {
 	passes.maybeAdd(PassFactory_builder().setName("removeUnusedImport").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return icast_CompilerPass(obj_(new_CombinedCompilerPass(compiler, icast_List(obj_(ImmutableList_of_Object(obj_(new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove()))))))))
+		return new_CombinedCompilerPass(compiler, ImmutableList_of_Object(obj_(new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove()))))
 	}}).build())
 	return passes
 }
 
 func (this *CheckExtraRequiresPassConfig) getOptimizations_impl() *PassListBuilder {
 	return new_PassListBuilder(this.options_)
+}
+
+// getChecks: an object that is exactly a CheckExtraRequiresPassConfig calls its getChecks_impl directly (post-flip); others dispatch.
+func (this *CheckExtraRequiresPassConfig) getChecks() *PassListBuilder {
+	if p, _ := this.self_.(*CheckExtraRequiresPassConfig); p == this {
+		return this.getChecks_impl()
+	}
+	return this.self_.getChecks_impl()
+}
+
+// getOptimizations: an object that is exactly a CheckExtraRequiresPassConfig calls its getOptimizations_impl directly (post-flip); others dispatch.
+func (this *CheckExtraRequiresPassConfig) getOptimizations() *PassListBuilder {
+	if p, _ := this.self_.(*CheckExtraRequiresPassConfig); p == this {
+		return this.getOptimizations_impl()
+	}
+	return this.self_.getOptimizations_impl()
 }

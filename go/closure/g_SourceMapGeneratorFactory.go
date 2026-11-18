@@ -15,12 +15,12 @@ func new_SourceMapGeneratorFactory() *SourceMapGeneratorFactory {
 	return this
 }
 
-func SourceMapGeneratorFactory_getInstance(format *SourceMapFormat) SourceMapGenerator {
+func SourceMapGeneratorFactory_getInstance(format SourceMapFormat) SourceMapGenerator {
 	return func() SourceMapGenerator {
 		switch format {
 		case SourceMapFormat_DEFAULT, SourceMapFormat_V3:
-			return icast_SourceMapGenerator(obj_(new_SourceMapGeneratorV3()))
+			return new_SourceMapGeneratorV3()
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }

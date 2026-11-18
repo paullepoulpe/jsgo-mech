@@ -2,29 +2,43 @@
 
 package closure
 
-type WarningLevel struct {
-	Enum
+type WarningLevel uint8
+
+// WarningLevel_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var WarningLevel_enum_ = [3]Enum{
+	{self_: WarningLevel_QUIET, name_: "QUIET", ordinal_: 0},
+	{self_: WarningLevel_DEFAULT, name_: "DEFAULT", ordinal_: 1},
+	{self_: WarningLevel_VERBOSE, name_: "VERBOSE", ordinal_: 2},
 }
 
-func (this *WarningLevel) up_Enum() *Enum {
-	if this == nil {
+func (this WarningLevel) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &WarningLevel_enum_[this-1]
 }
 
-func (this *WarningLevel) init_WarningLevel(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this WarningLevel) name() string { return this.enum_().name_ }
+
+func (this WarningLevel) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_WarningLevel(name_ string, ordinal_ int32) *WarningLevel {
-	this := &WarningLevel{}
-	this.self_ = this
-	this.init_WarningLevel(name_, ordinal_)
+func (this WarningLevel) toString() string { return this.enum_().name_ }
+
+func (this WarningLevel) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this WarningLevel) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *WarningLevel) setOptionsForWarningLevel(options *CompilerOptions) {
+func (this WarningLevel) setOptionsForWarningLevel(options *CompilerOptions) {
 	switch this {
 	case WarningLevel_QUIET:
 		WarningLevel_silenceAllWarnings(options)
@@ -74,23 +88,24 @@ func WarningLevel_addVerboseWarnings(options *CompilerOptions) {
 	options.setWarningLevel(DiagnosticGroups_NON_STANDARD_JSDOC, CheckLevel_WARNING)
 }
 
-func WarningLevel_values() []*WarningLevel {
-	return append([]*WarningLevel(nil), WarningLevel_values_...)
+func WarningLevel_values() []WarningLevel {
+	return append([]WarningLevel(nil), WarningLevel_values_...)
 }
 
-func WarningLevel_valueOf(name string) *WarningLevel {
+func WarningLevel_valueOf(name string) WarningLevel {
 	for _, v := range WarningLevel_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("WarningLevel", name))
 }
 
-var WarningLevel_QUIET *WarningLevel
-var WarningLevel_DEFAULT *WarningLevel
-var WarningLevel_VERBOSE *WarningLevel
-var WarningLevel_values_ []*WarningLevel
+const WarningLevel_QUIET WarningLevel = 1
+const WarningLevel_DEFAULT WarningLevel = 2
+const WarningLevel_VERBOSE WarningLevel = 3
+
+var WarningLevel_values_ []WarningLevel
 
 var WarningLevel_clinit_done bool
 
@@ -99,10 +114,7 @@ func WarningLevel_clinit() {
 		return
 	}
 	WarningLevel_clinit_done = true
-	WarningLevel_QUIET = new_WarningLevel("QUIET", 0)
-	WarningLevel_DEFAULT = new_WarningLevel("DEFAULT", 1)
-	WarningLevel_VERBOSE = new_WarningLevel("VERBOSE", 2)
-	WarningLevel_values_ = []*WarningLevel{WarningLevel_QUIET, WarningLevel_DEFAULT, WarningLevel_VERBOSE}
+	WarningLevel_values_ = []WarningLevel{WarningLevel_QUIET, WarningLevel_DEFAULT, WarningLevel_VERBOSE}
 	registerEnum_("com.google.javascript.jscomp.WarningLevel", enumValues_(WarningLevel_values_))
 
 }

@@ -17,7 +17,7 @@ func new_RemovePropertyRenamingCalls(compiler *AbstractCompiler) *RemoveProperty
 }
 
 func (this *RemovePropertyRenamingCalls) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback(this))
 }
 
 type RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback struct {
@@ -60,4 +60,13 @@ func (this *RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback) 
 		this.outer_.compiler_.reportChangeToEnclosingScope(propName)
 		return
 	}
+}
+
+// visit: an object that is exactly a RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*RemovePropertyRenamingCalls_RemoveCompilerPropertyRenamingCallback); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

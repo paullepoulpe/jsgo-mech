@@ -4,7 +4,7 @@ package closure
 
 type ArrowType struct {
 	JSType
-	parameterList      ImmutableListOf[*FunctionType_Parameter]
+	parameterList      *ImmutableList[*FunctionType_Parameter]
 	returnType         *JSType
 	returnTypeInferred bool
 }
@@ -18,11 +18,11 @@ func (this *ArrowType) up_JSType() *JSType {
 
 func (this *ArrowType) init_ArrowType(registry *JSTypeRegistry, parameters ListOf[*FunctionType_Parameter], returnType *JSType, returnTypeInferred bool) {
 	this.JSType.init_JSType_JSTypeRegistry(registry)
-	this.parameterList = func() *ImmutableList {
+	this.parameterList = func() *ImmutableList[*FunctionType_Parameter] {
 		if parameters == nil {
 			return registry.createParametersWithVarArgs([]*JSType{this.getNativeType(JSTypeNative_UNKNOWN_TYPE)})
 		}
-		return ImmutableList_copyOf(Collection(parameters))
+		return immutableListCopyOf_(tc_p_FunctionType_Parameter, Collection(parameters))
 	}()
 	this.returnType = func() *JSType {
 		if returnType == nil {
@@ -41,16 +41,15 @@ func new_ArrowType(registry *JSTypeRegistry, parameters ListOf[*FunctionType_Par
 	return this
 }
 
-func (this *ArrowType) getTypeClass_impl() *JSTypeClass {
+func (this *ArrowType) getTypeClass_impl() JSTypeClass {
 	return ArrowType_TYPE_CLASS
 }
 
 func (this *ArrowType) recursionUnsafeHashCode_impl() int32 {
-	var hashCode int32 = Objects_hashCode(this.returnType.self())
-	it_1 := foreach_(obj_(this.parameterList))
-	for it_1.next() {
-		var param *FunctionType_Parameter = cast_[*FunctionType_Parameter](it_1.v)
-		hashCode = ((hashCode * 31) + Objects_hashCode(param.getJSType().self()))
+	var hashCode int32 = objhashBy_(this.returnType, (*JSType).hashCode)
+	for _, el := range this.parameterList.items {
+		param := el
+		hashCode = ((hashCode * 31) + objhashBy_(param.getJSType(), (*JSType).hashCode))
 	}
 	return hashCode
 }
@@ -59,48 +58,46 @@ func (this *ArrowType) getReturnType() *JSType {
 	return this.returnType
 }
 
-func (this *ArrowType) getParameterList() ImmutableListOf[*FunctionType_Parameter] {
+func (this *ArrowType) getParameterList() *ImmutableList[*FunctionType_Parameter] {
 	return this.parameterList
 }
 
 func (this *ArrowType) getLeastSupertype_impl(that *JSType) *JSType {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *ArrowType) getGreatestSubtype_impl(that *JSType) *JSType {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
-func (this *ArrowType) testForEquality_impl(that *JSType) *Tri {
-	panic(new_UnsupportedOperationException_0().self())
+func (this *ArrowType) testForEquality_impl(that *JSType) Tri {
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *ArrowType) visitUntyped_impl(visitor Visitor) any {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *ArrowType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSType) any {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
-func (this *ArrowType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *ArrowType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_TRUE
 }
 
 func (this *ArrowType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
 	this.returnType = JSType_safeResolve(this.returnType, reporter)
-	it_1 := foreach_(obj_(this.parameterList))
-	for it_1.next() {
-		var param *FunctionType_Parameter = cast_[*FunctionType_Parameter](it_1.v)
+	for _, el := range this.parameterList.items {
+		param := el
 		param.getJSType().resolve(reporter)
 	}
 	return this.up_JSType()
 }
 
 func (this *ArrowType) hasUnknownParamsOrReturn() bool {
-	it_1 := foreach_(obj_(this.parameterList))
-	for it_1.next() {
-		var param *FunctionType_Parameter = cast_[*FunctionType_Parameter](it_1.v)
+	for _, el_1 := range this.parameterList.items {
+		var param *FunctionType_Parameter = el_1
 		var type_ *JSType = param.getJSType()
 		if type_.isUnknownType() {
 			return true
@@ -118,9 +115,8 @@ func (this *ArrowType) hasAnyTemplateTypesInternal_impl() bool {
 }
 
 func (this *ArrowType) hasTemplatedParameterType() bool {
-	it_1 := foreach_(obj_(this.parameterList))
-	for it_1.next() {
-		var param *FunctionType_Parameter = cast_[*FunctionType_Parameter](it_1.v)
+	for _, el_1 := range this.parameterList.items {
+		var param *FunctionType_Parameter = el_1
 		var type_ *JSType = param.getJSType()
 		if type_.hasAnyTemplateTypes() {
 			return true
@@ -132,13 +128,13 @@ func (this *ArrowType) hasTemplatedParameterType() bool {
 func (this *ArrowType) toString_impl() string {
 	var typeStringBuilder *TypeStringBuilder = new_TypeStringBuilder(false)
 	typeStringBuilder.append("(")
-	typeStringBuilder.appendAll(icast_Iterable(obj_(this.parameterList)), ",")
+	typeStringBuilder.appendAll(icast_Iterable(obj_(this.parameterList.asImm())), ",")
 	typeStringBuilder.append(") -> ")
 	typeStringBuilder.appendJSType(this.returnType)
 	return typeStringBuilder.build()
 }
 
-var ArrowType_TYPE_CLASS *JSTypeClass
+var ArrowType_TYPE_CLASS JSTypeClass
 
 var ArrowType_clinit_done bool
 
@@ -149,4 +145,101 @@ func ArrowType_clinit() {
 	ArrowType_clinit_done = true
 	ArrowType_TYPE_CLASS = JSTypeClass_ARROW
 
+}
+
+// getTypeClass: an object that is exactly a ArrowType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *ArrowType) getTypeClass() JSTypeClass {
+	if p, _ := this.self_.(*ArrowType); p == this {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.getTypeClass_impl()
+}
+
+// recursionUnsafeHashCode: an object that is exactly a ArrowType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
+func (this *ArrowType) recursionUnsafeHashCode() int32 {
+	if p, _ := this.self_.(*ArrowType); p == this {
+		return this.recursionUnsafeHashCode_impl()
+	}
+	return this.self_.recursionUnsafeHashCode_impl()
+}
+
+// getLeastSupertype: an object that is exactly a ArrowType calls its getLeastSupertype_impl directly (post-flip); others dispatch.
+func (this *ArrowType) getLeastSupertype(p0 *JSType) *JSType {
+	if p, _ := this.self_.(*ArrowType); p == this {
+		return this.getLeastSupertype_impl(p0)
+	}
+	return this.self_.getLeastSupertype_impl(p0)
+}
+
+// getGreatestSubtype: an object that is exactly a ArrowType calls its getGreatestSubtype_impl directly (post-flip); others dispatch.
+func (this *ArrowType) getGreatestSubtype(p0 *JSType) *JSType {
+	if p, _ := this.self_.(*ArrowType); p == this {
+		return this.getGreatestSubtype_impl(p0)
+	}
+	return this.self_.getGreatestSubtype_impl(p0)
+}
+
+// testForEquality: an object that is exactly a ArrowType calls its testForEquality_impl directly (post-flip); others dispatch.
+func (this *ArrowType) testForEquality(p0 *JSType) Tri {
+	if p, _ := this.self_.(*ArrowType); p == this {
+		return this.testForEquality_impl(p0)
+	}
+	return this.self_.testForEquality_impl(p0)
+}
+
+// visitUntyped: an object that is exactly a ArrowType calls its visitUntyped_impl directly (post-flip); others dispatch.
+func (this *ArrowType) visitUntyped(p0 Visitor) any {
+	if p, _ := this.self_.(*ArrowType); p == this {
+		return this.visitUntyped_impl(p0)
+	}
+	return this.self_.visitUntyped_impl(p0)
+}
+
+// visitUntyped_2: an object that is exactly a ArrowType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
+func (this *ArrowType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
+	if p, _ := this.self_.(*ArrowType); p == this {
+		return this.visitUntyped_2_impl(p0, p1)
+	}
+	return this.self_.visitUntyped_2_impl(p0, p1)
+}
+
+// getPossibleToBooleanOutcomes: an object that is exactly a ArrowType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
+func (this *ArrowType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
+	if p, _ := this.self_.(*ArrowType); p == this {
+		return this.getPossibleToBooleanOutcomes_impl()
+	}
+	return this.self_.getPossibleToBooleanOutcomes_impl()
+}
+
+// resolveInternal: an object that is exactly a ArrowType calls its resolveInternal_impl directly (post-flip); others dispatch.
+func (this *ArrowType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
+	if p, _ := this.self_.(*ArrowType); p == this {
+		return this.resolveInternal_impl(p0)
+	}
+	return this.self_.resolveInternal_impl(p0)
+}
+
+// appendTo: an object that is exactly a ArrowType calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *ArrowType) appendTo(p0 *TypeStringBuilder) {
+	if p, _ := this.self_.(*ArrowType); p == this {
+		this.appendTo_impl(p0)
+		return
+	}
+	this.self_.appendTo_impl(p0)
+}
+
+// hasAnyTemplateTypesInternal: an object that is exactly a ArrowType calls its hasAnyTemplateTypesInternal_impl directly (post-flip); others dispatch.
+func (this *ArrowType) hasAnyTemplateTypesInternal() bool {
+	if p, _ := this.self_.(*ArrowType); p == this {
+		return this.hasAnyTemplateTypesInternal_impl()
+	}
+	return this.self_.hasAnyTemplateTypesInternal_impl()
+}
+
+// toString: an object that is exactly a ArrowType calls its toString_impl directly (post-flip); others dispatch.
+func (this *ArrowType) toString() string {
+	if p, _ := this.self_.(*ArrowType); p == this {
+		return this.toString_impl()
+	}
+	return this.self_.toString_impl()
 }

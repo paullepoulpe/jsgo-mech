@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type JSTypeExpression struct {
 	root        Node
 	sourceName_ string
@@ -61,30 +63,30 @@ func JSTypeExpression_replaceNames(n Node, names *JTSet[string]) Node {
 }
 
 func JSTypeExpression_baseName(name string) string {
-	var dotIndex int32 = String_indexOf(name, 46)
+	var dotIndex int32 = int32(strings.IndexByte(name, '.'))
 	return func() string {
 		if dotIndex == -1 {
 			return name
 		}
-		return String_substring(name, 0, dotIndex)
+		return name[:dotIndex]
 	}()
 }
 
-func (this *JSTypeExpression) getAllTypeNodes() ImmutableListOf[Node] {
-	var builder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-	JSTypeExpression_visitAllTypeNodes(this.root, &Consumer_tfn_Node{func(p0 Node) { builder.add(p0.box_()) }})
-	return cast_[*ImmutableList](obj_(builder.build()))
+func (this *JSTypeExpression) getAllTypeNodes() []Node {
+	var builder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
+	JSTypeExpression_visitAllTypeNodes(this.root, (&Consumer_tfn_Node{func(p0 Node) { builder.add(p0) }}).accept)
+	return builder.build().items
 }
 
-func (this *JSTypeExpression) getAllTypeNames() ImmutableSetOf[string] {
-	var builder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	JSTypeExpression_visitAllTypeNodes(this.root, &Consumer_tfn_Node{func(n Node) {
-		builder.add(strobj_(n.getString()))
-	}})
-	return cast_[*ImmutableSet](obj_(builder.build()))
+func (this *JSTypeExpression) getAllTypeNames() *ImmutableSet[string] {
+	var builder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
+	JSTypeExpression_visitAllTypeNodes(this.root, (&Consumer_tfn_Node{func(n Node) {
+		builder.add(n.getString())
+	}}).accept)
+	return builder.build()
 }
 
-func JSTypeExpression_visitAllTypeNodes(n Node, visitor ConsumerOf[Node]) {
+func JSTypeExpression_visitAllTypeNodes(n Node, visitor func(any)) {
 	if n == 0 {
 		return
 	}
@@ -95,7 +97,7 @@ func JSTypeExpression_visitAllTypeNodes(n Node, visitor ConsumerOf[Node]) {
 		}
 	}
 	if n.isStringLit() {
-		visitor.accept(n.box_())
+		visitor(n.box_())
 	}
 }
 
@@ -107,7 +109,6 @@ func JSTypeExpression_makeOptionalArg(expr *JSTypeExpression) *JSTypeExpression 
 		equals.clonePropsFrom(expr.root)
 		return new_JSTypeExpression(equals, expr.sourceName_)
 	}
-	panic("unreachable")
 }
 
 func JSTypeExpression_makeVarArgs(expr *JSTypeExpression) *JSTypeExpression {
@@ -118,20 +119,19 @@ func JSTypeExpression_makeVarArgs(expr *JSTypeExpression) *JSTypeExpression {
 		equals.clonePropsFrom(expr.root)
 		return new_JSTypeExpression(equals, expr.sourceName_)
 	}
-	panic("unreachable")
 }
 
 func (this *JSTypeExpression) isOptionalArg() bool {
-	return (this.root.getToken() == Token_rhino_EQUALS)
+	return (this.root.ns_().token == tokOrd1_EQUALS)
 }
 
 func (this *JSTypeExpression) isVarArgs() bool {
-	return (this.root.getToken() == Token_rhino_ITER_REST)
+	return (this.root.ns_().token == tokOrd1_ITER_REST)
 }
 
 func (this *JSTypeExpression) evaluate(scope StaticTypedScope, registry *JSTypeRegistry) *JSType {
 	var type_ *JSType = registry.createTypeFromCommentNode_3(this.root, Optional_of[string](this.sourceName_).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}}), scope)
 	this.root.setJSType(type_)
 	return type_
@@ -161,13 +161,13 @@ func (this *JSTypeExpression) isExplicitUnknownTemplateBound() bool {
 	return ((JSCompObjects_identical(obj_(this.root.getToken()), obj_(Token_rhino_QMARK)) && !this.root.hasChildren()) && !(this.sourceName_ == JSTypeExpression_IMPLICIT_TEMPLATE_BOUND_SOURCE))
 }
 
-func (this *JSTypeExpression) getRecordPropertyNames() ImmutableSetOf[string] {
-	var builder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+func (this *JSTypeExpression) getRecordPropertyNames() *ImmutableSet[string] {
+	var builder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	JSTypeExpression_getRecordPropertyNamesRecursive(this.root, builder)
-	return cast_[*ImmutableSet](obj_(builder.build()))
+	return builder.build()
 }
 
-func JSTypeExpression_getRecordPropertyNamesRecursive(n Node, names ImmutableSet_BuilderOf[string]) {
+func JSTypeExpression_getRecordPropertyNamesRecursive(n Node, names *ImmutableSet_Builder[string]) {
 	if n == 0 {
 		return
 	}
@@ -178,7 +178,7 @@ func JSTypeExpression_getRecordPropertyNamesRecursive(n Node, names ImmutableSet
 		}
 	}
 	if n.isStringKey() {
-		names.add(strobj_(n.getString()))
+		names.add(n.getString())
 	}
 }
 
@@ -196,7 +196,7 @@ func JSTypeExpression_clinit() {
 	JSTypeExpression_clinit_done = true
 	JSTypeExpression_IMPLICIT_TEMPLATE_BOUND = new_JSTypeExpression(new_Node_Token(Token_rhino_QMARK), JSTypeExpression_IMPLICIT_TEMPLATE_BOUND_SOURCE)
 	{
-		JSTypeExpression_IMPLICIT_TEMPLATE_BOUND.getRoot().setStaticSourceFile(icast_StaticSourceFile(obj_(new_SimpleSourceFile(JSTypeExpression_IMPLICIT_TEMPLATE_BOUND_SOURCE, StaticSourceFile_SourceKind_STRONG))))
+		JSTypeExpression_IMPLICIT_TEMPLATE_BOUND.getRoot().setStaticSourceFile(new_SimpleSourceFile(JSTypeExpression_IMPLICIT_TEMPLATE_BOUND_SOURCE, StaticSourceFile_SourceKind_STRONG))
 	}
 
 }

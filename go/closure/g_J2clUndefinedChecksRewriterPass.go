@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clUndefinedChecksRewriterPass struct {
 	AbstractPeepholeOptimization
 	shouldRunJ2clPasses bool
@@ -46,7 +48,9 @@ func (this *J2clUndefinedChecksRewriterPass) optimizeSubtree_impl(subtree Node) 
 		replacement = J2clUndefinedChecksRewriterPass_maybeOptimizeCoerceToNullCall(subtree)
 	}
 	if replacement != 0 {
-		Preconditions_checkState((replacement != subtree))
+		if replacement == subtree {
+			panic(new_IllegalStateException_0())
+		}
 		replacement.srcrefTreeIfMissing(subtree)
 		subtree.replaceWith(replacement)
 		this.reportChangeToEnclosingScope(replacement)
@@ -56,7 +60,10 @@ func (this *J2clUndefinedChecksRewriterPass) optimizeSubtree_impl(subtree Node) 
 }
 
 func J2clUndefinedChecksRewriterPass_maybeOptimizeIsUndefinedCall(node Node) Node {
-	var valueExpression Node = Node_of_(Preconditions_checkNotNull(node.getSecondChild().box_()))
+	var valueExpression Node = node.getSecondChild()
+	if valueExpression == 0 {
+		panic(new_NullPointerException_0())
+	}
 	if NodeUtil_isUndefined(valueExpression) {
 		return IR_trueNode()
 	} else if NodeUtil_isDefinedValue(valueExpression) {
@@ -64,11 +71,13 @@ func J2clUndefinedChecksRewriterPass_maybeOptimizeIsUndefinedCall(node Node) Nod
 	} else {
 		return 0
 	}
-	panic("unreachable")
 }
 
 func J2clUndefinedChecksRewriterPass_maybeOptimizeCoerceToNullCall(node Node) Node {
-	var valueExpression Node = Node_of_(Preconditions_checkNotNull(node.getSecondChild().box_()))
+	var valueExpression Node = node.getSecondChild()
+	if valueExpression == 0 {
+		panic(new_NullPointerException_0())
+	}
 	if NodeUtil_isUndefined(valueExpression) {
 		return IR_nullNode()
 	}
@@ -83,5 +92,22 @@ func J2clUndefinedChecksRewriterPass_isUtilCall(node Node, methodName string) bo
 		return false
 	}
 	var qualifiedName string = node.getFirstChild().getOriginalQualifiedName()
-	return (String_contains(qualifiedName, strobj_("nativebootstrap$Util")) && String_endsWith(qualifiedName, methodName))
+	return (strings.Contains(qualifiedName, "nativebootstrap$Util") && strings.HasSuffix(qualifiedName, methodName))
+}
+
+// beginTraversal: an object that is exactly a J2clUndefinedChecksRewriterPass calls its beginTraversal_impl directly (post-flip); others dispatch.
+func (this *J2clUndefinedChecksRewriterPass) beginTraversal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*J2clUndefinedChecksRewriterPass); p == this {
+		this.beginTraversal_impl(p0)
+		return
+	}
+	this.self_.beginTraversal_impl(p0)
+}
+
+// optimizeSubtree: an object that is exactly a J2clUndefinedChecksRewriterPass calls its optimizeSubtree_impl directly (post-flip); others dispatch.
+func (this *J2clUndefinedChecksRewriterPass) optimizeSubtree(p0 Node) Node {
+	if p, _ := this.self_.(*J2clUndefinedChecksRewriterPass); p == this {
+		return this.optimizeSubtree_impl(p0)
+	}
+	return this.self_.optimizeSubtree_impl(p0)
 }

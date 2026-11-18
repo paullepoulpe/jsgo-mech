@@ -7,8 +7,11 @@ type Xid struct {
 }
 
 func (this *Xid) init_Xid_0() {
-	this.hasher = &Xid_HashFunction_fn{func(p0 string) int32 { return String_hashCode(p0) }}
+	this.hasher = lambda_Xid_init_Xid_0_1_
 }
+
+// lambda_Xid_init_Xid_0_1_ is a lambda of Xid_init_Xid_0 that captures nothing (post-flip step lambdas).
+var lambda_Xid_init_Xid_0_1_ = newFuncObj_(func(p0 string) int32 { return utf16Hash_(p0) })
 
 func new_Xid_0() *Xid {
 	this := &Xid{}
@@ -31,18 +34,18 @@ func (this *Xid) get(key string) string {
 }
 
 func (this *Xid) getAsInt(key string) int32 {
-	return this.hasher.hashCode(key)
+	return this.hasher.call(key)
 }
 
 func Xid_toString(i int32) string {
 	var buf []uint16 = make([]uint16, 6)
 	var len_ int32 = 0
 	var l int64 = (int64(i) - -2147483648)
-	buf[len_] = String_charAt(Xid_START_CHARS, int32((l % int64(Xid_START_RADIX))))
+	buf[len_] = asciiCharAt_(Xid_START_CHARS, int32((l % int64(Xid_START_RADIX))))
 	len_++
 	i = int32((l / int64(Xid_START_RADIX)))
 	for i > 0 {
-		buf[len_] = String_charAt(Xid_CHARS, (i % Xid_RADIX))
+		buf[len_] = asciiCharAt_(Xid_CHARS, (i % Xid_RADIX))
 		len_++
 		i /= Xid_RADIX
 	}
@@ -62,19 +65,9 @@ func Xid_clinit() {
 		return
 	}
 	Xid_clinit_done = true
-	Xid_START_RADIX = String_length(Xid_START_CHARS)
-	Xid_RADIX = String_length(Xid_CHARS)
+	Xid_START_RADIX = int32(len(Xid_START_CHARS))
+	Xid_RADIX = int32(len(Xid_CHARS))
 
 }
 
-type Xid_HashFunction interface {
-	hashCode(string) int32
-}
-
-type Xid_HashFunction_fn struct {
-	f func(string) int32
-}
-
-func (this *Xid_HashFunction_fn) hashCode(p0 string) int32 {
-	return this.f(p0)
-}
+type Xid_HashFunction = *funcObj_[func(string) int32]

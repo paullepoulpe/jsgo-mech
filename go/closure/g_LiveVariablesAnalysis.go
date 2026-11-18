@@ -21,7 +21,9 @@ func (this *LiveVariablesAnalysis) up_DataFlowAnalysis() *DataFlowAnalysis[Node,
 
 func (this *LiveVariablesAnalysis) init_LiveVariablesAnalysis(cfg *ControlFlowGraph[Node], jsScope *Scope, jsScopeChild *Scope, compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
-	Preconditions_checkState_boolean_Object(jsScope.isFunctionScope(), obj_(jsScope))
+	if !jsScope.isFunctionScope() {
+		panic(new_IllegalStateException_String(tostr_(jsScope)))
+	}
 	this.jsScope = jsScope
 	this.jsScopeChild = jsScopeChild
 	this.escaped = jnewTSet_(tce_p_Var)
@@ -92,10 +94,8 @@ func (this *LiveVariablesAnalysis) flowThrough_impl(node Node, input *LiveVariab
 	var kill *BitSet = new_BitSet_int(input.liveSet.size())
 	var conditional bool = false
 	var edgeList ListOf[DiGraph_DiGraphEdge[Node]] = this.getCfg().getOutEdges(node)
-	it_1 := foreach_(any(edgeList))
-	for it_1.next() {
-		var edge DiGraph_DiGraphEdge[Node] = cast_[DiGraph_DiGraphEdge[Node]](it_1.v)
-		if Object_equals(obj_(ControlFlowGraph_Branch_ON_EX), edge.getValue()) {
+	for edge := range elemsAs_[DiGraph_DiGraphEdge[Node]](edgeList) {
+		if equalsIdAny_(ControlFlowGraph_Branch_ON_EX, edge.getValue()) {
 			conditional = true
 		}
 	}
@@ -107,20 +107,20 @@ func (this *LiveVariablesAnalysis) flowThrough_impl(node Node, input *LiveVariab
 }
 
 func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *BitSet, conditional bool) {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT, Token_rhino_ROOT, Token_rhino_FUNCTION, Token_rhino_BLOCK:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT, tokOrd1_ROOT, tokOrd1_FUNCTION, tokOrd1_BLOCK:
 		return
-	case Token_rhino_WHILE, Token_rhino_DO, Token_rhino_IF, Token_rhino_FOR:
+	case tokOrd1_WHILE, tokOrd1_DO, tokOrd1_IF, tokOrd1_FOR:
 		this.computeGenKill(NodeUtil_getConditionExpression(n), gen, kill, conditional)
 		return
-	case Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_FOR_IN:
+	case tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_FOR_IN:
 		var lhs Node = n.getFirstChild()
 		if NodeUtil_isNameDeclaration(lhs) {
 			lhs = lhs.getLastChild()
 		}
 		this.computeGenKill(lhs, gen, kill, conditional)
 		return
-	case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
+	case tokOrd1_LET, tokOrd1_CONST, tokOrd1_VAR:
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
@@ -132,11 +132,13 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 						}
 					}
 				} else {
-					Preconditions_checkState_boolean_Object(c.isDestructuringLhs(), c.box_())
+					if !c.isDestructuringLhs() {
+						panic(new_IllegalStateException_String(tostr_(c)))
+					}
 					if !conditional {
-						NodeUtil_visitLhsNodesInNode(c, &Consumer_tfn_Node{func(lhsNode Node) {
+						NodeUtil_visitLhsNodesInNode(c, (&Consumer_tfn_Node{func(lhsNode Node) {
 							this.addToSetIfLocal(lhsNode, kill)
-						}})
+						}}).accept)
 					}
 					this.computeGenKill(c.getFirstChild(), gen, kill, conditional)
 					this.computeGenKill(c.getSecondChild(), gen, kill, conditional)
@@ -144,11 +146,11 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 			}
 		}
 		return
-	case Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP:
+	case tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP:
 		this.computeGenKill(n.getFirstChild(), gen, kill, conditional)
 		this.computeGenKill(n.getLastChild(), gen, kill, true)
 		return
-	case Token_rhino_OPTCHAIN_CALL:
+	case tokOrd1_OPTCHAIN_CALL:
 		this.computeGenKill(n.getFirstChild(), gen, kill, conditional)
 		{
 			var c Node = n.getSecondChild()
@@ -157,12 +159,12 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 			}
 		}
 		return
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		this.computeGenKill(n.getFirstChild(), gen, kill, conditional)
 		this.computeGenKill(n.getSecondChild(), gen, kill, true)
 		this.computeGenKill(n.getLastChild(), gen, kill, true)
 		return
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if n.getString() == "arguments" {
 			this.markAllParametersEscaped()
 		} else if !NodeUtil_isLhsByDestructuring(n) {
@@ -181,11 +183,11 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 			this.computeGenKill(lhs.getNext(), gen, kill, conditional)
 		} else if n.isAssign() && n.getFirstChild().isDestructuringPattern() {
 			if !conditional {
-				NodeUtil_visitLhsNodesInNode(n, &Consumer_tfn_Node{func(child Node) {
+				NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(child Node) {
 					if child.isName() {
 						this.addToSetIfLocal(child, kill)
 					}
-				}})
+				}}).accept)
 			}
 			this.computeGenKill(n.getFirstChild(), gen, kill, conditional)
 			this.computeGenKill(n.getSecondChild(), gen, kill, conditional)
@@ -202,7 +204,9 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 }
 
 func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
-	Preconditions_checkState_boolean_Object(node.isName(), node.box_())
+	if !node.isName() {
+		panic(new_IllegalStateException_String(tostr_(node)))
+	}
 	var name string = node.getString()
 	var var_ *Var = this.allVarsInFn.get(name)
 	if var_ == nil {
@@ -226,8 +230,10 @@ func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 }
 
 func LiveVariablesAnalysis_isDeclaredInFunctionBlockOrParameter(scope *Scope, name string) bool {
-	Preconditions_checkState(scope.isFunctionBlockScope())
-	return (scope.hasOwnSlot(name) || cast_[*Scope](scope.getParent().self()).hasOwnSlot(name))
+	if !scope.isFunctionBlockScope() {
+		panic(new_IllegalStateException_0())
+	}
+	return (scope.hasOwnSlot(name) || scope.getParent().self().(*Scope).hasOwnSlot(name))
 }
 
 func (this *LiveVariablesAnalysis) markAllParametersEscaped() {
@@ -287,22 +293,27 @@ func new_LiveVariablesAnalysis_LiveVariableLattice(liveSet *BitSet) *LiveVariabl
 }
 
 func LiveVariablesAnalysis_LiveVariableLattice_createFromLattice(other *LiveVariablesAnalysis_LiveVariableLattice) *LiveVariablesAnalysis_LiveVariableLattice {
-	Preconditions_checkNotNull(obj_(other))
+	if other == nil {
+		panic(new_NullPointerException_0())
+	}
 	return new_LiveVariablesAnalysis_LiveVariableLattice(cast_[*BitSet](Object_clone(obj_(other.liveSet))))
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableLattice) equals(other any) bool {
-	Preconditions_checkNotNull(other)
+	if other == nil {
+		panic(new_NullPointerException_0())
+	}
 	var liveVariableLattice *LiveVariablesAnalysis_LiveVariableLattice
 	_ = liveVariableLattice
 	return (func() bool {
 		v_ := other
-		if !is_[*LiveVariablesAnalysis_LiveVariableLattice](v_) {
+		p, ok := v_.(*LiveVariablesAnalysis_LiveVariableLattice)
+		if !ok {
 			return false
 		}
-		liveVariableLattice = cast_[*LiveVariablesAnalysis_LiveVariableLattice](v_)
+		liveVariableLattice = p
 		return true
-	}() && Object_equals(obj_(this.liveSet), obj_(liveVariableLattice.liveSet)))
+	}() && equalsBy_(this.liveSet, obj_(liveVariableLattice.liveSet), (*BitSet).equals))
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableLattice) isLive(index int32) bool {
@@ -318,5 +329,5 @@ func (this *LiveVariablesAnalysis_LiveVariableLattice) nextSetBit(fromIndex int3
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableLattice) hashCode() int32 {
-	return Object_hashCode(obj_(this.liveSet))
+	return hashBy_(this.liveSet, (*BitSet).hashCode)
 }

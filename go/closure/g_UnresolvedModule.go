@@ -3,7 +3,25 @@
 package closure
 
 type UnresolvedModule struct {
-	self_ any
+	self_ UnresolvedModule_I
+}
+
+// UnresolvedModule_I holds the methods the dispatchers of UnresolvedModule's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type UnresolvedModule_I interface {
+	getExportedNames_2_impl(ModuleRequestResolver, map[*UnresolvedModule]struct{}) *ImmutableSet[string]
+	getExportedNames_impl(ModuleRequestResolver) *ImmutableSet[string]
+	metadata_impl() *ModuleMetadataMap_ModuleMetadata
+	reset_impl()
+	resolveExport_5_impl(ModuleRequestResolver, Optional[string], Optional[string], map[exportTraceKey_]struct{}, map[*UnresolvedModule]struct{}) *ResolveExportResult
+	resolveExport_impl(ModuleRequestResolver, Optional[string]) *ResolveExportResult
+	resolve_2_impl(ModuleRequestResolver, Optional[string]) *Module
+}
+
+// UnresolvedModule_as is implemented by UnresolvedModule and the classes that extend it: a cast to UnresolvedModule asserts to it
+// (post-flip).
+type UnresolvedModule_as interface {
+	as_UnresolvedModule() *UnresolvedModule
 }
 
 func (this *UnresolvedModule) as_UnresolvedModule() *UnresolvedModule { return this }
@@ -12,12 +30,7 @@ func to_UnresolvedModule(v any) *UnresolvedModule {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_UnresolvedModule() *UnresolvedModule }).as_UnresolvedModule()
-}
-
-func is_UnresolvedModule(v any) bool {
-	_, ok := v.(interface{ as_UnresolvedModule() *UnresolvedModule })
-	return ok
+	return v.(UnresolvedModule_as).as_UnresolvedModule()
 }
 
 func (this *UnresolvedModule) self() any {
@@ -36,7 +49,7 @@ func (this *UnresolvedModule) resolve(moduleRequestResolver ModuleRequestResolve
 }
 
 func (this *UnresolvedModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName Optional[string]) *ResolveExportResult {
-	return this.resolveExport_5(moduleRequestResolver, Optional_empty[string](), exportName, icast_Set(obj_(new_LinkedHashSet())), icast_Set(obj_(new_LinkedHashSet())))
+	return this.resolveExport_5(moduleRequestResolver, Optional_empty[string](), exportName, map[exportTraceKey_]struct{}{}, map[*UnresolvedModule]struct{}{})
 }
 
 func (this *UnresolvedModule) equals(other any) bool {
@@ -48,41 +61,29 @@ func (this *UnresolvedModule) hashCode() int32 {
 }
 
 func (this *UnresolvedModule) resolveExport(p0 ModuleRequestResolver, p1 Optional[string]) *ResolveExportResult {
-	return this.self_.(interface {
-		resolveExport_impl(ModuleRequestResolver, Optional[string]) *ResolveExportResult
-	}).resolveExport_impl(p0, p1)
+	return this.self_.resolveExport_impl(p0, p1)
 }
 
-func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 Set, p4 Set) *ResolveExportResult {
-	return this.self_.(interface {
-		resolveExport_5_impl(ModuleRequestResolver, Optional[string], Optional[string], Set, Set) *ResolveExportResult
-	}).resolveExport_5_impl(p0, p1, p2, p3, p4)
+func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
+	return this.self_.resolveExport_5_impl(p0, p1, p2, p3, p4)
 }
 
 func (this *UnresolvedModule) resolve_2(p0 ModuleRequestResolver, p1 Optional[string]) *Module {
-	return this.self_.(interface {
-		resolve_2_impl(ModuleRequestResolver, Optional[string]) *Module
-	}).resolve_2_impl(p0, p1)
+	return this.self_.resolve_2_impl(p0, p1)
 }
 
 func (this *UnresolvedModule) metadata() *ModuleMetadataMap_ModuleMetadata {
-	return this.self_.(interface {
-		metadata_impl() *ModuleMetadataMap_ModuleMetadata
-	}).metadata_impl()
+	return this.self_.metadata_impl()
 }
 
-func (this *UnresolvedModule) getExportedNames(p0 ModuleRequestResolver) *ImmutableSet {
-	return this.self_.(interface {
-		getExportedNames_impl(ModuleRequestResolver) *ImmutableSet
-	}).getExportedNames_impl(p0)
+func (this *UnresolvedModule) getExportedNames(p0 ModuleRequestResolver) *ImmutableSet[string] {
+	return this.self_.getExportedNames_impl(p0)
 }
 
-func (this *UnresolvedModule) getExportedNames_2(p0 ModuleRequestResolver, p1 Set) *ImmutableSet {
-	return this.self_.(interface {
-		getExportedNames_2_impl(ModuleRequestResolver, Set) *ImmutableSet
-	}).getExportedNames_2_impl(p0, p1)
+func (this *UnresolvedModule) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ImmutableSet[string] {
+	return this.self_.getExportedNames_2_impl(p0, p1)
 }
 
 func (this *UnresolvedModule) reset() {
-	this.self_.(interface{ reset_impl() }).reset_impl()
+	this.self_.reset_impl()
 }

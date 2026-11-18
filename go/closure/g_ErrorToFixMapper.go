@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ErrorToFixMapper struct {
 	compiler_             *AbstractCompiler
 	metadataForEachScript *JTMap[Node, *ScriptMetadata]
@@ -22,19 +24,18 @@ func new_ErrorToFixMapper(compiler *AbstractCompiler) *ErrorToFixMapper {
 	return this
 }
 
-func (this *ErrorToFixMapper) getFixesForJsError(error_ *JSError) ImmutableListOf[*SuggestedFix] {
+func (this *ErrorToFixMapper) getFixesForJsError(error_ *JSError) *ImmutableList[*SuggestedFix] {
 	var fix *SuggestedFix = this.getFixForJsError(error_)
 	if fix != nil {
-		return ImmutableList_of_Object(obj_(fix))
+		return immutableListOf_(tc_p_SuggestedFix, fix)
 	}
-	return func() *ImmutableList {
+	return func() *ImmutableList[*SuggestedFix] {
 		switch error_.type_().key_ {
 		case "JSC_IMPLICITLY_NONNULL_JSDOC", "JSC_IMPLICITLY_NULLABLE_JSDOC", "JSC_MISSING_NULLABILITY_MODIFIER_JSDOC", "JSC_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC":
 			return this.getFixesForImplicitNullabilityErrors(error_)
 		default:
-			return ImmutableList_of()
+			return immutableListOf_(tc_p_SuggestedFix)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -76,13 +77,14 @@ func (this *ErrorToFixMapper) getFixForJsError(error_ *JSError) *SuggestedFix {
 		default:
 			return nil
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *ErrorToFixMapper) getFixForRedeclaration(error_ *JSError) *SuggestedFix {
 	var name Node = error_.node()
-	Preconditions_checkState_boolean_Object(name.isName(), name.box_())
+	if !name.isName() {
+		panic(new_IllegalStateException_String(tostr_(name)))
+	}
 	var parent Node = name.getParent()
 	if !NodeUtil_isNameDeclaration(parent) {
 		return nil
@@ -136,7 +138,7 @@ func (this *ErrorToFixMapper) getFixForRedeclaration(error_ *JSError) *Suggested
 }
 
 func (this *ErrorToFixMapper) getFixForEarlyReference(error_ *JSError) *SuggestedFix {
-	var m *Matcher_re2j = ErrorToFixMapper_EARLY_REF.matcher(strobj_(error_.description()))
+	var m *Matcher_re2j = ErrorToFixMapper_EARLY_REF.matcher_s(error_.description())
 	if m.matches() {
 		var name string = m.group(1)
 		var stmt Node = NodeUtil_getEnclosingStatement(error_.node())
@@ -151,10 +153,12 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 	var match *Match = new_Match(error_.node(), metadata)
 	var script Node = this.compiler_.getScriptNode(error_.sourceName().orElseThrow())
 	var scriptMetadata *ScriptMetadata = this.getMetadataForScript(script)
-	var fullNameMatcher *Matcher_re2j = ErrorToFixMapper_FULLY_QUALIFIED_NAME.matcher(strobj_(error_.description()))
-	Preconditions_checkState_boolean_Object(fullNameMatcher.matches(), strobj_(error_.description()))
+	var fullNameMatcher *Matcher_re2j = ErrorToFixMapper_FULLY_QUALIFIED_NAME.matcher_s(error_.description())
+	if ok_, a1_ := fullNameMatcher.matches(), error_.description(); !ok_ {
+		panic(new_IllegalStateException_String(sstr_(a1_)))
+	}
 	var fullName string = fullNameMatcher.group(1)
-	var shortNameMatcher *Matcher_re2j = ErrorToFixMapper_USE_SHORT_NAME.matcher(strobj_(error_.description()))
+	var shortNameMatcher *Matcher_re2j = ErrorToFixMapper_USE_SHORT_NAME.matcher_s(error_.description())
 	var shortName Optional[string]
 	if shortNameMatcher.matches() {
 		shortName = Optional_ofNullable[string](shortNameMatcher.group(1))
@@ -165,34 +169,33 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 	var oldName Optional[string] = func() Optional[string] {
 		if error_.node().isQualifiedName() {
 			return Optional_of[string](error_.node().getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			}})
 		}
 		return Optional_of[string](error_.node().getString())
 	}()
-	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace(oldName.get(), strobj_(fullName), strobj_(shortName.get()))), this.compiler_).build()
+	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, strings.ReplaceAll(oldName.get(), csStr_(fullName), csStr_(shortName.get()))), this.compiler_).build()
 }
 
-func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSError) ImmutableListOf[*SuggestedFix] {
-	if String_isEmpty(error_.node().getSourceFileName()) {
-		return ImmutableList_of()
+func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSError) *ImmutableList[*SuggestedFix] {
+	if error_.node().getSourceFileName() == "" {
+		return immutableListOf_(tc_p_SuggestedFix)
 	}
 	var qmark *SuggestedFix = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).insertBefore(error_.node(), "?").setDescription("Make nullability explicit").build()
 	var bang *SuggestedFix = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).insertBefore(error_.node(), "!").setDescription("Make type non-nullable").build()
-	return func() *ImmutableList {
+	return func() *ImmutableList[*SuggestedFix] {
 		switch error_.type_().key_ {
 		case "JSC_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC":
-			return ImmutableList_of_Object(obj_(qmark))
+			return immutableListOf_(tc_p_SuggestedFix, qmark)
 		case "JSC_MISSING_NULLABILITY_MODIFIER_JSDOC":
-			return ImmutableList_of_Object_Object(obj_(bang), obj_(qmark))
+			return immutableListOf_(tc_p_SuggestedFix, bang, qmark)
 		case "JSC_IMPLICITLY_NULLABLE_JSDOC":
-			return ImmutableList_of_Object_Object(obj_(qmark), obj_(bang))
+			return immutableListOf_(tc_p_SuggestedFix, qmark, bang)
 		case "JSC_IMPLICITLY_NONNULL_JSDOC":
-			return ImmutableList_of_Object(obj_(bang))
+			return immutableListOf_(tc_p_SuggestedFix, bang)
 		default:
-			panic(new_IllegalArgumentException_String(("Unexpected JSError Type: " + sstr_(error_.type_().key_))).self())
+			panic(new_IllegalArgumentException_String(("Unexpected JSError Type: " + sstr_(error_.type_().key_))))
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -211,7 +214,7 @@ func (this *ErrorToFixMapper) getFixForMissingSuper(error_ *JSError) *SuggestedF
 }
 
 func (this *ErrorToFixMapper) getFixForInvalidSuper(error_ *JSError) *SuggestedFix {
-	var m *Matcher_re2j = ErrorToFixMapper_DID_YOU_MEAN.matcher(strobj_(error_.description()))
+	var m *Matcher_re2j = ErrorToFixMapper_DID_YOU_MEAN.matcher_s(error_.description())
 	if m.matches() {
 		var superDotSuggestion string = Optional_ofNullable[string](m.group(1)).orElseThrow()
 		return new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).setDescription(("Call '" + sstr_(superDotSuggestion) + "' instead")).replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, superDotSuggestion), this.compiler_).build()
@@ -220,7 +223,7 @@ func (this *ErrorToFixMapper) getFixForInvalidSuper(error_ *JSError) *SuggestedF
 }
 
 func (this *ErrorToFixMapper) getFixForInexistentProperty(error_ *JSError) *SuggestedFix {
-	var m *Matcher_re2j = ErrorToFixMapper_DID_YOU_MEAN.matcher(strobj_(error_.description()))
+	var m *Matcher_re2j = ErrorToFixMapper_DID_YOU_MEAN.matcher_s(error_.description())
 	if m.matches() {
 		var suggestedPropName string = m.group(1)
 		return new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).setDescription(("Change property name to '" + sstr_(suggestedPropName) + "'")).rename(error_.node(), suggestedPropName).build()
@@ -228,19 +231,23 @@ func (this *ErrorToFixMapper) getFixForInexistentProperty(error_ *JSError) *Sugg
 	return nil
 }
 
-func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importType *SuggestedFix_ImportType) *SuggestedFix {
-	var regexMatcher *Matcher_re2j = ErrorToFixMapper_MISSING_REQUIRE.matcher(strobj_(error_.description()))
-	Preconditions_checkState_boolean_String_Object(regexMatcher.matches(), "Unexpected error description: %s", strobj_(error_.description()))
+func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importType SuggestedFix_ImportType) *SuggestedFix {
+	var regexMatcher *Matcher_re2j = ErrorToFixMapper_MISSING_REQUIRE.matcher_s(error_.description())
+	if ok_, a1_ := regexMatcher.matches(), error_.description(); !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected error description: %s", []any{strobj_(a1_)})))
+	}
 	var namespaceToRequire string = regexMatcher.group(1)
 	var qName Optional[string] = func() Optional[string] {
 		if error_.node().isQualifiedName() {
 			return Optional_of[string](error_.node().getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			}})
 		}
 		return Optional_of[string](error_.node().getString())
 	}()
-	Preconditions_checkState_boolean_String_Object_Object(String_startsWith(qName.get(), namespaceToRequire), "Expected error location %s to start with namespace <%s>", error_.node().box_(), strobj_(namespaceToRequire))
+	if ok_, a1_, a2_ := strings.HasPrefix(qName.get(), namespaceToRequire), error_.node(), namespaceToRequire; !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected error location %s to start with namespace <%s>", []any{a1_.box_(), strobj_(a2_)})))
+	}
 	var script Node = this.compiler_.getScriptNode(error_.sourceName().orElseThrow())
 	var scriptMetadata *ScriptMetadata = this.getMetadataForScript(script)
 	var metadata *NodeMetadata = new_NodeMetadata_AbstractCompiler(this.compiler_)
@@ -248,7 +255,7 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 	var fix *SuggestedFix_Builder = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).addImport(match, namespaceToRequire, importType, scriptMetadata)
 	var alias Optional[string] = scriptMetadata.getAlias(namespaceToRequire)
 	if alias.isPresent() {
-		fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace(qName.get(), strobj_(namespaceToRequire), strobj_(alias.get()))), this.compiler_)
+		fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, strings.ReplaceAll(qName.get(), csStr_(namespaceToRequire), csStr_(alias.get()))), this.compiler_)
 	}
 	return fix.build()
 }
@@ -262,7 +269,9 @@ func (this *ErrorToFixMapper) getFixForExtraRequire(error_ *JSError) *SuggestedF
 		if node.isStringKey() {
 			fix.delete(node)
 		} else {
-			Preconditions_checkState_boolean_Object(node.getParent().isStringKey(), node.getParent().box_())
+			if ok_, a1_ := node.getParent().isStringKey(), node.getParent(); !ok_ {
+				panic(new_IllegalStateException_String(tostr_(a1_)))
+			}
 			fix.delete(node.getParent())
 		}
 	} else {
@@ -275,7 +284,7 @@ func (this *ErrorToFixMapper) getFixForExtraRequire(error_ *JSError) *SuggestedF
 func (this *ErrorToFixMapper) getFixForUnsortedRequires(error_ *JSError) *SuggestedFix {
 	var script Node = NodeUtil_getEnclosingScript(error_.node())
 	var callback *CheckRequiresSorted = new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_ONLY)
-	NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(callback)))
+	NodeTraversal_traverse(this.compiler_, script, callback)
 	if !callback.needsFix() {
 		return nil
 	}
@@ -285,7 +294,7 @@ func (this *ErrorToFixMapper) getFixForUnsortedRequires(error_ *JSError) *Sugges
 func (this *ErrorToFixMapper) getFixForUnsortedProvides(error_ *JSError) *SuggestedFix {
 	var script Node = NodeUtil_getEnclosingScript(error_.node())
 	var callback *CheckProvidesSorted = new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_ONLY)
-	NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(callback)))
+	NodeTraversal_traverse(this.compiler_, script, callback)
 	if !callback.needsFix() {
 		return nil
 	}
@@ -305,7 +314,9 @@ func (this *ErrorToFixMapper) getFixForConstantCaseErrors(error_ *JSError) *Sugg
 	if parent.isLet() {
 		return new_SuggestedFix_Builder().setDescription("Make explicitly constant").attachMatchedNodeInfo(parent, this.compiler_).replaceText(parent, 3, "const").build()
 	}
-	Preconditions_checkState_boolean_Object(parent.isVar(), parent.box_())
+	if !parent.isVar() {
+		panic(new_IllegalStateException_String(tostr_(parent)))
+	}
 	var info *JSDocInfo = parent.getJSDocInfo()
 	if info == nil {
 		return new_SuggestedFix_Builder().setDescription("Make explicitly constant").attachMatchedNodeInfo(parent, this.compiler_).addOrReplaceJsDoc(parent, "/** @const */\n").build()
@@ -314,7 +325,9 @@ func (this *ErrorToFixMapper) getFixForConstantCaseErrors(error_ *JSError) *Sugg
 }
 
 func (this *ErrorToFixMapper) getMetadataForScript(script Node) *ScriptMetadata {
-	Preconditions_checkArgument(script.isScript())
+	if !script.isScript() {
+		panic(new_IllegalArgumentException_0())
+	}
 	return this.metadataForEachScript.computeIfAbsent(script, &Function_tfn_Node_ScriptMetadata{func(s Node) *ScriptMetadata {
 		return ScriptMetadata_create(s, this.compiler_)
 	}})

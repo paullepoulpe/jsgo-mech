@@ -9,21 +9,21 @@ type RewritePolyfills struct {
 	injectPolyfills          bool
 	isolatePolyfills         bool
 	libraries                *JTSet[string]
-	injectPolyfillsNewerThan *CompilerOptions_LanguageMode
+	injectPolyfillsNewerThan CompilerOptions_LanguageMode
 	disambiguateProperties_  bool
 }
 
-func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan *CompilerOptions_LanguageMode, disambiguateProperties bool) {
+func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan CompilerOptions_LanguageMode, disambiguateProperties bool) {
 	this.init_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler, compiler.getRuntimeJsLibManager(), PolyfillUsageFinder_Polyfills_fromTable(ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/polyfills.txt"))), injectPolyfills, isolatePolyfills, injectPolyfillsNewerThan, disambiguateProperties)
 }
 
-func new_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan *CompilerOptions_LanguageMode, disambiguateProperties bool) *RewritePolyfills {
+func new_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan CompilerOptions_LanguageMode, disambiguateProperties bool) *RewritePolyfills {
 	this := &RewritePolyfills{}
 	this.init_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(compiler, injectPolyfills, isolatePolyfills, injectPolyfillsNewerThan, disambiguateProperties)
 	return this
 }
 
-func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, runtimeJsLibManager *RuntimeJsLibManager, polyfills *PolyfillUsageFinder_Polyfills, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan *CompilerOptions_LanguageMode, disambiguateProperties bool) {
+func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, runtimeJsLibManager *RuntimeJsLibManager, polyfills *PolyfillUsageFinder_Polyfills, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan CompilerOptions_LanguageMode, disambiguateProperties bool) {
 	this.compiler_ = compiler
 	this.runtimeJsLibManager = runtimeJsLibManager
 	this.polyfills = polyfills
@@ -33,7 +33,7 @@ func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_RuntimeJsLi
 	this.disambiguateProperties_ = disambiguateProperties
 }
 
-func new_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, runtimeJsLibManager *RuntimeJsLibManager, polyfills *PolyfillUsageFinder_Polyfills, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan *CompilerOptions_LanguageMode, disambiguateProperties bool) *RewritePolyfills {
+func new_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, runtimeJsLibManager *RuntimeJsLibManager, polyfills *PolyfillUsageFinder_Polyfills, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan CompilerOptions_LanguageMode, disambiguateProperties bool) *RewritePolyfills {
 	this := &RewritePolyfills{}
 	this.init_RewritePolyfills_AbstractCompiler_RuntimeJsLibManager_Polyfills_boolean_boolean_LanguageMode_boolean(compiler, runtimeJsLibManager, polyfills, injectPolyfills, isolatePolyfills, injectPolyfillsNewerThan, disambiguateProperties)
 	return this
@@ -47,37 +47,35 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 		synthesizedExternsAstRoot.addChildToBack(jscompLookupMethodDecl)
 		this.compiler_.reportChangeToEnclosingScope(jscompLookupMethodDecl)
 	}
-	if !this.injectPolyfills && (this.injectPolyfillsNewerThan == nil) {
+	if !this.injectPolyfills && (this.injectPolyfillsNewerThan == 0) {
 		return
 	}
 	if this.injectPolyfills {
 		this.libraries = jnewTSet_(jtc_string)
-		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, &Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.inject(p0) }})
+		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, (&Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.inject(p0) }}).accept)
 	}
-	var librariesToInject ImmutableListOf[string]
-	if this.injectPolyfillsNewerThan != nil {
-		var polyfillsToInject ImmutableListOf[*PolyfillUsageFinder_Polyfill] = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
-		var librariesToInjectBuilder ImmutableList_BuilderOf[string] = ImmutableList_builder()
-		it_1 := foreach_(obj_(polyfillsToInject))
-		for it_1.next() {
-			var p *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](it_1.v)
-			if !String_isEmpty(p.library) {
-				librariesToInjectBuilder.add(strobj_(p.library))
+	var librariesToInject *ImmutableList[string]
+	if this.injectPolyfillsNewerThan != 0 {
+		var polyfillsToInject []*PolyfillUsageFinder_Polyfill = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
+		var librariesToInjectBuilder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
+		for _, p := range polyfillsToInject {
+			if p.library != "" {
+				librariesToInjectBuilder.add(p.library)
 			}
 		}
-		librariesToInject = cast_[*ImmutableList](obj_(librariesToInjectBuilder.build()))
+		librariesToInject = librariesToInjectBuilder.build()
 	} else {
-		librariesToInject = ImmutableList_copyOf(Collection(this.libraries.asSet()))
+		librariesToInject = immutableListCopyOf_(tc_string, Collection(this.libraries.asSet()))
 	}
-	this.injectAll(icast_Iterable(obj_(librariesToInject)), (this.injectPolyfillsNewerThan != nil))
+	this.injectAll(icast_Iterable(obj_(librariesToInject.asImm())), (this.injectPolyfillsNewerThan != 0))
 }
 
 func (this *RewritePolyfills) injectAll(librariesToInject IterableOf[string], forceInjection bool) {
 	var lastNode Node = 0
-	it_1 := foreach_(any(librariesToInject))
-	for it_1.next() {
-		var library string = str_(it_1.v)
-		Preconditions_checkState_boolean_Object(!String_isEmpty(library), strobj_("unexpected empty library"))
+	for library := range elemsBy_(librariesToInject, str_) {
+		if library == "" {
+			panic(new_IllegalStateException_String("unexpected empty library"))
+		}
 		lastNode = this.runtimeJsLibManager.ensureLibraryInjected(library, forceInjection)
 	}
 	if lastNode != 0 {
@@ -119,10 +117,10 @@ func (this *RewritePolyfills) inject(polyfillUsage *PolyfillUsageFinder_Polyfill
 	var polyfill *PolyfillUsageFinder_Polyfill = polyfillUsage.polyfill()
 	var outputFeatureSet *FeatureSet = this.compiler_.getOptions().getOutputFeatureSet()
 	var featuresRequiredByPolyfill *FeatureSet = FeatureSet_valueOf(polyfill.polyfillVersion)
-	if Object_equals(obj_(polyfill.kind_), obj_(PolyfillUsageFinder_Polyfill_Kind_STATIC)) && !outputFeatureSet.containsFeatureSet(featuresRequiredByPolyfill) {
+	if equalsId_(polyfill.kind_, PolyfillUsageFinder_Polyfill_Kind_STATIC) && !outputFeatureSet.containsFeatureSet(featuresRequiredByPolyfill) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(polyfillUsage.node(), RewritePolyfills_INSUFFICIENT_OUTPUT_VERSION_ERROR, []string{polyfillUsage.name(), outputFeatureSet.version()}))
 	}
-	if !outputFeatureSet.containsFeatureSet(FeatureSet_valueOf(polyfill.nativeVersion)) && !String_isEmpty(polyfill.library) {
+	if !outputFeatureSet.containsFeatureSet(FeatureSet_valueOf(polyfill.nativeVersion)) && polyfill.library != "" {
 		this.libraries.add(polyfill.library)
 	}
 }

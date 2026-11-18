@@ -9,6 +9,8 @@ package closure
 // that is all ASCII the two are equal, which is the fast path.
 
 import (
+	"encoding/binary"
+	"iter"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -61,6 +63,11 @@ type u16index_ struct {
 	n     int32   // length in UTF-16 units
 	every []int32 // byte offset of unit 64*k (never inside a 4-byte character's second half)
 	adj   []int8  // 1 if unit 64*k is the low half of the character at every[k]
+	// The last position located (a character start): the scanner reads a source text in order,
+	// so the next lookup is usually a few units further and starts here instead of at a
+	// checkpoint up to 63 units back.
+	memoU   int32
+	memoOff int
 }
 
 const indexStride_ = 64
@@ -69,10 +76,16 @@ var indexCache_ [8]atomic.Pointer[u16index_]
 var indexNext_ atomic.Uint32
 
 func indexOf_(s string) *u16index_ {
+	// The scanner reads one source text character by character: the index found last is
+	// checked first.
+	if c := indexLast_.Load(); c != nil && len(c.s) == len(s) && unsafe.StringData(c.s) == unsafe.StringData(s) {
+		return c
+	}
 	for i := range indexCache_ {
 		// The same string, not an equal one: comparing contents would cost a pass over a
 		// megabyte-sized source text on every lookup.
 		if c := indexCache_[i].Load(); c != nil && len(c.s) == len(s) && unsafe.StringData(c.s) == unsafe.StringData(s) {
+			indexLast_.Store(c)
 			return c
 		}
 	}
@@ -99,8 +112,11 @@ func indexOf_(s string) *u16index_ {
 		c.n = n
 	}
 	indexCache_[indexNext_.Add(1)%uint32(len(indexCache_))].Store(c)
+	indexLast_.Store(c)
 	return c
 }
+
+var indexLast_ atomic.Pointer[u16index_]
 
 // locate_ finds the byte offset of UTF-16 unit i; low reports that i is the
 // low-surrogate half of the 4-byte character at that offset.
@@ -109,8 +125,9 @@ func locate_(s string, i int32) (off int, low bool) {
 		panic(new_StringIndexOutOfBoundsException_String("index " + istr_(int64(i))).self())
 	}
 	start, unit := 0, int32(0)
+	var c *u16index_
 	if len(s) >= 256 {
-		c := indexOf_(s)
+		c = indexOf_(s)
 		if c.ascii {
 			return int(i), false
 		}
@@ -124,11 +141,17 @@ func locate_(s string, i int32) (off int, low bool) {
 				return int(c.every[k]) + int(i-int32(k)*indexStride_), false
 			}
 			start, unit = int(c.every[k]), int32(k)*indexStride_-int32(c.adj[k])
+			if c.memoU > unit && c.memoU <= i {
+				start, unit = c.memoOff, c.memoU
+			}
 		}
 	}
 	for off = start; off < len(s); {
 		cp, size := decode_(s, off)
 		if unit == i {
+			if c != nil {
+				c.memoU, c.memoOff = unit, off
+			}
 			return off, false
 		}
 		if cp >= 0x10000 {
@@ -166,7 +189,13 @@ func asciiPrefix_(s string, n int) bool {
 	if n > len(s) {
 		return false
 	}
-	for i := 0; i < n; i++ {
+	i := 0
+	for ; i+8 <= n; i += 8 { // eight bytes at a time
+		if binary.LittleEndian.Uint64(unsafe.Slice(unsafe.StringData(s[i:]), 8))&0x8080808080808080 != 0 {
+			return false
+		}
+	}
+	for ; i < n; i++ {
 		if s[i] >= 0x80 {
 			return false
 		}
@@ -196,6 +225,95 @@ func String_length(s string) int32 {
 }
 
 func String_isEmpty(s string) bool { return len(s) == 0 }
+
+// stringUnits_ is the UTF-16 units of s with their indexes, for a loop over a string that the
+// loop does not change (post-flip step strunits): for i, c := range stringUnits_(s) { ... } is
+// Java's for (int i = 0; i < s.length(); i++) { char c = s.charAt(i); ... }, reading s once
+// instead of locating unit i from the start of s for each charAt and counting the units for
+// each length.
+func stringUnits_(s string) iter.Seq2[int32, uint16] {
+	return func(yield func(int32, uint16) bool) {
+		var i int32
+		for off := 0; off < len(s); i++ {
+			if b := s[off]; b < 0x80 {
+				if !yield(i, uint16(b)) {
+					return
+				}
+				off++
+				continue
+			}
+			// The units of the code point (or lone surrogate) at off, as String_charAt has them.
+			cp, size := decode_(s, off)
+			off += size
+			if cp >= 0x10000 {
+				cp -= 0x10000
+				if !yield(i, uint16(0xD800+cp>>10)) {
+					return
+				}
+				i++
+				cp = 0xDC00 + cp&0x3FF
+			}
+			if !yield(i, uint16(cp)) {
+				return
+			}
+		}
+	}
+}
+
+// stringUnitsFrom_ is stringUnits_(s) from unit from (>= 0) on: Java's
+// for (int i = from; i < s.length(); i++) { ... s.charAt(i) ... } (post-flip step strunits).
+func stringUnitsFrom_(s string, from int32) iter.Seq2[int32, uint16] {
+	return func(yield func(int32, uint16) bool) {
+		if from < 0 {
+			String_charAt(s, from) // throws; the step only starts loops at an index >= 0
+		}
+		if from >= String_length(s) {
+			return
+		}
+		off, low := locate_(s, from)
+		i := from
+		if low {
+			// unit from is the second half of a surrogate pair
+			cp, size := decode_(s, off)
+			if !yield(i, uint16(0xDC00+(cp-0x10000)&0x3FF)) {
+				return
+			}
+			i++
+			off += size
+		}
+		for ; off < len(s); i++ {
+			if b := s[off]; b < 0x80 {
+				if !yield(i, uint16(b)) {
+					return
+				}
+				off++
+				continue
+			}
+			cp, size := decode_(s, off)
+			off += size
+			if cp >= 0x10000 {
+				cp -= 0x10000
+				if !yield(i, uint16(0xD800+cp>>10)) {
+					return
+				}
+				i++
+				cp = 0xDC00 + cp&0x3FF
+			}
+			if !yield(i, uint16(cp)) {
+				return
+			}
+		}
+	}
+}
+
+// asciiCharAt_ is String_charAt of a string that is all ASCII (post-flip steps strunits and
+// strnative): unit i is byte i. An index outside the string throws what String_charAt throws.
+func asciiCharAt_(s string, i int32) uint16 {
+	if uint32(i) >= uint32(len(s)) {
+		return String_charAt(s, i)
+	}
+	return uint16(s[i])
+}
 
 func String_charAt(s string, i int32) uint16 {
 	if len(s) < 256 {
@@ -388,7 +506,10 @@ func String_valueOf_double(d float64) string { return Double_toString(d) }
 func String_valueOf_Object(v any) string     { return objstr_(v) }
 func String_toString(s string) string        { return s }
 
-func String_hashCode(s string) int32 {
+func String_hashCode(s string) int32 { return utf16Hash_(s) }
+
+// utf16Hash_ is Java's String.hashCode: h = 31*h + u over the UTF-16 units u of s.
+func utf16Hash_(s string) int32 {
 	var h int32
 	for i := 0; i < len(s); {
 		if s[i] < 0x80 {
@@ -409,7 +530,12 @@ func String_hashCode(s string) int32 {
 	return h
 }
 
-func String_compareTo(a string, b string) int32 {
+func String_compareTo(a string, b string) int32 { return utf16Compare_(a, b) }
+
+// utf16Compare_ is Java's String.compareTo: the difference of the first UTF-16 units that
+// differ, else of the lengths in units. Its sign is UTF-16 order, which differs from the byte
+// order of strings.Compare where a supplementary character meets one in U+E000-U+FFFF.
+func utf16Compare_(a string, b string) int32 {
 	n := len(a)
 	if len(b) < n {
 		n = len(b)
@@ -543,6 +669,11 @@ func String_lastIndexOf_String_int(s string, sub string, from int32) int32 {
 	return String_lastIndexOf_String(String_substring(s, 0, end), sub)
 }
 
+// javaSpace_ is what String.trim removes from both ends: every char up to U+0020. In WTF-8
+// those are the bytes 0x00-0x20 (every byte of a longer sequence is 0x80 or above), so
+// strings.Trim(s, javaSpace_) is s.trim() (post-flip step strnative).
+const javaSpace_ = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f "
+
 func String_trim(s string) string {
 	a, b := 0, len(s)
 	for a < b && s[a] <= ' ' {
@@ -615,6 +746,26 @@ func String_join_CharSequence_CharSequenceArr(sep any, vs []any) string {
 		parts[i] = objstr_(v)
 	}
 	return strings.Join(parts, csString_(sep))
+}
+
+// joinStrings_ is String.join(sep, elems) of a native list of Strings (post-flip step
+// strnative): strings.Join, with Java's null handling (a null list or separator throws
+// NullPointerException, a null element is "null").
+func joinStrings_(elems []string, sep string) string {
+	if elems == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	sep = csStr_(sep)
+	for _, e := range elems {
+		if e == nullstr_ {
+			parts := make([]string, len(elems))
+			for i, e := range elems {
+				parts[i] = sstr_(e)
+			}
+			return strings.Join(parts, sep)
+		}
+	}
+	return strings.Join(elems, sep)
 }
 
 // ---- CharSequence

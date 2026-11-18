@@ -3,7 +3,7 @@
 package closure
 
 type MapDiagnosticToSuppression struct {
-	output *DiagnosticToSuppressionMapper_OutputFormat
+	output DiagnosticToSuppressionMapper_OutputFormat
 	help   bool
 }
 
@@ -32,20 +32,20 @@ func MapDiagnosticToSuppression_printHelp() {
 
 func (this *MapDiagnosticToSuppression) printSuppressions(args []string) {
 	var parser *CmdLineParser = new_CmdLineParser()
-	CmdLineParser_Option_enumValue[*DiagnosticToSuppressionMapper_OutputFormat](parser.option("--output").usage("Sets the desired output format.\nOptions: md, jsonDefault: json"), DiagnosticToSuppressionMapper_OutputFormat_values(), &Supplier_tfn_DiagnosticToSuppressionMapper_OutputFormat{func() *DiagnosticToSuppressionMapper_OutputFormat {
+	CmdLineParser_Option_enumValue[DiagnosticToSuppressionMapper_OutputFormat](parser.option("--output").usage("Sets the desired output format.\nOptions: md, jsonDefault: json"), DiagnosticToSuppressionMapper_OutputFormat_values(), &Supplier_tfn_DiagnosticToSuppressionMapper_OutputFormat{func() DiagnosticToSuppressionMapper_OutputFormat {
 		return this.output
-	}}, &Consumer_tfn_DiagnosticToSuppressionMapper_OutputFormat{func(v *DiagnosticToSuppressionMapper_OutputFormat) {
+	}}, &Consumer_tfn_DiagnosticToSuppressionMapper_OutputFormat{func(v DiagnosticToSuppressionMapper_OutputFormat) {
 		this.output = v
 	}})
-	parser.option("--help").usage("Usage").flag(&Supplier_fn{func() any {
+	parser.option("--help").usage("Usage").flag(func() any {
 		return any(bool(this.help))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.help = unbox_[bool](v)
-	}})
+	})
 	var parsed *Outcome_base[any] = parser.parseArgument(args)
 	if parsed.isErr() {
 		var ex *CmdLineException = cast_[*CmdLineException](parsed.error().self())
-		Output_stderr().println(("Could not parse arguments: " + objstr_(obj_(ex))))
+		Output_stderr().println(("Could not parse arguments: " + tostr_(ex)))
 		MapDiagnosticToSuppression_printHelp()
 		return
 	}
@@ -53,5 +53,5 @@ func (this *MapDiagnosticToSuppression) printSuppressions(args []string) {
 		MapDiagnosticToSuppression_printHelp()
 		return
 	}
-	new_DiagnosticToSuppressionMapper(icast_Set(obj_(ParserRunner_getSuppressionNames())), DiagnosticGroups_getRegisteredGroups()).printSuppressions(this.output)
+	new_DiagnosticToSuppressionMapper(ParserRunner_getSuppressionNames(), DiagnosticGroups_getRegisteredGroups()).printSuppressions(this.output)
 }

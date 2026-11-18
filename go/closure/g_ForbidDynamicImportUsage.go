@@ -17,7 +17,7 @@ func new_ForbidDynamicImportUsage(compiler *AbstractCompiler) *ForbidDynamicImpo
 }
 
 func (this *ForbidDynamicImportUsage) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	this.compiler_.markFeatureNotAllowed(FeatureSet_Feature_DYNAMIC_IMPORT)
 }
 
@@ -27,7 +27,6 @@ func (this *ForbidDynamicImportUsage) shouldTraverse(t *NodeTraversal, n Node, p
 	} else {
 		return true
 	}
-	panic("unreachable")
 }
 
 func (this *ForbidDynamicImportUsage) getFeatureSetOfScript(n Node) *FeatureSet {
@@ -41,8 +40,8 @@ func (this *ForbidDynamicImportUsage) getFeatureSetOfScript(n Node) *FeatureSet 
 }
 
 func (this *ForbidDynamicImportUsage) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_DYNAMIC_IMPORT:
+	switch n.ns_().token {
+	case tokOrd1_DYNAMIC_IMPORT:
 		t.report(n, ForbidDynamicImportUsage_DYNAMIC_IMPORT_USAGE, []string{})
 	default:
 	}

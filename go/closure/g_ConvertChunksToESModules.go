@@ -27,12 +27,10 @@ func new_ConvertChunksToESModules(compiler *AbstractCompiler) *ConvertChunksToES
 }
 
 func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_ConvertChunksToESModules_FindCrossChunkReferences(this))))
-	it_1 := foreach_(any(this.compiler_.getChunkGraph().getAllChunks()))
-	for it_1.next() {
-		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
+	NodeTraversal_traverse(this.compiler_, root, new_ConvertChunksToESModules_FindCrossChunkReferences(this))
+	for chunk := range elemsAs_[*JSChunk](this.compiler_.getChunkGraph().getAllChunks()) {
 		if (!this.crossChunkExports.has(chunk) && !this.crossChunkImports.has(chunk)) && !chunk.getInputs().isEmpty() {
-			this.crossChunkExports.put(chunk, icast_Set(obj_(new_LinkedHashSet())))
+			this.crossChunkExports.put(chunk, new_LinkedHashSet())
 		}
 	}
 	this.convertChunkSourcesToModules()
@@ -43,23 +41,22 @@ func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
 }
 
 func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
-	it_1 := foreach_(any(this.compiler_.getChunkGraph().getAllChunks()))
-	for it_1.next() {
-		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
+	for chunk := range elemsAs_[*JSChunk](this.compiler_.getChunkGraph().getAllChunks()) {
 		if chunk.getInputs().isEmpty() {
 			continue
 		}
 		var firstInput *CompilerInput = nil
-		it_3 := foreach_(obj_(chunk.getInputs()))
-		for it_3.next() {
-			var input *CompilerInput = cast_[*CompilerInput](it_3.v)
+		for _, el := range immElems_(chunk.getInputs()) {
+			input := cast_[*CompilerInput](el)
 			var astRoot Node = input.getAstRoot(this.compiler_)
 			var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(astRoot)
-			Preconditions_checkState(!scriptFeatures.containsFeatureSet(FeatureSet_ES2015_MODULES))
+			if scriptFeatures.containsFeatureSet(FeatureSet_ES2015_MODULES) {
+				panic(new_IllegalStateException_0())
+			}
 			if firstInput == nil {
 				firstInput = input
 				scriptFeatures = scriptFeatures.union(FeatureSet_ES2015_MODULES)
-				astRoot.setFeatureSet(obj_(scriptFeatures))
+				astRoot.setFeatureSet(scriptFeatures)
 				var moduleBody Node = new_Node_Token(Token_rhino_MODULE_BODY)
 				moduleBody.srcref(astRoot)
 				moduleBody.addChildrenToFront(astRoot.removeChildren())
@@ -69,9 +66,11 @@ func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
 				var firstInputAstRoot Node = firstInput.getAstRoot(this.compiler_)
 				var firstInputScriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(firstInputAstRoot)
 				var combinedFeatureSet *FeatureSet = firstInputScriptFeatures.union(NodeUtil_getFeatureSetOfScript(astRoot))
-				astRoot.setFeatureSet(obj_(combinedFeatureSet))
+				astRoot.setFeatureSet(combinedFeatureSet)
 				var moduleBody Node = firstInputAstRoot.getFirstChild()
-				Preconditions_checkState(((moduleBody != 0) && moduleBody.isModuleBody()))
+				if moduleBody == 0 || !moduleBody.isModuleBody() {
+					panic(new_IllegalStateException_0())
+				}
 				moduleBody.addChildrenToBack(astRoot.removeChildren())
 				this.compiler_.reportChangeToEnclosingScope(firstInputAstRoot)
 				this.compiler_.reportChangeToChangeScope(astRoot)
@@ -86,11 +85,11 @@ func (this *ConvertChunksToESModules) addExportStatements() {
 		var jsModuleExports *TEntry[*JSChunk, Set] = it_1.entry()
 		var firstInput *CompilerInput = jsModuleExports.getKey().getFirst()
 		var moduleBody Node = firstInput.getAstRoot(this.compiler_).getFirstChild()
-		Preconditions_checkState(((moduleBody != 0) && moduleBody.isModuleBody()))
+		if moduleBody == 0 || !moduleBody.isModuleBody() {
+			panic(new_IllegalStateException_0())
+		}
 		var exportSpecs Node = new_Node_Token(Token_rhino_EXPORT_SPECS)
-		it_3 := foreach_(any(jsModuleExports.getValue()))
-		for it_3.next() {
-			var name string = str_(it_3.v)
+		for name := range elemsBy_(jsModuleExports.getValue(), str_) {
 			var exportSpec Node = new_Node_Token(Token_rhino_EXPORT_SPEC)
 			exportSpec.addChildToFront(IR_name(name))
 			exportSpec.addChildToFront(IR_name(name))
@@ -118,14 +117,12 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 		var importingChunk *JSChunk = chunkImportsEntry.getKey()
 		var firstInput *CompilerInput = importingChunk.getFirst()
 		var moduleBody Node = firstInput.getAstRoot(this.compiler_).getFirstChild()
-		Preconditions_checkState(((moduleBody != 0) && moduleBody.isModuleBody()))
-		it_3 := foreach_(any(chunkImportsEntry.getValue().entrySet()))
-		for it_3.next() {
-			var importsByChunk Map_Entry = icast_Map_Entry(it_3.v)
+		if moduleBody == 0 || !moduleBody.isModuleBody() {
+			panic(new_IllegalStateException_0())
+		}
+		for importsByChunk := range elemsBy_(chunkImportsEntry.getValue().entrySet(), icast_Map_Entry) {
 			var importSpecs Node = new_Node_Token(Token_rhino_IMPORT_SPECS)
-			it_5 := foreach_(any(icast_Set(importsByChunk.getValue())))
-			for it_5.next() {
-				var name string = str_(it_5.v)
+			for name := range elemsBy_(icast_Set(importsByChunk.getValue()), str_) {
 				var importSpec Node = new_Node_Token(Token_rhino_IMPORT_SPEC)
 				importSpec.addChildToFront(IR_name(name))
 				importSpec.addChildToFront(IR_name(name))
@@ -161,7 +158,9 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 }
 
 func ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(compiler *AbstractCompiler, call Node) Node {
-	Preconditions_checkState(call.isCall())
+	if !call.isCall() {
+		panic(new_IllegalStateException_0())
+	}
 	var callbackFn Node = NodeUtil_getArgumentForCallOrNew(call, 0)
 	if ((callbackFn == 0) || !callbackFn.isFunction()) || NodeUtil_getFunctionParameters(callbackFn).hasChildren() {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(call, ConvertChunksToESModules_UNRECOGNIZED_DYNAMIC_IMPORT_CALLBACK, []string{" Unable to find valid callback function."}))
@@ -182,7 +181,9 @@ func (this *ConvertChunksToESModules) rewriteDynamicImportCallbacks() {
 	it_1 := this.dynamicImportCallbacks.each()
 	for it_1.next() {
 		var dynamicImportCallback Node = it_1.v
-		Preconditions_checkState(dynamicImportCallback.isCall())
+		if !dynamicImportCallback.isCall() {
+			panic(new_IllegalStateException_0())
+		}
 		var moduleNamespace Node = ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(this.compiler_, dynamicImportCallback)
 		if moduleNamespace == 0 {
 			continue
@@ -212,7 +213,9 @@ func ConvertChunksToESModules_isDynamicImportCallback(call Node) bool {
 }
 
 func (this *ConvertChunksToESModules) visitCallAndTraverse(t *NodeTraversal, call Node) bool {
-	Preconditions_checkState(call.isCall())
+	if !call.isCall() {
+		panic(new_IllegalStateException_0())
+	}
 	if !ConvertChunksToESModules_isDynamicImportCallback(call) {
 		return true
 	}
@@ -229,10 +232,12 @@ func (this *ConvertChunksToESModules) visitCallAndTraverse(t *NodeTraversal, cal
 	return false
 }
 
-func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node, importType *ConvertChunksToESModules_ImportType) bool {
-	Preconditions_checkState(nameNode.isName())
+func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node, importType ConvertChunksToESModules_ImportType) bool {
+	if !nameNode.isName() {
+		panic(new_IllegalStateException_0())
+	}
 	var name string = nameNode.getString()
-	if String_isEmpty(name) {
+	if name == "" {
 		return false
 	}
 	var s *Scope = t.getScope()
@@ -251,15 +256,15 @@ func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node,
 			t.report(nameNode, ConvertChunksToESModules_ASSIGNMENT_TO_IMPORT, []string{nameNode.getString(), ConvertChunksToESModules_getChunkName(referencingChunk), ConvertChunksToESModules_getChunkName(definingChunk)})
 		}
 		var namesToExport SetOf[string] = this.crossChunkExports.computeIfAbsent(definingChunk, &Function_tfn_JSChunk_Set{func(k *JSChunk) Set {
-			return icast_Set(obj_(new_LinkedHashSet()))
+			return new_LinkedHashSet()
 		}})
 		Collection_add_s(namesToExport, name)
 		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.crossChunkImports.computeIfAbsent(referencingChunk, &Function_tfn_JSChunk_Map{func(k *JSChunk) Map {
-			return icast_Map(obj_(new_LinkedHashMap()))
+			return new_LinkedHashMap()
 		}})
 		if importType == ConvertChunksToESModules_ImportType_STATIC {
 			var importsForChunk SetOf[string] = icast_Set(Map_computeIfAbsent(namesToImportByChunk, obj_(definingChunk), &Function_tfn_JSChunk_Set{func(k *JSChunk) Set {
-				return icast_Set(obj_(new_LinkedHashSet()))
+				return new_LinkedHashSet()
 			}}))
 			Collection_add_s(importsForChunk, name)
 		}
@@ -286,44 +291,64 @@ func ConvertChunksToESModules_clinit() {
 
 }
 
-type ConvertChunksToESModules_ImportType struct {
-	Enum
+type ConvertChunksToESModules_ImportType uint8
+
+// ConvertChunksToESModules_ImportType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ConvertChunksToESModules_ImportType_enum_ = [2]Enum{
+	{self_: ConvertChunksToESModules_ImportType_STATIC, name_: "STATIC", ordinal_: 0},
+	{self_: ConvertChunksToESModules_ImportType_DYNAMIC, name_: "DYNAMIC", ordinal_: 1},
 }
 
-func (this *ConvertChunksToESModules_ImportType) up_Enum() *Enum {
-	if this == nil {
+func (this ConvertChunksToESModules_ImportType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ConvertChunksToESModules_ImportType_enum_[this-1]
 }
 
-func (this *ConvertChunksToESModules_ImportType) init_ConvertChunksToESModules_ImportType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ConvertChunksToESModules_ImportType) name() string {
+	return this.enum_().name_
 }
 
-func new_ConvertChunksToESModules_ImportType(name_ string, ordinal_ int32) *ConvertChunksToESModules_ImportType {
-	this := &ConvertChunksToESModules_ImportType{}
-	this.self_ = this
-	this.init_ConvertChunksToESModules_ImportType(name_, ordinal_)
+func (this ConvertChunksToESModules_ImportType) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ConvertChunksToESModules_ImportType) toString() string {
+	return this.enum_().name_
+}
+
+func (this ConvertChunksToESModules_ImportType) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ConvertChunksToESModules_ImportType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ConvertChunksToESModules_ImportType_values() []*ConvertChunksToESModules_ImportType {
-	return append([]*ConvertChunksToESModules_ImportType(nil), ConvertChunksToESModules_ImportType_values_...)
+func ConvertChunksToESModules_ImportType_values() []ConvertChunksToESModules_ImportType {
+	return append([]ConvertChunksToESModules_ImportType(nil), ConvertChunksToESModules_ImportType_values_...)
 }
 
-func ConvertChunksToESModules_ImportType_valueOf(name string) *ConvertChunksToESModules_ImportType {
+func ConvertChunksToESModules_ImportType_valueOf(name string) ConvertChunksToESModules_ImportType {
 	for _, v := range ConvertChunksToESModules_ImportType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ImportType", name))
 }
 
-var ConvertChunksToESModules_ImportType_STATIC *ConvertChunksToESModules_ImportType
-var ConvertChunksToESModules_ImportType_DYNAMIC *ConvertChunksToESModules_ImportType
-var ConvertChunksToESModules_ImportType_values_ []*ConvertChunksToESModules_ImportType
+const ConvertChunksToESModules_ImportType_STATIC ConvertChunksToESModules_ImportType = 1
+const ConvertChunksToESModules_ImportType_DYNAMIC ConvertChunksToESModules_ImportType = 2
+
+var ConvertChunksToESModules_ImportType_values_ []ConvertChunksToESModules_ImportType
 
 var ConvertChunksToESModules_ImportType_clinit_done bool
 
@@ -332,9 +357,7 @@ func ConvertChunksToESModules_ImportType_clinit() {
 		return
 	}
 	ConvertChunksToESModules_ImportType_clinit_done = true
-	ConvertChunksToESModules_ImportType_STATIC = new_ConvertChunksToESModules_ImportType("STATIC", 0)
-	ConvertChunksToESModules_ImportType_DYNAMIC = new_ConvertChunksToESModules_ImportType("DYNAMIC", 1)
-	ConvertChunksToESModules_ImportType_values_ = []*ConvertChunksToESModules_ImportType{ConvertChunksToESModules_ImportType_STATIC, ConvertChunksToESModules_ImportType_DYNAMIC}
+	ConvertChunksToESModules_ImportType_values_ = []ConvertChunksToESModules_ImportType{ConvertChunksToESModules_ImportType_STATIC, ConvertChunksToESModules_ImportType_DYNAMIC}
 	registerEnum_("com.google.javascript.jscomp.ConvertChunksToESModules.ImportType", enumValues_(ConvertChunksToESModules_ImportType_values_))
 
 }
@@ -377,20 +400,28 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) shouldTraverse_im
 }
 
 func (this *ConvertChunksToESModules_FindCrossChunkReferences) visitScript(t *NodeTraversal, script Node) {
-	Preconditions_checkState(script.isScript())
+	if !script.isScript() {
+		panic(new_IllegalStateException_0())
+	}
 	var chunk *JSChunk = t.getChunk()
-	var chunkDependencies ImmutableListOf[*JSChunk] = chunk.getDependencies()
-	this.outer_.crossChunkExports.putIfAbsent(chunk, icast_Set(obj_(new_LinkedHashSet())))
-	if !chunkDependencies.isEmpty() {
+	var chunkDependencies []*JSChunk = chunk.getDependencies()
+	this.outer_.crossChunkExports.putIfAbsent(chunk, new_LinkedHashSet())
+	if len(chunkDependencies) != 0 {
 		var namesToImportByChunk MapOf[*JSChunk, SetOf[string]] = this.outer_.crossChunkImports.computeIfAbsent(chunk, &Function_tfn_JSChunk_Map{func(k *JSChunk) Map {
-			return icast_Map(obj_(new_LinkedHashMap()))
+			return new_LinkedHashMap()
 		}})
-		it_1 := foreach_(obj_(chunkDependencies))
-		for it_1.next() {
-			var dependency *JSChunk = cast_[*JSChunk](it_1.v)
+		for _, dependency := range chunkDependencies {
 			Map_computeIfAbsent(namesToImportByChunk, obj_(dependency), &Function_tfn_JSChunk_Set{func(k *JSChunk) Set {
-				return icast_Set(obj_(new_LinkedHashSet()))
+				return new_LinkedHashSet()
 			}})
 		}
 	}
+}
+
+// shouldTraverse: an object that is exactly a ConvertChunksToESModules_FindCrossChunkReferences calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *ConvertChunksToESModules_FindCrossChunkReferences) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if p, _ := this.self_.(*ConvertChunksToESModules_FindCrossChunkReferences); p == this {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

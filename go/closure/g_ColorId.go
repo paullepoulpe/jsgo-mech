@@ -43,7 +43,9 @@ func ColorId_fromAscii(str string) *ColorId {
 }
 
 func ColorId_fromBytesAt[T any](source T, length int32, byteAt ColorId_ByteAt[T]) *ColorId {
-	Preconditions_checkState_boolean_Object((length <= 8), any(int32(length)))
+	if length > 8 {
+		panic(new_IllegalStateException_String(istr_(int64(int32(length)))))
+	}
 	var rightAligned int64 = 0
 	for i := int32(0); i < length; i++ {
 		rightAligned = (rightAligned << 8)
@@ -58,9 +60,7 @@ func ColorId_union(ids SetOf[*ColorId]) *ColorId {
 	}
 	var index int32 = 0
 	var sorted []int64 = make([]int64, ids.size())
-	it_1 := foreach_(any(ids))
-	for it_1.next() {
-		var id *ColorId = cast_[*ColorId](it_1.v)
+	for id := range elemsAs_[*ColorId](ids) {
 		sorted[index] = id.rightAligned
 		index++
 	}
@@ -73,16 +73,13 @@ func ColorId_union(ids SetOf[*ColorId]) *ColorId {
 }
 
 func (this *ColorId) equals(x any) bool {
-	var that *ColorId
-	_ = that
-	if !(func() bool {
-		v_ := x
-		if !is_[*ColorId](v_) {
-			return false
-		}
-		that = cast_[*ColorId](v_)
-		return true
-	}()) {
+	p, ok := x.(*ColorId)
+	return ok && this.equals_ColorId(p)
+}
+
+// equals_ColorId is equals of a ColorId (post-flip step eqtyped).
+func (this *ColorId) equals_ColorId(that *ColorId) bool {
+	if !(that != nil) {
 		return false
 	}
 	return (this.rightAligned == that.rightAligned)
@@ -123,9 +120,10 @@ func ColorId_clinit() {
 	ColorId_FARM_64 = Hashing_farmHashFingerprint64()
 	ColorId_ASCII_AT = &ColorId_ByteAt_fn[string]{func(s string, i int32) int8 {
 		var c int32 = String_codePointAt(s, i)
-		Preconditions_checkState_boolean_Object(((0 <= c) && (c < 128)), any(int32(c)))
+		if 0 > c || c >= 128 {
+			panic(new_IllegalStateException_String(istr_(int64(int32(c)))))
+		}
 		return int8(c)
-		panic("unreachable")
 	}}
 
 }

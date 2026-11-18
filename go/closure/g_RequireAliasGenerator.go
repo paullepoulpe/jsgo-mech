@@ -3,13 +3,13 @@
 package closure
 
 type RequireAliasGenerator struct {
-	parts      ImmutableListOf[string]
+	parts      []string
 	capitalize bool
 }
 
 func (this *RequireAliasGenerator) init_RequireAliasGenerator(namespace string) {
-	this.parts = ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split(strobj_(namespace))).reverse()
-	this.capitalize = Ascii_isUpperCase(String_charAt(str_(this.parts.get(0)), 0))
+	this.parts = sliceImm_(tc_string, ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split_s(namespace)).reverse())
+	this.capitalize = Ascii_isUpperCase(String_charAt(sliceAt_(this.parts, 0), 0))
 }
 
 func new_RequireAliasGenerator(namespace string) *RequireAliasGenerator {
@@ -18,34 +18,34 @@ func new_RequireAliasGenerator(namespace string) *RequireAliasGenerator {
 	return this
 }
 
-func RequireAliasGenerator_createSkiplistedAliases() ImmutableSetOf[string] {
-	var seeds ImmutableSetOf[string] = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_(""), strobj_("array"), strobj_("event"), strobj_("map"), strobj_("math"), strobj_("object"), []any{strobj_("promise"), strobj_("set"), strobj_("string"), strobj_("thenable")})
-	var builder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	it_1 := foreach_(obj_(seeds))
-	for it_1.next() {
-		var seed string = str_(it_1.v)
-		builder.add(strobj_(RequireAliasGenerator_captializeFirstChar(seed)))
-		builder.add(strobj_(Ascii_toLowerCase(seed)))
+func RequireAliasGenerator_createSkiplistedAliases() *ImmutableSet[string] {
+	var seeds *ImmutableSet[string] = immutableSetOf_(tc_string, "", "array", "event", "map", "math", "object", "promise", "set", "string", "thenable")
+	var builder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
+	for _, el := range seeds.keys {
+		seed := el
+		builder.add(RequireAliasGenerator_captializeFirstChar(seed))
+		builder.add(Ascii_toLowerCase(seed))
 	}
-	return cast_[*ImmutableSet](obj_(builder.build()))
+	return builder.build()
 }
 
 func RequireAliasGenerator_over(namespace string) IterableOf[string] {
-	return icast_Iterable(obj_(new_RequireAliasGenerator(namespace)))
+	return new_RequireAliasGenerator(namespace)
 }
 
 func (this *RequireAliasGenerator) iterator() IteratorOf[string] {
-	return icast_Iterator(obj_(new_RequireAliasGenerator_NameIterator(this)))
+	return new_RequireAliasGenerator_NameIterator(this)
 }
 
 func RequireAliasGenerator_captializeFirstChar(w string) string {
-	if String_isEmpty(w) || Ascii_isUpperCase(String_charAt(w, 0)) {
+	if w == "" || Ascii_isUpperCase(uint16(byteAt_(w, 0))) {
 		return w
 	}
-	return (chrstr_(Ascii_toUpperCase_char(String_charAt(w, 0))) + sstr_(String_substring_int(w, 1)))
+	wU16 := utf16Of_(w)
+	return (chrstr_(Ascii_toUpperCase_char(wU16.charAt(0))) + sstr_(wU16.substring_int(1)))
 }
 
-var RequireAliasGenerator_SKIPLISTED_ALIASES *ImmutableSet
+var RequireAliasGenerator_SKIPLISTED_ALIASES *ImmutableSet[string]
 var RequireAliasGenerator_DOT_SPLITTER *Splitter
 
 var RequireAliasGenerator_clinit_done bool
@@ -101,19 +101,19 @@ func new_RequireAliasGenerator_NameIterator(outer_ *RequireAliasGenerator) *Requ
 
 func (this *RequireAliasGenerator_NameIterator) computeNext() any {
 	var next string
-	for do_2 := true; do_2; do_2 = Collection_contains_s(RequireAliasGenerator_SKIPLISTED_ALIASES, next) {
+	for do_2 := true; do_2; do_2 = RequireAliasGenerator_SKIPLISTED_ALIASES.Has(next) {
 		next = this.computeNextWithoutFiltering()
 	}
 	return strobj_(next)
 }
 
 func (this *RequireAliasGenerator_NameIterator) computeNextWithoutFiltering() string {
-	if this.index_ >= this.outer_.parts.size() {
+	if this.index_ >= int32(len(this.outer_.parts)) {
 		var result string = (sstr_(this.concat) + istr_(int64(this.suffix)))
 		this.suffix++
 		return result
 	}
-	var part string = str_(this.outer_.parts.get(this.index_))
+	var part string = sliceAt_(this.outer_.parts, this.index_)
 	this.index_++
 	if this.outer_.capitalize {
 		part = RequireAliasGenerator_captializeFirstChar(part)

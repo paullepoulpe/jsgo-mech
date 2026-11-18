@@ -147,7 +147,7 @@ func (this *Reference) isSimpleAssignmentToName() bool {
 
 func (this *Reference) isLvalue() bool {
 	var parent Node = this.getParent()
-	var parentType *Token_rhino = parent.getToken()
+	var parentType Token_rhino = parent.getToken()
 	return func() bool {
 		switch parentType {
 		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
@@ -163,7 +163,6 @@ func (this *Reference) isLvalue() bool {
 		default:
 			return (NodeUtil_isAssignmentOp(parent) && (parent.getFirstChild() == this.nameNode_))
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -171,7 +170,7 @@ func (this *Reference) getScope() *Scope {
 	return this.scope_
 }
 
-var Reference_DECLARATION_PARENTS *ImmutableSet
+var Reference_DECLARATION_PARENTS *ErasedImmutableSet
 
 var Reference_clinit_done bool
 
@@ -180,6 +179,6 @@ func Reference_clinit() {
 		return
 	}
 	Reference_clinit_done = true
-	Reference_DECLARATION_PARENTS = Sets_immutableEnumSet(Token_rhino_VAR.up_Enum(), []*Enum{Token_rhino_LET.up_Enum(), Token_rhino_CONST.up_Enum(), Token_rhino_PARAM_LIST.up_Enum(), Token_rhino_FUNCTION.up_Enum(), Token_rhino_CLASS.up_Enum(), Token_rhino_CATCH.up_Enum()})
+	Reference_DECLARATION_PARENTS = Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_LET.enum_(), Token_rhino_CONST.enum_(), Token_rhino_PARAM_LIST.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_(), Token_rhino_CATCH.enum_()})
 
 }

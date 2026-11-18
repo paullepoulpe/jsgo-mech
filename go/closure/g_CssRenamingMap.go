@@ -5,47 +5,63 @@ package closure
 type CssRenamingMap interface {
 	RenamingMap
 	get(string) Optional[string]
-	getStyle() *CssRenamingMap_Style
+	getStyle() CssRenamingMap_Style
 }
 
-type CssRenamingMap_Style struct {
-	Enum
+type CssRenamingMap_Style uint8
+
+// CssRenamingMap_Style_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CssRenamingMap_Style_enum_ = [2]Enum{
+	{self_: CssRenamingMap_Style_BY_WHOLE, name_: "BY_WHOLE", ordinal_: 0},
+	{self_: CssRenamingMap_Style_BY_PART, name_: "BY_PART", ordinal_: 1},
 }
 
-func (this *CssRenamingMap_Style) up_Enum() *Enum {
-	if this == nil {
+func (this CssRenamingMap_Style) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CssRenamingMap_Style_enum_[this-1]
 }
 
-func (this *CssRenamingMap_Style) init_CssRenamingMap_Style(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CssRenamingMap_Style) name() string { return this.enum_().name_ }
+
+func (this CssRenamingMap_Style) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_CssRenamingMap_Style(name_ string, ordinal_ int32) *CssRenamingMap_Style {
-	this := &CssRenamingMap_Style{}
-	this.self_ = this
-	this.init_CssRenamingMap_Style(name_, ordinal_)
+func (this CssRenamingMap_Style) toString() string { return this.enum_().name_ }
+
+func (this CssRenamingMap_Style) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this CssRenamingMap_Style) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CssRenamingMap_Style_values() []*CssRenamingMap_Style {
-	return append([]*CssRenamingMap_Style(nil), CssRenamingMap_Style_values_...)
+func CssRenamingMap_Style_values() []CssRenamingMap_Style {
+	return append([]CssRenamingMap_Style(nil), CssRenamingMap_Style_values_...)
 }
 
-func CssRenamingMap_Style_valueOf(name string) *CssRenamingMap_Style {
+func CssRenamingMap_Style_valueOf(name string) CssRenamingMap_Style {
 	for _, v := range CssRenamingMap_Style_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Style", name))
 }
 
-var CssRenamingMap_Style_BY_WHOLE *CssRenamingMap_Style
-var CssRenamingMap_Style_BY_PART *CssRenamingMap_Style
-var CssRenamingMap_Style_values_ []*CssRenamingMap_Style
+const CssRenamingMap_Style_BY_WHOLE CssRenamingMap_Style = 1
+const CssRenamingMap_Style_BY_PART CssRenamingMap_Style = 2
+
+var CssRenamingMap_Style_values_ []CssRenamingMap_Style
 
 var CssRenamingMap_Style_clinit_done bool
 
@@ -54,9 +70,7 @@ func CssRenamingMap_Style_clinit() {
 		return
 	}
 	CssRenamingMap_Style_clinit_done = true
-	CssRenamingMap_Style_BY_WHOLE = new_CssRenamingMap_Style("BY_WHOLE", 0)
-	CssRenamingMap_Style_BY_PART = new_CssRenamingMap_Style("BY_PART", 1)
-	CssRenamingMap_Style_values_ = []*CssRenamingMap_Style{CssRenamingMap_Style_BY_WHOLE, CssRenamingMap_Style_BY_PART}
+	CssRenamingMap_Style_values_ = []CssRenamingMap_Style{CssRenamingMap_Style_BY_WHOLE, CssRenamingMap_Style_BY_PART}
 	registerEnum_("com.google.javascript.jscomp.CssRenamingMap.Style", enumValues_(CssRenamingMap_Style_values_))
 
 }
@@ -68,7 +82,7 @@ func (this *CssRenamingMap_ByPart) init_CssRenamingMap_ByPart() {
 
 }
 
-func (this *CssRenamingMap_ByPart) getStyle() *CssRenamingMap_Style {
+func (this *CssRenamingMap_ByPart) getStyle() CssRenamingMap_Style {
 	return CssRenamingMap_Style_BY_PART
 }
 
@@ -83,7 +97,7 @@ func (this *CssRenamingMap_ByWhole) init_CssRenamingMap_ByWhole() {
 
 }
 
-func (this *CssRenamingMap_ByWhole) getStyle() *CssRenamingMap_Style {
+func (this *CssRenamingMap_ByWhole) getStyle() CssRenamingMap_Style {
 	return CssRenamingMap_Style_BY_WHOLE
 }
 

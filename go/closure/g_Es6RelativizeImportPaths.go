@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Es6RelativizeImportPaths struct {
 	compiler_ *AbstractCompiler
 }
@@ -21,7 +23,7 @@ func (this *Es6RelativizeImportPaths) process_2(externs Node, root Node) {
 		var script Node = root.getFirstChild()
 		for ; script != 0; script = script.getNext() {
 			if Es6RewriteModules_isEs6ModuleRoot(script) {
-				NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_Es6RelativizeImportPaths_Rewriter())))
+				NodeTraversal_traverse(this.compiler_, script, new_Es6RelativizeImportPaths_Rewriter())
 			}
 		}
 	}
@@ -51,19 +53,18 @@ func new_Es6RelativizeImportPaths_Rewriter() *Es6RelativizeImportPaths_Rewriter 
 
 func (this *Es6RelativizeImportPaths_Rewriter) shouldTraverse_impl(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_ROOT, Token_rhino_MODULE_BODY, Token_rhino_SCRIPT:
+		switch n.ns_().token {
+		case tokOrd1_ROOT, tokOrd1_MODULE_BODY, tokOrd1_SCRIPT:
 			return true
-		case Token_rhino_IMPORT:
+		case tokOrd1_IMPORT:
 			this.visitImport(nodeTraversal, n)
 			return false
-		case Token_rhino_EXPORT:
+		case tokOrd1_EXPORT:
 			this.visitExport(nodeTraversal, n)
 			return false
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -86,12 +87,12 @@ func (this *Es6RelativizeImportPaths_Rewriter) visitImport(t *NodeTraversal, imp
 	}
 	scriptPath = Optional_of[string](Uris_path(scriptPath.get()))
 	var newSpecifier string = t.getInput().getPath().resolveModuleAsPath(specifier).toString()
-	if !String_startsWith(newSpecifier, "/") {
+	if !strings.HasPrefix(newSpecifier, "/") {
 		newSpecifier = ("/" + sstr_(newSpecifier))
 	}
 	var relativeSpecifier Optional[string] = FilePaths_relativize(FilePaths_parent(scriptPath.get()).get(), newSpecifier)
 	if relativeSpecifier.isEmpty() {
-		panic(new_IllegalArgumentException_String(("No relative path from " + sstr_(scriptPath.get()) + " to " + sstr_(newSpecifier))).self())
+		panic(new_IllegalArgumentException_String(("No relative path from " + sstr_(scriptPath.get()) + " to " + sstr_(newSpecifier))))
 	}
 	newSpecifier = relativeSpecifier.get()
 	if ModuleLoader_isAmbiguousIdentifier(newSpecifier) {
@@ -107,4 +108,12 @@ func (this *Es6RelativizeImportPaths_Rewriter) visitExport(t *NodeTraversal, exp
 	if export.hasTwoChildren() {
 		this.visitImport(t, export)
 	}
+}
+
+// shouldTraverse: an object that is exactly a Es6RelativizeImportPaths_Rewriter calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *Es6RelativizeImportPaths_Rewriter) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if p, _ := this.self_.(*Es6RelativizeImportPaths_Rewriter); p == this {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

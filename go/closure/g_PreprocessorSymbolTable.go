@@ -4,13 +4,13 @@ package closure
 
 type PreprocessorSymbolTable struct {
 	symbols *JTMap[string, *SimpleSlot]
-	refs    *SimpleListMultimap
+	refs    *SimpleListMultimap[any, *PreprocessorSymbolTable_Reference]
 	root    Node
 }
 
 func (this *PreprocessorSymbolTable) finit_PreprocessorSymbolTable() {
 	this.symbols = jnewTMap_(jtc_string, jtc_p_SimpleSlot)
-	this.refs = SimpleListMultimap_create()
+	this.refs = SimpleListMultimap_create[any, *PreprocessorSymbolTable_Reference]()
 }
 
 func (this *PreprocessorSymbolTable) init_PreprocessorSymbolTable(root Node) {
@@ -45,7 +45,7 @@ func (this *PreprocessorSymbolTable) getOwnSlot(name string) StaticSlot {
 }
 
 func (this *PreprocessorSymbolTable) getReferences_StaticSlot(symbol *SimpleSlot) IterableOf[*PreprocessorSymbolTable_Reference] {
-	return Iterable(Collections_unmodifiableCollection(Collection(this.refs.get(strobj_(symbol.getName())))))
+	return Iterable(Collections_unmodifiableCollection(Collection(this.refs.get_s(symbol.getName()))))
 }
 
 func (this *PreprocessorSymbolTable) getAllSymbols() IterableOf[*SimpleSlot] {
@@ -53,7 +53,7 @@ func (this *PreprocessorSymbolTable) getAllSymbols() IterableOf[*SimpleSlot] {
 }
 
 func (this *PreprocessorSymbolTable) getScope(slot *SimpleSlot) StaticScope {
-	return icast_StaticScope(any(this))
+	return this
 }
 
 func (this *PreprocessorSymbolTable) addReference(node Node) {
@@ -64,7 +64,7 @@ func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
 	this.symbols.computeIfAbsent(name, &Function_tfn_string_any{func(k string) any {
 		return new_SimpleSlot(k, nil, true).self()
 	}})
-	this.refs.put(strobj_(name), obj_(new_PreprocessorSymbolTable_Reference(this.symbols.get(name), node)))
+	this.refs.put_s(name, new_PreprocessorSymbolTable_Reference(this.symbols.get(name), node))
 }
 
 func (this *PreprocessorSymbolTable) getQualifiedName(n Node) Optional[string] {
@@ -73,17 +73,17 @@ func (this *PreprocessorSymbolTable) getQualifiedName(n Node) Optional[string] {
 			return Optional_of[string](n.getString())
 		}
 		return Optional_of[string](n.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}})
 	}()
 }
 
 func (this *PreprocessorSymbolTable) lookupQualifiedName(p0 *QualifiedName) *JSType {
-	return StaticTypedScope_lookupQualifiedName_default(icast_StaticTypedScope(any(this)), p0)
+	return StaticTypedScope_lookupQualifiedName_default(this, p0)
 }
 
 func (this *PreprocessorSymbolTable) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
-	return StaticScope_getTopmostScopeOfEventualDeclaration_default(icast_StaticScope(any(this)), p0)
+	return StaticScope_getTopmostScopeOfEventualDeclaration_default(this, p0)
 }
 
 type PreprocessorSymbolTable_Reference struct {

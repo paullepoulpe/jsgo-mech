@@ -32,7 +32,7 @@ func Charsets_isSupported(name string) bool {
 func Charsets_name(name string) string {
 	var canonical Optional[string] = Charsets_canonicalName(name)
 	if canonical.isEmpty() {
-		panic(new_IllegalArgumentException_String(("Unsupported charset: " + sstr_(name))).self())
+		panic(new_IllegalArgumentException_String(("Unsupported charset: " + sstr_(name))))
 	}
 	return canonical.get()
 }
@@ -59,21 +59,22 @@ func Charsets_decodeOther(bytes []int8, canonical string, strict bool) Optional[
 	}
 	var ascii bool = (canonical == Charsets_US_ASCII)
 	var windows bool = (canonical == Charsets_WINDOWS_1252)
-	var text *StringBuilder = new_StringBuilder_int(int32(len(bytes)))
+	var text strBuilder_
+	text.grow(int32(len(bytes)))
 	for _, signed := range bytes {
 		var b int32 = (int32(signed) & 255)
 		var c uint16 = uint16(b)
 		if (b >= 128) && ascii {
 			c = Charsets_REPLACEMENT
 		} else if ((b >= 128) && (b < 160)) && windows {
-			c = String_charAt(Charsets_WINDOWS_1252_HIGH, (b - 128))
+			c = Charsets_WINDOWS_1252_HIGHU16.charAt((b - 128))
 		}
 		if (c == Charsets_REPLACEMENT) && strict {
 			return Optional_empty[string]()
 		}
 		text.append_char(c)
 	}
-	return Optional_of[string](Object_toString(obj_(text)))
+	return Optional_of[string](text.toString())
 }
 
 func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) Optional[string] {
@@ -86,7 +87,8 @@ func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) Optional[
 			start = 2
 		}
 	}
-	var text *StringBuilder = new_StringBuilder_int(((int32(len(bytes)) / 2) + 1))
+	var text strBuilder_
+	text.grow(((int32(len(bytes)) / 2) + 1))
 	for i := int32(start); (i + 1) < int32(len(bytes)); i += 2 {
 		var first int32 = (int32(bytes[func() int32 {
 			if little {
@@ -118,7 +120,7 @@ func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) Optional[
 	if strict && !valid {
 		return Optional_empty[string]()
 	}
-	return Optional_of[string](Object_toString(obj_(text)))
+	return Optional_of[string](text.toString())
 }
 
 func Charsets_encode(text string, charset string) []int8 {
@@ -129,11 +131,12 @@ func Charsets_encode(text string, charset string) []int8 {
 	if ((canonical == Charsets_UTF_16) || (canonical == Charsets_UTF_16BE)) || (canonical == Charsets_UTF_16LE) {
 		return Charsets_encodeUtf16(text, canonical)
 	}
-	var bytes []int8 = make([]int8, String_codePointCount(text, 0, String_length(text)))
+	textU16 := utf16Of_(text)
+	var bytes []int8 = make([]int8, String_codePointCount(text, 0, textU16.length()))
 	var n int32 = 0
-	for i := int32(0); i < String_length(text); i++ {
-		var c uint16 = String_charAt(text, i)
-		if (Character_isHighSurrogate(c) && ((i + 1) < String_length(text))) && Character_isLowSurrogate(String_charAt(text, (i+1))) {
+	for i := int32(0); i < textU16.length(); i++ {
+		var c uint16 = textU16.charAt(i)
+		if (Character_isHighSurrogate(c) && ((i + 1) < textU16.length())) && Character_isLowSurrogate(textU16.charAt((i + 1))) {
 			i++
 			bytes[n] = 63
 		} else {
@@ -152,22 +155,23 @@ func Charsets_encode(text string, charset string) []int8 {
 
 func Charsets_encodeUtf16(text string, canonical string) []int8 {
 	var little bool = (canonical == Charsets_UTF_16LE)
-	var mark bool = ((canonical == Charsets_UTF_16) && !String_isEmpty(text))
+	var mark bool = ((canonical == Charsets_UTF_16) && text != "")
 	var start int32 = func() int32 {
 		if mark {
 			return 2
 		}
 		return 0
 	}()
-	var bytes []int8 = make([]int8, (start + (2 * String_length(text))))
+	textU16 := utf16Of_(text)
+	var bytes []int8 = make([]int8, (start + (2 * textU16.length())))
 	if mark {
 		bytes[0] = -2
 		bytes[1] = -1
 	}
-	for i := int32(0); i < String_length(text); i++ {
-		var c uint16 = String_charAt(text, i)
-		var firstOfPair bool = ((Character_isHighSurrogate(c) && ((i + 1) < String_length(text))) && Character_isLowSurrogate(String_charAt(text, (i+1))))
-		var secondOfPair bool = ((Character_isLowSurrogate(c) && (i > 0)) && Character_isHighSurrogate(String_charAt(text, (i-1))))
+	for i, u_ := range stringUnits_(text) {
+		var c uint16 = u_
+		var firstOfPair bool = ((Character_isHighSurrogate(c) && ((i + 1) < textU16.length())) && Character_isLowSurrogate(textU16.charAt((i + 1))))
+		var secondOfPair bool = ((Character_isLowSurrogate(c) && (i > 0)) && Character_isHighSurrogate(textU16.charAt((i - 1))))
 		if (Character_isSurrogate(c) && !firstOfPair) && !secondOfPair {
 			c = Charsets_REPLACEMENT
 		}
@@ -199,7 +203,7 @@ func Charsets_singleByte(c uint16, canonical string) int32 {
 			if c == Charsets_REPLACEMENT {
 				return -1
 			}
-			return String_indexOf(Charsets_WINDOWS_1252_HIGH, int32(c))
+			return Charsets_WINDOWS_1252_HIGHU16.indexOf(int32(c))
 		}()
 		if high >= 0 {
 			return (128 + high)
@@ -229,6 +233,10 @@ const Charsets_UTF_16LE string = "UTF-16LE"
 var Charsets_NAMES []string
 
 const Charsets_WINDOWS_1252_HIGH string = "\u20ac\ufffd\u201a\u0192\u201e\u2026\u2020\u2021\u02c6\u2030\u0160\u2039\u0152\ufffd\u017d\ufffd\ufffd\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u02dc\u2122\u0161\u203a\u0153\ufffd\u017e\u0178"
+
+// Charsets_WINDOWS_1252_HIGHU16 is the UTF-16 view of Charsets_WINDOWS_1252_HIGH (post-flip step strview).
+var Charsets_WINDOWS_1252_HIGHU16 = utf16Kept_(Charsets_WINDOWS_1252_HIGH)
+
 const Charsets_REPLACEMENT uint16 = 0xFFFD
 
 var Charsets_clinit_done bool

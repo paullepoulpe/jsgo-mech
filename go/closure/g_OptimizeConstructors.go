@@ -14,7 +14,10 @@ func (this *OptimizeConstructors) finit_OptimizeConstructors() {
 
 func (this *OptimizeConstructors) init_OptimizeConstructors(compiler *AbstractCompiler) {
 	this.finit_OptimizeConstructors()
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	if compiler == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
 }
 
@@ -25,14 +28,14 @@ func new_OptimizeConstructors(compiler *AbstractCompiler) *OptimizeConstructors 
 }
 
 func (this *OptimizeConstructors) process_2(externs Node, root Node) {
-	Preconditions_checkState((this.compiler_.getLifeCycleStage() == AbstractCompiler_LifeCycleStage_NORMALIZED))
-	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(any(this))).build().process_2(externs, root)
+	if this.compiler_.getLifeCycleStage() != AbstractCompiler_LifeCycleStage_NORMALIZED {
+		panic(new_IllegalStateException_0())
+	}
+	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(false).addPass(this).build().process_2(externs, root)
 }
 
 func (this *OptimizeConstructors) process_3(externs Node, root Node, refMap *OptimizeCalls_ReferenceMap) {
-	it_1 := foreach_(any(refMap.getNameReferences()))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(refMap.getNameReferences(), icast_Map_Entry) {
 		this.addConstructorsToBeRemoved(str_(entry.getKey()), to_ArrayList(entry.getValue()))
 	}
 	it_3 := this.removableConstructors.each()
@@ -111,23 +114,22 @@ func OptimizeConstructors_isAssigningReference(n Node) bool {
 	var parent Node = n.getParent()
 	var gparent Node = parent.getParent()
 	return func() bool {
-		switch parent.getToken() {
-		case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
+		switch parent.ns_().token {
+		case tokOrd1_LET, tokOrd1_CONST, tokOrd1_VAR:
 			return n.hasChildren()
-		case Token_rhino_STRING_KEY:
+		case tokOrd1_STRING_KEY:
 			return gparent.isObjectPattern()
-		case Token_rhino_COMPUTED_PROP:
+		case tokOrd1_COMPUTED_PROP:
 			return ((parent.getLastChild() == n) && gparent.isObjectPattern())
-		case Token_rhino_ARRAY_PATTERN, Token_rhino_DEFAULT_VALUE, Token_rhino_PARAM_LIST, Token_rhino_OBJECT_REST, Token_rhino_ITER_REST, Token_rhino_INC, Token_rhino_DEC:
+		case tokOrd1_ARRAY_PATTERN, tokOrd1_DEFAULT_VALUE, tokOrd1_PARAM_LIST, tokOrd1_OBJECT_REST, tokOrd1_ITER_REST, tokOrd1_INC, tokOrd1_DEC:
 			return true
-		case Token_rhino_FUNCTION, Token_rhino_CLASS, Token_rhino_CATCH:
+		case tokOrd1_FUNCTION, tokOrd1_CLASS, tokOrd1_CATCH:
 			return (parent.getFirstChild() == n)
-		case Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_EXPONENT:
+		case tokOrd1_ASSIGN, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD, tokOrd1_ASSIGN_EXPONENT:
 			return (parent.getFirstChild() == n)
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -156,7 +158,6 @@ func (this *OptimizeConstructors) getClassDefinitionOrFunction(n Node) Node {
 	} else {
 		return 0
 	}
-	panic("unreachable")
 }
 
 func (this *OptimizeConstructors) unwrap(expr Node) Node {
@@ -168,21 +169,22 @@ func (this *OptimizeConstructors) unwrap(expr Node) Node {
 
 func OptimizeConstructors_isDefinitionClassLiteralOrFunction(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FUNCTION:
+		switch n.ns_().token {
+		case tokOrd1_FUNCTION:
 			return true
-		case Token_rhino_CLASS:
+		case tokOrd1_CLASS:
 			var constructorMemberFunctionDef Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(n)
 			return (constructorMemberFunctionDef != 0)
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
 func OptimizeConstructors_functionHasRest(fn Node) bool {
-	Preconditions_checkState(fn.isFunction())
+	if !fn.isFunction() {
+		panic(new_IllegalStateException_0())
+	}
 	var params Node = NodeUtil_getFunctionParameters(fn)
 	var lastParam Node = params.getLastChild()
 	return ((lastParam != 0) && lastParam.isRest())
@@ -250,7 +252,9 @@ func OptimizeConstructors_getOnlySuperCall(fn Node) Node {
 }
 
 func (this *OptimizeConstructors) removeConstructorMethod(member Node) {
-	Preconditions_checkState(member.isMemberFunctionDef())
+	if !member.isMemberFunctionDef() {
+		panic(new_IllegalStateException_0())
+	}
 	this.compiler_.reportFunctionDeleted(member.getFirstChild())
 	this.compiler_.reportChangeToEnclosingScope(member)
 	member.detach()
@@ -273,7 +277,9 @@ func new_OptimizeConstructors_ClassConstructorSummary(isVarArgs bool, formalPara
 }
 
 func OptimizeConstructors_ClassConstructorSummary_build(classDefinition Node) *OptimizeConstructors_ClassConstructorSummary {
-	Preconditions_checkState((classDefinition.isClass() || classDefinition.isFunction()))
+	if !classDefinition.isClass() && !classDefinition.isFunction() {
+		panic(new_IllegalStateException_0())
+	}
 	var fn Node
 	if classDefinition.isClass() {
 		var member Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(classDefinition)

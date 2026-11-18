@@ -3,24 +3,37 @@
 package closure
 
 type SimpleSlot struct {
-	self_    any
+	self_    SimpleSlot_I
 	name_    string
 	type__   *JSType
 	inferred bool
 }
 
+// SimpleSlot_I holds the methods the dispatchers of SimpleSlot's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type SimpleSlot_I interface {
+	getDeclaration_impl() StaticRef
+	getJSDocInfo_impl() *JSDocInfo
+}
+
+// SimpleSlot_as is implemented by SimpleSlot and the classes that extend it: a cast to SimpleSlot asserts to it
+// (post-flip).
+type SimpleSlot_as interface {
+	as_SimpleSlot() *SimpleSlot
+}
+
 func (this *SimpleSlot) as_SimpleSlot() *SimpleSlot { return this }
 
 func to_SimpleSlot(v any) *SimpleSlot {
-	if v == nil {
+	switch p := v.(type) {
+	case *SimpleSlot:
+		return p
+	case *SymbolTable_Symbol:
+		return p.as_SimpleSlot()
+	case nil:
 		return nil
 	}
-	return v.(interface{ as_SimpleSlot() *SimpleSlot }).as_SimpleSlot()
-}
-
-func is_SimpleSlot(v any) bool {
-	_, ok := v.(interface{ as_SimpleSlot() *SimpleSlot })
-	return ok
+	return v.(SimpleSlot_as).as_SimpleSlot()
 }
 
 func (this *SimpleSlot) self() any {
@@ -73,11 +86,11 @@ func (this *SimpleSlot) getScope() StaticScope {
 }
 
 func (this *SimpleSlot) getDeclaration() StaticRef {
-	return this.self_.(interface{ getDeclaration_impl() StaticRef }).getDeclaration_impl()
+	return this.self_.getDeclaration_impl()
 }
 
 func (this *SimpleSlot) getJSDocInfo() *JSDocInfo {
-	return this.self_.(interface{ getJSDocInfo_impl() *JSDocInfo }).getJSDocInfo_impl()
+	return this.self_.getJSDocInfo_impl()
 }
 
 const SimpleSlot_serialVersionUID int64 = 1

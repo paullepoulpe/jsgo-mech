@@ -5,7 +5,7 @@ package closure
 type StrictModeCheck struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_     *AbstractCompiler
-	defaultLevel_ *CheckLevel
+	defaultLevel_ CheckLevel
 }
 
 func (this *StrictModeCheck) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -15,13 +15,13 @@ func (this *StrictModeCheck) up_NodeTraversal_AbstractPostOrderCallback() *NodeT
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *StrictModeCheck) init_StrictModeCheck(compiler *AbstractCompiler, defaultLevel *CheckLevel) {
+func (this *StrictModeCheck) init_StrictModeCheck(compiler *AbstractCompiler, defaultLevel CheckLevel) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.compiler_ = compiler
 	this.defaultLevel_ = defaultLevel
 }
 
-func new_StrictModeCheck(compiler *AbstractCompiler, defaultLevel *CheckLevel) *StrictModeCheck {
+func new_StrictModeCheck(compiler *AbstractCompiler, defaultLevel CheckLevel) *StrictModeCheck {
 	this := &StrictModeCheck{}
 	this.self_ = this
 	this.init_StrictModeCheck(compiler, defaultLevel)
@@ -29,8 +29,8 @@ func new_StrictModeCheck(compiler *AbstractCompiler, defaultLevel *CheckLevel) *
 }
 
 func (this *StrictModeCheck) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_StrictModeCheck_NonExternChecks(this))))
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
+	NodeTraversal_traverse(this.compiler_, root, new_StrictModeCheck_NonExternChecks(this))
 }
 
 func (this *StrictModeCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -57,17 +57,16 @@ func (this *StrictModeCheck) checkWith(n Node) {
 
 func StrictModeCheck_isDeclaration(n Node) bool {
 	return func() bool {
-		switch n.getParent().getToken() {
-		case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR, Token_rhino_CATCH:
+		switch n.getParent().ns_().token {
+		case tokOrd1_LET, tokOrd1_CONST, tokOrd1_VAR, tokOrd1_CATCH:
 			return true
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			return (n == n.getParent().getFirstChild())
-		case Token_rhino_PARAM_LIST:
+		case tokOrd1_PARAM_LIST:
 			return n.getGrandparent().isFunction()
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -226,4 +225,22 @@ func (this *StrictModeCheck_NonExternChecks) checkGetProp(n Node) {
 	} else if (name == "arguments") && StrictModeCheck_isFunctionType(target) {
 		this.outer_.report(n, StrictModeCheck_FUNCTION_ARGUMENTS_PROP_FORBIDDEN, []string{})
 	}
+}
+
+// visit: an object that is exactly a StrictModeCheck calls its visit_impl directly (post-flip); others dispatch.
+func (this *StrictModeCheck) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*StrictModeCheck); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a StrictModeCheck_NonExternChecks calls its visit_impl directly (post-flip); others dispatch.
+func (this *StrictModeCheck_NonExternChecks) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*StrictModeCheck_NonExternChecks); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

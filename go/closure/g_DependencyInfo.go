@@ -2,36 +2,38 @@
 
 package closure
 
+import "strings"
+
 type DependencyInfo interface {
 	getName() string
 	getPathRelativeToClosureBase() string
-	getProvides() *ImmutableList
-	getRequires() *ImmutableList
-	getRequiredSymbols() *ImmutableList
-	getTypeRequires() *ImmutableList
-	getLoadFlags() *ImmutableMap
+	getProvides() *ImmutableList[string]
+	getRequires() *ImmutableList[*DependencyInfo_Require]
+	getRequiredSymbols() *ImmutableList[string]
+	getTypeRequires() *ImmutableList[string]
+	getLoadFlags() *ImmutableMap[string, string]
 	isEs6Module() bool
 	isGoogModule() bool
 	getHasExternsAnnotation() bool
 	getHasNoCompileAnnotation() bool
 }
 
-func DependencyInfo_getRequiredSymbols_default(this DependencyInfo) ImmutableListOf[string] {
-	return DependencyInfo_Require_asSymbolList(icast_Iterable(obj_(this.getRequires())))
+func DependencyInfo_getRequiredSymbols_default(this DependencyInfo) *ImmutableList[string] {
+	return DependencyInfo_Require_asSymbolList(icast_Iterable(obj_(this.getRequires().asImm())))
 }
 
 func DependencyInfo_isEs6Module_default(this DependencyInfo) bool {
-	return ("es6" == str_(Map_get_s(this.getLoadFlags(), "module")))
+	return ("es6" == this.getLoadFlags().Get("module"))
 }
 
 func DependencyInfo_isGoogModule_default(this DependencyInfo) bool {
-	return ("goog" == str_(Map_get_s(this.getLoadFlags(), "module")))
+	return ("goog" == this.getLoadFlags().Get("module"))
 }
 
 type DependencyInfo_Require struct {
 	getSymbol_  string
 	getRawText_ string
-	getType_    *DependencyInfo_Require_Type
+	getType_    DependencyInfo_Require_Type
 }
 
 func (this *DependencyInfo_Require) zero_DependencyInfo_Require() {
@@ -39,14 +41,16 @@ func (this *DependencyInfo_Require) zero_DependencyInfo_Require() {
 	this.getRawText_ = nullstr_
 }
 
-func (this *DependencyInfo_Require) init_DependencyInfo_Require(getSymbol string, getRawText string, getType *DependencyInfo_Require_Type) {
-	Objects_requireNonNull(obj_(getType), "getType")
+func (this *DependencyInfo_Require) init_DependencyInfo_Require(getSymbol string, getRawText string, getType DependencyInfo_Require_Type) {
+	if getType == 0 {
+		panic(new_NullPointerException_String("getType"))
+	}
 	this.getSymbol_ = getSymbol
 	this.getRawText_ = getRawText
 	this.getType_ = getType
 }
 
-func new_DependencyInfo_Require(getSymbol string, getRawText string, getType *DependencyInfo_Require_Type) *DependencyInfo_Require {
+func new_DependencyInfo_Require(getSymbol string, getRawText string, getType DependencyInfo_Require_Type) *DependencyInfo_Require {
 	this := &DependencyInfo_Require{}
 	this.zero_DependencyInfo_Require()
 	this.init_DependencyInfo_Require(getSymbol, getRawText, getType)
@@ -54,17 +58,15 @@ func new_DependencyInfo_Require(getSymbol string, getRawText string, getType *De
 }
 
 func (this *DependencyInfo_Require) toString() string {
-	return ("Require{symbol=" + sstr_(this.getSymbol_) + ", rawText=" + sstr_(this.getRawText_) + ", type=" + objstr_(obj_(this.getType_)) + "}")
+	return ("Require{symbol=" + sstr_(this.getSymbol_) + ", rawText=" + sstr_(this.getRawText_) + ", type=" + tostr_(this.getType_) + "}")
 }
 
-func DependencyInfo_Require_asSymbolList(requires IterableOf[*DependencyInfo_Require]) ImmutableListOf[string] {
-	var result ImmutableList_BuilderOf[string] = ImmutableList_builder()
-	it_1 := foreach_(any(requires))
-	for it_1.next() {
-		var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_1.v)
-		result.add(strobj_(require.getSymbol()))
+func DependencyInfo_Require_asSymbolList(requires IterableOf[*DependencyInfo_Require]) *ImmutableList[string] {
+	var result *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
+	for require := range elemsAs_[*DependencyInfo_Require](requires) {
+		result.add(require.getSymbol())
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return result.build()
 }
 
 func DependencyInfo_Require_googRequireSymbol(symbol string) *DependencyInfo_Require {
@@ -107,7 +109,7 @@ func (this *DependencyInfo_Require) getRawText() string {
 	return this.getRawText_
 }
 
-func (this *DependencyInfo_Require) getType() *DependencyInfo_Require_Type {
+func (this *DependencyInfo_Require) getType() DependencyInfo_Require_Type {
 	return this.getType_
 }
 
@@ -116,14 +118,14 @@ func (this *DependencyInfo_Require) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.getSymbol_ == o.getSymbol_ && this.getRawText_ == o.getRawText_ && Objects_equals(obj_(this.getType_), obj_(o.getType_))
+	return true && this.getSymbol_ == o.getSymbol_ && this.getRawText_ == o.getRawText_ && this.getType_ == o.getType_
 }
 
 func (this *DependencyInfo_Require) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.getSymbol_))
-	h = h*31 + Objects_hashCode(strobj_(this.getRawText_))
-	h = h*31 + Objects_hashCode(obj_(this.getType_))
+	h = h*31 + objhashStr_(this.getSymbol_)
+	h = h*31 + objhashStr_(this.getRawText_)
+	h = h*31 + objhashId_(this.getType_)
 	return h
 }
 
@@ -140,47 +142,70 @@ func DependencyInfo_Require_clinit() {
 
 }
 
-type DependencyInfo_Require_Type struct {
-	Enum
+type DependencyInfo_Require_Type uint8
+
+// DependencyInfo_Require_Type_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var DependencyInfo_Require_Type_enum_ = [5]Enum{
+	{self_: DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL, name_: "GOOG_REQUIRE_SYMBOL", ordinal_: 0},
+	{self_: DependencyInfo_Require_Type_ES6_IMPORT, name_: "ES6_IMPORT", ordinal_: 1},
+	{self_: DependencyInfo_Require_Type_PARSED_FROM_DEPS, name_: "PARSED_FROM_DEPS", ordinal_: 2},
+	{self_: DependencyInfo_Require_Type_COMMON_JS, name_: "COMMON_JS", ordinal_: 3},
+	{self_: DependencyInfo_Require_Type_COMPILER_CHUNK, name_: "COMPILER_CHUNK", ordinal_: 4},
 }
 
-func (this *DependencyInfo_Require_Type) up_Enum() *Enum {
-	if this == nil {
+func (this DependencyInfo_Require_Type) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &DependencyInfo_Require_Type_enum_[this-1]
 }
 
-func (this *DependencyInfo_Require_Type) init_DependencyInfo_Require_Type(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this DependencyInfo_Require_Type) name() string {
+	return this.enum_().name_
 }
 
-func new_DependencyInfo_Require_Type(name_ string, ordinal_ int32) *DependencyInfo_Require_Type {
-	this := &DependencyInfo_Require_Type{}
-	this.self_ = this
-	this.init_DependencyInfo_Require_Type(name_, ordinal_)
+func (this DependencyInfo_Require_Type) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this DependencyInfo_Require_Type) toString() string {
+	return this.enum_().name_
+}
+
+func (this DependencyInfo_Require_Type) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this DependencyInfo_Require_Type) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func DependencyInfo_Require_Type_values() []*DependencyInfo_Require_Type {
-	return append([]*DependencyInfo_Require_Type(nil), DependencyInfo_Require_Type_values_...)
+func DependencyInfo_Require_Type_values() []DependencyInfo_Require_Type {
+	return append([]DependencyInfo_Require_Type(nil), DependencyInfo_Require_Type_values_...)
 }
 
-func DependencyInfo_Require_Type_valueOf(name string) *DependencyInfo_Require_Type {
+func DependencyInfo_Require_Type_valueOf(name string) DependencyInfo_Require_Type {
 	for _, v := range DependencyInfo_Require_Type_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Type", name))
 }
 
-var DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL *DependencyInfo_Require_Type
-var DependencyInfo_Require_Type_ES6_IMPORT *DependencyInfo_Require_Type
-var DependencyInfo_Require_Type_PARSED_FROM_DEPS *DependencyInfo_Require_Type
-var DependencyInfo_Require_Type_COMMON_JS *DependencyInfo_Require_Type
-var DependencyInfo_Require_Type_COMPILER_CHUNK *DependencyInfo_Require_Type
-var DependencyInfo_Require_Type_values_ []*DependencyInfo_Require_Type
+const DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL DependencyInfo_Require_Type = 1
+const DependencyInfo_Require_Type_ES6_IMPORT DependencyInfo_Require_Type = 2
+const DependencyInfo_Require_Type_PARSED_FROM_DEPS DependencyInfo_Require_Type = 3
+const DependencyInfo_Require_Type_COMMON_JS DependencyInfo_Require_Type = 4
+const DependencyInfo_Require_Type_COMPILER_CHUNK DependencyInfo_Require_Type = 5
+
+var DependencyInfo_Require_Type_values_ []DependencyInfo_Require_Type
 
 var DependencyInfo_Require_Type_clinit_done bool
 
@@ -189,12 +214,7 @@ func DependencyInfo_Require_Type_clinit() {
 		return
 	}
 	DependencyInfo_Require_Type_clinit_done = true
-	DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL = new_DependencyInfo_Require_Type("GOOG_REQUIRE_SYMBOL", 0)
-	DependencyInfo_Require_Type_ES6_IMPORT = new_DependencyInfo_Require_Type("ES6_IMPORT", 1)
-	DependencyInfo_Require_Type_PARSED_FROM_DEPS = new_DependencyInfo_Require_Type("PARSED_FROM_DEPS", 2)
-	DependencyInfo_Require_Type_COMMON_JS = new_DependencyInfo_Require_Type("COMMON_JS", 3)
-	DependencyInfo_Require_Type_COMPILER_CHUNK = new_DependencyInfo_Require_Type("COMPILER_CHUNK", 4)
-	DependencyInfo_Require_Type_values_ = []*DependencyInfo_Require_Type{DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL, DependencyInfo_Require_Type_ES6_IMPORT, DependencyInfo_Require_Type_PARSED_FROM_DEPS, DependencyInfo_Require_Type_COMMON_JS, DependencyInfo_Require_Type_COMPILER_CHUNK}
+	DependencyInfo_Require_Type_values_ = []DependencyInfo_Require_Type{DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL, DependencyInfo_Require_Type_ES6_IMPORT, DependencyInfo_Require_Type_PARSED_FROM_DEPS, DependencyInfo_Require_Type_COMMON_JS, DependencyInfo_Require_Type_COMPILER_CHUNK}
 	registerEnum_("com.google.javascript.jscomp.deps.DependencyInfo.Require.Type", enumValues_(DependencyInfo_Require_Type_values_))
 
 }
@@ -202,7 +222,7 @@ func DependencyInfo_Require_Type_clinit() {
 type DependencyInfo_Require_Builder struct {
 	symbol_ Optional[string]
 	rawText Optional[string]
-	type__  *DependencyInfo_Require_Type
+	type__  DependencyInfo_Require_Type
 }
 
 func (this *DependencyInfo_Require_Builder) finit_DependencyInfo_Require_Builder() {
@@ -233,9 +253,9 @@ func new_DependencyInfo_Require_Builder_Require(source *DependencyInfo_Require) 
 	return this
 }
 
-func (this *DependencyInfo_Require_Builder) setType(value *DependencyInfo_Require_Type) *DependencyInfo_Require_Builder {
-	if value == nil {
-		panic(new_NullPointerException_String("Null type").self())
+func (this *DependencyInfo_Require_Builder) setType(value DependencyInfo_Require_Type) *DependencyInfo_Require_Builder {
+	if value == 0 {
+		panic(new_NullPointerException_String("Null type"))
 	}
 	this.type__ = value
 	return this
@@ -252,18 +272,18 @@ func (this *DependencyInfo_Require_Builder) setSymbol(value string) *DependencyI
 }
 
 func (this *DependencyInfo_Require_Builder) build() *DependencyInfo_Require {
-	if (this.symbol_.isEmpty() || this.rawText.isEmpty()) || (this.type__ == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+	if (this.symbol_.isEmpty() || this.rawText.isEmpty()) || (this.type__ == 0) {
+		var missing strBuilder_
 		if this.symbol_.isEmpty() {
 			missing.append(" symbol")
 		}
 		if this.rawText.isEmpty() {
 			missing.append(" rawText")
 		}
-		if this.type__ == nil {
+		if this.type__ == 0 {
 			missing.append(" type")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_DependencyInfo_Require(this.symbol_.get(), this.rawText.get(), this.type__)
 }
@@ -281,38 +301,36 @@ func new_DependencyInfo_Util() *DependencyInfo_Util {
 	return this
 }
 
-func DependencyInfo_Util_writeAddDependency(out Appendable, info DependencyInfo) {
-	out.append_CharSequence(strobj_("goog.addDependency('")).append_CharSequence(strobj_(info.getPathRelativeToClosureBase())).append_CharSequence(strobj_("', "))
-	DependencyInfo_Util_writeJsArray(out, icast_Collection(obj_(info.getProvides())))
-	out.append_CharSequence(strobj_(", "))
-	DependencyInfo_Util_writeJsArray(out, icast_Collection(obj_(DependencyInfo_Require_asSymbolList(icast_Iterable(obj_(info.getRequires()))))))
-	var loadFlags ImmutableMapOf[string, string] = info.getLoadFlags()
-	if !loadFlags.isEmpty() {
-		out.append_CharSequence(strobj_(", "))
-		DependencyInfo_Util_writeJsObject(out, icast_Map(obj_(loadFlags)))
+func DependencyInfo_Util_writeAddDependency(out *strBuilder_, info DependencyInfo) {
+	out.append_CharSequence_s("goog.addDependency('").append_CharSequence_s(info.getPathRelativeToClosureBase()).append_CharSequence_s("', ")
+	DependencyInfo_Util_writeJsArray(out, icast_Collection(obj_(info.getProvides().asImm())))
+	out.append_CharSequence_s(", ")
+	DependencyInfo_Util_writeJsArray(out, icast_Collection(obj_(DependencyInfo_Require_asSymbolList(icast_Iterable(obj_(info.getRequires().asImm()))).asImm())))
+	var loadFlags *ImmutableMap[string, string] = info.getLoadFlags()
+	if !loadFlags.IsEmpty() {
+		out.append_CharSequence_s(", ")
+		DependencyInfo_Util_writeJsObject(out, loadFlags)
 	}
-	out.append_CharSequence(strobj_(");\n"))
+	out.append_CharSequence_s(");\n")
 }
 
-func DependencyInfo_Util_writeJsObject(out Appendable, map_ MapOf[string, string]) {
+func DependencyInfo_Util_writeJsObject(out *strBuilder_, map_ *TMap[string, string]) {
 	var entries *JTList[string] = jnewTList_(jtc_string)
-	it_1 := foreach_(any(map_.entrySet()))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		var key string = String_replace(str_(entry.getKey()), strobj_("'"), strobj_("\\'"))
-		var value string = String_replace(str_(entry.getValue()), strobj_("'"), strobj_("\\'"))
+	for entryKey, entryValue := range map_.All() {
+		var key string = strings.ReplaceAll(entryKey, "'", "\\'")
+		var value string = strings.ReplaceAll(entryValue, "'", "\\'")
 		entries.add(("'" + sstr_(key) + "': '" + sstr_(value) + "'"))
 	}
-	out.append_CharSequence(strobj_("{"))
-	out.append_CharSequence(strobj_(Joiner_on(", ").join(Iterable(entries.asList()))))
-	out.append_CharSequence(strobj_("}"))
+	out.append_CharSequence_s("{")
+	out.append_CharSequence_s(Joiner_on(", ").join(Iterable(entries.asList())))
+	out.append_CharSequence_s("}")
 }
 
-func DependencyInfo_Util_writeJsArray(out Appendable, values CollectionOf[string]) {
+func DependencyInfo_Util_writeJsArray(out *strBuilder_, values CollectionOf[string]) {
 	var quoted IterableOf[string] = Iterables_transform(Iterable(values), &Function_base_tfn_string_string{func(arg string) string {
-		return ("'" + sstr_(String_replace(arg, strobj_("'"), strobj_("\\'"))) + "'")
+		return ("'" + sstr_(strings.ReplaceAll(arg, "'", "\\'")) + "'")
 	}})
-	out.append_CharSequence(strobj_("["))
-	out.append_CharSequence(strobj_(Joiner_on(", ").join(quoted)))
-	out.append_CharSequence(strobj_("]"))
+	out.append_CharSequence_s("[")
+	out.append_CharSequence_s(Joiner_on(", ").join(quoted))
+	out.append_CharSequence_s("]")
 }

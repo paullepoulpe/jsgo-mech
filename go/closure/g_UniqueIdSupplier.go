@@ -3,11 +3,11 @@
 package closure
 
 type UniqueIdSupplier struct {
-	counter *SimpleMultiset
+	counter *SimpleMultiset[any]
 }
 
 func (this *UniqueIdSupplier) init_UniqueIdSupplier() {
-	this.counter = SimpleMultiset_create()
+	this.counter = SimpleMultiset_create[any]()
 }
 
 func new_UniqueIdSupplier() *UniqueIdSupplier {
@@ -18,7 +18,7 @@ func new_UniqueIdSupplier() *UniqueIdSupplier {
 
 func (this *UniqueIdSupplier) getUniqueId(input *CompilerInput) string {
 	var filePath string = input.getSourceFile().getName()
-	var fileHashCode int32 = String_hashCode(filePath)
+	var fileHashCode int32 = utf16Hash_(filePath)
 	var id int32 = this.counter.add_2(any(int32(fileHashCode)), 1)
 	var fileHashString string = func() string {
 		if fileHashCode < 0 {
@@ -31,9 +31,7 @@ func (this *UniqueIdSupplier) getUniqueId(input *CompilerInput) string {
 
 func (this *UniqueIdSupplier) toProto() *JTList[*UniqueIdProto] {
 	var result *JTList[*UniqueIdProto] = jnewTList_(jtc_p_UniqueIdProto)
-	it_1 := foreach_(any(this.counter.entrySet()))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.counter.entrySet(), icast_Map_Entry) {
 		result.add(cast_[*UniqueIdProto](UniqueIdProto_newBuilder().setHash(unbox_[int32](entry.getKey())).setCounter(unbox_[int32](entry.getValue())).build()))
 	}
 	return result
@@ -41,9 +39,7 @@ func (this *UniqueIdSupplier) toProto() *JTList[*UniqueIdProto] {
 
 func UniqueIdSupplier_fromProto(protos ListOf[*UniqueIdProto]) *UniqueIdSupplier {
 	var supplier *UniqueIdSupplier = new_UniqueIdSupplier()
-	it_1 := foreach_(any(protos))
-	for it_1.next() {
-		var p *UniqueIdProto = cast_[*UniqueIdProto](it_1.v)
+	for p := range elemsAs_[*UniqueIdProto](protos) {
 		supplier.counter.add_2(any(int32(p.getHash())), p.getCounter())
 	}
 	return supplier

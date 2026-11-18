@@ -52,7 +52,7 @@ func new_PrintStreamErrorManager_Output(stream *Output) *PrintStreamErrorManager
 	return this
 }
 
-func (this *PrintStreamErrorManager) println_impl(level *CheckLevel, error_ *JSError) {
+func (this *PrintStreamErrorManager) println_impl(level CheckLevel, error_ *JSError) {
 	this.stream.println(error_.format(level, this.formatter).get())
 }
 
@@ -65,7 +65,25 @@ func (this *PrintStreamErrorManager) printSummary_impl() {
 		if this.getTypedPercent() > 0.0 {
 			this.stream.print(String_format("%d error(s), %d warning(s), %.1f%% typed\n", []any{any(int32(this.getErrorCount())), any(int32(this.getWarningCount())), any(float64(this.getTypedPercent()))}))
 		} else {
-			this.stream.print(String_format("%d error(s), %d warning(s)\n", []any{any(int32(this.getErrorCount())), any(int32(this.getWarningCount()))}))
+			this.stream.print((istr_(int64(int32(this.getErrorCount()))) + " error(s), " + istr_(int64(int32(this.getWarningCount()))) + " warning(s)\n"))
 		}
 	}
+}
+
+// println: an object that is exactly a PrintStreamErrorManager calls its println_impl directly (post-flip); others dispatch.
+func (this *PrintStreamErrorManager) println(p0 CheckLevel, p1 *JSError) {
+	if p, _ := this.self_.(*PrintStreamErrorManager); p == this {
+		this.println_impl(p0, p1)
+		return
+	}
+	this.self_.println_impl(p0, p1)
+}
+
+// printSummary: an object that is exactly a PrintStreamErrorManager calls its printSummary_impl directly (post-flip); others dispatch.
+func (this *PrintStreamErrorManager) printSummary() {
+	if p, _ := this.self_.(*PrintStreamErrorManager); p == this {
+		this.printSummary_impl()
+		return
+	}
+	this.self_.printSummary_impl()
 }

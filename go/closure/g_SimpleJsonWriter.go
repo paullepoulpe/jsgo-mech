@@ -3,13 +3,13 @@
 package closure
 
 type SimpleJsonWriter struct {
-	out            *StringBuilder
+	out            *strBuilder_
 	stack          *JTList[any]
 	indent_        string
 	htmlSafe       bool
 	serializeNulls bool
 	deferredName   Optional[string]
-	sink           ConsumerOf[string]
+	sink           func(any)
 }
 
 func (this *SimpleJsonWriter) zero_SimpleJsonWriter() {
@@ -17,7 +17,7 @@ func (this *SimpleJsonWriter) zero_SimpleJsonWriter() {
 }
 
 func (this *SimpleJsonWriter) finit_SimpleJsonWriter() {
-	this.out = new_StringBuilder()
+	this.out = &strBuilder_{}
 	this.stack = jnewTList_(tc_Integer)
 	this.indent_ = ""
 	this.htmlSafe = false
@@ -76,7 +76,7 @@ func (this *SimpleJsonWriter) endObject() *SimpleJsonWriter {
 
 func (this *SimpleJsonWriter) name(name string) *SimpleJsonWriter {
 	if this.deferredName.isPresent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.deferredName = Optional_of[string](name)
 	return this
@@ -127,18 +127,18 @@ func (this *SimpleJsonWriter) longValue(value int64) *SimpleJsonWriter {
 	return this
 }
 
-func (this *SimpleJsonWriter) setSink(sink ConsumerOf[string]) {
+func (this *SimpleJsonWriter) setSink(sink func(any)) {
 	this.sink = sink
 }
 
 func (this *SimpleJsonWriter) takeText() string {
-	var text string = Object_toString(obj_(this.out))
+	var text string = tostrNN_(this.out)
 	this.out.setLength(0)
 	return text
 }
 
 func (this *SimpleJsonWriter) toString() string {
-	return Object_toString(obj_(this.out))
+	return tostrNN_(this.out)
 }
 
 func (this *SimpleJsonWriter) open(empty int32, openBracket uint16) *SimpleJsonWriter {
@@ -151,10 +151,10 @@ func (this *SimpleJsonWriter) open(empty int32, openBracket uint16) *SimpleJsonW
 func (this *SimpleJsonWriter) close(empty int32, nonempty int32, closeBracket uint16) *SimpleJsonWriter {
 	var context int32 = unbox_[int32](this.stack.get((this.stack.size() - 1)))
 	if (context != nonempty) && (context != empty) {
-		panic(new_IllegalStateException_String("Nesting problem.").self())
+		panic(new_IllegalStateException_String("Nesting problem."))
 	}
 	if this.deferredName.isPresent() {
-		panic(new_IllegalStateException_String(("Dangling name: " + sstr_(this.deferredName.get()))).self())
+		panic(new_IllegalStateException_String(("Dangling name: " + sstr_(this.deferredName.get()))))
 	}
 	this.stack.removeAt((this.stack.size() - 1))
 	if context == nonempty {
@@ -166,7 +166,7 @@ func (this *SimpleJsonWriter) close(empty int32, nonempty int32, closeBracket ui
 
 func (this *SimpleJsonWriter) beforeValue() {
 	if (this.sink != nil) && (this.out.length() >= SimpleJsonWriter_SINK_THRESHOLD) {
-		this.sink.accept(strobj_(this.takeText()))
+		this.sink(strobj_(this.takeText()))
 	}
 	var top int32 = (this.stack.size() - 1)
 	var context int32 = unbox_[int32](this.stack.get(top))
@@ -174,13 +174,13 @@ func (this *SimpleJsonWriter) beforeValue() {
 		if context == SimpleJsonWriter_NONEMPTY_OBJECT {
 			this.out.append_char(',')
 		} else if context != SimpleJsonWriter_EMPTY_OBJECT {
-			panic(new_IllegalStateException_String("Nesting problem.").self())
+			panic(new_IllegalStateException_String("Nesting problem."))
 		}
 		this.newline()
 		this.string(this.deferredName.get())
 		this.deferredName = Optional_empty[string]()
 		this.out.append(func() string {
-			if String_isEmpty(this.indent_) {
+			if this.indent_ == "" {
 				return ":"
 			}
 			return ": "
@@ -193,12 +193,12 @@ func (this *SimpleJsonWriter) beforeValue() {
 		this.out.append_char(',')
 		this.newline()
 	} else if context != SimpleJsonWriter_DOCUMENT {
-		panic(new_IllegalStateException_String("Nesting problem.").self())
+		panic(new_IllegalStateException_String("Nesting problem."))
 	}
 }
 
 func (this *SimpleJsonWriter) newline() {
-	if String_isEmpty(this.indent_) {
+	if this.indent_ == "" {
 		return
 	}
 	this.out.append_char('\n')
@@ -209,8 +209,7 @@ func (this *SimpleJsonWriter) newline() {
 
 func (this *SimpleJsonWriter) string(value string) {
 	this.out.append_char('"')
-	for i := int32(0); i < String_length(value); i++ {
-		var c uint16 = String_charAt(value, i)
+	for _, c := range stringUnits_(value) {
 		switch c {
 		case '"':
 			this.out.append("\\\"")
@@ -231,7 +230,7 @@ func (this *SimpleJsonWriter) string(value string) {
 			if (((int32(c) < 32) || (c == 0x2028)) || (c == 0x2029)) || (html && this.htmlSafe) {
 				this.out.append("\\u")
 				for shift := int32(12); shift >= 0; shift -= 4 {
-					this.out.append_char(String_charAt(SimpleJsonWriter_HEX_DIGITS, ((int32(c) >> (uint32(shift) & 31)) & 15)))
+					this.out.append_char(asciiCharAt_(SimpleJsonWriter_HEX_DIGITS, ((int32(c) >> (uint32(shift) & 31)) & 15)))
 				}
 			} else {
 				this.out.append_char(c)

@@ -3,7 +3,7 @@
 package closure
 
 type ReplacedStringsDecoder struct {
-	originalToNewNameMap ImmutableMapOf[string, string]
+	originalToNewNameMap *ImmutableMap[string, string]
 }
 
 func (this *ReplacedStringsDecoder) init_ReplacedStringsDecoder(variableMap *VariableMap) {
@@ -18,12 +18,13 @@ func new_ReplacedStringsDecoder(variableMap *VariableMap) *ReplacedStringsDecode
 
 func (this *ReplacedStringsDecoder) decode(encodedStr string) string {
 	var suppliedBits []string = ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN.split_String_int(encodedStr, -1)
-	var originalStr Optional[string] = Optional_ofNullable[string](str_(Map_get_s(this.originalToNewNameMap, suppliedBits[0])))
+	var originalStr Optional[string] = Optional_ofNullable[string](this.originalToNewNameMap.Get(suppliedBits[0]))
 	if originalStr.isEmpty() {
 		return encodedStr
 	}
 	var originalBits []string = ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN.split_String_int(originalStr.get(), -1)
-	var sb *StringBuilder = new_StringBuilder_String(originalBits[0])
+	var sb strBuilder_
+	sb.append(originalBits[0])
 	for i := int32(1); i < Math_max(int32(len(originalBits)), int32(len(suppliedBits))); i++ {
 		sb.append(func() string {
 			if i < int32(len(suppliedBits)) {
@@ -38,7 +39,7 @@ func (this *ReplacedStringsDecoder) decode(encodedStr string) string {
 			return "-"
 		}())
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 const ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER string = "`"
@@ -54,6 +55,6 @@ func ReplacedStringsDecoder_clinit() {
 	}
 	ReplacedStringsDecoder_clinit_done = true
 	ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN = Pattern_compile(ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER)
-	ReplacedStringsDecoder_NULL_DECODER = new_ReplacedStringsDecoder(VariableMap_fromMap(icast_Map(obj_(ImmutableMap_of()))))
+	ReplacedStringsDecoder_NULL_DECODER = new_ReplacedStringsDecoder(VariableMap_fromMap(ImmutableMap_of()))
 
 }

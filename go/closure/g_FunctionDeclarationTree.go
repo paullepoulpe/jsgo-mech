@@ -12,7 +12,7 @@ type FunctionDeclarationTree struct {
 	isGenerator         bool
 	isOptional_         bool
 	isAsync             bool
-	kind_               *FunctionDeclarationTree_Kind
+	kind_               FunctionDeclarationTree_Kind
 }
 
 func (this *FunctionDeclarationTree) up_ParseTree() *ParseTree {
@@ -29,9 +29,18 @@ func (this *FunctionDeclarationTree) init_FunctionDeclarationTree(builder *Funct
 	this.isStatic = builder.isStatic
 	this.isGenerator = builder.isGenerator
 	this.isOptional_ = builder.isOptional_
-	this.kind_ = cast_[*FunctionDeclarationTree_Kind](Preconditions_checkNotNull(obj_(builder.kind_)))
-	this.formalParameterList = cast_[*FormalParameterListTree](Preconditions_checkNotNull(obj_(builder.formalParameterList)))
-	this.functionBody = to_ParseTree(Preconditions_checkNotNull(builder.functionBody.self()))
+	if builder.kind_ == 0 {
+		panic(new_NullPointerException_0())
+	}
+	this.kind_ = builder.kind_
+	if builder.formalParameterList == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.formalParameterList = builder.formalParameterList
+	if builder.functionBody == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.functionBody = builder.functionBody
 	this.isAsync = builder.isAsync
 }
 
@@ -42,50 +51,72 @@ func new_FunctionDeclarationTree(builder *FunctionDeclarationTree_Builder) *Func
 	return this
 }
 
-func FunctionDeclarationTree_builder(kind *FunctionDeclarationTree_Kind) *FunctionDeclarationTree_Builder {
+func FunctionDeclarationTree_builder(kind FunctionDeclarationTree_Kind) *FunctionDeclarationTree_Builder {
 	return new_FunctionDeclarationTree_Builder(kind)
 }
 
-type FunctionDeclarationTree_Kind struct {
-	Enum
+type FunctionDeclarationTree_Kind uint8
+
+// FunctionDeclarationTree_Kind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FunctionDeclarationTree_Kind_enum_ = [4]Enum{
+	{self_: FunctionDeclarationTree_Kind_DECLARATION, name_: "DECLARATION", ordinal_: 0},
+	{self_: FunctionDeclarationTree_Kind_EXPRESSION, name_: "EXPRESSION", ordinal_: 1},
+	{self_: FunctionDeclarationTree_Kind_MEMBER, name_: "MEMBER", ordinal_: 2},
+	{self_: FunctionDeclarationTree_Kind_ARROW, name_: "ARROW", ordinal_: 3},
 }
 
-func (this *FunctionDeclarationTree_Kind) up_Enum() *Enum {
-	if this == nil {
+func (this FunctionDeclarationTree_Kind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FunctionDeclarationTree_Kind_enum_[this-1]
 }
 
-func (this *FunctionDeclarationTree_Kind) init_FunctionDeclarationTree_Kind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FunctionDeclarationTree_Kind) name() string {
+	return this.enum_().name_
 }
 
-func new_FunctionDeclarationTree_Kind(name_ string, ordinal_ int32) *FunctionDeclarationTree_Kind {
-	this := &FunctionDeclarationTree_Kind{}
-	this.self_ = this
-	this.init_FunctionDeclarationTree_Kind(name_, ordinal_)
+func (this FunctionDeclarationTree_Kind) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this FunctionDeclarationTree_Kind) toString() string {
+	return this.enum_().name_
+}
+
+func (this FunctionDeclarationTree_Kind) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this FunctionDeclarationTree_Kind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FunctionDeclarationTree_Kind_values() []*FunctionDeclarationTree_Kind {
-	return append([]*FunctionDeclarationTree_Kind(nil), FunctionDeclarationTree_Kind_values_...)
+func FunctionDeclarationTree_Kind_values() []FunctionDeclarationTree_Kind {
+	return append([]FunctionDeclarationTree_Kind(nil), FunctionDeclarationTree_Kind_values_...)
 }
 
-func FunctionDeclarationTree_Kind_valueOf(name string) *FunctionDeclarationTree_Kind {
+func FunctionDeclarationTree_Kind_valueOf(name string) FunctionDeclarationTree_Kind {
 	for _, v := range FunctionDeclarationTree_Kind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Kind", name))
 }
 
-var FunctionDeclarationTree_Kind_DECLARATION *FunctionDeclarationTree_Kind
-var FunctionDeclarationTree_Kind_EXPRESSION *FunctionDeclarationTree_Kind
-var FunctionDeclarationTree_Kind_MEMBER *FunctionDeclarationTree_Kind
-var FunctionDeclarationTree_Kind_ARROW *FunctionDeclarationTree_Kind
-var FunctionDeclarationTree_Kind_values_ []*FunctionDeclarationTree_Kind
+const FunctionDeclarationTree_Kind_DECLARATION FunctionDeclarationTree_Kind = 1
+const FunctionDeclarationTree_Kind_EXPRESSION FunctionDeclarationTree_Kind = 2
+const FunctionDeclarationTree_Kind_MEMBER FunctionDeclarationTree_Kind = 3
+const FunctionDeclarationTree_Kind_ARROW FunctionDeclarationTree_Kind = 4
+
+var FunctionDeclarationTree_Kind_values_ []FunctionDeclarationTree_Kind
 
 var FunctionDeclarationTree_Kind_clinit_done bool
 
@@ -94,17 +125,13 @@ func FunctionDeclarationTree_Kind_clinit() {
 		return
 	}
 	FunctionDeclarationTree_Kind_clinit_done = true
-	FunctionDeclarationTree_Kind_DECLARATION = new_FunctionDeclarationTree_Kind("DECLARATION", 0)
-	FunctionDeclarationTree_Kind_EXPRESSION = new_FunctionDeclarationTree_Kind("EXPRESSION", 1)
-	FunctionDeclarationTree_Kind_MEMBER = new_FunctionDeclarationTree_Kind("MEMBER", 2)
-	FunctionDeclarationTree_Kind_ARROW = new_FunctionDeclarationTree_Kind("ARROW", 3)
-	FunctionDeclarationTree_Kind_values_ = []*FunctionDeclarationTree_Kind{FunctionDeclarationTree_Kind_DECLARATION, FunctionDeclarationTree_Kind_EXPRESSION, FunctionDeclarationTree_Kind_MEMBER, FunctionDeclarationTree_Kind_ARROW}
+	FunctionDeclarationTree_Kind_values_ = []FunctionDeclarationTree_Kind{FunctionDeclarationTree_Kind_DECLARATION, FunctionDeclarationTree_Kind_EXPRESSION, FunctionDeclarationTree_Kind_MEMBER, FunctionDeclarationTree_Kind_ARROW}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.trees.FunctionDeclarationTree.Kind", enumValues_(FunctionDeclarationTree_Kind_values_))
 
 }
 
 type FunctionDeclarationTree_Builder struct {
-	kind_               *FunctionDeclarationTree_Kind
+	kind_               FunctionDeclarationTree_Kind
 	name_               *IdentifierToken
 	formalParameterList *FormalParameterListTree
 	functionBody        *ParseTree
@@ -127,12 +154,12 @@ func (this *FunctionDeclarationTree_Builder) finit_FunctionDeclarationTree_Build
 	this.isAsync = false
 }
 
-func (this *FunctionDeclarationTree_Builder) init_FunctionDeclarationTree_Builder(kind *FunctionDeclarationTree_Kind) {
+func (this *FunctionDeclarationTree_Builder) init_FunctionDeclarationTree_Builder(kind FunctionDeclarationTree_Kind) {
 	this.finit_FunctionDeclarationTree_Builder()
 	this.kind_ = kind
 }
 
-func new_FunctionDeclarationTree_Builder(kind *FunctionDeclarationTree_Kind) *FunctionDeclarationTree_Builder {
+func new_FunctionDeclarationTree_Builder(kind FunctionDeclarationTree_Kind) *FunctionDeclarationTree_Builder {
 	this := &FunctionDeclarationTree_Builder{}
 	this.init_FunctionDeclarationTree_Builder(kind)
 	return this

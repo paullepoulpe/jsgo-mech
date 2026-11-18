@@ -7,8 +7,10 @@ package closure
 // insertion order (the Java tree has been prepared not to depend on hash order).
 
 import (
+	"hash/maphash"
 	"sort"
 	"strings"
+	"unsafe"
 )
 
 // ---- iteration helpers
@@ -73,6 +75,12 @@ type stepper_ interface {
 func foreach_(c any) each_ {
 	switch x := c.(type) {
 	case *ArrayList:
+		return each_{src: &x.items}
+	case *ArrayDeque: // these iterate with ArrayList's iterator, a cursor over items
+		return each_{src: &x.items}
+	case *LinkedList:
+		return each_{src: &x.items}
+	case *PriorityQueue:
 		return each_{src: &x.items}
 	case *ImmutableCollection:
 		if x.kind == icMultiset_ {
@@ -169,6 +177,13 @@ func Iterator_remove(it Iterator) {
 func Iterable_forEach(it Iterable, c Consumer) {
 	for i := it.iterator(); i.hasNext(); {
 		c.accept(i.next())
+	}
+}
+
+// Iterable_forEach_f is Iterable_forEach with the action as a Go func value.
+func Iterable_forEach_f(it Iterable, c func(any)) {
+	for i := it.iterator(); i.hasNext(); {
+		c(i.next())
 	}
 }
 
@@ -391,10 +406,16 @@ func (this *ArrayList) containsAll(c Collection) bool {
 	return true
 }
 
+// frontShift_ is the length up to which removing a list's first element shifts the rest
+// down, as java.util.ArrayList does. Above it the list steps over the slot (no copy), but it
+// loses that slot of capacity, so a short list used as a queue (the parser's lookahead,
+// worklists) would otherwise reallocate on almost every append.
+const frontShift_ = 32
+
 func (this *ArrayList) remove(i int32) any {
 	old := this.get(i)
-	if i == 0 {
-		// Front removal is what queues do all the time: step over the slot instead of shifting.
+	if i == 0 && len(this.items) > frontShift_ {
+		// Front removal from a long list: step over the slot instead of shifting.
 		this.items[0] = nil
 		this.items = this.items[1:]
 		return old
@@ -515,7 +536,14 @@ func (this *CopyOnWriteArrayList) iterator() Iterator {
 
 // ---- ArrayDeque
 
-type ArrayDeque struct{ ArrayList }
+type ArrayDeque struct {
+	ArrayList
+	// buf is the array that items is a suffix of, with free room in front of items so that
+	// push (insert at the head) writes one slot instead of moving every element. Every other
+	// operation is ArrayList's on items; push finds out from the pointers whether items still
+	// lies in buf (an append may have moved it) and rebuilds buf when not.
+	buf []any
+}
 
 func new_ArrayDeque() *ArrayDeque {
 	this := &ArrayDeque{}
@@ -561,7 +589,30 @@ func (this *ArrayDeque) pop() any {
 	return this.poll()
 }
 func (this *ArrayDeque) remove_0() any { return this.pop() }
-func (this *ArrayDeque) push(v any)    { this.add_int_Object(0, v) }
+func (this *ArrayDeque) push(v any) {
+	n := len(this.items)
+	if n > 0 && cap(this.buf) > 0 {
+		base := uintptr(unsafe.Pointer(unsafe.SliceData(this.buf)))
+		start := uintptr(unsafe.Pointer(&this.items[0]))
+		size := unsafe.Sizeof(v)
+		if start > base && (start-base)%size == 0 {
+			if off := int((start - base) / size); off < cap(this.buf) && off+cap(this.items) == cap(this.buf) {
+				// items is buf[off:]: room in front.
+				this.buf[off-1] = v
+				this.items = this.buf[off-1 : off+n]
+				return
+			}
+		}
+	}
+	// Rebuild with as much room in front as there are elements (at least 4).
+	room := max(n, 4)
+	nb := make([]any, room+n, room+2*n+4)
+	copy(nb[room:], this.items)
+	clear(this.items)
+	nb[room-1] = v
+	this.buf = nb[:cap(nb)]
+	this.items = nb[room-1 : room+n]
+}
 func (this *ArrayDeque) descendingIterator() Iterator {
 	rev := make([]any, len(this.items))
 	for i, v := range this.items {
@@ -575,6 +626,13 @@ func SequencedCollection_addFirst(c SequencedCollection, v any) {
 }
 func SequencedCollection_addLast(c SequencedCollection, v any) { c.add(v) }
 func SequencedCollection_getFirst(c SequencedCollection) any {
+	if t := hashSetOf_(c); t != nil { // a runtime hash set or key view: no iterator, start at the hint
+		i := t.firstLive()
+		if i < 0 {
+			panic(new_NoSuchElementException_0().self())
+		}
+		return t.keys[i]
+	}
 	it := c.iterator()
 	if !it.hasNext() {
 		panic(new_NoSuchElementException_0().self())
@@ -675,7 +733,21 @@ type htable_ struct {
 	x        *hindex_ // nil until needed
 	live     int32
 	identity bool
-	indexed  bool // x holds the index of all keys
+	indexed  bool  // x holds the index of all keys
+	head     int32 // every position below head is a removed entry (a hint for getFirst)
+}
+
+// firstLive returns the position of the first entry, or -1 if the table is empty. Entries are
+// only appended and a removed one never comes back, so the hint head stays right until keys is
+// rebuilt (compact, clear, empty), which resets it.
+func (t *htable_) firstLive() int {
+	for i := int(t.head); i < len(t.keys); i++ {
+		if t.keys[i] != dead_ {
+			t.head = int32(i)
+			return i
+		}
+	}
+	return -1
 }
 
 // hsmall_ is the number of entries (removed ones included) up to which a table is searched
@@ -687,14 +759,44 @@ type htable_ struct {
 const hsmall_ = 8
 
 type hindex_ struct {
-	strs   map[string]int32 // string keys
-	prim   map[any]int32    // keys compared by identity or by Go equality
-	custom map[int32]int32  // keys with their own hashCode/equals: hash code -> first position
-	// next is beside keys once two such keys share a hash code: 1 + the position of the next
-	// key with the same hash code, 0 for the last.
-	next []int32
-	ents []*hmapEntry_ // beside keys once entrySet has handed out an entry; else nil
+	// hash is beside keys once the table is indexed: the hash of each key (hashOf), so that
+	// growing or compacting the index never hashes a key again.
+	hash []uint32
+	// slots is an open-addressed table (linear probing, a power of two long): the hash of a key
+	// in the high 32 bits and 1 + its position in the low ones, 0 for a free slot, so that a
+	// probe reads one word. A removed key keeps its slot (find skips removed positions) until
+	// the index is rebuilt.
+	slots []uint64
+	ents  []*hmapEntry_ // beside keys once entrySet has handed out an entry; else nil
 }
+
+var hseed_ = maphash.MakeSeed()
+
+// hashOf is the hash a key is indexed by: a string's (Go's string hash), a key with its own
+// equals/hashCode its hashCode (mixed), any other key Go's hash of the interface value.
+func (t *htable_) hashOf(k any) uint32 {
+	switch k := k.(type) {
+	case string:
+		return uint32(maphash.String(hseed_, k))
+	case Node:
+		return hmix_(int32(k))
+	}
+	if h, ok := t.customKey_(k); ok {
+		return hmix_(h.hashCode())
+	}
+	return primHash_(k)
+}
+
+// primHash_ is the hash of a key compared by Go equality: a Node handle hashes as its value
+// (most such keys are nodes), anything else by Go's hash of the interface value.
+func primHash_(k any) uint32 {
+	if n, ok := k.(Node); ok {
+		return hmix_(int32(n))
+	}
+	return uint32(maphash.Comparable(hseed_, k))
+}
+
+func hmix_(hc int32) uint32 { return uint32((uint64(uint32(hc)) * 0x9E3779B97F4A7C15) >> 32) }
 
 // customKey_ returns k as a key with its own hashCode/equals, if the table should use them.
 func (t *htable_) customKey_(k any) (hashed_, bool) {
@@ -711,8 +813,11 @@ func (t *htable_) customKey_(k any) (hashed_, bool) {
 
 // find returns the position of key k, or -1.
 func (t *htable_) find(k any) int {
-	if s, ok := k.(string); ok {
-		return t.findStr(s)
+	switch k := k.(type) {
+	case string:
+		return t.findStr(k)
+	case Node:
+		return t.findNode(k)
 	}
 	if !t.indexed {
 		// No key here has its own equals, so one that does is not found either.
@@ -725,20 +830,57 @@ func (t *htable_) find(k any) int {
 	}
 	x := t.x
 	if h, ok := t.customKey_(k); ok {
-		i, ok := x.custom[h.hashCode()]
-		for ok {
-			if t.keys[i] == k || h.equals(t.keys[i]) { // identity first, as java.util.HashMap
+		hv := hmix_(h.hashCode())
+		for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
+			sl := x.slots[j]
+			if uint32(sl>>32) != hv {
+				continue
+			}
+			i := int32(uint32(sl)) - 1
+			e := t.keys[i]
+			if e == k { // identity first, as java.util.HashMap
 				return int(i)
 			}
-			if x.next == nil || x.next[i] == 0 {
-				break
+			if _, isStr := e.(string); isStr || e == dead_ {
+				continue
 			}
-			i = x.next[i] - 1
+			if _, c := t.customKey_(e); c && h.equals(e) {
+				return int(i)
+			}
 		}
 		return -1
 	}
-	if i, ok := x.prim[k]; ok {
-		return int(i)
+	hv := primHash_(k)
+	for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
+		if sl := x.slots[j]; uint32(sl>>32) == hv {
+			if i := int32(uint32(sl)) - 1; t.keys[i] == k {
+				return int(i)
+			}
+		}
+	}
+	return -1
+}
+
+// findNode is find for a node handle. A Node has no equals or hashCode of its own, so it is
+// hashed as primHash_ hashes it and compared by value, as == on the boxed keys compares it, but
+// without the runtime call that == of two interface values makes for a handle.
+func (t *htable_) findNode(n Node) int {
+	if !t.indexed {
+		for i, x := range t.keys {
+			if xn, ok := x.(Node); ok && xn == n {
+				return i
+			}
+		}
+		return -1
+	}
+	x := t.x
+	hv := hmix_(int32(n))
+	for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
+		if sl := x.slots[j]; uint32(sl>>32) == hv {
+			if xn, ok := t.keys[int32(uint32(sl))-1].(Node); ok && xn == n {
+				return int(int32(uint32(sl)) - 1)
+			}
+		}
 	}
 	return -1
 }
@@ -753,8 +895,14 @@ func (t *htable_) findStr(s string) int {
 		}
 		return -1
 	}
-	if i, ok := t.x.strs[s]; ok {
-		return int(i)
+	x := t.x
+	hv := uint32(maphash.String(hseed_, s))
+	for j, m := hv&uint32(len(x.slots)-1), uint32(len(x.slots)-1); x.slots[j] != 0; j = (j + 1) & m {
+		if sl := x.slots[j]; uint32(sl>>32) == hv {
+			if xs, ok := t.keys[int32(uint32(sl))-1].(string); ok && xs == s {
+				return int(int32(uint32(sl)) - 1)
+			}
+		}
 	}
 	return -1
 }
@@ -818,7 +966,9 @@ func (t *htable_) addStr(s string) bool {
 // insert appends a key that find did not find.
 func (t *htable_) insert(k any) {
 	if !t.indexed {
-		if _, isStr := k.(string); !isStr {
+		switch k.(type) {
+		case string, Node:
+		default:
 			if _, custom := t.customKey_(k); custom {
 				t.buildIndex()
 			}
@@ -839,9 +989,6 @@ func (t *htable_) insertPlain(k any) {
 		if x.ents != nil {
 			x.ents = append(x.ents, nil)
 		}
-		if x.next != nil {
-			x.next = append(x.next, 0)
-		}
 	}
 	if t.indexed {
 		t.index(k, int32(i))
@@ -850,81 +997,85 @@ func (t *htable_) insertPlain(k any) {
 	}
 }
 
+// copyFrom makes the empty table t a copy of s (only its keys when vals is false), if s has no
+// removed entry and compares keys as t does: the keys, values and index are copied as they
+// are, so no key's hashCode is called again (Java's copy rehashes every key; a key's hash
+// code does not change while it is in a table). It reports whether it copied.
+func (t *htable_) copyFrom(s *htable_, vals bool) bool {
+	if len(t.keys) != 0 || s.identity != t.identity || int(s.live) != len(s.keys) {
+		return false
+	}
+	if s.live == 0 {
+		return true
+	}
+	n := max(len(s.keys), hfirst_)
+	t.keys = append(make([]any, 0, n), s.keys...)
+	if vals {
+		t.vals = append(make([]any, 0, n), s.vals...)
+	}
+	t.live = s.live
+	if s.indexed {
+		t.x = &hindex_{hash: append(make([]uint32, 0, n), s.x.hash...), slots: append([]uint64(nil), s.x.slots...)}
+		t.indexed = true
+	}
+	return true
+}
+
 func (t *htable_) buildIndex() {
 	if t.x == nil {
 		t.x = &hindex_{}
 	}
+	x := t.x
 	t.indexed = true
+	x.hash = make([]uint32, len(t.keys), cap(t.keys))
 	for i, k := range t.keys {
 		if k != dead_ {
-			t.index(k, int32(i))
+			x.hash[i] = t.hashOf(k)
+		}
+	}
+	t.rebuildSlots()
+}
+
+// rebuildSlots makes the slots anew from the stored hashes, with room for the table to double.
+func (t *htable_) rebuildSlots() {
+	x := t.x
+	n := 16
+	for n*3 < len(t.keys)*8 {
+		n *= 2
+	}
+	if len(x.slots) == n {
+		clear(x.slots)
+	} else {
+		x.slots = make([]uint64, n)
+	}
+	for i, k := range t.keys {
+		if k != dead_ {
+			t.place(x.hash[i], int32(i))
 		}
 	}
 }
 
-// index records that key k is at position i.
+// place puts position i, of a key with hash hv, in a free slot.
+func (t *htable_) place(hv uint32, i int32) {
+	x := t.x
+	m := uint32(len(x.slots) - 1)
+	j := hv & m
+	for x.slots[j] != 0 {
+		j = (j + 1) & m
+	}
+	x.slots[j] = uint64(hv)<<32 | uint64(uint32(i+1))
+}
+
+// index records that key k is at position i, the last one.
 func (t *htable_) index(k any, i int32) {
 	x := t.x
-	if s, ok := k.(string); ok {
-		if x.strs == nil {
-			x.strs = map[string]int32{}
-		}
-		x.strs[s] = i
+	hv := t.hashOf(k)
+	x.hash = append(x.hash, hv)
+	if len(t.keys)*4 > len(x.slots)*3 {
+		t.rebuildSlots() // places i as well
 		return
 	}
-	if h, ok := t.customKey_(k); ok {
-		if x.custom == nil {
-			x.custom = map[int32]int32{}
-		}
-		hc := h.hashCode()
-		j, shared := x.custom[hc]
-		if !shared {
-			x.custom[hc] = i
-			return
-		}
-		// Append to the chain of the keys with this hash code.
-		if x.next == nil {
-			x.next = make([]int32, len(t.keys), cap(t.keys))
-		}
-		for x.next[j] != 0 {
-			j = x.next[j] - 1
-		}
-		x.next[j] = i + 1
-		return
-	}
-	if x.prim == nil {
-		x.prim = map[any]int32{}
-	}
-	x.prim[k] = i
-}
-
-// unindex forgets that key k is at position i.
-func (t *htable_) unindex(k any, i int) {
-	x := t.x
-	if s, ok := k.(string); ok {
-		delete(x.strs, s)
-	} else if h, ok := t.customKey_(k); ok {
-		hc := h.hashCode()
-		var after int32 // what follows position i in its chain
-		if x.next != nil {
-			after = x.next[i]
-			x.next[i] = 0
-		}
-		if j := x.custom[hc]; int(j) == i {
-			if after == 0 {
-				delete(x.custom, hc)
-			} else {
-				x.custom[hc] = after - 1
-			}
-		} else {
-			for int(x.next[j]) != i+1 {
-				j = x.next[j] - 1
-			}
-			x.next[j] = after
-		}
-	} else {
-		delete(x.prim, k)
-	}
+	t.place(hv, i)
 }
 
 // removeAt removes the entry at position i. Positions of the other entries change only if
@@ -933,9 +1084,6 @@ func (t *htable_) removeAt(i int) (moved bool) {
 	k := t.keys[i]
 	if k == dead_ {
 		return false
-	}
-	if t.indexed {
-		t.unindex(k, i)
 	}
 	t.keys[i] = dead_
 	if t.vals != nil {
@@ -948,13 +1096,15 @@ func (t *htable_) removeAt(i int) (moved bool) {
 	t.live--
 	if t.live == 0 {
 		// Empty: start again at position 0 (an index stays, empty, for the next entries).
+		t.head = 0
 		t.keys = t.keys[:0]
 		if t.vals != nil {
 			t.vals = t.vals[:0]
 		}
-		if t.x != nil {
-			t.x.ents = nil
-			t.x.next = t.x.next[:0]
+		if x := t.x; x != nil {
+			x.ents = nil
+			x.hash = x.hash[:0]
+			clear(x.slots)
 		}
 		return true
 	}
@@ -969,16 +1119,27 @@ func (t *htable_) removeAt(i int) (moved bool) {
 func (t *htable_) compact() {
 	keys, vals := t.keys, t.vals
 	var ents []*hmapEntry_
+	var hash []uint32
 	if t.x != nil {
 		ents = t.x.ents
+		if t.indexed {
+			hash = t.x.hash
+		}
 	}
 	t.keys = make([]any, 0, t.live)
+	t.head = 0
 	if vals != nil {
 		t.vals = make([]any, 0, t.live)
 	}
 	t.x, t.indexed = nil, false
-	if ents != nil {
-		t.x = &hindex_{ents: make([]*hmapEntry_, 0, t.live)}
+	if ents != nil || hash != nil {
+		t.x = &hindex_{}
+		if ents != nil {
+			t.x.ents = make([]*hmapEntry_, 0, t.live)
+		}
+		if hash != nil {
+			t.x.hash = make([]uint32, 0, t.live)
+		}
 	}
 	custom := false
 	for i, k := range keys {
@@ -992,11 +1153,17 @@ func (t *htable_) compact() {
 		if ents != nil {
 			t.x.ents = append(t.x.ents, ents[i])
 		}
+		if hash != nil {
+			t.x.hash = append(t.x.hash, hash[i])
+		}
 		if _, c := t.customKey_(k); c {
 			custom = true
 		}
 	}
-	if custom || len(t.keys) > hsmall_ {
+	if hash != nil {
+		t.indexed = true
+		t.rebuildSlots()
+	} else if custom || len(t.keys) > hsmall_ {
 		t.buildIndex()
 	}
 }
@@ -1028,7 +1195,7 @@ func (t *htable_) clear() {
 			}
 		}
 	}
-	t.keys, t.vals, t.x, t.live, t.indexed = nil, nil, nil, 0, false
+	t.keys, t.vals, t.x, t.live, t.indexed, t.head = nil, nil, nil, 0, false, 0
 }
 
 // entry returns the entry object of the mapping at position i.
@@ -1182,6 +1349,9 @@ func (this *LinkedHashMap) put(k any, v any) any {
 
 func (this *LinkedHashMap) putAll(m Map) {
 	if h := hashMapOf_(m); h != nil {
+		if this.t.copyFrom(&h.t, true) {
+			return
+		}
 		for i, k := range h.t.keys {
 			if k != dead_ {
 				this.t.put(k, h.t.vals[i])
@@ -1386,6 +1556,9 @@ func new_LinkedHashSet_Collection(c Collection) *LinkedHashSet {
 func (this *LinkedHashSet) add(k any) bool { return this.t().add(k) }
 
 func (this *LinkedHashSet) addAll(c Collection) bool {
+	if h := hashSetOf_(c); h != nil && this.t().copyFrom(h, false) {
+		return h.live > 0
+	}
 	changed := false
 	for it := c.iterator(); it.hasNext(); {
 		if this.add(it.next()) {
@@ -1444,33 +1617,126 @@ var naturalOrder_ Comparator = &cmpFunc_{compareNatural_}
 
 func Comparator_naturalOrder() Comparator { return naturalOrder_ }
 
+// The Comparator combinators return comparators of their own types, not closures over the
+// comparators and key functions they wrap: comparing through one of them is one method call per
+// level of the combination. Each calls its comparators and key functions in the JDK's order.
+
+// intKeyCmp_ is Comparator.comparingInt(key), and, with rev, its reversed(): Integer.compare of
+// key(a) and key(b), or of key(b) and key(a). It holds the key function's Go func when there is
+// one, so a comparison calls it directly.
+type intKeyCmp_ struct {
+	key func(any) int32
+	rev bool
+}
+
+func (c *intKeyCmp_) compare(a, b any) int32 {
+	if c.rev {
+		a, b = b, a
+	}
+	return Integer_compare(c.key(a), c.key(b))
+}
+
+// reversedCmp_ is c.reversed() (Collections.reverseOrder(c)): c.compare(b, a).
+type reversedCmp_ struct{ c Comparator }
+
+func (r *reversedCmp_) compare(a, b any) int32 { return r.c.compare(b, a) }
+
+// keyCmp_ is Comparator.comparing(key) (natural order of the keys) or, with c,
+// Comparator.comparing(key, c).
+type keyCmp_ struct {
+	key Function
+	c   Comparator
+}
+
+func (k *keyCmp_) compare(a, b any) int32 {
+	if k.c == nil {
+		return compareNatural_(k.key.apply(a), k.key.apply(b))
+	}
+	return k.c.compare(k.key.apply(a), k.key.apply(b))
+}
+
+// longKeyCmp_ is Comparator.comparingLong(key).
+type longKeyCmp_ struct{ key ToLongFunction }
+
+func (k *longKeyCmp_) compare(a, b any) int32 {
+	return Long_compare(k.key.applyAsLong(a), k.key.applyAsLong(b))
+}
+
+// thenCmp_ is c.thenComparing(d): c, and d where c finds a and b equal.
+type thenCmp_ struct{ c, d Comparator }
+
+func (t *thenCmp_) compare(a, b any) int32 {
+	if r := t.c.compare(a, b); r != 0 {
+		return r
+	}
+	return t.d.compare(a, b)
+}
+
 func Comparator_reversed(c Comparator) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return c.compare(b, a) }}
+	switch k := c.(type) {
+	case *intKeyCmp_:
+		return &intKeyCmp_{key: k.key, rev: !k.rev}
+	case *reversedCmp_:
+		return k.c // as the JDK's reversed() of a reversed comparator
+	}
+	return &reversedCmp_{c}
 }
 
 func Comparator_comparing(f Function) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return compareNatural_(f.apply(a), f.apply(b)) }}
+	return &keyCmp_{key: f}
 }
 
 func Comparator_comparing_Function_Comparator(f Function, c Comparator) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return c.compare(f.apply(a), f.apply(b)) }}
+	return &keyCmp_{key: f, c: c}
+}
+
+// keyCmpF_ is Comparator.comparing(key, c) of two lambdas, as Go func values.
+type keyCmpF_ struct {
+	key func(any) any
+	c   func(any, any) int32
+}
+
+func (k *keyCmpF_) compare(a, b any) int32 { return k.c(k.key(a), k.key(b)) }
+
+// Comparator_comparing_Function_Comparator_f is Comparator_comparing_Function_Comparator of
+// lambdas, as Go func values (post-flip step funcparams).
+func Comparator_comparing_Function_Comparator_f(f func(any) any, c func(any, any) int32) Comparator {
+	return &keyCmpF_{key: f, c: c}
 }
 
 func Comparator_comparingInt(f ToIntFunction) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return Integer_compare(f.applyAsInt(a), f.applyAsInt(b)) }}
+	if fn, ok := f.(*ToIntFunction_fn); ok && fn != nil {
+		return &intKeyCmp_{key: fn.f}
+	}
+	return &intKeyCmp_{key: func(v any) int32 { return f.applyAsInt(v) }}
+}
+
+// Comparator_comparingInt_f is Comparator_comparingInt with the key function as a Go func value:
+// the same int-key comparator, so that reversed() flips it and a PriorityQueue calls it directly.
+func Comparator_comparingInt_f(f func(any) int32) Comparator {
+	return &intKeyCmp_{key: f}
 }
 
 func Comparator_comparingLong(f ToLongFunction) Comparator {
-	return &cmpFunc_{func(a, b any) int32 { return Long_compare(f.applyAsLong(a), f.applyAsLong(b)) }}
+	return &longKeyCmp_{f}
+}
+
+// longKeyCmpF_ is Comparator.comparingLong(key) of a lambda, as a Go func value.
+type longKeyCmpF_ struct{ key func(any) int64 }
+
+func (k *longKeyCmpF_) compare(a, b any) int32 { return Long_compare(k.key(a), k.key(b)) }
+
+// Comparator_comparingLong_f is Comparator_comparingLong of a lambda, as a Go func value
+// (post-flip step funcparams).
+func Comparator_comparingLong_f(f func(any) int64) Comparator { return &longKeyCmpF_{f} }
+
+// Comparator_thenComparingLong_f is Comparator_thenComparingLong of a lambda, as a Go func value.
+func Comparator_thenComparingLong_f(c Comparator, f func(any) int64) Comparator {
+	return Comparator_thenComparing_Comparator(c, Comparator_comparingLong_f(f))
 }
 
 func Comparator_thenComparing_Comparator(c Comparator, d Comparator) Comparator {
-	return &cmpFunc_{func(a, b any) int32 {
-		if r := c.compare(a, b); r != 0 {
-			return r
-		}
-		return d.compare(a, b)
-	}}
+	return &thenCmp_{c, d}
 }
 
 func Comparator_thenComparing(c Comparator, f Function) Comparator {
@@ -1479,6 +1745,12 @@ func Comparator_thenComparing(c Comparator, f Function) Comparator {
 
 func Comparator_thenComparingInt(c Comparator, f ToIntFunction) Comparator {
 	return Comparator_thenComparing_Comparator(c, Comparator_comparingInt(f))
+}
+
+// Comparator_thenComparingInt_f is Comparator_thenComparingInt of a lambda, as a Go func value
+// (post-flip step funcparams): the same int-key comparator after c.
+func Comparator_thenComparingInt_f(c Comparator, f func(any) int32) Comparator {
+	return Comparator_thenComparing_Comparator(c, Comparator_comparingInt_f(f))
 }
 
 func Map_Entry_comparingByKey() Comparator {
@@ -1600,11 +1872,17 @@ func Map_get_s(m any, k string) any {
 		if h := hashMapOf_(m); h != nil {
 			return h.get_s(k)
 		}
-		if im, ok := m.(*ImmutableMap); ok && im != nil {
+		if im, ok := m.(*ErasedImmutableMap); ok && im != nil {
 			return im.get_s(k)
 		}
 		if x, ok := m.(interface{ get_s(string) any }); ok {
 			return x.get_s(k) // the erased view of a typed map (rt_tmap.go)
+		}
+		if tm, ok := m.(*TreeMap); ok && tm.strKeyed() {
+			if i, ok := tm.search_s(k); ok {
+				return tm.entries[i].val
+			}
+			return nil
 		}
 	}
 	return asMap_(m).get(strobj_(k))
@@ -1615,11 +1893,15 @@ func Map_containsKey_s(m any, k string) bool {
 		if h := hashMapOf_(m); h != nil {
 			return h.t.findStr(k) >= 0
 		}
-		if im, ok := m.(*ImmutableMap); ok && im != nil {
+		if im, ok := m.(*ErasedImmutableMap); ok && im != nil {
 			return im.containsKey_s(k)
 		}
 		if x, ok := m.(interface{ containsKey_s(string) bool }); ok {
 			return x.containsKey_s(k)
+		}
+		if tm, ok := m.(*TreeMap); ok && tm.strKeyed() {
+			_, ok := tm.search_s(k)
+			return ok
 		}
 	}
 	return asMap_(m).containsKey(strobj_(k))
@@ -1687,6 +1969,10 @@ func Collection_contains_s(c any, k string) bool {
 			if x != nil {
 				return x.contains_s(k)
 			}
+		case *Sets_SetView:
+			if x != nil && x.hasStr != nil {
+				return x.hasStr(k)
+			}
 		case interface{ contains_s(string) bool }:
 			// the erased view of a typed list (rt_tlist.go)
 			return x.contains_s(k)
@@ -1745,11 +2031,39 @@ func Map_computeIfAbsent(m Map, k any, f Function) any {
 	return v
 }
 
+// Map_computeIfAbsent_f is Map_computeIfAbsent with the function as a Go func value, which the
+// caller's closure can stay on the stack for (post-flip step funcparams calls it for lambdas).
+func Map_computeIfAbsent_f(m Map, k any, f func(any) any) any {
+	if old := m.get(k); old != nil {
+		return old
+	}
+	v := f(k)
+	if v != nil {
+		m.put(k, v)
+	}
+	return v
+}
+
 func Map_merge(m Map, k any, v any, f BiFunction) any {
 	old := m.get(k)
 	nv := v
 	if old != nil {
 		nv = f.apply(old, v)
+	}
+	if nv == nil {
+		m.remove(k)
+	} else {
+		m.put(k, nv)
+	}
+	return nv
+}
+
+// Map_merge_f is Map_merge with the function as a Go func value.
+func Map_merge_f(m Map, k any, v any, f func(any, any) any) any {
+	old := m.get(k)
+	nv := v
+	if old != nil {
+		nv = f(old, v)
 	}
 	if nv == nil {
 		m.remove(k)
@@ -1766,10 +2080,26 @@ func Map_forEach(m Map, f BiConsumer) {
 	}
 }
 
+// Map_forEach_f is Map_forEach with the action as a Go func value.
+func Map_forEach_f(m Map, f func(any, any)) {
+	for it := m.entrySet().iterator(); it.hasNext(); {
+		e := it.next().(Map_Entry)
+		f(e.getKey(), e.getValue())
+	}
+}
+
 func Map_replaceAll(m Map, f BiFunction) {
 	for it := m.entrySet().iterator(); it.hasNext(); {
 		e := it.next().(Map_Entry)
 		e.setValue(f.apply(e.getKey(), e.getValue()))
+	}
+}
+
+// Map_replaceAll_f is Map_replaceAll of a lambda, as a Go func value (post-flip step funcparams).
+func Map_replaceAll_f(m Map, f func(any, any) any) {
+	for it := m.entrySet().iterator(); it.hasNext(); {
+		e := it.next().(Map_Entry)
+		e.setValue(f(e.getKey(), e.getValue()))
 	}
 }
 
@@ -1857,6 +2187,13 @@ func Arrays_setAll(a []any, f IntFunction) {
 	}
 }
 
+// Arrays_setAll_f is Arrays_setAll of a lambda, as a Go func value (post-flip step funcparams).
+func Arrays_setAll_f(a []any, f func(int32) any) {
+	for i := range a {
+		a[i] = f(int32(i))
+	}
+}
+
 func Arrays_sort(a []any)                                    { sortSlice_(a, nil) }
 func Arrays_sort_ObjectArr_Comparator(a []any, c Comparator) { sortSlice_(a, c) }
 func Arrays_sort_byteArr(a []int8)                           { sort.Slice(a, func(i, j int) bool { return a[i] < a[j] }) }
@@ -1880,6 +2217,20 @@ func Collections_unmodifiableSortedSet(s SortedSet) SortedSet { return s }
 func Map_compute(m Map, k any, f BiFunction) any {
 	old := m.get(k)
 	v := f.apply(k, old)
+	if v == nil {
+		if old != nil || m.containsKey(k) {
+			m.remove(k)
+		}
+		return nil
+	}
+	m.put(k, v)
+	return v
+}
+
+// Map_compute_f is Map_compute with the function as a Go func value.
+func Map_compute_f(m Map, k any, f func(any, any) any) any {
+	old := m.get(k)
+	v := f(k, old)
 	if v == nil {
 		if old != nil || m.containsKey(k) {
 			m.remove(k)

@@ -37,7 +37,7 @@ func new_CheckConstPrivateProperties(compiler *AbstractCompiler) *CheckConstPriv
 }
 
 func (this *CheckConstPrivateProperties) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckConstPrivateProperties) reportMissingConst(t *NodeTraversal) {
@@ -54,10 +54,10 @@ func (this *CheckConstPrivateProperties) reportMissingConst(t *NodeTraversal) {
 }
 
 func (this *CheckConstPrivateProperties) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		this.reportMissingConst(t)
-	case Token_rhino_GETELEM, Token_rhino_GETPROP:
+	case tokOrd1_GETELEM, tokOrd1_GETPROP:
 		var propNode Node
 		if n.isGetProp() {
 			propNode = n
@@ -71,12 +71,12 @@ func (this *CheckConstPrivateProperties) visit_impl(t *NodeTraversal, n Node, pa
 		} else if this.isModificationOp(n) {
 			this.modified.add(propNode.getString())
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 		if (info != nil) && (info.isConstructor() || info.isInterface()) {
 			this.recordConstructorOrInterface(n)
 		}
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.recordConstructorOrInterface(n)
 	default:
 	}
@@ -124,4 +124,13 @@ func CheckConstPrivateProperties_clinit() {
 	CheckConstPrivateProperties_clinit_done = true
 	CheckConstPrivateProperties_MISSING_CONST_PROPERTY = DiagnosticType_disabled("JSC_MISSING_CONST_PROPERTY", "Private property {0} is never modified, use the @const annotation")
 
+}
+
+// visit: an object that is exactly a CheckConstPrivateProperties calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckConstPrivateProperties) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckConstPrivateProperties); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

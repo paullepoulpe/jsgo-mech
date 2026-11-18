@@ -19,7 +19,7 @@ func new_RewriteLogicalAssignmentOperatorsPass(compiler *AbstractCompiler) *Rewr
 }
 
 func (this *RewriteLogicalAssignmentOperatorsPass) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	TranspilationPasses_maybeMarkFeatureAsTranspiledAway(this.compiler_, root, FeatureSet_Feature_LOGICAL_ASSIGNMENT)
 }
 
@@ -32,8 +32,8 @@ func (this *RewriteLogicalAssignmentOperatorsPass) shouldTraverse(t *NodeTravers
 }
 
 func (this *RewriteLogicalAssignmentOperatorsPass) visit(t *NodeTraversal, logicalAssignment Node, parent Node) {
-	switch logicalAssignment.getToken() {
-	case Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_COALESCE:
+	switch logicalAssignment.ns_().token {
+	case tokOrd1_ASSIGN_OR, tokOrd1_ASSIGN_AND, tokOrd1_ASSIGN_COALESCE:
 		this.rewriteLogicalAssignmentOperatorsHelper.visitLogicalAssignmentOperator(t, logicalAssignment)
 	default:
 	}

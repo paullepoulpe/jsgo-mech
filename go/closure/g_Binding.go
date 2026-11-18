@@ -8,12 +8,16 @@ type Binding struct {
 	originatingExport_ *Export
 	isModuleNamespace_ bool
 	closureNamespace_  Optional[string]
-	createdBy_         *Binding_CreatedBy
+	createdBy_         Binding_CreatedBy
 }
 
-func (this *Binding) init_Binding(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, originatingExport *Export, isModuleNamespace bool, closureNamespace Optional[string], createdBy *Binding_CreatedBy) {
-	Objects_requireNonNull(obj_(metadata), "metadata")
-	Objects_requireNonNull(obj_(createdBy), "createdBy")
+func (this *Binding) init_Binding(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, originatingExport *Export, isModuleNamespace bool, closureNamespace Optional[string], createdBy Binding_CreatedBy) {
+	if metadata == nil {
+		panic(new_NullPointerException_String("metadata"))
+	}
+	if createdBy == 0 {
+		panic(new_NullPointerException_String("createdBy"))
+	}
 	this.metadata_ = metadata
 	this.sourceNode_ = sourceNode
 	this.originatingExport_ = originatingExport
@@ -22,7 +26,7 @@ func (this *Binding) init_Binding(metadata *ModuleMetadataMap_ModuleMetadata, so
 	this.createdBy_ = createdBy
 }
 
-func new_Binding(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, originatingExport *Export, isModuleNamespace bool, closureNamespace Optional[string], createdBy *Binding_CreatedBy) *Binding {
+func new_Binding(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, originatingExport *Export, isModuleNamespace bool, closureNamespace Optional[string], createdBy Binding_CreatedBy) *Binding {
 	this := &Binding{}
 	this.init_Binding(metadata, sourceNode, originatingExport, isModuleNamespace, closureNamespace, createdBy)
 	return this
@@ -32,8 +36,10 @@ func Binding_from_Export_Node(boundExport *Export, sourceNode Node) *Binding {
 	return new_Binding(boundExport.moduleMetadata(), sourceNode, boundExport, false, boundExport.closureNamespace(), Binding_CreatedBy_EXPORT)
 }
 
-func Binding_from_ModuleMetadata_Node_String_CreatedBy(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, closureNamespace string, createdBy *Binding_CreatedBy) *Binding {
-	Preconditions_checkArgument_boolean_String_Object(createdBy.isClosureImport(), "Expected goog.require(Type) or goog.forwardDeclare, got %s", obj_(createdBy))
+func Binding_from_ModuleMetadata_Node_String_CreatedBy(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, closureNamespace string, createdBy Binding_CreatedBy) *Binding {
+	if !createdBy.isClosureImport() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected goog.require(Type) or goog.forwardDeclare, got %s", []any{obj_(createdBy)})))
+	}
 	return new_Binding(metadata, sourceNode, nil, true, Optional_of[string](closureNamespace), createdBy)
 }
 
@@ -41,13 +47,17 @@ func Binding_from_ModuleMetadata_Optional_Node(metadataOfBoundModule *ModuleMeta
 	return new_Binding(metadataOfBoundModule, sourceNode, nil, true, closureNamespace, Binding_CreatedBy_IMPORT)
 }
 
-func (this *Binding) copy(sourceNode Node, createdBy *Binding_CreatedBy) *Binding {
-	Preconditions_checkNotNull(sourceNode.box_())
+func (this *Binding) copy(sourceNode Node, createdBy Binding_CreatedBy) *Binding {
+	if sourceNode == 0 {
+		panic(new_NullPointerException_0())
+	}
 	return new_Binding(this.metadata(), sourceNode, this.originatingExport(), this.isModuleNamespace(), this.closureNamespace(), createdBy)
 }
 
 func (this *Binding) boundName() Optional[string] {
-	Preconditions_checkState(!this.isModuleNamespace())
+	if this.isModuleNamespace() {
+		panic(new_IllegalStateException_0())
+	}
 	return this.originatingExport().localName()
 }
 
@@ -56,15 +66,15 @@ func (this *Binding) isMutated() bool {
 }
 
 func (this *Binding) isCreatedByEsImport() bool {
-	return Object_equals(obj_(this.createdBy()), obj_(Binding_CreatedBy_IMPORT))
+	return equalsId_(this.createdBy(), Binding_CreatedBy_IMPORT)
 }
 
 func (this *Binding) isCreatedByEsExport() bool {
-	return Object_equals(obj_(this.createdBy()), obj_(Binding_CreatedBy_EXPORT))
+	return equalsId_(this.createdBy(), Binding_CreatedBy_EXPORT)
 }
 
 func (this *Binding) isSomeImport() bool {
-	return !Object_equals(obj_(this.createdBy()), obj_(Binding_CreatedBy_EXPORT))
+	return !equalsId_(this.createdBy(), Binding_CreatedBy_EXPORT)
 }
 
 func (this *Binding) metadata() *ModuleMetadataMap_ModuleMetadata {
@@ -87,7 +97,7 @@ func (this *Binding) closureNamespace() Optional[string] {
 	return this.closureNamespace_
 }
 
-func (this *Binding) createdBy() *Binding_CreatedBy {
+func (this *Binding) createdBy() Binding_CreatedBy {
 	return this.createdBy_
 }
 
@@ -96,69 +106,88 @@ func (this *Binding) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.metadata_), obj_(o.metadata_)) && Objects_equals(this.sourceNode_.box_(), o.sourceNode_.box_()) && Objects_equals(obj_(this.originatingExport_), obj_(o.originatingExport_)) && this.isModuleNamespace_ == o.isModuleNamespace_ && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_()) && Objects_equals(obj_(this.createdBy_), obj_(o.createdBy_))
+	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.sourceNode_ == o.sourceNode_ && objequalsBy_(this.originatingExport_, obj_(o.originatingExport_), (*Export).equals) && this.isModuleNamespace_ == o.isModuleNamespace_ && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_()) && this.createdBy_ == o.createdBy_
 }
 
 func (this *Binding) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.metadata_))
-	h = h*31 + Objects_hashCode(this.sourceNode_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.originatingExport_))
-	h = h*31 + Objects_hashCode(any(bool(this.isModuleNamespace_)))
+	h = h*31 + objhashBy_(this.metadata_, (*ModuleMetadataMap_ModuleMetadata).hashCode)
+	h = h*31 + objhashId_(this.sourceNode_)
+	h = h*31 + objhashBy_(this.originatingExport_, (*Export).hashCode)
+	h = h*31 + Boolean_hashCode(bool(this.isModuleNamespace_))
 	h = h*31 + Objects_hashCode(this.closureNamespace_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.createdBy_))
+	h = h*31 + objhashId_(this.createdBy_)
 	return h
 }
 
 func (this *Binding) toString() string {
-	return "Binding[" + "metadata=" + objstr_(obj_(this.metadata_)) + ", sourceNode=" + objstr_(this.sourceNode_.box_()) + ", originatingExport=" + objstr_(obj_(this.originatingExport_)) + ", isModuleNamespace=" + objstr_(any(bool(this.isModuleNamespace_))) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + ", createdBy=" + objstr_(obj_(this.createdBy_)) + "]"
+	return "Binding[" + "metadata=" + tostr_(this.metadata_) + ", sourceNode=" + tostr_(this.sourceNode_) + ", originatingExport=" + tostr_(this.originatingExport_) + ", isModuleNamespace=" + boolstr_(bool(this.isModuleNamespace_)) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + ", createdBy=" + tostr_(this.createdBy_) + "]"
 }
 
-type Binding_CreatedBy struct {
-	Enum
+type Binding_CreatedBy uint8
+
+// Binding_CreatedBy_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Binding_CreatedBy_enum_ = [5]Enum{
+	{self_: Binding_CreatedBy_EXPORT, name_: "EXPORT", ordinal_: 0},
+	{self_: Binding_CreatedBy_IMPORT, name_: "IMPORT", ordinal_: 1},
+	{self_: Binding_CreatedBy_GOOG_REQUIRE, name_: "GOOG_REQUIRE", ordinal_: 2},
+	{self_: Binding_CreatedBy_GOOG_REQUIRE_TYPE, name_: "GOOG_REQUIRE_TYPE", ordinal_: 3},
+	{self_: Binding_CreatedBy_GOOG_FORWARD_DECLARE, name_: "GOOG_FORWARD_DECLARE", ordinal_: 4},
 }
 
-func (this *Binding_CreatedBy) up_Enum() *Enum {
-	if this == nil {
+func (this Binding_CreatedBy) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Binding_CreatedBy_enum_[this-1]
 }
 
-func (this *Binding_CreatedBy) init_Binding_CreatedBy(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Binding_CreatedBy) name() string { return this.enum_().name_ }
+
+func (this Binding_CreatedBy) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_Binding_CreatedBy(name_ string, ordinal_ int32) *Binding_CreatedBy {
-	this := &Binding_CreatedBy{}
-	this.self_ = this
-	this.init_Binding_CreatedBy(name_, ordinal_)
+func (this Binding_CreatedBy) toString() string { return this.enum_().name_ }
+
+func (this Binding_CreatedBy) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this Binding_CreatedBy) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *Binding_CreatedBy) isClosureImport() bool {
-	return ((Object_equals(obj_(this), obj_(Binding_CreatedBy_GOOG_REQUIRE)) || Object_equals(obj_(this), obj_(Binding_CreatedBy_GOOG_REQUIRE_TYPE))) || Object_equals(obj_(this), obj_(Binding_CreatedBy_GOOG_FORWARD_DECLARE)))
+func (this Binding_CreatedBy) isClosureImport() bool {
+	return ((this == Binding_CreatedBy_GOOG_REQUIRE || this == Binding_CreatedBy_GOOG_REQUIRE_TYPE) || this == Binding_CreatedBy_GOOG_FORWARD_DECLARE)
 }
 
-func Binding_CreatedBy_values() []*Binding_CreatedBy {
-	return append([]*Binding_CreatedBy(nil), Binding_CreatedBy_values_...)
+func Binding_CreatedBy_values() []Binding_CreatedBy {
+	return append([]Binding_CreatedBy(nil), Binding_CreatedBy_values_...)
 }
 
-func Binding_CreatedBy_valueOf(name string) *Binding_CreatedBy {
+func Binding_CreatedBy_valueOf(name string) Binding_CreatedBy {
 	for _, v := range Binding_CreatedBy_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("CreatedBy", name))
 }
 
-var Binding_CreatedBy_EXPORT *Binding_CreatedBy
-var Binding_CreatedBy_IMPORT *Binding_CreatedBy
-var Binding_CreatedBy_GOOG_REQUIRE *Binding_CreatedBy
-var Binding_CreatedBy_GOOG_REQUIRE_TYPE *Binding_CreatedBy
-var Binding_CreatedBy_GOOG_FORWARD_DECLARE *Binding_CreatedBy
-var Binding_CreatedBy_values_ []*Binding_CreatedBy
+const Binding_CreatedBy_EXPORT Binding_CreatedBy = 1
+const Binding_CreatedBy_IMPORT Binding_CreatedBy = 2
+const Binding_CreatedBy_GOOG_REQUIRE Binding_CreatedBy = 3
+const Binding_CreatedBy_GOOG_REQUIRE_TYPE Binding_CreatedBy = 4
+const Binding_CreatedBy_GOOG_FORWARD_DECLARE Binding_CreatedBy = 5
+
+var Binding_CreatedBy_values_ []Binding_CreatedBy
 
 var Binding_CreatedBy_clinit_done bool
 
@@ -167,12 +196,7 @@ func Binding_CreatedBy_clinit() {
 		return
 	}
 	Binding_CreatedBy_clinit_done = true
-	Binding_CreatedBy_EXPORT = new_Binding_CreatedBy("EXPORT", 0)
-	Binding_CreatedBy_IMPORT = new_Binding_CreatedBy("IMPORT", 1)
-	Binding_CreatedBy_GOOG_REQUIRE = new_Binding_CreatedBy("GOOG_REQUIRE", 2)
-	Binding_CreatedBy_GOOG_REQUIRE_TYPE = new_Binding_CreatedBy("GOOG_REQUIRE_TYPE", 3)
-	Binding_CreatedBy_GOOG_FORWARD_DECLARE = new_Binding_CreatedBy("GOOG_FORWARD_DECLARE", 4)
-	Binding_CreatedBy_values_ = []*Binding_CreatedBy{Binding_CreatedBy_EXPORT, Binding_CreatedBy_IMPORT, Binding_CreatedBy_GOOG_REQUIRE, Binding_CreatedBy_GOOG_REQUIRE_TYPE, Binding_CreatedBy_GOOG_FORWARD_DECLARE}
+	Binding_CreatedBy_values_ = []Binding_CreatedBy{Binding_CreatedBy_EXPORT, Binding_CreatedBy_IMPORT, Binding_CreatedBy_GOOG_REQUIRE, Binding_CreatedBy_GOOG_REQUIRE_TYPE, Binding_CreatedBy_GOOG_FORWARD_DECLARE}
 	registerEnum_("com.google.javascript.jscomp.modules.Binding.CreatedBy", enumValues_(Binding_CreatedBy_values_))
 
 }

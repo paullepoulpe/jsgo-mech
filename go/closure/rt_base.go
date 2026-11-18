@@ -183,6 +183,47 @@ func Preconditions_checkNotNull_Object_String_Object_Object(v any, t string, p1 
 	return v
 }
 
+// Preconditions_checkNotNullT is Preconditions.checkNotNull for a value v of a pointer or
+// interface type, which is Java null when it is nil: the same NullPointerException when v is
+// nil, else v, with no boxing (post-flip: a cast of the erased checkNotNull's result back to the
+// type of its argument is this call). Not for strings (null is nullstr_, not "").
+func Preconditions_checkNotNullT[T comparable](v T) T {
+	var zero T
+	if v == zero {
+		panic(new_NullPointerException_0().self())
+	}
+	return v
+}
+
+// Preconditions_checkNotNullT_Object is Preconditions_checkNotNull_Object_Object, typed.
+func Preconditions_checkNotNullT_Object[T comparable](v T, msg any) T {
+	var zero T
+	if v == zero {
+		nullFail_(objstr_(msg))
+	}
+	return v
+}
+
+// Preconditions_checkNotNullT_String_Object is Preconditions_checkNotNull_Object_String_Object,
+// typed.
+func Preconditions_checkNotNullT_String_Object[T comparable](v T, t string, p1 any) T {
+	var zero T
+	if v == zero {
+		nullFail_(Strings_lenientFormat(t, []any{p1}))
+	}
+	return v
+}
+
+// Preconditions_checkNotNullT_String_Object_Object is
+// Preconditions_checkNotNull_Object_String_Object_Object, typed.
+func Preconditions_checkNotNullT_String_Object_Object[T comparable](v T, t string, p1 any, p2 any) T {
+	var zero T
+	if v == zero {
+		nullFail_(Strings_lenientFormat(t, []any{p1, p2}))
+	}
+	return v
+}
+
 func Preconditions_checkState(b bool) {
 	if !b {
 		panic(new_IllegalStateException_0().self())
@@ -434,39 +475,60 @@ func (this *MoreObjects_ToStringHelper) toString() string {
 
 // ---- com.google.common.base.Optional_base
 
+// Optional_base is Guava's com.google.common.base.Optional as a value (post-flip, as
+// java.util.Optional in step 7): its zero value is Java's null (a field never assigned), so
+// absent() and of(v) allocate nothing. Guava's failures are kept: of(null) throws
+// NullPointerException, get() of an absent value IllegalStateException, or(null) and the
+// null results of transform NullPointerException with Guava's messages, and every method of a
+// null Optional throws NullPointerException, as a call on null does (nn_). Two absent values
+// are equal by ==, where Guava's absent() is one object: the generated code compares them only
+// with equals.
 type Optional_base struct {
-	present bool
 	value   any
+	present bool
+	set     bool // not null
 }
 
-var optionalAbsent_ = &Optional_base{}
+// optBaseNil_ is a null Guava Optional; optBaseNull_ reports whether o is null (post-flip tool
+// optional -guava wrote them for nil and == nil).
+var optBaseNil_ Optional_base
 
-func Optional_base_absent() *Optional_base { return optionalAbsent_ }
+func optBaseNull_(o Optional_base) bool { return !o.set }
 
-func Optional_base_fromNullable(v any) *Optional_base {
-	if v == nil {
-		return optionalAbsent_
+func (this Optional_base) nn_() {
+	if !this.set {
+		panic(new_NullPointerException_0())
 	}
-	return &Optional_base{true, v}
 }
 
-func Optional_base_of(v any) *Optional_base {
+func Optional_base_absent() Optional_base { return Optional_base{set: true} }
+
+func Optional_base_fromNullable(v any) Optional_base {
 	if v == nil {
-		panic(new_NullPointerException_0().self())
+		return Optional_base{set: true}
 	}
-	return &Optional_base{true, v}
+	return Optional_base{v, true, true}
 }
 
-func (this *Optional_base) get() any {
+func Optional_base_of(v any) Optional_base {
+	if v == nil {
+		panic(new_NullPointerException_0())
+	}
+	return Optional_base{v, true, true}
+}
+
+func (this Optional_base) get() any {
+	this.nn_()
 	if !this.present {
 		stateFail_("Optional.get() cannot be called on an absent value")
 	}
 	return this.value
 }
 
-func (this *Optional_base) isPresent() bool { return this.present }
+func (this Optional_base) isPresent() bool { this.nn_(); return this.present }
 
-func (this *Optional_base) or(def any) any {
+func (this Optional_base) or(def any) any {
+	this.nn_()
 	if def == nil {
 		nullFail_("use Optional.orNull() instead of Optional.or(null)")
 	}
@@ -476,11 +538,12 @@ func (this *Optional_base) or(def any) any {
 	return def
 }
 
-func (this *Optional_base) orNull() any { return this.value }
+func (this Optional_base) orNull() any { this.nn_(); return this.value }
 
-func (this *Optional_base) or_Optional(o *Optional_base) *Optional_base {
-	if o == nil {
-		panic(new_NullPointerException_0().self())
+func (this Optional_base) or_Optional(o Optional_base) Optional_base {
+	this.nn_()
+	if !o.set {
+		panic(new_NullPointerException_0())
 	}
 	if this.present {
 		return this
@@ -488,9 +551,23 @@ func (this *Optional_base) or_Optional(o *Optional_base) *Optional_base {
 	return o
 }
 
-func (this *Optional_base) transform(f Function_base) *Optional_base {
+// transform_f is transform of a lambda, as a Go func value (post-flip step funcparams).
+func (this Optional_base) transform_f(f func(any) any) Optional_base {
+	this.nn_()
+	if !this.present {
+		return this
+	}
+	r := f(this.value)
+	if r == nil {
+		nullFail_("the Function passed to Optional.transform() must not return null.")
+	}
+	return Optional_base{r, true, true}
+}
+
+func (this Optional_base) transform(f Function_base) Optional_base {
+	this.nn_()
 	if f == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	if !this.present {
 		return this
@@ -499,12 +576,13 @@ func (this *Optional_base) transform(f Function_base) *Optional_base {
 	if r == nil {
 		nullFail_("the Function passed to Optional.transform() must not return null.")
 	}
-	return &Optional_base{true, r}
+	return Optional_base{r, true, true}
 }
 
-func (this *Optional_base) equals(o any) bool {
-	x, ok := o.(*Optional_base)
-	if !ok || x == nil {
+func (this Optional_base) equals(o any) bool {
+	this.nn_()
+	x, ok := o.(Optional_base)
+	if !ok || !x.set {
 		return false
 	}
 	if !this.present || !x.present {
@@ -513,14 +591,16 @@ func (this *Optional_base) equals(o any) bool {
 	return objequals_(this.value, x.value)
 }
 
-func (this *Optional_base) hashCode() int32 {
+func (this Optional_base) hashCode() int32 {
+	this.nn_()
 	if !this.present {
 		return 0x79a31aac
 	}
 	return 0x598df91c + objhash_(this.value)
 }
 
-func (this *Optional_base) toString() string {
+func (this Optional_base) toString() string {
+	this.nn_()
 	if !this.present {
 		return "Optional.absent()"
 	}
@@ -567,6 +647,32 @@ func Optional_ofNullable[T any](v T) Optional[T] {
 	}
 	return Optional[T]{v, true, true}
 }
+
+// ---- post-flip step 65 (generics), kept beside j2go's Optional[T]: the helpers its tool writes
+
+// optConv_ is an Optional<S> seen as an Optional<T> (a cast or a widening in Java, where both
+// are the same object): f converts the content.
+func optConv_[S, T any](o Optional[S], f func(S) T) Optional[T] {
+	if !o.present {
+		return Optional[T]{set: o.set}
+	}
+	return Optional[T]{f(o.value), true, true}
+}
+
+// optErase_ is an Optional<T> seen as a raw Optional, its content boxed as erased code boxes it.
+func optErase_[T any](o Optional[T]) Optional[any] { return optConv_(o, boxValue_[T]) }
+
+// filterFn_ is filter with a predicate that takes the content unboxed.
+func (this Optional[T]) filterFn_(p func(T) bool) Optional[T] {
+	this.nn_()
+	if !this.present || p(this.value) {
+		return this
+	}
+	return Optional[T]{set: true}
+}
+
+// optional_ is the post-flip name of joptional_.
+type optional_ = joptional_
 
 // joptional_ is any instantiation of Optional.
 type joptional_ interface {
@@ -658,6 +764,14 @@ func (this Optional[T]) ifPresent(c Consumer) {
 	}
 }
 
+// ifPresent_f is ifPresent of a lambda, as a Go func value (post-flip step funcparams).
+func (this Optional[T]) ifPresent_f(c func(any)) {
+	this.nn_()
+	if this.present {
+		c(this.content_())
+	}
+}
+
 func (this Optional[T]) isEmpty() bool   { this.nn_(); return !this.present }
 func (this Optional[T]) isPresent() bool { this.nn_(); return this.present }
 
@@ -721,16 +835,22 @@ type identityFunction_ struct{}
 
 type memoizingSupplier_ struct {
 	delegate Supplier_base
+	fn       func() any // the delegate of Suppliers_memoize_f
 	done     bool
 	value    any
 }
 
 func (this *memoizingSupplier_) get() any {
 	if !this.done {
-		v := this.delegate.get()
+		var v any
+		if this.fn != nil {
+			v = this.fn()
+		} else {
+			v = this.delegate.get()
+		}
 		this.value = v
 		this.done = true
-		this.delegate = nil
+		this.delegate, this.fn = nil, nil
 	}
 	return this.value
 }
@@ -738,6 +858,9 @@ func (this *memoizingSupplier_) get() any {
 func (this *memoizingSupplier_) toString() string {
 	if this.done {
 		return "Suppliers.memoize(<supplier that returned " + objstr_(this.value) + ">)"
+	}
+	if this.fn != nil {
+		return "Suppliers.memoize(<lambda>)" // Java prints the lambda's class and identity hash
 	}
 	return "Suppliers.memoize(" + objstr_(this.delegate) + ")"
 }
@@ -750,6 +873,12 @@ func Suppliers_memoize(s Supplier_base) Supplier_base {
 		panic(new_NullPointerException_0().self())
 	}
 	return &memoizingSupplier_{delegate: s}
+}
+
+// Suppliers_memoize_f is Suppliers_memoize of a lambda, as a Go func value (post-flip step
+// funcparams): a lambda is never a memoizing supplier, nor null.
+func Suppliers_memoize_f(s func() any) Supplier_base {
+	return &memoizingSupplier_{fn: s}
 }
 
 // ---- Throwables
@@ -766,23 +895,49 @@ func Throwables_throwIfUnchecked(t *Throwable) {
 
 // ---- CaseFormat
 
-type CaseFormat struct {
-	Enum
-	sep_ string
+// CaseFormat is Guava's enum as a uint8 whose zero value is null; a constant is its ordinal + 1
+// (as the post-flip step tools/postflip/enums writes the translated enums).
+type CaseFormat uint8
+
+const (
+	CaseFormat_LOWER_HYPHEN CaseFormat = 1 + iota
+	CaseFormat_LOWER_UNDERSCORE
+	CaseFormat_LOWER_CAMEL
+	CaseFormat_UPPER_CAMEL
+	CaseFormat_UPPER_UNDERSCORE
+)
+
+// CaseFormat_enum_ is the java.lang.Enum record of each constant, by ordinal.
+var CaseFormat_enum_ = [5]Enum{
+	{self_: CaseFormat_LOWER_HYPHEN, name_: "LOWER_HYPHEN", ordinal_: 0},
+	{self_: CaseFormat_LOWER_UNDERSCORE, name_: "LOWER_UNDERSCORE", ordinal_: 1},
+	{self_: CaseFormat_LOWER_CAMEL, name_: "LOWER_CAMEL", ordinal_: 2},
+	{self_: CaseFormat_UPPER_CAMEL, name_: "UPPER_CAMEL", ordinal_: 3},
+	{self_: CaseFormat_UPPER_UNDERSCORE, name_: "UPPER_UNDERSCORE", ordinal_: 4},
 }
 
-func newCaseFormat_(name string, ordinal int32, sep string) *CaseFormat {
-	this := &CaseFormat{sep_: sep}
-	this.self_ = this
-	this.Enum.init_Enum(name, ordinal)
+// caseFormatSep_ is each format's word separator, by ordinal.
+var caseFormatSep_ = [5]string{"-", "_", "", "", "_"}
+
+func (this CaseFormat) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &CaseFormat_enum_[this-1]
+}
+
+func (this CaseFormat) name() string          { return this.enum_().name_ }
+func (this CaseFormat) ordinal() int32        { return this.enum_().ordinal_ }
+func (this CaseFormat) toString() string      { return this.enum_().name_ }
+func (this CaseFormat) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+func (this CaseFormat) sep_() string          { return caseFormatSep_[this.ordinal()] }
+
+func (this CaseFormat) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
-
-var CaseFormat_LOWER_HYPHEN = newCaseFormat_("LOWER_HYPHEN", 0, "-")
-var CaseFormat_LOWER_UNDERSCORE = newCaseFormat_("LOWER_UNDERSCORE", 1, "_")
-var CaseFormat_LOWER_CAMEL = newCaseFormat_("LOWER_CAMEL", 2, "")
-var CaseFormat_UPPER_CAMEL = newCaseFormat_("UPPER_CAMEL", 3, "")
-var CaseFormat_UPPER_UNDERSCORE = newCaseFormat_("UPPER_UNDERSCORE", 4, "_")
 
 func init() {
 	registerEnum_("com.google.common.base.CaseFormat", []any{CaseFormat_LOWER_HYPHEN, CaseFormat_LOWER_UNDERSCORE, CaseFormat_LOWER_CAMEL, CaseFormat_UPPER_CAMEL, CaseFormat_UPPER_UNDERSCORE})
@@ -795,7 +950,7 @@ func firstCharOnlyToUpper_(w string) string {
 	return asciiUpper_(w[:1]) + asciiLower_(w[1:])
 }
 
-func (this *CaseFormat) normalizeWord_(w string) string {
+func (this CaseFormat) normalizeWord_(w string) string {
 	switch this {
 	case CaseFormat_LOWER_HYPHEN, CaseFormat_LOWER_UNDERSCORE:
 		return asciiLower_(w)
@@ -805,7 +960,7 @@ func (this *CaseFormat) normalizeWord_(w string) string {
 	return firstCharOnlyToUpper_(w)
 }
 
-func (this *CaseFormat) normalizeFirstWord_(w string) string {
+func (this CaseFormat) normalizeFirstWord_(w string) string {
 	if this == CaseFormat_LOWER_CAMEL {
 		return asciiLower_(w)
 	}
@@ -813,7 +968,7 @@ func (this *CaseFormat) normalizeFirstWord_(w string) string {
 }
 
 // boundary_ finds the next word boundary of this format at or after byte from.
-func (this *CaseFormat) boundary_(s string, from int) int {
+func (this CaseFormat) boundary_(s string, from int) int {
 	for i := from; i < len(s); i++ {
 		c := s[i]
 		switch this {
@@ -834,8 +989,8 @@ func (this *CaseFormat) boundary_(s string, from int) int {
 	return -1
 }
 
-func (this *CaseFormat) to(format *CaseFormat, s string) string {
-	if format == nil || s == nullstr_ {
+func (this CaseFormat) to(format CaseFormat, s string) string {
+	if format == 0 || s == nullstr_ {
 		panic(new_NullPointerException_0().self())
 	}
 	if format == this {
@@ -871,8 +1026,8 @@ func (this *CaseFormat) to(format *CaseFormat, s string) string {
 		} else {
 			out.WriteString(format.normalizeWord_(s[i:j]))
 		}
-		out.WriteString(format.sep_)
-		i = j + len(this.sep_)
+		out.WriteString(format.sep_())
+		i = j + len(this.sep_())
 	}
 	if i == 0 {
 		return format.normalizeFirstWord_(s)
@@ -883,25 +1038,44 @@ func (this *CaseFormat) to(format *CaseFormat, s string) string {
 
 // ---- StandardSystemProperty
 
-type StandardSystemProperty struct {
-	Enum
-	key_ string
+// StandardSystemProperty is Guava's enum as a uint8 (0 is null, a constant is its ordinal + 1);
+// the compiler uses only USER_DIR (ordinal 27), so only it is declared.
+type StandardSystemProperty uint8
+
+const StandardSystemProperty_USER_DIR StandardSystemProperty = 27 + 1
+
+var standardSystemPropertyUserDir_ = Enum{self_: StandardSystemProperty_USER_DIR, name_: "USER_DIR", ordinal_: 27}
+
+func (this StandardSystemProperty) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &standardSystemPropertyUserDir_
 }
 
-func (this *StandardSystemProperty) value() string {
-	return System_getProperty(this.key_, nullstr_)
-}
+func (this StandardSystemProperty) name() string          { return this.enum_().name_ }
+func (this StandardSystemProperty) ordinal() int32        { return this.enum_().ordinal_ }
+func (this StandardSystemProperty) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
-func (this *StandardSystemProperty) toString() string {
-	return this.key_ + "=" + sstr_(this.value())
-}
-
-var StandardSystemProperty_USER_DIR = func() *StandardSystemProperty {
-	this := &StandardSystemProperty{key_: "user.dir"}
-	this.self_ = this
-	this.Enum.init_Enum("USER_DIR", 27)
+func (this StandardSystemProperty) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
-}()
+}
+
+func (this StandardSystemProperty) key() string {
+	_ = this.enum_().name_ // null: NullPointerException
+	return "user.dir"
+}
+
+func (this StandardSystemProperty) value() string {
+	return System_getProperty(this.key(), nullstr_)
+}
+
+func (this StandardSystemProperty) toString() string {
+	return this.key() + "=" + sstr_(this.value())
+}
 
 func Functions_identity() Function_base { return identityFunction_{} }
 

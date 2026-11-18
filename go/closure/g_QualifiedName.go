@@ -3,22 +3,23 @@
 package closure
 
 type QualifiedName struct {
-	self_ any
+	self_ QualifiedName_I
+}
+
+// QualifiedName_I holds the methods the dispatchers of QualifiedName's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type QualifiedName_I interface {
+	appendTo_impl(*strBuilder_, any)
+	components_impl() Iterable
+	getComponentCount_impl() int32
+	getComponent_impl() string
+	getOwner_impl() *QualifiedName
+	isSimple_impl() bool
+	join_impl() Optional[string]
+	matches_impl(Node) bool
 }
 
 func (this *QualifiedName) as_QualifiedName() *QualifiedName { return this }
-
-func to_QualifiedName(v any) *QualifiedName {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_QualifiedName() *QualifiedName }).as_QualifiedName()
-}
-
-func is_QualifiedName(v any) bool {
-	_, ok := v.(interface{ as_QualifiedName() *QualifiedName })
-	return ok
-}
 
 func (this *QualifiedName) self() any {
 	if this == nil {
@@ -34,19 +35,19 @@ func (this *QualifiedName) init_QualifiedName() {
 func QualifiedName_of(string_ string) *QualifiedName {
 	var lastIndex int32 = 0
 	var index int32
-	var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
+	var builder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	for do_2 := true; do_2; do_2 = (index >= 0) {
-		index = String_indexOf_int_int(string_, 46, lastIndex)
-		var term string = String_substring(string_, lastIndex, func() int32 {
+		index = indexByteFrom_(string_, '.', lastIndex)
+		var term string = cutBytes_(string_, lastIndex, func() int32 {
 			if index < 0 {
-				return String_length(string_)
+				return int32(len(string_))
 			}
 			return index
 		}())
-		builder.add(strobj_(RhinoStringPool_addOrGet(term)))
+		builder.add(RhinoStringPool_addOrGet(term))
 		lastIndex = (index + 1)
 	}
-	var terms ImmutableListOf[string] = cast_[*ImmutableList](obj_(builder.build()))
+	var terms *ImmutableList[string] = builder.build()
 	return new_QualifiedName_StringListQname(terms, terms.size()).up_QualifiedName()
 }
 
@@ -59,17 +60,17 @@ func (this *QualifiedName) getRoot() string {
 }
 
 func (this *QualifiedName) components_impl() IterableOf[string] {
-	var components ImmutableList_BuilderOf[string] = ImmutableList_builder()
+	var components *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	this.buildComponents(components)
-	return icast_Iterable(obj_(components.build()))
+	return icast_Iterable(obj_(components.buildErased()))
 }
 
-func (this *QualifiedName) buildComponents(builder ImmutableList_BuilderOf[string]) {
+func (this *QualifiedName) buildComponents(builder *ImmutableList_Builder[string]) {
 	var owner *QualifiedName = this.getOwner()
 	if owner != nil {
 		owner.buildComponents(builder)
 	}
-	builder.add(strobj_(this.getComponent()))
+	builder.add(this.getComponent())
 }
 
 func (this *QualifiedName) join_impl() Optional[string] {
@@ -77,9 +78,9 @@ func (this *QualifiedName) join_impl() Optional[string] {
 }
 
 func (this *QualifiedName) join_1(separator any) string {
-	var sb *StringBuilder = new_StringBuilder()
-	this.appendTo(sb, separator)
-	return Object_toString(obj_(sb))
+	var sb strBuilder_
+	this.appendTo(&sb, separator)
+	return sb.toString()
 }
 
 func (this *QualifiedName) getprop(propertyName string) *QualifiedName {
@@ -87,35 +88,35 @@ func (this *QualifiedName) getprop(propertyName string) *QualifiedName {
 }
 
 func (this *QualifiedName) getOwner() *QualifiedName {
-	return this.self_.(interface{ getOwner_impl() *QualifiedName }).getOwner_impl()
+	return this.self_.getOwner_impl()
 }
 
 func (this *QualifiedName) getComponent() string {
-	return this.self_.(interface{ getComponent_impl() string }).getComponent_impl()
+	return this.self_.getComponent_impl()
 }
 
 func (this *QualifiedName) isSimple() bool {
-	return this.self_.(interface{ isSimple_impl() bool }).isSimple_impl()
+	return this.self_.isSimple_impl()
 }
 
-func (this *QualifiedName) appendTo(p0 *StringBuilder, p1 any) {
-	this.self_.(interface{ appendTo_impl(*StringBuilder, any) }).appendTo_impl(p0, p1)
+func (this *QualifiedName) appendTo(p0 *strBuilder_, p1 any) {
+	this.self_.appendTo_impl(p0, p1)
 }
 
 func (this *QualifiedName) components() Iterable {
-	return this.self_.(interface{ components_impl() Iterable }).components_impl()
+	return this.self_.components_impl()
 }
 
 func (this *QualifiedName) getComponentCount() int32 {
-	return this.self_.(interface{ getComponentCount_impl() int32 }).getComponentCount_impl()
+	return this.self_.getComponentCount_impl()
 }
 
 func (this *QualifiedName) matches(p0 Node) bool {
-	return this.self_.(interface{ matches_impl(Node) bool }).matches_impl(p0)
+	return this.self_.matches_impl(p0)
 }
 
 func (this *QualifiedName) join() Optional[string] {
-	return this.self_.(interface{ join_impl() Optional[string] }).join_impl()
+	return this.self_.join_impl()
 }
 
 var QualifiedName_THIS string
@@ -135,7 +136,7 @@ func QualifiedName_clinit() {
 
 type QualifiedName_StringListQname struct {
 	QualifiedName
-	terms ImmutableListOf[string]
+	terms *ImmutableList[string]
 	size_ int32
 }
 
@@ -146,13 +147,13 @@ func (this *QualifiedName_StringListQname) up_QualifiedName() *QualifiedName {
 	return &this.QualifiedName
 }
 
-func (this *QualifiedName_StringListQname) init_QualifiedName_StringListQname(terms ImmutableListOf[string], size int32) {
+func (this *QualifiedName_StringListQname) init_QualifiedName_StringListQname(terms *ImmutableList[string], size int32) {
 	this.QualifiedName.init_QualifiedName()
 	this.terms = terms
 	this.size_ = size
 }
 
-func new_QualifiedName_StringListQname(terms ImmutableListOf[string], size int32) *QualifiedName_StringListQname {
+func new_QualifiedName_StringListQname(terms *ImmutableList[string], size int32) *QualifiedName_StringListQname {
 	this := &QualifiedName_StringListQname{}
 	this.self_ = this
 	this.init_QualifiedName_StringListQname(terms, size)
@@ -169,24 +170,24 @@ func (this *QualifiedName_StringListQname) getOwner_impl() *QualifiedName {
 }
 
 func (this *QualifiedName_StringListQname) getComponent_impl() string {
-	return str_(this.terms.get((this.size_ - 1)))
+	return this.terms.get((this.size_ - 1))
 }
 
 func (this *QualifiedName_StringListQname) isSimple_impl() bool {
 	return (this.size_ == 1)
 }
 
-func (this *QualifiedName_StringListQname) appendTo_impl(sb *StringBuilder, separator any) {
+func (this *QualifiedName_StringListQname) appendTo_impl(sb *strBuilder_, separator any) {
 	for i := int32(0); i < this.size_; i++ {
 		if i > 0 {
 			sb.append_Object(separator)
 		}
-		sb.append(str_(this.terms.get(i)))
+		sb.append(this.terms.get(i))
 	}
 }
 
 func (this *QualifiedName_StringListQname) components_impl() IterableOf[string] {
-	return Iterable(this.terms.subList(0, this.size_))
+	return Iterable(this.terms.asImm().subList(0, this.size_))
 }
 
 func (this *QualifiedName_StringListQname) getComponentCount_impl() int32 {
@@ -196,7 +197,7 @@ func (this *QualifiedName_StringListQname) getComponentCount_impl() int32 {
 func (this *QualifiedName_StringListQname) matches_impl(n Node) bool {
 	var pos int32 = (this.size_ - 1)
 	for (pos > 0) && n.isGetProp() {
-		if !RhinoStringPool_uncheckedEquals(n.getString(), str_(this.terms.get(pos))) {
+		if !RhinoStringPool_uncheckedEquals(n.getString(), this.terms.get(pos)) {
 			return false
 		}
 		pos--
@@ -205,19 +206,18 @@ func (this *QualifiedName_StringListQname) matches_impl(n Node) bool {
 	if pos > 0 {
 		return false
 	}
-	var term string = str_(this.terms.get(0))
+	var term string = this.terms.get(0)
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_NAME, Token_rhino_MEMBER_FUNCTION_DEF:
+		switch n.ns_().token {
+		case tokOrd1_NAME, tokOrd1_MEMBER_FUNCTION_DEF:
 			return RhinoStringPool_uncheckedEquals(term, n.getString())
-		case Token_rhino_THIS:
+		case tokOrd1_THIS:
 			return RhinoStringPool_uncheckedEquals(term, QualifiedName_THIS)
-		case Token_rhino_SUPER:
+		case tokOrd1_SUPER:
 			return RhinoStringPool_uncheckedEquals(term, QualifiedName_SUPER)
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -264,7 +264,7 @@ func (this *QualifiedName_GetpropQname) isSimple_impl() bool {
 	return false
 }
 
-func (this *QualifiedName_GetpropQname) appendTo_impl(sb *StringBuilder, separator any) {
+func (this *QualifiedName_GetpropQname) appendTo_impl(sb *strBuilder_, separator any) {
 	this.owner_.appendTo(sb, separator)
 	sb.append_Object(separator).append(this.prop)
 }
@@ -320,9 +320,8 @@ func (this *QualifiedName_NodeQname) getComponent_impl() string {
 		case Token_rhino_NAME, Token_rhino_GETPROP, Token_rhino_MEMBER_FUNCTION_DEF:
 			return this.node_.getString()
 		default:
-			panic(new_IllegalStateException_String(("Not a qualified name: " + objstr_(this.node_.box_()))).self())
+			panic(new_IllegalStateException_String(("Not a qualified name: " + tostr_(this.node_))))
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -330,7 +329,7 @@ func (this *QualifiedName_NodeQname) isSimple_impl() bool {
 	return !this.node_.isGetProp()
 }
 
-func (this *QualifiedName_NodeQname) appendTo_impl(sb *StringBuilder, separator any) {
+func (this *QualifiedName_NodeQname) appendTo_impl(sb *strBuilder_, separator any) {
 	var components IteratorOf[string] = this.components().iterator()
 	sb.append(str_(components.next()))
 	for components.hasNext() {
@@ -340,7 +339,7 @@ func (this *QualifiedName_NodeQname) appendTo_impl(sb *StringBuilder, separator 
 
 func (this *QualifiedName_NodeQname) join_impl() Optional[string] {
 	return Optional_of[string](this.node_.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 }
 
@@ -356,4 +355,167 @@ func (this *QualifiedName_NodeQname) getComponentCount_impl() int32 {
 		current = current.getFirstChild()
 	}
 	return count
+}
+
+// getOwner: an object that is exactly a QualifiedName_StringListQname calls its getOwner_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_StringListQname) getOwner() *QualifiedName {
+	if p, _ := this.self_.(*QualifiedName_StringListQname); p == this {
+		return this.getOwner_impl()
+	}
+	return this.self_.getOwner_impl()
+}
+
+// getComponent: an object that is exactly a QualifiedName_StringListQname calls its getComponent_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_StringListQname) getComponent() string {
+	if p, _ := this.self_.(*QualifiedName_StringListQname); p == this {
+		return this.getComponent_impl()
+	}
+	return this.self_.getComponent_impl()
+}
+
+// isSimple: an object that is exactly a QualifiedName_StringListQname calls its isSimple_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_StringListQname) isSimple() bool {
+	if p, _ := this.self_.(*QualifiedName_StringListQname); p == this {
+		return this.isSimple_impl()
+	}
+	return this.self_.isSimple_impl()
+}
+
+// appendTo: an object that is exactly a QualifiedName_StringListQname calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_StringListQname) appendTo(p0 *strBuilder_, p1 any) {
+	if p, _ := this.self_.(*QualifiedName_StringListQname); p == this {
+		this.appendTo_impl(p0, p1)
+		return
+	}
+	this.self_.appendTo_impl(p0, p1)
+}
+
+// components: an object that is exactly a QualifiedName_StringListQname calls its components_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_StringListQname) components() Iterable {
+	if p, _ := this.self_.(*QualifiedName_StringListQname); p == this {
+		return this.components_impl()
+	}
+	return this.self_.components_impl()
+}
+
+// getComponentCount: an object that is exactly a QualifiedName_StringListQname calls its getComponentCount_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_StringListQname) getComponentCount() int32 {
+	if p, _ := this.self_.(*QualifiedName_StringListQname); p == this {
+		return this.getComponentCount_impl()
+	}
+	return this.self_.getComponentCount_impl()
+}
+
+// matches: an object that is exactly a QualifiedName_StringListQname calls its matches_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_StringListQname) matches(p0 Node) bool {
+	if p, _ := this.self_.(*QualifiedName_StringListQname); p == this {
+		return this.matches_impl(p0)
+	}
+	return this.self_.matches_impl(p0)
+}
+
+// getOwner: an object that is exactly a QualifiedName_GetpropQname calls its getOwner_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_GetpropQname) getOwner() *QualifiedName {
+	if p, _ := this.self_.(*QualifiedName_GetpropQname); p == this {
+		return this.getOwner_impl()
+	}
+	return this.self_.getOwner_impl()
+}
+
+// getComponent: an object that is exactly a QualifiedName_GetpropQname calls its getComponent_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_GetpropQname) getComponent() string {
+	if p, _ := this.self_.(*QualifiedName_GetpropQname); p == this {
+		return this.getComponent_impl()
+	}
+	return this.self_.getComponent_impl()
+}
+
+// isSimple: an object that is exactly a QualifiedName_GetpropQname calls its isSimple_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_GetpropQname) isSimple() bool {
+	if p, _ := this.self_.(*QualifiedName_GetpropQname); p == this {
+		return this.isSimple_impl()
+	}
+	return this.self_.isSimple_impl()
+}
+
+// appendTo: an object that is exactly a QualifiedName_GetpropQname calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_GetpropQname) appendTo(p0 *strBuilder_, p1 any) {
+	if p, _ := this.self_.(*QualifiedName_GetpropQname); p == this {
+		this.appendTo_impl(p0, p1)
+		return
+	}
+	this.self_.appendTo_impl(p0, p1)
+}
+
+// matches: an object that is exactly a QualifiedName_GetpropQname calls its matches_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_GetpropQname) matches(p0 Node) bool {
+	if p, _ := this.self_.(*QualifiedName_GetpropQname); p == this {
+		return this.matches_impl(p0)
+	}
+	return this.self_.matches_impl(p0)
+}
+
+// getComponentCount: an object that is exactly a QualifiedName_GetpropQname calls its getComponentCount_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_GetpropQname) getComponentCount() int32 {
+	if p, _ := this.self_.(*QualifiedName_GetpropQname); p == this {
+		return this.getComponentCount_impl()
+	}
+	return this.self_.getComponentCount_impl()
+}
+
+// getOwner: an object that is exactly a QualifiedName_NodeQname calls its getOwner_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_NodeQname) getOwner() *QualifiedName {
+	if p, _ := this.self_.(*QualifiedName_NodeQname); p == this {
+		return this.getOwner_impl()
+	}
+	return this.self_.getOwner_impl()
+}
+
+// getComponent: an object that is exactly a QualifiedName_NodeQname calls its getComponent_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_NodeQname) getComponent() string {
+	if p, _ := this.self_.(*QualifiedName_NodeQname); p == this {
+		return this.getComponent_impl()
+	}
+	return this.self_.getComponent_impl()
+}
+
+// isSimple: an object that is exactly a QualifiedName_NodeQname calls its isSimple_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_NodeQname) isSimple() bool {
+	if p, _ := this.self_.(*QualifiedName_NodeQname); p == this {
+		return this.isSimple_impl()
+	}
+	return this.self_.isSimple_impl()
+}
+
+// appendTo: an object that is exactly a QualifiedName_NodeQname calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_NodeQname) appendTo(p0 *strBuilder_, p1 any) {
+	if p, _ := this.self_.(*QualifiedName_NodeQname); p == this {
+		this.appendTo_impl(p0, p1)
+		return
+	}
+	this.self_.appendTo_impl(p0, p1)
+}
+
+// join: an object that is exactly a QualifiedName_NodeQname calls its join_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_NodeQname) join() Optional[string] {
+	if p, _ := this.self_.(*QualifiedName_NodeQname); p == this {
+		return this.join_impl()
+	}
+	return this.self_.join_impl()
+}
+
+// matches: an object that is exactly a QualifiedName_NodeQname calls its matches_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_NodeQname) matches(p0 Node) bool {
+	if p, _ := this.self_.(*QualifiedName_NodeQname); p == this {
+		return this.matches_impl(p0)
+	}
+	return this.self_.matches_impl(p0)
+}
+
+// getComponentCount: an object that is exactly a QualifiedName_NodeQname calls its getComponentCount_impl directly (post-flip); others dispatch.
+func (this *QualifiedName_NodeQname) getComponentCount() int32 {
+	if p, _ := this.self_.(*QualifiedName_NodeQname); p == this {
+		return this.getComponentCount_impl()
+	}
+	return this.self_.getComponentCount_impl()
 }

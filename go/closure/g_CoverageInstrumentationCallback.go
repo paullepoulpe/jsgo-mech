@@ -4,15 +4,15 @@ package closure
 
 type CoverageInstrumentationCallback struct {
 	instrumentationData *JTMap[string, *FileInstrumentationData]
-	reach               *CoverageInstrumentationPass_CoverageReach
+	reach               CoverageInstrumentationPass_CoverageReach
 }
 
-func (this *CoverageInstrumentationCallback) init_CoverageInstrumentationCallback(instrumentationData *JTMap[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) {
+func (this *CoverageInstrumentationCallback) init_CoverageInstrumentationCallback(instrumentationData *JTMap[string, *FileInstrumentationData], reach CoverageInstrumentationPass_CoverageReach) {
 	this.instrumentationData = instrumentationData
 	this.reach = reach
 }
 
-func new_CoverageInstrumentationCallback(instrumentationData *JTMap[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationCallback {
+func new_CoverageInstrumentationCallback(instrumentationData *JTMap[string, *FileInstrumentationData], reach CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationCallback {
 	this := &CoverageInstrumentationCallback{}
 	this.init_CoverageInstrumentationCallback(instrumentationData, reach)
 	return this
@@ -57,7 +57,9 @@ func (this *CoverageInstrumentationCallback) newHeaderNode(traversal *NodeTraver
 		}
 		return nil
 	}()
-	Preconditions_checkNotNull(obj_(data))
+	if data == nil {
+		panic(new_NullPointerException_0())
+	}
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
 	return IR_blockNodeVarargs([]Node{this.newArrayDeclarationNode(traversal), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("executedLines")), "push"), []Node{IR_name(arrayName)})), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("instrumentedLines")), "push"), []Node{IR_string(data.getInstrumentedLinesAsHexString())})), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("fileNames")), "push"), []Node{IR_string(fileName.get())}))}).srcrefTreeIfMissing(srcref)
 }

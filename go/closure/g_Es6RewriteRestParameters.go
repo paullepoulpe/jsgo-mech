@@ -33,12 +33,12 @@ func new_Es6RewriteRestParameters(compiler *AbstractCompiler) *Es6RewriteRestPar
 }
 
 func (this *Es6RewriteRestParameters) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteRestParameters_TRANSPILED_FEATURES, []NodeTraversal_Callback{icast_NodeTraversal_Callback(obj_(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteRestParameters_TRANSPILED_FEATURES, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6RewriteRestParameters_TRANSPILED_FEATURES)
 }
 
 func (this *Es6RewriteRestParameters) visit_impl(traversal *NodeTraversal, current Node, parent Node) {
-	if current.getToken() == Token_rhino_ITER_REST {
+	if current.ns_().token == tokOrd1_ITER_REST {
 		this.visitRestParam(traversal, current, parent)
 	}
 }
@@ -75,4 +75,13 @@ func Es6RewriteRestParameters_clinit() {
 	Es6RewriteRestParameters_clinit_done = true
 	Es6RewriteRestParameters_TRANSPILED_FEATURES = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_REST_PARAMETERS)
 
+}
+
+// visit: an object that is exactly a Es6RewriteRestParameters calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6RewriteRestParameters) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*Es6RewriteRestParameters); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

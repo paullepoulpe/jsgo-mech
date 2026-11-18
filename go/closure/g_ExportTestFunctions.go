@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ExportTestFunctions struct {
 	compiler_              *AbstractCompiler
 	exportSymbolFunction   string
@@ -14,7 +16,9 @@ func (this *ExportTestFunctions) zero_ExportTestFunctions() {
 }
 
 func (this *ExportTestFunctions) init_ExportTestFunctions(compiler *AbstractCompiler, exportSymbolFunction string, exportPropertyFunction string) {
-	Preconditions_checkNotNull(compiler.self())
+	if compiler == nil {
+		panic(new_NullPointerException_0())
+	}
 	this.compiler_ = compiler
 	this.exportSymbolFunction = exportSymbolFunction
 	this.exportPropertyFunction = exportPropertyFunction
@@ -28,7 +32,7 @@ func new_ExportTestFunctions(compiler *AbstractCompiler, exportSymbolFunction st
 }
 
 func (this *ExportTestFunctions) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_ExportTestFunctions_ExportTestFunctionsNodes(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_ExportTestFunctions_ExportTestFunctionsNodes(this))
 }
 
 func (this *ExportTestFunctions) exportTestFunctionAsSymbol(testFunctionName string, node Node) {
@@ -45,10 +49,12 @@ func (this *ExportTestFunctions) exportTestFunctionAsSymbol(testFunctionName str
 }
 
 func (this *ExportTestFunctions) exportTestFunctionAsProperty(fullyQualifiedFunctionName Node, node Node) {
-	Preconditions_checkState_boolean_Object(fullyQualifiedFunctionName.isGetProp(), fullyQualifiedFunctionName.box_())
+	if !fullyQualifiedFunctionName.isGetProp() {
+		panic(new_IllegalStateException_String(tostr_(fullyQualifiedFunctionName)))
+	}
 	var testFunctionName string = NodeUtil_getPrototypePropertyName(node.getFirstChild())
-	if String_startsWith(node.getFirstChild().getQualifiedName(), "window.") {
-		testFunctionName = String_substring_int(node.getFirstChild().getQualifiedName(), String_length("window."))
+	if strings.HasPrefix(node.getFirstChild().getQualifiedName(), "window.") {
+		testFunctionName = String_substring_int(node.getFirstChild().getQualifiedName(), int32(len("window.")))
 	}
 	var exportCall Node = IR_call(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, this.exportPropertyFunction), []Node{fullyQualifiedFunctionName.getOnlyChild().cloneTree(), IR_string(testFunctionName), fullyQualifiedFunctionName.cloneTree()})
 	exportCall.putBooleanProp(Node_FREE_CALL, exportCall.getFirstChild().isName())
@@ -71,7 +77,7 @@ func ExportTestFunctions_isGoogTestingTestSuite(t *NodeTraversal, qname Node) bo
 	var rootVar *Var = cast_[*Var](t.getScope().getSlot(rootName))
 	if (rootVar == nil) || rootVar.isGlobal() {
 		return qname.matchesQualifiedName(ExportTestFunctions_GOOG_TESTING_TEST_SUITE)
-	} else if cast_[*Scope](rootVar.getScope()).isModuleScope() {
+	} else if rootVar.getScope().(*Scope).isModuleScope() {
 		var originalValue Node = rootVar.getInitialValue()
 		return ((((originalValue != 0) && NodeUtil_isGoogRequireCall(originalValue)) && originalValue.hasTwoChildren()) && (originalValue.getSecondChild().getString() == ExportTestFunctions_GOOG_TESTING_TEST_SUITE))
 	}
@@ -79,7 +85,7 @@ func ExportTestFunctions_isGoogTestingTestSuite(t *NodeTraversal, qname Node) bo
 }
 
 func ExportTestFunctions_isTestFunction(functionName Optional[string]) bool {
-	return (functionName.isPresent() && ExportTestFunctions_TEST_FUNCTIONS_NAME_PATTERN.matcher(strobj_(functionName.get())).matches())
+	return (functionName.isPresent() && ExportTestFunctions_TEST_FUNCTIONS_NAME_PATTERN.matcher_s(functionName.get()).matches())
 }
 
 var ExportTestFunctions_TEST_FUNCTIONS_NAME_PATTERN *Pattern
@@ -129,7 +135,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 		if NodeUtil_isFunctionDeclaration(n) {
 			var functionName string = NodeUtil_getName(n)
 			if ExportTestFunctions_isTestFunction(Optional_of[string](functionName).filter(&Predicate_tfn_string{func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			}})) {
 				this.outer_.exportTestFunctionAsSymbol(functionName, n)
 			}
@@ -137,7 +143,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 			var functionNode Node = n.getFirstFirstChild()
 			var functionName string = NodeUtil_getName(functionNode)
 			if ExportTestFunctions_isTestFunction(Optional_of[string](functionName).filter(&Predicate_tfn_string{func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			}})) {
 				this.outer_.exportTestFunctionAsSymbol(functionName, n)
 			}
@@ -145,7 +151,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 			var classNode Node = n.getFirstFirstChild()
 			var className string = NodeUtil_getName(classNode)
 			this.exportClass_3(classNode, Optional_of[string](className).filter(&Predicate_tfn_string{func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			}}), n)
 		} else if n.isClass() {
 			this.exportClass(n)
@@ -158,7 +164,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 			var nodeName string = firstChild.getQualifiedName()
 			if lastChild.isFunction() {
 				if ExportTestFunctions_isTestFunction(Optional_of[string](nodeName).filter(&Predicate_tfn_string{func(s string) bool {
-					return !String_isEmpty(s)
+					return s != ""
 				}})) {
 					if n.getFirstChild().isName() {
 						this.outer_.exportTestFunctionAsSymbol(nodeName, parent)
@@ -168,7 +174,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 				}
 			} else if lastChild.isClass() {
 				this.exportClass_3(lastChild, Optional_of[string](nodeName).filter(&Predicate_tfn_string{func(s string) bool {
-					return !String_isEmpty(s)
+					return s != ""
 				}}), parent)
 			}
 		}
@@ -192,7 +198,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 func (this *ExportTestFunctions_ExportTestFunctionsNodes) exportClass(classNode Node) {
 	var className string = NodeUtil_getName(classNode)
 	this.exportClass_3(classNode, Optional_of[string](className).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}}), classNode)
 }
 
@@ -248,4 +254,13 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) isNameDeclaredFunction
 func (this *ExportTestFunctions_ExportTestFunctionsNodes) isNameDeclaredClass(node Node) bool {
 	var grandchild Node = this.getNameDeclaredGrandchild(node)
 	return ((grandchild != 0) && grandchild.isClass())
+}
+
+// visit: an object that is exactly a ExportTestFunctions_ExportTestFunctionsNodes calls its visit_impl directly (post-flip); others dispatch.
+func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ExportTestFunctions_ExportTestFunctionsNodes); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

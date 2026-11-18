@@ -3,6 +3,7 @@ package closure
 import (
 	"encoding/hex"
 	"fmt"
+	"math/rand"
 	"strconv"
 	"strings"
 	"testing"
@@ -99,8 +100,8 @@ func baseBool_(b bool) string { return strconv.FormatBool(b) }
 
 func baseInt_(i int64) string { return strconv.FormatInt(i, 10) }
 
-func baseCaseFormat_(n string) *CaseFormat {
-	for _, c := range []*CaseFormat{CaseFormat_LOWER_HYPHEN, CaseFormat_LOWER_UNDERSCORE, CaseFormat_LOWER_CAMEL, CaseFormat_UPPER_CAMEL, CaseFormat_UPPER_UNDERSCORE} {
+func baseCaseFormat_(n string) CaseFormat {
+	for _, c := range []CaseFormat{CaseFormat_LOWER_HYPHEN, CaseFormat_LOWER_UNDERSCORE, CaseFormat_LOWER_CAMEL, CaseFormat_UPPER_CAMEL, CaseFormat_UPPER_UNDERSCORE} {
 		if c.name() == n {
 			return c
 		}
@@ -138,5 +139,97 @@ func TestBaseMatcher(t *testing.T) {
 	}
 	if got := Pattern_compile("(a)(b)?").matcher("xab-a").replaceAll("[$1$2]"); got != "x[ab]-[a]" {
 		t.Errorf("replaceAll: %s", got)
+	}
+}
+
+// TestStringUnits checks stringUnits_ and stringUnitsFrom_ against String_length and String_charAt, on short and long
+// strings with surrogate pairs, lone surrogates and bytes that are not UTF-8, and asciiCharAt_
+// against String_charAt.
+func TestStringUnits(t *testing.T) {
+	r := rand.New(rand.NewSource(7))
+	pieces := []string{"a", "z", "\x00", "é", " ", "\U0001F600", "\xff", "\xe2\x82", fromUnits_([]uint16{0xD800}), fromUnits_([]uint16{0xDC00})}
+	for round := 0; round < 500; round++ {
+		var b strings.Builder
+		n := r.Intn(8)
+		if round%5 == 0 {
+			n = 300 + r.Intn(100)
+		}
+		for i := 0; i < n; i++ {
+			if r.Intn(4) == 0 {
+				b.WriteString(pieces[r.Intn(len(pieces))])
+			} else {
+				b.WriteByte(byte('a' + r.Intn(26)))
+			}
+		}
+		s := b.String()
+		next := int32(0)
+		for i, c := range stringUnits_(s) {
+			if i != next || c != String_charAt(s, i) {
+				t.Fatalf("%q: unit %d is %#x, charAt %#x", s, i, c, String_charAt(s, i))
+			}
+			next++
+		}
+		if next != String_length(s) {
+			t.Fatalf("%q: %d units, length %d", s, next, String_length(s))
+		}
+		for i := range stringUnits_(s) { // stopping early
+			if i == 2 {
+				break
+			}
+		}
+		// stringUnitsFrom_ from every start, a low surrogate half and the end included
+		for from := int32(0); from <= next+1; from++ {
+			k := from
+			for i, c := range stringUnitsFrom_(s, from) {
+				if i != k || c != String_charAt(s, i) {
+					t.Fatalf("%q from %d: unit %d is %#x, charAt %#x", s, from, i, c, String_charAt(s, i))
+				}
+				k++
+			}
+			if k != max(from, next) {
+				t.Fatalf("%q from %d: stopped at %d of %d units", s, from, k, next)
+			}
+			if from == 20 && next > 40 {
+				from = next - 3 // a long string: its end
+			}
+		}
+	}
+	const hex = "0123456789abcdef"
+	for i := int32(0); i < 16; i++ {
+		if asciiCharAt_(hex, i) != String_charAt(hex, i) {
+			t.Fatal(i)
+		}
+	}
+	for _, i := range []int32{-1, 16} {
+		func() {
+			defer func() {
+				if _, ok := catch_(recover()).(*StringIndexOutOfBoundsException); !ok {
+					t.Fatalf("asciiCharAt_(%d) does not throw StringIndexOutOfBoundsException", i)
+				}
+			}()
+			asciiCharAt_(hex, i)
+		}()
+	}
+}
+
+// A type assertion of a nil interface is the dereference of a null cast (castfold -assert):
+// NullPointerException; of a value of another type, ClassCastException.
+func TestCatchAssertion(t *testing.T) {
+	caught := func(f func()) (ex any) {
+		defer func() { ex = catch_(recover()) }()
+		f()
+		return nil
+	}
+	var v any
+	if ex := caught(func() { _ = v.(*Scope).depth }); !is_NullPointerException(ex) {
+		t.Errorf("assertion of nil: %T, want NullPointerException", ex)
+	}
+	var s StaticScope
+	if ex := caught(func() { _ = s.(*Scope).depth }); !is_NullPointerException(ex) {
+		t.Errorf("assertion of a nil interface: %T, want NullPointerException", ex)
+	}
+	v = "x"
+	if ex := caught(func() { _ = v.(*Scope).depth }); !is_[*ClassCastException](ex) {
+		t.Errorf("assertion of another type: %T, want ClassCastException", ex)
 	}
 }

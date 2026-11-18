@@ -4,55 +4,56 @@ package closure
 
 type AccessorSummary struct {
 	assumeAlwaysGetterAndSetter bool
-	accessors                   ImmutableMapOf[string, *AccessorSummary_PropertyAccessKind]
+	accessors                   *ImmutableMap[string, AccessorSummary_PropertyAccessKind]
 }
 
-func (this *AccessorSummary) init_AccessorSummary(accessors ImmutableMapOf[string, *AccessorSummary_PropertyAccessKind], assumeAlwaysGetterAndSetter bool) {
+func (this *AccessorSummary) init_AccessorSummary(accessors *ImmutableMap[string, AccessorSummary_PropertyAccessKind], assumeAlwaysGetterAndSetter bool) {
 	this.accessors = accessors
 	this.assumeAlwaysGetterAndSetter = assumeAlwaysGetterAndSetter
 }
 
-func new_AccessorSummary(accessors ImmutableMapOf[string, *AccessorSummary_PropertyAccessKind], assumeAlwaysGetterAndSetter bool) *AccessorSummary {
+func new_AccessorSummary(accessors *ImmutableMap[string, AccessorSummary_PropertyAccessKind], assumeAlwaysGetterAndSetter bool) *AccessorSummary {
 	this := &AccessorSummary{}
 	this.init_AccessorSummary(accessors, assumeAlwaysGetterAndSetter)
 	return this
 }
 
-func AccessorSummary_create(accessors MapOf[string, *AccessorSummary_PropertyAccessKind]) *AccessorSummary {
-	return new_AccessorSummary(ImmutableMap_copyOf(accessors), false)
+func AccessorSummary_create(accessors *TMap[string, AccessorSummary_PropertyAccessKind]) *AccessorSummary {
+	return new_AccessorSummary(immutableMapCopyOf_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, accessors.asMap()), false)
 }
 
-func (this *AccessorSummary) getAccessors() ImmutableMapOf[string, *AccessorSummary_PropertyAccessKind] {
+func (this *AccessorSummary) getAccessors() *ImmutableMap[string, AccessorSummary_PropertyAccessKind] {
 	return this.accessors
 }
 
-func (this *AccessorSummary) getKind(name string) *AccessorSummary_PropertyAccessKind {
+func (this *AccessorSummary) getKind(name string) AccessorSummary_PropertyAccessKind {
 	if this.assumeAlwaysGetterAndSetter {
 		return AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER
 	}
-	return cast_[*AccessorSummary_PropertyAccessKind](Map_getOrDefault_s(this.accessors, name, obj_(AccessorSummary_PropertyAccessKind_NORMAL)))
+	return this.accessors.GetOr(name, AccessorSummary_PropertyAccessKind_NORMAL)
 }
 
 func AccessorSummary_createAssumingAlwaysGetterAndSetter() *AccessorSummary {
-	return new_AccessorSummary(ImmutableMap_of(), true)
+	return new_AccessorSummary(immutableMapOf_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, []string{}, []AccessorSummary_PropertyAccessKind{}), true)
 }
 
 func (this *AccessorSummary) toProto() *AccessorSummaryProto {
 	var builder *AccessorSummaryProto_Builder = AccessorSummaryProto_newBuilder().setAssumeAlwaysGetterAndSetter(this.assumeAlwaysGetterAndSetter)
 	if this.assumeAlwaysGetterAndSetter {
-		Preconditions_checkState(this.accessors.isEmpty())
+		if !this.accessors.IsEmpty() {
+			panic(new_IllegalStateException_0())
+		}
 	} else {
-		it_1 := foreach_(obj_(cast_[*ImmutableSet](this.accessors.entrySet())))
-		for it_1.next() {
-			var entry Map_Entry = icast_Map_Entry(it_1.v)
-			builder.addAccessors(cast_[*AccessorSummaryEntryProto](AccessorSummaryEntryProto_newBuilder().setName(str_(entry.getKey())).setKind(AccessorSummary_toProto(cast_[*AccessorSummary_PropertyAccessKind](entry.getValue()))).build()))
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](this.accessors.asImm().entrySet())) {
+			entry := icast_Map_Entry(el)
+			builder.addAccessors(cast_[*AccessorSummaryEntryProto](AccessorSummaryEntryProto_newBuilder().setName(str_(entry.getKey())).setKind(AccessorSummary_toProto(cast_[AccessorSummary_PropertyAccessKind](entry.getValue()))).build()))
 		}
 	}
 	return cast_[*AccessorSummaryProto](builder.build())
 }
 
-func AccessorSummary_toProto(kind *AccessorSummary_PropertyAccessKind) *PropertyAccessKindProto {
-	return func() *PropertyAccessKindProto {
+func AccessorSummary_toProto(kind AccessorSummary_PropertyAccessKind) PropertyAccessKindProto {
+	return func() PropertyAccessKindProto {
 		switch kind {
 		case AccessorSummary_PropertyAccessKind_NORMAL:
 			return PropertyAccessKindProto_KIND_NORMAL
@@ -63,7 +64,7 @@ func AccessorSummary_toProto(kind *AccessorSummary_PropertyAccessKind) *Property
 		case AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER:
 			return PropertyAccessKindProto_KIND_GETTER_AND_SETTER
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
@@ -71,17 +72,15 @@ func AccessorSummary_fromProto(proto *AccessorSummaryProto) *AccessorSummary {
 	if proto.getAssumeAlwaysGetterAndSetter() {
 		return AccessorSummary_createAssumingAlwaysGetterAndSetter()
 	}
-	var builder ImmutableMap_BuilderOf[string, *AccessorSummary_PropertyAccessKind] = ImmutableMap_builder()
-	it_1 := foreach_(any(proto.getAccessorsList()))
-	for it_1.next() {
-		var entry *AccessorSummaryEntryProto = cast_[*AccessorSummaryEntryProto](it_1.v)
-		builder.put(strobj_(entry.getName()), obj_(AccessorSummary_fromProtoPropertyAccessKindProto(entry.getKind())))
+	var builder *ImmutableMap_Builder[string, AccessorSummary_PropertyAccessKind] = immutableMapBuilder_(tc_string, tc_p_AccessorSummary_PropertyAccessKind)
+	for entry := range elemsAs_[*AccessorSummaryEntryProto](proto.getAccessorsList()) {
+		builder.put(entry.getName(), AccessorSummary_fromProtoPropertyAccessKindProto(entry.getKind()))
 	}
-	return AccessorSummary_create(icast_Map(obj_(builder.buildOrThrow())))
+	return AccessorSummary_create(builder.buildOrThrow())
 }
 
-func AccessorSummary_fromProtoPropertyAccessKindProto(kind *PropertyAccessKindProto) *AccessorSummary_PropertyAccessKind {
-	return func() *AccessorSummary_PropertyAccessKind {
+func AccessorSummary_fromProtoPropertyAccessKindProto(kind PropertyAccessKindProto) AccessorSummary_PropertyAccessKind {
+	return func() AccessorSummary_PropertyAccessKind {
 		switch kind {
 		case PropertyAccessKindProto_KIND_NORMAL:
 			return AccessorSummary_PropertyAccessKind_NORMAL
@@ -92,51 +91,75 @@ func AccessorSummary_fromProtoPropertyAccessKindProto(kind *PropertyAccessKindPr
 		case PropertyAccessKindProto_KIND_GETTER_AND_SETTER:
 			return AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER
 		default:
-			panic(new_IllegalArgumentException_String(("Unknown kind: " + objstr_(obj_(kind)))).self())
+			panic(new_IllegalArgumentException_String(("Unknown kind: " + tostr_(kind))))
 		}
-		panic("unreachable")
 	}()
 }
 
-type AccessorSummary_PropertyAccessKind struct {
-	Enum
-	flags int8
+type AccessorSummary_PropertyAccessKind uint8
+
+// AccessorSummary_PropertyAccessKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var AccessorSummary_PropertyAccessKind_enum_ = [4]Enum{
+	{self_: AccessorSummary_PropertyAccessKind_NORMAL, name_: "NORMAL", ordinal_: 0},
+	{self_: AccessorSummary_PropertyAccessKind_GETTER_ONLY, name_: "GETTER_ONLY", ordinal_: 1},
+	{self_: AccessorSummary_PropertyAccessKind_SETTER_ONLY, name_: "SETTER_ONLY", ordinal_: 2},
+	{self_: AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER, name_: "GETTER_AND_SETTER", ordinal_: 3},
 }
 
-func (this *AccessorSummary_PropertyAccessKind) up_Enum() *Enum {
-	if this == nil {
+var AccessorSummary_PropertyAccessKind_flags_ [4]int8
+
+func (this AccessorSummary_PropertyAccessKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &AccessorSummary_PropertyAccessKind_enum_[this-1]
 }
 
-func (this *AccessorSummary_PropertyAccessKind) init_AccessorSummary_PropertyAccessKind(name_ string, ordinal_ int32, flags int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.flags = int8(flags)
+func (this AccessorSummary_PropertyAccessKind) name() string {
+	return this.enum_().name_
 }
 
-func new_AccessorSummary_PropertyAccessKind(name_ string, ordinal_ int32, flags int32) *AccessorSummary_PropertyAccessKind {
-	this := &AccessorSummary_PropertyAccessKind{}
-	this.self_ = this
-	this.init_AccessorSummary_PropertyAccessKind(name_, ordinal_, flags)
+func (this AccessorSummary_PropertyAccessKind) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this AccessorSummary_PropertyAccessKind) toString() string {
+	return this.enum_().name_
+}
+
+func (this AccessorSummary_PropertyAccessKind) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this AccessorSummary_PropertyAccessKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *AccessorSummary_PropertyAccessKind) hasGetter() bool {
-	return ((int32(this.flags) & 1) != 0)
+func (this AccessorSummary_PropertyAccessKind) init_AccessorSummary_PropertyAccessKind(flags int32) {
+	AccessorSummary_PropertyAccessKind_flags_[this-1] = int8(flags)
 }
 
-func (this *AccessorSummary_PropertyAccessKind) hasSetter() bool {
-	return ((int32(this.flags) & 2) != 0)
+func (this AccessorSummary_PropertyAccessKind) hasGetter() bool {
+	return ((int32(AccessorSummary_PropertyAccessKind_flags_[this-1]) & 1) != 0)
 }
 
-func (this *AccessorSummary_PropertyAccessKind) hasGetterOrSetter() bool {
-	return ((int32(this.flags) & 3) != 0)
+func (this AccessorSummary_PropertyAccessKind) hasSetter() bool {
+	return ((int32(AccessorSummary_PropertyAccessKind_flags_[this-1]) & 2) != 0)
 }
 
-func (this *AccessorSummary_PropertyAccessKind) unionWith(other *AccessorSummary_PropertyAccessKind) *AccessorSummary_PropertyAccessKind {
-	var combinedFlags int32 = (int32(this.flags) | int32(other.flags))
-	return func() *AccessorSummary_PropertyAccessKind {
+func (this AccessorSummary_PropertyAccessKind) hasGetterOrSetter() bool {
+	return ((int32(AccessorSummary_PropertyAccessKind_flags_[this-1]) & 3) != 0)
+}
+
+func (this AccessorSummary_PropertyAccessKind) unionWith(other AccessorSummary_PropertyAccessKind) AccessorSummary_PropertyAccessKind {
+	var combinedFlags int32 = (int32(AccessorSummary_PropertyAccessKind_flags_[this-1]) | int32(AccessorSummary_PropertyAccessKind_flags_[other-1]))
+	return func() AccessorSummary_PropertyAccessKind {
 		switch combinedFlags {
 		case 0:
 			return AccessorSummary_PropertyAccessKind_NORMAL
@@ -147,30 +170,30 @@ func (this *AccessorSummary_PropertyAccessKind) unionWith(other *AccessorSummary
 		case 3:
 			return AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER
 		default:
-			panic(new_IllegalStateException_String(("unexpected value: " + istr_(int64(combinedFlags)))).self())
+			panic(new_IllegalStateException_String(("unexpected value: " + istr_(int64(combinedFlags)))))
 		}
-		panic("unreachable")
 	}()
 }
 
-func AccessorSummary_PropertyAccessKind_values() []*AccessorSummary_PropertyAccessKind {
-	return append([]*AccessorSummary_PropertyAccessKind(nil), AccessorSummary_PropertyAccessKind_values_...)
+func AccessorSummary_PropertyAccessKind_values() []AccessorSummary_PropertyAccessKind {
+	return append([]AccessorSummary_PropertyAccessKind(nil), AccessorSummary_PropertyAccessKind_values_...)
 }
 
-func AccessorSummary_PropertyAccessKind_valueOf(name string) *AccessorSummary_PropertyAccessKind {
+func AccessorSummary_PropertyAccessKind_valueOf(name string) AccessorSummary_PropertyAccessKind {
 	for _, v := range AccessorSummary_PropertyAccessKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("PropertyAccessKind", name))
 }
 
-var AccessorSummary_PropertyAccessKind_NORMAL *AccessorSummary_PropertyAccessKind
-var AccessorSummary_PropertyAccessKind_GETTER_ONLY *AccessorSummary_PropertyAccessKind
-var AccessorSummary_PropertyAccessKind_SETTER_ONLY *AccessorSummary_PropertyAccessKind
-var AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER *AccessorSummary_PropertyAccessKind
-var AccessorSummary_PropertyAccessKind_values_ []*AccessorSummary_PropertyAccessKind
+const AccessorSummary_PropertyAccessKind_NORMAL AccessorSummary_PropertyAccessKind = 1
+const AccessorSummary_PropertyAccessKind_GETTER_ONLY AccessorSummary_PropertyAccessKind = 2
+const AccessorSummary_PropertyAccessKind_SETTER_ONLY AccessorSummary_PropertyAccessKind = 3
+const AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER AccessorSummary_PropertyAccessKind = 4
+
+var AccessorSummary_PropertyAccessKind_values_ []AccessorSummary_PropertyAccessKind
 
 var AccessorSummary_PropertyAccessKind_clinit_done bool
 
@@ -179,11 +202,11 @@ func AccessorSummary_PropertyAccessKind_clinit() {
 		return
 	}
 	AccessorSummary_PropertyAccessKind_clinit_done = true
-	AccessorSummary_PropertyAccessKind_NORMAL = new_AccessorSummary_PropertyAccessKind("NORMAL", 0, 0)
-	AccessorSummary_PropertyAccessKind_GETTER_ONLY = new_AccessorSummary_PropertyAccessKind("GETTER_ONLY", 1, 1)
-	AccessorSummary_PropertyAccessKind_SETTER_ONLY = new_AccessorSummary_PropertyAccessKind("SETTER_ONLY", 2, 2)
-	AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER = new_AccessorSummary_PropertyAccessKind("GETTER_AND_SETTER", 3, 3)
-	AccessorSummary_PropertyAccessKind_values_ = []*AccessorSummary_PropertyAccessKind{AccessorSummary_PropertyAccessKind_NORMAL, AccessorSummary_PropertyAccessKind_GETTER_ONLY, AccessorSummary_PropertyAccessKind_SETTER_ONLY, AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER}
+	AccessorSummary_PropertyAccessKind_NORMAL.init_AccessorSummary_PropertyAccessKind(0)
+	AccessorSummary_PropertyAccessKind_GETTER_ONLY.init_AccessorSummary_PropertyAccessKind(1)
+	AccessorSummary_PropertyAccessKind_SETTER_ONLY.init_AccessorSummary_PropertyAccessKind(2)
+	AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER.init_AccessorSummary_PropertyAccessKind(3)
+	AccessorSummary_PropertyAccessKind_values_ = []AccessorSummary_PropertyAccessKind{AccessorSummary_PropertyAccessKind_NORMAL, AccessorSummary_PropertyAccessKind_GETTER_ONLY, AccessorSummary_PropertyAccessKind_SETTER_ONLY, AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER}
 	registerEnum_("com.google.javascript.jscomp.AccessorSummary.PropertyAccessKind", enumValues_(AccessorSummary_PropertyAccessKind_values_))
 
 }

@@ -9,11 +9,6 @@ type Outcome_base[T any] struct {
 
 func (this *Outcome_base[T]) isa_Outcome_base_() {}
 
-func is_Outcome_base(v any) bool {
-	_, ok := v.(interface{ isa_Outcome_base_() })
-	return ok
-}
-
 func (this *Outcome_base[T]) zero_Outcome_base() {
 	this.value_ = jnull_[T]()
 }
@@ -40,7 +35,7 @@ func Outcome_base_ok_0() *Outcome_base[any] {
 
 func Outcome_base_err[T any](error_ *Throwable) *Outcome_base[T] {
 	if error_ == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	return new_Outcome_base[T](jnull_[T](), error_)
 }
@@ -55,7 +50,7 @@ func (this *Outcome_base[T]) isErr() bool {
 
 func (this *Outcome_base[T]) get() T {
 	if this.errorField != nil {
-		panic(new_IllegalStateException_String_Throwable("Outcome.get() called on an error outcome", this.errorField).self())
+		panic(new_IllegalStateException_String_Throwable("Outcome.get() called on an error outcome", this.errorField))
 	}
 	return this.value_
 }

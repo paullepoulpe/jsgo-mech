@@ -24,12 +24,12 @@ func new_SourceInfoCheck(compiler *AbstractCompiler) *SourceInfoCheck {
 
 func (this *SourceInfoCheck) setCheckSubTree(root Node) {
 	this.requiresLineNumbers = true
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *SourceInfoCheck) process_2(externs Node, root Node) {
 	this.requiresLineNumbers = false
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *SourceInfoCheck) shouldTraverse(unused *NodeTraversal, n Node, parent Node) bool {
@@ -56,11 +56,9 @@ func (this *SourceInfoCheck) visit(unused *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *SourceInfoCheck) checkJSDoc(info *JSDocInfo) {
-	it_1 := foreach_(any(info.getTypeExpressions()))
-	for it_1.next() {
-		var expression *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
-		if String_isEmpty(expression.getSourceName()) {
-			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(expression.getRoot(), SourceInfoCheck_MISSING_SOURCE_NAME, []string{("JSTypeExpression " + objstr_(obj_(expression)))}))
+	for expression := range elemsAs_[*JSTypeExpression](info.getTypeExpressions()) {
+		if expression.getSourceName() == "" {
+			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(expression.getRoot(), SourceInfoCheck_MISSING_SOURCE_NAME, []string{("JSTypeExpression " + tostr_(expression))}))
 		} else {
 			NodeUtil_visitPreOrder_Node_Visitor(expression.getRoot(), &NodeUtil_Visitor_fn{func(p0 Node) { this.checkSourceFile(p0) }})
 		}

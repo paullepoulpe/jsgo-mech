@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PropertiesParser struct {
 }
 
@@ -15,12 +17,13 @@ func new_PropertiesParser() *PropertiesParser {
 	return this
 }
 
-func PropertiesParser_parse(source string) ImmutableMapOf[string, string] {
-	var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
+func PropertiesParser_parse(source string) *ImmutableMap[string, string] {
+	var builder *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	var lines []string = PropertiesParser_LINE_BREAK_PATTERN.split(source)
 	for i := int32(0); i < int32(len(lines)); i++ {
 		var line string = lines[i]
-		if (String_isEmpty(line) || String_startsWith(line, "#")) || String_startsWith(line, "!") {
+		lineU16 := utf16Of_(line)
+		if (line == "" || strings.HasPrefix(line, "#")) || strings.HasPrefix(line, "!") {
 			continue
 		}
 		var delimeterIndex int32 = PropertiesParser_findDelimiter(line)
@@ -28,38 +31,41 @@ func PropertiesParser_parse(source string) ImmutableMapOf[string, string] {
 			continue
 		}
 		var data string = ""
-		var key string = String_trim(String_substring(line, 0, delimeterIndex))
-		line = PropertiesParser_trimLeft(String_substring_int(line, (delimeterIndex + 1)))
+		var key string = strings.Trim(lineU16.substring(0, delimeterIndex), javaSpace_)
+		line = PropertiesParser_trimLeft(lineU16.substring_int((delimeterIndex + 1)))
+		lineU16 = utf16Of_(line)
 		for {
-			if String_endsWith(line, "\\") {
-				data += sstr_(String_substring(line, 0, (String_length(line) - 1)))
+			if strings.HasSuffix(line, "\\") {
+				data += sstr_(line[:len(line)-1])
 				if (i + 1) == int32(len(lines)) {
 					break
 				}
 				i++
 				line = PropertiesParser_trimLeft(lines[i])
+				lineU16 = utf16Of_(line)
 			} else {
 				data += sstr_(line)
 				break
 			}
 		}
-		builder.put(strobj_(key), strobj_(data))
+		builder.put(key, data)
 	}
 	return builder.buildOrThrow()
 }
 
 func PropertiesParser_trimLeft(str string) string {
-	for i := int32(0); i < String_length(str); i++ {
-		if String_charAt(str, i) != ' ' {
-			return String_substring_int(str, i)
+	strU16 := utf16Of_(str)
+	for i, u_ := range stringUnits_(str) {
+		if u_ != ' ' {
+			return strU16.substring_int(i)
 		}
 	}
 	return str
 }
 
 func PropertiesParser_findDelimiter(line string) int32 {
-	for i := int32(0); i < String_length(line); i++ {
-		switch String_charAt(line, i) {
+	for i, u_ := range stringUnits_(line) {
+		switch u_ {
 		case ':', '=':
 			return i
 		default:

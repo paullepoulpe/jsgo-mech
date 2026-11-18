@@ -12,7 +12,10 @@ func (this *BaseTranspiler) zero_BaseTranspiler() {
 }
 
 func (this *BaseTranspiler) init_BaseTranspiler(compilerSupplier *BaseTranspiler_CompilerSupplier, runtimeLibraryName string) {
-	this.compilerSupplier = cast_[*BaseTranspiler_CompilerSupplier](Preconditions_checkNotNull(obj_(compilerSupplier)))
+	if compilerSupplier == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.compilerSupplier = compilerSupplier
 	this.runtimeLibraryName = runtimeLibraryName
 }
 
@@ -32,12 +35,12 @@ func (this *BaseTranspiler) transpile(path string, code string) *TranspileResult
 }
 
 func (this *BaseTranspiler) runtime() string {
-	var sb *StringBuilder = new_StringBuilder()
-	if !String_isEmpty(this.runtimeLibraryName) {
+	var sb strBuilder_
+	if this.runtimeLibraryName != "" {
 		sb.append(this.compilerSupplier.runtime(this.runtimeLibraryName))
 	}
 	sb.append(this.compilerSupplier.runtime("modules"))
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func BaseTranspiler_to_FeatureSet_String(featureSet *FeatureSet, runtime string) *BaseTranspiler {
@@ -64,9 +67,9 @@ func BaseTranspiler_clinit() {
 }
 
 type BaseTranspiler_CompilerSupplier struct {
-	moduleResolution   *ModuleLoader_ResolutionMode
-	moduleRoots        ImmutableListOf[string]
-	prefixReplacements ImmutableMapOf[string, string]
+	moduleResolution   ModuleLoader_ResolutionMode
+	moduleRoots        *ImmutableList[string]
+	prefixReplacements *ImmutableMap[string, string]
 	outputFeatureSet   *FeatureSet
 }
 
@@ -81,7 +84,7 @@ func new_BaseTranspiler_CompilerSupplier_0() *BaseTranspiler_CompilerSupplier {
 }
 
 func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet) {
-	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, new_CompilerOptions().getModuleResolutionMode(), ImmutableList_of(), ImmutableMap_of())
+	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, new_CompilerOptions().getModuleResolutionMode(), immutableListOf_(tc_string), immutableMapOf_(tc_string, tc_string, []string{}, []string{}))
 }
 
 func new_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet) *BaseTranspiler_CompilerSupplier {
@@ -90,14 +93,14 @@ func new_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet
 	return this
 }
 
-func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution *ModuleLoader_ResolutionMode, moduleRoots ImmutableListOf[string], prefixReplacements ImmutableMapOf[string, string]) {
+func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *ImmutableList[string], prefixReplacements *ImmutableMap[string, string]) {
 	this.outputFeatureSet = outputFeatureSet
 	this.moduleResolution = moduleResolution
 	this.moduleRoots = moduleRoots
 	this.prefixReplacements = prefixReplacements
 }
 
-func new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution *ModuleLoader_ResolutionMode, moduleRoots ImmutableListOf[string], prefixReplacements ImmutableMapOf[string, string]) *BaseTranspiler_CompilerSupplier {
+func new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution ModuleLoader_ResolutionMode, moduleRoots *ImmutableList[string], prefixReplacements *ImmutableMap[string, string]) *BaseTranspiler_CompilerSupplier {
 	this := &BaseTranspiler_CompilerSupplier{}
 	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, moduleResolution, moduleRoots, prefixReplacements)
 	return this
@@ -107,31 +110,17 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 	var compiler *Compiler = this.compiler()
 	var result *Result = compiler.compileSourceFile(this.createTrivialExterns(), SourceFile_jscomp_fromCode_String_String(path, code), this.options())
 	var source string = compiler.toSource()
-	var sourceMap *StringBuilder = new_StringBuilder()
+	var sourceMap strBuilder_
 	if result.sourceMap_ != nil {
-		_ = func() (code_ int) {
-			defer func() {
-				if r_ := recover(); r_ != nil {
-					ex_ := catch_(r_)
-					if is_IOException(ex_) {
-						var e *IOException = to_IOException(ex_)
-						_ = e
-						return
-					}
-					panic(r_)
-				}
-			}()
-			result.sourceMap_.appendTo(icast_Appendable(obj_(sourceMap)), Optional_of[string](path))
-			return 0
-		}()
+		result.sourceMap_.appendTo(appendable_(&sourceMap), Optional_of[string](path))
 	}
 	var transpiled bool = result.transpiledFiles
 	if !result.errors_.isEmpty() {
-		panic(obj_(new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(icast_SourceExcerptProvider(obj_(compiler)), result.errors_, result.warnings_)))
+		panic(new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(icast_SourceExcerptProvider(obj_(compiler)), result.errors_, result.warnings_))
 	}
 	return new_BaseTranspiler_CompileResult(source, transpiled, func() string {
 		if transpiled {
-			return Object_toString(obj_(sourceMap))
+			return sourceMap.toString()
 		}
 		return ""
 	}())
@@ -140,7 +129,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 func (this *BaseTranspiler_CompilerSupplier) runtime(library string) string {
 	var compiler *Compiler = this.compiler()
 	var options *CompilerOptions = this.options()
-	options.setForceLibraryInjection(icast_Iterable(obj_(ImmutableList_of_Object(strobj_(library)))))
+	options.setForceLibraryInjection(ImmutableList_of_Object(strobj_(library)))
 	compiler.compileSourceFile(this.createTrivialExterns(), this.createEmptySource(), options)
 	return compiler.toSource()
 }
@@ -157,7 +146,7 @@ func (this *BaseTranspiler_CompilerSupplier) options() *CompilerOptions {
 
 func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions) {
 	options.setLanguageIn(CompilerOptions_LanguageMode_ECMASCRIPT_NEXT)
-	options.legacySetOutputFeatureSet(this.outputFeatureSet.without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{}))
+	options.legacySetOutputFeatureSet(this.outputFeatureSet.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{}))
 	options.setEmitUseStrict(false)
 	options.setQuoteKeywordProperties(true)
 	options.setSkipNonTranspilationPasses(true)
@@ -168,7 +157,7 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setWarningLevel(DiagnosticGroups_NON_STANDARD_JSDOC, CheckLevel_OFF)
 	options.setEs6ModuleTranspilation(CompilerOptions_Es6ModuleTranspilation_TO_COMMON_JS_LIKE_MODULES)
 	options.setModuleResolutionMode(this.moduleResolution)
-	options.setModuleRoots(icast_List(obj_(this.moduleRoots)))
+	options.setModuleRoots(icast_List(obj_(this.moduleRoots.asImm())))
 	options.setBrowserResolverPrefixReplacements(this.prefixReplacements)
 	options.setWarningLevel(DiagnosticGroups_MODULE_LOAD, CheckLevel_OFF)
 	options.setPathEscaper(ModuleLoader_PathEscaper_CANONICALIZE_ONLY)
@@ -176,14 +165,16 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setApplyInputSourceMaps(true)
 	options.setSourceMapOutputPath(Optional_of[string]("/dev/null"))
 	options.setSourceMapIncludeSourcesContent(true)
-	options.setSourceMapLocationMappings(icast_List(obj_(ImmutableList_of_Object(any(&SourceMap_LocationMapping_fn{func(location Optional[string]) Optional[string] {
-		if Uris_isValid(location.get()) && Uris_hasScheme(location.get()) {
-			return location
-		}
-		return new_SourceMap_PrefixLocationMapping("", "/").map_(location)
-		panic("unreachable")
-	}})))))
+	options.setSourceMapLocationMappings(sliceOf_(tc_SourceMap_LocationMapping, SourceMap_LocationMapping(lambda_BaseTranspiler_CompilerSupplier_setOptions_1_)))
 }
+
+// lambda_BaseTranspiler_CompilerSupplier_setOptions_1_ is a lambda of BaseTranspiler_CompilerSupplier_setOptions that captures nothing (post-flip step lambdas).
+var lambda_BaseTranspiler_CompilerSupplier_setOptions_1_ = &SourceMap_LocationMapping_fn{func(location Optional[string]) Optional[string] {
+	if Uris_isValid(location.get()) && Uris_hasScheme(location.get()) {
+		return location
+	}
+	return new_SourceMap_PrefixLocationMapping("", "/").map_(location)
+}}
 
 func (this *BaseTranspiler_CompilerSupplier) createTrivialExterns() *SourceFile_jscomp {
 	return SourceFile_jscomp_fromCode_String_String("externs.js", "function Symbol() {}")

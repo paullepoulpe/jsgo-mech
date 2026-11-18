@@ -33,7 +33,7 @@ func new_AngularPass(compiler *AbstractCompiler) *AngularPass {
 }
 
 func (this *AngularPass) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	it_1 := this.injectables.each()
 	for it_1.next() {
 		var entry *AngularPass_NodeContext = it_1.v
@@ -62,7 +62,9 @@ func (this *AngularPass) process_2(externs Node, root Node) {
 }
 
 func (this *AngularPass) createDependenciesList(n Node) *JTList[Node] {
-	Preconditions_checkArgument(n.isFunction())
+	if !n.isFunction() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var params Node = NodeUtil_getFunctionParameters(n)
 	if params != 0 {
 		return this.createStringsFromParamList(params)
@@ -99,34 +101,34 @@ func (this *AngularPass) addNode(n Node) {
 	var injectAfter Node = 0
 	var fn Node = 0
 	var name Optional[string] = Optional_empty[string]()
-	switch n.getToken() {
-	case Token_rhino_ASSIGN:
+	switch n.ns_().token {
+	case tokOrd1_ASSIGN:
 		if !n.getFirstChild().isQualifiedName() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, AngularPass_INJECTED_FUNCTION_ON_NON_QNAME, []string{}))
 			return
 		}
 		name = Optional_of[string](n.getFirstChild().getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}})
 		fn = n
 		for fn.isAssign() {
 			fn = fn.getLastChild()
 		}
 		injectAfter = n.getParent()
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		name = Optional_of[string](NodeUtil_getName(n)).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}})
 		fn = n
 		injectAfter = n
 		if n.getParent().isAssign() && n.getParent().getJSDocInfo().isNgInject() {
 			return
 		}
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		name = Optional_of[string](n.getFirstChild().getString())
 		fn = AngularPass_getDeclarationRValue(n)
 		injectAfter = n
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		var parent Node = n.getParent()
 		if parent.isClassMembers() {
 			var classNode Node = parent.getParent()
@@ -139,7 +141,7 @@ func (this *AngularPass) addNode(n Node) {
 			name = Optional_of[string]((sstr_(NodeUtil_getName(classNode)) + sstr_(midPart) + sstr_(n.getString())))
 			if NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
 				name = Optional_of[string](NodeUtil_getName(classNode)).filter(&Predicate_tfn_string{func(s string) bool {
-					return !String_isEmpty(s)
+					return s != ""
 				}})
 			}
 			fn = n.getFirstChild()
@@ -158,13 +160,19 @@ func (this *AngularPass) addNode(n Node) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, AngularPass_INJECT_IN_NON_GLOBAL_OR_BLOCK_ERROR, []string{}))
 		return
 	}
-	Preconditions_checkState(name.isPresent())
+	if !name.isPresent() {
+		panic(new_IllegalStateException_0())
+	}
 	this.injectables.add(new_AngularPass_NodeContext(name.get(), n, fn, injectAfter))
 }
 
 func AngularPass_getDeclarationRValue(n Node) Node {
-	Preconditions_checkNotNull(n.box_())
-	Preconditions_checkArgument(NodeUtil_isNameDeclaration(n))
+	if n == 0 {
+		panic(new_NullPointerException_0())
+	}
+	if !NodeUtil_isNameDeclaration(n) {
+		panic(new_IllegalArgumentException_0())
+	}
 	n = n.getFirstFirstChild()
 	if n == 0 {
 		return 0
@@ -237,4 +245,13 @@ func (this *AngularPass_NodeContext) getFunctionNode() Node {
 
 func (this *AngularPass_NodeContext) getTarget() Node {
 	return this.target
+}
+
+// visit: an object that is exactly a AngularPass calls its visit_impl directly (post-flip); others dispatch.
+func (this *AngularPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*AngularPass); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

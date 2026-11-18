@@ -2,49 +2,64 @@
 
 package closure
 
-type CheckLevel struct {
-	Enum
+type CheckLevel uint8
+
+// CheckLevel_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CheckLevel_enum_ = [3]Enum{
+	{self_: CheckLevel_ERROR, name_: "ERROR", ordinal_: 0},
+	{self_: CheckLevel_WARNING, name_: "WARNING", ordinal_: 1},
+	{self_: CheckLevel_OFF, name_: "OFF", ordinal_: 2},
 }
 
-func (this *CheckLevel) up_Enum() *Enum {
-	if this == nil {
+func (this CheckLevel) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CheckLevel_enum_[this-1]
 }
 
-func (this *CheckLevel) init_CheckLevel(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CheckLevel) name() string { return this.enum_().name_ }
+
+func (this CheckLevel) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_CheckLevel(name_ string, ordinal_ int32) *CheckLevel {
-	this := &CheckLevel{}
-	this.self_ = this
-	this.init_CheckLevel(name_, ordinal_)
+func (this CheckLevel) toString() string { return this.enum_().name_ }
+
+func (this CheckLevel) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this CheckLevel) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *CheckLevel) isOn() bool {
+func (this CheckLevel) isOn() bool {
 	return (this != CheckLevel_OFF)
 }
 
-func CheckLevel_values() []*CheckLevel {
-	return append([]*CheckLevel(nil), CheckLevel_values_...)
+func CheckLevel_values() []CheckLevel {
+	return append([]CheckLevel(nil), CheckLevel_values_...)
 }
 
-func CheckLevel_valueOf(name string) *CheckLevel {
+func CheckLevel_valueOf(name string) CheckLevel {
 	for _, v := range CheckLevel_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("CheckLevel", name))
 }
 
-var CheckLevel_ERROR *CheckLevel
-var CheckLevel_WARNING *CheckLevel
-var CheckLevel_OFF *CheckLevel
-var CheckLevel_values_ []*CheckLevel
+const CheckLevel_ERROR CheckLevel = 1
+const CheckLevel_WARNING CheckLevel = 2
+const CheckLevel_OFF CheckLevel = 3
+
+var CheckLevel_values_ []CheckLevel
 
 var CheckLevel_clinit_done bool
 
@@ -53,10 +68,7 @@ func CheckLevel_clinit() {
 		return
 	}
 	CheckLevel_clinit_done = true
-	CheckLevel_ERROR = new_CheckLevel("ERROR", 0)
-	CheckLevel_WARNING = new_CheckLevel("WARNING", 1)
-	CheckLevel_OFF = new_CheckLevel("OFF", 2)
-	CheckLevel_values_ = []*CheckLevel{CheckLevel_ERROR, CheckLevel_WARNING, CheckLevel_OFF}
+	CheckLevel_values_ = []CheckLevel{CheckLevel_ERROR, CheckLevel_WARNING, CheckLevel_OFF}
 	registerEnum_("com.google.javascript.jscomp.CheckLevel", enumValues_(CheckLevel_values_))
 
 }

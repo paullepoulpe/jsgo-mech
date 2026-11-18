@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ModuleIdentifier struct {
 	name_             string
 	closureNamespace_ string
@@ -48,15 +50,17 @@ func (this *ModuleIdentifier) toString() string {
 
 func ModuleIdentifier_forClosure(name string) *ModuleIdentifier {
 	var normalizedName string = name
-	if String_startsWith(normalizedName, "goog:") {
-		normalizedName = String_substring_int(normalizedName, String_length("goog:"))
+	normalizedNameU16 := utf16Of_(normalizedName)
+	if strings.HasPrefix(normalizedName, "goog:") {
+		normalizedName = normalizedName[len("goog:"):]
+		normalizedNameU16 = utf16Of_(normalizedName)
 	}
 	var namespace string = normalizedName
 	var moduleName string = normalizedName
-	var splitPoint int32 = String_indexOf(normalizedName, 58)
+	var splitPoint int32 = normalizedNameU16.indexOf(58)
 	if splitPoint != -1 {
-		moduleName = String_substring(normalizedName, 0, splitPoint)
-		namespace = String_substring_int(normalizedName, Math_min((splitPoint+1), (String_length(normalizedName)-1)))
+		moduleName = normalizedNameU16.substring(0, splitPoint)
+		namespace = normalizedNameU16.substring_int(Math_min((splitPoint + 1), (normalizedNameU16.length() - 1)))
 	}
 	return new_ModuleIdentifier(normalizedName, namespace, moduleName)
 }
@@ -67,12 +71,11 @@ func ModuleIdentifier_forFile(filepath string) *ModuleIdentifier {
 }
 
 func ModuleIdentifier_forFlagValue(flagValue string) *ModuleIdentifier {
-	if String_startsWith(flagValue, "goog:") {
+	if strings.HasPrefix(flagValue, "goog:") {
 		return ModuleIdentifier_forClosure(flagValue)
 	} else {
 		return ModuleIdentifier_forFile(flagValue)
 	}
-	panic("unreachable")
 }
 
 func (this *ModuleIdentifier) name() string {
@@ -97,8 +100,8 @@ func (this *ModuleIdentifier) equals(p0 any) bool {
 
 func (this *ModuleIdentifier) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.name_))
-	h = h*31 + Objects_hashCode(strobj_(this.closureNamespace_))
-	h = h*31 + Objects_hashCode(strobj_(this.moduleName_))
+	h = h*31 + objhashStr_(this.name_)
+	h = h*31 + objhashStr_(this.closureNamespace_)
+	h = h*31 + objhashStr_(this.moduleName_)
 	return h
 }

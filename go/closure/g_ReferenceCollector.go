@@ -129,15 +129,17 @@ func (this *ReferenceCollector) pushNewBlock(root Node) {
 
 func (this *ReferenceCollector) popLastBlock(root Node) {
 	var last *BasicBlock = cast_[*BasicBlock](SequencedCollection_removeLast(SequencedCollection(this.blockStack.asDeque())))
-	Preconditions_checkState_boolean_Object(JSCompObjects_identical(root.box_(), last.getRoot().box_()), root.box_())
+	if !JSCompObjects_identical(root.box_(), last.getRoot().box_()) {
+		panic(new_IllegalStateException_String(tostr_(root)))
+	}
 }
 
 func ReferenceCollector_isBlockBoundary(n Node, parent Node) bool {
 	if parent != 0 {
-		switch parent.getToken() {
-		case Token_rhino_DO, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_TRY, Token_rhino_WHILE, Token_rhino_WITH, Token_rhino_CLASS, Token_rhino_SWITCH_BODY:
+		switch parent.ns_().token {
+		case tokOrd1_DO, tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_TRY, tokOrd1_WHILE, tokOrd1_WITH, tokOrd1_CLASS, tokOrd1_SWITCH_BODY:
 			return true
-		case Token_rhino_AND, Token_rhino_HOOK, Token_rhino_IF, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_CALL, Token_rhino_DEFAULT_VALUE:
+		case tokOrd1_AND, tokOrd1_HOOK, tokOrd1_IF, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_CALL, tokOrd1_DEFAULT_VALUE:
 			return (n != parent.getFirstChild())
 		default:
 		}
@@ -166,7 +168,7 @@ func ReferenceCollector_clinit() {
 		return
 	}
 	ReferenceCollector_clinit_done = true
-	ReferenceCollector_DO_NOTHING_BEHAVIOR = icast_ReferenceCollector_Behavior(obj_(new_ReferenceCollector_1()))
+	ReferenceCollector_DO_NOTHING_BEHAVIOR = new_ReferenceCollector_1()
 
 }
 
@@ -276,9 +278,9 @@ func (this *ReferenceCollector_1) afterExitScope(t *NodeTraversal, referenceMap 
 }
 
 func (this *ReferenceCollector_1) beforeTraverseNode(p0 *NodeTraversal, p1 Node, p2 Node) {
-	ReferenceCollector_Behavior_beforeTraverseNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2)
+	ReferenceCollector_Behavior_beforeTraverseNode_default(this, p0, p1, p2)
 }
 
 func (this *ReferenceCollector_1) afterVisitNode(p0 *NodeTraversal, p1 Node, p2 Node, p3 *Reference) {
-	ReferenceCollector_Behavior_afterVisitNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2, p3)
+	ReferenceCollector_Behavior_afterVisitNode_default(this, p0, p1, p2, p3)
 }

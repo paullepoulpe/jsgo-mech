@@ -2,6 +2,8 @@
 
 package closure
 
+import "strconv"
+
 type ProfilingReport struct {
 }
 
@@ -15,59 +17,52 @@ func new_ProfilingReport() *ProfilingReport {
 	return this
 }
 
-func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapOf[string, *InstrumentationPoint], allInstrumentationReports ImmutableListOf[MapOf[string, BoxedOf[int64]]]) string {
+func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapOf[string, *InstrumentationPoint], allInstrumentationReports []MapOf[string, BoxedOf[int64]]) string {
 	var profiles *JTList[*ReportProfile] = jnewTList_(tc_p_ReportProfile)
-	it_1 := foreach_(obj_(allInstrumentationReports))
-	for it_1.next() {
-		var report Map = icast_Map(it_1.v)
+	for _, el := range allInstrumentationReports {
+		report := el
 		profiles.add(ReportDecoder_decodeReport(instrumentationMapping, report))
 	}
-	var metricsBuilder ImmutableMap_BuilderOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = ImmutableMap_builder()
-	it_3 := foreach_(any(instrumentationMapping.values()))
-	for it_3.next() {
-		var point *InstrumentationPoint = cast_[*InstrumentationPoint](it_3.v)
-		metricsBuilder.put(obj_(point), obj_(new_ProfilingReport_InstrumentationPointMetrics()))
+	var metricsBuilder *ImmutableMap_Builder[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = immutableMapBuilder_(tc_p_InstrumentationPoint, tc_p_ProfilingReport_InstrumentationPointMetrics)
+	for point := range elemsAs_[*InstrumentationPoint](instrumentationMapping.values()) {
+		metricsBuilder.put(point, new_ProfilingReport_InstrumentationPointMetrics())
 	}
-	var metrics MapOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = icast_Map(obj_(metricsBuilder.buildOrThrow()))
+	var metrics *TMap[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = metricsBuilder.buildOrThrow()
 	it_5 := profiles.each()
 	for it_5.next() {
 		var profile *ReportProfile = it_5.v
-		it_7 := foreach_(any(profile.getFileProfileList()))
-		for it_7.next() {
-			var fileProfile *FileProfile = cast_[*FileProfile](it_7.v)
-			it_9 := foreach_(any(fileProfile.getInstrumentationPointsStatsList()))
-			for it_9.next() {
-				var pointStats *InstrumentationPointStats = cast_[*InstrumentationPointStats](it_9.v)
-				var metric *ProfilingReport_InstrumentationPointMetrics = cast_[*ProfilingReport_InstrumentationPointMetrics](metrics.get(obj_(pointStats.getPoint())))
+		for fileProfile := range elemsAs_[*FileProfile](profile.getFileProfileList()) {
+			for pointStats := range elemsAs_[*InstrumentationPointStats](fileProfile.getInstrumentationPointsStatsList()) {
+				var metric *ProfilingReport_InstrumentationPointMetrics = metrics.Get(pointStats.getPoint())
 				metric.totalTimesExecuted += pointStats.getTimesExecuted()
 				metric.numberOfReports++
 			}
 		}
 	}
-	var result *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(metrics.entrySet()))
+	var result *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(metrics.asMap().entrySet()))
 	Collections_sort_List_Comparator(result.asList(), Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(&Function_tfn_Map_Entry_string{func(point Map_Entry) string {
-		return cast_[*InstrumentationPoint](point.getKey()).getFileName()
+		return point.getKey().(*InstrumentationPoint).getFileName()
 	}}), &ToLongFunction_tfn_Map_Entry{func(point Map_Entry) int64 {
-		return (-cast_[*ProfilingReport_InstrumentationPointMetrics](point.getValue()).totalTimesExecuted)
+		return (-point.getValue().(*ProfilingReport_InstrumentationPointMetrics).totalTimesExecuted)
 	}}), &ToIntFunction_tfn_Map_Entry{func(point Map_Entry) int32 {
-		return cast_[*InstrumentationPoint](point.getKey()).getLineNumber()
+		return point.getKey().(*InstrumentationPoint).getLineNumber()
 	}}), &ToIntFunction_tfn_Map_Entry{func(point Map_Entry) int32 {
-		return cast_[*InstrumentationPoint](point.getKey()).getType().getNumber()
+		return point.getKey().(*InstrumentationPoint).getType().getNumber()
 	}}))
 	var output *JTList[List] = jnewTList_(tc_List)
-	output.add(icast_List(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred")))))
+	output.add(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred")))
 	it_11 := result.each()
 	for it_11.next() {
 		var entry Map_Entry = it_11.v
-		output.add(icast_List(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFileName()), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFunctionName()), strobj_(String_valueOf(cast_[*InstrumentationPoint](entry.getKey()).getLineNumber())), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getType().name()), strobj_(String_valueOf_long(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).totalTimesExecuted)), strobj_(String_valueOf(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).numberOfReports))))))
+		output.add(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(entry.getKey().(*InstrumentationPoint).getFileName()), strobj_(entry.getKey().(*InstrumentationPoint).getFunctionName()), strobj_(strconv.Itoa(int(entry.getKey().(*InstrumentationPoint).getLineNumber()))), strobj_(entry.getKey().(*InstrumentationPoint).getType().name()), strobj_(strconv.FormatInt(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).totalTimesExecuted, 10)), strobj_(strconv.Itoa(int(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).numberOfReports)))))
 	}
 	var rows *JTList[string] = jnewTList_(jtc_string)
 	it_13 := output.each()
 	for it_13.next() {
 		var row List = it_13.v
-		rows.add(String_join(strobj_("\t"), Iterable(row)))
+		rows.add(String_join_s("\t", Iterable(row)))
 	}
-	return String_join(strobj_("\n"), Iterable(rows.asList()))
+	return String_join_s("\n", Iterable(rows.asList()))
 }
 
 type ProfilingReport_InstrumentationPointMetrics struct {

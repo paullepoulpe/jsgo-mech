@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Matchers struct {
 }
 
@@ -16,19 +18,19 @@ func new_Matchers() *Matchers {
 }
 
 func Matchers_anything() Matcher {
-	return icast_Matcher(obj_(new_Matchers_1()))
+	return new_Matchers_1()
 }
 
 func Matchers_allOf(matchers []Matcher) Matcher {
-	return icast_Matcher(obj_(new_Matchers_2(matchers)))
+	return new_Matchers_2(matchers)
 }
 
 func Matchers_anyOf(matchers []Matcher) Matcher {
-	return icast_Matcher(obj_(new_Matchers_3(matchers)))
+	return new_Matchers_3(matchers)
 }
 
-func Matchers_not(matcher Matcher) Matcher {
-	return icast_Matcher(obj_(new_Matchers_4(matcher)))
+func Matchers_not(matcher func(Node, *NodeMetadata) bool) Matcher {
+	return new_Matchers_4(matcher)
 }
 
 func Matchers_constructor_0() Matcher {
@@ -36,15 +38,15 @@ func Matchers_constructor_0() Matcher {
 }
 
 func Matchers_constructor_Optional(name Optional[string]) Matcher {
-	return icast_Matcher(obj_(new_Matchers_5(name)))
+	return new_Matchers_5(name)
 }
 
 func Matchers_newClass_0() Matcher {
-	return icast_Matcher(obj_(new_Matchers_6()))
+	return new_Matchers_6()
 }
 
 func Matchers_newClass_String(className string) Matcher {
-	return icast_Matcher(obj_(new_Matchers_7(className)))
+	return new_Matchers_7(className)
 }
 
 func Matchers_functionCall_0() Matcher {
@@ -52,11 +54,11 @@ func Matchers_functionCall_0() Matcher {
 }
 
 func Matchers_functionCall_Optional(name Optional[string]) Matcher {
-	return icast_Matcher(obj_(new_Matchers_8(name)))
+	return new_Matchers_8(name)
 }
 
 func Matchers_functionCallWithNumArgs_int(numArgs int32) Matcher {
-	return icast_Matcher(obj_(new_Matchers_9(numArgs)))
+	return new_Matchers_9(numArgs)
 }
 
 func Matchers_functionCallWithNumArgs_String_int(name string, numArgs int32) Matcher {
@@ -98,19 +100,19 @@ func Matchers_propertyAccess_0() Matcher {
 }
 
 func Matchers_propertyAccess_Optional(name Optional[string]) Matcher {
-	return icast_Matcher(obj_(new_Matchers_10(name)))
+	return new_Matchers_10(name)
 }
 
 func Matchers_enumDefinition() Matcher {
-	return icast_Matcher(obj_(new_Matchers_11()))
+	return new_Matchers_11()
 }
 
 func Matchers_enumDefinitionOfType(type_ string) Matcher {
-	return icast_Matcher(obj_(new_Matchers_12(type_)))
+	return new_Matchers_12(type_)
 }
 
-func Matchers_assignmentWithRhs(rhsMatcher Matcher) Matcher {
-	return icast_Matcher(obj_(new_Matchers_13(rhsMatcher)))
+func Matchers_assignmentWithRhs(rhsMatcher func(Node, *NodeMetadata) bool) Matcher {
+	return new_Matchers_13(rhsMatcher)
 }
 
 func Matchers_prototypeVariableDeclaration() Matcher {
@@ -122,32 +124,32 @@ func Matchers_prototypeMethodDeclaration() Matcher {
 }
 
 func Matchers_jsDocType(type_ string) Matcher {
-	return icast_Matcher(obj_(new_Matchers_14(type_)))
+	return new_Matchers_14(type_)
 }
 
 func Matchers_constructorPropertyDeclaration() Matcher {
-	return icast_Matcher(obj_(new_Matchers_15()))
+	return new_Matchers_15()
 }
 
 func Matchers_isPrivate() Matcher {
-	return icast_Matcher(obj_(new_Matchers_16()))
+	return new_Matchers_16()
 }
 
 func Matchers_getJsType(metadata *NodeMetadata, type_ string) *JSType {
 	return metadata.getCompiler().getTypeRegistry().getGlobalType(type_)
 }
 
-func Matchers_getJsTypeJSTypeNative(metadata *NodeMetadata, nativeType *JSTypeNative) *JSType {
+func Matchers_getJsTypeJSTypeNative(metadata *NodeMetadata, nativeType JSTypeNative) *JSType {
 	return metadata.getCompiler().getTypeRegistry().getNativeType(nativeType)
 }
 
 func Matchers_areTypesEquivalentIgnoringGenerics(a *JSType, b *JSType) bool {
-	var equivalent bool = a.equals(b.self())
+	var equivalent bool = a.equals_JSType(b)
 	if equivalent {
 		return true
 	}
 	if a.isTemplatizedType() {
-		return a.toMaybeTemplatizedType().getReferencedType().equals(b.self())
+		return a.toMaybeTemplatizedType().getReferencedType().equals_JSType(b)
 	}
 	return false
 }
@@ -179,7 +181,7 @@ func Matchers_matchesPrototypeInstanceVar(node Node, metadata *NodeMetadata, nam
 }
 
 func Matchers_matcherForPrototypeDeclaration(requireFunctionType bool) Matcher {
-	return icast_Matcher(obj_(new_Matchers_17(requireFunctionType)))
+	return new_Matchers_17(requireFunctionType)
 }
 
 var Matchers_PROTOTYPE_PATTERN *Pattern
@@ -261,14 +263,14 @@ func (this *Matchers_3) matches(node Node, metadata *NodeMetadata) bool {
 }
 
 type Matchers_4 struct {
-	cap_matcher Matcher
+	cap_matcher func(Node, *NodeMetadata) bool
 }
 
 func (this *Matchers_4) init_Matchers_4() {
 
 }
 
-func new_Matchers_4(cap_matcher Matcher) *Matchers_4 {
+func new_Matchers_4(cap_matcher func(Node, *NodeMetadata) bool) *Matchers_4 {
 	this := &Matchers_4{}
 	this.cap_matcher = cap_matcher
 	this.init_Matchers_4()
@@ -276,7 +278,7 @@ func new_Matchers_4(cap_matcher Matcher) *Matchers_4 {
 }
 
 func (this *Matchers_4) matches(node Node, metadata *NodeMetadata) bool {
-	return !this.cap_matcher.matches(node, metadata)
+	return !this.cap_matcher(node, metadata)
 }
 
 type Matchers_5 struct {
@@ -416,7 +418,7 @@ func (this *Matchers_10) matches(node Node, metadata *NodeMetadata) bool {
 		}
 		if node.matchesQualifiedName(this.cap_name.get()) {
 			return true
-		} else if String_contains(this.cap_name.get(), strobj_(".prototype.")) {
+		} else if strings.Contains(this.cap_name.get(), ".prototype.") {
 			return Matchers_matchesPrototypeInstanceVar(node, metadata, this.cap_name.get())
 		}
 	}
@@ -463,18 +465,18 @@ func (this *Matchers_12) matches(node Node, metadata *NodeMetadata) bool {
 	}
 	providedJsType = providedJsType.restrictByNotNullOrUndefined()
 	var jsType *JSType = node.getJSType()
-	return (((jsType != nil) && jsType.isEnumType()) && providedJsType.equals(jsType.toMaybeEnumType().getElementsType().getPrimitiveType().self()))
+	return (((jsType != nil) && jsType.isEnumType()) && providedJsType.equals_JSType(jsType.toMaybeEnumType().getElementsType().getPrimitiveType()))
 }
 
 type Matchers_13 struct {
-	cap_rhsMatcher Matcher
+	cap_rhsMatcher func(Node, *NodeMetadata) bool
 }
 
 func (this *Matchers_13) init_Matchers_13() {
 
 }
 
-func new_Matchers_13(cap_rhsMatcher Matcher) *Matchers_13 {
+func new_Matchers_13(cap_rhsMatcher func(Node, *NodeMetadata) bool) *Matchers_13 {
 	this := &Matchers_13{}
 	this.cap_rhsMatcher = cap_rhsMatcher
 	this.init_Matchers_13()
@@ -482,7 +484,7 @@ func new_Matchers_13(cap_rhsMatcher Matcher) *Matchers_13 {
 }
 
 func (this *Matchers_13) matches(node Node, metadata *NodeMetadata) bool {
-	return (node.isAssign() && this.cap_rhsMatcher.matches(node.getLastChild(), metadata))
+	return (node.isAssign() && this.cap_rhsMatcher(node.getLastChild(), metadata))
 }
 
 type Matchers_14 struct {
@@ -513,7 +515,7 @@ func (this *Matchers_14) matches(node Node, metadata *NodeMetadata) bool {
 		return node.getJSDocInfo()
 	}()
 	var jsType *JSType = node.getJSType()
-	return ((((jsDoc != nil) && jsDoc.hasType()) && (jsType != nil)) && providedJsType.equals(jsType.restrictByNotNullOrUndefined().self()))
+	return ((((jsDoc != nil) && jsDoc.hasType()) && (jsType != nil)) && providedJsType.equals_JSType(jsType.restrictByNotNullOrUndefined()))
 }
 
 type Matchers_15 struct {

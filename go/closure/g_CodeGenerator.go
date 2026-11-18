@@ -3,7 +3,7 @@
 package closure
 
 type CodeGenerator struct {
-	self_                   any
+	self_                   CodeGenerator_I
 	cc                      *CodeConsumer
 	outputCharsetEncoder    *OutputCharsetEncoder
 	preferSingleQuotes      bool
@@ -17,19 +17,13 @@ type CodeGenerator struct {
 	jsDocInfoPrinter        *JSDocInfoPrinter
 }
 
+// CodeGenerator_I holds the methods the dispatchers of CodeGenerator's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type CodeGenerator_I interface {
+	add_2_impl(Node, CodeGenerator_Context)
+}
+
 func (this *CodeGenerator) as_CodeGenerator() *CodeGenerator { return this }
-
-func to_CodeGenerator(v any) *CodeGenerator {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_CodeGenerator() *CodeGenerator }).as_CodeGenerator()
-}
-
-func is_CodeGenerator(v any) bool {
-	_, ok := v.(interface{ as_CodeGenerator() *CodeGenerator })
-	return ok
-}
 
 func (this *CodeGenerator) self() any {
 	if this == nil {
@@ -110,7 +104,7 @@ func (this *CodeGenerator) printJsDocComment(node Node, jsDocInfo *JSDocInfo) {
 
 func (this *CodeGenerator) printNonJsDocComment(node Node, nonJsDocComment *NonJSDocComment) {
 	var nonJsDocCommentString string = nonJsDocComment.getCommentString()
-	if !String_isEmpty(nonJsDocCommentString) {
+	if nonJsDocCommentString != "" {
 		this.addNonJsDocNonTrailing(node, nonJsDocComment)
 	}
 }
@@ -144,7 +138,7 @@ func (this *CodeGenerator) hasTrailingCommentOnSameLine(node Node) bool {
 	if !this.printNonJsDocComments {
 		return false
 	}
-	return !String_isEmpty(node.getTrailingNonJSDocCommentString())
+	return node.getTrailingNonJSDocCommentString() != ""
 }
 
 func (this *CodeGenerator) printTrailingComment(node Node) {
@@ -154,7 +148,7 @@ func (this *CodeGenerator) printTrailingComment(node Node) {
 	var nonJsDocComment *NonJSDocComment = node.getTrailingNonJSDocComment()
 	if nonJsDocComment != nil {
 		var nonJsDocCommentString string = node.getTrailingNonJSDocCommentString()
-		if !String_isEmpty(nonJsDocCommentString) {
+		if nonJsDocCommentString != "" {
 			this.addNonJsDoctrailing(nonJsDocComment, this.hasTrailingCommentOnSameLine(node))
 		}
 	}
@@ -168,11 +162,11 @@ func (this *CodeGenerator) addNode(n Node) {
 	this.add_2(n, CodeGenerator_Context_OTHER)
 }
 
-func (this *CodeGenerator) add_2_impl(node Node, context *CodeGenerator_Context) {
+func (this *CodeGenerator) add_2_impl(node Node, context CodeGenerator_Context) {
 	this.add_3(node, context, true)
 }
 
-func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, printComments bool) {
+func (this *CodeGenerator) add_3(node Node, context CodeGenerator_Context, printComments bool) {
 	if !this.cc.continueProcessing() {
 		return
 	}
@@ -180,7 +174,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 	if shadow != 0 {
 		var script Node = shadow.getOnlyChild()
 		var sinkCall Node = script.getOnlyChild().getOnlyChild()
-		Preconditions_checkState_boolean_Object(sinkCall.isCall(), sinkCall.box_())
+		if !sinkCall.isCall() {
+			panic(new_IllegalStateException_String(tostr_(sinkCall)))
+		}
 		this.add_3(sinkCall.getLastChild(), context, printComments)
 		return
 	}
@@ -188,15 +184,17 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.printLeadingCommentsInOrder(node)
 	}
 	this.cc.trackLicenses(node)
-	var type_ *Token_rhino = node.getToken()
+	var type_ Token_rhino = node.getToken()
 	var opstr Optional[string] = NodeUtil_opToStr(type_)
 	var childCount int32 = node.getChildCount()
 	var first Node = node.getFirstChild()
 	var last Node = node.getLastChild()
 	if opstr.isPresent() && (first != last) {
-		Preconditions_checkState_boolean_String_Object_int((childCount == 2), "Bad binary operator \"%s\": expected 2 arguments but got %s", strobj_(opstr.get()), childCount)
+		if ok_, a1_, a2_ := (childCount == 2), opstr.get(), childCount; !ok_ {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad binary operator \"%s\": expected 2 arguments but got %s", []any{strobj_(a1_), a2_})))
+		}
 		var p int32 = this.precedence(node)
-		var rhsContext *CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
+		var rhsContext CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
 		var needsParens bool = (((context == CodeGenerator_Context_START_OF_EXPR) || context.atArrowFunctionBody()) && first.isObjectPattern())
 		if node.isAssign() && needsParens {
 			this.add("(")
@@ -216,8 +214,12 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 	this.cc.startSourceMapping(node)
 	switch type_ {
 	case Token_rhino_TRY:
-		Preconditions_checkState((first.getNext().isBlock() && !first.getNext().hasMoreThanOneChild()))
-		Preconditions_checkState(((childCount >= 2) && (childCount <= 3)))
+		if !first.getNext().isBlock() || first.getNext().hasMoreThanOneChild() {
+			panic(new_IllegalStateException_0())
+		}
+		if childCount < 2 || childCount > 3 {
+			panic(new_IllegalStateException_0())
+		}
 		this.add("try")
 		this.addNode(first)
 		var catchblock Node = first.getNext().getFirstChild()
@@ -230,7 +232,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 			this.addNode(last)
 		}
 	case Token_rhino_CATCH:
-		Preconditions_checkState_boolean_Object((childCount == 2), node.box_())
+		if childCount != 2 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.cc.maybeInsertSpace()
 		this.add("catch")
 		this.cc.maybeInsertSpace()
@@ -241,7 +245,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		}
 		this.addNode(last)
 	case Token_rhino_THROW:
-		Preconditions_checkState_boolean_Object((childCount == 1), node.box_())
+		if childCount != 1 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("throw")
 		this.cc.maybeInsertSpace()
 		this.addNode(first)
@@ -258,7 +264,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 				this.addNode(first)
 			}
 		} else {
-			Preconditions_checkState_boolean_Object((childCount == 0), node.box_())
+			if childCount != 0 {
+				panic(new_IllegalStateException_String(tostr_(node)))
+			}
 		}
 		this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
 	case Token_rhino_VAR:
@@ -280,17 +288,21 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 			this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
 		}
 	case Token_rhino_LABEL_NAME:
-		Preconditions_checkState_boolean_Object(!String_isEmpty(node.getString()), node.box_())
+		if node.getString() == "" {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.addIdentifier(node.getString())
 	case Token_rhino_DESTRUCTURING_LHS:
 		this.addNode(first)
 		if first != last {
-			Preconditions_checkState_boolean_Object((childCount == 2), node.box_())
+			if childCount != 2 {
+				panic(new_IllegalStateException_String(tostr_(node)))
+			}
 			this.cc.addOp("=", true)
 			this.addExpr(last, NodeUtil_precedence(Token_rhino_ASSIGN), CodeGenerator_getContextForNoInOperator(context))
 		}
 	case Token_rhino_NAME:
-		if this.useOriginalName && !String_isEmpty(node.getOriginalName()) {
+		if this.useOriginalName && node.getOriginalName() != "" {
 			this.addIdentifier(node.getOriginalName())
 		} else {
 			this.addIdentifier(node.getString())
@@ -298,7 +310,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.maybeAddOptional(node)
 		this.maybeAddTypeDecl(node)
 		if (first != 0) && !first.isEmpty() {
-			Preconditions_checkState_boolean_Object((childCount == 1), node.box_())
+			if childCount != 1 {
+				panic(new_IllegalStateException_String(tostr_(node)))
+			}
 			this.cc.addOp("=", true)
 			this.addExpr(first, NodeUtil_precedence(Token_rhino_ASSIGN), CodeGenerator_getContextForNoInOperator(context))
 		}
@@ -325,22 +339,32 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.cc.addOp("=", true)
 		this.addExpr(first.getNext(), 1, CodeGenerator_Context_OTHER)
 	case Token_rhino_COMMA:
-		Preconditions_checkState_boolean_Object((childCount == 2), node.box_())
+		if childCount != 2 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.unrollBinaryOperator(node, Token_rhino_COMMA, ",", context, CodeGenerator_getContextForNoInOperator(context), 0, 0)
 	case Token_rhino_NUMBER:
-		Preconditions_checkState_boolean_Object((childCount == 0), node.box_())
+		if childCount != 0 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.cc.addNumber(node.getDouble(), node)
 	case Token_rhino_BIGINT:
-		Preconditions_checkState_boolean_Object((childCount == 0), node.box_())
+		if childCount != 0 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.cc.addBigInt(node.getBigInt())
 	case Token_rhino_TYPEOF, Token_rhino_VOID, Token_rhino_NOT, Token_rhino_BITNOT, Token_rhino_POS, Token_rhino_NEG:
-		Preconditions_checkState_boolean_Object((childCount == 1), node.box_())
+		if childCount != 1 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.cc.addOp(NodeUtil_opToStrNoFail(type_), false)
 		this.addExpr(first, NodeUtil_precedence(type_), CodeGenerator_Context_OTHER)
 	case Token_rhino_HOOK:
-		Preconditions_checkState_boolean_String_Object_int((childCount == 3), "%s wrong number of children: %s", node.box_(), childCount)
+		if childCount != 3 {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("%s wrong number of children: %s", []any{node.box_(), childCount})))
+		}
 		var p int32 = NodeUtil_precedence(type_)
-		var rhsContext *CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
+		var rhsContext CodeGenerator_Context = CodeGenerator_getContextForNoInOperator(context)
 		this.addExpr(first, (p + 1), context)
 		this.cc.addOp("?", true)
 		this.addExpr(first.getNext(), 1, rhsContext)
@@ -348,20 +372,24 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.addExpr(last, 1, rhsContext)
 	case Token_rhino_REGEXP:
 		if !first.isStringLit() || !last.isStringLit() {
-			panic(new_Error_String("Expected children to be strings").self())
+			panic(new_Error_String("Expected children to be strings"))
 		}
 		var regexp string = this.regexpEscape(first.getString())
 		if childCount == 2 {
 			this.add((sstr_(regexp) + sstr_(last.getString())))
 		} else {
-			Preconditions_checkState_boolean_Object((childCount == 1), node.box_())
+			if childCount != 1 {
+				panic(new_IllegalStateException_String(tostr_(node)))
+			}
 			this.add(regexp)
 		}
 	case Token_rhino_FUNCTION:
 		if Object_getClass(node.box_()) != classOf_("com.google.javascript.rhino.Node") {
-			panic(new_Error_String("Unexpected Node subclass.").self())
+			panic(new_Error_String("Unexpected Node subclass."))
 		}
-		Preconditions_checkState_boolean_Object((childCount == 3), node.box_())
+		if childCount != 3 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		if node.isArrowFunction() {
 			this.addArrowFunction(node, first, last, context)
 		} else {
@@ -381,7 +409,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		}
 		if node.getBooleanProp(Node_EXPORT_ALL_FROM) {
 			this.add("*")
-			Preconditions_checkState_boolean_Object(((first != 0) && first.isEmpty()), node.box_())
+			if first == 0 || !first.isEmpty() {
+				panic(new_IllegalStateException_String(tostr_(node)))
+			}
 		} else {
 			this.addNode(first)
 		}
@@ -438,7 +468,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.add("import.meta")
 	case Token_rhino_CLASS:
 		{
-			Preconditions_checkState_boolean_Object((childCount == 3), node.box_())
+			if childCount != 3 {
+				panic(new_IllegalStateException_String(tostr_(node)))
+			}
 			var classNeedsParens bool = (context == CodeGenerator_Context_START_OF_EXPR)
 			if classNeedsParens {
 				this.add("(")
@@ -501,7 +533,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		}
 		this.cc.endBlock_1(false)
 	case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_VARIABLE_DEF:
-		Preconditions_checkState(((((node.getParent().isObjectLit() || node.getParent().isClassMembers()) || node.getParent().isInterfaceMembers()) || node.getParent().isRecordType()) || node.getParent().isIndexSignature()))
+		if !((((node.getParent().isObjectLit() || node.getParent().isClassMembers()) || node.getParent().isInterfaceMembers()) || node.getParent().isRecordType()) || node.getParent().isIndexSignature()) {
+			panic(new_IllegalStateException_0())
+		}
 		this.maybeAddAccessibilityModifier(node)
 		if node.isStaticMember() {
 			this.add("static ")
@@ -510,15 +544,21 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 			this.add("async ")
 		}
 		if !node.isMemberVariableDef() && node.getFirstChild().isGeneratorFunction() {
-			Preconditions_checkState_boolean_Object((type_ == Token_rhino_MEMBER_FUNCTION_DEF), node.box_())
+			if type_ != Token_rhino_MEMBER_FUNCTION_DEF {
+				panic(new_IllegalStateException_String(tostr_(node)))
+			}
 			this.add("*")
 		}
 		switch type_ {
 		case Token_rhino_GETTER_DEF:
-			Preconditions_checkState_boolean_Object(!first.getSecondChild().hasChildren(), node.box_())
+			if first.getSecondChild().hasChildren() {
+				panic(new_IllegalStateException_String(tostr_(node)))
+			}
 			this.add("get ")
 		case Token_rhino_SETTER_DEF:
-			Preconditions_checkState_boolean_Object(first.getSecondChild().hasOneChild(), node.box_())
+			if !first.getSecondChild().hasOneChild() {
+				panic(new_IllegalStateException_String(tostr_(node)))
+			}
 			this.add("set ")
 		case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_VARIABLE_DEF:
 		default:
@@ -529,9 +569,15 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 			this.maybeAddOptional(node)
 			this.maybeAddTypeDecl(node)
 		} else {
-			Preconditions_checkState_boolean_Object((childCount == 1), node.box_())
-			Preconditions_checkState_boolean_Object(first.isFunction(), first.box_())
-			Preconditions_checkState_boolean_Object(String_isEmpty(first.getFirstChild().getString()), first.box_())
+			if childCount != 1 {
+				panic(new_IllegalStateException_String(tostr_(node)))
+			}
+			if !first.isFunction() {
+				panic(new_IllegalStateException_String(tostr_(first)))
+			}
+			if first.getFirstChild().getString() != "" {
+				panic(new_IllegalStateException_String(tostr_(first)))
+			}
 			var fn Node = first
 			var parameters Node = fn.getSecondChild()
 			var body Node = fn.getLastChild()
@@ -555,7 +601,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 			this.addNode(body)
 		}
 	case Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
-		Preconditions_checkState(node.getParent().isClassMembers())
+		if !node.getParent().isClassMembers() {
+			panic(new_IllegalStateException_0())
+		}
 		if node.getBooleanProp(Node_STATIC_MEMBER) {
 			this.add("static ")
 		}
@@ -578,7 +626,7 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.add(";")
 	case Token_rhino_SCRIPT, Token_rhino_MODULE_BODY, Token_rhino_BLOCK, Token_rhino_ROOT:
 		if Object_getClass(node.box_()) != classOf_("com.google.javascript.rhino.Node") {
-			panic(new_Error_String("Unexpected Node subclass.").self())
+			panic(new_Error_String("Unexpected Node subclass."))
 		}
 		if node.hasParent() {
 			var staticBlock bool = (node.isBlock() && node.getParent().isClassMembers())
@@ -607,7 +655,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 			this.cc.endBlock_1(this.cc.breakAfterBlockFor(node, (context == CodeGenerator_Context_STATEMENT)))
 		}
 	case Token_rhino_FOR:
-		Preconditions_checkState_boolean_Object((childCount == 4), node.box_())
+		if childCount != 4 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("for")
 		this.cc.maybeInsertSpace()
 		this.add("(")
@@ -629,7 +679,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.add(")")
 		this.addNonEmptyStatement(last, CodeGenerator_getContextForNonEmptyExpression(context), false)
 	case Token_rhino_FOR_IN:
-		Preconditions_checkState_boolean_Object((childCount == 3), node.box_())
+		if childCount != 3 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("for")
 		this.cc.maybeInsertSpace()
 		this.add("(")
@@ -639,7 +691,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.add(")")
 		this.addNonEmptyStatement(last, CodeGenerator_getContextForNonEmptyExpression(context), false)
 	case Token_rhino_FOR_OF:
-		Preconditions_checkState_boolean_Object((childCount == 3), node.box_())
+		if childCount != 3 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("for")
 		this.cc.maybeInsertSpace()
 		this.add("(")
@@ -651,7 +705,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.add(")")
 		this.addNonEmptyStatement(last, CodeGenerator_getContextForNonEmptyExpression(context), false)
 	case Token_rhino_FOR_AWAIT_OF:
-		Preconditions_checkState_boolean_Object((childCount == 3), node.box_())
+		if childCount != 3 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("for await")
 		this.cc.maybeInsertSpace()
 		this.add("(")
@@ -663,7 +719,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.add(")")
 		this.addNonEmptyStatement(last, CodeGenerator_getContextForNonEmptyExpression(context), false)
 	case Token_rhino_DO:
-		Preconditions_checkState_boolean_Object((childCount == 2), node.box_())
+		if childCount != 2 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("do")
 		this.addNonEmptyStatement(first, CodeGenerator_Context_OTHER, false)
 		this.cc.maybeInsertSpace()
@@ -674,7 +732,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.add(")")
 		this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
 	case Token_rhino_WHILE:
-		Preconditions_checkState_boolean_Object((childCount == 2), node.box_())
+		if childCount != 2 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("while")
 		this.cc.maybeInsertSpace()
 		this.add("(")
@@ -682,7 +742,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.add(")")
 		this.addNonEmptyStatement(last, CodeGenerator_getContextForNonEmptyExpression(context), false)
 	case Token_rhino_EMPTY:
-		Preconditions_checkState_boolean_Object((childCount == 0), node.box_())
+		if childCount != 0 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 	case Token_rhino_OPTCHAIN_GETPROP:
 		this.addExpr(first, NodeUtil_precedence(type_), context)
 		this.add(func() string {
@@ -693,7 +755,7 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		}())
 		this.addGetpropIdentifier(node)
 	case Token_rhino_GETPROP:
-		if this.useOriginalName && !String_isEmpty(node.getOriginalName()) {
+		if this.useOriginalName && node.getOriginalName() != "" {
 			if CodeGenerator_JSCOMP_SCOPE.matches(node.getFirstChild()) && node.getParent().isAssign() {
 				this.add("var ")
 			}
@@ -716,7 +778,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 			this.addGetpropIdentifier(node)
 		}
 	case Token_rhino_OPTCHAIN_GETELEM:
-		Preconditions_checkState_boolean_String_int_Object((childCount == 2), "Bad GETELEM node: Expected 2 children but got %s. For node: %s", childCount, node.box_())
+		if childCount != 2 {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad GETELEM node: Expected 2 children but got %s. For node: %s", []any{childCount, node.box_()})))
+		}
 		this.addExpr(first, NodeUtil_precedence(type_), context)
 		if node.isOptionalChainStart() {
 			this.add("?.")
@@ -725,7 +789,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.addNode(first.getNext())
 		this.add("]")
 	case Token_rhino_GETELEM:
-		Preconditions_checkState_boolean_String_int_Object((childCount == 2), "Bad GETELEM node: Expected 2 children but got %s. For node: %s", childCount, node.box_())
+		if childCount != 2 {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Bad GETELEM node: Expected 2 children but got %s. For node: %s", []any{childCount, node.box_()})))
+		}
 		var needsParens bool = NodeUtil_isOptChainNode(first)
 		if needsParens {
 			this.add("(")
@@ -738,13 +804,17 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.addNode(first.getNext())
 		this.add("]")
 	case Token_rhino_WITH:
-		Preconditions_checkState_boolean_Object((childCount == 2), node.box_())
+		if childCount != 2 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("with(")
 		this.addNode(first)
 		this.add(")")
 		this.addNonEmptyStatement(last, CodeGenerator_getContextForNonEmptyExpression(context), false)
 	case Token_rhino_INC, Token_rhino_DEC:
-		Preconditions_checkState_boolean_Object((childCount == 1), node.box_())
+		if childCount != 1 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		var o string = func() string {
 			if type_ == Token_rhino_INC {
 				return "++"
@@ -780,7 +850,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.addList(first.getNext())
 		this.add(")")
 	case Token_rhino_IF:
-		Preconditions_checkState_boolean_Object(((childCount == 2) || (childCount == 3)), node.box_())
+		if childCount != 2 && childCount != 3 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		var hasElse bool = (childCount == 3)
 		var ambiguousElseClause bool = ((context == CodeGenerator_Context_BEFORE_DANGLING_ELSE) && !hasElse)
 		if ambiguousElseClause {
@@ -803,21 +875,31 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 			this.cc.endBlock()
 		}
 	case Token_rhino_NULL:
-		Preconditions_checkState_boolean_Object((childCount == 0), node.box_())
+		if childCount != 0 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.cc.addConstant("null")
 	case Token_rhino_THIS:
-		Preconditions_checkState_boolean_Object((childCount == 0), node.box_())
+		if childCount != 0 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("this")
 	case Token_rhino_SUPER:
-		Preconditions_checkState_boolean_Object((childCount == 0), node.box_())
+		if childCount != 0 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("super")
 	case Token_rhino_NEW_TARGET:
-		Preconditions_checkState_boolean_Object((childCount == 0), node.box_())
+		if childCount != 0 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("new.target")
 	case Token_rhino_YIELD:
 		this.add("yield")
 		if node.isYieldAll() {
-			Preconditions_checkNotNull(first.box_())
+			if first == 0 {
+				panic(new_NullPointerException_0())
+			}
 			this.add("*")
 		}
 		if first != 0 {
@@ -828,39 +910,51 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.add("await ")
 		this.addExpr(first, NodeUtil_precedence(type_), CodeGenerator_Context_OTHER)
 	case Token_rhino_FALSE:
-		Preconditions_checkState_boolean_Object((childCount == 0), node.box_())
+		if childCount != 0 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.cc.addConstant("false")
 	case Token_rhino_TRUE:
-		Preconditions_checkState_boolean_Object((childCount == 0), node.box_())
+		if childCount != 0 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.cc.addConstant("true")
 	case Token_rhino_CONTINUE:
-		Preconditions_checkState_boolean_Object((childCount <= 1), node.box_())
+		if childCount > 1 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("continue")
 		if childCount == 1 {
 			if !first.isLabelName() {
-				panic(new_Error_String("Unexpected token type. Should be LABEL_NAME.").self())
+				panic(new_Error_String("Unexpected token type. Should be LABEL_NAME."))
 			}
 			this.add(" ")
 			this.addNode(first)
 		}
 		this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
 	case Token_rhino_DEBUGGER:
-		Preconditions_checkState_boolean_Object((childCount == 0), node.box_())
+		if childCount != 0 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("debugger")
 		this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
 	case Token_rhino_BREAK:
-		Preconditions_checkState_boolean_Object((childCount <= 1), node.box_())
+		if childCount > 1 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("break")
 		if childCount == 1 {
 			if !first.isLabelName() {
-				panic(new_Error_String("Unexpected token type. Should be LABEL_NAME.").self())
+				panic(new_Error_String("Unexpected token type. Should be LABEL_NAME."))
 			}
 			this.add(" ")
 			this.addNode(first)
 		}
 		this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
 	case Token_rhino_EXPR_RESULT:
-		Preconditions_checkState_boolean_Object((childCount == 1), node.box_())
+		if childCount != 1 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add_2(first, CodeGenerator_Context_START_OF_EXPR)
 		this.cc.endStatement(this.hasTrailingCommentOnSameLine(node))
 	case Token_rhino_NEW:
@@ -870,7 +964,7 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		if precedenceOfFirst == precedence {
 			precedence = (precedence + 1)
 		}
-		if (NodeUtil_has(first, &Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isCall() }}, NodeUtil_MATCH_NOT_FUNCTION) || NodeUtil_isOptChainNode(first)) {
+		if NodeUtil_has(first, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isCall() }}).apply, NodeUtil_MATCH_NOT_FUNCTION) || NodeUtil_isOptChainNode(first) {
 			precedence = (NodeUtil_precedence(first.getToken()) + 1)
 		}
 		this.addExpr(first, precedence, CodeGenerator_Context_OTHER)
@@ -888,10 +982,14 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 	case Token_rhino_STRING_KEY:
 		this.addStringKey(node)
 	case Token_rhino_STRINGLIT:
-		Preconditions_checkState_boolean_String_Object((childCount == 0), "String node %s may not have children", node.box_())
+		if childCount != 0 {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("String node %s may not have children", []any{node.box_()})))
+		}
 		this.addJsString(node)
 	case Token_rhino_DELPROP:
-		Preconditions_checkState_boolean_Object((childCount == 1), node.box_())
+		if childCount != 1 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("delete ")
 		this.addNode(first)
 	case Token_rhino_OBJECTLIT:
@@ -906,7 +1004,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 				if c != first {
 					this.cc.listSeparator()
 				}
-				Preconditions_checkState_boolean_Object((NodeUtil_isObjLitProperty(c) || c.isSpread()), c.box_())
+				if !NodeUtil_isObjLitProperty(c) && !c.isSpread() {
+					panic(new_IllegalStateException_String(tostr_(c)))
+				}
 				this.addNode(c)
 			}
 		}
@@ -948,11 +1048,15 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 			var isInClass bool = node.getParent().isClassMembers()
 			var initializer Node = first.getNext()
 			if initializer != 0 {
-				Preconditions_checkState_boolean_Object(!isInClass, strobj_("initializers should only exist in object literals, not classes"))
+				if isInClass {
+					panic(new_IllegalStateException_String("initializers should only exist in object literals, not classes"))
+				}
 				this.cc.add(":")
 				this.addExpr(initializer, 1, CodeGenerator_Context_OTHER)
 			} else {
-				Preconditions_checkState_boolean_Object(node.getBooleanProp(Node_COMPUTED_PROP_VARIABLE), node.box_())
+				if !node.getBooleanProp(Node_COMPUTED_PROP_VARIABLE) {
+					panic(new_IllegalStateException_String(tostr_(node)))
+				}
 			}
 		}
 	case Token_rhino_OBJECT_PATTERN:
@@ -968,18 +1072,24 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.addAllSiblings(first)
 		this.cc.endBlock_1((context == CodeGenerator_Context_STATEMENT))
 	case Token_rhino_CASE:
-		Preconditions_checkState_boolean_Object((childCount == 2), node.box_())
+		if childCount != 2 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("case ")
 		this.addNode(first)
 		this.addCaseBody(last)
 	case Token_rhino_DEFAULT_CASE:
-		Preconditions_checkState_boolean_Object((childCount == 1), node.box_())
+		if childCount != 1 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		this.add("default")
 		this.addCaseBody(first)
 	case Token_rhino_LABEL:
-		Preconditions_checkState_boolean_Object((childCount == 2), node.box_())
+		if childCount != 2 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		if !first.isLabelName() {
-			panic(new_Error_String("Unexpected token type. Should be LABEL_NAME.").self())
+			panic(new_Error_String("Unexpected token type. Should be LABEL_NAME."))
 		}
 		this.addNode(first)
 		this.add(":")
@@ -1059,7 +1169,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		}
 	case Token_rhino_INTERFACE:
 		{
-			Preconditions_checkState_boolean_Object((childCount == 3), node.box_())
+			if childCount != 3 {
+				panic(new_IllegalStateException_String(tostr_(node)))
+			}
 			var name Node = first
 			var superTypes Node = first.getNext()
 			var members Node = last
@@ -1083,14 +1195,18 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 			this.addNode(members)
 		}
 	case Token_rhino_ENUM:
-		Preconditions_checkState_boolean_Object((childCount == 2), node.box_())
+		if childCount != 2 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		var name Node = first
 		var members Node = last
 		this.add("enum")
 		this.addNode(name)
 		this.addNode(members)
 	case Token_rhino_NAMESPACE:
-		Preconditions_checkState_boolean_Object((childCount == 2), node.box_())
+		if childCount != 2 {
+			panic(new_IllegalStateException_String(tostr_(node)))
+		}
 		var name Node = first
 		var elements Node = last
 		this.add("namespace")
@@ -1121,7 +1237,7 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		this.maybeAddTypeDecl(node)
 		this.cc.endStatement_2(true, this.hasTrailingCommentOnSameLine(node))
 	default:
-		panic(new_IllegalStateException_String(("Unknown token " + objstr_(obj_(type_)) + "\n" + sstr_(node.toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unknown token " + tostr_(type_) + "\n" + sstr_(node.toStringTree()))))
 	}
 	this.printTrailingComment(node)
 	this.cc.endSourceMapping(node)
@@ -1144,7 +1260,7 @@ func (this *CodeGenerator) precedence(n Node) int32 {
 	return NodeUtil_precedence(n.getToken())
 }
 
-func (this *CodeGenerator) addInvocationTarget(node Node, context *CodeGenerator_Context) {
+func (this *CodeGenerator) addInvocationTarget(node Node, context CodeGenerator_Context) {
 	var first Node = node.getFirstChild()
 	var needsParens bool = NodeUtil_isOptChainNode(first)
 	if CodeGenerator_isIndirectEval(first) || (node.getBooleanProp(Node_FREE_CALL) && NodeUtil_isNormalOrOptChainGet(first)) {
@@ -1181,11 +1297,12 @@ func (this *CodeGenerator) arrowFunctionNeedsParens(n Node) bool {
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
-func (this *CodeGenerator) addArrowFunction(n Node, first Node, last Node, context *CodeGenerator_Context) {
-	Preconditions_checkState_boolean_Object(String_isEmpty(first.getString()), first.box_())
+func (this *CodeGenerator) addArrowFunction(n Node, first Node, last Node, context CodeGenerator_Context) {
+	if first.getString() != "" {
+		panic(new_IllegalStateException_String(tostr_(first)))
+	}
 	var funcNeedsParens bool = this.arrowFunctionNeedsParens(n)
 	if funcNeedsParens {
 		this.add("(")
@@ -1208,7 +1325,7 @@ func (this *CodeGenerator) addArrowFunction(n Node, first Node, last Node, conte
 	}
 }
 
-func (this *CodeGenerator) addFunction(n Node, first Node, last Node, context *CodeGenerator_Context) {
+func (this *CodeGenerator) addFunction(n Node, first Node, last Node, context CodeGenerator_Context) {
 	var funcNeedsParens bool = (context == CodeGenerator_Context_START_OF_EXPR)
 	if funcNeedsParens {
 		this.add("(")
@@ -1221,7 +1338,7 @@ func (this *CodeGenerator) addFunction(n Node, first Node, last Node, context *C
 	}())
 	if n.isGeneratorFunction() {
 		this.add("*")
-		if !String_isEmpty(first.getString()) {
+		if first.getString() != "" {
 			this.cc.maybeInsertSpace()
 		}
 	}
@@ -1237,9 +1354,9 @@ func (this *CodeGenerator) addFunction(n Node, first Node, last Node, context *C
 }
 
 func (this *CodeGenerator) maybeAddAccessibilityModifier(n Node) {
-	var access *JSDocInfo_Visibility = n.getAccessModifier()
-	if access != nil {
-		this.add((sstr_(Ascii_toLowerCase(Object_toString(obj_(access)))) + " "))
+	var access JSDocInfo_Visibility = n.getAccessModifier()
+	if access != 0 {
+		this.add((sstr_(Ascii_toLowerCase(tostrNN_(access))) + " "))
 	}
 }
 
@@ -1264,7 +1381,7 @@ func (this *CodeGenerator) maybeAddOptional(n Node) {
 	}
 }
 
-func (this *CodeGenerator) unrollBinaryOperator(n Node, op *Token_rhino, opStr string, context *CodeGenerator_Context, rhsContext *CodeGenerator_Context, leftPrecedence int32, rightPrecedence int32) {
+func (this *CodeGenerator) unrollBinaryOperator(n Node, op Token_rhino, opStr string, context CodeGenerator_Context, rhsContext CodeGenerator_Context, leftPrecedence int32, rightPrecedence int32) {
 	var firstNonOperator Node = n.getFirstChild()
 	for firstNonOperator.getToken() == op {
 		firstNonOperator = firstNonOperator.getFirstChild()
@@ -1279,17 +1396,18 @@ func (this *CodeGenerator) unrollBinaryOperator(n Node, op *Token_rhino, opStr s
 }
 
 func CodeGenerator_isSimpleNumber(s string) bool {
-	var len_ int32 = String_length(s)
+	sU16 := utf16Of_(s)
+	var len_ int32 = sU16.length()
 	if len_ == 0 {
 		return false
 	}
 	for index := int32(0); index < len_; index++ {
-		var c uint16 = String_charAt(s, index)
+		var c uint16 = sU16.charAt(index)
 		if (int32(c) < 48) || (int32(c) > 57) {
 			return false
 		}
 	}
-	return ((len_ == 1) || (String_charAt(s, 0) != '0'))
+	return ((len_ == 1) || (byteAt_(s, 0) != '0'))
 }
 
 func CodeGenerator_getSimpleNumber(s string) float64 {
@@ -1307,10 +1425,10 @@ func CodeGenerator_isIndirectEval(n Node) bool {
 	return ((n.isName() && ("eval" == n.getString())) && !n.getBooleanProp(Node_DIRECT_EVAL))
 }
 
-func (this *CodeGenerator) addNonEmptyStatement(n Node, context *CodeGenerator_Context, allowNonBlockChild bool) {
+func (this *CodeGenerator) addNonEmptyStatement(n Node, context CodeGenerator_Context, allowNonBlockChild bool) {
 	var nodeToProcess Node = n
 	if !allowNonBlockChild && !n.isBlock() {
-		panic(new_Error_String("Missing BLOCK child.").self())
+		panic(new_Error_String("Missing BLOCK child."))
 	}
 	if n.isBlock() {
 		var count int32 = CodeGenerator_getNonEmptyChildCount(n, 2)
@@ -1363,19 +1481,17 @@ func CodeGenerator_isBlockDeclOrDo(n Node) bool {
 		}
 	} else {
 		return func() bool {
-			switch n.getToken() {
-			case Token_rhino_LET, Token_rhino_CONST, Token_rhino_FUNCTION, Token_rhino_CLASS, Token_rhino_DO:
+			switch n.ns_().token {
+			case tokOrd1_LET, tokOrd1_CONST, tokOrd1_FUNCTION, tokOrd1_CLASS, tokOrd1_DO:
 				return true
 			default:
 				return false
 			}
-			panic("unreachable")
 		}()
 	}
-	panic("unreachable")
 }
 
-func (this *CodeGenerator) addExpr(n Node, minPrecedence int32, context *CodeGenerator_Context) {
+func (this *CodeGenerator) addExpr(n Node, minPrecedence int32, context CodeGenerator_Context) {
 	if this.opRequiresParentheses(n, minPrecedence, context) {
 		this.add("(")
 		this.add_2(n, CodeGenerator_Context_OTHER)
@@ -1385,7 +1501,7 @@ func (this *CodeGenerator) addExpr(n Node, minPrecedence int32, context *CodeGen
 	}
 }
 
-func (this *CodeGenerator) opRequiresParentheses(n Node, minPrecedence int32, context *CodeGenerator_Context) bool {
+func (this *CodeGenerator) opRequiresParentheses(n Node, minPrecedence int32, context CodeGenerator_Context) bool {
 	if context.inForInInitClause() && n.isIn() {
 		return true
 	} else if NodeUtil_isUnaryOperator(n) && this.isFirstOperandOfExponentiationExpression(n) {
@@ -1397,7 +1513,6 @@ func (this *CodeGenerator) opRequiresParentheses(n Node, minPrecedence int32, co
 	} else {
 		return (this.precedence(n) < minPrecedence)
 	}
-	panic("unreachable")
 }
 
 func (this *CodeGenerator) isLogicalAndOrLogicalOrChildOfNullishCoalesce(n Node) bool {
@@ -1435,7 +1550,7 @@ func (this *CodeGenerator) addList_2(firstInList Node, separator string) {
 	this.addList_4(firstInList, true, CodeGenerator_Context_OTHER, separator)
 }
 
-func (this *CodeGenerator) addList_4(firstInList Node, isArrayOrFunctionArgument bool, lhsContext *CodeGenerator_Context, separator string) {
+func (this *CodeGenerator) addList_4(firstInList Node, isArrayOrFunctionArgument bool, lhsContext CodeGenerator_Context, separator string) {
 	if firstInList == 0 {
 		return
 	}
@@ -1525,7 +1640,9 @@ func (this *CodeGenerator) addArrayList(firstInList Node) {
 }
 
 func (this *CodeGenerator) addCaseBody(caseBody Node) {
-	Preconditions_checkState_boolean_Object(caseBody.isBlock(), caseBody.box_())
+	if !caseBody.isBlock() {
+		panic(new_IllegalStateException_String(tostr_(caseBody)))
+	}
 	this.cc.beginCaseBody()
 	this.addAllSiblings(caseBody.getFirstChild())
 	this.cc.endCaseBody()
@@ -1545,7 +1662,9 @@ func (this *CodeGenerator) addNonJsDocNonTrailing(node Node, nonJsDocComment *No
 	var commentEndPosition *SourcePosition_util = nonJsDocComment.getEndPosition()
 	var nodeLineNumber int32 = (node.getLineno() - 1)
 	if nonJsDocComment.isEndingAsLineComment() {
-		Preconditions_checkState_boolean_Object((this.gentsMode || (commentEndPosition.line_ < nodeLineNumber)), strobj_("Non trailing line comments can not be on the same line as the node."))
+		if !this.gentsMode && commentEndPosition.line_ >= nodeLineNumber {
+			panic(new_IllegalStateException_String("Non trailing line comments can not be on the same line as the node."))
+		}
 		this.add((sstr_(content) + "\n"))
 	} else {
 		if nodeLineNumber == commentEndPosition.line_ {
@@ -1582,8 +1701,8 @@ func (this *CodeGenerator) addJsString(n Node) {
 func (this *CodeGenerator) jsString(s string) string {
 	var singleq int32 = 0
 	var doubleq int32 = 0
-	for i := int32(0); i < String_length(s); i++ {
-		switch String_charAt(s, i) {
+	for _, u_ := range stringUnits_(s) {
+		switch u_ {
 		case '"':
 			doubleq++
 		case '\'':
@@ -1616,9 +1735,9 @@ func (this *CodeGenerator) regexpEscape(s string) string {
 }
 
 func (this *CodeGenerator) strEscape(s string, doublequoteEscape string, singlequoteEscape string, backtickEscape string, backslashEscape string, dollarEscape string, isRegexp bool) string {
-	var sb *StringBuilder = new_StringBuilder_int((String_length(s) + 2))
-	for i := int32(0); i < String_length(s); i++ {
-		var c uint16 = String_charAt(s, i)
+	var sb strBuilder_
+	sb.grow((int32(len(s)) + 2))
+	for i, c := range stringUnits_(s) {
 		switch c {
 		case 0x0000:
 			sb.append("\\x00")
@@ -1649,13 +1768,13 @@ func (this *CodeGenerator) strEscape(s string, doublequoteEscape string, singleq
 		case '`':
 			sb.append(backtickEscape)
 		case '=':
-			this.appendEscapedEq(sb, isRegexp)
+			this.appendEscapedEq(&sb, isRegexp)
 		case '&':
-			this.appendEscapedAmp(sb, isRegexp)
+			this.appendEscapedAmp(&sb, isRegexp)
 		case '>':
-			this.appendEscapedGt(sb, s, i, isRegexp)
+			this.appendEscapedGt(&sb, s, i, isRegexp)
 		case '<':
-			this.appendEscapedLt(sb, s, i, isRegexp)
+			this.appendEscapedLt(&sb, s, i, isRegexp)
 		default:
 			if isRegexp || !this.outputFeatureSet.contains(FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP) {
 				if c == 0x2028 {
@@ -1670,14 +1789,14 @@ func (this *CodeGenerator) strEscape(s string, doublequoteEscape string, singleq
 			if ((this.outputCharsetEncoder != nil) && this.outputCharsetEncoder.canEncode(c)) || ((int32(c) > 31) && (int32(c) < 127)) {
 				sb.append_char(c)
 			} else {
-				Util_appendHexJavaScriptRepresentation(sb, c)
+				Util_appendHexJavaScriptRepresentation(&sb, c)
 			}
 		}
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
-func (this *CodeGenerator) appendEscapedEq(sb *StringBuilder, isRegexp bool) {
+func (this *CodeGenerator) appendEscapedEq(sb *strBuilder_, isRegexp bool) {
 	if this.trustedStrings || isRegexp {
 		sb.append_char('=')
 	} else {
@@ -1685,7 +1804,7 @@ func (this *CodeGenerator) appendEscapedEq(sb *StringBuilder, isRegexp bool) {
 	}
 }
 
-func (this *CodeGenerator) appendEscapedAmp(sb *StringBuilder, isRegexp bool) {
+func (this *CodeGenerator) appendEscapedAmp(sb *strBuilder_, isRegexp bool) {
 	if this.trustedStrings || isRegexp {
 		sb.append_char('&')
 	} else {
@@ -1693,19 +1812,20 @@ func (this *CodeGenerator) appendEscapedAmp(sb *StringBuilder, isRegexp bool) {
 	}
 }
 
-func (this *CodeGenerator) appendEscapedGt(sb *StringBuilder, s string, index int32, isRegexp bool) {
+func (this *CodeGenerator) appendEscapedGt(sb *strBuilder_, s string, index int32, isRegexp bool) {
 	if !this.trustedStrings && !isRegexp {
 		sb.append(CodeGenerator_GT_ESCAPED)
 		return
 	}
-	if (index >= 2) && (((String_charAt(s, (index-1)) == '-') && (String_charAt(s, (index-2)) == '-')) || ((String_charAt(s, (index-1)) == ']') && (String_charAt(s, (index-2)) == ']'))) {
+	sU16 := utf16Of_(s)
+	if (index >= 2) && (((sU16.charAt((index - 1)) == '-') && (sU16.charAt((index - 2)) == '-')) || ((sU16.charAt((index - 1)) == ']') && (sU16.charAt((index - 2)) == ']'))) {
 		sb.append(CodeGenerator_GT_ESCAPED)
 	} else {
 		sb.append_char('>')
 	}
 }
 
-func (this *CodeGenerator) appendEscapedLt(sb *StringBuilder, s string, index int32, isRegexp bool) {
+func (this *CodeGenerator) appendEscapedLt(sb *strBuilder_, s string, index int32, isRegexp bool) {
 	if !this.trustedStrings && !isRegexp {
 		sb.append(CodeGenerator_LT_ESCAPED)
 		return
@@ -1713,7 +1833,8 @@ func (this *CodeGenerator) appendEscapedLt(sb *StringBuilder, s string, index in
 	var endScript string = "/script"
 	var endStyle string = "/style"
 	var startComment string = "!--"
-	if (String_regionMatches(s, true, (index+1), endScript, 0, String_length(endScript)) || String_regionMatches(s, true, (index+1), endStyle, 0, String_length(endStyle))) || String_regionMatches(s, false, (index+1), startComment, 0, String_length(startComment)) {
+	sU16 := utf16Of_(s)
+	if (sU16.regionMatches(true, (index+1), endScript, 0, int32(len(endScript))) || sU16.regionMatches(true, (index+1), endStyle, 0, int32(len(endStyle)))) || sU16.regionMatches(false, (index+1), startComment, 0, int32(len(startComment))) {
 		sb.append(CodeGenerator_LT_ESCAPED)
 	} else {
 		sb.append_char('<')
@@ -1721,27 +1842,26 @@ func (this *CodeGenerator) appendEscapedLt(sb *StringBuilder, s string, index in
 }
 
 func (this *CodeGenerator) escapeUnrecognizedCharacters(s string) string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	var escapeStart int32 = -1
-	for i := int32(0); i < String_length(s); i++ {
-		var c uint16 = String_charAt(s, i)
+	for i, c := range stringUnits_(s) {
 		var start int32 = sb.length()
 		switch c {
 		case 0x0008, 0x000C, '\n', '\r', '\t', '\\', '"', '\'', '$', '`', 0x2028, 0x2029:
 			sb.append_char(c)
 		case '=':
-			this.appendEscapedEq(sb, false)
+			this.appendEscapedEq(&sb, false)
 		case '&':
-			this.appendEscapedAmp(sb, false)
+			this.appendEscapedAmp(&sb, false)
 		case '>':
-			this.appendEscapedGt(sb, s, i, false)
+			this.appendEscapedGt(&sb, s, i, false)
 		case '<':
-			this.appendEscapedLt(sb, s, i, false)
+			this.appendEscapedLt(&sb, s, i, false)
 		default:
 			if ((this.outputCharsetEncoder != nil) && this.outputCharsetEncoder.canEncode(c)) || ((int32(c) > 31) && (int32(c) < 127)) {
 				sb.append_char(c)
 			} else {
-				Util_appendHexJavaScriptRepresentation(sb, c)
+				Util_appendHexJavaScriptRepresentation(&sb, c)
 			}
 		}
 		if escapeStart >= 0 {
@@ -1753,23 +1873,22 @@ func (this *CodeGenerator) escapeUnrecognizedCharacters(s string) string {
 			escapeStart = start
 		}
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func CodeGenerator_identifierEscape(s string) string {
 	if NodeUtil_isLatin(s) {
 		return s
 	}
-	var sb *StringBuilder = new_StringBuilder()
-	for i := int32(0); i < String_length(s); i++ {
-		var c uint16 = String_charAt(s, i)
+	var sb strBuilder_
+	for _, c := range stringUnits_(s) {
 		if (int32(c) > 31) && (int32(c) < 127) {
 			sb.append_char(c)
 		} else {
-			Util_appendHexJavaScriptRepresentation(sb, c)
+			Util_appendHexJavaScriptRepresentation(&sb, c)
 		}
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func CodeGenerator_getNonEmptyChildCount(n Node, maxCount int32) int32 {
@@ -1802,8 +1921,8 @@ func CodeGenerator_getFirstNonEmptyChild(n Node) Node {
 	return 0
 }
 
-func CodeGenerator_getContextForNonEmptyExpression(currentContext *CodeGenerator_Context) *CodeGenerator_Context {
-	return func() *CodeGenerator_Context {
+func CodeGenerator_getContextForNonEmptyExpression(currentContext CodeGenerator_Context) CodeGenerator_Context {
+	return func() CodeGenerator_Context {
 		if currentContext == CodeGenerator_Context_BEFORE_DANGLING_ELSE {
 			return CodeGenerator_Context_BEFORE_DANGLING_ELSE
 		}
@@ -1811,8 +1930,8 @@ func CodeGenerator_getContextForNonEmptyExpression(currentContext *CodeGenerator
 	}()
 }
 
-func CodeGenerator_getContextForNoInOperator(context *CodeGenerator_Context) *CodeGenerator_Context {
-	return func() *CodeGenerator_Context {
+func CodeGenerator_getContextForNoInOperator(context CodeGenerator_Context) CodeGenerator_Context {
+	return func() CodeGenerator_Context {
 		if context.inForInInitClause() {
 			return context
 		}
@@ -1820,8 +1939,8 @@ func CodeGenerator_getContextForNoInOperator(context *CodeGenerator_Context) *Co
 	}()
 }
 
-func CodeGenerator_getContextForArrowFunctionBody(context *CodeGenerator_Context) *CodeGenerator_Context {
-	return func() *CodeGenerator_Context {
+func CodeGenerator_getContextForArrowFunctionBody(context CodeGenerator_Context) CodeGenerator_Context {
+	return func() CodeGenerator_Context {
 		if context.inForInInitClause() {
 			return CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT
 		}
@@ -1829,33 +1948,33 @@ func CodeGenerator_getContextForArrowFunctionBody(context *CodeGenerator_Context
 	}()
 }
 
-func (this *CodeGenerator) processEnd(n Node, context *CodeGenerator_Context) {
-	switch n.getToken() {
-	case Token_rhino_CLASS, Token_rhino_INTERFACE, Token_rhino_ENUM, Token_rhino_NAMESPACE:
+func (this *CodeGenerator) processEnd(n Node, context CodeGenerator_Context) {
+	switch n.ns_().token {
+	case tokOrd1_CLASS, tokOrd1_INTERFACE, tokOrd1_ENUM, tokOrd1_NAMESPACE:
 		this.cc.endClass((context == CodeGenerator_Context_STATEMENT))
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		if n.getLastChild().isEmpty() {
 			this.cc.endStatement_2(true, false)
 		} else {
 			this.cc.endFunction((context == CodeGenerator_Context_STATEMENT))
 		}
-	case Token_rhino_DECLARE:
+	case tokOrd1_DECLARE:
 		if n.getParent().getToken() != Token_rhino_NAMESPACE_ELEMENTS {
 			this.processEnd(n.getFirstChild(), context)
 		}
-	case Token_rhino_EXPORT:
+	case tokOrd1_EXPORT:
 		if (n.getParent().getToken() != Token_rhino_NAMESPACE_ELEMENTS) && !n.getFirstChild().isDeclare() {
 			this.processEnd(n.getFirstChild(), context)
 		}
-	case Token_rhino_COMPUTED_PROP:
+	case tokOrd1_COMPUTED_PROP:
 		if n.hasOneChild() {
 			this.cc.endStatement_2(true, false)
 		}
-	case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if n.getFirstChild().getLastChild().isEmpty() {
 			this.cc.endStatement_2(true, false)
 		}
-	case Token_rhino_MEMBER_VARIABLE_DEF:
+	case tokOrd1_MEMBER_VARIABLE_DEF:
 		this.cc.endStatement_2(true, false)
 	default:
 		if context == CodeGenerator_Context_STATEMENT {
@@ -1864,10 +1983,8 @@ func (this *CodeGenerator) processEnd(n Node, context *CodeGenerator_Context) {
 	}
 }
 
-func (this *CodeGenerator) add_2(p0 Node, p1 *CodeGenerator_Context) {
-	this.self_.(interface {
-		add_2_impl(Node, *CodeGenerator_Context)
-	}).add_2_impl(p0, p1)
+func (this *CodeGenerator) add_2(p0 Node, p1 CodeGenerator_Context) {
+	this.self_.add_2_impl(p0, p1)
 }
 
 const CodeGenerator_LT_ESCAPED string = "\\x3c"
@@ -1886,72 +2003,91 @@ func CodeGenerator_clinit() {
 
 }
 
-type CodeGenerator_Context struct {
-	Enum
-	inForInitClause bool
-	atArrowFnBody   bool
+type CodeGenerator_Context uint8
+
+// CodeGenerator_Context_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CodeGenerator_Context_enum_ = [7]Enum{
+	{self_: CodeGenerator_Context_STATEMENT, name_: "STATEMENT", ordinal_: 0},
+	{self_: CodeGenerator_Context_BEFORE_DANGLING_ELSE, name_: "BEFORE_DANGLING_ELSE", ordinal_: 1},
+	{self_: CodeGenerator_Context_START_OF_EXPR, name_: "START_OF_EXPR", ordinal_: 2},
+	{self_: CodeGenerator_Context_IN_FOR_INIT_CLAUSE, name_: "IN_FOR_INIT_CLAUSE", ordinal_: 3},
+	{self_: CodeGenerator_Context_START_OF_ARROW_FN_BODY, name_: "START_OF_ARROW_FN_BODY", ordinal_: 4},
+	{self_: CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT, name_: "START_OF_ARROW_FN_IN_FOR_INIT", ordinal_: 5},
+	{self_: CodeGenerator_Context_OTHER, name_: "OTHER", ordinal_: 6},
 }
 
-func (this *CodeGenerator_Context) up_Enum() *Enum {
-	if this == nil {
+var CodeGenerator_Context_inForInitClause_ [7]bool
+
+var CodeGenerator_Context_atArrowFnBody_ [7]bool
+
+func (this CodeGenerator_Context) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CodeGenerator_Context_enum_[this-1]
 }
 
-func (this *CodeGenerator_Context) init_CodeGenerator_Context_0(name_ string, ordinal_ int32) {
-	this.init_CodeGenerator_Context_boolean_boolean(name_, ordinal_, false, false)
+func (this CodeGenerator_Context) name() string { return this.enum_().name_ }
+
+func (this CodeGenerator_Context) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_CodeGenerator_Context_0(name_ string, ordinal_ int32) *CodeGenerator_Context {
-	this := &CodeGenerator_Context{}
-	this.self_ = this
-	this.init_CodeGenerator_Context_0(name_, ordinal_)
+func (this CodeGenerator_Context) toString() string { return this.enum_().name_ }
+
+func (this CodeGenerator_Context) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this CodeGenerator_Context) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *CodeGenerator_Context) init_CodeGenerator_Context_boolean_boolean(name_ string, ordinal_ int32, inForInitClause bool, atStartOfArrowFnBody bool) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.inForInitClause = inForInitClause
-	this.atArrowFnBody = atStartOfArrowFnBody
+func (this CodeGenerator_Context) init_CodeGenerator_Context_0() {
+	this.init_CodeGenerator_Context_boolean_boolean(false, false)
 }
 
-func new_CodeGenerator_Context_boolean_boolean(name_ string, ordinal_ int32, inForInitClause bool, atStartOfArrowFnBody bool) *CodeGenerator_Context {
-	this := &CodeGenerator_Context{}
-	this.self_ = this
-	this.init_CodeGenerator_Context_boolean_boolean(name_, ordinal_, inForInitClause, atStartOfArrowFnBody)
-	return this
+func (this CodeGenerator_Context) init_CodeGenerator_Context_boolean_boolean(inForInitClause bool, atStartOfArrowFnBody bool) {
+	CodeGenerator_Context_inForInitClause_[this-1] = inForInitClause
+	CodeGenerator_Context_atArrowFnBody_[this-1] = atStartOfArrowFnBody
 }
 
-func (this *CodeGenerator_Context) inForInInitClause() bool {
-	return this.inForInitClause
+func (this CodeGenerator_Context) inForInInitClause() bool {
+	return CodeGenerator_Context_inForInitClause_[this-1]
 }
 
-func (this *CodeGenerator_Context) atArrowFunctionBody() bool {
-	return this.atArrowFnBody
+func (this CodeGenerator_Context) atArrowFunctionBody() bool {
+	return CodeGenerator_Context_atArrowFnBody_[this-1]
 }
 
-func CodeGenerator_Context_values() []*CodeGenerator_Context {
-	return append([]*CodeGenerator_Context(nil), CodeGenerator_Context_values_...)
+func CodeGenerator_Context_values() []CodeGenerator_Context {
+	return append([]CodeGenerator_Context(nil), CodeGenerator_Context_values_...)
 }
 
-func CodeGenerator_Context_valueOf(name string) *CodeGenerator_Context {
+func CodeGenerator_Context_valueOf(name string) CodeGenerator_Context {
 	for _, v := range CodeGenerator_Context_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Context", name))
 }
 
-var CodeGenerator_Context_STATEMENT *CodeGenerator_Context
-var CodeGenerator_Context_BEFORE_DANGLING_ELSE *CodeGenerator_Context
-var CodeGenerator_Context_START_OF_EXPR *CodeGenerator_Context
-var CodeGenerator_Context_IN_FOR_INIT_CLAUSE *CodeGenerator_Context
-var CodeGenerator_Context_START_OF_ARROW_FN_BODY *CodeGenerator_Context
-var CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT *CodeGenerator_Context
-var CodeGenerator_Context_OTHER *CodeGenerator_Context
-var CodeGenerator_Context_values_ []*CodeGenerator_Context
+const CodeGenerator_Context_STATEMENT CodeGenerator_Context = 1
+const CodeGenerator_Context_BEFORE_DANGLING_ELSE CodeGenerator_Context = 2
+const CodeGenerator_Context_START_OF_EXPR CodeGenerator_Context = 3
+const CodeGenerator_Context_IN_FOR_INIT_CLAUSE CodeGenerator_Context = 4
+const CodeGenerator_Context_START_OF_ARROW_FN_BODY CodeGenerator_Context = 5
+const CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT CodeGenerator_Context = 6
+const CodeGenerator_Context_OTHER CodeGenerator_Context = 7
+
+var CodeGenerator_Context_values_ []CodeGenerator_Context
 
 var CodeGenerator_Context_clinit_done bool
 
@@ -1960,14 +2096,14 @@ func CodeGenerator_Context_clinit() {
 		return
 	}
 	CodeGenerator_Context_clinit_done = true
-	CodeGenerator_Context_STATEMENT = new_CodeGenerator_Context_0("STATEMENT", 0)
-	CodeGenerator_Context_BEFORE_DANGLING_ELSE = new_CodeGenerator_Context_0("BEFORE_DANGLING_ELSE", 1)
-	CodeGenerator_Context_START_OF_EXPR = new_CodeGenerator_Context_0("START_OF_EXPR", 2)
-	CodeGenerator_Context_IN_FOR_INIT_CLAUSE = new_CodeGenerator_Context_boolean_boolean("IN_FOR_INIT_CLAUSE", 3, true, false)
-	CodeGenerator_Context_START_OF_ARROW_FN_BODY = new_CodeGenerator_Context_boolean_boolean("START_OF_ARROW_FN_BODY", 4, false, true)
-	CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT = new_CodeGenerator_Context_boolean_boolean("START_OF_ARROW_FN_IN_FOR_INIT", 5, true, true)
-	CodeGenerator_Context_OTHER = new_CodeGenerator_Context_0("OTHER", 6)
-	CodeGenerator_Context_values_ = []*CodeGenerator_Context{CodeGenerator_Context_STATEMENT, CodeGenerator_Context_BEFORE_DANGLING_ELSE, CodeGenerator_Context_START_OF_EXPR, CodeGenerator_Context_IN_FOR_INIT_CLAUSE, CodeGenerator_Context_START_OF_ARROW_FN_BODY, CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT, CodeGenerator_Context_OTHER}
+	CodeGenerator_Context_STATEMENT.init_CodeGenerator_Context_0()
+	CodeGenerator_Context_BEFORE_DANGLING_ELSE.init_CodeGenerator_Context_0()
+	CodeGenerator_Context_START_OF_EXPR.init_CodeGenerator_Context_0()
+	CodeGenerator_Context_IN_FOR_INIT_CLAUSE.init_CodeGenerator_Context_boolean_boolean(true, false)
+	CodeGenerator_Context_START_OF_ARROW_FN_BODY.init_CodeGenerator_Context_boolean_boolean(false, true)
+	CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT.init_CodeGenerator_Context_boolean_boolean(true, true)
+	CodeGenerator_Context_OTHER.init_CodeGenerator_Context_0()
+	CodeGenerator_Context_values_ = []CodeGenerator_Context{CodeGenerator_Context_STATEMENT, CodeGenerator_Context_BEFORE_DANGLING_ELSE, CodeGenerator_Context_START_OF_EXPR, CodeGenerator_Context_IN_FOR_INIT_CLAUSE, CodeGenerator_Context_START_OF_ARROW_FN_BODY, CodeGenerator_Context_START_OF_ARROW_FN_IN_FOR_INIT, CodeGenerator_Context_OTHER}
 	registerEnum_("com.google.javascript.jscomp.CodeGenerator.Context", enumValues_(CodeGenerator_Context_values_))
 
 }

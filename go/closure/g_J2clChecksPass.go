@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clChecksPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
@@ -27,10 +29,9 @@ func new_J2clChecksPass(compiler *AbstractCompiler) *J2clChecksPass {
 }
 
 func (this *J2clChecksPass) visit_impl(unused *NodeTraversal, n Node, parent Node) {
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.keySet())))
-	for it_1.next() {
-		var typeName string = str_(it_1.v)
-		this.checkReferenceEquality(n, typeName, str_(Map_get_s(J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS, typeName)))
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.asImm().keySet())) {
+		typeName := str_(el)
+		this.checkReferenceEquality(n, typeName, J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.Get(typeName))
 	}
 }
 
@@ -62,7 +63,7 @@ func (this *J2clChecksPass) isType(jsType *JSType, fileName string) bool {
 		return false
 	}
 	var sourceName Optional[string] = this.getSourceName(jsType)
-	return (sourceName.isPresent() && String_endsWith(sourceName.get(), fileName))
+	return (sourceName.isPresent() && strings.HasSuffix(sourceName.get(), fileName))
 }
 
 func (this *J2clChecksPass) getSourceName(jsType *JSType) Optional[string] {
@@ -71,16 +72,16 @@ func (this *J2clChecksPass) getSourceName(jsType *JSType) Optional[string] {
 		return Optional_of[string]("")
 	}
 	return Optional_of[string](NodeUtil_getSourceName(constructor.getSource())).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 }
 
 func (this *J2clChecksPass) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 var J2clChecksPass_J2CL_REFERENCE_EQUALITY *DiagnosticType
-var J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS *ImmutableMap
+var J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS *ImmutableMap[string, string]
 
 var J2clChecksPass_clinit_done bool
 
@@ -90,6 +91,15 @@ func J2clChecksPass_clinit() {
 	}
 	J2clChecksPass_clinit_done = true
 	J2clChecksPass_J2CL_REFERENCE_EQUALITY = DiagnosticType_warning("JSC_J2CL_REFERENCE_EQUALITY", "Reference equality may not be used with the specified type: {0}")
-	J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS = ImmutableMap_of_Object_Object_Object_Object_Object_Object(strobj_("java.lang.Integer"), strobj_("java/lang/Integer.impl.java.js"), strobj_("java.lang.Float"), strobj_("java/lang/Float.impl.java.js"), strobj_("goog.math.Long"), strobj_("javascript/closure/math/long.js"))
+	J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS = immutableMapOf_(tc_string, tc_string, []string{"java.lang.Integer", "java.lang.Float", "goog.math.Long"}, []string{"java/lang/Integer.impl.java.js", "java/lang/Float.impl.java.js", "javascript/closure/math/long.js"})
 
+}
+
+// visit: an object that is exactly a J2clChecksPass calls its visit_impl directly (post-flip); others dispatch.
+func (this *J2clChecksPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*J2clChecksPass); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

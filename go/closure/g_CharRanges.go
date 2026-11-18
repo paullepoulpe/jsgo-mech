@@ -18,7 +18,7 @@ func new_CharRanges(ranges []int32) *CharRanges {
 
 func CharRanges_inclusive(start int32, end int32) *CharRanges {
 	if start > end {
-		panic(new_IndexOutOfBoundsException_String((istr_(int64(start)) + " > " + istr_(int64(end)))).self())
+		panic(new_IndexOutOfBoundsException_String((istr_(int64(start)) + " > " + istr_(int64(end)))))
 	}
 	return new_CharRanges([]int32{start, (end + 1)})
 }
@@ -29,11 +29,11 @@ func CharRanges_withMembers(members []int32) *CharRanges {
 
 func CharRanges_withRanges(ranges []int32) *CharRanges {
 	if (int32(len(ranges)) & 1) != 0 {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	for i := int32(1); i < int32(len(ranges)); i++ {
 		if ranges[i] <= ranges[(i-1)] {
-			panic(new_IllegalArgumentException_String((istr_(int64(ranges[i])) + " > " + istr_(int64(ranges[(i-1)])))).self())
+			panic(new_IllegalArgumentException_String((istr_(int64(ranges[i])) + " > " + istr_(int64(ranges[(i-1)])))))
 		}
 	}
 	return new_CharRanges(ranges)
@@ -152,10 +152,10 @@ func (this *CharRanges) union(other *CharRanges) *CharRanges {
 		}
 	}
 	if i < m {
-		System_arraycopy(any(q), i, any(out), k, (m - i))
+		arraycopy_(q, i, out, k, (m - i))
 		k += (m - i)
 	} else if j < n {
-		System_arraycopy(any(r), j, any(out), k, (n - j))
+		arraycopy_(r, j, out, k, (n - j))
 		k += (n - j)
 	}
 	if k != int32(len(out)) {
@@ -197,7 +197,7 @@ func (this *CharRanges) intersection(other *CharRanges) *CharRanges {
 				} else {
 					if intersectionIdx == int32(len(intersection)) {
 						var newArr []int32 = make([]int32, (intersectionIdx * 2))
-						System_arraycopy(any(intersection), 0, any(newArr), 0, intersectionIdx)
+						arraycopy_(intersection, 0, newArr, 0, intersectionIdx)
 						intersection = newArr
 					}
 					intersection[intersectionIdx] = pos
@@ -249,7 +249,7 @@ func (this *CharRanges) difference(subtrahendRanges *CharRanges) *CharRanges {
 			} else {
 				if dIdx == int32(len(difference)) {
 					var newArr []int32 = make([]int32, (dIdx * 2))
-					System_arraycopy(any(difference), 0, any(newArr), 0, dIdx)
+					arraycopy_(difference, 0, newArr, 0, dIdx)
 					difference = newArr
 				}
 				difference[dIdx] = pos
@@ -299,12 +299,12 @@ func (this *CharRanges) shift(delta int32) *CharRanges {
 	if delta < 0 {
 		var lmin int64 = int64((this.ranges_[0] + delta))
 		if lmin < int64(int32(-2147483648)) {
-			panic(new_IndexOutOfBoundsException_0().self())
+			panic(new_IndexOutOfBoundsException_0())
 		}
 	} else {
 		var lmax int64 = int64((this.ranges_[(n-1)] + delta))
 		if lmax > int64(int32(2147483647)) {
-			panic(new_IndexOutOfBoundsException_0().self())
+			panic(new_IndexOutOfBoundsException_0())
 		}
 	}
 	var shiftedRanges []int32 = make([]int32, n)
@@ -315,7 +315,7 @@ func (this *CharRanges) shift(delta int32) *CharRanges {
 }
 
 func (this *CharRanges) toString() string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	sb.append_char('[')
 	for i := int32(0); i < int32(len(this.ranges_)); i++ {
 		if ((i & 1) != 0) && (this.ranges_[i] == (this.ranges_[(i-1)] + 1)) {
@@ -332,20 +332,17 @@ func (this *CharRanges) toString() string {
 		sb.append("0x").append(Integer_toString_int_int((this.ranges_[i] - (i & 1)), 16))
 	}
 	sb.append_char(']')
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func (this *CharRanges) equals(o any) bool {
-	var charRanges *CharRanges
-	_ = charRanges
-	if !(func() bool {
-		v_ := o
-		if !is_[*CharRanges](v_) {
-			return false
-		}
-		charRanges = cast_[*CharRanges](v_)
-		return true
-	}()) {
+	p, ok := o.(*CharRanges)
+	return ok && this.equals_CharRanges(p)
+}
+
+// equals_CharRanges is equals of a CharRanges (post-flip step eqtyped).
+func (this *CharRanges) equals_CharRanges(charRanges *CharRanges) bool {
+	if !(charRanges != nil) {
 		return false
 	}
 	return Arrays_equals(this.ranges_, charRanges.ranges_)

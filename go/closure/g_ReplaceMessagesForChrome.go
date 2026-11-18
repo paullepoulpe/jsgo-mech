@@ -62,14 +62,16 @@ func (this *ReplaceMessagesForChrome) processJsMessageDefinition_impl(definition
 func (this *ReplaceMessagesForChrome) getNewValueNode(message *JsMessage, definition JsMessageDefinition) Node {
 	var newValueNode Node = this.getChromeI18nGetMessageNode(message.getId())
 	var isHtml bool = definition.shouldEscapeLessThan()
-	if !message.jsPlaceholderNames().isEmpty() || isHtml {
-		var placeholderNames ListOf[string] = Ordering_natural().sortedCopy(icast_Iterable(obj_(message.jsPlaceholderNames())))
+	if !message.jsPlaceholderNames().IsEmpty() || isHtml {
+		var placeholderNames ListOf[string] = Ordering_natural().sortedCopy(icast_Iterable(obj_(message.jsPlaceholderNames().asImm())))
 		var placeholderValueArray Node = this.astFactory_.createArraylit([]Node{})
-		var placeholderValueMap ImmutableMapOf[string, Node] = definition.getPlaceholderValueMap()
-		it_1 := foreach_(any(placeholderNames))
-		for it_1.next() {
-			var name string = str_(it_1.v)
-			var value Node = Node_of_(Preconditions_checkNotNull(Map_get_s(placeholderValueMap, name))).cloneTree()
+		var placeholderValueMap *ImmutableMap[string, Node] = definition.getPlaceholderValueMap()
+		for name := range elemsBy_(placeholderNames, str_) {
+			nn_ := placeholderValueMap.Get(name).box_()
+			if nn_ == nil {
+				panic(new_NullPointerException_0())
+			}
+			var value Node = Node_of_(nn_).cloneTree()
 			placeholderValueArray.addChildToBack(value)
 		}
 		if isHtml {
@@ -101,4 +103,22 @@ func ReplaceMessagesForChrome_clinit() {
 	ReplaceMessagesForChrome_clinit_done = true
 	ReplaceMessagesForChrome_DECLARE_ICU_TEMPLATE_NOT_SUPPORTED = DiagnosticType_error("JSC_DECLARE_ICU_TEMPLATE", "goog.i18n.messages.declareIcuTemplate() is not supported for Chrome i18n.")
 
+}
+
+// processIcuTemplateDefinition: an object that is exactly a ReplaceMessagesForChrome calls its processIcuTemplateDefinition_impl directly (post-flip); others dispatch.
+func (this *ReplaceMessagesForChrome) processIcuTemplateDefinition(p0 IcuTemplateDefinition) {
+	if p, _ := this.self_.(*ReplaceMessagesForChrome); p == this {
+		this.processIcuTemplateDefinition_impl(p0)
+		return
+	}
+	this.self_.processIcuTemplateDefinition_impl(p0)
+}
+
+// processJsMessageDefinition: an object that is exactly a ReplaceMessagesForChrome calls its processJsMessageDefinition_impl directly (post-flip); others dispatch.
+func (this *ReplaceMessagesForChrome) processJsMessageDefinition(p0 JsMessageDefinition) {
+	if p, _ := this.self_.(*ReplaceMessagesForChrome); p == this {
+		this.processJsMessageDefinition_impl(p0)
+		return
+	}
+	this.self_.processJsMessageDefinition_impl(p0)
 }

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type TemplateAstMatcher struct {
 	topScope             *TypedScope
 	typeRegistry         *JSTypeRegistry
@@ -12,7 +14,7 @@ type TemplateAstMatcher struct {
 	localVarMatches      *JTList[string]
 	stringLiteralMatches *JTMap[string, Node]
 	isLooseMatchField    bool
-	typeMatchingStrategy *TypeMatchingStrategy
+	typeMatchingStrategy TypeMatchingStrategy
 }
 
 func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
@@ -24,16 +26,25 @@ func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
 	this.isLooseMatchField = false
 }
 
-func (this *TemplateAstMatcher) init_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy *TypeMatchingStrategy) {
+func (this *TemplateAstMatcher) init_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy TypeMatchingStrategy) {
 	this.finit_TemplateAstMatcher()
-	Preconditions_checkState_boolean_String_Object(templateFunctionNode.isFunction(), "Template node must be a function node. Received: %s", templateFunctionNode.box_())
+	if !templateFunctionNode.isFunction() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Template node must be a function node. Received: %s", []any{templateFunctionNode.box_()})))
+	}
 	this.topScope = compiler.getTopScope()
-	this.typeRegistry = cast_[*JSTypeRegistry](Preconditions_checkNotNull(obj_(compiler.getTypeRegistry())))
+	nn_1 := compiler.getTypeRegistry()
+	if nn_1 == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.typeRegistry = nn_1
 	this.templateStart = this.initTemplate(templateFunctionNode)
-	this.typeMatchingStrategy = cast_[*TypeMatchingStrategy](Preconditions_checkNotNull(obj_(typeMatchingStrategy)))
+	if typeMatchingStrategy == 0 {
+		panic(new_NullPointerException_0())
+	}
+	this.typeMatchingStrategy = typeMatchingStrategy
 }
 
-func new_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy *TypeMatchingStrategy) *TemplateAstMatcher {
+func new_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Node, typeMatchingStrategy TypeMatchingStrategy) *TemplateAstMatcher {
 	this := &TemplateAstMatcher{}
 	this.init_TemplateAstMatcher(compiler, templateFunctionNode, typeMatchingStrategy)
 	return this
@@ -95,21 +106,27 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 	var templateParametersNode Node = fn.getSecondChild()
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(fn)
 	if templateParametersNode.hasChildren() {
-		Preconditions_checkNotNull_Object_String_Object(obj_(info), "Missing JSDoc declaration for template function %s", strobj_(fnName))
+		if info == nil {
+			panic(new_NullPointerException_String(Strings_lenientFormat("Missing JSDoc declaration for template function %s", []any{strobj_(fnName)})))
+		}
 	}
 	{
 		var paramNode Node = templateParametersNode.getFirstChild()
 		for ; paramNode != 0; paramNode = paramNode.getNext() {
 			var name string = paramNode.getString()
 			var expression *JSTypeExpression = info.getParameterType(Optional_of[string](name))
-			Preconditions_checkNotNull_Object_String_Object_Object(obj_(expression), "Missing JSDoc for parameter %s of template function %s", strobj_(name), strobj_(fnName))
+			if expression == nil {
+				panic(new_NullPointerException_String(Strings_lenientFormat("Missing JSDoc for parameter %s of template function %s", []any{strobj_(name), strobj_(fnName)})))
+			}
 			var type_ *JSType = this.typeRegistry.evaluateTypeExpression(expression, icast_StaticTypedScope(obj_(this.topScope)))
-			Preconditions_checkNotNull(type_.self())
+			if type_ == nil {
+				panic(new_NullPointerException_0())
+			}
 			params.add(name)
 			paramTypes.put(name, type_)
 		}
 	}
-	this.traverse(fn, icast_TemplateAstMatcher_Visitor(obj_(new_TemplateAstMatcher_1(this, locals, params, paramTypes))))
+	this.traverse(fn, new_TemplateAstMatcher_1(this, locals, params, paramTypes).visit)
 }
 
 func (this *TemplateAstMatcher) replaceNodeInPlace(n Node, replacement Node) {
@@ -120,7 +137,7 @@ func (this *TemplateAstMatcher) replaceNodeInPlace(n Node, replacement Node) {
 	n.replaceWith(replacement)
 }
 
-func (this *TemplateAstMatcher) traverse(n Node, callback TemplateAstMatcher_Visitor) {
+func (this *TemplateAstMatcher) traverse(n Node, callback func(Node)) {
 	var next Node = 0
 	{
 		var c Node = n.getFirstChild()
@@ -129,7 +146,7 @@ func (this *TemplateAstMatcher) traverse(n Node, callback TemplateAstMatcher_Vis
 			this.traverse(c, callback)
 		}
 	}
-	callback.visit(n)
+	callback(n)
 }
 
 func (this *TemplateAstMatcher) reset() {
@@ -149,8 +166,12 @@ func (this *TemplateAstMatcher) isTemplateParameterStringLiteralNode(n Node) boo
 }
 
 func (this *TemplateAstMatcher) createTemplateParameterNode(index int32, type_ *JSType, isStringLiteral bool) Node {
-	Preconditions_checkState((index >= 0))
-	Preconditions_checkNotNull(type_.self())
+	if index < 0 {
+		panic(new_IllegalStateException_0())
+	}
+	if type_ == nil {
+		panic(new_NullPointerException_0())
+	}
 	var n Node = Node_newNumber(float64(index))
 	if isStringLiteral {
 		n.setToken(TemplateAstMatcher_TEMPLATE_STRING_LITERAL)
@@ -166,7 +187,9 @@ func (this *TemplateAstMatcher) isTemplateLocalNameNode(n Node) bool {
 }
 
 func (this *TemplateAstMatcher) createTemplateLocalNameNode(index int32) Node {
-	Preconditions_checkState((index >= 0))
+	if index < 0 {
+		panic(new_IllegalStateException_0())
+	}
 	var n Node = Node_newNumber(float64(index))
 	n.setToken(TemplateAstMatcher_TEMPLATE_LOCAL_NAME)
 	return n
@@ -230,11 +253,13 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 			return ast.isEquivalentTo(previousMatch)
 		}
 		var templateType *JSType = template.getJSType()
-		Preconditions_checkNotNull_Object_Object(templateType.self(), strobj_("null template parameter type."))
+		if templateType == nil {
+			panic(new_NullPointerException_String("null template parameter type."))
+		}
 		if this.isUnresolvedType(templateType) {
 			return false
 		}
-		var matchResult *TypeMatchingStrategy_MatchResult = this.typeMatchingStrategy.match(templateType, ast.getJSType())
+		var matchResult TypeMatchingStrategy_MatchResult = this.typeMatchingStrategy.match(templateType, ast.getJSType())
 		this.isLooseMatchField = matchResult.isLooseMatch()
 		var isMatch bool = matchResult.isMatch()
 		if isMatch && (previousMatch == 0) {
@@ -249,7 +274,7 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 		} else {
 			var originalName string = ast.getOriginalName()
 			var name string = func() string {
-				if !String_isEmpty(originalName) {
+				if originalName != "" {
 					return originalName
 				}
 				return ast.getString()
@@ -285,7 +310,7 @@ func (this *TemplateAstMatcher) isUnresolvedType(type_ *JSType) bool {
 		return true
 	}
 	if type_.isUnionType() {
-		it_1 := foreach_(any(type_.getUnionMembers()))
+		it_1 := foreach_(type_.getUnionMembers())
 		for it_1.next() {
 			var alternate *JSType = to_JSType(it_1.v)
 			if this.isUnresolvedType(alternate) {
@@ -296,9 +321,9 @@ func (this *TemplateAstMatcher) isUnresolvedType(type_ *JSType) bool {
 	return false
 }
 
-var TemplateAstMatcher_TEMPLATE_TYPE_PARAM *Token_rhino
-var TemplateAstMatcher_TEMPLATE_LOCAL_NAME *Token_rhino
-var TemplateAstMatcher_TEMPLATE_STRING_LITERAL *Token_rhino
+var TemplateAstMatcher_TEMPLATE_TYPE_PARAM Token_rhino
+var TemplateAstMatcher_TEMPLATE_LOCAL_NAME Token_rhino
+var TemplateAstMatcher_TEMPLATE_STRING_LITERAL Token_rhino
 
 var TemplateAstMatcher_clinit_done bool
 
@@ -350,12 +375,12 @@ func (this *TemplateAstMatcher_1) visit(n Node) {
 	if n.isName() {
 		var parent Node = n.getParent()
 		var name string = n.getString()
-		if (!String_isEmpty(name) && parent.isVar()) && !Collection_contains_s(this.cap_locals.asList(), name) {
+		if (name != "" && parent.isVar()) && !Collection_contains_s(this.cap_locals.asList(), name) {
 			this.cap_locals.add(n.getString())
 		}
 		if Collection_contains_s(this.cap_params.asList(), name) {
 			var type_ *JSType = this.cap_paramTypes.get(name)
-			var isStringLiteral bool = (type_.isStringValueType() && String_startsWith(name, "string_literal"))
+			var isStringLiteral bool = (type_.isStringValueType() && strings.HasPrefix(name, "string_literal"))
 			this.outer_.replaceNodeInPlace(n, this.outer_.createTemplateParameterNode(this.cap_params.asList().indexOf(strobj_(name)), type_, isStringLiteral))
 		} else if Collection_contains_s(this.cap_locals.asList(), name) {
 			this.outer_.replaceNodeInPlace(n, this.outer_.createTemplateLocalNameNode(this.cap_locals.asList().indexOf(strobj_(name))))

@@ -10,7 +10,10 @@ type OptimizeParameters struct {
 }
 
 func (this *OptimizeParameters) init_OptimizeParameters(compiler *AbstractCompiler) {
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	if compiler == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
 }
 
@@ -21,65 +24,60 @@ func new_OptimizeParameters(compiler *AbstractCompiler) *OptimizeParameters {
 }
 
 func (this *OptimizeParameters) process_2(externs Node, root Node) {
-	Preconditions_checkState((this.compiler_.getLifeCycleStage() == AbstractCompiler_LifeCycleStage_NORMALIZED))
-	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(any(this))).build().process_2(externs, root)
+	if this.compiler_.getLifeCycleStage() != AbstractCompiler_LifeCycleStage_NORMALIZED {
+		panic(new_IllegalStateException_0())
+	}
+	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(false).addPass(this).build().process_2(externs, root)
 }
 
 func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *OptimizeCalls_ReferenceMap) {
-	_ = func() (code_ int) {
-		defer func() {
-			this.decisionsLog = nil
-		}()
-		var decisionsLog *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "decisions.log", []string{})
-		defer closeResource_(decisionsLog.self())
-		this.decisionsLog = decisionsLog
-		this.globalScope = refMap.getGlobalScope()
-		var toOptimize *JTList[*ArrayList] = jnewTList_(tc_p_ArrayList)
-		it_2 := foreach_(any(refMap.getNameReferences()))
-		for it_2.next() {
-			var entry Map_Entry = icast_Map_Entry(it_2.v)
-			var key string = str_(entry.getKey())
-			var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
-			var candidateAnalysis *OptimizeParameters_CandidateAnalysis = this.analyzeCandidateName(key, refs)
-			if candidateAnalysis.shouldConvertTaggedTemplateLiterals() {
-				candidateAnalysis.convertTaggedTemplateLiterals()
-			}
-			if candidateAnalysis.isSafeToOptimize() {
-				toOptimize.add(refs)
-			}
-		}
-		it_4 := foreach_(any(refMap.getPropReferences()))
-		for it_4.next() {
-			var entry Map_Entry = icast_Map_Entry(it_4.v)
-			var key string = str_(entry.getKey())
-			var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
-			var candidateAnalysis *OptimizeParameters_CandidateAnalysis = this.analyzeCandidateProperty(key, refs)
-			if candidateAnalysis.shouldConvertTaggedTemplateLiterals() {
-				candidateAnalysis.convertTaggedTemplateLiterals()
-			}
-			if candidateAnalysis.isSafeToOptimize() {
-				toOptimize.add(refs)
-			}
-		}
-		it_6 := toOptimize.each()
-		for it_6.next() {
-			var refs *ArrayList = it_6.v
-			this.tryEliminateOptionalArgs(refs)
-		}
-		it_8 := toOptimize.each()
-		for it_8.next() {
-			var refs *ArrayList = it_8.v
-			this.tryEliminateConstantArgs(refs)
-		}
-		var optimizer *OptimizeParameters_UnusedParameterOptimizer = new_OptimizeParameters_UnusedParameterOptimizer(this)
-		it_10 := toOptimize.each()
-		for it_10.next() {
-			var refs *ArrayList = it_10.v
-			optimizer.tryEliminateUnusedArgs(refs)
-		}
-		optimizer.applyChanges()
-		return 0
+	defer func() {
+		this.decisionsLog = nil
 	}()
+	var decisionsLog *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "decisions.log", []string{})
+	defer closeResource_(decisionsLog.self())
+	this.decisionsLog = decisionsLog
+	this.globalScope = refMap.getGlobalScope()
+	var toOptimize *JTList[*ArrayList] = jnewTList_(tc_p_ArrayList)
+	for entry := range elemsBy_(refMap.getNameReferences(), icast_Map_Entry) {
+		var key string = str_(entry.getKey())
+		var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
+		var candidateAnalysis *OptimizeParameters_CandidateAnalysis = this.analyzeCandidateName(key, refs)
+		if candidateAnalysis.shouldConvertTaggedTemplateLiterals() {
+			candidateAnalysis.convertTaggedTemplateLiterals()
+		}
+		if candidateAnalysis.isSafeToOptimize() {
+			toOptimize.add(refs)
+		}
+	}
+	for entry := range elemsBy_(refMap.getPropReferences(), icast_Map_Entry) {
+		var key string = str_(entry.getKey())
+		var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
+		var candidateAnalysis *OptimizeParameters_CandidateAnalysis = this.analyzeCandidateProperty(key, refs)
+		if candidateAnalysis.shouldConvertTaggedTemplateLiterals() {
+			candidateAnalysis.convertTaggedTemplateLiterals()
+		}
+		if candidateAnalysis.isSafeToOptimize() {
+			toOptimize.add(refs)
+		}
+	}
+	it_6 := toOptimize.each()
+	for it_6.next() {
+		var refs *ArrayList = it_6.v
+		this.tryEliminateOptionalArgs(refs)
+	}
+	it_8 := toOptimize.each()
+	for it_8.next() {
+		var refs *ArrayList = it_8.v
+		this.tryEliminateConstantArgs(refs)
+	}
+	var optimizer *OptimizeParameters_UnusedParameterOptimizer = new_OptimizeParameters_UnusedParameterOptimizer(this)
+	it_10 := toOptimize.each()
+	for it_10.next() {
+		var refs *ArrayList = it_10.v
+		optimizer.tryEliminateUnusedArgs(refs)
+	}
+	optimizer.applyChanges()
 }
 
 func OptimizeParameters_alreadyRemoved(n Node) bool {
@@ -129,7 +127,7 @@ func (this *OptimizeParameters) analyzeCandidate(refKind string, key string, ref
 	}
 	if !analysisBuilder.taggedTemplateLiterals.isEmpty() {
 		var functionNodes CollectionOf[Node] = OptimizeCalls_ReferenceMap_getFunctionNodes(definitions.asList()).values()
-		it_3 := foreach_(any(functionNodes))
+		it_3 := foreach_(functionNodes)
 		for it_3.next() {
 			var functionNode Node = Node_of_(it_3.v)
 			var firstParam Node = NodeUtil_getFunctionParameters(functionNode).getFirstChild()
@@ -149,7 +147,10 @@ func (this *OptimizeParameters) analyzeCandidate(refKind string, key string, ref
 }
 
 func (this *OptimizeParameters) convertTaggedTemplateLiteralToNormalCall(ttlNode Node) {
-	var callee Node = Node_of_(Preconditions_checkNotNull(ttlNode.getFirstChild().box_()))
+	var callee Node = ttlNode.getFirstChild()
+	if callee == 0 {
+		panic(new_NullPointerException_0())
+	}
 	var templateLiteral Node = callee.getNext()
 	var firstArg Node = IR_arraylit([]Node{}).srcref(templateLiteral)
 	callee.detach()
@@ -207,8 +208,8 @@ func (this *OptimizeParameters) classContainsClassFieldWithRHSSideEffects(classN
 }
 
 func (this *OptimizeParameters) allDefinitionsAreCandidateFunctions(n Node) bool {
-	switch n.getToken() {
-	case Token_rhino_CLASS:
+	switch n.ns_().token {
+	case tokOrd1_CLASS:
 		if NodeUtil_isNamedClassExpression(n) {
 			return false
 		} else {
@@ -222,18 +223,17 @@ func (this *OptimizeParameters) allDefinitionsAreCandidateFunctions(n Node) bool
 				return ((!NodeUtil_doesFunctionReferenceOwnArgumentsObject(functionNode) && !OptimizeParameters_mayReferenceParamBeforeBody(functionNode)) && !OptimizeParameters_isUsedViaDotConstructor(functionNode))
 			}
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		return (((!NodeUtil_isNamedFunctionExpression(n) && !NodeUtil_doesFunctionReferenceOwnArgumentsObject(n)) && !OptimizeParameters_mayReferenceParamBeforeBody(n)) && !OptimizeParameters_isUsedViaDotConstructor(n))
-	case Token_rhino_CAST, Token_rhino_COMMA:
+	case tokOrd1_CAST, tokOrd1_COMMA:
 		return this.allDefinitionsAreCandidateFunctions(n.getLastChild())
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		return (this.allDefinitionsAreCandidateFunctions(n.getSecondChild()) && this.allDefinitionsAreCandidateFunctions(n.getLastChild()))
-	case Token_rhino_OR, Token_rhino_AND, Token_rhino_COALESCE:
+	case tokOrd1_OR, tokOrd1_AND, tokOrd1_COALESCE:
 		return (this.allDefinitionsAreCandidateFunctions(n.getFirstChild()) && this.allDefinitionsAreCandidateFunctions(n.getLastChild()))
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func OptimizeParameters_isUsedViaDotConstructor(function Node) bool {
@@ -246,19 +246,19 @@ func OptimizeParameters_mayReferenceParamBeforeBody(function Node) bool {
 	if !paramList.hasChildren() {
 		return false
 	}
-	var namesByNames *SimpleListMultimap = SimpleListMultimap_create()
-	NodeUtil_visitPostOrder_Node_Visitor(paramList, &NodeUtil_Visitor_fn{func(n Node) {
+	var namesByNames *SimpleListMultimap[any, Node] = SimpleListMultimap_create[any, Node]()
+	NodeUtil_visitPostOrder_Node_Visitor(paramList, func(n Node) {
 		if n.isName() {
-			namesByNames.put(strobj_(n.getString()), n.box_())
+			namesByNames.put_s(n.getString(), n)
 		}
-	}})
-	it_1 := foreach_(any(namesByNames.asMap().values()))
+	})
+	it_1 := foreach_(namesByNames.asMap().values())
 	for it_1.next() {
 		var names Collection = icast_Collection(it_1.v)
 		if names.size() == 1 {
 			continue
 		}
-		it_3 := foreach_(any(names))
+		it_3 := foreach_(names)
 		for it_3.next() {
 			var name Node = Node_of_(it_3.v)
 			if NodeUtil_isLValue(name) {
@@ -294,9 +294,7 @@ func (this *OptimizeParameters) tryEliminateOptionalArgs(refs ArrayListOf[Node])
 			}
 		}
 	}
-	it_4 := foreach_(any(OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self())).values()))
-	for it_4.next() {
-		var fn Node = Node_of_(it_4.v)
+	for fn := range elemsBy_(OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self())).values(), Node_of_) {
 		this.eliminateParamsAfterInt(fn, maxArgs)
 	}
 }
@@ -306,7 +304,7 @@ func (this *OptimizeParameters) tryEliminateConstantArgs(refs ArrayListOf[Node])
 	if parameters == nil {
 		return
 	}
-	var fns *SimpleListMultimap = OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self()))
+	var fns *SimpleListMultimap[Node, any] = OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self()))
 	if fns.size() > 1 {
 		return
 	}
@@ -315,9 +313,7 @@ func (this *OptimizeParameters) tryEliminateConstantArgs(refs ArrayListOf[Node])
 	if !continueLooking {
 		return
 	}
-	it_1 := foreach_(refs.self())
-	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+	for n := range elemsBy_(refs.self(), Node_of_) {
 		if !OptimizeParameters_alreadyRemoved(n) && OptimizeCalls_ReferenceMap_isNormalOrOptChainCallOrNewTarget(n) {
 			this.optimizeCallSite(parameters, n)
 		}
@@ -329,9 +325,7 @@ func (this *OptimizeParameters) findFixedArguments(refs ArrayListOf[Node]) *JTLi
 	var parameters *JTList[*OptimizeParameters_Parameter] = jnewTList_(jtc_p_OptimizeParameters_Parameter)
 	var firstCall bool = true
 	var continueLooking bool = false
-	it_1 := foreach_(refs.self())
-	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+	for n := range elemsBy_(refs.self(), Node_of_) {
 		if OptimizeCalls_ReferenceMap_isNormalOrOptChainCallOrNewTarget(n) {
 			if OptimizeParameters_hasSpreadInFirstCallParam(n) {
 				continueLooking = false
@@ -491,12 +485,12 @@ func (this *OptimizeParameters) setParameterSideEffectInfo(p *OptimizeParameters
 }
 
 func OptimizeParameters_isMovableValue(n Node, globalScope *Scope) bool {
-	switch n.getToken() {
-	case Token_rhino_AWAIT, Token_rhino_YIELD, Token_rhino_THIS, Token_rhino_SUPER, Token_rhino_ITER_SPREAD, Token_rhino_OBJECT_SPREAD, Token_rhino_NEW_TARGET, Token_rhino_IMPORT_META:
+	switch n.ns_().token {
+	case tokOrd1_AWAIT, tokOrd1_YIELD, tokOrd1_THIS, tokOrd1_SUPER, tokOrd1_ITER_SPREAD, tokOrd1_OBJECT_SPREAD, tokOrd1_NEW_TARGET, tokOrd1_IMPORT_META:
 		return false
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		return false
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if n.getString() == "arguments" {
 			return false
 		} else {
@@ -528,7 +522,9 @@ func (this *OptimizeParameters) optimizeFunctionDefinition(parameters *JTList[*O
 			var value Node = IR_arraylit([]Node{}).srcref(maybeRest)
 			for i := int32(restIndex); i < parameters.size(); i++ {
 				var parameter *OptimizeParameters_Parameter = parameters.get(i)
-				Preconditions_checkState(parameter.shouldRemove())
+				if !parameter.shouldRemove() {
+					panic(new_IllegalStateException_0())
+				}
 				value.addChildToBack(parameters.get(i).getArg())
 			}
 			maybeRest.detach()
@@ -544,7 +540,9 @@ func (this *OptimizeParameters) optimizeFunctionDefinition(parameters *JTList[*O
 			if formalParam != 0 {
 				formalParam.detach()
 				if formalParam.isDefaultValue() {
-					Preconditions_checkState(!parameter.mayBeUndefined)
+					if parameter.mayBeUndefined {
+						panic(new_IllegalStateException_0())
+					}
 					formalParam = formalParam.removeFirstChild()
 				}
 			}
@@ -575,14 +573,22 @@ func (this *OptimizeParameters) optimizeCallSite(parameters *JTList[*OptimizePar
 }
 
 func (this *OptimizeParameters) addRestVariableToFunction(function Node, lhs Node, value Node) {
-	Preconditions_checkState((lhs.getParent() == 0))
+	if lhs.getParent() != 0 {
+		panic(new_IllegalStateException_0())
+	}
 	this.addVariableDeclarationToFunction(function, lhs, value)
 }
 
 func (this *OptimizeParameters) addVariableDeclarationToFunction(function Node, lhs Node, value Node) {
-	Preconditions_checkState_boolean_Object((value.getParent() == 0), strobj_("Value must be detached"))
-	Preconditions_checkState_boolean_Object((lhs != 0), strobj_("formal parameter being declared must not be null"))
-	Preconditions_checkState_boolean_Object((lhs.getParent() == 0), strobj_("formal parameter being declared must be detached"))
+	if value.getParent() != 0 {
+		panic(new_IllegalStateException_String("Value must be detached"))
+	}
+	if lhs == 0 {
+		panic(new_IllegalStateException_String("formal parameter being declared must not be null"))
+	}
+	if lhs.getParent() != 0 {
+		panic(new_IllegalStateException_String("formal parameter being declared must be detached"))
+	}
 	var stmts *JTList[Node] = jnewTList_(jtc_Node)
 	if lhs.isDestructuringPattern() {
 		this.rewriteDestructuringPattern(lhs, value, stmts)
@@ -621,9 +627,7 @@ func (this *OptimizeParameters) addStatementsToBack(block Node, stmts *JTList[No
 }
 
 func (this *OptimizeParameters) addStatementsBefore(insertionPoint Node, stmts *JTList[Node]) {
-	it_1 := foreach_(any(Lists_reverse(stmts.asList())))
-	for it_1.next() {
-		var item Node = Node_of_(it_1.v)
+	for item := range elemsBy_(Lists_reverse(stmts.asList()), Node_of_) {
 		item.insertBefore(insertionPoint)
 	}
 }
@@ -643,7 +647,9 @@ func (this *OptimizeParameters) eliminateParamsAfter(fnNode Node, formal Node) {
 		var stmts *JTList[Node] = jnewTList_(jtc_Node)
 		formal.detach()
 		if formal.isRest() {
-			Preconditions_checkState((formal.getNext() == 0))
+			if formal.getNext() != 0 {
+				panic(new_IllegalStateException_0())
+			}
 			var lhs Node = formal.removeFirstChild()
 			var value Node = IR_arraylit([]Node{}).srcref(formal)
 			this.addVariableDeclarationToFunction(fnNode, lhs, value)
@@ -663,14 +669,20 @@ func (this *OptimizeParameters) eliminateParamsAfter(fnNode Node, formal Node) {
 }
 
 func (this *OptimizeParameters) rewriteDestructuringPattern(destructuringPattern Node, value Node, stmts *JTList[Node]) {
-	Preconditions_checkState(destructuringPattern.isDestructuringPattern())
-	Preconditions_checkState_boolean_Object(!destructuringPattern.hasParent(), strobj_("Formal parameter must be detached for rewriting"))
-	NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern, &Consumer_tfn_Node{func(name Node) {
-		Preconditions_checkState_boolean_String_Object(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
+	if !destructuringPattern.isDestructuringPattern() {
+		panic(new_IllegalStateException_0())
+	}
+	if destructuringPattern.hasParent() {
+		panic(new_IllegalStateException_String("Formal parameter must be detached for rewriting"))
+	}
+	NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern, (&Consumer_tfn_Node{func(name Node) {
+		if !name.isName() {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})))
+		}
 		var newName Node = IR_name(name.getString()).srcref(name)
 		var newVar Node = IR_var_Node(newName).srcref(name)
 		stmts.add(newVar)
-	}})
+	}}).accept)
 	var expr Node = IR_exprResult(IR_assign(destructuringPattern, value).srcref(destructuringPattern)).srcref(destructuringPattern)
 	stmts.add(expr)
 }
@@ -705,12 +717,14 @@ func new_OptimizeParameters_UnusedParameterOptimizer(outer_ *OptimizeParameters)
 }
 
 func (this *OptimizeParameters_UnusedParameterOptimizer) tryEliminateUnusedArgs(refs ArrayListOf[Node]) {
-	var fns *SimpleListMultimap = OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self()))
-	Preconditions_checkState(!fns.isEmpty())
+	var fns *SimpleListMultimap[Node, any] = OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self()))
+	if fns.isEmpty() {
+		panic(new_IllegalStateException_0())
+	}
 	var maxFormalsCount int32 = 0
 	var lowestUsedRest int32 = int32(2147483647)
 	var used *BitSet = new_BitSet()
-	it_1 := foreach_(any(fns.values()))
+	it_1 := foreach_(fns.values())
 	for it_1.next() {
 		var fn Node = Node_of_(it_1.v)
 		var paramList Node = NodeUtil_getFunctionParameters(fn)
@@ -774,17 +788,13 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) tryEliminateUnusedArgs(
 	if lowestUsedRest == int32(2147483647) {
 		removeAllAfterIndex = (maxFormalsCount - 1)
 	}
-	it_7 := foreach_(refs.self())
-	for it_7.next() {
-		var n Node = Node_of_(it_7.v)
+	for n := range elemsBy_(refs.self(), Node_of_) {
 		if OptimizeCalls_ReferenceMap_isNormalOrOptChainCallOrNewTarget(n) && !OptimizeParameters_alreadyRemoved(n) {
 			var arg Node = OptimizeCalls_ReferenceMap_getFirstArgumentForCallOrNewOrDotCall(n)
 			this.recordRemovalCallArguments(lowestUsedRest, removeAllAfterIndex, unused, unremovable, arg, 0)
 		}
 	}
-	it_9 := foreach_(any(fns.values()))
-	for it_9.next() {
-		var fn Node = Node_of_(it_9.v)
+	for fn := range elemsBy_(fns.values(), Node_of_) {
 		var paramList Node = NodeUtil_getFunctionParameters(fn)
 		var param Node = paramList.getFirstChild()
 		this.removeUnusedFunctionParameters(unremovable, param, 0)
@@ -858,7 +868,9 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) removeUnusedFunctionPar
 	if param != 0 {
 		this.removeUnusedFunctionParameters(unremovable, param.getNext(), (index + 1))
 		if !unremovable.get(index) {
-			Preconditions_checkState(param.isName())
+			if !param.isName() {
+				panic(new_IllegalStateException_0())
+			}
 			this.outer_.compiler_.reportChangeToEnclosingScope(param)
 			param.detach()
 		}
@@ -879,7 +891,9 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) applyChanges() {
 	it_3 := this.toReplaceWithZero.each()
 	for it_3.next() {
 		var n Node = it_3.v
-		Preconditions_checkState((!n.isNumber() || (n.getDouble() != 0.0)))
+		if n.isNumber() && n.getDouble() == 0.0 {
+			panic(new_IllegalStateException_0())
+		}
 		if OptimizeParameters_alreadyRemoved(n) {
 			continue
 		}

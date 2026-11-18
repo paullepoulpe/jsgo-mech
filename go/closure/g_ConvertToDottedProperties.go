@@ -27,13 +27,13 @@ func new_ConvertToDottedProperties(compiler *AbstractCompiler) *ConvertToDottedP
 }
 
 func (this *ConvertToDottedProperties) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	GatherGetterAndSetterProperties_update(this.compiler_, externs, root)
 }
 
 func (this *ConvertToDottedProperties) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_COMPUTED_PROP, Token_rhino_COMPUTED_FIELD_DEF:
+	switch n.ns_().token {
+	case tokOrd1_COMPUTED_PROP, tokOrd1_COMPUTED_FIELD_DEF:
 		var leftElem Node = n.getFirstChild()
 		var rightElem Node = leftElem.getNext()
 		if ((leftElem.isStringLit() && NodeUtil_isValidPropertyName(FeatureSet_ES3, leftElem.getString())) && !(leftElem.getString() == "constructor")) && !(parent.isObjectLit() && (leftElem.getString() == "__proto__")) {
@@ -68,14 +68,14 @@ func (this *ConvertToDottedProperties) visit_impl(t *NodeTraversal, n Node, pare
 			n.replaceWith(temp)
 			this.compiler_.reportChangeToEnclosingScope(temp)
 		}
-	case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_STRING_KEY:
+	case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_STRING_KEY:
 		if NodeUtil_isValidPropertyName(FeatureSet_ES3, n.getString()) {
 			if n.getBooleanProp(Node_QUOTED_PROP) {
 				n.putBooleanProp(Node_QUOTED_PROP, false)
 				this.compiler_.reportChangeToEnclosingScope(n)
 			}
 		}
-	case Token_rhino_OPTCHAIN_GETELEM, Token_rhino_GETELEM:
+	case tokOrd1_OPTCHAIN_GETELEM, tokOrd1_GETELEM:
 		var left Node = n.getFirstChild()
 		var right Node = left.getNext()
 		if right.isStringLit() && NodeUtil_isValidPropertyName(FeatureSet_ES3, right.getString()) {
@@ -97,4 +97,13 @@ func (this *ConvertToDottedProperties) visit_impl(t *NodeTraversal, n Node, pare
 		}
 	default:
 	}
+}
+
+// visit: an object that is exactly a ConvertToDottedProperties calls its visit_impl directly (post-flip); others dispatch.
+func (this *ConvertToDottedProperties) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ConvertToDottedProperties); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type InstrumentAsyncContext struct {
 	start_                RuntimeJsLibManager_JsLibField
 	compiler_             *AbstractCompiler
@@ -37,8 +39,10 @@ func new_InstrumentAsyncContext(compiler *AbstractCompiler, shouldInstrumentAwai
 }
 
 func (this *InstrumentAsyncContext) process_2(externs Node, root Node) {
-	Preconditions_checkState_boolean_Object(this.compiler_.getLifeCycleStage().isNormalized(), obj_(this.compiler_.getLifeCycleStage()))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	if ok_, a1_ := this.compiler_.getLifeCycleStage().isNormalized(), this.compiler_.getLifeCycleStage(); !ok_ {
+		panic(new_IllegalStateException_String(tostr_(a1_)))
+	}
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *InstrumentAsyncContext) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -58,13 +62,13 @@ func (this *InstrumentAsyncContext) isReentrance(n Node) bool {
 }
 
 func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node) {
-	if n.isName() && String_startsWith(n.getString(), InstrumentAsyncContext_FACTORY) {
+	if n.isName() && strings.HasPrefix(n.getString(), InstrumentAsyncContext_FACTORY) {
 		this.alreadyInstrumented.add(t.getEnclosingFunction())
 	} else if n.isSuper() {
 		this.hasSuper.add(t.getEnclosingFunction())
 	} else if this.isReentrance(n) {
 		this.instrumentReentrance(t, n, parent)
-	} else if Object_equals(n.box_(), this.tryFunctionStack.peek().box_()) {
+	} else if equalsId_(n, this.tryFunctionStack.peek()) {
 		this.tryFunctionStack.pop()
 		if this.alreadyInstrumented.has(n) {
 			return
@@ -85,7 +89,9 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 		} else if n.isGeneratorFunction() {
 			this.instrumentGeneratorFunction(t, n, context)
 		} else {
-			Preconditions_checkState(n.isAsyncFunction())
+			if !n.isAsyncFunction() {
+				panic(new_IllegalStateException_0())
+			}
 			this.instrumentAsyncFunction(n, t.getInput(), context)
 		}
 	}
@@ -134,7 +140,9 @@ func (this *InstrumentAsyncContext) instrumentForAwaitOf(t *NodeTraversal, n Nod
 	arg.replaceWith(placeholder)
 	placeholder.replaceWith(functionContext.suspend_1(arg).srcrefTreeIfMissing(arg))
 	var body Node = n.getLastChild()
-	Preconditions_checkState(body.isBlock())
+	if !body.isBlock() {
+		panic(new_IllegalStateException_0())
+	}
 	body.replaceWith(placeholder)
 	placeholder.replaceWith(IR_blockNodeVarargs([]Node{IR_exprResult(functionContext.resume().srcrefTreeIfMissing(arg)), IR_tryFinally(body, IR_block_Node(IR_exprResult(functionContext.suspend().srcrefTreeIfMissing(arg))))}))
 	if !parent.isBlock() {
@@ -153,7 +161,9 @@ func (this *InstrumentAsyncContext) instrumentTry(n Node, functionContext *Instr
 	} else {
 		block = block.getNext()
 	}
-	Preconditions_checkState(block.isBlock())
+	if !block.isBlock() {
+		panic(new_IllegalStateException_0())
+	}
 	block.addChildToFront(IR_exprResult(functionContext.resume().srcrefTreeIfMissing(block)))
 }
 
@@ -180,7 +190,7 @@ func (this *InstrumentAsyncContext) instrumentGeneratorFunction(t *NodeTraversal
 	f.addChildToBack(newOuterBody.srcrefTreeIfMissing(generatorBody))
 	var thisContext *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = new_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext(newOuterBody, false, this.uniqueIdSupplier.getUniqueId(t.getInput()))
 	var updater *ThisAndArgumentsReferenceUpdater = new_ThisAndArgumentsReferenceUpdater(this.compiler_, thisContext, this.astFactory_)
-	NodeTraversal_traverse(this.compiler_, generatorBody, icast_NodeTraversal_Callback(obj_(updater)))
+	NodeTraversal_traverse(this.compiler_, generatorBody, updater)
 	thisContext.addVarDeclarations(this.compiler_, this.astFactory_, t.getCurrentScript())
 	this.compiler_.reportChangeToChangeScope(f)
 	this.compiler_.reportChangeToChangeScope(inner)
@@ -205,7 +215,7 @@ func (this *InstrumentAsyncContext) instrumentGeneratorMethod(t *NodeTraversal, 
 	var argumentsParam Node = 0
 	var argumentsReference Node = 0
 	var renamer *InstrumentAsyncContext_ArgumentsRenamer = new_InstrumentAsyncContext_ArgumentsRenamer(this)
-	NodeTraversal_traverse(this.compiler_, generatorBody, icast_NodeTraversal_Callback(obj_(renamer)))
+	NodeTraversal_traverse(this.compiler_, generatorBody, renamer)
 	if renamer.argumentsName.isPresent() {
 		argumentsReference = this.astFactory_.createArgumentsReference()
 		argumentsParam = this.astFactory_.createName(renamer.argumentsName.get(), AstFactory_type_Node(argumentsReference))
@@ -278,7 +288,7 @@ func (this *InstrumentAsyncContext) simplifyParameter(param Node, t *NodeTravers
 		var newParam Node = this.astFactory_.createName((sstr_(param.getString()) + "$jscomp$param$" + sstr_(this.uniqueIdSupplier.getUniqueId(t.getInput()))), AstFactory_type_Node(param)).srcrefTreeIfMissing(param)
 		return new_InstrumentAsyncContext_ArgParamPair(newParam.cloneTree(), newParam)
 	}
-	panic(new_IllegalStateException_String(("Unexpected parameter: " + objstr_(param.box_()))).self())
+	panic(new_IllegalStateException_String(("Unexpected parameter: " + tostr_(param))))
 }
 
 func (this *InstrumentAsyncContext) instrumentAsyncFunction(f Node, input *CompilerInput, functionContext *InstrumentAsyncContext_FunctionContext) {
@@ -459,19 +469,19 @@ func (this *InstrumentAsyncContext_FunctionContext) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.uniqueSuffix_ == o.uniqueSuffix_ && Objects_equals(this.suspendName_.box_(), o.suspendName_.box_()) && Objects_equals(this.resumeName_.box_(), o.resumeName_.box_()) && Objects_equals(this.factoryName_.box_(), o.factoryName_.box_()) && Objects_equals(obj_(this.astFactory_), obj_(o.astFactory_))
+	return true && this.uniqueSuffix_ == o.uniqueSuffix_ && this.suspendName_ == o.suspendName_ && this.resumeName_ == o.resumeName_ && this.factoryName_ == o.factoryName_ && this.astFactory_ == o.astFactory_
 }
 
 func (this *InstrumentAsyncContext_FunctionContext) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.uniqueSuffix_))
-	h = h*31 + Objects_hashCode(this.suspendName_.box_())
-	h = h*31 + Objects_hashCode(this.resumeName_.box_())
-	h = h*31 + Objects_hashCode(this.factoryName_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.astFactory_))
+	h = h*31 + objhashStr_(this.uniqueSuffix_)
+	h = h*31 + objhashId_(this.suspendName_)
+	h = h*31 + objhashId_(this.resumeName_)
+	h = h*31 + objhashId_(this.factoryName_)
+	h = h*31 + objhashId_(this.astFactory_)
 	return h
 }
 
 func (this *InstrumentAsyncContext_FunctionContext) toString() string {
-	return "FunctionContext[" + "uniqueSuffix=" + objstr_(strobj_(this.uniqueSuffix_)) + ", suspendName=" + objstr_(this.suspendName_.box_()) + ", resumeName=" + objstr_(this.resumeName_.box_()) + ", factoryName=" + objstr_(this.factoryName_.box_()) + ", astFactory=" + objstr_(obj_(this.astFactory_)) + "]"
+	return "FunctionContext[" + "uniqueSuffix=" + sstr_(this.uniqueSuffix_) + ", suspendName=" + tostr_(this.suspendName_) + ", resumeName=" + tostr_(this.resumeName_) + ", factoryName=" + tostr_(this.factoryName_) + ", astFactory=" + objstr_(obj_(this.astFactory_)) + "]"
 }

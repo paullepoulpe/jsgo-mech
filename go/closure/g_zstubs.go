@@ -2,35 +2,11 @@
 
 package closure
 
-func to_AbstractCollection(v any) *AbstractCollection {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_AbstractCollection() *AbstractCollection }).as_AbstractCollection()
-}
-
-func is_AbstractCollection(v any) bool {
-	_, ok := v.(interface{ as_AbstractCollection() *AbstractCollection })
-	return ok
-}
-
 func (this *AbstractCollection) self() any {
 	if this == nil {
 		return nil
 	}
 	return this.self_
-}
-
-func to_AbstractIterator(v any) *AbstractIterator {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_AbstractIterator() *AbstractIterator }).as_AbstractIterator()
-}
-
-func is_AbstractIterator(v any) bool {
-	_, ok := v.(interface{ as_AbstractIterator() *AbstractIterator })
-	return ok
 }
 
 func (this *AbstractIterator) self() any {
@@ -45,18 +21,6 @@ type AbstractList struct {
 }
 
 func (this *AbstractList) as_AbstractList() *AbstractList { return this }
-
-func to_AbstractList(v any) *AbstractList {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_AbstractList() *AbstractList }).as_AbstractList()
-}
-
-func is_AbstractList(v any) bool {
-	_, ok := v.(interface{ as_AbstractList() *AbstractList })
-	return ok
-}
 
 func (this *AbstractList) self() any {
 	if this == nil {
@@ -105,18 +69,6 @@ type AbstractMap struct {
 }
 
 func (this *AbstractMap) as_AbstractMap() *AbstractMap { return this }
-
-func to_AbstractMap(v any) *AbstractMap {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_AbstractMap() *AbstractMap }).as_AbstractMap()
-}
-
-func is_AbstractMap(v any) bool {
-	_, ok := v.(interface{ as_AbstractMap() *AbstractMap })
-	return ok
-}
 
 func (this *AbstractMap) self() any {
 	if this == nil {
@@ -182,18 +134,6 @@ type AbstractQueue struct {
 
 func (this *AbstractQueue) as_AbstractQueue() *AbstractQueue { return this }
 
-func to_AbstractQueue(v any) *AbstractQueue {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_AbstractQueue() *AbstractQueue }).as_AbstractQueue()
-}
-
-func is_AbstractQueue(v any) bool {
-	_, ok := v.(interface{ as_AbstractQueue() *AbstractQueue })
-	return ok
-}
-
 func (this *AbstractQueue) self() any {
 	if this == nil {
 		return nil
@@ -231,18 +171,6 @@ func (this *AbstractSequentialList) up_AbstractList() *AbstractList {
 	return &this.AbstractList
 }
 
-func to_AbstractSet(v any) *AbstractSet {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_AbstractSet() *AbstractSet }).as_AbstractSet()
-}
-
-func is_AbstractSet(v any) bool {
-	_, ok := v.(interface{ as_AbstractSet() *AbstractSet })
-	return ok
-}
-
 func (this *AbstractSet) self() any {
 	if this == nil {
 		return nil
@@ -252,7 +180,7 @@ func (this *AbstractSet) self() any {
 
 type AccessorSummaryEntryProtoOrBuilder interface {
 	MessageOrBuilder
-	getKind() *PropertyAccessKindProto
+	getKind() PropertyAccessKindProto
 	getName() string
 }
 
@@ -267,6 +195,7 @@ type AnnotatedElement interface {
 
 type Appendable interface {
 	append_CharSequence(any) Appendable
+	append_CharSequence_s(string) Appendable
 	append_CharSequence_int_int(any, int32, int32) Appendable
 	append_char(uint16) Appendable
 }
@@ -275,19 +204,13 @@ type ArithmeticException struct {
 	RuntimeException
 }
 
+// ArithmeticException_as is implemented by ArithmeticException and the classes that extend it: a cast to ArithmeticException asserts to it
+// (post-flip).
+type ArithmeticException_as interface {
+	as_ArithmeticException() *ArithmeticException
+}
+
 func (this *ArithmeticException) as_ArithmeticException() *ArithmeticException { return this }
-
-func to_ArithmeticException(v any) *ArithmeticException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_ArithmeticException() *ArithmeticException }).as_ArithmeticException()
-}
-
-func is_ArithmeticException(v any) bool {
-	_, ok := v.(interface{ as_ArithmeticException() *ArithmeticException })
-	return ok
-}
 
 func (this *ArithmeticException) self() any {
 	if this == nil {
@@ -333,22 +256,6 @@ func (this *ArrayIndexOutOfBoundsException) as_ArrayIndexOutOfBoundsException() 
 	return this
 }
 
-func to_ArrayIndexOutOfBoundsException(v any) *ArrayIndexOutOfBoundsException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_ArrayIndexOutOfBoundsException() *ArrayIndexOutOfBoundsException
-	}).as_ArrayIndexOutOfBoundsException()
-}
-
-func is_ArrayIndexOutOfBoundsException(v any) bool {
-	_, ok := v.(interface {
-		as_ArrayIndexOutOfBoundsException() *ArrayIndexOutOfBoundsException
-	})
-	return ok
-}
-
 func (this *ArrayIndexOutOfBoundsException) self() any {
 	if this == nil {
 		return nil
@@ -385,11 +292,6 @@ func new_ArrayIndexOutOfBoundsException_String(p0 string) *ArrayIndexOutOfBounds
 	return this
 }
 
-func is_ArrayList(v any) bool {
-	_, ok := v.(interface{ as_ArrayList() *ArrayList })
-	return ok
-}
-
 type Arrays struct {
 }
 
@@ -398,18 +300,6 @@ type AssertionError struct {
 }
 
 func (this *AssertionError) as_AssertionError() *AssertionError { return this }
-
-func to_AssertionError(v any) *AssertionError {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_AssertionError() *AssertionError }).as_AssertionError()
-}
-
-func is_AssertionError(v any) bool {
-	_, ok := v.(interface{ as_AssertionError() *AssertionError })
-	return ok
-}
 
 func (this *AssertionError) self() any {
 	if this == nil {
@@ -465,7 +355,7 @@ type AstNodeOrBuilder interface {
 	getChildCount() int32
 	getDoubleValue() float64
 	getJsdoc() *OptimizationJsdoc
-	getKind() *NodeKind
+	getKind() NodeKind
 	getOriginalNamePointer() int32
 	getRelativeColumn() int32
 	getRelativeLine() int32
@@ -499,26 +389,12 @@ type BlockingQueue interface {
 	Queue
 }
 
-type BooleanSupplier interface {
-	getAsBoolean() bool
-}
+type BooleanSupplier = *funcObj_[func() bool]
 
 type ByteOutput struct {
 }
 
 type Cache interface {
-}
-
-func to_CacheLoader(v any) *CacheLoader {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_CacheLoader() *CacheLoader }).as_CacheLoader()
-}
-
-func is_CacheLoader(v any) bool {
-	_, ok := v.(interface{ as_CacheLoader() *CacheLoader })
-	return ok
 }
 
 func (this *CacheLoader) self() any {
@@ -544,18 +420,6 @@ type ClassCastException struct {
 }
 
 func (this *ClassCastException) as_ClassCastException() *ClassCastException { return this }
-
-func to_ClassCastException(v any) *ClassCastException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_ClassCastException() *ClassCastException }).as_ClassCastException()
-}
-
-func is_ClassCastException(v any) bool {
-	_, ok := v.(interface{ as_ClassCastException() *ClassCastException })
-	return ok
-}
 
 func (this *ClassCastException) self() any {
 	if this == nil {
@@ -599,22 +463,6 @@ type CloneNotSupportedException struct {
 
 func (this *CloneNotSupportedException) as_CloneNotSupportedException() *CloneNotSupportedException {
 	return this
-}
-
-func to_CloneNotSupportedException(v any) *CloneNotSupportedException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_CloneNotSupportedException() *CloneNotSupportedException
-	}).as_CloneNotSupportedException()
-}
-
-func is_CloneNotSupportedException(v any) bool {
-	_, ok := v.(interface {
-		as_CloneNotSupportedException() *CloneNotSupportedException
-	})
-	return ok
 }
 
 func (this *CloneNotSupportedException) self() any {
@@ -697,22 +545,6 @@ func (this *ConcurrentModificationException) as_ConcurrentModificationException(
 	return this
 }
 
-func to_ConcurrentModificationException(v any) *ConcurrentModificationException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_ConcurrentModificationException() *ConcurrentModificationException
-	}).as_ConcurrentModificationException()
-}
-
-func is_ConcurrentModificationException(v any) bool {
-	_, ok := v.(interface {
-		as_ConcurrentModificationException() *ConcurrentModificationException
-	})
-	return ok
-}
-
 func (this *ConcurrentModificationException) self() any {
 	if this == nil {
 		return nil
@@ -773,7 +605,7 @@ func new_ConcurrentModificationException_String_Throwable(p0 string, p1 *Throwab
 
 type ConformanceConfigOrBuilder interface {
 	MessageOrBuilder
-	getLibraryLevelNonAllowlistedConformanceViolationsBehavior() *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior
+	getLibraryLevelNonAllowlistedConformanceViolationsBehavior() ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior
 	getRequirementList() List
 	hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() bool
 }
@@ -811,12 +643,7 @@ func to_Enum(v any) *Enum {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Enum() *Enum }).as_Enum()
-}
-
-func is_Enum(v any) bool {
-	_, ok := v.(interface{ as_Enum() *Enum })
-	return ok
+	return v.(enumConst_).enum_()
 }
 
 func (this *Enum) self() any {
@@ -834,17 +661,16 @@ type Error struct {
 	Throwable
 }
 
-func (this *Error) as_Error() *Error { return this }
-
-func to_Error(v any) *Error {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_Error() *Error }).as_Error()
+// Error_as is implemented by Error and the classes that extend it: a cast to Error asserts to it
+// (post-flip).
+type Error_as interface {
+	as_Error() *Error
 }
 
+func (this *Error) as_Error() *Error { return this }
+
 func is_Error(v any) bool {
-	_, ok := v.(interface{ as_Error() *Error })
+	_, ok := v.(Error_as)
 	return ok
 }
 
@@ -906,18 +732,6 @@ func new_Error_Throwable(p0 *Throwable) *Error {
 	return this
 }
 
-func to_Escaper(v any) *Escaper {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_Escaper() *Escaper }).as_Escaper()
-}
-
-func is_Escaper(v any) bool {
-	_, ok := v.(interface{ as_Escaper() *Escaper })
-	return ok
-}
-
 func (this *Escaper) self() any {
 	if this == nil {
 		return nil
@@ -929,17 +743,23 @@ type Exception struct {
 	Throwable
 }
 
+// Exception_as is implemented by Exception and the classes that extend it: a cast to Exception asserts to it
+// (post-flip).
+type Exception_as interface {
+	as_Exception() *Exception
+}
+
 func (this *Exception) as_Exception() *Exception { return this }
 
 func to_Exception(v any) *Exception {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Exception() *Exception }).as_Exception()
+	return v.(Exception_as).as_Exception()
 }
 
 func is_Exception(v any) bool {
-	_, ok := v.(interface{ as_Exception() *Exception })
+	_, ok := v.(Exception_as)
 	return ok
 }
 
@@ -1001,13 +821,6 @@ func new_Exception_Throwable(p0 *Throwable) *Exception {
 	return this
 }
 
-func to_ExecutionException(v any) *ExecutionException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_ExecutionException() *ExecutionException }).as_ExecutionException()
-}
-
 func (this *ExecutionException) init_ExecutionException_0() {
 	this.Exception.init_Exception_0()
 }
@@ -1065,18 +878,6 @@ type FileNotFoundException struct {
 
 func (this *FileNotFoundException) as_FileNotFoundException() *FileNotFoundException { return this }
 
-func to_FileNotFoundException(v any) *FileNotFoundException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_FileNotFoundException() *FileNotFoundException }).as_FileNotFoundException()
-}
-
-func is_FileNotFoundException(v any) bool {
-	_, ok := v.(interface{ as_FileNotFoundException() *FileNotFoundException })
-	return ok
-}
-
 func (this *FileNotFoundException) self() any {
 	if this == nil {
 		return nil
@@ -1132,7 +933,7 @@ type Function_base interface {
 
 type Future interface {
 	get() any
-	get_long_TimeUnit(int64, *TimeUnit) any
+	get_long_TimeUnit(int64, TimeUnit) any
 }
 
 type GarbageCollectorMXBean interface {
@@ -1162,17 +963,16 @@ type IOException struct {
 	Exception
 }
 
-func (this *IOException) as_IOException() *IOException { return this }
-
-func to_IOException(v any) *IOException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_IOException() *IOException }).as_IOException()
+// IOException_as is implemented by IOException and the classes that extend it: a cast to IOException asserts to it
+// (post-flip).
+type IOException_as interface {
+	as_IOException() *IOException
 }
 
+func (this *IOException) as_IOException() *IOException { return this }
+
 func is_IOException(v any) bool {
-	_, ok := v.(interface{ as_IOException() *IOException })
+	_, ok := v.(IOException_as)
 	return ok
 }
 
@@ -1238,23 +1038,18 @@ type IllegalArgumentException struct {
 	RuntimeException
 }
 
+// IllegalArgumentException_as is implemented by IllegalArgumentException and the classes that extend it: a cast to IllegalArgumentException asserts to it
+// (post-flip).
+type IllegalArgumentException_as interface {
+	as_IllegalArgumentException() *IllegalArgumentException
+}
+
 func (this *IllegalArgumentException) as_IllegalArgumentException() *IllegalArgumentException {
 	return this
 }
 
-func to_IllegalArgumentException(v any) *IllegalArgumentException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_IllegalArgumentException() *IllegalArgumentException
-	}).as_IllegalArgumentException()
-}
-
 func is_IllegalArgumentException(v any) bool {
-	_, ok := v.(interface {
-		as_IllegalArgumentException() *IllegalArgumentException
-	})
+	_, ok := v.(IllegalArgumentException_as)
 	return ok
 }
 
@@ -1320,18 +1115,22 @@ type IllegalStateException struct {
 	RuntimeException
 }
 
+// IllegalStateException_as is implemented by IllegalStateException and the classes that extend it: a cast to IllegalStateException asserts to it
+// (post-flip).
+type IllegalStateException_as interface {
+	as_IllegalStateException() *IllegalStateException
+}
+
 func (this *IllegalStateException) as_IllegalStateException() *IllegalStateException { return this }
 
 func to_IllegalStateException(v any) *IllegalStateException {
-	if v == nil {
+	switch p := v.(type) {
+	case *IllegalStateException:
+		return p
+	case nil:
 		return nil
 	}
-	return v.(interface{ as_IllegalStateException() *IllegalStateException }).as_IllegalStateException()
-}
-
-func is_IllegalStateException(v any) bool {
-	_, ok := v.(interface{ as_IllegalStateException() *IllegalStateException })
-	return ok
+	return v.(IllegalStateException_as).as_IllegalStateException()
 }
 
 func (this *IllegalStateException) self() any {
@@ -1396,23 +1195,18 @@ type IndexOutOfBoundsException struct {
 	RuntimeException
 }
 
+// IndexOutOfBoundsException_as is implemented by IndexOutOfBoundsException and the classes that extend it: a cast to IndexOutOfBoundsException asserts to it
+// (post-flip).
+type IndexOutOfBoundsException_as interface {
+	as_IndexOutOfBoundsException() *IndexOutOfBoundsException
+}
+
 func (this *IndexOutOfBoundsException) as_IndexOutOfBoundsException() *IndexOutOfBoundsException {
 	return this
 }
 
-func to_IndexOutOfBoundsException(v any) *IndexOutOfBoundsException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_IndexOutOfBoundsException() *IndexOutOfBoundsException
-	}).as_IndexOutOfBoundsException()
-}
-
 func is_IndexOutOfBoundsException(v any) bool {
-	_, ok := v.(interface {
-		as_IndexOutOfBoundsException() *IndexOutOfBoundsException
-	})
+	_, ok := v.(IndexOutOfBoundsException_as)
 	return ok
 }
 
@@ -1454,18 +1248,6 @@ func new_IndexOutOfBoundsException_String(p0 string) *IndexOutOfBoundsException 
 
 func (this *InputStream) as_InputStream() *InputStream { return this }
 
-func to_InputStream(v any) *InputStream {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_InputStream() *InputStream }).as_InputStream()
-}
-
-func is_InputStream(v any) bool {
-	_, ok := v.(interface{ as_InputStream() *InputStream })
-	return ok
-}
-
 func (this *InputStream) self() any {
 	if this == nil {
 		return nil
@@ -1478,13 +1260,13 @@ type InstrumentationPointOrBuilder interface {
 	getFileName() string
 	getFunctionName() string
 	getLineNumber() int32
-	getType() *InstrumentationPoint_Type
+	getType() InstrumentationPoint_Type
 }
 
 type InstrumentationPointStatsOrBuilder interface {
 	MessageOrBuilder
 	getPoint() *InstrumentationPoint
-	getPointPresence() *InstrumentationPointStats_Presence
+	getPointPresence() InstrumentationPointStats_Presence
 	getTimesExecuted() int64
 }
 
@@ -1509,18 +1291,6 @@ type InterruptedException struct {
 }
 
 func (this *InterruptedException) as_InterruptedException() *InterruptedException { return this }
-
-func to_InterruptedException(v any) *InterruptedException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_InterruptedException() *InterruptedException }).as_InterruptedException()
-}
-
-func is_InterruptedException(v any) bool {
-	_, ok := v.(interface{ as_InterruptedException() *InterruptedException })
-	return ok
-}
 
 func (this *InterruptedException) self() any {
 	if this == nil {
@@ -1570,22 +1340,6 @@ type InvalidProtocolBufferException struct {
 
 func (this *InvalidProtocolBufferException) as_InvalidProtocolBufferException() *InvalidProtocolBufferException {
 	return this
-}
-
-func to_InvalidProtocolBufferException(v any) *InvalidProtocolBufferException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_InvalidProtocolBufferException() *InvalidProtocolBufferException
-	}).as_InvalidProtocolBufferException()
-}
-
-func is_InvalidProtocolBufferException(v any) bool {
-	_, ok := v.(interface {
-		as_InvalidProtocolBufferException() *InvalidProtocolBufferException
-	})
-	return ok
 }
 
 func (this *InvalidProtocolBufferException) self() any {
@@ -1643,7 +1397,7 @@ type JSCompilerStateProtoOrBuilder interface {
 	getInjectedLibrariesList() List
 	getInstrumentationMappingList() List
 	getLastInjectedLibraryIndexInFirstScript() int32
-	getLifeCycleStage() *LifeCycleStageProto
+	getLifeCycleStage() LifeCycleStageProto
 	getMergedPrecompiledLibraries() bool
 	getRunJ2ClPasses() bool
 	getStringMapList() List
@@ -1799,22 +1553,6 @@ func (this *NegativeArraySizeException) as_NegativeArraySizeException() *Negativ
 	return this
 }
 
-func to_NegativeArraySizeException(v any) *NegativeArraySizeException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NegativeArraySizeException() *NegativeArraySizeException
-	}).as_NegativeArraySizeException()
-}
-
-func is_NegativeArraySizeException(v any) bool {
-	_, ok := v.(interface {
-		as_NegativeArraySizeException() *NegativeArraySizeException
-	})
-	return ok
-}
-
 func (this *NegativeArraySizeException) self() any {
 	if this == nil {
 		return nil
@@ -1857,19 +1595,8 @@ type NoSuchElementException struct {
 
 func (this *NoSuchElementException) as_NoSuchElementException() *NoSuchElementException { return this }
 
-func to_NoSuchElementException(v any) *NoSuchElementException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NoSuchElementException() *NoSuchElementException
-	}).as_NoSuchElementException()
-}
-
 func is_NoSuchElementException(v any) bool {
-	_, ok := v.(interface {
-		as_NoSuchElementException() *NoSuchElementException
-	})
+	_, ok := v.(*NoSuchElementException)
 	return ok
 }
 
@@ -1937,15 +1664,8 @@ type NullPointerException struct {
 
 func (this *NullPointerException) as_NullPointerException() *NullPointerException { return this }
 
-func to_NullPointerException(v any) *NullPointerException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_NullPointerException() *NullPointerException }).as_NullPointerException()
-}
-
 func is_NullPointerException(v any) bool {
-	_, ok := v.(interface{ as_NullPointerException() *NullPointerException })
+	_, ok := v.(*NullPointerException)
 	return ok
 }
 
@@ -1991,15 +1711,8 @@ type NumberFormatException struct {
 
 func (this *NumberFormatException) as_NumberFormatException() *NumberFormatException { return this }
 
-func to_NumberFormatException(v any) *NumberFormatException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_NumberFormatException() *NumberFormatException }).as_NumberFormatException()
-}
-
 func is_NumberFormatException(v any) bool {
-	_, ok := v.(interface{ as_NumberFormatException() *NumberFormatException })
+	_, ok := v.(*NumberFormatException)
 	return ok
 }
 
@@ -2071,31 +1784,25 @@ type OptimizationJsdocOrBuilder interface {
 	getMeaningPointer() int32
 }
 
+// Ordering_as is implemented by Ordering and the classes that extend it: a cast to Ordering asserts to it
+// (post-flip).
+type Ordering_as interface {
+	as_Ordering() *Ordering
+}
+
 func to_Ordering(v any) *Ordering {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Ordering() *Ordering }).as_Ordering()
+	return v.(Ordering_as).as_Ordering()
 }
 
 func is_Ordering(v any) bool {
-	_, ok := v.(interface{ as_Ordering() *Ordering })
+	_, ok := v.(Ordering_as)
 	return ok
 }
 
 func (this *OutputStream) as_OutputStream() *OutputStream { return this }
-
-func to_OutputStream(v any) *OutputStream {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_OutputStream() *OutputStream }).as_OutputStream()
-}
-
-func is_OutputStream(v any) bool {
-	_, ok := v.(interface{ as_OutputStream() *OutputStream })
-	return ok
-}
 
 func (this *OutputStream) self() any {
 	if this == nil {
@@ -2109,18 +1816,6 @@ type ParseException struct {
 }
 
 func (this *ParseException) as_ParseException() *ParseException { return this }
-
-func to_ParseException(v any) *ParseException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_ParseException() *ParseException }).as_ParseException()
-}
-
-func is_ParseException(v any) bool {
-	_, ok := v.(interface{ as_ParseException() *ParseException })
-	return ok
-}
 
 func (this *ParseException) self() any {
 	if this == nil {
@@ -2138,15 +1833,6 @@ func (this *ParseException) up_Exception() *Exception {
 
 func (this *ParserConfigurationException) as_ParserConfigurationException() *ParserConfigurationException {
 	return this
-}
-
-func to_ParserConfigurationException(v any) *ParserConfigurationException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_ParserConfigurationException() *ParserConfigurationException
-	}).as_ParserConfigurationException()
 }
 
 func (this *ParserConfigurationException) self() any {
@@ -2182,23 +1868,13 @@ type PatternSyntaxException struct {
 	RuntimeException
 }
 
+// PatternSyntaxException_as is implemented by PatternSyntaxException and the classes that extend it: a cast to PatternSyntaxException asserts to it
+// (post-flip).
+type PatternSyntaxException_as interface {
+	as_PatternSyntaxException() *PatternSyntaxException
+}
+
 func (this *PatternSyntaxException) as_PatternSyntaxException() *PatternSyntaxException { return this }
-
-func to_PatternSyntaxException(v any) *PatternSyntaxException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_PatternSyntaxException() *PatternSyntaxException
-	}).as_PatternSyntaxException()
-}
-
-func is_PatternSyntaxException(v any) bool {
-	_, ok := v.(interface {
-		as_PatternSyntaxException() *PatternSyntaxException
-	})
-	return ok
-}
 
 func (this *PatternSyntaxException) self() any {
 	if this == nil {
@@ -2284,18 +1960,6 @@ type Readable interface {
 
 func (this *Reader) as_Reader() *Reader { return this }
 
-func to_Reader(v any) *Reader {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_Reader() *Reader }).as_Reader()
-}
-
-func is_Reader(v any) bool {
-	_, ok := v.(interface{ as_Reader() *Reader })
-	return ok
-}
-
 func (this *Reader) self() any {
 	if this == nil {
 		return nil
@@ -2327,9 +1991,9 @@ type RequirementOrBuilder interface {
 	getOnlyApplyToRegexpList() List
 	getReportLooseTypeViolations() bool
 	getRuleId() string
-	getSeverity() *Requirement_Severity
-	getType() *Requirement_Type
-	getTypeMatchingStrategy() *Requirement_TypeMatchingStrategy
+	getSeverity() Requirement_Severity
+	getType() Requirement_Type
+	getTypeMatchingStrategy() Requirement_TypeMatchingStrategy
 	getValueCount() int32
 	getValueList() List
 	getWhitelistCount() int32
@@ -2357,17 +2021,23 @@ type RuntimeException struct {
 	Exception
 }
 
+// RuntimeException_as is implemented by RuntimeException and the classes that extend it: a cast to RuntimeException asserts to it
+// (post-flip).
+type RuntimeException_as interface {
+	as_RuntimeException() *RuntimeException
+}
+
 func (this *RuntimeException) as_RuntimeException() *RuntimeException { return this }
 
 func to_RuntimeException(v any) *RuntimeException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_RuntimeException() *RuntimeException }).as_RuntimeException()
+	return v.(RuntimeException_as).as_RuntimeException()
 }
 
 func is_RuntimeException(v any) bool {
-	_, ok := v.(interface{ as_RuntimeException() *RuntimeException })
+	_, ok := v.(RuntimeException_as)
 	return ok
 }
 
@@ -2429,13 +2099,6 @@ func new_RuntimeException_Throwable(p0 *Throwable) *RuntimeException {
 	return this
 }
 
-func to_SAXException(v any) *SAXException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_SAXException() *SAXException }).as_SAXException()
-}
-
 func (this *SAXException) init_SAXException_0() {
 	this.Exception.init_Exception_0()
 }
@@ -2494,11 +2157,11 @@ type SourceFileProtoOrBuilder interface {
 	getFileOnDisk() *SourceFileProto_FileOnDisk
 	getFilename() string
 	getIsClosureUnawareCode() bool
-	getLoaderCase() *SourceFileProto_LoaderCase
+	getLoaderCase() SourceFileProto_LoaderCase
 	getNumBytesPlusOne() int32
 	getNumLinesPlusOne() int32
 	getPreloadedContents() string
-	getSourceKind() *SourceFileProto_SourceKind
+	getSourceKind() SourceFileProto_SourceKind
 	getZipEntry() *SourceFileProto_ZipEntryOnDisk
 }
 
@@ -2520,18 +2183,6 @@ type StackOverflowError struct {
 }
 
 func (this *StackOverflowError) as_StackOverflowError() *StackOverflowError { return this }
-
-func to_StackOverflowError(v any) *StackOverflowError {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_StackOverflowError() *StackOverflowError }).as_StackOverflowError()
-}
-
-func is_StackOverflowError(v any) bool {
-	_, ok := v.(interface{ as_StackOverflowError() *StackOverflowError })
-	return ok
-}
 
 func (this *StackOverflowError) self() any {
 	if this == nil {
@@ -2577,19 +2228,8 @@ func (this *StringIndexOutOfBoundsException) as_StringIndexOutOfBoundsException(
 	return this
 }
 
-func to_StringIndexOutOfBoundsException(v any) *StringIndexOutOfBoundsException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_StringIndexOutOfBoundsException() *StringIndexOutOfBoundsException
-	}).as_StringIndexOutOfBoundsException()
-}
-
 func is_StringIndexOutOfBoundsException(v any) bool {
-	_, ok := v.(interface {
-		as_StringIndexOutOfBoundsException() *StringIndexOutOfBoundsException
-	})
+	_, ok := v.(*StringIndexOutOfBoundsException)
 	return ok
 }
 
@@ -2658,18 +2298,6 @@ type TemplateStringValueOrBuilder interface {
 	getRawStringPointer() int32
 }
 
-func to_Thread(v any) *Thread {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_Thread() *Thread }).as_Thread()
-}
-
-func is_Thread(v any) bool {
-	_, ok := v.(interface{ as_Thread() *Thread })
-	return ok
-}
-
 func (this *Thread) self() any {
 	if this == nil {
 		return nil
@@ -2681,19 +2309,13 @@ type ThreadFactory interface {
 	newThread(Runnable) *Thread
 }
 
-func to_ThreadPoolExecutor(v any) *ThreadPoolExecutor {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_ThreadPoolExecutor() *ThreadPoolExecutor }).as_ThreadPoolExecutor()
-}
-
-func is_ThreadPoolExecutor(v any) bool {
-	_, ok := v.(interface{ as_ThreadPoolExecutor() *ThreadPoolExecutor })
-	return ok
-}
-
 type Thread_UncaughtExceptionHandler interface {
+}
+
+// Throwable_as is implemented by Throwable and the classes that extend it: a cast to Throwable asserts to it
+// (post-flip).
+type Throwable_as interface {
+	as_Throwable() *Throwable
 }
 
 func (this *Throwable) as_Throwable() *Throwable { return this }
@@ -2702,12 +2324,7 @@ func to_Throwable(v any) *Throwable {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Throwable() *Throwable }).as_Throwable()
-}
-
-func is_Throwable(v any) bool {
-	_, ok := v.(interface{ as_Throwable() *Throwable })
-	return ok
+	return v.(Throwable_as).as_Throwable()
 }
 
 func (this *Throwable) self() any {
@@ -2718,13 +2335,6 @@ func (this *Throwable) self() any {
 }
 
 func (this *TimeoutException) as_TimeoutException() *TimeoutException { return this }
-
-func to_TimeoutException(v any) *TimeoutException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_TimeoutException() *TimeoutException }).as_TimeoutException()
-}
 
 func (this *TimeoutException) self() any {
 	if this == nil {
@@ -2796,7 +2406,7 @@ type TypePool_DebugInfo_MismatchOrBuilder interface {
 
 type TypeProtoOrBuilder interface {
 	MessageOrBuilder
-	getKindCase() *TypeProto_KindCase
+	getKindCase() TypeProto_KindCase
 	getObject() *ObjectTypeProto
 	getUnion() *UnionTypeProto
 	hasObject() bool
@@ -2818,20 +2428,10 @@ type TypedAst_ListOrBuilder interface {
 	MessageOrBuilder
 }
 
-func to_UncheckedExecutionException(v any) *UncheckedExecutionException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_UncheckedExecutionException() *UncheckedExecutionException
-	}).as_UncheckedExecutionException()
-}
-
-func is_UncheckedExecutionException(v any) bool {
-	_, ok := v.(interface {
-		as_UncheckedExecutionException() *UncheckedExecutionException
-	})
-	return ok
+// UncheckedExecutionException_as is implemented by UncheckedExecutionException and the classes that extend it: a cast to UncheckedExecutionException asserts to it
+// (post-flip).
+type UncheckedExecutionException_as interface {
+	as_UncheckedExecutionException() *UncheckedExecutionException
 }
 
 func (this *UncheckedExecutionException) init_UncheckedExecutionException_0() {
@@ -2873,18 +2473,6 @@ type UncheckedIOException struct {
 
 func (this *UncheckedIOException) as_UncheckedIOException() *UncheckedIOException { return this }
 
-func to_UncheckedIOException(v any) *UncheckedIOException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_UncheckedIOException() *UncheckedIOException }).as_UncheckedIOException()
-}
-
-func is_UncheckedIOException(v any) bool {
-	_, ok := v.(interface{ as_UncheckedIOException() *UncheckedIOException })
-	return ok
-}
-
 func (this *UncheckedIOException) self() any {
 	if this == nil {
 		return nil
@@ -2917,22 +2505,6 @@ type UnsupportedOperationException struct {
 
 func (this *UnsupportedOperationException) as_UnsupportedOperationException() *UnsupportedOperationException {
 	return this
-}
-
-func to_UnsupportedOperationException(v any) *UnsupportedOperationException {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_UnsupportedOperationException() *UnsupportedOperationException
-	}).as_UnsupportedOperationException()
-}
-
-func is_UnsupportedOperationException(v any) bool {
-	_, ok := v.(interface {
-		as_UnsupportedOperationException() *UnsupportedOperationException
-	})
-	return ok
 }
 
 func (this *UnsupportedOperationException) self() any {
@@ -3004,18 +2576,6 @@ type VirtualMachineError struct {
 }
 
 func (this *VirtualMachineError) as_VirtualMachineError() *VirtualMachineError { return this }
-
-func to_VirtualMachineError(v any) *VirtualMachineError {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_VirtualMachineError() *VirtualMachineError }).as_VirtualMachineError()
-}
-
-func is_VirtualMachineError(v any) bool {
-	_, ok := v.(interface{ as_VirtualMachineError() *VirtualMachineError })
-	return ok
-}
 
 func (this *VirtualMachineError) self() any {
 	if this == nil {
@@ -3237,14 +2797,6 @@ func (this *IntUnaryOperator_fn) applyAsInt(p0 int32) int32 {
 	return this.f(p0)
 }
 
-type BooleanSupplier_fn struct {
-	f func() bool
-}
-
-func (this *BooleanSupplier_fn) getAsBoolean() bool {
-	return this.f()
-}
-
 type BiConsumer_tfn_ColorPool_ShardView_TypeProto struct {
 	f func(*ColorPool_ShardView, *TypeProto)
 }
@@ -3254,11 +2806,11 @@ func (this *BiConsumer_tfn_ColorPool_ShardView_TypeProto) accept(p0 any, p1 any)
 }
 
 type BiConsumer_tfn_JSTypeNative_Color struct {
-	f func(*JSTypeNative, *Color)
+	f func(JSTypeNative, *Color)
 }
 
 func (this *BiConsumer_tfn_JSTypeNative_Color) accept(p0 any, p1 any) {
-	this.f(cast_[*JSTypeNative](p0), cast_[*Color](p1))
+	this.f(cast_[JSTypeNative](p0), cast_[*Color](p1))
 }
 
 type BiConsumer_tfn_Node_Set struct {
@@ -3326,19 +2878,19 @@ func (this *BiConsumer_tfn_string_SourceFile_jscomp) accept(p0 any, p1 any) {
 }
 
 type BiFunction_tfn_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind struct {
-	f func(*AccessorSummary_PropertyAccessKind, *AccessorSummary_PropertyAccessKind) *AccessorSummary_PropertyAccessKind
+	f func(AccessorSummary_PropertyAccessKind, AccessorSummary_PropertyAccessKind) AccessorSummary_PropertyAccessKind
 }
 
 func (this *BiFunction_tfn_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind) apply(p0 any, p1 any) any {
-	return obj_(this.f(cast_[*AccessorSummary_PropertyAccessKind](p0), cast_[*AccessorSummary_PropertyAccessKind](p1)))
+	return obj_(this.f(cast_[AccessorSummary_PropertyAccessKind](p0), cast_[AccessorSummary_PropertyAccessKind](p1)))
 }
 
 type BiFunction_tfn_InstrumentationPoint_InstrumentationPointStats_Presence_InstrumentationPointStats_Presence struct {
-	f func(*InstrumentationPoint, *InstrumentationPointStats_Presence) *InstrumentationPointStats_Presence
+	f func(*InstrumentationPoint, InstrumentationPointStats_Presence) InstrumentationPointStats_Presence
 }
 
 func (this *BiFunction_tfn_InstrumentationPoint_InstrumentationPointStats_Presence_InstrumentationPointStats_Presence) apply(p0 any, p1 any) any {
-	return obj_(this.f(cast_[*InstrumentationPoint](p0), cast_[*InstrumentationPointStats_Presence](p1)))
+	return obj_(this.f(cast_[*InstrumentationPoint](p0), cast_[InstrumentationPointStats_Presence](p1)))
 }
 
 type BiFunction_tfn_InstrumentationPoint_any_any struct {
@@ -3410,7 +2962,7 @@ type Callable_tfn_DependencyInfo struct {
 }
 
 func (this *Callable_tfn_DependencyInfo) call() any {
-	return any(this.f())
+	return this.f()
 }
 
 type Callable_tfn_Node struct {
@@ -3510,11 +3062,11 @@ func (this *Comparator_tfn_string_string) compare(p0 any, p1 any) int32 {
 }
 
 type Consumer_tfn_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption struct {
-	f func(*AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption)
+	f func(AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption)
 }
 
 func (this *Consumer_tfn_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) accept(p0 any) {
-	this.f(cast_[*AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption](p0))
+	this.f(cast_[AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption](p0))
 }
 
 type Consumer_tfn_ColorGraphNode struct {
@@ -3534,91 +3086,91 @@ func (this *Consumer_tfn_ColorPool_ShardView) accept(p0 any) {
 }
 
 type Consumer_tfn_CompilerOptions_ChunkOutputType struct {
-	f func(*CompilerOptions_ChunkOutputType)
+	f func(CompilerOptions_ChunkOutputType)
 }
 
 func (this *Consumer_tfn_CompilerOptions_ChunkOutputType) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_ChunkOutputType](p0))
+	this.f(cast_[CompilerOptions_ChunkOutputType](p0))
 }
 
 type Consumer_tfn_CompilerOptions_DevMode struct {
-	f func(*CompilerOptions_DevMode)
+	f func(CompilerOptions_DevMode)
 }
 
 func (this *Consumer_tfn_CompilerOptions_DevMode) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_DevMode](p0))
+	this.f(cast_[CompilerOptions_DevMode](p0))
 }
 
 type Consumer_tfn_CompilerOptions_Environment struct {
-	f func(*CompilerOptions_Environment)
+	f func(CompilerOptions_Environment)
 }
 
 func (this *Consumer_tfn_CompilerOptions_Environment) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_Environment](p0))
+	this.f(cast_[CompilerOptions_Environment](p0))
 }
 
 type Consumer_tfn_CompilerOptions_IncrementalCheckMode struct {
-	f func(*CompilerOptions_IncrementalCheckMode)
+	f func(CompilerOptions_IncrementalCheckMode)
 }
 
 func (this *Consumer_tfn_CompilerOptions_IncrementalCheckMode) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_IncrementalCheckMode](p0))
+	this.f(cast_[CompilerOptions_IncrementalCheckMode](p0))
 }
 
 type Consumer_tfn_CompilerOptions_IsolationMode struct {
-	f func(*CompilerOptions_IsolationMode)
+	f func(CompilerOptions_IsolationMode)
 }
 
 func (this *Consumer_tfn_CompilerOptions_IsolationMode) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_IsolationMode](p0))
+	this.f(cast_[CompilerOptions_IsolationMode](p0))
 }
 
 type Consumer_tfn_CompilerOptions_JsonStreamMode struct {
-	f func(*CompilerOptions_JsonStreamMode)
+	f func(CompilerOptions_JsonStreamMode)
 }
 
 func (this *Consumer_tfn_CompilerOptions_JsonStreamMode) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_JsonStreamMode](p0))
+	this.f(cast_[CompilerOptions_JsonStreamMode](p0))
 }
 
 type Consumer_tfn_CompilerOptions_SegmentOfCompilationToRun struct {
-	f func(*CompilerOptions_SegmentOfCompilationToRun)
+	f func(CompilerOptions_SegmentOfCompilationToRun)
 }
 
 func (this *Consumer_tfn_CompilerOptions_SegmentOfCompilationToRun) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_SegmentOfCompilationToRun](p0))
+	this.f(cast_[CompilerOptions_SegmentOfCompilationToRun](p0))
 }
 
 type Consumer_tfn_CompilerOptions_TracerMode struct {
-	f func(*CompilerOptions_TracerMode)
+	f func(CompilerOptions_TracerMode)
 }
 
 func (this *Consumer_tfn_CompilerOptions_TracerMode) accept(p0 any) {
-	this.f(cast_[*CompilerOptions_TracerMode](p0))
+	this.f(cast_[CompilerOptions_TracerMode](p0))
 }
 
 type Consumer_tfn_DependencyOptions_DependencyMode struct {
-	f func(*DependencyOptions_DependencyMode)
+	f func(DependencyOptions_DependencyMode)
 }
 
 func (this *Consumer_tfn_DependencyOptions_DependencyMode) accept(p0 any) {
-	this.f(cast_[*DependencyOptions_DependencyMode](p0))
+	this.f(cast_[DependencyOptions_DependencyMode](p0))
 }
 
 type Consumer_tfn_DiagnosticToSuppressionMapper_OutputFormat struct {
-	f func(*DiagnosticToSuppressionMapper_OutputFormat)
+	f func(DiagnosticToSuppressionMapper_OutputFormat)
 }
 
 func (this *Consumer_tfn_DiagnosticToSuppressionMapper_OutputFormat) accept(p0 any) {
-	this.f(cast_[*DiagnosticToSuppressionMapper_OutputFormat](p0))
+	this.f(cast_[DiagnosticToSuppressionMapper_OutputFormat](p0))
 }
 
 type Consumer_tfn_ImmutableSet_Builder struct {
-	f func(*ImmutableSet_Builder)
+	f func(*ErasedImmutableSet_Builder)
 }
 
 func (this *Consumer_tfn_ImmutableSet_Builder) accept(p0 any) {
-	this.f(cast_[*ImmutableSet_Builder](p0))
+	this.f(cast_[*ErasedImmutableSet_Builder](p0))
 }
 
 type Consumer_tfn_List struct {
@@ -3638,11 +3190,11 @@ func (this *Consumer_tfn_Map) accept(p0 any) {
 }
 
 type Consumer_tfn_ModuleLoader_ResolutionMode struct {
-	f func(*ModuleLoader_ResolutionMode)
+	f func(ModuleLoader_ResolutionMode)
 }
 
 func (this *Consumer_tfn_ModuleLoader_ResolutionMode) accept(p0 any) {
-	this.f(cast_[*ModuleLoader_ResolutionMode](p0))
+	this.f(cast_[ModuleLoader_ResolutionMode](p0))
 }
 
 type Consumer_tfn_Node struct {
@@ -3678,11 +3230,11 @@ func (this *Consumer_tfn_TypedAst) accept(p0 any) {
 }
 
 type Consumer_tfn_WarningLevel struct {
-	f func(*WarningLevel)
+	f func(WarningLevel)
 }
 
 func (this *Consumer_tfn_WarningLevel) accept(p0 any) {
-	this.f(cast_[*WarningLevel](p0))
+	this.f(cast_[WarningLevel](p0))
 }
 
 type Consumer_tfn_s_int8 struct {
@@ -3726,7 +3278,7 @@ func (this *Function_base_tfn_ColorPool_Builder_ColorPool_ShardView) apply(p0 an
 }
 
 type Function_base_tfn_JSChunk_ImmutableList struct {
-	f func(*JSChunk) *ImmutableList
+	f func(*JSChunk) *ErasedImmutableList
 }
 
 func (this *Function_base_tfn_JSChunk_ImmutableList) apply(p0 any) any {
@@ -3746,7 +3298,7 @@ type Function_base_tfn_Map_Collection struct {
 }
 
 func (this *Function_base_tfn_Map_Collection) apply(p0 any) any {
-	return any(this.f(icast_Map(p0)))
+	return this.f(icast_Map(p0))
 }
 
 type Function_base_tfn_Source_Source struct {
@@ -3774,11 +3326,11 @@ func (this *Function_base_tfn_string_string) apply(p0 any) any {
 }
 
 type Function_tfn_AbstractScope_ImplicitVar_any struct {
-	f func(*AbstractScope_ImplicitVar) any
+	f func(AbstractScope_ImplicitVar) any
 }
 
 func (this *Function_tfn_AbstractScope_ImplicitVar_any) apply(p0 any) any {
-	return this.f(cast_[*AbstractScope_ImplicitVar](p0))
+	return this.f(cast_[AbstractScope_ImplicitVar](p0))
 }
 
 type Function_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_string struct {
@@ -3834,7 +3386,7 @@ type Function_tfn_Color_Set struct {
 }
 
 func (this *Function_tfn_Color_Set) apply(p0 any) any {
-	return any(this.f(cast_[*Color](p0)))
+	return this.f(cast_[*Color](p0))
 }
 
 type Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator struct {
@@ -3842,7 +3394,7 @@ type Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator struct {
 }
 
 func (this *Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator) apply(p0 any) any {
-	return any(this.f(cast_[*CompilerInput](p0)))
+	return obj_(this.f(cast_[*CompilerInput](p0)))
 }
 
 type Function_tfn_CompilerOptions_PassFactory_PreconditionResult struct {
@@ -3906,7 +3458,7 @@ type Function_tfn_JSChunk_Map struct {
 }
 
 func (this *Function_tfn_JSChunk_Map) apply(p0 any) any {
-	return any(this.f(cast_[*JSChunk](p0)))
+	return this.f(cast_[*JSChunk](p0))
 }
 
 type Function_tfn_JSChunk_Node struct {
@@ -3922,7 +3474,7 @@ type Function_tfn_JSChunk_Set struct {
 }
 
 func (this *Function_tfn_JSChunk_Set) apply(p0 any) any {
-	return any(this.f(cast_[*JSChunk](p0)))
+	return this.f(cast_[*JSChunk](p0))
 }
 
 type Function_tfn_Map_Entry_string struct {
@@ -4010,7 +3562,7 @@ type Function_tfn_SourceFile_jscomp_Supplier struct {
 }
 
 func (this *Function_tfn_SourceFile_jscomp_Supplier) apply(p0 any) any {
-	return any(this.f(cast_[*SourceFile_jscomp](p0)))
+	return this.f(cast_[*SourceFile_jscomp](p0))
 }
 
 type Function_tfn_SourceFile_jscomp_any struct {
@@ -4058,11 +3610,11 @@ type Function_tfn_any_CompilerPass struct {
 }
 
 func (this *Function_tfn_any_CompilerPass) apply(p0 any) any {
-	return any(this.f(p0))
+	return this.f(p0)
 }
 
 type Function_tfn_any_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel struct {
-	f func(any) *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
+	f func(any) ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
 }
 
 func (this *Function_tfn_any_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) apply(p0 any) any {
@@ -4070,7 +3622,7 @@ func (this *Function_tfn_any_ConvertToTypedInterface_SimplifyDeclarations_Typing
 }
 
 type Function_tfn_any_SimpleMultiset struct {
-	f func(any) *SimpleMultiset
+	f func(any) *SimpleMultiset[any]
 }
 
 func (this *Function_tfn_any_SimpleMultiset) apply(p0 any) any {
@@ -4114,7 +3666,7 @@ type Function_tfn_string_Deque struct {
 }
 
 func (this *Function_tfn_string_Deque) apply(p0 any) any {
-	return any(this.f(str_(p0)))
+	return this.f(str_(p0))
 }
 
 type Function_tfn_string_FileInstrumentationData struct {
@@ -4146,7 +3698,7 @@ type Function_tfn_string_List struct {
 }
 
 func (this *Function_tfn_string_List) apply(p0 any) any {
-	return any(this.f(str_(p0)))
+	return this.f(str_(p0))
 }
 
 type Function_tfn_string_Map struct {
@@ -4154,7 +3706,7 @@ type Function_tfn_string_Map struct {
 }
 
 func (this *Function_tfn_string_Map) apply(p0 any) any {
-	return any(this.f(str_(p0)))
+	return this.f(str_(p0))
 }
 
 type Function_tfn_string_PerformanceTracker_Stats struct {
@@ -4210,7 +3762,7 @@ type Function_tfn_string_Set struct {
 }
 
 func (this *Function_tfn_string_Set) apply(p0 any) any {
-	return any(this.f(str_(p0)))
+	return this.f(str_(p0))
 }
 
 type Function_tfn_string_Supplier struct {
@@ -4218,7 +3770,7 @@ type Function_tfn_string_Supplier struct {
 }
 
 func (this *Function_tfn_string_Supplier) apply(p0 any) any {
-	return any(this.f(str_(p0)))
+	return this.f(str_(p0))
 }
 
 type Function_tfn_string_any struct {
@@ -4278,11 +3830,11 @@ func (this *Predicate_base_tfn_DiGraph_DiGraphEdge_Node_) test(p0 any) bool {
 }
 
 type Predicate_base_tfn_GraphReachability_EdgeTuple_Node_ControlFlowGraph_Branch_ struct {
-	f func(*GraphReachability_EdgeTuple[Node, *ControlFlowGraph_Branch]) bool
+	f func(*GraphReachability_EdgeTuple[Node, ControlFlowGraph_Branch]) bool
 }
 
 func (this *Predicate_base_tfn_GraphReachability_EdgeTuple_Node_ControlFlowGraph_Branch_) apply(p0 any) bool {
-	return this.f(cast_[*GraphReachability_EdgeTuple[Node, *ControlFlowGraph_Branch]](p0))
+	return this.f(cast_[*GraphReachability_EdgeTuple[Node, ControlFlowGraph_Branch]](p0))
 }
 
 func (this *Predicate_base_tfn_GraphReachability_EdgeTuple_Node_ControlFlowGraph_Branch_) test(p0 any) bool {
@@ -4386,7 +3938,7 @@ type Supplier_base_tfn_AstFactory_Type struct {
 }
 
 func (this *Supplier_base_tfn_AstFactory_Type) get() any {
-	return any(this.f())
+	return this.f()
 }
 
 type Supplier_base_tfn_Color struct {
@@ -4422,7 +3974,7 @@ func (this *Supplier_base_tfn_string) get() any {
 }
 
 type Supplier_tfn_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption struct {
-	f func() *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
+	f func() AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
 }
 
 func (this *Supplier_tfn_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) get() any {
@@ -4430,7 +3982,7 @@ func (this *Supplier_tfn_AbstractCommandLineRunner_CommandLineConfig_ErrorFormat
 }
 
 type Supplier_tfn_CompilerOptions_ChunkOutputType struct {
-	f func() *CompilerOptions_ChunkOutputType
+	f func() CompilerOptions_ChunkOutputType
 }
 
 func (this *Supplier_tfn_CompilerOptions_ChunkOutputType) get() any {
@@ -4438,7 +3990,7 @@ func (this *Supplier_tfn_CompilerOptions_ChunkOutputType) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_DevMode struct {
-	f func() *CompilerOptions_DevMode
+	f func() CompilerOptions_DevMode
 }
 
 func (this *Supplier_tfn_CompilerOptions_DevMode) get() any {
@@ -4446,7 +3998,7 @@ func (this *Supplier_tfn_CompilerOptions_DevMode) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_Environment struct {
-	f func() *CompilerOptions_Environment
+	f func() CompilerOptions_Environment
 }
 
 func (this *Supplier_tfn_CompilerOptions_Environment) get() any {
@@ -4454,7 +4006,7 @@ func (this *Supplier_tfn_CompilerOptions_Environment) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_IncrementalCheckMode struct {
-	f func() *CompilerOptions_IncrementalCheckMode
+	f func() CompilerOptions_IncrementalCheckMode
 }
 
 func (this *Supplier_tfn_CompilerOptions_IncrementalCheckMode) get() any {
@@ -4462,7 +4014,7 @@ func (this *Supplier_tfn_CompilerOptions_IncrementalCheckMode) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_IsolationMode struct {
-	f func() *CompilerOptions_IsolationMode
+	f func() CompilerOptions_IsolationMode
 }
 
 func (this *Supplier_tfn_CompilerOptions_IsolationMode) get() any {
@@ -4470,7 +4022,7 @@ func (this *Supplier_tfn_CompilerOptions_IsolationMode) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_JsonStreamMode struct {
-	f func() *CompilerOptions_JsonStreamMode
+	f func() CompilerOptions_JsonStreamMode
 }
 
 func (this *Supplier_tfn_CompilerOptions_JsonStreamMode) get() any {
@@ -4478,7 +4030,7 @@ func (this *Supplier_tfn_CompilerOptions_JsonStreamMode) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_SegmentOfCompilationToRun struct {
-	f func() *CompilerOptions_SegmentOfCompilationToRun
+	f func() CompilerOptions_SegmentOfCompilationToRun
 }
 
 func (this *Supplier_tfn_CompilerOptions_SegmentOfCompilationToRun) get() any {
@@ -4486,7 +4038,7 @@ func (this *Supplier_tfn_CompilerOptions_SegmentOfCompilationToRun) get() any {
 }
 
 type Supplier_tfn_CompilerOptions_TracerMode struct {
-	f func() *CompilerOptions_TracerMode
+	f func() CompilerOptions_TracerMode
 }
 
 func (this *Supplier_tfn_CompilerOptions_TracerMode) get() any {
@@ -4494,7 +4046,7 @@ func (this *Supplier_tfn_CompilerOptions_TracerMode) get() any {
 }
 
 type Supplier_tfn_DependencyOptions_DependencyMode struct {
-	f func() *DependencyOptions_DependencyMode
+	f func() DependencyOptions_DependencyMode
 }
 
 func (this *Supplier_tfn_DependencyOptions_DependencyMode) get() any {
@@ -4502,7 +4054,7 @@ func (this *Supplier_tfn_DependencyOptions_DependencyMode) get() any {
 }
 
 type Supplier_tfn_DiagnosticToSuppressionMapper_OutputFormat struct {
-	f func() *DiagnosticToSuppressionMapper_OutputFormat
+	f func() DiagnosticToSuppressionMapper_OutputFormat
 }
 
 func (this *Supplier_tfn_DiagnosticToSuppressionMapper_OutputFormat) get() any {
@@ -4530,7 +4082,7 @@ type Supplier_tfn_List struct {
 }
 
 func (this *Supplier_tfn_List) get() any {
-	return any(this.f())
+	return this.f()
 }
 
 type Supplier_tfn_Map struct {
@@ -4538,11 +4090,11 @@ type Supplier_tfn_Map struct {
 }
 
 func (this *Supplier_tfn_Map) get() any {
-	return any(this.f())
+	return this.f()
 }
 
 type Supplier_tfn_ModuleLoader_ResolutionMode struct {
-	f func() *ModuleLoader_ResolutionMode
+	f func() ModuleLoader_ResolutionMode
 }
 
 func (this *Supplier_tfn_ModuleLoader_ResolutionMode) get() any {
@@ -4558,7 +4110,7 @@ func (this *Supplier_tfn_Node) get() any {
 }
 
 type Supplier_tfn_WarningLevel struct {
-	f func() *WarningLevel
+	f func() WarningLevel
 }
 
 func (this *Supplier_tfn_WarningLevel) get() any {

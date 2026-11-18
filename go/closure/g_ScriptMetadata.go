@@ -30,9 +30,11 @@ func ScriptMetadata_createNodeMetadata(script Node, metadata *NodeMetadata) *Scr
 }
 
 func ScriptMetadata_create(script Node, compiler *AbstractCompiler) *ScriptMetadata {
-	Preconditions_checkArgument(script.isScript())
+	if !script.isScript() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var toFill *ScriptMetadata = new_ScriptMetadata(script)
-	NodeTraversal_traverse(compiler, script, icast_NodeTraversal_Callback(obj_(new_ScriptMetadata_FillerCallback(toFill))))
+	NodeTraversal_traverse(compiler, script, new_ScriptMetadata_FillerCallback(toFill))
 	if !toFill.requireAliases.isEmpty() {
 		toFill.supportsRequireAliasesField = true
 	}
@@ -56,7 +58,9 @@ func (this *ScriptMetadata) getAlias(namespace string) Optional[string] {
 }
 
 func (this *ScriptMetadata) addAlias(namespace string, alias string) {
-	Preconditions_checkState(this.supportsRequireAliasesField)
+	if !this.supportsRequireAliasesField {
+		panic(new_IllegalStateException_0())
+	}
 	this.namesInUse.add(alias)
 	this.requireAliases.put(namespace, alias)
 }
@@ -105,9 +109,9 @@ func (this *ScriptMetadata_FillerCallback) visit_impl(nodeTraversal *NodeTravers
 }
 
 func (this *ScriptMetadata_FillerCallback) updateSupportsRequireAlias(n Node) {
-	switch n.getToken() {
-	case Token_rhino_MODULE_BODY:
-	case Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_MODULE_BODY:
+	case tokOrd1_CALL:
 		if ((n.getChildCount() != 2) || !ScriptMetadata_FillerCallback_GOOG_MODULE.matches(n.getFirstChild())) || !n.getSecondChild().isStringLit() {
 			return
 		}
@@ -130,7 +134,7 @@ func (this *ScriptMetadata_FillerCallback) maybeCollectRequirelikeAlias(n Node) 
 		return
 	}
 	var alias Optional[string] = Optional_of[string](aliasNode.getOriginalName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 	if alias.isEmpty() {
 		alias = Optional_of[string](aliasNode.getString())
@@ -153,13 +157,10 @@ func (this *ScriptMetadata_FillerCallback) maybeCollectNames(n Node) {
 	}
 	var jsdoc *JSDocInfo = n.getJSDocInfo()
 	if jsdoc != nil {
-		it_1 := foreach_(any(jsdoc.getTypeExpressions()))
-		for it_1.next() {
-			var expr *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
-			it_3 := foreach_(obj_(expr.getAllTypeNames()))
-			for it_3.next() {
-				var type_ string = str_(it_3.v)
-				this.toFill.namesInUse.add(str_(ScriptMetadata_DOT_SPLITTER.split(strobj_(type_)).iterator().next()))
+		for expr := range elemsAs_[*JSTypeExpression](jsdoc.getTypeExpressions()) {
+			for _, el := range expr.getAllTypeNames().keys {
+				type_ := el
+				this.toFill.namesInUse.add(str_(first_(ScriptMetadata_DOT_SPLITTER.split_s(type_))))
 			}
 		}
 	}
@@ -182,4 +183,13 @@ func ScriptMetadata_FillerCallback_clinit() {
 	ScriptMetadata_FillerCallback_GOOG_REQUIRETYPE = QualifiedName_of("goog.requireType")
 	ScriptMetadata_FillerCallback_GOOG_FORWARDDECLARE = QualifiedName_of("goog.forwardDeclare")
 
+}
+
+// visit: an object that is exactly a ScriptMetadata_FillerCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *ScriptMetadata_FillerCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ScriptMetadata_FillerCallback); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

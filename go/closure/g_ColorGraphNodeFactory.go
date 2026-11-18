@@ -30,8 +30,8 @@ func (this *ColorGraphNodeFactory) createNode(color *Color) *ColorGraphNode {
 	return this.typeIndex.computeIfAbsent(key, &Function_tfn_Color_ColorGraphNode{func(p0 *Color) *ColorGraphNode { return this.newColorGraphNode(p0) }})
 }
 
-func (this *ColorGraphNodeFactory) getAllKnownTypes() ImmutableSetOf[*ColorGraphNode] {
-	return ImmutableSet_copyOf(this.typeIndex.asMap().values())
+func (this *ColorGraphNodeFactory) getAllKnownTypes() *ImmutableSet[*ColorGraphNode] {
+	return immutableSetCopyOf_(tc_p_ColorGraphNode, this.typeIndex.asMap().values())
 }
 
 func (this *ColorGraphNodeFactory) newColorGraphNode(key *Color) *ColorGraphNode {
@@ -39,14 +39,13 @@ func (this *ColorGraphNodeFactory) newColorGraphNode(key *Color) *ColorGraphNode
 	return ColorGraphNode_create(key, id)
 }
 
-func (this *ColorGraphNodeFactory) simplifyColors(types ImmutableSetOf[*Color]) ImmutableSetOf[*Color] {
-	var result ImmutableSet_BuilderOf[*Color] = ImmutableSet_builder()
-	it_1 := foreach_(obj_(types))
-	for it_1.next() {
-		var type_ *Color = cast_[*Color](it_1.v)
-		result.add(obj_(this.simplifyColor(type_)))
+func (this *ColorGraphNodeFactory) simplifyColors(types *ImmutableSet[*Color]) *ImmutableSet[*Color] {
+	var result *ImmutableSet_Builder[*Color] = immutableSetBuilder_(tc_p_Color)
+	for _, el := range types.keys {
+		type_ := el
+		result.add(this.simplifyColor(type_))
 	}
-	return cast_[*ImmutableSet](obj_(result.build()))
+	return result.build()
 }
 
 func (this *ColorGraphNodeFactory) simplifyColor(type_ *Color) *Color {
@@ -57,16 +56,15 @@ func (this *ColorGraphNodeFactory) simplifyColor(type_ *Color) *Color {
 		type_ = type_.subtractNullOrVoid()
 		return func() *Color {
 			if type_.isUnion() {
-				return Color_createUnion(icast_Set(obj_(this.simplifyColors(type_.getUnionElements()))))
+				return Color_createUnion(icast_Set(obj_(this.simplifyColors(type_.getUnionElements()).asImm())))
 			}
 			return this.simplifyColor(type_)
 		}()
 	} else if type_.getBoxId() != nil {
 		return this.registry.get(type_.getBoxId())
-	} else if type_.equals(obj_(StandardColors_NULL_OR_VOID)) {
+	} else if type_.equals_Color(StandardColors_NULL_OR_VOID) {
 		return StandardColors_UNKNOWN
 	} else {
 		return type_
 	}
-	panic("unreachable")
 }

@@ -4,7 +4,7 @@ package closure
 
 type UnionType struct {
 	JSType
-	alternates                    ImmutableListOf[*JSType]
+	alternates                    *ImmutableList[*JSType]
 	alternatesResolvedBeforeBuild bool
 	resolvedAlternatesAtLastBuild int32
 }
@@ -34,7 +34,7 @@ func new_UnionType(builder *UnionType_Builder) *UnionType {
 	return this
 }
 
-func (this *UnionType) getTypeClass_impl() *JSTypeClass {
+func (this *UnionType) getTypeClass_impl() JSTypeClass {
 	return UnionType_TYPE_CLASS
 }
 
@@ -42,12 +42,12 @@ func UnionType_builder(registry *JSTypeRegistry) *UnionType_Builder {
 	return new_UnionType_Builder(nil, registry)
 }
 
-func (this *UnionType) getAlternates() ImmutableListOf[*JSType] {
+func (this *UnionType) getAlternates() *ImmutableList[*JSType] {
 	if !this.isResolved() && !this.alternatesResolvedBeforeBuild {
 		var resolvedAlternates int32 = this.countResolvedAlternates()
 		if resolvedAlternates != this.resolvedAlternatesAtLastBuild {
 			this.resolvedAlternatesAtLastBuild = resolvedAlternates
-			var b *UnionType_Builder = new_UnionType_Builder(this, this.registry).addAlternates(icast_List(obj_(this.alternates)))
+			var b *UnionType_Builder = new_UnionType_Builder(this, this.registry).addAlternates(icast_List(obj_(this.alternates.asImm())))
 			if !this.isResolved() && !this.alternatesResolvedBeforeBuild {
 				b.build()
 				this.resolvedAlternatesAtLastBuild = this.countResolvedAlternates()
@@ -60,7 +60,7 @@ func (this *UnionType) getAlternates() ImmutableListOf[*JSType] {
 func (this *UnionType) countResolvedAlternates() int32 {
 	var count int32 = 0
 	for i := int32(0); i < this.alternates.size(); i++ {
-		if to_JSType(this.alternates.get(i)).isResolved() {
+		if this.alternates.get(i).self().(JSType_as).as_JSType().isResolved() {
 			count++
 		}
 	}
@@ -68,33 +68,56 @@ func (this *UnionType) countResolvedAlternates() int32 {
 }
 
 func (this *UnionType) fillFromBuilder(builder *UnionType_Builder) {
-	Preconditions_checkState(!this.alternatesResolvedBeforeBuild)
-	Preconditions_checkState(!builder.finalAlternates.isEmpty())
+	if this.alternatesResolvedBeforeBuild {
+		panic(new_IllegalStateException_0())
+	}
+	if builder.finalAlternates.isEmpty() {
+		panic(new_IllegalStateException_0())
+	}
 	this.alternates = builder.finalAlternates
 	this.alternatesResolvedBeforeBuild = builder.alternatesResolvedBeforeBuild
 }
 
 func (this *UnionType) matchesNumberContext_impl() bool {
-	return JSTypeIterations_anyTypeMatches(&Predicate_fn{func(p0 any) bool { return to_JSType(p0).matchesNumberContext() }}, this)
+	return JSTypeIterations_anyTypeMatches(lambda_UnionType_matchesNumberContext_impl_1_, this)
+}
+
+// lambda_UnionType_matchesNumberContext_impl_1_ is a lambda of UnionType_matchesNumberContext_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_matchesNumberContext_impl_1_(p0 any) bool {
+	return p0.(JSType_as).as_JSType().matchesNumberContext()
 }
 
 func (this *UnionType) matchesStringContext_impl() bool {
-	return JSTypeIterations_anyTypeMatches(&Predicate_fn{func(p0 any) bool { return to_JSType(p0).matchesStringContext() }}, this)
+	return JSTypeIterations_anyTypeMatches(lambda_UnionType_matchesStringContext_impl_1_, this)
+}
+
+// lambda_UnionType_matchesStringContext_impl_1_ is a lambda of UnionType_matchesStringContext_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_matchesStringContext_impl_1_(p0 any) bool {
+	return p0.(JSType_as).as_JSType().matchesStringContext()
 }
 
 func (this *UnionType) matchesSymbolContext_impl() bool {
-	return JSTypeIterations_anyTypeMatches(&Predicate_fn{func(p0 any) bool { return to_JSType(p0).matchesSymbolContext() }}, this)
+	return JSTypeIterations_anyTypeMatches(lambda_UnionType_matchesSymbolContext_impl_1_, this)
+}
+
+// lambda_UnionType_matchesSymbolContext_impl_1_ is a lambda of UnionType_matchesSymbolContext_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_matchesSymbolContext_impl_1_(p0 any) bool {
+	return p0.(JSType_as).as_JSType().matchesSymbolContext()
 }
 
 func (this *UnionType) matchesObjectContext_impl() bool {
-	return JSTypeIterations_anyTypeMatches(&Predicate_fn{func(p0 any) bool { return to_JSType(p0).matchesObjectContext() }}, this)
+	return JSTypeIterations_anyTypeMatches(lambda_UnionType_matchesObjectContext_impl_1_, this)
+}
+
+// lambda_UnionType_matchesObjectContext_impl_1_ is a lambda of UnionType_matchesObjectContext_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_matchesObjectContext_impl_1_(p0 any) bool {
+	return p0.(JSType_as).as_JSType().matchesObjectContext()
 }
 
 func (this *UnionType) findPropertyTypeWithoutConsideringTemplateTypes_impl(propertyName Property_Key) *JSType {
 	var propertyType *JSType = nil
-	it_1 := foreach_(obj_(this.alternates))
-	for it_1.next() {
-		var alternate *JSType = to_JSType(it_1.v)
+	for _, el := range this.alternates.items {
+		alternate := el
 		if alternate.isNullType() || alternate.isVoidType() {
 			continue
 		}
@@ -112,33 +135,56 @@ func (this *UnionType) findPropertyTypeWithoutConsideringTemplateTypes_impl(prop
 }
 
 func (this *UnionType) canBeCalled_impl() bool {
-	return JSTypeIterations_allTypesMatch(&Predicate_fn{func(p0 any) bool { return to_JSType(p0).canBeCalled() }}, this)
+	return JSTypeIterations_allTypesMatch(lambda_UnionType_canBeCalled_impl_1_, this)
+}
+
+// lambda_UnionType_canBeCalled_impl_1_ is a lambda of UnionType_canBeCalled_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_canBeCalled_impl_1_(p0 any) bool {
+	return p0.(JSType_as).as_JSType().canBeCalled()
 }
 
 func (this *UnionType) autobox_impl() *JSType {
-	return JSTypeIterations_mapTypes(&Function_fn{func(p0 any) any { return to_JSType(p0).autobox().self() }}, this)
+	return JSTypeIterations_mapTypes(lambda_UnionType_autobox_impl_1_, this)
 }
 
+// lambda_UnionType_autobox_impl_1_ is a lambda of UnionType_autobox_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_autobox_impl_1_(p0 any) any { return p0.(JSType_as).as_JSType().autobox().self() }
+
 func (this *UnionType) restrictByNotNullOrUndefined_impl() *JSType {
-	return JSTypeIterations_mapTypes(&Function_fn{func(p0 any) any { return to_JSType(p0).restrictByNotNullOrUndefined().self() }}, this)
+	return JSTypeIterations_mapTypes(lambda_UnionType_restrictByNotNullOrUndefined_impl_1_, this)
+}
+
+// lambda_UnionType_restrictByNotNullOrUndefined_impl_1_ is a lambda of UnionType_restrictByNotNullOrUndefined_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_restrictByNotNullOrUndefined_impl_1_(p0 any) any {
+	return p0.(JSType_as).as_JSType().restrictByNotNullOrUndefined().self()
 }
 
 func (this *UnionType) restrictByNotUndefined_impl() *JSType {
-	return JSTypeIterations_mapTypes(&Function_fn{func(p0 any) any { return to_JSType(p0).restrictByNotUndefined().self() }}, this)
+	return JSTypeIterations_mapTypes(lambda_UnionType_restrictByNotUndefined_impl_1_, this)
+}
+
+// lambda_UnionType_restrictByNotUndefined_impl_1_ is a lambda of UnionType_restrictByNotUndefined_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_restrictByNotUndefined_impl_1_(p0 any) any {
+	return p0.(JSType_as).as_JSType().restrictByNotUndefined().self()
 }
 
 func (this *UnionType) restrictByNotNull_impl() *JSType {
-	return JSTypeIterations_mapTypes(&Function_fn{func(p0 any) any { return to_JSType(p0).restrictByNotNull().self() }}, this)
+	return JSTypeIterations_mapTypes(lambda_UnionType_restrictByNotNull_impl_1_, this)
 }
 
-func (this *UnionType) testForEquality_impl(that *JSType) *Tri {
-	var result *Tri = nil
+// lambda_UnionType_restrictByNotNull_impl_1_ is a lambda of UnionType_restrictByNotNull_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_restrictByNotNull_impl_1_(p0 any) any {
+	return p0.(JSType_as).as_JSType().restrictByNotNull().self()
+}
+
+func (this *UnionType) testForEquality_impl(that *JSType) Tri {
+	var result Tri = 0
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var t *JSType = to_JSType(this.alternates.get(i))
-		var test *Tri = t.testForEquality(that)
-		if result == nil {
+		var t *JSType = this.alternates.get(i)
+		var test Tri = t.testForEquality(that)
+		if result == 0 {
 			result = test
-		} else if !Object_equals(obj_(result), obj_(test)) {
+		} else if !equalsId_(result, test) {
 			return Tri_UNKNOWN
 		}
 	}
@@ -146,33 +192,55 @@ func (this *UnionType) testForEquality_impl(that *JSType) *Tri {
 }
 
 func (this *UnionType) isNullable_impl() bool {
-	return JSTypeIterations_anyTypeMatches(&Predicate_fn{func(p0 any) bool { return to_JSType(p0).isNullable() }}, this)
+	return JSTypeIterations_anyTypeMatches(lambda_UnionType_isNullable_impl_1_, this)
 }
+
+// lambda_UnionType_isNullable_impl_1_ is a lambda of UnionType_isNullable_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_isNullable_impl_1_(p0 any) bool { return p0.(JSType_as).as_JSType().isNullable() }
 
 func (this *UnionType) isVoidable_impl() bool {
-	return JSTypeIterations_anyTypeMatches(&Predicate_fn{func(p0 any) bool { return to_JSType(p0).isVoidable() }}, this)
+	return JSTypeIterations_anyTypeMatches(lambda_UnionType_isVoidable_impl_1_, this)
 }
 
+// lambda_UnionType_isVoidable_impl_1_ is a lambda of UnionType_isVoidable_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_isVoidable_impl_1_(p0 any) bool { return p0.(JSType_as).as_JSType().isVoidable() }
+
 func (this *UnionType) isExplicitlyVoidable_impl() bool {
-	return JSTypeIterations_anyTypeMatches(&Predicate_fn{func(p0 any) bool { return to_JSType(p0).isExplicitlyVoidable() }}, this)
+	return JSTypeIterations_anyTypeMatches(lambda_UnionType_isExplicitlyVoidable_impl_1_, this)
+}
+
+// lambda_UnionType_isExplicitlyVoidable_impl_1_ is a lambda of UnionType_isExplicitlyVoidable_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_isExplicitlyVoidable_impl_1_(p0 any) bool {
+	return p0.(JSType_as).as_JSType().isExplicitlyVoidable()
 }
 
 func (this *UnionType) isUnknownType_impl() bool {
-	return JSTypeIterations_anyTypeMatches(&Predicate_fn{func(p0 any) bool { return to_JSType(p0).isUnknownType() }}, this)
+	return JSTypeIterations_anyTypeMatches(lambda_UnionType_isUnknownType_impl_1_, this)
+}
+
+// lambda_UnionType_isUnknownType_impl_1_ is a lambda of UnionType_isUnknownType_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_isUnknownType_impl_1_(p0 any) bool {
+	return p0.(JSType_as).as_JSType().isUnknownType()
 }
 
 func (this *UnionType) isStruct_impl() bool {
-	return JSTypeIterations_anyTypeMatches(&Predicate_fn{func(p0 any) bool { return to_JSType(p0).isStruct() }}, this)
+	return JSTypeIterations_anyTypeMatches(lambda_UnionType_isStruct_impl_1_, this)
 }
 
+// lambda_UnionType_isStruct_impl_1_ is a lambda of UnionType_isStruct_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_isStruct_impl_1_(p0 any) bool { return p0.(JSType_as).as_JSType().isStruct() }
+
 func (this *UnionType) isDict_impl() bool {
-	return JSTypeIterations_anyTypeMatches(&Predicate_fn{func(p0 any) bool { return to_JSType(p0).isDict() }}, this)
+	return JSTypeIterations_anyTypeMatches(lambda_UnionType_isDict_impl_1_, this)
 }
+
+// lambda_UnionType_isDict_impl_1_ is a lambda of UnionType_isDict_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_isDict_impl_1_(p0 any) bool { return p0.(JSType_as).as_JSType().isDict() }
 
 func (this *UnionType) getLeastSupertype_impl(that *JSType) *JSType {
 	if !that.isUnknownType() && !that.isUnionType() {
 		for i := int32(0); i < this.alternates.size(); i++ {
-			var alternate *JSType = to_JSType(this.alternates.get(i))
+			var alternate *JSType = this.alternates.get(i)
 			if !alternate.isUnknownType() && that.isSubtypeOf(alternate) {
 				return this.up_JSType()
 			}
@@ -185,15 +253,15 @@ func UnionType_getGreatestSubtypeUnionType(union *UnionType, that *JSType) *JSTy
 	var registry *JSTypeRegistry = union.registry
 	var builder *UnionType_Builder = UnionType_builder(registry)
 	for i := int32(0); i < union.alternates.size(); i++ {
-		var alternate *JSType = to_JSType(union.alternates.get(i))
+		var alternate *JSType = union.alternates.get(i)
 		if alternate.isSubtypeOf(that) {
 			builder.addAlternate(alternate)
 		}
 	}
 	if that.isUnionType() {
-		var thoseAlternates ImmutableListOf[*JSType] = that.toMaybeUnionType().getAlternates()
+		var thoseAlternates *ImmutableList[*JSType] = that.toMaybeUnionType().getAlternates()
 		for i := int32(0); i < thoseAlternates.size(); i++ {
-			var otherAlternate *JSType = to_JSType(thoseAlternates.get(i))
+			var otherAlternate *JSType = thoseAlternates.get(i)
 			if otherAlternate.isSubtypeOf(union.up_JSType()) {
 				builder.addAlternate(otherAlternate)
 			}
@@ -209,14 +277,13 @@ func UnionType_getGreatestSubtypeUnionType(union *UnionType, that *JSType) *JSTy
 	} else {
 		return registry.getNativeType(JSTypeNative_NO_TYPE)
 	}
-	panic("unreachable")
 }
 
-func (this *UnionType) getPropertyKind_2_impl(pname Property_Key, autobox bool) *JSType_HasPropertyKind {
+func (this *UnionType) getPropertyKind_2_impl(pname Property_Key, autobox bool) JSType_HasPropertyKind {
 	var found bool = false
 	var always bool = true
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var alternate *JSType = to_JSType(this.alternates.get(i))
+		var alternate *JSType = this.alternates.get(i)
 		if alternate.isNullType() || alternate.isVoidType() {
 			continue
 		}
@@ -233,9 +300,9 @@ func (this *UnionType) getPropertyKind_2_impl(pname Property_Key, autobox bool) 
 			break
 		}
 	}
-	return func() *JSType_HasPropertyKind {
+	return func() JSType_HasPropertyKind {
 		if found {
-			return func() *JSType_HasPropertyKind {
+			return func() JSType_HasPropertyKind {
 				if always {
 					return JSType_HasPropertyKind_KNOWN_PRESENT
 				}
@@ -249,7 +316,7 @@ func (this *UnionType) getPropertyKind_2_impl(pname Property_Key, autobox bool) 
 func (this *UnionType) recursionUnsafeHashCode_impl() int32 {
 	var hashCode int32 = this.alternates.size()
 	for i := int32(0); i < this.alternates.size(); i++ {
-		hashCode *= to_JSType(this.alternates.get(i)).hashCode()
+		hashCode *= this.alternates.get(i).self().(JSType_as).as_JSType().hashCode()
 	}
 	return hashCode
 }
@@ -259,17 +326,20 @@ func (this *UnionType) toMaybeUnionType_impl() *UnionType {
 }
 
 func (this *UnionType) isObject_impl() bool {
-	return JSTypeIterations_allTypesMatch(&Predicate_fn{func(p0 any) bool { return to_JSType(p0).isObject() }}, this)
+	return JSTypeIterations_allTypesMatch(lambda_UnionType_isObject_impl_1_, this)
 }
 
+// lambda_UnionType_isObject_impl_1_ is a lambda of UnionType_isObject_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_isObject_impl_1_(p0 any) bool { return p0.(JSType_as).as_JSType().isObject() }
+
 func (this *UnionType) contains(type_ *JSType) bool {
-	return JSTypeIterations_anyTypeMatches(&Predicate_fn{func(p0 any) bool { return type_.equals(to_JSType(p0).self()) }}, this)
+	return JSTypeIterations_anyTypeMatches(func(p0 any) bool { return type_.equals_JSType(to_JSType(p0)) }, this)
 }
 
 func (this *UnionType) getRestrictedUnion(type_ *JSType) *JSType {
 	var restricted *UnionType_Builder = UnionType_builder(this.registry)
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var t *JSType = to_JSType(this.alternates.get(i))
+		var t *JSType = this.alternates.get(i)
 		if t.isUnknownType() || !t.isSubtypeOf(type_) {
 			restricted.addAlternate(t)
 		}
@@ -280,9 +350,8 @@ func (this *UnionType) getRestrictedUnion(type_ *JSType) *JSType {
 func (this *UnionType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append("(")
 	var names *JTList[string] = jnewTList_(jtc_string)
-	it_1 := foreach_(obj_(this.alternates))
-	for it_1.next() {
-		var alt *JSType = to_JSType(it_1.v)
+	for _, el := range this.alternates.items {
+		alt := el
 		names.add(sb.cloneWithConfig().appendJSType(alt).build())
 	}
 	Collections_sort(names.asList())
@@ -290,18 +359,18 @@ func (this *UnionType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append(")")
 }
 
-func (this *UnionType) getRestrictedTypeGivenOutcome_impl(outcome *Outcome_rhino) *JSType {
-	return JSTypeIterations_mapTypes(&Function_fn{func(t_ any) any {
+func (this *UnionType) getRestrictedTypeGivenOutcome_impl(outcome Outcome_rhino) *JSType {
+	return JSTypeIterations_mapTypes(func(t_ any) any {
 		var t *JSType = to_JSType(t_)
 		_ = t
 		return t.getRestrictedTypeGivenOutcome(outcome).self()
-	}}, this)
+	}, this)
 }
 
-func (this *UnionType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
-	var literals *BooleanLiteralSet = BooleanLiteralSet_EMPTY
+func (this *UnionType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
+	var literals BooleanLiteralSet = BooleanLiteralSet_EMPTY
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var element *JSType = to_JSType(this.alternates.get(i))
+		var element *JSType = this.alternates.get(i)
 		literals = literals.union(element.getPossibleToBooleanOutcomes())
 		if literals == BooleanLiteralSet_BOTH {
 			break
@@ -314,7 +383,7 @@ func (this *UnionType) getTypesUnderEquality_impl(that *JSType) *JSType_TypePair
 	var thisRestricted *UnionType_Builder = UnionType_builder(this.registry)
 	var thatRestricted *UnionType_Builder = UnionType_builder(this.registry)
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var element *JSType = to_JSType(this.alternates.get(i))
+		var element *JSType = this.alternates.get(i)
 		var p *JSType_TypePair = element.getTypesUnderEquality(that)
 		if p.typeA != nil {
 			thisRestricted.addAlternate(p.typeA)
@@ -330,7 +399,7 @@ func (this *UnionType) getTypesUnderInequality_impl(that *JSType) *JSType_TypePa
 	var thisRestricted *UnionType_Builder = UnionType_builder(this.registry)
 	var thatRestricted *UnionType_Builder = UnionType_builder(this.registry)
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var element *JSType = to_JSType(this.alternates.get(i))
+		var element *JSType = this.alternates.get(i)
 		var p *JSType_TypePair = element.getTypesUnderInequality(that)
 		if p.typeA != nil {
 			thisRestricted.addAlternate(p.typeA)
@@ -346,7 +415,7 @@ func (this *UnionType) getTypesUnderShallowInequality_impl(that *JSType) *JSType
 	var thisRestricted *UnionType_Builder = UnionType_builder(this.registry)
 	var thatRestricted *UnionType_Builder = UnionType_builder(this.registry)
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var element *JSType = to_JSType(this.alternates.get(i))
+		var element *JSType = this.alternates.get(i)
 		var p *JSType_TypePair = element.getTypesUnderShallowInequality(that)
 		if p.typeA != nil {
 			thisRestricted.addAlternate(p.typeA)
@@ -371,16 +440,16 @@ func (this *UnionType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 		return this.up_JSType()
 	}
 	for i := int32(0); i < this.alternates.size(); i++ {
-		to_JSType(this.alternates.get(i)).resolve(reporter)
+		this.alternates.get(i).self().(JSType_as).as_JSType().resolve(reporter)
 	}
-	return new_UnionType_Builder(this, this.registry).addAlternates(icast_List(obj_(this.alternates))).build()
+	return new_UnionType_Builder(this, this.registry).addAlternates(icast_List(obj_(this.alternates.asImm()))).build()
 }
 
 func (this *UnionType) collapseUnion_impl() *JSType {
 	var currentValue *JSType = nil
 	var currentCommonSuper *ObjectType = nil
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var a *JSType = to_JSType(this.alternates.get(i))
+		var a *JSType = this.alternates.get(i)
 		if a.isUnknownType() {
 			return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		}
@@ -404,16 +473,21 @@ func (this *UnionType) collapseUnion_impl() *JSType {
 
 func (this *UnionType) matchConstraint_impl(constraint *JSType) {
 	for i := int32(0); i < this.alternates.size(); i++ {
-		var alternate *JSType = to_JSType(this.alternates.get(i))
+		var alternate *JSType = this.alternates.get(i)
 		alternate.matchConstraint(constraint)
 	}
 }
 
 func (this *UnionType) hasAnyTemplateTypesInternal_impl() bool {
-	return JSTypeIterations_anyTypeMatches(&Predicate_fn{func(p0 any) bool { return to_JSType(p0).hasAnyTemplateTypes() }}, this)
+	return JSTypeIterations_anyTypeMatches(lambda_UnionType_hasAnyTemplateTypesInternal_impl_1_, this)
 }
 
-var UnionType_TYPE_CLASS *JSTypeClass
+// lambda_UnionType_hasAnyTemplateTypesInternal_impl_1_ is a lambda of UnionType_hasAnyTemplateTypesInternal_impl that captures nothing (post-flip step lambdas).
+func lambda_UnionType_hasAnyTemplateTypesInternal_impl_1_(p0 any) bool {
+	return p0.(JSType_as).as_JSType().hasAnyTemplateTypes()
+}
+
+var UnionType_TYPE_CLASS JSTypeClass
 
 const UnionType_MAX_UNION_SIZE int32 = 30
 
@@ -432,7 +506,7 @@ type UnionType_Builder struct {
 	rebuildTarget                 *UnionType
 	registry                      *JSTypeRegistry
 	alternates                    *JTList[*JSType]
-	finalAlternates               ImmutableListOf[*JSType]
+	finalAlternates               *ImmutableList[*JSType]
 	containsVoidType              bool
 	isAllType_                    bool
 	isNativeUnknownType           bool
@@ -469,9 +543,7 @@ func UnionType_Builder_isSubtype(rightType *JSType, leftType *JSType) bool {
 }
 
 func (this *UnionType_Builder) addAlternatesCollection(c CollectionOf[*JSType]) *UnionType_Builder {
-	it_1 := foreach_(any(c))
-	for it_1.next() {
-		var type_ *JSType = to_JSType(it_1.v)
+	for type_ := range elemsBy_(c, to_JSType) {
 		this.addAlternate(type_)
 	}
 	return this
@@ -487,7 +559,7 @@ func (this *UnionType_Builder) addAlternates(list ListOf[*JSType]) *UnionType_Bu
 func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builder {
 	this.checkHasNotBuilt()
 	if alternate.isUnionType() {
-		this.addAlternates(icast_List(obj_(alternate.toMaybeUnionType().getAlternates())))
+		this.addAlternates(icast_List(obj_(alternate.toMaybeUnionType().getAlternates().asImm())))
 		return this
 	}
 	if this.alternates.size() > UnionType_MAX_UNION_SIZE {
@@ -510,7 +582,7 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 	}
 	this.isAllType_ = (this.isAllType_ || alternate.isAllType())
 	this.containsVoidType = (this.containsVoidType || alternate.isVoidType())
-	var isAlternateUnknown bool = is_[*UnknownType](alternate.self())
+	_, isAlternateUnknown := alternate.self().(*UnknownType)
 	this.isNativeUnknownType = (this.isNativeUnknownType || isAlternateUnknown)
 	if isAlternateUnknown {
 		this.areAllUnknownsChecked = (this.areAllUnknownsChecked && alternate.isCheckedUnknownType())
@@ -531,7 +603,7 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 			continue
 		}
 		if ((alternate.isUnknownType() || current.isUnknownType()) || alternate.hasAnyTemplateTypes()) || current.hasAnyTemplateTypes() {
-			if alternate.equals(current.self()) {
+			if alternate.equals_JSType(current) {
 				return this
 			}
 		} else if alternate.isTemplatizedType() || current.isTemplatizedType() {
@@ -544,15 +616,17 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 					removeCurrent = true
 				}
 			} else {
-				Preconditions_checkState((current.isTemplatizedType() && alternate.isTemplatizedType()))
+				if !current.isTemplatizedType() || !alternate.isTemplatizedType() {
+					panic(new_IllegalStateException_0())
+				}
 				var templatizedAlternate *TemplatizedType = alternate.toMaybeTemplatizedType()
 				var templatizedCurrent *TemplatizedType = current.toMaybeTemplatizedType()
 				if templatizedCurrent.wrapsSameRawType(templatizedAlternate.up_JSType()) {
-					if current.equals(alternate.self()) {
+					if current.equals_JSType(alternate) {
 						return this
 					} else if !templatizedCurrent.getReferencedType().isReadonlyArrayType() {
 						var rawType *ObjectType = templatizedCurrent.getReferencedObjTypeInternal()
-						alternate = this.registry.createTemplatizedTypeImmutableList(rawType, ImmutableList_of()).up_JSType()
+						alternate = this.registry.createTemplatizedTypeImmutableList(rawType, immutableListOf_(tc_p_JSType)).up_JSType()
 						removeCurrent = true
 					}
 				}
@@ -575,7 +649,9 @@ func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builde
 		}
 	}
 	if alternate.isFunctionType() {
-		Preconditions_checkState((this.functionTypePosition == -1))
+		if this.functionTypePosition != -1 {
+			panic(new_IllegalStateException_0())
+		}
 		this.functionTypePosition = this.alternates.size()
 	}
 	this.alternates.add(alternate)
@@ -594,13 +670,12 @@ func (this *UnionType_Builder) build() *JSType {
 		this.rebuildTarget.fillFromBuilder(this)
 	}
 	if this.finalAlternates.size() == 1 {
-		return to_JSType(this.finalAlternates.get(0))
+		return this.finalAlternates.get(0)
 	} else if this.rebuildTarget != nil {
 		return this.rebuildTarget.up_JSType()
 	} else {
 		return new_UnionType(this).up_JSType()
 	}
-	panic("unreachable")
 }
 
 func (this *UnionType_Builder) buildInternal() *UnionType_Builder {
@@ -608,18 +683,20 @@ func (this *UnionType_Builder) buildInternal() *UnionType_Builder {
 	var wildcard *JSType = this.getNativeWildcardType()
 	if wildcard != nil {
 		if this.containsVoidType {
-			this.finalAlternates = ImmutableList_of_Object_Object(wildcard.self(), this.registry.getNativeType(JSTypeNative_VOID_TYPE).self())
+			this.finalAlternates = immutableListOf_(tc_p_JSType, wildcard, this.registry.getNativeType(JSTypeNative_VOID_TYPE))
 		} else {
-			this.finalAlternates = ImmutableList_of_Object(wildcard.self())
+			this.finalAlternates = immutableListOf_(tc_p_JSType, wildcard)
 		}
 	} else if this.alternates.isEmpty() {
-		this.finalAlternates = ImmutableList_of_Object(this.registry.getNativeType(JSTypeNative_NO_TYPE).self())
+		this.finalAlternates = immutableListOf_(tc_p_JSType, this.registry.getNativeType(JSTypeNative_NO_TYPE))
 	} else if this.alternates.size() > UnionType_MAX_UNION_SIZE {
-		this.finalAlternates = ImmutableList_of_Object(this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self())
+		this.finalAlternates = immutableListOf_(tc_p_JSType, this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 	} else {
-		this.finalAlternates = ImmutableList_copyOf(Collection(this.alternates.asList()))
+		this.finalAlternates = immutableListCopyOf_(tc_p_JSType, Collection(this.alternates.asList()))
 	}
-	Preconditions_checkNotNull(obj_(this.finalAlternates))
+	if this.finalAlternates == nil {
+		panic(new_NullPointerException_0())
+	}
 	return this
 }
 
@@ -637,5 +714,289 @@ func (this *UnionType_Builder) getNativeWildcardType() *JSType {
 }
 
 func (this *UnionType_Builder) checkHasNotBuilt() {
-	Preconditions_checkState_boolean_Object((this.finalAlternates == nil), strobj_("Cannot reuse a `UnionType.Builder` that has already built."))
+	if this.finalAlternates != nil {
+		panic(new_IllegalStateException_String("Cannot reuse a `UnionType.Builder` that has already built."))
+	}
+}
+
+// getTypeClass: an object that is exactly a UnionType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *UnionType) getTypeClass() JSTypeClass {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.getTypeClass_impl()
+}
+
+// matchesNumberContext: an object that is exactly a UnionType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
+func (this *UnionType) matchesNumberContext() bool {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.matchesNumberContext_impl()
+	}
+	return this.self_.matchesNumberContext_impl()
+}
+
+// matchesStringContext: an object that is exactly a UnionType calls its matchesStringContext_impl directly (post-flip); others dispatch.
+func (this *UnionType) matchesStringContext() bool {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.matchesStringContext_impl()
+	}
+	return this.self_.matchesStringContext_impl()
+}
+
+// matchesSymbolContext: an object that is exactly a UnionType calls its matchesSymbolContext_impl directly (post-flip); others dispatch.
+func (this *UnionType) matchesSymbolContext() bool {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.matchesSymbolContext_impl()
+	}
+	return this.self_.matchesSymbolContext_impl()
+}
+
+// matchesObjectContext: an object that is exactly a UnionType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
+func (this *UnionType) matchesObjectContext() bool {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.matchesObjectContext_impl()
+	}
+	return this.self_.matchesObjectContext_impl()
+}
+
+// findPropertyTypeWithoutConsideringTemplateTypes: an object that is exactly a UnionType calls its findPropertyTypeWithoutConsideringTemplateTypes_impl directly (post-flip); others dispatch.
+func (this *UnionType) findPropertyTypeWithoutConsideringTemplateTypes(p0 Property_Key) *JSType {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
+	}
+	return this.self_.findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
+}
+
+// canBeCalled: an object that is exactly a UnionType calls its canBeCalled_impl directly (post-flip); others dispatch.
+func (this *UnionType) canBeCalled() bool {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.canBeCalled_impl()
+	}
+	return this.self_.canBeCalled_impl()
+}
+
+// autobox: an object that is exactly a UnionType calls its autobox_impl directly (post-flip); others dispatch.
+func (this *UnionType) autobox() *JSType {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.autobox_impl()
+	}
+	return this.self_.autobox_impl()
+}
+
+// restrictByNotNullOrUndefined: an object that is exactly a UnionType calls its restrictByNotNullOrUndefined_impl directly (post-flip); others dispatch.
+func (this *UnionType) restrictByNotNullOrUndefined() *JSType {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.restrictByNotNullOrUndefined_impl()
+	}
+	return this.self_.restrictByNotNullOrUndefined_impl()
+}
+
+// restrictByNotUndefined: an object that is exactly a UnionType calls its restrictByNotUndefined_impl directly (post-flip); others dispatch.
+func (this *UnionType) restrictByNotUndefined() *JSType {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.restrictByNotUndefined_impl()
+	}
+	return this.self_.restrictByNotUndefined_impl()
+}
+
+// restrictByNotNull: an object that is exactly a UnionType calls its restrictByNotNull_impl directly (post-flip); others dispatch.
+func (this *UnionType) restrictByNotNull() *JSType {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.restrictByNotNull_impl()
+	}
+	return this.self_.restrictByNotNull_impl()
+}
+
+// testForEquality: an object that is exactly a UnionType calls its testForEquality_impl directly (post-flip); others dispatch.
+func (this *UnionType) testForEquality(p0 *JSType) Tri {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.testForEquality_impl(p0)
+	}
+	return this.self_.testForEquality_impl(p0)
+}
+
+// isNullable: an object that is exactly a UnionType calls its isNullable_impl directly (post-flip); others dispatch.
+func (this *UnionType) isNullable() bool {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.isNullable_impl()
+	}
+	return this.self_.isNullable_impl()
+}
+
+// isVoidable: an object that is exactly a UnionType calls its isVoidable_impl directly (post-flip); others dispatch.
+func (this *UnionType) isVoidable() bool {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.isVoidable_impl()
+	}
+	return this.self_.isVoidable_impl()
+}
+
+// isExplicitlyVoidable: an object that is exactly a UnionType calls its isExplicitlyVoidable_impl directly (post-flip); others dispatch.
+func (this *UnionType) isExplicitlyVoidable() bool {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.isExplicitlyVoidable_impl()
+	}
+	return this.self_.isExplicitlyVoidable_impl()
+}
+
+// isUnknownType: an object that is exactly a UnionType calls its isUnknownType_impl directly (post-flip); others dispatch.
+func (this *UnionType) isUnknownType() bool {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.isUnknownType_impl()
+	}
+	return this.self_.isUnknownType_impl()
+}
+
+// isStruct: an object that is exactly a UnionType calls its isStruct_impl directly (post-flip); others dispatch.
+func (this *UnionType) isStruct() bool {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.isStruct_impl()
+	}
+	return this.self_.isStruct_impl()
+}
+
+// isDict: an object that is exactly a UnionType calls its isDict_impl directly (post-flip); others dispatch.
+func (this *UnionType) isDict() bool {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.isDict_impl()
+	}
+	return this.self_.isDict_impl()
+}
+
+// getLeastSupertype: an object that is exactly a UnionType calls its getLeastSupertype_impl directly (post-flip); others dispatch.
+func (this *UnionType) getLeastSupertype(p0 *JSType) *JSType {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.getLeastSupertype_impl(p0)
+	}
+	return this.self_.getLeastSupertype_impl(p0)
+}
+
+// getPropertyKind_2: an object that is exactly a UnionType calls its getPropertyKind_2_impl directly (post-flip); others dispatch.
+func (this *UnionType) getPropertyKind_2(p0 Property_Key, p1 bool) JSType_HasPropertyKind {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.getPropertyKind_2_impl(p0, p1)
+	}
+	return this.self_.getPropertyKind_2_impl(p0, p1)
+}
+
+// recursionUnsafeHashCode: an object that is exactly a UnionType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
+func (this *UnionType) recursionUnsafeHashCode() int32 {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.recursionUnsafeHashCode_impl()
+	}
+	return this.self_.recursionUnsafeHashCode_impl()
+}
+
+// toMaybeUnionType: an object that is exactly a UnionType calls its toMaybeUnionType_impl directly (post-flip); others dispatch.
+func (this *UnionType) toMaybeUnionType() *UnionType {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.toMaybeUnionType_impl()
+	}
+	return this.self_.toMaybeUnionType_impl()
+}
+
+// isObject: an object that is exactly a UnionType calls its isObject_impl directly (post-flip); others dispatch.
+func (this *UnionType) isObject() bool {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.isObject_impl()
+	}
+	return this.self_.isObject_impl()
+}
+
+// appendTo: an object that is exactly a UnionType calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *UnionType) appendTo(p0 *TypeStringBuilder) {
+	if p, _ := this.self_.(*UnionType); p == this {
+		this.appendTo_impl(p0)
+		return
+	}
+	this.self_.appendTo_impl(p0)
+}
+
+// getRestrictedTypeGivenOutcome: an object that is exactly a UnionType calls its getRestrictedTypeGivenOutcome_impl directly (post-flip); others dispatch.
+func (this *UnionType) getRestrictedTypeGivenOutcome(p0 Outcome_rhino) *JSType {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.getRestrictedTypeGivenOutcome_impl(p0)
+	}
+	return this.self_.getRestrictedTypeGivenOutcome_impl(p0)
+}
+
+// getPossibleToBooleanOutcomes: an object that is exactly a UnionType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
+func (this *UnionType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.getPossibleToBooleanOutcomes_impl()
+	}
+	return this.self_.getPossibleToBooleanOutcomes_impl()
+}
+
+// getTypesUnderEquality: an object that is exactly a UnionType calls its getTypesUnderEquality_impl directly (post-flip); others dispatch.
+func (this *UnionType) getTypesUnderEquality(p0 *JSType) *JSType_TypePair {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.getTypesUnderEquality_impl(p0)
+	}
+	return this.self_.getTypesUnderEquality_impl(p0)
+}
+
+// getTypesUnderInequality: an object that is exactly a UnionType calls its getTypesUnderInequality_impl directly (post-flip); others dispatch.
+func (this *UnionType) getTypesUnderInequality(p0 *JSType) *JSType_TypePair {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.getTypesUnderInequality_impl(p0)
+	}
+	return this.self_.getTypesUnderInequality_impl(p0)
+}
+
+// getTypesUnderShallowInequality: an object that is exactly a UnionType calls its getTypesUnderShallowInequality_impl directly (post-flip); others dispatch.
+func (this *UnionType) getTypesUnderShallowInequality(p0 *JSType) *JSType_TypePair {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.getTypesUnderShallowInequality_impl(p0)
+	}
+	return this.self_.getTypesUnderShallowInequality_impl(p0)
+}
+
+// visitUntyped: an object that is exactly a UnionType calls its visitUntyped_impl directly (post-flip); others dispatch.
+func (this *UnionType) visitUntyped(p0 Visitor) any {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.visitUntyped_impl(p0)
+	}
+	return this.self_.visitUntyped_impl(p0)
+}
+
+// visitUntyped_2: an object that is exactly a UnionType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
+func (this *UnionType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.visitUntyped_2_impl(p0, p1)
+	}
+	return this.self_.visitUntyped_2_impl(p0, p1)
+}
+
+// resolveInternal: an object that is exactly a UnionType calls its resolveInternal_impl directly (post-flip); others dispatch.
+func (this *UnionType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.resolveInternal_impl(p0)
+	}
+	return this.self_.resolveInternal_impl(p0)
+}
+
+// collapseUnion: an object that is exactly a UnionType calls its collapseUnion_impl directly (post-flip); others dispatch.
+func (this *UnionType) collapseUnion() *JSType {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.collapseUnion_impl()
+	}
+	return this.self_.collapseUnion_impl()
+}
+
+// matchConstraint: an object that is exactly a UnionType calls its matchConstraint_impl directly (post-flip); others dispatch.
+func (this *UnionType) matchConstraint(p0 *JSType) {
+	if p, _ := this.self_.(*UnionType); p == this {
+		this.matchConstraint_impl(p0)
+		return
+	}
+	this.self_.matchConstraint_impl(p0)
+}
+
+// hasAnyTemplateTypesInternal: an object that is exactly a UnionType calls its hasAnyTemplateTypesInternal_impl directly (post-flip); others dispatch.
+func (this *UnionType) hasAnyTemplateTypesInternal() bool {
+	if p, _ := this.self_.(*UnionType); p == this {
+		return this.hasAnyTemplateTypesInternal_impl()
+	}
+	return this.self_.hasAnyTemplateTypesInternal_impl()
 }

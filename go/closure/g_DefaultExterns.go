@@ -15,19 +15,21 @@ func new_DefaultExterns() *DefaultExterns {
 	return this
 }
 
-func DefaultExterns_prepareExterns(env *CompilerOptions_Environment, externs *JTMap[string, *SourceFile_jscomp]) *JTList[*SourceFile_jscomp] {
+func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *JTMap[string, *SourceFile_jscomp]) *JTList[*SourceFile_jscomp] {
 	var out *JTList[*SourceFile_jscomp] = jnewTList_(jtc_p_SourceFile_jscomp)
-	it_1 := foreach_(obj_(DefaultExterns_BUILTIN_LANG_EXTERNS))
-	for it_1.next() {
-		var key string = str_(it_1.v)
-		Preconditions_checkState_boolean_String_Object(externs.has(key), "Externs must contain builtin: %s", strobj_(key))
+	for _, el := range DefaultExterns_BUILTIN_LANG_EXTERNS.items {
+		key := el
+		if !externs.has(key) {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin: %s", []any{strobj_(key)})))
+		}
 		out.add(externs.del(key))
 	}
 	if env == CompilerOptions_Environment_BROWSER {
-		it_3 := foreach_(obj_(DefaultExterns_BROWSER_EXTERN_DEP_ORDER))
-		for it_3.next() {
-			var key string = str_(it_3.v)
-			Preconditions_checkState_boolean_String_Object_Object(externs.has(key), "Externs must contain builtin for env %s: %s", obj_(env), strobj_(key))
+		for _, el2 := range DefaultExterns_BROWSER_EXTERN_DEP_ORDER.items {
+			key := el2
+			if !externs.has(key) {
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Externs must contain builtin for env %s: %s", []any{obj_(env), strobj_(key)})))
+			}
 			out.add(externs.del(key))
 		}
 		out.asList().addAll(externs.asMap().values())
@@ -35,8 +37,8 @@ func DefaultExterns_prepareExterns(env *CompilerOptions_Environment, externs *JT
 	return out
 }
 
-var DefaultExterns_BUILTIN_LANG_EXTERNS *ImmutableList
-var DefaultExterns_BROWSER_EXTERN_DEP_ORDER *ImmutableList
+var DefaultExterns_BUILTIN_LANG_EXTERNS *ImmutableList[string]
+var DefaultExterns_BROWSER_EXTERN_DEP_ORDER *ImmutableList[string]
 
 var DefaultExterns_clinit_done bool
 
@@ -45,7 +47,7 @@ func DefaultExterns_clinit() {
 		return
 	}
 	DefaultExterns_clinit_done = true
-	DefaultExterns_BUILTIN_LANG_EXTERNS = ImmutableList_of_Object_Object_Object_Object_Object(strobj_("es3.js"), strobj_("es5.js"), strobj_("es6.js"), strobj_("es6_typed_array.js"), strobj_("es6_collections.js"))
-	DefaultExterns_BROWSER_EXTERN_DEP_ORDER = ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("intl.js"), strobj_("w3c_event.js"), strobj_("w3c_event3.js"), strobj_("gecko_event.js"), strobj_("ie_event.js"), strobj_("webkit_event.js"), strobj_("w3c_device_sensor_event.js"), strobj_("w3c_dom1.js"), strobj_("w3c_dom2.js"), strobj_("w3c_dom3.js"), strobj_("w3c_dom4.js"), strobj_("gecko_dom.js"), []any{strobj_("ie_dom.js"), strobj_("webkit_dom.js"), strobj_("w3c_css.js"), strobj_("gecko_css.js"), strobj_("ie_css.js"), strobj_("webkit_css.js"), strobj_("w3c_touch_event.js"), strobj_("webstorage.js"), strobj_("whatwg_console.js"), strobj_("nonstandard_console.js"), strobj_("w3c_rtc.js")})
+	DefaultExterns_BUILTIN_LANG_EXTERNS = immutableListOf_(tc_string, "es3.js", "es5.js", "es6.js", "es6_typed_array.js", "es6_collections.js")
+	DefaultExterns_BROWSER_EXTERN_DEP_ORDER = immutableListOf_(tc_string, "intl.js", "w3c_event.js", "w3c_event3.js", "gecko_event.js", "ie_event.js", "webkit_event.js", "w3c_device_sensor_event.js", "w3c_dom1.js", "w3c_dom2.js", "w3c_dom3.js", "w3c_dom4.js", "gecko_dom.js", "ie_dom.js", "webkit_dom.js", "w3c_css.js", "gecko_css.js", "ie_css.js", "webkit_css.js", "w3c_touch_event.js", "webstorage.js", "whatwg_console.js", "nonstandard_console.js", "w3c_rtc.js")
 
 }

@@ -24,7 +24,7 @@ func new_RemoveUnnecessarySyntheticExterns(compiler *AbstractCompiler) *RemoveUn
 
 func (this *RemoveUnnecessarySyntheticExterns) process_2(externs Node, root Node) {
 	var globalRoot Node = externs.getParent()
-	var scopeCreator *SyntacticScopeCreator = new_SyntacticScopeCreator_AbstractCompiler_RedeclarationHandler_boolean(this.compiler_, icast_SyntacticScopeCreator_RedeclarationHandler(obj_(new_RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler(this))), true)
+	var scopeCreator *SyntacticScopeCreator = new_SyntacticScopeCreator_AbstractCompiler_RedeclarationHandler_boolean(this.compiler_, new_RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler(this), true)
 	scopeCreator.createScope(globalRoot, nil)
 	if this.nodesToDetach.isEmpty() {
 		return
@@ -54,8 +54,10 @@ func new_RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler(outer_ *Rem
 }
 
 func (this *RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler) onRedeclaration(s *Scope, name string, n Node, input *CompilerInput) {
-	Preconditions_checkArgument_boolean_String_Object_Object(s.isGlobal(), "Unexpected non-global redeclaration %s in scope %s", n.box_(), obj_(s))
-	var isSynthetic bool = Object_equals(obj_(input), obj_(this.outer_.compiler_.getSynthesizedExternsInput()))
+	if !s.isGlobal() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected non-global redeclaration %s in scope %s", []any{n.box_(), obj_(s)})))
+	}
+	var isSynthetic bool = equalsId_(input, this.outer_.compiler_.getSynthesizedExternsInput())
 	var origVar *Var = cast_[*Var](s.getVar(name).self())
 	var origNode Node = origVar.getNode()
 	if isSynthetic {

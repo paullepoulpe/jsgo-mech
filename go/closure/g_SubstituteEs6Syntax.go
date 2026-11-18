@@ -33,21 +33,21 @@ func new_SubstituteEs6Syntax(compiler *AbstractCompiler) *SubstituteEs6Syntax {
 }
 
 func (this *SubstituteEs6Syntax) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *SubstituteEs6Syntax) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION:
 		if n.isArrowFunction() {
 			this.maybeSimplifyArrowFunctionBody(n, n.getLastChild())
 		}
-	case Token_rhino_STRING_KEY:
+	case tokOrd1_STRING_KEY:
 		if n.getFirstChild().isName() && (n.getFirstChild().getString() == n.getString()) {
 			n.setShorthandProperty(true)
 			this.objectLiteralShorthandWasAdded = true
 		}
-	case Token_rhino_SCRIPT:
+	case tokOrd1_SCRIPT:
 		if this.objectLiteralShorthandWasAdded {
 			NodeUtil_addFeatureToScript(n, FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES, this.compiler_)
 			this.objectLiteralShorthandWasAdded = false
@@ -57,7 +57,9 @@ func (this *SubstituteEs6Syntax) visit_impl(t *NodeTraversal, n Node, parent Nod
 }
 
 func (this *SubstituteEs6Syntax) maybeSimplifyArrowFunctionBody(arrowFunction Node, body Node) {
-	Preconditions_checkArgument(arrowFunction.isArrowFunction())
+	if !arrowFunction.isArrowFunction() {
+		panic(new_IllegalArgumentException_0())
+	}
 	if (!body.isBlock() || !body.hasOneChild()) || !body.getFirstChild().isReturn() {
 		return
 	}
@@ -70,4 +72,13 @@ func (this *SubstituteEs6Syntax) maybeSimplifyArrowFunctionBody(arrowFunction No
 	}()
 	body.replaceWith(replacement)
 	this.compiler_.reportChangeToEnclosingScope(replacement)
+}
+
+// visit: an object that is exactly a SubstituteEs6Syntax calls its visit_impl directly (post-flip); others dispatch.
+func (this *SubstituteEs6Syntax) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*SubstituteEs6Syntax); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type IdentifierToken struct {
 	Token_parser
 	value_            string
@@ -22,7 +24,7 @@ func (this *IdentifierToken) zero_IdentifierToken() {
 func (this *IdentifierToken) init_IdentifierToken(location *SourceRange, value string) {
 	this.Token_parser.init_Token_parser(TokenType_IDENTIFIER, location)
 	this.value_ = value
-	this.privateIdentifier = String_startsWith(value, "#")
+	this.privateIdentifier = strings.HasPrefix(value, "#")
 }
 
 func new_IdentifierToken(location *SourceRange, value string) *IdentifierToken {
@@ -46,7 +48,9 @@ func (this *IdentifierToken) valueEquals(str string) bool {
 }
 
 func (this *IdentifierToken) getValue() string {
-	Preconditions_checkState(!this.privateIdentifier)
+	if this.privateIdentifier {
+		panic(new_IllegalStateException_0())
+	}
 	return this.value_
 }
 
@@ -56,4 +60,12 @@ func (this *IdentifierToken) getMaybePrivateValue() string {
 
 func (this *IdentifierToken) isPrivateIdentifier() bool {
 	return this.privateIdentifier
+}
+
+// toString: an object that is exactly a IdentifierToken calls its toString_impl directly (post-flip); others dispatch.
+func (this *IdentifierToken) toString() string {
+	if p, _ := this.self_.(*IdentifierToken); p == this {
+		return this.toString_impl()
+	}
+	return this.self_.toString_impl()
 }

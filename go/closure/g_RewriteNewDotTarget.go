@@ -33,7 +33,7 @@ func (this *RewriteNewDotTarget) getTranspiledAwayFeatures_impl() *FeatureSet {
 }
 
 func (this *RewriteNewDotTarget) transpileSubtree_impl(n Node) Node {
-	if n.getToken() != Token_rhino_NEW_TARGET {
+	if n.ns_().token != tokOrd1_NEW_TARGET {
 		return n
 	}
 	var enclosingNonArrowFunction Node = NodeUtil_getEnclosingNonArrowFunction(n)
@@ -47,4 +47,20 @@ func (this *RewriteNewDotTarget) transpileSubtree_impl(n Node) Node {
 		TranspilationUtil_cannotConvertYet(this.compiler_, n, "new.target")
 	}
 	return n
+}
+
+// getTranspiledAwayFeatures: an object that is exactly a RewriteNewDotTarget calls its getTranspiledAwayFeatures_impl directly (post-flip); others dispatch.
+func (this *RewriteNewDotTarget) getTranspiledAwayFeatures() *FeatureSet {
+	if p, _ := this.self_.(*RewriteNewDotTarget); p == this {
+		return this.getTranspiledAwayFeatures_impl()
+	}
+	return this.self_.getTranspiledAwayFeatures_impl()
+}
+
+// transpileSubtree: an object that is exactly a RewriteNewDotTarget calls its transpileSubtree_impl directly (post-flip); others dispatch.
+func (this *RewriteNewDotTarget) transpileSubtree(p0 Node) Node {
+	if p, _ := this.self_.(*RewriteNewDotTarget); p == this {
+		return this.transpileSubtree_impl(p0)
+	}
+	return this.self_.transpileSubtree_impl(p0)
 }

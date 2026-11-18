@@ -2,34 +2,36 @@
 
 package closure
 
+import "strings"
+
 type GatherExternProperties struct {
 	compiler_        *AbstractCompiler
 	externProperties *JTSet[string]
-	mode_            *GatherExternProperties_Mode
+	mode_            GatherExternProperties_Mode
 }
 
 func (this *GatherExternProperties) finit_GatherExternProperties() {
 	this.externProperties = jnewTSet_(jtc_string)
 }
 
-func (this *GatherExternProperties) init_GatherExternProperties(compiler *AbstractCompiler, mode *GatherExternProperties_Mode) {
+func (this *GatherExternProperties) init_GatherExternProperties(compiler *AbstractCompiler, mode GatherExternProperties_Mode) {
 	this.finit_GatherExternProperties()
 	this.compiler_ = compiler
 	this.mode_ = mode
 	if compiler.getExternProperties() != nil {
-		this.externProperties.asSet().addAll(icast_Collection(obj_(compiler.getExternProperties())))
+		this.externProperties.asSet().addAll(icast_Collection(obj_(compiler.getExternProperties().asImm())))
 	}
 }
 
-func new_GatherExternProperties(compiler *AbstractCompiler, mode *GatherExternProperties_Mode) *GatherExternProperties {
+func new_GatherExternProperties(compiler *AbstractCompiler, mode GatherExternProperties_Mode) *GatherExternProperties {
 	this := &GatherExternProperties{}
 	this.init_GatherExternProperties(compiler, mode)
 	return this
 }
 
 func (this *GatherExternProperties) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(any(this)))
-	this.compiler_.setExternProperties(ImmutableSet_copyOf(Collection(this.externProperties.asSet())))
+	NodeTraversal_traverse(this.compiler_, externs, this)
+	this.compiler_.setExternProperties(immutableSetCopyOf_(tc_string, Collection(this.externProperties.asSet())))
 }
 
 func (this *GatherExternProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -37,36 +39,34 @@ func (this *GatherExternProperties) shouldTraverse(t *NodeTraversal, n Node, par
 }
 
 func (this *GatherExternProperties) visit(t *NodeTraversal, n Node, parent Node) {
-	if this.mode_.optimize {
-		switch n.getToken() {
-		case Token_rhino_GETPROP:
+	if GatherExternProperties_Mode_optimize_[this.mode_-1] {
+		switch n.ns_().token {
+		case tokOrd1_GETPROP:
 			this.externProperties.add(n.getString())
-		case Token_rhino_STRING_KEY:
+		case tokOrd1_STRING_KEY:
 			if parent.isObjectLit() {
 				this.externProperties.add(n.getString())
 			}
-		case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+		case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 			this.externProperties.add(n.getString())
 		default:
 		}
 	}
 	var jsDocInfo *JSDocInfo = n.getJSDocInfo()
-	if (jsDocInfo != nil) && this.mode_.check_ {
+	if (jsDocInfo != nil) && GatherExternProperties_Mode_check__[this.mode_-1] {
 		this.gatherPropertiesFromJSDocInfo(jsDocInfo)
 	}
 }
 
 func (this *GatherExternProperties) gatherPropertiesFromJSDocInfo(jsDocInfo *JSDocInfo) {
-	it_1 := foreach_(any(jsDocInfo.getTypeNodes()))
-	for it_1.next() {
-		var jsTypeExpressionNode Node = Node_of_(it_1.v)
+	for jsTypeExpressionNode := range elemsBy_(jsDocInfo.getTypeNodes(), Node_of_) {
 		this.gatherPropertiesFromJsTypeExpressionNode(jsTypeExpressionNode)
 	}
 }
 
 func (this *GatherExternProperties) gatherPropertiesFromJsTypeExpressionNode(jsTypeExpressionNode Node) {
-	switch jsTypeExpressionNode.getToken() {
-	case Token_rhino_LB:
+	switch jsTypeExpressionNode.ns_().token {
+	case tokOrd1_LB:
 		this.gatherPropertiesFromJsDocRecordType(jsTypeExpressionNode)
 	default:
 		{
@@ -79,23 +79,29 @@ func (this *GatherExternProperties) gatherPropertiesFromJsTypeExpressionNode(jsT
 }
 
 func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRecordNode Node) {
-	Preconditions_checkState_boolean_Object((jsDocRecordNode.getToken() == Token_rhino_LB), jsDocRecordNode.box_())
+	if jsDocRecordNode.ns_().token != tokOrd1_LB {
+		panic(new_IllegalStateException_String(tostr_(jsDocRecordNode)))
+	}
 	{
 		var fieldNode Node = jsDocRecordNode.getFirstChild()
 		for ; fieldNode != 0; fieldNode = fieldNode.getNext() {
 			var fieldNameNode Node
 			var fieldTypeNode Node
-			if fieldNode.getToken() == Token_rhino_COLON {
+			if fieldNode.ns_().token == tokOrd1_COLON {
 				fieldNameNode = fieldNode.getFirstChild()
 				fieldTypeNode = fieldNameNode.getNext()
 			} else {
 				fieldNameNode = fieldNode
 				fieldTypeNode = 0
 			}
-			Preconditions_checkState_boolean_Object(fieldNameNode.isStringKey(), fieldNameNode.box_())
+			if !fieldNameNode.isStringKey() {
+				panic(new_IllegalStateException_String(tostr_(fieldNameNode)))
+			}
 			var fieldName string = fieldNameNode.getString()
-			if String_startsWith(fieldName, "'") || String_startsWith(fieldName, "\"") {
-				fieldName = String_substring(fieldName, 1, (String_length(fieldName) - 1))
+			fieldNameU16 := utf16Of_(fieldName)
+			if strings.HasPrefix(fieldName, "'") || strings.HasPrefix(fieldName, "\"") {
+				fieldName = fieldNameU16.substring(1, (fieldNameU16.length() - 1))
+				fieldNameU16 = utf16Of_(fieldName)
 			}
 			this.externProperties.add(fieldName)
 			if fieldTypeNode != 0 {
@@ -105,49 +111,75 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 	}
 }
 
-type GatherExternProperties_Mode struct {
-	Enum
-	check_   bool
-	optimize bool
+type GatherExternProperties_Mode uint8
+
+// GatherExternProperties_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var GatherExternProperties_Mode_enum_ = [3]Enum{
+	{self_: GatherExternProperties_Mode_CHECK, name_: "CHECK", ordinal_: 0},
+	{self_: GatherExternProperties_Mode_OPTIMIZE, name_: "OPTIMIZE", ordinal_: 1},
+	{self_: GatherExternProperties_Mode_CHECK_AND_OPTIMIZE, name_: "CHECK_AND_OPTIMIZE", ordinal_: 2},
 }
 
-func (this *GatherExternProperties_Mode) up_Enum() *Enum {
-	if this == nil {
+var GatherExternProperties_Mode_check__ [3]bool
+
+var GatherExternProperties_Mode_optimize_ [3]bool
+
+func (this GatherExternProperties_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &GatherExternProperties_Mode_enum_[this-1]
 }
 
-func (this *GatherExternProperties_Mode) init_GatherExternProperties_Mode(name_ string, ordinal_ int32, check bool, optimize bool) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.check_ = check
-	this.optimize = optimize
+func (this GatherExternProperties_Mode) name() string {
+	return this.enum_().name_
 }
 
-func new_GatherExternProperties_Mode(name_ string, ordinal_ int32, check bool, optimize bool) *GatherExternProperties_Mode {
-	this := &GatherExternProperties_Mode{}
-	this.self_ = this
-	this.init_GatherExternProperties_Mode(name_, ordinal_, check, optimize)
+func (this GatherExternProperties_Mode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this GatherExternProperties_Mode) toString() string {
+	return this.enum_().name_
+}
+
+func (this GatherExternProperties_Mode) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this GatherExternProperties_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func GatherExternProperties_Mode_values() []*GatherExternProperties_Mode {
-	return append([]*GatherExternProperties_Mode(nil), GatherExternProperties_Mode_values_...)
+func (this GatherExternProperties_Mode) init_GatherExternProperties_Mode(check bool, optimize bool) {
+	GatherExternProperties_Mode_check__[this-1] = check
+	GatherExternProperties_Mode_optimize_[this-1] = optimize
 }
 
-func GatherExternProperties_Mode_valueOf(name string) *GatherExternProperties_Mode {
+func GatherExternProperties_Mode_values() []GatherExternProperties_Mode {
+	return append([]GatherExternProperties_Mode(nil), GatherExternProperties_Mode_values_...)
+}
+
+func GatherExternProperties_Mode_valueOf(name string) GatherExternProperties_Mode {
 	for _, v := range GatherExternProperties_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var GatherExternProperties_Mode_CHECK *GatherExternProperties_Mode
-var GatherExternProperties_Mode_OPTIMIZE *GatherExternProperties_Mode
-var GatherExternProperties_Mode_CHECK_AND_OPTIMIZE *GatherExternProperties_Mode
-var GatherExternProperties_Mode_values_ []*GatherExternProperties_Mode
+const GatherExternProperties_Mode_CHECK GatherExternProperties_Mode = 1
+const GatherExternProperties_Mode_OPTIMIZE GatherExternProperties_Mode = 2
+const GatherExternProperties_Mode_CHECK_AND_OPTIMIZE GatherExternProperties_Mode = 3
+
+var GatherExternProperties_Mode_values_ []GatherExternProperties_Mode
 
 var GatherExternProperties_Mode_clinit_done bool
 
@@ -156,10 +188,10 @@ func GatherExternProperties_Mode_clinit() {
 		return
 	}
 	GatherExternProperties_Mode_clinit_done = true
-	GatherExternProperties_Mode_CHECK = new_GatherExternProperties_Mode("CHECK", 0, true, false)
-	GatherExternProperties_Mode_OPTIMIZE = new_GatherExternProperties_Mode("OPTIMIZE", 1, false, true)
-	GatherExternProperties_Mode_CHECK_AND_OPTIMIZE = new_GatherExternProperties_Mode("CHECK_AND_OPTIMIZE", 2, true, true)
-	GatherExternProperties_Mode_values_ = []*GatherExternProperties_Mode{GatherExternProperties_Mode_CHECK, GatherExternProperties_Mode_OPTIMIZE, GatherExternProperties_Mode_CHECK_AND_OPTIMIZE}
+	GatherExternProperties_Mode_CHECK.init_GatherExternProperties_Mode(true, false)
+	GatherExternProperties_Mode_OPTIMIZE.init_GatherExternProperties_Mode(false, true)
+	GatherExternProperties_Mode_CHECK_AND_OPTIMIZE.init_GatherExternProperties_Mode(true, true)
+	GatherExternProperties_Mode_values_ = []GatherExternProperties_Mode{GatherExternProperties_Mode_CHECK, GatherExternProperties_Mode_OPTIMIZE, GatherExternProperties_Mode_CHECK_AND_OPTIMIZE}
 	registerEnum_("com.google.javascript.jscomp.GatherExternProperties.Mode", enumValues_(GatherExternProperties_Mode_values_))
 
 }

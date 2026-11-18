@@ -55,11 +55,11 @@ func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTrav
 	var fileName Optional[string] = traversal.getSourceName()
 	var sourceFileName string = node.getSourceFileName()
 	var functionName string = this.functionNameStack.peek()
-	switch node.getToken() {
-	case Token_rhino_FUNCTION:
+	switch node.ns_().token {
+	case tokOrd1_FUNCTION:
 		this.functionNameStack.pop()
 		this.instrumentBlockNode(node.getLastChild(), fileName.orElse(nullstr_), functionName, ProductionCoverageInstrumentationCallback_Type_FUNCTION)
-	case Token_rhino_IF:
+	case tokOrd1_IF:
 		var ifTrueNode Node = node.getSecondChild()
 		this.instrumentBlockNode(ifTrueNode, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
 		if node.getChildCount() == 2 {
@@ -69,7 +69,7 @@ func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTrav
 		if NodeUtil_isEmptyBlock(ifFalseNode) || (ifFalseNode.hasChildren() && !ifFalseNode.getFirstChild().isIf()) {
 			this.instrumentBlockNode(ifFalseNode, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT)
 		}
-	case Token_rhino_SWITCH:
+	case tokOrd1_SWITCH:
 		var hasDefaultCase bool = false
 		var switchBody Node = node.getSecondChild()
 		{
@@ -90,26 +90,28 @@ func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTrav
 			switchBody.addChildToBack(defaultCase)
 			this.instrumentBlockNode(defaultBlock, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT)
 		}
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		var ifTernaryIsTrueExpression Node = node.getSecondChild()
 		var ifTernaryIsFalseExpression Node = node.getLastChild()
 		this.addInstrumentationNodeWithComma(ifTernaryIsTrueExpression, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
 		this.addInstrumentationNodeWithComma(ifTernaryIsFalseExpression, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
 		this.compiler_.reportChangeToEnclosingScope(node)
-	case Token_rhino_OR, Token_rhino_AND, Token_rhino_COALESCE:
+	case tokOrd1_OR, tokOrd1_AND, tokOrd1_COALESCE:
 		var secondExpression Node = node.getLastChild()
 		this.addInstrumentationNodeWithComma(secondExpression, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
 		this.compiler_.reportChangeToEnclosingScope(node)
 	default:
 		if NodeUtil_isLoopStructure(node) {
 			var blockNode Node = NodeUtil_getLoopCodeBlock(node)
-			Preconditions_checkNotNull(blockNode.box_())
+			if blockNode == 0 {
+				panic(new_NullPointerException_0())
+			}
 			this.instrumentBlockNode(blockNode, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
 		}
 	}
 }
 
-func (this *ProductionCoverageInstrumentationCallback) addInstrumentationNodeWithComma(originalNode Node, fileName string, functionName string, type_ *ProductionCoverageInstrumentationCallback_Type) {
+func (this *ProductionCoverageInstrumentationCallback) addInstrumentationNodeWithComma(originalNode Node, fileName string, functionName string, type_ ProductionCoverageInstrumentationCallback_Type) {
 	var cloneOfOriginal Node = originalNode.cloneTree()
 	var newInstrumentationNode Node = this.newInstrumentationNode(cloneOfOriginal, fileName, functionName, type_)
 	var childOfInstrumentationNode Node = newInstrumentationNode.removeFirstChild()
@@ -117,12 +119,12 @@ func (this *ProductionCoverageInstrumentationCallback) addInstrumentationNodeWit
 	originalNode.replaceWith(infusedExp)
 }
 
-func (this *ProductionCoverageInstrumentationCallback) instrumentBlockNode(block Node, fileName string, fnName string, type_ *ProductionCoverageInstrumentationCallback_Type) {
+func (this *ProductionCoverageInstrumentationCallback) instrumentBlockNode(block Node, fileName string, fnName string, type_ ProductionCoverageInstrumentationCallback_Type) {
 	block.addChildToFront(this.newInstrumentationNode(block, fileName, fnName, type_))
 	this.compiler_.reportChangeToEnclosingScope(block)
 }
 
-func (this *ProductionCoverageInstrumentationCallback) newInstrumentationNode(node Node, fileName string, fnName string, type_ *ProductionCoverageInstrumentationCallback_Type) Node {
+func (this *ProductionCoverageInstrumentationCallback) newInstrumentationNode(node Node, fileName string, fnName string, type_ ProductionCoverageInstrumentationCallback_Type) Node {
 	var lineNo int32 = node.getLineno()
 	var columnNo int32 = node.getCharno()
 	if node.isBlock() {
@@ -148,45 +150,66 @@ func (this *ProductionCoverageInstrumentationCallback) getInstrumentationMapping
 
 const ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME string = "<Anonymous>"
 
-type ProductionCoverageInstrumentationCallback_Type struct {
-	Enum
+type ProductionCoverageInstrumentationCallback_Type uint8
+
+// ProductionCoverageInstrumentationCallback_Type_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ProductionCoverageInstrumentationCallback_Type_enum_ = [3]Enum{
+	{self_: ProductionCoverageInstrumentationCallback_Type_FUNCTION, name_: "FUNCTION", ordinal_: 0},
+	{self_: ProductionCoverageInstrumentationCallback_Type_BRANCH, name_: "BRANCH", ordinal_: 1},
+	{self_: ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT, name_: "BRANCH_DEFAULT", ordinal_: 2},
 }
 
-func (this *ProductionCoverageInstrumentationCallback_Type) up_Enum() *Enum {
-	if this == nil {
+func (this ProductionCoverageInstrumentationCallback_Type) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ProductionCoverageInstrumentationCallback_Type_enum_[this-1]
 }
 
-func (this *ProductionCoverageInstrumentationCallback_Type) init_ProductionCoverageInstrumentationCallback_Type(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ProductionCoverageInstrumentationCallback_Type) name() string {
+	return this.enum_().name_
 }
 
-func new_ProductionCoverageInstrumentationCallback_Type(name_ string, ordinal_ int32) *ProductionCoverageInstrumentationCallback_Type {
-	this := &ProductionCoverageInstrumentationCallback_Type{}
-	this.self_ = this
-	this.init_ProductionCoverageInstrumentationCallback_Type(name_, ordinal_)
+func (this ProductionCoverageInstrumentationCallback_Type) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ProductionCoverageInstrumentationCallback_Type) toString() string {
+	return this.enum_().name_
+}
+
+func (this ProductionCoverageInstrumentationCallback_Type) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ProductionCoverageInstrumentationCallback_Type) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ProductionCoverageInstrumentationCallback_Type_values() []*ProductionCoverageInstrumentationCallback_Type {
-	return append([]*ProductionCoverageInstrumentationCallback_Type(nil), ProductionCoverageInstrumentationCallback_Type_values_...)
+func ProductionCoverageInstrumentationCallback_Type_values() []ProductionCoverageInstrumentationCallback_Type {
+	return append([]ProductionCoverageInstrumentationCallback_Type(nil), ProductionCoverageInstrumentationCallback_Type_values_...)
 }
 
-func ProductionCoverageInstrumentationCallback_Type_valueOf(name string) *ProductionCoverageInstrumentationCallback_Type {
+func ProductionCoverageInstrumentationCallback_Type_valueOf(name string) ProductionCoverageInstrumentationCallback_Type {
 	for _, v := range ProductionCoverageInstrumentationCallback_Type_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Type", name))
 }
 
-var ProductionCoverageInstrumentationCallback_Type_FUNCTION *ProductionCoverageInstrumentationCallback_Type
-var ProductionCoverageInstrumentationCallback_Type_BRANCH *ProductionCoverageInstrumentationCallback_Type
-var ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT *ProductionCoverageInstrumentationCallback_Type
-var ProductionCoverageInstrumentationCallback_Type_values_ []*ProductionCoverageInstrumentationCallback_Type
+const ProductionCoverageInstrumentationCallback_Type_FUNCTION ProductionCoverageInstrumentationCallback_Type = 1
+const ProductionCoverageInstrumentationCallback_Type_BRANCH ProductionCoverageInstrumentationCallback_Type = 2
+const ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT ProductionCoverageInstrumentationCallback_Type = 3
+
+var ProductionCoverageInstrumentationCallback_Type_values_ []ProductionCoverageInstrumentationCallback_Type
 
 var ProductionCoverageInstrumentationCallback_Type_clinit_done bool
 
@@ -195,10 +218,7 @@ func ProductionCoverageInstrumentationCallback_Type_clinit() {
 		return
 	}
 	ProductionCoverageInstrumentationCallback_Type_clinit_done = true
-	ProductionCoverageInstrumentationCallback_Type_FUNCTION = new_ProductionCoverageInstrumentationCallback_Type("FUNCTION", 0)
-	ProductionCoverageInstrumentationCallback_Type_BRANCH = new_ProductionCoverageInstrumentationCallback_Type("BRANCH", 1)
-	ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT = new_ProductionCoverageInstrumentationCallback_Type("BRANCH_DEFAULT", 2)
-	ProductionCoverageInstrumentationCallback_Type_values_ = []*ProductionCoverageInstrumentationCallback_Type{ProductionCoverageInstrumentationCallback_Type_FUNCTION, ProductionCoverageInstrumentationCallback_Type_BRANCH, ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT}
+	ProductionCoverageInstrumentationCallback_Type_values_ = []ProductionCoverageInstrumentationCallback_Type{ProductionCoverageInstrumentationCallback_Type_FUNCTION, ProductionCoverageInstrumentationCallback_Type_BRANCH, ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT}
 	registerEnum_("com.google.javascript.jscomp.instrumentation.ProductionCoverageInstrumentationCallback.Type", enumValues_(ProductionCoverageInstrumentationCallback_Type_values_))
 
 }
@@ -225,53 +245,27 @@ func new_ProductionCoverageInstrumentationCallback_ParameterMapping() *Productio
 	return this
 }
 
-func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncodedParam(fileName string, functionName string, type_ *ProductionCoverageInstrumentationCallback_Type, lineNo int32, colNo int32) string {
+func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncodedParam(fileName string, functionName string, type_ ProductionCoverageInstrumentationCallback_Type, lineNo int32, colNo int32) string {
 	this.fileNameToIndex.putIfAbsent(fileName, any(int32(this.fileNameToIndex.size())))
 	this.functionNameToIndex.putIfAbsent(functionName, any(int32(this.functionNameToIndex.size())))
 	this.typeToIndex.putIfAbsent(type_.name(), any(int32(this.typeToIndex.size())))
-	var sb *StringBuilder = new_StringBuilder()
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_IOException(ex_) {
-					var e *IOException = to_IOException(ex_)
-					panic(new_AssertionError_Object(e.self()).self())
-					return
-				}
-				panic(r_)
-			}
-		}()
-		Base64VLQ_encode(icast_Appendable(obj_(sb)), unbox_[int32](this.fileNameToIndex.get(fileName)))
-		Base64VLQ_encode(icast_Appendable(obj_(sb)), unbox_[int32](this.functionNameToIndex.get(functionName)))
-		Base64VLQ_encode(icast_Appendable(obj_(sb)), unbox_[int32](this.typeToIndex.get(type_.name())))
-		Base64VLQ_encode(icast_Appendable(obj_(sb)), lineNo)
-		Base64VLQ_encode(icast_Appendable(obj_(sb)), colNo)
-		return 0
-	}()
-	var encodedParam string = Object_toString(obj_(sb))
+	var sb *strBuilder_ = &strBuilder_{}
+	Base64VLQ_encode_sb(sb, unbox_[int32](this.fileNameToIndex.get(fileName)))
+	Base64VLQ_encode_sb(sb, unbox_[int32](this.functionNameToIndex.get(functionName)))
+	Base64VLQ_encode_sb(sb, unbox_[int32](this.typeToIndex.get(type_.name())))
+	Base64VLQ_encode_sb(sb, lineNo)
+	Base64VLQ_encode_sb(sb, colNo)
+	var encodedParam string = sb.toString()
 	if !this.paramValueEncodings.has(encodedParam) {
 		var uniqueIdentifier int64 = this.generateUniqueIdentifier()
 		if uniqueIdentifier > int64(int32(2147483647)) {
-			panic(new_ArithmeticException_String("Unique Identifier exceeds value of Integer.MAX_VALUE, could not encode with Base 64 VLQ").self())
+			panic(new_ArithmeticException_String("Unique Identifier exceeds value of Integer.MAX_VALUE, could not encode with Base 64 VLQ"))
 		}
-		sb = new_StringBuilder()
-		_ = func() (code_ int) {
-			defer func() {
-				if r_ := recover(); r_ != nil {
-					ex_ := catch_(r_)
-					if is_IOException(ex_) {
-						var e *IOException = to_IOException(ex_)
-						panic(new_AssertionError_Object(e.self()).self())
-						return
-					}
-					panic(r_)
-				}
-			}()
-			Base64VLQ_encode(icast_Appendable(obj_(sb)), Math_toIntExact(uniqueIdentifier))
-			return 0
-		}()
-		this.paramValueEncodings.put(encodedParam, Object_toString(obj_(sb)))
+		sb = &strBuilder_{}
+		{
+			Base64VLQ_encode_sb(sb, Math_toIntExact(uniqueIdentifier))
+		}
+		this.paramValueEncodings.put(encodedParam, sb.toString())
 	}
 	return this.paramValueEncodings.get(encodedParam)
 }
@@ -286,8 +280,8 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getParam
 	this.paramValueEncodings.put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.functionNameToIndex.asMap().keySet()), " FunctionNames")
 	this.paramValueEncodings.put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.typeToIndex.asMap().keySet()), " Types")
 	var preInversedMap *VariableMap = new_VariableMap(this.paramValueEncodings.asMap())
-	var inversedMap ImmutableMapOf[string, string] = preInversedMap.getNewNameToOriginalNameMap()
-	return new_VariableMap(icast_Map(obj_(inversedMap)))
+	var inversedMap *ImmutableMap[string, string] = preInversedMap.getNewNameToOriginalNameMap()
+	return new_VariableMap(icast_Map(obj_(inversedMap.asImm())))
 }
 
 func ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(strings SetOf[string]) string {
@@ -295,9 +289,7 @@ func ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(stri
 	writer.setHtmlSafe(false)
 	writer.setSerializeNulls(false)
 	writer.beginArray()
-	it_1 := foreach_(any(strings))
-	for it_1.next() {
-		var string_ string = str_(it_1.v)
+	for string_ := range elemsBy_(strings, str_) {
 		writer.stringValue(Optional_of[string](string_))
 	}
 	writer.endArray()

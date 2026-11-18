@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clAssertRemovalPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
@@ -30,7 +32,7 @@ func (this *J2clAssertRemovalPass) process_2(externs Node, root Node) {
 	if !J2clSourceFileChecker_shouldRunJ2clPasses(this.compiler_) {
 		return
 	}
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *J2clAssertRemovalPass) visit_impl(t *NodeTraversal, node Node, parent Node) {
@@ -48,5 +50,14 @@ func J2clAssertRemovalPass_isAssertionMethodName(fnName Node) bool {
 		return false
 	}
 	var originalQname string = fnName.getOriginalQualifiedName()
-	return (String_contains(originalQname, strobj_("Asserts")) && String_contains(originalQname, strobj_(".$assert")))
+	return (strings.Contains(originalQname, "Asserts") && strings.Contains(originalQname, ".$assert"))
+}
+
+// visit: an object that is exactly a J2clAssertRemovalPass calls its visit_impl directly (post-flip); others dispatch.
+func (this *J2clAssertRemovalPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*J2clAssertRemovalPass); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

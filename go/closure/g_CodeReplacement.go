@@ -76,10 +76,10 @@ func (this *CodeReplacement) equals(p0 any) bool {
 
 func (this *CodeReplacement) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(int32(this.getStartPosition_)))
-	h = h*31 + Objects_hashCode(any(int32(this.getLength_)))
-	h = h*31 + Objects_hashCode(strobj_(this.getNewContent_))
-	h = h*31 + Objects_hashCode(strobj_(this.getSortKey_))
+	h = h*31 + int32(this.getStartPosition_)
+	h = h*31 + int32(this.getLength_)
+	h = h*31 + objhashStr_(this.getNewContent_)
+	h = h*31 + objhashStr_(this.getSortKey_)
 	return h
 }
 

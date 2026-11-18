@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CodePrinter struct {
 }
 
@@ -15,15 +17,17 @@ func new_CodePrinter() *CodePrinter {
 	return this
 }
 
-func CodePrinter_toSource(root Node, outputFormat *CodePrinter_Format, options *CompilerOptions, licenseTracker CodePrinter_LicenseTracker, tagAsTypeSummary bool, tagAsStrict bool, lineBreak bool, codeGeneratorFactory CodePrinter_Builder_CodeGeneratorFactory) *CodePrinter_SourceAndMappings {
-	Preconditions_checkState((options.getSourceMapDetailLevel() != nil))
+func CodePrinter_toSource(root Node, outputFormat CodePrinter_Format, options *CompilerOptions, licenseTracker CodePrinter_LicenseTracker, tagAsTypeSummary bool, tagAsStrict bool, lineBreak bool, codeGeneratorFactory func(CodePrinter_Format, *CodeConsumer) *CodeGenerator) *CodePrinter_SourceAndMappings {
+	if options.getSourceMapDetailLevel() == 0 {
+		panic(new_IllegalStateException_0())
+	}
 	var mcp *CodePrinter_MappedCodePrinter = func() *CodePrinter_MappedCodePrinter {
 		if outputFormat == CodePrinter_Format_COMPACT {
 			return new_CodePrinter_CompactCodePrinter(lineBreak, options.getLineLengthThreshold(), options.shouldGatherSourceMapInfo(), options.getSourceMapDetailLevel(), licenseTracker).up_CodePrinter_MappedCodePrinter()
 		}
 		return new_CodePrinter_PrettyCodePrinter(options.getLineLengthThreshold(), options.shouldGatherSourceMapInfo(), options.getSourceMapDetailLevel(), licenseTracker).up_CodePrinter_MappedCodePrinter()
 	}()
-	var cg *CodeGenerator = codeGeneratorFactory.getCodeGenerator(outputFormat, mcp.up_CodeConsumer())
+	var cg *CodeGenerator = codeGeneratorFactory(outputFormat, mcp.up_CodeConsumer())
 	if tagAsTypeSummary {
 		cg.tagAsTypeSummary()
 	}
@@ -47,9 +51,9 @@ type CodePrinter_MappedCodePrinter struct {
 	completeMappings            *JTList[*SourceMap_Mapping]
 	firstCandidateMappingForCut int32
 	createSrcMap                bool
-	sourceMapDetailLevel        *SourceMap_DetailLevel
+	sourceMapDetailLevel        SourceMap_DetailLevel
 	licenseTracker              CodePrinter_LicenseTracker
-	code_                       *StringBuilder
+	code_                       *strBuilder_
 	lineLengthThreshold         int32
 	lineLength                  int32
 	lineIndex                   int32
@@ -57,22 +61,6 @@ type CodePrinter_MappedCodePrinter struct {
 
 func (this *CodePrinter_MappedCodePrinter) as_CodePrinter_MappedCodePrinter() *CodePrinter_MappedCodePrinter {
 	return this
-}
-
-func to_CodePrinter_MappedCodePrinter(v any) *CodePrinter_MappedCodePrinter {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_CodePrinter_MappedCodePrinter() *CodePrinter_MappedCodePrinter
-	}).as_CodePrinter_MappedCodePrinter()
-}
-
-func is_CodePrinter_MappedCodePrinter(v any) bool {
-	_, ok := v.(interface {
-		as_CodePrinter_MappedCodePrinter() *CodePrinter_MappedCodePrinter
-	})
-	return ok
 }
 
 func (this *CodePrinter_MappedCodePrinter) self() any {
@@ -91,15 +79,17 @@ func (this *CodePrinter_MappedCodePrinter) up_CodeConsumer() *CodeConsumer {
 
 func (this *CodePrinter_MappedCodePrinter) finit_CodePrinter_MappedCodePrinter() {
 	this.firstCandidateMappingForCut = 0
-	this.code_ = new_StringBuilder_int(1024)
+	this.code_ = strBuilderCap_(1024)
 	this.lineLength = 0
 	this.lineIndex = 0
 }
 
-func (this *CodePrinter_MappedCodePrinter) init_CodePrinter_MappedCodePrinter(lineLengthThreshold int32, createSrcMap bool, sourceMapDetailLevel *SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) {
+func (this *CodePrinter_MappedCodePrinter) init_CodePrinter_MappedCodePrinter(lineLengthThreshold int32, createSrcMap bool, sourceMapDetailLevel SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) {
 	this.CodeConsumer.init_CodeConsumer()
 	this.finit_CodePrinter_MappedCodePrinter()
-	Preconditions_checkState((sourceMapDetailLevel != nil))
+	if sourceMapDetailLevel == 0 {
+		panic(new_IllegalStateException_0())
+	}
 	this.lineLengthThreshold = func() int32 {
 		if lineLengthThreshold <= 0 {
 			return int32(2147483647)
@@ -141,12 +131,18 @@ func (this *CodePrinter_MappedCodePrinter) trackLicenses_impl(node Node) {
 }
 
 func (this *CodePrinter_MappedCodePrinter) startSourceMapping_impl(node Node) {
-	Preconditions_checkState((this.sourceMapDetailLevel != nil))
-	Preconditions_checkState((node != 0))
-	if ((this.createSrcMap && !String_isEmpty(node.getSourceFileName())) && (node.getLineno() > 0)) && this.sourceMapDetailLevel.apply(node.box_()) {
+	if this.sourceMapDetailLevel == 0 {
+		panic(new_IllegalStateException_0())
+	}
+	if node == 0 {
+		panic(new_IllegalStateException_0())
+	}
+	if ((this.createSrcMap && node.getSourceFileName() != "") && (node.getLineno() > 0)) && this.sourceMapDetailLevel.apply(node.box_()) {
 		var line int32 = this.getCurrentLineIndex()
 		var index int32 = this.getCurrentCharIndex()
-		Preconditions_checkState((line >= 0))
+		if line < 0 {
+			panic(new_IllegalStateException_0())
+		}
 		var mapping *SourceMap_Mapping = new_SourceMap_Mapping()
 		mapping.node_ = node
 		mapping.start_ = new_FilePosition(line, index)
@@ -160,7 +156,9 @@ func (this *CodePrinter_MappedCodePrinter) endSourceMapping_impl(node Node) {
 		var mapping *SourceMap_Mapping = this.mappings.pop()
 		var line int32 = this.getCurrentLineIndex()
 		var index int32 = this.getCurrentCharIndex()
-		Preconditions_checkState((line >= 0))
+		if line < 0 {
+			panic(new_IllegalStateException_0())
+		}
 		mapping.end_ = new_FilePosition(line, index)
 		this.completeMappings.add(mapping)
 	}
@@ -209,11 +207,10 @@ func CodePrinter_MappedCodePrinter_convertPositionAfterLineCut(position *FilePos
 	} else {
 		return position
 	}
-	panic("unreachable")
 }
 
 func (this *CodePrinter_MappedCodePrinter) getCode() string {
-	return Object_toString(obj_(this.code_))
+	return tostrNN_(this.code_)
 }
 
 func (this *CodePrinter_MappedCodePrinter) getLastChar_impl() uint16 {
@@ -236,13 +233,14 @@ func (this *CodePrinter_MappedCodePrinter) getCurrentLineIndex() int32 {
 func CodePrinter_MappedCodePrinter_computeLineLengths(code string) ImmutableListOf[BoxedOf[int32]] {
 	var builder ImmutableList_BuilderOf[BoxedOf[int32]] = ImmutableList_builder()
 	var lineStartPos int32 = 0
-	var lineEndPos int32 = String_indexOf(code, 10)
+	codeU16 := utf16Of_(code)
+	var lineEndPos int32 = codeU16.indexOf(10)
 	for lineEndPos > -1 {
 		builder.add(any(int32((lineEndPos - lineStartPos))))
 		lineStartPos = (lineEndPos + 1)
-		lineEndPos = String_indexOf_int_int(code, 10, lineStartPos)
+		lineEndPos = codeU16.indexOf_int_int(10, lineStartPos)
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return builder.build()
 }
 
 func CodePrinter_MappedCodePrinter_adjustEndPosition(lineLengths ListOf[BoxedOf[int32]], endPosition *FilePosition) *FilePosition {
@@ -250,7 +248,9 @@ func CodePrinter_MappedCodePrinter_adjustEndPosition(lineLengths ListOf[BoxedOf[
 	if line >= lineLengths.size() {
 		return endPosition
 	}
-	Preconditions_checkState_boolean_String_Object_Object((endPosition.getColumn() <= unbox_[int32](lineLengths.get(line))), "End position %s points to a column larger than line length %s", obj_(endPosition), lineLengths.get(line))
+	if ok_, a1_, a2_ := (endPosition.getColumn() <= unbox_[int32](lineLengths.get(line))), endPosition, lineLengths.get(line); !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("End position %s points to a column larger than line length %s", []any{obj_(a1_), a2_})))
+	}
 	if endPosition.getColumn() == unbox_[int32](lineLengths.get(line)) {
 		return new_FilePosition((line + 1), 0)
 	}
@@ -280,12 +280,12 @@ func (this *CodePrinter_PrettyCodePrinter) finit_CodePrinter_PrettyCodePrinter()
 	this.indent_ = 0
 }
 
-func (this *CodePrinter_PrettyCodePrinter) init_CodePrinter_PrettyCodePrinter(lineLengthThreshold int32, createSourceMap bool, sourceMapDetailLevel *SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) {
+func (this *CodePrinter_PrettyCodePrinter) init_CodePrinter_PrettyCodePrinter(lineLengthThreshold int32, createSourceMap bool, sourceMapDetailLevel SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) {
 	this.CodePrinter_MappedCodePrinter.init_CodePrinter_MappedCodePrinter(lineLengthThreshold, createSourceMap, sourceMapDetailLevel, licenseTracker)
 	this.finit_CodePrinter_PrettyCodePrinter()
 }
 
-func new_CodePrinter_PrettyCodePrinter(lineLengthThreshold int32, createSourceMap bool, sourceMapDetailLevel *SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) *CodePrinter_PrettyCodePrinter {
+func new_CodePrinter_PrettyCodePrinter(lineLengthThreshold int32, createSourceMap bool, sourceMapDetailLevel SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) *CodePrinter_PrettyCodePrinter {
 	this := &CodePrinter_PrettyCodePrinter{}
 	this.self_ = this
 	this.init_CodePrinter_PrettyCodePrinter(lineLengthThreshold, createSourceMap, sourceMapDetailLevel, licenseTracker)
@@ -296,20 +296,22 @@ func (this *CodePrinter_PrettyCodePrinter) append_impl(str string) {
 	if (this.lineLength == 0) && !this.isInTemplateLiteral() {
 		for i := int32(0); i < this.indent_; i++ {
 			this.code_.append(CodePrinter_PrettyCodePrinter_INDENT)
-			this.lineLength += String_length(CodePrinter_PrettyCodePrinter_INDENT)
+			this.lineLength += int32(len(CodePrinter_PrettyCodePrinter_INDENT))
 		}
 	}
 	this.CodePrinter_MappedCodePrinter.append_impl(str)
 }
 
 func (this *CodePrinter_PrettyCodePrinter) addNumber_impl(x float64, n Node) {
-	Preconditions_checkState_boolean_Object(JSCompDoubles_isPositive(x), any(float64(x)))
+	if !JSCompDoubles_isPositive(x) {
+		panic(new_IllegalStateException_String(dstr_(float64(x))))
+	}
 	var numberFromSource Optional[string] = CodePrinter_PrettyCodePrinter_getNumberFromSource(n)
 	if numberFromSource.isEmpty() {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
 	}
-	var parsed any = Doubles_tryParse(String_trim(numberFromSource.get()))
+	var parsed any = Doubles_tryParse(strings.Trim(numberFromSource.get(), javaSpace_))
 	if parsed == nil {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
@@ -387,7 +389,7 @@ func (this *CodePrinter_PrettyCodePrinter) endCaseBody_impl() {
 }
 
 func (this *CodePrinter_PrettyCodePrinter) appendOp_impl(op string, binOp bool) {
-	if ((this.getLastChar() != ' ') && binOp) && (String_charAt(op, 0) != ',') {
+	if ((this.getLastChar() != ' ') && binOp) && (byteAt_(op, 0) != ',') {
 		this.add(" ")
 	}
 	this.add(op)
@@ -420,9 +422,11 @@ func CodePrinter_PrettyCodePrinter_getTryForCatch(n Node) Node {
 }
 
 func (this *CodePrinter_PrettyCodePrinter) breakAfterBlockFor_impl(n Node, isStatementContext bool) bool {
-	Preconditions_checkState_boolean_Object(n.isBlock(), n.box_())
+	if !n.isBlock() {
+		panic(new_IllegalStateException_String(tostr_(n)))
+	}
 	var parent Node = n.getParent()
-	var type_ *Token_rhino = parent.getToken()
+	var type_ Token_rhino = parent.getToken()
 	return func() bool {
 		switch type_ {
 		case Token_rhino_DO:
@@ -438,7 +442,6 @@ func (this *CodePrinter_PrettyCodePrinter) breakAfterBlockFor_impl(n Node, isSta
 		default:
 			return true
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -463,10 +466,11 @@ func CodePrinter_PrettyCodePrinter_getNumberFromSource(n Node) Optional[string] 
 	_ = src
 	if !(func() bool {
 		v_ := any(staticSrc)
-		if !is_[*SourceFile_jscomp](v_) {
+		p, ok := v_.(*SourceFile_jscomp)
+		if !ok {
 			return false
 		}
-		src = cast_[*SourceFile_jscomp](v_)
+		src = p
 		return true
 	}()) {
 		return Optional_empty[string]()
@@ -485,10 +489,11 @@ func CodePrinter_PrettyCodePrinter_getNumberFromSource(n Node) Optional[string] 
 	}
 	var offset int32 = n.getSourceOffset()
 	var endOffset int32 = (offset + n.getLength())
-	if (offset < 0) || (endOffset > String_length(srcCode)) {
+	srcCodeU16 := utf16Of_(srcCode)
+	if (offset < 0) || (endOffset > srcCodeU16.length()) {
 		return Optional_empty[string]()
 	}
-	return Optional_of[string](String_substring(srcCode, offset, endOffset))
+	return Optional_of[string](srcCodeU16.substring(offset, endOffset))
 }
 
 const CodePrinter_PrettyCodePrinter_INDENT string = "  "
@@ -519,13 +524,13 @@ func (this *CodePrinter_CompactCodePrinter) finit_CodePrinter_CompactCodePrinter
 	this.preferredBreakPosition = 0
 }
 
-func (this *CodePrinter_CompactCodePrinter) init_CodePrinter_CompactCodePrinter(lineBreak bool, lineLengthThreshold int32, createSrcMap bool, sourceMapDetailLevel *SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) {
+func (this *CodePrinter_CompactCodePrinter) init_CodePrinter_CompactCodePrinter(lineBreak bool, lineLengthThreshold int32, createSrcMap bool, sourceMapDetailLevel SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) {
 	this.CodePrinter_MappedCodePrinter.init_CodePrinter_MappedCodePrinter(lineLengthThreshold, createSrcMap, sourceMapDetailLevel, licenseTracker)
 	this.finit_CodePrinter_CompactCodePrinter()
 	this.lineBreak = lineBreak
 }
 
-func new_CodePrinter_CompactCodePrinter(lineBreak bool, lineLengthThreshold int32, createSrcMap bool, sourceMapDetailLevel *SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) *CodePrinter_CompactCodePrinter {
+func new_CodePrinter_CompactCodePrinter(lineBreak bool, lineLengthThreshold int32, createSrcMap bool, sourceMapDetailLevel SourceMap_DetailLevel, licenseTracker CodePrinter_LicenseTracker) *CodePrinter_CompactCodePrinter {
 	this := &CodePrinter_CompactCodePrinter{}
 	this.self_ = this
 	this.init_CodePrinter_CompactCodePrinter(lineBreak, lineLengthThreshold, createSrcMap, sourceMapDetailLevel, licenseTracker)
@@ -580,7 +585,7 @@ func (this *CodePrinter_CompactCodePrinter) notePreferredLineBreak_impl() {
 
 type CodePrinter_LicenseTracker interface {
 	trackLicensesForNode(Node)
-	emitLicenses() *ImmutableSet
+	emitLicenses() *ImmutableSet[string]
 }
 
 type CodePrinter_Builder struct {
@@ -593,13 +598,13 @@ type CodePrinter_Builder struct {
 	tagAsStrict_         bool
 	licenseTracker       CodePrinter_LicenseTracker
 	registry             *JSTypeRegistry
-	codeGeneratorFactory CodePrinter_Builder_CodeGeneratorFactory
+	codeGeneratorFactory func(CodePrinter_Format, *CodeConsumer) *CodeGenerator
 }
 
 func (this *CodePrinter_Builder) finit_CodePrinter_Builder() {
 	this.options_ = new_CompilerOptions()
 	this.outputTypes = false
-	this.codeGeneratorFactory = icast_CodePrinter_Builder_CodeGeneratorFactory(obj_(new_CodePrinter_Builder_1(this)))
+	this.codeGeneratorFactory = new_CodePrinter_Builder_1(this).getCodeGenerator
 }
 
 func (this *CodePrinter_Builder) init_CodePrinter_Builder(node Node) {
@@ -655,7 +660,7 @@ func (this *CodePrinter_Builder) setTagAsStrict(tagAsStrict bool) *CodePrinter_B
 	return this
 }
 
-func (this *CodePrinter_Builder) setCodeGeneratorFactory(factory CodePrinter_Builder_CodeGeneratorFactory) *CodePrinter_Builder {
+func (this *CodePrinter_Builder) setCodeGeneratorFactory(factory func(CodePrinter_Format, *CodeConsumer) *CodeGenerator) *CodePrinter_Builder {
 	this.codeGeneratorFactory = factory
 	return this
 }
@@ -666,46 +671,62 @@ func (this *CodePrinter_Builder) build() string {
 
 func (this *CodePrinter_Builder) buildWithSourceMappings() *CodePrinter_SourceAndMappings {
 	if this.root == 0 {
-		panic(new_IllegalStateException_String("Cannot build without root node being specified").self())
+		panic(new_IllegalStateException_String("Cannot build without root node being specified"))
 	}
 	return CodePrinter_toSource(this.root, CodePrinter_Format_fromOptions(this.options_, this.outputTypes, this.prettyPrint), this.options_, this.licenseTracker, this.tagAsTypeSummary_, this.tagAsStrict_, this.lineBreak, this.codeGeneratorFactory)
 }
 
 type CodePrinter_Builder_CodeGeneratorFactory interface {
-	getCodeGenerator(*CodePrinter_Format, *CodeConsumer) *CodeGenerator
+	getCodeGenerator(CodePrinter_Format, *CodeConsumer) *CodeGenerator
 }
 
 type CodePrinter_Builder_CodeGeneratorFactory_fn struct {
-	f func(*CodePrinter_Format, *CodeConsumer) *CodeGenerator
+	f func(CodePrinter_Format, *CodeConsumer) *CodeGenerator
 }
 
-func (this *CodePrinter_Builder_CodeGeneratorFactory_fn) getCodeGenerator(p0 *CodePrinter_Format, p1 *CodeConsumer) *CodeGenerator {
+func (this *CodePrinter_Builder_CodeGeneratorFactory_fn) getCodeGenerator(p0 CodePrinter_Format, p1 *CodeConsumer) *CodeGenerator {
 	return this.f(p0, p1)
 }
 
-type CodePrinter_Format struct {
-	Enum
+type CodePrinter_Format uint8
+
+// CodePrinter_Format_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CodePrinter_Format_enum_ = [3]Enum{
+	{self_: CodePrinter_Format_COMPACT, name_: "COMPACT", ordinal_: 0},
+	{self_: CodePrinter_Format_PRETTY, name_: "PRETTY", ordinal_: 1},
+	{self_: CodePrinter_Format_TYPED, name_: "TYPED", ordinal_: 2},
 }
 
-func (this *CodePrinter_Format) up_Enum() *Enum {
-	if this == nil {
+func (this CodePrinter_Format) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CodePrinter_Format_enum_[this-1]
 }
 
-func (this *CodePrinter_Format) init_CodePrinter_Format(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CodePrinter_Format) name() string { return this.enum_().name_ }
+
+func (this CodePrinter_Format) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_CodePrinter_Format(name_ string, ordinal_ int32) *CodePrinter_Format {
-	this := &CodePrinter_Format{}
-	this.self_ = this
-	this.init_CodePrinter_Format(name_, ordinal_)
+func (this CodePrinter_Format) toString() string { return this.enum_().name_ }
+
+func (this CodePrinter_Format) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this CodePrinter_Format) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CodePrinter_Format_fromOptions(options *CompilerOptions, outputTypes bool, prettyPrint bool) *CodePrinter_Format {
+func CodePrinter_Format_fromOptions(options *CompilerOptions, outputTypes bool, prettyPrint bool) CodePrinter_Format {
 	if outputTypes {
 		return CodePrinter_Format_TYPED
 	}
@@ -715,23 +736,24 @@ func CodePrinter_Format_fromOptions(options *CompilerOptions, outputTypes bool, 
 	return CodePrinter_Format_COMPACT
 }
 
-func CodePrinter_Format_values() []*CodePrinter_Format {
-	return append([]*CodePrinter_Format(nil), CodePrinter_Format_values_...)
+func CodePrinter_Format_values() []CodePrinter_Format {
+	return append([]CodePrinter_Format(nil), CodePrinter_Format_values_...)
 }
 
-func CodePrinter_Format_valueOf(name string) *CodePrinter_Format {
+func CodePrinter_Format_valueOf(name string) CodePrinter_Format {
 	for _, v := range CodePrinter_Format_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Format", name))
 }
 
-var CodePrinter_Format_COMPACT *CodePrinter_Format
-var CodePrinter_Format_PRETTY *CodePrinter_Format
-var CodePrinter_Format_TYPED *CodePrinter_Format
-var CodePrinter_Format_values_ []*CodePrinter_Format
+const CodePrinter_Format_COMPACT CodePrinter_Format = 1
+const CodePrinter_Format_PRETTY CodePrinter_Format = 2
+const CodePrinter_Format_TYPED CodePrinter_Format = 3
+
+var CodePrinter_Format_values_ []CodePrinter_Format
 
 var CodePrinter_Format_clinit_done bool
 
@@ -740,10 +762,7 @@ func CodePrinter_Format_clinit() {
 		return
 	}
 	CodePrinter_Format_clinit_done = true
-	CodePrinter_Format_COMPACT = new_CodePrinter_Format("COMPACT", 0)
-	CodePrinter_Format_PRETTY = new_CodePrinter_Format("PRETTY", 1)
-	CodePrinter_Format_TYPED = new_CodePrinter_Format("TYPED", 2)
-	CodePrinter_Format_values_ = []*CodePrinter_Format{CodePrinter_Format_COMPACT, CodePrinter_Format_PRETTY, CodePrinter_Format_TYPED}
+	CodePrinter_Format_values_ = []CodePrinter_Format{CodePrinter_Format_COMPACT, CodePrinter_Format_PRETTY, CodePrinter_Format_TYPED}
 	registerEnum_("com.google.javascript.jscomp.CodePrinter.Format", enumValues_(CodePrinter_Format_values_))
 
 }
@@ -783,11 +802,260 @@ func new_CodePrinter_Builder_1(outer_ *CodePrinter_Builder) *CodePrinter_Builder
 	return this
 }
 
-func (this *CodePrinter_Builder_1) getCodeGenerator(outputFormat *CodePrinter_Format, cc *CodeConsumer) *CodeGenerator {
+func (this *CodePrinter_Builder_1) getCodeGenerator(outputFormat CodePrinter_Format, cc *CodeConsumer) *CodeGenerator {
 	return func() *CodeGenerator {
 		if outputFormat == CodePrinter_Format_TYPED {
 			return new_TypedCodeGenerator(cc, this.outer_.options_, this.outer_.registry).up_CodeGenerator()
 		}
 		return new_CodeGenerator_CodeConsumer_CompilerOptions(cc, this.outer_.options_)
 	}()
+}
+
+// append: an object that is exactly a CodePrinter_MappedCodePrinter calls its append_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_MappedCodePrinter) append(p0 string) {
+	if p, _ := this.self_.(*CodePrinter_MappedCodePrinter); p == this {
+		this.append_impl(p0)
+		return
+	}
+	this.self_.append_impl(p0)
+}
+
+// trackLicenses: an object that is exactly a CodePrinter_MappedCodePrinter calls its trackLicenses_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_MappedCodePrinter) trackLicenses(p0 Node) {
+	if p, _ := this.self_.(*CodePrinter_MappedCodePrinter); p == this {
+		this.trackLicenses_impl(p0)
+		return
+	}
+	this.self_.trackLicenses_impl(p0)
+}
+
+// startSourceMapping: an object that is exactly a CodePrinter_MappedCodePrinter calls its startSourceMapping_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_MappedCodePrinter) startSourceMapping(p0 Node) {
+	if p, _ := this.self_.(*CodePrinter_MappedCodePrinter); p == this {
+		this.startSourceMapping_impl(p0)
+		return
+	}
+	this.self_.startSourceMapping_impl(p0)
+}
+
+// endSourceMapping: an object that is exactly a CodePrinter_MappedCodePrinter calls its endSourceMapping_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_MappedCodePrinter) endSourceMapping(p0 Node) {
+	if p, _ := this.self_.(*CodePrinter_MappedCodePrinter); p == this {
+		this.endSourceMapping_impl(p0)
+		return
+	}
+	this.self_.endSourceMapping_impl(p0)
+}
+
+// getLastChar: an object that is exactly a CodePrinter_MappedCodePrinter calls its getLastChar_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_MappedCodePrinter) getLastChar() uint16 {
+	if p, _ := this.self_.(*CodePrinter_MappedCodePrinter); p == this {
+		return this.getLastChar_impl()
+	}
+	return this.self_.getLastChar_impl()
+}
+
+// append: an object that is exactly a CodePrinter_PrettyCodePrinter calls its append_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) append(p0 string) {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.append_impl(p0)
+		return
+	}
+	this.self_.append_impl(p0)
+}
+
+// addNumber: an object that is exactly a CodePrinter_PrettyCodePrinter calls its addNumber_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) addNumber(p0 float64, p1 Node) {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.addNumber_impl(p0, p1)
+		return
+	}
+	this.self_.addNumber_impl(p0, p1)
+}
+
+// startNewLine: an object that is exactly a CodePrinter_PrettyCodePrinter calls its startNewLine_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) startNewLine() {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.startNewLine_impl()
+		return
+	}
+	this.self_.startNewLine_impl()
+}
+
+// maybeLineBreak: an object that is exactly a CodePrinter_PrettyCodePrinter calls its maybeLineBreak_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) maybeLineBreak() {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.maybeLineBreak_impl()
+		return
+	}
+	this.self_.maybeLineBreak_impl()
+}
+
+// maybeCutLine: an object that is exactly a CodePrinter_PrettyCodePrinter calls its maybeCutLine_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) maybeCutLine() {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.maybeCutLine_impl()
+		return
+	}
+	this.self_.maybeCutLine_impl()
+}
+
+// endLine: an object that is exactly a CodePrinter_PrettyCodePrinter calls its endLine_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) endLine() {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.endLine_impl()
+		return
+	}
+	this.self_.endLine_impl()
+}
+
+// appendBlockStart: an object that is exactly a CodePrinter_PrettyCodePrinter calls its appendBlockStart_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) appendBlockStart() {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.appendBlockStart_impl()
+		return
+	}
+	this.self_.appendBlockStart_impl()
+}
+
+// appendBlockEnd: an object that is exactly a CodePrinter_PrettyCodePrinter calls its appendBlockEnd_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) appendBlockEnd() {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.appendBlockEnd_impl()
+		return
+	}
+	this.self_.appendBlockEnd_impl()
+}
+
+// listSeparator: an object that is exactly a CodePrinter_PrettyCodePrinter calls its listSeparator_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) listSeparator() {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.listSeparator_impl()
+		return
+	}
+	this.self_.listSeparator_impl()
+}
+
+// optionalListSeparator: an object that is exactly a CodePrinter_PrettyCodePrinter calls its optionalListSeparator_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) optionalListSeparator() {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.optionalListSeparator_impl()
+		return
+	}
+	this.self_.optionalListSeparator_impl()
+}
+
+// endFunction: an object that is exactly a CodePrinter_PrettyCodePrinter calls its endFunction_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) endFunction(p0 bool) {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.endFunction_impl(p0)
+		return
+	}
+	this.self_.endFunction_impl(p0)
+}
+
+// beginCaseBody: an object that is exactly a CodePrinter_PrettyCodePrinter calls its beginCaseBody_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) beginCaseBody() {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.beginCaseBody_impl()
+		return
+	}
+	this.self_.beginCaseBody_impl()
+}
+
+// endCaseBody: an object that is exactly a CodePrinter_PrettyCodePrinter calls its endCaseBody_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) endCaseBody() {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.endCaseBody_impl()
+		return
+	}
+	this.self_.endCaseBody_impl()
+}
+
+// appendOp: an object that is exactly a CodePrinter_PrettyCodePrinter calls its appendOp_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) appendOp(p0 string, p1 bool) {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.appendOp_impl(p0, p1)
+		return
+	}
+	this.self_.appendOp_impl(p0, p1)
+}
+
+// shouldPreserveExtras: an object that is exactly a CodePrinter_PrettyCodePrinter calls its shouldPreserveExtras_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) shouldPreserveExtras(p0 Node) bool {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		return this.shouldPreserveExtras_impl(p0)
+	}
+	return this.self_.shouldPreserveExtras_impl(p0)
+}
+
+// maybeInsertSpace: an object that is exactly a CodePrinter_PrettyCodePrinter calls its maybeInsertSpace_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) maybeInsertSpace() {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.maybeInsertSpace_impl()
+		return
+	}
+	this.self_.maybeInsertSpace_impl()
+}
+
+// breakAfterBlockFor: an object that is exactly a CodePrinter_PrettyCodePrinter calls its breakAfterBlockFor_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) breakAfterBlockFor(p0 Node, p1 bool) bool {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		return this.breakAfterBlockFor_impl(p0, p1)
+	}
+	return this.self_.breakAfterBlockFor_impl(p0, p1)
+}
+
+// endStatement_2: an object that is exactly a CodePrinter_PrettyCodePrinter calls its endStatement_2_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) endStatement_2(p0 bool, p1 bool) {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.endStatement_2_impl(p0, p1)
+		return
+	}
+	this.self_.endStatement_2_impl(p0, p1)
+}
+
+// endFile: an object that is exactly a CodePrinter_PrettyCodePrinter calls its endFile_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_PrettyCodePrinter) endFile() {
+	if p, _ := this.self_.(*CodePrinter_PrettyCodePrinter); p == this {
+		this.endFile_impl()
+		return
+	}
+	this.self_.endFile_impl()
+}
+
+// startNewLine: an object that is exactly a CodePrinter_CompactCodePrinter calls its startNewLine_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_CompactCodePrinter) startNewLine() {
+	if p, _ := this.self_.(*CodePrinter_CompactCodePrinter); p == this {
+		this.startNewLine_impl()
+		return
+	}
+	this.self_.startNewLine_impl()
+}
+
+// maybeLineBreak: an object that is exactly a CodePrinter_CompactCodePrinter calls its maybeLineBreak_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_CompactCodePrinter) maybeLineBreak() {
+	if p, _ := this.self_.(*CodePrinter_CompactCodePrinter); p == this {
+		this.maybeLineBreak_impl()
+		return
+	}
+	this.self_.maybeLineBreak_impl()
+}
+
+// maybeCutLine: an object that is exactly a CodePrinter_CompactCodePrinter calls its maybeCutLine_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_CompactCodePrinter) maybeCutLine() {
+	if p, _ := this.self_.(*CodePrinter_CompactCodePrinter); p == this {
+		this.maybeCutLine_impl()
+		return
+	}
+	this.self_.maybeCutLine_impl()
+}
+
+// notePreferredLineBreak: an object that is exactly a CodePrinter_CompactCodePrinter calls its notePreferredLineBreak_impl directly (post-flip); others dispatch.
+func (this *CodePrinter_CompactCodePrinter) notePreferredLineBreak() {
+	if p, _ := this.self_.(*CodePrinter_CompactCodePrinter); p == this {
+		this.notePreferredLineBreak_impl()
+		return
+	}
+	this.self_.notePreferredLineBreak_impl()
 }

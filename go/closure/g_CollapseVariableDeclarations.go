@@ -15,7 +15,9 @@ func (this *CollapseVariableDeclarations) finit_CollapseVariableDeclarations() {
 
 func (this *CollapseVariableDeclarations) init_CollapseVariableDeclarations(compiler *AbstractCompiler) {
 	this.finit_CollapseVariableDeclarations()
-	Preconditions_checkState(!compiler.getLifeCycleStage().isNormalized())
+	if compiler.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0())
+	}
 	this.compiler_ = compiler
 }
 
@@ -28,7 +30,7 @@ func new_CollapseVariableDeclarations(compiler *AbstractCompiler) *CollapseVaria
 func (this *CollapseVariableDeclarations) process_2(externs Node, root Node) {
 	this.collapses.clear()
 	this.nodesToCollapse.clear()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_CollapseVariableDeclarations_GatherCollapses(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_CollapseVariableDeclarations_GatherCollapses(this))
 	if !this.collapses.isEmpty() {
 		this.applyCollapses()
 	}
@@ -96,7 +98,7 @@ func (this *CollapseVariableDeclarations_GatherCollapses) visit_impl(t *NodeTrav
 		return
 	}
 	var varNode Node = n
-	var nType *Token_rhino = n.getToken()
+	var nType Token_rhino = n.getToken()
 	n = n.getNext()
 	var hasNodesToCollapse bool = false
 	for (n != 0) && (nType == n.getToken()) {
@@ -108,4 +110,13 @@ func (this *CollapseVariableDeclarations_GatherCollapses) visit_impl(t *NodeTrav
 		this.outer_.nodesToCollapse.add(varNode)
 		this.outer_.collapses.add(new_CollapseVariableDeclarations_Collapse(varNode))
 	}
+}
+
+// visit: an object that is exactly a CollapseVariableDeclarations_GatherCollapses calls its visit_impl directly (post-flip); others dispatch.
+func (this *CollapseVariableDeclarations_GatherCollapses) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CollapseVariableDeclarations_GatherCollapses); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

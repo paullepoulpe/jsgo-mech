@@ -4,7 +4,7 @@ package closure
 
 type DisambiguateProperties struct {
 	compiler_                      *AbstractCompiler
-	propertiesThatMustDisambiguate ImmutableSetOf[string]
+	propertiesThatMustDisambiguate *ImmutableSet[string]
 	registry                       *ColorRegistry
 	mayHavePropertySeenSet         *JTSet[*Color]
 }
@@ -13,43 +13,44 @@ func (this *DisambiguateProperties) finit_DisambiguateProperties() {
 	this.mayHavePropertySeenSet = jnewTSet_(tce_p_Color)
 }
 
-func (this *DisambiguateProperties) init_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate ImmutableSetOf[string]) {
+func (this *DisambiguateProperties) init_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate *ImmutableSet[string]) {
 	this.finit_DisambiguateProperties()
 	this.compiler_ = compiler
 	this.propertiesThatMustDisambiguate = propertiesThatMustDisambiguate
 	this.registry = this.compiler_.getColorRegistry()
 }
 
-func new_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate ImmutableSetOf[string]) *DisambiguateProperties {
+func new_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDisambiguate *ImmutableSet[string]) *DisambiguateProperties {
 	this := &DisambiguateProperties{}
 	this.init_DisambiguateProperties(compiler, propertiesThatMustDisambiguate)
 	return this
 }
 
 func (this *DisambiguateProperties) process_2(externs Node, root Node) {
-	Preconditions_checkArgument((externs.getParent() == root.getParent()))
+	if externs.getParent() != root.getParent() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var flattener *ColorGraphNodeFactory = ColorGraphNodeFactory_createFactory(this.registry)
-	var findRefs *ColorFindPropertyReferences = new_ColorFindPropertyReferences(flattener, func() *ColorFindPropertyReferences_IsPropertyReflector_fn {
+	var findRefs *ColorFindPropertyReferences = new_ColorFindPropertyReferences(flattener, func() func(Node) bool {
 		recv_1 := this.compiler_.getCodingConvention()
-		return &ColorFindPropertyReferences_IsPropertyReflector_fn{func(p0 Node) bool { return recv_1.isPropertyRenameFunction(p0) }}
+		return func(p0 Node) bool { return recv_1.isPropertyRenameFunction(p0) }
 	}())
-	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(flattener, &LowestCommonAncestorFinder_Factory_fn[*ColorGraphNode, any]{func(p0 *DiGraph[*ColorGraphNode]) *LowestCommonAncestorFinder[*ColorGraphNode, any] {
+	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(flattener, (&LowestCommonAncestorFinder_Factory_fn[*ColorGraphNode, any]{func(p0 *DiGraph[*ColorGraphNode]) *LowestCommonAncestorFinder[*ColorGraphNode, any] {
 		return new_LowestCommonAncestorFinder[*ColorGraphNode, any](p0)
-	}}, this.registry)
+	}}).create, this.registry)
 	var propagator *ClusterPropagator = new_ClusterPropagator()
 	var renamer *UseSiteRenamer = new_UseSiteRenamer(func() *Consumer_tfn_Node {
 		recv_2 := this.compiler_
 		return &Consumer_tfn_Node{func(p0 Node) { recv_2.reportChangeToEnclosingScope(p0) }}
 	}())
-	NodeTraversal_traverse(this.compiler_, externs.getParent(), icast_NodeTraversal_Callback(obj_(findRefs)))
+	NodeTraversal_traverse(this.compiler_, externs.getParent(), findRefs)
 	var propIndex *JTMap[string, *PropertyClustering] = findRefs.getPropertyIndex()
 	DisambiguateProperties_invalidateWellKnownProperties(propIndex)
-	this.logForDiagnosticsStreamedJsonProducer("prop_refs", icast_LogFile_StreamedJsonProducer(obj_(new_DisambiguateProperties_1(this, propIndex))))
-	graphBuilder.addAll(icast_Collection(obj_(flattener.getAllKnownTypes())))
+	this.logForDiagnosticsStreamedJsonProducer("prop_refs", new_DisambiguateProperties_1(this, propIndex).writeJson)
+	graphBuilder.addAll(icast_Collection(obj_(flattener.getAllKnownTypes().asImm())))
 	var graph *DiGraph[*ColorGraphNode] = graphBuilder.build().up_DiGraph()
-	it_3 := foreach_(obj_(flattener.getAllKnownTypes()))
-	for it_3.next() {
-		var colorGraphNode *ColorGraphNode = cast_[*ColorGraphNode](it_3.v)
+	for _, el := range flattener.getAllKnownTypes().keys {
+		colorGraphNode := el
 		if graph.getOutEdges(colorGraphNode).isEmpty() {
 			continue
 		}
@@ -60,16 +61,13 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	}
 	this.logForDiagnostics("graph", &Supplier_base_fn{func() any {
 		var result *JTList[*DisambiguateProperties_TypeNodeJson] = jnewTList_(jtc_p_DisambiguateProperties_TypeNodeJson)
-		it_5 := foreach_(any(graph.getNodes()))
-		for it_5.next() {
-			var n DiGraph_DiGraphNode[*ColorGraphNode] = cast_[DiGraph_DiGraphNode[*ColorGraphNode]](it_5.v)
+		for n := range elemsAs_[DiGraph_DiGraphNode[*ColorGraphNode]](graph.getNodes()) {
 			result.add(new_DisambiguateProperties_TypeNodeJson(n))
 		}
 		List_sort(result.asList(), Comparator_comparingInt(&ToIntFunction_tfn_DisambiguateProperties_TypeNodeJson{func(x *DisambiguateProperties_TypeNodeJson) int32 {
 			return x.index_
 		}}))
 		return obj_(ImmutableList_copyOf(Collection(result.asList())))
-		panic("unreachable")
 	}})
 	this.invalidateBasedOnType(flattener)
 	FixedPointGraphTraversal_newTraversal[*ColorGraphNode, any](func() FixedPointGraphTraversal_EdgeCallback[*ColorGraphNode, any] {
@@ -82,15 +80,15 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	it_7 := propIndex.eachValue()
 	for it_7.next() {
 		var prop *PropertyClustering = it_7.v
-		var renameUsesResult *UseSiteRenamer_RenameUsesResult = renamer.renameUses(prop)
+		var renameUsesResult UseSiteRenamer_RenameUsesResult = renamer.renameUses(prop)
 		trackerSummaryGenerator.addRenameUsesResult(renameUsesResult)
-		if prop.isInvalidated() && Collection_contains_s(this.propertiesThatMustDisambiguate, prop.getName()) {
+		if prop.isInvalidated() && this.propertiesThatMustDisambiguate.Has(prop.getName()) {
 			this.compiler_.report(this.createInvalidationError(prop))
 		}
 	}
-	this.compiler_.reportDisambiguatePropertiesSummary(&Supplier_tfn_string{func() string { return trackerSummaryGenerator.buildSummaryString() }})
+	this.compiler_.reportDisambiguatePropertiesSummary((&Supplier_tfn_string{func() string { return trackerSummaryGenerator.buildSummaryString() }}).get)
 	this.logForDiagnostics("renaming_index", &Supplier_base_fn{func() any {
-		return obj_(DisambiguateProperties_buildRenamingIndex(propIndex, renamer))
+		return obj_(DisambiguateProperties_buildRenamingIndex(propIndex, renamer).asImm())
 	}})
 	this.logForDiagnostics("mismatches", func() *Supplier_base_fn {
 		recv_9 := this.registry.getMismatchLocationsForDebugging()
@@ -104,8 +102,8 @@ func (this *DisambiguateProperties) createInvalidationError(prop *PropertyCluste
 	return JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_empty[string](), -1, -1, DisambiguateProperties_PROPERTY_INVALIDATION, []string{prop.getName(), additionalContext})
 }
 
-func DisambiguateProperties_buildRenamingIndex(props *JTMap[string, *PropertyClustering], renamer *UseSiteRenamer) ImmutableMapOf[string, any] {
-	var newNames *SimpleSetMultimap = renamer.getRenamingIndex()
+func DisambiguateProperties_buildRenamingIndex(props *JTMap[string, *PropertyClustering], renamer *UseSiteRenamer) *ImmutableMap[string, any] {
+	var newNames *SimpleSetMultimap[string, string] = renamer.getRenamingIndex()
 	var result ImmutableSortedMap_BuilderOf[string, any] = ImmutableSortedMap_naturalOrder()
 	it_1 := props.eachValue()
 	for it_1.next() {
@@ -114,25 +112,22 @@ func DisambiguateProperties_buildRenamingIndex(props *JTMap[string, *PropertyClu
 			if prop.isInvalidated() {
 				return prop.getLastInvalidation().self()
 			}
-			return obj_(ImmutableSortedSet_copyOf(Collection(newNames.get(strobj_(prop.getName())))))
+			return obj_(ImmutableSortedSet_copyOf(Collection(newNames.get_s(prop.getName()))))
 		}())
 	}
-	return result.buildOrThrow()
+	return tmapFrom_(tc_string, tc_any, result.buildOrThrow(), true)
 }
 
 func DisambiguateProperties_invalidateWellKnownProperties(propIndex *JTMap[string, *PropertyClustering]) {
-	var names ImmutableListOf[string] = ImmutableList_of_Object_Object_Object(strobj_("prototype"), strobj_("constructor"), strobj_("then"))
-	it_1 := foreach_(obj_(names))
-	for it_1.next() {
-		var name string = str_(it_1.v)
+	var names []string = sliceOf_(tc_string, "prototype", "constructor", "then")
+	for _, name := range names {
 		propIndex.computeIfAbsent(name, &Function_tfn_string_PropertyClustering{func(p0 string) *PropertyClustering { return new_PropertyClustering(p0) }}).invalidate(Invalidation_wellKnownProperty())
 	}
 }
 
 func (this *DisambiguateProperties) invalidateBasedOnType(flattener *ColorGraphNodeFactory) {
-	it_1 := foreach_(obj_(flattener.getAllKnownTypes()))
-	for it_1.next() {
-		var type_ *ColorGraphNode = cast_[*ColorGraphNode](it_1.v)
+	for _, el := range flattener.getAllKnownTypes().keys {
+		type_ := el
 		if type_.getColor().isInvalidating() {
 			it_3 := type_.getAssociatedProps().eachKey()
 			for it_3.next() {
@@ -147,7 +142,9 @@ func (this *DisambiguateProperties) invalidateBasedOnType(flattener *ColorGraphN
 
 func (this *DisambiguateProperties) invalidateNonDeclaredPropertyAccesses(colorGraphNode *ColorGraphNode) {
 	var color *Color = colorGraphNode.getColor()
-	Preconditions_checkArgument_boolean_Object(!color.isInvalidating(), strobj_("Not applicable to invalidating types. All their properties are invalidated"))
+	if color.isInvalidating() {
+		panic(new_IllegalArgumentException_String("Not applicable to invalidating types. All their properties are invalidated"))
+	}
 	it_1 := colorGraphNode.getAssociatedProps().eachKey()
 	for it_1.next() {
 		var prop *PropertyClustering = it_1.v
@@ -160,55 +157,41 @@ func (this *DisambiguateProperties) invalidateNonDeclaredPropertyAccesses(colorG
 	}
 }
 
-func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName string) bool {
-	var ret_1 bool
-	code_1 := func() (code_ int) {
-		defer func() {
-			this.mayHavePropertySeenSet.del(color)
-		}()
-		if !this.mayHavePropertySeenSet.add(color) {
-			ret_1 = false
-			return 1
-		}
-		if color.isUnion() {
-			it_2 := foreach_(obj_(color.getUnionElements()))
-			for it_2.next() {
-				var element *Color = cast_[*Color](it_2.v)
-				if this.mayHaveProperty(element, propertyName) {
-					ret_1 = true
-					return 1
-				}
-			}
-			ret_1 = false
-			return 1
-		}
-		if Collection_contains_s(color.getOwnProperties(), propertyName) {
-			ret_1 = true
-			return 1
-		}
-		it_4 := foreach_(any(this.registry.getDisambiguationSupertypes(color)))
-		for it_4.next() {
-			var element *Color = cast_[*Color](it_4.v)
-			if this.mayHaveProperty(element, propertyName) {
-				ret_1 = true
-				return 1
-			}
-		}
-		ret_1 = false
-		return 1
-		return 0
+func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName string) (ret_1 bool) {
+	defer func() {
+		this.mayHavePropertySeenSet.del(color)
 	}()
-	if code_1 == 1 {
-		return ret_1
+	if !this.mayHavePropertySeenSet.add(color) {
+		return false
 	}
-	panic("unreachable")
+	if color.isUnion() {
+		for _, el_2 := range color.getUnionElements().keys {
+			var element *Color = el_2
+			if this.mayHaveProperty(element, propertyName) {
+				return true
+			}
+		}
+		return false
+	}
+	if color.getOwnProperties().Has(propertyName) {
+		return true
+	}
+	it_4 := foreach_(this.registry.getDisambiguationSupertypes(color))
+	for it_4.next() {
+		var element *Color = cast_[*Color](it_4.v)
+		if this.mayHaveProperty(element, propertyName) {
+			return true
+		}
+	}
+	return false
 }
 
 func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode *ColorGraphNode, propIndex *JTMap[string, *PropertyClustering]) {
-	Preconditions_checkArgument(!colorGraphNode.getColor().isUnion())
-	it_1 := foreach_(obj_(colorGraphNode.getColor().getOwnProperties()))
-	for it_1.next() {
-		var propName string = str_(it_1.v)
+	if colorGraphNode.getColor().isUnion() {
+		panic(new_IllegalArgumentException_0())
+	}
+	for _, el := range colorGraphNode.getColor().getOwnProperties().keys {
+		propName := el
 		var prop *PropertyClustering = propIndex.get(propName)
 		if prop == nil {
 			continue
@@ -221,21 +204,15 @@ func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode
 }
 
 func (this *DisambiguateProperties) logForDiagnostics(name string, data Supplier_baseOf[any]) {
-	_ = func() (code_ int) {
-		var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), (sstr_(name) + ".log"), []string{})
-		defer closeResource_(log.self())
-		log.logJsonSupplier(Supplier(data))
-		return 0
-	}()
+	var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), (sstr_(name) + ".log"), []string{})
+	defer closeResource_(log.self())
+	log.logJsonSupplier(Supplier(data))
 }
 
-func (this *DisambiguateProperties) logForDiagnosticsStreamedJsonProducer(name string, data LogFile_StreamedJsonProducer) {
-	_ = func() (code_ int) {
-		var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), (sstr_(name) + ".log"), []string{})
-		defer closeResource_(log.self())
-		log.logJson(data)
-		return 0
-	}()
+func (this *DisambiguateProperties) logForDiagnosticsStreamedJsonProducer(name string, data func(*SimpleJsonWriter)) {
+	var log *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), (sstr_(name) + ".log"), []string{})
+	defer closeResource_(log.self())
+	log.logJson(data)
 }
 
 var DisambiguateProperties_PROPERTY_INVALIDATION *DiagnosticType
@@ -275,7 +252,7 @@ func new_DisambiguateProperties_TrackerSummaryGenerator() *DisambiguatePropertie
 	return this
 }
 
-func (this *DisambiguateProperties_TrackerSummaryGenerator) addRenameUsesResult(renameUsesResult *UseSiteRenamer_RenameUsesResult) {
+func (this *DisambiguateProperties_TrackerSummaryGenerator) addRenameUsesResult(renameUsesResult UseSiteRenamer_RenameUsesResult) {
 	this.total++
 	switch renameUsesResult {
 	case UseSiteRenamer_RenameUsesResult_INVALIDATED:
@@ -288,7 +265,7 @@ func (this *DisambiguateProperties_TrackerSummaryGenerator) addRenameUsesResult(
 }
 
 func (this *DisambiguateProperties_TrackerSummaryGenerator) buildSummaryString() string {
-	return String_format("%d property names, %d disambiguated, %d invalidated, %d had a single cluster", []any{any(int32(this.total)), any(int32(this.numDisambiguated)), any(int32(this.numInvalidated)), any(int32(this.numOnlyOneCluster))})
+	return (istr_(int64(int32(this.total))) + " property names, " + istr_(int64(int32(this.numDisambiguated))) + " disambiguated, " + istr_(int64(int32(this.numInvalidated))) + " invalidated, " + istr_(int64(int32(this.numOnlyOneCluster))) + " had a single cluster")
 }
 
 type DisambiguateProperties_PropertyReferenceIndexJson struct {
@@ -311,7 +288,7 @@ func (this *DisambiguateProperties_PropertyReferenceIndexJson) init_Disambiguate
 			var e *TEntry[Node, *ColorGraphNode] = it_1.entry()
 			refsBuilder.add(obj_(new_DisambiguateProperties_PropertyReferenceJson(e.getKey(), e.getValue())))
 		}
-		this.refs = cast_[*ImmutableSortedSet](obj_(refsBuilder.build()))
+		this.refs = refsBuilder.build()
 	}
 }
 
@@ -325,7 +302,7 @@ func new_DisambiguateProperties_PropertyReferenceIndexJson(prop *PropertyCluster
 func (this *DisambiguateProperties_PropertyReferenceIndexJson) compareTo(x_ any) int32 {
 	var x *DisambiguateProperties_PropertyReferenceIndexJson = cast_[*DisambiguateProperties_PropertyReferenceIndexJson](x_)
 	_ = x
-	return String_compareTo(this.name_, x.name_)
+	return utf16Compare_(this.name_, x.name_)
 }
 
 func (this *DisambiguateProperties_PropertyReferenceIndexJson) writeJson(writer *SimpleJsonWriter) {
@@ -333,9 +310,8 @@ func (this *DisambiguateProperties_PropertyReferenceIndexJson) writeJson(writer 
 	writer.beginObject()
 	writer.name("name").stringValue(Optional_of[string](this.name_))
 	writer.name("refs").beginArray()
-	it_1 := foreach_(obj_(this.refs))
-	for it_1.next() {
-		var ref *DisambiguateProperties_PropertyReferenceJson = cast_[*DisambiguateProperties_PropertyReferenceJson](it_1.v)
+	for _, el := range immElems_(this.refs) {
+		ref := cast_[*DisambiguateProperties_PropertyReferenceJson](el)
 		ref.writeJson(writer)
 	}
 	writer.endArray()
@@ -387,7 +363,7 @@ type DisambiguateProperties_TypeNodeJson struct {
 	invalidating bool
 	colorId      string
 	edges        ImmutableSortedSetOf[*DisambiguateProperties_TypeEdgeJson]
-	props        ImmutableSortedMapOf[string, *ColorGraphNode_PropAssociation]
+	props        ImmutableSortedMapOf[string, ColorGraphNode_PropAssociation]
 }
 
 func (this *DisambiguateProperties_TypeNodeJson) zero_DisambiguateProperties_TypeNodeJson() {
@@ -400,19 +376,17 @@ func (this *DisambiguateProperties_TypeNodeJson) init_DisambiguateProperties_Typ
 	this.colorId = t.getColor().getId().toString()
 	this.invalidating = t.getColor().isInvalidating()
 	var edgesBuilder ImmutableSortedSet_BuilderOf[*DisambiguateProperties_TypeEdgeJson] = ImmutableSortedSet_naturalOrder()
-	it_1 := foreach_(any(n.getOutEdges()))
-	for it_1.next() {
-		var e DiGraph_DiGraphEdge[*ColorGraphNode] = cast_[DiGraph_DiGraphEdge[*ColorGraphNode]](it_1.v)
+	for e := range elemsAs_[DiGraph_DiGraphEdge[*ColorGraphNode]](n.getOutEdges()) {
 		edgesBuilder.add(obj_(new_DisambiguateProperties_TypeEdgeJson(e)))
 	}
-	this.edges = cast_[*ImmutableSortedSet](obj_(edgesBuilder.build()))
-	var propsBuilder ImmutableSortedMap_BuilderOf[string, *ColorGraphNode_PropAssociation] = ImmutableSortedMap_naturalOrder()
+	this.edges = edgesBuilder.build()
+	var propsBuilder ImmutableSortedMap_BuilderOf[string, ColorGraphNode_PropAssociation] = ImmutableSortedMap_naturalOrder()
 	it_3 := t.getAssociatedProps().eachEntry()
 	for it_3.next() {
-		var e *TEntry[*PropertyClustering, *ColorGraphNode_PropAssociation] = it_3.entry()
+		var e *TEntry[*PropertyClustering, ColorGraphNode_PropAssociation] = it_3.entry()
 		propsBuilder.put(strobj_(e.getKey().getName()), obj_(e.getValue()))
 	}
-	this.props = cast_[*ImmutableSortedMap](obj_(propsBuilder.buildOrThrow()))
+	this.props = propsBuilder.buildOrThrow()
 }
 
 func new_DisambiguateProperties_TypeNodeJson(n DiGraph_DiGraphNode[*ColorGraphNode]) *DisambiguateProperties_TypeNodeJson {
@@ -429,7 +403,7 @@ func (this *DisambiguateProperties_TypeNodeJson) toLogsGson() any {
 	json.put("colorId", strobj_(this.colorId))
 	json.put("edges", obj_(this.edges))
 	json.put("props", obj_(this.props))
-	return any(json.asMap())
+	return json.asMap()
 }
 
 type DisambiguateProperties_TypeEdgeJson struct {
@@ -451,7 +425,9 @@ func new_DisambiguateProperties_TypeEdgeJson(e DiGraph_DiGraphEdge[*ColorGraphNo
 func (this *DisambiguateProperties_TypeEdgeJson) compareTo(x_ any) int32 {
 	var x *DisambiguateProperties_TypeEdgeJson = cast_[*DisambiguateProperties_TypeEdgeJson](x_)
 	_ = x
-	Preconditions_checkArgument((this.dest != x.dest))
+	if this.dest == x.dest {
+		panic(new_IllegalArgumentException_0())
+	}
 	return (this.dest - x.dest)
 }
 
@@ -459,7 +435,7 @@ func (this *DisambiguateProperties_TypeEdgeJson) toLogsGson() any {
 	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
 	json.put("dest", any(int32(this.dest)))
 	json.put("value", this.value_)
-	return any(json.asMap())
+	return json.asMap()
 }
 
 type DisambiguateProperties_1 struct {
@@ -486,11 +462,10 @@ func (this *DisambiguateProperties_1) writeJson(writer *SimpleJsonWriter) {
 		var prop *PropertyClustering = it_1.v
 		propRefsJsonBuilder.add(obj_(new_DisambiguateProperties_PropertyReferenceIndexJson(prop)))
 	}
-	var propRefsJson ImmutableSortedSetOf[*DisambiguateProperties_PropertyReferenceIndexJson] = cast_[*ImmutableSortedSet](obj_(propRefsJsonBuilder.build()))
+	var propRefsJson ImmutableSortedSetOf[*DisambiguateProperties_PropertyReferenceIndexJson] = propRefsJsonBuilder.build()
 	writer.beginObject()
-	it_3 := foreach_(obj_(propRefsJson))
-	for it_3.next() {
-		var propRef *DisambiguateProperties_PropertyReferenceIndexJson = cast_[*DisambiguateProperties_PropertyReferenceIndexJson](it_3.v)
+	for _, el := range immElems_(propRefsJson) {
+		propRef := cast_[*DisambiguateProperties_PropertyReferenceIndexJson](el)
 		propRef.writeJson(writer)
 	}
 	writer.endObject()

@@ -2,17 +2,22 @@
 
 package closure
 
+import (
+	"strconv"
+	"strings"
+)
+
 type ReplaceCssNames struct {
 	compiler_                    *AbstractCompiler
 	astFactory_                  *AstFactory
-	cssNameCollector             ReplaceCssNames_CssNameCollector
+	cssNameCollector             func(string)
 	cssNamesBySymbol             *JTMap[string, string]
 	classesObjectsQualifiedNames *JTSet[string]
 	symbolMap                    CssRenamingMap
-	skiplist                     SetOf[string]
+	skiplist                     map[string]struct{}
 }
 
-func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist SetOf[string]) {
+func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector func(string), skiplist map[string]struct{}) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.symbolMap = symbolMap
@@ -22,14 +27,14 @@ func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, sy
 	this.classesObjectsQualifiedNames = jnewTSet_(jtc_string)
 }
 
-func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist SetOf[string]) *ReplaceCssNames {
+func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector func(string), skiplist map[string]struct{}) *ReplaceCssNames {
 	this := &ReplaceCssNames{}
 	this.init_ReplaceCssNames(compiler, symbolMap, cssNameCollector, skiplist)
 	return this
 }
 
 func (this *ReplaceCssNames) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_ReplaceCssNames_FindSetCssNameTraversal(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_ReplaceCssNames_FindSetCssNameTraversal(this))
 	var getCssNameInstances *JTList[*ReplaceCssNames_GetCssNameInstance] = this.gatherGetCssNameInstances(root)
 	it_1 := getCssNameInstances.each()
 	for it_1.next() {
@@ -39,22 +44,22 @@ func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 			this.cssNamesBySymbol.put(getCssNameInstance.getCssClosureClassesMemberName().orElse(nullstr_), cssClassName.orElse(nullstr_))
 			this.classesObjectsQualifiedNames.add(getCssNameInstance.getCssClosureClassesQualifiedName().orElseThrow())
 		} else {
-			this.cssNameCollector.add(cssClassName.orElse(nullstr_))
+			this.cssNameCollector(cssClassName.orElse(nullstr_))
 		}
 		getCssNameInstance.replaceWithExpression()
 	}
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_ReplaceCssNames_CountCssNamesBySymbol(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_ReplaceCssNames_CountCssNamesBySymbol(this))
 }
 
 func (this *ReplaceCssNames) gatherGetCssNameInstances(root Node) *JTList[*ReplaceCssNames_GetCssNameInstance] {
 	var gatherCssNamesTraversal *ReplaceCssNames_GatherCssNamesTraversal = new_ReplaceCssNames_GatherCssNamesTraversal(this)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(gatherCssNamesTraversal)))
+	NodeTraversal_traverse(this.compiler_, root, gatherCssNamesTraversal)
 	return gatherCssNamesTraversal.listOfCssNameInstances
 }
 
 func (this *ReplaceCssNames) isNotInCssClosureFile(node Node) bool {
 	var sourceFileName string = node.getSourceFileName()
-	return (String_isEmpty(sourceFileName) || !String_endsWith(sourceFileName, ".css.closure.js"))
+	return (sourceFileName == "" || !strings.HasSuffix(sourceFileName, ".css.closure.js"))
 }
 
 func (this *ReplaceCssNames) isGetCssNameCall(node Node) bool {
@@ -75,25 +80,33 @@ func (this *ReplaceCssNames) validateGetCssNameCall(callNode Node) *JSError {
 		case 3:
 			return this.validateTwoArgGetCssNameCall(callNode)
 		default:
-			return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_INVALID_NUM_ARGUMENTS_ERROR, []string{String_valueOf(childCount)})
+			return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_INVALID_NUM_ARGUMENTS_ERROR, []string{strconv.Itoa(int(childCount))})
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *ReplaceCssNames) validateSingleArgGetCssNameCall(callNode Node) *JSError {
-	var stringLiteralArg Node = Node_of_(Preconditions_checkNotNull(callNode.getLastChild().box_()))
+	var stringLiteralArg Node = callNode.getLastChild()
+	if stringLiteralArg == 0 {
+		panic(new_NullPointerException_0())
+	}
 	if !stringLiteralArg.isStringLit() {
-		return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_STRING_LITERAL_EXPECTED_ERROR, []string{Object_toString(obj_(stringLiteralArg.getToken()))})
+		return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_STRING_LITERAL_EXPECTED_ERROR, []string{tostrNN_(stringLiteralArg.getToken())})
 	}
 	return nil
 }
 
 func (this *ReplaceCssNames) validateTwoArgGetCssNameCall(callNode Node) *JSError {
-	var firstArg Node = Node_of_(Preconditions_checkNotNull(callNode.getSecondChild().box_()))
-	var secondArg Node = Node_of_(Preconditions_checkNotNull(firstArg.getNext().box_()))
+	var firstArg Node = callNode.getSecondChild()
+	if firstArg == 0 {
+		panic(new_NullPointerException_0())
+	}
+	var secondArg Node = firstArg.getNext()
+	if secondArg == 0 {
+		panic(new_NullPointerException_0())
+	}
 	if !secondArg.isStringLit() {
-		return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_STRING_LITERAL_EXPECTED_ERROR, []string{Object_toString(obj_(secondArg.getToken()))})
+		return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_STRING_LITERAL_EXPECTED_ERROR, []string{tostrNN_(secondArg.getToken())})
 	}
 	if firstArg.isStringLit() {
 		return JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceCssNames_UNEXPECTED_STRING_LITERAL_ERROR, []string{firstArg.getString(), secondArg.getString()})
@@ -106,13 +119,13 @@ func (this *ReplaceCssNames) validateTwoArgGetCssNameCall(callNode Node) *JSErro
 
 func (this *ReplaceCssNames) processStringNode(n Node) {
 	var name string = n.getString()
-	if (this.skiplist != nil) && Collection_contains_s(this.skiplist, name) {
+	if (this.skiplist != nil) && has_(this.skiplist, name) {
 		return
 	}
 	var parts []string = ReplaceCssNames_DASH_PATTERN.split(name)
 	if this.symbolMap != nil {
 		var replacement Optional[string] = Optional_empty[string]()
-		if String_startsWith(name, "--") {
+		if strings.HasPrefix(name, "--") {
 			replacement = this.symbolMap.get(name)
 			if replacement.isEmpty() {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_WARNING, []string{name, name}))
@@ -359,13 +372,19 @@ func (this *ReplaceCssNames_GetCssNameInstance) isValid() bool {
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getValidationError() *JSError {
-	Preconditions_checkNotNull_Object_String_Object(obj_(this.validationError), "No validation error found: %s", this.callNode_.box_())
+	if this.validationError == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("No validation error found: %s", []any{this.callNode_.box_()})))
+	}
 	return this.validationError
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) replaceWithExpression() {
-	Preconditions_checkState_boolean_String_Object(this.isValid(), "not a valid goog.getCssName() call: %s", this.callNode_.box_())
-	Preconditions_checkNotNull_Object_String_Object(this.callNode_.getParent().box_(), "already replaced: %s", this.callNode_.box_())
+	if !this.isValid() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("not a valid goog.getCssName() call: %s", []any{this.callNode_.box_()})))
+	}
+	if this.callNode_.getParent() == 0 {
+		panic(new_NullPointerException_String(Strings_lenientFormat("already replaced: %s", []any{this.callNode_.box_()})))
+	}
 	var childCount int32 = this.callNode_.getChildCount()
 	switch childCount {
 	case 2:
@@ -373,13 +392,18 @@ func (this *ReplaceCssNames_GetCssNameInstance) replaceWithExpression() {
 	case 3:
 		this.replaceWithConcatenatedArgs()
 	default:
-		panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", []any{any(int32(childCount)), this.callNode_.box_()})).self())
+		panic(new_IllegalStateException_String(("invalid number of children: " + istr_(int64(int32(childCount))) + " for: " + objstr_(this.callNode_.box_()))))
 	}
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) replaceWithConvertedSingleArg() {
-	var stringLitArg Node = Node_of_(Preconditions_checkNotNull_Object_Object(this.callNode_.getSecondChild().box_(), this.callNode_.box_()))
-	Preconditions_checkState_boolean_String_Object(stringLitArg.isStringLit(), "not a string literal: %s", stringLitArg.box_())
+	var stringLitArg Node = this.callNode_.getSecondChild()
+	if stringLitArg == 0 {
+		panic(new_NullPointerException_String(tostr_(this.callNode_)))
+	}
+	if !stringLitArg.isStringLit() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("not a string literal: %s", []any{stringLitArg.box_()})))
+	}
 	stringLitArg.detach()
 	this.outer_.processStringNode(stringLitArg)
 	this.callNode_.replaceWith(stringLitArg)
@@ -387,8 +411,14 @@ func (this *ReplaceCssNames_GetCssNameInstance) replaceWithConvertedSingleArg() 
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) replaceWithConcatenatedArgs() {
-	var firstArg Node = Node_of_(Preconditions_checkNotNull_Object_Object(this.callNode_.getSecondChild().box_(), this.callNode_.box_()))
-	var secondArg Node = Node_of_(Preconditions_checkNotNull_Object_Object(firstArg.getNext().box_(), firstArg.box_()))
+	var firstArg Node = this.callNode_.getSecondChild()
+	if firstArg == 0 {
+		panic(new_NullPointerException_String(tostr_(this.callNode_)))
+	}
+	var secondArg Node = firstArg.getNext()
+	if secondArg == 0 {
+		panic(new_NullPointerException_String(tostr_(firstArg)))
+	}
 	firstArg.detach()
 	secondArg.detach()
 	this.outer_.processStringNode(secondArg)
@@ -403,12 +433,16 @@ func (this *ReplaceCssNames_GetCssNameInstance) isCssClosureFileClassesMember() 
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesQualifiedName() Optional[string] {
-	Preconditions_checkState_boolean_String_Object(this.cssClosureClassesQualifiedName.isPresent(), "Not a css closure file classes object: %s", this.callNode_.box_())
+	if !this.cssClosureClassesQualifiedName.isPresent() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Not a css closure file classes object: %s", []any{this.callNode_.box_()})))
+	}
 	return this.cssClosureClassesQualifiedName
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName() Optional[string] {
-	Preconditions_checkState_boolean_String_Object(this.cssClosureClassesQualifiedName.isPresent(), "Not a css closure file classes object: %s", this.callNode_.box_())
+	if !this.cssClosureClassesQualifiedName.isPresent() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Not a css closure file classes object: %s", []any{this.callNode_.box_()})))
+	}
 	var ancestors *Node_AncestorIterable = this.callNode_.getAncestors()
 	it_1 := foreach_(obj_(ancestors))
 	for it_1.next() {
@@ -417,27 +451,41 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName()
 			return Optional_of[string]((sstr_(this.cssClosureClassesQualifiedName.get()) + "." + sstr_(ancestor.getString())))
 		}
 	}
-	panic(new_IllegalStateException_String(String_format("No css closure classes member name found: %s", []any{this.callNode_.box_()})).self())
+	panic(new_IllegalStateException_String(("No css closure classes member name found: " + tostr_(this.callNode_))))
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() Optional[string] {
-	Preconditions_checkState_boolean_String_Object(this.isValid(), "not a valid goog.getCssName() call: %s", this.callNode_.box_())
-	Preconditions_checkNotNull_Object_String_Object(this.callNode_.getParent().box_(), "already replaced: %s", this.callNode_.box_())
+	if !this.isValid() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("not a valid goog.getCssName() call: %s", []any{this.callNode_.box_()})))
+	}
+	if this.callNode_.getParent() == 0 {
+		panic(new_NullPointerException_String(Strings_lenientFormat("already replaced: %s", []any{this.callNode_.box_()})))
+	}
 	var childCount int32 = this.callNode_.getChildCount()
-	var firstArg Node = Node_of_(Preconditions_checkNotNull_Object_Object(this.callNode_.getSecondChild().box_(), this.callNode_.box_()))
+	nn_ := this.callNode_.getSecondChild()
+	if nn_ == 0 {
+		panic(new_NullPointerException_String(tostr_(this.callNode_)))
+	}
+	var firstArg Node = nn_
 	return func() Optional[string] {
 		switch childCount {
 		case 2:
-			Preconditions_checkState_boolean_String_Object(firstArg.isStringLit(), "not a string literal: %s", firstArg.box_())
+			if !firstArg.isStringLit() {
+				panic(new_IllegalStateException_String(Strings_lenientFormat("not a string literal: %s", []any{firstArg.box_()})))
+			}
 			return Optional_of[string](firstArg.getString())
 		case 3:
-			var secondArg Node = Node_of_(Preconditions_checkNotNull_Object_Object(firstArg.getNext().box_(), firstArg.box_()))
-			Preconditions_checkState_boolean_String_Object(secondArg.isStringLit(), "not a string literal: %s", secondArg.box_())
+			var secondArg Node = firstArg.getNext()
+			if secondArg == 0 {
+				panic(new_NullPointerException_String(tostr_(firstArg)))
+			}
+			if !secondArg.isStringLit() {
+				panic(new_IllegalStateException_String(Strings_lenientFormat("not a string literal: %s", []any{secondArg.box_()})))
+			}
 			return Optional_of[string](secondArg.getString())
 		default:
-			panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", []any{any(int32(childCount)), this.callNode_.box_()})).self())
+			panic(new_IllegalStateException_String(("invalid number of children: " + istr_(int64(int32(childCount))) + " for: " + objstr_(this.callNode_.box_()))))
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -462,12 +510,11 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) shouldTraverse(t *NodeTravers
 	} else {
 		return true
 	}
-	panic("unreachable")
 }
 
 func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Node, parent Node) {
 	var classesObjectQualifiedName string = n.getQualifiedName()
-	if String_isEmpty(classesObjectQualifiedName) || !this.outer_.classesObjectsQualifiedNames.has(classesObjectQualifiedName) {
+	if classesObjectQualifiedName == "" || !this.outer_.classesObjectsQualifiedNames.has(classesObjectQualifiedName) {
 		return
 	}
 	var classNameNode Node = n.getParent()
@@ -476,10 +523,19 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Nod
 		return
 	}
 	var classQualifiedName string = classNameNode.getQualifiedName()
-	if String_isEmpty(classQualifiedName) || !this.outer_.cssNamesBySymbol.has(classQualifiedName) {
+	if classQualifiedName == "" || !this.outer_.cssNamesBySymbol.has(classQualifiedName) {
 		this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_ERROR, []string{classNameNode.getString()}))
 		return
 	}
 	var className string = this.outer_.cssNamesBySymbol.get(classQualifiedName)
-	this.outer_.cssNameCollector.add(className)
+	this.outer_.cssNameCollector(className)
+}
+
+// visit: an object that is exactly a ReplaceCssNames_FindSetCssNameTraversal calls its visit_impl directly (post-flip); others dispatch.
+func (this *ReplaceCssNames_FindSetCssNameTraversal) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ReplaceCssNames_FindSetCssNameTraversal); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

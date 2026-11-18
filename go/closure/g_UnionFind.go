@@ -8,6 +8,6 @@ type UnionFind[E any] interface {
 	find(E) E
 	areEquivalent(E, E) bool
 	elements() Set
-	allEquivalenceClasses() *ImmutableList
+	allEquivalenceClasses() *ErasedImmutableList
 	findAll(E) Set
 }

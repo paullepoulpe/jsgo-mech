@@ -14,7 +14,7 @@ func (this *BasicBlock) init_BasicBlock(parent *BasicBlock, root Node) {
 	this.root = root
 	this.isFunctionField = root.isFunction()
 	if root.hasParent() {
-		var pType *Token_rhino = root.getParent().getToken()
+		var pType Token_rhino = root.getParent().getToken()
 		this.isLoopField = ((((((pType == Token_rhino_DO) || (pType == Token_rhino_WHILE)) || (pType == Token_rhino_FOR)) || (pType == Token_rhino_FOR_OF)) || (pType == Token_rhino_FOR_AWAIT_OF)) || (pType == Token_rhino_FOR_IN))
 	} else {
 		this.isLoopField = false
@@ -61,5 +61,5 @@ func (this *BasicBlock) getRoot() Node {
 }
 
 func (this *BasicBlock) toString() string {
-	return ("BasicBlock @ " + objstr_(this.root.box_()))
+	return ("BasicBlock @ " + tostr_(this.root))
 }

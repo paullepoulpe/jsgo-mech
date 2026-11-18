@@ -33,7 +33,7 @@ func new_Es6ForOfConverter(compiler *AbstractCompiler) *Es6ForOfConverter {
 }
 
 func (this *Es6ForOfConverter) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, Es6ForOfConverter_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(obj_(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, Es6ForOfConverter_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6ForOfConverter_transpiledFeatures)
 }
 
@@ -73,8 +73,10 @@ func (this *Es6ForOfConverter) visitForOf(t *NodeTraversal, node Node) {
 		declarationOrAssign = IR_exprResult(declarationOrAssign)
 	} else {
 		var type_ AstFactory_Type = AstFactory_type_Node(variable.getFirstChild())
-		var declarationType *Token_rhino = variable.getToken()
-		Preconditions_checkState_boolean_Object(!Object_equals(obj_(declarationType), obj_(Token_rhino_VAR)), strobj_("var initializers must've gotten moved out of the loop during normalize"))
+		var declarationType Token_rhino = variable.getToken()
+		if equalsId_(declarationType, Token_rhino_VAR) {
+			panic(new_IllegalStateException_String("var initializers must've gotten moved out of the loop during normalize"))
+		}
 		declarationOrAssign = this.astFactory_.createSingleNameDeclaration(declarationType, variable.getFirstChild().getString(), this.astFactory_.createGetProp(iterResult.cloneTree(), "value", type_))
 		if variable.getFirstChild().getBooleanProp(Node_IS_CONSTANT_NAME) {
 			declarationOrAssign.getFirstChild().putBooleanProp(Node_IS_CONSTANT_NAME, true)
@@ -120,4 +122,13 @@ func Es6ForOfConverter_clinit() {
 	Es6ForOfConverter_clinit_done = true
 	Es6ForOfConverter_transpiledFeatures = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_FOR_OF)
 
+}
+
+// visit: an object that is exactly a Es6ForOfConverter calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6ForOfConverter) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*Es6ForOfConverter); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

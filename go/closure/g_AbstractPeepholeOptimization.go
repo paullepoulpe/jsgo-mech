@@ -3,10 +3,23 @@
 package closure
 
 type AbstractPeepholeOptimization struct {
-	self_       any
+	self_       AbstractPeepholeOptimization_I
 	compiler_   *AbstractCompiler
 	astAnalyzer *AstAnalyzer
-	newFeatures *JTSet[*FeatureSet_Feature]
+	newFeatures *JTSet[FeatureSet_Feature]
+}
+
+// AbstractPeepholeOptimization_I holds the methods the dispatchers of AbstractPeepholeOptimization's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type AbstractPeepholeOptimization_I interface {
+	beginTraversal_impl(*AbstractCompiler)
+	optimizeSubtree_impl(Node) Node
+}
+
+// AbstractPeepholeOptimization_as is implemented by AbstractPeepholeOptimization and the classes that extend it: a cast to AbstractPeepholeOptimization asserts to it
+// (post-flip).
+type AbstractPeepholeOptimization_as interface {
+	as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization
 }
 
 func (this *AbstractPeepholeOptimization) as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization {
@@ -17,16 +30,7 @@ func to_AbstractPeepholeOptimization(v any) *AbstractPeepholeOptimization {
 	if v == nil {
 		return nil
 	}
-	return v.(interface {
-		as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization
-	}).as_AbstractPeepholeOptimization()
-}
-
-func is_AbstractPeepholeOptimization(v any) bool {
-	_, ok := v.(interface {
-		as_AbstractPeepholeOptimization() *AbstractPeepholeOptimization
-	})
-	return ok
+	return v.(AbstractPeepholeOptimization_as).as_AbstractPeepholeOptimization()
 }
 
 func (this *AbstractPeepholeOptimization) self() any {
@@ -50,22 +54,31 @@ func (this *AbstractPeepholeOptimization) report(diagnostic *DiagnosticType, n N
 }
 
 func (this *AbstractPeepholeOptimization) areNodesEqualForInlining(n1 Node, n2 Node) bool {
-	Preconditions_checkNotNull(this.compiler_.self())
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0())
+	}
 	return this.compiler_.areNodesEqualForInlining(n1, n2)
 }
 
 func (this *AbstractPeepholeOptimization) isASTNormalized() bool {
-	Preconditions_checkNotNull(this.compiler_.self())
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0())
+	}
 	return this.compiler_.getLifeCycleStage().isNormalized()
 }
 
 func (this *AbstractPeepholeOptimization) beginTraversal_impl(compiler *AbstractCompiler) {
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	if compiler == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
 }
 
 func (this *AbstractPeepholeOptimization) endTraversal() {
-	Preconditions_checkState_boolean_String_Object_Object(this.newFeatures.isEmpty(), "Expected getNewFeatures() to be empty in endTraversal() but found %s for %s", any(this.newFeatures.asSet()), strobj_(Object_getClass(this.self()).getName()))
+	if ok_, a1_, a2_ := this.newFeatures.isEmpty(), this.newFeatures.asSet(), Object_getClass(this.self()).getName(); !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected getNewFeatures() to be empty in endTraversal() but found %s for %s", []any{a1_, strobj_(a2_)})))
+	}
 	this.compiler_ = nil
 	this.astAnalyzer = nil
 }
@@ -110,8 +123,8 @@ func (this *AbstractPeepholeOptimization) getSideEffectFreeStringValue(n Node) O
 	return value
 }
 
-func (this *AbstractPeepholeOptimization) getSideEffectFreeBooleanValue(n Node) *Tri {
-	var value *Tri = NodeUtil_getBooleanValue(n)
+func (this *AbstractPeepholeOptimization) getSideEffectFreeBooleanValue(n Node) Tri {
+	var value Tri = NodeUtil_getBooleanValue(n)
 	if (value != Tri_UNKNOWN) && this.astAnalyzer.mayHaveSideEffects(n) {
 		value = Tri_UNKNOWN
 	}
@@ -135,26 +148,32 @@ func (this *AbstractPeepholeOptimization) reportChangeToEnclosingScope(n Node) {
 }
 
 func (this *AbstractPeepholeOptimization) deleteNode(property Node) {
-	Preconditions_checkNotNull(this.compiler_.self())
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0())
+	}
 	NodeUtil_deleteNode(property, this.compiler_)
 }
 
 func (this *AbstractPeepholeOptimization) markFunctionsDeleted(function Node) {
-	Preconditions_checkNotNull(this.compiler_.self())
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0())
+	}
 	NodeUtil_markFunctionsDeleted(function, this.compiler_)
 }
 
 func (this *AbstractPeepholeOptimization) markNewScopesChanged(n Node) {
-	Preconditions_checkNotNull(this.compiler_.self())
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_0())
+	}
 	NodeUtil_markNewScopesChanged(n, this.compiler_)
 }
 
-func (this *AbstractPeepholeOptimization) addFeatureToEnclosingScript(feature *FeatureSet_Feature) {
+func (this *AbstractPeepholeOptimization) addFeatureToEnclosingScript(feature FeatureSet_Feature) {
 	this.newFeatures.add(feature)
 }
 
-func (this *AbstractPeepholeOptimization) getNewFeatures() ImmutableSetOf[*FeatureSet_Feature] {
-	return ImmutableSet_copyOf(Collection(this.newFeatures.asSet()))
+func (this *AbstractPeepholeOptimization) getNewFeatures() *ImmutableSet[FeatureSet_Feature] {
+	return immutableSetCopyOf_(tc_p_FeatureSet_Feature, Collection(this.newFeatures.asSet()))
 }
 
 func (this *AbstractPeepholeOptimization) clearNewFeatures() {
@@ -162,9 +181,9 @@ func (this *AbstractPeepholeOptimization) clearNewFeatures() {
 }
 
 func (this *AbstractPeepholeOptimization) optimizeSubtree(p0 Node) Node {
-	return this.self_.(interface{ optimizeSubtree_impl(Node) Node }).optimizeSubtree_impl(p0)
+	return this.self_.optimizeSubtree_impl(p0)
 }
 
 func (this *AbstractPeepholeOptimization) beginTraversal(p0 *AbstractCompiler) {
-	this.self_.(interface{ beginTraversal_impl(*AbstractCompiler) }).beginTraversal_impl(p0)
+	this.self_.beginTraversal_impl(p0)
 }

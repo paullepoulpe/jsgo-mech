@@ -22,10 +22,10 @@ func new_ClosureExportTypeClassifier() *ClosureExportTypeClassifier {
 	return this
 }
 
-func ClosureExportTypeClassifier_classify(moduleRoot Node, googNamespace string) *ClosureExportTypeClassifier_TsExportType {
+func ClosureExportTypeClassifier_classify(moduleRoot Node, googNamespace string) ClosureExportTypeClassifier_TsExportType {
 	var classifier *ClosureExportTypeClassifier = new_ClosureExportTypeClassifier()
 	classifier.addGoogModuleExports()
-	ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot, &Consumer_tfn_Node{func(p0 Node) { classifier.visitStatement(p0) }})
+	ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot, (&Consumer_tfn_Node{func(p0 Node) { classifier.visitStatement(p0) }}).accept)
 	var info *ClosureExportTypeClassifier_NameInfo = classifier.topLevelNames.get(ClosureExportTypeClassifier_EXPORTS)
 	if classifier.forcedNamedExport.has(googNamespace) || (classifier.kindOfName(info, 0) == ClosureExportTypeClassifier_Kind_NAMESPACE) {
 		return ClosureExportTypeClassifier_TsExportType_NAMED
@@ -39,26 +39,28 @@ func (this *ClosureExportTypeClassifier) addGoogModuleExports() {
 	this.topLevelNames.put(ClosureExportTypeClassifier_EXPORTS, info)
 }
 
-func ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot Node, callback ConsumerOf[Node]) {
-	Preconditions_checkArgument_boolean_Object((moduleRoot.isScript() && moduleRoot.getFirstChild().isModuleBody()), moduleRoot.box_())
+func ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot Node, callback func(any)) {
+	if !moduleRoot.isScript() || !moduleRoot.getFirstChild().isModuleBody() {
+		panic(new_IllegalArgumentException_String(tostr_(moduleRoot)))
+	}
 	var body Node = moduleRoot.getFirstChild()
 	{
 		var statement Node = body.getFirstChild()
 		for ; statement != 0; statement = statement.getNext() {
-			callback.accept(statement.box_())
+			callback(statement.box_())
 		}
 	}
 }
 
 func (this *ClosureExportTypeClassifier) visitStatement(statement Node) {
-	switch statement.getToken() {
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	switch statement.ns_().token {
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		this.visitNameDeclaration(statement)
-	case Token_rhino_CLASS, Token_rhino_FUNCTION:
+	case tokOrd1_CLASS, tokOrd1_FUNCTION:
 		var name Node = statement.getFirstChild()
 		var info *ClosureExportTypeClassifier_NameInfo = this.getOrCreate(name.getString())
 		info.isNeverNamespace = true
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		this.maybeRecordLegacyNamedTsExport(statement)
 		this.visitExpression(statement.getFirstChild())
 	default:
@@ -104,10 +106,10 @@ func (this *ClosureExportTypeClassifier) visitDeclaredName(lhs Node) {
 }
 
 func (this *ClosureExportTypeClassifier) visitExpression(expr Node) {
-	switch expr.getToken() {
-	case Token_rhino_ASSIGN:
+	switch expr.ns_().token {
+	case tokOrd1_ASSIGN:
 		this.visitAssign(expr)
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		if (expr.getJSDocInfo() != nil) && expr.getFirstChild().isName() {
 			var variableName string = expr.getFirstChild().getString()
 			this.getOrCreate(variableName).propertyCount++
@@ -139,18 +141,18 @@ func (this *ClosureExportTypeClassifier) getOrCreate(name string) *ClosureExport
 	}})
 }
 
-func (this *ClosureExportTypeClassifier) kindOfName(info *ClosureExportTypeClassifier_NameInfo, depth int32) *ClosureExportTypeClassifier_Kind {
+func (this *ClosureExportTypeClassifier) kindOfName(info *ClosureExportTypeClassifier_NameInfo, depth int32) ClosureExportTypeClassifier_Kind {
 	if info.isNeverNamespace {
 		return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
 	}
 	if info.isNamedExportsLiteral {
 		return ClosureExportTypeClassifier_Kind_NAMESPACE
 	}
-	var kind *ClosureExportTypeClassifier_Kind
+	var kind ClosureExportTypeClassifier_Kind
 	if (info.value_ != 0) || (info.jsdoc != nil) {
 		kind = this.kindOfValue(info.value_, info.jsdoc, depth)
 	} else {
-		kind = func() *ClosureExportTypeClassifier_Kind {
+		kind = func() ClosureExportTypeClassifier_Kind {
 			if info.isGoogModuleExports_ {
 				return ClosureExportTypeClassifier_Kind_EMPTY_OBJECT
 			}
@@ -163,7 +165,7 @@ func (this *ClosureExportTypeClassifier) kindOfName(info *ClosureExportTypeClass
 	return kind
 }
 
-func (this *ClosureExportTypeClassifier) kindOfValue(value Node, jsdoc *JSDocInfo, depth int32) *ClosureExportTypeClassifier_Kind {
+func (this *ClosureExportTypeClassifier) kindOfValue(value Node, jsdoc *JSDocInfo, depth int32) ClosureExportTypeClassifier_Kind {
 	if jsdoc != nil {
 		if (jsdoc.hasEnumParameterType() || jsdoc.hasTypedefType()) || jsdoc.isConstructorOrInterface() {
 			return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
@@ -175,9 +177,9 @@ func (this *ClosureExportTypeClassifier) kindOfValue(value Node, jsdoc *JSDocInf
 	if value == 0 {
 		return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
 	}
-	return func() *ClosureExportTypeClassifier_Kind {
-		switch value.getToken() {
-		case Token_rhino_OBJECTLIT:
+	return func() ClosureExportTypeClassifier_Kind {
+		switch value.ns_().token {
+		case tokOrd1_OBJECTLIT:
 			{
 				var member Node = value.getFirstChild()
 				for ; member != 0; member = member.getNext() {
@@ -187,30 +189,29 @@ func (this *ClosureExportTypeClassifier) kindOfValue(value Node, jsdoc *JSDocInf
 				}
 			}
 			return ClosureExportTypeClassifier_Kind_EMPTY_OBJECT
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			if depth >= ClosureExportTypeClassifier_MAX_ALIAS_DEPTH {
 				return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
 			}
 			var aliased *ClosureExportTypeClassifier_NameInfo = this.topLevelNames.get(value.getString())
-			return func() *ClosureExportTypeClassifier_Kind {
+			return func() ClosureExportTypeClassifier_Kind {
 				if aliased == nil {
 					return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
 				}
 				return this.kindOfName(aliased, (depth + 1))
 			}()
-		case Token_rhino_CAST:
+		case tokOrd1_CAST:
 			return this.kindOfValue(value.getFirstChild(), value.getJSDocInfo(), depth)
 		default:
 			return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
 		}
-		panic("unreachable")
 	}()
 }
 
-func ClosureExportTypeClassifier_kindOfDeclaredType(type_ *JSTypeExpression) *ClosureExportTypeClassifier_Kind {
+func ClosureExportTypeClassifier_kindOfDeclaredType(type_ *JSTypeExpression) ClosureExportTypeClassifier_Kind {
 	var root Node = type_.getRoot()
-	return func() *ClosureExportTypeClassifier_Kind {
-		if root.getToken() == Token_rhino_LC {
+	return func() ClosureExportTypeClassifier_Kind {
+		if root.ns_().token == tokOrd1_LC {
 			return ClosureExportTypeClassifier_Kind_NAMESPACE
 		}
 		return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
@@ -220,45 +221,66 @@ func ClosureExportTypeClassifier_kindOfDeclaredType(type_ *JSTypeExpression) *Cl
 const ClosureExportTypeClassifier_EXPORTS string = "exports"
 const ClosureExportTypeClassifier_MAX_ALIAS_DEPTH int32 = 4
 
-type ClosureExportTypeClassifier_Kind struct {
-	Enum
+type ClosureExportTypeClassifier_Kind uint8
+
+// ClosureExportTypeClassifier_Kind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ClosureExportTypeClassifier_Kind_enum_ = [3]Enum{
+	{self_: ClosureExportTypeClassifier_Kind_NOT_NAMESPACE, name_: "NOT_NAMESPACE", ordinal_: 0},
+	{self_: ClosureExportTypeClassifier_Kind_EMPTY_OBJECT, name_: "EMPTY_OBJECT", ordinal_: 1},
+	{self_: ClosureExportTypeClassifier_Kind_NAMESPACE, name_: "NAMESPACE", ordinal_: 2},
 }
 
-func (this *ClosureExportTypeClassifier_Kind) up_Enum() *Enum {
-	if this == nil {
+func (this ClosureExportTypeClassifier_Kind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ClosureExportTypeClassifier_Kind_enum_[this-1]
 }
 
-func (this *ClosureExportTypeClassifier_Kind) init_ClosureExportTypeClassifier_Kind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ClosureExportTypeClassifier_Kind) name() string {
+	return this.enum_().name_
 }
 
-func new_ClosureExportTypeClassifier_Kind(name_ string, ordinal_ int32) *ClosureExportTypeClassifier_Kind {
-	this := &ClosureExportTypeClassifier_Kind{}
-	this.self_ = this
-	this.init_ClosureExportTypeClassifier_Kind(name_, ordinal_)
+func (this ClosureExportTypeClassifier_Kind) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ClosureExportTypeClassifier_Kind) toString() string {
+	return this.enum_().name_
+}
+
+func (this ClosureExportTypeClassifier_Kind) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ClosureExportTypeClassifier_Kind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ClosureExportTypeClassifier_Kind_values() []*ClosureExportTypeClassifier_Kind {
-	return append([]*ClosureExportTypeClassifier_Kind(nil), ClosureExportTypeClassifier_Kind_values_...)
+func ClosureExportTypeClassifier_Kind_values() []ClosureExportTypeClassifier_Kind {
+	return append([]ClosureExportTypeClassifier_Kind(nil), ClosureExportTypeClassifier_Kind_values_...)
 }
 
-func ClosureExportTypeClassifier_Kind_valueOf(name string) *ClosureExportTypeClassifier_Kind {
+func ClosureExportTypeClassifier_Kind_valueOf(name string) ClosureExportTypeClassifier_Kind {
 	for _, v := range ClosureExportTypeClassifier_Kind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Kind", name))
 }
 
-var ClosureExportTypeClassifier_Kind_NOT_NAMESPACE *ClosureExportTypeClassifier_Kind
-var ClosureExportTypeClassifier_Kind_EMPTY_OBJECT *ClosureExportTypeClassifier_Kind
-var ClosureExportTypeClassifier_Kind_NAMESPACE *ClosureExportTypeClassifier_Kind
-var ClosureExportTypeClassifier_Kind_values_ []*ClosureExportTypeClassifier_Kind
+const ClosureExportTypeClassifier_Kind_NOT_NAMESPACE ClosureExportTypeClassifier_Kind = 1
+const ClosureExportTypeClassifier_Kind_EMPTY_OBJECT ClosureExportTypeClassifier_Kind = 2
+const ClosureExportTypeClassifier_Kind_NAMESPACE ClosureExportTypeClassifier_Kind = 3
+
+var ClosureExportTypeClassifier_Kind_values_ []ClosureExportTypeClassifier_Kind
 
 var ClosureExportTypeClassifier_Kind_clinit_done bool
 
@@ -267,10 +289,7 @@ func ClosureExportTypeClassifier_Kind_clinit() {
 		return
 	}
 	ClosureExportTypeClassifier_Kind_clinit_done = true
-	ClosureExportTypeClassifier_Kind_NOT_NAMESPACE = new_ClosureExportTypeClassifier_Kind("NOT_NAMESPACE", 0)
-	ClosureExportTypeClassifier_Kind_EMPTY_OBJECT = new_ClosureExportTypeClassifier_Kind("EMPTY_OBJECT", 1)
-	ClosureExportTypeClassifier_Kind_NAMESPACE = new_ClosureExportTypeClassifier_Kind("NAMESPACE", 2)
-	ClosureExportTypeClassifier_Kind_values_ = []*ClosureExportTypeClassifier_Kind{ClosureExportTypeClassifier_Kind_NOT_NAMESPACE, ClosureExportTypeClassifier_Kind_EMPTY_OBJECT, ClosureExportTypeClassifier_Kind_NAMESPACE}
+	ClosureExportTypeClassifier_Kind_values_ = []ClosureExportTypeClassifier_Kind{ClosureExportTypeClassifier_Kind_NOT_NAMESPACE, ClosureExportTypeClassifier_Kind_EMPTY_OBJECT, ClosureExportTypeClassifier_Kind_NAMESPACE}
 	registerEnum_("com.google.javascript.jscomp.ClosureExportTypeClassifier.Kind", enumValues_(ClosureExportTypeClassifier_Kind_values_))
 
 }
@@ -294,44 +313,64 @@ func new_ClosureExportTypeClassifier_NameInfo() *ClosureExportTypeClassifier_Nam
 	return this
 }
 
-type ClosureExportTypeClassifier_TsExportType struct {
-	Enum
+type ClosureExportTypeClassifier_TsExportType uint8
+
+// ClosureExportTypeClassifier_TsExportType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ClosureExportTypeClassifier_TsExportType_enum_ = [2]Enum{
+	{self_: ClosureExportTypeClassifier_TsExportType_DEFAULT, name_: "DEFAULT", ordinal_: 0},
+	{self_: ClosureExportTypeClassifier_TsExportType_NAMED, name_: "NAMED", ordinal_: 1},
 }
 
-func (this *ClosureExportTypeClassifier_TsExportType) up_Enum() *Enum {
-	if this == nil {
+func (this ClosureExportTypeClassifier_TsExportType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ClosureExportTypeClassifier_TsExportType_enum_[this-1]
 }
 
-func (this *ClosureExportTypeClassifier_TsExportType) init_ClosureExportTypeClassifier_TsExportType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ClosureExportTypeClassifier_TsExportType) name() string {
+	return this.enum_().name_
 }
 
-func new_ClosureExportTypeClassifier_TsExportType(name_ string, ordinal_ int32) *ClosureExportTypeClassifier_TsExportType {
-	this := &ClosureExportTypeClassifier_TsExportType{}
-	this.self_ = this
-	this.init_ClosureExportTypeClassifier_TsExportType(name_, ordinal_)
+func (this ClosureExportTypeClassifier_TsExportType) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ClosureExportTypeClassifier_TsExportType) toString() string {
+	return this.enum_().name_
+}
+
+func (this ClosureExportTypeClassifier_TsExportType) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ClosureExportTypeClassifier_TsExportType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ClosureExportTypeClassifier_TsExportType_values() []*ClosureExportTypeClassifier_TsExportType {
-	return append([]*ClosureExportTypeClassifier_TsExportType(nil), ClosureExportTypeClassifier_TsExportType_values_...)
+func ClosureExportTypeClassifier_TsExportType_values() []ClosureExportTypeClassifier_TsExportType {
+	return append([]ClosureExportTypeClassifier_TsExportType(nil), ClosureExportTypeClassifier_TsExportType_values_...)
 }
 
-func ClosureExportTypeClassifier_TsExportType_valueOf(name string) *ClosureExportTypeClassifier_TsExportType {
+func ClosureExportTypeClassifier_TsExportType_valueOf(name string) ClosureExportTypeClassifier_TsExportType {
 	for _, v := range ClosureExportTypeClassifier_TsExportType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TsExportType", name))
 }
 
-var ClosureExportTypeClassifier_TsExportType_DEFAULT *ClosureExportTypeClassifier_TsExportType
-var ClosureExportTypeClassifier_TsExportType_NAMED *ClosureExportTypeClassifier_TsExportType
-var ClosureExportTypeClassifier_TsExportType_values_ []*ClosureExportTypeClassifier_TsExportType
+const ClosureExportTypeClassifier_TsExportType_DEFAULT ClosureExportTypeClassifier_TsExportType = 1
+const ClosureExportTypeClassifier_TsExportType_NAMED ClosureExportTypeClassifier_TsExportType = 2
+
+var ClosureExportTypeClassifier_TsExportType_values_ []ClosureExportTypeClassifier_TsExportType
 
 var ClosureExportTypeClassifier_TsExportType_clinit_done bool
 
@@ -340,9 +379,7 @@ func ClosureExportTypeClassifier_TsExportType_clinit() {
 		return
 	}
 	ClosureExportTypeClassifier_TsExportType_clinit_done = true
-	ClosureExportTypeClassifier_TsExportType_DEFAULT = new_ClosureExportTypeClassifier_TsExportType("DEFAULT", 0)
-	ClosureExportTypeClassifier_TsExportType_NAMED = new_ClosureExportTypeClassifier_TsExportType("NAMED", 1)
-	ClosureExportTypeClassifier_TsExportType_values_ = []*ClosureExportTypeClassifier_TsExportType{ClosureExportTypeClassifier_TsExportType_DEFAULT, ClosureExportTypeClassifier_TsExportType_NAMED}
+	ClosureExportTypeClassifier_TsExportType_values_ = []ClosureExportTypeClassifier_TsExportType{ClosureExportTypeClassifier_TsExportType_DEFAULT, ClosureExportTypeClassifier_TsExportType_NAMED}
 	registerEnum_("com.google.javascript.jscomp.ClosureExportTypeClassifier.TsExportType", enumValues_(ClosureExportTypeClassifier_TsExportType_values_))
 
 }

@@ -30,7 +30,10 @@ func (this *InstanceObjectType) up_JSType() *JSType {
 
 func (this *InstanceObjectType) init_InstanceObjectType(builder *InstanceObjectType_Builder) {
 	this.PrototypeObjectType.init_PrototypeObjectType(builder.up_PrototypeObjectType_Builder())
-	this.constructor_ = to_FunctionType(Preconditions_checkNotNull(builder.constructor_.self()))
+	if builder.constructor_ == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.constructor_ = builder.constructor_
 	this.registry.getResolver().resolveIfClosed(this.up_JSType(), InstanceObjectType_TYPE_CLASS_FIELD)
 }
 
@@ -42,10 +45,10 @@ func new_InstanceObjectType(builder *InstanceObjectType_Builder) *InstanceObject
 }
 
 func InstanceObjectType_builderForCtor(ctor *FunctionType) *InstanceObjectType_Builder {
-	return cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](new_InstanceObjectType_Builder(ctor.registry).setName(ctor.getReferenceName()).self()).setImplicitPrototype(nil).self()).setNative(ctor.isNativeObjectType()).self()).setAnonymous(ctor.isAnonymous()).self()).setTemplateTypeMap(ctor.getTemplateTypeMap()).self()).setTemplateParamCount(ctor.getTemplateParamCount()).self()).setConstructor(ctor)
+	return cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](new_InstanceObjectType_Builder(ctor.registry).setName(ctor.getReferenceName()).self().(*InstanceObjectType_Builder).setImplicitPrototype(nil).self()).setNative(ctor.isNativeObjectType()).self()).setAnonymous(ctor.isAnonymous()).self()).setTemplateTypeMap(ctor.getTemplateTypeMap()).self()).setTemplateParamCount(ctor.getTemplateParamCount()).self().(*InstanceObjectType_Builder).setConstructor(ctor)
 }
 
-func (this *InstanceObjectType) getTypeClass_impl() *JSTypeClass {
+func (this *InstanceObjectType) getTypeClass_impl() JSTypeClass {
 	return InstanceObjectType_TYPE_CLASS_FIELD
 }
 
@@ -78,7 +81,7 @@ func (this *InstanceObjectType) appendTo_impl(sb *TypeStringBuilder) {
 		return
 	}
 	var name Optional[string] = this.constructor_.getReferenceName()
-	if String_isEmpty(name.get()) {
+	if name.get() == "" {
 		var n Node = this.constructor_.getSource()
 		sb.append("<anonymous@").append(func() string {
 			if n != 0 {
@@ -149,15 +152,14 @@ func (this *InstanceObjectType) recursionUnsafeHashCode_impl() int32 {
 	} else {
 		return this.PrototypeObjectType.hashCode()
 	}
-	panic("unreachable")
 }
 
 func (this *InstanceObjectType) getCtorImplementedInterfaces_impl() Iterable {
-	return icast_Iterable(obj_(this.getConstructor().getImplementedInterfaces()))
+	return icast_Iterable(obj_(this.getConstructor().getImplementedInterfaces().asImm()))
 }
 
 func (this *InstanceObjectType) getCtorExtendedInterfaces_impl() Iterable {
-	return icast_Iterable(obj_(this.getConstructor().getExtendedInterfaces()))
+	return icast_Iterable(obj_(this.getConstructor().getExtendedInterfaces().asImm()))
 }
 
 func (this *InstanceObjectType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
@@ -167,7 +169,7 @@ func (this *InstanceObjectType) resolveInternal_impl(reporter ErrorReporter_rhin
 	return resolved
 }
 
-var InstanceObjectType_TYPE_CLASS_FIELD *JSTypeClass
+var InstanceObjectType_TYPE_CLASS_FIELD JSTypeClass
 
 var InstanceObjectType_clinit_done bool
 
@@ -210,4 +212,189 @@ func (this *InstanceObjectType_Builder) setConstructor(x *FunctionType) *Instanc
 
 func (this *InstanceObjectType_Builder) build_impl() *PrototypeObjectType {
 	return new_InstanceObjectType(this).up_PrototypeObjectType()
+}
+
+// getTypeClass: an object that is exactly a InstanceObjectType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) getTypeClass() JSTypeClass {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.getTypeClass_impl()
+}
+
+// getReferenceName: an object that is exactly a InstanceObjectType calls its getReferenceName_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) getReferenceName() Optional[string] {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.getReferenceName_impl()
+	}
+	return this.self_.getReferenceName_impl()
+}
+
+// getImplicitPrototype: an object that is exactly a InstanceObjectType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) getImplicitPrototype() *ObjectType {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.getImplicitPrototype_impl()
+	}
+	return this.self_.getImplicitPrototype_impl()
+}
+
+// getConstructor: an object that is exactly a InstanceObjectType calls its getConstructor_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) getConstructor() *FunctionType {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.getConstructor_impl()
+	}
+	return this.self_.getConstructor_impl()
+}
+
+// defineProperty: an object that is exactly a InstanceObjectType calls its defineProperty_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.defineProperty_impl(p0, p1, p2, p3)
+	}
+	return this.self_.defineProperty_impl(p0, p1, p2, p3)
+}
+
+// appendTo: an object that is exactly a InstanceObjectType calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) appendTo(p0 *TypeStringBuilder) {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		this.appendTo_impl(p0)
+		return
+	}
+	this.self_.appendTo_impl(p0)
+}
+
+// isTheObjectType: an object that is exactly a InstanceObjectType calls its isTheObjectType_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) isTheObjectType() bool {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.isTheObjectType_impl()
+	}
+	return this.self_.isTheObjectType_impl()
+}
+
+// isInstanceType: an object that is exactly a InstanceObjectType calls its isInstanceType_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) isInstanceType() bool {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.isInstanceType_impl()
+	}
+	return this.self_.isInstanceType_impl()
+}
+
+// isArrayType: an object that is exactly a InstanceObjectType calls its isArrayType_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) isArrayType() bool {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.isArrayType_impl()
+	}
+	return this.self_.isArrayType_impl()
+}
+
+// isReadonlyArrayType: an object that is exactly a InstanceObjectType calls its isReadonlyArrayType_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) isReadonlyArrayType() bool {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.isReadonlyArrayType_impl()
+	}
+	return this.self_.isReadonlyArrayType_impl()
+}
+
+// isBigIntObjectType: an object that is exactly a InstanceObjectType calls its isBigIntObjectType_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) isBigIntObjectType() bool {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.isBigIntObjectType_impl()
+	}
+	return this.self_.isBigIntObjectType_impl()
+}
+
+// isStringObjectType: an object that is exactly a InstanceObjectType calls its isStringObjectType_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) isStringObjectType() bool {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.isStringObjectType_impl()
+	}
+	return this.self_.isStringObjectType_impl()
+}
+
+// isSymbolObjectType: an object that is exactly a InstanceObjectType calls its isSymbolObjectType_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) isSymbolObjectType() bool {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.isSymbolObjectType_impl()
+	}
+	return this.self_.isSymbolObjectType_impl()
+}
+
+// isBooleanObjectType: an object that is exactly a InstanceObjectType calls its isBooleanObjectType_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) isBooleanObjectType() bool {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.isBooleanObjectType_impl()
+	}
+	return this.self_.isBooleanObjectType_impl()
+}
+
+// isNumberObjectType: an object that is exactly a InstanceObjectType calls its isNumberObjectType_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) isNumberObjectType() bool {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.isNumberObjectType_impl()
+	}
+	return this.self_.isNumberObjectType_impl()
+}
+
+// isDateType: an object that is exactly a InstanceObjectType calls its isDateType_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) isDateType() bool {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.isDateType_impl()
+	}
+	return this.self_.isDateType_impl()
+}
+
+// isRegexpType: an object that is exactly a InstanceObjectType calls its isRegexpType_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) isRegexpType() bool {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.isRegexpType_impl()
+	}
+	return this.self_.isRegexpType_impl()
+}
+
+// isNominalType: an object that is exactly a InstanceObjectType calls its isNominalType_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) isNominalType() bool {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.isNominalType_impl()
+	}
+	return this.self_.isNominalType_impl()
+}
+
+// recursionUnsafeHashCode: an object that is exactly a InstanceObjectType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) recursionUnsafeHashCode() int32 {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.recursionUnsafeHashCode_impl()
+	}
+	return this.self_.recursionUnsafeHashCode_impl()
+}
+
+// getCtorImplementedInterfaces: an object that is exactly a InstanceObjectType calls its getCtorImplementedInterfaces_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) getCtorImplementedInterfaces() Iterable {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.getCtorImplementedInterfaces_impl()
+	}
+	return this.self_.getCtorImplementedInterfaces_impl()
+}
+
+// getCtorExtendedInterfaces: an object that is exactly a InstanceObjectType calls its getCtorExtendedInterfaces_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) getCtorExtendedInterfaces() Iterable {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.getCtorExtendedInterfaces_impl()
+	}
+	return this.self_.getCtorExtendedInterfaces_impl()
+}
+
+// resolveInternal: an object that is exactly a InstanceObjectType calls its resolveInternal_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
+	if p, _ := this.self_.(*InstanceObjectType); p == this {
+		return this.resolveInternal_impl(p0)
+	}
+	return this.self_.resolveInternal_impl(p0)
+}
+
+// build: an object that is exactly a InstanceObjectType_Builder calls its build_impl directly (post-flip); others dispatch.
+func (this *InstanceObjectType_Builder) build() *PrototypeObjectType {
+	if p, _ := this.self_.(*InstanceObjectType_Builder); p == this {
+		return this.build_impl()
+	}
+	return this.self_.build_impl()
 }

@@ -5,10 +5,10 @@ package closure
 type PolymerPass struct {
 	NodeTraversal_ExternsSkippingCallback
 	compiler_                    *AbstractCompiler
-	tagNameMap                   ImmutableMapOf[string, string]
+	tagNameMap                   *ImmutableMap[string, string]
 	polymerElementExterns        Node
 	nativeExternsAdded           *JTSet[string]
-	polymerElementProps          ImmutableListOf[Node]
+	polymerElementProps          []Node
 	globalNames                  *GlobalNamespace
 	behaviorExtractor            *PolymerBehaviorExtractor
 	warnedPolymer1ExternsMissing bool
@@ -44,15 +44,15 @@ func new_PolymerPass(compiler *AbstractCompiler) *PolymerPass {
 
 func (this *PolymerPass) process_2(externs Node, root Node) {
 	var externsCallback *PolymerPassFindExterns = new_PolymerPassFindExterns()
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(externsCallback)))
+	NodeTraversal_traverse(this.compiler_, externs, externsCallback)
 	this.polymerElementExterns = externsCallback.getPolymerElementExterns()
 	this.polymerElementProps = externsCallback.getPolymerElementProps()
 	this.globalNames = new_GlobalNamespace_AbstractCompiler_Node_Node(this.compiler_, externs, root)
 	this.behaviorExtractor = new_PolymerBehaviorExtractor(this.compiler_, this.globalNames, this.compiler_.getModuleMetadataMap(), this.compiler_.getModuleMap())
 	var externsAndJsRoot Node = root.getParent()
-	NodeTraversal_traverse(this.compiler_, externsAndJsRoot, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, externsAndJsRoot, this)
 	var suppressBehaviorsCallback *PolymerPassSuppressBehaviorsAndProtectKeys = new_PolymerPassSuppressBehaviorsAndProtectKeys(this.compiler_)
-	NodeTraversal_traverse(this.compiler_, externsAndJsRoot, icast_NodeTraversal_Callback(obj_(suppressBehaviorsCallback)))
+	NodeTraversal_traverse(this.compiler_, externsAndJsRoot, suppressBehaviorsCallback)
 }
 
 func (this *PolymerPass) visit_impl(traversal *NodeTraversal, node Node, parent Node) {
@@ -134,7 +134,7 @@ func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition
 	baseExterns.getFirstChild().setString(polymerElementType)
 	var elementType Optional[string] = func() Optional[string] {
 		if def.nativeBaseElement.isPresent() {
-			return Optional_ofNullable[string](str_(Map_get_s(this.tagNameMap, def.nativeBaseElement.get())))
+			return Optional_ofNullable[string](this.tagNameMap.Get(def.nativeBaseElement.get()))
 		}
 		return Optional_empty[string]()
 	}()
@@ -147,9 +147,7 @@ func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition
 	baseDocs.changeBaseType(elementBaseType)
 	baseExterns.setJSDocInfo(baseDocs.build())
 	block.addChildToBack(baseExterns)
-	it_1 := foreach_(obj_(this.polymerElementProps))
-	for it_1.next() {
-		var baseProp Node = Node_of_(it_1.v)
+	for _, baseProp := range this.polymerElementProps {
 		var newProp Node = baseProp.cloneTree()
 		var newPropRootName Node = NodeUtil_getRootOfQualifiedName(newProp.getFirstFirstChild())
 		newPropRootName.setString(polymerElementType)
@@ -163,7 +161,10 @@ func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition
 }
 
 func PolymerPass_exportTsickleProps(classNode Node, classQualifiedName string) {
-	var classStmt Node = Node_of_(Preconditions_checkNotNull(NodeUtil_getEnclosingStatement(classNode).box_()))
+	var classStmt Node = NodeUtil_getEnclosingStatement(classNode)
+	if classStmt == 0 {
+		panic(new_NullPointerException_0())
+	}
 	{
 		var sibling Node = classStmt.getNext()
 		for ; sibling != 0; sibling = sibling.getNext() {
@@ -178,7 +179,10 @@ func PolymerPass_exportTsickleProps(classNode Node, classQualifiedName string) {
 					if prop == 0 {
 						continue
 					}
-					var jsdoc *JSDocInfo = cast_[*JSDocInfo](Preconditions_checkNotNull_Object_String_Object(obj_(prop.getJSDocInfo()), "No JSDoc found for %s", prop.box_()))
+					var jsdoc *JSDocInfo = prop.getJSDocInfo()
+					if jsdoc == nil {
+						nullFail_(Strings_lenientFormat("No JSDoc found for %s", []any{prop.box_()}))
+					}
 					if jsdoc.getVisibility() == JSDocInfo_Visibility_PRIVATE {
 						continue
 					}
@@ -201,7 +205,9 @@ func PolymerPass_maybeGetTsicklePropTypesIfBlock(node Node) Node {
 		return 0
 	}
 	var block Node = condition.getNext()
-	Preconditions_checkState_boolean_String_Object(((block != 0) && block.isBlock()), "Expected block but got %s", block.box_())
+	if block == 0 || !block.isBlock() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected block but got %s", []any{block.box_()})))
+	}
 	return block
 }
 
@@ -247,5 +253,14 @@ func new_PolymerPass_MemberDefinition(info *JSDocInfo, name Node, value Node, en
 }
 
 func (this *PolymerPass_MemberDefinition) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("name", this.name_.box_()).add("value", this.value_.box_())))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add("name", this.name_.box_()).add("value", this.value_.box_()))
+}
+
+// visit: an object that is exactly a PolymerPass calls its visit_impl directly (post-flip); others dispatch.
+func (this *PolymerPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*PolymerPass); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

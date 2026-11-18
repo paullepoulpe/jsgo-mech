@@ -49,26 +49,34 @@ func (this *FileInstrumentationData) maxBranchPresentLine() int32 {
 }
 
 func (this *FileInstrumentationData) putBranchNode(lineNumber int32, branchNumber int32, block Node) {
-	Preconditions_checkArgument_boolean_String_int((lineNumber > 0), "Expected non-zero positive integer as line number: %s", lineNumber)
-	Preconditions_checkArgument_boolean_String_int((branchNumber > 0), "Expected non-zero positive integer as branch number: %s", branchNumber)
+	if lineNumber <= 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as line number: %s", []any{lineNumber})))
+	}
+	if branchNumber <= 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as branch number: %s", []any{branchNumber})))
+	}
 	this.branchNodes.put(FileInstrumentationData_BranchIndexPair_of((lineNumber-1), (branchNumber-1)), block)
 }
 
 func (this *FileInstrumentationData) getBranchNode(lineNumber int32, branchNumber int32) Node {
-	Preconditions_checkArgument_boolean_String_int((lineNumber > 0), "Expected non-zero positive integer as line number: %s", lineNumber)
-	Preconditions_checkArgument_boolean_String_int((branchNumber > 0), "Expected non-zero positive integer as branch number: %s", branchNumber)
+	if lineNumber <= 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as line number: %s", []any{lineNumber})))
+	}
+	if branchNumber <= 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as branch number: %s", []any{branchNumber})))
+	}
 	return this.branchNodes.get(FileInstrumentationData_BranchIndexPair_of((lineNumber - 1), (branchNumber - 1)))
 }
 
 func FileInstrumentationData_getHexString(bitSet *BitSet) string {
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	for _, byteEntry := range bitSet.toByteArray() {
 		var value int32 = Byte_toUnsignedInt(byteEntry)
 		var hexString string = Integer_toHexString(value)
 		hexString = Strings_padStart(hexString, 2, '0')
 		builder.append(hexString)
 	}
-	return Object_toString(obj_(builder))
+	return builder.toString()
 }
 
 func (this *FileInstrumentationData) getInstrumentedLinesAsHexString() string {
@@ -80,12 +88,16 @@ func (this *FileInstrumentationData) getBranchPresentAsHexString() string {
 }
 
 func (this *FileInstrumentationData) setLineAsInstrumented(lineNumber int32) {
-	Preconditions_checkArgument_boolean_String_int((lineNumber > 0), "Expected non-zero positive integer as line number: %s", lineNumber)
+	if lineNumber <= 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as line number: %s", []any{lineNumber})))
+	}
 	this.instrumentedBits.set((lineNumber - 1))
 }
 
 func (this *FileInstrumentationData) setBranchPresent(lineNumber int32) {
-	Preconditions_checkArgument_boolean_String_int((lineNumber > 0), "Expected non-zero positive integer as line number: %s", lineNumber)
+	if lineNumber <= 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as line number: %s", []any{lineNumber})))
+	}
 	this.branchPresent.set((lineNumber - 1))
 }
 
@@ -106,7 +118,6 @@ func (this *FileInstrumentationData) getNumBranches(lineNumber int32) int32 {
 	} else {
 		return unbox_[int32](numBranches)
 	}
-	panic("unreachable")
 }
 
 type FileInstrumentationData_BranchIndexPair struct {
@@ -146,10 +157,11 @@ func (this *FileInstrumentationData_BranchIndexPair) equals(object any) bool {
 	_ = that
 	if func() bool {
 		v_ := object
-		if !is_[*FileInstrumentationData_BranchIndexPair](v_) {
+		p, ok := v_.(*FileInstrumentationData_BranchIndexPair)
+		if !ok {
 			return false
 		}
-		that = cast_[*FileInstrumentationData_BranchIndexPair](v_)
+		that = p
 		return true
 	}() {
 		return ((this.getLine() == that.getLine()) && (this.getBranch() == that.getBranch()))

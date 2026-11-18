@@ -4,15 +4,15 @@ package closure
 
 type ExtractPrototypeMemberDeclarations struct {
 	compiler_ *AbstractCompiler
-	pattern   *ExtractPrototypeMemberDeclarations_Pattern
+	pattern   ExtractPrototypeMemberDeclarations_Pattern
 }
 
-func (this *ExtractPrototypeMemberDeclarations) init_ExtractPrototypeMemberDeclarations(compiler *AbstractCompiler, pattern *ExtractPrototypeMemberDeclarations_Pattern) {
+func (this *ExtractPrototypeMemberDeclarations) init_ExtractPrototypeMemberDeclarations(compiler *AbstractCompiler, pattern ExtractPrototypeMemberDeclarations_Pattern) {
 	this.compiler_ = compiler
 	this.pattern = pattern
 }
 
-func new_ExtractPrototypeMemberDeclarations(compiler *AbstractCompiler, pattern *ExtractPrototypeMemberDeclarations_Pattern) *ExtractPrototypeMemberDeclarations {
+func new_ExtractPrototypeMemberDeclarations(compiler *AbstractCompiler, pattern ExtractPrototypeMemberDeclarations_Pattern) *ExtractPrototypeMemberDeclarations {
 	this := &ExtractPrototypeMemberDeclarations{}
 	this.init_ExtractPrototypeMemberDeclarations(compiler, pattern)
 	return this
@@ -20,7 +20,7 @@ func new_ExtractPrototypeMemberDeclarations(compiler *AbstractCompiler, pattern 
 
 func (this *ExtractPrototypeMemberDeclarations) process_2(externs Node, root Node) {
 	var extractionInfo *ExtractPrototypeMemberDeclarations_GatherExtractionInfo = new_ExtractPrototypeMemberDeclarations_GatherExtractionInfo(this)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(extractionInfo)))
+	NodeTraversal_traverse(this.compiler_, root, extractionInfo)
 	this.maybeDoExtraction(extractionInfo)
 }
 
@@ -96,7 +96,7 @@ func (this *ExtractPrototypeMemberDeclarations) replacePrototypeMemberDeclaratio
 	var accessNode Node = declar.lhs.getFirstFirstChild()
 	var originalName string = accessNode.getOriginalName()
 	var className string = func() string {
-		if !String_isEmpty(originalName) {
+		if originalName != "" {
 			return originalName
 		}
 		return "?"
@@ -110,51 +110,78 @@ func (this *ExtractPrototypeMemberDeclarations) replacePrototypeMemberDeclaratio
 
 const ExtractPrototypeMemberDeclarations_PROTOTYPE_ALIAS string = "JSCompiler_prototypeAlias"
 
-type ExtractPrototypeMemberDeclarations_Pattern struct {
-	Enum
-	globalOverhead        int32
-	perExtractionOverhead int32
-	perMemberOverhead     int32
+type ExtractPrototypeMemberDeclarations_Pattern uint8
+
+// ExtractPrototypeMemberDeclarations_Pattern_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ExtractPrototypeMemberDeclarations_Pattern_enum_ = [3]Enum{
+	{self_: ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP, name_: "USE_GLOBAL_TEMP", ordinal_: 0},
+	{self_: ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP, name_: "USE_CHUNK_TEMP", ordinal_: 1},
+	{self_: ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE, name_: "USE_IIFE", ordinal_: 2},
 }
 
-func (this *ExtractPrototypeMemberDeclarations_Pattern) up_Enum() *Enum {
-	if this == nil {
+var ExtractPrototypeMemberDeclarations_Pattern_globalOverhead_ [3]int32
+
+var ExtractPrototypeMemberDeclarations_Pattern_perExtractionOverhead_ [3]int32
+
+var ExtractPrototypeMemberDeclarations_Pattern_perMemberOverhead_ [3]int32
+
+func (this ExtractPrototypeMemberDeclarations_Pattern) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ExtractPrototypeMemberDeclarations_Pattern_enum_[this-1]
 }
 
-func (this *ExtractPrototypeMemberDeclarations_Pattern) init_ExtractPrototypeMemberDeclarations_Pattern(name_ string, ordinal_ int32, globalOverHead int32, perExtractionOverhead int32, perMemberOverhead int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.globalOverhead = globalOverHead
-	this.perExtractionOverhead = perExtractionOverhead
-	this.perMemberOverhead = perMemberOverhead
+func (this ExtractPrototypeMemberDeclarations_Pattern) name() string {
+	return this.enum_().name_
 }
 
-func new_ExtractPrototypeMemberDeclarations_Pattern(name_ string, ordinal_ int32, globalOverHead int32, perExtractionOverhead int32, perMemberOverhead int32) *ExtractPrototypeMemberDeclarations_Pattern {
-	this := &ExtractPrototypeMemberDeclarations_Pattern{}
-	this.self_ = this
-	this.init_ExtractPrototypeMemberDeclarations_Pattern(name_, ordinal_, globalOverHead, perExtractionOverhead, perMemberOverhead)
+func (this ExtractPrototypeMemberDeclarations_Pattern) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ExtractPrototypeMemberDeclarations_Pattern) toString() string {
+	return this.enum_().name_
+}
+
+func (this ExtractPrototypeMemberDeclarations_Pattern) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ExtractPrototypeMemberDeclarations_Pattern) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ExtractPrototypeMemberDeclarations_Pattern_values() []*ExtractPrototypeMemberDeclarations_Pattern {
-	return append([]*ExtractPrototypeMemberDeclarations_Pattern(nil), ExtractPrototypeMemberDeclarations_Pattern_values_...)
+func (this ExtractPrototypeMemberDeclarations_Pattern) init_ExtractPrototypeMemberDeclarations_Pattern(globalOverHead int32, perExtractionOverhead int32, perMemberOverhead int32) {
+	ExtractPrototypeMemberDeclarations_Pattern_globalOverhead_[this-1] = globalOverHead
+	ExtractPrototypeMemberDeclarations_Pattern_perExtractionOverhead_[this-1] = perExtractionOverhead
+	ExtractPrototypeMemberDeclarations_Pattern_perMemberOverhead_[this-1] = perMemberOverhead
 }
 
-func ExtractPrototypeMemberDeclarations_Pattern_valueOf(name string) *ExtractPrototypeMemberDeclarations_Pattern {
+func ExtractPrototypeMemberDeclarations_Pattern_values() []ExtractPrototypeMemberDeclarations_Pattern {
+	return append([]ExtractPrototypeMemberDeclarations_Pattern(nil), ExtractPrototypeMemberDeclarations_Pattern_values_...)
+}
+
+func ExtractPrototypeMemberDeclarations_Pattern_valueOf(name string) ExtractPrototypeMemberDeclarations_Pattern {
 	for _, v := range ExtractPrototypeMemberDeclarations_Pattern_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Pattern", name))
 }
 
-var ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP *ExtractPrototypeMemberDeclarations_Pattern
-var ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP *ExtractPrototypeMemberDeclarations_Pattern
-var ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE *ExtractPrototypeMemberDeclarations_Pattern
-var ExtractPrototypeMemberDeclarations_Pattern_values_ []*ExtractPrototypeMemberDeclarations_Pattern
+const ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP ExtractPrototypeMemberDeclarations_Pattern = 1
+const ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP ExtractPrototypeMemberDeclarations_Pattern = 2
+const ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE ExtractPrototypeMemberDeclarations_Pattern = 3
+
+var ExtractPrototypeMemberDeclarations_Pattern_values_ []ExtractPrototypeMemberDeclarations_Pattern
 
 var ExtractPrototypeMemberDeclarations_Pattern_clinit_done bool
 
@@ -163,10 +190,10 @@ func ExtractPrototypeMemberDeclarations_Pattern_clinit() {
 		return
 	}
 	ExtractPrototypeMemberDeclarations_Pattern_clinit_done = true
-	ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP = new_ExtractPrototypeMemberDeclarations_Pattern("USE_GLOBAL_TEMP", 0, String_length("var t;"), String_length("t=y.prototype;"), (String_length("t.y=") - String_length("x[p].y=")))
-	ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP = new_ExtractPrototypeMemberDeclarations_Pattern("USE_CHUNK_TEMP", 1, String_length("var t;"), String_length("t=y.prototype;"), (String_length("t.y=") - String_length("x[p].y=")))
-	ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE = new_ExtractPrototypeMemberDeclarations_Pattern("USE_IIFE", 2, 0, String_length("(function(t){})(y.prototype);"), (String_length("t.y=") - String_length("x.prototype.y=")))
-	ExtractPrototypeMemberDeclarations_Pattern_values_ = []*ExtractPrototypeMemberDeclarations_Pattern{ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP, ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP, ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE}
+	ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP.init_ExtractPrototypeMemberDeclarations_Pattern(int32(len("var t;")), int32(len("t=y.prototype;")), (int32(len("t.y=")) - int32(len("x[p].y="))))
+	ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP.init_ExtractPrototypeMemberDeclarations_Pattern(int32(len("var t;")), int32(len("t=y.prototype;")), (int32(len("t.y=")) - int32(len("x[p].y="))))
+	ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE.init_ExtractPrototypeMemberDeclarations_Pattern(0, int32(len("(function(t){})(y.prototype);")), (int32(len("t.y=")) - int32(len("x.prototype.y="))))
+	ExtractPrototypeMemberDeclarations_Pattern_values_ = []ExtractPrototypeMemberDeclarations_Pattern{ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP, ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP, ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE}
 	registerEnum_("com.google.javascript.jscomp.ExtractPrototypeMemberDeclarations.Pattern", enumValues_(ExtractPrototypeMemberDeclarations_Pattern_values_))
 
 }
@@ -233,7 +260,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 				continue
 			}
 			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = new_ExtractPrototypeMemberDeclarations_ExtractionInstance(this.outer_, prototypeMember, n)
-			cur = cast_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](Iterables_getLast(Iterable(instance.declarations.asList()))).node_
+			cur = Iterables_getLast(Iterable(instance.declarations.asList())).(*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration).node_
 			if instance.isFavorable() {
 				this.instancesByChunk.computeIfAbsent(t.getChunk(), &Function_tfn_JSChunk_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo{func(k *JSChunk) *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo {
 					return new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo()
@@ -253,7 +280,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtra
 		var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = it_1.v
 		allModulesDelta += instanceInfo.totalDelta
 	}
-	return ((allModulesDelta + this.outer_.pattern.globalOverhead) < 0)
+	return ((allModulesDelta + ExtractPrototypeMemberDeclarations_Pattern_globalOverhead_[this.outer_.pattern-1]) < 0)
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtractChunk(chunk *JSChunk) bool {
@@ -261,7 +288,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtra
 	if instanceInfo == nil {
 		return false
 	}
-	return ((instanceInfo.totalDelta + this.outer_.pattern.globalOverhead) < 0)
+	return ((instanceInfo.totalDelta + ExtractPrototypeMemberDeclarations_Pattern_globalOverhead_[this.outer_.pattern-1]) < 0)
 }
 
 type ExtractPrototypeMemberDeclarations_ExtractionInstance struct {
@@ -280,7 +307,7 @@ func (this *ExtractPrototypeMemberDeclarations_ExtractionInstance) init_ExtractP
 	this.finit_ExtractPrototypeMemberDeclarations_ExtractionInstance()
 	this.parent = parent
 	this.declarations.add(head)
-	this.delta = (this.outer_.pattern.perExtractionOverhead + this.outer_.pattern.perMemberOverhead)
+	this.delta = (ExtractPrototypeMemberDeclarations_Pattern_perExtractionOverhead_[this.outer_.pattern-1] + ExtractPrototypeMemberDeclarations_Pattern_perMemberOverhead_[this.outer_.pattern-1])
 	{
 		var cur Node = head.node_.getNext()
 		for ; cur != 0; cur = cur.getNext() {
@@ -292,7 +319,7 @@ func (this *ExtractPrototypeMemberDeclarations_ExtractionInstance) init_ExtractP
 				break
 			}
 			this.declarations.add(prototypeMember)
-			this.delta += this.outer_.pattern.perMemberOverhead
+			this.delta += ExtractPrototypeMemberDeclarations_Pattern_perMemberOverhead_[this.outer_.pattern-1]
 		}
 	}
 }
@@ -321,13 +348,15 @@ func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) zero_
 }
 
 func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) init_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration(lhs Node, node Node) {
-	Preconditions_checkState_boolean_Object(NodeUtil_isExprAssign(node), node.box_())
+	if !NodeUtil_isExprAssign(node) {
+		panic(new_IllegalStateException_String(tostr_(node)))
+	}
 	this.lhs = lhs
 	this.memberName = NodeUtil_getPrototypePropertyName(lhs)
 	this.node_ = node
 	var classNode Node = ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_getPrototypeClassName(lhs)
 	this.qualifiedClassName = Optional_of[string](classNode.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 	this.constant = classNode.getBooleanProp(Node_IS_CONSTANT_NAME)
 }
@@ -378,4 +407,13 @@ func ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_extractDeclar
 	}
 	var lhs Node = n.getFirstFirstChild()
 	return new_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration(lhs, n)
+}
+
+// visit: an object that is exactly a ExtractPrototypeMemberDeclarations_GatherExtractionInfo calls its visit_impl directly (post-flip); others dispatch.
+func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ExtractPrototypeMemberDeclarations_GatherExtractionInfo); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

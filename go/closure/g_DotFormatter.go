@@ -17,7 +17,7 @@ func (this *DotFormatter) finit_DotFormatter() {
 
 func (this *DotFormatter) init_DotFormatter_0() {
 	this.finit_DotFormatter()
-	this.builder = icast_Appendable(obj_(new_StringBuilder()))
+	this.builder = appendable_(&strBuilder_{})
 	this.cfg = nil
 	this.printAnnotations = false
 }
@@ -49,14 +49,14 @@ func DotFormatter_toDotNode(n Node) string {
 }
 
 func DotFormatter_toDot_Node_ControlFlowGraph(n Node, inCFG *ControlFlowGraph[Node]) string {
-	var builder *StringBuilder = new_StringBuilder()
-	var unused *DotFormatter = new_DotFormatter_Node_ControlFlowGraph_Appendable_boolean(n, inCFG, icast_Appendable(obj_(builder)), false)
+	var builder strBuilder_
+	var unused *DotFormatter = new_DotFormatter_Node_ControlFlowGraph_Appendable_boolean(n, inCFG, appendable_(&builder), false)
 	_ = unused
-	return Object_toString(obj_(builder))
+	return builder.toString()
 }
 
 func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	builder.append(func() string {
 		if graph.isDirected() {
 			return "digraph"
@@ -95,9 +95,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 	}
 	var edges ListOf[GraphvizGraph_GraphvizEdge] = graph.getGraphvizEdges()
 	List_sort(edges, Comparator_thenComparing(Comparator_comparing(&Function_tfn_GraphvizGraph_GraphvizEdge_string{func(p0 GraphvizGraph_GraphvizEdge) string { return p0.getNode1Id() }}), &Function_tfn_GraphvizGraph_GraphvizEdge_string{func(p0 GraphvizGraph_GraphvizEdge) string { return p0.getNode2Id() }}))
-	it_5 := foreach_(any(edges))
-	for it_5.next() {
-		var edge GraphvizGraph_GraphvizEdge = icast_GraphvizGraph_GraphvizEdge(it_5.v)
+	for edge := range elemsBy_(edges, icast_GraphvizGraph_GraphvizEdge) {
 		builder.append(DotFormatter_INDENT)
 		builder.append(edge.getNode1Id())
 		builder.append(edgeSymbol)
@@ -106,7 +104,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		builder.append(";\n")
 	}
 	builder.append("}\n")
-	return Object_toString(obj_(builder))
+	return builder.toString()
 }
 
 func DotFormatter_appendDot(n Node, inCFG *ControlFlowGraph[Node], builder Appendable) {
@@ -124,11 +122,11 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 		var child Node = parent.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			var keyChild int32 = this.key(child)
-			this.builder.append_CharSequence(strobj_(DotFormatter_INDENT))
-			this.builder.append_CharSequence(strobj_(DotFormatter_formatNodeName(any(int32(keyParent)))))
-			this.builder.append_CharSequence(strobj_(DotFormatter_ARROW))
-			this.builder.append_CharSequence(strobj_(DotFormatter_formatNodeName(any(int32(keyChild)))))
-			this.builder.append_CharSequence(strobj_(" [weight=1];\n"))
+			this.builder.append_CharSequence_s(DotFormatter_INDENT)
+			this.builder.append_CharSequence_s(DotFormatter_formatNodeName(any(int32(keyParent))))
+			this.builder.append_CharSequence_s(DotFormatter_ARROW)
+			this.builder.append_CharSequence_s(DotFormatter_formatNodeName(any(int32(keyChild))))
+			this.builder.append_CharSequence_s(" [weight=1];\n")
 			this.traverseNodes(child)
 		}
 	}
@@ -156,8 +154,8 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 			}
 		}()
 		for _, element := range edgeList {
-			this.builder.append_CharSequence(strobj_(DotFormatter_INDENT))
-			this.builder.append_CharSequence(strobj_(element))
+			this.builder.append_CharSequence_s(DotFormatter_INDENT)
+			this.builder.append_CharSequence_s(element)
 		}
 	}
 }
@@ -168,40 +166,41 @@ func (this *DotFormatter) key(n Node) int32 {
 		key = any(int32(this.keyCount))
 		this.keyCount++
 		this.assignments.put(n, key)
-		this.builder.append_CharSequence(strobj_(DotFormatter_INDENT))
-		this.builder.append_CharSequence(strobj_(DotFormatter_formatNodeName(key)))
-		this.builder.append_CharSequence(strobj_(" [label=\""))
-		this.builder.append_CharSequence(strobj_(Object_toString(obj_(n.getToken()))))
+		this.builder.append_CharSequence_s(DotFormatter_INDENT)
+		this.builder.append_CharSequence_s(DotFormatter_formatNodeName(key))
+		this.builder.append_CharSequence_s(" [label=\"")
+		this.builder.append_CharSequence_s(tostrNN_(n.getToken()))
 		if (((n.isName() || n.isStringLit()) || n.isGetProp()) || n.isImportStar()) || n.isStringKey() {
-			this.builder.append_CharSequence(strobj_(DotFormatter_getNodeLabel(n)))
+			this.builder.append_CharSequence_s(DotFormatter_getNodeLabel(n))
 		}
 		var type_ *JSType = n.getJSType()
 		if type_ != nil {
-			this.builder.append_CharSequence(strobj_(" : "))
-			this.builder.append_CharSequence(strobj_(type_.toString()))
+			this.builder.append_CharSequence_s(" : ")
+			this.builder.append_CharSequence_s(type_.toString())
 		}
 		if (this.printAnnotations && (this.cfg != nil)) && this.cfg.hasNode(n) {
-			var annotation any = any(Annotatable_getAnnotation(Annotatable(this.cfg.getNode(n))))
+			var annotation any = Annotatable_getAnnotation(Annotatable(this.cfg.getNode(n)))
 			if annotation != nil {
-				this.builder.append_CharSequence(strobj_("\\n"))
-				this.builder.append_CharSequence(strobj_(Object_toString(annotation)))
+				this.builder.append_CharSequence_s("\\n")
+				this.builder.append_CharSequence_s(Object_toString(annotation))
 			}
 		}
-		this.builder.append_CharSequence(strobj_("\""))
+		this.builder.append_CharSequence_s("\"")
 		if n.getJSDocInfo() != nil {
-			this.builder.append_CharSequence(strobj_(" color=\"green\""))
+			this.builder.append_CharSequence_s(" color=\"green\"")
 		}
-		this.builder.append_CharSequence(strobj_("];\n"))
+		this.builder.append_CharSequence_s("];\n")
 	}
 	return unbox_[int32](key)
 }
 
 func DotFormatter_getNodeLabel(n Node) string {
 	var content string = n.getString()
-	if String_length(content) > DotFormatter_MAX_LABEL_NAME_LENGTH {
-		content = String_substring(content, 0, DotFormatter_MAX_LABEL_NAME_LENGTH)
+	contentU16 := utf16Of_(content)
+	if contentU16.length() > DotFormatter_MAX_LABEL_NAME_LENGTH {
+		content = contentU16.substring(0, DotFormatter_MAX_LABEL_NAME_LENGTH)
 	}
-	if !String_isEmpty(content) {
+	if content != "" {
 		content = ("(" + sstr_(content) + ")")
 	}
 	return content
@@ -212,13 +211,13 @@ func DotFormatter_formatNodeName(key any) string {
 }
 
 func (this *DotFormatter) formatPreamble() {
-	this.builder.append_CharSequence(strobj_("digraph AST {\n"))
-	this.builder.append_CharSequence(strobj_(DotFormatter_INDENT))
-	this.builder.append_CharSequence(strobj_("node [color=lightblue2, style=filled];\n"))
+	this.builder.append_CharSequence_s("digraph AST {\n")
+	this.builder.append_CharSequence_s(DotFormatter_INDENT)
+	this.builder.append_CharSequence_s("node [color=lightblue2, style=filled];\n")
 }
 
 func (this *DotFormatter) formatConclusion() {
-	this.builder.append_CharSequence(strobj_("}\n"))
+	this.builder.append_CharSequence_s("}\n")
 }
 
 const DotFormatter_INDENT string = "  "

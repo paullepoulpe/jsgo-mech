@@ -17,12 +17,10 @@ func new_FunctionRewriter(compiler *AbstractCompiler) *FunctionRewriter {
 }
 
 func (this *FunctionRewriter) process_2(externs Node, root Node) {
-	var reducers ImmutableListOf[*FunctionRewriter_Reducer] = ImmutableList_of_Object_Object_Object_Object_Object(obj_(new_FunctionRewriter_ReturnConstantReducer()), obj_(new_FunctionRewriter_GetterReducer()), obj_(new_FunctionRewriter_SetterReducer()), obj_(new_FunctionRewriter_EmptyFunctionReducer()), obj_(new_FunctionRewriter_IdentityReducer()))
-	var reductionMap *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_FunctionRewriter_ReductionGatherer(this, icast_List(obj_(reducers)), reductionMap))))
-	it_1 := foreach_(obj_(reducers))
-	for it_1.next() {
-		var reducer *FunctionRewriter_Reducer = to_FunctionRewriter_Reducer(it_1.v)
+	var reducers []*FunctionRewriter_Reducer = sliceOf_(tc_p_FunctionRewriter_Reducer, new_FunctionRewriter_ReturnConstantReducer().as_FunctionRewriter_Reducer(), new_FunctionRewriter_GetterReducer().as_FunctionRewriter_Reducer(), new_FunctionRewriter_SetterReducer().as_FunctionRewriter_Reducer(), new_FunctionRewriter_EmptyFunctionReducer().as_FunctionRewriter_Reducer(), new_FunctionRewriter_IdentityReducer().as_FunctionRewriter_Reducer())
+	var reductionMap *SimpleSetMultimap[*FunctionRewriter_Reducer, *FunctionRewriter_Reduction] = SimpleSetMultimap_createInsertionOrdered[*FunctionRewriter_Reducer, *FunctionRewriter_Reduction]()
+	NodeTraversal_traverse(this.compiler_, root, new_FunctionRewriter_ReductionGatherer(this, reducers, reductionMap))
+	for _, reducer := range reducers {
 		var reductions CollectionOf[*FunctionRewriter_Reduction] = Collection(reductionMap.get(reducer.self()))
 		if reductions.isEmpty() {
 			continue
@@ -33,15 +31,11 @@ func (this *FunctionRewriter) process_2(externs Node, root Node) {
 		}
 		var helperCodeCost int32 = InlineCostEstimator_getCost_Node(helperCode)
 		var savings int32 = 0
-		it_3 := foreach_(any(reductions))
-		for it_3.next() {
-			var reduction *FunctionRewriter_Reduction = cast_[*FunctionRewriter_Reduction](it_3.v)
+		for reduction := range elemsAs_[*FunctionRewriter_Reduction](reductions) {
 			savings += reduction.estimateSavings()
 		}
 		if savings > (helperCodeCost + FunctionRewriter_SAVINGS_THRESHOLD) {
-			it_5 := foreach_(any(reductions))
-			for it_5.next() {
-				var reduction *FunctionRewriter_Reduction = cast_[*FunctionRewriter_Reduction](it_5.v)
+			for reduction := range elemsAs_[*FunctionRewriter_Reduction](reductions) {
 				reduction.apply()
 			}
 			var addingRoot Node = this.compiler_.getNodeForCodeInsertion(nil)
@@ -53,7 +47,7 @@ func (this *FunctionRewriter) process_2(externs Node, root Node) {
 }
 
 func (this *FunctionRewriter) parseHelperCode(reducer *FunctionRewriter_Reducer) Node {
-	var root Node = this.compiler_.parseSyntheticCode((objstr_(obj_(Object_getClass(reducer.self()))) + ":helper"), reducer.getHelperSource())
+	var root Node = this.compiler_.parseSyntheticCode((tostr_(Object_getClass(reducer.self())) + ":helper"), reducer.getHelperSource())
 	return func() Node {
 		if root != 0 {
 			return root.removeFirstChild()
@@ -100,15 +94,15 @@ func (this *FunctionRewriter_Reduction) estimateSavings() int32 {
 type FunctionRewriter_ReductionGatherer struct {
 	outer_     *FunctionRewriter
 	reducers   []*FunctionRewriter_Reducer
-	reductions *SimpleSetMultimap
+	reductions *SimpleSetMultimap[*FunctionRewriter_Reducer, *FunctionRewriter_Reduction]
 }
 
-func (this *FunctionRewriter_ReductionGatherer) init_FunctionRewriter_ReductionGatherer(reducers ListOf[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap) {
-	this.reducers = arrmap_(reducers.toArray(arrmap_(make([]*FunctionRewriter_Reducer, 0), func(v_ *FunctionRewriter_Reducer) any { return v_.self() })), func(v_ any) *FunctionRewriter_Reducer { return to_FunctionRewriter_Reducer(v_) })
+func (this *FunctionRewriter_ReductionGatherer) init_FunctionRewriter_ReductionGatherer(reducers []*FunctionRewriter_Reducer, reductions *SimpleSetMultimap[*FunctionRewriter_Reducer, *FunctionRewriter_Reduction]) {
+	this.reducers = arrmap_(sliceView_(tc_p_FunctionRewriter_Reducer, reducers).toArray(arrmap_(make([]*FunctionRewriter_Reducer, 0), func(v_ *FunctionRewriter_Reducer) any { return v_.self() })), func(v_ any) *FunctionRewriter_Reducer { return to_FunctionRewriter_Reducer(v_) })
 	this.reductions = reductions
 }
 
-func new_FunctionRewriter_ReductionGatherer(outer_ *FunctionRewriter, reducers ListOf[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap) *FunctionRewriter_ReductionGatherer {
+func new_FunctionRewriter_ReductionGatherer(outer_ *FunctionRewriter, reducers []*FunctionRewriter_Reducer, reductions *SimpleSetMultimap[*FunctionRewriter_Reducer, *FunctionRewriter_Reduction]) *FunctionRewriter_ReductionGatherer {
 	this := &FunctionRewriter_ReductionGatherer{}
 	this.outer_ = outer_
 	this.init_FunctionRewriter_ReductionGatherer(reducers, reductions)
@@ -119,7 +113,7 @@ func (this *FunctionRewriter_ReductionGatherer) shouldTraverse(raversal *NodeTra
 	for _, reducer := range this.reducers {
 		var replacement Node = reducer.reduce(node)
 		if replacement != node {
-			this.reductions.put(reducer.self(), obj_(new_FunctionRewriter_Reduction(this.outer_, node, replacement)))
+			this.reductions.put(reducer, new_FunctionRewriter_Reduction(this.outer_, node, replacement))
 			return false
 		}
 	}
@@ -131,7 +125,20 @@ func (this *FunctionRewriter_ReductionGatherer) visit(traversal *NodeTraversal, 
 }
 
 type FunctionRewriter_Reducer struct {
-	self_ any
+	self_ FunctionRewriter_Reducer_I
+}
+
+// FunctionRewriter_Reducer_I holds the methods the dispatchers of FunctionRewriter_Reducer's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type FunctionRewriter_Reducer_I interface {
+	getHelperSource_impl() string
+	reduce_impl(Node) Node
+}
+
+// FunctionRewriter_Reducer_as is implemented by FunctionRewriter_Reducer and the classes that extend it: a cast to FunctionRewriter_Reducer asserts to it
+// (post-flip).
+type FunctionRewriter_Reducer_as interface {
+	as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer
 }
 
 func (this *FunctionRewriter_Reducer) as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer {
@@ -142,16 +149,7 @@ func to_FunctionRewriter_Reducer(v any) *FunctionRewriter_Reducer {
 	if v == nil {
 		return nil
 	}
-	return v.(interface {
-		as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer
-	}).as_FunctionRewriter_Reducer()
-}
-
-func is_FunctionRewriter_Reducer(v any) bool {
-	_, ok := v.(interface {
-		as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer
-	})
-	return ok
+	return v.(FunctionRewriter_Reducer_as).as_FunctionRewriter_Reducer()
 }
 
 func (this *FunctionRewriter_Reducer) self() any {
@@ -175,11 +173,11 @@ func (this *FunctionRewriter_Reducer) buildCallNode(methodName string, argumentN
 }
 
 func (this *FunctionRewriter_Reducer) getHelperSource() string {
-	return this.self_.(interface{ getHelperSource_impl() string }).getHelperSource_impl()
+	return this.self_.getHelperSource_impl()
 }
 
 func (this *FunctionRewriter_Reducer) reduce(p0 Node) Node {
-	return this.self_.(interface{ reduce_impl(Node) Node }).reduce_impl(p0)
+	return this.self_.reduce_impl(p0)
 }
 
 type FunctionRewriter_EmptyFunctionReducer struct {
@@ -214,7 +212,6 @@ func (this *FunctionRewriter_EmptyFunctionReducer) reduce_impl(node Node) Node {
 	} else {
 		return node
 	}
-	panic("unreachable")
 }
 
 const FunctionRewriter_EmptyFunctionReducer_FACTORY_METHOD_NAME string = "JSCompiler_emptyFn"
@@ -226,22 +223,6 @@ type FunctionRewriter_SingleReturnStatementReducer struct {
 
 func (this *FunctionRewriter_SingleReturnStatementReducer) as_FunctionRewriter_SingleReturnStatementReducer() *FunctionRewriter_SingleReturnStatementReducer {
 	return this
-}
-
-func to_FunctionRewriter_SingleReturnStatementReducer(v any) *FunctionRewriter_SingleReturnStatementReducer {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_FunctionRewriter_SingleReturnStatementReducer() *FunctionRewriter_SingleReturnStatementReducer
-	}).as_FunctionRewriter_SingleReturnStatementReducer()
-}
-
-func is_FunctionRewriter_SingleReturnStatementReducer(v any) bool {
-	_, ok := v.(interface {
-		as_FunctionRewriter_SingleReturnStatementReducer() *FunctionRewriter_SingleReturnStatementReducer
-	})
-	return ok
 }
 
 func (this *FunctionRewriter_SingleReturnStatementReducer) self() any {
@@ -316,7 +297,6 @@ func (this *FunctionRewriter_IdentityReducer) reduce_impl(node Node) Node {
 	} else {
 		return node
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionRewriter_IdentityReducer) isIdentityFunction(functionNode Node) bool {
@@ -375,7 +355,6 @@ func (this *FunctionRewriter_ReturnConstantReducer) reduce_impl(node Node) Node 
 	} else {
 		return node
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionRewriter_ReturnConstantReducer) getValueNode(functionNode Node) Node {
@@ -429,14 +408,13 @@ func (this *FunctionRewriter_GetterReducer) reduce_impl(node Node) Node {
 	var getprop Node = this.getGetPropertyName(node)
 	if getprop != 0 {
 		if !getprop.isGetProp() {
-			panic(new_IllegalStateException_String(("Expected GETPROP, got " + objstr_(obj_(getprop.getToken())))).self())
+			panic(new_IllegalStateException_String(("Expected GETPROP, got " + tostr_(getprop.getToken()))))
 		}
 		var arg Node = IR_string(getprop.getString()).srcref(getprop)
 		return this.buildCallNode(FunctionRewriter_GetterReducer_FACTORY_METHOD_NAME, arg, node)
 	} else {
 		return node
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionRewriter_GetterReducer) getGetPropertyName(functionNode Node) Node {
@@ -483,13 +461,12 @@ func (this *FunctionRewriter_SetterReducer) reduce_impl(node Node) Node {
 	var propName Node = this.getSetPropertyName(node)
 	if propName != 0 {
 		if !propName.isStringLit() {
-			panic(new_IllegalStateException_String(("Expected STRING, got " + objstr_(obj_(propName.getToken())))).self())
+			panic(new_IllegalStateException_String(("Expected STRING, got " + tostr_(propName.getToken()))))
 		}
 		return this.buildCallNode(FunctionRewriter_SetterReducer_FACTORY_METHOD_NAME, propName, node)
 	} else {
 		return node
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionRewriter_SetterReducer) getSetPropertyName(functionNode Node) Node {
@@ -519,3 +496,83 @@ func (this *FunctionRewriter_SetterReducer) getSetPropertyName(functionNode Node
 
 const FunctionRewriter_SetterReducer_FACTORY_METHOD_NAME string = "JSCompiler_set"
 const FunctionRewriter_SetterReducer_HELPER_SOURCE string = "function JSCompiler_set(JSCompiler_set_name) {  return function(JSCompiler_set_value) {this[JSCompiler_set_name] = JSCompiler_set_value}}"
+
+// getHelperSource: an object that is exactly a FunctionRewriter_EmptyFunctionReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_EmptyFunctionReducer) getHelperSource() string {
+	if p, _ := this.self_.(*FunctionRewriter_EmptyFunctionReducer); p == this {
+		return this.getHelperSource_impl()
+	}
+	return this.self_.getHelperSource_impl()
+}
+
+// reduce: an object that is exactly a FunctionRewriter_EmptyFunctionReducer calls its reduce_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_EmptyFunctionReducer) reduce(p0 Node) Node {
+	if p, _ := this.self_.(*FunctionRewriter_EmptyFunctionReducer); p == this {
+		return this.reduce_impl(p0)
+	}
+	return this.self_.reduce_impl(p0)
+}
+
+// getHelperSource: an object that is exactly a FunctionRewriter_IdentityReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_IdentityReducer) getHelperSource() string {
+	if p, _ := this.self_.(*FunctionRewriter_IdentityReducer); p == this {
+		return this.getHelperSource_impl()
+	}
+	return this.self_.getHelperSource_impl()
+}
+
+// reduce: an object that is exactly a FunctionRewriter_IdentityReducer calls its reduce_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_IdentityReducer) reduce(p0 Node) Node {
+	if p, _ := this.self_.(*FunctionRewriter_IdentityReducer); p == this {
+		return this.reduce_impl(p0)
+	}
+	return this.self_.reduce_impl(p0)
+}
+
+// getHelperSource: an object that is exactly a FunctionRewriter_ReturnConstantReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_ReturnConstantReducer) getHelperSource() string {
+	if p, _ := this.self_.(*FunctionRewriter_ReturnConstantReducer); p == this {
+		return this.getHelperSource_impl()
+	}
+	return this.self_.getHelperSource_impl()
+}
+
+// reduce: an object that is exactly a FunctionRewriter_ReturnConstantReducer calls its reduce_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_ReturnConstantReducer) reduce(p0 Node) Node {
+	if p, _ := this.self_.(*FunctionRewriter_ReturnConstantReducer); p == this {
+		return this.reduce_impl(p0)
+	}
+	return this.self_.reduce_impl(p0)
+}
+
+// getHelperSource: an object that is exactly a FunctionRewriter_GetterReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_GetterReducer) getHelperSource() string {
+	if p, _ := this.self_.(*FunctionRewriter_GetterReducer); p == this {
+		return this.getHelperSource_impl()
+	}
+	return this.self_.getHelperSource_impl()
+}
+
+// reduce: an object that is exactly a FunctionRewriter_GetterReducer calls its reduce_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_GetterReducer) reduce(p0 Node) Node {
+	if p, _ := this.self_.(*FunctionRewriter_GetterReducer); p == this {
+		return this.reduce_impl(p0)
+	}
+	return this.self_.reduce_impl(p0)
+}
+
+// getHelperSource: an object that is exactly a FunctionRewriter_SetterReducer calls its getHelperSource_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_SetterReducer) getHelperSource() string {
+	if p, _ := this.self_.(*FunctionRewriter_SetterReducer); p == this {
+		return this.getHelperSource_impl()
+	}
+	return this.self_.getHelperSource_impl()
+}
+
+// reduce: an object that is exactly a FunctionRewriter_SetterReducer calls its reduce_impl directly (post-flip); others dispatch.
+func (this *FunctionRewriter_SetterReducer) reduce(p0 Node) Node {
+	if p, _ := this.self_.(*FunctionRewriter_SetterReducer); p == this {
+		return this.reduce_impl(p0)
+	}
+	return this.self_.reduce_impl(p0)
+}

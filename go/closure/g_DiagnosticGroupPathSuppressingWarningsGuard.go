@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type DiagnosticGroupPathSuppressingWarningsGuard struct {
 	WarningsGuard
 	group *DiagnosticGroup
@@ -33,18 +35,26 @@ func new_DiagnosticGroupPathSuppressingWarningsGuard(group *DiagnosticGroup, par
 	return this
 }
 
-func (this *DiagnosticGroupPathSuppressingWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
-	if error_.sourceName().isEmpty() || !String_contains(error_.sourceName().get(), strobj_(this.part)) {
-		return nil
+func (this *DiagnosticGroupPathSuppressingWarningsGuard) level_impl(error_ *JSError) CheckLevel {
+	if error_.sourceName().isEmpty() || !strings.Contains(error_.sourceName().get(), csStr_(this.part)) {
+		return 0
 	}
-	return func() *CheckLevel {
+	return func() CheckLevel {
 		if this.group.matches(error_) {
 			return CheckLevel_OFF
 		}
-		return nil
+		return 0
 	}()
 }
 
 func (this *DiagnosticGroupPathSuppressingWarningsGuard) toString() string {
-	return (objstr_(obj_(this.group)) + "(" + sstr_(this.part) + ")")
+	return (tostr_(this.group) + "(" + sstr_(this.part) + ")")
+}
+
+// level: an object that is exactly a DiagnosticGroupPathSuppressingWarningsGuard calls its level_impl directly (post-flip); others dispatch.
+func (this *DiagnosticGroupPathSuppressingWarningsGuard) level(p0 *JSError) CheckLevel {
+	if p, _ := this.self_.(*DiagnosticGroupPathSuppressingWarningsGuard); p == this {
+		return this.level_impl(p0)
+	}
+	return this.self_.level_impl(p0)
 }

@@ -2,13 +2,14 @@
 
 package closure
 
+import "fmt"
+
 type Tracer struct {
 	extraTracingValues []int64
 	type__             Optional[string]
 	comment            string
 	startTimeMs        int64
 	stopTimeMs         int64
-	startThread        *Thread
 }
 
 func (this *Tracer) zero_Tracer() {
@@ -18,16 +19,13 @@ func (this *Tracer) zero_Tracer() {
 func (this *Tracer) init_Tracer_Optional_Optional(type_ Optional[string], comment Optional[string]) {
 	this.type__ = type_
 	this.comment = comment.orElse("")
-	this.startTimeMs = Tracer_clock.currentTimeMillis()
-	this.startThread = Thread_currentThread()
+	this.startTimeMs = Tracer_clock()
 	if !Tracer_extraTracingStatistics.isEmpty() {
 		var size int32 = Tracer_extraTracingStatistics.size()
 		this.extraTracingValues = make([]int64, size)
 		var i int32 = 0
-		it_1 := foreach_(any(Tracer_extraTracingStatistics))
-		for it_1.next() {
-			var tracingStatistic Tracer_TracingStatistic = icast_Tracer_TracingStatistic(it_1.v)
-			this.extraTracingValues[i] = tracingStatistic.start(this.startThread)
+		for tracingStatistic := range elemsBy_(Tracer_extraTracingStatistics, icast_Tracer_TracingStatistic) {
+			this.extraTracingValues[i] = tracingStatistic.start()
 			i++
 		}
 	}
@@ -66,10 +64,10 @@ func new_Tracer_String(comment string) *Tracer {
 
 func Tracer_longToPaddedString(v int64, digitsColumnWidth int32) string {
 	var digitWidth int32 = Tracer_numDigits(v)
-	var sb *StringBuilder = new_StringBuilder()
-	Tracer_appendSpaces(sb, (digitsColumnWidth - digitWidth))
+	var sb strBuilder_
+	Tracer_appendSpaces(&sb, (digitsColumnWidth - digitWidth))
 	sb.append_long(v)
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func Tracer_numDigits(n int64) int32 {
@@ -81,7 +79,7 @@ func Tracer_numDigits(n int64) int32 {
 	return i
 }
 
-func Tracer_appendSpaces(sb *StringBuilder, numSpaces int32) {
+func Tracer_appendSpaces(sb *strBuilder_, numSpaces int32) {
 	if numSpaces > 16 {
 		Tracer_logger.warning("Tracer.appendSpaces called with large numSpaces")
 		numSpaces = 16
@@ -104,12 +102,11 @@ func Tracer_appendSpaces(sb *StringBuilder, numSpaces int32) {
 
 func Tracer_addTracingStatistic(tracingStatistic Tracer_TracingStatistic) int32 {
 	if tracingStatistic.enable() {
-		Tracer_extraTracingStatistics.add(any(tracingStatistic))
-		return Tracer_extraTracingStatistics.lastIndexOf(any(tracingStatistic))
+		Tracer_extraTracingStatistics.add(tracingStatistic)
+		return Tracer_extraTracingStatistics.lastIndexOf(tracingStatistic)
 	} else {
 		return -1
 	}
-	panic("unreachable")
 }
 
 func Tracer_clearTracingStatisticsTestingOnly() {
@@ -117,15 +114,16 @@ func Tracer_clearTracingStatisticsTestingOnly() {
 }
 
 func (this *Tracer) stop_1(silenceThreshold int32) int64 {
-	Preconditions_checkState((Thread_currentThread() == this.startThread))
+	// Java checks here that this is the thread the Tracer started on, which it kept in
+	// startThread: there is one thread (post-flip, manual edit).
 	var trace *Tracer_ThreadTrace = Tracer_getThreadTrace()
 	if !trace.isInitialized() {
 		return 0
 	}
-	this.stopTimeMs = Tracer_clock.currentTimeMillis()
+	this.stopTimeMs = Tracer_clock()
 	if this.extraTracingValues != nil {
 		for i := int32(0); i < int32(len(this.extraTracingValues)); i++ {
-			var value int64 = icast_Tracer_TracingStatistic(Tracer_extraTracingStatistics.get(i)).stop(this.startThread)
+			var value int64 = Tracer_extraTracingStatistics.get(i).(Tracer_TracingStatistic).stop()
 			this.extraTracingValues[i] = (value - this.extraTracingValues[i])
 		}
 	}
@@ -146,7 +144,6 @@ func (this *Tracer) toString() string {
 	} else {
 		return ("[" + sstr_(this.type__.get()) + "] " + sstr_(this.comment))
 	}
-	panic("unreachable")
 }
 
 func Tracer_setDefaultSilenceThreshold(threshold int32) {
@@ -156,7 +153,7 @@ func Tracer_setDefaultSilenceThreshold(threshold int32) {
 func Tracer_initCurrentThreadTrace_0() {
 	var events *Tracer_ThreadTrace = Tracer_getThreadTrace()
 	if !events.isEmpty() {
-		Tracer_logger.log(Level_WARNING, ("Non-empty timer log:\n" + objstr_(obj_(events))), new_Throwable_0())
+		Tracer_logger.log(Level_WARNING, ("Non-empty timer log:\n" + tostr_(events)), new_Throwable_0())
 		Tracer_clearThreadTrace()
 		events = Tracer_getThreadTrace()
 	}
@@ -244,7 +241,7 @@ func Tracer_getStatsForType(type_ string) *Tracer_Stat {
 func Tracer_formatTime(time int64) string {
 	var sec int32 = int32(((time / 1000) % 60))
 	var ms int32 = int32((time % 1000))
-	return String_format("%02d.%03d", []any{any(int32(sec)), any(int32(ms))})
+	return fmt.Sprintf("%02d.%03d", int32(sec), int32(ms))
 }
 
 func Tracer_getThreadTrace() *Tracer_ThreadTrace {
@@ -267,7 +264,7 @@ var Tracer_extraTracingStatistics List
 
 const Tracer_MAX_TRACE_SIZE int32 = 1000
 
-var Tracer_clock Tracer_InternalClock
+var Tracer_clock func() int64
 var Tracer_typeToCountMap *Tracer_AtomicTracerStatMap
 var Tracer_typeToSilentMap *Tracer_AtomicTracerStatMap
 var Tracer_typeToTimeMap *Tracer_AtomicTracerStatMap
@@ -282,8 +279,8 @@ func Tracer_clinit() {
 	}
 	Tracer_clinit_done = true
 	Tracer_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.Tracer").getName())
-	Tracer_extraTracingStatistics = icast_List(obj_(new_CopyOnWriteArrayList()))
-	Tracer_clock = icast_Tracer_InternalClock(obj_(new_Tracer_1()))
+	Tracer_extraTracingStatistics = new_CopyOnWriteArrayList()
+	Tracer_clock = new_Tracer_1().currentTimeMillis
 	Tracer_ZERO_STAT = new_Tracer_Stat()
 	Tracer_traces = new_ThreadLocal()
 
@@ -365,9 +362,10 @@ func (this *Tracer_Event) eventTime() int64 {
 }
 
 func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsColWidth int32) string {
-	var sb *StringBuilder = new_StringBuilder_int(120)
+	var sb strBuilder_
+	sb.grow(120)
 	if prevEventTime == -1 {
-		Tracer_appendSpaces(sb, digitsColWidth)
+		Tracer_appendSpaces(&sb, digitsColWidth)
 	} else {
 		sb.append(Tracer_longToPaddedString((this.eventTime() - prevEventTime), digitsColWidth))
 	}
@@ -375,7 +373,7 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 	sb.append(Tracer_formatTime(this.eventTime()))
 	if this.isStart {
 		sb.append(" Start ")
-		Tracer_appendSpaces(sb, digitsColWidth)
+		Tracer_appendSpaces(&sb, digitsColWidth)
 		sb.append("   ")
 	} else {
 		sb.append(" Done ")
@@ -385,15 +383,15 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 		if this.tracer.extraTracingValues != nil {
 			for i := int32(0); i < int32(len(this.tracer.extraTracingValues)); i++ {
 				delta = this.tracer.extraTracingValues[i]
-				sb.append(String_format("%4d", []any{any(int64(delta))}))
-				sb.append(icast_Tracer_TracingStatistic(Tracer_extraTracingStatistics.get(i)).getUnits())
+				sb.append(fmt.Sprintf("%4d", int64(delta)))
+				sb.append(Tracer_extraTracingStatistics.get(i).(Tracer_TracingStatistic).getUnits())
 				sb.append(";  ")
 			}
 		}
 	}
 	sb.append(indent)
 	sb.append_Object(obj_(this.tracer))
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 type Tracer_ThreadTrace struct {
@@ -438,7 +436,9 @@ func (this *Tracer_ThreadTrace) isInitialized() bool {
 func (this *Tracer_ThreadTrace) startEvent(t *Tracer) {
 	this.events.add(new_Tracer_Event(true, t))
 	var notAlreadyOutstanding bool = this.outstandingEvents.add(t)
-	Preconditions_checkState(notAlreadyOutstanding)
+	if !notAlreadyOutstanding {
+		panic(new_IllegalStateException_0())
+	}
 }
 
 func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
@@ -447,7 +447,7 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 		if this.isOutstandingEventsTruncated {
 			Tracer_logger.log(Level_WARNING, "event not found, probably because the event stack overflowed and was truncated", new_Throwable_0())
 		} else {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	var elapsed int64 = (t.stopTimeMs - t.startTimeMs)
@@ -459,13 +459,17 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 		for i := int32(0); i < this.events.size(); i++ {
 			var e *Tracer_Event = this.events.get(i)
 			if e.tracer == t {
-				Preconditions_checkState(e.isStart)
+				if !e.isStart {
+					panic(new_IllegalStateException_0())
+				}
 				this.events.removeAt(i)
 				removed = true
 				break
 			}
 		}
-		Preconditions_checkState((removed || this.isEventsTruncated))
+		if !removed && !this.isEventsTruncated {
+			panic(new_IllegalStateException_0())
+		}
 	} else {
 		this.events.add(new_Tracer_Event(false, t))
 	}
@@ -490,7 +494,7 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 			var overlapLength int32 = Math_min(int32(len(stat.extraInfo)), int32(len(t.extraTracingValues)))
 			for i := int32(0); i < overlapLength; i++ {
 				stat.extraInfo[i] = int32((int64(stat.extraInfo[i]) + t.extraTracingValues[i]))
-				var map_ *Tracer_AtomicTracerStatMap = icast_Tracer_TracingStatistic(Tracer_extraTracingStatistics.get(i)).getTracingStat()
+				var map_ *Tracer_AtomicTracerStatMap = Tracer_extraTracingStatistics.get(i).(Tracer_TracingStatistic).getTracingStat()
 				if map_ != nil {
 					map_.incrementBy(t.type__.get(), t.extraTracingValues[i])
 				}
@@ -521,7 +525,7 @@ func (this *Tracer_ThreadTrace) truncateEvents() {
 
 func (this *Tracer_ThreadTrace) toString() string {
 	var numDigits int32 = this.getMaxDigits()
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	var etime int64 = -1
 	var indent *TDeque[string] = func() *TDeque[string] {
 		if this.prettyPrint {
@@ -548,7 +552,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 		}
 	}
 	if !this.outstandingEvents.isEmpty() {
-		var now int64 = Tracer_clock.currentTimeMillis()
+		var now int64 = Tracer_clock()
 		sb.append(" Unstopped timers:\n")
 		it_3 := this.outstandingEvents.each()
 		for it_3.next() {
@@ -565,13 +569,13 @@ func (this *Tracer_ThreadTrace) toString() string {
 			if stat.extraInfo != nil {
 				for i := int32(0); i < int32(len(stat.extraInfo)); i++ {
 					sb.append("; ")
-					cast_[*StringBuilder](sb.append_int(stat.extraInfo[i]).append_char(' ')).append(icast_Tracer_TracingStatistic(Tracer_extraTracingStatistics.get(i)).getUnits())
+					sb.append_int(stat.extraInfo[i]).append_char(' ').append(Tracer_extraTracingStatistics.get(i).(Tracer_TracingStatistic).getUnits())
 				}
 			}
 			sb.append(")\n")
 		}
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func (this *Tracer_ThreadTrace) getMaxDigits() int32 {
@@ -594,8 +598,8 @@ func (this *Tracer_ThreadTrace) getMaxDigits() int32 {
 }
 
 type Tracer_TracingStatistic interface {
-	start(*Thread) int64
-	stop(*Thread) int64
+	start() int64 // Java passes the thread the Tracer started on: there is one (post-flip, manual edit)
+	stop() int64
 	enable() bool
 	getTracingStat() *Tracer_AtomicTracerStatMap
 	getUnits() string
@@ -606,7 +610,7 @@ type Tracer_AtomicTracerStatMap struct {
 }
 
 func (this *Tracer_AtomicTracerStatMap) finit_Tracer_AtomicTracerStatMap() {
-	this.map__ = icast_ConcurrentMap(obj_(new_ConcurrentHashMap()))
+	this.map__ = new_ConcurrentHashMap()
 }
 
 func (this *Tracer_AtomicTracerStatMap) init_Tracer_AtomicTracerStatMap() {

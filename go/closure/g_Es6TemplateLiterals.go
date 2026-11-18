@@ -31,7 +31,9 @@ func (this *Es6TemplateLiterals) visitTemplateLiteral(t *NodeTraversal, n Node) 
 		n.replaceWith(this.astFactory_.createString("\"\""))
 	} else {
 		var first Node = n.removeFirstChild()
-		Preconditions_checkState((first.isTemplateLitString() && first.getCookedString().isPresent()))
+		if !first.isTemplateLitString() || !first.getCookedString().isPresent() {
+			panic(new_IllegalStateException_0())
+		}
 		var firstStr Node = this.astFactory_.createString(first.getCookedString().get())
 		if length == 1 {
 			n.replaceWith(firstStr)
@@ -40,10 +42,12 @@ func (this *Es6TemplateLiterals) visitTemplateLiteral(t *NodeTraversal, n Node) 
 			for i := int32(2); i < length; i++ {
 				var child Node = n.removeFirstChild()
 				if child.isTemplateLitString() {
-					Preconditions_checkState(child.getCookedString().isPresent())
-					if String_isEmpty(child.getCookedString().get()) {
+					if !child.getCookedString().isPresent() {
+						panic(new_IllegalStateException_0())
+					}
+					if child.getCookedString().get() == "" {
 						continue
-					} else if (i == 2) && String_isEmpty(first.getCookedString().get()) {
+					} else if (i == 2) && first.getCookedString().get() == "" {
 						add = add.getSecondChild().detach()
 					}
 				}

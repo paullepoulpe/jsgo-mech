@@ -40,8 +40,8 @@ func (this *JsFlumeCallback) shouldTraverse(nodeTraversal *NodeTraversal, n Node
 	}
 	if n.isScript() {
 		var filename string = n.getSourceFileName()
-		if ((this.includeFilePattern != nil) && !String_isEmpty(this.includeFilePattern.pattern())) && !String_isEmpty(filename) {
-			return this.includeFilePattern.matcher(strobj_(filename)).find()
+		if ((this.includeFilePattern != nil) && this.includeFilePattern.pattern() != "") && filename != "" {
+			return this.includeFilePattern.matcher_s(filename).find()
 		}
 	}
 	return true
@@ -51,7 +51,7 @@ func (this *JsFlumeCallback) visit(t *NodeTraversal, n Node, parent Node) {
 	var metadata *NodeMetadata = NodeMetadata_fromTraversal(t)
 	if this.scanner.matches(n, metadata) {
 		var match *Match = new_Match(n, metadata)
-		this.fixes.asList().addAll(Collection(this.scanner.processMatch(match)))
+		this.fixes.asList().addAll(Collection(sliceView_(tc_p_SuggestedFix, this.scanner.processMatch(match))))
 		this.matches_.add(match)
 	}
 }

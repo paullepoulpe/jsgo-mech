@@ -22,12 +22,12 @@ func new_PassListBuilder(options *CompilerOptions) *PassListBuilder {
 	return this
 }
 
-func (this *PassListBuilder) build() ImmutableListOf[*PassFactory] {
-	return ImmutableList_copyOf(Collection(this.passes.asList()))
+func (this *PassListBuilder) build() *ImmutableList[*PassFactory] {
+	return immutableListCopyOf_(tc_p_PassFactory, Collection(this.passes.asList()))
 }
 
 func (this *PassListBuilder) addAll(other *PassListBuilder) {
-	this.passes.asList().addAll(icast_Collection(obj_(other.build())))
+	this.passes.asList().addAll(icast_Collection(obj_(other.build().asImm())))
 }
 
 func (this *PassListBuilder) maybeAdd(factory *PassFactory) {
@@ -45,15 +45,15 @@ func (this *PassListBuilder) addAfter(factory *PassFactory, passName string) {
 }
 
 func (this *PassListBuilder) addAllUpTo(other *PassListBuilder, passName string) {
-	var otherPasses ImmutableListOf[*PassFactory] = other.build()
+	var otherPasses *ImmutableList[*PassFactory] = other.build()
 	var index int32 = -1
 	for i := int32(0); i < otherPasses.size(); i++ {
-		if passName == cast_[*PassFactory](otherPasses.get(i)).getName() {
+		if passName == obj_(otherPasses.get(i)).(*PassFactory).getName() {
 			index = i
 			break
 		}
 	}
-	this.passes.asList().addAll(Collection(otherPasses.subList(0, (index + 1))))
+	this.passes.asList().addAll(Collection(otherPasses.asImm().subList(0, (index + 1))))
 }
 
 func (this *PassListBuilder) findByName(name string) *PassFactory {
@@ -64,7 +64,7 @@ func (this *PassListBuilder) findByName(name string) *PassFactory {
 			return pass
 		}
 	}
-	panic(new_IllegalArgumentException_String(("No factory named '" + sstr_(name) + "' in the factory list")).self())
+	panic(new_IllegalArgumentException_String(("No factory named '" + sstr_(name) + "' in the factory list")))
 }
 
 func (this *PassListBuilder) removeByName(name string) {
@@ -82,7 +82,7 @@ func (this *PassListBuilder) findIndexByName(name string) int32 {
 			return i
 		}
 	}
-	panic(new_IllegalArgumentException_String(("No factory named '" + sstr_(name) + "' in the factory list")).self())
+	panic(new_IllegalArgumentException_String(("No factory named '" + sstr_(name) + "' in the factory list")))
 }
 
 func (this *PassListBuilder) contains(factory *PassFactory) bool {
@@ -93,7 +93,9 @@ func (this *PassListBuilder) assertAllOneTimePasses() {
 	it_1 := this.passes.each()
 	for it_1.next() {
 		var pass *PassFactory = it_1.v
-		Preconditions_checkState(!pass.isRunInFixedPointLoop())
+		if pass.isRunInFixedPointLoop() {
+			panic(new_IllegalStateException_0())
+		}
 	}
 }
 
@@ -101,7 +103,9 @@ func (this *PassListBuilder) assertAllLoopablePasses() {
 	it_1 := this.passes.each()
 	for it_1.next() {
 		var pass *PassFactory = it_1.v
-		Preconditions_checkState(pass.isRunInFixedPointLoop())
+		if !pass.isRunInFixedPointLoop() {
+			panic(new_IllegalStateException_0())
+		}
 	}
 }
 
@@ -109,6 +113,8 @@ func (this *PassListBuilder) assertPassOrder(pass1 *PassFactory, pass2 *PassFact
 	var pass1Index int32 = this.passes.asList().indexOf(obj_(pass1))
 	var pass2Index int32 = this.passes.asList().indexOf(obj_(pass2))
 	if (pass1Index != -1) && (pass2Index != -1) {
-		Preconditions_checkState_boolean_Object((pass1Index < pass2Index), strobj_(msg))
+		if pass1Index >= pass2Index {
+			panic(new_IllegalStateException_String(sstr_(msg)))
+		}
 	}
 }

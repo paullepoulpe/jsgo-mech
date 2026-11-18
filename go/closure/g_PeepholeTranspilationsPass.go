@@ -28,7 +28,9 @@ func PeepholeTranspilationsPass_create(compiler *AbstractCompiler, transpilation
 	it_1 := transpilations.each()
 	for it_1.next() {
 		var transpilation *AbstractPeepholeTranspilation = it_1.v
-		Preconditions_checkState_boolean_String_Object(!transpilation.getAdditionalFeaturesToRunOn().containsAtLeastOneOf(transpilation.getTranspiledAwayFeatures()), "Transpilation pass %s has getAdditionalFeaturesToRunOn() that contains features that it transpiles away.", strobj_(Object_getClass(transpilation.self()).getSimpleName()))
+		if ok_, a1_ := !transpilation.getAdditionalFeaturesToRunOn().containsAtLeastOneOf(transpilation.getTranspiledAwayFeatures()), Object_getClass(transpilation.self()).getSimpleName(); !ok_ {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Transpilation pass %s has getAdditionalFeaturesToRunOn() that contains features that it transpiles away.", []any{strobj_(a1_)})))
+		}
 		featureSetToRunOn = featureSetToRunOn.withFeatureSet(transpilation.getTranspiledAwayFeatures())
 		featureSetToRunOn = featureSetToRunOn.withFeatureSet(transpilation.getAdditionalFeaturesToRunOn())
 		featureSetToMarkAsTranspiledAway = featureSetToMarkAsTranspiledAway.withFeatureSet(transpilation.getTranspiledAwayFeatures())
@@ -37,7 +39,7 @@ func PeepholeTranspilationsPass_create(compiler *AbstractCompiler, transpilation
 }
 
 func (this *PeepholeTranspilationsPass) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_PeepholeTranspilationsPass_PeepCallback(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_PeepholeTranspilationsPass_PeepCallback(this))
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, this.featureSetToMarkAsTranspiledAway)
 }
 
@@ -68,13 +70,12 @@ func (this *PeepholeTranspilationsPass_PeepCallback) visit(t *NodeTraversal, n N
 
 func (this *PeepholeTranspilationsPass_PeepCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_SCRIPT:
+		switch n.ns_().token {
+		case tokOrd1_SCRIPT:
 			var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(n)
 			return scriptFeatures.containsAtLeastOneOf(this.outer_.featureSetToRunOn)
 		default:
 			return true
 		}
-		panic("unreachable")
 	}()
 }

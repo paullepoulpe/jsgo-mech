@@ -2,11 +2,14 @@
 
 package closure
 
+import "strings"
+
 type Scanner_parser struct {
 	errorReporter      *ErrorReporter_util
 	source             *SourceFile_parser
 	lineNumberScanner  *LineNumberScanner
 	contents           string
+	contentsU16        utf16_
 	contentsLength     int32
 	currentTokens      *JTList[*Token_parser]
 	index_             int32
@@ -16,6 +19,7 @@ type Scanner_parser struct {
 
 func (this *Scanner_parser) zero_Scanner_parser() {
 	this.contents = nullstr_
+	this.contentsU16 = utf16Kept_(this.contents)
 }
 
 func (this *Scanner_parser) finit_Scanner_parser() {
@@ -29,7 +33,8 @@ func (this *Scanner_parser) init_Scanner_parser(errorReporter *ErrorReporter_uti
 	this.source = file
 	this.lineNumberScanner = new_LineNumberScanner(this.source)
 	this.contents = file.contents
-	this.contentsLength = String_length(file.contents)
+	this.contentsU16 = file.contentsU16
+	this.contentsLength = file.contentsU16.length()
 	this.index_ = offset
 	this.typeParameterLevel = 0
 }
@@ -146,7 +151,6 @@ func (this *Scanner_parser) skipRegularExpressionChar() bool {
 			this.nextChar()
 			return true
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -201,7 +205,6 @@ func Scanner_parser_isRegularExpressionChar(ch uint16) bool {
 		default:
 			return !Scanner_parser_isLineTerminator(ch)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -246,7 +249,6 @@ func Scanner_parser_isWhitespace(ch uint16) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -258,7 +260,6 @@ func Scanner_parser_isLineTerminator(ch uint16) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -270,7 +271,6 @@ func Scanner_parser_isStringLineTerminator(ch uint16) bool {
 		default:
 			return Scanner_parser_isLineTerminator(ch)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -324,17 +324,17 @@ func (this *Scanner_parser) skipSingleLineComment() {
 	this.skipSingleLineComment_1(Comment_Type_LINE)
 }
 
-func (this *Scanner_parser) skipSingleLineComment_1(type_ *Comment_Type) {
+func (this *Scanner_parser) skipSingleLineComment_1(type_ Comment_Type) {
 	var startOffset int32 = this.index_
 	for !this.isAtEnd() && !Scanner_parser_isLineTerminator(this.peekChar()) {
 		this.nextChar()
 	}
 	var range_ *SourceRange = this.lineNumberScanner.getSourceRange(startOffset, this.index_)
-	var value string = String_substring(this.contents, startOffset, this.index_)
+	var value string = this.contentsU16.substring(startOffset, this.index_)
 	this.recordComment(type_, range_, value)
 }
 
-func (this *Scanner_parser) recordComment(type_ *Comment_Type, range_ *SourceRange, value string) {
+func (this *Scanner_parser) recordComment(type_ Comment_Type, range_ *SourceRange, value string) {
 	this.commentRecorder.recordComment(type_, range_, value)
 }
 
@@ -348,16 +348,16 @@ func (this *Scanner_parser) skipMultiLineComment() {
 	if !this.isAtEnd() {
 		this.nextChar()
 		this.nextChar()
-		var type_ *Comment_Type = Comment_Type_BLOCK
+		var type_ Comment_Type = Comment_Type_BLOCK
 		if (this.index_ - startOffset) > 4 {
-			if String_charAt(this.contents, (startOffset+2)) == '*' {
+			if this.contentsU16.charAt((startOffset + 2)) == '*' {
 				type_ = Comment_Type_JSDOC
-			} else if String_charAt(this.contents, (startOffset+2)) == '!' {
+			} else if this.contentsU16.charAt((startOffset + 2)) == '!' {
 				type_ = Comment_Type_IMPORTANT
 			}
 		}
 		var range_ *SourceRange = this.lineNumberScanner.getSourceRange(startOffset, this.index_)
-		var value string = String_substring(this.contents, startOffset, this.index_)
+		var value string = this.contentsU16.substring(startOffset, this.index_)
 		this.recordComment(type_, range_, value)
 	} else {
 		this.reportError("unterminated comment", []any{})
@@ -454,7 +454,6 @@ func (this *Scanner_parser) scanToken() *Token_parser {
 			default:
 				return this.createToken(TokenType_RIGHT_SHIFT, beginToken)
 			}
-			fallthrough
 		case '=':
 			this.nextChar()
 			return this.createToken(TokenType_GREATER_EQUAL, beginToken)
@@ -587,7 +586,6 @@ func (this *Scanner_parser) scanToken() *Token_parser {
 	default:
 		return this.scanIdentifierOrKeyword(beginToken, ch)
 	}
-	panic("unreachable")
 }
 
 func (this *Scanner_parser) scanNumberPostPeriod(beginToken int32) *Token_parser {
@@ -618,7 +616,7 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 			if isBigInt {
 				this.nextChar()
 			}
-			return new_LiteralToken(func() *TokenType {
+			return new_LiteralToken(func() TokenType {
 				if isBigInt {
 					return TokenType_BIGINT
 				}
@@ -637,7 +635,7 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 			if isBigInt {
 				this.nextChar()
 			}
-			return new_LiteralToken(func() *TokenType {
+			return new_LiteralToken(func() TokenType {
 				if isBigInt {
 					return TokenType_BIGINT
 				}
@@ -653,7 +651,7 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 			if isBigInt {
 				this.nextChar()
 			}
-			return new_LiteralToken(func() *TokenType {
+			return new_LiteralToken(func() TokenType {
 				if isBigInt {
 					return TokenType_BIGINT
 				}
@@ -679,11 +677,10 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 		default:
 			return new_LiteralToken(TokenType_NUMBER, this.getTokenString(beginToken), this.getTokenRange(beginToken)).up_Token_parser()
 		}
-		panic("unreachable")
 	}()
 }
 
-func (this *Scanner_parser) createToken(type_ *TokenType, beginToken int32) *Token_parser {
+func (this *Scanner_parser) createToken(type_ TokenType, beginToken int32) *Token_parser {
 	return new_Token_parser(type_, this.getTokenRange(beginToken))
 }
 
@@ -716,7 +713,7 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 		this.nextChar()
 		ch = this.peekChar()
 	}
-	var value Optional[string] = Optional_of[string](String_substring(this.contents, valueStartIndex, this.index_))
+	var value Optional[string] = Optional_of[string](this.contentsU16.substring(valueStartIndex, this.index_))
 	if isPrivateIdentifier && (value.get() == "#") {
 		this.reportError_3(this.getPosition_1(beginToken), "Invalid usage of #", []any{})
 		return this.createToken(TokenType_ERROR, beginToken)
@@ -728,24 +725,26 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 			return this.createToken(TokenType_ERROR, beginToken)
 		}
 	}
-	var start uint16 = String_charAt(value.get(), 0)
+	var valueU16 utf16_
+	var start uint16 = valueU16.of(value.get()).charAt(0)
 	if isPrivateIdentifier {
-		start = String_charAt(value.get(), 1)
+		start = valueU16.of(value.get()).charAt(1)
 	}
 	if !Identifiers_isIdentifierStart(start) {
 		this.reportError_3(this.getPosition_1(beginToken), "Character '%c' (U+%04X) is not a valid identifier start char", []any{any(uint16(start)), any(int32(int32(start)))})
 		return this.createToken(TokenType_ERROR, beginToken)
 	}
-	var k *Keywords = Keywords_getString(value.orElseThrow())
-	if (k != nil) && !containsUnicodeEscape {
-		return new_Token_parser(k.type__, this.getTokenRange(beginToken))
+	var k Keywords = Keywords_getString(value.orElseThrow())
+	if (k != 0) && !containsUnicodeEscape {
+		return new_Token_parser(Keywords_type___[k-1], this.getTokenRange(beginToken))
 	}
 	return new_IdentifierToken(this.getTokenRange(beginToken), value.get()).up_Token_parser()
 }
 
 func Scanner_parser_processUnicodeEscapes(value Optional[string]) Optional[string] {
-	for String_contains(value.get(), strobj_("\\")) {
-		var escapeStart int32 = String_indexOf(value.get(), 92)
+	var valueU16 utf16_
+	for strings.Contains(value.get(), "\\") {
+		var escapeStart int32 = valueU16.of(value.get()).indexOf(92)
 		var ret_2 Optional[string]
 		code_2 := func() (code_ int) {
 			defer func() {
@@ -757,34 +756,33 @@ func Scanner_parser_processUnicodeEscapes(value Optional[string]) Optional[strin
 						ret_2 = Optional_empty[string]()
 						code_ = 1
 						return
-						return
 					}
 					panic(r_)
 				}
 			}()
-			if String_charAt(value.get(), (escapeStart+1)) != 'u' {
+			if valueU16.of(value.get()).charAt((escapeStart + 1)) != 'u' {
 				ret_2 = Optional_empty[string]()
 				return 1
 			}
 			var hexDigits string
 			var escapeEnd int32
-			if String_charAt(value.get(), (escapeStart+2)) != '{' {
+			if valueU16.of(value.get()).charAt((escapeStart + 2)) != '{' {
 				escapeEnd = (escapeStart + 6)
-				if escapeEnd > String_length(value.get()) {
+				if escapeEnd > valueU16.of(value.get()).length() {
 					ret_2 = Optional_empty[string]()
 					return 1
 				}
-				hexDigits = String_substring(value.get(), (escapeStart + 2), escapeEnd)
+				hexDigits = valueU16.of(value.get()).substring((escapeStart + 2), escapeEnd)
 			} else {
 				escapeEnd = (escapeStart + 3)
-				for Scanner_parser_isHexDigit(String_charAt(value.get(), escapeEnd)) {
+				for Scanner_parser_isHexDigit(valueU16.of(value.get()).charAt(escapeEnd)) {
 					escapeEnd++
 				}
-				if String_charAt(value.get(), escapeEnd) != '}' {
+				if valueU16.of(value.get()).charAt(escapeEnd) != '}' {
 					ret_2 = Optional_empty[string]()
 					return 1
 				}
-				hexDigits = String_substring(value.get(), (escapeStart + 3), escapeEnd)
+				hexDigits = valueU16.of(value.get()).substring((escapeStart + 3), escapeEnd)
 				escapeEnd++
 			}
 			var codePoint int32 = Integer_parseInt(hexDigits, 16)
@@ -797,7 +795,7 @@ func Scanner_parser_processUnicodeEscapes(value Optional[string]) Optional[strin
 				ret_2 = Optional_empty[string]()
 				return 1
 			}
-			value = Optional_of[string]((sstr_(String_substring(value.get(), 0, escapeStart)) + chrstr_(ch) + sstr_(String_substring_int(value.get(), escapeEnd))))
+			value = Optional_of[string]((sstr_(valueU16.of(value.get()).substring(0, escapeStart)) + chrstr_(ch) + sstr_(valueU16.of(value.get()).substring_int(escapeEnd))))
 			return 0
 		}()
 		if code_2 == 1 {
@@ -832,7 +830,7 @@ func (this *Scanner_parser) scanTemplateLiteral(beginIndex int32) *Token_parser 
 	return this.nextTemplateLiteralTokenShared(TokenType_NO_SUBSTITUTION_TEMPLATE, TokenType_TEMPLATE_HEAD).up_Token_parser()
 }
 
-func (this *Scanner_parser) nextTemplateLiteralTokenShared(endType *TokenType, middleType *TokenType) *TemplateLiteralToken {
+func (this *Scanner_parser) nextTemplateLiteralTokenShared(endType TokenType, middleType TokenType) *TemplateLiteralToken {
 	var beginIndex int32 = this.index_
 	var startingPosition *SourcePosition_util = this.getPosition_1(beginIndex)
 	var skipTemplateCharactersResult *Scanner_SkipTemplateCharactersResult = this.skipTemplateCharacters()
@@ -852,12 +850,11 @@ func (this *Scanner_parser) nextTemplateLiteralTokenShared(endType *TokenType, m
 		default:
 			return new_TemplateLiteralToken(endType, value, skipTemplateCharactersResult.getErrorMessage().orElse(""), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *Scanner_parser) getTokenString(beginIndex int32) string {
-	return String_substring(this.contents, beginIndex, this.index_)
+	return this.contentsU16.substring(beginIndex, this.index_)
 }
 
 func (this *Scanner_parser) peekStringLiteralChar(terminator uint16) bool {
@@ -873,7 +870,7 @@ func (this *Scanner_parser) skipStringLiteralChar() bool {
 }
 
 func (this *Scanner_parser) skipTemplateCharacters() *Scanner_SkipTemplateCharactersResult {
-	var result *Scanner_SkipTemplateCharactersResult = this.createSkipTemplateCharactersResult(Optional_empty[string](), nil)
+	var result *Scanner_SkipTemplateCharactersResult = this.createSkipTemplateCharactersResult(Optional_empty[string](), 0)
 	for !this.isAtEnd() {
 		switch this.peekChar() {
 		case '`':
@@ -951,7 +948,6 @@ func (this *Scanner_parser) skipTemplateLiteralEscapeSequence() *Scanner_SkipTem
 	default:
 		return this.createSkipTemplateCharactersResult(Optional_of[string](Strings_lenientFormat("Unnecessary escape: '\\%s' is equivalent to just '%s'", []any{any(uint16(next)), any(uint16(next))})), TemplateLiteralToken_ErrorLevel_WARNING)
 	}
-	panic("unreachable")
 }
 
 func (this *Scanner_parser) skipStringLiteralEscapeSequence() bool {
@@ -1077,7 +1073,6 @@ func Scanner_parser_isDecimalDigit(ch uint16) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1131,7 +1126,6 @@ func Scanner_parser_valueOfOctalDigit(ch uint16) int32 {
 		default:
 			return -1
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1164,7 +1158,6 @@ func Scanner_parser_valueOfBinaryDigit(ch uint16) int32 {
 		default:
 			return -1
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1174,7 +1167,7 @@ func (this *Scanner_parser) nextChar() uint16 {
 	}
 	var charIndex int32 = this.index_
 	this.index_++
-	return String_charAt(this.contents, charIndex)
+	return this.contentsU16.charAt(charIndex)
 }
 
 func (this *Scanner_parser) peek(ch uint16) bool {
@@ -1190,7 +1183,7 @@ func (this *Scanner_parser) peekChar_1(offset int32) uint16 {
 		if !this.isValidIndex((this.index_ + offset)) {
 			return 0x0000
 		}
-		return String_charAt(this.contents, (this.index_ + offset))
+		return this.contentsU16.charAt((this.index_ + offset))
 	}()
 }
 
@@ -1214,35 +1207,35 @@ func (this *Scanner_parser) decTypeParameterLevel() {
 	this.typeParameterLevel--
 }
 
-func (this *Scanner_parser) createSkipTemplateCharactersResult(message Optional[string], errorLevel *TemplateLiteralToken_ErrorLevel) *Scanner_SkipTemplateCharactersResult {
+func (this *Scanner_parser) createSkipTemplateCharactersResult(message Optional[string], errorLevel TemplateLiteralToken_ErrorLevel) *Scanner_SkipTemplateCharactersResult {
 	return new_Scanner_SkipTemplateCharactersResult(message, errorLevel, this.getPosition())
 }
 
 type Scanner_CommentRecorder interface {
-	recordComment(*Comment_Type, *SourceRange, string)
+	recordComment(Comment_Type, *SourceRange, string)
 }
 
 type Scanner_CommentRecorder_fn struct {
-	f func(*Comment_Type, *SourceRange, string)
+	f func(Comment_Type, *SourceRange, string)
 }
 
-func (this *Scanner_CommentRecorder_fn) recordComment(p0 *Comment_Type, p1 *SourceRange, p2 string) {
+func (this *Scanner_CommentRecorder_fn) recordComment(p0 Comment_Type, p1 *SourceRange, p2 string) {
 	this.f(p0, p1, p2)
 }
 
 type Scanner_SkipTemplateCharactersResult struct {
 	errorMessage_ Optional[string]
 	position      *SourcePosition_util
-	errorLevel    *TemplateLiteralToken_ErrorLevel
+	errorLevel    TemplateLiteralToken_ErrorLevel
 }
 
-func (this *Scanner_SkipTemplateCharactersResult) init_Scanner_SkipTemplateCharactersResult(message Optional[string], errorLevel *TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) {
+func (this *Scanner_SkipTemplateCharactersResult) init_Scanner_SkipTemplateCharactersResult(message Optional[string], errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) {
 	this.errorMessage_ = message
 	this.errorLevel = errorLevel
 	this.position = position
 }
 
-func new_Scanner_SkipTemplateCharactersResult(message Optional[string], errorLevel *TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) *Scanner_SkipTemplateCharactersResult {
+func new_Scanner_SkipTemplateCharactersResult(message Optional[string], errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) *Scanner_SkipTemplateCharactersResult {
 	this := &Scanner_SkipTemplateCharactersResult{}
 	this.init_Scanner_SkipTemplateCharactersResult(message, errorLevel, position)
 	return this
@@ -1252,7 +1245,7 @@ func (this *Scanner_SkipTemplateCharactersResult) getErrorMessage() Optional[str
 	return this.errorMessage_
 }
 
-func (this *Scanner_SkipTemplateCharactersResult) getErrorLevel() *TemplateLiteralToken_ErrorLevel {
+func (this *Scanner_SkipTemplateCharactersResult) getErrorLevel() TemplateLiteralToken_ErrorLevel {
 	return this.errorLevel
 }
 
@@ -1265,5 +1258,5 @@ func (this *Scanner_SkipTemplateCharactersResult) hasMessage() bool {
 }
 
 func (this *Scanner_SkipTemplateCharactersResult) hasError() bool {
-	return Objects_equals(obj_(this.errorLevel), obj_(TemplateLiteralToken_ErrorLevel_ERROR))
+	return this.errorLevel == TemplateLiteralToken_ErrorLevel_ERROR
 }

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type SourceMapObjectParser struct {
 }
 
@@ -55,11 +57,11 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 	}
 	builder.setSourceRoot(Optional_ofNullable[string](sourceRoot.get()))
 	if sourceMapRoot.get("sections") != nil {
-		var sections *Outcome_base[*ImmutableList] = SourceMapObjectParser_buildSections(sourceMapRoot.get("sections"))
+		var sections *Outcome_base[*ErasedImmutableList] = SourceMapObjectParser_buildSections(sourceMapRoot.get("sections"))
 		if sections.isErr() {
 			return Outcome_base_err[*SourceMapObject](sections.error())
 		}
-		builder.setSections(icast_List(obj_(sections.get())))
+		builder.setSections(sliceImm_(tc_p_SourceMapSection, sections.get()))
 	}
 	var sources *Outcome_base[[]string] = SourceMapObjectParser_getJavaStringArray(sourceMapRoot, "sources")
 	if sources.isErr() {
@@ -80,7 +82,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 	it_1 := sourceMapRoot.members().eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, *SimpleJsonValue] = it_1.entry()
-		if String_startsWith(entry.getKey(), "x_") {
+		if strings.HasPrefix(entry.getKey(), "x_") {
 			extensions.put(entry.getKey(), obj_(entry.getValue()))
 		}
 	}
@@ -151,11 +153,11 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 			if sectionsArray.isErr() {
 				return Outcome_base_err[any](new_SourceMapParseException(sectionsArray.errorMessage().orElse(nullstr_)).up_Throwable())
 			}
-			var sections *Outcome_base[*ImmutableList] = SourceMapObjectParser_buildSections(sectionsArray.get())
+			var sections *Outcome_base[*ErasedImmutableList] = SourceMapObjectParser_buildSections(sectionsArray.get())
 			if sections.isErr() {
 				return Outcome_base_err[any](sections.error())
 			}
-			builder.setSections(icast_List(obj_(sections.get())))
+			builder.setSections(sliceImm_(tc_p_SourceMapSection, sections.get()))
 		case "sources":
 			var sources *Outcome_base[[]string] = SourceMapObjectParser_readStringArray(lexer)
 			if sources.isErr() {
@@ -175,7 +177,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 			}
 			builder.setNames(names.get())
 		default:
-			if String_startsWith(name, "x_") {
+			if strings.HasPrefix(name, "x_") {
 				var rawValue *Outcome_base[string] = lexer.nextRawValue()
 				if rawValue.isErr() {
 					return Outcome_base_err[any](rawValue.error())
@@ -209,21 +211,21 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 	return Outcome_base_ok_0()
 }
 
-func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_base[*ImmutableList] {
+func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_base[*ErasedImmutableList] {
 	if sections.kind() != SimpleJsonValue_Kind_ARRAY {
-		return Outcome_base_err[*ImmutableList](SourceMapObjectParser_invalidMember("sections").up_Throwable())
+		return Outcome_base_err[*ErasedImmutableList](SourceMapObjectParser_invalidMember("sections").up_Throwable())
 	}
-	var listBuilder ImmutableList_BuilderOf[*SourceMapSection] = ImmutableList_builder()
+	var listBuilder *ImmutableList_Builder[*SourceMapSection] = immutableListBuilder_(tc_p_SourceMapSection)
 	it_1 := sections.elements().each()
 	for it_1.next() {
 		var each *SimpleJsonValue = it_1.v
 		var section *Outcome_base[*SourceMapSection] = SourceMapObjectParser_buildSection(each)
 		if section.isErr() {
-			return Outcome_base_err[*ImmutableList](section.error())
+			return Outcome_base_err[*ErasedImmutableList](section.error())
 		}
-		listBuilder.add(obj_(section.get()))
+		listBuilder.add(section.get())
 	}
-	return Outcome_base_ok_Object[*ImmutableList](cast_[*ImmutableList](obj_(listBuilder.build())))
+	return Outcome_base_ok_Object[*ErasedImmutableList](listBuilder.buildErased())
 }
 
 func SourceMapObjectParser_buildSection(section *SimpleJsonValue) *Outcome_base[*SourceMapSection] {
@@ -312,7 +314,7 @@ func SourceMapObjectParser_getJavaStringArray(object *SimpleJsonValue, key strin
 
 func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_base[[]string] {
 	lexer.skipWhitespace()
-	if (lexer.pos < lexer.length_) && String_startsWith_String_int(lexer.json, "null", lexer.pos) {
+	if (lexer.pos < lexer.length_) && lexer.jsonU16.startsWith_String_int("null", lexer.pos) {
 		lexer.pos += 4
 		return Outcome_base_ok_Object[[]string](nil)
 	}

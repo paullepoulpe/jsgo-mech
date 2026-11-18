@@ -2,21 +2,23 @@
 
 package closure
 
+import "strings"
+
 type SuggestedFix struct {
 	matchedNodeInfo *SuggestedFix_MatchedNodeInfo
-	replacements    *SimpleSetMultimap
+	replacements    *SimpleSetMultimap[any, any]
 	description_    Optional[string]
-	alternatives    ImmutableListOf[*SuggestedFix]
+	alternatives    *ImmutableList[*SuggestedFix]
 }
 
-func (this *SuggestedFix) init_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap, description Optional[string], alternatives ImmutableListOf[*SuggestedFix]) {
+func (this *SuggestedFix) init_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description Optional[string], alternatives []*SuggestedFix) {
 	this.matchedNodeInfo = matchedNodeInfo
 	this.replacements = replacements
 	this.description_ = description
-	this.alternatives = cast_[*ImmutableList](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().add(any(this)))).addAll(icast_Iterable(obj_(alternatives))))).build()))
+	this.alternatives = immutableListBuilder_(tc_p_SuggestedFix).add(this).addAll(sliceView_(tc_p_SuggestedFix, alternatives)).build()
 }
 
-func new_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap, description Optional[string], alternatives ImmutableListOf[*SuggestedFix]) *SuggestedFix {
+func new_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description Optional[string], alternatives []*SuggestedFix) *SuggestedFix {
 	this := &SuggestedFix{}
 	this.init_SuggestedFix(matchedNodeInfo, replacements, description, alternatives)
 	return this
@@ -26,7 +28,7 @@ func (this *SuggestedFix) getMatchedNodeInfo() *SuggestedFix_MatchedNodeInfo {
 	return this.matchedNodeInfo
 }
 
-func (this *SuggestedFix) getReplacements() *SimpleSetMultimap {
+func (this *SuggestedFix) getReplacements() *SimpleSetMultimap[any, any] {
 	return this.replacements
 }
 
@@ -34,12 +36,12 @@ func (this *SuggestedFix) getDescription() Optional[string] {
 	return this.description_
 }
 
-func (this *SuggestedFix) getAlternatives() ImmutableListOf[*SuggestedFix] {
+func (this *SuggestedFix) getAlternatives() *ImmutableList[*SuggestedFix] {
 	return this.alternatives
 }
 
-func (this *SuggestedFix) getNonDefaultAlternatives() ImmutableListOf[*SuggestedFix] {
-	return cast_[*ImmutableList](this.alternatives.subList(1, this.alternatives.size()))
+func (this *SuggestedFix) getNonDefaultAlternatives() []*SuggestedFix {
+	return sliceImm_(tc_p_SuggestedFix, cast_[*ErasedImmutableList](this.alternatives.asImm().subList(1, this.alternatives.size())))
 }
 
 func (this *SuggestedFix) isNoOp() bool {
@@ -50,14 +52,12 @@ func (this *SuggestedFix) toString() string {
 	if this.isNoOp() {
 		return "<no-op SuggestedFix>"
 	}
-	var sb *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(any(this.replacements.asMap().entrySet()))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	var sb strBuilder_
+	for entry := range elemsBy_(this.replacements.asMap().entrySet(), icast_Map_Entry) {
 		sb.append("Replacements for file: ").append(str_(entry.getKey())).append("\n")
-		Joiner_on("\n\n").appendTo(sb, icast_Iterable(entry.getValue()))
+		Joiner_on("\n\n").appendToStr_(&sb, icast_Iterable(entry.getValue()))
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func SuggestedFix_getStartPositionForNodeConsideringComments(node Node) int32 {
@@ -73,44 +73,62 @@ func SuggestedFix_getStartPositionForNodeConsideringComments(node Node) int32 {
 	return start
 }
 
-type SuggestedFix_ImportType struct {
-	Enum
+type SuggestedFix_ImportType uint8
+
+// SuggestedFix_ImportType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var SuggestedFix_ImportType_enum_ = [2]Enum{
+	{self_: SuggestedFix_ImportType_REQUIRE, name_: "REQUIRE", ordinal_: 0},
+	{self_: SuggestedFix_ImportType_REQUIRE_TYPE, name_: "REQUIRE_TYPE", ordinal_: 1},
 }
 
-func (this *SuggestedFix_ImportType) up_Enum() *Enum {
-	if this == nil {
+func (this SuggestedFix_ImportType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &SuggestedFix_ImportType_enum_[this-1]
 }
 
-func (this *SuggestedFix_ImportType) init_SuggestedFix_ImportType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this SuggestedFix_ImportType) name() string { return this.enum_().name_ }
+
+func (this SuggestedFix_ImportType) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_SuggestedFix_ImportType(name_ string, ordinal_ int32) *SuggestedFix_ImportType {
-	this := &SuggestedFix_ImportType{}
-	this.self_ = this
-	this.init_SuggestedFix_ImportType(name_, ordinal_)
+func (this SuggestedFix_ImportType) toString() string {
+	return this.enum_().name_
+}
+
+func (this SuggestedFix_ImportType) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this SuggestedFix_ImportType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func SuggestedFix_ImportType_values() []*SuggestedFix_ImportType {
-	return append([]*SuggestedFix_ImportType(nil), SuggestedFix_ImportType_values_...)
+func SuggestedFix_ImportType_values() []SuggestedFix_ImportType {
+	return append([]SuggestedFix_ImportType(nil), SuggestedFix_ImportType_values_...)
 }
 
-func SuggestedFix_ImportType_valueOf(name string) *SuggestedFix_ImportType {
+func SuggestedFix_ImportType_valueOf(name string) SuggestedFix_ImportType {
 	for _, v := range SuggestedFix_ImportType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ImportType", name))
 }
 
-var SuggestedFix_ImportType_REQUIRE *SuggestedFix_ImportType
-var SuggestedFix_ImportType_REQUIRE_TYPE *SuggestedFix_ImportType
-var SuggestedFix_ImportType_values_ []*SuggestedFix_ImportType
+const SuggestedFix_ImportType_REQUIRE SuggestedFix_ImportType = 1
+const SuggestedFix_ImportType_REQUIRE_TYPE SuggestedFix_ImportType = 2
+
+var SuggestedFix_ImportType_values_ []SuggestedFix_ImportType
 
 var SuggestedFix_ImportType_clinit_done bool
 
@@ -119,24 +137,22 @@ func SuggestedFix_ImportType_clinit() {
 		return
 	}
 	SuggestedFix_ImportType_clinit_done = true
-	SuggestedFix_ImportType_REQUIRE = new_SuggestedFix_ImportType("REQUIRE", 0)
-	SuggestedFix_ImportType_REQUIRE_TYPE = new_SuggestedFix_ImportType("REQUIRE_TYPE", 1)
-	SuggestedFix_ImportType_values_ = []*SuggestedFix_ImportType{SuggestedFix_ImportType_REQUIRE, SuggestedFix_ImportType_REQUIRE_TYPE}
+	SuggestedFix_ImportType_values_ = []SuggestedFix_ImportType{SuggestedFix_ImportType_REQUIRE, SuggestedFix_ImportType_REQUIRE_TYPE}
 	registerEnum_("com.google.javascript.refactoring.SuggestedFix.ImportType", enumValues_(SuggestedFix_ImportType_values_))
 
 }
 
 type SuggestedFix_Builder struct {
 	matchedNodeInfo *SuggestedFix_MatchedNodeInfo
-	replacements    *SimpleSetMultimap
-	alternatives    ImmutableList_BuilderOf[*SuggestedFix]
+	replacements    *SimpleSetMultimap[any, any]
+	alternatives    *ImmutableList_Builder[*SuggestedFix]
 	description_    Optional[string]
 }
 
 func (this *SuggestedFix_Builder) finit_SuggestedFix_Builder() {
 	this.matchedNodeInfo = nil
-	this.replacements = SimpleSetMultimap_create()
-	this.alternatives = ImmutableList_builder()
+	this.replacements = SimpleSetMultimap_create[any, any]()
+	this.alternatives = immutableListBuilder_(tc_p_SuggestedFix)
 	this.description_ = Optional_empty[string]()
 }
 
@@ -156,27 +172,31 @@ func (this *SuggestedFix_Builder) attachMatchedNodeInfo(node Node, compiler *Abs
 }
 
 func (this *SuggestedFix_Builder) addAlternative(alternative *SuggestedFix) *SuggestedFix_Builder {
-	Preconditions_checkState_boolean_Object(alternative.getNonDefaultAlternatives().isEmpty(), strobj_("Alternative SuggestedFix must have no alternatives of their own."))
-	this.alternatives.add(obj_(alternative))
+	if len(alternative.getNonDefaultAlternatives()) != 0 {
+		panic(new_IllegalStateException_String("Alternative SuggestedFix must have no alternatives of their own."))
+	}
+	this.alternatives.add(alternative)
 	return this
 }
 
 func (this *SuggestedFix_Builder) replaceText(node Node, length int32, newContent string) *SuggestedFix_Builder {
 	var startPosition int32 = node.getSourceOffset()
-	this.replacements.put(strobj_(node.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(startPosition, length, newContent)))
+	this.replacements.put_s(node.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(startPosition, length, newContent)))
 	return this
 }
 
 func (this *SuggestedFix_Builder) addChildToFront(parentNode Node, content string) *SuggestedFix_Builder {
-	Preconditions_checkState_boolean_Object(parentNode.isBlock(), strobj_("addChildToFront is only supported for BLOCK statements."))
+	if !parentNode.isBlock() {
+		panic(new_IllegalStateException_String("addChildToFront is only supported for BLOCK statements."))
+	}
 	var startPosition int32 = (parentNode.getSourceOffset() + 1)
-	this.replacements.put(strobj_(parentNode.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(startPosition, 0, ("\n"+sstr_(content)))))
+	this.replacements.put_s(parentNode.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(startPosition, 0, ("\n"+sstr_(content)))))
 	return this
 }
 
 func (this *SuggestedFix_Builder) insertAfter(node Node, text string) *SuggestedFix_Builder {
 	var position int32 = (node.getSourceOffset() + node.getLength())
-	this.replacements.put(strobj_(node.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(position, 0, text)))
+	this.replacements.put_s(node.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(position, 0, text)))
 	return this
 }
 
@@ -194,8 +214,10 @@ func (this *SuggestedFix_Builder) insertBefore(nodeToInsertBefore Node, content 
 
 func (this *SuggestedFix_Builder) insertBeforeString(nodeToInsertBefore Node, content string, sortKey string) *SuggestedFix_Builder {
 	var startPosition int32 = SuggestedFix_getStartPositionForNodeConsideringComments(nodeToInsertBefore)
-	Preconditions_checkState_boolean_String_Object(!String_isEmpty(nodeToInsertBefore.getSourceFileName()), "No source file name for node: %s", nodeToInsertBefore.box_())
-	this.replacements.put(strobj_(nodeToInsertBefore.getSourceFileName()), obj_(CodeReplacement_create_int_int_String_String(startPosition, 0, content, sortKey)))
+	if nodeToInsertBefore.getSourceFileName() == "" {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("No source file name for node: %s", []any{nodeToInsertBefore.box_()})))
+	}
+	this.replacements.put_s(nodeToInsertBefore.getSourceFileName(), obj_(CodeReplacement_create_int_int_String_String(startPosition, 0, content, sortKey)))
 	return this
 }
 
@@ -240,7 +262,7 @@ func (this *SuggestedFix_Builder) delete_2(n Node, deleteWhitespaceBefore bool) 
 			startPosition = previousSiblingEndPosition
 		}
 	}
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(startPosition, length, "")))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(startPosition, length, "")))
 	return this
 }
 
@@ -249,7 +271,7 @@ func (this *SuggestedFix_Builder) deleteWithoutRemovingWhitespaceBefore(n Node) 
 }
 
 func (this *SuggestedFix_Builder) deleteWithoutRemovingWhitespace(n Node) *SuggestedFix_Builder {
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(n.getSourceOffset(), n.getLength(), "")))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(n.getSourceOffset(), n.getLength(), "")))
 	return this
 }
 
@@ -259,37 +281,41 @@ func (this *SuggestedFix_Builder) rename(n Node, name string) *SuggestedFix_Buil
 
 func (this *SuggestedFix_Builder) rename_3(n Node, name string, replaceNameSubtree bool) *SuggestedFix_Builder {
 	var range_ Node
-	switch n.getToken() {
-	case Token_rhino_CALL, Token_rhino_TAGGED_TEMPLATELIT:
+	switch n.ns_().token {
+	case tokOrd1_CALL, tokOrd1_TAGGED_TEMPLATELIT:
 		return this.rename_3(n.getFirstChild(), name, replaceNameSubtree)
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		range_ = func() Node {
 			if replaceNameSubtree {
 				return SuggestedFix_Builder_subtreeRangeOfIdentifier(n)
 			}
 			return n
 		}()
-	case Token_rhino_STRINGLIT:
-		Preconditions_checkState_boolean_Object(n.getParent().isGetProp(), n.box_())
+	case tokOrd1_STRINGLIT:
+		if !n.getParent().isGetProp() {
+			panic(new_IllegalStateException_String(tostr_(n)))
+		}
 		range_ = n
-	case Token_rhino_STRING_KEY, Token_rhino_NAME:
+	case tokOrd1_STRING_KEY, tokOrd1_NAME:
 		range_ = n
 	default:
-		panic(new_UnsupportedOperationException_String(("Rename is not implemented for this node type: " + objstr_(n.box_()))).self())
+		panic(new_UnsupportedOperationException_String(("Rename is not implemented for this node type: " + tostr_(n))))
 	}
-	this.replacements.put(strobj_(range_.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(range_.getSourceOffset(), range_.getLength(), name)))
+	this.replacements.put_s(range_.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(range_.getSourceOffset(), range_.getLength(), name)))
 	return this
 }
 
 func (this *SuggestedFix_Builder) replaceRange(first Node, last Node, newContent string) *SuggestedFix_Builder {
-	Preconditions_checkState((first.getParent() == last.getParent()))
+	if first.getParent() != last.getParent() {
+		panic(new_IllegalStateException_0())
+	}
 	var start int32 = SuggestedFix_getStartPositionForNodeConsideringComments(first)
 	if start == 0 {
 		start = first.getSourceOffset()
 	}
 	var end int32 = (last.getSourceOffset() + last.getLength())
 	var length int32 = (end - start)
-	this.replacements.put(strobj_(first.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(start, length, newContent)))
+	this.replacements.put_s(first.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(start, length, newContent)))
 	return this
 }
 
@@ -299,12 +325,12 @@ func (this *SuggestedFix_Builder) replace(original Node, newNode Node, compiler 
 		original = parent
 	}
 	var newCode string = this.generateCode(compiler, newNode)
-	if String_endsWith(newCode, "\n") {
-		newCode = String_substring(newCode, 0, (String_length(newCode) - 1))
+	if strings.HasSuffix(newCode, "\n") {
+		newCode = newCode[:len(newCode)-1]
 	}
 	var needsSemicolon bool = ((parent != 0) && (((parent.isExprResult() || parent.isBlock()) || parent.isScript()) || parent.isModuleBody()))
-	if String_endsWith(newCode, ";") && !needsSemicolon {
-		newCode = String_substring(newCode, 0, (String_length(newCode) - 1))
+	if strings.HasSuffix(newCode, ";") && !needsSemicolon {
+		newCode = newCode[:len(newCode)-1]
 	}
 	if (parent != 0) && IR_mayBeExpression(parent) {
 		var replacement Node = newNode
@@ -327,20 +353,22 @@ func (this *SuggestedFix_Builder) replace(original Node, newNode Node, compiler 
 	if original.isGetProp() {
 		range_ = SuggestedFix_Builder_subtreeRangeOfIdentifier(original)
 	}
-	this.replacements.put(strobj_(range_.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(range_.getSourceOffset(), range_.getLength(), newCode)))
+	this.replacements.put_s(range_.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(range_.getSourceOffset(), range_.getLength(), newCode)))
 	return this
 }
 
 func (this *SuggestedFix_Builder) addCast(n Node, compiler *AbstractCompiler, type_ string) *SuggestedFix_Builder {
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(n.getSourceOffset(), n.getLength(), ("/** @type {"+sstr_(type_)+"} */ ("+sstr_(this.generateCode(compiler, n))+")"))))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(n.getSourceOffset(), n.getLength(), ("/** @type {"+sstr_(type_)+"} */ ("+sstr_(this.generateCode(compiler, n))+")"))))
 	return this
 }
 
 func (this *SuggestedFix_Builder) removeCast(n Node, compiler *AbstractCompiler) *SuggestedFix_Builder {
-	Preconditions_checkArgument(n.isCast())
+	if !n.isCast() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var jsDoc *JSDocInfo = n.getJSDocInfo()
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(jsDoc.getOriginalCommentPosition(), (n.getFirstChild().getSourceOffset()-jsDoc.getOriginalCommentPosition()), "")))
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(((n.getSourceOffset()+n.getLength())-1), 1, "")))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(jsDoc.getOriginalCommentPosition(), (n.getFirstChild().getSourceOffset()-jsDoc.getOriginalCommentPosition()), "")))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(((n.getSourceOffset()+n.getLength())-1), 1, "")))
 	return this
 }
 
@@ -355,17 +383,19 @@ func (this *SuggestedFix_Builder) addOrReplaceJsDoc(n Node, newJsDoc string) *Su
 		offset = jsDoc.getOriginalCommentPosition()
 		length = String_length(jsDoc.getOriginalCommentString().get())
 	}
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(offset, length, newJsDoc)))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(offset, length, newJsDoc)))
 	return this
 }
 
 func (this *SuggestedFix_Builder) changeJsDocType(n Node, compiler *AbstractCompiler, type_ string) *SuggestedFix_Builder {
 	var typeNode Node = JsDocInfoParser_parseTypeString(type_)
-	Preconditions_checkNotNull_Object_String_Object(typeNode.box_(), "Invalid type: %s", strobj_(type_))
+	if typeNode == 0 {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Invalid type: %s", []any{strobj_(type_)})))
+	}
 	var typeExpr *JSTypeExpression = new_JSTypeExpression(typeNode, "jsflume")
 	var newJsType *JSType = typeExpr.evaluate(nil, compiler.getTypeRegistry())
 	if newJsType == nil {
-		panic(new_RuntimeException_String(("JS Compiler does not recognize type: " + sstr_(type_))).self())
+		panic(new_RuntimeException_String(("JS Compiler does not recognize type: " + sstr_(type_))))
 	}
 	this.replaceTypePattern(n, type_, Pattern_compile("@(type) *\\{?[^@\\s\\x0B}]+\\}?"))
 	this.replaceTypePattern(n, type_, Pattern_compile("@(export|package|private|protected|public|const|return) *\\{[^}]+\\}"))
@@ -374,19 +404,23 @@ func (this *SuggestedFix_Builder) changeJsDocType(n Node, compiler *AbstractComp
 
 func (this *SuggestedFix_Builder) replaceTypePattern(n Node, type_ string, pattern *Pattern) {
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-	Preconditions_checkNotNull_Object_String_Object(obj_(info), "Node %s does not have JS Doc associated with it.", n.box_())
+	if info == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Node %s does not have JS Doc associated with it.", []any{n.box_()})))
+	}
 	var originalComment Optional[string] = info.getOriginalCommentString()
 	var originalPosition int32 = info.getOriginalCommentPosition()
 	if originalComment.isPresent() {
-		var m *Matcher_re2j = pattern.matcher(strobj_(originalComment.get()))
+		var m *Matcher_re2j = pattern.matcher_s(originalComment.get())
 		for m.find() {
-			this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String((originalPosition+m.start()), (m.end()-m.start()), ("@"+sstr_(m.group(1))+" {"+sstr_(type_)+"}"))))
+			this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String((originalPosition+m.start()), (m.end()-m.start()), ("@"+sstr_(m.group(1))+" {"+sstr_(type_)+"}"))))
 		}
 	}
 }
 
 func (this *SuggestedFix_Builder) insertArguments(n Node, position int32, args []string) *SuggestedFix_Builder {
-	Preconditions_checkArgument_boolean_Object(n.isCall(), strobj_("insertArguments is only applicable to function call nodes."))
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_String("insertArguments is only applicable to function call nodes."))
+	}
 	var startPosition int32
 	var argument Node = n.getSecondChild()
 	var i int32 = 0
@@ -395,7 +429,9 @@ func (this *SuggestedFix_Builder) insertArguments(n Node, position int32, args [
 		i++
 	}
 	if argument == 0 {
-		Preconditions_checkArgument_boolean_Object((position == i), strobj_("The specified position must be less than the number of arguments."))
+		if position != i {
+			panic(new_IllegalArgumentException_String("The specified position must be less than the number of arguments."))
+		}
 		startPosition = ((n.getSourceOffset() + n.getLength()) - 1)
 	} else {
 		startPosition = SuggestedFix_getStartPositionForNodeConsideringComments(argument)
@@ -406,15 +442,21 @@ func (this *SuggestedFix_Builder) insertArguments(n Node, position int32, args [
 	} else if i > 0 {
 		newContent = (", " + sstr_(newContent))
 	}
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(startPosition, 0, newContent)))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(startPosition, 0, newContent)))
 	return this
 }
 
 func (this *SuggestedFix_Builder) deleteArgument(n Node, position int32) *SuggestedFix_Builder {
-	Preconditions_checkArgument_boolean_Object((n.isCall() || n.isNew()), strobj_("deleteArgument is only applicable to function call nodes."))
+	if !n.isCall() && !n.isNew() {
+		panic(new_IllegalArgumentException_String("deleteArgument is only applicable to function call nodes."))
+	}
 	var numArguments int32 = (n.getChildCount() - 1)
-	Preconditions_checkState_boolean_Object((numArguments > 0), strobj_("deleteArgument() cannot be used on a function call with no arguments"))
-	Preconditions_checkArgument_boolean_Object(((position >= 0) && (position < numArguments)), strobj_("The specified position must be less than the number of arguments."))
+	if numArguments <= 0 {
+		panic(new_IllegalStateException_String("deleteArgument() cannot be used on a function call with no arguments"))
+	}
+	if position < 0 || position >= numArguments {
+		panic(new_IllegalArgumentException_String("The specified position must be less than the number of arguments."))
+	}
 	var argument Node = n.getSecondChild()
 	var startOfArgumentToRemove int32 = -1
 	var endOfArgumentToRemove int32 = -1
@@ -437,11 +479,11 @@ func (this *SuggestedFix_Builder) deleteArgument(n Node, position int32) *Sugges
 		i++
 	}
 	var lengthOfArgumentToRemove int32 = (endOfArgumentToRemove - startOfArgumentToRemove)
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(startOfArgumentToRemove, lengthOfArgumentToRemove, "")))
+	this.replacements.put_s(n.getSourceFileName(), obj_(CodeReplacement_create_int_int_String(startOfArgumentToRemove, lengthOfArgumentToRemove, "")))
 	return this
 }
 
-func SuggestedFix_Builder_createImportNode(importType *SuggestedFix_ImportType, alias Optional[string], namespace string) Node {
+func SuggestedFix_Builder_createImportNode(importType SuggestedFix_ImportType, alias Optional[string], namespace string) Node {
 	var requireFlavor string = func() string {
 		switch importType {
 		case SuggestedFix_ImportType_REQUIRE:
@@ -449,7 +491,7 @@ func SuggestedFix_Builder_createImportNode(importType *SuggestedFix_ImportType, 
 		case SuggestedFix_ImportType_REQUIRE_TYPE:
 			return "requireType"
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	var callNode Node = IR_call(IR_getprop_Node_String(IR_name("goog"), requireFlavor), []Node{IR_string(namespace)})
 	if alias.isPresent() {
@@ -457,7 +499,6 @@ func SuggestedFix_Builder_createImportNode(importType *SuggestedFix_ImportType, 
 	} else {
 		return IR_exprResult(callNode)
 	}
-	panic("unreachable")
 }
 
 func (this *SuggestedFix_Builder) addGoogRequire(m *Match, namespace string, scriptMetadata *ScriptMetadata) *SuggestedFix_Builder {
@@ -469,23 +510,23 @@ func (this *SuggestedFix_Builder) addGoogRequireType(m *Match, namespace string,
 }
 
 func SuggestedFix_Builder_firstUnusedAlias(namespace string, scriptMetadata *ScriptMetadata) string {
-	it_1 := foreach_(any(RequireAliasGenerator_over(namespace)))
+	it_1 := foreach_(RequireAliasGenerator_over(namespace))
 	for it_1.next() {
 		var a string = str_(it_1.v)
 		if !scriptMetadata.usesName(a) {
 			return a
 		}
 	}
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
-func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importType *SuggestedFix_ImportType, scriptMetadata *ScriptMetadata) *SuggestedFix_Builder {
+func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importType SuggestedFix_ImportType, scriptMetadata *ScriptMetadata) *SuggestedFix_Builder {
 	var alias Optional[string]
 	if scriptMetadata.supportsRequireAliases() {
 		var existingAlias Optional[string] = scriptMetadata.getAlias(namespace)
 		if existingAlias.isPresent() {
 			alias = existingAlias
-		} else if String_indexOf(namespace, 46) == -1 {
+		} else if !strings.Contains(namespace, ".") {
 			alias = Optional_of[string](namespace)
 		} else {
 			alias = Optional_of[string](SuggestedFix_Builder_firstUnusedAlias(namespace, scriptMetadata))
@@ -527,7 +568,7 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 				lastModuleOrProvideNode = grandchild
 			} else if Matchers_googRequirelike_0().matches(grandchild, metadata) {
 				lastGoogRequireNode = grandchild
-				if grandchild.getLastChild().isStringLit() && (String_compareTo(namespace, grandchild.getLastChild().getString()) < 0) {
+				if grandchild.getLastChild().isStringLit() && (utf16Compare_(namespace, grandchild.getLastChild().getString()) < 0) {
 					nodeToInsertBefore = child
 					break
 				}
@@ -536,10 +577,10 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 			lastGoogRequireNode = child.getFirstFirstChild()
 			var requireName string = child.getFirstChild().getString()
 			var originalName string = child.getFirstChild().getOriginalName()
-			if !String_isEmpty(originalName) {
+			if originalName != "" {
 				requireName = originalName
 			}
-			if String_compareTo(alias.get(), requireName) < 0 {
+			if utf16Compare_(alias.get(), requireName) < 0 {
 				nodeToInsertBefore = child
 				break
 			}
@@ -556,13 +597,13 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 				return lastModuleOrProvideNode
 			}()
 			var startPosition int32 = ((nodeToInsertAfter.getSourceOffset() + nodeToInsertAfter.getLength()) + 2)
-			this.replacements.put(strobj_(nodeToInsertAfter.getSourceFileName()), obj_(CodeReplacement_create_int_int_String_String(startPosition, 0, this.generateCode(m.getMetadata().getCompiler(), newImportNode), namespace)))
+			this.replacements.put_s(nodeToInsertAfter.getSourceFileName(), obj_(CodeReplacement_create_int_int_String_String(startPosition, 0, this.generateCode(m.getMetadata().getCompiler(), newImportNode), namespace)))
 			return this
 		} else {
 			if script.hasChildren() {
 				nodeToInsertBefore = script.getFirstChild()
 			} else {
-				this.replacements.put(strobj_(script.getSourceFileName()), obj_(CodeReplacement_create_int_int_String_String(0, 0, this.generateCode(m.getMetadata().getCompiler(), newImportNode), namespace)))
+				this.replacements.put_s(script.getSourceFileName(), obj_(CodeReplacement_create_int_int_String_String(0, 0, this.generateCode(m.getMetadata().getCompiler(), newImportNode), namespace)))
 				return this
 			}
 		}
@@ -603,7 +644,9 @@ func SuggestedFix_Builder_findGoogRequireNode(n Node, metadata *NodeMetadata, na
 }
 
 func SuggestedFix_Builder_subtreeRangeOfIdentifier(n Node) Node {
-	Preconditions_checkState_boolean_Object(n.isGetProp(), strobj_("Support other identifier nodes"))
+	if !n.isGetProp() {
+		panic(new_IllegalStateException_String("Support other identifier nodes"))
+	}
 	var leftmost Node = n
 	for leftmost.hasChildren() {
 		leftmost = leftmost.getFirstChild()
@@ -633,7 +676,7 @@ func (this *SuggestedFix_Builder) setDescription(description string) *SuggestedF
 }
 
 func (this *SuggestedFix_Builder) build() *SuggestedFix {
-	return new_SuggestedFix(this.matchedNodeInfo, this.replacements.immutableCopy(), this.description_, cast_[*ImmutableList](obj_(this.alternatives.build())))
+	return new_SuggestedFix(this.matchedNodeInfo, this.replacements.immutableCopy(), this.description_, this.alternatives.build().items)
 }
 
 type SuggestedFix_MatchedNodeInfo struct {
@@ -707,13 +750,13 @@ func (this *SuggestedFix_MatchedNodeInfo) equals(p0 any) bool {
 
 func (this *SuggestedFix_MatchedNodeInfo) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.sourceFilename_))
-	h = h*31 + Objects_hashCode(any(int32(this.lineno_)))
-	h = h*31 + Objects_hashCode(any(int32(this.charno_)))
-	h = h*31 + Objects_hashCode(any(bool(this.inClosurizedFile_)))
+	h = h*31 + objhashStr_(this.sourceFilename_)
+	h = h*31 + int32(this.lineno_)
+	h = h*31 + int32(this.charno_)
+	h = h*31 + Boolean_hashCode(bool(this.inClosurizedFile_))
 	return h
 }
 
 func (this *SuggestedFix_MatchedNodeInfo) toString() string {
-	return "MatchedNodeInfo[" + "sourceFilename=" + objstr_(strobj_(this.sourceFilename_)) + ", lineno=" + objstr_(any(int32(this.lineno_))) + ", charno=" + objstr_(any(int32(this.charno_))) + ", inClosurizedFile=" + objstr_(any(bool(this.inClosurizedFile_))) + "]"
+	return "MatchedNodeInfo[" + "sourceFilename=" + sstr_(this.sourceFilename_) + ", lineno=" + istr_(int64(int32(this.lineno_))) + ", charno=" + istr_(int64(int32(this.charno_))) + ", inClosurizedFile=" + boolstr_(bool(this.inClosurizedFile_)) + "]"
 }

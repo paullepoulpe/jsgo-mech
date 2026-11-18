@@ -27,7 +27,7 @@ func new_LateEs6ToEs3Converter(compiler *AbstractCompiler) *LateEs6ToEs3Converte
 }
 
 func (this *LateEs6ToEs3Converter) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, LateEs6ToEs3Converter_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(any(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, LateEs6ToEs3Converter_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, LateEs6ToEs3Converter_transpiledFeatures)
 }
 
@@ -47,27 +47,31 @@ func LateEs6ToEs3Converter_findTemplateLitInsertionPoint(script Node) Node {
 }
 
 func (this *LateEs6ToEs3Converter) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_ASSIGN:
+	switch n.ns_().token {
+	case tokOrd1_ASSIGN:
 		var lhs Node = n.getFirstChild()
 		var rhs Node = n.getSecondChild()
 		if (lhs.isGetProp() && rhs.isFunction()) && lhs.getFirstChild().isName() {
 			var qName *QualifiedName = QualifiedName_of("$jscomp.createTemplateTagFirstArgWithRaw")
 			if qName.matches(lhs) {
-				Preconditions_checkNotNull_Object_Object(n.getParent().box_(), n.box_())
-				Preconditions_checkState_boolean_Object(n.getParent().isExprResult(), n.box_())
+				if n.getParent() == 0 {
+					panic(new_NullPointerException_String(tostr_(n)))
+				}
+				if !n.getParent().isExprResult() {
+					panic(new_IllegalStateException_String(tostr_(n)))
+				}
 				this.templateLitInsertionPoint = n.getParent().getNext()
 			}
 		}
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		this.visitObject(t, n)
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		if parent.isObjectLit() {
 			this.visitMemberFunctionDefInObjectLit(n)
 		}
-	case Token_rhino_TAGGED_TEMPLATELIT:
+	case tokOrd1_TAGGED_TEMPLATELIT:
 		this.templateLiteralConverter.visitTaggedTemplateLiteral(t, n, this.templateLitInsertionPoint)
-	case Token_rhino_TEMPLATELIT:
+	case tokOrd1_TEMPLATELIT:
 		if !parent.isTaggedTemplateLit() {
 			this.templateLiteralConverter.visitTemplateLiteral(t, n)
 		}
@@ -98,8 +102,10 @@ func (this *LateEs6ToEs3Converter) visitObject(t *NodeTraversal, obj Node) {
 }
 
 func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraversal, obj Node) {
-	Preconditions_checkArgument(obj.isObjectLit())
-	var props ListOf[Node] = icast_List(new_ArrayList_0().self())
+	if !obj.isObjectLit() {
+		panic(new_IllegalArgumentException_0())
+	}
+	var props ListOf[Node] = new_ArrayList_0()
 	var currElement Node = obj.getFirstChild()
 	var objectType AstFactory_Type = AstFactory_type_Node(obj)
 	for currElement != 0 {
@@ -118,9 +124,7 @@ func (this *LateEs6ToEs3Converter) visitObjectWithComputedProperty(t *NodeTraver
 	var objName string = (sstr_(LateEs6ToEs3Converter_FRESH_COMP_PROP_VAR) + sstr_(this.compiler_.getUniqueIdSupplier().getUniqueId(t.getInput())))
 	props = Lists_reverse(props)
 	var result Node = this.astFactory_.createName(objName, objectType)
-	it_2 := foreach_(any(props))
-	for it_2.next() {
-		var propdef Node = Node_of_(it_2.v)
+	for propdef := range elemsBy_(props, Node_of_) {
 		if propdef.isComputedProp() {
 			var propertyExpression Node = propdef.removeFirstChild()
 			var value Node = propdef.removeFirstChild()
@@ -178,6 +182,6 @@ func LateEs6ToEs3Converter_clinit() {
 		return
 	}
 	LateEs6ToEs3Converter_clinit_done = true
-	LateEs6ToEs3Converter_transpiledFeatures = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_COMPUTED_PROPERTIES, FeatureSet_Feature_MEMBER_DECLARATIONS, FeatureSet_Feature_TEMPLATE_LITERALS})
+	LateEs6ToEs3Converter_transpiledFeatures = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_COMPUTED_PROPERTIES, FeatureSet_Feature_MEMBER_DECLARATIONS, FeatureSet_Feature_TEMPLATE_LITERALS})
 
 }

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ConvertToTypedInterface struct {
 	compiler_ *AbstractCompiler
 }
@@ -18,7 +20,7 @@ func new_ConvertToTypedInterface(compiler *AbstractCompiler) *ConvertToTypedInte
 
 func ConvertToTypedInterface_maybeReport(compiler *AbstractCompiler, node Node, diagnostic *DiagnosticType, fillers []string) {
 	var sourceName string = NodeUtil_getSourceName(node)
-	if (String_endsWith(sourceName, "_test.js") || String_endsWith(sourceName, "_test.closure.js")) || String_endsWith(sourceName, "_test.tsx.cl.js") {
+	if (strings.HasSuffix(sourceName, "_test.js") || strings.HasSuffix(sourceName, "_test.closure.js")) || strings.HasSuffix(sourceName, "_test.tsx.cl.js") {
 		return
 	}
 	compiler.report(JSError_make_Node_DiagnosticType_StringArr(node, diagnostic, fillers))
@@ -47,7 +49,9 @@ func (this *ConvertToTypedInterface) process_2(externs Node, root Node) {
 }
 
 func (this *ConvertToTypedInterface) processFile(scriptNode Node) {
-	Preconditions_checkArgument(scriptNode.isScript())
+	if !scriptNode.isScript() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var sourceFileName string = scriptNode.getSourceFileName()
 	if AbstractCompiler_isFillFileName(sourceFileName) {
 		scriptNode.detach()
@@ -62,8 +66,8 @@ func (this *ConvertToTypedInterface) processFile(scriptNode Node) {
 		scriptNode.setJSDocInfo(scriptJsDocBuilder.build())
 	}
 	var currentFile *FileInfo = new_FileInfo(sourceFileName)
-	NodeTraversal_traverse(this.compiler_, scriptNode, icast_NodeTraversal_Callback(obj_(new_ConvertToTypedInterface_RemoveNonDeclarations())))
-	NodeTraversal_traverse(this.compiler_, scriptNode, icast_NodeTraversal_Callback(obj_(new_ConvertToTypedInterface_PropagateConstJsdoc(currentFile))))
+	NodeTraversal_traverse(this.compiler_, scriptNode, new_ConvertToTypedInterface_RemoveNonDeclarations())
+	NodeTraversal_traverse(this.compiler_, scriptNode, new_ConvertToTypedInterface_PropagateConstJsdoc(currentFile))
 	new_ConvertToTypedInterface_SimplifyDeclarations(this.compiler_, currentFile).simplifyAll()
 }
 
@@ -95,7 +99,7 @@ func ConvertToTypedInterface_shouldPreserveAssignment(expr Node, t *NodeTraversa
 var ConvertToTypedInterface_CONSTANT_WITH_SUGGESTED_TYPE *DiagnosticType
 var ConvertToTypedInterface_CONSTANT_WITHOUT_EXPLICIT_TYPE *DiagnosticType
 var ConvertToTypedInterface_GOOG_SCOPE_HIDDEN_TYPE *DiagnosticType
-var ConvertToTypedInterface_CALLS_TO_PRESERVE *ImmutableSet
+var ConvertToTypedInterface_CALLS_TO_PRESERVE *ImmutableSet[string]
 
 var ConvertToTypedInterface_clinit_done bool
 
@@ -107,7 +111,7 @@ func ConvertToTypedInterface_clinit() {
 	ConvertToTypedInterface_CONSTANT_WITH_SUGGESTED_TYPE = DiagnosticType_warning("JSC_CONSTANT_WITH_SUGGESTED_TYPE", "Constants in top-level should have types explicitly specified.\nYou may want specify this type as:\t@const '{'{0}'}'")
 	ConvertToTypedInterface_CONSTANT_WITHOUT_EXPLICIT_TYPE = DiagnosticType_warning("JSC_CONSTANT_WITHOUT_EXPLICIT_TYPE", "Constants in top-level should have types explicitly specified.")
 	ConvertToTypedInterface_GOOG_SCOPE_HIDDEN_TYPE = DiagnosticType_warning("JSC_GOOG_SCOPE_HIDDEN_TYPE", "Found a goog.scope local type declaration.\nIf you can't yet migrate this file to goog.module, use a /** @private */ declaration within the goog.provide namespace.")
-	ConvertToTypedInterface_CALLS_TO_PRESERVE = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("Polymer"), strobj_("goog.addSingletonGetter"), strobj_("goog.define"), strobj_("goog.forwardDeclare"), strobj_("goog.module"), strobj_("goog.module.declareLegacyNamespace"), []any{strobj_("goog.declareModuleId"), strobj_("goog.provide"), strobj_("goog.require"), strobj_("goog.requireType")})
+	ConvertToTypedInterface_CALLS_TO_PRESERVE = immutableSetOf_(tc_string, "Polymer", "goog.addSingletonGetter", "goog.define", "goog.forwardDeclare", "goog.module", "goog.module.declareLegacyNamespace", "goog.declareModuleId", "goog.provide", "goog.require", "goog.requireType")
 
 }
 
@@ -144,28 +148,30 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) shouldTraverse(t *Nod
 		return false
 	case Token_rhino_EXPR_RESULT:
 		var expr Node = n.getFirstChild()
-		switch expr.getToken() {
-		case Token_rhino_CALL:
+		switch expr.ns_().token {
+		case tokOrd1_CALL:
 			var callee Node = expr.getFirstChild()
-			Preconditions_checkState(!ConvertToTypedInterface_RemoveNonDeclarations_GOOG_SCOPE.matches(callee))
-			if Collection_contains_s(ConvertToTypedInterface_CALLS_TO_PRESERVE, callee.getQualifiedName()) {
+			if ConvertToTypedInterface_RemoveNonDeclarations_GOOG_SCOPE.matches(callee) {
+				panic(new_IllegalStateException_0())
+			}
+			if ConvertToTypedInterface_CALLS_TO_PRESERVE.Has(callee.getQualifiedName()) {
 				return true
 			}
 			NodeUtil_deleteNode(n, t.getCompiler())
 			return false
-		case Token_rhino_ASSIGN:
+		case tokOrd1_ASSIGN:
 			if ConvertToTypedInterface_shouldPreserveAssignment(expr, t) {
 				return true
 			}
 			NodeUtil_deleteNode(n, t.getCompiler())
 			return false
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			if !expr.isQualifiedName() || (expr.getJSDocInfo() == nil) {
 				NodeUtil_deleteNode(n, t.getCompiler())
 				return false
 			}
 			return true
-		case Token_rhino_GETELEM:
+		case tokOrd1_GETELEM:
 			if ConvertToTypedInterface_isSymbolProp(expr.getSecondChild()) && (expr.getJSDocInfo() != nil) {
 				return true
 			}
@@ -175,7 +181,6 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) shouldTraverse(t *Nod
 			NodeUtil_deleteNode(n, t.getCompiler())
 			return false
 		}
-		fallthrough
 	case Token_rhino_COMPUTED_PROP:
 		if ClassUtil_isComputedMemberInsideClassWithName(n) {
 			return true
@@ -228,32 +233,35 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) shouldTraverse(t *Nod
 	case Token_rhino_MODULE_BODY, Token_rhino_CLASS, Token_rhino_DEFAULT_CASE, Token_rhino_BLOCK, Token_rhino_EXPORT, Token_rhino_IMPORT:
 		return true
 	default:
-		Preconditions_checkState_boolean_Object(!NodeUtil_isStatement(n), obj_(n.getToken()))
+		if ok_, a1_ := !NodeUtil_isStatement(n), n.getToken(); !ok_ {
+			panic(new_IllegalStateException_String(tostr_(a1_)))
+		}
 		return true
 	}
-	panic("unreachable")
 }
 
 func (this *ConvertToTypedInterface_RemoveNonDeclarations) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_TRY, Token_rhino_LABEL, Token_rhino_DEFAULT_CASE, Token_rhino_CASE, Token_rhino_DO, Token_rhino_WHILE, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_IF:
+	switch n.ns_().token {
+	case tokOrd1_TRY, tokOrd1_LABEL, tokOrd1_DEFAULT_CASE, tokOrd1_CASE, tokOrd1_DO, tokOrd1_WHILE, tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_IF:
 		if n.hasParent() {
 			var children Node = n.removeChildren()
 			parent.addChildrenAfter(children, n)
 			n.detach()
 			t.reportCodeChange()
 		}
-	case Token_rhino_SWITCH:
+	case tokOrd1_SWITCH:
 		if n.hasParent() {
-			Preconditions_checkState_boolean_String_Object(n.hasOneChild(), "malfrmed sWITCH %s", strobj_(n.toStringTree()))
+			if ok_, a1_ := n.hasOneChild(), n.toStringTree(); !ok_ {
+				panic(new_IllegalStateException_String(Strings_lenientFormat("malfrmed sWITCH %s", []any{strobj_(a1_)})))
+			}
 			var children Node = n.getFirstChild().removeChildren()
 			parent.addChildrenAfter(children, n)
 			n.detach()
 			t.reportCodeChange()
 		}
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		ConvertToTypedInterface_RemoveNonDeclarations_splitNameDeclarationsAndRemoveDestructuring(n, t)
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if !parent.isFunction() {
 			parent.addChildrenAfter(n.removeChildren(), n)
 			n.detach()
@@ -264,7 +272,9 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) visit(t *NodeTraversa
 }
 
 func ConvertToTypedInterface_RemoveNonDeclarations_splitNameDeclarationsAndRemoveDestructuring(n Node, t *NodeTraversal) {
-	Preconditions_checkArgument(NodeUtil_isNameDeclaration(n))
+	if !NodeUtil_isNameDeclaration(n) {
+		panic(new_IllegalArgumentException_0())
+	}
 	var sharedJsdoc *JSDocInfo = n.getJSDocInfo()
 	var isExport bool = n.getParent().isExport()
 	var statement Node = func() Node {
@@ -341,7 +351,9 @@ func new_ConvertToTypedInterface_PropagateConstJsdoc(currentFile *FileInfo) *Con
 }
 
 func (this *ConvertToTypedInterface_PropagateConstJsdoc) processConstWithRhs_impl(t *NodeTraversal, nameNode Node) {
-	Preconditions_checkArgument_boolean_Object((((nameNode.isQualifiedName() || nameNode.isStringKey()) || nameNode.isDestructuringLhs()) || nameNode.isMemberFieldDef()), nameNode.box_())
+	if !(((nameNode.isQualifiedName() || nameNode.isStringKey()) || nameNode.isDestructuringLhs()) || nameNode.isMemberFieldDef()) {
+		panic(new_IllegalArgumentException_String(tostr_(nameNode)))
+	}
 	var jsdocNode Node = NodeUtil_getBestJSDocInfoNode(nameNode)
 	var originalJsdoc *JSDocInfo = jsdocNode.getJSDocInfo()
 	var rhs Node = NodeUtil_getRValueOfLValue(nameNode)
@@ -374,8 +386,8 @@ func new_ConvertToTypedInterface_SimplifyDeclarations(compiler *AbstractCompiler
 
 func ConvertToTypedInterface_SimplifyDeclarations_countDots(name string) int32 {
 	var count int32 = 0
-	for i := int32(0); i < String_length(name); i++ {
-		if String_charAt(name, i) == '.' {
+	for _, u_ := range stringUnits_(name) {
+		if u_ == '.' {
 			count++
 		}
 	}
@@ -383,31 +395,25 @@ func ConvertToTypedInterface_SimplifyDeclarations_countDots(name string) int32 {
 }
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) removeDuplicateDeclarations() {
-	it_1 := foreach_(any(this.currentFile.getDeclarations().keySet()))
-	for it_1.next() {
-		var name string = str_(it_1.v)
-		if String_startsWith(name, "this.") {
+	for name := range elemsBy_(this.currentFile.getDeclarations().keySet(), str_) {
+		if strings.HasPrefix(name, "this.") {
 			continue
 		}
-		var declList *JTList[*PotentialDeclaration] = jtlistFrom_(jtc_p_PotentialDeclaration, Collection(this.currentFile.getDeclarations().get(strobj_(name))))
+		var declList *JTList[*PotentialDeclaration] = jtlistFrom_(jtc_p_PotentialDeclaration, Collection(this.currentFile.getDeclarations().get_s(name)))
 		List_sort(declList.asList(), ConvertToTypedInterface_SimplifyDeclarations_DECLARATIONS_FIRST)
 		for declList.size() > 1 {
 			var decl *PotentialDeclaration = declList.removeAt(1)
 			decl.remove(this.compiler_)
 		}
-		this.currentFile.getDeclarations().replaceValues(strobj_(name), Iterable(declList.asList()))
+		this.currentFile.getDeclarations().replaceValues(name, Iterable(declList.asList()))
 	}
 }
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) simplifyAll() {
 	this.removeDuplicateDeclarations()
-	var seenNames ImmutableListOf[string] = ImmutableList_sortedCopyOf(ConvertToTypedInterface_SimplifyDeclarations_SHORT_TO_LONG, Iterable(this.currentFile.getDeclarations().keySet()))
-	it_1 := foreach_(obj_(seenNames))
-	for it_1.next() {
-		var name string = str_(it_1.v)
-		it_3 := foreach_(any(this.currentFile.getDeclarations().get(strobj_(name))))
-		for it_3.next() {
-			var decl *PotentialDeclaration = to_PotentialDeclaration(it_3.v)
+	var seenNames []string = sliceImm_(tc_string, ImmutableList_sortedCopyOf(ConvertToTypedInterface_SimplifyDeclarations_SHORT_TO_LONG, Iterable(this.currentFile.getDeclarations().keySet())))
+	for _, name := range seenNames {
+		for decl := range elemsBy_(this.currentFile.getDeclarations().get_s(name), to_PotentialDeclaration) {
 			this.processDeclaration(name, decl)
 		}
 	}
@@ -432,22 +438,26 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) processDeclaration(nam
 }
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) processClass(n Node) {
-	Preconditions_checkArgument(ConvertToTypedInterface_SimplifyDeclarations_isClass(n))
+	if !ConvertToTypedInterface_SimplifyDeclarations_isClass(n) {
+		panic(new_IllegalArgumentException_0())
+	}
 	{
 		var member Node = n.getLastChild().getFirstChild()
 		for member != 0 {
 			var next Node = member.getNext()
-			switch member.getToken() {
-			case Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
-			case Token_rhino_EMPTY:
+			switch member.ns_().token {
+			case tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF:
+			case tokOrd1_EMPTY:
 				NodeUtil_deleteNode(member, this.compiler_)
-			case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+			case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 				this.processFunction(member.getLastChild())
-			case Token_rhino_COMPUTED_PROP:
-				Preconditions_checkState_boolean_String_Object(member.getSecondChild().isFunction(), "Non-function computed class member: %s", member.box_())
+			case tokOrd1_COMPUTED_PROP:
+				if !member.getSecondChild().isFunction() {
+					panic(new_IllegalStateException_String(Strings_lenientFormat("Non-function computed class member: %s", []any{member.box_()})))
+				}
 				this.processFunction(member.getSecondChild())
 			default:
-				panic(new_AssertionError_Object(strobj_((objstr_(obj_(member.getToken())) + " should not be handled by processClass"))).self())
+				panic(new_AssertionError_Object(strobj_((tostr_(member.getToken()) + " should not be handled by processClass"))))
 			}
 			member = next
 		}
@@ -455,12 +465,16 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) processClass(n Node) {
 }
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) processFunction(n Node) {
-	Preconditions_checkArgument(n.isFunction())
+	if !n.isFunction() {
+		panic(new_IllegalArgumentException_0())
+	}
 	this.processFunctionParameters(n.getSecondChild())
 }
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) processFunctionParameters(paramList Node) {
-	Preconditions_checkArgument(paramList.isParamList())
+	if !paramList.isParamList() {
+		panic(new_IllegalArgumentException_0())
+	}
 	{
 		var arg Node = paramList.getFirstChild()
 		for ; arg != 0; arg = arg.getNext() {
@@ -481,24 +495,24 @@ func ConvertToTypedInterface_SimplifyDeclarations_isClass(n Node) bool {
 }
 
 func ConvertToTypedInterface_SimplifyDeclarations_rootName(qualifiedName string) string {
-	var dotIndex int32 = String_indexOf(qualifiedName, 46)
+	var dotIndex int32 = int32(strings.IndexByte(qualifiedName, '.'))
 	if dotIndex == -1 {
 		return qualifiedName
 	}
-	return String_substring(qualifiedName, 0, dotIndex)
+	return qualifiedName[:dotIndex]
 }
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) shouldRemove(name string, decl *PotentialDeclaration) bool {
 	if decl.isDetached() {
 		return true
 	}
-	if String_startsWith(ConvertToTypedInterface_SimplifyDeclarations_rootName(name), "$jscomp") {
+	if strings.HasPrefix(ConvertToTypedInterface_SimplifyDeclarations_rootName(name), "$jscomp") {
 		if ((decl.getRhs() != 0) && decl.getRhs().isClass()) || ((decl.getJsDoc() != nil) && decl.getJsDoc().containsTypeDefinition()) {
 			ConvertToTypedInterface_maybeReport(this.compiler_, decl.getLhs(), ConvertToTypedInterface_GOOG_SCOPE_HIDDEN_TYPE, []string{})
 		}
 		return true
 	}
-	return ((((!String_startsWith(name, "this.") && !decl.isDefiniteDeclaration(this.compiler_)) && !decl.getLhs().isMemberFieldDef()) && !this.currentFile.isPrefixProvided(name)) && !this.currentFile.isStrictPrefixDeclared(name))
+	return ((((!strings.HasPrefix(name, "this.") && !decl.isDefiniteDeclaration(this.compiler_)) && !decl.getLhs().isMemberFieldDef()) && !this.currentFile.isPrefixProvided(name)) && !this.currentFile.isStrictPrefixDeclared(name))
 }
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) setUndeclaredToUnusableType(decl *PotentialDeclaration) {
@@ -548,7 +562,7 @@ func ConvertToTypedInterface_SimplifyDeclarations_clinit() {
 	}
 	ConvertToTypedInterface_SimplifyDeclarations_clinit_done = true
 	ConvertToTypedInterface_SimplifyDeclarations_SHORT_TO_LONG = Comparator_comparing(&Function_tfn_string_any{func(p0 string) any { return any(int32(ConvertToTypedInterface_SimplifyDeclarations_countDots(p0))) }})
-	ConvertToTypedInterface_SimplifyDeclarations_DECLARATIONS_FIRST = Comparator_comparing(&Function_tfn_any_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel{func(decl_ any) *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
+	ConvertToTypedInterface_SimplifyDeclarations_DECLARATIONS_FIRST = Comparator_comparing(&Function_tfn_any_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel{func(decl_ any) ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
 		var decl *PotentialDeclaration = to_PotentialDeclaration(decl_)
 		_ = decl
 		var jsdoc *JSDocInfo = decl.getJsDoc()
@@ -559,50 +573,70 @@ func ConvertToTypedInterface_SimplifyDeclarations_clinit() {
 			return ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION
 		}
 		return ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION
-		panic("unreachable")
 	}})
 
 }
 
-type ConvertToTypedInterface_SimplifyDeclarations_TypingLevel struct {
-	Enum
+type ConvertToTypedInterface_SimplifyDeclarations_TypingLevel uint8
+
+// ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_ = [3]Enum{
+	{self_: ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION, name_: "TYPED_JSDOC_DECLARATION", ordinal_: 0},
+	{self_: ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION, name_: "UNTYPED_JSDOC_DECLARATION", ordinal_: 1},
+	{self_: ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC, name_: "NO_JSDOC", ordinal_: 2},
 }
 
-func (this *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) up_Enum() *Enum {
-	if this == nil {
+func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_enum_[this-1]
 }
 
-func (this *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) init_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) name() string {
+	return this.enum_().name_
 }
 
-func new_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel(name_ string, ordinal_ int32) *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
-	this := &ConvertToTypedInterface_SimplifyDeclarations_TypingLevel{}
-	this.self_ = this
-	this.init_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel(name_, ordinal_)
+func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) toString() string {
+	return this.enum_().name_
+}
+
+func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ConvertToTypedInterface_SimplifyDeclarations_TypingLevel) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values() []*ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
-	return append([]*ConvertToTypedInterface_SimplifyDeclarations_TypingLevel(nil), ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_...)
+func ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values() []ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
+	return append([]ConvertToTypedInterface_SimplifyDeclarations_TypingLevel(nil), ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_...)
 }
 
-func ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_valueOf(name string) *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
+func ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_valueOf(name string) ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
 	for _, v := range ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TypingLevel", name))
 }
 
-var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
-var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
-var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC *ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
-var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_ []*ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
+const ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION ConvertToTypedInterface_SimplifyDeclarations_TypingLevel = 1
+const ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION ConvertToTypedInterface_SimplifyDeclarations_TypingLevel = 2
+const ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC ConvertToTypedInterface_SimplifyDeclarations_TypingLevel = 3
+
+var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_ []ConvertToTypedInterface_SimplifyDeclarations_TypingLevel
 
 var ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_clinit_done bool
 
@@ -611,10 +645,16 @@ func ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_clinit() {
 		return
 	}
 	ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_clinit_done = true
-	ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION = new_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel("TYPED_JSDOC_DECLARATION", 0)
-	ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION = new_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel("UNTYPED_JSDOC_DECLARATION", 1)
-	ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC = new_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel("NO_JSDOC", 2)
-	ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_ = []*ConvertToTypedInterface_SimplifyDeclarations_TypingLevel{ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION, ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION, ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC}
+	ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_ = []ConvertToTypedInterface_SimplifyDeclarations_TypingLevel{ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_TYPED_JSDOC_DECLARATION, ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_UNTYPED_JSDOC_DECLARATION, ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC}
 	registerEnum_("com.google.javascript.jscomp.ijs.ConvertToTypedInterface.SimplifyDeclarations.TypingLevel", enumValues_(ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_values_))
 
+}
+
+// processConstWithRhs: an object that is exactly a ConvertToTypedInterface_PropagateConstJsdoc calls its processConstWithRhs_impl directly (post-flip); others dispatch.
+func (this *ConvertToTypedInterface_PropagateConstJsdoc) processConstWithRhs(p0 *NodeTraversal, p1 Node) {
+	if p, _ := this.self_.(*ConvertToTypedInterface_PropagateConstJsdoc); p == this {
+		this.processConstWithRhs_impl(p0, p1)
+		return
+	}
+	this.self_.(*ConvertToTypedInterface_PropagateConstJsdoc).processConstWithRhs_impl(p0, p1)
 }

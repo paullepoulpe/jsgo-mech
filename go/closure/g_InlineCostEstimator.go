@@ -36,7 +36,7 @@ func InlineCostEstimator_clinit() {
 		return
 	}
 	InlineCostEstimator_clinit_done = true
-	InlineCostEstimator_ESTIMATED_IDENTIFIER_COST = String_length(InlineCostEstimator_ESTIMATED_IDENTIFIER)
+	InlineCostEstimator_ESTIMATED_IDENTIFIER_COST = int32(len(InlineCostEstimator_ESTIMATED_IDENTIFIER))
 
 }
 
@@ -92,8 +92,9 @@ func (this *InlineCostEstimator_CompiledSizeEstimator) getLastChar_impl() uint16
 }
 
 func (this *InlineCostEstimator_CompiledSizeEstimator) append_impl(str string) {
-	this.last = String_charAt(str, (String_length(str) - 1))
-	this.cost += String_length(str)
+	strU16 := utf16Of_(str)
+	this.last = strU16.charAt((strU16.length() - 1))
+	this.cost += strU16.length()
 	if this.maxCost <= this.cost {
 		this.continueProcessingField = false
 	}
@@ -105,4 +106,47 @@ func (this *InlineCostEstimator_CompiledSizeEstimator) addIdentifier_impl(identi
 
 func (this *InlineCostEstimator_CompiledSizeEstimator) addConstant_impl(newcode string) {
 	this.add("0")
+}
+
+// continueProcessing: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its continueProcessing_impl directly (post-flip); others dispatch.
+func (this *InlineCostEstimator_CompiledSizeEstimator) continueProcessing() bool {
+	if p, _ := this.self_.(*InlineCostEstimator_CompiledSizeEstimator); p == this {
+		return this.continueProcessing_impl()
+	}
+	return this.self_.continueProcessing_impl()
+}
+
+// getLastChar: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its getLastChar_impl directly (post-flip); others dispatch.
+func (this *InlineCostEstimator_CompiledSizeEstimator) getLastChar() uint16 {
+	if p, _ := this.self_.(*InlineCostEstimator_CompiledSizeEstimator); p == this {
+		return this.getLastChar_impl()
+	}
+	return this.self_.getLastChar_impl()
+}
+
+// append: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its append_impl directly (post-flip); others dispatch.
+func (this *InlineCostEstimator_CompiledSizeEstimator) append(p0 string) {
+	if p, _ := this.self_.(*InlineCostEstimator_CompiledSizeEstimator); p == this {
+		this.append_impl(p0)
+		return
+	}
+	this.self_.append_impl(p0)
+}
+
+// addIdentifier: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its addIdentifier_impl directly (post-flip); others dispatch.
+func (this *InlineCostEstimator_CompiledSizeEstimator) addIdentifier(p0 string) {
+	if p, _ := this.self_.(*InlineCostEstimator_CompiledSizeEstimator); p == this {
+		this.addIdentifier_impl(p0)
+		return
+	}
+	this.self_.addIdentifier_impl(p0)
+}
+
+// addConstant: an object that is exactly a InlineCostEstimator_CompiledSizeEstimator calls its addConstant_impl directly (post-flip); others dispatch.
+func (this *InlineCostEstimator_CompiledSizeEstimator) addConstant(p0 string) {
+	if p, _ := this.self_.(*InlineCostEstimator_CompiledSizeEstimator); p == this {
+		this.addConstant_impl(p0)
+		return
+	}
+	this.self_.addConstant_impl(p0)
 }

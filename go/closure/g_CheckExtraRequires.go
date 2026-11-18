@@ -7,7 +7,7 @@ type CheckExtraRequires struct {
 	compiler_        *AbstractCompiler
 	requires         *JTMap[string, Node]
 	usages           *JTSet[string]
-	requiresToRemove ImmutableSetOf[string]
+	requiresToRemove *ImmutableSet[string]
 }
 
 func (this *CheckExtraRequires) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -22,14 +22,14 @@ func (this *CheckExtraRequires) finit_CheckExtraRequires() {
 	this.usages = jnewTSet_(jtc_string)
 }
 
-func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove ImmutableSetOf[string]) {
+func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *ImmutableSet[string]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_CheckExtraRequires()
 	this.compiler_ = compiler
 	this.requiresToRemove = requiresToRemove
 }
 
-func new_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove ImmutableSetOf[string]) *CheckExtraRequires {
+func new_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *ImmutableSet[string]) *CheckExtraRequires {
 	this := &CheckExtraRequires{}
 	this.self_ = this
 	this.init_CheckExtraRequires(compiler, requiresToRemove)
@@ -38,7 +38,7 @@ func new_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove Immutab
 
 func (this *CheckExtraRequires) process_2(externs Node, root Node) {
 	this.reset()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckExtraRequires) extractNamespace(call Node, primitiveNames []string) Optional[string] {
@@ -67,21 +67,21 @@ func (this *CheckExtraRequires) extractNamespaceIfForwardDeclare(call Node) Opti
 
 func (this *CheckExtraRequires) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	this.maybeAddJsDocUsages(n)
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		if (!NodeUtil_isLValue(n) && !parent.isGetProp()) && !parent.isImportSpec() {
 			this.visitQualifiedName(n)
 		}
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		if !parent.isGetProp() && n.isQualifiedName() {
 			this.visitQualifiedName(n)
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		this.visitCallNode(n, parent)
-	case Token_rhino_SCRIPT:
+	case tokOrd1_SCRIPT:
 		this.visitScriptNode()
 		this.reset()
-	case Token_rhino_IMPORT:
+	case tokOrd1_IMPORT:
 		this.visitImportNode(n)
 	default:
 	}
@@ -98,14 +98,14 @@ func (this *CheckExtraRequires) visitScriptNode() {
 		var entry *TEntry[string, Node] = it_1.entry()
 		var require string = entry.getKey()
 		var call Node = entry.getValue()
-		if !this.usages.has(require) && ((this.requiresToRemove == nil) || Collection_contains_s(this.requiresToRemove, require)) {
+		if !this.usages.has(require) && ((this.requiresToRemove == nil) || this.requiresToRemove.Has(require)) {
 			this.reportExtraRequireWarning(call, require)
 		}
 	}
 }
 
 func (this *CheckExtraRequires) reportExtraRequireWarning(call Node, require string) {
-	if Collection_contains_s(CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES, require) {
+	if CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES.Has(require) {
 		return
 	}
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(call)
@@ -188,7 +188,9 @@ func (this *CheckExtraRequires) addUsagesOfAllPrefixes(qualifiedName *QualifiedN
 }
 
 func (this *CheckExtraRequires) visitQualifiedName(n Node) {
-	Preconditions_checkArgument_boolean_Object(n.isQualifiedName(), n.box_())
+	if !n.isQualifiedName() {
+		panic(new_IllegalArgumentException_String(tostr_(n)))
+	}
 	this.addUsagesOfAllPrefixes(n.getQualifiedNameObject())
 }
 
@@ -197,19 +199,16 @@ func (this *CheckExtraRequires) maybeAddJsDocUsages(n Node) {
 	if info == nil {
 		return
 	}
-	it_1 := foreach_(any(info.getTypeExpressions()))
-	for it_1.next() {
-		var e *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
-		it_3 := foreach_(obj_(e.getAllTypeNames()))
-		for it_3.next() {
-			var typeName string = str_(it_3.v)
+	for e := range elemsAs_[*JSTypeExpression](info.getTypeExpressions()) {
+		for _, el := range e.getAllTypeNames().keys {
+			typeName := el
 			this.addUsagesOfAllPrefixes(QualifiedName_of(typeName))
 		}
 	}
 }
 
 var CheckExtraRequires_EXTRA_REQUIRE_WARNING *DiagnosticType
-var CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES *ImmutableSet
+var CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES *ImmutableSet[string]
 var CheckExtraRequires_GOOG_MODULE_GET *QualifiedName
 
 var CheckExtraRequires_clinit_done bool
@@ -220,7 +219,16 @@ func CheckExtraRequires_clinit() {
 	}
 	CheckExtraRequires_clinit_done = true
 	CheckExtraRequires_EXTRA_REQUIRE_WARNING = DiagnosticType_disabled("JSC_EXTRA_REQUIRE_WARNING", "extra require: ''{0}'' is never referenced in this file")
-	CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES = ImmutableSet_of_Object_Object(strobj_("goog.testing.asserts"), strobj_("goog.testing.jsunit"))
+	CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES = immutableSetOf_(tc_string, "goog.testing.asserts", "goog.testing.jsunit")
 	CheckExtraRequires_GOOG_MODULE_GET = QualifiedName_of("goog.module.get")
 
+}
+
+// visit: an object that is exactly a CheckExtraRequires calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckExtraRequires) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckExtraRequires); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

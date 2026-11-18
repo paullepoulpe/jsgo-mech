@@ -6,7 +6,7 @@ type JSCompDoubles struct {
 }
 
 func (this *JSCompDoubles) init_JSCompDoubles() {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func new_JSCompDoubles() *JSCompDoubles {
@@ -32,7 +32,9 @@ func JSCompDoubles_isAtLeastIntegerPrecision(x float64) bool {
 }
 
 func JSCompDoubles_isNegative(x float64) bool {
-	Preconditions_checkState(!Double_isNaN(x))
+	if Double_isNaN(x) {
+		panic(new_IllegalStateException_0())
+	}
 	return (Double_compare(0.0, x) > 0)
 }
 

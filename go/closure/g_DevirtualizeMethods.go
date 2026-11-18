@@ -18,30 +18,28 @@ func new_DevirtualizeMethods(compiler *AbstractCompiler) *DevirtualizeMethods {
 }
 
 func (this *DevirtualizeMethods) process_3(externs Node, root Node, refMap *OptimizeCalls_ReferenceMap) {
-	Preconditions_checkState_boolean_Object((this.refMap == nil), strobj_("`process` should only be called once."))
+	if this.refMap != nil {
+		panic(new_IllegalStateException_String("`process` should only be called once."))
+	}
 	this.refMap = refMap
-	it_1 := foreach_(any(refMap.getPropReferences()))
-	for it_1.next() {
-		var referenceGroup Map_Entry = icast_Map_Entry(it_1.v)
+	for referenceGroup := range elemsBy_(refMap.getPropReferences(), icast_Map_Entry) {
 		this.processReferenceList(str_(referenceGroup.getKey()), icast_List(referenceGroup.getValue()))
 	}
 }
 
 func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[Node]) {
-	var functionsBySite *SimpleListMultimap = OptimizeCalls_ReferenceMap_getFunctionNodes(sites)
+	var functionsBySite *SimpleListMultimap[Node, any] = OptimizeCalls_ReferenceMap_getFunctionNodes(sites)
 	if functionsBySite.isEmpty() {
 		return
 	}
 	var canonicalDefinitionSite Node = Node_of_(Iterables_get(Iterable(functionsBySite.keySet()), 0))
-	var callSitesBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-	it_1 := foreach_(any(sites))
-	for it_1.next() {
-		var s Node = Node_of_(it_1.v)
+	var callSitesBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
+	for s := range elemsBy_(sites, Node_of_) {
 		if !functionsBySite.containsKey(s.box_()) {
-			callSitesBuilder.add(s.box_())
+			callSitesBuilder.add(s)
 		}
 	}
-	var callSites ImmutableListOf[Node] = cast_[*ImmutableList](obj_(callSitesBuilder.build()))
+	var callSites *ImmutableList[Node] = callSitesBuilder.build()
 	if callSites.isEmpty() {
 		return
 	}
@@ -49,7 +47,7 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 		return
 	} else if !this.allEligibleDefinitionFunctions(functionsBySite.values()) {
 		return
-	} else if !this.allEligibleCallSites(icast_Collection(obj_(callSites)), canonicalDefinitionSite) {
+	} else if !this.allEligibleCallSites(icast_Collection(obj_(callSites.asImm())), canonicalDefinitionSite) {
 		return
 	} else if !this.allDefinitionsEquivalent(functionsBySite.values()) {
 		return
@@ -57,9 +55,8 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 	var devirtualizedName string = DevirtualizeMethods_rewrittenMethodNameOf(name)
 	var bestJSDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(canonicalDefinitionSite)
 	var isConstantName bool = ((bestJSDoc != nil) && bestJSDoc.isConstant())
-	it_3 := foreach_(obj_(callSites))
-	for it_3.next() {
-		var callSite Node = Node_of_(it_3.v)
+	for _, el := range callSites.items {
+		callSite := el
 		this.rewriteCall(callSite, devirtualizedName, isConstantName)
 	}
 	this.rewriteDefinition(canonicalDefinitionSite, devirtualizedName, isConstantName)
@@ -72,8 +69,8 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 		return false
 	}
 	return func() bool {
-		switch node.getToken() {
-		case Token_rhino_MEMBER_FUNCTION_DEF:
+		switch node.ns_().token {
+		case tokOrd1_MEMBER_FUNCTION_DEF:
 			if NodeUtil_isEs6ConstructorMemberFunctionDef(node) {
 				return false
 			}
@@ -81,7 +78,7 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 				return DevirtualizeMethods_isPrototypeObjectLit(parent)
 			}
 			return true
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			if (!node.isFirstChildOf(parent) || !NodeUtil_isExprAssign(grandparent)) || !parent.getLastChild().isFunction() {
 				return false
 			}
@@ -92,25 +89,28 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 				return true
 			}
 			return false
-		case Token_rhino_STRING_KEY:
-			Preconditions_checkArgument_boolean_Object(parent.isObjectLit(), parent.box_())
+		case tokOrd1_STRING_KEY:
+			if !parent.isObjectLit() {
+				panic(new_IllegalArgumentException_String(tostr_(parent)))
+			}
 			return (DevirtualizeMethods_isPrototypeObjectLit(parent) && node.getFirstChild().isFunction())
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
 func DevirtualizeMethods_isPrototypeObjectLit(objectLit Node) bool {
-	Preconditions_checkArgument_boolean_Object(objectLit.isObjectLit(), objectLit.box_())
+	if !objectLit.isObjectLit() {
+		panic(new_IllegalArgumentException_String(tostr_(objectLit)))
+	}
 	var parent Node = objectLit.getParent()
 	return (objectLit.isSecondChildOf(parent) && NodeUtil_isPrototypeAssignment(parent.getFirstChild()))
 }
 
 func (this *DevirtualizeMethods) isDefinitelyCtorOrInterface(receiver Node) bool {
 	var qname string = receiver.getQualifiedName()
-	if String_isEmpty(qname) {
+	if qname == "" {
 		return false
 	}
 	var var_ *Var = cast_[*Var](this.refMap.getGlobalScope().getVar(qname).self())
@@ -130,7 +130,7 @@ func (this *DevirtualizeMethods) isDefinitelyCtorOrInterface(receiver Node) bool
 }
 
 func (this *DevirtualizeMethods) allEligibleDefinitionSites(name string, definitionSites CollectionOf[Node]) bool {
-	it_1 := foreach_(any(definitionSites))
+	it_1 := foreach_(definitionSites)
 	for it_1.next() {
 		var s Node = Node_of_(it_1.v)
 		if !this.isEligibleDefinitionSite(name, s) {
@@ -141,7 +141,7 @@ func (this *DevirtualizeMethods) allEligibleDefinitionSites(name string, definit
 }
 
 func (this *DevirtualizeMethods) allEligibleDefinitionFunctions(definitionFunctions CollectionOf[Node]) bool {
-	it_1 := foreach_(any(definitionFunctions))
+	it_1 := foreach_(definitionFunctions)
 	for it_1.next() {
 		var f Node = Node_of_(it_1.v)
 		if !this.isEligibleDefinitionFunction(f) {
@@ -152,7 +152,7 @@ func (this *DevirtualizeMethods) allEligibleDefinitionFunctions(definitionFuncti
 }
 
 func (this *DevirtualizeMethods) allEligibleCallSites(callSites CollectionOf[Node], definitionSite Node) bool {
-	it_1 := foreach_(any(callSites))
+	it_1 := foreach_(callSites)
 	for it_1.next() {
 		var c Node = Node_of_(it_1.v)
 		if !this.isEligibleCallSite(c, definitionSite) {
@@ -163,10 +163,10 @@ func (this *DevirtualizeMethods) allEligibleCallSites(callSites CollectionOf[Nod
 }
 
 func (this *DevirtualizeMethods) isEligibleDefinitionSite(name string, definitionSite Node) bool {
-	switch definitionSite.getToken() {
-	case Token_rhino_GETPROP, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_STRING_KEY, Token_rhino_MEMBER_FIELD_DEF:
+	switch definitionSite.ns_().token {
+	case tokOrd1_GETPROP, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_STRING_KEY, tokOrd1_MEMBER_FIELD_DEF:
 	default:
-		panic(new_IllegalArgumentException_String(definitionSite.toString()).self())
+		panic(new_IllegalArgumentException_String(definitionSite.toString()))
 	}
 	var codingConvention CodingConvention = this.compiler_.getCodingConvention()
 	if codingConvention.isExported_2(name, false) {
@@ -179,7 +179,9 @@ func (this *DevirtualizeMethods) isEligibleDefinitionSite(name string, definitio
 }
 
 func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction Node) bool {
-	Preconditions_checkArgument_boolean_Object(definitionFunction.isFunction(), definitionFunction.box_())
+	if !definitionFunction.isFunction() {
+		panic(new_IllegalArgumentException_String(tostr_(definitionFunction)))
+	}
 	if definitionFunction.isArrowFunction() {
 		return false
 	}
@@ -194,7 +196,7 @@ func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction
 			}
 		}
 	}
-	if NodeUtil_has(definitionFunction, &Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isSuper() }}, Predicates_alwaysTrue()) {
+	if NodeUtil_has(definitionFunction, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isSuper() }}).apply, Predicates_alwaysTrue()) {
 		return false
 	}
 	if NodeUtil_doesFunctionReferenceOwnArgumentsObject(definitionFunction) {
@@ -225,8 +227,10 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 		return true
 	}
 	var definition Node = Node_of_(Iterables_get(Iterable(definitions), 0))
-	Preconditions_checkArgument_boolean_Object(definition.isFunction(), definition.box_())
-	it_1 := foreach_(any(definitions))
+	if !definition.isFunction() {
+		panic(new_IllegalArgumentException_String(tostr_(definition)))
+	}
+	it_1 := foreach_(definitions)
 	for it_1.next() {
 		var d Node = Node_of_(it_1.v)
 		if !this.compiler_.areNodesEqualForInlining(d, definition) {
@@ -237,9 +241,13 @@ func (this *DevirtualizeMethods) allDefinitionsEquivalent(definitions Collection
 }
 
 func (this *DevirtualizeMethods) rewriteCall(getprop Node, newMethodName string, isConstantName bool) {
-	Preconditions_checkArgument_boolean_Object(getprop.isGetProp(), getprop.box_())
+	if !getprop.isGetProp() {
+		panic(new_IllegalArgumentException_String(tostr_(getprop)))
+	}
 	var call Node = getprop.getParent()
-	Preconditions_checkArgument_boolean_Object(call.isCall(), call.box_())
+	if !call.isCall() {
+		panic(new_IllegalArgumentException_String(tostr_(call)))
+	}
 	var receiver Node = getprop.getFirstChild()
 	receiver.detach()
 	getprop.replaceWith(receiver)
@@ -259,17 +267,17 @@ func (this *DevirtualizeMethods) rewriteDefinition(definitionSite Node, newMetho
 	var function Node
 	var subtreeToRemove Node
 	var nameSource Node
-	switch definitionSite.getToken() {
-	case Token_rhino_GETPROP:
+	switch definitionSite.ns_().token {
+	case tokOrd1_GETPROP:
 		function = definitionSite.getParent().getLastChild()
 		nameSource = definitionSite
 		subtreeToRemove = NodeUtil_getEnclosingStatement(definitionSite)
-	case Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF:
 		function = definitionSite.getLastChild()
 		nameSource = definitionSite
 		subtreeToRemove = definitionSite
 	default:
-		panic(new_IllegalArgumentException_String(definitionSite.toString()).self())
+		panic(new_IllegalArgumentException_String(definitionSite.toString()))
 	}
 	var statement Node = NodeUtil_getEnclosingStatement(definitionSite)
 	var newNameNode Node = IR_name(newMethodName).srcrefIfMissing(nameSource)
@@ -340,7 +348,9 @@ func DevirtualizeMethods_isScopingOrBranchingConstruct(node Node) bool {
 }
 
 func DevirtualizeMethods_localNameIsDeclaredByClass(clazz Node) bool {
-	Preconditions_checkArgument_boolean_Object(clazz.isClass(), clazz.box_())
+	if !clazz.isClass() {
+		panic(new_IllegalArgumentException_String(tostr_(clazz)))
+	}
 	if clazz.getFirstChild().isEmpty() {
 		return false
 	} else if NodeUtil_isStatement(clazz) {

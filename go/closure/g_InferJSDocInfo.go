@@ -28,22 +28,22 @@ func new_InferJSDocInfo(compiler *AbstractCompiler) *InferJSDocInfo {
 
 func (this *InferJSDocInfo) process_2(externs Node, root Node) {
 	if externs != 0 {
-		NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(this)))
+		NodeTraversal_traverse(this.compiler_, externs, this)
 	}
 	if root != 0 {
-		NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+		NodeTraversal_traverse(this.compiler_, root, this)
 	}
 }
 
 func (this *InferJSDocInfo) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		this.inferJSDocForName(n, parent)
 		return
-	case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_PROP, Token_rhino_COMPUTED_FIELD_DEF:
+	case tokOrd1_STRING_KEY, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_PROP, tokOrd1_COMPUTED_FIELD_DEF:
 		this.inferJSDocForObjectKeyOrClassField(n, parent)
 		return
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		this.inferJSDocForProperty(n, parent)
 		return
 	default:
@@ -130,9 +130,9 @@ func (this *InferJSDocInfo) inferJSDocForObjectKeyOrClassField(n Node, parent No
 		if (keyType == nil) || !keyType.isKnownSymbolValueType() {
 			return
 		}
-		propName = icast_Property_Key(obj_(new_Property_SymbolKey(keyType.toMaybeKnownSymbolType())))
+		propName = new_Property_SymbolKey(keyType.toMaybeKnownSymbolType())
 	} else {
-		propName = icast_Property_Key(obj_(new_Property_StringKey(n.getString())))
+		propName = new_Property_StringKey(n.getString())
 	}
 	if owningType.hasOwnPropertyKey(propName) && (owningType.getPropertyJSDocInfoKey(propName) == nil) {
 		owningType.setPropertyJSDocInfoKey(propName, typeDoc)
@@ -171,7 +171,7 @@ func (this *InferJSDocInfo) inferJSDocForProperty(n Node, parent Node) {
 	var propType *ObjectType = InferJSDocInfo_dereferenced(lhsType.getPropertyType(propName))
 	if InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(propType, aliasedType) {
 		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, Optional_of[string](n.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}}))
 	}
 }
@@ -186,7 +186,7 @@ func InferJSDocInfo_dereferenced(type_ *JSType) *ObjectType {
 }
 
 func InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(type_ *ObjectType, aliasedType *JSType) bool {
-	return (((type_ != nil) && (type_.getJSDocInfo() == nil)) && !type_.equals(aliasedType.self()))
+	return (((type_ != nil) && (type_.getJSDocInfo() == nil)) && !type_.equals_JSType(aliasedType))
 }
 
 func InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType *ObjectType, docInfo *JSDocInfo, qName Optional[string]) {
@@ -210,4 +210,13 @@ func InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType *ObjectType, doc
 
 func InferJSDocInfo_isReferenceNameOf(type_ *ObjectType, name Optional[string]) bool {
 	return (type_.hasReferenceName() && Object_equals(type_.getReferenceName().box_(), name.box_()))
+}
+
+// visit: an object that is exactly a InferJSDocInfo calls its visit_impl directly (post-flip); others dispatch.
+func (this *InferJSDocInfo) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*InferJSDocInfo); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

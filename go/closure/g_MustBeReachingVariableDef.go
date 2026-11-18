@@ -59,13 +59,13 @@ func (this *MustBeReachingVariableDef) flowThrough_impl(n Node, input *MustBeRea
 }
 
 func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, output *MustBeReachingVariableDef_MustDef, conditional bool) {
-	switch n.getToken() {
-	case Token_rhino_BLOCK, Token_rhino_ROOT, Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_BLOCK, tokOrd1_ROOT, tokOrd1_FUNCTION:
 		return
-	case Token_rhino_WHILE, Token_rhino_DO, Token_rhino_IF, Token_rhino_FOR:
+	case tokOrd1_WHILE, tokOrd1_DO, tokOrd1_IF, tokOrd1_FOR:
 		this.computeMustDef(NodeUtil_getConditionExpression(n), cfgNode, output, conditional)
 		return
-	case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 		var lhs Node = n.getFirstChild()
 		var rhs Node = lhs.getNext()
 		if NodeUtil_isNameDeclaration(lhs) {
@@ -80,14 +80,14 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 			this.computeMustDef(lhs, cfgNode, output, true)
 		}
 		return
-	case Token_rhino_OPTCHAIN_GETPROP:
+	case tokOrd1_OPTCHAIN_GETPROP:
 		this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
 		return
-	case Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETELEM:
 		this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
 		this.computeMustDef(n.getLastChild(), cfgNode, output, true)
 		return
-	case Token_rhino_OPTCHAIN_CALL:
+	case tokOrd1_OPTCHAIN_CALL:
 		this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
 		{
 			var c Node = n.getSecondChild()
@@ -96,12 +96,12 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 			}
 		}
 		return
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
 		this.computeMustDef(n.getSecondChild(), cfgNode, output, true)
 		this.computeMustDef(n.getLastChild(), cfgNode, output, true)
 		return
-	case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
+	case tokOrd1_LET, tokOrd1_CONST, tokOrd1_VAR:
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
@@ -115,7 +115,9 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 							return cfgNode
 						}(), c.getFirstChild(), output)
 					} else {
-						Preconditions_checkState_boolean_Object(c.isDestructuringLhs(), c.box_())
+						if !c.isDestructuringLhs() {
+							panic(new_IllegalStateException_String(tostr_(c)))
+						}
 						this.computeMustDef(c.getSecondChild(), cfgNode, output, conditional)
 						this.computeMustDef(c.getFirstChild(), cfgNode, output, conditional)
 					}
@@ -123,7 +125,7 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 			}
 		}
 		return
-	case Token_rhino_DEFAULT_VALUE:
+	case tokOrd1_DEFAULT_VALUE:
 		if n.getFirstChild().isDestructuringPattern() {
 			this.computeMustDef(n.getSecondChild(), cfgNode, output, true)
 			this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
@@ -139,7 +141,7 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 			this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
 			this.computeMustDef(n.getSecondChild(), cfgNode, output, true)
 		}
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if NodeUtil_isLhsByDestructuring(n) {
 			this.addToDefIfLocal(n.getString(), func() Node {
 				if conditional {
@@ -255,14 +257,16 @@ func MustBeReachingVariableDef_isParameter(v *Var) bool {
 }
 
 func (this *MustBeReachingVariableDef) computeDependence(def *MustBeReachingVariableDef_Definition, rValue Node) {
-	NodeTraversal_traverse(this.compiler_, rValue, icast_NodeTraversal_Callback(obj_(new_MustBeReachingVariableDef_1(this, def))))
+	NodeTraversal_traverse(this.compiler_, rValue, new_MustBeReachingVariableDef_1(this, def))
 }
 
 func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBeReachingVariableDef_Definition {
-	Preconditions_checkArgument(this.getCfg().hasNode(useNode))
+	if !this.getCfg().hasNode(useNode) {
+		panic(new_IllegalArgumentException_0())
+	}
 	var n GraphNode[Node] = this.getCfg().getNode(useNode)
-	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(n)))
-	return cast_[*MustBeReachingVariableDef_MustDef](state.getIn()).reachingDef.get(this.allVarsInFn.get(name))
+	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(n)))
+	return state.getIn().(*MustBeReachingVariableDef_MustDef).reachingDef.get(this.allVarsInFn.get(name))
 }
 
 func (this *MustBeReachingVariableDef) getDefNode(name string, useNode Node) Node {
@@ -282,7 +286,7 @@ func (this *MustBeReachingVariableDef) dependsOnOuterScopeVars(def *MustBeReachi
 	it_1 := def.depends.each()
 	for it_1.next() {
 		var s *Var = it_1.v
-		if cast_[*Scope](s.getScope()).isCatchScope() {
+		if s.getScope().(*Scope).isCatchScope() {
 			return true
 		}
 	}
@@ -312,27 +316,24 @@ func new_MustBeReachingVariableDef_Definition(node Node) *MustBeReachingVariable
 }
 
 func (this *MustBeReachingVariableDef_Definition) equals(other any) bool {
-	var otherDef *MustBeReachingVariableDef_Definition
-	_ = otherDef
-	if !(func() bool {
-		v_ := other
-		if !is_[*MustBeReachingVariableDef_Definition](v_) {
-			return false
-		}
-		otherDef = cast_[*MustBeReachingVariableDef_Definition](v_)
-		return true
-	}()) {
+	p, ok := other.(*MustBeReachingVariableDef_Definition)
+	return ok && this.equals_MustBeReachingVariableDef_Definition(p)
+}
+
+// equals_MustBeReachingVariableDef_Definition is equals of a MustBeReachingVariableDef_Definition (post-flip step eqtyped).
+func (this *MustBeReachingVariableDef_Definition) equals_MustBeReachingVariableDef_Definition(otherDef *MustBeReachingVariableDef_Definition) bool {
+	if !(otherDef != nil) {
 		return false
 	}
 	return (otherDef.node_ == this.node_)
 }
 
 func (this *MustBeReachingVariableDef_Definition) toString() string {
-	return ("Definition@" + objstr_(this.node_.box_()))
+	return ("Definition@" + tostr_(this.node_))
 }
 
 func (this *MustBeReachingVariableDef_Definition) hashCode() int32 {
-	return Object_hashCode(this.node_.box_())
+	return hashId_(this.node_)
 }
 
 type MustBeReachingVariableDef_MustDef struct {
@@ -355,10 +356,8 @@ func new_MustBeReachingVariableDef_MustDef_0() *MustBeReachingVariableDef_MustDe
 
 func (this *MustBeReachingVariableDef_MustDef) init_MustBeReachingVariableDef_MustDef_Collection(vars CollectionOf[*Var]) {
 	this.finit_MustBeReachingVariableDef_MustDef()
-	it_1 := foreach_(any(vars))
-	for it_1.next() {
-		var var_ *Var = cast_[*Var](it_1.v)
-		this.reachingDef.put(var_, new_MustBeReachingVariableDef_Definition(cast_[*Scope](var_.getScope()).getRootNode()))
+	for var_ := range elemsAs_[*Var](vars) {
+		this.reachingDef.put(var_, new_MustBeReachingVariableDef_Definition(var_.getScope().(*Scope).getRootNode()))
 	}
 }
 
@@ -379,16 +378,17 @@ func (this *MustBeReachingVariableDef_MustDef) equals(other any) bool {
 	_ = mustDef
 	return (func() bool {
 		v_ := other
-		if !is_[*MustBeReachingVariableDef_MustDef](v_) {
+		p, ok := v_.(*MustBeReachingVariableDef_MustDef)
+		if !ok {
 			return false
 		}
-		mustDef = cast_[*MustBeReachingVariableDef_MustDef](v_)
+		mustDef = p
 		return true
-	}() && Object_equals(any(mustDef.reachingDef.asMap()), any(this.reachingDef.asMap())))
+	}() && equalsDyn_(mustDef.reachingDef.asMap(), this.reachingDef.asMap()))
 }
 
 func (this *MustBeReachingVariableDef_MustDef) hashCode() int32 {
-	return Object_hashCode(any(this.reachingDef.asMap()))
+	return hashDyn_(this.reachingDef.asMap())
 }
 
 type MustBeReachingVariableDef_MustDefJoin struct {
@@ -421,7 +421,7 @@ func (this *MustBeReachingVariableDef_MustDefJoin) mergeVarDef(var_ *Var, def *M
 		resultDef = nil
 	} else if !this.resultMap.has(var_) {
 		resultDef = def
-	} else if def.equals(obj_(this.resultMap.get(var_))) {
+	} else if def.equals_MustBeReachingVariableDef_Definition(this.resultMap.get(var_)) {
 		return
 	} else {
 		resultDef = nil
@@ -468,4 +468,13 @@ func (this *MustBeReachingVariableDef_1) visit_impl(t *NodeTraversal, n Node, pa
 			this.cap_def.depends.add(dep)
 		}
 	}
+}
+
+// visit: an object that is exactly a MustBeReachingVariableDef_1 calls its visit_impl directly (post-flip); others dispatch.
+func (this *MustBeReachingVariableDef_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*MustBeReachingVariableDef_1); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

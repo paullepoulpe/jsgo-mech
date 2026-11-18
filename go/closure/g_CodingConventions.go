@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CodingConventions struct {
 }
 
@@ -16,7 +18,7 @@ func new_CodingConventions() *CodingConventions {
 }
 
 func CodingConventions_getDefault() CodingConvention {
-	return icast_CodingConvention(obj_(new_CodingConventions_DefaultCodingConvention()))
+	return new_CodingConventions_DefaultCodingConvention()
 }
 
 func CodingConventions_defaultIsFunctionCallThatAlwaysThrows(n Node, alwaysThrowsFunctionName string) bool {
@@ -34,28 +36,44 @@ func CodingConventions_defaultIsFunctionCallThatAlwaysThrows(n Node, alwaysThrow
 }
 
 type CodingConventions_Proxy struct {
-	self_          any
+	self_          CodingConventions_Proxy_I
 	nextConvention CodingConvention
+}
+
+// CodingConventions_Proxy_I holds the methods the dispatchers of CodingConventions_Proxy's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type CodingConventions_Proxy_I interface {
+	applySingletonGetter_impl(*NominalTypeBuilder, *FunctionType)
+	applySubclassRelationship_impl(*NominalTypeBuilder, *NominalTypeBuilder, CodingConvention_SubclassType)
+	describeCachingCall_impl(Node) *CodingConvention_Cache
+	describeFunctionBind_impl(Node, bool) *CodingConvention_Bind
+	extractClassNameIfProvide_impl(Node, Node) Optional[string]
+	extractClassNameIfRequire_impl(Node, Node) Optional[string]
+	extractIsModuleFile_impl(Node, Node) bool
+	getAbstractMethodName_impl() string
+	getAssertionFunctions_impl() Collection
+	getClassesDefinedByCall_impl(Node) *CodingConvention_SubclassRelationship
+	getExportPropertyFunction_impl() string
+	getExportSymbolFunction_impl() string
+	getObjectLiteralCast_impl(Node) *CodingConvention_ObjectLiteralCast
+	getPackageName_impl(StaticSourceFile) Optional[string]
+	getSingletonGetterClassName_impl(Node) string
+	identifyTypeDeclarationCall_impl(Node) []string
+	isClassFactoryCall_impl(Node) bool
+	isConstantKey_impl(string) bool
+	isConstant_impl(string) bool
+	isExported_2_impl(string, bool) bool
+	isFunctionCallThatAlwaysThrows_impl(Node) bool
+	isOptionalParameter_impl(Node) bool
+	isPropertyRenameFunction_impl(Node) bool
+	isPropertyTestFunction_impl(Node) bool
+	isSuperClassReference_impl(string) bool
+	isValidEnumKey_impl(Optional[string]) bool
+	isVarArgsParameter_impl(Node) bool
 }
 
 func (this *CodingConventions_Proxy) as_CodingConventions_Proxy() *CodingConventions_Proxy {
 	return this
-}
-
-func to_CodingConventions_Proxy(v any) *CodingConventions_Proxy {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_CodingConventions_Proxy() *CodingConventions_Proxy
-	}).as_CodingConventions_Proxy()
-}
-
-func is_CodingConventions_Proxy(v any) bool {
-	_, ok := v.(interface {
-		as_CodingConventions_Proxy() *CodingConventions_Proxy
-	})
-	return ok
 }
 
 func (this *CodingConventions_Proxy) self() any {
@@ -105,7 +123,7 @@ func (this *CodingConventions_Proxy) isExported_2_impl(name string, local bool) 
 }
 
 func (this *CodingConventions_Proxy) isExported(name string) bool {
-	return CodingConvention_isExported_default(icast_CodingConvention(this.self()), name)
+	return CodingConvention_isExported_default(this.self().(CodingConvention), name)
 }
 
 func (this *CodingConventions_Proxy) getPackageName_impl(source StaticSourceFile) Optional[string] {
@@ -144,11 +162,11 @@ func (this *CodingConventions_Proxy) getExportSymbolFunction_impl() string {
 	return this.nextConvention.getExportSymbolFunction()
 }
 
-func (this *CodingConventions_Proxy) identifyTypeDeclarationCall_impl(n Node) ListOf[string] {
+func (this *CodingConventions_Proxy) identifyTypeDeclarationCall_impl(n Node) []string {
 	return this.nextConvention.identifyTypeDeclarationCall(n)
 }
 
-func (this *CodingConventions_Proxy) applySubclassRelationship_impl(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ *CodingConvention_SubclassType) {
+func (this *CodingConventions_Proxy) applySubclassRelationship_impl(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ CodingConvention_SubclassType) {
 	this.nextConvention.applySubclassRelationship(parent, child, type_)
 }
 
@@ -193,133 +211,115 @@ func (this *CodingConventions_Proxy) getObjectLiteralCast_impl(callNode Node) *C
 }
 
 func (this *CodingConventions_Proxy) getSingletonGetterClassName(p0 Node) string {
-	return this.self_.(interface{ getSingletonGetterClassName_impl(Node) string }).getSingletonGetterClassName_impl(p0)
+	return this.self_.getSingletonGetterClassName_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) applySingletonGetter(p0 *NominalTypeBuilder, p1 *FunctionType) {
-	this.self_.(interface {
-		applySingletonGetter_impl(*NominalTypeBuilder, *FunctionType)
-	}).applySingletonGetter_impl(p0, p1)
+	this.self_.applySingletonGetter_impl(p0, p1)
 }
 
-func (this *CodingConventions_Proxy) applySubclassRelationship(p0 *NominalTypeBuilder, p1 *NominalTypeBuilder, p2 *CodingConvention_SubclassType) {
-	this.self_.(interface {
-		applySubclassRelationship_impl(*NominalTypeBuilder, *NominalTypeBuilder, *CodingConvention_SubclassType)
-	}).applySubclassRelationship_impl(p0, p1, p2)
+func (this *CodingConventions_Proxy) applySubclassRelationship(p0 *NominalTypeBuilder, p1 *NominalTypeBuilder, p2 CodingConvention_SubclassType) {
+	this.self_.applySubclassRelationship_impl(p0, p1, p2)
 }
 
 func (this *CodingConventions_Proxy) getClassesDefinedByCall(p0 Node) *CodingConvention_SubclassRelationship {
-	return this.self_.(interface {
-		getClassesDefinedByCall_impl(Node) *CodingConvention_SubclassRelationship
-	}).getClassesDefinedByCall_impl(p0)
+	return this.self_.getClassesDefinedByCall_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isSuperClassReference(p0 string) bool {
-	return this.self_.(interface{ isSuperClassReference_impl(string) bool }).isSuperClassReference_impl(p0)
+	return this.self_.isSuperClassReference_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) extractIsModuleFile(p0 Node, p1 Node) bool {
-	return this.self_.(interface{ extractIsModuleFile_impl(Node, Node) bool }).extractIsModuleFile_impl(p0, p1)
+	return this.self_.extractIsModuleFile_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) extractClassNameIfProvide(p0 Node, p1 Node) Optional[string] {
-	return this.self_.(interface {
-		extractClassNameIfProvide_impl(Node, Node) Optional[string]
-	}).extractClassNameIfProvide_impl(p0, p1)
+	return this.self_.extractClassNameIfProvide_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) extractClassNameIfRequire(p0 Node, p1 Node) Optional[string] {
-	return this.self_.(interface {
-		extractClassNameIfRequire_impl(Node, Node) Optional[string]
-	}).extractClassNameIfRequire_impl(p0, p1)
+	return this.self_.extractClassNameIfRequire_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) getExportPropertyFunction() string {
-	return this.self_.(interface{ getExportPropertyFunction_impl() string }).getExportPropertyFunction_impl()
+	return this.self_.getExportPropertyFunction_impl()
 }
 
 func (this *CodingConventions_Proxy) getExportSymbolFunction() string {
-	return this.self_.(interface{ getExportSymbolFunction_impl() string }).getExportSymbolFunction_impl()
+	return this.self_.getExportSymbolFunction_impl()
 }
 
-func (this *CodingConventions_Proxy) identifyTypeDeclarationCall(p0 Node) List {
-	return this.self_.(interface{ identifyTypeDeclarationCall_impl(Node) List }).identifyTypeDeclarationCall_impl(p0)
+func (this *CodingConventions_Proxy) identifyTypeDeclarationCall(p0 Node) []string {
+	return this.self_.identifyTypeDeclarationCall_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) getAbstractMethodName() string {
-	return this.self_.(interface{ getAbstractMethodName_impl() string }).getAbstractMethodName_impl()
+	return this.self_.getAbstractMethodName_impl()
 }
 
 func (this *CodingConventions_Proxy) isPropertyTestFunction(p0 Node) bool {
-	return this.self_.(interface{ isPropertyTestFunction_impl(Node) bool }).isPropertyTestFunction_impl(p0)
+	return this.self_.isPropertyTestFunction_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isPropertyRenameFunction(p0 Node) bool {
-	return this.self_.(interface{ isPropertyRenameFunction_impl(Node) bool }).isPropertyRenameFunction_impl(p0)
+	return this.self_.isPropertyRenameFunction_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isFunctionCallThatAlwaysThrows(p0 Node) bool {
-	return this.self_.(interface{ isFunctionCallThatAlwaysThrows_impl(Node) bool }).isFunctionCallThatAlwaysThrows_impl(p0)
+	return this.self_.isFunctionCallThatAlwaysThrows_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) getObjectLiteralCast(p0 Node) *CodingConvention_ObjectLiteralCast {
-	return this.self_.(interface {
-		getObjectLiteralCast_impl(Node) *CodingConvention_ObjectLiteralCast
-	}).getObjectLiteralCast_impl(p0)
+	return this.self_.getObjectLiteralCast_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) getAssertionFunctions() Collection {
-	return this.self_.(interface{ getAssertionFunctions_impl() Collection }).getAssertionFunctions_impl()
+	return this.self_.getAssertionFunctions_impl()
 }
 
 func (this *CodingConventions_Proxy) describeFunctionBind(p0 Node, p1 bool) *CodingConvention_Bind {
-	return this.self_.(interface {
-		describeFunctionBind_impl(Node, bool) *CodingConvention_Bind
-	}).describeFunctionBind_impl(p0, p1)
+	return this.self_.describeFunctionBind_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) describeCachingCall(p0 Node) *CodingConvention_Cache {
-	return this.self_.(interface {
-		describeCachingCall_impl(Node) *CodingConvention_Cache
-	}).describeCachingCall_impl(p0)
+	return this.self_.describeCachingCall_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isConstant(p0 string) bool {
-	return this.self_.(interface{ isConstant_impl(string) bool }).isConstant_impl(p0)
+	return this.self_.isConstant_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isConstantKey(p0 string) bool {
-	return this.self_.(interface{ isConstantKey_impl(string) bool }).isConstantKey_impl(p0)
+	return this.self_.isConstantKey_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isValidEnumKey(p0 Optional[string]) bool {
-	return this.self_.(interface{ isValidEnumKey_impl(Optional[string]) bool }).isValidEnumKey_impl(p0)
+	return this.self_.isValidEnumKey_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isOptionalParameter(p0 Node) bool {
-	return this.self_.(interface{ isOptionalParameter_impl(Node) bool }).isOptionalParameter_impl(p0)
+	return this.self_.isOptionalParameter_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isVarArgsParameter(p0 Node) bool {
-	return this.self_.(interface{ isVarArgsParameter_impl(Node) bool }).isVarArgsParameter_impl(p0)
+	return this.self_.isVarArgsParameter_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isExported_2(p0 string, p1 bool) bool {
-	return this.self_.(interface{ isExported_2_impl(string, bool) bool }).isExported_2_impl(p0, p1)
+	return this.self_.isExported_2_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) isClassFactoryCall(p0 Node) bool {
-	return this.self_.(interface{ isClassFactoryCall_impl(Node) bool }).isClassFactoryCall_impl(p0)
+	return this.self_.isClassFactoryCall_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) getPackageName(p0 StaticSourceFile) Optional[string] {
-	return this.self_.(interface {
-		getPackageName_impl(StaticSourceFile) Optional[string]
-	}).getPackageName_impl(p0)
+	return this.self_.getPackageName_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) blockRenamingForProperty(p0 string) bool {
-	return CodingConvention_blockRenamingForProperty_default(icast_CodingConvention(this.self()), p0)
+	return CodingConvention_blockRenamingForProperty_default(this.self().(CodingConvention), p0)
 }
 
 type CodingConventions_DefaultCodingConvention struct {
@@ -344,7 +344,7 @@ func (this *CodingConventions_DefaultCodingConvention) isConstantKey(variableNam
 }
 
 func (this *CodingConventions_DefaultCodingConvention) isValidEnumKey(key Optional[string]) bool {
-	return (key.isPresent() && (String_length(key.get()) > 0))
+	return (key.isPresent() && (len(key.get()) != 0))
 }
 
 func (this *CodingConventions_DefaultCodingConvention) isOptionalParameter(parameter Node) bool {
@@ -365,21 +365,21 @@ func (this *CodingConventions_DefaultCodingConvention) isFunctionCallThatAlwaysT
 
 func (this *CodingConventions_DefaultCodingConvention) getPackageName(source StaticSourceFile) Optional[string] {
 	var name string = source.getName()
-	var lastSlash int32 = String_lastIndexOf(name, 47)
+	var lastSlash int32 = int32(strings.LastIndexByte(name, '/'))
 	return func() Optional[string] {
 		if lastSlash == -1 {
 			return Optional_of[string]("")
 		}
-		return Optional_of[string](String_substring(name, 0, lastSlash))
+		return Optional_of[string](name[:lastSlash])
 	}()
 }
 
 func (this *CodingConventions_DefaultCodingConvention) isExported_2(name string, local bool) bool {
-	return (local && String_startsWith(name, "$super"))
+	return (local && strings.HasPrefix(name, "$super"))
 }
 
 func (this *CodingConventions_DefaultCodingConvention) isExported(name string) bool {
-	return CodingConvention_isExported_default(icast_CodingConvention(any(this)), name)
+	return CodingConvention_isExported_default(this, name)
 }
 
 func (this *CodingConventions_DefaultCodingConvention) getClassesDefinedByCall(callNode Node) *CodingConvention_SubclassRelationship {
@@ -404,17 +404,17 @@ func (this *CodingConventions_DefaultCodingConvention) isSuperClassReference(pro
 
 func (this *CodingConventions_DefaultCodingConvention) extractIsModuleFile(node Node, parent Node) bool {
 	var message string = "only implemented in ClosureCodingConvention"
-	panic(new_UnsupportedOperationException_String(message).self())
+	panic(new_UnsupportedOperationException_String(message))
 }
 
 func (this *CodingConventions_DefaultCodingConvention) extractClassNameIfProvide(node Node, parent Node) Optional[string] {
 	var message string = "only implemented in ClosureCodingConvention"
-	panic(new_UnsupportedOperationException_String(message).self())
+	panic(new_UnsupportedOperationException_String(message))
 }
 
 func (this *CodingConventions_DefaultCodingConvention) extractClassNameIfRequire(node Node, parent Node) Optional[string] {
 	var message string = "only implemented in ClosureCodingConvention"
-	panic(new_UnsupportedOperationException_String(message).self())
+	panic(new_UnsupportedOperationException_String(message))
 }
 
 func (this *CodingConventions_DefaultCodingConvention) getExportPropertyFunction() string {
@@ -425,11 +425,11 @@ func (this *CodingConventions_DefaultCodingConvention) getExportSymbolFunction()
 	return ""
 }
 
-func (this *CodingConventions_DefaultCodingConvention) identifyTypeDeclarationCall(n Node) ListOf[string] {
-	return icast_List(obj_(ImmutableList_of()))
+func (this *CodingConventions_DefaultCodingConvention) identifyTypeDeclarationCall(n Node) []string {
+	return []string{}
 }
 
-func (this *CodingConventions_DefaultCodingConvention) applySubclassRelationship(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ *CodingConvention_SubclassType) {
+func (this *CodingConventions_DefaultCodingConvention) applySubclassRelationship(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ CodingConvention_SubclassType) {
 
 }
 
@@ -470,7 +470,7 @@ func (this *CodingConventions_DefaultCodingConvention) getObjectLiteralCast(call
 }
 
 func (this *CodingConventions_DefaultCodingConvention) getAssertionFunctions() Collection {
-	return icast_Collection(obj_(ImmutableSet_of_Object_Object(obj_(CodingConvention_AssertionFunctionSpec_forTruthy().setClosurePrimitive(ClosurePrimitive_ASSERTS_TRUTHY).build()), obj_(CodingConvention_AssertionFunctionSpec_forMatchesReturn().setClosurePrimitive(ClosurePrimitive_ASSERTS_MATCHES_RETURN).build()))))
+	return ImmutableSet_of_Object_Object(obj_(CodingConvention_AssertionFunctionSpec_forTruthy().setClosurePrimitive(ClosurePrimitive_ASSERTS_TRUTHY).build()), obj_(CodingConvention_AssertionFunctionSpec_forMatchesReturn().setClosurePrimitive(ClosurePrimitive_ASSERTS_MATCHES_RETURN).build()))
 }
 
 func (this *CodingConventions_DefaultCodingConvention) describeFunctionBind(n Node, checkTypes bool) *CodingConvention_Bind {
@@ -517,7 +517,7 @@ func CodingConventions_DefaultCodingConvention_safeNext(n Node) Node {
 }
 
 func (this *CodingConventions_DefaultCodingConvention) blockRenamingForProperty(p0 string) bool {
-	return CodingConvention_blockRenamingForProperty_default(icast_CodingConvention(any(this)), p0)
+	return CodingConvention_blockRenamingForProperty_default(this, p0)
 }
 
 const CodingConventions_DefaultCodingConvention_serialVersionUID int64 = 1

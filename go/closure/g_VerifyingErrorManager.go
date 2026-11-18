@@ -33,22 +33,22 @@ func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *JTLis
 	return this
 }
 
-func (this *VerifyingErrorManager) report_2_impl(level *CheckLevel, error_ *JSError) {
+func (this *VerifyingErrorManager) report_2_impl(level CheckLevel, error_ *JSError) {
 	var formattedError string = this.formatErrorForMatching(level, error_)
 	var matchedPattern *Pattern = nil
 	var iterator IteratorOf[*Pattern] = this.unmatchedExpectations.iterator()
 	for iterator.hasNext() {
 		var p *Pattern = cast_[*Pattern](iterator.next())
-		if p.matcher(strobj_(formattedError)).find() {
+		if p.matcher_s(formattedError).find() {
 			if matchedPattern == nil {
 				matchedPattern = p
 				Iterator_remove(iterator)
 				continue
 			}
-			if Object_toString(obj_(matchedPattern)) == Object_toString(obj_(p)) {
+			if tostrNN_(matchedPattern) == tostrNN_(p) {
 				continue
 			}
-			this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_AMBIGUOUS_EXPECTATION, []string{formattedError, Object_toString(obj_(matchedPattern)), Object_toString(obj_(p))}))
+			this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_AMBIGUOUS_EXPECTATION, []string{formattedError, tostrNN_(matchedPattern), tostrNN_(p)}))
 			Iterator_remove(iterator)
 		}
 	}
@@ -66,16 +66,34 @@ func (this *VerifyingErrorManager) reportMissingExpectations() {
 	it_1 := this.unmatchedExpectations.each()
 	for it_1.next() {
 		var p *Pattern = it_1.v
-		this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_EXPECTED_DIAGNOSTIC_NOT_FOUND, []string{Object_toString(obj_(p))}))
+		this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_EXPECTED_DIAGNOSTIC_NOT_FOUND, []string{tostrNN_(p)}))
 	}
 	this.unmatchedExpectations.clear()
 }
 
-func (this *VerifyingErrorManager) formatErrorForMatching(level *CheckLevel, error_ *JSError) string {
+func (this *VerifyingErrorManager) formatErrorForMatching(level CheckLevel, error_ *JSError) string {
 	return func() string {
 		if level == CheckLevel_ERROR {
 			return this.formatter.formatError(error_)
 		}
 		return this.formatter.formatWarning(error_)
 	}()
+}
+
+// report_2: an object that is exactly a VerifyingErrorManager calls its report_2_impl directly (post-flip); others dispatch.
+func (this *VerifyingErrorManager) report_2(p0 CheckLevel, p1 *JSError) {
+	if p, _ := this.self_.(*VerifyingErrorManager); p == this {
+		this.report_2_impl(p0, p1)
+		return
+	}
+	this.self_.report_2_impl(p0, p1)
+}
+
+// generateReport: an object that is exactly a VerifyingErrorManager calls its generateReport_impl directly (post-flip); others dispatch.
+func (this *VerifyingErrorManager) generateReport() {
+	if p, _ := this.self_.(*VerifyingErrorManager); p == this {
+		this.generateReport_impl()
+		return
+	}
+	this.self_.generateReport_impl()
 }

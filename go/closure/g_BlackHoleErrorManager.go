@@ -14,7 +14,7 @@ func (this *BlackHoleErrorManager) up_SortingErrorManager() *SortingErrorManager
 }
 
 func (this *BlackHoleErrorManager) init_BlackHoleErrorManager() {
-	this.SortingErrorManager.init_SortingErrorManager(icast_Set(obj_(ImmutableSet_of())))
+	this.SortingErrorManager.init_SortingErrorManager(immutableSetOf_(tc_SortingErrorManager_ErrorReportGenerator))
 }
 
 func new_BlackHoleErrorManager() *BlackHoleErrorManager {

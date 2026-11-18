@@ -3,21 +3,16 @@
 package closure
 
 type Timeline[T any] struct {
-	eventsByTime  MapOf[*Timeline_Time, *Timeline_Event]
-	eventsByValue MapOf[T, *Timeline_Event]
-	headEvent     *Timeline_Event
+	eventsByTime  MapOf[*Timeline_Time, *Timeline_Event[any]]
+	eventsByValue MapOf[T, *Timeline_Event[any]]
+	headEvent     *Timeline_Event[any]
 }
 
 func (this *Timeline[T]) isa_Timeline_() {}
 
-func is_Timeline(v any) bool {
-	_, ok := v.(interface{ isa_Timeline_() })
-	return ok
-}
-
 func (this *Timeline[T]) finit_Timeline() {
-	this.eventsByTime = icast_Map(obj_(new_LinkedHashMap()))
-	this.eventsByValue = icast_Map(obj_(new_LinkedHashMap()))
+	this.eventsByTime = new_LinkedHashMap()
+	this.eventsByValue = new_LinkedHashMap()
 	this.headEvent = new_Timeline_Event(obj_(new_Timeline_Time("-beginning-")))
 }
 
@@ -36,7 +31,7 @@ func (this *Timeline[T]) add(value T) {
 }
 
 func (this *Timeline[T]) remove(value T) {
-	var event *Timeline_Event = cast_[*Timeline_Event](this.eventsByValue.remove(boxT_(value)))
+	var event *Timeline_Event[any] = cast_[*Timeline_Event[any]](this.eventsByValue.remove(boxT_(value)))
 	if event != nil {
 		if event.nextEvent != nil {
 			event.nextEvent.previousEvent = event.previousEvent
@@ -54,15 +49,15 @@ func (this *Timeline[T]) mark(timeName string) {
 }
 
 func (this *Timeline[T]) getSince(timeName string) ListOf[T] {
-	var values ListOf[T] = icast_List(new_ArrayList_0().self())
-	var firstEvent *Timeline_Event = cast_[*Timeline_Event](this.eventsByTime.get(obj_(new_Timeline_Time(timeName))))
+	var values ListOf[T] = new_ArrayList_0()
+	var firstEvent *Timeline_Event[any] = cast_[*Timeline_Event[any]](this.eventsByTime.get(obj_(new_Timeline_Time(timeName))))
 	if firstEvent == nil {
 		return nil
 	}
 	{
-		var event *Timeline_Event = firstEvent
+		var event *Timeline_Event[any] = firstEvent
 		for ; event != nil; event = event.nextEvent {
-			if !is_[*Timeline_Time](event.value_) {
+			if _, ok := event.value_.(*Timeline_Time); !ok {
 				values.add(boxT_(junboxT_[T](event.value_)))
 			}
 		}
@@ -70,8 +65,8 @@ func (this *Timeline[T]) getSince(timeName string) ListOf[T] {
 	return values
 }
 
-func (this *Timeline[T]) addEvent(value any, eventsByKey MapOf[any, *Timeline_Event]) {
-	var event *Timeline_Event = cast_[*Timeline_Event](eventsByKey.get(value))
+func (this *Timeline[T]) addEvent(value any, eventsByKey MapOf[any, *Timeline_Event[any]]) {
+	var event *Timeline_Event[any] = cast_[*Timeline_Event[any]](eventsByKey.get(value))
 	if this.headEvent == event {
 		return
 	}
@@ -88,19 +83,21 @@ func (this *Timeline[T]) addEvent(value any, eventsByKey MapOf[any, *Timeline_Ev
 	this.headEvent = event
 }
 
-type Timeline_Event struct {
-	nextEvent     *Timeline_Event
-	previousEvent *Timeline_Event
-	value_        any
+type Timeline_Event[T comparable] struct {
+	nextEvent     *Timeline_Event[any]
+	previousEvent *Timeline_Event[any]
+	value_        T
 }
 
-func (this *Timeline_Event) init_Timeline_Event(value any) {
-	Preconditions_checkNotNull(value)
+func (this *Timeline_Event[T]) init_Timeline_Event(value T) {
+	if value == null_[T]() {
+		panic(new_NullPointerException_0())
+	}
 	this.value_ = value
 }
 
-func new_Timeline_Event(value any) *Timeline_Event {
-	this := &Timeline_Event{}
+func new_Timeline_Event[T comparable](value T) *Timeline_Event[T] {
+	this := &Timeline_Event[T]{value_: null_[T]()}
 	this.init_Timeline_Event(value)
 	return this
 }
@@ -129,10 +126,11 @@ func (this *Timeline_Time) equals(anObject any) bool {
 	_ = time
 	if func() bool {
 		v_ := anObject
-		if !is_[*Timeline_Time](v_) {
+		p, ok := v_.(*Timeline_Time)
+		if !ok {
 			return false
 		}
-		time = cast_[*Timeline_Time](v_)
+		time = p
 		return true
 	}() {
 		return (this.name_ == time.name_)
@@ -141,5 +139,5 @@ func (this *Timeline_Time) equals(anObject any) bool {
 }
 
 func (this *Timeline_Time) hashCode() int32 {
-	return String_hashCode(this.name_)
+	return utf16Hash_(this.name_)
 }

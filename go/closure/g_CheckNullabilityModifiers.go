@@ -39,20 +39,18 @@ func new_CheckNullabilityModifiers(compiler *AbstractCompiler) *CheckNullability
 }
 
 func (this *CheckNullabilityModifiers) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 }
 
 func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
 	if info != nil {
-		this.templateTypeNames.asSet().addAll(icast_Collection(obj_(info.getTemplateTypeNames())))
-		this.templateTypeNames.asSet().addAll(Collection(info.getTypeTransformations().keySet()))
+		this.templateTypeNames.asSet().addAll(icast_Collection(obj_(info.getTemplateTypeNames().asImm())))
+		this.templateTypeNames.asSet().addAll(Collection(info.getTypeTransformations().asImm().keySet()))
 		if info.hasType() {
 			this.handleHasType(info.getType(), n)
 		}
-		it_1 := foreach_(any(info.getParameterNames()))
-		for it_1.next() {
-			var param string = str_(it_1.v)
+		for param := range info.getParameterNames().All() {
 			if info.hasParameterType(Optional_of[string](param)) {
 				this.visitTypeExpression(info.getParameterType(Optional_of[string](param)), false)
 			}
@@ -129,12 +127,12 @@ func (this *CheckNullabilityModifiers) visitTypeExpression_3(expr *JSTypeExpress
 		var parent Node = node.getParent()
 		var isPrimitiveOrLiteral bool = ((CheckNullabilityModifiers_isPrimitiveType(node) || CheckNullabilityModifiers_isFunctionLiteral(node)) || CheckNullabilityModifiers_isRecordLiteral(node))
 		var isReference bool = CheckNullabilityModifiers_isReferenceType(node)
-		var hasBang bool = ((parent != 0) && (parent.getToken() == Token_rhino_BANG))
-		var hasQmark bool = ((parent != 0) && (parent.getToken() == Token_rhino_QMARK))
+		var hasBang bool = ((parent != 0) && (parent.ns_().token == tokOrd1_BANG))
+		var hasQmark bool = ((parent != 0) && (parent.ns_().token == tokOrd1_QMARK))
 		var hasNonArtificialBang bool = (hasBang && !(hasArtificialTopLevelBang && (parent == root)))
 		var isNewOrThis bool = ((parent != 0) && (parent.isNew() || parent.isThis()))
 		var isTypeOfType bool = ((parent != 0) && parent.isTypeOf())
-		var isAppliedToRValue bool = ((node == root) || ((parent != 0) && (parent.getToken() == Token_rhino_PIPE)))
+		var isAppliedToRValue bool = ((node == root) || ((parent != 0) && (parent.ns_().token == tokOrd1_PIPE)))
 		if (((isReference && !hasBang) && !hasQmark) && !isNewOrThis) && !isTypeOfType {
 			if (isAppliedToRValue && (rValue != 0)) && rValue.isNull() {
 				this.nullMissingCandidates.add(node)
@@ -148,11 +146,11 @@ func (this *CheckNullabilityModifiers) visitTypeExpression_3(expr *JSTypeExpress
 }
 
 func CheckNullabilityModifiers_isPrimitiveType(node Node) bool {
-	return (node.isStringLit() && Collection_contains_s(CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES, node.getString()))
+	return (node.isStringLit() && CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES.Has(node.getString()))
 }
 
 func CheckNullabilityModifiers_isReferenceType(node Node) bool {
-	return (node.isStringLit() && !Collection_contains_s(CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES, node.getString()))
+	return (node.isStringLit() && !CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES.Has(node.getString()))
 }
 
 func CheckNullabilityModifiers_isFunctionLiteral(node Node) bool {
@@ -160,7 +158,7 @@ func CheckNullabilityModifiers_isFunctionLiteral(node Node) bool {
 }
 
 func CheckNullabilityModifiers_isRecordLiteral(node Node) bool {
-	return (node.getToken() == Token_rhino_LC)
+	return (node.ns_().token == tokOrd1_LC)
 }
 
 func CheckNullabilityModifiers_getReportedTypeName(node Node) string {
@@ -170,14 +168,16 @@ func CheckNullabilityModifiers_getReportedTypeName(node Node) string {
 	if CheckNullabilityModifiers_isRecordLiteral(node) {
 		return "Record literal"
 	}
-	Preconditions_checkState((CheckNullabilityModifiers_isPrimitiveType(node) || CheckNullabilityModifiers_isReferenceType(node)))
+	if !CheckNullabilityModifiers_isPrimitiveType(node) && !CheckNullabilityModifiers_isReferenceType(node) {
+		panic(new_IllegalStateException_0())
+	}
 	return node.getString()
 }
 
 var CheckNullabilityModifiers_MISSING_NULLABILITY_MODIFIER_JSDOC *DiagnosticType
 var CheckNullabilityModifiers_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC *DiagnosticType
 var CheckNullabilityModifiers_REDUNDANT_NULLABILITY_MODIFIER_JSDOC *DiagnosticType
-var CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES *ImmutableSet
+var CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES *ImmutableSet[string]
 
 var CheckNullabilityModifiers_clinit_done bool
 
@@ -189,6 +189,15 @@ func CheckNullabilityModifiers_clinit() {
 	CheckNullabilityModifiers_MISSING_NULLABILITY_MODIFIER_JSDOC = DiagnosticType_disabled("JSC_MISSING_NULLABILITY_MODIFIER_JSDOC", "{0} is a reference type with no nullability modifier, which is disallowed by the style guide.\nPlease add a '!' to make it explicitly non-nullable, or a '?' to make it explicitly nullable.")
 	CheckNullabilityModifiers_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC = DiagnosticType_disabled("JSC_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC", "{0} is a reference type with no nullability modifier that is explicitly set to null.\nAdd a '?' to make it explicitly nullable.")
 	CheckNullabilityModifiers_REDUNDANT_NULLABILITY_MODIFIER_JSDOC = DiagnosticType_disabled("JSC_REDUNDANT_NULLABILITY_MODIFIER_JSDOC", "{0} is a non-reference type which is already non-nullable.\nPlease remove the redundant '!', which is disallowed by the style guide.")
-	CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("boolean"), strobj_("number"), strobj_("bigint"), strobj_("string"), strobj_("symbol"), strobj_("undefined"), []any{strobj_("void"), strobj_("null")})
+	CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES = immutableSetOf_(tc_string, "boolean", "number", "bigint", "string", "symbol", "undefined", "void", "null")
 
+}
+
+// visit: an object that is exactly a CheckNullabilityModifiers calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckNullabilityModifiers) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckNullabilityModifiers); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

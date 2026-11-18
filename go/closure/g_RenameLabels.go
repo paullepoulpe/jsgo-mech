@@ -4,13 +4,13 @@ package closure
 
 type RenameLabels struct {
 	compiler_    *AbstractCompiler
-	nameSupplier SupplierOf[string]
+	nameSupplier func() any
 	removeUnused bool
 	markChanges  bool
 }
 
 func (this *RenameLabels) init_RenameLabels_AbstractCompiler(compiler *AbstractCompiler) {
-	this.init_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler, icast_Supplier(obj_(new_RenameLabels_DefaultNameSupplier())), true, true)
+	this.init_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler, new_RenameLabels_DefaultNameSupplier().get, true, true)
 }
 
 func new_RenameLabels_AbstractCompiler(compiler *AbstractCompiler) *RenameLabels {
@@ -19,21 +19,21 @@ func new_RenameLabels_AbstractCompiler(compiler *AbstractCompiler) *RenameLabels
 	return this
 }
 
-func (this *RenameLabels) init_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler *AbstractCompiler, supplier SupplierOf[string], removeUnused bool, markChanges bool) {
+func (this *RenameLabels) init_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler *AbstractCompiler, supplier func() any, removeUnused bool, markChanges bool) {
 	this.compiler_ = compiler
 	this.nameSupplier = supplier
 	this.removeUnused = removeUnused
 	this.markChanges = markChanges
 }
 
-func new_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler *AbstractCompiler, supplier SupplierOf[string], removeUnused bool, markChanges bool) *RenameLabels {
+func new_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler *AbstractCompiler, supplier func() any, removeUnused bool, markChanges bool) *RenameLabels {
 	this := &RenameLabels{}
 	this.init_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(compiler, supplier, removeUnused, markChanges)
 	return this
 }
 
 func (this *RenameLabels) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RenameLabels_ProcessLabels(this, this.markChanges))))
+	NodeTraversal_traverse(this.compiler_, root, new_RenameLabels_ProcessLabels(this, this.markChanges))
 }
 
 type RenameLabels_DefaultNameSupplier struct {
@@ -41,7 +41,7 @@ type RenameLabels_DefaultNameSupplier struct {
 }
 
 func (this *RenameLabels_DefaultNameSupplier) init_RenameLabels_DefaultNameSupplier() {
-	this.nameGenerator = icast_NameGenerator(obj_(new_DefaultNameGenerator_Set_String_Set(icast_Set(obj_(new_LinkedHashSet())), "", icast_Set(obj_(ImmutableSet_of())))))
+	this.nameGenerator = new_DefaultNameGenerator_Set_String_Set(new_LinkedHashSet(), "", ImmutableSet_of())
 }
 
 func new_RenameLabels_DefaultNameSupplier() *RenameLabels_DefaultNameSupplier {
@@ -97,20 +97,22 @@ func (this *RenameLabels_ProcessLabels) shouldTraverse(nodeTraversal *NodeTraver
 		var currentDepth int32 = (current.renameMap.size() + 1)
 		var name string = node.getFirstChild().getString()
 		var li *RenameLabels_LabelInfo = new_RenameLabels_LabelInfo(currentDepth)
-		Preconditions_checkState(!current.renameMap.has(name))
+		if current.renameMap.has(name) {
+			panic(new_IllegalStateException_0())
+		}
 		current.renameMap.put(name, li)
 		if this.names_.size() < currentDepth {
-			this.names_.add(str_(this.outer_.nameSupplier.get()))
+			this.names_.add(str_(this.outer_.nameSupplier()))
 		}
 	}
 	return true
 }
 
 func (this *RenameLabels_ProcessLabels) visit(t *NodeTraversal, node Node, parent Node) {
-	switch node.getToken() {
-	case Token_rhino_LABEL:
+	switch node.ns_().token {
+	case tokOrd1_LABEL:
 		this.visitLabel(t, node)
-	case Token_rhino_BREAK, Token_rhino_CONTINUE:
+	case tokOrd1_BREAK, tokOrd1_CONTINUE:
 		this.visitBreakOrContinue(t, node)
 	default:
 	}
@@ -120,7 +122,9 @@ func (this *RenameLabels_ProcessLabels) visitBreakOrContinue(t *NodeTraversal, n
 	var nameNode Node = node.getFirstChild()
 	if nameNode != 0 {
 		var name string = nameNode.getString()
-		Preconditions_checkState(!String_isEmpty(name))
+		if name == "" {
+			panic(new_IllegalStateException_0())
+		}
 		var li *RenameLabels_LabelInfo = this.getLabelInfo(name)
 		if li != nil {
 			var newName string = this.getNameForId(li.id)
@@ -137,7 +141,9 @@ func (this *RenameLabels_ProcessLabels) visitBreakOrContinue(t *NodeTraversal, n
 
 func (this *RenameLabels_ProcessLabels) visitLabel(t *NodeTraversal, node Node) {
 	var nameNode Node = node.getFirstChild()
-	Preconditions_checkState((nameNode != 0))
+	if nameNode == 0 {
+		panic(new_IllegalStateException_0())
+	}
 	var name string = nameNode.getString()
 	var li *RenameLabels_LabelInfo = this.getLabelInfo(name)
 	if li.referenced || !this.outer_.removeUnused {

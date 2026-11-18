@@ -6,7 +6,7 @@ type DepsGenerator struct {
 	srcs           CollectionOf[*SourceFile_jscomp]
 	deps           CollectionOf[*SourceFile_jscomp]
 	closurePathAbs string
-	mergeStrategy  *DepsGenerator_InclusionStrategy
+	mergeStrategy  DepsGenerator_InclusionStrategy
 	loader         *ModuleLoader
 	errorManager   ErrorManager
 }
@@ -15,7 +15,7 @@ func (this *DepsGenerator) zero_DepsGenerator() {
 	this.closurePathAbs = nullstr_
 }
 
-func (this *DepsGenerator) init_DepsGenerator(deps CollectionOf[*SourceFile_jscomp], srcs CollectionOf[*SourceFile_jscomp], mergeStrategy *DepsGenerator_InclusionStrategy, closurePathAbs string, errorManager ErrorManager, loader *ModuleLoader) {
+func (this *DepsGenerator) init_DepsGenerator(deps CollectionOf[*SourceFile_jscomp], srcs CollectionOf[*SourceFile_jscomp], mergeStrategy DepsGenerator_InclusionStrategy, closurePathAbs string, errorManager ErrorManager, loader *ModuleLoader) {
 	this.deps = deps
 	this.srcs = srcs
 	this.mergeStrategy = mergeStrategy
@@ -24,7 +24,7 @@ func (this *DepsGenerator) init_DepsGenerator(deps CollectionOf[*SourceFile_jsco
 	this.loader = loader
 }
 
-func new_DepsGenerator(deps CollectionOf[*SourceFile_jscomp], srcs CollectionOf[*SourceFile_jscomp], mergeStrategy *DepsGenerator_InclusionStrategy, closurePathAbs string, errorManager ErrorManager, loader *ModuleLoader) *DepsGenerator {
+func new_DepsGenerator(deps CollectionOf[*SourceFile_jscomp], srcs CollectionOf[*SourceFile_jscomp], mergeStrategy DepsGenerator_InclusionStrategy, closurePathAbs string, errorManager ErrorManager, loader *ModuleLoader) *DepsGenerator {
 	this := &DepsGenerator{}
 	this.zero_DepsGenerator()
 	this.init_DepsGenerator(deps, srcs, mergeStrategy, closurePathAbs, errorManager, loader)
@@ -38,7 +38,7 @@ func (this *DepsGenerator) computeDependencyCalls() *Outcome_base[string] {
 	}
 	var depsFiles MapOf[string, DependencyInfo] = depsFilesRes.get()
 	if DepsGenerator_logger.isLoggable(Level_FINE) {
-		DepsGenerator_logger.fine(("preparsedFiles: " + objstr_(any(depsFiles))))
+		DepsGenerator_logger.fine(("preparsedFiles: " + objstr_(depsFiles)))
 	}
 	var jsFilesRes *Outcome_base[Map] = this.parseSources(depsFiles.keySet())
 	if jsFilesRes.isErr() {
@@ -54,9 +54,9 @@ func (this *DepsGenerator) computeDependencyCalls() *Outcome_base[string] {
 	if this.errorManager.getErrorCount() > 0 {
 		return Outcome_base_ok_Object[string](nullstr_)
 	}
-	var output *StringBuilder = new_StringBuilder()
-	this.writeDepsContent(depsFiles, jsFiles, output)
-	return Outcome_base_ok_Object[string](Io_utf8String(Io_utf8Bytes(Object_toString(obj_(output)))))
+	var output strBuilder_
+	this.writeDepsContent(depsFiles, jsFiles, &output)
+	return Outcome_base_ok_Object[string](Io_utf8String(Io_utf8Bytes(output.toString())))
 }
 
 func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo]) {
@@ -68,9 +68,7 @@ func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapOf[string, Depend
 			Map_remove_s(jsFiles, path)
 		}
 	}
-	it_3 := foreach_(any(jsFiles.keySet()))
-	for it_3.next() {
-		var path string = str_(it_3.v)
+	for path := range elemsBy_(jsFiles.keySet(), str_) {
 		Map_remove_s(depsFiles, path)
 	}
 }
@@ -80,13 +78,10 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 	var providesMap *JTMap[string, DependencyInfo] = jnewTMap_(jtc_string, jtc_DependencyInfo)
 	this.addToProvideMap(Iterable(depFiles.values()), providesMap, true)
 	this.addToProvideMap(Iterable(jsFiles.values()), providesMap, false)
-	it_1 := foreach_(any(jsFiles.values()))
-	for it_1.next() {
-		var dependencyInfo DependencyInfo = icast_DependencyInfo(it_1.v)
+	for dependencyInfo := range elemsBy_(jsFiles.values(), icast_DependencyInfo) {
 		var newRequires *JTList[*DependencyInfo_Require] = jnewTList_(jtc_p_DependencyInfo_Require)
-		it_3 := foreach_(obj_(dependencyInfo.getRequires()))
-		for it_3.next() {
-			var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_3.v)
+		for _, el := range dependencyInfo.getRequires().items {
+			require := el
 			if require.getType() == DependencyInfo_Require_Type_ES6_IMPORT {
 				var provider DependencyInfo = providesMap.get(require.getSymbol())
 				if provider == nil {
@@ -98,20 +93,19 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 				newRequires.add(require)
 			}
 		}
-		var provides ImmutableListOf[string] = dependencyInfo.getProvides()
+		var provides *ImmutableList[string] = dependencyInfo.getProvides()
 		if dependencyInfo.isEs6Module() {
 			var mungedProvide string = this.loader.resolve(dependencyInfo.getName()).toModuleName()
-			var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
-			it_5 := foreach_(obj_(provides))
-			for it_5.next() {
-				var provide string = str_(it_5.v)
+			var builder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
+			for _, el2 := range provides.items {
+				provide := el2
 				if !(provide == mungedProvide) && !(provide == dependencyInfo.getPathRelativeToClosureBase()) {
-					builder.add(strobj_(provide))
+					builder.add(provide)
 				}
 			}
-			provides = cast_[*ImmutableList](obj_(builder.build()))
+			provides = builder.build()
 		}
-		newJsFiles.put(dependencyInfo.getPathRelativeToClosureBase(), icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides))).setRequires(Collection(newRequires.asList())).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags()))).build())))
+		newJsFiles.put(dependencyInfo.getPathRelativeToClosureBase(), icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides.asImm()))).setRequires(Collection(newRequires.asList())).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags().asImm()))).build())))
 	}
 	return newJsFiles
 }
@@ -120,12 +114,9 @@ func (this *DepsGenerator) validateDependencies(preparsedFileDependencies Iterab
 	var providesMap *JTMap[string, DependencyInfo] = jnewTMap_(jtc_string, jtc_DependencyInfo)
 	this.addToProvideMap(preparsedFileDependencies, providesMap, true)
 	this.addToProvideMap(parsedFileDependencies, providesMap, false)
-	it_1 := foreach_(any(parsedFileDependencies))
-	for it_1.next() {
-		var depInfo DependencyInfo = icast_DependencyInfo(it_1.v)
-		it_3 := foreach_(obj_(depInfo.getRequires()))
-		for it_3.next() {
-			var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_3.v)
+	for depInfo := range elemsBy_(parsedFileDependencies, icast_DependencyInfo) {
+		for _, el := range depInfo.getRequires().items {
+			require := el
 			var namespace string = require.getSymbol()
 			var provider DependencyInfo = providesMap.get(namespace)
 			if provider == nil {
@@ -141,7 +132,7 @@ func (this *DepsGenerator) validateDependencies(preparsedFileDependencies Iterab
 					}
 				case DependencyInfo_Require_Type_GOOG_REQUIRE_SYMBOL, DependencyInfo_Require_Type_PARSED_FROM_DEPS:
 				case DependencyInfo_Require_Type_COMMON_JS, DependencyInfo_Require_Type_COMPILER_CHUNK:
-					panic(new_IllegalStateException_String(("Unexpected import type: " + objstr_(obj_(require.getType())))).self())
+					panic(new_IllegalStateException_String(("Unexpected import type: " + tostr_(require.getType()))))
 				}
 			}
 		}
@@ -179,10 +170,8 @@ func (this *DepsGenerator) reportNoDepsInDepsFile(filePath string) {
 }
 
 func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], providesMap *JTMap[string, DependencyInfo], isFromDepsFile bool) {
-	it_1 := foreach_(any(depInfos))
-	for it_1.next() {
-		var depInfo DependencyInfo = icast_DependencyInfo(it_1.v)
-		var provides *JTList[string] = jtlistFrom_(jtc_string, icast_Collection(obj_(depInfo.getProvides())))
+	for depInfo := range elemsBy_(depInfos, icast_DependencyInfo) {
+		var provides *JTList[string] = jtlistFrom_(jtc_string, icast_Collection(obj_(depInfo.getProvides().asImm())))
 		if isFromDepsFile {
 			provides.add(this.loader.resolve(PathUtil_makeAbsolute_String_String(depInfo.getPathRelativeToClosureBase(), this.closurePathAbs)).toModuleName())
 		} else {
@@ -215,7 +204,7 @@ func (this *DepsGenerator) shouldSkipDepsFile(file *SourceFile_jscomp) bool {
 func (this *DepsGenerator) parseDepsFiles() *Outcome_base[Map] {
 	var depsParser *DepsFileRegexParser = this.createDepsFileParser()
 	var depsFiles *JTMap[string, DependencyInfo] = jnewTMap_(jtc_string, jtc_DependencyInfo)
-	it_1 := foreach_(any(this.deps))
+	it_1 := foreach_(this.deps)
 	for it_1.next() {
 		var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
 		if !this.shouldSkipDepsFile(file) {
@@ -227,15 +216,13 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base[Map] {
 			if depInfos.isEmpty() {
 				this.reportNoDepsInDepsFile(file.getName())
 			} else {
-				it_3 := foreach_(any(depInfos))
-				for it_3.next() {
-					var info DependencyInfo = icast_DependencyInfo(it_3.v)
+				for info := range elemsBy_(depInfos, icast_DependencyInfo) {
 					depsFiles.put(info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
 				}
 			}
 		}
 	}
-	it_5 := foreach_(any(this.srcs))
+	it_5 := foreach_(this.srcs)
 	for it_5.next() {
 		var src *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_5.v)
 		if !this.shouldSkipDepsFile(src) {
@@ -244,9 +231,7 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base[Map] {
 				return Outcome_base_err[Map](srcInfosRes.error())
 			}
 			var srcInfos ListOf[DependencyInfo] = srcInfosRes.get()
-			it_7 := foreach_(any(srcInfos))
-			for it_7.next() {
-				var info DependencyInfo = icast_DependencyInfo(it_7.v)
+			for info := range elemsBy_(srcInfos, icast_DependencyInfo) {
 				depsFiles.put(info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
 			}
 		}
@@ -258,7 +243,7 @@ func DepsGenerator_parseDepsFile(depsParser *DepsFileRegexParser, file *SourceFi
 	var code *Outcome_base[string] = file.readCodeWithoutCaching()
 	if TextFiles_isDecodingError(code.error()) {
 		depsParser.reportReadError(file.getName())
-		return Outcome_base_ok_Object[List](icast_List(new_ArrayList_0().self()))
+		return Outcome_base_ok_Object[List](List(new_ArrayList_0()))
 	}
 	if code.isErr() {
 		return Outcome_base_err[List](code.error())
@@ -272,9 +257,8 @@ func (this *DepsGenerator) removeRelativePathProvide(info DependencyInfo) Depend
 
 func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *JTList[string] {
 	var result *JTList[string] = jnewTList_(jtc_string)
-	it_1 := foreach_(obj_(info.getProvides()))
-	for it_1.next() {
-		var p string = str_(it_1.v)
+	for _, el := range info.getProvides().items {
+		p := el
 		if !(p == info.getPathRelativeToClosureBase()) {
 			result.add(p)
 		}
@@ -286,8 +270,8 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 	var parsedFiles *JTMap[string, DependencyInfo] = jnewTMap_(jtc_string, jtc_DependencyInfo)
 	var jsParser *JsFileRegexParser = new_JsFileRegexParser(this.errorManager).setModuleLoader(this.loader)
 	var compiler *Compiler = new_Compiler_0()
-	compiler.init(icast_List(obj_(ImmutableList_of())), icast_List(obj_(ImmutableList_of())), new_CompilerOptions())
-	it_1 := foreach_(any(this.srcs))
+	compiler.init(ImmutableList_of(), ImmutableList_of(), new_CompilerOptions())
+	it_1 := foreach_(this.srcs)
 	for it_1.next() {
 		var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
 		var closureRelativePath string = PathUtil_makeRelative(this.closurePathAbs, PathUtil_makeAbsolute_String(file.getName()))
@@ -300,7 +284,7 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 				return Outcome_base_err[Map](code.error())
 			}
 			var depInfo DependencyInfo = jsParser.parseFile(file.getName(), closureRelativePath, code.get())
-			depInfo = icast_DependencyInfo(obj_(new_LazyParsedDependencyInfo(depInfo, new_CompilerInput_SourceFile(file), compiler.up_AbstractCompiler())))
+			depInfo = new_LazyParsedDependencyInfo(depInfo, new_CompilerInput_SourceFile(file), compiler.up_AbstractCompiler())
 			if depInfo.getHasExternsAnnotation() {
 				continue
 			}
@@ -311,21 +295,17 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 	return Outcome_base_ok_Object[Map](parsedFiles.asMap())
 }
 
-func (this *DepsGenerator) writeDepsContent(depsFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo], out *StringBuilder) {
+func (this *DepsGenerator) writeDepsContent(depsFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo], out *strBuilder_) {
 	DepsGenerator_writeDepInfos(out, jsFiles.values())
 	if this.mergeStrategy == DepsGenerator_InclusionStrategy_ALWAYS {
-		var infosIndex *SimpleListMultimap = SimpleListMultimap_create()
-		it_1 := foreach_(any(depsFiles.values()))
-		for it_1.next() {
-			var info DependencyInfo = icast_DependencyInfo(it_1.v)
-			infosIndex.put(strobj_(info.getName()), any(info))
+		var infosIndex *SimpleListMultimap[any, DependencyInfo] = SimpleListMultimap_create[any, DependencyInfo]()
+		for info := range elemsBy_(depsFiles.values(), icast_DependencyInfo) {
+			infosIndex.put_s(info.getName(), info)
 		}
-		it_3 := foreach_(any(infosIndex.keySet()))
-		for it_3.next() {
-			var depsPath string = str_(it_3.v)
+		for depsPath := range elemsBy_(infosIndex.keySet(), str_) {
 			var path string = this.formatPathToDepsFile(depsPath)
 			out.append(("\n// Included from: " + sstr_(path))).append(System_lineSeparator())
-			DepsGenerator_writeDepInfos(out, Collection(infosIndex.get(strobj_(depsPath))))
+			DepsGenerator_writeDepInfos(out, Collection(infosIndex.get_s(depsPath)))
 		}
 	}
 }
@@ -334,19 +314,15 @@ func (this *DepsGenerator) formatPathToDepsFile(path string) string {
 	return path
 }
 
-func DepsGenerator_writeDepInfos(out *StringBuilder, depInfos CollectionOf[DependencyInfo]) {
-	it_1 := foreach_(any(depInfos))
-	for it_1.next() {
-		var depInfo DependencyInfo = icast_DependencyInfo(it_1.v)
-		DependencyInfo_Util_writeAddDependency(icast_Appendable(obj_(out)), depInfo)
+func DepsGenerator_writeDepInfos(out *strBuilder_, depInfos CollectionOf[DependencyInfo]) {
+	for depInfo := range elemsBy_(depInfos, icast_DependencyInfo) {
+		DependencyInfo_Util_writeAddDependency(out, depInfo)
 	}
 }
 
 func DepsGenerator_createSourceFilesFromPaths(paths CollectionOf[string]) *JTList[*SourceFile_jscomp] {
 	var files *JTList[*SourceFile_jscomp] = jnewTList_(jtc_p_SourceFile_jscomp)
-	it_1 := foreach_(any(paths))
-	for it_1.next() {
-		var path string = str_(it_1.v)
+	for path := range elemsBy_(paths, str_) {
 		files.add(SourceFile_jscomp_fromFile_String(path))
 	}
 	return files
@@ -358,7 +334,7 @@ func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) *JTLi
 
 func DepsGenerator_createSourceFilesFromZipPaths(paths CollectionOf[string]) *Outcome_base[List] {
 	var zipSourceFiles *JTList[*SourceFile_jscomp] = jnewTList_(jtc_p_SourceFile_jscomp)
-	it_1 := foreach_(any(paths))
+	it_1 := foreach_(paths)
 	for it_1.next() {
 		var path string = str_(it_1.v)
 		var zipFiles *Outcome_base[List] = SourceFile_jscomp_fromZipFile(path, Charsets_UTF_8)
@@ -397,45 +373,66 @@ func DepsGenerator_clinit() {
 
 }
 
-type DepsGenerator_InclusionStrategy struct {
-	Enum
+type DepsGenerator_InclusionStrategy uint8
+
+// DepsGenerator_InclusionStrategy_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var DepsGenerator_InclusionStrategy_enum_ = [3]Enum{
+	{self_: DepsGenerator_InclusionStrategy_ALWAYS, name_: "ALWAYS", ordinal_: 0},
+	{self_: DepsGenerator_InclusionStrategy_WHEN_IN_SRCS, name_: "WHEN_IN_SRCS", ordinal_: 1},
+	{self_: DepsGenerator_InclusionStrategy_DO_NOT_DUPLICATE, name_: "DO_NOT_DUPLICATE", ordinal_: 2},
 }
 
-func (this *DepsGenerator_InclusionStrategy) up_Enum() *Enum {
-	if this == nil {
+func (this DepsGenerator_InclusionStrategy) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &DepsGenerator_InclusionStrategy_enum_[this-1]
 }
 
-func (this *DepsGenerator_InclusionStrategy) init_DepsGenerator_InclusionStrategy(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this DepsGenerator_InclusionStrategy) name() string {
+	return this.enum_().name_
 }
 
-func new_DepsGenerator_InclusionStrategy(name_ string, ordinal_ int32) *DepsGenerator_InclusionStrategy {
-	this := &DepsGenerator_InclusionStrategy{}
-	this.self_ = this
-	this.init_DepsGenerator_InclusionStrategy(name_, ordinal_)
+func (this DepsGenerator_InclusionStrategy) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this DepsGenerator_InclusionStrategy) toString() string {
+	return this.enum_().name_
+}
+
+func (this DepsGenerator_InclusionStrategy) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this DepsGenerator_InclusionStrategy) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func DepsGenerator_InclusionStrategy_values() []*DepsGenerator_InclusionStrategy {
-	return append([]*DepsGenerator_InclusionStrategy(nil), DepsGenerator_InclusionStrategy_values_...)
+func DepsGenerator_InclusionStrategy_values() []DepsGenerator_InclusionStrategy {
+	return append([]DepsGenerator_InclusionStrategy(nil), DepsGenerator_InclusionStrategy_values_...)
 }
 
-func DepsGenerator_InclusionStrategy_valueOf(name string) *DepsGenerator_InclusionStrategy {
+func DepsGenerator_InclusionStrategy_valueOf(name string) DepsGenerator_InclusionStrategy {
 	for _, v := range DepsGenerator_InclusionStrategy_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("InclusionStrategy", name))
 }
 
-var DepsGenerator_InclusionStrategy_ALWAYS *DepsGenerator_InclusionStrategy
-var DepsGenerator_InclusionStrategy_WHEN_IN_SRCS *DepsGenerator_InclusionStrategy
-var DepsGenerator_InclusionStrategy_DO_NOT_DUPLICATE *DepsGenerator_InclusionStrategy
-var DepsGenerator_InclusionStrategy_values_ []*DepsGenerator_InclusionStrategy
+const DepsGenerator_InclusionStrategy_ALWAYS DepsGenerator_InclusionStrategy = 1
+const DepsGenerator_InclusionStrategy_WHEN_IN_SRCS DepsGenerator_InclusionStrategy = 2
+const DepsGenerator_InclusionStrategy_DO_NOT_DUPLICATE DepsGenerator_InclusionStrategy = 3
+
+var DepsGenerator_InclusionStrategy_values_ []DepsGenerator_InclusionStrategy
 
 var DepsGenerator_InclusionStrategy_clinit_done bool
 
@@ -444,10 +441,7 @@ func DepsGenerator_InclusionStrategy_clinit() {
 		return
 	}
 	DepsGenerator_InclusionStrategy_clinit_done = true
-	DepsGenerator_InclusionStrategy_ALWAYS = new_DepsGenerator_InclusionStrategy("ALWAYS", 0)
-	DepsGenerator_InclusionStrategy_WHEN_IN_SRCS = new_DepsGenerator_InclusionStrategy("WHEN_IN_SRCS", 1)
-	DepsGenerator_InclusionStrategy_DO_NOT_DUPLICATE = new_DepsGenerator_InclusionStrategy("DO_NOT_DUPLICATE", 2)
-	DepsGenerator_InclusionStrategy_values_ = []*DepsGenerator_InclusionStrategy{DepsGenerator_InclusionStrategy_ALWAYS, DepsGenerator_InclusionStrategy_WHEN_IN_SRCS, DepsGenerator_InclusionStrategy_DO_NOT_DUPLICATE}
+	DepsGenerator_InclusionStrategy_values_ = []DepsGenerator_InclusionStrategy{DepsGenerator_InclusionStrategy_ALWAYS, DepsGenerator_InclusionStrategy_WHEN_IN_SRCS, DepsGenerator_InclusionStrategy_DO_NOT_DUPLICATE}
 	registerEnum_("com.google.javascript.jscomp.deps.DepsGenerator.InclusionStrategy", enumValues_(DepsGenerator_InclusionStrategy_values_))
 
 }

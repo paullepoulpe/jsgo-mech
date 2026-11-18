@@ -4,7 +4,7 @@ package closure
 
 type ArrayPatternTree struct {
 	ParseTree
-	elements_ ImmutableListOf[*ParseTree]
+	elements_ []*ParseTree
 }
 
 func (this *ArrayPatternTree) up_ParseTree() *ParseTree {
@@ -14,12 +14,12 @@ func (this *ArrayPatternTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ArrayPatternTree) init_ArrayPatternTree(location *SourceRange, elements ImmutableListOf[*ParseTree]) {
+func (this *ArrayPatternTree) init_ArrayPatternTree(location *SourceRange, elements []*ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_ARRAY_PATTERN, location)
 	this.elements_ = elements
 }
 
-func new_ArrayPatternTree(location *SourceRange, elements ImmutableListOf[*ParseTree]) *ArrayPatternTree {
+func new_ArrayPatternTree(location *SourceRange, elements []*ParseTree) *ArrayPatternTree {
 	this := &ArrayPatternTree{}
 	this.self_ = this
 	this.init_ArrayPatternTree(location, elements)

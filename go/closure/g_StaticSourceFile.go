@@ -2,9 +2,11 @@
 
 package closure
 
+import "strings"
+
 type StaticSourceFile interface {
 	getName() string
-	getKind() *StaticSourceFile_SourceKind
+	getKind() StaticSourceFile_SourceKind
 	isStrong() bool
 	isWeak() bool
 	isExtern() bool
@@ -34,49 +36,71 @@ func StaticSourceFile_isNonCode_default(this StaticSourceFile) bool {
 
 func StaticSourceFile_isTypeScriptSource_default(this StaticSourceFile) bool {
 	var sourceName string = this.getName()
-	return (String_endsWith(sourceName, ".closure.js") || String_endsWith(sourceName, ".tsx.cl.js"))
+	return (strings.HasSuffix(sourceName, ".closure.js") || strings.HasSuffix(sourceName, ".tsx.cl.js"))
 }
 
-type StaticSourceFile_SourceKind struct {
-	Enum
+type StaticSourceFile_SourceKind uint8
+
+// StaticSourceFile_SourceKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var StaticSourceFile_SourceKind_enum_ = [4]Enum{
+	{self_: StaticSourceFile_SourceKind_STRONG, name_: "STRONG", ordinal_: 0},
+	{self_: StaticSourceFile_SourceKind_WEAK, name_: "WEAK", ordinal_: 1},
+	{self_: StaticSourceFile_SourceKind_EXTERN, name_: "EXTERN", ordinal_: 2},
+	{self_: StaticSourceFile_SourceKind_NON_CODE, name_: "NON_CODE", ordinal_: 3},
 }
 
-func (this *StaticSourceFile_SourceKind) up_Enum() *Enum {
-	if this == nil {
+func (this StaticSourceFile_SourceKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &StaticSourceFile_SourceKind_enum_[this-1]
 }
 
-func (this *StaticSourceFile_SourceKind) init_StaticSourceFile_SourceKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this StaticSourceFile_SourceKind) name() string {
+	return this.enum_().name_
 }
 
-func new_StaticSourceFile_SourceKind(name_ string, ordinal_ int32) *StaticSourceFile_SourceKind {
-	this := &StaticSourceFile_SourceKind{}
-	this.self_ = this
-	this.init_StaticSourceFile_SourceKind(name_, ordinal_)
+func (this StaticSourceFile_SourceKind) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this StaticSourceFile_SourceKind) toString() string {
+	return this.enum_().name_
+}
+
+func (this StaticSourceFile_SourceKind) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this StaticSourceFile_SourceKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func StaticSourceFile_SourceKind_values() []*StaticSourceFile_SourceKind {
-	return append([]*StaticSourceFile_SourceKind(nil), StaticSourceFile_SourceKind_values_...)
+func StaticSourceFile_SourceKind_values() []StaticSourceFile_SourceKind {
+	return append([]StaticSourceFile_SourceKind(nil), StaticSourceFile_SourceKind_values_...)
 }
 
-func StaticSourceFile_SourceKind_valueOf(name string) *StaticSourceFile_SourceKind {
+func StaticSourceFile_SourceKind_valueOf(name string) StaticSourceFile_SourceKind {
 	for _, v := range StaticSourceFile_SourceKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("SourceKind", name))
 }
 
-var StaticSourceFile_SourceKind_STRONG *StaticSourceFile_SourceKind
-var StaticSourceFile_SourceKind_WEAK *StaticSourceFile_SourceKind
-var StaticSourceFile_SourceKind_EXTERN *StaticSourceFile_SourceKind
-var StaticSourceFile_SourceKind_NON_CODE *StaticSourceFile_SourceKind
-var StaticSourceFile_SourceKind_values_ []*StaticSourceFile_SourceKind
+const StaticSourceFile_SourceKind_STRONG StaticSourceFile_SourceKind = 1
+const StaticSourceFile_SourceKind_WEAK StaticSourceFile_SourceKind = 2
+const StaticSourceFile_SourceKind_EXTERN StaticSourceFile_SourceKind = 3
+const StaticSourceFile_SourceKind_NON_CODE StaticSourceFile_SourceKind = 4
+
+var StaticSourceFile_SourceKind_values_ []StaticSourceFile_SourceKind
 
 var StaticSourceFile_SourceKind_clinit_done bool
 
@@ -85,11 +109,7 @@ func StaticSourceFile_SourceKind_clinit() {
 		return
 	}
 	StaticSourceFile_SourceKind_clinit_done = true
-	StaticSourceFile_SourceKind_STRONG = new_StaticSourceFile_SourceKind("STRONG", 0)
-	StaticSourceFile_SourceKind_WEAK = new_StaticSourceFile_SourceKind("WEAK", 1)
-	StaticSourceFile_SourceKind_EXTERN = new_StaticSourceFile_SourceKind("EXTERN", 2)
-	StaticSourceFile_SourceKind_NON_CODE = new_StaticSourceFile_SourceKind("NON_CODE", 3)
-	StaticSourceFile_SourceKind_values_ = []*StaticSourceFile_SourceKind{StaticSourceFile_SourceKind_STRONG, StaticSourceFile_SourceKind_WEAK, StaticSourceFile_SourceKind_EXTERN, StaticSourceFile_SourceKind_NON_CODE}
+	StaticSourceFile_SourceKind_values_ = []StaticSourceFile_SourceKind{StaticSourceFile_SourceKind_STRONG, StaticSourceFile_SourceKind_WEAK, StaticSourceFile_SourceKind_EXTERN, StaticSourceFile_SourceKind_NON_CODE}
 	registerEnum_("com.google.javascript.rhino.StaticSourceFile.SourceKind", enumValues_(StaticSourceFile_SourceKind_values_))
 
 }

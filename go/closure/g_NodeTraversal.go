@@ -27,17 +27,24 @@ func (this *NodeTraversal) finit_NodeTraversal() {
 
 func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
 	this.finit_NodeTraversal()
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(builder.compiler_.self()))
-	this.callback = icast_NodeTraversal_Callback(Preconditions_checkNotNull(any(builder.callback)))
+	if builder.compiler_ == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.compiler_ = builder.compiler_
+	if builder.callback == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.callback = builder.callback
 	var scopedCallback NodeTraversal_ScopedCallback
 	_ = scopedCallback
 	this.scopeCallback = func() NodeTraversal_ScopedCallback {
 		if func() bool {
 			v_ := any(this.callback)
-			if !is_[NodeTraversal_ScopedCallback](v_) {
+			p, ok := v_.(NodeTraversal_ScopedCallback)
+			if !ok {
 				return false
 			}
-			scopedCallback = icast_NodeTraversal_ScopedCallback(v_)
+			scopedCallback = p
 			return true
 		}() {
 			return scopedCallback
@@ -46,7 +53,7 @@ func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
 	}()
 	this.scopeCreator = func() ScopeCreator {
 		if builder.scopeCreator == nil {
-			return icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))
+			return new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)
 		}
 		return builder.scopeCreator
 	}()
@@ -86,25 +93,22 @@ func (this *NodeTraversal) formatNodeContext(label string, n Node) string {
 }
 
 func (this *NodeTraversal) traverse(root Node) {
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_Error(ex_) || is_Exception(ex_) {
-					var unexpectedException *Throwable = to_Throwable(ex_)
-					this.throwUnexpectedException(unexpectedException)
-					return
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if is_Error(ex_) || is_Exception(ex_) {
+				var unexpectedException *Throwable = to_Throwable(ex_)
+				this.throwUnexpectedException(unexpectedException)
+				return
 			}
-		}()
-		this.initTraversal(root)
-		this.currentNode = root
-		this.pushScope(root)
-		this.traverseBranch(root, 0)
-		this.popScope()
-		return 0
+			panic(r_)
+		}
 	}()
+	this.initTraversal(root)
+	this.currentNode = root
+	this.pushScope(root)
+	this.traverseBranch(root, 0)
+	this.popScope()
 }
 
 func NodeTraversal_traverse(compiler *AbstractCompiler, root Node, cb NodeTraversal_Callback) {
@@ -112,29 +116,30 @@ func NodeTraversal_traverse(compiler *AbstractCompiler, root Node, cb NodeTraver
 }
 
 func (this *NodeTraversal) traverseRoots(externs Node, root Node) {
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_Error(ex_) || is_Exception(ex_) {
-					var unexpectedException *Throwable = to_Throwable(ex_)
-					this.throwUnexpectedException(unexpectedException)
-					return
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if is_Error(ex_) || is_Exception(ex_) {
+				var unexpectedException *Throwable = to_Throwable(ex_)
+				this.throwUnexpectedException(unexpectedException)
+				return
 			}
-		}()
-		var scopeRoot Node = externs.getParent()
-		Preconditions_checkNotNull(scopeRoot.box_())
-		this.initTraversal(scopeRoot)
-		this.currentNode = scopeRoot
-		this.pushScope(scopeRoot)
-		this.traverseBranch(externs, scopeRoot)
-		Preconditions_checkState((root.getParent() == scopeRoot))
-		this.traverseBranch(root, scopeRoot)
-		this.popScope()
-		return 0
+			panic(r_)
+		}
 	}()
+	var scopeRoot Node = externs.getParent()
+	if scopeRoot == 0 {
+		panic(new_NullPointerException_0())
+	}
+	this.initTraversal(scopeRoot)
+	this.currentNode = scopeRoot
+	this.pushScope(scopeRoot)
+	this.traverseBranch(externs, scopeRoot)
+	if root.getParent() != scopeRoot {
+		panic(new_IllegalStateException_0())
+	}
+	this.traverseBranch(root, scopeRoot)
+	this.popScope()
 }
 
 func NodeTraversal_traverseRoots(compiler *AbstractCompiler, cb NodeTraversal_Callback, externs Node, root Node) {
@@ -156,43 +161,42 @@ func (this *NodeTraversal) formatNodePosition(n Node) string {
 }
 
 func (this *NodeTraversal) traverseWithScope(root Node, s *AbstractScope) {
-	Preconditions_checkState_boolean_Object((s.isGlobal() || s.isModuleScope()), s.self())
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_Error(ex_) || is_Exception(ex_) {
-					var unexpectedException *Throwable = to_Throwable(ex_)
-					this.throwUnexpectedException(unexpectedException)
-					return
-				}
-				panic(r_)
+	if !s.isGlobal() && !s.isModuleScope() {
+		panic(new_IllegalStateException_String(objstr_(s.self())))
+	}
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if is_Error(ex_) || is_Exception(ex_) {
+				var unexpectedException *Throwable = to_Throwable(ex_)
+				this.throwUnexpectedException(unexpectedException)
+				return
 			}
-		}()
-		this.initTraversal(root)
-		this.currentNode = root
-		this.pushScopeAbstractScope(s)
-		this.traverseBranch(root, 0)
-		this.popScope()
-		return 0
+			panic(r_)
+		}
 	}()
+	this.initTraversal(root)
+	this.currentNode = root
+	this.pushScopeAbstractScope(s)
+	this.traverseBranch(root, 0)
+	this.popScope()
 }
 
 func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 	var n Node = s.getRootNode()
 	this.initTraversal(n)
 	this.currentNode = n
-	var parentScopes DequeOf[*AbstractScope] = icast_Deque(obj_(new_ArrayDeque()))
+	var parentScopes []*AbstractScope = []*AbstractScope{}
 	var temp *AbstractScope = s.getParent()
 	for temp != nil {
-		parentScopes.push(temp.self())
+		parentScopes = append(parentScopes, temp)
 		temp = temp.getParent()
 	}
-	for !parentScopes.isEmpty() {
-		this.pushScope_2(to_AbstractScope(parentScopes.pop()), true)
+	for len(parentScopes) != 0 {
+		this.pushScope_2(slicePop_(tc_p_AbstractScope, &parentScopes), true)
 	}
-	switch n.getToken() {
-	case Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION:
 		if this.callback.shouldTraverse(this, n, 0) {
 			this.pushScopeAbstractScope(s)
 			var fnName Node = n.getFirstChild()
@@ -206,7 +210,7 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 			this.popScope()
 			this.callback.visit(this, n, 0)
 		}
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		if this.callback.shouldTraverse(this, n, 0) {
 			this.pushScopeAbstractScope(s)
 			var className Node = n.getFirstChild()
@@ -218,28 +222,28 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 			this.popScope()
 			this.callback.visit(this, n, 0)
 		}
-	case Token_rhino_BLOCK, Token_rhino_SWITCH_BODY:
+	case tokOrd1_BLOCK, tokOrd1_SWITCH_BODY:
 		if this.callback.shouldTraverse(this, n, 0) {
 			this.pushScopeAbstractScope(s)
 			this.traverseChildren(n)
 			this.popScope()
 			this.callback.visit(this, n, 0)
 		}
-	case Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_MEMBER_FIELD_DEF:
 		this.pushScopeAbstractScope(s)
 		if this.callback.shouldTraverse(this, n, 0) {
 			this.traverseChildren(n)
 			this.callback.visit(this, n, 0)
 		}
 		this.popScope()
-	case Token_rhino_COMPUTED_FIELD_DEF:
+	case tokOrd1_COMPUTED_FIELD_DEF:
 		this.pushScopeAbstractScope(s)
 		if this.callback.shouldTraverse(this, n, 0) {
 			this.traverseBranch(n.getLastChild(), n)
 			this.callback.visit(this, n, 0)
 		}
 		this.popScope()
-	case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_FOR:
+	case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_FOR:
 		if this.callback.shouldTraverse(this, n, 0) {
 			this.pushScopeAbstractScope(s)
 			var forAssignmentParam Node = n.getFirstChild()
@@ -252,7 +256,9 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 			this.callback.visit(this, n, 0)
 		}
 	default:
-		Preconditions_checkState_boolean_String_Object((s.isGlobal() || s.isModuleScope()), "Expected global or module scope. Got: (%s)", s.self())
+		if !s.isGlobal() && !s.isModuleScope() {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected global or module scope. Got: (%s)", []any{s.self()})))
+		}
 		this.traverseWithScope(n, s)
 	}
 }
@@ -263,34 +269,29 @@ func NodeTraversal_traverseAtScope(compiler *AbstractCompiler, cb NodeTraversal_
 
 func NodeTraversal_traverseScopeRoots(compiler *AbstractCompiler, scopeNodes ListOf[Node], cb NodeTraversal_Callback, traverseNested bool) {
 	var scb *NodeTraversal_1TraverseScopeRootsCallback = new_NodeTraversal_1TraverseScopeRootsCallback(traverseNested, cb)
-	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(compiler))))
-	it_1 := foreach_(any(scopeNodes))
-	for it_1.next() {
-		var scopeNode Node = Node_of_(it_1.v)
+	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler).createScopeAbstractScope)
+	for scopeNode := range elemsBy_(scopeNodes, Node_of_) {
 		scb.scopeNode = scopeNode
-		NodeTraversal_builder().setCompiler(compiler).setCallback(icast_NodeTraversal_Callback(obj_(scb))).setScopeCreator(icast_ScopeCreator(obj_(scopeCreator))).build().traverseScopeRoot(scopeNode)
+		NodeTraversal_builder().setCompiler(compiler).setCallback(scb).setScopeCreator(scopeCreator).build().traverseScopeRoot(scopeNode)
 	}
 }
 
 func (this *NodeTraversal) traverseScopeRoot(scopeRoot Node) {
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_Error(ex_) || is_Exception(ex_) {
-					var unexpectedException *Throwable = to_Throwable(ex_)
-					this.throwUnexpectedException(unexpectedException)
-					return
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if is_Error(ex_) || is_Exception(ex_) {
+				var unexpectedException *Throwable = to_Throwable(ex_)
+				this.throwUnexpectedException(unexpectedException)
+				return
 			}
-		}()
-		this.initTraversal(scopeRoot)
-		this.currentNode = scopeRoot
-		this.initScopeRoots(scopeRoot.getParent())
-		this.traverseBranch(scopeRoot, scopeRoot.getParent())
-		return 0
+			panic(r_)
+		}
 	}()
+	this.initTraversal(scopeRoot)
+	this.currentNode = scopeRoot
+	this.initScopeRoots(scopeRoot.getParent())
+	this.traverseBranch(scopeRoot, scopeRoot.getParent())
 }
 
 func (this *NodeTraversal) getCompiler() *AbstractCompiler {
@@ -302,7 +303,7 @@ func (this *NodeTraversal) getSourceName() Optional[string] {
 		this.sourceName_ = func() Optional[string] {
 			if this.currentScript != 0 {
 				return Optional_of[string](this.currentScript.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-					return !String_isEmpty(s)
+					return s != ""
 				}})
 			}
 			return Optional_of[string]("")
@@ -335,7 +336,7 @@ func (this *NodeTraversal) getCurrentNode() Node {
 
 func (this *NodeTraversal) handleScript(n Node, parent Node) {
 	if Platform_isThreadInterrupted() {
-		panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()).self())
+		panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()))
 	}
 	this.setChangeScope(n)
 	this.currentNode = n
@@ -380,7 +381,9 @@ func (this *NodeTraversal) handleDestructuringOrDefaultValue(n Node, parent Node
 		var first Node = n.getFirstChild()
 		var second Node = first.getNext()
 		if second != 0 {
-			Preconditions_checkState_boolean_Object((second.getNext() == 0), second.box_())
+			if second.getNext() != 0 {
+				panic(new_IllegalStateException_String(tostr_(second)))
+			}
 			this.traverseBranch(second, n)
 		}
 		this.traverseBranch(first, n)
@@ -391,40 +394,39 @@ func (this *NodeTraversal) handleDestructuringOrDefaultValue(n Node, parent Node
 
 func (this *NodeTraversal) createsBlockScope(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_BLOCK:
+		switch n.ns_().token {
+		case tokOrd1_BLOCK:
 			if this.mayContainSyntheticBlocks && n.isSyntheticBlock() {
 				return false
 			}
 			var parent Node = n.getParent()
 			return (((parent != 0) && !NodeUtil_isSwitchCase(parent)) && !parent.isCatch())
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_SWITCH_BODY, Token_rhino_CLASS:
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_SWITCH_BODY, tokOrd1_CLASS:
 			return true
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *NodeTraversal) traverseBranch(n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		this.handleScript(n, parent)
 		return
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.handleFunction(n, parent)
 		return
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		this.handleModule(n, parent)
 		return
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.handleClass(n, parent)
 		return
-	case Token_rhino_CLASS_MEMBERS:
+	case tokOrd1_CLASS_MEMBERS:
 		this.handleClassMembers(n, parent)
 		return
-	case Token_rhino_DEFAULT_VALUE, Token_rhino_DESTRUCTURING_LHS:
+	case tokOrd1_DEFAULT_VALUE, tokOrd1_DESTRUCTURING_LHS:
 		if this.obeyDestructuringAndDefaultValueExecutionOrder {
 			this.handleDestructuringOrDefaultValue(n, parent)
 			return
@@ -526,15 +528,15 @@ func (this *NodeTraversal) handleClassMembers(n Node, parent Node) {
 		var child Node = n.getFirstChild()
 		for child != 0 {
 			var next Node = child.getNext()
-			switch child.getToken() {
-			case Token_rhino_COMPUTED_PROP:
+			switch child.ns_().token {
+			case tokOrd1_COMPUTED_PROP:
 				this.currentNode = n
 				if this.callback.shouldTraverse(this, child, n) {
 					this.traverseBranch(child.getLastChild(), child)
 					this.currentNode = n
 					this.callback.visit(this, child, n)
 				}
-			case Token_rhino_COMPUTED_FIELD_DEF:
+			case tokOrd1_COMPUTED_FIELD_DEF:
 				this.currentNode = n
 				var previousHoistScopeRoot Node = this.currentHoistScopeRoot
 				this.currentHoistScopeRoot = n
@@ -548,12 +550,12 @@ func (this *NodeTraversal) handleClassMembers(n Node, parent Node) {
 				}
 				this.popScope()
 				this.currentHoistScopeRoot = previousHoistScopeRoot
-			case Token_rhino_MEMBER_FIELD_DEF:
+			case tokOrd1_MEMBER_FIELD_DEF:
 				this.handleMemberFieldDef(n, child)
-			case Token_rhino_BLOCK, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_VARIABLE_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+			case tokOrd1_BLOCK, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_VARIABLE_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 				this.traverseBranch(child, n)
 			default:
-				panic(new_IllegalStateException_String(("Invalid class member: " + objstr_(obj_(child.getToken())))).self())
+				panic(new_IllegalStateException_String(("Invalid class member: " + tostr_(child.getToken()))))
 			}
 			child = next
 		}
@@ -587,8 +589,12 @@ func (this *NodeTraversal) getEnclosingFunction() Node {
 }
 
 func (this *NodeTraversal) pushScope(node Node) {
-	Preconditions_checkNotNull(this.currentNode.box_())
-	Preconditions_checkNotNull(node.box_())
+	if this.currentNode == 0 {
+		panic(new_NullPointerException_0())
+	}
+	if node == 0 {
+		panic(new_NullPointerException_0())
+	}
 	this.scopes.add(node.box_())
 	if this.scopeCallback != nil {
 		this.scopeCallback.enterScope(this)
@@ -600,7 +606,9 @@ func (this *NodeTraversal) pushScopeAbstractScope(s *AbstractScope) {
 }
 
 func (this *NodeTraversal) pushScope_2(s *AbstractScope, quietly bool) {
-	Preconditions_checkNotNull(this.currentNode.box_())
+	if this.currentNode == 0 {
+		panic(new_NullPointerException_0())
+	}
 	this.scopes.add(s.self())
 	if !quietly && (this.scopeCallback != nil) {
 		this.scopeCallback.enterScope(this)
@@ -624,7 +632,7 @@ func (this *NodeTraversal) getNodeRootFromScopeObj(root any) Node {
 	return func() Node {
 		if func() bool {
 			v_ := root
-			if !is_[Node](v_) {
+			if _, ok := v_.(Node); !ok {
 				return false
 			}
 			node = Node_of_(v_)
@@ -643,12 +651,13 @@ func (this *NodeTraversal) getScopeRoot() Node {
 	} else {
 		return 0
 	}
-	panic("unreachable")
 }
 
 func (this *NodeTraversal) getScopeDepth() int32 {
 	var depth int32 = this.scopes.size()
-	Preconditions_checkState((depth > 0))
+	if depth <= 0 {
+		panic(new_IllegalStateException_0())
+	}
 	return (depth - 1)
 }
 
@@ -670,7 +679,7 @@ func (this *NodeTraversal) getAbstractScope_1(rootDepth int32) *AbstractScope {
 	_ = node
 	if func() bool {
 		v_ := o
-		if !is_[Node](v_) {
+		if _, ok := v_.(Node); !ok {
 			return false
 		}
 		node = Node_of_(v_)
@@ -688,7 +697,6 @@ func (this *NodeTraversal) getAbstractScope_1(rootDepth int32) *AbstractScope {
 	} else {
 		return to_AbstractScope(o)
 	}
-	panic("unreachable")
 }
 
 func (this *NodeTraversal) isHoistScope() bool {
@@ -727,13 +735,12 @@ func (this *NodeTraversal) getClosestHoistScope() *AbstractScope {
 
 func NodeTraversal_isHoistScopeRootNode(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FUNCTION, Token_rhino_MODULE_BODY, Token_rhino_ROOT, Token_rhino_SCRIPT:
+		switch n.ns_().token {
+		case tokOrd1_FUNCTION, tokOrd1_MODULE_BODY, tokOrd1_ROOT, tokOrd1_SCRIPT:
 			return true
 		default:
 			return NodeUtil_isFunctionBlock(n)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -741,15 +748,15 @@ func (this *NodeTraversal) getClosestScopeRootNodeBindingThisOrSuper() Node {
 L_1:
 	for i := int32((this.scopes.size() - 1)); i >= 0; i-- {
 		var rootNode Node = this.getNodeRootFromScopeObj(this.scopes.get(i))
-		switch rootNode.getToken() {
-		case Token_rhino_FUNCTION:
+		switch rootNode.ns_().token {
+		case tokOrd1_FUNCTION:
 			if rootNode.isArrowFunction() {
 				continue L_1
 			}
 			return rootNode
-		case Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_CLASS, Token_rhino_MODULE_BODY, Token_rhino_ROOT:
+		case tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_CLASS, tokOrd1_MODULE_BODY, tokOrd1_ROOT:
 			return rootNode
-		case Token_rhino_BLOCK:
+		case tokOrd1_BLOCK:
 			if NodeUtil_isClassStaticBlock(rootNode) {
 				return rootNode
 			}
@@ -808,8 +815,12 @@ func (this *NodeTraversal) report_4(start Node, end Node, diagnosticType *Diagno
 
 func (this *NodeTraversal) reportCodeChange() {
 	var changeScope Node = this.currentChangeScope
-	Preconditions_checkNotNull(changeScope.box_())
-	Preconditions_checkState_boolean_Object(ChangeTracker_isChangeScopeRoot(changeScope), changeScope.box_())
+	if changeScope == 0 {
+		panic(new_NullPointerException_0())
+	}
+	if !ChangeTracker_isChangeScopeRoot(changeScope) {
+		panic(new_IllegalStateException_String(tostr_(changeScope)))
+	}
 	this.compiler_.reportChangeToChangeScope(changeScope)
 }
 
@@ -819,7 +830,7 @@ func (this *NodeTraversal) reportCodeChange_1(n Node) {
 
 func (this *NodeTraversal) getCurrentScript() Node {
 	if this.currentScript == 0 {
-		panic(new_UnsupportedOperationException_String("getCurrentScript not supported").self())
+		panic(new_UnsupportedOperationException_String("getCurrentScript not supported"))
 	}
 	return this.currentScript
 }
@@ -837,7 +848,7 @@ func (this *NodeTraversal) getEnclosingScript(n Node) Node {
 
 func (this *NodeTraversal) initTraversal(traversalRoot Node) {
 	if Platform_isThreadInterrupted() {
-		panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()).self())
+		panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()))
 	}
 	var hoistScopeRoot Node = NodeUtil_getEnclosingHoistScopeRoot(traversalRoot)
 	this.currentHoistScopeRoot = hoistScopeRoot
@@ -905,7 +916,7 @@ func (this *NodeTraversal) getBestSourceFileName(n Node) Optional[string] {
 			return this.getSourceName()
 		}
 		return Optional_of[string](n.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}})
 	}()
 }
@@ -924,27 +935,38 @@ type NodeTraversal_ScopedCallback interface {
 }
 
 type NodeTraversal_AbstractPostOrderCallback struct {
-	self_ any
+	self_ NodeTraversal_AbstractPostOrderCallback_I
+}
+
+// NodeTraversal_AbstractPostOrderCallback_I holds the methods the dispatchers of NodeTraversal_AbstractPostOrderCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractPostOrderCallback_I interface {
+	visit_impl(*NodeTraversal, Node, Node)
+	processIcuTemplateDefinition_impl(IcuTemplateDefinition)
+	processJsMessageDefinition_impl(JsMessageDefinition)
+	processMessageFallback_impl(Node, *JsMessage, *JsMessage)
+	process_2_impl(Node, Node)
+}
+
+// Bodies of the methods that only the subclasses of JsMessageVisitor (4) implement. They put the
+// methods in NodeTraversal_AbstractPostOrderCallback_I, so that the dispatchers of those classes call them through self_ without
+// an assertion. They are never run (a dispatcher's object is of a subclass of its class,
+// which has the method) and panic where the assertion would have (post-flip).
+func (this *NodeTraversal_AbstractPostOrderCallback) processIcuTemplateDefinition_impl(IcuTemplateDefinition) {
+	panic("processIcuTemplateDefinition_impl called on a " + goTypeName_(this.self_))
+}
+func (this *NodeTraversal_AbstractPostOrderCallback) processJsMessageDefinition_impl(JsMessageDefinition) {
+	panic("processJsMessageDefinition_impl called on a " + goTypeName_(this.self_))
+}
+func (this *NodeTraversal_AbstractPostOrderCallback) processMessageFallback_impl(Node, *JsMessage, *JsMessage) {
+	panic("processMessageFallback_impl called on a " + goTypeName_(this.self_))
+}
+func (this *NodeTraversal_AbstractPostOrderCallback) process_2_impl(Node, Node) {
+	panic("process_2_impl called on a " + goTypeName_(this.self_))
 }
 
 func (this *NodeTraversal_AbstractPostOrderCallback) as_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
 	return this
-}
-
-func to_NodeTraversal_AbstractPostOrderCallback(v any) *NodeTraversal_AbstractPostOrderCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback
-	}).as_NodeTraversal_AbstractPostOrderCallback()
-}
-
-func is_NodeTraversal_AbstractPostOrderCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_AbstractPostOrderCallback) self() any {
@@ -963,33 +985,21 @@ func (this *NodeTraversal_AbstractPostOrderCallback) shouldTraverse(nodeTraversa
 }
 
 func (this *NodeTraversal_AbstractPostOrderCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_ExternsSkippingCallback struct {
-	self_ any
+	self_ NodeTraversal_ExternsSkippingCallback_I
+}
+
+// NodeTraversal_ExternsSkippingCallback_I holds the methods the dispatchers of NodeTraversal_ExternsSkippingCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_ExternsSkippingCallback_I interface {
+	visit_impl(*NodeTraversal, Node, Node)
 }
 
 func (this *NodeTraversal_ExternsSkippingCallback) as_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback {
 	return this
-}
-
-func to_NodeTraversal_ExternsSkippingCallback(v any) *NodeTraversal_ExternsSkippingCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback
-	}).as_NodeTraversal_ExternsSkippingCallback()
-}
-
-func is_NodeTraversal_ExternsSkippingCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_ExternsSkippingCallback) self() any {
@@ -1008,9 +1018,7 @@ func (this *NodeTraversal_ExternsSkippingCallback) shouldTraverse(t *NodeTravers
 }
 
 func (this *NodeTraversal_ExternsSkippingCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractPostOrderCallbackInterface interface {
@@ -1026,27 +1034,17 @@ func (this *NodeTraversal_AbstractPostOrderCallbackInterface_fn) visit(p0 *NodeT
 }
 
 type NodeTraversal_AbstractPreOrderCallback struct {
-	self_ any
+	self_ NodeTraversal_AbstractPreOrderCallback_I
+}
+
+// NodeTraversal_AbstractPreOrderCallback_I holds the methods the dispatchers of NodeTraversal_AbstractPreOrderCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractPreOrderCallback_I interface {
+	shouldTraverse_impl(*NodeTraversal, Node, Node) bool
 }
 
 func (this *NodeTraversal_AbstractPreOrderCallback) as_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {
 	return this
-}
-
-func to_NodeTraversal_AbstractPreOrderCallback(v any) *NodeTraversal_AbstractPreOrderCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback
-	}).as_NodeTraversal_AbstractPreOrderCallback()
-}
-
-func is_NodeTraversal_AbstractPreOrderCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_AbstractPreOrderCallback) self() any {
@@ -1065,33 +1063,23 @@ func (this *NodeTraversal_AbstractPreOrderCallback) visit(t *NodeTraversal, n No
 }
 
 func (this *NodeTraversal_AbstractPreOrderCallback) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractScopedCallback struct {
-	self_ any
+	self_ NodeTraversal_AbstractScopedCallback_I
+}
+
+// NodeTraversal_AbstractScopedCallback_I holds the methods the dispatchers of NodeTraversal_AbstractScopedCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractScopedCallback_I interface {
+	enterScope_impl(*NodeTraversal)
+	exitScope_impl(*NodeTraversal)
+	visit_impl(*NodeTraversal, Node, Node)
 }
 
 func (this *NodeTraversal_AbstractScopedCallback) as_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback {
 	return this
-}
-
-func to_NodeTraversal_AbstractScopedCallback(v any) *NodeTraversal_AbstractScopedCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback
-	}).as_NodeTraversal_AbstractScopedCallback()
-}
-
-func is_NodeTraversal_AbstractScopedCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_AbstractScopedCallback) self() any {
@@ -1118,42 +1106,33 @@ func (this *NodeTraversal_AbstractScopedCallback) exitScope_impl(t *NodeTraversa
 }
 
 func (this *NodeTraversal_AbstractScopedCallback) enterScope(p0 *NodeTraversal) {
-	this.self_.(interface{ enterScope_impl(*NodeTraversal) }).enterScope_impl(p0)
+	this.self_.enterScope_impl(p0)
 }
 
 func (this *NodeTraversal_AbstractScopedCallback) exitScope(p0 *NodeTraversal) {
-	this.self_.(interface{ exitScope_impl(*NodeTraversal) }).exitScope_impl(p0)
+	this.self_.exitScope_impl(p0)
 }
 
 func (this *NodeTraversal_AbstractScopedCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractCfgCallback struct {
-	self_ any
+	self_ NodeTraversal_AbstractCfgCallback_I
 	cfgs  *TDeque[any]
+}
+
+// NodeTraversal_AbstractCfgCallback_I holds the methods the dispatchers of NodeTraversal_AbstractCfgCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractCfgCallback_I interface {
+	enterScopeWithCfg_impl(*NodeTraversal)
+	exitScopeWithCfg_impl(*NodeTraversal)
+	shouldTraverse_impl(*NodeTraversal, Node, Node) bool
+	visit_impl(*NodeTraversal, Node, Node)
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) as_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback {
 	return this
-}
-
-func to_NodeTraversal_AbstractCfgCallback(v any) *NodeTraversal_AbstractCfgCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback
-	}).as_NodeTraversal_AbstractCfgCallback()
-}
-
-func is_NodeTraversal_AbstractCfgCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) self() any {
@@ -1174,12 +1153,14 @@ func (this *NodeTraversal_AbstractCfgCallback) init_NodeTraversal_AbstractCfgCal
 func (this *NodeTraversal_AbstractCfgCallback) getControlFlowGraph(compiler *AbstractCompiler) *ControlFlowGraph[Node] {
 	var result *ControlFlowGraph[Node]
 	var o any = this.cfgs.peek()
-	Preconditions_checkState((o != nil))
+	if o == nil {
+		panic(new_IllegalStateException_0())
+	}
 	var cfgRoot Node
 	_ = cfgRoot
 	if func() bool {
 		v_ := o
-		if !is_[Node](v_) {
+		if _, ok := v_.(Node); !ok {
 			return false
 		}
 		cfgRoot = Node_of_(v_)
@@ -1227,47 +1208,33 @@ func (this *NodeTraversal_AbstractCfgCallback) visit_impl(t *NodeTraversal, n No
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) enterScopeWithCfg(p0 *NodeTraversal) {
-	this.self_.(interface{ enterScopeWithCfg_impl(*NodeTraversal) }).enterScopeWithCfg_impl(p0)
+	this.self_.enterScopeWithCfg_impl(p0)
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) exitScopeWithCfg(p0 *NodeTraversal) {
-	this.self_.(interface{ exitScopeWithCfg_impl(*NodeTraversal) }).exitScopeWithCfg_impl(p0)
+	this.self_.exitScopeWithCfg_impl(p0)
 }
 
 type NodeTraversal_AbstractShallowCallback struct {
-	self_ any
+	self_ NodeTraversal_AbstractShallowCallback_I
+}
+
+// NodeTraversal_AbstractShallowCallback_I holds the methods the dispatchers of NodeTraversal_AbstractShallowCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractShallowCallback_I interface {
+	visit_impl(*NodeTraversal, Node, Node)
 }
 
 func (this *NodeTraversal_AbstractShallowCallback) as_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback {
 	return this
-}
-
-func to_NodeTraversal_AbstractShallowCallback(v any) *NodeTraversal_AbstractShallowCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback
-	}).as_NodeTraversal_AbstractShallowCallback()
-}
-
-func is_NodeTraversal_AbstractShallowCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_AbstractShallowCallback) self() any {
@@ -1286,33 +1253,21 @@ func (this *NodeTraversal_AbstractShallowCallback) shouldTraverse(nodeTraversal 
 }
 
 func (this *NodeTraversal_AbstractShallowCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractShallowStatementCallback struct {
-	self_ any
+	self_ NodeTraversal_AbstractShallowStatementCallback_I
+}
+
+// NodeTraversal_AbstractShallowStatementCallback_I holds the methods the dispatchers of NodeTraversal_AbstractShallowStatementCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractShallowStatementCallback_I interface {
+	visit_impl(*NodeTraversal, Node, Node)
 }
 
 func (this *NodeTraversal_AbstractShallowStatementCallback) as_NodeTraversal_AbstractShallowStatementCallback() *NodeTraversal_AbstractShallowStatementCallback {
 	return this
-}
-
-func to_NodeTraversal_AbstractShallowStatementCallback(v any) *NodeTraversal_AbstractShallowStatementCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractShallowStatementCallback() *NodeTraversal_AbstractShallowStatementCallback
-	}).as_NodeTraversal_AbstractShallowStatementCallback()
-}
-
-func is_NodeTraversal_AbstractShallowStatementCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractShallowStatementCallback() *NodeTraversal_AbstractShallowStatementCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_AbstractShallowStatementCallback) self() any {
@@ -1331,13 +1286,11 @@ func (this *NodeTraversal_AbstractShallowStatementCallback) shouldTraverse(nodeT
 }
 
 func (this *NodeTraversal_AbstractShallowStatementCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractModuleCallback struct {
-	self_             any
+	self_             NodeTraversal_AbstractModuleCallback_I
 	compiler_         *AbstractCompiler
 	moduleMetadataMap *ModuleMetadataMap
 	currentModule     *ModuleMetadataMap_ModuleMetadata
@@ -1345,24 +1298,17 @@ type NodeTraversal_AbstractModuleCallback struct {
 	inLoadModule      bool
 }
 
+// NodeTraversal_AbstractModuleCallback_I holds the methods the dispatchers of NodeTraversal_AbstractModuleCallback's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type NodeTraversal_AbstractModuleCallback_I interface {
+	enterModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
+	exitModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
+	shouldTraverse_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node) bool
+	visit_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node)
+}
+
 func (this *NodeTraversal_AbstractModuleCallback) as_NodeTraversal_AbstractModuleCallback() *NodeTraversal_AbstractModuleCallback {
 	return this
-}
-
-func to_NodeTraversal_AbstractModuleCallback(v any) *NodeTraversal_AbstractModuleCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractModuleCallback() *NodeTraversal_AbstractModuleCallback
-	}).as_NodeTraversal_AbstractModuleCallback()
-}
-
-func is_NodeTraversal_AbstractModuleCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractModuleCallback() *NodeTraversal_AbstractModuleCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) self() any {
@@ -1386,10 +1332,12 @@ func (this *NodeTraversal_AbstractModuleCallback) exitModule_impl(oldModule *Mod
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
-		this.currentModule = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByPath(), t.getInput().getPath().toString()))
-		Preconditions_checkNotNull(obj_(this.currentModule))
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
+		this.currentModule = this.moduleMetadataMap.getModulesByPath().Get(t.getInput().getPath().toString())
+		if this.currentModule == nil {
+			panic(new_NullPointerException_0())
+		}
 		this.scopeRoot = func() Node {
 			if n.hasChildren() && n.getFirstChild().isModuleBody() {
 				return n.getFirstChild()
@@ -1397,15 +1345,17 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversa
 			return n
 		}()
 		this.enterModule(this.currentModule, this.scopeRoot)
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if NodeUtil_isBundledGoogModuleScopeRoot(n) {
 			this.scopeRoot = n
 			this.inLoadModule = true
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		if this.inLoadModule && NodeTraversal_AbstractModuleCallback_GOOG_MODULE.matches(n.getFirstChild()) {
-			var newModule *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByGoogNamespace(), n.getLastChild().getString()))
-			Preconditions_checkNotNull(obj_(newModule))
+			var newModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().Get(n.getLastChild().getString())
+			if newModule == nil {
+				panic(new_NullPointerException_0())
+			}
 			if !JSCompObjects_identical(obj_(newModule), obj_(this.currentModule)) {
 				this.currentModule = newModule
 				this.enterModule(this.currentModule, this.scopeRoot)
@@ -1421,20 +1371,26 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse_4_impl(t *NodeT
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
-		Preconditions_checkNotNull(obj_(this.currentModule))
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
+		if this.currentModule == nil {
+			panic(new_NullPointerException_0())
+		}
 		this.exitModule(this.currentModule, this.scopeRoot)
 		this.currentModule = nil
 		this.scopeRoot = 0
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if NodeUtil_isBundledGoogModuleScopeRoot(n) {
-			Preconditions_checkNotNull(obj_(this.currentModule))
+			if this.currentModule == nil {
+				panic(new_NullPointerException_0())
+			}
 			this.exitModule(this.currentModule, this.scopeRoot)
 			this.scopeRoot = n.getGrandparent().getGrandparent()
 			this.inLoadModule = false
-			this.currentModule = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByPath(), t.getInput().getPath().toString()))
-			Preconditions_checkNotNull(obj_(this.currentModule))
+			this.currentModule = this.moduleMetadataMap.getModulesByPath().Get(t.getInput().getPath().toString())
+			if this.currentModule == nil {
+				panic(new_NullPointerException_0())
+			}
 		}
 	default:
 	}
@@ -1446,27 +1402,19 @@ func (this *NodeTraversal_AbstractModuleCallback) visit_4_impl(t *NodeTraversal,
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) enterModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
-	this.self_.(interface {
-		enterModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
-	}).enterModule_impl(p0, p1)
+	this.self_.enterModule_impl(p0, p1)
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) visit_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMetadataMap_ModuleMetadata, p3 Node) {
-	this.self_.(interface {
-		visit_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node)
-	}).visit_4_impl(p0, p1, p2, p3)
+	this.self_.visit_4_impl(p0, p1, p2, p3)
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMetadataMap_ModuleMetadata, p3 Node) bool {
-	return this.self_.(interface {
-		shouldTraverse_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node) bool
-	}).shouldTraverse_4_impl(p0, p1, p2, p3)
+	return this.self_.shouldTraverse_4_impl(p0, p1, p2, p3)
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) exitModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
-	this.self_.(interface {
-		exitModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
-	}).exitModule_impl(p0, p1)
+	this.self_.exitModule_impl(p0, p1)
 }
 
 var NodeTraversal_AbstractModuleCallback_GOOG_MODULE *QualifiedName
@@ -1488,22 +1436,6 @@ type NodeTraversal_AbstractChangedScopeCallback struct {
 
 func (this *NodeTraversal_AbstractChangedScopeCallback) as_NodeTraversal_AbstractChangedScopeCallback() *NodeTraversal_AbstractChangedScopeCallback {
 	return this
-}
-
-func to_NodeTraversal_AbstractChangedScopeCallback(v any) *NodeTraversal_AbstractChangedScopeCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_NodeTraversal_AbstractChangedScopeCallback() *NodeTraversal_AbstractChangedScopeCallback
-	}).as_NodeTraversal_AbstractChangedScopeCallback()
-}
-
-func is_NodeTraversal_AbstractChangedScopeCallback(v any) bool {
-	_, ok := v.(interface {
-		as_NodeTraversal_AbstractChangedScopeCallback() *NodeTraversal_AbstractChangedScopeCallback
-	})
-	return ok
 }
 
 func (this *NodeTraversal_AbstractChangedScopeCallback) self() any {
@@ -1532,7 +1464,7 @@ func (this *NodeTraversal_AbstractChangedScopeCallback) shouldTraverse_impl(t *N
 }
 
 func (this *NodeTraversal_AbstractChangedScopeCallback) enterChangedScopeRoot(p0 *AbstractCompiler, p1 Node) {
-	this.self_.(interface{ enterChangedScopeRoot_impl(*AbstractCompiler, Node) }).enterChangedScopeRoot_impl(p0, p1)
+	this.self_.(*DeadPropertyAssignmentElimination_FunctionVisitor).enterChangedScopeRoot_impl(p0, p1)
 }
 
 type NodeTraversal_Builder struct {
@@ -1561,8 +1493,8 @@ func (this *NodeTraversal_Builder) setCallback(x NodeTraversal_Callback) *NodeTr
 	return this
 }
 
-func (this *NodeTraversal_Builder) setCallbackAbstractPostOrderCallbackInterface(x NodeTraversal_AbstractPostOrderCallbackInterface) *NodeTraversal_Builder {
-	this.callback = icast_NodeTraversal_Callback(obj_(new_NodeTraversal_Builder_1(this, x)))
+func (this *NodeTraversal_Builder) setCallbackAbstractPostOrderCallbackInterface(x func(*NodeTraversal, Node, Node)) *NodeTraversal_Builder {
+	this.callback = new_NodeTraversal_Builder_1(this, x)
 	return this
 }
 
@@ -1644,10 +1576,11 @@ func (this *NodeTraversal_1TraverseScopeRootsCallback) enterScope(t *NodeTravers
 	_ = scopedCallback
 	if this.insideScopeNode && func() bool {
 		v_ := any(this.cap_cb)
-		if !is_[NodeTraversal_ScopedCallback](v_) {
+		p, ok := v_.(NodeTraversal_ScopedCallback)
+		if !ok {
 			return false
 		}
-		scopedCallback = icast_NodeTraversal_ScopedCallback(v_)
+		scopedCallback = p
 		return true
 	}() {
 		scopedCallback.enterScope(t)
@@ -1659,10 +1592,11 @@ func (this *NodeTraversal_1TraverseScopeRootsCallback) exitScope(t *NodeTraversa
 	_ = scopedCallback
 	if this.insideScopeNode && func() bool {
 		v_ := any(this.cap_cb)
-		if !is_[NodeTraversal_ScopedCallback](v_) {
+		p, ok := v_.(NodeTraversal_ScopedCallback)
+		if !ok {
 			return false
 		}
-		scopedCallback = icast_NodeTraversal_ScopedCallback(v_)
+		scopedCallback = p
 		return true
 	}() {
 		scopedCallback.exitScope(t)
@@ -1672,7 +1606,7 @@ func (this *NodeTraversal_1TraverseScopeRootsCallback) exitScope(t *NodeTraversa
 type NodeTraversal_Builder_1 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_ *NodeTraversal_Builder
-	cap_x  NodeTraversal_AbstractPostOrderCallbackInterface
+	cap_x  func(*NodeTraversal, Node, Node)
 }
 
 func (this *NodeTraversal_Builder_1) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -1686,7 +1620,7 @@ func (this *NodeTraversal_Builder_1) init_NodeTraversal_Builder_1() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_NodeTraversal_Builder_1(outer_ *NodeTraversal_Builder, cap_x NodeTraversal_AbstractPostOrderCallbackInterface) *NodeTraversal_Builder_1 {
+func new_NodeTraversal_Builder_1(outer_ *NodeTraversal_Builder, cap_x func(*NodeTraversal, Node, Node)) *NodeTraversal_Builder_1 {
 	this := &NodeTraversal_Builder_1{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -1696,5 +1630,22 @@ func new_NodeTraversal_Builder_1(outer_ *NodeTraversal_Builder, cap_x NodeTraver
 }
 
 func (this *NodeTraversal_Builder_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	this.cap_x.visit(t, n, parent)
+	this.cap_x(t, n, parent)
+}
+
+// shouldTraverse: an object that is exactly a NodeTraversal_AbstractChangedScopeCallback calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *NodeTraversal_AbstractChangedScopeCallback) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if p, _ := this.self_.(*NodeTraversal_AbstractChangedScopeCallback); p == this {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a NodeTraversal_Builder_1 calls its visit_impl directly (post-flip); others dispatch.
+func (this *NodeTraversal_Builder_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*NodeTraversal_Builder_1); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

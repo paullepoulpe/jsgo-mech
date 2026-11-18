@@ -66,15 +66,17 @@ func SemanticReverseAbstractInterpreter_ineq(p *JSType_TypePair) *JSType_TypePai
 	}())
 }
 
-func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome_impl(condition Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
-	var operatorToken *Token_rhino = condition.getToken()
+func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome_impl(condition Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
+	var operatorToken Token_rhino = condition.getToken()
 	switch operatorToken {
 	case Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_CASE:
 		var left Node
 		var right Node
 		if operatorToken == Token_rhino_CASE {
 			left = condition.getParent().getPrevious()
-			Preconditions_checkState_boolean_Object(condition.getParent().isSwitchBody(), condition.getParent().box_())
+			if ok_, a1_ := condition.getParent().isSwitchBody(), condition.getParent(); !ok_ {
+				panic(new_IllegalStateException_String(tostr_(a1_)))
+			}
 			right = condition.getFirstChild()
 		} else {
 			left = condition.getFirstChild()
@@ -117,27 +119,27 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		}
 	case Token_rhino_EQ:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, &Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_eq(p0) }})
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_eq(p0) }}).apply)
 		} else {
-			return this.caseEquality(condition, blindScope, &Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_ne(p0) }})
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_ne(p0) }}).apply)
 		}
 	case Token_rhino_NE:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, &Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_ne(p0) }})
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_ne(p0) }}).apply)
 		} else {
-			return this.caseEquality(condition, blindScope, &Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_eq(p0) }})
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_eq(p0) }}).apply)
 		}
 	case Token_rhino_SHEQ:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, &Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_sheq(p0) }})
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_sheq(p0) }}).apply)
 		} else {
-			return this.caseEquality(condition, blindScope, &Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_shne(p0) }})
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_shne(p0) }}).apply)
 		}
 	case Token_rhino_SHNE:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, &Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_shne(p0) }})
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_shne(p0) }}).apply)
 		} else {
-			return this.caseEquality(condition, blindScope, &Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_sheq(p0) }})
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_sheq(p0) }}).apply)
 		}
 	case Token_rhino_NAME, Token_rhino_GETPROP:
 		return this.caseNameOrGetProp(condition, blindScope, outcome)
@@ -147,7 +149,7 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		return this.firstPreciserScopeKnowingConditionOutcome(condition.getFirstChild(), blindScope, outcome.not())
 	case Token_rhino_LE, Token_rhino_LT, Token_rhino_GE, Token_rhino_GT:
 		if outcome.isTruthy() {
-			return this.caseEquality(condition, blindScope, &Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_ineq(p0) }})
+			return this.caseEquality(condition, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_ineq(p0) }}).apply)
 		}
 	case Token_rhino_INSTANCEOF:
 		return this.caseInstanceOf(condition.getFirstChild(), condition.getLastChild(), blindScope, outcome)
@@ -159,9 +161,9 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 		var left Node = condition.getParent().getPrevious()
 		var right Node = condition.getFirstChild()
 		if outcome.isTruthy() {
-			return this.caseEquality_4(left, right, blindScope, &Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_sheq(p0) }})
+			return this.caseEquality_4(left, right, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_sheq(p0) }}).apply)
 		} else {
-			return this.caseEquality_4(left, right, blindScope, &Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_shne(p0) }})
+			return this.caseEquality_4(left, right, blindScope, (&Function_base_tfn_JSType_TypePair_JSType_TypePair{func(p0 *JSType_TypePair) *JSType_TypePair { return SemanticReverseAbstractInterpreter_shne(p0) }}).apply)
 		}
 	case Token_rhino_CALL:
 		var left Node = condition.getFirstChild()
@@ -174,7 +176,7 @@ func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingCondition
 	return this.nextPreciserScopeKnowingConditionOutcome(condition, blindScope, outcome)
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseIsArray(value Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseIsArray(value Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	var type_ *JSType = this.getTypeIfRefinable(value, blindScope)
 	if type_ != nil {
 		var visitor Visitor = func() Visitor {
@@ -188,11 +190,11 @@ func (this *SemanticReverseAbstractInterpreter) caseIsArray(value Node, blindSco
 	return blindScope
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseEquality(condition Node, blindScope FlowScope, merging Function_baseOf[*JSType_TypePair, *JSType_TypePair]) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseEquality(condition Node, blindScope FlowScope, merging func(any) any) FlowScope {
 	return this.caseEquality_4(condition.getFirstChild(), condition.getLastChild(), blindScope, merging)
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseEquality_4(left Node, right Node, blindScope FlowScope, merging Function_baseOf[*JSType_TypePair, *JSType_TypePair]) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseEquality_4(left Node, right Node, blindScope FlowScope, merging func(any) any) FlowScope {
 	var leftType *JSType = this.getTypeIfRefinable(left, blindScope)
 	var leftIsRefineable bool
 	if leftType != nil {
@@ -209,7 +211,7 @@ func (this *SemanticReverseAbstractInterpreter) caseEquality_4(left Node, right 
 		rightIsRefineable = false
 		rightType = right.getJSType()
 	}
-	var merged *JSType_TypePair = cast_[*JSType_TypePair](merging.apply(obj_(new_JSType_TypePair(leftType, rightType))))
+	var merged *JSType_TypePair = cast_[*JSType_TypePair](merging(obj_(new_JSType_TypePair(leftType, rightType))))
 	if merged != nil {
 		return this.maybeRestrictTwoNames(blindScope, left, leftType, func() *JSType {
 			if leftIsRefineable {
@@ -226,7 +228,7 @@ func (this *SemanticReverseAbstractInterpreter) caseEquality_4(left Node, right 
 	return blindScope
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseAndOrNotShortCircuiting(left Node, right Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseAndOrNotShortCircuiting(left Node, right Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	var leftType *JSType = this.getTypeIfRefinable(left, blindScope)
 	var leftIsRefineable bool
 	if leftType != nil {
@@ -277,13 +279,13 @@ func (this *SemanticReverseAbstractInterpreter) caseAndOrNotShortCircuiting(left
 	return blindScope
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseAndOrMaybeShortCircuiting(left Node, right Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseAndOrMaybeShortCircuiting(left Node, right Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	var refinements *JTSet[string] = jnewTSet_(jtc_string)
-	blindScope = icast_FlowScope(obj_(new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(blindScope, refinements)))
+	blindScope = new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(blindScope, refinements)
 	var leftScope FlowScope = this.firstPreciserScopeKnowingConditionOutcome(left, blindScope, outcome.not())
 	var leftVar StaticTypedSlot = func() StaticTypedSlot {
 		if refinements.size() == 1 {
-			return icast_StaticTypedSlot(leftScope.getSlot(str_(refinements.iterator().next())))
+			return icast_StaticTypedSlot(leftScope.getSlot(str_(first_(refinements))))
 		}
 		return nil
 	}()
@@ -291,11 +293,11 @@ func (this *SemanticReverseAbstractInterpreter) caseAndOrMaybeShortCircuiting(le
 		return SemanticReverseAbstractInterpreter_unwrap(blindScope)
 	}
 	refinements.clear()
-	var rightScope FlowScope = icast_FlowScope(obj_(new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(this.firstPreciserScopeKnowingConditionOutcome(left, blindScope, outcome), refinements)))
+	var rightScope FlowScope = new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(this.firstPreciserScopeKnowingConditionOutcome(left, blindScope, outcome), refinements)
 	rightScope = this.firstPreciserScopeKnowingConditionOutcome(right, rightScope, outcome.not())
 	var rightVar StaticTypedSlot = func() StaticTypedSlot {
 		if refinements.size() == 1 {
-			return icast_StaticTypedSlot(rightScope.getSlot(str_(refinements.iterator().next())))
+			return icast_StaticTypedSlot(rightScope.getSlot(str_(first_(refinements))))
 		}
 		return nil
 	}()
@@ -329,7 +331,7 @@ func (this *SemanticReverseAbstractInterpreter) maybeRestrictTwoNames(blindScope
 	return blindScope
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseNameOrGetProp(name Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseNameOrGetProp(name Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	var type_ *JSType = this.getTypeIfRefinable(name, blindScope)
 	if type_ != nil {
 		var restrictedType *JSType = type_.getRestrictedTypeGivenOutcome(outcome)
@@ -342,7 +344,7 @@ func (this *SemanticReverseAbstractInterpreter) caseTypeOf(node Node, type_ *JST
 	return this.maybeRestrictName(blindScope, node, type_, this.getRestrictedByTypeOfResult(type_, value, resultEqualsValue))
 }
 
-func (this *SemanticReverseAbstractInterpreter) caseInstanceOf(left Node, right Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *SemanticReverseAbstractInterpreter) caseInstanceOf(left Node, right Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	var leftType *JSType = this.getTypeIfRefinable(left, blindScope)
 	if leftType == nil {
 		return blindScope
@@ -354,9 +356,9 @@ func (this *SemanticReverseAbstractInterpreter) caseInstanceOf(left Node, right 
 	}
 	var visitor Visitor
 	if outcome.isTruthy() {
-		visitor = icast_Visitor(obj_(new_SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor(this, targetType)))
+		visitor = new_SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor(this, targetType)
 	} else {
-		visitor = icast_Visitor(obj_(new_SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor(this, targetType)))
+		visitor = new_SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor(this, targetType)
 	}
 	return this.maybeRestrictName(blindScope, left, leftType, to_JSType(leftType.visit(visitor)))
 }
@@ -376,7 +378,7 @@ func (this *SemanticReverseAbstractInterpreter) caseIn(object Node, propertyName
 	}
 	if !hasProperty {
 		var qualifiedName string = object.getQualifiedName()
-		if !String_isEmpty(qualifiedName) {
+		if qualifiedName != "" {
 			var propertyQualifiedName string = (sstr_(qualifiedName) + "." + sstr_(propertyName))
 			if icast_StaticTypedSlot(blindScope.getSlot(propertyQualifiedName)) == nil {
 				var unknownType *JSType = this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
@@ -388,8 +390,8 @@ func (this *SemanticReverseAbstractInterpreter) caseIn(object Node, propertyName
 }
 
 func SemanticReverseAbstractInterpreter_unwrap(scope FlowScope) FlowScope {
-	for is_[*SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope](any(scope)) {
-		scope = cast_[*SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope](scope).delegate
+	for is_[*SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope](scope) {
+		scope = scope.(*SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope).delegate
 	}
 	return scope
 }
@@ -543,7 +545,7 @@ func new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(delegate
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) withSyntacticScope(scope StaticTypedScope) FlowScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) inferSlotType(symbol string, type_ *JSType) FlowScope {
@@ -559,9 +561,9 @@ func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) infe
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) wrap(scope FlowScope) FlowScope {
 	return func() FlowScope {
 		if scope != this.delegate {
-			return icast_FlowScope(obj_(new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(scope, this.refinements)))
+			return new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(scope, this.refinements)
 		}
-		return icast_FlowScope(any(this))
+		return this
 	}()
 }
 
@@ -574,7 +576,7 @@ func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getR
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getParentScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getSlot(name string) StaticSlot {
@@ -590,9 +592,81 @@ func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getT
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) lookupQualifiedName(p0 *QualifiedName) *JSType {
-	return StaticTypedScope_lookupQualifiedName_default(icast_StaticTypedScope(any(this)), p0)
+	return StaticTypedScope_lookupQualifiedName_default(this, p0)
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
-	return StaticScope_getTopmostScopeOfEventualDeclaration_default(icast_StaticScope(any(this)), p0)
+	return StaticScope_getTopmostScopeOfEventualDeclaration_default(this, p0)
+}
+
+// getPreciserScopeKnowingConditionOutcome: an object that is exactly a SemanticReverseAbstractInterpreter calls its getPreciserScopeKnowingConditionOutcome_impl directly (post-flip); others dispatch.
+func (this *SemanticReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 Outcome_rhino) FlowScope {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter); p == this {
+		return this.getPreciserScopeKnowingConditionOutcome_impl(p0, p1, p2)
+	}
+	return this.self_.getPreciserScopeKnowingConditionOutcome_impl(p0, p1, p2)
+}
+
+// caseTopType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor calls its caseTopType_impl directly (post-flip); others dispatch.
+func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor) caseTopType(p0 *JSType) *JSType {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor); p == this {
+		return this.caseTopType_impl(p0)
+	}
+	return this.self_.caseTopType_impl(p0)
+}
+
+// caseUnknownType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor calls its caseUnknownType_impl directly (post-flip); others dispatch.
+func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor) caseUnknownType() any {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor); p == this {
+		return this.caseUnknownType_impl()
+	}
+	return this.self_.caseUnknownType_impl()
+}
+
+// caseObjectType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor calls its caseObjectType_impl directly (post-flip); others dispatch.
+func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor) caseObjectType(p0 *ObjectType) any {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor); p == this {
+		return this.caseObjectType_impl(p0)
+	}
+	return this.self_.caseObjectType_impl(p0)
+}
+
+// caseUnionType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor calls its caseUnionType_impl directly (post-flip); others dispatch.
+func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor) caseUnionType(p0 *UnionType) any {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor); p == this {
+		return this.caseUnionType_impl(p0)
+	}
+	return this.self_.caseUnionType_impl(p0)
+}
+
+// caseFunctionType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor calls its caseFunctionType_impl directly (post-flip); others dispatch.
+func (this *SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor) caseFunctionType(p0 *FunctionType) any {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByTrueInstanceOfResultVisitor); p == this {
+		return this.caseFunctionType_impl(p0)
+	}
+	return this.self_.caseFunctionType_impl(p0)
+}
+
+// caseObjectType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor calls its caseObjectType_impl directly (post-flip); others dispatch.
+func (this *SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor) caseObjectType(p0 *ObjectType) any {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor); p == this {
+		return this.caseObjectType_impl(p0)
+	}
+	return this.self_.caseObjectType_impl(p0)
+}
+
+// caseUnionType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor calls its caseUnionType_impl directly (post-flip); others dispatch.
+func (this *SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor) caseUnionType(p0 *UnionType) any {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor); p == this {
+		return this.caseUnionType_impl(p0)
+	}
+	return this.self_.caseUnionType_impl(p0)
+}
+
+// caseFunctionType: an object that is exactly a SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor calls its caseFunctionType_impl directly (post-flip); others dispatch.
+func (this *SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor) caseFunctionType(p0 *FunctionType) any {
+	if p, _ := this.self_.(*SemanticReverseAbstractInterpreter_RestrictByFalseInstanceOfResultVisitor); p == this {
+		return this.caseFunctionType_impl(p0)
+	}
+	return this.self_.caseFunctionType_impl(p0)
 }

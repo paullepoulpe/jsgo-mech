@@ -4,9 +4,9 @@ package closure
 
 type FormalParameterListTree struct {
 	ParseTree
-	parameters        ImmutableListOf[*ParseTree]
+	parameters        *ImmutableList[*ParseTree]
 	hasTrailingComma_ bool
-	commaPositions    ImmutableListOf[*SourcePosition_util]
+	commaPositions    *ImmutableList[*SourcePosition_util]
 }
 
 func (this *FormalParameterListTree) up_ParseTree() *ParseTree {
@@ -16,17 +16,19 @@ func (this *FormalParameterListTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *FormalParameterListTree) init_FormalParameterListTree(location *SourceRange, parameters ImmutableListOf[*ParseTree], hasTrailingComma bool, commaPositions ImmutableListOf[*SourcePosition_util]) {
+func (this *FormalParameterListTree) init_FormalParameterListTree(location *SourceRange, parameters *ImmutableList[*ParseTree], hasTrailingComma bool, commaPositions *ImmutableList[*SourcePosition_util]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_FORMAL_PARAMETER_LIST, location)
 	var numParams int32 = parameters.size()
 	var numCommas int32 = commaPositions.size()
-	Preconditions_checkArgument_boolean_String_Object_Object(((numCommas <= numParams) && (numCommas >= (numParams - 1))), "Unexpected # of comma and formal params.\nparams: %s\ncomma positions: %s", obj_(parameters), obj_(commaPositions))
+	if numCommas > numParams || numCommas < (numParams-1) {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected # of comma and formal params.\nparams: %s\ncomma positions: %s", []any{obj_(parameters.asImm()), obj_(commaPositions.asImm())})))
+	}
 	this.parameters = parameters
 	this.hasTrailingComma_ = hasTrailingComma
 	this.commaPositions = commaPositions
 }
 
-func new_FormalParameterListTree(location *SourceRange, parameters ImmutableListOf[*ParseTree], hasTrailingComma bool, commaPositions ImmutableListOf[*SourcePosition_util]) *FormalParameterListTree {
+func new_FormalParameterListTree(location *SourceRange, parameters *ImmutableList[*ParseTree], hasTrailingComma bool, commaPositions *ImmutableList[*SourcePosition_util]) *FormalParameterListTree {
 	this := &FormalParameterListTree{}
 	this.self_ = this
 	this.init_FormalParameterListTree(location, parameters, hasTrailingComma, commaPositions)

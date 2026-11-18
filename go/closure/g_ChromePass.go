@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ChromePass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_      *AbstractCompiler
@@ -29,7 +31,7 @@ func new_ChromePass(compiler *AbstractCompiler) *ChromePass {
 }
 
 func (this *ChromePass) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *ChromePass) visit_impl(t *NodeTraversal, node Node, parent Node) {
@@ -55,7 +57,7 @@ func (this *ChromePass) visitPropertyDefinition(call Node, parent Node) {
 		return
 	}
 	var target string = call.getSecondChild().getQualifiedName()
-	if isCrDefinePropertyCall && !String_endsWith(target, ".prototype") {
+	if isCrDefinePropertyCall && !strings.HasSuffix(target, ".prototype") {
 		target += ".prototype"
 	}
 	var property Node = call.getChildAtIndex(2)
@@ -148,7 +150,7 @@ func (this *ChromePass) visitNamespaceDefinition(crDefineCallNode Node, parent N
 		return
 	}
 	var exports *JTMap[string, string] = ChromePass_objectLitToMap(objectLit)
-	NodeTraversal_traverse(this.compiler_, functionBlock, icast_NodeTraversal_Callback(obj_(new_ChromePass_RenameInternalsToExternalsCallback(this, namespace, exports, functionBlock))))
+	NodeTraversal_traverse(this.compiler_, functionBlock, new_ChromePass_RenameInternalsToExternalsCallback(this, namespace, exports, functionBlock))
 }
 
 func ChromePass_objectLitToMap(objectLit Node) *JTMap[string, string] {
@@ -172,10 +174,10 @@ func (this *ChromePass) createObjectsForQualifiedName(namespace string) *JTList[
 	var parts []string = ChromePass_DOT_PATTERN.split(namespace)
 	this.createObjectIfNew(objects, parts[0], true)
 	if int32(len(parts)) >= 2 {
-		var currPrefix *StringBuilder = new_StringBuilder().append(parts[0])
+		var currPrefix *strBuilder_ = (&strBuilder_{}).append(parts[0])
 		for i := int32(1); i < int32(len(parts)); i++ {
 			currPrefix.append(".").append(parts[i])
-			this.createObjectIfNew(objects, Object_toString(obj_(currPrefix)), false)
+			this.createObjectIfNew(objects, currPrefix.toString(), false)
 		}
 	}
 	return objects
@@ -322,4 +324,22 @@ func (this *ChromePass_RenameInternalsToExternalsCallback) visit_impl(t *NodeTra
 func (this *ChromePass_RenameInternalsToExternalsCallback) buildQualifiedName(internalName Node) Node {
 	var externalName string = this.exports.get(internalName.getString())
 	return NodeUtil_newQName_AbstractCompiler_String(this.outer_.compiler_, (sstr_(this.namespaceName) + "." + sstr_(externalName))).srcrefTree(internalName)
+}
+
+// visit: an object that is exactly a ChromePass calls its visit_impl directly (post-flip); others dispatch.
+func (this *ChromePass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ChromePass); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a ChromePass_RenameInternalsToExternalsCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *ChromePass_RenameInternalsToExternalsCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ChromePass_RenameInternalsToExternalsCallback); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

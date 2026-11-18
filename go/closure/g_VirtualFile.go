@@ -37,7 +37,7 @@ func (this *VirtualFile) wasModified() bool {
 }
 
 func (this *VirtualFile) hashCode() int32 {
-	return Objects_hash([]any{strobj_(this.name_), strobj_(this.code_)})
+	return hashOf_(objhashStr_(this.name_), objhashStr_(this.code_))
 }
 
 func (this *VirtualFile) equals(o any) bool {
@@ -45,10 +45,11 @@ func (this *VirtualFile) equals(o any) bool {
 	_ = vf
 	if func() bool {
 		v_ := o
-		if !is_[*VirtualFile](v_) {
+		p, ok := v_.(*VirtualFile)
+		if !ok {
 			return false
 		}
-		vf = cast_[*VirtualFile](v_)
+		vf = p
 		return true
 	}() {
 		return ((this.name_ == vf.name_) && (this.code_ == vf.code_))

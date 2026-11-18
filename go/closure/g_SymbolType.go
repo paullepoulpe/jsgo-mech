@@ -8,18 +8,6 @@ type SymbolType struct {
 
 func (this *SymbolType) as_SymbolType() *SymbolType { return this }
 
-func to_SymbolType(v any) *SymbolType {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_SymbolType() *SymbolType }).as_SymbolType()
-}
-
-func is_SymbolType(v any) bool {
-	_, ok := v.(interface{ as_SymbolType() *SymbolType })
-	return ok
-}
-
 func (this *SymbolType) self() any {
 	if this == nil {
 		return nil
@@ -52,13 +40,13 @@ func new_SymbolType(registry *JSTypeRegistry) *SymbolType {
 	return this
 }
 
-func (this *SymbolType) getTypeClass_impl() *JSTypeClass {
+func (this *SymbolType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_SYMBOL
 }
 
-func (this *SymbolType) testForEquality_impl(that *JSType) *Tri {
-	var result *Tri = this.ValueType.testForEquality_impl(that)
-	if result != nil {
+func (this *SymbolType) testForEquality_impl(that *JSType) Tri {
+	var result Tri = this.ValueType.testForEquality_impl(that)
+	if result != 0 {
 		return result
 	}
 	if that.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_TYPE)) || that.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE)) {
@@ -95,10 +83,98 @@ func (this *SymbolType) autoboxesTo_impl() *JSType {
 	return this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE)
 }
 
-func (this *SymbolType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *SymbolType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_TRUE
 }
 
 func (this *SymbolType) visitUntyped_impl(visitor Visitor) any {
 	return visitor.caseSymbolType(this)
+}
+
+// getTypeClass: an object that is exactly a SymbolType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *SymbolType) getTypeClass() JSTypeClass {
+	if p, _ := this.self_.(*SymbolType); p == this {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.getTypeClass_impl()
+}
+
+// testForEquality: an object that is exactly a SymbolType calls its testForEquality_impl directly (post-flip); others dispatch.
+func (this *SymbolType) testForEquality(p0 *JSType) Tri {
+	if p, _ := this.self_.(*SymbolType); p == this {
+		return this.testForEquality_impl(p0)
+	}
+	return this.self_.testForEquality_impl(p0)
+}
+
+// isSymbolValueType: an object that is exactly a SymbolType calls its isSymbolValueType_impl directly (post-flip); others dispatch.
+func (this *SymbolType) isSymbolValueType() bool {
+	if p, _ := this.self_.(*SymbolType); p == this {
+		return this.isSymbolValueType_impl()
+	}
+	return this.self_.isSymbolValueType_impl()
+}
+
+// matchesNumberContext: an object that is exactly a SymbolType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
+func (this *SymbolType) matchesNumberContext() bool {
+	if p, _ := this.self_.(*SymbolType); p == this {
+		return this.matchesNumberContext_impl()
+	}
+	return this.self_.matchesNumberContext_impl()
+}
+
+// matchesStringContext: an object that is exactly a SymbolType calls its matchesStringContext_impl directly (post-flip); others dispatch.
+func (this *SymbolType) matchesStringContext() bool {
+	if p, _ := this.self_.(*SymbolType); p == this {
+		return this.matchesStringContext_impl()
+	}
+	return this.self_.matchesStringContext_impl()
+}
+
+// matchesSymbolContext: an object that is exactly a SymbolType calls its matchesSymbolContext_impl directly (post-flip); others dispatch.
+func (this *SymbolType) matchesSymbolContext() bool {
+	if p, _ := this.self_.(*SymbolType); p == this {
+		return this.matchesSymbolContext_impl()
+	}
+	return this.self_.matchesSymbolContext_impl()
+}
+
+// matchesObjectContext: an object that is exactly a SymbolType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
+func (this *SymbolType) matchesObjectContext() bool {
+	if p, _ := this.self_.(*SymbolType); p == this {
+		return this.matchesObjectContext_impl()
+	}
+	return this.self_.matchesObjectContext_impl()
+}
+
+// getDisplayName: an object that is exactly a SymbolType calls its getDisplayName_impl directly (post-flip); others dispatch.
+func (this *SymbolType) getDisplayName() Optional[string] {
+	if p, _ := this.self_.(*SymbolType); p == this {
+		return this.getDisplayName_impl()
+	}
+	return this.self_.getDisplayName_impl()
+}
+
+// autoboxesTo: an object that is exactly a SymbolType calls its autoboxesTo_impl directly (post-flip); others dispatch.
+func (this *SymbolType) autoboxesTo() *JSType {
+	if p, _ := this.self_.(*SymbolType); p == this {
+		return this.autoboxesTo_impl()
+	}
+	return this.self_.autoboxesTo_impl()
+}
+
+// getPossibleToBooleanOutcomes: an object that is exactly a SymbolType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
+func (this *SymbolType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
+	if p, _ := this.self_.(*SymbolType); p == this {
+		return this.getPossibleToBooleanOutcomes_impl()
+	}
+	return this.self_.getPossibleToBooleanOutcomes_impl()
+}
+
+// visitUntyped: an object that is exactly a SymbolType calls its visitUntyped_impl directly (post-flip); others dispatch.
+func (this *SymbolType) visitUntyped(p0 Visitor) any {
+	if p, _ := this.self_.(*SymbolType); p == this {
+		return this.visitUntyped_impl(p0)
+	}
+	return this.self_.visitUntyped_impl(p0)
 }

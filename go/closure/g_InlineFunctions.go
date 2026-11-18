@@ -2,13 +2,15 @@
 
 package closure
 
+import "strconv"
+
 type InlineFunctions struct {
 	fns                         *JTMap[string, *InlineFunctions_FunctionState]
 	anonFns                     *JTMap[Node, string]
 	compiler_                   *AbstractCompiler
 	injector                    *FunctionInjector
 	functionArgumentInjector_   *FunctionArgumentInjector
-	reach                       *CompilerOptions_Reach
+	reach                       CompilerOptions_Reach
 	enforceMaxSizeAfterInlining bool
 	maxSizeAfterInlining        int32
 }
@@ -18,11 +20,17 @@ func (this *InlineFunctions) finit_InlineFunctions() {
 	this.anonFns = jnewTMap_(jtc_Node, jtc_string)
 }
 
-func (this *InlineFunctions) init_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], reach *CompilerOptions_Reach, assumeStrictThis bool, maxSizeAfterInlining int32) {
+func (this *InlineFunctions) init_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], reach CompilerOptions_Reach, assumeStrictThis bool, maxSizeAfterInlining int32) {
 	this.finit_InlineFunctions()
-	Preconditions_checkArgument((compiler != nil))
-	Preconditions_checkArgument((safeNameIdSupplier != nil))
-	Preconditions_checkArgument((reach != CompilerOptions_Reach_NONE))
+	if compiler == nil {
+		panic(new_IllegalArgumentException_0())
+	}
+	if safeNameIdSupplier == nil {
+		panic(new_IllegalArgumentException_0())
+	}
+	if reach == CompilerOptions_Reach_NONE {
+		panic(new_IllegalArgumentException_0())
+	}
 	this.compiler_ = compiler
 	this.reach = reach
 	this.maxSizeAfterInlining = maxSizeAfterInlining
@@ -31,7 +39,7 @@ func (this *InlineFunctions) init_InlineFunctions(compiler *AbstractCompiler, sa
 	this.injector = new_FunctionInjector_Builder(compiler).safeNameIdSupplier(safeNameIdSupplier).assumeStrictThis(assumeStrictThis).functionArgumentInjector(this.functionArgumentInjector_).build()
 }
 
-func new_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], reach *CompilerOptions_Reach, assumeStrictThis bool, maxSizeAfterInlining int32) *InlineFunctions {
+func new_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], reach CompilerOptions_Reach, assumeStrictThis bool, maxSizeAfterInlining int32) *InlineFunctions {
 	this := &InlineFunctions{}
 	this.init_InlineFunctions(compiler, safeNameIdSupplier, reach, assumeStrictThis, maxSizeAfterInlining)
 	return this
@@ -44,17 +52,19 @@ func (this *InlineFunctions) getOrCreateFunctionState(fnName string) *InlineFunc
 }
 
 func (this *InlineFunctions) process_2(externs Node, root Node) {
-	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_InlineFunctions_FindCandidateFunctions(this))))
+	if !this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0())
+	}
+	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_FindCandidateFunctions(this))
 	if this.fns.isEmpty() {
 		return
 	}
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_InlineFunctions_FindCandidatesReferences(this, this.fns, this.anonFns))))
+	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_FindCandidatesReferences(this, this.fns, this.anonFns))
 	this.trimCandidatesNotMeetingMinimumRequirements()
 	if this.fns.isEmpty() {
 		return
 	}
-	var fnNames ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(this.fns.asMap().keySet()))
+	var fnNames *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(this.fns.asMap().keySet()))
 	this.injector.setKnownConstantFunctions(fnNames)
 	this.trimCandidatesUsingOnCost()
 	if this.fns.isEmpty() {
@@ -62,12 +72,14 @@ func (this *InlineFunctions) process_2(externs Node, root Node) {
 	}
 	this.resolveInlineConflicts()
 	this.decomposeExpressions()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(new_InlineFunctions_CallVisitor(this.fns, this.anonFns, icast_InlineFunctions_CallVisitorCallback(obj_(new_InlineFunctions_Inline(this.injector)))).self()))
+	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_CallVisitor(this.fns, this.anonFns, new_InlineFunctions_Inline(this.injector).visitCallSite))
 	this.removeInlinedFunctions()
 }
 
 func InlineFunctions_isAlwaysInlinable(fn Node) bool {
-	Preconditions_checkArgument(fn.isFunction())
+	if !fn.isFunction() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var body Node = NodeUtil_getFunctionBody(fn)
 	return (!body.hasChildren() || (body.hasOneChild() && body.getFirstChild().isReturn()))
 }
@@ -90,7 +102,9 @@ func (this *InlineFunctions) maybeAddFunction(fn InlineFunctions_Function, chunk
 	var name string = fn.getName()
 	var functionState *InlineFunctions_FunctionState = this.getOrCreateFunctionState(name)
 	this.updateFunctionStateForInlining(fn, chunk, functionState)
-	Preconditions_checkState(!(InlineFunctions_hasRequireInliningAnnotation(fn.getFunctionNode()) && !functionState.canInline()))
+	if InlineFunctions_hasRequireInliningAnnotation(fn.getFunctionNode()) && !functionState.canInline() {
+		panic(new_IllegalStateException_0())
+	}
 }
 
 func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_Function, chunk *JSChunk, functionState *InlineFunctions_FunctionState) {
@@ -120,8 +134,8 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 		}
 		if functionState.canInline() {
 			functionState.setChunk(chunk)
-			var namesToAlias SetOf[string] = icast_Set(obj_(this.functionArgumentInjector_.findModifiedParameters(fnNode)))
-			if !namesToAlias.isEmpty() {
+			var namesToAlias *TSet[string] = this.functionArgumentInjector_.findModifiedParameters(fnNode)
+			if !namesToAlias.IsEmpty() {
 				functionState.inlineDirectly(false)
 				functionState.setNamesToAlias(namesToAlias)
 			}
@@ -129,7 +143,7 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 			if NodeUtil_referencesEnclosingReceiver(block) {
 				functionState.setReferencesThis(true)
 			}
-			if NodeUtil_has(block, &Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(p0) }}, Predicates_alwaysTrue()) {
+			if NodeUtil_has(block, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(p0) }}).apply, Predicates_alwaysTrue()) {
 				functionState.setHasInnerClosures(true)
 				if InlineFunctions_hasLocalNames(fnNode) {
 					functionState.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES)
@@ -138,9 +152,9 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 		}
 		if fnNode.getGrandparent().isVar() {
 			var block Node = functionState.getFn().getDeclaringBlock()
-			if ((block.isBlock() && !block.getParent().isFunction()) && NodeUtil_has(block, &Predicate_base_tfn_Node{func(n Node) bool {
+			if (block.isBlock() && !block.getParent().isFunction()) && NodeUtil_has(block, (&Predicate_base_tfn_Node{func(n Node) bool {
 				return (n.isLet() || n.isConst())
-			}}, Predicates_alwaysTrue())) {
+			}}).apply, Predicates_alwaysTrue()) {
 				functionState.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE)
 			}
 		}
@@ -170,7 +184,7 @@ func InlineFunctions_hasRequireInliningAnnotation(fnNode Node) bool {
 
 func InlineFunctions_hasLocalNames(fnNode Node) bool {
 	var block Node = NodeUtil_getFunctionBody(fnNode)
-	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, icast_Predicate_base(obj_(new_NodeUtil_MatchDeclaration())), icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement()))))
+	return (NodeUtil_getFunctionParameters(fnNode).hasChildren() || NodeUtil_has(block, new_NodeUtil_MatchDeclaration().apply, new_NodeUtil_MatchShallowStatement()))
 }
 
 func (this *InlineFunctions) isCandidateFunction(fn InlineFunctions_Function) bool {
@@ -187,7 +201,9 @@ func (this *InlineFunctions) isCandidateFunction(fn InlineFunctions_Function) bo
 
 func InlineFunctions_isCandidateUsage(name Node) bool {
 	var parent Node = name.getParent()
-	Preconditions_checkState(name.isName())
+	if !name.isName() {
+		panic(new_IllegalStateException_0())
+	}
 	if NodeUtil_isNameDeclaration(parent) || parent.isFunction() {
 		return true
 	}
@@ -208,7 +224,7 @@ func (this *InlineFunctions) trimCandidatesNotMeetingMinimumRequirements() {
 	{
 		i = this.fns.asMap().entrySet().iterator()
 		for i.hasNext() {
-			var functionState *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](icast_Map_Entry(i.next()).getValue())
+			var functionState *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](i.next().(Map_Entry).getValue())
 			if !functionState.hasExistingFunctionDefinition() || !functionState.canInline() {
 				Iterator_remove(i)
 			}
@@ -221,7 +237,7 @@ func (this *InlineFunctions) trimCandidatesUsingOnCost() {
 	{
 		i = this.fns.asMap().entrySet().iterator()
 		for i.hasNext() {
-			var functionState *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](icast_Map_Entry(i.next()).getValue())
+			var functionState *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](i.next().(Map_Entry).getValue())
 			if functionState.hasReferences() {
 				var lowersCost bool = this.minimizeCost(functionState)
 				if !lowersCost {
@@ -250,7 +266,7 @@ func (this *InlineFunctions) minimizeCost(functionState *InlineFunctions_Functio
 }
 
 func (this *InlineFunctions) inliningLowersCost(functionState *InlineFunctions_FunctionState) bool {
-	return ((functionState.requireInlining() || functionState.encourageInlining()) || this.injector.inliningLowersCost(functionState.getChunk(), functionState.getFn().getFunctionNode(), functionState.getReferences(), icast_Set(obj_(functionState.getNamesToAlias())), functionState.canRemove(), functionState.getReferencesThis()))
+	return ((functionState.requireInlining() || functionState.encourageInlining()) || this.injector.inliningLowersCost(functionState.getChunk(), functionState.getFn().getFunctionNode(), functionState.getReferences(), setImm_(tc_string, functionState.getNamesToAlias().asImm()), functionState.canRemove(), functionState.getReferencesThis()))
 }
 
 func (this *InlineFunctions) resolveInlineConflicts() {
@@ -262,10 +278,12 @@ func (this *InlineFunctions) resolveInlineConflicts() {
 }
 
 func InlineFunctions_hasNonInlinableParam(node Node) bool {
-	Preconditions_checkNotNull(node.box_())
-	var pred Predicate_baseOf[Node] = &Predicate_base_tfn_Node{func(input Node) bool {
+	if node == 0 {
+		panic(new_NullPointerException_0())
+	}
+	var pred func(any) bool = (&Predicate_base_tfn_Node{func(input Node) bool {
 		return (input.isDefaultValue() || input.isDestructuringPattern())
-	}}
+	}}).apply
 	return NodeUtil_has(node, pred, Predicates_alwaysTrue())
 }
 
@@ -298,7 +316,9 @@ func (this *InlineFunctions) findCalledFunctions(node Node) *JTSet[string] {
 }
 
 func InlineFunctions_findCalledFunctions(node Node, changed *JTSet[string]) {
-	Preconditions_checkArgument((changed != nil))
+	if changed == nil {
+		panic(new_IllegalArgumentException_0())
+	}
 	if node.isName() && InlineFunctions_isCandidateUsage(node) {
 		changed.add(node.getString())
 	}
@@ -315,9 +335,7 @@ func (this *InlineFunctions) decomposeExpressions() {
 	for it_1.next() {
 		var functionState *InlineFunctions_FunctionState = it_1.v
 		if functionState.canInline() {
-			it_3 := foreach_(any(functionState.getReferences()))
-			for it_3.next() {
-				var ref *InlineFunctions_Reference = cast_[*InlineFunctions_Reference](it_3.v)
+			for ref := range elemsAs_[*InlineFunctions_Reference](functionState.getReferences()) {
 				if ref.requiresDecomposition {
 					this.injector.maybePrepareCall(ref.up_FunctionInjector_Reference())
 				}
@@ -334,8 +352,12 @@ func (this *InlineFunctions) removeInlinedFunctions() {
 		var functionState *InlineFunctions_FunctionState = entry.getValue()
 		if functionState.canRemove() {
 			var fn InlineFunctions_Function = functionState.getFn()
-			Preconditions_checkState(functionState.canInline())
-			Preconditions_checkState((fn != nil))
+			if !functionState.canInline() {
+				panic(new_IllegalStateException_0())
+			}
+			if fn == nil {
+				panic(new_IllegalStateException_0())
+			}
 			this.verifyAllReferencesInlined(name, functionState)
 			fn.remove()
 			NodeUtil_markFunctionsDeleted(fn.getFunctionNode(), this.compiler_)
@@ -344,9 +366,7 @@ func (this *InlineFunctions) removeInlinedFunctions() {
 }
 
 func (this *InlineFunctions) verifyAllReferencesInlined(name string, functionState *InlineFunctions_FunctionState) {
-	it_1 := foreach_(any(functionState.getReferences()))
-	for it_1.next() {
-		var ref *InlineFunctions_Reference = cast_[*InlineFunctions_Reference](it_1.v)
+	for ref := range elemsAs_[*InlineFunctions_Reference](functionState.getReferences()) {
 		if !ref.inlined {
 			var parent Node = ref.callNode_.getParent()
 			panic(new_IllegalStateException_String(("Call site missed (" + sstr_(name) + ").\n call: " + sstr_(ref.callNode_.toStringTree()) + "\n parent:  " + sstr_(func() string {
@@ -354,7 +374,7 @@ func (this *InlineFunctions) verifyAllReferencesInlined(name string, functionSta
 					return "null"
 				}
 				return parent.toStringTree()
-			}()))).self())
+			}()))))
 		}
 	}
 }
@@ -382,7 +402,7 @@ func InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options *Comp
 	if options.getInstrumentForCoverageOption() != CompilerOptions_InstrumentOption_NONE {
 		problems.add("instrumentForCoverageOption enabled")
 	}
-	if !Object_equals(obj_(options.getPropertyCollapseLevel()), obj_(CompilerOptions_PropertyCollapseLevel_ALL)) {
+	if !equalsId_(options.getPropertyCollapseLevel(), CompilerOptions_PropertyCollapseLevel_ALL) {
 		problems.add("missing property collapsing")
 	}
 	if !options.shouldRemoveClosureAsserts() {
@@ -397,7 +417,7 @@ func InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options *Comp
 	if problems.isEmpty() {
 		return new_InlineFunctions_ShouldRequireInlining(true, "")
 	}
-	return new_InlineFunctions_ShouldRequireInlining(false, String_format("[%s]", []any{strobj_(String_join(strobj_(", "), Iterable(problems.asList())))}))
+	return new_InlineFunctions_ShouldRequireInlining(false, ("[" + sstr_(String_join_s(", ", Iterable(problems.asList()))) + "]"))
 }
 
 var InlineFunctions_MISSED_REQUIRED_INLINING *DiagnosticType
@@ -454,17 +474,21 @@ func (this *InlineFunctions_FindCandidateFunctions) findNamedFunctions(t *NodeTr
 	if !NodeUtil_isStatement(n) {
 		return
 	}
-	switch n.getToken() {
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
-		Preconditions_checkState_boolean_Object(n.hasOneChild(), n.box_())
+	switch n.ns_().token {
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
+		if !n.hasOneChild() {
+			panic(new_IllegalStateException_String(tostr_(n)))
+		}
 		var nameNode Node = n.getFirstChild()
 		if (nameNode.isName() && nameNode.hasChildren()) && nameNode.getFirstChild().isFunction() {
-			this.outer_.maybeAddFunction(icast_InlineFunctions_Function(obj_(new_InlineFunctions_FunctionVar(this.outer_, n))), t.getChunk())
+			this.outer_.maybeAddFunction(new_InlineFunctions_FunctionVar(this.outer_, n), t.getChunk())
 		}
-	case Token_rhino_FUNCTION:
-		Preconditions_checkState((NodeUtil_isStatementBlock(parent) || parent.isLabel()))
+	case tokOrd1_FUNCTION:
+		if !NodeUtil_isStatementBlock(parent) && !parent.isLabel() {
+			panic(new_IllegalStateException_0())
+		}
 		if NodeUtil_isFunctionDeclaration(n) {
-			var fn InlineFunctions_Function = icast_InlineFunctions_Function(obj_(new_InlineFunctions_NamedFunction(this.outer_, n)))
+			var fn InlineFunctions_Function = new_InlineFunctions_NamedFunction(this.outer_, n)
 			this.outer_.maybeAddFunction(fn, t.getChunk())
 		}
 	default:
@@ -472,8 +496,8 @@ func (this *InlineFunctions_FindCandidateFunctions) findNamedFunctions(t *NodeTr
 }
 
 func (this *InlineFunctions_FindCandidateFunctions) findFunctionExpressions(t *NodeTraversal, n Node) {
-	switch n.getToken() {
-	case Token_rhino_OPTCHAIN_CALL, Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_OPTCHAIN_CALL, tokOrd1_CALL:
 		var fnNode Node = 0
 		if n.getFirstChild().isFunction() {
 			fnNode = n.getFirstChild()
@@ -484,7 +508,7 @@ func (this *InlineFunctions_FindCandidateFunctions) findFunctionExpressions(t *N
 			}
 		}
 		if fnNode != 0 {
-			var fn InlineFunctions_Function = icast_InlineFunctions_Function(obj_(new_InlineFunctions_FunctionExpression(fnNode, this.callsSeen)))
+			var fn InlineFunctions_Function = new_InlineFunctions_FunctionExpression(fnNode, this.callsSeen)
 			this.callsSeen++
 			this.outer_.maybeAddFunction(fn, t.getChunk())
 			this.outer_.anonFns.put(fnNode, fn.getName())
@@ -507,29 +531,13 @@ func (this *InlineFunctions_CallVisitorCallback_fn) visitCallSite(p0 *NodeTraver
 
 type InlineFunctions_CallVisitor struct {
 	NodeTraversal_AbstractPostOrderCallback
-	callback        InlineFunctions_CallVisitorCallback
+	callback        func(*NodeTraversal, Node, *InlineFunctions_FunctionState)
 	functionMap     *JTMap[string, *InlineFunctions_FunctionState]
 	anonFunctionMap *JTMap[Node, string]
 }
 
 func (this *InlineFunctions_CallVisitor) as_InlineFunctions_CallVisitor() *InlineFunctions_CallVisitor {
 	return this
-}
-
-func to_InlineFunctions_CallVisitor(v any) *InlineFunctions_CallVisitor {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_InlineFunctions_CallVisitor() *InlineFunctions_CallVisitor
-	}).as_InlineFunctions_CallVisitor()
-}
-
-func is_InlineFunctions_CallVisitor(v any) bool {
-	_, ok := v.(interface {
-		as_InlineFunctions_CallVisitor() *InlineFunctions_CallVisitor
-	})
-	return ok
 }
 
 func (this *InlineFunctions_CallVisitor) self() any {
@@ -546,14 +554,14 @@ func (this *InlineFunctions_CallVisitor) up_NodeTraversal_AbstractPostOrderCallb
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *InlineFunctions_CallVisitor) init_InlineFunctions_CallVisitor(fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string], callback InlineFunctions_CallVisitorCallback) {
+func (this *InlineFunctions_CallVisitor) init_InlineFunctions_CallVisitor(fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string], callback func(*NodeTraversal, Node, *InlineFunctions_FunctionState)) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.functionMap = fns
 	this.anonFunctionMap = anonFns
 	this.callback = callback
 }
 
-func new_InlineFunctions_CallVisitor(fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string], callback InlineFunctions_CallVisitorCallback) *InlineFunctions_CallVisitor {
+func new_InlineFunctions_CallVisitor(fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string], callback func(*NodeTraversal, Node, *InlineFunctions_FunctionState)) *InlineFunctions_CallVisitor {
 	this := &InlineFunctions_CallVisitor{}
 	this.self_ = this
 	this.init_InlineFunctions_CallVisitor(fns, anonFns, callback)
@@ -561,8 +569,8 @@ func new_InlineFunctions_CallVisitor(fns *JTMap[string, *InlineFunctions_Functio
 }
 
 func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_OPTCHAIN_CALL, Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_OPTCHAIN_CALL, tokOrd1_CALL:
 		var child Node = n.getFirstChild()
 		var name Optional[string] = Optional_empty[string]()
 		if child.isName() {
@@ -570,7 +578,9 @@ func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, pa
 		} else if child.isFunction() {
 			name = Optional_ofNullable[string](this.anonFunctionMap.get(child))
 		} else if NodeUtil_isFunctionObjectCall(n) {
-			Preconditions_checkState(NodeUtil_isNormalOrOptChainGet(child))
+			if !NodeUtil_isNormalOrOptChainGet(child) {
+				panic(new_IllegalStateException_0())
+			}
 			var fnIdentifyingNode Node = child.getFirstChild()
 			if fnIdentifyingNode.isName() {
 				name = Optional_of[string](fnIdentifyingNode.getString())
@@ -581,7 +591,7 @@ func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, pa
 		if name.isPresent() {
 			var functionState *InlineFunctions_FunctionState = this.functionMap.get(name.get())
 			if functionState != nil {
-				this.callback.visitCallSite(t, n, functionState)
+				this.callback(t, n, functionState)
 			}
 		}
 	default:
@@ -609,7 +619,7 @@ func (this *InlineFunctions_FindCandidatesReferences) up_NodeTraversal_AbstractP
 
 func (this *InlineFunctions_FindCandidatesReferences) init_InlineFunctions_FindCandidatesReferences(fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string]) {
 	this.InlineFunctions_CallVisitor.init_InlineFunctions_CallVisitor(fns, anonFns, nil)
-	this.callback = icast_InlineFunctions_CallVisitorCallback(obj_(this))
+	this.callback = this.visitCallSite
 }
 
 func new_InlineFunctions_FindCandidatesReferences(outer_ *InlineFunctions, fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string]) *InlineFunctions_FindCandidatesReferences {
@@ -635,7 +645,7 @@ func (this *InlineFunctions_FindCandidatesReferences) maybeAddReference(t *NodeT
 	if !functionState.canInline() {
 		return
 	}
-	var mode *FunctionInjector_InliningMode = func() *FunctionInjector_InliningMode {
+	var mode FunctionInjector_InliningMode = func() FunctionInjector_InliningMode {
 		if functionState.canInlineDirectly() {
 			return FunctionInjector_InliningMode_DIRECT
 		}
@@ -651,12 +661,12 @@ func (this *InlineFunctions_FindCandidatesReferences) maybeAddReference(t *NodeT
 	}
 }
 
-func (this *InlineFunctions_FindCandidatesReferences) maybeAddReferenceUsingMode(t *NodeTraversal, functionState *InlineFunctions_FunctionState, callNode Node, chunk *JSChunk, mode *FunctionInjector_InliningMode) bool {
+func (this *InlineFunctions_FindCandidatesReferences) maybeAddReferenceUsingMode(t *NodeTraversal, functionState *InlineFunctions_FunctionState, callNode Node, chunk *JSChunk, mode FunctionInjector_InliningMode) bool {
 	if this.outer_.enforceMaxSizeAfterInlining && this.outer_.targetSizeAfterInlineExceedsLimit(t, functionState) {
 		return false
 	}
 	var candidate *InlineFunctions_Reference = new_InlineFunctions_Reference(callNode, t.getScope(), chunk, mode)
-	var result *FunctionInjector_CanInlineResult = this.outer_.injector.canInlineReferenceToFunction(candidate.up_FunctionInjector_Reference(), functionState.getFn().getFunctionNode(), functionState.getNamesToAlias(), functionState.getReferencesThis(), functionState.hasInnerClosures())
+	var result FunctionInjector_CanInlineResult = this.outer_.injector.canInlineReferenceToFunction(candidate.up_FunctionInjector_Reference(), functionState.getFn().getFunctionNode(), functionState.getNamesToAlias(), functionState.getReferencesThis(), functionState.hasInnerClosures())
 	if result != FunctionInjector_CanInlineResult_NO {
 		candidate.setRequiresDecomposition((result == FunctionInjector_CanInlineResult_AFTER_PREPARATION))
 		functionState.addReference(candidate)
@@ -666,7 +676,9 @@ func (this *InlineFunctions_FindCandidatesReferences) maybeAddReferenceUsingMode
 }
 
 func (this *InlineFunctions_FindCandidatesReferences) checkNameUsage(n Node, parent Node) {
-	Preconditions_checkState_boolean_Object(n.isName(), n.box_())
+	if !n.isName() {
+		panic(new_IllegalStateException_String(tostr_(n)))
+	}
 	if InlineFunctions_isCandidateUsage(n) {
 		return
 	}
@@ -699,7 +711,9 @@ func new_InlineFunctions_Inline(injector *FunctionInjector) *InlineFunctions_Inl
 }
 
 func (this *InlineFunctions_Inline) visitCallSite(t *NodeTraversal, callNode Node, functionState *InlineFunctions_FunctionState) {
-	Preconditions_checkState(functionState.hasExistingFunctionDefinition())
+	if !functionState.hasExistingFunctionDefinition() {
+		panic(new_IllegalStateException_0())
+	}
 	if functionState.canInline() {
 		var ref *InlineFunctions_Reference = functionState.getReference(callNode)
 		if ref != nil {
@@ -714,7 +728,7 @@ func (this *InlineFunctions_Inline) inlineFunction(t *NodeTraversal, ref *Inline
 	var fnName string = fn.getName()
 	var fnNode Node = functionState.getSafeFnNode()
 	var newExpr Node = this.injector.inline(ref.up_FunctionInjector_Reference(), Optional_of[string](fnName), fnNode)
-	if !Object_equals(newExpr.box_(), ref.callNode_.box_()) {
+	if !equalsId_(newExpr, ref.callNode_) {
 		t.getCompiler().reportChangeToEnclosingScope(newExpr)
 	}
 }
@@ -729,7 +743,7 @@ type InlineFunctions_FunctionState struct {
 	hasInnerClosuresField                     bool
 	references                                *JTMap[Node, *InlineFunctions_Reference]
 	chunk_                                    *JSChunk
-	namesToAlias                              SetOf[string]
+	namesToAlias                              *TSet[string]
 	hasRequireInliningAnnotation              bool
 	hasRequireInliningAnnotationInitialized   bool
 	hasEncourageInliningAnnotation            bool
@@ -789,7 +803,7 @@ func (this *InlineFunctions_FunctionState) removeBlockInliningReferences() {
 		i = this.getReferencesInternal().entrySet().iterator()
 		for i.hasNext() {
 			var entry Map_EntryOf[Node, *InlineFunctions_Reference] = icast_Map_Entry(i.next())
-			if cast_[*InlineFunctions_Reference](entry.getValue()).mode_ == FunctionInjector_InliningMode_BLOCK {
+			if entry.getValue().(*InlineFunctions_Reference).mode_ == FunctionInjector_InliningMode_BLOCK {
 				Iterator_remove(i)
 			}
 		}
@@ -797,7 +811,7 @@ func (this *InlineFunctions_FunctionState) removeBlockInliningReferences() {
 }
 
 func (this *InlineFunctions_FunctionState) hasBlockInliningReferences() bool {
-	it_1 := foreach_(any(this.getReferencesInternal().values()))
+	it_1 := foreach_(this.getReferencesInternal().values())
 	for it_1.next() {
 		var r *InlineFunctions_Reference = cast_[*InlineFunctions_Reference](it_1.v)
 		if r.mode_ == FunctionInjector_InliningMode_BLOCK {
@@ -812,7 +826,9 @@ func (this *InlineFunctions_FunctionState) getFn() InlineFunctions_Function {
 }
 
 func (this *InlineFunctions_FunctionState) setFn(fn InlineFunctions_Function) {
-	Preconditions_checkState((this.fn == nil))
+	if this.fn != nil {
+		panic(new_IllegalStateException_0())
+	}
 	this.fn = fn
 }
 
@@ -855,11 +871,11 @@ func (this *InlineFunctions_FunctionState) requireInlining() bool {
 	return this.hasRequireInliningAnnotation
 }
 
-func (this *InlineFunctions_FunctionState) disallowInlining(compiler *AbstractCompiler, reason *InlineFunctions_DisallowInliningReason) {
+func (this *InlineFunctions_FunctionState) disallowInlining(compiler *AbstractCompiler, reason InlineFunctions_DisallowInliningReason) {
 	this.disallowInlining_3(compiler, reason, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES)
 }
 
-func (this *InlineFunctions_FunctionState) disallowInlining_3(compiler *AbstractCompiler, reason *InlineFunctions_DisallowInliningReason, shouldWarnWhenRequireInliningCannotInline *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) {
+func (this *InlineFunctions_FunctionState) disallowInlining_3(compiler *AbstractCompiler, reason InlineFunctions_DisallowInliningReason, shouldWarnWhenRequireInliningCannotInline InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) {
 	if (this.requireInlining() && compiler.isDebugLoggingEnabled()) && (shouldWarnWhenRequireInliningCannotInline == InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES) {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(this.fn.getFunctionNode(), InlineFunctions_MISSED_REQUIRED_INLINING, []string{reason.name()}))
 	}
@@ -872,11 +888,11 @@ func (this *InlineFunctions_FunctionState) canRemove() bool {
 	return this.remove_
 }
 
-func (this *InlineFunctions_FunctionState) setRemove(remove bool, compiler *AbstractCompiler, reason *InlineFunctions_CannotRemoveReason, shouldWarnIfRequireInlining *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) {
+func (this *InlineFunctions_FunctionState) setRemove(remove bool, compiler *AbstractCompiler, reason InlineFunctions_CannotRemoveReason, shouldWarnIfRequireInlining InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) {
 	this.setRemove_5(remove, compiler, reason, shouldWarnIfRequireInlining, 0)
 }
 
-func (this *InlineFunctions_FunctionState) setRemove_5(remove bool, compiler *AbstractCompiler, reason *InlineFunctions_CannotRemoveReason, shouldWarnIfRequireInlining *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline, contextNode Node) {
+func (this *InlineFunctions_FunctionState) setRemove_5(remove bool, compiler *AbstractCompiler, reason InlineFunctions_CannotRemoveReason, shouldWarnIfRequireInlining InlineFunctions_ShouldWarnWhenRequireInliningCannotInline, contextNode Node) {
 	if ((!remove && (shouldWarnIfRequireInlining != InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO)) && this.requireInlining()) && compiler.isDebugLoggingEnabled() {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(this.fn.getFunctionNode(), InlineFunctions_MISSED_REQUIRED_INLINING, []string{reason.name(), func() string {
 			if contextNode == 0 {
@@ -902,7 +918,7 @@ func (this *InlineFunctions_FunctionState) hasReferences() bool {
 
 func (this *InlineFunctions_FunctionState) getReferencesInternal() MapOf[Node, *InlineFunctions_Reference] {
 	if this.references == nil {
-		return icast_Map(obj_(ImmutableMap_of()))
+		return ImmutableMap_of()
 	}
 	return this.references.asMap()
 }
@@ -922,14 +938,14 @@ func (this *InlineFunctions_FunctionState) getReference(n Node) *InlineFunctions
 	return cast_[*InlineFunctions_Reference](this.getReferencesInternal().get(n.box_()))
 }
 
-func (this *InlineFunctions_FunctionState) getNamesToAlias() ImmutableSetOf[string] {
+func (this *InlineFunctions_FunctionState) getNamesToAlias() *ImmutableSet[string] {
 	if this.namesToAlias == nil {
-		return ImmutableSet_of()
+		return immutableSetOf_(tc_string)
 	}
-	return ImmutableSet_copyOf(Collection(this.namesToAlias))
+	return immutableSetCopyOf_(tc_string, Collection(this.namesToAlias.asSet()))
 }
 
-func (this *InlineFunctions_FunctionState) setNamesToAlias(names SetOf[string]) {
+func (this *InlineFunctions_FunctionState) setNamesToAlias(names *TSet[string]) {
 	this.namesToAlias = names
 }
 
@@ -1037,7 +1053,7 @@ func (this *InlineFunctions_FunctionExpression) zero_InlineFunctions_FunctionExp
 
 func (this *InlineFunctions_FunctionExpression) init_InlineFunctions_FunctionExpression(fn Node, index int32) {
 	this.fn = fn
-	this.fakeName = String_valueOf(index)
+	this.fakeName = strconv.Itoa(int(index))
 	this.fakeNameNode = IR_name(this.fakeName)
 }
 
@@ -1086,12 +1102,12 @@ func (this *InlineFunctions_Reference) finit_InlineFunctions_Reference() {
 	this.inlined = false
 }
 
-func (this *InlineFunctions_Reference) init_InlineFunctions_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode *FunctionInjector_InliningMode) {
+func (this *InlineFunctions_Reference) init_InlineFunctions_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode FunctionInjector_InliningMode) {
 	this.FunctionInjector_Reference.init_FunctionInjector_Reference(callNode, scope, chunk, mode)
 	this.finit_InlineFunctions_Reference()
 }
 
-func new_InlineFunctions_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode *FunctionInjector_InliningMode) *InlineFunctions_Reference {
+func new_InlineFunctions_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode FunctionInjector_InliningMode) *InlineFunctions_Reference {
 	this := &InlineFunctions_Reference{}
 	this.self_ = this
 	this.init_InlineFunctions_Reference(callNode, scope, chunk, mode)
@@ -1102,44 +1118,64 @@ func (this *InlineFunctions_Reference) setRequiresDecomposition(newVal bool) {
 	this.requiresDecomposition = newVal
 }
 
-type InlineFunctions_ShouldWarnWhenRequireInliningCannotInline struct {
-	Enum
+type InlineFunctions_ShouldWarnWhenRequireInliningCannotInline uint8
+
+// InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_ = [2]Enum{
+	{self_: InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES, name_: "YES", ordinal_: 0},
+	{self_: InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO, name_: "NO", ordinal_: 1},
 }
 
-func (this *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) up_Enum() *Enum {
-	if this == nil {
+func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_enum_[this-1]
 }
 
-func (this *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) init_InlineFunctions_ShouldWarnWhenRequireInliningCannotInline(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) name() string {
+	return this.enum_().name_
 }
 
-func new_InlineFunctions_ShouldWarnWhenRequireInliningCannotInline(name_ string, ordinal_ int32) *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline {
-	this := &InlineFunctions_ShouldWarnWhenRequireInliningCannotInline{}
-	this.self_ = this
-	this.init_InlineFunctions_ShouldWarnWhenRequireInliningCannotInline(name_, ordinal_)
+func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) toString() string {
+	return this.enum_().name_
+}
+
+func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values() []*InlineFunctions_ShouldWarnWhenRequireInliningCannotInline {
-	return append([]*InlineFunctions_ShouldWarnWhenRequireInliningCannotInline(nil), InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_...)
+func InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values() []InlineFunctions_ShouldWarnWhenRequireInliningCannotInline {
+	return append([]InlineFunctions_ShouldWarnWhenRequireInliningCannotInline(nil), InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_...)
 }
 
-func InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_valueOf(name string) *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline {
+func InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_valueOf(name string) InlineFunctions_ShouldWarnWhenRequireInliningCannotInline {
 	for _, v := range InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ShouldWarnWhenRequireInliningCannotInline", name))
 }
 
-var InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline
-var InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline
-var InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_ []*InlineFunctions_ShouldWarnWhenRequireInliningCannotInline
+const InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES InlineFunctions_ShouldWarnWhenRequireInliningCannotInline = 1
+const InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO InlineFunctions_ShouldWarnWhenRequireInliningCannotInline = 2
+
+var InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_ []InlineFunctions_ShouldWarnWhenRequireInliningCannotInline
 
 var InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_clinit_done bool
 
@@ -1148,53 +1184,73 @@ func InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_clinit() {
 		return
 	}
 	InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_clinit_done = true
-	InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES = new_InlineFunctions_ShouldWarnWhenRequireInliningCannotInline("YES", 0)
-	InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO = new_InlineFunctions_ShouldWarnWhenRequireInliningCannotInline("NO", 1)
-	InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_ = []*InlineFunctions_ShouldWarnWhenRequireInliningCannotInline{InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO}
+	InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_ = []InlineFunctions_ShouldWarnWhenRequireInliningCannotInline{InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO}
 	registerEnum_("com.google.javascript.jscomp.InlineFunctions.ShouldWarnWhenRequireInliningCannotInline", enumValues_(InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_values_))
 
 }
 
-type InlineFunctions_CannotRemoveReason struct {
-	Enum
+type InlineFunctions_CannotRemoveReason uint8
+
+// InlineFunctions_CannotRemoveReason_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var InlineFunctions_CannotRemoveReason_enum_ = [4]Enum{
+	{self_: InlineFunctions_CannotRemoveReason_BLOCK_INLINING_REFERENCE, name_: "BLOCK_INLINING_REFERENCE", ordinal_: 0},
+	{self_: InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION, name_: "CALLED_BY_INLINED_FUNCTION", ordinal_: 1},
+	{self_: InlineFunctions_CannotRemoveReason_UNINLINABLE_REFERENCE, name_: "UNINLINABLE_REFERENCE", ordinal_: 2},
+	{self_: InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE, name_: "UNREMOVABLE_REFERENCE", ordinal_: 3},
 }
 
-func (this *InlineFunctions_CannotRemoveReason) up_Enum() *Enum {
-	if this == nil {
+func (this InlineFunctions_CannotRemoveReason) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &InlineFunctions_CannotRemoveReason_enum_[this-1]
 }
 
-func (this *InlineFunctions_CannotRemoveReason) init_InlineFunctions_CannotRemoveReason(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this InlineFunctions_CannotRemoveReason) name() string {
+	return this.enum_().name_
 }
 
-func new_InlineFunctions_CannotRemoveReason(name_ string, ordinal_ int32) *InlineFunctions_CannotRemoveReason {
-	this := &InlineFunctions_CannotRemoveReason{}
-	this.self_ = this
-	this.init_InlineFunctions_CannotRemoveReason(name_, ordinal_)
+func (this InlineFunctions_CannotRemoveReason) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this InlineFunctions_CannotRemoveReason) toString() string {
+	return this.enum_().name_
+}
+
+func (this InlineFunctions_CannotRemoveReason) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this InlineFunctions_CannotRemoveReason) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func InlineFunctions_CannotRemoveReason_values() []*InlineFunctions_CannotRemoveReason {
-	return append([]*InlineFunctions_CannotRemoveReason(nil), InlineFunctions_CannotRemoveReason_values_...)
+func InlineFunctions_CannotRemoveReason_values() []InlineFunctions_CannotRemoveReason {
+	return append([]InlineFunctions_CannotRemoveReason(nil), InlineFunctions_CannotRemoveReason_values_...)
 }
 
-func InlineFunctions_CannotRemoveReason_valueOf(name string) *InlineFunctions_CannotRemoveReason {
+func InlineFunctions_CannotRemoveReason_valueOf(name string) InlineFunctions_CannotRemoveReason {
 	for _, v := range InlineFunctions_CannotRemoveReason_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("CannotRemoveReason", name))
 }
 
-var InlineFunctions_CannotRemoveReason_BLOCK_INLINING_REFERENCE *InlineFunctions_CannotRemoveReason
-var InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION *InlineFunctions_CannotRemoveReason
-var InlineFunctions_CannotRemoveReason_UNINLINABLE_REFERENCE *InlineFunctions_CannotRemoveReason
-var InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE *InlineFunctions_CannotRemoveReason
-var InlineFunctions_CannotRemoveReason_values_ []*InlineFunctions_CannotRemoveReason
+const InlineFunctions_CannotRemoveReason_BLOCK_INLINING_REFERENCE InlineFunctions_CannotRemoveReason = 1
+const InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION InlineFunctions_CannotRemoveReason = 2
+const InlineFunctions_CannotRemoveReason_UNINLINABLE_REFERENCE InlineFunctions_CannotRemoveReason = 3
+const InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE InlineFunctions_CannotRemoveReason = 4
+
+var InlineFunctions_CannotRemoveReason_values_ []InlineFunctions_CannotRemoveReason
 
 var InlineFunctions_CannotRemoveReason_clinit_done bool
 
@@ -1203,62 +1259,87 @@ func InlineFunctions_CannotRemoveReason_clinit() {
 		return
 	}
 	InlineFunctions_CannotRemoveReason_clinit_done = true
-	InlineFunctions_CannotRemoveReason_BLOCK_INLINING_REFERENCE = new_InlineFunctions_CannotRemoveReason("BLOCK_INLINING_REFERENCE", 0)
-	InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION = new_InlineFunctions_CannotRemoveReason("CALLED_BY_INLINED_FUNCTION", 1)
-	InlineFunctions_CannotRemoveReason_UNINLINABLE_REFERENCE = new_InlineFunctions_CannotRemoveReason("UNINLINABLE_REFERENCE", 2)
-	InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE = new_InlineFunctions_CannotRemoveReason("UNREMOVABLE_REFERENCE", 3)
-	InlineFunctions_CannotRemoveReason_values_ = []*InlineFunctions_CannotRemoveReason{InlineFunctions_CannotRemoveReason_BLOCK_INLINING_REFERENCE, InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION, InlineFunctions_CannotRemoveReason_UNINLINABLE_REFERENCE, InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE}
+	InlineFunctions_CannotRemoveReason_values_ = []InlineFunctions_CannotRemoveReason{InlineFunctions_CannotRemoveReason_BLOCK_INLINING_REFERENCE, InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION, InlineFunctions_CannotRemoveReason_UNINLINABLE_REFERENCE, InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE}
 	registerEnum_("com.google.javascript.jscomp.InlineFunctions.CannotRemoveReason", enumValues_(InlineFunctions_CannotRemoveReason_values_))
 
 }
 
-type InlineFunctions_DisallowInliningReason struct {
-	Enum
+type InlineFunctions_DisallowInliningReason uint8
+
+// InlineFunctions_DisallowInliningReason_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var InlineFunctions_DisallowInliningReason_enum_ = [11]Enum{
+	{self_: InlineFunctions_DisallowInliningReason_ASYNC_FUNCTION, name_: "ASYNC_FUNCTION", ordinal_: 0},
+	{self_: InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE, name_: "CAPTURED_VARIABLE_NOT_IN_SCOPE", ordinal_: 1},
+	{self_: InlineFunctions_DisallowInliningReason_COST, name_: "COST", ordinal_: 2},
+	{self_: InlineFunctions_DisallowInliningReason_GENERATOR_FUNCTION, name_: "GENERATOR_FUNCTION", ordinal_: 3},
+	{self_: InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES, name_: "HAS_LOCAL_NAMES", ordinal_: 4},
+	{self_: InlineFunctions_DisallowInliningReason_MULTIPLE_FUNCTION_DEFINITIONS, name_: "MULTIPLE_FUNCTION_DEFINITIONS", ordinal_: 5},
+	{self_: InlineFunctions_DisallowInliningReason_NON_INLINABLE_PARAM, name_: "NON_INLINABLE_PARAM", ordinal_: 6},
+	{self_: InlineFunctions_DisallowInliningReason_NOT_CANDIDATE_FUNCTION, name_: "NOT_CANDIDATE_FUNCTION", ordinal_: 7},
+	{self_: InlineFunctions_DisallowInliningReason_NO_INLINE_ANNOTATION, name_: "NO_INLINE_ANNOTATION", ordinal_: 8},
+	{self_: InlineFunctions_DisallowInliningReason_REASSIGNED, name_: "REASSIGNED", ordinal_: 9},
+	{self_: InlineFunctions_DisallowInliningReason_TARGET_SIZE_EXCEEDS_LIMIT, name_: "TARGET_SIZE_EXCEEDS_LIMIT", ordinal_: 10},
 }
 
-func (this *InlineFunctions_DisallowInliningReason) up_Enum() *Enum {
-	if this == nil {
+func (this InlineFunctions_DisallowInliningReason) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &InlineFunctions_DisallowInliningReason_enum_[this-1]
 }
 
-func (this *InlineFunctions_DisallowInliningReason) init_InlineFunctions_DisallowInliningReason(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this InlineFunctions_DisallowInliningReason) name() string {
+	return this.enum_().name_
 }
 
-func new_InlineFunctions_DisallowInliningReason(name_ string, ordinal_ int32) *InlineFunctions_DisallowInliningReason {
-	this := &InlineFunctions_DisallowInliningReason{}
-	this.self_ = this
-	this.init_InlineFunctions_DisallowInliningReason(name_, ordinal_)
+func (this InlineFunctions_DisallowInliningReason) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this InlineFunctions_DisallowInliningReason) toString() string {
+	return this.enum_().name_
+}
+
+func (this InlineFunctions_DisallowInliningReason) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this InlineFunctions_DisallowInliningReason) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func InlineFunctions_DisallowInliningReason_values() []*InlineFunctions_DisallowInliningReason {
-	return append([]*InlineFunctions_DisallowInliningReason(nil), InlineFunctions_DisallowInliningReason_values_...)
+func InlineFunctions_DisallowInliningReason_values() []InlineFunctions_DisallowInliningReason {
+	return append([]InlineFunctions_DisallowInliningReason(nil), InlineFunctions_DisallowInliningReason_values_...)
 }
 
-func InlineFunctions_DisallowInliningReason_valueOf(name string) *InlineFunctions_DisallowInliningReason {
+func InlineFunctions_DisallowInliningReason_valueOf(name string) InlineFunctions_DisallowInliningReason {
 	for _, v := range InlineFunctions_DisallowInliningReason_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("DisallowInliningReason", name))
 }
 
-var InlineFunctions_DisallowInliningReason_ASYNC_FUNCTION *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_COST *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_GENERATOR_FUNCTION *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_MULTIPLE_FUNCTION_DEFINITIONS *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_NON_INLINABLE_PARAM *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_NOT_CANDIDATE_FUNCTION *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_NO_INLINE_ANNOTATION *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_REASSIGNED *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_TARGET_SIZE_EXCEEDS_LIMIT *InlineFunctions_DisallowInliningReason
-var InlineFunctions_DisallowInliningReason_values_ []*InlineFunctions_DisallowInliningReason
+const InlineFunctions_DisallowInliningReason_ASYNC_FUNCTION InlineFunctions_DisallowInliningReason = 1
+const InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE InlineFunctions_DisallowInliningReason = 2
+const InlineFunctions_DisallowInliningReason_COST InlineFunctions_DisallowInliningReason = 3
+const InlineFunctions_DisallowInliningReason_GENERATOR_FUNCTION InlineFunctions_DisallowInliningReason = 4
+const InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES InlineFunctions_DisallowInliningReason = 5
+const InlineFunctions_DisallowInliningReason_MULTIPLE_FUNCTION_DEFINITIONS InlineFunctions_DisallowInliningReason = 6
+const InlineFunctions_DisallowInliningReason_NON_INLINABLE_PARAM InlineFunctions_DisallowInliningReason = 7
+const InlineFunctions_DisallowInliningReason_NOT_CANDIDATE_FUNCTION InlineFunctions_DisallowInliningReason = 8
+const InlineFunctions_DisallowInliningReason_NO_INLINE_ANNOTATION InlineFunctions_DisallowInliningReason = 9
+const InlineFunctions_DisallowInliningReason_REASSIGNED InlineFunctions_DisallowInliningReason = 10
+const InlineFunctions_DisallowInliningReason_TARGET_SIZE_EXCEEDS_LIMIT InlineFunctions_DisallowInliningReason = 11
+
+var InlineFunctions_DisallowInliningReason_values_ []InlineFunctions_DisallowInliningReason
 
 var InlineFunctions_DisallowInliningReason_clinit_done bool
 
@@ -1267,18 +1348,7 @@ func InlineFunctions_DisallowInliningReason_clinit() {
 		return
 	}
 	InlineFunctions_DisallowInliningReason_clinit_done = true
-	InlineFunctions_DisallowInliningReason_ASYNC_FUNCTION = new_InlineFunctions_DisallowInliningReason("ASYNC_FUNCTION", 0)
-	InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE = new_InlineFunctions_DisallowInliningReason("CAPTURED_VARIABLE_NOT_IN_SCOPE", 1)
-	InlineFunctions_DisallowInliningReason_COST = new_InlineFunctions_DisallowInliningReason("COST", 2)
-	InlineFunctions_DisallowInliningReason_GENERATOR_FUNCTION = new_InlineFunctions_DisallowInliningReason("GENERATOR_FUNCTION", 3)
-	InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES = new_InlineFunctions_DisallowInliningReason("HAS_LOCAL_NAMES", 4)
-	InlineFunctions_DisallowInliningReason_MULTIPLE_FUNCTION_DEFINITIONS = new_InlineFunctions_DisallowInliningReason("MULTIPLE_FUNCTION_DEFINITIONS", 5)
-	InlineFunctions_DisallowInliningReason_NON_INLINABLE_PARAM = new_InlineFunctions_DisallowInliningReason("NON_INLINABLE_PARAM", 6)
-	InlineFunctions_DisallowInliningReason_NOT_CANDIDATE_FUNCTION = new_InlineFunctions_DisallowInliningReason("NOT_CANDIDATE_FUNCTION", 7)
-	InlineFunctions_DisallowInliningReason_NO_INLINE_ANNOTATION = new_InlineFunctions_DisallowInliningReason("NO_INLINE_ANNOTATION", 8)
-	InlineFunctions_DisallowInliningReason_REASSIGNED = new_InlineFunctions_DisallowInliningReason("REASSIGNED", 9)
-	InlineFunctions_DisallowInliningReason_TARGET_SIZE_EXCEEDS_LIMIT = new_InlineFunctions_DisallowInliningReason("TARGET_SIZE_EXCEEDS_LIMIT", 10)
-	InlineFunctions_DisallowInliningReason_values_ = []*InlineFunctions_DisallowInliningReason{InlineFunctions_DisallowInliningReason_ASYNC_FUNCTION, InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE, InlineFunctions_DisallowInliningReason_COST, InlineFunctions_DisallowInliningReason_GENERATOR_FUNCTION, InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES, InlineFunctions_DisallowInliningReason_MULTIPLE_FUNCTION_DEFINITIONS, InlineFunctions_DisallowInliningReason_NON_INLINABLE_PARAM, InlineFunctions_DisallowInliningReason_NOT_CANDIDATE_FUNCTION, InlineFunctions_DisallowInliningReason_NO_INLINE_ANNOTATION, InlineFunctions_DisallowInliningReason_REASSIGNED, InlineFunctions_DisallowInliningReason_TARGET_SIZE_EXCEEDS_LIMIT}
+	InlineFunctions_DisallowInliningReason_values_ = []InlineFunctions_DisallowInliningReason{InlineFunctions_DisallowInliningReason_ASYNC_FUNCTION, InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE, InlineFunctions_DisallowInliningReason_COST, InlineFunctions_DisallowInliningReason_GENERATOR_FUNCTION, InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES, InlineFunctions_DisallowInliningReason_MULTIPLE_FUNCTION_DEFINITIONS, InlineFunctions_DisallowInliningReason_NON_INLINABLE_PARAM, InlineFunctions_DisallowInliningReason_NOT_CANDIDATE_FUNCTION, InlineFunctions_DisallowInliningReason_NO_INLINE_ANNOTATION, InlineFunctions_DisallowInliningReason_REASSIGNED, InlineFunctions_DisallowInliningReason_TARGET_SIZE_EXCEEDS_LIMIT}
 	registerEnum_("com.google.javascript.jscomp.InlineFunctions.DisallowInliningReason", enumValues_(InlineFunctions_DisallowInliningReason_values_))
 
 }
@@ -1322,11 +1392,38 @@ func (this *InlineFunctions_ShouldRequireInlining) equals(p0 any) bool {
 
 func (this *InlineFunctions_ShouldRequireInlining) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(bool(this.shouldValidate_)))
-	h = h*31 + Objects_hashCode(strobj_(this.optMessage_))
+	h = h*31 + Boolean_hashCode(bool(this.shouldValidate_))
+	h = h*31 + objhashStr_(this.optMessage_)
 	return h
 }
 
 func (this *InlineFunctions_ShouldRequireInlining) toString() string {
-	return "ShouldRequireInlining[" + "shouldValidate=" + objstr_(any(bool(this.shouldValidate_))) + ", optMessage=" + objstr_(strobj_(this.optMessage_)) + "]"
+	return "ShouldRequireInlining[" + "shouldValidate=" + boolstr_(bool(this.shouldValidate_)) + ", optMessage=" + sstr_(this.optMessage_) + "]"
+}
+
+// visit: an object that is exactly a InlineFunctions_FindCandidateFunctions calls its visit_impl directly (post-flip); others dispatch.
+func (this *InlineFunctions_FindCandidateFunctions) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*InlineFunctions_FindCandidateFunctions); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a InlineFunctions_CallVisitor calls its visit_impl directly (post-flip); others dispatch.
+func (this *InlineFunctions_CallVisitor) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*InlineFunctions_CallVisitor); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a InlineFunctions_FindCandidatesReferences calls its visit_impl directly (post-flip); others dispatch.
+func (this *InlineFunctions_FindCandidatesReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*InlineFunctions_FindCandidatesReferences); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

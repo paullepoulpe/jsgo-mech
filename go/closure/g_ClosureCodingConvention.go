@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ClosureCodingConvention struct {
 	CodingConventions_Proxy
 }
@@ -35,7 +37,7 @@ func new_ClosureCodingConvention_CodingConvention(wrapped CodingConvention) *Clo
 	return this
 }
 
-func (this *ClosureCodingConvention) applySubclassRelationship_impl(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ *CodingConvention_SubclassType) {
+func (this *ClosureCodingConvention) applySubclassRelationship_impl(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ CodingConvention_SubclassType) {
 	this.CodingConventions_Proxy.applySubclassRelationship_impl(parent, child, type_)
 	if type_ == CodingConvention_SubclassType_INHERITS {
 		var childCtor *FunctionType = child.constructor()
@@ -51,8 +53,8 @@ func (this *ClosureCodingConvention) getClassesDefinedByCall_impl(callNode Node)
 		return relationship
 	}
 	var callName Node = callNode.getFirstChild()
-	var type_ *CodingConvention_SubclassType = ClosureCodingConvention_typeofClassDefiningName(callName)
-	if type_ != nil {
+	var type_ CodingConvention_SubclassType = ClosureCodingConvention_typeofClassDefiningName(callName)
+	if type_ != 0 {
 		if callNode.getChildCount() < 3 {
 			return nil
 		}
@@ -73,15 +75,15 @@ func (this *ClosureCodingConvention) getClassesDefinedByCall_impl(callNode Node)
 	return nil
 }
 
-func ClosureCodingConvention_typeofClassDefiningName(callName Node) *CodingConvention_SubclassType {
+func ClosureCodingConvention_typeofClassDefiningName(callName Node) CodingConvention_SubclassType {
 	var methodName Optional[string] = Optional_empty[string]()
 	if callName.isGetProp() {
 		methodName = Optional_of[string](callName.getString())
 	} else if callName.isName() {
 		var name string = callName.getString()
-		var dollarIndex int32 = String_lastIndexOf(name, 36)
+		var dollarIndex int32 = int32(strings.LastIndexByte(name, '$'))
 		if dollarIndex != -1 {
-			methodName = Optional_of[string](String_substring_int(name, (dollarIndex + 1)))
+			methodName = Optional_of[string](name[dollarIndex+1:])
 		}
 	}
 	if methodName.isPresent() {
@@ -91,7 +93,7 @@ func ClosureCodingConvention_typeofClassDefiningName(callName Node) *CodingConve
 			return CodingConvention_SubclassType_MIXIN
 		}
 	}
-	return nil
+	return 0
 }
 
 func (this *ClosureCodingConvention) isSuperClassReference_impl(propertyName string) bool {
@@ -141,12 +143,12 @@ func (this *ClosureCodingConvention) getExportSymbolFunction_impl() string {
 	return "goog.exportSymbol"
 }
 
-func (this *ClosureCodingConvention) identifyTypeDeclarationCall_impl(n Node) ListOf[string] {
+func (this *ClosureCodingConvention) identifyTypeDeclarationCall_impl(n Node) []string {
 	var callName Node = n.getFirstChild()
 	if ClosureCodingConvention_GOOG_FORWARDDECLARE.matches(callName) && n.hasTwoChildren() {
 		var typeDeclaration Node = n.getSecondChild()
 		if typeDeclaration.isStringLit() {
-			return icast_List(obj_(ImmutableList_of_Object(strobj_(typeDeclaration.getString()))))
+			return sliceOf_(tc_string, typeDeclaration.getString())
 		}
 	}
 	return this.CodingConventions_Proxy.identifyTypeDeclarationCall_impl(n)
@@ -171,7 +173,9 @@ func (this *ClosureCodingConvention) applySingletonGetter_impl(classType *Nomina
 }
 
 func (this *ClosureCodingConvention) isPropertyTestFunction_impl(call Node) bool {
-	Preconditions_checkArgument(call.isCall())
+	if !call.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var target Node = call.getFirstChild()
 	if target.isGetProp() {
 		var src Node = target.getFirstChild()
@@ -195,7 +199,9 @@ func (this *ClosureCodingConvention) isFunctionCallThatAlwaysThrows_impl(n Node)
 }
 
 func (this *ClosureCodingConvention) getObjectLiteralCast_impl(callNode Node) *CodingConvention_ObjectLiteralCast {
-	Preconditions_checkArgument_boolean_String_Object(callNode.isCall(), "Expected call node but found %s", callNode.box_())
+	if !callNode.isCall() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected call node but found %s", []any{callNode.box_()})))
+	}
 	var proxyCast *CodingConvention_ObjectLiteralCast = this.CodingConventions_Proxy.getObjectLiteralCast_impl(callNode)
 	if proxyCast != nil {
 		return proxyCast
@@ -213,12 +219,12 @@ func (this *ClosureCodingConvention) getObjectLiteralCast_impl(callNode Node) *C
 		return new_CodingConvention_ObjectLiteralCast(Optional_empty[string](), 0, ClosureCodingConvention_OBJECTLIT_EXPECTED)
 	}
 	return new_CodingConvention_ObjectLiteralCast(Optional_of[string](typeNode.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}}), typeNode.getNext(), nil)
 }
 
 func (this *ClosureCodingConvention) getAssertionFunctions_impl() Collection {
-	return icast_Collection(obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(Iterable(this.CodingConventions_Proxy.getAssertionFunctions_impl())))).add_ObjectArr([]any{obj_(CodingConvention_AssertionFunctionSpec_forTruthy().setFunctionName("goog.asserts.assert").build()), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Array")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Boolean")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Element")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Function")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Instanceof")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Number")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Object")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("String"))}))).build()))
+	return icast_Collection(obj_(ImmutableSet_builder().addAll(Iterable(this.CodingConventions_Proxy.getAssertionFunctions_impl())).add_ObjectArr([]any{obj_(CodingConvention_AssertionFunctionSpec_forTruthy().setFunctionName("goog.asserts.assert").build()), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Array")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Boolean")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Element")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Function")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Instanceof")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Number")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Object")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("String"))}).build()))
 }
 
 func ClosureCodingConvention_createGoogAssertOnReturn(assertedTypeName string) *CodingConvention_AssertionFunctionSpec {
@@ -320,4 +326,158 @@ func ClosureCodingConvention_clinit() {
 	ClosureCodingConvention_GOOG_PARTIAL = QualifiedName_of("goog.partial")
 	ClosureCodingConvention_googCacheReflect = IR_getprop_Node_String_StringArr(IR_name("goog"), "reflect", []string{"cache"})
 
+}
+
+// applySubclassRelationship: an object that is exactly a ClosureCodingConvention calls its applySubclassRelationship_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) applySubclassRelationship(p0 *NominalTypeBuilder, p1 *NominalTypeBuilder, p2 CodingConvention_SubclassType) {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		this.applySubclassRelationship_impl(p0, p1, p2)
+		return
+	}
+	this.self_.applySubclassRelationship_impl(p0, p1, p2)
+}
+
+// getClassesDefinedByCall: an object that is exactly a ClosureCodingConvention calls its getClassesDefinedByCall_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) getClassesDefinedByCall(p0 Node) *CodingConvention_SubclassRelationship {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.getClassesDefinedByCall_impl(p0)
+	}
+	return this.self_.getClassesDefinedByCall_impl(p0)
+}
+
+// isSuperClassReference: an object that is exactly a ClosureCodingConvention calls its isSuperClassReference_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) isSuperClassReference(p0 string) bool {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.isSuperClassReference_impl(p0)
+	}
+	return this.self_.isSuperClassReference_impl(p0)
+}
+
+// extractIsModuleFile: an object that is exactly a ClosureCodingConvention calls its extractIsModuleFile_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) extractIsModuleFile(p0 Node, p1 Node) bool {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.extractIsModuleFile_impl(p0, p1)
+	}
+	return this.self_.extractIsModuleFile_impl(p0, p1)
+}
+
+// extractClassNameIfProvide: an object that is exactly a ClosureCodingConvention calls its extractClassNameIfProvide_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) extractClassNameIfProvide(p0 Node, p1 Node) Optional[string] {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.extractClassNameIfProvide_impl(p0, p1)
+	}
+	return this.self_.extractClassNameIfProvide_impl(p0, p1)
+}
+
+// extractClassNameIfRequire: an object that is exactly a ClosureCodingConvention calls its extractClassNameIfRequire_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) extractClassNameIfRequire(p0 Node, p1 Node) Optional[string] {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.extractClassNameIfRequire_impl(p0, p1)
+	}
+	return this.self_.extractClassNameIfRequire_impl(p0, p1)
+}
+
+// getExportPropertyFunction: an object that is exactly a ClosureCodingConvention calls its getExportPropertyFunction_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) getExportPropertyFunction() string {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.getExportPropertyFunction_impl()
+	}
+	return this.self_.getExportPropertyFunction_impl()
+}
+
+// getExportSymbolFunction: an object that is exactly a ClosureCodingConvention calls its getExportSymbolFunction_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) getExportSymbolFunction() string {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.getExportSymbolFunction_impl()
+	}
+	return this.self_.getExportSymbolFunction_impl()
+}
+
+// identifyTypeDeclarationCall: an object that is exactly a ClosureCodingConvention calls its identifyTypeDeclarationCall_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) identifyTypeDeclarationCall(p0 Node) []string {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.identifyTypeDeclarationCall_impl(p0)
+	}
+	return this.self_.identifyTypeDeclarationCall_impl(p0)
+}
+
+// getAbstractMethodName: an object that is exactly a ClosureCodingConvention calls its getAbstractMethodName_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) getAbstractMethodName() string {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.getAbstractMethodName_impl()
+	}
+	return this.self_.getAbstractMethodName_impl()
+}
+
+// getSingletonGetterClassName: an object that is exactly a ClosureCodingConvention calls its getSingletonGetterClassName_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) getSingletonGetterClassName(p0 Node) string {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.getSingletonGetterClassName_impl(p0)
+	}
+	return this.self_.getSingletonGetterClassName_impl(p0)
+}
+
+// applySingletonGetter: an object that is exactly a ClosureCodingConvention calls its applySingletonGetter_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) applySingletonGetter(p0 *NominalTypeBuilder, p1 *FunctionType) {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		this.applySingletonGetter_impl(p0, p1)
+		return
+	}
+	this.self_.applySingletonGetter_impl(p0, p1)
+}
+
+// isPropertyTestFunction: an object that is exactly a ClosureCodingConvention calls its isPropertyTestFunction_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) isPropertyTestFunction(p0 Node) bool {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.isPropertyTestFunction_impl(p0)
+	}
+	return this.self_.isPropertyTestFunction_impl(p0)
+}
+
+// isPropertyRenameFunction: an object that is exactly a ClosureCodingConvention calls its isPropertyRenameFunction_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) isPropertyRenameFunction(p0 Node) bool {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.isPropertyRenameFunction_impl(p0)
+	}
+	return this.self_.isPropertyRenameFunction_impl(p0)
+}
+
+// isFunctionCallThatAlwaysThrows: an object that is exactly a ClosureCodingConvention calls its isFunctionCallThatAlwaysThrows_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) isFunctionCallThatAlwaysThrows(p0 Node) bool {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.isFunctionCallThatAlwaysThrows_impl(p0)
+	}
+	return this.self_.isFunctionCallThatAlwaysThrows_impl(p0)
+}
+
+// getObjectLiteralCast: an object that is exactly a ClosureCodingConvention calls its getObjectLiteralCast_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) getObjectLiteralCast(p0 Node) *CodingConvention_ObjectLiteralCast {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.getObjectLiteralCast_impl(p0)
+	}
+	return this.self_.getObjectLiteralCast_impl(p0)
+}
+
+// getAssertionFunctions: an object that is exactly a ClosureCodingConvention calls its getAssertionFunctions_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) getAssertionFunctions() Collection {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.getAssertionFunctions_impl()
+	}
+	return this.self_.getAssertionFunctions_impl()
+}
+
+// describeFunctionBind: an object that is exactly a ClosureCodingConvention calls its describeFunctionBind_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) describeFunctionBind(p0 Node, p1 bool) *CodingConvention_Bind {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.describeFunctionBind_impl(p0, p1)
+	}
+	return this.self_.describeFunctionBind_impl(p0, p1)
+}
+
+// describeCachingCall: an object that is exactly a ClosureCodingConvention calls its describeCachingCall_impl directly (post-flip); others dispatch.
+func (this *ClosureCodingConvention) describeCachingCall(p0 Node) *CodingConvention_Cache {
+	if p, _ := this.self_.(*ClosureCodingConvention); p == this {
+		return this.describeCachingCall_impl(p0)
+	}
+	return this.self_.describeCachingCall_impl(p0)
 }

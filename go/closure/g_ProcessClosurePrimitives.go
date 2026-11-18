@@ -2,11 +2,13 @@
 
 package closure
 
+import "strings"
+
 type ProcessClosurePrimitives struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_              *AbstractCompiler
 	knownClosureSubclasses *JTSet[string]
-	closureModules         ImmutableMapOf[string, *ModuleMetadataMap_ModuleMetadata]
+	closureModules         *ImmutableMap[string, *ModuleMetadataMap_ModuleMetadata]
 }
 
 func (this *ProcessClosurePrimitives) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -24,7 +26,11 @@ func (this *ProcessClosurePrimitives) init_ProcessClosurePrimitives(compiler *Ab
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_ProcessClosurePrimitives()
 	this.compiler_ = compiler
-	this.closureModules = cast_[*ModuleMetadataMap](Preconditions_checkNotNull_Object_Object(obj_(compiler.getModuleMetadataMap()), strobj_("Need to run GatherModuleMetadata"))).getModulesByGoogNamespace()
+	nn_1 := compiler.getModuleMetadataMap()
+	if nn_1 == nil {
+		nullFail_(sstr_("Need to run GatherModuleMetadata"))
+	}
+	this.closureModules = nn_1.getModulesByGoogNamespace()
 }
 
 func new_ProcessClosurePrimitives(compiler *AbstractCompiler) *ProcessClosurePrimitives {
@@ -35,18 +41,18 @@ func new_ProcessClosurePrimitives(compiler *AbstractCompiler) *ProcessClosurePri
 }
 
 func (this *ProcessClosurePrimitives) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 }
 
 func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_CALL:
 		{
 			this.checkGoogFunctions(t, n)
 			this.maybeProcessClassBaseCall(n)
 			this.checkPropertyRenameCall(n)
 		}
-	case Token_rhino_FUNCTION, Token_rhino_CLASS:
+	case tokOrd1_FUNCTION, tokOrd1_CLASS:
 		if !t.inGlobalHoistScope() || n.isFromExterns() {
 			return
 		}
@@ -54,7 +60,7 @@ func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, paren
 			return
 		}
 		var name string = n.getFirstChild().getString()
-		var pn *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.closureModules, name))
+		var pn *ModuleMetadataMap_ModuleMetadata = this.closureModules.Get(name)
 		if (pn != nil) && pn.isGoogProvide() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, func() *DiagnosticType {
 				if n.isClass() {
@@ -63,15 +69,15 @@ func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, paren
 				return ProcessClosurePrimitives_FUNCTION_NAMESPACE_ERROR
 			}(), []string{name, pn.toString()}))
 		}
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		if !n.getFirstChild().isAssign() || !n.getFirstFirstChild().isQualifiedName() {
 			break
 		}
 		var lhs string = n.getFirstFirstChild().getQualifiedName()
 		this.checkPossibleGoogProvideInit(Optional_of[string](lhs).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}}), n.getFirstChild().getJSDocInfo(), n)
-	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
+	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET:
 		if !n.getFirstChild().isName() {
 			break
 		}
@@ -86,7 +92,7 @@ func (this *ProcessClosurePrimitives) checkPossibleGoogProvideInit(namespace Opt
 	}
 	var metadata *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
 		if namespace.isPresent() {
-			return cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.closureModules, namespace.get()))
+			return this.closureModules.Get(namespace.get())
 		}
 		return nil
 	}()
@@ -98,7 +104,7 @@ func (this *ProcessClosurePrimitives) checkPossibleGoogProvideInit(namespace Opt
 		return
 	}
 	var n Node = expr.getRoot()
-	if n.getToken() == Token_rhino_BANG {
+	if n.ns_().token == tokOrd1_BANG {
 		n = n.getFirstChild()
 	}
 	if (n.isStringLit() && !n.hasChildren()) && (n.getString() == "Object") {
@@ -144,7 +150,7 @@ func (this *ProcessClosurePrimitives) validateWeakUsageCall(call Node) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_GOOG_WEAK_USAGE_CALL, []string{calleeName, ("should have exactly one argument, not " + istr_(int64((childCount - 1))))}))
 	}
 	if (childCount >= 2) && !call.getSecondChild().isQualifiedName() {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_GOOG_WEAK_USAGE_CALL, []string{calleeName, ("argument should be a name or qualified name, not " + objstr_(arg.box_()))}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_GOOG_WEAK_USAGE_CALL, []string{calleeName, ("argument should be a name or qualified name, not " + tostr_(arg))}))
 	}
 }
 
@@ -180,7 +186,7 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 	if (enclosingFnNameNode == 0) || !enclosingFnNameNode.isUnscopedQualifiedName() {
 		if this.knownClosureSubclasses.has(baseContainer) {
 			this.reportBadBaseMethodUse(n, Optional_of[string](baseContainer).filter(&Predicate_tfn_string{func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			}}), "Could not find enclosing method.")
 		} else if ProcessClosurePrimitives_baseUsedInClass(n) {
 			var clazz Node = NodeUtil_getEnclosingClass(n)
@@ -197,15 +203,15 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 		return
 	}
 	var enclosingQname string = enclosingFnNameNode.getQualifiedName()
-	if !String_contains(enclosingQname, strobj_(".prototype.")) {
+	if !strings.Contains(enclosingQname, ".prototype.") {
 		this.rewriteBaseCallInConstructor(enclosingQname, Optional_of[string](baseContainer).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}}), n, enclosingFnNameNode)
 	} else {
 		this.rewriteBaseCallInMethod(Optional_of[string](enclosingQname).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}}), Optional_of[string](baseContainer).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}}), n, enclosingFnNameNode)
 	}
 }
@@ -266,7 +272,7 @@ func (this *ProcessClosurePrimitives) rewriteBaseCallInMethod(enclosingQname Opt
 	}
 	var methodName string = methodNameNode.getString()
 	var ending string = (".prototype." + sstr_(methodName))
-	if enclosingQname.isEmpty() || !String_endsWith(enclosingQname.get(), ending) {
+	if enclosingQname.isEmpty() || !strings.HasSuffix(enclosingQname.get(), ending) {
 		this.reportBadBaseMethodUse(n, baseContainer, ("Enclosing method does not match " + sstr_(methodName)))
 		return
 	}
@@ -353,36 +359,37 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	if arg.getNext() != 0 {
 		styleStr = arg.getNext().getString()
 	}
-	var styleOrNull *CssRenamingMap_Style = nil
+	var styleOrNull CssRenamingMap_Style = 0
 	for _, candidate := range CssRenamingMap_Style_values() {
 		if candidate.name() == styleStr {
 			styleOrNull = candidate
 			break
 		}
 	}
-	if styleOrNull == nil {
+	if styleOrNull == 0 {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_STYLE_ERROR, []string{styleStr}))
 		return nil
 	}
-	var style *CssRenamingMap_Style = styleOrNull
+	var style CssRenamingMap_Style = styleOrNull
 	if style == CssRenamingMap_Style_BY_PART {
 		var errors *JTList[string] = jnewTList_(jtc_string)
 		it_3 := cssNames.eachKey()
 		for it_3.next() {
 			var key string = it_3.v
-			if String_contains(key, strobj_("-")) && !String_startsWith(key, "--") {
+			if strings.Contains(key, "-") && !strings.HasPrefix(key, "--") {
 				errors.add(key)
 			}
 		}
 		if !errors.isEmpty() {
-			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(any(errors.asList()))}))
+			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(errors.asList())}))
 		}
 	} else if style == CssRenamingMap_Style_BY_WHOLE {
 		var errors *JTList[string] = jnewTList_(jtc_string)
 		it_5 := cssNames.eachEntry()
+		var getKeyU16 utf16_
 		for it_5.next() {
 			var b *TEntry[string, string] = it_5.entry()
-			if String_length(b.getKey()) > 10 {
+			if getKeyU16.of(b.getKey()).length() > 10 {
 				continue
 			}
 			it_7 := cssNames.eachEntry()
@@ -395,10 +402,10 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 			}
 		}
 		if !errors.isEmpty() {
-			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(any(errors.asList()))}))
+			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(errors.asList())}))
 		}
 	}
-	return icast_CssRenamingMap(obj_(new_ProcessClosurePrimitives_1(cssNames, style)))
+	return new_ProcessClosurePrimitives_1(cssNames, style)
 }
 
 func (this *ProcessClosurePrimitives) processAddDependency(n Node) {
@@ -413,7 +420,7 @@ func (this *ProcessClosurePrimitives) processForwardDeclare(n Node) {
 	}
 	var convention CodingConvention = this.compiler_.getCodingConvention()
 	var typeDeclaration Optional[string] = Optional_empty[string]()
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
@@ -426,8 +433,7 @@ func (this *ProcessClosurePrimitives) processForwardDeclare(n Node) {
 				panic(r_)
 			}
 		}()
-		typeDeclaration = Optional_ofNullable[string](str_(Iterables_getOnlyElement(Iterable(convention.identifyTypeDeclarationCall(n)))))
-		return 0
+		typeDeclaration = Optional_ofNullable[string](str_(Iterables_getOnlyElement(Iterable(sliceView_(tc_string, convention.identifyTypeDeclarationCall(n))))))
 	}()
 	if typeDeclaration.isPresent() {
 		this.compiler_.forwardDeclareType(typeDeclaration.get())
@@ -469,7 +475,7 @@ func (this *ProcessClosurePrimitives) checkPropertyRenameCall(call Node) {
 	var propName Node = callee.getNext()
 	if (propName == 0) || !propName.isStringLit() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_RENAME_FUNCTION, []string{calleeName, "The first argument must be a string literal."}))
-	} else if String_contains(propName.getString(), strobj_(".")) {
+	} else if strings.Contains(propName.getString(), ".") {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_RENAME_FUNCTION, []string{calleeName, "The first argument must not be a property path."}))
 	}
 }
@@ -524,14 +530,14 @@ func ProcessClosurePrimitives_clinit() {
 
 type ProcessClosurePrimitives_1 struct {
 	cap_cssNames *JTMap[string, string]
-	cap_style    *CssRenamingMap_Style
+	cap_style    CssRenamingMap_Style
 }
 
 func (this *ProcessClosurePrimitives_1) init_ProcessClosurePrimitives_1() {
 
 }
 
-func new_ProcessClosurePrimitives_1(cap_cssNames *JTMap[string, string], cap_style *CssRenamingMap_Style) *ProcessClosurePrimitives_1 {
+func new_ProcessClosurePrimitives_1(cap_cssNames *JTMap[string, string], cap_style CssRenamingMap_Style) *ProcessClosurePrimitives_1 {
 	this := &ProcessClosurePrimitives_1{}
 	this.cap_cssNames = cap_cssNames
 	this.cap_style = cap_style
@@ -545,9 +551,17 @@ func (this *ProcessClosurePrimitives_1) get(value string) Optional[string] {
 	} else {
 		return Optional_of[string](value)
 	}
-	panic("unreachable")
 }
 
-func (this *ProcessClosurePrimitives_1) getStyle() *CssRenamingMap_Style {
+func (this *ProcessClosurePrimitives_1) getStyle() CssRenamingMap_Style {
 	return this.cap_style
+}
+
+// visit: an object that is exactly a ProcessClosurePrimitives calls its visit_impl directly (post-flip); others dispatch.
+func (this *ProcessClosurePrimitives) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ProcessClosurePrimitives); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

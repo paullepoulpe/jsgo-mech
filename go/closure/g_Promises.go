@@ -26,9 +26,8 @@ func Promises_getResolvedType(registry *JSTypeRegistry, type_ *JSType) *JSType {
 	}
 	if type_.isUnionType() {
 		var unionTypeBuilder *UnionType_Builder = UnionType_builder(registry)
-		it_1 := foreach_(obj_(type_.toMaybeUnionType().getAlternates()))
-		for it_1.next() {
-			var alternate *JSType = to_JSType(it_1.v)
+		for _, el := range type_.toMaybeUnionType().getAlternates().items {
+			alternate := el
 			unionTypeBuilder.addAlternate(Promises_getResolvedType(registry, alternate))
 		}
 		return unionTypeBuilder.build()
@@ -52,24 +51,23 @@ func Promises_createAsyncReturnableType(registry *JSTypeRegistry, maybeThenable 
 	var unknownType *JSType = registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	var iThenableType *ObjectType = registry.getNativeObjectType(JSTypeNative_I_THENABLE_TYPE)
 	var iThenableOfUnknownType *JSType = registry.createTemplatizedType(iThenableType, []*JSType{unknownType}).up_JSType()
-	var alternates ImmutableListOf[*JSType] = func() *ImmutableList {
+	var alternates *ImmutableList[*JSType] = func() *ImmutableList[*JSType] {
 		if maybeThenable.isUnionType() {
 			return maybeThenable.toMaybeUnionType().getAlternates()
 		}
-		return ImmutableList_of_Object(maybeThenable.self())
+		return immutableListOf_(tc_p_JSType, maybeThenable)
 	}()
-	var asyncTemplateAlternatesBuilder ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
-	it_1 := foreach_(obj_(alternates))
-	for it_1.next() {
-		var t *JSType = to_JSType(it_1.v)
+	var asyncTemplateAlternatesBuilder *ImmutableList_Builder[*JSType] = immutableListBuilder_(tc_p_JSType)
+	for _, el := range alternates.items {
+		t := el
 		if t.isSubtypeOf(iThenableOfUnknownType) {
-			asyncTemplateAlternatesBuilder.add(Promises_getTemplateTypeOfThenable(registry, t).self())
+			asyncTemplateAlternatesBuilder.add(Promises_getTemplateTypeOfThenable(registry, t))
 		}
 	}
-	var asyncTemplateAlternates ImmutableListOf[*JSType] = cast_[*ImmutableList](obj_(asyncTemplateAlternatesBuilder.build()))
+	var asyncTemplateAlternates *ImmutableList[*JSType] = asyncTemplateAlternatesBuilder.build()
 	if asyncTemplateAlternates.isEmpty() {
 		return unknownType
 	}
-	var asyncTemplateUnion *JSType = registry.createUnionTypeList(icast_List(obj_(asyncTemplateAlternates)))
+	var asyncTemplateUnion *JSType = registry.createUnionTypeList(icast_List(obj_(asyncTemplateAlternates.asImm())))
 	return registry.createUnionType([]*JSType{asyncTemplateUnion, registry.createTemplatizedType(iThenableType, []*JSType{asyncTemplateUnion}).up_JSType()})
 }

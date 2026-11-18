@@ -8,18 +8,6 @@ type InvocationsCallback struct {
 
 func (this *InvocationsCallback) as_InvocationsCallback() *InvocationsCallback { return this }
 
-func to_InvocationsCallback(v any) *InvocationsCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_InvocationsCallback() *InvocationsCallback }).as_InvocationsCallback()
-}
-
-func is_InvocationsCallback(v any) bool {
-	_, ok := v.(interface{ as_InvocationsCallback() *InvocationsCallback })
-	return ok
-}
-
 func (this *InvocationsCallback) self() any {
 	if this == nil {
 		return nil
@@ -50,7 +38,14 @@ func (this *InvocationsCallback) visit_impl(t *NodeTraversal, n Node, parent Nod
 }
 
 func (this *InvocationsCallback) visit_4(p0 *NodeTraversal, p1 Node, p2 Node, p3 string) {
-	this.self_.(interface {
-		visit_4_impl(*NodeTraversal, Node, Node, string)
-	}).visit_4_impl(p0, p1, p2, p3)
+	this.self_.(*InlineSimpleMethods_InlineTrivialAccessors).visit_4_impl(p0, p1, p2, p3)
+}
+
+// visit: an object that is exactly a InvocationsCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *InvocationsCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*InvocationsCallback); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

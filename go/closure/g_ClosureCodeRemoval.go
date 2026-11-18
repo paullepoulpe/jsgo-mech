@@ -33,10 +33,10 @@ func new_ClosureCodeRemoval(compiler *AbstractCompiler, removeAbstractMethods bo
 func (this *ClosureCodeRemoval) process_2(externs Node, root Node) {
 	var passes *JTList[NodeTraversal_Callback] = jnewTList_(jtc_NodeTraversal_Callback)
 	if this.removeAbstractMethods {
-		passes.add(icast_NodeTraversal_Callback(obj_(new_ClosureCodeRemoval_FindAbstractMethods(this))))
+		passes.add(new_ClosureCodeRemoval_FindAbstractMethods(this))
 	}
 	if this.removeAssertionCalls {
-		passes.add(icast_NodeTraversal_Callback(obj_(new_ClosureCodeRemoval_FindAssertionCalls(this))))
+		passes.add(new_ClosureCodeRemoval_FindAssertionCalls(this))
 	}
 	CombinedCompilerPass_traverse(this.compiler_, root, passes.asList())
 	it_1 := this.abstractMethodAssignmentNodes.each()
@@ -199,4 +199,22 @@ func (this *ClosureCodeRemoval_FindAssertionCalls) visit_impl(t *NodeTraversal, 
 	if (this.assertionNames.lookupByCallee(callee) != nil) || ((callee.getColor() != nil) && callee.getColor().isClosureAssert()) {
 		this.outer_.assertionCalls.add(n)
 	}
+}
+
+// visit: an object that is exactly a ClosureCodeRemoval_FindAbstractMethods calls its visit_impl directly (post-flip); others dispatch.
+func (this *ClosureCodeRemoval_FindAbstractMethods) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ClosureCodeRemoval_FindAbstractMethods); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a ClosureCodeRemoval_FindAssertionCalls calls its visit_impl directly (post-flip); others dispatch.
+func (this *ClosureCodeRemoval_FindAssertionCalls) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ClosureCodeRemoval_FindAssertionCalls); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

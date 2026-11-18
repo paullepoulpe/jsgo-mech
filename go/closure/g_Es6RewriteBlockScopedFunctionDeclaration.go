@@ -27,7 +27,7 @@ func new_Es6RewriteBlockScopedFunctionDeclaration(compiler *AbstractCompiler) *E
 }
 
 func (this *Es6RewriteBlockScopedFunctionDeclaration) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteBlockScopedFunctionDeclaration_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(obj_(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteBlockScopedFunctionDeclaration_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6RewriteBlockScopedFunctionDeclaration_transpiledFeatures)
 }
 
@@ -61,4 +61,13 @@ func Es6RewriteBlockScopedFunctionDeclaration_clinit() {
 	Es6RewriteBlockScopedFunctionDeclaration_clinit_done = true
 	Es6RewriteBlockScopedFunctionDeclaration_transpiledFeatures = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION)
 
+}
+
+// visit: an object that is exactly a Es6RewriteBlockScopedFunctionDeclaration calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6RewriteBlockScopedFunctionDeclaration) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*Es6RewriteBlockScopedFunctionDeclaration); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

@@ -25,7 +25,7 @@ func (this *RewriteDynamicImports) finit_RewriteDynamicImports() {
 	this.wrappedDynamicImportCallback = false
 }
 
-func (this *RewriteDynamicImports) init_RewriteDynamicImports(compiler *AbstractCompiler, alias Optional[string], chunkOutputType *CompilerOptions_ChunkOutputType) {
+func (this *RewriteDynamicImports) init_RewriteDynamicImports(compiler *AbstractCompiler, alias Optional[string], chunkOutputType CompilerOptions_ChunkOutputType) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_RewriteDynamicImports()
 	this.compiler_ = compiler
@@ -35,7 +35,7 @@ func (this *RewriteDynamicImports) init_RewriteDynamicImports(compiler *Abstract
 	this.shouldWrapDynamicImportCallbacks = (chunkOutputType == CompilerOptions_ChunkOutputType_ES_MODULES)
 }
 
-func new_RewriteDynamicImports(compiler *AbstractCompiler, alias Optional[string], chunkOutputType *CompilerOptions_ChunkOutputType) *RewriteDynamicImports {
+func new_RewriteDynamicImports(compiler *AbstractCompiler, alias Optional[string], chunkOutputType CompilerOptions_ChunkOutputType) *RewriteDynamicImports {
 	this := &RewriteDynamicImports{}
 	this.self_ = this
 	this.init_RewriteDynamicImports(compiler, alias, chunkOutputType)
@@ -48,9 +48,13 @@ func (this *RewriteDynamicImports) aliasIsValid() bool {
 
 func (this *RewriteDynamicImports) process_2(externs Node, root Node) {
 	this.dynamicImportsRemoved = false
-	Preconditions_checkArgument_boolean_Object(externs.isRoot(), externs.box_())
-	Preconditions_checkArgument_boolean_Object(root.isRoot(), root.box_())
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	if !externs.isRoot() {
+		panic(new_IllegalArgumentException_String(tostr_(externs)))
+	}
+	if !root.isRoot() {
+		panic(new_IllegalArgumentException_String(tostr_(root)))
+	}
+	NodeTraversal_traverse(this.compiler_, root, this)
 	if this.wrappedDynamicImportCallback {
 		this.injectWrappingFunctionExtern()
 	}
@@ -58,20 +62,20 @@ func (this *RewriteDynamicImports) process_2(externs Node, root Node) {
 		this.compiler_.markFeatureNotAllowed(FeatureSet_Feature_DYNAMIC_IMPORT)
 		NodeUtil_removeFeatureFromAllScripts(root, FeatureSet_Feature_DYNAMIC_IMPORT, this.compiler_)
 		if this.requiresAliasing && this.aliasIsValid() {
-			NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(new_RewriteDynamicImports_AliasInjectingTraversal(this))))
+			NodeTraversal_traverse(this.compiler_, externs, new_RewriteDynamicImports_AliasInjectingTraversal(this))
 		}
 	}
 }
 
 func (this *RewriteDynamicImports) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if n.getToken() != Token_rhino_DYNAMIC_IMPORT {
+	if n.ns_().token != tokOrd1_DYNAMIC_IMPORT {
 		return
 	}
 	var moduleMap *ModuleMap = this.compiler_.getModuleMap()
 	var importSpecifier Node = n.getFirstChild()
 	if importSpecifier.isStringLit() && (moduleMap != nil) {
 		var targetPath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importSpecifier.getString(), Optional_of[string](n.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}}), n.getLineno(), n.getCharno())
 		var module *Module = func() *Module {
 			if targetPath == nil {
@@ -122,7 +126,7 @@ func (this *RewriteDynamicImports) replaceDynamicImportWithPromise(t *NodeTraver
 		var moduleNamespaceType *JSType
 		if (dynamicImport.getJSType() != nil) && dynamicImport.getJSType().isTemplatizedType() {
 			var templatizedType *TemplatizedType = cast_[*TemplatizedType](dynamicImport.getJSType().self())
-			moduleNamespaceType = to_JSType(templatizedType.getTemplateTypes().get(0))
+			moduleNamespaceType = templatizedType.getTemplateTypes().get(0)
 		} else {
 			moduleNamespaceType = registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		}
@@ -186,7 +190,9 @@ func (this *RewriteDynamicImports) addChainedThen(t *NodeTraversal, dynamicImpor
 }
 
 func (this *RewriteDynamicImports) aliasDynamicImport(t *NodeTraversal, dynamicImport Node) {
-	Preconditions_checkState(this.alias_.isPresent())
+	if !this.alias_.isPresent() {
+		panic(new_IllegalStateException_0())
+	}
 	var aliasNode Node = this.astFactory_.createQNameWithUnknownType(this.alias_.get())
 	aliasNode.setOriginalName("import")
 	var moduleSpecifier Node = dynamicImport.removeFirstChild()
@@ -256,14 +262,16 @@ func new_RewriteDynamicImports_AliasInjectingTraversal(outer_ *RewriteDynamicImp
 }
 
 func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
-	Preconditions_checkState(this.outer_.aliasIsValid())
+	if !this.outer_.aliasIsValid() {
+		panic(new_IllegalStateException_0())
+	}
 	if NodeUtil_isValidSimpleName(this.outer_.alias_.get()) && (cast_[*Var](t.getScope().getVar(this.outer_.alias_.get()).self()) != nil) {
 		return false
 	}
 	var registry *JSTypeRegistry = this.outer_.compiler_.getTypeRegistry()
 	var unknownType *JSType = registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	var promiseType *JSType = registry.getNativeType(JSTypeNative_PROMISE_TYPE)
-	var promiseTemplatizedType *TemplatizedType = registry.createTemplatizedTypeImmutableList(promiseType.toObjectType(), ImmutableList_of_Object(unknownType.self()))
+	var promiseTemplatizedType *TemplatizedType = registry.createTemplatizedTypeImmutableList(promiseType.toObjectType(), immutableListOf_(tc_p_JSType, unknownType))
 	var stringType *JSType = registry.getNativeType(JSTypeNative_STRING_TYPE)
 	var externsRoot Node = this.outer_.compiler_.getSynthesizedExternsInput().getAstRoot(this.outer_.compiler_)
 	if (this.outer_.alias_.get() == "import") || NodeUtil_isValidSimpleName(this.outer_.alias_.get()) {
@@ -279,7 +287,7 @@ func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse_impl(t
 		var aliasRootNode Node = this.outer_.astFactory_.createSingleVarNameDeclaration_2(aliasRootName, this.outer_.astFactory_.createObjectLit([]Node{}))
 		aliasRootNode.srcrefTree(externsRoot)
 		externsRoot.addChildToBack(aliasRootNode)
-		var aliasNameParts IteratorOf[string] = Splitter_on_String(".").split(strobj_(this.outer_.alias_.get())).iterator()
+		var aliasNameParts IteratorOf[string] = Splitter_on_String(".").split_s(this.outer_.alias_.get()).iterator()
 		var qName Node = aliasRootNode.getFirstChild().cloneNode()
 		aliasNameParts.next()
 		for aliasNameParts.hasNext() {
@@ -297,4 +305,21 @@ func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse_impl(t
 	}
 	this.outer_.compiler_.reportChangeToChangeScope(externsRoot)
 	return false
+}
+
+// visit: an object that is exactly a RewriteDynamicImports calls its visit_impl directly (post-flip); others dispatch.
+func (this *RewriteDynamicImports) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*RewriteDynamicImports); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// shouldTraverse: an object that is exactly a RewriteDynamicImports_AliasInjectingTraversal calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if p, _ := this.self_.(*RewriteDynamicImports_AliasInjectingTraversal); p == this {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

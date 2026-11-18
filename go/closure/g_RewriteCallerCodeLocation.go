@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type RewriteCallerCodeLocation struct {
 	compiler_                   *AbstractCompiler
 	astFactory_                 *AstFactory
@@ -21,9 +23,9 @@ func new_RewriteCallerCodeLocation(compiler *AbstractCompiler) *RewriteCallerCod
 }
 
 func (this *RewriteCallerCodeLocation) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, this.compiler_.getRoot(), icast_NodeTraversal_Callback(obj_(new_RewriteCallerCodeLocation_FindCallerLocationFunctions(this))))
+	NodeTraversal_traverse(this.compiler_, this.compiler_.getRoot(), new_RewriteCallerCodeLocation_FindCallerLocationFunctions(this))
 	if !this.callerLocationFunctionNames.isEmpty() {
-		NodeTraversal_traverse(this.compiler_, this.compiler_.getRoot(), icast_NodeTraversal_Callback(obj_(new_RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls(this))))
+		NodeTraversal_traverse(this.compiler_, this.compiler_.getRoot(), new_RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls(this))
 	}
 }
 
@@ -99,7 +101,9 @@ func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) isGoogCallerL
 }
 
 func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) visitParamListAndAddCallerLocationFunctionNames(n Node, t *NodeTraversal) {
-	Preconditions_checkState_boolean_Object(n.isParamList(), n.box_())
+	if !n.isParamList() {
+		panic(new_IllegalStateException_String(tostr_(n)))
+	}
 	var defaultValuesCount int32 = 0
 	var paramPosition int32 = 0
 	{
@@ -120,7 +124,7 @@ func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) visitParamLis
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, RewriteCallerCodeLocation_JSC_CALLER_LOCATION_POSITION_ERROR, []string{}))
 				}
 				var functionName string = n.getParent().getFirstChild().getQualifiedName()
-				if String_isEmpty(functionName) {
+				if functionName == "" {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n.getParent().getFirstChild(), RewriteCallerCodeLocation_JSC_ANONYMOUS_FUNCTION_CODE_LOCATION_ERROR, []string{}))
 					return
 				}
@@ -163,18 +167,18 @@ func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visit_
 
 func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visitCallNodeAndRewrite(n Node, t *NodeTraversal) {
 	var firstChild Node = n.getFirstChild()
-	if ((firstChild == 0) || (!firstChild.isName() && !firstChild.isGetProp())) || String_isEmpty(firstChild.getQualifiedName()) {
+	if ((firstChild == 0) || (!firstChild.isName() && !firstChild.isGetProp())) || firstChild.getQualifiedName() == "" {
 		return
 	}
 	var name string = firstChild.getQualifiedName()
-	var moduleContentsName string = String_replace(String_replace_char_char(name, '.', '_'), strobj_("module$exports$"), strobj_("module$contents$"))
+	var moduleContentsName string = strings.ReplaceAll(strings.ReplaceAll(name, ".", "_"), "module$exports$", "module$contents$")
 	if !this.outer_.callerLocationFunctionNames.has(moduleContentsName) {
 		return
 	}
 	var functionVarAndPosition *RewriteCallerCodeLocation_FunctionVarAndParamPosition = this.outer_.callerLocationFunctionNames.get(moduleContentsName)
 	var callerLocationFunction *Var = functionVarAndPosition.getFunctionVar()
 	var calleeFunction *Var = cast_[*Var](t.getScope().getVar(moduleContentsName).self())
-	if ((callerLocationFunction == nil) || (calleeFunction == nil)) || !Objects_equals(callerLocationFunction.getNameNode().box_(), calleeFunction.getNameNode().box_()) {
+	if ((callerLocationFunction == nil) || (calleeFunction == nil)) || callerLocationFunction.getNameNode() != calleeFunction.getNameNode() {
 		return
 	}
 	var positionOfCallerLocationArg int32 = functionVarAndPosition.getParamPosition()
@@ -226,4 +230,22 @@ func (this *RewriteCallerCodeLocation_FunctionVarAndParamPosition) getFunctionVa
 
 func (this *RewriteCallerCodeLocation_FunctionVarAndParamPosition) getParamPosition() int32 {
 	return this.paramPosition
+}
+
+// visit: an object that is exactly a RewriteCallerCodeLocation_FindCallerLocationFunctions calls its visit_impl directly (post-flip); others dispatch.
+func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*RewriteCallerCodeLocation_FindCallerLocationFunctions); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls calls its visit_impl directly (post-flip); others dispatch.
+func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

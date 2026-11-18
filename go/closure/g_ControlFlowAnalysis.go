@@ -13,15 +13,19 @@ type ControlFlowAnalysis struct {
 	edgeAnnotations         bool
 	root                    Node
 	exceptionHandler        *TDeque[Node]
-	finallyMap              *SimpleSetMultimap
+	finallyMap              *SimpleSetMultimap[Node, Node]
 }
 
 func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
 	this.priorityComparator = Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_{func(digraphNode DiGraph_DiGraphNode[Node]) int32 {
-		return unbox_[int32](Preconditions_checkNotNull_Object_Object(this.astPosition.get(digraphNode.getValue()), digraphNode.getValue().box_()))
+		nn_, nn1_ := this.astPosition.get(digraphNode.getValue()), digraphNode.getValue()
+		if nn_ == nil {
+			panic(new_NullPointerException_String(tostr_(nn1_)))
+		}
+		return unbox_[int32](nn_)
 	}})
 	this.exceptionHandler = newTDeque_(jtc_Node)
-	this.finallyMap = SimpleSetMultimap_createInsertionOrdered()
+	this.finallyMap = SimpleSetMultimap_createInsertionOrdered[Node, Node]()
 }
 
 func (this *ControlFlowAnalysis) init_ControlFlowAnalysis(compiler *AbstractCompiler, shouldTraverseFunctions bool, edgeAnnotations bool) {
@@ -46,21 +50,21 @@ func (this *ControlFlowAnalysis) getCfg() *ControlFlowGraph[Node] {
 }
 
 func (this *ControlFlowAnalysis) computeCfg(root Node) {
-	Preconditions_checkArgument_boolean_String_Object(NodeUtil_isValidCfgRoot(root), "Unexpected control flow graph root %s", root.box_())
+	if !NodeUtil_isValidCfgRoot(root) {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected control flow graph root %s", []any{root.box_()})))
+	}
 	this.root = root
 	this.astPosition = new_LinkedIdentityHashMap[Node, any]()
 	this.astPositionCounter = 0
 	this.cfg = new_ControlFlowAnalysis_AstControlFlowGraph(ControlFlowAnalysis_computeFallThrough(root), this.edgeAnnotations).up_ControlFlowGraph()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	this.astPositionCounter++
 	this.astPosition.put(0, any(int32(this.astPositionCounter)))
 	this.priorityCounter = 0
 	var entry DiGraph_DiGraphNode[Node] = this.cfg.getEntry()
 	this.prioritizeFromEntryNode(entry)
 	if this.shouldTraverseFunctions {
-		it_1 := foreach_(any(this.cfg.getNodes()))
-		for it_1.next() {
-			var candidate DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](it_1.v)
+		for candidate := range elemsAs_[DiGraph_DiGraphNode[Node]](this.cfg.getNodes()) {
 			var value Node = candidate.getValue()
 			if (value != 0) && value.isFunction() {
 				this.prioritizeFromEntryNode(candidate)
@@ -68,9 +72,7 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 		}
 	}
 	this.astPosition = nil
-	it_3 := foreach_(any(this.cfg.getNodes()))
-	for it_3.next() {
-		var candidate DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](it_3.v)
+	for candidate := range elemsAs_[DiGraph_DiGraphNode[Node]](this.cfg.getNodes()) {
 		if !candidate.hasPriority() {
 			this.priorityCounter++
 			candidate.setPriority(this.priorityCounter)
@@ -82,7 +84,7 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 
 func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNode[Node]) {
 	var worklist PriorityQueueOf[DiGraph_DiGraphNode[Node]] = new_PriorityQueue_int_Comparator(10, this.priorityComparator)
-	worklist.add(any(entry))
+	worklist.add(entry)
 	for !worklist.isEmpty() {
 		var current DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](worklist.remove_0())
 		if current.hasPriority() {
@@ -105,40 +107,42 @@ func (this *ControlFlowAnalysis) shouldTraverse(nodeTraversal *NodeTraversal, n 
 }
 
 func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION:
 		if this.shouldTraverseFunctions || (n == this.cfg.getEntry().getValue()) {
 			this.exceptionHandler.push(n)
 			return true
 		}
 		return false
-	case Token_rhino_TRY:
+	case tokOrd1_TRY:
 		this.exceptionHandler.push(n)
 		return true
 	default:
 	}
 	if parent != 0 {
-		switch parent.getToken() {
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+		switch parent.ns_().token {
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 			var shouldTraverseForChild bool = (n == parent.getLastChild())
 			if !shouldTraverseForChild {
 				this.astPosition.put(n, any(int32(this.astPositionCounter)))
 				this.astPositionCounter++
 			}
 			return shouldTraverseForChild
-		case Token_rhino_DO:
+		case tokOrd1_DO:
 			return (n != parent.getSecondChild())
-		case Token_rhino_IF, Token_rhino_WHILE, Token_rhino_WITH, Token_rhino_SWITCH, Token_rhino_CASE, Token_rhino_CATCH, Token_rhino_LABEL:
+		case tokOrd1_IF, tokOrd1_WHILE, tokOrd1_WITH, tokOrd1_SWITCH, tokOrd1_CASE, tokOrd1_CATCH, tokOrd1_LABEL:
 			return (n != parent.getFirstChild())
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			return (n == parent.getLastChild())
-		case Token_rhino_CLASS:
+		case tokOrd1_CLASS:
 			return (this.shouldTraverseFunctions && (n == parent.getLastChild()))
-		case Token_rhino_COMPUTED_PROP, Token_rhino_CONTINUE, Token_rhino_BREAK, Token_rhino_EXPR_RESULT, Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_EXPORT, Token_rhino_IMPORT, Token_rhino_RETURN, Token_rhino_THROW, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
+		case tokOrd1_COMPUTED_PROP, tokOrd1_CONTINUE, tokOrd1_BREAK, tokOrd1_EXPR_RESULT, tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_EXPORT, tokOrd1_IMPORT, tokOrd1_RETURN, tokOrd1_THROW, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF:
 			return false
-		case Token_rhino_TRY:
+		case tokOrd1_TRY:
 			if (!NodeUtil_hasFinally(parent) && (n == NodeUtil_getCatchBlock(parent))) || NodeUtil_isTryFinallyNode(parent, n) {
-				Preconditions_checkState((this.exceptionHandler.peek() == parent))
+				if this.exceptionHandler.peek() != parent {
+					panic(new_IllegalStateException_0())
+				}
 				this.exceptionHandler.pop()
 			}
 		default:
@@ -151,44 +155,44 @@ func (this *ControlFlowAnalysis) shouldTraverseIntoChildren(n Node, parent Node)
 }
 
 func (this *ControlFlowAnalysis) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_IF:
+	switch n.ns_().token {
+	case tokOrd1_IF:
 		this.handleIf(n)
-	case Token_rhino_WHILE:
+	case tokOrd1_WHILE:
 		this.handleWhile(n)
-	case Token_rhino_DO:
+	case tokOrd1_DO:
 		this.handleDo(n)
-	case Token_rhino_FOR:
+	case tokOrd1_FOR:
 		this.handleFor(n)
-	case Token_rhino_FOR_OF, Token_rhino_FOR_IN, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_OF, tokOrd1_FOR_IN, tokOrd1_FOR_AWAIT_OF:
 		this.handleEnhancedFor(n)
-	case Token_rhino_SWITCH:
+	case tokOrd1_SWITCH:
 		this.handleSwitch(n)
-	case Token_rhino_CASE:
+	case tokOrd1_CASE:
 		this.handleCase(n)
-	case Token_rhino_DEFAULT_CASE:
+	case tokOrd1_DEFAULT_CASE:
 		this.handleDefault(n)
-	case Token_rhino_BLOCK, Token_rhino_ROOT, Token_rhino_SCRIPT, Token_rhino_MODULE_BODY:
+	case tokOrd1_BLOCK, tokOrd1_ROOT, tokOrd1_SCRIPT, tokOrd1_MODULE_BODY:
 		this.handleStmtList(n)
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.handleFunction(n)
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		this.handleExpr(n)
-	case Token_rhino_THROW:
+	case tokOrd1_THROW:
 		this.handleThrow(n)
-	case Token_rhino_TRY:
+	case tokOrd1_TRY:
 		this.handleTry(n)
-	case Token_rhino_CATCH:
+	case tokOrd1_CATCH:
 		this.handleCatch(n)
-	case Token_rhino_BREAK:
+	case tokOrd1_BREAK:
 		this.handleBreak(n)
-	case Token_rhino_CONTINUE:
+	case tokOrd1_CONTINUE:
 		this.handleContinue(n)
-	case Token_rhino_RETURN:
+	case tokOrd1_RETURN:
 		this.handleReturn(n)
-	case Token_rhino_WITH:
+	case tokOrd1_WITH:
 		this.handleWith(n)
-	case Token_rhino_SWITCH_BODY, Token_rhino_LABEL, Token_rhino_CLASS_MEMBERS, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
+	case tokOrd1_SWITCH_BODY, tokOrd1_LABEL, tokOrd1_CLASS_MEMBERS, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF:
 	default:
 		this.handleStmt(n)
 	}
@@ -258,7 +262,7 @@ func (this *ControlFlowAnalysis) handleFor(forNode Node) {
 func (this *ControlFlowAnalysis) handleSwitch(node Node) {
 	var switchBody Node = node.getLastChild()
 	this.createEdge(node, ControlFlowGraph_Branch_UNCOND, switchBody)
-	var next Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []*Token_rhino{Token_rhino_CASE, Token_rhino_EMPTY})
+	var next Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []Token_rhino{Token_rhino_CASE, Token_rhino_EMPTY})
 	if next != 0 {
 		this.createEdge(switchBody, ControlFlowGraph_Branch_UNCOND, next)
 	} else {
@@ -273,13 +277,15 @@ func (this *ControlFlowAnalysis) handleSwitch(node Node) {
 
 func (this *ControlFlowAnalysis) handleCase(caseNode Node) {
 	this.createEdge(caseNode, ControlFlowGraph_Branch_ON_TRUE, caseNode.getSecondChild())
-	var next Node = ControlFlowAnalysis_getNextSiblingOfType(caseNode.getNext(), []*Token_rhino{Token_rhino_CASE})
+	var next Node = ControlFlowAnalysis_getNextSiblingOfType(caseNode.getNext(), []Token_rhino{Token_rhino_CASE})
 	if next != 0 {
-		Preconditions_checkState(next.isCase())
+		if !next.isCase() {
+			panic(new_IllegalStateException_0())
+		}
 		this.createEdge(caseNode, ControlFlowGraph_Branch_ON_FALSE, next)
 	} else {
 		var switchBody Node = caseNode.getParent()
-		var deflt Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []*Token_rhino{Token_rhino_DEFAULT_CASE})
+		var deflt Node = ControlFlowAnalysis_getNextSiblingOfType(switchBody.getFirstChild(), []Token_rhino{Token_rhino_DEFAULT_CASE})
 		if deflt != 0 {
 			this.createEdge(caseNode, ControlFlowGraph_Branch_ON_FALSE, deflt)
 		} else {
@@ -313,9 +319,9 @@ func (this *ControlFlowAnalysis) handleStmtList(node Node) {
 		this.createEdge(node, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(node, this))
 	}
 	if parent != 0 {
-		switch parent.getToken() {
-		case Token_rhino_DEFAULT_CASE, Token_rhino_CASE, Token_rhino_TRY:
-		case Token_rhino_ROOT:
+		switch parent.ns_().token {
+		case tokOrd1_DEFAULT_CASE, tokOrd1_CASE, tokOrd1_TRY:
+		case tokOrd1_ROOT:
 			if node.isRoot() && (node.getNext() != 0) {
 				this.createEdge(node, ControlFlowGraph_Branch_UNCOND, node.getNext())
 			}
@@ -328,10 +334,16 @@ func (this *ControlFlowAnalysis) handleStmtList(node Node) {
 }
 
 func (this *ControlFlowAnalysis) handleFunction(node Node) {
-	Preconditions_checkState(node.isFunction())
-	Preconditions_checkState(node.hasXChildren(3))
+	if !node.isFunction() {
+		panic(new_IllegalStateException_0())
+	}
+	if !node.hasXChildren(3) {
+		panic(new_IllegalStateException_0())
+	}
 	this.createEdge(node, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFallThrough(node.getLastChild()))
-	Preconditions_checkState((this.exceptionHandler.peek() == node))
+	if this.exceptionHandler.peek() != node {
+		panic(new_IllegalStateException_0())
+	}
 	this.exceptionHandler.pop()
 }
 
@@ -377,7 +389,7 @@ func (this *ControlFlowAnalysis) handleBreak(node Node) {
 				if lastJump == node {
 					this.createEdge(lastJump, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFallThrough(cur.getLastChild()))
 				} else {
-					this.finallyMap.put(lastJump.box_(), ControlFlowAnalysis_computeFallThrough(cur.getLastChild()).box_())
+					this.finallyMap.put(lastJump, ControlFlowAnalysis_computeFallThrough(cur.getLastChild()))
 				}
 				lastJump = cur
 			}
@@ -385,7 +397,7 @@ func (this *ControlFlowAnalysis) handleBreak(node Node) {
 				if this.compiler_.getOptions().canContinueAfterErrors() {
 					return
 				} else {
-					panic(new_IllegalStateException_String("Cannot find break target.").self())
+					panic(new_IllegalStateException_String("Cannot find break target."))
 				}
 			}
 			previous = cur
@@ -394,7 +406,7 @@ func (this *ControlFlowAnalysis) handleBreak(node Node) {
 	if lastJump == node {
 		this.createEdge(lastJump, ControlFlowGraph_Branch_UNCOND, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(cur, this))
 	} else {
-		this.finallyMap.put(lastJump.box_(), ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(cur, this).box_())
+		this.finallyMap.put(lastJump, ControlFlowAnalysis_computeFollowNode_Node_ControlFlowAnalysis(cur, this))
 	}
 }
 
@@ -414,11 +426,13 @@ func (this *ControlFlowAnalysis) handleContinue(node Node) {
 				if lastJump == node {
 					this.createEdge(lastJump, ControlFlowGraph_Branch_UNCOND, cur.getLastChild())
 				} else {
-					this.finallyMap.put(lastJump.box_(), ControlFlowAnalysis_computeFallThrough(cur.getLastChild()).box_())
+					this.finallyMap.put(lastJump, ControlFlowAnalysis_computeFallThrough(cur.getLastChild()))
 				}
 				lastJump = cur
 			}
-			Preconditions_checkState_boolean_Object(cur.hasParent(), strobj_("Cannot find continue target."))
+			if !cur.hasParent() {
+				panic(new_IllegalStateException_String("Cannot find continue target."))
+			}
 			previous = cur
 		}
 	}
@@ -429,7 +443,7 @@ func (this *ControlFlowAnalysis) handleContinue(node Node) {
 	if lastJump == node {
 		this.createEdge(node, ControlFlowGraph_Branch_UNCOND, iter)
 	} else {
-		this.finallyMap.put(lastJump.box_(), iter.box_())
+		this.finallyMap.put(lastJump, iter)
 	}
 }
 
@@ -445,7 +459,7 @@ func (this *ControlFlowAnalysis) handleReturn(node Node) {
 			if lastJump == 0 {
 				this.createEdge(node, ControlFlowGraph_Branch_UNCOND, curHandler.getLastChild())
 			} else {
-				this.finallyMap.put(lastJump.box_(), ControlFlowAnalysis_computeFallThrough(curHandler.getLastChild()).box_())
+				this.finallyMap.put(lastJump, ControlFlowAnalysis_computeFallThrough(curHandler.getLastChild()))
 			}
 			lastJump = curHandler
 		}
@@ -456,7 +470,7 @@ func (this *ControlFlowAnalysis) handleReturn(node Node) {
 	if lastJump == 0 {
 		this.createEdge(node, ControlFlowGraph_Branch_UNCOND, 0)
 	} else {
-		this.finallyMap.put(lastJump.box_(), nil)
+		this.finallyMap.put(lastJump, null_[Node]())
 	}
 }
 
@@ -478,26 +492,26 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 	if ((parent == 0) || parent.isFunction()) || ((cfa != nil) && (node == cfa.root)) {
 		return 0
 	}
-	switch parent.getToken() {
-	case Token_rhino_IF:
+	switch parent.ns_().token {
+	case tokOrd1_IF:
 		return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
-	case Token_rhino_CASE, Token_rhino_DEFAULT_CASE:
+	case tokOrd1_CASE, tokOrd1_DEFAULT_CASE:
 		if parent.getNext() != 0 {
 			if parent.getNext().isCase() {
 				return parent.getNext().getSecondChild()
 			} else if parent.getNext().isDefaultCase() {
 				return parent.getNext().getFirstChild()
 			} else {
-				panic(new_IllegalStateException_String("Not reachable").self())
+				panic(new_IllegalStateException_String("Not reachable"))
 			}
 		} else {
 			return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
 		}
-	case Token_rhino_FOR:
+	case tokOrd1_FOR:
 		return parent.getSecondChild().getNext()
-	case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_WHILE, Token_rhino_DO:
+	case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_WHILE, tokOrd1_DO:
 		return parent
-	case Token_rhino_TRY:
+	case tokOrd1_TRY:
 		if parent.getFirstChild() == node {
 			if NodeUtil_hasFinally(parent) {
 				return ControlFlowAnalysis_computeFallThrough(parent.getLastChild())
@@ -512,15 +526,13 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 			}
 		} else if parent.getLastChild() == node {
 			if cfa != nil {
-				it_2 := foreach_(any(cfa.finallyMap.get(parent.box_())))
-				for it_2.next() {
-					var finallyNode Node = Node_of_(it_2.v)
+				for finallyNode := range elemsBy_(cfa.finallyMap.get(parent.box_()), Node_of_) {
 					cfa.createEdge(fromNode, ControlFlowGraph_Branch_ON_EX, finallyNode)
 				}
 			}
 			return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
 		}
-		panic(new_IllegalStateException_String(("Unexpected TRY child " + objstr_(node.box_()))).self())
+		panic(new_IllegalStateException_String(("Unexpected TRY child " + tostr_(node))))
 	default:
 	}
 	var nextSibling Node = node.getNext()
@@ -532,26 +544,24 @@ func ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNod
 	} else {
 		return ControlFlowAnalysis_computeFollowNode_Node_Node_ControlFlowAnalysis(fromNode, parent, cfa)
 	}
-	panic("unreachable")
 }
 
 func ControlFlowAnalysis_computeFallThrough(n Node) Node {
 	return func() Node {
-		switch n.getToken() {
-		case Token_rhino_DO, Token_rhino_FOR:
+		switch n.ns_().token {
+		case tokOrd1_DO, tokOrd1_FOR:
 			return ControlFlowAnalysis_computeFallThrough(n.getFirstChild())
-		case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+		case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 			return n.getSecondChild()
-		case Token_rhino_LABEL:
+		case tokOrd1_LABEL:
 			return ControlFlowAnalysis_computeFallThrough(n.getLastChild())
 		default:
 			return n
 		}
-		panic("unreachable")
 	}()
 }
 
-func (this *ControlFlowAnalysis) createEdge(fromNode Node, branch *ControlFlowGraph_Branch, toNode Node) {
+func (this *ControlFlowAnalysis) createEdge(fromNode Node, branch ControlFlowGraph_Branch, toNode Node) {
 	this.cfg.createNode(fromNode)
 	this.cfg.createNode(toNode)
 	this.cfg.connectIfNotFound(fromNode, obj_(branch), toNode)
@@ -574,12 +584,12 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionall
 		if handler.isFunction() {
 			return
 		}
-		Preconditions_checkState(handler.isTry())
+		if !handler.isTry() {
+			panic(new_IllegalStateException_0())
+		}
 		var catchBlock Node = NodeUtil_getCatchBlock(handler)
 		var lastJumpInCatchBlock bool = false
-		it_3 := foreach_(obj_(lastJump.getAncestors()))
-		for it_3.next() {
-			var ancestor Node = Node_of_(it_3.v)
+		for ancestor := range elemsBy_(obj_(lastJump.getAncestors()), Node_of_) {
 			if ancestor == handler {
 				break
 			} else if ancestor == catchBlock {
@@ -591,21 +601,21 @@ func (this *ControlFlowAnalysis) connectToPossibleExceptionHandlerUnconditionall
 			if lastJump == cfgNode {
 				this.createEdge(cfgNode, ControlFlowGraph_Branch_ON_EX, handler.getLastChild())
 			} else {
-				this.finallyMap.put(lastJump.box_(), handler.getLastChild().box_())
+				this.finallyMap.put(lastJump, handler.getLastChild())
 			}
 		} else {
 			if lastJump == cfgNode {
 				this.createEdge(cfgNode, ControlFlowGraph_Branch_ON_EX, catchBlock)
 				return
 			} else {
-				this.finallyMap.put(lastJump.box_(), catchBlock.box_())
+				this.finallyMap.put(lastJump, catchBlock)
 			}
 		}
 		lastJump = handler
 	}
 }
 
-func ControlFlowAnalysis_getNextSiblingOfType(first Node, types []*Token_rhino) Node {
+func ControlFlowAnalysis_getNextSiblingOfType(first Node, types []Token_rhino) Node {
 	{
 		var c Node = first
 		for ; c != 0; c = c.getNext() {
@@ -641,10 +651,10 @@ func ControlFlowAnalysis_matchLabel(target Node, label Optional[string]) bool {
 }
 
 func ControlFlowAnalysis_mayThrowException(n Node) bool {
-	switch n.getToken() {
-	case Token_rhino_CALL, Token_rhino_OPTCHAIN_CALL, Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_GETELEM, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_THROW, Token_rhino_NEW, Token_rhino_ASSIGN, Token_rhino_INC, Token_rhino_DEC, Token_rhino_INSTANCEOF, Token_rhino_IN, Token_rhino_YIELD, Token_rhino_AWAIT:
+	switch n.ns_().token {
+	case tokOrd1_CALL, tokOrd1_OPTCHAIN_CALL, tokOrd1_TAGGED_TEMPLATELIT, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_GETELEM, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_THROW, tokOrd1_NEW, tokOrd1_ASSIGN, tokOrd1_INC, tokOrd1_DEC, tokOrd1_INSTANCEOF, tokOrd1_IN, tokOrd1_YIELD, tokOrd1_AWAIT:
 		return true
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		return false
 	default:
 	}
@@ -661,15 +671,14 @@ func ControlFlowAnalysis_mayThrowException(n Node) bool {
 
 func ControlFlowAnalysis_isBreakStructure(n Node, labeled bool) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_DO, Token_rhino_WHILE, Token_rhino_SWITCH:
+		switch n.ns_().token {
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_DO, tokOrd1_WHILE, tokOrd1_SWITCH:
 			return true
-		case Token_rhino_BLOCK, Token_rhino_IF, Token_rhino_TRY, Token_rhino_BREAK:
+		case tokOrd1_BLOCK, tokOrd1_IF, tokOrd1_TRY, tokOrd1_BREAK:
 			return labeled
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -743,8 +752,12 @@ func (this *ControlFlowAnalysis_Builder) setIncludeEdgeAnnotations(includeEdgeAn
 }
 
 func (this *ControlFlowAnalysis_Builder) computeCfg() *ControlFlowGraph[Node] {
-	Preconditions_checkNotNull_Object_Object(this.compiler_.self(), strobj_("Need to call setCompiler()"))
-	Preconditions_checkNotNull_Object_Object(this.cfgRoot.box_(), strobj_("Need to call setCfgRoot()"))
+	if this.compiler_ == nil {
+		panic(new_NullPointerException_String("Need to call setCompiler()"))
+	}
+	if this.cfgRoot == 0 {
+		panic(new_NullPointerException_String("Need to call setCfgRoot()"))
+	}
 	var cfa *ControlFlowAnalysis = new_ControlFlowAnalysis(this.compiler_, this.shouldTraverseFunctions, this.edgeAnnotations)
 	cfa.computeCfg(this.cfgRoot)
 	return cfa.cfg
@@ -761,7 +774,7 @@ func (this *ControlFlowAnalysis_AstControlFlowGraph) up_ControlFlowGraph() *Cont
 	return &this.ControlFlowGraph
 }
 
-func (this *ControlFlowAnalysis_AstControlFlowGraph) up_LinkedDirectedGraph() *LinkedDirectedGraph[Node, *ControlFlowGraph_Branch] {
+func (this *ControlFlowAnalysis_AstControlFlowGraph) up_LinkedDirectedGraph() *LinkedDirectedGraph[Node, ControlFlowGraph_Branch] {
 	if this == nil {
 		return nil
 	}

@@ -4,8 +4,8 @@ package closure
 
 type ProgramTree struct {
 	ParseTree
-	sourceElements ImmutableListOf[*ParseTree]
-	sourceComments ImmutableListOf[*Comment]
+	sourceElements []*ParseTree
+	sourceComments *ImmutableList[*Comment]
 }
 
 func (this *ProgramTree) up_ParseTree() *ParseTree {
@@ -15,13 +15,13 @@ func (this *ProgramTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ProgramTree) init_ProgramTree(location *SourceRange, sourceElements ImmutableListOf[*ParseTree], sourceComments ImmutableListOf[*Comment]) {
+func (this *ProgramTree) init_ProgramTree(location *SourceRange, sourceElements []*ParseTree, sourceComments *ImmutableList[*Comment]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_PROGRAM, location)
 	this.sourceElements = sourceElements
 	this.sourceComments = sourceComments
 }
 
-func new_ProgramTree(location *SourceRange, sourceElements ImmutableListOf[*ParseTree], sourceComments ImmutableListOf[*Comment]) *ProgramTree {
+func new_ProgramTree(location *SourceRange, sourceElements []*ParseTree, sourceComments *ImmutableList[*Comment]) *ProgramTree {
 	this := &ProgramTree{}
 	this.self_ = this
 	this.init_ProgramTree(location, sourceElements, sourceComments)

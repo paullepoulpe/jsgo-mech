@@ -23,7 +23,7 @@ func new_RewriteObjectSpread(compiler *AbstractCompiler) *RewriteObjectSpread {
 }
 
 func (this *RewriteObjectSpread) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, RewriteObjectSpread_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(any(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, RewriteObjectSpread_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, RewriteObjectSpread_transpiledFeatures)
 }
 
@@ -32,8 +32,8 @@ func (this *RewriteObjectSpread) shouldTraverse(t *NodeTraversal, n Node, parent
 }
 
 func (this *RewriteObjectSpread) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_OBJECTLIT:
+	switch n.ns_().token {
+	case tokOrd1_OBJECTLIT:
 		this.visitObject(n)
 	default:
 	}
@@ -52,7 +52,9 @@ func (this *RewriteObjectSpread) visitObject(obj Node) {
 }
 
 func (this *RewriteObjectSpread) visitObjectWithSpread(obj Node) {
-	Preconditions_checkArgument(obj.isObjectLit())
+	if !obj.isObjectLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var result Node = func() Node {
 		if this.useJscompAssign {
 			return this.astFactory_.createJscompAssignCall(this.namespace_, AstFactory_type_Node(obj), []Node{this.astFactory_.createObjectLit([]Node{})})

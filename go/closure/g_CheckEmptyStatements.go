@@ -27,7 +27,7 @@ func new_CheckEmptyStatements(compiler *AbstractCompiler) *CheckEmptyStatements 
 }
 
 func (this *CheckEmptyStatements) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckEmptyStatements) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -47,4 +47,13 @@ func CheckEmptyStatements_clinit() {
 	CheckEmptyStatements_clinit_done = true
 	CheckEmptyStatements_USELESS_EMPTY_STATEMENT = DiagnosticType_disabled("JSC_USELESS_EMPTY_STATEMENT", "Useless empty statement. Remove semicolon.")
 
+}
+
+// visit: an object that is exactly a CheckEmptyStatements calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckEmptyStatements) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckEmptyStatements); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

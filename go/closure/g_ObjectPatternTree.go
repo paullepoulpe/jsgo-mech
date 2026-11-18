@@ -4,7 +4,7 @@ package closure
 
 type ObjectPatternTree struct {
 	ParseTree
-	fields ImmutableListOf[*ParseTree]
+	fields []*ParseTree
 }
 
 func (this *ObjectPatternTree) up_ParseTree() *ParseTree {
@@ -14,12 +14,12 @@ func (this *ObjectPatternTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ObjectPatternTree) init_ObjectPatternTree(location *SourceRange, fields ImmutableListOf[*ParseTree]) {
+func (this *ObjectPatternTree) init_ObjectPatternTree(location *SourceRange, fields []*ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_OBJECT_PATTERN, location)
 	this.fields = fields
 }
 
-func new_ObjectPatternTree(location *SourceRange, fields ImmutableListOf[*ParseTree]) *ObjectPatternTree {
+func new_ObjectPatternTree(location *SourceRange, fields []*ParseTree) *ObjectPatternTree {
 	this := &ObjectPatternTree{}
 	this.self_ = this
 	this.init_ObjectPatternTree(location, fields)

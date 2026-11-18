@@ -4,7 +4,7 @@ package closure
 
 type SuppressDocWarningsGuard struct {
 	WarningsGuard
-	suppressors ImmutableMapOf[string, *DiagnosticGroup]
+	suppressors *ImmutableMap[string, *DiagnosticGroup]
 	compiler_   *AbstractCompiler
 }
 
@@ -15,36 +15,36 @@ func (this *SuppressDocWarningsGuard) up_WarningsGuard() *WarningsGuard {
 	return &this.WarningsGuard
 }
 
-func (this *SuppressDocWarningsGuard) init_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors MapOf[string, *DiagnosticGroup]) {
+func (this *SuppressDocWarningsGuard) init_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *TMap[string, *DiagnosticGroup]) {
 	this.WarningsGuard.init_WarningsGuard()
 	this.compiler_ = compiler
 	this.suppressors = SuppressDocWarningsGuard_createSuppressors(suppressors)
 }
 
-func new_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors MapOf[string, *DiagnosticGroup]) *SuppressDocWarningsGuard {
+func new_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *TMap[string, *DiagnosticGroup]) *SuppressDocWarningsGuard {
 	this := &SuppressDocWarningsGuard{}
 	this.self_ = this
 	this.init_SuppressDocWarningsGuard(compiler, suppressors)
 	return this
 }
 
-func SuppressDocWarningsGuard_createSuppressors(suppressors MapOf[string, *DiagnosticGroup]) ImmutableMapOf[string, *DiagnosticGroup] {
-	var builder *JTMap[string, *DiagnosticGroup] = jtmapFrom_(jtc_string, jtc_p_DiagnosticGroup, suppressors)
+func SuppressDocWarningsGuard_createSuppressors(suppressors *TMap[string, *DiagnosticGroup]) *ImmutableMap[string, *DiagnosticGroup] {
+	var builder *JTMap[string, *DiagnosticGroup] = jtmapFrom_(jtc_string, jtc_p_DiagnosticGroup, suppressors.asMap())
 	builder.put("missingProperties", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_MISSING_PROPERTIES, DiagnosticGroups_STRICT_MISSING_PROPERTIES}))
 	builder.put("checkTypes", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_CHECK_TYPES, DiagnosticGroups_STRICT_CHECK_TYPES}))
-	return ImmutableMap_copyOf(builder.asMap())
+	return immutableMapCopyOf_(tc_string, tc_p_DiagnosticGroup, builder.asMap())
 }
 
-func (this *SuppressDocWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
+func (this *SuppressDocWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	var node Node = error_.node()
 	if node == 0 {
 		node = this.getScriptNodeBySourceName(error_)
 	}
 	if node == 0 {
-		return nil
+		return 0
 	}
-	var level *CheckLevel = this.getCheckLevelFromAncestors(error_, node)
-	if level != nil {
+	var level CheckLevel = this.getCheckLevelFromAncestors(error_, node)
+	if level != 0 {
 		return level
 	}
 	var scriptNode Node = this.getScriptNodeBySourceName(error_)
@@ -54,10 +54,10 @@ func (this *SuppressDocWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 			return this.getCheckLevelFromInfo(error_, info)
 		}
 	}
-	return nil
+	return 0
 }
 
-func (this *SuppressDocWarningsGuard) getCheckLevelFromAncestors(error_ *JSError, node Node) *CheckLevel {
+func (this *SuppressDocWarningsGuard) getCheckLevelFromAncestors(error_ *JSError, node Node) CheckLevel {
 	{
 		var current Node = node
 		for ; current != 0; current = current.getParent() {
@@ -70,21 +70,21 @@ func (this *SuppressDocWarningsGuard) getCheckLevelFromAncestors(error_ *JSError
 				info = NodeUtil_getBestJSDocInfo(current)
 			}
 			if info != nil {
-				var level *CheckLevel = this.getCheckLevelFromInfo(error_, info)
-				if level != nil {
+				var level CheckLevel = this.getCheckLevelFromInfo(error_, info)
+				if level != 0 {
 					return level
 				}
 			}
 		}
 	}
-	return nil
+	return 0
 }
 
-func (this *SuppressDocWarningsGuard) getCheckLevelFromInfo(error_ *JSError, info *JSDocInfo) *CheckLevel {
-	it_1 := foreach_(any(info.getSuppressions()))
+func (this *SuppressDocWarningsGuard) getCheckLevelFromInfo(error_ *JSError, info *JSDocInfo) CheckLevel {
+	it_1 := foreach_(info.getSuppressions())
 	for it_1.next() {
 		var suppressor string = str_(it_1.v)
-		var group *DiagnosticGroup = cast_[*DiagnosticGroup](Map_get_s(this.suppressors, suppressor))
+		var group *DiagnosticGroup = this.suppressors.Get(suppressor)
 		if group == nil {
 			continue
 		}
@@ -92,7 +92,7 @@ func (this *SuppressDocWarningsGuard) getCheckLevelFromInfo(error_ *JSError, inf
 			return CheckLevel_OFF
 		}
 	}
-	return nil
+	return 0
 }
 
 func (this *SuppressDocWarningsGuard) getScriptNodeBySourceName(error_ *JSError) Node {
@@ -103,12 +103,30 @@ func (this *SuppressDocWarningsGuard) getScriptNodeBySourceName(error_ *JSError)
 	if scriptNode == 0 {
 		return 0
 	}
-	Preconditions_checkState(scriptNode.isScript())
+	if !scriptNode.isScript() {
+		panic(new_IllegalStateException_0())
+	}
 	return scriptNode
 }
 
 func (this *SuppressDocWarningsGuard) getPriority_impl() int32 {
-	return WarningsGuard_Priority_SUPPRESS_DOC.value_
+	return WarningsGuard_Priority_value__[WarningsGuard_Priority_SUPPRESS_DOC-1]
 }
 
 const SuppressDocWarningsGuard_serialVersionUID int64 = 1
+
+// level: an object that is exactly a SuppressDocWarningsGuard calls its level_impl directly (post-flip); others dispatch.
+func (this *SuppressDocWarningsGuard) level(p0 *JSError) CheckLevel {
+	if p, _ := this.self_.(*SuppressDocWarningsGuard); p == this {
+		return this.level_impl(p0)
+	}
+	return this.self_.level_impl(p0)
+}
+
+// getPriority: an object that is exactly a SuppressDocWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
+func (this *SuppressDocWarningsGuard) getPriority() int32 {
+	if p, _ := this.self_.(*SuppressDocWarningsGuard); p == this {
+		return this.getPriority_impl()
+	}
+	return this.self_.getPriority_impl()
+}

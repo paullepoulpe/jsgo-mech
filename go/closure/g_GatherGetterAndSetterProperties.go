@@ -21,25 +21,27 @@ func (this *GatherGetterAndSetterProperties) process_2(externs Node, root Node) 
 }
 
 func GatherGetterAndSetterProperties_update(compiler *AbstractCompiler, externs Node, root Node) {
-	Preconditions_checkState((externs.getParent() == root.getParent()))
+	if externs.getParent() != root.getParent() {
+		panic(new_IllegalStateException_0())
+	}
 	var accessorSummary *AccessorSummary
 	if compiler.getOptions().getAssumePropertiesAreStaticallyAnalyzable() {
-		accessorSummary = AccessorSummary_create(icast_Map(obj_(GatherGetterAndSetterProperties_gather(compiler, externs.getParent()))))
+		accessorSummary = AccessorSummary_create(GatherGetterAndSetterProperties_gather(compiler, externs.getParent()))
 	} else {
 		accessorSummary = AccessorSummary_createAssumingAlwaysGetterAndSetter()
 	}
 	compiler.setAccessorSummary(accessorSummary)
 }
 
-func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Node) ImmutableMapOf[string, *AccessorSummary_PropertyAccessKind] {
+func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Node) *ImmutableMap[string, AccessorSummary_PropertyAccessKind] {
 	var gatherCallback *GatherGetterAndSetterProperties_GatherCallback = new_GatherGetterAndSetterProperties_GatherCallback()
-	NodeTraversal_traverse(compiler, root, icast_NodeTraversal_Callback(obj_(gatherCallback)))
-	return ImmutableMap_copyOf(gatherCallback.properties.asMap())
+	NodeTraversal_traverse(compiler, root, gatherCallback)
+	return immutableMapCopyOf_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, gatherCallback.properties.asMap())
 }
 
 type GatherGetterAndSetterProperties_GatherCallback struct {
 	NodeTraversal_AbstractPostOrderCallback
-	properties *JTMap[string, *AccessorSummary_PropertyAccessKind]
+	properties *JTMap[string, AccessorSummary_PropertyAccessKind]
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -65,19 +67,19 @@ func new_GatherGetterAndSetterProperties_GatherCallback() *GatherGetterAndSetter
 	return this
 }
 
-func (this *GatherGetterAndSetterProperties_GatherCallback) record(property string, kind *AccessorSummary_PropertyAccessKind) {
-	Map_merge(this.properties.asMap(), strobj_(property), obj_(kind), &BiFunction_tfn_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind{func(p0 *AccessorSummary_PropertyAccessKind, p1 *AccessorSummary_PropertyAccessKind) *AccessorSummary_PropertyAccessKind {
+func (this *GatherGetterAndSetterProperties_GatherCallback) record(property string, kind AccessorSummary_PropertyAccessKind) {
+	Map_merge(this.properties.asMap(), strobj_(property), obj_(kind), &BiFunction_tfn_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind_AccessorSummary_PropertyAccessKind{func(p0 AccessorSummary_PropertyAccessKind, p1 AccessorSummary_PropertyAccessKind) AccessorSummary_PropertyAccessKind {
 		return p0.unionWith(p1)
 	}})
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_GETTER_DEF:
+	switch n.ns_().token {
+	case tokOrd1_GETTER_DEF:
 		this.recordGetterDef(n)
-	case Token_rhino_SETTER_DEF:
+	case tokOrd1_SETTER_DEF:
 		this.recordSetterDef(n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		if NodeUtil_isObjectDefinePropertyDefinition(n) {
 			this.visitDefineProperty(n)
 		} else if NodeUtil_isObjectDefinePropertiesDefinition(n) || NodeUtil_isObjectCreateWithPropertiesDefinition(n) {
@@ -88,13 +90,17 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) visit_impl(t *NodeTr
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) recordGetterDef(getterDef Node) {
-	Preconditions_checkState(getterDef.isGetterDef())
+	if !getterDef.isGetterDef() {
+		panic(new_IllegalStateException_0())
+	}
 	var name string = getterDef.getString()
 	this.record(name, AccessorSummary_PropertyAccessKind_GETTER_ONLY)
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) recordSetterDef(setterDef Node) {
-	Preconditions_checkState(setterDef.isSetterDef())
+	if !setterDef.isSetterDef() {
+		panic(new_IllegalStateException_0())
+	}
 	var name string = setterDef.getString()
 	this.record(name, AccessorSummary_PropertyAccessKind_SETTER_ONLY)
 }
@@ -139,4 +145,13 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) visitDefinePropertie
 			}
 		}
 	}
+}
+
+// visit: an object that is exactly a GatherGetterAndSetterProperties_GatherCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *GatherGetterAndSetterProperties_GatherCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*GatherGetterAndSetterProperties_GatherCallback); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

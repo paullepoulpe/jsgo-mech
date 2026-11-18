@@ -27,7 +27,7 @@ func new_CheckConstantCaseNames(compiler *AbstractCompiler) *CheckConstantCaseNa
 }
 
 func (this *CheckConstantCaseNames) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckConstantCaseNames) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -42,8 +42,8 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 		this.reportWarningsAndClear()
 		return
 	}
-	switch n.getToken() {
-	case Token_rhino_VAR, Token_rhino_LET:
+	switch n.ns_().token {
+	case tokOrd1_VAR, tokOrd1_LET:
 		if !t.inModuleScope() {
 			return
 		}
@@ -51,12 +51,12 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 		if (info != nil) && info.hasConstAnnotation() {
 			break
 		}
-		NodeUtil_visitLhsNodesInNode(n, &Consumer_tfn_Node{func(name Node) {
+		NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(name Node) {
 			if this.convention.isConstant(name.getString()) {
 				this.invalidNamesPerModule.put(name.getString(), name)
 			}
-		}})
-	case Token_rhino_NAME:
+		}}).accept)
+	case tokOrd1_NAME:
 		if !this.invalidNamesPerModule.has(n.getString()) {
 			return
 		}

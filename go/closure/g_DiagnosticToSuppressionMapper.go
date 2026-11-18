@@ -3,22 +3,22 @@
 package closure
 
 type DiagnosticToSuppressionMapper struct {
-	validSuppressions SetOf[string]
-	diagnosticGroups  ImmutableMapOf[string, *DiagnosticGroup]
+	validSuppressions *TSet[string]
+	diagnosticGroups  *ImmutableMap[string, *DiagnosticGroup]
 }
 
-func (this *DiagnosticToSuppressionMapper) init_DiagnosticToSuppressionMapper(validSuppressions SetOf[string], diagnosticGroups ImmutableMapOf[string, *DiagnosticGroup]) {
+func (this *DiagnosticToSuppressionMapper) init_DiagnosticToSuppressionMapper(validSuppressions *TSet[string], diagnosticGroups *ImmutableMap[string, *DiagnosticGroup]) {
 	this.validSuppressions = validSuppressions
 	this.diagnosticGroups = diagnosticGroups
 }
 
-func new_DiagnosticToSuppressionMapper(validSuppressions SetOf[string], diagnosticGroups ImmutableMapOf[string, *DiagnosticGroup]) *DiagnosticToSuppressionMapper {
+func new_DiagnosticToSuppressionMapper(validSuppressions *TSet[string], diagnosticGroups *ImmutableMap[string, *DiagnosticGroup]) *DiagnosticToSuppressionMapper {
 	this := &DiagnosticToSuppressionMapper{}
 	this.init_DiagnosticToSuppressionMapper(validSuppressions, diagnosticGroups)
 	return this
 }
 
-func (this *DiagnosticToSuppressionMapper) printSuppressions(output *DiagnosticToSuppressionMapper_OutputFormat) {
+func (this *DiagnosticToSuppressionMapper) printSuppressions(output DiagnosticToSuppressionMapper_OutputFormat) {
 	switch output {
 	case DiagnosticToSuppressionMapper_OutputFormat_JSON:
 		DiagnosticToSuppressionMapper_printAsJson(this.createSuppressionMap())
@@ -28,21 +28,19 @@ func (this *DiagnosticToSuppressionMapper) printSuppressions(output *DiagnosticT
 }
 
 func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSortedMapOf[string, string] {
-	var validSuppressions *JTSet[string] = jtsetFrom_(jtc_string, Collection(this.validSuppressions))
+	var validSuppressions *JTSet[string] = jtsetFrom_(jtc_string, Collection(this.validSuppressions.asSet()))
 	validSuppressions.del("accessControls")
 	validSuppressions.del("missingSourcesWarnings")
 	var diagnosticToSuppression *JTMap[*DiagnosticType, string] = jnewTMap_(tce_p_DiagnosticType, jtc_string)
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](this.diagnosticGroups.entrySet())))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.diagnosticGroups.asImm().entrySet())) {
+		entry := icast_Map_Entry(el)
 		var suppression string = str_(entry.getKey())
 		if !validSuppressions.has(suppression) {
 			continue
 		}
 		var group *DiagnosticGroup = cast_[*DiagnosticGroup](entry.getValue())
-		it_3 := foreach_(obj_(group.getTypes()))
-		for it_3.next() {
-			var diagnosticType *DiagnosticType = cast_[*DiagnosticType](it_3.v)
+		for _, el2 := range group.getTypes().keys {
+			diagnosticType := el2
 			Map_merge(diagnosticToSuppression.asMap(), obj_(diagnosticType), strobj_(suppression), &BiFunction_tfn_string_string_string{func(p0 string, p1 string) string { return this.preferMoreTargetedGroup(p0, p1) }})
 		}
 	}
@@ -52,14 +50,14 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 		var entrySet *TEntry[*DiagnosticType, string] = it_5.entry()
 		result.put(strobj_(entrySet.getKey().key_), strobj_(entrySet.getValue()))
 	}
-	return cast_[*ImmutableSortedMap](obj_(result.buildOrThrow()))
+	return result.buildOrThrow()
 }
 
 func (this *DiagnosticToSuppressionMapper) preferMoreTargetedGroup(next string, current string) string {
-	var nextGroup *DiagnosticGroup = cast_[*DiagnosticGroup](Map_get_s(this.diagnosticGroups, next))
-	var currentGroup *DiagnosticGroup = cast_[*DiagnosticGroup](Map_get_s(this.diagnosticGroups, current))
+	var nextGroup *DiagnosticGroup = this.diagnosticGroups.Get(next)
+	var currentGroup *DiagnosticGroup = this.diagnosticGroups.Get(current)
 	return func() string {
-		if nextGroup.getTypes().size() < currentGroup.getTypes().size() {
+		if nextGroup.getTypes().Len() < currentGroup.getTypes().Len() {
 			return next
 		}
 		return current
@@ -71,9 +69,8 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression Immutable
 	writer.setHtmlSafe(true)
 	writer.setSerializeNulls(false)
 	writer.beginObject()
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](diagnosticToSuppression.entrySet())) {
+		entry := icast_Map_Entry(el)
 		writer.name(str_(entry.getKey())).stringValue(Optional_ofNullable[string](str_(entry.getValue())))
 	}
 	writer.endObject()
@@ -83,51 +80,70 @@ func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression Immutable
 func DiagnosticToSuppressionMapper_printAsMarkdown(diagnosticToSuppression ImmutableSortedMapOf[string, string]) {
 	Output_stdout().println("| Error | Suppression tag |")
 	Output_stdout().println("|---|---|")
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](diagnosticToSuppression.entrySet())))
-	for it_1.next() {
-		var e Map_Entry = icast_Map_Entry(it_1.v)
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](diagnosticToSuppression.entrySet())) {
+		e := icast_Map_Entry(el)
 		Output_stdout().println(String_format("|%s|%s|", []any{e.getKey(), e.getValue()}))
 	}
 }
 
-type DiagnosticToSuppressionMapper_OutputFormat struct {
-	Enum
+type DiagnosticToSuppressionMapper_OutputFormat uint8
+
+// DiagnosticToSuppressionMapper_OutputFormat_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var DiagnosticToSuppressionMapper_OutputFormat_enum_ = [2]Enum{
+	{self_: DiagnosticToSuppressionMapper_OutputFormat_MD, name_: "MD", ordinal_: 0},
+	{self_: DiagnosticToSuppressionMapper_OutputFormat_JSON, name_: "JSON", ordinal_: 1},
 }
 
-func (this *DiagnosticToSuppressionMapper_OutputFormat) up_Enum() *Enum {
-	if this == nil {
+func (this DiagnosticToSuppressionMapper_OutputFormat) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &DiagnosticToSuppressionMapper_OutputFormat_enum_[this-1]
 }
 
-func (this *DiagnosticToSuppressionMapper_OutputFormat) init_DiagnosticToSuppressionMapper_OutputFormat(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this DiagnosticToSuppressionMapper_OutputFormat) name() string {
+	return this.enum_().name_
 }
 
-func new_DiagnosticToSuppressionMapper_OutputFormat(name_ string, ordinal_ int32) *DiagnosticToSuppressionMapper_OutputFormat {
-	this := &DiagnosticToSuppressionMapper_OutputFormat{}
-	this.self_ = this
-	this.init_DiagnosticToSuppressionMapper_OutputFormat(name_, ordinal_)
+func (this DiagnosticToSuppressionMapper_OutputFormat) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this DiagnosticToSuppressionMapper_OutputFormat) toString() string {
+	return this.enum_().name_
+}
+
+func (this DiagnosticToSuppressionMapper_OutputFormat) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this DiagnosticToSuppressionMapper_OutputFormat) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func DiagnosticToSuppressionMapper_OutputFormat_values() []*DiagnosticToSuppressionMapper_OutputFormat {
-	return append([]*DiagnosticToSuppressionMapper_OutputFormat(nil), DiagnosticToSuppressionMapper_OutputFormat_values_...)
+func DiagnosticToSuppressionMapper_OutputFormat_values() []DiagnosticToSuppressionMapper_OutputFormat {
+	return append([]DiagnosticToSuppressionMapper_OutputFormat(nil), DiagnosticToSuppressionMapper_OutputFormat_values_...)
 }
 
-func DiagnosticToSuppressionMapper_OutputFormat_valueOf(name string) *DiagnosticToSuppressionMapper_OutputFormat {
+func DiagnosticToSuppressionMapper_OutputFormat_valueOf(name string) DiagnosticToSuppressionMapper_OutputFormat {
 	for _, v := range DiagnosticToSuppressionMapper_OutputFormat_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("OutputFormat", name))
 }
 
-var DiagnosticToSuppressionMapper_OutputFormat_MD *DiagnosticToSuppressionMapper_OutputFormat
-var DiagnosticToSuppressionMapper_OutputFormat_JSON *DiagnosticToSuppressionMapper_OutputFormat
-var DiagnosticToSuppressionMapper_OutputFormat_values_ []*DiagnosticToSuppressionMapper_OutputFormat
+const DiagnosticToSuppressionMapper_OutputFormat_MD DiagnosticToSuppressionMapper_OutputFormat = 1
+const DiagnosticToSuppressionMapper_OutputFormat_JSON DiagnosticToSuppressionMapper_OutputFormat = 2
+
+var DiagnosticToSuppressionMapper_OutputFormat_values_ []DiagnosticToSuppressionMapper_OutputFormat
 
 var DiagnosticToSuppressionMapper_OutputFormat_clinit_done bool
 
@@ -136,9 +152,7 @@ func DiagnosticToSuppressionMapper_OutputFormat_clinit() {
 		return
 	}
 	DiagnosticToSuppressionMapper_OutputFormat_clinit_done = true
-	DiagnosticToSuppressionMapper_OutputFormat_MD = new_DiagnosticToSuppressionMapper_OutputFormat("MD", 0)
-	DiagnosticToSuppressionMapper_OutputFormat_JSON = new_DiagnosticToSuppressionMapper_OutputFormat("JSON", 1)
-	DiagnosticToSuppressionMapper_OutputFormat_values_ = []*DiagnosticToSuppressionMapper_OutputFormat{DiagnosticToSuppressionMapper_OutputFormat_MD, DiagnosticToSuppressionMapper_OutputFormat_JSON}
+	DiagnosticToSuppressionMapper_OutputFormat_values_ = []DiagnosticToSuppressionMapper_OutputFormat{DiagnosticToSuppressionMapper_OutputFormat_MD, DiagnosticToSuppressionMapper_OutputFormat_JSON}
 	registerEnum_("com.google.javascript.jscomp.DiagnosticToSuppressionMapper.OutputFormat", enumValues_(DiagnosticToSuppressionMapper_OutputFormat_values_))
 
 }

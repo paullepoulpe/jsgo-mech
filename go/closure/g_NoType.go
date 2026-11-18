@@ -57,7 +57,7 @@ func new_NoType(registry *JSTypeRegistry) *NoType {
 	return this
 }
 
-func (this *NoType) getTypeClass_impl() *JSTypeClass {
+func (this *NoType) getTypeClass_impl() JSTypeClass {
 	return JSTypeClass_NO
 }
 
@@ -77,7 +77,7 @@ func (this *NoType) isVoidable_impl() bool {
 	return true
 }
 
-func (this *NoType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
+func (this *NoType) getPossibleToBooleanOutcomes_impl() BooleanLiteralSet {
 	return BooleanLiteralSet_BOTH
 }
 
@@ -96,4 +96,77 @@ func (this *NoType) appendTo_impl(sb *TypeStringBuilder) {
 		}
 		return "None"
 	}())
+}
+
+// getTypeClass: an object that is exactly a NoType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *NoType) getTypeClass() JSTypeClass {
+	if p, _ := this.self_.(*NoType); p == this {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.getTypeClass_impl()
+}
+
+// isNoObjectType: an object that is exactly a NoType calls its isNoObjectType_impl directly (post-flip); others dispatch.
+func (this *NoType) isNoObjectType() bool {
+	if p, _ := this.self_.(*NoType); p == this {
+		return this.isNoObjectType_impl()
+	}
+	return this.self_.isNoObjectType_impl()
+}
+
+// isNoType: an object that is exactly a NoType calls its isNoType_impl directly (post-flip); others dispatch.
+func (this *NoType) isNoType() bool {
+	if p, _ := this.self_.(*NoType); p == this {
+		return this.isNoType_impl()
+	}
+	return this.self_.isNoType_impl()
+}
+
+// isNullable: an object that is exactly a NoType calls its isNullable_impl directly (post-flip); others dispatch.
+func (this *NoType) isNullable() bool {
+	if p, _ := this.self_.(*NoType); p == this {
+		return this.isNullable_impl()
+	}
+	return this.self_.isNullable_impl()
+}
+
+// isVoidable: an object that is exactly a NoType calls its isVoidable_impl directly (post-flip); others dispatch.
+func (this *NoType) isVoidable() bool {
+	if p, _ := this.self_.(*NoType); p == this {
+		return this.isVoidable_impl()
+	}
+	return this.self_.isVoidable_impl()
+}
+
+// getPossibleToBooleanOutcomes: an object that is exactly a NoType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
+func (this *NoType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
+	if p, _ := this.self_.(*NoType); p == this {
+		return this.getPossibleToBooleanOutcomes_impl()
+	}
+	return this.self_.getPossibleToBooleanOutcomes_impl()
+}
+
+// visitUntyped: an object that is exactly a NoType calls its visitUntyped_impl directly (post-flip); others dispatch.
+func (this *NoType) visitUntyped(p0 Visitor) any {
+	if p, _ := this.self_.(*NoType); p == this {
+		return this.visitUntyped_impl(p0)
+	}
+	return this.self_.visitUntyped_impl(p0)
+}
+
+// visitUntyped_2: an object that is exactly a NoType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
+func (this *NoType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
+	if p, _ := this.self_.(*NoType); p == this {
+		return this.visitUntyped_2_impl(p0, p1)
+	}
+	return this.self_.visitUntyped_2_impl(p0, p1)
+}
+
+// appendTo: an object that is exactly a NoType calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *NoType) appendTo(p0 *TypeStringBuilder) {
+	if p, _ := this.self_.(*NoType); p == this {
+		this.appendTo_impl(p0)
+		return
+	}
+	this.self_.appendTo_impl(p0)
 }

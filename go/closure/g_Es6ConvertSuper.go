@@ -44,22 +44,23 @@ func (this *Es6ConvertSuper) isInterface(classNode Node) bool {
 }
 
 func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
-	Preconditions_checkState(node.isSuper())
+	if !node.isSuper() {
+		panic(new_IllegalStateException_0())
+	}
 	var exprRoot Node = node
 	if exprRoot.getParent().isGetElem() || exprRoot.getParent().isGetProp() {
 		exprRoot = exprRoot.getParent()
 	}
-	var enclosingMemberDef Node = NodeUtil_getEnclosingNode(exprRoot, &Predicate_base_tfn_Node{func(n Node) bool {
+	var enclosingMemberDef Node = NodeUtil_getEnclosingNode(exprRoot, (&Predicate_base_tfn_Node{func(n Node) bool {
 		return func() bool {
-			switch n.getToken() {
-			case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_COMPUTED_PROP:
+			switch n.ns_().token {
+			case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_COMPUTED_PROP:
 				return true
 			default:
 				return false
 			}
-			panic("unreachable")
 		}()
-	}})
+	}}).apply)
 	if (enclosingMemberDef == 0) || enclosingMemberDef.getParent().isObjectLit() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, TranspilationUtil_CANNOT_CONVERT, []string{"super is not supported in object literal methods."}))
 		return
@@ -77,15 +78,19 @@ func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, TranspilationUtil_CANNOT_CONVERT_YET, []string{"Only calls to super or to a method of super are supported."}))
 		}
 	} else if parent.isNew() {
-		panic(new_IllegalStateException_String("This should never happen. Did Es6SuperCheck fail to run?").self())
+		panic(new_IllegalStateException_String("This should never happen. Did Es6SuperCheck fail to run?"))
 	} else {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, TranspilationUtil_CANNOT_CONVERT_YET, []string{"Only calls to super or to a method of super are supported."}))
 	}
 }
 
 func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMemberDef Node) {
-	Preconditions_checkState_boolean_Object(parent.isCall(), parent.box_())
-	Preconditions_checkState_boolean_Object(node.isSuper(), node.box_())
+	if !parent.isCall() {
+		panic(new_IllegalStateException_String(tostr_(parent)))
+	}
+	if !node.isSuper() {
+		panic(new_IllegalStateException_String(tostr_(node)))
+	}
 	var clazz Node = NodeUtil_getEnclosingClass(node)
 	var superName Node = clazz.getSecondChild()
 	if !superName.isQualifiedName() {
@@ -100,15 +105,21 @@ func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMem
 		}
 		return
 	} else {
-		panic(new_IllegalStateException_String("This should never happen. Did Es6SuperCheck fail to run?").self())
+		panic(new_IllegalStateException_String("This should never happen. Did Es6SuperCheck fail to run?"))
 	}
 }
 
 func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, enclosingMemberDef Node) {
-	Preconditions_checkState_boolean_Object((parent.isGetProp() || parent.isGetElem()), parent.box_())
-	Preconditions_checkState_boolean_Object(node.isSuper(), node.box_())
+	if !parent.isGetProp() && !parent.isGetElem() {
+		panic(new_IllegalStateException_String(tostr_(parent)))
+	}
+	if !node.isSuper() {
+		panic(new_IllegalStateException_String(tostr_(node)))
+	}
 	var grandparent Node = parent.getParent()
-	Preconditions_checkState(grandparent.isCall())
+	if !grandparent.isCall() {
+		panic(new_IllegalStateException_0())
+	}
 	var clazz Node = NodeUtil_getEnclosingClass(node)
 	var superName Node = clazz.getSecondChild()
 	if !superName.isQualifiedName() {
@@ -142,8 +153,12 @@ func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, encl
 }
 
 func (this *Es6ConvertSuper) visitSuperPropertyAccess(node Node, parent Node, enclosingMemberDef Node) {
-	Preconditions_checkState_boolean_Object((parent.isGetProp() || parent.isGetElem()), parent.box_())
-	Preconditions_checkState_boolean_Object(node.isSuper(), node.box_())
+	if !parent.isGetProp() && !parent.isGetElem() {
+		panic(new_IllegalStateException_String(tostr_(parent)))
+	}
+	if !node.isSuper() {
+		panic(new_IllegalStateException_String(tostr_(node)))
+	}
 	var grandparent Node = parent.getParent()
 	if NodeUtil_isLValue(parent) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(parent, TranspilationUtil_CANNOT_CONVERT_YET, []string{"assigning to a super property"}))
@@ -188,8 +203,8 @@ func (this *Es6ConvertSuper) ensureNoCollapseOnStaticMemberDef(memberDef Node) {
 }
 
 func (this *Es6ConvertSuper) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, externs, Es6ConvertSuper_FEATURES_TO_RUN_FOR, []NodeTraversal_Callback{icast_NodeTraversal_Callback(obj_(this))})
-	TranspilationPasses_processTranspile(this.compiler_, root, Es6ConvertSuper_FEATURES_TO_RUN_FOR, []NodeTraversal_Callback{icast_NodeTraversal_Callback(obj_(this))})
+	TranspilationPasses_processTranspile(this.compiler_, externs, Es6ConvertSuper_FEATURES_TO_RUN_FOR, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
+	TranspilationPasses_processTranspile(this.compiler_, root, Es6ConvertSuper_FEATURES_TO_RUN_FOR, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 }
 
 var Es6ConvertSuper_FEATURES_TO_RUN_FOR *FeatureSet
@@ -201,6 +216,15 @@ func Es6ConvertSuper_clinit() {
 		return
 	}
 	Es6ConvertSuper_clinit_done = true
-	Es6ConvertSuper_FEATURES_TO_RUN_FOR = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_SUPER, FeatureSet_Feature_CLASSES})
+	Es6ConvertSuper_FEATURES_TO_RUN_FOR = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_SUPER, FeatureSet_Feature_CLASSES})
 
+}
+
+// visit: an object that is exactly a Es6ConvertSuper calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6ConvertSuper) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*Es6ConvertSuper); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

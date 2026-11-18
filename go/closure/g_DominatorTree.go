@@ -9,11 +9,6 @@ type DominatorTree[N any] struct {
 
 func (this *DominatorTree[N]) isa_DominatorTree_() {}
 
-func is_DominatorTree(v any) bool {
-	_, ok := v.(interface{ isa_DominatorTree_() })
-	return ok
-}
-
 func (this *DominatorTree[N]) init_DominatorTree(idoms MapOf[N, N], subtreeSizes MapOf[N, BoxedOf[int32]]) {
 	this.idoms = ImmutableMap_copyOf(idoms)
 	this.subtreeSizes = ImmutableMap_copyOf(subtreeSizes)
@@ -26,10 +21,12 @@ func new_DominatorTree[N any](idoms MapOf[N, N], subtreeSizes MapOf[N, BoxedOf[i
 }
 
 func DominatorTree_compute[N any](graph *DiGraph[N], entry N) *DominatorTree[N] {
-	Preconditions_checkNotNull_Object_Object(any(graph.getNode(entry)), strobj_("Entry node not in graph"))
-	var postOrder ListOf[N] = icast_List(new_ArrayList_0().self())
-	var postOrderIndex MapOf[N, BoxedOf[int32]] = icast_Map(obj_(new_LinkedHashMap()))
-	DominatorTree_buildPostOrder[N](graph, entry, postOrder, icast_Map(obj_(new_LinkedHashMap())))
+	if graph.getNode(entry) == nil {
+		panic(new_NullPointerException_String("Entry node not in graph"))
+	}
+	var postOrder ListOf[N] = new_ArrayList_0()
+	var postOrderIndex MapOf[N, BoxedOf[int32]] = new_LinkedHashMap()
+	DominatorTree_buildPostOrder[N](graph, entry, postOrder, Map(new_LinkedHashMap()))
 	var numNodes int32 = postOrder.size()
 	var reversePostOrder []N = DominatorTree_toReversedArray[N](postOrder)
 	for i := int32(0); i < numNodes; i++ {
@@ -48,9 +45,7 @@ func DominatorTree_compute[N any](graph *DiGraph[N], entry N) *DominatorTree[N] 
 			}
 			var nodeIdx int32 = unbox_[int32](postOrderIndex.get(boxT_(node)))
 			var newIdomIdx int32 = -1
-			it_4 := foreach_(any(graph.getDirectedPredNodes(node)))
-			for it_4.next() {
-				var pred DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](it_4.v)
+			for pred := range elemsAs_[DiGraph_DiGraphNode[N]](graph.getDirectedPredNodes(node)) {
 				var predValue N = pred.getValue()
 				var predIdx any = postOrderIndex.get(boxT_(predValue))
 				if (predIdx != nil) && (idomIndexes[unbox_[int32](predIdx)] != -1) {
@@ -59,9 +54,7 @@ func DominatorTree_compute[N any](graph *DiGraph[N], entry N) *DominatorTree[N] 
 				}
 			}
 			if newIdomIdx != -1 {
-				it_6 := foreach_(any(graph.getDirectedPredNodes(node)))
-				for it_6.next() {
-					var pred DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](it_6.v)
+				for pred := range elemsAs_[DiGraph_DiGraphNode[N]](graph.getDirectedPredNodes(node)) {
 					var predValue N = pred.getValue()
 					var predIdx any = postOrderIndex.get(boxT_(predValue))
 					if (predIdx != nil) && (idomIndexes[unbox_[int32](predIdx)] != -1) {
@@ -75,8 +68,8 @@ func DominatorTree_compute[N any](graph *DiGraph[N], entry N) *DominatorTree[N] 
 			}
 		}
 	}
-	var idomsMap MapOf[N, N] = icast_Map(obj_(new_LinkedHashMap()))
-	var children *SimpleListMultimap = SimpleListMultimap_create()
+	var idomsMap MapOf[N, N] = new_LinkedHashMap()
+	var children *SimpleListMultimap[any, any] = SimpleListMultimap_create[any, any]()
 	for i := int32(0); i < numNodes; i++ {
 		var node N = junboxT_[N](postOrder.get(i))
 		var idomIdx int32 = idomIndexes[i]
@@ -86,7 +79,7 @@ func DominatorTree_compute[N any](graph *DiGraph[N], entry N) *DominatorTree[N] 
 			children.put(boxT_(idom), boxT_(node))
 		}
 	}
-	var sizesMap MapOf[N, BoxedOf[int32]] = icast_Map(obj_(new_LinkedHashMap()))
+	var sizesMap MapOf[N, BoxedOf[int32]] = new_LinkedHashMap()
 	DominatorTree_computeSubtreeSizes[N](entry, children, sizesMap)
 	return new_DominatorTree[N](idomsMap, sizesMap)
 }
@@ -107,9 +100,7 @@ func DominatorTree_intersect(idomIndexes []int32, i int32, j int32) int32 {
 
 func DominatorTree_buildPostOrder[N any](graph *DiGraph[N], node N, postOrder ListOf[N], visited MapOf[N, BoxedOf[bool]]) {
 	visited.put(boxT_(node), any(bool(true)))
-	it_1 := foreach_(any(graph.getDirectedSuccNodes(node)))
-	for it_1.next() {
-		var succ DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](it_1.v)
+	for succ := range elemsAs_[DiGraph_DiGraphNode[N]](graph.getDirectedSuccNodes(node)) {
 		var succValue N = succ.getValue()
 		if !visited.containsKey(boxT_(succValue)) {
 			DominatorTree_buildPostOrder[N](graph, succValue, postOrder, visited)
@@ -118,13 +109,12 @@ func DominatorTree_buildPostOrder[N any](graph *DiGraph[N], node N, postOrder Li
 	postOrder.add(boxT_(node))
 }
 
-func DominatorTree_computeSubtreeSizes[N any](node N, children *SimpleListMultimap, sizes MapOf[N, BoxedOf[int32]]) int32 {
+func DominatorTree_computeSubtreeSizes[N any](node N, children *SimpleListMultimap[any, any], sizes MapOf[N, BoxedOf[int32]]) int32 {
 	var size int32 = 1
 	var nodeChildren ListOf[N] = children.get(boxT_(node))
 	if nodeChildren != nil {
-		it_1 := foreach_(any(nodeChildren))
-		for it_1.next() {
-			var child N = junboxT_[N](it_1.v)
+		for el_1 := range elems_(nodeChildren) {
+			var child N = junboxT_[N](el_1)
 			size += DominatorTree_computeSubtreeSizes[N](child, children, sizes)
 		}
 	}

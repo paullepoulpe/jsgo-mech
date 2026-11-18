@@ -44,15 +44,14 @@ func (this *VarCheck) createScopeCreator() *SyntacticScopeCreator {
 		this.dupHandler = new_VarCheck_RedeclarationCheckHandler(this)
 		return new_SyntacticScopeCreator_AbstractCompiler_RedeclarationHandler(this.compiler_, icast_SyntacticScopeCreator_RedeclarationHandler(obj_(this.dupHandler)))
 	}
-	panic("unreachable")
 }
 
 func (this *VarCheck) process_2(externs Node, root Node) {
 	var scopeCreator ScopeCreator = icast_ScopeCreator(obj_(this.createScopeCreator()))
 	if !this.validityCheck {
-		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(new_VarCheck_NameRefInExternsCheck(this)))).setScopeCreator(scopeCreator).traverse(externs)
+		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_VarCheck_NameRefInExternsCheck(this)).setScopeCreator(scopeCreator).traverse(externs)
 	}
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(any(this))).setScopeCreator(scopeCreator).traverseRoots(externs, root)
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).setScopeCreator(scopeCreator).traverseRoots(externs, root)
 	it_1 := this.undefinedNamesFromExterns.each()
 	for it_1.next() {
 		var varName string = it_1.v
@@ -75,8 +74,10 @@ func (this *VarCheck) visit(t *NodeTraversal, n Node, parent Node) {
 
 func (this *VarCheck) checkName(t *NodeTraversal, n Node, parent Node) {
 	var varName string = n.getString()
-	if String_isEmpty(varName) {
-		Preconditions_checkState((NodeUtil_isFunctionExpression(parent) || NodeUtil_isMethodDeclaration(parent)))
+	if varName == "" {
+		if !NodeUtil_isFunctionExpression(parent) && !NodeUtil_isMethodDeclaration(parent) {
+			panic(new_IllegalStateException_0())
+		}
 		return
 	}
 	var scope *Scope = t.getScope()
@@ -92,7 +93,7 @@ func (this *VarCheck) checkName(t *NodeTraversal, n Node, parent Node) {
 		cast_[*Scope](scope.getGlobalScope().self()).declare(varName, n, this.compiler_.getSynthesizedExternsInput())
 		return
 	}
-	if (var_.isImplicitGoogNamespace() && Object_equals(obj_(var_.getImplicitGoogNamespaceStrength()), obj_(StaticSourceFile_SourceKind_WEAK))) && Object_equals(obj_(VarCheck_strengthOf(n)), obj_(StaticSourceFile_SourceKind_STRONG)) {
+	if (var_.isImplicitGoogNamespace() && equalsId_(var_.getImplicitGoogNamespaceStrength(), StaticSourceFile_SourceKind_WEAK)) && equalsId_(VarCheck_strengthOf(n), StaticSourceFile_SourceKind_STRONG) {
 		this.handleUndeclaredVariableRef(t, n)
 		return
 	}
@@ -123,7 +124,7 @@ func (this *VarCheck) checkName(t *NodeTraversal, n Node, parent Node) {
 	}
 }
 
-func VarCheck_strengthOf(n Node) *StaticSourceFile_SourceKind {
+func VarCheck_strengthOf(n Node) StaticSourceFile_SourceKind {
 	var source StaticSourceFile = n.getStaticSourceFile()
 	if source == nil {
 		return StaticSourceFile_SourceKind_EXTERN
@@ -132,7 +133,9 @@ func VarCheck_strengthOf(n Node) *StaticSourceFile_SourceKind {
 }
 
 func (this *VarCheck) handleUndeclaredVariableRef(t *NodeTraversal, n Node) {
-	Preconditions_checkState(n.isName())
+	if !n.isName() {
+		panic(new_IllegalStateException_0())
+	}
 	var varName string = n.getString()
 	if n.getParent().isTypeOf() {
 	} else if varName == VarCheck_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME {
@@ -141,7 +144,7 @@ func (this *VarCheck) handleUndeclaredVariableRef(t *NodeTraversal, n Node) {
 		t.report(n, VarCheck_UNDEFINED_VAR_ERROR, []string{varName})
 	}
 	if this.validityCheck {
-		panic(new_IllegalStateException_String(("Unexpected variable " + sstr_(varName))).self())
+		panic(new_IllegalStateException_String(("Unexpected variable " + sstr_(varName))))
 	} else if !this.undefinedNamesFromExterns.has(varName) {
 		this.createSynthesizedExternVar(varName, true)
 	}
@@ -154,9 +157,8 @@ func (this *VarCheck) enterScope(t *NodeTraversal) {
 func (this *VarCheck) exitScope(t *NodeTraversal) {
 	if !this.validityCheck && t.inGlobalScope() {
 		var scope *Scope = t.getScope()
-		it_1 := foreach_(obj_(VarCheck_REQUIRED_SYMBOLS))
-		for it_1.next() {
-			var requiredSymbol string = str_(it_1.v)
+		for _, el := range VarCheck_REQUIRED_SYMBOLS.keys {
+			requiredSymbol := el
 			var var_ *Var = cast_[*Var](scope.getVar(requiredSymbol).self())
 			if var_ == nil {
 				this.undefinedNamesFromExterns.add(requiredSymbol)
@@ -222,7 +224,7 @@ const VarCheck_ARGUMENTS string = "arguments"
 const VarCheck_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME string = "$jscomp_wrap_closure_unaware_code"
 
 var VarCheck_googForwardDeclare Node
-var VarCheck_REQUIRED_SYMBOLS *ImmutableSet
+var VarCheck_REQUIRED_SYMBOLS *ImmutableSet[string]
 
 var VarCheck_clinit_done bool
 
@@ -241,7 +243,7 @@ func VarCheck_clinit() {
 	VarCheck_BLOCK_SCOPED_DECL_MULTIPLY_DECLARED_ERROR = DiagnosticType_error("JSC_BLOCK_SCOPED_DECL_MULTIPLY_DECLARED_ERROR", "Block-scoped variable {0} declared more than once. First occurrence: {1}")
 	VarCheck_VAR_ARGUMENTS_SHADOWED_ERROR = DiagnosticType_error("JSC_VAR_ARGUMENTS_SHADOWED_ERROR", "Shadowing \"arguments\" is not allowed")
 	VarCheck_googForwardDeclare = IR_getprop_Node_String(IR_name("goog"), "forwardDeclare")
-	VarCheck_REQUIRED_SYMBOLS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("AggregateError"), strobj_("Array"), strobj_("Error"), strobj_("Float32Array"), strobj_("Function"), strobj_("Infinity"), []any{strobj_("Iterator"), strobj_("JSCOMPILER_PRESERVE"), strobj_("JSCompiler_renameProperty"), strobj_("Map"), strobj_("Math"), strobj_("NaN"), strobj_("Number"), strobj_("Object"), strobj_("Promise"), strobj_("RangeError"), strobj_("ReferenceError"), strobj_("Reflect"), strobj_("RegExp"), strobj_("Set"), strobj_("String"), strobj_("SuppressedError"), strobj_("Symbol"), strobj_("TypeError"), strobj_("WeakMap"), strobj_("global"), strobj_("globalThis"), strobj_("isNaN"), strobj_("parseFloat"), strobj_("parseInt"), strobj_("self"), strobj_("undefined"), strobj_("window")})
+	VarCheck_REQUIRED_SYMBOLS = immutableSetOf_(tc_string, "AggregateError", "Array", "Error", "Float32Array", "Function", "Infinity", "Iterator", "JSCOMPILER_PRESERVE", "JSCompiler_renameProperty", "Map", "Math", "NaN", "Number", "Object", "Promise", "RangeError", "ReferenceError", "Reflect", "RegExp", "Set", "String", "SuppressedError", "Symbol", "TypeError", "WeakMap", "global", "globalThis", "isNaN", "parseFloat", "parseInt", "self", "undefined", "window")
 
 }
 
@@ -266,14 +268,14 @@ func (this *VarCheck_NameRefInExternsCheck) shouldTraverse(t *NodeTraversal, n N
 
 func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
-		switch parent.getToken() {
-		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_FUNCTION, Token_rhino_CLASS, Token_rhino_PARAM_LIST, Token_rhino_DEFAULT_VALUE, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST, Token_rhino_ARRAY_PATTERN:
+		switch parent.ns_().token {
+		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_FUNCTION, tokOrd1_CLASS, tokOrd1_PARAM_LIST, tokOrd1_DEFAULT_VALUE, tokOrd1_ITER_REST, tokOrd1_OBJECT_REST, tokOrd1_ARRAY_PATTERN:
 			return
-		case Token_rhino_STRING_KEY:
+		case tokOrd1_STRING_KEY:
 			if parent.getParent().isObjectPattern() {
 				return
 			}
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			if n == parent.getFirstChild() {
 				var scope *Scope = t.getScope()
 				var var_ *Var = cast_[*Var](scope.getVar(n.getString()).self())
@@ -287,15 +289,15 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 				this.outer_.undefinedNamesFromExterns.add(n.getString())
 			}
 			return
-		case Token_rhino_ASSIGN:
+		case tokOrd1_ASSIGN:
 			if ((n == parent.getLastChild()) && n.isQualifiedName()) && parent.getFirstChild().isQualifiedName() {
 				return
 			}
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			if NodeUtil_isNameDeclaration(parent.getParent()) {
 				return
 			}
-		case Token_rhino_OR:
+		case tokOrd1_OR:
 			if NodeUtil_isNamespaceDecl(parent.getParent()) {
 				return
 			}
@@ -340,18 +342,18 @@ func (this *VarCheck_RedeclarationCheckHandler) onRedeclaration(s *Scope, name s
 		}
 		return NodeUtil_getDeclaringParent(origNode)
 	}()
-	switch parent.getToken() {
-	case Token_rhino_CLASS, Token_rhino_CONST, Token_rhino_LET:
+	switch parent.ns_().token {
+	case tokOrd1_CLASS, tokOrd1_CONST, tokOrd1_LET:
 		this.outer_.reportBlockScopedMultipleDeclaration(n, name, origNode)
 		return
 	default:
 	}
 	if origParent != 0 {
-		switch origParent.getToken() {
-		case Token_rhino_CLASS, Token_rhino_CONST, Token_rhino_LET:
+		switch origParent.ns_().token {
+		case tokOrd1_CLASS, tokOrd1_CONST, tokOrd1_LET:
 			this.outer_.reportBlockScopedMultipleDeclaration(n, name, origNode)
 			return
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			if !s.isGlobal() && parent.isFunction() {
 				this.outer_.reportBlockScopedMultipleDeclaration(n, name, origNode)
 				return

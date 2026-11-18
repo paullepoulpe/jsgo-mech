@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type LinkedFlowScope struct {
 	inputProvider  CompilerInputProvider
 	scopes         PMap[*TypedScope, *LinkedFlowScope_OverlayScope]
@@ -69,15 +71,15 @@ func (this *LinkedFlowScope) inferSlotType(symbol string, type_ *JSType) FlowSco
 	}()
 	return func() FlowScope {
 		if newScopes != this.scopes {
-			return icast_FlowScope(obj_(new_LinkedFlowScope(this.inputProvider, newScopes, this.syntacticScope, this.functionScope)))
+			return new_LinkedFlowScope(this.inputProvider, newScopes, this.syntacticScope, this.functionScope)
 		}
-		return icast_FlowScope(any(this))
+		return this
 	}()
 }
 
 func (this *LinkedFlowScope) inferQualifiedSlot(node Node, symbol string, bottomType *JSType, inferredType *JSType, declared bool) FlowScope {
 	if this.functionScope.isGlobal() {
-		return icast_FlowScope(any(this))
+		return this
 	}
 	var v *TypedVar = cast_[*TypedVar](this.syntacticScope.getVar(symbol).self())
 	if (v == nil) && !this.functionScope.isBottom() {
@@ -98,8 +100,8 @@ func (this *LinkedFlowScope) inferQualifiedSlot(node Node, symbol string, bottom
 	}()
 	if v != nil {
 		if !v.isTypeInferred() {
-			if (((declaredType == nil) || !inferredType.isSubtypeOf(declaredType)) || declaredType.isSubtypeOf(inferredType)) || inferredType.equals(declaredType.self()) {
-				return icast_FlowScope(any(this))
+			if (((declaredType == nil) || !inferredType.isSubtypeOf(declaredType)) || declaredType.isSubtypeOf(inferredType)) || inferredType.equals_JSType(declaredType) {
+				return this
 			}
 		} else if (declaredType != nil) && !inferredType.isSubtypeOf(declaredType) {
 			v.setType(v.getType().getLeastSupertype(inferredType))
@@ -117,7 +119,7 @@ func (this *LinkedFlowScope) getRootNode() Node {
 }
 
 func (this *LinkedFlowScope) getParentScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *LinkedFlowScope) getSlot(name string) StaticSlot {
@@ -137,12 +139,12 @@ func (this *LinkedFlowScope) getSlot(name string) StaticSlot {
 }
 
 func LinkedFlowScope_getRootOfQualifiedName(name string) string {
-	var index int32 = String_indexOf(name, 46)
+	var index int32 = int32(strings.IndexByte(name, '.'))
 	return func() string {
 		if index < 0 {
 			return name
 		}
-		return String_substring(name, 0, index)
+		return name[:index]
 	}()
 }
 
@@ -172,16 +174,16 @@ func (this *LinkedFlowScope) getOverlayScopeForScope(scope *TypedScope, create b
 }
 
 func (this *LinkedFlowScope) getOwnSlot(name string) StaticSlot {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *LinkedFlowScope) withSyntacticScope(scope StaticTypedScope) FlowScope {
 	var typedScope *TypedScope = cast_[*TypedScope](scope)
 	return func() FlowScope {
-		if any(scope) != obj_(this.syntacticScope) {
-			return icast_FlowScope(obj_(new_LinkedFlowScope(this.inputProvider, this.trimScopes(typedScope), typedScope, this.functionScope)))
+		if scope != obj_(this.syntacticScope) {
+			return new_LinkedFlowScope(this.inputProvider, this.trimScopes(typedScope), typedScope, this.functionScope)
 		}
-		return icast_FlowScope(any(this))
+		return this
 	}()
 }
 
@@ -203,10 +205,11 @@ func (this *LinkedFlowScope) equals(other any) bool {
 	_ = that
 	if !(func() bool {
 		v_ := other
-		if !is_[*LinkedFlowScope](v_) {
+		p, ok := v_.(*LinkedFlowScope)
+		if !ok {
 			return false
 		}
-		that = cast_[*LinkedFlowScope](v_)
+		that = p
 		return true
 	}()) {
 		return false
@@ -230,7 +233,7 @@ func LinkedFlowScope_equalSlots(slotA StaticTypedSlot, slotB StaticTypedSlot) bo
 }
 
 func (this *LinkedFlowScope) hashCode() int32 {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, commonParent *TypedScope) PMap[*TypedScope, *LinkedFlowScope_OverlayScope] {
@@ -352,18 +355,16 @@ func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, co
 				}
 				return new_LinkedFlowScope_OverlaySlot(name, joinedType)
 			}()
-			panic("unreachable")
 		}}))
-		panic("unreachable")
 	}})
 }
 
 func (this *LinkedFlowScope) lookupQualifiedName(p0 *QualifiedName) *JSType {
-	return StaticTypedScope_lookupQualifiedName_default(icast_StaticTypedScope(any(this)), p0)
+	return StaticTypedScope_lookupQualifiedName_default(this, p0)
 }
 
 func (this *LinkedFlowScope) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
-	return StaticScope_getTopmostScopeOfEventualDeclaration_default(icast_StaticScope(any(this)), p0)
+	return StaticScope_getTopmostScopeOfEventualDeclaration_default(this, p0)
 }
 
 var LinkedFlowScope_EMPTY_SLOTS PMap[string, *LinkedFlowScope_OverlaySlot]
@@ -431,7 +432,10 @@ type LinkedFlowScope_OverlayScope struct {
 }
 
 func (this *LinkedFlowScope_OverlayScope) init_LinkedFlowScope_OverlayScope_TypedScope(scope *TypedScope) {
-	this.scope_ = cast_[*TypedScope](Preconditions_checkNotNull(obj_(scope)))
+	if scope == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.scope_ = scope
 	this.slots = LinkedFlowScope_EMPTY_SLOTS
 }
 
@@ -442,7 +446,10 @@ func new_LinkedFlowScope_OverlayScope_TypedScope(scope *TypedScope) *LinkedFlowS
 }
 
 func (this *LinkedFlowScope_OverlayScope) init_LinkedFlowScope_OverlayScope_TypedScope_PMap(scope *TypedScope, slots PMap[string, *LinkedFlowScope_OverlaySlot]) {
-	this.scope_ = cast_[*TypedScope](Preconditions_checkNotNull(obj_(scope)))
+	if scope == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.scope_ = scope
 	this.slots = slots
 }
 
@@ -464,7 +471,7 @@ func (this *LinkedFlowScope_OverlayScope) getSlot(name string) StaticTypedSlot {
 	var slot *LinkedFlowScope_OverlaySlot = this.slots.get(name)
 	return func() StaticTypedSlot {
 		if slot != nil {
-			return icast_StaticTypedSlot(obj_(slot))
+			return any(slot).(StaticTypedSlot)
 		}
 		return icast_StaticTypedSlot(this.scope_.getSlot(name))
 	}()
@@ -512,5 +519,5 @@ func (this *LinkedFlowScope_OverlaySlot) getJSDocInfo() *JSDocInfo {
 }
 
 func (this *LinkedFlowScope_OverlaySlot) getScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }

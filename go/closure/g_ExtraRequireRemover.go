@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ExtraRequireRemover struct {
 	compiler_ *AbstractCompiler
 	requires  *JTMap[string, Node]
@@ -26,7 +28,7 @@ func new_ExtraRequireRemover(compiler *AbstractCompiler) *ExtraRequireRemover {
 
 func (this *ExtraRequireRemover) process_2(externs Node, root Node) {
 	this.reset()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *ExtraRequireRemover) extractNamespace(call Node, primitiveNames []*QualifiedName) Optional[string] {
@@ -55,18 +57,18 @@ func (this *ExtraRequireRemover) shouldTraverse(t *NodeTraversal, n Node, parent
 
 func (this *ExtraRequireRemover) visit(t *NodeTraversal, n Node, parent Node) {
 	this.maybeAddJsDocUsages(n)
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		if !NodeUtil_isLValue(n) && !parent.isGetProp() {
 			this.visitQualifiedName(n)
 		}
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		if !parent.isGetProp() && n.isQualifiedName() {
 			this.visitQualifiedName(n)
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		this.visitCallNode(n, parent)
-	case Token_rhino_SCRIPT:
+	case tokOrd1_SCRIPT:
 		this.removeExtraRequiresInScript()
 		this.reset()
 	default:
@@ -101,7 +103,7 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 	}
 	if call.getParent().isExprResult() {
 		if (!call.getGrandparent().isModuleBody() || J2clSourceUtils_isJ2clHeaderSource(Optional_of[string](call.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}}))) {
 			this.compiler_.reportChangeToEnclosingScope(call.getParent())
 			call.getParent().detach()
@@ -110,16 +112,22 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 	}
 	if call.getParent().isName() {
 		var nameDeclaration Node = call.getGrandparent()
-		Preconditions_checkState(NodeUtil_isNameDeclaration(call.getGrandparent()))
+		if !NodeUtil_isNameDeclaration(call.getGrandparent()) {
+			panic(new_IllegalStateException_0())
+		}
 		this.compiler_.reportChangeToEnclosingScope(nameDeclaration.getParent())
 		nameDeclaration.detach()
 		return
 	}
-	Preconditions_checkState_boolean_Object(call.getParent().isStringKey(), call.getParent().box_())
+	if ok_, a1_ := call.getParent().isStringKey(), call.getParent(); !ok_ {
+		panic(new_IllegalStateException_String(tostr_(a1_)))
+	}
 	var objectPattern Node = call.getGrandparent()
 	if objectPattern.hasOneChild() {
 		var nameDeclaration Node = objectPattern.getGrandparent()
-		Preconditions_checkState_boolean_Object(NodeUtil_isNameDeclaration(nameDeclaration), nameDeclaration.box_())
+		if !NodeUtil_isNameDeclaration(nameDeclaration) {
+			panic(new_IllegalStateException_String(tostr_(nameDeclaration)))
+		}
 		this.compiler_.reportChangeToEnclosingScope(nameDeclaration.getParent())
 		nameDeclaration.detach()
 		return
@@ -129,7 +137,7 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 }
 
 func (this *ExtraRequireRemover) visitRequire(localName string, namespace string, node Node) {
-	if Collection_contains_s(ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES, namespace) {
+	if ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES.Has(namespace) {
 		return
 	}
 	this.requires.putIfAbsent(localName, node)
@@ -176,7 +184,9 @@ func (this *ExtraRequireRemover) addUsagesOfAllPrefixes(qualifiedName *Qualified
 }
 
 func (this *ExtraRequireRemover) visitQualifiedName(n Node) {
-	Preconditions_checkArgument_boolean_Object(n.isQualifiedName(), n.box_())
+	if !n.isQualifiedName() {
+		panic(new_IllegalArgumentException_String(tostr_(n)))
+	}
 	this.addUsagesOfAllPrefixes(n.getQualifiedNameObject())
 }
 
@@ -185,26 +195,23 @@ func (this *ExtraRequireRemover) maybeAddJsDocUsages(n Node) {
 	if info == nil {
 		return
 	}
-	it_1 := foreach_(any(info.getTypeExpressions()))
-	for it_1.next() {
-		var e *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
-		it_3 := foreach_(obj_(e.getAllTypeNames()))
-		for it_3.next() {
-			var typeName string = str_(it_3.v)
+	for e := range elemsAs_[*JSTypeExpression](info.getTypeExpressions()) {
+		for _, el := range e.getAllTypeNames().keys {
+			typeName := el
 			this.addUsagesOfAllPrefixes(QualifiedName_of(typeName))
 		}
 	}
 }
 
 func ExtraRequireRemover_isTsickleProtoCall(call Node) bool {
-	if !call.isCall() || !String_endsWith(call.getSourceFileName(), ".closure.js") {
+	if !call.isCall() || !strings.HasSuffix(call.getSourceFileName(), ".closure.js") {
 		return false
 	}
 	var moduleId Node = call.getSecondChild()
-	return (((moduleId != 0) && moduleId.isStringLit()) && String_startsWith(moduleId.getString(), "proto."))
+	return (((moduleId != 0) && moduleId.isStringLit()) && strings.HasPrefix(moduleId.getString(), "proto."))
 }
 
-var ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES *ImmutableSet
+var ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES *ImmutableSet[string]
 var ExtraRequireRemover_GOOG_REQUIRE *QualifiedName
 var ExtraRequireRemover_GOOG_REQUIRE_TYPE *QualifiedName
 var ExtraRequireRemover_GOOG_FORWARD_DECLARE *QualifiedName
@@ -217,7 +224,7 @@ func ExtraRequireRemover_clinit() {
 		return
 	}
 	ExtraRequireRemover_clinit_done = true
-	ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES = ImmutableSet_of_Object_Object_Object(strobj_("goog.testing.asserts"), strobj_("goog.testing.jsunit"), strobj_("goog.labs.testing.Environment"))
+	ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES = immutableSetOf_(tc_string, "goog.testing.asserts", "goog.testing.jsunit", "goog.labs.testing.Environment")
 	ExtraRequireRemover_GOOG_REQUIRE = QualifiedName_of("goog.require")
 	ExtraRequireRemover_GOOG_REQUIRE_TYPE = QualifiedName_of("goog.requireType")
 	ExtraRequireRemover_GOOG_FORWARD_DECLARE = QualifiedName_of("goog.forwardDeclare")

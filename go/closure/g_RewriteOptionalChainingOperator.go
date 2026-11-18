@@ -4,17 +4,17 @@ package closure
 
 type RewriteOptionalChainingOperator struct {
 	compiler_                    *AbstractCompiler
-	getTmpVarNameCreatorForInput FunctionOf[*CompilerInput, OptionalChainRewriter_TmpVarNameCreator]
+	getTmpVarNameCreatorForInput func(any) any
 }
 
 func (this *RewriteOptionalChainingOperator) init_RewriteOptionalChainingOperator_AbstractCompiler(compiler *AbstractCompiler) {
 	this.compiler_ = compiler
 	var uniqueIdSupplier *UniqueIdSupplier = compiler.getUniqueIdSupplier()
-	this.getTmpVarNameCreatorForInput = &Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator{func(input *CompilerInput) OptionalChainRewriter_TmpVarNameCreator {
-		return &OptionalChainRewriter_TmpVarNameCreator_fn{func() string {
+	this.getTmpVarNameCreatorForInput = (&Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator{func(input *CompilerInput) OptionalChainRewriter_TmpVarNameCreator {
+		return newFuncObj_(func() string {
 			return ("$jscomp$optchain$tmp" + sstr_(uniqueIdSupplier.getUniqueId(input)))
-		}}
-	}}
+		})
+	}}).apply
 }
 
 func new_RewriteOptionalChainingOperator_AbstractCompiler(compiler *AbstractCompiler) *RewriteOptionalChainingOperator {
@@ -25,9 +25,9 @@ func new_RewriteOptionalChainingOperator_AbstractCompiler(compiler *AbstractComp
 
 func (this *RewriteOptionalChainingOperator) init_RewriteOptionalChainingOperator_AbstractCompiler_TmpVarNameCreator(compiler *AbstractCompiler, tmpVarNameCreator OptionalChainRewriter_TmpVarNameCreator) {
 	this.compiler_ = compiler
-	this.getTmpVarNameCreatorForInput = &Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator{func(input *CompilerInput) OptionalChainRewriter_TmpVarNameCreator {
+	this.getTmpVarNameCreatorForInput = (&Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator{func(input *CompilerInput) OptionalChainRewriter_TmpVarNameCreator {
 		return tmpVarNameCreator
-	}}
+	}}).apply
 }
 
 func new_RewriteOptionalChainingOperator_AbstractCompiler_TmpVarNameCreator(compiler *AbstractCompiler, tmpVarNameCreator OptionalChainRewriter_TmpVarNameCreator) *RewriteOptionalChainingOperator {
@@ -37,7 +37,7 @@ func new_RewriteOptionalChainingOperator_AbstractCompiler_TmpVarNameCreator(comp
 }
 
 func (this *RewriteOptionalChainingOperator) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_RewriteOptionalChainingOperator_TranspilationCallback(this))), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, new_RewriteOptionalChainingOperator_TranspilationCallback(this), externs, root)
 	TranspilationPasses_maybeMarkFeatureAsTranspiledAway(this.compiler_, root, FeatureSet_Feature_OPTIONAL_CHAINING)
 }
 
@@ -65,7 +65,7 @@ func new_RewriteOptionalChainingOperator_TranspilationCallback(outer_ *RewriteOp
 
 func (this *RewriteOptionalChainingOperator_TranspilationCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	if n.isScript() {
-		this.rewriterBuilder.setTmpVarNameCreator(icast_OptionalChainRewriter_TmpVarNameCreator(this.outer_.getTmpVarNameCreatorForInput.apply(obj_(t.getInput()))))
+		this.rewriterBuilder.setTmpVarNameCreator(icast_OptionalChainRewriter_TmpVarNameCreator(this.outer_.getTmpVarNameCreatorForInput(obj_(t.getInput()))))
 		var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(n)
 		return ((scriptFeatures == nil) || scriptFeatures.contains(FeatureSet_Feature_OPTIONAL_CHAINING))
 	}

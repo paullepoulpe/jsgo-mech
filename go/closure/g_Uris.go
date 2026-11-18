@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Uris struct {
 }
 
@@ -16,21 +18,21 @@ func new_Uris() *Uris {
 }
 
 func Uris_isValid(uri string) bool {
-	for i := int32(0); i < String_length(uri); i++ {
-		var c uint16 = String_charAt(uri, i)
+	uriU16 := utf16Of_(uri)
+	for i, c := range stringUnits_(uri) {
 		if int32(c) >= 128 {
 			if Character_isSpaceChar(c) || Character_isISOControl(c) {
 				return false
 			}
-		} else if !Uris_isAsciiLetterOrDigit(c) && (String_indexOf(Uris_LEGAL_PUNCTUATION, int32(c)) < 0) {
+		} else if !Uris_isAsciiLetterOrDigit(c) && (int32(strings.IndexRune(Uris_LEGAL_PUNCTUATION, rune(int32(c)))) < 0) {
 			return false
 		}
-		if (c == '%') && ((((i + 2) >= String_length(uri)) || !Uris_isHexDigit(String_charAt(uri, (i+1)))) || !Uris_isHexDigit(String_charAt(uri, (i+2)))) {
+		if (c == '%') && ((((i + 2) >= uriU16.length()) || !Uris_isHexDigit(uriU16.charAt((i + 1)))) || !Uris_isHexDigit(uriU16.charAt((i + 2)))) {
 			return false
 		}
 	}
 	var colon int32 = Uris_firstColon(uri)
-	return ((colon < 0) || (((colon > 0) && (Uris_schemeLength(uri) == colon)) && ((colon + 1) < String_length(uri))))
+	return ((colon < 0) || (((colon > 0) && (Uris_schemeLength(uri) == colon)) && ((colon + 1) < uriU16.length())))
 }
 
 func Uris_hasScheme(uri string) bool {
@@ -44,22 +46,22 @@ func Uris_path(uri string) string {
 		}
 		return 0
 	}()
-	if String_startsWith_String_int(uri, "//", start) {
+	uriU16 := utf16Of_(uri)
+	if uriU16.startsWith_String_int("//", start) {
 		start += 2
-		for (start < String_length(uri)) && (String_indexOf("/?#", int32(String_charAt(uri, start))) < 0) {
+		for (start < uriU16.length()) && (int32(strings.IndexRune("/?#", rune(int32(uriU16.charAt(start))))) < 0) {
 			start++
 		}
 	}
 	var end int32 = start
-	for (end < String_length(uri)) && (String_indexOf("?#", int32(String_charAt(uri, end))) < 0) {
+	for (end < uriU16.length()) && (int32(strings.IndexRune("?#", rune(int32(uriU16.charAt(end))))) < 0) {
 		end++
 	}
-	return String_substring(uri, start, end)
+	return uriU16.substring(start, end)
 }
 
 func Uris_firstColon(uri string) int32 {
-	for i := int32(0); i < String_length(uri); i++ {
-		var c uint16 = String_charAt(uri, i)
+	for i, c := range stringUnits_(uri) {
 		if c == ':' {
 			return i
 		}
@@ -72,8 +74,9 @@ func Uris_firstColon(uri string) int32 {
 
 func Uris_schemeLength(uri string) int32 {
 	var i int32 = 0
-	for i < String_length(uri) {
-		var c uint16 = String_charAt(uri, i)
+	uriU16 := utf16Of_(uri)
+	for i < uriU16.length() {
+		var c uint16 = uriU16.charAt(i)
 		if c == ':' {
 			return i
 		}

@@ -9,11 +9,6 @@ type LinkedIdentityHashMap[K any, V any] struct {
 
 func (this *LinkedIdentityHashMap[K, V]) isa_LinkedIdentityHashMap_() {}
 
-func is_LinkedIdentityHashMap(v any) bool {
-	_, ok := v.(interface{ isa_LinkedIdentityHashMap_() })
-	return ok
-}
-
 func (this *LinkedIdentityHashMap[K, V]) finit_LinkedIdentityHashMap() {
 	this.innerMap = new_IdentityHashMap()
 	this.iterationOrder = new_ArrayList_0()
@@ -51,7 +46,6 @@ func (this *LinkedIdentityHashMap[K, V]) put(key K, value V) V {
 		entry.value_ = value
 		return oldValue
 	}
-	panic("unreachable")
 }
 
 func (this *LinkedIdentityHashMap[K, V]) computeIfAbsent(key K, fn FunctionOf[any, V]) V {
@@ -76,9 +70,7 @@ func (this *LinkedIdentityHashMap[K, V]) merge(key K, value V, fn BiFunctionOf[a
 }
 
 func (this *LinkedIdentityHashMap[K, V]) forEach(fn BiConsumerOf[any, any]) {
-	it_1 := foreach_(this.iterationOrder.self())
-	for it_1.next() {
-		var entry *LinkedIdentityHashMap_Entry[K, V] = cast_[*LinkedIdentityHashMap_Entry[K, V]](it_1.v)
+	for entry := range elemsAs_[*LinkedIdentityHashMap_Entry[K, V]](this.iterationOrder.self()) {
 		fn.accept(boxT_(entry.key_), boxT_(entry.value_))
 	}
 }
@@ -89,11 +81,6 @@ type LinkedIdentityHashMap_Entry[K any, V any] struct {
 }
 
 func (this *LinkedIdentityHashMap_Entry[K, V]) isa_LinkedIdentityHashMap_Entry_() {}
-
-func is_LinkedIdentityHashMap_Entry(v any) bool {
-	_, ok := v.(interface{ isa_LinkedIdentityHashMap_Entry_() })
-	return ok
-}
 
 func (this *LinkedIdentityHashMap_Entry[K, V]) zero_LinkedIdentityHashMap_Entry() {
 	this.key_ = jnull_[K]()

@@ -16,7 +16,9 @@ func (this *CollapseAnonymousFunctions) up_NodeTraversal_AbstractPostOrderCallba
 
 func (this *CollapseAnonymousFunctions) init_CollapseAnonymousFunctions(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
-	Preconditions_checkArgument(compiler.getLifeCycleStage().isNormalized())
+	if !compiler.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalArgumentException_0())
+	}
 	this.compiler_ = compiler
 }
 
@@ -28,7 +30,7 @@ func new_CollapseAnonymousFunctions(compiler *AbstractCompiler) *CollapseAnonymo
 }
 
 func (this *CollapseAnonymousFunctions) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CollapseAnonymousFunctions) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -63,7 +65,7 @@ func (this *CollapseAnonymousFunctions) visit_impl(t *NodeTraversal, n Node, par
 
 func (this *CollapseAnonymousFunctions) isRecursiveFunction(function Node) bool {
 	var name Node = function.getFirstChild()
-	if String_isEmpty(name.getString()) {
+	if name.getString() == "" {
 		return false
 	}
 	var args Node = name.getNext()
@@ -84,4 +86,13 @@ func (this *CollapseAnonymousFunctions) containsName(n Node, name string) bool {
 		}
 	}
 	return false
+}
+
+// visit: an object that is exactly a CollapseAnonymousFunctions calls its visit_impl directly (post-flip); others dispatch.
+func (this *CollapseAnonymousFunctions) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CollapseAnonymousFunctions); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

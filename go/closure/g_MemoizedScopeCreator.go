@@ -3,32 +3,34 @@
 package closure
 
 type MemoizedScopeCreator struct {
-	scopesByScopeRoot MapOf[Node, *AbstractScope]
-	delegate          ScopeCreator
+	scopesByScopeRoot map[Node]*AbstractScope
+	delegate          func(Node, *AbstractScope) *AbstractScope
 }
 
 func (this *MemoizedScopeCreator) finit_MemoizedScopeCreator() {
-	this.scopesByScopeRoot = icast_Map(obj_(new_LinkedHashMap()))
+	this.scopesByScopeRoot = map[Node]*AbstractScope{}
 }
 
-func (this *MemoizedScopeCreator) init_MemoizedScopeCreator(delegate ScopeCreator) {
+func (this *MemoizedScopeCreator) init_MemoizedScopeCreator(delegate func(Node, *AbstractScope) *AbstractScope) {
 	this.finit_MemoizedScopeCreator()
 	this.delegate = delegate
 }
 
-func new_MemoizedScopeCreator(delegate ScopeCreator) *MemoizedScopeCreator {
+func new_MemoizedScopeCreator(delegate func(Node, *AbstractScope) *AbstractScope) *MemoizedScopeCreator {
 	this := &MemoizedScopeCreator{}
 	this.init_MemoizedScopeCreator(delegate)
 	return this
 }
 
 func (this *MemoizedScopeCreator) createScopeAbstractScope(n Node, parent *AbstractScope) *AbstractScope {
-	var scope *AbstractScope = to_AbstractScope(this.scopesByScopeRoot.get(n.box_()))
+	var scope *AbstractScope = this.scopesByScopeRoot[n]
 	if scope == nil {
-		scope = this.delegate.createScopeAbstractScope(n, parent)
-		this.scopesByScopeRoot.put(n.box_(), scope.self())
+		scope = this.delegate(n, parent)
+		this.scopesByScopeRoot[n] = scope
 	} else {
-		Preconditions_checkState((parent == scope.getParent()))
+		if parent != scope.getParent() {
+			panic(new_IllegalStateException_0())
+		}
 	}
 	return scope
 }

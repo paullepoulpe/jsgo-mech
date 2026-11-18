@@ -3,16 +3,18 @@
 package closure
 
 type ColorRegistry struct {
-	nativeColors                        ImmutableMapOf[*ColorId, *Color]
-	colorToDisambiguationSupertypeGraph *SimpleSetMultimap
-	mismatchLocations                   *SimpleSetMultimap
+	nativeColors                        *ImmutableMap[*ColorId, *Color]
+	colorToDisambiguationSupertypeGraph *SimpleSetMultimap[*Color, *Color]
+	mismatchLocations                   *SimpleSetMultimap[any, any]
 }
 
 func (this *ColorRegistry) init_ColorRegistry(builder *ColorRegistry_Builder) {
-	this.nativeColors = ImmutableMap_copyOf(builder.nativeColors.asMap())
+	this.nativeColors = immutableMapCopyOf_(tch_p_ColorId, tc_p_Color, builder.nativeColors.asMap())
 	this.colorToDisambiguationSupertypeGraph = builder.colorToDisambiguationSupertypeGraph.immutableCopy()
 	this.mismatchLocations = builder.mismatchLocations.immutableCopy()
-	Preconditions_checkState(Object_equals(obj_(cast_[*ImmutableSet](this.nativeColors.keySet())), obj_(ColorRegistry_REQUIRED_IDS)))
+	if !equalsBy_(cast_[*ErasedImmutableSet](this.nativeColors.asImm().keySet()), obj_(ColorRegistry_REQUIRED_IDS), (*ErasedImmutableSet).equals) {
+		panic(new_IllegalStateException_0())
+	}
 }
 
 func new_ColorRegistry(builder *ColorRegistry_Builder) *ColorRegistry {
@@ -22,15 +24,21 @@ func new_ColorRegistry(builder *ColorRegistry_Builder) *ColorRegistry {
 }
 
 func (this *ColorRegistry) get(id *ColorId) *Color {
-	Preconditions_checkNotNull(obj_(id))
-	return cast_[*Color](Preconditions_checkNotNull_Object_String_Object(this.nativeColors.get(obj_(id)), "Missing Color for %s", obj_(id)))
+	if id == nil {
+		panic(new_NullPointerException_0())
+	}
+	nn_ := obj_(this.nativeColors.Get(id))
+	if nn_ == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Missing Color for %s", []any{obj_(id)})))
+	}
+	return nn_.(*Color)
 }
 
 func (this *ColorRegistry) getDisambiguationSupertypes(x *Color) SetOf[*Color] {
 	return this.colorToDisambiguationSupertypeGraph.get(obj_(x))
 }
 
-func (this *ColorRegistry) getMismatchLocationsForDebugging() *SimpleSetMultimap {
+func (this *ColorRegistry) getMismatchLocationsForDebugging() *SimpleSetMultimap[any, any] {
 	return this.mismatchLocations
 }
 
@@ -38,7 +46,7 @@ func ColorRegistry_builder() *ColorRegistry_Builder {
 	return new_ColorRegistry_Builder()
 }
 
-var ColorRegistry_REQUIRED_IDS *ImmutableSet
+var ColorRegistry_REQUIRED_IDS *ErasedImmutableSet
 
 var ColorRegistry_clinit_done bool
 
@@ -53,14 +61,14 @@ func ColorRegistry_clinit() {
 
 type ColorRegistry_Builder struct {
 	nativeColors                        *JTMap[*ColorId, *Color]
-	colorToDisambiguationSupertypeGraph *SimpleSetMultimap
-	mismatchLocations                   *SimpleSetMultimap
+	colorToDisambiguationSupertypeGraph *SimpleSetMultimap[*Color, *Color]
+	mismatchLocations                   *SimpleSetMultimap[any, any]
 }
 
 func (this *ColorRegistry_Builder) finit_ColorRegistry_Builder() {
 	this.nativeColors = jnewTMap_(tce_p_ColorId, jtc_p_Color)
-	this.colorToDisambiguationSupertypeGraph = SimpleSetMultimap_create()
-	this.mismatchLocations = SimpleSetMultimap_create()
+	this.colorToDisambiguationSupertypeGraph = SimpleSetMultimap_create[*Color, *Color]()
+	this.mismatchLocations = SimpleSetMultimap_create[any, any]()
 }
 
 func (this *ColorRegistry_Builder) init_ColorRegistry_Builder() {
@@ -74,13 +82,15 @@ func new_ColorRegistry_Builder() *ColorRegistry_Builder {
 }
 
 func (this *ColorRegistry_Builder) setNativeColor(x *Color) *ColorRegistry_Builder {
-	Preconditions_checkState_boolean_Object(ColorRegistry_REQUIRED_IDS.contains(obj_(x.getId())), obj_(x))
+	if !ColorRegistry_REQUIRED_IDS.contains(obj_(x.getId())) {
+		panic(new_IllegalStateException_String(tostr_(x)))
+	}
 	this.nativeColors.put(x.getId(), x)
 	return this
 }
 
 func (this *ColorRegistry_Builder) addDisambiguationEdge(subtype *Color, supertype *Color) *ColorRegistry_Builder {
-	this.colorToDisambiguationSupertypeGraph.put(obj_(subtype), obj_(supertype))
+	this.colorToDisambiguationSupertypeGraph.put(subtype, supertype)
 	return this
 }
 
@@ -90,9 +100,8 @@ func (this *ColorRegistry_Builder) addMismatchLocation(id *ColorId, location str
 }
 
 func (this *ColorRegistry_Builder) setDefaultNativeColorsForTesting() *ColorRegistry_Builder {
-	it_1 := foreach_(obj_(ColorRegistry_REQUIRED_IDS))
-	for it_1.next() {
-		var id *ColorId = cast_[*ColorId](it_1.v)
+	for _, el := range immElems_(ColorRegistry_REQUIRED_IDS) {
+		id := cast_[*ColorId](el)
 		this.setNativeColor(Color_singleBuilder().setId(id).build())
 	}
 	return this

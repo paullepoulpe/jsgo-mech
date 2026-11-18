@@ -3,7 +3,7 @@
 package closure
 
 type TypeStringBuilder struct {
-	builder               *StringBuilder
+	builder               *strBuilder_
 	isForAnnotationsField bool
 	indentation           string
 }
@@ -13,7 +13,7 @@ func (this *TypeStringBuilder) zero_TypeStringBuilder() {
 }
 
 func (this *TypeStringBuilder) finit_TypeStringBuilder() {
-	this.builder = new_StringBuilder()
+	this.builder = &strBuilder_{}
 	this.indentation = ""
 }
 
@@ -45,9 +45,7 @@ func (this *TypeStringBuilder) appendJSType(x *JSType) *TypeStringBuilder {
 
 func (this *TypeStringBuilder) appendAll(elements IterableOf[any], separator string) *TypeStringBuilder {
 	var separate bool = false
-	it_1 := foreach_(any(elements))
-	for it_1.next() {
-		var e any = it_1.v
+	for e := range elems_(elements) {
 		if separate {
 			this.append(separator)
 		} else {
@@ -57,10 +55,11 @@ func (this *TypeStringBuilder) appendAll(elements IterableOf[any], separator str
 		_ = jSType
 		if func() bool {
 			v_ := e
-			if !is_JSType(v_) {
+			p, ok := v_.(JSType_as)
+			if !ok {
 				return false
 			}
-			jSType = to_JSType(v_)
+			jSType = p.as_JSType()
 			return true
 		}() {
 			this.appendJSType(jSType)
@@ -83,16 +82,16 @@ func (this *TypeStringBuilder) breakLineAndIndent() *TypeStringBuilder {
 	return this
 }
 
-func (this *TypeStringBuilder) indent(cb Runnable) *TypeStringBuilder {
+func (this *TypeStringBuilder) indent(cb func()) *TypeStringBuilder {
 	var lastIndent string = this.indentation
 	this.indentation = (sstr_(lastIndent) + "  ")
-	cb.run()
+	cb()
 	this.indentation = lastIndent
 	return this
 }
 
 func (this *TypeStringBuilder) build() string {
-	return Object_toString(obj_(this.builder))
+	return tostrNN_(this.builder)
 }
 
 func (this *TypeStringBuilder) cloneWithConfig() *TypeStringBuilder {

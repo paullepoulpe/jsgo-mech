@@ -112,8 +112,9 @@ fi
 #    assigned place from go/types' expression types, which have no entry for a defining
 #    identifier, so the value "left for a place that is no collection" and the variable's class
 #    could be typed with the declaration unchanged. First flip: the same loops ranged over
-#    typed slices (their variables are "elements of a Go slice", poisoned). Now a short
-#    declaration joins the class of the slot it is given, and anything else poisons its class.
+#    typed slices (their variables are "elements of a Go slice", poisoned). Now the
+#    variable of a short declaration is a slot that stays erased (the value it is given is
+#    viewed at the declaration, as the flow pass already writes it).
 if [[ -f $cg ]] && ! grep -q 'reflip6' $cg; then
-  perl -0pi -e 's/(\t\t\tcase \*ast\.AssignStmt:\n\t\t\t\tif len\(x\.Lhs\) != len\(x\.Rhs\) \{\n\t\t\t\t\treturn true\n\t\t\t\t\}\n\t\t\t\tfor i, r := range x\.Rhs \{\n)(\t\t\t\t\tif other\(r\) && isList\(typeOf\(x\.Lhs\[i\]\)\) \{)/$1\t\t\t\t\tif dv := varOf(x.Lhs[i]); x.Tok == token.DEFINE \&\& dv != nil \&\& isList(dv.Type()) \&\& !other(r) { \/\/ reflip6\n\t\t\t\t\t\tif rv := valueOf(r); rv.kind == vSlot {\n\t\t\t\t\t\t\tunion(slotOfVar(dv), rv.k)\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tpoison(slotOfVar(dv), "short declaration from a value that is no slot")\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n$2/' $cg
+  perl -0pi -e 's/(\t\t\tcase \*ast\.AssignStmt:\n\t\t\t\tif len\(x\.Lhs\) != len\(x\.Rhs\) \{\n\t\t\t\t\treturn true\n\t\t\t\t\}\n\t\t\t\tfor i, r := range x\.Rhs \{\n)(\t\t\t\t\tif other\(r\) && isList\(typeOf\(x\.Lhs\[i\]\)\) \{)/$1\t\t\t\t\tif dv := varOf(x.Lhs[i]); x.Tok == token.DEFINE \&\& dv != nil \&\& isList(dv.Type()) \&\& !other(r) { \/\/ reflip6\n\t\t\t\t\t\tpoison(slotOfVar(dv), "variable of a short declaration")\n\t\t\t\t\t}\n$2/' $cg
 fi

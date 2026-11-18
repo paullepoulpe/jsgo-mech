@@ -14,18 +14,19 @@ type PrototypeObjectType struct {
 	prettyPrint               bool
 }
 
+// PrototypeObjectType_as is implemented by PrototypeObjectType and the classes that extend it: a cast to PrototypeObjectType asserts to it
+// (post-flip).
+type PrototypeObjectType_as interface {
+	as_PrototypeObjectType() *PrototypeObjectType
+}
+
 func (this *PrototypeObjectType) as_PrototypeObjectType() *PrototypeObjectType { return this }
 
 func to_PrototypeObjectType(v any) *PrototypeObjectType {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_PrototypeObjectType() *PrototypeObjectType }).as_PrototypeObjectType()
-}
-
-func is_PrototypeObjectType(v any) bool {
-	_, ok := v.(interface{ as_PrototypeObjectType() *PrototypeObjectType })
-	return ok
+	return v.(PrototypeObjectType_as).as_PrototypeObjectType()
 }
 
 func (this *PrototypeObjectType) self() any {
@@ -69,10 +70,16 @@ func (this *PrototypeObjectType) init_PrototypeObjectType(builder *PrototypeObje
 		this.setImplicitPrototype(this.registry.getNativeObjectType(JSTypeNative_OBJECT_TYPE))
 	}
 	if this.anonymousType {
-		Preconditions_checkState(this.className.isEmpty())
+		if !this.className.isEmpty() {
+			panic(new_IllegalStateException_0())
+		}
 	}
-	Preconditions_checkNotNull(obj_(this.templateTypeMap))
-	Preconditions_checkState((this.templateTypeMap.size() >= this.templateParamCount))
+	if this.templateTypeMap == nil {
+		panic(new_NullPointerException_0())
+	}
+	if this.templateTypeMap.size() < this.templateParamCount {
+		panic(new_IllegalStateException_0())
+	}
 	this.registry.getResolver().resolveIfClosed(this.up_JSType(), PrototypeObjectType_TYPE_CLASS)
 }
 
@@ -83,7 +90,7 @@ func new_PrototypeObjectType(builder *PrototypeObjectType_Builder) *PrototypeObj
 	return this
 }
 
-func (this *PrototypeObjectType) getTypeClass_impl() *JSTypeClass {
+func (this *PrototypeObjectType) getTypeClass_impl() JSTypeClass {
 	return PrototypeObjectType_TYPE_CLASS
 }
 
@@ -174,36 +181,30 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 		return
 	}
 	this.prettyPrint = false
-	var properties SetOf[*PrototypeObjectType_PropertyForPrettyPrinting] = icast_Set(obj_(new_TreeSet_Comparator(PrototypeObjectType_PROP_COMPARATOR)))
+	var properties SetOf[*PrototypeObjectType_PropertyForPrettyPrinting] = new_TreeSet_Comparator(PrototypeObjectType_PROP_COMPARATOR)
 	{
 		var current *ObjectType = this.up_ObjectType()
 		for ; current != nil; current = current.getImplicitPrototype() {
 			if current.isNativeObjectType() || (properties.size() > PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES) {
 				break
 			}
-			it_2 := foreach_(any(current.getOwnPropertyNames()))
-			for it_2.next() {
-				var stringKey string = str_(it_2.v)
+			for stringKey := range elemsBy_(current.getOwnPropertyNames(), str_) {
 				var key *Property_StringKey = new_Property_StringKey(stringKey)
-				properties.add(obj_(new_PrototypeObjectType_PropertyForPrettyPrinting(icast_Property_Key(obj_(key)), current.getPropertyTypeKey(icast_Property_Key(obj_(key))))))
+				properties.add(obj_(new_PrototypeObjectType_PropertyForPrettyPrinting(key, current.getPropertyTypeKey(key))))
 			}
-			it_4 := foreach_(any(current.getOwnPropertyKnownSymbols()))
-			for it_4.next() {
-				var symbolKey *KnownSymbolType = cast_[*KnownSymbolType](it_4.v)
+			for symbolKey := range elemsAs_[*KnownSymbolType](current.getOwnPropertyKnownSymbols()) {
 				var key *Property_SymbolKey = new_Property_SymbolKey(symbolKey)
-				properties.add(obj_(new_PrototypeObjectType_PropertyForPrettyPrinting(icast_Property_Key(obj_(key)), current.getPropertyTypeKey(icast_Property_Key(obj_(key))))))
+				properties.add(obj_(new_PrototypeObjectType_PropertyForPrettyPrinting(key, current.getPropertyTypeKey(key))))
 			}
 		}
 	}
 	var multiline bool = (!sb.isForAnnotations() && (properties.size() > 1))
-	sb.append("{").indent(&Runnable_fn{func() {
+	sb.append("{").indent(func() {
 		if multiline {
 			sb.breakLineAndIndent()
 		}
 		var i int32 = 0
-		it_6 := foreach_(any(properties))
-		for it_6.next() {
-			var property *PrototypeObjectType_PropertyForPrettyPrinting = cast_[*PrototypeObjectType_PropertyForPrettyPrinting](it_6.v)
+		for property := range elemsAs_[*PrototypeObjectType_PropertyForPrettyPrinting](properties) {
 			i++
 			if !sb.isForAnnotations() && (i > PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES) {
 				sb.append("...")
@@ -219,7 +220,7 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 				}
 			}
 		}
-	}})
+	})
 	if multiline {
 		sb.breakLineAndIndent()
 	}
@@ -244,7 +245,9 @@ func (this *PrototypeObjectType) getImplicitPrototype_impl() *ObjectType {
 }
 
 func (this *PrototypeObjectType) setImplicitPrototype(implicitPrototype *ObjectType) {
-	Preconditions_checkState(!this.hasCachedValues())
+	if this.hasCachedValues() {
+		panic(new_IllegalStateException_0())
+	}
 	this.implicitPrototypeFallback = implicitPrototype
 	if implicitPrototype != nil {
 		this.maybeLoosenTypecheckingDueToForwardReferencedSupertype(implicitPrototype.up_JSType())
@@ -263,7 +266,6 @@ func (this *PrototypeObjectType) getReferenceName_impl() Optional[string] {
 	} else {
 		return Optional_empty[string]()
 	}
-	panic("unreachable")
 }
 
 func (this *PrototypeObjectType) isAnonymous() bool {
@@ -275,7 +277,9 @@ func (this *PrototypeObjectType) isNativeObjectType_impl() bool {
 }
 
 func (this *PrototypeObjectType) setOwnerFunction_impl(type_ *FunctionType) {
-	Preconditions_checkState(((this.ownerFunction == nil) || (type_ == nil)))
+	if this.ownerFunction != nil && type_ != nil {
+		panic(new_IllegalStateException_0())
+	}
 	this.ownerFunction = type_
 }
 
@@ -286,18 +290,18 @@ func (this *PrototypeObjectType) getOwnerFunction_impl() *FunctionType {
 func (this *PrototypeObjectType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
 	return func() Iterable {
 		if this.isFunctionPrototypeType() {
-			return icast_Iterable(obj_(this.getOwnerFunction().getImplementedInterfaces()))
+			return icast_Iterable(obj_(this.getOwnerFunction().getImplementedInterfaces().asImm()))
 		}
-		return icast_Iterable(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}()
 }
 
 func (this *PrototypeObjectType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
 	return func() Iterable {
 		if this.isFunctionPrototypeType() {
-			return icast_Iterable(obj_(this.getOwnerFunction().getExtendedInterfaces()))
+			return icast_Iterable(obj_(this.getOwnerFunction().getExtendedInterfaces().asImm()))
 		}
-		return icast_Iterable(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}()
 }
 
@@ -306,9 +310,7 @@ func (this *PrototypeObjectType) resolveInternal_impl(reporter ErrorReporter_rhi
 	if implicitPrototype != nil {
 		this.implicitPrototypeFallback = to_ObjectType(implicitPrototype.resolve(reporter).self())
 	}
-	it_1 := foreach_(any(this.properties.values()))
-	for it_1.next() {
-		var prop *Property = cast_[*Property](it_1.v)
+	for prop := range elemsAs_[*Property](this.properties.values()) {
 		prop.setType(JSType_safeResolve(prop.getType(), reporter))
 	}
 	return this.up_JSType()
@@ -321,9 +323,8 @@ func (this *PrototypeObjectType) matchConstraint_impl(constraint *JSType) {
 	if constraint.isRecordType() {
 		this.matchRecordTypeConstraint(constraint.toObjectType())
 	} else if constraint.isUnionType() {
-		it_1 := foreach_(obj_(constraint.toMaybeUnionType().getAlternates()))
-		for it_1.next() {
-			var alt *JSType = to_JSType(it_1.v)
+		for _, el := range constraint.toMaybeUnionType().getAlternates().items {
+			alt := el
 			if alt.isRecordType() {
 				this.matchRecordTypeConstraint(alt.toObjectType())
 			}
@@ -332,9 +333,7 @@ func (this *PrototypeObjectType) matchConstraint_impl(constraint *JSType) {
 }
 
 func (this *PrototypeObjectType) matchRecordTypeConstraint(constraintObj *ObjectType) {
-	it_1 := foreach_(any(constraintObj.getOwnPropertyNames()))
-	for it_1.next() {
-		var prop string = str_(it_1.v)
+	for prop := range elemsBy_(constraintObj.getOwnPropertyNames(), str_) {
 		var propType *JSType = constraintObj.getPropertyType(prop)
 		if !this.isPropertyTypeDeclared(prop) {
 			var typeToInfer *JSType = propType
@@ -352,10 +351,9 @@ func (this *PrototypeObjectType) recursionUnsafeHashCode_impl() int32 {
 	} else {
 		return System_identityHashCode(this.self())
 	}
-	panic("unreachable")
 }
 
-var PrototypeObjectType_TYPE_CLASS *JSTypeClass
+var PrototypeObjectType_TYPE_CLASS JSTypeClass
 
 const PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES int32 = 10
 
@@ -371,7 +369,7 @@ func PrototypeObjectType_clinit() {
 	PrototypeObjectType_TYPE_CLASS = JSTypeClass_PROTOTYPE_OBJECT
 	PrototypeObjectType_PROP_COMPARATOR = &Comparator_tfn_PrototypeObjectType_PropertyForPrettyPrinting_PrototypeObjectType_PropertyForPrettyPrinting{func(thisProp *PrototypeObjectType_PropertyForPrettyPrinting, otherProp *PrototypeObjectType_PropertyForPrettyPrinting) int32 {
 		if !(thisProp.key().humanReadableName() == otherProp.key().humanReadableName()) {
-			return String_compareTo(thisProp.key().humanReadableName(), otherProp.key().humanReadableName())
+			return utf16Compare_(thisProp.key().humanReadableName(), otherProp.key().humanReadableName())
 		}
 		return func() int32 {
 			switch thisProp.key().kind() {
@@ -379,11 +377,11 @@ func PrototypeObjectType_clinit() {
 				return func() int32 {
 					switch otherProp.key().kind() {
 					case Property_KeyKind_STRING:
-						return String_compareTo(thisProp.key().string(), otherProp.key().string())
+						return utf16Compare_(thisProp.key().string(), otherProp.key().string())
 					case Property_KeyKind_SYMBOL:
 						return -1
 					}
-					panic("unreachable")
+					panic(new_NullPointerException_0())
 				}()
 			case Property_KeyKind_SYMBOL:
 				return func() int32 {
@@ -391,20 +389,19 @@ func PrototypeObjectType_clinit() {
 					case Property_KeyKind_STRING:
 						return 1
 					case Property_KeyKind_SYMBOL:
-						return String_compareTo(thisProp.type_().toString(), otherProp.type_().toString())
+						return utf16Compare_(thisProp.type_().toString(), otherProp.type_().toString())
 					}
-					panic("unreachable")
+					panic(new_NullPointerException_0())
 				}()
 			}
-			panic("unreachable")
+			panic(new_NullPointerException_0())
 		}()
-		panic("unreachable")
 	}}
 
 }
 
 type PrototypeObjectType_Builder struct {
-	self_              any
+	self_              PrototypeObjectType_Builder_I
 	registry           *JSTypeRegistry
 	className          Optional[string]
 	implicitPrototype  *ObjectType
@@ -414,24 +411,15 @@ type PrototypeObjectType_Builder struct {
 	templateParamCount int32
 }
 
+// PrototypeObjectType_Builder_I holds the methods the dispatchers of PrototypeObjectType_Builder's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type PrototypeObjectType_Builder_I interface {
+	build_impl() *PrototypeObjectType
+	setName_impl(Optional[string]) *PrototypeObjectType_Builder
+}
+
 func (this *PrototypeObjectType_Builder) as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder {
 	return this
-}
-
-func to_PrototypeObjectType_Builder(v any) *PrototypeObjectType_Builder {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder
-	}).as_PrototypeObjectType_Builder()
-}
-
-func is_PrototypeObjectType_Builder(v any) bool {
-	_, ok := v.(interface {
-		as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder
-	})
-	return ok
 }
 
 func (this *PrototypeObjectType_Builder) self() any {
@@ -497,13 +485,11 @@ func (this *PrototypeObjectType_Builder) build_impl() *PrototypeObjectType {
 }
 
 func (this *PrototypeObjectType_Builder) setName(p0 Optional[string]) *PrototypeObjectType_Builder {
-	return this.self_.(interface {
-		setName_impl(Optional[string]) *PrototypeObjectType_Builder
-	}).setName_impl(p0)
+	return this.self_.setName_impl(p0)
 }
 
 func (this *PrototypeObjectType_Builder) build() *PrototypeObjectType {
-	return this.self_.(interface{ build_impl() *PrototypeObjectType }).build_impl()
+	return this.self_.build_impl()
 }
 
 type PrototypeObjectType_PropertyForPrettyPrinting struct {
@@ -547,16 +533,197 @@ func (this *PrototypeObjectType_PropertyForPrettyPrinting) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(any(this.key_), any(o.key_)) && Objects_equals(this.type__.self(), o.type__.self())
+	return true && objequalsVia_(this.key_, o.key_) && objequalsBy_(this.type__, o.type__.self(), (*JSType).equals)
 }
 
 func (this *PrototypeObjectType_PropertyForPrettyPrinting) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(this.key_))
-	h = h*31 + Objects_hashCode(this.type__.self())
+	h = h*31 + objhashVia_(this.key_)
+	h = h*31 + objhashBy_(this.type__, (*JSType).hashCode)
 	return h
 }
 
 func (this *PrototypeObjectType_PropertyForPrettyPrinting) toString() string {
-	return "PropertyForPrettyPrinting[" + "key=" + objstr_(any(this.key_)) + ", type=" + objstr_(this.type__.self()) + "]"
+	return "PropertyForPrettyPrinting[" + "key=" + objstr_(this.key_) + ", type=" + objstr_(this.type__.self()) + "]"
+}
+
+// getTypeClass: an object that is exactly a PrototypeObjectType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getTypeClass() JSTypeClass {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.getTypeClass_impl()
+}
+
+// getPropertyMap: an object that is exactly a PrototypeObjectType calls its getPropertyMap_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getPropertyMap() *PropertyMap {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.getPropertyMap_impl()
+	}
+	return this.self_.getPropertyMap_impl()
+}
+
+// defineProperty: an object that is exactly a PrototypeObjectType calls its defineProperty_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.defineProperty_impl(p0, p1, p2, p3)
+	}
+	return this.self_.defineProperty_impl(p0, p1, p2, p3)
+}
+
+// setPropertyJSDocInfoKey: an object that is exactly a PrototypeObjectType calls its setPropertyJSDocInfoKey_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) setPropertyJSDocInfoKey(p0 Property_Key, p1 *JSDocInfo) {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		this.setPropertyJSDocInfoKey_impl(p0, p1)
+		return
+	}
+	this.self_.setPropertyJSDocInfoKey_impl(p0, p1)
+}
+
+// setPropertyNode: an object that is exactly a PrototypeObjectType calls its setPropertyNode_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) setPropertyNode(p0 Property_Key, p1 Node) {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		this.setPropertyNode_impl(p0, p1)
+		return
+	}
+	this.self_.setPropertyNode_impl(p0, p1)
+}
+
+// matchesNumberContext: an object that is exactly a PrototypeObjectType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) matchesNumberContext() bool {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.matchesNumberContext_impl()
+	}
+	return this.self_.matchesNumberContext_impl()
+}
+
+// matchesStringContext: an object that is exactly a PrototypeObjectType calls its matchesStringContext_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) matchesStringContext() bool {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.matchesStringContext_impl()
+	}
+	return this.self_.matchesStringContext_impl()
+}
+
+// matchesSymbolContext: an object that is exactly a PrototypeObjectType calls its matchesSymbolContext_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) matchesSymbolContext() bool {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.matchesSymbolContext_impl()
+	}
+	return this.self_.matchesSymbolContext_impl()
+}
+
+// matchesObjectContext: an object that is exactly a PrototypeObjectType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) matchesObjectContext() bool {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.matchesObjectContext_impl()
+	}
+	return this.self_.matchesObjectContext_impl()
+}
+
+// appendTo: an object that is exactly a PrototypeObjectType calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) appendTo(p0 *TypeStringBuilder) {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		this.appendTo_impl(p0)
+		return
+	}
+	this.self_.appendTo_impl(p0)
+}
+
+// getConstructor: an object that is exactly a PrototypeObjectType calls its getConstructor_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getConstructor() *FunctionType {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.getConstructor_impl()
+	}
+	return this.self_.getConstructor_impl()
+}
+
+// getImplicitPrototype: an object that is exactly a PrototypeObjectType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getImplicitPrototype() *ObjectType {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.getImplicitPrototype_impl()
+	}
+	return this.self_.getImplicitPrototype_impl()
+}
+
+// getTemplateParamCount: an object that is exactly a PrototypeObjectType calls its getTemplateParamCount_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getTemplateParamCount() int32 {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.getTemplateParamCount_impl()
+	}
+	return this.self_.getTemplateParamCount_impl()
+}
+
+// getReferenceName: an object that is exactly a PrototypeObjectType calls its getReferenceName_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getReferenceName() Optional[string] {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.getReferenceName_impl()
+	}
+	return this.self_.getReferenceName_impl()
+}
+
+// isNativeObjectType: an object that is exactly a PrototypeObjectType calls its isNativeObjectType_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) isNativeObjectType() bool {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.isNativeObjectType_impl()
+	}
+	return this.self_.isNativeObjectType_impl()
+}
+
+// setOwnerFunction: an object that is exactly a PrototypeObjectType calls its setOwnerFunction_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) setOwnerFunction(p0 *FunctionType) {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		this.setOwnerFunction_impl(p0)
+		return
+	}
+	this.self_.setOwnerFunction_impl(p0)
+}
+
+// getOwnerFunction: an object that is exactly a PrototypeObjectType calls its getOwnerFunction_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getOwnerFunction() *FunctionType {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.getOwnerFunction_impl()
+	}
+	return this.self_.getOwnerFunction_impl()
+}
+
+// getCtorImplementedInterfaces: an object that is exactly a PrototypeObjectType calls its getCtorImplementedInterfaces_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getCtorImplementedInterfaces() Iterable {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.getCtorImplementedInterfaces_impl()
+	}
+	return this.self_.getCtorImplementedInterfaces_impl()
+}
+
+// getCtorExtendedInterfaces: an object that is exactly a PrototypeObjectType calls its getCtorExtendedInterfaces_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getCtorExtendedInterfaces() Iterable {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.getCtorExtendedInterfaces_impl()
+	}
+	return this.self_.getCtorExtendedInterfaces_impl()
+}
+
+// resolveInternal: an object that is exactly a PrototypeObjectType calls its resolveInternal_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.resolveInternal_impl(p0)
+	}
+	return this.self_.resolveInternal_impl(p0)
+}
+
+// matchConstraint: an object that is exactly a PrototypeObjectType calls its matchConstraint_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) matchConstraint(p0 *JSType) {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		this.matchConstraint_impl(p0)
+		return
+	}
+	this.self_.matchConstraint_impl(p0)
+}
+
+// recursionUnsafeHashCode: an object that is exactly a PrototypeObjectType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) recursionUnsafeHashCode() int32 {
+	if p, _ := this.self_.(*PrototypeObjectType); p == this {
+		return this.recursionUnsafeHashCode_impl()
+	}
+	return this.self_.recursionUnsafeHashCode_impl()
 }

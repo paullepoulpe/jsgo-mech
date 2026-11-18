@@ -37,7 +37,9 @@ func new_Es6RewriteBlockScopedDeclaration(compiler *AbstractCompiler) *Es6Rewrit
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	Preconditions_checkState_boolean_Object(((parent == 0) || !parent.isForOf()), parent.box_())
+	if parent != 0 && parent.isForOf() {
+		panic(new_IllegalStateException_String(tostr_(parent)))
+	}
 	if n.isLet() || n.isConst() {
 		this.letConsts.add(n)
 		{
@@ -50,9 +52,9 @@ func (this *Es6RewriteBlockScopedDeclaration) visit_impl(t *NodeTraversal, n Nod
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	var transformer *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer = new_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer(this)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(transformer)))
+	NodeTraversal_traverse(this.compiler_, root, transformer)
 	transformer.transformLoopClosure()
 	this.rewriteDeclsToVars()
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6RewriteBlockScopedDeclaration_transpiledFeatures)
@@ -68,7 +70,7 @@ func (this *Es6RewriteBlockScopedDeclaration) visitBlockScopedNameDeclaration(de
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) inLoop(n Node) bool {
-	var enclosingNode Node = NodeUtil_getEnclosingNode(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return Es6RewriteBlockScopedDeclaration_isLoopOrFunction(p0) }})
+	var enclosingNode Node = NodeUtil_getEnclosingNode(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return Es6RewriteBlockScopedDeclaration_isLoopOrFunction(p0) }}).apply)
 	return ((enclosingNode != 0) && !enclosingNode.isFunction())
 }
 
@@ -97,7 +99,9 @@ func Es6RewriteBlockScopedDeclaration_maybeAddConstJSDoc(srcDeclaration Node, sr
 
 func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationList(declarationList Node, parent Node) {
 	if declarationList.isVar() {
-		Preconditions_checkState_boolean_Object((!declarationList.hasChildren() || declarationList.hasOneChild()), strobj_("var declaration can have maximum one child post normalization."))
+		if declarationList.hasChildren() && !declarationList.hasOneChild() {
+			panic(new_IllegalStateException_String("var declaration can have maximum one child post normalization."))
+		}
 		return
 	}
 	if parent.isVanillaFor() {
@@ -121,21 +125,14 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationList(decl
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInForInInitializer(declarationList Node, parent Node) {
-	Preconditions_checkState(parent.isForIn())
+	if !parent.isForIn() {
+		panic(new_IllegalStateException_0())
+	}
 	var first Node = declarationList
 	var lhs Node = first.getFirstChild()
 	var loopNode Node = parent
 	if lhs.isDestructuringLhs() {
-		Preconditions_checkState_boolean_Object(false, strobj_("Destructuring syntax is unsupported in ES6RewriteBlockScopedDeclarations pass"))
-		NodeUtil_visitLhsNodesInNode(lhs, &Consumer_tfn_Node{func(name Node) {
-			Preconditions_checkState_boolean_String_Object(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
-			var newName Node = IR_name(name.getString()).srcref(name)
-			var newVar Node = IR_var_Node(newName).srcref(name)
-			Es6RewriteBlockScopedDeclaration_extractInlineJSDoc(declarationList, name, newVar)
-			this.addNodeBeforeLoop(newVar, loopNode)
-		}})
-		var destructuringPattern Node = lhs.removeFirstChild()
-		first.replaceWith(destructuringPattern)
+		panic(new_IllegalStateException_String("Destructuring syntax is unsupported in ES6RewriteBlockScopedDeclarations pass"))
 	} else {
 		var newStatement Node = first.cloneTree()
 		var name Node = newStatement.getFirstChild().cloneNode()
@@ -149,7 +146,9 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInFor
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInVanillaForInitializer(declarationList Node, parent Node) {
-	Preconditions_checkState(parent.isVanillaFor())
+	if !parent.isVanillaFor() {
+		panic(new_IllegalStateException_0())
+	}
 	var insertSpot Node = this.getInsertSpotBeforeLoop(parent)
 	for declarationList.hasChildren() {
 		var name Node = declarationList.getLastChild()
@@ -201,7 +200,7 @@ func Es6RewriteBlockScopedDeclaration_clinit() {
 		return
 	}
 	Es6RewriteBlockScopedDeclaration_clinit_done = true
-	Es6RewriteBlockScopedDeclaration_transpiledFeatures = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_LET_DECLARATIONS, FeatureSet_Feature_CONST_DECLARATIONS})
+	Es6RewriteBlockScopedDeclaration_transpiledFeatures = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_LET_DECLARATIONS, FeatureSet_Feature_CONST_DECLARATIONS})
 
 }
 
@@ -209,9 +208,9 @@ type Es6RewriteBlockScopedDeclaration_LoopClosureTransformer struct {
 	NodeTraversal_AbstractPreOrderCallback
 	outer_                              *Es6RewriteBlockScopedDeclaration
 	loopObjectMap                       *JTMap[Node, *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]
-	nodesRequiringLoopObjectsClosureMap *SimpleSetMultimap
-	nodesHandledForLoopObjectClosure    *SimpleSetMultimap
-	referenceMap                        *SimpleSetMultimap
+	nodesRequiringLoopObjectsClosureMap *SimpleSetMultimap[Node, *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]
+	nodesHandledForLoopObjectClosure    *SimpleSetMultimap[Node, string]
+	referenceMap                        *SimpleSetMultimap[*Var, Node]
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) up_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {
@@ -223,9 +222,9 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) up_NodeTrav
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) finit_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer() {
 	this.loopObjectMap = jnewTMap_(jtc_Node, jtc_p_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject)
-	this.nodesRequiringLoopObjectsClosureMap = SimpleSetMultimap_createInsertionOrdered()
-	this.nodesHandledForLoopObjectClosure = SimpleSetMultimap_createInsertionOrdered()
-	this.referenceMap = SimpleSetMultimap_createInsertionOrdered()
+	this.nodesRequiringLoopObjectsClosureMap = SimpleSetMultimap_createInsertionOrdered[Node, *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]()
+	this.nodesHandledForLoopObjectClosure = SimpleSetMultimap_createInsertionOrdered[Node, string]()
+	this.referenceMap = SimpleSetMultimap_createInsertionOrdered[*Var, Node]()
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) init_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer() {
@@ -271,7 +270,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 			}
 		}
 	}
-	this.referenceMap.put(obj_(var_), n.box_())
+	this.referenceMap.put(var_, n)
 	var outerMostFunctionScope *Scope = nil
 	{
 		var s *Scope = referencedIn
@@ -286,19 +285,21 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 		var nodeToWrapInClosure Node
 		if enclosingFunction.getParent().isGetterDef() || enclosingFunction.getParent().isSetterDef() {
 			nodeToWrapInClosure = enclosingFunction.getGrandparent()
-			Preconditions_checkState(nodeToWrapInClosure.isObjectLit())
+			if !nodeToWrapInClosure.isObjectLit() {
+				panic(new_IllegalStateException_0())
+			}
 		} else {
 			nodeToWrapInClosure = enclosingFunction
 		}
-		if this.nodesHandledForLoopObjectClosure.containsEntry(nodeToWrapInClosure.box_(), strobj_(name)) {
+		if this.nodesHandledForLoopObjectClosure.containsEntry(nodeToWrapInClosure.box_(), name) {
 			return true
 		}
-		this.nodesHandledForLoopObjectClosure.put(nodeToWrapInClosure.box_(), strobj_(name))
+		this.nodesHandledForLoopObjectClosure.put(nodeToWrapInClosure, name)
 		var object *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = this.loopObjectMap.computeIfAbsent(loopNode, &Function_tfn_Node_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject{func(k Node) *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject {
 			return new_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject(this.createUniqueObjectName(t.getInput()))
 		}})
 		object.vars.add(var_)
-		this.nodesRequiringLoopObjectsClosureMap.put(nodeToWrapInClosure.box_(), obj_(object))
+		this.nodesRequiringLoopObjectsClosureMap.put(nodeToWrapInClosure, object)
 	}
 	return true
 }
@@ -339,13 +340,14 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) transformLo
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) updateNamesInWrapperFunctions(wrapperFunctions *JTSet[Node]) {
 	it_1 := wrapperFunctions.each()
+	var getStringU16 utf16_
 	for it_1.next() {
 		var func_ Node = it_1.v
 		var paramList Node = func_.getSecondChild()
 		{
 			var param Node = paramList.getFirstChild()
 			for ; param != 0; param = param.getNext() {
-				var loopObjectName string = String_substring(param.getString(), 0, String_indexOf_String(param.getString(), Es6RewriteBlockScopedDeclaration_LOOP_PARAM_NAME_PREFIX))
+				var loopObjectName string = getStringU16.of(param.getString()).substring(0, getStringU16.of(param.getString()).indexOf_String(Es6RewriteBlockScopedDeclaration_LOOP_PARAM_NAME_PREFIX))
 				this.updateNames(func_.getLastChild(), param, loopObjectName)
 			}
 		}
@@ -354,9 +356,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) updateNames
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapperFunctions() *JTSet[Node] {
 	var wrapperFunctions *JTSet[Node] = jnewTSet_(jtc_Node)
-	it_1 := foreach_(any(this.nodesRequiringLoopObjectsClosureMap.keySet()))
-	for it_1.next() {
-		var functionOrObjectLit Node = Node_of_(it_1.v)
+	for functionOrObjectLit := range elemsBy_(this.nodesRequiringLoopObjectsClosureMap.keySet(), Node_of_) {
 		if functionOrObjectLit.isObjectLit() {
 			var enclosingFunction Node = NodeUtil_getEnclosingFunction(functionOrObjectLit)
 			var scopeBody Node = func() Node {
@@ -370,7 +370,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 			var input *CompilerInput = this.outer_.compiler_.getInput(script.getInputId())
 			var thisContext *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = new_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext(scopeBody, isConstructor, this.outer_.uniqueIdSupplier.getUniqueId(input))
 			var updater *ThisAndArgumentsReferenceUpdater = new_ThisAndArgumentsReferenceUpdater(this.outer_.compiler_, thisContext, this.outer_.astFactory_)
-			NodeTraversal_traverse(this.outer_.compiler_, functionOrObjectLit, icast_NodeTraversal_Callback(obj_(updater)))
+			NodeTraversal_traverse(this.outer_.compiler_, functionOrObjectLit, updater)
 			thisContext.addVarDeclarations(this.outer_.compiler_, this.outer_.astFactory_, script)
 			{
 				var child Node = scopeBody.getFirstChild()
@@ -386,9 +386,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 		var parameterNames []Node = make([]Node, objects.size())
 		var objectNamesForCall []Node = make([]Node, objects.size())
 		var loopObjectIndex int32 = 0
-		it_4 := foreach_(any(objects))
-		for it_4.next() {
-			var object *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = cast_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](it_4.v)
+		for object := range elemsAs_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](objects) {
 			parameterNames[loopObjectIndex] = this.createUniqueParameterNameToUseWithinLoop(functionOrObjectLit, object)
 			objectNamesForCall[loopObjectIndex] = this.createLoopObjectNameNode(object)
 			loopObjectIndex++
@@ -398,7 +396,9 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 		var call Node = this.outer_.astFactory_.createCall(iife, AstFactory_type_Node(functionOrObjectLit), objectNamesForCall)
 		call.putBooleanProp(Node_FREE_CALL, true)
 		var replacement Node
-		Preconditions_checkState_boolean_String_Object(!NodeUtil_isFunctionDeclaration(functionOrObjectLit), "block-scoped function declarations should not exist now: %s", functionOrObjectLit.box_())
+		if NodeUtil_isFunctionDeclaration(functionOrObjectLit) {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("block-scoped function declarations should not exist now: %s", []any{functionOrObjectLit.box_()})))
+		}
 		replacement = call.srcrefTreeIfMissing(functionOrObjectLit)
 		functionOrObjectLit.replaceWith(replacement)
 		wrapperFunctions.add(iife)
@@ -409,7 +409,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) updateNames(node Node, paramName Node, loopObjectName string) {
-	if node.isName() && !String_isEmpty(node.getString()) {
+	if node.isName() && node.getString() != "" {
 		if node.getString() == loopObjectName {
 			node.setString(paramName.getString())
 			return
@@ -447,10 +447,10 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) changeLoopL
 	for it_1.next() {
 		var var_ *Var = it_1.v
 		var newPropertyName string = this.getLoopObjPropName(var_)
-		it_3 := foreach_(any(this.referenceMap.get(obj_(var_))))
-		for it_3.next() {
-			var reference Node = Node_of_(it_3.v)
-			Preconditions_checkState_boolean_Object(!loopNode.isForOf(), loopNode.box_())
+		for reference := range elemsBy_(this.referenceMap.get(obj_(var_)), Node_of_) {
+			if loopNode.isForOf() {
+				panic(new_IllegalStateException_String(tostr_(loopNode)))
+			}
 			if loopNode.isForIn() && (loopNode.getFirstChild() == reference.getParent()) {
 				this.assignLoopVarToLoopObjectProperty(loopNode, loopObject, var_, newPropertyName, reference)
 			} else {
@@ -491,10 +491,16 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) replaceRefe
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) assignLoopVarToLoopObjectProperty(loopNode Node, loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject, var_ *Var, newPropertyName string, reference Node) {
-	Preconditions_checkState_boolean_Object((reference == var_.getNameNode()), reference.box_())
+	if reference != var_.getNameNode() {
+		panic(new_IllegalStateException_String(tostr_(reference)))
+	}
 	var referenceParent Node = reference.getParent()
-	Preconditions_checkState_boolean_Object(NodeUtil_isNameDeclaration(referenceParent), referenceParent.box_())
-	Preconditions_checkState_boolean_Object(reference.isName(), reference.box_())
+	if !NodeUtil_isNameDeclaration(referenceParent) {
+		panic(new_IllegalStateException_String(tostr_(referenceParent)))
+	}
+	if !reference.isName() {
+		panic(new_IllegalStateException_String(tostr_(reference)))
+	}
 	var loopVarReference Node = reference.cloneNode()
 	var forInPropAssignmentStatemnt Node = IR_exprResult(this.outer_.astFactory_.createAssign(this.createLoopVarReferenceReplacement(loopObject, reference, newPropertyName), loopVarReference)).srcrefTreeIfMissing(reference)
 	var loopUpdateStatement Node = loopNode.getLastChild().getFirstChild()
@@ -555,4 +561,21 @@ func new_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject(name
 	this.zero_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject()
 	this.init_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject(name)
 	return this
+}
+
+// visit: an object that is exactly a Es6RewriteBlockScopedDeclaration calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6RewriteBlockScopedDeclaration) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*Es6RewriteBlockScopedDeclaration); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// shouldTraverse: an object that is exactly a Es6RewriteBlockScopedDeclaration_LoopClosureTransformer calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if p, _ := this.self_.(*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer); p == this {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

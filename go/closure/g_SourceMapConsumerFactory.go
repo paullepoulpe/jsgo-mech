@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type SourceMapConsumerFactory struct {
 }
 
@@ -20,9 +22,9 @@ func SourceMapConsumerFactory_parse_String(contents string) *Outcome_base[Source
 }
 
 func SourceMapConsumerFactory_parse_String_SourceMapSupplier(contents string, supplier SourceMapSupplier) *Outcome_base[SourceMapping] {
-	if String_startsWith(contents, "/** Begin line maps. **/") {
+	if strings.HasPrefix(contents, "/** Begin line maps. **/") {
 		return Outcome_base_err[SourceMapping](new_SourceMapParseException("This appears to be a V1 SourceMap, which is not supported.").up_Throwable())
-	} else if String_startsWith(contents, "{") {
+	} else if strings.HasPrefix(contents, "{") {
 		var sourceMapObjectOutcome *Outcome_base[*SourceMapObject] = SourceMapObjectParser_parse(contents)
 		if sourceMapObjectOutcome.isErr() {
 			return Outcome_base_err[SourceMapping](sourceMapObjectOutcome.error())
@@ -35,7 +37,7 @@ func SourceMapConsumerFactory_parse_String_SourceMapSupplier(contents string, su
 			if parsed.isErr() {
 				return Outcome_base_err[SourceMapping](parsed.error())
 			}
-			return Outcome_base_ok_Object[SourceMapping](icast_SourceMapping(obj_(consumer)))
+			return Outcome_base_ok_Object[SourceMapping](SourceMapping(consumer))
 		default:
 			return Outcome_base_err[SourceMapping](new_SourceMapParseException(("Unknown source map version:" + istr_(int64(sourceMapObject.getVersion())))).up_Throwable())
 		}
@@ -44,13 +46,15 @@ func SourceMapConsumerFactory_parse_String_SourceMapSupplier(contents string, su
 }
 
 func SourceMapConsumerFactory_parseFast(contents string) *Outcome_base[*SourceMapConsumerV3] {
-	if String_startsWith(contents, "{") {
+	if strings.HasPrefix(contents, "{") {
 		var sourceMapObjectOutcome *Outcome_base[*SourceMapObject] = SourceMapObjectParser_parseFast(contents)
 		if sourceMapObjectOutcome.isErr() {
 			return Outcome_base_err[*SourceMapConsumerV3](sourceMapObjectOutcome.error())
 		}
 		var sourceMapObject *SourceMapObject = sourceMapObjectOutcome.get()
-		Preconditions_checkArgument_boolean_String_int((sourceMapObject.getVersion() == 3), "Unknown source map version:%s", sourceMapObject.getVersion())
+		if ok_, a1_ := (sourceMapObject.getVersion() == 3), sourceMapObject.getVersion(); !ok_ {
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unknown source map version:%s", []any{a1_})))
+		}
 		var consumer *SourceMapConsumerV3 = new_SourceMapConsumerV3()
 		var parsed *Outcome_base[any] = consumer.parse_2(sourceMapObject, nil)
 		if parsed.isErr() {

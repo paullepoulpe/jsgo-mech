@@ -17,9 +17,7 @@ func new_ApplySuggestedFixes() *ApplySuggestedFixes {
 
 func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedFix]) *Outcome_base[any] {
 	var filenames *JTSet[string] = jnewTSet_(jtc_string)
-	it_1 := foreach_(any(fixes))
-	for it_1.next() {
-		var fix *SuggestedFix = cast_[*SuggestedFix](it_1.v)
+	for fix := range elemsAs_[*SuggestedFix](fixes) {
 		filenames.asSet().addAll(Collection(fix.getReplacements().keySet()))
 	}
 	var filenameToCodeMap *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
@@ -32,10 +30,9 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 		}
 		filenameToCodeMap.put(filename, code.get())
 	}
-	var newCode ImmutableMapOf[string, string] = ApplySuggestedFixes_applySuggestedFixesToCode(fixes, filenameToCodeMap.asMap())
-	it_5 := foreach_(obj_(cast_[*ImmutableSet](newCode.entrySet())))
-	for it_5.next() {
-		var entry Map_Entry = icast_Map_Entry(it_5.v)
+	var newCode *ImmutableMap[string, string] = ApplySuggestedFixes_applySuggestedFixesToCode(fixes, filenameToCodeMap.asMap())
+	for _, el_5 := range immElems_(cast_[*ErasedImmutableSet](newCode.asImm().entrySet())) {
+		var entry Map_Entry = icast_Map_Entry(el_5)
 		var written *Outcome_base[any] = TextFiles_write(str_(entry.getKey()), Charsets_UTF_8, str_(entry.getValue()))
 		if written.isErr() {
 			return Outcome_base_err[any](written.error())
@@ -44,21 +41,23 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 	return Outcome_base_ok_0()
 }
 
-func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], fileNameToCodeMap MapOf[string, string]) ImmutableListOf[ImmutableMapOf[string, string]] {
+func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], fileNameToCodeMap MapOf[string, string]) []ImmutableMapOf[string, string] {
 	if Iterables_isEmpty(fixChoices) {
-		return ImmutableList_of_Object(obj_(ImmutableMap_of()))
+		return sliceOf_(tc_ImmutableMapOf_string__string_, ImmutableMap_of())
 	}
-	var alternativeCount int32 = cast_[*SuggestedFix](Iterables_getFirst(fixChoices, nil)).getAlternatives().size()
-	Preconditions_checkArgument_boolean_Object(ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount), strobj_("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense"))
-	var result ImmutableList_BuilderOf[ImmutableMapOf[string, string]] = ImmutableList_builder()
+	var alternativeCount int32 = Iterables_getFirst(fixChoices, nil).(*SuggestedFix).getAlternatives().size()
+	if !ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount) {
+		panic(new_IllegalArgumentException_String("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense"))
+	}
+	var result []ImmutableMapOf[string, string]
 	for i := int32(0); i < alternativeCount; i++ {
-		result.add(obj_(ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap)))
+		result = immAdd_(tc_ImmutableMapOf_string__string_, result, ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap).asImm())
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return immBuilt_(result)
 }
 
 func ApplySuggestedFixes_allHaveAlternativeCount(fixChoices IterableOf[*SuggestedFix], alternativeCount int32) bool {
-	it_1 := foreach_(any(fixChoices))
+	it_1 := foreach_(fixChoices)
 	for it_1.next() {
 		var f *SuggestedFix = cast_[*SuggestedFix](it_1.v)
 		if f.getAlternatives().size() != alternativeCount {
@@ -68,62 +67,57 @@ func ApplySuggestedFixes_allHaveAlternativeCount(fixChoices IterableOf[*Suggeste
 	return true
 }
 
-func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], choiceIndex int32, fileNameToCodeMap MapOf[string, string]) ImmutableMapOf[string, string] {
-	var chosenFixesBuilder ImmutableList_BuilderOf[*SuggestedFix] = ImmutableList_builder()
-	it_1 := foreach_(any(fixChoices))
-	for it_1.next() {
-		var choices *SuggestedFix = cast_[*SuggestedFix](it_1.v)
+func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], choiceIndex int32, fileNameToCodeMap MapOf[string, string]) *ImmutableMap[string, string] {
+	var chosenFixesBuilder *ImmutableList_Builder[*SuggestedFix] = immutableListBuilder_(tc_p_SuggestedFix)
+	for choices := range elemsAs_[*SuggestedFix](fixChoices) {
 		chosenFixesBuilder.add(choices.getAlternatives().get(choiceIndex))
 	}
-	var chosenFixes ImmutableListOf[*SuggestedFix] = cast_[*ImmutableList](obj_(chosenFixesBuilder.build()))
-	return ApplySuggestedFixes_applySuggestedFixesToCode(icast_Iterable(obj_(chosenFixes)), fileNameToCodeMap)
+	var chosenFixes *ImmutableList[*SuggestedFix] = chosenFixesBuilder.build()
+	return ApplySuggestedFixes_applySuggestedFixesToCode(icast_Iterable(obj_(chosenFixes.asImm())), fileNameToCodeMap)
 }
 
-func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFix], filenameToCodeMap MapOf[string, string]) ImmutableMapOf[string, string] {
+func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFix], filenameToCodeMap MapOf[string, string]) *ImmutableMap[string, string] {
 	var map_ *ApplySuggestedFixes_ReplacementMap = new_ApplySuggestedFixes_ReplacementMap()
-	it_1 := foreach_(any(fixes))
-	for it_1.next() {
-		var fix *SuggestedFix = cast_[*SuggestedFix](it_1.v)
+	for fix := range elemsAs_[*SuggestedFix](fixes) {
 		map_.putIfNoOverlap(fix)
 	}
-	var newCodeMap ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_3 := foreach_(any(map_.entrySet()))
-	for it_3.next() {
-		var entry Map_Entry = icast_Map_Entry(it_3.v)
+	var newCodeMap *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
+	for entry := range elemsBy_(map_.entrySet(), icast_Map_Entry) {
 		var filename string = str_(entry.getKey())
 		if !Map_containsKey_s(filenameToCodeMap, filename) {
-			panic(new_IllegalArgumentException_String(("filenameToCodeMap missing code for file: " + sstr_(filename))).self())
+			panic(new_IllegalArgumentException_String(("filenameToCodeMap missing code for file: " + sstr_(filename))))
 		}
 		var replacements SetOf[*CodeReplacement] = icast_Set(entry.getValue())
 		var newCode string = ApplySuggestedFixes_applyCodeReplacements(Collection(replacements), str_(Map_get_s(filenameToCodeMap, filename)))
-		newCodeMap.put(strobj_(filename), strobj_(newCode))
+		newCodeMap.put(filename, newCode)
 	}
 	return newCodeMap.buildOrThrow()
 }
 
 func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionOf[*CodeReplacement], code string) string {
 	var sortedReplacements ImmutableSortedSetOf[*CodeReplacement] = ImmutableSortedSet_copyOf(replacements)
-	Preconditions_checkArgument_boolean_String_Object(!ApplySuggestedFixes_containsOverlaps(sortedReplacements), "Found overlap between code replacements:\n%s", strobj_(ApplySuggestedFixes_DOUBLE_LINE_JOINER.join(icast_Iterable(obj_(sortedReplacements)))))
-	var sb *StringBuilder = new_StringBuilder()
+	if ok_, a1_ := !ApplySuggestedFixes_containsOverlaps(sortedReplacements), ApplySuggestedFixes_DOUBLE_LINE_JOINER.join(icast_Iterable(obj_(sortedReplacements))); !ok_ {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Found overlap between code replacements:\n%s", []any{strobj_(a1_)})))
+	}
+	var sb strBuilder_
 	var lastIndex int32 = 0
-	it_1 := foreach_(obj_(sortedReplacements))
-	for it_1.next() {
-		var replacement *CodeReplacement = cast_[*CodeReplacement](it_1.v)
-		sb.append_CharSequence_int_int(strobj_(code), lastIndex, replacement.getStartPosition())
+	for _, el := range immElems_(sortedReplacements) {
+		replacement := cast_[*CodeReplacement](el)
+		sb.append_CharSequence_int_int_s(code, lastIndex, replacement.getStartPosition())
 		sb.append(replacement.getNewContent())
 		lastIndex = replacement.getEndPosition()
 	}
-	if lastIndex <= String_length(code) {
-		sb.append_CharSequence_int_int(strobj_(code), lastIndex, String_length(code))
+	codeU16 := utf16Of_(code)
+	if lastIndex <= codeU16.length() {
+		sb.append_CharSequence_int_int_s(code, lastIndex, codeU16.length())
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func ApplySuggestedFixes_containsOverlaps(replacements ImmutableSortedSetOf[*CodeReplacement]) bool {
 	var start int32 = -1
-	it_1 := foreach_(obj_(replacements))
-	for it_1.next() {
-		var replacement *CodeReplacement = cast_[*CodeReplacement](it_1.v)
+	for _, el_1 := range immElems_(replacements) {
+		var replacement *CodeReplacement = cast_[*CodeReplacement](el_1)
 		if replacement.getStartPosition() < start {
 			return true
 		}
@@ -146,11 +140,11 @@ func ApplySuggestedFixes_clinit() {
 }
 
 type ApplySuggestedFixes_ReplacementMap struct {
-	map__ *SimpleSetMultimap
+	map__ *SimpleSetMultimap[any, any]
 }
 
 func (this *ApplySuggestedFixes_ReplacementMap) finit_ApplySuggestedFixes_ReplacementMap() {
-	this.map__ = SimpleSetMultimap_createInsertionOrdered()
+	this.map__ = SimpleSetMultimap_createInsertionOrdered[any, any]()
 }
 
 func (this *ApplySuggestedFixes_ReplacementMap) init_ApplySuggestedFixes_ReplacementMap() {
@@ -170,10 +164,10 @@ func (this *ApplySuggestedFixes_ReplacementMap) putIfNoOverlap(fix *SuggestedFix
 }
 
 func (this *ApplySuggestedFixes_ReplacementMap) canPut(fix *SuggestedFix) bool {
-	it_1 := foreach_(any(fix.getReplacements().keySet()))
+	it_1 := foreach_(fix.getReplacements().keySet())
 	for it_1.next() {
 		var filename string = str_(it_1.v)
-		var replacements ImmutableSortedSetOf[*CodeReplacement] = cast_[*ImmutableSortedSet](obj_(cast_[*ImmutableSortedSet_Builder](obj_(cast_[*ImmutableSortedSet_Builder](obj_(ImmutableSortedSet_naturalOrder().addAll(Iterable(this.map__.get(strobj_(filename)))))).addAll(Iterable(fix.getReplacements().get(strobj_(filename)))))).build()))
+		var replacements ImmutableSortedSetOf[*CodeReplacement] = ImmutableSortedSet_naturalOrder().addAll(Iterable(this.map__.get_s(filename))).addAll(Iterable(fix.getReplacements().get_s(filename))).build()
 		if ApplySuggestedFixes_containsOverlaps(replacements) {
 			return false
 		}

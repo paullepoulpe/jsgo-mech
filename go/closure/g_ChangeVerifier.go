@@ -4,12 +4,12 @@ package closure
 
 type ChangeVerifier struct {
 	changeTracker   *ChangeTracker
-	clonesByCurrent *SimpleBiMap
+	clonesByCurrent *SimpleBiMap[Node, Node]
 	snapshotChange  int32
 }
 
 func (this *ChangeVerifier) finit_ChangeVerifier() {
-	this.clonesByCurrent = SimpleBiMap_create()
+	this.clonesByCurrent = SimpleBiMap_create[Node, Node]()
 }
 
 func (this *ChangeVerifier) init_ChangeVerifier(compiler *AbstractCompiler) {
@@ -41,7 +41,7 @@ func (this *ChangeVerifier) checkRecordedChanges_2(passName string, root Node) {
 
 func (this *ChangeVerifier) associateClones(n Node, snapshot Node) {
 	if n.isRoot() || ChangeTracker_isChangeScopeRoot(n) {
-		this.clonesByCurrent.put(n.box_(), snapshot.box_())
+		this.clonesByCurrent.put(n, snapshot)
 	}
 	var child Node = n.getFirstChild()
 	var snapshotChild Node = snapshot.getFirstChild()
@@ -54,14 +54,14 @@ func (this *ChangeVerifier) associateClones(n Node, snapshot Node) {
 
 func (this *ChangeVerifier) verifyScopeChangesHaveBeenRecorded(passName string, root Node) {
 	var passNameMsg string = func() string {
-		if String_isEmpty(passName) {
+		if passName == "" {
 			return ""
 		}
 		return (sstr_(passName) + ": ")
 	}()
 	var snapshotScopeNodes *JTSet[Node] = jnewTSet_(jtc_Node)
-	NodeUtil_visitPreOrder_Node_Visitor(Node_of_(this.clonesByCurrent.get(root.box_())), icast_NodeUtil_Visitor(obj_(new_ChangeVerifier_1(this, snapshotScopeNodes))))
-	NodeUtil_visitPreOrder_Node_Visitor(root, icast_NodeUtil_Visitor(obj_(new_ChangeVerifier_2(this, snapshotScopeNodes, passNameMsg))))
+	NodeUtil_visitPreOrder_Node_Visitor(this.clonesByCurrent.get(root.box_()), new_ChangeVerifier_1(this, snapshotScopeNodes))
+	NodeUtil_visitPreOrder_Node_Visitor(root, new_ChangeVerifier_2(this, snapshotScopeNodes, passNameMsg))
 	this.verifyDeletedScopeNodes(passNameMsg, snapshotScopeNodes)
 }
 
@@ -69,31 +69,33 @@ func (this *ChangeVerifier) verifyDeletedScopeNodes(passNameMsg string, deletedS
 	it_1 := deletedScopeNodes.each()
 	for it_1.next() {
 		var snapshotScopeNode Node = it_1.v
-		var currentNode Node = Node_of_(this.clonesByCurrent.inverse().get(snapshotScopeNode.box_()))
+		var currentNode Node = Node_of_(strobj_(this.clonesByCurrent.inverse().Get(str_(snapshotScopeNode.box_()))))
 		if currentNode.isDeleted() {
 			continue
 		}
-		panic(new_IllegalStateException_String((sstr_(passNameMsg) + "deleted scope was not reported:\n" + sstr_(currentNode.toStringTree()))).self())
+		panic(new_IllegalStateException_String((sstr_(passNameMsg) + "deleted scope was not reported:\n" + sstr_(currentNode.toStringTree()))))
 	}
 }
 
 func (this *ChangeVerifier) verifyNode(passNameMsg string, n Node) {
 	if n.isDeleted() {
-		panic(new_IllegalStateException_String((sstr_(passNameMsg) + "existing scope is improperly marked as deleted:\n" + sstr_(n.toStringTree()))).self())
+		panic(new_IllegalStateException_String((sstr_(passNameMsg) + "existing scope is improperly marked as deleted:\n" + sstr_(n.toStringTree()))))
 	}
 }
 
 func (this *ChangeVerifier) verifyNewNode(passNameMsg string, n Node) {
 	var changeTime int32 = n.getChangeTime()
 	if (changeTime == 0) || (changeTime < this.snapshotChange) {
-		panic(new_IllegalStateException_String((sstr_(passNameMsg) + "new scope not explicitly marked as changed:\n" + sstr_(n.toStringTree()))).self())
+		panic(new_IllegalStateException_String((sstr_(passNameMsg) + "new scope not explicitly marked as changed:\n" + sstr_(n.toStringTree()))))
 	}
 }
 
 func (this *ChangeVerifier) verifyRoot(root Node) {
-	Preconditions_checkState(root.isRoot())
+	if !root.isRoot() {
+		panic(new_IllegalStateException_0())
+	}
 	if root.getChangeTime() != 0 {
-		panic(new_IllegalStateException_String("Root nodes should never be marked as changed.").self())
+		panic(new_IllegalStateException_String("Root nodes should never be marked as changed."))
 	}
 }
 
@@ -104,11 +106,11 @@ func (this *ChangeVerifier) verifyNodeChange(passNameMsg string, n Node, snapsho
 	var result *ChangeVerifier_EqualsResult = ChangeVerifier_getInequivalenceReasonExcludingFunctions(n, snapshot)
 	if n.getChangeTime() > snapshot.getChangeTime() {
 		if result.equals_0() {
-			panic(new_IllegalStateException_String((sstr_(passNameMsg) + "unchanged scope marked as changed: " + sstr_(this.getNameForNode(n)))).self())
+			panic(new_IllegalStateException_String((sstr_(passNameMsg) + "unchanged scope marked as changed: " + sstr_(this.getNameForNode(n)))))
 		}
 	} else {
 		if !result.equals_0() {
-			panic(new_IllegalStateException_String(String_format("\"%schanged scope not marked as changed: %s.\n%s\nAncestor nodes:\n%s\n", []any{strobj_(passNameMsg), strobj_(this.getNameForNode(n)), result.errorMessage_.get(), strobj_(this.path(n, result.errorNode()))})).self())
+			panic(new_IllegalStateException_String(String_format("\"%schanged scope not marked as changed: %s.\n%s\nAncestor nodes:\n%s\n", []any{strobj_(passNameMsg), strobj_(this.getNameForNode(n)), result.errorMessage_.get(), strobj_(this.path(n, result.errorNode()))})))
 		}
 	}
 }
@@ -116,19 +118,18 @@ func (this *ChangeVerifier) verifyNodeChange(passNameMsg string, n Node, snapsho
 func (this *ChangeVerifier) getNameForNode(n Node) string {
 	var sourceName string = NodeUtil_getSourceName(n)
 	return func() string {
-		switch n.getToken() {
-		case Token_rhino_SCRIPT:
+		switch n.ns_().token {
+		case tokOrd1_SCRIPT:
 			return ("SCRIPT: " + sstr_(sourceName))
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			var fnName Optional[string] = NodeUtil_getNearestFunctionName(n)
 			if fnName.isEmpty() {
 				fnName = Optional_of[string](("anonymous@" + istr_(int64(n.getLineno())) + ":" + istr_(int64(n.getCharno()))))
 			}
 			return ("FUNCTION: " + sstr_(fnName.orElse("null")) + " in " + sstr_(sourceName))
 		default:
-			panic(new_IllegalStateException_String("unexpected Node type").self())
+			panic(new_IllegalStateException_String("unexpected Node type"))
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -142,20 +143,24 @@ func (this *ChangeVerifier) path(ancestor Node, child Node) string {
 	}
 	childToAncestor.add(ancestor.toString())
 	Collections_reverse(childToAncestor.asList())
-	var result *StringBuilder = new_StringBuilder()
+	var result strBuilder_
 	for i := int32(0); i < childToAncestor.size(); i++ {
 		result.repeat_int_int(32, (i * 2))
 		result.append(childToAncestor.get(i))
 		result.append("\n")
 	}
-	return Object_toString(obj_(result))
+	return result.toString()
 }
 
 func ChangeVerifier_getInequivalenceReasonExcludingFunctions(thisNode Node, thatNode Node) *ChangeVerifier_EqualsResult {
-	Preconditions_checkNotNull(thisNode.box_())
-	Preconditions_checkNotNull(thatNode.box_())
+	if thisNode == 0 {
+		panic(new_NullPointerException_0())
+	}
+	if thatNode == 0 {
+		panic(new_NullPointerException_0())
+	}
 	if thisNode.getChildCount() != thatNode.getChildCount() {
-		return ChangeVerifier_EqualsResult_notEqual(thisNode, "differing child count", strobj_((objstr_(thisNode.box_()) + ": " + istr_(int64(thisNode.getChildCount())))), strobj_((objstr_(thatNode.box_()) + ": " + istr_(int64(thatNode.getChildCount())))))
+		return ChangeVerifier_EqualsResult_notEqual(thisNode, "differing child count", strobj_((tostr_(thisNode) + ": " + istr_(int64(thisNode.getChildCount())))), strobj_((tostr_(thatNode) + ": " + istr_(int64(thatNode.getChildCount())))))
 	}
 	if !thisNode.isEquivalentWithSideEffectsToShallow(thatNode) {
 		return ChangeVerifier_EqualsResult_notEqual(thisNode, "shallow inequivalence", thisNode.box_(), thatNode.box_())
@@ -217,7 +222,7 @@ func ChangeVerifier_EqualsResult_equal() *ChangeVerifier_EqualsResult {
 
 func ChangeVerifier_EqualsResult_notEqual(errorNode Node, error_ string, after any, before any) *ChangeVerifier_EqualsResult {
 	return new_ChangeVerifier_EqualsResult(false, errorNode, &Supplier_tfn_string{func() string {
-		return String_format("%s\nBefore: %s\nAfter:  %s\n", []any{strobj_(error_), before, after})
+		return (sstr_(error_) + "\nBefore: " + objstr_(before) + "\nAfter:  " + objstr_(after) + "\n")
 	}})
 }
 
@@ -238,19 +243,19 @@ func (this *ChangeVerifier_EqualsResult) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.equals_ == o.equals_ && Objects_equals(this.errorNode_.box_(), o.errorNode_.box_()) && Objects_equals(any(this.errorMessage_), any(o.errorMessage_))
+	return true && this.equals_ == o.equals_ && this.errorNode_ == o.errorNode_ && objequalsDyn_(this.errorMessage_, o.errorMessage_)
 }
 
 func (this *ChangeVerifier_EqualsResult) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(bool(this.equals_)))
-	h = h*31 + Objects_hashCode(this.errorNode_.box_())
-	h = h*31 + Objects_hashCode(any(this.errorMessage_))
+	h = h*31 + Boolean_hashCode(bool(this.equals_))
+	h = h*31 + objhashId_(this.errorNode_)
+	h = h*31 + objhashDyn_(this.errorMessage_)
 	return h
 }
 
 func (this *ChangeVerifier_EqualsResult) toString() string {
-	return "EqualsResult[" + "equals=" + objstr_(any(bool(this.equals_))) + ", errorNode=" + objstr_(this.errorNode_.box_()) + ", errorMessage=" + objstr_(any(this.errorMessage_)) + "]"
+	return "EqualsResult[" + "equals=" + boolstr_(bool(this.equals_)) + ", errorNode=" + tostr_(this.errorNode_) + ", errorMessage=" + objstr_(this.errorMessage_) + "]"
 }
 
 type ChangeVerifier_1 struct {
@@ -299,7 +304,7 @@ func (this *ChangeVerifier_2) visit(n Node) {
 	if n.isRoot() {
 		this.outer_.verifyRoot(n)
 	} else if ChangeTracker_isChangeScopeRoot(n) {
-		var clone Node = Node_of_(this.outer_.clonesByCurrent.get(n.box_()))
+		var clone Node = this.outer_.clonesByCurrent.get(n.box_())
 		this.cap_snapshotScopeNodes.del(clone)
 		this.outer_.verifyNode(this.cap_passNameMsg, n)
 		if clone == 0 {

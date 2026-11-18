@@ -20,7 +20,7 @@ func RhinoStringPool_uncheckedEquals(a string, b string) bool {
 }
 
 func RhinoStringPool_addOrGet(s string) string {
-	return str_(RhinoStringPool_INTERNER.intern(strobj_(s)))
+	return Interner_intern_s(RhinoStringPool_INTERNER, s) // post-flip manual step: no boxing to look up
 }
 
 var RhinoStringPool_INTERNER Interner
@@ -83,9 +83,9 @@ func new_RhinoStringPool_WriteOnlyBitset(size int32) *RhinoStringPool_WriteOnlyB
 
 func (this *RhinoStringPool_WriteOnlyBitset) set(offset int32) {
 	var wordIndex int32 = RhinoStringPool_WriteOnlyBitset_wordIndex(offset)
-	this.bits.updateAndGet(wordIndex, &IntUnaryOperator_fn{func(prevValue int32) int32 {
+	this.bits.updateAndGet_f(wordIndex, func(prevValue int32) int32 {
 		return (prevValue | (int32(1) << (uint32(offset) & 31)))
-	}})
+	})
 }
 
 func (this *RhinoStringPool_WriteOnlyBitset) get(offset int32) bool {

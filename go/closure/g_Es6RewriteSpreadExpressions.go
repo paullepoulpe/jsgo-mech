@@ -31,12 +31,12 @@ func new_Es6RewriteSpreadExpressions(compiler *AbstractCompiler) *Es6RewriteSpre
 }
 
 func (this *Es6RewriteSpreadExpressions) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteSpreadExpressions_TRANSPILED_FEATURES, []NodeTraversal_Callback{icast_NodeTraversal_Callback(obj_(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteSpreadExpressions_TRANSPILED_FEATURES, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6RewriteSpreadExpressions_TRANSPILED_FEATURES)
 }
 
 func (this *Es6RewriteSpreadExpressions) visit_impl(traversal *NodeTraversal, current Node, parent Node) {
-	var token *Token_rhino = current.getToken()
+	var token Token_rhino = current.getToken()
 	if ((token == Token_rhino_ARRAYLIT) || (token == Token_rhino_NEW)) || (token == Token_rhino_CALL) {
 		{
 			var child Node = current.getFirstChild()
@@ -56,13 +56,17 @@ func (this *Es6RewriteSpreadExpressions) visitArrayLitOrCallWithSpread(t *NodeTr
 	} else if spreadParent.isCall() {
 		this.visitCallContainingSpread(t, spreadParent)
 	} else {
-		Preconditions_checkArgument_boolean_Object(spreadParent.isNew(), spreadParent.box_())
+		if !spreadParent.isNew() {
+			panic(new_IllegalArgumentException_String(tostr_(spreadParent)))
+		}
 		this.visitNewWithSpread(spreadParent)
 	}
 }
 
 func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) *JTList[Node] {
-	Preconditions_checkArgument(((spreadParent.isCall() || spreadParent.isArrayLit()) || spreadParent.isNew()))
+	if !((spreadParent.isCall() || spreadParent.isArrayLit()) || spreadParent.isNew()) {
+		panic(new_IllegalArgumentException_0())
+	}
 	var groups *JTList[Node] = jnewTList_(jtc_Node)
 	var currGroup Node = 0
 	{
@@ -98,7 +102,9 @@ func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) 
 }
 
 func (this *Es6RewriteSpreadExpressions) visitArrayLitContainingSpread(spreadParent Node) {
-	Preconditions_checkArgument(spreadParent.isArrayLit())
+	if !spreadParent.isArrayLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var groups *JTList[Node] = this.extractSpreadGroups(spreadParent)
 	var baseArrayLit Node
 	if groups.get(0).isArrayLit() {
@@ -119,9 +125,13 @@ func (this *Es6RewriteSpreadExpressions) visitArrayLitContainingSpread(spreadPar
 }
 
 func (this *Es6RewriteSpreadExpressions) visitCallContainingSpread(t *NodeTraversal, spreadParent Node) {
-	Preconditions_checkArgument(spreadParent.isCall())
+	if !spreadParent.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var callee Node = spreadParent.getFirstChild()
-	Preconditions_checkState_boolean_Object(!callee.isSuper(), strobj_("Cannot spread into super calls"))
+	if callee.isSuper() {
+		panic(new_IllegalStateException_String("Cannot spread into super calls"))
+	}
 	var calleeMayHaveSideEffects bool = this.compiler_.getAstAnalyzer().mayHaveSideEffects(callee)
 	callee.detach()
 	for callee.isCast() {
@@ -132,7 +142,9 @@ func (this *Es6RewriteSpreadExpressions) visitCallContainingSpread(t *NodeTraver
 		joinedGroups = spreadParent.removeFirstChild().removeFirstChild()
 	} else {
 		var groups *JTList[Node] = this.extractSpreadGroups(spreadParent)
-		Preconditions_checkState(!groups.isEmpty())
+		if groups.isEmpty() {
+			panic(new_IllegalStateException_0())
+		}
 		if groups.size() == 1 {
 			joinedGroups = groups.removeAt(0)
 		} else {
@@ -176,7 +188,9 @@ func (this *Es6RewriteSpreadExpressions) isSpreadOfArguments(n Node) bool {
 }
 
 func (this *Es6RewriteSpreadExpressions) visitNewWithSpread(spreadParent Node) {
-	Preconditions_checkArgument(spreadParent.isNew())
+	if !spreadParent.isNew() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var callee Node = spreadParent.removeFirstChild()
 	var groups *JTList[Node] = this.extractSpreadGroups(spreadParent)
 	var baseArrayLit Node
@@ -220,4 +234,13 @@ func Es6RewriteSpreadExpressions_clinit() {
 	Es6RewriteSpreadExpressions_arrayType = AstFactory_typeColorId(StandardColors_ARRAY_ID)
 	Es6RewriteSpreadExpressions_concatFnType = AstFactory_typeColor(StandardColors_TOP_OBJECT)
 
+}
+
+// visit: an object that is exactly a Es6RewriteSpreadExpressions calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6RewriteSpreadExpressions) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*Es6RewriteSpreadExpressions); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

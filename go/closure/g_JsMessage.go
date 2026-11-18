@@ -8,15 +8,15 @@ type JsMessage struct {
 	isAnonymous_                         bool
 	isExternal_                          bool
 	getId_                               string
-	getParts_                            ImmutableListOf[JsMessage_Part]
-	getGenderedMessagesMap_              ImmutableMapOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]
+	getParts_                            *ImmutableList[JsMessage_Part]
+	getGenderedMessagesMap_              ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]
 	getAlternateId_                      Optional[string]
 	getDesc_                             Optional[string]
 	getMeaning_                          Optional[string]
-	getPlaceholderNameToExampleMap_      ImmutableMapOf[string, string]
-	getPlaceholderNameToOriginalCodeMap_ ImmutableMapOf[string, string]
-	jsPlaceholderNames_                  ImmutableSetOf[string]
-	canonicalPlaceholderNames_           ImmutableSetOf[string]
+	getPlaceholderNameToExampleMap_      *ImmutableMap[string, string]
+	getPlaceholderNameToOriginalCodeMap_ *ImmutableMap[string, string]
+	jsPlaceholderNames_                  *ImmutableSet[string]
+	canonicalPlaceholderNames_           *ImmutableSet[string]
 }
 
 func (this *JsMessage) zero_JsMessage() {
@@ -24,12 +24,22 @@ func (this *JsMessage) zero_JsMessage() {
 	this.getId_ = nullstr_
 }
 
-func (this *JsMessage) init_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts ImmutableListOf[JsMessage_Part], getGenderedMessagesMap ImmutableMapOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap ImmutableMapOf[string, string], getPlaceholderNameToOriginalCodeMap ImmutableMapOf[string, string], jsPlaceholderNames ImmutableSetOf[string], canonicalPlaceholderNames ImmutableSetOf[string]) {
-	Objects_requireNonNull(obj_(getParts), "getParts")
-	Objects_requireNonNull(obj_(getPlaceholderNameToExampleMap), "getPlaceholderNameToExampleMap")
-	Objects_requireNonNull(obj_(getPlaceholderNameToOriginalCodeMap), "getPlaceholderNameToOriginalCodeMap")
-	Objects_requireNonNull(obj_(jsPlaceholderNames), "jsPlaceholderNames")
-	Objects_requireNonNull(obj_(canonicalPlaceholderNames), "canonicalPlaceholderNames")
+func (this *JsMessage) init_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts *ImmutableList[JsMessage_Part], getGenderedMessagesMap ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap *ImmutableMap[string, string], getPlaceholderNameToOriginalCodeMap *ImmutableMap[string, string], jsPlaceholderNames *ImmutableSet[string], canonicalPlaceholderNames *ImmutableSet[string]) {
+	if getParts == nil {
+		panic(new_NullPointerException_String("getParts"))
+	}
+	if getPlaceholderNameToExampleMap == nil {
+		panic(new_NullPointerException_String("getPlaceholderNameToExampleMap"))
+	}
+	if getPlaceholderNameToOriginalCodeMap == nil {
+		panic(new_NullPointerException_String("getPlaceholderNameToOriginalCodeMap"))
+	}
+	if jsPlaceholderNames == nil {
+		panic(new_NullPointerException_String("jsPlaceholderNames"))
+	}
+	if canonicalPlaceholderNames == nil {
+		panic(new_NullPointerException_String("canonicalPlaceholderNames"))
+	}
 	this.getSourceName_ = getSourceName
 	this.getKey_ = getKey
 	this.isAnonymous_ = isAnonymous
@@ -46,7 +56,7 @@ func (this *JsMessage) init_JsMessage(getSourceName Optional[string], getKey str
 	this.canonicalPlaceholderNames_ = canonicalPlaceholderNames
 }
 
-func new_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts ImmutableListOf[JsMessage_Part], getGenderedMessagesMap ImmutableMapOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap ImmutableMapOf[string, string], getPlaceholderNameToOriginalCodeMap ImmutableMapOf[string, string], jsPlaceholderNames ImmutableSetOf[string], canonicalPlaceholderNames ImmutableSetOf[string]) *JsMessage {
+func new_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts *ImmutableList[JsMessage_Part], getGenderedMessagesMap ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap *ImmutableMap[string, string], getPlaceholderNameToOriginalCodeMap *ImmutableMap[string, string], jsPlaceholderNames *ImmutableSet[string], canonicalPlaceholderNames *ImmutableSet[string]) *JsMessage {
 	this := &JsMessage{}
 	this.zero_JsMessage()
 	this.init_JsMessage(getSourceName, getKey, isAnonymous, isExternal, getId, getParts, getGenderedMessagesMap, getAlternateId, getDesc, getMeaning, getPlaceholderNameToExampleMap, getPlaceholderNameToOriginalCodeMap, jsPlaceholderNames, canonicalPlaceholderNames)
@@ -54,109 +64,102 @@ func new_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bo
 }
 
 func (this *JsMessage) getPlaceholderOriginalCode(placeholderReference *JsMessage_PlaceholderReference) string {
-	return str_(Map_getOrDefault_s(this.getPlaceholderNameToOriginalCodeMap(), placeholderReference.storedPlaceholderName(), strobj_("-")))
+	return this.getPlaceholderNameToOriginalCodeMap().GetOr(placeholderReference.storedPlaceholderName(), "-")
 }
 
 func (this *JsMessage) getPlaceholderExample(placeholderReference *JsMessage_PlaceholderReference) string {
-	return str_(Map_getOrDefault_s(this.getPlaceholderNameToExampleMap(), placeholderReference.storedPlaceholderName(), strobj_("-")))
+	return this.getPlaceholderNameToExampleMap().GetOr(placeholderReference.storedPlaceholderName(), "-")
 }
 
-func (this *JsMessage) getGenderedMessageParts(genderCase *JsMessage_GrammaticalGenderCase) ImmutableListOf[JsMessage_Part] {
+func (this *JsMessage) getGenderedMessageParts(genderCase JsMessage_GrammaticalGenderCase) []JsMessage_Part {
 	if this.getGenderedMessagesMap().isEmpty() {
-		panic(new_UnsupportedOperationException_String("Message does not contain grammatical gendered variants.").self())
+		panic(new_UnsupportedOperationException_String("Message does not contain grammatical gendered variants."))
 	}
-	return cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))
+	return sliceImm_(tc_JsMessage_Part, cast_[*ErasedImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase))))
 }
 
-func (this *JsMessage) getGenderedMessageVariants() ImmutableListOf[*JsMessage_GrammaticalGenderCase] {
-	return cast_[*ImmutableSet](this.getGenderedMessagesMap().keySet()).asList()
+func (this *JsMessage) getGenderedMessageVariants() []JsMessage_GrammaticalGenderCase {
+	return sliceImm_(tc_p_JsMessage_GrammaticalGenderCase, this.getGenderedMessagesMap().keySet().(*ErasedImmutableSet).asList())
 }
 
 func (this *JsMessage) asJsMessageString() string {
 	if !this.getGenderedMessagesMap().isEmpty() {
-		panic(new_UnsupportedOperationException_String("asJsMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument.").self())
+		panic(new_UnsupportedOperationException_String("asJsMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument."))
 	}
-	var sb *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(obj_(this.getParts()))
-	for it_1.next() {
-		var p JsMessage_Part = icast_JsMessage_Part(it_1.v)
+	var sb strBuilder_
+	for _, el := range this.getParts().items {
+		p := el
 		if p.isPlaceholder() {
 			sb.append(JsMessage_PH_JS_PREFIX).append(p.getJsPlaceholderName()).append(JsMessage_PH_JS_SUFFIX)
 		} else {
 			sb.append(p.getString())
 		}
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
-func (this *JsMessage) asJsMessageString_1(genderCase *JsMessage_GrammaticalGenderCase) string {
+func (this *JsMessage) asJsMessageString_1(genderCase JsMessage_GrammaticalGenderCase) string {
 	if !this.getGenderedMessagesMap().containsKey(obj_(genderCase)) {
-		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + objstr_(obj_(genderCase)))).self())
+		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + tostr_(genderCase))))
 	}
-	var sb *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(obj_(cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))))
-	for it_1.next() {
-		var p JsMessage_Part = icast_JsMessage_Part(it_1.v)
+	var sb strBuilder_
+	for _, el := range immElems_(cast_[*ErasedImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))) {
+		p := icast_JsMessage_Part(el)
 		if p.isPlaceholder() {
 			sb.append(JsMessage_PH_JS_PREFIX).append(p.getJsPlaceholderName()).append(JsMessage_PH_JS_SUFFIX)
 		} else {
 			sb.append(p.getString())
 		}
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func (this *JsMessage) asIcuMessageString() string {
 	if !this.getGenderedMessagesMap().isEmpty() {
-		panic(new_UnsupportedOperationException_String("asIcuMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument.").self())
+		panic(new_UnsupportedOperationException_String("asIcuMessageString() is not supported for messages with gendered variants. Please provide a grammatical gender case as an argument."))
 	}
-	var sb *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(obj_(this.getParts()))
-	for it_1.next() {
-		var p JsMessage_Part = icast_JsMessage_Part(it_1.v)
+	var sb strBuilder_
+	for _, el := range this.getParts().items {
+		p := el
 		if p.isPlaceholder() {
-			cast_[*StringBuilder](sb.append_char('{')).append(p.getCanonicalPlaceholderName()).append_char('}')
+			sb.append_char('{').append(p.getCanonicalPlaceholderName()).append_char('}')
 		} else {
 			sb.append(p.getString())
 		}
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
-func (this *JsMessage) asIcuMessageString_1(genderCase *JsMessage_GrammaticalGenderCase) string {
+func (this *JsMessage) asIcuMessageString_1(genderCase JsMessage_GrammaticalGenderCase) string {
 	if !this.getGenderedMessagesMap().containsKey(obj_(genderCase)) {
-		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + objstr_(obj_(genderCase)))).self())
+		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + tostr_(genderCase))))
 	}
-	var sb *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(obj_(cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))))
-	for it_1.next() {
-		var p JsMessage_Part = icast_JsMessage_Part(it_1.v)
+	var sb strBuilder_
+	for _, el := range immElems_(cast_[*ErasedImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))) {
+		p := icast_JsMessage_Part(el)
 		if p.isPlaceholder() {
-			cast_[*StringBuilder](sb.append_char('{')).append(p.getCanonicalPlaceholderName()).append_char('}')
+			sb.append_char('{').append(p.getCanonicalPlaceholderName()).append_char('}')
 		} else {
 			sb.append(p.getString())
 		}
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func (this *JsMessage) isEmpty() bool {
 	if this.getGenderedMessagesMap().isEmpty() {
-		it_1 := foreach_(obj_(this.getParts()))
-		for it_1.next() {
-			var part JsMessage_Part = icast_JsMessage_Part(it_1.v)
-			if part.isPlaceholder() || (String_length(part.getString()) > 0) {
+		for _, el_1 := range this.getParts().items {
+			var part JsMessage_Part = el_1
+			if part.isPlaceholder() || (len(part.getString()) != 0) {
 				return false
 			}
 		}
 	} else {
-		it_3 := foreach_(obj_(cast_[*ImmutableCollection](this.getGenderedMessagesMap().values())))
-		for it_3.next() {
-			var parts *ImmutableList = cast_[*ImmutableList](it_3.v)
-			it_5 := foreach_(obj_(parts))
-			for it_5.next() {
-				var part JsMessage_Part = icast_JsMessage_Part(it_5.v)
-				if part.isPlaceholder() || (String_length(part.getString()) > 0) {
+		for _, el_3 := range immElems_(cast_[*ImmutableCollection](this.getGenderedMessagesMap().values())) {
+			var parts *ErasedImmutableList = cast_[*ErasedImmutableList](el_3)
+			for _, el_5 := range immElems_(parts) {
+				var part JsMessage_Part = icast_JsMessage_Part(el_5)
+				if part.isPlaceholder() || (len(part.getString()) != 0) {
 					return false
 				}
 			}
@@ -166,16 +169,17 @@ func (this *JsMessage) isEmpty() bool {
 }
 
 func JsMessage_isLowerCamelCaseWithNumericSuffixes(input string) bool {
-	return JsMessage_JS_PLACEHOLDER_NAME_RE.matcher(strobj_(input)).matches()
+	return JsMessage_JS_PLACEHOLDER_NAME_RE.matcher_s(input).matches()
 }
 
 func JsMessage_toLowerCamelCaseWithNumericSuffixes(input string) string {
-	var suffixStart int32 = String_length(input)
+	inputU16 := utf16Of_(input)
+	var suffixStart int32 = inputU16.length()
 	for suffixStart > 0 {
 		var ch uint16 = 0x0000
 		var numberStart int32 = suffixStart
 		for numberStart > 0 {
-			ch = String_charAt(input, (numberStart - 1))
+			ch = inputU16.charAt((numberStart - 1))
 			if Character_isDigit(ch) {
 				numberStart--
 			} else {
@@ -188,16 +192,15 @@ func JsMessage_toLowerCamelCaseWithNumericSuffixes(input string) string {
 			break
 		}
 	}
-	if suffixStart == String_length(input) {
+	if suffixStart == inputU16.length() {
 		return CaseFormat_UPPER_UNDERSCORE.to(CaseFormat_LOWER_CAMEL, input)
 	} else {
-		return (sstr_(CaseFormat_UPPER_UNDERSCORE.to(CaseFormat_LOWER_CAMEL, String_substring(input, 0, suffixStart))) + sstr_(String_substring_int(input, suffixStart)))
+		return (sstr_(CaseFormat_UPPER_UNDERSCORE.to(CaseFormat_LOWER_CAMEL, inputU16.substring(0, suffixStart))) + sstr_(inputU16.substring_int(suffixStart)))
 	}
-	panic("unreachable")
 }
 
 func JsMessage_isCanonicalPlaceholderNameFormat(name string) bool {
-	return JsMessage_CANONICAL_PLACEHOLDER_NAME_RE.matcher(strobj_(name)).matches()
+	return JsMessage_CANONICAL_PLACEHOLDER_NAME_RE.matcher_s(name).matches()
 }
 
 func (this *JsMessage) getSourceName() Optional[string] {
@@ -220,11 +223,11 @@ func (this *JsMessage) getId() string {
 	return this.getId_
 }
 
-func (this *JsMessage) getParts() *ImmutableList {
+func (this *JsMessage) getParts() *ImmutableList[JsMessage_Part] {
 	return this.getParts_
 }
 
-func (this *JsMessage) getGenderedMessagesMap() *ImmutableMap {
+func (this *JsMessage) getGenderedMessagesMap() *ErasedImmutableMap {
 	return this.getGenderedMessagesMap_
 }
 
@@ -240,19 +243,19 @@ func (this *JsMessage) getMeaning() Optional[string] {
 	return this.getMeaning_
 }
 
-func (this *JsMessage) getPlaceholderNameToExampleMap() *ImmutableMap {
+func (this *JsMessage) getPlaceholderNameToExampleMap() *ImmutableMap[string, string] {
 	return this.getPlaceholderNameToExampleMap_
 }
 
-func (this *JsMessage) getPlaceholderNameToOriginalCodeMap() *ImmutableMap {
+func (this *JsMessage) getPlaceholderNameToOriginalCodeMap() *ImmutableMap[string, string] {
 	return this.getPlaceholderNameToOriginalCodeMap_
 }
 
-func (this *JsMessage) jsPlaceholderNames() *ImmutableSet {
+func (this *JsMessage) jsPlaceholderNames() *ImmutableSet[string] {
 	return this.jsPlaceholderNames_
 }
 
-func (this *JsMessage) canonicalPlaceholderNames() *ImmutableSet {
+func (this *JsMessage) canonicalPlaceholderNames() *ImmutableSet[string] {
 	return this.canonicalPlaceholderNames_
 }
 
@@ -261,30 +264,30 @@ func (this *JsMessage) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.getSourceName_.box_(), o.getSourceName_.box_()) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && Objects_equals(obj_(this.getParts_), obj_(o.getParts_)) && Objects_equals(obj_(this.getGenderedMessagesMap_), obj_(o.getGenderedMessagesMap_)) && Objects_equals(this.getAlternateId_.box_(), o.getAlternateId_.box_()) && Objects_equals(this.getDesc_.box_(), o.getDesc_.box_()) && Objects_equals(this.getMeaning_.box_(), o.getMeaning_.box_()) && Objects_equals(obj_(this.getPlaceholderNameToExampleMap_), obj_(o.getPlaceholderNameToExampleMap_)) && Objects_equals(obj_(this.getPlaceholderNameToOriginalCodeMap_), obj_(o.getPlaceholderNameToOriginalCodeMap_)) && Objects_equals(obj_(this.jsPlaceholderNames_), obj_(o.jsPlaceholderNames_)) && Objects_equals(obj_(this.canonicalPlaceholderNames_), obj_(o.canonicalPlaceholderNames_))
+	return true && Objects_equals(this.getSourceName_.box_(), o.getSourceName_.box_()) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && tlistEq_(this.getParts_, o.getParts_, true) && objequalsBy_(this.getGenderedMessagesMap_, obj_(o.getGenderedMessagesMap_), (ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]).equals) && Objects_equals(this.getAlternateId_.box_(), o.getAlternateId_.box_()) && Objects_equals(this.getDesc_.box_(), o.getDesc_.box_()) && Objects_equals(this.getMeaning_.box_(), o.getMeaning_.box_()) && tmapEq_(this.getPlaceholderNameToExampleMap_, o.getPlaceholderNameToExampleMap_, true) && tmapEq_(this.getPlaceholderNameToOriginalCodeMap_, o.getPlaceholderNameToOriginalCodeMap_, true) && tsetEq_(this.jsPlaceholderNames_, o.jsPlaceholderNames_, true) && tsetEq_(this.canonicalPlaceholderNames_, o.canonicalPlaceholderNames_, true)
 }
 
 func (this *JsMessage) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(this.getSourceName_.box_())
-	h = h*31 + Objects_hashCode(strobj_(this.getKey_))
-	h = h*31 + Objects_hashCode(any(bool(this.isAnonymous_)))
-	h = h*31 + Objects_hashCode(any(bool(this.isExternal_)))
-	h = h*31 + Objects_hashCode(strobj_(this.getId_))
-	h = h*31 + Objects_hashCode(obj_(this.getParts_))
-	h = h*31 + Objects_hashCode(obj_(this.getGenderedMessagesMap_))
+	h = h*31 + objhashStr_(this.getKey_)
+	h = h*31 + Boolean_hashCode(bool(this.isAnonymous_))
+	h = h*31 + Boolean_hashCode(bool(this.isExternal_))
+	h = h*31 + objhashStr_(this.getId_)
+	h = h*31 + tlistHash_(this.getParts_, true)
+	h = h*31 + objhashBy_(this.getGenderedMessagesMap_, (ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]).hashCode)
 	h = h*31 + Objects_hashCode(this.getAlternateId_.box_())
 	h = h*31 + Objects_hashCode(this.getDesc_.box_())
 	h = h*31 + Objects_hashCode(this.getMeaning_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.getPlaceholderNameToExampleMap_))
-	h = h*31 + Objects_hashCode(obj_(this.getPlaceholderNameToOriginalCodeMap_))
-	h = h*31 + Objects_hashCode(obj_(this.jsPlaceholderNames_))
-	h = h*31 + Objects_hashCode(obj_(this.canonicalPlaceholderNames_))
+	h = h*31 + tmapHash_(this.getPlaceholderNameToExampleMap_, true)
+	h = h*31 + tmapHash_(this.getPlaceholderNameToOriginalCodeMap_, true)
+	h = h*31 + tsetHash_(this.jsPlaceholderNames_, true)
+	h = h*31 + tsetHash_(this.canonicalPlaceholderNames_, true)
 	return h
 }
 
 func (this *JsMessage) toString() string {
-	return "JsMessage[" + "getSourceName=" + objstr_(this.getSourceName_.box_()) + ", getKey=" + objstr_(strobj_(this.getKey_)) + ", isAnonymous=" + objstr_(any(bool(this.isAnonymous_))) + ", isExternal=" + objstr_(any(bool(this.isExternal_))) + ", getId=" + objstr_(strobj_(this.getId_)) + ", getParts=" + objstr_(obj_(this.getParts_)) + ", getGenderedMessagesMap=" + objstr_(obj_(this.getGenderedMessagesMap_)) + ", getAlternateId=" + objstr_(this.getAlternateId_.box_()) + ", getDesc=" + objstr_(this.getDesc_.box_()) + ", getMeaning=" + objstr_(this.getMeaning_.box_()) + ", getPlaceholderNameToExampleMap=" + objstr_(obj_(this.getPlaceholderNameToExampleMap_)) + ", getPlaceholderNameToOriginalCodeMap=" + objstr_(obj_(this.getPlaceholderNameToOriginalCodeMap_)) + ", jsPlaceholderNames=" + objstr_(obj_(this.jsPlaceholderNames_)) + ", canonicalPlaceholderNames=" + objstr_(obj_(this.canonicalPlaceholderNames_)) + "]"
+	return "JsMessage[" + "getSourceName=" + objstr_(this.getSourceName_.box_()) + ", getKey=" + sstr_(this.getKey_) + ", isAnonymous=" + boolstr_(bool(this.isAnonymous_)) + ", isExternal=" + boolstr_(bool(this.isExternal_)) + ", getId=" + sstr_(this.getId_) + ", getParts=" + tostr_(this.getParts_.asImm()) + ", getGenderedMessagesMap=" + tostr_(this.getGenderedMessagesMap_) + ", getAlternateId=" + objstr_(this.getAlternateId_.box_()) + ", getDesc=" + objstr_(this.getDesc_.box_()) + ", getMeaning=" + objstr_(this.getMeaning_.box_()) + ", getPlaceholderNameToExampleMap=" + tostr_(this.getPlaceholderNameToExampleMap_.asImm()) + ", getPlaceholderNameToOriginalCodeMap=" + tostr_(this.getPlaceholderNameToOriginalCodeMap_.asImm()) + ", jsPlaceholderNames=" + tostr_(this.jsPlaceholderNames_.asImm()) + ", canonicalPlaceholderNames=" + tostr_(this.canonicalPlaceholderNames_.asImm()) + "]"
 }
 
 const JsMessage_PH_JS_PREFIX string = "{$"
@@ -305,46 +308,68 @@ func JsMessage_clinit() {
 
 }
 
-type JsMessage_GrammaticalGenderCase struct {
-	Enum
+type JsMessage_GrammaticalGenderCase uint8
+
+// JsMessage_GrammaticalGenderCase_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JsMessage_GrammaticalGenderCase_enum_ = [4]Enum{
+	{self_: JsMessage_GrammaticalGenderCase_MASCULINE, name_: "MASCULINE", ordinal_: 0},
+	{self_: JsMessage_GrammaticalGenderCase_FEMININE, name_: "FEMININE", ordinal_: 1},
+	{self_: JsMessage_GrammaticalGenderCase_NEUTER, name_: "NEUTER", ordinal_: 2},
+	{self_: JsMessage_GrammaticalGenderCase_OTHER, name_: "OTHER", ordinal_: 3},
 }
 
-func (this *JsMessage_GrammaticalGenderCase) up_Enum() *Enum {
-	if this == nil {
+func (this JsMessage_GrammaticalGenderCase) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JsMessage_GrammaticalGenderCase_enum_[this-1]
 }
 
-func (this *JsMessage_GrammaticalGenderCase) init_JsMessage_GrammaticalGenderCase(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JsMessage_GrammaticalGenderCase) name() string {
+	return this.enum_().name_
 }
 
-func new_JsMessage_GrammaticalGenderCase(name_ string, ordinal_ int32) *JsMessage_GrammaticalGenderCase {
-	this := &JsMessage_GrammaticalGenderCase{}
-	this.self_ = this
-	this.init_JsMessage_GrammaticalGenderCase(name_, ordinal_)
+func (this JsMessage_GrammaticalGenderCase) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this JsMessage_GrammaticalGenderCase) toString() string {
+	return this.enum_().name_
+}
+
+func (this JsMessage_GrammaticalGenderCase) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this JsMessage_GrammaticalGenderCase) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JsMessage_GrammaticalGenderCase_values() []*JsMessage_GrammaticalGenderCase {
-	return append([]*JsMessage_GrammaticalGenderCase(nil), JsMessage_GrammaticalGenderCase_values_...)
+func JsMessage_GrammaticalGenderCase_values() []JsMessage_GrammaticalGenderCase {
+	return append([]JsMessage_GrammaticalGenderCase(nil), JsMessage_GrammaticalGenderCase_values_...)
 }
 
-func JsMessage_GrammaticalGenderCase_valueOf(name string) *JsMessage_GrammaticalGenderCase {
+func JsMessage_GrammaticalGenderCase_valueOf(name string) JsMessage_GrammaticalGenderCase {
 	for _, v := range JsMessage_GrammaticalGenderCase_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("GrammaticalGenderCase", name))
 }
 
-var JsMessage_GrammaticalGenderCase_MASCULINE *JsMessage_GrammaticalGenderCase
-var JsMessage_GrammaticalGenderCase_FEMININE *JsMessage_GrammaticalGenderCase
-var JsMessage_GrammaticalGenderCase_NEUTER *JsMessage_GrammaticalGenderCase
-var JsMessage_GrammaticalGenderCase_OTHER *JsMessage_GrammaticalGenderCase
-var JsMessage_GrammaticalGenderCase_values_ []*JsMessage_GrammaticalGenderCase
+const JsMessage_GrammaticalGenderCase_MASCULINE JsMessage_GrammaticalGenderCase = 1
+const JsMessage_GrammaticalGenderCase_FEMININE JsMessage_GrammaticalGenderCase = 2
+const JsMessage_GrammaticalGenderCase_NEUTER JsMessage_GrammaticalGenderCase = 3
+const JsMessage_GrammaticalGenderCase_OTHER JsMessage_GrammaticalGenderCase = 4
+
+var JsMessage_GrammaticalGenderCase_values_ []JsMessage_GrammaticalGenderCase
 
 var JsMessage_GrammaticalGenderCase_clinit_done bool
 
@@ -353,11 +378,7 @@ func JsMessage_GrammaticalGenderCase_clinit() {
 		return
 	}
 	JsMessage_GrammaticalGenderCase_clinit_done = true
-	JsMessage_GrammaticalGenderCase_MASCULINE = new_JsMessage_GrammaticalGenderCase("MASCULINE", 0)
-	JsMessage_GrammaticalGenderCase_FEMININE = new_JsMessage_GrammaticalGenderCase("FEMININE", 1)
-	JsMessage_GrammaticalGenderCase_NEUTER = new_JsMessage_GrammaticalGenderCase("NEUTER", 2)
-	JsMessage_GrammaticalGenderCase_OTHER = new_JsMessage_GrammaticalGenderCase("OTHER", 3)
-	JsMessage_GrammaticalGenderCase_values_ = []*JsMessage_GrammaticalGenderCase{JsMessage_GrammaticalGenderCase_MASCULINE, JsMessage_GrammaticalGenderCase_FEMININE, JsMessage_GrammaticalGenderCase_NEUTER, JsMessage_GrammaticalGenderCase_OTHER}
+	JsMessage_GrammaticalGenderCase_values_ = []JsMessage_GrammaticalGenderCase{JsMessage_GrammaticalGenderCase_MASCULINE, JsMessage_GrammaticalGenderCase_FEMININE, JsMessage_GrammaticalGenderCase_NEUTER, JsMessage_GrammaticalGenderCase_OTHER}
 	registerEnum_("com.google.javascript.jscomp.JsMessage.GrammaticalGenderCase", enumValues_(JsMessage_GrammaticalGenderCase_values_))
 
 }
@@ -423,11 +444,11 @@ func (this *JsMessage_StringPart) isPlaceholder() bool {
 }
 
 func (this *JsMessage_StringPart) getJsPlaceholderName() string {
-	panic(new_UnsupportedOperationException_String(String_format("not a placeholder: '%s'", []any{strobj_(this.string())})).self())
+	panic(new_UnsupportedOperationException_String(("not a placeholder: '" + sstr_(this.string()) + "'")))
 }
 
 func (this *JsMessage_StringPart) getCanonicalPlaceholderName() string {
-	panic(new_UnsupportedOperationException_String(String_format("not a placeholder: '%s'", []any{strobj_(this.string())})).self())
+	panic(new_UnsupportedOperationException_String(("not a placeholder: '" + sstr_(this.string()) + "'")))
 }
 
 func (this *JsMessage_StringPart) string() string {
@@ -444,12 +465,12 @@ func (this *JsMessage_StringPart) equals(p0 any) bool {
 
 func (this *JsMessage_StringPart) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.string_))
+	h = h*31 + objhashStr_(this.string_)
 	return h
 }
 
 func (this *JsMessage_StringPart) toString() string {
-	return "StringPart[" + "string=" + objstr_(strobj_(this.string_)) + "]"
+	return "StringPart[" + "string=" + sstr_(this.string_) + "]"
 }
 
 type JsMessage_PlaceholderReference struct {
@@ -482,12 +503,16 @@ func (this *JsMessage_PlaceholderReference) isCanonicalFormat() bool {
 }
 
 func JsMessage_PlaceholderReference_createForJsName(name string) *JsMessage_PlaceholderReference {
-	Preconditions_checkArgument_boolean_String_Object(JsMessage_isLowerCamelCaseWithNumericSuffixes(name), "invalid JS placeholder name format: '%s'", strobj_(name))
+	if !JsMessage_isLowerCamelCaseWithNumericSuffixes(name) {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid JS placeholder name format: '%s'", []any{strobj_(name)})))
+	}
 	return new_JsMessage_PlaceholderReference(name, false)
 }
 
 func JsMessage_PlaceholderReference_createForCanonicalName(name string) *JsMessage_PlaceholderReference {
-	Preconditions_checkArgument_boolean_String_Object(JsMessage_isCanonicalPlaceholderNameFormat(name), "not a canonical placeholder name format: '%s'", strobj_(name))
+	if !JsMessage_isCanonicalPlaceholderNameFormat(name) {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("not a canonical placeholder name format: '%s'", []any{strobj_(name)})))
+	}
 	return new_JsMessage_PlaceholderReference(name, true)
 }
 
@@ -516,7 +541,7 @@ func (this *JsMessage_PlaceholderReference) getCanonicalPlaceholderName() string
 }
 
 func (this *JsMessage_PlaceholderReference) getString() string {
-	panic(new_UnsupportedOperationException_String(String_format("not a string part: '%s'", []any{strobj_(this.getJsPlaceholderName())})).self())
+	panic(new_UnsupportedOperationException_String(("not a string part: '" + sstr_(this.getJsPlaceholderName()) + "'")))
 }
 
 func (this *JsMessage_PlaceholderReference) storedPlaceholderName() string {
@@ -537,13 +562,13 @@ func (this *JsMessage_PlaceholderReference) equals(p0 any) bool {
 
 func (this *JsMessage_PlaceholderReference) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.storedPlaceholderName_))
-	h = h*31 + Objects_hashCode(any(bool(this.canonicalFormat_)))
+	h = h*31 + objhashStr_(this.storedPlaceholderName_)
+	h = h*31 + Boolean_hashCode(bool(this.canonicalFormat_))
 	return h
 }
 
 func (this *JsMessage_PlaceholderReference) toString() string {
-	return "PlaceholderReference[" + "storedPlaceholderName=" + objstr_(strobj_(this.storedPlaceholderName_)) + ", canonicalFormat=" + objstr_(any(bool(this.canonicalFormat_))) + "]"
+	return "PlaceholderReference[" + "storedPlaceholderName=" + sstr_(this.storedPlaceholderName_) + ", canonicalFormat=" + boolstr_(bool(this.canonicalFormat_)) + "]"
 }
 
 type JsMessage_Builder struct {
@@ -555,11 +580,11 @@ type JsMessage_Builder struct {
 	id                               Optional[string]
 	alternateId                      Optional[string]
 	parts                            *JTList[JsMessage_Part]
-	genderedMessageMap               *JTMap[*JsMessage_GrammaticalGenderCase, List]
+	genderedMessageMap               *JTMap[JsMessage_GrammaticalGenderCase, List]
 	jsPlaceholderNames_              *JTSet[string]
 	canonicalPlaceholderNames_       *JTSet[string]
-	placeholderNameToExampleMap      ImmutableMapOf[string, string]
-	placeholderNameToOriginalCodeMap ImmutableMapOf[string, string]
+	placeholderNameToExampleMap      *ImmutableMap[string, string]
+	placeholderNameToOriginalCodeMap *ImmutableMap[string, string]
 	sourceName_                      Optional[string]
 }
 
@@ -575,8 +600,8 @@ func (this *JsMessage_Builder) finit_JsMessage_Builder() {
 	this.genderedMessageMap = jnewTMap_(jtc_p_JsMessage_GrammaticalGenderCase, tc_List)
 	this.jsPlaceholderNames_ = jnewTSet_(jtc_string)
 	this.canonicalPlaceholderNames_ = jnewTSet_(jtc_string)
-	this.placeholderNameToExampleMap = ImmutableMap_of()
-	this.placeholderNameToOriginalCodeMap = ImmutableMap_of()
+	this.placeholderNameToExampleMap = immutableMapOf_(tc_string, tc_string, []string{}, []string{})
+	this.placeholderNameToOriginalCodeMap = immutableMapOf_(tc_string, tc_string, []string{}, []string{})
 	this.sourceName_ = Optional_empty[string]()
 }
 
@@ -605,7 +630,9 @@ func (this *JsMessage_Builder) setSourceName(sourceName string) *JsMessage_Build
 }
 
 func (this *JsMessage_Builder) appendPart(part JsMessage_Part) *JsMessage_Builder {
-	Preconditions_checkNotNull(any(part))
+	if part == nil {
+		panic(new_NullPointerException_0())
+	}
 	this.parts.add(part)
 	if part.isPlaceholder() {
 		this.jsPlaceholderNames_.add(part.getJsPlaceholderName())
@@ -614,22 +641,20 @@ func (this *JsMessage_Builder) appendPart(part JsMessage_Part) *JsMessage_Builde
 	return this
 }
 
-func (this *JsMessage_Builder) appendParts(parts ListOf[JsMessage_Part]) *JsMessage_Builder {
-	it_1 := foreach_(any(parts))
-	for it_1.next() {
-		var part JsMessage_Part = icast_JsMessage_Part(it_1.v)
+func (this *JsMessage_Builder) appendParts(parts []JsMessage_Part) *JsMessage_Builder {
+	for _, part := range parts {
 		this.appendPart(part)
 	}
 	return this
 }
 
 func (this *JsMessage_Builder) appendJsPlaceholderReference(name string) *JsMessage_Builder {
-	this.parts.add(icast_JsMessage_Part(obj_(JsMessage_PlaceholderReference_createForJsName(name))))
+	this.parts.add(JsMessage_PlaceholderReference_createForJsName(name))
 	this.jsPlaceholderNames_.add(name)
 	return this
 }
 
-func (this *JsMessage_Builder) appendJsPlaceholderReference_2(genderCase *JsMessage_GrammaticalGenderCase, name string) *JsMessage_Builder {
+func (this *JsMessage_Builder) appendJsPlaceholderReference_2(genderCase JsMessage_GrammaticalGenderCase, name string) *JsMessage_Builder {
 	this.genderedMessageMap.get(genderCase).add(obj_(JsMessage_PlaceholderReference_createForJsName(name)))
 	this.jsPlaceholderNames_.add(name)
 	return this
@@ -637,12 +662,12 @@ func (this *JsMessage_Builder) appendJsPlaceholderReference_2(genderCase *JsMess
 
 func (this *JsMessage_Builder) appendCanonicalPlaceholderReference(name string) *JsMessage_Builder {
 	var placeholder *JsMessage_PlaceholderReference = JsMessage_PlaceholderReference_createForCanonicalName(name)
-	this.parts.add(icast_JsMessage_Part(obj_(placeholder)))
+	this.parts.add(placeholder)
 	this.jsPlaceholderNames_.add(placeholder.getJsPlaceholderName())
 	return this
 }
 
-func (this *JsMessage_Builder) appendCanonicalPlaceholderReference_2(genderCase *JsMessage_GrammaticalGenderCase, name string) *JsMessage_Builder {
+func (this *JsMessage_Builder) appendCanonicalPlaceholderReference_2(genderCase JsMessage_GrammaticalGenderCase, name string) *JsMessage_Builder {
 	var placeholder *JsMessage_PlaceholderReference = JsMessage_PlaceholderReference_createForCanonicalName(name)
 	this.genderedMessageMap.get(genderCase).add(obj_(placeholder))
 	this.jsPlaceholderNames_.add(placeholder.getJsPlaceholderName())
@@ -650,29 +675,33 @@ func (this *JsMessage_Builder) appendCanonicalPlaceholderReference_2(genderCase 
 }
 
 func (this *JsMessage_Builder) appendStringPart(part string) *JsMessage_Builder {
-	this.parts.add(icast_JsMessage_Part(obj_(JsMessage_StringPart_create(part))))
+	this.parts.add(JsMessage_StringPart_create(part))
 	return this
 }
 
-func (this *JsMessage_Builder) appendStringPart_2(genderCase *JsMessage_GrammaticalGenderCase, part string) *JsMessage_Builder {
-	Preconditions_checkNotNull_Object_Object(obj_(genderCase), strobj_("Grammatical gender case must not be null"))
+func (this *JsMessage_Builder) appendStringPart_2(genderCase JsMessage_GrammaticalGenderCase, part string) *JsMessage_Builder {
+	if genderCase == 0 {
+		panic(new_NullPointerException_String("Grammatical gender case must not be null"))
+	}
 	this.genderedMessageMap.get(genderCase).add(obj_(JsMessage_StringPart_create(part)))
 	return this
 }
 
-func (this *JsMessage_Builder) addGenderedMessageKey(part *JsMessage_GrammaticalGenderCase) *JsMessage_Builder {
-	Preconditions_checkNotNull_Object_Object(obj_(part), strobj_("Gendered message key must not be null"))
-	this.genderedMessageMap.put(part, icast_List(new_ArrayList_0().self()))
+func (this *JsMessage_Builder) addGenderedMessageKey(part JsMessage_GrammaticalGenderCase) *JsMessage_Builder {
+	if part == 0 {
+		panic(new_NullPointerException_String("Gendered message key must not be null"))
+	}
+	this.genderedMessageMap.put(part, new_ArrayList_0())
 	return this
 }
 
-func (this *JsMessage_Builder) setPlaceholderNameToExampleMap(map_ MapOf[string, string]) *JsMessage_Builder {
-	this.placeholderNameToExampleMap = ImmutableMap_copyOf(map_)
+func (this *JsMessage_Builder) setPlaceholderNameToExampleMap(map_ *TMap[string, string]) *JsMessage_Builder {
+	this.placeholderNameToExampleMap = immutableMapCopyOf_(tc_string, tc_string, map_.asMap())
 	return this
 }
 
-func (this *JsMessage_Builder) setPlaceholderNameToOriginalCodeMap(map_ MapOf[string, string]) *JsMessage_Builder {
-	this.placeholderNameToOriginalCodeMap = ImmutableMap_copyOf(map_)
+func (this *JsMessage_Builder) setPlaceholderNameToOriginalCodeMap(map_ *TMap[string, string]) *JsMessage_Builder {
+	this.placeholderNameToOriginalCodeMap = immutableMapCopyOf_(tc_string, tc_string, map_.asMap())
 	return this
 }
 
@@ -697,7 +726,9 @@ func (this *JsMessage_Builder) setIsAnonymous(isAnonymous bool) *JsMessage_Build
 }
 
 func (this *JsMessage_Builder) setId(id Optional[string]) *JsMessage_Builder {
-	Preconditions_checkState_boolean_String_Object_Object(this.id.isEmpty(), "id already set to '%s': cannot change it to '%s'", strobj_(this.id.orElse("null")), strobj_(id.orElse("null")))
+	if ok_, a1_, a2_ := this.id.isEmpty(), this.id.orElse("null"), id.orElse("null"); !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("id already set to '%s': cannot change it to '%s'", []any{strobj_(a1_), strobj_(a2_)})))
+	}
 	this.id = id
 	return this
 }
@@ -720,20 +751,26 @@ func (this *JsMessage_Builder) getParts() *JTList[JsMessage_Part] {
 }
 
 func (this *JsMessage_Builder) build() *JsMessage {
-	Preconditions_checkState_boolean_Object(this.key_.isPresent(), strobj_("key has not been set"))
-	Preconditions_checkState_boolean_Object(this.id.isPresent(), strobj_("id has not been set"))
-	Preconditions_checkState_boolean_Object((!this.isExternal_ || !this.isAnonymous_), strobj_("a message cannot be both anonymous and external"))
+	if !this.key_.isPresent() {
+		panic(new_IllegalStateException_String("key has not been set"))
+	}
+	if !this.id.isPresent() {
+		panic(new_IllegalStateException_String("id has not been set"))
+	}
+	if this.isExternal_ && this.isAnonymous_ {
+		panic(new_IllegalStateException_String("a message cannot be both anonymous and external"))
+	}
 	if this.alternateId.isPresent() && Object_equals(this.alternateId.box_(), this.id.box_()) {
 		this.alternateId = Optional_empty[string]()
 	}
-	var immutableGenderedPartsBuilder ImmutableMap_BuilderOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]] = ImmutableMap_builder()
+	var immutableGenderedPartsBuilder ImmutableMap_BuilderOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]] = ImmutableMap_builder()
 	it_1 := this.genderedMessageMap.eachEntry()
 	for it_1.next() {
-		var entry *TEntry[*JsMessage_GrammaticalGenderCase, List] = it_1.entry()
+		var entry *TEntry[JsMessage_GrammaticalGenderCase, List] = it_1.entry()
 		immutableGenderedPartsBuilder.put(obj_(entry.getKey()), obj_(ImmutableList_copyOf(Collection(entry.getValue()))))
 	}
-	var immutableGenderedMessageMap ImmutableMapOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]] = immutableGenderedPartsBuilder.buildOrThrow()
-	return new_JsMessage(this.sourceName_, this.key_.get(), this.isAnonymous_, this.isExternal_, this.id.get(), ImmutableList_copyOf(Collection(this.parts.asList())), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, ImmutableSet_copyOf(Collection(this.jsPlaceholderNames_.asSet())), ImmutableSet_copyOf(Collection(this.canonicalPlaceholderNames_.asSet())))
+	var immutableGenderedMessageMap ImmutableMapOf[JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]] = immutableGenderedPartsBuilder.buildOrThrow()
+	return new_JsMessage(this.sourceName_, this.key_.get(), this.isAnonymous_, this.isExternal_, this.id.get(), immutableListCopyOf_(tc_JsMessage_Part, Collection(this.parts.asList())), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, immutableSetCopyOf_(tc_string, Collection(this.jsPlaceholderNames_.asSet())), immutableSetCopyOf_(tc_string, Collection(this.canonicalPlaceholderNames_.asSet())))
 }
 
 type JsMessage_Hash struct {

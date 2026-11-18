@@ -16,8 +16,14 @@ func (this *Property) finit_Property() {
 
 func (this *Property) init_Property(name any, type_ *JSType, inferred bool, propertyNode Node) {
 	this.finit_Property()
-	this.name_ = Preconditions_checkNotNull(name)
-	this.type__ = to_JSType(Preconditions_checkNotNull_Object_String_Object(type_.self(), "Null type specified for %s", name))
+	if name == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.name_ = name
+	if type_ == nil {
+		nullFail_(Strings_lenientFormat("Null type specified for %s", []any{name}))
+	}
+	this.type__ = type_
 	this.inferred = inferred
 	this.propertyNode = propertyNode
 }
@@ -29,7 +35,9 @@ func new_Property(name any, type_ *JSType, inferred bool, propertyNode Node) *Pr
 }
 
 func Property_createFromKey(name Property_Key, type_ *JSType, inferred bool, propertyNode Node) *Property {
-	Preconditions_checkNotNull(any(name))
+	if name == nil {
+		panic(new_NullPointerException_0())
+	}
 	var nameObject any = func() any {
 		switch name.kind() {
 		case Property_KeyKind_STRING:
@@ -37,9 +45,11 @@ func Property_createFromKey(name Property_Key, type_ *JSType, inferred bool, pro
 		case Property_KeyKind_SYMBOL:
 			return obj_(name.symbol())
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
-	Preconditions_checkNotNull_Object_String_Object(type_.self(), "Null type specified for %s", any(name))
+	if type_ == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Null type specified for %s", []any{name})))
+	}
 	return new_Property(nameObject, type_, inferred, propertyNode)
 }
 
@@ -56,10 +66,9 @@ func (this *Property) getName() string {
 				var s *KnownSymbolType = cast_[*KnownSymbolType](sel_)
 				return s.getDisplayName().orElseThrow()
 			default:
-				panic(new_AssertionError_0().self())
+				panic(new_AssertionError_0())
 			}
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -77,7 +86,7 @@ func (this *Property) getSourceFile() StaticSourceFile {
 }
 
 func (this *Property) getSymbol() StaticSlot {
-	return icast_StaticSlot(any(this))
+	return this
 }
 
 func (this *Property) getDeclaration() StaticRef {
@@ -85,7 +94,7 @@ func (this *Property) getDeclaration() StaticRef {
 		if this.propertyNode == 0 {
 			return nil
 		}
-		return icast_StaticRef(any(this))
+		return this
 	}()
 }
 
@@ -107,7 +116,10 @@ func (this *Property) isFromExterns() bool {
 }
 
 func (this *Property) setType(type_ *JSType) {
-	this.type__ = to_JSType(Preconditions_checkNotNull_Object_String_Object(type_.self(), "Null type specified for property %s", this.name_))
+	if type_ == nil {
+		nullFail_(Strings_lenientFormat("Null type specified for property %s", []any{this.name_}))
+	}
+	this.type__ = type_
 }
 
 func (this *Property) getJSDocInfo() *JSDocInfo {
@@ -127,7 +139,7 @@ func (this *Property) toString() string {
 }
 
 func (this *Property) getScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *Property) hashCode() int32 {
@@ -136,44 +148,60 @@ func (this *Property) hashCode() int32 {
 
 const Property_serialVersionUID int64 = 1
 
-type Property_KeyKind struct {
-	Enum
+type Property_KeyKind uint8
+
+// Property_KeyKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Property_KeyKind_enum_ = [2]Enum{
+	{self_: Property_KeyKind_STRING, name_: "STRING", ordinal_: 0},
+	{self_: Property_KeyKind_SYMBOL, name_: "SYMBOL", ordinal_: 1},
 }
 
-func (this *Property_KeyKind) up_Enum() *Enum {
-	if this == nil {
+func (this Property_KeyKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Property_KeyKind_enum_[this-1]
 }
 
-func (this *Property_KeyKind) init_Property_KeyKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Property_KeyKind) name() string { return this.enum_().name_ }
+
+func (this Property_KeyKind) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_Property_KeyKind(name_ string, ordinal_ int32) *Property_KeyKind {
-	this := &Property_KeyKind{}
-	this.self_ = this
-	this.init_Property_KeyKind(name_, ordinal_)
+func (this Property_KeyKind) toString() string { return this.enum_().name_ }
+
+func (this Property_KeyKind) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this Property_KeyKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Property_KeyKind_values() []*Property_KeyKind {
-	return append([]*Property_KeyKind(nil), Property_KeyKind_values_...)
+func Property_KeyKind_values() []Property_KeyKind {
+	return append([]Property_KeyKind(nil), Property_KeyKind_values_...)
 }
 
-func Property_KeyKind_valueOf(name string) *Property_KeyKind {
+func Property_KeyKind_valueOf(name string) Property_KeyKind {
 	for _, v := range Property_KeyKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("KeyKind", name))
 }
 
-var Property_KeyKind_STRING *Property_KeyKind
-var Property_KeyKind_SYMBOL *Property_KeyKind
-var Property_KeyKind_values_ []*Property_KeyKind
+const Property_KeyKind_STRING Property_KeyKind = 1
+const Property_KeyKind_SYMBOL Property_KeyKind = 2
+
+var Property_KeyKind_values_ []Property_KeyKind
 
 var Property_KeyKind_clinit_done bool
 
@@ -182,15 +210,13 @@ func Property_KeyKind_clinit() {
 		return
 	}
 	Property_KeyKind_clinit_done = true
-	Property_KeyKind_STRING = new_Property_KeyKind("STRING", 0)
-	Property_KeyKind_SYMBOL = new_Property_KeyKind("SYMBOL", 1)
-	Property_KeyKind_values_ = []*Property_KeyKind{Property_KeyKind_STRING, Property_KeyKind_SYMBOL}
+	Property_KeyKind_values_ = []Property_KeyKind{Property_KeyKind_STRING, Property_KeyKind_SYMBOL}
 	registerEnum_("com.google.javascript.rhino.jstype.Property.KeyKind", enumValues_(Property_KeyKind_values_))
 
 }
 
 type Property_Key interface {
-	kind() *Property_KeyKind
+	kind() Property_KeyKind
 	string() string
 	symbol() *KnownSymbolType
 	humanReadableName() string
@@ -198,7 +224,7 @@ type Property_Key interface {
 }
 
 func Property_Key_matches_default(this Property_Key, stringKey string) bool {
-	return (Object_equals(obj_(this.kind()), obj_(Property_KeyKind_STRING)) && (this.string() == stringKey))
+	return (equalsId_(this.kind(), Property_KeyKind_STRING) && (this.string() == stringKey))
 }
 
 type Property_StringKey struct {
@@ -221,10 +247,10 @@ func new_Property_StringKey(string_ string) *Property_StringKey {
 }
 
 func (this *Property_StringKey) symbol() *KnownSymbolType {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
-func (this *Property_StringKey) kind() *Property_KeyKind {
+func (this *Property_StringKey) kind() Property_KeyKind {
 	return Property_KeyKind_STRING
 }
 
@@ -233,7 +259,7 @@ func (this *Property_StringKey) humanReadableName() string {
 }
 
 func (this *Property_StringKey) matches(p0 string) bool {
-	return Property_Key_matches_default(icast_Property_Key(any(this)), p0)
+	return Property_Key_matches_default(this, p0)
 }
 
 func (this *Property_StringKey) string() string {
@@ -250,12 +276,12 @@ func (this *Property_StringKey) equals(p0 any) bool {
 
 func (this *Property_StringKey) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.string_))
+	h = h*31 + objhashStr_(this.string_)
 	return h
 }
 
 func (this *Property_StringKey) toString() string {
-	return "StringKey[" + "string=" + objstr_(strobj_(this.string_)) + "]"
+	return "StringKey[" + "string=" + sstr_(this.string_) + "]"
 }
 
 type Property_SymbolKey struct {
@@ -263,7 +289,9 @@ type Property_SymbolKey struct {
 }
 
 func (this *Property_SymbolKey) init_Property_SymbolKey(symbol *KnownSymbolType) {
-	Preconditions_checkNotNull(obj_(symbol))
+	if symbol == nil {
+		panic(new_NullPointerException_0())
+	}
 	this.symbol_ = symbol
 }
 
@@ -274,10 +302,10 @@ func new_Property_SymbolKey(symbol *KnownSymbolType) *Property_SymbolKey {
 }
 
 func (this *Property_SymbolKey) string() string {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
-func (this *Property_SymbolKey) kind() *Property_KeyKind {
+func (this *Property_SymbolKey) kind() Property_KeyKind {
 	return Property_KeyKind_SYMBOL
 }
 
@@ -286,7 +314,7 @@ func (this *Property_SymbolKey) humanReadableName() string {
 }
 
 func (this *Property_SymbolKey) matches(p0 string) bool {
-	return Property_Key_matches_default(icast_Property_Key(any(this)), p0)
+	return Property_Key_matches_default(this, p0)
 }
 
 func (this *Property_SymbolKey) symbol() *KnownSymbolType {
@@ -298,17 +326,17 @@ func (this *Property_SymbolKey) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.symbol_), obj_(o.symbol_))
+	return true && objequalsBy_(this.symbol_, obj_(o.symbol_), (*KnownSymbolType).equals)
 }
 
 func (this *Property_SymbolKey) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.symbol_))
+	h = h*31 + objhashBy_(this.symbol_, (*KnownSymbolType).hashCode)
 	return h
 }
 
 func (this *Property_SymbolKey) toString() string {
-	return "SymbolKey[" + "symbol=" + objstr_(obj_(this.symbol_)) + "]"
+	return "SymbolKey[" + "symbol=" + tostr_(this.symbol_) + "]"
 }
 
 type Property_OwnedProperty struct {

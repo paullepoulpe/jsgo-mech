@@ -3,23 +3,17 @@
 package closure
 
 type Invalidation struct {
-	self_  any
-	reason *Invalidation_Reason
+	self_  Invalidation_I
+	reason Invalidation_Reason
+}
+
+// Invalidation_I holds the methods the dispatchers of Invalidation's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type Invalidation_I interface {
+	toLogsGson_impl() any
 }
 
 func (this *Invalidation) as_Invalidation() *Invalidation { return this }
-
-func to_Invalidation(v any) *Invalidation {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_Invalidation() *Invalidation }).as_Invalidation()
-}
-
-func is_Invalidation(v any) bool {
-	_, ok := v.(interface{ as_Invalidation() *Invalidation })
-	return ok
-}
 
 func (this *Invalidation) self() any {
 	if this == nil {
@@ -28,11 +22,11 @@ func (this *Invalidation) self() any {
 	return this.self_
 }
 
-func (this *Invalidation) init_Invalidation(reason *Invalidation_Reason) {
+func (this *Invalidation) init_Invalidation(reason Invalidation_Reason) {
 	this.reason = reason
 }
 
-func new_Invalidation(reason *Invalidation_Reason) *Invalidation {
+func new_Invalidation(reason Invalidation_Reason) *Invalidation {
 	this := &Invalidation{}
 	this.self_ = this
 	this.init_Invalidation(reason)
@@ -54,11 +48,11 @@ func Invalidation_undeclaredAccess(receiverType int32) *Invalidation {
 func (this *Invalidation) toLogsGson_impl() any {
 	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
 	json.put("reason", obj_(this.reason))
-	return any(json.asMap())
+	return json.asMap()
 }
 
 func (this *Invalidation) toLogsGson() any {
-	return this.self_.(interface{ toLogsGson_impl() any }).toLogsGson_impl()
+	return this.self_.toLogsGson_impl()
 }
 
 var Invalidation_WELL_KNOWN_PROPERTY *Invalidation
@@ -74,45 +68,62 @@ func Invalidation_clinit() {
 
 }
 
-type Invalidation_Reason struct {
-	Enum
+type Invalidation_Reason uint8
+
+// Invalidation_Reason_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Invalidation_Reason_enum_ = [3]Enum{
+	{self_: Invalidation_Reason_WELL_KNOWN_PROPERTY, name_: "WELL_KNOWN_PROPERTY", ordinal_: 0},
+	{self_: Invalidation_Reason_INVALIDATING_TYPE, name_: "INVALIDATING_TYPE", ordinal_: 1},
+	{self_: Invalidation_Reason_UNDECLARED_ACCESS, name_: "UNDECLARED_ACCESS", ordinal_: 2},
 }
 
-func (this *Invalidation_Reason) up_Enum() *Enum {
-	if this == nil {
+func (this Invalidation_Reason) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Invalidation_Reason_enum_[this-1]
 }
 
-func (this *Invalidation_Reason) init_Invalidation_Reason(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Invalidation_Reason) name() string { return this.enum_().name_ }
+
+func (this Invalidation_Reason) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_Invalidation_Reason(name_ string, ordinal_ int32) *Invalidation_Reason {
-	this := &Invalidation_Reason{}
-	this.self_ = this
-	this.init_Invalidation_Reason(name_, ordinal_)
+func (this Invalidation_Reason) toString() string { return this.enum_().name_ }
+
+func (this Invalidation_Reason) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this Invalidation_Reason) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Invalidation_Reason_values() []*Invalidation_Reason {
-	return append([]*Invalidation_Reason(nil), Invalidation_Reason_values_...)
+func Invalidation_Reason_values() []Invalidation_Reason {
+	return append([]Invalidation_Reason(nil), Invalidation_Reason_values_...)
 }
 
-func Invalidation_Reason_valueOf(name string) *Invalidation_Reason {
+func Invalidation_Reason_valueOf(name string) Invalidation_Reason {
 	for _, v := range Invalidation_Reason_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Reason", name))
 }
 
-var Invalidation_Reason_WELL_KNOWN_PROPERTY *Invalidation_Reason
-var Invalidation_Reason_INVALIDATING_TYPE *Invalidation_Reason
-var Invalidation_Reason_UNDECLARED_ACCESS *Invalidation_Reason
-var Invalidation_Reason_values_ []*Invalidation_Reason
+const Invalidation_Reason_WELL_KNOWN_PROPERTY Invalidation_Reason = 1
+const Invalidation_Reason_INVALIDATING_TYPE Invalidation_Reason = 2
+const Invalidation_Reason_UNDECLARED_ACCESS Invalidation_Reason = 3
+
+var Invalidation_Reason_values_ []Invalidation_Reason
 
 var Invalidation_Reason_clinit_done bool
 
@@ -121,10 +132,7 @@ func Invalidation_Reason_clinit() {
 		return
 	}
 	Invalidation_Reason_clinit_done = true
-	Invalidation_Reason_WELL_KNOWN_PROPERTY = new_Invalidation_Reason("WELL_KNOWN_PROPERTY", 0)
-	Invalidation_Reason_INVALIDATING_TYPE = new_Invalidation_Reason("INVALIDATING_TYPE", 1)
-	Invalidation_Reason_UNDECLARED_ACCESS = new_Invalidation_Reason("UNDECLARED_ACCESS", 2)
-	Invalidation_Reason_values_ = []*Invalidation_Reason{Invalidation_Reason_WELL_KNOWN_PROPERTY, Invalidation_Reason_INVALIDATING_TYPE, Invalidation_Reason_UNDECLARED_ACCESS}
+	Invalidation_Reason_values_ = []Invalidation_Reason{Invalidation_Reason_WELL_KNOWN_PROPERTY, Invalidation_Reason_INVALIDATING_TYPE, Invalidation_Reason_UNDECLARED_ACCESS}
 	registerEnum_("com.google.javascript.jscomp.disambiguate.Invalidation.Reason", enumValues_(Invalidation_Reason_values_))
 
 }
@@ -141,12 +149,12 @@ func (this *Invalidation_WithReceiverType) up_Invalidation() *Invalidation {
 	return &this.Invalidation
 }
 
-func (this *Invalidation_WithReceiverType) init_Invalidation_WithReceiverType(reason *Invalidation_Reason, receiverType int32) {
+func (this *Invalidation_WithReceiverType) init_Invalidation_WithReceiverType(reason Invalidation_Reason, receiverType int32) {
 	this.Invalidation.init_Invalidation(reason)
 	this.receiverType_ = receiverType
 }
 
-func new_Invalidation_WithReceiverType(reason *Invalidation_Reason, receiverType int32) *Invalidation_WithReceiverType {
+func new_Invalidation_WithReceiverType(reason Invalidation_Reason, receiverType int32) *Invalidation_WithReceiverType {
 	this := &Invalidation_WithReceiverType{}
 	this.self_ = this
 	this.init_Invalidation_WithReceiverType(reason, receiverType)
@@ -157,5 +165,13 @@ func (this *Invalidation_WithReceiverType) toLogsGson_impl() any {
 	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
 	json.put("receiverType", any(int32(this.receiverType_)))
 	json.put("reason", obj_(this.reason))
-	return any(json.asMap())
+	return json.asMap()
+}
+
+// toLogsGson: an object that is exactly a Invalidation_WithReceiverType calls its toLogsGson_impl directly (post-flip); others dispatch.
+func (this *Invalidation_WithReceiverType) toLogsGson() any {
+	if p, _ := this.self_.(*Invalidation_WithReceiverType); p == this {
+		return this.toLogsGson_impl()
+	}
+	return this.self_.toLogsGson_impl()
 }

@@ -23,16 +23,20 @@ func new_CheckSuper(compiler *AbstractCompiler) *CheckSuper {
 }
 
 func (this *CheckSuper) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
-	Preconditions_checkState_boolean_Object(this.contextStack.isEmpty(), obj_(ImmutableList_of_Object(any(this.contextStack.asDeque()))))
+	NodeTraversal_traverse(this.compiler_, root, this)
+	if ok_, a1_ := this.contextStack.isEmpty(), ImmutableList_of_Object(this.contextStack.asDeque()); !ok_ {
+		panic(new_IllegalStateException_String(tostr_(a1_)))
+	}
 }
 
 func (this *CheckSuper) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_ROOT:
-		Preconditions_checkState(this.contextStack.isEmpty())
+	switch n.ns_().token {
+	case tokOrd1_ROOT:
+		if !this.contextStack.isEmpty() {
+			panic(new_IllegalStateException_0())
+		}
 		this.contextStack.push(new_CheckSuper_SuperNotAllowedContext(n).up_CheckSuper_Context())
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		{
 			var currentContext *CheckSuper_Context = this.contextStack.peek()
 			var newContext *CheckSuper_Context = this.getContextForFunctionNode(currentContext, n)
@@ -40,10 +44,10 @@ func (this *CheckSuper) shouldTraverse(t *NodeTraversal, n Node, parent Node) bo
 				this.contextStack.push(newContext)
 			}
 		}
-	case Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_MEMBER_FIELD_DEF:
 		var fieldContext *CheckSuper_Context = this.createMemberFieldDefContext(n)
 		this.contextStack.push(fieldContext)
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if NodeUtil_isClassStaticBlock(n) {
 			var newContext *CheckSuper_Context = this.createStaticBlockContext(n)
 			this.contextStack.push(newContext)
@@ -68,30 +72,34 @@ func (this *CheckSuper) getContextForFunctionNode(currentContext *CheckSuper_Con
 			return new_CheckSuper_SuperNotAllowedContext(fn).up_CheckSuper_Context()
 		}()
 	}
-	panic("unreachable")
 }
 
 func (this *CheckSuper) visit(t *NodeTraversal, n Node, parent Node) {
-	var currentContext *CheckSuper_Context = to_CheckSuper_Context(Preconditions_checkNotNull(this.contextStack.peek().self()))
-	switch n.getToken() {
-	case Token_rhino_SUPER:
+	var currentContext *CheckSuper_Context = this.contextStack.peek()
+	if currentContext == nil {
+		panic(new_NullPointerException_0())
+	}
+	switch n.ns_().token {
+	case tokOrd1_SUPER:
 		if this.isSuperConstructorCall(n) {
 		} else if this.isSuperPropertyAccess(n) {
 			currentContext.visitSuperPropertyAccess(t, n)
 		} else {
 			t.report(n, CheckSuper_INVALID_SUPER_USAGE, []string{})
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		var callee Node = n.getFirstChild()
 		if callee.isSuper() {
 			currentContext.visitSuperConstructorCall(t, callee)
 		}
-	case Token_rhino_THIS:
+	case tokOrd1_THIS:
 		currentContext.visitThis(t, n)
-	case Token_rhino_RETURN:
+	case tokOrd1_RETURN:
 		currentContext.visitReturn(t, n)
-	case Token_rhino_ROOT:
-		Preconditions_checkState((this.contextStack.size() == 1))
+	case tokOrd1_ROOT:
+		if this.contextStack.size() != 1 {
+			panic(new_IllegalStateException_0())
+		}
 	default:
 	}
 	if n == currentContext.getContextNode() {
@@ -101,13 +109,17 @@ func (this *CheckSuper) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *CheckSuper) isSuperConstructorCall(superNode Node) bool {
-	Preconditions_checkState_boolean_Object(superNode.isSuper(), superNode.box_())
+	if !superNode.isSuper() {
+		panic(new_IllegalStateException_String(tostr_(superNode)))
+	}
 	var parent Node = superNode.getParent()
 	return (parent.isCall() && superNode.isFirstChildOf(parent))
 }
 
 func (this *CheckSuper) isSuperPropertyAccess(superNode Node) bool {
-	Preconditions_checkState_boolean_Object(superNode.isSuper(), superNode.box_())
+	if !superNode.isSuper() {
+		panic(new_IllegalStateException_String(tostr_(superNode)))
+	}
 	var parent Node = superNode.getParent()
 	return (NodeUtil_isNormalGet(parent) && superNode.isFirstChildOf(parent))
 }
@@ -152,8 +164,25 @@ func CheckSuper_clinit() {
 }
 
 type CheckSuper_Context struct {
-	self_       any
+	self_       CheckSuper_Context_I
 	contextNode Node
+}
+
+// CheckSuper_Context_I holds the methods the dispatchers of CheckSuper_Context's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type CheckSuper_Context_I interface {
+	getContextForArrowFunctionNode_impl(Node) *CheckSuper_Context
+	visitContextNode_impl(*NodeTraversal)
+	visitReturn_impl(*NodeTraversal, Node)
+	visitSuperConstructorCall_impl(*NodeTraversal, Node)
+	visitSuperPropertyAccess_impl(*NodeTraversal, Node)
+	visitThis_impl(*NodeTraversal, Node)
+}
+
+// CheckSuper_Context_as is implemented by CheckSuper_Context and the classes that extend it: a cast to CheckSuper_Context asserts to it
+// (post-flip).
+type CheckSuper_Context_as interface {
+	as_CheckSuper_Context() *CheckSuper_Context
 }
 
 func (this *CheckSuper_Context) as_CheckSuper_Context() *CheckSuper_Context { return this }
@@ -162,12 +191,7 @@ func to_CheckSuper_Context(v any) *CheckSuper_Context {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_CheckSuper_Context() *CheckSuper_Context }).as_CheckSuper_Context()
-}
-
-func is_CheckSuper_Context(v any) bool {
-	_, ok := v.(interface{ as_CheckSuper_Context() *CheckSuper_Context })
-	return ok
+	return v.(CheckSuper_Context_as).as_CheckSuper_Context()
 }
 
 func (this *CheckSuper_Context) self() any {
@@ -178,7 +202,10 @@ func (this *CheckSuper_Context) self() any {
 }
 
 func (this *CheckSuper_Context) init_CheckSuper_Context(contextNode Node) {
-	this.contextNode = Node_of_(Preconditions_checkNotNull(contextNode.box_()))
+	if contextNode == 0 {
+		panic(new_NullPointerException_0())
+	}
+	this.contextNode = contextNode
 }
 
 func (this *CheckSuper_Context) getContextNode() Node {
@@ -198,29 +225,27 @@ func (this *CheckSuper_Context) visitContextNode_impl(t *NodeTraversal) {
 }
 
 func (this *CheckSuper_Context) visitSuperPropertyAccess(p0 *NodeTraversal, p1 Node) {
-	this.self_.(interface{ visitSuperPropertyAccess_impl(*NodeTraversal, Node) }).visitSuperPropertyAccess_impl(p0, p1)
+	this.self_.visitSuperPropertyAccess_impl(p0, p1)
 }
 
 func (this *CheckSuper_Context) visitSuperConstructorCall(p0 *NodeTraversal, p1 Node) {
-	this.self_.(interface{ visitSuperConstructorCall_impl(*NodeTraversal, Node) }).visitSuperConstructorCall_impl(p0, p1)
+	this.self_.visitSuperConstructorCall_impl(p0, p1)
 }
 
 func (this *CheckSuper_Context) getContextForArrowFunctionNode(p0 Node) *CheckSuper_Context {
-	return this.self_.(interface {
-		getContextForArrowFunctionNode_impl(Node) *CheckSuper_Context
-	}).getContextForArrowFunctionNode_impl(p0)
+	return this.self_.getContextForArrowFunctionNode_impl(p0)
 }
 
 func (this *CheckSuper_Context) visitThis(p0 *NodeTraversal, p1 Node) {
-	this.self_.(interface{ visitThis_impl(*NodeTraversal, Node) }).visitThis_impl(p0, p1)
+	this.self_.visitThis_impl(p0, p1)
 }
 
 func (this *CheckSuper_Context) visitReturn(p0 *NodeTraversal, p1 Node) {
-	this.self_.(interface{ visitReturn_impl(*NodeTraversal, Node) }).visitReturn_impl(p0, p1)
+	this.self_.visitReturn_impl(p0, p1)
 }
 
 func (this *CheckSuper_Context) visitContextNode(p0 *NodeTraversal) {
-	this.self_.(interface{ visitContextNode_impl(*NodeTraversal) }).visitContextNode_impl(p0)
+	this.self_.visitContextNode_impl(p0)
 }
 
 type CheckSuper_SuperPropertyAccessAllowedContext struct {
@@ -305,12 +330,19 @@ func (this *CheckSuper_MethodContext) up_CheckSuper_Context() *CheckSuper_Contex
 
 func (this *CheckSuper_MethodContext) init_CheckSuper_MethodContext(functionNode Node) {
 	this.CheckSuper_Context.init_CheckSuper_Context(functionNode)
-	Preconditions_checkArgument_boolean_Object((functionNode.isFunction() && NodeUtil_isMethodDeclaration(functionNode)), functionNode.box_())
-	var objLitOrClassMembers Node = Node_of_(Preconditions_checkNotNull(functionNode.getGrandparent().box_()))
+	if !functionNode.isFunction() || !NodeUtil_isMethodDeclaration(functionNode) {
+		panic(new_IllegalArgumentException_String(tostr_(functionNode)))
+	}
+	var objLitOrClassMembers Node = functionNode.getGrandparent()
+	if objLitOrClassMembers == 0 {
+		panic(new_NullPointerException_0())
+	}
 	if objLitOrClassMembers.isObjectLit() {
 		this.isClassMethod = false
 	} else {
-		Preconditions_checkState_boolean_Object(objLitOrClassMembers.isClassMembers(), objLitOrClassMembers.box_())
+		if !objLitOrClassMembers.isClassMembers() {
+			panic(new_IllegalStateException_String(tostr_(objLitOrClassMembers)))
+		}
 		this.isClassMethod = true
 	}
 }
@@ -344,13 +376,15 @@ func (this *CheckSuper_MethodContext) visitSuperConstructorCall_impl(t *NodeTrav
 }
 
 func (this *CheckSuper_MethodContext) getPropertyName() Optional[string] {
-	var parent Node = Node_of_(Preconditions_checkNotNull(this.getContextNode().getParent().box_()))
+	var parent Node = this.getContextNode().getParent()
+	if parent == 0 {
+		panic(new_NullPointerException_0())
+	}
 	if (parent.isMemberFunctionDef() || parent.isGetterDef()) || parent.isSetterDef() {
 		return Optional_of[string](parent.getString())
 	} else {
 		return Optional_empty[string]()
 	}
-	panic("unreachable")
 }
 
 type CheckSuper_ConstructorContext struct {
@@ -386,7 +420,9 @@ func (this *CheckSuper_ConstructorContext) finit_CheckSuper_ConstructorContext()
 func (this *CheckSuper_ConstructorContext) init_CheckSuper_ConstructorContext(contextNode Node) {
 	this.CheckSuper_Context.init_CheckSuper_Context(contextNode)
 	this.finit_CheckSuper_ConstructorContext()
-	Preconditions_checkArgument_boolean_Object(NodeUtil_isEs6Constructor(contextNode), contextNode.box_())
+	if !NodeUtil_isEs6Constructor(contextNode) {
+		panic(new_IllegalArgumentException_String(tostr_(contextNode)))
+	}
 	var classNode Node = NodeUtil_getEnclosingClass(contextNode)
 	this.hasParentClass = !classNode.getSecondChild().isEmpty()
 	this.hasInstanceElements = NodeUtil_hasInstanceElements(classNode)
@@ -410,7 +446,7 @@ func (this *CheckSuper_ConstructorContext) visitSuperConstructorCall_impl(t *Nod
 		this.hasMultipleSuperCalls = true
 	}
 	var call Node = superNode.getParent()
-	if ((this.rootLevelSuperCall == 0) && Object_equals(NodeUtil_getEnclosingStatement(call).getParent().box_(), NodeUtil_getFunctionBody(this.getContextNode()).box_())) && NodeUtil_isExecutedExactlyOnce(call) {
+	if ((this.rootLevelSuperCall == 0) && equalsId_(NodeUtil_getEnclosingStatement(call).getParent(), NodeUtil_getFunctionBody(this.getContextNode()))) && NodeUtil_isExecutedExactlyOnce(call) {
 		this.rootLevelSuperCall = superNode
 	}
 }
@@ -475,7 +511,10 @@ func (this *CheckSuper_ConstructorArrowContext) up_CheckSuper_Context() *CheckSu
 
 func (this *CheckSuper_ConstructorArrowContext) init_CheckSuper_ConstructorArrowContext(constructorContext *CheckSuper_ConstructorContext, arrowFn Node) {
 	this.CheckSuper_Context.init_CheckSuper_Context(arrowFn)
-	this.constructorContext = cast_[*CheckSuper_ConstructorContext](Preconditions_checkNotNull(obj_(constructorContext)))
+	if constructorContext == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.constructorContext = constructorContext
 }
 
 func new_CheckSuper_ConstructorArrowContext(constructorContext *CheckSuper_ConstructorContext, arrowFn Node) *CheckSuper_ConstructorArrowContext {
@@ -501,4 +540,161 @@ func (this *CheckSuper_ConstructorArrowContext) visitSuperConstructorCall_impl(t
 
 func (this *CheckSuper_ConstructorArrowContext) visitSuperPropertyAccess_impl(t *NodeTraversal, superNode Node) {
 	this.constructorContext.visitSuperPropertyAccess(t, superNode)
+}
+
+// visitSuperPropertyAccess: an object that is exactly a CheckSuper_SuperPropertyAccessAllowedContext calls its visitSuperPropertyAccess_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_SuperPropertyAccessAllowedContext) visitSuperPropertyAccess(p0 *NodeTraversal, p1 Node) {
+	if p, _ := this.self_.(*CheckSuper_SuperPropertyAccessAllowedContext); p == this {
+		this.visitSuperPropertyAccess_impl(p0, p1)
+		return
+	}
+	this.self_.visitSuperPropertyAccess_impl(p0, p1)
+}
+
+// visitSuperConstructorCall: an object that is exactly a CheckSuper_SuperPropertyAccessAllowedContext calls its visitSuperConstructorCall_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_SuperPropertyAccessAllowedContext) visitSuperConstructorCall(p0 *NodeTraversal, p1 Node) {
+	if p, _ := this.self_.(*CheckSuper_SuperPropertyAccessAllowedContext); p == this {
+		this.visitSuperConstructorCall_impl(p0, p1)
+		return
+	}
+	this.self_.visitSuperConstructorCall_impl(p0, p1)
+}
+
+// getContextForArrowFunctionNode: an object that is exactly a CheckSuper_SuperPropertyAccessAllowedContext calls its getContextForArrowFunctionNode_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_SuperPropertyAccessAllowedContext) getContextForArrowFunctionNode(p0 Node) *CheckSuper_Context {
+	if p, _ := this.self_.(*CheckSuper_SuperPropertyAccessAllowedContext); p == this {
+		return this.getContextForArrowFunctionNode_impl(p0)
+	}
+	return this.self_.getContextForArrowFunctionNode_impl(p0)
+}
+
+// getContextForArrowFunctionNode: an object that is exactly a CheckSuper_SuperNotAllowedContext calls its getContextForArrowFunctionNode_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_SuperNotAllowedContext) getContextForArrowFunctionNode(p0 Node) *CheckSuper_Context {
+	if p, _ := this.self_.(*CheckSuper_SuperNotAllowedContext); p == this {
+		return this.getContextForArrowFunctionNode_impl(p0)
+	}
+	return this.self_.getContextForArrowFunctionNode_impl(p0)
+}
+
+// visitSuperConstructorCall: an object that is exactly a CheckSuper_SuperNotAllowedContext calls its visitSuperConstructorCall_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_SuperNotAllowedContext) visitSuperConstructorCall(p0 *NodeTraversal, p1 Node) {
+	if p, _ := this.self_.(*CheckSuper_SuperNotAllowedContext); p == this {
+		this.visitSuperConstructorCall_impl(p0, p1)
+		return
+	}
+	this.self_.visitSuperConstructorCall_impl(p0, p1)
+}
+
+// visitSuperPropertyAccess: an object that is exactly a CheckSuper_SuperNotAllowedContext calls its visitSuperPropertyAccess_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_SuperNotAllowedContext) visitSuperPropertyAccess(p0 *NodeTraversal, p1 Node) {
+	if p, _ := this.self_.(*CheckSuper_SuperNotAllowedContext); p == this {
+		this.visitSuperPropertyAccess_impl(p0, p1)
+		return
+	}
+	this.self_.visitSuperPropertyAccess_impl(p0, p1)
+}
+
+// getContextForArrowFunctionNode: an object that is exactly a CheckSuper_MethodContext calls its getContextForArrowFunctionNode_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_MethodContext) getContextForArrowFunctionNode(p0 Node) *CheckSuper_Context {
+	if p, _ := this.self_.(*CheckSuper_MethodContext); p == this {
+		return this.getContextForArrowFunctionNode_impl(p0)
+	}
+	return this.self_.getContextForArrowFunctionNode_impl(p0)
+}
+
+// visitSuperPropertyAccess: an object that is exactly a CheckSuper_MethodContext calls its visitSuperPropertyAccess_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_MethodContext) visitSuperPropertyAccess(p0 *NodeTraversal, p1 Node) {
+	if p, _ := this.self_.(*CheckSuper_MethodContext); p == this {
+		this.visitSuperPropertyAccess_impl(p0, p1)
+		return
+	}
+	this.self_.visitSuperPropertyAccess_impl(p0, p1)
+}
+
+// visitSuperConstructorCall: an object that is exactly a CheckSuper_MethodContext calls its visitSuperConstructorCall_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_MethodContext) visitSuperConstructorCall(p0 *NodeTraversal, p1 Node) {
+	if p, _ := this.self_.(*CheckSuper_MethodContext); p == this {
+		this.visitSuperConstructorCall_impl(p0, p1)
+		return
+	}
+	this.self_.visitSuperConstructorCall_impl(p0, p1)
+}
+
+// getContextForArrowFunctionNode: an object that is exactly a CheckSuper_ConstructorContext calls its getContextForArrowFunctionNode_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_ConstructorContext) getContextForArrowFunctionNode(p0 Node) *CheckSuper_Context {
+	if p, _ := this.self_.(*CheckSuper_ConstructorContext); p == this {
+		return this.getContextForArrowFunctionNode_impl(p0)
+	}
+	return this.self_.getContextForArrowFunctionNode_impl(p0)
+}
+
+// visitSuperConstructorCall: an object that is exactly a CheckSuper_ConstructorContext calls its visitSuperConstructorCall_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_ConstructorContext) visitSuperConstructorCall(p0 *NodeTraversal, p1 Node) {
+	if p, _ := this.self_.(*CheckSuper_ConstructorContext); p == this {
+		this.visitSuperConstructorCall_impl(p0, p1)
+		return
+	}
+	this.self_.visitSuperConstructorCall_impl(p0, p1)
+}
+
+// visitSuperPropertyAccess: an object that is exactly a CheckSuper_ConstructorContext calls its visitSuperPropertyAccess_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_ConstructorContext) visitSuperPropertyAccess(p0 *NodeTraversal, p1 Node) {
+	if p, _ := this.self_.(*CheckSuper_ConstructorContext); p == this {
+		this.visitSuperPropertyAccess_impl(p0, p1)
+		return
+	}
+	this.self_.visitSuperPropertyAccess_impl(p0, p1)
+}
+
+// visitThis: an object that is exactly a CheckSuper_ConstructorContext calls its visitThis_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_ConstructorContext) visitThis(p0 *NodeTraversal, p1 Node) {
+	if p, _ := this.self_.(*CheckSuper_ConstructorContext); p == this {
+		this.visitThis_impl(p0, p1)
+		return
+	}
+	this.self_.visitThis_impl(p0, p1)
+}
+
+// visitReturn: an object that is exactly a CheckSuper_ConstructorContext calls its visitReturn_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_ConstructorContext) visitReturn(p0 *NodeTraversal, p1 Node) {
+	if p, _ := this.self_.(*CheckSuper_ConstructorContext); p == this {
+		this.visitReturn_impl(p0, p1)
+		return
+	}
+	this.self_.visitReturn_impl(p0, p1)
+}
+
+// visitContextNode: an object that is exactly a CheckSuper_ConstructorContext calls its visitContextNode_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_ConstructorContext) visitContextNode(p0 *NodeTraversal) {
+	if p, _ := this.self_.(*CheckSuper_ConstructorContext); p == this {
+		this.visitContextNode_impl(p0)
+		return
+	}
+	this.self_.visitContextNode_impl(p0)
+}
+
+// getContextForArrowFunctionNode: an object that is exactly a CheckSuper_ConstructorArrowContext calls its getContextForArrowFunctionNode_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_ConstructorArrowContext) getContextForArrowFunctionNode(p0 Node) *CheckSuper_Context {
+	if p, _ := this.self_.(*CheckSuper_ConstructorArrowContext); p == this {
+		return this.getContextForArrowFunctionNode_impl(p0)
+	}
+	return this.self_.getContextForArrowFunctionNode_impl(p0)
+}
+
+// visitSuperConstructorCall: an object that is exactly a CheckSuper_ConstructorArrowContext calls its visitSuperConstructorCall_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_ConstructorArrowContext) visitSuperConstructorCall(p0 *NodeTraversal, p1 Node) {
+	if p, _ := this.self_.(*CheckSuper_ConstructorArrowContext); p == this {
+		this.visitSuperConstructorCall_impl(p0, p1)
+		return
+	}
+	this.self_.visitSuperConstructorCall_impl(p0, p1)
+}
+
+// visitSuperPropertyAccess: an object that is exactly a CheckSuper_ConstructorArrowContext calls its visitSuperPropertyAccess_impl directly (post-flip); others dispatch.
+func (this *CheckSuper_ConstructorArrowContext) visitSuperPropertyAccess(p0 *NodeTraversal, p1 Node) {
+	if p, _ := this.self_.(*CheckSuper_ConstructorArrowContext); p == this {
+		this.visitSuperPropertyAccess_impl(p0, p1)
+		return
+	}
+	this.self_.visitSuperPropertyAccess_impl(p0, p1)
 }

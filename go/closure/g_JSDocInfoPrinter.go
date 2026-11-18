@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type JSDocInfoPrinter struct {
 	useOriginalName bool
 	printDesc       bool
@@ -40,14 +42,12 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.isExport() {
 		parts.add("@export")
-	} else if (info.getVisibility() != nil) && (info.getVisibility() != JSDocInfo_Visibility_INHERITED) {
-		parts.add(("@" + sstr_(Ascii_toLowerCase(Object_toString(obj_(info.getVisibility()))))))
+	} else if (info.getVisibility() != 0) && (info.getVisibility() != JSDocInfo_Visibility_INHERITED) {
+		parts.add(("@" + sstr_(Ascii_toLowerCase(tostrNN_(info.getVisibility())))))
 	}
 	if info.getAuthors() != nil {
 		multiline = true
-		it_1 := foreach_(any(info.getAuthors()))
-		for it_1.next() {
-			var name string = str_(it_1.v)
+		for name := range elemsBy_(info.getAuthors(), str_) {
 			parts.add(("@author " + sstr_(name)))
 		}
 	}
@@ -70,9 +70,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.getReferences() != nil {
 		multiline = true
-		it_3 := foreach_(any(info.getReferences()))
-		for it_3.next() {
-			var desc string = str_(it_3.v)
+		for desc := range elemsBy_(info.getReferences(), str_) {
 			parts.add(("@see " + sstr_(desc)))
 		}
 	}
@@ -138,16 +136,12 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		var typeNode Node = this.stripBang(info.getBaseType().getRoot())
 		parts.add(this.buildAnnotationWithType("extends", typeNode))
 	}
-	it_5 := foreach_(any(info.getExtendedInterfaces()))
-	for it_5.next() {
-		var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_5.v)
+	for type_ := range elemsAs_[*JSTypeExpression](info.getExtendedInterfaces()) {
 		multiline = true
 		var typeNode Node = this.stripBang(type_.getRoot())
 		parts.add(this.buildAnnotationWithType("extends", typeNode))
 	}
-	it_7 := foreach_(any(info.getImplementedInterfaces()))
-	for it_7.next() {
-		var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_7.v)
+	for type_ := range elemsAs_[*JSTypeExpression](info.getImplementedInterfaces()) {
 		multiline = true
 		var typeNode Node = this.stripBang(type_.getRoot())
 		parts.add(this.buildAnnotationWithType("implements", typeNode))
@@ -159,9 +153,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.getParameterCount() > 0 {
 		multiline = true
-		it_9 := foreach_(any(info.getParameterNames()))
-		for it_9.next() {
-			var name string = str_(it_9.v)
+		for name := range info.getParameterNames().All() {
 			parts.add(("@param " + sstr_(this.buildParamType(info, name))))
 		}
 	}
@@ -169,28 +161,27 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		multiline = true
 		parts.add(this.buildAnnotationWithType_3("return", info.getReturnType(), info.getReturnDescription()))
 	}
-	if !info.getThrowsAnnotations().isEmpty() && !String_isEmpty(str_(info.getThrowsAnnotations().get(0))) {
+	if !info.getThrowsAnnotations().isEmpty() && str_(info.getThrowsAnnotations().get(0)) != "" {
 		multiline = true
 		parts.add(("@throws " + sstr_(str_(info.getThrowsAnnotations().get(0)))))
 	}
-	var templates ImmutableMapOf[string, *JSTypeExpression] = info.getTemplateTypes()
-	if !templates.isEmpty() {
+	var templates *ImmutableMap[string, *JSTypeExpression] = info.getTemplateTypes()
+	if !templates.IsEmpty() {
 		multiline = true
-		Map_forEach(icast_Map(obj_(templates)), &BiConsumer_tfn_string_JSTypeExpression{func(name string, boundExpr *JSTypeExpression) {
+		Map_forEach(icast_Map(obj_(templates.asImm())), &BiConsumer_tfn_string_JSTypeExpression{func(name string, boundExpr *JSTypeExpression) {
 			var boundRoot Node = boundExpr.getRoot()
-			if (boundRoot.getToken() == Token_rhino_QMARK) && !boundRoot.hasChildren() {
+			if (boundRoot.ns_().token == tokOrd1_QMARK) && !boundRoot.hasChildren() {
 				parts.add(("@template " + sstr_(name)))
 			} else {
 				parts.add(this.buildAnnotationWithType_3("template", boundExpr, Optional_of[string](name)))
 			}
 		}})
 	}
-	var typeTransformations ImmutableMapOf[string, Node] = info.getTypeTransformations()
-	if !typeTransformations.isEmpty() {
+	var typeTransformations *ImmutableMap[string, Node] = info.getTypeTransformations()
+	if !typeTransformations.IsEmpty() {
 		multiline = true
-		it_11 := foreach_(obj_(cast_[*ImmutableSet](typeTransformations.entrySet())))
-		for it_11.next() {
-			var e Map_Entry = icast_Map_Entry(it_11.v)
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](typeTransformations.asImm().entrySet())) {
+			e := icast_Map_Entry(el)
 			var name string = str_(e.getKey())
 			var tranformationDefinition string = new_CodePrinter_Builder(Node_of_(e.getValue())).build()
 			parts.add(("@template " + sstr_(name) + " := " + sstr_(tranformationDefinition) + " =:"))
@@ -223,10 +214,9 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	var suppressions ImmutableMapOf[ImmutableSetOf[string], string] = info.getSuppressionsAndTheirDescription()
 	if !suppressions.isEmpty() {
-		it_13 := foreach_(obj_(cast_[*ImmutableSet](suppressions.entrySet())))
-		for it_13.next() {
-			var suppression Map_Entry = icast_Map_Entry(it_13.v)
-			var warnings []string = arrmap_(cast_[*ImmutableSet](suppression.getKey()).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
+		for _, el2 := range immElems_(cast_[*ErasedImmutableSet](suppressions.entrySet())) {
+			suppression := icast_Map_Entry(el2)
+			var warnings []string = arrmap_(cast_[*ErasedImmutableSet](suppression.getKey()).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 			func() {
 				arr_15 := warnings
 				tmp_16 := arrmap_(arr_15, func(v_ string) any { return strobj_(v_) })
@@ -236,12 +226,12 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 				}
 			}()
 			var text string = str_(suppression.getValue())
-			var sb *StringBuilder = new_StringBuilder()
+			var sb strBuilder_
 			sb.append("@suppress {").append(Joiner_on_char(',').join_ObjectArr(arrmap_(warnings, func(v_ string) any { return strobj_(v_) }))).append("}")
-			if !String_isEmpty(text) {
+			if text != "" {
 				sb.append(" ").append(text)
 			}
-			parts.add(Object_toString(obj_(sb)))
+			parts.add(sb.toString())
 		}
 		multiline = true
 	}
@@ -284,30 +274,29 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	if info.isLegacyNamedTsExport() {
 		parts.add("@legacyNamedTsExport")
 	}
-	it_17 := foreach_(obj_(info.getTsTypes()))
-	for it_17.next() {
-		var tsType string = str_(it_17.v)
+	for _, el3 := range info.getTsTypes().items {
+		tsType := el3
 		parts.add(("@tsType " + sstr_(tsType)))
 	}
 	if this.printDesc && info.getBlockDescription().isPresent() {
-		var cleaned string = JSDocInfoPrinter_DESCRIPTION_LINE_START_PATTERN.matcher(strobj_(info.getBlockDescription().get())).replaceAll("\n")
-		if !String_isEmpty(cleaned) {
+		var cleaned string = JSDocInfoPrinter_DESCRIPTION_LINE_START_PATTERN.matcher_s(info.getBlockDescription().get()).replaceAll("\n")
+		if cleaned != "" {
 			multiline = true
-			cleaned = String_trim(cleaned)
+			cleaned = strings.Trim(cleaned, javaSpace_)
 			if parts.size() > 1 {
 				cleaned += "\n"
 			}
 			parts.insert(1, cleaned)
 		}
 	}
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	if multiline {
-		Joiner_on("\n").appendTo(sb, Iterable(parts.asList()))
+		Joiner_on("\n").appendToStr_(&sb, Iterable(parts.asList()))
 	} else {
-		Joiner_on(" ").appendTo(sb, Iterable(parts.asList()))
+		Joiner_on(" ").appendToStr_(&sb, Iterable(parts.asList()))
 		sb.append(" */")
 	}
-	var s string = JSDocInfoPrinter_STAR_WITHOUT_SPACE_PATTERN.matcher(strobj_(String_replace(Object_toString(obj_(sb)), strobj_("\n"), strobj_("\n *")))).replaceAll("\n * $1")
+	var s string = JSDocInfoPrinter_STAR_WITHOUT_SPACE_PATTERN.matcher_s(strings.ReplaceAll(sb.toString(), "\n", "\n *")).replaceAll("\n * $1")
 	if multiline {
 		s += "\n */\n"
 	} else {
@@ -317,7 +306,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 }
 
 func (this *JSDocInfoPrinter) stripBang(typeNode Node) Node {
-	if typeNode.getToken() == Token_rhino_BANG {
+	if typeNode.ns_().token == tokOrd1_BANG {
 		typeNode = typeNode.getFirstChild()
 	}
 	return typeNode
@@ -336,17 +325,17 @@ func (this *JSDocInfoPrinter) buildAnnotationWithType(annotation string, type_ N
 }
 
 func (this *JSDocInfoPrinter) buildAnnotationWithTypeNode(annotation string, type_ Node, description Optional[string]) string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	sb.append("@")
 	sb.append(annotation)
 	sb.append(" {")
-	this.appendTypeNode(sb, type_)
+	this.appendTypeNode(&sb, type_)
 	sb.append("}")
 	if description.isPresent() {
 		sb.append(" ")
 		sb.append(description.get())
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func (this *JSDocInfoPrinter) buildParamType(info *JSDocInfo, name string) string {
@@ -358,32 +347,31 @@ func (this *JSDocInfoPrinter) buildParamType(info *JSDocInfo, name string) strin
 			}
 			return ""
 		}()))
-		return String_trim(p)
+		return strings.Trim(p, javaSpace_)
 	} else {
 		return name
 	}
-	panic("unreachable")
 }
 
 func (this *JSDocInfoPrinter) typeNode(typeNode Node) string {
-	var sb *StringBuilder = new_StringBuilder()
-	this.appendTypeNode(sb, typeNode)
-	return Object_toString(obj_(sb))
+	var sb strBuilder_
+	this.appendTypeNode(&sb, typeNode)
+	return sb.toString()
 }
 
-func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
-	if this.useOriginalName && !String_isEmpty(typeNode.getOriginalName()) {
+func (this *JSDocInfoPrinter) appendTypeNode(sb *strBuilder_, typeNode Node) {
+	if this.useOriginalName && typeNode.getOriginalName() != "" {
 		sb.append(typeNode.getOriginalName())
 		return
 	}
-	switch typeNode.getToken() {
-	case Token_rhino_BANG:
+	switch typeNode.ns_().token {
+	case tokOrd1_BANG:
 		sb.append("!")
 		this.appendTypeNode(sb, typeNode.getFirstChild())
-	case Token_rhino_EQUALS:
+	case tokOrd1_EQUALS:
 		this.appendTypeNode(sb, typeNode.getFirstChild())
 		sb.append("=")
-	case Token_rhino_PIPE:
+	case tokOrd1_PIPE:
 		sb.append("(")
 		var lastChild Node = typeNode.getLastChild()
 		{
@@ -396,21 +384,21 @@ func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
 			}
 		}
 		sb.append(")")
-	case Token_rhino_ITER_REST:
+	case tokOrd1_ITER_REST:
 		sb.append("...")
 		if typeNode.hasChildren() && !typeNode.getFirstChild().isEmpty() {
 			this.appendTypeNode(sb, typeNode.getFirstChild())
 		}
-	case Token_rhino_STAR:
+	case tokOrd1_STAR:
 		sb.append("*")
-	case Token_rhino_QMARK:
+	case tokOrd1_QMARK:
 		sb.append("?")
 		if typeNode.hasChildren() {
 			this.appendTypeNode(sb, typeNode.getFirstChild())
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.appendFunctionNode(sb, typeNode)
-	case Token_rhino_LC:
+	case tokOrd1_LC:
 		sb.append("{")
 		var lb Node = typeNode.getFirstChild()
 		var lastColon Node = lb.getLastChild()
@@ -429,12 +417,12 @@ func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
 			}
 		}
 		sb.append("}")
-	case Token_rhino_VOID:
+	case tokOrd1_VOID:
 		sb.append("void")
-	case Token_rhino_TYPEOF:
+	case tokOrd1_TYPEOF:
 		sb.append("typeof ")
 		this.appendTypeNode(sb, typeNode.getFirstChild())
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		sb.append("<")
 		var last Node = typeNode.getLastChild()
 		{
@@ -447,17 +435,17 @@ func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
 			}
 		}
 		sb.append(">")
-	case Token_rhino_STRINGLIT:
+	case tokOrd1_STRINGLIT:
 		sb.append(typeNode.getString())
 		if typeNode.hasChildren() {
 			this.appendTypeNode(sb, typeNode.getOnlyChild())
 		}
 	default:
-		panic(new_IllegalStateException_String(("Unexpected typeNode: " + objstr_(typeNode.box_()))).self())
+		panic(new_IllegalStateException_String(("Unexpected typeNode: " + tostr_(typeNode))))
 	}
 }
 
-func (this *JSDocInfoPrinter) appendFunctionNode(sb *StringBuilder, function Node) {
+func (this *JSDocInfoPrinter) appendFunctionNode(sb *strBuilder_, function Node) {
 	var hasNewOrThis bool = false
 	sb.append("function(")
 	var first Node = function.getFirstChild()

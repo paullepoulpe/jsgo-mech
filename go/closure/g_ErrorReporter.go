@@ -9,18 +9,6 @@ type ErrorReporter_util struct {
 
 func (this *ErrorReporter_util) as_ErrorReporter_util() *ErrorReporter_util { return this }
 
-func to_ErrorReporter_util(v any) *ErrorReporter_util {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_ErrorReporter_util() *ErrorReporter_util }).as_ErrorReporter_util()
-}
-
-func is_ErrorReporter_util(v any) bool {
-	_, ok := v.(interface{ as_ErrorReporter_util() *ErrorReporter_util })
-	return ok
-}
-
 func (this *ErrorReporter_util) self() any {
 	if this == nil {
 		return nil
@@ -48,13 +36,9 @@ func (this *ErrorReporter_util) hadError() bool {
 }
 
 func (this *ErrorReporter_util) reportError(p0 *SourcePosition_util, p1 string) {
-	this.self_.(interface {
-		reportError_impl(*SourcePosition_util, string)
-	}).reportError_impl(p0, p1)
+	this.self_.(*ParserRunner_Es6ErrorReporter).reportError_impl(p0, p1)
 }
 
 func (this *ErrorReporter_util) reportWarning(p0 *SourcePosition_util, p1 string) {
-	this.self_.(interface {
-		reportWarning_impl(*SourcePosition_util, string)
-	}).reportWarning_impl(p0, p1)
+	this.self_.(*ParserRunner_Es6ErrorReporter).reportWarning_impl(p0, p1)
 }

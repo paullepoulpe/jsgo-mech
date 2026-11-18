@@ -33,8 +33,10 @@ func new_GatherRawExports(compiler *AbstractCompiler) *GatherRawExports {
 }
 
 func (this *GatherRawExports) process_2(externs Node, root Node) {
-	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	if !this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0())
+	}
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *GatherRawExports) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -76,4 +78,13 @@ func GatherRawExports_clinit() {
 	GatherRawExports_clinit_done = true
 	GatherRawExports_GLOBAL_THIS_NAMES = []string{"window", "globalThis", "top", "self", "goog$global", "goog.global", "$jscomp.global", "$jscomp$global"}
 
+}
+
+// visit: an object that is exactly a GatherRawExports calls its visit_impl directly (post-flip); others dispatch.
+func (this *GatherRawExports) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*GatherRawExports); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

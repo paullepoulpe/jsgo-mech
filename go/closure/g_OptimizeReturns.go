@@ -18,49 +18,40 @@ func new_OptimizeReturns(compiler *AbstractCompiler) *OptimizeReturns {
 }
 
 func (this *OptimizeReturns) process_2(externs Node, root Node) {
-	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(false).addPass(icast_OptimizeCalls_CallGraphCompilerPass(any(this))).build().process_2(externs, root)
+	OptimizeCalls_builder().setCompiler(this.compiler_).setConsiderExterns(false).addPass(this).build().process_2(externs, root)
 }
 
 func (this *OptimizeReturns) process_3(externs Node, root Node, definitions *OptimizeCalls_ReferenceMap) {
-	_ = func() (code_ int) {
-		defer func() {
-			this.decisionsLog = nil
-		}()
-		var logFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "decisions.log", []string{})
-		defer closeResource_(logFile.self())
-		this.decisionsLog = logFile
-		var toOptimize *JTList[*ArrayList] = jnewTList_(tc_p_ArrayList)
-		it_2 := foreach_(any(definitions.getNameReferences()))
-		for it_2.next() {
-			var entry Map_Entry = icast_Map_Entry(it_2.v)
-			var key string = str_(entry.getKey())
-			var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
-			if this.isCandidate(key, icast_List(refs.self())) {
-				this.decisionsLog.log_2("name %s\tremoving return value", []any{strobj_(key)})
-				toOptimize.add(refs)
-			}
-		}
-		it_4 := foreach_(any(definitions.getPropReferences()))
-		for it_4.next() {
-			var entry Map_Entry = icast_Map_Entry(it_4.v)
-			var key string = str_(entry.getKey())
-			var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
-			if this.isCandidate(key, icast_List(refs.self())) {
-				this.decisionsLog.log_2("property %s\tremoving return value", []any{strobj_(key)})
-				toOptimize.add(refs)
-			}
-		}
-		it_6 := toOptimize.each()
-		for it_6.next() {
-			var refs *ArrayList = it_6.v
-			it_8 := foreach_(any(OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self())).values()))
-			for it_8.next() {
-				var fn Node = Node_of_(it_8.v)
-				this.rewriteReturns(fn)
-			}
-		}
-		return 0
+	defer func() {
+		this.decisionsLog = nil
 	}()
+	var logFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "decisions.log", []string{})
+	defer closeResource_(logFile.self())
+	this.decisionsLog = logFile
+	var toOptimize *JTList[*ArrayList] = jnewTList_(tc_p_ArrayList)
+	for entry := range elemsBy_(definitions.getNameReferences(), icast_Map_Entry) {
+		var key string = str_(entry.getKey())
+		var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
+		if this.isCandidate(key, icast_List(refs.self())) {
+			this.decisionsLog.log_2("name %s\tremoving return value", []any{strobj_(key)})
+			toOptimize.add(refs)
+		}
+	}
+	for entry := range elemsBy_(definitions.getPropReferences(), icast_Map_Entry) {
+		var key string = str_(entry.getKey())
+		var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())
+		if this.isCandidate(key, icast_List(refs.self())) {
+			this.decisionsLog.log_2("property %s\tremoving return value", []any{strobj_(key)})
+			toOptimize.add(refs)
+		}
+	}
+	it_6 := toOptimize.each()
+	for it_6.next() {
+		var refs *ArrayList = it_6.v
+		for fn := range elemsBy_(OptimizeCalls_ReferenceMap_getFunctionNodes(icast_List(refs.self())).values(), Node_of_) {
+			this.rewriteReturns(fn)
+		}
+	}
 }
 
 func (this *OptimizeReturns) isCandidate(name string, refs ListOf[Node]) bool {
@@ -70,7 +61,7 @@ func (this *OptimizeReturns) isCandidate(name string, refs ListOf[Node]) bool {
 	}
 	var seenCandidateDefiniton bool = false
 	var seenUse bool = false
-	it_1 := foreach_(any(refs))
+	it_1 := foreach_(refs)
 	for it_1.next() {
 		var n Node = Node_of_(it_1.v)
 		if OptimizeCalls_ReferenceMap_isCallTarget(n) || OptimizeCalls_ReferenceMap_isOptChainCallTarget(n) {
@@ -128,32 +119,33 @@ func (this *OptimizeReturns) isClassMemberDefinition(n Node) bool {
 
 func OptimizeReturns_isCandidateFunction(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FUNCTION:
+		switch n.ns_().token {
+		case tokOrd1_FUNCTION:
 			return !NodeUtil_isNamedFunctionExpression(n)
-		case Token_rhino_COMMA, Token_rhino_CAST:
+		case tokOrd1_COMMA, tokOrd1_CAST:
 			return OptimizeReturns_isCandidateFunction(n.getLastChild())
-		case Token_rhino_HOOK:
+		case tokOrd1_HOOK:
 			return (OptimizeReturns_isCandidateFunction(n.getSecondChild()) && OptimizeReturns_isCandidateFunction(n.getLastChild()))
-		case Token_rhino_OR, Token_rhino_AND, Token_rhino_COALESCE:
+		case tokOrd1_OR, tokOrd1_AND, tokOrd1_COALESCE:
 			return (OptimizeReturns_isCandidateFunction(n.getFirstChild()) && OptimizeReturns_isCandidateFunction(n.getLastChild()))
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *OptimizeReturns) rewriteReturns(fnNode Node) {
-	Preconditions_checkState(fnNode.isFunction())
+	if !fnNode.isFunction() {
+		panic(new_IllegalStateException_0())
+	}
 	var body Node = fnNode.getLastChild()
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(body, icast_NodeUtil_Visitor(obj_(new_OptimizeReturns_1(this, body))), icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(body, new_OptimizeReturns_1(this, body).visit, new_NodeUtil_MatchShallowStatement())
 }
 
 func (this *OptimizeReturns) isRemovableValue(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_TEMPLATELIT, Token_rhino_ARRAYLIT:
+		switch n.ns_().token {
+		case tokOrd1_TEMPLATELIT, tokOrd1_ARRAYLIT:
 			{
 				var child Node = n.getFirstChild()
 				for ; child != 0; child = child.getNext() {
@@ -163,14 +155,13 @@ func (this *OptimizeReturns) isRemovableValue(n Node) bool {
 				}
 			}
 			return true
-		case Token_rhino_REGEXP, Token_rhino_STRINGLIT, Token_rhino_NUMBER, Token_rhino_NULL, Token_rhino_TRUE, Token_rhino_FALSE, Token_rhino_TEMPLATELIT_STRING:
+		case tokOrd1_REGEXP, tokOrd1_STRINGLIT, tokOrd1_NUMBER, tokOrd1_NULL, tokOrd1_TRUE, tokOrd1_FALSE, tokOrd1_TEMPLATELIT_STRING:
 			return true
-		case Token_rhino_TEMPLATELIT_SUB, Token_rhino_CAST, Token_rhino_NOT, Token_rhino_VOID, Token_rhino_NEG:
+		case tokOrd1_TEMPLATELIT_SUB, tokOrd1_CAST, tokOrd1_NOT, tokOrd1_VOID, tokOrd1_NEG:
 			return this.isRemovableValue(n.getFirstChild())
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

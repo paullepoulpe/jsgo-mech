@@ -18,8 +18,12 @@ func (this *Import) zero_Import() {
 }
 
 func (this *Import) init_Import(moduleRequest string, importName string, localName string, modulePath *ModuleLoader_ModulePath, importNode Node, nameNode Node) {
-	Objects_requireNonNull(importNode.box_(), "importNode")
-	Objects_requireNonNull(nameNode.box_(), "nameNode")
+	if importNode == 0 {
+		panic(new_NullPointerException_String("importNode"))
+	}
+	if nameNode == 0 {
+		panic(new_NullPointerException_String("nameNode"))
+	}
 	this.moduleRequest_ = moduleRequest
 	this.importName_ = importName
 	this.localName_ = localName
@@ -68,22 +72,22 @@ func (this *Import) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.moduleRequest_ == o.moduleRequest_ && this.importName_ == o.importName_ && this.localName_ == o.localName_ && Objects_equals(obj_(this.modulePath_), obj_(o.modulePath_)) && Objects_equals(this.importNode_.box_(), o.importNode_.box_()) && Objects_equals(this.nameNode_.box_(), o.nameNode_.box_())
+	return true && this.moduleRequest_ == o.moduleRequest_ && this.importName_ == o.importName_ && this.localName_ == o.localName_ && this.modulePath_ == o.modulePath_ && this.importNode_ == o.importNode_ && this.nameNode_ == o.nameNode_
 }
 
 func (this *Import) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.moduleRequest_))
-	h = h*31 + Objects_hashCode(strobj_(this.importName_))
-	h = h*31 + Objects_hashCode(strobj_(this.localName_))
-	h = h*31 + Objects_hashCode(obj_(this.modulePath_))
-	h = h*31 + Objects_hashCode(this.importNode_.box_())
-	h = h*31 + Objects_hashCode(this.nameNode_.box_())
+	h = h*31 + objhashStr_(this.moduleRequest_)
+	h = h*31 + objhashStr_(this.importName_)
+	h = h*31 + objhashStr_(this.localName_)
+	h = h*31 + objhashId_(this.modulePath_)
+	h = h*31 + objhashId_(this.importNode_)
+	h = h*31 + objhashId_(this.nameNode_)
 	return h
 }
 
 func (this *Import) toString() string {
-	return "Import[" + "moduleRequest=" + objstr_(strobj_(this.moduleRequest_)) + ", importName=" + objstr_(strobj_(this.importName_)) + ", localName=" + objstr_(strobj_(this.localName_)) + ", modulePath=" + objstr_(obj_(this.modulePath_)) + ", importNode=" + objstr_(this.importNode_.box_()) + ", nameNode=" + objstr_(this.nameNode_.box_()) + "]"
+	return "Import[" + "moduleRequest=" + sstr_(this.moduleRequest_) + ", importName=" + sstr_(this.importName_) + ", localName=" + sstr_(this.localName_) + ", modulePath=" + tostr_(this.modulePath_) + ", importNode=" + tostr_(this.importNode_) + ", nameNode=" + tostr_(this.nameNode_) + "]"
 }
 
 type Import_Builder struct {
@@ -133,7 +137,7 @@ func (this *Import_Builder) modulePath(value *ModuleLoader_ModulePath) *Import_B
 
 func (this *Import_Builder) importNode(value Node) *Import_Builder {
 	if value == 0 {
-		panic(new_NullPointerException_String("Null importNode").self())
+		panic(new_NullPointerException_String("Null importNode"))
 	}
 	this.importNodeField = value
 	return this
@@ -141,7 +145,7 @@ func (this *Import_Builder) importNode(value Node) *Import_Builder {
 
 func (this *Import_Builder) nameNode(value Node) *Import_Builder {
 	if value == 0 {
-		panic(new_NullPointerException_String("Null nameNode").self())
+		panic(new_NullPointerException_String("Null nameNode"))
 	}
 	this.nameNodeField = value
 	return this
@@ -149,7 +153,7 @@ func (this *Import_Builder) nameNode(value Node) *Import_Builder {
 
 func (this *Import_Builder) build() *Import {
 	if (((this.moduleRequestField.isEmpty() || this.importNameField.isEmpty()) || this.localNameField.isEmpty()) || (this.importNodeField == 0)) || (this.nameNodeField == 0) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.moduleRequestField.isEmpty() {
 			missing.append(" moduleRequest")
 		}
@@ -165,7 +169,7 @@ func (this *Import_Builder) build() *Import {
 		if this.nameNodeField == 0 {
 			missing.append(" nameNode")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_Import(this.moduleRequestField.get(), this.importNameField.get(), this.localNameField.get(), this.modulePathField, this.importNodeField, this.nameNodeField)
 }

@@ -2,10 +2,12 @@
 
 package closure
 
+import "strings"
+
 type StripCode struct {
 	compiler_                      *AbstractCompiler
-	stripNameSuffixes              ImmutableSetOf[string]
-	stripNamePrefixes              ImmutableSetOf[string]
+	stripNameSuffixes              *ImmutableSet[string]
+	stripNamePrefixes              *ImmutableSet[string]
 	varsToRemove                   *LinkedIdentityHashSet[string]
 	stripTypesList                 []string
 	stripTypePrefixesList          []string
@@ -17,72 +19,67 @@ func (this *StripCode) finit_StripCode() {
 	this.varsToRemove = new_LinkedIdentityHashSet[string]()
 }
 
-func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes ImmutableSetOf[string], stripNameSuffixes ImmutableSetOf[string], stripNamePrefixes ImmutableSetOf[string], enableTweakStripping bool) {
+func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *ImmutableSet[string], stripNameSuffixes *ImmutableSet[string], stripNamePrefixes *ImmutableSet[string], enableTweakStripping bool) {
 	this.finit_StripCode()
 	this.compiler_ = compiler
-	var stripNameSuffixesBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	it_1 := foreach_(obj_(stripNameSuffixes))
-	for it_1.next() {
-		var s string = str_(it_1.v)
+	var stripNameSuffixesBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
+	for _, el := range stripNameSuffixes.keys {
+		s := el
 		it_3 := StripCode_toListWithCollapsedVersions(s).each()
 		for it_3.next() {
 			var form string = it_3.v
-			stripNameSuffixesBuilder.add(strobj_(form))
+			stripNameSuffixesBuilder.add(form)
 		}
 	}
-	this.stripNameSuffixes = cast_[*ImmutableSet](obj_(stripNameSuffixesBuilder.build()))
-	var stripNamePrefixesBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	it_5 := foreach_(obj_(stripNamePrefixes))
-	for it_5.next() {
-		var s string = str_(it_5.v)
+	this.stripNameSuffixes = stripNameSuffixesBuilder.build()
+	var stripNamePrefixesBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
+	for _, el2 := range stripNamePrefixes.keys {
+		s := el2
 		it_7 := StripCode_toListWithCollapsedVersions(s).each()
 		for it_7.next() {
 			var form string = it_7.v
-			stripNamePrefixesBuilder.add(strobj_(form))
+			stripNamePrefixesBuilder.add(form)
 		}
 	}
-	this.stripNamePrefixes = cast_[*ImmutableSet](obj_(stripNamePrefixesBuilder.build()))
-	var stripTypesToAdjust *JTList[string] = jtlistFrom_(jtc_string, icast_Collection(obj_(stripTypes)))
+	this.stripNamePrefixes = stripNamePrefixesBuilder.build()
+	var stripTypesToAdjust *JTList[string] = jtlistFrom_(jtc_string, icast_Collection(obj_(stripTypes.asImm())))
 	if enableTweakStripping {
 		stripTypesToAdjust.add("goog.tweak")
 	}
-	var stripTypesAdjustedBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+	var stripTypesAdjustedBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	it_9 := stripTypesToAdjust.each()
 	for it_9.next() {
 		var s string = it_9.v
 		it_11 := StripCode_toListWithCollapsedVersions(s).each()
 		for it_11.next() {
 			var form string = it_11.v
-			stripTypesAdjustedBuilder.add(strobj_(form))
+			stripTypesAdjustedBuilder.add(form)
 		}
 	}
-	var stripTypesAdjusted ImmutableSetOf[string] = cast_[*ImmutableSet](obj_(stripTypesAdjustedBuilder.build()))
-	this.stripTypesList = arrmap_(stripTypesAdjusted.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
+	var stripTypesAdjusted *ImmutableSet[string] = stripTypesAdjustedBuilder.build()
+	this.stripTypesList = arrmap_(stripTypesAdjusted.asImm().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripTypePrefixes *JTList[string] = jnewTList_(jtc_string)
-	it_13 := foreach_(obj_(stripTypesAdjusted))
-	for it_13.next() {
-		var s string = str_(it_13.v)
+	for _, el3 := range stripTypesAdjusted.keys {
+		s := el3
 		stripTypePrefixes.add((sstr_(s) + "."))
 		stripTypePrefixes.add((sstr_(s) + "$"))
 	}
 	this.stripTypePrefixesList = arrmap_(stripTypePrefixes.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripNamePrefixesLowerCase *JTList[string] = jnewTList_(jtc_string)
-	it_15 := foreach_(obj_(this.stripNamePrefixes))
-	for it_15.next() {
-		var s string = str_(it_15.v)
-		stripNamePrefixesLowerCase.add(String_toLowerCase(s, Locale_ROOT))
+	for _, el4 := range this.stripNamePrefixes.keys {
+		s := el4
+		stripNamePrefixesLowerCase.add(strings.ToLower(s))
 	}
 	this.stripNamePrefixesLowerCaseList = arrmap_(stripNamePrefixesLowerCase.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripNameSuffixesLowerCase *JTList[string] = jnewTList_(jtc_string)
-	it_17 := foreach_(obj_(this.stripNameSuffixes))
-	for it_17.next() {
-		var s string = str_(it_17.v)
-		stripNameSuffixesLowerCase.add(String_toLowerCase(s, Locale_ROOT))
+	for _, el5 := range this.stripNameSuffixes.keys {
+		s := el5
+		stripNameSuffixesLowerCase.add(strings.ToLower(s))
 	}
 	this.stripNameSuffixesLowerCaseList = arrmap_(stripNameSuffixesLowerCase.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 }
 
-func new_StripCode(compiler *AbstractCompiler, stripTypes ImmutableSetOf[string], stripNameSuffixes ImmutableSetOf[string], stripNamePrefixes ImmutableSetOf[string], enableTweakStripping bool) *StripCode {
+func new_StripCode(compiler *AbstractCompiler, stripTypes *ImmutableSet[string], stripNameSuffixes *ImmutableSet[string], stripNamePrefixes *ImmutableSet[string], enableTweakStripping bool) *StripCode {
 	this := &StripCode{}
 	this.init_StripCode(compiler, stripTypes, stripNameSuffixes, stripNamePrefixes, enableTweakStripping)
 	return this
@@ -102,15 +99,14 @@ func StripCode_toListWithCollapsedVersions(s string) *JTList[string] {
 }
 
 func (this *StripCode) process_2(externs Node, root Node) {
-	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
-	_ = func() (code_ int) {
-		var decisionsLog *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "decisions.log", []string{})
-		defer closeResource_(decisionsLog.self())
-		decisionsLog.log(icast_Supplier(obj_(new_StripCode_StripCodeConfigRecord(this))))
-		decisionsLog.logString("\n=== decisions ===\n")
-		NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_StripCode_Strip(this, decisionsLog))))
-		return 0
-	}()
+	if !this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0())
+	}
+	var decisionsLog *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "decisions.log", []string{})
+	defer closeResource_(decisionsLog.self())
+	decisionsLog.log(new_StripCode_StripCodeConfigRecord(this))
+	decisionsLog.logString("\n=== decisions ===\n")
+	NodeTraversal_traverse(this.compiler_, root, new_StripCode_Strip(this, decisionsLog))
 }
 
 var StripCode_STRIP_TYPE_INHERIT_ERROR *DiagnosticType
@@ -144,18 +140,16 @@ func new_StripCode_StripCodeConfigRecord(outer_ *StripCode) *StripCode_StripCode
 }
 
 func (this *StripCode_StripCodeConfigRecord) get() any {
-	var builder *StringBuilder = new_StringBuilder()
+	var builder strBuilder_
 	builder.append("=== stripNameSuffixes ===\n")
-	it_1 := foreach_(obj_(this.outer_.stripNameSuffixes))
-	for it_1.next() {
-		var stripNameSuffix string = str_(it_1.v)
+	for _, el := range this.outer_.stripNameSuffixes.keys {
+		stripNameSuffix := el
 		builder.append(stripNameSuffix).append("\n")
 	}
 	builder.append("\n")
 	builder.append("=== stripNamePrefixes ===\n")
-	it_3 := foreach_(obj_(this.outer_.stripNamePrefixes))
-	for it_3.next() {
-		var stripNamePrefix string = str_(it_3.v)
+	for _, el2 := range this.outer_.stripNamePrefixes.keys {
+		stripNamePrefix := el2
 		builder.append(stripNamePrefix).append("\n")
 	}
 	builder.append("\n")
@@ -169,7 +163,7 @@ func (this *StripCode_StripCodeConfigRecord) get() any {
 		builder.append(stripNamePrefix).append("\n")
 	}
 	builder.append("\n")
-	return strobj_(Object_toString(obj_(builder)))
+	return strobj_(builder.toString())
 }
 
 type StripCode_Strip struct {
@@ -189,8 +183,8 @@ func new_StripCode_Strip(outer_ *StripCode, decisionsLog *LogFile) *StripCode_St
 }
 
 func (this *StripCode_Strip) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_CALL, Token_rhino_NEW:
+	switch n.ns_().token {
+	case tokOrd1_CALL, tokOrd1_NEW:
 		if this.isMethodOrCtorCallThatTriggersRemoval(t, n, parent) {
 			this.decisionsLog.log(&Supplier_tfn_string{func() string {
 				return "removing function call"
@@ -203,22 +197,21 @@ func (this *StripCode_Strip) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 	default:
 		return true
 	}
-	panic("unreachable")
 }
 
 func (this *StripCode_Strip) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
+	switch n.ns_().token {
+	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET:
 		this.removeVarDeclarationsByNameOrRvalue(t, n, parent)
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		this.maybeRemoveReferenceToRemovedVariable(t, n, parent)
-	case Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD:
+	case tokOrd1_ASSIGN, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD:
 		this.maybeEliminateAssignmentByLvalueName(t, n, parent)
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		this.eliminateKeysWithStripNamesFromObjLit(n)
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		this.maybeEliminateExpressionByName(n)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.maybeEliminateClassByNameOrExtends(t, n, parent)
 	default:
 	}
@@ -233,18 +226,20 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 			if nameNode.isDestructuringLhs() {
 				continue
 			}
-			Preconditions_checkState_boolean_Object(nameNode.isName(), nameNode.box_())
+			if !nameNode.isName() {
+				panic(new_IllegalStateException_String(tostr_(nameNode)))
+			}
 			var name string = nameNode.getString()
-			var lastDollarSign int32 = String_lastIndexOf(name, 36)
+			var lastDollarSign int32 = int32(strings.LastIndexByte(name, '$'))
 			var possibleStripName string = func() string {
 				if lastDollarSign != -1 {
-					return String_substring_int(name, (lastDollarSign + 1))
+					return name[lastDollarSign+1:]
 				}
 				return name
 			}()
 			if (this.isStripName(possibleStripName) || this.qualifiedNameBeginsWithStripType(nameNode)) || this.isCallWhoseReturnValueShouldBeStripped(nameNode.getFirstChild()) {
 				this.outer_.varsToRemove.add(name)
-				if String_contains(name, strobj_("$")) {
+				if strings.Contains(name, "$") {
 					this.decisionsLog.log(&Supplier_tfn_string{func() string {
 						return (sstr_(name) + ": initialize with null (" + sstr_(possibleStripName) + ")")
 					}})
@@ -271,16 +266,16 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 }
 
 func (this *StripCode_Strip) maybeRemoveReferenceToRemovedVariable(t *NodeTraversal, n Node, parent Node) {
-	switch parent.getToken() {
-	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
-	case Token_rhino_GETPROP, Token_rhino_GETELEM:
+	switch parent.ns_().token {
+	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET:
+	case tokOrd1_GETPROP, tokOrd1_GETELEM:
 		if (parent.getFirstChild() == n) && this.isReferenceToRemovedVar(n) {
 			this.decisionsLog.log(&Supplier_tfn_string{func() string {
 				return (sstr_(n.getString()) + ": removing getelem/getprop/call chain")
 			}})
 			this.replaceHighestNestedCallWithNull(t, parent, parent.getParent())
 		}
-	case Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD:
+	case tokOrd1_ASSIGN, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD:
 		if this.isReferenceToRemovedVar(n) {
 			if parent.getFirstChild() == n {
 				var grandparent Node = parent.getParent()
@@ -305,7 +300,7 @@ func (this *StripCode_Strip) maybeRemoveReferenceToRemovedVariable(t *NodeTraver
 				t.reportCodeChange()
 			}
 		}
-	case Token_rhino_NEW, Token_rhino_CALL:
+	case tokOrd1_NEW, tokOrd1_CALL:
 		if !n.isFirstChildOf(parent) && this.isReferenceToRemovedVar(n) {
 			this.decisionsLog.log(&Supplier_tfn_string{func() string {
 				return (sstr_(n.getQualifiedName()) + ": replacing parameter reference with null")
@@ -313,7 +308,7 @@ func (this *StripCode_Strip) maybeRemoveReferenceToRemovedVariable(t *NodeTraver
 			this.replaceWithNull(n)
 			t.reportCodeChange()
 		}
-	case Token_rhino_COMMA:
+	case tokOrd1_COMMA:
 		var grandparent Node = parent.getParent()
 		var isLastChild bool = (parent.getLastChild() == n)
 		var parentIsCallee bool = ((grandparent.isCall() || grandparent.isNew()) && parent.isFirstChildOf(grandparent))
@@ -386,7 +381,9 @@ func (this *StripCode_Strip) maybeEliminateAssignmentByLvalueName(t *NodeTravers
 }
 
 func (this *StripCode_Strip) maybeEliminateExpressionByName(n Node) {
-	Preconditions_checkArgument_boolean_Object(n.isExprResult(), n.box_())
+	if !n.isExprResult() {
+		panic(new_IllegalArgumentException_String(tostr_(n)))
+	}
 	var parent Node = n.getParent()
 	if parent == 0 {
 		return
@@ -404,8 +401,8 @@ func (this *StripCode_Strip) maybeEliminateExpressionByName(n Node) {
 func (this *StripCode_Strip) eliminateKeysWithStripNamesFromObjLit(n Node) {
 	var key Node = n.getFirstChild()
 	for key != 0 {
-		switch key.getToken() {
-		case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF:
+		switch key.ns_().token {
+		case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF:
 			if this.isStripName(key.getString()) {
 				var next Node = key.getNext()
 				key.detach()
@@ -427,7 +424,7 @@ func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal
 	if (nameNode != 0) && nameNode.isQualifiedName() {
 		className = nameNode.getQualifiedName()
 		if this.qualifiedNameBeginsWithStripTypeString(Optional_of[string](className).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}})) {
 			this.decisionsLog.log(&Supplier_tfn_string{func() string {
 				return (sstr_(className) + ": removing class")
@@ -447,7 +444,7 @@ func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal
 	if (superclassNode != 0) && superclassNode.isQualifiedName() {
 		var superclassName string = superclassNode.getQualifiedName()
 		if this.qualifiedNameBeginsWithStripTypeString(Optional_of[string](superclassName).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}})) {
 			t.report(classNode, StripCode_STRIP_TYPE_INHERIT_ERROR, []string{className, superclassName})
 		}
@@ -465,7 +462,7 @@ func (this *StripCode_Strip) isCallWhoseReturnValueShouldBeStripped(n Node) bool
 func (this *StripCode_Strip) qualifiedNameBeginsWithStripType(n Node) bool {
 	var name string = n.getQualifiedName()
 	return this.qualifiedNameBeginsWithStripTypeString(Optional_of[string](name).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}}))
 }
 
@@ -478,7 +475,7 @@ func (this *StripCode_Strip) qualifiedNameBeginsWithStripTypeString(name Optiona
 			}
 		}
 		for _, type_ := range this.outer_.stripTypePrefixesList {
-			if String_startsWith(name.get(), type_) {
+			if strings.HasPrefix(name.get(), type_) {
 				this.logStripName(name, "starts with strip type prefix")
 				return true
 			}
@@ -517,24 +514,25 @@ func (this *StripCode_Strip) nameIncludesFieldNameToStrip(n Node) bool {
 		return (this.isStripName(n.getString()) || this.nameIncludesFieldNameToStrip(n.getFirstChild()))
 	} else if n.isName() {
 		var nameString string = n.getString()
-		var end int32 = String_indexOf(nameString, 36)
+		nameStringU16 := utf16Of_(nameString)
+		var end int32 = nameStringU16.indexOf(36)
 		if end == -1 {
 			return false
 		}
 		var start int32 = 0
 		for {
-			if this.isStripName(String_substring(nameString, start, end)) {
+			if this.isStripName(nameStringU16.substring(start, end)) {
 				return true
 			}
-			if end == String_length(nameString) {
+			if end == nameStringU16.length() {
 				break
 			}
 			var newStart int32 = (end + 1)
-			var newEnd int32 = String_indexOf_int_int(nameString, 36, newStart)
+			var newEnd int32 = nameStringU16.indexOf_int_int(36, newStart)
 			start = newStart
 			end = func() int32 {
 				if newEnd == -1 {
-					return String_length(nameString)
+					return nameStringU16.length()
 				}
 				return newEnd
 			}()
@@ -558,32 +556,32 @@ func (this *StripCode_Strip) actsOnStripType(t *NodeTraversal, callNode Node) bo
 }
 
 func (this *StripCode_Strip) isStripName(name string) bool {
-	if Collection_contains_s(this.outer_.stripNameSuffixes, name) {
+	if this.outer_.stripNameSuffixes.Has(name) {
 		this.logStripName(Optional_of[string](name), "matches a suffix")
 		return true
 	}
-	if Collection_contains_s(this.outer_.stripNamePrefixes, name) {
+	if this.outer_.stripNamePrefixes.Has(name) {
 		this.logStripName(Optional_of[string](name), "matches a prefix")
 		return true
 	}
-	if String_isEmpty(name) || Character_isUpperCase(String_charAt(name, 0)) {
+	if name == "" || Character_isUpperCase(String_charAt(name, 0)) {
 		this.logNotAStripName(Optional_of[string](name), "empty or starts with uppercase")
 		return false
 	}
-	var lcName string = String_toLowerCase(name, Locale_ROOT)
+	var lcName string = strings.ToLower(name)
 	for _, stripName := range this.outer_.stripNamePrefixesLowerCaseList {
-		if String_startsWith(lcName, stripName) {
-			this.logStripNameSupplier(name, &Supplier_tfn_string{func() string {
+		if strings.HasPrefix(lcName, stripName) {
+			this.logStripNameSupplier(name, (&Supplier_tfn_string{func() string {
 				return ("matches lc prefix: " + sstr_(stripName))
-			}})
+			}}).get)
 			return true
 		}
 	}
 	for _, stripName := range this.outer_.stripNameSuffixesLowerCaseList {
-		if String_endsWith(lcName, stripName) {
-			this.logStripNameSupplier(name, &Supplier_tfn_string{func() string {
+		if strings.HasSuffix(lcName, stripName) {
+			this.logStripNameSupplier(name, (&Supplier_tfn_string{func() string {
 				return ("matches lc suffix: " + sstr_(stripName))
-			}})
+			}}).get)
 			return true
 		}
 	}
@@ -607,10 +605,10 @@ func (this *StripCode_Strip) logStripName(name Optional[string], reason string) 
 	}
 }
 
-func (this *StripCode_Strip) logStripNameSupplier(name string, reasonSupplier SupplierOf[string]) {
+func (this *StripCode_Strip) logStripNameSupplier(name string, reasonSupplier func() any) {
 	if this.decisionsLog.isLogging() {
 		this.decisionsLog.log(&Supplier_tfn_string{func() string {
-			return (sstr_(name) + "\tstrip name: " + sstr_(str_(reasonSupplier.get())))
+			return (sstr_(name) + "\tstrip name: " + sstr_(str_(reasonSupplier())))
 		}})
 	}
 }

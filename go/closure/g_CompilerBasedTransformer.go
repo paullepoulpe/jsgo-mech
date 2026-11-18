@@ -3,28 +3,19 @@
 package closure
 
 type CompilerBasedTransformer struct {
-	self_                 any
+	self_                 CompilerBasedTransformer_I
 	compilerSupplierField *CompilerBasedTransformer_CompilerSupplier
+}
+
+// CompilerBasedTransformer_I holds the methods the dispatchers of CompilerBasedTransformer's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type CompilerBasedTransformer_I interface {
+	getRuntime_impl() Optional[string]
+	getTranformationName_impl() string
 }
 
 func (this *CompilerBasedTransformer) as_CompilerBasedTransformer() *CompilerBasedTransformer {
 	return this
-}
-
-func to_CompilerBasedTransformer(v any) *CompilerBasedTransformer {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_CompilerBasedTransformer() *CompilerBasedTransformer
-	}).as_CompilerBasedTransformer()
-}
-
-func is_CompilerBasedTransformer(v any) bool {
-	_, ok := v.(interface {
-		as_CompilerBasedTransformer() *CompilerBasedTransformer
-	})
-	return ok
 }
 
 func (this *CompilerBasedTransformer) self() any {
@@ -35,20 +26,21 @@ func (this *CompilerBasedTransformer) self() any {
 }
 
 func (this *CompilerBasedTransformer) init_CompilerBasedTransformer(compilerSupplier *CompilerBasedTransformer_CompilerSupplier) {
-	this.compilerSupplierField = to_CompilerBasedTransformer_CompilerSupplier(Preconditions_checkNotNull(compilerSupplier.self()))
+	if compilerSupplier == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.compilerSupplierField = compilerSupplier
 }
 
 func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 	var result *CompilerBasedTransformer_CompileResult = this.compilerSupplierField.compile(input.path(), input.code())
-	if !result.errors_.isEmpty() {
+	if len(result.errors_) != 0 {
 		var formatter MessageFormatter = ErrorFormat_SOURCELESS.toFormatter(nil, false)
-		var message *StringBuilder = new_StringBuilder().append(this.getTranformationName()).append(" failed.\n")
-		it_1 := foreach_(obj_(result.errors_))
-		for it_1.next() {
-			var error_ *JSError = cast_[*JSError](it_1.v)
+		var message *strBuilder_ = (&strBuilder_{}).append(this.getTranformationName()).append(" failed.\n")
+		for _, error_ := range result.errors_ {
 			message.append(formatter.formatError(error_))
 		}
-		panic(new_IllegalStateException_String(Object_toString(obj_(message))).self())
+		panic(new_IllegalStateException_String(message.toString()))
 	}
 	if !result.transformed_ {
 		return input
@@ -61,47 +53,38 @@ func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 }
 
 func (this *CompilerBasedTransformer) getRuntime() Optional[string] {
-	return this.self_.(interface{ getRuntime_impl() Optional[string] }).getRuntime_impl()
+	return this.self_.getRuntime_impl()
 }
 
 func (this *CompilerBasedTransformer) getTranformationName() string {
-	return this.self_.(interface{ getTranformationName_impl() string }).getTranformationName_impl()
+	return this.self_.getTranformationName_impl()
 }
 
 func (this *CompilerBasedTransformer) asFunction() Function {
-	return Source_Transformer_asFunction_default(icast_Source_Transformer(this.self()))
+	return Source_Transformer_asFunction_default(this.self().(Source_Transformer))
 }
 
 func (this *CompilerBasedTransformer) andThen(p0 Source_Transformer) Source_Transformer {
-	return Source_Transformer_andThen_default(icast_Source_Transformer(this.self()), p0)
+	return Source_Transformer_andThen_default(this.self().(Source_Transformer), p0)
 }
 
 func (this *CompilerBasedTransformer) compose(p0 Source_Transformer) Source_Transformer {
-	return Source_Transformer_compose_default(icast_Source_Transformer(this.self()), p0)
+	return Source_Transformer_compose_default(this.self().(Source_Transformer), p0)
 }
 
 type CompilerBasedTransformer_CompilerSupplier struct {
-	self_ any
+	self_ CompilerBasedTransformer_CompilerSupplier_I
+}
+
+// CompilerBasedTransformer_CompilerSupplier_I holds the methods the dispatchers of CompilerBasedTransformer_CompilerSupplier's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type CompilerBasedTransformer_CompilerSupplier_I interface {
+	setOptions_impl(*CompilerOptions)
+	transformed_impl(*Result) bool
 }
 
 func (this *CompilerBasedTransformer_CompilerSupplier) as_CompilerBasedTransformer_CompilerSupplier() *CompilerBasedTransformer_CompilerSupplier {
 	return this
-}
-
-func to_CompilerBasedTransformer_CompilerSupplier(v any) *CompilerBasedTransformer_CompilerSupplier {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_CompilerBasedTransformer_CompilerSupplier() *CompilerBasedTransformer_CompilerSupplier
-	}).as_CompilerBasedTransformer_CompilerSupplier()
-}
-
-func is_CompilerBasedTransformer_CompilerSupplier(v any) bool {
-	_, ok := v.(interface {
-		as_CompilerBasedTransformer_CompilerSupplier() *CompilerBasedTransformer_CompilerSupplier
-	})
-	return ok
 }
 
 func (this *CompilerBasedTransformer_CompilerSupplier) self() any {
@@ -126,28 +109,14 @@ func (this *CompilerBasedTransformer_CompilerSupplier) compile(path string, code
 	var compiler *Compiler = this.compiler()
 	var result *Result = compiler.compileSourceFile(CompilerBasedTransformer_CompilerSupplier_EXTERNS, SourceFile_jscomp_fromCode_String_String(path, code), this.options())
 	var source string = compiler.toSource()
-	var sourceMap *StringBuilder = new_StringBuilder()
+	var sourceMap strBuilder_
 	if result.sourceMap_ != nil {
-		_ = func() (code_ int) {
-			defer func() {
-				if r_ := recover(); r_ != nil {
-					ex_ := catch_(r_)
-					if is_IOException(ex_) {
-						var e *IOException = to_IOException(ex_)
-						_ = e
-						return
-					}
-					panic(r_)
-				}
-			}()
-			result.sourceMap_.appendTo(icast_Appendable(obj_(sourceMap)), Optional_of[string](path))
-			return 0
-		}()
+		result.sourceMap_.appendTo(appendable_(&sourceMap), Optional_of[string](path))
 	}
 	var transformed bool = this.transformed(result)
 	return new_CompilerBasedTransformer_CompileResult(source, result.errors_, transformed, func() string {
 		if transformed {
-			return Object_toString(obj_(sourceMap))
+			return sourceMap.toString()
 		}
 		return ""
 	}())
@@ -160,7 +129,7 @@ func (this *CompilerBasedTransformer_CompilerSupplier) transformed_impl(result *
 func (this *CompilerBasedTransformer_CompilerSupplier) runtime(library string) string {
 	var compiler *Compiler = this.compiler()
 	var options *CompilerOptions = this.options()
-	options.setForceLibraryInjection(icast_Iterable(obj_(ImmutableList_of_Object(strobj_(library)))))
+	options.setForceLibraryInjection(ImmutableList_of_Object(strobj_(library)))
 	compiler.compileSourceFile(CompilerBasedTransformer_CompilerSupplier_EXTERNS, CompilerBasedTransformer_CompilerSupplier_EMPTY, options)
 	return compiler.toSource()
 }
@@ -189,11 +158,11 @@ func (this *CompilerBasedTransformer_CompilerSupplier) setOptions_impl(options *
 }
 
 func (this *CompilerBasedTransformer_CompilerSupplier) setOptions(p0 *CompilerOptions) {
-	this.self_.(interface{ setOptions_impl(*CompilerOptions) }).setOptions_impl(p0)
+	this.self_.setOptions_impl(p0)
 }
 
 func (this *CompilerBasedTransformer_CompilerSupplier) transformed(p0 *Result) bool {
-	return this.self_.(interface{ transformed_impl(*Result) bool }).transformed_impl(p0)
+	return this.self_.transformed_impl(p0)
 }
 
 var CompilerBasedTransformer_CompilerSupplier_EXTERNS *SourceFile_jscomp
@@ -215,7 +184,7 @@ func CompilerBasedTransformer_CompilerSupplier_clinit() {
 
 type CompilerBasedTransformer_CompileResult struct {
 	source       string
-	errors_      ImmutableListOf[*JSError]
+	errors_      []*JSError
 	transformed_ bool
 	sourceMap_   string
 }
@@ -225,14 +194,17 @@ func (this *CompilerBasedTransformer_CompileResult) zero_CompilerBasedTransforme
 	this.sourceMap_ = nullstr_
 }
 
-func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors ImmutableListOf[*JSError], transformed bool, sourceMap string) {
+func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransformer_CompileResult(source string, errors *ImmutableList[*JSError], transformed bool, sourceMap string) {
 	this.source = source
-	this.errors_ = cast_[*ImmutableList](Preconditions_checkNotNull(obj_(errors)))
+	if errors == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.errors_ = immItems_(errors)
 	this.transformed_ = transformed
 	this.sourceMap_ = sourceMap
 }
 
-func new_CompilerBasedTransformer_CompileResult(source string, errors ImmutableListOf[*JSError], transformed bool, sourceMap string) *CompilerBasedTransformer_CompileResult {
+func new_CompilerBasedTransformer_CompileResult(source string, errors *ImmutableList[*JSError], transformed bool, sourceMap string) *CompilerBasedTransformer_CompileResult {
 	this := &CompilerBasedTransformer_CompileResult{}
 	this.zero_CompilerBasedTransformer_CompileResult()
 	this.init_CompilerBasedTransformer_CompileResult(source, errors, transformed, sourceMap)

@@ -24,14 +24,18 @@ func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node 
 	if node.isName() {
 		var replacementTemplate Node = replacements.get(node.getString())
 		if replacementTemplate != 0 {
-			Preconditions_checkState_boolean_Object(!((parent.isFunction() || parent.isVar()) || parent.isCatch()), parent.box_())
+			if (parent.isFunction() || parent.isVar()) || parent.isCatch() {
+				panic(new_IllegalStateException_String(tostr_(parent)))
+			}
 			var replacement Node = replacementTemplate.cloneTree()
 			node.replaceWith(replacement)
 			return replacement
 		}
 	} else if replaceThis && node.isThis() {
 		var replacementTemplate Node = replacements.get(FunctionArgumentInjector_THIS_MARKER)
-		Preconditions_checkNotNull(replacementTemplate.box_())
+		if replacementTemplate == 0 {
+			panic(new_NullPointerException_0())
+		}
 		if !replacementTemplate.isThis() {
 			var replacement Node = replacementTemplate.cloneTree()
 			node.replaceWith(replacement)
@@ -63,55 +67,67 @@ func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node 
 	return node
 }
 
-func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, callNode Node, safeNameIdSupplier SupplierOf[string]) ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair] {
-	Preconditions_checkNotNull(fnNode.box_())
-	var argMap ImmutableMap_BuilderOf[string, *FunctionArgumentInjector_ParamArgPair] = ImmutableMap_builder()
+func (this *FunctionArgumentInjector) getFunctionCallParameterMap(fnNode Node, callNode Node, safeNameIdSupplier SupplierOf[string]) *ImmutableMap[string, *FunctionArgumentInjector_ParamArgPair] {
+	if fnNode == 0 {
+		panic(new_NullPointerException_0())
+	}
+	var argMap *ImmutableMap_Builder[string, *FunctionArgumentInjector_ParamArgPair] = immutableMapBuilder_(tc_string, tc_p_FunctionArgumentInjector_ParamArgPair)
 	var cArg Node = callNode.getSecondChild()
 	if (cArg != 0) && NodeUtil_isFunctionObjectCall(callNode) {
 		if !fnNode.isArrowFunction() {
-			argMap.put(strobj_(FunctionArgumentInjector_THIS_MARKER), obj_(new_FunctionArgumentInjector_ParamArgPair(FunctionArgumentInjector_THIS_MARKER_NODE, cArg)))
+			argMap.put(FunctionArgumentInjector_THIS_MARKER, new_FunctionArgumentInjector_ParamArgPair(FunctionArgumentInjector_THIS_MARKER_NODE, cArg))
 		} else {
-			argMap.put(strobj_(FunctionArgumentInjector_THIS_MARKER), obj_(new_FunctionArgumentInjector_ParamArgPair(FunctionArgumentInjector_THIS_MARKER_NODE, IR_thisNode())))
+			argMap.put(FunctionArgumentInjector_THIS_MARKER, new_FunctionArgumentInjector_ParamArgPair(FunctionArgumentInjector_THIS_MARKER_NODE, IR_thisNode()))
 		}
 		cArg = cArg.getNext()
 	} else {
-		Preconditions_checkState_boolean_Object(!NodeUtil_isFunctionObjectApply(callNode), callNode.box_())
-		argMap.put(strobj_(FunctionArgumentInjector_THIS_MARKER), obj_(new_FunctionArgumentInjector_ParamArgPair(FunctionArgumentInjector_THIS_MARKER_NODE, NodeUtil_newUndefinedNode(callNode))))
+		if NodeUtil_isFunctionObjectApply(callNode) {
+			panic(new_IllegalStateException_String(tostr_(callNode)))
+		}
+		argMap.put(FunctionArgumentInjector_THIS_MARKER, new_FunctionArgumentInjector_ParamArgPair(FunctionArgumentInjector_THIS_MARKER_NODE, NodeUtil_newUndefinedNode(callNode)))
 	}
 	{
 		var fnParam Node = NodeUtil_getFunctionParameters(fnNode).getFirstChild()
 		for ; fnParam != 0; fnParam = fnParam.getNext() {
 			if cArg != 0 {
 				if fnParam.isRest() {
-					Preconditions_checkState_boolean_Object(fnParam.getOnlyChild().isName(), fnParam.getOnlyChild().box_())
+					if ok_, a1_ := fnParam.getOnlyChild().isName(), fnParam.getOnlyChild(); !ok_ {
+						panic(new_IllegalStateException_String(tostr_(a1_)))
+					}
 					var array Node = IR_arraylit([]Node{})
 					array.srcrefTreeIfMissing(cArg)
 					for cArg != 0 {
 						array.addChildToBack(cArg.cloneTree())
 						cArg = cArg.getNext()
 					}
-					return argMap.put(strobj_(fnParam.getOnlyChild().getString()), obj_(new_FunctionArgumentInjector_ParamArgPair(fnParam.getOnlyChild(), array))).buildOrThrow()
+					return argMap.put(fnParam.getOnlyChild().getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam.getOnlyChild(), array)).buildOrThrow()
 				} else {
-					Preconditions_checkState_boolean_Object(fnParam.isName(), fnParam.box_())
-					argMap.put(strobj_(fnParam.getString()), obj_(new_FunctionArgumentInjector_ParamArgPair(fnParam, cArg)))
+					if !fnParam.isName() {
+						panic(new_IllegalStateException_String(tostr_(fnParam)))
+					}
+					argMap.put(fnParam.getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam, cArg))
 				}
 				cArg = cArg.getNext()
 			} else {
 				if fnParam.isRest() {
-					Preconditions_checkState_boolean_Object(fnParam.getOnlyChild().isName(), fnParam.box_())
+					if !fnParam.getOnlyChild().isName() {
+						panic(new_IllegalStateException_String(tostr_(fnParam)))
+					}
 					var array Node = IR_arraylit([]Node{}).srcref(fnParam)
-					argMap.put(strobj_(fnParam.getOnlyChild().getString()), obj_(new_FunctionArgumentInjector_ParamArgPair(fnParam.getOnlyChild(), array)))
+					argMap.put(fnParam.getOnlyChild().getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam.getOnlyChild(), array))
 				} else {
-					Preconditions_checkState_boolean_Object(fnParam.isName(), fnParam.box_())
+					if !fnParam.isName() {
+						panic(new_IllegalStateException_String(tostr_(fnParam)))
+					}
 					var srcLocation Node = callNode
-					argMap.put(strobj_(fnParam.getString()), obj_(new_FunctionArgumentInjector_ParamArgPair(fnParam, NodeUtil_newUndefinedNode(srcLocation))))
+					argMap.put(fnParam.getString(), new_FunctionArgumentInjector_ParamArgPair(fnParam, NodeUtil_newUndefinedNode(srcLocation)))
 				}
 			}
 		}
 	}
 	for cArg != 0 {
 		var uniquePlaceholder string = FunctionArgumentInjector_getUniqueAnonymousParameterName(safeNameIdSupplier)
-		argMap.put(strobj_(uniquePlaceholder), obj_(new_FunctionArgumentInjector_ParamArgPair(IR_name(uniquePlaceholder), cArg)))
+		argMap.put(uniquePlaceholder, new_FunctionArgumentInjector_ParamArgPair(IR_name(uniquePlaceholder), cArg))
 		cArg = cArg.getNext()
 	}
 	return argMap.buildOrThrow()
@@ -121,18 +137,18 @@ func FunctionArgumentInjector_getUniqueAnonymousParameterName(safeNameIdSupplier
 	return ("JSCompiler_inline_anon_param_" + sstr_(str_(safeNameIdSupplier.get())))
 }
 
-func (this *FunctionArgumentInjector) findModifiedParameters(fnNode Node) ImmutableSetOf[string] {
-	var names ImmutableSetOf[string] = FunctionArgumentInjector_getFunctionParameterSet(fnNode)
-	return ImmutableSet_copyOf(Collection(FunctionArgumentInjector_findModifiedParameters(fnNode.getLastChild(), names, false).asSet()))
+func (this *FunctionArgumentInjector) findModifiedParameters(fnNode Node) *ImmutableSet[string] {
+	var names *ImmutableSet[string] = FunctionArgumentInjector_getFunctionParameterSet(fnNode)
+	return immutableSetCopyOf_(tc_string, Collection(FunctionArgumentInjector_findModifiedParameters(fnNode.getLastChild(), names, false).asSet()))
 }
 
-func FunctionArgumentInjector_findModifiedParameters(n Node, names ImmutableSetOf[string], inInnerClosure bool) *JTSet[string] {
+func FunctionArgumentInjector_findModifiedParameters(n Node, names *ImmutableSet[string], inInnerClosure bool) *JTSet[string] {
 	var unsafe *JTSet[string] = jnewTSet_(jtc_string)
 	if NodeUtil_isFunctionOrNonStaticClassFieldInitializer(n) {
 		inInnerClosure = true
 	}
 	if n.isName() {
-		if Collection_contains_s(names, n.getString()) && (inInnerClosure || FunctionArgumentInjector_canNameValueChange(n)) {
+		if names.Has(n.getString()) && (inInnerClosure || FunctionArgumentInjector_canNameValueChange(n)) {
 			unsafe.add(n.getString())
 		}
 	}
@@ -156,25 +172,27 @@ func FunctionArgumentInjector_canNameValueChange(n Node) bool {
 	return true
 }
 
-func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *AbstractCompiler, fnNode Node, argMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair], modifiedParameters ImmutableSetOf[string], convention CodingConvention) ImmutableSetOf[string] {
-	Preconditions_checkArgument_boolean_Object(fnNode.isFunction(), fnNode.box_())
-	if argMap.isEmpty() {
+func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *AbstractCompiler, fnNode Node, argMap *ImmutableMap[string, *FunctionArgumentInjector_ParamArgPair], modifiedParameters *ImmutableSet[string], convention CodingConvention) *ImmutableSet[string] {
+	if !fnNode.isFunction() {
+		panic(new_IllegalArgumentException_String(tostr_(fnNode)))
+	}
+	if argMap.IsEmpty() {
 		return modifiedParameters
 	}
-	var namesNeedingTemps *JTSet[string] = jtsetFrom_(jtc_string, icast_Collection(obj_(modifiedParameters)))
+	var namesNeedingTemps *JTSet[string] = jtsetFrom_(jtc_string, icast_Collection(obj_(modifiedParameters.asImm())))
 	var block Node = fnNode.getLastChild()
 	var requiresTempsUpToThisParameterName string = ""
-	var argCount int32 = argMap.size()
+	var argCount int32 = argMap.Len()
 	var isTrivialBody bool = (!block.hasChildren() || (block.hasOneChild() && !this.bodyMayHaveConditionalCode(block.getLastChild())))
-	var hasMinimalParameters bool = ((NodeUtil_isUndefined(cast_[*FunctionArgumentInjector_ParamArgPair](Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER)).arg()) || (fnNode.isArrowFunction() && cast_[*FunctionArgumentInjector_ParamArgPair](Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER)).arg().isThis())) && (argCount <= 2))
-	var parametersThatMayNeedTemps *FunctionArgumentInjector_SetContainer = this.findParametersReferencedAfterSideEffect(cast_[*ImmutableSet](argMap.keySet()), block)
-	var namesAfterSideEffects ImmutableSetOf[string] = parametersThatMayNeedTemps.parametersReferencedAfterSideEffect()
-	var parametersWithNamesReferencedBefore ImmutableSetOf[string] = parametersThatMayNeedTemps.parametersWithNamesReferencedBeforeParameter()
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](argMap.entrySet())))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	var hasMinimalParameters bool = ((NodeUtil_isUndefined(obj_(argMap.Get(FunctionArgumentInjector_THIS_MARKER)).(*FunctionArgumentInjector_ParamArgPair).arg()) || (fnNode.isArrowFunction() && obj_(argMap.Get(FunctionArgumentInjector_THIS_MARKER)).(*FunctionArgumentInjector_ParamArgPair).arg().isThis())) && (argCount <= 2))
+	var parametersThatMayNeedTemps *FunctionArgumentInjector_SetContainer = this.findParametersReferencedAfterSideEffect(tsetFrom_(tc_string, cast_[*ErasedImmutableSet](argMap.asImm().keySet()), true), block)
+	var namesAfterSideEffects *ImmutableSet[string] = parametersThatMayNeedTemps.parametersReferencedAfterSideEffect()
+	var parametersWithNamesReferencedBefore *ImmutableSet[string] = parametersThatMayNeedTemps.parametersWithNamesReferencedBeforeParameter()
+	var getStringU16 utf16_
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](argMap.asImm().entrySet())) {
+		entry := icast_Map_Entry(el)
 		var parameterName string = str_(entry.getKey())
-		var cArg Node = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg()
+		var cArg Node = entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg()
 		if namesNeedingTemps.has(parameterName) {
 			requiresTempsUpToThisParameterName = parameterName
 			continue
@@ -184,23 +202,23 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 		var argSideEffects bool = compiler.getAstAnalyzer().mayHaveSideEffects(cArg)
 		if !argSideEffects && (references == 0) {
 			requiresTemporary = false
-		} else if (((isTrivialBody && hasMinimalParameters) && (references == 1)) && !(NodeUtil_canBeSideEffected_Node(cArg) && Collection_contains_s(namesAfterSideEffects, parameterName))) && (!argSideEffects || !Collection_contains_s(parametersWithNamesReferencedBefore, parameterName)) {
+		} else if (((isTrivialBody && hasMinimalParameters) && (references == 1)) && !(NodeUtil_canBeSideEffected_Node(cArg) && namesAfterSideEffects.Has(parameterName))) && (!argSideEffects || !parametersWithNamesReferencedBefore.Has(parameterName)) {
 			requiresTemporary = false
 		} else if compiler.getAstAnalyzer().mayEffectMutableState(cArg) && (references > 0) {
 			requiresTemporary = true
 		} else if argSideEffects {
 			requiresTemporary = true
-		} else if NodeUtil_canBeSideEffected_Node(cArg) && Collection_contains_s(namesAfterSideEffects, parameterName) {
+		} else if NodeUtil_canBeSideEffected_Node(cArg) && namesAfterSideEffects.Has(parameterName) {
 			requiresTemporary = true
 		} else if references > 1 {
-			switch cArg.getToken() {
-			case Token_rhino_NAME:
+			switch cArg.ns_().token {
+			case tokOrd1_NAME:
 				var name string = cArg.getString()
 				requiresTemporary = (convention.isExported_2(name, true) || convention.isExported_2(name, false))
-			case Token_rhino_THIS:
+			case tokOrd1_THIS:
 				requiresTemporary = false
-			case Token_rhino_STRINGLIT:
-				requiresTemporary = (String_length(cArg.getString()) >= 2)
+			case tokOrd1_STRINGLIT:
+				requiresTemporary = (getStringU16.of(cArg.getString()).length() >= 2)
 			default:
 				requiresTemporary = !NodeUtil_isImmutableValue(cArg)
 			}
@@ -209,11 +227,10 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 			requiresTempsUpToThisParameterName = parameterName
 		}
 	}
-	if !String_isEmpty(requiresTempsUpToThisParameterName) {
-		it_4 := foreach_(obj_(cast_[*ImmutableSet](argMap.keySet())))
-		for it_4.next() {
-			var parameterName string = str_(it_4.v)
-			if (parameterName == FunctionArgumentInjector_THIS_MARKER) && (NodeUtil_isUndefined(cast_[*FunctionArgumentInjector_ParamArgPair](Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER)).arg()) || (fnNode.isArrowFunction() && cast_[*FunctionArgumentInjector_ParamArgPair](Map_get_s(argMap, FunctionArgumentInjector_THIS_MARKER)).arg().isThis())) {
+	if requiresTempsUpToThisParameterName != "" {
+		for _, el2 := range immElems_(cast_[*ErasedImmutableSet](argMap.asImm().keySet())) {
+			parameterName := str_(el2)
+			if (parameterName == FunctionArgumentInjector_THIS_MARKER) && (NodeUtil_isUndefined(obj_(argMap.Get(FunctionArgumentInjector_THIS_MARKER)).(*FunctionArgumentInjector_ParamArgPair).arg()) || (fnNode.isArrowFunction() && obj_(argMap.Get(FunctionArgumentInjector_THIS_MARKER)).(*FunctionArgumentInjector_ParamArgPair).arg().isThis())) {
 				continue
 			}
 			if parameterName == requiresTempsUpToThisParameterName {
@@ -224,7 +241,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 			}
 		}
 	}
-	return ImmutableSet_copyOf(Collection(namesNeedingTemps.asSet()))
+	return immutableSetCopyOf_(tc_string, Collection(namesNeedingTemps.asSet()))
 }
 
 func (this *FunctionArgumentInjector) bodyMayHaveConditionalCode(n Node) bool {
@@ -238,8 +255,8 @@ func (this *FunctionArgumentInjector) mayHaveConditionalCode(n Node) bool {
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
-			switch c.getToken() {
-			case Token_rhino_FUNCTION, Token_rhino_AND, Token_rhino_OR, Token_rhino_HOOK, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP:
+			switch c.ns_().token {
+			case tokOrd1_FUNCTION, tokOrd1_AND, tokOrd1_OR, tokOrd1_HOOK, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_CALL, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP:
 				return true
 			default:
 				if NodeUtil_isNonStaticClassFieldInitializer(c) {
@@ -254,11 +271,11 @@ func (this *FunctionArgumentInjector) mayHaveConditionalCode(n Node) bool {
 	return false
 }
 
-func (this *FunctionArgumentInjector) findParametersReferencedAfterSideEffect(parameters ImmutableSetOf[string], root Node) *FunctionArgumentInjector_SetContainer {
-	var locals *JTSet[string] = jtsetFrom_(jtc_string, icast_Collection(obj_(parameters)))
+func (this *FunctionArgumentInjector) findParametersReferencedAfterSideEffect(parameters *ImmutableSet[string], root Node) *FunctionArgumentInjector_SetContainer {
+	var locals *JTSet[string] = jtsetFrom_(jtc_string, icast_Collection(obj_(parameters.asImm())))
 	FunctionArgumentInjector_gatherLocalNames(root, locals)
-	var collector *FunctionArgumentInjector_ReferencedAfterSideEffect = new_FunctionArgumentInjector_ReferencedAfterSideEffect(this, parameters, ImmutableSet_copyOf(Collection(locals.asSet())))
-	NodeUtil_visitPostOrder_Node_Visitor_Predicate(root, icast_NodeUtil_Visitor(obj_(collector)), icast_Predicate_base(obj_(collector)))
+	var collector *FunctionArgumentInjector_ReferencedAfterSideEffect = new_FunctionArgumentInjector_ReferencedAfterSideEffect(this, parameters, immutableSetCopyOf_(tc_string, Collection(locals.asSet())))
+	NodeUtil_visitPostOrder_Node_Visitor_Predicate(root, collector.visit, collector)
 	return new_FunctionArgumentInjector_SetContainer(collector.getParametersReferencedAfterSideEffect(), collector.getParametersWithNamesReferencedBeforeParameter())
 }
 
@@ -269,8 +286,8 @@ func FunctionArgumentInjector_gatherLocalNames(n Node, names *JTSet[string]) {
 		}
 		return
 	} else if n.isName() {
-		switch n.getParent().getToken() {
-		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_CATCH:
+		switch n.getParent().ns_().token {
+		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_CATCH:
 			names.add(n.getString())
 		default:
 		}
@@ -283,21 +300,21 @@ func FunctionArgumentInjector_gatherLocalNames(n Node, names *JTSet[string]) {
 	}
 }
 
-func FunctionArgumentInjector_getFunctionParameterSet(fnNode Node) ImmutableSetOf[string] {
-	var builder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+func FunctionArgumentInjector_getFunctionParameterSet(fnNode Node) *ImmutableSet[string] {
+	var builder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	{
 		var n Node = NodeUtil_getFunctionParameters(fnNode).getFirstChild()
 		for ; n != 0; n = n.getNext() {
 			if n.isRest() {
-				builder.add(strobj_(FunctionArgumentInjector_REST_MARKER))
+				builder.add(FunctionArgumentInjector_REST_MARKER)
 			} else if (n.isDefaultValue() || n.isObjectPattern()) || n.isArrayPattern() {
-				panic(new_IllegalStateException_String(("Not supported: " + objstr_(n.box_()))).self())
+				panic(new_IllegalStateException_String(("Not supported: " + tostr_(n))))
 			} else {
-				builder.add(strobj_(n.getString()))
+				builder.add(n.getString())
 			}
 		}
 	}
-	return cast_[*ImmutableSet](obj_(builder.build()))
+	return builder.build()
 }
 
 const FunctionArgumentInjector_THIS_MARKER string = "this"
@@ -318,26 +335,26 @@ func FunctionArgumentInjector_clinit() {
 }
 
 type FunctionArgumentInjector_SetContainer struct {
-	parametersReferencedAfterSideEffect_          ImmutableSetOf[string]
-	parametersWithNamesReferencedBeforeParameter_ ImmutableSetOf[string]
+	parametersReferencedAfterSideEffect_          *ImmutableSet[string]
+	parametersWithNamesReferencedBeforeParameter_ *ImmutableSet[string]
 }
 
-func (this *FunctionArgumentInjector_SetContainer) init_FunctionArgumentInjector_SetContainer(parametersReferencedAfterSideEffect ImmutableSetOf[string], parametersWithNamesReferencedBeforeParameter ImmutableSetOf[string]) {
+func (this *FunctionArgumentInjector_SetContainer) init_FunctionArgumentInjector_SetContainer(parametersReferencedAfterSideEffect *ImmutableSet[string], parametersWithNamesReferencedBeforeParameter *ImmutableSet[string]) {
 	this.parametersReferencedAfterSideEffect_ = parametersReferencedAfterSideEffect
 	this.parametersWithNamesReferencedBeforeParameter_ = parametersWithNamesReferencedBeforeParameter
 }
 
-func new_FunctionArgumentInjector_SetContainer(parametersReferencedAfterSideEffect ImmutableSetOf[string], parametersWithNamesReferencedBeforeParameter ImmutableSetOf[string]) *FunctionArgumentInjector_SetContainer {
+func new_FunctionArgumentInjector_SetContainer(parametersReferencedAfterSideEffect *ImmutableSet[string], parametersWithNamesReferencedBeforeParameter *ImmutableSet[string]) *FunctionArgumentInjector_SetContainer {
 	this := &FunctionArgumentInjector_SetContainer{}
 	this.init_FunctionArgumentInjector_SetContainer(parametersReferencedAfterSideEffect, parametersWithNamesReferencedBeforeParameter)
 	return this
 }
 
-func (this *FunctionArgumentInjector_SetContainer) parametersReferencedAfterSideEffect() *ImmutableSet {
+func (this *FunctionArgumentInjector_SetContainer) parametersReferencedAfterSideEffect() *ImmutableSet[string] {
 	return this.parametersReferencedAfterSideEffect_
 }
 
-func (this *FunctionArgumentInjector_SetContainer) parametersWithNamesReferencedBeforeParameter() *ImmutableSet {
+func (this *FunctionArgumentInjector_SetContainer) parametersWithNamesReferencedBeforeParameter() *ImmutableSet[string] {
 	return this.parametersWithNamesReferencedBeforeParameter_
 }
 
@@ -346,24 +363,24 @@ func (this *FunctionArgumentInjector_SetContainer) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.parametersReferencedAfterSideEffect_), obj_(o.parametersReferencedAfterSideEffect_)) && Objects_equals(obj_(this.parametersWithNamesReferencedBeforeParameter_), obj_(o.parametersWithNamesReferencedBeforeParameter_))
+	return true && tsetEq_(this.parametersReferencedAfterSideEffect_, o.parametersReferencedAfterSideEffect_, true) && tsetEq_(this.parametersWithNamesReferencedBeforeParameter_, o.parametersWithNamesReferencedBeforeParameter_, true)
 }
 
 func (this *FunctionArgumentInjector_SetContainer) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.parametersReferencedAfterSideEffect_))
-	h = h*31 + Objects_hashCode(obj_(this.parametersWithNamesReferencedBeforeParameter_))
+	h = h*31 + tsetHash_(this.parametersReferencedAfterSideEffect_, true)
+	h = h*31 + tsetHash_(this.parametersWithNamesReferencedBeforeParameter_, true)
 	return h
 }
 
 func (this *FunctionArgumentInjector_SetContainer) toString() string {
-	return "SetContainer[" + "parametersReferencedAfterSideEffect=" + objstr_(obj_(this.parametersReferencedAfterSideEffect_)) + ", parametersWithNamesReferencedBeforeParameter=" + objstr_(obj_(this.parametersWithNamesReferencedBeforeParameter_)) + "]"
+	return "SetContainer[" + "parametersReferencedAfterSideEffect=" + tostr_(this.parametersReferencedAfterSideEffect_.asImm()) + ", parametersWithNamesReferencedBeforeParameter=" + tostr_(this.parametersWithNamesReferencedBeforeParameter_.asImm()) + "]"
 }
 
 type FunctionArgumentInjector_ReferencedAfterSideEffect struct {
 	outer_                                        *FunctionArgumentInjector
-	parameters                                    ImmutableSetOf[string]
-	locals                                        ImmutableSetOf[string]
+	parameters                                    *ImmutableSet[string]
+	locals                                        *ImmutableSet[string]
 	sideEffectSeen                                bool
 	parametersReferenced                          *JTSet[string]
 	nameNodeHasBeenSeen                           bool
@@ -379,25 +396,25 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) finit_FunctionAr
 	this.loopsEntered = 0
 }
 
-func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) init_FunctionArgumentInjector_ReferencedAfterSideEffect(parameters ImmutableSetOf[string], locals ImmutableSetOf[string]) {
+func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) init_FunctionArgumentInjector_ReferencedAfterSideEffect(parameters *ImmutableSet[string], locals *ImmutableSet[string]) {
 	this.finit_FunctionArgumentInjector_ReferencedAfterSideEffect()
 	this.parameters = parameters
 	this.locals = locals
 }
 
-func new_FunctionArgumentInjector_ReferencedAfterSideEffect(outer_ *FunctionArgumentInjector, parameters ImmutableSetOf[string], locals ImmutableSetOf[string]) *FunctionArgumentInjector_ReferencedAfterSideEffect {
+func new_FunctionArgumentInjector_ReferencedAfterSideEffect(outer_ *FunctionArgumentInjector, parameters *ImmutableSet[string], locals *ImmutableSet[string]) *FunctionArgumentInjector_ReferencedAfterSideEffect {
 	this := &FunctionArgumentInjector_ReferencedAfterSideEffect{}
 	this.outer_ = outer_
 	this.init_FunctionArgumentInjector_ReferencedAfterSideEffect(parameters, locals)
 	return this
 }
 
-func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) getParametersReferencedAfterSideEffect() ImmutableSetOf[string] {
-	return ImmutableSet_copyOf(Collection(this.parametersReferenced.asSet()))
+func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) getParametersReferencedAfterSideEffect() *ImmutableSet[string] {
+	return immutableSetCopyOf_(tc_string, Collection(this.parametersReferenced.asSet()))
 }
 
-func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) getParametersWithNamesReferencedBeforeParameter() ImmutableSetOf[string] {
-	return ImmutableSet_copyOf(Collection(this.parametersWithNamesReferencedBeforeParameter_.asSet()))
+func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) getParametersWithNamesReferencedBeforeParameter() *ImmutableSet[string] {
+	return immutableSetCopyOf_(tc_string, Collection(this.parametersWithNamesReferencedBeforeParameter_.asSet()))
 }
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) apply(node_ any) bool {
@@ -406,7 +423,7 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) apply(node_ any)
 	if NodeUtil_isLoopStructure(node) {
 		this.loopsEntered++
 	}
-	return !(this.sideEffectSeen && (this.parameters.size() == this.parametersReferenced.size()))
+	return !(this.sideEffectSeen && (this.parameters.Len() == this.parametersReferenced.size()))
 }
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) inLoop() bool {
@@ -416,7 +433,7 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) inLoop() bool {
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) visit(n Node) {
 	if n.isName() {
 		var name string = n.getString()
-		if Collection_contains_s(this.parameters, name) && this.nameNodeHasBeenSeen {
+		if this.parameters.Has(name) && this.nameNodeHasBeenSeen {
 			this.parametersWithNamesReferencedBeforeParameter_.add(name)
 		}
 		this.nameNodeHasBeenSeen = true
@@ -435,7 +452,7 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) visit(n Node) {
 	if this.inLoop() || this.sideEffectSeen {
 		if n.isName() {
 			var name string = n.getString()
-			if Collection_contains_s(this.parameters, name) {
+			if this.parameters.Has(name) {
 				this.parametersReferenced.add(name)
 			}
 		} else if n.isThis() {
@@ -446,7 +463,7 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) visit(n Node) {
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) hasNonLocalSideEffect(n Node) bool {
 	var sideEffect bool = false
-	var type_ *Token_rhino = n.getToken()
+	var type_ Token_rhino = n.getToken()
 	if (NodeUtil_isAssignmentOp(n) || (type_ == Token_rhino_INC)) || (type_ == Token_rhino_DEC) {
 		var lhs Node = n.getFirstChild()
 		if !this.isLocalName(lhs) {
@@ -465,13 +482,13 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) hasNonLocalSideE
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) isLocalName(node Node) bool {
 	if node.isName() {
 		var name string = node.getString()
-		return Collection_contains_s(this.locals, name)
+		return this.locals.Has(name)
 	}
 	return false
 }
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type FunctionArgumentInjector_ParamArgPair struct {
@@ -480,8 +497,12 @@ type FunctionArgumentInjector_ParamArgPair struct {
 }
 
 func (this *FunctionArgumentInjector_ParamArgPair) init_FunctionArgumentInjector_ParamArgPair(paramNode Node, arg Node) {
-	Preconditions_checkNotNull(paramNode.box_())
-	Preconditions_checkNotNull(arg.box_())
+	if paramNode == 0 {
+		panic(new_NullPointerException_0())
+	}
+	if arg == 0 {
+		panic(new_NullPointerException_0())
+	}
 	this.paramNode_ = paramNode
 	this.arg_ = arg
 }
@@ -505,16 +526,16 @@ func (this *FunctionArgumentInjector_ParamArgPair) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.paramNode_.box_(), o.paramNode_.box_()) && Objects_equals(this.arg_.box_(), o.arg_.box_())
+	return true && this.paramNode_ == o.paramNode_ && this.arg_ == o.arg_
 }
 
 func (this *FunctionArgumentInjector_ParamArgPair) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.paramNode_.box_())
-	h = h*31 + Objects_hashCode(this.arg_.box_())
+	h = h*31 + objhashId_(this.paramNode_)
+	h = h*31 + objhashId_(this.arg_)
 	return h
 }
 
 func (this *FunctionArgumentInjector_ParamArgPair) toString() string {
-	return "ParamArgPair[" + "paramNode=" + objstr_(this.paramNode_.box_()) + ", arg=" + objstr_(this.arg_.box_()) + "]"
+	return "ParamArgPair[" + "paramNode=" + tostr_(this.paramNode_) + ", arg=" + tostr_(this.arg_) + "]"
 }

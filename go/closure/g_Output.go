@@ -6,7 +6,7 @@ type Output struct {
 	sink     *Io_Sink
 	charset  string
 	buffered bool
-	pending  *StringBuilder
+	pending  *strBuilder_
 	started  bool
 }
 
@@ -15,7 +15,7 @@ func (this *Output) zero_Output() {
 }
 
 func (this *Output) finit_Output() {
-	this.pending = new_StringBuilder()
+	this.pending = &strBuilder_{}
 	this.started = false
 }
 
@@ -62,7 +62,7 @@ func (this *Output) encodedAs(charset string) *Output {
 }
 
 func (this *Output) print(s string) {
-	if String_isEmpty(s) {
+	if s == "" {
 		return
 	}
 	this.pending.append(s)
@@ -80,18 +80,24 @@ func (this *Output) printStackTrace(t *Throwable) {
 }
 
 func (this *Output) append_CharSequence(s any) Appendable {
-	this.print(String_valueOf_Object(s))
-	return icast_Appendable(any(this))
+	this.print(objstr_(s))
+	return this
+}
+
+// append_CharSequence_s is append_CharSequence for a String that is not boxed (post-flip manual step).
+func (this *Output) append_CharSequence_s(s string) Appendable {
+	this.print(sstr_(s))
+	return this
 }
 
 func (this *Output) append_CharSequence_int_int(s any, start int32, end int32) Appendable {
-	this.print(String_substring(String_valueOf_Object(s), start, end))
-	return icast_Appendable(any(this))
+	this.print(String_substring(objstr_(s), start, end))
+	return this
 }
 
 func (this *Output) append_char(c uint16) Appendable {
 	this.print(String_valueOf_char(c))
-	return icast_Appendable(any(this))
+	return this
 }
 
 func (this *Output) flush() {

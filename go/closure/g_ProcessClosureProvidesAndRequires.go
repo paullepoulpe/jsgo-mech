@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ProcessClosureProvidesAndRequires struct {
 	compiler_                       *AbstractCompiler
 	chunkGraph                      *JSChunkGraph
@@ -47,13 +49,15 @@ func (this *ProcessClosureProvidesAndRequires) getExportedVariableNames() *JTSet
 func (this *ProcessClosureProvidesAndRequires) collectProvidedNames(externs Node, root Node) *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] {
 	if this.providedNames.isEmpty() {
 		this.providedNames.put(ProcessClosureProvidesAndRequires_GOOG, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(ProcessClosureProvidesAndRequires_GOOG).setNode(0).setChunk(nil).build())
-		NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_ProcessClosureProvidesAndRequires_CollectDefinitions(this))), externs, root)
+		NodeTraversal_traverseRoots(this.compiler_, new_ProcessClosureProvidesAndRequires_CollectDefinitions(this), externs, root)
 	}
 	return this.providedNames
 }
 
 func (this *ProcessClosureProvidesAndRequires) rewriteProvidesAndRequires(externs Node, root Node) {
-	Preconditions_checkState_boolean_Object(!this.hasRewritingOccurred, strobj_("Cannot call rewriteProvidesAndRequires twice per instance"))
+	if this.hasRewritingOccurred {
+		panic(new_IllegalStateException_String("Cannot call rewriteProvidesAndRequires twice per instance"))
+	}
 	this.hasRewritingOccurred = true
 	this.collectProvidedNames(externs, root)
 	it_1 := this.providedNames.eachValue()
@@ -80,11 +84,11 @@ func (this *ProcessClosureProvidesAndRequires) visitGoogMethodCall(t *NodeTraver
 		var arg Node = n.getSecondChild()
 		if arg.isStringLit() {
 			var argString string = arg.getString()
-			var dot int32 = String_indexOf(argString, 46)
+			var dot int32 = int32(strings.IndexByte(argString, '.'))
 			if dot == -1 {
 				this.exportedVariables.add(argString)
 			} else {
-				this.exportedVariables.add(String_substring(argString, 0, dot))
+				this.exportedVariables.add(argString[:dot])
 			}
 		}
 	case "require", "requireType":
@@ -125,7 +129,9 @@ func (this *ProcessClosureProvidesAndRequires) processLegacyModuleCall(namespace
 }
 
 func (this *ProcessClosureProvidesAndRequires) processProvideCall(t *NodeTraversal, call Node, parent Node) {
-	Preconditions_checkState(call.isCall())
+	if !call.isCall() {
+		panic(new_IllegalStateException_0())
+	}
 	if !this.verifyOnlyArgumentIsString(call) {
 		return
 	}
@@ -168,16 +174,16 @@ func (this *ProcessClosureProvidesAndRequires) handleStubDefinition(t *NodeTrave
 
 func (this *ProcessClosureProvidesAndRequires) checkNestedTypedefProvide(exprResult Node) {
 	var name string = exprResult.getFirstChild().getQualifiedName()
-	if String_isEmpty(name) || !String_contains(name, strobj_(".")) {
+	if name == "" || !strings.Contains(name, ".") {
 		return
 	}
 	if !this.providedNames.has(name) {
 		return
 	}
-	var parentName string = String_substring(name, 0, String_lastIndexOf_String(name, "."))
+	var parentName string = name[:strings.LastIndex(name, ".")]
 	var parent *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(parentName)
 	var parentDefinition Node = parent.getCandidateDefinition()
-	if ((parentDefinition == 0) || !Object_equals(any(parentDefinition.getStaticSourceFile()), any(exprResult.getStaticSourceFile()))) || this.isTypedefStubDeclaration(parentDefinition) {
+	if ((parentDefinition == 0) || !equalsId_(parentDefinition.getStaticSourceFile(), exprResult.getStaticSourceFile())) || this.isTypedefStubDeclaration(parentDefinition) {
 		return
 	}
 	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(exprResult, ProcessClosureProvidesAndRequires_TYPEDEF_CHILD_OF_PROVIDE, []string{name, parentName}))
@@ -196,31 +202,30 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 		return
 	}
 	var name Optional[string] = func() Optional[string] {
-		switch n.getParent().getToken() {
-		case Token_rhino_LET, Token_rhino_CONST:
+		switch n.getParent().ns_().token {
+		case tokOrd1_LET, tokOrd1_CONST:
 			return func() Optional[string] {
 				if t.inGlobalScope() {
 					return Optional_of[string](n.getString())
 				}
 				return Optional_empty[string]()
 			}()
-		case Token_rhino_VAR:
+		case tokOrd1_VAR:
 			return Optional_of[string](n.getString())
-		case Token_rhino_EXPR_RESULT:
+		case tokOrd1_EXPR_RESULT:
 			return func() Optional[string] {
 				if n.isAssign() {
 					return Optional_of[string](n.getFirstChild().getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-						return !String_isEmpty(s)
+						return s != ""
 					}})
 				}
 				return Optional_empty[string]()
 			}()
-		case Token_rhino_CLASS, Token_rhino_FUNCTION:
+		case tokOrd1_CLASS, tokOrd1_FUNCTION:
 			return Optional_empty[string]()
 		default:
 			return Optional_empty[string]()
 		}
-		panic("unreachable")
 	}()
 	if name.isEmpty() {
 		return
@@ -233,8 +238,8 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 
 func (this *ProcessClosureProvidesAndRequires) processForwardDeclare(n Node, parent Node) {
 	var convention CodingConvention = this.compiler_.getCodingConvention()
-	var typeDeclarations ListOf[string] = convention.identifyTypeDeclarationCall(n)
-	if (!this.preserveGoogProvidesAndRequires && (typeDeclarations != nil)) && (typeDeclarations.size() == 1) {
+	var typeDeclarations []string = convention.identifyTypeDeclarationCall(n)
+	if (!this.preserveGoogProvidesAndRequires && (typeDeclarations != nil)) && (int32(len(typeDeclarations)) == 1) {
 		var toRemove Node = func() Node {
 			if parent.isExprResult() {
 				return parent
@@ -251,10 +256,10 @@ func (this *ProcessClosureProvidesAndRequires) verifyOnlyArgumentIsString(call N
 }
 
 func (this *ProcessClosureProvidesAndRequires) registerAnyProvidedPrefixes(ns string, node Node, chunk *JSChunk) {
-	var pos int32 = String_indexOf(ns, 46)
+	var pos int32 = int32(strings.IndexByte(ns, '.'))
 	for pos != -1 {
-		var prefixNs string = String_substring(ns, 0, pos)
-		pos = String_indexOf_int_int(ns, 46, (pos + 1))
+		var prefixNs string = ns[:pos]
+		pos = indexByteFrom_(ns, '.', (pos + 1))
 		if this.providedNames.has(prefixNs) {
 			this.providedNames.get(prefixNs).addProvide(node, chunk, false, this.chunkGraph)
 		} else {
@@ -328,8 +333,8 @@ func (this *ProcessClosureProvidesAndRequires_CollectDefinitions) shouldTraverse
 }
 
 func (this *ProcessClosureProvidesAndRequires_CollectDefinitions) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_CALL:
 		var left Node = n.getFirstChild()
 		if left.isGetProp() {
 			var name Node = left.getFirstChild()
@@ -337,9 +342,9 @@ func (this *ProcessClosureProvidesAndRequires_CollectDefinitions) visit(t *NodeT
 				this.outer_.visitGoogMethodCall(t, parent, n, left.getString())
 			}
 		}
-	case Token_rhino_ASSIGN, Token_rhino_NAME:
+	case tokOrd1_ASSIGN, tokOrd1_NAME:
 		this.outer_.handleCandidateProvideDefinition(t, n, parent)
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		this.outer_.handleStubDefinition(t, n)
 	default:
 	}
@@ -435,7 +440,9 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) init_ProcessClosureP
 	this.compiler_ = compiler
 	this.astFactory_ = astFactory
 	var node Node = builder.node_
-	Preconditions_checkArgument_boolean_Object((((node == 0) || NodeUtil_isExprCall(node)) || (!builder.explicit && ((NodeUtil_isExprAssign(node) || NodeUtil_isNameDeclaration(node)) || (node.isExprResult() && node.getFirstChild().isQualifiedName())))), node.box_())
+	if !(((node == 0) || NodeUtil_isExprCall(node)) || (!builder.explicit && ((NodeUtil_isExprAssign(node) || NodeUtil_isNameDeclaration(node)) || (node.isExprResult() && node.getFirstChild().isQualifiedName())))) {
+		panic(new_IllegalArgumentException_String(tostr_(node)))
+	}
 	this.namespace_ = builder.namespace_
 	this.firstNode = builder.node_
 	this.firstChunk = builder.chunk_
@@ -453,8 +460,12 @@ func new_ProcessClosureProvidesAndRequires_ProvidedName(builder *ProcessClosureP
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) addProvide(node Node, chunk *JSChunk, explicit bool, chunkGraph *JSChunkGraph) {
 	if explicit {
-		Preconditions_checkState((this.explicitNode == 0))
-		Preconditions_checkArgument_boolean_Object(node.isExprResult(), node.box_())
+		if this.explicitNode != 0 {
+			panic(new_IllegalStateException_0())
+		}
+		if !node.isExprResult() {
+			panic(new_IllegalArgumentException_String(tostr_(node)))
+		}
 		this.explicitNode = node
 	}
 	this.updateMinimumChunk(chunk, chunkGraph)
@@ -489,8 +500,12 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) getNamespace() strin
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) addDefinition(node Node, chunk *JSChunk, chunkGraph *JSChunkGraph) {
-	Preconditions_checkArgument(((node.isExprResult() || node.isFunction()) || NodeUtil_isNameDeclaration(node)))
-	Preconditions_checkArgument((this.explicitNode != node))
+	if !((node.isExprResult() || node.isFunction()) || NodeUtil_isNameDeclaration(node)) {
+		panic(new_IllegalArgumentException_0())
+	}
+	if this.explicitNode == node {
+		panic(new_IllegalArgumentException_0())
+	}
 	if (this.candidateDefinition == 0) || !node.isExprResult() {
 		this.candidateDefinition = node
 		this.updateMinimumChunk(chunk, chunkGraph)
@@ -503,12 +518,16 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) updateMinimumChunk(n
 	} else if chunkGraph.getChunkCount() > 1 {
 		this.minimumChunk = chunkGraph.getDeepestCommonDependencyInclusive_2(this.minimumChunk, newChunk)
 	} else {
-		Preconditions_checkState_boolean_Object((newChunk == this.minimumChunk), strobj_("Missing chunk graph"))
+		if newChunk != this.minimumChunk {
+			panic(new_IllegalStateException_String("Missing chunk graph"))
+		}
 	}
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoogProvidesAndRequires bool, providedNames *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]) {
-	Preconditions_checkState_boolean_String_Object(!this.isFromLegacyModule(), "Cannot rewrite provides without having rewritten goog.modules, found %s", this.firstNode.box_())
+	if this.isFromLegacyModule() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot rewrite provides without having rewritten goog.modules, found %s", []any{this.firstNode.box_()})))
+	}
 	if this.firstNode == 0 {
 		this.replacementNode = this.candidateDefinition
 		return
@@ -541,8 +560,12 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoog
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) convertProvideAssignmentToVarDeclaration(assignNode Node, nameNode Node) {
-	Preconditions_checkArgument_boolean_Object(assignNode.isAssign(), assignNode.box_())
-	Preconditions_checkArgument_boolean_Object(nameNode.isName(), nameNode.box_())
+	if !assignNode.isAssign() {
+		panic(new_IllegalArgumentException_String(tostr_(assignNode)))
+	}
+	if !nameNode.isName() {
+		panic(new_IllegalArgumentException_String(tostr_(nameNode)))
+	}
 	var valueNode Node = nameNode.getNext()
 	nameNode.detach()
 	valueNode.detach()
@@ -559,13 +582,18 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 	if this.firstChunk == this.minimumChunk {
 		this.replacementNode.insertBefore(this.firstNode)
 	} else {
-		var indexOfDot int32 = String_lastIndexOf(this.namespace_, 46)
+		namespace_U16 := utf16Of_(this.namespace_)
+		var indexOfDot int32 = namespace_U16.lastIndexOf(46)
 		if indexOfDot == -1 {
 			this.compiler_.getNodeForCodeInsertion(this.minimumChunk).addChildToBack(this.replacementNode)
 		} else {
-			var parentName *ProcessClosureProvidesAndRequires_ProvidedName = providedNames.get(String_substring(this.namespace_, 0, indexOfDot))
-			Preconditions_checkNotNull(obj_(parentName))
-			Preconditions_checkNotNull(parentName.replacementNode.box_())
+			var parentName *ProcessClosureProvidesAndRequires_ProvidedName = providedNames.get(namespace_U16.substring(0, indexOfDot))
+			if parentName == nil {
+				panic(new_NullPointerException_0())
+			}
+			if parentName.replacementNode == 0 {
+				panic(new_NullPointerException_0())
+			}
 			this.replacementNode.insertAfter(parentName.replacementNode)
 		}
 	}
@@ -573,13 +601,14 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) createDeclarationNode(value Node) Node {
-	Preconditions_checkArgument_boolean_Object((value.isObjectLit() || value.isCast()), value.box_())
-	if String_indexOf(this.namespace_, 46) == -1 {
+	if !value.isObjectLit() && !value.isCast() {
+		panic(new_IllegalArgumentException_String(tostr_(value)))
+	}
+	if !strings.Contains(this.namespace_, ".") {
 		return this.makeVarDeclNode(value)
 	} else {
 		return this.makeAssignmentExprNode(value)
 	}
-	panic("unreachable")
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) makeVarDeclNode(value Node) Node {
@@ -593,7 +622,9 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) makeVarDeclNode(valu
 	if !this.hasCandidateDefinition() {
 		decl.setJSDocInfo(NodeUtil_createConstantJsDoc())
 	}
-	Preconditions_checkState(ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl))
+	if !ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl) {
+		panic(new_IllegalStateException_0())
+	}
 	this.setSourceInfo(decl)
 	return decl
 }
@@ -605,7 +636,9 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) makeAssignmentExprNo
 	if !this.hasCandidateDefinition() {
 		decl.getFirstChild().setJSDocInfo(NodeUtil_createConstantJsDoc())
 	}
-	Preconditions_checkState(ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl))
+	if !ProcessClosureProvidesAndRequires_isNamespacePlaceholder(decl) {
+		panic(new_IllegalStateException_0())
+	}
 	this.setSourceInfo(decl)
 	lhs.getFirstChild().makeNonIndexableRecursive()
 	return decl
@@ -615,10 +648,11 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) setSourceInfo(newNod
 	var sourceInfoNode Node = this.firstNode
 	var provideStringNode Node = this.getProvideStringNode()
 	if provideStringNode != 0 {
-		var firstCharIndex int32 = (String_lastIndexOf(this.namespace_, 46) + 1)
+		namespace_U16 := utf16Of_(this.namespace_)
+		var firstCharIndex int32 = (namespace_U16.lastIndexOf(46) + 1)
 		sourceInfoNode = provideStringNode.cloneNode()
 		sourceInfoNode.setLinenoCharno(sourceInfoNode.getLineno(), ((sourceInfoNode.getCharno() + firstCharIndex) + 1))
-		sourceInfoNode.setLength((String_length(this.namespace_) - firstCharIndex))
+		sourceInfoNode.setLength((namespace_U16.length() - firstCharIndex))
 	}
 	newNode.srcrefTree(sourceInfoNode)
 }
@@ -639,5 +673,5 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) toString() string {
 		}
 		return "implicit"
 	}()
-	return String_format("ProvidedName: %s, %s", []any{strobj_(this.namespace_), strobj_(explicitOrImplicit)})
+	return ("ProvidedName: " + sstr_(this.namespace_) + ", " + sstr_(explicitOrImplicit))
 }

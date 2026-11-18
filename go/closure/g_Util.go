@@ -20,12 +20,14 @@ func Util_escapeString(s string) string {
 	var doublequoteEscape string = "\\\""
 	var singlequoteEscape string = "'"
 	var backslashEscape string = "\\\\"
-	var sb *StringBuilder = new_StringBuilder_int((String_length(s) + 2))
+	var sb strBuilder_
+	sb.grow((int32(len(s)) + 2))
 	sb.append_char(quote)
-	var region *Util_1UnescapedRegion = new_Util_1UnescapedRegion(sb, s)
-	var length int32 = String_length(s)
+	var region *Util_1UnescapedRegion = new_Util_1UnescapedRegion(&sb, s)
+	sU16 := utf16Of_(s)
+	var length int32 = sU16.length()
 	for i := int32(0); i < length; i++ {
-		var c uint16 = String_charAt(s, i)
+		var c uint16 = sU16.charAt(i)
 		switch c {
 		case '\n':
 			region.appendForEscapedChar("\\n")
@@ -40,7 +42,7 @@ func Util_escapeString(s string) string {
 		case '\'':
 			region.appendForEscapedChar(singlequoteEscape)
 		case '>':
-			if (i >= 2) && (((String_charAt(s, (i-1)) == '-') && (String_charAt(s, (i-2)) == '-')) || ((String_charAt(s, (i-1)) == ']') && (String_charAt(s, (i-2)) == ']'))) {
+			if (i >= 2) && (((sU16.charAt((i - 1)) == '-') && (sU16.charAt((i - 2)) == '-')) || ((sU16.charAt((i - 1)) == ']') && (sU16.charAt((i - 2)) == ']'))) {
 				region.appendForEscapedChar("\\u003e")
 			} else {
 				region.incrementForNormalChar()
@@ -48,9 +50,9 @@ func Util_escapeString(s string) string {
 		case '<':
 			var END_SCRIPT string = "/script"
 			var START_COMMENT string = "!--"
-			if String_regionMatches(s, true, (i + 1), END_SCRIPT, 0, String_length(END_SCRIPT)) {
+			if sU16.regionMatches(true, (i + 1), END_SCRIPT, 0, int32(len(END_SCRIPT))) {
 				region.appendForEscapedChar("\\u003c")
-			} else if String_regionMatches(s, false, (i + 1), START_COMMENT, 0, String_length(START_COMMENT)) {
+			} else if sU16.regionMatches(false, (i + 1), START_COMMENT, 0, int32(len(START_COMMENT))) {
 				region.appendForEscapedChar("\\u003c")
 			} else {
 				region.incrementForNormalChar()
@@ -61,41 +63,29 @@ func Util_escapeString(s string) string {
 			} else {
 				region.appendUnescaped()
 				region.incrementForEscapedChar()
-				Util_appendHexJavaScriptRepresentation(sb, c)
+				Util_appendHexJavaScriptRepresentation(&sb, c)
 			}
 		}
 	}
 	region.appendUnescaped()
 	sb.append_char(quote)
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
-func Util_appendHexJavaScriptRepresentation(sb *StringBuilder, c uint16) {
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_IOException(ex_) {
-					var ex *IOException = to_IOException(ex_)
-					panic(new_RuntimeException_Throwable(ex.up_Throwable()).self())
-					return
-				}
-				panic(r_)
-			}
-		}()
-		Util_appendHexJavaScriptRepresentationInt(int32(c), icast_Appendable(obj_(sb)))
-		return 0
-	}()
+func Util_appendHexJavaScriptRepresentation(sb *strBuilder_, c uint16) {
+	{
+		Util_appendHexJavaScriptRepresentationInt(int32(c), sb)
+	}
 }
 
-func Util_appendHexJavaScriptRepresentationInt(codePoint int32, out Appendable) {
+func Util_appendHexJavaScriptRepresentationInt(codePoint int32, out *strBuilder_) {
 	if Character_isSupplementaryCodePoint(codePoint) {
 		var surrogates []uint16 = Character_toChars(codePoint)
 		Util_appendHexJavaScriptRepresentationInt(int32(surrogates[0]), out)
 		Util_appendHexJavaScriptRepresentationInt(int32(surrogates[1]), out)
 		return
 	}
-	out.append_CharSequence(strobj_("\\u")).append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>12) & 15)]).append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>8) & 15)]).append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>4) & 15)]).append_char(Util_HEX_CHARS[(codePoint & 15)])
+	out.append_CharSequence_s("\\u").append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>12) & 15)]).append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>8) & 15)]).append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>4) & 15)]).append_char(Util_HEX_CHARS[(codePoint & 15)])
 }
 
 var Util_HEX_CHARS []uint16
@@ -112,7 +102,7 @@ func Util_clinit() {
 }
 
 type Util_1UnescapedRegion struct {
-	cap_sb               *StringBuilder
+	cap_sb               *strBuilder_
 	cap_s                string
 	unescapedRegionStart int32
 	unescapedRegionEnd   int32
@@ -127,7 +117,7 @@ func (this *Util_1UnescapedRegion) init_Util_1UnescapedRegion() {
 	this.finit_Util_1UnescapedRegion()
 }
 
-func new_Util_1UnescapedRegion(cap_sb *StringBuilder, cap_s string) *Util_1UnescapedRegion {
+func new_Util_1UnescapedRegion(cap_sb *strBuilder_, cap_s string) *Util_1UnescapedRegion {
 	this := &Util_1UnescapedRegion{}
 	this.cap_sb = cap_sb
 	this.cap_s = cap_s
@@ -148,7 +138,7 @@ func (this *Util_1UnescapedRegion) incrementForNormalChar() {
 
 func (this *Util_1UnescapedRegion) incrementForEscapedChar() {
 	if this.unescapedRegionStart != this.unescapedRegionEnd {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.unescapedRegionStart++
 	this.unescapedRegionEnd++

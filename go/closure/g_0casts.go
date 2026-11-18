@@ -9,13 +9,6 @@ func icast_AnalyzePrototypeProperties_Property(v any) AnalyzePrototypeProperties
 	return v.(AnalyzePrototypeProperties_Property)
 }
 
-func icast_AnalyzePrototypeProperties_PrototypeProperty(v any) AnalyzePrototypeProperties_PrototypeProperty {
-	if v == nil {
-		return nil
-	}
-	return v.(AnalyzePrototypeProperties_PrototypeProperty)
-}
-
 func icast_AnalyzePrototypeProperties_Symbol(v any) AnalyzePrototypeProperties_Symbol {
 	if v == nil {
 		return nil
@@ -51,25 +44,11 @@ func icast_AstFactory_Type(v any) AstFactory_Type {
 	return v.(AstFactory_Type)
 }
 
-func icast_AstValidator_ViolationHandler(v any) AstValidator_ViolationHandler {
-	if v == nil {
-		return nil
-	}
-	return v.(AstValidator_ViolationHandler)
-}
-
 func icast_Base64VLQ_CharIterator(v any) Base64VLQ_CharIterator {
 	if v == nil {
 		return nil
 	}
 	return v.(Base64VLQ_CharIterator)
-}
-
-func icast_BlockingQueue(v any) BlockingQueue {
-	if v == nil {
-		return nil
-	}
-	return v.(BlockingQueue)
 }
 
 func icast_CheckConformance_Precondition(v any) CheckConformance_Precondition {
@@ -86,32 +65,11 @@ func icast_CheckConformance_Rule(v any) CheckConformance_Rule {
 	return v.(CheckConformance_Rule)
 }
 
-func icast_CmdLineParser_Parameters(v any) CmdLineParser_Parameters {
-	if v == nil {
-		return nil
-	}
-	return v.(CmdLineParser_Parameters)
-}
-
 func icast_CodeChangeHandler(v any) CodeChangeHandler {
 	if v == nil {
 		return nil
 	}
 	return v.(CodeChangeHandler)
-}
-
-func icast_CodePrinter_Builder_CodeGeneratorFactory(v any) CodePrinter_Builder_CodeGeneratorFactory {
-	if v == nil {
-		return nil
-	}
-	return v.(CodePrinter_Builder_CodeGeneratorFactory)
-}
-
-func icast_CodePrinter_LicenseTracker(v any) CodePrinter_LicenseTracker {
-	if v == nil {
-		return nil
-	}
-	return v.(CodePrinter_LicenseTracker)
 }
 
 func icast_CodingConvention(v any) CodingConvention {
@@ -135,13 +93,6 @@ func icast_Comparator(v any) Comparator {
 	return v.(Comparator)
 }
 
-func icast_CompileMetricsRecorderInterface(v any) CompileMetricsRecorderInterface {
-	if v == nil {
-		return nil
-	}
-	return v.(CompileMetricsRecorderInterface)
-}
-
 func icast_CompilerInputProvider(v any) CompilerInputProvider {
 	if v == nil {
 		return nil
@@ -156,13 +107,6 @@ func icast_CompilerPass(v any) CompilerPass {
 	return v.(CompilerPass)
 }
 
-func icast_ConcurrentMap(v any) ConcurrentMap {
-	if v == nil {
-		return nil
-	}
-	return v.(ConcurrentMap)
-}
-
 func icast_ConformanceRules_CustomRuleProxy_CustomRuleFactory(v any) ConformanceRules_CustomRuleProxy_CustomRuleFactory {
 	if v == nil {
 		return nil
@@ -170,25 +114,11 @@ func icast_ConformanceRules_CustomRuleProxy_CustomRuleFactory(v any) Conformance
 	return v.(ConformanceRules_CustomRuleProxy_CustomRuleFactory)
 }
 
-func icast_ContentHandler(v any) ContentHandler {
-	if v == nil {
-		return nil
-	}
-	return v.(ContentHandler)
-}
-
 func icast_CrossChunkCodeMotion_InstanceofReference(v any) CrossChunkCodeMotion_InstanceofReference {
 	if v == nil {
 		return nil
 	}
 	return v.(CrossChunkCodeMotion_InstanceofReference)
-}
-
-func icast_CssRenamingMap(v any) CssRenamingMap {
-	if v == nil {
-		return nil
-	}
-	return v.(CssRenamingMap)
 }
 
 func icast_DependencyInfo(v any) DependencyInfo {
@@ -224,20 +154,6 @@ func icast_ErrorManager(v any) ErrorManager {
 		return nil
 	}
 	return v.(ErrorManager)
-}
-
-func icast_ErrorReporter_rhino(v any) ErrorReporter_rhino {
-	if v == nil {
-		return nil
-	}
-	return v.(ErrorReporter_rhino)
-}
-
-func icast_ExecutorService(v any) ExecutorService {
-	if v == nil {
-		return nil
-	}
-	return v.(ExecutorService)
 }
 
 func icast_FlowScope(v any) FlowScope {
@@ -303,39 +219,11 @@ func icast_GraphvizGraph_GraphvizNode(v any) GraphvizGraph_GraphvizNode {
 	return v.(GraphvizGraph_GraphvizNode)
 }
 
-func icast_IRFactory_TransformDispatcher_AutoDecrement(v any) IRFactory_TransformDispatcher_AutoDecrement {
-	if v == nil {
-		return nil
-	}
-	return v.(IRFactory_TransformDispatcher_AutoDecrement)
-}
-
-func icast_IcuTemplateDefinition(v any) IcuTemplateDefinition {
-	if v == nil {
-		return nil
-	}
-	return v.(IcuTemplateDefinition)
-}
-
 func icast_IndexProvider(v any) IndexProvider {
 	if v == nil {
 		return nil
 	}
 	return v.(IndexProvider)
-}
-
-func icast_InlineFunctions_CallVisitorCallback(v any) InlineFunctions_CallVisitorCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(InlineFunctions_CallVisitorCallback)
-}
-
-func icast_InlineFunctions_Function(v any) InlineFunctions_Function {
-	if v == nil {
-		return nil
-	}
-	return v.(InlineFunctions_Function)
 }
 
 func icast_Iterable(v any) Iterable {
@@ -359,62 +247,6 @@ func icast_JSType_WithSourceRef(v any) JSType_WithSourceRef {
 	return v.(JSType_WithSourceRef)
 }
 
-func icast_JsFileFullParser_Reporter(v any) JsFileFullParser_Reporter {
-	if v == nil {
-		return nil
-	}
-	return v.(JsFileFullParser_Reporter)
-}
-
-func icast_JsMessageDefinition(v any) JsMessageDefinition {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessageDefinition)
-}
-
-func icast_JsMessageVisitor_GoogGetMsgParsedText(v any) JsMessageVisitor_GoogGetMsgParsedText {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessageVisitor_GoogGetMsgParsedText)
-}
-
-func icast_JsMessageVisitor_IcuTemplateOptions(v any) JsMessageVisitor_IcuTemplateOptions {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessageVisitor_IcuTemplateOptions)
-}
-
-func icast_JsMessageVisitor_InputForBuildJsMsg(v any) JsMessageVisitor_InputForBuildJsMsg {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessageVisitor_InputForBuildJsMsg)
-}
-
-func icast_JsMessageVisitor_JsMessageOptions(v any) JsMessageVisitor_JsMessageOptions {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessageVisitor_JsMessageOptions)
-}
-
-func icast_JsMessageVisitor_ObjectLiteralMap(v any) JsMessageVisitor_ObjectLiteralMap {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessageVisitor_ObjectLiteralMap)
-}
-
-func icast_JsMessage_IdGenerator(v any) JsMessage_IdGenerator {
-	if v == nil {
-		return nil
-	}
-	return v.(JsMessage_IdGenerator)
-}
-
 func icast_JsMessage_Part(v any) JsMessage_Part {
 	if v == nil {
 		return nil
@@ -434,20 +266,6 @@ func icast_ListenableFuture(v any) ListenableFuture {
 		return nil
 	}
 	return v.(ListenableFuture)
-}
-
-func icast_LogFile_StreamedJsonProducer(v any) LogFile_StreamedJsonProducer {
-	if v == nil {
-		return nil
-	}
-	return v.(LogFile_StreamedJsonProducer)
-}
-
-func icast_LogsGson_Able(v any) LogsGson_Able {
-	if v == nil {
-		return nil
-	}
-	return v.(LogsGson_Able)
 }
 
 func icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(v any) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
@@ -478,32 +296,11 @@ func icast_Map_Entry(v any) Map_Entry {
 	return v.(Map_Entry)
 }
 
-func icast_Matcher(v any) Matcher {
-	if v == nil {
-		return nil
-	}
-	return v.(Matcher)
-}
-
 func icast_MemoryPoolMXBean(v any) MemoryPoolMXBean {
 	if v == nil {
 		return nil
 	}
 	return v.(MemoryPoolMXBean)
-}
-
-func icast_MessageBundle(v any) MessageBundle {
-	if v == nil {
-		return nil
-	}
-	return v.(MessageBundle)
-}
-
-func icast_MessageFormatter(v any) MessageFormatter {
-	if v == nil {
-		return nil
-	}
-	return v.(MessageFormatter)
 }
 
 func icast_MessageLite_Builder(v any) MessageLite_Builder {
@@ -527,13 +324,6 @@ func icast_Message_Builder(v any) Message_Builder {
 	return v.(Message_Builder)
 }
 
-func icast_ModuleLoader_ModuleResolverFactory(v any) ModuleLoader_ModuleResolverFactory {
-	if v == nil {
-		return nil
-	}
-	return v.(ModuleLoader_ModuleResolverFactory)
-}
-
 func icast_ModuleMapCreator_ModuleProcessor(v any) ModuleMapCreator_ModuleProcessor {
 	if v == nil {
 		return nil
@@ -541,32 +331,11 @@ func icast_ModuleMapCreator_ModuleProcessor(v any) ModuleMapCreator_ModuleProces
 	return v.(ModuleMapCreator_ModuleProcessor)
 }
 
-func icast_ModuleRequestResolver(v any) ModuleRequestResolver {
-	if v == nil {
-		return nil
-	}
-	return v.(ModuleRequestResolver)
-}
-
-func icast_NameGenerator(v any) NameGenerator {
-	if v == nil {
-		return nil
-	}
-	return v.(NameGenerator)
-}
-
 func icast_NodeTraversal_Callback(v any) NodeTraversal_Callback {
 	if v == nil {
 		return nil
 	}
 	return v.(NodeTraversal_Callback)
-}
-
-func icast_NodeTraversal_ScopedCallback(v any) NodeTraversal_ScopedCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(NodeTraversal_ScopedCallback)
 }
 
 func icast_NodeUtil_Visitor(v any) NodeUtil_Visitor {
@@ -604,46 +373,11 @@ func icast_Property_Key(v any) Property_Key {
 	return v.(Property_Key)
 }
 
-func icast_ProtocolStringList(v any) ProtocolStringList {
-	if v == nil {
-		return nil
-	}
-	return v.(ProtocolStringList)
-}
-
-func icast_Queue(v any) Queue {
-	if v == nil {
-		return nil
-	}
-	return v.(Queue)
-}
-
-func icast_RangeSet(v any) RangeSet {
-	if v == nil {
-		return nil
-	}
-	return v.(RangeSet)
-}
-
-func icast_ReferenceCollector_Behavior(v any) ReferenceCollector_Behavior {
-	if v == nil {
-		return nil
-	}
-	return v.(ReferenceCollector_Behavior)
-}
-
 func icast_ReferenceMap(v any) ReferenceMap {
 	if v == nil {
 		return nil
 	}
 	return v.(ReferenceMap)
-}
-
-func icast_Region(v any) Region {
-	if v == nil {
-		return nil
-	}
-	return v.(Region)
 }
 
 func icast_RelationshipVisitor(v any) RelationshipVisitor {
@@ -695,13 +429,6 @@ func icast_RuntimeJsLibManager_ExternedField(v any) RuntimeJsLibManager_Externed
 	return v.(RuntimeJsLibManager_ExternedField)
 }
 
-func icast_RuntimeJsLibManager_InjectedJsLibField(v any) RuntimeJsLibManager_InjectedJsLibField {
-	if v == nil {
-		return nil
-	}
-	return v.(RuntimeJsLibManager_InjectedJsLibField)
-}
-
 func icast_RuntimeJsLibManager_JsLibField(v any) RuntimeJsLibManager_JsLibField {
 	if v == nil {
 		return nil
@@ -737,13 +464,6 @@ func icast_Set(v any) Set {
 	return v.(Set)
 }
 
-func icast_SortedMap(v any) SortedMap {
-	if v == nil {
-		return nil
-	}
-	return v.(SortedMap)
-}
-
 func icast_SortedSet(v any) SortedSet {
 	if v == nil {
 		return nil
@@ -772,53 +492,11 @@ func icast_SourceExcerptProvider_ExcerptFormatter(v any) SourceExcerptProvider_E
 	return v.(SourceExcerptProvider_ExcerptFormatter)
 }
 
-func icast_SourceFileMapping(v any) SourceFileMapping {
-	if v == nil {
-		return nil
-	}
-	return v.(SourceFileMapping)
-}
-
-func icast_SourceMapConsumerV3_EntryVisitor(v any) SourceMapConsumerV3_EntryVisitor {
-	if v == nil {
-		return nil
-	}
-	return v.(SourceMapConsumerV3_EntryVisitor)
-}
-
-func icast_SourceMapGenerator(v any) SourceMapGenerator {
-	if v == nil {
-		return nil
-	}
-	return v.(SourceMapGenerator)
-}
-
-func icast_SourceMapGeneratorV3_MappingVisitor(v any) SourceMapGeneratorV3_MappingVisitor {
-	if v == nil {
-		return nil
-	}
-	return v.(SourceMapGeneratorV3_MappingVisitor)
-}
-
-func icast_SourceMapSupplier(v any) SourceMapSupplier {
-	if v == nil {
-		return nil
-	}
-	return v.(SourceMapSupplier)
-}
-
 func icast_SourceMap_LocationMapping(v any) SourceMap_LocationMapping {
 	if v == nil {
 		return nil
 	}
 	return v.(SourceMap_LocationMapping)
-}
-
-func icast_SourceMapping(v any) SourceMapping {
-	if v == nil {
-		return nil
-	}
-	return v.(SourceMapping)
 }
 
 func icast_Source_Transformer(v any) Source_Transformer {
@@ -884,27 +562,6 @@ func icast_SyntacticScopeCreator_RedeclarationHandler(v any) SyntacticScopeCreat
 	return v.(SyntacticScopeCreator_RedeclarationHandler)
 }
 
-func icast_TemplateAstMatcher_Visitor(v any) TemplateAstMatcher_Visitor {
-	if v == nil {
-		return nil
-	}
-	return v.(TemplateAstMatcher_Visitor)
-}
-
-func icast_ThreadFactory(v any) ThreadFactory {
-	if v == nil {
-		return nil
-	}
-	return v.(ThreadFactory)
-}
-
-func icast_Tracer_InternalClock(v any) Tracer_InternalClock {
-	if v == nil {
-		return nil
-	}
-	return v.(Tracer_InternalClock)
-}
-
 func icast_Tracer_TracingStatistic(v any) Tracer_TracingStatistic {
 	if v == nil {
 		return nil
@@ -934,7 +591,7 @@ func icast_Visitor(v any) Visitor {
 }
 
 var tc_AnalyzePrototypeProperties_Symbol = &jtconv_[AnalyzePrototypeProperties_Symbol]{
-	box:   func(v AnalyzePrototypeProperties_Symbol) any { return any(v) },
+	box:   func(v AnalyzePrototypeProperties_Symbol) any { return v },
 	unbox: func(v any) AnalyzePrototypeProperties_Symbol { return icast_AnalyzePrototypeProperties_Symbol(v) },
 }
 
@@ -949,39 +606,39 @@ var tc_Character = &jtconv_[any]{
 }
 
 var jtc_CodeChangeHandler = &jtconv_[CodeChangeHandler]{
-	box:   func(v CodeChangeHandler) any { return any(v) },
+	box:   func(v CodeChangeHandler) any { return v },
 	unbox: func(v any) CodeChangeHandler { return icast_CodeChangeHandler(v) },
 }
 
 var jtc_CompilerPass = &jtconv_[CompilerPass]{
-	box:   func(v CompilerPass) any { return any(v) },
+	box:   func(v CompilerPass) any { return v },
 	unbox: func(v any) CompilerPass { return icast_CompilerPass(v) },
 }
 
 var jtc_CrossChunkCodeMotion_InstanceofReference = &jtconv_[CrossChunkCodeMotion_InstanceofReference]{
-	box: func(v CrossChunkCodeMotion_InstanceofReference) any { return any(v) },
+	box: func(v CrossChunkCodeMotion_InstanceofReference) any { return v },
 	unbox: func(v any) CrossChunkCodeMotion_InstanceofReference {
 		return icast_CrossChunkCodeMotion_InstanceofReference(v)
 	},
 }
 
 var jtc_DependencyInfo = &jtconv_[DependencyInfo]{
-	box:   func(v DependencyInfo) any { return any(v) },
+	box:   func(v DependencyInfo) any { return v },
 	unbox: func(v any) DependencyInfo { return icast_DependencyInfo(v) },
 }
 
 var tc_Deque = &jtconv_[Deque]{
-	box:   func(v Deque) any { return any(v) },
+	box:   func(v Deque) any { return v },
 	unbox: func(v any) Deque { return icast_Deque(v) },
 }
 
 var jtc_GraphvizGraph_GraphvizEdge = &jtconv_[GraphvizGraph_GraphvizEdge]{
-	box:   func(v GraphvizGraph_GraphvizEdge) any { return any(v) },
+	box:   func(v GraphvizGraph_GraphvizEdge) any { return v },
 	unbox: func(v any) GraphvizGraph_GraphvizEdge { return icast_GraphvizGraph_GraphvizEdge(v) },
 }
 
 var jtc_GraphvizGraph_GraphvizNode = &jtconv_[GraphvizGraph_GraphvizNode]{
-	box:   func(v GraphvizGraph_GraphvizNode) any { return any(v) },
+	box:   func(v GraphvizGraph_GraphvizNode) any { return v },
 	unbox: func(v any) GraphvizGraph_GraphvizNode { return icast_GraphvizGraph_GraphvizNode(v) },
 }
 
@@ -991,17 +648,17 @@ var tc_Integer = &jtconv_[any]{
 }
 
 var jtc_JsMessage_Part = &jtconv_[JsMessage_Part]{
-	box:   func(v JsMessage_Part) any { return any(v) },
+	box:   func(v JsMessage_Part) any { return v },
 	unbox: func(v any) JsMessage_Part { return icast_JsMessage_Part(v) },
 }
 
 var tc_List = &jtconv_[List]{
-	box:   func(v List) any { return any(v) },
+	box:   func(v List) any { return v },
 	unbox: func(v any) List { return icast_List(v) },
 }
 
 var tc_ListenableFuture = &jtconv_[ListenableFuture]{
-	box:   func(v ListenableFuture) any { return any(v) },
+	box:   func(v ListenableFuture) any { return v },
 	unbox: func(v any) ListenableFuture { return icast_ListenableFuture(v) },
 }
 
@@ -1011,17 +668,17 @@ var tc_Long = &jtconv_[any]{
 }
 
 var jtc_MakeDeclaredNamesUnique_Renamer = &jtconv_[MakeDeclaredNamesUnique_Renamer]{
-	box:   func(v MakeDeclaredNamesUnique_Renamer) any { return any(v) },
+	box:   func(v MakeDeclaredNamesUnique_Renamer) any { return v },
 	unbox: func(v any) MakeDeclaredNamesUnique_Renamer { return icast_MakeDeclaredNamesUnique_Renamer(v) },
 }
 
 var tc_Map = &jtconv_[Map]{
-	box:   func(v Map) any { return any(v) },
+	box:   func(v Map) any { return v },
 	unbox: func(v any) Map { return icast_Map(v) },
 }
 
 var tc_Map_Entry = &jtconv_[Map_Entry]{
-	box:   func(v Map_Entry) any { return any(v) },
+	box:   func(v Map_Entry) any { return v },
 	unbox: func(v any) Map_Entry { return icast_Map_Entry(v) },
 }
 
@@ -1031,7 +688,7 @@ var jtc_Node = &jtconv_[Node]{
 }
 
 var jtc_NodeTraversal_Callback = &jtconv_[NodeTraversal_Callback]{
-	box:   func(v NodeTraversal_Callback) any { return any(v) },
+	box:   func(v NodeTraversal_Callback) any { return v },
 	unbox: func(v any) NodeTraversal_Callback { return icast_NodeTraversal_Callback(v) },
 }
 
@@ -1041,29 +698,29 @@ var tc_Object = &jtconv_[any]{
 }
 
 var tc_RemoveUnusedCode_VarInfo = &jtconv_[RemoveUnusedCode_VarInfo]{
-	box:   func(v RemoveUnusedCode_VarInfo) any { return any(v) },
+	box:   func(v RemoveUnusedCode_VarInfo) any { return v },
 	unbox: func(v any) RemoveUnusedCode_VarInfo { return icast_RemoveUnusedCode_VarInfo(v) },
 }
 
 var tc_ReplaceIdGenerators_NameSupplier = &jtconv_[ReplaceIdGenerators_NameSupplier]{
-	box:   func(v ReplaceIdGenerators_NameSupplier) any { return any(v) },
+	box:   func(v ReplaceIdGenerators_NameSupplier) any { return v },
 	unbox: func(v any) ReplaceIdGenerators_NameSupplier { return icast_ReplaceIdGenerators_NameSupplier(v) },
 }
 
 var tc_Set = &jtconv_[Set]{
-	box:   func(v Set) any { return any(v) },
+	box:   func(v Set) any { return v },
 	unbox: func(v any) Set { return icast_Set(v) },
 }
 
 var jtc_SortingErrorManager_ErrorReportGenerator = &jtconv_[SortingErrorManager_ErrorReportGenerator]{
-	box: func(v SortingErrorManager_ErrorReportGenerator) any { return any(v) },
+	box: func(v SortingErrorManager_ErrorReportGenerator) any { return v },
 	unbox: func(v any) SortingErrorManager_ErrorReportGenerator {
 		return icast_SortingErrorManager_ErrorReportGenerator(v)
 	},
 }
 
 var tc_Supplier = &jtconv_[Supplier]{
-	box:   func(v Supplier) any { return any(v) },
+	box:   func(v Supplier) any { return v },
 	unbox: func(v any) Supplier { return icast_Supplier(v) },
 }
 
@@ -1091,9 +748,9 @@ var jtc_p_AbstractPeepholeTranspilation = &jtconv_[*AbstractPeepholeTranspilatio
 	unbox: func(v any) *AbstractPeepholeTranspilation { return to_AbstractPeepholeTranspilation(v) },
 }
 
-var jtc_p_AccessorSummary_PropertyAccessKind = &jtconv_[*AccessorSummary_PropertyAccessKind]{
-	box:   func(v *AccessorSummary_PropertyAccessKind) any { return obj_(v) },
-	unbox: func(v any) *AccessorSummary_PropertyAccessKind { return cast_[*AccessorSummary_PropertyAccessKind](v) },
+var jtc_p_AccessorSummary_PropertyAccessKind = &jtconv_[AccessorSummary_PropertyAccessKind]{
+	box:   func(v AccessorSummary_PropertyAccessKind) any { return obj_(v) },
+	unbox: func(v any) AccessorSummary_PropertyAccessKind { return cast_[AccessorSummary_PropertyAccessKind](v) },
 }
 
 var jtc_p_AmbiguateProperties_Property = &jtconv_[*AmbiguateProperties_Property]{
@@ -1235,9 +892,9 @@ var jtc_p_ColorGraphNode = &jtconv_[*ColorGraphNode]{
 	unbox: func(v any) *ColorGraphNode { return cast_[*ColorGraphNode](v) },
 }
 
-var jtc_p_ColorGraphNode_PropAssociation = &jtconv_[*ColorGraphNode_PropAssociation]{
-	box:   func(v *ColorGraphNode_PropAssociation) any { return obj_(v) },
-	unbox: func(v any) *ColorGraphNode_PropAssociation { return cast_[*ColorGraphNode_PropAssociation](v) },
+var jtc_p_ColorGraphNode_PropAssociation = &jtconv_[ColorGraphNode_PropAssociation]{
+	box:   func(v ColorGraphNode_PropAssociation) any { return obj_(v) },
+	unbox: func(v any) ColorGraphNode_PropAssociation { return cast_[ColorGraphNode_PropAssociation](v) },
 }
 
 var jtc_p_ColorId = &jtconv_[*ColorId]{
@@ -1255,9 +912,9 @@ var jtc_p_CompilerInput = &jtconv_[*CompilerInput]{
 	unbox: func(v any) *CompilerInput { return cast_[*CompilerInput](v) },
 }
 
-var tc_p_CompilerInput_ModuleType = &jtconv_[*CompilerInput_ModuleType]{
-	box:   func(v *CompilerInput_ModuleType) any { return obj_(v) },
-	unbox: func(v any) *CompilerInput_ModuleType { return cast_[*CompilerInput_ModuleType](v) },
+var tc_p_CompilerInput_ModuleType = &jtconv_[CompilerInput_ModuleType]{
+	box:   func(v CompilerInput_ModuleType) any { return obj_(v) },
+	unbox: func(v any) CompilerInput_ModuleType { return cast_[CompilerInput_ModuleType](v) },
 }
 
 var tc_p_ConcretizeStaticInheritanceForInlining_JavascriptClass = &jtconv_[*ConcretizeStaticInheritanceForInlining_JavascriptClass]{
@@ -1267,10 +924,10 @@ var tc_p_ConcretizeStaticInheritanceForInlining_JavascriptClass = &jtconv_[*Conc
 	},
 }
 
-var jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = &jtconv_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]{
-	box: func(v *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) any { return obj_(v) },
-	unbox: func(v any) *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
-		return cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](v)
+var jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = &jtconv_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]{
+	box: func(v ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) any { return obj_(v) },
+	unbox: func(v any) ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
+		return cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](v)
 	},
 }
 
@@ -1446,14 +1103,14 @@ var jtc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = &jtcon
 	},
 }
 
-var jtc_p_FeatureCollector_FeatureContext = &jtconv_[*FeatureCollector_FeatureContext]{
-	box:   func(v *FeatureCollector_FeatureContext) any { return obj_(v) },
-	unbox: func(v any) *FeatureCollector_FeatureContext { return cast_[*FeatureCollector_FeatureContext](v) },
+var jtc_p_FeatureCollector_FeatureContext = &jtconv_[FeatureCollector_FeatureContext]{
+	box:   func(v FeatureCollector_FeatureContext) any { return obj_(v) },
+	unbox: func(v any) FeatureCollector_FeatureContext { return cast_[FeatureCollector_FeatureContext](v) },
 }
 
-var jtc_p_FeatureSet_Feature = &jtconv_[*FeatureSet_Feature]{
-	box:   func(v *FeatureSet_Feature) any { return obj_(v) },
-	unbox: func(v any) *FeatureSet_Feature { return cast_[*FeatureSet_Feature](v) },
+var jtc_p_FeatureSet_Feature = &jtconv_[FeatureSet_Feature]{
+	box:   func(v FeatureSet_Feature) any { return obj_(v) },
+	unbox: func(v any) FeatureSet_Feature { return cast_[FeatureSet_Feature](v) },
 }
 
 var jtc_p_FileInstrumentationData = &jtconv_[*FileInstrumentationData]{
@@ -1503,9 +1160,9 @@ var jtc_p_GuardedCallback_Context = &jtconv_[*GuardedCallback_Context]{
 	unbox: func(v any) *GuardedCallback_Context { return cast_[*GuardedCallback_Context](v) },
 }
 
-var tc_p_ImmutableList = &jtconv_[*ImmutableList]{
-	box:   func(v *ImmutableList) any { return obj_(v) },
-	unbox: func(v any) *ImmutableList { return cast_[*ImmutableList](v) },
+var tc_p_ImmutableList = &jtconv_[*ErasedImmutableList]{
+	box:   func(v *ErasedImmutableList) any { return obj_(v) },
+	unbox: func(v any) *ErasedImmutableList { return cast_[*ErasedImmutableList](v) },
 }
 
 var jtc_p_Import = &jtconv_[*Import]{
@@ -1550,14 +1207,14 @@ var jtc_p_InstrumentationPointStats = &jtconv_[*InstrumentationPointStats]{
 	unbox: func(v any) *InstrumentationPointStats { return cast_[*InstrumentationPointStats](v) },
 }
 
-var jtc_p_InstrumentationPointStats_Presence = &jtconv_[*InstrumentationPointStats_Presence]{
-	box:   func(v *InstrumentationPointStats_Presence) any { return obj_(v) },
-	unbox: func(v any) *InstrumentationPointStats_Presence { return cast_[*InstrumentationPointStats_Presence](v) },
+var jtc_p_InstrumentationPointStats_Presence = &jtconv_[InstrumentationPointStats_Presence]{
+	box:   func(v InstrumentationPointStats_Presence) any { return obj_(v) },
+	unbox: func(v any) InstrumentationPointStats_Presence { return cast_[InstrumentationPointStats_Presence](v) },
 }
 
-var tc_p_InstrumentationPoint_Type = &jtconv_[*InstrumentationPoint_Type]{
-	box:   func(v *InstrumentationPoint_Type) any { return obj_(v) },
-	unbox: func(v any) *InstrumentationPoint_Type { return cast_[*InstrumentationPoint_Type](v) },
+var tc_p_InstrumentationPoint_Type = &jtconv_[InstrumentationPoint_Type]{
+	box:   func(v InstrumentationPoint_Type) any { return obj_(v) },
+	unbox: func(v any) InstrumentationPoint_Type { return cast_[InstrumentationPoint_Type](v) },
 }
 
 var jtc_p_J2clPass_ClassStaticFunctionsInliner_InlinableFunction = &jtconv_[*J2clPass_ClassStaticFunctionsInliner_InlinableFunction]{
@@ -1611,9 +1268,9 @@ var tc_p_JSTypeRegistry_ClosureNamespace = &jtconv_[*JSTypeRegistry_ClosureNames
 	unbox: func(v any) *JSTypeRegistry_ClosureNamespace { return cast_[*JSTypeRegistry_ClosureNamespace](v) },
 }
 
-var jtc_p_JSType_MatchStatus = &jtconv_[*JSType_MatchStatus]{
-	box:   func(v *JSType_MatchStatus) any { return obj_(v) },
-	unbox: func(v any) *JSType_MatchStatus { return cast_[*JSType_MatchStatus](v) },
+var jtc_p_JSType_MatchStatus = &jtconv_[JSType_MatchStatus]{
+	box:   func(v JSType_MatchStatus) any { return obj_(v) },
+	unbox: func(v any) JSType_MatchStatus { return cast_[JSType_MatchStatus](v) },
 }
 
 var jtc_p_JsDocInfoParser_ExtendedTypeInfo = &jtconv_[*JsDocInfoParser_ExtendedTypeInfo]{
@@ -1631,9 +1288,9 @@ var tc_p_JsMessageVisitor_MessageLocation = &jtconv_[*JsMessageVisitor_MessageLo
 	unbox: func(v any) *JsMessageVisitor_MessageLocation { return cast_[*JsMessageVisitor_MessageLocation](v) },
 }
 
-var jtc_p_JsMessage_GrammaticalGenderCase = &jtconv_[*JsMessage_GrammaticalGenderCase]{
-	box:   func(v *JsMessage_GrammaticalGenderCase) any { return obj_(v) },
-	unbox: func(v any) *JsMessage_GrammaticalGenderCase { return cast_[*JsMessage_GrammaticalGenderCase](v) },
+var jtc_p_JsMessage_GrammaticalGenderCase = &jtconv_[JsMessage_GrammaticalGenderCase]{
+	box:   func(v JsMessage_GrammaticalGenderCase) any { return obj_(v) },
+	unbox: func(v any) JsMessage_GrammaticalGenderCase { return cast_[JsMessage_GrammaticalGenderCase](v) },
 }
 
 var jtc_p_LiveVariablesAnalysis = &jtconv_[*LiveVariablesAnalysis]{
@@ -1697,9 +1354,9 @@ var jtc_p_OptionalChainRewriter = &jtconv_[*OptionalChainRewriter]{
 	unbox: func(v any) *OptionalChainRewriter { return cast_[*OptionalChainRewriter](v) },
 }
 
-var jtc_p_Parser_FunctionFlavor = &jtconv_[*Parser_FunctionFlavor]{
-	box:   func(v *Parser_FunctionFlavor) any { return obj_(v) },
-	unbox: func(v any) *Parser_FunctionFlavor { return cast_[*Parser_FunctionFlavor](v) },
+var jtc_p_Parser_FunctionFlavor = &jtconv_[Parser_FunctionFlavor]{
+	box:   func(v Parser_FunctionFlavor) any { return obj_(v) },
+	unbox: func(v any) Parser_FunctionFlavor { return cast_[Parser_FunctionFlavor](v) },
 }
 
 var jtc_p_PassFactory = &jtconv_[*PassFactory]{
@@ -1768,9 +1425,9 @@ var jtc_p_ProcessDefines_Define = &jtconv_[*ProcessDefines_Define]{
 	unbox: func(v any) *ProcessDefines_Define { return cast_[*ProcessDefines_Define](v) },
 }
 
-var tc_p_ProcessTweaks_TweakFunction = &jtconv_[*ProcessTweaks_TweakFunction]{
-	box:   func(v *ProcessTweaks_TweakFunction) any { return obj_(v) },
-	unbox: func(v any) *ProcessTweaks_TweakFunction { return cast_[*ProcessTweaks_TweakFunction](v) },
+var tc_p_ProcessTweaks_TweakFunction = &jtconv_[ProcessTweaks_TweakFunction]{
+	box:   func(v ProcessTweaks_TweakFunction) any { return obj_(v) },
+	unbox: func(v any) ProcessTweaks_TweakFunction { return cast_[ProcessTweaks_TweakFunction](v) },
 }
 
 var tc_p_ProcessTweaks_TweakFunctionCall = &jtconv_[*ProcessTweaks_TweakFunctionCall]{
@@ -2084,19 +1741,19 @@ var jtc_string = &jtconv_[string]{
 }
 
 var tce_CheckConformance_Rule = &jtconv_[CheckConformance_Rule]{
-	box:      func(v CheckConformance_Rule) any { return any(v) },
+	box:      func(v CheckConformance_Rule) any { return v },
 	unbox:    func(v any) CheckConformance_Rule { return icast_CheckConformance_Rule(v) },
 	byEquals: true,
 }
 
 var tce_GlobalNamespace_AstChange = &jtconv_[GlobalNamespace_AstChange]{
-	box:      func(v GlobalNamespace_AstChange) any { return any(v) },
+	box:      func(v GlobalNamespace_AstChange) any { return v },
 	unbox:    func(v any) GlobalNamespace_AstChange { return icast_GlobalNamespace_AstChange(v) },
 	byEquals: true,
 }
 
 var tce_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = &jtconv_[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]{
-	box: func(v MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) any { return any(v) },
+	box: func(v MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) any { return v },
 	unbox: func(v any) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
 		return icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(v)
 	},
@@ -2104,13 +1761,13 @@ var tce_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = &jtconv_
 }
 
 var tce_Property_Key = &jtconv_[Property_Key]{
-	box:      func(v Property_Key) any { return any(v) },
+	box:      func(v Property_Key) any { return v },
 	unbox:    func(v any) Property_Key { return icast_Property_Key(v) },
 	byEquals: true,
 }
 
 var tce_RuntimeJsLibManager_ExternedField = &jtconv_[RuntimeJsLibManager_ExternedField]{
-	box:      func(v RuntimeJsLibManager_ExternedField) any { return any(v) },
+	box:      func(v RuntimeJsLibManager_ExternedField) any { return v },
 	unbox:    func(v any) RuntimeJsLibManager_ExternedField { return icast_RuntimeJsLibManager_ExternedField(v) },
 	byEquals: true,
 }

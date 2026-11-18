@@ -4,22 +4,24 @@ package closure
 
 type ResolveExportResult struct {
 	binding *Binding
-	state   *ResolveExportResult_State
+	state   ResolveExportResult_State
 }
 
-func (this *ResolveExportResult) init_ResolveExportResult(binding *Binding, state *ResolveExportResult_State) {
+func (this *ResolveExportResult) init_ResolveExportResult(binding *Binding, state ResolveExportResult_State) {
 	this.binding = binding
 	this.state = state
 }
 
-func new_ResolveExportResult(binding *Binding, state *ResolveExportResult_State) *ResolveExportResult {
+func new_ResolveExportResult(binding *Binding, state ResolveExportResult_State) *ResolveExportResult {
 	this := &ResolveExportResult{}
 	this.init_ResolveExportResult(binding, state)
 	return this
 }
 
-func (this *ResolveExportResult) copy(sourceNode Node, createdBy *Binding_CreatedBy) *ResolveExportResult {
-	Preconditions_checkNotNull(sourceNode.box_())
+func (this *ResolveExportResult) copy(sourceNode Node, createdBy Binding_CreatedBy) *ResolveExportResult {
+	if sourceNode == 0 {
+		panic(new_NullPointerException_0())
+	}
 	if this.binding == nil {
 		return this
 	}
@@ -47,7 +49,9 @@ func (this *ResolveExportResult) getBinding() *Binding {
 }
 
 func ResolveExportResult_of(binding *Binding) *ResolveExportResult {
-	Preconditions_checkNotNull(obj_(binding))
+	if binding == nil {
+		panic(new_NullPointerException_0())
+	}
 	return new_ResolveExportResult(binding, ResolveExportResult_State_RESOLVED)
 }
 
@@ -68,46 +72,68 @@ func ResolveExportResult_clinit() {
 
 }
 
-type ResolveExportResult_State struct {
-	Enum
+type ResolveExportResult_State uint8
+
+// ResolveExportResult_State_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ResolveExportResult_State_enum_ = [4]Enum{
+	{self_: ResolveExportResult_State_RESOLVED, name_: "RESOLVED", ordinal_: 0},
+	{self_: ResolveExportResult_State_AMBIGUOUS, name_: "AMBIGUOUS", ordinal_: 1},
+	{self_: ResolveExportResult_State_NOT_FOUND, name_: "NOT_FOUND", ordinal_: 2},
+	{self_: ResolveExportResult_State_ERROR, name_: "ERROR", ordinal_: 3},
 }
 
-func (this *ResolveExportResult_State) up_Enum() *Enum {
-	if this == nil {
+func (this ResolveExportResult_State) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ResolveExportResult_State_enum_[this-1]
 }
 
-func (this *ResolveExportResult_State) init_ResolveExportResult_State(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ResolveExportResult_State) name() string {
+	return this.enum_().name_
 }
 
-func new_ResolveExportResult_State(name_ string, ordinal_ int32) *ResolveExportResult_State {
-	this := &ResolveExportResult_State{}
-	this.self_ = this
-	this.init_ResolveExportResult_State(name_, ordinal_)
+func (this ResolveExportResult_State) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ResolveExportResult_State) toString() string {
+	return this.enum_().name_
+}
+
+func (this ResolveExportResult_State) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ResolveExportResult_State) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ResolveExportResult_State_values() []*ResolveExportResult_State {
-	return append([]*ResolveExportResult_State(nil), ResolveExportResult_State_values_...)
+func ResolveExportResult_State_values() []ResolveExportResult_State {
+	return append([]ResolveExportResult_State(nil), ResolveExportResult_State_values_...)
 }
 
-func ResolveExportResult_State_valueOf(name string) *ResolveExportResult_State {
+func ResolveExportResult_State_valueOf(name string) ResolveExportResult_State {
 	for _, v := range ResolveExportResult_State_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("State", name))
 }
 
-var ResolveExportResult_State_RESOLVED *ResolveExportResult_State
-var ResolveExportResult_State_AMBIGUOUS *ResolveExportResult_State
-var ResolveExportResult_State_NOT_FOUND *ResolveExportResult_State
-var ResolveExportResult_State_ERROR *ResolveExportResult_State
-var ResolveExportResult_State_values_ []*ResolveExportResult_State
+const ResolveExportResult_State_RESOLVED ResolveExportResult_State = 1
+const ResolveExportResult_State_AMBIGUOUS ResolveExportResult_State = 2
+const ResolveExportResult_State_NOT_FOUND ResolveExportResult_State = 3
+const ResolveExportResult_State_ERROR ResolveExportResult_State = 4
+
+var ResolveExportResult_State_values_ []ResolveExportResult_State
 
 var ResolveExportResult_State_clinit_done bool
 
@@ -116,11 +142,7 @@ func ResolveExportResult_State_clinit() {
 		return
 	}
 	ResolveExportResult_State_clinit_done = true
-	ResolveExportResult_State_RESOLVED = new_ResolveExportResult_State("RESOLVED", 0)
-	ResolveExportResult_State_AMBIGUOUS = new_ResolveExportResult_State("AMBIGUOUS", 1)
-	ResolveExportResult_State_NOT_FOUND = new_ResolveExportResult_State("NOT_FOUND", 2)
-	ResolveExportResult_State_ERROR = new_ResolveExportResult_State("ERROR", 3)
-	ResolveExportResult_State_values_ = []*ResolveExportResult_State{ResolveExportResult_State_RESOLVED, ResolveExportResult_State_AMBIGUOUS, ResolveExportResult_State_NOT_FOUND, ResolveExportResult_State_ERROR}
+	ResolveExportResult_State_values_ = []ResolveExportResult_State{ResolveExportResult_State_RESOLVED, ResolveExportResult_State_AMBIGUOUS, ResolveExportResult_State_NOT_FOUND, ResolveExportResult_State_ERROR}
 	registerEnum_("com.google.javascript.jscomp.modules.ResolveExportResult.State", enumValues_(ResolveExportResult_State_values_))
 
 }

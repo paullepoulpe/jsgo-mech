@@ -2,20 +2,37 @@
 
 package closure
 
+import "strings"
+
 type ModuleLoader struct {
 	errorHandler    ErrorHandler
 	moduleRootPaths ImmutableListOf[string]
-	pathResolver    *ModuleLoader_PathResolver
-	pathEscaper     *ModuleLoader_PathEscaper
+	pathResolver    ModuleLoader_PathResolver
+	pathEscaper     ModuleLoader_PathEscaper
 	moduleResolver  *ModuleResolver
 }
 
 func (this *ModuleLoader) init_ModuleLoader(builder *ModuleLoader_Builder) {
-	this.errorHandler = icast_ErrorHandler(Preconditions_checkNotNull(any(builder.errorHandler)))
-	this.pathResolver = to_ModuleLoader_PathResolver(Preconditions_checkNotNull(builder.pathResolver.self()))
-	this.pathEscaper = to_ModuleLoader_PathEscaper(Preconditions_checkNotNull(builder.pathEscaper.self()))
-	this.moduleRootPaths = this.createRootPaths(icast_Iterable(Preconditions_checkNotNull(any(builder.moduleRoots))))
-	var modulePaths ImmutableSetOf[string] = this.resolvePaths(icast_Iterable(Preconditions_checkNotNull(any(builder.inputs))))
+	if builder.errorHandler == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.errorHandler = builder.errorHandler
+	if builder.pathResolver == 0 {
+		panic(new_NullPointerException_0())
+	}
+	this.pathResolver = builder.pathResolver
+	if builder.pathEscaper == 0 {
+		panic(new_NullPointerException_0())
+	}
+	this.pathEscaper = builder.pathEscaper
+	if builder.moduleRoots == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.moduleRootPaths = this.createRootPaths(builder.moduleRoots)
+	if builder.inputs == nil {
+		panic(new_NullPointerException_0())
+	}
+	var modulePaths ImmutableSetOf[string] = this.resolvePaths(builder.inputs)
 	this.moduleResolver = builder.factory.create(modulePaths, this.moduleRootPaths, this.errorHandler, this.pathEscaper)
 }
 
@@ -29,7 +46,7 @@ func ModuleLoader_builder() *ModuleLoader_Builder {
 	return new_ModuleLoader_Builder()
 }
 
-func (this *ModuleLoader) getPackageJsonMainEntries() MapOf[string, string] {
+func (this *ModuleLoader) getPackageJsonMainEntries() map[string]string {
 	return this.moduleResolver.getPackageJsonMainEntries()
 }
 
@@ -38,11 +55,11 @@ func (this *ModuleLoader) resolve(path string) *ModuleLoader_ModulePath {
 }
 
 func ModuleLoader_isRelativeIdentifier(name string) bool {
-	return (((String_startsWith(name, ("."+sstr_(ModuleLoader_MODULE_SLASH))) || String_startsWith(name, (".."+sstr_(ModuleLoader_MODULE_SLASH)))) || (name == ".")) || (name == ".."))
+	return (((strings.HasPrefix(name, ("."+sstr_(ModuleLoader_MODULE_SLASH))) || strings.HasPrefix(name, (".."+sstr_(ModuleLoader_MODULE_SLASH)))) || (name == ".")) || (name == ".."))
 }
 
 func ModuleLoader_isAbsoluteIdentifier(name string) bool {
-	return String_startsWith(name, ModuleLoader_MODULE_SLASH)
+	return strings.HasPrefix(name, ModuleLoader_MODULE_SLASH)
 }
 
 func ModuleLoader_isAmbiguousIdentifier(name string) bool {
@@ -50,14 +67,12 @@ func ModuleLoader_isAmbiguousIdentifier(name string) bool {
 }
 
 func ModuleLoader_isPathIdentifier(name string) bool {
-	return String_contains(name, strobj_(ModuleLoader_MODULE_SLASH))
+	return strings.Contains(name, ModuleLoader_MODULE_SLASH)
 }
 
 func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) ImmutableListOf[string] {
 	var result ImmutableSortedSet_BuilderOf[string] = new_ImmutableSortedSet_Builder(ModuleLoader_BEST_MATCH_PATH_ORDERING)
-	it_1 := foreach_(any(roots))
-	for it_1.next() {
-		var root string = str_(it_1.v)
+	for root := range elemsBy_(roots, str_) {
 		var n string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(root))))
 		result.add(func() any {
 			if ModuleLoader_isAmbiguousIdentifier(n) {
@@ -66,14 +81,12 @@ func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) ImmutableLis
 			return strobj_(n)
 		}())
 	}
-	return cast_[*ImmutableSortedSet](obj_(result.build())).asList()
+	return result.build().asList()
 }
 
 func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo]) ImmutableSetOf[string] {
 	var sortedModulePaths *JTList[string] = jnewTList_(jtc_string)
-	it_1 := foreach_(any(inputs))
-	for it_1.next() {
-		var input DependencyInfo = icast_DependencyInfo(it_1.v)
+	for input := range elemsBy_(inputs, icast_DependencyInfo) {
 		var p string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(input.getName()))))
 		var n string = ModuleLoader_normalize(p, icast_Iterable(obj_(this.moduleRootPaths)))
 		sortedModulePaths.add(func() string {
@@ -84,8 +97,10 @@ func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo]) Immuta
 		}())
 	}
 	List_sort(sortedModulePaths.asList(), ModuleLoader_BEST_MATCH_PATH_ORDERING)
-	var dupeModulePaths *SimpleMultiset = SimpleMultiset_copyOf(Iterable(sortedModulePaths.asList()))
-	Preconditions_checkState_boolean_String_Object((dupeModulePaths.size() == dupeModulePaths.elementSet().size()), "Duplicate module paths after resolving: %s", obj_(dupeModulePaths))
+	var dupeModulePaths *SimpleMultiset[any] = SimpleMultiset_copyOf[any](Iterable(sortedModulePaths.asList()))
+	if dupeModulePaths.size() != dupeModulePaths.elementSet().size() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{obj_(dupeModulePaths)})))
+	}
 	return ImmutableSet_copyOf(Collection(dupeModulePaths.elementSet()))
 }
 
@@ -94,13 +109,13 @@ func ModuleLoader_normalize(path string, moduleRootPaths IterableOf[string]) str
 	if ModuleLoader_isAmbiguousIdentifier(normalizedPath) {
 		normalizedPath = (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(normalizedPath))
 	}
-	it_1 := foreach_(any(moduleRootPaths))
+	it_1 := foreach_(moduleRootPaths)
 	for it_1.next() {
 		var moduleRoot string = str_(it_1.v)
-		if String_startsWith(normalizedPath, moduleRoot) {
-			var trailing string = String_substring_int(normalizedPath, String_length(moduleRoot))
-			if String_startsWith(trailing, ModuleLoader_MODULE_SLASH) {
-				return String_substring_int(trailing, String_length(ModuleLoader_MODULE_SLASH))
+		if strings.HasPrefix(normalizedPath, moduleRoot) {
+			var trailing string = normalizedPath[len(moduleRoot):]
+			if strings.HasPrefix(trailing, ModuleLoader_MODULE_SLASH) {
+				return trailing[len(ModuleLoader_MODULE_SLASH):]
 			}
 		}
 	}
@@ -112,7 +127,7 @@ func ModuleLoader_relativePathFrom(fromUriPath string, toUriPath string) *Outcom
 	var fromFolder Optional[string] = FilePaths_parent(fromUriPath)
 	if fromFolder.isEmpty() && FilePaths_parent(toUriPath).isEmpty() {
 		return Outcome_base_ok_Object[string](("./" + sstr_(toUriPath)))
-	} else if fromFolder.isEmpty() && ((String_startsWith(toUriPath, ".") || String_startsWith(toPath, "/")) || String_startsWith(toPath, "\\")) {
+	} else if fromFolder.isEmpty() && ((strings.HasPrefix(toUriPath, ".") || strings.HasPrefix(toPath, "/")) || strings.HasPrefix(toPath, "\\")) {
 		return Outcome_base_ok_Object[string](toUriPath)
 	} else if fromFolder.isEmpty() {
 		return Outcome_base_err[string](new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
@@ -121,7 +136,7 @@ func ModuleLoader_relativePathFrom(fromUriPath string, toUriPath string) *Outcom
 	if calculatedPath.isEmpty() {
 		return Outcome_base_err[string](new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
 	}
-	if String_startsWith(calculatedPath.get(), ".") || String_startsWith(calculatedPath.get(), "/") {
+	if strings.HasPrefix(calculatedPath.get(), ".") || strings.HasPrefix(calculatedPath.get(), "/") {
 		return Outcome_base_ok_Object[string](calculatedPath.get())
 	}
 	return Outcome_base_ok_Object[string](("./" + sstr_(calculatedPath.get())))
@@ -163,19 +178,22 @@ func ModuleLoader_clinit() {
 	ModuleLoader_LOAD_WARNING = DiagnosticType_error("JSC_JS_MODULE_LOAD_WARNING", "Failed to load module \"{0}\"")
 	ModuleLoader_INVALID_MODULE_PATH = DiagnosticType_error("JSC_INVALID_MODULE_PATH", "Invalid module path \"{0}\" for resolution mode \"{1}\"")
 	ModuleLoader_BEST_MATCH_PATH_ORDERING = Comparator_thenComparing_Comparator(Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_string{func(p0 string) int32 { return String_length(p0) }})), Comparator_naturalOrder())
-	ModuleLoader_NOOP_ERROR_HANDER = &ErrorHandler_fn{func(level *CheckLevel, error_ *JSError) {
-	}}
-	ModuleLoader_EMPTY = ModuleLoader_builder().setModuleRoots(icast_Iterable(obj_(ImmutableList_of()))).setInputs(icast_Iterable(obj_(ImmutableList_of()))).setFactory(BrowserModuleResolver_FACTORY).build()
+	ModuleLoader_NOOP_ERROR_HANDER = lambda_ModuleLoader_clinit_1_
+	ModuleLoader_EMPTY = ModuleLoader_builder().setModuleRoots(ImmutableList_of()).setInputs(ImmutableList_of()).setFactory(BrowserModuleResolver_FACTORY).build()
 
 }
+
+// lambda_ModuleLoader_clinit_1_ is a lambda of ModuleLoader_clinit that captures nothing (post-flip step lambdas).
+var lambda_ModuleLoader_clinit_1_ = &ErrorHandler_fn{func(level CheckLevel, error_ *JSError) {
+}}
 
 type ModuleLoader_Builder struct {
 	errorHandler ErrorHandler
 	moduleRoots  IterableOf[string]
 	inputs       IterableOf[DependencyInfo]
 	factory      ModuleLoader_ModuleResolverFactory
-	pathResolver *ModuleLoader_PathResolver
-	pathEscaper  *ModuleLoader_PathEscaper
+	pathResolver ModuleLoader_PathResolver
+	pathEscaper  ModuleLoader_PathEscaper
 }
 
 func (this *ModuleLoader_Builder) finit_ModuleLoader_Builder() {
@@ -216,12 +234,12 @@ func (this *ModuleLoader_Builder) setFactory(x ModuleLoader_ModuleResolverFactor
 	return this
 }
 
-func (this *ModuleLoader_Builder) setPathResolver(x *ModuleLoader_PathResolver) *ModuleLoader_Builder {
+func (this *ModuleLoader_Builder) setPathResolver(x ModuleLoader_PathResolver) *ModuleLoader_Builder {
 	this.pathResolver = x
 	return this
 }
 
-func (this *ModuleLoader_Builder) setPathEscaper(x *ModuleLoader_PathEscaper) *ModuleLoader_Builder {
+func (this *ModuleLoader_Builder) setPathEscaper(x ModuleLoader_PathEscaper) *ModuleLoader_Builder {
 	this.pathEscaper = x
 	return this
 }
@@ -283,68 +301,73 @@ func (this *ModuleLoader_ModulePath) resolveModuleAsPath(moduleAddress string) *
 	return new_ModuleLoader_ModulePath(this.outer_, this.outer_.moduleResolver.resolveModuleAsPath(this.path_, moduleAddress))
 }
 
-type ModuleLoader_PathEscaper struct {
-	Enum
+type ModuleLoader_PathEscaper uint8
+
+// ModuleLoader_PathEscaper_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ModuleLoader_PathEscaper_enum_ = [2]Enum{
+	{self_: ModuleLoader_PathEscaper_ESCAPE, name_: "ESCAPE", ordinal_: 0},
+	{self_: ModuleLoader_PathEscaper_CANONICALIZE_ONLY, name_: "CANONICALIZE_ONLY", ordinal_: 1},
 }
 
-func (this *ModuleLoader_PathEscaper) as_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper {
+func (this ModuleLoader_PathEscaper) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &ModuleLoader_PathEscaper_enum_[this-1]
+}
+
+func (this ModuleLoader_PathEscaper) name() string { return this.enum_().name_ }
+
+func (this ModuleLoader_PathEscaper) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ModuleLoader_PathEscaper) toString() string { return this.enum_().name_ }
+
+func (this ModuleLoader_PathEscaper) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this ModuleLoader_PathEscaper) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func to_ModuleLoader_PathEscaper(v any) *ModuleLoader_PathEscaper {
-	if v == nil {
-		return nil
+func (this ModuleLoader_PathEscaper) as_ModuleLoader_PathEscaper() ModuleLoader_PathEscaper {
+	return this
+}
+
+func (this ModuleLoader_PathEscaper) escape(path string) string {
+	switch this {
+	case ModuleLoader_PathEscaper_ESCAPE:
+		return ModuleNames_escapePath(path)
+	case ModuleLoader_PathEscaper_CANONICALIZE_ONLY:
+		return ModuleNames_canonicalizePath(path)
+	default:
+		panic(new_NullPointerException_0()) // a call on null
 	}
-	return v.(interface {
-		as_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper
-	}).as_ModuleLoader_PathEscaper()
 }
 
-func is_ModuleLoader_PathEscaper(v any) bool {
-	_, ok := v.(interface {
-		as_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper
-	})
-	return ok
+func ModuleLoader_PathEscaper_values() []ModuleLoader_PathEscaper {
+	return append([]ModuleLoader_PathEscaper(nil), ModuleLoader_PathEscaper_values_...)
 }
 
-func (this *ModuleLoader_PathEscaper) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
-func (this *ModuleLoader_PathEscaper) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ModuleLoader_PathEscaper) init_ModuleLoader_PathEscaper(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
-
-func (this *ModuleLoader_PathEscaper) escape(p0 string) string {
-	return this.self_.(interface{ escape_impl(string) string }).escape_impl(p0)
-}
-
-func ModuleLoader_PathEscaper_values() []*ModuleLoader_PathEscaper {
-	return append([]*ModuleLoader_PathEscaper(nil), ModuleLoader_PathEscaper_values_...)
-}
-
-func ModuleLoader_PathEscaper_valueOf(name string) *ModuleLoader_PathEscaper {
+func ModuleLoader_PathEscaper_valueOf(name string) ModuleLoader_PathEscaper {
 	for _, v := range ModuleLoader_PathEscaper_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("PathEscaper", name))
 }
 
-var ModuleLoader_PathEscaper_ESCAPE *ModuleLoader_PathEscaper
-var ModuleLoader_PathEscaper_CANONICALIZE_ONLY *ModuleLoader_PathEscaper
-var ModuleLoader_PathEscaper_values_ []*ModuleLoader_PathEscaper
+const ModuleLoader_PathEscaper_ESCAPE ModuleLoader_PathEscaper = 1
+const ModuleLoader_PathEscaper_CANONICALIZE_ONLY ModuleLoader_PathEscaper = 2
+
+var ModuleLoader_PathEscaper_values_ []ModuleLoader_PathEscaper
 
 var ModuleLoader_PathEscaper_clinit_done bool
 
@@ -353,75 +376,82 @@ func ModuleLoader_PathEscaper_clinit() {
 		return
 	}
 	ModuleLoader_PathEscaper_clinit_done = true
-	ModuleLoader_PathEscaper_ESCAPE = new_ModuleLoader_PathEscaper_1("ESCAPE", 0).up_ModuleLoader_PathEscaper()
-	ModuleLoader_PathEscaper_CANONICALIZE_ONLY = new_ModuleLoader_PathEscaper_2("CANONICALIZE_ONLY", 1).up_ModuleLoader_PathEscaper()
-	ModuleLoader_PathEscaper_values_ = []*ModuleLoader_PathEscaper{ModuleLoader_PathEscaper_ESCAPE, ModuleLoader_PathEscaper_CANONICALIZE_ONLY}
+	ModuleLoader_PathEscaper_values_ = []ModuleLoader_PathEscaper{ModuleLoader_PathEscaper_ESCAPE, ModuleLoader_PathEscaper_CANONICALIZE_ONLY}
 	registerEnum_("com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper", enumValues_(ModuleLoader_PathEscaper_values_))
 
 }
 
-type ModuleLoader_PathResolver struct {
-	Enum
+type ModuleLoader_PathResolver uint8
+
+// ModuleLoader_PathResolver_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ModuleLoader_PathResolver_enum_ = [2]Enum{
+	{self_: ModuleLoader_PathResolver_RELATIVE, name_: "RELATIVE", ordinal_: 0},
+	{self_: ModuleLoader_PathResolver_ABSOLUTE, name_: "ABSOLUTE", ordinal_: 1},
 }
 
-func (this *ModuleLoader_PathResolver) as_ModuleLoader_PathResolver() *ModuleLoader_PathResolver {
+func (this ModuleLoader_PathResolver) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &ModuleLoader_PathResolver_enum_[this-1]
+}
+
+func (this ModuleLoader_PathResolver) name() string { return this.enum_().name_ }
+
+func (this ModuleLoader_PathResolver) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ModuleLoader_PathResolver) toString() string { return this.enum_().name_ }
+
+func (this ModuleLoader_PathResolver) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this ModuleLoader_PathResolver) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func to_ModuleLoader_PathResolver(v any) *ModuleLoader_PathResolver {
-	if v == nil {
-		return nil
+func (this ModuleLoader_PathResolver) as_ModuleLoader_PathResolver() ModuleLoader_PathResolver {
+	return this
+}
+
+func (this ModuleLoader_PathResolver) apply(path_ any) any {
+	switch this {
+	case ModuleLoader_PathResolver_RELATIVE:
+		var path string = str_(path_)
+		_ = path
+		return strobj_(path)
+	case ModuleLoader_PathResolver_ABSOLUTE:
+		var path string = str_(path_)
+		_ = path
+		return strobj_(FilePaths_toAbsolute(path))
+	default:
+		panic(new_NullPointerException_0()) // a call on null
 	}
-	return v.(interface {
-		as_ModuleLoader_PathResolver() *ModuleLoader_PathResolver
-	}).as_ModuleLoader_PathResolver()
 }
 
-func is_ModuleLoader_PathResolver(v any) bool {
-	_, ok := v.(interface {
-		as_ModuleLoader_PathResolver() *ModuleLoader_PathResolver
-	})
-	return ok
+func ModuleLoader_PathResolver_values() []ModuleLoader_PathResolver {
+	return append([]ModuleLoader_PathResolver(nil), ModuleLoader_PathResolver_values_...)
 }
 
-func (this *ModuleLoader_PathResolver) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
-func (this *ModuleLoader_PathResolver) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ModuleLoader_PathResolver) init_ModuleLoader_PathResolver(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
-
-func (this *ModuleLoader_PathResolver) apply(p0 any) any {
-	return this.self_.(interface{ apply_impl(any) any }).apply_impl(p0)
-}
-
-func ModuleLoader_PathResolver_values() []*ModuleLoader_PathResolver {
-	return append([]*ModuleLoader_PathResolver(nil), ModuleLoader_PathResolver_values_...)
-}
-
-func ModuleLoader_PathResolver_valueOf(name string) *ModuleLoader_PathResolver {
+func ModuleLoader_PathResolver_valueOf(name string) ModuleLoader_PathResolver {
 	for _, v := range ModuleLoader_PathResolver_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("PathResolver", name))
 }
 
-var ModuleLoader_PathResolver_RELATIVE *ModuleLoader_PathResolver
-var ModuleLoader_PathResolver_ABSOLUTE *ModuleLoader_PathResolver
-var ModuleLoader_PathResolver_values_ []*ModuleLoader_PathResolver
+const ModuleLoader_PathResolver_RELATIVE ModuleLoader_PathResolver = 1
+const ModuleLoader_PathResolver_ABSOLUTE ModuleLoader_PathResolver = 2
+
+var ModuleLoader_PathResolver_values_ []ModuleLoader_PathResolver
 
 var ModuleLoader_PathResolver_clinit_done bool
 
@@ -430,65 +460,85 @@ func ModuleLoader_PathResolver_clinit() {
 		return
 	}
 	ModuleLoader_PathResolver_clinit_done = true
-	ModuleLoader_PathResolver_RELATIVE = new_ModuleLoader_PathResolver_1("RELATIVE", 0).up_ModuleLoader_PathResolver()
-	ModuleLoader_PathResolver_ABSOLUTE = new_ModuleLoader_PathResolver_2("ABSOLUTE", 1).up_ModuleLoader_PathResolver()
-	ModuleLoader_PathResolver_values_ = []*ModuleLoader_PathResolver{ModuleLoader_PathResolver_RELATIVE, ModuleLoader_PathResolver_ABSOLUTE}
+	ModuleLoader_PathResolver_values_ = []ModuleLoader_PathResolver{ModuleLoader_PathResolver_RELATIVE, ModuleLoader_PathResolver_ABSOLUTE}
 	registerEnum_("com.google.javascript.jscomp.deps.ModuleLoader.PathResolver", enumValues_(ModuleLoader_PathResolver_values_))
 
 }
 
 type ModuleLoader_ModuleResolverFactory interface {
-	create(*ImmutableSet, *ImmutableList, ErrorHandler, *ModuleLoader_PathEscaper) *ModuleResolver
+	create(*ErasedImmutableSet, *ErasedImmutableList, ErrorHandler, ModuleLoader_PathEscaper) *ModuleResolver
 }
 
 type ModuleLoader_ModuleResolverFactory_fn struct {
-	f func(*ImmutableSet, *ImmutableList, ErrorHandler, *ModuleLoader_PathEscaper) *ModuleResolver
+	f func(*ErasedImmutableSet, *ErasedImmutableList, ErrorHandler, ModuleLoader_PathEscaper) *ModuleResolver
 }
 
-func (this *ModuleLoader_ModuleResolverFactory_fn) create(p0 *ImmutableSet, p1 *ImmutableList, p2 ErrorHandler, p3 *ModuleLoader_PathEscaper) *ModuleResolver {
+func (this *ModuleLoader_ModuleResolverFactory_fn) create(p0 *ErasedImmutableSet, p1 *ErasedImmutableList, p2 ErrorHandler, p3 ModuleLoader_PathEscaper) *ModuleResolver {
 	return this.f(p0, p1, p2, p3)
 }
 
-type ModuleLoader_ResolutionMode struct {
-	Enum
+type ModuleLoader_ResolutionMode uint8
+
+// ModuleLoader_ResolutionMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ModuleLoader_ResolutionMode_enum_ = [4]Enum{
+	{self_: ModuleLoader_ResolutionMode_BROWSER, name_: "BROWSER", ordinal_: 0},
+	{self_: ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES, name_: "BROWSER_WITH_TRANSFORMED_PREFIXES", ordinal_: 1},
+	{self_: ModuleLoader_ResolutionMode_NODE, name_: "NODE", ordinal_: 2},
+	{self_: ModuleLoader_ResolutionMode_WEBPACK, name_: "WEBPACK", ordinal_: 3},
 }
 
-func (this *ModuleLoader_ResolutionMode) up_Enum() *Enum {
-	if this == nil {
+func (this ModuleLoader_ResolutionMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ModuleLoader_ResolutionMode_enum_[this-1]
 }
 
-func (this *ModuleLoader_ResolutionMode) init_ModuleLoader_ResolutionMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ModuleLoader_ResolutionMode) name() string {
+	return this.enum_().name_
 }
 
-func new_ModuleLoader_ResolutionMode(name_ string, ordinal_ int32) *ModuleLoader_ResolutionMode {
-	this := &ModuleLoader_ResolutionMode{}
-	this.self_ = this
-	this.init_ModuleLoader_ResolutionMode(name_, ordinal_)
+func (this ModuleLoader_ResolutionMode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ModuleLoader_ResolutionMode) toString() string {
+	return this.enum_().name_
+}
+
+func (this ModuleLoader_ResolutionMode) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ModuleLoader_ResolutionMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ModuleLoader_ResolutionMode_values() []*ModuleLoader_ResolutionMode {
-	return append([]*ModuleLoader_ResolutionMode(nil), ModuleLoader_ResolutionMode_values_...)
+func ModuleLoader_ResolutionMode_values() []ModuleLoader_ResolutionMode {
+	return append([]ModuleLoader_ResolutionMode(nil), ModuleLoader_ResolutionMode_values_...)
 }
 
-func ModuleLoader_ResolutionMode_valueOf(name string) *ModuleLoader_ResolutionMode {
+func ModuleLoader_ResolutionMode_valueOf(name string) ModuleLoader_ResolutionMode {
 	for _, v := range ModuleLoader_ResolutionMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ResolutionMode", name))
 }
 
-var ModuleLoader_ResolutionMode_BROWSER *ModuleLoader_ResolutionMode
-var ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES *ModuleLoader_ResolutionMode
-var ModuleLoader_ResolutionMode_NODE *ModuleLoader_ResolutionMode
-var ModuleLoader_ResolutionMode_WEBPACK *ModuleLoader_ResolutionMode
-var ModuleLoader_ResolutionMode_values_ []*ModuleLoader_ResolutionMode
+const ModuleLoader_ResolutionMode_BROWSER ModuleLoader_ResolutionMode = 1
+const ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES ModuleLoader_ResolutionMode = 2
+const ModuleLoader_ResolutionMode_NODE ModuleLoader_ResolutionMode = 3
+const ModuleLoader_ResolutionMode_WEBPACK ModuleLoader_ResolutionMode = 4
+
+var ModuleLoader_ResolutionMode_values_ []ModuleLoader_ResolutionMode
 
 var ModuleLoader_ResolutionMode_clinit_done bool
 
@@ -497,255 +547,7 @@ func ModuleLoader_ResolutionMode_clinit() {
 		return
 	}
 	ModuleLoader_ResolutionMode_clinit_done = true
-	ModuleLoader_ResolutionMode_BROWSER = new_ModuleLoader_ResolutionMode("BROWSER", 0)
-	ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES = new_ModuleLoader_ResolutionMode("BROWSER_WITH_TRANSFORMED_PREFIXES", 1)
-	ModuleLoader_ResolutionMode_NODE = new_ModuleLoader_ResolutionMode("NODE", 2)
-	ModuleLoader_ResolutionMode_WEBPACK = new_ModuleLoader_ResolutionMode("WEBPACK", 3)
-	ModuleLoader_ResolutionMode_values_ = []*ModuleLoader_ResolutionMode{ModuleLoader_ResolutionMode_BROWSER, ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES, ModuleLoader_ResolutionMode_NODE, ModuleLoader_ResolutionMode_WEBPACK}
+	ModuleLoader_ResolutionMode_values_ = []ModuleLoader_ResolutionMode{ModuleLoader_ResolutionMode_BROWSER, ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES, ModuleLoader_ResolutionMode_NODE, ModuleLoader_ResolutionMode_WEBPACK}
 	registerEnum_("com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode", enumValues_(ModuleLoader_ResolutionMode_values_))
-
-}
-
-type ModuleLoader_PathEscaper_1 struct {
-	ModuleLoader_PathEscaper
-}
-
-func (this *ModuleLoader_PathEscaper_1) up_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper {
-	if this == nil {
-		return nil
-	}
-	return &this.ModuleLoader_PathEscaper
-}
-
-func (this *ModuleLoader_PathEscaper_1) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ModuleLoader_PathEscaper_1) init_ModuleLoader_PathEscaper_1(name_ string, ordinal_ int32) {
-	this.ModuleLoader_PathEscaper.init_ModuleLoader_PathEscaper(name_, ordinal_)
-}
-
-func new_ModuleLoader_PathEscaper_1(name_ string, ordinal_ int32) *ModuleLoader_PathEscaper_1 {
-	this := &ModuleLoader_PathEscaper_1{}
-	this.self_ = this
-	this.init_ModuleLoader_PathEscaper_1(name_, ordinal_)
-	return this
-}
-
-func (this *ModuleLoader_PathEscaper_1) escape_impl(path string) string {
-	return ModuleNames_escapePath(path)
-}
-
-func ModuleLoader_PathEscaper_1_values() []*ModuleLoader_PathEscaper_1 {
-	return append([]*ModuleLoader_PathEscaper_1(nil), ModuleLoader_PathEscaper_1_values_...)
-}
-
-func ModuleLoader_PathEscaper_1_valueOf(name string) *ModuleLoader_PathEscaper_1 {
-	for _, v := range ModuleLoader_PathEscaper_1_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ModuleLoader_PathEscaper_1_values_ []*ModuleLoader_PathEscaper_1
-
-var ModuleLoader_PathEscaper_1_clinit_done bool
-
-func ModuleLoader_PathEscaper_1_clinit() {
-	if ModuleLoader_PathEscaper_1_clinit_done {
-		return
-	}
-	ModuleLoader_PathEscaper_1_clinit_done = true
-	ModuleLoader_PathEscaper_1_values_ = []*ModuleLoader_PathEscaper_1{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper>", enumValues_(ModuleLoader_PathEscaper_1_values_))
-
-}
-
-type ModuleLoader_PathEscaper_2 struct {
-	ModuleLoader_PathEscaper
-}
-
-func (this *ModuleLoader_PathEscaper_2) up_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper {
-	if this == nil {
-		return nil
-	}
-	return &this.ModuleLoader_PathEscaper
-}
-
-func (this *ModuleLoader_PathEscaper_2) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ModuleLoader_PathEscaper_2) init_ModuleLoader_PathEscaper_2(name_ string, ordinal_ int32) {
-	this.ModuleLoader_PathEscaper.init_ModuleLoader_PathEscaper(name_, ordinal_)
-}
-
-func new_ModuleLoader_PathEscaper_2(name_ string, ordinal_ int32) *ModuleLoader_PathEscaper_2 {
-	this := &ModuleLoader_PathEscaper_2{}
-	this.self_ = this
-	this.init_ModuleLoader_PathEscaper_2(name_, ordinal_)
-	return this
-}
-
-func (this *ModuleLoader_PathEscaper_2) escape_impl(path string) string {
-	return ModuleNames_canonicalizePath(path)
-}
-
-func ModuleLoader_PathEscaper_2_values() []*ModuleLoader_PathEscaper_2 {
-	return append([]*ModuleLoader_PathEscaper_2(nil), ModuleLoader_PathEscaper_2_values_...)
-}
-
-func ModuleLoader_PathEscaper_2_valueOf(name string) *ModuleLoader_PathEscaper_2 {
-	for _, v := range ModuleLoader_PathEscaper_2_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ModuleLoader_PathEscaper_2_values_ []*ModuleLoader_PathEscaper_2
-
-var ModuleLoader_PathEscaper_2_clinit_done bool
-
-func ModuleLoader_PathEscaper_2_clinit() {
-	if ModuleLoader_PathEscaper_2_clinit_done {
-		return
-	}
-	ModuleLoader_PathEscaper_2_clinit_done = true
-	ModuleLoader_PathEscaper_2_values_ = []*ModuleLoader_PathEscaper_2{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper>", enumValues_(ModuleLoader_PathEscaper_2_values_))
-
-}
-
-type ModuleLoader_PathResolver_1 struct {
-	ModuleLoader_PathResolver
-}
-
-func (this *ModuleLoader_PathResolver_1) up_ModuleLoader_PathResolver() *ModuleLoader_PathResolver {
-	if this == nil {
-		return nil
-	}
-	return &this.ModuleLoader_PathResolver
-}
-
-func (this *ModuleLoader_PathResolver_1) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ModuleLoader_PathResolver_1) init_ModuleLoader_PathResolver_1(name_ string, ordinal_ int32) {
-	this.ModuleLoader_PathResolver.init_ModuleLoader_PathResolver(name_, ordinal_)
-}
-
-func new_ModuleLoader_PathResolver_1(name_ string, ordinal_ int32) *ModuleLoader_PathResolver_1 {
-	this := &ModuleLoader_PathResolver_1{}
-	this.self_ = this
-	this.init_ModuleLoader_PathResolver_1(name_, ordinal_)
-	return this
-}
-
-func (this *ModuleLoader_PathResolver_1) apply_impl(path_ any) any {
-	var path string = str_(path_)
-	_ = path
-	return strobj_(path)
-}
-
-func ModuleLoader_PathResolver_1_values() []*ModuleLoader_PathResolver_1 {
-	return append([]*ModuleLoader_PathResolver_1(nil), ModuleLoader_PathResolver_1_values_...)
-}
-
-func ModuleLoader_PathResolver_1_valueOf(name string) *ModuleLoader_PathResolver_1 {
-	for _, v := range ModuleLoader_PathResolver_1_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ModuleLoader_PathResolver_1_values_ []*ModuleLoader_PathResolver_1
-
-var ModuleLoader_PathResolver_1_clinit_done bool
-
-func ModuleLoader_PathResolver_1_clinit() {
-	if ModuleLoader_PathResolver_1_clinit_done {
-		return
-	}
-	ModuleLoader_PathResolver_1_clinit_done = true
-	ModuleLoader_PathResolver_1_values_ = []*ModuleLoader_PathResolver_1{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.deps.ModuleLoader.PathResolver>", enumValues_(ModuleLoader_PathResolver_1_values_))
-
-}
-
-type ModuleLoader_PathResolver_2 struct {
-	ModuleLoader_PathResolver
-}
-
-func (this *ModuleLoader_PathResolver_2) up_ModuleLoader_PathResolver() *ModuleLoader_PathResolver {
-	if this == nil {
-		return nil
-	}
-	return &this.ModuleLoader_PathResolver
-}
-
-func (this *ModuleLoader_PathResolver_2) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ModuleLoader_PathResolver_2) init_ModuleLoader_PathResolver_2(name_ string, ordinal_ int32) {
-	this.ModuleLoader_PathResolver.init_ModuleLoader_PathResolver(name_, ordinal_)
-}
-
-func new_ModuleLoader_PathResolver_2(name_ string, ordinal_ int32) *ModuleLoader_PathResolver_2 {
-	this := &ModuleLoader_PathResolver_2{}
-	this.self_ = this
-	this.init_ModuleLoader_PathResolver_2(name_, ordinal_)
-	return this
-}
-
-func (this *ModuleLoader_PathResolver_2) apply_impl(path_ any) any {
-	var path string = str_(path_)
-	_ = path
-	return strobj_(FilePaths_toAbsolute(path))
-}
-
-func ModuleLoader_PathResolver_2_values() []*ModuleLoader_PathResolver_2 {
-	return append([]*ModuleLoader_PathResolver_2(nil), ModuleLoader_PathResolver_2_values_...)
-}
-
-func ModuleLoader_PathResolver_2_valueOf(name string) *ModuleLoader_PathResolver_2 {
-	for _, v := range ModuleLoader_PathResolver_2_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ModuleLoader_PathResolver_2_values_ []*ModuleLoader_PathResolver_2
-
-var ModuleLoader_PathResolver_2_clinit_done bool
-
-func ModuleLoader_PathResolver_2_clinit() {
-	if ModuleLoader_PathResolver_2_clinit_done {
-		return
-	}
-	ModuleLoader_PathResolver_2_clinit_done = true
-	ModuleLoader_PathResolver_2_values_ = []*ModuleLoader_PathResolver_2{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.deps.ModuleLoader.PathResolver>", enumValues_(ModuleLoader_PathResolver_2_values_))
 
 }

@@ -172,6 +172,11 @@ func Iterables_filter(p0 Iterable, p1 Predicate_base) Iterable {
 	return &iterView_{func() Iterator { return filterIter_(p0.iterator(), p1.apply) }}
 }
 
+// Iterables_filter_f is Iterables_filter with the predicate as a Go func value.
+func Iterables_filter_f(p0 Iterable, p1 func(any) bool) Iterable {
+	return &iterView_{func() Iterator { return filterIter_(p0.iterator(), p1) }}
+}
+
 func Iterables_transform(p0 Iterable, p1 Function_base) Iterable {
 	return &iterView_{func() Iterator { return mapIter_(p0.iterator(), p1.apply) }}
 }
@@ -271,7 +276,7 @@ func Iterables_getOnlyElement(p0 Iterable) any {
 
 // ---- Lists
 
-func Lists_charactersOf(p0 string) *ImmutableList {
+func Lists_charactersOf(p0 string) *ErasedImmutableList {
 	cs := String_toCharArray(p0)
 	out := make([]any, len(cs))
 	for i, c := range cs {
@@ -300,6 +305,9 @@ type Sets_SetView struct {
 	AbstractSet
 	it  func() Iterator
 	has func(any) bool
+	// hasStr is has of a String that is not null, without boxing it (Collection_contains_s);
+	// nil when the view has none.
+	hasStr func(string) bool
 }
 
 func newSetView_(it func() Iterator, has func(any) bool) *Sets_SetView {
@@ -320,10 +328,10 @@ func (this *Sets_SetView) size() int32 {
 	return n
 }
 
-func (this *Sets_SetView) immutableCopy() *ImmutableSet { return immSet_(this.toArray_0()) }
+func (this *Sets_SetView) immutableCopy() *ErasedImmutableSet { return immSet_(this.toArray_0()) }
 
 func Sets_union(p0 Set, p1 Set) *Sets_SetView {
-	return newSetView_(
+	v := newSetView_(
 		func() Iterator {
 			return flatIter_([]any{0, 1}, func(k any) Iterator {
 				if k == 0 {
@@ -333,22 +341,28 @@ func Sets_union(p0 Set, p1 Set) *Sets_SetView {
 			})
 		},
 		func(v any) bool { return p0.contains(v) || p1.contains(v) })
+	v.hasStr = func(k string) bool { return Collection_contains_s(p0, k) || Collection_contains_s(p1, k) }
+	return v
 }
 
 func Sets_intersection(p0 Set, p1 Set) *Sets_SetView {
-	return newSetView_(
+	v := newSetView_(
 		func() Iterator { return filterIter_(p0.iterator(), p1.contains) },
 		func(v any) bool { return p0.contains(v) && p1.contains(v) })
+	v.hasStr = func(k string) bool { return Collection_contains_s(p0, k) && Collection_contains_s(p1, k) }
+	return v
 }
 
 func Sets_difference(p0 Set, p1 Set) *Sets_SetView {
-	return newSetView_(
+	v := newSetView_(
 		func() Iterator { return filterIter_(p0.iterator(), func(v any) bool { return !p1.contains(v) }) },
 		func(v any) bool { return p0.contains(v) && !p1.contains(v) })
+	v.hasStr = func(k string) bool { return Collection_contains_s(p0, k) && !Collection_contains_s(p1, k) }
+	return v
 }
 
 // Sets.immutableEnumSet: iterates in the constants' declaration order.
-func Sets_immutableEnumSet(p0 *Enum, p1 []*Enum) *ImmutableSet {
+func Sets_immutableEnumSet(p0 *Enum, p1 []*Enum) *ErasedImmutableSet {
 	items := make([]any, 0, len(p1)+1)
 	items = append(items, p0.self())
 	for _, e := range p1 {
@@ -356,13 +370,7 @@ func Sets_immutableEnumSet(p0 *Enum, p1 []*Enum) *ImmutableSet {
 	}
 	checkNoNulls_(items)
 	sortSlice_(items, ordinalCmp_())
-	set := immSet_(items)
-	last := set.items[len(set.items)-1].(interface{ ordinal() int32 }).ordinal()
-	set.byOrd = make([]any, last+1)
-	for _, x := range set.items {
-		set.byOrd[x.(interface{ ordinal() int32 }).ordinal()] = x
-	}
-	return set
+	return withOrdinals_(immSet_(items))
 }
 
 func Sets_newIdentityHashSet() Set { return identitySet_() }
@@ -599,6 +607,17 @@ func (this *interner_) intern(v any) any {
 	}
 	this.m.put(v, v)
 	return v
+}
+
+// Interner_intern_s is in.intern(s) for a string: a string already interned is found without
+// boxing s.
+func Interner_intern_s(in Interner, s string) string {
+	if x, ok := in.(*interner_); ok && s != nullstr_ {
+		if i := x.m.t.findStr(s); i >= 0 {
+			return x.m.t.vals[i].(string)
+		}
+	}
+	return str_(in.intern(strobj_(s)))
 }
 
 // The interner holds its samples strongly (nothing observes the difference).

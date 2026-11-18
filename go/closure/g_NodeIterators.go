@@ -25,7 +25,9 @@ func (this *NodeIterators_FunctionlessLocalScope) finit_NodeIterators_Functionle
 
 func (this *NodeIterators_FunctionlessLocalScope) init_NodeIterators_FunctionlessLocalScope(ancestors []Node) {
 	this.finit_NodeIterators_FunctionlessLocalScope()
-	Preconditions_checkArgument((int32(len(ancestors)) > 0))
+	if int32(len(ancestors)) <= 0 {
+		panic(new_IllegalArgumentException_0())
+	}
 	for _, n := range ancestors {
 		if n.isFunction() {
 			break
@@ -69,7 +71,7 @@ func (this *NodeIterators_FunctionlessLocalScope) next() any {
 }
 
 func (this *NodeIterators_FunctionlessLocalScope) remove() {
-	panic(new_UnsupportedOperationException_String("Not implemented").self())
+	panic(new_UnsupportedOperationException_String("Not implemented"))
 }
 
 func (this *NodeIterators_FunctionlessLocalScope) current() Node {
@@ -104,9 +106,14 @@ func (this *NodeIterators_LocalVarMotion) zero_NodeIterators_LocalVarMotion() {
 }
 
 func (this *NodeIterators_LocalVarMotion) init_NodeIterators_LocalVarMotion(compiler *AbstractCompiler, nameNode Node, iterator *NodeIterators_FunctionlessLocalScope) {
-	Preconditions_checkArgument(nameNode.isName())
+	if !nameNode.isName() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var valueNode Node = NodeUtil_getAssignedValue(nameNode)
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	if compiler == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.compiler_ = compiler
 	this.varName_ = nameNode.getString()
 	this.valueHasSideEffects = ((valueNode != 0) && compiler.getAstAnalyzer().mayHaveSideEffects(valueNode))
 	this.iterator_ = iterator
@@ -121,14 +128,22 @@ func new_NodeIterators_LocalVarMotion(compiler *AbstractCompiler, nameNode Node,
 }
 
 func NodeIterators_LocalVarMotion_forVar(compiler *AbstractCompiler, name Node, var_ Node, block Node) *NodeIterators_LocalVarMotion {
-	Preconditions_checkArgument(NodeUtil_isNameDeclaration(var_))
-	Preconditions_checkArgument(NodeUtil_isStatement(var_))
+	if !NodeUtil_isNameDeclaration(var_) {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !NodeUtil_isStatement(var_) {
+		panic(new_IllegalArgumentException_0())
+	}
 	return new_NodeIterators_LocalVarMotion(compiler, name, new_NodeIterators_FunctionlessLocalScope([]Node{name, var_, block}))
 }
 
 func NodeIterators_LocalVarMotion_forAssign(compiler *AbstractCompiler, name Node, assign Node, expr Node, block Node) *NodeIterators_LocalVarMotion {
-	Preconditions_checkArgument(assign.isAssign())
-	Preconditions_checkArgument(expr.isExprResult())
+	if !assign.isAssign() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !expr.isExprResult() {
+		panic(new_IllegalArgumentException_0())
+	}
 	return new_NodeIterators_LocalVarMotion(compiler, name, new_NodeIterators_FunctionlessLocalScope([]Node{assign, expr, block}))
 }
 
@@ -143,7 +158,7 @@ func (this *NodeIterators_LocalVarMotion) next() any {
 }
 
 func (this *NodeIterators_LocalVarMotion) remove() {
-	panic(new_UnsupportedOperationException_String("Not implemented").self())
+	panic(new_UnsupportedOperationException_String("Not implemented"))
 }
 
 func (this *NodeIterators_LocalVarMotion) advanceLookAhead(atStart bool) {
@@ -163,7 +178,7 @@ func (this *NodeIterators_LocalVarMotion) advanceLookAhead(atStart bool) {
 	}
 	var nextNode Node = Node_of_(this.iterator_.next())
 	var nextParent Node = this.iterator_.currentParent()
-	var type_ *Token_rhino = nextNode.getToken()
+	var type_ Token_rhino = nextNode.getToken()
 	if this.valueHasSideEffects {
 		var readsState bool = false
 		if (nextNode.isName() && !(this.varName_ == nextNode.getString())) || (((nextNode.isGetProp() || nextNode.isGetElem()) || nextNode.isOptChainGetProp()) || nextNode.isOptChainGetElem()) {

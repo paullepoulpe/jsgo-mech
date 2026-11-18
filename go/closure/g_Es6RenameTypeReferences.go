@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Es6RenameTypeReferences struct {
 	NodeTraversal_AbstractPostOrderCallback
 	renameTable *SimpleTable[Node, string, string]
@@ -29,9 +31,7 @@ func new_Es6RenameTypeReferences(renameTable *SimpleTable[Node, string, string])
 func (this *Es6RenameTypeReferences) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
 	if info != nil {
-		it_1 := foreach_(any(info.getTypeNodes()))
-		for it_1.next() {
-			var root Node = Node_of_(it_1.v)
+		for root := range elemsBy_(info.getTypeNodes(), Node_of_) {
 			this.renameTypeNodeRecursive(t, root)
 		}
 	}
@@ -50,17 +50,19 @@ func (this *Es6RenameTypeReferences) renameTypeNodeRecursive(t *NodeTraversal, n
 }
 
 func (this *Es6RenameTypeReferences) renameTypeReference(t *NodeTraversal, n Node) {
-	Preconditions_checkState(n.isStringLit())
+	if !n.isStringLit() {
+		panic(new_IllegalStateException_0())
+	}
 	var fullName string = n.getString()
 	var rootName string
 	var rest Optional[string]
-	var endPos int32 = String_indexOf(fullName, 46)
+	var endPos int32 = int32(strings.IndexByte(fullName, '.'))
 	if endPos == -1 {
 		rootName = fullName
 		rest = Optional_empty[string]()
 	} else {
-		rootName = String_substring(fullName, 0, endPos)
-		rest = Optional_of[string](String_substring_int(fullName, endPos))
+		rootName = fullName[:endPos]
+		rest = Optional_of[string](fullName[endPos:])
 	}
 	this.renameReference(t, n, rootName, rest)
 }
@@ -71,7 +73,9 @@ func (this *Es6RenameTypeReferences) renameReference(t *NodeTraversal, n Node, o
 		var currentRootNode Node = current.getRootNode()
 		var newName Optional[string] = Optional_ofNullable[string](this.renameTable.get(currentRootNode.box_(), strobj_(oldName)))
 		if newName.isPresent() {
-			Preconditions_checkState_boolean_String_Object(((currentRootNode.isModuleBody() || currentRootNode.isScript()) || NodeUtil_isFunctionBlock(currentRootNode)), "Not a MODULE_BODY or SCRIPT or goog.loadModule root: %s", currentRootNode.box_())
+			if !((currentRootNode.isModuleBody() || currentRootNode.isScript()) || NodeUtil_isFunctionBlock(currentRootNode)) {
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Not a MODULE_BODY or SCRIPT or goog.loadModule root: %s", []any{currentRootNode.box_()})))
+			}
 			var newFullName string = func() string {
 				if rest.isEmpty() {
 					return newName.get()
@@ -86,4 +90,13 @@ func (this *Es6RenameTypeReferences) renameReference(t *NodeTraversal, n Node, o
 			current = cast_[*Scope](current.getParent().self())
 		}
 	}
+}
+
+// visit: an object that is exactly a Es6RenameTypeReferences calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6RenameTypeReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*Es6RenameTypeReferences); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

@@ -19,29 +19,31 @@ func new_MinimizedCondition(p *MinimizedCondition_MeasuredNode, n *MinimizedCond
 }
 
 func MinimizedCondition_fromConditionNode(n Node) *MinimizedCondition {
-	Preconditions_checkState(n.hasParent())
+	if !n.hasParent() {
+		panic(new_IllegalStateException_0())
+	}
 	return func() *MinimizedCondition {
-		switch n.getToken() {
-		case Token_rhino_NOT, Token_rhino_AND, Token_rhino_OR, Token_rhino_HOOK, Token_rhino_COMMA:
+		switch n.ns_().token {
+		case tokOrd1_NOT, tokOrd1_AND, tokOrd1_OR, tokOrd1_HOOK, tokOrd1_COMMA:
 			return MinimizedCondition_computeMinimizedCondition(n)
 		default:
 			return MinimizedCondition_unoptimized(n)
 		}
-		panic("unreachable")
 	}()
 }
 
-func (this *MinimizedCondition) getMinimized(style *MinimizedCondition_MinimizationStyle) *MinimizedCondition_MeasuredNode {
+func (this *MinimizedCondition) getMinimized(style MinimizedCondition_MinimizationStyle) *MinimizedCondition_MeasuredNode {
 	if ((style == MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED) || this.positive.node_.isNot()) || (this.positive.length_ <= this.negative.length_) {
 		return this.positive
 	} else {
 		return this.negative.addNot()
 	}
-	panic("unreachable")
 }
 
 func MinimizedCondition_unoptimized(n Node) *MinimizedCondition {
-	Preconditions_checkNotNull(n.getParent().box_())
+	if n.getParent() == 0 {
+		panic(new_NullPointerException_0())
+	}
 	var pos *MinimizedCondition_MeasuredNode = new_MinimizedCondition_MeasuredNode(n, nil, 0, false)
 	var neg *MinimizedCondition_MeasuredNode = new_MinimizedCondition_MeasuredNode(0, nil, int32(2147483647), true)
 	return new_MinimizedCondition(pos, neg)
@@ -66,14 +68,14 @@ func MinimizedCondition_pickBest(a *MinimizedCondition_MeasuredNode, b *Minimize
 
 func MinimizedCondition_computeMinimizedCondition(n Node) *MinimizedCondition {
 	return func() *MinimizedCondition {
-		switch n.getToken() {
-		case Token_rhino_NOT:
+		switch n.ns_().token {
+		case tokOrd1_NOT:
 			var subtree *MinimizedCondition = MinimizedCondition_computeMinimizedCondition(n.getFirstChild())
 			var positive *MinimizedCondition_MeasuredNode = MinimizedCondition_pickBest(MinimizedCondition_MeasuredNode_addNode(n, []*MinimizedCondition_MeasuredNode{subtree.positive}), subtree.negative)
 			var negative *MinimizedCondition_MeasuredNode = MinimizedCondition_pickBest(subtree.negative.negate(), subtree.positive)
 			return new_MinimizedCondition(positive, negative)
-		case Token_rhino_AND, Token_rhino_OR:
-			var complementNode Node = new_Node_Token(func() *Token_rhino {
+		case tokOrd1_AND, tokOrd1_OR:
+			var complementNode Node = new_Node_Token(func() Token_rhino {
 				if n.isAnd() {
 					return Token_rhino_OR
 				}
@@ -84,7 +86,7 @@ func MinimizedCondition_computeMinimizedCondition(n Node) *MinimizedCondition {
 			var positive *MinimizedCondition_MeasuredNode = MinimizedCondition_pickBest(MinimizedCondition_MeasuredNode_addNode(n, []*MinimizedCondition_MeasuredNode{leftSubtree.positive, rightSubtree.positive}), MinimizedCondition_MeasuredNode_addNode(complementNode, []*MinimizedCondition_MeasuredNode{leftSubtree.negative, rightSubtree.negative}).negate())
 			var negative *MinimizedCondition_MeasuredNode = MinimizedCondition_pickBest(MinimizedCondition_MeasuredNode_addNode(n, []*MinimizedCondition_MeasuredNode{leftSubtree.positive, rightSubtree.positive}).negate(), MinimizedCondition_MeasuredNode_addNode(complementNode, []*MinimizedCondition_MeasuredNode{leftSubtree.negative, rightSubtree.negative}).change())
 			return new_MinimizedCondition(positive, negative)
-		case Token_rhino_HOOK:
+		case tokOrd1_HOOK:
 			var cond Node = n.getFirstChild()
 			var thenNode Node = cond.getNext()
 			var elseNode Node = thenNode.getNext()
@@ -93,7 +95,7 @@ func MinimizedCondition_computeMinimizedCondition(n Node) *MinimizedCondition {
 			var positive *MinimizedCondition_MeasuredNode = MinimizedCondition_MeasuredNode_addNode(n, []*MinimizedCondition_MeasuredNode{MinimizedCondition_MeasuredNode_forNode(cond), thenSubtree.positive, elseSubtree.positive})
 			var negative *MinimizedCondition_MeasuredNode = MinimizedCondition_MeasuredNode_addNode(n, []*MinimizedCondition_MeasuredNode{MinimizedCondition_MeasuredNode_forNode(cond), thenSubtree.negative, elseSubtree.negative})
 			return new_MinimizedCondition(positive, negative)
-		case Token_rhino_COMMA:
+		case tokOrd1_COMMA:
 			var lhs Node = n.getFirstChild()
 			var rhsSubtree *MinimizedCondition = MinimizedCondition_computeMinimizedCondition(lhs.getNext())
 			var positive *MinimizedCondition_MeasuredNode = MinimizedCondition_MeasuredNode_addNode(n, []*MinimizedCondition_MeasuredNode{MinimizedCondition_MeasuredNode_forNode(lhs), rhsSubtree.positive})
@@ -104,48 +106,67 @@ func MinimizedCondition_computeMinimizedCondition(n Node) *MinimizedCondition {
 			var neg *MinimizedCondition_MeasuredNode = pos.negate()
 			return new_MinimizedCondition(pos, neg)
 		}
-		panic("unreachable")
 	}()
 }
 
-type MinimizedCondition_MinimizationStyle struct {
-	Enum
+type MinimizedCondition_MinimizationStyle uint8
+
+// MinimizedCondition_MinimizationStyle_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var MinimizedCondition_MinimizationStyle_enum_ = [2]Enum{
+	{self_: MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED, name_: "PREFER_UNNEGATED", ordinal_: 0},
+	{self_: MinimizedCondition_MinimizationStyle_ALLOW_LEADING_NOT, name_: "ALLOW_LEADING_NOT", ordinal_: 1},
 }
 
-func (this *MinimizedCondition_MinimizationStyle) up_Enum() *Enum {
-	if this == nil {
+func (this MinimizedCondition_MinimizationStyle) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &MinimizedCondition_MinimizationStyle_enum_[this-1]
 }
 
-func (this *MinimizedCondition_MinimizationStyle) init_MinimizedCondition_MinimizationStyle(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this MinimizedCondition_MinimizationStyle) name() string {
+	return this.enum_().name_
 }
 
-func new_MinimizedCondition_MinimizationStyle(name_ string, ordinal_ int32) *MinimizedCondition_MinimizationStyle {
-	this := &MinimizedCondition_MinimizationStyle{}
-	this.self_ = this
-	this.init_MinimizedCondition_MinimizationStyle(name_, ordinal_)
+func (this MinimizedCondition_MinimizationStyle) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this MinimizedCondition_MinimizationStyle) toString() string {
+	return this.enum_().name_
+}
+
+func (this MinimizedCondition_MinimizationStyle) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this MinimizedCondition_MinimizationStyle) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func MinimizedCondition_MinimizationStyle_values() []*MinimizedCondition_MinimizationStyle {
-	return append([]*MinimizedCondition_MinimizationStyle(nil), MinimizedCondition_MinimizationStyle_values_...)
+func MinimizedCondition_MinimizationStyle_values() []MinimizedCondition_MinimizationStyle {
+	return append([]MinimizedCondition_MinimizationStyle(nil), MinimizedCondition_MinimizationStyle_values_...)
 }
 
-func MinimizedCondition_MinimizationStyle_valueOf(name string) *MinimizedCondition_MinimizationStyle {
+func MinimizedCondition_MinimizationStyle_valueOf(name string) MinimizedCondition_MinimizationStyle {
 	for _, v := range MinimizedCondition_MinimizationStyle_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("MinimizationStyle", name))
 }
 
-var MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED *MinimizedCondition_MinimizationStyle
-var MinimizedCondition_MinimizationStyle_ALLOW_LEADING_NOT *MinimizedCondition_MinimizationStyle
-var MinimizedCondition_MinimizationStyle_values_ []*MinimizedCondition_MinimizationStyle
+const MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED MinimizedCondition_MinimizationStyle = 1
+const MinimizedCondition_MinimizationStyle_ALLOW_LEADING_NOT MinimizedCondition_MinimizationStyle = 2
+
+var MinimizedCondition_MinimizationStyle_values_ []MinimizedCondition_MinimizationStyle
 
 var MinimizedCondition_MinimizationStyle_clinit_done bool
 
@@ -154,9 +175,7 @@ func MinimizedCondition_MinimizationStyle_clinit() {
 		return
 	}
 	MinimizedCondition_MinimizationStyle_clinit_done = true
-	MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED = new_MinimizedCondition_MinimizationStyle("PREFER_UNNEGATED", 0)
-	MinimizedCondition_MinimizationStyle_ALLOW_LEADING_NOT = new_MinimizedCondition_MinimizationStyle("ALLOW_LEADING_NOT", 1)
-	MinimizedCondition_MinimizationStyle_values_ = []*MinimizedCondition_MinimizationStyle{MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED, MinimizedCondition_MinimizationStyle_ALLOW_LEADING_NOT}
+	MinimizedCondition_MinimizationStyle_values_ = []MinimizedCondition_MinimizationStyle{MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED, MinimizedCondition_MinimizationStyle_ALLOW_LEADING_NOT}
 	registerEnum_("com.google.javascript.jscomp.MinimizedCondition.MinimizationStyle", enumValues_(MinimizedCondition_MinimizationStyle_values_))
 
 }
@@ -190,7 +209,9 @@ func (this *MinimizedCondition_MeasuredNode) isNot() bool {
 }
 
 func (this *MinimizedCondition_MeasuredNode) withoutNot() *MinimizedCondition_MeasuredNode {
-	Preconditions_checkState(this.isNot())
+	if !this.isNot() {
+		panic(new_IllegalStateException_0())
+	}
 	return MinimizedCondition_MeasuredNode_normalizeChildren(this.node_, this.children_)[0].change()
 }
 
@@ -210,7 +231,6 @@ func (this *MinimizedCondition_MeasuredNode) negate() *MinimizedCondition_Measur
 		default:
 			return this.addNot()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -229,10 +249,9 @@ func MinimizedCondition_MeasuredNode_normalizeChildren(node Node, children []*Mi
 		}
 		return measuredChildren
 	}
-	panic("unreachable")
 }
 
-func (this *MinimizedCondition_MeasuredNode) updateToken(token *Token_rhino) *MinimizedCondition_MeasuredNode {
+func (this *MinimizedCondition_MeasuredNode) updateToken(token Token_rhino) *MinimizedCondition_MeasuredNode {
 	return new_MinimizedCondition_MeasuredNode(new_Node_Token(token).srcref(this.node_), MinimizedCondition_MeasuredNode_normalizeChildren(this.node_, this.children_), this.length_, true)
 }
 
@@ -283,13 +302,19 @@ func MinimizedCondition_MeasuredNode_forNode(n Node) *MinimizedCondition_Measure
 }
 
 func (this *MinimizedCondition_MeasuredNode) willChange(original Node) bool {
-	Preconditions_checkNotNull(original.box_())
+	if original == 0 {
+		panic(new_NullPointerException_0())
+	}
 	return ((original != this.node_) || this.isChanged())
 }
 
 func (this *MinimizedCondition_MeasuredNode) applyTo(original Node) Node {
-	Preconditions_checkNotNull(original.box_())
-	Preconditions_checkState(this.willChange(original))
+	if original == 0 {
+		panic(new_NullPointerException_0())
+	}
+	if !this.willChange(original) {
+		panic(new_IllegalStateException_0())
+	}
 	var replacement Node = this.buildReplacement()
 	if original != replacement {
 		this.safeDetach(replacement)

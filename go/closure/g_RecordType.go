@@ -33,17 +33,15 @@ func (this *RecordType) finit_RecordType() {
 	this.isFrozen = false
 }
 
-func (this *RecordType) init_RecordType(registry *JSTypeRegistry, properties MapOf[string, *RecordTypeBuilder_RecordProperty], declared bool) {
+func (this *RecordType) init_RecordType(registry *JSTypeRegistry, properties *TMap[string, *RecordTypeBuilder_RecordProperty], declared bool) {
 	this.PrototypeObjectType.init_PrototypeObjectType(PrototypeObjectType_builder(registry))
 	this.finit_RecordType()
 	this.setPrettyPrint(true)
 	this.declared = declared
-	it_1 := foreach_(any(properties.keySet()))
-	for it_1.next() {
-		var property string = str_(it_1.v)
-		var prop *RecordTypeBuilder_RecordProperty = cast_[*RecordTypeBuilder_RecordProperty](Map_get_s(properties, property))
+	for property := range properties.Keys() {
+		var prop *RecordTypeBuilder_RecordProperty = properties.Get(property)
 		if prop == nil {
-			panic(new_IllegalStateException_String("RecordProperty associated with a property should not be null!").self())
+			panic(new_IllegalStateException_String("RecordProperty associated with a property should not be null!"))
 		}
 		if declared {
 			this.defineDeclaredProperty(property, prop.getType(), prop.getPropertyNode())
@@ -55,14 +53,14 @@ func (this *RecordType) init_RecordType(registry *JSTypeRegistry, properties Map
 	registry.getResolver().resolveIfClosed(this.up_JSType(), RecordType_TYPE_CLASS_FIELD)
 }
 
-func new_RecordType(registry *JSTypeRegistry, properties MapOf[string, *RecordTypeBuilder_RecordProperty], declared bool) *RecordType {
+func new_RecordType(registry *JSTypeRegistry, properties *TMap[string, *RecordTypeBuilder_RecordProperty], declared bool) *RecordType {
 	this := &RecordType{}
 	this.self_ = this
 	this.init_RecordType(registry, properties, declared)
 	return this
 }
 
-func (this *RecordType) getTypeClass_impl() *JSTypeClass {
+func (this *RecordType) getTypeClass_impl() JSTypeClass {
 	return RecordType_TYPE_CLASS_FIELD
 }
 
@@ -87,7 +85,7 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 		var builder *RecordTypeBuilder = new_RecordTypeBuilder(this.registry)
 		builder.setSynthesized(true)
 		var noType *JSType = this.registry.getNativeObjectType(JSTypeNative_NO_TYPE).up_JSType()
-		it_1 := foreach_(any(this.getOwnPropertyNames()))
+		it_1 := foreach_(this.getOwnPropertyNames())
 		for it_1.next() {
 			var property string = str_(it_1.v)
 			var thisPropertyType *JSType = this.getPropertyType(property)
@@ -95,7 +93,7 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 			if thatRecord.hasProperty(property) {
 				var thatPropertyType *JSType = thatRecord.getPropertyType(property)
 				propType = thisPropertyType.getGreatestSubtype(thatPropertyType)
-				if propType.equals(noType.self()) {
+				if propType.equals_JSType(noType) {
 					return noType
 				}
 			} else {
@@ -103,9 +101,7 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 			}
 			builder.addProperty(property, propType, this.getPropertyNode(property))
 		}
-		it_3 := foreach_(any(thatRecord.getOwnPropertyNames()))
-		for it_3.next() {
-			var property string = str_(it_3.v)
+		for property := range elemsBy_(thatRecord.getOwnPropertyNames(), str_) {
 			if !this.hasProperty(property) {
 				builder.addProperty(property, thatRecord.getPropertyType(property), thatRecord.getPropertyNode(property))
 			}
@@ -115,16 +111,12 @@ func (this *RecordType) getGreatestSubtypeHelper(that *JSType) *JSType {
 	var greatestSubtype *JSType = this.registry.getNativeType(JSTypeNative_NO_OBJECT_TYPE)
 	var thatRestrictedToObj *JSType = this.registry.getNativeType(JSTypeNative_OBJECT_TYPE).getGreatestSubtype(that)
 	if !thatRestrictedToObj.isEmptyType() {
-		it_5 := foreach_(any(this.getOwnPropertyNames()))
-		for it_5.next() {
-			var propName string = str_(it_5.v)
+		for propName := range elemsBy_(this.getOwnPropertyNames(), str_) {
 			var propType *JSType = this.getPropertyType(propName)
 			var builder *UnionType_Builder = UnionType_builder(this.registry)
-			it_7 := foreach_(any(this.registry.getEachReferenceTypeWithProperty(propName)))
-			for it_7.next() {
-				var alt *ObjectType = to_ObjectType(it_7.v)
+			for alt := range elemsBy_(this.registry.getEachReferenceTypeWithProperty(propName), to_ObjectType) {
 				var altPropType *JSType = alt.getPropertyType(propName)
-				if (((altPropType != nil) && !alt.equals(obj_(this))) && alt.isSubtypeOf(that)) && altPropType.isSubtypeOf(propType) {
+				if (((altPropType != nil) && !alt.equals_JSType(this.up_JSType())) && alt.isSubtypeOf(that)) && altPropType.isSubtypeOf(propType) {
 					builder.addAlternate(alt.up_JSType())
 				}
 			}
@@ -142,7 +134,7 @@ func (this *RecordType) isStructuralType_impl() bool {
 	return true
 }
 
-var RecordType_TYPE_CLASS_FIELD *JSTypeClass
+var RecordType_TYPE_CLASS_FIELD JSTypeClass
 
 var RecordType_clinit_done bool
 
@@ -153,4 +145,44 @@ func RecordType_clinit() {
 	RecordType_clinit_done = true
 	RecordType_TYPE_CLASS_FIELD = JSTypeClass_RECORD
 
+}
+
+// getTypeClass: an object that is exactly a RecordType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *RecordType) getTypeClass() JSTypeClass {
+	if p, _ := this.self_.(*RecordType); p == this {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.getTypeClass_impl()
+}
+
+// getImplicitPrototype: an object that is exactly a RecordType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
+func (this *RecordType) getImplicitPrototype() *ObjectType {
+	if p, _ := this.self_.(*RecordType); p == this {
+		return this.getImplicitPrototype_impl()
+	}
+	return this.self_.getImplicitPrototype_impl()
+}
+
+// defineProperty: an object that is exactly a RecordType calls its defineProperty_impl directly (post-flip); others dispatch.
+func (this *RecordType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
+	if p, _ := this.self_.(*RecordType); p == this {
+		return this.defineProperty_impl(p0, p1, p2, p3)
+	}
+	return this.self_.defineProperty_impl(p0, p1, p2, p3)
+}
+
+// toMaybeRecordType: an object that is exactly a RecordType calls its toMaybeRecordType_impl directly (post-flip); others dispatch.
+func (this *RecordType) toMaybeRecordType() *RecordType {
+	if p, _ := this.self_.(*RecordType); p == this {
+		return this.toMaybeRecordType_impl()
+	}
+	return this.self_.toMaybeRecordType_impl()
+}
+
+// isStructuralType: an object that is exactly a RecordType calls its isStructuralType_impl directly (post-flip); others dispatch.
+func (this *RecordType) isStructuralType() bool {
+	if p, _ := this.self_.(*RecordType); p == this {
+		return this.isStructuralType_impl()
+	}
+	return this.self_.isStructuralType_impl()
 }

@@ -3,21 +3,36 @@
 package closure
 
 type ScopedName struct {
-	self_ any
+	self_ ScopedName_I
+}
+
+// ScopedName_I holds the methods the dispatchers of ScopedName's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type ScopedName_I interface {
+	getName_impl() string
+	getScopeRoot_impl() Node
+}
+
+// ScopedName_as is implemented by ScopedName and the classes that extend it: a cast to ScopedName asserts to it
+// (post-flip).
+type ScopedName_as interface {
+	as_ScopedName() *ScopedName
 }
 
 func (this *ScopedName) as_ScopedName() *ScopedName { return this }
 
 func to_ScopedName(v any) *ScopedName {
-	if v == nil {
+	switch p := v.(type) {
+	case *ScopedName_Simple:
+		return p.as_ScopedName()
+	case *TypedVar:
+		return p.as_ScopedName()
+	case *Var:
+		return p.as_ScopedName()
+	case nil:
 		return nil
 	}
-	return v.(interface{ as_ScopedName() *ScopedName }).as_ScopedName()
-}
-
-func is_ScopedName(v any) bool {
-	_, ok := v.(interface{ as_ScopedName() *ScopedName })
-	return ok
+	return v.(ScopedName_as).as_ScopedName()
 }
 
 func (this *ScopedName) self() any {
@@ -36,36 +51,33 @@ func ScopedName_of(name string, scopeRoot Node) *ScopedName {
 }
 
 func (this *ScopedName) equals(other any) bool {
-	var scopedName *ScopedName
-	_ = scopedName
-	if !(func() bool {
-		v_ := other
-		if !is_ScopedName(v_) {
-			return false
-		}
-		scopedName = to_ScopedName(v_)
-		return true
-	}()) {
+	p, ok := other.(ScopedName_as)
+	return ok && this.equals_ScopedName(p.as_ScopedName())
+}
+
+// equals_ScopedName is equals of a ScopedName (post-flip step eqtyped).
+func (this *ScopedName) equals_ScopedName(scopedName *ScopedName) bool {
+	if !(scopedName != nil) {
 		return false
 	}
-	return ((this.getName() == scopedName.getName()) && Object_equals(this.getScopeRoot().box_(), scopedName.getScopeRoot().box_()))
+	return ((this.getName() == scopedName.getName()) && equalsId_(this.getScopeRoot(), scopedName.getScopeRoot()))
 }
 
 func (this *ScopedName) hashCode() int32 {
 	var name string = this.getName()
 	var root Node = this.getScopeRoot()
 	var result int32 = 1
-	result = ((31 * result) + String_hashCode(name))
-	result = ((31 * result) + Object_hashCode(root.box_()))
+	result = ((31 * result) + utf16Hash_(name))
+	result = ((31 * result) + hashId_(root))
 	return result
 }
 
 func (this *ScopedName) getName() string {
-	return this.self_.(interface{ getName_impl() string }).getName_impl()
+	return this.self_.getName_impl()
 }
 
 func (this *ScopedName) getScopeRoot() Node {
-	return this.self_.(interface{ getScopeRoot_impl() Node }).getScopeRoot_impl()
+	return this.self_.getScopeRoot_impl()
 }
 
 type ScopedName_Simple struct {
@@ -105,4 +117,20 @@ func (this *ScopedName_Simple) getName_impl() string {
 
 func (this *ScopedName_Simple) getScopeRoot_impl() Node {
 	return this.scopeRoot
+}
+
+// getName: an object that is exactly a ScopedName_Simple calls its getName_impl directly (post-flip); others dispatch.
+func (this *ScopedName_Simple) getName() string {
+	if p, _ := this.self_.(*ScopedName_Simple); p == this {
+		return this.getName_impl()
+	}
+	return this.self_.getName_impl()
+}
+
+// getScopeRoot: an object that is exactly a ScopedName_Simple calls its getScopeRoot_impl directly (post-flip); others dispatch.
+func (this *ScopedName_Simple) getScopeRoot() Node {
+	if p, _ := this.self_.(*ScopedName_Simple); p == this {
+		return this.getScopeRoot_impl()
+	}
+	return this.self_.getScopeRoot_impl()
 }

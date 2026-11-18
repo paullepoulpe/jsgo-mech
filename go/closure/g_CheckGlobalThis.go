@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CheckGlobalThis struct {
 	compiler_      *AbstractCompiler
 	assignLhsChild Node
@@ -43,14 +45,14 @@ func (this *CheckGlobalThis) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 				}
 			}
 		}
-		var pType *Token_rhino = parent.getToken()
+		var pType Token_rhino = parent.getToken()
 		if !(((((pType == Token_rhino_BLOCK) || (pType == Token_rhino_SCRIPT)) || (pType == Token_rhino_NAME)) || (pType == Token_rhino_ASSIGN)) || (pType == Token_rhino_STRING_KEY)) {
 			return false
 		}
 		var grandparent Node = parent.getParent()
 		if NodeUtil_mayBeObjectLitKey(parent) {
 			var maybeLends *JSDocInfo = grandparent.getJSDocInfo()
-			if ((maybeLends != nil) && maybeLends.hasLendsName()) && String_endsWith(maybeLends.getLendsName().getRoot().getString(), ".prototype") {
+			if ((maybeLends != nil) && maybeLends.hasLendsName()) && strings.HasSuffix(maybeLends.getLendsName().getRoot().getString(), ".prototype") {
 				return false
 			}
 		}

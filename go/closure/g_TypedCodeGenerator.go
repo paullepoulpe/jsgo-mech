@@ -17,7 +17,9 @@ func (this *TypedCodeGenerator) up_CodeGenerator() *CodeGenerator {
 
 func (this *TypedCodeGenerator) init_TypedCodeGenerator(consumer *CodeConsumer, options *CompilerOptions, registry *JSTypeRegistry) {
 	this.CodeGenerator.init_CodeGenerator_CodeConsumer_CompilerOptions(consumer, options)
-	Preconditions_checkNotNull(obj_(registry))
+	if registry == nil {
+		panic(new_NullPointerException_0())
+	}
 	this.registry = registry
 	this.jsDocInfoPrinterField = new_JSDocInfoPrinter_boolean(options.getUseOriginalNamesInOutput())
 }
@@ -29,7 +31,7 @@ func new_TypedCodeGenerator(consumer *CodeConsumer, options *CompilerOptions, re
 	return this
 }
 
-func (this *TypedCodeGenerator) add_2_impl(n Node, context *CodeGenerator_Context) {
+func (this *TypedCodeGenerator) add_2_impl(n Node, context CodeGenerator_Context) {
 	this.maybeAddTypeAnnotation(n)
 	this.CodeGenerator.add_2_impl(n, context)
 }
@@ -85,83 +87,88 @@ func (this *TypedCodeGenerator) getTypeAnnotation(node Node) string {
 			return ""
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 	var type_ *JSType = fnNode.getJSType()
-	Preconditions_checkState((fnNode.isFunction() || type_.isFunctionType()))
+	if !fnNode.isFunction() && !type_.isFunctionType() {
+		panic(new_IllegalStateException_0())
+	}
 	if (type_ == nil) || type_.isUnknownType() {
 		return ""
 	}
 	var funType *FunctionType = type_.toMaybeFunctionType()
-	if type_.equals(this.registry.getNativeType(JSTypeNative_FUNCTION_TYPE).self()) {
+	if type_.equals_JSType(this.registry.getNativeType(JSTypeNative_FUNCTION_TYPE)) {
 		return "/** @type {!Function} */\n"
 	}
-	var sb *StringBuilder = new_StringBuilder_String("/**\n")
+	var sb strBuilder_
+	sb.append("/**\n")
 	var paramNode Node = 0
 	if (fnNode != 0) && fnNode.isFunction() {
 		paramNode = NodeUtil_getFunctionParameters(fnNode).getFirstChild()
 	}
-	this.appendFunctionParamAnnotations(sb, funType, paramNode)
+	this.appendFunctionParamAnnotations(&sb, funType, paramNode)
 	var retType *JSType = funType.getReturnType()
 	if (((retType != nil) && !retType.isEmptyType()) && !funType.isInterface()) && !(funType.isConstructor() && retType.isVoidType()) {
 		sb.append(" * ")
-		TypedCodeGenerator_appendAnnotation(sb, "return", retType.toAnnotationString(JSType_Nullability_EXPLICIT))
+		TypedCodeGenerator_appendAnnotation(&sb, "return", retType.toAnnotationString(JSType_Nullability_EXPLICIT))
 		sb.append("\n")
 	}
 	if funType.isConstructor() {
-		this.appendClassAnnotations(sb, funType)
+		this.appendClassAnnotations(&sb, funType)
 		sb.append(" * @constructor\n")
 	} else if funType.isInterface() {
-		this.appendInterfaceAnnotations(sb, funType)
+		this.appendInterfaceAnnotations(&sb, funType)
 	} else {
 		var thisType *JSType = funType.getTypeOfThis()
 		if ((thisType != nil) && !thisType.isUnknownType()) && !thisType.isVoidType() {
-			if (fnNode == 0) || !thisType.equals(this.findMethodOwner(fnNode).self()) {
+			if (fnNode == 0) || !thisType.equals_JSType(this.findMethodOwner(fnNode).up_JSType()) {
 				sb.append(" * ")
-				TypedCodeGenerator_appendAnnotation(sb, "this", thisType.toAnnotationString(JSType_Nullability_EXPLICIT))
+				TypedCodeGenerator_appendAnnotation(&sb, "this", thisType.toAnnotationString(JSType_Nullability_EXPLICIT))
 				sb.append("\n")
 			}
 		}
 	}
-	this.appendTemplateAnnotations(sb, icast_Collection(obj_(funType.getTypeParameters())))
+	this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters().asImm())))
 	sb.append(" */\n")
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string {
-	Preconditions_checkState_boolean_Object((fnNode.isFunction() && fnNode.getParent().isMemberFunctionDef()), fnNode.box_())
+	if !fnNode.isFunction() || !fnNode.getParent().isMemberFunctionDef() {
+		panic(new_IllegalStateException_String(tostr_(fnNode)))
+	}
 	var type_ *JSType = fnNode.getJSType()
 	if (type_ == nil) || type_.isUnknownType() {
 		return ""
 	}
 	var funType *FunctionType = type_.toMaybeFunctionType()
-	var sb *StringBuilder = new_StringBuilder_String("/**\n")
+	var sb strBuilder_
+	sb.append("/**\n")
 	var paramNode Node = NodeUtil_getFunctionParameters(fnNode).getFirstChild()
-	this.appendFunctionParamAnnotations(sb, funType, paramNode)
+	this.appendFunctionParamAnnotations(&sb, funType, paramNode)
 	if NodeUtil_isEs6Constructor(fnNode) {
-		this.appendTemplateAnnotations(sb, icast_Collection(obj_(funType.getConstructorOnlyTemplateParameters())))
+		this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getConstructorOnlyTemplateParameters().asImm())))
 	} else {
-		this.appendTemplateAnnotations(sb, icast_Collection(obj_(funType.getTypeParameters())))
+		this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters().asImm())))
 		var retType *JSType = funType.getReturnType()
 		if (retType != nil) && !retType.isEmptyType() {
 			sb.append(" * ")
-			TypedCodeGenerator_appendAnnotation(sb, "return", retType.toAnnotationString(JSType_Nullability_EXPLICIT))
+			TypedCodeGenerator_appendAnnotation(&sb, "return", retType.toAnnotationString(JSType_Nullability_EXPLICIT))
 			sb.append("\n")
 		}
 	}
 	sb.append(" */\n")
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
-func (this *TypedCodeGenerator) appendFunctionParamAnnotations(sb *StringBuilder, funType *FunctionType, paramNode Node) {
+func (this *TypedCodeGenerator) appendFunctionParamAnnotations(sb *strBuilder_, funType *FunctionType, paramNode Node) {
 	var minArity int32 = funType.getMinArity()
 	var maxArity int32 = funType.getMaxArity()
-	var formals ImmutableListOf[*FunctionType_Parameter] = funType.getParameters()
+	var formals *ImmutableList[*FunctionType_Parameter] = funType.getParameters()
 	for i := int32(0); i < formals.size(); i++ {
 		sb.append(" * ")
-		TypedCodeGenerator_appendAnnotation(sb, "param", this.getParameterJSDocType(icast_List(obj_(formals)), i, minArity, maxArity))
+		TypedCodeGenerator_appendAnnotation(sb, "param", this.getParameterJSDocType(immItems_(formals), i, minArity, maxArity))
 		var parameterName string = this.getParameterJSDocName(paramNode, i)
 		sb.append(" ").append(parameterName).append("\n")
 		if paramNode != 0 {
@@ -174,35 +181,36 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 	if (classType == nil) || classType.isUnknownType() {
 		return ""
 	}
-	Preconditions_checkState_boolean_Object(classType.isFunctionType(), classType.self())
-	var funType *FunctionType = classType.toMaybeFunctionType()
-	var sb *StringBuilder = new_StringBuilder()
-	if funType.isInterface() {
-		this.appendInterfaceAnnotations(sb, funType)
-	} else {
-		Preconditions_checkState_boolean_Object(funType.isConstructor(), funType.self())
-		this.appendClassAnnotations(sb, funType)
+	if !classType.isFunctionType() {
+		panic(new_IllegalStateException_String(objstr_(classType.self())))
 	}
-	this.appendTemplateAnnotations(sb, icast_Collection(obj_(funType.getTypeParameters())))
-	var jsdocContent string = Object_toString(obj_(sb))
-	if String_isEmpty(jsdocContent) {
+	var funType *FunctionType = classType.toMaybeFunctionType()
+	var sb strBuilder_
+	if funType.isInterface() {
+		this.appendInterfaceAnnotations(&sb, funType)
+	} else {
+		if !funType.isConstructor() {
+			panic(new_IllegalStateException_String(objstr_(funType.self())))
+		}
+		this.appendClassAnnotations(&sb, funType)
+	}
+	this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters().asImm())))
+	var jsdocContent string = sb.toString()
+	if jsdocContent == "" {
 		return jsdocContent
 	} else {
 		return ("/**\n" + sstr_(jsdocContent) + " */\n")
 	}
-	panic("unreachable")
 }
 
-func (this *TypedCodeGenerator) appendTemplateAnnotations(sb *StringBuilder, typeParams CollectionOf[*JSType]) {
+func (this *TypedCodeGenerator) appendTemplateAnnotations(sb *strBuilder_, typeParams CollectionOf[*JSType]) {
 	if !typeParams.isEmpty() {
 		sb.append(" * @template ")
 		var formattedTypeParams *JTList[string] = jnewTList_(jtc_string)
-		it_1 := foreach_(any(typeParams))
-		for it_1.next() {
-			var typeParam *JSType = to_JSType(it_1.v)
+		for typeParam := range elemsBy_(typeParams, to_JSType) {
 			formattedTypeParams.add(this.formatTypeVar(typeParam))
 		}
-		sb.append(String_join(strobj_(","), Iterable(formattedTypeParams.asList())))
+		sb.append(String_join_s(",", Iterable(formattedTypeParams.asList())))
 		sb.append("\n")
 	}
 }
@@ -210,7 +218,9 @@ func (this *TypedCodeGenerator) appendTemplateAnnotations(sb *StringBuilder, typ
 func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex int32) string {
 	var nameNode Node = 0
 	if paramNode != 0 {
-		Preconditions_checkArgument_boolean_Object(paramNode.getParent().isParamList(), paramNode.box_())
+		if !paramNode.getParent().isParamList() {
+			panic(new_IllegalArgumentException_String(tostr_(paramNode)))
+		}
 		if paramNode.isRest() {
 			paramNode = paramNode.getOnlyChild()
 		} else if paramNode.isDefaultValue() {
@@ -219,24 +229,27 @@ func (this *TypedCodeGenerator) getParameterJSDocName(paramNode Node, paramIndex
 		if paramNode.isName() {
 			nameNode = paramNode
 		} else {
-			Preconditions_checkState_boolean_Object((paramNode.isObjectPattern() || paramNode.isArrayPattern()), paramNode.box_())
+			if !paramNode.isObjectPattern() && !paramNode.isArrayPattern() {
+				panic(new_IllegalStateException_String(tostr_(paramNode)))
+			}
 			nameNode = 0
 		}
 	}
 	if nameNode == 0 {
 		return ("p" + istr_(int64(paramIndex)))
 	} else {
-		Preconditions_checkState_boolean_Object(nameNode.isName(), nameNode.box_())
+		if !nameNode.isName() {
+			panic(new_IllegalStateException_String(tostr_(nameNode)))
+		}
 		return nameNode.getString()
 	}
-	panic("unreachable")
 }
 
 func (this *TypedCodeGenerator) formatTypeVar(var_ *JSType) string {
 	return var_.toAnnotationString(JSType_Nullability_IMPLICIT)
 }
 
-func (this *TypedCodeGenerator) appendClassAnnotations(sb *StringBuilder, funType *FunctionType) {
+func (this *TypedCodeGenerator) appendClassAnnotations(sb *strBuilder_, funType *FunctionType) {
 	var superConstructor *FunctionType = funType.getInstanceType().getSuperClassConstructor()
 	if superConstructor != nil {
 		var superInstance *ObjectType = superConstructor.getInstanceType()
@@ -246,31 +259,23 @@ func (this *TypedCodeGenerator) appendClassAnnotations(sb *StringBuilder, funTyp
 			sb.append("\n")
 		}
 	}
-	var interfaces SetOf[string] = icast_Set(obj_(new_TreeSet()))
-	it_1 := foreach_(any(funType.getAncestorInterfaces()))
-	for it_1.next() {
-		var interfaze *ObjectType = to_ObjectType(it_1.v)
-		Collection_add_s(interfaces, interfaze.toAnnotationString(JSType_Nullability_IMPLICIT))
+	var interfaces *TTreeSet[string] = newTTreeSet_(tc_string)
+	for interfaze := range elemsBy_(funType.getAncestorInterfaces(), to_ObjectType) {
+		interfaces.add(interfaze.toAnnotationString(JSType_Nullability_IMPLICIT))
 	}
-	it_3 := foreach_(any(interfaces))
-	for it_3.next() {
-		var interfaze string = str_(it_3.v)
+	for interfaze := range elemsBy_(interfaces.asSet(), str_) {
 		sb.append(" * ")
 		TypedCodeGenerator_appendAnnotation(sb, "implements", interfaze)
 		sb.append("\n")
 	}
 }
 
-func (this *TypedCodeGenerator) appendInterfaceAnnotations(sb *StringBuilder, funType *FunctionType) {
-	var interfaces SetOf[string] = icast_Set(obj_(new_TreeSet()))
-	it_1 := foreach_(any(funType.getAncestorInterfaces()))
-	for it_1.next() {
-		var interfaceType *ObjectType = to_ObjectType(it_1.v)
-		Collection_add_s(interfaces, interfaceType.toAnnotationString(JSType_Nullability_IMPLICIT))
+func (this *TypedCodeGenerator) appendInterfaceAnnotations(sb *strBuilder_, funType *FunctionType) {
+	var interfaces *TTreeSet[string] = newTTreeSet_(tc_string)
+	for interfaceType := range elemsBy_(funType.getAncestorInterfaces(), to_ObjectType) {
+		interfaces.add(interfaceType.toAnnotationString(JSType_Nullability_IMPLICIT))
 	}
-	it_3 := foreach_(any(interfaces))
-	for it_3.next() {
-		var interfaze string = str_(it_3.v)
+	for interfaze := range elemsBy_(interfaces.asSet(), str_) {
 		sb.append(" * ")
 		TypedCodeGenerator_appendAnnotation(sb, "extends", interfaze)
 		sb.append("\n")
@@ -294,7 +299,7 @@ func (this *TypedCodeGenerator) findMethodOwner(n Node) *ObjectType {
 			var type_ *JSType = this.registry.getGlobalType(target.getFirstFirstChild().getQualifiedName())
 			ctor = func() *FunctionType {
 				if type_ != nil {
-					return to_ObjectType(type_.self()).getConstructor()
+					return type_.self().(ObjectType_as).as_ObjectType().getConstructor()
 				}
 				return nil
 			}()
@@ -310,16 +315,16 @@ func (this *TypedCodeGenerator) findMethodOwner(n Node) *ObjectType {
 	}()
 }
 
-func TypedCodeGenerator_appendAnnotation(sb *StringBuilder, name string, type_ string) {
+func TypedCodeGenerator_appendAnnotation(sb *strBuilder_, name string, type_ string) {
 	sb.append("@").append(name).append(" {").append(type_).append("}")
 }
 
-func (this *TypedCodeGenerator) getParameterJSDocType(parameters ListOf[*FunctionType_Parameter], index int32, minArgs int32, maxArgs int32) string {
-	var type_ *JSType = cast_[*FunctionType_Parameter](parameters.get(index)).getJSType()
+func (this *TypedCodeGenerator) getParameterJSDocType(parameters []*FunctionType_Parameter, index int32, minArgs int32, maxArgs int32) string {
+	var type_ *JSType = sliceAt_(parameters, index).getJSType()
 	if index < minArgs {
 		return type_.toAnnotationString(JSType_Nullability_EXPLICIT)
 	}
-	var isRestArgument bool = ((maxArgs == int32(2147483647)) && (index == (parameters.size() - 1)))
+	var isRestArgument bool = ((maxArgs == int32(2147483647)) && (index == (int32(len(parameters)) - 1)))
 	if isRestArgument {
 		return ("..." + sstr_(this.restrictByUndefined(type_).toAnnotationString(JSType_Nullability_EXPLICIT)))
 	}
@@ -333,7 +338,7 @@ func (this *TypedCodeGenerator) restrictByUndefined(type_ *JSType) *JSType {
 	var restricted *JSType = type_.restrictByNotNullOrUndefined()
 	if type_.isNullable() {
 		var nullType *JSType = this.registry.getNativeType(JSTypeNative_NULL_TYPE)
-		return this.registry.createUnionTypeList(icast_List(obj_(ImmutableList_of_Object_Object(restricted.self(), nullType.self()))))
+		return this.registry.createUnionTypeList(ImmutableList_of_Object_Object(restricted.self(), nullType.self()))
 	}
 	return func() *JSType {
 		if restricted.isEmptyType() {
@@ -341,4 +346,13 @@ func (this *TypedCodeGenerator) restrictByUndefined(type_ *JSType) *JSType {
 		}
 		return restricted
 	}()
+}
+
+// add_2: an object that is exactly a TypedCodeGenerator calls its add_2_impl directly (post-flip); others dispatch.
+func (this *TypedCodeGenerator) add_2(p0 Node, p1 CodeGenerator_Context) {
+	if p, _ := this.self_.(*TypedCodeGenerator); p == this {
+		this.add_2_impl(p0, p1)
+		return
+	}
+	this.self_.add_2_impl(p0, p1)
 }

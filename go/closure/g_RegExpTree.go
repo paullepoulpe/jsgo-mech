@@ -2,8 +2,30 @@
 
 package closure
 
+import "strings"
+
 type RegExpTree struct {
-	self_ any
+	self_ RegExpTree_I
+}
+
+// RegExpTree_I holds the methods the dispatchers of RegExpTree's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type RegExpTree_I interface {
+	appendDebugInfo_impl(*strBuilder_)
+	appendSourceCode_impl(*strBuilder_)
+	children_impl() List
+	containsAnchor_impl() bool
+	equals_impl(any) bool
+	hashCode_impl() int32
+	isCaseSensitive_impl() bool
+	numCapturingGroups_impl() int32
+	simplify_impl(string) *RegExpTree
+}
+
+// RegExpTree_as is implemented by RegExpTree and the classes that extend it: a cast to RegExpTree asserts to it
+// (post-flip).
+type RegExpTree_as interface {
+	as_RegExpTree() *RegExpTree
 }
 
 func (this *RegExpTree) as_RegExpTree() *RegExpTree { return this }
@@ -12,12 +34,7 @@ func to_RegExpTree(v any) *RegExpTree {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_RegExpTree() *RegExpTree }).as_RegExpTree()
-}
-
-func is_RegExpTree(v any) bool {
-	_, ok := v.(interface{ as_RegExpTree() *RegExpTree })
-	return ok
+	return v.(RegExpTree_as).as_RegExpTree()
 }
 
 func (this *RegExpTree) self() any {
@@ -36,14 +53,14 @@ func (this *RegExpTree) hasCapturingGroup() bool {
 }
 
 func (this *RegExpTree) toString() string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	sb.append_char('/')
-	this.appendSourceCode(sb)
+	this.appendSourceCode(&sb)
 	if sb.length() == 1 {
 		sb.append("(?:)")
 	}
 	sb.append_char('/')
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func RegExpTree_parseRegExp(pattern string, flags string) *RegExpTree {
@@ -65,17 +82,18 @@ func RegExpTree_isIdentifierPart(ch uint16) bool {
 }
 
 func RegExpTree_matchesWholeInput(t *RegExpTree, flags string) bool {
-	if String_indexOf(flags, 109) >= 0 {
+	if strings.Contains(flags, "m") {
 		return false
 	}
 	var c *RegExpTree_Concatenation
 	_ = c
 	if !(func() bool {
 		v_ := t.self()
-		if !is_[*RegExpTree_Concatenation](v_) {
+		p, ok := v_.(*RegExpTree_Concatenation)
+		if !ok {
 			return false
 		}
-		c = cast_[*RegExpTree_Concatenation](v_)
+		c = p
 		return true
 	}()) {
 		return false
@@ -83,25 +101,27 @@ func RegExpTree_matchesWholeInput(t *RegExpTree, flags string) bool {
 	if c.elements_.isEmpty() {
 		return false
 	}
-	var first *RegExpTree = to_RegExpTree(c.elements_.get(0))
-	var last *RegExpTree = to_RegExpTree(Iterables_getLast(icast_Iterable(obj_(c.elements_))))
+	var first *RegExpTree = c.elements_.get(0)
+	var last *RegExpTree = to_RegExpTree(Iterables_getLast(icast_Iterable(obj_(c.elements_.asImm()))))
 	var firstAnchor *RegExpTree_Anchor
 	_ = firstAnchor
 	var lastAnchor *RegExpTree_Anchor
 	_ = lastAnchor
 	if !(func() bool {
 		v_ := first.self()
-		if !is_[*RegExpTree_Anchor](v_) {
+		p2, ok2 := v_.(*RegExpTree_Anchor)
+		if !ok2 {
 			return false
 		}
-		firstAnchor = cast_[*RegExpTree_Anchor](v_)
+		firstAnchor = p2
 		return true
 	}() && func() bool {
 		v_ := last.self()
-		if !is_[*RegExpTree_Anchor](v_) {
+		p3, ok3 := v_.(*RegExpTree_Anchor)
+		if !ok3 {
 			return false
 		}
-		lastAnchor = cast_[*RegExpTree_Anchor](v_)
+		lastAnchor = p3
 		return true
 	}()) {
 		return false
@@ -109,7 +129,7 @@ func RegExpTree_matchesWholeInput(t *RegExpTree, flags string) bool {
 	return ((firstAnchor.type__ == '^') && (lastAnchor.type__ == '$'))
 }
 
-func RegExpTree_escapeCharOnto(ch uint16, sb *StringBuilder) {
+func RegExpTree_escapeCharOnto(ch uint16, sb *strBuilder_) {
 	switch ch {
 	case 0x0000:
 		sb.append("\\0")
@@ -127,14 +147,14 @@ func RegExpTree_escapeCharOnto(ch uint16, sb *StringBuilder) {
 		if (int32(ch) < 32) || (int32(ch) >= 127) {
 			if int32(ch) >= 256 {
 				sb.append("\\u")
-				sb.append_char(String_charAt("0123456789abcdef", ((int32(ch) >> 12) & 15)))
-				sb.append_char(String_charAt("0123456789abcdef", ((int32(ch) >> 8) & 15)))
-				sb.append_char(String_charAt("0123456789abcdef", ((int32(ch) >> 4) & 15)))
-				sb.append_char(String_charAt("0123456789abcdef", (int32(ch) & 15)))
+				sb.append_char(asciiCharAt_("0123456789abcdef", ((int32(ch) >> 12) & 15)))
+				sb.append_char(asciiCharAt_("0123456789abcdef", ((int32(ch) >> 8) & 15)))
+				sb.append_char(asciiCharAt_("0123456789abcdef", ((int32(ch) >> 4) & 15)))
+				sb.append_char(asciiCharAt_("0123456789abcdef", (int32(ch) & 15)))
 			} else {
 				sb.append("\\x")
-				sb.append_char(String_charAt("0123456789abcdef", ((int32(ch) >> 4) & 15)))
-				sb.append_char(String_charAt("0123456789abcdef", (int32(ch) & 15)))
+				sb.append_char(asciiCharAt_("0123456789abcdef", ((int32(ch) >> 4) & 15)))
+				sb.append_char(asciiCharAt_("0123456789abcdef", (int32(ch) & 15)))
 			}
 		} else {
 			sb.append_char(ch)
@@ -143,39 +163,39 @@ func RegExpTree_escapeCharOnto(ch uint16, sb *StringBuilder) {
 }
 
 func (this *RegExpTree) isCaseSensitive() bool {
-	return this.self_.(interface{ isCaseSensitive_impl() bool }).isCaseSensitive_impl()
+	return this.self_.isCaseSensitive_impl()
 }
 
 func (this *RegExpTree) containsAnchor() bool {
-	return this.self_.(interface{ containsAnchor_impl() bool }).containsAnchor_impl()
+	return this.self_.containsAnchor_impl()
 }
 
 func (this *RegExpTree) numCapturingGroups() int32 {
-	return this.self_.(interface{ numCapturingGroups_impl() int32 }).numCapturingGroups_impl()
+	return this.self_.numCapturingGroups_impl()
 }
 
 func (this *RegExpTree) children() List {
-	return this.self_.(interface{ children_impl() List }).children_impl()
+	return this.self_.children_impl()
 }
 
 func (this *RegExpTree) simplify(p0 string) *RegExpTree {
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
-func (this *RegExpTree) appendSourceCode(p0 *StringBuilder) {
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+func (this *RegExpTree) appendSourceCode(p0 *strBuilder_) {
+	this.self_.appendSourceCode_impl(p0)
 }
 
-func (this *RegExpTree) appendDebugInfo(p0 *StringBuilder) {
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+func (this *RegExpTree) appendDebugInfo(p0 *strBuilder_) {
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 func (this *RegExpTree) equals(p0 any) bool {
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 func (this *RegExpTree) hashCode() int32 {
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 var RegExpTree_NEVER_MATCHES *RegExpTree
@@ -188,7 +208,7 @@ var RegExpTree_INVERSE_WORD_CHARS *CharRanges
 var RegExpTree_SPACE_CHARS *CharRanges
 var RegExpTree_IE_SPACE_CHARS *CharRanges
 var RegExpTree_IE_SPEC_ERRORS *CharRanges
-var RegExpTree_NAMED_CHAR_GROUPS *ImmutableMap
+var RegExpTree_NAMED_CHAR_GROUPS *ErasedImmutableMap
 var RegExpTree_DOT_CHARSET *RegExpTree_Charset
 
 var RegExpTree_clinit_done bool
@@ -208,54 +228,79 @@ func RegExpTree_clinit() {
 	RegExpTree_SPACE_CHARS = CharRanges_withMembers([]int32{9, 10, 11, 12, 13, 32, 160, 5760, 6158, 8192, 8193, 8194, 8195, 8196, 8197, 8198, 8199, 8200, 8201, 8202, 8232, 8233, 8239, 8287, 12288, 65279})
 	RegExpTree_IE_SPACE_CHARS = CharRanges_withMembers([]int32{9, 10, 11, 12, 13, 32})
 	RegExpTree_IE_SPEC_ERRORS = RegExpTree_SPACE_CHARS.difference(RegExpTree_IE_SPACE_CHARS)
-	RegExpTree_NAMED_CHAR_GROUPS = ImmutableMap_builder().put(any(uint16('d')), obj_(RegExpTree_DIGITS)).put(any(uint16('D')), obj_(CharRanges_ALL_CODE_UNITS.difference(RegExpTree_DIGITS))).put(any(uint16('s')), obj_(RegExpTree_SPACE_CHARS)).put(any(uint16('S')), obj_(CharRanges_ALL_CODE_UNITS.difference(RegExpTree_SPACE_CHARS))).put(any(uint16('w')), obj_(RegExpTree_WORD_CHARS)).put(any(uint16('W')), obj_(RegExpTree_INVERSE_WORD_CHARS)).buildOrThrow()
+	RegExpTree_NAMED_CHAR_GROUPS = immutableMapBuilder_(tc_uint16, tc_p_CharRanges).put(uint16('d'), RegExpTree_DIGITS).put(uint16('D'), CharRanges_ALL_CODE_UNITS.difference(RegExpTree_DIGITS)).put(uint16('s'), RegExpTree_SPACE_CHARS).put(uint16('S'), CharRanges_ALL_CODE_UNITS.difference(RegExpTree_SPACE_CHARS)).put(uint16('w'), RegExpTree_WORD_CHARS).put(uint16('W'), RegExpTree_INVERSE_WORD_CHARS).buildOrThrowErased()
 	RegExpTree_DOT_CHARSET = new_RegExpTree_Charset(CharRanges_ALL_CODE_UNITS.difference(CharRanges_withMembers([]int32{10, 13, 8232, 8233})), CharRanges_EMPTY)
 
 }
 
-type RegExpTree_ParentheticalType struct {
-	Enum
+type RegExpTree_ParentheticalType uint8
+
+// RegExpTree_ParentheticalType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var RegExpTree_ParentheticalType_enum_ = [7]Enum{
+	{self_: RegExpTree_ParentheticalType_CAPTURING, name_: "CAPTURING", ordinal_: 0},
+	{self_: RegExpTree_ParentheticalType_NONCAPTURING, name_: "NONCAPTURING", ordinal_: 1},
+	{self_: RegExpTree_ParentheticalType_POSITIVE_LOOKAHEAD, name_: "POSITIVE_LOOKAHEAD", ordinal_: 2},
+	{self_: RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD, name_: "NEGATIVE_LOOKAHEAD", ordinal_: 3},
+	{self_: RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND, name_: "POSITIVE_LOOKBEHIND", ordinal_: 4},
+	{self_: RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND, name_: "NEGATIVE_LOOKBEHIND", ordinal_: 5},
+	{self_: RegExpTree_ParentheticalType_NAMED_GROUPS, name_: "NAMED_GROUPS", ordinal_: 6},
 }
 
-func (this *RegExpTree_ParentheticalType) up_Enum() *Enum {
-	if this == nil {
+func (this RegExpTree_ParentheticalType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &RegExpTree_ParentheticalType_enum_[this-1]
 }
 
-func (this *RegExpTree_ParentheticalType) init_RegExpTree_ParentheticalType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this RegExpTree_ParentheticalType) name() string {
+	return this.enum_().name_
 }
 
-func new_RegExpTree_ParentheticalType(name_ string, ordinal_ int32) *RegExpTree_ParentheticalType {
-	this := &RegExpTree_ParentheticalType{}
-	this.self_ = this
-	this.init_RegExpTree_ParentheticalType(name_, ordinal_)
+func (this RegExpTree_ParentheticalType) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this RegExpTree_ParentheticalType) toString() string {
+	return this.enum_().name_
+}
+
+func (this RegExpTree_ParentheticalType) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this RegExpTree_ParentheticalType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func RegExpTree_ParentheticalType_values() []*RegExpTree_ParentheticalType {
-	return append([]*RegExpTree_ParentheticalType(nil), RegExpTree_ParentheticalType_values_...)
+func RegExpTree_ParentheticalType_values() []RegExpTree_ParentheticalType {
+	return append([]RegExpTree_ParentheticalType(nil), RegExpTree_ParentheticalType_values_...)
 }
 
-func RegExpTree_ParentheticalType_valueOf(name string) *RegExpTree_ParentheticalType {
+func RegExpTree_ParentheticalType_valueOf(name string) RegExpTree_ParentheticalType {
 	for _, v := range RegExpTree_ParentheticalType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ParentheticalType", name))
 }
 
-var RegExpTree_ParentheticalType_CAPTURING *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_NONCAPTURING *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_POSITIVE_LOOKAHEAD *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_NAMED_GROUPS *RegExpTree_ParentheticalType
-var RegExpTree_ParentheticalType_values_ []*RegExpTree_ParentheticalType
+const RegExpTree_ParentheticalType_CAPTURING RegExpTree_ParentheticalType = 1
+const RegExpTree_ParentheticalType_NONCAPTURING RegExpTree_ParentheticalType = 2
+const RegExpTree_ParentheticalType_POSITIVE_LOOKAHEAD RegExpTree_ParentheticalType = 3
+const RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD RegExpTree_ParentheticalType = 4
+const RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND RegExpTree_ParentheticalType = 5
+const RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND RegExpTree_ParentheticalType = 6
+const RegExpTree_ParentheticalType_NAMED_GROUPS RegExpTree_ParentheticalType = 7
+
+var RegExpTree_ParentheticalType_values_ []RegExpTree_ParentheticalType
 
 var RegExpTree_ParentheticalType_clinit_done bool
 
@@ -264,14 +309,7 @@ func RegExpTree_ParentheticalType_clinit() {
 		return
 	}
 	RegExpTree_ParentheticalType_clinit_done = true
-	RegExpTree_ParentheticalType_CAPTURING = new_RegExpTree_ParentheticalType("CAPTURING", 0)
-	RegExpTree_ParentheticalType_NONCAPTURING = new_RegExpTree_ParentheticalType("NONCAPTURING", 1)
-	RegExpTree_ParentheticalType_POSITIVE_LOOKAHEAD = new_RegExpTree_ParentheticalType("POSITIVE_LOOKAHEAD", 2)
-	RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD = new_RegExpTree_ParentheticalType("NEGATIVE_LOOKAHEAD", 3)
-	RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND = new_RegExpTree_ParentheticalType("POSITIVE_LOOKBEHIND", 4)
-	RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND = new_RegExpTree_ParentheticalType("NEGATIVE_LOOKBEHIND", 5)
-	RegExpTree_ParentheticalType_NAMED_GROUPS = new_RegExpTree_ParentheticalType("NAMED_GROUPS", 6)
-	RegExpTree_ParentheticalType_values_ = []*RegExpTree_ParentheticalType{RegExpTree_ParentheticalType_CAPTURING, RegExpTree_ParentheticalType_NONCAPTURING, RegExpTree_ParentheticalType_POSITIVE_LOOKAHEAD, RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD, RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND, RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND, RegExpTree_ParentheticalType_NAMED_GROUPS}
+	RegExpTree_ParentheticalType_values_ = []RegExpTree_ParentheticalType{RegExpTree_ParentheticalType_CAPTURING, RegExpTree_ParentheticalType_NONCAPTURING, RegExpTree_ParentheticalType_POSITIVE_LOOKAHEAD, RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD, RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND, RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND, RegExpTree_ParentheticalType_NAMED_GROUPS}
 	registerEnum_("com.google.javascript.jscomp.regex.RegExpTree.ParentheticalType", enumValues_(RegExpTree_ParentheticalType_values_))
 
 }
@@ -282,22 +320,6 @@ type RegExpTree_RegExpTreeAtom struct {
 
 func (this *RegExpTree_RegExpTreeAtom) as_RegExpTree_RegExpTreeAtom() *RegExpTree_RegExpTreeAtom {
 	return this
-}
-
-func to_RegExpTree_RegExpTreeAtom(v any) *RegExpTree_RegExpTreeAtom {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_RegExpTree_RegExpTreeAtom() *RegExpTree_RegExpTreeAtom
-	}).as_RegExpTree_RegExpTreeAtom()
-}
-
-func is_RegExpTree_RegExpTreeAtom(v any) bool {
-	_, ok := v.(interface {
-		as_RegExpTree_RegExpTreeAtom() *RegExpTree_RegExpTreeAtom
-	})
-	return ok
 }
 
 func (this *RegExpTree_RegExpTreeAtom) self() any {
@@ -331,7 +353,7 @@ func (this *RegExpTree_RegExpTreeAtom) numCapturingGroups_impl() int32 {
 }
 
 func (this *RegExpTree_RegExpTreeAtom) children_impl() List {
-	return icast_List(obj_(ImmutableList_of()))
+	return ImmutableList_of()
 }
 
 type RegExpTree_Empty struct {
@@ -367,16 +389,17 @@ func (this *RegExpTree_Empty) simplify_impl(flags string) *RegExpTree {
 	return this.up_RegExpTree()
 }
 
-func (this *RegExpTree_Empty) appendSourceCode_impl(sb *StringBuilder) {
+func (this *RegExpTree_Empty) appendSourceCode_impl(sb *strBuilder_) {
 
 }
 
-func (this *RegExpTree_Empty) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_Empty) appendDebugInfo_impl(sb *strBuilder_) {
 
 }
 
 func (this *RegExpTree_Empty) equals_impl(o any) bool {
-	return is_[*RegExpTree_Empty](o)
+	_, ok := o.(*RegExpTree_Empty)
+	return ok
 }
 
 func (this *RegExpTree_Empty) hashCode_impl() int32 {
@@ -435,11 +458,11 @@ func (this *RegExpTree_Anchor) containsAnchor_impl() bool {
 	return true
 }
 
-func (this *RegExpTree_Anchor) appendSourceCode_impl(sb *StringBuilder) {
+func (this *RegExpTree_Anchor) appendSourceCode_impl(sb *strBuilder_) {
 	sb.append_char(this.type__)
 }
 
-func (this *RegExpTree_Anchor) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_Anchor) appendDebugInfo_impl(sb *strBuilder_) {
 	sb.append_char(this.type__)
 }
 
@@ -448,10 +471,11 @@ func (this *RegExpTree_Anchor) equals_impl(o any) bool {
 	_ = anchor
 	return (func() bool {
 		v_ := o
-		if !is_[*RegExpTree_Anchor](v_) {
+		p, ok := v_.(*RegExpTree_Anchor)
+		if !ok {
 			return false
 		}
-		anchor = cast_[*RegExpTree_Anchor](v_)
+		anchor = p
 		return true
 	}() && (this.type__ == anchor.type__))
 }
@@ -495,11 +519,11 @@ func (this *RegExpTree_WordBoundary) simplify_impl(flags string) *RegExpTree {
 	return this.up_RegExpTree()
 }
 
-func (this *RegExpTree_WordBoundary) appendSourceCode_impl(sb *StringBuilder) {
-	cast_[*StringBuilder](sb.append_char('\\')).append_char(this.type__)
+func (this *RegExpTree_WordBoundary) appendSourceCode_impl(sb *strBuilder_) {
+	sb.append_char('\\').append_char(this.type__)
 }
 
-func (this *RegExpTree_WordBoundary) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_WordBoundary) appendDebugInfo_impl(sb *strBuilder_) {
 	sb.append_char(this.type__)
 }
 
@@ -508,10 +532,11 @@ func (this *RegExpTree_WordBoundary) equals_impl(o any) bool {
 	_ = wordBoundary
 	return (func() bool {
 		v_ := o
-		if !is_[*RegExpTree_WordBoundary](v_) {
+		p, ok := v_.(*RegExpTree_WordBoundary)
+		if !ok {
 			return false
 		}
-		wordBoundary = cast_[*RegExpTree_WordBoundary](v_)
+		wordBoundary = p
 		return true
 	}() && (this.type__ == wordBoundary.type__))
 }
@@ -541,7 +566,9 @@ func (this *RegExpTree_BackReference) up_RegExpTree() *RegExpTree {
 
 func (this *RegExpTree_BackReference) init_RegExpTree_BackReference(groupIndex int32) {
 	this.RegExpTree_RegExpTreeAtom.init_RegExpTree_RegExpTreeAtom()
-	Preconditions_checkArgument(((groupIndex >= 0) && (groupIndex <= 99)))
+	if groupIndex < 0 || groupIndex > 99 {
+		panic(new_IllegalArgumentException_0())
+	}
 	this.groupIndex = groupIndex
 }
 
@@ -556,11 +583,11 @@ func (this *RegExpTree_BackReference) simplify_impl(flags string) *RegExpTree {
 	return this.up_RegExpTree()
 }
 
-func (this *RegExpTree_BackReference) appendSourceCode_impl(sb *StringBuilder) {
-	cast_[*StringBuilder](sb.append_char('\\')).append_int(this.groupIndex)
+func (this *RegExpTree_BackReference) appendSourceCode_impl(sb *strBuilder_) {
+	sb.append_char('\\').append_int(this.groupIndex)
 }
 
-func (this *RegExpTree_BackReference) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_BackReference) appendDebugInfo_impl(sb *strBuilder_) {
 	sb.append_int(this.groupIndex)
 }
 
@@ -569,10 +596,11 @@ func (this *RegExpTree_BackReference) equals_impl(o any) bool {
 	_ = backReference
 	return (func() bool {
 		v_ := o
-		if !is_[*RegExpTree_BackReference](v_) {
+		p, ok := v_.(*RegExpTree_BackReference)
+		if !ok {
 			return false
 		}
-		backReference = cast_[*RegExpTree_BackReference](v_)
+		backReference = p
 		return true
 	}() && (this.groupIndex == backReference.groupIndex))
 }
@@ -621,11 +649,11 @@ func (this *RegExpTree_NamedBackReference) simplify_impl(flags string) *RegExpTr
 	return this.up_RegExpTree()
 }
 
-func (this *RegExpTree_NamedBackReference) appendSourceCode_impl(sb *StringBuilder) {
+func (this *RegExpTree_NamedBackReference) appendSourceCode_impl(sb *strBuilder_) {
 	sb.append("\\k<").append(this.groupName).append_char('>')
 }
 
-func (this *RegExpTree_NamedBackReference) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_NamedBackReference) appendDebugInfo_impl(sb *strBuilder_) {
 	sb.append(this.groupName)
 }
 
@@ -634,21 +662,23 @@ func (this *RegExpTree_NamedBackReference) equals_impl(o any) bool {
 	_ = namedBackReference
 	return (func() bool {
 		v_ := o
-		if !is_[*RegExpTree_NamedBackReference](v_) {
+		p, ok := v_.(*RegExpTree_NamedBackReference)
+		if !ok {
 			return false
 		}
-		namedBackReference = cast_[*RegExpTree_NamedBackReference](v_)
+		namedBackReference = p
 		return true
 	}() && (this.groupName == namedBackReference.groupName))
 }
 
 func (this *RegExpTree_NamedBackReference) hashCode_impl() int32 {
-	return String_hashCode(this.groupName)
+	return utf16Hash_(this.groupName)
 }
 
 type RegExpTree_Text struct {
 	RegExpTree_RegExpTreeAtom
-	text string
+	text    string
+	textU16 utf16_
 }
 
 func (this *RegExpTree_Text) up_RegExpTree_RegExpTreeAtom() *RegExpTree_RegExpTreeAtom {
@@ -667,11 +697,13 @@ func (this *RegExpTree_Text) up_RegExpTree() *RegExpTree {
 
 func (this *RegExpTree_Text) zero_RegExpTree_Text() {
 	this.text = nullstr_
+	this.textU16 = utf16Kept_(this.text)
 }
 
 func (this *RegExpTree_Text) init_RegExpTree_Text(text string) {
 	this.RegExpTree_RegExpTreeAtom.init_RegExpTree_RegExpTreeAtom()
 	this.text = text
+	this.textU16 = utf16Kept_(this.text)
 }
 
 func new_RegExpTree_Text(text string) *RegExpTree_Text {
@@ -682,10 +714,10 @@ func new_RegExpTree_Text(text string) *RegExpTree_Text {
 	return this
 }
 
-func RegExpTree_Text_escapeRegularCharOnto(ch uint16, next int32, sb *StringBuilder) {
+func RegExpTree_Text_escapeRegularCharOnto(ch uint16, next int32, sb *strBuilder_) {
 	switch ch {
 	case '$', '^', '*', '(', ')', '+', '[', '|', '.', '/', '?':
-		cast_[*StringBuilder](sb.append_char('\\')).append_char(ch)
+		sb.append_char('\\').append_char(ch)
 	case '{':
 		if (48 <= next) && (next <= 57) {
 			sb.append_char('\\')
@@ -697,11 +729,11 @@ func RegExpTree_Text_escapeRegularCharOnto(ch uint16, next int32, sb *StringBuil
 }
 
 func (this *RegExpTree_Text) simplify_impl(flags string) *RegExpTree {
-	var n int32 = String_length(this.text)
+	var n int32 = this.textU16.length()
 	if n == 0 {
 		return RegExpTree_Empty_INSTANCE.up_RegExpTree()
 	}
-	if String_indexOf(flags, 105) >= 0 {
+	if strings.Contains(flags, "i") {
 		var canonicalized string = CaseCanonicalize_caseCanonicalizeString(this.text)
 		if !(this.text == canonicalized) {
 			return new_RegExpTree_Text(canonicalized).up_RegExpTree()
@@ -713,9 +745,9 @@ func (this *RegExpTree_Text) simplify_impl(flags string) *RegExpTree {
 func (this *RegExpTree_Text) isCaseSensitive_impl() bool {
 	{
 		var i int32 = 0
-		var n int32 = String_length(this.text)
+		var n int32 = this.textU16.length()
 		for ; i < n; i++ {
-			if CaseCanonicalize_CASE_SENSITIVE.contains(int32(String_charAt(this.text, i))) {
+			if CaseCanonicalize_CASE_SENSITIVE.contains(int32(this.textU16.charAt(i))) {
 				return true
 			}
 		}
@@ -723,14 +755,14 @@ func (this *RegExpTree_Text) isCaseSensitive_impl() bool {
 	return false
 }
 
-func (this *RegExpTree_Text) appendSourceCode_impl(sb *StringBuilder) {
+func (this *RegExpTree_Text) appendSourceCode_impl(sb *strBuilder_) {
 	{
 		var i int32 = 0
-		var n int32 = String_length(this.text)
+		var n int32 = this.textU16.length()
 		for ; i < n; i++ {
-			RegExpTree_Text_escapeRegularCharOnto(String_charAt(this.text, i), func() int32 {
+			RegExpTree_Text_escapeRegularCharOnto(this.textU16.charAt(i), func() int32 {
 				if (i + 1) < n {
-					return int32(String_charAt(this.text, (i + 1)))
+					return int32(this.textU16.charAt((i + 1)))
 				}
 				return -1
 			}(), sb)
@@ -738,8 +770,8 @@ func (this *RegExpTree_Text) appendSourceCode_impl(sb *StringBuilder) {
 	}
 }
 
-func (this *RegExpTree_Text) appendDebugInfo_impl(sb *StringBuilder) {
-	cast_[*StringBuilder](sb.append_char('`')).append(this.text).append_char('`')
+func (this *RegExpTree_Text) appendDebugInfo_impl(sb *strBuilder_) {
+	sb.append_char('`').append(this.text).append_char('`')
 }
 
 func (this *RegExpTree_Text) equals_impl(o any) bool {
@@ -747,16 +779,17 @@ func (this *RegExpTree_Text) equals_impl(o any) bool {
 	_ = text
 	return (func() bool {
 		v_ := o
-		if !is_[*RegExpTree_Text](v_) {
+		p, ok := v_.(*RegExpTree_Text)
+		if !ok {
 			return false
 		}
-		text = cast_[*RegExpTree_Text](v_)
+		text = p
 		return true
 	}() && (this.text == text.text))
 }
 
 func (this *RegExpTree_Text) hashCode_impl() int32 {
-	return (String_hashCode(this.text) ^ 102228752)
+	return (utf16Hash_(this.text) ^ 102228752)
 }
 
 type RegExpTree_Repetition struct {
@@ -803,10 +836,11 @@ func (this *RegExpTree_Repetition) simplify_impl(flags string) *RegExpTree {
 	_ = rbody
 	if func() bool {
 		v_ := body.self()
-		if !is_[*RegExpTree_Repetition](v_) {
+		p, ok := v_.(*RegExpTree_Repetition)
+		if !ok {
 			return false
 		}
-		rbody = cast_[*RegExpTree_Repetition](v_)
+		rbody = p
 		return true
 	}() {
 		if rbody.greedy == this.greedy {
@@ -849,20 +883,21 @@ func (this *RegExpTree_Repetition) numCapturingGroups_impl() int32 {
 }
 
 func (this *RegExpTree_Repetition) children_impl() List {
-	return icast_List(obj_(ImmutableList_of_Object(this.body.self())))
+	return ImmutableList_of_Object(this.body.self())
 }
 
-func (this *RegExpTree_Repetition) appendBodySourceCode(sb *StringBuilder) {
+func (this *RegExpTree_Repetition) appendBodySourceCode(sb *strBuilder_) {
 	var text *RegExpTree_Text
 	_ = text
 	if ((is_[*RegExpTree_Alternation](this.body.self()) || is_[*RegExpTree_Concatenation](this.body.self())) || is_[*RegExpTree_Repetition](this.body.self())) || (func() bool {
 		v_ := this.body.self()
-		if !is_[*RegExpTree_Text](v_) {
+		p, ok := v_.(*RegExpTree_Text)
+		if !ok {
 			return false
 		}
-		text = cast_[*RegExpTree_Text](v_)
+		text = p
 		return true
-	}() && (String_length(text.text) > 1)) {
+	}() && (text.textU16.length() > 1)) {
 		sb.append("(?:")
 		this.body.appendSourceCode(sb)
 		sb.append_char(')')
@@ -880,7 +915,6 @@ func RegExpTree_Repetition_suffixLen(min_ int32, max_ int32) int32 {
 			default:
 				return (3 + RegExpTree_Repetition_numDecimalDigits(min_))
 			}
-			panic("unreachable")
 		}()
 	}
 	if (min_ == 0) && (max_ == 1) {
@@ -897,7 +931,7 @@ func RegExpTree_Repetition_suffixLen(min_ int32, max_ int32) int32 {
 
 func RegExpTree_Repetition_numDecimalDigits(n int32) int32 {
 	if n < 0 {
-		panic(new_AssertionError_0().self())
+		panic(new_AssertionError_0())
 	}
 	var nDigits int32 = 1
 	for n >= 10 {
@@ -907,7 +941,7 @@ func RegExpTree_Repetition_numDecimalDigits(n int32) int32 {
 	return nDigits
 }
 
-func (this *RegExpTree_Repetition) appendSourceCode_impl(sb *StringBuilder) {
+func (this *RegExpTree_Repetition) appendSourceCode_impl(sb *strBuilder_) {
 	var bodyStart int32 = sb.length()
 	this.appendBodySourceCode(sb)
 	var bodyEnd int32 = sb.length()
@@ -949,23 +983,23 @@ func (this *RegExpTree_Repetition) appendSourceCode_impl(sb *StringBuilder) {
 		case 1:
 			sb.append_char('+')
 		default:
-			cast_[*StringBuilder](sb.append_char('{')).append_int(min_).append(",}")
+			sb.append_char('{').append_int(min_).append(",}")
 		}
 	} else if (min_ == 0) && (max_ == 1) {
 		sb.append_char('?')
 	} else if min_ == max_ {
 		if min_ != 1 {
-			cast_[*StringBuilder](sb.append_char('{')).append_int(min_).append_char('}')
+			sb.append_char('{').append_int(min_).append_char('}')
 		}
 	} else {
-		cast_[*StringBuilder](cast_[*StringBuilder](sb.append_char('{')).append_int(min_).append_char(',')).append_int(max_).append_char('}')
+		sb.append_char('{').append_int(min_).append_char(',').append_int(max_).append_char('}')
 	}
 	if !this.greedy {
 		sb.append_char('?')
 	}
 }
 
-func (this *RegExpTree_Repetition) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_Repetition) appendDebugInfo_impl(sb *strBuilder_) {
 	sb.append(" min=").append_int(this.min).append(", max=").append_int(this.max)
 	if !this.greedy {
 		sb.append("  not_greedy")
@@ -977,10 +1011,11 @@ func (this *RegExpTree_Repetition) equals_impl(o any) bool {
 	_ = that
 	if !(func() bool {
 		v_ := o
-		if !is_[*RegExpTree_Repetition](v_) {
+		p, ok := v_.(*RegExpTree_Repetition)
+		if !ok {
 			return false
 		}
-		that = cast_[*RegExpTree_Repetition](v_)
+		that = p
 		return true
 	}()) {
 		return false
@@ -999,7 +1034,7 @@ func (this *RegExpTree_Repetition) hashCode_impl() int32 {
 
 type RegExpTree_Alternation struct {
 	RegExpTree
-	alternatives ImmutableListOf[*RegExpTree]
+	alternatives *ImmutableList[*RegExpTree]
 }
 
 func (this *RegExpTree_Alternation) up_RegExpTree() *RegExpTree {
@@ -1009,12 +1044,12 @@ func (this *RegExpTree_Alternation) up_RegExpTree() *RegExpTree {
 	return &this.RegExpTree
 }
 
-func (this *RegExpTree_Alternation) init_RegExpTree_Alternation(alternatives ListOf[*RegExpTree]) {
+func (this *RegExpTree_Alternation) init_RegExpTree_Alternation(alternatives *TList[*RegExpTree]) {
 	this.RegExpTree.init_RegExpTree()
-	this.alternatives = ImmutableList_copyOf(Collection(alternatives))
+	this.alternatives = immutableListCopyOf_(tc_p_RegExpTree, Collection(alternatives.asList()))
 }
 
-func new_RegExpTree_Alternation(alternatives ListOf[*RegExpTree]) *RegExpTree_Alternation {
+func new_RegExpTree_Alternation(alternatives *TList[*RegExpTree]) *RegExpTree_Alternation {
 	this := &RegExpTree_Alternation{}
 	this.self_ = this
 	this.init_RegExpTree_Alternation(alternatives)
@@ -1022,36 +1057,36 @@ func new_RegExpTree_Alternation(alternatives ListOf[*RegExpTree]) *RegExpTree_Al
 }
 
 func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
-	var alternatives ListOf[*RegExpTree] = icast_List(new_ArrayList_0().self())
-	it_1 := foreach_(obj_(this.alternatives))
-	for it_1.next() {
-		var alternative *RegExpTree = to_RegExpTree(it_1.v)
+	var alternatives *TList[*RegExpTree] = newTList_(tc_p_RegExpTree)
+	for _, el := range this.alternatives.items {
+		alternative := el
 		alternative = alternative.simplify(flags)
 		var alternation *RegExpTree_Alternation
 		_ = alternation
 		if func() bool {
 			v_ := alternative.self()
-			if !is_[*RegExpTree_Alternation](v_) {
+			p, ok := v_.(*RegExpTree_Alternation)
+			if !ok {
 				return false
 			}
-			alternation = cast_[*RegExpTree_Alternation](v_)
+			alternation = p
 			return true
 		}() {
-			alternatives.addAll(icast_Collection(obj_(alternation.alternatives)))
+			alternatives.addAllT(alternation.alternatives)
 		} else {
-			alternatives.add(alternative.self())
+			alternatives.add(alternative)
 		}
 	}
 	var last *RegExpTree = nil
 	{
-		var it IteratorOf[*RegExpTree] = alternatives.iterator()
+		var it *tlistIter_[*RegExpTree] = alternatives.cursor()
 		for it.hasNext() {
-			var alternative *RegExpTree = to_RegExpTree(it.next())
+			var alternative *RegExpTree = it.nextT()
 			if alternative.equals(RegExpTree_NEVER_MATCHES.self()) {
 				continue
 			}
 			if alternative.equals(last.self()) && !alternative.hasCapturingGroup() {
-				Iterator_remove(it)
+				it.remove()
 			} else {
 				last = alternative
 			}
@@ -1061,34 +1096,36 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 		var i int32 = 0
 		var n int32 = alternatives.size()
 		for ; i < n; i++ {
-			var alternative *RegExpTree = to_RegExpTree(alternatives.get(i))
+			var alternative *RegExpTree = alternatives.get(i)
 			var text *RegExpTree_Text
 			_ = text
 			if (func() bool {
 				v_ := alternative.self()
-				if !is_[*RegExpTree_Text](v_) {
+				p2, ok2 := v_.(*RegExpTree_Text)
+				if !ok2 {
 					return false
 				}
-				text = cast_[*RegExpTree_Text](v_)
+				text = p2
 				return true
-			}() && (String_length(text.text) == 1)) || is_[*RegExpTree_Charset](alternative.self()) {
+			}() && (text.textU16.length() == 1)) || is_[*RegExpTree_Charset](alternative.self()) {
 				var end int32 = i
 				var nCharsets int32 = 0
 				for end < n {
-					var follower *RegExpTree = to_RegExpTree(alternatives.get(end))
-					if is_[*RegExpTree_Charset](follower.self()) {
+					var follower *RegExpTree = alternatives.get(end)
+					if _, ok3 := follower.self().(*RegExpTree_Charset); ok3 {
 						nCharsets++
 					} else {
 						var text_6 *RegExpTree_Text
 						_ = text_6
 						if !(func() bool {
 							v_ := follower.self()
-							if !is_[*RegExpTree_Text](v_) {
+							p3, ok4 := v_.(*RegExpTree_Text)
+							if !ok4 {
 								return false
 							}
-							text_6 = cast_[*RegExpTree_Text](v_)
+							text_6 = p3
 							return true
-						}() && (String_length(text_6.text) == 1)) {
+						}() && (text_6.textU16.length() == 1)) {
 							break
 						}
 					}
@@ -1099,21 +1136,20 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 					var memberIdx int32 = 0
 					var chars *CharRanges = CharRanges_EMPTY
 					var ieExplicits *CharRanges = CharRanges_EMPTY
-					var charAlternatives ListOf[*RegExpTree] = alternatives.subList(i, end)
-					it_7 := foreach_(any(charAlternatives))
-					for it_7.next() {
-						var charAlternative *RegExpTree = to_RegExpTree(it_7.v)
+					var charAlternatives ListOf[*RegExpTree] = alternatives.asList().subList(i, end)
+					for charAlternative := range elemsBy_(charAlternatives, to_RegExpTree) {
 						var text_9 *RegExpTree_Text
 						_ = text_9
 						if func() bool {
 							v_ := charAlternative.self()
-							if !is_[*RegExpTree_Text](v_) {
+							p4, ok5 := v_.(*RegExpTree_Text)
+							if !ok5 {
 								return false
 							}
-							text_9 = cast_[*RegExpTree_Text](v_)
+							text_9 = p4
 							return true
 						}() {
-							var ch uint16 = String_charAt(text_9.text, 0)
+							var ch uint16 = text_9.textU16.charAt(0)
 							members[memberIdx] = int32(ch)
 							memberIdx++
 							if RegExpTree_IE_SPEC_ERRORS.contains(int32(ch)) {
@@ -1124,10 +1160,11 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 							_ = cs
 							if func() bool {
 								v_ := charAlternative.self()
-								if !is_[*RegExpTree_Charset](v_) {
+								p5, ok6 := v_.(*RegExpTree_Charset)
+								if !ok6 {
 									return false
 								}
-								cs = cast_[*RegExpTree_Charset](v_)
+								cs = p5
 								return true
 							}() {
 								chars = chars.union(cs.ranges_)
@@ -1147,16 +1184,16 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 	case 0:
 		return RegExpTree_Empty_INSTANCE.up_RegExpTree()
 	case 1:
-		return to_RegExpTree(alternatives.get(0))
+		return alternatives.get(0)
 	case 2:
-		if is_[*RegExpTree_Empty](alternatives.get(1)) {
-			return new_RegExpTree_Repetition(to_RegExpTree(alternatives.get(0)), 0, 1, true).up_RegExpTree()
-		} else if is_[*RegExpTree_Empty](alternatives.get(0)) {
-			return new_RegExpTree_Repetition(to_RegExpTree(alternatives.get(1)), 0, 1, false).up_RegExpTree()
+		if _, ok7 := alternatives.get(1).self().(*RegExpTree_Empty); ok7 {
+			return new_RegExpTree_Repetition(alternatives.get(0), 0, 1, true).up_RegExpTree()
+		} else if _, ok8 := alternatives.get(0).self().(*RegExpTree_Empty); ok8 {
+			return new_RegExpTree_Repetition(alternatives.get(1), 0, 1, false).up_RegExpTree()
 		}
 	}
 	return func() *RegExpTree {
-		if Object_equals(any(alternatives), obj_(this.alternatives)) {
+		if equalsVia_(alternatives.asList(), obj_(this.alternatives.asImm())) {
 			return this.up_RegExpTree()
 		}
 		return new_RegExpTree_Alternation(alternatives).up_RegExpTree()
@@ -1164,9 +1201,8 @@ func (this *RegExpTree_Alternation) simplify_impl(flags string) *RegExpTree {
 }
 
 func (this *RegExpTree_Alternation) isCaseSensitive_impl() bool {
-	it_1 := foreach_(obj_(this.alternatives))
-	for it_1.next() {
-		var alternative *RegExpTree = to_RegExpTree(it_1.v)
+	for _, el_1 := range this.alternatives.items {
+		var alternative *RegExpTree = el_1
 		if alternative.isCaseSensitive() {
 			return true
 		}
@@ -1175,9 +1211,8 @@ func (this *RegExpTree_Alternation) isCaseSensitive_impl() bool {
 }
 
 func (this *RegExpTree_Alternation) containsAnchor_impl() bool {
-	it_1 := foreach_(obj_(this.alternatives))
-	for it_1.next() {
-		var alternative *RegExpTree = to_RegExpTree(it_1.v)
+	for _, el_1 := range this.alternatives.items {
+		var alternative *RegExpTree = el_1
 		if alternative.containsAnchor() {
 			return true
 		}
@@ -1187,19 +1222,18 @@ func (this *RegExpTree_Alternation) containsAnchor_impl() bool {
 
 func (this *RegExpTree_Alternation) numCapturingGroups_impl() int32 {
 	var n int32 = 0
-	it_1 := foreach_(obj_(this.alternatives))
-	for it_1.next() {
-		var alternative *RegExpTree = to_RegExpTree(it_1.v)
+	for _, el := range this.alternatives.items {
+		alternative := el
 		n += alternative.numCapturingGroups()
 	}
 	return n
 }
 
 func (this *RegExpTree_Alternation) children_impl() List {
-	return icast_List(obj_(this.alternatives))
+	return icast_List(obj_(this.alternatives.asImm()))
 }
 
-func (this *RegExpTree_Alternation) appendSourceCode_impl(sb *StringBuilder) {
+func (this *RegExpTree_Alternation) appendSourceCode_impl(sb *strBuilder_) {
 	{
 		var i int32 = 0
 		var n int32 = this.alternatives.size()
@@ -1207,12 +1241,12 @@ func (this *RegExpTree_Alternation) appendSourceCode_impl(sb *StringBuilder) {
 			if i != 0 {
 				sb.append_char('|')
 			}
-			to_RegExpTree(this.alternatives.get(i)).appendSourceCode(sb)
+			this.alternatives.get(i).self().(RegExpTree_as).as_RegExpTree().appendSourceCode(sb)
 		}
 	}
 }
 
-func (this *RegExpTree_Alternation) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_Alternation) appendDebugInfo_impl(sb *strBuilder_) {
 
 }
 
@@ -1221,16 +1255,17 @@ func (this *RegExpTree_Alternation) equals_impl(o any) bool {
 	_ = alternation
 	return ((obj_(this) == o) || (func() bool {
 		v_ := o
-		if !is_[*RegExpTree_Alternation](v_) {
+		p, ok := v_.(*RegExpTree_Alternation)
+		if !ok {
 			return false
 		}
-		alternation = cast_[*RegExpTree_Alternation](v_)
+		alternation = p
 		return true
-	}() && Object_equals(obj_(this.alternatives), obj_(alternation.alternatives))))
+	}() && tlistEq_(this.alternatives, alternation.alternatives, false)))
 }
 
 func (this *RegExpTree_Alternation) hashCode_impl() int32 {
-	return (1370848465 ^ Object_hashCode(obj_(this.alternatives)))
+	return (1370848465 ^ tlistHash_(this.alternatives, false))
 }
 
 type RegExpTree_LookaheadAssertion struct {
@@ -1261,7 +1296,7 @@ func new_RegExpTree_LookaheadAssertion(body *RegExpTree, positive bool) *RegExpT
 
 func (this *RegExpTree_LookaheadAssertion) simplify_impl(flags string) *RegExpTree {
 	var simpleBody *RegExpTree = this.body.simplify(flags)
-	if is_[*RegExpTree_Empty](simpleBody.self()) {
+	if _, ok := simpleBody.self().(*RegExpTree_Empty); ok {
 		if this.positive {
 			return simpleBody
 		}
@@ -1282,10 +1317,10 @@ func (this *RegExpTree_LookaheadAssertion) numCapturingGroups_impl() int32 {
 }
 
 func (this *RegExpTree_LookaheadAssertion) children_impl() List {
-	return icast_List(obj_(ImmutableList_of_Object(this.body.self())))
+	return ImmutableList_of_Object(this.body.self())
 }
 
-func (this *RegExpTree_LookaheadAssertion) appendSourceCode_impl(sb *StringBuilder) {
+func (this *RegExpTree_LookaheadAssertion) appendSourceCode_impl(sb *strBuilder_) {
 	sb.append(func() string {
 		if this.positive {
 			return "(?="
@@ -1296,7 +1331,7 @@ func (this *RegExpTree_LookaheadAssertion) appendSourceCode_impl(sb *StringBuild
 	sb.append_char(')')
 }
 
-func (this *RegExpTree_LookaheadAssertion) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_LookaheadAssertion) appendDebugInfo_impl(sb *strBuilder_) {
 	sb.append(func() string {
 		if this.positive {
 			return "positive"
@@ -1310,10 +1345,11 @@ func (this *RegExpTree_LookaheadAssertion) equals_impl(o any) bool {
 	_ = that
 	if !(func() bool {
 		v_ := o
-		if !is_[*RegExpTree_LookaheadAssertion](v_) {
+		p, ok := v_.(*RegExpTree_LookaheadAssertion)
+		if !ok {
 			return false
 		}
-		that = cast_[*RegExpTree_LookaheadAssertion](v_)
+		that = p
 		return true
 	}()) {
 		return false
@@ -1353,7 +1389,7 @@ func new_RegExpTree_LookbehindAssertion(body *RegExpTree, positive bool) *RegExp
 
 func (this *RegExpTree_LookbehindAssertion) simplify_impl(flags string) *RegExpTree {
 	var simpleBody *RegExpTree = this.body.simplify(flags)
-	if is_[*RegExpTree_Empty](simpleBody.self()) {
+	if _, ok := simpleBody.self().(*RegExpTree_Empty); ok {
 		if this.positive {
 			return simpleBody
 		}
@@ -1374,10 +1410,10 @@ func (this *RegExpTree_LookbehindAssertion) numCapturingGroups_impl() int32 {
 }
 
 func (this *RegExpTree_LookbehindAssertion) children_impl() List {
-	return icast_List(obj_(ImmutableList_of_Object(this.body.self())))
+	return ImmutableList_of_Object(this.body.self())
 }
 
-func (this *RegExpTree_LookbehindAssertion) appendSourceCode_impl(sb *StringBuilder) {
+func (this *RegExpTree_LookbehindAssertion) appendSourceCode_impl(sb *strBuilder_) {
 	sb.append(func() string {
 		if this.positive {
 			return "(?<="
@@ -1388,7 +1424,7 @@ func (this *RegExpTree_LookbehindAssertion) appendSourceCode_impl(sb *StringBuil
 	sb.append_char(')')
 }
 
-func (this *RegExpTree_LookbehindAssertion) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_LookbehindAssertion) appendDebugInfo_impl(sb *strBuilder_) {
 	sb.append(func() string {
 		if this.positive {
 			return "positive"
@@ -1402,10 +1438,11 @@ func (this *RegExpTree_LookbehindAssertion) equals_impl(o any) bool {
 	_ = that
 	if !(func() bool {
 		v_ := o
-		if !is_[*RegExpTree_LookbehindAssertion](v_) {
+		p, ok := v_.(*RegExpTree_LookbehindAssertion)
+		if !ok {
 			return false
 		}
-		that = cast_[*RegExpTree_LookbehindAssertion](v_)
+		that = p
 		return true
 	}()) {
 		return false
@@ -1458,16 +1495,16 @@ func (this *RegExpTree_CapturingGroup) numCapturingGroups_impl() int32 {
 }
 
 func (this *RegExpTree_CapturingGroup) children_impl() List {
-	return icast_List(obj_(ImmutableList_of_Object(this.body.self())))
+	return ImmutableList_of_Object(this.body.self())
 }
 
-func (this *RegExpTree_CapturingGroup) appendSourceCode_impl(sb *StringBuilder) {
+func (this *RegExpTree_CapturingGroup) appendSourceCode_impl(sb *strBuilder_) {
 	sb.append_char('(')
 	this.body.appendSourceCode(sb)
 	sb.append_char(')')
 }
 
-func (this *RegExpTree_CapturingGroup) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_CapturingGroup) appendDebugInfo_impl(sb *strBuilder_) {
 
 }
 
@@ -1476,10 +1513,11 @@ func (this *RegExpTree_CapturingGroup) equals_impl(o any) bool {
 	_ = capturingGroup
 	return (func() bool {
 		v_ := o
-		if !is_[*RegExpTree_CapturingGroup](v_) {
+		p, ok := v_.(*RegExpTree_CapturingGroup)
+		if !ok {
 			return false
 		}
-		capturingGroup = cast_[*RegExpTree_CapturingGroup](v_)
+		capturingGroup = p
 		return true
 	}() && this.body.equals(capturingGroup.body.self()))
 }
@@ -1536,10 +1574,10 @@ func (this *RegExpTree_NamedCaptureGroup) numCapturingGroups_impl() int32 {
 }
 
 func (this *RegExpTree_NamedCaptureGroup) children_impl() List {
-	return icast_List(obj_(ImmutableList_of_Object(this.body.self())))
+	return ImmutableList_of_Object(this.body.self())
 }
 
-func (this *RegExpTree_NamedCaptureGroup) appendSourceCode_impl(sb *StringBuilder) {
+func (this *RegExpTree_NamedCaptureGroup) appendSourceCode_impl(sb *strBuilder_) {
 	sb.append("(?<")
 	sb.append(this.name_)
 	sb.append_char('>')
@@ -1547,7 +1585,7 @@ func (this *RegExpTree_NamedCaptureGroup) appendSourceCode_impl(sb *StringBuilde
 	sb.append_char(')')
 }
 
-func (this *RegExpTree_NamedCaptureGroup) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_NamedCaptureGroup) appendDebugInfo_impl(sb *strBuilder_) {
 	sb.append(" name=").append(this.name_)
 }
 
@@ -1556,16 +1594,17 @@ func (this *RegExpTree_NamedCaptureGroup) equals_impl(o any) bool {
 	_ = namedCaptureGroup
 	return ((func() bool {
 		v_ := o
-		if !is_[*RegExpTree_NamedCaptureGroup](v_) {
+		p, ok := v_.(*RegExpTree_NamedCaptureGroup)
+		if !ok {
 			return false
 		}
-		namedCaptureGroup = cast_[*RegExpTree_NamedCaptureGroup](v_)
+		namedCaptureGroup = p
 		return true
 	}() && (this.name_ == namedCaptureGroup.name_)) && this.body.equals(namedCaptureGroup.body.self()))
 }
 
 func (this *RegExpTree_NamedCaptureGroup) hashCode_impl() int32 {
-	return (String_hashCode(this.name_) ^ this.body.hashCode())
+	return (utf16Hash_(this.name_) ^ this.body.hashCode())
 }
 
 type RegExpTree_UnicodePropertyEscape struct {
@@ -1595,8 +1634,12 @@ func (this *RegExpTree_UnicodePropertyEscape) zero_RegExpTree_UnicodePropertyEsc
 
 func (this *RegExpTree_UnicodePropertyEscape) init_RegExpTree_UnicodePropertyEscape(propertyName Optional[string], propertyValue string, negated bool) {
 	this.RegExpTree_RegExpTreeAtom.init_RegExpTree_RegExpTreeAtom()
-	Preconditions_checkArgument_boolean_Object((propertyName.isEmpty() || !String_isEmpty(propertyName.get())), strobj_("if '=' is present in a unicode property escape, the name cannot be empty"))
-	Preconditions_checkArgument_boolean_Object(!String_isEmpty(propertyValue), strobj_("unicode property escape value cannot be empty"))
+	if !propertyName.isEmpty() && propertyName.get() == "" {
+		panic(new_IllegalArgumentException_String("if '=' is present in a unicode property escape, the name cannot be empty"))
+	}
+	if propertyValue == "" {
+		panic(new_IllegalArgumentException_String("unicode property escape value cannot be empty"))
+	}
 	this.propertyName_ = propertyName
 	this.propertyValue = propertyValue
 	this.negated = negated
@@ -1614,7 +1657,7 @@ func (this *RegExpTree_UnicodePropertyEscape) simplify_impl(flags string) *RegEx
 	return this.up_RegExpTree()
 }
 
-func (this *RegExpTree_UnicodePropertyEscape) appendSourceCode_impl(sb *StringBuilder) {
+func (this *RegExpTree_UnicodePropertyEscape) appendSourceCode_impl(sb *strBuilder_) {
 	sb.append(func() string {
 		if this.negated {
 			return "\\P{"
@@ -1629,7 +1672,7 @@ func (this *RegExpTree_UnicodePropertyEscape) appendSourceCode_impl(sb *StringBu
 	sb.append("}")
 }
 
-func (this *RegExpTree_UnicodePropertyEscape) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_UnicodePropertyEscape) appendDebugInfo_impl(sb *strBuilder_) {
 
 }
 
@@ -1638,10 +1681,11 @@ func (this *RegExpTree_UnicodePropertyEscape) equals_impl(o any) bool {
 	_ = unicodePropertyEscape
 	return (((func() bool {
 		v_ := o
-		if !is_[*RegExpTree_UnicodePropertyEscape](v_) {
+		p, ok := v_.(*RegExpTree_UnicodePropertyEscape)
+		if !ok {
 			return false
 		}
-		unicodePropertyEscape = cast_[*RegExpTree_UnicodePropertyEscape](v_)
+		unicodePropertyEscape = p
 		return true
 	}() && (this.negated == unicodePropertyEscape.negated)) && Object_equals(this.propertyName_.box_(), unicodePropertyEscape.propertyName_.box_())) && (this.propertyValue == unicodePropertyEscape.propertyValue))
 }
@@ -1703,7 +1747,7 @@ func (this *RegExpTree_Charset) simplify_impl(flags string) *RegExpTree {
 		return RegExpTree_NEVER_MATCHES
 	}
 	var best *CharRanges = this.ranges_
-	if String_indexOf(flags, 105) >= 0 {
+	if strings.Contains(flags, "i") {
 		var options *JTSet[*CharRanges] = jnewTSet_(tce_p_CharRanges)
 		options.add(CaseCanonicalize_expandToAllMatched(this.ranges_))
 		options.add(CaseCanonicalize_reduceToMinimum(this.ranges_))
@@ -1730,7 +1774,7 @@ func (this *RegExpTree_Charset) simplify_impl(flags string) *RegExpTree {
 	if (best.getNumRanges() == 1) && ((best.end(0) - best.start(0)) == 1) {
 		return new_RegExpTree_Text(Character_toString(uint16(best.start(0)))).up_RegExpTree()
 	}
-	if !best.equals(obj_(this.ranges_)) {
+	if !best.equals_CharRanges(this.ranges_) {
 		return new_RegExpTree_Charset(best, this.ieExplicits).up_RegExpTree()
 	}
 	return this.up_RegExpTree()
@@ -1738,19 +1782,18 @@ func (this *RegExpTree_Charset) simplify_impl(flags string) *RegExpTree {
 
 func (this *RegExpTree_Charset) isCaseSensitive_impl() bool {
 	var withoutNamedGroups *CharRanges = this.decompose().ranges_
-	return !withoutNamedGroups.equals(obj_(CaseCanonicalize_expandToAllMatched(withoutNamedGroups)))
+	return !withoutNamedGroups.equals_CharRanges(CaseCanonicalize_expandToAllMatched(withoutNamedGroups))
 }
 
 func (this *RegExpTree_Charset) decompose_2(ranges *CharRanges, inverted bool) *RegExpTree_DecomposedCharset {
-	var namedGroups *StringBuilder = new_StringBuilder()
+	var namedGroups strBuilder_
 	var rangesInterIeExplicits *CharRanges = ranges.intersection(this.ieExplicits)
 	for {
 		var groupName uint16 = 0x0000
 		var simplest *CharRanges = nil
 		var minComplexity int32 = RegExpTree_DecomposedCharset_complexity(ranges)
-		it_2 := foreach_(obj_(cast_[*ImmutableSet](RegExpTree_NAMED_CHAR_GROUPS.entrySet())))
-		for it_2.next() {
-			var namedGroup Map_Entry = icast_Map_Entry(it_2.v)
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](RegExpTree_NAMED_CHAR_GROUPS.entrySet())) {
+			namedGroup := icast_Map_Entry(el)
 			var group *CharRanges = cast_[*CharRanges](namedGroup.getValue())
 			if ranges.containsAll(group) {
 				var withoutGroup *CharRanges = ranges.difference(group).union(rangesInterIeExplicits)
@@ -1763,13 +1806,13 @@ func (this *RegExpTree_Charset) decompose_2(ranges *CharRanges, inverted bool) *
 			}
 		}
 		if simplest != nil {
-			cast_[*StringBuilder](namedGroups.append_char('\\')).append_char(groupName)
+			namedGroups.append_char('\\').append_char(groupName)
 			ranges = simplest
 		} else {
 			break
 		}
 	}
-	return new_RegExpTree_DecomposedCharset(inverted, ranges, Object_toString(obj_(namedGroups)))
+	return new_RegExpTree_DecomposedCharset(inverted, ranges, namedGroups.toString())
 }
 
 func (this *RegExpTree_Charset) decompose() *RegExpTree_DecomposedCharset {
@@ -1791,15 +1834,15 @@ func (this *RegExpTree_Charset) decompose() *RegExpTree_DecomposedCharset {
 	}()
 }
 
-func (this *RegExpTree_Charset) appendSourceCode_impl(sb *StringBuilder) {
-	if RegExpTree_DOT_CHARSET.ranges_.equals(obj_(this.ranges_)) {
+func (this *RegExpTree_Charset) appendSourceCode_impl(sb *strBuilder_) {
+	if RegExpTree_DOT_CHARSET.ranges_.equals_CharRanges(this.ranges_) {
 		sb.append_char('.')
 		return
 	}
 	this.decompose().appendSourceCode(sb)
 }
 
-func (this *RegExpTree_Charset) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_Charset) appendDebugInfo_impl(sb *strBuilder_) {
 	sb.append_Object(obj_(this.ranges_))
 }
 
@@ -1808,12 +1851,13 @@ func (this *RegExpTree_Charset) equals_impl(o any) bool {
 	_ = charset
 	return (func() bool {
 		v_ := o
-		if !is_[*RegExpTree_Charset](v_) {
+		p, ok := v_.(*RegExpTree_Charset)
+		if !ok {
 			return false
 		}
-		charset = cast_[*RegExpTree_Charset](v_)
+		charset = p
 		return true
-	}() && this.ranges_.equals(obj_(charset.ranges_)))
+	}() && this.ranges_.equals_CharRanges(charset.ranges_))
 }
 
 func (this *RegExpTree_Charset) hashCode_impl() int32 {
@@ -1821,19 +1865,22 @@ func (this *RegExpTree_Charset) hashCode_impl() int32 {
 }
 
 type RegExpTree_DecomposedCharset struct {
-	inverted_    bool
-	ranges_      *CharRanges
-	namedGroups_ string
+	inverted_       bool
+	ranges_         *CharRanges
+	namedGroups_    string
+	namedGroups_U16 utf16_
 }
 
 func (this *RegExpTree_DecomposedCharset) zero_RegExpTree_DecomposedCharset() {
 	this.namedGroups_ = nullstr_
+	this.namedGroups_U16 = utf16Kept_(this.namedGroups_)
 }
 
 func (this *RegExpTree_DecomposedCharset) init_RegExpTree_DecomposedCharset(inverted bool, ranges *CharRanges, namedGroups string) {
 	this.inverted_ = inverted
 	this.ranges_ = ranges
 	this.namedGroups_ = namedGroups
+	this.namedGroups_U16 = utf16Kept_(this.namedGroups_)
 }
 
 func new_RegExpTree_DecomposedCharset(inverted bool, ranges *CharRanges, namedGroups string) *RegExpTree_DecomposedCharset {
@@ -1849,15 +1896,15 @@ func (this *RegExpTree_DecomposedCharset) complexity() int32 {
 			return 1
 		}
 		return 0
-	}() + String_length(this.namedGroups_)) + RegExpTree_DecomposedCharset_complexity(this.ranges_))
+	}() + this.namedGroups_U16.length()) + RegExpTree_DecomposedCharset_complexity(this.ranges_))
 }
 
-func (this *RegExpTree_DecomposedCharset) appendSourceCode(sb *StringBuilder) {
+func (this *RegExpTree_DecomposedCharset) appendSourceCode(sb *strBuilder_) {
 	if this.ranges_.isEmpty() {
-		if !this.inverted_ && (String_length(this.namedGroups_) == 2) {
+		if !this.inverted_ && (this.namedGroups_U16.length() == 2) {
 			sb.append(this.namedGroups_)
 			return
-		} else if this.ranges_.isEmpty() && String_isEmpty(this.namedGroups_) {
+		} else if this.ranges_.isEmpty() && this.namedGroups_ == "" {
 			sb.append(func() string {
 				if this.inverted_ {
 					return "[\\S\\s]"
@@ -1872,7 +1919,7 @@ func (this *RegExpTree_DecomposedCharset) appendSourceCode(sb *StringBuilder) {
 		sb.append_char('^')
 	}
 	sb.append(this.namedGroups_)
-	var rangesStartCharset bool = (!this.inverted_ && String_isEmpty(this.namedGroups_))
+	var rangesStartCharset bool = (!this.inverted_ && this.namedGroups_ == "")
 	var emitDashAtEnd bool = false
 	{
 		var i int32 = 0
@@ -1903,7 +1950,7 @@ func (this *RegExpTree_DecomposedCharset) appendSourceCode(sb *StringBuilder) {
 	sb.append_char(']')
 }
 
-func RegExpTree_DecomposedCharset_escapeRangeCharOnto(ch uint16, startIsFlush bool, atStart bool, atEnd bool, sb *StringBuilder) {
+func RegExpTree_DecomposedCharset_escapeRangeCharOnto(ch uint16, startIsFlush bool, atStart bool, atEnd bool, sb *strBuilder_) {
 	switch ch {
 	case 0x0008:
 		sb.append("\\b")
@@ -1922,7 +1969,7 @@ func RegExpTree_DecomposedCharset_escapeRangeCharOnto(ch uint16, startIsFlush bo
 			return "\\-"
 		}())
 	case '\\', ']':
-		cast_[*StringBuilder](sb.append_char('\\')).append_char(ch)
+		sb.append_char('\\').append_char(ch)
 	default:
 		RegExpTree_escapeCharOnto(ch, sb)
 	}
@@ -1986,24 +2033,24 @@ func (this *RegExpTree_DecomposedCharset) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.inverted_ == o.inverted_ && Objects_equals(obj_(this.ranges_), obj_(o.ranges_)) && this.namedGroups_ == o.namedGroups_
+	return true && this.inverted_ == o.inverted_ && objequalsBy_(this.ranges_, obj_(o.ranges_), (*CharRanges).equals) && this.namedGroups_ == o.namedGroups_
 }
 
 func (this *RegExpTree_DecomposedCharset) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(bool(this.inverted_)))
-	h = h*31 + Objects_hashCode(obj_(this.ranges_))
-	h = h*31 + Objects_hashCode(strobj_(this.namedGroups_))
+	h = h*31 + Boolean_hashCode(bool(this.inverted_))
+	h = h*31 + objhashBy_(this.ranges_, (*CharRanges).hashCode)
+	h = h*31 + objhashStr_(this.namedGroups_)
 	return h
 }
 
 func (this *RegExpTree_DecomposedCharset) toString() string {
-	return "DecomposedCharset[" + "inverted=" + objstr_(any(bool(this.inverted_))) + ", ranges=" + objstr_(obj_(this.ranges_)) + ", namedGroups=" + objstr_(strobj_(this.namedGroups_)) + "]"
+	return "DecomposedCharset[" + "inverted=" + boolstr_(bool(this.inverted_)) + ", ranges=" + tostr_(this.ranges_) + ", namedGroups=" + sstr_(this.namedGroups_) + "]"
 }
 
 type RegExpTree_Concatenation struct {
 	RegExpTree
-	elements_ ImmutableListOf[*RegExpTree]
+	elements_ *ImmutableList[*RegExpTree]
 }
 
 func (this *RegExpTree_Concatenation) up_RegExpTree() *RegExpTree {
@@ -2015,7 +2062,7 @@ func (this *RegExpTree_Concatenation) up_RegExpTree() *RegExpTree {
 
 func (this *RegExpTree_Concatenation) init_RegExpTree_Concatenation_RegExpTree_RegExpTree(a *RegExpTree, b *RegExpTree) {
 	this.RegExpTree.init_RegExpTree()
-	this.elements_ = ImmutableList_of_Object_Object(a.self(), b.self())
+	this.elements_ = immutableListOf_(tc_p_RegExpTree, a, b)
 }
 
 func new_RegExpTree_Concatenation_RegExpTree_RegExpTree(a *RegExpTree, b *RegExpTree) *RegExpTree_Concatenation {
@@ -2027,7 +2074,7 @@ func new_RegExpTree_Concatenation_RegExpTree_RegExpTree(a *RegExpTree, b *RegExp
 
 func (this *RegExpTree_Concatenation) init_RegExpTree_Concatenation_List(elements ListOf[*RegExpTree]) {
 	this.RegExpTree.init_RegExpTree()
-	this.elements_ = ImmutableList_copyOf(Collection(elements))
+	this.elements_ = immutableListCopyOf_(tc_p_RegExpTree, Collection(elements))
 }
 
 func new_RegExpTree_Concatenation_List(elements ListOf[*RegExpTree]) *RegExpTree_Concatenation {
@@ -2039,9 +2086,8 @@ func new_RegExpTree_Concatenation_List(elements ListOf[*RegExpTree]) *RegExpTree
 
 func (this *RegExpTree_Concatenation) simplify_impl(flags string) *RegExpTree {
 	var s *RegExpTree_Concatenation_1Simplifier = new_RegExpTree_Concatenation_1Simplifier(this, flags)
-	it_1 := foreach_(obj_(this.elements_))
-	for it_1.next() {
-		var element *RegExpTree = to_RegExpTree(it_1.v)
+	for _, el := range this.elements_.items {
+		element := el
 		s.simplify(element.simplify(flags))
 	}
 	return func() *RegExpTree {
@@ -2053,14 +2099,12 @@ func (this *RegExpTree_Concatenation) simplify_impl(flags string) *RegExpTree {
 		default:
 			return new_RegExpTree_Concatenation_List(s.simplified.asList()).up_RegExpTree()
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *RegExpTree_Concatenation) isCaseSensitive_impl() bool {
-	it_1 := foreach_(obj_(this.elements_))
-	for it_1.next() {
-		var element *RegExpTree = to_RegExpTree(it_1.v)
+	for _, el_1 := range this.elements_.items {
+		var element *RegExpTree = el_1
 		if element.isCaseSensitive() {
 			return true
 		}
@@ -2069,9 +2113,8 @@ func (this *RegExpTree_Concatenation) isCaseSensitive_impl() bool {
 }
 
 func (this *RegExpTree_Concatenation) containsAnchor_impl() bool {
-	it_1 := foreach_(obj_(this.elements_))
-	for it_1.next() {
-		var element *RegExpTree = to_RegExpTree(it_1.v)
+	for _, el_1 := range this.elements_.items {
+		var element *RegExpTree = el_1
 		if element.containsAnchor() {
 			return true
 		}
@@ -2081,23 +2124,21 @@ func (this *RegExpTree_Concatenation) containsAnchor_impl() bool {
 
 func (this *RegExpTree_Concatenation) numCapturingGroups_impl() int32 {
 	var n int32 = 0
-	it_1 := foreach_(obj_(this.elements_))
-	for it_1.next() {
-		var element *RegExpTree = to_RegExpTree(it_1.v)
+	for _, el := range this.elements_.items {
+		element := el
 		n += element.numCapturingGroups()
 	}
 	return n
 }
 
 func (this *RegExpTree_Concatenation) children_impl() List {
-	return icast_List(obj_(this.elements_))
+	return icast_List(obj_(this.elements_.asImm()))
 }
 
-func (this *RegExpTree_Concatenation) appendSourceCode_impl(sb *StringBuilder) {
+func (this *RegExpTree_Concatenation) appendSourceCode_impl(sb *strBuilder_) {
 	var digitsMightBleed bool = false
-	it_1 := foreach_(obj_(this.elements_))
-	for it_1.next() {
-		var element *RegExpTree = to_RegExpTree(it_1.v)
+	for _, el := range this.elements_.items {
+		element := el
 		var parenthesize bool = false
 		if is_[*RegExpTree_Alternation](element.self()) || is_[*RegExpTree_Concatenation](element.self()) {
 			parenthesize = true
@@ -2126,23 +2167,25 @@ func (this *RegExpTree_Concatenation) appendSourceCode_impl(sb *StringBuilder) {
 		_ = text
 		digitsMightBleed = ((func() bool {
 			v_ := element.self()
-			if !is_[*RegExpTree_BackReference](v_) {
+			p, ok := v_.(*RegExpTree_BackReference)
+			if !ok {
 				return false
 			}
-			backReference = cast_[*RegExpTree_BackReference](v_)
+			backReference = p
 			return true
 		}() && (backReference.groupIndex < 10)) || (func() bool {
 			v_ := element.self()
-			if !is_[*RegExpTree_Text](v_) {
+			p2, ok2 := v_.(*RegExpTree_Text)
+			if !ok2 {
 				return false
 			}
-			text = cast_[*RegExpTree_Text](v_)
+			text = p2
 			return true
-		}() && String_endsWith(text.text, "{")))
+		}() && strings.HasSuffix(text.text, "{")))
 	}
 }
 
-func (this *RegExpTree_Concatenation) appendDebugInfo_impl(sb *StringBuilder) {
+func (this *RegExpTree_Concatenation) appendDebugInfo_impl(sb *strBuilder_) {
 
 }
 
@@ -2151,20 +2194,22 @@ func (this *RegExpTree_Concatenation) equals_impl(o any) bool {
 	_ = concatenation
 	return (func() bool {
 		v_ := o
-		if !is_[*RegExpTree_Concatenation](v_) {
+		p, ok := v_.(*RegExpTree_Concatenation)
+		if !ok {
 			return false
 		}
-		concatenation = cast_[*RegExpTree_Concatenation](v_)
+		concatenation = p
 		return true
-	}() && Object_equals(obj_(this.elements_), obj_(concatenation.elements_)))
+	}() && tlistEq_(this.elements_, concatenation.elements_, false))
 }
 
 func (this *RegExpTree_Concatenation) hashCode_impl() int32 {
-	return (546930238 ^ Object_hashCode(obj_(this.elements_)))
+	return (546930238 ^ tlistHash_(this.elements_, false))
 }
 
 type RegExpTree_1Parser struct {
 	cap_pattern                       string
+	cap_patternU16                    utf16_
 	cap_flags                         string
 	pos                               int32
 	numCapturingGroups_               int32
@@ -2175,7 +2220,7 @@ type RegExpTree_1Parser struct {
 
 func (this *RegExpTree_1Parser) finit_RegExpTree_1Parser() {
 	this.capturingGroupNames = jnewTSet_(jtc_string)
-	this.limit = String_length(this.cap_pattern)
+	this.limit = this.cap_patternU16.length()
 }
 
 func (this *RegExpTree_1Parser) init_RegExpTree_1Parser() {
@@ -2185,6 +2230,7 @@ func (this *RegExpTree_1Parser) init_RegExpTree_1Parser() {
 func new_RegExpTree_1Parser(cap_pattern string, cap_flags string) *RegExpTree_1Parser {
 	this := &RegExpTree_1Parser{}
 	this.cap_pattern = cap_pattern
+	this.cap_patternU16 = utf16Kept_(this.cap_pattern)
 	this.cap_flags = cap_flags
 	this.init_RegExpTree_1Parser()
 	return this
@@ -2202,17 +2248,17 @@ func (this *RegExpTree_1Parser) parseTopLevel() *RegExpTree {
 		out = this.parse()
 	}
 	if this.pos < this.limit {
-		panic(new_IllegalArgumentException_String(String_substring_int(this.cap_pattern, this.pos)).self())
+		panic(new_IllegalArgumentException_String(this.cap_patternU16.substring_int(this.pos)))
 	}
 	return out
 }
 
 func (this *RegExpTree_1Parser) parse() *RegExpTree {
-	var alternatives ImmutableList_BuilderOf[*RegExpTree] = nil
+	var alternatives *ImmutableList_Builder[*RegExpTree] = nil
 	var preceder *RegExpTree = nil
 topLoop_:
 	for this.pos < this.limit {
-		var ch uint16 = String_charAt(this.cap_pattern, this.pos)
+		var ch uint16 = this.cap_patternU16.charAt(this.pos)
 		var atom *RegExpTree
 		switch ch {
 		case '[':
@@ -2236,21 +2282,21 @@ topLoop_:
 			var end int32 = (this.pos + 1)
 		charsLoop_:
 			for end < this.limit {
-				switch String_charAt(this.cap_pattern, end) {
+				switch this.cap_patternU16.charAt(end) {
 				case '[', '(', ')', '\\', '^', '$', '|', '.', '*', '+', '?', '{':
 					break charsLoop_
 				default:
-					if ((end + 1) >= this.limit) || !this.isRepetitionStart(String_charAt(this.cap_pattern, (end+1))) {
+					if ((end + 1) >= this.limit) || !this.isRepetitionStart(this.cap_patternU16.charAt((end + 1))) {
 						end++
 					} else {
 						break charsLoop_
 					}
 				}
 			}
-			atom = new_RegExpTree_Text(String_substring(this.cap_pattern, start, end)).up_RegExpTree()
+			atom = new_RegExpTree_Text(this.cap_patternU16.substring(start, end)).up_RegExpTree()
 			this.pos = end
 		}
-		if (this.pos < this.limit) && this.isRepetitionStart(String_charAt(this.cap_pattern, this.pos)) {
+		if (this.pos < this.limit) && this.isRepetitionStart(this.cap_patternU16.charAt(this.pos)) {
 			atom = this.parseRepetition(atom)
 		}
 		if preceder == nil {
@@ -2258,11 +2304,11 @@ topLoop_:
 		} else {
 			preceder = new_RegExpTree_Concatenation_RegExpTree_RegExpTree(preceder, atom).up_RegExpTree()
 		}
-		if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '|') {
+		if (this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) == '|') {
 			if alternatives == nil {
-				alternatives = ImmutableList_builder()
+				alternatives = immutableListBuilder_(tc_p_RegExpTree)
 			}
-			alternatives.add(preceder.self())
+			alternatives.add(preceder)
 			preceder = nil
 			this.pos++
 		}
@@ -2271,23 +2317,24 @@ topLoop_:
 		preceder = RegExpTree_Empty_INSTANCE.up_RegExpTree()
 	}
 	if alternatives != nil {
-		alternatives.add(preceder.self())
-		return new_RegExpTree_Alternation(icast_List(obj_(alternatives.build()))).up_RegExpTree()
+		alternatives.add(preceder)
+		return new_RegExpTree_Alternation(alternatives.build()).up_RegExpTree()
 	} else {
 		return preceder
 	}
-	panic("unreachable")
 }
 
 func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
-	Preconditions_checkState((String_charAt(this.cap_pattern, this.pos) == '('))
+	if this.cap_patternU16.charAt(this.pos) != '(' {
+		panic(new_IllegalStateException_0())
+	}
 	var start int32 = this.pos
 	this.pos++
-	var type_ *RegExpTree_ParentheticalType
+	var type_ RegExpTree_ParentheticalType
 	var captureName Optional[string] = Optional_empty[string]()
-	if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '?') {
+	if (this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) == '?') {
 		if (this.pos + 1) < this.limit {
-			var ch uint16 = String_charAt(this.cap_pattern, (this.pos + 1))
+			var ch uint16 = this.cap_patternU16.charAt((this.pos + 1))
 			switch ch {
 			case ':':
 				this.pos += 2
@@ -2299,10 +2346,10 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 				this.pos += 2
 				type_ = RegExpTree_ParentheticalType_NEGATIVE_LOOKAHEAD
 			case '<':
-				if ((this.pos + 2) < this.limit) && (String_charAt(this.cap_pattern, (this.pos+2)) == '=') {
+				if ((this.pos + 2) < this.limit) && (this.cap_patternU16.charAt((this.pos + 2)) == '=') {
 					this.pos += 3
 					type_ = RegExpTree_ParentheticalType_POSITIVE_LOOKBEHIND
-				} else if ((this.pos + 2) < this.limit) && (String_charAt(this.cap_pattern, (this.pos+2)) == '!') {
+				} else if ((this.pos + 2) < this.limit) && (this.cap_patternU16.charAt((this.pos + 2)) == '!') {
 					this.pos += 3
 					type_ = RegExpTree_ParentheticalType_NEGATIVE_LOOKBEHIND
 				} else {
@@ -2312,19 +2359,19 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 					type_ = RegExpTree_ParentheticalType_NAMED_GROUPS
 				}
 			default:
-				panic(new_IllegalArgumentException_String(("Malformed parenthetical: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+				panic(new_IllegalArgumentException_String(("Malformed parenthetical: " + sstr_(this.cap_patternU16.substring_int(start)))))
 			}
 		} else {
-			panic(new_IllegalArgumentException_String(("Malformed parenthetical: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+			panic(new_IllegalArgumentException_String(("Malformed parenthetical: " + sstr_(this.cap_patternU16.substring_int(start)))))
 		}
 	} else {
 		type_ = RegExpTree_ParentheticalType_CAPTURING
 	}
 	var body *RegExpTree = this.parse()
-	if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == ')') {
+	if (this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) == ')') {
 		this.pos++
 	} else {
-		panic(new_IllegalArgumentException_String(("Unclosed parenthetical group: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+		panic(new_IllegalArgumentException_String(("Unclosed parenthetical group: " + sstr_(this.cap_patternU16.substring_int(start)))))
 	}
 	switch type_ {
 	case RegExpTree_ParentheticalType_CAPTURING:
@@ -2345,48 +2392,50 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 			this.numCapturingGroups_++
 			return new_RegExpTree_NamedCaptureGroup(body, captureName.get()).up_RegExpTree()
 		} else {
-			panic(new_IllegalArgumentException_String(("Malformed named capture group: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+			panic(new_IllegalArgumentException_String(("Malformed named capture group: " + sstr_(this.cap_patternU16.substring_int(start)))))
 		}
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized ParentheticalType " + objstr_(obj_(type_))))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized ParentheticalType " + tostr_(type_)))))
 }
 
 func (this *RegExpTree_1Parser) scanNamedGroupName() string {
 	var start int32 = this.pos
 	var end int32 = this.pos
-	if !RegExpTree_isIdentifierStart(String_charAt(this.cap_pattern, start)) {
-		panic(new_IllegalArgumentException_String(("Invalid capture group name: <" + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+	if !RegExpTree_isIdentifierStart(this.cap_patternU16.charAt(start)) {
+		panic(new_IllegalArgumentException_String(("Invalid capture group name: <" + sstr_(this.cap_patternU16.substring_int(start)))))
 	}
 	end++
 	for end < this.limit {
-		if String_charAt(this.cap_pattern, end) == '>' {
+		if this.cap_patternU16.charAt(end) == '>' {
 			this.pos = (end + 1)
-			return String_substring(this.cap_pattern, start, end)
-		} else if RegExpTree_isIdentifierPart(String_charAt(this.cap_pattern, end)) {
+			return this.cap_patternU16.substring(start, end)
+		} else if RegExpTree_isIdentifierPart(this.cap_patternU16.charAt(end)) {
 			end++
 		} else {
-			panic(new_IllegalArgumentException_String(("Invalid capture group name: <" + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+			panic(new_IllegalArgumentException_String(("Invalid capture group name: <" + sstr_(this.cap_patternU16.substring_int(start)))))
 		}
 	}
-	panic(new_IllegalArgumentException_String(("Malformed named capture group: <" + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+	panic(new_IllegalArgumentException_String(("Malformed named capture group: <" + sstr_(this.cap_patternU16.substring_int(start)))))
 }
 
 func (this *RegExpTree_1Parser) parseCharset() *RegExpTree {
-	Preconditions_checkState((String_charAt(this.cap_pattern, this.pos) == '['))
+	if this.cap_patternU16.charAt(this.pos) != '[' {
+		panic(new_IllegalStateException_0())
+	}
 	this.pos++
-	var isCaseInsensitive bool = (String_indexOf(this.cap_flags, 105) >= 0)
-	var inverse bool = ((this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '^'))
+	var isCaseInsensitive bool = (strings.Contains(this.cap_flags, "i"))
+	var inverse bool = ((this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) == '^'))
 	if inverse {
 		this.pos++
 	}
 	var ranges *CharRanges = CharRanges_EMPTY
 	var ieExplicits *CharRanges = CharRanges_EMPTY
-	for (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) != ']') {
-		var ch uint16 = String_charAt(this.cap_pattern, this.pos)
+	for (this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) != ']') {
+		var ch uint16 = this.cap_patternU16.charAt(this.pos)
 		var start int32
 		if ch == '\\' {
 			this.pos++
-			var possibleGroupName uint16 = String_charAt(this.cap_pattern, this.pos)
+			var possibleGroupName uint16 = this.cap_patternU16.charAt(this.pos)
 			var group *CharRanges = cast_[*CharRanges](RegExpTree_NAMED_CHAR_GROUPS.get(any(uint16(possibleGroupName))))
 			if group != nil {
 				this.pos++
@@ -2399,9 +2448,9 @@ func (this *RegExpTree_1Parser) parseCharset() *RegExpTree {
 			this.pos++
 		}
 		var end int32 = start
-		if (((this.pos + 1) < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '-')) && (String_charAt(this.cap_pattern, (this.pos+1)) != ']') {
+		if (((this.pos + 1) < this.limit) && (this.cap_patternU16.charAt(this.pos) == '-')) && (this.cap_patternU16.charAt((this.pos + 1)) != ']') {
 			this.pos++
-			ch = String_charAt(this.cap_pattern, this.pos)
+			ch = this.cap_patternU16.charAt(this.pos)
 			if ch == '\\' {
 				this.pos++
 				end = this.parseEscapeChar()
@@ -2429,7 +2478,7 @@ func (this *RegExpTree_1Parser) parseCharset() *RegExpTree {
 func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 	var escapePos int32 = this.pos
 	this.pos++
-	var ch uint16 = String_charAt(this.cap_pattern, escapePos)
+	var ch uint16 = this.cap_patternU16.charAt(escapePos)
 	return func() int32 {
 		switch ch {
 		case 'b':
@@ -2444,7 +2493,7 @@ func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 			return 9
 		case 'u':
 			return func() int32 {
-				if (String_contains(this.cap_flags, strobj_("u")) && (this.pos < this.limit)) && (String_charAt(this.cap_pattern, this.pos) == '{') {
+				if (strings.Contains(this.cap_flags, "u") && (this.pos < this.limit)) && (this.cap_patternU16.charAt(this.pos) == '{') {
 					return this.parseBracedUnicodeEscape()
 				}
 				return this.parseHex(4)
@@ -2468,7 +2517,7 @@ func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 					return 0
 				}()))
 				for this.pos < octLimit {
-					ch = String_charAt(this.cap_pattern, this.pos)
+					ch = this.cap_patternU16.charAt(this.pos)
 					if (48 <= int32(ch)) && (int32(ch) <= 55) {
 						codeUnit = uint16(((int32(codeUnit) << 3) + (int32(ch) - 48)))
 						this.pos++
@@ -2480,29 +2529,30 @@ func (this *RegExpTree_1Parser) parseEscapeChar() int32 {
 			}
 			return int32(ch)
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
-	Preconditions_checkState((String_charAt(this.cap_pattern, this.pos) == '\\'))
+	if this.cap_patternU16.charAt(this.pos) != '\\' {
+		panic(new_IllegalStateException_0())
+	}
 	var start int32 = this.pos
 	this.pos++
-	var ch uint16 = String_charAt(this.cap_pattern, this.pos)
+	var ch uint16 = this.cap_patternU16.charAt(this.pos)
 	if (ch == 'b') || (ch == 'B') {
 		this.pos++
 		return new_RegExpTree_WordBoundary(ch).up_RegExpTree()
-	} else if ((ch == 'p') || (ch == 'P')) && String_contains(this.cap_flags, strobj_("u")) {
+	} else if ((ch == 'p') || (ch == 'P')) && strings.Contains(this.cap_flags, "u") {
 		var negated bool = (ch == 'P')
 		this.pos++
-		if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '{') {
-			var lhs *StringBuilder = new_StringBuilder()
+		if (this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) == '{') {
+			var lhs strBuilder_
 			for {
 				this.pos++
 				if this.pos >= this.limit {
 					break
 				}
-				ch = String_charAt(this.cap_pattern, this.pos)
+				ch = this.cap_patternU16.charAt(this.pos)
 				if !((((ch == '_') || ((97 <= int32(ch)) && (int32(ch) <= 122))) || ((65 <= int32(ch)) && (int32(ch) <= 90))) || ((48 <= int32(ch)) && (int32(ch) <= 57))) {
 					break
 				}
@@ -2510,15 +2560,15 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 			}
 			if (this.pos < this.limit) && (ch == '}') {
 				this.pos++
-				return new_RegExpTree_UnicodePropertyEscape(Optional_empty[string](), Object_toString(obj_(lhs)), negated).up_RegExpTree()
+				return new_RegExpTree_UnicodePropertyEscape(Optional_empty[string](), lhs.toString(), negated).up_RegExpTree()
 			} else if (this.pos < this.limit) && (ch == '=') {
-				var rhs *StringBuilder = new_StringBuilder()
+				var rhs strBuilder_
 				for {
 					this.pos++
 					if this.pos >= this.limit {
 						break
 					}
-					ch = String_charAt(this.cap_pattern, this.pos)
+					ch = this.cap_patternU16.charAt(this.pos)
 					if !((((ch == '_') || ((97 <= int32(ch)) && (int32(ch) <= 122))) || ((65 <= int32(ch)) && (int32(ch) <= 90))) || ((48 <= int32(ch)) && (int32(ch) <= 57))) {
 						break
 					}
@@ -2526,22 +2576,22 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 				}
 				if (this.pos < this.limit) && (ch == '}') {
 					this.pos++
-					return new_RegExpTree_UnicodePropertyEscape(Optional_of[string](Object_toString(obj_(lhs))), Object_toString(obj_(rhs)), negated).up_RegExpTree()
+					return new_RegExpTree_UnicodePropertyEscape(Optional_of[string](lhs.toString()), rhs.toString(), negated).up_RegExpTree()
 				} else {
-					panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '}' after " + sstr_(String_substring(this.cap_pattern, start, this.pos)))).self())
+					panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '}' after " + sstr_(this.cap_patternU16.substring(start, this.pos)))))
 				}
 			} else {
-				panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '=' or '}' after " + sstr_(String_substring(this.cap_pattern, start, this.pos)))).self())
+				panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '=' or '}' after " + sstr_(this.cap_patternU16.substring(start, this.pos)))))
 			}
 		} else {
-			panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '{' after " + sstr_(String_substring(this.cap_pattern, start, this.pos)))).self())
+			panic(new_IllegalArgumentException_String(("Malformed Unicode Property Escape: expected '{' after " + sstr_(this.cap_patternU16.substring(start, this.pos)))))
 		}
 	} else if (49 <= int32(ch)) && (int32(ch) <= 57) {
 		this.pos++
 		var possibleGroupIndex int32 = (int32(ch) - 48)
 		if this.numCapturingGroups_ >= possibleGroupIndex {
 			if this.pos < this.limit {
-				var next uint16 = String_charAt(this.cap_pattern, this.pos)
+				var next uint16 = this.cap_patternU16.charAt(this.pos)
 				if (48 <= int32(next)) && (int32(next) <= 57) {
 					var twoDigitGroupIndex int32 = ((possibleGroupIndex * 10) + (int32(next) - 48))
 					if this.numCapturingGroups_ >= twoDigitGroupIndex {
@@ -2559,11 +2609,11 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 				return ch
 			}())).up_RegExpTree()
 		}
-	} else if (((this.lookForNamedCaptureBackreferences && (ch == 'k')) && ((this.pos + 1) < this.limit)) && (String_charAt(this.cap_pattern, (this.pos+1)) == '<')) && !this.capturingGroupNames.isEmpty() {
+	} else if (((this.lookForNamedCaptureBackreferences && (ch == 'k')) && ((this.pos + 1) < this.limit)) && (this.cap_patternU16.charAt((this.pos + 1)) == '<')) && !this.capturingGroupNames.isEmpty() {
 		this.pos += 2
 		var potentialName string = this.scanNamedGroupName()
 		if !this.capturingGroupNames.has(potentialName) {
-			panic(new_IllegalArgumentException_String(("Invalid named capture referenced: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
+			panic(new_IllegalArgumentException_String(("Invalid named capture referenced: " + sstr_(this.cap_patternU16.substring_int(start)))))
 		}
 		return new_RegExpTree_NamedBackReference(potentialName).up_RegExpTree()
 	} else {
@@ -2574,15 +2624,14 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 		}
 		return new_RegExpTree_Text(new_String(Character_toChars(this.parseEscapeChar()))).up_RegExpTree()
 	}
-	panic("unreachable")
 }
 
 func (this *RegExpTree_1Parser) parseHex(n int32) int32 {
 	if (this.pos + n) > this.limit {
-		panic(new_IllegalArgumentException_String(("Abbreviated hex escape " + sstr_(String_substring_int(this.cap_pattern, this.pos)))).self())
+		panic(new_IllegalArgumentException_String(("Abbreviated hex escape " + sstr_(this.cap_patternU16.substring_int(this.pos)))))
 	}
 	if n > 7 {
-		panic(new_IllegalArgumentException_String(("Cannot parse hexadecimal encoding wider than 28 bits: " + sstr_(String_substring(this.cap_pattern, this.pos, (this.pos+n))))).self())
+		panic(new_IllegalArgumentException_String(("Cannot parse hexadecimal encoding wider than 28 bits: " + sstr_(this.cap_patternU16.substring(this.pos, (this.pos+n))))))
 	}
 	var result int32 = 0
 	for {
@@ -2590,7 +2639,7 @@ func (this *RegExpTree_1Parser) parseHex(n int32) int32 {
 		if n < 0 {
 			break
 		}
-		var ch uint16 = String_charAt(this.cap_pattern, this.pos)
+		var ch uint16 = this.cap_patternU16.charAt(this.pos)
 		var digit int32
 		if (48 <= int32(ch)) && (int32(ch) <= 57) {
 			digit = (int32(ch) - 48)
@@ -2599,7 +2648,7 @@ func (this *RegExpTree_1Parser) parseHex(n int32) int32 {
 		} else if (65 <= int32(ch)) && (int32(ch) <= 70) {
 			digit = (int32(ch) + -55)
 		} else {
-			panic(new_IllegalArgumentException_String(String_substring_int(this.cap_pattern, this.pos)).self())
+			panic(new_IllegalArgumentException_String(this.cap_patternU16.substring_int(this.pos)))
 		}
 		this.pos++
 		result = ((result << 4) | digit)
@@ -2610,19 +2659,21 @@ func (this *RegExpTree_1Parser) parseHex(n int32) int32 {
 func (this *RegExpTree_1Parser) parseBracedUnicodeEscape() int32 {
 	var openBrace int32 = this.pos
 	this.pos++
-	Preconditions_checkState((String_charAt(this.cap_pattern, openBrace) == '{'))
+	if this.cap_patternU16.charAt(openBrace) != '{' {
+		panic(new_IllegalStateException_0())
+	}
 	var closeBrace int32 = this.pos
-	for (closeBrace < this.limit) && (String_charAt(this.cap_pattern, closeBrace) != '}') {
+	for (closeBrace < this.limit) && (this.cap_patternU16.charAt(closeBrace) != '}') {
 		closeBrace++
 	}
 	if closeBrace == this.limit {
-		panic(new_IllegalArgumentException_String(("Malformed unicode escape: expected '}' after " + sstr_(String_substring_int(this.cap_pattern, openBrace)))).self())
+		panic(new_IllegalArgumentException_String(("Malformed unicode escape: expected '}' after " + sstr_(this.cap_patternU16.substring_int(openBrace)))))
 	} else if closeBrace == this.pos {
-		panic(new_IllegalArgumentException_String("Empty unicode escape").self())
+		panic(new_IllegalArgumentException_String("Empty unicode escape"))
 	}
 	var result int32 = this.parseHex((closeBrace - this.pos))
 	if result > 1114111 {
-		panic(new_IllegalArgumentException_String(("Unicode must be at most 0x10FFFF: " + sstr_(String_substring(this.cap_pattern, (openBrace+1), this.pos)))).self())
+		panic(new_IllegalArgumentException_String(("Unicode must be at most 0x10FFFF: " + sstr_(this.cap_patternU16.substring((openBrace+1), this.pos)))))
 	}
 	this.pos++
 	return result
@@ -2636,7 +2687,6 @@ func (this *RegExpTree_1Parser) isRepetitionStart(ch uint16) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -2646,7 +2696,7 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 	}
 	var min_ int32
 	var max_ int32
-	switch String_charAt(this.cap_pattern, this.pos) {
+	switch this.cap_patternU16.charAt(this.pos) {
 	case '+':
 		this.pos++
 		min_ = 1
@@ -2662,25 +2712,25 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 	case '{':
 		this.pos++
 		var start int32 = this.pos
-		var end int32 = String_indexOf_int_int(this.cap_pattern, 125, start)
+		var end int32 = this.cap_patternU16.indexOf_int_int(125, start)
 		if end < 0 {
 			this.pos = (start - 1)
 			return body
 		}
-		var counts string = String_substring(this.cap_pattern, start, end)
+		var counts string = this.cap_patternU16.substring(start, end)
 		this.pos = (end + 1)
-		var comma int32 = String_indexOf(counts, 44)
+		var comma int32 = int32(strings.IndexByte(counts, ','))
 		var parsedMin any = JSCompStrings_parseIntOrNull(func() Optional[string] {
 			if comma >= 0 {
-				return Optional_of[string](String_substring(counts, 0, comma))
+				return Optional_of[string](counts[:comma])
 			}
 			return Optional_of[string](counts)
 		}())
 		var parsedMax any = func() any {
 			if comma >= 0 {
 				return func() any {
-					if (comma + 1) != String_length(counts) {
-						return JSCompStrings_parseIntOrNull(Optional_of[string](String_substring_int(counts, (comma + 1))))
+					if (comma + 1) != int32(len(counts)) {
+						return JSCompStrings_parseIntOrNull(Optional_of[string](counts[(comma + 1):]))
 					}
 					return any(int32(int32(2147483647)))
 				}()
@@ -2702,7 +2752,7 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 		return body
 	}
 	var greedy bool = true
-	if (this.pos < this.limit) && (String_charAt(this.cap_pattern, this.pos) == '?') {
+	if (this.pos < this.limit) && (this.cap_patternU16.charAt(this.pos) == '?') {
 		greedy = false
 		this.pos++
 	}
@@ -2736,18 +2786,18 @@ func (this *RegExpTree_Concatenation_1Simplifier) simplify(t *RegExpTree) {
 	_ = concatenation
 	if func() bool {
 		v_ := t.self()
-		if !is_[*RegExpTree_Concatenation](v_) {
+		p, ok := v_.(*RegExpTree_Concatenation)
+		if !ok {
 			return false
 		}
-		concatenation = cast_[*RegExpTree_Concatenation](v_)
+		concatenation = p
 		return true
 	}() {
-		it_1 := foreach_(obj_(concatenation.elements_))
-		for it_1.next() {
-			var child *RegExpTree = to_RegExpTree(it_1.v)
+		for _, el := range concatenation.elements_.items {
+			child := el
 			this.simplify(child)
 		}
-	} else if is_[*RegExpTree_Empty](t.self()) {
+	} else if _, ok2 := t.self().(*RegExpTree_Empty); ok2 {
 	} else {
 		var lastIndex int32 = (this.simplified.size() - 1)
 		if lastIndex >= 0 {
@@ -2768,17 +2818,19 @@ func (this *RegExpTree_Concatenation_1Simplifier) simplifyPairwise(before *RegEx
 	_ = afterText
 	if func() bool {
 		v_ := before.self()
-		if !is_[*RegExpTree_Text](v_) {
+		p, ok := v_.(*RegExpTree_Text)
+		if !ok {
 			return false
 		}
-		beforeText = cast_[*RegExpTree_Text](v_)
+		beforeText = p
 		return true
 	}() && func() bool {
 		v_ := after.self()
-		if !is_[*RegExpTree_Text](v_) {
+		p2, ok2 := v_.(*RegExpTree_Text)
+		if !ok2 {
 			return false
 		}
-		afterText = cast_[*RegExpTree_Text](v_)
+		afterText = p2
 		return true
 	}() {
 		return new_RegExpTree_Text((sstr_(beforeText.text) + sstr_(afterText.text))).simplify(this.cap_flags)
@@ -2791,10 +2843,11 @@ func (this *RegExpTree_Concatenation_1Simplifier) simplifyPairwise(before *RegEx
 	_ = r
 	if func() bool {
 		v_ := before.self()
-		if !is_[*RegExpTree_Repetition](v_) {
+		p3, ok3 := v_.(*RegExpTree_Repetition)
+		if !ok3 {
 			return false
 		}
-		r = cast_[*RegExpTree_Repetition](v_)
+		r = p3
 		return true
 	}() {
 		beforeMin = r.min
@@ -2810,10 +2863,11 @@ func (this *RegExpTree_Concatenation_1Simplifier) simplifyPairwise(before *RegEx
 	_ = r_1
 	if func() bool {
 		v_ := after.self()
-		if !is_[*RegExpTree_Repetition](v_) {
+		p4, ok4 := v_.(*RegExpTree_Repetition)
+		if !ok4 {
 			return false
 		}
-		r_1 = cast_[*RegExpTree_Repetition](v_)
+		r_1 = p4
 		return true
 	}() {
 		afterMin = r_1.min
@@ -2836,4 +2890,914 @@ func (this *RegExpTree_Concatenation_1Simplifier) simplifyPairwise(before *RegEx
 		}
 	}
 	return nil
+}
+
+// isCaseSensitive: an object that is exactly a RegExpTree_RegExpTreeAtom calls its isCaseSensitive_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_RegExpTreeAtom) isCaseSensitive() bool {
+	if this.self_ == any(this) {
+		return this.isCaseSensitive_impl()
+	}
+	return this.self_.isCaseSensitive_impl()
+}
+
+// containsAnchor: an object that is exactly a RegExpTree_RegExpTreeAtom calls its containsAnchor_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_RegExpTreeAtom) containsAnchor() bool {
+	if this.self_ == any(this) {
+		return this.containsAnchor_impl()
+	}
+	return this.self_.containsAnchor_impl()
+}
+
+// numCapturingGroups: an object that is exactly a RegExpTree_RegExpTreeAtom calls its numCapturingGroups_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_RegExpTreeAtom) numCapturingGroups() int32 {
+	if this.self_ == any(this) {
+		return this.numCapturingGroups_impl()
+	}
+	return this.self_.numCapturingGroups_impl()
+}
+
+// children: an object that is exactly a RegExpTree_RegExpTreeAtom calls its children_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_RegExpTreeAtom) children() List {
+	if this.self_ == any(this) {
+		return this.children_impl()
+	}
+	return this.self_.children_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_Empty calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Empty) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_Empty); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_Empty calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Empty) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Empty); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_Empty calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Empty) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Empty); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_Empty calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Empty) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_Empty); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_Empty calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Empty) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_Empty); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_Anchor calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Anchor) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_Anchor); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// containsAnchor: an object that is exactly a RegExpTree_Anchor calls its containsAnchor_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Anchor) containsAnchor() bool {
+	if p, _ := this.self_.(*RegExpTree_Anchor); p == this {
+		return this.containsAnchor_impl()
+	}
+	return this.self_.containsAnchor_impl()
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_Anchor calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Anchor) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Anchor); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_Anchor calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Anchor) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Anchor); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_Anchor calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Anchor) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_Anchor); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_Anchor calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Anchor) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_Anchor); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_WordBoundary calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_WordBoundary) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_WordBoundary); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_WordBoundary calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_WordBoundary) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_WordBoundary); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_WordBoundary calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_WordBoundary) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_WordBoundary); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_WordBoundary calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_WordBoundary) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_WordBoundary); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_WordBoundary calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_WordBoundary) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_WordBoundary); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_BackReference calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_BackReference) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_BackReference); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_BackReference calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_BackReference) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_BackReference); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_BackReference calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_BackReference) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_BackReference); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_BackReference calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_BackReference) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_BackReference); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_BackReference calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_BackReference) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_BackReference); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_NamedBackReference calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedBackReference) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_NamedBackReference); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_NamedBackReference calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedBackReference) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_NamedBackReference); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_NamedBackReference calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedBackReference) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_NamedBackReference); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_NamedBackReference calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedBackReference) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_NamedBackReference); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_NamedBackReference calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedBackReference) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_NamedBackReference); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_Text calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Text) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_Text); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// isCaseSensitive: an object that is exactly a RegExpTree_Text calls its isCaseSensitive_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Text) isCaseSensitive() bool {
+	if p, _ := this.self_.(*RegExpTree_Text); p == this {
+		return this.isCaseSensitive_impl()
+	}
+	return this.self_.isCaseSensitive_impl()
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_Text calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Text) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Text); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_Text calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Text) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Text); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_Text calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Text) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_Text); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_Text calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Text) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_Text); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_Repetition calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Repetition) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_Repetition); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// isCaseSensitive: an object that is exactly a RegExpTree_Repetition calls its isCaseSensitive_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Repetition) isCaseSensitive() bool {
+	if p, _ := this.self_.(*RegExpTree_Repetition); p == this {
+		return this.isCaseSensitive_impl()
+	}
+	return this.self_.isCaseSensitive_impl()
+}
+
+// containsAnchor: an object that is exactly a RegExpTree_Repetition calls its containsAnchor_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Repetition) containsAnchor() bool {
+	if p, _ := this.self_.(*RegExpTree_Repetition); p == this {
+		return this.containsAnchor_impl()
+	}
+	return this.self_.containsAnchor_impl()
+}
+
+// numCapturingGroups: an object that is exactly a RegExpTree_Repetition calls its numCapturingGroups_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Repetition) numCapturingGroups() int32 {
+	if p, _ := this.self_.(*RegExpTree_Repetition); p == this {
+		return this.numCapturingGroups_impl()
+	}
+	return this.self_.numCapturingGroups_impl()
+}
+
+// children: an object that is exactly a RegExpTree_Repetition calls its children_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Repetition) children() List {
+	if p, _ := this.self_.(*RegExpTree_Repetition); p == this {
+		return this.children_impl()
+	}
+	return this.self_.children_impl()
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_Repetition calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Repetition) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Repetition); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_Repetition calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Repetition) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Repetition); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_Repetition calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Repetition) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_Repetition); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_Repetition calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Repetition) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_Repetition); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_Alternation calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Alternation) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_Alternation); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// isCaseSensitive: an object that is exactly a RegExpTree_Alternation calls its isCaseSensitive_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Alternation) isCaseSensitive() bool {
+	if p, _ := this.self_.(*RegExpTree_Alternation); p == this {
+		return this.isCaseSensitive_impl()
+	}
+	return this.self_.isCaseSensitive_impl()
+}
+
+// containsAnchor: an object that is exactly a RegExpTree_Alternation calls its containsAnchor_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Alternation) containsAnchor() bool {
+	if p, _ := this.self_.(*RegExpTree_Alternation); p == this {
+		return this.containsAnchor_impl()
+	}
+	return this.self_.containsAnchor_impl()
+}
+
+// numCapturingGroups: an object that is exactly a RegExpTree_Alternation calls its numCapturingGroups_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Alternation) numCapturingGroups() int32 {
+	if p, _ := this.self_.(*RegExpTree_Alternation); p == this {
+		return this.numCapturingGroups_impl()
+	}
+	return this.self_.numCapturingGroups_impl()
+}
+
+// children: an object that is exactly a RegExpTree_Alternation calls its children_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Alternation) children() List {
+	if p, _ := this.self_.(*RegExpTree_Alternation); p == this {
+		return this.children_impl()
+	}
+	return this.self_.children_impl()
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_Alternation calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Alternation) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Alternation); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_Alternation calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Alternation) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Alternation); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_Alternation calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Alternation) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_Alternation); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_Alternation calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Alternation) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_Alternation); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_LookaheadAssertion calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookaheadAssertion) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_LookaheadAssertion); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// isCaseSensitive: an object that is exactly a RegExpTree_LookaheadAssertion calls its isCaseSensitive_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookaheadAssertion) isCaseSensitive() bool {
+	if p, _ := this.self_.(*RegExpTree_LookaheadAssertion); p == this {
+		return this.isCaseSensitive_impl()
+	}
+	return this.self_.isCaseSensitive_impl()
+}
+
+// containsAnchor: an object that is exactly a RegExpTree_LookaheadAssertion calls its containsAnchor_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookaheadAssertion) containsAnchor() bool {
+	if p, _ := this.self_.(*RegExpTree_LookaheadAssertion); p == this {
+		return this.containsAnchor_impl()
+	}
+	return this.self_.containsAnchor_impl()
+}
+
+// numCapturingGroups: an object that is exactly a RegExpTree_LookaheadAssertion calls its numCapturingGroups_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookaheadAssertion) numCapturingGroups() int32 {
+	if p, _ := this.self_.(*RegExpTree_LookaheadAssertion); p == this {
+		return this.numCapturingGroups_impl()
+	}
+	return this.self_.numCapturingGroups_impl()
+}
+
+// children: an object that is exactly a RegExpTree_LookaheadAssertion calls its children_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookaheadAssertion) children() List {
+	if p, _ := this.self_.(*RegExpTree_LookaheadAssertion); p == this {
+		return this.children_impl()
+	}
+	return this.self_.children_impl()
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_LookaheadAssertion calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookaheadAssertion) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_LookaheadAssertion); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_LookaheadAssertion calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookaheadAssertion) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_LookaheadAssertion); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_LookaheadAssertion calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookaheadAssertion) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_LookaheadAssertion); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_LookaheadAssertion calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookaheadAssertion) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_LookaheadAssertion); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_LookbehindAssertion calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookbehindAssertion) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_LookbehindAssertion); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// isCaseSensitive: an object that is exactly a RegExpTree_LookbehindAssertion calls its isCaseSensitive_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookbehindAssertion) isCaseSensitive() bool {
+	if p, _ := this.self_.(*RegExpTree_LookbehindAssertion); p == this {
+		return this.isCaseSensitive_impl()
+	}
+	return this.self_.isCaseSensitive_impl()
+}
+
+// containsAnchor: an object that is exactly a RegExpTree_LookbehindAssertion calls its containsAnchor_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookbehindAssertion) containsAnchor() bool {
+	if p, _ := this.self_.(*RegExpTree_LookbehindAssertion); p == this {
+		return this.containsAnchor_impl()
+	}
+	return this.self_.containsAnchor_impl()
+}
+
+// numCapturingGroups: an object that is exactly a RegExpTree_LookbehindAssertion calls its numCapturingGroups_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookbehindAssertion) numCapturingGroups() int32 {
+	if p, _ := this.self_.(*RegExpTree_LookbehindAssertion); p == this {
+		return this.numCapturingGroups_impl()
+	}
+	return this.self_.numCapturingGroups_impl()
+}
+
+// children: an object that is exactly a RegExpTree_LookbehindAssertion calls its children_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookbehindAssertion) children() List {
+	if p, _ := this.self_.(*RegExpTree_LookbehindAssertion); p == this {
+		return this.children_impl()
+	}
+	return this.self_.children_impl()
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_LookbehindAssertion calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookbehindAssertion) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_LookbehindAssertion); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_LookbehindAssertion calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookbehindAssertion) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_LookbehindAssertion); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_LookbehindAssertion calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookbehindAssertion) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_LookbehindAssertion); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_LookbehindAssertion calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_LookbehindAssertion) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_LookbehindAssertion); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_CapturingGroup calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_CapturingGroup) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_CapturingGroup); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// isCaseSensitive: an object that is exactly a RegExpTree_CapturingGroup calls its isCaseSensitive_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_CapturingGroup) isCaseSensitive() bool {
+	if p, _ := this.self_.(*RegExpTree_CapturingGroup); p == this {
+		return this.isCaseSensitive_impl()
+	}
+	return this.self_.isCaseSensitive_impl()
+}
+
+// containsAnchor: an object that is exactly a RegExpTree_CapturingGroup calls its containsAnchor_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_CapturingGroup) containsAnchor() bool {
+	if p, _ := this.self_.(*RegExpTree_CapturingGroup); p == this {
+		return this.containsAnchor_impl()
+	}
+	return this.self_.containsAnchor_impl()
+}
+
+// numCapturingGroups: an object that is exactly a RegExpTree_CapturingGroup calls its numCapturingGroups_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_CapturingGroup) numCapturingGroups() int32 {
+	if p, _ := this.self_.(*RegExpTree_CapturingGroup); p == this {
+		return this.numCapturingGroups_impl()
+	}
+	return this.self_.numCapturingGroups_impl()
+}
+
+// children: an object that is exactly a RegExpTree_CapturingGroup calls its children_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_CapturingGroup) children() List {
+	if p, _ := this.self_.(*RegExpTree_CapturingGroup); p == this {
+		return this.children_impl()
+	}
+	return this.self_.children_impl()
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_CapturingGroup calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_CapturingGroup) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_CapturingGroup); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_CapturingGroup calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_CapturingGroup) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_CapturingGroup); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_CapturingGroup calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_CapturingGroup) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_CapturingGroup); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_CapturingGroup calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_CapturingGroup) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_CapturingGroup); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_NamedCaptureGroup calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedCaptureGroup) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_NamedCaptureGroup); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// isCaseSensitive: an object that is exactly a RegExpTree_NamedCaptureGroup calls its isCaseSensitive_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedCaptureGroup) isCaseSensitive() bool {
+	if p, _ := this.self_.(*RegExpTree_NamedCaptureGroup); p == this {
+		return this.isCaseSensitive_impl()
+	}
+	return this.self_.isCaseSensitive_impl()
+}
+
+// containsAnchor: an object that is exactly a RegExpTree_NamedCaptureGroup calls its containsAnchor_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedCaptureGroup) containsAnchor() bool {
+	if p, _ := this.self_.(*RegExpTree_NamedCaptureGroup); p == this {
+		return this.containsAnchor_impl()
+	}
+	return this.self_.containsAnchor_impl()
+}
+
+// numCapturingGroups: an object that is exactly a RegExpTree_NamedCaptureGroup calls its numCapturingGroups_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedCaptureGroup) numCapturingGroups() int32 {
+	if p, _ := this.self_.(*RegExpTree_NamedCaptureGroup); p == this {
+		return this.numCapturingGroups_impl()
+	}
+	return this.self_.numCapturingGroups_impl()
+}
+
+// children: an object that is exactly a RegExpTree_NamedCaptureGroup calls its children_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedCaptureGroup) children() List {
+	if p, _ := this.self_.(*RegExpTree_NamedCaptureGroup); p == this {
+		return this.children_impl()
+	}
+	return this.self_.children_impl()
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_NamedCaptureGroup calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedCaptureGroup) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_NamedCaptureGroup); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_NamedCaptureGroup calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedCaptureGroup) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_NamedCaptureGroup); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_NamedCaptureGroup calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedCaptureGroup) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_NamedCaptureGroup); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_NamedCaptureGroup calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_NamedCaptureGroup) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_NamedCaptureGroup); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_UnicodePropertyEscape calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_UnicodePropertyEscape) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_UnicodePropertyEscape); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_UnicodePropertyEscape calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_UnicodePropertyEscape) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_UnicodePropertyEscape); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_UnicodePropertyEscape calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_UnicodePropertyEscape) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_UnicodePropertyEscape); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_UnicodePropertyEscape calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_UnicodePropertyEscape) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_UnicodePropertyEscape); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_UnicodePropertyEscape calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_UnicodePropertyEscape) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_UnicodePropertyEscape); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_Charset calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Charset) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_Charset); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// isCaseSensitive: an object that is exactly a RegExpTree_Charset calls its isCaseSensitive_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Charset) isCaseSensitive() bool {
+	if p, _ := this.self_.(*RegExpTree_Charset); p == this {
+		return this.isCaseSensitive_impl()
+	}
+	return this.self_.isCaseSensitive_impl()
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_Charset calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Charset) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Charset); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_Charset calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Charset) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Charset); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_Charset calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Charset) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_Charset); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_Charset calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Charset) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_Charset); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
+}
+
+// simplify: an object that is exactly a RegExpTree_Concatenation calls its simplify_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Concatenation) simplify(p0 string) *RegExpTree {
+	if p, _ := this.self_.(*RegExpTree_Concatenation); p == this {
+		return this.simplify_impl(p0)
+	}
+	return this.self_.simplify_impl(p0)
+}
+
+// isCaseSensitive: an object that is exactly a RegExpTree_Concatenation calls its isCaseSensitive_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Concatenation) isCaseSensitive() bool {
+	if p, _ := this.self_.(*RegExpTree_Concatenation); p == this {
+		return this.isCaseSensitive_impl()
+	}
+	return this.self_.isCaseSensitive_impl()
+}
+
+// containsAnchor: an object that is exactly a RegExpTree_Concatenation calls its containsAnchor_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Concatenation) containsAnchor() bool {
+	if p, _ := this.self_.(*RegExpTree_Concatenation); p == this {
+		return this.containsAnchor_impl()
+	}
+	return this.self_.containsAnchor_impl()
+}
+
+// numCapturingGroups: an object that is exactly a RegExpTree_Concatenation calls its numCapturingGroups_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Concatenation) numCapturingGroups() int32 {
+	if p, _ := this.self_.(*RegExpTree_Concatenation); p == this {
+		return this.numCapturingGroups_impl()
+	}
+	return this.self_.numCapturingGroups_impl()
+}
+
+// children: an object that is exactly a RegExpTree_Concatenation calls its children_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Concatenation) children() List {
+	if p, _ := this.self_.(*RegExpTree_Concatenation); p == this {
+		return this.children_impl()
+	}
+	return this.self_.children_impl()
+}
+
+// appendSourceCode: an object that is exactly a RegExpTree_Concatenation calls its appendSourceCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Concatenation) appendSourceCode(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Concatenation); p == this {
+		this.appendSourceCode_impl(p0)
+		return
+	}
+	this.self_.appendSourceCode_impl(p0)
+}
+
+// appendDebugInfo: an object that is exactly a RegExpTree_Concatenation calls its appendDebugInfo_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Concatenation) appendDebugInfo(p0 *strBuilder_) {
+	if p, _ := this.self_.(*RegExpTree_Concatenation); p == this {
+		this.appendDebugInfo_impl(p0)
+		return
+	}
+	this.self_.appendDebugInfo_impl(p0)
+}
+
+// equals: an object that is exactly a RegExpTree_Concatenation calls its equals_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Concatenation) equals(p0 any) bool {
+	if p, _ := this.self_.(*RegExpTree_Concatenation); p == this {
+		return this.equals_impl(p0)
+	}
+	return this.self_.equals_impl(p0)
+}
+
+// hashCode: an object that is exactly a RegExpTree_Concatenation calls its hashCode_impl directly (post-flip); others dispatch.
+func (this *RegExpTree_Concatenation) hashCode() int32 {
+	if p, _ := this.self_.(*RegExpTree_Concatenation); p == this {
+		return this.hashCode_impl()
+	}
+	return this.self_.hashCode_impl()
 }

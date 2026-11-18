@@ -27,7 +27,7 @@ func new_CheckUnusedPrivateProperties(compiler *AbstractCompiler) *CheckUnusedPr
 }
 
 func (this *CheckUnusedPrivateProperties) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckUnusedPrivateProperties) reportUnused(t *NodeTraversal) {
@@ -42,12 +42,12 @@ func (this *CheckUnusedPrivateProperties) reportUnused(t *NodeTraversal) {
 }
 
 func (this *CheckUnusedPrivateProperties) getPropName(n Node) string {
-	switch n.getToken() {
-	case Token_rhino_GETPROP, Token_rhino_MEMBER_FUNCTION_DEF:
+	switch n.ns_().token {
+	case tokOrd1_GETPROP, tokOrd1_MEMBER_FUNCTION_DEF:
 		return n.getString()
 	default:
 	}
-	panic(new_RuntimeException_String(("Unexpected node type: " + objstr_(n.box_()))).self())
+	panic(new_RuntimeException_String(("Unexpected node type: " + tostr_(n))))
 }
 
 func (this *CheckUnusedPrivateProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -60,10 +60,10 @@ func (this *CheckUnusedPrivateProperties) shouldTraverse(t *NodeTraversal, n Nod
 }
 
 func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		this.reportUnused(t)
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		var propName string = n.getString()
 		if CheckUnusedPrivateProperties_isPinningPropertyUse(n) || !this.isCandidatePropertyDefinition(n) {
 			this.used.add(propName)
@@ -72,11 +72,11 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 				this.candidates.add(n)
 			}
 		}
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		if this.isCheckablePrivatePropDecl(n) {
 			this.candidates.add(n)
 		}
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
@@ -85,7 +85,7 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 				}
 			}
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		var target Node = n.getFirstChild()
 		if n.hasMoreThanOneChild() && this.compiler_.getCodingConvention().isPropertyRenameFunction(target) {
 			var propName Node = target.getNext()
@@ -93,12 +93,12 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 				this.used.add(propName.getString())
 			}
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 		if (info != nil) && (info.isConstructor() || info.isInterface()) {
 			this.recordConstructorOrInterface(n)
 		}
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.recordConstructorOrInterface(n)
 	default:
 	}
@@ -122,7 +122,9 @@ func (this *CheckUnusedPrivateProperties) isCheckablePrivatePropDecl(n Node) boo
 }
 
 func (this *CheckUnusedPrivateProperties) isCandidatePropertyDefinition(n Node) bool {
-	Preconditions_checkState_boolean_Object(n.isGetProp(), n.box_())
+	if !n.isGetProp() {
+		panic(new_IllegalStateException_String(tostr_(n)))
+	}
 	var target Node = n.getFirstChild()
 	return ((target.isThis() || this.constructorsAndInterfaces.has(target.getQualifiedName())) || (target.isGetProp() && (target.getString() == "prototype")))
 }

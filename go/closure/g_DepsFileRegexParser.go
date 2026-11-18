@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type DepsFileRegexParser struct {
 	JsFileLineParser
 	depMatcher     *Matcher_re2j
@@ -18,8 +20,8 @@ func (this *DepsFileRegexParser) up_JsFileLineParser() *JsFileLineParser {
 }
 
 func (this *DepsFileRegexParser) finit_DepsFileRegexParser() {
-	this.depMatcher = Pattern_compile((sstr_(JavaRegex_SPACE) + "*goog" + sstr_(JavaRegex_DOT) + "addDependency\\((" + sstr_(JavaRegex_DOT) + "*)\\);?" + sstr_(JavaRegex_SPACE) + "*")).matcher(strobj_(""))
-	this.depArgsMatch = Pattern_compile((sstr_(JavaRegex_SPACE) + "*([^,]*), (\\[[^\\]]*\\]), (\\[[^\\]]*\\])(?:, (true|false|\\{[^{}]*\\}))?" + sstr_(JavaRegex_SPACE) + "*")).matcher(strobj_(""))
+	this.depMatcher = Pattern_compile((sstr_(JavaRegex_SPACE) + "*goog" + sstr_(JavaRegex_DOT) + "addDependency\\((" + sstr_(JavaRegex_DOT) + "*)\\);?" + sstr_(JavaRegex_SPACE) + "*")).matcher_s("")
+	this.depArgsMatch = Pattern_compile((sstr_(JavaRegex_SPACE) + "*([^,]*), (\\[[^\\]]*\\]), (\\[[^\\]]*\\])(?:, (true|false|\\{[^{}]*\\}))?" + sstr_(JavaRegex_SPACE) + "*")).matcher_s("")
 }
 
 func (this *DepsFileRegexParser) init_DepsFileRegexParser_ErrorManager(errorManager ErrorManager) {
@@ -65,12 +67,12 @@ func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents strin
 
 func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] {
 	var hasDependencies bool = false
-	if String_contains(line, strobj_("addDependency")) {
-		this.depMatcher.reset(strobj_(line))
+	if strings.Contains(line, "addDependency") {
+		this.depMatcher.reset_s(line)
 		if this.depMatcher.matches() {
 			hasDependencies = true
 			var addDependencyParams string = this.depMatcher.group(1)
-			this.depArgsMatch.reset(strobj_(addDependencyParams))
+			this.depArgsMatch.reset_s(addDependencyParams)
 			if !this.depArgsMatch.matches() {
 				return Outcome_base_err[any](new_JsFileLineParser_ParseException(("Invalid arguments to goog.addDependency(). Found: " + sstr_(addDependencyParams)), true).up_Throwable())
 			}
@@ -97,35 +99,32 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 			if requiresOutcome.isErr() {
 				return Outcome_base_err[any](requiresOutcome.error())
 			}
-			var depInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(path, this.filePath).setProvides(Collection(provides)).setRequires(icast_Collection(obj_(DepsFileRegexParser_requiresParsedFromDeps(requiresOutcome.get())))).setLoadFlags(loadFlags).build()))
+			var depInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(path, this.filePath).setProvides(Collection(provides)).setRequires(icast_Collection(obj_(DepsFileRegexParser_requiresParsedFromDeps(requiresOutcome.get()).asImm()))).setLoadFlags(loadFlags).build()))
 			if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
-				DepsFileRegexParser_logger.fine(("Found dep: " + objstr_(any(depInfo))))
+				DepsFileRegexParser_logger.fine(("Found dep: " + objstr_(depInfo)))
 			}
 			this.depInfos.add(depInfo)
 		}
 	}
-	return Outcome_base_ok_Object[any](any(bool(((!this.shortcutMode || hasDependencies) || CharMatcher_whitespace().matchesAllOf(strobj_(line))))))
+	return Outcome_base_ok_Object[any](any(bool(((!this.shortcutMode || hasDependencies) || CharMatcher_whitespace().matchesAllOf_s(line)))))
 }
 
-func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) ImmutableListOf[*DependencyInfo_Require] {
-	var result ImmutableList_BuilderOf[*DependencyInfo_Require] = ImmutableList_builder()
-	it_1 := foreach_(any(symbols))
-	for it_1.next() {
-		var symbol string = str_(it_1.v)
-		result.add(obj_(DependencyInfo_Require_parsedFromDeps(symbol)))
+func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) *ImmutableList[*DependencyInfo_Require] {
+	var result *ImmutableList_Builder[*DependencyInfo_Require] = immutableListBuilder_(tc_p_DependencyInfo_Require)
+	for symbol := range elemsBy_(symbols, str_) {
+		result.add(DependencyInfo_Require_parsedFromDeps(symbol))
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return result.build()
 }
 
 func (this *DepsFileRegexParser) parseLoadFlags(loadFlags Optional[string]) *Outcome_base[Map] {
 	if loadFlags.isEmpty() || (loadFlags.get() == "false") {
-		return Outcome_base_ok_Object[Map](icast_Map(obj_(ImmutableMap_of())))
+		return Outcome_base_ok_Object[Map](Map(ImmutableMap_of()))
 	} else if loadFlags.get() == "true" {
-		return Outcome_base_ok_Object[Map](icast_Map(obj_(ImmutableMap_of_Object_Object(strobj_("module"), strobj_("goog")))))
+		return Outcome_base_ok_Object[Map](Map(ImmutableMap_of_Object_Object(strobj_("module"), strobj_("goog"))))
 	} else {
 		return this.parseJsStringMap(loadFlags.get())
 	}
-	panic("unreachable")
 }
 
 var DepsFileRegexParser_logger *Logger
@@ -139,4 +138,12 @@ func DepsFileRegexParser_clinit() {
 	DepsFileRegexParser_clinit_done = true
 	DepsFileRegexParser_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.deps.DepsFileRegexParser").getName())
 
+}
+
+// parseLine: an object that is exactly a DepsFileRegexParser calls its parseLine_impl directly (post-flip); others dispatch.
+func (this *DepsFileRegexParser) parseLine(p0 string) *Outcome_base[any] {
+	if p, _ := this.self_.(*DepsFileRegexParser); p == this {
+		return this.parseLine_impl(p0)
+	}
+	return this.self_.parseLine_impl(p0)
 }

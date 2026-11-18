@@ -3,10 +3,26 @@
 package closure
 
 type PotentialDeclaration struct {
-	self_              any
+	self_              PotentialDeclaration_I
 	fullyQualifiedName string
 	lhs                Node
 	rhs                Node
+}
+
+// PotentialDeclaration_I holds the methods the dispatchers of PotentialDeclaration's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type PotentialDeclaration_I interface {
+	breakDownDestructure_impl(*AbstractCompiler) bool
+	getRemovableNode_impl() Node
+	isDefiniteDeclaration_impl(*AbstractCompiler) bool
+	shouldPreserve_impl() bool
+	simplify_impl(*AbstractCompiler)
+}
+
+// PotentialDeclaration_as is implemented by PotentialDeclaration and the classes that extend it: a cast to PotentialDeclaration asserts to it
+// (post-flip).
+type PotentialDeclaration_as interface {
+	as_PotentialDeclaration() *PotentialDeclaration
 }
 
 func (this *PotentialDeclaration) as_PotentialDeclaration() *PotentialDeclaration { return this }
@@ -15,12 +31,7 @@ func to_PotentialDeclaration(v any) *PotentialDeclaration {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_PotentialDeclaration() *PotentialDeclaration }).as_PotentialDeclaration()
-}
-
-func is_PotentialDeclaration(v any) bool {
-	_, ok := v.(interface{ as_PotentialDeclaration() *PotentialDeclaration })
-	return ok
+	return v.(PotentialDeclaration_as).as_PotentialDeclaration()
 }
 
 func (this *PotentialDeclaration) self() any {
@@ -36,12 +47,17 @@ func (this *PotentialDeclaration) zero_PotentialDeclaration() {
 
 func (this *PotentialDeclaration) init_PotentialDeclaration(fullyQualifiedName string, lhs Node, rhs Node) {
 	this.fullyQualifiedName = fullyQualifiedName
-	this.lhs = Node_of_(Preconditions_checkNotNull(lhs.box_()))
+	if lhs == 0 {
+		panic(new_NullPointerException_0())
+	}
+	this.lhs = lhs
 	this.rhs = rhs
 }
 
 func PotentialDeclaration_fromName(nameNode Node) *PotentialDeclaration {
-	Preconditions_checkArgument_boolean_Object(nameNode.isQualifiedName(), nameNode.box_())
+	if !nameNode.isQualifiedName() {
+		panic(new_IllegalArgumentException_String(tostr_(nameNode)))
+	}
 	var rhs Node = NodeUtil_getRValueOfLValue(nameNode)
 	if ClassUtil_isThisPropInsideClassWithName(nameNode) {
 		var name string = ClassUtil_getFullyQualifiedNameOfThisProp(nameNode)
@@ -51,21 +67,29 @@ func PotentialDeclaration_fromName(nameNode Node) *PotentialDeclaration {
 }
 
 func PotentialDeclaration_fromMemberFieldDef(fieldNode Node) *PotentialDeclaration {
-	Preconditions_checkArgument(fieldNode.isMemberFieldDef())
+	if !fieldNode.isMemberFieldDef() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var rhs Node = NodeUtil_getRValueOfLValue(fieldNode)
 	var name string = ClassUtil_getFullyQualifiedNameOfMemberFieldDef(fieldNode)
 	return new_PotentialDeclaration_MemberFieldDeclaration(Optional_of[string](name), fieldNode, rhs).up_PotentialDeclaration()
 }
 
 func PotentialDeclaration_fromMethod(functionNode Node) *PotentialDeclaration {
-	Preconditions_checkArgument(ClassUtil_isClassMethod(functionNode))
+	if !ClassUtil_isClassMethod(functionNode) {
+		panic(new_IllegalArgumentException_0())
+	}
 	var name string = ClassUtil_getFullyQualifiedNameOfMethod(functionNode)
 	return new_PotentialDeclaration_MethodDeclaration(name, functionNode).up_PotentialDeclaration()
 }
 
 func PotentialDeclaration_fromStringKey(stringKeyNode Node) *PotentialDeclaration {
-	Preconditions_checkArgument(stringKeyNode.isStringKey())
-	Preconditions_checkArgument(stringKeyNode.getParent().isObjectLit())
+	if !stringKeyNode.isStringKey() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !stringKeyNode.getParent().isObjectLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var name string = ("this." + sstr_(stringKeyNode.getString()))
 	if stringKeyNode.getString() == "properties" {
 		var objLitJsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(stringKeyNode.getParent())
@@ -77,12 +101,16 @@ func PotentialDeclaration_fromStringKey(stringKeyNode Node) *PotentialDeclaratio
 }
 
 func PotentialDeclaration_fromDefine(callNode Node) *PotentialDeclaration {
-	Preconditions_checkArgument(NodeUtil_isCallTo(callNode, "goog.define"))
+	if !NodeUtil_isCallTo(callNode, "goog.define") {
+		panic(new_IllegalArgumentException_0())
+	}
 	return PotentialDeclaration_DefineDeclaration_from(callNode).up_PotentialDeclaration()
 }
 
 func PotentialDeclaration_fromAlias(nameNode Node) *PotentialDeclaration {
-	Preconditions_checkArgument_boolean_Object(nameNode.isQualifiedName(), nameNode.box_())
+	if !nameNode.isQualifiedName() {
+		panic(new_IllegalArgumentException_String(tostr_(nameNode)))
+	}
 	return new_PotentialDeclaration_AliasDeclaration(nameNode.getQualifiedName(), nameNode).up_PotentialDeclaration()
 }
 
@@ -158,27 +186,28 @@ func (this *PotentialDeclaration) simplifyEnumValues(compiler *AbstractCompiler)
 
 func (this *PotentialDeclaration) isDefiniteDeclaration_impl(compiler *AbstractCompiler) bool {
 	var parent Node = this.getLhs().getParent()
-	switch parent.getToken() {
-	case Token_rhino_DEFAULT_VALUE:
+	switch parent.ns_().token {
+	case tokOrd1_DEFAULT_VALUE:
 		if !parent.getParent().isStringKey() {
 			return false
 		}
 		fallthrough
-	case Token_rhino_COMPUTED_PROP, Token_rhino_STRING_KEY:
+	case tokOrd1_COMPUTED_PROP, tokOrd1_STRING_KEY:
 		if NodeUtil_isLhsByDestructuring(this.getLhs()) {
 			var rootTarget Node = NodeUtil_getRootTarget(this.getLhs())
-			Preconditions_checkState(rootTarget.getParent().isDestructuringLhs())
+			if !rootTarget.getParent().isDestructuringLhs() {
+				panic(new_IllegalStateException_0())
+			}
 			if NodeUtil_isNameDeclaration(rootTarget.getGrandparent()) {
 				return true
 			}
 		}
 		return false
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_CLASS, Token_rhino_FUNCTION:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_CLASS, tokOrd1_FUNCTION:
 		return true
 	default:
 		return ((PotentialDeclaration_isExportLhs(this.getLhs()) || ((this.getJsDoc() != nil) && this.getJsDoc().containsDeclaration())) || ((this.getRhs() != 0) && PotentialDeclaration_isTypedRhs(this.getRhs())))
 	}
-	panic("unreachable")
 }
 
 func (this *PotentialDeclaration) shouldPreserve_impl() bool {
@@ -216,14 +245,14 @@ func PotentialDeclaration_isAliasDeclaration(lhs Node, rhs Node) bool {
 }
 
 func PotentialDeclaration_isQualifiedAliasExpression(n Node) bool {
-	switch n.getToken() {
-	case Token_rhino_NAME:
-		return !String_isEmpty(n.getString())
-	case Token_rhino_THIS, Token_rhino_SUPER:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
+		return n.getString() != ""
+	case tokOrd1_THIS, tokOrd1_SUPER:
 		return true
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		return PotentialDeclaration_isQualifiedAliasExpression(n.getFirstChild())
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		if PotentialDeclaration_GOOG_MODULE_GET.matches(n.getFirstChild()) {
 			return true
 		}
@@ -231,7 +260,6 @@ func PotentialDeclaration_isQualifiedAliasExpression(n Node) bool {
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func PotentialDeclaration_removeStringKeyValue(stringKey Node) {
@@ -247,23 +275,23 @@ func PotentialDeclaration_truncateStringKeyValue(stringKey Node) {
 }
 
 func (this *PotentialDeclaration) simplify(p0 *AbstractCompiler) {
-	this.self_.(interface{ simplify_impl(*AbstractCompiler) }).simplify_impl(p0)
+	this.self_.simplify_impl(p0)
 }
 
 func (this *PotentialDeclaration) breakDownDestructure(p0 *AbstractCompiler) bool {
-	return this.self_.(interface{ breakDownDestructure_impl(*AbstractCompiler) bool }).breakDownDestructure_impl(p0)
+	return this.self_.breakDownDestructure_impl(p0)
 }
 
 func (this *PotentialDeclaration) shouldPreserve() bool {
-	return this.self_.(interface{ shouldPreserve_impl() bool }).shouldPreserve_impl()
+	return this.self_.shouldPreserve_impl()
 }
 
 func (this *PotentialDeclaration) getRemovableNode() Node {
-	return this.self_.(interface{ getRemovableNode_impl() Node }).getRemovableNode_impl()
+	return this.self_.getRemovableNode_impl()
 }
 
 func (this *PotentialDeclaration) isDefiniteDeclaration(p0 *AbstractCompiler) bool {
-	return this.self_.(interface{ isDefiniteDeclaration_impl(*AbstractCompiler) bool }).isDefiniteDeclaration_impl(p0)
+	return this.self_.isDefiniteDeclaration_impl(p0)
 }
 
 const PotentialDeclaration_STRING_ENUM_RETAIN_CAP int32 = 10
@@ -327,7 +355,9 @@ func (this *PotentialDeclaration_NameDeclaration) simplifyNamespace(compiler *Ab
 }
 
 func (this *PotentialDeclaration_NameDeclaration) simplifySymbol(compiler *AbstractCompiler) {
-	Preconditions_checkArgument(NodeUtil_isCallTo(this.getRhs(), "Symbol"))
+	if !NodeUtil_isCallTo(this.getRhs(), "Symbol") {
+		panic(new_IllegalArgumentException_0())
+	}
 	var callNode Node = this.getRhs()
 	for callNode.hasMoreThanOneChild() {
 		NodeUtil_deleteNode(callNode.getLastChild(), compiler)
@@ -377,17 +407,17 @@ func (this *PotentialDeclaration_NameDeclaration) breakDownDestructure_impl(comp
 		return false
 	}
 	var rootTarget Node = NodeUtil_getRootTarget(this.getLhs())
-	Preconditions_checkState(rootTarget.getParent().isDestructuringLhs())
+	if !rootTarget.getParent().isDestructuringLhs() {
+		panic(new_IllegalStateException_0())
+	}
 	if !NodeUtil_isNameDeclaration(rootTarget.getGrandparent()) {
 		return false
 	}
 	var definitionNode Node = rootTarget.getGrandparent()
 	var prev Node = 0
-	var lhsNodes ArrayListOf[Node] = new_ArrayList_0()
-	NodeUtil_visitLhsNodesInNode(rootTarget.getParent(), &Consumer_tfn_Node{func(p0 Node) { lhsNodes.add(p0.box_()) }})
-	it_1 := foreach_(lhsNodes.self())
-	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+	var lhsNodes []Node = []Node{}
+	NodeUtil_visitLhsNodesInNode(rootTarget.getParent(), (&Consumer_tfn_Node{func(p0 Node) { lhsNodes = append(lhsNodes, p0) }}).accept)
+	for n := range sliceAll_(&lhsNodes) {
 		n.detach()
 		var temp Node = IR_var_Node(n)
 		if prev == 0 {
@@ -506,19 +536,18 @@ func (this *PotentialDeclaration_DefineDeclaration) simplify_impl(compiler *Abst
 
 func PotentialDeclaration_DefineDeclaration_from(callNode Node) *PotentialDeclaration_DefineDeclaration {
 	return func() *PotentialDeclaration_DefineDeclaration {
-		switch callNode.getParent().getToken() {
-		case Token_rhino_EXPR_RESULT:
+		switch callNode.getParent().ns_().token {
+		case tokOrd1_EXPR_RESULT:
 			return new_PotentialDeclaration_DefineDeclaration(callNode.getSecondChild().getString(), callNode, callNode.getLastChild())
-		case Token_rhino_ASSIGN:
+		case tokOrd1_ASSIGN:
 			var previous Node = callNode.getPrevious()
 			return new_PotentialDeclaration_DefineDeclaration(previous.getQualifiedName(), previous, callNode.getLastChild())
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			var parent Node = callNode.getParent()
 			return new_PotentialDeclaration_DefineDeclaration(parent.getString(), parent, callNode.getLastChild())
 		default:
-			panic(new_IllegalStateException_String(("Unexpected parent: " + objstr_(obj_(callNode.getParent().getToken())))).self())
+			panic(new_IllegalStateException_String(("Unexpected parent: " + tostr_(callNode.getParent().getToken()))))
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -543,7 +572,6 @@ func PotentialDeclaration_DefineDeclaration_makeEmptyValueNode(type_ *JSTypeExpr
 		default:
 			return 0
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -794,4 +822,164 @@ func (this *PotentialDeclaration_AliasDeclaration) isDefiniteDeclaration_impl(co
 
 func (this *PotentialDeclaration_AliasDeclaration) shouldPreserve_impl() bool {
 	return true
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_NameDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_NameDeclaration) simplify(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*PotentialDeclaration_NameDeclaration); p == this {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.simplify_impl(p0)
+}
+
+// breakDownDestructure: an object that is exactly a PotentialDeclaration_NameDeclaration calls its breakDownDestructure_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_NameDeclaration) breakDownDestructure(p0 *AbstractCompiler) bool {
+	if p, _ := this.self_.(*PotentialDeclaration_NameDeclaration); p == this {
+		return this.breakDownDestructure_impl(p0)
+	}
+	return this.self_.breakDownDestructure_impl(p0)
+}
+
+// shouldPreserve: an object that is exactly a PotentialDeclaration_NameDeclaration calls its shouldPreserve_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_NameDeclaration) shouldPreserve() bool {
+	if p, _ := this.self_.(*PotentialDeclaration_NameDeclaration); p == this {
+		return this.shouldPreserve_impl()
+	}
+	return this.self_.shouldPreserve_impl()
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_ThisPropDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_ThisPropDeclaration) simplify(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*PotentialDeclaration_ThisPropDeclaration); p == this {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.simplify_impl(p0)
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_DefineDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_DefineDeclaration) simplify(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*PotentialDeclaration_DefineDeclaration); p == this {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.simplify_impl(p0)
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_MethodDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_MethodDeclaration) simplify(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*PotentialDeclaration_MethodDeclaration); p == this {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.simplify_impl(p0)
+}
+
+// getRemovableNode: an object that is exactly a PotentialDeclaration_MethodDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_MethodDeclaration) getRemovableNode() Node {
+	if p, _ := this.self_.(*PotentialDeclaration_MethodDeclaration); p == this {
+		return this.getRemovableNode_impl()
+	}
+	return this.self_.getRemovableNode_impl()
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_MemberFieldDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_MemberFieldDeclaration) simplify(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*PotentialDeclaration_MemberFieldDeclaration); p == this {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.simplify_impl(p0)
+}
+
+// getRemovableNode: an object that is exactly a PotentialDeclaration_MemberFieldDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_MemberFieldDeclaration) getRemovableNode() Node {
+	if p, _ := this.self_.(*PotentialDeclaration_MemberFieldDeclaration); p == this {
+		return this.getRemovableNode_impl()
+	}
+	return this.self_.getRemovableNode_impl()
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_StringKeyDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_StringKeyDeclaration) simplify(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*PotentialDeclaration_StringKeyDeclaration); p == this {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.simplify_impl(p0)
+}
+
+// shouldPreserve: an object that is exactly a PotentialDeclaration_StringKeyDeclaration calls its shouldPreserve_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_StringKeyDeclaration) shouldPreserve() bool {
+	if p, _ := this.self_.(*PotentialDeclaration_StringKeyDeclaration); p == this {
+		return this.shouldPreserve_impl()
+	}
+	return this.self_.shouldPreserve_impl()
+}
+
+// getRemovableNode: an object that is exactly a PotentialDeclaration_StringKeyDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_StringKeyDeclaration) getRemovableNode() Node {
+	if p, _ := this.self_.(*PotentialDeclaration_StringKeyDeclaration); p == this {
+		return this.getRemovableNode_impl()
+	}
+	return this.self_.getRemovableNode_impl()
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_PolymerBehaviorPropertiesDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_PolymerBehaviorPropertiesDeclaration) simplify(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*PotentialDeclaration_PolymerBehaviorPropertiesDeclaration); p == this {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.simplify_impl(p0)
+}
+
+// shouldPreserve: an object that is exactly a PotentialDeclaration_PolymerBehaviorPropertiesDeclaration calls its shouldPreserve_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_PolymerBehaviorPropertiesDeclaration) shouldPreserve() bool {
+	if p, _ := this.self_.(*PotentialDeclaration_PolymerBehaviorPropertiesDeclaration); p == this {
+		return this.shouldPreserve_impl()
+	}
+	return this.self_.shouldPreserve_impl()
+}
+
+// getRemovableNode: an object that is exactly a PotentialDeclaration_PolymerBehaviorPropertiesDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_PolymerBehaviorPropertiesDeclaration) getRemovableNode() Node {
+	if p, _ := this.self_.(*PotentialDeclaration_PolymerBehaviorPropertiesDeclaration); p == this {
+		return this.getRemovableNode_impl()
+	}
+	return this.self_.getRemovableNode_impl()
+}
+
+// simplify: an object that is exactly a PotentialDeclaration_AliasDeclaration calls its simplify_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_AliasDeclaration) simplify(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*PotentialDeclaration_AliasDeclaration); p == this {
+		this.simplify_impl(p0)
+		return
+	}
+	this.self_.simplify_impl(p0)
+}
+
+// getRemovableNode: an object that is exactly a PotentialDeclaration_AliasDeclaration calls its getRemovableNode_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_AliasDeclaration) getRemovableNode() Node {
+	if p, _ := this.self_.(*PotentialDeclaration_AliasDeclaration); p == this {
+		return this.getRemovableNode_impl()
+	}
+	return this.self_.getRemovableNode_impl()
+}
+
+// isDefiniteDeclaration: an object that is exactly a PotentialDeclaration_AliasDeclaration calls its isDefiniteDeclaration_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_AliasDeclaration) isDefiniteDeclaration(p0 *AbstractCompiler) bool {
+	if p, _ := this.self_.(*PotentialDeclaration_AliasDeclaration); p == this {
+		return this.isDefiniteDeclaration_impl(p0)
+	}
+	return this.self_.isDefiniteDeclaration_impl(p0)
+}
+
+// shouldPreserve: an object that is exactly a PotentialDeclaration_AliasDeclaration calls its shouldPreserve_impl directly (post-flip); others dispatch.
+func (this *PotentialDeclaration_AliasDeclaration) shouldPreserve() bool {
+	if p, _ := this.self_.(*PotentialDeclaration_AliasDeclaration); p == this {
+		return this.shouldPreserve_impl()
+	}
+	return this.self_.shouldPreserve_impl()
 }

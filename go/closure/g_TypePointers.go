@@ -6,7 +6,7 @@ type TypePointers struct {
 }
 
 func (this *TypePointers) init_TypePointers() {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func new_TypePointers() *TypePointers {
@@ -16,12 +16,16 @@ func new_TypePointers() *TypePointers {
 }
 
 func TypePointers_trimOffset(x int32) int32 {
-	Preconditions_checkState_boolean_Object((x >= TypePointers_AXIOMATIC_COLOR_COUNT), any(int32(x)))
+	if x < TypePointers_AXIOMATIC_COLOR_COUNT {
+		panic(new_IllegalStateException_String(istr_(int64(int32(x)))))
+	}
 	return (x - TypePointers_AXIOMATIC_COLOR_COUNT)
 }
 
 func TypePointers_untrimOffset(x int32) int32 {
-	Preconditions_checkState_boolean_Object((x >= 0), any(int32(x)))
+	if x < 0 {
+		panic(new_IllegalStateException_String(istr_(int64(int32(x)))))
+	}
 	return (x + TypePointers_AXIOMATIC_COLOR_COUNT)
 }
 
@@ -29,7 +33,7 @@ func TypePointers_isAxiomatic(x int32) bool {
 	return (x < TypePointers_AXIOMATIC_COLOR_COUNT)
 }
 
-var TypePointers_OFFSET_TO_AXIOMATIC_COLOR *ImmutableList
+var TypePointers_OFFSET_TO_AXIOMATIC_COLOR *ImmutableList[*Color]
 var TypePointers_AXIOMATIC_COLOR_COUNT int32
 
 var TypePointers_clinit_done bool
@@ -39,7 +43,7 @@ func TypePointers_clinit() {
 		return
 	}
 	TypePointers_clinit_done = true
-	TypePointers_OFFSET_TO_AXIOMATIC_COLOR = ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(obj_(StandardColors_UNKNOWN), obj_(StandardColors_BOOLEAN), obj_(StandardColors_STRING), obj_(StandardColors_NUMBER), obj_(StandardColors_NULL_OR_VOID), obj_(StandardColors_SYMBOL), obj_(StandardColors_BIGINT), obj_(StandardColors_TOP_OBJECT), obj_(StandardColors_TOP_FUNCTION), obj_(StandardColors_GBIGINT))
+	TypePointers_OFFSET_TO_AXIOMATIC_COLOR = immutableListOf_(tc_p_Color, StandardColors_UNKNOWN, StandardColors_BOOLEAN, StandardColors_STRING, StandardColors_NUMBER, StandardColors_NULL_OR_VOID, StandardColors_SYMBOL, StandardColors_BIGINT, StandardColors_TOP_OBJECT, StandardColors_TOP_FUNCTION, StandardColors_GBIGINT)
 	TypePointers_AXIOMATIC_COLOR_COUNT = TypePointers_OFFSET_TO_AXIOMATIC_COLOR.size()
 
 }

@@ -27,27 +27,23 @@ func new_ImplicitNullabilityCheck(compiler *AbstractCompiler) *ImplicitNullabili
 }
 
 func (this *ImplicitNullabilityCheck) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 }
 
-func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t *NodeTraversal) ImmutableListOf[*ImplicitNullabilityCheck_Result] {
+func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t *NodeTraversal) []*ImplicitNullabilityCheck_Result {
 	if info == nil {
-		return ImmutableList_of()
+		return []*ImplicitNullabilityCheck_Result{}
 	}
-	var builder ImmutableList_BuilderOf[*ImplicitNullabilityCheck_Result] = ImmutableList_builder()
-	it_1 := foreach_(any(info.getTypeNodes()))
-	for it_1.next() {
-		var typeRoot Node = Node_of_(it_1.v)
-		NodeUtil_visitPreOrder_Node_Visitor_Predicate(typeRoot, icast_NodeUtil_Visitor(obj_(new_ImplicitNullabilityCheck_1(t, builder))), Predicates_alwaysTrue())
+	var builder *ImmutableList_Builder[*ImplicitNullabilityCheck_Result] = immutableListBuilder_(tc_p_ImplicitNullabilityCheck_Result)
+	for typeRoot := range elemsBy_(info.getTypeNodes(), Node_of_) {
+		NodeUtil_visitPreOrder_Node_Visitor_Predicate(typeRoot, new_ImplicitNullabilityCheck_1(t, builder), Predicates_alwaysTrue())
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return builder.build().items
 }
 
 func (this *ImplicitNullabilityCheck) visit_impl(t *NodeTraversal, n Node, p Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
-	it_1 := foreach_(obj_(ImplicitNullabilityCheck_findImplicitNullabilityResults(info, t)))
-	for it_1.next() {
-		var r *ImplicitNullabilityCheck_Result = cast_[*ImplicitNullabilityCheck_Result](it_1.v)
+	for _, r := range ImplicitNullabilityCheck_findImplicitNullabilityResults(info, t) {
 		var stringNode Node = r.getNode()
 		var dt *DiagnosticType = func() *DiagnosticType {
 			if r.getNullability().isNullable() {
@@ -61,7 +57,7 @@ func (this *ImplicitNullabilityCheck) visit_impl(t *NodeTraversal, n Node, p Nod
 
 var ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC *DiagnosticType
 var ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC *DiagnosticType
-var ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES *ImmutableSet
+var ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES *ImmutableSet[string]
 
 var ImplicitNullabilityCheck_clinit_done bool
 
@@ -72,52 +68,72 @@ func ImplicitNullabilityCheck_clinit() {
 	ImplicitNullabilityCheck_clinit_done = true
 	ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC = DiagnosticType_disabled("JSC_IMPLICITLY_NULLABLE_JSDOC", "Name {0} in JSDoc is implicitly nullable, and is discouraged by the style guide.\nPlease add a '!' to make it non-nullable, or a '?' to make it explicitly nullable.")
 	ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC = DiagnosticType_disabled("JSC_IMPLICITLY_NONNULL_JSDOC", "Name {0} in JSDoc is implicitly non-null, and is discouraged by the style guide.\nPlease add a '!' to make it explicit.")
-	ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("*"), strobj_("?"), strobj_("bigint"), strobj_("boolean"), strobj_("null"), strobj_("number"), []any{strobj_("string"), strobj_("symbol"), strobj_("undefined"), strobj_("void")})
+	ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES = immutableSetOf_(tc_string, "*", "?", "bigint", "boolean", "null", "number", "string", "symbol", "undefined", "void")
 
 }
 
-type ImplicitNullabilityCheck_Nullability struct {
-	Enum
+type ImplicitNullabilityCheck_Nullability uint8
+
+// ImplicitNullabilityCheck_Nullability_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ImplicitNullabilityCheck_Nullability_enum_ = [2]Enum{
+	{self_: ImplicitNullabilityCheck_Nullability_NONNULL, name_: "NONNULL", ordinal_: 0},
+	{self_: ImplicitNullabilityCheck_Nullability_NULLABLE, name_: "NULLABLE", ordinal_: 1},
 }
 
-func (this *ImplicitNullabilityCheck_Nullability) up_Enum() *Enum {
-	if this == nil {
+func (this ImplicitNullabilityCheck_Nullability) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ImplicitNullabilityCheck_Nullability_enum_[this-1]
 }
 
-func (this *ImplicitNullabilityCheck_Nullability) init_ImplicitNullabilityCheck_Nullability(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ImplicitNullabilityCheck_Nullability) name() string {
+	return this.enum_().name_
 }
 
-func new_ImplicitNullabilityCheck_Nullability(name_ string, ordinal_ int32) *ImplicitNullabilityCheck_Nullability {
-	this := &ImplicitNullabilityCheck_Nullability{}
-	this.self_ = this
-	this.init_ImplicitNullabilityCheck_Nullability(name_, ordinal_)
+func (this ImplicitNullabilityCheck_Nullability) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ImplicitNullabilityCheck_Nullability) toString() string {
+	return this.enum_().name_
+}
+
+func (this ImplicitNullabilityCheck_Nullability) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ImplicitNullabilityCheck_Nullability) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *ImplicitNullabilityCheck_Nullability) isNullable() bool {
+func (this ImplicitNullabilityCheck_Nullability) isNullable() bool {
 	return (this == ImplicitNullabilityCheck_Nullability_NULLABLE)
 }
 
-func ImplicitNullabilityCheck_Nullability_values() []*ImplicitNullabilityCheck_Nullability {
-	return append([]*ImplicitNullabilityCheck_Nullability(nil), ImplicitNullabilityCheck_Nullability_values_...)
+func ImplicitNullabilityCheck_Nullability_values() []ImplicitNullabilityCheck_Nullability {
+	return append([]ImplicitNullabilityCheck_Nullability(nil), ImplicitNullabilityCheck_Nullability_values_...)
 }
 
-func ImplicitNullabilityCheck_Nullability_valueOf(name string) *ImplicitNullabilityCheck_Nullability {
+func ImplicitNullabilityCheck_Nullability_valueOf(name string) ImplicitNullabilityCheck_Nullability {
 	for _, v := range ImplicitNullabilityCheck_Nullability_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Nullability", name))
 }
 
-var ImplicitNullabilityCheck_Nullability_NONNULL *ImplicitNullabilityCheck_Nullability
-var ImplicitNullabilityCheck_Nullability_NULLABLE *ImplicitNullabilityCheck_Nullability
-var ImplicitNullabilityCheck_Nullability_values_ []*ImplicitNullabilityCheck_Nullability
+const ImplicitNullabilityCheck_Nullability_NONNULL ImplicitNullabilityCheck_Nullability = 1
+const ImplicitNullabilityCheck_Nullability_NULLABLE ImplicitNullabilityCheck_Nullability = 2
+
+var ImplicitNullabilityCheck_Nullability_values_ []ImplicitNullabilityCheck_Nullability
 
 var ImplicitNullabilityCheck_Nullability_clinit_done bool
 
@@ -126,35 +142,35 @@ func ImplicitNullabilityCheck_Nullability_clinit() {
 		return
 	}
 	ImplicitNullabilityCheck_Nullability_clinit_done = true
-	ImplicitNullabilityCheck_Nullability_NONNULL = new_ImplicitNullabilityCheck_Nullability("NONNULL", 0)
-	ImplicitNullabilityCheck_Nullability_NULLABLE = new_ImplicitNullabilityCheck_Nullability("NULLABLE", 1)
-	ImplicitNullabilityCheck_Nullability_values_ = []*ImplicitNullabilityCheck_Nullability{ImplicitNullabilityCheck_Nullability_NONNULL, ImplicitNullabilityCheck_Nullability_NULLABLE}
+	ImplicitNullabilityCheck_Nullability_values_ = []ImplicitNullabilityCheck_Nullability{ImplicitNullabilityCheck_Nullability_NONNULL, ImplicitNullabilityCheck_Nullability_NULLABLE}
 	registerEnum_("com.google.javascript.jscomp.ImplicitNullabilityCheck.Nullability", enumValues_(ImplicitNullabilityCheck_Nullability_values_))
 
 }
 
 type ImplicitNullabilityCheck_Result struct {
 	node_       Node
-	nullability *ImplicitNullabilityCheck_Nullability
+	nullability ImplicitNullabilityCheck_Nullability
 }
 
-func (this *ImplicitNullabilityCheck_Result) init_ImplicitNullabilityCheck_Result(node Node, nullability *ImplicitNullabilityCheck_Nullability) {
-	Preconditions_checkArgument(node.isStringLit())
+func (this *ImplicitNullabilityCheck_Result) init_ImplicitNullabilityCheck_Result(node Node, nullability ImplicitNullabilityCheck_Nullability) {
+	if !node.isStringLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	this.node_ = node
 	this.nullability = nullability
 }
 
-func new_ImplicitNullabilityCheck_Result(node Node, nullability *ImplicitNullabilityCheck_Nullability) *ImplicitNullabilityCheck_Result {
+func new_ImplicitNullabilityCheck_Result(node Node, nullability ImplicitNullabilityCheck_Nullability) *ImplicitNullabilityCheck_Result {
 	this := &ImplicitNullabilityCheck_Result{}
 	this.init_ImplicitNullabilityCheck_Result(node, nullability)
 	return this
 }
 
-func ImplicitNullabilityCheck_Result_create(node Node, nullability *ImplicitNullabilityCheck_Nullability) *ImplicitNullabilityCheck_Result {
+func ImplicitNullabilityCheck_Result_create(node Node, nullability ImplicitNullabilityCheck_Nullability) *ImplicitNullabilityCheck_Result {
 	return new_ImplicitNullabilityCheck_Result(node, nullability)
 }
 
-func (this *ImplicitNullabilityCheck_Result) getNullability() *ImplicitNullabilityCheck_Nullability {
+func (this *ImplicitNullabilityCheck_Result) getNullability() ImplicitNullabilityCheck_Nullability {
 	return this.nullability
 }
 
@@ -164,14 +180,14 @@ func (this *ImplicitNullabilityCheck_Result) getNode() Node {
 
 type ImplicitNullabilityCheck_1 struct {
 	cap_t       *NodeTraversal
-	cap_builder *ImmutableList_Builder
+	cap_builder *ImmutableList_Builder[*ImplicitNullabilityCheck_Result]
 }
 
 func (this *ImplicitNullabilityCheck_1) init_ImplicitNullabilityCheck_1() {
 
 }
 
-func new_ImplicitNullabilityCheck_1(cap_t *NodeTraversal, cap_builder *ImmutableList_Builder) *ImplicitNullabilityCheck_1 {
+func new_ImplicitNullabilityCheck_1(cap_t *NodeTraversal, cap_builder *ImmutableList_Builder[*ImplicitNullabilityCheck_Result]) *ImplicitNullabilityCheck_1 {
 	this := &ImplicitNullabilityCheck_1{}
 	this.cap_t = cap_t
 	this.cap_builder = cap_builder
@@ -185,18 +201,18 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 	}
 	var parent Node = node.getParent()
 	if parent != 0 {
-		switch parent.getToken() {
-		case Token_rhino_BANG, Token_rhino_QMARK, Token_rhino_THIS, Token_rhino_NEW, Token_rhino_TYPEOF:
+		switch parent.ns_().token {
+		case tokOrd1_BANG, tokOrd1_QMARK, tokOrd1_THIS, tokOrd1_NEW, tokOrd1_TYPEOF:
 			return
-		case Token_rhino_PIPE:
+		case tokOrd1_PIPE:
 			var gp Node = parent.getParent()
-			if (gp != 0) && (gp.getToken() == Token_rhino_QMARK) {
+			if (gp != 0) && (gp.ns_().token == tokOrd1_QMARK) {
 				return
 			}
 			{
 				var child Node = parent.getFirstChild()
 				for ; child != 0; child = child.getNext() {
-					if (child.isStringLit() && (child.getString() == "null")) || (child.getToken() == Token_rhino_QMARK) {
+					if (child.isStringLit() && (child.getString() == "null")) || (child.ns_().token == tokOrd1_QMARK) {
 						return
 					}
 				}
@@ -205,7 +221,7 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 		}
 	}
 	var typeName string = node.getString()
-	if Collection_contains_s(ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES, typeName) {
+	if ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES.Has(typeName) {
 		return
 	}
 	var registry *JSTypeRegistry = this.cap_t.getCompiler().getTypeRegistry()
@@ -214,11 +230,20 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 		return
 	}
 	var isNonNullableName bool = (registry.isNonNullableName(icast_StaticScope(obj_(this.cap_t.getScope())), typeName) && !type_.isNullable())
-	var nullability *ImplicitNullabilityCheck_Nullability = func() *ImplicitNullabilityCheck_Nullability {
+	var nullability ImplicitNullabilityCheck_Nullability = func() ImplicitNullabilityCheck_Nullability {
 		if isNonNullableName {
 			return ImplicitNullabilityCheck_Nullability_NONNULL
 		}
 		return ImplicitNullabilityCheck_Nullability_NULLABLE
 	}()
-	this.cap_builder.add(obj_(ImplicitNullabilityCheck_Result_create(node, nullability)))
+	this.cap_builder.add(ImplicitNullabilityCheck_Result_create(node, nullability))
+}
+
+// visit: an object that is exactly a ImplicitNullabilityCheck calls its visit_impl directly (post-flip); others dispatch.
+func (this *ImplicitNullabilityCheck) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ImplicitNullabilityCheck); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

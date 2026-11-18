@@ -4,22 +4,22 @@ package closure
 
 type InlineVariables struct {
 	compiler_ *AbstractCompiler
-	mode_     *InlineVariables_Mode
+	mode_     InlineVariables_Mode
 }
 
-func (this *InlineVariables) init_InlineVariables(compiler *AbstractCompiler, mode *InlineVariables_Mode) {
+func (this *InlineVariables) init_InlineVariables(compiler *AbstractCompiler, mode InlineVariables_Mode) {
 	this.compiler_ = compiler
 	this.mode_ = mode
 }
 
-func new_InlineVariables(compiler *AbstractCompiler, mode *InlineVariables_Mode) *InlineVariables {
+func new_InlineVariables(compiler *AbstractCompiler, mode InlineVariables_Mode) *InlineVariables {
 	this := &InlineVariables{}
 	this.init_InlineVariables(compiler, mode)
 	return this
 }
 
 func (this *InlineVariables) process_2(externs Node, root Node) {
-	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.compiler_, icast_ReferenceCollector_Behavior(obj_(new_InlineVariables_InliningBehavior(this))), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))), this.mode_.varPredicate)
+	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.compiler_, new_InlineVariables_InliningBehavior(this), new_SyntacticScopeCreator_AbstractCompiler(this.compiler_), InlineVariables_Mode_varPredicate_[this.mode_-1])
 	callback.process_2(externs, root)
 }
 
@@ -47,47 +47,68 @@ func InlineVariables_clinit() {
 
 }
 
-type InlineVariables_Mode struct {
-	Enum
-	varPredicate Predicate_baseOf[*Var]
+type InlineVariables_Mode uint8
+
+// InlineVariables_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var InlineVariables_Mode_enum_ = [3]Enum{
+	{self_: InlineVariables_Mode_CONSTANTS_ONLY, name_: "CONSTANTS_ONLY", ordinal_: 0},
+	{self_: InlineVariables_Mode_LOCALS_ONLY, name_: "LOCALS_ONLY", ordinal_: 1},
+	{self_: InlineVariables_Mode_ALL, name_: "ALL", ordinal_: 2},
 }
 
-func (this *InlineVariables_Mode) up_Enum() *Enum {
-	if this == nil {
+var InlineVariables_Mode_varPredicate_ [3]Predicate_baseOf[*Var]
+
+func (this InlineVariables_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &InlineVariables_Mode_enum_[this-1]
 }
 
-func (this *InlineVariables_Mode) init_InlineVariables_Mode(name_ string, ordinal_ int32, varPredicate Predicate_baseOf[*Var]) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.varPredicate = varPredicate
+func (this InlineVariables_Mode) name() string { return this.enum_().name_ }
+
+func (this InlineVariables_Mode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_InlineVariables_Mode(name_ string, ordinal_ int32, varPredicate Predicate_baseOf[*Var]) *InlineVariables_Mode {
-	this := &InlineVariables_Mode{}
-	this.self_ = this
-	this.init_InlineVariables_Mode(name_, ordinal_, varPredicate)
+func (this InlineVariables_Mode) toString() string { return this.enum_().name_ }
+
+func (this InlineVariables_Mode) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this InlineVariables_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func InlineVariables_Mode_values() []*InlineVariables_Mode {
-	return append([]*InlineVariables_Mode(nil), InlineVariables_Mode_values_...)
+func (this InlineVariables_Mode) init_InlineVariables_Mode(varPredicate Predicate_baseOf[*Var]) {
+	InlineVariables_Mode_varPredicate_[this-1] = varPredicate
 }
 
-func InlineVariables_Mode_valueOf(name string) *InlineVariables_Mode {
+func InlineVariables_Mode_values() []InlineVariables_Mode {
+	return append([]InlineVariables_Mode(nil), InlineVariables_Mode_values_...)
+}
+
+func InlineVariables_Mode_valueOf(name string) InlineVariables_Mode {
 	for _, v := range InlineVariables_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var InlineVariables_Mode_CONSTANTS_ONLY *InlineVariables_Mode
-var InlineVariables_Mode_LOCALS_ONLY *InlineVariables_Mode
-var InlineVariables_Mode_ALL *InlineVariables_Mode
-var InlineVariables_Mode_values_ []*InlineVariables_Mode
+const InlineVariables_Mode_CONSTANTS_ONLY InlineVariables_Mode = 1
+const InlineVariables_Mode_LOCALS_ONLY InlineVariables_Mode = 2
+const InlineVariables_Mode_ALL InlineVariables_Mode = 3
+
+var InlineVariables_Mode_values_ []InlineVariables_Mode
 
 var InlineVariables_Mode_clinit_done bool
 
@@ -96,36 +117,27 @@ func InlineVariables_Mode_clinit() {
 		return
 	}
 	InlineVariables_Mode_clinit_done = true
-	InlineVariables_Mode_CONSTANTS_ONLY = new_InlineVariables_Mode("CONSTANTS_ONLY", 0, &Predicate_base_tfn_Var{func(p0 *Var) bool { return p0.isDeclaredOrInferredConst() }})
-	InlineVariables_Mode_LOCALS_ONLY = new_InlineVariables_Mode("LOCALS_ONLY", 1, &Predicate_base_tfn_Var{func(p0 *Var) bool { return p0.isLocal() }})
-	InlineVariables_Mode_ALL = new_InlineVariables_Mode("ALL", 2, Predicates_alwaysTrue())
-	InlineVariables_Mode_values_ = []*InlineVariables_Mode{InlineVariables_Mode_CONSTANTS_ONLY, InlineVariables_Mode_LOCALS_ONLY, InlineVariables_Mode_ALL}
+	InlineVariables_Mode_CONSTANTS_ONLY.init_InlineVariables_Mode(&Predicate_base_tfn_Var{func(p0 *Var) bool { return p0.isDeclaredOrInferredConst() }})
+	InlineVariables_Mode_LOCALS_ONLY.init_InlineVariables_Mode(&Predicate_base_tfn_Var{func(p0 *Var) bool { return p0.isLocal() }})
+	InlineVariables_Mode_ALL.init_InlineVariables_Mode(Predicates_alwaysTrue())
+	InlineVariables_Mode_values_ = []InlineVariables_Mode{InlineVariables_Mode_CONSTANTS_ONLY, InlineVariables_Mode_LOCALS_ONLY, InlineVariables_Mode_ALL}
 	registerEnum_("com.google.javascript.jscomp.InlineVariables.Mode", enumValues_(InlineVariables_Mode_values_))
 
 }
 
 type InlineVariables_VarExpert struct {
-	self_ any
+	self_ InlineVariables_VarExpert_I
+}
+
+// InlineVariables_VarExpert_I holds the methods the dispatchers of InlineVariables_VarExpert's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type InlineVariables_VarExpert_I interface {
+	analyze_impl() *InlineVariables_InlineVarAnalysis
+	reanalyzeAfterAliasedVar_impl(*Var, *InlineVariables_InlineVarAnalysis) *InlineVariables_InlineVarAnalysis
 }
 
 func (this *InlineVariables_VarExpert) as_InlineVariables_VarExpert() *InlineVariables_VarExpert {
 	return this
-}
-
-func to_InlineVariables_VarExpert(v any) *InlineVariables_VarExpert {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_InlineVariables_VarExpert() *InlineVariables_VarExpert
-	}).as_InlineVariables_VarExpert()
-}
-
-func is_InlineVariables_VarExpert(v any) bool {
-	_, ok := v.(interface {
-		as_InlineVariables_VarExpert() *InlineVariables_VarExpert
-	})
-	return ok
 }
 
 func (this *InlineVariables_VarExpert) self() any {
@@ -140,23 +152,35 @@ func (this *InlineVariables_VarExpert) init_InlineVariables_VarExpert() {
 }
 
 func (this *InlineVariables_VarExpert) reanalyzeAfterAliasedVar_impl(aliasedVar *Var, aliasedVarAnalysis *InlineVariables_InlineVarAnalysis) *InlineVariables_InlineVarAnalysis {
-	panic(new_UnsupportedOperationException_String("not waiting for an aliased variable").self())
+	panic(new_UnsupportedOperationException_String("not waiting for an aliased variable"))
 }
 
 func (this *InlineVariables_VarExpert) analyze() *InlineVariables_InlineVarAnalysis {
-	return this.self_.(interface {
-		analyze_impl() *InlineVariables_InlineVarAnalysis
-	}).analyze_impl()
+	return this.self_.analyze_impl()
 }
 
 func (this *InlineVariables_VarExpert) reanalyzeAfterAliasedVar(p0 *Var, p1 *InlineVariables_InlineVarAnalysis) *InlineVariables_InlineVarAnalysis {
-	return this.self_.(interface {
-		reanalyzeAfterAliasedVar_impl(*Var, *InlineVariables_InlineVarAnalysis) *InlineVariables_InlineVarAnalysis
-	}).reanalyzeAfterAliasedVar_impl(p0, p1)
+	return this.self_.reanalyzeAfterAliasedVar_impl(p0, p1)
 }
 
 type InlineVariables_InlineVarAnalysis struct {
-	self_ any
+	self_ InlineVariables_InlineVarAnalysis_I
+}
+
+// InlineVariables_InlineVarAnalysis_I holds the methods the dispatchers of InlineVariables_InlineVarAnalysis's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type InlineVariables_InlineVarAnalysis_I interface {
+	getAliasedVar_impl() *Var
+	isSafeToInlineAliases_impl() bool
+	performInline_impl()
+	shouldInline_impl() bool
+	shouldWaitForAliasedVar_impl() bool
+}
+
+// InlineVariables_InlineVarAnalysis_as is implemented by InlineVariables_InlineVarAnalysis and the classes that extend it: a cast to InlineVariables_InlineVarAnalysis asserts to it
+// (post-flip).
+type InlineVariables_InlineVarAnalysis_as interface {
+	as_InlineVariables_InlineVarAnalysis() *InlineVariables_InlineVarAnalysis
 }
 
 func (this *InlineVariables_InlineVarAnalysis) as_InlineVariables_InlineVarAnalysis() *InlineVariables_InlineVarAnalysis {
@@ -167,16 +191,7 @@ func to_InlineVariables_InlineVarAnalysis(v any) *InlineVariables_InlineVarAnaly
 	if v == nil {
 		return nil
 	}
-	return v.(interface {
-		as_InlineVariables_InlineVarAnalysis() *InlineVariables_InlineVarAnalysis
-	}).as_InlineVariables_InlineVarAnalysis()
-}
-
-func is_InlineVariables_InlineVarAnalysis(v any) bool {
-	_, ok := v.(interface {
-		as_InlineVariables_InlineVarAnalysis() *InlineVariables_InlineVarAnalysis
-	})
-	return ok
+	return v.(InlineVariables_InlineVarAnalysis_as).as_InlineVariables_InlineVarAnalysis()
 }
 
 func (this *InlineVariables_InlineVarAnalysis) self() any {
@@ -199,7 +214,7 @@ func (this *InlineVariables_InlineVarAnalysis) shouldWaitForAliasedVar_impl() bo
 }
 
 func (this *InlineVariables_InlineVarAnalysis) getAliasedVar_impl() *Var {
-	panic(new_UnsupportedOperationException_String("no aliased Var").self())
+	panic(new_UnsupportedOperationException_String("no aliased Var"))
 }
 
 func (this *InlineVariables_InlineVarAnalysis) isSafeToInlineAliases_impl() bool {
@@ -207,38 +222,38 @@ func (this *InlineVariables_InlineVarAnalysis) isSafeToInlineAliases_impl() bool
 }
 
 func (this *InlineVariables_InlineVarAnalysis) performInline_impl() {
-	panic(new_UnsupportedOperationException_String("cannot inline").self())
+	panic(new_UnsupportedOperationException_String("cannot inline"))
 }
 
 func (this *InlineVariables_InlineVarAnalysis) isSafeToInlineAliases() bool {
-	return this.self_.(interface{ isSafeToInlineAliases_impl() bool }).isSafeToInlineAliases_impl()
+	return this.self_.isSafeToInlineAliases_impl()
 }
 
 func (this *InlineVariables_InlineVarAnalysis) shouldInline() bool {
-	return this.self_.(interface{ shouldInline_impl() bool }).shouldInline_impl()
+	return this.self_.shouldInline_impl()
 }
 
 func (this *InlineVariables_InlineVarAnalysis) performInline() {
-	this.self_.(interface{ performInline_impl() }).performInline_impl()
+	this.self_.performInline_impl()
 }
 
 func (this *InlineVariables_InlineVarAnalysis) shouldWaitForAliasedVar() bool {
-	return this.self_.(interface{ shouldWaitForAliasedVar_impl() bool }).shouldWaitForAliasedVar_impl()
+	return this.self_.shouldWaitForAliasedVar_impl()
 }
 
 func (this *InlineVariables_InlineVarAnalysis) getAliasedVar() *Var {
-	return this.self_.(interface{ getAliasedVar_impl() *Var }).getAliasedVar_impl()
+	return this.self_.getAliasedVar_impl()
 }
 
 type InlineVariables_InliningBehavior struct {
 	outer_                            *InlineVariables
 	currentScopeHandledVarAnalysesMap *JTMap[*Var, *InlineVariables_InlineVarAnalysis]
-	varToAliasRetryHandlersMap        *SimpleSetMultimap
+	varToAliasRetryHandlersMap        *SimpleSetMultimap[*Var, *InlineVariables_InliningBehavior_AliasInlineRetryHandler]
 }
 
 func (this *InlineVariables_InliningBehavior) finit_InlineVariables_InliningBehavior() {
 	this.currentScopeHandledVarAnalysesMap = jnewTMap_(tce_p_Var, jtc_p_InlineVariables_InlineVarAnalysis)
-	this.varToAliasRetryHandlersMap = SimpleSetMultimap_createInsertionOrdered()
+	this.varToAliasRetryHandlersMap = SimpleSetMultimap_createInsertionOrdered[*Var, *InlineVariables_InliningBehavior_AliasInlineRetryHandler]()
 }
 
 func (this *InlineVariables_InliningBehavior) init_InlineVariables_InliningBehavior() {
@@ -259,9 +274,7 @@ func (this *InlineVariables_InliningBehavior) afterExitScope(t *NodeTraversal, r
 func (this *InlineVariables_InliningBehavior) doInlinesForScope(t *NodeTraversal, referenceMap ReferenceMap) {
 	this.currentScopeHandledVarAnalysesMap.clear()
 	var mayBeAParameterModifiedViaArguments bool = this.varsInThisScopeMayBeModifiedUsingArguments(t.getScope(), referenceMap)
-	it_1 := foreach_(any(t.getScope().getVarIterable()))
-	for it_1.next() {
-		var v *Var = cast_[*Var](it_1.v)
+	for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
 		var referenceInfo *ReferenceCollection = referenceMap.getReferences_Var(v)
 		var expert *InlineVariables_VarExpert = this.createVarExpert(v, referenceInfo, mayBeAParameterModifiedViaArguments)
 		var analysis *InlineVariables_InlineVarAnalysis = expert.analyze()
@@ -272,7 +285,7 @@ func (this *InlineVariables_InliningBehavior) doInlinesForScope(t *NodeTraversal
 			if aliasedVarAnalysis != nil {
 				retryHandler.handleAliasedVarCompletion(aliasedVar, aliasedVarAnalysis)
 			} else {
-				this.varToAliasRetryHandlersMap.put(obj_(aliasedVar), obj_(retryHandler))
+				this.varToAliasRetryHandlersMap.put(aliasedVar, retryHandler)
 			}
 		} else {
 			if analysis.shouldInline() {
@@ -302,9 +315,7 @@ func (this *InlineVariables_InliningBehavior) varsInThisScopeMayBeModifiedUsingA
 }
 
 func (this *InlineVariables_InliningBehavior) retryAliases(aliasedVar *Var, aliasedVarAnalysis *InlineVariables_InlineVarAnalysis) {
-	it_1 := foreach_(any(this.varToAliasRetryHandlersMap.removeAll(obj_(aliasedVar))))
-	for it_1.next() {
-		var aliasInlineRetryHandler *InlineVariables_InliningBehavior_AliasInlineRetryHandler = cast_[*InlineVariables_InliningBehavior_AliasInlineRetryHandler](it_1.v)
+	for aliasInlineRetryHandler := range elemsAs_[*InlineVariables_InliningBehavior_AliasInlineRetryHandler](this.varToAliasRetryHandlersMap.removeAll(obj_(aliasedVar))) {
 		aliasInlineRetryHandler.handleAliasedVarCompletion(aliasedVar, aliasedVarAnalysis)
 	}
 }
@@ -335,7 +346,9 @@ func (this *InlineVariables_InliningBehavior) createVarExpert(v *Var, referenceI
 }
 
 func (this *InlineVariables_InliningBehavior) isSafeUseOfArguments(argumentsNode Node) bool {
-	Preconditions_checkArgument(argumentsNode.matchesName("arguments"))
+	if !argumentsNode.matchesName("arguments") {
+		panic(new_IllegalArgumentException_0())
+	}
 	return (this.isTargetOfPropertyRead(argumentsNode) || this.isSecondArgumentToDotApplyMethod(argumentsNode))
 }
 
@@ -362,12 +375,18 @@ func (this *InlineVariables_InliningBehavior) isSecondArgumentToDotApplyMethod(n
 
 func (this *InlineVariables_InliningBehavior) inline(decl *Reference, init_ *Reference, ref *Reference) {
 	var value Node = init_.getAssignedValue()
-	Preconditions_checkState((value != 0))
+	if value == 0 {
+		panic(new_IllegalStateException_0())
+	}
 	var isFunctionDeclaration bool = NodeUtil_isFunctionDeclaration(value)
 	if isFunctionDeclaration {
 		var funcName Node = value.getFirstChild()
-		Preconditions_checkNotNull(funcName.box_())
-		Preconditions_checkState(funcName.isName())
+		if funcName == 0 {
+			panic(new_NullPointerException_0())
+		}
+		if !funcName.isName() {
+			panic(new_IllegalStateException_0())
+		}
 		funcName.setString("")
 		this.outer_.compiler_.reportChangeToChangeScope(value)
 		this.outer_.compiler_.reportChangeToEnclosingScope(value.getParent())
@@ -375,7 +394,9 @@ func (this *InlineVariables_InliningBehavior) inline(decl *Reference, init_ *Ref
 	this.inlineValue(ref.getNode(), value.detach())
 	if decl != init_ {
 		var expressRoot Node = init_.getGrandparent()
-		Preconditions_checkState(expressRoot.isExprResult())
+		if !expressRoot.isExprResult() {
+			panic(new_IllegalStateException_0())
+		}
 		NodeUtil_removeChild(expressRoot.getParent(), expressRoot)
 	}
 	if !isFunctionDeclaration {
@@ -401,7 +422,9 @@ func (this *InlineVariables_InliningBehavior) inlineWellDefinedVariable(v *Var, 
 
 func (this *InlineVariables_InliningBehavior) removeDeclaration(decl *Reference) {
 	var varNode Node = decl.getParent()
-	Preconditions_checkState_boolean_Object(NodeUtil_isNameDeclaration(varNode), varNode.box_())
+	if !NodeUtil_isNameDeclaration(varNode) {
+		panic(new_IllegalStateException_String(tostr_(varNode)))
+	}
 	var grandparent Node = decl.getGrandparent()
 	this.outer_.compiler_.reportChangeToEnclosingScope(decl.getNode())
 	decl.getNode().detach()
@@ -427,7 +450,9 @@ func (this *InlineVariables_InliningBehavior) canInline(declaration *Reference, 
 	if (declaration.getBasicBlock() != initialization.getBasicBlock()) || (declaration.getBasicBlock() != reference.getBasicBlock()) {
 		return false
 	}
-	Preconditions_checkState((initValue != 0))
+	if initValue == 0 {
+		panic(new_IllegalStateException_0())
+	}
 	if (initValue.isGetProp() && reference.getParent().isCall()) && (reference.getParent().getFirstChild() == reference.getNode()) {
 		return false
 	}
@@ -439,7 +464,7 @@ func (this *InlineVariables_InliningBehavior) canInline(declaration *Reference, 
 			if relationship != nil {
 				return false
 			}
-			if !String_isEmpty(convention.getSingletonGetterClassName(callNode)) {
+			if convention.getSingletonGetterClassName(callNode) != "" {
 				return false
 			}
 		}
@@ -457,12 +482,14 @@ func (this *InlineVariables_InliningBehavior) canMoveAggressively(value Node) bo
 func (this *InlineVariables_InliningBehavior) canMoveModerately(initialization *Reference, reference *Reference) bool {
 	var it IteratorOf[Node]
 	if NodeUtil_isNameDeclaration(initialization.getParent()) {
-		it = icast_Iterator(obj_(NodeIterators_LocalVarMotion_forVar(this.outer_.compiler_, initialization.getNode(), initialization.getParent(), initialization.getGrandparent())))
+		it = NodeIterators_LocalVarMotion_forVar(this.outer_.compiler_, initialization.getNode(), initialization.getParent(), initialization.getGrandparent())
 	} else if initialization.getParent().isAssign() {
-		Preconditions_checkState(initialization.getGrandparent().isExprResult())
-		it = icast_Iterator(obj_(NodeIterators_LocalVarMotion_forAssign(this.outer_.compiler_, initialization.getNode(), initialization.getParent(), initialization.getGrandparent(), initialization.getGrandparent().getParent())))
+		if !initialization.getGrandparent().isExprResult() {
+			panic(new_IllegalStateException_0())
+		}
+		it = NodeIterators_LocalVarMotion_forAssign(this.outer_.compiler_, initialization.getNode(), initialization.getParent(), initialization.getGrandparent(), initialization.getGrandparent().getParent())
 	} else {
-		panic(new_IllegalStateException_String(("Unexpected initialization parent\n" + sstr_(initialization.getParent().toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unexpected initialization parent\n" + sstr_(initialization.getParent().toStringTree()))))
 	}
 	var targetName Node = reference.getNode()
 	var steps int32 = 0
@@ -492,7 +519,9 @@ func (this *InlineVariables_InliningBehavior) isValidInitialization(initializati
 		}
 	} else {
 		var parent Node = initialization.getParent()
-		Preconditions_checkState((parent.isAssign() && (parent.getFirstChild() == initialization.getNode())))
+		if !parent.isAssign() || parent.getFirstChild() != initialization.getNode() {
+			panic(new_IllegalStateException_0())
+		}
 	}
 	return true
 }
@@ -502,11 +531,11 @@ func (this *InlineVariables_InliningBehavior) isValidReference(reference *Refere
 }
 
 func (this *InlineVariables_InliningBehavior) beforeTraverseNode(p0 *NodeTraversal, p1 Node, p2 Node) {
-	ReferenceCollector_Behavior_beforeTraverseNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2)
+	ReferenceCollector_Behavior_beforeTraverseNode_default(this, p0, p1, p2)
 }
 
 func (this *InlineVariables_InliningBehavior) afterVisitNode(p0 *NodeTraversal, p1 Node, p2 Node, p3 *Reference) {
-	ReferenceCollector_Behavior_afterVisitNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2, p3)
+	ReferenceCollector_Behavior_afterVisitNode_default(this, p0, p1, p2, p3)
 }
 
 const InlineVariables_InliningBehavior_MAX_MODERATE_MOTION_STEPS int32 = 5000
@@ -531,7 +560,9 @@ func new_InlineVariables_InliningBehavior_AliasInlineRetryHandler(outer_ *Inline
 
 func (this *InlineVariables_InliningBehavior_AliasInlineRetryHandler) handleAliasedVarCompletion(aliasedVar *Var, aliasedVarAnalyis *InlineVariables_InlineVarAnalysis) {
 	var newAnalysis *InlineVariables_InlineVarAnalysis = this.expert.reanalyzeAfterAliasedVar(aliasedVar, aliasedVarAnalyis)
-	Preconditions_checkState_boolean_String_Object(!newAnalysis.shouldWaitForAliasedVar(), "expert for %s asked to wait a second time", obj_(this.v))
+	if newAnalysis.shouldWaitForAliasedVar() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("expert for %s asked to wait a second time", []any{obj_(this.v)})))
+	}
 	if newAnalysis.shouldInline() {
 		newAnalysis.performInline()
 	}
@@ -599,7 +630,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) isNeverAssigned(
 	} else {
 		return unbox_[bool](this.isNeverAssignedField.setKnownValueOnce(any(bool(this.referenceInfo.isNeverAssigned()))))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) isWellDefined() bool {
@@ -608,7 +638,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) isWellDefined() 
 	} else {
 		return unbox_[bool](this.isWellDefinedField.setKnownValueOnce(any(bool(this.referenceInfo.isWellDefined()))))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) isAssignedOnceInLifetime() bool {
@@ -617,7 +646,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) isAssignedOnceIn
 	} else {
 		return unbox_[bool](this.isAssignedOnceInLifetimeField.setKnownValueOnce(any(bool(this.referenceInfo.isAssignedOnceInLifetime()))))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) isReferencedWeakly() bool {
@@ -626,7 +654,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) isReferencedWeak
 	} else {
 		return unbox_[bool](this.isReferencedWeaklyField.setKnownValueOnce(any(bool(this.referenceInfo.isReferencedWeakly()))))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) isWellDefinedAssignedOnce() bool {
@@ -635,7 +662,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) isWellDefinedAss
 	} else {
 		return unbox_[bool](this.isWellDefinedAssignedOnceField.setKnownValueOnce(any(bool((((!this.isWellDefinedField.isKnownToBe(any(bool(false))) && !this.isAssignedOnceInLifetimeField.isKnownToBe(any(bool(false)))) && this.isWellDefined()) && this.isAssignedOnceInLifetime())))))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) getInitialization() *Reference {
@@ -650,7 +676,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) getInitializatio
 		}()
 		return this.initializationReference.setKnownValueOnce(initRef)
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) hasValidDeclaration() bool {
@@ -681,7 +706,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) allReferencesAre
 		}
 		return unbox_[bool](this.allReferencesAreValidField.setKnownValueOnce(any(bool(false))))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) analyze_impl() *InlineVariables_InlineVarAnalysis {
@@ -712,11 +736,11 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) analyzeWithIniti
 	var refCount int32 = this.referenceInfo.references.size()
 	if (refCount > 1) && this.allReferencesAreValid() {
 		if this.referenceInfo.isNeverAssigned() {
-			return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(&Runnable_fn{func() {
+			return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(func() {
 				var srcLocation Node = this.declaration_.getNode()
 				var undefinedNode Node = NodeUtil_newUndefinedNode(srcLocation)
 				this.outer_.inlineWellDefinedVariable(this.v, undefinedNode, this.referenceInfo.references)
-			}}).up_InlineVariables_InlineVarAnalysis()
+			}).up_InlineVariables_InlineVarAnalysis()
 		}
 		if this.isWellDefined() && (initialValueAnalysis.isImmutableValue() || (initValue.isThis() && !this.referenceInfo.isThisRebound())) {
 			return this.createInlineWellDefinedVarAnalysis(initValue).up_InlineVariables_InlineVarAnalysis()
@@ -734,9 +758,9 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) analyzeWithIniti
 		if numReadRefs == 1 {
 			var singleReadReference *Reference = this.referenceInfo.references.get(firstReadRefIndex)
 			if this.outer_.canInline(this.declaration_, initialization, singleReadReference, initValue) {
-				return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(&Runnable_fn{func() {
+				return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(func() {
 					this.outer_.inline(this.declaration_, initialization, singleReadReference)
-				}}).up_InlineVariables_InlineVarAnalysis()
+				}).up_InlineVariables_InlineVarAnalysis()
 			}
 		}
 	}
@@ -754,9 +778,9 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) getNegativeInlin
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) createInlineWellDefinedVarAnalysis(initValue Node) *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis {
-	return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(&Runnable_fn{func() {
+	return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(func() {
 		this.outer_.inlineWellDefinedVariable(this.v, initValue, this.referenceInfo.references)
-	}})
+	})
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) reanalyzeAfterAliasedVar_impl(aliasedVar *Var, aliasedVarAnalysis *InlineVariables_InlineVarAnalysis) *InlineVariables_InlineVarAnalysis {
@@ -771,7 +795,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) reanalyzeAfterAl
 	if (this.isDeclaredOrInferredConstant && initialValueAnalysis.isImmutableValue()) && this.isAssignedOnceInLifetime() {
 		return this.createInlineWellDefinedVarAnalysis(initValue).up_InlineVariables_InlineVarAnalysis()
 	}
-	if ((initialValueAnalysis.isAlias() && Objects_equals(obj_(aliasedVar), obj_(initialValueAnalysis.getAliasedVar()))) && aliasedVarAnalysis.isSafeToInlineAliases()) && this.isWellDefinedAssignedOnce() {
+	if ((initialValueAnalysis.isAlias() && objequalsBy_(aliasedVar, obj_(initialValueAnalysis.getAliasedVar()), (*Var).equals)) && aliasedVarAnalysis.isSafeToInlineAliases()) && this.isWellDefinedAssignedOnce() {
 		return this.createInlineWellDefinedVarAnalysis(initValue).up_InlineVariables_InlineVarAnalysis()
 	}
 	return this.analyzeWithInitialValue(initialization, initValue, initialValueAnalysis)
@@ -807,7 +831,6 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnaly
 	} else {
 		return unbox_[bool](this.isImmutableValueField.setKnownValueOnce(any(bool(((this.value_ != 0) && NodeUtil_isImmutableValue(this.value_))))))
 	}
-	panic("unreachable")
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnalysis) isAlias() bool {
@@ -824,17 +847,16 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnaly
 				if aliasedName == this.outer_.v.getName() {
 					return nil
 				}
-				return cast_[*Var](cast_[*Scope](this.outer_.v.getScope()).getVar(aliasedName).self())
+				return cast_[*Var](this.outer_.v.getScope().(*Scope).getVar(aliasedName).self())
 			}())
 		}
 		return this.aliasedVar.setKnownValueOnce(nil)
 	}
-	panic("unreachable")
 }
 
 type InlineVariables_InliningBehavior_PositiveInlineVarAnalysis struct {
 	InlineVariables_InlineVarAnalysis
-	inliner Runnable
+	inliner func()
 }
 
 func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) up_InlineVariables_InlineVarAnalysis() *InlineVariables_InlineVarAnalysis {
@@ -844,12 +866,12 @@ func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) up_Inlin
 	return &this.InlineVariables_InlineVarAnalysis
 }
 
-func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) init_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(inliner Runnable) {
+func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) init_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(inliner func()) {
 	this.InlineVariables_InlineVarAnalysis.init_InlineVariables_InlineVarAnalysis()
 	this.inliner = inliner
 }
 
-func new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(inliner Runnable) *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis {
+func new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(inliner func()) *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis {
 	this := &InlineVariables_InliningBehavior_PositiveInlineVarAnalysis{}
 	this.self_ = this
 	this.init_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(inliner)
@@ -861,7 +883,7 @@ func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) shouldIn
 }
 
 func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) performInline_impl() {
-	this.inliner.run()
+	this.inliner()
 }
 
 func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) isSafeToInlineAliases_impl() bool {
@@ -901,7 +923,7 @@ func (this *InlineVariables_InliningBehavior_VarIsAliasAnalysis) getAliasedVar_i
 }
 
 func (this *InlineVariables_InliningBehavior_VarIsAliasAnalysis) isSafeToInlineAliases_impl() bool {
-	panic(new_UnsupportedOperationException_String("analysis is incomplete").self())
+	panic(new_UnsupportedOperationException_String("analysis is incomplete"))
 }
 
 type InlineVariables_InliningBehavior_VarExpertInitData struct {
@@ -927,11 +949,6 @@ type InlineVariables_InitiallyUnknown[T any] struct {
 }
 
 func (this *InlineVariables_InitiallyUnknown[T]) isa_InlineVariables_InitiallyUnknown_() {}
-
-func is_InlineVariables_InitiallyUnknown(v any) bool {
-	_, ok := v.(interface{ isa_InlineVariables_InitiallyUnknown_() })
-	return ok
-}
 
 func (this *InlineVariables_InitiallyUnknown[T]) zero_InlineVariables_InitiallyUnknown() {
 	this.value_ = jnull_[T]()
@@ -970,14 +987,18 @@ func (this *InlineVariables_InitiallyUnknown[T]) isKnownNotToBe(other T) bool {
 }
 
 func (this *InlineVariables_InitiallyUnknown[T]) setKnownValueOnce(value T) T {
-	Preconditions_checkState_boolean_Object(!this.isKnownField, strobj_("already known"))
+	if this.isKnownField {
+		panic(new_IllegalStateException_String("already known"))
+	}
 	this.value_ = value
 	this.isKnownField = true
 	return value
 }
 
 func (this *InlineVariables_InitiallyUnknown[T]) getKnownValue() T {
-	Preconditions_checkState_boolean_Object(this.isKnownField, strobj_("not yet known"))
+	if !this.isKnownField {
+		panic(new_IllegalStateException_String("not yet known"))
+	}
 	return this.value_
 }
 
@@ -1107,4 +1128,101 @@ func new_InlineVariables_InliningBehavior_StandardVarExpert_1(outer_ *InlineVari
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert_1) isSafeToInlineAliases_impl() bool {
 	return this.outer_.isWellDefinedAssignedOnce()
+}
+
+// analyze: an object that is exactly a InlineVariables_InliningBehavior_StandardVarExpert calls its analyze_impl directly (post-flip); others dispatch.
+func (this *InlineVariables_InliningBehavior_StandardVarExpert) analyze() *InlineVariables_InlineVarAnalysis {
+	if p, _ := this.self_.(*InlineVariables_InliningBehavior_StandardVarExpert); p == this {
+		return this.analyze_impl()
+	}
+	return this.self_.analyze_impl()
+}
+
+// reanalyzeAfterAliasedVar: an object that is exactly a InlineVariables_InliningBehavior_StandardVarExpert calls its reanalyzeAfterAliasedVar_impl directly (post-flip); others dispatch.
+func (this *InlineVariables_InliningBehavior_StandardVarExpert) reanalyzeAfterAliasedVar(p0 *Var, p1 *InlineVariables_InlineVarAnalysis) *InlineVariables_InlineVarAnalysis {
+	if p, _ := this.self_.(*InlineVariables_InliningBehavior_StandardVarExpert); p == this {
+		return this.reanalyzeAfterAliasedVar_impl(p0, p1)
+	}
+	return this.self_.reanalyzeAfterAliasedVar_impl(p0, p1)
+}
+
+// shouldInline: an object that is exactly a InlineVariables_InliningBehavior_PositiveInlineVarAnalysis calls its shouldInline_impl directly (post-flip); others dispatch.
+func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) shouldInline() bool {
+	if p, _ := this.self_.(*InlineVariables_InliningBehavior_PositiveInlineVarAnalysis); p == this {
+		return this.shouldInline_impl()
+	}
+	return this.self_.shouldInline_impl()
+}
+
+// performInline: an object that is exactly a InlineVariables_InliningBehavior_PositiveInlineVarAnalysis calls its performInline_impl directly (post-flip); others dispatch.
+func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) performInline() {
+	if p, _ := this.self_.(*InlineVariables_InliningBehavior_PositiveInlineVarAnalysis); p == this {
+		this.performInline_impl()
+		return
+	}
+	this.self_.performInline_impl()
+}
+
+// isSafeToInlineAliases: an object that is exactly a InlineVariables_InliningBehavior_PositiveInlineVarAnalysis calls its isSafeToInlineAliases_impl directly (post-flip); others dispatch.
+func (this *InlineVariables_InliningBehavior_PositiveInlineVarAnalysis) isSafeToInlineAliases() bool {
+	if p, _ := this.self_.(*InlineVariables_InliningBehavior_PositiveInlineVarAnalysis); p == this {
+		return this.isSafeToInlineAliases_impl()
+	}
+	return this.self_.isSafeToInlineAliases_impl()
+}
+
+// shouldWaitForAliasedVar: an object that is exactly a InlineVariables_InliningBehavior_VarIsAliasAnalysis calls its shouldWaitForAliasedVar_impl directly (post-flip); others dispatch.
+func (this *InlineVariables_InliningBehavior_VarIsAliasAnalysis) shouldWaitForAliasedVar() bool {
+	if p, _ := this.self_.(*InlineVariables_InliningBehavior_VarIsAliasAnalysis); p == this {
+		return this.shouldWaitForAliasedVar_impl()
+	}
+	return this.self_.shouldWaitForAliasedVar_impl()
+}
+
+// getAliasedVar: an object that is exactly a InlineVariables_InliningBehavior_VarIsAliasAnalysis calls its getAliasedVar_impl directly (post-flip); others dispatch.
+func (this *InlineVariables_InliningBehavior_VarIsAliasAnalysis) getAliasedVar() *Var {
+	if p, _ := this.self_.(*InlineVariables_InliningBehavior_VarIsAliasAnalysis); p == this {
+		return this.getAliasedVar_impl()
+	}
+	return this.self_.getAliasedVar_impl()
+}
+
+// isSafeToInlineAliases: an object that is exactly a InlineVariables_InliningBehavior_VarIsAliasAnalysis calls its isSafeToInlineAliases_impl directly (post-flip); others dispatch.
+func (this *InlineVariables_InliningBehavior_VarIsAliasAnalysis) isSafeToInlineAliases() bool {
+	if p, _ := this.self_.(*InlineVariables_InliningBehavior_VarIsAliasAnalysis); p == this {
+		return this.isSafeToInlineAliases_impl()
+	}
+	return this.self_.isSafeToInlineAliases_impl()
+}
+
+// analyze: an object that is exactly a InlineVariables_1 calls its analyze_impl directly (post-flip); others dispatch.
+func (this *InlineVariables_1) analyze() *InlineVariables_InlineVarAnalysis {
+	if p, _ := this.self_.(*InlineVariables_1); p == this {
+		return this.analyze_impl()
+	}
+	return this.self_.analyze_impl()
+}
+
+// analyze: an object that is exactly a InlineVariables_2 calls its analyze_impl directly (post-flip); others dispatch.
+func (this *InlineVariables_2) analyze() *InlineVariables_InlineVarAnalysis {
+	if p, _ := this.self_.(*InlineVariables_2); p == this {
+		return this.analyze_impl()
+	}
+	return this.self_.analyze_impl()
+}
+
+// isSafeToInlineAliases: an object that is exactly a InlineVariables_4 calls its isSafeToInlineAliases_impl directly (post-flip); others dispatch.
+func (this *InlineVariables_4) isSafeToInlineAliases() bool {
+	if p, _ := this.self_.(*InlineVariables_4); p == this {
+		return this.isSafeToInlineAliases_impl()
+	}
+	return this.self_.isSafeToInlineAliases_impl()
+}
+
+// isSafeToInlineAliases: an object that is exactly a InlineVariables_InliningBehavior_StandardVarExpert_1 calls its isSafeToInlineAliases_impl directly (post-flip); others dispatch.
+func (this *InlineVariables_InliningBehavior_StandardVarExpert_1) isSafeToInlineAliases() bool {
+	if p, _ := this.self_.(*InlineVariables_InliningBehavior_StandardVarExpert_1); p == this {
+		return this.isSafeToInlineAliases_impl()
+	}
+	return this.self_.isSafeToInlineAliases_impl()
 }

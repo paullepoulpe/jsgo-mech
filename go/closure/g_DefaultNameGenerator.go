@@ -17,8 +17,8 @@ func (this *DefaultNameGenerator) zero_DefaultNameGenerator() {
 
 func (this *DefaultNameGenerator) init_DefaultNameGenerator_0() {
 	this.buildPriorityLookupMap()
-	var reservedNames SetOf[string] = icast_Set(obj_(Sets_newLinkedHashSetWithExpectedSize(0)))
-	this.reset(reservedNames, "", icast_Set(obj_(ImmutableSet_of())))
+	var reservedNames SetOf[string] = Sets_newLinkedHashSetWithExpectedSize(0)
+	this.reset(reservedNames, "", ImmutableSet_of())
 }
 
 func new_DefaultNameGenerator_0() *DefaultNameGenerator {
@@ -52,11 +52,9 @@ func new_DefaultNameGenerator_Set_String_Set_Set(reservedNames SetOf[string], pr
 }
 
 func (this *DefaultNameGenerator) init_DefaultNameGenerator_Set_String_Set_Set_Map(reservedNames SetOf[string], prefix string, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], priorityLookupMap MapOf[BoxedOf[uint16], *DefaultNameGenerator_CharPriority]) {
-	this.priorityLookupMap = icast_Map(obj_(Maps_newLinkedHashMapWithExpectedSize(int32(len(DefaultNameGenerator_NONFIRST_CHAR)))))
-	it_1 := foreach_(any(priorityLookupMap.entrySet()))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		this.priorityLookupMap.put(entry.getKey(), cast_[*DefaultNameGenerator_CharPriority](entry.getValue()).clone())
+	this.priorityLookupMap = Maps_newLinkedHashMapWithExpectedSize(int32(len(DefaultNameGenerator_NONFIRST_CHAR)))
+	for entry := range elemsBy_(priorityLookupMap.entrySet(), icast_Map_Entry) {
+		this.priorityLookupMap.put(entry.getKey(), entry.getValue().(*DefaultNameGenerator_CharPriority).clone())
 	}
 	this.reset_4(reservedNames, prefix, reservedFirstCharacters, reservedNonFirstCharacters)
 }
@@ -69,7 +67,7 @@ func new_DefaultNameGenerator_Set_String_Set_Set_Map(reservedNames SetOf[string]
 }
 
 func (this *DefaultNameGenerator) buildPriorityLookupMap() {
-	this.priorityLookupMap = icast_Map(obj_(Maps_newLinkedHashMapWithExpectedSize(int32(len(DefaultNameGenerator_NONFIRST_CHAR)))))
+	this.priorityLookupMap = Maps_newLinkedHashMapWithExpectedSize(int32(len(DefaultNameGenerator_NONFIRST_CHAR)))
 	var order int32 = 0
 	for _, c := range DefaultNameGenerator_NONFIRST_CHAR {
 		this.priorityLookupMap.put(any(uint16(c)), obj_(new_DefaultNameGenerator_CharPriority(c, order)))
@@ -78,7 +76,7 @@ func (this *DefaultNameGenerator) buildPriorityLookupMap() {
 }
 
 func DefaultNameGenerator_isBadName(name string) bool {
-	return Collection_contains_s(DefaultNameGenerator_BAD_NAMES, name)
+	return DefaultNameGenerator_BAD_NAMES.Has(name)
 }
 
 func (this *DefaultNameGenerator) reset(reservedNames SetOf[string], prefix string, reservedCharacters SetOf[BoxedOf[uint16]]) {
@@ -111,7 +109,7 @@ func (this *DefaultNameGenerator) reset_4(reservedNames SetOf[string], prefix st
 }
 
 func (this *DefaultNameGenerator) clone(reservedNames SetOf[string], prefix string, reservedCharacters SetOf[BoxedOf[uint16]]) NameGenerator {
-	return icast_NameGenerator(obj_(new_DefaultNameGenerator_Set_String_Set_Set_Map(reservedNames, prefix, reservedCharacters, reservedCharacters, this.priorityLookupMap)))
+	return new_DefaultNameGenerator_Set_String_Set_Set_Map(reservedNames, prefix, reservedCharacters, reservedCharacters, this.priorityLookupMap)
 }
 
 func (this *DefaultNameGenerator) favors(sequence any) {
@@ -145,21 +143,21 @@ func (this *DefaultNameGenerator) reserveCharacters(chars []uint16, reservedChar
 }
 
 func (this *DefaultNameGenerator) checkPrefix(prefix string) {
-	if String_length(prefix) > 0 {
+	if len(prefix) != 0 {
 		if !DefaultNameGenerator_contains(this.firstChars, String_charAt(prefix, 0)) {
 			var chars []uint16 = make([]uint16, int32(len(this.firstChars)))
 			for i := int32(0); i < int32(len(chars)); i++ {
 				chars[i] = this.firstChars[i].name_
 			}
-			panic(new_IllegalArgumentException_String(("prefix must start with one of: " + sstr_(Arrays_toString(chars)))).self())
+			panic(new_IllegalArgumentException_String(("prefix must start with one of: " + sstr_(Arrays_toString(chars)))))
 		}
-		for pos := int32(1); pos < String_length(prefix); pos++ {
+		for _, u_ := range stringUnitsFrom_(prefix, int32(1)) {
 			var chars []uint16 = make([]uint16, int32(len(this.nonFirstChars)))
 			for i := int32(0); i < int32(len(chars)); i++ {
 				chars[i] = this.nonFirstChars[i].name_
 			}
-			if !DefaultNameGenerator_contains(this.nonFirstChars, String_charAt(prefix, pos)) {
-				panic(new_IllegalArgumentException_String(("prefix has invalid characters, must be one of: " + sstr_(Arrays_toString(chars)))).self())
+			if !DefaultNameGenerator_contains(this.nonFirstChars, u_) {
+				panic(new_IllegalArgumentException_String(("prefix has invalid characters, must be one of: " + sstr_(Arrays_toString(chars)))))
 			}
 		}
 	}
@@ -177,9 +175,9 @@ func DefaultNameGenerator_contains(arr []*DefaultNameGenerator_CharPriority, c u
 func (this *DefaultNameGenerator) generateNextName() string {
 	var name string
 	for do_2 := true; do_2; do_2 = ((TokenStream_isKeyword(name) || Collection_contains_s(this.reservedNames, name)) || DefaultNameGenerator_isBadName(name)) {
-		var sb *StringBuilder = new_StringBuilder()
+		var sb strBuilder_
 		var i int32 = this.nameCount
-		if !String_isEmpty(this.prefix_) {
+		if this.prefix_ != "" {
 			sb.append(this.prefix_)
 		}
 		if sb.length() == 0 {
@@ -194,14 +192,14 @@ func (this *DefaultNameGenerator) generateNextName() string {
 			i /= int32(len(this.nonFirstChars))
 		}
 		this.nameCount++
-		name = Object_toString(obj_(sb))
+		name = sb.toString()
 	}
 	return name
 }
 
 var DefaultNameGenerator_FIRST_CHAR []uint16
 var DefaultNameGenerator_NONFIRST_CHAR []uint16
-var DefaultNameGenerator_BAD_NAMES *ImmutableSet
+var DefaultNameGenerator_BAD_NAMES *ImmutableSet[string]
 
 var DefaultNameGenerator_clinit_done bool
 
@@ -210,9 +208,9 @@ func DefaultNameGenerator_clinit() {
 		return
 	}
 	DefaultNameGenerator_clinit_done = true
-	DefaultNameGenerator_FIRST_CHAR = String_toCharArray("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$")
-	DefaultNameGenerator_NONFIRST_CHAR = String_toCharArray("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789$")
-	DefaultNameGenerator_BAD_NAMES = ImmutableSet_of_Object_Object_Object_Object(strobj_("let"), strobj_("yield"), strobj_("await"), strobj_("eval"))
+	DefaultNameGenerator_FIRST_CHAR = []uint16{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '$'}
+	DefaultNameGenerator_NONFIRST_CHAR = []uint16{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '$'}
+	DefaultNameGenerator_BAD_NAMES = immutableSetOf_(tc_string, "let", "yield", "await", "eval")
 
 }
 

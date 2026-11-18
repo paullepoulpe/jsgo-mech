@@ -5,7 +5,7 @@ package closure
 type UpdateExpressionTree struct {
 	ParseTree
 	operator         *Token_parser
-	operatorPosition *UpdateExpressionTree_OperatorPosition
+	operatorPosition UpdateExpressionTree_OperatorPosition
 	operand          *ParseTree
 }
 
@@ -16,14 +16,14 @@ func (this *UpdateExpressionTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *UpdateExpressionTree) init_UpdateExpressionTree(location *SourceRange, operator *Token_parser, operatorPosition *UpdateExpressionTree_OperatorPosition, operand *ParseTree) {
+func (this *UpdateExpressionTree) init_UpdateExpressionTree(location *SourceRange, operator *Token_parser, operatorPosition UpdateExpressionTree_OperatorPosition, operand *ParseTree) {
 	this.ParseTree.init_ParseTree(ParseTreeType_UPDATE_EXPRESSION, location)
 	this.operator = operator
 	this.operatorPosition = operatorPosition
 	this.operand = operand
 }
 
-func new_UpdateExpressionTree(location *SourceRange, operator *Token_parser, operatorPosition *UpdateExpressionTree_OperatorPosition, operand *ParseTree) *UpdateExpressionTree {
+func new_UpdateExpressionTree(location *SourceRange, operator *Token_parser, operatorPosition UpdateExpressionTree_OperatorPosition, operand *ParseTree) *UpdateExpressionTree {
 	this := &UpdateExpressionTree{}
 	this.self_ = this
 	this.init_UpdateExpressionTree(location, operator, operatorPosition, operand)
@@ -38,44 +38,64 @@ func UpdateExpressionTree_postfix(location *SourceRange, operator *Token_parser,
 	return new_UpdateExpressionTree(location, operator, UpdateExpressionTree_OperatorPosition_POSTFIX, operand)
 }
 
-type UpdateExpressionTree_OperatorPosition struct {
-	Enum
+type UpdateExpressionTree_OperatorPosition uint8
+
+// UpdateExpressionTree_OperatorPosition_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var UpdateExpressionTree_OperatorPosition_enum_ = [2]Enum{
+	{self_: UpdateExpressionTree_OperatorPosition_PREFIX, name_: "PREFIX", ordinal_: 0},
+	{self_: UpdateExpressionTree_OperatorPosition_POSTFIX, name_: "POSTFIX", ordinal_: 1},
 }
 
-func (this *UpdateExpressionTree_OperatorPosition) up_Enum() *Enum {
-	if this == nil {
+func (this UpdateExpressionTree_OperatorPosition) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &UpdateExpressionTree_OperatorPosition_enum_[this-1]
 }
 
-func (this *UpdateExpressionTree_OperatorPosition) init_UpdateExpressionTree_OperatorPosition(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this UpdateExpressionTree_OperatorPosition) name() string {
+	return this.enum_().name_
 }
 
-func new_UpdateExpressionTree_OperatorPosition(name_ string, ordinal_ int32) *UpdateExpressionTree_OperatorPosition {
-	this := &UpdateExpressionTree_OperatorPosition{}
-	this.self_ = this
-	this.init_UpdateExpressionTree_OperatorPosition(name_, ordinal_)
+func (this UpdateExpressionTree_OperatorPosition) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this UpdateExpressionTree_OperatorPosition) toString() string {
+	return this.enum_().name_
+}
+
+func (this UpdateExpressionTree_OperatorPosition) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this UpdateExpressionTree_OperatorPosition) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func UpdateExpressionTree_OperatorPosition_values() []*UpdateExpressionTree_OperatorPosition {
-	return append([]*UpdateExpressionTree_OperatorPosition(nil), UpdateExpressionTree_OperatorPosition_values_...)
+func UpdateExpressionTree_OperatorPosition_values() []UpdateExpressionTree_OperatorPosition {
+	return append([]UpdateExpressionTree_OperatorPosition(nil), UpdateExpressionTree_OperatorPosition_values_...)
 }
 
-func UpdateExpressionTree_OperatorPosition_valueOf(name string) *UpdateExpressionTree_OperatorPosition {
+func UpdateExpressionTree_OperatorPosition_valueOf(name string) UpdateExpressionTree_OperatorPosition {
 	for _, v := range UpdateExpressionTree_OperatorPosition_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("OperatorPosition", name))
 }
 
-var UpdateExpressionTree_OperatorPosition_PREFIX *UpdateExpressionTree_OperatorPosition
-var UpdateExpressionTree_OperatorPosition_POSTFIX *UpdateExpressionTree_OperatorPosition
-var UpdateExpressionTree_OperatorPosition_values_ []*UpdateExpressionTree_OperatorPosition
+const UpdateExpressionTree_OperatorPosition_PREFIX UpdateExpressionTree_OperatorPosition = 1
+const UpdateExpressionTree_OperatorPosition_POSTFIX UpdateExpressionTree_OperatorPosition = 2
+
+var UpdateExpressionTree_OperatorPosition_values_ []UpdateExpressionTree_OperatorPosition
 
 var UpdateExpressionTree_OperatorPosition_clinit_done bool
 
@@ -84,9 +104,7 @@ func UpdateExpressionTree_OperatorPosition_clinit() {
 		return
 	}
 	UpdateExpressionTree_OperatorPosition_clinit_done = true
-	UpdateExpressionTree_OperatorPosition_PREFIX = new_UpdateExpressionTree_OperatorPosition("PREFIX", 0)
-	UpdateExpressionTree_OperatorPosition_POSTFIX = new_UpdateExpressionTree_OperatorPosition("POSTFIX", 1)
-	UpdateExpressionTree_OperatorPosition_values_ = []*UpdateExpressionTree_OperatorPosition{UpdateExpressionTree_OperatorPosition_PREFIX, UpdateExpressionTree_OperatorPosition_POSTFIX}
+	UpdateExpressionTree_OperatorPosition_values_ = []UpdateExpressionTree_OperatorPosition{UpdateExpressionTree_OperatorPosition_PREFIX, UpdateExpressionTree_OperatorPosition_POSTFIX}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.trees.UpdateExpressionTree.OperatorPosition", enumValues_(UpdateExpressionTree_OperatorPosition_values_))
 
 }

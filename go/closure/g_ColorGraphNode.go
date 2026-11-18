@@ -4,7 +4,7 @@ package closure
 
 type ColorGraphNode struct {
 	color_          *Color
-	associatedProps *JTMap[*PropertyClustering, *ColorGraphNode_PropAssociation]
+	associatedProps *JTMap[*PropertyClustering, ColorGraphNode_PropAssociation]
 	index_          int32
 	subtypeIndices  *BitSet
 }
@@ -16,7 +16,9 @@ func (this *ColorGraphNode) finit_ColorGraphNode() {
 
 func (this *ColorGraphNode) init_ColorGraphNode(single *Color, index int32) {
 	this.finit_ColorGraphNode()
-	Preconditions_checkNotNull(obj_(single))
+	if single == nil {
+		panic(new_NullPointerException_0())
+	}
 	this.index_ = index
 	this.color_ = single
 }
@@ -28,29 +30,38 @@ func new_ColorGraphNode(single *Color, index int32) *ColorGraphNode {
 }
 
 func ColorGraphNode_create(single *Color, index int32) *ColorGraphNode {
-	Preconditions_checkArgument((index >= 0))
+	if index < 0 {
+		panic(new_IllegalArgumentException_0())
+	}
 	return new_ColorGraphNode(single, index)
 }
 
 func ColorGraphNode_createForTesting_int(index int32) *ColorGraphNode {
-	Preconditions_checkArgument((index < 0))
+	if index >= 0 {
+		panic(new_IllegalArgumentException_0())
+	}
 	return new_ColorGraphNode(StandardColors_UNKNOWN, index)
 }
 
 func ColorGraphNode_createForTesting_Color_int(single *Color, index int32) *ColorGraphNode {
-	Preconditions_checkArgument((index < 0))
+	if index >= 0 {
+		panic(new_IllegalArgumentException_0())
+	}
 	return new_ColorGraphNode(single, index)
 }
 
 func (this *ColorGraphNode) getColor() *Color {
-	return cast_[*Color](Preconditions_checkNotNull(obj_(this.color_)))
+	if this.color_ == nil {
+		panic(new_NullPointerException_0())
+	}
+	return this.color_
 }
 
 func (this *ColorGraphNode) getIndex() int32 {
 	return this.index_
 }
 
-func (this *ColorGraphNode) getAssociatedProps() *JTMap[*PropertyClustering, *ColorGraphNode_PropAssociation] {
+func (this *ColorGraphNode) getAssociatedProps() *JTMap[*PropertyClustering, ColorGraphNode_PropAssociation] {
 	return this.associatedProps
 }
 
@@ -59,48 +70,69 @@ func (this *ColorGraphNode) getSubtypeIndices() *BitSet {
 }
 
 func (this *ColorGraphNode) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add_String_int("index", this.index_).add("color.id", obj_(this.color_.getId())).add("color.ownProperties", obj_(this.color_.getOwnProperties()))))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add_String_int("index", this.index_).add("color.id", obj_(this.color_.getId())).add("color.ownProperties", obj_(this.color_.getOwnProperties().asImm())))
 }
 
-type ColorGraphNode_PropAssociation struct {
-	Enum
+type ColorGraphNode_PropAssociation uint8
+
+// ColorGraphNode_PropAssociation_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ColorGraphNode_PropAssociation_enum_ = [3]Enum{
+	{self_: ColorGraphNode_PropAssociation_AST, name_: "AST", ordinal_: 0},
+	{self_: ColorGraphNode_PropAssociation_TYPE_SYSTEM, name_: "TYPE_SYSTEM", ordinal_: 1},
+	{self_: ColorGraphNode_PropAssociation_SUPERTYPE, name_: "SUPERTYPE", ordinal_: 2},
 }
 
-func (this *ColorGraphNode_PropAssociation) up_Enum() *Enum {
-	if this == nil {
+func (this ColorGraphNode_PropAssociation) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ColorGraphNode_PropAssociation_enum_[this-1]
 }
 
-func (this *ColorGraphNode_PropAssociation) init_ColorGraphNode_PropAssociation(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ColorGraphNode_PropAssociation) name() string {
+	return this.enum_().name_
 }
 
-func new_ColorGraphNode_PropAssociation(name_ string, ordinal_ int32) *ColorGraphNode_PropAssociation {
-	this := &ColorGraphNode_PropAssociation{}
-	this.self_ = this
-	this.init_ColorGraphNode_PropAssociation(name_, ordinal_)
+func (this ColorGraphNode_PropAssociation) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ColorGraphNode_PropAssociation) toString() string {
+	return this.enum_().name_
+}
+
+func (this ColorGraphNode_PropAssociation) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ColorGraphNode_PropAssociation) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ColorGraphNode_PropAssociation_values() []*ColorGraphNode_PropAssociation {
-	return append([]*ColorGraphNode_PropAssociation(nil), ColorGraphNode_PropAssociation_values_...)
+func ColorGraphNode_PropAssociation_values() []ColorGraphNode_PropAssociation {
+	return append([]ColorGraphNode_PropAssociation(nil), ColorGraphNode_PropAssociation_values_...)
 }
 
-func ColorGraphNode_PropAssociation_valueOf(name string) *ColorGraphNode_PropAssociation {
+func ColorGraphNode_PropAssociation_valueOf(name string) ColorGraphNode_PropAssociation {
 	for _, v := range ColorGraphNode_PropAssociation_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("PropAssociation", name))
 }
 
-var ColorGraphNode_PropAssociation_AST *ColorGraphNode_PropAssociation
-var ColorGraphNode_PropAssociation_TYPE_SYSTEM *ColorGraphNode_PropAssociation
-var ColorGraphNode_PropAssociation_SUPERTYPE *ColorGraphNode_PropAssociation
-var ColorGraphNode_PropAssociation_values_ []*ColorGraphNode_PropAssociation
+const ColorGraphNode_PropAssociation_AST ColorGraphNode_PropAssociation = 1
+const ColorGraphNode_PropAssociation_TYPE_SYSTEM ColorGraphNode_PropAssociation = 2
+const ColorGraphNode_PropAssociation_SUPERTYPE ColorGraphNode_PropAssociation = 3
+
+var ColorGraphNode_PropAssociation_values_ []ColorGraphNode_PropAssociation
 
 var ColorGraphNode_PropAssociation_clinit_done bool
 
@@ -109,10 +141,7 @@ func ColorGraphNode_PropAssociation_clinit() {
 		return
 	}
 	ColorGraphNode_PropAssociation_clinit_done = true
-	ColorGraphNode_PropAssociation_AST = new_ColorGraphNode_PropAssociation("AST", 0)
-	ColorGraphNode_PropAssociation_TYPE_SYSTEM = new_ColorGraphNode_PropAssociation("TYPE_SYSTEM", 1)
-	ColorGraphNode_PropAssociation_SUPERTYPE = new_ColorGraphNode_PropAssociation("SUPERTYPE", 2)
-	ColorGraphNode_PropAssociation_values_ = []*ColorGraphNode_PropAssociation{ColorGraphNode_PropAssociation_AST, ColorGraphNode_PropAssociation_TYPE_SYSTEM, ColorGraphNode_PropAssociation_SUPERTYPE}
+	ColorGraphNode_PropAssociation_values_ = []ColorGraphNode_PropAssociation{ColorGraphNode_PropAssociation_AST, ColorGraphNode_PropAssociation_TYPE_SYSTEM, ColorGraphNode_PropAssociation_SUPERTYPE}
 	registerEnum_("com.google.javascript.jscomp.disambiguate.ColorGraphNode.PropAssociation", enumValues_(ColorGraphNode_PropAssociation_values_))
 
 }

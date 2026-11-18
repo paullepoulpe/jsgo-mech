@@ -2,8 +2,10 @@
 
 package closure
 
+import "strings"
+
 type RewriteGoogJsImports struct {
-	mode_              *RewriteGoogJsImports_Mode
+	mode_              RewriteGoogJsImports_Mode
 	moduleMap          *ModuleMap
 	compiler_          *AbstractCompiler
 	googModule         *Module
@@ -14,34 +16,34 @@ func (this *RewriteGoogJsImports) finit_RewriteGoogJsImports() {
 	this.moduleReplacements = jnewTMap_(tce_p_Module, jtc_p_Module)
 }
 
-func (this *RewriteGoogJsImports) init_RewriteGoogJsImports(compiler *AbstractCompiler, mode *RewriteGoogJsImports_Mode, moduleMap *ModuleMap) {
+func (this *RewriteGoogJsImports) init_RewriteGoogJsImports(compiler *AbstractCompiler, mode RewriteGoogJsImports_Mode, moduleMap *ModuleMap) {
 	this.finit_RewriteGoogJsImports()
-	Preconditions_checkNotNull(obj_(moduleMap))
+	if moduleMap == nil {
+		panic(new_NullPointerException_0())
+	}
 	this.compiler_ = compiler
 	this.mode_ = mode
 	this.moduleMap = moduleMap
 }
 
-func new_RewriteGoogJsImports(compiler *AbstractCompiler, mode *RewriteGoogJsImports_Mode, moduleMap *ModuleMap) *RewriteGoogJsImports {
+func new_RewriteGoogJsImports(compiler *AbstractCompiler, mode RewriteGoogJsImports_Mode, moduleMap *ModuleMap) *RewriteGoogJsImports {
 	this := &RewriteGoogJsImports{}
 	this.init_RewriteGoogJsImports(compiler, mode, moduleMap)
 	return this
 }
 
 func (this *RewriteGoogJsImports) changeModules() {
-	var resolvedModules ImmutableMap_BuilderOf[string, *Module] = ImmutableMap_builder()
-	var closureModules ImmutableMap_BuilderOf[string, *Module] = ImmutableMap_builder()
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](this.moduleMap.getModulesByPath().entrySet())))
-	for it_1.next() {
-		var m Map_Entry = icast_Map_Entry(it_1.v)
+	var resolvedModules *ImmutableMap_Builder[string, *Module] = immutableMapBuilder_(tc_string, tc_p_Module)
+	var closureModules *ImmutableMap_Builder[string, *Module] = immutableMapBuilder_(tc_string, tc_p_Module)
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.moduleMap.getModulesByPath().asImm().entrySet())) {
+		m := icast_Map_Entry(el)
 		var newModule *Module = this.moduleReplacements.getOr(cast_[*Module](m.getValue()), cast_[*Module](m.getValue()))
-		resolvedModules.put(m.getKey(), obj_(newModule))
+		resolvedModules.put(str_(m.getKey()), newModule)
 	}
-	it_3 := foreach_(obj_(cast_[*ImmutableSet](this.moduleMap.getModulesByClosureNamespace().entrySet())))
-	for it_3.next() {
-		var m Map_Entry = icast_Map_Entry(it_3.v)
+	for _, el2 := range immElems_(cast_[*ErasedImmutableSet](this.moduleMap.getModulesByClosureNamespace().asImm().entrySet())) {
+		m := icast_Map_Entry(el2)
 		var newModule *Module = this.moduleReplacements.getOr(cast_[*Module](m.getValue()), cast_[*Module](m.getValue()))
-		closureModules.put(m.getKey(), obj_(newModule))
+		closureModules.put(str_(m.getKey()), newModule)
 	}
 	this.compiler_.setModuleMap(new_ModuleMap(resolvedModules.buildOrThrow(), closureModules.buildOrThrow()))
 	this.moduleReplacements.clear()
@@ -53,13 +55,13 @@ func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
 	{
 		var child Node = scriptRoot.getFirstFirstChild()
 		for ; child != 0; child = child.getNext() {
-			if child.isImport() && String_endsWith(child.getLastChild().getString(), "/goog.js") {
+			if child.isImport() && strings.HasSuffix(child.getLastChild().getString(), "/goog.js") {
 				if (child.getFirstChild().isEmpty() && child.getSecondChild().isImportStar()) && (child.getSecondChild().getString() == "goog") {
 					googImportNode = child
 				} else {
 					valid = false
 					this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](scriptRoot.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-						return !String_isEmpty(s)
+						return s != ""
 					}}), child.getLineno(), child.getCharno(), RewriteGoogJsImports_GOOG_JS_IMPORT_MUST_BE_GOOG_STAR, []string{}))
 				}
 			}
@@ -74,7 +76,7 @@ func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
 	var googVar *Var = cast_[*Var](moduleScope.getVar("goog").self())
 	if (googVar != nil) && (googVar.getNameNode() != 0) {
 		this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](scriptRoot.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}}), googVar.getNameNode().getLineno(), googVar.getNameNode().getCharno(), RewriteGoogJsImports_CANNOT_HAVE_MODULE_VAR_NAMED_GOOG, []string{}))
 	}
 	return 0
@@ -83,9 +85,11 @@ func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
 func (this *RewriteGoogJsImports) rewriteImports(scriptRoot Node) {
 	if Es6RewriteModules_isEs6ModuleRoot(scriptRoot) {
 		var googImportNode Node = this.findGoogImportNode(scriptRoot)
-		NodeTraversal_traverse(this.compiler_, scriptRoot, icast_NodeTraversal_Callback(obj_(new_RewriteGoogJsImports_FindReexports((googImportNode != 0)))))
+		NodeTraversal_traverse(this.compiler_, scriptRoot, new_RewriteGoogJsImports_FindReexports((googImportNode != 0)))
 		var module *Module = this.moduleMap.getModule(this.compiler_.getInput(scriptRoot.getInputId()).getPath())
-		Preconditions_checkNotNull(obj_(module))
+		if module == nil {
+			panic(new_NullPointerException_0())
+		}
 		if (googImportNode != 0) && (this.mode_ == RewriteGoogJsImports_Mode_LINT_AND_REWRITE) {
 			var unused *RewriteGoogJsImports_ReferenceReplacer = new_RewriteGoogJsImports_ReferenceReplacer(this, scriptRoot, googImportNode, module, (this.googModule == nil))
 			_ = unused
@@ -98,8 +102,8 @@ func (this *RewriteGoogJsImports) findGoogJsScriptNode(root Node) Node {
 	{
 		var script Node = root.getFirstChild()
 		for ; script != 0; script = script.getNext() {
-			var provides ImmutableListOf[string] = this.compiler_.getInput(script.getInputId()).getProvides()
-			if Collection_contains_s(provides, RewriteGoogJsImports_EXPECTED_BASE_PROVIDE) {
+			var provides *ImmutableList[string] = this.compiler_.getInput(script.getInputId()).getProvides()
+			if Collection_contains_s(provides.asImm(), RewriteGoogJsImports_EXPECTED_BASE_PROVIDE) {
 				expectedGoogPath = this.compiler_.getInput(script.getInputId()).getPath().resolveModuleAsPath("./goog.js")
 				break
 			}
@@ -112,9 +116,9 @@ func (this *RewriteGoogJsImports) findGoogJsScriptNode(root Node) Node {
 			for ; script != 0; script = script.getNext() {
 				if this.compiler_.getInput(script.getInputId()).getPath().equalsIgnoreLeadingSlash(expectedGoogPath) {
 					googScriptNode = script
-				} else if String_endsWith(script.getSourceFileName(), "/goog.js") {
+				} else if strings.HasSuffix(script.getSourceFileName(), "/goog.js") {
 					this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](script.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-						return !String_isEmpty(s)
+						return s != ""
 					}}), -1, -1, RewriteGoogJsImports_CANNOT_NAME_FILE_GOOG, []string{}))
 				}
 			}
@@ -125,7 +129,7 @@ func (this *RewriteGoogJsImports) findGoogJsScriptNode(root Node) Node {
 }
 
 func RewriteGoogJsImports_allFromGoog(bindings CollectionOf[*Binding], googJsPath *ModuleLoader_ModulePath) bool {
-	it_1 := foreach_(any(bindings))
+	it_1 := foreach_(bindings)
 	for it_1.next() {
 		var b *Binding = cast_[*Binding](it_1.v)
 		if b.originatingExport().modulePath() != googJsPath {
@@ -145,13 +149,23 @@ func (this *RewriteGoogJsImports) process_2(externs Node, root Node) {
 		if googJsScriptNode != 0 {
 			var googJsPath *ModuleLoader_ModulePath = this.compiler_.getInput(googJsScriptNode.getInputId()).getPath()
 			this.googModule = this.moduleMap.getModule(googJsPath)
-			Preconditions_checkNotNull(obj_(this.googModule))
-			Preconditions_checkState_boolean_Object(RewriteGoogJsImports_allFromGoog(this.googModule.boundNames().values(), googJsPath), strobj_("goog.js should never import anything"))
-			Preconditions_checkState_boolean_Object(!Map_containsKey_s(this.googModule.namespace(), "default"), strobj_("goog.js should never have a default export."))
-			Preconditions_checkState_boolean_Object(RewriteGoogJsImports_allFromGoog(this.googModule.namespace().values(), googJsPath), strobj_("goog.js should never export from anything."))
+			if this.googModule == nil {
+				panic(new_NullPointerException_0())
+			}
+			if !RewriteGoogJsImports_allFromGoog(this.googModule.boundNames().asImm().values(), googJsPath) {
+				panic(new_IllegalStateException_String("goog.js should never import anything"))
+			}
+			if this.googModule.namespace().Has("default") {
+				panic(new_IllegalStateException_String("goog.js should never have a default export."))
+			}
+			if !RewriteGoogJsImports_allFromGoog(this.googModule.namespace().asImm().values(), googJsPath) {
+				panic(new_IllegalStateException_String("goog.js should never export from anything."))
+			}
 		}
 	} else {
-		Preconditions_checkState((this.mode_ == RewriteGoogJsImports_Mode_LINT_ONLY))
+		if this.mode_ != RewriteGoogJsImports_Mode_LINT_ONLY {
+			panic(new_IllegalStateException_0())
+		}
 	}
 	{
 		var script Node = root.getFirstChild()
@@ -183,44 +197,64 @@ func RewriteGoogJsImports_clinit() {
 
 }
 
-type RewriteGoogJsImports_Mode struct {
-	Enum
+type RewriteGoogJsImports_Mode uint8
+
+// RewriteGoogJsImports_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var RewriteGoogJsImports_Mode_enum_ = [2]Enum{
+	{self_: RewriteGoogJsImports_Mode_LINT_ONLY, name_: "LINT_ONLY", ordinal_: 0},
+	{self_: RewriteGoogJsImports_Mode_LINT_AND_REWRITE, name_: "LINT_AND_REWRITE", ordinal_: 1},
 }
 
-func (this *RewriteGoogJsImports_Mode) up_Enum() *Enum {
-	if this == nil {
+func (this RewriteGoogJsImports_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &RewriteGoogJsImports_Mode_enum_[this-1]
 }
 
-func (this *RewriteGoogJsImports_Mode) init_RewriteGoogJsImports_Mode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this RewriteGoogJsImports_Mode) name() string {
+	return this.enum_().name_
 }
 
-func new_RewriteGoogJsImports_Mode(name_ string, ordinal_ int32) *RewriteGoogJsImports_Mode {
-	this := &RewriteGoogJsImports_Mode{}
-	this.self_ = this
-	this.init_RewriteGoogJsImports_Mode(name_, ordinal_)
+func (this RewriteGoogJsImports_Mode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this RewriteGoogJsImports_Mode) toString() string {
+	return this.enum_().name_
+}
+
+func (this RewriteGoogJsImports_Mode) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this RewriteGoogJsImports_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func RewriteGoogJsImports_Mode_values() []*RewriteGoogJsImports_Mode {
-	return append([]*RewriteGoogJsImports_Mode(nil), RewriteGoogJsImports_Mode_values_...)
+func RewriteGoogJsImports_Mode_values() []RewriteGoogJsImports_Mode {
+	return append([]RewriteGoogJsImports_Mode(nil), RewriteGoogJsImports_Mode_values_...)
 }
 
-func RewriteGoogJsImports_Mode_valueOf(name string) *RewriteGoogJsImports_Mode {
+func RewriteGoogJsImports_Mode_valueOf(name string) RewriteGoogJsImports_Mode {
 	for _, v := range RewriteGoogJsImports_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var RewriteGoogJsImports_Mode_LINT_ONLY *RewriteGoogJsImports_Mode
-var RewriteGoogJsImports_Mode_LINT_AND_REWRITE *RewriteGoogJsImports_Mode
-var RewriteGoogJsImports_Mode_values_ []*RewriteGoogJsImports_Mode
+const RewriteGoogJsImports_Mode_LINT_ONLY RewriteGoogJsImports_Mode = 1
+const RewriteGoogJsImports_Mode_LINT_AND_REWRITE RewriteGoogJsImports_Mode = 2
+
+var RewriteGoogJsImports_Mode_values_ []RewriteGoogJsImports_Mode
 
 var RewriteGoogJsImports_Mode_clinit_done bool
 
@@ -229,9 +263,7 @@ func RewriteGoogJsImports_Mode_clinit() {
 		return
 	}
 	RewriteGoogJsImports_Mode_clinit_done = true
-	RewriteGoogJsImports_Mode_LINT_ONLY = new_RewriteGoogJsImports_Mode("LINT_ONLY", 0)
-	RewriteGoogJsImports_Mode_LINT_AND_REWRITE = new_RewriteGoogJsImports_Mode("LINT_AND_REWRITE", 1)
-	RewriteGoogJsImports_Mode_values_ = []*RewriteGoogJsImports_Mode{RewriteGoogJsImports_Mode_LINT_ONLY, RewriteGoogJsImports_Mode_LINT_AND_REWRITE}
+	RewriteGoogJsImports_Mode_values_ = []RewriteGoogJsImports_Mode{RewriteGoogJsImports_Mode_LINT_ONLY, RewriteGoogJsImports_Mode_LINT_AND_REWRITE}
 	registerEnum_("com.google.javascript.jscomp.RewriteGoogJsImports.Mode", enumValues_(RewriteGoogJsImports_Mode_values_))
 
 }
@@ -255,18 +287,18 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) init_RewriteGoogJsImports_Re
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.googImportNode = googImportNode
 	this.globalizeAllReferences = globalizeAllReferences
-	NodeTraversal_traverse(this.outer_.compiler_, script, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.outer_.compiler_, script, this)
 	if googImportNode.getSecondChild().isImportStar() {
-		var newBindings *JTMap[string, *Binding] = jtmapFrom_(jtc_string, jtc_p_Binding, icast_Map(obj_(module.boundNames())))
+		var newBindings *JTMap[string, *Binding] = jtmapFrom_(jtc_string, jtc_p_Binding, icast_Map(obj_(module.boundNames().asImm())))
 		newBindings.del("goog")
 		if this.hasBadExport {
 			googImportNode.getSecondChild().setOriginalName("goog")
 			googImportNode.getSecondChild().setString("$goog")
-			newBindings.put("$goog", cast_[*Binding](Map_get_s(module.boundNames(), "goog")))
+			newBindings.put("$goog", module.boundNames().Get("goog"))
 		} else {
 			googImportNode.getSecondChild().replaceWith(IR_empty())
 		}
-		var newModule *Module = module.toBuilder().boundNames(ImmutableMap_copyOf(newBindings.asMap())).build()
+		var newModule *Module = module.toBuilder().boundNames(immutableMapCopyOf_(tc_string, tc_p_Binding, newBindings.asMap())).build()
 		this.outer_.moduleReplacements.put(module, newModule)
 		this.outer_.compiler_.reportChangeToEnclosingScope(googImportNode)
 	}
@@ -288,7 +320,7 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) maybeRewriteBadGoogJsImportR
 	if ((var_ == nil) || (var_.getNameNode() == 0)) || (var_.getNameNode().getParent() != this.googImportNode) {
 		return
 	}
-	if this.globalizeAllReferences || Map_containsKey_s(this.outer_.googModule.namespace(), parent.getString()) {
+	if this.globalizeAllReferences || this.outer_.googModule.namespace().Has(parent.getString()) {
 		return
 	}
 	this.hasBadExport = true
@@ -298,8 +330,8 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) maybeRewriteBadGoogJsImportR
 }
 
 func (this *RewriteGoogJsImports_ReferenceReplacer) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		this.maybeRewriteBadGoogJsImportRef(t, n, parent)
 	default:
 	}
@@ -330,7 +362,7 @@ func new_RewriteGoogJsImports_FindReexports(hasGoogImport bool) *RewriteGoogJsIm
 }
 
 func (this *RewriteGoogJsImports_FindReexports) checkIfForwardingExport(t *NodeTraversal, export Node) {
-	if export.hasTwoChildren() && String_endsWith(export.getLastChild().getString(), "/goog.js") {
+	if export.hasTwoChildren() && strings.HasSuffix(export.getLastChild().getString(), "/goog.js") {
 		t.report(export, RewriteGoogJsImports_GOOG_JS_REEXPORTED, []string{})
 	}
 }
@@ -345,18 +377,34 @@ func (this *RewriteGoogJsImports_FindReexports) checkIfNameFowardedExport(t *Nod
 
 func (this *RewriteGoogJsImports_FindReexports) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_ROOT, Token_rhino_SCRIPT, Token_rhino_MODULE_BODY, Token_rhino_EXPORT_SPECS, Token_rhino_EXPORT_SPEC:
+		switch n.ns_().token {
+		case tokOrd1_ROOT, tokOrd1_SCRIPT, tokOrd1_MODULE_BODY, tokOrd1_EXPORT_SPECS, tokOrd1_EXPORT_SPEC:
 			return true
-		case Token_rhino_EXPORT:
+		case tokOrd1_EXPORT:
 			this.checkIfForwardingExport(t, n)
 			return true
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			this.checkIfNameFowardedExport(t, n, parent)
 			return false
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
+}
+
+// visit: an object that is exactly a RewriteGoogJsImports_ReferenceReplacer calls its visit_impl directly (post-flip); others dispatch.
+func (this *RewriteGoogJsImports_ReferenceReplacer) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*RewriteGoogJsImports_ReferenceReplacer); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// shouldTraverse: an object that is exactly a RewriteGoogJsImports_FindReexports calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *RewriteGoogJsImports_FindReexports) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if p, _ := this.self_.(*RewriteGoogJsImports_FindReexports); p == this {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

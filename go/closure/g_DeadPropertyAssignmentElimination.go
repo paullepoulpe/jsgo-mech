@@ -20,8 +20,8 @@ func (this *DeadPropertyAssignmentElimination) process_2(externs Node, root Node
 	if (this.compiler_.getExternProperties() == nil) || (this.compiler_.getAccessorSummary() == nil) {
 		return
 	}
-	var skiplistedPropNames SetOf[string] = icast_Set(obj_(Sets_union(this.compiler_.getAccessorSummary().getAccessors().keySet(), icast_Set(obj_(this.compiler_.getExternProperties())))))
-	NodeTraversal_traverse(this.compiler_, this.compiler_.getJsRoot(), icast_NodeTraversal_Callback(obj_(new_DeadPropertyAssignmentElimination_FunctionVisitor(skiplistedPropNames))))
+	var skiplistedPropNames SetOf[string] = Sets_union(this.compiler_.getAccessorSummary().getAccessors().asImm().keySet(), icast_Set(obj_(this.compiler_.getExternProperties().asImm())))
+	NodeTraversal_traverse(this.compiler_, this.compiler_.getJsRoot(), new_DeadPropertyAssignmentElimination_FunctionVisitor(skiplistedPropNames))
 }
 
 type DeadPropertyAssignmentElimination_FunctionVisitor struct {
@@ -60,11 +60,11 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 		return
 	}
 	var body Node = NodeUtil_getFunctionBody(root)
-	if (!body.hasChildren() || NodeUtil_has(body, &Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(p0) }}, Predicates_alwaysTrue())) {
+	if !body.hasChildren() || NodeUtil_has(body, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(p0) }}).apply, Predicates_alwaysTrue()) {
 		return
 	}
 	var traversal *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal = new_DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal(this.skiplistedPropNames)
-	NodeTraversal_traverse(compiler, body, icast_NodeTraversal_Callback(obj_(traversal)))
+	NodeTraversal_traverse(compiler, body, traversal)
 	it_1 := traversal.propertyMap.eachValue()
 	for it_1.next() {
 		var property *DeadPropertyAssignmentElimination_Property = it_1.v
@@ -83,8 +83,10 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 					assignNode.replaceWith(rhs)
 					compiler.reportChangeToEnclosingScope(rhs)
 				} else {
-					Preconditions_checkState(NodeUtil_isAssignmentOp(assignNode))
-					var opType *Token_rhino = NodeUtil_getOpFromAssignmentOp(assignNode)
+					if !NodeUtil_isAssignmentOp(assignNode) {
+						panic(new_IllegalStateException_0())
+					}
+					var opType Token_rhino = NodeUtil_getOpFromAssignmentOp(assignNode)
 					assignNode.setToken(opType)
 					compiler.reportChangeToEnclosingScope(assignNode)
 				}
@@ -122,7 +124,7 @@ func new_DeadPropertyAssignmentElimination_Property(name string) *DeadPropertyAs
 
 func (this *DeadPropertyAssignmentElimination_Property) markLastWriteRead() {
 	if !this.writes.isEmpty() {
-		cast_[*DeadPropertyAssignmentElimination_PropertyWrite](SequencedCollection_getLast(SequencedCollection(this.writes.asDeque()))).markRead()
+		SequencedCollection_getLast(SequencedCollection(this.writes.asDeque())).(*DeadPropertyAssignmentElimination_PropertyWrite).markRead()
 	}
 }
 
@@ -144,7 +146,9 @@ func (this *DeadPropertyAssignmentElimination_Property) markChildrenRead() {
 }
 
 func (this *DeadPropertyAssignmentElimination_Property) addWrite(lhs Node) {
-	Preconditions_checkArgument(lhs.isQualifiedName())
+	if !lhs.isQualifiedName() {
+		panic(new_IllegalArgumentException_0())
+	}
 	this.writes.add(new_DeadPropertyAssignmentElimination_PropertyWrite(lhs))
 }
 
@@ -164,10 +168,12 @@ func (this *DeadPropertyAssignmentElimination_PropertyWrite) finit_DeadPropertyA
 
 func (this *DeadPropertyAssignmentElimination_PropertyWrite) init_DeadPropertyAssignmentElimination_PropertyWrite(assignedAt Node) {
 	this.finit_DeadPropertyAssignmentElimination_PropertyWrite()
-	Preconditions_checkArgument(assignedAt.isQualifiedName())
+	if !assignedAt.isQualifiedName() {
+		panic(new_IllegalArgumentException_0())
+	}
 	this.assignedAt = assignedAt
 	this.qualifiedName_ = Optional_of[string](assignedAt.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 }
 
@@ -214,7 +220,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 			return Optional_of[string](propNode.getString())
 		}
 		return Optional_of[string](propNode.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}})
 	}()
 	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.computeIfAbsent(propName.orElse(nullstr_), &Function_tfn_string_DeadPropertyAssignmentElimination_Property{func(p0 string) *DeadPropertyAssignmentElimination_Property {
@@ -246,7 +252,9 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 }
 
 func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) visitBlock(blockNode Node) {
-	Preconditions_checkArgument(blockNode.isBlock())
+	if !blockNode.isBlock() {
+		panic(new_IllegalArgumentException_0())
+	}
 	if blockNode.hasChildren() {
 		this.markAllPropsRead()
 	}
@@ -254,13 +262,12 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 
 func DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_isConditionalExpression(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_AND, Token_rhino_OR, Token_rhino_HOOK, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP:
+		switch n.ns_().token {
+		case tokOrd1_AND, tokOrd1_OR, tokOrd1_HOOK, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_CALL, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP:
 			return true
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -293,8 +300,8 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 
 func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) visitNode(n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_GETPROP:
+		switch n.ns_().token {
+		case tokOrd1_GETPROP:
 			if n.isGetProp() && Collection_contains_s(this.skiplistedPropNames, n.getString()) {
 				this.markAllPropsRead()
 				return true
@@ -310,17 +317,20 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 				}
 			}
 			return true
-		case Token_rhino_THIS, Token_rhino_NAME:
-			var nameProp *DeadPropertyAssignmentElimination_Property = cast_[*DeadPropertyAssignmentElimination_Property](Preconditions_checkNotNull(obj_(this.getOrCreateProperty(n))))
+		case tokOrd1_THIS, tokOrd1_NAME:
+			var nameProp *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(n)
+			if nameProp == nil {
+				panic(new_NullPointerException_0())
+			}
 			nameProp.markLastWriteRead()
 			if !parent.isGetProp() {
 				nameProp.markChildrenRead()
 			}
 			return true
-		case Token_rhino_THROW, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_ITER_SPREAD, Token_rhino_ARRAY_PATTERN, Token_rhino_SWITCH:
+		case tokOrd1_THROW, tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_ITER_SPREAD, tokOrd1_ARRAY_PATTERN, tokOrd1_SWITCH:
 			this.markAllPropsRead()
 			return false
-		case Token_rhino_OBJECT_PATTERN:
+		case tokOrd1_OBJECT_PATTERN:
 			{
 				var child Node = n.getFirstChild()
 				for ; child != 0; child = child.getNext() {
@@ -338,7 +348,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 				}
 			}
 			return true
-		case Token_rhino_BLOCK:
+		case tokOrd1_BLOCK:
 			this.visitBlock(n)
 			return true
 		default:
@@ -348,7 +358,6 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 			}
 			return true
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -361,4 +370,13 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 		}
 		property.markLastWriteRead()
 	}
+}
+
+// enterChangedScopeRoot: an object that is exactly a DeadPropertyAssignmentElimination_FunctionVisitor calls its enterChangedScopeRoot_impl directly (post-flip); others dispatch.
+func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScopeRoot(p0 *AbstractCompiler, p1 Node) {
+	if p, _ := this.self_.(*DeadPropertyAssignmentElimination_FunctionVisitor); p == this {
+		this.enterChangedScopeRoot_impl(p0, p1)
+		return
+	}
+	this.self_.(*DeadPropertyAssignmentElimination_FunctionVisitor).enterChangedScopeRoot_impl(p0, p1)
 }

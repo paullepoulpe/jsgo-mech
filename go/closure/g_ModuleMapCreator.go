@@ -31,43 +31,38 @@ func new_ModuleMapCreator(compiler *AbstractCompiler, moduleMetadataMap *ModuleM
 func (this *ModuleMapCreator) create() *ModuleMap {
 	this.unresolvedModules.clear()
 	this.unresolvedModulesByClosureNamespace.clear()
-	it_1 := foreach_(obj_(this.moduleMetadataMap.getAllModuleMetadata()))
-	for it_1.next() {
-		var moduleMetadata *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](it_1.v)
+	for _, el := range this.moduleMetadataMap.getAllModuleMetadata().keys {
+		moduleMetadata := el
 		this.process(moduleMetadata)
 	}
 	return this.resolve()
 }
 
 func (this *ModuleMapCreator) resolve() *ModuleMap {
-	var requestResolver ModuleRequestResolver = icast_ModuleRequestResolver(obj_(new_ModuleMapCreator_ModuleRequestResolverImpl(this)))
+	var requestResolver ModuleRequestResolver = new_ModuleMapCreator_ModuleRequestResolverImpl(this)
 	var resolvedModules *JTMap[string, *Module] = jnewTMap_(jtc_string, jtc_p_Module)
 	var resolvedClosureModules *JTMap[string, *Module] = jnewTMap_(jtc_string, jtc_p_Module)
 	for do_2 := true; do_2; do_2 = !resolvedModules.asMap().keySet().containsAll(Collection(this.unresolvedModules.asMap().keySet())) {
-		var toResolve ImmutableSetOf[string] = Sets_difference(this.unresolvedModules.asMap().keySet(), resolvedModules.asMap().keySet()).immutableCopy()
-		it_3 := foreach_(obj_(toResolve))
-		for it_3.next() {
-			var key string = str_(it_3.v)
+		var toResolve *ImmutableSet[string] = tsetFrom_(tc_string, Sets_difference(this.unresolvedModules.asMap().keySet(), resolvedModules.asMap().keySet()).immutableCopy(), true)
+		for _, el := range toResolve.keys {
+			key := el
 			var resolved *Module = this.unresolvedModules.get(key).resolve(requestResolver)
 			resolvedModules.put(key, resolved)
-			it_5 := foreach_(obj_(resolved.metadata().googNamespaces()))
-			for it_5.next() {
-				var namespace string = str_(it_5.v)
+			for namespace := range elemsBy_(obj_(resolved.metadata().googNamespaces()), str_) {
 				resolvedClosureModules.put(namespace, resolved)
 			}
 		}
 	}
 	for do_8 := true; do_8; do_8 = !resolvedClosureModules.asMap().keySet().containsAll(Collection(this.unresolvedModulesByClosureNamespace.asMap().keySet())) {
-		var toResolve ImmutableSetOf[string] = Sets_difference(this.unresolvedModulesByClosureNamespace.asMap().keySet(), resolvedClosureModules.asMap().keySet()).immutableCopy()
-		it_9 := foreach_(obj_(toResolve))
-		for it_9.next() {
-			var namespace string = str_(it_9.v)
+		var toResolve *ImmutableSet[string] = tsetFrom_(tc_string, Sets_difference(this.unresolvedModulesByClosureNamespace.asMap().keySet(), resolvedClosureModules.asMap().keySet()).immutableCopy(), true)
+		for _, el2 := range toResolve.keys {
+			namespace := el2
 			resolvedClosureModules.put(namespace, this.unresolvedModulesByClosureNamespace.get(namespace).resolve(requestResolver))
 		}
 	}
 	this.unresolvedModules.clear()
 	this.unresolvedModulesByClosureNamespace.clear()
-	return new_ModuleMap(ImmutableMap_copyOf(resolvedModules.asMap()), ImmutableMap_copyOf(resolvedClosureModules.asMap()))
+	return new_ModuleMap(immutableMapCopyOf_(tc_string, tc_p_Module, resolvedModules.asMap()), immutableMapCopyOf_(tc_string, tc_p_Module, resolvedClosureModules.asMap()))
 }
 
 func (this *ModuleMapCreator) process(moduleMetadata *ModuleMetadataMap_ModuleMetadata) {
@@ -88,9 +83,7 @@ func (this *ModuleMapCreator) process(moduleMetadata *ModuleMetadataMap_ModuleMe
 	if moduleMetadata.path() != nil {
 		this.unresolvedModules.put(moduleMetadata.path().toModuleName(), module)
 	}
-	it_2 := foreach_(obj_(moduleMetadata.googNamespaces()))
-	for it_2.next() {
-		var namespace string = str_(it_2.v)
+	for namespace := range elemsBy_(obj_(moduleMetadata.googNamespaces()), str_) {
 		this.unresolvedModulesByClosureNamespace.put(namespace, module)
 	}
 }
@@ -159,7 +152,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve_3(moduleRequest 
 		return this.resolveForClosure(namespace)
 	}
 	var requestedPath *ModuleLoader_ModulePath = modulePath.resolveJsModule(moduleRequest, Optional_of[string](forLineInfo.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}}), forLineInfo.getLineno(), forLineInfo.getCharno())
 	if requestedPath == nil {
 		requestedPath = modulePath.resolveModuleAsPath(moduleRequest)
@@ -217,21 +210,70 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) reset_impl() {
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string]) *Module {
-	return Module_builder().boundNames(ImmutableMap_of()).namespace(ImmutableMap_of()).localNameToLocalExport(ImmutableMap_of()).path(this.cap_path).metadata(this.cap_metadata).build()
+	return Module_builder().boundNames(immutableMapOf_(tc_string, tc_p_Binding, []string{}, []*Binding{})).namespace(immutableMapOf_(tc_string, tc_p_Binding, []string{}, []*Binding{})).localNameToLocalExport(immutableMapOf_(tc_string, tc_p_Export, []string{}, []*Export{})).path(this.cap_path).metadata(this.cap_metadata).build()
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) metadata_impl() *ModuleMetadataMap_ModuleMetadata {
 	return this.cap_metadata
 }
 
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) ImmutableSetOf[string] {
-	return ImmutableSet_of()
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) *ImmutableSet[string] {
+	return immutableSetOf_(tc_string)
 }
 
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited SetOf[*UnresolvedModule]) ImmutableSetOf[string] {
-	return ImmutableSet_of()
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited map[*UnresolvedModule]struct{}) *ImmutableSet[string] {
+	return immutableSetOf_(tc_string)
 }
 
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet SetOf[*ExportTrace], exportStarSet SetOf[*UnresolvedModule]) *ResolveExportResult {
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet map[exportTraceKey_]struct{}, exportStarSet map[*UnresolvedModule]struct{}) *ResolveExportResult {
 	return ResolveExportResult_of(Binding_from_Export_Node(Export_builder().localName(exportName).moduleMetadata(this.cap_metadata).modulePath(this.cap_path).closureNamespace(Optional_empty[string]()).build(), 0))
+}
+
+// reset: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its reset_impl directly (post-flip); others dispatch.
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) reset() {
+	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
+		this.reset_impl()
+		return
+	}
+	this.self_.reset_impl()
+}
+
+// resolve_2: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its resolve_2_impl directly (post-flip); others dispatch.
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolve_2(p0 ModuleRequestResolver, p1 Optional[string]) *Module {
+	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
+		return this.resolve_2_impl(p0, p1)
+	}
+	return this.self_.resolve_2_impl(p0, p1)
+}
+
+// metadata: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its metadata_impl directly (post-flip); others dispatch.
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) metadata() *ModuleMetadataMap_ModuleMetadata {
+	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
+		return this.metadata_impl()
+	}
+	return this.self_.metadata_impl()
+}
+
+// getExportedNames: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its getExportedNames_impl directly (post-flip); others dispatch.
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames(p0 ModuleRequestResolver) *ImmutableSet[string] {
+	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
+		return this.getExportedNames_impl(p0)
+	}
+	return this.self_.getExportedNames_impl(p0)
+}
+
+// getExportedNames_2: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its getExportedNames_2_impl directly (post-flip); others dispatch.
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ImmutableSet[string] {
+	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
+		return this.getExportedNames_2_impl(p0, p1)
+	}
+	return this.self_.getExportedNames_2_impl(p0, p1)
+}
+
+// resolveExport_5: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its resolveExport_5_impl directly (post-flip); others dispatch.
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
+	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
+		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
+	}
+	return this.self_.resolveExport_5_impl(p0, p1, p2, p3, p4)
 }

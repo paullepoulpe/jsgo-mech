@@ -25,13 +25,13 @@ func (this *FeatureCollector) allFeatures() *FeatureSet {
 }
 
 func (this *FeatureCollector) visitScript(script Node) {
-	var emptyContext *JTList[*FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
+	var emptyContext *JTList[FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
 	emptyContext.add(FeatureCollector_FeatureContext_NONE)
 	this.visitRecursive(emptyContext, script)
 }
 
-func (this *FeatureCollector) visitRecursive(contextStack *JTList[*FeatureCollector_FeatureContext], node Node) {
-	var newContext *FeatureCollector_FeatureContext = this.visitSingleNode(contextStack.asList(), node)
+func (this *FeatureCollector) visitRecursive(contextStack *JTList[FeatureCollector_FeatureContext], node Node) {
+	var newContext FeatureCollector_FeatureContext = this.visitSingleNode(contextStack.asList(), node)
 	contextStack.add(newContext)
 	{
 		var child Node = node.getFirstChild()
@@ -42,16 +42,18 @@ func (this *FeatureCollector) visitRecursive(contextStack *JTList[*FeatureCollec
 	contextStack.removeAt((contextStack.size() - 1))
 }
 
-func (this *FeatureCollector) visitSingleNode(contextStack ListOf[*FeatureCollector_FeatureContext], node Node) *FeatureCollector_FeatureContext {
-	Preconditions_checkState_boolean_Object((contextStack.size() >= 1), strobj_("The provided feature context stack was empty. It must have at least one element."))
+func (this *FeatureCollector) visitSingleNode(contextStack ListOf[FeatureCollector_FeatureContext], node Node) FeatureCollector_FeatureContext {
+	if contextStack.size() < 1 {
+		panic(new_IllegalStateException_String("The provided feature context stack was empty. It must have at least one element."))
+	}
 	this.recordScriptFeatures(contextStack, node)
 	return FeatureCollector_contextFor(contextStack, node)
 }
 
-func (this *FeatureCollector) recordScriptFeatures(contextStack ListOf[*FeatureCollector_FeatureContext], node Node) {
-	var parentContext *FeatureCollector_FeatureContext = cast_[*FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack)))
-	switch node.getToken() {
-	case Token_rhino_FUNCTION:
+func (this *FeatureCollector) recordScriptFeatures(contextStack ListOf[FeatureCollector_FeatureContext], node Node) {
+	var parentContext FeatureCollector_FeatureContext = cast_[FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack)))
+	switch node.ns_().token {
+	case tokOrd1_FUNCTION:
 		if node.isAsyncGeneratorFunction() {
 			this.addScriptFeature(FeatureSet_Feature_ASYNC_GENERATORS)
 		}
@@ -64,69 +66,69 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack ListOf[*FeatureC
 		if node.isGeneratorFunction() {
 			this.addScriptFeature(FeatureSet_Feature_GENERATORS)
 		}
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_BLOCK_SCOPE)) {
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_BLOCK_SCOPE) {
 			this.scriptFeatures = this.scriptFeatures.with(FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION)
 		}
-	case Token_rhino_PARAM_LIST, Token_rhino_CALL, Token_rhino_NEW:
-	case Token_rhino_STRING_KEY:
-		if node.isShorthandProperty() && Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_OBJECT_LITERAL)) {
+	case tokOrd1_PARAM_LIST, tokOrd1_CALL, tokOrd1_NEW:
+	case tokOrd1_STRING_KEY:
+		if node.isShorthandProperty() && equalsId_(parentContext, FeatureCollector_FeatureContext_OBJECT_LITERAL) {
 			this.addScriptFeature(FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES)
 		}
-	case Token_rhino_DEFAULT_VALUE:
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_PARAM_LIST)) {
+	case tokOrd1_DEFAULT_VALUE:
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_PARAM_LIST) {
 			this.addScriptFeature(FeatureSet_Feature_DEFAULT_PARAMETERS)
 		}
-	case Token_rhino_GETTER_DEF:
+	case tokOrd1_GETTER_DEF:
 		this.addScriptFeature(FeatureSet_Feature_GETTER)
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CLASS_MEMBERS)) {
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_CLASS_MEMBERS) {
 			this.addScriptFeature(FeatureSet_Feature_CLASS_GETTER_SETTER)
 		}
 		if node.isPrivateIdentifier() {
 			this.addScriptFeature(FeatureSet_Feature_PRIVATE_ELEMENTS)
 		}
-	case Token_rhino_REGEXP:
+	case tokOrd1_REGEXP:
 		this.addScriptFeature(FeatureSet_Feature_REGEXP_SYNTAX)
-	case Token_rhino_SETTER_DEF:
+	case tokOrd1_SETTER_DEF:
 		this.addScriptFeature(FeatureSet_Feature_SETTER)
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CLASS_MEMBERS)) {
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_CLASS_MEMBERS) {
 			this.addScriptFeature(FeatureSet_Feature_CLASS_GETTER_SETTER)
 		}
 		if node.isPrivateIdentifier() {
 			this.addScriptFeature(FeatureSet_Feature_PRIVATE_ELEMENTS)
 		}
-	case Token_rhino_BLOCK:
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CLASS_MEMBERS)) {
+	case tokOrd1_BLOCK:
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_CLASS_MEMBERS) {
 			this.addScriptFeature(FeatureSet_Feature_CLASS_STATIC_BLOCK)
 		}
-	case Token_rhino_EMPTY:
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CATCH)) {
+	case tokOrd1_EMPTY:
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_CATCH) {
 			this.addScriptFeature(FeatureSet_Feature_OPTIONAL_CATCH_BINDING)
 		}
-	case Token_rhino_ITER_REST:
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_PARAM_LIST)) {
+	case tokOrd1_ITER_REST:
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_PARAM_LIST) {
 			this.addScriptFeature(FeatureSet_Feature_REST_PARAMETERS)
 		} else {
 			this.addScriptFeature(FeatureSet_Feature_ARRAY_PATTERN_REST)
 		}
-	case Token_rhino_ITER_SPREAD:
+	case tokOrd1_ITER_SPREAD:
 		this.addScriptFeature(FeatureSet_Feature_SPREAD_EXPRESSIONS)
-	case Token_rhino_OBJECT_REST:
+	case tokOrd1_OBJECT_REST:
 		this.addScriptFeature(FeatureSet_Feature_OBJECT_PATTERN_REST)
-	case Token_rhino_OBJECT_SPREAD:
+	case tokOrd1_OBJECT_SPREAD:
 		this.addScriptFeature(FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD)
-	case Token_rhino_BIGINT:
+	case tokOrd1_BIGINT:
 		this.addScriptFeature(FeatureSet_Feature_BIGINT)
-	case Token_rhino_EXPONENT, Token_rhino_ASSIGN_EXPONENT:
+	case tokOrd1_EXPONENT, tokOrd1_ASSIGN_EXPONENT:
 		this.addScriptFeature(FeatureSet_Feature_EXPONENT_OP)
-	case Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_TEMPLATELIT:
+	case tokOrd1_TAGGED_TEMPLATELIT, tokOrd1_TEMPLATELIT:
 		this.addScriptFeature(FeatureSet_Feature_TEMPLATE_LITERALS)
-	case Token_rhino_NEW_TARGET:
+	case tokOrd1_NEW_TARGET:
 		this.addScriptFeature(FeatureSet_Feature_NEW_TARGET)
-	case Token_rhino_COMPUTED_PROP:
+	case tokOrd1_COMPUTED_PROP:
 		this.addScriptFeature(FeatureSet_Feature_COMPUTED_PROPERTIES)
 		var isGetter bool = node.getBooleanProp(Node_COMPUTED_PROP_GETTER)
 		var isSetter bool = node.getBooleanProp(Node_COMPUTED_PROP_SETTER)
-		var isClassMember bool = Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CLASS_MEMBERS))
+		var isClassMember bool = equalsId_(parentContext, FeatureCollector_FeatureContext_CLASS_MEMBERS)
 		if isGetter {
 			this.addScriptFeature(FeatureSet_Feature_GETTER)
 		} else if isSetter {
@@ -135,143 +137,168 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack ListOf[*FeatureC
 		if (isGetter || isSetter) && isClassMember {
 			this.addScriptFeature(FeatureSet_Feature_CLASS_GETTER_SETTER)
 		}
-	case Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_CALL, tokOrd1_OPTCHAIN_GETELEM:
 		this.addScriptFeature(FeatureSet_Feature_OPTIONAL_CHAINING)
-	case Token_rhino_COALESCE:
+	case tokOrd1_COALESCE:
 		this.addScriptFeature(FeatureSet_Feature_NULL_COALESCE_OP)
-	case Token_rhino_DYNAMIC_IMPORT:
+	case tokOrd1_DYNAMIC_IMPORT:
 		this.addScriptFeature(FeatureSet_Feature_DYNAMIC_IMPORT)
-	case Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND:
+	case tokOrd1_ASSIGN_OR, tokOrd1_ASSIGN_AND:
 		this.addScriptFeature(FeatureSet_Feature_LOGICAL_ASSIGNMENT)
-	case Token_rhino_ASSIGN_COALESCE:
+	case tokOrd1_ASSIGN_COALESCE:
 		this.addScriptFeature(FeatureSet_Feature_NULL_COALESCE_OP)
 		this.addScriptFeature(FeatureSet_Feature_LOGICAL_ASSIGNMENT)
-	case Token_rhino_FOR_OF:
+	case tokOrd1_FOR_OF:
 		this.addScriptFeature(FeatureSet_Feature_FOR_OF)
-	case Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_AWAIT_OF:
 		this.addScriptFeature(FeatureSet_Feature_FOR_AWAIT_OF)
 		this.maybeAddTopLevelAwait(contextStack)
-	case Token_rhino_IMPORT, Token_rhino_EXPORT:
+	case tokOrd1_IMPORT, tokOrd1_EXPORT:
 		this.addScriptFeature(FeatureSet_Feature_MODULES)
-	case Token_rhino_CONST:
+	case tokOrd1_CONST:
 		this.addScriptFeature(FeatureSet_Feature_CONST_DECLARATIONS)
-	case Token_rhino_LET:
+	case tokOrd1_LET:
 		this.addScriptFeature(FeatureSet_Feature_LET_DECLARATIONS)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.addScriptFeature(FeatureSet_Feature_CLASSES)
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		this.addScriptFeature(FeatureSet_Feature_MEMBER_DECLARATIONS)
 		if node.isPrivateIdentifier() {
 			this.addScriptFeature(FeatureSet_Feature_PRIVATE_ELEMENTS)
 		}
-	case Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_MEMBER_FIELD_DEF:
 		if node.isPrivateIdentifier() {
 			this.addScriptFeature(FeatureSet_Feature_PRIVATE_ELEMENTS)
 		} else {
 			this.addScriptFeature(FeatureSet_Feature_PUBLIC_CLASS_FIELDS)
 		}
-	case Token_rhino_IN:
+	case tokOrd1_IN:
 		if (node.getFirstChild() != 0) && node.getFirstChild().isPrivateIdentifier() {
 			this.addScriptFeature(FeatureSet_Feature_PRIVATE_ELEMENTS)
 		}
-	case Token_rhino_COMPUTED_FIELD_DEF:
+	case tokOrd1_COMPUTED_FIELD_DEF:
 		this.addScriptFeature(FeatureSet_Feature_PUBLIC_CLASS_FIELDS)
-	case Token_rhino_SUPER:
+	case tokOrd1_SUPER:
 		this.addScriptFeature(FeatureSet_Feature_SUPER)
-	case Token_rhino_ARRAY_PATTERN:
+	case tokOrd1_ARRAY_PATTERN:
 		this.addScriptFeature(FeatureSet_Feature_ARRAY_DESTRUCTURING)
-	case Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECT_PATTERN:
 		this.addScriptFeature(FeatureSet_Feature_OBJECT_DESTRUCTURING)
-	case Token_rhino_AWAIT:
+	case tokOrd1_AWAIT:
 		this.addScriptFeature(FeatureSet_Feature_ASYNC_FUNCTIONS)
 		this.maybeAddTopLevelAwait(contextStack)
 	default:
 	}
 }
 
-func (this *FeatureCollector) maybeAddTopLevelAwait(contextStack ListOf[*FeatureCollector_FeatureContext]) {
+func (this *FeatureCollector) maybeAddTopLevelAwait(contextStack ListOf[FeatureCollector_FeatureContext]) {
 	if !contextStack.contains(obj_(FeatureCollector_FeatureContext_FUNCTION)) {
 		this.addScriptFeature(FeatureSet_Feature_TOP_LEVEL_AWAIT)
 	}
 }
 
-func (this *FeatureCollector) addScriptFeature(x *FeatureSet_Feature) {
+func (this *FeatureCollector) addScriptFeature(x FeatureSet_Feature) {
 	this.scriptFeatures = this.scriptFeatures.with(x)
 }
 
-func FeatureCollector_contextFor(contextStack ListOf[*FeatureCollector_FeatureContext], node Node) *FeatureCollector_FeatureContext {
-	return func() *FeatureCollector_FeatureContext {
-		switch node.getToken() {
-		case Token_rhino_PARAM_LIST:
+func FeatureCollector_contextFor(contextStack ListOf[FeatureCollector_FeatureContext], node Node) FeatureCollector_FeatureContext {
+	return func() FeatureCollector_FeatureContext {
+		switch node.ns_().token {
+		case tokOrd1_PARAM_LIST:
 			return FeatureCollector_FeatureContext_PARAM_LIST
-		case Token_rhino_CLASS_MEMBERS:
+		case tokOrd1_CLASS_MEMBERS:
 			return FeatureCollector_FeatureContext_CLASS_MEMBERS
-		case Token_rhino_CLASS:
+		case tokOrd1_CLASS:
 			return FeatureCollector_FeatureContext_CLASS
-		case Token_rhino_CATCH:
+		case tokOrd1_CATCH:
 			return FeatureCollector_FeatureContext_CATCH
-		case Token_rhino_BLOCK:
-			return func() *FeatureCollector_FeatureContext {
-				if Object_equals(obj_(cast_[*FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack)))), obj_(FeatureCollector_FeatureContext_FUNCTION)) {
+		case tokOrd1_BLOCK:
+			return func() FeatureCollector_FeatureContext {
+				if equalsId_(cast_[FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack))), FeatureCollector_FeatureContext_FUNCTION) {
 					return FeatureCollector_FeatureContext_NONE
 				}
 				return FeatureCollector_FeatureContext_BLOCK_SCOPE
 			}()
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			return FeatureCollector_FeatureContext_FUNCTION
-		case Token_rhino_OBJECTLIT:
+		case tokOrd1_OBJECTLIT:
 			return FeatureCollector_FeatureContext_OBJECT_LITERAL
 		default:
 			return FeatureCollector_FeatureContext_NONE
 		}
-		panic("unreachable")
 	}()
 }
 
-type FeatureCollector_FeatureContext struct {
-	Enum
+type FeatureCollector_FeatureContext uint8
+
+// FeatureCollector_FeatureContext_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FeatureCollector_FeatureContext_enum_ = [8]Enum{
+	{self_: FeatureCollector_FeatureContext_PARAM_LIST, name_: "PARAM_LIST", ordinal_: 0},
+	{self_: FeatureCollector_FeatureContext_CLASS_MEMBERS, name_: "CLASS_MEMBERS", ordinal_: 1},
+	{self_: FeatureCollector_FeatureContext_CLASS, name_: "CLASS", ordinal_: 2},
+	{self_: FeatureCollector_FeatureContext_CATCH, name_: "CATCH", ordinal_: 3},
+	{self_: FeatureCollector_FeatureContext_BLOCK_SCOPE, name_: "BLOCK_SCOPE", ordinal_: 4},
+	{self_: FeatureCollector_FeatureContext_FUNCTION, name_: "FUNCTION", ordinal_: 5},
+	{self_: FeatureCollector_FeatureContext_OBJECT_LITERAL, name_: "OBJECT_LITERAL", ordinal_: 6},
+	{self_: FeatureCollector_FeatureContext_NONE, name_: "NONE", ordinal_: 7},
 }
 
-func (this *FeatureCollector_FeatureContext) up_Enum() *Enum {
-	if this == nil {
+func (this FeatureCollector_FeatureContext) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FeatureCollector_FeatureContext_enum_[this-1]
 }
 
-func (this *FeatureCollector_FeatureContext) init_FeatureCollector_FeatureContext(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FeatureCollector_FeatureContext) name() string {
+	return this.enum_().name_
 }
 
-func new_FeatureCollector_FeatureContext(name_ string, ordinal_ int32) *FeatureCollector_FeatureContext {
-	this := &FeatureCollector_FeatureContext{}
-	this.self_ = this
-	this.init_FeatureCollector_FeatureContext(name_, ordinal_)
+func (this FeatureCollector_FeatureContext) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this FeatureCollector_FeatureContext) toString() string {
+	return this.enum_().name_
+}
+
+func (this FeatureCollector_FeatureContext) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this FeatureCollector_FeatureContext) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FeatureCollector_FeatureContext_values() []*FeatureCollector_FeatureContext {
-	return append([]*FeatureCollector_FeatureContext(nil), FeatureCollector_FeatureContext_values_...)
+func FeatureCollector_FeatureContext_values() []FeatureCollector_FeatureContext {
+	return append([]FeatureCollector_FeatureContext(nil), FeatureCollector_FeatureContext_values_...)
 }
 
-func FeatureCollector_FeatureContext_valueOf(name string) *FeatureCollector_FeatureContext {
+func FeatureCollector_FeatureContext_valueOf(name string) FeatureCollector_FeatureContext {
 	for _, v := range FeatureCollector_FeatureContext_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("FeatureContext", name))
 }
 
-var FeatureCollector_FeatureContext_PARAM_LIST *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_CLASS_MEMBERS *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_CLASS *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_CATCH *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_BLOCK_SCOPE *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_FUNCTION *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_OBJECT_LITERAL *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_NONE *FeatureCollector_FeatureContext
-var FeatureCollector_FeatureContext_values_ []*FeatureCollector_FeatureContext
+const FeatureCollector_FeatureContext_PARAM_LIST FeatureCollector_FeatureContext = 1
+const FeatureCollector_FeatureContext_CLASS_MEMBERS FeatureCollector_FeatureContext = 2
+const FeatureCollector_FeatureContext_CLASS FeatureCollector_FeatureContext = 3
+const FeatureCollector_FeatureContext_CATCH FeatureCollector_FeatureContext = 4
+const FeatureCollector_FeatureContext_BLOCK_SCOPE FeatureCollector_FeatureContext = 5
+const FeatureCollector_FeatureContext_FUNCTION FeatureCollector_FeatureContext = 6
+const FeatureCollector_FeatureContext_OBJECT_LITERAL FeatureCollector_FeatureContext = 7
+const FeatureCollector_FeatureContext_NONE FeatureCollector_FeatureContext = 8
+
+var FeatureCollector_FeatureContext_values_ []FeatureCollector_FeatureContext
 
 var FeatureCollector_FeatureContext_clinit_done bool
 
@@ -280,15 +307,7 @@ func FeatureCollector_FeatureContext_clinit() {
 		return
 	}
 	FeatureCollector_FeatureContext_clinit_done = true
-	FeatureCollector_FeatureContext_PARAM_LIST = new_FeatureCollector_FeatureContext("PARAM_LIST", 0)
-	FeatureCollector_FeatureContext_CLASS_MEMBERS = new_FeatureCollector_FeatureContext("CLASS_MEMBERS", 1)
-	FeatureCollector_FeatureContext_CLASS = new_FeatureCollector_FeatureContext("CLASS", 2)
-	FeatureCollector_FeatureContext_CATCH = new_FeatureCollector_FeatureContext("CATCH", 3)
-	FeatureCollector_FeatureContext_BLOCK_SCOPE = new_FeatureCollector_FeatureContext("BLOCK_SCOPE", 4)
-	FeatureCollector_FeatureContext_FUNCTION = new_FeatureCollector_FeatureContext("FUNCTION", 5)
-	FeatureCollector_FeatureContext_OBJECT_LITERAL = new_FeatureCollector_FeatureContext("OBJECT_LITERAL", 6)
-	FeatureCollector_FeatureContext_NONE = new_FeatureCollector_FeatureContext("NONE", 7)
-	FeatureCollector_FeatureContext_values_ = []*FeatureCollector_FeatureContext{FeatureCollector_FeatureContext_PARAM_LIST, FeatureCollector_FeatureContext_CLASS_MEMBERS, FeatureCollector_FeatureContext_CLASS, FeatureCollector_FeatureContext_CATCH, FeatureCollector_FeatureContext_BLOCK_SCOPE, FeatureCollector_FeatureContext_FUNCTION, FeatureCollector_FeatureContext_OBJECT_LITERAL, FeatureCollector_FeatureContext_NONE}
+	FeatureCollector_FeatureContext_values_ = []FeatureCollector_FeatureContext{FeatureCollector_FeatureContext_PARAM_LIST, FeatureCollector_FeatureContext_CLASS_MEMBERS, FeatureCollector_FeatureContext_CLASS, FeatureCollector_FeatureContext_CATCH, FeatureCollector_FeatureContext_BLOCK_SCOPE, FeatureCollector_FeatureContext_FUNCTION, FeatureCollector_FeatureContext_OBJECT_LITERAL, FeatureCollector_FeatureContext_NONE}
 	registerEnum_("com.google.javascript.jscomp.parsing.FeatureCollector.FeatureContext", enumValues_(FeatureCollector_FeatureContext_values_))
 
 }

@@ -16,10 +16,11 @@ func new_Wtf8() *Wtf8 {
 }
 
 func Wtf8_encodeToWtf8(s string) *ByteString {
-	var length int32 = String_length(s)
+	sU16 := utf16Of_(s)
+	var length int32 = sU16.length()
 	var output *ByteString_Output = ByteString_newOutput(length)
 	for i := int32(0); i < length; i++ {
-		var codepoint int32 = String_codePointAt(s, i)
+		var codepoint int32 = sU16.codePointAt(i)
 		if codepoint < 128 {
 			output.write(codepoint)
 		} else if codepoint < 2048 {
@@ -90,7 +91,7 @@ func (this *Wtf8_Decoder) decode(encoded *ByteString) string {
 			var fourthByte int32 = (int32(encoded.byteAt(i)) & int32(Wtf8_CONTINUATION_MASK))
 			codepoint = ((((firstByte << 18) | (secondByte << 12)) | (thirdByte << 6)) | fourthByte)
 		} else {
-			panic(new_AssertionError_0().self())
+			panic(new_AssertionError_0())
 		}
 		this.codepointBuffer[codepointCount] = codepoint
 		codepointCount++

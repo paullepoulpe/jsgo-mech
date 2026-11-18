@@ -13,6 +13,11 @@ import (
 type TreeMap struct {
 	cmp     Comparator
 	entries []*hentry_
+	// skeys holds the keys of entries, in the same order, while the map orders its keys
+	// naturally and every key is a string (len(skeys) == len(entries)); search_s then reads a
+	// key with one load instead of three (entry, boxed string, bytes). Otherwise it is shorter
+	// than entries and unused.
+	skeys []string
 }
 
 func new_TreeMap() *TreeMap { return &TreeMap{} }
@@ -29,9 +34,49 @@ func (this *TreeMap) search(k any) (int, bool) {
 	return i, i < len(this.entries) && this.compare(this.entries[i].key, k) == 0
 }
 
+// strKeyed reports whether a string key can be looked up without boxing it: the map orders its
+// keys naturally and they are strings (naturally ordered keys are all of one class).
+func (this *TreeMap) strKeyed() bool {
+	if this == nil || this.cmp != nil {
+		return false
+	}
+	if len(this.entries) == 0 {
+		return true
+	}
+	_, ok := this.entries[0].key.(string)
+	return ok
+}
+
+// search_s is search for a string key of a strKeyed map (String.compareTo order).
+func (this *TreeMap) search_s(k string) (int, bool) {
+	if sk := this.skeys; len(sk) == len(this.entries) {
+		lo, hi := 0, len(sk)
+		for lo < hi {
+			m := int(uint(lo+hi) >> 1)
+			if String_compareTo(sk[m], k) < 0 {
+				lo = m + 1
+			} else {
+				hi = m
+			}
+		}
+		return lo, lo < len(sk) && sk[lo] == k
+	}
+	e := this.entries
+	lo, hi := 0, len(e)
+	for lo < hi {
+		m := int(uint(lo+hi) >> 1)
+		if String_compareTo(e[m].key.(string), k) < 0 {
+			lo = m + 1
+		} else {
+			hi = m
+		}
+	}
+	return lo, lo < len(e) && e[lo].key.(string) == k
+}
+
 func (this *TreeMap) size() int32   { return int32(len(this.entries)) }
 func (this *TreeMap) isEmpty() bool { return len(this.entries) == 0 }
-func (this *TreeMap) clear()        { this.entries = nil }
+func (this *TreeMap) clear()        { this.entries, this.skeys = nil, nil }
 
 func (this *TreeMap) get(k any) any {
 	if i, ok := this.search(k); ok {
@@ -58,6 +103,13 @@ func (this *TreeMap) put(k any, v any) any {
 		this.entries[i].val = v
 		return old
 	}
+	if s, isStr := k.(string); !isStr || this.cmp != nil {
+		this.skeys = nil // shorter than entries from now on, until the map is empty again
+	} else if len(this.skeys) == len(this.entries) {
+		this.skeys = append(this.skeys, "")
+		copy(this.skeys[i+1:], this.skeys[i:])
+		this.skeys[i] = s
+	}
 	this.entries = append(this.entries, nil)
 	copy(this.entries[i+1:], this.entries[i:])
 	this.entries[i] = &hentry_{key: k, val: v}
@@ -77,6 +129,9 @@ func (this *TreeMap) remove(k any) any {
 		return nil
 	}
 	old := this.entries[i].val
+	if len(this.skeys) == len(this.entries) {
+		this.skeys = append(this.skeys[:i], this.skeys[i+1:]...)
+	}
 	this.entries = append(this.entries[:i], this.entries[i+1:]...)
 	return old
 }
@@ -223,7 +278,14 @@ func (this *PriorityQueue) order() Comparator {
 	return this.cmp
 }
 
+// siftUp and siftDown compare as the JDK's do, the same pairs in the same order. With an
+// int-key comparator (Comparator.comparingInt, reversed or not) they call its compare on the
+// concrete type, so it is inlined into the loop.
 func (this *PriorityQueue) siftUp(k int, x any) {
+	if c, ok := this.cmp.(*intKeyCmp_); ok {
+		siftUpInt_(c, this.items, k, x)
+		return
+	}
 	c, es := this.order(), this.items
 	for k > 0 {
 		parent := (k - 1) >> 1
@@ -237,8 +299,44 @@ func (this *PriorityQueue) siftUp(k int, x any) {
 	es[k] = x
 }
 
+func siftUpInt_(c *intKeyCmp_, es []any, k int, x any) {
+	for k > 0 {
+		parent := (k - 1) >> 1
+		e := es[parent]
+		if c.compare(x, e) >= 0 {
+			break
+		}
+		es[k] = e
+		k = parent
+	}
+	es[k] = x
+}
+
 func (this *PriorityQueue) siftDown(k int, x any) {
+	if c, ok := this.cmp.(*intKeyCmp_); ok {
+		siftDownInt_(c, this.items, k, x)
+		return
+	}
 	c, es := this.order(), this.items
+	n := len(es)
+	half := n >> 1
+	for k < half {
+		child := 2*k + 1
+		v := es[child]
+		if right := child + 1; right < n && c.compare(v, es[right]) > 0 {
+			child = right
+			v = es[child]
+		}
+		if c.compare(x, v) <= 0 {
+			break
+		}
+		es[k] = v
+		k = child
+	}
+	es[k] = x
+}
+
+func siftDownInt_(c *intKeyCmp_, es []any, k int, x any) {
 	n := len(es)
 	half := n >> 1
 	for k < half {
@@ -339,25 +437,445 @@ func new_LinkedBlockingQueue() *LinkedBlockingQueue {
 	return this
 }
 
-// ---- EnumMap, EnumSet: ordered by ordinal
+// ---- EnumMap, EnumSet
 
-func ordinalCmp_() Comparator {
-	return &cmpFunc_{func(a, b any) int32 {
-		return a.(interface{ ordinal() int32 }).ordinal() - b.(interface{ ordinal() int32 }).ordinal()
-	}}
+// ordinalCmp_ orders enum constants by ordinal. It holds no state, so there is one.
+func ordinalCmp_() Comparator { return ordinalCmpOne_ }
+
+var ordinalCmpOne_ Comparator = &cmpFunc_{func(a, b any) int32 {
+	return a.(interface{ ordinal() int32 }).ordinal() - b.(interface{ ordinal() int32 }).ordinal()
+}}
+
+// EnumMap is java.util.EnumMap: the value of each constant of one enum in an array indexed by
+// ordinal, iterated in ordinal order. univ is the enum's constants by ordinal (Enum.values_):
+// those registered under the key class's name, or, when the class is not registered yet, those of
+// the first key put (as EnumSet takes them). vals[o] is nil while constant o is absent and
+// enumMapNull_ while it is mapped to null (Java's EnumMap.NULL). As in Java, get, containsKey and
+// remove of anything but a constant of the enum (null included) find nothing; put of null throws
+// NullPointerException and put of another enum's constant ClassCastException. The key set,
+// values and entry set are snapshots in ordinal order, as TreeMap's are; an entry writes through.
+type EnumMap struct {
+	univ []any
+	vals []any
+	n    int32
 }
 
-type EnumMap struct{ TreeMap }
+var _ Map = (*EnumMap)(nil)
 
-func new_EnumMap(c *Class) *EnumMap { return &EnumMap{TreeMap{cmp: ordinalCmp_()}} }
+// enumMapNull_ stands for a null value (a unique pointer: nothing else is equal to it).
+var enumMapNull_ any = new(byte)
 
-type EnumSet struct{ TreeSet }
+func new_EnumMap(c *Class) *EnumMap {
+	m := &EnumMap{}
+	if c != nil {
+		if u := enumRegistry_[c.name_]; len(u) > 0 {
+			u = u[0].(enumConst_).enum_().values_ // the slice its constants hold, as slot compares
+			m.univ, m.vals = u, make([]any, len(u))
+		}
+	}
+	return m
+}
 
-func EnumSet_noneOf(c *Class) *EnumSet { return &EnumSet{TreeSet{cmp: ordinalCmp_()}} }
+// slot is the ordinal of k, when k is a constant of this map's enum.
+func (m *EnumMap) slot(k any) (int32, bool) {
+	c, ok := k.(enumConst_)
+	if !ok || m.univ == nil {
+		return 0, false
+	}
+	e := c.enum_()
+	if e == nil || len(e.values_) == 0 || &e.values_[0] != &m.univ[0] {
+		return 0, false
+	}
+	return e.ordinal_, true
+}
+
+func enumMapUnmask_(v any) any {
+	if v == enumMapNull_ {
+		return nil
+	}
+	return v
+}
+
+func (m *EnumMap) size() int32   { return m.n }
+func (m *EnumMap) isEmpty() bool { return m.n == 0 }
+
+func (m *EnumMap) clear() {
+	clear(m.vals)
+	m.n = 0
+}
+
+func (m *EnumMap) get(k any) any {
+	if o, ok := m.slot(k); ok {
+		return enumMapUnmask_(m.vals[o])
+	}
+	return nil
+}
+
+func (m *EnumMap) containsKey(k any) bool {
+	o, ok := m.slot(k)
+	return ok && m.vals[o] != nil
+}
+
+func (m *EnumMap) containsValue(v any) bool {
+	if v == nil {
+		v = enumMapNull_
+	}
+	for _, x := range m.vals {
+		if x != nil && (x == v || x != enumMapNull_ && objequals_(v, x)) {
+			return true
+		}
+	}
+	return false
+}
+
+func (m *EnumMap) put(k any, v any) any {
+	if k == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	e := k.(enumConst_).enum_()
+	if e == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if m.univ == nil {
+		if len(e.values_) == 0 {
+			panic("EnumMap: enum not registered: " + e.name_)
+		}
+		m.univ, m.vals = e.values_, make([]any, len(e.values_))
+	} else if len(e.values_) == 0 || &e.values_[0] != &m.univ[0] {
+		panic(new_ClassCastException_String(goTypeName_(k) + " != the key type of this EnumMap").self())
+	}
+	if v == nil {
+		v = enumMapNull_
+	}
+	old := m.vals[e.ordinal_]
+	m.vals[e.ordinal_] = v
+	if old == nil {
+		m.n++
+	}
+	return enumMapUnmask_(old)
+}
+
+func (m *EnumMap) putAll(o Map) {
+	for it := o.entrySet().iterator(); it.hasNext(); {
+		e := it.next().(Map_Entry)
+		m.put(e.getKey(), e.getValue())
+	}
+}
+
+func (m *EnumMap) remove(k any) any {
+	o, ok := m.slot(k)
+	if !ok || m.vals[o] == nil {
+		return nil
+	}
+	old := m.vals[o]
+	m.vals[o] = nil
+	m.n--
+	return enumMapUnmask_(old)
+}
+
+func (m *EnumMap) keySet() Set {
+	s := new_LinkedHashSet()
+	for o, v := range m.vals {
+		if v != nil {
+			s.add(m.univ[o])
+		}
+	}
+	return s
+}
+
+func (m *EnumMap) values() Collection {
+	out := make([]any, 0, m.n)
+	for _, v := range m.vals {
+		if v != nil {
+			out = append(out, enumMapUnmask_(v))
+		}
+	}
+	return listOf_(out)
+}
+
+func (m *EnumMap) entrySet() Set {
+	s := new_LinkedHashSet()
+	s.identity = true
+	for o, v := range m.vals {
+		if v != nil {
+			s.add(&enumMapEntry_{m: m, o: int32(o)})
+		}
+	}
+	return s
+}
+
+func (m *EnumMap) equals(o any) bool { return mapEquals_(m, o) }
+func (m *EnumMap) hashCode() int32   { return mapHash_(m) }
+func (m *EnumMap) toString() string  { return mapToString_(m) }
+
+// enumMapEntry_ is the mapping of constant o in m: it reads and writes the map's slot, and, as
+// Java's, cannot be used once the mapping is removed.
+type enumMapEntry_ struct {
+	m *EnumMap
+	o int32
+}
+
+func (e *enumMapEntry_) live() {
+	if e.m.vals[e.o] == nil {
+		panic(new_IllegalStateException_String("Entry was removed").self())
+	}
+}
+
+func (e *enumMapEntry_) getKey() any   { e.live(); return e.m.univ[e.o] }
+func (e *enumMapEntry_) getValue() any { e.live(); return enumMapUnmask_(e.m.vals[e.o]) }
+
+func (e *enumMapEntry_) setValue(v any) any {
+	e.live()
+	old := e.m.vals[e.o]
+	if v == nil {
+		v = enumMapNull_
+	}
+	e.m.vals[e.o] = v
+	return enumMapUnmask_(old)
+}
+
+func (e *enumMapEntry_) equals(o any) bool {
+	x, ok := o.(Map_Entry)
+	return ok && x != nil && objequals_(e.getKey(), x.getKey()) && objequals_(e.getValue(), x.getValue())
+}
+func (e *enumMapEntry_) hashCode() int32  { return objhash_(e.getKey()) ^ objhash_(e.getValue()) }
+func (e *enumMapEntry_) toString() string { return objstr_(e.getKey()) + "=" + objstr_(e.getValue()) }
+
+// EnumSet is java.util.EnumSet: a bit set over the constants of one enum, which iterates in
+// ordinal order. univ is that enum's constants by ordinal (Enum.values_), taken from the first
+// constant the set sees; an element is in the set when its bit is set and it is a constant of
+// univ (Java's EnumSet holds the constants of one enum type and contains nothing else).
+type EnumSet struct {
+	univ []any
+	w    uint64   // ordinals 0-63
+	more []uint64 // ordinals from 64 on
+}
+
+var _ Set = (*EnumSet)(nil)
+
+// enumConst_ is an enum constant: every enum class embeds Enum.
+type enumConst_ interface{ enum_() *Enum }
+
+// of_ takes the enum of constant e as the set's when it has none yet, and otherwise checks that
+// e belongs to it (Java: a ClassCastException for a constant of another enum).
+func (s *EnumSet) of_(e *Enum) {
+	if len(e.values_) == 0 {
+		panic("EnumSet: enum not registered: " + e.name_)
+	}
+	if s.univ == nil {
+		s.univ = e.values_
+	} else if &s.univ[0] != &e.values_[0] {
+		panic(new_ClassCastException_String(goTypeName_(e.self_) + " is not an enum of this EnumSet").self())
+	}
+}
+
+// member returns the constant e of k, if k is a constant of this set's enum.
+func (s *EnumSet) member(k any) (*Enum, bool) {
+	c, ok := k.(enumConst_)
+	if !ok || s.univ == nil {
+		return nil, false
+	}
+	e := c.enum_()
+	return e, len(e.values_) > 0 && &e.values_[0] == &s.univ[0]
+}
+
+func (s *EnumSet) word(i int) *uint64 {
+	if i == 0 {
+		return &s.w
+	}
+	for len(s.more) < i {
+		s.more = append(s.more, 0)
+	}
+	return &s.more[i-1]
+}
+
+func (s *EnumSet) has(o int32) bool {
+	if o < 64 {
+		return s.w&(1<<uint(o)) != 0
+	}
+	i := int(o>>6) - 1
+	return i < len(s.more) && s.more[i]&(1<<uint(o&63)) != 0
+}
+
+func (s *EnumSet) size() int32 {
+	n := bits.OnesCount64(s.w)
+	for _, x := range s.more {
+		n += bits.OnesCount64(x)
+	}
+	return int32(n)
+}
+
+func (s *EnumSet) isEmpty() bool { return s.size() == 0 }
+
+func (s *EnumSet) clear() { s.w, s.more = 0, nil }
+
+func (s *EnumSet) contains(k any) bool {
+	e, ok := s.member(k)
+	return ok && s.has(e.ordinal_)
+}
+
+func (s *EnumSet) add(k any) bool {
+	if k == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	e := k.(enumConst_).enum_()
+	s.of_(e)
+	w, b := s.word(int(e.ordinal_>>6)), uint64(1)<<uint(e.ordinal_&63)
+	if *w&b != 0 {
+		return false
+	}
+	*w |= b
+	return true
+}
+
+func (s *EnumSet) remove_Object(k any) bool {
+	e, ok := s.member(k)
+	if !ok || !s.has(e.ordinal_) {
+		return false
+	}
+	*s.word(int(e.ordinal_ >> 6)) &^= 1 << uint(e.ordinal_&63)
+	return true
+}
+
+// same reports whether c is an EnumSet over the same enum as s (both have seen a constant).
+func (s *EnumSet) same(c Collection) (*EnumSet, bool) {
+	t, ok := c.(*EnumSet)
+	return t, ok && s.univ != nil && t.univ != nil && &s.univ[0] == &t.univ[0]
+}
+
+func (s *EnumSet) addAll(c Collection) bool {
+	if t, ok := c.(*EnumSet); ok && (t.univ == nil || s.univ == nil || &s.univ[0] == &t.univ[0]) {
+		if t.univ == nil {
+			return false
+		}
+		s.univ = t.univ
+		changed := s.w|t.w != s.w
+		s.w |= t.w
+		for i, x := range t.more {
+			w := s.word(i + 1)
+			changed = changed || *w|x != *w
+			*w |= x
+		}
+		return changed
+	}
+	changed := false
+	for it := c.iterator(); it.hasNext(); {
+		if s.add(it.next()) {
+			changed = true
+		}
+	}
+	return changed
+}
+
+func (s *EnumSet) containsAll(c Collection) bool {
+	if t, ok := s.same(c); ok {
+		if t.w&^s.w != 0 {
+			return false
+		}
+		for i, x := range t.more {
+			if i >= len(s.more) {
+				if x != 0 {
+					return false
+				}
+			} else if x&^s.more[i] != 0 {
+				return false
+			}
+		}
+		return true
+	}
+	return containsAll_(s, c)
+}
+
+func (s *EnumSet) removeAll(c Collection) bool { return removeAll_(s, c) }
+
+func (s *EnumSet) items() []any {
+	out := make([]any, 0, s.size())
+	for it := s.iter(); it.hasNext(); {
+		out = append(out, it.next())
+	}
+	return out
+}
+
+func (s *EnumSet) toArray_0() []any      { return s.items() }
+func (s *EnumSet) toArray(a []any) []any { return fillArray_(s.items(), a) }
+
+func (s *EnumSet) equals(o any) bool {
+	if t, ok := o.(*EnumSet); ok {
+		if t, ok := s.same(t); ok {
+			if s.w != t.w {
+				return false
+			}
+			for i := 0; i < max(len(s.more), len(t.more)); i++ {
+				var x, y uint64
+				if i < len(s.more) {
+					x = s.more[i]
+				}
+				if i < len(t.more) {
+					y = t.more[i]
+				}
+				if x != y {
+					return false
+				}
+			}
+			return true
+		}
+	}
+	return setEquals_(s, o)
+}
+
+func (s *EnumSet) hashCode() int32  { return setHash_(s) }
+func (s *EnumSet) toString() string { return collToString_(s) }
+
+func (s *EnumSet) iterator() Iterator { return s.iter() }
+
+func (s *EnumSet) iter() *enumSetIter_ { return &enumSetIter_{s: s, unseen: s.w, last: -1} }
+
+// enumSetIter_ walks the set in ordinal order as Java's does: it takes a copy of one word of
+// bits at a time (all of them for an enum of up to 64 constants), so additions to a word it is
+// in are not seen, and remove() clears the constant it returned last.
+type enumSetIter_ struct {
+	s      *EnumSet
+	unseen uint64
+	wi     int // index of the word unseen was taken from
+	last   int32
+}
+
+func (it *enumSetIter_) hasNext() bool {
+	for it.unseen == 0 {
+		if it.wi >= len(it.s.more) {
+			return false
+		}
+		it.unseen = it.s.more[it.wi]
+		it.wi++
+	}
+	return true
+}
+
+func (it *enumSetIter_) next() any {
+	if !it.hasNext() {
+		panic(new_NoSuchElementException_0().self())
+	}
+	b := bits.TrailingZeros64(it.unseen)
+	it.unseen &= it.unseen - 1
+	it.last = int32(it.wi*64 + b)
+	return it.s.univ[it.last]
+}
+
+func (it *enumSetIter_) remove() {
+	if it.last < 0 {
+		panic(new_IllegalStateException_0().self())
+	}
+	*it.s.word(int(it.last >> 6)) &^= 1 << uint(it.last&63)
+	it.last = -1
+}
+
+func EnumSet_noneOf(c *Class) *EnumSet { return &EnumSet{} }
 
 func EnumSet_allOf(c *Class) *EnumSet {
 	s := EnumSet_noneOf(c)
-	s.items = append(s.items, enumRegistry_[c.name_]...)
+	for _, v := range enumRegistry_[c.name_] {
+		s.add(v)
+	}
 	return s
 }
 

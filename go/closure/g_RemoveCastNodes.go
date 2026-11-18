@@ -17,7 +17,7 @@ func new_RemoveCastNodes(compiler *AbstractCompiler) *RemoveCastNodes {
 }
 
 func (this *RemoveCastNodes) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_RemoveCastNodes_RemoveCastsCallback(this))), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, new_RemoveCastNodes_RemoveCastsCallback(this), externs, root)
 }
 
 type RemoveCastNodes_RemoveCastsCallback struct {
@@ -49,4 +49,13 @@ func (this *RemoveCastNodes_RemoveCastsCallback) visit_impl(t *NodeTraversal, n 
 		this.outer_.compiler_.reportChangeToEnclosingScope(n)
 		n.replaceWith(n.removeFirstChild())
 	}
+}
+
+// visit: an object that is exactly a RemoveCastNodes_RemoveCastsCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *RemoveCastNodes_RemoveCastsCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*RemoveCastNodes_RemoveCastsCallback); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

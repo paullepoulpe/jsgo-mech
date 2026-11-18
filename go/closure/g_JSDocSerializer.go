@@ -83,9 +83,7 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 		builder.addKind(JsdocTag_JSDOC_NO_SIDE_EFFECTS)
 	}
 	if jsdoc.hasModifies() {
-		it_1 := foreach_(any(jsdoc.getModifies()))
-		for it_1.next() {
-			var modifies string = str_(it_1.v)
+		for modifies := range jsdoc.getModifies().All() {
 			switch modifies {
 			case "this":
 				builder.addKind(JsdocTag_JSDOC_MODIFIES_THIS)
@@ -129,17 +127,20 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 	if jsdoc.isUsedViaDotConstructor() {
 		builder.addKind(JsdocTag_JSDOC_USED_VIA_DOT_CONSTRUCTOR)
 	}
-	if jsdoc.getPerFileClosureUnawareMode() != nil {
+	if jsdoc.getPerFileClosureUnawareMode() != 0 {
 		builder.setClosureUnawareModePointer(stringPool.put(jsdoc.getPerFileClosureUnawareMode().name()))
 	}
 	var result *OptimizationJsdoc = cast_[*OptimizationJsdoc](builder.build())
-	if Object_equals(obj_(OptimizationJsdoc_getDefaultInstance()), obj_(result)) {
+	if equalsBy_(OptimizationJsdoc_getDefaultInstance(), obj_(result), (*OptimizationJsdoc).equals) {
 		return nil
 	}
-	return cast_[*OptimizationJsdoc](Preconditions_checkNotNull(obj_(result)))
+	if result == nil {
+		panic(new_NullPointerException_0())
+	}
+	return result
 }
 
-func JSDocSerializer_serializeIdGenerator(doc *JSDocInfo) *JsdocTag {
+func JSDocSerializer_serializeIdGenerator(doc *JSDocInfo) JsdocTag {
 	if doc.isConsistentIdGenerator() {
 		return JsdocTag_JSDOC_ID_GENERATOR_CONSISTENT
 	} else if doc.isStableIdGenerator() {
@@ -151,7 +152,7 @@ func JSDocSerializer_serializeIdGenerator(doc *JSDocInfo) *JsdocTag {
 	} else if doc.isIdGenerator() {
 		return JsdocTag_JSDOC_ID_GENERATOR_INCONSISTENT
 	}
-	panic(new_IllegalStateException_String(("Failed to identify idGenerator inside JSDoc: " + objstr_(obj_(doc)))).self())
+	panic(new_IllegalStateException_String(("Failed to identify idGenerator inside JSDoc: " + tostr_(doc))))
 }
 
 func JSDocSerializer_createPlaceholderType() *JSTypeExpression {
@@ -186,7 +187,7 @@ func JSDocSerializer_deserializeJsdoc(serializedJsdoc *OptimizationJsdoc, string
 	var suppressions TreeSetOf[string] = nil
 L_1:
 	for i := int32(0); i < serializedJsdoc.getKindCount(); i++ {
-		var tag *JsdocTag = cast_[*JsdocTag](serializedJsdoc.getKindList().get(i))
+		var tag JsdocTag = cast_[JsdocTag](serializedJsdoc.getKindList().get(i))
 		switch tag {
 		case JsdocTag_JSDOC_CONST:
 			builder.recordConstancy()
@@ -316,7 +317,7 @@ L_1:
 			_ = unused
 			continue L_1
 		case JsdocTag_JSDOC_UNSPECIFIED, JsdocTag_UNRECOGNIZED:
-			panic(obj_(new_MalformedTypedAstException_Object(strobj_(("Unsupported JSDoc tag can't be deserialized: " + objstr_(obj_(tag)))))))
+			panic(new_MalformedTypedAstException_Object(strobj_(("Unsupported JSDoc tag can't be deserialized: " + tostr_(tag)))))
 		}
 	}
 	if modifies != nil {

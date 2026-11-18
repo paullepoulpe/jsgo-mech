@@ -8,11 +8,6 @@ type LinkedIdentityHashSet[E any] struct {
 
 func (this *LinkedIdentityHashSet[E]) isa_LinkedIdentityHashSet_() {}
 
-func is_LinkedIdentityHashSet(v any) bool {
-	_, ok := v.(interface{ isa_LinkedIdentityHashSet_() })
-	return ok
-}
-
 func (this *LinkedIdentityHashSet[E]) finit_LinkedIdentityHashSet() {
 	this.innerMap = new_LinkedIdentityHashMap[E, *LinkedIdentityHashSet_Sentinel]()
 }

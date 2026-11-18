@@ -26,9 +26,8 @@ func new_InlineProperties(compiler *AbstractCompiler) *InlineProperties {
 }
 
 func (this *InlineProperties) invalidateExternProperties() {
-	it_1 := foreach_(obj_(this.compiler_.getExternProperties()))
-	for it_1.next() {
-		var name string = str_(it_1.v)
+	for _, el := range this.compiler_.getExternProperties().keys {
+		name := el
 		this.props.put(name, InlineProperties_INVALIDATED)
 	}
 }
@@ -40,12 +39,11 @@ func (this *InlineProperties) getColor(n Node) *Color {
 	} else {
 		return color
 	}
-	panic("unreachable")
 }
 
 func (this *InlineProperties) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_InlineProperties_GatherCandidates(this))))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_InlineProperties_ReplaceCandidates(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_InlineProperties_GatherCandidates(this))
+	NodeTraversal_traverse(this.compiler_, root, new_InlineProperties_ReplaceCandidates(this))
 }
 
 func InlineProperties_removeNullAndUndefinedIfUnion(original *Color) *Color {
@@ -146,7 +144,9 @@ func (this *InlineProperties_GatherCandidates) visit_impl(t *NodeTraversal, n No
 }
 
 func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDefinition(n Node) bool {
-	Preconditions_checkState_boolean_Object(n.isMemberFieldDef(), n.box_())
+	if !n.isMemberFieldDef() {
+		panic(new_IllegalStateException_String(tostr_(n)))
+	}
 	var value Node = n.getFirstChild()
 	var propName string = n.getString()
 	var classNode Node = n.getGrandparent()
@@ -154,19 +154,21 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDef
 	if n.isStaticMember() {
 		c = this.outer_.getColor(classNode)
 	} else {
-		var possibleInstances ImmutableSetOf[*Color] = this.outer_.getColor(classNode).getInstanceColors()
+		var possibleInstances *ImmutableSet[*Color] = this.outer_.getColor(classNode).getInstanceColors()
 		c = func() *Color {
-			if possibleInstances.isEmpty() {
+			if possibleInstances.IsEmpty() {
 				return StandardColors_UNKNOWN
 			}
-			return Color_createUnion(icast_Set(obj_(possibleInstances)))
+			return Color_createUnion(icast_Set(obj_(possibleInstances.asImm())))
 		}()
 	}
 	return this.maybeStoreCandidateValue(c, propName, value)
 }
 
 func (this *InlineProperties_GatherCandidates) maybeRecordCandidateGetpropDefinition(t *NodeTraversal, n Node, parent Node) bool {
-	Preconditions_checkState_boolean_Object((n.isGetProp() && parent.isAssign()), n.box_())
+	if !n.isGetProp() || !parent.isAssign() {
+		panic(new_IllegalStateException_String(tostr_(n)))
+	}
 	var src Node = n.getFirstChild()
 	var propName string = n.getString()
 	var value Node = parent.getLastChild()
@@ -192,7 +194,9 @@ func (this *InlineProperties_GatherCandidates) invalidateProperty(propName strin
 }
 
 func (this *InlineProperties_GatherCandidates) maybeStoreCandidateValue(color *Color, propName string, value Node) bool {
-	Preconditions_checkNotNull(value.box_())
+	if value == 0 {
+		panic(new_NullPointerException_0())
+	}
 	if ((!this.outer_.props.has(propName) && !color.isInvalidating()) && NodeUtil_isImmutableValue(value)) && NodeUtil_isExecutedExactlyOnce(value) {
 		this.outer_.props.put(propName, new_InlineProperties_PropertyInfo(color, value))
 		return true
@@ -266,38 +270,43 @@ func (this *InlineProperties_ReplaceCandidates) isMatchingType(n Node, src *Colo
 	return this.hasInSupertypesList(dest, src)
 }
 
-func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Color, superCtor *Color) bool {
-	var ret_1 bool
-	code_1 := func() (code_ int) {
-		defer func() {
-			this.hasInSupertypesListSeenSet.del(subCtor)
-		}()
-		if !this.hasInSupertypesListSeenSet.add(subCtor) {
-			ret_1 = false
-			return 1
-		}
-		if (subCtor == nil) || (superCtor == nil) {
-			ret_1 = false
-			return 1
-		}
-		if subCtor.equals(obj_(superCtor)) {
-			ret_1 = true
-			return 1
-		}
-		it_2 := foreach_(any(this.outer_.registry.getDisambiguationSupertypes(subCtor)))
-		for it_2.next() {
-			var immediateSupertype *Color = cast_[*Color](it_2.v)
-			if !immediateSupertype.isUnion() && this.hasInSupertypesList(immediateSupertype, superCtor) {
-				ret_1 = true
-				return 1
-			}
-		}
-		ret_1 = false
-		return 1
-		return 0
+func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Color, superCtor *Color) (ret_1 bool) {
+	defer func() {
+		this.hasInSupertypesListSeenSet.del(subCtor)
 	}()
-	if code_1 == 1 {
-		return ret_1
+	if !this.hasInSupertypesListSeenSet.add(subCtor) {
+		return false
 	}
-	panic("unreachable")
+	if (subCtor == nil) || (superCtor == nil) {
+		return false
+	}
+	if subCtor.equals_Color(superCtor) {
+		return true
+	}
+	it_2 := foreach_(this.outer_.registry.getDisambiguationSupertypes(subCtor))
+	for it_2.next() {
+		var immediateSupertype *Color = cast_[*Color](it_2.v)
+		if !immediateSupertype.isUnion() && this.hasInSupertypesList(immediateSupertype, superCtor) {
+			return true
+		}
+	}
+	return false
+}
+
+// visit: an object that is exactly a InlineProperties_GatherCandidates calls its visit_impl directly (post-flip); others dispatch.
+func (this *InlineProperties_GatherCandidates) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*InlineProperties_GatherCandidates); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a InlineProperties_ReplaceCandidates calls its visit_impl directly (post-flip); others dispatch.
+func (this *InlineProperties_ReplaceCandidates) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*InlineProperties_ReplaceCandidates); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

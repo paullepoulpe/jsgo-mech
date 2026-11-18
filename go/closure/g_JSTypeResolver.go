@@ -6,7 +6,7 @@ type JSTypeResolver struct {
 	registry        *JSTypeRegistry
 	captureStack    *TDeque[*JSType]
 	resolutionQueue *TDeque[*JSType]
-	state           *JSTypeResolver_State
+	state           JSTypeResolver_State
 }
 
 func (this *JSTypeResolver) finit_JSTypeResolver() {
@@ -34,16 +34,20 @@ func JSTypeResolver_create(registry *JSTypeRegistry) *JSTypeResolver {
 }
 
 func (this *JSTypeResolver) addUnresolved(captured *JSType) {
-	Preconditions_checkState(!captured.isResolved())
+	if captured.isResolved() {
+		panic(new_IllegalStateException_0())
+	}
 	this.captureStack.add(captured)
 }
 
-func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller *JSTypeClass) {
+func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller JSTypeClass) {
 	if !caller.isTypeOf(captured) {
 		return
 	}
 	var expected *JSType = to_JSType(SequencedCollection_removeLast(SequencedCollection(this.captureStack.asDeque())))
-	Preconditions_checkState_boolean_String_Object_Object(JSCompObjects_identical(captured.self(), expected.self()), "Captured %s; Expected %s", captured.self(), expected.self())
+	if !JSCompObjects_identical(captured.self(), expected.self()) {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Captured %s; Expected %s", []any{captured.self(), expected.self()})))
+	}
 	switch this.state {
 	case JSTypeResolver_State_CLOSED, JSTypeResolver_State_CLOSING:
 		this.doResolve(captured)
@@ -53,15 +57,23 @@ func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller *JSTypeClas
 }
 
 func (this *JSTypeResolver) openForDefinition() *JSTypeResolver_Closer {
-	Preconditions_checkState(Object_equals(obj_(this.state), obj_(JSTypeResolver_State_CLOSED)))
-	Preconditions_checkState(this.captureStack.isEmpty())
+	if !equalsId_(this.state, JSTypeResolver_State_CLOSED) {
+		panic(new_IllegalStateException_0())
+	}
+	if !this.captureStack.isEmpty() {
+		panic(new_IllegalStateException_0())
+	}
 	this.state = JSTypeResolver_State_OPEN
 	return new_JSTypeResolver_Closer(this)
 }
 
 func (this *JSTypeResolver) resolveAll() {
-	Preconditions_checkState(Object_equals(obj_(this.state), obj_(JSTypeResolver_State_OPEN)))
-	Preconditions_checkState(this.captureStack.isEmpty())
+	if !equalsId_(this.state, JSTypeResolver_State_OPEN) {
+		panic(new_IllegalStateException_0())
+	}
+	if !this.captureStack.isEmpty() {
+		panic(new_IllegalStateException_0())
+	}
 	this.state = JSTypeResolver_State_CLOSING
 	for !this.resolutionQueue.isEmpty() {
 		this.doResolve(this.resolutionQueue.pop())
@@ -85,7 +97,9 @@ func (this *JSTypeResolver) doResolve(type_ *JSType) {
 }
 
 func (this *JSTypeResolver) assertLegalToResolveTypes() {
-	Preconditions_checkState_boolean_Object(!Object_equals(obj_(this.state), obj_(JSTypeResolver_State_OPEN)), strobj_("Types cannot be resolved while the registry is open"))
+	if equalsId_(this.state, JSTypeResolver_State_OPEN) {
+		panic(new_IllegalStateException_String("Types cannot be resolved while the registry is open"))
+	}
 }
 
 type JSTypeResolver_Closer struct {
@@ -109,50 +123,69 @@ func new_JSTypeResolver_Closer(outer_ *JSTypeResolver) *JSTypeResolver_Closer {
 }
 
 func (this *JSTypeResolver_Closer) close() {
-	Preconditions_checkState(!this.hasRun)
+	if this.hasRun {
+		panic(new_IllegalStateException_0())
+	}
 	this.hasRun = true
 	this.outer_.resolveAll()
 }
 
-type JSTypeResolver_State struct {
-	Enum
+type JSTypeResolver_State uint8
+
+// JSTypeResolver_State_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSTypeResolver_State_enum_ = [3]Enum{
+	{self_: JSTypeResolver_State_CLOSED, name_: "CLOSED", ordinal_: 0},
+	{self_: JSTypeResolver_State_OPEN, name_: "OPEN", ordinal_: 1},
+	{self_: JSTypeResolver_State_CLOSING, name_: "CLOSING", ordinal_: 2},
 }
 
-func (this *JSTypeResolver_State) up_Enum() *Enum {
-	if this == nil {
+func (this JSTypeResolver_State) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSTypeResolver_State_enum_[this-1]
 }
 
-func (this *JSTypeResolver_State) init_JSTypeResolver_State(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JSTypeResolver_State) name() string { return this.enum_().name_ }
+
+func (this JSTypeResolver_State) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_JSTypeResolver_State(name_ string, ordinal_ int32) *JSTypeResolver_State {
-	this := &JSTypeResolver_State{}
-	this.self_ = this
-	this.init_JSTypeResolver_State(name_, ordinal_)
+func (this JSTypeResolver_State) toString() string { return this.enum_().name_ }
+
+func (this JSTypeResolver_State) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this JSTypeResolver_State) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSTypeResolver_State_values() []*JSTypeResolver_State {
-	return append([]*JSTypeResolver_State(nil), JSTypeResolver_State_values_...)
+func JSTypeResolver_State_values() []JSTypeResolver_State {
+	return append([]JSTypeResolver_State(nil), JSTypeResolver_State_values_...)
 }
 
-func JSTypeResolver_State_valueOf(name string) *JSTypeResolver_State {
+func JSTypeResolver_State_valueOf(name string) JSTypeResolver_State {
 	for _, v := range JSTypeResolver_State_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("State", name))
 }
 
-var JSTypeResolver_State_CLOSED *JSTypeResolver_State
-var JSTypeResolver_State_OPEN *JSTypeResolver_State
-var JSTypeResolver_State_CLOSING *JSTypeResolver_State
-var JSTypeResolver_State_values_ []*JSTypeResolver_State
+const JSTypeResolver_State_CLOSED JSTypeResolver_State = 1
+const JSTypeResolver_State_OPEN JSTypeResolver_State = 2
+const JSTypeResolver_State_CLOSING JSTypeResolver_State = 3
+
+var JSTypeResolver_State_values_ []JSTypeResolver_State
 
 var JSTypeResolver_State_clinit_done bool
 
@@ -161,10 +194,7 @@ func JSTypeResolver_State_clinit() {
 		return
 	}
 	JSTypeResolver_State_clinit_done = true
-	JSTypeResolver_State_CLOSED = new_JSTypeResolver_State("CLOSED", 0)
-	JSTypeResolver_State_OPEN = new_JSTypeResolver_State("OPEN", 1)
-	JSTypeResolver_State_CLOSING = new_JSTypeResolver_State("CLOSING", 2)
-	JSTypeResolver_State_values_ = []*JSTypeResolver_State{JSTypeResolver_State_CLOSED, JSTypeResolver_State_OPEN, JSTypeResolver_State_CLOSING}
+	JSTypeResolver_State_values_ = []JSTypeResolver_State{JSTypeResolver_State_CLOSED, JSTypeResolver_State_OPEN, JSTypeResolver_State_CLOSING}
 	registerEnum_("com.google.javascript.rhino.jstype.JSTypeResolver.State", enumValues_(JSTypeResolver_State_values_))
 
 }

@@ -27,7 +27,7 @@ func new_CheckEnums(compiler *AbstractCompiler) *CheckEnums {
 }
 
 func (this *CheckEnums) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckEnums) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -42,7 +42,9 @@ func (this *CheckEnums) visit_impl(t *NodeTraversal, n Node, parent Node) {
 }
 
 func CheckEnums_checkEnumTypeAndInitializerValues(t *NodeTraversal, n Node, jsDocInfo *JSDocInfo) {
-	Preconditions_checkArgument_boolean_Object(n.isObjectLit(), n.box_())
+	if !n.isObjectLit() {
+		panic(new_IllegalArgumentException_String(tostr_(n)))
+	}
 	var enumTypeExpr *JSTypeExpression = jsDocInfo.getEnumParameterType()
 	var enumType Node = enumTypeExpr.getRoot()
 	var isStringEnum bool = (enumType.isStringLit() && (enumType.getString() == "string"))
@@ -56,7 +58,9 @@ func CheckEnums_checkEnumTypeAndInitializerValues(t *NodeTraversal, n Node, jsDo
 }
 
 func CheckEnums_checkStringEnumInitializerValues(t *NodeTraversal, enumNode Node) {
-	Preconditions_checkArgument_boolean_Object(enumNode.isObjectLit(), enumNode.box_())
+	if !enumNode.isObjectLit() {
+		panic(new_IllegalArgumentException_String(tostr_(enumNode)))
+	}
 	{
 		var prop Node = enumNode.getFirstChild()
 		for ; prop != 0; prop = prop.getNext() {
@@ -134,4 +138,13 @@ func CheckEnums_clinit() {
 	CheckEnums_ENUM_TYPE_NOT_STRING_OR_NUMBER = DiagnosticType_disabled("JSC_ENUM_VALUE_NOT_STRING_OR_NUMBER", "enum type must be either string or number.")
 	CheckEnums_NON_STATIC_INITIALIZER_STRING_VALUE_IN_ENUM = DiagnosticType_disabled("JSC_NON_STATIC_INITIALIZER_STRING_VALUE_IN_ENUM", "Enum string values must be statically initialized as per the style guide.")
 
+}
+
+// visit: an object that is exactly a CheckEnums calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckEnums) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckEnums); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

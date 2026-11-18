@@ -26,23 +26,23 @@ func (this *InputId) getIdName() string {
 }
 
 func (this *InputId) hashCode() int32 {
-	return String_hashCode(this.id)
+	return utf16Hash_(this.id)
 }
 
 func (this *InputId) equals(obj any) bool {
 	if any(this) == obj {
 		return true
 	}
-	var inputId *InputId
-	_ = inputId
-	if !(func() bool {
-		v_ := obj
-		if !is_[*InputId](v_) {
-			return false
-		}
-		inputId = cast_[*InputId](v_)
+	p, ok := obj.(*InputId)
+	return ok && this.equals_InputId(p)
+}
+
+// equals_InputId is equals of a InputId (post-flip step eqtyped).
+func (this *InputId) equals_InputId(inputId *InputId) bool {
+	if inputId == this {
 		return true
-	}()) {
+	}
+	if !(inputId != nil) {
 		return false
 	}
 	return (this.id == inputId.id)

@@ -2,10 +2,12 @@
 
 package closure
 
+import "strings"
+
 type ReportUntranspilableFeatures struct {
 	AbstractPeepholeTranspilation
 	compiler_                      *AbstractCompiler
-	browserFeatureSetYear          *CompilerOptions_BrowserFeaturesetYear
+	browserFeatureSetYear          CompilerOptions_BrowserFeaturesetYear
 	untranspilableFeaturesToRemove *FeatureSet
 }
 
@@ -16,16 +18,20 @@ func (this *ReportUntranspilableFeatures) up_AbstractPeepholeTranspilation() *Ab
 	return &this.AbstractPeepholeTranspilation
 }
 
-func (this *ReportUntranspilableFeatures) init_ReportUntranspilableFeatures(compiler *AbstractCompiler, browserFeatureSetYear *CompilerOptions_BrowserFeaturesetYear, outputFeatures *FeatureSet) {
+func (this *ReportUntranspilableFeatures) init_ReportUntranspilableFeatures(compiler *AbstractCompiler, browserFeatureSetYear CompilerOptions_BrowserFeaturesetYear, outputFeatures *FeatureSet) {
 	this.AbstractPeepholeTranspilation.init_AbstractPeepholeTranspilation()
-	Preconditions_checkNotNull(compiler.self())
-	Preconditions_checkNotNull(obj_(outputFeatures))
+	if compiler == nil {
+		panic(new_NullPointerException_0())
+	}
+	if outputFeatures == nil {
+		panic(new_NullPointerException_0())
+	}
 	this.compiler_ = compiler
 	this.browserFeatureSetYear = browserFeatureSetYear
 	this.untranspilableFeaturesToRemove = ReportUntranspilableFeatures_ALL_UNTRANSPILABLE_FEATURES.without(outputFeatures)
 }
 
-func new_ReportUntranspilableFeatures(compiler *AbstractCompiler, browserFeatureSetYear *CompilerOptions_BrowserFeaturesetYear, outputFeatures *FeatureSet) *ReportUntranspilableFeatures {
+func new_ReportUntranspilableFeatures(compiler *AbstractCompiler, browserFeatureSetYear CompilerOptions_BrowserFeaturesetYear, outputFeatures *FeatureSet) *ReportUntranspilableFeatures {
 	this := &ReportUntranspilableFeatures{}
 	this.self_ = this
 	this.init_ReportUntranspilableFeatures(compiler, browserFeatureSetYear, outputFeatures)
@@ -41,8 +47,8 @@ func (this *ReportUntranspilableFeatures) getAdditionalFeaturesToRunOn_impl() *F
 }
 
 func (this *ReportUntranspilableFeatures) checkForUntranspilable(root Node) {
-	switch root.getToken() {
-	case Token_rhino_REGEXP:
+	switch root.ns_().token {
+	case tokOrd1_REGEXP:
 		var pattern string = root.getFirstChild().getString()
 		var flags string = func() string {
 			if root.hasTwoChildren() {
@@ -59,7 +65,6 @@ func (this *ReportUntranspilableFeatures) checkForUntranspilable(root Node) {
 						var ex *RuntimeException = to_RuntimeException(ex_)
 						this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(root, CheckRegExp_MALFORMED_REGEXP, []string{ex.getMessage()}))
 						code_ = 2
-						return
 						return
 					}
 					panic(r_)
@@ -86,19 +91,19 @@ func (this *ReportUntranspilableFeatures) checkForUntranspilable(root Node) {
 		if this.untranspilableFeaturesToRemove.contains(FeatureSet_Feature_REGEXP_FLAG_D) {
 			this.checkForRegExpDFlag(root)
 		}
-	case Token_rhino_BIGINT:
+	case tokOrd1_BIGINT:
 		if this.untranspilableFeaturesToRemove.contains(FeatureSet_Feature_BIGINT) {
 			this.reportUntranspilable(FeatureSet_Feature_BIGINT, root)
 		}
-	case Token_rhino_GETTER_DEF:
+	case tokOrd1_GETTER_DEF:
 		if this.untranspilableFeaturesToRemove.contains(FeatureSet_Feature_GETTER) {
 			this.reportUntranspilable(FeatureSet_Feature_GETTER, root)
 		}
-	case Token_rhino_SETTER_DEF:
+	case tokOrd1_SETTER_DEF:
 		if this.untranspilableFeaturesToRemove.contains(FeatureSet_Feature_SETTER) {
 			this.reportUntranspilable(FeatureSet_Feature_SETTER, root)
 		}
-	case Token_rhino_AWAIT, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_AWAIT, tokOrd1_FOR_AWAIT_OF:
 		if this.untranspilableFeaturesToRemove.contains(FeatureSet_Feature_TOP_LEVEL_AWAIT) {
 			this.checkForTopLevelAwait(root)
 		}
@@ -106,101 +111,127 @@ func (this *ReportUntranspilableFeatures) checkForUntranspilable(root Node) {
 	}
 }
 
-func (this *ReportUntranspilableFeatures) reportUntranspilable(feature *FeatureSet_Feature, node Node) {
-	var minimumLanguageMode *Config_LanguageMode = Config_LanguageMode_minimumRequiredFor(feature)
+func (this *ReportUntranspilableFeatures) reportUntranspilable(feature FeatureSet_Feature, node Node) {
+	var minimumLanguageMode Config_LanguageMode = Config_LanguageMode_minimumRequiredFor(feature)
 	if minimumLanguageMode == Config_LanguageMode_UNSUPPORTED {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, ReportUntranspilableFeatures_UNSUPPORTED_FEATURE_PRESENT, []string{feature.toString()}))
 		return
 	}
 	var minimum string
 	var suggestion string = " Consider targeting a more modern output."
-	if this.browserFeatureSetYear != nil {
-		var minimumYear *CompilerOptions_BrowserFeaturesetYear = CompilerOptions_BrowserFeaturesetYear_minimumRequiredFor(feature)
-		if minimumYear == nil {
-			minimum = (objstr_(obj_(minimumLanguageMode)) + ", which is not yet supported by any browser featureset year")
+	if this.browserFeatureSetYear != 0 {
+		var minimumYear CompilerOptions_BrowserFeaturesetYear = CompilerOptions_BrowserFeaturesetYear_minimumRequiredFor(feature)
+		if minimumYear == 0 {
+			minimum = (tostr_(minimumLanguageMode) + ", which is not yet supported by any browser featureset year")
 			suggestion = ""
 		} else {
 			minimum = ("browser featureset year " + istr_(int64(minimumYear.getYear())))
 			suggestion = (sstr_(suggestion) + "\nCurrent browser featureset year: " + istr_(int64(this.browserFeatureSetYear.getYear())))
 		}
 	} else {
-		minimum = Object_toString(obj_(minimumLanguageMode))
+		minimum = tostrNN_(minimumLanguageMode)
 	}
 	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, ReportUntranspilableFeatures_UNTRANSPILABLE_FEATURE_PRESENT, []string{feature.toString(), minimum, suggestion}))
 }
 
 func (this *ReportUntranspilableFeatures) checkForRegExpSFlag(regexpNode Node) {
-	Preconditions_checkArgument(regexpNode.isRegExp())
+	if !regexpNode.isRegExp() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var flags string = func() string {
 		if regexpNode.hasTwoChildren() {
 			return regexpNode.getLastChild().getString()
 		}
 		return ""
 	}()
-	if String_contains(flags, strobj_("s")) {
+	if strings.Contains(flags, "s") {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_FLAG_S, regexpNode)
 	}
 }
 
 func (this *ReportUntranspilableFeatures) checkForLookbehind(regexpNode Node, tree *RegExpTree) {
-	Preconditions_checkArgument((regexpNode != 0))
-	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, &Predicate_fn{func(t_ any) bool {
-		var t *RegExpTree = to_RegExpTree(t_)
-		_ = t
-		return is_[*RegExpTree_LookbehindAssertion](t.self())
-	}}) {
+	if regexpNode == 0 {
+		panic(new_IllegalArgumentException_0())
+	}
+	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, lambda_ReportUntranspilableFeatures_checkForLookbehind_1_) {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_LOOKBEHIND, regexpNode)
 	}
 }
 
+// lambda_ReportUntranspilableFeatures_checkForLookbehind_1_ is a lambda of ReportUntranspilableFeatures_checkForLookbehind that captures nothing (post-flip step lambdas).
+func lambda_ReportUntranspilableFeatures_checkForLookbehind_1_(t_ any) bool {
+	var t *RegExpTree = to_RegExpTree(t_)
+	_ = t
+	_, ok := t.self().(*RegExpTree_LookbehindAssertion)
+	return ok
+}
+
 func (this *ReportUntranspilableFeatures) checkForNamedGroups(regexpNode Node, tree *RegExpTree) {
-	Preconditions_checkArgument((regexpNode != 0))
-	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, &Predicate_fn{func(t_ any) bool {
-		var t *RegExpTree = to_RegExpTree(t_)
-		_ = t
-		return is_[*RegExpTree_NamedCaptureGroup](t.self())
-	}}) {
+	if regexpNode == 0 {
+		panic(new_IllegalArgumentException_0())
+	}
+	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, lambda_ReportUntranspilableFeatures_checkForNamedGroups_1_) {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_NAMED_GROUPS, regexpNode)
 	}
 }
 
+// lambda_ReportUntranspilableFeatures_checkForNamedGroups_1_ is a lambda of ReportUntranspilableFeatures_checkForNamedGroups that captures nothing (post-flip step lambdas).
+func lambda_ReportUntranspilableFeatures_checkForNamedGroups_1_(t_ any) bool {
+	var t *RegExpTree = to_RegExpTree(t_)
+	_ = t
+	_, ok := t.self().(*RegExpTree_NamedCaptureGroup)
+	return ok
+}
+
 func (this *ReportUntranspilableFeatures) checkForUnicodePropertyEscape(regexpNode Node, tree *RegExpTree) {
-	Preconditions_checkArgument((regexpNode != 0))
-	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, &Predicate_fn{func(t_ any) bool {
-		var t *RegExpTree = to_RegExpTree(t_)
-		_ = t
-		return is_[*RegExpTree_UnicodePropertyEscape](t.self())
-	}}) {
+	if regexpNode == 0 {
+		panic(new_IllegalArgumentException_0())
+	}
+	if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree, lambda_ReportUntranspilableFeatures_checkForUnicodePropertyEscape_1_) {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE, regexpNode)
 	}
 }
 
+// lambda_ReportUntranspilableFeatures_checkForUnicodePropertyEscape_1_ is a lambda of ReportUntranspilableFeatures_checkForUnicodePropertyEscape that captures nothing (post-flip step lambdas).
+func lambda_ReportUntranspilableFeatures_checkForUnicodePropertyEscape_1_(t_ any) bool {
+	var t *RegExpTree = to_RegExpTree(t_)
+	_ = t
+	_, ok := t.self().(*RegExpTree_UnicodePropertyEscape)
+	return ok
+}
+
 func (this *ReportUntranspilableFeatures) checkForRegExpDFlag(regexpNode Node) {
-	Preconditions_checkArgument(regexpNode.isRegExp())
+	if !regexpNode.isRegExp() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var flags string = func() string {
 		if regexpNode.hasTwoChildren() {
 			return regexpNode.getLastChild().getString()
 		}
 		return ""
 	}()
-	if String_contains(flags, strobj_("d")) {
+	if strings.Contains(flags, "d") {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_FLAG_D, regexpNode)
 	}
 }
 
 func (this *ReportUntranspilableFeatures) checkForTopLevelAwait(awaitNode Node) {
-	Preconditions_checkArgument((awaitNode.isAwait() || awaitNode.isForAwaitOf()))
+	if !awaitNode.isAwait() && !awaitNode.isForAwaitOf() {
+		panic(new_IllegalArgumentException_0())
+	}
 	if NodeUtil_getEnclosingFunction(awaitNode) == 0 {
-		Preconditions_checkArgument_boolean_Object(NodeUtil_getEnclosingScript(awaitNode).getBooleanProp(Node_ES6_MODULE), strobj_("Top-level await is only allowed in ES module sources"))
+		if !NodeUtil_getEnclosingScript(awaitNode).getBooleanProp(Node_ES6_MODULE) {
+			panic(new_IllegalArgumentException_String("Top-level await is only allowed in ES module sources"))
+		}
 		this.reportUntranspilable(FeatureSet_Feature_TOP_LEVEL_AWAIT, awaitNode)
 	}
 }
 
-func ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree *RegExpTree, p PredicateOf[*RegExpTree]) bool {
-	if p.test(tree.self()) {
+func ReportUntranspilableFeatures_anySubtreeMeetsPredicate(tree *RegExpTree, p func(any) bool) bool {
+	if p(tree.self()) {
 		return true
 	}
-	it_1 := foreach_(any(tree.children()))
+	it_1 := foreach_(tree.children())
 	for it_1.next() {
 		var subTree *RegExpTree = to_RegExpTree(it_1.v)
 		if ReportUntranspilableFeatures_anySubtreeMeetsPredicate(subTree, p) {
@@ -233,11 +264,35 @@ func ReportUntranspilableFeatures_clinit() {
 	ReportUntranspilableFeatures_clinit_done = true
 	ReportUntranspilableFeatures_UNTRANSPILABLE_FEATURE_PRESENT = DiagnosticType_error("JSC_UNTRANSPILABLE", "Cannot convert feature \"{0}\" to targeted output language. Feature requires at minimum {1}.{2}")
 	ReportUntranspilableFeatures_UNSUPPORTED_FEATURE_PRESENT = DiagnosticType_error("JSC_UNSUPPORTED", "The feature \"{0}\" is currently unsupported for transpilation.")
-	ReportUntranspilableFeatures_UNTRANSPILABLE_ES5_FEATURES = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_GETTER, FeatureSet_Feature_SETTER})
-	ReportUntranspilableFeatures_UNTRANSPILABLE_2018_FEATURES = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_REGEXP_FLAG_S, FeatureSet_Feature_REGEXP_LOOKBEHIND, FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE})
+	ReportUntranspilableFeatures_UNTRANSPILABLE_ES5_FEATURES = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_GETTER, FeatureSet_Feature_SETTER})
+	ReportUntranspilableFeatures_UNTRANSPILABLE_2018_FEATURES = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_REGEXP_FLAG_S, FeatureSet_Feature_REGEXP_LOOKBEHIND, FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE})
 	ReportUntranspilableFeatures_UNTRANSPILABLE_2019_FEATURES = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_UNESCAPED_UNICODE_LINE_OR_PARAGRAPH_SEP)
 	ReportUntranspilableFeatures_UNTRANSPILABLE_2020_FEATURES = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_BIGINT)
-	ReportUntranspilableFeatures_UNTRANSPILABLE_2022_FEATURES = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_REGEXP_FLAG_D, FeatureSet_Feature_TOP_LEVEL_AWAIT})
+	ReportUntranspilableFeatures_UNTRANSPILABLE_2022_FEATURES = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_REGEXP_FLAG_D, FeatureSet_Feature_TOP_LEVEL_AWAIT})
 	ReportUntranspilableFeatures_ALL_UNTRANSPILABLE_FEATURES = FeatureSet_BARE_MINIMUM.union(ReportUntranspilableFeatures_UNTRANSPILABLE_ES5_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2018_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2019_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2022_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2020_FEATURES)
 
+}
+
+// getTranspiledAwayFeatures: an object that is exactly a ReportUntranspilableFeatures calls its getTranspiledAwayFeatures_impl directly (post-flip); others dispatch.
+func (this *ReportUntranspilableFeatures) getTranspiledAwayFeatures() *FeatureSet {
+	if p, _ := this.self_.(*ReportUntranspilableFeatures); p == this {
+		return this.getTranspiledAwayFeatures_impl()
+	}
+	return this.self_.getTranspiledAwayFeatures_impl()
+}
+
+// getAdditionalFeaturesToRunOn: an object that is exactly a ReportUntranspilableFeatures calls its getAdditionalFeaturesToRunOn_impl directly (post-flip); others dispatch.
+func (this *ReportUntranspilableFeatures) getAdditionalFeaturesToRunOn() *FeatureSet {
+	if p, _ := this.self_.(*ReportUntranspilableFeatures); p == this {
+		return this.getAdditionalFeaturesToRunOn_impl()
+	}
+	return this.self_.getAdditionalFeaturesToRunOn_impl()
+}
+
+// transpileSubtree: an object that is exactly a ReportUntranspilableFeatures calls its transpileSubtree_impl directly (post-flip); others dispatch.
+func (this *ReportUntranspilableFeatures) transpileSubtree(p0 Node) Node {
+	if p, _ := this.self_.(*ReportUntranspilableFeatures); p == this {
+		return this.transpileSubtree_impl(p0)
+	}
+	return this.self_.transpileSubtree_impl(p0)
 }

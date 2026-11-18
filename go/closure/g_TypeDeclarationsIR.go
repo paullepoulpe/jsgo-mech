@@ -40,7 +40,7 @@ func TypeDeclarationsIR_undefinedType() Node {
 }
 
 func TypeDeclarationsIR_namedType(typeName string) Node {
-	return TypeDeclarationsIR_namedTypeIterable(Splitter_on('.').split(strobj_(typeName)))
+	return TypeDeclarationsIR_namedTypeIterable(Splitter_on('.').split_s(typeName))
 }
 
 func TypeDeclarationsIR_namedTypeIterable(segments IterableOf[string]) Node {
@@ -52,15 +52,13 @@ func TypeDeclarationsIR_namedTypeIterable(segments IterableOf[string]) Node {
 	return new_Node_Token_Node(Token_rhino_NAMED_TYPE, node)
 }
 
-func TypeDeclarationsIR_recordType(properties LinkedHashMapOf[string, Node]) Node {
+func TypeDeclarationsIR_recordType(properties *TMap[string, Node]) Node {
 	var node Node = new_Node_Token(Token_rhino_RECORD_TYPE)
-	it_1 := foreach_(any(properties.entrySet()))
-	for it_1.next() {
-		var prop Map_Entry = icast_Map_Entry(it_1.v)
-		var stringKey Node = IR_stringKey_String(str_(prop.getKey()))
+	for propKey, propValue := range properties.All() {
+		var stringKey Node = IR_stringKey_String(propKey)
 		node.addChildToBack(stringKey)
-		if Node_of_(prop.getValue()) != 0 {
-			stringKey.addChildToFront(Node_of_(prop.getValue()))
+		if propValue != 0 {
+			stringKey.addChildToFront(propValue)
 		}
 	}
 	return node
@@ -73,22 +71,22 @@ func TypeDeclarationsIR_maybeAddType(node Node, type_ Node) Node {
 	return node
 }
 
-func TypeDeclarationsIR_functionType(returnType Node, requiredParams LinkedHashMapOf[string, Node], optionalParams LinkedHashMapOf[string, Node], restName Optional[string], restType Node) Node {
+func TypeDeclarationsIR_functionType(returnType Node, requiredParams *TMap[string, Node], optionalParams *TMap[string, Node], restName Optional[string], restType Node) Node {
 	var node Node = new_Node_Token_Node(Token_rhino_FUNCTION_TYPE, returnType)
-	Preconditions_checkNotNull(obj_(requiredParams))
-	Preconditions_checkNotNull(obj_(optionalParams))
-	it_1 := foreach_(any(requiredParams.entrySet()))
-	for it_1.next() {
-		var param Map_Entry = icast_Map_Entry(it_1.v)
-		var name Node = IR_name(str_(param.getKey()))
-		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, Node_of_(param.getValue())))
+	if requiredParams.asMap() == nil {
+		panic(new_NullPointerException_0())
 	}
-	it_3 := foreach_(any(optionalParams.entrySet()))
-	for it_3.next() {
-		var param Map_Entry = icast_Map_Entry(it_3.v)
-		var name Node = IR_name(str_(param.getKey()))
+	if optionalParams.asMap() == nil {
+		panic(new_NullPointerException_0())
+	}
+	for paramKey, paramValue := range requiredParams.All() {
+		var name Node = IR_name(paramKey)
+		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, paramValue))
+	}
+	for paramKey2, paramValue2 := range optionalParams.All() {
+		var name Node = IR_name(paramKey2)
 		name.putBooleanProp(Node_OPT_ES6_TYPED, true)
-		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, Node_of_(param.getValue())))
+		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, paramValue2))
 	}
 	if restName.isPresent() {
 		var rest Node = new_Node_Token_Node(Token_rhino_ITER_REST, IR_name(restName.get()))
@@ -102,9 +100,7 @@ func TypeDeclarationsIR_parameterizedType(baseType Node, typeParameters Iterable
 		return baseType
 	}
 	var node Node = new_Node_Token_Node(Token_rhino_PARAMETERIZED_TYPE, baseType)
-	it_1 := foreach_(any(typeParameters))
-	for it_1.next() {
-		var typeParameter Node = Node_of_(it_1.v)
+	for typeParameter := range elemsBy_(typeParameters, Node_of_) {
 		node.addChildToBack(typeParameter)
 	}
 	return node
@@ -115,11 +111,11 @@ func TypeDeclarationsIR_arrayType(elementType Node) Node {
 }
 
 func TypeDeclarationsIR_unionType(options IterableOf[Node]) Node {
-	Preconditions_checkArgument_boolean_Object(!Iterables_isEmpty(options), strobj_("union must have at least one option"))
+	if Iterables_isEmpty(options) {
+		panic(new_IllegalArgumentException_String("union must have at least one option"))
+	}
 	var node Node = new_Node_Token(Token_rhino_UNION_TYPE)
-	it_1 := foreach_(any(options))
-	for it_1.next() {
-		var option Node = Node_of_(it_1.v)
+	for option := range elemsBy_(options, Node_of_) {
 		node.addChildToBack(option)
 	}
 	return node

@@ -4,9 +4,9 @@ package closure
 
 type AstValidator struct {
 	compiler_                        *AbstractCompiler
-	violationHandler                 AstValidator_ViolationHandler
+	violationHandler                 func(string, Node)
 	currentScript                    Node
-	typeValidationMode               *AstValidator_TypeInfoValidation
+	typeValidationMode               AstValidator_TypeInfoValidation
 	isScriptFeatureValidationEnabled bool
 	shouldValidateRequiredInlinings  bool
 }
@@ -15,7 +15,7 @@ func (this *AstValidator) finit_AstValidator() {
 	this.typeValidationMode = AstValidator_TypeInfoValidation_NONE
 }
 
-func (this *AstValidator) init_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler *AbstractCompiler, handler AstValidator_ViolationHandler, validateScriptFeatures bool, shouldValidateRequiredInlinings bool) {
+func (this *AstValidator) init_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler *AbstractCompiler, handler func(string, Node), validateScriptFeatures bool, shouldValidateRequiredInlinings bool) {
 	this.finit_AstValidator()
 	this.compiler_ = compiler
 	this.violationHandler = handler
@@ -23,7 +23,7 @@ func (this *AstValidator) init_AstValidator_AbstractCompiler_ViolationHandler_bo
 	this.shouldValidateRequiredInlinings = shouldValidateRequiredInlinings
 }
 
-func new_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler *AbstractCompiler, handler AstValidator_ViolationHandler, validateScriptFeatures bool, shouldValidateRequiredInlinings bool) *AstValidator {
+func new_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler *AbstractCompiler, handler func(string, Node), validateScriptFeatures bool, shouldValidateRequiredInlinings bool) *AstValidator {
 	this := &AstValidator{}
 	this.init_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler, handler, validateScriptFeatures, shouldValidateRequiredInlinings)
 	return this
@@ -40,7 +40,7 @@ func new_AstValidator_AbstractCompiler(compiler *AbstractCompiler) *AstValidator
 }
 
 func (this *AstValidator) init_AstValidator_AbstractCompiler_boolean(compiler *AbstractCompiler, validateScriptFeatures bool) {
-	this.init_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler, icast_AstValidator_ViolationHandler(obj_(new_AstValidator_1(this))), validateScriptFeatures, Object_equals(obj_(compiler.getOptions().getShouldValidateRequiredInlinings()), obj_(Tri_TRUE)))
+	this.init_AstValidator_AbstractCompiler_ViolationHandler_boolean_boolean(compiler, new_AstValidator_1(this).handleViolation, validateScriptFeatures, equalsId_(compiler.getOptions().getShouldValidateRequiredInlinings(), Tri_TRUE))
 }
 
 func new_AstValidator_AbstractCompiler_boolean(compiler *AbstractCompiler, validateScriptFeatures bool) *AstValidator {
@@ -49,7 +49,7 @@ func new_AstValidator_AbstractCompiler_boolean(compiler *AbstractCompiler, valid
 	return this
 }
 
-func (this *AstValidator) setTypeValidationMode(mode *AstValidator_TypeInfoValidation) *AstValidator {
+func (this *AstValidator) setTypeValidationMode(mode AstValidator_TypeInfoValidation) *AstValidator {
 	this.typeValidationMode = mode
 	return this
 }
@@ -111,7 +111,7 @@ func (this *AstValidator) validateScriptFeatureSet(scriptNode Node) {
 	if !allowableFeatures.containsFeatureSet(scriptFeatures) {
 		if !scriptNode.isFromExterns() {
 			var differentFeatures *FeatureSet = scriptFeatures.without(allowableFeatures)
-			this.violation(("SCRIPT node contains these unallowable features:" + objstr_(obj_(differentFeatures.getFeatures()))), this.currentScript)
+			this.violation(("SCRIPT node contains these unallowable features:" + tostr_(differentFeatures.getFeatures().asImm())), this.currentScript)
 		}
 	}
 }
@@ -133,187 +133,193 @@ func (this *AstValidator) validateStatement(n Node) {
 }
 
 func (this *AstValidator) validateStatement_2(n Node, isAmbient bool) {
-	switch n.getToken() {
-	case Token_rhino_LABEL:
+	switch n.ns_().token {
+	case tokOrd1_LABEL:
 		this.validateLabel(n)
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		this.validateBlock(n)
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		if isAmbient {
 			this.validateFunctionSignature(n)
 		} else {
 			this.validateFunctionStatement(n)
 		}
-	case Token_rhino_WITH:
+	case tokOrd1_WITH:
 		this.validateWith(n)
-	case Token_rhino_FOR:
+	case tokOrd1_FOR:
 		this.validateFor(n)
-	case Token_rhino_FOR_IN:
+	case tokOrd1_FOR_IN:
 		this.validateForIn(n)
-	case Token_rhino_FOR_OF:
+	case tokOrd1_FOR_OF:
 		this.validateForOf(n)
-	case Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_AWAIT_OF:
 		this.validateForAwaitOf(n)
-	case Token_rhino_WHILE:
+	case tokOrd1_WHILE:
 		this.validateWhile(n)
-	case Token_rhino_DO:
+	case tokOrd1_DO:
 		this.validateDo(n)
-	case Token_rhino_SWITCH:
+	case tokOrd1_SWITCH:
 		this.validateSwitch(n)
-	case Token_rhino_IF:
+	case tokOrd1_IF:
 		this.validateIf(n)
-	case Token_rhino_CONST, Token_rhino_VAR, Token_rhino_LET:
+	case tokOrd1_CONST, tokOrd1_VAR, tokOrd1_LET:
 		this.validateNameDeclarationHelper(n, n.getToken(), n)
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		this.validateExprStmt(n)
-	case Token_rhino_RETURN:
+	case tokOrd1_RETURN:
 		this.validateReturn(n)
-	case Token_rhino_THROW:
+	case tokOrd1_THROW:
 		this.validateThrow(n)
-	case Token_rhino_TRY:
+	case tokOrd1_TRY:
 		this.validateTry(n)
-	case Token_rhino_BREAK:
+	case tokOrd1_BREAK:
 		this.validateBreak(n)
-	case Token_rhino_CONTINUE:
+	case tokOrd1_CONTINUE:
 		this.validateContinue(n)
-	case Token_rhino_EMPTY, Token_rhino_DEBUGGER:
+	case tokOrd1_EMPTY, tokOrd1_DEBUGGER:
 		this.validateProperties(n)
 		this.validateChildless(n)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.validateClassDeclaration(n, isAmbient)
-	case Token_rhino_IMPORT:
+	case tokOrd1_IMPORT:
 		this.validateImport(n)
-	case Token_rhino_EXPORT:
+	case tokOrd1_EXPORT:
 		this.validateExport(n, isAmbient)
-	case Token_rhino_INTERFACE:
+	case tokOrd1_INTERFACE:
 		this.validateInterface(n)
-	case Token_rhino_ENUM:
+	case tokOrd1_ENUM:
 		this.validateEnum(n)
-	case Token_rhino_TYPE_ALIAS:
+	case tokOrd1_TYPE_ALIAS:
 		this.validateTypeAlias(n)
-	case Token_rhino_DECLARE:
+	case tokOrd1_DECLARE:
 		this.validateAmbientDeclaration(n)
-	case Token_rhino_NAMESPACE:
+	case tokOrd1_NAMESPACE:
 		this.validateNamespace(n, isAmbient)
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		if this.compiler_.getOptions().getSkipNonTranspilationPasses() {
 			if !this.compiler_.getOptions().shouldWrapGoogModulesForWhitespaceOnly() {
 				this.validateModuleContents(n)
 				return
 			}
 		}
-		this.violation(("Expected statement but was " + objstr_(obj_(n.getToken())) + "."), n)
+		this.violation(("Expected statement but was " + tostr_(n.getToken()) + "."), n)
 	default:
 		if n.isModuleBody() && this.compiler_.getOptions().getSkipNonTranspilationPasses() {
-			Preconditions_checkState_boolean_Object(!this.compiler_.getOptions().shouldWrapGoogModulesForWhitespaceOnly(), strobj_("Modules can exist in transpiler only if setWrapGoogModulesForWhitespaceOnly is false"))
+			if this.compiler_.getOptions().shouldWrapGoogModulesForWhitespaceOnly() {
+				panic(new_IllegalStateException_String("Modules can exist in transpiler only if setWrapGoogModulesForWhitespaceOnly is false"))
+			}
 			this.validateModuleContents(n)
 			return
 		}
-		this.violation(("Expected statement but was " + objstr_(obj_(n.getToken())) + "."), n)
+		this.violation(("Expected statement but was " + tostr_(n.getToken()) + "."), n)
 	}
 }
 
 func (this *AstValidator) validateExpression(n Node) {
 	this.validateTypeInformation(n)
 	this.validateRequiredInlinings(n)
-	switch n.getToken() {
-	case Token_rhino_NEW_TARGET:
+	switch n.ns_().token {
+	case tokOrd1_NEW_TARGET:
 		this.validateFeature(FeatureSet_Feature_NEW_TARGET, n)
 		this.validateProperties(n)
 		this.validateChildless(n)
-	case Token_rhino_IMPORT_META:
+	case tokOrd1_IMPORT_META:
 		this.validateFeature(FeatureSet_Feature_IMPORT_META, n)
 		this.validateProperties(n)
 		this.validateChildless(n)
-	case Token_rhino_FALSE, Token_rhino_NULL, Token_rhino_THIS, Token_rhino_TRUE:
+	case tokOrd1_FALSE, tokOrd1_NULL, tokOrd1_THIS, tokOrd1_TRUE:
 		this.validateProperties(n)
 		this.validateChildless(n)
-	case Token_rhino_DELPROP, Token_rhino_POS, Token_rhino_NEG, Token_rhino_NOT, Token_rhino_TYPEOF, Token_rhino_VOID, Token_rhino_BITNOT, Token_rhino_CAST:
+	case tokOrd1_DELPROP, tokOrd1_POS, tokOrd1_NEG, tokOrd1_NOT, tokOrd1_TYPEOF, tokOrd1_VOID, tokOrd1_BITNOT, tokOrd1_CAST:
 		this.validateUnaryOp(n)
-	case Token_rhino_INC, Token_rhino_DEC:
+	case tokOrd1_INC, tokOrd1_DEC:
 		this.validateIncDecOp(n)
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		this.validateAssignmentExpression(n)
-	case Token_rhino_ASSIGN_EXPONENT:
+	case tokOrd1_ASSIGN_EXPONENT:
 		this.validateFeature(FeatureSet_Feature_EXPONENT_OP, n)
 		this.validateCompoundAssignmentExpression(n)
-	case Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD:
+	case tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD:
 		this.validateCompoundAssignmentExpression(n)
-	case Token_rhino_ASSIGN_COALESCE:
+	case tokOrd1_ASSIGN_COALESCE:
 		this.validateFeature(FeatureSet_Feature_NULL_COALESCE_OP, n)
 		this.validateFeature(FeatureSet_Feature_LOGICAL_ASSIGNMENT, n)
 		this.validateCompoundAssignmentExpression(n)
-	case Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND:
+	case tokOrd1_ASSIGN_OR, tokOrd1_ASSIGN_AND:
 		this.validateFeature(FeatureSet_Feature_LOGICAL_ASSIGNMENT, n)
 		this.validateCompoundAssignmentExpression(n)
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		this.validateTrinaryOp(n)
-	case Token_rhino_STRINGLIT:
+	case tokOrd1_STRINGLIT:
 		this.validateStringLit(n)
-	case Token_rhino_NUMBER:
+	case tokOrd1_NUMBER:
 		this.validateNumber(n)
-	case Token_rhino_BIGINT:
+	case tokOrd1_BIGINT:
 		this.validateBigInt(n)
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		this.validateName(n)
-	case Token_rhino_EXPONENT:
+	case tokOrd1_EXPONENT:
 		this.validateFeature(FeatureSet_Feature_EXPONENT_OP, n)
 		this.validateBinaryOp(n)
-	case Token_rhino_COALESCE:
+	case tokOrd1_COALESCE:
 		this.validateFeature(FeatureSet_Feature_NULL_COALESCE_OP, n)
 		this.validateBinaryOp(n)
-	case Token_rhino_COMMA, Token_rhino_OR, Token_rhino_AND, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_LT, Token_rhino_GT, Token_rhino_LE, Token_rhino_GE, Token_rhino_INSTANCEOF, Token_rhino_IN, Token_rhino_LSH, Token_rhino_RSH, Token_rhino_URSH, Token_rhino_SUB, Token_rhino_ADD, Token_rhino_MUL, Token_rhino_MOD, Token_rhino_DIV:
+	case tokOrd1_COMMA, tokOrd1_OR, tokOrd1_AND, tokOrd1_BITOR, tokOrd1_BITXOR, tokOrd1_BITAND, tokOrd1_EQ, tokOrd1_NE, tokOrd1_SHEQ, tokOrd1_SHNE, tokOrd1_LT, tokOrd1_GT, tokOrd1_LE, tokOrd1_GE, tokOrd1_INSTANCEOF, tokOrd1_IN, tokOrd1_LSH, tokOrd1_RSH, tokOrd1_URSH, tokOrd1_SUB, tokOrd1_ADD, tokOrd1_MUL, tokOrd1_MOD, tokOrd1_DIV:
 		this.validateBinaryOp(n)
-	case Token_rhino_GETELEM:
+	case tokOrd1_GETELEM:
 		this.validateGetElem(n)
-	case Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_OPTCHAIN_GETELEM:
 		this.validateOptChainGetElem(n)
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		this.validateGetProp(n)
-	case Token_rhino_OPTCHAIN_GETPROP:
+	case tokOrd1_OPTCHAIN_GETPROP:
 		this.validateOptChainGetProp(n)
-	case Token_rhino_ARRAYLIT:
+	case tokOrd1_ARRAYLIT:
 		this.validateArrayLit(n)
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		this.validateObjectLit(n)
-	case Token_rhino_REGEXP:
+	case tokOrd1_REGEXP:
 		this.validateRegExpLit(n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		this.validateCall(n)
-	case Token_rhino_OPTCHAIN_CALL:
+	case tokOrd1_OPTCHAIN_CALL:
 		this.validateOptChainCall(n)
-	case Token_rhino_NEW:
+	case tokOrd1_NEW:
 		this.validateNew(n)
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.validateRequiredInlinings(n)
 		this.validateFunctionExpression(n)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.validateClass(n)
-	case Token_rhino_TEMPLATELIT:
+	case tokOrd1_TEMPLATELIT:
 		this.validateTemplateLit(n)
-	case Token_rhino_TAGGED_TEMPLATELIT:
+	case tokOrd1_TAGGED_TEMPLATELIT:
 		this.validateTaggedTemplateLit(n)
-	case Token_rhino_YIELD:
+	case tokOrd1_YIELD:
 		this.validateYield(n)
-	case Token_rhino_AWAIT:
+	case tokOrd1_AWAIT:
 		this.validateAwait(n)
-	case Token_rhino_DYNAMIC_IMPORT:
+	case tokOrd1_DYNAMIC_IMPORT:
 		this.validateFeature(FeatureSet_Feature_DYNAMIC_IMPORT, n)
 		this.validateUnaryOp(n)
 	default:
-		this.violation(("Expected expression but was " + objstr_(obj_(n.getToken()))), n)
+		this.violation(("Expected expression but was " + tostr_(n.getToken())), n)
 	}
 }
 
-func (this *AstValidator) validatePseudoExpression(n Node, allowedPseudoexpressions []*Token_rhino) {
-	var allowedTokensSet ImmutableSetOf[*Token_rhino] = ImmutableSet_copyOf_ObjectArr(arrmap_(allowedPseudoexpressions, func(v_ *Token_rhino) any { return obj_(v_) }))
-	switch n.getToken() {
-	case Token_rhino_EMPTY:
-		Preconditions_checkArgument_boolean_String_Object(allowedTokensSet.contains(obj_(Token_rhino_EMPTY)), "Unexpected pseudoexpression %s", n.box_())
+func (this *AstValidator) validatePseudoExpression(n Node, allowedPseudoexpressions []Token_rhino) {
+	var allowedTokensSet *ImmutableSet[Token_rhino] = tsetFrom_(tc_Token_rhino, ImmutableSet_copyOf_ObjectArr(arrmap_(allowedPseudoexpressions, func(v_ Token_rhino) any { return obj_(v_) })), true)
+	switch n.ns_().token {
+	case tokOrd1_EMPTY:
+		if !allowedTokensSet.Has(Token_rhino_EMPTY) {
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", []any{n.box_()})))
+		}
 		this.validateProperties(n)
 		this.validateChildless(n)
-	case Token_rhino_ITER_SPREAD:
-		Preconditions_checkArgument_boolean_String_Object(allowedTokensSet.contains(obj_(Token_rhino_ITER_SPREAD)), "Unexpected pseudoexpression %s", n.box_())
+	case tokOrd1_ITER_SPREAD:
+		if !allowedTokensSet.Has(Token_rhino_ITER_SPREAD) {
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", []any{n.box_()})))
+		}
 		this.validateProperties(n)
 		this.validateChildCount(n)
 		this.validateFeature(FeatureSet_Feature_SPREAD_EXPRESSIONS, n)
@@ -327,17 +333,17 @@ func (this *AstValidator) validateTypeInformation(n Node) {
 	if n.getIsInClosureUnawareSubtree() {
 		return
 	}
-	if Object_equals(obj_(this.typeValidationMode), obj_(AstValidator_TypeInfoValidation_NONE)) {
+	if equalsId_(this.typeValidationMode, AstValidator_TypeInfoValidation_NONE) {
 		return
 	}
-	if Object_equals(obj_(this.typeValidationMode), obj_(AstValidator_TypeInfoValidation_JSTYPE)) {
+	if equalsId_(this.typeValidationMode, AstValidator_TypeInfoValidation_JSTYPE) {
 		var type_ *JSType = n.getJSType()
 		if (type_ != nil) && !type_.isResolved() {
 			this.violation(("Found unresolved type " + objstr_(type_.self())), n)
 		}
 	}
-	switch n.getToken() {
-	case Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_CALL:
 		if !n.getFirstChild().isSuper() {
 			this.validateCallType(n)
 		}
@@ -350,7 +356,7 @@ func (this *AstValidator) validateCallType(callNode Node) {
 	switch this.typeValidationMode {
 	case AstValidator_TypeInfoValidation_JSTYPE:
 		var callee Node = callNode.getFirstChild()
-		var calleeType *JSType = to_JSType(Preconditions_checkNotNull_Object_String_Object(callee.getJSType().self(), "Callee of\n\n%s\nhas no type.", strobj_(callNode.toStringTree())))
+		var calleeType *JSType = Preconditions_checkNotNullT_String_Object(callee.getJSType(), "Callee of\n\n%s\nhas no type.", strobj_(callNode.toStringTree()))
 		if calleeType.isFunctionType() {
 			var calleeFunctionType *FunctionType = calleeType.toMaybeFunctionType()
 			var returnType *JSType = calleeFunctionType.getReturnType()
@@ -360,9 +366,11 @@ func (this *AstValidator) validateCallType(callNode Node) {
 		}
 	case AstValidator_TypeInfoValidation_COLOR:
 		var callee Node = callNode.getFirstChild()
-		Preconditions_checkNotNull_Object_String_Object(obj_(callee.getColor()), "Callee of\n\n%s\nhas no color.", strobj_(callNode.toStringTree()))
+		if v_, a1_ := callee.getColor(), callNode.toStringTree(); v_ == nil {
+			panic(new_NullPointerException_String(Strings_lenientFormat("Callee of\n\n%s\nhas no color.", []any{strobj_(a1_)})))
+		}
 	case AstValidator_TypeInfoValidation_NONE:
-		panic(new_AssertionError_0().self())
+		panic(new_AssertionError_0())
 	}
 }
 
@@ -377,13 +385,13 @@ func (this *AstValidator) expectSomeTypeInformation(n Node) {
 			this.violation(("Color information missing\n" + sstr_(this.compiler_.toSource_1(NodeUtil_getEnclosingStatement(n)))), n)
 		}
 	case AstValidator_TypeInfoValidation_NONE:
-		panic(new_AssertionError_0().self())
+		panic(new_AssertionError_0())
 	}
 }
 
 func (this *AstValidator) expectMatchingTypeInformation(n Node, expectedTypeI *JSType) {
 	var typeI *JSType = n.getJSType()
-	if !Objects_equals(expectedTypeI.self(), typeI.self()) {
+	if !objequalsBy_(expectedTypeI, typeI.self(), (*JSType).equals) {
 		this.violation(("Expected type: " + sstr_(AstValidator_getTypeAnnotationString(expectedTypeI)) + " Actual type: " + sstr_(AstValidator_getTypeAnnotationString(typeI))), n)
 	}
 }
@@ -394,7 +402,6 @@ func AstValidator_getTypeAnnotationString(typeI *JSType) string {
 	} else {
 		return ("{" + sstr_(typeI.toAnnotationString(JSType_Nullability_EXPLICIT)) + "}")
 	}
-	panic("unreachable")
 }
 
 func (this *AstValidator) validateYield(n Node) {
@@ -442,11 +449,16 @@ func (this *AstValidator) validateAwaitWithinAsyncFunction(n Node) {
 }
 
 func (this *AstValidator) isInParameterListOfFunction(child Node, functionNode Node) bool {
-	var paramList Node = Node_of_(Preconditions_checkNotNull_Object_Object(functionNode.getSecondChild().box_(), functionNode.box_()))
+	var paramList Node = functionNode.getSecondChild()
+	if paramList == 0 {
+		panic(new_NullPointerException_String(tostr_(functionNode)))
+	}
 	{
 		var parent Node = child.getParent()
 		for ; parent != functionNode; parent = parent.getParent() {
-			Preconditions_checkNotNull_Object_String_Object_Object(parent.box_(), "%s not contained in function %s", child.box_(), functionNode.box_())
+			if parent == 0 {
+				panic(new_NullPointerException_String(Strings_lenientFormat("%s not contained in function %s", []any{child.box_(), functionNode.box_()})))
+			}
 			if parent == paramList {
 				return true
 			}
@@ -466,10 +478,10 @@ func (this *AstValidator) validateImport(n Node) {
 		this.validateNodeType(Token_rhino_EMPTY, n.getFirstChild())
 	}
 	var secondChild Node = n.getSecondChild()
-	switch secondChild.getToken() {
-	case Token_rhino_IMPORT_SPECS:
+	switch secondChild.ns_().token {
+	case tokOrd1_IMPORT_SPECS:
 		this.validateImportSpecifiers(secondChild)
-	case Token_rhino_IMPORT_STAR:
+	case tokOrd1_IMPORT_STAR:
 		this.validateNonEmptyString(secondChild)
 	default:
 		this.validateNodeType(Token_rhino_EMPTY, secondChild)
@@ -622,25 +634,25 @@ func (this *AstValidator) validateInterfaceMembers(n Node) {
 }
 
 func (this *AstValidator) validateInterfaceMember(n Node) {
-	switch n.getToken() {
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	switch n.ns_().token {
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		this.validateProperties(n)
 		this.validateChildCount(n)
 		this.validateFunctionSignature(n.getFirstChild())
-	case Token_rhino_MEMBER_VARIABLE_DEF:
+	case tokOrd1_MEMBER_VARIABLE_DEF:
 		this.validateProperties(n)
 		this.validateChildless(n)
-	case Token_rhino_INDEX_SIGNATURE:
+	case tokOrd1_INDEX_SIGNATURE:
 		this.validateProperties(n)
 		this.validateChildCount(n)
 		var child Node = n.getFirstChild()
 		this.validateProperties(child)
 		this.validateChildless(child)
-	case Token_rhino_CALL_SIGNATURE:
+	case tokOrd1_CALL_SIGNATURE:
 		this.validateProperties(n)
 		this.validateChildCount(n)
 	default:
-		this.violation(("Interface contained member of invalid type " + objstr_(obj_(n.getToken()))), n)
+		this.violation(("Interface contained member of invalid type " + tostr_(n.getToken())), n)
 	}
 }
 
@@ -709,8 +721,8 @@ func (this *AstValidator) validateClassMembers(n Node, isAmbient bool) {
 }
 
 func (this *AstValidator) validateClassMember(n Node, isAmbient bool) {
-	switch n.getToken() {
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	switch n.ns_().token {
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		this.validateFeature(FeatureSet_Feature_MEMBER_DECLARATIONS, n)
 		if n.isPrivateIdentifier() {
 			this.validateFeature(FeatureSet_Feature_PRIVATE_ELEMENTS, n)
@@ -719,7 +731,7 @@ func (this *AstValidator) validateClassMember(n Node, isAmbient bool) {
 		this.validateProperties(n)
 		this.validateChildCount(n)
 		this.validateMemberFunction(n, isAmbient)
-	case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+	case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		this.validateFeature(FeatureSet_Feature_CLASS_GETTER_SETTER, n)
 		if n.isPrivateIdentifier() {
 			this.validateFeature(FeatureSet_Feature_PRIVATE_ELEMENTS, n)
@@ -729,30 +741,30 @@ func (this *AstValidator) validateClassMember(n Node, isAmbient bool) {
 		this.validateProperties(n)
 		this.validateChildCount(n)
 		this.validateMemberFunction(n, isAmbient)
-	case Token_rhino_MEMBER_VARIABLE_DEF:
+	case tokOrd1_MEMBER_VARIABLE_DEF:
 		this.validateProperties(n)
 		this.validateChildless(n)
-	case Token_rhino_COMPUTED_PROP:
+	case tokOrd1_COMPUTED_PROP:
 		this.validateComputedPropClassMethod(n)
-	case Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_MEMBER_FIELD_DEF:
 		this.validateClassField(n)
-	case Token_rhino_COMPUTED_FIELD_DEF:
+	case tokOrd1_COMPUTED_FIELD_DEF:
 		this.validateComputedPropClassField(n)
-	case Token_rhino_INDEX_SIGNATURE:
+	case tokOrd1_INDEX_SIGNATURE:
 		this.validateProperties(n)
 		this.validateChildCount(n)
 		var child Node = n.getFirstChild()
 		this.validateProperties(child)
 		this.validateChildless(child)
-	case Token_rhino_CALL_SIGNATURE:
+	case tokOrd1_CALL_SIGNATURE:
 		this.validateProperties(n)
 		this.validateChildCount(n)
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		this.validateFeature(FeatureSet_Feature_CLASS_STATIC_BLOCK, n)
 		this.validateBlock(n)
-	case Token_rhino_EMPTY:
+	case tokOrd1_EMPTY:
 	default:
-		this.violation(("Class contained member of invalid type " + objstr_(obj_(n.getToken()))), n)
+		this.violation(("Class contained member of invalid type " + tostr_(n.getToken())), n)
 	}
 }
 
@@ -797,7 +809,7 @@ func (this *AstValidator) validateBlock(n Node) {
 
 func (this *AstValidator) validateHasSourceName(n Node) {
 	var sourceName string = n.getSourceFileName()
-	if String_isEmpty(sourceName) {
+	if sourceName == "" {
 		this.violation("Missing 'source name' annotation.", n)
 	}
 }
@@ -825,13 +837,13 @@ func (this *AstValidator) validateLabelName(n Node) {
 }
 
 func (this *AstValidator) validateNonEmptyString(n Node) {
-	if this.validateNonNullString(n) && String_isEmpty(n.getString()) {
+	if this.validateNonNullString(n) && n.getString() == "" {
 		this.violation("Expected non-empty string.", n)
 	}
 }
 
 func (this *AstValidator) validateEmptyString(n Node) {
-	if this.validateNonNullString(n) && !String_isEmpty(n.getString()) {
+	if this.validateNonNullString(n) && n.getString() != "" {
 		this.violation("Expected empty string.", n)
 	}
 }
@@ -858,7 +870,7 @@ func (this *AstValidator) validateOptionalName(n Node) {
 	this.validateNonNullString(n)
 	this.validateProperties(n)
 	this.validateChildCount(n)
-	var isEmpty bool = String_isEmpty(n.getString())
+	var isEmpty bool = n.getString() == ""
 	if !isEmpty {
 		this.validateTypeInformation(n)
 	}
@@ -999,7 +1011,7 @@ func (this *AstValidator) validateParameters(n Node) {
 	}
 }
 
-func (this *AstValidator) validateDefaultValue(contextType *Token_rhino, n Node) {
+func (this *AstValidator) validateDefaultValue(contextType Token_rhino, n Node) {
 	this.validateProperties(n)
 	this.validateChildCount(n)
 	this.validateLHS(contextType, n.getFirstChild())
@@ -1019,7 +1031,7 @@ func (this *AstValidator) validateCall(n Node) {
 	{
 		var c Node = callee.getNext()
 		for ; c != 0; c = c.getNext() {
-			this.validatePseudoExpression(c, []*Token_rhino{Token_rhino_ITER_SPREAD})
+			this.validatePseudoExpression(c, []Token_rhino{Token_rhino_ITER_SPREAD})
 		}
 	}
 }
@@ -1034,7 +1046,7 @@ func (this *AstValidator) validateOptChainCall(node Node) {
 	{
 		var argument Node = callee.getNext()
 		for ; argument != 0; argument = argument.getNext() {
-			this.validatePseudoExpression(argument, []*Token_rhino{Token_rhino_ITER_SPREAD})
+			this.validatePseudoExpression(argument, []Token_rhino{Token_rhino_ITER_SPREAD})
 		}
 	}
 	this.validateFirstNodeOfOptChain(node)
@@ -1067,19 +1079,19 @@ func (this *AstValidator) validateSuper(superNode Node) {
 
 func (this *AstValidator) allowsSuperPropertyReference(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_SCRIPT:
+		switch n.ns_().token {
+		case tokOrd1_SCRIPT:
 			return false
-		case Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
+		case tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF:
 			return true
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			if NodeUtil_isMethodDeclaration(n) {
 				return true
 			} else if !n.isArrowFunction() {
 				return false
 			}
 			return this.allowsSuperPropertyReference(n.getParent())
-		case Token_rhino_BLOCK:
+		case tokOrd1_BLOCK:
 			if NodeUtil_isClassStaticBlock(n) {
 				return true
 			}
@@ -1087,28 +1099,27 @@ func (this *AstValidator) allowsSuperPropertyReference(n Node) bool {
 		default:
 			return this.allowsSuperPropertyReference(n.getParent())
 		}
-		panic("unreachable")
 	}()
 }
 
-func (this *AstValidator) validateRestParameters(contextType *Token_rhino, n Node) {
+func (this *AstValidator) validateRestParameters(contextType Token_rhino, n Node) {
 	this.validateFeature(FeatureSet_Feature_REST_PARAMETERS, n)
 	this.validateRest(contextType, n)
 }
 
-func (this *AstValidator) validateArrayPatternRest(contextType *Token_rhino, n Node) {
+func (this *AstValidator) validateArrayPatternRest(contextType Token_rhino, n Node) {
 	this.validateFeature(FeatureSet_Feature_ARRAY_PATTERN_REST, n)
 	this.validateRest(contextType, n)
 }
 
-func (this *AstValidator) validateObjectPatternRest(contextType *Token_rhino, n Node) {
+func (this *AstValidator) validateObjectPatternRest(contextType Token_rhino, n Node) {
 	this.validateFeature(FeatureSet_Feature_OBJECT_PATTERN_REST, n)
 	this.validateRest(contextType, n)
 }
 
-func (this *AstValidator) validateRest(contextType *Token_rhino, n Node) {
-	switch n.getToken() {
-	case Token_rhino_ITER_REST, Token_rhino_OBJECT_REST:
+func (this *AstValidator) validateRest(contextType Token_rhino, n Node) {
+	switch n.ns_().token {
+	case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 	default:
 		this.violation("Unexpected node type.", n)
 		return
@@ -1136,12 +1147,12 @@ func (this *AstValidator) validateNew(n Node) {
 	{
 		var c Node = n.getSecondChild()
 		for ; c != 0; c = c.getNext() {
-			this.validatePseudoExpression(c, []*Token_rhino{Token_rhino_ITER_SPREAD})
+			this.validatePseudoExpression(c, []Token_rhino{Token_rhino_ITER_SPREAD})
 		}
 	}
 }
 
-func (this *AstValidator) validateNameDeclarationHelper(statement Node, declaration *Token_rhino, n Node) {
+func (this *AstValidator) validateNameDeclarationHelper(statement Node, declaration Token_rhino, n Node) {
 	this.validateProperties(n)
 	this.validateMinimumChildCount(n, 1)
 	{
@@ -1150,25 +1161,25 @@ func (this *AstValidator) validateNameDeclarationHelper(statement Node, declarat
 			this.validateNameDeclarationChild(statement, declaration, c)
 		}
 	}
-	if Object_equals(obj_(declaration), obj_(Token_rhino_LET)) {
+	if equalsId_(declaration, Token_rhino_LET) {
 		this.validateFeature(FeatureSet_Feature_LET_DECLARATIONS, n)
-	} else if Object_equals(obj_(declaration), obj_(Token_rhino_CONST)) {
+	} else if equalsId_(declaration, Token_rhino_CONST) {
 		this.validateFeature(FeatureSet_Feature_CONST_DECLARATIONS, n)
 	}
 }
 
-func (this *AstValidator) validateNameDeclarationChild(statement Node, declaration *Token_rhino, n Node) {
+func (this *AstValidator) validateNameDeclarationChild(statement Node, declaration Token_rhino, n Node) {
 	var inEnhancedFor bool = NodeUtil_isEnhancedFor(statement)
 	var inForIn bool = statement.isForIn()
 	var minValues int32
 	var maxValues int32
-	if inForIn && Object_equals(obj_(declaration), obj_(Token_rhino_VAR)) {
+	if inForIn && equalsId_(declaration, Token_rhino_VAR) {
 		minValues = 0
 		maxValues = 1
 	} else if inEnhancedFor {
 		minValues = 0
 		maxValues = 0
-	} else if n.isDestructuringLhs() || Object_equals(obj_(declaration), obj_(Token_rhino_CONST)) {
+	} else if n.isDestructuringLhs() || equalsId_(declaration, Token_rhino_CONST) {
 		minValues = 1
 		maxValues = 1
 	} else {
@@ -1186,66 +1197,66 @@ func (this *AstValidator) validateNameDeclarationChild(statement Node, declarati
 		this.validateProperties(n)
 		this.validateChildCountIn(n, (1 + minValues), (1 + maxValues))
 		var c Node = n.getFirstChild()
-		switch c.getToken() {
-		case Token_rhino_ARRAY_PATTERN:
+		switch c.ns_().token {
+		case tokOrd1_ARRAY_PATTERN:
 			this.validateArrayPattern(declaration, c)
-		case Token_rhino_OBJECT_PATTERN:
+		case tokOrd1_OBJECT_PATTERN:
 			this.validateObjectPattern(declaration, c)
 		default:
-			this.violation(("Invalid destructuring lhs first child for " + objstr_(obj_(declaration)) + " node"), n)
+			this.violation(("Invalid destructuring lhs first child for " + tostr_(declaration) + " node"), n)
 		}
 		if n.hasTwoChildren() {
 			this.validateExpression(n.getSecondChild())
 		}
 	} else {
-		this.violation(("Invalid child for " + objstr_(obj_(declaration)) + " node"), n)
+		this.violation(("Invalid child for " + tostr_(declaration) + " node"), n)
 	}
 }
 
-func (this *AstValidator) validateLHS(contextType *Token_rhino, n Node) {
-	switch n.getToken() {
-	case Token_rhino_NAME:
+func (this *AstValidator) validateLHS(contextType Token_rhino, n Node) {
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		this.validateName(n)
-	case Token_rhino_ARRAY_PATTERN:
+	case tokOrd1_ARRAY_PATTERN:
 		this.validateArrayPattern(contextType, n)
-	case Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECT_PATTERN:
 		this.validateObjectPattern(contextType, n)
-	case Token_rhino_GETPROP, Token_rhino_GETELEM:
+	case tokOrd1_GETPROP, tokOrd1_GETELEM:
 		this.validateGetPropGetElemInLHS(contextType, n)
-	case Token_rhino_CAST:
+	case tokOrd1_CAST:
 		this.validateLHS(contextType, n.getOnlyChild())
 	default:
-		this.violation(("Invalid child for " + objstr_(obj_(contextType)) + " node"), n)
+		this.violation(("Invalid child for " + tostr_(contextType) + " node"), n)
 	}
 }
 
-func (this *AstValidator) validateGetPropGetElemInLHS(contextType *Token_rhino, n Node) {
+func (this *AstValidator) validateGetPropGetElemInLHS(contextType Token_rhino, n Node) {
 	if (((contextType == Token_rhino_CONST) || (contextType == Token_rhino_LET)) || (contextType == Token_rhino_VAR)) || (contextType == Token_rhino_PARAM_LIST) {
-		this.violation(("Invalid child for " + objstr_(obj_(contextType)) + " node"), n)
+		this.violation(("Invalid child for " + tostr_(contextType) + " node"), n)
 		return
 	}
-	switch n.getToken() {
-	case Token_rhino_GETPROP:
+	switch n.ns_().token {
+	case tokOrd1_GETPROP:
 		this.validateGetProp(n)
-	case Token_rhino_GETELEM:
+	case tokOrd1_GETELEM:
 		this.validateGetElem(n)
 	default:
-		panic(new_IllegalStateException_String(("Expected GETPROP or GETELEM but instead got node " + objstr_(obj_(n.getToken())))).self())
+		panic(new_IllegalStateException_String(("Expected GETPROP or GETELEM but instead got node " + tostr_(n.getToken()))))
 	}
 }
 
-func (this *AstValidator) validateArrayPattern(type_ *Token_rhino, n Node) {
+func (this *AstValidator) validateArrayPattern(type_ Token_rhino, n Node) {
 	this.validateFeature(FeatureSet_Feature_ARRAY_DESTRUCTURING, n)
 	this.validateNodeType(Token_rhino_ARRAY_PATTERN, n)
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
-			switch c.getToken() {
-			case Token_rhino_DEFAULT_VALUE:
+			switch c.ns_().token {
+			case tokOrd1_DEFAULT_VALUE:
 				this.validateDefaultValue(type_, c)
-			case Token_rhino_ITER_REST:
+			case tokOrd1_ITER_REST:
 				this.validateArrayPatternRest(type_, c)
-			case Token_rhino_EMPTY:
+			case tokOrd1_EMPTY:
 				this.validateProperties(c)
 				this.validateChildless(c)
 			default:
@@ -1255,21 +1266,21 @@ func (this *AstValidator) validateArrayPattern(type_ *Token_rhino, n Node) {
 	}
 }
 
-func (this *AstValidator) validateObjectPattern(type_ *Token_rhino, n Node) {
+func (this *AstValidator) validateObjectPattern(type_ Token_rhino, n Node) {
 	this.validateFeature(FeatureSet_Feature_OBJECT_DESTRUCTURING, n)
 	this.validateNodeType(Token_rhino_OBJECT_PATTERN, n)
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
-			switch c.getToken() {
-			case Token_rhino_STRING_KEY:
+			switch c.ns_().token {
+			case tokOrd1_STRING_KEY:
 				this.validateObjectPatternStringKey(type_, c)
-			case Token_rhino_OBJECT_REST:
+			case tokOrd1_OBJECT_REST:
 				this.validateObjectPatternRest(type_, c)
-			case Token_rhino_COMPUTED_PROP:
+			case tokOrd1_COMPUTED_PROP:
 				this.validateObjectPatternComputedPropKey(type_, c)
 			default:
-				this.violation(("Invalid object pattern child for " + objstr_(obj_(type_)) + " node"), n)
+				this.violation(("Invalid object pattern child for " + tostr_(type_) + " node"), n)
 			}
 		}
 	}
@@ -1283,10 +1294,10 @@ func (this *AstValidator) validateFor(n Node) {
 	if NodeUtil_isNameDeclaration(target) {
 		this.validateNameDeclarationHelper(n, target.getToken(), target)
 	} else {
-		this.validatePseudoExpression(target, []*Token_rhino{Token_rhino_EMPTY})
+		this.validatePseudoExpression(target, []Token_rhino{Token_rhino_EMPTY})
 	}
-	this.validatePseudoExpression(n.getSecondChild(), []*Token_rhino{Token_rhino_EMPTY})
-	this.validatePseudoExpression(n.getChildAtIndex(2), []*Token_rhino{Token_rhino_EMPTY})
+	this.validatePseudoExpression(n.getSecondChild(), []Token_rhino{Token_rhino_EMPTY})
+	this.validatePseudoExpression(n.getChildAtIndex(2), []Token_rhino{Token_rhino_EMPTY})
 	this.validateBlock(n.getLastChild())
 }
 
@@ -1443,7 +1454,7 @@ func (this *AstValidator) validateCatch(n Node) {
 	} else if caught.isEmpty() {
 		this.validateNoCatchBinding(caught)
 	} else {
-		this.violation(("Unexpected catch binding: " + objstr_(caught.box_())), n)
+		this.violation(("Unexpected catch binding: " + tostr_(caught)), n)
 	}
 	this.validateBlock(n.getLastChild())
 }
@@ -1483,7 +1494,7 @@ func (this *AstValidator) validateSwitchMember(n Node) {
 	case Token_rhino_DEFAULT_CASE:
 		this.validateDefaultCase(n)
 	default:
-		this.violation(("Expected switch member but was " + objstr_(obj_(n.getToken()))), n)
+		this.violation(("Expected switch member but was " + tostr_(n.getToken())), n)
 	}
 }
 
@@ -1516,29 +1527,31 @@ func (this *AstValidator) validateAssignmentExpression(n Node) {
 func (this *AstValidator) validateCompoundAssignmentExpression(n Node) {
 	this.validateProperties(n)
 	this.validateChildCount(n)
-	var contextType *Token_rhino = n.getToken()
+	var contextType Token_rhino = n.getToken()
 	var lhs Node = n.getFirstChild()
 	this.validateAssignmentOpTarget(lhs, contextType)
 	this.validateExpression(n.getLastChild())
 }
 
-func (this *AstValidator) validateAssignmentOpTarget(lhs Node, contextType *Token_rhino) {
-	switch lhs.getToken() {
-	case Token_rhino_NAME:
+func (this *AstValidator) validateAssignmentOpTarget(lhs Node, contextType Token_rhino) {
+	switch lhs.ns_().token {
+	case tokOrd1_NAME:
 		this.validateName(lhs)
-	case Token_rhino_GETPROP, Token_rhino_GETELEM:
+	case tokOrd1_GETPROP, tokOrd1_GETELEM:
 		this.validateGetPropGetElemInLHS(contextType, lhs)
-	case Token_rhino_CAST:
+	case tokOrd1_CAST:
 		this.validateProperties(lhs)
 		this.validateChildCount_2(lhs, 1)
 		this.validateAssignmentOpTarget(lhs.getFirstChild(), contextType)
 	default:
-		this.violation(("Invalid child for " + objstr_(obj_(contextType)) + " node"), lhs)
+		this.violation(("Invalid child for " + tostr_(contextType) + " node"), lhs)
 	}
 }
 
 func (this *AstValidator) validateGetElem(n Node) {
-	Preconditions_checkArgument_boolean_Object(n.isGetElem(), n.box_())
+	if !n.isGetElem() {
+		panic(new_IllegalArgumentException_String(tostr_(n)))
+	}
 	this.validateProperties(n)
 	this.validateChildCount_2(n, 2)
 	this.validatePropertyReferenceTarget(n.getFirstChild())
@@ -1547,7 +1560,9 @@ func (this *AstValidator) validateGetElem(n Node) {
 
 func (this *AstValidator) validateOptChainGetElem(node Node) {
 	this.validateFeature(FeatureSet_Feature_OPTIONAL_CHAINING, node)
-	Preconditions_checkArgument_boolean_Object(node.isOptChainGetElem(), node.box_())
+	if !node.isOptChainGetElem() {
+		panic(new_IllegalArgumentException_String(tostr_(node)))
+	}
 	this.validateProperties(node)
 	this.validateChildCount_2(node, 2)
 	this.validateExpression(node.getFirstChild())
@@ -1620,7 +1635,7 @@ func (this *AstValidator) validateArrayLit(n Node) {
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
-			this.validatePseudoExpression(c, []*Token_rhino{Token_rhino_EMPTY, Token_rhino_ITER_SPREAD})
+			this.validatePseudoExpression(c, []Token_rhino{Token_rhino_EMPTY, Token_rhino_ITER_SPREAD})
 			break
 		}
 	}
@@ -1637,24 +1652,24 @@ func (this *AstValidator) validateObjectLit(n Node) {
 }
 
 func (this *AstValidator) validateObjectLitKey(n Node) {
-	switch n.getToken() {
-	case Token_rhino_GETTER_DEF:
+	switch n.ns_().token {
+	case tokOrd1_GETTER_DEF:
 		this.validateObjectLitGetKey(n)
-	case Token_rhino_SETTER_DEF:
+	case tokOrd1_SETTER_DEF:
 		this.validateObjectLitSetKey(n)
-	case Token_rhino_STRING_KEY:
+	case tokOrd1_STRING_KEY:
 		this.validateObjectLitStringKey(n)
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		this.validateClassMember(n, false)
 		if n.isStaticMember() {
 			this.violation("Keys in an object literal should not be static.", n)
 		}
-	case Token_rhino_COMPUTED_PROP:
+	case tokOrd1_COMPUTED_PROP:
 		this.validateObjectLitComputedPropKey(n)
-	case Token_rhino_OBJECT_SPREAD:
+	case tokOrd1_OBJECT_SPREAD:
 		this.validateObjectSpread(n)
 	default:
-		this.violation(("Expected object literal key expression but was " + objstr_(obj_(n.getToken()))), n)
+		this.violation(("Expected object literal key expression but was " + tostr_(n.getToken())), n)
 	}
 }
 
@@ -1666,7 +1681,7 @@ func (this *AstValidator) validateObjectLitGetKey(n Node) {
 	this.validateObjectLiteralKeyName(n)
 	var function Node = n.getFirstChild()
 	this.validateFunctionExpression(function)
-	if !String_isEmpty(function.getFirstChild().getString()) {
+	if function.getFirstChild().getString() != "" {
 		this.violation("Expected unnamed function expression.", n)
 	}
 	var functionParams Node = function.getSecondChild()
@@ -1683,7 +1698,7 @@ func (this *AstValidator) validateObjectLitSetKey(n Node) {
 	this.validateObjectLiteralKeyName(n)
 	var function Node = n.getFirstChild()
 	this.validateFunctionExpression(function)
-	if !String_isEmpty(function.getFirstChild().getString()) {
+	if function.getFirstChild().getString() != "" {
 		this.violation("Expected unnamed function expression.", n)
 	}
 	var functionParams Node = function.getSecondChild()
@@ -1703,14 +1718,14 @@ func (this *AstValidator) validateObjectLitStringKey(n Node) {
 	}
 }
 
-func (this *AstValidator) validateObjectPatternStringKey(type_ *Token_rhino, n Node) {
+func (this *AstValidator) validateObjectPatternStringKey(type_ Token_rhino, n Node) {
 	this.validateNodeType(Token_rhino_STRING_KEY, n)
 	this.validateObjectLiteralKeyName(n)
 	this.validateProperties(n)
 	this.validateChildCount_2(n, 1)
 	var c Node = n.getFirstChild()
-	switch c.getToken() {
-	case Token_rhino_DEFAULT_VALUE:
+	switch c.ns_().token {
+	case tokOrd1_DEFAULT_VALUE:
 		this.validateDefaultValue(type_, c)
 	default:
 		this.validateLHS(type_, c)
@@ -1728,7 +1743,7 @@ func (this *AstValidator) validateObjectLitComputedPropKey(n Node) {
 	this.validateExpression(n.getLastChild())
 }
 
-func (this *AstValidator) validateObjectPatternComputedPropKey(type_ *Token_rhino, n Node) {
+func (this *AstValidator) validateObjectPatternComputedPropKey(type_ Token_rhino, n Node) {
 	this.validateFeature(FeatureSet_Feature_COMPUTED_PROPERTIES, n)
 	this.validateNodeType(Token_rhino_COMPUTED_PROP, n)
 	this.validateProperties(n)
@@ -1770,7 +1785,7 @@ func (this *AstValidator) validateObjectLitComputedPropGetKey(n Node) {
 	this.validateChildCount(n)
 	var function Node = n.getLastChild()
 	this.validateFunctionExpression(function)
-	if !String_isEmpty(function.getFirstChild().getString()) {
+	if function.getFirstChild().getString() != "" {
 		this.violation("Expected unnamed function expression.", n)
 	}
 	var functionParams Node = function.getSecondChild()
@@ -1787,7 +1802,7 @@ func (this *AstValidator) validateObjectLitComputedPropSetKey(n Node) {
 	this.validateChildCount(n)
 	var function Node = n.getLastChild()
 	this.validateFunctionExpression(function)
-	if !String_isEmpty(function.getFirstChild().getString()) {
+	if function.getFirstChild().getString() != "" {
 		this.violation("Expected unnamed function expression.", n)
 	}
 	var functionParams Node = function.getSecondChild()
@@ -1851,20 +1866,20 @@ func (this *AstValidator) validateAmbientDeclaration(n Node) {
 }
 
 func (this *AstValidator) validateAmbientDeclarationHelper(n Node) {
-	switch n.getToken() {
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	switch n.ns_().token {
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		this.validateNameDeclarationHelper(n.getParent(), n.getToken(), n)
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.validateFunctionSignature(n)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.validateClassDeclaration(n, true)
-	case Token_rhino_ENUM:
+	case tokOrd1_ENUM:
 		this.validateEnum(n)
-	case Token_rhino_NAMESPACE:
+	case tokOrd1_NAMESPACE:
 		this.validateNamespace(n, true)
-	case Token_rhino_TYPE_ALIAS:
+	case tokOrd1_TYPE_ALIAS:
 		this.validateTypeAlias(n)
-	case Token_rhino_EXPORT:
+	case tokOrd1_EXPORT:
 		this.validateExport(n, true)
 	default:
 	}
@@ -1879,10 +1894,10 @@ func (this *AstValidator) validateNamespace(n Node, isAmbient bool) {
 }
 
 func (this *AstValidator) validateNamespaceName(n Node) {
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		this.validateName(n)
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		this.validateGetProp(n)
 	default:
 	}
@@ -1903,20 +1918,20 @@ func (this *AstValidator) validateNamespaceElements(n Node, isAmbient bool) {
 }
 
 func (this *AstValidator) violation(message string, n Node) {
-	this.violationHandler.handleViolation(message, n)
+	this.violationHandler(message, n)
 }
 
 func (this *AstValidator) validateFirstNodeOfOptChain(n Node) {
 	if !NodeUtil_isOptChainNode(n.getFirstChild()) {
 		if !n.isOptionalChainStart() {
-			this.violation(("Start of optional chain node " + objstr_(obj_(n.getToken())) + " is not marked as the start."), n)
+			this.violation(("Start of optional chain node " + tostr_(n.getToken()) + " is not marked as the start."), n)
 		}
 	}
 }
 
-func (this *AstValidator) validateNodeType(type_ *Token_rhino, n Node) {
+func (this *AstValidator) validateNodeType(type_ Token_rhino, n Node) {
 	if n.getToken() != type_ {
-		this.violation(("Expected " + objstr_(obj_(type_)) + " but was " + objstr_(obj_(n.getToken()))), n)
+		this.violation(("Expected " + tostr_(type_) + " but was " + tostr_(n.getToken())), n)
 	}
 }
 
@@ -1973,24 +1988,24 @@ func (this *AstValidator) validateMaximumChildCount(n Node, i int32) {
 	}
 }
 
-func (this *AstValidator) validateFeature(feature *FeatureSet_Feature, n Node) {
+func (this *AstValidator) validateFeature(feature FeatureSet_Feature, n Node) {
 	var allowbleFeatures *FeatureSet = this.compiler_.getAllowableFeatures()
 	if !n.isFromExterns() && !allowbleFeatures.has(feature) {
-		this.violation(("AST should not contain " + objstr_(obj_(feature))), n)
+		this.violation(("AST should not contain " + tostr_(feature)), n)
 	}
 	if !this.isScriptFeatureValidationEnabled || (this.currentScript == 0) {
 		return
 	}
 	var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(this.currentScript)
 	if (scriptFeatures == nil) || !NodeUtil_getFeatureSetOfScript(this.currentScript).has(feature) {
-		this.violation(("SCRIPT node should be marked as containing feature " + objstr_(obj_(feature))), this.currentScript)
+		this.violation(("SCRIPT node should be marked as containing feature " + tostr_(feature)), this.currentScript)
 	}
 }
 
 func (this *AstValidator) validateProperties(n Node) {
-	n.validateProperties(&Consumer_tfn_string{func(errorMessage string) {
+	n.validateProperties((&Consumer_tfn_string{func(errorMessage string) {
 		this.violation(errorMessage, n)
-	}})
+	}}).accept)
 }
 
 func (this *AstValidator) validateRequiredInlinings(n Node) {
@@ -2018,45 +2033,66 @@ func (this *AstValidator_ViolationHandler_fn) handleViolation(p0 string, p1 Node
 	this.f(p0, p1)
 }
 
-type AstValidator_TypeInfoValidation struct {
-	Enum
+type AstValidator_TypeInfoValidation uint8
+
+// AstValidator_TypeInfoValidation_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var AstValidator_TypeInfoValidation_enum_ = [3]Enum{
+	{self_: AstValidator_TypeInfoValidation_JSTYPE, name_: "JSTYPE", ordinal_: 0},
+	{self_: AstValidator_TypeInfoValidation_COLOR, name_: "COLOR", ordinal_: 1},
+	{self_: AstValidator_TypeInfoValidation_NONE, name_: "NONE", ordinal_: 2},
 }
 
-func (this *AstValidator_TypeInfoValidation) up_Enum() *Enum {
-	if this == nil {
+func (this AstValidator_TypeInfoValidation) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &AstValidator_TypeInfoValidation_enum_[this-1]
 }
 
-func (this *AstValidator_TypeInfoValidation) init_AstValidator_TypeInfoValidation(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this AstValidator_TypeInfoValidation) name() string {
+	return this.enum_().name_
 }
 
-func new_AstValidator_TypeInfoValidation(name_ string, ordinal_ int32) *AstValidator_TypeInfoValidation {
-	this := &AstValidator_TypeInfoValidation{}
-	this.self_ = this
-	this.init_AstValidator_TypeInfoValidation(name_, ordinal_)
+func (this AstValidator_TypeInfoValidation) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this AstValidator_TypeInfoValidation) toString() string {
+	return this.enum_().name_
+}
+
+func (this AstValidator_TypeInfoValidation) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this AstValidator_TypeInfoValidation) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func AstValidator_TypeInfoValidation_values() []*AstValidator_TypeInfoValidation {
-	return append([]*AstValidator_TypeInfoValidation(nil), AstValidator_TypeInfoValidation_values_...)
+func AstValidator_TypeInfoValidation_values() []AstValidator_TypeInfoValidation {
+	return append([]AstValidator_TypeInfoValidation(nil), AstValidator_TypeInfoValidation_values_...)
 }
 
-func AstValidator_TypeInfoValidation_valueOf(name string) *AstValidator_TypeInfoValidation {
+func AstValidator_TypeInfoValidation_valueOf(name string) AstValidator_TypeInfoValidation {
 	for _, v := range AstValidator_TypeInfoValidation_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TypeInfoValidation", name))
 }
 
-var AstValidator_TypeInfoValidation_JSTYPE *AstValidator_TypeInfoValidation
-var AstValidator_TypeInfoValidation_COLOR *AstValidator_TypeInfoValidation
-var AstValidator_TypeInfoValidation_NONE *AstValidator_TypeInfoValidation
-var AstValidator_TypeInfoValidation_values_ []*AstValidator_TypeInfoValidation
+const AstValidator_TypeInfoValidation_JSTYPE AstValidator_TypeInfoValidation = 1
+const AstValidator_TypeInfoValidation_COLOR AstValidator_TypeInfoValidation = 2
+const AstValidator_TypeInfoValidation_NONE AstValidator_TypeInfoValidation = 3
+
+var AstValidator_TypeInfoValidation_values_ []AstValidator_TypeInfoValidation
 
 var AstValidator_TypeInfoValidation_clinit_done bool
 
@@ -2065,10 +2101,7 @@ func AstValidator_TypeInfoValidation_clinit() {
 		return
 	}
 	AstValidator_TypeInfoValidation_clinit_done = true
-	AstValidator_TypeInfoValidation_JSTYPE = new_AstValidator_TypeInfoValidation("JSTYPE", 0)
-	AstValidator_TypeInfoValidation_COLOR = new_AstValidator_TypeInfoValidation("COLOR", 1)
-	AstValidator_TypeInfoValidation_NONE = new_AstValidator_TypeInfoValidation("NONE", 2)
-	AstValidator_TypeInfoValidation_values_ = []*AstValidator_TypeInfoValidation{AstValidator_TypeInfoValidation_JSTYPE, AstValidator_TypeInfoValidation_COLOR, AstValidator_TypeInfoValidation_NONE}
+	AstValidator_TypeInfoValidation_values_ = []AstValidator_TypeInfoValidation{AstValidator_TypeInfoValidation_JSTYPE, AstValidator_TypeInfoValidation_COLOR, AstValidator_TypeInfoValidation_NONE}
 	registerEnum_("com.google.javascript.jscomp.AstValidator.TypeInfoValidation", enumValues_(AstValidator_TypeInfoValidation_values_))
 
 }
@@ -2094,5 +2127,5 @@ func (this *AstValidator_1) handleViolation(message string, n Node) {
 			return n.getParent().toStringTree()
 		}
 		return " no parent "
-	}()))).self())
+	}()))))
 }

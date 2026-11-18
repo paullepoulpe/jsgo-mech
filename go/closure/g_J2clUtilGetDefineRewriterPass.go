@@ -2,10 +2,12 @@
 
 package closure
 
+import "strings"
+
 type J2clUtilGetDefineRewriterPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
-	defines   ImmutableSetOf[string]
+	defines   *ImmutableSet[string]
 }
 
 func (this *J2clUtilGetDefineRewriterPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -33,9 +35,9 @@ func (this *J2clUtilGetDefineRewriterPass) process_2(externs Node, root Node) {
 	}
 	this.defines = this.compiler_.getDefineNames()
 	var checkGetDefineCalls *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls = new_J2clUtilGetDefineRewriterPass_CheckGetDefineCalls(this)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(checkGetDefineCalls)))
+	NodeTraversal_traverse(this.compiler_, root, checkGetDefineCalls)
 	checkGetDefineCalls.validateRegisteredDefines()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *J2clUtilGetDefineRewriterPass) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -60,24 +62,23 @@ func (this *J2clUtilGetDefineRewriterPass) rewriteUtilGetDefine(t *NodeTraversal
 
 func (this *J2clUtilGetDefineRewriterPass) getDefineReplacement(firstExpr Node, secondExpr Node) Node {
 	var defineName string = firstExpr.getString()
-	if Collection_contains_s(this.defines, defineName) {
+	if this.defines.Has(defineName) {
 		var define Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, ProcessDefines_getGlobalDefineAlias(defineName))
 		var defineStringValue Node = NodeUtil_newCallNode(IR_name("String"), []Node{define})
 		return IR_comma(secondExpr, defineStringValue)
 	} else {
 		return secondExpr
 	}
-	panic("unreachable")
 }
 
 func J2clUtilGetDefineRewriterPass_isUtilGetDefineCall(n Node) bool {
 	return (n.isCall() && J2clUtilGetDefineRewriterPass_isUtilGetDefineMethodName(Optional_of[string](n.getFirstChild().getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})))
 }
 
 func J2clUtilGetDefineRewriterPass_isUtilGetDefineMethodName(fnName Optional[string]) bool {
-	return ((fnName.isPresent() && String_endsWith(fnName.get(), ".$getDefine")) && String_contains(fnName.get(), strobj_("Util")))
+	return ((fnName.isPresent() && strings.HasSuffix(fnName.get(), ".$getDefine")) && strings.Contains(fnName.get(), "Util"))
 }
 
 var J2clUtilGetDefineRewriterPass_J2CL_SYSTEM_GET_PROPERTY_CONSTANT_NAME *DiagnosticType
@@ -153,14 +154,14 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) validateRegistere
 	it_1 := this.defineNameToAddSystemPropertyCall.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, Node] = it_1.entry()
-		if !Collection_contains_s(this.outer_.defines, entry.getKey()) {
+		if !this.outer_.defines.Has(entry.getKey()) {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(entry.getValue(), J2clUtilGetDefineRewriterPass_J2CL_ADD_SYSTEM_PROPERTY_UNKNOWN_DEFINE, []string{entry.getKey()}))
 		}
 	}
 	it_3 := this.defineNameToGetDefineCall.eachEntry()
 	for it_3.next() {
 		var entry *TEntry[string, Node] = it_3.entry()
-		if !Collection_contains_s(this.outer_.defines, entry.getKey()) {
+		if !this.outer_.defines.Has(entry.getKey()) {
 			continue
 		}
 		if !this.defineNameToAddSystemPropertyCall.has(entry.getKey()) {
@@ -178,5 +179,23 @@ func J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_getDefineNameParameter(ca
 }
 
 func J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_isAddSystemPropertyFromGoogDefine(n Node) bool {
-	return ((n.isCall() && !String_isEmpty(n.getFirstChild().getQualifiedName())) && String_endsWith(n.getFirstChild().getQualifiedName(), "addSystemPropertyFromGoogDefine"))
+	return ((n.isCall() && n.getFirstChild().getQualifiedName() != "") && strings.HasSuffix(n.getFirstChild().getQualifiedName(), "addSystemPropertyFromGoogDefine"))
+}
+
+// visit: an object that is exactly a J2clUtilGetDefineRewriterPass calls its visit_impl directly (post-flip); others dispatch.
+func (this *J2clUtilGetDefineRewriterPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*J2clUtilGetDefineRewriterPass); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a J2clUtilGetDefineRewriterPass_CheckGetDefineCalls calls its visit_impl directly (post-flip); others dispatch.
+func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*J2clUtilGetDefineRewriterPass_CheckGetDefineCalls); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

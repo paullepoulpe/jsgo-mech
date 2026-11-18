@@ -51,7 +51,7 @@ func new_LocaleDataPasses_ProtectGoogLocale(compiler *AbstractCompiler) *LocaleD
 func (this *LocaleDataPasses_ProtectGoogLocale) process_2(externs Node, root Node) {
 	NodeUtil_createSynthesizedExternsSymbol(this.compiler_, LocaleDataPasses_GOOG_LOCALE_REPLACEMENT)
 	var protectLocaleCallback *LocaleDataPasses_ProtectCurrentLocale = new_LocaleDataPasses_ProtectCurrentLocale(this.compiler_)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(protectLocaleCallback)))
+	NodeTraversal_traverse(this.compiler_, root, protectLocaleCallback)
 }
 
 type LocaleDataPasses_ProtectCurrentLocale struct {
@@ -135,7 +135,7 @@ func new_LocaleDataPasses_LocaleSubstitutions(compiler *AbstractCompiler, locale
 }
 
 func (this *LocaleDataPasses_LocaleSubstitutions) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *LocaleDataPasses_LocaleSubstitutions) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -147,3 +147,21 @@ func (this *LocaleDataPasses_LocaleSubstitutions) visit_impl(t *NodeTraversal, n
 }
 
 const LocaleDataPasses_LocaleSubstitutions_DEFAULT_LOCALE string = "en"
+
+// visit: an object that is exactly a LocaleDataPasses_ProtectCurrentLocale calls its visit_impl directly (post-flip); others dispatch.
+func (this *LocaleDataPasses_ProtectCurrentLocale) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*LocaleDataPasses_ProtectCurrentLocale); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a LocaleDataPasses_LocaleSubstitutions calls its visit_impl directly (post-flip); others dispatch.
+func (this *LocaleDataPasses_LocaleSubstitutions) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*LocaleDataPasses_LocaleSubstitutions); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}

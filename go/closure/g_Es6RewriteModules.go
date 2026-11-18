@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Es6RewriteModules struct {
 	compiler_               *AbstractCompiler
 	astFactory_             *AstFactory
@@ -12,7 +14,7 @@ type Es6RewriteModules struct {
 	moduleMetadataMap       *ModuleMetadataMap
 	moduleMap               *ModuleMap
 	globalTypedScope        *TypedScope
-	chunkOutputType         *CompilerOptions_ChunkOutputType
+	chunkOutputType         CompilerOptions_ChunkOutputType
 }
 
 func (this *Es6RewriteModules) init_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope) {
@@ -25,8 +27,10 @@ func new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_Preproce
 	return this
 }
 
-func (this *Es6RewriteModules) init_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope, chunkOutputType *CompilerOptions_ChunkOutputType) {
-	Preconditions_checkNotNull(obj_(moduleMetadataMap))
+func (this *Es6RewriteModules) init_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope, chunkOutputType CompilerOptions_ChunkOutputType) {
+	if moduleMetadataMap == nil {
+		panic(new_NullPointerException_0())
+	}
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.moduleMetadataMap = moduleMetadataMap
@@ -37,14 +41,16 @@ func (this *Es6RewriteModules) init_Es6RewriteModules_AbstractCompiler_ModuleMet
 	this.chunkOutputType = chunkOutputType
 }
 
-func new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope, chunkOutputType *CompilerOptions_ChunkOutputType) *Es6RewriteModules {
+func new_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap, moduleMap *ModuleMap, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope, chunkOutputType CompilerOptions_ChunkOutputType) *Es6RewriteModules {
 	this := &Es6RewriteModules{}
 	this.init_Es6RewriteModules_AbstractCompiler_ModuleMetadataMap_ModuleMap_PreprocessorSymbolTable_TypedScope_ChunkOutputType(compiler, moduleMetadataMap, moduleMap, preprocessorSymbolTable, globalTypedScope, chunkOutputType)
 	return this
 }
 
 func Es6RewriteModules_isEs6ModuleRoot(scriptNode Node) bool {
-	Preconditions_checkArgument_boolean_Object(scriptNode.isScript(), scriptNode.box_())
+	if !scriptNode.isScript() {
+		panic(new_IllegalArgumentException_String(tostr_(scriptNode)))
+	}
 	if scriptNode.getBooleanProp(Node_GOOG_MODULE) {
 		return false
 	}
@@ -52,9 +58,13 @@ func Es6RewriteModules_isEs6ModuleRoot(scriptNode Node) bool {
 }
 
 func (this *Es6RewriteModules) process_2(externs Node, root Node) {
-	Preconditions_checkArgument_boolean_Object(externs.isRoot(), externs.box_())
-	Preconditions_checkArgument_boolean_Object(root.isRoot(), root.box_())
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(any(this)), externs, root)
+	if !externs.isRoot() {
+		panic(new_IllegalArgumentException_String(tostr_(externs)))
+	}
+	if !root.isRoot() {
+		panic(new_IllegalArgumentException_String(tostr_(root)))
+	}
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 	NodeUtil_removeFeatureFromAllScripts(root, FeatureSet_Feature_MODULES, this.compiler_)
 	GatherGetterAndSetterProperties_update(this.compiler_, externs, root)
 }
@@ -98,27 +108,33 @@ func (this *Es6RewriteModules) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *Es6RewriteModules) maybeWarnExternModule(t *NodeTraversal, n Node, parent Node) {
-	Preconditions_checkState(parent.isModuleBody())
+	if !parent.isModuleBody() {
+		panic(new_IllegalStateException_0())
+	}
 	if parent.isFromExterns() && !NodeUtil_isFromTypeSummary(parent.getParent()) {
 		t.report(n, TranspilationUtil_CANNOT_CONVERT_YET, []string{"ES6 modules in externs"})
 	}
 }
 
 func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, parent Node) {
-	Preconditions_checkArgument_boolean_Object(parent.isModuleBody(), parent.box_())
+	if !parent.isModuleBody() {
+		panic(new_IllegalArgumentException_String(tostr_(parent)))
+	}
 	var importName string = importDecl.getLastChild().getString()
-	var isNamespaceImport bool = String_startsWith(importName, "goog:")
+	var isNamespaceImport bool = strings.HasPrefix(importName, "goog:")
 	if isNamespaceImport {
-		var namespace string = String_substring_int(importName, String_length("goog:"))
-		var m *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByGoogNamespace(), namespace))
+		var namespace string = importName[len("goog:"):]
+		var m *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().Get(namespace)
 		if m == nil {
 			t.report(importDecl, ClosurePrimitiveErrors_MISSING_MODULE_OR_PROVIDE, []string{namespace})
 		} else {
-			Preconditions_checkState(((m.isEs6Module() || m.isGoogModule()) || m.isGoogProvide()))
+			if !((m.isEs6Module() || m.isGoogModule()) || m.isGoogProvide()) {
+				panic(new_IllegalStateException_0())
+			}
 		}
 	} else {
 		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of[string](importDecl.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}}), importDecl.getLineno(), importDecl.getCharno())
 		if modulePath == nil {
 			modulePath = t.getInput().getPath().resolveModuleAsPath(importName)
@@ -133,7 +149,9 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 					var grandChild Node = child.getFirstChild()
 					for ; grandChild != 0; grandChild = grandChild.getNext() {
 						this.maybeAddAliasToSymbolTable(grandChild.getFirstChild(), t.getSourceName())
-						Preconditions_checkState(grandChild.hasTwoChildren())
+						if !grandChild.hasTwoChildren() {
+							panic(new_IllegalStateException_0())
+						}
 					}
 				}
 			} else if child.isImportStar() {
@@ -146,14 +164,16 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 }
 
 func (this *Es6RewriteModules) visitExport(t *NodeTraversal, export Node, parent Node) {
-	Preconditions_checkArgument_boolean_Object(parent.isModuleBody(), parent.box_())
+	if !parent.isModuleBody() {
+		panic(new_IllegalArgumentException_String(tostr_(parent)))
+	}
 	if export.getBooleanProp(Node_EXPORT_DEFAULT) {
 		var child Node = export.getFirstChild()
 		var name string = ""
 		if child.isFunction() || child.isClass() {
 			name = NodeUtil_getName(child)
 		}
-		if !String_isEmpty(name) {
+		if name != "" {
 			var decl Node = child.detach()
 			export.replaceWith(decl)
 		} else {
@@ -174,9 +194,9 @@ func (this *Es6RewriteModules) visitExport(t *NodeTraversal, export Node, parent
 
 func (this *Es6RewriteModules) visitExportNameDeclaration(declaration Node) {
 	if (declaration.getJSDocInfo() != nil) && declaration.getJSDocInfo().hasTypedefType() {
-		NodeUtil_visitLhsNodesInNode(declaration, &Consumer_tfn_Node{func(lhs Node) {
+		NodeUtil_visitLhsNodesInNode(declaration, (&Consumer_tfn_Node{func(lhs Node) {
 			this.typedefs.add(lhs.getString())
-		}})
+		}}).accept)
 	}
 }
 
@@ -190,7 +210,9 @@ func (this *Es6RewriteModules) visitExportDeclaration(t *NodeTraversal, export N
 }
 
 func (this *Es6RewriteModules) inlineModuleToGlobalScope(moduleNode Node) {
-	Preconditions_checkState(moduleNode.isModuleBody())
+	if !moduleNode.isModuleBody() {
+		panic(new_IllegalStateException_0())
+	}
 	var scriptNode Node = moduleNode.getParent()
 	moduleNode.detach()
 	scriptNode.addChildrenToFront(moduleNode.removeChildren())
@@ -203,10 +225,12 @@ func (this *Es6RewriteModules) visitScript(t *NodeTraversal, script Node) {
 	ClosureRewriteModule_checkAndSetStrictModeDirective(t, script)
 	var thisModule *Module = this.moduleMap.getModule(t.getInput().getPath())
 	var qualifiedName *QualifiedName = ModuleRenaming_getGlobalName_ModuleMetadata_Optional(thisModule.metadata(), Optional_empty[string]())
-	Preconditions_checkState_boolean_String_Object(qualifiedName.isSimple(), "Unexpected qualified name %s", qualifiedName.self())
+	if !qualifiedName.isSimple() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected qualified name %s", []any{qualifiedName.self()})))
+	}
 	var moduleName string = qualifiedName.getRoot()
 	var moduleVar Node = this.createExportsObject(moduleName, t, script, moduleObjectType)
-	NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_Es6RewriteModules_RenameGlobalVars(this, thisModule))))
+	NodeTraversal_traverse(this.compiler_, script, new_Es6RewriteModules_RenameGlobalVars(this, thisModule))
 	moduleVar.getFirstChild().setString(moduleName)
 	moduleVar.makeNonIndexableRecursive()
 	this.declareGlobalVariable(moduleVar.getFirstChild(), t)
@@ -224,15 +248,16 @@ func (this *Es6RewriteModules) createExportsObject(moduleName string, t *NodeTra
 	moduleVar.getFirstChild().setDeclaredConstantVar(true)
 	script.addChildToBack(moduleVar.srcrefTreeIfMissing(script))
 	var thisModule *Module = this.moduleMap.getModule(t.getInput().getPath())
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](thisModule.namespace().entrySet())))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](thisModule.namespace().asImm().entrySet())) {
+		entry := icast_Map_Entry(el)
 		var exportedName string = str_(entry.getKey())
 		var binding *Binding = cast_[*Binding](entry.getValue())
 		var nodeForSourceInfo Node = binding.sourceNode()
 		var mutated bool = binding.isMutated()
 		var boundVariableQualifiedName *QualifiedName = ModuleRenaming_getGlobalName_Binding(binding)
-		Preconditions_checkState_boolean_String_Object(boundVariableQualifiedName.isSimple(), "unexpected qualified name: %s", boundVariableQualifiedName.self())
+		if !boundVariableQualifiedName.isSimple() {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("unexpected qualified name: %s", []any{boundVariableQualifiedName.self()})))
+		}
 		var boundVariableName string = boundVariableQualifiedName.getRoot()
 		var getProp Node = this.astFactory_.createGetPropWithoutColor(this.astFactory_.createName(moduleName, moduleObjectType), exportedName)
 		getProp.putBooleanProp(Node_MODULE_EXPORT, true)
@@ -277,7 +302,7 @@ func (this *Es6RewriteModules) addGetterExport(script Node, forSourceInfo Node, 
 }
 
 func (this *Es6RewriteModules) rewriteRequires(script Node) {
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(&NodeTraversal_AbstractPostOrderCallbackInterface_fn{func(t *NodeTraversal, n Node, parent Node) {
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, n Node, parent Node) {
 		if n.isCall() {
 			var fn Node = n.getFirstChild()
 			if Es6RewriteModules_GOOG_REQUIRE.matches(fn) || Es6RewriteModules_GOOG_REQUIRETYPE.matches(fn) {
@@ -286,13 +311,11 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 				this.visitGoogModuleGet(t, n, parent)
 			}
 		}
-	}}).traverse(script)
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(&NodeTraversal_AbstractPostOrderCallbackInterface_fn{func(t *NodeTraversal, n Node, parent Node) {
+	}).traverse(script)
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, n Node, parent Node) {
 		var info *JSDocInfo = n.getJSDocInfo()
 		if info != nil {
-			it_1 := foreach_(any(info.getTypeNodes()))
-			for it_1.next() {
-				var typeNode Node = Node_of_(it_1.v)
+			for typeNode := range elemsBy_(info.getTypeNodes(), Node_of_) {
 				this.inlineAliasedTypes(t, typeNode)
 			}
 		}
@@ -304,19 +327,19 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 				n.replaceWith(replacement)
 			}
 		}
-	}}).traverse(script)
+	}).traverse(script)
 }
 
 func (this *Es6RewriteModules) inlineAliasedTypes(t *NodeTraversal, typeNode Node) {
 	if typeNode.isStringLit() {
 		var name string = typeNode.getString()
-		var split ListOf[string] = Es6RewriteModules_DOT_SPLITTER.limit(2).splitToList(strobj_(name))
-		if cast_[*Var](t.getScope().getVar(str_(split.get(0))).self()) == nil {
-			var replacement *ModuleRenaming_GlobalizedModuleName = this.namesToInlineByAlias.get(str_(split.get(0)))
+		var split []string = sliceImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.limit(2).splitToList_s(name))
+		if cast_[*Var](t.getScope().getVar(sliceAt_(split, 0)).self()) == nil {
+			var replacement *ModuleRenaming_GlobalizedModuleName = this.namesToInlineByAlias.get(sliceAt_(split, 0))
 			if replacement != nil {
 				var rest string = ""
-				if split.size() == 2 {
-					rest = ("." + sstr_(str_(split.get(1))))
+				if int32(len(split)) == 2 {
+					rest = ("." + sstr_(sliceAt_(split, 1)))
 				}
 				typeNode.setOriginalName(name)
 				typeNode.setString((sstr_(replacement.aliasName().join().orElse("null")) + sstr_(rest)))
@@ -346,7 +369,7 @@ func (this *Es6RewriteModules) visitGoogModuleGet(t *NodeTraversal, getCall Node
 
 func (this *Es6RewriteModules) getFallbackMetadataForNamespace(namespace string) *ModuleMetadataMap_ModuleMetadata {
 	var builder *ModuleMetadataMap_ModuleMetadata_Builder = ModuleMetadataMap_ModuleMetadata_builder().moduleType_1(ModuleMetadataMap_ModuleType_GOOG_PROVIDE).usesClosure(true).isTestOnly(false)
-	builder.googNamespacesBuilder().add(strobj_(namespace))
+	builder.googNamespacesBuilder().add_s(namespace)
 	return builder.build()
 }
 
@@ -364,7 +387,7 @@ func (this *Es6RewriteModules) visitRequireOrGet(t *NodeTraversal, requireCall N
 	if isStoredInDeclaration && !parent.getParent().isConst() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(parent.getParent(), Es6RewriteModules_LHS_OF_GOOG_REQUIRE_MUST_BE_CONST, []string{}))
 	}
-	var m *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByGoogNamespace(), namespace))
+	var m *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMap.getModulesByGoogNamespace().Get(namespace)
 	var isFromFallbackMetadata bool = (m == nil)
 	if isFromFallbackMetadata {
 		t.report(requireCall, ClosurePrimitiveErrors_MISSING_MODULE_OR_PROVIDE, []string{namespace})
@@ -374,12 +397,16 @@ func (this *Es6RewriteModules) visitRequireOrGet(t *NodeTraversal, requireCall N
 		if isRequire {
 			var toDetach Node
 			if parent.isDestructuringLhs() {
-				Preconditions_checkState(parent.getFirstChild().isObjectPattern())
+				if !parent.getFirstChild().isObjectPattern() {
+					panic(new_IllegalStateException_0())
+				}
 				toDetach = parent.getParent()
 				{
 					var child Node = parent.getFirstFirstChild()
 					for ; child != 0; child = child.getNext() {
-						Preconditions_checkState_boolean_Object((child.isStringKey() && child.getFirstChild().isName()), child.box_())
+						if !child.isStringKey() || !child.getFirstChild().isName() {
+							panic(new_IllegalStateException_String(tostr_(child)))
+						}
 						var rep *ModuleRenaming_GlobalizedModuleName = this.getGlobalNameAndType(m, Optional_of[string](namespace), isFromFallbackMetadata).getprop(child.getString())
 						this.namesToInlineByAlias.put(child.getFirstChild().getString(), rep)
 					}
@@ -389,7 +416,9 @@ func (this *Es6RewriteModules) visitRequireOrGet(t *NodeTraversal, requireCall N
 				this.namesToInlineByAlias.put(parent.getString(), alias)
 				toDetach = parent.getParent()
 			} else {
-				Preconditions_checkState(parent.isExprResult())
+				if !parent.isExprResult() {
+					panic(new_IllegalStateException_0())
+				}
 				toDetach = parent
 			}
 			toDetach.detach()
@@ -399,7 +428,9 @@ func (this *Es6RewriteModules) visitRequireOrGet(t *NodeTraversal, requireCall N
 			requireCall.replaceWith(replacement)
 		}
 	} else {
-		Preconditions_checkState(requireCall.getParent().isExprResult())
+		if !requireCall.getParent().isExprResult() {
+			panic(new_IllegalStateException_0())
+		}
 		requireCall.getParent().detach()
 	}
 }
@@ -441,16 +472,23 @@ func (this *Es6RewriteModules) maybeAddImportedFileReferenceToSymbolTable(import
 }
 
 func (this *Es6RewriteModules) declareGlobalVariable(n Node, t *NodeTraversal) {
-	Preconditions_checkState(n.isName())
+	if !n.isName() {
+		panic(new_IllegalStateException_0())
+	}
 	if !this.astFactory_.isAddingTypes() {
 		return
 	}
-	Preconditions_checkNotNull(obj_(this.globalTypedScope))
+	if this.globalTypedScope == nil {
+		panic(new_NullPointerException_0())
+	}
 	var name string = n.getString()
 	if this.globalTypedScope.hasOwnSlot(name) {
 		t.report(t.getCurrentScript(), ClosureRewriteModule_ILLEGAL_MODULE_RENAMING_CONFLICT, []string{name})
 	} else {
-		var type_ *JSType = to_JSType(Preconditions_checkNotNull(n.getJSType().self()))
+		var type_ *JSType = n.getJSType()
+		if type_ == nil {
+			panic(new_NullPointerException_0())
+		}
 		this.globalTypedScope.declare(name, n, type_, t.getInput(), false)
 	}
 }
@@ -513,9 +551,9 @@ func new_Es6RewriteModules_RewriteRequiresForEs6Modules(outer_ *Es6RewriteModule
 
 func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) rewrite(scriptNode Node) {
 	this.renameTable = SimpleTable_create[Node, string, string]()
-	NodeTraversal_traverse(this.outer_.compiler_, scriptNode, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.outer_.compiler_, scriptNode, this)
 	if !this.renameTable.isEmpty() {
-		NodeTraversal_traverse(this.outer_.compiler_, scriptNode, icast_NodeTraversal_Callback(obj_(new_Es6RenameTypeReferences(this.renameTable))))
+		NodeTraversal_traverse(this.outer_.compiler_, scriptNode, new_Es6RenameTypeReferences(this.renameTable))
 	}
 }
 
@@ -538,12 +576,12 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 		return
 	}
 	var name string = n.getLastChild().getString()
-	var moduleMetadata *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.outer_.moduleMetadataMap.getModulesByGoogNamespace(), name))
+	var moduleMetadata *ModuleMetadataMap_ModuleMetadata = this.outer_.moduleMetadataMap.getModulesByGoogNamespace().Get(name)
 	if (moduleMetadata == nil) || !moduleMetadata.isEs6Module() {
 		return
 	}
 	if isRequire {
-		var currentModuleMetadata *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.outer_.moduleMetadataMap.getModulesByPath(), t.getInput().getPath().toString()))
+		var currentModuleMetadata *ModuleMetadataMap_ModuleMetadata = this.outer_.moduleMetadataMap.getModulesByPath().Get(t.getInput().getPath().toString())
 		if (currentModuleMetadata != nil) && currentModuleMetadata.isEs6Module() {
 			t.report(n, Es6RewriteModules_SHOULD_IMPORT_ES6_MODULE, []string{})
 		}
@@ -567,8 +605,12 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 				{
 					var child Node = statementNode.getFirstFirstChild().getFirstChild()
 					for ; child != 0; child = child.getNext() {
-						Preconditions_checkState(child.isStringKey())
-						Preconditions_checkState(child.getFirstChild().isName())
+						if !child.isStringKey() {
+							panic(new_IllegalStateException_0())
+						}
+						if !child.getFirstChild().isName() {
+							panic(new_IllegalStateException_0())
+						}
 						this.renameTable.put(t.getScopeRoot(), child.getFirstChild().getString(), ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of[string](name)).getprop(child.getString()).join().orElse(nullstr_))
 					}
 				}
@@ -576,8 +618,12 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 				{
 					var child Node = statementNode.getFirstFirstChild().getFirstChild()
 					for ; child != 0; child = child.getNext() {
-						Preconditions_checkState(child.isStringKey())
-						Preconditions_checkState(child.getFirstChild().isName())
+						if !child.isStringKey() {
+							panic(new_IllegalStateException_0())
+						}
+						if !child.getFirstChild().isName() {
+							panic(new_IllegalStateException_0())
+						}
 						var globalName *ModuleRenaming_GlobalizedModuleName = this.outer_.getGlobalNameAndType(moduleMetadata, Optional_of[string](name), false).getprop(child.getString())
 						var constNode Node = this.outer_.astFactory_.createSingleConstNameDeclaration(child.getFirstChild().getString(), globalName.toQname(this.outer_.astFactory_))
 						constNode.srcrefTree(child)
@@ -651,9 +697,7 @@ func new_Es6RewriteModules_RenameGlobalVars(outer_ *Es6RewriteModules, thisModul
 func (this *Es6RewriteModules_RenameGlobalVars) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
 	if info != nil {
-		it_1 := foreach_(any(info.getTypeNodes()))
-		for it_1.next() {
-			var typeNode Node = Node_of_(it_1.v)
+		for typeNode := range elemsBy_(info.getTypeNodes(), Node_of_) {
 			this.fixTypeNode(t, typeNode)
 		}
 	}
@@ -668,9 +712,9 @@ func (this *Es6RewriteModules_RenameGlobalVars) visit_impl(t *NodeTraversal, n N
 			if NodeUtil_isDeclarationLValue(n) {
 				this.outer_.declareGlobalVariable(n, t)
 			}
-		} else if (var_ == nil) && Map_containsKey_s(this.thisModule.boundNames(), name) {
+		} else if (var_ == nil) && this.thisModule.boundNames().Has(name) {
 			this.outer_.maybeAddAliasToSymbolTable(n, t.getSourceName())
-			var binding *Binding = cast_[*Binding](Map_get_s(this.thisModule.boundNames(), name))
+			var binding *Binding = this.thisModule.boundNames().Get(name)
 			var replacement Node = this.replace(n, binding)
 			if ((replacement.isName() && parent.isCall()) && (parent.getFirstChild() == n)) && parent.getBooleanProp(Node_FREE_CALL) {
 				parent.putBooleanProp(Node_FREE_CALL, true)
@@ -684,12 +728,14 @@ func (this *Es6RewriteModules_RenameGlobalVars) visit_impl(t *NodeTraversal, n N
 }
 
 func (this *Es6RewriteModules_RenameGlobalVars) replace(n Node, binding *Binding) Node {
-	Preconditions_checkState(n.isName())
+	if !n.isName() {
+		panic(new_IllegalStateException_0())
+	}
 	for (binding.isModuleNamespace() && binding.metadata().isEs6Module()) && n.getParent().isGetProp() {
 		var propertyName string = n.getParent().getString()
 		var m *Module = this.outer_.moduleMap.getModule(binding.metadata().path())
-		if Map_containsKey_s(m.namespace(), propertyName) {
-			binding = cast_[*Binding](Map_get_s(m.namespace(), propertyName))
+		if m.namespace().Has(propertyName) {
+			binding = m.namespace().Get(propertyName)
 			n = n.getParent()
 		} else {
 			break
@@ -718,22 +764,23 @@ func (this *Es6RewriteModules_RenameGlobalVars) fixTypeNode(t *NodeTraversal, ty
 	if typeNode.isStringLit() {
 		var thisModule *Module = this.outer_.moduleMap.getModule(t.getInput().getPath())
 		var name string = typeNode.getString()
-		var splitted ListOf[string] = Es6RewriteModules_DOT_SPLITTER.splitToList(strobj_(name))
-		var baseName string = str_(splitted.get(0))
+		var splitted []string = sliceImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.splitToList_s(name))
+		var baseName string = sliceAt_(splitted, 0)
 		var rest string = ""
-		if splitted.size() > 1 {
-			rest = String_substring_int(name, String_length(baseName))
+		baseNameU16 := utf16Of_(baseName)
+		if int32(len(splitted)) > 1 {
+			rest = String_substring_int(name, baseNameU16.length())
 		}
 		var var_ *Var = cast_[*Var](t.getScope().getVar(baseName).self())
 		if (var_ != nil) && var_.isGlobal() {
 			this.maybeSetNewName(t, typeNode, name, (sstr_(ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(thisModule.metadata(), Optional_of[string](baseName)).join().orElse("null")) + sstr_(rest)))
-		} else if (var_ == nil) && Map_containsKey_s(thisModule.boundNames(), baseName) {
-			var binding *Binding = cast_[*Binding](Map_get_s(thisModule.boundNames(), baseName))
-			var globalName Optional[string] = ModuleRenaming_getGlobalNameForJsDoc(this.outer_.moduleMap, binding, splitted.subList(1, splitted.size()))
+		} else if (var_ == nil) && thisModule.boundNames().Has(baseName) {
+			var binding *Binding = thisModule.boundNames().Get(baseName)
+			var globalName Optional[string] = ModuleRenaming_getGlobalNameForJsDoc(this.outer_.moduleMap, binding, sliceView_(tc_string, splitted).subList(1, int32(len(splitted))))
 			this.maybeSetNewName(t, typeNode, name, globalName.get())
 			if this.outer_.preprocessorSymbolTable != nil {
 				var onlyBaseName Node = Node_newString_String(baseName).srcref(typeNode)
-				onlyBaseName.setLength(String_length(baseName))
+				onlyBaseName.setLength(baseNameU16.length())
 				this.outer_.maybeAddAliasToSymbolTable(onlyBaseName, t.getSourceName())
 			}
 		}
@@ -753,4 +800,22 @@ func (this *Es6RewriteModules_RenameGlobalVars) maybeSetNewName(t *NodeTraversal
 		node.setOriginalName(name)
 		t.reportCodeChange()
 	}
+}
+
+// visit: an object that is exactly a Es6RewriteModules_RewriteRequiresForEs6Modules calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*Es6RewriteModules_RewriteRequiresForEs6Modules); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a Es6RewriteModules_RenameGlobalVars calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6RewriteModules_RenameGlobalVars) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*Es6RewriteModules_RenameGlobalVars); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

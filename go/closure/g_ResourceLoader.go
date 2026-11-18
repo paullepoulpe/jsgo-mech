@@ -18,12 +18,12 @@ func new_ResourceLoader() *ResourceLoader {
 func ResourceLoader_loadTextResource(name string) string {
 	var bytes Optional[[]int8] = Io_readResource(name)
 	if bytes.isEmpty() {
-		panic(new_RuntimeException_String(("No such resource: " + sstr_(name))).self())
+		panic(new_RuntimeException_String(("No such resource: " + sstr_(name))))
 	}
 	return Io_utf8String(bytes.get())
 }
 
-func ResourceLoader_loadPropertiesMap(resourceName string) ImmutableMapOf[string, string] {
+func ResourceLoader_loadPropertiesMap(resourceName string) *ImmutableMap[string, string] {
 	return PropertiesParser_parse(ResourceLoader_loadTextResource(resourceName))
 }
 

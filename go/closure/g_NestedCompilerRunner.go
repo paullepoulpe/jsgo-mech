@@ -8,7 +8,7 @@ type NestedCompilerRunner struct {
 	baseChunk        *JSChunk
 	original_        *AbstractCompiler
 	shadowOptions    *CompilerOptions
-	mode_            *NestedCompilerRunner_Mode
+	mode_            NestedCompilerRunner_Mode
 	shadowPassConfig *PassConfig
 }
 
@@ -18,7 +18,7 @@ func (this *NestedCompilerRunner) finit_NestedCompilerRunner() {
 	this.baseChunk = new_JSChunk("shadow_base")
 }
 
-func (this *NestedCompilerRunner) init_NestedCompilerRunner(original *AbstractCompiler, shadowOptions *CompilerOptions, mode *NestedCompilerRunner_Mode, shadowPassConfig *PassConfig) {
+func (this *NestedCompilerRunner) init_NestedCompilerRunner(original *AbstractCompiler, shadowOptions *CompilerOptions, mode NestedCompilerRunner_Mode, shadowPassConfig *PassConfig) {
 	this.finit_NestedCompilerRunner()
 	this.original_ = original
 	this.shadowOptions = shadowOptions
@@ -26,18 +26,20 @@ func (this *NestedCompilerRunner) init_NestedCompilerRunner(original *AbstractCo
 	this.shadowPassConfig = shadowPassConfig
 }
 
-func new_NestedCompilerRunner(original *AbstractCompiler, shadowOptions *CompilerOptions, mode *NestedCompilerRunner_Mode, shadowPassConfig *PassConfig) *NestedCompilerRunner {
+func new_NestedCompilerRunner(original *AbstractCompiler, shadowOptions *CompilerOptions, mode NestedCompilerRunner_Mode, shadowPassConfig *PassConfig) *NestedCompilerRunner {
 	this := &NestedCompilerRunner{}
 	this.init_NestedCompilerRunner(original, shadowOptions, mode, shadowPassConfig)
 	return this
 }
 
-func NestedCompilerRunner_create(original *AbstractCompiler, shadowOptions *CompilerOptions, mode *NestedCompilerRunner_Mode, shadowPassConfig *PassConfig) *NestedCompilerRunner {
+func NestedCompilerRunner_create(original *AbstractCompiler, shadowOptions *CompilerOptions, mode NestedCompilerRunner_Mode, shadowPassConfig *PassConfig) *NestedCompilerRunner {
 	return new_NestedCompilerRunner(original, shadowOptions, mode, shadowPassConfig)
 }
 
 func (this *NestedCompilerRunner) addScript(shadowScript Node, uniqueShadowId string) *NestedCompilerRunner {
-	Preconditions_checkArgument_boolean_String_Object(shadowScript.getIsInClosureUnawareSubtree(), "Expected closureUnaware script, found %s", shadowScript.box_())
+	if !shadowScript.getIsInClosureUnawareSubtree() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected closureUnaware script, found %s", []any{shadowScript.box_()})))
+	}
 	var shadowFile *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String_SourceKind(uniqueShadowId, "", StaticSourceFile_SourceKind_STRONG)
 	var shadowInput *CompilerInput = CompilerInput_createFromInputId(shadowFile, new_InputId(uniqueShadowId))
 	shadowInput.initShadowAst(shadowScript)
@@ -54,19 +56,19 @@ func (this *NestedCompilerRunner) compile() {
 }
 
 func (this *NestedCompilerRunner) initializeCompiler() {
-	var externNames ImmutableSetOf[string] = NodeUtil_collectExternVariableNames(this.original_, this.original_.getRoot().getFirstChild())
-	this.shadowCompiler.addExportedNames(icast_Set(obj_(externNames)))
+	var externNames *ImmutableSet[string] = NodeUtil_collectExternVariableNames(this.original_, this.original_.getRoot().getFirstChild())
+	this.shadowCompiler.addExportedNames(icast_Set(obj_(externNames.asImm())))
 	this.shadowCompiler.setExternProperties(this.original_.getExternProperties())
 	this.shadowCompiler.setDebugMessage("<shadow AST compilation>")
-	var chunks ImmutableListOf[*JSChunk] = this.createChunks()
-	this.shadowCompiler.initChunks(icast_List(obj_(ImmutableList_of())), icast_List(obj_(chunks)), this.shadowOptions)
+	var chunks *ImmutableList[*JSChunk] = this.createChunks()
+	this.shadowCompiler.initChunks(ImmutableList_of(), icast_List(obj_(chunks.asImm())), this.shadowOptions)
 	this.shadowCompiler.setPassConfig(this.shadowPassConfig)
 	this.shadowCompiler.parseForCompilation()
 }
 
-func (this *NestedCompilerRunner) createChunks() ImmutableListOf[*JSChunk] {
+func (this *NestedCompilerRunner) createChunks() *ImmutableList[*JSChunk] {
 	this.baseChunk.addCompilerInput(new_CompilerInput_SourceFile(SourceFile_jscomp_fromCode_String_String_SourceKind("synthetic_base", "", StaticSourceFile_SourceKind_STRONG)))
-	var chunks ImmutableList_BuilderOf[*JSChunk] = cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().add(obj_(this.baseChunk))))
+	var chunks ImmutableList_BuilderOf[*JSChunk] = ImmutableList_builder().add(obj_(this.baseChunk))
 	it_1 := this.inputs.each()
 	for it_1.next() {
 		var input *CompilerInput = it_1.v
@@ -75,7 +77,7 @@ func (this *NestedCompilerRunner) createChunks() ImmutableListOf[*JSChunk] {
 		chunk.addDependency(this.baseChunk)
 		chunks.add(obj_(chunk))
 	}
-	return cast_[*ImmutableList](obj_(chunks.build()))
+	return tlistImm_(tc_p_JSChunk, chunks.build())
 }
 
 func (this *NestedCompilerRunner) runCompilation() {
@@ -100,62 +102,84 @@ func (this *NestedCompilerRunner) runCompilation() {
 }
 
 func (this *NestedCompilerRunner) delegateDiagnosticsToOriginal() {
-	it_1 := foreach_(obj_(this.shadowCompiler.getErrors()))
-	for it_1.next() {
-		var error_ *JSError = cast_[*JSError](it_1.v)
+	for _, el := range this.shadowCompiler.getErrors().items {
+		error_ := el
 		this.original_.report(error_)
 	}
-	it_3 := foreach_(obj_(this.shadowCompiler.getWarnings()))
-	for it_3.next() {
-		var error_ *JSError = cast_[*JSError](it_3.v)
+	for _, el2 := range this.shadowCompiler.getWarnings().items {
+		error_ := el2
 		this.original_.report(error_)
 	}
 }
 
 func (this *NestedCompilerRunner) checkInvariants() {
-	Preconditions_checkState_boolean_String_Object((this.baseChunk.getInputs().size() == 1), "Expected exactly 1 base chunk input, got %s", obj_(this.baseChunk.getInputs()))
+	if ok_, a1_ := (this.baseChunk.getInputs().size() == 1), this.baseChunk.getInputs(); !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected exactly 1 base chunk input, got %s", []any{obj_(a1_)})))
+	}
 	var baseInputNode Node = cast_[*CompilerInput](this.baseChunk.getInputs().get(0)).getAstRoot(this.shadowCompiler.up_AbstractCompiler())
-	Preconditions_checkState_boolean_String_Object(!baseInputNode.hasChildren(), "Expected synthetic base input chunk to have zero children, but found %s", strobj_(baseInputNode.toStringTree()))
+	if ok_, a1_ := !baseInputNode.hasChildren(), baseInputNode.toStringTree(); !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected synthetic base input chunk to have zero children, but found %s", []any{strobj_(a1_)})))
+	}
 }
 
-type NestedCompilerRunner_Mode struct {
-	Enum
+type NestedCompilerRunner_Mode uint8
+
+// NestedCompilerRunner_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var NestedCompilerRunner_Mode_enum_ = [2]Enum{
+	{self_: NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE, name_: "TRANSPILE_AND_OPTIMIZE", ordinal_: 0},
+	{self_: NestedCompilerRunner_Mode_TRANSPILE_ONLY, name_: "TRANSPILE_ONLY", ordinal_: 1},
 }
 
-func (this *NestedCompilerRunner_Mode) up_Enum() *Enum {
-	if this == nil {
+func (this NestedCompilerRunner_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &NestedCompilerRunner_Mode_enum_[this-1]
 }
 
-func (this *NestedCompilerRunner_Mode) init_NestedCompilerRunner_Mode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this NestedCompilerRunner_Mode) name() string {
+	return this.enum_().name_
 }
 
-func new_NestedCompilerRunner_Mode(name_ string, ordinal_ int32) *NestedCompilerRunner_Mode {
-	this := &NestedCompilerRunner_Mode{}
-	this.self_ = this
-	this.init_NestedCompilerRunner_Mode(name_, ordinal_)
+func (this NestedCompilerRunner_Mode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this NestedCompilerRunner_Mode) toString() string {
+	return this.enum_().name_
+}
+
+func (this NestedCompilerRunner_Mode) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this NestedCompilerRunner_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func NestedCompilerRunner_Mode_values() []*NestedCompilerRunner_Mode {
-	return append([]*NestedCompilerRunner_Mode(nil), NestedCompilerRunner_Mode_values_...)
+func NestedCompilerRunner_Mode_values() []NestedCompilerRunner_Mode {
+	return append([]NestedCompilerRunner_Mode(nil), NestedCompilerRunner_Mode_values_...)
 }
 
-func NestedCompilerRunner_Mode_valueOf(name string) *NestedCompilerRunner_Mode {
+func NestedCompilerRunner_Mode_valueOf(name string) NestedCompilerRunner_Mode {
 	for _, v := range NestedCompilerRunner_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE *NestedCompilerRunner_Mode
-var NestedCompilerRunner_Mode_TRANSPILE_ONLY *NestedCompilerRunner_Mode
-var NestedCompilerRunner_Mode_values_ []*NestedCompilerRunner_Mode
+const NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE NestedCompilerRunner_Mode = 1
+const NestedCompilerRunner_Mode_TRANSPILE_ONLY NestedCompilerRunner_Mode = 2
+
+var NestedCompilerRunner_Mode_values_ []NestedCompilerRunner_Mode
 
 var NestedCompilerRunner_Mode_clinit_done bool
 
@@ -164,9 +188,7 @@ func NestedCompilerRunner_Mode_clinit() {
 		return
 	}
 	NestedCompilerRunner_Mode_clinit_done = true
-	NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE = new_NestedCompilerRunner_Mode("TRANSPILE_AND_OPTIMIZE", 0)
-	NestedCompilerRunner_Mode_TRANSPILE_ONLY = new_NestedCompilerRunner_Mode("TRANSPILE_ONLY", 1)
-	NestedCompilerRunner_Mode_values_ = []*NestedCompilerRunner_Mode{NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE, NestedCompilerRunner_Mode_TRANSPILE_ONLY}
+	NestedCompilerRunner_Mode_values_ = []NestedCompilerRunner_Mode{NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE, NestedCompilerRunner_Mode_TRANSPILE_ONLY}
 	registerEnum_("com.google.javascript.jscomp.NestedCompilerRunner.Mode", enumValues_(NestedCompilerRunner_Mode_values_))
 
 }

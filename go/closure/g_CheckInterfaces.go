@@ -27,7 +27,7 @@ func new_CheckInterfaces(compiler *AbstractCompiler) *CheckInterfaces {
 }
 
 func (this *CheckInterfaces) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func CheckInterfaces_isInterface(jsDoc *JSDocInfo) bool {
@@ -35,14 +35,14 @@ func CheckInterfaces_isInterface(jsDoc *JSDocInfo) bool {
 }
 
 func (this *CheckInterfaces) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION:
 		var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 		if CheckInterfaces_isInterface(jsdoc) {
 			CheckInterfaces_checkInterfaceConstructorArgs(t, n)
 			CheckInterfaces_checkConstructorBlock(t, n)
 		}
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 		if CheckInterfaces_isInterface(jsdoc) {
 			if (n.getSecondChild() != 0) && n.getSecondChild().isName() {
@@ -70,16 +70,18 @@ func CheckInterfaces_checkInterfaceConstructorArgs(t *NodeTraversal, funcNode No
 
 func CheckInterfaces_checkClassMethods(t *NodeTraversal, classNode Node, ctorDef Node) {
 	var classMembers Node = classNode.getLastChild()
-	Preconditions_checkState_boolean_Object(classMembers.isClassMembers(), classMembers.box_())
+	if !classMembers.isClassMembers() {
+		panic(new_IllegalStateException_String(tostr_(classMembers)))
+	}
 	{
 		var memberFuncDef Node = classMembers.getFirstChild()
 		for ; memberFuncDef != 0; memberFuncDef = memberFuncDef.getNext() {
-			if Object_equals(memberFuncDef.box_(), ctorDef.box_()) {
+			if equalsId_(memberFuncDef, ctorDef) {
 				continue
 			}
 			if memberFuncDef.isStaticMember() {
 				var className Optional[string] = Optional_of[string](NodeUtil_getName(classNode)).filter(&Predicate_tfn_string{func(s string) bool {
-					return !String_isEmpty(s)
+					return s != ""
 				}})
 				if className.isEmpty() {
 					className = Optional_of[string](CheckInterfaces_ANONYMOUS_CLASSNAME)
@@ -142,4 +144,13 @@ func CheckInterfaces_clinit() {
 	CheckInterfaces_STATIC_MEMBER_FUNCTION_IN_INTERFACE_CLASS = DiagnosticType_disabled("JSC_STATIC_MEMBER_FUNCTION_IN_INTERFACE_CLASS", "Interface class should not have static member functions. Consider pulling out the static method into a flat name as {0}_{1}")
 	CheckInterfaces_INTERFACE_DEFINED_WITH_EXTENDS = DiagnosticType_disabled("JSC_INTERFACE_DEFINED_WITH_EXTENDS", "Interface/Record class should use the `@extends` annotation instead of extends keyword.")
 
+}
+
+// visit: an object that is exactly a CheckInterfaces calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckInterfaces) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckInterfaces); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

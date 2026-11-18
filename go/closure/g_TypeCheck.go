@@ -2,6 +2,11 @@
 
 package closure
 
+import (
+	"strconv"
+	"strings"
+)
+
 type TypeCheck struct {
 	compiler_                    *AbstractCompiler
 	validator                    *TypeValidator
@@ -10,7 +15,7 @@ type TypeCheck struct {
 	topScope                     *TypedScope
 	scopeCreator                 *TypedScopeCreator
 	reportUnknownTypesField      bool
-	subtypingMode                *JSType_SubtypingMode
+	subtypingMode                JSType_SubtypingMode
 	reportMissingPropertiesField bool
 	inferJSDocInfo               *InferJSDocInfo
 	typedCount                   int32
@@ -69,30 +74,47 @@ func (this *TypeCheck) reportUnknownTypes(report bool) *TypeCheck {
 }
 
 func (this *TypeCheck) process_2(externsRoot Node, jsRoot Node) {
-	Preconditions_checkNotNull(obj_(this.scopeCreator))
-	Preconditions_checkNotNull(obj_(this.topScope))
+	if this.scopeCreator == nil {
+		panic(new_NullPointerException_0())
+	}
+	if this.topScope == nil {
+		panic(new_NullPointerException_0())
+	}
 	var externsAndJs Node = jsRoot.getParent()
-	Preconditions_checkState((externsAndJs != 0))
-	Preconditions_checkState(((externsRoot == 0) || externsAndJs.hasChild(externsRoot)))
-	_ = func() (code_ int) {
-		var debugTypeLogger *TypeCheck_DebugTypeLogger = new_TypeCheck_DebugTypeLogger(this)
-		defer closeResource_(obj_(debugTypeLogger))
-		this.debugTypeLogger = debugTypeLogger
-		if externsRoot != 0 {
-			this.check(externsRoot, true)
-		}
-		this.check(jsRoot, false)
-		return 0
-	}()
+	if externsAndJs == 0 {
+		panic(new_IllegalStateException_0())
+	}
+	if externsRoot != 0 && !externsAndJs.hasChild(externsRoot) {
+		panic(new_IllegalStateException_0())
+	}
+	var debugTypeLogger *TypeCheck_DebugTypeLogger = new_TypeCheck_DebugTypeLogger(this)
+	defer closeResource_(obj_(debugTypeLogger))
+	this.debugTypeLogger = debugTypeLogger
+	if externsRoot != 0 {
+		this.check(externsRoot, true)
+	}
+	this.check(jsRoot, false)
 }
 
 func (this *TypeCheck) processForTesting(externsRoot Node, jsRoot Node) *TypedScope {
-	Preconditions_checkState((this.scopeCreator == nil))
-	Preconditions_checkState((this.topScope == nil))
-	Preconditions_checkArgument_boolean_Object(((externsRoot == 0) || externsRoot.isRoot()), externsRoot.box_())
-	Preconditions_checkArgument_boolean_Object(jsRoot.isRoot(), jsRoot.box_())
-	Preconditions_checkState_boolean_Object((jsRoot.hasParent() && jsRoot.getParent().isRoot()), jsRoot.getParent().box_())
-	Preconditions_checkState_boolean_Object(((externsRoot == 0) || (externsRoot.getNext() == jsRoot)), strobj_("externs root must be the preceding sibling of the js root"))
+	if this.scopeCreator != nil {
+		panic(new_IllegalStateException_0())
+	}
+	if this.topScope != nil {
+		panic(new_IllegalStateException_0())
+	}
+	if externsRoot != 0 && !externsRoot.isRoot() {
+		panic(new_IllegalArgumentException_String(tostr_(externsRoot)))
+	}
+	if !jsRoot.isRoot() {
+		panic(new_IllegalArgumentException_String(tostr_(jsRoot)))
+	}
+	if ok_, a1_ := (jsRoot.hasParent() && jsRoot.getParent().isRoot()), jsRoot.getParent(); !ok_ {
+		panic(new_IllegalStateException_String(tostr_(a1_)))
+	}
+	if externsRoot != 0 && externsRoot.getNext() != jsRoot {
+		panic(new_IllegalStateException_String("externs root must be the preceding sibling of the js root"))
+	}
 	this.scopeCreator = new_TypedScopeCreator_AbstractCompiler(this.compiler_)
 	this.topScope = new_TypeInferencePass(this.compiler_, this.reverseInterpreter, this.scopeCreator).inferAllScopes(jsRoot.getParent())
 	this.process_2(externsRoot, jsRoot)
@@ -102,9 +124,11 @@ func (this *TypeCheck) processForTesting(externsRoot Node, jsRoot Node) *TypedSc
 }
 
 func (this *TypeCheck) check(node Node, externs bool) {
-	Preconditions_checkNotNull(node.box_())
+	if node == 0 {
+		panic(new_NullPointerException_0())
+	}
 	this.inExterns_ = externs
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(any(this))).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(node, this.topScope.up_AbstractScope())
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(node, this.topScope.up_AbstractScope())
 	if externs {
 		this.inferJSDocInfo.process_2(node, 0)
 	} else {
@@ -146,8 +170,8 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 	var right Node
 	var typeable bool = true
 	this.validator.expectWellFormedTemplatizedType(n)
-	switch n.getToken() {
-	case Token_rhino_CAST:
+	switch n.ns_().token {
+	case tokOrd1_CAST:
 		var expr Node = n.getFirstChild()
 		var exprType *JSType = this.getJSType(expr)
 		var castType *JSType = this.getJSType(n)
@@ -159,49 +183,49 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 		if castType.restrictByNotNullOrUndefined().isSubtypeOf(exprType) || expr.isObjectLit() {
 			expr.setJSType(castType)
 		}
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		typeable = this.visitName(t, n, parent)
-	case Token_rhino_COMMA:
+	case tokOrd1_COMMA:
 		this.ensureTypedJSType(n, this.getJSType(n.getLastChild()))
-	case Token_rhino_THIS:
+	case tokOrd1_THIS:
 		this.ensureTypedJSType(n, t.getTypedScope().getTypeOfThis())
-	case Token_rhino_NULL:
+	case tokOrd1_NULL:
 		this.ensureTyped_2(n, JSTypeNative_NULL_TYPE)
-	case Token_rhino_NUMBER:
+	case tokOrd1_NUMBER:
 		this.ensureTyped_2(n, JSTypeNative_NUMBER_TYPE)
-	case Token_rhino_BIGINT:
+	case tokOrd1_BIGINT:
 		this.ensureTyped_2(n, JSTypeNative_BIGINT_TYPE)
-	case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
-	case Token_rhino_ARRAYLIT:
+	case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
+	case tokOrd1_ARRAYLIT:
 		this.ensureTyped_2(n, JSTypeNative_ARRAY_TYPE)
-	case Token_rhino_REGEXP:
+	case tokOrd1_REGEXP:
 		this.ensureTyped_2(n, JSTypeNative_REGEXP_TYPE)
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		this.visitGetProp(t, n)
 		typeable = !(parent.isAssign() && (parent.getFirstChild() == n))
-	case Token_rhino_OPTCHAIN_GETPROP:
+	case tokOrd1_OPTCHAIN_GETPROP:
 		this.visitOptChainGetProp(n)
-	case Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_OPTCHAIN_GETELEM:
 		this.visitOptChainGetElem(n)
-	case Token_rhino_GETELEM:
+	case tokOrd1_GETELEM:
 		this.visitGetElem(n)
 		typeable = false
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		this.visitVar(t, n)
 		typeable = false
-	case Token_rhino_NEW:
+	case tokOrd1_NEW:
 		this.visitNew(n)
-	case Token_rhino_OPTCHAIN_CALL:
+	case tokOrd1_OPTCHAIN_CALL:
 		this.visitCall(t, n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		this.visitCall(t, n)
 		typeable = !parent.isExprResult()
-	case Token_rhino_RETURN:
+	case tokOrd1_RETURN:
 		this.visitReturn(t, n)
 		typeable = false
-	case Token_rhino_YIELD:
+	case tokOrd1_YIELD:
 		this.visitYield(t, n)
-	case Token_rhino_DEC, Token_rhino_INC:
+	case tokOrd1_DEC, tokOrd1_INC:
 		left = n.getFirstChild()
 		this.checkPropCreation(left)
 		if this.getJSType(n).isNumber() {
@@ -210,20 +234,20 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 		} else {
 			this.validator.expectBigIntOrNumber(left, this.getJSType(left), "increment/decrement")
 		}
-	case Token_rhino_VOID:
+	case tokOrd1_VOID:
 		this.ensureTyped_2(n, JSTypeNative_VOID_TYPE)
-	case Token_rhino_STRINGLIT, Token_rhino_TYPEOF, Token_rhino_TEMPLATELIT, Token_rhino_TEMPLATELIT_STRING:
+	case tokOrd1_STRINGLIT, tokOrd1_TYPEOF, tokOrd1_TEMPLATELIT, tokOrd1_TEMPLATELIT_STRING:
 		this.ensureTyped_2(n, JSTypeNative_STRING_TYPE)
-	case Token_rhino_TAGGED_TEMPLATELIT:
+	case tokOrd1_TAGGED_TEMPLATELIT:
 		this.visitTaggedTemplateLit(n)
 		this.ensureTyped(n)
-	case Token_rhino_BITNOT:
+	case tokOrd1_BITNOT:
 		this.visitBitwiseNOT(n)
-	case Token_rhino_POS:
+	case tokOrd1_POS:
 		this.visitUnaryPlus(n)
-	case Token_rhino_NEG:
+	case tokOrd1_NEG:
 		this.visitUnaryMinus(n)
-	case Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE:
+	case tokOrd1_EQ, tokOrd1_NE, tokOrd1_SHEQ, tokOrd1_SHNE:
 		left = n.getFirstChild()
 		right = n.getLastChild()
 		if left.isTypeOf() {
@@ -237,7 +261,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 		rightType = this.getJSType(right)
 		var leftTypeRestricted *JSType = leftType.restrictByNotNullOrUndefined()
 		var rightTypeRestricted *JSType = rightType.restrictByNotNullOrUndefined()
-		var result *Tri = Tri_UNKNOWN
+		var result Tri = Tri_UNKNOWN
 		if n.isEQ() || n.isNE() {
 			result = leftTypeRestricted.testForEquality(rightTypeRestricted)
 			if n.isNE() {
@@ -245,7 +269,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 			}
 		} else {
 			if !leftTypeRestricted.canTestForShallowEqualityWith(rightTypeRestricted) {
-				result = func() *Tri {
+				result = func() Tri {
 					if n.isSHEQ() {
 						return Tri_FALSE
 					}
@@ -257,7 +281,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 			this.report(n, TypeCheck_DETERMINISTIC_TEST, []string{leftType.toString(), rightType.toString(), result.toString()})
 		}
 		this.ensureTyped_2(n, JSTypeNative_BOOLEAN_TYPE)
-	case Token_rhino_LT, Token_rhino_LE, Token_rhino_GT, Token_rhino_GE:
+	case tokOrd1_LT, tokOrd1_LE, tokOrd1_GT, tokOrd1_GE:
 		var leftSide Node = n.getFirstChild()
 		var rightSide Node = n.getLastChild()
 		leftType = this.getJSType(leftSide)
@@ -283,7 +307,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 			}
 		}
 		this.ensureTyped_2(n, JSTypeNative_BOOLEAN_TYPE)
-	case Token_rhino_IN:
+	case tokOrd1_IN:
 		left = n.getFirstChild()
 		right = n.getLastChild()
 		rightType = this.getJSType(right)
@@ -293,49 +317,49 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 			this.report(right, TypeCheck_IN_USED_WITH_STRUCT, []string{})
 		}
 		this.ensureTyped_2(n, JSTypeNative_BOOLEAN_TYPE)
-	case Token_rhino_INSTANCEOF:
+	case tokOrd1_INSTANCEOF:
 		left = n.getFirstChild()
 		right = n.getLastChild()
 		rightType = this.getJSType(right).restrictByNotNullOrUndefined()
 		this.validator.expectAnyObject(left, this.getJSType(left), "deterministic instanceof yields false")
 		this.validator.expectActualObject(right, rightType, "instanceof requires an object")
 		this.ensureTyped_2(n, JSTypeNative_BOOLEAN_TYPE)
-	case Token_rhino_ASSIGN, Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_COALESCE:
+	case tokOrd1_ASSIGN, tokOrd1_ASSIGN_OR, tokOrd1_ASSIGN_AND, tokOrd1_ASSIGN_COALESCE:
 		this.visitAssign(t, n)
 		typeable = false
-	case Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_EXPONENT:
+	case tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_EXPONENT:
 		this.checkPropCreation(n.getFirstChild())
 		this.visitBinaryOperator(n.getToken(), n)
-	case Token_rhino_LSH, Token_rhino_RSH, Token_rhino_URSH, Token_rhino_DIV, Token_rhino_MOD, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_SUB, Token_rhino_ADD, Token_rhino_MUL, Token_rhino_EXPONENT:
+	case tokOrd1_LSH, tokOrd1_RSH, tokOrd1_URSH, tokOrd1_DIV, tokOrd1_MOD, tokOrd1_BITOR, tokOrd1_BITXOR, tokOrd1_BITAND, tokOrd1_SUB, tokOrd1_ADD, tokOrd1_MUL, tokOrd1_EXPONENT:
 		this.visitBinaryOperator(n.getToken(), n)
-	case Token_rhino_TRUE, Token_rhino_FALSE, Token_rhino_NOT, Token_rhino_DELPROP:
+	case tokOrd1_TRUE, tokOrd1_FALSE, tokOrd1_NOT, tokOrd1_DELPROP:
 		this.ensureTyped_2(n, JSTypeNative_BOOLEAN_TYPE)
-	case Token_rhino_CASE:
+	case tokOrd1_CASE:
 		var switchConditionType *JSType = this.getJSType(parent.getPrevious())
 		var caseType *JSType = this.getJSType(n.getFirstChild())
 		this.validator.expectSwitchMatchesCase(n, switchConditionType, caseType)
 		typeable = false
-	case Token_rhino_WITH:
+	case tokOrd1_WITH:
 		var child Node = n.getFirstChild()
 		childType = this.getJSType(child)
 		this.validator.expectObject(child, childType, "with requires an object")
 		typeable = false
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.visitFunction(n)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.visitClass(n)
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		this.visitModuleBody(t, n)
-	case Token_rhino_PARAM_LIST, Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_COMPUTED_PROP, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_LABEL, Token_rhino_LABEL_NAME, Token_rhino_SWITCH, Token_rhino_SWITCH_BODY, Token_rhino_BREAK, Token_rhino_CATCH, Token_rhino_TRY, Token_rhino_SCRIPT, Token_rhino_EXPORT, Token_rhino_EXPORT_SPEC, Token_rhino_EXPORT_SPECS, Token_rhino_IMPORT, Token_rhino_IMPORT_SPEC, Token_rhino_IMPORT_SPECS, Token_rhino_IMPORT_STAR, Token_rhino_EXPR_RESULT, Token_rhino_BLOCK, Token_rhino_ROOT, Token_rhino_EMPTY, Token_rhino_DEFAULT_CASE, Token_rhino_CONTINUE, Token_rhino_DEBUGGER, Token_rhino_THROW, Token_rhino_DO, Token_rhino_IF, Token_rhino_WHILE, Token_rhino_FOR, Token_rhino_TEMPLATELIT_SUB, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST, Token_rhino_DESTRUCTURING_LHS:
+	case tokOrd1_PARAM_LIST, tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_COMPUTED_PROP, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_LABEL, tokOrd1_LABEL_NAME, tokOrd1_SWITCH, tokOrd1_SWITCH_BODY, tokOrd1_BREAK, tokOrd1_CATCH, tokOrd1_TRY, tokOrd1_SCRIPT, tokOrd1_EXPORT, tokOrd1_EXPORT_SPEC, tokOrd1_EXPORT_SPECS, tokOrd1_IMPORT, tokOrd1_IMPORT_SPEC, tokOrd1_IMPORT_SPECS, tokOrd1_IMPORT_STAR, tokOrd1_EXPR_RESULT, tokOrd1_BLOCK, tokOrd1_ROOT, tokOrd1_EMPTY, tokOrd1_DEFAULT_CASE, tokOrd1_CONTINUE, tokOrd1_DEBUGGER, tokOrd1_THROW, tokOrd1_DO, tokOrd1_IF, tokOrd1_WHILE, tokOrd1_FOR, tokOrd1_TEMPLATELIT_SUB, tokOrd1_ITER_REST, tokOrd1_OBJECT_REST, tokOrd1_DESTRUCTURING_LHS:
 		typeable = false
-	case Token_rhino_DYNAMIC_IMPORT:
+	case tokOrd1_DYNAMIC_IMPORT:
 		this.visitDynamicImport(t, n)
-	case Token_rhino_ARRAY_PATTERN:
+	case tokOrd1_ARRAY_PATTERN:
 		this.ensureTyped(n)
 		this.validator.expectAutoboxesToIterable(n, this.getJSType(n), "array pattern destructuring requires an Iterable")
-	case Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECT_PATTERN:
 		this.visitObjectPattern(n)
-	case Token_rhino_DEFAULT_VALUE:
+	case tokOrd1_DEFAULT_VALUE:
 		this.checkCanAssignToWithScope(t, n, n.getFirstChild(), this.getJSType(n.getSecondChild()), nil, "default value has wrong type")
 		var lhs Node = n.getFirstChild()
 		var rhs Node = n.getSecondChild()
@@ -345,7 +369,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 			this.validator.expectObject(rhs, this.getJSType(rhs), "cannot destructure a 'null' or 'undefined' default value")
 		}
 		typeable = false
-	case Token_rhino_CLASS_MEMBERS:
+	case tokOrd1_CLASS_MEMBERS:
 		var typ *JSType = parent.getJSType().toMaybeFunctionType().getInstanceType().up_JSType()
 		{
 			var child Node = n.getFirstChild()
@@ -357,19 +381,19 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 			}
 		}
 		typeable = false
-	case Token_rhino_FOR_IN:
+	case tokOrd1_FOR_IN:
 		var obj Node = n.getSecondChild()
 		if this.getJSType(obj).isStruct() {
 			this.report(obj, TypeCheck_IN_USED_WITH_STRUCT, []string{})
 		}
 		typeable = false
-	case Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 		this.ensureTyped(n.getSecondChild())
 		typeable = false
-	case Token_rhino_SUPER, Token_rhino_NEW_TARGET, Token_rhino_IMPORT_META, Token_rhino_AWAIT, Token_rhino_AND, Token_rhino_HOOK, Token_rhino_OR, Token_rhino_COALESCE:
+	case tokOrd1_SUPER, tokOrd1_NEW_TARGET, tokOrd1_IMPORT_META, tokOrd1_AWAIT, tokOrd1_AND, tokOrd1_HOOK, tokOrd1_OR, tokOrd1_COALESCE:
 		this.ensureTyped(n)
-	case Token_rhino_OBJECTLIT:
-		if is_[*EnumType](parent.getJSType().self()) {
+	case tokOrd1_OBJECTLIT:
+		if _, ok := parent.getJSType().self().(*EnumType); ok {
 			this.ensureTypedJSType(n, parent.getJSType())
 		} else {
 			this.ensureTyped(n)
@@ -381,11 +405,11 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 				this.visitObjectOrClassLiteralKey(key, n, typ)
 			}
 		}
-	case Token_rhino_ITER_SPREAD, Token_rhino_OBJECT_SPREAD:
+	case tokOrd1_ITER_SPREAD, tokOrd1_OBJECT_SPREAD:
 		this.checkSpread(n)
 		typeable = false
 	default:
-		this.report(n, TypeCheck_UNEXPECTED_TOKEN, []string{Object_toString(obj_(n.getToken()))})
+		this.report(n, TypeCheck_UNEXPECTED_TOKEN, []string{tostrNN_(n.getToken())})
 		this.ensureTyped(n)
 	}
 	if NodeUtil_isBlocklessArrowFunctionResult(n) {
@@ -441,12 +465,12 @@ func (this *TypeCheck) checkSpread(spreadNode Node) {
 	var target Node = spreadNode.getOnlyChild()
 	this.ensureTyped(target)
 	var targetType *JSType = this.getJSType(target)
-	switch spreadNode.getParent().getToken() {
-	case Token_rhino_OBJECTLIT:
-	case Token_rhino_ARRAYLIT, Token_rhino_CALL, Token_rhino_OPTCHAIN_CALL, Token_rhino_NEW:
+	switch spreadNode.getParent().ns_().token {
+	case tokOrd1_OBJECTLIT:
+	case tokOrd1_ARRAYLIT, tokOrd1_CALL, tokOrd1_OPTCHAIN_CALL, tokOrd1_NEW:
 		this.validator.expectAutoboxesToIterable(target, targetType, "Spread operator only applies to Iterable types")
 	default:
-		panic(new_IllegalStateException_String(("Unexpected parent of SPREAD: " + sstr_(spreadNode.getParent().toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unexpected parent of SPREAD: " + sstr_(spreadNode.getParent().toStringTree()))))
 	}
 }
 
@@ -477,7 +501,7 @@ func (this *TypeCheck) checkGetterOrSetterType(child Node, classType *FunctionTy
 		if child.isGetterDef() {
 			return this.determineGetterType(methodType)
 		}
-		return cast_[*FunctionType_Parameter](Iterables_getOnlyElement(icast_Iterable(obj_(methodType.getParameters())))).getJSType()
+		return Iterables_getOnlyElement(icast_Iterable(obj_(methodType.getParameters().asImm()))).(*FunctionType_Parameter).getJSType()
 	}()
 	var officialPropertyType *JSType = func() *JSType {
 		if child.isStaticMember() {
@@ -485,7 +509,7 @@ func (this *TypeCheck) checkGetterOrSetterType(child Node, classType *FunctionTy
 		}
 		return classType.getPrototype().getPropertyType(propertyName)
 	}()
-	if !propertyType.equals(officialPropertyType.self()) {
+	if !propertyType.equals_JSType(officialPropertyType) {
 		this.report(child, TypeCheck_CONFLICTING_GETTER_SETTER_TYPE, []string{propertyName, func() string {
 			if child.isGetterDef() {
 				return propertyType.toString()
@@ -527,15 +551,15 @@ func (this *TypeCheck) checkCanAssignToWithScope(t *NodeTraversal, nodeToWarn No
 }
 
 func (this *TypeCheck) checkDestructuringAssignment(t *NodeTraversal, nodeToWarn Node, pattern Node, rightType *JSType, msg string) {
-	it_1 := foreach_(obj_(DestructuredTarget_createAllNonEmptyTargetsInPattern(this.typeRegistry, rightType, pattern)))
-	for it_1.next() {
-		var target *DestructuredTarget = cast_[*DestructuredTarget](it_1.v)
+	for _, target := range DestructuredTarget_createAllNonEmptyTargetsInPattern(this.typeRegistry, rightType, pattern) {
 		this.checkCanAssignToWithScope(t, nodeToWarn, target.getNode(), target.inferType(), nil, msg)
 	}
 }
 
 func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, nodeToWarn Node, lvalue Node, rightType *JSType, info *JSDocInfo, msg string) {
-	Preconditions_checkArgument_boolean_Object((((lvalue.isName() || lvalue.isGetProp()) || lvalue.isGetElem()) || lvalue.isCast()), lvalue.box_())
+	if !(((lvalue.isName() || lvalue.isGetProp()) || lvalue.isGetElem()) || lvalue.isCast()) {
+		panic(new_IllegalArgumentException_String(tostr_(lvalue)))
+	}
 	this.checkNotReadonlyPropertyAssignment(lvalue)
 	if lvalue.isGetProp() {
 		var object Node = lvalue.getFirstChild()
@@ -554,8 +578,8 @@ func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, no
 			return
 		}
 		var objectCastType *ObjectType = ObjectType_cast(objectJsType.restrictByNotNullOrUndefined())
-		var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, icast_Property_Key(obj_(new_Property_StringKey(pname))))
-		this.checkPropertyInheritanceOnAssignment(nodeToWarn, object, icast_Property_Key(obj_(new_Property_StringKey(pname))), info, expectedPropertyType)
+		var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, new_Property_StringKey(pname))
+		this.checkPropertyInheritanceOnAssignment(nodeToWarn, object, new_Property_StringKey(pname), info, expectedPropertyType)
 		if !expectedPropertyType.isUnknownType() {
 			if !TypeCheck_propertyIsImplicitCast(objectCastType, pname) {
 				this.validator.expectCanAssignToPropertyOf(nodeToWarn, rightType, expectedPropertyType, object, Optional_of[string](pname))
@@ -567,8 +591,8 @@ func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, no
 		var objectJsType *JSType = this.getJSType(object)
 		var objectCastType *ObjectType = ObjectType_cast(objectJsType.restrictByNotNullOrUndefined())
 		var property *KnownSymbolType = lvalue.getLastChild().getJSType().toMaybeKnownSymbolType()
-		var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, icast_Property_Key(obj_(new_Property_SymbolKey(property))))
-		this.checkPropertyInheritanceOnAssignment(nodeToWarn, object, icast_Property_Key(obj_(new_Property_SymbolKey(property))), info, expectedPropertyType)
+		var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, new_Property_SymbolKey(property))
+		this.checkPropertyInheritanceOnAssignment(nodeToWarn, object, new_Property_SymbolKey(property), info, expectedPropertyType)
 	}
 	var leftType *JSType = this.getJSType(lvalue)
 	if lvalue.isQualifiedName() {
@@ -593,8 +617,8 @@ func (this *TypeCheck) checkPropCreation(lvalue Node) {
 		var objType *JSType = this.getJSType(lvalue.getFirstChild())
 		if !objType.isEmptyType() && !objType.isUnknownType() {
 			var propName string = lvalue.getString()
-			var kind *JSTypeRegistry_PropDefinitionKind = this.typeRegistry.canPropertyBeDefined(objType, propName)
-			if !Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_KNOWN)) {
+			var kind JSTypeRegistry_PropDefinitionKind = this.typeRegistry.canPropertyBeDefined(objType, propName)
+			if !equalsId_(kind, JSTypeRegistry_PropDefinitionKind_KNOWN) {
 				if objType.isStruct() {
 					if objType.restrictByNotNullOrUndefined().isUnionType() {
 						this.report(lvalue, TypeCheck_ILLEGAL_PROPERTY_CREATION_ON_UNION_TYPE, []string{})
@@ -687,11 +711,13 @@ func (this *TypeCheck) visitObjectOrClassLiteralKey(key Node, owner Node, ownerT
 		if keyType.isKnownSymbolValueType() {
 			if owner.isClass() {
 				var classConstructorType *FunctionType = owner.getJSType().assertFunctionType()
-				this.checkPropertyInheritanceOnClassMember(key, icast_Property_Key(obj_(new_Property_SymbolKey(keyType.toMaybeKnownSymbolType()))), classConstructorType)
+				this.checkPropertyInheritanceOnClassMember(key, new_Property_SymbolKey(keyType.toMaybeKnownSymbolType()), classConstructorType)
 			} else {
-				Preconditions_checkState_boolean_String_Object(owner.isObjectLit(), "Unexpected owner %s", owner.box_())
+				if !owner.isObjectLit() {
+					panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected owner %s", []any{owner.box_()})))
+				}
 				var objectCastType *ObjectType = ObjectType_cast(ownerType.restrictByNotNullOrUndefined())
-				var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, icast_Property_Key(obj_(new_Property_SymbolKey(keyType.toMaybeKnownSymbolType()))))
+				var expectedPropertyType *JSType = this.getPropertyTypeIfDeclared(objectCastType, new_Property_SymbolKey(keyType.toMaybeKnownSymbolType()))
 				this.validator.expectCanAssignToPropertyOf(key, expectedPropertyType, this.getJSType(key.getSecondChild()), owner, keyType.toMaybeKnownSymbolType().getDisplayName())
 			}
 		}
@@ -743,7 +769,7 @@ func (this *TypeCheck) visitObjectOrClassLiteralKey(key Node, owner Node, ownerT
 	} else {
 		this.ensureTyped(key)
 	}
-	var propertyKey Property_Key = icast_Property_Key(obj_(new_Property_StringKey(propertyName.orElseThrow())))
+	var propertyKey Property_Key = new_Property_StringKey(propertyName.orElseThrow())
 	if owner.isClass() {
 		var classConstructorType *FunctionType = owner.getJSType().assertFunctionType()
 		this.checkPropertyInheritanceOnClassMember(key, propertyKey, classConstructorType)
@@ -789,13 +815,13 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 			}
 		}
 	}
-	it_1 := foreach_(any(ctorType.getAllImplementedInterfaces()))
-	for it_1.next() {
-		var implementedInterface *ObjectType = to_ObjectType(it_1.v)
+	for implementedInterface := range elemsBy_(ctorType.getAllImplementedInterfaces(), to_ObjectType) {
 		if implementedInterface.isUnknownType() || implementedInterface.isEmptyType() {
 			continue
 		}
-		Preconditions_checkState_boolean_Object(implementedInterface.isInstanceType(), implementedInterface.self())
+		if !implementedInterface.isInstanceType() {
+			panic(new_IllegalStateException_String(objstr_(implementedInterface.self())))
+		}
 		var propSlot *Property_OwnedProperty = implementedInterface.findClosestDefinition(propertyName)
 		var interfaceHasProperty bool = (propSlot != nil)
 		foundProperty = bor_(foundProperty, interfaceHasProperty)
@@ -809,16 +835,16 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 }
 
 func TypeCheck_isDeclaredLocally(ctorType *FunctionType, propertyName Property_Key) bool {
-	Preconditions_checkState(ctorType.isConstructor())
+	if !ctorType.isConstructor() {
+		panic(new_IllegalStateException_0())
+	}
 	return (ctorType.getPrototype().hasOwnPropertyKey(propertyName) || ctorType.getInstanceType().hasOwnPropertyKey(propertyName))
 }
 
 func (this *TypeCheck) checkDeclaredPropertyAgainstPrototypalInheritance(n Node, receiverType *ObjectType, propertyName Property_Key, info *JSDocInfo, propertyType *JSType) {
 	var declaredOverride bool = TypeCheck_declaresOverride(info)
 	var supertypeWithProperty *ObjectType = nil
-	it_1 := foreach_(any(receiverType.getImplicitPrototypeChain()))
-	for it_1.next() {
-		var type_ *ObjectType = to_ObjectType(it_1.v)
+	for type_ := range elemsBy_(receiverType.getImplicitPrototypeChain(), to_ObjectType) {
 		if type_.hasOwnPropertyKey(propertyName) {
 			supertypeWithProperty = type_
 			break
@@ -849,8 +875,12 @@ func (this *TypeCheck) checkAbstractMethodInConcreteClass(n Node, ctorType *Func
 }
 
 func TypeCheck_hasUnknownOrEmptySupertype(ctor *FunctionType) bool {
-	Preconditions_checkArgument((ctor.isConstructor() || ctor.isInterface()))
-	Preconditions_checkArgument(!ctor.isUnknownType())
+	if !ctor.isConstructor() && !ctor.isInterface() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if ctor.isUnknownType() {
+		panic(new_IllegalArgumentException_0())
+	}
 	for {
 		var maybeSuperInstanceType *ObjectType = ctor.getPrototype().getImplicitPrototype()
 		if maybeSuperInstanceType == nil {
@@ -863,25 +893,26 @@ func TypeCheck_hasUnknownOrEmptySupertype(ctor *FunctionType) bool {
 		if ctor == nil {
 			return false
 		}
-		Preconditions_checkState((ctor.isConstructor() || ctor.isInterface()))
+		if !ctor.isConstructor() && !ctor.isInterface() {
+			panic(new_IllegalStateException_0())
+		}
 	}
-	panic("unreachable")
 }
 
 func TypeCheck_getObjectLitKeyTypeFromValueType(key Node, valueType *JSType) *JSType {
 	if valueType != nil {
-		switch key.getToken() {
-		case Token_rhino_GETTER_DEF:
+		switch key.ns_().token {
+		case tokOrd1_GETTER_DEF:
 			if valueType.isFunctionType() {
 				var fntype *FunctionType = valueType.toMaybeFunctionType()
 				valueType = fntype.getReturnType()
 			} else {
 				return nil
 			}
-		case Token_rhino_SETTER_DEF:
+		case tokOrd1_SETTER_DEF:
 			if valueType.isFunctionType() {
 				var fntype *FunctionType = valueType.toMaybeFunctionType()
-				var param *FunctionType_Parameter = cast_[*FunctionType_Parameter](fntype.getParameters().get(0))
+				var param *FunctionType_Parameter = fntype.getParameters().get(0)
 				valueType = param.getJSType()
 			} else {
 				return nil
@@ -912,7 +943,7 @@ func (this *TypeCheck) visitInterfacePropertyAssignment(object Node, lvalue Node
 func (this *TypeCheck) reportInvalidInterfaceMemberDeclaration(interfaceNode Node) {
 	var abstractMethodName string = this.compiler_.getCodingConvention().getAbstractMethodName()
 	var abstractMethodMessage string = func() string {
-		if !String_isEmpty(abstractMethodName) {
+		if abstractMethodName != "" {
 			return (", or " + sstr_(abstractMethodName))
 		}
 		return ""
@@ -922,11 +953,11 @@ func (this *TypeCheck) reportInvalidInterfaceMemberDeclaration(interfaceNode Nod
 
 func (this *TypeCheck) visitName(t *NodeTraversal, n Node, parent Node) bool {
 	var isFunctionName bool = (n.getParent().isFunction() && n.isFirstChildOf(parent))
-	if isFunctionName && String_isEmpty(n.getString()) {
+	if isFunctionName && n.getString() == "" {
 		return false
 	}
 	var reportIfMissingType bool = true
-	var parentNodeType *Token_rhino = parent.getToken()
+	var parentNodeType Token_rhino = parent.getToken()
 	if ((isFunctionName || (parentNodeType == Token_rhino_CATCH)) || (parentNodeType == Token_rhino_PARAM_LIST)) || NodeUtil_isNameDeclaration(parent) {
 		reportIfMissingType = false
 	}
@@ -938,7 +969,11 @@ func (this *TypeCheck) visitName(t *NodeTraversal, n Node, parent Node) bool {
 		type_ = this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		var var_ *TypedVar = cast_[*TypedVar](t.getTypedScope().getVar(n.getString()).self())
 		if var_ != nil {
-			type_ = to_JSType(Preconditions_checkNotNull(var_.getType().self()))
+			nn_1 := var_.getType()
+			if nn_1 == nil {
+				panic(new_NullPointerException_0())
+			}
+			type_ = nn_1
 		}
 	}
 	this.ensureTypedJSType(n, type_)
@@ -993,7 +1028,9 @@ func (this *TypeCheck) visitOptChainGetProp(optChainGetProp Node) {
 }
 
 func (this *TypeCheck) checkPropertyAccessForGetProp(getProp Node) {
-	Preconditions_checkArgument_boolean_Object((getProp.isGetProp() || getProp.isOptChainGetProp()), getProp.box_())
+	if !getProp.isGetProp() && !getProp.isOptChainGetProp() {
+		panic(new_IllegalArgumentException_String(tostr_(getProp)))
+	}
 	var objNode Node = getProp.getFirstChild()
 	var objType *JSType = this.getJSType(objNode)
 	var propType *JSType = this.getJSType(getProp)
@@ -1002,8 +1039,12 @@ func (this *TypeCheck) checkPropertyAccessForGetProp(getProp Node) {
 }
 
 func (this *TypeCheck) checkPropertyAccessForDestructuring(pattern Node, objectType *JSType, stringKey Node, inferredPropType *JSType) {
-	Preconditions_checkArgument_boolean_Object(pattern.isDestructuringPattern(), pattern.box_())
-	Preconditions_checkArgument_boolean_Object(stringKey.isStringKey(), stringKey.box_())
+	if !pattern.isDestructuringPattern() {
+		panic(new_IllegalArgumentException_String(tostr_(pattern)))
+	}
+	if !stringKey.isStringKey() {
+		panic(new_IllegalArgumentException_String(tostr_(stringKey)))
+	}
 	var objNode Node = 0
 	var patternParent Node = pattern.getParent()
 	if (patternParent.isAssign() || patternParent.isDestructuringLhs()) && (pattern.getNext() != 0) {
@@ -1034,12 +1075,12 @@ func (this *TypeCheck) checkAbstractPropertyAccess(method Node) {
 func (this *TypeCheck) checkPropertyAccess(childType *JSType, propNode Node, propType *JSType, objNode Node) {
 	var isGetprop bool = NodeUtil_isNormalOrOptChainGetProp(propNode)
 	var propName string = propNode.getString()
-	if propType.equals(this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()) {
+	if propType.equals_JSType(this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE)) {
 		childType = childType.autobox()
 		var objectType *ObjectType = ObjectType_cast(childType)
 		if objectType != nil {
-			if !objectType.hasProperty(propName) || objectType.equals(this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()) {
-				if is_[*EnumType](objectType.self()) {
+			if !objectType.hasProperty(propName) || objectType.equals_JSType(this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE)) {
+				if _, ok := objectType.self().(*EnumType); ok {
 					this.report(propNode, TypeCheck_INEXISTENT_ENUM_ELEMENT, []string{propName})
 				} else {
 					this.checkPropertyAccessHelper(objectType.up_JSType(), propNode, objNode, false)
@@ -1064,11 +1105,11 @@ func (this *TypeCheck) checkPropertyAccessHelper(objectType *JSType, propNode No
 	if (!this.reportMissingPropertiesField || objectType.isEmptyType()) || (isGetprop && this.allowStrictPropertyAccessOnNode(propNode)) {
 		return
 	}
-	var kind *JSTypeRegistry_PropDefinitionKind = this.typeRegistry.canPropertyBeDefined(objectType, propName)
-	if Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_KNOWN)) {
+	var kind JSTypeRegistry_PropDefinitionKind = this.typeRegistry.canPropertyBeDefined(objectType, propName)
+	if equalsId_(kind, JSTypeRegistry_PropDefinitionKind_KNOWN) {
 		return
 	}
-	var isLooselyAssociated bool = (Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_LOOSE)) || Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_LOOSE_UNION)))
+	var isLooselyAssociated bool = (equalsId_(kind, JSTypeRegistry_PropDefinitionKind_LOOSE) || equalsId_(kind, JSTypeRegistry_PropDefinitionKind_LOOSE_UNION))
 	var isUnknownType bool = objectType.isUnknownType()
 	if isLooselyAssociated && isUnknownType {
 		return
@@ -1080,11 +1121,11 @@ func (this *TypeCheck) checkPropertyAccessHelper(objectType *JSType, propNode No
 	this.reportMissingProperty(objNode, objectType, propNode, kind, strictReport)
 }
 
-func (this *TypeCheck) reportMissingProperty(objNode Node, objectType *JSType, propNode Node, kind *JSTypeRegistry_PropDefinitionKind, strictReport bool) {
+func (this *TypeCheck) reportMissingProperty(objNode Node, objectType *JSType, propNode Node, kind JSTypeRegistry_PropDefinitionKind, strictReport bool) {
 	var propName string = propNode.getString()
-	var isObjectType bool = objectType.equals(this.getNativeType(JSTypeNative_OBJECT_TYPE).self())
+	var isObjectType bool = objectType.equals_JSType(this.getNativeType(JSTypeNative_OBJECT_TYPE))
 	var lowConfidence bool = ((objectType.isUnknownType() || objectType.isAllType()) || isObjectType)
-	var isKnownToUnionMember bool = Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_LOOSE_UNION))
+	var isKnownToUnionMember bool = equalsId_(kind, JSTypeRegistry_PropDefinitionKind_LOOSE_UNION)
 	var pair *TypeCheck_SuggestionPair = nil
 	if !lowConfidence && !isKnownToUnionMember {
 		pair = TypeCheck_getClosestPropertySuggestion(objectType, propName, ((String_length(propName) - 1) / 4))
@@ -1182,7 +1223,9 @@ func (this *TypeCheck) visitVar(t *NodeTraversal, n Node) {
 					this.checkCanAssignToWithScope(t, value, child, valueType, info, "initializing variable")
 				}
 			} else {
-				Preconditions_checkState_boolean_Object(child.isDestructuringLhs(), child.box_())
+				if !child.isDestructuringLhs() {
+					panic(new_IllegalStateException_String(tostr_(child)))
+				}
 				var name Node = child.getFirstChild()
 				var value Node = child.getSecondChild()
 				var valueType *JSType = this.getJSType(value)
@@ -1195,7 +1238,7 @@ func (this *TypeCheck) visitVar(t *NodeTraversal, n Node) {
 func (this *TypeCheck) visitNew(n Node) {
 	var constructor Node = n.getFirstChild()
 	var type_ *JSType = this.getJSType(constructor).restrictByNotNullOrUndefined()
-	if (!this.couldBeAConstructor(type_) || type_.equals(this.typeRegistry.getNativeType(JSTypeNative_SYMBOL_OBJECT_FUNCTION_TYPE).self())) || type_.equals(this.typeRegistry.getNativeType(JSTypeNative_BIGINT_OBJECT_FUNCTION_TYPE).self()) {
+	if (!this.couldBeAConstructor(type_) || type_.equals_JSType(this.typeRegistry.getNativeType(JSTypeNative_SYMBOL_OBJECT_FUNCTION_TYPE))) || type_.equals_JSType(this.typeRegistry.getNativeType(JSTypeNative_BIGINT_OBJECT_FUNCTION_TYPE)) {
 		this.report(n, TypeCheck_NOT_A_CONSTRUCTOR, []string{type_.toString()})
 		this.ensureTyped(n)
 		return
@@ -1224,15 +1267,14 @@ func (this *TypeCheck) couldBeAConstructor(type_ *JSType) bool {
 
 func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName string, properties *JTMap[Property_Key, *ObjectType], currentProperties *JTMap[Property_Key, *ObjectType], interfaceType *ObjectType) {
 	var implicitProto *ObjectType = interfaceType.getImplicitPrototype()
-	var currentPropertyNames ImmutableSetOf[Property_Key]
+	var currentPropertyNames *ImmutableSet[Property_Key]
 	if implicitProto == nil {
-		currentPropertyNames = ImmutableSet_of()
+		currentPropertyNames = immutableSetOf_(tch_Property_Key)
 	} else {
 		currentPropertyNames = implicitProto.getOwnPropertyKeys()
 	}
-	it_1 := foreach_(obj_(currentPropertyNames))
-	for it_1.next() {
-		var name Property_Key = icast_Property_Key(it_1.v)
+	for _, el := range currentPropertyNames.keys {
+		name := el
 		var oType *ObjectType = properties.get(name)
 		currentProperties.put(name, interfaceType)
 		if oType != nil {
@@ -1244,9 +1286,7 @@ func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName str
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INCOMPATIBLE_EXTENDED_PROPERTY_TYPE, []string{functionName, name.humanReadableName(), oType.toString(), interfaceType.toString()}))
 		}
 	}
-	it_3 := foreach_(any(interfaceType.getCtorExtendedInterfaces()))
-	for it_3.next() {
-		var iType *ObjectType = to_ObjectType(it_3.v)
+	for iType := range elemsBy_(interfaceType.getCtorExtendedInterfaces(), to_ObjectType) {
 		this.checkInterfaceConflictProperties(n, functionName, properties, currentProperties, iType)
 	}
 }
@@ -1293,13 +1333,13 @@ func (this *TypeCheck) visitClass(n Node) {
 	} else if functionType.isInterface() {
 		this.checkInterface(n, functionType)
 	} else {
-		panic(new_IllegalStateException_String(("CLASS node's type must be either constructor or interface: " + objstr_(functionType.self()))).self())
+		panic(new_IllegalStateException_String(("CLASS node's type must be either constructor or interface: " + objstr_(functionType.self()))))
 	}
 }
 
 func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 	var baseConstructor *FunctionType = functionType.getSuperClassConstructor()
-	if (!Objects_equals(baseConstructor.self(), this.getNativeType(JSTypeNative_OBJECT_FUNCTION_TYPE).self()) && (baseConstructor != nil)) && baseConstructor.isInterface() {
+	if (!objequalsBy_(baseConstructor, this.getNativeType(JSTypeNative_OBJECT_FUNCTION_TYPE).self(), (*FunctionType).equals) && (baseConstructor != nil)) && baseConstructor.isInterface() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_CONFLICTING_EXTENDED_TYPE, []string{"constructor", this.getBestFunctionName(n)}))
 	} else {
 		if (((n.isFunction() && (baseConstructor != nil)) && (baseConstructor.getSource() != 0)) && baseConstructor.getSource().isClass()) && !functionType.getSource().isClass() {
@@ -1309,9 +1349,8 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 			this.checkStructDictSubtyping(n, functionType, baseConstructor)
 		}
 		var alreadySeenInterfaces *JTSet[*JSType] = jnewTSet_(tce_p_JSType)
-		it_1 := foreach_(obj_(functionType.getOwnImplementedInterfaces()))
-		for it_1.next() {
-			var baseInterface *JSType = to_JSType(it_1.v)
+		for _, el := range functionType.getOwnImplementedInterfaces().items {
+			baseInterface := to_JSType(el.self())
 			var badImplementedType bool = false
 			var baseInterfaceObj *ObjectType = ObjectType_cast(baseInterface)
 			if baseInterfaceObj != nil {
@@ -1353,9 +1392,8 @@ func (this *TypeCheck) checkStructDictSubtyping(n Node, subtype *FunctionType, s
 }
 
 func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
-	it_1 := foreach_(obj_(functionType.getExtendedInterfaces()))
-	for it_1.next() {
-		var extInterface *ObjectType = to_ObjectType(it_1.v)
+	for _, el := range functionType.getExtendedInterfaces().items {
+		extInterface := el
 		if (extInterface.getConstructor() != nil) && !extInterface.getConstructor().isInterface() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_CONFLICTING_EXTENDED_TYPE, []string{"interface", this.getBestFunctionName(n)}))
 		}
@@ -1363,9 +1401,8 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 	if functionType.getExtendedInterfacesCount() > 1 {
 		var properties *JTMap[Property_Key, *ObjectType] = jnewTMap_(tce_Property_Key, jtc_p_ObjectType)
 		var currentProperties *JTMap[Property_Key, *ObjectType] = jnewTMap_(tce_Property_Key, jtc_p_ObjectType)
-		it_3 := foreach_(obj_(functionType.getExtendedInterfaces()))
-		for it_3.next() {
-			var interfaceType *ObjectType = to_ObjectType(it_3.v)
+		for _, el2 := range functionType.getExtendedInterfaces().items {
+			interfaceType := el2
 			currentProperties.clear()
 			this.checkInterfaceConflictProperties(n, this.getBestFunctionName(n), properties, currentProperties, interfaceType)
 			properties.asMap().putAll(currentProperties.asMap())
@@ -1379,14 +1416,16 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 			var loopType *FunctionType = it_5.v
 			displayNames.add(loopType.getDisplayName().orElse(nullstr_))
 		}
-		var strPath string = String_join(strobj_(" -> "), Iterable(displayNames.asList()))
+		var strPath string = String_join_s(" -> ", Iterable(displayNames.asList()))
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{loopPath.get(0).getDisplayName().orElse("null"), strPath}))
 	}
 	this.validator.expectAllInterfaceProperties(n, functionType)
 }
 
 func (this *TypeCheck) getBestFunctionName(n Node) string {
-	Preconditions_checkState((n.isClass() || n.isFunction()))
+	if !n.isClass() && !n.isFunction() {
+		panic(new_IllegalStateException_0())
+	}
 	var name Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
 	return func() string {
 		if name.isPresent() {
@@ -1442,12 +1481,12 @@ func (this *TypeCheck) visitCall(t *NodeTraversal, n Node) {
 }
 
 func (this *TypeCheck) visitArgumentList(call Node, functionType *FunctionType) {
-	var parameters IteratorOf[*FunctionType_Parameter] = functionType.getParameters().iterator()
+	var parameters *immCursor_ = immCursorOf_(functionType.getParameters().asImm())
 	var arguments IteratorOf[Node] = NodeUtil_getInvocationArgsAsIterable(call).iterator()
 	this.checkArgumentsMatchParameters(call, functionType, arguments, parameters, 0)
 }
 
-func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *FunctionType, arguments IteratorOf[Node], parameters IteratorOf[*FunctionType_Parameter], firstParameterIndex int32) {
+func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *FunctionType, arguments IteratorOf[Node], parameters *immCursor_, firstParameterIndex int32) {
 	var spreadArgumentCount int32 = 0
 	var normalArgumentCount int32 = firstParameterIndex
 	var checkArgumentTypeAgainstParameter bool = true
@@ -1478,7 +1517,7 @@ func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *Fu
 	var maxArity int32 = functionType.getMaxArity()
 	if spreadArgumentCount > 0 {
 		if normalArgumentCount > maxArity {
-			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse("null"), ("at least " + istr_(int64(normalArgumentCount))), String_valueOf(minArity), func() string {
+			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse("null"), ("at least " + istr_(int64(normalArgumentCount))), strconv.Itoa(int(minArity)), func() string {
 				if maxArity == int32(2147483647) {
 					return ""
 				}
@@ -1487,7 +1526,7 @@ func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *Fu
 		}
 	} else {
 		if (minArity > normalArgumentCount) || (maxArity < normalArgumentCount) {
-			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse("null"), String_valueOf(normalArgumentCount), String_valueOf(minArity), func() string {
+			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse("null"), strconv.Itoa(int(normalArgumentCount)), strconv.Itoa(int(minArity)), func() string {
 				if maxArity == int32(2147483647) {
 					return ""
 				}
@@ -1593,9 +1632,9 @@ func (this *TypeCheck) visitTaggedTemplateLit(n Node) {
 		return
 	}
 	var tagFnType *FunctionType = tagType.toMaybeFunctionType()
-	var parameters IteratorOf[*FunctionType_Parameter] = tagFnType.getParameters().iterator()
+	var parameters *immCursor_ = immCursorOf_(tagFnType.getParameters().asImm())
 	if !parameters.hasNext() {
-		this.report(n, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(tag).orElse("null"), String_valueOf(NodeUtil_getInvocationArgsCount(n)), "0", " and no more than 0 argument(s)"})
+		this.report(n, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(tag).orElse("null"), strconv.Itoa(int(NodeUtil_getInvocationArgsCount(n))), "0", " and no more than 0 argument(s)"})
 		return
 	}
 	var firstParameter *FunctionType_Parameter = cast_[*FunctionType_Parameter](parameters.next())
@@ -1606,7 +1645,7 @@ func (this *TypeCheck) visitTaggedTemplateLit(n Node) {
 	this.checkArgumentsMatchParameters(n, tagFnType, NodeUtil_getInvocationArgsAsIterable(n).iterator(), parameters, 1)
 }
 
-func (this *TypeCheck) visitBinaryOperator(op *Token_rhino, n Node) {
+func (this *TypeCheck) visitBinaryOperator(op Token_rhino, n Node) {
 	var operatorType *JSType = this.getJSType(n)
 	var left Node = n.getFirstChild()
 	var leftType *JSType = this.getJSType(left)
@@ -1652,7 +1691,7 @@ func (this *TypeCheck) visitBinaryOperator(op *Token_rhino, n Node) {
 		}
 	case Token_rhino_ASSIGN_ADD, Token_rhino_ADD:
 	default:
-		this.report(n, TypeCheck_UNEXPECTED_TOKEN, []string{Object_toString(obj_(op))})
+		this.report(n, TypeCheck_UNEXPECTED_TOKEN, []string{tostrNN_(op)})
 	}
 	this.ensureTyped(n)
 }
@@ -1680,9 +1719,9 @@ func (this *TypeCheck) visitModuleBody(t *NodeTraversal, moduleBody Node) {
 		if parentObjectType == nil {
 			return
 		}
-		this.validator.expectCanAssignToPropertyOf_6(googModuleCall, moduleBody.getJSType(), parentObjectType.getPropertyType(moduleName.getComponent()), parentObjectType.up_JSType(), &Supplier_base_tfn_string{func() string {
+		this.validator.expectCanAssignToPropertyOf_6(googModuleCall, moduleBody.getJSType(), parentObjectType.getPropertyType(moduleName.getComponent()), parentObjectType.up_JSType(), (&Supplier_base_tfn_string{func() string {
 			return moduleName.getOwner().join().orElse(nullstr_)
-		}}, Optional_of[string](moduleName.getComponent()))
+		}}).get, Optional_of[string](moduleName.getComponent()))
 	}
 }
 
@@ -1716,7 +1755,6 @@ func (this *TypeCheck) getJSType(n Node) *JSType {
 	} else {
 		return jsType
 	}
-	panic("unreachable")
 }
 
 func (this *TypeCheck) getPropertyTypeIfDeclared(objectType *ObjectType, propertyName Property_Key) *JSType {
@@ -1730,12 +1768,14 @@ func (this *TypeCheck) ensureTyped(n Node) {
 	this.ensureTypedJSType(n, this.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 }
 
-func (this *TypeCheck) ensureTyped_2(n Node, type_ *JSTypeNative) {
+func (this *TypeCheck) ensureTyped_2(n Node, type_ JSTypeNative) {
 	this.ensureTypedJSType(n, this.getNativeType(type_))
 }
 
 func (this *TypeCheck) ensureTypedJSType(n Node, type_ *JSType) {
-	Preconditions_checkState(((!n.isFunction() || type_.isFunctionType()) || type_.isUnknownType()))
+	if !((!n.isFunction() || type_.isFunctionType()) || type_.isUnknownType()) {
+		panic(new_IllegalStateException_0())
+	}
 	if n.getJSType() == nil {
 		n.setJSType(type_)
 	}
@@ -1751,7 +1791,7 @@ func (this *TypeCheck) getTypedPercent() float64 {
 	}()
 }
 
-func (this *TypeCheck) getNativeType(typeId *JSTypeNative) *JSType {
+func (this *TypeCheck) getNativeType(typeId JSTypeNative) *JSType {
 	return this.typeRegistry.getNativeType(typeId)
 }
 
@@ -1761,9 +1801,7 @@ func (this *TypeCheck) checkJsdocInfoContainsObjectWithBadKey(n Node) {
 		this.checkTypeContainsObjectWithBadKey(n, info.getType())
 		this.checkTypeContainsObjectWithBadKey(n, info.getReturnType())
 		this.checkTypeContainsObjectWithBadKey(n, info.getTypedefType())
-		it_1 := foreach_(any(info.getParameterNames()))
-		for it_1.next() {
-			var param string = str_(it_1.v)
+		for param := range info.getParameterNames().All() {
 			this.checkTypeContainsObjectWithBadKey(n, info.getParameterType(Optional_of[string](param)))
 		}
 	}
@@ -1792,25 +1830,25 @@ func (this *TypeCheck) isReasonableObjectPropertyKey(type_ *JSType) bool {
 	if type_.isTemplatizedType() {
 		var templatizedType *TemplatizedType = type_.toMaybeTemplatizedType()
 		if templatizedType.getReferencedType().isArrayType() {
-			return this.isReasonableObjectPropertyKey(to_JSType(templatizedType.getTemplateTypes().get(0)))
+			return this.isReasonableObjectPropertyKey(templatizedType.getTemplateTypes().get(0))
 		}
 	}
 	var namedType *NamedType
 	_ = namedType
 	if func() bool {
 		v_ := type_.self()
-		if !is_[*NamedType](v_) {
+		p, ok := v_.(*NamedType)
+		if !ok {
 			return false
 		}
-		namedType = cast_[*NamedType](v_)
+		namedType = p
 		return true
 	}() {
 		return this.isReasonableObjectPropertyKey(namedType.getReferencedType())
 	}
 	if type_.isUnionType() {
-		it_1 := foreach_(obj_(type_.toMaybeUnionType().getAlternates()))
-		for it_1.next() {
-			var alternateType *JSType = to_JSType(it_1.v)
+		for _, el_1 := range type_.toMaybeUnionType().getAlternates().items {
+			var alternateType *JSType = el_1
 			if !this.isReasonableObjectPropertyKey(alternateType) {
 				return false
 			}
@@ -1839,7 +1877,6 @@ func (this *TypeCheck) isObjectTypeWithNonStringifiableKey(type_ *JSType) bool {
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyCheckedTypes *JTSet[*JSType]) *JSType {
@@ -1852,9 +1889,8 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 		return type_
 	}
 	if type_.isUnionType() {
-		it_1 := foreach_(obj_(type_.toMaybeUnionType().getAlternates()))
-		for it_1.next() {
-			var alternateType *JSType = to_JSType(it_1.v)
+		for _, el_1 := range type_.toMaybeUnionType().getAlternates().items {
+			var alternateType *JSType = el_1
 			var result *JSType = this.findObjectWithNonStringifiableKey(alternateType, alreadyCheckedTypes)
 			if result != nil {
 				return result
@@ -1862,9 +1898,8 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 		}
 	}
 	if type_.isTemplatizedType() {
-		it_3 := foreach_(obj_(type_.toMaybeTemplatizedType().getTemplateTypes()))
-		for it_3.next() {
-			var templateType *JSType = to_JSType(it_3.v)
+		for _, el_3 := range type_.toMaybeTemplatizedType().getTemplateTypes().items {
+			var templateType *JSType = el_3
 			var result *JSType = this.findObjectWithNonStringifiableKey(templateType, alreadyCheckedTypes)
 			if result != nil {
 				return result
@@ -1873,9 +1908,8 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 	}
 	if type_.isOrdinaryFunction() {
 		var function *FunctionType = type_.toMaybeFunctionType()
-		it_5 := foreach_(obj_(function.getParameters()))
-		for it_5.next() {
-			var parameter *FunctionType_Parameter = cast_[*FunctionType_Parameter](it_5.v)
+		for _, el_5 := range function.getParameters().items {
+			var parameter *FunctionType_Parameter = el_5
 			var result *JSType = this.findObjectWithNonStringifiableKey(parameter.getJSType(), alreadyCheckedTypes)
 			if result != nil {
 				return result
@@ -1907,10 +1941,10 @@ func (this *TypeCheck) checkNotReadonlyPropertyAssignment(lhs Node) {
 		return
 	}
 	var roArray *JSType = this.getNativeType(JSTypeNative_READONLY_ARRAY_TYPE)
-	var alternates ImmutableListOf[*JSType] = TypeCheck_flattenUnion(lhsType)
+	var alternates *ImmutableList[*JSType] = TypeCheck_flattenUnion(lhsType)
 	for i := int32(0); i < alternates.size(); i++ {
-		var type_ *JSType = to_JSType(alternates.get(i))
-		if roArray.equals(type_.self()) || roArray.equals(TypeCheck_maybeReferencedType(type_).self()) {
+		var type_ *JSType = alternates.get(i)
+		if roArray.equals_JSType(type_) || roArray.equals_JSType(TypeCheck_maybeReferencedType(type_)) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(lhs, TypeCheck_PROPERTY_ASSIGNMENT_TO_READONLY_VALUE, []string{type_.toString()}))
 			break
 		}
@@ -1927,11 +1961,11 @@ func TypeCheck_maybeReferencedType(type_ *JSType) *JSType {
 	}()
 }
 
-func TypeCheck_flattenUnion(maybeUnion *JSType) ImmutableListOf[*JSType] {
+func TypeCheck_flattenUnion(maybeUnion *JSType) *ImmutableList[*JSType] {
 	var union *UnionType = maybeUnion.toMaybeUnionType()
-	return func() *ImmutableList {
+	return func() *ImmutableList[*JSType] {
 		if union == nil {
-			return ImmutableList_of_Object(maybeUnion.self())
+			return immutableListOf_(tc_p_JSType, maybeUnion)
 		}
 		return union.getAlternates()
 	}()
@@ -2009,7 +2043,7 @@ func TypeCheck_clinit() {
 	TypeCheck_DETERMINISTIC_TEST = DiagnosticType_warning("JSC_DETERMINISTIC_TEST", "condition always evaluates to {2}\nleft : {0}\nright: {1}")
 	TypeCheck_INEXISTENT_ENUM_ELEMENT = DiagnosticType_warning("JSC_INEXISTENT_ENUM_ELEMENT", "element {0} does not exist on this enum")
 	TypeCheck_INEXISTENT_PROPERTY = DiagnosticType_warning("JSC_INEXISTENT_PROPERTY", "Property {0} never defined on {1}")
-	TypeCheck_POSSIBLE_INEXISTENT_PROPERTY = DiagnosticType_disabled("JSC_POSSIBLE_INEXISTENT_PROPERTY", ("Property {0} never defined on {1}" + sstr_(String_replace(TypeCheck_POSSIBLE_INEXISTENT_PROPERTY_EXPLANATION, strobj_("'"), strobj_("''")))))
+	TypeCheck_POSSIBLE_INEXISTENT_PROPERTY = DiagnosticType_disabled("JSC_POSSIBLE_INEXISTENT_PROPERTY", ("Property {0} never defined on {1}" + sstr_(strings.ReplaceAll(TypeCheck_POSSIBLE_INEXISTENT_PROPERTY_EXPLANATION, "'", "''"))))
 	TypeCheck_INEXISTENT_PROPERTY_WITH_SUGGESTION = DiagnosticType_warning("JSC_INEXISTENT_PROPERTY_WITH_SUGGESTION", "Property {0} never defined on {1}. Did you mean {2}?")
 	TypeCheck_STRICT_INEXISTENT_PROPERTY = DiagnosticType_disabled("JSC_STRICT_INEXISTENT_PROPERTY", "Property {0} never defined on {1}")
 	TypeCheck_STRICT_INEXISTENT_UNION_PROPERTY = DiagnosticType_disabled("JSC_STRICT_INEXISTENT_UNION_PROPERTY", "Property {0} not defined on all member types of {1}")

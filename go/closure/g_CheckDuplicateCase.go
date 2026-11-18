@@ -27,7 +27,7 @@ func new_CheckDuplicateCase(compiler *AbstractCompiler) *CheckDuplicateCase {
 }
 
 func (this *CheckDuplicateCase) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckDuplicateCase) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -57,4 +57,13 @@ func CheckDuplicateCase_clinit() {
 	CheckDuplicateCase_clinit_done = true
 	CheckDuplicateCase_DUPLICATE_CASE = DiagnosticType_warning("JSC_DUPLICATE_CASE", "Duplicate case in a switch statement.")
 
+}
+
+// visit: an object that is exactly a CheckDuplicateCase calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckDuplicateCase) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckDuplicateCase); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

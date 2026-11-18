@@ -6,14 +6,14 @@ type CheckAccessControls struct {
 	compiler_                 *AbstractCompiler
 	typeRegistry              *JSTypeRegistry
 	deprecationDepth          int32
-	currentClassStack         DequeOf[*ObjectType]
+	currentClassStack         []*ObjectType
 	constPropertyInits        *SimpleTable[*JSType, string, *CheckAccessControls_ConstantDeclaration]
-	defaultVisibilityForFiles ImmutableMapOf[StaticSourceFile, *JSDocInfo_Visibility]
+	defaultVisibilityForFiles *ImmutableMap[StaticSourceFile, JSDocInfo_Visibility]
 }
 
 func (this *CheckAccessControls) finit_CheckAccessControls() {
 	this.deprecationDepth = 0
-	this.currentClassStack = icast_Deque(obj_(new_LinkedList()))
+	this.currentClassStack = []*ObjectType{}
 	this.constPropertyInits = SimpleTable_create[*JSType, string, *CheckAccessControls_ConstantDeclaration]()
 }
 
@@ -33,8 +33,8 @@ func (this *CheckAccessControls) process_2(externs Node, root Node) {
 	var collectPass *CollectFileOverviewVisibility = new_CollectFileOverviewVisibility(this.compiler_)
 	collectPass.process_2(externs, root)
 	this.defaultVisibilityForFiles = collectPass.getFileOverviewVisibilityMap()
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(any(this)))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, externs, this)
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckAccessControls) enterAccessControlScope(root Node) {
@@ -42,14 +42,14 @@ func (this *CheckAccessControls) enterAccessControlScope(root Node) {
 	if CheckAccessControls_isMarkedDeprecated(root) {
 		this.deprecationDepth++
 	}
-	this.currentClassStack.push(scopeType.self())
+	this.currentClassStack = append(this.currentClassStack, scopeType)
 }
 
 func (this *CheckAccessControls) exitAccessControlScope(root Node) {
 	if CheckAccessControls_isMarkedDeprecated(root) {
 		this.deprecationDepth--
 	}
-	this.currentClassStack.pop()
+	slicePop_(tc_p_ObjectType, &this.currentClassStack)
 }
 
 func CheckAccessControls_primaryAccessControlScopeRootFor(node Node) Node {
@@ -60,19 +60,20 @@ func CheckAccessControls_primaryAccessControlScopeRootFor(node Node) Node {
 	} else {
 		return 0
 	}
-	panic("unreachable")
 }
 
 func (this *CheckAccessControls) bestInstanceTypeForMethodOrCtor(n Node) *ObjectType {
-	Preconditions_checkState_boolean_Object(CheckAccessControls_isFunctionOrClass(n), n.box_())
+	if !CheckAccessControls_isFunctionOrClass(n) {
+		panic(new_IllegalStateException_String(tostr_(n)))
+	}
 	var parent Node = n.getParent()
 	if NodeUtil_isFunctionDeclaration(n) || n.isClass() {
 		return CheckAccessControls_instanceTypeFor(n.getJSType())
 	}
-	switch parent.getToken() {
-	case Token_rhino_NAME:
+	switch parent.ns_().token {
+	case tokOrd1_NAME:
 		return CheckAccessControls_instanceTypeFor(n.getJSType())
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		var lValue Node = parent.getFirstChild()
 		if NodeUtil_isNormalGet(lValue) {
 			var lValueType *JSType = lValue.getJSType()
@@ -86,7 +87,7 @@ func (this *CheckAccessControls) bestInstanceTypeForMethodOrCtor(n Node) *Object
 		} else {
 			return CheckAccessControls_instanceTypeFor(lValue.getJSType())
 		}
-	case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_PROP:
+	case tokOrd1_STRING_KEY, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_PROP:
 		var grandparent Node = parent.getParent()
 		var greatGrandparent Node = grandparent.getParent()
 		if grandparent.isObjectLit() {
@@ -99,12 +100,11 @@ func (this *CheckAccessControls) bestInstanceTypeForMethodOrCtor(n Node) *Object
 		} else if greatGrandparent.isClass() {
 			return CheckAccessControls_instanceTypeFor(greatGrandparent.getJSType())
 		} else {
-			panic(new_AssertionError_Object(greatGrandparent.box_()).self())
+			panic(new_AssertionError_Object(greatGrandparent.box_()))
 		}
 	default:
 		return nil
 	}
-	panic("unreachable")
 }
 
 func CheckAccessControls_instanceTypeFor(type_ *JSType) *ObjectType {
@@ -133,7 +133,7 @@ func (this *CheckAccessControls) shouldTraverse(traversal *NodeTraversal, node N
 }
 
 func (this *CheckAccessControls) visit(traversal *NodeTraversal, node Node, parent Node) {
-	var identifierBehaviour *CheckAccessControls_IdentifierBehaviour = CheckAccessControls_IdentifierBehaviour_select(node)
+	var identifierBehaviour CheckAccessControls_IdentifierBehaviour = CheckAccessControls_IdentifierBehaviour_select(node)
 	var propRef *CheckAccessControls_PropertyReference = this.createPropertyReference(node)
 	this.checkDeprecation(node, propRef, identifierBehaviour, traversal)
 	this.checkVisibility(node, propRef, identifierBehaviour, traversal.getScope())
@@ -145,7 +145,7 @@ func (this *CheckAccessControls) visit(traversal *NodeTraversal, node Node, pare
 	}
 }
 
-func (this *CheckAccessControls) checkDeprecation(node Node, propRef *CheckAccessControls_PropertyReference, identifierBehaviour *CheckAccessControls_IdentifierBehaviour, traversal *NodeTraversal) {
+func (this *CheckAccessControls) checkDeprecation(node Node, propRef *CheckAccessControls_PropertyReference, identifierBehaviour CheckAccessControls_IdentifierBehaviour, traversal *NodeTraversal) {
 	switch identifierBehaviour {
 	case CheckAccessControls_IdentifierBehaviour_ES5_CLASS_INVOCATION, CheckAccessControls_IdentifierBehaviour_ES6_CLASS_INVOCATION, CheckAccessControls_IdentifierBehaviour_ES6_CLASS_NAMESPACE:
 		this.checkTypeDeprecation(traversal, node)
@@ -153,19 +153,19 @@ func (this *CheckAccessControls) checkDeprecation(node Node, propRef *CheckAcces
 		this.checkNameDeprecation(traversal, node)
 	default:
 	}
-	if (propRef != nil) && !Object_equals(obj_(identifierBehaviour), obj_(CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE)) {
+	if (propRef != nil) && !equalsId_(identifierBehaviour, CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE) {
 		this.checkPropertyDeprecation(traversal, propRef)
 	}
 }
 
-func (this *CheckAccessControls) checkVisibility(node Node, propRef *CheckAccessControls_PropertyReference, identifierBehaviour *CheckAccessControls_IdentifierBehaviour, scope *Scope) {
-	if Object_equals(obj_(identifierBehaviour), obj_(CheckAccessControls_IdentifierBehaviour_ES6_CLASS_INVOCATION)) {
+func (this *CheckAccessControls) checkVisibility(node Node, propRef *CheckAccessControls_PropertyReference, identifierBehaviour CheckAccessControls_IdentifierBehaviour, scope *Scope) {
+	if equalsId_(identifierBehaviour, CheckAccessControls_IdentifierBehaviour_ES6_CLASS_INVOCATION) {
 		this.checkEs6ConstructorInvocationVisibility(node)
 	}
-	if !Object_equals(obj_(identifierBehaviour), obj_(CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE)) {
+	if !equalsId_(identifierBehaviour, CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE) {
 		this.checkNameVisibility(scope, node)
 	}
-	if (propRef != nil) && !Object_equals(obj_(identifierBehaviour), obj_(CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE)) {
+	if (propRef != nil) && !equalsId_(identifierBehaviour, CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE) {
 		this.checkPropertyVisibility(propRef)
 	}
 }
@@ -180,7 +180,7 @@ func (this *CheckAccessControls) checkTypeDeprecation(t *NodeTraversal, n Node) 
 		return
 	}
 	var message *DiagnosticType = func() *DiagnosticType {
-		if String_isEmpty(deprecationInfo.get()) {
+		if deprecationInfo.get() == "" {
 			return CheckAccessControls_DEPRECATED_CLASS
 		}
 		return CheckAccessControls_DEPRECATED_CLASS_REASON
@@ -223,7 +223,7 @@ func (this *CheckAccessControls) checkPropertyDeprecation(t *NodeTraversal, prop
 	if objectType != nil {
 		var deprecationInfo Optional[string] = CheckAccessControls_getPropertyDeprecationInfo(objectType, propertyName)
 		if deprecationInfo.isPresent() {
-			if !String_isEmpty(deprecationInfo.get()) {
+			if deprecationInfo.get() != "" {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_DEPRECATED_PROP_REASON, []string{propertyName, propRef.getReadableTypeNameOrDefault(), deprecationInfo.get()}))
 			} else {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_DEPRECATED_PROP, []string{propertyName, propRef.getReadableTypeNameOrDefault()}))
@@ -240,7 +240,7 @@ func (this *CheckAccessControls) checkNameVisibility(scope *Scope, name Node) {
 	if var_ == nil {
 		return
 	}
-	var v *JSDocInfo_Visibility = AccessControlUtils_getEffectiveNameVisibility(name, var_, this.defaultVisibilityForFiles)
+	var v JSDocInfo_Visibility = AccessControlUtils_getEffectiveNameVisibility(name, var_, this.defaultVisibilityForFiles)
 	switch v {
 	case JSDocInfo_Visibility_PACKAGE:
 		if !this.isPackageAccessAllowed(var_, name) {
@@ -272,17 +272,17 @@ func (this *CheckAccessControls) isPackageAccessAllowed(var_ *Var, name Node) bo
 	return ((srcPackage.isPresent() && refPackage.isPresent()) && Object_equals(srcPackage.box_(), refPackage.box_()))
 }
 
-func (this *CheckAccessControls) checkPropertyOverrideVisibilityIsSame(overriding *JSDocInfo_Visibility, overridden *JSDocInfo_Visibility, fileOverview *JSDocInfo_Visibility, propRef *CheckAccessControls_PropertyReference) {
-	if (((overriding == JSDocInfo_Visibility_INHERITED) && (overriding != overridden)) && (fileOverview != nil)) && (fileOverview != JSDocInfo_Visibility_INHERITED) {
+func (this *CheckAccessControls) checkPropertyOverrideVisibilityIsSame(overriding JSDocInfo_Visibility, overridden JSDocInfo_Visibility, fileOverview JSDocInfo_Visibility, propRef *CheckAccessControls_PropertyReference) {
+	if (((overriding == JSDocInfo_Visibility_INHERITED) && (overriding != overridden)) && (fileOverview != 0)) && (fileOverview != JSDocInfo_Visibility_INHERITED) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_BAD_PROPERTY_OVERRIDE_IN_FILE_WITH_FILEOVERVIEW_VISIBILITY, []string{propRef.name(), fileOverview.name()}))
 	}
 }
 
-func CheckAccessControls_getOverridingPropertyVisibility(propRef *CheckAccessControls_PropertyReference) *JSDocInfo_Visibility {
+func CheckAccessControls_getOverridingPropertyVisibility(propRef *CheckAccessControls_PropertyReference) JSDocInfo_Visibility {
 	var overridingInfo *JSDocInfo = propRef.getJSDocInfo()
-	return func() *JSDocInfo_Visibility {
+	return func() JSDocInfo_Visibility {
 		if (overridingInfo == nil) || !overridingInfo.isOverride() {
-			return nil
+			return 0
 		}
 		return overridingInfo.getVisibility()
 	}()
@@ -302,15 +302,15 @@ func (this *CheckAccessControls) checkFinalClassOverrides(ctor Node) {
 	}
 }
 
-func (this *CheckAccessControls) checkConstantProperty(propRef *CheckAccessControls_PropertyReference, identifierBehaviour *CheckAccessControls_IdentifierBehaviour) {
-	if (propRef == nil) || Object_equals(obj_(identifierBehaviour), obj_(CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE)) {
+func (this *CheckAccessControls) checkConstantProperty(propRef *CheckAccessControls_PropertyReference, identifierBehaviour CheckAccessControls_IdentifierBehaviour) {
+	if (propRef == nil) || equalsId_(identifierBehaviour, CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE) {
 		return
 	}
 	var objectType *ObjectType = CheckAccessControls_dereference(propRef.receiverType().up_JSType())
 	var propertyName string = propRef.name()
 	var sourceNode Node = propRef.sourceNode()
-	var constness *CheckAccessControls_Constancy = this.isPropertyDeclaredConstant(objectType, propertyName)
-	if Object_equals(obj_(constness), obj_(CheckAccessControls_Constancy_MUTABLE)) {
+	var constness CheckAccessControls_Constancy = this.isPropertyDeclaredConstant(objectType, propertyName)
+	if equalsId_(constness, CheckAccessControls_Constancy_MUTABLE) {
 		return
 	}
 	if sourceNode.isFromExterns() && propRef.declaration() {
@@ -334,7 +334,7 @@ func (this *CheckAccessControls) checkConstantProperty(propRef *CheckAccessContr
 	var init_ *CheckAccessControls_ConstantDeclaration = this.getConstPropertyInit(propRef, objectType)
 	if init_ != nil {
 		var diagnostic *DiagnosticType = func() *DiagnosticType {
-			if Object_equals(obj_(init_.annotation), obj_(CheckAccessControls_Constancy_FINAL)) {
+			if equalsId_(init_.annotation, CheckAccessControls_Constancy_FINAL) {
 				return CheckAccessControls_FINAL_PROPERTY_OVERRIDDEN
 			}
 			return CheckAccessControls_CONST_PROPERTY_REASSIGNED_VALUE
@@ -360,7 +360,7 @@ func (this *CheckAccessControls) getConstPropertyInit(ref *CheckAccessControls_P
 	return nil
 }
 
-func (this *CheckAccessControls) recordConstPropertyInit(ref *CheckAccessControls_PropertyReference, type_ *ObjectType, annotation *CheckAccessControls_Constancy) {
+func (this *CheckAccessControls) recordConstPropertyInit(ref *CheckAccessControls_PropertyReference, type_ *ObjectType, annotation CheckAccessControls_Constancy) {
 	if !this.constPropertyInits.contains(type_.self(), strobj_(ref.name())) {
 		this.constPropertyInits.put(type_.up_JSType(), ref.name(), new_CheckAccessControls_ConstantDeclaration(ref.sourceNode(), annotation))
 	}
@@ -420,11 +420,11 @@ func (this *CheckAccessControls) checkPropertyVisibility(propRef *CheckAccessCon
 	var definingSource StaticSourceFile = AccessControlUtils_getDefiningSource(propRef.sourceNode(), referenceType, propertyName)
 	var isOverride bool = (propRef.isDocumentedDeclaration() || propRef.override())
 	var objectType *ObjectType = AccessControlUtils_getObjectType(referenceType, isOverride, propertyName)
-	var fileOverviewVisibility *JSDocInfo_Visibility = cast_[*JSDocInfo_Visibility](this.defaultVisibilityForFiles.get(any(definingSource)))
-	var visibility *JSDocInfo_Visibility = CheckAccessControls_getEffectivePropertyVisibility(propRef, referenceType, this.defaultVisibilityForFiles)
+	var fileOverviewVisibility JSDocInfo_Visibility = cast_[JSDocInfo_Visibility](this.defaultVisibilityForFiles.asImm().get(definingSource))
+	var visibility JSDocInfo_Visibility = CheckAccessControls_getEffectivePropertyVisibility(propRef, referenceType, this.defaultVisibilityForFiles)
 	if isOverride {
-		var overriding *JSDocInfo_Visibility = CheckAccessControls_getOverridingPropertyVisibility(propRef)
-		if overriding != nil {
+		var overriding JSDocInfo_Visibility = CheckAccessControls_getOverridingPropertyVisibility(propRef)
+		if overriding != 0 {
 			this.checkPropertyOverrideVisibilityIsSame(overriding, visibility, fileOverviewVisibility, propRef)
 		}
 	}
@@ -436,7 +436,7 @@ func (this *CheckAccessControls) checkPropertyVisibility(propRef *CheckAccessCon
 		}
 		reportType = objectType.up_JSType()
 		definingSource = node.getStaticSourceFile()
-	} else if fileOverviewVisibility == nil {
+	} else if fileOverviewVisibility == 0 {
 		return
 	}
 	var referenceSource StaticSourceFile = propRef.sourceNode().getStaticSourceFile()
@@ -461,9 +461,9 @@ func (this *CheckAccessControls) checkEs6ConstructorInvocationVisibility(target 
 	var fauxCtorRef *CheckAccessControls_PropertyReference = CheckAccessControls_PropertyReference_builder().setSourceNode(target).setName("constructor").setReceiverType(prototypeType).setMutation(false).setDeclaration(false).setOverride(false).setReadableTypeName(&Supplier_tfn_string{func() string {
 		return ctorType.getInstanceType().toString()
 	}}).build()
-	var annotatedCtorVisibility *JSDocInfo_Visibility = CheckAccessControls_getEffectiveVisibilityForNonOverriddenProperty(fauxCtorRef, prototypeType, cast_[*JSDocInfo_Visibility](this.defaultVisibilityForFiles.get(any(definingSource))))
-	var effectiveCtorVisibility *JSDocInfo_Visibility = func() *JSDocInfo_Visibility {
-		if Object_equals(obj_(annotatedCtorVisibility), obj_(JSDocInfo_Visibility_INHERITED)) {
+	var annotatedCtorVisibility JSDocInfo_Visibility = CheckAccessControls_getEffectiveVisibilityForNonOverriddenProperty(fauxCtorRef, prototypeType, cast_[JSDocInfo_Visibility](this.defaultVisibilityForFiles.asImm().get(definingSource)))
+	var effectiveCtorVisibility JSDocInfo_Visibility = func() JSDocInfo_Visibility {
+		if equalsId_(annotatedCtorVisibility, JSDocInfo_Visibility_INHERITED) {
 			return JSDocInfo_Visibility_PUBLIC
 		}
 		return annotatedCtorVisibility
@@ -471,8 +471,8 @@ func (this *CheckAccessControls) checkEs6ConstructorInvocationVisibility(target 
 	this.checkPropertyAccessVisibility(fauxCtorRef, effectiveCtorVisibility, ctorType.up_JSType(), target.getStaticSourceFile(), definingSource)
 }
 
-func (this *CheckAccessControls) checkPropertyOverrideVisibility(propRef *CheckAccessControls_PropertyReference, visibility *JSDocInfo_Visibility, fileOverviewVisibility *JSDocInfo_Visibility, objectType *JSType, sameInput bool) {
-	var overridingVisibility *JSDocInfo_Visibility = func() *JSDocInfo_Visibility {
+func (this *CheckAccessControls) checkPropertyOverrideVisibility(propRef *CheckAccessControls_PropertyReference, visibility JSDocInfo_Visibility, fileOverviewVisibility JSDocInfo_Visibility, objectType *JSType, sameInput bool) {
+	var overridingVisibility JSDocInfo_Visibility = func() JSDocInfo_Visibility {
 		if propRef.override() {
 			return propRef.getJSDocInfo().getVisibility()
 		}
@@ -480,16 +480,16 @@ func (this *CheckAccessControls) checkPropertyOverrideVisibility(propRef *CheckA
 	}()
 	if (visibility == JSDocInfo_Visibility_PRIVATE) && !sameInput {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_PRIVATE_OVERRIDE, []string{objectType.toString()}))
-	} else if !CheckAccessControls_canOverrideVisibility(visibility, overridingVisibility) && (fileOverviewVisibility == nil) {
+	} else if !CheckAccessControls_canOverrideVisibility(visibility, overridingVisibility) && (fileOverviewVisibility == 0) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_VISIBILITY_MISMATCH, []string{visibility.name(), objectType.toString(), overridingVisibility.name()}))
 	}
 }
 
-func CheckAccessControls_canOverrideVisibility(superclassVisibility *JSDocInfo_Visibility, subclassVisibility *JSDocInfo_Visibility) bool {
+func CheckAccessControls_canOverrideVisibility(superclassVisibility JSDocInfo_Visibility, subclassVisibility JSDocInfo_Visibility) bool {
 	return (superclassVisibility.compareTo(obj_(subclassVisibility)) <= 0)
 }
 
-func (this *CheckAccessControls) checkPropertyAccessVisibility(propRef *CheckAccessControls_PropertyReference, visibility *JSDocInfo_Visibility, objectType *JSType, referenceSource StaticSourceFile, definingSource StaticSourceFile) {
+func (this *CheckAccessControls) checkPropertyAccessVisibility(propRef *CheckAccessControls_PropertyReference, visibility JSDocInfo_Visibility, objectType *JSType, referenceSource StaticSourceFile, definingSource StaticSourceFile) {
 	if ((referenceSource != nil) && (definingSource != nil)) && (referenceSource.getName() == definingSource.getName()) {
 		return
 	}
@@ -516,7 +516,7 @@ func (this *CheckAccessControls) checkPackagePropertyVisibility(propRef *CheckAc
 
 func (this *CheckAccessControls) checkPrivatePropertyVisibility(propRef *CheckAccessControls_PropertyReference, ownerType *ObjectType) {
 	var readableTypeName string = func() string {
-		if (ownerType == nil) || ownerType.equals(propRef.receiverType().self()) {
+		if (ownerType == nil) || ownerType.equals_JSType(propRef.receiverType().up_JSType()) {
 			return propRef.getReadableTypeNameOrDefault()
 		}
 		return ownerType.toString()
@@ -526,9 +526,9 @@ func (this *CheckAccessControls) checkPrivatePropertyVisibility(propRef *CheckAc
 
 func (this *CheckAccessControls) checkProtectedPropertyVisibility(propRef *CheckAccessControls_PropertyReference, ownerType *ObjectType) {
 	if ownerType != nil {
-		it_1 := foreach_(any(this.currentClassStack))
-		for it_1.next() {
-			var scopeType *JSType = to_JSType(it_1.v)
+		for i_1 := 0; i_1 < len(this.currentClassStack); i_1++ {
+			el_1 := this.currentClassStack[len(this.currentClassStack)-1-i_1]
+			var scopeType *JSType = to_JSType(el_1.self())
 			if scopeType == nil {
 				continue
 			} else if scopeType.isSubtypeOf(ownerType.up_JSType()) {
@@ -594,7 +594,7 @@ func CheckAccessControls_getDeprecationReason(info *JSDocInfo) Optional[string] 
 	return Optional_empty[string]()
 }
 
-func (this *CheckAccessControls) isPropertyDeclaredConstant(objectType *ObjectType, prop string) *CheckAccessControls_Constancy {
+func (this *CheckAccessControls) isPropertyDeclaredConstant(objectType *ObjectType, prop string) CheckAccessControls_Constancy {
 	for ; objectType != nil; objectType = objectType.getImplicitPrototype() {
 		var docInfo *JSDocInfo = objectType.getOwnPropertyJSDocInfo(prop)
 		if docInfo == nil {
@@ -661,14 +661,15 @@ func (this *CheckAccessControls) getTypeOfThis(scopeRoot Node) *JSType {
 		var classNode Node = NodeUtil_getEnclosingClass(scopeRoot)
 		return classNode.getJSType()
 	}
-	Preconditions_checkArgument_boolean_Object(scopeRoot.isFunction(), scopeRoot.box_())
+	if !scopeRoot.isFunction() {
+		panic(new_IllegalArgumentException_String(tostr_(scopeRoot)))
+	}
 	var nodeType *JSType = scopeRoot.getJSType()
 	if (nodeType != nil) && nodeType.isFunctionType() {
 		return nodeType.toMaybeFunctionType().getTypeOfThis()
 	} else {
 		return nil
 	}
-	panic("unreachable")
 }
 
 func (this *CheckAccessControls) createPropertyReference(sourceNode Node) *CheckAccessControls_PropertyReference {
@@ -685,19 +686,19 @@ func (this *CheckAccessControls) createPropertyReference(sourceNode Node) *Check
 		}
 	case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF:
 		{
-			switch parent.getToken() {
-			case Token_rhino_OBJECTLIT:
+			switch parent.ns_().token {
+			case tokOrd1_OBJECTLIT:
 				if !parent.getJSType().isLiteralObject() {
 					return nil
 				}
 				builder.setName(sourceNode.getString()).setReceiverType(this.typeOrUnknown(ObjectType_cast(parent.getJSType()))).setMutation(true).setDeclaration(true).setOverride(false).setReadableTypeName(&Supplier_tfn_string{func() string {
 					return this.typeRegistry.getReadableTypeName(parent).orElse(nullstr_)
 				}})
-			case Token_rhino_OBJECT_PATTERN:
+			case tokOrd1_OBJECT_PATTERN:
 				builder.setName(sourceNode.getString()).setReceiverType(this.typeOrUnknown(ObjectType_cast(parent.getJSType()))).setMutation(false).setDeclaration(false).setOverride(false).setReadableTypeName(&Supplier_tfn_string{func() string {
 					return this.typeRegistry.getReadableTypeName(parent).orElse(nullstr_)
 				}})
-			case Token_rhino_CLASS_MEMBERS:
+			case tokOrd1_CLASS_MEMBERS:
 				builder.setName(sourceNode.getString()).setReceiverType(this.typeRegistry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE)).setMutation(!(sourceNode.isMemberFieldDef() && !sourceNode.hasChildren())).setDeclaration(true).setOverride((jsdoc != nil)).setReadableTypeName(&Supplier_tfn_string{func() string {
 					return ""
 				}})
@@ -715,7 +716,7 @@ func (this *CheckAccessControls) createPropertyReference(sourceNode Node) *Check
 					builder.setReceiverType(owningType)
 				}
 			default:
-				panic(new_AssertionError_0().self())
+				panic(new_AssertionError_0())
 			}
 		}
 	default:
@@ -724,24 +725,23 @@ func (this *CheckAccessControls) createPropertyReference(sourceNode Node) *Check
 	return builder.setSourceNode(sourceNode).build()
 }
 
-func CheckAccessControls_getEffectivePropertyVisibility(propRef *CheckAccessControls_PropertyReference, referenceType *ObjectType, fileVisibilityMap ImmutableMapOf[StaticSourceFile, *JSDocInfo_Visibility]) *JSDocInfo_Visibility {
+func CheckAccessControls_getEffectivePropertyVisibility(propRef *CheckAccessControls_PropertyReference, referenceType *ObjectType, fileVisibilityMap *ImmutableMap[StaticSourceFile, JSDocInfo_Visibility]) JSDocInfo_Visibility {
 	var propertyName string = propRef.name()
 	var isOverride bool = propRef.override()
 	var definingSource StaticSourceFile = AccessControlUtils_getDefiningSource(propRef.sourceNode(), referenceType, propertyName)
-	var fileOverviewVisibility *JSDocInfo_Visibility = cast_[*JSDocInfo_Visibility](fileVisibilityMap.get(any(definingSource)))
+	var fileOverviewVisibility JSDocInfo_Visibility = cast_[JSDocInfo_Visibility](fileVisibilityMap.asImm().get(definingSource))
 	var objectType *ObjectType = AccessControlUtils_getObjectType(referenceType, isOverride, propertyName)
 	if isOverride {
-		var overridden *JSDocInfo_Visibility = AccessControlUtils_getOverriddenPropertyVisibility(objectType, propertyName)
+		var overridden JSDocInfo_Visibility = AccessControlUtils_getOverriddenPropertyVisibility(objectType, propertyName)
 		return AccessControlUtils_getEffectiveVisibilityForOverriddenProperty(overridden, fileOverviewVisibility, propertyName)
 	} else {
 		return CheckAccessControls_getEffectiveVisibilityForNonOverriddenProperty(propRef, objectType, fileOverviewVisibility)
 	}
-	panic("unreachable")
 }
 
-func CheckAccessControls_getEffectiveVisibilityForNonOverriddenProperty(propRef *CheckAccessControls_PropertyReference, objectType *ObjectType, fileOverviewVisibility *JSDocInfo_Visibility) *JSDocInfo_Visibility {
+func CheckAccessControls_getEffectiveVisibilityForNonOverriddenProperty(propRef *CheckAccessControls_PropertyReference, objectType *ObjectType, fileOverviewVisibility JSDocInfo_Visibility) JSDocInfo_Visibility {
 	var propertyName string = propRef.name()
-	var raw *JSDocInfo_Visibility = JSDocInfo_Visibility_INHERITED
+	var raw JSDocInfo_Visibility = JSDocInfo_Visibility_INHERITED
 	if objectType != nil {
 		var jsdoc *JSDocInfo = objectType.getOwnPropertyJSDocInfo(propertyName)
 		if jsdoc != nil {
@@ -750,8 +750,8 @@ func CheckAccessControls_getEffectiveVisibilityForNonOverriddenProperty(propRef 
 	}
 	var type_ *JSType = propRef.getJSType()
 	var createdFromGoogProvide bool = ((type_ != nil) && type_.isLiteralObject())
-	return func() *JSDocInfo_Visibility {
-		if ((raw != JSDocInfo_Visibility_INHERITED) || (fileOverviewVisibility == nil)) || createdFromGoogProvide {
+	return func() JSDocInfo_Visibility {
+		if ((raw != JSDocInfo_Visibility_INHERITED) || (fileOverviewVisibility == 0)) || createdFromGoogProvide {
 			return raw
 		}
 		return fileOverviewVisibility
@@ -803,45 +803,66 @@ func CheckAccessControls_clinit() {
 
 }
 
-type CheckAccessControls_Constancy struct {
-	Enum
+type CheckAccessControls_Constancy uint8
+
+// CheckAccessControls_Constancy_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CheckAccessControls_Constancy_enum_ = [3]Enum{
+	{self_: CheckAccessControls_Constancy_FINAL, name_: "FINAL", ordinal_: 0},
+	{self_: CheckAccessControls_Constancy_OTHER_CONSTANT, name_: "OTHER_CONSTANT", ordinal_: 1},
+	{self_: CheckAccessControls_Constancy_MUTABLE, name_: "MUTABLE", ordinal_: 2},
 }
 
-func (this *CheckAccessControls_Constancy) up_Enum() *Enum {
-	if this == nil {
+func (this CheckAccessControls_Constancy) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CheckAccessControls_Constancy_enum_[this-1]
 }
 
-func (this *CheckAccessControls_Constancy) init_CheckAccessControls_Constancy(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CheckAccessControls_Constancy) name() string {
+	return this.enum_().name_
 }
 
-func new_CheckAccessControls_Constancy(name_ string, ordinal_ int32) *CheckAccessControls_Constancy {
-	this := &CheckAccessControls_Constancy{}
-	this.self_ = this
-	this.init_CheckAccessControls_Constancy(name_, ordinal_)
+func (this CheckAccessControls_Constancy) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this CheckAccessControls_Constancy) toString() string {
+	return this.enum_().name_
+}
+
+func (this CheckAccessControls_Constancy) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this CheckAccessControls_Constancy) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CheckAccessControls_Constancy_values() []*CheckAccessControls_Constancy {
-	return append([]*CheckAccessControls_Constancy(nil), CheckAccessControls_Constancy_values_...)
+func CheckAccessControls_Constancy_values() []CheckAccessControls_Constancy {
+	return append([]CheckAccessControls_Constancy(nil), CheckAccessControls_Constancy_values_...)
 }
 
-func CheckAccessControls_Constancy_valueOf(name string) *CheckAccessControls_Constancy {
+func CheckAccessControls_Constancy_valueOf(name string) CheckAccessControls_Constancy {
 	for _, v := range CheckAccessControls_Constancy_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Constancy", name))
 }
 
-var CheckAccessControls_Constancy_FINAL *CheckAccessControls_Constancy
-var CheckAccessControls_Constancy_OTHER_CONSTANT *CheckAccessControls_Constancy
-var CheckAccessControls_Constancy_MUTABLE *CheckAccessControls_Constancy
-var CheckAccessControls_Constancy_values_ []*CheckAccessControls_Constancy
+const CheckAccessControls_Constancy_FINAL CheckAccessControls_Constancy = 1
+const CheckAccessControls_Constancy_OTHER_CONSTANT CheckAccessControls_Constancy = 2
+const CheckAccessControls_Constancy_MUTABLE CheckAccessControls_Constancy = 3
+
+var CheckAccessControls_Constancy_values_ []CheckAccessControls_Constancy
 
 var CheckAccessControls_Constancy_clinit_done bool
 
@@ -850,53 +871,72 @@ func CheckAccessControls_Constancy_clinit() {
 		return
 	}
 	CheckAccessControls_Constancy_clinit_done = true
-	CheckAccessControls_Constancy_FINAL = new_CheckAccessControls_Constancy("FINAL", 0)
-	CheckAccessControls_Constancy_OTHER_CONSTANT = new_CheckAccessControls_Constancy("OTHER_CONSTANT", 1)
-	CheckAccessControls_Constancy_MUTABLE = new_CheckAccessControls_Constancy("MUTABLE", 2)
-	CheckAccessControls_Constancy_values_ = []*CheckAccessControls_Constancy{CheckAccessControls_Constancy_FINAL, CheckAccessControls_Constancy_OTHER_CONSTANT, CheckAccessControls_Constancy_MUTABLE}
+	CheckAccessControls_Constancy_values_ = []CheckAccessControls_Constancy{CheckAccessControls_Constancy_FINAL, CheckAccessControls_Constancy_OTHER_CONSTANT, CheckAccessControls_Constancy_MUTABLE}
 	registerEnum_("com.google.javascript.jscomp.CheckAccessControls.Constancy", enumValues_(CheckAccessControls_Constancy_values_))
 
 }
 
 type CheckAccessControls_ConstantDeclaration struct {
 	node_      Node
-	annotation *CheckAccessControls_Constancy
+	annotation CheckAccessControls_Constancy
 }
 
-func (this *CheckAccessControls_ConstantDeclaration) init_CheckAccessControls_ConstantDeclaration(node Node, annotation *CheckAccessControls_Constancy) {
+func (this *CheckAccessControls_ConstantDeclaration) init_CheckAccessControls_ConstantDeclaration(node Node, annotation CheckAccessControls_Constancy) {
 	this.node_ = node
 	this.annotation = annotation
 }
 
-func new_CheckAccessControls_ConstantDeclaration(node Node, annotation *CheckAccessControls_Constancy) *CheckAccessControls_ConstantDeclaration {
+func new_CheckAccessControls_ConstantDeclaration(node Node, annotation CheckAccessControls_Constancy) *CheckAccessControls_ConstantDeclaration {
 	this := &CheckAccessControls_ConstantDeclaration{}
 	this.init_CheckAccessControls_ConstantDeclaration(node, annotation)
 	return this
 }
 
-type CheckAccessControls_IdentifierBehaviour struct {
-	Enum
+type CheckAccessControls_IdentifierBehaviour uint8
+
+// CheckAccessControls_IdentifierBehaviour_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CheckAccessControls_IdentifierBehaviour_enum_ = [5]Enum{
+	{self_: CheckAccessControls_IdentifierBehaviour_NON_CONSTRUCTOR, name_: "NON_CONSTRUCTOR", ordinal_: 0},
+	{self_: CheckAccessControls_IdentifierBehaviour_ES5_CLASS_INVOCATION, name_: "ES5_CLASS_INVOCATION", ordinal_: 1},
+	{self_: CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE, name_: "ES5_CLASS_NAMESPACE", ordinal_: 2},
+	{self_: CheckAccessControls_IdentifierBehaviour_ES6_CLASS_INVOCATION, name_: "ES6_CLASS_INVOCATION", ordinal_: 3},
+	{self_: CheckAccessControls_IdentifierBehaviour_ES6_CLASS_NAMESPACE, name_: "ES6_CLASS_NAMESPACE", ordinal_: 4},
 }
 
-func (this *CheckAccessControls_IdentifierBehaviour) up_Enum() *Enum {
-	if this == nil {
+func (this CheckAccessControls_IdentifierBehaviour) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CheckAccessControls_IdentifierBehaviour_enum_[this-1]
 }
 
-func (this *CheckAccessControls_IdentifierBehaviour) init_CheckAccessControls_IdentifierBehaviour(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CheckAccessControls_IdentifierBehaviour) name() string {
+	return this.enum_().name_
 }
 
-func new_CheckAccessControls_IdentifierBehaviour(name_ string, ordinal_ int32) *CheckAccessControls_IdentifierBehaviour {
-	this := &CheckAccessControls_IdentifierBehaviour{}
-	this.self_ = this
-	this.init_CheckAccessControls_IdentifierBehaviour(name_, ordinal_)
+func (this CheckAccessControls_IdentifierBehaviour) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this CheckAccessControls_IdentifierBehaviour) toString() string {
+	return this.enum_().name_
+}
+
+func (this CheckAccessControls_IdentifierBehaviour) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this CheckAccessControls_IdentifierBehaviour) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CheckAccessControls_IdentifierBehaviour_select(target Node) *CheckAccessControls_IdentifierBehaviour {
+func CheckAccessControls_IdentifierBehaviour_select(target Node) CheckAccessControls_IdentifierBehaviour {
 	var type_ *JSType = target.getJSType()
 	if (type_ == nil) || !type_.isFunctionType() {
 		return CheckAccessControls_IdentifierBehaviour_NON_CONSTRUCTOR
@@ -908,42 +948,42 @@ func CheckAccessControls_IdentifierBehaviour_select(target Node) *CheckAccessCon
 	var isInvocation bool = (NodeUtil_isInvocationTarget(target) || CheckAccessControls_isExtendsTarget(target))
 	var isEs6 bool = ((ctorType.getSource() != 0) && ctorType.getSource().isClass())
 	if !isEs6 {
-		return func() *CheckAccessControls_IdentifierBehaviour {
+		return func() CheckAccessControls_IdentifierBehaviour {
 			if isInvocation {
 				return CheckAccessControls_IdentifierBehaviour_ES5_CLASS_INVOCATION
 			}
 			return CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE
 		}()
 	} else {
-		return func() *CheckAccessControls_IdentifierBehaviour {
+		return func() CheckAccessControls_IdentifierBehaviour {
 			if isInvocation {
 				return CheckAccessControls_IdentifierBehaviour_ES6_CLASS_INVOCATION
 			}
 			return CheckAccessControls_IdentifierBehaviour_ES6_CLASS_NAMESPACE
 		}()
 	}
-	panic("unreachable")
 }
 
-func CheckAccessControls_IdentifierBehaviour_values() []*CheckAccessControls_IdentifierBehaviour {
-	return append([]*CheckAccessControls_IdentifierBehaviour(nil), CheckAccessControls_IdentifierBehaviour_values_...)
+func CheckAccessControls_IdentifierBehaviour_values() []CheckAccessControls_IdentifierBehaviour {
+	return append([]CheckAccessControls_IdentifierBehaviour(nil), CheckAccessControls_IdentifierBehaviour_values_...)
 }
 
-func CheckAccessControls_IdentifierBehaviour_valueOf(name string) *CheckAccessControls_IdentifierBehaviour {
+func CheckAccessControls_IdentifierBehaviour_valueOf(name string) CheckAccessControls_IdentifierBehaviour {
 	for _, v := range CheckAccessControls_IdentifierBehaviour_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("IdentifierBehaviour", name))
 }
 
-var CheckAccessControls_IdentifierBehaviour_NON_CONSTRUCTOR *CheckAccessControls_IdentifierBehaviour
-var CheckAccessControls_IdentifierBehaviour_ES5_CLASS_INVOCATION *CheckAccessControls_IdentifierBehaviour
-var CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE *CheckAccessControls_IdentifierBehaviour
-var CheckAccessControls_IdentifierBehaviour_ES6_CLASS_INVOCATION *CheckAccessControls_IdentifierBehaviour
-var CheckAccessControls_IdentifierBehaviour_ES6_CLASS_NAMESPACE *CheckAccessControls_IdentifierBehaviour
-var CheckAccessControls_IdentifierBehaviour_values_ []*CheckAccessControls_IdentifierBehaviour
+const CheckAccessControls_IdentifierBehaviour_NON_CONSTRUCTOR CheckAccessControls_IdentifierBehaviour = 1
+const CheckAccessControls_IdentifierBehaviour_ES5_CLASS_INVOCATION CheckAccessControls_IdentifierBehaviour = 2
+const CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE CheckAccessControls_IdentifierBehaviour = 3
+const CheckAccessControls_IdentifierBehaviour_ES6_CLASS_INVOCATION CheckAccessControls_IdentifierBehaviour = 4
+const CheckAccessControls_IdentifierBehaviour_ES6_CLASS_NAMESPACE CheckAccessControls_IdentifierBehaviour = 5
+
+var CheckAccessControls_IdentifierBehaviour_values_ []CheckAccessControls_IdentifierBehaviour
 
 var CheckAccessControls_IdentifierBehaviour_clinit_done bool
 
@@ -952,12 +992,7 @@ func CheckAccessControls_IdentifierBehaviour_clinit() {
 		return
 	}
 	CheckAccessControls_IdentifierBehaviour_clinit_done = true
-	CheckAccessControls_IdentifierBehaviour_NON_CONSTRUCTOR = new_CheckAccessControls_IdentifierBehaviour("NON_CONSTRUCTOR", 0)
-	CheckAccessControls_IdentifierBehaviour_ES5_CLASS_INVOCATION = new_CheckAccessControls_IdentifierBehaviour("ES5_CLASS_INVOCATION", 1)
-	CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE = new_CheckAccessControls_IdentifierBehaviour("ES5_CLASS_NAMESPACE", 2)
-	CheckAccessControls_IdentifierBehaviour_ES6_CLASS_INVOCATION = new_CheckAccessControls_IdentifierBehaviour("ES6_CLASS_INVOCATION", 3)
-	CheckAccessControls_IdentifierBehaviour_ES6_CLASS_NAMESPACE = new_CheckAccessControls_IdentifierBehaviour("ES6_CLASS_NAMESPACE", 4)
-	CheckAccessControls_IdentifierBehaviour_values_ = []*CheckAccessControls_IdentifierBehaviour{CheckAccessControls_IdentifierBehaviour_NON_CONSTRUCTOR, CheckAccessControls_IdentifierBehaviour_ES5_CLASS_INVOCATION, CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE, CheckAccessControls_IdentifierBehaviour_ES6_CLASS_INVOCATION, CheckAccessControls_IdentifierBehaviour_ES6_CLASS_NAMESPACE}
+	CheckAccessControls_IdentifierBehaviour_values_ = []CheckAccessControls_IdentifierBehaviour{CheckAccessControls_IdentifierBehaviour_NON_CONSTRUCTOR, CheckAccessControls_IdentifierBehaviour_ES5_CLASS_INVOCATION, CheckAccessControls_IdentifierBehaviour_ES5_CLASS_NAMESPACE, CheckAccessControls_IdentifierBehaviour_ES6_CLASS_INVOCATION, CheckAccessControls_IdentifierBehaviour_ES6_CLASS_NAMESPACE}
 	registerEnum_("com.google.javascript.jscomp.CheckAccessControls.IdentifierBehaviour", enumValues_(CheckAccessControls_IdentifierBehaviour_values_))
 
 }
@@ -977,9 +1012,15 @@ func (this *CheckAccessControls_PropertyReference) zero_CheckAccessControls_Prop
 }
 
 func (this *CheckAccessControls_PropertyReference) init_CheckAccessControls_PropertyReference(sourceNode Node, name string, receiverType *ObjectType, mutation bool, declaration bool, override bool, readableTypeName SupplierOf[string]) {
-	Objects_requireNonNull(sourceNode.box_(), "sourceNode")
-	Objects_requireNonNull(receiverType.self(), "receiverType")
-	Objects_requireNonNull(any(readableTypeName), "readableTypeName")
+	if sourceNode == 0 {
+		panic(new_NullPointerException_String("sourceNode"))
+	}
+	if receiverType == nil {
+		panic(new_NullPointerException_String("receiverType"))
+	}
+	if readableTypeName == nil {
+		panic(new_NullPointerException_String("readableTypeName"))
+	}
 	this.sourceNode_ = sourceNode
 	this.name_ = name
 	this.receiverType_ = receiverType
@@ -1023,7 +1064,7 @@ func (this *CheckAccessControls_PropertyReference) isDeletion() bool {
 func (this *CheckAccessControls_PropertyReference) getReadableTypeNameOrDefault() string {
 	var preferred string = str_(this.readableTypeName().get())
 	return func() string {
-		if String_isEmpty(preferred) {
+		if preferred == "" {
 			return this.receiverType().toString()
 		}
 		return preferred
@@ -1063,23 +1104,23 @@ func (this *CheckAccessControls_PropertyReference) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.sourceNode_.box_(), o.sourceNode_.box_()) && this.name_ == o.name_ && Objects_equals(this.receiverType_.self(), o.receiverType_.self()) && this.mutation_ == o.mutation_ && this.declaration_ == o.declaration_ && this.override_ == o.override_ && Objects_equals(any(this.readableTypeName_), any(o.readableTypeName_))
+	return true && this.sourceNode_ == o.sourceNode_ && this.name_ == o.name_ && objequalsBy_(this.receiverType_, o.receiverType_.self(), (*ObjectType).equals) && this.mutation_ == o.mutation_ && this.declaration_ == o.declaration_ && this.override_ == o.override_ && objequalsDyn_(this.readableTypeName_, o.readableTypeName_)
 }
 
 func (this *CheckAccessControls_PropertyReference) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.sourceNode_.box_())
-	h = h*31 + Objects_hashCode(strobj_(this.name_))
-	h = h*31 + Objects_hashCode(this.receiverType_.self())
-	h = h*31 + Objects_hashCode(any(bool(this.mutation_)))
-	h = h*31 + Objects_hashCode(any(bool(this.declaration_)))
-	h = h*31 + Objects_hashCode(any(bool(this.override_)))
-	h = h*31 + Objects_hashCode(any(this.readableTypeName_))
+	h = h*31 + objhashId_(this.sourceNode_)
+	h = h*31 + objhashStr_(this.name_)
+	h = h*31 + objhashBy_(this.receiverType_, (*ObjectType).hashCode)
+	h = h*31 + Boolean_hashCode(bool(this.mutation_))
+	h = h*31 + Boolean_hashCode(bool(this.declaration_))
+	h = h*31 + Boolean_hashCode(bool(this.override_))
+	h = h*31 + objhashDyn_(this.readableTypeName_)
 	return h
 }
 
 func (this *CheckAccessControls_PropertyReference) toString() string {
-	return "PropertyReference[" + "sourceNode=" + objstr_(this.sourceNode_.box_()) + ", name=" + objstr_(strobj_(this.name_)) + ", receiverType=" + objstr_(this.receiverType_.self()) + ", mutation=" + objstr_(any(bool(this.mutation_))) + ", declaration=" + objstr_(any(bool(this.declaration_))) + ", override=" + objstr_(any(bool(this.override_))) + ", readableTypeName=" + objstr_(any(this.readableTypeName_)) + "]"
+	return "PropertyReference[" + "sourceNode=" + tostr_(this.sourceNode_) + ", name=" + sstr_(this.name_) + ", receiverType=" + objstr_(this.receiverType_.self()) + ", mutation=" + boolstr_(bool(this.mutation_)) + ", declaration=" + boolstr_(bool(this.declaration_)) + ", override=" + boolstr_(bool(this.override_)) + ", readableTypeName=" + objstr_(this.readableTypeName_) + "]"
 }
 
 type CheckAccessControls_PropertyReference_Builder struct {
@@ -1109,7 +1150,7 @@ func new_CheckAccessControls_PropertyReference_Builder() *CheckAccessControls_Pr
 
 func (this *CheckAccessControls_PropertyReference_Builder) setSourceNode(node Node) *CheckAccessControls_PropertyReference_Builder {
 	if node == 0 {
-		panic(new_NullPointerException_String("Null sourceNode").self())
+		panic(new_NullPointerException_String("Null sourceNode"))
 	}
 	this.sourceNode_ = node
 	return this
@@ -1122,7 +1163,7 @@ func (this *CheckAccessControls_PropertyReference_Builder) setName(name string) 
 
 func (this *CheckAccessControls_PropertyReference_Builder) setReceiverType(receiverType *ObjectType) *CheckAccessControls_PropertyReference_Builder {
 	if receiverType == nil {
-		panic(new_NullPointerException_String("Null receiverType").self())
+		panic(new_NullPointerException_String("Null receiverType"))
 	}
 	this.receiverType_ = receiverType
 	return this
@@ -1148,7 +1189,7 @@ func (this *CheckAccessControls_PropertyReference_Builder) setOverride(isOverrid
 
 func (this *CheckAccessControls_PropertyReference_Builder) setReadableTypeName(typeName SupplierOf[string]) *CheckAccessControls_PropertyReference_Builder {
 	if typeName == nil {
-		panic(new_NullPointerException_String("Null readableTypeName").self())
+		panic(new_NullPointerException_String("Null readableTypeName"))
 	}
 	this.readableTypeName_ = typeName
 	return this
@@ -1156,7 +1197,7 @@ func (this *CheckAccessControls_PropertyReference_Builder) setReadableTypeName(t
 
 func (this *CheckAccessControls_PropertyReference_Builder) build() *CheckAccessControls_PropertyReference {
 	if ((((int32(this.set0) != 7) || (this.sourceNode_ == 0)) || this.name_.isEmpty()) || (this.receiverType_ == nil)) || (this.readableTypeName_ == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.sourceNode_ == 0 {
 			missing.append(" sourceNode")
 		}
@@ -1178,7 +1219,7 @@ func (this *CheckAccessControls_PropertyReference_Builder) build() *CheckAccessC
 		if this.readableTypeName_ == nil {
 			missing.append(" readableTypeName")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_CheckAccessControls_PropertyReference(this.sourceNode_, this.name_.get(), this.receiverType_, this.mutation_, this.declaration_, this.override_, this.readableTypeName_)
 }

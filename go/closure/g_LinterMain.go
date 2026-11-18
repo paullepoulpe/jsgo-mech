@@ -4,14 +4,14 @@ package closure
 
 type LinterMain struct {
 	fix_           bool
-	resolutionMode *ModuleLoader_ResolutionMode
+	resolutionMode ModuleLoader_ResolutionMode
 	files          ListOf[string]
 }
 
 func (this *LinterMain) finit_LinterMain() {
 	this.fix_ = false
 	this.resolutionMode = ModuleLoader_ResolutionMode_BROWSER
-	this.files = icast_List(new_ArrayList_0().self())
+	this.files = new_ArrayList_0()
 }
 
 func (this *LinterMain) init_LinterMain() {
@@ -35,14 +35,14 @@ func LinterMain_main(args []string) {
 
 func (this *LinterMain) run(args []string) *Outcome_base[any] {
 	var parser *CmdLineParser = new_CmdLineParser()
-	parser.option("--fix").usage("Fix lint warnings automatically").flag(&Supplier_fn{func() any {
+	parser.option("--fix").usage("Fix lint warnings automatically").flag(func() any {
 		return any(bool(this.fix_))
-	}}, &Consumer_fn{func(v any) {
+	}, func(v any) {
 		this.fix_ = unbox_[bool](v)
-	}})
-	CmdLineParser_Option_enumValue[*ModuleLoader_ResolutionMode](parser.option("--resolution_mode").usage("Expected path resolution mode for resolving module specifiers."), ModuleLoader_ResolutionMode_values(), &Supplier_tfn_ModuleLoader_ResolutionMode{func() *ModuleLoader_ResolutionMode {
+	})
+	CmdLineParser_Option_enumValue[ModuleLoader_ResolutionMode](parser.option("--resolution_mode").usage("Expected path resolution mode for resolving module specifiers."), ModuleLoader_ResolutionMode_values(), &Supplier_tfn_ModuleLoader_ResolutionMode{func() ModuleLoader_ResolutionMode {
 		return this.resolutionMode
-	}}, &Consumer_tfn_ModuleLoader_ResolutionMode{func(v *ModuleLoader_ResolutionMode) {
+	}}, &Consumer_tfn_ModuleLoader_ResolutionMode{func(v ModuleLoader_ResolutionMode) {
 		this.resolutionMode = v
 	}})
 	parser.argument(&Supplier_tfn_List{func() List {
@@ -52,7 +52,7 @@ func (this *LinterMain) run(args []string) *Outcome_base[any] {
 	}})
 	parser.parseArgument(args).get()
 	var linter *Linter = Linter_builder().withModuleResolutionMode(this.resolutionMode).build()
-	it_1 := foreach_(any(this.files))
+	it_1 := foreach_(this.files)
 	for it_1.next() {
 		var filename string = str_(it_1.v)
 		if this.fix_ {

@@ -38,7 +38,7 @@ func (this *CheckUnreachableCode) shouldTraverse_impl(t *NodeTraversal, n Node, 
 	if (gNode != nil) && (Annotatable_getAnnotation(Annotatable(gNode)) != GraphReachability_REACHABLE) {
 		if ((n.getLineno() != -1) && !n.isEmpty()) && !n.isBreak() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CheckUnreachableCode_UNREACHABLE_CODE, []string{}))
-			new_GraphReachability_DiGraph[Node, *ControlFlowGraph_Branch](cfg.up_DiGraph()).recompute(n)
+			new_GraphReachability_DiGraph[Node, ControlFlowGraph_Branch](cfg.up_DiGraph()).recompute(n)
 			return false
 		}
 	}
@@ -46,20 +46,20 @@ func (this *CheckUnreachableCode) shouldTraverse_impl(t *NodeTraversal, n Node, 
 }
 
 func (this *CheckUnreachableCode) initScope(controlFlowGraph *ControlFlowGraph[Node]) {
-	new_GraphReachability_DiGraph_Predicate[Node, *ControlFlowGraph_Branch](controlFlowGraph.up_DiGraph(), &Predicate_base_tfn_GraphReachability_EdgeTuple_Node_ControlFlowGraph_Branch_{func(p0 *GraphReachability_EdgeTuple[Node, *ControlFlowGraph_Branch]) bool {
+	new_GraphReachability_DiGraph_Predicate[Node, ControlFlowGraph_Branch](controlFlowGraph.up_DiGraph(), &Predicate_base_tfn_GraphReachability_EdgeTuple_Node_ControlFlowGraph_Branch_{func(p0 *GraphReachability_EdgeTuple[Node, ControlFlowGraph_Branch]) bool {
 		return CheckUnreachableCode_isReachable(p0)
 	}}).compute(controlFlowGraph.getEntry().getValue())
 }
 
-func CheckUnreachableCode_isReachable(input *GraphReachability_EdgeTuple[Node, *ControlFlowGraph_Branch]) bool {
-	var branch *ControlFlowGraph_Branch = input.edge
+func CheckUnreachableCode_isReachable(input *GraphReachability_EdgeTuple[Node, ControlFlowGraph_Branch]) bool {
+	var branch ControlFlowGraph_Branch = input.edge
 	if !branch.isConditional() {
 		return true
 	}
 	var predecessor Node = input.sourceNode_
 	var condition Node = NodeUtil_getConditionExpression(predecessor)
 	if condition != 0 {
-		var val *Tri = NodeUtil_getBooleanValue(condition)
+		var val Tri = NodeUtil_getBooleanValue(condition)
 		if val != Tri_UNKNOWN {
 			return (val.toBoolean(true) == (branch == ControlFlowGraph_Branch_ON_TRUE))
 		}
@@ -78,4 +78,21 @@ func CheckUnreachableCode_clinit() {
 	CheckUnreachableCode_clinit_done = true
 	CheckUnreachableCode_UNREACHABLE_CODE = DiagnosticType_warning("JSC_UNREACHABLE_CODE", "unreachable code")
 
+}
+
+// enterScopeWithCfg: an object that is exactly a CheckUnreachableCode calls its enterScopeWithCfg_impl directly (post-flip); others dispatch.
+func (this *CheckUnreachableCode) enterScopeWithCfg(p0 *NodeTraversal) {
+	if p, _ := this.self_.(*CheckUnreachableCode); p == this {
+		this.enterScopeWithCfg_impl(p0)
+		return
+	}
+	this.self_.enterScopeWithCfg_impl(p0)
+}
+
+// shouldTraverse: an object that is exactly a CheckUnreachableCode calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *CheckUnreachableCode) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if p, _ := this.self_.(*CheckUnreachableCode); p == this {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

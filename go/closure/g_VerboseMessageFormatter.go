@@ -2,6 +2,8 @@
 
 package closure
 
+import "strconv"
+
 type VerboseMessageFormatter struct {
 	AbstractMessageFormatter
 }
@@ -42,7 +44,7 @@ func (this *VerboseMessageFormatter) format(message *JSError) string {
 		lineSource = Optional_of[string](sourceRegion.getSourceExcerpt())
 	}
 	return String_format("%s at %s line %s %s", []any{strobj_(description), func() any {
-		if String_isEmpty(sourceName.orElse("")) {
+		if sourceName.orElse("") == "" {
 			return strobj_("(unknown source)")
 		}
 		return strobj_(sourceName.get())
@@ -50,11 +52,27 @@ func (this *VerboseMessageFormatter) format(message *JSError) string {
 		if lineNumber < 0 {
 			return strobj_("(unknown line)")
 		}
-		return strobj_(String_valueOf(lineNumber))
+		return strobj_(strconv.Itoa(int(lineNumber)))
 	}(), func() any {
 		if lineSource.isPresent() {
 			return strobj_((":\n\n" + sstr_(lineSource.get())))
 		}
 		return strobj_(".")
 	}()})
+}
+
+// formatError: an object that is exactly a VerboseMessageFormatter calls its formatError_impl directly (post-flip); others dispatch.
+func (this *VerboseMessageFormatter) formatError(p0 *JSError) string {
+	if p, _ := this.self_.(*VerboseMessageFormatter); p == this {
+		return this.formatError_impl(p0)
+	}
+	return this.self_.formatError_impl(p0)
+}
+
+// formatWarning: an object that is exactly a VerboseMessageFormatter calls its formatWarning_impl directly (post-flip); others dispatch.
+func (this *VerboseMessageFormatter) formatWarning(p0 *JSError) string {
+	if p, _ := this.self_.(*VerboseMessageFormatter); p == this {
+		return this.formatWarning_impl(p0)
+	}
+	return this.self_.formatWarning_impl(p0)
 }

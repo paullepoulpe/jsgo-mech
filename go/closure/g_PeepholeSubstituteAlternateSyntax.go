@@ -28,39 +28,39 @@ func new_PeepholeSubstituteAlternateSyntax(late bool) *PeepholeSubstituteAlterna
 
 func (this *PeepholeSubstituteAlternateSyntax) optimizeSubtree_impl(node Node) Node {
 	return func() Node {
-		switch node.getToken() {
-		case Token_rhino_ASSIGN_SUB:
+		switch node.ns_().token {
+		case tokOrd1_ASSIGN_SUB:
 			return this.reduceSubstractionAssignment(node)
-		case Token_rhino_TRUE, Token_rhino_FALSE:
+		case tokOrd1_TRUE, tokOrd1_FALSE:
 			return this.reduceTrueFalse(node)
-		case Token_rhino_NEW:
+		case tokOrd1_NEW:
 			var result Node = this.tryFoldStandardConstructors(node)
 			if !result.isCall() {
 				return result
 			}
 			return this.tryReduceCall(result)
-		case Token_rhino_CALL:
+		case tokOrd1_CALL:
 			return this.tryReduceCall(node)
-		case Token_rhino_RETURN:
+		case tokOrd1_RETURN:
 			return this.tryReduceReturn(node)
-		case Token_rhino_EXPR_RESULT:
+		case tokOrd1_EXPR_RESULT:
 			return func() Node {
 				if node.getFirstChild().isComma() {
 					return this.trySplitComma(node)
 				}
 				return node
 			}()
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			return this.tryReplaceUndefined(node)
-		case Token_rhino_ARRAYLIT:
+		case tokOrd1_ARRAYLIT:
 			return this.tryMinimizeArrayLiteral(node)
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			return this.tryMinimizeWindowRefs(node)
-		case Token_rhino_TEMPLATELIT:
+		case tokOrd1_TEMPLATELIT:
 			return this.tryTurnTemplateStringsToStrings(node)
-		case Token_rhino_AND, Token_rhino_OR, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_COALESCE:
+		case tokOrd1_AND, tokOrd1_OR, tokOrd1_BITOR, tokOrd1_BITXOR, tokOrd1_BITAND, tokOrd1_COALESCE:
 			return this.tryRotateAssociativeOperator(node)
-		case Token_rhino_MUL:
+		case tokOrd1_MUL:
 			return func() Node {
 				if this.mayHaveSideEffects(node) {
 					return node
@@ -70,7 +70,6 @@ func (this *PeepholeSubstituteAlternateSyntax) optimizeSubtree_impl(node Node) N
 		default:
 			return node
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -78,10 +77,12 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeWindowRefs(node Node) 
 	if !this.isASTNormalized() {
 		return node
 	}
-	Preconditions_checkArgument(node.isGetProp())
+	if !node.isGetProp() {
+		panic(new_IllegalArgumentException_0())
+	}
 	if node.getFirstChild().isName() {
 		var nameNode Node = node.getFirstChild()
-		if ("window" == nameNode.getString()) && Collection_contains_s(PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS, node.getString()) {
+		if ("window" == nameNode.getString()) && PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS.Has(node.getString()) {
 			var newNameNode Node = IR_name(node.getString())
 			var parentNode Node = node.getParent()
 			newNameNode.srcref(node)
@@ -121,7 +122,9 @@ func (this *PeepholeSubstituteAlternateSyntax) tryRotateAssociativeOperator(n No
 	if !this.late {
 		return n
 	}
-	Preconditions_checkArgument(NodeUtil_isAssociative(n.getToken()))
+	if !NodeUtil_isAssociative(n.getToken()) {
+		panic(new_IllegalArgumentException_0())
+	}
 	var rhs Node = n.getLastChild()
 	if n.getToken() == rhs.getToken() {
 		var first Node = n.removeFirstChild()
@@ -139,7 +142,9 @@ func (this *PeepholeSubstituteAlternateSyntax) tryRotateAssociativeOperator(n No
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) tryFoldSimpleFunctionCall(n Node) Node {
-	Preconditions_checkState_boolean_Object(n.isCall(), n.box_())
+	if !n.isCall() {
+		panic(new_IllegalStateException_String(tostr_(n)))
+	}
 	var callTarget Node = n.getFirstChild()
 	if (callTarget == 0) || !callTarget.isName() {
 		return n
@@ -173,7 +178,9 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldSimpleFunctionCall(n Node)
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) tryFoldImmediateCallToBoundFunction(n Node) Node {
-	Preconditions_checkState(n.isCall())
+	if !n.isCall() {
+		panic(new_IllegalStateException_0())
+	}
 	var callTarget Node = n.getFirstChild()
 	var bind *CodingConvention_Bind = this.getCodingConvention().describeFunctionBind(callTarget, false)
 	if bind != nil {
@@ -230,12 +237,16 @@ func (this *PeepholeSubstituteAlternateSyntax) trySplitComma(n Node) Node {
 	if this.late {
 		return n
 	}
-	Preconditions_checkState(n.isExprResult())
+	if !n.isExprResult() {
+		panic(new_IllegalStateException_0())
+	}
 	if n.getParent().isLabel() {
 		return n
 	}
 	var comma Node = n.getFirstChild()
-	Preconditions_checkState(comma.isComma())
+	if !comma.isComma() {
+		panic(new_IllegalStateException_0())
+	}
 	var leftmost Node = this.splitComma(comma, false, n)
 	n.removeChildren()
 	n.addChildToFront(leftmost)
@@ -268,14 +279,14 @@ func (this *PeepholeSubstituteAlternateSyntax) tryReduceCall(node Node) Node {
 func (this *PeepholeSubstituteAlternateSyntax) tryReduceReturn(n Node) Node {
 	var result Node = n.getFirstChild()
 	if result != 0 {
-		switch result.getToken() {
-		case Token_rhino_VOID:
+		switch result.ns_().token {
+		case tokOrd1_VOID:
 			var operand Node = result.getFirstChild()
 			if !this.mayHaveSideEffects(operand) {
 				n.removeFirstChild()
 				this.reportChangeToEnclosingScope(n)
 			}
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			var name string = result.getString()
 			if name == "undefined" {
 				n.removeFirstChild()
@@ -288,7 +299,9 @@ func (this *PeepholeSubstituteAlternateSyntax) tryReduceReturn(n Node) Node {
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) tryFoldStandardConstructors(n Node) Node {
-	Preconditions_checkState(n.isNew())
+	if !n.isNew() {
+		panic(new_IllegalStateException_0())
+	}
 	if this.canFoldStandardConstructors(n) {
 		n.setToken(Token_rhino_CALL)
 		n.putBooleanProp(Node_FREE_CALL, true)
@@ -300,7 +313,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldStandardConstructors(n Nod
 func (this *PeepholeSubstituteAlternateSyntax) canFoldStandardConstructors(n Node) bool {
 	if this.isASTNormalized() && n.getFirstChild().isName() {
 		var className string = n.getFirstChild().getString()
-		if Collection_contains_s(PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS, className) {
+		if PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS.Has(className) {
 			return true
 		}
 		if "RegExp" == className {
@@ -313,7 +326,9 @@ func (this *PeepholeSubstituteAlternateSyntax) canFoldStandardConstructors(n Nod
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) tryFoldLiteralConstructor(n Node) Node {
-	Preconditions_checkArgument((n.isCall() || n.isNew()))
+	if !n.isCall() && !n.isNew() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var constructorNameNode Node = n.getFirstChild()
 	var newLiteralNode Node = 0
 	if this.isASTNormalized() && constructorNameNode.isName() {
@@ -323,7 +338,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldLiteralConstructor(n Node)
 			newLiteralNode = IR_objectlit([]Node{})
 		} else if "Array" == className {
 			var arg0 Node = constructorNameNode.getNext()
-			var action *PeepholeSubstituteAlternateSyntax_FoldArrayAction = PeepholeSubstituteAlternateSyntax_isSafeToFoldArrayConstructor(arg0)
+			var action PeepholeSubstituteAlternateSyntax_FoldArrayAction = PeepholeSubstituteAlternateSyntax_isSafeToFoldArrayConstructor(arg0)
 			if (action == PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS) || (action == PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS) {
 				newLiteralNode = IR_arraylit([]Node{})
 				n.removeFirstChild()
@@ -342,21 +357,21 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldLiteralConstructor(n Node)
 	return n
 }
 
-func PeepholeSubstituteAlternateSyntax_isSafeToFoldArrayConstructor(arg Node) *PeepholeSubstituteAlternateSyntax_FoldArrayAction {
-	var action *PeepholeSubstituteAlternateSyntax_FoldArrayAction = PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD
+func PeepholeSubstituteAlternateSyntax_isSafeToFoldArrayConstructor(arg Node) PeepholeSubstituteAlternateSyntax_FoldArrayAction {
+	var action PeepholeSubstituteAlternateSyntax_FoldArrayAction = PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD
 	if arg == 0 {
 		action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS
 	} else if arg.getNext() != 0 {
 		action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS
 	} else {
-		switch arg.getToken() {
-		case Token_rhino_STRINGLIT:
+		switch arg.ns_().token {
+		case tokOrd1_STRINGLIT:
 			action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS
-		case Token_rhino_NUMBER:
+		case tokOrd1_NUMBER:
 			if arg.getDouble() == 0 {
 				action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS
 			}
-		case Token_rhino_ARRAYLIT:
+		case tokOrd1_ARRAYLIT:
 			action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS
 		default:
 		}
@@ -388,8 +403,8 @@ func (this *PeepholeSubstituteAlternateSyntax) reduceSubstractionAssignment(n No
 
 func (this *PeepholeSubstituteAlternateSyntax) reduceTrueFalse(n Node) Node {
 	if this.late {
-		switch n.getParent().getToken() {
-		case Token_rhino_EQ, Token_rhino_GT, Token_rhino_GE, Token_rhino_LE, Token_rhino_LT, Token_rhino_NE:
+		switch n.getParent().ns_().token {
+		case tokOrd1_EQ, tokOrd1_GT, tokOrd1_GE, tokOrd1_LE, tokOrd1_LT, tokOrd1_NE:
 			var number Node = IR_number(float64(func() int32 {
 				if n.isTrue() {
 					return 1
@@ -430,7 +445,6 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeArrayLiteral(n Node) N
 	} else {
 		return n
 	}
-	panic("unreachable")
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeStringArrayLiteral(n Node) Node {
@@ -464,7 +478,9 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeStringArrayLiteral(n N
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) tryTurnTemplateStringsToStrings(n Node) Node {
-	Preconditions_checkState_boolean_Object(n.isTemplateLit(), n.box_())
+	if !n.isTemplateLit() {
+		panic(new_IllegalStateException_String(tostr_(n)))
+	}
 	if n.getParent().isTaggedTemplateLit() {
 		return n
 	}
@@ -494,7 +510,7 @@ func PeepholeSubstituteAlternateSyntax_pickDelimiter(strings []string) Optional[
 NEXT_DELIMITER_:
 	for ; delimiters[i] != nullstr_; i++ {
 		for _, cur := range strings {
-			if String_contains(cur, strobj_(delimiters[i])) {
+			if String_contains_s(cur, delimiters[i]) {
 				continue NEXT_DELIMITER_
 			}
 		}
@@ -504,8 +520,8 @@ NEXT_DELIMITER_:
 }
 
 var PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD int32
-var PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS *ImmutableSet
-var PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS *ImmutableSet
+var PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS *ImmutableSet[string]
+var PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS *ImmutableSet[string]
 
 var PeepholeSubstituteAlternateSyntax_clinit_done bool
 
@@ -514,51 +530,72 @@ func PeepholeSubstituteAlternateSyntax_clinit() {
 		return
 	}
 	PeepholeSubstituteAlternateSyntax_clinit_done = true
-	PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD = String_length(".split('.')")
-	PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS = ImmutableSet_of_Object_Object_Object_Object_Object(strobj_("Object"), strobj_("Array"), strobj_("Error"), strobj_("RegExp"), strobj_("Math"))
-	PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS = ImmutableSet_of_Object_Object_Object(strobj_("Object"), strobj_("Array"), strobj_("Error"))
+	PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD = int32(len(".split('.')"))
+	PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS = immutableSetOf_(tc_string, "Object", "Array", "Error", "RegExp", "Math")
+	PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS = immutableSetOf_(tc_string, "Object", "Array", "Error")
 
 }
 
-type PeepholeSubstituteAlternateSyntax_FoldArrayAction struct {
-	Enum
+type PeepholeSubstituteAlternateSyntax_FoldArrayAction uint8
+
+// PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_ = [3]Enum{
+	{self_: PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD, name_: "NOT_SAFE_TO_FOLD", ordinal_: 0},
+	{self_: PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS, name_: "SAFE_TO_FOLD_WITH_ARGS", ordinal_: 1},
+	{self_: PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS, name_: "SAFE_TO_FOLD_WITHOUT_ARGS", ordinal_: 2},
 }
 
-func (this *PeepholeSubstituteAlternateSyntax_FoldArrayAction) up_Enum() *Enum {
-	if this == nil {
+func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &PeepholeSubstituteAlternateSyntax_FoldArrayAction_enum_[this-1]
 }
 
-func (this *PeepholeSubstituteAlternateSyntax_FoldArrayAction) init_PeepholeSubstituteAlternateSyntax_FoldArrayAction(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) name() string {
+	return this.enum_().name_
 }
 
-func new_PeepholeSubstituteAlternateSyntax_FoldArrayAction(name_ string, ordinal_ int32) *PeepholeSubstituteAlternateSyntax_FoldArrayAction {
-	this := &PeepholeSubstituteAlternateSyntax_FoldArrayAction{}
-	this.self_ = this
-	this.init_PeepholeSubstituteAlternateSyntax_FoldArrayAction(name_, ordinal_)
+func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) toString() string {
+	return this.enum_().name_
+}
+
+func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this PeepholeSubstituteAlternateSyntax_FoldArrayAction) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func PeepholeSubstituteAlternateSyntax_FoldArrayAction_values() []*PeepholeSubstituteAlternateSyntax_FoldArrayAction {
-	return append([]*PeepholeSubstituteAlternateSyntax_FoldArrayAction(nil), PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_...)
+func PeepholeSubstituteAlternateSyntax_FoldArrayAction_values() []PeepholeSubstituteAlternateSyntax_FoldArrayAction {
+	return append([]PeepholeSubstituteAlternateSyntax_FoldArrayAction(nil), PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_...)
 }
 
-func PeepholeSubstituteAlternateSyntax_FoldArrayAction_valueOf(name string) *PeepholeSubstituteAlternateSyntax_FoldArrayAction {
+func PeepholeSubstituteAlternateSyntax_FoldArrayAction_valueOf(name string) PeepholeSubstituteAlternateSyntax_FoldArrayAction {
 	for _, v := range PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("FoldArrayAction", name))
 }
 
-var PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD *PeepholeSubstituteAlternateSyntax_FoldArrayAction
-var PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS *PeepholeSubstituteAlternateSyntax_FoldArrayAction
-var PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS *PeepholeSubstituteAlternateSyntax_FoldArrayAction
-var PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_ []*PeepholeSubstituteAlternateSyntax_FoldArrayAction
+const PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD PeepholeSubstituteAlternateSyntax_FoldArrayAction = 1
+const PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS PeepholeSubstituteAlternateSyntax_FoldArrayAction = 2
+const PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS PeepholeSubstituteAlternateSyntax_FoldArrayAction = 3
+
+var PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_ []PeepholeSubstituteAlternateSyntax_FoldArrayAction
 
 var PeepholeSubstituteAlternateSyntax_FoldArrayAction_clinit_done bool
 
@@ -567,10 +604,15 @@ func PeepholeSubstituteAlternateSyntax_FoldArrayAction_clinit() {
 		return
 	}
 	PeepholeSubstituteAlternateSyntax_FoldArrayAction_clinit_done = true
-	PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD = new_PeepholeSubstituteAlternateSyntax_FoldArrayAction("NOT_SAFE_TO_FOLD", 0)
-	PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS = new_PeepholeSubstituteAlternateSyntax_FoldArrayAction("SAFE_TO_FOLD_WITH_ARGS", 1)
-	PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS = new_PeepholeSubstituteAlternateSyntax_FoldArrayAction("SAFE_TO_FOLD_WITHOUT_ARGS", 2)
-	PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_ = []*PeepholeSubstituteAlternateSyntax_FoldArrayAction{PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD, PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS, PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS}
+	PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_ = []PeepholeSubstituteAlternateSyntax_FoldArrayAction{PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD, PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS, PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS}
 	registerEnum_("com.google.javascript.jscomp.PeepholeSubstituteAlternateSyntax.FoldArrayAction", enumValues_(PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_))
 
+}
+
+// optimizeSubtree: an object that is exactly a PeepholeSubstituteAlternateSyntax calls its optimizeSubtree_impl directly (post-flip); others dispatch.
+func (this *PeepholeSubstituteAlternateSyntax) optimizeSubtree(p0 Node) Node {
+	if p, _ := this.self_.(*PeepholeSubstituteAlternateSyntax); p == this {
+		return this.optimizeSubtree_impl(p0)
+	}
+	return this.self_.optimizeSubtree_impl(p0)
 }

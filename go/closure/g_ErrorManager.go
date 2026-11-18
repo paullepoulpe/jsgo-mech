@@ -4,25 +4,24 @@ package closure
 
 type ErrorManager interface {
 	ErrorHandler
-	report_2(*CheckLevel, *JSError)
+	report_2(CheckLevel, *JSError)
 	generateReport()
 	getErrorCount() int32
 	getWarningCount() int32
-	getErrors() *ImmutableList
-	getWarnings() *ImmutableList
+	getErrors() *ImmutableList[*JSError]
+	getWarnings() *ImmutableList[*JSError]
 	setTypedPercent(float64)
 	getTypedPercent() float64
 	hasHaltingErrors() bool
-	shouldReportConformanceViolation(*Requirement, *Optional_base, *JSError, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
+	shouldReportConformanceViolation(*Requirement, Optional_base, *JSError, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
 }
 
 func ErrorManager_hasHaltingErrors_default(this ErrorManager) bool {
 	if this.getErrorCount() == 0 {
 		return false
 	}
-	it_1 := foreach_(obj_(this.getErrors()))
-	for it_1.next() {
-		var error_ *JSError = cast_[*JSError](it_1.v)
+	for _, el_1 := range this.getErrors().items {
+		var error_ *JSError = el_1
 		if error_.type_().level_ == CheckLevel_ERROR {
 			return true
 		}
@@ -30,6 +29,6 @@ func ErrorManager_hasHaltingErrors_default(this ErrorManager) bool {
 	return false
 }
 
-func ErrorManager_shouldReportConformanceViolation_default(this ErrorManager, requirement *Requirement, allowlistEntry Optional_baseOf[*RequirementScopeEntry], diagnostic *JSError, behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, isAllowlisted bool) bool {
+func ErrorManager_shouldReportConformanceViolation_default(this ErrorManager, requirement *Requirement, allowlistEntry Optional_baseOf[*RequirementScopeEntry], diagnostic *JSError, behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, isAllowlisted bool) bool {
 	return (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_RECORD_ONLY)
 }

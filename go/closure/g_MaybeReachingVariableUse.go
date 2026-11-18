@@ -59,10 +59,10 @@ func (this *MaybeReachingVariableUse) flowThrough_impl(n Node, input *MaybeReach
 
 func (this *MaybeReachingVariableUse) hasExceptionHandler(cfgNode Node) bool {
 	var branchEdges ListOf[DiGraph_DiGraphEdge[Node]] = this.getCfg().getOutEdges(cfgNode)
-	it_1 := foreach_(any(branchEdges))
+	it_1 := foreach_(branchEdges)
 	for it_1.next() {
 		var edge DiGraph_DiGraphEdge[Node] = cast_[DiGraph_DiGraphEdge[Node]](it_1.v)
-		if cast_[*ControlFlowGraph_Branch](edge.getValue()) == ControlFlowGraph_Branch_ON_EX {
+		if cast_[ControlFlowGraph_Branch](edge.getValue()) == ControlFlowGraph_Branch_ON_EX {
 			return true
 		}
 	}
@@ -70,10 +70,10 @@ func (this *MaybeReachingVariableUse) hasExceptionHandler(cfgNode Node) bool {
 }
 
 func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output *MaybeReachingVariableUse_ReachingUses, conditional bool) {
-	switch n.getToken() {
-	case Token_rhino_BLOCK, Token_rhino_ROOT, Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_BLOCK, tokOrd1_ROOT, tokOrd1_FUNCTION:
 		return
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if NodeUtil_isLhsByDestructuring(n) {
 			if !conditional {
 				this.removeFromUseIfLocal(n.getString(), output)
@@ -82,11 +82,11 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 			this.addToUseIfLocal(n.getString(), cfgNode, output)
 		}
 		return
-	case Token_rhino_WHILE, Token_rhino_DO, Token_rhino_IF, Token_rhino_FOR:
+	case tokOrd1_WHILE, tokOrd1_DO, tokOrd1_IF, tokOrd1_FOR:
 		var condExpr Node = NodeUtil_getConditionExpression(n)
 		this.computeMayUse(condExpr, cfgNode, output, conditional)
 		return
-	case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 		var lhs Node = n.getFirstChild()
 		var rhs Node = lhs.getNext()
 		if NodeUtil_isNameDeclaration(lhs) {
@@ -100,11 +100,11 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 		}
 		this.computeMayUse(rhs, cfgNode, output, conditional)
 		return
-	case Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM:
 		this.computeMayUse(n.getLastChild(), cfgNode, output, true)
 		this.computeMayUse(n.getFirstChild(), cfgNode, output, conditional)
 		return
-	case Token_rhino_OPTCHAIN_CALL:
+	case tokOrd1_OPTCHAIN_CALL:
 		{
 			var c Node = n.getLastChild()
 			for ; c != n.getFirstChild(); c = c.getPrevious() {
@@ -113,14 +113,16 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 		}
 		this.computeMayUse(n.getFirstChild(), cfgNode, output, conditional)
 		return
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		this.computeMayUse(n.getLastChild(), cfgNode, output, true)
 		this.computeMayUse(n.getSecondChild(), cfgNode, output, true)
 		this.computeMayUse(n.getFirstChild(), cfgNode, output, conditional)
 		return
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		var varName Node = n.getFirstChild()
-		Preconditions_checkState_boolean_String_Object(n.hasChildren(), "AST should be normalized (%s)", n.box_())
+		if !n.hasChildren() {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("AST should be normalized (%s)", []any{n.box_()})))
+		}
 		if varName.isDestructuringLhs() {
 			this.computeMayUse(varName.getFirstChild(), cfgNode, output, conditional)
 			this.computeMayUse(varName.getSecondChild(), cfgNode, output, conditional)
@@ -131,7 +133,7 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 			}
 		}
 		return
-	case Token_rhino_DEFAULT_VALUE:
+	case tokOrd1_DEFAULT_VALUE:
 		if n.getFirstChild().isDestructuringPattern() {
 			this.computeMayUse(n.getFirstChild(), cfgNode, output, conditional)
 			this.computeMayUse(n.getSecondChild(), cfgNode, output, true)
@@ -146,7 +148,9 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 		}
 	default:
 		if NodeUtil_isAssignmentOp(n) && n.getFirstChild().isName() {
-			Preconditions_checkState(!NodeUtil_isLogicalAssignmentOp(n))
+			if NodeUtil_isLogicalAssignmentOp(n) {
+				panic(new_IllegalStateException_0())
+			}
 			var name Node = n.getFirstChild()
 			if !conditional {
 				this.removeFromUseIfLocal(name.getString(), output)
@@ -191,8 +195,10 @@ func (this *MaybeReachingVariableUse) removeFromUseIfLocal(name string, use *May
 
 func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) IterableOf[Node] {
 	var n GraphNode[Node] = this.getCfg().getNode(defNode)
-	Preconditions_checkNotNull(any(n))
-	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(n)))
+	if n == nil {
+		panic(new_NullPointerException_0())
+	}
+	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(n)))
 	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(this.allVarsInFn.get(name))
 }
 
@@ -236,7 +242,7 @@ func (this *MaybeReachingVariableUse_ReachingUses) get(v *Var) IterableOf[Node] 
 		if uses != nil {
 			return uses.keys()
 		}
-		return icast_Iterable(obj_(ImmutableList_of()))
+		return ImmutableList_of()
 	}()
 }
 
@@ -271,7 +277,6 @@ func (this *MaybeReachingVariableUse_ReachingUses) join(other *MaybeReachingVari
 		return thisVal.reconcile(thatVal, &PMap_Reconciler_fn[Node, Node]{func(node Node, unused1 Node, unused2 Node) Node {
 			return node
 		}})
-		panic("unreachable")
 	}})
 }
 
@@ -280,10 +285,11 @@ func (this *MaybeReachingVariableUse_ReachingUses) equals(other any) bool {
 	_ = reachingUses
 	return (func() bool {
 		v_ := other
-		if !is_[*MaybeReachingVariableUse_ReachingUses](v_) {
+		p, ok := v_.(*MaybeReachingVariableUse_ReachingUses)
+		if !ok {
 			return false
 		}
-		reachingUses = cast_[*MaybeReachingVariableUse_ReachingUses](v_)
+		reachingUses = p
 		return true
 	}() && reachingUses.mayUsePMap.equivalent(this.mayUsePMap, &BiPredicate_tfn_PMap_Node_Node__PMap_Node_Node_{func(p0 PMap[Node, Node], p1 PMap[Node, Node]) bool {
 		return MaybeReachingVariableUse_ReachingUses_equalMaps(p0, p1)
@@ -299,7 +305,7 @@ func MaybeReachingVariableUse_ReachingUses_equalNodes(n1 Node, n2 Node) bool {
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) hashCode() int32 {
-	panic(new_UnsupportedOperationException_String("the hashcode of this object is not stable").self())
+	panic(new_UnsupportedOperationException_String("the hashcode of this object is not stable"))
 }
 
 type MaybeReachingVariableUse_ReachingUsesJoinOp struct {

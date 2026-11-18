@@ -13,11 +13,11 @@ func (this *BrowserModuleResolver) up_ModuleResolver() *ModuleResolver {
 	return &this.ModuleResolver
 }
 
-func (this *BrowserModuleResolver) init_BrowserModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
+func (this *BrowserModuleResolver) init_BrowserModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
 }
 
-func new_BrowserModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *BrowserModuleResolver {
+func new_BrowserModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *BrowserModuleResolver {
 	this := &BrowserModuleResolver{}
 	this.self_ = this
 	this.init_BrowserModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
@@ -26,7 +26,7 @@ func new_BrowserModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPat
 
 func (this *BrowserModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename Optional[string], lineno int32, colno int32) Optional[string] {
 	if ModuleLoader_isAmbiguousIdentifier(moduleAddress) {
-		this.errorHandler.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(sourcename, lineno, colno, ModuleLoader_INVALID_MODULE_PATH, []string{moduleAddress, Object_toString(obj_(ModuleLoader_ResolutionMode_BROWSER))}))
+		this.errorHandler.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(sourcename, lineno, colno, ModuleLoader_INVALID_MODULE_PATH, []string{moduleAddress, tostrNN_(ModuleLoader_ResolutionMode_BROWSER)}))
 		return Optional_empty[string]()
 	}
 	var loadAddress Optional[string] = this.locate(scriptAddress, moduleAddress)
@@ -54,8 +54,27 @@ func BrowserModuleResolver_clinit() {
 		return
 	}
 	BrowserModuleResolver_clinit_done = true
-	BrowserModuleResolver_FACTORY = &ModuleLoader_ModuleResolverFactory_fn{func(p0 *ImmutableSet, p1 *ImmutableList, p2 ErrorHandler, p3 *ModuleLoader_PathEscaper) *ModuleResolver {
-		return new_BrowserModuleResolver(p0, p1, p2, p3).up_ModuleResolver()
-	}}
+	BrowserModuleResolver_FACTORY = lambda_BrowserModuleResolver_clinit_1_
 
+}
+
+// lambda_BrowserModuleResolver_clinit_1_ is a lambda of BrowserModuleResolver_clinit that captures nothing (post-flip step lambdas).
+var lambda_BrowserModuleResolver_clinit_1_ = &ModuleLoader_ModuleResolverFactory_fn{func(p0 *ErasedImmutableSet, p1 *ErasedImmutableList, p2 ErrorHandler, p3 ModuleLoader_PathEscaper) *ModuleResolver {
+	return new_BrowserModuleResolver(p0, p1, p2, p3).up_ModuleResolver()
+}}
+
+// resolveJsModule: an object that is exactly a BrowserModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
+func (this *BrowserModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional[string], p3 int32, p4 int32) Optional[string] {
+	if p, _ := this.self_.(*BrowserModuleResolver); p == this {
+		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
+	}
+	return this.self_.resolveJsModule_impl(p0, p1, p2, p3, p4)
+}
+
+// resolveJsModuleSilently: an object that is exactly a BrowserModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
+func (this *BrowserModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional[string] {
+	if p, _ := this.self_.(*BrowserModuleResolver); p == this {
+		return this.resolveJsModuleSilently_impl(p0, p1)
+	}
+	return this.self_.resolveJsModuleSilently_impl(p0, p1)
 }

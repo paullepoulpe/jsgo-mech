@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ModuleRenaming struct {
 }
 
@@ -49,7 +51,11 @@ func ModuleRenaming_getNameRootType(qname string, globalTypedScope *TypedScope) 
 		return nil
 	}
 	var root string = NodeUtil_getRootOfQualifiedNameString(qname)
-	return cast_[*TypedVar](Preconditions_checkNotNull_Object_String_Object(globalTypedScope.getVar(root).self(), "missing var for %s", strobj_(root))).getType()
+	nn_ := globalTypedScope.getVar(root)
+	if nn_ == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("missing var for %s", []any{strobj_(root)})))
+	}
+	return nn_.self().(*TypedVar).getType()
 }
 
 func ModuleRenaming_getGlobalNameForJsDoc(moduleMap *ModuleMap, binding *Binding, propertyChain ListOf[string]) Optional[string] {
@@ -57,8 +63,8 @@ func ModuleRenaming_getGlobalNameForJsDoc(moduleMap *ModuleMap, binding *Binding
 	for (binding.isModuleNamespace() && binding.metadata().isEs6Module()) && (prop < propertyChain.size()) {
 		var propertyName string = str_(propertyChain.get(prop))
 		var m *Module = moduleMap.getModule(binding.metadata().path())
-		if Map_containsKey_s(m.namespace(), propertyName) {
-			binding = cast_[*Binding](Map_get_s(m.namespace(), propertyName))
+		if m.namespace().Has(propertyName) {
+			binding = m.namespace().Get(propertyName)
 		} else {
 			break
 		}
@@ -80,7 +86,9 @@ type ModuleRenaming_GlobalizedModuleName struct {
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) init_ModuleRenaming_GlobalizedModuleName(aliasName *QualifiedName, rootNameType *JSType) {
-	Objects_requireNonNull(aliasName.self(), "aliasName")
+	if aliasName == nil {
+		panic(new_NullPointerException_String("aliasName"))
+	}
 	this.aliasName_ = aliasName
 	this.rootNameType_ = rootNameType
 }
@@ -100,7 +108,9 @@ func (this *ModuleRenaming_GlobalizedModuleName) toQname(astFactory *AstFactory)
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) getprop(property string) *ModuleRenaming_GlobalizedModuleName {
-	Preconditions_checkArgument((!String_isEmpty(property) && !String_contains(property, strobj_("."))))
+	if property == "" || strings.Contains(property, ".") {
+		panic(new_IllegalArgumentException_0())
+	}
 	return ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(this.aliasName().getprop(property), this.rootNameType())
 }
 
@@ -109,7 +119,9 @@ func ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(aliasName *
 }
 
 func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedScope(moduleMetadata *ModuleMetadataMap_ModuleMetadata, googNamespace Optional[string], globalTypedScope *TypedScope) *ModuleRenaming_GlobalizedModuleName {
-	Preconditions_checkState((googNamespace.isEmpty() || moduleMetadata.googNamespaces().contains(strobj_(googNamespace.get()))))
+	if !googNamespace.isEmpty() && !moduleMetadata.googNamespaces().contains_s(googNamespace.get()) {
+		panic(new_IllegalStateException_0())
+	}
 	switch moduleMetadata.moduleType() {
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE:
 		var moduleBody Node = moduleMetadata.rootNode().getFirstChild()
@@ -120,7 +132,7 @@ func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedSco
 		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(moduleMetadata.path().toModuleName()), ModuleRenaming_getNameRootType(moduleMetadata.path().toModuleName(), globalTypedScope))
 	case ModuleMetadataMap_ModuleType_SCRIPT:
 	}
-	panic(new_IllegalStateException_String(("Unexpected module type: " + objstr_(obj_(moduleMetadata.moduleType())))).self())
+	panic(new_IllegalStateException_String(("Unexpected module type: " + tostr_(moduleMetadata.moduleType()))))
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) aliasName() *QualifiedName {
@@ -136,13 +148,13 @@ func (this *ModuleRenaming_GlobalizedModuleName) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.aliasName_.self(), o.aliasName_.self()) && Objects_equals(this.rootNameType_.self(), o.rootNameType_.self())
+	return true && this.aliasName_ == o.aliasName_ && objequalsBy_(this.rootNameType_, o.rootNameType_.self(), (*JSType).equals)
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.aliasName_.self())
-	h = h*31 + Objects_hashCode(this.rootNameType_.self())
+	h = h*31 + objhashId_(this.aliasName_.self())
+	h = h*31 + objhashBy_(this.rootNameType_, (*JSType).hashCode)
 	return h
 }
 

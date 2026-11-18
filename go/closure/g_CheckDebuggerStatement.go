@@ -27,7 +27,7 @@ func new_CheckDebuggerStatement(compiler *AbstractCompiler) *CheckDebuggerStatem
 }
 
 func (this *CheckDebuggerStatement) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckDebuggerStatement) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -47,4 +47,13 @@ func CheckDebuggerStatement_clinit() {
 	CheckDebuggerStatement_clinit_done = true
 	CheckDebuggerStatement_DEBUGGER_STATEMENT_PRESENT = DiagnosticType_disabled("JSC_DEBUGGER_STATEMENT_PRESENT", "Using the debugger statement can halt your application if the user has a JavaScript debugger running.\nTo disable this check when you want to do debugging, you can suppress this message like this:\n  /** @suppress '{'checkDebuggerStatement'}' */\n  debugger;")
 
+}
+
+// visit: an object that is exactly a CheckDebuggerStatement calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckDebuggerStatement) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckDebuggerStatement); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

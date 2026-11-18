@@ -6,7 +6,7 @@ type JSCompStrings struct {
 }
 
 func (this *JSCompStrings) init_JSCompStrings() {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func new_JSCompStrings() *JSCompStrings {
@@ -16,30 +16,31 @@ func new_JSCompStrings() *JSCompStrings {
 }
 
 func JSCompStrings_lines(lines []string) string {
-	return String_join_CharSequence_CharSequenceArr(strobj_("\n"), arrmap_(lines, func(v_ string) any { return strobj_(v_) }))
+	return String_join_CharSequence_CharSequenceArr_s("\n", arrmap_(lines, func(v_ string) any { return strobj_(v_) }))
 }
 
 func JSCompStrings_linesIterable(lines IterableOf[string]) string {
-	return String_join(strobj_("\n"), lines)
+	return String_join_s("\n", lines)
 }
 
 func JSCompStrings_parseIntOrNull(s Optional[string]) any {
-	if s.isEmpty() || String_isEmpty(s.get()) {
+	if s.isEmpty() || s.get() == "" {
 		return nil
 	}
-	var negative bool = (String_charAt(s.get(), 0) == '-')
+	var negative bool = (byteAt_(s.get(), 0) == '-')
 	var start int32 = func() int32 {
-		if negative || (String_charAt(s.get(), 0) == '+') {
+		if negative || (byteAt_(s.get(), 0) == '+') {
 			return 1
 		}
 		return 0
 	}()
-	if start == String_length(s.get()) {
+	var sU16 utf16_
+	if start == sU16.of(s.get()).length() {
 		return nil
 	}
 	var value int64 = 0
-	for i := int32(start); i < String_length(s.get()); i++ {
-		var digit int32 = Character_digit(String_charAt(s.get(), i), 10)
+	for i := int32(start); i < sU16.of(s.get()).length(); i++ {
+		var digit int32 = Character_digit(sU16.of(s.get()).charAt(i), 10)
 		if digit < 0 {
 			return nil
 		}

@@ -5,7 +5,7 @@ package closure
 type ClosureBundler struct {
 	transpiler          Transpiler_transpile
 	es6ModuleTranspiler Transpiler_transpile
-	mode_               *ClosureBundler_EvalMode
+	mode_               ClosureBundler_EvalMode
 	sourceUrl_          Optional[string]
 	path_               string
 	embedSourcemapField bool
@@ -40,7 +40,7 @@ func new_ClosureBundler_Transpiler(transpiler Transpiler_transpile) *ClosureBund
 }
 
 func (this *ClosureBundler) init_ClosureBundler_Transpiler_Transpiler(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile) {
-	this.init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler, es6ModuleTranspiler, ClosureBundler_EvalMode_NORMAL, Optional_empty[string](), "unknown_source", nil, icast_Map(obj_(new_ConcurrentHashMap())), false)
+	this.init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler, es6ModuleTranspiler, ClosureBundler_EvalMode_NORMAL, Optional_empty[string](), "unknown_source", nil, new_ConcurrentHashMap(), false)
 }
 
 func new_ClosureBundler_Transpiler_Transpiler(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile) *ClosureBundler {
@@ -50,7 +50,7 @@ func new_ClosureBundler_Transpiler_Transpiler(transpiler Transpiler_transpile, e
 	return this
 }
 
-func (this *ClosureBundler) init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile, mode *ClosureBundler_EvalMode, sourceUrl Optional[string], path string, minifier any, sourceMapCache MapOf[string, string], embedSourcemap bool) {
+func (this *ClosureBundler) init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile, mode ClosureBundler_EvalMode, sourceUrl Optional[string], path string, minifier any, sourceMapCache MapOf[string, string], embedSourcemap bool) {
 	this.transpiler = transpiler
 	this.mode_ = mode
 	this.sourceUrl_ = sourceUrl
@@ -61,7 +61,7 @@ func (this *ClosureBundler) init_ClosureBundler_Transpiler_Transpiler_EvalMode_O
 	this.embedSourcemapField = embedSourcemap
 }
 
-func new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile, mode *ClosureBundler_EvalMode, sourceUrl Optional[string], path string, minifier any, sourceMapCache MapOf[string, string], embedSourcemap bool) *ClosureBundler {
+func new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler Transpiler_transpile, es6ModuleTranspiler Transpiler_transpile, mode ClosureBundler_EvalMode, sourceUrl Optional[string], path string, minifier any, sourceMapCache MapOf[string, string], embedSourcemap bool) *ClosureBundler {
 	this := &ClosureBundler{}
 	this.zero_ClosureBundler()
 	this.init_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(transpiler, es6ModuleTranspiler, mode, sourceUrl, path, minifier, sourceMapCache, embedSourcemap)
@@ -85,7 +85,7 @@ func (this *ClosureBundler) disableJ2clMinifier() *ClosureBundler {
 }
 
 func (this *ClosureBundler) useEval(useEval bool) *ClosureBundler {
-	var newMode *ClosureBundler_EvalMode = func() *ClosureBundler_EvalMode {
+	var newMode ClosureBundler_EvalMode = func() ClosureBundler_EvalMode {
 		if useEval {
 			return ClosureBundler_EvalMode_EVAL
 		}
@@ -123,7 +123,7 @@ func (this *ClosureBundler) appendTo(out Appendable, info DependencyInfo, conten
 
 func (this *ClosureBundler) appendRuntimeTo(out Appendable) {
 	var runtime string = this.transpiler.runtime()
-	if !String_isEmpty(runtime) {
+	if runtime != "" {
 		this.mode_.appendTraditional(runtime, out, Optional_empty[string]())
 	}
 	if this.transpiler == Transpiler_transpile_NULL {
@@ -144,7 +144,7 @@ func (this *ClosureBundler) getSourceMap(path string) string {
 
 func (this *ClosureBundler) transpile_2(s string, t Transpiler_transpile) string {
 	if !Uris_isValid(this.path_) {
-		panic(new_RuntimeException_String(("Invalid path: " + sstr_(this.path_))).self())
+		panic(new_RuntimeException_String(("Invalid path: " + sstr_(this.path_))))
 	}
 	var result *TranspileResult = t.transpile(this.path_, s)
 	Map_put_s(this.sourceMapCache, this.path_, strobj_(result.sourceMap()))
@@ -164,7 +164,7 @@ func (this *ClosureBundler) transpileEs6Module(s string) string {
 	return this.transpile_2(s, this.es6ModuleTranspiler)
 }
 
-func ClosureBundler_appendSourceUrl(out Appendable, mode *ClosureBundler_EscapeMode, sourceUrl Optional[string]) {
+func ClosureBundler_appendSourceUrl(out Appendable, mode ClosureBundler_EscapeMode, sourceUrl Optional[string]) {
 	if sourceUrl.isEmpty() {
 		return
 	}
@@ -172,76 +172,94 @@ func ClosureBundler_appendSourceUrl(out Appendable, mode *ClosureBundler_EscapeM
 	mode.append(toAppend, out)
 }
 
-type ClosureBundler_EvalMode struct {
-	Enum
+type ClosureBundler_EvalMode uint8
+
+// ClosureBundler_EvalMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ClosureBundler_EvalMode_enum_ = [2]Enum{
+	{self_: ClosureBundler_EvalMode_EVAL, name_: "EVAL", ordinal_: 0},
+	{self_: ClosureBundler_EvalMode_NORMAL, name_: "NORMAL", ordinal_: 1},
 }
 
-func (this *ClosureBundler_EvalMode) as_ClosureBundler_EvalMode() *ClosureBundler_EvalMode {
+func (this ClosureBundler_EvalMode) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &ClosureBundler_EvalMode_enum_[this-1]
+}
+
+func (this ClosureBundler_EvalMode) name() string { return this.enum_().name_ }
+
+func (this ClosureBundler_EvalMode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ClosureBundler_EvalMode) toString() string { return this.enum_().name_ }
+
+func (this ClosureBundler_EvalMode) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this ClosureBundler_EvalMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func to_ClosureBundler_EvalMode(v any) *ClosureBundler_EvalMode {
-	if v == nil {
-		return nil
+func (this ClosureBundler_EvalMode) as_ClosureBundler_EvalMode() ClosureBundler_EvalMode {
+	return this
+}
+
+func (this ClosureBundler_EvalMode) appendTraditional(s string, out Appendable, sourceUrl Optional[string]) {
+	switch this {
+	case ClosureBundler_EvalMode_EVAL:
+		out.append_CharSequence_s("eval(this.CLOSURE_EVAL_PREFILTER(\"")
+		ClosureBundler_EscapeMode_ESCAPED.append(s, out)
+		ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_ESCAPED, sourceUrl)
+		out.append_CharSequence_s("\"));\n")
+	case ClosureBundler_EvalMode_NORMAL:
+		ClosureBundler_EscapeMode_NORMAL.append(s, out)
+		ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_NORMAL, sourceUrl)
+	default:
+		panic(new_NullPointerException_0()) // a call on null
 	}
-	return v.(interface {
-		as_ClosureBundler_EvalMode() *ClosureBundler_EvalMode
-	}).as_ClosureBundler_EvalMode()
 }
 
-func is_ClosureBundler_EvalMode(v any) bool {
-	_, ok := v.(interface {
-		as_ClosureBundler_EvalMode() *ClosureBundler_EvalMode
-	})
-	return ok
-}
-
-func (this *ClosureBundler_EvalMode) self() any {
-	if this == nil {
-		return nil
+func (this ClosureBundler_EvalMode) appendGoogModule(s string, out Appendable, sourceUrl Optional[string]) {
+	switch this {
+	case ClosureBundler_EvalMode_EVAL:
+		out.append_CharSequence_s("goog.loadModule(\"")
+		ClosureBundler_EscapeMode_ESCAPED.append(s, out)
+		ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_ESCAPED, sourceUrl)
+		out.append_CharSequence_s("\");\n")
+	case ClosureBundler_EvalMode_NORMAL:
+		out.append_CharSequence_s("goog.loadModule(function(exports) {'use strict';")
+		ClosureBundler_EscapeMode_NORMAL.append(s, out)
+		out.append_CharSequence_s("\n;return exports;});\n")
+		ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_NORMAL, sourceUrl)
+	default:
+		panic(new_NullPointerException_0()) // a call on null
 	}
-	return this.self_
 }
 
-func (this *ClosureBundler_EvalMode) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
+func ClosureBundler_EvalMode_values() []ClosureBundler_EvalMode {
+	return append([]ClosureBundler_EvalMode(nil), ClosureBundler_EvalMode_values_...)
 }
 
-func (this *ClosureBundler_EvalMode) init_ClosureBundler_EvalMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
-
-func (this *ClosureBundler_EvalMode) appendTraditional(p0 string, p1 Appendable, p2 Optional[string]) {
-	this.self_.(interface {
-		appendTraditional_impl(string, Appendable, Optional[string])
-	}).appendTraditional_impl(p0, p1, p2)
-}
-
-func (this *ClosureBundler_EvalMode) appendGoogModule(p0 string, p1 Appendable, p2 Optional[string]) {
-	this.self_.(interface {
-		appendGoogModule_impl(string, Appendable, Optional[string])
-	}).appendGoogModule_impl(p0, p1, p2)
-}
-
-func ClosureBundler_EvalMode_values() []*ClosureBundler_EvalMode {
-	return append([]*ClosureBundler_EvalMode(nil), ClosureBundler_EvalMode_values_...)
-}
-
-func ClosureBundler_EvalMode_valueOf(name string) *ClosureBundler_EvalMode {
+func ClosureBundler_EvalMode_valueOf(name string) ClosureBundler_EvalMode {
 	for _, v := range ClosureBundler_EvalMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("EvalMode", name))
 }
 
-var ClosureBundler_EvalMode_EVAL *ClosureBundler_EvalMode
-var ClosureBundler_EvalMode_NORMAL *ClosureBundler_EvalMode
-var ClosureBundler_EvalMode_values_ []*ClosureBundler_EvalMode
+const ClosureBundler_EvalMode_EVAL ClosureBundler_EvalMode = 1
+const ClosureBundler_EvalMode_NORMAL ClosureBundler_EvalMode = 2
+
+var ClosureBundler_EvalMode_values_ []ClosureBundler_EvalMode
 
 var ClosureBundler_EvalMode_clinit_done bool
 
@@ -250,75 +268,78 @@ func ClosureBundler_EvalMode_clinit() {
 		return
 	}
 	ClosureBundler_EvalMode_clinit_done = true
-	ClosureBundler_EvalMode_EVAL = new_ClosureBundler_EvalMode_1("EVAL", 0).up_ClosureBundler_EvalMode()
-	ClosureBundler_EvalMode_NORMAL = new_ClosureBundler_EvalMode_2("NORMAL", 1).up_ClosureBundler_EvalMode()
-	ClosureBundler_EvalMode_values_ = []*ClosureBundler_EvalMode{ClosureBundler_EvalMode_EVAL, ClosureBundler_EvalMode_NORMAL}
+	ClosureBundler_EvalMode_values_ = []ClosureBundler_EvalMode{ClosureBundler_EvalMode_EVAL, ClosureBundler_EvalMode_NORMAL}
 	registerEnum_("com.google.javascript.jscomp.deps.ClosureBundler.EvalMode", enumValues_(ClosureBundler_EvalMode_values_))
 
 }
 
-type ClosureBundler_EscapeMode struct {
-	Enum
+type ClosureBundler_EscapeMode uint8
+
+// ClosureBundler_EscapeMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ClosureBundler_EscapeMode_enum_ = [2]Enum{
+	{self_: ClosureBundler_EscapeMode_ESCAPED, name_: "ESCAPED", ordinal_: 0},
+	{self_: ClosureBundler_EscapeMode_NORMAL, name_: "NORMAL", ordinal_: 1},
 }
 
-func (this *ClosureBundler_EscapeMode) as_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode {
+func (this ClosureBundler_EscapeMode) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &ClosureBundler_EscapeMode_enum_[this-1]
+}
+
+func (this ClosureBundler_EscapeMode) name() string { return this.enum_().name_ }
+
+func (this ClosureBundler_EscapeMode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ClosureBundler_EscapeMode) toString() string { return this.enum_().name_ }
+
+func (this ClosureBundler_EscapeMode) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this ClosureBundler_EscapeMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func to_ClosureBundler_EscapeMode(v any) *ClosureBundler_EscapeMode {
-	if v == nil {
-		return nil
+func (this ClosureBundler_EscapeMode) as_ClosureBundler_EscapeMode() ClosureBundler_EscapeMode {
+	return this
+}
+
+func (this ClosureBundler_EscapeMode) append(s string, out Appendable) {
+	switch this {
+	case ClosureBundler_EscapeMode_ESCAPED:
+		SourceCodeEscapers_appendWithJavascriptEscaper(strobj_(s), out)
+	case ClosureBundler_EscapeMode_NORMAL:
+		out.append_CharSequence_s(s)
+	default:
+		panic(new_NullPointerException_0()) // a call on null
 	}
-	return v.(interface {
-		as_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode
-	}).as_ClosureBundler_EscapeMode()
 }
 
-func is_ClosureBundler_EscapeMode(v any) bool {
-	_, ok := v.(interface {
-		as_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode
-	})
-	return ok
+func ClosureBundler_EscapeMode_values() []ClosureBundler_EscapeMode {
+	return append([]ClosureBundler_EscapeMode(nil), ClosureBundler_EscapeMode_values_...)
 }
 
-func (this *ClosureBundler_EscapeMode) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
-func (this *ClosureBundler_EscapeMode) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ClosureBundler_EscapeMode) init_ClosureBundler_EscapeMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
-
-func (this *ClosureBundler_EscapeMode) append(p0 string, p1 Appendable) {
-	this.self_.(interface{ append_impl(string, Appendable) }).append_impl(p0, p1)
-}
-
-func ClosureBundler_EscapeMode_values() []*ClosureBundler_EscapeMode {
-	return append([]*ClosureBundler_EscapeMode(nil), ClosureBundler_EscapeMode_values_...)
-}
-
-func ClosureBundler_EscapeMode_valueOf(name string) *ClosureBundler_EscapeMode {
+func ClosureBundler_EscapeMode_valueOf(name string) ClosureBundler_EscapeMode {
 	for _, v := range ClosureBundler_EscapeMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("EscapeMode", name))
 }
 
-var ClosureBundler_EscapeMode_ESCAPED *ClosureBundler_EscapeMode
-var ClosureBundler_EscapeMode_NORMAL *ClosureBundler_EscapeMode
-var ClosureBundler_EscapeMode_values_ []*ClosureBundler_EscapeMode
+const ClosureBundler_EscapeMode_ESCAPED ClosureBundler_EscapeMode = 1
+const ClosureBundler_EscapeMode_NORMAL ClosureBundler_EscapeMode = 2
+
+var ClosureBundler_EscapeMode_values_ []ClosureBundler_EscapeMode
 
 var ClosureBundler_EscapeMode_clinit_done bool
 
@@ -327,267 +348,7 @@ func ClosureBundler_EscapeMode_clinit() {
 		return
 	}
 	ClosureBundler_EscapeMode_clinit_done = true
-	ClosureBundler_EscapeMode_ESCAPED = new_ClosureBundler_EscapeMode_1("ESCAPED", 0).up_ClosureBundler_EscapeMode()
-	ClosureBundler_EscapeMode_NORMAL = new_ClosureBundler_EscapeMode_2("NORMAL", 1).up_ClosureBundler_EscapeMode()
-	ClosureBundler_EscapeMode_values_ = []*ClosureBundler_EscapeMode{ClosureBundler_EscapeMode_ESCAPED, ClosureBundler_EscapeMode_NORMAL}
+	ClosureBundler_EscapeMode_values_ = []ClosureBundler_EscapeMode{ClosureBundler_EscapeMode_ESCAPED, ClosureBundler_EscapeMode_NORMAL}
 	registerEnum_("com.google.javascript.jscomp.deps.ClosureBundler.EscapeMode", enumValues_(ClosureBundler_EscapeMode_values_))
-
-}
-
-type ClosureBundler_EvalMode_1 struct {
-	ClosureBundler_EvalMode
-}
-
-func (this *ClosureBundler_EvalMode_1) up_ClosureBundler_EvalMode() *ClosureBundler_EvalMode {
-	if this == nil {
-		return nil
-	}
-	return &this.ClosureBundler_EvalMode
-}
-
-func (this *ClosureBundler_EvalMode_1) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ClosureBundler_EvalMode_1) init_ClosureBundler_EvalMode_1(name_ string, ordinal_ int32) {
-	this.ClosureBundler_EvalMode.init_ClosureBundler_EvalMode(name_, ordinal_)
-}
-
-func new_ClosureBundler_EvalMode_1(name_ string, ordinal_ int32) *ClosureBundler_EvalMode_1 {
-	this := &ClosureBundler_EvalMode_1{}
-	this.self_ = this
-	this.init_ClosureBundler_EvalMode_1(name_, ordinal_)
-	return this
-}
-
-func (this *ClosureBundler_EvalMode_1) appendTraditional_impl(s string, out Appendable, sourceUrl Optional[string]) {
-	out.append_CharSequence(strobj_("eval(this.CLOSURE_EVAL_PREFILTER(\""))
-	ClosureBundler_EscapeMode_ESCAPED.append(s, out)
-	ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_ESCAPED, sourceUrl)
-	out.append_CharSequence(strobj_("\"));\n"))
-}
-
-func (this *ClosureBundler_EvalMode_1) appendGoogModule_impl(s string, out Appendable, sourceUrl Optional[string]) {
-	out.append_CharSequence(strobj_("goog.loadModule(\""))
-	ClosureBundler_EscapeMode_ESCAPED.append(s, out)
-	ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_ESCAPED, sourceUrl)
-	out.append_CharSequence(strobj_("\");\n"))
-}
-
-func ClosureBundler_EvalMode_1_values() []*ClosureBundler_EvalMode_1 {
-	return append([]*ClosureBundler_EvalMode_1(nil), ClosureBundler_EvalMode_1_values_...)
-}
-
-func ClosureBundler_EvalMode_1_valueOf(name string) *ClosureBundler_EvalMode_1 {
-	for _, v := range ClosureBundler_EvalMode_1_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ClosureBundler_EvalMode_1_values_ []*ClosureBundler_EvalMode_1
-
-var ClosureBundler_EvalMode_1_clinit_done bool
-
-func ClosureBundler_EvalMode_1_clinit() {
-	if ClosureBundler_EvalMode_1_clinit_done {
-		return
-	}
-	ClosureBundler_EvalMode_1_clinit_done = true
-	ClosureBundler_EvalMode_1_values_ = []*ClosureBundler_EvalMode_1{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.deps.ClosureBundler.EvalMode>", enumValues_(ClosureBundler_EvalMode_1_values_))
-
-}
-
-type ClosureBundler_EvalMode_2 struct {
-	ClosureBundler_EvalMode
-}
-
-func (this *ClosureBundler_EvalMode_2) up_ClosureBundler_EvalMode() *ClosureBundler_EvalMode {
-	if this == nil {
-		return nil
-	}
-	return &this.ClosureBundler_EvalMode
-}
-
-func (this *ClosureBundler_EvalMode_2) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ClosureBundler_EvalMode_2) init_ClosureBundler_EvalMode_2(name_ string, ordinal_ int32) {
-	this.ClosureBundler_EvalMode.init_ClosureBundler_EvalMode(name_, ordinal_)
-}
-
-func new_ClosureBundler_EvalMode_2(name_ string, ordinal_ int32) *ClosureBundler_EvalMode_2 {
-	this := &ClosureBundler_EvalMode_2{}
-	this.self_ = this
-	this.init_ClosureBundler_EvalMode_2(name_, ordinal_)
-	return this
-}
-
-func (this *ClosureBundler_EvalMode_2) appendTraditional_impl(s string, out Appendable, sourceUrl Optional[string]) {
-	ClosureBundler_EscapeMode_NORMAL.append(s, out)
-	ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_NORMAL, sourceUrl)
-}
-
-func (this *ClosureBundler_EvalMode_2) appendGoogModule_impl(s string, out Appendable, sourceUrl Optional[string]) {
-	out.append_CharSequence(strobj_("goog.loadModule(function(exports) {'use strict';"))
-	ClosureBundler_EscapeMode_NORMAL.append(s, out)
-	out.append_CharSequence(strobj_("\n;return exports;});\n"))
-	ClosureBundler_appendSourceUrl(out, ClosureBundler_EscapeMode_NORMAL, sourceUrl)
-}
-
-func ClosureBundler_EvalMode_2_values() []*ClosureBundler_EvalMode_2 {
-	return append([]*ClosureBundler_EvalMode_2(nil), ClosureBundler_EvalMode_2_values_...)
-}
-
-func ClosureBundler_EvalMode_2_valueOf(name string) *ClosureBundler_EvalMode_2 {
-	for _, v := range ClosureBundler_EvalMode_2_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ClosureBundler_EvalMode_2_values_ []*ClosureBundler_EvalMode_2
-
-var ClosureBundler_EvalMode_2_clinit_done bool
-
-func ClosureBundler_EvalMode_2_clinit() {
-	if ClosureBundler_EvalMode_2_clinit_done {
-		return
-	}
-	ClosureBundler_EvalMode_2_clinit_done = true
-	ClosureBundler_EvalMode_2_values_ = []*ClosureBundler_EvalMode_2{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.deps.ClosureBundler.EvalMode>", enumValues_(ClosureBundler_EvalMode_2_values_))
-
-}
-
-type ClosureBundler_EscapeMode_1 struct {
-	ClosureBundler_EscapeMode
-}
-
-func (this *ClosureBundler_EscapeMode_1) up_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode {
-	if this == nil {
-		return nil
-	}
-	return &this.ClosureBundler_EscapeMode
-}
-
-func (this *ClosureBundler_EscapeMode_1) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ClosureBundler_EscapeMode_1) init_ClosureBundler_EscapeMode_1(name_ string, ordinal_ int32) {
-	this.ClosureBundler_EscapeMode.init_ClosureBundler_EscapeMode(name_, ordinal_)
-}
-
-func new_ClosureBundler_EscapeMode_1(name_ string, ordinal_ int32) *ClosureBundler_EscapeMode_1 {
-	this := &ClosureBundler_EscapeMode_1{}
-	this.self_ = this
-	this.init_ClosureBundler_EscapeMode_1(name_, ordinal_)
-	return this
-}
-
-func (this *ClosureBundler_EscapeMode_1) append_impl(s string, out Appendable) {
-	SourceCodeEscapers_appendWithJavascriptEscaper(strobj_(s), out)
-}
-
-func ClosureBundler_EscapeMode_1_values() []*ClosureBundler_EscapeMode_1 {
-	return append([]*ClosureBundler_EscapeMode_1(nil), ClosureBundler_EscapeMode_1_values_...)
-}
-
-func ClosureBundler_EscapeMode_1_valueOf(name string) *ClosureBundler_EscapeMode_1 {
-	for _, v := range ClosureBundler_EscapeMode_1_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ClosureBundler_EscapeMode_1_values_ []*ClosureBundler_EscapeMode_1
-
-var ClosureBundler_EscapeMode_1_clinit_done bool
-
-func ClosureBundler_EscapeMode_1_clinit() {
-	if ClosureBundler_EscapeMode_1_clinit_done {
-		return
-	}
-	ClosureBundler_EscapeMode_1_clinit_done = true
-	ClosureBundler_EscapeMode_1_values_ = []*ClosureBundler_EscapeMode_1{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.deps.ClosureBundler.EscapeMode>", enumValues_(ClosureBundler_EscapeMode_1_values_))
-
-}
-
-type ClosureBundler_EscapeMode_2 struct {
-	ClosureBundler_EscapeMode
-}
-
-func (this *ClosureBundler_EscapeMode_2) up_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode {
-	if this == nil {
-		return nil
-	}
-	return &this.ClosureBundler_EscapeMode
-}
-
-func (this *ClosureBundler_EscapeMode_2) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ClosureBundler_EscapeMode_2) init_ClosureBundler_EscapeMode_2(name_ string, ordinal_ int32) {
-	this.ClosureBundler_EscapeMode.init_ClosureBundler_EscapeMode(name_, ordinal_)
-}
-
-func new_ClosureBundler_EscapeMode_2(name_ string, ordinal_ int32) *ClosureBundler_EscapeMode_2 {
-	this := &ClosureBundler_EscapeMode_2{}
-	this.self_ = this
-	this.init_ClosureBundler_EscapeMode_2(name_, ordinal_)
-	return this
-}
-
-func (this *ClosureBundler_EscapeMode_2) append_impl(s string, out Appendable) {
-	out.append_CharSequence(strobj_(s))
-}
-
-func ClosureBundler_EscapeMode_2_values() []*ClosureBundler_EscapeMode_2 {
-	return append([]*ClosureBundler_EscapeMode_2(nil), ClosureBundler_EscapeMode_2_values_...)
-}
-
-func ClosureBundler_EscapeMode_2_valueOf(name string) *ClosureBundler_EscapeMode_2 {
-	for _, v := range ClosureBundler_EscapeMode_2_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var ClosureBundler_EscapeMode_2_values_ []*ClosureBundler_EscapeMode_2
-
-var ClosureBundler_EscapeMode_2_clinit_done bool
-
-func ClosureBundler_EscapeMode_2_clinit() {
-	if ClosureBundler_EscapeMode_2_clinit_done {
-		return
-	}
-	ClosureBundler_EscapeMode_2_clinit_done = true
-	ClosureBundler_EscapeMode_2_values_ = []*ClosureBundler_EscapeMode_2{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.deps.ClosureBundler.EscapeMode>", enumValues_(ClosureBundler_EscapeMode_2_values_))
 
 }

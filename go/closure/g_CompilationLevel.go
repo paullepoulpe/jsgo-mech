@@ -2,33 +2,51 @@
 
 package closure
 
-type CompilationLevel struct {
-	Enum
+type CompilationLevel uint8
+
+// CompilationLevel_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CompilationLevel_enum_ = [5]Enum{
+	{self_: CompilationLevel_BUNDLE, name_: "BUNDLE", ordinal_: 0},
+	{self_: CompilationLevel_WHITESPACE_ONLY, name_: "WHITESPACE_ONLY", ordinal_: 1},
+	{self_: CompilationLevel_SIMPLE_OPTIMIZATIONS, name_: "SIMPLE_OPTIMIZATIONS", ordinal_: 2},
+	{self_: CompilationLevel_ADVANCED_OPTIMIZATIONS, name_: "ADVANCED_OPTIMIZATIONS", ordinal_: 3},
+	{self_: CompilationLevel_TRANSPILE_ONLY, name_: "TRANSPILE_ONLY", ordinal_: 4},
 }
 
-func (this *CompilationLevel) up_Enum() *Enum {
-	if this == nil {
+func (this CompilationLevel) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CompilationLevel_enum_[this-1]
 }
 
-func (this *CompilationLevel) init_CompilationLevel(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CompilationLevel) name() string { return this.enum_().name_ }
+
+func (this CompilationLevel) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_CompilationLevel(name_ string, ordinal_ int32) *CompilationLevel {
-	this := &CompilationLevel{}
-	this.self_ = this
-	this.init_CompilationLevel(name_, ordinal_)
+func (this CompilationLevel) toString() string { return this.enum_().name_ }
+
+func (this CompilationLevel) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this CompilationLevel) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CompilationLevel_fromString(value Optional[string]) *CompilationLevel {
+func CompilationLevel_fromString(value Optional[string]) CompilationLevel {
 	if value.isEmpty() {
-		return nil
+		return 0
 	}
-	return func() *CompilationLevel {
+	return func() CompilationLevel {
 		switch value.get() {
 		case "BUNDLE":
 			return CompilationLevel_BUNDLE
@@ -41,13 +59,12 @@ func CompilationLevel_fromString(value Optional[string]) *CompilationLevel {
 		case "ADVANCED_OPTIMIZATIONS", "ADVANCED":
 			return CompilationLevel_ADVANCED_OPTIMIZATIONS
 		default:
-			return nil
+			return 0
 		}
-		panic("unreachable")
 	}()
 }
 
-func (this *CompilationLevel) setOptionsForCompilationLevel(options *CompilerOptions) {
+func (this CompilationLevel) setOptionsForCompilationLevel(options *CompilerOptions) {
 	switch this {
 	case CompilationLevel_BUNDLE:
 	case CompilationLevel_WHITESPACE_ONLY:
@@ -61,7 +78,7 @@ func (this *CompilationLevel) setOptionsForCompilationLevel(options *CompilerOpt
 	}
 }
 
-func (this *CompilationLevel) setDebugOptionsForCompilationLevel(options *CompilerOptions) {
+func (this CompilationLevel) setDebugOptionsForCompilationLevel(options *CompilerOptions) {
 	options.setGeneratePseudoNames(true)
 	options.setRemoveClosureAsserts(false)
 	options.setRemoveJ2clAsserts(true)
@@ -146,7 +163,7 @@ func CompilationLevel_applyFullCompilationOptions(options *CompilerOptions) {
 	options.setOptimizeESClassConstructors(true)
 }
 
-func (this *CompilationLevel) setTypeBasedOptimizationOptions(options *CompilerOptions) {
+func (this CompilationLevel) setTypeBasedOptimizationOptions(options *CompilerOptions) {
 	switch this {
 	case CompilationLevel_ADVANCED_OPTIMIZATIONS:
 		options.setDisambiguateProperties(true)
@@ -157,7 +174,7 @@ func (this *CompilationLevel) setTypeBasedOptimizationOptions(options *CompilerO
 	}
 }
 
-func (this *CompilationLevel) setWrappedOutputOptimizations(options *CompilerOptions) {
+func (this CompilationLevel) setWrappedOutputOptimizations(options *CompilerOptions) {
 	options.setReserveRawExports(false)
 	switch this {
 	case CompilationLevel_SIMPLE_OPTIMIZATIONS:
@@ -172,25 +189,26 @@ func (this *CompilationLevel) setWrappedOutputOptimizations(options *CompilerOpt
 	}
 }
 
-func CompilationLevel_values() []*CompilationLevel {
-	return append([]*CompilationLevel(nil), CompilationLevel_values_...)
+func CompilationLevel_values() []CompilationLevel {
+	return append([]CompilationLevel(nil), CompilationLevel_values_...)
 }
 
-func CompilationLevel_valueOf(name string) *CompilationLevel {
+func CompilationLevel_valueOf(name string) CompilationLevel {
 	for _, v := range CompilationLevel_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("CompilationLevel", name))
 }
 
-var CompilationLevel_BUNDLE *CompilationLevel
-var CompilationLevel_WHITESPACE_ONLY *CompilationLevel
-var CompilationLevel_SIMPLE_OPTIMIZATIONS *CompilationLevel
-var CompilationLevel_ADVANCED_OPTIMIZATIONS *CompilationLevel
-var CompilationLevel_TRANSPILE_ONLY *CompilationLevel
-var CompilationLevel_values_ []*CompilationLevel
+const CompilationLevel_BUNDLE CompilationLevel = 1
+const CompilationLevel_WHITESPACE_ONLY CompilationLevel = 2
+const CompilationLevel_SIMPLE_OPTIMIZATIONS CompilationLevel = 3
+const CompilationLevel_ADVANCED_OPTIMIZATIONS CompilationLevel = 4
+const CompilationLevel_TRANSPILE_ONLY CompilationLevel = 5
+
+var CompilationLevel_values_ []CompilationLevel
 
 var CompilationLevel_clinit_done bool
 
@@ -199,12 +217,7 @@ func CompilationLevel_clinit() {
 		return
 	}
 	CompilationLevel_clinit_done = true
-	CompilationLevel_BUNDLE = new_CompilationLevel("BUNDLE", 0)
-	CompilationLevel_WHITESPACE_ONLY = new_CompilationLevel("WHITESPACE_ONLY", 1)
-	CompilationLevel_SIMPLE_OPTIMIZATIONS = new_CompilationLevel("SIMPLE_OPTIMIZATIONS", 2)
-	CompilationLevel_ADVANCED_OPTIMIZATIONS = new_CompilationLevel("ADVANCED_OPTIMIZATIONS", 3)
-	CompilationLevel_TRANSPILE_ONLY = new_CompilationLevel("TRANSPILE_ONLY", 4)
-	CompilationLevel_values_ = []*CompilationLevel{CompilationLevel_BUNDLE, CompilationLevel_WHITESPACE_ONLY, CompilationLevel_SIMPLE_OPTIMIZATIONS, CompilationLevel_ADVANCED_OPTIMIZATIONS, CompilationLevel_TRANSPILE_ONLY}
+	CompilationLevel_values_ = []CompilationLevel{CompilationLevel_BUNDLE, CompilationLevel_WHITESPACE_ONLY, CompilationLevel_SIMPLE_OPTIMIZATIONS, CompilationLevel_ADVANCED_OPTIMIZATIONS, CompilationLevel_TRANSPILE_ONLY}
 	registerEnum_("com.google.javascript.jscomp.CompilationLevel", enumValues_(CompilationLevel_values_))
 
 }

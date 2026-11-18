@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PeepholeMinimizeConditions struct {
 	AbstractPeepholeOptimization
 	late bool
@@ -28,38 +30,37 @@ func new_PeepholeMinimizeConditions(late bool) *PeepholeMinimizeConditions {
 
 func (this *PeepholeMinimizeConditions) optimizeSubtree_impl(node Node) Node {
 	return func() Node {
-		switch node.getToken() {
-		case Token_rhino_THROW, Token_rhino_RETURN:
+		switch node.ns_().token {
+		case tokOrd1_THROW, tokOrd1_RETURN:
 			var result Node = this.tryRemoveRedundantExit(node)
 			if result != node {
 				return result
 			}
 			return this.tryReplaceExitWithBreak(node)
-		case Token_rhino_NOT:
+		case tokOrd1_NOT:
 			this.tryMinimizeCondition(node.getFirstChild())
 			return this.tryMinimizeNot(node)
-		case Token_rhino_IF:
+		case tokOrd1_IF:
 			this.performConditionSubstitutions(node.getFirstChild())
 			return this.tryMinimizeIf(node)
-		case Token_rhino_EXPR_RESULT:
+		case tokOrd1_EXPR_RESULT:
 			this.performConditionSubstitutions(node.getFirstChild())
 			return this.tryMinimizeExprResult(node)
-		case Token_rhino_HOOK:
+		case tokOrd1_HOOK:
 			this.performConditionSubstitutions(node.getFirstChild())
 			return this.tryMinimizeHook(node)
-		case Token_rhino_WHILE, Token_rhino_DO:
+		case tokOrd1_WHILE, tokOrd1_DO:
 			this.tryMinimizeCondition(NodeUtil_getConditionExpression(node))
 			return node
-		case Token_rhino_FOR:
+		case tokOrd1_FOR:
 			this.tryJoinForCondition(node)
 			this.tryMinimizeCondition(NodeUtil_getConditionExpression(node))
 			return node
-		case Token_rhino_BLOCK:
+		case tokOrd1_BLOCK:
 			return this.tryReplaceIf(node)
 		default:
 			return node
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -154,10 +155,10 @@ func (this *PeepholeMinimizeConditions) tryReplaceIf(n Node) Node {
 }
 
 func PeepholeMinimizeConditions_statementMustExitParent(n Node) bool {
-	switch n.getToken() {
-	case Token_rhino_THROW, Token_rhino_RETURN:
+	switch n.ns_().token {
+	case tokOrd1_THROW, tokOrd1_RETURN:
 		return true
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if n.hasChildren() {
 			var child Node = n.getLastChild()
 			return PeepholeMinimizeConditions_statementMustExitParent(child)
@@ -166,7 +167,6 @@ func PeepholeMinimizeConditions_statementMustExitParent(n Node) bool {
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *PeepholeMinimizeConditions) tryReplaceExitWithBreak(n Node) Node {
@@ -238,7 +238,9 @@ func (this *PeepholeMinimizeConditions) areMatchingExits(nodeThis Node, nodeThat
 }
 
 func PeepholeMinimizeConditions_isExceptionPossible(n Node) bool {
-	Preconditions_checkState_boolean_Object((n.isReturn() || n.isThrow()), n.box_())
+	if !n.isReturn() && !n.isThrow() {
+		panic(new_IllegalStateException_String(tostr_(n)))
+	}
 	return (n.isThrow() || (n.hasChildren() && !NodeUtil_isLiteralValue(n.getLastChild(), true)))
 }
 
@@ -247,20 +249,22 @@ func PeepholeMinimizeConditions_getExceptionHandler(n Node) Node {
 }
 
 func (this *PeepholeMinimizeConditions) tryMinimizeNot(n Node) Node {
-	Preconditions_checkArgument(n.isNot())
+	if !n.isNot() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var parent Node = n.getParent()
 	var notChild Node = n.getFirstChild()
-	var complementOperator *Token_rhino
-	switch notChild.getToken() {
-	case Token_rhino_EQ:
+	var complementOperator Token_rhino
+	switch notChild.ns_().token {
+	case tokOrd1_EQ:
 		complementOperator = Token_rhino_NE
-	case Token_rhino_NE:
+	case tokOrd1_NE:
 		complementOperator = Token_rhino_EQ
-	case Token_rhino_SHEQ:
+	case tokOrd1_SHEQ:
 		complementOperator = Token_rhino_SHNE
-	case Token_rhino_SHNE:
+	case tokOrd1_SHNE:
 		complementOperator = Token_rhino_SHEQ
-	case Token_rhino_NOT:
+	case tokOrd1_NOT:
 		if NodeUtil_isBooleanResult(notChild.getFirstChild()) {
 			var expr Node = notChild.removeFirstChild()
 			n.replaceWith(expr)
@@ -295,8 +299,8 @@ func (this *PeepholeMinimizeConditions) tryMinimizeHook(n Node) Node {
 	var thenBranch Node = originalCond.getNext()
 	var elseBranch Node = thenBranch.getNext()
 	if NodeUtil_isBooleanResult(thenBranch) && NodeUtil_isBooleanResult(elseBranch) {
-		var thenVal *Tri = this.getSideEffectFreeBooleanValue(thenBranch)
-		var elseVal *Tri = this.getSideEffectFreeBooleanValue(elseBranch)
+		var thenVal Tri = this.getSideEffectFreeBooleanValue(thenBranch)
+		var elseVal Tri = this.getSideEffectFreeBooleanValue(elseBranch)
 		var replacement Node = 0
 		if (thenVal == Tri_TRUE) && (elseVal == Tri_FALSE) {
 			var cond Node = originalCond.detach()
@@ -450,7 +454,9 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 		var name1 Node = var_.getFirstChild()
 		var maybeName2 Node = elseAssign.getFirstChild()
 		if (name1.hasChildren() && maybeName2.isName()) && (name1.getString() == maybeName2.getString()) {
-			Preconditions_checkState(name1.hasOneChild())
+			if !name1.hasOneChild() {
+				panic(new_IllegalStateException_0())
+			}
 			var thenExpr Node = name1.removeFirstChild()
 			var elseExpr Node = elseAssign.getLastChild().detach()
 			var replacementCond Node = this.replaceNode(originalCond, shortCond).detach()
@@ -468,7 +474,9 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 		var name2 Node = var_.getFirstChild()
 		if (name2.hasChildren() && maybeName1.isName()) && (maybeName1.getString() == name2.getString()) {
 			var thenExpr Node = thenAssign.getLastChild().detach()
-			Preconditions_checkState(name2.hasOneChild())
+			if !name2.hasOneChild() {
+				panic(new_IllegalStateException_0())
+			}
 			var elseExpr Node = name2.removeFirstChild()
 			var replacementCond Node = this.replaceNode(originalCond, shortCond).detach()
 			var hookNode Node = IR_hook(replacementCond, thenExpr, elseExpr).srcref(n)
@@ -487,7 +495,9 @@ func (this *PeepholeMinimizeConditions) tryRemoveRepeatedStatements(n Node) {
 	if !this.isASTNormalized() {
 		return
 	}
-	Preconditions_checkState_boolean_Object(n.isIf(), n.box_())
+	if !n.isIf() {
+		panic(new_IllegalStateException_String(tostr_(n)))
+	}
 	var parent Node = n.getParent()
 	if !NodeUtil_isStatementBlock(parent) {
 		return
@@ -495,8 +505,12 @@ func (this *PeepholeMinimizeConditions) tryRemoveRepeatedStatements(n Node) {
 	var cond Node = n.getFirstChild()
 	var trueBranch Node = cond.getNext()
 	var falseBranch Node = trueBranch.getNext()
-	Preconditions_checkNotNull(trueBranch.box_())
-	Preconditions_checkNotNull(falseBranch.box_())
+	if trueBranch == 0 {
+		panic(new_NullPointerException_0())
+	}
+	if falseBranch == 0 {
+		panic(new_NullPointerException_0())
+	}
 	for {
 		var lastTrue Node = trueBranch.getLastChild()
 		var lastFalse Node = falseBranch.getLastChild()
@@ -519,7 +533,7 @@ func PeepholeMinimizeConditions_isFoldableExpressBlock(n Node) bool {
 					var calledFn Node = maybeExpr.getFirstFirstChild()
 					if calledFn.isGetElem() || calledFn.isOptChainGetElem() {
 						return false
-					} else if (calledFn.isGetProp() || calledFn.isOptChainGetProp()) && String_startsWith(calledFn.getString(), "on") {
+					} else if (calledFn.isGetProp() || calledFn.isOptChainGetProp()) && strings.HasPrefix(calledFn.getString(), "on") {
 						return false
 					}
 				}
@@ -532,7 +546,9 @@ func PeepholeMinimizeConditions_isFoldableExpressBlock(n Node) bool {
 }
 
 func PeepholeMinimizeConditions_getBlockExpression(n Node) Node {
-	Preconditions_checkState(PeepholeMinimizeConditions_isFoldableExpressBlock(n))
+	if !PeepholeMinimizeConditions_isFoldableExpressBlock(n) {
+		panic(new_IllegalStateException_0())
+	}
 	return n.getFirstChild()
 }
 
@@ -566,7 +582,9 @@ func PeepholeMinimizeConditions_isReturnExpression(n Node) bool {
 }
 
 func PeepholeMinimizeConditions_getBlockReturnExpression(n Node) Node {
-	Preconditions_checkState(PeepholeMinimizeConditions_isReturnExpressBlock(n))
+	if !PeepholeMinimizeConditions_isReturnExpressBlock(n) {
+		panic(new_IllegalStateException_0())
+	}
 	return n.getFirstFirstChild()
 }
 
@@ -583,34 +601,35 @@ func PeepholeMinimizeConditions_isVarBlock(n Node) bool {
 }
 
 func PeepholeMinimizeConditions_getBlockVar(n Node) Node {
-	Preconditions_checkState(PeepholeMinimizeConditions_isVarBlock(n))
+	if !PeepholeMinimizeConditions_isVarBlock(n) {
+		panic(new_IllegalStateException_0())
+	}
 	return n.getFirstChild()
 }
 
 func PeepholeMinimizeConditions_consumesDanglingElse(n Node) bool {
 L_1:
 	for {
-		switch n.getToken() {
-		case Token_rhino_IF:
+		switch n.ns_().token {
+		case tokOrd1_IF:
 			if n.getChildCount() < 3 {
 				return true
 			}
 			n = n.getLastChild()
 			continue L_1
-		case Token_rhino_BLOCK:
+		case tokOrd1_BLOCK:
 			if !n.hasOneChild() {
 				return false
 			}
 			n = n.getLastChild()
 			continue L_1
-		case Token_rhino_WITH, Token_rhino_WHILE, Token_rhino_FOR, Token_rhino_FOR_IN:
+		case tokOrd1_WITH, tokOrd1_WHILE, tokOrd1_FOR, tokOrd1_FOR_IN:
 			n = n.getLastChild()
 			continue L_1
 		default:
 			return false
 		}
 	}
-	panic("unreachable")
 }
 
 func PeepholeMinimizeConditions_isLowerPrecedence(n Node, precedence int32) bool {
@@ -618,9 +637,9 @@ func PeepholeMinimizeConditions_isLowerPrecedence(n Node, precedence int32) bool
 }
 
 func PeepholeMinimizeConditions_isPropertyAssignmentInExpression(n Node) bool {
-	var isPropertyAssignmentInExpressionPredicate Predicate_baseOf[Node] = &Predicate_base_tfn_Node{func(input Node) bool {
+	var isPropertyAssignmentInExpressionPredicate func(any) bool = (&Predicate_base_tfn_Node{func(input Node) bool {
 		return (input.isGetProp() && input.getParent().isAssign())
-	}}
+	}}).apply
 	return NodeUtil_has(n, isPropertyAssignmentInExpressionPredicate, NodeUtil_MATCH_NOT_FUNCTION)
 }
 
@@ -642,15 +661,15 @@ func (this *PeepholeMinimizeConditions) replaceNode(original Node, measuredNodeR
 func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) Node {
 	var parent Node = n.getParent()
 	return func() Node {
-		switch n.getToken() {
-		case Token_rhino_OR, Token_rhino_AND:
+		switch n.ns_().token {
+		case tokOrd1_OR, tokOrd1_AND:
 			var left Node = n.getFirstChild()
 			var right Node = n.getLastChild()
 			left = this.performConditionSubstitutions(left)
 			right = this.performConditionSubstitutions(right)
-			var rightVal *Tri = this.getSideEffectFreeBooleanValue(right)
+			var rightVal Tri = this.getSideEffectFreeBooleanValue(right)
 			if this.getSideEffectFreeBooleanValue(right) != Tri_UNKNOWN {
-				var type_ *Token_rhino = n.getToken()
+				var type_ Token_rhino = n.getToken()
 				var replacement Node = 0
 				var rval bool = rightVal.toBoolean(true)
 				if ((type_ == Token_rhino_OR) && !rval) || ((type_ == Token_rhino_AND) && rval) {
@@ -669,15 +688,15 @@ func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) No
 				}
 			}
 			return n
-		case Token_rhino_HOOK:
+		case tokOrd1_HOOK:
 			var condition Node = n.getFirstChild()
 			var trueNode Node = n.getSecondChild()
 			var falseNode Node = n.getLastChild()
 			trueNode = this.performConditionSubstitutions(trueNode)
 			falseNode = this.performConditionSubstitutions(falseNode)
 			var replacement Node = 0
-			var trueNodeVal *Tri = this.getSideEffectFreeBooleanValue(trueNode)
-			var falseNodeVal *Tri = this.getSideEffectFreeBooleanValue(falseNode)
+			var trueNodeVal Tri = this.getSideEffectFreeBooleanValue(trueNode)
+			var falseNodeVal Tri = this.getSideEffectFreeBooleanValue(falseNode)
 			if (trueNodeVal == Tri_TRUE) && (falseNodeVal == Tri_FALSE) {
 				condition.detach()
 				replacement = condition
@@ -701,7 +720,7 @@ func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) No
 			}
 			return n
 		default:
-			var nVal *Tri = this.getSideEffectFreeBooleanValue(n)
+			var nVal Tri = this.getSideEffectFreeBooleanValue(n)
 			if nVal != Tri_UNKNOWN {
 				var result bool = nVal.toBoolean(true)
 				var equivalentResult int32 = func() int32 {
@@ -714,7 +733,6 @@ func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) No
 			}
 			return n
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -740,4 +758,12 @@ func PeepholeMinimizeConditions_clinit() {
 	PeepholeMinimizeConditions_clinit_done = true
 	PeepholeMinimizeConditions_AND_PRECEDENCE = NodeUtil_precedence(Token_rhino_AND)
 
+}
+
+// optimizeSubtree: an object that is exactly a PeepholeMinimizeConditions calls its optimizeSubtree_impl directly (post-flip); others dispatch.
+func (this *PeepholeMinimizeConditions) optimizeSubtree(p0 Node) Node {
+	if p, _ := this.self_.(*PeepholeMinimizeConditions); p == this {
+		return this.optimizeSubtree_impl(p0)
+	}
+	return this.self_.optimizeSubtree_impl(p0)
 }

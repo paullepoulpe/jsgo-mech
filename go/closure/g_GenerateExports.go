@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type GenerateExports struct {
 	compiler_              *AbstractCompiler
 	exportSymbolFunction   Optional[string]
@@ -16,7 +18,9 @@ func (this *GenerateExports) finit_GenerateExports() {
 
 func (this *GenerateExports) init_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool, exportSymbolFunction Optional[string], exportPropertyFunction Optional[string]) {
 	this.finit_GenerateExports()
-	Preconditions_checkNotNull(compiler.self())
+	if compiler == nil {
+		panic(new_NullPointerException_0())
+	}
 	this.compiler_ = compiler
 	this.allowNonGlobalExports = allowNonGlobalExports
 	this.exportSymbolFunction = exportSymbolFunction
@@ -35,7 +39,7 @@ func (this *GenerateExports) getExportedVariableNames() *JTSet[string] {
 
 func (this *GenerateExports) process_2(externs Node, root Node) {
 	var findExportableNodes *FindExportableNodes = new_FindExportableNodes(this.compiler_, this.allowNonGlobalExports)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(findExportableNodes)))
+	NodeTraversal_traverse(this.compiler_, root, findExportableNodes)
 	var exports *JTMap[string, Node] = findExportableNodes.getExports()
 	var es6Exports *JTMap[Node, string] = findExportableNodes.getEs6ClassExports()
 	var localExports *JTSet[string] = findExportableNodes.getLocalExports()
@@ -66,9 +70,9 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 func (this *GenerateExports) validateExportMethodsIncluded(exports *JTMap[string, Node], es6Exports *JTMap[Node, string], root Node) bool {
 	var errorLocation Node
 	if !exports.isEmpty() {
-		errorLocation = Node_of_(exports.asMap().values().iterator().next())
+		errorLocation = Node_of_(first_(exports.asMap().values()))
 	} else {
-		errorLocation = Node_of_(es6Exports.asMap().keySet().iterator().next())
+		errorLocation = Node_of_(first_(es6Exports.asMap().keySet()))
 	}
 	if this.exportSymbolFunction.isEmpty() || this.exportPropertyFunction.isEmpty() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorLocation, GenerateExports_MISSING_EXPORT_CONVENTION, []string{}))
@@ -121,17 +125,21 @@ func (this *GenerateExports) addExtern(export string) {
 }
 
 func (this *GenerateExports) recordExportSymbol(qname string) {
-	var dot int32 = String_indexOf(qname, 46)
+	var dot int32 = int32(strings.IndexByte(qname, '.'))
 	if dot == -1 {
 		this.exportedVariables.add(qname)
 	} else {
-		this.exportedVariables.add(String_substring(qname, 0, dot))
+		this.exportedVariables.add(qname[:dot])
 	}
 }
 
 func (this *GenerateExports) addExportForEs6Method(memberFunction Node, ownerName string) {
-	Preconditions_checkArgument_boolean_Object(memberFunction.isMemberFunctionDef(), memberFunction.box_())
-	Preconditions_checkArgument_boolean_Object(!String_isEmpty(ownerName), strobj_(ownerName))
+	if !memberFunction.isMemberFunctionDef() {
+		panic(new_IllegalArgumentException_String(tostr_(memberFunction)))
+	}
+	if ownerName == "" {
+		panic(new_IllegalArgumentException_String(sstr_(ownerName)))
+	}
 	var fullExport string = (sstr_(ownerName) + "." + sstr_(memberFunction.getString()))
 	this.addExportPropertyCall(ownerName, memberFunction, fullExport, memberFunction.getString())
 }
@@ -153,7 +161,7 @@ func (this *GenerateExports) addExportMethod(exports *JTMap[string, Node], expor
 	var useExportSymbol bool = true
 	if isEs5StylePrototypeAssignment {
 		useExportSymbol = false
-	} else if !String_isEmpty(methodOwnerName) && exports.has(methodOwnerName) {
+	} else if methodOwnerName != "" && exports.has(methodOwnerName) {
 		useExportSymbol = false
 	}
 	if useExportSymbol {

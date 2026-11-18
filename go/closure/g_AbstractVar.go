@@ -6,24 +6,31 @@ type AbstractVar struct {
 	ScopedName
 	name_                         string
 	nameNode_                     Node
-	implicitGoogNamespaceStrength *StaticSourceFile_SourceKind
+	implicitGoogNamespaceStrength StaticSourceFile_SourceKind
 	input                         *CompilerInput
 	index_                        int32
 	scope_                        *AbstractScope
+	vkHash_                       uint32 // the hash of (name, scope root) for varMap_, made once (post-flip manual step)
+}
+
+// AbstractVar_as is implemented by AbstractVar and the classes that extend it: a cast to AbstractVar asserts to it
+// (post-flip).
+type AbstractVar_as interface {
+	as_AbstractVar() *AbstractVar
 }
 
 func (this *AbstractVar) as_AbstractVar() *AbstractVar { return this }
 
 func to_AbstractVar(v any) *AbstractVar {
-	if v == nil {
+	switch p := v.(type) {
+	case *TypedVar:
+		return p.as_AbstractVar()
+	case *Var:
+		return p.as_AbstractVar()
+	case nil:
 		return nil
 	}
-	return v.(interface{ as_AbstractVar() *AbstractVar }).as_AbstractVar()
-}
-
-func is_AbstractVar(v any) bool {
-	_, ok := v.(interface{ as_AbstractVar() *AbstractVar })
-	return ok
+	return v.(AbstractVar_as).as_AbstractVar()
 }
 
 func (this *AbstractVar) self() any {
@@ -46,14 +53,16 @@ func (this *AbstractVar) zero_AbstractVar() {
 
 func (this *AbstractVar) init_AbstractVar(name string, nameNode Node, scope *AbstractScope, index int32, input *CompilerInput, implicitGoogNamespaceDefinition Node) {
 	this.ScopedName.init_ScopedName()
-	Preconditions_checkArgument_boolean_Object((index >= -1), any(int32(index)))
+	if index < -1 {
+		panic(new_IllegalArgumentException_String(istr_(int64(int32(index)))))
+	}
 	this.name_ = name
 	if implicitGoogNamespaceDefinition != 0 {
 		this.nameNode_ = 0
 		this.implicitGoogNamespaceStrength = AbstractVar_strengthOf(implicitGoogNamespaceDefinition)
 	} else {
 		this.nameNode_ = nameNode
-		this.implicitGoogNamespaceStrength = nil
+		this.implicitGoogNamespaceStrength = 0
 	}
 	this.scope_ = scope
 	this.index_ = index
@@ -224,13 +233,13 @@ func (this *AbstractVar) isImplicit() bool {
 	if this.isImplicitGoogNamespace() {
 		return true
 	}
-	var var_ *AbstractScope_ImplicitVar = AbstractScope_ImplicitVar_of(this.name_)
-	return ((var_ != nil) && var_.isMadeByScope(this.scope_))
+	var var_ AbstractScope_ImplicitVar = AbstractScope_ImplicitVar_of(this.name_)
+	return ((var_ != 0) && var_.isMadeByScope(this.scope_))
 }
 
-func (this *AbstractVar) declarationType() *Token_rhino {
+func (this *AbstractVar) declarationType() Token_rhino {
 	if this.isImplicitGoogNamespace() {
-		return nil
+		return 0
 	}
 	{
 		var current Node = this.getNode()
@@ -240,8 +249,10 @@ func (this *AbstractVar) declarationType() *Token_rhino {
 			}
 		}
 	}
-	Preconditions_checkState_boolean_String_Object_Object(this.isImplicit(), "The nameNode for %s must be a descendant of one of: %s", this.self(), obj_(AbstractVar_DECLARATION_TYPES))
-	return nil
+	if !this.isImplicit() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("The nameNode for %s must be a descendant of one of: %s", []any{this.self(), obj_(AbstractVar_DECLARATION_TYPES)})))
+	}
+	return 0
 }
 
 func (this *AbstractVar) thisVar() *AbstractVar {
@@ -249,20 +260,24 @@ func (this *AbstractVar) thisVar() *AbstractVar {
 }
 
 func (this *AbstractVar) isImplicitGoogNamespace() bool {
-	return (this.implicitGoogNamespaceStrength != nil)
+	return (this.implicitGoogNamespaceStrength != 0)
 }
 
 func (this *AbstractVar) addImplicitGoogNamespaceDefinition(definition Node) {
-	Preconditions_checkState_boolean_Object(this.isImplicitGoogNamespace(), this.self())
+	if !this.isImplicitGoogNamespace() {
+		panic(new_IllegalStateException_String(objstr_(this.self())))
+	}
 	this.implicitGoogNamespaceStrength = AbstractVar_strongerOf(this.implicitGoogNamespaceStrength, AbstractVar_strengthOf(definition))
 }
 
-func (this *AbstractVar) getImplicitGoogNamespaceStrength() *StaticSourceFile_SourceKind {
-	Preconditions_checkState_boolean_Object(this.isImplicitGoogNamespace(), this.self())
+func (this *AbstractVar) getImplicitGoogNamespaceStrength() StaticSourceFile_SourceKind {
+	if !this.isImplicitGoogNamespace() {
+		panic(new_IllegalStateException_String(objstr_(this.self())))
+	}
 	return this.implicitGoogNamespaceStrength
 }
 
-func AbstractVar_strengthOf(n Node) *StaticSourceFile_SourceKind {
+func AbstractVar_strengthOf(n Node) StaticSourceFile_SourceKind {
 	var source StaticSourceFile = n.getStaticSourceFile()
 	if source == nil {
 		return StaticSourceFile_SourceKind_EXTERN
@@ -270,16 +285,16 @@ func AbstractVar_strengthOf(n Node) *StaticSourceFile_SourceKind {
 	return source.getKind()
 }
 
-func AbstractVar_strongerOf(left *StaticSourceFile_SourceKind, right *StaticSourceFile_SourceKind) *StaticSourceFile_SourceKind {
-	if Object_equals(obj_(left), obj_(StaticSourceFile_SourceKind_STRONG)) || Object_equals(obj_(right), obj_(StaticSourceFile_SourceKind_STRONG)) {
+func AbstractVar_strongerOf(left StaticSourceFile_SourceKind, right StaticSourceFile_SourceKind) StaticSourceFile_SourceKind {
+	if equalsId_(left, StaticSourceFile_SourceKind_STRONG) || equalsId_(right, StaticSourceFile_SourceKind_STRONG) {
 		return StaticSourceFile_SourceKind_STRONG
-	} else if Object_equals(obj_(left), obj_(StaticSourceFile_SourceKind_EXTERN)) || Object_equals(obj_(right), obj_(StaticSourceFile_SourceKind_EXTERN)) {
+	} else if equalsId_(left, StaticSourceFile_SourceKind_EXTERN) || equalsId_(right, StaticSourceFile_SourceKind_EXTERN) {
 		return StaticSourceFile_SourceKind_EXTERN
 	}
 	return StaticSourceFile_SourceKind_WEAK
 }
 
-var AbstractVar_DECLARATION_TYPES *ImmutableSet
+var AbstractVar_DECLARATION_TYPES *ErasedImmutableSet
 
 var AbstractVar_clinit_done bool
 
@@ -288,6 +303,22 @@ func AbstractVar_clinit() {
 		return
 	}
 	AbstractVar_clinit_done = true
-	AbstractVar_DECLARATION_TYPES = Sets_immutableEnumSet(Token_rhino_VAR.up_Enum(), []*Enum{Token_rhino_LET.up_Enum(), Token_rhino_CONST.up_Enum(), Token_rhino_FUNCTION.up_Enum(), Token_rhino_CLASS.up_Enum(), Token_rhino_CATCH.up_Enum(), Token_rhino_IMPORT.up_Enum(), Token_rhino_PARAM_LIST.up_Enum()})
+	AbstractVar_DECLARATION_TYPES = Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_LET.enum_(), Token_rhino_CONST.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_(), Token_rhino_CATCH.enum_(), Token_rhino_IMPORT.enum_(), Token_rhino_PARAM_LIST.enum_()})
 
+}
+
+// getName: an object that is exactly a AbstractVar calls its getName_impl directly (post-flip); others dispatch.
+func (this *AbstractVar) getName() string {
+	if p, _ := this.self_.(*AbstractVar); p == this {
+		return this.getName_impl()
+	}
+	return this.self_.getName_impl()
+}
+
+// getScopeRoot: an object that is exactly a AbstractVar calls its getScopeRoot_impl directly (post-flip); others dispatch.
+func (this *AbstractVar) getScopeRoot() Node {
+	if p, _ := this.self_.(*AbstractVar); p == this {
+		return this.getScopeRoot_impl()
+	}
+	return this.self_.getScopeRoot_impl()
 }

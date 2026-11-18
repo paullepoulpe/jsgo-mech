@@ -6,7 +6,7 @@ type LogsGson struct {
 }
 
 func (this *LogsGson) init_LogsGson() {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func new_LogsGson() *LogsGson {
@@ -31,58 +31,63 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 		_ = able
 		if func() bool {
 			v_ := value
-			if !is_[LogsGson_Able](v_) {
+			p, ok := v_.(LogsGson_Able)
+			if !ok {
 				return false
 			}
-			able = icast_LogsGson_Able(v_)
+			able = p
 			return true
 		}() {
 			out.rawValue(Optional_of[string](LogsGson_toJson(able.toLogsGson())))
 		} else {
-			var multimap *SimpleListMultimap
+			var multimap *SimpleListMultimap[any, any]
 			_ = multimap
 			if func() bool {
 				v_ := value
-				if !is_[*SimpleListMultimap](v_) {
+				p2, ok2 := v_.(*SimpleListMultimap[any, any])
+				if !ok2 {
 					return false
 				}
-				multimap = cast_[*SimpleListMultimap](v_)
+				multimap = p2
 				return true
 			}() {
-				out.rawValue(Optional_of[string](LogsGson_toJson(any(multimap.asMap()))))
+				out.rawValue(Optional_of[string](LogsGson_toJson(multimap.asMap())))
 			} else {
-				var multimap_1 *SimpleSetMultimap
+				var multimap_1 *SimpleSetMultimap[any, any]
 				_ = multimap_1
 				if func() bool {
 					v_ := value
-					if !is_[*SimpleSetMultimap](v_) {
+					p3, ok3 := v_.(*SimpleSetMultimap[any, any])
+					if !ok3 {
 						return false
 					}
-					multimap_1 = cast_[*SimpleSetMultimap](v_)
+					multimap_1 = p3
 					return true
 				}() {
-					out.rawValue(Optional_of[string](LogsGson_toJson(any(multimap_1.asMap()))))
+					out.rawValue(Optional_of[string](LogsGson_toJson(multimap_1.asMap())))
 				} else {
-					var bimap *SimpleBiMap
+					var bimap *SimpleBiMap[string, string]
 					_ = bimap
 					if func() bool {
 						v_ := value
-						if !is_[*SimpleBiMap](v_) {
+						p4, ok4 := v_.(*SimpleBiMap[string, string])
+						if !ok4 {
 							return false
 						}
-						bimap = cast_[*SimpleBiMap](v_)
+						bimap = p4
 						return true
 					}() {
-						out.rawValue(Optional_of[string](LogsGson_toJson(any(bimap.asMap()))))
+						out.rawValue(Optional_of[string](LogsGson_toJson(bimap.asMap())))
 					} else {
-						var multiset *SimpleMultiset
+						var multiset *SimpleMultiset[any]
 						_ = multiset
 						if func() bool {
 							v_ := value
-							if !is_[*SimpleMultiset](v_) {
+							p5, ok5 := v_.(*SimpleMultiset[any])
+							if !ok5 {
 								return false
 							}
-							multiset = cast_[*SimpleMultiset](v_)
+							multiset = p5
 							return true
 						}() {
 							out.rawValue(Optional_of[string](LogsGson_toJson(obj_(multiset.asList()))))
@@ -91,17 +96,16 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 							_ = map_
 							if func() bool {
 								v_ := value
-								if !is_[Map](v_) {
+								p6, ok6 := v_.(Map)
+								if !ok6 {
 									return false
 								}
-								map_ = icast_Map(v_)
+								map_ = p6
 								return true
 							}() {
 								out.beginObject()
-								it_2 := foreach_(any(map_.entrySet()))
-								for it_2.next() {
-									var entry Map_Entry = icast_Map_Entry(it_2.v)
-									out.name(String_valueOf_Object(entry.getKey()))
+								for entry := range elemsBy_(map_.entrySet(), icast_Map_Entry) {
+									out.name(objstr_(entry.getKey()))
 									LogsGson_write(out, entry.getValue())
 								}
 								out.endObject()
@@ -110,16 +114,15 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 								_ = collection
 								if func() bool {
 									v_ := value
-									if !is_[Collection](v_) {
+									p7, ok7 := v_.(Collection)
+									if !ok7 {
 										return false
 									}
-									collection = icast_Collection(v_)
+									collection = p7
 									return true
 								}() {
 									out.beginArray()
-									it_4 := foreach_(any(collection))
-									for it_4.next() {
-										var element any = it_4.v
+									for element := range elems_(collection) {
 										LogsGson_write(out, element)
 									}
 									out.endArray()
@@ -140,7 +143,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 										_ = bool_
 										if func() bool {
 											v_ := value
-											if !is_[bool](v_) {
+											if _, ok8 := v_.(bool); !ok8 {
 												return false
 											}
 											bool_ = v_
@@ -154,7 +157,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 											_ = enumValue
 											if func() bool {
 												v_ := value
-												if !is_Enum(v_) {
+												if _, ok9 := v_.(enumConst_); !ok9 {
 													return false
 												}
 												enumValue = to_Enum(v_)
@@ -162,7 +165,7 @@ func LogsGson_write(out *SimpleJsonWriter, value any) {
 											}() {
 												out.stringValue(Optional_of[string](enumValue.name()))
 											} else {
-												panic(new_IllegalArgumentException_String(("Cannot log a " + sstr_(Object_getClass(value).getName()) + "; it must implement LogsGson.Able")).self())
+												panic(new_IllegalArgumentException_String(("Cannot log a " + sstr_(Object_getClass(value).getName()) + "; it must implement LogsGson.Able")))
 											}
 										}
 									}

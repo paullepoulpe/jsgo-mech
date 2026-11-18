@@ -41,11 +41,6 @@ type Visitor_WithDefaultCase_vt_[T any] interface {
 
 func (this *Visitor_WithDefaultCase[T]) isa_Visitor_WithDefaultCase_() {}
 
-func is_Visitor_WithDefaultCase(v any) bool {
-	_, ok := v.(interface{ isa_Visitor_WithDefaultCase_() })
-	return ok
-}
-
 func (this *Visitor_WithDefaultCase[T]) as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase[T] {
 	return this
 }

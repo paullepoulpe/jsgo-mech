@@ -15,6 +15,7 @@ type JsDocTokenStream struct {
 	initCharno      int32
 	initLineno      int32
 	sourceString    string
+	sourceStringU16 utf16_
 	sourceEnd       int32
 	sourceCursor    int32
 	cursor          int32
@@ -23,6 +24,7 @@ type JsDocTokenStream struct {
 func (this *JsDocTokenStream) zero_JsDocTokenStream() {
 	this.string_ = nullstr_
 	this.sourceString = nullstr_
+	this.sourceStringU16 = utf16Kept_(this.sourceString)
 }
 
 func (this *JsDocTokenStream) finit_JsDocTokenStream() {
@@ -60,6 +62,7 @@ func (this *JsDocTokenStream) init_JsDocTokenStream_String_int_int(sourceString 
 	this.finit_JsDocTokenStream()
 	this.lineno_ = lineno
 	this.sourceString = sourceString
+	this.sourceStringU16 = utf16Kept_(this.sourceString)
 	this.sourceEnd = String_length(sourceString)
 	this.cursor = 0
 	this.sourceCursor = 0
@@ -74,7 +77,7 @@ func new_JsDocTokenStream_String_int_int(sourceString string, lineno int32, init
 	return this
 }
 
-func (this *JsDocTokenStream) getJsDocToken() *JsDocToken {
+func (this *JsDocTokenStream) getJsDocToken() JsDocToken {
 	var c int32
 	this.stringBufferTop = 0
 	for {
@@ -191,7 +194,6 @@ func (this *JsDocTokenStream) getJsDocToken() *JsDocToken {
 			}
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *JsDocTokenStream) getRemainingJSDocLine() string {
@@ -214,7 +216,6 @@ func (this *JsDocTokenStream) getRemainingJSDocLine() string {
 			this.addToString(c)
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *JsDocTokenStream) getLineno() int32 {
@@ -242,7 +243,7 @@ func (this *JsDocTokenStream) addToString(c int32) {
 	var n int32 = this.stringBufferTop
 	if n == int32(len(this.stringBuffer)) {
 		var tmp []uint16 = make([]uint16, (int32(len(this.stringBuffer)) * 2))
-		System_arraycopy(any(this.stringBuffer), 0, any(tmp), 0, n)
+		arraycopy_(this.stringBuffer, 0, tmp, 0, n)
 		this.stringBuffer = tmp
 	}
 	this.stringBuffer[n] = uint16(c)
@@ -263,7 +264,6 @@ func (this *JsDocTokenStream) matchChar(test int32) bool {
 		this.ungetCharIgnoreLineEnd(c)
 		return false
 	}
-	panic("unreachable")
 }
 
 func JsDocTokenStream_isAlpha(c int32) bool {
@@ -272,7 +272,6 @@ func JsDocTokenStream_isAlpha(c int32) bool {
 	} else {
 		return ((97 <= c) && (c <= 122))
 	}
-	panic("unreachable")
 }
 
 func JsDocTokenStream_isJSDocString(c int32) bool {
@@ -283,7 +282,6 @@ func JsDocTokenStream_isJSDocString(c int32) bool {
 		default:
 			return !TokenUtil_isJSSpace(c)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -315,7 +313,7 @@ func (this *JsDocTokenStream) getChar() int32 {
 			return JsDocTokenStream_EOF_CHAR
 		}
 		this.cursor++
-		c = int32(String_charAt(this.sourceString, this.sourceCursor))
+		c = int32(this.sourceStringU16.charAt(this.sourceCursor))
 		this.sourceCursor++
 		if this.lineEndChar >= 0 {
 			if (this.lineEndChar == 13) && (c == 10) {
@@ -345,7 +343,6 @@ func (this *JsDocTokenStream) getChar() int32 {
 		}
 		return c
 	}
-	panic("unreachable")
 }
 
 func (this *JsDocTokenStream) getCharIgnoreLineEnd() int32 {
@@ -366,7 +363,7 @@ func (this *JsDocTokenStream) getCharIgnoreLineEnd() int32 {
 			return JsDocTokenStream_EOF_CHAR
 		}
 		this.cursor++
-		c = int32(String_charAt(this.sourceString, this.sourceCursor))
+		c = int32(this.sourceStringU16.charAt(this.sourceCursor))
 		this.sourceCursor++
 		if c <= 127 {
 			if (c == 10) || (c == 13) {
@@ -387,7 +384,6 @@ func (this *JsDocTokenStream) getCharIgnoreLineEnd() int32 {
 		}
 		return c
 	}
-	panic("unreachable")
 }
 
 func JsDocTokenStream_isJSLineTerminator(c int32) bool {

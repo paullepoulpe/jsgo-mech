@@ -2,27 +2,26 @@
 
 package closure
 
+import "strings"
+
 type ModuleResolver struct {
-	self_           any
+	self_           ModuleResolver_I
 	modulePaths     ImmutableSetOf[string]
 	moduleRootPaths ImmutableListOf[string]
 	errorHandler    ErrorHandler
-	pathEscaper     *ModuleLoader_PathEscaper
+	pathEscaper     ModuleLoader_PathEscaper
+}
+
+// ModuleResolver_I holds the methods the dispatchers of ModuleResolver's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type ModuleResolver_I interface {
+	getPackageJsonMainEntries_impl() map[string]string
+	resolveJsModuleSilently_impl(string, string) Optional[string]
+	resolveJsModule_impl(string, string, Optional[string], int32, int32) Optional[string]
+	resolveModuleAsPath_impl(string, string) string
 }
 
 func (this *ModuleResolver) as_ModuleResolver() *ModuleResolver { return this }
-
-func to_ModuleResolver(v any) *ModuleResolver {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_ModuleResolver() *ModuleResolver }).as_ModuleResolver()
-}
-
-func is_ModuleResolver(v any) bool {
-	_, ok := v.(interface{ as_ModuleResolver() *ModuleResolver })
-	return ok
-}
 
 func (this *ModuleResolver) self() any {
 	if this == nil {
@@ -31,26 +30,26 @@ func (this *ModuleResolver) self() any {
 	return this.self_
 }
 
-func (this *ModuleResolver) init_ModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
+func (this *ModuleResolver) init_ModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.modulePaths = modulePaths
 	this.moduleRootPaths = moduleRootPaths
 	this.errorHandler = errorHandler
 	this.pathEscaper = pathEscaper
 }
 
-func (this *ModuleResolver) getPackageJsonMainEntries_impl() MapOf[string, string] {
-	return icast_Map(obj_(ImmutableMap_of()))
+func (this *ModuleResolver) getPackageJsonMainEntries_impl() map[string]string {
+	return mapImm_(tc_string, tc_string, ImmutableMap_of())
 }
 
 func (this *ModuleResolver) resolveModuleAsPath_impl(scriptAddress string, moduleAddress string) string {
-	if !String_endsWith(moduleAddress, ".js") {
+	if !strings.HasSuffix(moduleAddress, ".js") {
 		moduleAddress += ".js"
 	}
 	var path string = this.pathEscaper.escape(moduleAddress)
 	if ModuleLoader_isRelativeIdentifier(moduleAddress) {
 		var ourPath string = scriptAddress
-		var lastIndex int32 = String_lastIndexOf_String(ourPath, ModuleLoader_MODULE_SLASH)
-		path = ModuleNames_canonicalizePath((sstr_(String_substring(ourPath, 0, (lastIndex+String_length(ModuleLoader_MODULE_SLASH)))) + sstr_(path)))
+		var lastIndex int32 = int32(strings.LastIndex(ourPath, ModuleLoader_MODULE_SLASH))
+		path = ModuleNames_canonicalizePath((sstr_(ourPath[:(lastIndex+int32(len(ModuleLoader_MODULE_SLASH)))]) + sstr_(path)))
 	}
 	return ModuleLoader_normalize(path, icast_Iterable(obj_(this.moduleRootPaths)))
 }
@@ -64,9 +63,8 @@ func (this *ModuleResolver) locate(scriptAddress string, name string) Optional[s
 	if Collection_contains_s(this.modulePaths, normalizedPath) {
 		return Optional_of[string](canonicalizedPath)
 	}
-	it_1 := foreach_(obj_(this.moduleRootPaths))
-	for it_1.next() {
-		var rootPath string = str_(it_1.v)
+	for _, el_1 := range immElems_(this.moduleRootPaths) {
+		var rootPath string = str_(el_1)
 		var modulePath string = (sstr_(rootPath) + sstr_(normalizedPath))
 		if Collection_contains_s(this.modulePaths, modulePath) {
 			return Optional_of[string](canonicalizedPath)
@@ -79,8 +77,8 @@ func (this *ModuleResolver) canonicalizePath(scriptAddress string, moduleAddress
 	var path string = this.pathEscaper.escape(moduleAddress)
 	if ModuleLoader_isRelativeIdentifier(moduleAddress) {
 		var ourPath string = scriptAddress
-		var lastIndex int32 = String_lastIndexOf_String(ourPath, ModuleLoader_MODULE_SLASH)
-		path = ModuleNames_canonicalizePath((sstr_(String_substring(ourPath, 0, (lastIndex+String_length(ModuleLoader_MODULE_SLASH)))) + sstr_(path)))
+		var lastIndex int32 = int32(strings.LastIndex(ourPath, ModuleLoader_MODULE_SLASH))
+		path = ModuleNames_canonicalizePath((sstr_(ourPath[:(lastIndex+int32(len(ModuleLoader_MODULE_SLASH)))]) + sstr_(path)))
 	}
 	return path
 }
@@ -90,21 +88,17 @@ func (this *ModuleResolver) setErrorHandler(errorHandler ErrorHandler) {
 }
 
 func (this *ModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional[string], p3 int32, p4 int32) Optional[string] {
-	return this.self_.(interface {
-		resolveJsModule_impl(string, string, Optional[string], int32, int32) Optional[string]
-	}).resolveJsModule_impl(p0, p1, p2, p3, p4)
+	return this.self_.resolveJsModule_impl(p0, p1, p2, p3, p4)
 }
 
 func (this *ModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional[string] {
-	return this.self_.(interface {
-		resolveJsModuleSilently_impl(string, string) Optional[string]
-	}).resolveJsModuleSilently_impl(p0, p1)
+	return this.self_.resolveJsModuleSilently_impl(p0, p1)
 }
 
 func (this *ModuleResolver) resolveModuleAsPath(p0 string, p1 string) string {
-	return this.self_.(interface{ resolveModuleAsPath_impl(string, string) string }).resolveModuleAsPath_impl(p0, p1)
+	return this.self_.resolveModuleAsPath_impl(p0, p1)
 }
 
-func (this *ModuleResolver) getPackageJsonMainEntries() Map {
-	return this.self_.(interface{ getPackageJsonMainEntries_impl() Map }).getPackageJsonMainEntries_impl()
+func (this *ModuleResolver) getPackageJsonMainEntries() map[string]string {
+	return this.self_.getPackageJsonMainEntries_impl()
 }

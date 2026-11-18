@@ -8,7 +8,7 @@ type AmbiguateProperties struct {
 	reservedFirstCharacters    SetOf[BoxedOf[uint16]]
 	reservedNonFirstCharacters SetOf[BoxedOf[uint16]]
 	propertyMap                *JTMap[string, *AmbiguateProperties_Property]
-	externedNames              ImmutableSetOf[string]
+	externedNames              *ImmutableSet[string]
 	quotedNames                *JTSet[string]
 	colorRegistry              *ColorRegistry
 	renamingMap                *JTMap[string, string]
@@ -23,50 +23,52 @@ func (this *AmbiguateProperties) finit_AmbiguateProperties() {
 	this.graphNodeFactory = nil
 }
 
-func (this *AmbiguateProperties) init_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties SetOf[string]) {
+func (this *AmbiguateProperties) init_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties *TSet[string]) {
 	this.finit_AmbiguateProperties()
-	Preconditions_checkState(compiler.getLifeCycleStage().isNormalized())
+	if !compiler.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0())
+	}
 	this.compiler_ = compiler
 	this.reservedFirstCharacters = reservedFirstCharacters
 	this.reservedNonFirstCharacters = reservedNonFirstCharacters
-	this.externedNames = cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().add(strobj_("prototype")))).addAll(Iterable(externProperties)))).build()))
+	this.externedNames = immutableSetBuilder_(tc_string).add("prototype").addAll(Iterable(externProperties.asSet())).build()
 	this.colorRegistry = compiler.getColorRegistry()
 }
 
-func new_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties SetOf[string]) *AmbiguateProperties {
+func new_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties *TSet[string]) *AmbiguateProperties {
 	this := &AmbiguateProperties{}
 	this.init_AmbiguateProperties(compiler, reservedFirstCharacters, reservedNonFirstCharacters, externProperties)
 	return this
 }
 
-func AmbiguateProperties_makePassForTesting(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties SetOf[string]) *AmbiguateProperties {
+func AmbiguateProperties_makePassForTesting(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties *TSet[string]) *AmbiguateProperties {
 	var ap *AmbiguateProperties = new_AmbiguateProperties(compiler, reservedFirstCharacters, reservedNonFirstCharacters, externProperties)
 	ap.renamingMap = jnewTMap_(jtc_string, jtc_string)
 	return ap
 }
 
 func (this *AmbiguateProperties) getRenamingMap() *JTMap[string, string] {
-	Preconditions_checkNotNull(any(this.renamingMap.asMap()))
+	if this.renamingMap.asMap() == nil {
+		panic(new_NullPointerException_0())
+	}
 	return this.renamingMap
 }
 
 func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	this.graphNodeFactory = ColorGraphNodeFactory_createFactory(this.colorRegistry)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_AmbiguateProperties_ProcessPropertiesAndConstructors(this))))
-	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(this.graphNodeFactory, &LowestCommonAncestorFinder_Factory_fn[*ColorGraphNode, any]{func(p0 *DiGraph[*ColorGraphNode]) *LowestCommonAncestorFinder[*ColorGraphNode, any] {
+	NodeTraversal_traverse(this.compiler_, root, new_AmbiguateProperties_ProcessPropertiesAndConstructors(this))
+	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(this.graphNodeFactory, (&LowestCommonAncestorFinder_Factory_fn[*ColorGraphNode, any]{func(p0 *DiGraph[*ColorGraphNode]) *LowestCommonAncestorFinder[*ColorGraphNode, any] {
 		return new_LowestCommonAncestorFinder[*ColorGraphNode, any](p0)
-	}}, this.colorRegistry)
-	graphBuilder.addAll(icast_Collection(obj_(this.graphNodeFactory.getAllKnownTypes())))
+	}}).create, this.colorRegistry)
+	graphBuilder.addAll(icast_Collection(obj_(this.graphNodeFactory.getAllKnownTypes().asImm())))
 	var colorGraph *LinkedDirectedGraph[*ColorGraphNode, any] = graphBuilder.build()
-	_ = func() (code_ int) {
+	func() {
 		var chunkGraphLog *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), "color_graph.dot", []string{})
 		defer closeResource_(chunkGraphLog.self())
 		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(icast_GraphvizGraph(colorGraph.self())))
-		return 0
 	}()
-	it_2 := foreach_(obj_(this.graphNodeFactory.getAllKnownTypes()))
-	for it_2.next() {
-		var node *ColorGraphNode = cast_[*ColorGraphNode](it_2.v)
+	for _, el := range this.graphNodeFactory.getAllKnownTypes().keys {
+		node := el
 		node.getSubtypeIndices().set(node.getIndex())
 	}
 	FixedPointGraphTraversal_newReverseTraversal[*ColorGraphNode, any](&FixedPointGraphTraversal_EdgeCallback_fn[*ColorGraphNode, any]{func(subtype *ColorGraphNode, e any, supertype *ColorGraphNode) bool {
@@ -77,7 +79,6 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		var startSize int32 = supertype.getSubtypeIndices().cardinality()
 		supertype.getSubtypeIndices().or(subtype.getSubtypeIndices())
 		return (supertype.getSubtypeIndices().cardinality() > startSize)
-		panic("unreachable")
 	}}).computeFixedPoint(colorGraph.up_DiGraph())
 	it_4 := this.propertyMap.eachValue()
 	for it_4.next() {
@@ -92,7 +93,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		}
 		prop.relatedColorsSeeds = nil
 	}
-	var reservedNames ImmutableSet_BuilderOf[string] = cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(this.externedNames))))).addAll(Iterable(this.quotedNames.asSet()))))
+	var reservedNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder().addAll(icast_Iterable(obj_(this.externedNames.asImm()))).addAll(Iterable(this.quotedNames.asSet()))
 	var numRenamedPropertyNames int32 = 0
 	var numSkippedPropertyNames int32 = 0
 	var nodes *JTList[*AmbiguateProperties_PropertyGraphNode] = jnewTListN_(jtc_p_AmbiguateProperties_PropertyGraphNode, this.propertyMap.size())
@@ -117,15 +118,13 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		return nil
 	}(), AmbiguateProperties_FREQUENCY_COMPARATOR).up_GraphColoring()
 	var numNewPropertyNames int32 = coloring.color()
-	var nameGen NameGenerator = icast_NameGenerator(obj_(new_DefaultNameGenerator_Set_String_Set_Set(icast_Set(obj_(reservedNames.build())), "", this.reservedFirstCharacters, this.reservedNonFirstCharacters)))
+	var nameGen NameGenerator = new_DefaultNameGenerator_Set_String_Set_Set(icast_Set(obj_(reservedNames.build())), "", this.reservedFirstCharacters, this.reservedNonFirstCharacters)
 	var colorMap []string = newstrarr_(numNewPropertyNames)
 	for i := int32(0); i < numNewPropertyNames; i++ {
 		colorMap[i] = nameGen.generateNextName()
 	}
-	it_11 := foreach_(any(icast_List(propertyGraph.getNodes())))
-	for it_11.next() {
-		var node *AmbiguateProperties_PropertyGraphNode = cast_[*AmbiguateProperties_PropertyGraphNode](it_11.v)
-		node.getValue().newName = Optional_of[string](colorMap[Object_hashCode(any(Annotatable_getAnnotation(icast_Annotatable(obj_(node)))))])
+	for node := range elemsAs_[*AmbiguateProperties_PropertyGraphNode](icast_List(propertyGraph.getNodes())) {
+		node.getValue().newName = Optional_of[string](colorMap[Object_hashCode(Annotatable_getAnnotation(icast_Annotatable(obj_(node))))])
 		if this.renamingMap != nil {
 			this.renamingMap.put(node.getValue().oldName, node.getValue().newName.orElse(nullstr_))
 		}
@@ -136,7 +135,9 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		var oldName string = n.getString()
 		var p *AmbiguateProperties_Property = this.propertyMap.get(oldName)
 		if (p != nil) && p.newName.isPresent() {
-			Preconditions_checkState((oldName == p.oldName))
+			if oldName != p.oldName {
+				panic(new_IllegalStateException_0())
+			}
 			if !(p.newName.get() == oldName) {
 				n.setString(p.newName.get())
 				this.compiler_.reportChangeToEnclosingScope(n)
@@ -164,7 +165,6 @@ func (this *AmbiguateProperties) getColor(n Node) *Color {
 	} else {
 		return type_
 	}
-	panic("unreachable")
 }
 
 var AmbiguateProperties_logger *Logger
@@ -182,8 +182,7 @@ func AmbiguateProperties_clinit() {
 		if p1.numOccurrences != p2.numOccurrences {
 			return (p2.numOccurrences - p1.numOccurrences)
 		}
-		return String_compareTo(p1.oldName, p2.oldName)
-		panic("unreachable")
+		return utf16Compare_(p1.oldName, p2.oldName)
 	}}
 
 }
@@ -211,7 +210,7 @@ func (this *AmbiguateProperties_PropertyGraph) getNodeCount() int32 {
 }
 
 func (this *AmbiguateProperties_PropertyGraph) getNode(property *AmbiguateProperties_Property) GraphNode[*AmbiguateProperties_Property] {
-	panic(new_RuntimeException_String("PropertyGraph#getNode is never called.").self())
+	panic(new_RuntimeException_String("PropertyGraph#getNode is never called."))
 }
 
 func (this *AmbiguateProperties_PropertyGraph) newSubGraph() SubGraph[*AmbiguateProperties_Property] {
@@ -313,25 +312,25 @@ func new_AmbiguateProperties_ProcessPropertiesAndConstructors(outer_ *AmbiguateP
 }
 
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
+	switch n.ns_().token {
+	case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 		this.processGetProp(n)
 		return
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		this.processCall(n)
 		return
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if NodeUtil_isNameDeclaration(parent) || parent.isFunction() {
 			this.outer_.graphNodeFactory.createNode(this.outer_.getColor(n))
 		}
 		return
-	case Token_rhino_OBJECTLIT, Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECTLIT, tokOrd1_OBJECT_PATTERN:
 		this.processObjectLitOrPattern(n)
 		return
-	case Token_rhino_GETELEM:
+	case tokOrd1_GETELEM:
 		this.processGetElem(n)
 		return
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.processClass(n)
 		return
 	default:
@@ -375,21 +374,23 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processCall(ca
 }
 
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processObjectProperty(objectLit Node, key Node, type_ *Color) {
-	Preconditions_checkArgument_boolean_Object((objectLit.isObjectLit() || objectLit.isObjectPattern()), objectLit.box_())
-	switch key.getToken() {
-	case Token_rhino_COMPUTED_PROP:
+	if !objectLit.isObjectLit() && !objectLit.isObjectPattern() {
+		panic(new_IllegalArgumentException_String(tostr_(objectLit)))
+	}
+	switch key.ns_().token {
+	case tokOrd1_COMPUTED_PROP:
 		if key.getFirstChild().isStringLit() {
 			this.outer_.quotedNames.add(key.getFirstChild().getString())
 		}
-	case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_STRING_KEY:
+	case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_STRING_KEY:
 		if key.isQuotedStringKey() {
 			this.outer_.quotedNames.add(key.getString())
 		} else {
 			this.maybeMarkCandidate(key, type_)
 		}
-	case Token_rhino_OBJECT_REST, Token_rhino_OBJECT_SPREAD:
+	case tokOrd1_OBJECT_REST, tokOrd1_OBJECT_SPREAD:
 	default:
-		panic(new_IllegalStateException_String(("Unexpected child of " + objstr_(obj_(objectLit.getToken())) + ": " + sstr_(key.toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(objectLit.getToken()) + ": " + sstr_(key.toStringTree()))))
 	}
 }
 
@@ -416,12 +417,12 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processGetElem
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(classNode Node) {
 	var classConstructorType *Color = this.outer_.getColor(classNode)
 	this.outer_.graphNodeFactory.createNode(classConstructorType)
-	var possiblePrototypes ImmutableSetOf[*Color] = classConstructorType.getPrototypes()
+	var possiblePrototypes *ImmutableSet[*Color] = classConstructorType.getPrototypes()
 	var classPrototype *Color = func() *Color {
-		if possiblePrototypes.isEmpty() {
+		if possiblePrototypes.IsEmpty() {
 			return StandardColors_UNKNOWN
 		}
-		return Color_createUnion(icast_Set(obj_(possiblePrototypes)))
+		return Color_createUnion(icast_Set(obj_(possiblePrototypes.asImm())))
 	}()
 	{
 		var member Node = NodeUtil_getClassMembers(classNode).getFirstChild()
@@ -443,15 +444,17 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 			if member.isStaticMember() {
 				memberOwnerColor = classConstructorType
 			} else if member.isMemberFieldDef() {
-				var possibleInstances ImmutableSetOf[*Color] = classConstructorType.getInstanceColors()
+				var possibleInstances *ImmutableSet[*Color] = classConstructorType.getInstanceColors()
 				memberOwnerColor = func() *Color {
-					if possibleInstances.isEmpty() {
+					if possibleInstances.IsEmpty() {
 						return StandardColors_UNKNOWN
 					}
-					return Color_createUnion(icast_Set(obj_(possibleInstances)))
+					return Color_createUnion(icast_Set(obj_(possibleInstances.asImm())))
 				}()
 			} else {
-				Preconditions_checkState(((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()))
+				if !((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()) {
+					panic(new_IllegalStateException_0())
+				}
 				memberOwnerColor = classPrototype
 			}
 			this.maybeMarkCandidate(member, memberOwnerColor)
@@ -461,7 +464,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) maybeMarkCandidate(n Node, type_ *Color) {
 	var name string = n.getString()
-	if !Collection_contains_s(this.outer_.externedNames, name) {
+	if !this.outer_.externedNames.Has(name) {
 		this.outer_.stringNodesToRename.add(n)
 		this.recordProperty(name, type_)
 	}
@@ -520,4 +523,13 @@ func (this *AmbiguateProperties_Property) addRelatedColor(color *Color) {
 	}
 	var newColorGraphNode *ColorGraphNode = this.outer_.graphNodeFactory.createNode(color)
 	this.relatedColorsSeeds.put(newColorGraphNode, any(int32(0)))
+}
+
+// visit: an object that is exactly a AmbiguateProperties_ProcessPropertiesAndConstructors calls its visit_impl directly (post-flip); others dispatch.
+func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*AmbiguateProperties_ProcessPropertiesAndConstructors); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

@@ -16,25 +16,23 @@ func new_IdMappingUtil() *IdMappingUtil {
 }
 
 func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *JTMap[string, Map]) string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	it_1 := idGeneratorMaps.eachEntry()
 	for it_1.next() {
 		var replacements *TEntry[string, Map] = it_1.entry()
 		if !replacements.getValue().isEmpty() {
-			cast_[*StringBuilder](cast_[*StringBuilder](cast_[*StringBuilder](sb.append_char('[')).append(replacements.getKey()).append_char(']')).append_char(IdMappingUtil_NEW_LINE)).append_char(IdMappingUtil_NEW_LINE)
-			it_3 := foreach_(any(replacements.getValue().entrySet()))
-			for it_3.next() {
-				var replacement Map_Entry = icast_Map_Entry(it_3.v)
-				cast_[*StringBuilder](sb.append(str_(replacement.getKey())).append_char(':')).append(str_(replacement.getValue())).append_char(IdMappingUtil_NEW_LINE)
+			sb.append_char('[').append(replacements.getKey()).append_char(']').append_char(IdMappingUtil_NEW_LINE).append_char(IdMappingUtil_NEW_LINE)
+			for replacement := range elemsBy_(replacements.getValue().entrySet(), icast_Map_Entry) {
+				sb.append(str_(replacement.getKey())).append_char(':').append(str_(replacement.getValue())).append_char(IdMappingUtil_NEW_LINE)
 			}
 			sb.append_char(IdMappingUtil_NEW_LINE)
 		}
 	}
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
-func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) ImmutableMapOf[string, string] {
-	var mapBuilder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
+func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) *ImmutableMap[string, string] {
+	var mapBuilder *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(Io_utf8String(idMappings))
 	var inSection bool = false
 	for mr.next() {
@@ -46,38 +44,38 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 				inSection = true
 			}
 		} else if inSection {
-			mapBuilder.put(strobj_(mr.getKey().get()), strobj_(mr.getValue().get()))
+			mapBuilder.put(mr.getKey().get(), mr.getValue().get())
 		}
 	}
 	return mapBuilder.buildKeepingLast()
 }
 
-func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) MapOf[string, *SimpleBiMap] {
-	var resultMap MapOf[string, *SimpleBiMap] = icast_Map(obj_(new_LinkedHashMap()))
+func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) map[string]*SimpleBiMap[string, string] {
+	var resultMap map[string]*SimpleBiMap[string, string] = map[string]*SimpleBiMap[string, string]{}
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(idMappings)
-	var currentSectionMap *SimpleBiMap = nil
+	var currentSectionMap *SimpleBiMap[string, string] = nil
 	var sectionNames *JTSet[string] = jnewTSet_(jtc_string)
 	for mr.next() {
 		if mr.isSection() {
 			var sectionName Optional[string] = mr.getSection()
 			if !sectionNames.add(sectionName.orElse(nullstr_)) {
-				panic(new_IllegalArgumentException_String(String_format("Cannot parse id map: Duplicate section %s\n lineIndex: %d", []any{strobj_(sectionName.orElse("null")), any(int32(mr.getLineIndex()))})).self())
+				panic(new_IllegalArgumentException_String(("Cannot parse id map: Duplicate section " + sstr_(sectionName.orElse("null")) + "\n lineIndex: " + istr_(int64(int32(mr.getLineIndex()))))))
 			}
-			currentSectionMap = SimpleBiMap_create()
-			Map_put_s(resultMap, sectionName.orElse(nullstr_), obj_(currentSectionMap))
+			currentSectionMap = SimpleBiMap_create[string, string]()
+			resultMap[sectionName.orElse(nullstr_)] = currentSectionMap
 		} else {
 			if currentSectionMap == nil {
-				panic(new_IllegalArgumentException_String("Mapping entry outside of section").self())
+				panic(new_IllegalArgumentException_String("Mapping entry outside of section"))
 			}
-			currentSectionMap.put(strobj_(mr.getKey().orElse(nullstr_)), strobj_(mr.getValue().orElse(nullstr_)))
+			currentSectionMap.put(mr.getKey().orElse(nullstr_), mr.getValue().orElse(nullstr_))
 		}
 	}
 	return resultMap
 }
 
-func IdMappingUtil_parseSerializedIdMappings(idMappings string) MapOf[string, *SimpleBiMap] {
+func IdMappingUtil_parseSerializedIdMappings(idMappings string) map[string]*SimpleBiMap[string, string] {
 	if Strings_isNullOrEmpty(idMappings) {
-		return icast_Map(obj_(ImmutableMap_of()))
+		return mapImm_(tc_string, tc_p_SimpleBiMap, ImmutableMap_of())
 	}
 	return IdMappingUtil_parseSerializedIdMappingsText(idMappings)
 }
@@ -114,29 +112,31 @@ func new_IdMappingUtil_MappingReader(text string) *IdMappingUtil_MappingReader {
 
 func (this *IdMappingUtil_MappingReader) next() bool {
 	var line string
+	var lineU16 utf16_
 	for {
 		if this.nextLine == this.lines.size() {
 			break
 		}
 		line = this.lines.get(this.nextLine)
+		lineU16 = utf16Of_(line)
 		this.nextLine++
 		this.lineIndex++
-		if String_isEmpty(line) {
+		if line == "" {
 			continue
 		}
-		if String_charAt(line, 0) == '[' {
-			this.currentSection = Optional_of[string](String_substring(line, 1, (String_length(line) - 1)))
+		if line[0] == '[' {
+			this.currentSection = Optional_of[string](lineU16.substring(1, (lineU16.length() - 1)))
 			this.currentKey = Optional_empty[string]()
 			this.currentValue = Optional_empty[string]()
 			return true
 		} else {
-			var split int32 = String_indexOf(line, 58)
+			var split int32 = lineU16.indexOf(58)
 			if split != -1 {
-				this.currentKey = Optional_of[string](String_substring(line, 0, split))
-				this.currentValue = Optional_of[string](String_substring_int(line, (split + 1)))
+				this.currentKey = Optional_of[string](lineU16.substring(0, split))
+				this.currentValue = Optional_of[string](lineU16.substring_int((split + 1)))
 				return true
 			} else {
-				panic(new_IllegalArgumentException_String(String_format("Cannot parse id map.\n Line: %s, lineIndex: %d", []any{strobj_(line), any(int32(this.lineIndex))})).self())
+				panic(new_IllegalArgumentException_String(("Cannot parse id map.\n Line: " + sstr_(line) + ", lineIndex: " + istr_(int64(int32(this.lineIndex))))))
 			}
 		}
 	}

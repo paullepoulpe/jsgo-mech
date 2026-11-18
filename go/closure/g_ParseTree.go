@@ -4,8 +4,14 @@ package closure
 
 type ParseTree struct {
 	self_     any
-	type__    *ParseTreeType
+	type__    ParseTreeType
 	location_ *SourceRange
+}
+
+// ParseTree_as is implemented by ParseTree and the classes that extend it: a cast to ParseTree asserts to it
+// (post-flip).
+type ParseTree_as interface {
+	as_ParseTree() *ParseTree
 }
 
 func (this *ParseTree) as_ParseTree() *ParseTree { return this }
@@ -14,12 +20,7 @@ func to_ParseTree(v any) *ParseTree {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ParseTree() *ParseTree }).as_ParseTree()
-}
-
-func is_ParseTree(v any) bool {
-	_, ok := v.(interface{ as_ParseTree() *ParseTree })
-	return ok
+	return v.(ParseTree_as).as_ParseTree()
 }
 
 func (this *ParseTree) self() any {
@@ -29,12 +30,12 @@ func (this *ParseTree) self() any {
 	return this.self_
 }
 
-func (this *ParseTree) init_ParseTree(type_ *ParseTreeType, location *SourceRange) {
+func (this *ParseTree) init_ParseTree(type_ ParseTreeType, location *SourceRange) {
 	this.type__ = type_
 	this.location_ = location
 }
 
-func new_ParseTree(type_ *ParseTreeType, location *SourceRange) *ParseTree {
+func new_ParseTree(type_ ParseTreeType, location *SourceRange) *ParseTree {
 	this := &ParseTree{}
 	this.self_ = this
 	this.init_ParseTree(type_, location)
@@ -50,319 +51,319 @@ func (this *ParseTree) getEnd() *SourcePosition_util {
 }
 
 func (this *ParseTree) asArrayLiteralExpression() *ArrayLiteralExpressionTree {
-	return cast_[*ArrayLiteralExpressionTree](this.self())
+	return this.self().(*ArrayLiteralExpressionTree)
 }
 
 func (this *ParseTree) asArrayPattern() *ArrayPatternTree {
-	return cast_[*ArrayPatternTree](this.self())
+	return this.self().(*ArrayPatternTree)
 }
 
 func (this *ParseTree) asBinaryOperator() *BinaryOperatorTree {
-	return cast_[*BinaryOperatorTree](this.self())
+	return this.self().(*BinaryOperatorTree)
 }
 
 func (this *ParseTree) asBlock() *BlockTree {
-	return cast_[*BlockTree](this.self())
+	return this.self().(*BlockTree)
 }
 
 func (this *ParseTree) asBreakStatement() *BreakStatementTree {
-	return cast_[*BreakStatementTree](this.self())
+	return this.self().(*BreakStatementTree)
 }
 
 func (this *ParseTree) asCallExpression() *CallExpressionTree {
-	return cast_[*CallExpressionTree](this.self())
+	return this.self().(*CallExpressionTree)
 }
 
 func (this *ParseTree) asOptChainCallExpression() *OptChainCallExpressionTree {
-	return cast_[*OptChainCallExpressionTree](this.self())
+	return this.self().(*OptChainCallExpressionTree)
 }
 
 func (this *ParseTree) asCaseClause() *CaseClauseTree {
-	return cast_[*CaseClauseTree](this.self())
+	return this.self().(*CaseClauseTree)
 }
 
 func (this *ParseTree) asCatch() *CatchTree {
-	return cast_[*CatchTree](this.self())
+	return this.self().(*CatchTree)
 }
 
 func (this *ParseTree) asClassDeclaration() *ClassDeclarationTree {
-	return cast_[*ClassDeclarationTree](this.self())
+	return this.self().(*ClassDeclarationTree)
 }
 
 func (this *ParseTree) asCommaExpression() *CommaExpressionTree {
-	return cast_[*CommaExpressionTree](this.self())
+	return this.self().(*CommaExpressionTree)
 }
 
 func (this *ParseTree) asComputedPropertyDefinition() *ComputedPropertyDefinitionTree {
-	return cast_[*ComputedPropertyDefinitionTree](this.self())
+	return this.self().(*ComputedPropertyDefinitionTree)
 }
 
 func (this *ParseTree) asComputedPropertyField() *ComputedPropertyFieldTree {
-	return cast_[*ComputedPropertyFieldTree](this.self())
+	return this.self().(*ComputedPropertyFieldTree)
 }
 
 func (this *ParseTree) asComputedPropertyGetter() *ComputedPropertyGetterTree {
-	return cast_[*ComputedPropertyGetterTree](this.self())
+	return this.self().(*ComputedPropertyGetterTree)
 }
 
 func (this *ParseTree) asComputedPropertyMethod() *ComputedPropertyMethodTree {
-	return cast_[*ComputedPropertyMethodTree](this.self())
+	return this.self().(*ComputedPropertyMethodTree)
 }
 
 func (this *ParseTree) asComputedPropertySetter() *ComputedPropertySetterTree {
-	return cast_[*ComputedPropertySetterTree](this.self())
+	return this.self().(*ComputedPropertySetterTree)
 }
 
 func (this *ParseTree) asConditionalExpression() *ConditionalExpressionTree {
-	return cast_[*ConditionalExpressionTree](this.self())
+	return this.self().(*ConditionalExpressionTree)
 }
 
 func (this *ParseTree) asContinueStatement() *ContinueStatementTree {
-	return cast_[*ContinueStatementTree](this.self())
+	return this.self().(*ContinueStatementTree)
 }
 
 func (this *ParseTree) asDebuggerStatement() *DebuggerStatementTree {
-	return cast_[*DebuggerStatementTree](this.self())
+	return this.self().(*DebuggerStatementTree)
 }
 
 func (this *ParseTree) asDefaultClause() *DefaultClauseTree {
-	return cast_[*DefaultClauseTree](this.self())
+	return this.self().(*DefaultClauseTree)
 }
 
 func (this *ParseTree) asDefaultParameter() *DefaultParameterTree {
-	return cast_[*DefaultParameterTree](this.self())
+	return this.self().(*DefaultParameterTree)
 }
 
 func (this *ParseTree) asDoWhileStatement() *DoWhileStatementTree {
-	return cast_[*DoWhileStatementTree](this.self())
+	return this.self().(*DoWhileStatementTree)
 }
 
 func (this *ParseTree) asEmptyStatement() *EmptyStatementTree {
-	return cast_[*EmptyStatementTree](this.self())
+	return this.self().(*EmptyStatementTree)
 }
 
 func (this *ParseTree) asExportDeclaration() *ExportDeclarationTree {
-	return cast_[*ExportDeclarationTree](this.self())
+	return this.self().(*ExportDeclarationTree)
 }
 
 func (this *ParseTree) asExportSpecifier() *ExportSpecifierTree {
-	return cast_[*ExportSpecifierTree](this.self())
+	return this.self().(*ExportSpecifierTree)
 }
 
 func (this *ParseTree) asExpressionStatement() *ExpressionStatementTree {
-	return cast_[*ExpressionStatementTree](this.self())
+	return this.self().(*ExpressionStatementTree)
 }
 
 func (this *ParseTree) asFinally() *FinallyTree {
-	return cast_[*FinallyTree](this.self())
+	return this.self().(*FinallyTree)
 }
 
 func (this *ParseTree) asForOfStatement() *ForOfStatementTree {
-	return cast_[*ForOfStatementTree](this.self())
+	return this.self().(*ForOfStatementTree)
 }
 
 func (this *ParseTree) asForInStatement() *ForInStatementTree {
-	return cast_[*ForInStatementTree](this.self())
+	return this.self().(*ForInStatementTree)
 }
 
 func (this *ParseTree) asFormalParameterList() *FormalParameterListTree {
-	return cast_[*FormalParameterListTree](this.self())
+	return this.self().(*FormalParameterListTree)
 }
 
 func (this *ParseTree) asForStatement() *ForStatementTree {
-	return cast_[*ForStatementTree](this.self())
+	return this.self().(*ForStatementTree)
 }
 
 func (this *ParseTree) asFunctionDeclaration() *FunctionDeclarationTree {
-	return cast_[*FunctionDeclarationTree](this.self())
+	return this.self().(*FunctionDeclarationTree)
 }
 
 func (this *ParseTree) asGetAccessor() *GetAccessorTree {
-	return cast_[*GetAccessorTree](this.self())
+	return this.self().(*GetAccessorTree)
 }
 
 func (this *ParseTree) asIdentifierExpression() *IdentifierExpressionTree {
-	return cast_[*IdentifierExpressionTree](this.self())
+	return this.self().(*IdentifierExpressionTree)
 }
 
 func (this *ParseTree) asIfStatement() *IfStatementTree {
-	return cast_[*IfStatementTree](this.self())
+	return this.self().(*IfStatementTree)
 }
 
 func (this *ParseTree) asImportDeclaration() *ImportDeclarationTree {
-	return cast_[*ImportDeclarationTree](this.self())
+	return this.self().(*ImportDeclarationTree)
 }
 
 func (this *ParseTree) asImportSpecifier() *ImportSpecifierTree {
-	return cast_[*ImportSpecifierTree](this.self())
+	return this.self().(*ImportSpecifierTree)
 }
 
 func (this *ParseTree) asDynamicImportExpression() *DynamicImportTree {
-	return cast_[*DynamicImportTree](this.self())
+	return this.self().(*DynamicImportTree)
 }
 
 func (this *ParseTree) asImportMetaExpression() *ImportMetaExpressionTree {
-	return cast_[*ImportMetaExpressionTree](this.self())
+	return this.self().(*ImportMetaExpressionTree)
 }
 
 func (this *ParseTree) asLabelledStatement() *LabelledStatementTree {
-	return cast_[*LabelledStatementTree](this.self())
+	return this.self().(*LabelledStatementTree)
 }
 
 func (this *ParseTree) asLiteralExpression() *LiteralExpressionTree {
-	return cast_[*LiteralExpressionTree](this.self())
+	return this.self().(*LiteralExpressionTree)
 }
 
 func (this *ParseTree) asMemberExpression() *MemberExpressionTree {
-	return cast_[*MemberExpressionTree](this.self())
+	return this.self().(*MemberExpressionTree)
 }
 
 func (this *ParseTree) asOptionalMemberExpression() *OptionalMemberExpressionTree {
-	return cast_[*OptionalMemberExpressionTree](this.self())
+	return this.self().(*OptionalMemberExpressionTree)
 }
 
 func (this *ParseTree) asMemberLookupExpression() *MemberLookupExpressionTree {
-	return cast_[*MemberLookupExpressionTree](this.self())
+	return this.self().(*MemberLookupExpressionTree)
 }
 
 func (this *ParseTree) asOptionalMemberLookupExpression() *OptionalMemberLookupExpressionTree {
-	return cast_[*OptionalMemberLookupExpressionTree](this.self())
+	return this.self().(*OptionalMemberLookupExpressionTree)
 }
 
 func (this *ParseTree) asMissingPrimaryExpression() *MissingPrimaryExpressionTree {
-	return cast_[*MissingPrimaryExpressionTree](this.self())
+	return this.self().(*MissingPrimaryExpressionTree)
 }
 
 func (this *ParseTree) asNewExpression() *NewExpressionTree {
-	return cast_[*NewExpressionTree](this.self())
+	return this.self().(*NewExpressionTree)
 }
 
 func (this *ParseTree) asNull() *NullTree {
-	return cast_[*NullTree](this.self())
+	return this.self().(*NullTree)
 }
 
 func (this *ParseTree) asObjectLiteralExpression() *ObjectLiteralExpressionTree {
-	return cast_[*ObjectLiteralExpressionTree](this.self())
+	return this.self().(*ObjectLiteralExpressionTree)
 }
 
 func (this *ParseTree) asObjectPattern() *ObjectPatternTree {
-	return cast_[*ObjectPatternTree](this.self())
+	return this.self().(*ObjectPatternTree)
 }
 
 func (this *ParseTree) asParenExpression() *ParenExpressionTree {
-	return cast_[*ParenExpressionTree](this.self())
+	return this.self().(*ParenExpressionTree)
 }
 
 func (this *ParseTree) asProgram() *ProgramTree {
-	return cast_[*ProgramTree](this.self())
+	return this.self().(*ProgramTree)
 }
 
 func (this *ParseTree) asPropertyNameAssignment() *PropertyNameAssignmentTree {
-	return cast_[*PropertyNameAssignmentTree](this.self())
+	return this.self().(*PropertyNameAssignmentTree)
 }
 
 func (this *ParseTree) asIterRest() *IterRestTree {
-	return cast_[*IterRestTree](this.self())
+	return this.self().(*IterRestTree)
 }
 
 func (this *ParseTree) asObjectRest() *ObjectRestTree {
-	return cast_[*ObjectRestTree](this.self())
+	return this.self().(*ObjectRestTree)
 }
 
 func (this *ParseTree) asReturnStatement() *ReturnStatementTree {
-	return cast_[*ReturnStatementTree](this.self())
+	return this.self().(*ReturnStatementTree)
 }
 
 func (this *ParseTree) asSetAccessor() *SetAccessorTree {
-	return cast_[*SetAccessorTree](this.self())
+	return this.self().(*SetAccessorTree)
 }
 
 func (this *ParseTree) asIterSpread() *IterSpreadTree {
-	return cast_[*IterSpreadTree](this.self())
+	return this.self().(*IterSpreadTree)
 }
 
 func (this *ParseTree) asObjectSpread() *ObjectSpreadTree {
-	return cast_[*ObjectSpreadTree](this.self())
+	return this.self().(*ObjectSpreadTree)
 }
 
 func (this *ParseTree) asSuperExpression() *SuperExpressionTree {
-	return cast_[*SuperExpressionTree](this.self())
+	return this.self().(*SuperExpressionTree)
 }
 
 func (this *ParseTree) asSwitchStatement() *SwitchStatementTree {
-	return cast_[*SwitchStatementTree](this.self())
+	return this.self().(*SwitchStatementTree)
 }
 
 func (this *ParseTree) asTemplateLiteralExpression() *TemplateLiteralExpressionTree {
-	return cast_[*TemplateLiteralExpressionTree](this.self())
+	return this.self().(*TemplateLiteralExpressionTree)
 }
 
 func (this *ParseTree) asTemplateLiteralPortion() *TemplateLiteralPortionTree {
-	return cast_[*TemplateLiteralPortionTree](this.self())
+	return this.self().(*TemplateLiteralPortionTree)
 }
 
 func (this *ParseTree) asTemplateSubstitution() *TemplateSubstitutionTree {
-	return cast_[*TemplateSubstitutionTree](this.self())
+	return this.self().(*TemplateSubstitutionTree)
 }
 
 func (this *ParseTree) asThisExpression() *ThisExpressionTree {
-	return cast_[*ThisExpressionTree](this.self())
+	return this.self().(*ThisExpressionTree)
 }
 
 func (this *ParseTree) asThrowStatement() *ThrowStatementTree {
-	return cast_[*ThrowStatementTree](this.self())
+	return this.self().(*ThrowStatementTree)
 }
 
 func (this *ParseTree) asTryStatement() *TryStatementTree {
-	return cast_[*TryStatementTree](this.self())
+	return this.self().(*TryStatementTree)
 }
 
 func (this *ParseTree) asUnaryExpression() *UnaryExpressionTree {
-	return cast_[*UnaryExpressionTree](this.self())
+	return this.self().(*UnaryExpressionTree)
 }
 
 func (this *ParseTree) asVariableDeclarationList() *VariableDeclarationListTree {
-	return cast_[*VariableDeclarationListTree](this.self())
+	return this.self().(*VariableDeclarationListTree)
 }
 
 func (this *ParseTree) asVariableDeclaration() *VariableDeclarationTree {
-	return cast_[*VariableDeclarationTree](this.self())
+	return this.self().(*VariableDeclarationTree)
 }
 
 func (this *ParseTree) asVariableStatement() *VariableStatementTree {
-	return cast_[*VariableStatementTree](this.self())
+	return this.self().(*VariableStatementTree)
 }
 
 func (this *ParseTree) asWhileStatement() *WhileStatementTree {
-	return cast_[*WhileStatementTree](this.self())
+	return this.self().(*WhileStatementTree)
 }
 
 func (this *ParseTree) asWithStatement() *WithStatementTree {
-	return cast_[*WithStatementTree](this.self())
+	return this.self().(*WithStatementTree)
 }
 
 func (this *ParseTree) asYieldStatement() *YieldExpressionTree {
-	return cast_[*YieldExpressionTree](this.self())
+	return this.self().(*YieldExpressionTree)
 }
 
 func (this *ParseTree) asAwaitExpression() *AwaitExpressionTree {
-	return cast_[*AwaitExpressionTree](this.self())
+	return this.self().(*AwaitExpressionTree)
 }
 
 func (this *ParseTree) asNewTargetExpression() *NewTargetExpressionTree {
-	return cast_[*NewTargetExpressionTree](this.self())
+	return this.self().(*NewTargetExpressionTree)
 }
 
 func (this *ParseTree) asUpdateExpression() *UpdateExpressionTree {
-	return cast_[*UpdateExpressionTree](this.self())
+	return this.self().(*UpdateExpressionTree)
 }
 
 func (this *ParseTree) asForAwaitOfStatement() *ForAwaitOfStatementTree {
-	return cast_[*ForAwaitOfStatementTree](this.self())
+	return this.self().(*ForAwaitOfStatementTree)
 }
 
 func (this *ParseTree) asFieldDeclaration() *FieldDeclarationTree {
-	return cast_[*FieldDeclarationTree](this.self())
+	return this.self().(*FieldDeclarationTree)
 }
 
 func (this *ParseTree) isPattern() bool {
@@ -377,7 +378,6 @@ func (this *ParseTree) isPattern() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -395,7 +395,6 @@ func (this *ParseTree) isValidNonVanillaAssignmentTarget() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -411,7 +410,6 @@ func (this *ParseTree) isValidAssignmentTarget() bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -420,5 +418,5 @@ func (this *ParseTree) isRestParameter() bool {
 }
 
 func (this *ParseTree) toString() string {
-	return (objstr_(obj_(this.type__)) + "@" + objstr_(obj_(this.location_)))
+	return (tostr_(this.type__) + "@" + tostr_(this.location_))
 }

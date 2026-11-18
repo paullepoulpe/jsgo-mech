@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type RewriteJsonToModule struct {
 	NodeTraversal_AbstractPostOrderCallback
 	packageJsonMainEntries *JTMap[string, string]
@@ -28,30 +30,32 @@ func new_RewriteJsonToModule(compiler *AbstractCompiler) *RewriteJsonToModule {
 	return this
 }
 
-func (this *RewriteJsonToModule) getPackageJsonMainEntries() ImmutableMapOf[string, string] {
-	return ImmutableMap_copyOf(this.packageJsonMainEntries.asMap())
+func (this *RewriteJsonToModule) getPackageJsonMainEntries() *ImmutableMap[string, string] {
+	return immutableMapCopyOf_(tc_string, tc_string, this.packageJsonMainEntries.asMap())
 }
 
 func (this *RewriteJsonToModule) process_2(externs Node, root Node) {
-	Preconditions_checkState(root.isScript())
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	if !root.isScript() {
+		panic(new_IllegalStateException_0())
+	}
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *RewriteJsonToModule) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		if !n.hasOneChild() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, RewriteJsonToModule_JSON_UNEXPECTED_TOKEN, []string{}))
 		} else {
 			this.visitScript(t, n)
 		}
 		return
-	case Token_rhino_OBJECTLIT, Token_rhino_ARRAYLIT, Token_rhino_NUMBER, Token_rhino_TRUE, Token_rhino_FALSE, Token_rhino_NULL, Token_rhino_STRINGLIT:
-	case Token_rhino_STRING_KEY:
+	case tokOrd1_OBJECTLIT, tokOrd1_ARRAYLIT, tokOrd1_NUMBER, tokOrd1_TRUE, tokOrd1_FALSE, tokOrd1_NULL, tokOrd1_STRINGLIT:
+	case tokOrd1_STRING_KEY:
 		if !n.isQuotedStringKey() || !n.hasOneChild() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, RewriteJsonToModule_JSON_UNEXPECTED_TOKEN, []string{}))
 		}
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		if !parent.isScript() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, RewriteJsonToModule_JSON_UNEXPECTED_TOKEN, []string{}))
 		}
@@ -79,19 +83,19 @@ func (this *RewriteJsonToModule) visitScript(t *NodeTraversal, n Node) {
 	n.addChildToFront(IR_var_Node_Node(IR_name(moduleName).srcref(jsonObject), jsonObject).srcref(jsonObject))
 	n.addChildToFront(IR_exprResult(IR_call(IR_getprop_Node_String(IR_name("goog"), "provide"), []Node{IR_string(moduleName)})).srcrefTreeIfMissing(n))
 	var inputPath string = t.getInput().getSourceFile().getName()
-	if String_endsWith(inputPath, "/package.json") && jsonObject.isObjectLit() {
-		var possibleMainEntries ListOf[string] = this.compiler_.getOptions().getPackageJsonEntryNames()
-		it_1 := foreach_(any(possibleMainEntries))
-		for it_1.next() {
-			var entryName string = str_(it_1.v)
+	if strings.HasSuffix(inputPath, "/package.json") && jsonObject.isObjectLit() {
+		var possibleMainEntries []string = this.compiler_.getOptions().getPackageJsonEntryNames()
+		for _, entryName := range possibleMainEntries {
 			var entry Node = NodeUtil_getFirstPropMatchingKey(jsonObject, entryName)
 			if (entry != 0) && (entry.isStringLit() || entry.isObjectLit()) {
-				var dirName string = String_substring(inputPath, 0, (String_length(inputPath) - String_length("package.json")))
+				var dirName string = inputPath[:len(inputPath)-len("package.json")]
 				if entry.isStringLit() {
 					this.packageJsonMainEntries.put(inputPath, (sstr_(dirName) + sstr_(entry.getString())))
 					break
 				} else if entry.isObjectLit() {
-					Preconditions_checkState_boolean_Object((entryName == "browser"), strobj_(entryName))
+					if entryName != "browser" {
+						panic(new_IllegalStateException_String(sstr_(entryName)))
+					}
 					this.processBrowserFieldAdvancedUsage(dirName, entry)
 				}
 			}
@@ -105,10 +109,12 @@ func (this *RewriteJsonToModule) processBrowserFieldAdvancedUsage(dirName string
 		var child Node = entry.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			var value Node = child.getFirstChild()
-			Preconditions_checkState((child.isStringKey() && (value.isStringLit() || value.isFalse())))
+			if !(child.isStringKey() && (value.isStringLit() || value.isFalse())) {
+				panic(new_IllegalStateException_0())
+			}
 			var path string = child.getString()
-			if String_startsWith(path, ModuleLoader_DEFAULT_FILENAME_PREFIX) {
-				path = String_substring_int(path, String_length(ModuleLoader_DEFAULT_FILENAME_PREFIX))
+			if strings.HasPrefix(path, ModuleLoader_DEFAULT_FILENAME_PREFIX) {
+				path = path[len(ModuleLoader_DEFAULT_FILENAME_PREFIX):]
 			}
 			var replacement string = func() string {
 				if value.isStringLit() {
@@ -132,4 +138,13 @@ func RewriteJsonToModule_clinit() {
 	RewriteJsonToModule_clinit_done = true
 	RewriteJsonToModule_JSON_UNEXPECTED_TOKEN = DiagnosticType_error("JSC_JSON_UNEXPECTED_TOKEN", "Unexpected JSON token")
 
+}
+
+// visit: an object that is exactly a RewriteJsonToModule calls its visit_impl directly (post-flip); others dispatch.
+func (this *RewriteJsonToModule) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*RewriteJsonToModule); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

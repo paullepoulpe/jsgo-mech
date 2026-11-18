@@ -6,7 +6,7 @@ type TemplateLiteralToken struct {
 	LiteralToken
 	errorMessage_ string
 	errorPosition *SourcePosition_util
-	errorLevel    *TemplateLiteralToken_ErrorLevel
+	errorLevel    TemplateLiteralToken_ErrorLevel
 }
 
 func (this *TemplateLiteralToken) up_LiteralToken() *LiteralToken {
@@ -28,14 +28,14 @@ func (this *TemplateLiteralToken) zero_TemplateLiteralToken() {
 	this.errorMessage_ = nullstr_
 }
 
-func (this *TemplateLiteralToken) init_TemplateLiteralToken(type_ *TokenType, value string, errorMsg string, errorLevel *TemplateLiteralToken_ErrorLevel, position *SourcePosition_util, location *SourceRange) {
+func (this *TemplateLiteralToken) init_TemplateLiteralToken(type_ TokenType, value string, errorMsg string, errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util, location *SourceRange) {
 	this.LiteralToken.init_LiteralToken(type_, value, location)
 	this.errorMessage_ = errorMsg
 	this.errorLevel = errorLevel
 	this.errorPosition = position
 }
 
-func new_TemplateLiteralToken(type_ *TokenType, value string, errorMsg string, errorLevel *TemplateLiteralToken_ErrorLevel, position *SourcePosition_util, location *SourceRange) *TemplateLiteralToken {
+func new_TemplateLiteralToken(type_ TokenType, value string, errorMsg string, errorLevel TemplateLiteralToken_ErrorLevel, position *SourcePosition_util, location *SourceRange) *TemplateLiteralToken {
 	this := &TemplateLiteralToken{}
 	this.self_ = this
 	this.zero_TemplateLiteralToken()
@@ -48,47 +48,67 @@ func (this *TemplateLiteralToken) toString_impl() string {
 }
 
 func (this *TemplateLiteralToken) hasError() bool {
-	return Object_equals(obj_(TemplateLiteralToken_ErrorLevel_ERROR), obj_(this.errorLevel))
+	return TemplateLiteralToken_ErrorLevel_ERROR == this.errorLevel
 }
 
-type TemplateLiteralToken_ErrorLevel struct {
-	Enum
+type TemplateLiteralToken_ErrorLevel uint8
+
+// TemplateLiteralToken_ErrorLevel_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var TemplateLiteralToken_ErrorLevel_enum_ = [2]Enum{
+	{self_: TemplateLiteralToken_ErrorLevel_WARNING, name_: "WARNING", ordinal_: 0},
+	{self_: TemplateLiteralToken_ErrorLevel_ERROR, name_: "ERROR", ordinal_: 1},
 }
 
-func (this *TemplateLiteralToken_ErrorLevel) up_Enum() *Enum {
-	if this == nil {
+func (this TemplateLiteralToken_ErrorLevel) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &TemplateLiteralToken_ErrorLevel_enum_[this-1]
 }
 
-func (this *TemplateLiteralToken_ErrorLevel) init_TemplateLiteralToken_ErrorLevel(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this TemplateLiteralToken_ErrorLevel) name() string {
+	return this.enum_().name_
 }
 
-func new_TemplateLiteralToken_ErrorLevel(name_ string, ordinal_ int32) *TemplateLiteralToken_ErrorLevel {
-	this := &TemplateLiteralToken_ErrorLevel{}
-	this.self_ = this
-	this.init_TemplateLiteralToken_ErrorLevel(name_, ordinal_)
+func (this TemplateLiteralToken_ErrorLevel) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this TemplateLiteralToken_ErrorLevel) toString() string {
+	return this.enum_().name_
+}
+
+func (this TemplateLiteralToken_ErrorLevel) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this TemplateLiteralToken_ErrorLevel) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func TemplateLiteralToken_ErrorLevel_values() []*TemplateLiteralToken_ErrorLevel {
-	return append([]*TemplateLiteralToken_ErrorLevel(nil), TemplateLiteralToken_ErrorLevel_values_...)
+func TemplateLiteralToken_ErrorLevel_values() []TemplateLiteralToken_ErrorLevel {
+	return append([]TemplateLiteralToken_ErrorLevel(nil), TemplateLiteralToken_ErrorLevel_values_...)
 }
 
-func TemplateLiteralToken_ErrorLevel_valueOf(name string) *TemplateLiteralToken_ErrorLevel {
+func TemplateLiteralToken_ErrorLevel_valueOf(name string) TemplateLiteralToken_ErrorLevel {
 	for _, v := range TemplateLiteralToken_ErrorLevel_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ErrorLevel", name))
 }
 
-var TemplateLiteralToken_ErrorLevel_WARNING *TemplateLiteralToken_ErrorLevel
-var TemplateLiteralToken_ErrorLevel_ERROR *TemplateLiteralToken_ErrorLevel
-var TemplateLiteralToken_ErrorLevel_values_ []*TemplateLiteralToken_ErrorLevel
+const TemplateLiteralToken_ErrorLevel_WARNING TemplateLiteralToken_ErrorLevel = 1
+const TemplateLiteralToken_ErrorLevel_ERROR TemplateLiteralToken_ErrorLevel = 2
+
+var TemplateLiteralToken_ErrorLevel_values_ []TemplateLiteralToken_ErrorLevel
 
 var TemplateLiteralToken_ErrorLevel_clinit_done bool
 
@@ -97,9 +117,15 @@ func TemplateLiteralToken_ErrorLevel_clinit() {
 		return
 	}
 	TemplateLiteralToken_ErrorLevel_clinit_done = true
-	TemplateLiteralToken_ErrorLevel_WARNING = new_TemplateLiteralToken_ErrorLevel("WARNING", 0)
-	TemplateLiteralToken_ErrorLevel_ERROR = new_TemplateLiteralToken_ErrorLevel("ERROR", 1)
-	TemplateLiteralToken_ErrorLevel_values_ = []*TemplateLiteralToken_ErrorLevel{TemplateLiteralToken_ErrorLevel_WARNING, TemplateLiteralToken_ErrorLevel_ERROR}
+	TemplateLiteralToken_ErrorLevel_values_ = []TemplateLiteralToken_ErrorLevel{TemplateLiteralToken_ErrorLevel_WARNING, TemplateLiteralToken_ErrorLevel_ERROR}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.TemplateLiteralToken.ErrorLevel", enumValues_(TemplateLiteralToken_ErrorLevel_values_))
 
+}
+
+// toString: an object that is exactly a TemplateLiteralToken calls its toString_impl directly (post-flip); others dispatch.
+func (this *TemplateLiteralToken) toString() string {
+	if p, _ := this.self_.(*TemplateLiteralToken); p == this {
+		return this.toString_impl()
+	}
+	return this.self_.toString_impl()
 }

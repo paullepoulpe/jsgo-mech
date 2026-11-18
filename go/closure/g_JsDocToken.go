@@ -2,63 +2,96 @@
 
 package closure
 
-type JsDocToken struct {
-	Enum
+type JsDocToken uint8
+
+// JsDocToken_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JsDocToken_enum_ = [21]Enum{
+	{self_: JsDocToken_EOF, name_: "EOF", ordinal_: 0},
+	{self_: JsDocToken_EOL, name_: "EOL", ordinal_: 1},
+	{self_: JsDocToken_LEFT_ANGLE, name_: "LEFT_ANGLE", ordinal_: 2},
+	{self_: JsDocToken_RIGHT_ANGLE, name_: "RIGHT_ANGLE", ordinal_: 3},
+	{self_: JsDocToken_STRING, name_: "STRING", ordinal_: 4},
+	{self_: JsDocToken_LEFT_SQUARE, name_: "LEFT_SQUARE", ordinal_: 5},
+	{self_: JsDocToken_RIGHT_SQUARE, name_: "RIGHT_SQUARE", ordinal_: 6},
+	{self_: JsDocToken_LEFT_CURLY, name_: "LEFT_CURLY", ordinal_: 7},
+	{self_: JsDocToken_RIGHT_CURLY, name_: "RIGHT_CURLY", ordinal_: 8},
+	{self_: JsDocToken_LEFT_PAREN, name_: "LEFT_PAREN", ordinal_: 9},
+	{self_: JsDocToken_RIGHT_PAREN, name_: "RIGHT_PAREN", ordinal_: 10},
+	{self_: JsDocToken_COMMA, name_: "COMMA", ordinal_: 11},
+	{self_: JsDocToken_COLON, name_: "COLON", ordinal_: 12},
+	{self_: JsDocToken_ITER_REST, name_: "ITER_REST", ordinal_: 13},
+	{self_: JsDocToken_ANNOTATION, name_: "ANNOTATION", ordinal_: 14},
+	{self_: JsDocToken_PIPE, name_: "PIPE", ordinal_: 15},
+	{self_: JsDocToken_STAR, name_: "STAR", ordinal_: 16},
+	{self_: JsDocToken_EOC, name_: "EOC", ordinal_: 17},
+	{self_: JsDocToken_QMARK, name_: "QMARK", ordinal_: 18},
+	{self_: JsDocToken_BANG, name_: "BANG", ordinal_: 19},
+	{self_: JsDocToken_EQUALS, name_: "EQUALS", ordinal_: 20},
 }
 
-func (this *JsDocToken) up_Enum() *Enum {
-	if this == nil {
+func (this JsDocToken) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JsDocToken_enum_[this-1]
 }
 
-func (this *JsDocToken) init_JsDocToken(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JsDocToken) name() string { return this.enum_().name_ }
+
+func (this JsDocToken) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_JsDocToken(name_ string, ordinal_ int32) *JsDocToken {
-	this := &JsDocToken{}
-	this.self_ = this
-	this.init_JsDocToken(name_, ordinal_)
+func (this JsDocToken) toString() string { return this.enum_().name_ }
+
+func (this JsDocToken) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this JsDocToken) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JsDocToken_values() []*JsDocToken {
-	return append([]*JsDocToken(nil), JsDocToken_values_...)
+func JsDocToken_values() []JsDocToken {
+	return append([]JsDocToken(nil), JsDocToken_values_...)
 }
 
-func JsDocToken_valueOf(name string) *JsDocToken {
+func JsDocToken_valueOf(name string) JsDocToken {
 	for _, v := range JsDocToken_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("JsDocToken", name))
 }
 
-var JsDocToken_EOF *JsDocToken
-var JsDocToken_EOL *JsDocToken
-var JsDocToken_LEFT_ANGLE *JsDocToken
-var JsDocToken_RIGHT_ANGLE *JsDocToken
-var JsDocToken_STRING *JsDocToken
-var JsDocToken_LEFT_SQUARE *JsDocToken
-var JsDocToken_RIGHT_SQUARE *JsDocToken
-var JsDocToken_LEFT_CURLY *JsDocToken
-var JsDocToken_RIGHT_CURLY *JsDocToken
-var JsDocToken_LEFT_PAREN *JsDocToken
-var JsDocToken_RIGHT_PAREN *JsDocToken
-var JsDocToken_COMMA *JsDocToken
-var JsDocToken_COLON *JsDocToken
-var JsDocToken_ITER_REST *JsDocToken
-var JsDocToken_ANNOTATION *JsDocToken
-var JsDocToken_PIPE *JsDocToken
-var JsDocToken_STAR *JsDocToken
-var JsDocToken_EOC *JsDocToken
-var JsDocToken_QMARK *JsDocToken
-var JsDocToken_BANG *JsDocToken
-var JsDocToken_EQUALS *JsDocToken
-var JsDocToken_values_ []*JsDocToken
+const JsDocToken_EOF JsDocToken = 1
+const JsDocToken_EOL JsDocToken = 2
+const JsDocToken_LEFT_ANGLE JsDocToken = 3
+const JsDocToken_RIGHT_ANGLE JsDocToken = 4
+const JsDocToken_STRING JsDocToken = 5
+const JsDocToken_LEFT_SQUARE JsDocToken = 6
+const JsDocToken_RIGHT_SQUARE JsDocToken = 7
+const JsDocToken_LEFT_CURLY JsDocToken = 8
+const JsDocToken_RIGHT_CURLY JsDocToken = 9
+const JsDocToken_LEFT_PAREN JsDocToken = 10
+const JsDocToken_RIGHT_PAREN JsDocToken = 11
+const JsDocToken_COMMA JsDocToken = 12
+const JsDocToken_COLON JsDocToken = 13
+const JsDocToken_ITER_REST JsDocToken = 14
+const JsDocToken_ANNOTATION JsDocToken = 15
+const JsDocToken_PIPE JsDocToken = 16
+const JsDocToken_STAR JsDocToken = 17
+const JsDocToken_EOC JsDocToken = 18
+const JsDocToken_QMARK JsDocToken = 19
+const JsDocToken_BANG JsDocToken = 20
+const JsDocToken_EQUALS JsDocToken = 21
+
+var JsDocToken_values_ []JsDocToken
 
 var JsDocToken_clinit_done bool
 
@@ -67,28 +100,7 @@ func JsDocToken_clinit() {
 		return
 	}
 	JsDocToken_clinit_done = true
-	JsDocToken_EOF = new_JsDocToken("EOF", 0)
-	JsDocToken_EOL = new_JsDocToken("EOL", 1)
-	JsDocToken_LEFT_ANGLE = new_JsDocToken("LEFT_ANGLE", 2)
-	JsDocToken_RIGHT_ANGLE = new_JsDocToken("RIGHT_ANGLE", 3)
-	JsDocToken_STRING = new_JsDocToken("STRING", 4)
-	JsDocToken_LEFT_SQUARE = new_JsDocToken("LEFT_SQUARE", 5)
-	JsDocToken_RIGHT_SQUARE = new_JsDocToken("RIGHT_SQUARE", 6)
-	JsDocToken_LEFT_CURLY = new_JsDocToken("LEFT_CURLY", 7)
-	JsDocToken_RIGHT_CURLY = new_JsDocToken("RIGHT_CURLY", 8)
-	JsDocToken_LEFT_PAREN = new_JsDocToken("LEFT_PAREN", 9)
-	JsDocToken_RIGHT_PAREN = new_JsDocToken("RIGHT_PAREN", 10)
-	JsDocToken_COMMA = new_JsDocToken("COMMA", 11)
-	JsDocToken_COLON = new_JsDocToken("COLON", 12)
-	JsDocToken_ITER_REST = new_JsDocToken("ITER_REST", 13)
-	JsDocToken_ANNOTATION = new_JsDocToken("ANNOTATION", 14)
-	JsDocToken_PIPE = new_JsDocToken("PIPE", 15)
-	JsDocToken_STAR = new_JsDocToken("STAR", 16)
-	JsDocToken_EOC = new_JsDocToken("EOC", 17)
-	JsDocToken_QMARK = new_JsDocToken("QMARK", 18)
-	JsDocToken_BANG = new_JsDocToken("BANG", 19)
-	JsDocToken_EQUALS = new_JsDocToken("EQUALS", 20)
-	JsDocToken_values_ = []*JsDocToken{JsDocToken_EOF, JsDocToken_EOL, JsDocToken_LEFT_ANGLE, JsDocToken_RIGHT_ANGLE, JsDocToken_STRING, JsDocToken_LEFT_SQUARE, JsDocToken_RIGHT_SQUARE, JsDocToken_LEFT_CURLY, JsDocToken_RIGHT_CURLY, JsDocToken_LEFT_PAREN, JsDocToken_RIGHT_PAREN, JsDocToken_COMMA, JsDocToken_COLON, JsDocToken_ITER_REST, JsDocToken_ANNOTATION, JsDocToken_PIPE, JsDocToken_STAR, JsDocToken_EOC, JsDocToken_QMARK, JsDocToken_BANG, JsDocToken_EQUALS}
+	JsDocToken_values_ = []JsDocToken{JsDocToken_EOF, JsDocToken_EOL, JsDocToken_LEFT_ANGLE, JsDocToken_RIGHT_ANGLE, JsDocToken_STRING, JsDocToken_LEFT_SQUARE, JsDocToken_RIGHT_SQUARE, JsDocToken_LEFT_CURLY, JsDocToken_RIGHT_CURLY, JsDocToken_LEFT_PAREN, JsDocToken_RIGHT_PAREN, JsDocToken_COMMA, JsDocToken_COLON, JsDocToken_ITER_REST, JsDocToken_ANNOTATION, JsDocToken_PIPE, JsDocToken_STAR, JsDocToken_EOC, JsDocToken_QMARK, JsDocToken_BANG, JsDocToken_EQUALS}
 	registerEnum_("com.google.javascript.jscomp.parsing.JsDocToken", enumValues_(JsDocToken_values_))
 
 }

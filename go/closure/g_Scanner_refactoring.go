@@ -3,22 +3,16 @@
 package closure
 
 type Scanner_refactoring struct {
-	self_ any
+	self_ Scanner_refactoring_I
+}
+
+// Scanner_refactoring_I holds the methods the dispatchers of Scanner_refactoring's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type Scanner_refactoring_I interface {
+	processMatch_impl(*Match) []*SuggestedFix
 }
 
 func (this *Scanner_refactoring) as_Scanner_refactoring() *Scanner_refactoring { return this }
-
-func to_Scanner_refactoring(v any) *Scanner_refactoring {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_Scanner_refactoring() *Scanner_refactoring }).as_Scanner_refactoring()
-}
-
-func is_Scanner_refactoring(v any) bool {
-	_, ok := v.(interface{ as_Scanner_refactoring() *Scanner_refactoring })
-	return ok
-}
 
 func (this *Scanner_refactoring) self() any {
 	if this == nil {
@@ -31,20 +25,18 @@ func (this *Scanner_refactoring) init_Scanner_refactoring() {
 
 }
 
-func (this *Scanner_refactoring) processMatch_impl(match *Match) ListOf[*SuggestedFix] {
-	return icast_List(obj_(ImmutableList_of()))
+func (this *Scanner_refactoring) processMatch_impl(match *Match) []*SuggestedFix {
+	return []*SuggestedFix{}
 }
 
-func (this *Scanner_refactoring) processAllMatches(matches CollectionOf[*Match]) ListOf[*SuggestedFix] {
-	return icast_List(obj_(ImmutableList_of()))
+func (this *Scanner_refactoring) processAllMatches(matches CollectionOf[*Match]) []*SuggestedFix {
+	return []*SuggestedFix{}
 }
 
 func (this *Scanner_refactoring) matches(p0 Node, p1 *NodeMetadata) bool {
-	return this.self_.(interface {
-		matches_impl(Node, *NodeMetadata) bool
-	}).matches_impl(p0, p1)
+	return this.self_.(*GoogBindToArrow).matches_impl(p0, p1)
 }
 
-func (this *Scanner_refactoring) processMatch(p0 *Match) List {
-	return this.self_.(interface{ processMatch_impl(*Match) List }).processMatch_impl(p0)
+func (this *Scanner_refactoring) processMatch(p0 *Match) []*SuggestedFix {
+	return this.self_.processMatch_impl(p0)
 }

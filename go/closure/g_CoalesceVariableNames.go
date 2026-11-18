@@ -6,7 +6,7 @@ type CoalesceVariableNames struct {
 	NodeTraversal_AbstractCfgCallback
 	compiler_                *AbstractCompiler
 	scopeCreator             *MemoizedScopeCreator
-	colorings                DequeOf[*GraphColoring[*Var, any]]
+	colorings                *[]*GraphColoring[*Var, any]
 	liveAnalyses             *TDeque[*LiveVariablesAnalysis]
 	usePseudoNames           bool
 	astFactory_              *AstFactory
@@ -32,13 +32,15 @@ func (this *CoalesceVariableNames) finit_CoalesceVariableNames() {
 func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *AbstractCompiler, usePseudoNames bool) {
 	this.NodeTraversal_AbstractCfgCallback.init_NodeTraversal_AbstractCfgCallback()
 	this.finit_CoalesceVariableNames()
-	Preconditions_checkState(compiler.getLifeCycleStage().isNormalized())
+	if !compiler.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0())
+	}
 	this.compiler_ = compiler
-	this.colorings = icast_Deque(obj_(new_ArrayDeque()))
+	this.colorings = &[]*GraphColoring[*Var, any]{}
 	this.liveAnalyses = newTDeque_(jtc_p_LiveVariablesAnalysis)
 	this.usePseudoNames = usePseudoNames
 	this.astFactory_ = compiler.createAstFactory()
-	this.scopeCreator = new_MemoizedScopeCreator(icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(compiler))))
+	this.scopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler).createScopeAbstractScope)
 }
 
 func new_CoalesceVariableNames(compiler *AbstractCompiler, usePseudoNames bool) *CoalesceVariableNames {
@@ -49,9 +51,13 @@ func new_CoalesceVariableNames(compiler *AbstractCompiler, usePseudoNames bool) 
 }
 
 func (this *CoalesceVariableNames) process_2(externs Node, root Node) {
-	Preconditions_checkNotNull(externs.box_())
-	Preconditions_checkNotNull(root.box_())
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(this))).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverse(root)
+	if externs == 0 {
+		panic(new_NullPointerException_0())
+	}
+	if root == 0 {
+		panic(new_NullPointerException_0())
+	}
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverse(root)
 	this.compiler_.setLifeCycleStage(AbstractCompiler_LifeCycleStage_RAW)
 }
 
@@ -73,7 +79,9 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 	}
 	this.shouldOptimizeScopeStack.push(any(bool(true)))
 	var scope *Scope = t.getScope()
-	Preconditions_checkState_boolean_Object(scope.isFunctionScope(), obj_(scope))
+	if !scope.isFunctionScope() {
+		panic(new_IllegalStateException_String(tostr_(scope)))
+	}
 	var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
 	this.liveness = new_LiveVariablesAnalysis(cfg, scope, nil, this.compiler_, icast_ScopeCreator(obj_(this.scopeCreator)), allVarsDeclaredInFunction)
 	if FeatureSet_ES3.containsFeatureSet(this.compiler_.getOptions().getOutputFeatureSet()) {
@@ -87,54 +95,54 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 	var interferenceGraph *UndiGraph[*Var, any] = this.computeVariableNamesInterferenceGraph(cfg, this.liveness.getEscapedLocals())
 	var coloring *GraphColoring[*Var, any] = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[*Var, any](cast_[AdjacencyGraph[*Var]](interferenceGraph.self()), this.coloringTieBreaker).up_GraphColoring()
 	coloring.color()
-	this.colorings.push(coloring.self())
+	*this.colorings = append(*this.colorings, coloring)
 }
 
 func (this *CoalesceVariableNames) exitScopeWithCfg_impl(t *NodeTraversal) {
 	if !unbox_[bool](this.shouldOptimizeScopeStack.pop()) {
 		return
 	}
-	this.colorings.pop()
+	slicePop_(tc_p_GraphColoring_p_Var__any_, this.colorings)
 	this.liveAnalyses.pop()
 	this.liveness = this.liveAnalyses.peek()
 }
 
 func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (this.colorings.isEmpty() || !n.isName()) || parent.isFunction() {
+	if (len(*this.colorings) == 0 || !n.isName()) || parent.isFunction() {
 		return
 	}
 	var var_ *Var = this.liveness.getAllVariables().get(n.getString())
-	var vNode GraphNode[*Var] = to_GraphColoring[*Var, any](this.colorings.peek()).getGraph().getNode(var_)
+	var vNode GraphNode[*Var] = to_GraphColoring[*Var, any](slicePeekTop_(tc_p_GraphColoring_p_Var__any_, *this.colorings).self()).getGraph().getNode(var_)
 	if vNode == nil {
 		return
 	}
-	var coalescedVar *Var = to_GraphColoring[*Var, any](this.colorings.peek()).getPartitionSuperNode(var_)
+	var coalescedVar *Var = to_GraphColoring[*Var, any](slicePeekTop_(tc_p_GraphColoring_p_Var__any_, *this.colorings).self()).getPartitionSuperNode(var_)
 	if !this.usePseudoNames {
-		if vNode.getValue().equals(obj_(coalescedVar)) {
+		if vNode.getValue().equals_ScopedName(coalescedVar.up_ScopedName()) {
 			return
 		}
 		n.setString(coalescedVar.getName())
 		this.compiler_.reportChangeToEnclosingScope(n)
 		this.updateDeclarationsPostCoalescing(n, coalescedVar, var_, parent)
 	} else {
-		var allMergedNames SetOf[string] = icast_Set(obj_(new_TreeSet()))
+		var allMergedNames *TTreeSet[string] = newTTreeSet_(tc_string)
 		it_1 := this.liveness.getAllVariablesInOrder().each()
 		for it_1.next() {
 			var iVar *Var = it_1.v
-			if (to_GraphColoring[*Var, any](this.colorings.peek()).getGraph().getNode(iVar) != nil) && to_GraphColoring[*Var, any](this.colorings.peek()).haveSameColor(iVar, coalescedVar) {
-				Collection_add_s(allMergedNames, iVar.getName())
+			if (to_GraphColoring[*Var, any](slicePeekTop_(tc_p_GraphColoring_p_Var__any_, *this.colorings).self()).getGraph().getNode(iVar) != nil) && to_GraphColoring[*Var, any](slicePeekTop_(tc_p_GraphColoring_p_Var__any_, *this.colorings).self()).haveSameColor(iVar, coalescedVar) {
+				allMergedNames.add(iVar.getName())
 			}
 		}
 		if allMergedNames.size() == 1 {
 			return
 		}
-		var pseudoName string = Joiner_on("_").join(Iterable(allMergedNames))
+		var pseudoName string = Joiner_on("_").join(Iterable(allMergedNames.asSet()))
 		for t.getScope().hasSlot(pseudoName) {
 			pseudoName += "$"
 		}
 		n.setString(pseudoName)
 		this.compiler_.reportChangeToEnclosingScope(n)
-		if vNode.getValue().equals(obj_(coalescedVar)) {
+		if vNode.getValue().equals_ScopedName(coalescedVar.up_ScopedName()) {
 			return
 		}
 		this.updateDeclarationsPostCoalescing(n, coalescedVar, var_, parent)
@@ -142,7 +150,9 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 }
 
 func (this *CoalesceVariableNames) updateDeclarationsPostCoalescing(n Node, coalescedVar *Var, originalVar *Var, parent Node) {
-	Preconditions_checkState_boolean_Object(n.isName(), strobj_("trying to update the declaration of a non-name node"))
+	if !n.isName() {
+		panic(new_IllegalStateException_String("trying to update the declaration of a non-name node"))
+	}
 	if NodeUtil_isNameDeclaration(parent) || (((NodeUtil_getEnclosingType(n, Token_rhino_DESTRUCTURING_LHS) != 0) && NodeUtil_isLhsByDestructuring(n)) && !this.isNameInsideDestructuringAssignment(n)) {
 		this.makeDeclarationVar(coalescedVar)
 		this.removeVarDeclaration(n, originalVar)
@@ -190,13 +200,11 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 		interferenceGraph.createNode(v)
 		interferenceGraphNodes.set(vIndex)
 	}
-	it_4 := foreach_(any(cfg.getNodes()))
-	for it_4.next() {
-		var cfgNode DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](it_4.v)
+	for cfgNode := range elemsAs_[DiGraph_DiGraphNode[Node]](cfg.getNodes()) {
 		if cfg.isImplicitReturn(cfgNode) {
 			continue
 		}
-		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(cfgNode)))
+		var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode)))
 		var livein *LiveVariablesAnalysis_LiveVariableLattice = cast_[*LiveVariablesAnalysis_LiveVariableLattice](state.getIn())
 		for i := int32(livein.nextSetBit(0)); i >= 0; i = livein.nextSetBit((i + 1)) {
 			for j := int32(livein.nextSetBit(i)); j >= 0; j = livein.nextSetBit((j + 1)) {
@@ -234,25 +242,24 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 }
 
 func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
-	var declarationType *Token_rhino = v.declarationType()
+	var declarationType Token_rhino = v.declarationType()
 	return func() bool {
 		switch declarationType {
 		case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
-			var nameDecl Node = NodeUtil_getEnclosingNode(v.getNode(), &Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) }})
+			var nameDecl Node = NodeUtil_getEnclosingNode(v.getNode(), (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) }}).apply)
 			var count []int32 = []int32{0}
-			NodeUtil_visitLhsNodesInNode(nameDecl, &Consumer_tfn_Node{func(lhs Node) {
+			NodeUtil_visitLhsNodesInNode(nameDecl, (&Consumer_tfn_Node{func(lhs Node) {
 				count[0]++
-			}})
+			}}).accept)
 			return (count[0] > 1)
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *Var) {
-	var var_ Node = NodeUtil_getEnclosingNode(name, &Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) }})
+	var var_ Node = NodeUtil_getEnclosingNode(name, (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) }}).apply)
 	var parent Node = var_.getParent()
 	if var_.getFirstChild().isDestructuringLhs() {
 		var destructuringLhs Node = var_.getFirstChild()
@@ -266,7 +273,9 @@ func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *
 	} else if NodeUtil_isEnhancedFor(parent) {
 		var_.replaceWith(name.detach())
 	} else {
-		Preconditions_checkState_boolean_Object((var_.hasOneChild() && (var_.getFirstChild() == name)), var_.box_())
+		if !var_.hasOneChild() || var_.getFirstChild() != name {
+			panic(new_IllegalStateException_String(tostr_(var_)))
+		}
 		if name.hasChildren() {
 			var value Node = name.removeFirstChild()
 			name.detach()
@@ -291,18 +300,23 @@ func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *
 
 func (this *CoalesceVariableNames) makeDeclarationVar(coalescedName *Var) {
 	if coalescedName.isConst() || coalescedName.isLet() {
-		var nameNode Node = Node_of_(Preconditions_checkNotNull_Object_Object(coalescedName.getNameNode().box_(), obj_(coalescedName)))
+		var nameNode Node = coalescedName.getNameNode()
+		if nameNode == 0 {
+			panic(new_NullPointerException_String(tostr_(coalescedName)))
+		}
 		if CoalesceVariableNames_isUninitializedLetNameInLoopBody(nameNode) {
 			var undefinedValue Node = this.astFactory_.createUndefinedValue().srcrefTree(nameNode)
 			nameNode.addChildToFront(undefinedValue)
 		}
-		var declNode Node = NodeUtil_getEnclosingNode(nameNode.getParent(), &Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) }})
+		var declNode Node = NodeUtil_getEnclosingNode(nameNode.getParent(), (&Predicate_base_tfn_Node{func(p0 Node) bool { return NodeUtil_isNameDeclaration(p0) }}).apply)
 		declNode.setToken(Token_rhino_VAR)
 	}
 }
 
 func CoalesceVariableNames_isUninitializedLetNameInLoopBody(nameNode Node) bool {
-	Preconditions_checkState_boolean_Object(nameNode.isName(), nameNode.box_())
+	if !nameNode.isName() {
+		panic(new_IllegalStateException_String(tostr_(nameNode)))
+	}
 	var letNode Node = nameNode.getParent()
 	if !letNode.isLet() {
 		return false
@@ -321,18 +335,26 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 	if !CoalesceVariableNames_isUninitializedLetNameInLoopBody(nameNode) {
 		return false
 	}
-	Preconditions_checkState((this.liveness != nil))
+	if this.liveness == nil {
+		panic(new_IllegalStateException_0())
+	}
 	var letNode Node = nameNode.getParent()
 	var cfg *ControlFlowGraph[Node] = this.liveness.getCfg()
-	var cfgNode DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](Preconditions_checkNotNull(any(cfg.getNode(letNode))))
-	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Preconditions_checkNotNull(any(Annotatable_getAnnotation(Annotatable(cfgNode)))))
+	var cfgNode DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](cfg.getNode(letNode))
+	if cfgNode == nil {
+		panic(new_NullPointerException_0())
+	}
+	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode)))
+	if state == nil {
+		panic(new_NullPointerException_0())
+	}
 	var varIndex int32 = this.liveness.getVarIndex(originalVar.getName())
-	return ((varIndex >= 0) && cast_[*LiveVariablesAnalysis_LiveVariableLattice](state.getOut()).isLive(varIndex))
+	return ((varIndex >= 0) && state.getOut().(*LiveVariablesAnalysis_LiveVariableLattice).isLive(varIndex))
 }
 
 type CoalesceVariableNames_LiveRangeChecker struct {
 	root             Node
-	state            *DataFlowAnalysis_LinearFlowState
+	state            *DataFlowAnalysis_LinearFlowState[any]
 	orderedVariables []*Var
 	isAssignToList   *JTList[any]
 	isReadFromList   *JTList[any]
@@ -343,14 +365,14 @@ func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_
 	this.isReadFromList = jnewTList_(tc_Integer)
 }
 
-func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState) {
+func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[any]) {
 	this.finit_CoalesceVariableNames_LiveRangeChecker()
 	this.root = root
 	this.orderedVariables = orderedVariables
 	this.state = state
 }
 
-func new_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState) *CoalesceVariableNames_LiveRangeChecker {
+func new_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[any]) *CoalesceVariableNames_LiveRangeChecker {
 	this := &CoalesceVariableNames_LiveRangeChecker{}
 	this.init_CoalesceVariableNames_LiveRangeChecker(root, orderedVariables, state)
 	return this
@@ -383,7 +405,7 @@ func (this *CoalesceVariableNames_LiveRangeChecker) visit(n Node, parent Node) {
 	}
 	if !this.isAssignToList.isEmpty() {
 		for iVar := int32(0); iVar < int32(len(this.orderedVariables)); iVar++ {
-			var varOutLive bool = cast_[*LiveVariablesAnalysis_LiveVariableLattice](this.state.getOut()).isLive(iVar)
+			var varOutLive bool = this.state.getOut().(*LiveVariablesAnalysis_LiveVariableLattice).isLive(iVar)
 			if varOutLive || CoalesceVariableNames_LiveRangeChecker_isReadFrom(this.orderedVariables[iVar], n) {
 				this.isReadFromList.add(any(int32(iVar)))
 			}
@@ -426,4 +448,31 @@ func CoalesceVariableNames_LiveRangeChecker_isAssignTo(var_ *Var, n Node, parent
 
 func CoalesceVariableNames_LiveRangeChecker_isReadFrom(var_ *Var, name Node) bool {
 	return ((name.isName() && (var_.getName() == name.getString())) && !NodeUtil_isNameDeclOrSimpleAssignLhs(name, name.getParent()))
+}
+
+// enterScopeWithCfg: an object that is exactly a CoalesceVariableNames calls its enterScopeWithCfg_impl directly (post-flip); others dispatch.
+func (this *CoalesceVariableNames) enterScopeWithCfg(p0 *NodeTraversal) {
+	if p, _ := this.self_.(*CoalesceVariableNames); p == this {
+		this.enterScopeWithCfg_impl(p0)
+		return
+	}
+	this.self_.enterScopeWithCfg_impl(p0)
+}
+
+// exitScopeWithCfg: an object that is exactly a CoalesceVariableNames calls its exitScopeWithCfg_impl directly (post-flip); others dispatch.
+func (this *CoalesceVariableNames) exitScopeWithCfg(p0 *NodeTraversal) {
+	if p, _ := this.self_.(*CoalesceVariableNames); p == this {
+		this.exitScopeWithCfg_impl(p0)
+		return
+	}
+	this.self_.exitScopeWithCfg_impl(p0)
+}
+
+// visit: an object that is exactly a CoalesceVariableNames calls its visit_impl directly (post-flip); others dispatch.
+func (this *CoalesceVariableNames) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CoalesceVariableNames); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

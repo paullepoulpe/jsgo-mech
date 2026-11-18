@@ -27,16 +27,16 @@ func new_Es6CheckModule(compiler *AbstractCompiler) *Es6CheckModule {
 }
 
 func (this *Es6CheckModule) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *Es6CheckModule) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_THIS:
+	switch n.ns_().token {
+	case tokOrd1_THIS:
 		if t.inModuleHoistScope() {
 			t.report(n, Es6CheckModule_ES6_MODULE_REFERENCES_THIS, []string{})
 		}
-	case Token_rhino_GETPROP, Token_rhino_GETELEM:
+	case tokOrd1_GETPROP, tokOrd1_GETELEM:
 		if (NodeUtil_isLValue(n) && !NodeUtil_isDeclarationLValue(n)) && n.getFirstChild().isName() {
 			var var_ *Var = cast_[*Var](t.getScope().getVar(n.getFirstChild().getString()).self())
 			if var_ != nil {
@@ -46,7 +46,7 @@ func (this *Es6CheckModule) visit_impl(t *NodeTraversal, n Node, parent Node) {
 				}
 			}
 		}
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if NodeUtil_isLValue(n) && !NodeUtil_isDeclarationLValue(n) {
 			var var_ *Var = cast_[*Var](t.getScope().getVar(n.getString()).self())
 			if var_ != nil {
@@ -75,4 +75,13 @@ func Es6CheckModule_clinit() {
 	Es6CheckModule_ES6_MODULE_REFERENCES_THIS = DiagnosticType_warning("ES6_MODULE_REFERENCES_THIS", "The body of an ES6 module cannot reference 'this'.")
 	Es6CheckModule_IMPORT_CANNOT_BE_REASSIGNED = DiagnosticType_error("JSC_IMPORT_CANNOT_BE_REASSIGNED", "Assignment to constant variable \"{0}\".")
 
+}
+
+// visit: an object that is exactly a Es6CheckModule calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6CheckModule) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*Es6CheckModule); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

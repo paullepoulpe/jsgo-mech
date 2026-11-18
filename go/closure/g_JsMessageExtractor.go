@@ -31,31 +31,30 @@ func new_JsMessageExtractor_IdGenerator_CompilerOptions_boolean(idGenerator JsMe
 }
 
 func (this *JsMessageExtractor) extractMessages(inputs []*SourceFile_jscomp) CollectionOf[*JsMessage] {
-	return this.extractMessagesIterable(icast_Iterable(obj_(ImmutableList_copyOf_ObjectArr(arrmap_(inputs, func(v_ *SourceFile_jscomp) any { return obj_(v_) })))))
+	return this.extractMessagesIterable(ImmutableList_copyOf_ObjectArr(arrmap_(inputs, func(v_ *SourceFile_jscomp) any { return obj_(v_) })))
 }
 
 func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*SourceFile_jscomp]) CollectionOf[*JsMessage] {
 	var compiler *Compiler = new_Compiler_0()
-	compiler.init(icast_List(obj_(ImmutableList_of())), icast_List(obj_(ImmutableList_copyOf_Iterable(inputs))), this.options_)
-	compiler.runInCompilerThread(&Callable_fn{func() any {
+	compiler.init(ImmutableList_of(), icast_List(obj_(ImmutableList_copyOf_Iterable(inputs))), this.options_)
+	compiler.runInCompilerThread(func() any {
 		compiler.parseInputs()
 		return nil
-		panic("unreachable")
-	}})
+	})
 	var extractCompilerPass *JsMessageExtractor_ExtractMessagesVisitor = new_JsMessageExtractor_ExtractMessagesVisitor(this, compiler.up_AbstractCompiler())
 	if compiler.getErrors().isEmpty() {
 		extractCompilerPass.process_2(0, compiler.getRoot())
 	}
-	var errors ImmutableListOf[*JSError] = compiler.getErrors()
+	var errors *ImmutableList[*JSError] = compiler.getErrors()
 	if !errors.isEmpty() {
-		var msg *StringBuilder = new_StringBuilder_String("JSCompiler errors\n")
-		var formatter MessageFormatter = icast_MessageFormatter(obj_(new_LightweightMessageFormatter_SourceExcerptProvider(icast_SourceExcerptProvider(obj_(compiler)))))
-		it_1 := foreach_(obj_(errors))
-		for it_1.next() {
-			var e *JSError = cast_[*JSError](it_1.v)
+		var msg strBuilder_
+		msg.append("JSCompiler errors\n")
+		var formatter MessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider(compiler)
+		for _, el := range errors.items {
+			e := el
 			msg.append(formatter.formatError(e))
 		}
-		panic(new_RuntimeException_String(Object_toString(obj_(msg))).self())
+		panic(new_RuntimeException_String(msg.toString()))
 	}
 	return extractCompilerPass.getMessages()
 }
@@ -113,4 +112,22 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) processJsMessage(jsMessag
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) getMessages() CollectionOf[*JsMessage] {
 	return Collection(this.messages.asList())
+}
+
+// processJsMessageDefinition: an object that is exactly a JsMessageExtractor_ExtractMessagesVisitor calls its processJsMessageDefinition_impl directly (post-flip); others dispatch.
+func (this *JsMessageExtractor_ExtractMessagesVisitor) processJsMessageDefinition(p0 JsMessageDefinition) {
+	if p, _ := this.self_.(*JsMessageExtractor_ExtractMessagesVisitor); p == this {
+		this.processJsMessageDefinition_impl(p0)
+		return
+	}
+	this.self_.processJsMessageDefinition_impl(p0)
+}
+
+// processIcuTemplateDefinition: an object that is exactly a JsMessageExtractor_ExtractMessagesVisitor calls its processIcuTemplateDefinition_impl directly (post-flip); others dispatch.
+func (this *JsMessageExtractor_ExtractMessagesVisitor) processIcuTemplateDefinition(p0 IcuTemplateDefinition) {
+	if p, _ := this.self_.(*JsMessageExtractor_ExtractMessagesVisitor); p == this {
+		this.processIcuTemplateDefinition_impl(p0)
+		return
+	}
+	this.self_.processIcuTemplateDefinition_impl(p0)
 }

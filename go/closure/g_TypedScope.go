@@ -2,13 +2,15 @@
 
 package closure
 
+import "strings"
+
 type TypedScope struct {
 	AbstractScope
 	parent        *TypedScope
 	depth         int32
 	module_       *Module
 	isBottomField bool
-	reservedNames SetOf[string]
+	reservedNames *TSet[string]
 }
 
 func (this *TypedScope) up_AbstractScope() *AbstractScope {
@@ -24,11 +26,11 @@ func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *Typed
 	this.parent = parent
 	this.depth = (parent.depth + 1)
 	this.isBottomField = false
-	this.reservedNames = func() Set {
+	this.reservedNames = func() *TSet[string] {
 		if reservedNames.isEmpty() {
-			return icast_Set(obj_(ImmutableSet_of()))
+			return immutableSetOf_(tc_string)
 		}
-		return icast_Set(obj_(new_LinkedHashSet_Collection(Collection(reservedNames.asSet()))))
+		return tsetFrom_(tc_string, Collection(reservedNames.asSet()), false)
 	}()
 	this.module_ = module
 }
@@ -46,7 +48,7 @@ func (this *TypedScope) init_TypedScope_Node_boolean(rootNode Node, isBottom boo
 	this.parent = nil
 	this.depth = 0
 	this.isBottomField = isBottom
-	this.reservedNames = icast_Set(obj_(ImmutableSet_of()))
+	this.reservedNames = immutableSetOf_(tc_string)
 	this.module_ = nil
 }
 
@@ -74,8 +76,10 @@ func (this *TypedScope) typed_impl() *TypedScope {
 }
 
 func (this *TypedScope) validateCompletelyBuilt() {
-	Preconditions_checkState_boolean_String_Object_Object(this.reservedNames.isEmpty(), "Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", obj_(this), any(this.reservedNames))
-	this.reservedNames = icast_Set(obj_(ImmutableSet_of()))
+	if !this.reservedNames.IsEmpty() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", []any{obj_(this), this.reservedNames.asSet()})))
+	}
+	this.reservedNames = immutableSetOf_(tc_string)
 }
 
 func (this *TypedScope) isBottom() bool {
@@ -106,47 +110,48 @@ func (this *TypedScope) getTypeOfThis() *JSType {
 			return nil
 		}
 	} else if this.isStaticBlockScope() {
-		return cast_[*TypedScope](this.getParent().self()).getRootNode().getJSType()
+		return this.getParent().self().(*TypedScope).getRootNode().getJSType()
 	} else if this.isMemberFieldDefScope() || this.isComputedFieldDefRhsScope() {
-		var classType *JSType = cast_[*TypedScope](this.getParent().self()).getRootNode().getJSType()
+		var classType *JSType = this.getParent().self().(*TypedScope).getRootNode().getJSType()
 		if root.isStaticMember() {
 			return classType
 		} else {
 			return classType.assertFunctionType().getInstanceType().up_JSType()
 		}
 	} else {
-		return cast_[*TypedScope](this.getParent().self()).getTypeOfThis()
+		return this.getParent().self().(*TypedScope).getTypeOfThis()
 	}
-	panic("unreachable")
 }
 
 func (this *TypedScope) declare(name string, nameNode Node, type_ *JSType, input *CompilerInput, inferred bool) *TypedVar {
-	Preconditions_checkState(!String_isEmpty(name))
-	if !this.reservedNames.isEmpty() {
-		Collection_remove_s(this.reservedNames, name)
+	if name == "" {
+		panic(new_IllegalStateException_0())
+	}
+	if !this.reservedNames.IsEmpty() {
+		this.reservedNames.Delete(name)
 	}
 	var var_ *TypedVar = new_TypedVar(inferred, name, nameNode, type_, this, this.getVarCount(), input)
 	this.declareInternal(name, var_.up_AbstractVar())
 	return var_
 }
 
-func (this *TypedScope) makeImplicitVar_impl(var_ *AbstractScope_ImplicitVar) *AbstractVar {
+func (this *TypedScope) makeImplicitVar_impl(var_ AbstractScope_ImplicitVar) *AbstractVar {
 	if this.isGlobal() {
 		return nil
-	} else if Object_equals(obj_(var_), obj_(AbstractScope_ImplicitVar_EXPORTS)) {
+	} else if equalsId_(var_, AbstractScope_ImplicitVar_EXPORTS) {
 		return nil
 	}
-	return new_TypedVar(false, var_.nameField, 0, this.getImplicitVarType(var_), this, -1, nil).up_AbstractVar()
+	return new_TypedVar(false, AbstractScope_ImplicitVar_nameField_[var_-1], 0, this.getImplicitVarType(var_), this, -1, nil).up_AbstractVar()
 }
 
-func (this *TypedScope) hasOwnImplicitSlot_impl(name *AbstractScope_ImplicitVar) bool {
-	return (((name != nil) && !Object_equals(obj_(name), obj_(AbstractScope_ImplicitVar_EXPORTS))) && name.isMadeByScope(this.up_AbstractScope()))
+func (this *TypedScope) hasOwnImplicitSlot_impl(name AbstractScope_ImplicitVar) bool {
+	return (((name != 0) && !equalsId_(name, AbstractScope_ImplicitVar_EXPORTS)) && name.isMadeByScope(this.up_AbstractScope()))
 }
 
-func (this *TypedScope) getImplicitVarType(var_ *AbstractScope_ImplicitVar) *JSType {
+func (this *TypedScope) getImplicitVarType(var_ AbstractScope_ImplicitVar) *JSType {
 	switch var_ {
 	case AbstractScope_ImplicitVar_ARGUMENTS:
-		var globalArgs *TypedVar = cast_[*TypedVar](cast_[*TypedScope](this.getGlobalScope().self()).getVar(Var_ARGUMENTS).self())
+		var globalArgs *TypedVar = cast_[*TypedVar](this.getGlobalScope().self().(*TypedScope).getVar(Var_ARGUMENTS).self())
 		return func() *JSType {
 			if (globalArgs != nil) && globalArgs.isExtern() {
 				return globalArgs.getType()
@@ -171,9 +176,9 @@ func (this *TypedScope) getImplicitVarType(var_ *AbstractScope_ImplicitVar) *JST
 			return receiverType.getImplicitPrototype().up_JSType()
 		}
 	case AbstractScope_ImplicitVar_EXPORTS:
-		panic(new_AssertionError_Object(strobj_("TypedScopes should not contain an implicit 'exports'")).self())
+		panic(new_AssertionError_Object(strobj_("TypedScopes should not contain an implicit 'exports'")))
 	}
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func (this *TypedScope) getDeclarativelyUnboundVarsWithoutTypes() IterableOf[*TypedVar] {
@@ -191,29 +196,28 @@ func (this *TypedScope) getVar_impl(name string) *AbstractVar {
 	} else if cast_[*TypedScope](this.getParent().self()) == nil {
 		return nil
 	}
-	var dot int32 = String_indexOf(name, 46)
+	var dot int32 = int32(strings.IndexByte(name, '.'))
 	var rootName string = func() string {
 		if dot < 0 {
 			return name
 		}
-		return String_substring(name, 0, dot)
+		return name[:dot]
 	}()
 	var rootVar *TypedVar = cast_[*TypedVar](this.AbstractScope.getVar_impl(rootName).self())
 	if dot < 0 {
 		return rootVar.up_AbstractVar()
 	} else if rootVar == nil {
-		return to_AbstractVar(cast_[*TypedScope](cast_[*TypedScope](this.getParent().self()).getGlobalScope().self()).getOwnSlot(name))
+		return to_AbstractVar(this.getParent().self().(*TypedScope).getGlobalScope().self().(*TypedScope).getOwnSlot(name))
 	} else {
-		return to_AbstractVar(cast_[*TypedScope](rootVar.getScope()).getOwnSlot(name))
+		return to_AbstractVar(rootVar.getScope().(*TypedScope).getOwnSlot(name))
 	}
-	panic("unreachable")
 }
 
 func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
-	var split int32 = String_lastIndexOf(moduleId, 46)
+	var split int32 = int32(strings.LastIndexByte(moduleId, '.'))
 	if split >= 0 {
-		var parentName string = String_substring(moduleId, 0, split)
-		var prop string = String_substring_int(moduleId, (split + 1))
+		var parentName string = moduleId[:split]
+		var prop string = moduleId[split+1:]
 		var parentType *JSType = this.getTypeThroughNamespace(parentName)
 		if (parentType == nil) || (parentType.toMaybeObjectType() == nil) {
 			return nil
@@ -228,20 +232,74 @@ func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
 			return nil
 		}()
 	}
-	panic("unreachable")
 }
 
 func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) StaticScope {
-	if (cast_[*TypedVar](this.getOwnSlot(name)) != nil) || Collection_contains_s(this.reservedNames, name) {
-		return icast_StaticScope(obj_(this))
+	if (cast_[*TypedVar](this.getOwnSlot(name)) != nil) || this.reservedNames.Has(name) {
+		return this
 	} else if cast_[*TypedScope](this.getParent().self()) == nil {
 		return nil
 	} else {
-		return cast_[*TypedScope](this.getParent().self()).getTopmostScopeOfEventualDeclaration(name)
+		return this.getParent().self().(*TypedScope).getTopmostScopeOfEventualDeclaration(name)
 	}
-	panic("unreachable")
 }
 
 func (this *TypedScope) lookupQualifiedName(p0 *QualifiedName) *JSType {
-	return StaticTypedScope_lookupQualifiedName_default(icast_StaticTypedScope(obj_(this)), p0)
+	return StaticTypedScope_lookupQualifiedName_default(this, p0)
+}
+
+// typed: an object that is exactly a TypedScope calls its typed_impl directly (post-flip); others dispatch.
+func (this *TypedScope) typed() *TypedScope {
+	if p, _ := this.self_.(*TypedScope); p == this {
+		return this.typed_impl()
+	}
+	return this.self_.typed_impl()
+}
+
+// getDepth: an object that is exactly a TypedScope calls its getDepth_impl directly (post-flip); others dispatch.
+func (this *TypedScope) getDepth() int32 {
+	if p, _ := this.self_.(*TypedScope); p == this {
+		return this.getDepth_impl()
+	}
+	return this.self_.getDepth_impl()
+}
+
+// getParent: an object that is exactly a TypedScope calls its getParent_impl directly (post-flip); others dispatch.
+func (this *TypedScope) getParent() *AbstractScope {
+	if p, _ := this.self_.(*TypedScope); p == this {
+		return this.getParent_impl()
+	}
+	return this.self_.getParent_impl()
+}
+
+// makeImplicitVar: an object that is exactly a TypedScope calls its makeImplicitVar_impl directly (post-flip); others dispatch.
+func (this *TypedScope) makeImplicitVar(p0 AbstractScope_ImplicitVar) *AbstractVar {
+	if p, _ := this.self_.(*TypedScope); p == this {
+		return this.makeImplicitVar_impl(p0)
+	}
+	return this.self_.makeImplicitVar_impl(p0)
+}
+
+// hasOwnImplicitSlot: an object that is exactly a TypedScope calls its hasOwnImplicitSlot_impl directly (post-flip); others dispatch.
+func (this *TypedScope) hasOwnImplicitSlot(p0 AbstractScope_ImplicitVar) bool {
+	if p, _ := this.self_.(*TypedScope); p == this {
+		return this.hasOwnImplicitSlot_impl(p0)
+	}
+	return this.self_.hasOwnImplicitSlot_impl(p0)
+}
+
+// getVar: an object that is exactly a TypedScope calls its getVar_impl directly (post-flip); others dispatch.
+func (this *TypedScope) getVar(p0 string) *AbstractVar {
+	if p, _ := this.self_.(*TypedScope); p == this {
+		return this.getVar_impl(p0)
+	}
+	return this.self_.getVar_impl(p0)
+}
+
+// getTopmostScopeOfEventualDeclaration: an object that is exactly a TypedScope calls its getTopmostScopeOfEventualDeclaration_impl directly (post-flip); others dispatch.
+func (this *TypedScope) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
+	if p, _ := this.self_.(*TypedScope); p == this {
+		return this.getTopmostScopeOfEventualDeclaration_impl(p0)
+	}
+	return this.self_.getTopmostScopeOfEventualDeclaration_impl(p0)
 }

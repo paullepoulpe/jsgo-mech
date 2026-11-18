@@ -17,8 +17,8 @@ func ErrorReporter_rhino_clinit() {
 		return
 	}
 	ErrorReporter_rhino_clinit_done = true
-	ErrorReporter_rhino_NULL_INSTANCE = icast_ErrorReporter_rhino(obj_(new_ErrorReporter_1()))
-	ErrorReporter_rhino_ALWAYS_THROWS_INSTANCE = icast_ErrorReporter_rhino(obj_(new_ErrorReporter_2()))
+	ErrorReporter_rhino_NULL_INSTANCE = new_ErrorReporter_1()
+	ErrorReporter_rhino_ALWAYS_THROWS_INSTANCE = new_ErrorReporter_2()
 
 }
 
@@ -57,9 +57,9 @@ func new_ErrorReporter_2() *ErrorReporter_2 {
 }
 
 func (this *ErrorReporter_2) warning(message string, sourceName Optional[string], line int32, lineOffset int32) {
-	panic(new_IllegalStateException_String(message).self())
+	panic(new_IllegalStateException_String(message))
 }
 
 func (this *ErrorReporter_2) error(message string, sourceName Optional[string], line int32, lineOffset int32) {
-	panic(new_IllegalStateException_String(message).self())
+	panic(new_IllegalStateException_String(message))
 }

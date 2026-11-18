@@ -45,7 +45,7 @@ func new_KnownSymbolType(registry *JSTypeRegistry, name string) *KnownSymbolType
 	return this
 }
 
-func (this *KnownSymbolType) getTypeClass_impl() *JSTypeClass {
+func (this *KnownSymbolType) getTypeClass_impl() JSTypeClass {
 	return KnownSymbolType_TYPE_CLASS
 }
 
@@ -61,7 +61,7 @@ func (this *KnownSymbolType) toMaybeKnownSymbolType_impl() *KnownSymbolType {
 	return this
 }
 
-var KnownSymbolType_TYPE_CLASS *JSTypeClass
+var KnownSymbolType_TYPE_CLASS JSTypeClass
 
 var KnownSymbolType_clinit_done bool
 
@@ -72,4 +72,36 @@ func KnownSymbolType_clinit() {
 	KnownSymbolType_clinit_done = true
 	KnownSymbolType_TYPE_CLASS = JSTypeClass_WELL_KNOWN_SYMBOL
 
+}
+
+// getTypeClass: an object that is exactly a KnownSymbolType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *KnownSymbolType) getTypeClass() JSTypeClass {
+	if p, _ := this.self_.(*KnownSymbolType); p == this {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.getTypeClass_impl()
+}
+
+// getDisplayName: an object that is exactly a KnownSymbolType calls its getDisplayName_impl directly (post-flip); others dispatch.
+func (this *KnownSymbolType) getDisplayName() Optional[string] {
+	if p, _ := this.self_.(*KnownSymbolType); p == this {
+		return this.getDisplayName_impl()
+	}
+	return this.self_.getDisplayName_impl()
+}
+
+// isKnownSymbolValueType: an object that is exactly a KnownSymbolType calls its isKnownSymbolValueType_impl directly (post-flip); others dispatch.
+func (this *KnownSymbolType) isKnownSymbolValueType() bool {
+	if p, _ := this.self_.(*KnownSymbolType); p == this {
+		return this.isKnownSymbolValueType_impl()
+	}
+	return this.self_.isKnownSymbolValueType_impl()
+}
+
+// toMaybeKnownSymbolType: an object that is exactly a KnownSymbolType calls its toMaybeKnownSymbolType_impl directly (post-flip); others dispatch.
+func (this *KnownSymbolType) toMaybeKnownSymbolType() *KnownSymbolType {
+	if p, _ := this.self_.(*KnownSymbolType); p == this {
+		return this.toMaybeKnownSymbolType_impl()
+	}
+	return this.self_.toMaybeKnownSymbolType_impl()
 }

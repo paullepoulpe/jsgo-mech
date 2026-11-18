@@ -7,25 +7,25 @@ type RescopeGlobalSymbols struct {
 	globalSymbolNamespace_ string
 	addExtern_             bool
 	assumeCrossChunkNames  bool
-	optimizeLocalAccess    *CompilerOptions_OptimizeLocalAccess
+	optimizeLocalAccess    CompilerOptions_OptimizeLocalAccess
 }
 
 func (this *RescopeGlobalSymbols) zero_RescopeGlobalSymbols() {
 	this.globalSymbolNamespace_ = nullstr_
 }
 
-func (this *RescopeGlobalSymbols) init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, assumeCrossChunkNames bool, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess) {
+func (this *RescopeGlobalSymbols) init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, assumeCrossChunkNames bool, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess) {
 	this.init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_boolean_OptimizeLocalAccess(compiler, globalSymbolNamespace, true, assumeCrossChunkNames, optimizeLocalAccess)
 }
 
-func new_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, assumeCrossChunkNames bool, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess) *RescopeGlobalSymbols {
+func new_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, assumeCrossChunkNames bool, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess) *RescopeGlobalSymbols {
 	this := &RescopeGlobalSymbols{}
 	this.zero_RescopeGlobalSymbols()
 	this.init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler, globalSymbolNamespace, assumeCrossChunkNames, optimizeLocalAccess)
 	return this
 }
 
-func (this *RescopeGlobalSymbols) init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, addExtern bool, assumeCrossChunkNames bool, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess) {
+func (this *RescopeGlobalSymbols) init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, addExtern bool, assumeCrossChunkNames bool, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess) {
 	this.compiler_ = compiler
 	this.globalSymbolNamespace_ = globalSymbolNamespace
 	this.addExtern_ = addExtern
@@ -33,7 +33,7 @@ func (this *RescopeGlobalSymbols) init_RescopeGlobalSymbols_AbstractCompiler_Str
 	this.optimizeLocalAccess = optimizeLocalAccess
 }
 
-func new_RescopeGlobalSymbols_AbstractCompiler_String_boolean_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, addExtern bool, assumeCrossChunkNames bool, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess) *RescopeGlobalSymbols {
+func new_RescopeGlobalSymbols_AbstractCompiler_String_boolean_boolean_OptimizeLocalAccess(compiler *AbstractCompiler, globalSymbolNamespace string, addExtern bool, assumeCrossChunkNames bool, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess) *RescopeGlobalSymbols {
 	this := &RescopeGlobalSymbols{}
 	this.zero_RescopeGlobalSymbols()
 	this.init_RescopeGlobalSymbols_AbstractCompiler_String_boolean_boolean_OptimizeLocalAccess(compiler, globalSymbolNamespace, addExtern, assumeCrossChunkNames, optimizeLocalAccess)
@@ -51,17 +51,17 @@ func (this *RescopeGlobalSymbols) process_2(externs Node, root Node) {
 	if this.addExtern_ {
 		this.addExternForGlobalSymbolNamespace()
 	}
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback(this.compiler_))))
+	NodeTraversal_traverse(this.compiler_, root, new_RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback(this.compiler_))
 	var renameHelperBuilder *RescopeGlobalSymbolsRenameHelper_HelperBuilder = new_RescopeGlobalSymbolsRenameHelper_HelperBuilder(this.compiler_, this.globalSymbolNamespace_, this.optimizeLocalAccess)
 	var findCrossChunkNames *RescopeGlobalSymbols_FindCrossChunkNamesCallback = new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(this.compiler_, this.assumeCrossChunkNames, this.optimizeLocalAccess.shouldOptimize(), renameHelperBuilder)
 	var findNamesReferencingThis *RescopeGlobalSymbols_FindNamesReferencingThis = new_RescopeGlobalSymbols_FindNamesReferencingThis()
-	CombinedCompilerPass_traverse(this.compiler_, root, icast_List(obj_(ImmutableList_of_Object_Object(obj_(findCrossChunkNames), obj_(findNamesReferencingThis)))))
-	var externNames ImmutableSetOf[string] = NodeUtil_collectExternVariableNames(this.compiler_, externs)
-	var symbolInfo *RescopeGlobalSymbolsInfo = new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(this.globalSymbolNamespace_, icast_Set(obj_(externNames)), findCrossChunkNames.crossChunkNames_.asSet(), findCrossChunkNames.crossChunkNamesWithWriteFromOtherChunk_.asSet(), findCrossChunkNames.crossChunkNamesUsedInNonDependentChunk_.asSet(), findCrossChunkNames.globalNamesWithReadInDefiningChunk_.asSet(), findCrossChunkNames.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet(), findCrossChunkNames.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet(), findNamesReferencingThis.maybeReferencesThis_.asSet())
+	CombinedCompilerPass_traverse(this.compiler_, root, ImmutableList_of_Object_Object(obj_(findCrossChunkNames), obj_(findNamesReferencingThis)))
+	var externNames *ImmutableSet[string] = NodeUtil_collectExternVariableNames(this.compiler_, externs)
+	var symbolInfo *RescopeGlobalSymbolsInfo = new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(this.globalSymbolNamespace_, externNames, findCrossChunkNames.crossChunkNames_.asSet(), findCrossChunkNames.crossChunkNamesWithWriteFromOtherChunk_.asSet(), findCrossChunkNames.crossChunkNamesUsedInNonDependentChunk_.asSet(), findCrossChunkNames.globalNamesWithReadInDefiningChunk_.asSet(), findCrossChunkNames.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet(), findCrossChunkNames.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet(), findNamesReferencingThis.maybeReferencesThis_.asSet())
 	var renameHelper *RescopeGlobalSymbolsRenameHelper = renameHelperBuilder.build(symbolInfo)
 	var rewriteScope *RescopeGlobalSymbolsRewriteCallback = new_RescopeGlobalSymbolsRewriteCallback(this.compiler_, this.optimizeLocalAccess, symbolInfo, renameHelper)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(rewriteScope)))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RescopeGlobalSymbols_RemoveGlobalVarCallback(this.compiler_, this.optimizeLocalAccess.shouldPreserveLocalVarDeclarations()))))
+	NodeTraversal_traverse(this.compiler_, root, rewriteScope)
+	NodeTraversal_traverse(this.compiler_, root, new_RescopeGlobalSymbols_RemoveGlobalVarCallback(this.compiler_, this.optimizeLocalAccess.shouldPreserveLocalVarDeclarations()))
 	rewriteScope.addDeclarations()
 }
 
@@ -164,7 +164,7 @@ func new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler *AbstractComp
 func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
 		var name string = n.getString()
-		if String_isEmpty(name) || (!this.trackLocalAccessSets && this.crossChunkNames_.has(name)) {
+		if name == "" || (!this.trackLocalAccessSets && this.crossChunkNames_.has(name)) {
 			return
 		}
 		this.renameHelperBuilder.recordExistingName(name)
@@ -267,7 +267,7 @@ func new_RescopeGlobalSymbols_FindNamesReferencingThis() *RescopeGlobalSymbols_F
 func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
 		var name string = n.getString()
-		if String_isEmpty(name) {
+		if name == "" {
 			return
 		}
 		var value Node = 0
@@ -345,7 +345,9 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit_impl(t *NodeTrav
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
-				Preconditions_checkState_boolean_String_Object(!c.isDestructuringLhs(), "Unexpected DESTRUCTURING_LHS child: %s", c.box_())
+				if c.isDestructuringLhs() {
+					panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected DESTRUCTURING_LHS child: %s", []any{c.box_()})))
+				}
 				if this.preserveLocalVarDeclarations && c.isName() {
 					if currentVar == 0 {
 						currentVar = IR_var_Node(c.cloneTree()).srcref(n)
@@ -394,4 +396,40 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) joinOnComma(commas *JT
 		comma = nextComma
 	}
 	return comma
+}
+
+// visit: an object that is exactly a RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssignmentsCallback); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a RescopeGlobalSymbols_FindCrossChunkNamesCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*RescopeGlobalSymbols_FindCrossChunkNamesCallback); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a RescopeGlobalSymbols_FindNamesReferencingThis calls its visit_impl directly (post-flip); others dispatch.
+func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*RescopeGlobalSymbols_FindNamesReferencingThis); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a RescopeGlobalSymbols_RemoveGlobalVarCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*RescopeGlobalSymbols_RemoveGlobalVarCallback); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

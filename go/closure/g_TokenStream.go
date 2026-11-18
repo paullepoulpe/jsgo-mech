@@ -18,59 +18,60 @@ func new_TokenStream() *TokenStream {
 func TokenStream_isKeyword(name string) bool {
 	var id bool = false
 	var s string = name
+	sU16 := utf16Of_(s)
 complete_:
 	for range 1 {
 		var X Optional[string] = Optional_empty[string]()
 		var c int32
 	partial_:
-		switch String_length(s) {
+		switch sU16.length() {
 		case 2:
-			c = int32(String_charAt(s, 1))
+			c = int32(sU16.charAt(1))
 			if c == 102 {
-				if String_charAt(s, 0) == 'i' {
+				if byteAt_(s, 0) == 'i' {
 					id = true
 					break complete_
 				}
 			} else if c == 110 {
-				if String_charAt(s, 0) == 'i' {
+				if byteAt_(s, 0) == 'i' {
 					id = true
 					break complete_
 				}
 			} else if c == 111 {
-				if String_charAt(s, 0) == 'd' {
+				if byteAt_(s, 0) == 'd' {
 					id = true
 					break complete_
 				}
 			}
 			break partial_
 		case 3:
-			switch String_charAt(s, 0) {
+			switch byteAt_(s, 0) {
 			case 'f':
-				if (String_charAt(s, 2) == 'r') && (String_charAt(s, 1) == 'o') {
+				if (sU16.charAt(2) == 'r') && (byteAt_(s, 1) == 'o') {
 					id = true
 					break complete_
 				}
 				break partial_
 			case 'i':
-				if (String_charAt(s, 2) == 't') && (String_charAt(s, 1) == 'n') {
+				if (sU16.charAt(2) == 't') && (byteAt_(s, 1) == 'n') {
 					id = true
 					break complete_
 				}
 				break partial_
 			case 'n':
-				if (String_charAt(s, 2) == 'w') && (String_charAt(s, 1) == 'e') {
+				if (sU16.charAt(2) == 'w') && (byteAt_(s, 1) == 'e') {
 					id = true
 					break complete_
 				}
 				break partial_
 			case 't':
-				if (String_charAt(s, 2) == 'y') && (String_charAt(s, 1) == 'r') {
+				if (sU16.charAt(2) == 'y') && (byteAt_(s, 1) == 'r') {
 					id = true
 					break complete_
 				}
 				break partial_
 			case 'v':
-				if (String_charAt(s, 2) == 'r') && (String_charAt(s, 1) == 'a') {
+				if (sU16.charAt(2) == 'r') && (byteAt_(s, 1) == 'a') {
 					id = true
 					break complete_
 				}
@@ -78,34 +79,34 @@ complete_:
 			}
 			break partial_
 		case 4:
-			switch String_charAt(s, 0) {
+			switch byteAt_(s, 0) {
 			case 'b':
 				X = Optional_of[string]("byte")
 				id = true
 				break partial_
 			case 'c':
-				c = int32(String_charAt(s, 3))
+				c = int32(sU16.charAt(3))
 				if c == 101 {
-					if (String_charAt(s, 2) == 's') && (String_charAt(s, 1) == 'a') {
+					if (sU16.charAt(2) == 's') && (byteAt_(s, 1) == 'a') {
 						id = true
 						break complete_
 					}
 				} else if c == 114 {
-					if (String_charAt(s, 2) == 'a') && (String_charAt(s, 1) == 'h') {
+					if (sU16.charAt(2) == 'a') && (byteAt_(s, 1) == 'h') {
 						id = true
 						break complete_
 					}
 				}
 				break partial_
 			case 'e':
-				c = int32(String_charAt(s, 3))
+				c = int32(sU16.charAt(3))
 				if c == 101 {
-					if (String_charAt(s, 2) == 's') && (String_charAt(s, 1) == 'l') {
+					if (sU16.charAt(2) == 's') && (byteAt_(s, 1) == 'l') {
 						id = true
 						break complete_
 					}
 				} else if c == 109 {
-					if (String_charAt(s, 2) == 'u') && (String_charAt(s, 1) == 'n') {
+					if (sU16.charAt(2) == 'u') && (byteAt_(s, 1) == 'n') {
 						id = true
 						break complete_
 					}
@@ -124,14 +125,14 @@ complete_:
 				id = true
 				break partial_
 			case 't':
-				c = int32(String_charAt(s, 3))
+				c = int32(sU16.charAt(3))
 				if c == 101 {
-					if (String_charAt(s, 2) == 'u') && (String_charAt(s, 1) == 'r') {
+					if (sU16.charAt(2) == 'u') && (byteAt_(s, 1) == 'r') {
 						id = true
 						break complete_
 					}
 				} else if c == 115 {
-					if (String_charAt(s, 2) == 'i') && (String_charAt(s, 1) == 'h') {
+					if (sU16.charAt(2) == 'i') && (byteAt_(s, 1) == 'h') {
 						id = true
 						break complete_
 					}
@@ -148,7 +149,7 @@ complete_:
 			}
 			break partial_
 		case 5:
-			switch String_charAt(s, 2) {
+			switch sU16.charAt(2) {
 			case 'a':
 				X = Optional_of[string]("class")
 				id = true
@@ -166,7 +167,7 @@ complete_:
 				id = true
 				break partial_
 			case 'n':
-				c = int32(String_charAt(s, 0))
+				c = int32(sU16.charAt(0))
 				if c == 99 {
 					X = Optional_of[string]("const")
 					id = true
@@ -176,7 +177,7 @@ complete_:
 				}
 				break partial_
 			case 'o':
-				c = int32(String_charAt(s, 0))
+				c = int32(sU16.charAt(0))
 				if c == 102 {
 					X = Optional_of[string]("float")
 					id = true
@@ -200,13 +201,13 @@ complete_:
 			}
 			break partial_
 		case 6:
-			switch String_charAt(s, 1) {
+			switch sU16.charAt(1) {
 			case 'a':
 				X = Optional_of[string]("native")
 				id = true
 				break partial_
 			case 'e':
-				c = int32(String_charAt(s, 0))
+				c = int32(sU16.charAt(0))
 				if c == 100 {
 					X = Optional_of[string]("delete")
 					id = true
@@ -250,7 +251,7 @@ complete_:
 			}
 			break partial_
 		case 7:
-			switch String_charAt(s, 1) {
+			switch sU16.charAt(1) {
 			case 'a':
 				X = Optional_of[string]("package")
 				id = true
@@ -278,7 +279,7 @@ complete_:
 			}
 			break partial_
 		case 8:
-			switch String_charAt(s, 0) {
+			switch byteAt_(s, 0) {
 			case 'a':
 				X = Optional_of[string]("abstract")
 				id = true
@@ -302,7 +303,7 @@ complete_:
 			}
 			break partial_
 		case 9:
-			c = int32(String_charAt(s, 0))
+			c = int32(sU16.charAt(0))
 			if c == 105 {
 				X = Optional_of[string]("interface")
 				id = true
@@ -315,7 +316,7 @@ complete_:
 			}
 			break partial_
 		case 10:
-			c = int32(String_charAt(s, 1))
+			c = int32(sU16.charAt(1))
 			if c == 109 {
 				X = Optional_of[string]("implements")
 				id = true

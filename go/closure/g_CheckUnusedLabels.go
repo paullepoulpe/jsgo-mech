@@ -18,12 +18,12 @@ func new_CheckUnusedLabels(compiler *AbstractCompiler) *CheckUnusedLabels {
 }
 
 func (this *CheckUnusedLabels) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckUnusedLabels) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_BREAK, Token_rhino_CONTINUE:
+	switch n.ns_().token {
+	case tokOrd1_BREAK, tokOrd1_CONTINUE:
 		if n.hasChildren() {
 			var temp *CheckUnusedLabels_LabelContext = this.currentContext
 			for temp != nil {
@@ -35,7 +35,7 @@ func (this *CheckUnusedLabels) shouldTraverse(t *NodeTraversal, n Node, parent N
 			}
 		}
 		return false
-	case Token_rhino_LABEL:
+	case tokOrd1_LABEL:
 		this.currentContext = new_CheckUnusedLabels_LabelContext(n.getFirstChild().getString(), this.currentContext)
 	default:
 	}

@@ -72,9 +72,8 @@ func JsIterables_maybeBoxIterableOrAsyncIterable(type_ *JSType, typeRegistry *JS
 func JsIterables_maybeBoxIterableAndPossiblyAsyncIterable(type_ *JSType, typeRegistry *JSTypeRegistry, includeAsyncIterable bool) *JsIterables_MaybeBoxedType {
 	var templatedTypes *JTList[*JSType] = jnewTList_(jtc_p_JSType)
 	if type_.isUnionType() {
-		it_1 := foreach_(obj_(type_.toMaybeUnionType().getAlternates()))
-		for it_1.next() {
-			var alt *JSType = to_JSType(it_1.v)
+		for _, el_1 := range type_.toMaybeUnionType().getAlternates().items {
+			var alt *JSType = el_1
 			alt = func() *JSType {
 				if alt.isBoxableScalar() {
 					return alt.autoboxesTo()
@@ -135,7 +134,7 @@ func new_JsIterables_MaybeBoxedType(templatedType *JSType, mismatchType *JSType)
 
 func (this *JsIterables_MaybeBoxedType) getTemplatedType() *JSType {
 	if !this.isMatch() {
-		panic(new_IllegalStateException_String("Type was not boxable to iterable or async iterable!").self())
+		panic(new_IllegalStateException_String("Type was not boxable to iterable or async iterable!"))
 	}
 	return this.templatedType
 }

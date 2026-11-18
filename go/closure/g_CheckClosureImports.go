@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CheckClosureImports struct {
 	compiler_      *AbstractCompiler
 	checker        *CheckClosureImports_Checker
@@ -36,7 +38,10 @@ func (this *CheckClosureImports) verifyRequireOrder(namespace string, call Node,
 		return
 	}
 	var requiredInputId *InputId = NodeUtil_getInputId(requiredModule.rootNode())
-	var requiredInput *CompilerInput = cast_[*CompilerInput](Preconditions_checkNotNull_Object_String_Object(obj_(this.compiler_.getInput(requiredInputId)), "Cannot find CompilerInput for %s", obj_(requiredModule)))
+	var requiredInput *CompilerInput = this.compiler_.getInput(requiredInputId)
+	if requiredInput == nil {
+		nullFail_(Strings_lenientFormat("Cannot find CompilerInput for %s", []any{obj_(requiredModule)}))
+	}
 	var requiredChunk *JSChunk = requiredInput.getChunk()
 	var currentChunk *JSChunk = t.getChunk()
 	if (currentChunk != requiredChunk) && !this.chunkGraph.dependsOn(currentChunk, requiredChunk) {
@@ -81,82 +86,116 @@ func CheckClosureImports_clinit() {
 
 }
 
-type CheckClosureImports_ClosureImport struct {
-	Enum
+type CheckClosureImports_ClosureImport uint8
+
+// CheckClosureImports_ClosureImport_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CheckClosureImports_ClosureImport_enum_ = [4]Enum{
+	{self_: CheckClosureImports_ClosureImport_REQUIRE, name_: "REQUIRE", ordinal_: 0},
+	{self_: CheckClosureImports_ClosureImport_FORWARD_DECLARE, name_: "FORWARD_DECLARE", ordinal_: 1},
+	{self_: CheckClosureImports_ClosureImport_REQUIRE_TYPE, name_: "REQUIRE_TYPE", ordinal_: 2},
+	{self_: CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC, name_: "REQUIRE_DYNAMIC", ordinal_: 3},
 }
 
-func (this *CheckClosureImports_ClosureImport) as_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport {
+func (this CheckClosureImports_ClosureImport) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &CheckClosureImports_ClosureImport_enum_[this-1]
+}
+
+func (this CheckClosureImports_ClosureImport) name() string { return this.enum_().name_ }
+
+func (this CheckClosureImports_ClosureImport) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this CheckClosureImports_ClosureImport) toString() string { return this.enum_().name_ }
+
+func (this CheckClosureImports_ClosureImport) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this CheckClosureImports_ClosureImport) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func to_CheckClosureImports_ClosureImport(v any) *CheckClosureImports_ClosureImport {
-	if v == nil {
-		return nil
+func (this CheckClosureImports_ClosureImport) as_CheckClosureImports_ClosureImport() CheckClosureImports_ClosureImport {
+	return this
+}
+
+func (this CheckClosureImports_ClosureImport) allowDestructuring() bool {
+	switch this {
+	case CheckClosureImports_ClosureImport_REQUIRE, CheckClosureImports_ClosureImport_REQUIRE_TYPE, CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC:
+		return true
+	case CheckClosureImports_ClosureImport_FORWARD_DECLARE:
+		return false
+	default:
+		panic(new_NullPointerException_0()) // a call on null
 	}
-	return v.(interface {
-		as_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport
-	}).as_CheckClosureImports_ClosureImport()
 }
 
-func is_CheckClosureImports_ClosureImport(v any) bool {
-	_, ok := v.(interface {
-		as_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport
-	})
-	return ok
-}
-
-func (this *CheckClosureImports_ClosureImport) self() any {
-	if this == nil {
-		return nil
+func (this CheckClosureImports_ClosureImport) aliasMustBeConstant() bool {
+	switch this {
+	case CheckClosureImports_ClosureImport_REQUIRE, CheckClosureImports_ClosureImport_REQUIRE_TYPE, CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC:
+		return true
+	case CheckClosureImports_ClosureImport_FORWARD_DECLARE:
+		return false
+	default:
+		panic(new_NullPointerException_0()) // a call on null
 	}
-	return this.self_
 }
 
-func (this *CheckClosureImports_ClosureImport) up_Enum() *Enum {
-	if this == nil {
-		return nil
+func (this CheckClosureImports_ClosureImport) mustBeOrdered() bool {
+	switch this {
+	case CheckClosureImports_ClosureImport_REQUIRE:
+		return true
+	case CheckClosureImports_ClosureImport_FORWARD_DECLARE, CheckClosureImports_ClosureImport_REQUIRE_TYPE, CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC:
+		return false
+	default:
+		panic(new_NullPointerException_0()) // a call on null
 	}
-	return &this.Enum
 }
 
-func (this *CheckClosureImports_ClosureImport) init_CheckClosureImports_ClosureImport(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CheckClosureImports_ClosureImport) callName() string {
+	switch this {
+	case CheckClosureImports_ClosureImport_REQUIRE:
+		return "goog.require"
+	case CheckClosureImports_ClosureImport_FORWARD_DECLARE:
+		return "goog.forwardDeclare"
+	case CheckClosureImports_ClosureImport_REQUIRE_TYPE:
+		return "goog.requireType"
+	case CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC:
+		return "goog.requireDynamic"
+	default:
+		panic(new_NullPointerException_0()) // a call on null
+	}
 }
 
-func (this *CheckClosureImports_ClosureImport) allowDestructuring() bool {
-	return this.self_.(interface{ allowDestructuring_impl() bool }).allowDestructuring_impl()
+func CheckClosureImports_ClosureImport_values() []CheckClosureImports_ClosureImport {
+	return append([]CheckClosureImports_ClosureImport(nil), CheckClosureImports_ClosureImport_values_...)
 }
 
-func (this *CheckClosureImports_ClosureImport) aliasMustBeConstant() bool {
-	return this.self_.(interface{ aliasMustBeConstant_impl() bool }).aliasMustBeConstant_impl()
-}
-
-func (this *CheckClosureImports_ClosureImport) mustBeOrdered() bool {
-	return this.self_.(interface{ mustBeOrdered_impl() bool }).mustBeOrdered_impl()
-}
-
-func (this *CheckClosureImports_ClosureImport) callName() string {
-	return this.self_.(interface{ callName_impl() string }).callName_impl()
-}
-
-func CheckClosureImports_ClosureImport_values() []*CheckClosureImports_ClosureImport {
-	return append([]*CheckClosureImports_ClosureImport(nil), CheckClosureImports_ClosureImport_values_...)
-}
-
-func CheckClosureImports_ClosureImport_valueOf(name string) *CheckClosureImports_ClosureImport {
+func CheckClosureImports_ClosureImport_valueOf(name string) CheckClosureImports_ClosureImport {
 	for _, v := range CheckClosureImports_ClosureImport_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ClosureImport", name))
 }
 
-var CheckClosureImports_ClosureImport_REQUIRE *CheckClosureImports_ClosureImport
-var CheckClosureImports_ClosureImport_FORWARD_DECLARE *CheckClosureImports_ClosureImport
-var CheckClosureImports_ClosureImport_REQUIRE_TYPE *CheckClosureImports_ClosureImport
-var CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC *CheckClosureImports_ClosureImport
-var CheckClosureImports_ClosureImport_values_ []*CheckClosureImports_ClosureImport
+const CheckClosureImports_ClosureImport_REQUIRE CheckClosureImports_ClosureImport = 1
+const CheckClosureImports_ClosureImport_FORWARD_DECLARE CheckClosureImports_ClosureImport = 2
+const CheckClosureImports_ClosureImport_REQUIRE_TYPE CheckClosureImports_ClosureImport = 3
+const CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC CheckClosureImports_ClosureImport = 4
+
+var CheckClosureImports_ClosureImport_values_ []CheckClosureImports_ClosureImport
 
 var CheckClosureImports_ClosureImport_clinit_done bool
 
@@ -165,11 +204,7 @@ func CheckClosureImports_ClosureImport_clinit() {
 		return
 	}
 	CheckClosureImports_ClosureImport_clinit_done = true
-	CheckClosureImports_ClosureImport_REQUIRE = new_CheckClosureImports_ClosureImport_1("REQUIRE", 0).up_CheckClosureImports_ClosureImport()
-	CheckClosureImports_ClosureImport_FORWARD_DECLARE = new_CheckClosureImports_ClosureImport_2("FORWARD_DECLARE", 1).up_CheckClosureImports_ClosureImport()
-	CheckClosureImports_ClosureImport_REQUIRE_TYPE = new_CheckClosureImports_ClosureImport_3("REQUIRE_TYPE", 2).up_CheckClosureImports_ClosureImport()
-	CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC = new_CheckClosureImports_ClosureImport_4("REQUIRE_DYNAMIC", 3).up_CheckClosureImports_ClosureImport()
-	CheckClosureImports_ClosureImport_values_ = []*CheckClosureImports_ClosureImport{CheckClosureImports_ClosureImport_REQUIRE, CheckClosureImports_ClosureImport_FORWARD_DECLARE, CheckClosureImports_ClosureImport_REQUIRE_TYPE, CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC}
+	CheckClosureImports_ClosureImport_values_ = []CheckClosureImports_ClosureImport{CheckClosureImports_ClosureImport_REQUIRE, CheckClosureImports_ClosureImport_FORWARD_DECLARE, CheckClosureImports_ClosureImport_REQUIRE_TYPE, CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC}
 	registerEnum_("com.google.javascript.jscomp.CheckClosureImports.ClosureImport", enumValues_(CheckClosureImports_ClosureImport_values_))
 
 }
@@ -210,8 +245,8 @@ func (this *CheckClosureImports_Checker) visit_4_impl(t *NodeTraversal, n Node, 
 	}
 	var parent Node = n.getParent()
 	if n.isCall() {
-		var kindOfCall *CheckClosureImports_ClosureImport = this.kindOfCall(n)
-		if kindOfCall != nil {
+		var kindOfCall CheckClosureImports_ClosureImport = this.kindOfCall(n)
+		if kindOfCall != 0 {
 			this.checkImport(t, n, parent, currentModule, kindOfCall)
 		} else if n.getFirstChild().matchesQualifiedNameNode(CheckClosureImports_GOOG_MODULE_GET) {
 			this.checkGoogModuleGet(t, n, currentModule)
@@ -221,8 +256,10 @@ func (this *CheckClosureImports_Checker) visit_4_impl(t *NodeTraversal, n Node, 
 	}
 }
 
-func (this *CheckClosureImports_Checker) kindOfCall(callNode Node) *CheckClosureImports_ClosureImport {
-	Preconditions_checkState(callNode.isCall())
+func (this *CheckClosureImports_Checker) kindOfCall(callNode Node) CheckClosureImports_ClosureImport {
+	if !callNode.isCall() {
+		panic(new_IllegalStateException_0())
+	}
 	if callNode.getFirstChild().matchesQualifiedNameNode(CheckClosureImports_GOOG_REQUIRE) {
 		return CheckClosureImports_ClosureImport_REQUIRE
 	} else if callNode.getFirstChild().matchesQualifiedNameNode(CheckClosureImports_GOOG_FORWARD_DECLARE) {
@@ -232,7 +269,7 @@ func (this *CheckClosureImports_Checker) kindOfCall(callNode Node) *CheckClosure
 	} else if callNode.getFirstChild().matchesQualifiedNameNode(CheckClosureImports_GOOG_REQUIRE_DYNAMIC) {
 		return CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC
 	}
-	return nil
+	return 0
 }
 
 func (this *CheckClosureImports_Checker) checkValidImportCodeReference(t *NodeTraversal, nameNode Node) {
@@ -253,8 +290,8 @@ func (this *CheckClosureImports_Checker) checkValidImportCodeReference(t *NodeTr
 	if ((!NodeUtil_isNameDeclaration(decl) || !decl.hasOneChild()) || !decl.getFirstChild().hasChildren()) || !decl.getFirstChild().getLastChild().isCall() {
 		return
 	}
-	var kindOfCall *CheckClosureImports_ClosureImport = this.kindOfCall(decl.getFirstChild().getLastChild())
-	if kindOfCall == nil {
+	var kindOfCall CheckClosureImports_ClosureImport = this.kindOfCall(decl.getFirstChild().getLastChild())
+	if kindOfCall == 0 {
 		return
 	}
 }
@@ -290,7 +327,7 @@ func (this *CheckClosureImports_Checker) checkGoogModuleGet(t *NodeTraversal, ca
 		return
 	}
 	var namespace string = call.getSecondChild().getString()
-	var requiredModule *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMapField.getModulesByGoogNamespace(), namespace))
+	var requiredModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMapField.getModulesByGoogNamespace().Get(namespace)
 	if requiredModule == nil {
 		t.report(call, ClosurePrimitiveErrors_MISSING_MODULE_OR_PROVIDE, []string{namespace})
 		return
@@ -318,7 +355,9 @@ func (this *CheckClosureImports_Checker) checkGoogModuleGet(t *NodeTraversal, ca
 }
 
 func (this *CheckClosureImports_Checker) isValidDestructuringImport(destructuringLhs Node) bool {
-	Preconditions_checkArgument(destructuringLhs.isDestructuringLhs())
+	if !destructuringLhs.isDestructuringLhs() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var objectPattern Node = destructuringLhs.getFirstChild()
 	if !objectPattern.isObjectPattern() {
 		return false
@@ -339,23 +378,24 @@ func (this *CheckClosureImports_Checker) isValidDestructuringImport(destructurin
 
 func (this *CheckClosureImports_Checker) checkShortName(t *NodeTraversal, shortNameNode Node, namespace string) {
 	var shortName string = shortNameNode.getString()
-	var lastSegment string = String_substring_int(namespace, (String_lastIndexOf(namespace, 46) + 1))
-	if (shortName == lastSegment) || String_isEmpty(lastSegment) {
+	var lastSegment string = namespace[strings.LastIndexByte(namespace, '.')+1:]
+	if (shortName == lastSegment) || lastSegment == "" {
 		return
 	}
-	if Ascii_isUpperCase(String_charAt(shortName, 0)) != Ascii_isUpperCase(String_charAt(lastSegment, 0)) {
+	if Ascii_isUpperCase(uint16(byteAt_(shortName, 0))) != Ascii_isUpperCase(uint16(byteAt_(lastSegment, 0))) {
+		shortNameU16 := utf16Of_(shortName)
 		var newStartChar uint16 = func() uint16 {
-			if Ascii_isUpperCase(String_charAt(shortName, 0)) {
-				return Ascii_toLowerCase_char(String_charAt(shortName, 0))
+			if Ascii_isUpperCase(uint16(byteAt_(shortName, 0))) {
+				return Ascii_toLowerCase_char(shortNameU16.charAt(0))
 			}
-			return Ascii_toUpperCase_char(String_charAt(shortName, 0))
+			return Ascii_toUpperCase_char(shortNameU16.charAt(0))
 		}()
-		var correctedName string = (chrstr_(newStartChar) + sstr_(String_substring_int(shortName, 1)))
+		var correctedName string = (chrstr_(newStartChar) + sstr_(shortNameU16.substring_int(1)))
 		t.report(shortNameNode, ClosureCheckModule_INCORRECT_SHORTNAME_CAPITALIZATION, []string{shortName, correctedName})
 	}
 }
 
-func (this *CheckClosureImports_Checker) checkImport(t *NodeTraversal, call Node, parent Node, currentModule *ModuleMetadataMap_ModuleMetadata, importType *CheckClosureImports_ClosureImport) {
+func (this *CheckClosureImports_Checker) checkImport(t *NodeTraversal, call Node, parent Node, currentModule *ModuleMetadataMap_ModuleMetadata, importType CheckClosureImports_ClosureImport) {
 	var atTopLevelScope bool = (t.inGlobalHoistScope() || t.inModuleScope())
 	var isModule bool = currentModule.isModule()
 	var validAssignment bool = (isModule || parent.isExprResult())
@@ -395,7 +435,7 @@ func (this *CheckClosureImports_Checker) checkImport(t *NodeTraversal, call Node
 		}
 	}
 	var namespace string = call.getSecondChild().getString()
-	var requiredModule *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMapField.getModulesByGoogNamespace(), namespace))
+	var requiredModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMapField.getModulesByGoogNamespace().Get(namespace)
 	if requiredModule == nil {
 		if importType == CheckClosureImports_ClosureImport_FORWARD_DECLARE {
 			if isAliased && isModule {
@@ -414,290 +454,20 @@ func (this *CheckClosureImports_Checker) checkImport(t *NodeTraversal, call Node
 	}
 }
 
-type CheckClosureImports_ClosureImport_1 struct {
-	CheckClosureImports_ClosureImport
-}
-
-func (this *CheckClosureImports_ClosureImport_1) up_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport {
-	if this == nil {
-		return nil
-	}
-	return &this.CheckClosureImports_ClosureImport
-}
-
-func (this *CheckClosureImports_ClosureImport_1) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *CheckClosureImports_ClosureImport_1) init_CheckClosureImports_ClosureImport_1(name_ string, ordinal_ int32) {
-	this.CheckClosureImports_ClosureImport.init_CheckClosureImports_ClosureImport(name_, ordinal_)
-}
-
-func new_CheckClosureImports_ClosureImport_1(name_ string, ordinal_ int32) *CheckClosureImports_ClosureImport_1 {
-	this := &CheckClosureImports_ClosureImport_1{}
-	this.self_ = this
-	this.init_CheckClosureImports_ClosureImport_1(name_, ordinal_)
-	return this
-}
-
-func (this *CheckClosureImports_ClosureImport_1) allowDestructuring_impl() bool {
-	return true
-}
-
-func (this *CheckClosureImports_ClosureImport_1) aliasMustBeConstant_impl() bool {
-	return true
-}
-
-func (this *CheckClosureImports_ClosureImport_1) mustBeOrdered_impl() bool {
-	return true
-}
-
-func (this *CheckClosureImports_ClosureImport_1) callName_impl() string {
-	return "goog.require"
-}
-
-func CheckClosureImports_ClosureImport_1_values() []*CheckClosureImports_ClosureImport_1 {
-	return append([]*CheckClosureImports_ClosureImport_1(nil), CheckClosureImports_ClosureImport_1_values_...)
-}
-
-func CheckClosureImports_ClosureImport_1_valueOf(name string) *CheckClosureImports_ClosureImport_1 {
-	for _, v := range CheckClosureImports_ClosureImport_1_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var CheckClosureImports_ClosureImport_1_values_ []*CheckClosureImports_ClosureImport_1
-
-var CheckClosureImports_ClosureImport_1_clinit_done bool
-
-func CheckClosureImports_ClosureImport_1_clinit() {
-	if CheckClosureImports_ClosureImport_1_clinit_done {
+// enterModule: an object that is exactly a CheckClosureImports_Checker calls its enterModule_impl directly (post-flip); others dispatch.
+func (this *CheckClosureImports_Checker) enterModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
+	if p, _ := this.self_.(*CheckClosureImports_Checker); p == this {
+		this.enterModule_impl(p0, p1)
 		return
 	}
-	CheckClosureImports_ClosureImport_1_clinit_done = true
-	CheckClosureImports_ClosureImport_1_values_ = []*CheckClosureImports_ClosureImport_1{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.CheckClosureImports.ClosureImport>", enumValues_(CheckClosureImports_ClosureImport_1_values_))
-
+	this.self_.enterModule_impl(p0, p1)
 }
 
-type CheckClosureImports_ClosureImport_2 struct {
-	CheckClosureImports_ClosureImport
-}
-
-func (this *CheckClosureImports_ClosureImport_2) up_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport {
-	if this == nil {
-		return nil
-	}
-	return &this.CheckClosureImports_ClosureImport
-}
-
-func (this *CheckClosureImports_ClosureImport_2) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *CheckClosureImports_ClosureImport_2) init_CheckClosureImports_ClosureImport_2(name_ string, ordinal_ int32) {
-	this.CheckClosureImports_ClosureImport.init_CheckClosureImports_ClosureImport(name_, ordinal_)
-}
-
-func new_CheckClosureImports_ClosureImport_2(name_ string, ordinal_ int32) *CheckClosureImports_ClosureImport_2 {
-	this := &CheckClosureImports_ClosureImport_2{}
-	this.self_ = this
-	this.init_CheckClosureImports_ClosureImport_2(name_, ordinal_)
-	return this
-}
-
-func (this *CheckClosureImports_ClosureImport_2) allowDestructuring_impl() bool {
-	return false
-}
-
-func (this *CheckClosureImports_ClosureImport_2) aliasMustBeConstant_impl() bool {
-	return false
-}
-
-func (this *CheckClosureImports_ClosureImport_2) mustBeOrdered_impl() bool {
-	return false
-}
-
-func (this *CheckClosureImports_ClosureImport_2) callName_impl() string {
-	return "goog.forwardDeclare"
-}
-
-func CheckClosureImports_ClosureImport_2_values() []*CheckClosureImports_ClosureImport_2 {
-	return append([]*CheckClosureImports_ClosureImport_2(nil), CheckClosureImports_ClosureImport_2_values_...)
-}
-
-func CheckClosureImports_ClosureImport_2_valueOf(name string) *CheckClosureImports_ClosureImport_2 {
-	for _, v := range CheckClosureImports_ClosureImport_2_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var CheckClosureImports_ClosureImport_2_values_ []*CheckClosureImports_ClosureImport_2
-
-var CheckClosureImports_ClosureImport_2_clinit_done bool
-
-func CheckClosureImports_ClosureImport_2_clinit() {
-	if CheckClosureImports_ClosureImport_2_clinit_done {
+// visit_4: an object that is exactly a CheckClosureImports_Checker calls its visit_4_impl directly (post-flip); others dispatch.
+func (this *CheckClosureImports_Checker) visit_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMetadataMap_ModuleMetadata, p3 Node) {
+	if p, _ := this.self_.(*CheckClosureImports_Checker); p == this {
+		this.visit_4_impl(p0, p1, p2, p3)
 		return
 	}
-	CheckClosureImports_ClosureImport_2_clinit_done = true
-	CheckClosureImports_ClosureImport_2_values_ = []*CheckClosureImports_ClosureImport_2{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.CheckClosureImports.ClosureImport>", enumValues_(CheckClosureImports_ClosureImport_2_values_))
-
-}
-
-type CheckClosureImports_ClosureImport_3 struct {
-	CheckClosureImports_ClosureImport
-}
-
-func (this *CheckClosureImports_ClosureImport_3) up_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport {
-	if this == nil {
-		return nil
-	}
-	return &this.CheckClosureImports_ClosureImport
-}
-
-func (this *CheckClosureImports_ClosureImport_3) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *CheckClosureImports_ClosureImport_3) init_CheckClosureImports_ClosureImport_3(name_ string, ordinal_ int32) {
-	this.CheckClosureImports_ClosureImport.init_CheckClosureImports_ClosureImport(name_, ordinal_)
-}
-
-func new_CheckClosureImports_ClosureImport_3(name_ string, ordinal_ int32) *CheckClosureImports_ClosureImport_3 {
-	this := &CheckClosureImports_ClosureImport_3{}
-	this.self_ = this
-	this.init_CheckClosureImports_ClosureImport_3(name_, ordinal_)
-	return this
-}
-
-func (this *CheckClosureImports_ClosureImport_3) allowDestructuring_impl() bool {
-	return true
-}
-
-func (this *CheckClosureImports_ClosureImport_3) aliasMustBeConstant_impl() bool {
-	return true
-}
-
-func (this *CheckClosureImports_ClosureImport_3) mustBeOrdered_impl() bool {
-	return false
-}
-
-func (this *CheckClosureImports_ClosureImport_3) callName_impl() string {
-	return "goog.requireType"
-}
-
-func CheckClosureImports_ClosureImport_3_values() []*CheckClosureImports_ClosureImport_3 {
-	return append([]*CheckClosureImports_ClosureImport_3(nil), CheckClosureImports_ClosureImport_3_values_...)
-}
-
-func CheckClosureImports_ClosureImport_3_valueOf(name string) *CheckClosureImports_ClosureImport_3 {
-	for _, v := range CheckClosureImports_ClosureImport_3_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var CheckClosureImports_ClosureImport_3_values_ []*CheckClosureImports_ClosureImport_3
-
-var CheckClosureImports_ClosureImport_3_clinit_done bool
-
-func CheckClosureImports_ClosureImport_3_clinit() {
-	if CheckClosureImports_ClosureImport_3_clinit_done {
-		return
-	}
-	CheckClosureImports_ClosureImport_3_clinit_done = true
-	CheckClosureImports_ClosureImport_3_values_ = []*CheckClosureImports_ClosureImport_3{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.CheckClosureImports.ClosureImport>", enumValues_(CheckClosureImports_ClosureImport_3_values_))
-
-}
-
-type CheckClosureImports_ClosureImport_4 struct {
-	CheckClosureImports_ClosureImport
-}
-
-func (this *CheckClosureImports_ClosureImport_4) up_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport {
-	if this == nil {
-		return nil
-	}
-	return &this.CheckClosureImports_ClosureImport
-}
-
-func (this *CheckClosureImports_ClosureImport_4) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *CheckClosureImports_ClosureImport_4) init_CheckClosureImports_ClosureImport_4(name_ string, ordinal_ int32) {
-	this.CheckClosureImports_ClosureImport.init_CheckClosureImports_ClosureImport(name_, ordinal_)
-}
-
-func new_CheckClosureImports_ClosureImport_4(name_ string, ordinal_ int32) *CheckClosureImports_ClosureImport_4 {
-	this := &CheckClosureImports_ClosureImport_4{}
-	this.self_ = this
-	this.init_CheckClosureImports_ClosureImport_4(name_, ordinal_)
-	return this
-}
-
-func (this *CheckClosureImports_ClosureImport_4) allowDestructuring_impl() bool {
-	return true
-}
-
-func (this *CheckClosureImports_ClosureImport_4) aliasMustBeConstant_impl() bool {
-	return true
-}
-
-func (this *CheckClosureImports_ClosureImport_4) mustBeOrdered_impl() bool {
-	return false
-}
-
-func (this *CheckClosureImports_ClosureImport_4) callName_impl() string {
-	return "goog.requireDynamic"
-}
-
-func CheckClosureImports_ClosureImport_4_values() []*CheckClosureImports_ClosureImport_4 {
-	return append([]*CheckClosureImports_ClosureImport_4(nil), CheckClosureImports_ClosureImport_4_values_...)
-}
-
-func CheckClosureImports_ClosureImport_4_valueOf(name string) *CheckClosureImports_ClosureImport_4 {
-	for _, v := range CheckClosureImports_ClosureImport_4_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var CheckClosureImports_ClosureImport_4_values_ []*CheckClosureImports_ClosureImport_4
-
-var CheckClosureImports_ClosureImport_4_clinit_done bool
-
-func CheckClosureImports_ClosureImport_4_clinit() {
-	if CheckClosureImports_ClosureImport_4_clinit_done {
-		return
-	}
-	CheckClosureImports_ClosureImport_4_clinit_done = true
-	CheckClosureImports_ClosureImport_4_values_ = []*CheckClosureImports_ClosureImport_4{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.CheckClosureImports.ClosureImport>", enumValues_(CheckClosureImports_ClosureImport_4_values_))
-
+	this.self_.visit_4_impl(p0, p1, p2, p3)
 }

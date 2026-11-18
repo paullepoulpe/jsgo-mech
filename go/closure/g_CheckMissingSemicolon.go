@@ -27,7 +27,7 @@ func new_CheckMissingSemicolon(compiler *AbstractCompiler) *CheckMissingSemicolo
 }
 
 func (this *CheckMissingSemicolon) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckMissingSemicolon) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -52,10 +52,11 @@ func (this *CheckMissingSemicolon) checkSemicolon(t *NodeTraversal, n Node) {
 	_ = sourceFile
 	if func() bool {
 		v_ := any(staticSourceFile)
-		if !is_[*SourceFile_jscomp](v_) {
+		p, ok := v_.(*SourceFile_jscomp)
+		if !ok {
 			return false
 		}
-		sourceFile = cast_[*SourceFile_jscomp](v_)
+		sourceFile = p
 		return true
 	}() {
 		var codeRes *Outcome_base[string] = sourceFile.readCode()
@@ -86,4 +87,13 @@ func CheckMissingSemicolon_clinit() {
 	CheckMissingSemicolon_clinit_done = true
 	CheckMissingSemicolon_MISSING_SEMICOLON = DiagnosticType_disabled("JSC_MISSING_SEMICOLON", "Missing semicolon")
 
+}
+
+// visit: an object that is exactly a CheckMissingSemicolon calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckMissingSemicolon) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckMissingSemicolon); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

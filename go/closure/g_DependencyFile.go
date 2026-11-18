@@ -47,21 +47,20 @@ func (this *DependencyFile) getDependencyInfo(symbol string) DependencyInfo {
 func (this *DependencyFile) loadGraph() {
 	this.dependencies.clear()
 	DependencyFile_logger.info("Loading dependency graph")
-	var errorManager ErrorManager = icast_ErrorManager(obj_(new_LoggerErrorManager_Logger(DependencyFile_logger)))
+	var errorManager ErrorManager = new_LoggerErrorManager_Logger(DependencyFile_logger)
 	var parser *DepsFileRegexParser = new_DepsFileRegexParser_ErrorManager(errorManager)
 	var depInfos *JTList[DependencyInfo] = parser.parseFile_2(this.getName(), this.getContent())
 	if !parser.didParseSucceed() {
-		panic(obj_(new_ServiceException(("Problem parsing " + sstr_(this.getName()) + ". See logs for details."))))
+		panic(new_ServiceException(("Problem parsing " + sstr_(this.getName()) + ". See logs for details.")))
 	}
 	it_1 := depInfos.each()
 	for it_1.next() {
 		var depInfo DependencyInfo = it_1.v
-		it_3 := foreach_(obj_(depInfo.getProvides()))
-		for it_3.next() {
-			var provide string = str_(it_3.v)
+		for _, el := range depInfo.getProvides().items {
+			provide := el
 			var existing DependencyInfo = this.dependencies.get(provide)
-			if (existing != nil) && !Object_equals(any(existing), any(depInfo)) {
-				panic(obj_(new_ServiceException(("Duplicate provide of " + sstr_(provide) + ". Was provided by " + sstr_(existing.getPathRelativeToClosureBase()) + " and " + sstr_(depInfo.getPathRelativeToClosureBase())))))
+			if (existing != nil) && !equalsDyn_(existing, depInfo) {
+				panic(new_ServiceException(("Duplicate provide of " + sstr_(provide) + ". Was provided by " + sstr_(existing.getPathRelativeToClosureBase()) + " and " + sstr_(depInfo.getPathRelativeToClosureBase()))))
 			}
 			this.dependencies.put(provide, depInfo)
 		}

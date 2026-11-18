@@ -3,28 +3,36 @@
 package closure
 
 type SortingErrorManager struct {
-	self_                 any
+	self_                 SortingErrorManager_I
 	messages              TreeSetOf[*SortingErrorManager_ErrorWithLevel]
 	originalErrorCount    int32
 	promotedErrorCount    int32
 	warningCount          int32
 	typedPercent          float64
-	errorReportGenerators ImmutableSetOf[SortingErrorManager_ErrorReportGenerator]
+	errorReportGenerators *ImmutableSet[SortingErrorManager_ErrorReportGenerator]
+}
+
+// SortingErrorManager_I holds the methods the dispatchers of SortingErrorManager's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type SortingErrorManager_I interface {
+	generateReport_impl()
+	report_2_impl(CheckLevel, *JSError)
+	printSummary_impl()
+	println_impl(CheckLevel, *JSError)
+}
+
+// Bodies of the methods that only the subclasses of BasicErrorManager (2) implement. They put the
+// methods in SortingErrorManager_I, so that the dispatchers of those classes call them through self_ without
+// an assertion. They are never run (a dispatcher's object is of a subclass of its class,
+// which has the method) and panic where the assertion would have (post-flip).
+func (this *SortingErrorManager) printSummary_impl() {
+	panic("printSummary_impl called on a " + goTypeName_(this.self_))
+}
+func (this *SortingErrorManager) println_impl(CheckLevel, *JSError) {
+	panic("println_impl called on a " + goTypeName_(this.self_))
 }
 
 func (this *SortingErrorManager) as_SortingErrorManager() *SortingErrorManager { return this }
-
-func to_SortingErrorManager(v any) *SortingErrorManager {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_SortingErrorManager() *SortingErrorManager }).as_SortingErrorManager()
-}
-
-func is_SortingErrorManager(v any) bool {
-	_, ok := v.(interface{ as_SortingErrorManager() *SortingErrorManager })
-	return ok
-}
 
 func (this *SortingErrorManager) self() any {
 	if this == nil {
@@ -34,26 +42,26 @@ func (this *SortingErrorManager) self() any {
 }
 
 func (this *SortingErrorManager) finit_SortingErrorManager() {
-	this.messages = new_TreeSet_Comparator(icast_Comparator(obj_(new_SortingErrorManager_LeveledJSErrorComparator())))
+	this.messages = new_TreeSet_Comparator(new_SortingErrorManager_LeveledJSErrorComparator())
 	this.originalErrorCount = 0
 	this.promotedErrorCount = 0
 	this.warningCount = 0
 	this.typedPercent = 0.0
 }
 
-func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators SetOf[SortingErrorManager_ErrorReportGenerator]) {
+func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) {
 	this.finit_SortingErrorManager()
-	this.errorReportGenerators = ImmutableSet_copyOf(Collection(errorReportGenerators))
+	this.errorReportGenerators = immutableSetCopyOf_(tc_SortingErrorManager_ErrorReportGenerator, Collection(errorReportGenerators.asSet()))
 }
 
-func new_SortingErrorManager(errorReportGenerators SetOf[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {
+func new_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {
 	this := &SortingErrorManager{}
 	this.self_ = this
 	this.init_SortingErrorManager(errorReportGenerators)
 	return this
 }
 
-func (this *SortingErrorManager) report_2_impl(level *CheckLevel, error_ *JSError) {
+func (this *SortingErrorManager) report_2_impl(level CheckLevel, error_ *JSError) {
 	var e *SortingErrorManager_ErrorWithLevel = new_SortingErrorManager_ErrorWithLevel(error_, level)
 	if this.messages.add(obj_(e)) {
 		if level == CheckLevel_ERROR {
@@ -80,11 +88,11 @@ func (this *SortingErrorManager) getWarningCount() int32 {
 	return this.warningCount
 }
 
-func (this *SortingErrorManager) getErrors() ImmutableListOf[*JSError] {
+func (this *SortingErrorManager) getErrors() *ImmutableList[*JSError] {
 	return this.filterToListOf(CheckLevel_ERROR)
 }
 
-func (this *SortingErrorManager) getWarnings() ImmutableListOf[*JSError] {
+func (this *SortingErrorManager) getWarnings() *ImmutableList[*JSError] {
 	return this.filterToListOf(CheckLevel_WARNING)
 }
 
@@ -100,36 +108,33 @@ func (this *SortingErrorManager) getTypedPercent() float64 {
 	return this.typedPercent
 }
 
-func (this *SortingErrorManager) filterToListOf(level *CheckLevel) ImmutableListOf[*JSError] {
-	var result ImmutableList_BuilderOf[*JSError] = ImmutableList_builder()
-	it_1 := foreach_(obj_(this.messages))
-	for it_1.next() {
-		var e *SortingErrorManager_ErrorWithLevel = cast_[*SortingErrorManager_ErrorWithLevel](it_1.v)
+func (this *SortingErrorManager) filterToListOf(level CheckLevel) *ImmutableList[*JSError] {
+	var result *ImmutableList_Builder[*JSError] = immutableListBuilder_(tc_p_JSError)
+	for e := range elemsAs_[*SortingErrorManager_ErrorWithLevel](obj_(this.messages)) {
 		if e.level_ == level {
-			result.add(obj_(e.error_))
+			result.add(e.error_)
 		}
 	}
-	return cast_[*ImmutableList](obj_(result.build()))
+	return result.build()
 }
 
 func (this *SortingErrorManager) generateReport_impl() {
-	it_1 := foreach_(obj_(this.errorReportGenerators))
-	for it_1.next() {
-		var generator SortingErrorManager_ErrorReportGenerator = icast_SortingErrorManager_ErrorReportGenerator(it_1.v)
+	for _, el := range this.errorReportGenerators.keys {
+		generator := el
 		generator.generateReport(this)
 	}
 }
 
 func (this *SortingErrorManager) generateReport() {
-	this.self_.(interface{ generateReport_impl() }).generateReport_impl()
+	this.self_.generateReport_impl()
 }
 
-func (this *SortingErrorManager) report_2(p0 *CheckLevel, p1 *JSError) {
-	this.self_.(interface{ report_2_impl(*CheckLevel, *JSError) }).report_2_impl(p0, p1)
+func (this *SortingErrorManager) report_2(p0 CheckLevel, p1 *JSError) {
+	this.self_.report_2_impl(p0, p1)
 }
 
-func (this *SortingErrorManager) shouldReportConformanceViolation(p0 *Requirement, p1 *Optional_base, p2 *JSError, p3 *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
-	return ErrorManager_shouldReportConformanceViolation_default(icast_ErrorManager(this.self()), p0, p1, p2, p3, p4)
+func (this *SortingErrorManager) shouldReportConformanceViolation(p0 *Requirement, p1 Optional_base, p2 *JSError, p3 ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, p4 bool) bool {
+	return ErrorManager_shouldReportConformanceViolation_default(this.self().(ErrorManager), p0, p1, p2, p3, p4)
 }
 
 type SortingErrorManager_ErrorReportGenerator interface {
@@ -175,7 +180,7 @@ func (this *SortingErrorManager_LeveledJSErrorComparator) compare(p1_ any, p2_ a
 	var source1 Optional[string] = p1.error_.sourceName()
 	var source2 Optional[string] = p2.error_.sourceName()
 	if source1.isPresent() && source2.isPresent() {
-		var sourceCompare int32 = String_compareTo(source1.get(), source2.get())
+		var sourceCompare int32 = utf16Compare_(source1.get(), source2.get())
 		if sourceCompare != 0 {
 			return sourceCompare
 		}
@@ -202,7 +207,7 @@ func (this *SortingErrorManager_LeveledJSErrorComparator) compare(p1_ any, p2_ a
 	} else if (0 <= charno1) && (charno2 < 0) {
 		return SortingErrorManager_LeveledJSErrorComparator_P1_GT_P2
 	}
-	return String_compareTo(p1.error_.description(), p2.error_.description())
+	return utf16Compare_(p1.error_.description(), p2.error_.description())
 }
 
 const SortingErrorManager_LeveledJSErrorComparator_P1_LT_P2 int32 = -1
@@ -210,15 +215,15 @@ const SortingErrorManager_LeveledJSErrorComparator_P1_GT_P2 int32 = 1
 
 type SortingErrorManager_ErrorWithLevel struct {
 	error_ *JSError
-	level_ *CheckLevel
+	level_ CheckLevel
 }
 
-func (this *SortingErrorManager_ErrorWithLevel) init_SortingErrorManager_ErrorWithLevel(error_ *JSError, level *CheckLevel) {
+func (this *SortingErrorManager_ErrorWithLevel) init_SortingErrorManager_ErrorWithLevel(error_ *JSError, level CheckLevel) {
 	this.error_ = error_
 	this.level_ = level
 }
 
-func new_SortingErrorManager_ErrorWithLevel(error_ *JSError, level *CheckLevel) *SortingErrorManager_ErrorWithLevel {
+func new_SortingErrorManager_ErrorWithLevel(error_ *JSError, level CheckLevel) *SortingErrorManager_ErrorWithLevel {
 	this := &SortingErrorManager_ErrorWithLevel{}
 	this.init_SortingErrorManager_ErrorWithLevel(error_, level)
 	return this
@@ -233,13 +238,14 @@ func (this *SortingErrorManager_ErrorWithLevel) equals(obj any) bool {
 	_ = e
 	if !(func() bool {
 		v_ := obj
-		if !is_[*SortingErrorManager_ErrorWithLevel](v_) {
+		p, ok := v_.(*SortingErrorManager_ErrorWithLevel)
+		if !ok {
 			return false
 		}
-		e = cast_[*SortingErrorManager_ErrorWithLevel](v_)
+		e = p
 		return true
 	}()) {
 		return false
 	}
-	return ((((Objects_equals(obj_(this.level_), obj_(e.level_)) && (this.error_.description() == e.error_.description())) && Object_equals(this.error_.sourceName().box_(), e.error_.sourceName().box_())) && (this.error_.getLineNumber() == e.error_.getLineNumber())) && (this.error_.charno() == e.error_.charno()))
+	return ((((this.level_ == e.level_ && (this.error_.description() == e.error_.description())) && Object_equals(this.error_.sourceName().box_(), e.error_.sourceName().box_())) && (this.error_.getLineNumber() == e.error_.getLineNumber())) && (this.error_.charno() == e.error_.charno()))
 }

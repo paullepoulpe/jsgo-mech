@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PeepholeReplaceKnownMethods struct {
 	AbstractPeepholeOptimization
 	late     bool
@@ -41,12 +43,19 @@ func (this *PeepholeReplaceKnownMethods) optimizeSubtree_impl(subtree Node) Node
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownMethods(subtree Node) Node {
-	Preconditions_checkArgument_boolean_Object(subtree.isCall(), subtree.box_())
+	if !subtree.isCall() {
+		panic(new_IllegalArgumentException_String(tostr_(subtree)))
+	}
 	subtree = this.tryFoldArrayJoin(subtree)
 	if subtree.isCall() {
 		subtree = this.tryToFoldArrayConcat(subtree)
-		Preconditions_checkState_boolean_Object(subtree.isCall(), subtree.box_())
-		var callTarget Node = Node_of_(Preconditions_checkNotNull(subtree.getFirstChild().box_()))
+		if !subtree.isCall() {
+			panic(new_IllegalStateException_String(tostr_(subtree)))
+		}
+		var callTarget Node = subtree.getFirstChild()
+		if callTarget == 0 {
+			panic(new_NullPointerException_0())
+		}
 		if callTarget.isGetProp() {
 			if this.isASTNormalized() && callTarget.getFirstChild().isQualifiedName() {
 				switch callTarget.getFirstChild().getQualifiedName() {
@@ -68,7 +77,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownMethods(subtree Node) Node 
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownArrayMethods(subtree Node, callTarget Node) Node {
-	Preconditions_checkArgument((subtree.isCall() && callTarget.isGetProp()))
+	if !subtree.isCall() || !callTarget.isGetProp() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var methodName string = callTarget.getString()
 	return func() Node {
 		switch methodName {
@@ -84,12 +95,13 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownArrayMethods(subtree Node, 
 		default:
 			return subtree
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldArrayIsArray(subtree Node, callTarget Node) Node {
-	Preconditions_checkArgument((subtree.isCall() && callTarget.isGetProp()))
+	if !subtree.isCall() || !callTarget.isGetProp() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var firstArg Node = callTarget.getNext()
 	if firstArg == 0 {
 		var newNode Node = NodeUtil_booleanNode(false).srcref(subtree)
@@ -119,7 +131,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayIsArray(subtree Node, callT
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownNumberMethods(subtree Node, callTarget Node) Node {
-	Preconditions_checkArgument((subtree.isCall() && callTarget.isGetProp()))
+	if !subtree.isCall() || !callTarget.isGetProp() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var methodName string = callTarget.getString()
 	switch methodName {
 	case "parseInt", "parseFloat":
@@ -162,15 +176,17 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownNumberMethods(subtree Node,
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownMathMethods(subtree Node, callTarget Node) Node {
-	Preconditions_checkArgument((subtree.isCall() && callTarget.isGetProp()))
-	var args ListOf[BoxedOf[float64]] = icast_List(obj_(ImmutableList_of()))
+	if !subtree.isCall() || !callTarget.isGetProp() {
+		panic(new_IllegalArgumentException_0())
+	}
+	var args ListOf[BoxedOf[float64]] = ImmutableList_of()
 	{
 		var arg Node = callTarget.getNext()
 		for ; arg != 0; arg = arg.getNext() {
 			var d any = this.getSideEffectFreeNumberValue(arg)
 			if d != nil {
 				if args.isEmpty() {
-					args = icast_List(new_ArrayList_0().self())
+					args = new_ArrayList_0()
 				}
 				args.add(d)
 			} else {
@@ -224,17 +240,13 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownMathMethods(subtree Node, c
 		switch methodName {
 		case "max":
 			var result float64 = neginf_
-			it_4 := foreach_(any(args))
-			for it_4.next() {
-				var d any = it_4.v
+			for d := range elems_(args) {
 				result = Math_max_double_double(result, unbox_[float64](d))
 			}
 			replacement = any(float64(result))
 		case "min":
 			var result float64 = posinf_
-			it_6 := foreach_(any(args))
-			for it_6.next() {
-				var d any = it_6.v
+			for d := range elems_(args) {
 				result = Math_min_double_double(result, unbox_[float64](d))
 			}
 			replacement = any(float64(result))
@@ -261,7 +273,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownMathMethods(subtree Node, c
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownStringMethods(subtree Node, callTarget Node) Node {
-	Preconditions_checkArgument((subtree.isCall() && callTarget.isGetProp()))
+	if !subtree.isCall() || !callTarget.isGetProp() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var stringNode Node = callTarget.getFirstChild()
 	var isStringLiteral bool = stringNode.isStringLit()
 	var functionNameString string = callTarget.getString()
@@ -311,7 +325,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownStringMethods(subtree Node,
 			}
 		}
 	}
-	if (this.useTypes && (firstArg != 0)) && (isStringLiteral || StandardColors_STRING.equals(obj_(stringNode.getColor()))) {
+	if (this.useTypes && (firstArg != 0)) && (isStringLiteral || StandardColors_STRING.equals_Color(stringNode.getColor())) {
 		if subtree.hasXChildren(3) {
 			var maybeStart any = this.getSideEffectFreeNumberValue(firstArg)
 			if maybeStart != nil {
@@ -339,7 +353,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownStringMethods(subtree Node,
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldKnownNumericMethods(subtree Node, callTarget Node) Node {
-	Preconditions_checkArgument(subtree.isCall())
+	if !subtree.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
 	if this.isASTNormalized() {
 		var functionNameString string = callTarget.getString()
 		var firstArgument Node = callTarget.getNext()
@@ -351,7 +367,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownNumericMethods(subtree Node
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringToLowerCase(subtree Node, stringNode Node) Node {
-	var lowered string = String_toLowerCase(stringNode.getString(), Locale_ROOT)
+	var lowered string = strings.ToLower(stringNode.getString())
 	var replacement Node = IR_string(lowered)
 	subtree.replaceWith(replacement)
 	this.reportChangeToEnclosingScope(replacement)
@@ -359,7 +375,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringToLowerCase(subtree Node, 
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringToUpperCase(subtree Node, stringNode Node) Node {
-	var upped string = String_toUpperCase(stringNode.getString(), Locale_ROOT)
+	var upped string = strings.ToUpper(stringNode.getString())
 	var replacement Node = IR_string(upped)
 	subtree.replaceWith(replacement)
 	this.reportChangeToEnclosingScope(replacement)
@@ -370,15 +386,14 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringTrim(subtree Node, stringN
 	var result Optional[string] = func() Optional[string] {
 		switch functionName {
 		case "trim":
-			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_BOTH_PATTERN.matcher(strobj_(stringNode.getString())).replaceAll(""))
+			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_BOTH_PATTERN.matcher_s(stringNode.getString()).replaceAll(""))
 		case "trimStart", "trimLeft":
-			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_START_PATTERN.matcher(strobj_(stringNode.getString())).replaceAll(""))
+			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_START_PATTERN.matcher_s(stringNode.getString()).replaceAll(""))
 		case "trimEnd", "trimRight":
-			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_END_PATTERN.matcher(strobj_(stringNode.getString())).replaceAll(""))
+			return Optional_ofNullable[string](PeepholeReplaceKnownMethods_TRIM_END_PATTERN.matcher_s(stringNode.getString()).replaceAll(""))
 		default:
 			return Optional_empty[string]()
 		}
-		panic("unreachable")
 	}()
 	if result.isEmpty() {
 		return subtree
@@ -394,26 +409,29 @@ func PeepholeReplaceKnownMethods_normalizeNumericString(input string) string {
 		return input
 	}
 	var startIndex int32 = 0
-	var endIndex int32 = (String_length(input) - 1)
-	for ((startIndex < String_length(input)) && (String_charAt(input, startIndex) == '0')) && (String_charAt(input, startIndex) != '.') {
+	inputU16 := utf16Of_(input)
+	var endIndex int32 = (inputU16.length() - 1)
+	for ((startIndex < inputU16.length()) && (inputU16.charAt(startIndex) == '0')) && (inputU16.charAt(startIndex) != '.') {
 		startIndex++
 	}
-	if String_indexOf(input, 46) >= 0 {
-		for (endIndex >= 0) && (String_charAt(input, endIndex) == '0') {
+	if strings.Contains(input, ".") {
+		for (endIndex >= 0) && (inputU16.charAt(endIndex) == '0') {
 			endIndex--
 		}
-		if String_charAt(input, endIndex) == '.' {
+		if inputU16.charAt(endIndex) == '.' {
 			endIndex--
 		}
 	}
 	if startIndex >= endIndex {
 		return input
 	}
-	return String_substring(input, startIndex, (endIndex + 1))
+	return inputU16.substring(startIndex, (endIndex + 1))
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName string, firstArg Node) Node {
-	Preconditions_checkArgument(n.isCall())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var isParseInt bool = (functionName == "parseInt")
 	var secondArg Node = firstArg.getNext()
 	var radix int32 = 0
@@ -452,7 +470,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName
 				return n
 			}
 			stringVal = Optional_of[string](NodeUtil_trimJsWhiteSpace(stringVal.get()))
-			if String_isEmpty(stringVal.get()) {
+			if stringVal.get() == "" {
 				return n
 			}
 			if stringVal.get() == "0" {
@@ -462,13 +480,13 @@ func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName
 				return newNode
 			}
 			var normalizedNewVal string = "0"
-			var parsed any = Doubles_tryParse(String_trim(stringVal.get()))
+			var parsed any = Doubles_tryParse(strings.Trim(stringVal.get(), javaSpace_))
 			if parsed == nil {
 				return n
 			}
 			var newVal float64 = unbox_[float64](parsed)
 			var newNode Node = NodeUtil_numberNode(newVal, n)
-			normalizedNewVal = PeepholeReplaceKnownMethods_normalizeNumericString(String_valueOf_double(newVal))
+			normalizedNewVal = PeepholeReplaceKnownMethods_normalizeNumericString(Double_toString(newVal))
 			if !(PeepholeReplaceKnownMethods_normalizeNumericString(stringVal.get()) == normalizedNewVal) {
 				return n
 			}
@@ -482,30 +500,31 @@ func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName
 		return n
 	}
 	stringVal = Optional_of[string](NodeUtil_trimJsWhiteSpace(stringVal.get()))
-	if String_isEmpty(stringVal.get()) {
+	if stringVal.get() == "" {
 		return n
 	}
 	var isNegative bool = false
-	if String_startsWith(stringVal.get(), "-") {
+	if strings.HasPrefix(stringVal.get(), "-") {
 		isNegative = true
-		stringVal = Optional_of[string](String_substring_int(stringVal.get(), 1))
-	} else if String_startsWith(stringVal.get(), "+") {
-		stringVal = Optional_of[string](String_substring_int(stringVal.get(), 1))
+		stringVal = Optional_of[string](stringVal.get()[1:])
+	} else if strings.HasPrefix(stringVal.get(), "+") {
+		stringVal = Optional_of[string](stringVal.get()[1:])
 	}
+	var stringValU16 utf16_
 	if (radix == 0) || (radix == 16) {
-		if (String_length(stringVal.get()) > 1) && Ascii_equalsIgnoreCase(strobj_(String_substring(stringVal.get(), 0, 2)), strobj_("0x")) {
+		if (stringValU16.of(stringVal.get()).length() > 1) && Ascii_equalsIgnoreCase(strobj_(stringValU16.of(stringVal.get()).substring(0, 2)), strobj_("0x")) {
 			radix = 16
-			stringVal = Optional_of[string](String_substring_int(stringVal.get(), 2))
+			stringVal = Optional_of[string](stringValU16.of(stringVal.get()).substring_int(2))
 		} else if radix == 0 {
-			if !this.isEcmaScript5OrGreater() && String_startsWith(stringVal.get(), "0") {
+			if !this.isEcmaScript5OrGreater() && strings.HasPrefix(stringVal.get(), "0") {
 				return n
 			}
 			radix = 10
 		}
 	}
 	var endDigitIndex int32 = 0
-	for endDigitIndex < String_length(stringVal.get()) {
-		var c uint16 = String_charAt(stringVal.get(), endDigitIndex)
+	for endDigitIndex < stringValU16.of(stringVal.get()).length() {
+		var c uint16 = stringValU16.of(stringVal.get()).charAt(endDigitIndex)
 		if PeepholeReplaceKnownMethods_getRadixDigit(c, radix) < 0 {
 			break
 		}
@@ -514,7 +533,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName
 	if endDigitIndex == 0 {
 		return n
 	}
-	var digits string = String_substring(stringVal.get(), 0, endDigitIndex)
+	var digits string = stringValU16.of(stringVal.get()).substring(0, endDigitIndex)
 	var bi *BigInteger = new_BigInteger(digits, radix)
 	var newVal float64 = bi.doubleValue()
 	if isNegative {
@@ -558,8 +577,12 @@ func PeepholeReplaceKnownMethods_getRadixDigit(c uint16, radix int32) int32 {
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringIndexOf(n Node, functionName string, lstringNode Node, firstArg Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(lstringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !lstringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var lstring string = lstringNode.getString()
 	var isIndexOf bool = (functionName == "indexOf")
 	var secondArg Node = firstArg.getNext()
@@ -567,11 +590,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringIndexOf(n Node, functionNa
 	if searchValue.isEmpty() {
 		return n
 	}
+	lstringU16 := utf16Of_(lstring)
 	var fromIndex int32 = func() int32 {
 		if isIndexOf {
 			return 0
 		}
-		return String_length(lstring)
+		return lstringU16.length()
 	}()
 	if secondArg != 0 {
 		if (secondArg.getNext() != 0) || !secondArg.isNumber() {
@@ -582,7 +606,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringIndexOf(n Node, functionNa
 	}
 	var indexVal int32 = func() int32 {
 		if isIndexOf {
-			return String_indexOf_String_int(lstring, searchValue.get(), fromIndex)
+			return lstringU16.indexOf_String_int(searchValue.get(), fromIndex)
 		}
 		return String_lastIndexOf_String_int(lstring, searchValue.get(), fromIndex)
 	}()
@@ -593,8 +617,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringIndexOf(n Node, functionNa
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringIncludes(n Node, lstringNode Node, firstArg Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(lstringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !lstringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	if firstArg.isRegExp() {
 		return n
 	}
@@ -605,18 +633,19 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringIncludes(n Node, lstringNo
 	}
 	var secondArg Node = firstArg.getNext()
 	var fromIndex int32 = 0
+	lstringU16 := utf16Of_(lstring)
 	if secondArg != 0 {
 		if (secondArg.getNext() != 0) || this.mayHaveSideEffects(secondArg) {
 			return n
 		}
 		if NodeUtil_isNumericLiteral(secondArg) {
 			var posVal float64 = NodeUtil_getNumericLiteralValue(secondArg)
-			fromIndex = f2i_[int32](float64(Math_min_double_double(Math_max_double_double(posVal, 0), float64(String_length(lstring)))))
+			fromIndex = f2i_[int32](float64(Math_min_double_double(Math_max_double_double(posVal, 0), float64(lstringU16.length()))))
 		} else if !NodeUtil_isNullOrUndefined(secondArg) {
 			return n
 		}
 	}
-	var contains bool = (String_indexOf_String_int(lstring, searchValue.get(), fromIndex) != -1)
+	var contains bool = (lstringU16.indexOf_String_int(searchValue.get(), fromIndex) != -1)
 	var newNode Node = NodeUtil_booleanNode(contains).srcref(n)
 	n.replaceWith(newNode)
 	this.reportChangeToEnclosingScope(newNode)
@@ -624,8 +653,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringIncludes(n Node, lstringNo
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringStartsWith(n Node, lstringNode Node, firstArg Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(lstringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !lstringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	if firstArg.isRegExp() {
 		return n
 	}
@@ -636,18 +669,19 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringStartsWith(n Node, lstring
 	}
 	var secondArg Node = firstArg.getNext()
 	var start int32 = 0
+	lstringU16 := utf16Of_(lstring)
 	if secondArg != 0 {
 		if (secondArg.getNext() != 0) || this.mayHaveSideEffects(secondArg) {
 			return n
 		}
 		if NodeUtil_isNumericLiteral(secondArg) {
 			var posVal float64 = NodeUtil_getNumericLiteralValue(secondArg)
-			start = f2i_[int32](float64(Math_min_double_double(Math_max_double_double(posVal, 0), float64(String_length(lstring)))))
+			start = f2i_[int32](float64(Math_min_double_double(Math_max_double_double(posVal, 0), float64(lstringU16.length()))))
 		} else if !NodeUtil_isNullOrUndefined(secondArg) {
 			return n
 		}
 	}
-	var result bool = String_startsWith_String_int(lstring, searchValue.get(), start)
+	var result bool = lstringU16.startsWith_String_int(searchValue.get(), start)
 	var newNode Node = NodeUtil_booleanNode(result).srcref(n)
 	n.replaceWith(newNode)
 	this.reportChangeToEnclosingScope(newNode)
@@ -655,8 +689,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringStartsWith(n Node, lstring
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringEndsWith(n Node, lstringNode Node, firstArg Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(lstringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !lstringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	if firstArg.isRegExp() {
 		return n
 	}
@@ -666,25 +704,26 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringEndsWith(n Node, lstringNo
 		return n
 	}
 	var secondArg Node = firstArg.getNext()
-	var end int32 = String_length(lstring)
+	lstringU16 := utf16Of_(lstring)
+	var end int32 = lstringU16.length()
 	if secondArg != 0 {
 		if (secondArg.getNext() != 0) || this.mayHaveSideEffects(secondArg) {
 			return n
 		}
 		if NodeUtil_isNumericLiteral(secondArg) {
 			var posVal float64 = NodeUtil_getNumericLiteralValue(secondArg)
-			end = f2i_[int32](float64(Math_min_double_double(Math_max_double_double(posVal, 0), float64(String_length(lstring)))))
+			end = f2i_[int32](float64(Math_min_double_double(Math_max_double_double(posVal, 0), float64(lstringU16.length()))))
 		} else if secondArg.isNull() {
 			end = 0
 		} else if NodeUtil_isUndefined(secondArg) {
-			end = String_length(lstring)
+			end = lstringU16.length()
 		} else {
 			return n
 		}
 	}
 	var searchLength int32 = String_length(searchValue.get())
 	var start int32 = (end - searchLength)
-	var result bool = ((start >= 0) && String_startsWith_String_int(lstring, searchValue.get(), start))
+	var result bool = ((start >= 0) && lstringU16.startsWith_String_int(searchValue.get(), start))
 	var newNode Node = NodeUtil_booleanNode(result).srcref(n)
 	n.replaceWith(newNode)
 	this.reportChangeToEnclosingScope(newNode)
@@ -692,8 +731,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringEndsWith(n Node, lstringNo
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringAt(n Node, stringNode Node, firstArg Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var posVal float64
 	if firstArg == 0 {
 		posVal = 0.0
@@ -713,7 +756,8 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringAt(n Node, stringNode Node
 		}()
 	}
 	var stringVal string = stringNode.getString()
-	var len_ int32 = String_length(stringVal)
+	stringValU16 := utf16Of_(stringVal)
+	var len_ int32 = stringValU16.length()
 	var replacement Node
 	if (Double_isInfinite(posVal) || (posVal >= float64(len_))) || (posVal <= float64((-(len_ + 1)))) {
 		replacement = NodeUtil_newUndefinedNode(n)
@@ -728,7 +772,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringAt(n Node, stringNode Node
 		if (k < 0) || (k >= int64(len_)) {
 			replacement = NodeUtil_newUndefinedNode(n)
 		} else {
-			replacement = IR_string(String_valueOf_char(String_charAt(stringVal, int32(k)))).srcref(n)
+			replacement = IR_string(String_valueOf_char(stringValU16.charAt(int32(k)))).srcref(n)
 		}
 	}
 	n.replaceWith(replacement)
@@ -737,7 +781,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringAt(n Node, stringNode Node
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
-	Preconditions_checkState_boolean_Object(n.isCall(), n.box_())
+	if !n.isCall() {
+		panic(new_IllegalStateException_String(tostr_(n)))
+	}
 	var callTarget Node = n.getFirstChild()
 	if (callTarget == 0) || !callTarget.isGetProp() {
 		return n
@@ -763,14 +809,14 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		return NodeUtil_getStringValue(right)
 	}()
 	var arrayFoldedChildren *JTList[Node] = jnewTList_(jtc_Node)
-	var sb *StringBuilder = nil
+	var sb *strBuilder_ = nil
 	var foldedSize int32 = 0
 	var prev Node = 0
 	var elem Node = arrayNode.getFirstChild()
 	for elem != 0 {
 		if NodeUtil_isImmutableValue(elem) || elem.isEmpty() {
 			if sb == nil {
-				sb = new_StringBuilder()
+				sb = &strBuilder_{}
 			} else {
 				sb.append(joinString.orElse("null"))
 			}
@@ -781,9 +827,11 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 			sb.append(elementStr.get())
 		} else {
 			if sb != nil {
-				Preconditions_checkNotNull(prev.box_())
+				if prev == 0 {
+					panic(new_NullPointerException_0())
+				}
 				foldedSize += (sb.length() + 2)
-				arrayFoldedChildren.add(IR_string(Object_toString(obj_(sb))).srcrefIfMissing(prev))
+				arrayFoldedChildren.add(IR_string(sb.toString()).srcrefIfMissing(prev))
 				sb = nil
 			}
 			foldedSize += InlineCostEstimator_getCost_Node(elem)
@@ -793,9 +841,11 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		elem = elem.getNext()
 	}
 	if sb != nil {
-		Preconditions_checkNotNull(prev.box_())
+		if prev == 0 {
+			panic(new_NullPointerException_0())
+		}
 		foldedSize += (sb.length() + 2)
-		arrayFoldedChildren.add(IR_string(Object_toString(obj_(sb))).srcrefIfMissing(prev))
+		arrayFoldedChildren.add(IR_string(sb.toString()).srcrefIfMissing(prev))
 	}
 	foldedSize += (arrayFoldedChildren.size() - 1)
 	var originalSize int32 = InlineCostEstimator_getCost_Node(n)
@@ -822,7 +872,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		if arrayNode.hasXChildren(arrayFoldedChildren.size()) {
 			return n
 		}
-		var kJoinOverhead int32 = String_length("[].join()")
+		var kJoinOverhead int32 = int32(len("[].join()"))
 		foldedSize += kJoinOverhead
 		foldedSize += func() int32 {
 			if right != 0 {
@@ -845,9 +895,15 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringSubstr(n Node, stringNode Node, arg1 Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
-	Preconditions_checkArgument((arg1 != 0))
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if arg1 == 0 {
+		panic(new_IllegalArgumentException_0())
+	}
 	var start int32
 	var length int32
 	var stringAsString string = stringNode.getString()
@@ -858,6 +914,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSubstr(n Node, stringNode 
 		return n
 	}
 	var arg2 Node = arg1.getNext()
+	stringAsStringU16 := utf16Of_(stringAsString)
 	if arg2 != 0 {
 		var maybeLength any = this.getSideEffectFreeNumberValue(arg2)
 		if maybeLength != nil {
@@ -869,12 +926,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSubstr(n Node, stringNode 
 			return n
 		}
 	} else {
-		length = (String_length(stringAsString) - start)
+		length = (stringAsStringU16.length() - start)
 	}
-	if (((start + length) > String_length(stringAsString)) || (length < 0)) || (start < 0) {
+	if (((start + length) > stringAsStringU16.length()) || (length < 0)) || (start < 0) {
 		return n
 	}
-	var result string = String_substring(stringAsString, start, (start + length))
+	var result string = stringAsStringU16.substring(start, (start + length))
 	var resultNode Node = IR_string(result)
 	var parent Node = n.getParent()
 	n.replaceWith(resultNode)
@@ -883,9 +940,15 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSubstr(n Node, stringNode 
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringSubstringOrSlice(n Node, stringNode Node, arg1 Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
-	Preconditions_checkArgument((arg1 != 0))
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if arg1 == 0 {
+		panic(new_IllegalArgumentException_0())
+	}
 	var start int32
 	var end int32
 	var stringAsString string = stringNode.getString()
@@ -896,6 +959,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSubstringOrSlice(n Node, s
 		return n
 	}
 	var arg2 Node = arg1.getNext()
+	stringAsStringU16 := utf16Of_(stringAsString)
 	if arg2 != 0 {
 		var maybeEnd any = this.getSideEffectFreeNumberValue(arg2)
 		if maybeEnd != nil {
@@ -907,12 +971,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSubstringOrSlice(n Node, s
 			return n
 		}
 	} else {
-		end = String_length(stringAsString)
+		end = stringAsStringU16.length()
 	}
-	if ((((end > String_length(stringAsString)) || (start > String_length(stringAsString))) || (start < 0)) || (end < 0)) || (start > end) {
+	if ((((end > stringAsStringU16.length()) || (start > stringAsStringU16.length())) || (start < 0)) || (end < 0)) || (start > end) {
 		return n
 	}
-	var result string = String_substring(stringAsString, start, end)
+	var result string = stringAsStringU16.substring(start, end)
 	var resultNode Node = IR_string(result)
 	var parent Node = n.getParent()
 	n.replaceWith(resultNode)
@@ -928,8 +992,12 @@ func (this *PeepholeReplaceKnownMethods) replaceWithCharAt(n Node, callTarget No
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringCharAt(n Node, stringNode Node, arg1 Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var index int32
 	var stringAsString string = stringNode.getString()
 	if ((arg1 != 0) && arg1.isNumber()) && (arg1.getNext() == 0) {
@@ -937,10 +1005,11 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringCharAt(n Node, stringNode 
 	} else {
 		return n
 	}
-	if (index < 0) || (String_length(stringAsString) <= index) {
+	stringAsStringU16 := utf16Of_(stringAsString)
+	if (index < 0) || (stringAsStringU16.length() <= index) {
 		return n
 	}
-	var resultNode Node = IR_string(String_substring(stringAsString, index, (index + 1)))
+	var resultNode Node = IR_string(stringAsStringU16.substring(index, (index + 1)))
 	var parent Node = n.getParent()
 	n.replaceWith(resultNode)
 	this.reportChangeToEnclosingScope(parent)
@@ -948,8 +1017,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringCharAt(n Node, stringNode 
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringReplace(n Node, stringNode Node, arg1 Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var arg2 Node = arg1.getNext()
 	if (arg2 == 0) || (arg2.getNext() != 0) {
 		return n
@@ -959,15 +1032,16 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringReplace(n Node, stringNode
 	}
 	var lookForPattern string = arg1.getString()
 	var replacementPattern string = arg2.getString()
-	if String_contains(replacementPattern, strobj_("$")) {
+	if strings.Contains(replacementPattern, "$") {
 		return n
 	}
 	var original string = stringNode.getString()
-	var index int32 = String_indexOf_String(original, lookForPattern)
+	originalU16 := utf16Of_(original)
+	var index int32 = originalU16.indexOf_String(lookForPattern)
 	if index == -1 {
 		return n
 	}
-	var newString string = (sstr_(String_substring(original, 0, index)) + sstr_(replacementPattern) + sstr_(String_substring_int(original, (index+String_length(lookForPattern)))))
+	var newString string = (sstr_(originalU16.substring(0, index)) + sstr_(replacementPattern) + sstr_(originalU16.substring_int((index + String_length(lookForPattern)))))
 	var resultNode Node = IR_string(newString).srcref(stringNode)
 	var parent Node = n.getParent()
 	n.replaceWith(resultNode)
@@ -976,8 +1050,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringReplace(n Node, stringNode
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringReplaceAll(n Node, stringNode Node, arg1 Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var arg2 Node = arg1.getNext()
 	if (arg2 == 0) || (arg2.getNext() != 0) {
 		return n
@@ -986,11 +1064,11 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringReplaceAll(n Node, stringN
 		return n
 	}
 	var replacementPattern string = arg2.getString()
-	if String_contains(replacementPattern, strobj_("$")) {
+	if strings.Contains(replacementPattern, "$") {
 		return n
 	}
 	var original string = stringNode.getString()
-	var newString string = String_replace(original, strobj_(arg1.getString()), strobj_(replacementPattern))
+	var newString string = strings.ReplaceAll(original, csStr_(arg1.getString()), csStr_(replacementPattern))
 	var resultNode Node = IR_string(newString).srcref(stringNode)
 	var parent Node = n.getParent()
 	n.replaceWith(resultNode)
@@ -999,8 +1077,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringReplaceAll(n Node, stringN
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringCharCodeAt(n Node, stringNode Node, arg1 Node) Node {
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var index int32
 	var stringAsString string = stringNode.getString()
 	if ((arg1 != 0) && arg1.isNumber()) && (arg1.getNext() == 0) {
@@ -1008,10 +1090,11 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringCharCodeAt(n Node, stringN
 	} else {
 		return n
 	}
-	if (index < 0) || (String_length(stringAsString) <= index) {
+	stringAsStringU16 := utf16Of_(stringAsString)
+	if (index < 0) || (stringAsStringU16.length() <= index) {
 		return n
 	}
-	var resultNode Node = IR_number(float64(String_charAt(stringAsString, index)))
+	var resultNode Node = IR_number(float64(stringAsStringU16.charAt(index)))
 	var parent Node = n.getParent()
 	n.replaceWith(resultNode)
 	this.reportChangeToEnclosingScope(parent)
@@ -1019,10 +1102,11 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringCharCodeAt(n Node, stringN
 }
 
 func PeepholeReplaceKnownMethods_jsSplitMatch(stringValue string, startIndex int32, separator string) int32 {
-	if (startIndex + String_length(separator)) > String_length(stringValue) {
+	stringValueU16 := utf16Of_(stringValue)
+	if (startIndex + String_length(separator)) > stringValueU16.length() {
 		return -1
 	}
-	var matchIndex int32 = String_indexOf_String_int(stringValue, separator, startIndex)
+	var matchIndex int32 = stringValueU16.indexOf_String_int(separator, startIndex)
 	if matchIndex < 0 {
 		return -1
 	}
@@ -1030,7 +1114,9 @@ func PeepholeReplaceKnownMethods_jsSplitMatch(stringValue string, startIndex int
 }
 
 func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator Optional[string], limit int32) []string {
-	Preconditions_checkArgument((limit >= 0))
+	if limit < 0 {
+		panic(new_IllegalArgumentException_0())
+	}
 	if limit == 0 {
 		return newstrarr_(0)
 	}
@@ -1038,24 +1124,29 @@ func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator O
 		return []string{stringValue}
 	}
 	var splitStrings *JTList[string] = jnewTList_(jtc_string)
-	if String_isEmpty(separator.get()) {
-		for i := int32(0); (i < String_length(stringValue)) && (i < limit); i++ {
-			splitStrings.add(String_substring(stringValue, i, (i + 1)))
+	if separator.get() == "" {
+		for i, u_ := range stringUnits_(stringValue) {
+			if !(i < limit) {
+				break
+			}
+			splitStrings.add(chrstr_(u_))
 		}
 	} else {
 		var startIndex int32 = 0
 		var matchIndex int32
+		stringValueU16 := utf16Of_(stringValue)
+		var separatorU16 utf16_
 		for {
 			matchIndex = PeepholeReplaceKnownMethods_jsSplitMatch(stringValue, startIndex, separator.get())
 			if !((matchIndex >= 0) && (splitStrings.size() < limit)) {
 				break
 			}
-			splitStrings.add(String_substring(stringValue, startIndex, matchIndex))
-			startIndex = (matchIndex + String_length(separator.get()))
+			splitStrings.add(stringValueU16.substring(startIndex, matchIndex))
+			startIndex = (matchIndex + separatorU16.of(separator.get()).length())
 		}
 		if splitStrings.size() < limit {
-			if startIndex < String_length(stringValue) {
-				splitStrings.add(String_substring_int(stringValue, startIndex))
+			if startIndex < stringValueU16.length() {
+				splitStrings.add(stringValueU16.substring_int(startIndex))
 			} else {
 				splitStrings.add("")
 			}
@@ -1068,8 +1159,12 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSplit(n Node, stringNode N
 	if this.late {
 		return n
 	}
-	Preconditions_checkArgument(n.isCall())
-	Preconditions_checkArgument(stringNode.isStringLit())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !stringNode.isStringLit() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var separator Optional[string] = Optional_empty[string]()
 	var stringValue string = stringNode.getString()
 	var limit int32 = (String_length(stringValue) + 1)
@@ -1101,7 +1196,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringSplit(n Node, stringNode N
 }
 
 func (this *PeepholeReplaceKnownMethods) tryToFoldArrayConcat(n Node) Node {
-	Preconditions_checkArgument_boolean_Object(n.isCall(), n.box_())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_String(tostr_(n)))
+	}
 	if !this.isASTNormalized() || !this.useTypes {
 		return n
 	}
@@ -1110,12 +1207,16 @@ func (this *PeepholeReplaceKnownMethods) tryToFoldArrayConcat(n Node) Node {
 		return n
 	}
 	concatFunctionCall = this.tryToRemoveArrayLiteralFromFrontOfConcat(concatFunctionCall)
-	Preconditions_checkNotNull(concatFunctionCall.self())
+	if concatFunctionCall == nil {
+		panic(new_NullPointerException_0())
+	}
 	return this.tryToFoldConcatChaining(concatFunctionCall)
 }
 
 func (this *PeepholeReplaceKnownMethods) tryToRemoveArrayLiteralFromFrontOfConcat(concatFunctionCall *PeepholeReplaceKnownMethods_ConcatFunctionCall) *PeepholeReplaceKnownMethods_ConcatFunctionCall {
-	Preconditions_checkNotNull(concatFunctionCall.self())
+	if concatFunctionCall == nil {
+		panic(new_NullPointerException_0())
+	}
 	var callNode Node = concatFunctionCall.callNode_
 	var arrayLiteralToRemove Node = concatFunctionCall.calleeNode
 	if !arrayLiteralToRemove.isArrayLit() || arrayLiteralToRemove.hasChildren() {
@@ -1132,7 +1233,9 @@ func (this *PeepholeReplaceKnownMethods) tryToRemoveArrayLiteralFromFrontOfConca
 }
 
 func (this *PeepholeReplaceKnownMethods) tryToFoldConcatChaining(concatFunctionCall *PeepholeReplaceKnownMethods_ConcatFunctionCall) Node {
-	Preconditions_checkNotNull(concatFunctionCall.self())
+	if concatFunctionCall == nil {
+		panic(new_NullPointerException_0())
+	}
 	var concatCallNode Node = concatFunctionCall.callNode_
 	var maybeFunctionCall Node = concatFunctionCall.calleeNode
 	if !maybeFunctionCall.isCall() {
@@ -1163,8 +1266,13 @@ func (this *PeepholeReplaceKnownMethods) tryToFoldConcatChaining(concatFunctionC
 }
 
 func PeepholeReplaceKnownMethods_createConcatFunctionCallForNode(n Node) *PeepholeReplaceKnownMethods_ConcatFunctionCall {
-	Preconditions_checkArgument_boolean_Object(n.isCall(), n.box_())
-	var callTarget Node = Node_of_(Preconditions_checkNotNull(n.getFirstChild().box_()))
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_String(tostr_(n)))
+	}
+	var callTarget Node = n.getFirstChild()
+	if callTarget == 0 {
+		panic(new_NullPointerException_0())
+	}
 	if !callTarget.isGetProp() || !(callTarget.getString() == "concat") {
 		return nil
 	}
@@ -1220,22 +1328,6 @@ func (this *PeepholeReplaceKnownMethods_ConcatFunctionCall) as_PeepholeReplaceKn
 	return this
 }
 
-func to_PeepholeReplaceKnownMethods_ConcatFunctionCall(v any) *PeepholeReplaceKnownMethods_ConcatFunctionCall {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_PeepholeReplaceKnownMethods_ConcatFunctionCall() *PeepholeReplaceKnownMethods_ConcatFunctionCall
-	}).as_PeepholeReplaceKnownMethods_ConcatFunctionCall()
-}
-
-func is_PeepholeReplaceKnownMethods_ConcatFunctionCall(v any) bool {
-	_, ok := v.(interface {
-		as_PeepholeReplaceKnownMethods_ConcatFunctionCall() *PeepholeReplaceKnownMethods_ConcatFunctionCall
-	})
-	return ok
-}
-
 func (this *PeepholeReplaceKnownMethods_ConcatFunctionCall) self() any {
 	if this == nil {
 		return nil
@@ -1244,8 +1336,14 @@ func (this *PeepholeReplaceKnownMethods_ConcatFunctionCall) self() any {
 }
 
 func (this *PeepholeReplaceKnownMethods_ConcatFunctionCall) init_PeepholeReplaceKnownMethods_ConcatFunctionCall(callNode Node, calleeNode Node, firstArgumentNode Node) {
-	this.callNode_ = Node_of_(Preconditions_checkNotNull(callNode.box_()))
-	this.calleeNode = Node_of_(Preconditions_checkNotNull(calleeNode.box_()))
+	if callNode == 0 {
+		panic(new_NullPointerException_0())
+	}
+	this.callNode_ = callNode
+	if calleeNode == 0 {
+		panic(new_NullPointerException_0())
+	}
+	this.calleeNode = calleeNode
 	this.firstArgumentNode = firstArgumentNode
 }
 
@@ -1269,4 +1367,12 @@ func new_PeepholeReplaceKnownMethods_1(callNode Node, calleeNode Node, firstArgu
 	this.self_ = this
 	this.init_PeepholeReplaceKnownMethods_1(callNode, calleeNode, firstArgumentNode)
 	return this
+}
+
+// optimizeSubtree: an object that is exactly a PeepholeReplaceKnownMethods calls its optimizeSubtree_impl directly (post-flip); others dispatch.
+func (this *PeepholeReplaceKnownMethods) optimizeSubtree(p0 Node) Node {
+	if p, _ := this.self_.(*PeepholeReplaceKnownMethods); p == this {
+		return this.optimizeSubtree_impl(p0)
+	}
+	return this.self_.optimizeSubtree_impl(p0)
 }

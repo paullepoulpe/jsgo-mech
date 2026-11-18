@@ -53,6 +53,149 @@ func strobj_(s string) any {
 	return s
 }
 
+// isnull_ is `v == null` for a value of a type argument, as the erased code would see it once
+// boxed: a String is null when it is nullstr_, a class pointer, handle or interface when it is
+// nil (obj_ and box_ make those nil), an enum constant when it is 0; arrays and numbers box to
+// non-null objects.
+func isnull_[T any](v T) bool {
+	if p, ok := any(&v).(*string); ok {
+		return *p == nullstr_
+	}
+	x := any(v)
+	if x == nil {
+		return true
+	}
+	if h, ok := x.(interface{ box_() any }); ok {
+		return h.box_() == nil
+	}
+	r := reflect.ValueOf(x)
+	if r.Kind() == reflect.Pointer {
+		return r.IsNil()
+	}
+	// an enum that is an integer type: 0 is null
+	if e, ok := x.(enumConst_); ok {
+		return e.enum_() == nil
+	}
+	return false
+}
+
+// boxValue_ is a value of a type argument boxed as the erased code boxes it: the most derived
+// object of a class, the handle's box, a String as itself (never null here).
+func boxValue_[T any](v T) any {
+	x := any(v)
+	if s, ok := x.(interface{ self() any }); ok {
+		return s.self()
+	}
+	if h, ok := x.(interface{ box_() any }); ok {
+		return h.box_()
+	}
+	return x
+}
+
+// null_ is Java null as a value of a type argument T: nullstr_ for a String, the zero value
+// otherwise (nil for a class or an interface, the zero handle).
+func null_[T any]() T {
+	var z T
+	if p, ok := any(&z).(*string); ok {
+		*p = nullstr_
+	}
+	return z
+}
+
+// boxNull_ is a value of a type argument boxed as the erased code boxes it (strobj_, obj_,
+// self(), box_()): null is nil.
+func boxNull_[T comparable](v T) any {
+	// by the static type of v: an Object (the erased instantiation) is a box already, and its
+	// box is the same one
+	switch p := any(&v).(type) {
+	case *string:
+		return strobj_(*p)
+	case *Node:
+		return p.box_()
+	case *any:
+		return *p
+	}
+	var z T
+	if v == z {
+		return nil
+	}
+	return boxValue_(v)
+}
+
+// unboxT_ is the value of a type argument T that the erased code holds boxed in v, the inverse
+// of boxNull_: nil is Java null (null_[T]()); an object of a class with subclasses is boxed as
+// its most derived object, whose view as the class T points to is what to_X gives (the
+// embedded struct of that class).
+func unboxT_[T any](v any) T {
+	if t, ok := v.(T); ok {
+		return t
+	}
+	if v == nil {
+		return null_[T]()
+	}
+	want := reflect.TypeFor[T]()
+	if want.Kind() == reflect.Pointer {
+		if p := embeddedPtr_(reflect.ValueOf(v), want.Elem()); p.IsValid() {
+			return p.Interface().(T)
+		}
+	}
+	return v.(T) // the ClassCastException of the erased cast
+}
+
+// embeddedPtr_ is the address of the struct of type want embedded (at any depth) in the
+// struct v points to, or the zero Value.
+func embeddedPtr_(v reflect.Value, want reflect.Type) reflect.Value {
+	if v.Kind() != reflect.Pointer || v.IsNil() || v.Elem().Kind() != reflect.Struct {
+		return reflect.Value{}
+	}
+	s := v.Elem()
+	for i := 0; i < s.NumField(); i++ {
+		f := s.Type().Field(i)
+		if !f.Anonymous || f.Type.Kind() != reflect.Struct || !f.IsExported() {
+			continue
+		}
+		if f.Type == want {
+			return s.Field(i).Addr()
+		}
+		if p := embeddedPtr_(s.Field(i).Addr(), want); p.IsValid() {
+			return p
+		}
+	}
+	return reflect.Value{}
+}
+
+// equalsT_ is a.equals(b) for values of a type argument: Object_equals of their boxes, without
+// boxing a String (a null a throws NullPointerException, as Object_equals does).
+func equalsT_[T comparable](a, b T) bool {
+	if s, ok := any(a).(string); ok {
+		if s == nullstr_ {
+			panic(new_NullPointerException_0().self())
+		}
+		return a == b
+	}
+	return Object_equals(boxNull_(a), boxNull_(b))
+}
+
+// objectsEqualsT_ is Objects.equals(a, b) for values of a type argument.
+func objectsEqualsT_[T comparable](a, b T) bool {
+	if _, ok := any(a).(string); ok {
+		return a == b
+	}
+	return objequals_(boxNull_(a), boxNull_(b))
+}
+
+// hashT_ is v.hashCode() for a value of a type argument: Object_hashCode of its box, without
+// boxing a String.
+func hashT_[T comparable](v T) int32 {
+	if s, ok := any(v).(string); ok {
+		if s == nullstr_ {
+			panic(new_NullPointerException_0().self())
+		}
+		return String_hashCode(s)
+	}
+	return Object_hashCode(boxNull_(v))
+}
+
 func isstr_(v any) bool {
 	_, ok := v.(string)
 	return ok
@@ -95,6 +238,33 @@ func objstr_(v any) string {
 		return "null"
 	}
 	return Object_toString(v)
+}
+
+// tostr_ is String.valueOf(Object) of a value whose static type has a toString method (a class
+// pointer, a handle, an integer enum): "null" for null (the zero value, which obj_ and box_()
+// box to nil), its toString() otherwise, which is what objstr_ of its box computes.
+func tostr_[T interface {
+	comparable
+	toString() string
+}](x T) string {
+	var z T
+	if x == z {
+		return "null"
+	}
+	return x.toString()
+}
+
+// tostrNN_ is Object.toString of such a value: NullPointerException for null, as
+// Object_toString of its box.
+func tostrNN_[T interface {
+	comparable
+	toString() string
+}](x T) string {
+	var z T
+	if x == z {
+		panic(new_NullPointerException_0().self())
+	}
+	return x.toString()
 }
 
 func band_(a, b bool) bool { return a && b }
@@ -214,6 +384,14 @@ func arrmap_[S any, T any](src []S, f func(S) T) []T {
 	return out
 }
 
+// arrcopyOf_ is Arrays.copyOf(a, n) of a typed array (post-flip step arraycopy): a new array of
+// length n holding a's first elements, the rest zero.
+func arrcopyOf_[T any](a []T, n int32) []T {
+	out := make([]T, n)
+	copy(out, a)
+	return out
+}
+
 func samearr_[T any](a, b []T) bool {
 	if len(a) != len(b) {
 		return false
@@ -265,3 +443,11 @@ func newarr2_[T any](n, m int32) [][]T {
 	}
 	return a
 }
+
+// funcObj_ is a function value with an identity: a Java lambda object that a translated class
+// compares, hashes or prints (an AutoValue property), holding the lambda as a Go func of its
+// typed signature, f.call(x). newFuncObj_ is called where Java made the lambda object, so that
+// == and the identity hash of the pointer are those of the object (post-flip step passfn).
+type funcObj_[F any] struct{ call F }
+
+func newFuncObj_[F any](f F) *funcObj_[F] { return &funcObj_[F]{f} }

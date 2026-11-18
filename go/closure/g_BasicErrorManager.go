@@ -8,18 +8,6 @@ type BasicErrorManager struct {
 
 func (this *BasicErrorManager) as_BasicErrorManager() *BasicErrorManager { return this }
 
-func to_BasicErrorManager(v any) *BasicErrorManager {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_BasicErrorManager() *BasicErrorManager }).as_BasicErrorManager()
-}
-
-func is_BasicErrorManager(v any) bool {
-	_, ok := v.(interface{ as_BasicErrorManager() *BasicErrorManager })
-	return ok
-}
-
 func (this *BasicErrorManager) self() any {
 	if this == nil {
 		return nil
@@ -35,22 +23,29 @@ func (this *BasicErrorManager) up_SortingErrorManager() *SortingErrorManager {
 }
 
 func (this *BasicErrorManager) init_BasicErrorManager() {
-	this.SortingErrorManager.init_SortingErrorManager(icast_Set(obj_(ImmutableSet_of())))
+	this.SortingErrorManager.init_SortingErrorManager(immutableSetOf_(tc_SortingErrorManager_ErrorReportGenerator))
 }
 
 func (this *BasicErrorManager) generateReport_impl() {
-	it_1 := foreach_(any(this.SortingErrorManager.getSortedDiagnostics()))
-	for it_1.next() {
-		var message *SortingErrorManager_ErrorWithLevel = cast_[*SortingErrorManager_ErrorWithLevel](it_1.v)
+	for message := range elemsAs_[*SortingErrorManager_ErrorWithLevel](this.SortingErrorManager.getSortedDiagnostics()) {
 		this.println(message.level_, message.error_)
 	}
 	this.printSummary()
 }
 
-func (this *BasicErrorManager) println(p0 *CheckLevel, p1 *JSError) {
-	this.self_.(interface{ println_impl(*CheckLevel, *JSError) }).println_impl(p0, p1)
+func (this *BasicErrorManager) println(p0 CheckLevel, p1 *JSError) {
+	this.self_.println_impl(p0, p1)
 }
 
 func (this *BasicErrorManager) printSummary() {
-	this.self_.(interface{ printSummary_impl() }).printSummary_impl()
+	this.self_.printSummary_impl()
+}
+
+// generateReport: an object that is exactly a BasicErrorManager calls its generateReport_impl directly (post-flip); others dispatch.
+func (this *BasicErrorManager) generateReport() {
+	if p, _ := this.self_.(*BasicErrorManager); p == this {
+		this.generateReport_impl()
+		return
+	}
+	this.self_.generateReport_impl()
 }

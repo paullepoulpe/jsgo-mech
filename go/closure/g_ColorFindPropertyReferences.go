@@ -6,7 +6,7 @@ type ColorFindPropertyReferences struct {
 	NodeTraversal_AbstractPostOrderCallback
 	propIndex             *JTMap[string, *PropertyClustering]
 	colorGraphNodeFactory *ColorGraphNodeFactory
-	isPropertyReflector   ColorFindPropertyReferences_IsPropertyReflector
+	isPropertyReflector   func(Node) bool
 }
 
 func (this *ColorFindPropertyReferences) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -20,14 +20,14 @@ func (this *ColorFindPropertyReferences) finit_ColorFindPropertyReferences() {
 	this.propIndex = jnewTMap_(jtc_string, jtc_p_PropertyClustering)
 }
 
-func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector ColorFindPropertyReferences_IsPropertyReflector) {
+func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector func(Node) bool) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_ColorFindPropertyReferences()
 	this.colorGraphNodeFactory = colorGraphNodeFactory
 	this.isPropertyReflector = isPropertyReflector
 }
 
-func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector ColorFindPropertyReferences_IsPropertyReflector) *ColorFindPropertyReferences {
+func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector func(Node) bool) *ColorFindPropertyReferences {
 	this := &ColorFindPropertyReferences{}
 	this.self_ = this
 	this.init_ColorFindPropertyReferences(colorGraphNodeFactory, isPropertyReflector)
@@ -41,18 +41,18 @@ func (this *ColorFindPropertyReferences) getPropertyIndex() *JTMap[string, *Prop
 }
 
 func (this *ColorFindPropertyReferences) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
+	switch n.ns_().token {
+	case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 		this.registerPropertyUse(t, n, n.getFirstChild().getColor())
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		this.handleObjectLit(t, n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		this.handleCall(t, n)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.handleClass(t, n)
-	case Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECT_PATTERN:
 		this.handleObjectPattern(t, n)
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.handleFunction(n)
 	default:
 	}
@@ -63,9 +63,9 @@ func (this *ColorFindPropertyReferences) handleObjectLit(t *NodeTraversal, n Nod
 		return
 	}
 	var owner *Color = n.getColor()
-	this.traverseObjectlitLike(t, n, &Function_tfn_Node_Color{func(m Node) *Color {
+	this.traverseObjectlitLike(t, n, (&Function_tfn_Node_Color{func(m Node) *Color {
 		return owner
-	}})
+	}}).apply)
 }
 
 func (this *ColorFindPropertyReferences) handleCall(t *NodeTraversal, call Node) {
@@ -73,7 +73,7 @@ func (this *ColorFindPropertyReferences) handleCall(t *NodeTraversal, call Node)
 	if !target.isQualifiedName() {
 		return
 	}
-	if this.isPropertyReflector.test(target) {
+	if this.isPropertyReflector(target) {
 		this.handlePropertyReflectorCall(t, call)
 	} else if NodeUtil_isObjectDefinePropertiesDefinition(call) {
 		this.handleObjectDefineProperties(t, call)
@@ -82,44 +82,45 @@ func (this *ColorFindPropertyReferences) handleCall(t *NodeTraversal, call Node)
 
 func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode Node) {
 	var classType *Color = classNode.getColor()
-	this.traverseObjectlitLike(t, NodeUtil_getClassMembers(classNode), &Function_tfn_Node_Color{func(m Node) *Color {
+	this.traverseObjectlitLike(t, NodeUtil_getClassMembers(classNode), (&Function_tfn_Node_Color{func(m Node) *Color {
 		if m.isStaticMember() {
 			return classType
 		} else if m.isMemberFieldDef() {
-			var classInstanceType ImmutableSetOf[*Color] = classType.getInstanceColors()
+			var classInstanceType *ImmutableSet[*Color] = classType.getInstanceColors()
 			return func() *Color {
-				if classInstanceType.isEmpty() {
+				if classInstanceType.IsEmpty() {
 					return StandardColors_UNKNOWN
 				}
-				return Color_createUnion(icast_Set(obj_(classInstanceType)))
+				return Color_createUnion(icast_Set(obj_(classInstanceType.asImm())))
 			}()
 		} else {
-			Preconditions_checkState_boolean_Object(((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()), m.box_())
-			var classPrototypeType ImmutableSetOf[*Color] = classType.getPrototypes()
+			if !((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()) {
+				panic(new_IllegalStateException_String(tostr_(m)))
+			}
+			var classPrototypeType *ImmutableSet[*Color] = classType.getPrototypes()
 			return func() *Color {
-				if classPrototypeType.isEmpty() {
+				if classPrototypeType.IsEmpty() {
 					return StandardColors_UNKNOWN
 				}
-				return Color_createUnion(icast_Set(obj_(classPrototypeType)))
+				return Color_createUnion(icast_Set(obj_(classPrototypeType.asImm())))
 			}()
 		}
-		panic("unreachable")
-	}})
+	}}).apply)
 	this.colorGraphNodeFactory.createNode(classType)
 }
 
 func (this *ColorFindPropertyReferences) handleFunction(fnNode Node) {
 	var fnType *Color = fnNode.getColor()
-	if (fnType != nil) && !fnType.getInstanceColors().isEmpty() {
+	if (fnType != nil) && !fnType.getInstanceColors().IsEmpty() {
 		this.colorGraphNodeFactory.createNode(fnType)
 	}
 }
 
 func (this *ColorFindPropertyReferences) handleObjectPattern(t *NodeTraversal, pattern Node) {
 	var owner *Color = pattern.getColor()
-	this.traverseObjectlitLike(t, pattern, &Function_tfn_Node_Color{func(m Node) *Color {
+	this.traverseObjectlitLike(t, pattern, (&Function_tfn_Node_Color{func(m Node) *Color {
 		return owner
-	}})
+	}}).apply)
 }
 
 func (this *ColorFindPropertyReferences) handlePropertyReflectorCall(t *NodeTraversal, call Node) {
@@ -144,27 +145,29 @@ func (this *ColorFindPropertyReferences) handleObjectDefineProperties(t *NodeTra
 		return
 	}
 	var type_ *Color = typeObj.getColor()
-	this.traverseObjectlitLike(t, objectLiteral, &Function_tfn_Node_Color{func(m Node) *Color {
+	this.traverseObjectlitLike(t, objectLiteral, (&Function_tfn_Node_Color{func(m Node) *Color {
 		return type_
-	}})
+	}}).apply)
 }
 
-func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal, n Node, memberOwnerFn FunctionOf[Node, *Color]) {
-	Preconditions_checkState(((n.isObjectLit() || n.isObjectPattern()) || n.isClassMembers()))
+func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal, n Node, memberOwnerFn func(any) any) {
+	if !((n.isObjectLit() || n.isObjectPattern()) || n.isClassMembers()) {
+		panic(new_IllegalStateException_0())
+	}
 	{
 		var child Node = n.getFirstChild()
 	L_1:
 		for ; child != 0; child = child.getNext() {
-			switch child.getToken() {
-			case Token_rhino_BLOCK, Token_rhino_COMPUTED_PROP, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_OBJECT_REST, Token_rhino_OBJECT_SPREAD:
+			switch child.ns_().token {
+			case tokOrd1_BLOCK, tokOrd1_COMPUTED_PROP, tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_OBJECT_REST, tokOrd1_OBJECT_SPREAD:
 				continue L_1
-			case Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+			case tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 				if child.isQuotedStringKey() {
 					continue L_1
 				}
-				this.registerPropertyUse(t, child, cast_[*Color](memberOwnerFn.apply(child.box_())))
+				this.registerPropertyUse(t, child, cast_[*Color](memberOwnerFn(child.box_())))
 			default:
-				panic(new_IllegalStateException_String(("Unexpected child of " + objstr_(obj_(n.getToken())) + ": " + sstr_(child.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(n.getToken()) + ": " + sstr_(child.toStringTree()))))
 			}
 		}
 	}
@@ -181,14 +184,13 @@ func (this *ColorFindPropertyReferences) registerPropertyUse(t *NodeTraversal, s
 	}
 }
 
-type ColorFindPropertyReferences_IsPropertyReflector interface {
-	test(Node) bool
-}
+type ColorFindPropertyReferences_IsPropertyReflector = *funcObj_[func(Node) bool]
 
-type ColorFindPropertyReferences_IsPropertyReflector_fn struct {
-	f func(Node) bool
-}
-
-func (this *ColorFindPropertyReferences_IsPropertyReflector_fn) test(p0 Node) bool {
-	return this.f(p0)
+// visit: an object that is exactly a ColorFindPropertyReferences calls its visit_impl directly (post-flip); others dispatch.
+func (this *ColorFindPropertyReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ColorFindPropertyReferences); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

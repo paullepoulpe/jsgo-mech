@@ -2,8 +2,10 @@
 
 package closure
 
+import "strings"
+
 type PolymerClassDefinition struct {
-	defType           *PolymerClassDefinition_DefinitionType
+	defType           PolymerClassDefinition_DefinitionType
 	definition        Node
 	input             *CompilerInput
 	target            Node
@@ -14,7 +16,7 @@ type PolymerClassDefinition struct {
 	props             ListOf[*PolymerPass_MemberDefinition]
 	behaviorProps     *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]
 	methods           *JTList[*PolymerPass_MemberDefinition]
-	behaviors         ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition]
+	behaviors         []*PolymerBehaviorExtractor_BehaviorDefinition
 	features_         *FeatureSet
 	interfaceName     Optional[string]
 }
@@ -23,13 +25,15 @@ func (this *PolymerClassDefinition) finit_PolymerClassDefinition() {
 	this.interfaceName = Optional_empty[string]()
 }
 
-func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType *PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props ListOf[*PolymerPass_MemberDefinition], behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *JTList[*PolymerPass_MemberDefinition], behaviors ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) {
+func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props ListOf[*PolymerPass_MemberDefinition], behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *JTList[*PolymerPass_MemberDefinition], behaviors []*PolymerBehaviorExtractor_BehaviorDefinition, features *FeatureSet, input *CompilerInput) {
 	this.finit_PolymerClassDefinition()
 	this.defType = defType
 	this.definition = definition
 	this.target = target
 	this.hasGeneratedLhs = hasGeneratedLhs
-	Preconditions_checkState(((descriptor == 0) || descriptor.isObjectLit()))
+	if descriptor != 0 && !descriptor.isObjectLit() {
+		panic(new_IllegalStateException_0())
+	}
 	this.descriptor = descriptor
 	this.constructor_ = constructor
 	this.nativeBaseElement = nativeBaseElement
@@ -41,7 +45,7 @@ func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType *Polymer
 	this.input = input
 }
 
-func new_PolymerClassDefinition(defType *PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props ListOf[*PolymerPass_MemberDefinition], behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *JTList[*PolymerPass_MemberDefinition], behaviors ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) *PolymerClassDefinition {
+func new_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props ListOf[*PolymerPass_MemberDefinition], behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *JTList[*PolymerPass_MemberDefinition], behaviors []*PolymerBehaviorExtractor_BehaviorDefinition, features *FeatureSet, input *CompilerInput) *PolymerClassDefinition {
 	this := &PolymerClassDefinition{}
 	this.init_PolymerClassDefinition(defType, definition, target, hasGeneratedLhs, descriptor, classInfo, constructor, nativeBaseElement, props, behaviorProps, methods, behaviors, features, input)
 	return this
@@ -77,7 +81,7 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 	} else {
 		var elNameStringBase string = func() string {
 			if elName.isQualifiedName() {
-				return String_replace_char_char(elName.getQualifiedName(), '.', '$')
+				return strings.ReplaceAll(elName.getQualifiedName(), ".", "$")
 			}
 			return elName.getString()
 		}()
@@ -104,26 +108,22 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 		return Optional_of[string](baseClass.getString())
 	}()
 	var behaviorArray Node = NodeUtil_getFirstPropMatchingKey(descriptor, "behaviors")
-	var behaviors ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition] = behaviorExtractor.extractBehaviors(behaviorArray, moduleMetadata)
+	var behaviors []*PolymerBehaviorExtractor_BehaviorDefinition = behaviorExtractor.extractBehaviors(behaviorArray, moduleMetadata)
 	var properties *JTList[*PolymerPass_MemberDefinition] = jnewTList_(jtc_p_PolymerPass_MemberDefinition)
 	var behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition] = jnewTMap_(jtc_p_PolymerPass_MemberDefinition, jtc_p_PolymerBehaviorExtractor_BehaviorDefinition)
-	it_1 := foreach_(obj_(behaviors))
-	for it_1.next() {
-		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = cast_[*PolymerBehaviorExtractor_BehaviorDefinition](it_1.v)
-		it_3 := foreach_(any(behavior.props))
-		for it_3.next() {
-			var prop *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](it_3.v)
+	for _, behavior := range behaviors {
+		for _, prop := range behavior.props {
 			behaviorProps.put(prop, behavior)
 		}
 	}
-	PolymerClassDefinition_overwriteMembersIfPresent(properties, icast_List(obj_(PolymerPassStaticUtils_extractProperties(descriptor, PolymerClassDefinition_DefinitionType_ObjectLiteral, compiler, 0))))
+	PolymerClassDefinition_overwriteMembersIfPresent(properties, immItems_(PolymerPassStaticUtils_extractProperties(descriptor, PolymerClassDefinition_DefinitionType_ObjectLiteral, compiler, 0)))
 	PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps)
 	PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behaviorProps, properties)
 	var newFeatures *FeatureSet = nil
-	if !behaviors.isEmpty() {
-		newFeatures = cast_[*PolymerBehaviorExtractor_BehaviorDefinition](behaviors.get(0)).features_
-		for i := int32(1); i < behaviors.size(); i++ {
-			newFeatures = newFeatures.union(cast_[*PolymerBehaviorExtractor_BehaviorDefinition](behaviors.get(i)).features_)
+	if len(behaviors) != 0 {
+		newFeatures = sliceAt_(behaviors, 0).features_
+		for i := int32(1); i < int32(len(behaviors)); i++ {
+			newFeatures = newFeatures.union(sliceAt_(behaviors, i).features_)
 		}
 	}
 	var methods *JTList[*PolymerPass_MemberDefinition] = jnewTList_(jtc_p_PolymerPass_MemberDefinition)
@@ -162,7 +162,9 @@ func PolymerClassDefinition_createDummyGoogModuleExportsTarget(compiler *Abstrac
 }
 
 func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *AbstractCompiler) *PolymerClassDefinition {
-	Preconditions_checkState(((classNode != 0) && classNode.isClass()))
+	if classNode == 0 || !classNode.isClass() {
+		panic(new_IllegalStateException_0())
+	}
 	var propertiesDescriptor Node = 0
 	var propertiesGetter Node = NodeUtil_getFirstGetterMatchingKey(NodeUtil_getClassMembers(classNode), "properties")
 	if propertiesGetter != 0 {
@@ -198,7 +200,7 @@ func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *Abstr
 	var enclosingModule Node = NodeUtil_getEnclosingModuleIfPresent(classNode)
 	var classInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(classNode)
 	var constructor Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(classNode)
-	var properties ImmutableListOf[*PolymerPass_MemberDefinition] = PolymerPassStaticUtils_extractProperties(propertiesDescriptor, PolymerClassDefinition_DefinitionType_ES6Class, compiler, constructor)
+	var properties *ImmutableList[*PolymerPass_MemberDefinition] = PolymerPassStaticUtils_extractProperties(propertiesDescriptor, PolymerClassDefinition_DefinitionType_ES6Class, compiler, constructor)
 	var methods *JTList[*PolymerPass_MemberDefinition] = PolymerClassDefinition_extractClassMethods(classNode, enclosingModule)
 	var ctorInfo *JSDocInfo = nil
 	if constructor != 0 {
@@ -206,7 +208,7 @@ func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *Abstr
 		PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor, enclosingModule, methods)
 	}
 	var input *CompilerInput = compiler.getInput(NodeUtil_getEnclosingScript(classNode).getInputId())
-	return new_PolymerClassDefinition(PolymerClassDefinition_DefinitionType_ES6Class, classNode, target, false, propertiesDescriptor, classInfo, new_PolymerPass_MemberDefinition(ctorInfo, 0, constructor, enclosingModule), Optional_empty[string](), icast_List(obj_(properties)), nil, methods, nil, nil, input)
+	return new_PolymerClassDefinition(PolymerClassDefinition_DefinitionType_ES6Class, classNode, target, false, propertiesDescriptor, classInfo, new_PolymerPass_MemberDefinition(ctorInfo, 0, constructor, enclosingModule), Optional_empty[string](), icast_List(obj_(properties.asImm())), nil, methods, nil, nil, input)
 }
 
 func PolymerClassDefinition_extractClassMethods(classNode Node, enclosingModule Node) *JTList[*PolymerPass_MemberDefinition] {
@@ -248,10 +250,8 @@ func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor No
 	}
 }
 
-func PolymerClassDefinition_overwriteMembersIfPresent(list *JTList[*PolymerPass_MemberDefinition], newMembers ListOf[*PolymerPass_MemberDefinition]) {
-	it_1 := foreach_(any(newMembers))
-	for it_1.next() {
-		var newMember *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](it_1.v)
+func PolymerClassDefinition_overwriteMembersIfPresent(list *JTList[*PolymerPass_MemberDefinition], newMembers []*PolymerPass_MemberDefinition) {
+	for _, newMember := range newMembers {
 		it_3 := list.each()
 		for it_3.next() {
 			var member *PolymerPass_MemberDefinition = it_3.v
@@ -271,7 +271,7 @@ func PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps *JTMap[*P
 	var behaviorsItr IteratorOf[Map_EntryOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]] = behaviorProps.asMap().entrySet().iterator()
 	var seen *JTSet[string] = jnewTSet_(jtc_string)
 	for behaviorsItr.hasNext() {
-		var memberDefinition *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](icast_Map_Entry(behaviorsItr.next()).getKey())
+		var memberDefinition *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](behaviorsItr.next().(Map_Entry).getKey())
 		var propertyName string = memberDefinition.name_.getString()
 		if !seen.add(propertyName) {
 			Iterator_remove(behaviorsItr)
@@ -291,7 +291,7 @@ func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behav
 	}
 	var behaviorsItr IteratorOf[Map_EntryOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]] = behaviorProps.asMap().entrySet().iterator()
 	for behaviorsItr.hasNext() {
-		var memberDefinition *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](icast_Map_Entry(behaviorsItr.next()).getKey())
+		var memberDefinition *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](behaviorsItr.next().(Map_Entry).getKey())
 		if elementPropNames.has(memberDefinition.name_.getString()) {
 			Iterator_remove(behaviorsItr)
 		}
@@ -299,59 +299,79 @@ func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behav
 }
 
 func (this *PolymerClassDefinition) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("defType", obj_(this.defType)).add("definition", this.definition.box_()).add("target", this.target.box_()).add("nativeBaseElement", func() any {
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add("defType", obj_(this.defType)).add("definition", this.definition.box_()).add("target", this.target.box_()).add("nativeBaseElement", func() any {
 		if this.nativeBaseElement.isPresent() {
 			return strobj_(this.nativeBaseElement.get())
 		}
 		return nil
-	}()).omitNullValues()))
+	}()).omitNullValues())
 }
 
 func (this *PolymerClassDefinition) getInterfaceName(uniqueIdSupplier *UniqueIdSupplier) Optional[string] {
 	if this.interfaceName.isEmpty() {
-		this.interfaceName = Optional_of[string](("Polymer" + sstr_(String_replace_char_char(this.target.getQualifiedName(), '.', '_')) + "Interface$" + sstr_(uniqueIdSupplier.getUniqueId(this.input))))
+		this.interfaceName = Optional_of[string](("Polymer" + sstr_(strings.ReplaceAll(this.target.getQualifiedName(), ".", "_")) + "Interface$" + sstr_(uniqueIdSupplier.getUniqueId(this.input))))
 	}
 	return this.interfaceName
 }
 
-type PolymerClassDefinition_DefinitionType struct {
-	Enum
+type PolymerClassDefinition_DefinitionType uint8
+
+// PolymerClassDefinition_DefinitionType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var PolymerClassDefinition_DefinitionType_enum_ = [2]Enum{
+	{self_: PolymerClassDefinition_DefinitionType_ObjectLiteral, name_: "ObjectLiteral", ordinal_: 0},
+	{self_: PolymerClassDefinition_DefinitionType_ES6Class, name_: "ES6Class", ordinal_: 1},
 }
 
-func (this *PolymerClassDefinition_DefinitionType) up_Enum() *Enum {
-	if this == nil {
+func (this PolymerClassDefinition_DefinitionType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &PolymerClassDefinition_DefinitionType_enum_[this-1]
 }
 
-func (this *PolymerClassDefinition_DefinitionType) init_PolymerClassDefinition_DefinitionType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this PolymerClassDefinition_DefinitionType) name() string {
+	return this.enum_().name_
 }
 
-func new_PolymerClassDefinition_DefinitionType(name_ string, ordinal_ int32) *PolymerClassDefinition_DefinitionType {
-	this := &PolymerClassDefinition_DefinitionType{}
-	this.self_ = this
-	this.init_PolymerClassDefinition_DefinitionType(name_, ordinal_)
+func (this PolymerClassDefinition_DefinitionType) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this PolymerClassDefinition_DefinitionType) toString() string {
+	return this.enum_().name_
+}
+
+func (this PolymerClassDefinition_DefinitionType) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this PolymerClassDefinition_DefinitionType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func PolymerClassDefinition_DefinitionType_values() []*PolymerClassDefinition_DefinitionType {
-	return append([]*PolymerClassDefinition_DefinitionType(nil), PolymerClassDefinition_DefinitionType_values_...)
+func PolymerClassDefinition_DefinitionType_values() []PolymerClassDefinition_DefinitionType {
+	return append([]PolymerClassDefinition_DefinitionType(nil), PolymerClassDefinition_DefinitionType_values_...)
 }
 
-func PolymerClassDefinition_DefinitionType_valueOf(name string) *PolymerClassDefinition_DefinitionType {
+func PolymerClassDefinition_DefinitionType_valueOf(name string) PolymerClassDefinition_DefinitionType {
 	for _, v := range PolymerClassDefinition_DefinitionType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("DefinitionType", name))
 }
 
-var PolymerClassDefinition_DefinitionType_ObjectLiteral *PolymerClassDefinition_DefinitionType
-var PolymerClassDefinition_DefinitionType_ES6Class *PolymerClassDefinition_DefinitionType
-var PolymerClassDefinition_DefinitionType_values_ []*PolymerClassDefinition_DefinitionType
+const PolymerClassDefinition_DefinitionType_ObjectLiteral PolymerClassDefinition_DefinitionType = 1
+const PolymerClassDefinition_DefinitionType_ES6Class PolymerClassDefinition_DefinitionType = 2
+
+var PolymerClassDefinition_DefinitionType_values_ []PolymerClassDefinition_DefinitionType
 
 var PolymerClassDefinition_DefinitionType_clinit_done bool
 
@@ -360,9 +380,7 @@ func PolymerClassDefinition_DefinitionType_clinit() {
 		return
 	}
 	PolymerClassDefinition_DefinitionType_clinit_done = true
-	PolymerClassDefinition_DefinitionType_ObjectLiteral = new_PolymerClassDefinition_DefinitionType("ObjectLiteral", 0)
-	PolymerClassDefinition_DefinitionType_ES6Class = new_PolymerClassDefinition_DefinitionType("ES6Class", 1)
-	PolymerClassDefinition_DefinitionType_values_ = []*PolymerClassDefinition_DefinitionType{PolymerClassDefinition_DefinitionType_ObjectLiteral, PolymerClassDefinition_DefinitionType_ES6Class}
+	PolymerClassDefinition_DefinitionType_values_ = []PolymerClassDefinition_DefinitionType{PolymerClassDefinition_DefinitionType_ObjectLiteral, PolymerClassDefinition_DefinitionType_ES6Class}
 	registerEnum_("com.google.javascript.jscomp.PolymerClassDefinition.DefinitionType", enumValues_(PolymerClassDefinition_DefinitionType_values_))
 
 }

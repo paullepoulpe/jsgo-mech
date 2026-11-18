@@ -34,25 +34,25 @@ func (this *TypeTransformationParser) getTypeTransformationAst() Node {
 	return this.typeTransformationAst
 }
 
-func (this *TypeTransformationParser) addNewWarning(messageId *Msg, messageArg string) {
+func (this *TypeTransformationParser) addNewWarning(messageId Msg, messageArg string) {
 	this.errorReporter.warning(("Bad type annotation. " + sstr_(messageId.format_1([]any{strobj_(messageArg)}))), Optional_of[string](this.sourceFile.getName()), this.templateLineno, this.templateCharno)
 }
 
-func (this *TypeTransformationParser) nameToKeyword(s string) *TypeTransformationParser_Keywords {
+func (this *TypeTransformationParser) nameToKeyword(s string) TypeTransformationParser_Keywords {
 	return TypeTransformationParser_Keywords_valueOf(Ascii_toUpperCase(s))
 }
 
 func (this *TypeTransformationParser) isValidKeyword(name string) bool {
 	for _, k := range TypeTransformationParser_Keywords_values() {
-		if k.nameField == name {
+		if TypeTransformationParser_Keywords_nameField_[k-1] == name {
 			return true
 		}
 	}
 	return false
 }
 
-func (this *TypeTransformationParser) isOperationKind(name string, kind *TypeTransformationParser_OperationKind) bool {
-	return (this.isValidKeyword(name) && (this.nameToKeyword(name).kind_ == kind))
+func (this *TypeTransformationParser) isOperationKind(name string, kind TypeTransformationParser_OperationKind) bool {
+	return (this.isValidKeyword(name) && (TypeTransformationParser_Keywords_kind__[this.nameToKeyword(name)-1] == kind))
 }
 
 func (this *TypeTransformationParser) isValidStringPredicate(name string) bool {
@@ -76,27 +76,37 @@ func (this *TypeTransformationParser) isValidPredicate(name string) bool {
 }
 
 func (this *TypeTransformationParser) getFunctionParamCount(n Node) int32 {
-	Preconditions_checkArgument_boolean_String_Object(n.isFunction(), "Expected a function node, found %s", n.box_())
+	if !n.isFunction() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a function node, found %s", []any{n.box_()})))
+	}
 	return n.getSecondChild().getChildCount()
 }
 
 func (this *TypeTransformationParser) getFunctionBody(n Node) Node {
-	Preconditions_checkArgument_boolean_String_Object(n.isFunction(), "Expected a function node, found %s", n.box_())
+	if !n.isFunction() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a function node, found %s", []any{n.box_()})))
+	}
 	return n.getChildAtIndex(2)
 }
 
 func (this *TypeTransformationParser) getCallName(n Node) string {
-	Preconditions_checkArgument_boolean_String_Object(n.isCall(), "Expected a call node, found %s", n.box_())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})))
+	}
 	return n.getFirstChild().getString()
 }
 
 func (this *TypeTransformationParser) getCallArgument(n Node, i int32) Node {
-	Preconditions_checkArgument_boolean_String_Object(n.isCall(), "Expected a call node, found %s", n.box_())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})))
+	}
 	return n.getChildAtIndex((i + 1))
 }
 
 func (this *TypeTransformationParser) getCallParamCount(n Node) int32 {
-	Preconditions_checkArgument_boolean_String_Object(n.isCall(), "Expected a call node, found %s", n.box_())
+	if !n.isCall() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected a call node, found %s", []any{n.box_()})))
+	}
 	return (n.getChildCount() - 1)
 }
 
@@ -136,14 +146,14 @@ func (this *TypeTransformationParser) warnInvalidInside(msg string) {
 	this.addNewWarning(Msg_JSDOC_TYPETRANSFORMATION_INVALID_INSIDE, msg)
 }
 
-func (this *TypeTransformationParser) checkParameterCount(expr Node, keyword *TypeTransformationParser_Keywords) bool {
+func (this *TypeTransformationParser) checkParameterCount(expr Node, keyword TypeTransformationParser_Keywords) bool {
 	var paramCount int32 = this.getCallParamCount(expr)
-	if paramCount < keyword.minParamCount {
-		this.warnMissingParam(keyword.nameField)
+	if paramCount < TypeTransformationParser_Keywords_minParamCount_[keyword-1] {
+		this.warnMissingParam(TypeTransformationParser_Keywords_nameField_[keyword-1])
 		return false
 	}
-	if paramCount > keyword.maxParamCount {
-		this.warnExtraParam(keyword.nameField)
+	if paramCount > TypeTransformationParser_Keywords_maxParamCount_[keyword-1] {
+		this.warnExtraParam(TypeTransformationParser_Keywords_nameField_[keyword-1])
 		return false
 	}
 	return true
@@ -228,7 +238,7 @@ func (this *TypeTransformationParser) validRawTypeOfTypeExpression(expr Node) bo
 		return false
 	}
 	if !this.validTypeTransformationExpression(this.getCallArgument(expr, 0)) {
-		this.warnInvalidInside(TypeTransformationParser_Keywords_RAWTYPEOF.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_RAWTYPEOF-1])
 		return false
 	}
 	return true
@@ -239,18 +249,18 @@ func (this *TypeTransformationParser) validTemplateTypeOfExpression(expr Node) b
 		return false
 	}
 	if !this.validTypeTransformationExpression(this.getCallArgument(expr, 0)) {
-		this.warnInvalidInside(TypeTransformationParser_Keywords_TEMPLATETYPEOF.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_TEMPLATETYPEOF-1])
 		return false
 	}
 	if !this.getCallArgument(expr, 1).isNumber() {
 		this.warnInvalid("index")
-		this.warnInvalidInside(TypeTransformationParser_Keywords_TEMPLATETYPEOF.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_TEMPLATETYPEOF-1])
 		return false
 	}
 	var index float64 = this.getCallArgument(expr, 1).getDouble()
 	if Double_isNaN(index) || !JSCompDoubles_isExactInt32(index) {
 		this.warnInvalid("index")
-		this.warnInvalidInside(TypeTransformationParser_Keywords_TEMPLATETYPEOF.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_TEMPLATETYPEOF-1])
 		return false
 	}
 	return true
@@ -281,7 +291,7 @@ func (this *TypeTransformationParser) validRecordTypeExpression(expr Node) bool 
 	}
 	for i := int32(0); i < this.getCallParamCount(expr); i++ {
 		if !this.validRecordParam(this.getCallArgument(expr, i)) {
-			this.warnInvalidInside(TypeTransformationParser_Keywords_RECORD.nameField)
+			this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_RECORD-1])
 			return false
 		}
 	}
@@ -295,7 +305,7 @@ func (this *TypeTransformationParser) validNativeTypeExpr(expr Node) bool {
 	var typeString Node = this.getCallArgument(expr, 0)
 	if !typeString.isStringLit() {
 		this.warnInvalidExpression("native type")
-		this.warnInvalidInside(TypeTransformationParser_Keywords_TYPEEXPR.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_TYPEEXPR-1])
 		return false
 	}
 	var typeExpr Node = JsDocInfoParser_parseTypeString(typeString.getString())
@@ -306,7 +316,7 @@ func (this *TypeTransformationParser) validNativeTypeExpr(expr Node) bool {
 
 func (this *TypeTransformationParser) validTypeExpression(expr Node) bool {
 	var name string = this.getCallName(expr)
-	var keyword *TypeTransformationParser_Keywords = this.nameToKeyword(name)
+	var keyword TypeTransformationParser_Keywords = this.nameToKeyword(name)
 	return func() bool {
 		switch keyword {
 		case TypeTransformationParser_Keywords_TYPE:
@@ -328,9 +338,8 @@ func (this *TypeTransformationParser) validTypeExpression(expr Node) bool {
 		case TypeTransformationParser_Keywords_TYPEEXPR:
 			return this.validNativeTypeExpr(expr)
 		default:
-			panic(new_IllegalStateException_String("Invalid type expression").self())
+			panic(new_IllegalStateException_String("Invalid type expression"))
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -349,7 +358,7 @@ func (this *TypeTransformationParser) isValidStringParam(expr Node) bool {
 		this.warnInvalid("string")
 		return false
 	}
-	if String_isEmpty(expr.getString()) {
+	if expr.getString() == "" {
 		this.warnInvalid("string parameter")
 		return false
 	}
@@ -410,12 +419,12 @@ func (this *TypeTransformationParser) validBooleanExpression(expr Node) bool {
 		this.warnInvalid("boolean predicate")
 		return false
 	}
-	var keyword *TypeTransformationParser_Keywords = this.nameToKeyword(this.getCallName(expr))
+	var keyword TypeTransformationParser_Keywords = this.nameToKeyword(this.getCallName(expr))
 	if !this.checkParameterCount(expr, keyword) {
 		return false
 	}
 	return func() bool {
-		switch keyword.kind_ {
+		switch TypeTransformationParser_Keywords_kind__[keyword-1] {
 		case TypeTransformationParser_OperationKind_TYPE_PREDICATE:
 			return this.validTypePredicate(expr, this.getCallParamCount(expr))
 		case TypeTransformationParser_OperationKind_STRING_PREDICATE:
@@ -423,9 +432,8 @@ func (this *TypeTransformationParser) validBooleanExpression(expr Node) bool {
 		case TypeTransformationParser_OperationKind_TYPEVAR_PREDICATE:
 			return this.validTypevarPredicate(expr, this.getCallParamCount(expr))
 		default:
-			panic(new_IllegalStateException_String("Invalid boolean expression").self())
+			panic(new_IllegalStateException_String("Invalid boolean expression"))
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -453,24 +461,24 @@ func (this *TypeTransformationParser) validMapunionExpression(expr Node) bool {
 		return false
 	}
 	if !this.validTypeTransformationExpression(this.getCallArgument(expr, 0)) {
-		this.warnInvalidInside(TypeTransformationParser_Keywords_MAPUNION.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_MAPUNION-1])
 		return false
 	}
 	if !this.getCallArgument(expr, 1).isFunction() {
 		this.warnInvalid("map function")
-		this.warnInvalidInside(TypeTransformationParser_Keywords_MAPUNION.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_MAPUNION-1])
 		return false
 	}
 	var mapFn Node = this.getCallArgument(expr, 1)
 	var mapFnParamCount int32 = this.getFunctionParamCount(mapFn)
 	if mapFnParamCount < 1 {
 		this.warnMissingParam("map function")
-		this.warnInvalidInside(TypeTransformationParser_Keywords_MAPUNION.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_MAPUNION-1])
 		return false
 	}
 	if mapFnParamCount > 1 {
 		this.warnExtraParam("map function")
-		this.warnInvalidInside(TypeTransformationParser_Keywords_MAPUNION.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_MAPUNION-1])
 		return false
 	}
 	var mapFnBody Node = this.getFunctionBody(mapFn)
@@ -486,24 +494,24 @@ func (this *TypeTransformationParser) validMaprecordExpression(expr Node) bool {
 		return false
 	}
 	if !this.validTypeTransformationExpression(this.getCallArgument(expr, 0)) {
-		this.warnInvalidInside(TypeTransformationParser_Keywords_MAPRECORD.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_MAPRECORD-1])
 		return false
 	}
 	if !this.getCallArgument(expr, 1).isFunction() {
 		this.warnInvalid("map function")
-		this.warnInvalidInside(TypeTransformationParser_Keywords_MAPRECORD.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_MAPRECORD-1])
 		return false
 	}
 	var mapFn Node = this.getCallArgument(expr, 1)
 	var mapFnParamCount int32 = this.getFunctionParamCount(mapFn)
 	if mapFnParamCount < 2 {
 		this.warnMissingParam("map function")
-		this.warnInvalidInside(TypeTransformationParser_Keywords_MAPRECORD.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_MAPRECORD-1])
 		return false
 	}
 	if mapFnParamCount > 2 {
 		this.warnExtraParam("map function")
-		this.warnInvalidInside(TypeTransformationParser_Keywords_MAPRECORD.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_MAPRECORD-1])
 		return false
 	}
 	var mapFnBody Node = this.getFunctionBody(mapFn)
@@ -520,7 +528,7 @@ func (this *TypeTransformationParser) validTypeOfVarExpression(expr Node) bool {
 	}
 	if !this.getCallArgument(expr, 0).isStringLit() {
 		this.warnInvalid("name")
-		this.warnInvalidInside(TypeTransformationParser_Keywords_TYPEOFVAR.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_TYPEOFVAR-1])
 		return false
 	}
 	return true
@@ -531,7 +539,7 @@ func (this *TypeTransformationParser) validInstanceOfExpression(expr Node) bool 
 		return false
 	}
 	if !this.validTypeTransformationExpression(this.getCallArgument(expr, 0)) {
-		this.warnInvalidInside(TypeTransformationParser_Keywords_INSTANCEOF.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_INSTANCEOF-1])
 		return false
 	}
 	return true
@@ -543,11 +551,11 @@ func (this *TypeTransformationParser) validPrintTypeExpression(expr Node) bool {
 	}
 	if !this.getCallArgument(expr, 0).isStringLit() {
 		this.warnInvalid("message")
-		this.warnInvalidInside(TypeTransformationParser_Keywords_PRINTTYPE.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_PRINTTYPE-1])
 		return false
 	}
 	if !this.validTypeTransformationExpression(this.getCallArgument(expr, 1)) {
-		this.warnInvalidInside(TypeTransformationParser_Keywords_PRINTTYPE.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_PRINTTYPE-1])
 		return false
 	}
 	return true
@@ -559,11 +567,11 @@ func (this *TypeTransformationParser) validPropTypeExpression(expr Node) bool {
 	}
 	if !this.getCallArgument(expr, 0).isStringLit() {
 		this.warnInvalid("property name")
-		this.warnInvalidInside(TypeTransformationParser_Keywords_PROPTYPE.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_PROPTYPE-1])
 		return false
 	}
 	if !this.validTypeTransformationExpression(this.getCallArgument(expr, 1)) {
-		this.warnInvalidInside(TypeTransformationParser_Keywords_PROPTYPE.nameField)
+		this.warnInvalidInside(TypeTransformationParser_Keywords_nameField_[TypeTransformationParser_Keywords_PROPTYPE-1])
 		return false
 	}
 	return true
@@ -571,7 +579,7 @@ func (this *TypeTransformationParser) validPropTypeExpression(expr Node) bool {
 
 func (this *TypeTransformationParser) validOperationExpression(expr Node) bool {
 	var name string = this.getCallName(expr)
-	var keyword *TypeTransformationParser_Keywords = this.nameToKeyword(name)
+	var keyword TypeTransformationParser_Keywords = this.nameToKeyword(name)
 	return func() bool {
 		switch keyword {
 		case TypeTransformationParser_Keywords_COND:
@@ -589,9 +597,8 @@ func (this *TypeTransformationParser) validOperationExpression(expr Node) bool {
 		case TypeTransformationParser_Keywords_PROPTYPE:
 			return this.validPropTypeExpression(expr)
 		default:
-			panic(new_IllegalStateException_String("Invalid type transformation operation").self())
+			panic(new_IllegalStateException_String("Invalid type transformation operation"))
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -608,17 +615,16 @@ func (this *TypeTransformationParser) validTypeTransformationExpression(expr Nod
 		this.warnInvalidExpression("type transformation")
 		return false
 	}
-	var keyword *TypeTransformationParser_Keywords = this.nameToKeyword(name)
+	var keyword TypeTransformationParser_Keywords = this.nameToKeyword(name)
 	return func() bool {
-		switch keyword.kind_ {
+		switch TypeTransformationParser_Keywords_kind__[keyword-1] {
 		case TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR:
 			return this.validTypeExpression(expr)
 		case TypeTransformationParser_OperationKind_OPERATION:
 			return this.validOperationExpression(expr)
 		default:
-			panic(new_IllegalStateException_String("Invalid type transformation expression").self())
+			panic(new_IllegalStateException_String("Invalid type transformation expression"))
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -633,51 +639,74 @@ func TypeTransformationParser_clinit() {
 		return
 	}
 	TypeTransformationParser_clinit_done = true
-	TypeTransformationParser_TTL_NODE_LENGTH = String_length("@template")
+	TypeTransformationParser_TTL_NODE_LENGTH = int32(len("@template"))
 
 }
 
-type TypeTransformationParser_OperationKind struct {
-	Enum
+type TypeTransformationParser_OperationKind uint8
+
+// TypeTransformationParser_OperationKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var TypeTransformationParser_OperationKind_enum_ = [5]Enum{
+	{self_: TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR, name_: "TYPE_CONSTRUCTOR", ordinal_: 0},
+	{self_: TypeTransformationParser_OperationKind_OPERATION, name_: "OPERATION", ordinal_: 1},
+	{self_: TypeTransformationParser_OperationKind_STRING_PREDICATE, name_: "STRING_PREDICATE", ordinal_: 2},
+	{self_: TypeTransformationParser_OperationKind_TYPE_PREDICATE, name_: "TYPE_PREDICATE", ordinal_: 3},
+	{self_: TypeTransformationParser_OperationKind_TYPEVAR_PREDICATE, name_: "TYPEVAR_PREDICATE", ordinal_: 4},
 }
 
-func (this *TypeTransformationParser_OperationKind) up_Enum() *Enum {
-	if this == nil {
+func (this TypeTransformationParser_OperationKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &TypeTransformationParser_OperationKind_enum_[this-1]
 }
 
-func (this *TypeTransformationParser_OperationKind) init_TypeTransformationParser_OperationKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this TypeTransformationParser_OperationKind) name() string {
+	return this.enum_().name_
 }
 
-func new_TypeTransformationParser_OperationKind(name_ string, ordinal_ int32) *TypeTransformationParser_OperationKind {
-	this := &TypeTransformationParser_OperationKind{}
-	this.self_ = this
-	this.init_TypeTransformationParser_OperationKind(name_, ordinal_)
+func (this TypeTransformationParser_OperationKind) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this TypeTransformationParser_OperationKind) toString() string {
+	return this.enum_().name_
+}
+
+func (this TypeTransformationParser_OperationKind) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this TypeTransformationParser_OperationKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func TypeTransformationParser_OperationKind_values() []*TypeTransformationParser_OperationKind {
-	return append([]*TypeTransformationParser_OperationKind(nil), TypeTransformationParser_OperationKind_values_...)
+func TypeTransformationParser_OperationKind_values() []TypeTransformationParser_OperationKind {
+	return append([]TypeTransformationParser_OperationKind(nil), TypeTransformationParser_OperationKind_values_...)
 }
 
-func TypeTransformationParser_OperationKind_valueOf(name string) *TypeTransformationParser_OperationKind {
+func TypeTransformationParser_OperationKind_valueOf(name string) TypeTransformationParser_OperationKind {
 	for _, v := range TypeTransformationParser_OperationKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("OperationKind", name))
 }
 
-var TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR *TypeTransformationParser_OperationKind
-var TypeTransformationParser_OperationKind_OPERATION *TypeTransformationParser_OperationKind
-var TypeTransformationParser_OperationKind_STRING_PREDICATE *TypeTransformationParser_OperationKind
-var TypeTransformationParser_OperationKind_TYPE_PREDICATE *TypeTransformationParser_OperationKind
-var TypeTransformationParser_OperationKind_TYPEVAR_PREDICATE *TypeTransformationParser_OperationKind
-var TypeTransformationParser_OperationKind_values_ []*TypeTransformationParser_OperationKind
+const TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR TypeTransformationParser_OperationKind = 1
+const TypeTransformationParser_OperationKind_OPERATION TypeTransformationParser_OperationKind = 2
+const TypeTransformationParser_OperationKind_STRING_PREDICATE TypeTransformationParser_OperationKind = 3
+const TypeTransformationParser_OperationKind_TYPE_PREDICATE TypeTransformationParser_OperationKind = 4
+const TypeTransformationParser_OperationKind_TYPEVAR_PREDICATE TypeTransformationParser_OperationKind = 5
+
+var TypeTransformationParser_OperationKind_values_ []TypeTransformationParser_OperationKind
 
 var TypeTransformationParser_OperationKind_clinit_done bool
 
@@ -686,89 +715,132 @@ func TypeTransformationParser_OperationKind_clinit() {
 		return
 	}
 	TypeTransformationParser_OperationKind_clinit_done = true
-	TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR = new_TypeTransformationParser_OperationKind("TYPE_CONSTRUCTOR", 0)
-	TypeTransformationParser_OperationKind_OPERATION = new_TypeTransformationParser_OperationKind("OPERATION", 1)
-	TypeTransformationParser_OperationKind_STRING_PREDICATE = new_TypeTransformationParser_OperationKind("STRING_PREDICATE", 2)
-	TypeTransformationParser_OperationKind_TYPE_PREDICATE = new_TypeTransformationParser_OperationKind("TYPE_PREDICATE", 3)
-	TypeTransformationParser_OperationKind_TYPEVAR_PREDICATE = new_TypeTransformationParser_OperationKind("TYPEVAR_PREDICATE", 4)
-	TypeTransformationParser_OperationKind_values_ = []*TypeTransformationParser_OperationKind{TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR, TypeTransformationParser_OperationKind_OPERATION, TypeTransformationParser_OperationKind_STRING_PREDICATE, TypeTransformationParser_OperationKind_TYPE_PREDICATE, TypeTransformationParser_OperationKind_TYPEVAR_PREDICATE}
+	TypeTransformationParser_OperationKind_values_ = []TypeTransformationParser_OperationKind{TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR, TypeTransformationParser_OperationKind_OPERATION, TypeTransformationParser_OperationKind_STRING_PREDICATE, TypeTransformationParser_OperationKind_TYPE_PREDICATE, TypeTransformationParser_OperationKind_TYPEVAR_PREDICATE}
 	registerEnum_("com.google.javascript.jscomp.parsing.TypeTransformationParser.OperationKind", enumValues_(TypeTransformationParser_OperationKind_values_))
 
 }
 
-type TypeTransformationParser_Keywords struct {
-	Enum
-	nameField     string
-	minParamCount int32
-	maxParamCount int32
-	kind_         *TypeTransformationParser_OperationKind
+type TypeTransformationParser_Keywords uint8
+
+// TypeTransformationParser_Keywords_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var TypeTransformationParser_Keywords_enum_ = [24]Enum{
+	{self_: TypeTransformationParser_Keywords_ALL, name_: "ALL", ordinal_: 0},
+	{self_: TypeTransformationParser_Keywords_COND, name_: "COND", ordinal_: 1},
+	{self_: TypeTransformationParser_Keywords_EQ, name_: "EQ", ordinal_: 2},
+	{self_: TypeTransformationParser_Keywords_ISCTOR, name_: "ISCTOR", ordinal_: 3},
+	{self_: TypeTransformationParser_Keywords_ISDEFINED, name_: "ISDEFINED", ordinal_: 4},
+	{self_: TypeTransformationParser_Keywords_ISRECORD, name_: "ISRECORD", ordinal_: 5},
+	{self_: TypeTransformationParser_Keywords_ISTEMPLATIZED, name_: "ISTEMPLATIZED", ordinal_: 6},
+	{self_: TypeTransformationParser_Keywords_ISUNKNOWN, name_: "ISUNKNOWN", ordinal_: 7},
+	{self_: TypeTransformationParser_Keywords_INSTANCEOF, name_: "INSTANCEOF", ordinal_: 8},
+	{self_: TypeTransformationParser_Keywords_MAPUNION, name_: "MAPUNION", ordinal_: 9},
+	{self_: TypeTransformationParser_Keywords_MAPRECORD, name_: "MAPRECORD", ordinal_: 10},
+	{self_: TypeTransformationParser_Keywords_NONE, name_: "NONE", ordinal_: 11},
+	{self_: TypeTransformationParser_Keywords_PRINTTYPE, name_: "PRINTTYPE", ordinal_: 12},
+	{self_: TypeTransformationParser_Keywords_PROPTYPE, name_: "PROPTYPE", ordinal_: 13},
+	{self_: TypeTransformationParser_Keywords_RAWTYPEOF, name_: "RAWTYPEOF", ordinal_: 14},
+	{self_: TypeTransformationParser_Keywords_SUB, name_: "SUB", ordinal_: 15},
+	{self_: TypeTransformationParser_Keywords_STREQ, name_: "STREQ", ordinal_: 16},
+	{self_: TypeTransformationParser_Keywords_RECORD, name_: "RECORD", ordinal_: 17},
+	{self_: TypeTransformationParser_Keywords_TEMPLATETYPEOF, name_: "TEMPLATETYPEOF", ordinal_: 18},
+	{self_: TypeTransformationParser_Keywords_TYPE, name_: "TYPE", ordinal_: 19},
+	{self_: TypeTransformationParser_Keywords_TYPEEXPR, name_: "TYPEEXPR", ordinal_: 20},
+	{self_: TypeTransformationParser_Keywords_TYPEOFVAR, name_: "TYPEOFVAR", ordinal_: 21},
+	{self_: TypeTransformationParser_Keywords_UNION, name_: "UNION", ordinal_: 22},
+	{self_: TypeTransformationParser_Keywords_UNKNOWN, name_: "UNKNOWN", ordinal_: 23},
 }
 
-func (this *TypeTransformationParser_Keywords) up_Enum() *Enum {
-	if this == nil {
+var TypeTransformationParser_Keywords_nameField_ [24]string
+
+var TypeTransformationParser_Keywords_minParamCount_ [24]int32
+
+var TypeTransformationParser_Keywords_maxParamCount_ [24]int32
+
+var TypeTransformationParser_Keywords_kind__ [24]TypeTransformationParser_OperationKind
+
+func (this TypeTransformationParser_Keywords) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &TypeTransformationParser_Keywords_enum_[this-1]
 }
 
-func (this *TypeTransformationParser_Keywords) zero_TypeTransformationParser_Keywords() {
-	this.nameField = nullstr_
+func (this TypeTransformationParser_Keywords) name() string {
+	return this.enum_().name_
 }
 
-func (this *TypeTransformationParser_Keywords) init_TypeTransformationParser_Keywords(name_ string, ordinal_ int32, name string, minParamCount int32, maxParamCount int32, kind *TypeTransformationParser_OperationKind) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.nameField = name
-	this.minParamCount = minParamCount
-	this.maxParamCount = maxParamCount
-	this.kind_ = kind
+func (this TypeTransformationParser_Keywords) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_TypeTransformationParser_Keywords(name_ string, ordinal_ int32, name string, minParamCount int32, maxParamCount int32, kind *TypeTransformationParser_OperationKind) *TypeTransformationParser_Keywords {
-	this := &TypeTransformationParser_Keywords{}
-	this.self_ = this
-	this.zero_TypeTransformationParser_Keywords()
-	this.init_TypeTransformationParser_Keywords(name_, ordinal_, name, minParamCount, maxParamCount, kind)
+func (this TypeTransformationParser_Keywords) toString() string {
+	return this.enum_().name_
+}
+
+func (this TypeTransformationParser_Keywords) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this TypeTransformationParser_Keywords) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func TypeTransformationParser_Keywords_values() []*TypeTransformationParser_Keywords {
-	return append([]*TypeTransformationParser_Keywords(nil), TypeTransformationParser_Keywords_values_...)
+func (this TypeTransformationParser_Keywords) zero_TypeTransformationParser_Keywords() {
+	TypeTransformationParser_Keywords_nameField_[this-1] = nullstr_
 }
 
-func TypeTransformationParser_Keywords_valueOf(name string) *TypeTransformationParser_Keywords {
+func (this TypeTransformationParser_Keywords) init_TypeTransformationParser_Keywords(name string, minParamCount int32, maxParamCount int32, kind TypeTransformationParser_OperationKind) {
+	TypeTransformationParser_Keywords_nameField_[this-1] = name
+	TypeTransformationParser_Keywords_minParamCount_[this-1] = minParamCount
+	TypeTransformationParser_Keywords_maxParamCount_[this-1] = maxParamCount
+	TypeTransformationParser_Keywords_kind__[this-1] = kind
+}
+
+func TypeTransformationParser_Keywords_values() []TypeTransformationParser_Keywords {
+	return append([]TypeTransformationParser_Keywords(nil), TypeTransformationParser_Keywords_values_...)
+}
+
+func TypeTransformationParser_Keywords_valueOf(name string) TypeTransformationParser_Keywords {
 	for _, v := range TypeTransformationParser_Keywords_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Keywords", name))
 }
 
-var TypeTransformationParser_Keywords_ALL *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_COND *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_EQ *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_ISCTOR *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_ISDEFINED *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_ISRECORD *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_ISTEMPLATIZED *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_ISUNKNOWN *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_INSTANCEOF *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_MAPUNION *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_MAPRECORD *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_NONE *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_PRINTTYPE *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_PROPTYPE *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_RAWTYPEOF *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_SUB *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_STREQ *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_RECORD *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_TEMPLATETYPEOF *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_TYPE *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_TYPEEXPR *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_TYPEOFVAR *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_UNION *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_UNKNOWN *TypeTransformationParser_Keywords
-var TypeTransformationParser_Keywords_values_ []*TypeTransformationParser_Keywords
+const TypeTransformationParser_Keywords_ALL TypeTransformationParser_Keywords = 1
+const TypeTransformationParser_Keywords_COND TypeTransformationParser_Keywords = 2
+const TypeTransformationParser_Keywords_EQ TypeTransformationParser_Keywords = 3
+const TypeTransformationParser_Keywords_ISCTOR TypeTransformationParser_Keywords = 4
+const TypeTransformationParser_Keywords_ISDEFINED TypeTransformationParser_Keywords = 5
+const TypeTransformationParser_Keywords_ISRECORD TypeTransformationParser_Keywords = 6
+const TypeTransformationParser_Keywords_ISTEMPLATIZED TypeTransformationParser_Keywords = 7
+const TypeTransformationParser_Keywords_ISUNKNOWN TypeTransformationParser_Keywords = 8
+const TypeTransformationParser_Keywords_INSTANCEOF TypeTransformationParser_Keywords = 9
+const TypeTransformationParser_Keywords_MAPUNION TypeTransformationParser_Keywords = 10
+const TypeTransformationParser_Keywords_MAPRECORD TypeTransformationParser_Keywords = 11
+const TypeTransformationParser_Keywords_NONE TypeTransformationParser_Keywords = 12
+const TypeTransformationParser_Keywords_PRINTTYPE TypeTransformationParser_Keywords = 13
+const TypeTransformationParser_Keywords_PROPTYPE TypeTransformationParser_Keywords = 14
+const TypeTransformationParser_Keywords_RAWTYPEOF TypeTransformationParser_Keywords = 15
+const TypeTransformationParser_Keywords_SUB TypeTransformationParser_Keywords = 16
+const TypeTransformationParser_Keywords_STREQ TypeTransformationParser_Keywords = 17
+const TypeTransformationParser_Keywords_RECORD TypeTransformationParser_Keywords = 18
+const TypeTransformationParser_Keywords_TEMPLATETYPEOF TypeTransformationParser_Keywords = 19
+const TypeTransformationParser_Keywords_TYPE TypeTransformationParser_Keywords = 20
+const TypeTransformationParser_Keywords_TYPEEXPR TypeTransformationParser_Keywords = 21
+const TypeTransformationParser_Keywords_TYPEOFVAR TypeTransformationParser_Keywords = 22
+const TypeTransformationParser_Keywords_UNION TypeTransformationParser_Keywords = 23
+const TypeTransformationParser_Keywords_UNKNOWN TypeTransformationParser_Keywords = 24
+
+var TypeTransformationParser_Keywords_values_ []TypeTransformationParser_Keywords
 
 var TypeTransformationParser_Keywords_clinit_done bool
 
@@ -777,31 +849,55 @@ func TypeTransformationParser_Keywords_clinit() {
 		return
 	}
 	TypeTransformationParser_Keywords_clinit_done = true
-	TypeTransformationParser_Keywords_ALL = new_TypeTransformationParser_Keywords("ALL", 0, "all", 0, 0, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
-	TypeTransformationParser_Keywords_COND = new_TypeTransformationParser_Keywords("COND", 1, "cond", 3, 3, TypeTransformationParser_OperationKind_OPERATION)
-	TypeTransformationParser_Keywords_EQ = new_TypeTransformationParser_Keywords("EQ", 2, "eq", 2, 2, TypeTransformationParser_OperationKind_TYPE_PREDICATE)
-	TypeTransformationParser_Keywords_ISCTOR = new_TypeTransformationParser_Keywords("ISCTOR", 3, "isCtor", 1, 1, TypeTransformationParser_OperationKind_TYPE_PREDICATE)
-	TypeTransformationParser_Keywords_ISDEFINED = new_TypeTransformationParser_Keywords("ISDEFINED", 4, "isDefined", 1, 1, TypeTransformationParser_OperationKind_TYPEVAR_PREDICATE)
-	TypeTransformationParser_Keywords_ISRECORD = new_TypeTransformationParser_Keywords("ISRECORD", 5, "isRecord", 1, 1, TypeTransformationParser_OperationKind_TYPE_PREDICATE)
-	TypeTransformationParser_Keywords_ISTEMPLATIZED = new_TypeTransformationParser_Keywords("ISTEMPLATIZED", 6, "isTemplatized", 1, 1, TypeTransformationParser_OperationKind_TYPE_PREDICATE)
-	TypeTransformationParser_Keywords_ISUNKNOWN = new_TypeTransformationParser_Keywords("ISUNKNOWN", 7, "isUnknown", 1, 1, TypeTransformationParser_OperationKind_TYPE_PREDICATE)
-	TypeTransformationParser_Keywords_INSTANCEOF = new_TypeTransformationParser_Keywords("INSTANCEOF", 8, "instanceOf", 1, 1, TypeTransformationParser_OperationKind_OPERATION)
-	TypeTransformationParser_Keywords_MAPUNION = new_TypeTransformationParser_Keywords("MAPUNION", 9, "mapunion", 2, 2, TypeTransformationParser_OperationKind_OPERATION)
-	TypeTransformationParser_Keywords_MAPRECORD = new_TypeTransformationParser_Keywords("MAPRECORD", 10, "maprecord", 2, 2, TypeTransformationParser_OperationKind_OPERATION)
-	TypeTransformationParser_Keywords_NONE = new_TypeTransformationParser_Keywords("NONE", 11, "none", 0, 0, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
-	TypeTransformationParser_Keywords_PRINTTYPE = new_TypeTransformationParser_Keywords("PRINTTYPE", 12, "printType", 2, 2, TypeTransformationParser_OperationKind_OPERATION)
-	TypeTransformationParser_Keywords_PROPTYPE = new_TypeTransformationParser_Keywords("PROPTYPE", 13, "propType", 2, 2, TypeTransformationParser_OperationKind_OPERATION)
-	TypeTransformationParser_Keywords_RAWTYPEOF = new_TypeTransformationParser_Keywords("RAWTYPEOF", 14, "rawTypeOf", 1, 1, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
-	TypeTransformationParser_Keywords_SUB = new_TypeTransformationParser_Keywords("SUB", 15, "sub", 2, 2, TypeTransformationParser_OperationKind_TYPE_PREDICATE)
-	TypeTransformationParser_Keywords_STREQ = new_TypeTransformationParser_Keywords("STREQ", 16, "streq", 2, 2, TypeTransformationParser_OperationKind_STRING_PREDICATE)
-	TypeTransformationParser_Keywords_RECORD = new_TypeTransformationParser_Keywords("RECORD", 17, "record", 1, TypeTransformationParser_VAR_ARGS, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
-	TypeTransformationParser_Keywords_TEMPLATETYPEOF = new_TypeTransformationParser_Keywords("TEMPLATETYPEOF", 18, "templateTypeOf", 2, 2, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
-	TypeTransformationParser_Keywords_TYPE = new_TypeTransformationParser_Keywords("TYPE", 19, "type", 2, TypeTransformationParser_VAR_ARGS, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
-	TypeTransformationParser_Keywords_TYPEEXPR = new_TypeTransformationParser_Keywords("TYPEEXPR", 20, "typeExpr", 1, 1, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
-	TypeTransformationParser_Keywords_TYPEOFVAR = new_TypeTransformationParser_Keywords("TYPEOFVAR", 21, "typeOfVar", 1, 1, TypeTransformationParser_OperationKind_OPERATION)
-	TypeTransformationParser_Keywords_UNION = new_TypeTransformationParser_Keywords("UNION", 22, "union", 2, TypeTransformationParser_VAR_ARGS, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
-	TypeTransformationParser_Keywords_UNKNOWN = new_TypeTransformationParser_Keywords("UNKNOWN", 23, "unknown", 0, 0, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
-	TypeTransformationParser_Keywords_values_ = []*TypeTransformationParser_Keywords{TypeTransformationParser_Keywords_ALL, TypeTransformationParser_Keywords_COND, TypeTransformationParser_Keywords_EQ, TypeTransformationParser_Keywords_ISCTOR, TypeTransformationParser_Keywords_ISDEFINED, TypeTransformationParser_Keywords_ISRECORD, TypeTransformationParser_Keywords_ISTEMPLATIZED, TypeTransformationParser_Keywords_ISUNKNOWN, TypeTransformationParser_Keywords_INSTANCEOF, TypeTransformationParser_Keywords_MAPUNION, TypeTransformationParser_Keywords_MAPRECORD, TypeTransformationParser_Keywords_NONE, TypeTransformationParser_Keywords_PRINTTYPE, TypeTransformationParser_Keywords_PROPTYPE, TypeTransformationParser_Keywords_RAWTYPEOF, TypeTransformationParser_Keywords_SUB, TypeTransformationParser_Keywords_STREQ, TypeTransformationParser_Keywords_RECORD, TypeTransformationParser_Keywords_TEMPLATETYPEOF, TypeTransformationParser_Keywords_TYPE, TypeTransformationParser_Keywords_TYPEEXPR, TypeTransformationParser_Keywords_TYPEOFVAR, TypeTransformationParser_Keywords_UNION, TypeTransformationParser_Keywords_UNKNOWN}
+	TypeTransformationParser_Keywords_ALL.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_ALL.init_TypeTransformationParser_Keywords("all", 0, 0, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
+	TypeTransformationParser_Keywords_COND.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_COND.init_TypeTransformationParser_Keywords("cond", 3, 3, TypeTransformationParser_OperationKind_OPERATION)
+	TypeTransformationParser_Keywords_EQ.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_EQ.init_TypeTransformationParser_Keywords("eq", 2, 2, TypeTransformationParser_OperationKind_TYPE_PREDICATE)
+	TypeTransformationParser_Keywords_ISCTOR.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_ISCTOR.init_TypeTransformationParser_Keywords("isCtor", 1, 1, TypeTransformationParser_OperationKind_TYPE_PREDICATE)
+	TypeTransformationParser_Keywords_ISDEFINED.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_ISDEFINED.init_TypeTransformationParser_Keywords("isDefined", 1, 1, TypeTransformationParser_OperationKind_TYPEVAR_PREDICATE)
+	TypeTransformationParser_Keywords_ISRECORD.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_ISRECORD.init_TypeTransformationParser_Keywords("isRecord", 1, 1, TypeTransformationParser_OperationKind_TYPE_PREDICATE)
+	TypeTransformationParser_Keywords_ISTEMPLATIZED.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_ISTEMPLATIZED.init_TypeTransformationParser_Keywords("isTemplatized", 1, 1, TypeTransformationParser_OperationKind_TYPE_PREDICATE)
+	TypeTransformationParser_Keywords_ISUNKNOWN.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_ISUNKNOWN.init_TypeTransformationParser_Keywords("isUnknown", 1, 1, TypeTransformationParser_OperationKind_TYPE_PREDICATE)
+	TypeTransformationParser_Keywords_INSTANCEOF.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_INSTANCEOF.init_TypeTransformationParser_Keywords("instanceOf", 1, 1, TypeTransformationParser_OperationKind_OPERATION)
+	TypeTransformationParser_Keywords_MAPUNION.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_MAPUNION.init_TypeTransformationParser_Keywords("mapunion", 2, 2, TypeTransformationParser_OperationKind_OPERATION)
+	TypeTransformationParser_Keywords_MAPRECORD.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_MAPRECORD.init_TypeTransformationParser_Keywords("maprecord", 2, 2, TypeTransformationParser_OperationKind_OPERATION)
+	TypeTransformationParser_Keywords_NONE.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_NONE.init_TypeTransformationParser_Keywords("none", 0, 0, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
+	TypeTransformationParser_Keywords_PRINTTYPE.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_PRINTTYPE.init_TypeTransformationParser_Keywords("printType", 2, 2, TypeTransformationParser_OperationKind_OPERATION)
+	TypeTransformationParser_Keywords_PROPTYPE.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_PROPTYPE.init_TypeTransformationParser_Keywords("propType", 2, 2, TypeTransformationParser_OperationKind_OPERATION)
+	TypeTransformationParser_Keywords_RAWTYPEOF.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_RAWTYPEOF.init_TypeTransformationParser_Keywords("rawTypeOf", 1, 1, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
+	TypeTransformationParser_Keywords_SUB.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_SUB.init_TypeTransformationParser_Keywords("sub", 2, 2, TypeTransformationParser_OperationKind_TYPE_PREDICATE)
+	TypeTransformationParser_Keywords_STREQ.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_STREQ.init_TypeTransformationParser_Keywords("streq", 2, 2, TypeTransformationParser_OperationKind_STRING_PREDICATE)
+	TypeTransformationParser_Keywords_RECORD.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_RECORD.init_TypeTransformationParser_Keywords("record", 1, TypeTransformationParser_VAR_ARGS, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
+	TypeTransformationParser_Keywords_TEMPLATETYPEOF.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_TEMPLATETYPEOF.init_TypeTransformationParser_Keywords("templateTypeOf", 2, 2, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
+	TypeTransformationParser_Keywords_TYPE.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_TYPE.init_TypeTransformationParser_Keywords("type", 2, TypeTransformationParser_VAR_ARGS, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
+	TypeTransformationParser_Keywords_TYPEEXPR.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_TYPEEXPR.init_TypeTransformationParser_Keywords("typeExpr", 1, 1, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
+	TypeTransformationParser_Keywords_TYPEOFVAR.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_TYPEOFVAR.init_TypeTransformationParser_Keywords("typeOfVar", 1, 1, TypeTransformationParser_OperationKind_OPERATION)
+	TypeTransformationParser_Keywords_UNION.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_UNION.init_TypeTransformationParser_Keywords("union", 2, TypeTransformationParser_VAR_ARGS, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
+	TypeTransformationParser_Keywords_UNKNOWN.zero_TypeTransformationParser_Keywords()
+	TypeTransformationParser_Keywords_UNKNOWN.init_TypeTransformationParser_Keywords("unknown", 0, 0, TypeTransformationParser_OperationKind_TYPE_CONSTRUCTOR)
+	TypeTransformationParser_Keywords_values_ = []TypeTransformationParser_Keywords{TypeTransformationParser_Keywords_ALL, TypeTransformationParser_Keywords_COND, TypeTransformationParser_Keywords_EQ, TypeTransformationParser_Keywords_ISCTOR, TypeTransformationParser_Keywords_ISDEFINED, TypeTransformationParser_Keywords_ISRECORD, TypeTransformationParser_Keywords_ISTEMPLATIZED, TypeTransformationParser_Keywords_ISUNKNOWN, TypeTransformationParser_Keywords_INSTANCEOF, TypeTransformationParser_Keywords_MAPUNION, TypeTransformationParser_Keywords_MAPRECORD, TypeTransformationParser_Keywords_NONE, TypeTransformationParser_Keywords_PRINTTYPE, TypeTransformationParser_Keywords_PROPTYPE, TypeTransformationParser_Keywords_RAWTYPEOF, TypeTransformationParser_Keywords_SUB, TypeTransformationParser_Keywords_STREQ, TypeTransformationParser_Keywords_RECORD, TypeTransformationParser_Keywords_TEMPLATETYPEOF, TypeTransformationParser_Keywords_TYPE, TypeTransformationParser_Keywords_TYPEEXPR, TypeTransformationParser_Keywords_TYPEOFVAR, TypeTransformationParser_Keywords_UNION, TypeTransformationParser_Keywords_UNKNOWN}
 	registerEnum_("com.google.javascript.jscomp.parsing.TypeTransformationParser.Keywords", enumValues_(TypeTransformationParser_Keywords_values_))
 
 }

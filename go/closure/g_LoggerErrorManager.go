@@ -36,7 +36,7 @@ func new_LoggerErrorManager_MessageFormatter_Logger(formatter MessageFormatter, 
 }
 
 func (this *LoggerErrorManager) init_LoggerErrorManager_Logger(logger *Logger) {
-	this.init_LoggerErrorManager_MessageFormatter_Logger(icast_MessageFormatter(obj_(LightweightMessageFormatter_withoutSource())), logger)
+	this.init_LoggerErrorManager_MessageFormatter_Logger(LightweightMessageFormatter_withoutSource(), logger)
 }
 
 func new_LoggerErrorManager_Logger(logger *Logger) *LoggerErrorManager {
@@ -46,7 +46,7 @@ func new_LoggerErrorManager_Logger(logger *Logger) *LoggerErrorManager {
 	return this
 }
 
-func (this *LoggerErrorManager) println_impl(level *CheckLevel, error_ *JSError) {
+func (this *LoggerErrorManager) println_impl(level CheckLevel, error_ *JSError) {
 	switch level {
 	case CheckLevel_ERROR:
 		this.logger.severe(error_.format(level, this.formatter).orElseThrow())
@@ -66,6 +66,24 @@ func (this *LoggerErrorManager) printSummary_impl() {
 	if this.getTypedPercent() > 0.0 {
 		this.logger.log_Level_String(level, String_format("%d error(s), %d warning(s), %.1f%% typed", []any{any(int32(this.getErrorCount())), any(int32(this.getWarningCount())), any(float64(this.getTypedPercent()))}))
 	} else if (this.getErrorCount() + this.getWarningCount()) > 0 {
-		this.logger.log_Level_String(level, String_format("%d error(s), %d warning(s)", []any{any(int32(this.getErrorCount())), any(int32(this.getWarningCount()))}))
+		this.logger.log_Level_String(level, (istr_(int64(int32(this.getErrorCount()))) + " error(s), " + istr_(int64(int32(this.getWarningCount()))) + " warning(s)"))
 	}
+}
+
+// println: an object that is exactly a LoggerErrorManager calls its println_impl directly (post-flip); others dispatch.
+func (this *LoggerErrorManager) println(p0 CheckLevel, p1 *JSError) {
+	if p, _ := this.self_.(*LoggerErrorManager); p == this {
+		this.println_impl(p0, p1)
+		return
+	}
+	this.self_.println_impl(p0, p1)
+}
+
+// printSummary: an object that is exactly a LoggerErrorManager calls its printSummary_impl directly (post-flip); others dispatch.
+func (this *LoggerErrorManager) printSummary() {
+	if p, _ := this.self_.(*LoggerErrorManager); p == this {
+		this.printSummary_impl()
+		return
+	}
+	this.self_.printSummary_impl()
 }

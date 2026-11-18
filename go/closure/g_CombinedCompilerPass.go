@@ -22,7 +22,7 @@ func new_CombinedCompilerPass(compiler *AbstractCompiler, callbacks ListOf[NodeT
 }
 
 func CombinedCompilerPass_createFromCallbacks(compiler *AbstractCompiler, callbacks []NodeTraversal_Callback) *CombinedCompilerPass {
-	return new_CombinedCompilerPass(compiler, icast_List(obj_(ImmutableList_copyOf_ObjectArr(arrmap_(callbacks, func(v_ NodeTraversal_Callback) any { return any(v_) })))))
+	return new_CombinedCompilerPass(compiler, ImmutableList_copyOf_ObjectArr(arrmap_(callbacks, func(v_ NodeTraversal_Callback) any { return v_ })))
 }
 
 func CombinedCompilerPass_traverse(compiler *AbstractCompiler, root Node, callbacks ListOf[NodeTraversal_Callback]) {
@@ -34,7 +34,7 @@ func CombinedCompilerPass_traverse(compiler *AbstractCompiler, root Node, callba
 }
 
 func (this *CombinedCompilerPass) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CombinedCompilerPass) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -85,10 +85,11 @@ func (this *CombinedCompilerPass_CallbackWrapper) init_CombinedCompilerPass_Call
 	_ = scopedCallback
 	if func() bool {
 		v_ := any(callback)
-		if !is_[NodeTraversal_ScopedCallback](v_) {
+		p, ok := v_.(NodeTraversal_ScopedCallback)
+		if !ok {
 			return false
 		}
-		scopedCallback = icast_NodeTraversal_ScopedCallback(v_)
+		scopedCallback = p
 		return true
 	}() {
 		this.scopedCallback = scopedCallback

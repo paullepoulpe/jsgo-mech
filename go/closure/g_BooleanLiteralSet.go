@@ -2,30 +2,47 @@
 
 package closure
 
-type BooleanLiteralSet struct {
-	Enum
+type BooleanLiteralSet uint8
+
+// BooleanLiteralSet_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var BooleanLiteralSet_enum_ = [4]Enum{
+	{self_: BooleanLiteralSet_EMPTY, name_: "EMPTY", ordinal_: 0},
+	{self_: BooleanLiteralSet_TRUE, name_: "TRUE", ordinal_: 1},
+	{self_: BooleanLiteralSet_FALSE, name_: "FALSE", ordinal_: 2},
+	{self_: BooleanLiteralSet_BOTH, name_: "BOTH", ordinal_: 3},
 }
 
-func (this *BooleanLiteralSet) up_Enum() *Enum {
-	if this == nil {
+func (this BooleanLiteralSet) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &BooleanLiteralSet_enum_[this-1]
 }
 
-func (this *BooleanLiteralSet) init_BooleanLiteralSet(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this BooleanLiteralSet) name() string { return this.enum_().name_ }
+
+func (this BooleanLiteralSet) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_BooleanLiteralSet(name_ string, ordinal_ int32) *BooleanLiteralSet {
-	this := &BooleanLiteralSet{}
-	this.self_ = this
-	this.init_BooleanLiteralSet(name_, ordinal_)
+func (this BooleanLiteralSet) toString() string { return this.enum_().name_ }
+
+func (this BooleanLiteralSet) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this BooleanLiteralSet) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *BooleanLiteralSet) fromOrdinal(ordinal int32) *BooleanLiteralSet {
-	return func() *BooleanLiteralSet {
+func (this BooleanLiteralSet) fromOrdinal(ordinal int32) BooleanLiteralSet {
+	return func() BooleanLiteralSet {
 		switch ordinal {
 		case 0:
 			return BooleanLiteralSet_EMPTY
@@ -36,21 +53,20 @@ func (this *BooleanLiteralSet) fromOrdinal(ordinal int32) *BooleanLiteralSet {
 		case 3:
 			return BooleanLiteralSet_BOTH
 		default:
-			panic(new_IllegalArgumentException_String(("Ordinal: " + istr_(int64(ordinal)))).self())
+			panic(new_IllegalArgumentException_String(("Ordinal: " + istr_(int64(ordinal)))))
 		}
-		panic("unreachable")
 	}()
 }
 
-func (this *BooleanLiteralSet) intersection(that *BooleanLiteralSet) *BooleanLiteralSet {
+func (this BooleanLiteralSet) intersection(that BooleanLiteralSet) BooleanLiteralSet {
 	return this.fromOrdinal((this.ordinal() & that.ordinal()))
 }
 
-func (this *BooleanLiteralSet) union(that *BooleanLiteralSet) *BooleanLiteralSet {
+func (this BooleanLiteralSet) union(that BooleanLiteralSet) BooleanLiteralSet {
 	return this.fromOrdinal((this.ordinal() | that.ordinal()))
 }
 
-func (this *BooleanLiteralSet) contains(literalValue bool) bool {
+func (this BooleanLiteralSet) contains(literalValue bool) bool {
 	return func() bool {
 		switch this.ordinal() {
 		case 0:
@@ -62,14 +78,13 @@ func (this *BooleanLiteralSet) contains(literalValue bool) bool {
 		case 3:
 			return true
 		default:
-			panic(new_IndexOutOfBoundsException_String(("Ordinal: " + istr_(int64(this.ordinal())))).self())
+			panic(new_IndexOutOfBoundsException_String(("Ordinal: " + istr_(int64(this.ordinal())))))
 		}
-		panic("unreachable")
 	}()
 }
 
-func BooleanLiteralSet_get(literalValue bool) *BooleanLiteralSet {
-	return func() *BooleanLiteralSet {
+func BooleanLiteralSet_get(literalValue bool) BooleanLiteralSet {
+	return func() BooleanLiteralSet {
 		if literalValue {
 			return BooleanLiteralSet_TRUE
 		}
@@ -77,7 +92,7 @@ func BooleanLiteralSet_get(literalValue bool) *BooleanLiteralSet {
 	}()
 }
 
-func (this *BooleanLiteralSet) toTri() *Tri {
+func (this BooleanLiteralSet) toTri() Tri {
 	if this == BooleanLiteralSet_TRUE {
 		return Tri_TRUE
 	} else if this == BooleanLiteralSet_FALSE {
@@ -86,24 +101,25 @@ func (this *BooleanLiteralSet) toTri() *Tri {
 	return Tri_UNKNOWN
 }
 
-func BooleanLiteralSet_values() []*BooleanLiteralSet {
-	return append([]*BooleanLiteralSet(nil), BooleanLiteralSet_values_...)
+func BooleanLiteralSet_values() []BooleanLiteralSet {
+	return append([]BooleanLiteralSet(nil), BooleanLiteralSet_values_...)
 }
 
-func BooleanLiteralSet_valueOf(name string) *BooleanLiteralSet {
+func BooleanLiteralSet_valueOf(name string) BooleanLiteralSet {
 	for _, v := range BooleanLiteralSet_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("BooleanLiteralSet", name))
 }
 
-var BooleanLiteralSet_EMPTY *BooleanLiteralSet
-var BooleanLiteralSet_TRUE *BooleanLiteralSet
-var BooleanLiteralSet_FALSE *BooleanLiteralSet
-var BooleanLiteralSet_BOTH *BooleanLiteralSet
-var BooleanLiteralSet_values_ []*BooleanLiteralSet
+const BooleanLiteralSet_EMPTY BooleanLiteralSet = 1
+const BooleanLiteralSet_TRUE BooleanLiteralSet = 2
+const BooleanLiteralSet_FALSE BooleanLiteralSet = 3
+const BooleanLiteralSet_BOTH BooleanLiteralSet = 4
+
+var BooleanLiteralSet_values_ []BooleanLiteralSet
 
 var BooleanLiteralSet_clinit_done bool
 
@@ -112,11 +128,7 @@ func BooleanLiteralSet_clinit() {
 		return
 	}
 	BooleanLiteralSet_clinit_done = true
-	BooleanLiteralSet_EMPTY = new_BooleanLiteralSet("EMPTY", 0)
-	BooleanLiteralSet_TRUE = new_BooleanLiteralSet("TRUE", 1)
-	BooleanLiteralSet_FALSE = new_BooleanLiteralSet("FALSE", 2)
-	BooleanLiteralSet_BOTH = new_BooleanLiteralSet("BOTH", 3)
-	BooleanLiteralSet_values_ = []*BooleanLiteralSet{BooleanLiteralSet_EMPTY, BooleanLiteralSet_TRUE, BooleanLiteralSet_FALSE, BooleanLiteralSet_BOTH}
+	BooleanLiteralSet_values_ = []BooleanLiteralSet{BooleanLiteralSet_EMPTY, BooleanLiteralSet_TRUE, BooleanLiteralSet_FALSE, BooleanLiteralSet_BOTH}
 	registerEnum_("com.google.javascript.rhino.jstype.BooleanLiteralSet", enumValues_(BooleanLiteralSet_values_))
 
 }

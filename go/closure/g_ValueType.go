@@ -6,19 +6,13 @@ type ValueType struct {
 	JSType
 }
 
+// ValueType_as is implemented by ValueType and the classes that extend it: a cast to ValueType asserts to it
+// (post-flip).
+type ValueType_as interface {
+	as_ValueType() *ValueType
+}
+
 func (this *ValueType) as_ValueType() *ValueType { return this }
-
-func to_ValueType(v any) *ValueType {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_ValueType() *ValueType }).as_ValueType()
-}
-
-func is_ValueType(v any) bool {
-	_, ok := v.(interface{ as_ValueType() *ValueType })
-	return ok
-}
 
 func (this *ValueType) self() any {
 	if this == nil {
@@ -40,7 +34,7 @@ func (this *ValueType) init_ValueType(registry *JSTypeRegistry) {
 }
 
 func (this *ValueType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func (this *ValueType) appendTo_impl(sb *TypeStringBuilder) {
@@ -55,15 +49,63 @@ func (this *ValueType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JS
 	return visitor.caseValueType(this, that)
 }
 
-func (this *ValueType) getPropertyKind_2_impl(propertyName Property_Key, autobox bool) *JSType_HasPropertyKind {
+func (this *ValueType) getPropertyKind_2_impl(propertyName Property_Key, autobox bool) JSType_HasPropertyKind {
 	if autobox && this.isBoxableScalar() {
 		return this.autoboxesTo().getPropertyKind_2(propertyName, autobox)
 	} else {
 		return this.JSType.getPropertyKind_2_impl(propertyName, autobox)
 	}
-	panic("unreachable")
 }
 
 func (this *ValueType) recursionUnsafeHashCode_impl() int32 {
 	return System_identityHashCode(this.self())
+}
+
+// resolveInternal: an object that is exactly a ValueType calls its resolveInternal_impl directly (post-flip); others dispatch.
+func (this *ValueType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
+	if this.self_ == any(this) {
+		return this.resolveInternal_impl(p0)
+	}
+	return this.self_.resolveInternal_impl(p0)
+}
+
+// appendTo: an object that is exactly a ValueType calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *ValueType) appendTo(p0 *TypeStringBuilder) {
+	if this.self_ == any(this) {
+		this.appendTo_impl(p0)
+		return
+	}
+	this.self_.appendTo_impl(p0)
+}
+
+// hasDisplayName: an object that is exactly a ValueType calls its hasDisplayName_impl directly (post-flip); others dispatch.
+func (this *ValueType) hasDisplayName() bool {
+	if this.self_ == any(this) {
+		return this.hasDisplayName_impl()
+	}
+	return this.self_.hasDisplayName_impl()
+}
+
+// visitUntyped_2: an object that is exactly a ValueType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
+func (this *ValueType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
+	if this.self_ == any(this) {
+		return this.visitUntyped_2_impl(p0, p1)
+	}
+	return this.self_.visitUntyped_2_impl(p0, p1)
+}
+
+// getPropertyKind_2: an object that is exactly a ValueType calls its getPropertyKind_2_impl directly (post-flip); others dispatch.
+func (this *ValueType) getPropertyKind_2(p0 Property_Key, p1 bool) JSType_HasPropertyKind {
+	if this.self_ == any(this) {
+		return this.getPropertyKind_2_impl(p0, p1)
+	}
+	return this.self_.getPropertyKind_2_impl(p0, p1)
+}
+
+// recursionUnsafeHashCode: an object that is exactly a ValueType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
+func (this *ValueType) recursionUnsafeHashCode() int32 {
+	if this.self_ == any(this) {
+		return this.recursionUnsafeHashCode_impl()
+	}
+	return this.self_.recursionUnsafeHashCode_impl()
 }

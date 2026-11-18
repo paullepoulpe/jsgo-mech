@@ -3,8 +3,8 @@
 package closure
 
 type CheckRequiresSorted struct {
-	mode_              *CheckRequiresSorted_Mode
-	importsByNamespace *SimpleListMultimap
+	mode_              CheckRequiresSorted_Mode
+	importsByNamespace *SimpleListMultimap[any, *CheckRequiresSorted_ImportStatement]
 	originalImports    *JTList[*CheckRequiresSorted_ImportStatement]
 	firstNode          Node
 	lastNode           Node
@@ -14,7 +14,7 @@ type CheckRequiresSorted struct {
 }
 
 func (this *CheckRequiresSorted) finit_CheckRequiresSorted() {
-	this.importsByNamespace = SimpleListMultimap_create()
+	this.importsByNamespace = SimpleListMultimap_create[any, *CheckRequiresSorted_ImportStatement]()
 	this.originalImports = jnewTList_(jtc_p_CheckRequiresSorted_ImportStatement)
 	this.firstNode = 0
 	this.lastNode = 0
@@ -23,12 +23,12 @@ func (this *CheckRequiresSorted) finit_CheckRequiresSorted() {
 	this.replacement_ = Optional_empty[string]()
 }
 
-func (this *CheckRequiresSorted) init_CheckRequiresSorted(mode *CheckRequiresSorted_Mode) {
+func (this *CheckRequiresSorted) init_CheckRequiresSorted(mode CheckRequiresSorted_Mode) {
 	this.finit_CheckRequiresSorted()
 	this.mode_ = mode
 }
 
-func new_CheckRequiresSorted(mode *CheckRequiresSorted_Mode) *CheckRequiresSorted {
+func new_CheckRequiresSorted(mode CheckRequiresSorted_Mode) *CheckRequiresSorted {
 	this := &CheckRequiresSorted{}
 	this.init_CheckRequiresSorted(mode)
 	return this
@@ -68,7 +68,7 @@ func (this *CheckRequiresSorted) visit(t *NodeTraversal, n Node, parent Node) {
 	if (callNode != 0) && CheckRequiresSorted_isValidImportCall(callNode) {
 		var stmt *CheckRequiresSorted_ImportStatement = CheckRequiresSorted_parseImport(callNode)
 		this.originalImports.add(stmt)
-		this.importsByNamespace.put(strobj_(stmt.namespace()), obj_(stmt))
+		this.importsByNamespace.put_s(stmt.namespace(), stmt)
 		if this.firstNode == 0 {
 			this.lastNode = n
 			this.firstNode = n
@@ -85,108 +85,93 @@ func CheckRequiresSorted_isValidImportCall(n Node) bool {
 }
 
 func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportStatement {
-	var primitive *CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_fromName(Optional_of[string](callNode.getFirstChild().getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+	var primitive CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_fromName(Optional_of[string](callNode.getFirstChild().getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+		return s != ""
 	}}))
 	var namespace string = callNode.getSecondChild().getString()
 	var parent Node = callNode.getParent()
 	if parent.isExprResult() {
-		return CheckRequiresSorted_ImportStatement_of(ImmutableList_of_Object(parent.box_()), primitive, namespace, Optional_empty[string](), nil)
+		return CheckRequiresSorted_ImportStatement_of(immutableListOf_(tc_Node, parent), primitive, namespace, Optional_empty[string](), nil)
 	}
 	var grandparent Node = parent.getParent()
 	if parent.isName() {
 		var alias string = parent.getString()
-		return CheckRequiresSorted_ImportStatement_of(ImmutableList_of_Object(grandparent.box_()), primitive, namespace, Optional_of[string](alias), nil)
+		return CheckRequiresSorted_ImportStatement_of(immutableListOf_(tc_Node, grandparent), primitive, namespace, Optional_of[string](alias), nil)
 	}
-	var destructures ImmutableList_BuilderOf[*CheckRequiresSorted_DestructuringBinding] = ImmutableList_builder()
+	var destructures *ImmutableList_Builder[*CheckRequiresSorted_DestructuringBinding] = immutableListBuilder_(tc_p_CheckRequiresSorted_DestructuringBinding)
 	{
 		var name Node = parent.getFirstFirstChild()
 		for ; name != 0; name = name.getNext() {
 			var exportedName string = name.getString()
 			var localName string = name.getFirstChild().getString()
 			var isShorthandProperty bool = name.isShorthandProperty()
-			destructures.add(obj_(CheckRequiresSorted_DestructuringBinding_of(exportedName, localName, isShorthandProperty)))
+			destructures.add(CheckRequiresSorted_DestructuringBinding_of(exportedName, localName, isShorthandProperty))
 		}
 	}
-	return CheckRequiresSorted_ImportStatement_of(ImmutableList_of_Object(grandparent.box_()), primitive, namespace, Optional_empty[string](), cast_[*ImmutableList](obj_(destructures.build())))
+	return CheckRequiresSorted_ImportStatement_of(immutableListOf_(tc_Node, grandparent), primitive, namespace, Optional_empty[string](), destructures.build())
 }
 
 func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 	var canonicalImports *JTList[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
-	if !Object_equals(any(this.originalImports.asList()), any(canonicalImports.asList())) {
+	if !equalsVia_(this.originalImports.asList(), canonicalImports.asList()) {
 		this.needsFixField = true
-		this.replacement_ = Optional_of[string](String_join(strobj_("\n"), Iterables_transform(Iterable(canonicalImports.asList()), &Function_base_tfn_CheckRequiresSorted_ImportStatement_string{func(p0 *CheckRequiresSorted_ImportStatement) string { return p0.format() }})))
+		this.replacement_ = Optional_of[string](String_join_s("\n", Iterables_transform(Iterable(canonicalImports.asList()), &Function_base_tfn_CheckRequiresSorted_ImportStatement_string{func(p0 *CheckRequiresSorted_ImportStatement) string { return p0.format() }})))
 		if this.mode_ == CheckRequiresSorted_Mode_COLLECT_AND_REPORT {
 			t.report(this.firstNode, CheckRequiresSorted_REQUIRES_NOT_SORTED, []string{this.replacement_.orElse("null")})
 		}
 	}
 }
 
-func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap) *JTList[*CheckRequiresSorted_ImportStatement] {
+func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap[any, *CheckRequiresSorted_ImportStatement]) *JTList[*CheckRequiresSorted_ImportStatement] {
 	var canonicalImports *JTList[*CheckRequiresSorted_ImportStatement] = jnewTList_(jtc_p_CheckRequiresSorted_ImportStatement)
-	it_1 := foreach_(any(importsByNamespace.keySet()))
-	for it_1.next() {
-		var namespace string = str_(it_1.v)
-		var allImports CollectionOf[*CheckRequiresSorted_ImportStatement] = Collection(importsByNamespace.get(strobj_(namespace)))
-		var strongestPrimitive *CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_WEAKEST
-		it_3 := foreach_(any(allImports))
-		for it_3.next() {
-			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_3.v)
+	for namespace := range elemsBy_(importsByNamespace.keySet(), str_) {
+		var allImports CollectionOf[*CheckRequiresSorted_ImportStatement] = Collection(importsByNamespace.get_s(namespace))
+		var strongestPrimitive CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_WEAKEST
+		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			strongestPrimitive = CheckRequiresSorted_ImportPrimitive_stronger(strongestPrimitive, i.primitive())
 		}
 		var hasAliasing bool = false
-		it_5 := foreach_(any(Iterables_filter(Iterable(allImports), &Predicate_base_tfn_CheckRequiresSorted_ImportStatement{func(p0 *CheckRequiresSorted_ImportStatement) bool { return p0.isAliasing() }})))
-		for it_5.next() {
-			var stmt *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_5.v)
+		for stmt := range elemsAs_[*CheckRequiresSorted_ImportStatement](Iterables_filter(Iterable(allImports), &Predicate_base_tfn_CheckRequiresSorted_ImportStatement{func(p0 *CheckRequiresSorted_ImportStatement) bool { return p0.isAliasing() }})) {
 			canonicalImports.add(stmt.upgrade(strongestPrimitive))
 			hasAliasing = true
 		}
 		var hasDestructuring bool = false
-		var destructuringNodesBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-		it_7 := foreach_(any(allImports))
-		for it_7.next() {
-			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_7.v)
+		var destructuringNodesBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
+		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
-				it_9 := foreach_(obj_(i.nodes()))
-				for it_9.next() {
-					var node Node = Node_of_(it_9.v)
-					destructuringNodesBuilder.add(node.box_())
+				for _, el := range i.nodes().items {
+					node := el
+					destructuringNodesBuilder.add(node)
 				}
 			}
 		}
-		var destructuringNodes ImmutableListOf[Node] = cast_[*ImmutableList](obj_(destructuringNodesBuilder.build()))
+		var destructuringNodes *ImmutableList[Node] = destructuringNodesBuilder.build()
 		var sortedDestructures *JTList[*CheckRequiresSorted_DestructuringBinding] = jnewTList_(jtc_p_CheckRequiresSorted_DestructuringBinding)
-		it_11 := foreach_(any(allImports))
-		for it_11.next() {
-			var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_11.v)
+		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
-				it_13 := foreach_(obj_(i.destructures()))
-				for it_13.next() {
-					var binding *CheckRequiresSorted_DestructuringBinding = cast_[*CheckRequiresSorted_DestructuringBinding](it_13.v)
+				for _, el2 := range i.destructures().items {
+					binding := el2
 					sortedDestructures.add(binding.canonicalizeShorthandProperties())
 				}
 			}
 		}
 		Collections_sort(sortedDestructures.asList())
-		var destructures ImmutableListOf[*CheckRequiresSorted_DestructuringBinding] = ImmutableList_copyOf(icast_Collection(obj_(new_LinkedHashSet_Collection(Collection(sortedDestructures.asList())))))
+		var destructures *ImmutableList[*CheckRequiresSorted_DestructuringBinding] = immutableListCopyOf_(tc_p_CheckRequiresSorted_DestructuringBinding, new_LinkedHashSet_Collection(Collection(sortedDestructures.asList())))
 		if !destructures.isEmpty() {
 			canonicalImports.add(CheckRequiresSorted_ImportStatement_of(destructuringNodes, strongestPrimitive, namespace, Optional_empty[string](), destructures))
 			hasDestructuring = true
 		}
 		if !hasAliasing && !hasDestructuring {
-			var standaloneNodesBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-			it_15 := foreach_(any(allImports))
-			for it_15.next() {
-				var i *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_15.v)
+			var standaloneNodesBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
+			for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 				if i.isStandalone() {
-					it_17 := foreach_(obj_(i.nodes()))
-					for it_17.next() {
-						var node Node = Node_of_(it_17.v)
-						standaloneNodesBuilder.add(node.box_())
+					for _, el3 := range i.nodes().items {
+						node := el3
+						standaloneNodesBuilder.add(node)
 					}
 				}
 			}
-			var standaloneNodes ImmutableListOf[Node] = cast_[*ImmutableList](obj_(standaloneNodesBuilder.build()))
+			var standaloneNodes *ImmutableList[Node] = standaloneNodesBuilder.build()
 			canonicalImports.add(CheckRequiresSorted_ImportStatement_of(standaloneNodes, strongestPrimitive, namespace, Optional_empty[string](), nil))
 		}
 	}
@@ -213,44 +198,64 @@ func CheckRequiresSorted_clinit() {
 
 }
 
-type CheckRequiresSorted_Mode struct {
-	Enum
+type CheckRequiresSorted_Mode uint8
+
+// CheckRequiresSorted_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CheckRequiresSorted_Mode_enum_ = [2]Enum{
+	{self_: CheckRequiresSorted_Mode_COLLECT_ONLY, name_: "COLLECT_ONLY", ordinal_: 0},
+	{self_: CheckRequiresSorted_Mode_COLLECT_AND_REPORT, name_: "COLLECT_AND_REPORT", ordinal_: 1},
 }
 
-func (this *CheckRequiresSorted_Mode) up_Enum() *Enum {
-	if this == nil {
+func (this CheckRequiresSorted_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CheckRequiresSorted_Mode_enum_[this-1]
 }
 
-func (this *CheckRequiresSorted_Mode) init_CheckRequiresSorted_Mode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CheckRequiresSorted_Mode) name() string {
+	return this.enum_().name_
 }
 
-func new_CheckRequiresSorted_Mode(name_ string, ordinal_ int32) *CheckRequiresSorted_Mode {
-	this := &CheckRequiresSorted_Mode{}
-	this.self_ = this
-	this.init_CheckRequiresSorted_Mode(name_, ordinal_)
+func (this CheckRequiresSorted_Mode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this CheckRequiresSorted_Mode) toString() string {
+	return this.enum_().name_
+}
+
+func (this CheckRequiresSorted_Mode) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this CheckRequiresSorted_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CheckRequiresSorted_Mode_values() []*CheckRequiresSorted_Mode {
-	return append([]*CheckRequiresSorted_Mode(nil), CheckRequiresSorted_Mode_values_...)
+func CheckRequiresSorted_Mode_values() []CheckRequiresSorted_Mode {
+	return append([]CheckRequiresSorted_Mode(nil), CheckRequiresSorted_Mode_values_...)
 }
 
-func CheckRequiresSorted_Mode_valueOf(name string) *CheckRequiresSorted_Mode {
+func CheckRequiresSorted_Mode_valueOf(name string) CheckRequiresSorted_Mode {
 	for _, v := range CheckRequiresSorted_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var CheckRequiresSorted_Mode_COLLECT_ONLY *CheckRequiresSorted_Mode
-var CheckRequiresSorted_Mode_COLLECT_AND_REPORT *CheckRequiresSorted_Mode
-var CheckRequiresSorted_Mode_values_ []*CheckRequiresSorted_Mode
+const CheckRequiresSorted_Mode_COLLECT_ONLY CheckRequiresSorted_Mode = 1
+const CheckRequiresSorted_Mode_COLLECT_AND_REPORT CheckRequiresSorted_Mode = 2
+
+var CheckRequiresSorted_Mode_values_ []CheckRequiresSorted_Mode
 
 var CheckRequiresSorted_Mode_clinit_done bool
 
@@ -259,53 +264,70 @@ func CheckRequiresSorted_Mode_clinit() {
 		return
 	}
 	CheckRequiresSorted_Mode_clinit_done = true
-	CheckRequiresSorted_Mode_COLLECT_ONLY = new_CheckRequiresSorted_Mode("COLLECT_ONLY", 0)
-	CheckRequiresSorted_Mode_COLLECT_AND_REPORT = new_CheckRequiresSorted_Mode("COLLECT_AND_REPORT", 1)
-	CheckRequiresSorted_Mode_values_ = []*CheckRequiresSorted_Mode{CheckRequiresSorted_Mode_COLLECT_ONLY, CheckRequiresSorted_Mode_COLLECT_AND_REPORT}
+	CheckRequiresSorted_Mode_values_ = []CheckRequiresSorted_Mode{CheckRequiresSorted_Mode_COLLECT_ONLY, CheckRequiresSorted_Mode_COLLECT_AND_REPORT}
 	registerEnum_("com.google.javascript.jscomp.lint.CheckRequiresSorted.Mode", enumValues_(CheckRequiresSorted_Mode_values_))
 
 }
 
-type CheckRequiresSorted_ImportPrimitive struct {
-	Enum
-	nameField string
+type CheckRequiresSorted_ImportPrimitive uint8
+
+// CheckRequiresSorted_ImportPrimitive_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CheckRequiresSorted_ImportPrimitive_enum_ = [3]Enum{
+	{self_: CheckRequiresSorted_ImportPrimitive_REQUIRE, name_: "REQUIRE", ordinal_: 0},
+	{self_: CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE, name_: "REQUIRE_TYPE", ordinal_: 1},
+	{self_: CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE, name_: "FORWARD_DECLARE", ordinal_: 2},
 }
 
-func (this *CheckRequiresSorted_ImportPrimitive) up_Enum() *Enum {
-	if this == nil {
+var CheckRequiresSorted_ImportPrimitive_nameField_ [3]string
+
+func (this CheckRequiresSorted_ImportPrimitive) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CheckRequiresSorted_ImportPrimitive_enum_[this-1]
 }
 
-func (this *CheckRequiresSorted_ImportPrimitive) zero_CheckRequiresSorted_ImportPrimitive() {
-	this.nameField = nullstr_
+func (this CheckRequiresSorted_ImportPrimitive) name() string {
+	return this.enum_().name_
 }
 
-func (this *CheckRequiresSorted_ImportPrimitive) init_CheckRequiresSorted_ImportPrimitive(name_ string, ordinal_ int32, name string) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.nameField = name
+func (this CheckRequiresSorted_ImportPrimitive) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_CheckRequiresSorted_ImportPrimitive(name_ string, ordinal_ int32, name string) *CheckRequiresSorted_ImportPrimitive {
-	this := &CheckRequiresSorted_ImportPrimitive{}
-	this.self_ = this
-	this.zero_CheckRequiresSorted_ImportPrimitive()
-	this.init_CheckRequiresSorted_ImportPrimitive(name_, ordinal_, name)
+func (this CheckRequiresSorted_ImportPrimitive) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this CheckRequiresSorted_ImportPrimitive) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CheckRequiresSorted_ImportPrimitive_fromName(name Optional[string]) *CheckRequiresSorted_ImportPrimitive {
+func (this CheckRequiresSorted_ImportPrimitive) zero_CheckRequiresSorted_ImportPrimitive() {
+	CheckRequiresSorted_ImportPrimitive_nameField_[this-1] = nullstr_
+}
+
+func (this CheckRequiresSorted_ImportPrimitive) init_CheckRequiresSorted_ImportPrimitive(name string) {
+	CheckRequiresSorted_ImportPrimitive_nameField_[this-1] = name
+}
+
+func CheckRequiresSorted_ImportPrimitive_fromName(name Optional[string]) CheckRequiresSorted_ImportPrimitive {
 	for _, primitive := range CheckRequiresSorted_ImportPrimitive_values() {
-		if Object_equals(Optional_of[string](primitive.nameField).box_(), name.box_()) {
+		if Object_equals(Optional_of[string](CheckRequiresSorted_ImportPrimitive_nameField_[primitive-1]).box_(), name.box_()) {
 			return primitive
 		}
 	}
-	panic(new_IllegalArgumentException_String(("Invalid primitive name " + sstr_(name.orElse("null")))).self())
+	panic(new_IllegalArgumentException_String(("Invalid primitive name " + sstr_(name.orElse("null")))))
 }
 
-func CheckRequiresSorted_ImportPrimitive_stronger(p1 *CheckRequiresSorted_ImportPrimitive, p2 *CheckRequiresSorted_ImportPrimitive) *CheckRequiresSorted_ImportPrimitive {
-	return func() *CheckRequiresSorted_ImportPrimitive {
+func CheckRequiresSorted_ImportPrimitive_stronger(p1 CheckRequiresSorted_ImportPrimitive, p2 CheckRequiresSorted_ImportPrimitive) CheckRequiresSorted_ImportPrimitive {
+	return func() CheckRequiresSorted_ImportPrimitive {
 		if p1.ordinal() < p2.ordinal() {
 			return p1
 		}
@@ -313,28 +335,29 @@ func CheckRequiresSorted_ImportPrimitive_stronger(p1 *CheckRequiresSorted_Import
 	}()
 }
 
-func (this *CheckRequiresSorted_ImportPrimitive) toString() string {
-	return this.nameField
+func (this CheckRequiresSorted_ImportPrimitive) toString() string {
+	return CheckRequiresSorted_ImportPrimitive_nameField_[this-1]
 }
 
-func CheckRequiresSorted_ImportPrimitive_values() []*CheckRequiresSorted_ImportPrimitive {
-	return append([]*CheckRequiresSorted_ImportPrimitive(nil), CheckRequiresSorted_ImportPrimitive_values_...)
+func CheckRequiresSorted_ImportPrimitive_values() []CheckRequiresSorted_ImportPrimitive {
+	return append([]CheckRequiresSorted_ImportPrimitive(nil), CheckRequiresSorted_ImportPrimitive_values_...)
 }
 
-func CheckRequiresSorted_ImportPrimitive_valueOf(name string) *CheckRequiresSorted_ImportPrimitive {
+func CheckRequiresSorted_ImportPrimitive_valueOf(name string) CheckRequiresSorted_ImportPrimitive {
 	for _, v := range CheckRequiresSorted_ImportPrimitive_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ImportPrimitive", name))
 }
 
-var CheckRequiresSorted_ImportPrimitive_REQUIRE *CheckRequiresSorted_ImportPrimitive
-var CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE *CheckRequiresSorted_ImportPrimitive
-var CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE *CheckRequiresSorted_ImportPrimitive
-var CheckRequiresSorted_ImportPrimitive_values_ []*CheckRequiresSorted_ImportPrimitive
-var CheckRequiresSorted_ImportPrimitive_WEAKEST *CheckRequiresSorted_ImportPrimitive
+const CheckRequiresSorted_ImportPrimitive_REQUIRE CheckRequiresSorted_ImportPrimitive = 1
+const CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE CheckRequiresSorted_ImportPrimitive = 2
+const CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE CheckRequiresSorted_ImportPrimitive = 3
+
+var CheckRequiresSorted_ImportPrimitive_values_ []CheckRequiresSorted_ImportPrimitive
+var CheckRequiresSorted_ImportPrimitive_WEAKEST CheckRequiresSorted_ImportPrimitive
 
 var CheckRequiresSorted_ImportPrimitive_clinit_done bool
 
@@ -343,10 +366,13 @@ func CheckRequiresSorted_ImportPrimitive_clinit() {
 		return
 	}
 	CheckRequiresSorted_ImportPrimitive_clinit_done = true
-	CheckRequiresSorted_ImportPrimitive_REQUIRE = new_CheckRequiresSorted_ImportPrimitive("REQUIRE", 0, "goog.require")
-	CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE = new_CheckRequiresSorted_ImportPrimitive("REQUIRE_TYPE", 1, "goog.requireType")
-	CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE = new_CheckRequiresSorted_ImportPrimitive("FORWARD_DECLARE", 2, "goog.forwardDeclare")
-	CheckRequiresSorted_ImportPrimitive_values_ = []*CheckRequiresSorted_ImportPrimitive{CheckRequiresSorted_ImportPrimitive_REQUIRE, CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE, CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE}
+	CheckRequiresSorted_ImportPrimitive_REQUIRE.zero_CheckRequiresSorted_ImportPrimitive()
+	CheckRequiresSorted_ImportPrimitive_REQUIRE.init_CheckRequiresSorted_ImportPrimitive("goog.require")
+	CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE.zero_CheckRequiresSorted_ImportPrimitive()
+	CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE.init_CheckRequiresSorted_ImportPrimitive("goog.requireType")
+	CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE.zero_CheckRequiresSorted_ImportPrimitive()
+	CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE.init_CheckRequiresSorted_ImportPrimitive("goog.forwardDeclare")
+	CheckRequiresSorted_ImportPrimitive_values_ = []CheckRequiresSorted_ImportPrimitive{CheckRequiresSorted_ImportPrimitive_REQUIRE, CheckRequiresSorted_ImportPrimitive_REQUIRE_TYPE, CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE}
 	registerEnum_("com.google.javascript.jscomp.lint.CheckRequiresSorted.ImportPrimitive", enumValues_(CheckRequiresSorted_ImportPrimitive_values_))
 	CheckRequiresSorted_ImportPrimitive_WEAKEST = CheckRequiresSorted_ImportPrimitive_FORWARD_DECLARE
 
@@ -364,7 +390,9 @@ func (this *CheckRequiresSorted_DestructuringBinding) zero_CheckRequiresSorted_D
 }
 
 func (this *CheckRequiresSorted_DestructuringBinding) init_CheckRequiresSorted_DestructuringBinding(exportedName string, localName string, isShorthandProperty bool) {
-	Preconditions_checkArgument((!isShorthandProperty || (exportedName == localName)))
+	if isShorthandProperty && exportedName != localName {
+		panic(new_IllegalArgumentException_0())
+	}
 	this.exportedName_ = exportedName
 	this.localName_ = localName
 	this.isShorthandProperty_ = isShorthandProperty
@@ -422,32 +450,38 @@ func (this *CheckRequiresSorted_DestructuringBinding) equals(p0 any) bool {
 
 func (this *CheckRequiresSorted_DestructuringBinding) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.exportedName_))
-	h = h*31 + Objects_hashCode(strobj_(this.localName_))
-	h = h*31 + Objects_hashCode(any(bool(this.isShorthandProperty_)))
+	h = h*31 + objhashStr_(this.exportedName_)
+	h = h*31 + objhashStr_(this.localName_)
+	h = h*31 + Boolean_hashCode(bool(this.isShorthandProperty_))
 	return h
 }
 
 func (this *CheckRequiresSorted_DestructuringBinding) toString() string {
-	return "DestructuringBinding[" + "exportedName=" + objstr_(strobj_(this.exportedName_)) + ", localName=" + objstr_(strobj_(this.localName_)) + ", isShorthandProperty=" + objstr_(any(bool(this.isShorthandProperty_))) + "]"
+	return "DestructuringBinding[" + "exportedName=" + sstr_(this.exportedName_) + ", localName=" + sstr_(this.localName_) + ", isShorthandProperty=" + boolstr_(bool(this.isShorthandProperty_)) + "]"
 }
 
 type CheckRequiresSorted_ImportStatement struct {
-	nodes_        ImmutableListOf[Node]
-	primitive_    *CheckRequiresSorted_ImportPrimitive
+	nodes_        *ImmutableList[Node]
+	primitive_    CheckRequiresSorted_ImportPrimitive
 	namespace_    string
 	alias_        Optional[string]
-	destructures_ ImmutableListOf[*CheckRequiresSorted_DestructuringBinding]
+	destructures_ *ImmutableList[*CheckRequiresSorted_DestructuringBinding]
 }
 
 func (this *CheckRequiresSorted_ImportStatement) zero_CheckRequiresSorted_ImportStatement() {
 	this.namespace_ = nullstr_
 }
 
-func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_ImportStatement(nodes ImmutableListOf[Node], primitive *CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures ImmutableListOf[*CheckRequiresSorted_DestructuringBinding]) {
-	Objects_requireNonNull(obj_(nodes), "nodes")
-	Objects_requireNonNull(obj_(primitive), "primitive")
-	Preconditions_checkArgument_boolean_Object((alias.isEmpty() || (destructures == nil)), strobj_("Import statement cannot be simultaneously aliasing and destructuring"))
+func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_ImportStatement(nodes *ImmutableList[Node], primitive CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *ImmutableList[*CheckRequiresSorted_DestructuringBinding]) {
+	if nodes == nil {
+		panic(new_NullPointerException_String("nodes"))
+	}
+	if primitive == 0 {
+		panic(new_NullPointerException_String("primitive"))
+	}
+	if !alias.isEmpty() && destructures != nil {
+		panic(new_IllegalArgumentException_String("Import statement cannot be simultaneously aliasing and destructuring"))
+	}
 	this.nodes_ = nodes
 	this.primitive_ = primitive
 	this.namespace_ = namespace
@@ -455,14 +489,14 @@ func (this *CheckRequiresSorted_ImportStatement) init_CheckRequiresSorted_Import
 	this.destructures_ = destructures
 }
 
-func new_CheckRequiresSorted_ImportStatement(nodes ImmutableListOf[Node], primitive *CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures ImmutableListOf[*CheckRequiresSorted_DestructuringBinding]) *CheckRequiresSorted_ImportStatement {
+func new_CheckRequiresSorted_ImportStatement(nodes *ImmutableList[Node], primitive CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *ImmutableList[*CheckRequiresSorted_DestructuringBinding]) *CheckRequiresSorted_ImportStatement {
 	this := &CheckRequiresSorted_ImportStatement{}
 	this.zero_CheckRequiresSorted_ImportStatement()
 	this.init_CheckRequiresSorted_ImportStatement(nodes, primitive, namespace, alias, destructures)
 	return this
 }
 
-func CheckRequiresSorted_ImportStatement_of(nodes ImmutableListOf[Node], primitive *CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures ImmutableListOf[*CheckRequiresSorted_DestructuringBinding]) *CheckRequiresSorted_ImportStatement {
+func CheckRequiresSorted_ImportStatement_of(nodes *ImmutableList[Node], primitive CheckRequiresSorted_ImportPrimitive, namespace string, alias Optional[string], destructures *ImmutableList[*CheckRequiresSorted_DestructuringBinding]) *CheckRequiresSorted_ImportStatement {
 	return new_CheckRequiresSorted_ImportStatement(nodes, primitive, namespace, alias, destructures)
 }
 
@@ -478,7 +512,7 @@ func (this *CheckRequiresSorted_ImportStatement) isDestructuring() bool {
 	return (this.destructures() != nil)
 }
 
-func (this *CheckRequiresSorted_ImportStatement) upgrade(otherPrimitive *CheckRequiresSorted_ImportPrimitive) *CheckRequiresSorted_ImportStatement {
+func (this *CheckRequiresSorted_ImportStatement) upgrade(otherPrimitive CheckRequiresSorted_ImportPrimitive) *CheckRequiresSorted_ImportStatement {
 	if CheckRequiresSorted_ImportPrimitive_stronger(this.primitive(), otherPrimitive) != this.primitive() {
 		return new_CheckRequiresSorted_ImportStatement(this.nodes(), otherPrimitive, this.namespace(), this.alias(), this.destructures())
 	}
@@ -486,7 +520,7 @@ func (this *CheckRequiresSorted_ImportStatement) upgrade(otherPrimitive *CheckRe
 }
 
 func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	if !this.isStandalone() {
 		sb.append("const ")
 	}
@@ -496,9 +530,8 @@ func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
 	if this.destructures() != nil {
 		sb.append("{")
 		var first bool = true
-		it_1 := foreach_(obj_(this.destructures()))
-		for it_1.next() {
-			var binding *CheckRequiresSorted_DestructuringBinding = cast_[*CheckRequiresSorted_DestructuringBinding](it_1.v)
+		for _, el := range this.destructures().items {
+			binding := el
 			var exportedName string = binding.exportedName()
 			var localName string = binding.localName()
 			if first {
@@ -521,16 +554,15 @@ func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
 	sb.append("('")
 	sb.append(this.namespace())
 	sb.append("');")
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func (this *CheckRequiresSorted_ImportStatement) format() string {
-	var sb *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(obj_(this.nodes()))
-	for it_1.next() {
-		var node Node = Node_of_(it_1.v)
+	var sb strBuilder_
+	for _, el := range this.nodes().items {
+		node := el
 		var comment string = node.getNonJSDocCommentString()
-		if !String_isEmpty(comment) {
+		if comment != "" {
 			sb.append(node.getNonJSDocCommentString()).append("\n")
 		}
 		var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(node)
@@ -539,20 +571,20 @@ func (this *CheckRequiresSorted_ImportStatement) format() string {
 		}
 	}
 	sb.append(this.formatWithoutDoc())
-	return Object_toString(obj_(sb))
+	return sb.toString()
 }
 
 func (this *CheckRequiresSorted_ImportStatement) compareTo(other_ any) int32 {
 	var other *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](other_)
 	_ = other
-	return String_compareTo(this.formatWithoutDoc(), other.formatWithoutDoc())
+	return utf16Compare_(this.formatWithoutDoc(), other.formatWithoutDoc())
 }
 
-func (this *CheckRequiresSorted_ImportStatement) nodes() *ImmutableList {
+func (this *CheckRequiresSorted_ImportStatement) nodes() *ImmutableList[Node] {
 	return this.nodes_
 }
 
-func (this *CheckRequiresSorted_ImportStatement) primitive() *CheckRequiresSorted_ImportPrimitive {
+func (this *CheckRequiresSorted_ImportStatement) primitive() CheckRequiresSorted_ImportPrimitive {
 	return this.primitive_
 }
 
@@ -564,7 +596,7 @@ func (this *CheckRequiresSorted_ImportStatement) alias() Optional[string] {
 	return this.alias_
 }
 
-func (this *CheckRequiresSorted_ImportStatement) destructures() *ImmutableList {
+func (this *CheckRequiresSorted_ImportStatement) destructures() *ImmutableList[*CheckRequiresSorted_DestructuringBinding] {
 	return this.destructures_
 }
 
@@ -573,19 +605,19 @@ func (this *CheckRequiresSorted_ImportStatement) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.nodes_), obj_(o.nodes_)) && Objects_equals(obj_(this.primitive_), obj_(o.primitive_)) && this.namespace_ == o.namespace_ && Objects_equals(this.alias_.box_(), o.alias_.box_()) && Objects_equals(obj_(this.destructures_), obj_(o.destructures_))
+	return true && tlistEq_(this.nodes_, o.nodes_, true) && this.primitive_ == o.primitive_ && this.namespace_ == o.namespace_ && Objects_equals(this.alias_.box_(), o.alias_.box_()) && tlistEq_(this.destructures_, o.destructures_, true)
 }
 
 func (this *CheckRequiresSorted_ImportStatement) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.nodes_))
-	h = h*31 + Objects_hashCode(obj_(this.primitive_))
-	h = h*31 + Objects_hashCode(strobj_(this.namespace_))
+	h = h*31 + tlistHash_(this.nodes_, true)
+	h = h*31 + objhashId_(this.primitive_)
+	h = h*31 + objhashStr_(this.namespace_)
 	h = h*31 + Objects_hashCode(this.alias_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.destructures_))
+	h = h*31 + tlistHash_(this.destructures_, true)
 	return h
 }
 
 func (this *CheckRequiresSorted_ImportStatement) toString() string {
-	return "ImportStatement[" + "nodes=" + objstr_(obj_(this.nodes_)) + ", primitive=" + objstr_(obj_(this.primitive_)) + ", namespace=" + objstr_(strobj_(this.namespace_)) + ", alias=" + objstr_(this.alias_.box_()) + ", destructures=" + objstr_(obj_(this.destructures_)) + "]"
+	return "ImportStatement[" + "nodes=" + tostr_(this.nodes_.asImm()) + ", primitive=" + tostr_(this.primitive_) + ", namespace=" + sstr_(this.namespace_) + ", alias=" + objstr_(this.alias_.box_()) + ", destructures=" + tostr_(this.destructures_.asImm()) + "]"
 }

@@ -2,6 +2,11 @@
 
 package closure
 
+import (
+	"strconv"
+	"strings"
+)
+
 type ClosureCheckModule struct {
 	NodeTraversal_AbstractModuleCallback
 	currentModuleInfo *ClosureCheckModule_ModuleInfo
@@ -31,15 +36,19 @@ func new_ClosureCheckModule(compiler *AbstractCompiler, moduleMetadataMap *Modul
 }
 
 func (this *ClosureCheckModule) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *ClosureCheckModule) enterModule_impl(currentModule *ModuleMetadataMap_ModuleMetadata, moduleScopeRoot Node) {
 	if !currentModule.isGoogModule() {
 		return
 	}
-	Preconditions_checkState((this.currentModuleInfo == nil))
-	Preconditions_checkState(!currentModule.googNamespaces().isEmpty())
+	if this.currentModuleInfo != nil {
+		panic(new_IllegalStateException_0())
+	}
+	if currentModule.googNamespaces().isEmpty() {
+		panic(new_IllegalStateException_0())
+	}
 	this.currentModuleInfo = new_ClosureCheckModule_ModuleInfo(str_(Iterables_getFirst(icast_Iterable(obj_(currentModule.googNamespaces())), strobj_(""))))
 }
 
@@ -63,8 +72,8 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 	if jsDoc != nil {
 		this.checkJSDoc(t, jsDoc)
 	}
-	switch n.getToken() {
-	case Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_CALL:
 		var callee Node = n.getFirstChild()
 		if ClosureCheckModule_GOOG_MODULE_FIELD.matches(callee) {
 			if !Object_equals(Optional_of[string](this.currentModuleInfo.name_).box_(), ClosureCheckModule_extractFirstArgumentName(n).box_()) {
@@ -79,34 +88,34 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 		} else if ClosureCheckModule_GOOG_MODULE_DECLARE_LEGACY_NAMESPACE.matches(callee) {
 			ClosureCheckModule_checkLegacyNamespaceCall(t, n, parent)
 		}
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		{
 			if ClosureCheckModule_isExportLhs(n.getFirstChild()) {
 				this.checkModuleExport(t, n, parent)
 			}
 			break
 		}
-	case Token_rhino_CLASS, Token_rhino_FUNCTION:
+	case tokOrd1_CLASS, tokOrd1_FUNCTION:
 		if !NodeUtil_isStatement(n) {
 			break
 		}
 		fallthrough
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		if (t.inModuleHoistScope() && (n.isClass() || (NodeUtil_getEnclosingClass(n) == 0))) && (NodeUtil_getEnclosingType(n, Token_rhino_OBJECTLIT) == 0) {
 			var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 			if (jsdoc != nil) && jsdoc.isExport() {
 				t.report(n, ClosureCheckModule_AT_EXPORT_IN_GOOG_MODULE, []string{})
 			}
 		}
-	case Token_rhino_THIS:
+	case tokOrd1_THIS:
 		if t.inModuleHoistScope() {
 			t.report(n, ClosureCheckModule_GOOG_MODULE_REFERENCES_THIS, []string{})
 		}
-	case Token_rhino_THROW:
+	case tokOrd1_THROW:
 		if t.inModuleHoistScope() {
 			t.report(n, ClosureCheckModule_GOOG_MODULE_USES_THROW, []string{})
 		}
-	case Token_rhino_NAME, Token_rhino_GETPROP:
+	case tokOrd1_NAME, tokOrd1_GETPROP:
 		if n.matchesQualifiedName(this.currentModuleInfo.name_) {
 			if n.isGetProp() {
 				t.report(n, ClosureCheckModule_REFERENCE_TO_MODULE_GLOBAL_NAME, []string{})
@@ -115,7 +124,7 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 			if !parent.isGetProp() && n.isQualifiedName() {
 				var node Node = n
 				for this.checkImproperReferenceToImport(t, node, Optional_of[string](node.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-					return !String_isEmpty(s)
+					return s != ""
 				}}), func() Optional[string] {
 					if node.getParent().isGetProp() {
 						return Optional_of[string](node.getParent().getString())
@@ -137,15 +146,13 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 }
 
 func (this *ClosureCheckModule) checkJSDoc(t *NodeTraversal, jsDoc *JSDocInfo) {
-	it_1 := foreach_(any(jsDoc.getTypeNodes()))
-	for it_1.next() {
-		var typeNode Node = Node_of_(it_1.v)
+	for typeNode := range elemsBy_(jsDoc.getTypeNodes(), Node_of_) {
 		this.checkTypeExpression(t, typeNode)
 	}
 }
 
 func (this *ClosureCheckModule) checkTypeExpression(t *NodeTraversal, typeNode Node) {
-	NodeUtil_visitPreOrder_Node_Visitor(typeNode, icast_NodeUtil_Visitor(obj_(new_ClosureCheckModule_1(this, t))))
+	NodeUtil_visitPreOrder_Node_Visitor(typeNode, new_ClosureCheckModule_1(this, t))
 }
 
 func ClosureCheckModule_isLocalVar(v *Var) bool {
@@ -163,7 +170,7 @@ func (this *ClosureCheckModule) checkImproperReferenceToImport(t *NodeTraversal,
 	if importLhs == 0 {
 		return true
 	}
-	if !String_contains(qname.get(), strobj_(".")) && ClosureCheckModule_isLocalVar(cast_[*Var](t.getScope().getVar(qname.get()).self())) {
+	if !strings.Contains(qname.get(), ".") && ClosureCheckModule_isLocalVar(cast_[*Var](t.getScope().getVar(qname.get()).self())) {
 		return true
 	}
 	if importLhs.isName() {
@@ -204,13 +211,17 @@ func ClosureCheckModule_isExportLhs(lhs Node) bool {
 }
 
 func (this *ClosureCheckModule) checkModuleExport(t *NodeTraversal, n Node, parent Node) {
-	Preconditions_checkArgument(n.isAssign())
+	if !n.isAssign() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var lhs Node = n.getFirstChild()
-	Preconditions_checkState(ClosureCheckModule_isExportLhs(lhs))
+	if !ClosureCheckModule_isExportLhs(lhs) {
+		panic(new_IllegalStateException_0())
+	}
 	var previousDefinition Node = this.currentModuleInfo.exportNodesByName.get(lhs.getQualifiedName())
 	if previousDefinition != 0 {
 		var previousLine int32 = previousDefinition.getLineno()
-		t.report(n, ClosureCheckModule_EXPORT_REPEATED_ERROR, []string{String_valueOf(previousLine)})
+		t.report(n, ClosureCheckModule_EXPORT_REPEATED_ERROR, []string{strconv.Itoa(int(previousLine))})
 	}
 	var defaultExportNode Node = this.currentModuleInfo.exportNodesByName.get("exports")
 	if (defaultExportNode == 0) || lhs.matchesName("exports") {
@@ -238,17 +249,21 @@ func ClosureCheckModule_extractFirstArgumentName(callNode Node) Optional[string]
 }
 
 func (this *ClosureCheckModule) checkRequireCall(t *NodeTraversal, callNode Node, parent Node) {
-	Preconditions_checkState(callNode.isCall())
-	Preconditions_checkState(callNode.getLastChild().isStringLit())
-	switch parent.getToken() {
-	case Token_rhino_EXPR_RESULT:
+	if !callNode.isCall() {
+		panic(new_IllegalStateException_0())
+	}
+	if !callNode.getLastChild().isStringLit() {
+		panic(new_IllegalStateException_0())
+	}
+	switch parent.ns_().token {
+	case tokOrd1_EXPR_RESULT:
 		var key Optional[string] = ClosureCheckModule_extractFirstArgumentName(callNode)
 		this.currentModuleInfo.importsByLongRequiredName.putIfAbsent(key.orElse(nullstr_), parent)
-	case Token_rhino_NAME, Token_rhino_DESTRUCTURING_LHS:
+	case tokOrd1_NAME, tokOrd1_DESTRUCTURING_LHS:
 		this.checkShortGoogRequireCall(t, callNode, parent.getParent())
-	case Token_rhino_AWAIT:
-		var grandParentToken *Token_rhino = parent.getParent().getToken()
-		if Object_equals(obj_(grandParentToken), obj_(Token_rhino_DESTRUCTURING_LHS)) || Object_equals(obj_(grandParentToken), obj_(Token_rhino_NAME)) {
+	case tokOrd1_AWAIT:
+		var grandParentToken Token_rhino = parent.getParent().getToken()
+		if equalsId_(grandParentToken, Token_rhino_DESTRUCTURING_LHS) || equalsId_(grandParentToken, Token_rhino_NAME) {
 			this.checkShortGoogRequireCall(t, callNode, parent.getGrandparent())
 		}
 	default:
@@ -276,37 +291,40 @@ func (this *ClosureCheckModule) checkShortGoogRequireCall(t *NodeTraversal, call
 		ClosureCheckModule_checkShortName(t, lhs, callNode.getLastChild().getString())
 	}
 	this.currentModuleInfo.importsByLongRequiredName.put(ClosureCheckModule_extractFirstArgumentName(callNode).orElse(nullstr_), lhs)
-	NodeUtil_visitLhsNodesInNode(declaration, &Consumer_tfn_Node{func(nameNode Node) {
+	NodeUtil_visitLhsNodesInNode(declaration, (&Consumer_tfn_Node{func(nameNode Node) {
 		var name string = nameNode.getString()
 		if !this.currentModuleInfo.shortImportNames.add(name) {
 			t.report(nameNode, ClosureCheckModule_DUPLICATE_NAME_SHORT_REQUIRE, []string{name})
 		}
-	}})
+	}}).accept)
 }
 
 func ClosureCheckModule_checkShortName(t *NodeTraversal, shortNameNode Node, namespace string) {
 	var nextQnamePart string = shortNameNode.getString()
-	if String_startsWith(namespace, "google3.") {
+	if strings.HasPrefix(namespace, "google3.") {
 		return
 	}
-	var lastSegment string = String_substring_int(namespace, (String_lastIndexOf(namespace, 46) + 1))
-	if (nextQnamePart == lastSegment) || String_isEmpty(lastSegment) {
+	var lastSegment string = namespace[strings.LastIndexByte(namespace, '.')+1:]
+	if (nextQnamePart == lastSegment) || lastSegment == "" {
 		return
 	}
-	if Ascii_isUpperCase(String_charAt(nextQnamePart, 0)) != Ascii_isUpperCase(String_charAt(lastSegment, 0)) {
+	if Ascii_isUpperCase(uint16(byteAt_(nextQnamePart, 0))) != Ascii_isUpperCase(uint16(byteAt_(lastSegment, 0))) {
+		nextQnamePartU16 := utf16Of_(nextQnamePart)
 		var newStartChar uint16 = func() uint16 {
-			if Ascii_isUpperCase(String_charAt(nextQnamePart, 0)) {
-				return Ascii_toLowerCase_char(String_charAt(nextQnamePart, 0))
+			if Ascii_isUpperCase(uint16(byteAt_(nextQnamePart, 0))) {
+				return Ascii_toLowerCase_char(nextQnamePartU16.charAt(0))
 			}
-			return Ascii_toUpperCase_char(String_charAt(nextQnamePart, 0))
+			return Ascii_toUpperCase_char(nextQnamePartU16.charAt(0))
 		}()
-		var correctedName string = (chrstr_(newStartChar) + sstr_(String_substring_int(nextQnamePart, 1)))
+		var correctedName string = (chrstr_(newStartChar) + sstr_(nextQnamePartU16.substring_int(1)))
 		t.report(shortNameNode, ClosureCheckModule_INCORRECT_SHORTNAME_CAPITALIZATION, []string{nextQnamePart, correctedName})
 	}
 }
 
 func ClosureCheckModule_isValidDestructuringImport(destructuringLhs Node) bool {
-	Preconditions_checkArgument(destructuringLhs.isDestructuringLhs())
+	if !destructuringLhs.isDestructuringLhs() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var objectPattern Node = destructuringLhs.getFirstChild()
 	if !objectPattern.isObjectPattern() {
 		return false
@@ -325,7 +343,9 @@ func ClosureCheckModule_isValidDestructuringImport(destructuringLhs Node) bool {
 }
 
 func ClosureCheckModule_checkLegacyNamespaceCall(t *NodeTraversal, callNode Node, parent Node) {
-	Preconditions_checkArgument(callNode.isCall())
+	if !callNode.isCall() {
+		panic(new_IllegalArgumentException_0())
+	}
 	if callNode.getChildCount() > 1 {
 		t.report(callNode, ClosureCheckModule_LEGACY_NAMESPACE_ARGUMENT, []string{})
 	}
@@ -473,11 +493,38 @@ func (this *ClosureCheckModule_1) visit(node Node) {
 	var qname string = node.getString()
 	var nextQnamePart Optional[string] = Optional_empty[string]()
 	for this.outer_.checkImproperReferenceToImport(this.cap_t, node, Optional_of[string](qname), nextQnamePart) {
-		var lastDot int32 = String_lastIndexOf(qname, 46)
+		var lastDot int32 = int32(strings.LastIndexByte(qname, '.'))
 		if lastDot < 0 {
 			return
 		}
-		nextQnamePart = Optional_of[string](String_substring_int(qname, (lastDot + 1)))
-		qname = String_substring(qname, 0, lastDot)
+		nextQnamePart = Optional_of[string](qname[(lastDot + 1):])
+		qname = qname[:lastDot]
 	}
+}
+
+// enterModule: an object that is exactly a ClosureCheckModule calls its enterModule_impl directly (post-flip); others dispatch.
+func (this *ClosureCheckModule) enterModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
+	if p, _ := this.self_.(*ClosureCheckModule); p == this {
+		this.enterModule_impl(p0, p1)
+		return
+	}
+	this.self_.enterModule_impl(p0, p1)
+}
+
+// exitModule: an object that is exactly a ClosureCheckModule calls its exitModule_impl directly (post-flip); others dispatch.
+func (this *ClosureCheckModule) exitModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
+	if p, _ := this.self_.(*ClosureCheckModule); p == this {
+		this.exitModule_impl(p0, p1)
+		return
+	}
+	this.self_.exitModule_impl(p0, p1)
+}
+
+// visit_4: an object that is exactly a ClosureCheckModule calls its visit_4_impl directly (post-flip); others dispatch.
+func (this *ClosureCheckModule) visit_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMetadataMap_ModuleMetadata, p3 Node) {
+	if p, _ := this.self_.(*ClosureCheckModule); p == this {
+		this.visit_4_impl(p0, p1, p2, p3)
+		return
+	}
+	this.self_.visit_4_impl(p0, p1, p2, p3)
 }

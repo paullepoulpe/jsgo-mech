@@ -2,9 +2,11 @@
 
 package closure
 
+import "strings"
+
 type CheckTypeSummaryWarningsGuard struct {
 	WarningsGuard
-	levelField *CheckLevel
+	levelField CheckLevel
 }
 
 func (this *CheckTypeSummaryWarningsGuard) up_WarningsGuard() *WarningsGuard {
@@ -14,27 +16,29 @@ func (this *CheckTypeSummaryWarningsGuard) up_WarningsGuard() *WarningsGuard {
 	return &this.WarningsGuard
 }
 
-func (this *CheckTypeSummaryWarningsGuard) init_CheckTypeSummaryWarningsGuard(level *CheckLevel) {
+func (this *CheckTypeSummaryWarningsGuard) init_CheckTypeSummaryWarningsGuard(level CheckLevel) {
 	this.WarningsGuard.init_WarningsGuard()
 	this.levelField = level
 }
 
-func new_CheckTypeSummaryWarningsGuard(level *CheckLevel) *CheckTypeSummaryWarningsGuard {
+func new_CheckTypeSummaryWarningsGuard(level CheckLevel) *CheckTypeSummaryWarningsGuard {
 	this := &CheckTypeSummaryWarningsGuard{}
 	this.self_ = this
 	this.init_CheckTypeSummaryWarningsGuard(level)
 	return this
 }
 
-func (this *CheckTypeSummaryWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
-	Preconditions_checkNotNull(obj_(error_))
+func (this *CheckTypeSummaryWarningsGuard) level_impl(error_ *JSError) CheckLevel {
+	if error_ == nil {
+		panic(new_NullPointerException_0())
+	}
 	if !this.shouldDemoteIfTypeSummary(error_) {
-		return nil
+		return 0
 	}
 	if this.inTypeSummary(error_) {
 		return this.levelField
 	}
-	return nil
+	return 0
 }
 
 func (this *CheckTypeSummaryWarningsGuard) getPriority_impl() int32 {
@@ -42,9 +46,25 @@ func (this *CheckTypeSummaryWarningsGuard) getPriority_impl() int32 {
 }
 
 func (this *CheckTypeSummaryWarningsGuard) inTypeSummary(error_ *JSError) bool {
-	return (error_.sourceName().isPresent() && String_endsWith(error_.sourceName().get(), ".i.js"))
+	return (error_.sourceName().isPresent() && strings.HasSuffix(error_.sourceName().get(), ".i.js"))
 }
 
 func (this *CheckTypeSummaryWarningsGuard) shouldDemoteIfTypeSummary(error_ *JSError) bool {
-	return !error_.type_().equals(obj_(ClosurePrimitiveErrors_DUPLICATE_NAMESPACE_AND_MODULE))
+	return !error_.type_().equals_DiagnosticType(ClosurePrimitiveErrors_DUPLICATE_NAMESPACE_AND_MODULE)
+}
+
+// level: an object that is exactly a CheckTypeSummaryWarningsGuard calls its level_impl directly (post-flip); others dispatch.
+func (this *CheckTypeSummaryWarningsGuard) level(p0 *JSError) CheckLevel {
+	if p, _ := this.self_.(*CheckTypeSummaryWarningsGuard); p == this {
+		return this.level_impl(p0)
+	}
+	return this.self_.level_impl(p0)
+}
+
+// getPriority: an object that is exactly a CheckTypeSummaryWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
+func (this *CheckTypeSummaryWarningsGuard) getPriority() int32 {
+	if p, _ := this.self_.(*CheckTypeSummaryWarningsGuard); p == this {
+		return this.getPriority_impl()
+	}
+	return this.self_.getPriority_impl()
 }

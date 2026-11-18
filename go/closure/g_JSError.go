@@ -2,6 +2,8 @@
 
 package closure
 
+import "strconv"
+
 type JSError struct {
 	type__        *DiagnosticType
 	description_  string
@@ -10,7 +12,7 @@ type JSError struct {
 	charno_       int32
 	length_       int32
 	node_         Node
-	defaultLevel_ *CheckLevel
+	defaultLevel_ CheckLevel
 	requirement_  *Requirement
 }
 
@@ -18,9 +20,13 @@ func (this *JSError) zero_JSError() {
 	this.description_ = nullstr_
 }
 
-func (this *JSError) init_JSError(type_ *DiagnosticType, description string, sourceName Optional[string], lineno int32, charno int32, length int32, node Node, defaultLevel *CheckLevel, requirement *Requirement) {
-	Objects_requireNonNull(obj_(type_), "type")
-	Objects_requireNonNull(obj_(defaultLevel), "defaultLevel")
+func (this *JSError) init_JSError(type_ *DiagnosticType, description string, sourceName Optional[string], lineno int32, charno int32, length int32, node Node, defaultLevel CheckLevel, requirement *Requirement) {
+	if type_ == nil {
+		panic(new_NullPointerException_String("type"))
+	}
+	if defaultLevel == 0 {
+		panic(new_NullPointerException_String("defaultLevel"))
+	}
 	this.type__ = type_
 	this.description_ = description
 	this.sourceName_ = sourceName
@@ -32,7 +38,7 @@ func (this *JSError) init_JSError(type_ *DiagnosticType, description string, sou
 	this.requirement_ = requirement
 }
 
-func new_JSError(type_ *DiagnosticType, description string, sourceName Optional[string], lineno int32, charno int32, length int32, node Node, defaultLevel *CheckLevel, requirement *Requirement) *JSError {
+func new_JSError(type_ *DiagnosticType, description string, sourceName Optional[string], lineno int32, charno int32, length int32, node Node, defaultLevel CheckLevel, requirement *Requirement) *JSError {
 	this := &JSError{}
 	this.zero_JSError()
 	this.init_JSError(type_, description, sourceName, lineno, charno, length, node, defaultLevel, requirement)
@@ -67,7 +73,7 @@ func (this *JSError) getNode() Node {
 	return this.node()
 }
 
-func (this *JSError) getDefaultLevel() *CheckLevel {
+func (this *JSError) getDefaultLevel() CheckLevel {
 	return this.defaultLevel()
 }
 
@@ -101,27 +107,27 @@ func JSError_builder(type_ *DiagnosticType, arguments []string) *JSError_Builder
 
 func (this *JSError) toString() string {
 	var sourceName string = func() string {
-		if String_isEmpty(this.sourceName().orElse("")) {
+		if this.sourceName().orElse("") == "" {
 			return "(unknown source)"
 		}
 		return this.sourceName().get()
 	}()
 	var lineno string = func() string {
 		if this.lineno() != JSError_DEFAULT_LINENO {
-			return String_valueOf(this.lineno())
+			return strconv.Itoa(int(this.lineno()))
 		}
 		return "(unknown line)"
 	}()
 	var charno string = func() string {
 		if this.charno() != JSError_DEFAULT_CHARNO {
-			return String_valueOf(this.charno())
+			return strconv.Itoa(int(this.charno()))
 		}
 		return "(unknown column)"
 	}()
 	return (sstr_(this.type_().key_) + ". " + sstr_(this.description()) + " at " + sstr_(sourceName) + " line " + sstr_(lineno) + " : " + sstr_(charno))
 }
 
-func (this *JSError) format(level *CheckLevel, formatter MessageFormatter) Optional[string] {
+func (this *JSError) format(level CheckLevel, formatter MessageFormatter) Optional[string] {
 	return func() Optional[string] {
 		switch level {
 		case CheckLevel_ERROR:
@@ -131,7 +137,6 @@ func (this *JSError) format(level *CheckLevel, formatter MessageFormatter) Optio
 		default:
 			return Optional_empty[string]()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -176,7 +181,7 @@ func (this *JSError) node() Node {
 	return this.node_
 }
 
-func (this *JSError) defaultLevel() *CheckLevel {
+func (this *JSError) defaultLevel() CheckLevel {
 	return this.defaultLevel_
 }
 
@@ -189,20 +194,20 @@ func (this *JSError) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.type__), obj_(o.type__)) && this.description_ == o.description_ && Objects_equals(this.sourceName_.box_(), o.sourceName_.box_()) && this.lineno_ == o.lineno_ && this.charno_ == o.charno_ && this.length_ == o.length_ && Objects_equals(this.node_.box_(), o.node_.box_()) && Objects_equals(obj_(this.defaultLevel_), obj_(o.defaultLevel_)) && Objects_equals(obj_(this.requirement_), obj_(o.requirement_))
+	return true && objequalsBy_(this.type__, obj_(o.type__), (*DiagnosticType).equals) && this.description_ == o.description_ && Objects_equals(this.sourceName_.box_(), o.sourceName_.box_()) && this.lineno_ == o.lineno_ && this.charno_ == o.charno_ && this.length_ == o.length_ && this.node_ == o.node_ && this.defaultLevel_ == o.defaultLevel_ && objequalsBy_(this.requirement_, obj_(o.requirement_), (*Requirement).equals)
 }
 
 func (this *JSError) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.type__))
-	h = h*31 + Objects_hashCode(strobj_(this.description_))
+	h = h*31 + objhashBy_(this.type__, (*DiagnosticType).hashCode)
+	h = h*31 + objhashStr_(this.description_)
 	h = h*31 + Objects_hashCode(this.sourceName_.box_())
-	h = h*31 + Objects_hashCode(any(int32(this.lineno_)))
-	h = h*31 + Objects_hashCode(any(int32(this.charno_)))
-	h = h*31 + Objects_hashCode(any(int32(this.length_)))
-	h = h*31 + Objects_hashCode(this.node_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.defaultLevel_))
-	h = h*31 + Objects_hashCode(obj_(this.requirement_))
+	h = h*31 + int32(this.lineno_)
+	h = h*31 + int32(this.charno_)
+	h = h*31 + int32(this.length_)
+	h = h*31 + objhashId_(this.node_)
+	h = h*31 + objhashId_(this.defaultLevel_)
+	h = h*31 + objhashBy_(this.requirement_, (*Requirement).hashCode)
 	return h
 }
 
@@ -230,7 +235,7 @@ func JSError_clinit() {
 type JSError_Builder struct {
 	type__       *DiagnosticType
 	args         []string
-	level_       *CheckLevel
+	level_       CheckLevel
 	n            Node
 	sourceName_  Optional[string]
 	lineno_      int32
@@ -262,10 +267,12 @@ func new_JSError_Builder(type_ *DiagnosticType, args []string) *JSError_Builder 
 }
 
 func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
-	Preconditions_checkState_boolean_Object(Object_equals(JSError_DEFAULT_SOURCENAME.box_(), this.sourceName_.box_()), strobj_("Cannot provide a Node when there's already a source name"))
+	if !Object_equals(JSError_DEFAULT_SOURCENAME.box_(), this.sourceName_.box_()) {
+		panic(new_IllegalStateException_String("Cannot provide a Node when there's already a source name"))
+	}
 	this.n = n
 	this.sourceName_ = Optional_of[string](n.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 	this.lineno_ = n.getLineno()
 	this.charno_ = n.getCharno()
@@ -274,10 +281,12 @@ func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
 }
 
 func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder {
-	Preconditions_checkState_boolean_Object(Object_equals(JSError_DEFAULT_SOURCENAME.box_(), this.sourceName_.box_()), strobj_("Cannot provide a Node when there's already a source name"))
+	if !Object_equals(JSError_DEFAULT_SOURCENAME.box_(), this.sourceName_.box_()) {
+		panic(new_IllegalStateException_String("Cannot provide a Node when there's already a source name"))
+	}
 	this.n = start
 	this.sourceName_ = Optional_of[string](this.n.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 	this.lineno_ = this.n.getLineno()
 	this.charno_ = this.n.getCharno()
@@ -289,18 +298,26 @@ func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder
 	return this
 }
 
-func (this *JSError_Builder) setLevel(level *CheckLevel) *JSError_Builder {
-	this.level_ = cast_[*CheckLevel](Preconditions_checkNotNull(obj_(level)))
+func (this *JSError_Builder) setLevel(level CheckLevel) *JSError_Builder {
+	if level == 0 {
+		panic(new_NullPointerException_0())
+	}
+	this.level_ = level
 	return this
 }
 
 func (this *JSError_Builder) setRequirement(requirement *Requirement) *JSError_Builder {
-	this.requirement_ = cast_[*Requirement](Preconditions_checkNotNull(obj_(requirement)))
+	if requirement == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.requirement_ = requirement
 	return this
 }
 
 func (this *JSError_Builder) setSourceLocation(sourceName Optional[string], lineno int32, charno int32) *JSError_Builder {
-	Preconditions_checkState_boolean_Object((this.n == JSError_DEFAULT_NODE), strobj_("Cannot provide a source location when there is already a Node"))
+	if this.n != JSError_DEFAULT_NODE {
+		panic(new_IllegalStateException_String("Cannot provide a source location when there is already a Node"))
+	}
 	this.sourceName_ = sourceName
 	this.lineno_ = lineno
 	this.charno_ = charno

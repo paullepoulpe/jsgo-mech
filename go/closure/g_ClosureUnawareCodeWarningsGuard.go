@@ -24,18 +24,18 @@ func new_ClosureUnawareCodeWarningsGuard() *ClosureUnawareCodeWarningsGuard {
 	return this
 }
 
-func (this *ClosureUnawareCodeWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
+func (this *ClosureUnawareCodeWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	if !ClosureUnawareCodeWarningsGuard_DEFAULT_CLOSURE_UNAWARE_CODE_SUPPRESSIONS.matches(error_) {
-		return nil
+		return 0
 	}
 	var node Node = error_.node()
 	if node == 0 {
-		return nil
+		return 0
 	}
 	if node.isClosureUnawareCode() {
 		return CheckLevel_OFF
 	}
-	return nil
+	return 0
 }
 
 func (this *ClosureUnawareCodeWarningsGuard) getPriority_impl() int32 {
@@ -53,4 +53,20 @@ func ClosureUnawareCodeWarningsGuard_clinit() {
 	ClosureUnawareCodeWarningsGuard_clinit_done = true
 	ClosureUnawareCodeWarningsGuard_DEFAULT_CLOSURE_UNAWARE_CODE_SUPPRESSIONS = new_DiagnosticGroup_Optional_DiagnosticTypeArr(Optional_of[string]("closureUnawareCodeJSDocIncompatible"), []*DiagnosticType{RhinoErrorReporter_TYPE_PARSE_ERROR, RhinoErrorReporter_UNRECOGNIZED_TYPE_ERROR, RhinoErrorReporter_JSDOC_MISSING_BRACES_WARNING, RhinoErrorReporter_JSDOC_MISSING_TYPE_WARNING, RhinoErrorReporter_UNNECESSARY_ESCAPE, RhinoErrorReporter_BAD_JSDOC_ANNOTATION, RhinoErrorReporter_UNSUPPORTED_BOUNDED_GENERIC_TYPES, RhinoErrorReporter_BOUNDED_GENERIC_TYPE_ERROR})
 
+}
+
+// level: an object that is exactly a ClosureUnawareCodeWarningsGuard calls its level_impl directly (post-flip); others dispatch.
+func (this *ClosureUnawareCodeWarningsGuard) level(p0 *JSError) CheckLevel {
+	if p, _ := this.self_.(*ClosureUnawareCodeWarningsGuard); p == this {
+		return this.level_impl(p0)
+	}
+	return this.self_.level_impl(p0)
+}
+
+// getPriority: an object that is exactly a ClosureUnawareCodeWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
+func (this *ClosureUnawareCodeWarningsGuard) getPriority() int32 {
+	if p, _ := this.self_.(*ClosureUnawareCodeWarningsGuard); p == this {
+		return this.getPriority_impl()
+	}
+	return this.self_.getPriority_impl()
 }

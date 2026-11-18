@@ -19,7 +19,7 @@ func (this *CrossChunkReferenceCollector) finit_CrossChunkReferenceCollector() {
 func (this *CrossChunkReferenceCollector) init_CrossChunkReferenceCollector(compiler *AbstractCompiler, creator ScopeCreator) {
 	this.finit_CrossChunkReferenceCollector()
 	this.compiler_ = compiler
-	this.referenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate_boolean(compiler, icast_ReferenceCollector_Behavior(obj_(new_CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior(this))), creator, &Predicate_base_tfn_Var{func(p0 *Var) bool { return this.shouldCollectVar(p0) }}, false)
+	this.referenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate_boolean(compiler, new_CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior(this), creator, &Predicate_base_tfn_Var{func(p0 *Var) bool { return this.shouldCollectVar(p0) }}, false)
 }
 
 func new_CrossChunkReferenceCollector(compiler *AbstractCompiler, creator ScopeCreator) *CrossChunkReferenceCollector {
@@ -33,12 +33,16 @@ func (this *CrossChunkReferenceCollector) shouldCollectVar(v *Var) bool {
 }
 
 func (this *CrossChunkReferenceCollector) process_2(externs Node, root Node) {
-	Preconditions_checkState_boolean_Object(this.topLevelStatements.isEmpty(), strobj_("process() called more than once"))
+	if !this.topLevelStatements.isEmpty() {
+		panic(new_IllegalStateException_String("process() called more than once"))
+	}
 	this.referenceCollector.process_2(externs, root)
 }
 
 func (this *CrossChunkReferenceCollector) process(root Node) {
-	Preconditions_checkState_boolean_Object(this.topLevelStatements.isEmpty(), strobj_("process() called more than once"))
+	if !this.topLevelStatements.isEmpty() {
+		panic(new_IllegalStateException_String("process() called more than once"))
+	}
 	this.referenceCollector.process(root)
 }
 
@@ -46,12 +50,10 @@ func (this *CrossChunkReferenceCollector) getReferences(v *Var) *ReferenceCollec
 	return this.referenceCollector.getReferences_Var(v)
 }
 
-func (this *CrossChunkReferenceCollector) getGlobalVariableNamesMap() ImmutableMapOf[string, *Var] {
-	var builder ImmutableMap_BuilderOf[string, *Var] = ImmutableMap_builder()
-	it_1 := foreach_(any(this.referenceCollector.getAllSymbols()))
-	for it_1.next() {
-		var v *Var = cast_[*Var](it_1.v)
-		builder.put(strobj_(v.getName()), obj_(v))
+func (this *CrossChunkReferenceCollector) getGlobalVariableNamesMap() *ImmutableMap[string, *Var] {
+	var builder *ImmutableMap_Builder[string, *Var] = immutableMapBuilder_(tc_string, tc_p_Var)
+	for v := range elemsAs_[*Var](this.referenceCollector.getAllSymbols()) {
+		builder.put(v.getName(), v)
 	}
 	return builder.buildOrThrow()
 }
@@ -69,17 +71,32 @@ func (this *CrossChunkReferenceCollector) initializeDraftStatement(chunk *JSChun
 		draft.declaredNameNode = statementNode.getFirstChild()
 		draft.declaredValueNode = statementNode
 	} else if statementNode.isExprResult() {
-		var expr Node = Node_of_(Preconditions_checkNotNull(statementNode.getFirstChild().box_()))
+		var expr Node = statementNode.getFirstChild()
+		if expr == 0 {
+			panic(new_NullPointerException_0())
+		}
 		if expr.isAssign() {
-			var lhs Node = Node_of_(Preconditions_checkNotNull(expr.getFirstChild().box_()))
-			var rhs Node = Node_of_(Preconditions_checkNotNull(expr.getSecondChild().box_()))
+			var lhs Node = expr.getFirstChild()
+			if lhs == 0 {
+				panic(new_NullPointerException_0())
+			}
+			var rhs Node = expr.getSecondChild()
+			if rhs == 0 {
+				panic(new_NullPointerException_0())
+			}
 			if lhs.isName() {
 				draft.declaredNameNode = lhs
 				draft.declaredValueNode = rhs
 			} else if lhs.isGetProp() || CrossChunkReferenceCollector_isPotentiallyMoveableGetElem(lhs) {
-				var nameNode Node = Node_of_(Preconditions_checkNotNull(lhs.getFirstChild().box_()))
+				var nameNode Node = lhs.getFirstChild()
+				if nameNode == 0 {
+					panic(new_NullPointerException_0())
+				}
 				for nameNode.isGetProp() {
-					nameNode = Node_of_(Preconditions_checkNotNull(nameNode.getFirstChild().box_()))
+					nameNode = nameNode.getFirstChild()
+					if nameNode == 0 {
+						panic(new_NullPointerException_0())
+					}
 				}
 				if nameNode.isName() {
 					draft.declaredNameNode = nameNode
@@ -153,7 +170,9 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 				if member.isComputedProp() {
 					var keyExpr Node = member.getFirstChild()
 					var method Node = member.getLastChild()
-					Preconditions_checkState_boolean_Object(method.isFunction(), method.box_())
+					if !method.isFunction() {
+						panic(new_IllegalStateException_String(tostr_(method)))
+					}
 					if !this.canMoveValue(scope, keyExpr) {
 						return false
 					}
@@ -169,13 +188,18 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 				} else if member.isBlock() {
 					return false
 				} else {
-					Preconditions_checkState_boolean_Object((member.isMemberFunctionDef() || NodeUtil_isGetOrSetKey(member)), member.box_())
+					if !member.isMemberFunctionDef() && !NodeUtil_isGetOrSetKey(member) {
+						panic(new_IllegalStateException_String(tostr_(member)))
+					}
 				}
 			}
 		}
 		return true
 	case Token_rhino_CALL:
-		var functionName Node = Node_of_(Preconditions_checkNotNull(valueNode.getFirstChild().box_()))
+		var functionName Node = valueNode.getFirstChild()
+		if functionName == 0 {
+			panic(new_NullPointerException_0())
+		}
 		return (functionName.isName() && (functionName.getString() == CrossChunkMethodMotion_STUB_METHOD_NAME))
 	case Token_rhino_ARRAYLIT:
 		{
@@ -191,18 +215,18 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 		{
 			var child Node = valueNode.getFirstChild()
 			for ; child != 0; child = child.getNext() {
-				switch child.getToken() {
-				case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
-				case Token_rhino_COMPUTED_PROP:
+				switch child.ns_().token {
+				case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
+				case tokOrd1_COMPUTED_PROP:
 					if !this.canMoveValue(scope, child.getFirstChild()) || !this.canMoveValue(scope, child.getLastChild()) {
 						return false
 					}
-				case Token_rhino_STRING_KEY, Token_rhino_OBJECT_SPREAD:
+				case tokOrd1_STRING_KEY, tokOrd1_OBJECT_SPREAD:
 					if !this.canMoveValue(scope, child.getOnlyChild()) {
 						return false
 					}
 				default:
-					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))).self())
+					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))))
 				}
 			}
 		}
@@ -224,7 +248,9 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 						return false
 					}
 				} else {
-					Preconditions_checkState_boolean_Object(child.isTemplateLitString(), child.box_())
+					if !child.isTemplateLitString() {
+						panic(new_IllegalStateException_String(tostr_(child)))
+					}
 				}
 			}
 		}
@@ -260,7 +286,9 @@ func new_CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior(outer_
 
 func (this *CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior) beforeTraverseNode(t *NodeTraversal, n Node, parent Node) {
 	if (parent != 0) && NodeUtil_isTopLevel(parent) {
-		Preconditions_checkState_boolean_Object((this.outer_.topLevelStatementDraft == nil), n.box_())
+		if this.outer_.topLevelStatementDraft != nil {
+			panic(new_IllegalStateException_String(tostr_(n)))
+		}
 		this.outer_.topLevelStatementDraft = this.outer_.initializeDraftStatement(t.getChunk(), n)
 	}
 }
@@ -269,7 +297,7 @@ func (this *CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior) af
 	if this.outer_.topLevelStatementDraft == nil {
 		return
 	}
-	if Object_equals(n.box_(), this.outer_.topLevelStatementDraft.statementNode.box_()) {
+	if equalsId_(n, this.outer_.topLevelStatementDraft.statementNode) {
 		this.outer_.topLevelStatements.add(new_CrossChunkReferenceCollector_TopLevelStatement(this.outer_, this.outer_.topLevelStatementDraft))
 		this.outer_.topLevelStatementDraft = nil
 	} else if (addedReference != nil) && n.isName() {
@@ -332,7 +360,10 @@ func (this *CrossChunkReferenceCollector_TopLevelStatement) isDeclarationStateme
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatement) getDeclaredNameReference() *Reference {
-	return cast_[*Reference](Preconditions_checkNotNull(obj_(this.declaredNameReference)))
+	if this.declaredNameReference == nil {
+		panic(new_NullPointerException_0())
+	}
+	return this.declaredNameReference
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatement) getDeclaredValueNode() Node {

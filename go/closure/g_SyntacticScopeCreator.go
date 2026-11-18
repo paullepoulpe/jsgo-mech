@@ -66,7 +66,7 @@ func SyntacticScopeCreator_clinit() {
 		return
 	}
 	SyntacticScopeCreator_clinit_done = true
-	SyntacticScopeCreator_DEFAULT_REDECLARATION_HANDLER = icast_SyntacticScopeCreator_RedeclarationHandler(obj_(new_SyntacticScopeCreator_DefaultRedeclarationHandler()))
+	SyntacticScopeCreator_DEFAULT_REDECLARATION_HANDLER = new_SyntacticScopeCreator_DefaultRedeclarationHandler()
 
 }
 
@@ -76,19 +76,32 @@ type SyntacticScopeCreator_ScopeScanner struct {
 	redeclarationHandler          SyntacticScopeCreator_RedeclarationHandler
 	treatProvidesAsRedeclarations bool
 	inputId                       *InputId
-	changeRootSet                 SetOf[Node]
+	changeRootSet                 map[Node]struct{}
+	// input_ is compiler.getInput(inputFor_), looked up once per input instead of once per
+	// declaration (post-flip manual step).
+	input_    *CompilerInput
+	inputFor_ *InputId
 }
 
-func (this *SyntacticScopeCreator_ScopeScanner) init_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclarationHandler SyntacticScopeCreator_RedeclarationHandler, scope *Scope, changeRootSet SetOf[Node], treatProvidesAsRedeclarations bool) {
+func (this *SyntacticScopeCreator_ScopeScanner) currentInput_() *CompilerInput {
+	if this.inputFor_ != this.inputId || this.input_ == nil {
+		this.input_, this.inputFor_ = this.compiler_.getInput(this.inputId), this.inputId
+	}
+	return this.input_
+}
+
+func (this *SyntacticScopeCreator_ScopeScanner) init_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclarationHandler SyntacticScopeCreator_RedeclarationHandler, scope *Scope, changeRootSet map[Node]struct{}, treatProvidesAsRedeclarations bool) {
 	this.compiler_ = compiler
 	this.redeclarationHandler = redeclarationHandler
 	this.scope_ = scope
 	this.changeRootSet = changeRootSet
-	Preconditions_checkState(((changeRootSet == nil) || scope.isGlobal()))
+	if changeRootSet != nil && !scope.isGlobal() {
+		panic(new_IllegalStateException_0())
+	}
 	this.treatProvidesAsRedeclarations = treatProvidesAsRedeclarations
 }
 
-func new_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclarationHandler SyntacticScopeCreator_RedeclarationHandler, scope *Scope, changeRootSet SetOf[Node], treatProvidesAsRedeclarations bool) *SyntacticScopeCreator_ScopeScanner {
+func new_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclarationHandler SyntacticScopeCreator_RedeclarationHandler, scope *Scope, changeRootSet map[Node]struct{}, treatProvidesAsRedeclarations bool) *SyntacticScopeCreator_ScopeScanner {
 	this := &SyntacticScopeCreator_ScopeScanner{}
 	this.init_SyntacticScopeCreator_ScopeScanner(compiler, redeclarationHandler, scope, changeRootSet, treatProvidesAsRedeclarations)
 	return this
@@ -97,44 +110,48 @@ func new_SyntacticScopeCreator_ScopeScanner(compiler *AbstractCompiler, redeclar
 func (this *SyntacticScopeCreator_ScopeScanner) populate() {
 	var n Node = this.scope_.getRootNode()
 	this.inputId = NodeUtil_getInputId(n)
-	switch n.getToken() {
-	case Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION:
 		var fnNameNode Node = n.getFirstChild()
 		var args Node = fnNameNode.getNext()
-		Preconditions_checkState(args.isParamList())
+		if !args.isParamList() {
+			panic(new_IllegalStateException_0())
+		}
 		this.declareLHS(this.scope_, args)
 		var fnName string = fnNameNode.getString()
-		if !String_isEmpty(fnName) && NodeUtil_isFunctionExpression(n) {
+		if fnName != "" && NodeUtil_isFunctionExpression(n) {
 			this.declareVar(this.scope_, fnNameNode)
 		}
 		return
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		var classNameNode Node = n.getFirstChild()
 		if !classNameNode.isEmpty() && NodeUtil_isClassExpression(n) {
 			this.declareVar(this.scope_, classNameNode)
 		}
 		return
-	case Token_rhino_ROOT, Token_rhino_SCRIPT:
-		Preconditions_checkState_boolean_Object(this.scope_.isGlobal(), obj_(this.scope_))
+	case tokOrd1_ROOT, tokOrd1_SCRIPT:
+		if !this.scope_.isGlobal() {
+			panic(new_IllegalStateException_String(tostr_(this.scope_)))
+		}
 		this.scanVars(n, this.scope_, this.scope_)
 		return
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		this.scanVars(n, this.scope_, this.scope_)
 		return
-	case Token_rhino_FOR, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_FOR_IN, Token_rhino_SWITCH_BODY:
+	case tokOrd1_FOR, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_FOR_IN, tokOrd1_SWITCH_BODY:
 		this.scanVars(n, nil, this.scope_)
 		return
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if NodeUtil_isFunctionBlock(n) || NodeUtil_isClassStaticBlock(n) {
 			this.scanVars(n, this.scope_, this.scope_)
 		} else {
 			this.scanVars(n, nil, this.scope_)
 		}
 		return
-	case Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_MEMBER_FIELD_DEF:
 		return
 	default:
-		panic(new_RuntimeException_String(("Illegal scope root: " + objstr_(n.box_()))).self())
+		panic(new_RuntimeException_String(("Illegal scope root: " + tostr_(n))))
 	}
 }
 
@@ -142,64 +159,66 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareLHS(s *Scope, n Node) {
 	if n.hasOneChild() && n.getFirstChild().isName() {
 		this.declareVar(s, n.getFirstChild())
 	} else {
-		NodeUtil_visitLhsNodesInNode(n, &Consumer_tfn_Node{func(lhs Node) {
+		NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(lhs Node) {
 			this.declareVar(s, lhs)
-		}})
+		}}).accept)
 	}
 }
 
 func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Scope, blockScope *Scope) {
-	switch n.getToken() {
-	case Token_rhino_VAR:
+	switch n.ns_().token {
+	case tokOrd1_VAR:
 		if hoistScope != nil {
 			this.declareLHS(hoistScope, n)
 		}
 		return
-	case Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_LET, tokOrd1_CONST:
 		if blockScope != nil {
 			this.declareLHS(blockScope, n)
 		}
 		return
-	case Token_rhino_IMPORT:
+	case tokOrd1_IMPORT:
 		this.declareLHS(hoistScope, n)
 		return
-	case Token_rhino_EXPORT:
+	case tokOrd1_EXPORT:
 		this.scanVars(n.getFirstChild(), hoistScope, blockScope)
 		return
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		if NodeUtil_isFunctionExpression(n) || (blockScope == nil) {
 			return
 		}
 		var fnName string = n.getFirstChild().getString()
-		if String_isEmpty(fnName) {
+		if fnName == "" {
 			return
 		}
 		this.declareVar(blockScope, n.getFirstChild())
 		return
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		if NodeUtil_isClassExpression(n) || (blockScope == nil) {
 			return
 		}
 		var className string = n.getFirstChild().getString()
-		if String_isEmpty(className) {
+		if className == "" {
 			return
 		}
 		this.declareVar(blockScope, n.getFirstChild())
 		return
-	case Token_rhino_CATCH:
-		Preconditions_checkState_boolean_Object(n.hasTwoChildren(), n.box_())
+	case tokOrd1_CATCH:
+		if !n.hasTwoChildren() {
+			panic(new_IllegalStateException_String(tostr_(n)))
+		}
 		if blockScope != nil {
 			this.declareLHS(blockScope, n)
 		}
 		var block Node = n.getSecondChild()
 		this.scanVars(block, hoistScope, blockScope)
 		return
-	case Token_rhino_SCRIPT:
-		if (this.changeRootSet != nil) && !this.changeRootSet.contains(n.box_()) {
+	case tokOrd1_SCRIPT:
+		if (this.changeRootSet != nil) && !has_(this.changeRootSet, n) {
 			return
 		}
 		this.inputId = n.getInputId()
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		if hoistScope.isGlobal() {
 			var expr Node = n.getFirstChild()
 			if (expr != 0) && SyntacticScopeCreator_ScopeScanner_isLegacyGoogModule(expr) {
@@ -207,7 +226,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 			}
 			return
 		}
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		if !n.getParent().isScript() {
 			break
 		}
@@ -245,7 +264,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 }
 
 func (this *SyntacticScopeCreator_ScopeScanner) declareVar(s *Scope, n Node) {
-	Preconditions_checkState_boolean_String_Object((n.isName() || n.isImportStar()), "Invalid node for declareVar: %s", n.box_())
+	if !n.isName() && !n.isImportStar() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Invalid node for declareVar: %s", []any{n.box_()})))
+	}
 	var name string = n.getString()
 	var v *Var = cast_[*Var](s.getOwnSlot(name))
 	if v != nil {
@@ -256,7 +277,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareVar(s *Scope, n Node) {
 			v = nil
 		}
 	}
-	var input *CompilerInput = this.compiler_.getInput(this.inputId)
+	var input *CompilerInput = this.currentInput_()
 	if ((v != nil) || !SyntacticScopeCreator_ScopeScanner_isShadowingAllowed(name, s)) || ((s.isFunctionScope() || s.isFunctionBlockScope()) && (name == SyntacticScopeCreator_ARGUMENTS)) {
 		this.redeclarationHandler.onRedeclaration(s, name, n, input)
 	} else {
@@ -271,13 +292,13 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareImplicitGoogNamespaceFrom
 	}
 	var namespace string = namespaceNode.getString()
 	var root string = NodeUtil_getRootOfQualifiedNameString(namespace)
-	if String_isEmpty(root) {
+	if root == "" {
 		return
 	}
 	if this.treatProvidesAsRedeclarations {
 		var existing *Var = cast_[*Var](s.getOwnSlot(root))
 		if (existing != nil) && !existing.isImplicitGoogNamespace() {
-			this.redeclarationHandler.onRedeclaration(s, root, existing.getNode(), this.compiler_.getInput(this.inputId))
+			this.redeclarationHandler.onRedeclaration(s, root, existing.getNode(), this.currentInput_())
 		}
 	}
 	s.declareImplicitGoogNamespaceIfAbsent(root, namespaceNode)
@@ -285,7 +306,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareImplicitGoogNamespaceFrom
 
 func SyntacticScopeCreator_ScopeScanner_isShadowingAllowed(name string, s *Scope) bool {
 	if s.isFunctionBlockScope() {
-		var maybeParam *Var = cast_[*Var](cast_[*Scope](s.getParent().self()).getOwnSlot(name))
+		var maybeParam *Var = cast_[*Var](s.getParent().self().(*Scope).getOwnSlot(name))
 		return ((maybeParam == nil) || !maybeParam.isParam())
 	}
 	return true

@@ -58,12 +58,15 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	this.reachingDef = new_MustBeReachingVariableDef(this.cfg, this.compiler_, escaped, allVarsInFn)
 	this.reachingDef.analyze()
 	this.candidates = jnewTSet_(jtc_p_FlowSensitiveInlineVariables_Candidate)
-	NodeTraversal_traverse(this.compiler_, t.getScopeRoot(), icast_NodeTraversal_Callback(obj_(new_FlowSensitiveInlineVariables_GatherCandidates(this))))
+	NodeTraversal_traverse(this.compiler_, t.getScopeRoot(), new_FlowSensitiveInlineVariables_GatherCandidates(this))
 	this.reachingUses = new_MaybeReachingVariableUse(this.cfg, escaped, allVarsInFn)
 	this.reachingUses.analyze()
 	for !this.candidates.isEmpty() {
-		var c *FlowSensitiveInlineVariables_Candidate = cast_[*FlowSensitiveInlineVariables_Candidate](this.candidates.iterator().next())
-		var candidateVar *Var = cast_[*Var](Preconditions_checkNotNull(obj_(allVarsInFn.get(c.varName_))))
+		var c *FlowSensitiveInlineVariables_Candidate = cast_[*FlowSensitiveInlineVariables_Candidate](first_(this.candidates))
+		var candidateVar *Var = allVarsInFn.get(c.varName_)
+		if candidateVar == nil {
+			panic(new_NullPointerException_0())
+		}
 		if c.canInline(cast_[*Scope](candidateVar.getScope())) {
 			c.inlineVariable()
 			this.candidates.del(c)
@@ -121,21 +124,21 @@ func (this *FlowSensitiveInlineVariables) exitScope(t *NodeTraversal) {
 }
 
 func (this *FlowSensitiveInlineVariables) process_2(externs Node, root Node) {
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(any(this))).traverseRoots(externs, root)
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).traverseRoots(externs, root)
 }
 
 func (this *FlowSensitiveInlineVariables) visit(t *NodeTraversal, n Node, parent Node) {
 
 }
 
-func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot Node, predicate Predicate_baseOf[Node]) bool {
+func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot Node, predicate func(any) bool) bool {
 	{
 		var p Node = n
 		for ; p != expressionRoot; p = p.getParent() {
 			{
 				var cur Node = p.getNext()
 				for ; cur != 0; cur = cur.getNext() {
-					if predicate.apply(cur.box_()) {
+					if predicate(cur.box_()) {
 						return true
 					}
 				}
@@ -145,14 +148,14 @@ func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot No
 	return false
 }
 
-func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Node, predicate Predicate_baseOf[Node]) bool {
+func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Node, predicate func(any) bool) bool {
 	{
 		var p Node = n
 		for ; p != expressionRoot; p = p.getParent() {
 			var oldestSibling Node = p.getParent().getFirstChild()
 			if oldestSibling.isDestructuringPattern() {
 				if p.isDestructuringPattern() {
-					if (p.getNext() != 0) && predicate.apply(p.getNext().box_()) {
+					if (p.getNext() != 0) && predicate(p.getNext().box_()) {
 						return true
 					}
 				}
@@ -161,7 +164,7 @@ func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Nod
 			{
 				var cur Node = oldestSibling
 				for ; cur != p; cur = cur.getNext() {
-					if predicate.apply(cur.box_()) {
+					if predicate(cur.box_()) {
 						return true
 					}
 				}
@@ -232,7 +235,7 @@ func (this *FlowSensitiveInlineVariables_SideEffectPredicate) apply(n_ any) bool
 }
 
 func (this *FlowSensitiveInlineVariables_SideEffectPredicate) test(p0 any) bool {
-	return Predicate_base_test(icast_Predicate_base(any(this)), p0)
+	return Predicate_base_test(this, p0)
 }
 
 type FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback struct {
@@ -343,7 +346,9 @@ func (this *FlowSensitiveInlineVariables_Candidate) zero_FlowSensitiveInlineVari
 }
 
 func (this *FlowSensitiveInlineVariables_Candidate) init_FlowSensitiveInlineVariables_Candidate(varName string, defMetadata *MustBeReachingVariableDef_Definition, use Node, useCfgNode Node) {
-	Preconditions_checkArgument(use.isName())
+	if !use.isName() {
+		panic(new_IllegalArgumentException_0())
+	}
 	this.varName_ = varName
 	this.defMetadata = defMetadata
 	this.use = use
@@ -383,10 +388,10 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 		}
 	}
 	var sideEffectPredicateWithNames *FlowSensitiveInlineVariables_SideEffectPredicate = new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(this.outer_, namesToCheck)
-	if FlowSensitiveInlineVariables_checkPostExpressions(this.def, this.getDefCfgNode(), icast_Predicate_base(obj_(sideEffectPredicateWithNames))) {
+	if FlowSensitiveInlineVariables_checkPostExpressions(this.def, this.getDefCfgNode(), sideEffectPredicateWithNames.apply) {
 		return false
 	}
-	if FlowSensitiveInlineVariables_checkPreExpressions(this.use, this.useCfgNode, icast_Predicate_base(obj_(sideEffectPredicateWithNames))) {
+	if FlowSensitiveInlineVariables_checkPreExpressions(this.use, this.useCfgNode, sideEffectPredicateWithNames.apply) {
 		return false
 	}
 	if this.outer_.compiler_.getAstAnalyzer().mayHaveSideEffects(this.def.getLastChild()) {
@@ -405,7 +410,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 		return false
 	}
 	if NodeUtil_isStatementBlock(this.getDefCfgNode().getParent()) && (this.getDefCfgNode().getNext() != this.useCfgNode) {
-		var pathCheck *CheckPathsBetweenNodes[Node, *ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean[Node, *ControlFlowGraph_Branch](this.outer_.cfg.up_DiGraph(), cast_[DiGraph_DiGraphNode[Node]](this.outer_.cfg.getNode(this.getDefCfgNode())), cast_[DiGraph_DiGraphNode[Node]](this.outer_.cfg.getNode(this.useCfgNode)), icast_Predicate_base(obj_(this.outer_.sideEffectPredicate)), Predicates_alwaysTrue(), false)
+		var pathCheck *CheckPathsBetweenNodes[Node, ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean[Node, ControlFlowGraph_Branch](this.outer_.cfg.up_DiGraph(), cast_[DiGraph_DiGraphNode[Node]](this.outer_.cfg.getNode(this.getDefCfgNode())), cast_[DiGraph_DiGraphNode[Node]](this.outer_.cfg.getNode(this.useCfgNode)), icast_Predicate_base(obj_(this.outer_.sideEffectPredicate)), Predicates_alwaysTrue(), false)
 		if pathCheck.somePathsSatisfyPredicate() {
 			return false
 		}
@@ -430,7 +435,9 @@ func (this *FlowSensitiveInlineVariables_Candidate) inlineVariable() {
 	if this.def.isAssign() {
 		var rhs Node = this.def.getLastChild()
 		rhs.detach()
-		Preconditions_checkState(defParent.isExprResult())
+		if !defParent.isExprResult() {
+			panic(new_IllegalStateException_0())
+		}
 		for defParent.getParent().isLabel() {
 			defParent = defParent.getParent()
 		}
@@ -447,7 +454,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) inlineVariable() {
 			this.use.replaceWith(rhs)
 		}
 	} else {
-		panic(new_IllegalStateException_String("No other definitions can be inlined.").self())
+		panic(new_IllegalStateException_String("No other definitions can be inlined."))
 	}
 	this.outer_.compiler_.reportChangeToEnclosingScope(useParent)
 }
@@ -464,29 +471,27 @@ func (this *FlowSensitiveInlineVariables_Candidate) getNumUseInUseCfgNode(cfgNod
 }
 
 func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope *Scope) bool {
-	if NodeUtil_has(this.def.getLastChild(), &Predicate_base_tfn_Node{func(input Node) bool {
-		switch input.getToken() {
-		case Token_rhino_GETELEM, Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_CLASS, Token_rhino_ARRAYLIT, Token_rhino_OBJECTLIT, Token_rhino_REGEXP, Token_rhino_NEW:
+	if NodeUtil_has(this.def.getLastChild(), (&Predicate_base_tfn_Node{func(input Node) bool {
+		switch input.ns_().token {
+		case tokOrd1_GETELEM, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_CLASS, tokOrd1_ARRAYLIT, tokOrd1_OBJECTLIT, tokOrd1_REGEXP, tokOrd1_NEW:
 			return true
 		default:
 		}
 		return false
-		panic("unreachable")
-	}}, &Predicate_base_tfn_Node{func(input Node) bool {
+	}}).apply, &Predicate_base_tfn_Node{func(input Node) bool {
 		return !input.isFunction()
 	}}) {
 		return false
 	}
-	if NodeUtil_has(this.def.getLastChild(), &Predicate_base_tfn_Node{func(input Node) bool {
+	if NodeUtil_has(this.def.getLastChild(), (&Predicate_base_tfn_Node{func(input Node) bool {
 		if input.isName() {
 			var name string = input.getString()
-			if !String_isEmpty(name) && !usageScope.hasSlot(name) {
+			if name != "" && !usageScope.hasSlot(name) {
 				return true
 			}
 		}
 		return false
-		panic("unreachable")
-	}}, Predicates_alwaysTrue()) {
+	}}).apply, Predicates_alwaysTrue()) {
 		return false
 	}
 	return true
@@ -517,13 +522,13 @@ func new_FlowSensitiveInlineVariables_Candidate_1(outer_ *FlowSensitiveInlineVar
 }
 
 func (this *FlowSensitiveInlineVariables_Candidate_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		if (n.getString() == this.outer_.varName_) && n.hasChildren() {
 			this.outer_.def = n
 		}
 		return
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		var lhs Node = n.getFirstChild()
 		if lhs.isName() && (lhs.getString() == this.outer_.varName_) {
 			this.outer_.def = n
@@ -579,4 +584,40 @@ func (this *FlowSensitiveInlineVariables_Candidate_2) isAssignChain(child Node, 
 		}
 	}
 	return true
+}
+
+// visit: an object that is exactly a FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a FlowSensitiveInlineVariables_GatherCandidates calls its visit_impl directly (post-flip); others dispatch.
+func (this *FlowSensitiveInlineVariables_GatherCandidates) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*FlowSensitiveInlineVariables_GatherCandidates); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a FlowSensitiveInlineVariables_Candidate_1 calls its visit_impl directly (post-flip); others dispatch.
+func (this *FlowSensitiveInlineVariables_Candidate_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*FlowSensitiveInlineVariables_Candidate_1); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a FlowSensitiveInlineVariables_Candidate_2 calls its visit_impl directly (post-flip); others dispatch.
+func (this *FlowSensitiveInlineVariables_Candidate_2) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*FlowSensitiveInlineVariables_Candidate_2); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

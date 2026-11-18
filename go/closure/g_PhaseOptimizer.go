@@ -49,9 +49,7 @@ func new_PhaseOptimizer(comp *AbstractCompiler, tracker *PerformanceTracker) *Ph
 
 func (this *PhaseOptimizer) consume(factories ListOf[*PassFactory]) {
 	var currentLoop *PhaseOptimizer_Loop = new_PhaseOptimizer_Loop(this)
-	it_1 := foreach_(any(factories))
-	for it_1.next() {
-		var factory *PassFactory = cast_[*PassFactory](it_1.v)
+	for factory := range elemsAs_[*PassFactory](factories) {
 		if factory.isRunInFixedPointLoop() {
 			currentLoop.addLoopedPass(factory)
 		} else {
@@ -68,12 +66,12 @@ func (this *PhaseOptimizer) consume(factories ListOf[*PassFactory]) {
 }
 
 func (this *PhaseOptimizer) addOneTimePass(factory *PassFactory) {
-	this.passes.add(icast_CompilerPass(obj_(new_PhaseOptimizer_NamedPass(this, factory))))
+	this.passes.add(new_PhaseOptimizer_NamedPass(this, factory))
 }
 
 func (this *PhaseOptimizer) addFixedPointLoop() *PhaseOptimizer_Loop {
 	var loop *PhaseOptimizer_Loop = new_PhaseOptimizer_Loop(this)
-	this.passes.add(icast_CompilerPass(obj_(loop)))
+	this.passes.add(loop)
 	return loop
 }
 
@@ -91,7 +89,7 @@ func (this *PhaseOptimizer) process_2(externs Node, root Node) {
 	for it_1.next() {
 		var pass CompilerPass = it_1.v
 		if Platform_isThreadInterrupted() {
-			panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()).self())
+			panic(new_RuntimeException_Throwable(new_InterruptedException_0().up_Throwable()))
 		}
 		pass.process_2(externs, root)
 		if this.hasHaltingErrors() {
@@ -102,7 +100,7 @@ func (this *PhaseOptimizer) process_2(externs Node, root Node) {
 
 func (this *PhaseOptimizer) maybePrintAstHashcodes(passName string, root Node) {
 	if this.printAstHashcodes {
-		var hashCodeMsg string = ("AST hashCode after " + sstr_(passName) + ": " + istr_(int64(String_hashCode(this.compiler_.toSource_1(root)))))
+		var hashCodeMsg string = ("AST hashCode after " + sstr_(passName) + ": " + istr_(int64(utf16Hash_(this.compiler_.toSource_1(root)))))
 		PhaseOptimizer_logger.info(hashCodeMsg)
 	}
 }
@@ -111,22 +109,18 @@ func (this *PhaseOptimizer) maybeRunValidityCheck(passName string, externs Node,
 	if this.validityCheck == nil {
 		return
 	}
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_RuntimeException(ex_) {
-					var e *RuntimeException = to_RuntimeException(ex_)
-					panic(new_IllegalStateException_String_Throwable(("Validity checks failed for pass: " + sstr_(passName)), e.up_Throwable()).self())
-					return
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if p, ok := ex_.(RuntimeException_as); ok {
+				var e *RuntimeException = p.as_RuntimeException()
+				panic(new_IllegalStateException_String_Throwable(("Validity checks failed for pass: " + sstr_(passName)), e.up_Throwable()))
 			}
-		}()
-		this.validityCheck.create(this.compiler_).process_2(externs, root)
-		this.changeVerifier.checkRecordedChanges_2(passName, this.jsRoot)
-		return 0
+			panic(r_)
+		}
 	}()
+	this.validityCheck.create(this.compiler_).process_2(externs, root)
+	this.changeVerifier.checkRecordedChanges_2(passName, this.jsRoot)
 }
 
 func (this *PhaseOptimizer) hasHaltingErrors() bool {
@@ -145,7 +139,7 @@ var PhaseOptimizer_logger *Logger
 
 const PhaseOptimizer_START_TIME int32 = 0
 
-var PhaseOptimizer_CODE_REMOVING_PASSES *ImmutableList
+var PhaseOptimizer_CODE_REMOVING_PASSES *ImmutableList[string]
 
 const PhaseOptimizer_MAX_LOOPS int32 = 100
 const PhaseOptimizer_OPTIMIZE_LOOP_ERROR string = "Fixed point loop exceeded the maximum number of iterations."
@@ -158,48 +152,64 @@ func PhaseOptimizer_clinit() {
 	}
 	PhaseOptimizer_clinit_done = true
 	PhaseOptimizer_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.PhaseOptimizer").getName())
-	PhaseOptimizer_CODE_REMOVING_PASSES = ImmutableList_of_Object(strobj_(PassNames_PEEPHOLE_OPTIMIZATIONS))
+	PhaseOptimizer_CODE_REMOVING_PASSES = immutableListOf_(tc_string, PassNames_PEEPHOLE_OPTIMIZATIONS)
 
 }
 
-type PhaseOptimizer_State struct {
-	Enum
+type PhaseOptimizer_State uint8
+
+// PhaseOptimizer_State_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var PhaseOptimizer_State_enum_ = [2]Enum{
+	{self_: PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER, name_: "RUN_PASSES_NOT_RUN_IN_PREV_ITER", ordinal_: 0},
+	{self_: PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER, name_: "RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER", ordinal_: 1},
 }
 
-func (this *PhaseOptimizer_State) up_Enum() *Enum {
-	if this == nil {
+func (this PhaseOptimizer_State) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &PhaseOptimizer_State_enum_[this-1]
 }
 
-func (this *PhaseOptimizer_State) init_PhaseOptimizer_State(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this PhaseOptimizer_State) name() string { return this.enum_().name_ }
+
+func (this PhaseOptimizer_State) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_PhaseOptimizer_State(name_ string, ordinal_ int32) *PhaseOptimizer_State {
-	this := &PhaseOptimizer_State{}
-	this.self_ = this
-	this.init_PhaseOptimizer_State(name_, ordinal_)
+func (this PhaseOptimizer_State) toString() string { return this.enum_().name_ }
+
+func (this PhaseOptimizer_State) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this PhaseOptimizer_State) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func PhaseOptimizer_State_values() []*PhaseOptimizer_State {
-	return append([]*PhaseOptimizer_State(nil), PhaseOptimizer_State_values_...)
+func PhaseOptimizer_State_values() []PhaseOptimizer_State {
+	return append([]PhaseOptimizer_State(nil), PhaseOptimizer_State_values_...)
 }
 
-func PhaseOptimizer_State_valueOf(name string) *PhaseOptimizer_State {
+func PhaseOptimizer_State_valueOf(name string) PhaseOptimizer_State {
 	for _, v := range PhaseOptimizer_State_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("State", name))
 }
 
-var PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER *PhaseOptimizer_State
-var PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER *PhaseOptimizer_State
-var PhaseOptimizer_State_values_ []*PhaseOptimizer_State
+const PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER PhaseOptimizer_State = 1
+const PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER PhaseOptimizer_State = 2
+
+var PhaseOptimizer_State_values_ []PhaseOptimizer_State
 
 var PhaseOptimizer_State_clinit_done bool
 
@@ -208,9 +218,7 @@ func PhaseOptimizer_State_clinit() {
 		return
 	}
 	PhaseOptimizer_State_clinit_done = true
-	PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER = new_PhaseOptimizer_State("RUN_PASSES_NOT_RUN_IN_PREV_ITER", 0)
-	PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER = new_PhaseOptimizer_State("RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER", 1)
-	PhaseOptimizer_State_values_ = []*PhaseOptimizer_State{PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER, PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER}
+	PhaseOptimizer_State_values_ = []PhaseOptimizer_State{PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER, PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER}
 	registerEnum_("com.google.javascript.jscomp.PhaseOptimizer.State", enumValues_(PhaseOptimizer_State_values_))
 
 }
@@ -252,26 +260,21 @@ func (this *PhaseOptimizer_NamedPass) process_2(externs Node, root Node) {
 	this.outer_.compiler_.beforePass(this.name_)
 	this.factory.create(this.outer_.compiler_).process_2(externs, root)
 	this.outer_.compiler_.afterPass(this.name_)
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_IllegalStateException(ex_) {
-					var e *IllegalStateException = to_IllegalStateException(ex_)
-					panic(new_RuntimeException_String_Throwable(("Validity check failed for " + sstr_(this.name_)), e.up_Throwable()).self())
-					return
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if e, ok := ex_.(*IllegalStateException); ok {
+				panic(new_RuntimeException_String_Throwable(("Validity check failed for " + sstr_(this.name_)), e.up_Throwable()))
 			}
-		}()
-		var traceRuntime int64 = this.tracer.stop()
-		if this.outer_.tracker != nil {
-			this.outer_.tracker.recordPassStop(this.name_, traceRuntime)
+			panic(r_)
 		}
-		this.outer_.maybePrintAstHashcodes(this.name_, root)
-		this.outer_.maybeRunValidityCheck(this.name_, externs, root)
-		return 0
 	}()
+	var traceRuntime int64 = this.tracer.stop()
+	if this.outer_.tracker != nil {
+		this.outer_.tracker.recordPassStop(this.name_, traceRuntime)
+	}
+	this.outer_.maybePrintAstHashcodes(this.name_, root)
+	this.outer_.maybeRunValidityCheck(this.name_, externs, root)
 }
 
 func (this *PhaseOptimizer_NamedPass) toString() string {
@@ -334,13 +337,17 @@ func new_PhaseOptimizer_Loop(outer_ *PhaseOptimizer) *PhaseOptimizer_Loop {
 
 func (this *PhaseOptimizer_Loop) addLoopedPass(factory *PassFactory) {
 	var name string = factory.getName()
-	Preconditions_checkArgument_boolean_String_Object(!this.myNames.has(name), "Already a pass with name '%s' in this loop", strobj_(name))
+	if this.myNames.has(name) {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Already a pass with name '%s' in this loop", []any{strobj_(name)})))
+	}
 	this.myNames.add(name)
 	this.myPasses.add(new_PhaseOptimizer_NamedPass(this.outer_, factory))
 }
 
 func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
-	Preconditions_checkState_boolean_Object(!this.outer_.inLoop_, strobj_("Nested loops are forbidden"))
+	if this.outer_.inLoop_ {
+		panic(new_IllegalStateException_String("Nested loops are forbidden"))
+	}
 	this.outer_.inLoop_ = true
 	this.isCodeRemovalLoopField = this.isCodeRemovalLoop()
 	this.scopeHandler = new_PhaseOptimizer_ScopedChangeHandler(this.outer_)
@@ -354,67 +361,63 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 	var madeChanges *JTSet[*PhaseOptimizer_NamedPass] = jnewTSet_(jtc_p_PhaseOptimizer_NamedPass)
 	var runInPrevIter *JTSet[*PhaseOptimizer_NamedPass] = jnewTSet_(jtc_p_PhaseOptimizer_NamedPass)
 	var didNotMakeChanges *JTSet[*PhaseOptimizer_NamedPass] = jnewTSet_(jtc_p_PhaseOptimizer_NamedPass)
-	var state *PhaseOptimizer_State = PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER
+	var state PhaseOptimizer_State = PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER
 	var lastIterMadeChanges bool
 	var count int32 = 1
 	var astSize int32 = NodeUtil_countAstSize(root)
 	var previousAstSize int32 = astSize
-	code_3 := func() (code_ int) {
-		defer func() {
-			this.outer_.inLoop_ = false
-			this.outer_.changeTracker.removeChangeHandler(icast_CodeChangeHandler(obj_(this.scopeHandler)))
-		}()
-		for {
-			if (count > this.outer_.optimizationLoopMaxIterations) && this.isCodeRemovalLoopField {
-				return 1
-			}
-			if count > PhaseOptimizer_MAX_LOOPS {
-				this.outer_.compiler_.throwInternalError(PhaseOptimizer_OPTIMIZE_LOOP_ERROR, nil)
-			}
-			count++
-			lastIterMadeChanges = false
-			it_5 := this.myPasses.each()
-			for it_5.next() {
-				var pass *PhaseOptimizer_NamedPass = it_5.v
-				if (((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !runInPrevIter.has(pass)) && !didNotMakeChanges.has(pass)) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && madeChanges.has(pass)) {
-					this.outer_.changeTracker.incrementChangeStamp()
-					this.outer_.currentPass = pass
-					pass.process_2(externs, root)
-					runInPrevIter.add(pass)
-					this.outer_.lastRuns.put(pass, any(int32(this.outer_.changeTracker.getChangeStamp())))
-					if this.outer_.hasHaltingErrors() {
-						return 1
-					} else if this.scopeHandler.hasCodeChangedSinceLastCall() {
-						madeChanges.add(pass)
-						didNotMakeChanges.clear()
-						lastIterMadeChanges = true
-					} else {
-						madeChanges.del(pass)
-						didNotMakeChanges.add(pass)
-					}
+	defer func() {
+		this.outer_.inLoop_ = false
+		this.outer_.changeTracker.removeChangeHandler(icast_CodeChangeHandler(obj_(this.scopeHandler)))
+	}()
+	for {
+		if (count > this.outer_.optimizationLoopMaxIterations) && this.isCodeRemovalLoopField {
+			return
+		}
+		if count > PhaseOptimizer_MAX_LOOPS {
+			this.outer_.compiler_.throwInternalError(PhaseOptimizer_OPTIMIZE_LOOP_ERROR, nil)
+		}
+		count++
+		lastIterMadeChanges = false
+		it_5 := this.myPasses.each()
+		for it_5.next() {
+			var pass *PhaseOptimizer_NamedPass = it_5.v
+			if (((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !runInPrevIter.has(pass)) && !didNotMakeChanges.has(pass)) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && madeChanges.has(pass)) {
+				this.outer_.changeTracker.incrementChangeStamp()
+				this.outer_.currentPass = pass
+				pass.process_2(externs, root)
+				runInPrevIter.add(pass)
+				this.outer_.lastRuns.put(pass, any(int32(this.outer_.changeTracker.getChangeStamp())))
+				if this.outer_.hasHaltingErrors() {
+					return
+				} else if this.scopeHandler.hasCodeChangedSinceLastCall() {
+					madeChanges.add(pass)
+					didNotMakeChanges.clear()
+					lastIterMadeChanges = true
 				} else {
-					runInPrevIter.del(pass)
-				}
-			}
-			previousAstSize = astSize
-			astSize = NodeUtil_countAstSize(root)
-			if state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER {
-				if lastIterMadeChanges && this.isAstSufficientlyChanging(previousAstSize, astSize) {
-					state = PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER
-				} else {
-					return 1
+					madeChanges.del(pass)
+					didNotMakeChanges.add(pass)
 				}
 			} else {
-				Preconditions_checkState((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER))
-				if !lastIterMadeChanges || !this.isAstSufficientlyChanging(previousAstSize, astSize) {
-					state = PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER
-				}
+				runInPrevIter.del(pass)
 			}
 		}
-		return 0
-	}()
-	if code_3 == 1 {
-		return
+		previousAstSize = astSize
+		astSize = NodeUtil_countAstSize(root)
+		if state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER {
+			if lastIterMadeChanges && this.isAstSufficientlyChanging(previousAstSize, astSize) {
+				state = PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER
+			} else {
+				return
+			}
+		} else {
+			if state != PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER {
+				panic(new_IllegalStateException_0())
+			}
+			if !lastIterMadeChanges || !this.isAstSufficientlyChanging(previousAstSize, astSize) {
+				state = PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER
+			}
+		}
 	}
 }
 
@@ -439,7 +442,7 @@ func (this *PhaseOptimizer_Loop) isCodeRemovalLoop() bool {
 	it_1 := this.myPasses.each()
 	for it_1.next() {
 		var pass *PhaseOptimizer_NamedPass = it_1.v
-		if Collection_contains_s(PhaseOptimizer_CODE_REMOVING_PASSES, pass.name_) {
+		if Collection_contains_s(PhaseOptimizer_CODE_REMOVING_PASSES.asImm(), pass.name_) {
 			return true
 		}
 	}

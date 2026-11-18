@@ -21,7 +21,7 @@ func ManageClosureUnawareCode_unwrap(compiler *AbstractCompiler) *ManageClosureU
 }
 
 func (this *ManageClosureUnawareCode) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode())))
+	NodeTraversal_traverse(this.compiler_, root, new_ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode())
 }
 
 type ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode struct {
@@ -57,14 +57,24 @@ func (this *ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode) tryUnwra
 		return
 	}
 	var shadowScript Node = shadowAstRoot.getOnlyChild()
-	Preconditions_checkState_boolean_Object(shadowScript.isScript(), shadowScript.box_())
-	Preconditions_checkState_boolean_Object(shadowScript.hasOneChild(), shadowScript.box_())
+	if !shadowScript.isScript() {
+		panic(new_IllegalStateException_String(tostr_(shadowScript)))
+	}
+	if !shadowScript.hasOneChild() {
+		panic(new_IllegalStateException_String(tostr_(shadowScript)))
+	}
 	var exprResult Node = shadowScript.getOnlyChild()
-	Preconditions_checkState_boolean_Object(exprResult.isExprResult(), exprResult.box_())
+	if !exprResult.isExprResult() {
+		panic(new_IllegalStateException_String(tostr_(exprResult)))
+	}
 	var callNode Node = exprResult.getOnlyChild()
-	Preconditions_checkState_boolean_Object(callNode.isCall(), callNode.box_())
+	if !callNode.isCall() {
+		panic(new_IllegalStateException_String(tostr_(callNode)))
+	}
 	var originalCodeFunction Node = callNode.getLastChild()
-	Preconditions_checkState_boolean_Object(originalCodeFunction.isFunction(), originalCodeFunction.box_())
+	if !originalCodeFunction.isFunction() {
+		panic(new_IllegalStateException_String(tostr_(originalCodeFunction)))
+	}
 	originalCodeFunction.detach()
 	n.replaceWith(originalCodeFunction)
 }

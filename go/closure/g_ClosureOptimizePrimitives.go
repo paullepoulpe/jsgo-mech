@@ -20,7 +20,7 @@ func new_ClosureOptimizePrimitives(compiler *AbstractCompiler, canUseEs6Syntax b
 
 func (this *ClosureOptimizePrimitives) process_2(externs Node, root Node) {
 	var pass *ClosureOptimizePrimitives_FindPrimitives = new_ClosureOptimizePrimitives_FindPrimitives(this)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(pass)))
+	NodeTraversal_traverse(this.compiler_, root, pass)
 }
 
 func (this *ClosureOptimizePrimitives) processObjectCreateCall(callNode Node) {
@@ -131,7 +131,6 @@ func (this *ClosureOptimizePrimitives) isOptimizableKey(curParam Node) bool {
 	} else {
 		return (curParam.isStringLit() || curParam.isNumber())
 	}
-	panic("unreachable")
 }
 
 var ClosureOptimizePrimitives_DUPLICATE_SET_MEMBER *DiagnosticType
@@ -186,4 +185,13 @@ func (this *ClosureOptimizePrimitives_FindPrimitives) visit_impl(t *NodeTraversa
 			this.outer_.processObjectCreateSetCall(n)
 		}
 	}
+}
+
+// visit: an object that is exactly a ClosureOptimizePrimitives_FindPrimitives calls its visit_impl directly (post-flip); others dispatch.
+func (this *ClosureOptimizePrimitives_FindPrimitives) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ClosureOptimizePrimitives_FindPrimitives); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

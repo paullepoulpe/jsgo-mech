@@ -21,8 +21,8 @@ type CodingConvention interface {
 	extractClassNameIfRequire(Node, Node) Optional[string]
 	getExportPropertyFunction() string
 	getExportSymbolFunction() string
-	identifyTypeDeclarationCall(Node) List
-	applySubclassRelationship(*NominalTypeBuilder, *NominalTypeBuilder, *CodingConvention_SubclassType)
+	identifyTypeDeclarationCall(Node) []string
+	applySubclassRelationship(*NominalTypeBuilder, *NominalTypeBuilder, CodingConvention_SubclassType)
 	getAbstractMethodName() string
 	getSingletonGetterClassName(Node) string
 	applySingletonGetter(*NominalTypeBuilder, *FunctionType)
@@ -89,44 +89,64 @@ func new_CodingConvention_Cache(cacheObj Node, key Node, valueFn Node, keyFn Nod
 	return this
 }
 
-type CodingConvention_SubclassType struct {
-	Enum
+type CodingConvention_SubclassType uint8
+
+// CodingConvention_SubclassType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CodingConvention_SubclassType_enum_ = [2]Enum{
+	{self_: CodingConvention_SubclassType_INHERITS, name_: "INHERITS", ordinal_: 0},
+	{self_: CodingConvention_SubclassType_MIXIN, name_: "MIXIN", ordinal_: 1},
 }
 
-func (this *CodingConvention_SubclassType) up_Enum() *Enum {
-	if this == nil {
+func (this CodingConvention_SubclassType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CodingConvention_SubclassType_enum_[this-1]
 }
 
-func (this *CodingConvention_SubclassType) init_CodingConvention_SubclassType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CodingConvention_SubclassType) name() string {
+	return this.enum_().name_
 }
 
-func new_CodingConvention_SubclassType(name_ string, ordinal_ int32) *CodingConvention_SubclassType {
-	this := &CodingConvention_SubclassType{}
-	this.self_ = this
-	this.init_CodingConvention_SubclassType(name_, ordinal_)
+func (this CodingConvention_SubclassType) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this CodingConvention_SubclassType) toString() string {
+	return this.enum_().name_
+}
+
+func (this CodingConvention_SubclassType) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this CodingConvention_SubclassType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CodingConvention_SubclassType_values() []*CodingConvention_SubclassType {
-	return append([]*CodingConvention_SubclassType(nil), CodingConvention_SubclassType_values_...)
+func CodingConvention_SubclassType_values() []CodingConvention_SubclassType {
+	return append([]CodingConvention_SubclassType(nil), CodingConvention_SubclassType_values_...)
 }
 
-func CodingConvention_SubclassType_valueOf(name string) *CodingConvention_SubclassType {
+func CodingConvention_SubclassType_valueOf(name string) CodingConvention_SubclassType {
 	for _, v := range CodingConvention_SubclassType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("SubclassType", name))
 }
 
-var CodingConvention_SubclassType_INHERITS *CodingConvention_SubclassType
-var CodingConvention_SubclassType_MIXIN *CodingConvention_SubclassType
-var CodingConvention_SubclassType_values_ []*CodingConvention_SubclassType
+const CodingConvention_SubclassType_INHERITS CodingConvention_SubclassType = 1
+const CodingConvention_SubclassType_MIXIN CodingConvention_SubclassType = 2
+
+var CodingConvention_SubclassType_values_ []CodingConvention_SubclassType
 
 var CodingConvention_SubclassType_clinit_done bool
 
@@ -135,32 +155,34 @@ func CodingConvention_SubclassType_clinit() {
 		return
 	}
 	CodingConvention_SubclassType_clinit_done = true
-	CodingConvention_SubclassType_INHERITS = new_CodingConvention_SubclassType("INHERITS", 0)
-	CodingConvention_SubclassType_MIXIN = new_CodingConvention_SubclassType("MIXIN", 1)
-	CodingConvention_SubclassType_values_ = []*CodingConvention_SubclassType{CodingConvention_SubclassType_INHERITS, CodingConvention_SubclassType_MIXIN}
+	CodingConvention_SubclassType_values_ = []CodingConvention_SubclassType{CodingConvention_SubclassType_INHERITS, CodingConvention_SubclassType_MIXIN}
 	registerEnum_("com.google.javascript.jscomp.CodingConvention.SubclassType", enumValues_(CodingConvention_SubclassType_values_))
 
 }
 
 type CodingConvention_SubclassRelationship struct {
-	type__         *CodingConvention_SubclassType
+	type__         CodingConvention_SubclassType
 	subclassName   Optional[string]
 	superclassName Optional[string]
 }
 
-func (this *CodingConvention_SubclassRelationship) init_CodingConvention_SubclassRelationship(type_ *CodingConvention_SubclassType, subclassNode Node, superclassNode Node) {
-	Preconditions_checkArgument_boolean_String_Object(subclassNode.isQualifiedName(), "Expected qualified name, found: %s", subclassNode.box_())
-	Preconditions_checkArgument_boolean_String_Object(superclassNode.isQualifiedName(), "Expected qualified name, found: %s", superclassNode.box_())
+func (this *CodingConvention_SubclassRelationship) init_CodingConvention_SubclassRelationship(type_ CodingConvention_SubclassType, subclassNode Node, superclassNode Node) {
+	if !subclassNode.isQualifiedName() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", []any{subclassNode.box_()})))
+	}
+	if !superclassNode.isQualifiedName() {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected qualified name, found: %s", []any{superclassNode.box_()})))
+	}
 	this.type__ = type_
 	this.subclassName = Optional_of[string](subclassNode.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 	this.superclassName = Optional_of[string](superclassNode.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 }
 
-func new_CodingConvention_SubclassRelationship(type_ *CodingConvention_SubclassType, subclassNode Node, superclassNode Node) *CodingConvention_SubclassRelationship {
+func new_CodingConvention_SubclassRelationship(type_ CodingConvention_SubclassType, subclassNode Node, superclassNode Node) *CodingConvention_SubclassRelationship {
 	this := &CodingConvention_SubclassRelationship{}
 	this.init_CodingConvention_SubclassRelationship(type_, subclassNode, superclassNode)
 	return this
@@ -186,27 +208,29 @@ func new_CodingConvention_ObjectLiteralCast(typeName Optional[string], objectNod
 
 type CodingConvention_AssertionFunctionSpec struct {
 	getFunctionName_     Optional[string]
-	getClosurePrimitive_ *ClosurePrimitive
-	getAssertionKind_    *CodingConvention_AssertionFunctionSpec_AssertionKind
+	getClosurePrimitive_ ClosurePrimitive
+	getAssertionKind_    CodingConvention_AssertionFunctionSpec_AssertionKind
 	getParamIndex_       int32
 }
 
-func (this *CodingConvention_AssertionFunctionSpec) init_CodingConvention_AssertionFunctionSpec(getFunctionName Optional[string], getClosurePrimitive *ClosurePrimitive, getAssertionKind *CodingConvention_AssertionFunctionSpec_AssertionKind, getParamIndex int32) {
-	Objects_requireNonNull(obj_(getAssertionKind), "getAssertionKind")
+func (this *CodingConvention_AssertionFunctionSpec) init_CodingConvention_AssertionFunctionSpec(getFunctionName Optional[string], getClosurePrimitive ClosurePrimitive, getAssertionKind CodingConvention_AssertionFunctionSpec_AssertionKind, getParamIndex int32) {
+	if getAssertionKind == 0 {
+		panic(new_NullPointerException_String("getAssertionKind"))
+	}
 	this.getFunctionName_ = getFunctionName
 	this.getClosurePrimitive_ = getClosurePrimitive
 	this.getAssertionKind_ = getAssertionKind
 	this.getParamIndex_ = getParamIndex
 }
 
-func new_CodingConvention_AssertionFunctionSpec(getFunctionName Optional[string], getClosurePrimitive *ClosurePrimitive, getAssertionKind *CodingConvention_AssertionFunctionSpec_AssertionKind, getParamIndex int32) *CodingConvention_AssertionFunctionSpec {
+func new_CodingConvention_AssertionFunctionSpec(getFunctionName Optional[string], getClosurePrimitive ClosurePrimitive, getAssertionKind CodingConvention_AssertionFunctionSpec_AssertionKind, getParamIndex int32) *CodingConvention_AssertionFunctionSpec {
 	this := &CodingConvention_AssertionFunctionSpec{}
 	this.init_CodingConvention_AssertionFunctionSpec(getFunctionName, getClosurePrimitive, getAssertionKind, getParamIndex)
 	return this
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) toString() string {
-	return ("AssertionFunctionSpec{functionName=" + sstr_(this.getFunctionName_.orElse("null")) + ", closurePrimitive=" + objstr_(obj_(this.getClosurePrimitive_)) + ", assertionKind=" + objstr_(obj_(this.getAssertionKind_)) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
+	return ("AssertionFunctionSpec{functionName=" + sstr_(this.getFunctionName_.orElse("null")) + ", closurePrimitive=" + tostr_(this.getClosurePrimitive_) + ", assertionKind=" + tostr_(this.getAssertionKind_) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
 }
 
 func CodingConvention_AssertionFunctionSpec_builder() *CodingConvention_AssertionFunctionSpec_Builder {
@@ -223,7 +247,7 @@ func CodingConvention_AssertionFunctionSpec_forMatchesReturn() *CodingConvention
 
 func (this *CodingConvention_AssertionFunctionSpec) getId() any {
 	return func() any {
-		if this.getClosurePrimitive() != nil {
+		if this.getClosurePrimitive() != 0 {
 			return obj_(this.getClosurePrimitive())
 		}
 		return strobj_(this.getFunctionName().orElse(nullstr_))
@@ -244,11 +268,11 @@ func (this *CodingConvention_AssertionFunctionSpec) getFunctionName() Optional[s
 	return this.getFunctionName_
 }
 
-func (this *CodingConvention_AssertionFunctionSpec) getClosurePrimitive() *ClosurePrimitive {
+func (this *CodingConvention_AssertionFunctionSpec) getClosurePrimitive() ClosurePrimitive {
 	return this.getClosurePrimitive_
 }
 
-func (this *CodingConvention_AssertionFunctionSpec) getAssertionKind() *CodingConvention_AssertionFunctionSpec_AssertionKind {
+func (this *CodingConvention_AssertionFunctionSpec) getAssertionKind() CodingConvention_AssertionFunctionSpec_AssertionKind {
 	return this.getAssertionKind_
 }
 
@@ -261,56 +285,76 @@ func (this *CodingConvention_AssertionFunctionSpec) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.getFunctionName_.box_(), o.getFunctionName_.box_()) && Objects_equals(obj_(this.getClosurePrimitive_), obj_(o.getClosurePrimitive_)) && Objects_equals(obj_(this.getAssertionKind_), obj_(o.getAssertionKind_)) && this.getParamIndex_ == o.getParamIndex_
+	return true && Objects_equals(this.getFunctionName_.box_(), o.getFunctionName_.box_()) && this.getClosurePrimitive_ == o.getClosurePrimitive_ && this.getAssertionKind_ == o.getAssertionKind_ && this.getParamIndex_ == o.getParamIndex_
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(this.getFunctionName_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.getClosurePrimitive_))
-	h = h*31 + Objects_hashCode(obj_(this.getAssertionKind_))
-	h = h*31 + Objects_hashCode(any(int32(this.getParamIndex_)))
+	h = h*31 + objhashId_(this.getClosurePrimitive_)
+	h = h*31 + objhashId_(this.getAssertionKind_)
+	h = h*31 + int32(this.getParamIndex_)
 	return h
 }
 
-type CodingConvention_AssertionFunctionSpec_AssertionKind struct {
-	Enum
+type CodingConvention_AssertionFunctionSpec_AssertionKind uint8
+
+// CodingConvention_AssertionFunctionSpec_AssertionKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CodingConvention_AssertionFunctionSpec_AssertionKind_enum_ = [2]Enum{
+	{self_: CodingConvention_AssertionFunctionSpec_AssertionKind_TRUTHY, name_: "TRUTHY", ordinal_: 0},
+	{self_: CodingConvention_AssertionFunctionSpec_AssertionKind_MATCHES_RETURN_TYPE, name_: "MATCHES_RETURN_TYPE", ordinal_: 1},
 }
 
-func (this *CodingConvention_AssertionFunctionSpec_AssertionKind) up_Enum() *Enum {
-	if this == nil {
+func (this CodingConvention_AssertionFunctionSpec_AssertionKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CodingConvention_AssertionFunctionSpec_AssertionKind_enum_[this-1]
 }
 
-func (this *CodingConvention_AssertionFunctionSpec_AssertionKind) init_CodingConvention_AssertionFunctionSpec_AssertionKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CodingConvention_AssertionFunctionSpec_AssertionKind) name() string {
+	return this.enum_().name_
 }
 
-func new_CodingConvention_AssertionFunctionSpec_AssertionKind(name_ string, ordinal_ int32) *CodingConvention_AssertionFunctionSpec_AssertionKind {
-	this := &CodingConvention_AssertionFunctionSpec_AssertionKind{}
-	this.self_ = this
-	this.init_CodingConvention_AssertionFunctionSpec_AssertionKind(name_, ordinal_)
+func (this CodingConvention_AssertionFunctionSpec_AssertionKind) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this CodingConvention_AssertionFunctionSpec_AssertionKind) toString() string {
+	return this.enum_().name_
+}
+
+func (this CodingConvention_AssertionFunctionSpec_AssertionKind) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this CodingConvention_AssertionFunctionSpec_AssertionKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CodingConvention_AssertionFunctionSpec_AssertionKind_values() []*CodingConvention_AssertionFunctionSpec_AssertionKind {
-	return append([]*CodingConvention_AssertionFunctionSpec_AssertionKind(nil), CodingConvention_AssertionFunctionSpec_AssertionKind_values_...)
+func CodingConvention_AssertionFunctionSpec_AssertionKind_values() []CodingConvention_AssertionFunctionSpec_AssertionKind {
+	return append([]CodingConvention_AssertionFunctionSpec_AssertionKind(nil), CodingConvention_AssertionFunctionSpec_AssertionKind_values_...)
 }
 
-func CodingConvention_AssertionFunctionSpec_AssertionKind_valueOf(name string) *CodingConvention_AssertionFunctionSpec_AssertionKind {
+func CodingConvention_AssertionFunctionSpec_AssertionKind_valueOf(name string) CodingConvention_AssertionFunctionSpec_AssertionKind {
 	for _, v := range CodingConvention_AssertionFunctionSpec_AssertionKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("AssertionKind", name))
 }
 
-var CodingConvention_AssertionFunctionSpec_AssertionKind_TRUTHY *CodingConvention_AssertionFunctionSpec_AssertionKind
-var CodingConvention_AssertionFunctionSpec_AssertionKind_MATCHES_RETURN_TYPE *CodingConvention_AssertionFunctionSpec_AssertionKind
-var CodingConvention_AssertionFunctionSpec_AssertionKind_values_ []*CodingConvention_AssertionFunctionSpec_AssertionKind
+const CodingConvention_AssertionFunctionSpec_AssertionKind_TRUTHY CodingConvention_AssertionFunctionSpec_AssertionKind = 1
+const CodingConvention_AssertionFunctionSpec_AssertionKind_MATCHES_RETURN_TYPE CodingConvention_AssertionFunctionSpec_AssertionKind = 2
+
+var CodingConvention_AssertionFunctionSpec_AssertionKind_values_ []CodingConvention_AssertionFunctionSpec_AssertionKind
 
 var CodingConvention_AssertionFunctionSpec_AssertionKind_clinit_done bool
 
@@ -319,17 +363,15 @@ func CodingConvention_AssertionFunctionSpec_AssertionKind_clinit() {
 		return
 	}
 	CodingConvention_AssertionFunctionSpec_AssertionKind_clinit_done = true
-	CodingConvention_AssertionFunctionSpec_AssertionKind_TRUTHY = new_CodingConvention_AssertionFunctionSpec_AssertionKind("TRUTHY", 0)
-	CodingConvention_AssertionFunctionSpec_AssertionKind_MATCHES_RETURN_TYPE = new_CodingConvention_AssertionFunctionSpec_AssertionKind("MATCHES_RETURN_TYPE", 1)
-	CodingConvention_AssertionFunctionSpec_AssertionKind_values_ = []*CodingConvention_AssertionFunctionSpec_AssertionKind{CodingConvention_AssertionFunctionSpec_AssertionKind_TRUTHY, CodingConvention_AssertionFunctionSpec_AssertionKind_MATCHES_RETURN_TYPE}
+	CodingConvention_AssertionFunctionSpec_AssertionKind_values_ = []CodingConvention_AssertionFunctionSpec_AssertionKind{CodingConvention_AssertionFunctionSpec_AssertionKind_TRUTHY, CodingConvention_AssertionFunctionSpec_AssertionKind_MATCHES_RETURN_TYPE}
 	registerEnum_("com.google.javascript.jscomp.CodingConvention.AssertionFunctionSpec.AssertionKind", enumValues_(CodingConvention_AssertionFunctionSpec_AssertionKind_values_))
 
 }
 
 type CodingConvention_AssertionFunctionSpec_Builder struct {
 	functionName     Optional[string]
-	closurePrimitive *ClosurePrimitive
-	assertionKind    *CodingConvention_AssertionFunctionSpec_AssertionKind
+	closurePrimitive ClosurePrimitive
+	assertionKind    CodingConvention_AssertionFunctionSpec_AssertionKind
 	paramIndex       int32
 	set0             int8
 }
@@ -353,7 +395,7 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) setFunctionName(name
 	return this
 }
 
-func (this *CodingConvention_AssertionFunctionSpec_Builder) setClosurePrimitive(primitive *ClosurePrimitive) *CodingConvention_AssertionFunctionSpec_Builder {
+func (this *CodingConvention_AssertionFunctionSpec_Builder) setClosurePrimitive(primitive ClosurePrimitive) *CodingConvention_AssertionFunctionSpec_Builder {
 	this.closurePrimitive = primitive
 	return this
 }
@@ -364,31 +406,33 @@ func (this *CodingConvention_AssertionFunctionSpec_Builder) setParamIndex(paramI
 	return this
 }
 
-func (this *CodingConvention_AssertionFunctionSpec_Builder) setAssertionKind(kind *CodingConvention_AssertionFunctionSpec_AssertionKind) *CodingConvention_AssertionFunctionSpec_Builder {
-	if kind == nil {
-		panic(new_NullPointerException_String("Null assertionKind").self())
+func (this *CodingConvention_AssertionFunctionSpec_Builder) setAssertionKind(kind CodingConvention_AssertionFunctionSpec_AssertionKind) *CodingConvention_AssertionFunctionSpec_Builder {
+	if kind == 0 {
+		panic(new_NullPointerException_String("Null assertionKind"))
 	}
 	this.assertionKind = kind
 	return this
 }
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) autoBuild() *CodingConvention_AssertionFunctionSpec {
-	if (int32(this.set0) != 1) || (this.assertionKind == nil) {
-		var missing *StringBuilder = new_StringBuilder()
-		if this.assertionKind == nil {
+	if (int32(this.set0) != 1) || (this.assertionKind == 0) {
+		var missing strBuilder_
+		if this.assertionKind == 0 {
 			missing.append(" assertionKind")
 		}
 		if (int32(this.set0) & 1) == 0 {
 			missing.append(" paramIndex")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_CodingConvention_AssertionFunctionSpec(this.functionName, this.closurePrimitive, this.assertionKind, this.paramIndex)
 }
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) build() *CodingConvention_AssertionFunctionSpec {
 	var spec *CodingConvention_AssertionFunctionSpec = this.autoBuild()
-	Preconditions_checkState_boolean_Object((spec.getFunctionName().isPresent() || (spec.getClosurePrimitive() != nil)), strobj_("Must provide a function name or ClosurePrimitive for each spec"))
+	if !spec.getFunctionName().isPresent() && spec.getClosurePrimitive() == 0 {
+		panic(new_IllegalStateException_String("Must provide a function name or ClosurePrimitive for each spec"))
+	}
 	return spec
 }
 
@@ -408,9 +452,7 @@ func new_CodingConvention_AssertionFunctionLookup(internal ImmutableMapOf[any, *
 
 func CodingConvention_AssertionFunctionLookup_of(specs CollectionOf[*CodingConvention_AssertionFunctionSpec]) *CodingConvention_AssertionFunctionLookup {
 	var idToSpecMapBuilder ImmutableMap_BuilderOf[any, *CodingConvention_AssertionFunctionSpec] = ImmutableMap_builder()
-	it_1 := foreach_(any(specs))
-	for it_1.next() {
-		var spec *CodingConvention_AssertionFunctionSpec = cast_[*CodingConvention_AssertionFunctionSpec](it_1.v)
+	for spec := range elemsAs_[*CodingConvention_AssertionFunctionSpec](specs) {
 		idToSpecMapBuilder.put(spec.getId(), obj_(spec))
 	}
 	var idToSpecMap ImmutableMapOf[any, *CodingConvention_AssertionFunctionSpec] = idToSpecMapBuilder.buildOrThrow()
@@ -419,7 +461,7 @@ func CodingConvention_AssertionFunctionLookup_of(specs CollectionOf[*CodingConve
 
 func (this *CodingConvention_AssertionFunctionLookup) lookupByCallee(callee Node) *CodingConvention_AssertionFunctionSpec {
 	var fnType *FunctionType = JSType_toMaybeFunctionType(callee.getJSType())
-	if (fnType != nil) && (fnType.getClosurePrimitive() != nil) {
+	if (fnType != nil) && (fnType.getClosurePrimitive() != 0) {
 		var spec *CodingConvention_AssertionFunctionSpec = cast_[*CodingConvention_AssertionFunctionSpec](this.internal.get(obj_(fnType.getClosurePrimitive())))
 		if spec != nil {
 			return spec

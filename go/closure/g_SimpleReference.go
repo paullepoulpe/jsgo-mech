@@ -10,11 +10,6 @@ type SimpleReference[T StaticTypedSlot] struct {
 
 func (this *SimpleReference[T]) isa_SimpleReference_() {}
 
-func is_SimpleReference(v any) bool {
-	_, ok := v.(interface{ isa_SimpleReference_() })
-	return ok
-}
-
 func (this *SimpleReference[T]) as_SimpleReference() *SimpleReference[T] { return this }
 
 func (this *SimpleReference[T]) as_SimpleReference_() any { return this }

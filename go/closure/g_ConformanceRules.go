@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ConformanceRules struct {
 }
 
@@ -15,86 +17,57 @@ func new_ConformanceRules() *ConformanceRules {
 	return this
 }
 
-func ConformanceRules_createTsAllowlist() *ConformanceRules_AllowList {
-	var ret_1 *ConformanceRules_AllowList
-	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_Throwable(ex_) {
-					var t *Throwable = to_Throwable(ex_)
-					panic(new_AssertionError_Object(t.self()).self())
-					return
-				}
-				panic(r_)
+func ConformanceRules_createTsAllowlist() (ret_1 *ConformanceRules_AllowList) {
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if p, ok := ex_.(Throwable_as); ok {
+				var t *Throwable = p.as_Throwable()
+				panic(new_AssertionError_Object(t.self()))
 			}
-		}()
-		ret_1 = ConformanceRules_AllowList_create(icast_List(obj_(ImmutableList_of())), icast_List(obj_(ImmutableList_of_Object_Object(strobj_(".*\\.closure\\.js"), strobj_(".*\\.tsx\\.cl\\.js"))))).get()
-		return 1
-		return 0
+			panic(r_)
+		}
 	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	return ConformanceRules_AllowList_create(ImmutableList_of(), ImmutableList_of_Object_Object(strobj_(".*\\.closure\\.js"), strobj_(".*\\.tsx\\.cl\\.js"))).get()
 }
 
 func ConformanceRules_buildPattern(reqPatterns ListOf[string]) *Outcome_base[*Pattern] {
 	if (reqPatterns == nil) || reqPatterns.isEmpty() {
 		return Outcome_base_ok_Object[*Pattern](nil)
 	}
-	it_1 := foreach_(any(reqPatterns))
+	it_1 := foreach_(reqPatterns)
 	for it_1.next() {
 		var reqPattern string = str_(it_1.v)
-		var ret_3 *Outcome_base[*Pattern]
-		code_3 := func() (code_ int) {
-			defer func() {
-				if r_ := recover(); r_ != nil {
-					ex_ := catch_(r_)
-					if is_PatternSyntaxException(ex_) {
-						var e *PatternSyntaxException = to_PatternSyntaxException(ex_)
-						ret_3 = Outcome_base_err[*Pattern](new_CheckConformance_InvalidRequirementSpec_String_Throwable("invalid regex pattern", e.up_Throwable()).up_Throwable())
-						code_ = 1
-						return
-						return
-					}
-					panic(r_)
-				}
-			}()
-			Pattern_compile(reqPattern)
-			return 0
-		}()
-		if code_3 == 1 {
-			return ret_3
+		if _, e := Pattern_compileErr_(reqPattern); e != nil {
+			return Outcome_base_err[*Pattern](new_CheckConformance_InvalidRequirementSpec_String_Throwable("invalid regex pattern", e.up_Throwable()).up_Throwable())
 		}
 	}
 	var pattern *Pattern = nil
-	_ = func() (code_ int) {
+	func() {
 		defer func() {
 			if r_ := recover(); r_ != nil {
 				ex_ := catch_(r_)
-				if is_PatternSyntaxException(ex_) {
-					var e *PatternSyntaxException = to_PatternSyntaxException(ex_)
-					panic(new_RuntimeException_String_Throwable("bad joined regexp", e.up_Throwable()).self())
-					return
+				if e, ok2 := ex_.(*PatternSyntaxException); ok2 {
+					panic(new_RuntimeException_String_Throwable("bad joined regexp", e.up_Throwable()))
 				}
 				panic(r_)
 			}
 		}()
 		var jointRegExp string = ("(" + sstr_(Joiner_on("|").join(Iterable(reqPatterns))) + ")")
 		pattern = Pattern_compile(jointRegExp)
-		return 0
 	}()
 	return Outcome_base_ok_Object[*Pattern](pattern)
 }
 
 func ConformanceRules_isTaggedTemplateLitString(node Node) bool {
-	Preconditions_checkState(node.isTemplateLitString())
+	if !node.isTemplateLitString() {
+		panic(new_IllegalStateException_0())
+	}
 	return ((node.getGrandparent() != 0) && node.getGrandparent().isTaggedTemplateLit())
 }
 
 func ConformanceRules_isLooseObject(type_ *JSType, registry *JSTypeRegistry) bool {
-	return type_.equals(registry.getNativeType(JSTypeNative_OBJECT_TYPE).self())
+	return type_.equals_JSType(registry.getNativeType(JSTypeNative_OBJECT_TYPE))
 }
 
 var ConformanceRules_ALL_TS_ALLOWLIST *ConformanceRules_AllowList
@@ -119,7 +92,7 @@ func ConformanceRules_clinit() {
 }
 
 type ConformanceRules_ConformanceResult struct {
-	level_ *ConformanceRules_ConformanceLevel
+	level_ ConformanceRules_ConformanceLevel
 	note   string
 }
 
@@ -127,23 +100,23 @@ func (this *ConformanceRules_ConformanceResult) zero_ConformanceRules_Conformanc
 	this.note = nullstr_
 }
 
-func (this *ConformanceRules_ConformanceResult) init_ConformanceRules_ConformanceResult_ConformanceLevel(level *ConformanceRules_ConformanceLevel) {
+func (this *ConformanceRules_ConformanceResult) init_ConformanceRules_ConformanceResult_ConformanceLevel(level ConformanceRules_ConformanceLevel) {
 	this.init_ConformanceRules_ConformanceResult_ConformanceLevel_String(level, "")
 }
 
-func new_ConformanceRules_ConformanceResult_ConformanceLevel(level *ConformanceRules_ConformanceLevel) *ConformanceRules_ConformanceResult {
+func new_ConformanceRules_ConformanceResult_ConformanceLevel(level ConformanceRules_ConformanceLevel) *ConformanceRules_ConformanceResult {
 	this := &ConformanceRules_ConformanceResult{}
 	this.zero_ConformanceRules_ConformanceResult()
 	this.init_ConformanceRules_ConformanceResult_ConformanceLevel(level)
 	return this
 }
 
-func (this *ConformanceRules_ConformanceResult) init_ConformanceRules_ConformanceResult_ConformanceLevel_String(level *ConformanceRules_ConformanceLevel, note string) {
+func (this *ConformanceRules_ConformanceResult) init_ConformanceRules_ConformanceResult_ConformanceLevel_String(level ConformanceRules_ConformanceLevel, note string) {
 	this.level_ = level
 	this.note = note
 }
 
-func new_ConformanceRules_ConformanceResult_ConformanceLevel_String(level *ConformanceRules_ConformanceLevel, note string) *ConformanceRules_ConformanceResult {
+func new_ConformanceRules_ConformanceResult_ConformanceLevel_String(level ConformanceRules_ConformanceLevel, note string) *ConformanceRules_ConformanceResult {
 	this := &ConformanceRules_ConformanceResult{}
 	this.zero_ConformanceRules_ConformanceResult()
 	this.init_ConformanceRules_ConformanceResult_ConformanceLevel_String(level, note)
@@ -169,45 +142,66 @@ func ConformanceRules_ConformanceResult_clinit() {
 
 }
 
-type ConformanceRules_ConformanceLevel struct {
-	Enum
+type ConformanceRules_ConformanceLevel uint8
+
+// ConformanceRules_ConformanceLevel_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ConformanceRules_ConformanceLevel_enum_ = [3]Enum{
+	{self_: ConformanceRules_ConformanceLevel_CONFORMANCE, name_: "CONFORMANCE", ordinal_: 0},
+	{self_: ConformanceRules_ConformanceLevel_POSSIBLE_VIOLATION, name_: "POSSIBLE_VIOLATION", ordinal_: 1},
+	{self_: ConformanceRules_ConformanceLevel_VIOLATION, name_: "VIOLATION", ordinal_: 2},
 }
 
-func (this *ConformanceRules_ConformanceLevel) up_Enum() *Enum {
-	if this == nil {
+func (this ConformanceRules_ConformanceLevel) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ConformanceRules_ConformanceLevel_enum_[this-1]
 }
 
-func (this *ConformanceRules_ConformanceLevel) init_ConformanceRules_ConformanceLevel(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ConformanceRules_ConformanceLevel) name() string {
+	return this.enum_().name_
 }
 
-func new_ConformanceRules_ConformanceLevel(name_ string, ordinal_ int32) *ConformanceRules_ConformanceLevel {
-	this := &ConformanceRules_ConformanceLevel{}
-	this.self_ = this
-	this.init_ConformanceRules_ConformanceLevel(name_, ordinal_)
+func (this ConformanceRules_ConformanceLevel) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ConformanceRules_ConformanceLevel) toString() string {
+	return this.enum_().name_
+}
+
+func (this ConformanceRules_ConformanceLevel) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ConformanceRules_ConformanceLevel) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ConformanceRules_ConformanceLevel_values() []*ConformanceRules_ConformanceLevel {
-	return append([]*ConformanceRules_ConformanceLevel(nil), ConformanceRules_ConformanceLevel_values_...)
+func ConformanceRules_ConformanceLevel_values() []ConformanceRules_ConformanceLevel {
+	return append([]ConformanceRules_ConformanceLevel(nil), ConformanceRules_ConformanceLevel_values_...)
 }
 
-func ConformanceRules_ConformanceLevel_valueOf(name string) *ConformanceRules_ConformanceLevel {
+func ConformanceRules_ConformanceLevel_valueOf(name string) ConformanceRules_ConformanceLevel {
 	for _, v := range ConformanceRules_ConformanceLevel_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ConformanceLevel", name))
 }
 
-var ConformanceRules_ConformanceLevel_CONFORMANCE *ConformanceRules_ConformanceLevel
-var ConformanceRules_ConformanceLevel_POSSIBLE_VIOLATION *ConformanceRules_ConformanceLevel
-var ConformanceRules_ConformanceLevel_VIOLATION *ConformanceRules_ConformanceLevel
-var ConformanceRules_ConformanceLevel_values_ []*ConformanceRules_ConformanceLevel
+const ConformanceRules_ConformanceLevel_CONFORMANCE ConformanceRules_ConformanceLevel = 1
+const ConformanceRules_ConformanceLevel_POSSIBLE_VIOLATION ConformanceRules_ConformanceLevel = 2
+const ConformanceRules_ConformanceLevel_VIOLATION ConformanceRules_ConformanceLevel = 3
+
+var ConformanceRules_ConformanceLevel_values_ []ConformanceRules_ConformanceLevel
 
 var ConformanceRules_ConformanceLevel_clinit_done bool
 
@@ -216,34 +210,31 @@ func ConformanceRules_ConformanceLevel_clinit() {
 		return
 	}
 	ConformanceRules_ConformanceLevel_clinit_done = true
-	ConformanceRules_ConformanceLevel_CONFORMANCE = new_ConformanceRules_ConformanceLevel("CONFORMANCE", 0)
-	ConformanceRules_ConformanceLevel_POSSIBLE_VIOLATION = new_ConformanceRules_ConformanceLevel("POSSIBLE_VIOLATION", 1)
-	ConformanceRules_ConformanceLevel_VIOLATION = new_ConformanceRules_ConformanceLevel("VIOLATION", 2)
-	ConformanceRules_ConformanceLevel_values_ = []*ConformanceRules_ConformanceLevel{ConformanceRules_ConformanceLevel_CONFORMANCE, ConformanceRules_ConformanceLevel_POSSIBLE_VIOLATION, ConformanceRules_ConformanceLevel_VIOLATION}
+	ConformanceRules_ConformanceLevel_values_ = []ConformanceRules_ConformanceLevel{ConformanceRules_ConformanceLevel_CONFORMANCE, ConformanceRules_ConformanceLevel_POSSIBLE_VIOLATION, ConformanceRules_ConformanceLevel_VIOLATION}
 	registerEnum_("com.google.javascript.jscomp.ConformanceRules.ConformanceLevel", enumValues_(ConformanceRules_ConformanceLevel_values_))
 
 }
 
 type ConformanceRules_AllowList struct {
-	prefixes       ImmutableListOf[string]
+	prefixes       []string
 	regexp         *Pattern
 	allowlistEntry *RequirementScopeEntry
 }
 
-func (this *ConformanceRules_AllowList) init_ConformanceRules_AllowList(prefixes ImmutableListOf[string], regexp *Pattern, allowlistEntry *RequirementScopeEntry) {
+func (this *ConformanceRules_AllowList) init_ConformanceRules_AllowList(prefixes []string, regexp *Pattern, allowlistEntry *RequirementScopeEntry) {
 	this.prefixes = prefixes
 	this.regexp = regexp
 	this.allowlistEntry = allowlistEntry
 }
 
-func new_ConformanceRules_AllowList(prefixes ImmutableListOf[string], regexp *Pattern, allowlistEntry *RequirementScopeEntry) *ConformanceRules_AllowList {
+func new_ConformanceRules_AllowList(prefixes []string, regexp *Pattern, allowlistEntry *RequirementScopeEntry) *ConformanceRules_AllowList {
 	this := &ConformanceRules_AllowList{}
 	this.init_ConformanceRules_AllowList(prefixes, regexp, allowlistEntry)
 	return this
 }
 
 func ConformanceRules_AllowList_create(prefixes ListOf[string], regexps ListOf[string]) *Outcome_base[*ConformanceRules_AllowList] {
-	var prefixesCopy ImmutableListOf[string] = ImmutableList_copyOf(Collection(prefixes))
+	var prefixesCopy []string = immCopyOf_(tc_string, Collection(prefixes))
 	var regexp *Outcome_base[*Pattern] = ConformanceRules_buildPattern(regexps)
 	if regexp.isErr() {
 		return Outcome_base_err[*ConformanceRules_AllowList](regexp.error())
@@ -252,7 +243,7 @@ func ConformanceRules_AllowList_create(prefixes ListOf[string], regexps ListOf[s
 }
 
 func ConformanceRules_AllowList_createFromEntry(allowlistEntry *RequirementScopeEntry) *Outcome_base[*ConformanceRules_AllowList] {
-	var prefixesCopy ImmutableListOf[string] = ImmutableList_copyOf(Collection(allowlistEntry.getPrefixList()))
+	var prefixesCopy []string = immCopyOf_(tc_string, Collection(allowlistEntry.getPrefixList()))
 	var regexp *Outcome_base[*Pattern] = ConformanceRules_buildPattern(allowlistEntry.getRegexpList())
 	if regexp.isErr() {
 		return Outcome_base_err[*ConformanceRules_AllowList](regexp.error())
@@ -262,58 +253,48 @@ func ConformanceRules_AllowList_createFromEntry(allowlistEntry *RequirementScope
 
 func (this *ConformanceRules_AllowList) matches(path string) bool {
 	var tsPath Optional[string] = func() Optional[string] {
-		if String_endsWith(path, ".closure.js") {
-			return Optional_of[string]((sstr_(String_substring(path, 0, (String_length(path)-String_length(".closure.js")))) + ".ts"))
+		if strings.HasSuffix(path, ".closure.js") {
+			return Optional_of[string]((sstr_(path[:len(path)-len(".closure.js")]) + ".ts"))
 		}
 		return func() Optional[string] {
-			if String_endsWith(path, ".tsx.cl.js") {
-				return Optional_of[string](String_substring(path, 0, (String_length(path) - String_length(".cl.js"))))
+			if strings.HasSuffix(path, ".tsx.cl.js") {
+				return Optional_of[string](path[:len(path)-len(".cl.js")])
 			}
 			return Optional_empty[string]()
 		}()
 	}()
 	if this.prefixes != nil {
-		it_1 := foreach_(obj_(this.prefixes))
-		for it_1.next() {
-			var prefix string = str_(it_1.v)
-			if !String_isEmpty(path) && (String_startsWith(path, prefix) || (tsPath.isPresent() && String_startsWith(tsPath.get(), prefix))) {
+		for _, prefix := range this.prefixes {
+			if path != "" && (strings.HasPrefix(path, prefix) || (tsPath.isPresent() && strings.HasPrefix(tsPath.get(), prefix))) {
 				return true
 			}
 		}
 	}
-	return ((this.regexp != nil) && (this.regexp.matcher(strobj_(path)).find() || (tsPath.isPresent() && this.regexp.matcher(strobj_(tsPath.get())).find())))
+	return ((this.regexp != nil) && (this.regexp.matcher_s(path).find() || (tsPath.isPresent() && this.regexp.matcher_s(tsPath.get()).find())))
 }
 
 type ConformanceRules_AbstractRule struct {
-	self_                     any
+	self_                     ConformanceRules_AbstractRule_I
 	compiler_                 *AbstractCompiler
 	message_                  string
-	severity                  *Requirement_Severity
-	allowlists                ImmutableListOf[*ConformanceRules_AllowList]
+	severity                  Requirement_Severity
+	allowlists                []*ConformanceRules_AllowList
 	onlyApplyTo               *ConformanceRules_AllowList
 	reportLooseTypeViolations bool
-	typeMatchingStrategy      *TypeMatchingStrategy
+	typeMatchingStrategy      TypeMatchingStrategy
 	requirement_              *Requirement
+}
+
+// ConformanceRules_AbstractRule_I holds the methods the dispatchers of ConformanceRules_AbstractRule's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type ConformanceRules_AbstractRule_I interface {
+	checkConformance_impl(*NodeTraversal, Node) *ConformanceRules_ConformanceResult
+	getPrecondition_impl() CheckConformance_Precondition
+	tsIsAllowlisted_impl() bool
 }
 
 func (this *ConformanceRules_AbstractRule) as_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
 	return this
-}
-
-func to_ConformanceRules_AbstractRule(v any) *ConformanceRules_AbstractRule {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule
-	}).as_ConformanceRules_AbstractRule()
-}
-
-func is_ConformanceRules_AbstractRule(v any) bool {
-	_, ok := v.(interface {
-		as_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule
-	})
-	return ok
 }
 
 func (this *ConformanceRules_AbstractRule) self() any {
@@ -346,43 +327,43 @@ func (this *ConformanceRules_AbstractRule) initAbstractRule(compiler *AbstractCo
 	} else {
 		this.severity = requirement.getSeverity()
 	}
-	var allowlistsBuilder ImmutableList_BuilderOf[*ConformanceRules_AllowList] = new_ImmutableList_Builder()
-	it_1 := foreach_(any(requirement.getWhitelistEntryList()))
+	var allowlistsBuilder []*ConformanceRules_AllowList
+	it_1 := foreach_(requirement.getWhitelistEntryList())
 	for it_1.next() {
 		var entry *RequirementScopeEntry = cast_[*RequirementScopeEntry](it_1.v)
 		var allowlist *Outcome_base[*ConformanceRules_AllowList] = ConformanceRules_AllowList_createFromEntry(entry)
 		if allowlist.isErr() {
 			return Outcome_base_err[any](allowlist.error())
 		}
-		allowlistsBuilder.add(obj_(allowlist.get()))
+		allowlistsBuilder = immAdd_(tc_p_ConformanceRules_AllowList, allowlistsBuilder, allowlist.get())
 	}
-	it_3 := foreach_(any(requirement.getAllowlistEntryList()))
+	it_3 := foreach_(requirement.getAllowlistEntryList())
 	for it_3.next() {
 		var entry *RequirementScopeEntry = cast_[*RequirementScopeEntry](it_3.v)
 		var allowlist *Outcome_base[*ConformanceRules_AllowList] = ConformanceRules_AllowList_createFromEntry(entry)
 		if allowlist.isErr() {
 			return Outcome_base_err[any](allowlist.error())
 		}
-		allowlistsBuilder.add(obj_(allowlist.get()))
+		allowlistsBuilder = immAdd_(tc_p_ConformanceRules_AllowList, allowlistsBuilder, allowlist.get())
 	}
 	if this.tsIsAllowlisted() {
-		allowlistsBuilder.add(obj_(ConformanceRules_ALL_TS_ALLOWLIST))
+		allowlistsBuilder = immAdd_(tc_p_ConformanceRules_AllowList, allowlistsBuilder, ConformanceRules_ALL_TS_ALLOWLIST)
 	}
 	if (requirement.getWhitelistCount() > 0) || (requirement.getWhitelistRegexpCount() > 0) {
 		var allowlist *Outcome_base[*ConformanceRules_AllowList] = ConformanceRules_AllowList_create(requirement.getWhitelistList(), requirement.getWhitelistRegexpList())
 		if allowlist.isErr() {
 			return Outcome_base_err[any](allowlist.error())
 		}
-		allowlistsBuilder.add(obj_(allowlist.get()))
+		allowlistsBuilder = immAdd_(tc_p_ConformanceRules_AllowList, allowlistsBuilder, allowlist.get())
 	}
 	if (requirement.getAllowlistCount() > 0) || (requirement.getAllowlistRegexpCount() > 0) {
 		var allowlist *Outcome_base[*ConformanceRules_AllowList] = ConformanceRules_AllowList_create(requirement.getAllowlistList(), requirement.getAllowlistRegexpList())
 		if allowlist.isErr() {
 			return Outcome_base_err[any](allowlist.error())
 		}
-		allowlistsBuilder.add(obj_(allowlist.get()))
+		allowlistsBuilder = immAdd_(tc_p_ConformanceRules_AllowList, allowlistsBuilder, allowlist.get())
 	}
-	this.allowlists = cast_[*ImmutableList](obj_(allowlistsBuilder.build()))
+	this.allowlists = immBuilt_(allowlistsBuilder)
 	if (requirement.getOnlyApplyToCount() > 0) || (requirement.getOnlyApplyToRegexpCount() > 0) {
 		var onlyApplyToOutcome *Outcome_base[*ConformanceRules_AllowList] = ConformanceRules_AllowList_create(requirement.getOnlyApplyToList(), requirement.getOnlyApplyToRegexpList())
 		if onlyApplyToOutcome.isErr() {
@@ -402,8 +383,8 @@ func (this *ConformanceRules_AbstractRule) tsIsAllowlisted_impl() bool {
 	return false
 }
 
-func ConformanceRules_AbstractRule_getTypeMatchingStrategy(requirement *Requirement) *TypeMatchingStrategy {
-	return func() *TypeMatchingStrategy {
+func ConformanceRules_AbstractRule_getTypeMatchingStrategy(requirement *Requirement) TypeMatchingStrategy {
+	return func() TypeMatchingStrategy {
 		switch requirement.getTypeMatchingStrategy() {
 		case Requirement_TypeMatchingStrategy_LOOSE:
 			return TypeMatchingStrategy_LOOSE
@@ -414,20 +395,17 @@ func ConformanceRules_AbstractRule_getTypeMatchingStrategy(requirement *Requirem
 		case Requirement_TypeMatchingStrategy_EXACT:
 			return TypeMatchingStrategy_EXACT
 		default:
-			panic(new_IllegalStateException_String("Unknown TypeMatchingStrategy").self())
+			panic(new_IllegalStateException_String("Unknown TypeMatchingStrategy"))
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *ConformanceRules_AbstractRule) findAllowListForPath(path string) *ConformanceRules_AllowList {
 	var pathRegex Optional_baseOf[*Pattern] = this.compiler_.getOptions().getConformanceRemoveRegexFromPath()
 	if pathRegex.isPresent() {
-		path = cast_[*Pattern](pathRegex.get()).matcher(strobj_(path)).replaceFirst("")
+		path = pathRegex.get().(*Pattern).matcher_s(path).replaceFirst("")
 	}
-	it_1 := foreach_(obj_(this.allowlists))
-	for it_1.next() {
-		var allowlist *ConformanceRules_AllowList = cast_[*ConformanceRules_AllowList](it_1.v)
+	for _, allowlist := range this.allowlists {
 		if allowlist.matches(path) {
 			return allowlist
 		}
@@ -435,14 +413,14 @@ func (this *ConformanceRules_AbstractRule) findAllowListForPath(path string) *Co
 	return nil
 }
 
-func (this *ConformanceRules_AbstractRule) check(t *NodeTraversal, n Node, behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
+func (this *ConformanceRules_AbstractRule) check(t *NodeTraversal, n Node, behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
 	var result *ConformanceRules_ConformanceResult = this.checkConformance(t, n)
 	if result.level_ != ConformanceRules_ConformanceLevel_CONFORMANCE {
 		this.report_3(n, result, behavior)
 	}
 }
 
-func (this *ConformanceRules_AbstractRule) report_3(n Node, result *ConformanceRules_ConformanceResult, behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
+func (this *ConformanceRules_AbstractRule) report_3(n Node, result *ConformanceRules_ConformanceResult, behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
 	var msg *DiagnosticType
 	if this.severity == Requirement_Severity_ERROR {
 		msg = CheckConformance_CONFORMANCE_ERROR
@@ -454,7 +432,7 @@ func (this *ConformanceRules_AbstractRule) report_3(n Node, result *ConformanceR
 		}
 	}
 	var separator string = func() string {
-		if String_isEmpty(result.note) {
+		if result.note == "" {
 			return ""
 		}
 		return "\n"
@@ -462,13 +440,13 @@ func (this *ConformanceRules_AbstractRule) report_3(n Node, result *ConformanceR
 	var err *JSError = JSError_make_Requirement_Node_DiagnosticType_StringArr(this.requirement_, n, msg, []string{this.message_, separator, result.note})
 	var path string = NodeUtil_getSourceName(n)
 	var allowlist *ConformanceRules_AllowList = func() *ConformanceRules_AllowList {
-		if !String_isEmpty(path) {
+		if path != "" {
 			return this.findAllowListForPath(path)
 		}
 		return nil
 	}()
 	var isAllowlisted bool = !((allowlist == nil) && ((this.onlyApplyTo == nil) || this.onlyApplyTo.matches(path)))
-	var shouldReport bool = this.compiler_.getErrorManager().shouldReportConformanceViolation(this.requirement_, func() *Optional_base {
+	var shouldReport bool = this.compiler_.getErrorManager().shouldReportConformanceViolation(this.requirement_, func() Optional_base {
 		if allowlist != nil {
 			return Optional_base_fromNullable(obj_(allowlist.allowlistEntry))
 		}
@@ -480,23 +458,19 @@ func (this *ConformanceRules_AbstractRule) report_3(n Node, result *ConformanceR
 }
 
 func (this *ConformanceRules_AbstractRule) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	return this.self_.(interface {
-		checkConformance_impl(*NodeTraversal, Node) *ConformanceRules_ConformanceResult
-	}).checkConformance_impl(p0, p1)
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
 func (this *ConformanceRules_AbstractRule) getPrecondition() CheckConformance_Precondition {
-	return this.self_.(interface {
-		getPrecondition_impl() CheckConformance_Precondition
-	}).getPrecondition_impl()
+	return this.self_.getPrecondition_impl()
 }
 
 func (this *ConformanceRules_AbstractRule) tsIsAllowlisted() bool {
-	return this.self_.(interface{ tsIsAllowlisted_impl() bool }).tsIsAllowlisted_impl()
+	return this.self_.tsIsAllowlisted_impl()
 }
 
 func (this *ConformanceRules_AbstractRule) getPrecondition_impl() CheckConformance_Precondition {
-	return CheckConformance_Rule_getPrecondition_default(icast_CheckConformance_Rule(this.self()))
+	return CheckConformance_Rule_getPrecondition_default(this.self().(CheckConformance_Rule))
 }
 
 type ConformanceRules_NoOp struct {
@@ -532,7 +506,7 @@ func ConformanceRules_NoOp_create(compiler *AbstractCompiler, requirement *Requi
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_NoOp) initNoOp(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -556,22 +530,6 @@ type ConformanceRules_AbstractTypeRestrictionRule struct {
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) as_ConformanceRules_AbstractTypeRestrictionRule() *ConformanceRules_AbstractTypeRestrictionRule {
 	return this
-}
-
-func to_ConformanceRules_AbstractTypeRestrictionRule(v any) *ConformanceRules_AbstractTypeRestrictionRule {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_ConformanceRules_AbstractTypeRestrictionRule() *ConformanceRules_AbstractTypeRestrictionRule
-	}).as_ConformanceRules_AbstractTypeRestrictionRule()
-}
-
-func is_ConformanceRules_AbstractTypeRestrictionRule(v any) bool {
-	_, ok := v.(interface {
-		as_ConformanceRules_AbstractTypeRestrictionRule() *ConformanceRules_AbstractTypeRestrictionRule
-	})
-	return ok
 }
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) self() any {
@@ -624,7 +582,7 @@ func ConformanceRules_AbstractTypeRestrictionRule_isKnown(n Node) bool {
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) isNativeObjectType(n Node) bool {
 	var type_ *JSType = n.getJSType().restrictByNotNullOrUndefined()
-	return type_.equals(this.nativeObjectType.self())
+	return type_.equals_JSType(this.nativeObjectType)
 }
 
 func ConformanceRules_AbstractTypeRestrictionRule_isTop(n Node) bool {
@@ -640,7 +598,7 @@ func ConformanceRules_AbstractTypeRestrictionRule_isUnknown(n Node) bool {
 func ConformanceRules_AbstractTypeRestrictionRule_isTemplateType(n Node) bool {
 	var type_ *JSType = n.getJSType()
 	if type_.isUnionType() {
-		it_1 := foreach_(any(type_.getUnionMembers()))
+		it_1 := foreach_(type_.getUnionMembers())
 		for it_1.next() {
 			var member *JSType = to_JSType(it_1.v)
 			if member.isTemplateType() {
@@ -659,9 +617,7 @@ func ConformanceRules_AbstractTypeRestrictionRule_isBottom(n Node) bool {
 func (this *ConformanceRules_AbstractTypeRestrictionRule) union(typeNames ListOf[string]) *JSType {
 	var registry *JSTypeRegistry = this.compiler_.getTypeRegistry()
 	var types *JTList[*JSType] = jnewTList_(jtc_p_JSType)
-	it_1 := foreach_(any(typeNames))
-	for it_1.next() {
-		var typeName string = str_(it_1.v)
+	for typeName := range elemsBy_(typeNames, str_) {
 		var type_ *JSType = registry.getGlobalType(typeName)
 		if type_ == nil {
 			type_ = registry.resolveViaClosureNamespace(typeName)
@@ -675,7 +631,6 @@ func (this *ConformanceRules_AbstractTypeRestrictionRule) union(typeNames ListOf
 	} else {
 		return registry.createUnionTypeList(types.asList())
 	}
-	panic("unreachable")
 }
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) isAssertionCall(n Node) bool {
@@ -733,7 +688,7 @@ func ConformanceRules_InferredConstCheck_create(compiler *AbstractCompiler, requ
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_InferredConstCheck) initInferredConstCheck(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -792,7 +747,7 @@ func ConformanceRules_BannedDependency_create(compiler *AbstractCompiler, requir
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedDependency) initBannedDependency(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -812,7 +767,7 @@ func (this *ConformanceRules_BannedDependency) checkConformance_impl(t *NodeTrav
 		var srcFile string = n.getSourceFileName()
 		for i := int32(0); i < this.paths.size(); i++ {
 			var path string = str_(this.paths.get(i))
-			if String_startsWith(srcFile, path) {
+			if strings.HasPrefix(srcFile, path) {
 				return ConformanceRules_ConformanceResult_VIOLATION
 			}
 		}
@@ -854,7 +809,7 @@ func ConformanceRules_BannedDependencyRegex_create(compiler *AbstractCompiler, r
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedDependencyRegex) initBannedDependencyRegex(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -877,7 +832,7 @@ func (this *ConformanceRules_BannedDependencyRegex) initBannedDependencyRegex(co
 func (this *ConformanceRules_BannedDependencyRegex) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if n.isScript() {
 		var srcFile string = n.getSourceFileName()
-		if (this.pathRegexp != nil) && this.pathRegexp.matcher(strobj_(srcFile)).find() {
+		if (this.pathRegexp != nil) && this.pathRegexp.matcher_s(srcFile).find() {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}
 	}
@@ -886,9 +841,9 @@ func (this *ConformanceRules_BannedDependencyRegex) checkConformance_impl(t *Nod
 
 type ConformanceRules_BannedName struct {
 	ConformanceRules_AbstractRule
-	requirementType *Requirement_Type
-	qualifiedNames  ImmutableListOf[Node]
-	shortNames      ImmutableSetOf[string]
+	requirementType Requirement_Type
+	qualifiedNames  []Node
+	shortNames      *ImmutableSet[string]
 }
 
 func (this *ConformanceRules_BannedName) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -920,7 +875,7 @@ func ConformanceRules_BannedName_create(compiler *AbstractCompiler, requirement 
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedName) initBannedName(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -932,17 +887,15 @@ func (this *ConformanceRules_BannedName) initBannedName(compiler *AbstractCompil
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	this.requirementType = requirement.getType()
-	var qualifiedBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-	var shortBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
-	for it_1.next() {
-		var name string = str_(it_1.v)
+	var qualifiedBuilder []Node
+	var shortBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
+	for name := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
 		var qualifiedName Node = NodeUtil_newQName_AbstractCompiler_String(compiler, name)
-		qualifiedBuilder.add(qualifiedName.box_())
-		shortBuilder.add(strobj_(qualifiedName.getString()))
+		qualifiedBuilder = immAdd_(tc_Node, qualifiedBuilder, qualifiedName)
+		shortBuilder.add(qualifiedName.getString())
 	}
-	this.qualifiedNames = cast_[*ImmutableList](obj_(qualifiedBuilder.build()))
-	this.shortNames = cast_[*ImmutableSet](obj_(shortBuilder.build()))
+	this.qualifiedNames = immBuilt_(qualifiedBuilder)
+	this.shortNames = shortBuilder.build()
 	return Outcome_base_ok_0()
 }
 
@@ -954,14 +907,14 @@ func (this *ConformanceRules_BannedName) checkConformance_impl(t *NodeTraversal,
 	if (this.requirementType == Requirement_Type_BANNED_NAME_CALL) && !ConformanceRules_ConformanceUtil_isCallTarget(n) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	if !Collection_contains_s(this.shortNames, n.getString()) {
+	if !this.shortNames.Has(n.getString()) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	if NodeUtil_isInSyntheticScript(n) || !ConformanceRules_BannedName_isRootOfQualifiedNameGlobal(t, n) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	for i := int32((this.qualifiedNames.size() - 1)); i >= 0; i-- {
-		if n.matchesQualifiedNameNode(Node_of_(this.qualifiedNames.get(i))) {
+	for i := int32((int32(len(this.qualifiedNames)) - 1)); i >= 0; i-- {
+		if n.matchesQualifiedNameNode(sliceAt_(this.qualifiedNames, i)) {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}
 	}
@@ -983,27 +936,29 @@ func ConformanceRules_BannedName_clinit() {
 		return
 	}
 	ConformanceRules_BannedName_clinit_done = true
-	ConformanceRules_BannedName_IS_CANDIDATE_NODE = &CheckConformance_Precondition_fn{func(n Node) bool {
-		return func() bool {
-			switch n.getToken() {
-			case Token_rhino_GETPROP:
-				return n.getFirstChild().isQualifiedName()
-			case Token_rhino_NAME:
-				return !String_isEmpty(n.getString())
-			default:
-				return false
-			}
-			panic("unreachable")
-		}()
-	}}
+	ConformanceRules_BannedName_IS_CANDIDATE_NODE = lambda_ConformanceRules_BannedName_clinit_1_
 
 }
+
+// lambda_ConformanceRules_BannedName_clinit_1_ is a lambda of ConformanceRules_BannedName_clinit that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_BannedName_clinit_1_ = &CheckConformance_Precondition_fn{func(n Node) bool {
+	return func() bool {
+		switch n.ns_().token {
+		case tokOrd1_GETPROP:
+			return n.getFirstChild().isQualifiedName()
+		case tokOrd1_NAME:
+			return n.getString() != ""
+		default:
+			return false
+		}
+	}()
+}}
 
 type ConformanceRules_BannedProperty struct {
 	ConformanceRules_AbstractRule
 	registry                *JSTypeRegistry
-	props                   *SimpleSetMultimap
-	requirementPrecondition *ConformanceRules_BannedProperty_RequirementPrecondition
+	props                   *SimpleSetMultimap[any, *JSType]
+	requirementPrecondition ConformanceRules_BannedProperty_RequirementPrecondition
 }
 
 func (this *ConformanceRules_BannedProperty) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -1035,7 +990,7 @@ func ConformanceRules_BannedProperty_create(compiler *AbstractCompiler, requirem
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -1046,7 +1001,7 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	this.requirementPrecondition = func() *ConformanceRules_BannedProperty_RequirementPrecondition {
+	this.requirementPrecondition = func() ConformanceRules_BannedProperty_RequirementPrecondition {
 		switch requirement.getType() {
 		case Requirement_Type_BANNED_PROPERTY:
 			return ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY
@@ -1059,13 +1014,12 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 		case Requirement_Type_BANNED_PROPERTY_CALL:
 			return ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL
 		default:
-			panic(new_AssertionError_Object(obj_(requirement.getType())).self())
+			panic(new_AssertionError_Object(obj_(requirement.getType())))
 		}
-		panic("unreachable")
 	}()
 	this.registry = compiler.getTypeRegistry()
-	var builder *SimpleSetMultimap = SimpleSetMultimap_create()
-	it_2 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	var builder *SimpleSetMultimap[any, *JSType] = SimpleSetMultimap_create[any, *JSType]()
+	it_2 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_2.next() {
 		var value string = str_(it_2.v)
 		var typename Optional[string] = ConformanceRules_ConformanceUtil_getClassFromDeclarationName(value)
@@ -1080,7 +1034,7 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 		if ((type_ == nil) || type_.isUnknownType()) || type_.isEmptyType() {
 			continue
 		}
-		builder.put(strobj_(property.get()), type_.self())
+		builder.put_s(property.get(), type_)
 	}
 	this.props = builder.immutableCopy()
 	return Outcome_base_ok_0()
@@ -1094,9 +1048,9 @@ func (this *ConformanceRules_BannedProperty) checkConformance_impl(t *NodeTraver
 	var name Optional[string] = this.extractName(n)
 	var checkTypes SetOf[*JSType] = func() Set {
 		if name.isPresent() {
-			return this.props.get(strobj_(name.get()))
+			return this.props.get_s(name.get())
 		}
-		return icast_Set(obj_(ImmutableSet_of()))
+		return ImmutableSet_of()
 	}()
 	if checkTypes.isEmpty() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -1106,7 +1060,7 @@ func (this *ConformanceRules_BannedProperty) checkConformance_impl(t *NodeTraver
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	foundType = foundType.restrictByNotNullOrUndefined()
-	it_1 := foreach_(any(checkTypes))
+	it_1 := foreach_(checkTypes)
 	for it_1.next() {
 		var checkType *JSType = to_JSType(it_1.v)
 		var result *ConformanceRules_ConformanceResult = this.matchTypes(foundType, checkType)
@@ -1148,7 +1102,7 @@ func (this *ConformanceRules_BannedProperty) matchTypes(foundType *JSType, check
 func (this *ConformanceRules_BannedProperty) matchesPrototype(type_ *JSType, maybePrototype *JSType) bool {
 	var methodClassObjectType *ObjectType = type_.toMaybeObjectType()
 	if methodClassObjectType != nil {
-		if methodClassObjectType.getImplicitPrototype().equals(maybePrototype.self()) {
+		if methodClassObjectType.getImplicitPrototype().equals_JSType(maybePrototype) {
 			return true
 		}
 	}
@@ -1163,29 +1117,27 @@ func (this *ConformanceRules_BannedProperty) extractType(n Node) *JSType {
 		case Token_rhino_STRING_KEY, Token_rhino_COMPUTED_PROP:
 			var parent Node = n.getParent()
 			return func() *JSType {
-				switch parent.getToken() {
-				case Token_rhino_OBJECT_PATTERN, Token_rhino_OBJECTLIT:
+				switch parent.ns_().token {
+				case tokOrd1_OBJECT_PATTERN, tokOrd1_OBJECTLIT:
 					return parent.getJSType()
-				case Token_rhino_CLASS_MEMBERS:
+				case tokOrd1_CLASS_MEMBERS:
 					return nil
 				default:
-					panic(new_AssertionError_0().self())
+					panic(new_AssertionError_0())
 				}
-				panic("unreachable")
 			}()
 		default:
 			return nil
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *ConformanceRules_BannedProperty) extractName(n Node) Optional[string] {
 	return func() Optional[string] {
-		switch n.getToken() {
-		case Token_rhino_GETPROP, Token_rhino_STRING_KEY:
+		switch n.ns_().token {
+		case tokOrd1_GETPROP, tokOrd1_STRING_KEY:
 			return Optional_of[string](n.getString())
-		case Token_rhino_GETELEM:
+		case tokOrd1_GETELEM:
 			var string_ Node = n.getSecondChild()
 			return func() Optional[string] {
 				if string_.isStringLit() {
@@ -1193,7 +1145,7 @@ func (this *ConformanceRules_BannedProperty) extractName(n Node) Optional[string
 				}
 				return Optional_empty[string]()
 			}()
-		case Token_rhino_COMPUTED_PROP:
+		case tokOrd1_COMPUTED_PROP:
 			var string_ Node = n.getFirstChild()
 			return func() Optional[string] {
 				if string_.isStringLit() {
@@ -1204,75 +1156,107 @@ func (this *ConformanceRules_BannedProperty) extractName(n Node) Optional[string
 		default:
 			return Optional_empty[string]()
 		}
-		panic("unreachable")
 	}()
 }
 
-type ConformanceRules_BannedProperty_RequirementPrecondition struct {
-	Enum
+type ConformanceRules_BannedProperty_RequirementPrecondition uint8
+
+// ConformanceRules_BannedProperty_RequirementPrecondition_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ConformanceRules_BannedProperty_RequirementPrecondition_enum_ = [5]Enum{
+	{self_: ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY, name_: "BANNED_PROPERTY", ordinal_: 0},
+	{self_: ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE, name_: "BANNED_PROPERTY_WRITE", ordinal_: 1},
+	{self_: ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE, name_: "BANNED_PROPERTY_NON_CONSTANT_WRITE", ordinal_: 2},
+	{self_: ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ, name_: "BANNED_PROPERTY_READ", ordinal_: 3},
+	{self_: ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL, name_: "BANNED_PROPERTY_CALL", ordinal_: 4},
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition) as_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition {
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &ConformanceRules_BannedProperty_RequirementPrecondition_enum_[this-1]
+}
+
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) name() string {
+	return this.enum_().name_
+}
+
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) toString() string {
+	return this.enum_().name_
+}
+
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func to_ConformanceRules_BannedProperty_RequirementPrecondition(v any) *ConformanceRules_BannedProperty_RequirementPrecondition {
-	if v == nil {
-		return nil
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) as_ConformanceRules_BannedProperty_RequirementPrecondition() ConformanceRules_BannedProperty_RequirementPrecondition {
+	return this
+}
+
+func (this ConformanceRules_BannedProperty_RequirementPrecondition) shouldCheck(n Node) bool {
+	switch this {
+	case ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY:
+		return func() bool {
+			switch n.ns_().token {
+			case tokOrd1_STRING_KEY, tokOrd1_GETPROP, tokOrd1_GETELEM, tokOrd1_COMPUTED_PROP:
+				return true
+			default:
+				return false
+			}
+		}()
+	case ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE:
+		return NodeUtil_isLValue(n)
+	case ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE:
+		if !NodeUtil_isLValue(n) {
+			return false
+		}
+		if NodeUtil_isLhsOfAssign(n) && (NodeUtil_isLiteralValue(n.getNext(), false) || NodeUtil_isSomeCompileTimeConstStringValue(n.getNext())) {
+			return false
+		}
+		return true
+	case ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ:
+		return (!NodeUtil_isLValue(n) && NodeUtil_isExpressionResultUsed(n))
+	case ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL:
+		return ConformanceRules_ConformanceUtil_isCallTarget(n)
+	default:
+		panic(new_NullPointerException_0()) // a call on null
 	}
-	return v.(interface {
-		as_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition
-	}).as_ConformanceRules_BannedProperty_RequirementPrecondition()
 }
 
-func is_ConformanceRules_BannedProperty_RequirementPrecondition(v any) bool {
-	_, ok := v.(interface {
-		as_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition
-	})
-	return ok
+func ConformanceRules_BannedProperty_RequirementPrecondition_values() []ConformanceRules_BannedProperty_RequirementPrecondition {
+	return append([]ConformanceRules_BannedProperty_RequirementPrecondition(nil), ConformanceRules_BannedProperty_RequirementPrecondition_values_...)
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition) init_ConformanceRules_BannedProperty_RequirementPrecondition(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition) shouldCheck(p0 Node) bool {
-	return this.self_.(interface{ shouldCheck_impl(Node) bool }).shouldCheck_impl(p0)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_values() []*ConformanceRules_BannedProperty_RequirementPrecondition {
-	return append([]*ConformanceRules_BannedProperty_RequirementPrecondition(nil), ConformanceRules_BannedProperty_RequirementPrecondition_values_...)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_valueOf(name string) *ConformanceRules_BannedProperty_RequirementPrecondition {
+func ConformanceRules_BannedProperty_RequirementPrecondition_valueOf(name string) ConformanceRules_BannedProperty_RequirementPrecondition {
 	for _, v := range ConformanceRules_BannedProperty_RequirementPrecondition_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("RequirementPrecondition", name))
 }
 
-var ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY *ConformanceRules_BannedProperty_RequirementPrecondition
-var ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE *ConformanceRules_BannedProperty_RequirementPrecondition
-var ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE *ConformanceRules_BannedProperty_RequirementPrecondition
-var ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ *ConformanceRules_BannedProperty_RequirementPrecondition
-var ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL *ConformanceRules_BannedProperty_RequirementPrecondition
-var ConformanceRules_BannedProperty_RequirementPrecondition_values_ []*ConformanceRules_BannedProperty_RequirementPrecondition
+const ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY ConformanceRules_BannedProperty_RequirementPrecondition = 1
+const ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE ConformanceRules_BannedProperty_RequirementPrecondition = 2
+const ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE ConformanceRules_BannedProperty_RequirementPrecondition = 3
+const ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ ConformanceRules_BannedProperty_RequirementPrecondition = 4
+const ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL ConformanceRules_BannedProperty_RequirementPrecondition = 5
+
+var ConformanceRules_BannedProperty_RequirementPrecondition_values_ []ConformanceRules_BannedProperty_RequirementPrecondition
 
 var ConformanceRules_BannedProperty_RequirementPrecondition_clinit_done bool
 
@@ -1281,12 +1265,7 @@ func ConformanceRules_BannedProperty_RequirementPrecondition_clinit() {
 		return
 	}
 	ConformanceRules_BannedProperty_RequirementPrecondition_clinit_done = true
-	ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY = new_ConformanceRules_BannedProperty_RequirementPrecondition_1("BANNED_PROPERTY", 0).up_ConformanceRules_BannedProperty_RequirementPrecondition()
-	ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE = new_ConformanceRules_BannedProperty_RequirementPrecondition_2("BANNED_PROPERTY_WRITE", 1).up_ConformanceRules_BannedProperty_RequirementPrecondition()
-	ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE = new_ConformanceRules_BannedProperty_RequirementPrecondition_3("BANNED_PROPERTY_NON_CONSTANT_WRITE", 2).up_ConformanceRules_BannedProperty_RequirementPrecondition()
-	ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ = new_ConformanceRules_BannedProperty_RequirementPrecondition_4("BANNED_PROPERTY_READ", 3).up_ConformanceRules_BannedProperty_RequirementPrecondition()
-	ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL = new_ConformanceRules_BannedProperty_RequirementPrecondition_5("BANNED_PROPERTY_CALL", 4).up_ConformanceRules_BannedProperty_RequirementPrecondition()
-	ConformanceRules_BannedProperty_RequirementPrecondition_values_ = []*ConformanceRules_BannedProperty_RequirementPrecondition{ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL}
+	ConformanceRules_BannedProperty_RequirementPrecondition_values_ = []ConformanceRules_BannedProperty_RequirementPrecondition{ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_WRITE, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_NON_CONSTANT_WRITE, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_READ, ConformanceRules_BannedProperty_RequirementPrecondition_BANNED_PROPERTY_CALL}
 	registerEnum_("com.google.javascript.jscomp.ConformanceRules.BannedProperty.RequirementPrecondition", enumValues_(ConformanceRules_BannedProperty_RequirementPrecondition_values_))
 
 }
@@ -1325,7 +1304,7 @@ func ConformanceRules_BannedStringRegex_create(compiler *AbstractCompiler, requi
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedStringRegex) initBannedStringRegex(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -1336,20 +1315,20 @@ func (this *ConformanceRules_BannedStringRegex) initBannedStringRegex(compiler *
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	var builder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
+	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
-		if String_isEmpty(String_trim(value)) {
+		if strings.Trim(value, javaSpace_) == "" {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("empty strings or whitespace are not allowed").up_Throwable())
 		}
-		builder.add(strobj_(value))
+		builder.add(value)
 	}
-	var values ImmutableListOf[string] = cast_[*ImmutableList](obj_(builder.build()))
+	var values *ImmutableList[string] = builder.build()
 	if values.isEmpty() {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	var stringRegexOutcome *Outcome_base[*Pattern] = ConformanceRules_buildPattern(icast_List(obj_(values)))
+	var stringRegexOutcome *Outcome_base[*Pattern] = ConformanceRules_buildPattern(icast_List(obj_(values.asImm())))
 	if stringRegexOutcome.isErr() {
 		return Outcome_base_err[any](stringRegexOutcome.error())
 	}
@@ -1363,19 +1342,21 @@ func (this *ConformanceRules_BannedStringRegex) checkConformance_impl(traversal 
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	if node.isStringLit() {
-		if this.stringPattern.matcher(strobj_(node.getString())).matches() {
+		if this.stringPattern.matcher_s(node.getString()).matches() {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}
 	} else if node.isTemplateLitString() {
 		var cookedString Optional[string] = node.getCookedString()
 		if cookedString.isPresent() {
-			if this.stringPattern.matcher(strobj_(cookedString.get())).matches() {
+			if this.stringPattern.matcher_s(cookedString.get()).matches() {
 				return ConformanceRules_ConformanceResult_VIOLATION
 			}
 		} else {
-			Preconditions_checkState_boolean_String_Object(ConformanceRules_isTaggedTemplateLitString(node), "Found untagged template literal with invalid (uncookable) escape sequence: %s", strobj_(node.getRawString()))
+			if ok_, a1_ := ConformanceRules_isTaggedTemplateLitString(node), node.getRawString(); !ok_ {
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Found untagged template literal with invalid (uncookable) escape sequence: %s", []any{strobj_(a1_)})))
+			}
 			var rawString string = node.getRawString()
-			if this.stringPattern.matcher(strobj_(rawString)).matches() {
+			if this.stringPattern.matcher_s(rawString).matches() {
 				return ConformanceRules_ConformanceResult_VIOLATION
 			}
 		}
@@ -1415,7 +1396,9 @@ func ConformanceRules_ConformanceUtil_evaluateTypeString(compiler *AbstractCompi
 }
 
 func ConformanceRules_ConformanceUtil_validateCall(compiler *AbstractCompiler, callOrNew Node, functionType *FunctionType, isCallInvocation bool) bool {
-	Preconditions_checkState((callOrNew.isCall() || callOrNew.isNew()))
+	if !callOrNew.isCall() && !callOrNew.isNew() {
+		panic(new_IllegalStateException_0())
+	}
 	return (ConformanceRules_ConformanceUtil_validateParameterList(compiler, callOrNew, functionType, isCallInvocation) && ConformanceRules_ConformanceUtil_validateThis(callOrNew, functionType, isCallInvocation))
 }
 
@@ -1442,50 +1425,54 @@ func ConformanceRules_ConformanceUtil_validateParameterList(compiler *AbstractCo
 	if isCallInvocation && (arg != 0) {
 		arg = arg.getNext()
 	}
-	var argumentTypes ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
+	var argumentTypes []*JSType
 	for ; arg != 0; arg = arg.getNext() {
 		var argType *JSType = arg.getJSType()
 		if argType == nil {
 			argType = compiler.getTypeRegistry().getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		}
-		argumentTypes.add(argType.self())
+		argumentTypes = immAdd_(tc_p_JSType, argumentTypes, argType)
 	}
-	return functionType.acceptsArguments(icast_List(obj_(argumentTypes.build())))
+	return functionType.acceptsArguments(immBuilt_(argumentTypes))
 }
 
 func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName string) Optional[string] {
-	var parts ListOf[string] = ConformanceRules_ON_PROTOTYPE.splitToList(strobj_(specName))
-	Preconditions_checkState(((parts.size() == 1) || (parts.size() == 2)))
-	if parts.size() == 2 {
-		return Optional_ofNullable[string](str_(parts.get(1)))
+	var parts []string = sliceImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList_s(specName))
+	if int32(len(parts)) != 1 && int32(len(parts)) != 2 {
+		panic(new_IllegalStateException_0())
+	}
+	if int32(len(parts)) == 2 {
+		return Optional_ofNullable[string](sliceAt_(parts, 1))
 	}
 	return Optional_empty[string]()
 }
 
 func ConformanceRules_ConformanceUtil_getClassFromDeclarationName(specName string) Optional[string] {
 	var tmp string = specName
-	var parts ListOf[string] = ConformanceRules_ON_PROTOTYPE.splitToList(strobj_(tmp))
-	Preconditions_checkState(((parts.size() == 1) || (parts.size() == 2)))
-	if parts.size() == 2 {
-		return Optional_ofNullable[string](str_(parts.get(0)))
+	var parts []string = sliceImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList_s(tmp))
+	if int32(len(parts)) != 1 && int32(len(parts)) != 2 {
+		panic(new_IllegalStateException_0())
+	}
+	if int32(len(parts)) == 2 {
+		return Optional_ofNullable[string](sliceAt_(parts, 0))
 	}
 	return Optional_empty[string]()
 }
 
 func ConformanceRules_ConformanceUtil_removeTypeDecl(specName string) *Outcome_base[string] {
-	var index int32 = String_indexOf(specName, 58)
+	var index int32 = int32(strings.IndexByte(specName, ':'))
 	if index < 1 {
 		return Outcome_base_err[string](new_CheckConformance_InvalidRequirementSpec_String("value should be in the form NAME:TYPE").up_Throwable())
 	}
-	return Outcome_base_ok_Object[string](String_substring(specName, 0, index))
+	return Outcome_base_ok_Object[string](specName[:index])
 }
 
 func ConformanceRules_ConformanceUtil_getTypeFromValue(specName string) Optional[string] {
-	var index int32 = String_indexOf(specName, 58)
+	var index int32 = int32(strings.IndexByte(specName, ':'))
 	if index < 1 {
 		return Optional_empty[string]()
 	}
-	return Optional_of[string](String_substring_int(specName, (index + 1)))
+	return Optional_of[string](specName[(index + 1):])
 }
 
 func ConformanceRules_ConformanceUtil_isAnnotatedAsConst(jsdoc *JSDocInfo) bool {
@@ -1497,19 +1484,19 @@ func ConformanceRules_ConformanceUtil_getValueFromGlobalName(scope *Scope, gns *
 	if (((gn == nil) || (gn.getGlobalSets() != 1)) || (gn.getTotalSets() != 1)) || !ConformanceRules_ConformanceUtil_isAnnotatedAsConst(gn.getJSDocInfo()) {
 		return Optional_empty[string]()
 	}
-	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(cast_[*GlobalNamespace_Ref](gn.getDeclaration()).getNode()), &Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
+	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(gn.getDeclaration().(*GlobalNamespace_Ref).getNode()), (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
 		return gns
-	}})
+	}}).get)
 }
 
-func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, globalNamespaceSupplier SupplierOf[*GlobalNamespace]) Optional[string] {
+func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, globalNamespaceSupplier func() any) Optional[string] {
 	if node == 0 {
 		return Optional_empty[string]()
 	}
-	switch node.getToken() {
-	case Token_rhino_STRING_KEY, Token_rhino_STRINGLIT, Token_rhino_TEMPLATELIT, Token_rhino_TEMPLATELIT_STRING:
+	switch node.ns_().token {
+	case tokOrd1_STRING_KEY, tokOrd1_STRINGLIT, tokOrd1_TEMPLATELIT, tokOrd1_TEMPLATELIT_STRING:
 		return NodeUtil_getStringValue(node)
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if scope == nil {
 			return Optional_empty[string]()
 		}
@@ -1523,7 +1510,7 @@ func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, 
 		}
 		var initialValue Node = var_.getInitialValue()
 		return ConformanceRules_ConformanceUtil_inferStringValue(cast_[*Scope](var_.getScope()), initialValue, globalNamespaceSupplier)
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		var type_ *JSType = node.getJSType()
 		if type_ == nil {
 			return Optional_empty[string]()
@@ -1538,7 +1525,7 @@ func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, 
 			}
 			return ConformanceRules_ConformanceUtil_inferStringValue(nil, NodeUtil_getFirstPropMatchingKey(enumSource, node.getString()), globalNamespaceSupplier)
 		} else if type_.isString() {
-			var gns *GlobalNamespace = cast_[*GlobalNamespace](globalNamespaceSupplier.get())
+			var gns *GlobalNamespace = cast_[*GlobalNamespace](globalNamespaceSupplier())
 			if gns == nil {
 				return Optional_empty[string]()
 			}
@@ -1562,12 +1549,12 @@ func ConformanceRules_ConformanceUtil_isXid(type_ *JSType) bool {
 }
 
 func ConformanceRules_ConformanceUtil_isEventHandlerAttrName(attr string) bool {
-	return (!(attr == "on") && String_startsWith(attr, "on"))
+	return (!(attr == "on") && strings.HasPrefix(attr, "on"))
 }
 
 type ConformanceRules_RestrictedNameCall struct {
 	ConformanceRules_AbstractRule
-	restrictions ImmutableListOf[*ConformanceRules_RestrictedNameCall_Restriction]
+	restrictions []*ConformanceRules_RestrictedNameCall_Restriction
 }
 
 func (this *ConformanceRules_RestrictedNameCall) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -1599,7 +1586,7 @@ func ConformanceRules_RestrictedNameCall_create(compiler *AbstractCompiler, requ
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -1610,8 +1597,8 @@ func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	var builder ImmutableList_BuilderOf[*ConformanceRules_RestrictedNameCall_Restriction] = ImmutableList_builder()
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	var builder []*ConformanceRules_RestrictedNameCall_Restriction
+	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var name Node = NodeUtil_newQName_AbstractCompiler_String(compiler, ConformanceRules_RestrictedNameCall_getNameFromValue(value).get())
@@ -1627,16 +1614,16 @@ func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler
 		if restrictedCallType == nil {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("invalid conformance type").up_Throwable())
 		}
-		builder.add(obj_(new_ConformanceRules_RestrictedNameCall_Restriction(name, restrictedCallType)))
+		builder = immAdd_(tc_p_ConformanceRules_RestrictedNameCall_Restriction, builder, new_ConformanceRules_RestrictedNameCall_Restriction(name, restrictedCallType))
 	}
-	this.restrictions = cast_[*ImmutableList](obj_(builder.build()))
+	this.restrictions = immBuilt_(builder)
 	return Outcome_base_ok_0()
 }
 
 func (this *ConformanceRules_RestrictedNameCall) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if ConformanceRules_ConformanceUtil_isCallTarget(n) && n.isQualifiedName() {
-		for i := int32(0); i < this.restrictions.size(); i++ {
-			var r *ConformanceRules_RestrictedNameCall_Restriction = cast_[*ConformanceRules_RestrictedNameCall_Restriction](this.restrictions.get(i))
+		for i := int32(0); i < int32(len(this.restrictions)); i++ {
+			var r *ConformanceRules_RestrictedNameCall_Restriction = sliceAt_(this.restrictions, i)
 			if n.matchesQualifiedNameNode(r.name_) {
 				if !ConformanceRules_ConformanceUtil_validateCall(this.compiler_, n.getParent(), r.restrictedCallType, false) {
 					return ConformanceRules_ConformanceResult_VIOLATION
@@ -1652,11 +1639,11 @@ func (this *ConformanceRules_RestrictedNameCall) checkConformance_impl(t *NodeTr
 }
 
 func ConformanceRules_RestrictedNameCall_getNameFromValue(specName string) Optional[string] {
-	var index int32 = String_indexOf(specName, 58)
+	var index int32 = int32(strings.IndexByte(specName, ':'))
 	if index < 1 {
 		return Optional_empty[string]()
 	}
-	return Optional_of[string](String_substring(specName, 0, index))
+	return Optional_of[string](specName[:index])
 }
 
 type ConformanceRules_RestrictedNameCall_Restriction struct {
@@ -1677,7 +1664,7 @@ func new_ConformanceRules_RestrictedNameCall_Restriction(name Node, restrictedCa
 
 type ConformanceRules_RestrictedMethodCall struct {
 	ConformanceRules_AbstractRule
-	restrictions ImmutableListOf[*ConformanceRules_RestrictedMethodCall_Restriction]
+	restrictions []*ConformanceRules_RestrictedMethodCall_Restriction
 }
 
 func (this *ConformanceRules_RestrictedMethodCall) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -1709,7 +1696,7 @@ func ConformanceRules_RestrictedMethodCall_create(compiler *AbstractCompiler, re
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -1721,8 +1708,8 @@ func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(comp
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
-	var builder ImmutableList_BuilderOf[*ConformanceRules_RestrictedMethodCall_Restriction] = ImmutableList_builder()
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	var builder []*ConformanceRules_RestrictedMethodCall_Restriction
+	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var typeDecl *Outcome_base[string] = ConformanceRules_ConformanceUtil_removeTypeDecl(value)
@@ -1747,9 +1734,9 @@ func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(comp
 		if restrictedCallType == nil {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("invalid conformance type").up_Throwable())
 		}
-		builder.add(obj_(new_ConformanceRules_RestrictedMethodCall_Restriction(registry.getGlobalType(type_.get()), property.get(), restrictedCallType)))
+		builder = immAdd_(tc_p_ConformanceRules_RestrictedMethodCall_Restriction, builder, new_ConformanceRules_RestrictedMethodCall_Restriction(registry.getGlobalType(type_.get()), property.get(), restrictedCallType))
 	}
-	this.restrictions = cast_[*ImmutableList](obj_(builder.build()))
+	this.restrictions = immBuilt_(builder)
 	return Outcome_base_ok_0()
 }
 
@@ -1757,8 +1744,8 @@ func (this *ConformanceRules_RestrictedMethodCall) checkConformance_impl(t *Node
 	if !n.isGetProp() || !ConformanceRules_ConformanceUtil_isCallTarget(n) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	for i := int32(0); i < this.restrictions.size(); i++ {
-		var r *ConformanceRules_RestrictedMethodCall_Restriction = cast_[*ConformanceRules_RestrictedMethodCall_Restriction](this.restrictions.get(i))
+	for i := int32(0); i < int32(len(this.restrictions)); i++ {
+		var r *ConformanceRules_RestrictedMethodCall_Restriction = sliceAt_(this.restrictions, i)
 		var result *ConformanceRules_ConformanceResult = ConformanceRules_ConformanceResult_CONFORMANCE
 		if this.matchesProp(n, r) {
 			result = this.checkConformance_4(t, n, r, false)
@@ -1825,7 +1812,7 @@ func new_ConformanceRules_RestrictedMethodCall_Restriction(type_ *JSType, proper
 
 type ConformanceRules_RestrictedPropertyWrite struct {
 	ConformanceRules_AbstractRule
-	restrictions ImmutableListOf[*ConformanceRules_RestrictedPropertyWrite_Restriction]
+	restrictions []*ConformanceRules_RestrictedPropertyWrite_Restriction
 }
 
 func (this *ConformanceRules_RestrictedPropertyWrite) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -1857,7 +1844,7 @@ func ConformanceRules_RestrictedPropertyWrite_create(compiler *AbstractCompiler,
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_RestrictedPropertyWrite) initRestrictedPropertyWrite(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -1869,8 +1856,8 @@ func (this *ConformanceRules_RestrictedPropertyWrite) initRestrictedPropertyWrit
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
-	var builder ImmutableList_BuilderOf[*ConformanceRules_RestrictedPropertyWrite_Restriction] = ImmutableList_builder()
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	var builder []*ConformanceRules_RestrictedPropertyWrite_Restriction
+	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var typeDecl *Outcome_base[string] = ConformanceRules_ConformanceUtil_removeTypeDecl(value)
@@ -1892,9 +1879,9 @@ func (this *ConformanceRules_RestrictedPropertyWrite) initRestrictedPropertyWrit
 			return Outcome_base_err[any](restrictedTypeOutcome.error())
 		}
 		var restrictedType *JSType = restrictedTypeOutcome.get()
-		builder.add(obj_(new_ConformanceRules_RestrictedPropertyWrite_Restriction(registry.getGlobalType(type_.get()), property.get(), restrictedType)))
+		builder = immAdd_(tc_p_ConformanceRules_RestrictedPropertyWrite_Restriction, builder, new_ConformanceRules_RestrictedPropertyWrite_Restriction(registry.getGlobalType(type_.get()), property.get(), restrictedType))
 	}
-	this.restrictions = cast_[*ImmutableList](obj_(builder.build()))
+	this.restrictions = immBuilt_(builder)
 	return Outcome_base_ok_0()
 }
 
@@ -1904,9 +1891,7 @@ func (this *ConformanceRules_RestrictedPropertyWrite) checkConformance_impl(t *N
 		var targetType *JSType = n.getFirstChild().getJSType()
 		if (rhsType != nil) && (targetType != nil) {
 			var targetNotNullType *JSType = nil
-			it_1 := foreach_(obj_(this.restrictions))
-			for it_1.next() {
-				var r *ConformanceRules_RestrictedPropertyWrite_Restriction = cast_[*ConformanceRules_RestrictedPropertyWrite_Restriction](it_1.v)
+			for _, r := range this.restrictions {
 				if n.getString() == r.property_ {
 					if !rhsType.isSubtypeOf(r.restrictedType) {
 						if ConformanceRules_ConformanceUtil_isLooseType(targetType) {
@@ -1954,7 +1939,7 @@ func new_ConformanceRules_RestrictedPropertyWrite_Restriction(type_ *JSType, pro
 
 type ConformanceRules_BannedCodePattern struct {
 	ConformanceRules_AbstractRule
-	restrictions ImmutableListOf[*TemplateAstMatcher]
+	restrictions []*TemplateAstMatcher
 }
 
 func (this *ConformanceRules_BannedCodePattern) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -1986,7 +1971,7 @@ func ConformanceRules_BannedCodePattern_create(compiler *AbstractCompiler, requi
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedCodePattern) initBannedCodePattern(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -1997,8 +1982,8 @@ func (this *ConformanceRules_BannedCodePattern) initBannedCodePattern(compiler *
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	var builder ImmutableList_BuilderOf[*TemplateAstMatcher] = ImmutableList_builder()
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	var builder []*TemplateAstMatcher
+	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var parseRoot Node = new_CompilerInput_SourceFile(SourceFile_jscomp_fromCode_String_String("<template>", value)).getAstRoot(compiler)
@@ -2007,16 +1992,16 @@ func (this *ConformanceRules_BannedCodePattern) initBannedCodePattern(compiler *
 		}
 		var templateRoot Node = parseRoot.getFirstChild()
 		var astMatcher *TemplateAstMatcher = new_TemplateAstMatcher(compiler, templateRoot, this.typeMatchingStrategy)
-		builder.add(obj_(astMatcher))
+		builder = immAdd_(tc_p_TemplateAstMatcher, builder, astMatcher)
 	}
-	this.restrictions = cast_[*ImmutableList](obj_(builder.build()))
+	this.restrictions = immBuilt_(builder)
 	return Outcome_base_ok_0()
 }
 
 func (this *ConformanceRules_BannedCodePattern) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	var possibleViolation bool = false
-	for i := int32(0); i < this.restrictions.size(); i++ {
-		var matcher *TemplateAstMatcher = cast_[*TemplateAstMatcher](this.restrictions.get(i))
+	for i := int32(0); i < int32(len(this.restrictions)); i++ {
+		var matcher *TemplateAstMatcher = sliceAt_(this.restrictions, i)
 		if matcher.matches(n) {
 			if matcher.isLooseMatch() {
 				possibleViolation = true
@@ -2053,7 +2038,7 @@ func ConformanceRules_CustomRuleProxy_create(compiler *AbstractCompiler, require
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_CustomRuleProxy) initCustomRuleProxy(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2072,82 +2057,169 @@ func (this *ConformanceRules_CustomRuleProxy) getPrecondition() CheckConformance
 	return this.customRule.getPrecondition()
 }
 
-func (this *ConformanceRules_CustomRuleProxy) check(t *NodeTraversal, n Node, behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
+func (this *ConformanceRules_CustomRuleProxy) check(t *NodeTraversal, n Node, behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
 	this.customRule.check(t, n, behavior)
 }
 
 func (this *ConformanceRules_CustomRuleProxy) createRule(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[CheckConformance_Rule] {
-	var factory ConformanceRules_CustomRuleProxy_CustomRuleFactory = icast_ConformanceRules_CustomRuleProxy_CustomRuleFactory(Map_get_s(ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY, requirement.getJavaClass()))
+	var factory ConformanceRules_CustomRuleProxy_CustomRuleFactory = mapAt_(ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY, requirement.getJavaClass())
 	if factory == nil {
 		return Outcome_base_err[CheckConformance_Rule](new_CheckConformance_InvalidRequirementSpec_String(("Unknown conformance rule: " + sstr_(requirement.getJavaClass()))).up_Throwable())
 	}
-	return factory.create(compiler, requirement)
+	return factory.call(compiler, requirement)
 }
 
-func ConformanceRules_CustomRuleProxy_createCustomRuleRegistry() ImmutableMapOf[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] {
-	var builder ImmutableMap_BuilderOf[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] = ImmutableMap_builder().put(strobj_("com.google.javascript.jscomp.ConformanceRules$NoOp"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_NoOp_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$InferredConstCheck"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_InferredConstCheck_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedDependency"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedDependency_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedDependencyRegex"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedDependencyRegex_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedName"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedName_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedProperty"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedProperty_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedStringRegex"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedStringRegex_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedNameCall"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_RestrictedNameCall_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedMethodCall"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_RestrictedMethodCall_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedPropertyWrite"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_RestrictedPropertyWrite_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedCodePattern"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedCodePattern_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanForOf"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanForOf_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RequireUseStrict"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_RequireUseStrict_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanThrowOfNonErrorTypes"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanThrowOfNonErrorTypes_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanNullDeref"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanNullDeref_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownThis"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanUnknownThis_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownDirectThisPropsReferences"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanUnknownDirectThisPropsReferences_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownTypedClassPropsReferences"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanUnknownTypedClassPropsReferences_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnresolvedType"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanUnresolvedType_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$StrictBanUnresolvedType"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_StrictBanUnresolvedType_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanGlobalVars"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanGlobalVars_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedEnhance"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedEnhance_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedModsRegex"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BannedModsRegex_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanCreateElement"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanCreateElement_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanCreateDom"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanCreateDom_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanElementSetAttribute"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanElementSetAttribute_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanSettingAttributes"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanSettingAttributes_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanExecCommand"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanExecCommand_create(p0, p1)
-	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanStaticThis"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-		return ConformanceRules_BanStaticThis_create(p0, p1)
-	}}))
-	return builder.buildOrThrow()
+func ConformanceRules_CustomRuleProxy_createCustomRuleRegistry() map[string]ConformanceRules_CustomRuleProxy_CustomRuleFactory {
+	var builder ImmutableMap_BuilderOf[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] = ImmutableMap_builder().put(strobj_("com.google.javascript.jscomp.ConformanceRules$NoOp"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$InferredConstCheck"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_2_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedDependency"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_3_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedDependencyRegex"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_4_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedName"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_5_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedProperty"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_6_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedStringRegex"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_7_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedNameCall"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_8_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedMethodCall"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_9_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedPropertyWrite"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_10_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedCodePattern"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_11_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanForOf"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_12_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RequireUseStrict"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_13_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanThrowOfNonErrorTypes"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_14_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanNullDeref"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_15_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownThis"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_16_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownDirectThisPropsReferences"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_17_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownTypedClassPropsReferences"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_18_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnresolvedType"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_19_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$StrictBanUnresolvedType"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_20_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanGlobalVars"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_21_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedEnhance"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_22_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedModsRegex"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_23_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanCreateElement"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_24_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanCreateDom"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_25_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanElementSetAttribute"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_26_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanSettingAttributes"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_27_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanExecCommand"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_28_)).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanStaticThis"), any(lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_))
+	return mapImm_(tc_string, tc_ConformanceRules_CustomRuleProxy_CustomRuleFactory, builder.buildOrThrow())
 }
 
-var ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY *ImmutableMap
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_1_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_NoOp_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_2_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_2_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_InferredConstCheck_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_3_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_3_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedDependency_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_4_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_4_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedDependencyRegex_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_5_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_5_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedName_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_6_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_6_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedProperty_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_7_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_7_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedStringRegex_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_8_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_8_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_RestrictedNameCall_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_9_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_9_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_RestrictedMethodCall_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_10_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_10_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_RestrictedPropertyWrite_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_11_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_11_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedCodePattern_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_12_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_12_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanForOf_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_13_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_13_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_RequireUseStrict_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_14_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_14_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanThrowOfNonErrorTypes_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_15_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_15_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanNullDeref_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_16_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_16_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanUnknownThis_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_17_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_17_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanUnknownDirectThisPropsReferences_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_18_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_18_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanUnknownTypedClassPropsReferences_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_19_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_19_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanUnresolvedType_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_20_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_20_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_StrictBanUnresolvedType_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_21_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_21_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanGlobalVars_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_22_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_22_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedEnhance_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_23_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_23_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BannedModsRegex_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_24_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_24_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanCreateElement_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_25_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_25_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanCreateDom_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_26_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_26_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanElementSetAttribute_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_27_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_27_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanSettingAttributes_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_28_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_28_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanExecCommand_create(p0, p1)
+})
+
+// lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_ is a lambda of ConformanceRules_CustomRuleProxy_createCustomRuleRegistry that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_CustomRuleProxy_createCustomRuleRegistry_29_ = newFuncObj_(func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+	return ConformanceRules_BanStaticThis_create(p0, p1)
+})
+
+var ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY map[string]ConformanceRules_CustomRuleProxy_CustomRuleFactory
 
 var ConformanceRules_CustomRuleProxy_clinit_done bool
 
@@ -2160,17 +2232,7 @@ func ConformanceRules_CustomRuleProxy_clinit() {
 
 }
 
-type ConformanceRules_CustomRuleProxy_CustomRuleFactory interface {
-	create(*AbstractCompiler, *Requirement) *Outcome_base[CheckConformance_Rule]
-}
-
-type ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn struct {
-	f func(*AbstractCompiler, *Requirement) *Outcome_base[CheckConformance_Rule]
-}
-
-func (this *ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn) create(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
-	return this.f(p0, p1)
-}
+type ConformanceRules_CustomRuleProxy_CustomRuleFactory = *funcObj_[func(*AbstractCompiler, *Requirement) *Outcome_base[CheckConformance_Rule]]
 
 type ConformanceRules_BanForOf struct {
 	ConformanceRules_AbstractRule
@@ -2205,7 +2267,7 @@ func ConformanceRules_BanForOf_create(compiler *AbstractCompiler, requirement *R
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanForOf) initBanForOf(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2256,7 +2318,7 @@ func ConformanceRules_RequireUseStrict_create(compiler *AbstractCompiler, requir
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_RequireUseStrict) initRequireUseStrict(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2264,7 +2326,7 @@ func (this *ConformanceRules_RequireUseStrict) initRequireUseStrict(compiler *Ab
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	if !icast_ProtocolStringList(requirement.getValueList()).isEmpty() {
+	if !ProtocolStringList(requirement.getValueList()).isEmpty() {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("invalid value").up_Throwable())
 	}
 	return Outcome_base_ok_0()
@@ -2313,7 +2375,7 @@ func ConformanceRules_BanThrowOfNonErrorTypes_create(compiler *AbstractCompiler,
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanThrowOfNonErrorTypes) initBanThrowOfNonErrorTypes(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2377,7 +2439,7 @@ func ConformanceRules_BanNullDeref_create(compiler *AbstractCompiler, requiremen
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanNullDeref) initBanNullDeref(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2390,15 +2452,14 @@ func (this *ConformanceRules_BanNullDeref) initBanNullDeref(compiler *AbstractCo
 
 func (this *ConformanceRules_BanNullDeref) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	var violation bool = func() bool {
-		switch n.getToken() {
-		case Token_rhino_GETPROP, Token_rhino_GETELEM, Token_rhino_NEW, Token_rhino_CALL:
+		switch n.ns_().token {
+		case tokOrd1_GETPROP, tokOrd1_GETELEM, tokOrd1_NEW, tokOrd1_CALL:
 			return this.report(n.getFirstChild())
-		case Token_rhino_IN:
+		case tokOrd1_IN:
 			return this.report(n.getLastChild())
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 	return func() *ConformanceRules_ConformanceResult {
 		if violation {
@@ -2463,7 +2524,7 @@ func ConformanceRules_BanUnknownThis_create(compiler *AbstractCompiler, requirem
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanUnknownThis) initBanUnknownThis(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2532,7 +2593,7 @@ func ConformanceRules_BanUnknownDirectThisPropsReferences_create(compiler *Abstr
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanUnknownDirectThisPropsReferences) initBanUnknownDirectThisPropsReferences(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2605,7 +2666,7 @@ func ConformanceRules_BanUnknownTypedClassPropsReferences_create(compiler *Abstr
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) initBanUnknownTypedClassPropsReferences(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2659,13 +2720,13 @@ func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) isDeclaredUnkn
 	}
 	var expr *JSTypeExpression = info.getType()
 	var typeExprNode Node = expr.getRoot()
-	if (typeExprNode.getToken() == Token_rhino_QMARK) && !typeExprNode.hasChildren() {
+	if (typeExprNode.ns_().token == tokOrd1_QMARK) && !typeExprNode.hasChildren() {
 		return true
-	} else if typeExprNode.getToken() == Token_rhino_PIPE {
+	} else if typeExprNode.ns_().token == tokOrd1_PIPE {
 		{
 			var child Node = typeExprNode.getFirstChild()
 			for ; child != 0; child = child.getNext() {
-				if child.getToken() == Token_rhino_QMARK {
+				if child.ns_().token == tokOrd1_QMARK {
 					return true
 				}
 			}
@@ -2714,7 +2775,7 @@ func ConformanceRules_BanUnresolvedType_create(compiler *AbstractCompiler, requi
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanUnresolvedType) initBanUnresolvedType(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2743,9 +2804,7 @@ func ConformanceRules_BanUnresolvedType_getNonConformingPart(type_ *JSType) Opti
 	}
 	if type_.isUnionType() {
 		var nonConformingParts *JTList[string] = nil
-		it_1 := foreach_(any(type_.getUnionMembers()))
-		for it_1.next() {
-			var part *JSType = to_JSType(it_1.v)
+		for part := range elemsBy_(type_.getUnionMembers(), to_JSType) {
 			var nonConformingPart Optional[string] = ConformanceRules_BanUnresolvedType_getNonConformingPart(part)
 			if nonConformingPart.isPresent() {
 				nonConformingParts = func() *JTList[string] {
@@ -2807,7 +2866,7 @@ func ConformanceRules_StrictBanUnresolvedType_create(compiler *AbstractCompiler,
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_StrictBanUnresolvedType) initStrictBanUnresolvedType(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2828,7 +2887,7 @@ func (this *ConformanceRules_StrictBanUnresolvedType) checkConformance_impl(t *N
 
 type ConformanceRules_BanGlobalVars struct {
 	ConformanceRules_AbstractRule
-	allowlistedNames ImmutableSetOf[string]
+	allowlistedNames *ImmutableSet[string]
 }
 
 func (this *ConformanceRules_BanGlobalVars) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -2860,7 +2919,7 @@ func ConformanceRules_BanGlobalVars_create(compiler *AbstractCompiler, requireme
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanGlobalVars) initBanGlobalVars(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2868,14 +2927,14 @@ func (this *ConformanceRules_BanGlobalVars) initBanGlobalVars(compiler *Abstract
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	this.allowlistedNames = ImmutableSet_copyOf(Collection(requirement.getValueList()))
+	this.allowlistedNames = immutableSetCopyOf_(tc_string, Collection(requirement.getValueList()))
 	return Outcome_base_ok_0()
 }
 
 func (this *ConformanceRules_BanGlobalVars) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if ((t.inGlobalScope() && NodeUtil_isDeclaration(n)) && !n.getBooleanProp(Node_IS_NAMESPACE)) && !this.isAllowlisted(n) {
 		var enclosingScript Node = NodeUtil_getEnclosingScript(n)
-		if (enclosingScript != 0) && ((enclosingScript.getBooleanProp(Node_GOOG_MODULE) || enclosingScript.getBooleanProp(Node_ES6_MODULE)) || enclosingScript.getInputId().equals(obj_(this.compiler_.getSyntheticCodeInputId()))) {
+		if (enclosingScript != 0) && ((enclosingScript.getBooleanProp(Node_GOOG_MODULE) || enclosingScript.getBooleanProp(Node_ES6_MODULE)) || enclosingScript.getInputId().equals_InputId(this.compiler_.getSyntheticCodeInputId())) {
 			return ConformanceRules_ConformanceResult_CONFORMANCE
 		}
 		return ConformanceRules_ConformanceResult_VIOLATION
@@ -2892,26 +2951,26 @@ func (this *ConformanceRules_BanGlobalVars) isAllowlisted(n Node) bool {
 	}
 	if NodeUtil_isNameDeclaration(n) {
 		var allowlisted []bool = []bool{true}
-		NodeUtil_visitLhsNodesInNode(n, &Consumer_tfn_Node{func(name Node) {
+		NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(name Node) {
 			if !this.isAllowlistedName(name.getString()) {
 				allowlisted[0] = false
 			}
-		}})
+		}}).accept)
 		return allowlisted[0]
 	}
 	return false
 }
 
 func (this *ConformanceRules_BanGlobalVars) isAllowlistedName(name string) bool {
-	if Collection_contains_s(this.allowlistedNames, name) {
+	if this.allowlistedNames.Has(name) {
 		return true
 	}
-	return (((((name == "$jscomp") || String_startsWith(name, "$jscomp$compprop")) || ClosureRewriteModule_isModuleContent(name)) || ClosureRewriteModule_isModuleExport(name)) || ScopedAliases_isScopedAliases(name))
+	return (((((name == "$jscomp") || strings.HasPrefix(name, "$jscomp$compprop")) || ClosureRewriteModule_isModuleContent(name)) || ClosureRewriteModule_isModuleExport(name)) || ScopedAliases_isScopedAliases(name))
 }
 
 type ConformanceRules_BannedEnhance struct {
 	ConformanceRules_AbstractRule
-	bannedEnhancedNamespaces ImmutableSetOf[string]
+	bannedEnhancedNamespaces *ImmutableSet[string]
 }
 
 func (this *ConformanceRules_BannedEnhance) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -2943,7 +3002,7 @@ func ConformanceRules_BannedEnhance_create(compiler *AbstractCompiler, requireme
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedEnhance) initBannedEnhance(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -2954,7 +3013,7 @@ func (this *ConformanceRules_BannedEnhance) initBannedEnhance(compiler *Abstract
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	this.bannedEnhancedNamespaces = ImmutableSet_copyOf(Collection(requirement.getValueList()))
+	this.bannedEnhancedNamespaces = immutableSetCopyOf_(tc_string, Collection(requirement.getValueList()))
 	return Outcome_base_ok_0()
 }
 
@@ -2963,9 +3022,8 @@ func (this *ConformanceRules_BannedEnhance) checkConformance_impl(t *NodeTravers
 	if (docInfo == nil) || !docInfo.hasEnhance() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	it_1 := foreach_(obj_(this.bannedEnhancedNamespaces))
-	for it_1.next() {
-		var banned string = str_(it_1.v)
+	for _, el_1 := range this.bannedEnhancedNamespaces.keys {
+		var banned string = el_1
 		if docInfo.getEnhance() == banned {
 			return new_ConformanceRules_ConformanceResult_ConformanceLevel_String(ConformanceRules_ConformanceLevel_VIOLATION, ("The enhanced namespace \"" + sstr_(banned) + "\""))
 		}
@@ -2974,8 +3032,11 @@ func (this *ConformanceRules_BannedEnhance) checkConformance_impl(t *NodeTravers
 }
 
 func (this *ConformanceRules_BannedEnhance) getPrecondition_impl() CheckConformance_Precondition {
-	return &CheckConformance_Precondition_fn{func(p0 Node) bool { return p0.isScript() }}
+	return lambda_ConformanceRules_BannedEnhance_getPrecondition_impl_1_
 }
+
+// lambda_ConformanceRules_BannedEnhance_getPrecondition_impl_1_ is a lambda of ConformanceRules_BannedEnhance_getPrecondition_impl that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_BannedEnhance_getPrecondition_impl_1_ = &CheckConformance_Precondition_fn{func(p0 Node) bool { return p0.isScript() }}
 
 type ConformanceRules_BannedModsRegex struct {
 	ConformanceRules_AbstractRule
@@ -3011,7 +3072,7 @@ func ConformanceRules_BannedModsRegex_create(compiler *AbstractCompiler, require
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BannedModsRegex) initBannedModsRegex(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3036,15 +3097,18 @@ func (this *ConformanceRules_BannedModsRegex) checkConformance_impl(t *NodeTrave
 	if (docInfo == nil) || !docInfo.hasMods() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	if this.bannedModsRegex.matcher(strobj_(docInfo.getMods())).find() {
+	if this.bannedModsRegex.matcher_s(docInfo.getMods()).find() {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
 }
 
 func (this *ConformanceRules_BannedModsRegex) getPrecondition_impl() CheckConformance_Precondition {
-	return &CheckConformance_Precondition_fn{func(p0 Node) bool { return p0.isScript() }}
+	return lambda_ConformanceRules_BannedModsRegex_getPrecondition_impl_1_
 }
+
+// lambda_ConformanceRules_BannedModsRegex_getPrecondition_impl_1_ is a lambda of ConformanceRules_BannedModsRegex_getPrecondition_impl that captures nothing (post-flip step lambdas).
+var lambda_ConformanceRules_BannedModsRegex_getPrecondition_impl_1_ = &CheckConformance_Precondition_fn{func(p0 Node) bool { return p0.isScript() }}
 
 type ConformanceRules_BanCreateElement struct {
 	ConformanceRules_AbstractRule
@@ -3082,7 +3146,7 @@ func ConformanceRules_BanCreateElement_create(compiler *AbstractCompiler, requir
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3091,9 +3155,7 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 		return Outcome_base_err[any](superInited.error())
 	}
 	this.bannedTags = jnewTSet_(jtc_string)
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
-	for it_1.next() {
-		var value string = str_(it_1.v)
+	for value := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
 		this.bannedTags.add(Ascii_toLowerCase(value))
 	}
 	if this.bannedTags.isEmpty() {
@@ -3178,7 +3240,7 @@ func ConformanceRules_BanCreateDom_create(compiler *AbstractCompiler, requiremen
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanCreateDom) initBanCreateDom(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3187,17 +3249,17 @@ func (this *ConformanceRules_BanCreateDom) initBanCreateDom(compiler *AbstractCo
 		return Outcome_base_err[any](superInited.error())
 	}
 	var bannedTagAttrs ImmutableList_BuilderOf[[]string] = ImmutableList_builder()
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
-		var tagAttr ListOf[string] = ConformanceRules_ON_DOT.splitToList(strobj_(value))
-		if ((tagAttr.size() != 2) || String_isEmpty(str_(tagAttr.get(0)))) || String_isEmpty(str_(tagAttr.get(1))) {
+		var tagAttr []string = sliceImm_(tc_string, ConformanceRules_ON_DOT.splitToList_s(value))
+		if ((int32(len(tagAttr)) != 2) || sliceAt_(tagAttr, 0) == "") || sliceAt_(tagAttr, 1) == "" {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("Values must be in the format tagname.attribute.").up_Throwable())
 		}
-		var lowercasedTag string = String_toLowerCase(str_(tagAttr.get(0)), Locale_ROOT)
-		bannedTagAttrs.add(any([]string{lowercasedTag, str_(tagAttr.get(1))}))
+		var lowercasedTag string = strings.ToLower(sliceAt_(tagAttr, 0))
+		bannedTagAttrs.add(any([]string{lowercasedTag, sliceAt_(tagAttr, 1)}))
 	}
-	this.bannedTagAttrs = cast_[*ImmutableList](obj_(bannedTagAttrs.build()))
+	this.bannedTagAttrs = bannedTagAttrs.build()
 	if this.bannedTagAttrs.isEmpty() {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("Specify one or more values.").up_Throwable())
 	}
@@ -3223,9 +3285,8 @@ func (this *ConformanceRules_BanCreateDom) checkConformance_impl(t *NodeTraversa
 	if attrs.isNull() || ((attrsType != nil) && attrsType.isVoidType()) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	it_1 := foreach_(obj_(this.bannedTagAttrs))
-	for it_1.next() {
-		var tagAttr []string = cast_[[]string](it_1.v)
+	for _, el_1 := range immElems_(this.bannedTagAttrs) {
+		var tagAttr []string = cast_[[]string](el_1)
 		if ((tagNames != nil) && !Collection_contains_s(tagNames, tagAttr[0])) && !(tagAttr[0] == "*") {
 			continue
 		}
@@ -3280,9 +3341,9 @@ func (this *ConformanceRules_BanCreateDom) checkConformance_impl(t *NodeTraversa
 
 func (this *ConformanceRules_BanCreateDom) getTagNames(tag Node) CollectionOf[string] {
 	if tag.isStringLit() {
-		return icast_Collection(obj_(ImmutableSet_of_Object(strobj_(String_toLowerCase(tag.getString(), Locale_ROOT)))))
+		return ImmutableSet_of_Object(strobj_(strings.ToLower(tag.getString())))
 	} else if tag.isGetProp() && ConformanceRules_GOOG_DOM_TAGNAME.matches(tag.getFirstChild()) {
-		return icast_Collection(obj_(ImmutableSet_of_Object(strobj_(String_toLowerCase(tag.getString(), Locale_ROOT)))))
+		return ImmutableSet_of_Object(strobj_(strings.ToLower(tag.getString())))
 	}
 	var type_ *JSType = tag.getJSType()
 	if (type_ == nil) || !type_.isTemplatizedType() {
@@ -3290,8 +3351,8 @@ func (this *ConformanceRules_BanCreateDom) getTagNames(tag Node) CollectionOf[st
 	}
 	var typeAsObj *ObjectType = type_.toMaybeObjectType()
 	if typeAsObj.getRawType().getDisplayName().get() == "goog.dom.TagName" {
-		var tagType *JSType = to_JSType(Iterables_getOnlyElement(icast_Iterable(obj_(typeAsObj.getTemplateTypes()))))
-		return Collection(ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES.get(strobj_(tagType.getDisplayName().orElse(nullstr_))))
+		var tagType *JSType = to_JSType(Iterables_getOnlyElement(icast_Iterable(obj_(typeAsObj.getTemplateTypes().asImm()))))
+		return Collection(ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES.get_s(tagType.getDisplayName().orElse(nullstr_)))
 	}
 	return nil
 }
@@ -3315,13 +3376,13 @@ func (this *ConformanceRules_BanCreateDom) isCreateDomCall(n Node) bool {
 	if type_ == nil {
 		return false
 	}
-	if type_.equals(this.domHelperType.self()) {
+	if type_.equals_JSType(this.domHelperType) {
 		return true
 	}
 	return false
 }
 
-var ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES *SimpleListMultimap
+var ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES *SimpleListMultimap[any, string]
 
 var ConformanceRules_BanCreateDom_clinit_done bool
 
@@ -3330,19 +3391,19 @@ func ConformanceRules_BanCreateDom_clinit() {
 		return
 	}
 	ConformanceRules_BanCreateDom_clinit_done = true
-	ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES = SimpleListMultimap_create().put(strobj_("HTMLAnchorElement"), strobj_("a")).put(strobj_("HTMLAppletElement"), strobj_("applet")).put(strobj_("HTMLAreaElement"), strobj_("area")).put(strobj_("HTMLAudioElement"), strobj_("audio")).put(strobj_("HTMLBRElement"), strobj_("br")).put(strobj_("HTMLBaseElement"), strobj_("base")).put(strobj_("HTMLBaseFontElement"), strobj_("basefont")).put(strobj_("HTMLBodyElement"), strobj_("body")).put(strobj_("HTMLButtonElement"), strobj_("button")).put(strobj_("HTMLCanvasElement"), strobj_("canvas")).put(strobj_("HTMLDListElement"), strobj_("dl")).put(strobj_("HTMLDataListElement"), strobj_("datalist")).put(strobj_("HTMLDetailsElement"), strobj_("details")).put(strobj_("HTMLDialogElement"), strobj_("dialog")).put(strobj_("HTMLDirectoryElement"), strobj_("dir")).put(strobj_("HTMLDivElement"), strobj_("div")).put(strobj_("HTMLEmbedElement"), strobj_("embed")).put(strobj_("HTMLFieldSetElement"), strobj_("fieldset")).put(strobj_("HTMLFontElement"), strobj_("font")).put(strobj_("HTMLFormElement"), strobj_("form")).put(strobj_("HTMLFrameElement"), strobj_("frame")).put(strobj_("HTMLFrameSetElement"), strobj_("frameset")).put(strobj_("HTMLHRElement"), strobj_("hr")).put(strobj_("HTMLHeadElement"), strobj_("head")).put(strobj_("HTMLHeadingElement"), strobj_("h1")).put(strobj_("HTMLHeadingElement"), strobj_("h2")).put(strobj_("HTMLHeadingElement"), strobj_("h3")).put(strobj_("HTMLHeadingElement"), strobj_("h4")).put(strobj_("HTMLHeadingElement"), strobj_("h5")).put(strobj_("HTMLHeadingElement"), strobj_("h6")).put(strobj_("HTMLHtmlElement"), strobj_("html")).put(strobj_("HTMLIFrameElement"), strobj_("iframe")).put(strobj_("HTMLImageElement"), strobj_("img")).put(strobj_("HTMLInputElement"), strobj_("input")).put(strobj_("HTMLIsIndexElement"), strobj_("isindex")).put(strobj_("HTMLLIElement"), strobj_("li")).put(strobj_("HTMLLabelElement"), strobj_("label")).put(strobj_("HTMLLegendElement"), strobj_("legend")).put(strobj_("HTMLLinkElement"), strobj_("link")).put(strobj_("HTMLMapElement"), strobj_("map")).put(strobj_("HTMLMenuElement"), strobj_("menu")).put(strobj_("HTMLMetaElement"), strobj_("meta")).put(strobj_("HTMLMeterElement"), strobj_("meter")).put(strobj_("HTMLModElement"), strobj_("del")).put(strobj_("HTMLModElement"), strobj_("ins")).put(strobj_("HTMLOListElement"), strobj_("ol")).put(strobj_("HTMLObjectElement"), strobj_("object")).put(strobj_("HTMLOptGroupElement"), strobj_("optgroup")).put(strobj_("HTMLOptionElement"), strobj_("option")).put(strobj_("HTMLOutputElement"), strobj_("output")).put(strobj_("HTMLParagraphElement"), strobj_("p")).put(strobj_("HTMLParamElement"), strobj_("param")).put(strobj_("HTMLPreElement"), strobj_("pre")).put(strobj_("HTMLProgressElement"), strobj_("progress")).put(strobj_("HTMLQuoteElement"), strobj_("blockquote")).put(strobj_("HTMLQuoteElement"), strobj_("q")).put(strobj_("HTMLScriptElement"), strobj_("script")).put(strobj_("HTMLSelectElement"), strobj_("select")).put(strobj_("HTMLSourceElement"), strobj_("source")).put(strobj_("HTMLSpanElement"), strobj_("span")).put(strobj_("HTMLStyleElement"), strobj_("style")).put(strobj_("HTMLTableCaptionElement"), strobj_("caption")).put(strobj_("HTMLTableCellElement"), strobj_("td")).put(strobj_("HTMLTableCellElement"), strobj_("th")).put(strobj_("HTMLTableColElement"), strobj_("col")).put(strobj_("HTMLTableColElement"), strobj_("colgroup")).put(strobj_("HTMLTableElement"), strobj_("table")).put(strobj_("HTMLTableRowElement"), strobj_("tr")).put(strobj_("HTMLTableSectionElement"), strobj_("tbody")).put(strobj_("HTMLTableSectionElement"), strobj_("tfoot")).put(strobj_("HTMLTableSectionElement"), strobj_("thead")).put(strobj_("HTMLTemplateElement"), strobj_("template")).put(strobj_("HTMLTextAreaElement"), strobj_("textarea")).put(strobj_("HTMLTitleElement"), strobj_("title")).put(strobj_("HTMLTrackElement"), strobj_("track")).put(strobj_("HTMLUListElement"), strobj_("ul")).put(strobj_("HTMLVideoElement"), strobj_("video")).immutableCopy()
+	ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES = SimpleListMultimap_create[any, string]().put_s("HTMLAnchorElement", "a").put_s("HTMLAppletElement", "applet").put_s("HTMLAreaElement", "area").put_s("HTMLAudioElement", "audio").put_s("HTMLBRElement", "br").put_s("HTMLBaseElement", "base").put_s("HTMLBaseFontElement", "basefont").put_s("HTMLBodyElement", "body").put_s("HTMLButtonElement", "button").put_s("HTMLCanvasElement", "canvas").put_s("HTMLDListElement", "dl").put_s("HTMLDataListElement", "datalist").put_s("HTMLDetailsElement", "details").put_s("HTMLDialogElement", "dialog").put_s("HTMLDirectoryElement", "dir").put_s("HTMLDivElement", "div").put_s("HTMLEmbedElement", "embed").put_s("HTMLFieldSetElement", "fieldset").put_s("HTMLFontElement", "font").put_s("HTMLFormElement", "form").put_s("HTMLFrameElement", "frame").put_s("HTMLFrameSetElement", "frameset").put_s("HTMLHRElement", "hr").put_s("HTMLHeadElement", "head").put_s("HTMLHeadingElement", "h1").put_s("HTMLHeadingElement", "h2").put_s("HTMLHeadingElement", "h3").put_s("HTMLHeadingElement", "h4").put_s("HTMLHeadingElement", "h5").put_s("HTMLHeadingElement", "h6").put_s("HTMLHtmlElement", "html").put_s("HTMLIFrameElement", "iframe").put_s("HTMLImageElement", "img").put_s("HTMLInputElement", "input").put_s("HTMLIsIndexElement", "isindex").put_s("HTMLLIElement", "li").put_s("HTMLLabelElement", "label").put_s("HTMLLegendElement", "legend").put_s("HTMLLinkElement", "link").put_s("HTMLMapElement", "map").put_s("HTMLMenuElement", "menu").put_s("HTMLMetaElement", "meta").put_s("HTMLMeterElement", "meter").put_s("HTMLModElement", "del").put_s("HTMLModElement", "ins").put_s("HTMLOListElement", "ol").put_s("HTMLObjectElement", "object").put_s("HTMLOptGroupElement", "optgroup").put_s("HTMLOptionElement", "option").put_s("HTMLOutputElement", "output").put_s("HTMLParagraphElement", "p").put_s("HTMLParamElement", "param").put_s("HTMLPreElement", "pre").put_s("HTMLProgressElement", "progress").put_s("HTMLQuoteElement", "blockquote").put_s("HTMLQuoteElement", "q").put_s("HTMLScriptElement", "script").put_s("HTMLSelectElement", "select").put_s("HTMLSourceElement", "source").put_s("HTMLSpanElement", "span").put_s("HTMLStyleElement", "style").put_s("HTMLTableCaptionElement", "caption").put_s("HTMLTableCellElement", "td").put_s("HTMLTableCellElement", "th").put_s("HTMLTableColElement", "col").put_s("HTMLTableColElement", "colgroup").put_s("HTMLTableElement", "table").put_s("HTMLTableRowElement", "tr").put_s("HTMLTableSectionElement", "tbody").put_s("HTMLTableSectionElement", "tfoot").put_s("HTMLTableSectionElement", "thead").put_s("HTMLTemplateElement", "template").put_s("HTMLTextAreaElement", "textarea").put_s("HTMLTitleElement", "title").put_s("HTMLTrackElement", "track").put_s("HTMLUListElement", "ul").put_s("HTMLVideoElement", "video").immutableCopy()
 
 }
 
 type ConformanceRules_SecuritySensitiveAttributes struct {
-	bannedAtrrs             ImmutableSetOf[string]
-	globalNamespaceSupplier SupplierOf[*GlobalNamespace]
+	bannedAtrrs             *ImmutableSet[string]
+	globalNamespaceSupplier func() any
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_0() {
-	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(icast_Collection(obj_(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS)), &Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
+	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(icast_Collection(obj_(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS.asImm())), (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
 		return nil
-	}})
+	}}).get)
 }
 
 func new_ConformanceRules_SecuritySensitiveAttributes_0() *ConformanceRules_SecuritySensitiveAttributes {
@@ -3351,41 +3412,39 @@ func new_ConformanceRules_SecuritySensitiveAttributes_0() *ConformanceRules_Secu
 	return this
 }
 
-func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier SupplierOf[*GlobalNamespace]) {
-	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(icast_Collection(obj_(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS)), globalNamespaceSupplier)
+func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier func() any) {
+	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(icast_Collection(obj_(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS.asImm())), globalNamespaceSupplier)
 }
 
-func new_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier SupplierOf[*GlobalNamespace]) *ConformanceRules_SecuritySensitiveAttributes {
+func new_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier func() any) *ConformanceRules_SecuritySensitiveAttributes {
 	this := &ConformanceRules_SecuritySensitiveAttributes{}
 	this.init_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier)
 	return this
 }
 
-func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier SupplierOf[*GlobalNamespace]) {
-	var bannedAtrrsBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	it_1 := foreach_(any(bannedAtrrs))
-	for it_1.next() {
-		var s string = str_(it_1.v)
-		bannedAtrrsBuilder.add(strobj_(String_toLowerCase(s, Locale_ROOT)))
+func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier func() any) {
+	var bannedAtrrsBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
+	for s := range elemsBy_(bannedAtrrs, str_) {
+		bannedAtrrsBuilder.add(strings.ToLower(s))
 	}
-	this.bannedAtrrs = cast_[*ImmutableSet](obj_(bannedAtrrsBuilder.build()))
+	this.bannedAtrrs = bannedAtrrsBuilder.build()
 	this.globalNamespaceSupplier = globalNamespaceSupplier
 }
 
-func new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier SupplierOf[*GlobalNamespace]) *ConformanceRules_SecuritySensitiveAttributes {
+func new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs CollectionOf[string], globalNamespaceSupplier func() any) *ConformanceRules_SecuritySensitiveAttributes {
 	this := &ConformanceRules_SecuritySensitiveAttributes{}
 	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs, globalNamespaceSupplier)
 	return this
 }
 
 func ConformanceRules_SecuritySensitiveAttributes_createFromBannedAttrs(bannedAtrrs CollectionOf[string]) *ConformanceRules_SecuritySensitiveAttributes {
-	return new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs, &Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
+	return new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(bannedAtrrs, (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
 		return nil
-	}})
+	}}).get)
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) contains(attributeName string) bool {
-	return Collection_contains_s(this.bannedAtrrs, attributeName)
+	return this.bannedAtrrs.Has(attributeName)
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAttributeName(traversal *NodeTraversal, attrName Node) *ConformanceRules_ConformanceResult {
@@ -3398,8 +3457,8 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAtt
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}()
 	}
-	literalName = Optional_of[string](String_toLowerCase(literalName.get(), Locale_ROOT))
-	if Collection_contains_s(this.bannedAtrrs, literalName.get()) || ConformanceRules_ConformanceUtil_isEventHandlerAttrName(literalName.get()) {
+	literalName = Optional_of[string](strings.ToLower(literalName.get()))
+	if this.bannedAtrrs.Has(literalName.get()) || ConformanceRules_ConformanceUtil_isEventHandlerAttrName(literalName.get()) {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -3411,14 +3470,14 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAtt
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	return func() *ConformanceRules_ConformanceResult {
-		if this.contains(String_toLowerCase(literalName.get(), Locale_ROOT)) {
+		if this.contains(strings.ToLower(literalName.get())) {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}()
 }
 
-var ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS *ImmutableSet
+var ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS *ImmutableSet[string]
 
 var ConformanceRules_SecuritySensitiveAttributes_clinit_done bool
 
@@ -3427,7 +3486,7 @@ func ConformanceRules_SecuritySensitiveAttributes_clinit() {
 		return
 	}
 	ConformanceRules_SecuritySensitiveAttributes_clinit_done = true
-	ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("href"), strobj_("rel"), strobj_("src"), strobj_("srcdoc"), strobj_("action"), strobj_("formaction"), []any{strobj_("sandbox"), strobj_("icon"), strobj_("codebase"), strobj_("data")})
+	ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS = immutableSetOf_(tc_string, "href", "rel", "src", "srcdoc", "action", "formaction", "sandbox", "icon", "codebase", "data")
 
 }
 
@@ -3474,7 +3533,7 @@ func ConformanceRules_BanElementSetAttribute_create(compiler *AbstractCompiler, 
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanElementSetAttribute) initBanElementSetAttribute(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3482,7 +3541,7 @@ func (this *ConformanceRules_BanElementSetAttribute) initBanElementSetAttribute(
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	this.securitySensitiveAttributes = new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(Collection(requirement.getValueList()), &Supplier_tfn_GlobalNamespace{func() *GlobalNamespace { return this.getGlobalNamespace() }})
+	this.securitySensitiveAttributes = new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(Collection(requirement.getValueList()), (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace { return this.getGlobalNamespace() }}).get)
 	this.defaultDecisionForUncertainCases = func() *ConformanceRules_ConformanceResult {
 		if requirement.getReportLooseTypeViolations() {
 			return ConformanceRules_ConformanceResult_VIOLATION
@@ -3549,7 +3608,7 @@ func (this *ConformanceRules_BanElementSetAttribute) getBannedPropertyName(callN
 		return Optional_base_absent()
 	}
 	var propertyName string = target.getString()
-	if !Collection_contains_s(ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES, propertyName) {
+	if !ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES.Has(propertyName) {
 		return Optional_base_absent()
 	}
 	var type_ *JSType = target.getFirstChild().getJSType()
@@ -3564,9 +3623,9 @@ func (this *ConformanceRules_BanElementSetAttribute) getBannedPropertyName(callN
 
 func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElement(traversal *NodeTraversal, getElementNode Node) *ConformanceRules_ConformanceResult {
 	var key Node = getElementNode.getSecondChild()
-	var keyName Optional[string] = ConformanceRules_ConformanceUtil_inferStringValue(traversal.getScope(), key, &Supplier_tfn_GlobalNamespace{func() *GlobalNamespace { return this.getGlobalNamespace() }})
+	var keyName Optional[string] = ConformanceRules_ConformanceUtil_inferStringValue(traversal.getScope(), key, (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace { return this.getGlobalNamespace() }}).get)
 	if keyName.isPresent() {
-		if this.securitySensitiveAttributes.contains(String_toLowerCase(keyName.get(), Locale_ROOT)) || (this.requirement_.getReportLooseTypeViolations() && ((keyName.get() == "innerHTML") || (keyName.get() == "outerHTML"))) {
+		if this.securitySensitiveAttributes.contains(strings.ToLower(keyName.get())) || (this.requirement_.getReportLooseTypeViolations() && ((keyName.get() == "innerHTML") || (keyName.get() == "outerHTML"))) {
 			if this.hasElementType(getElementNode) {
 				return ConformanceRules_ConformanceResult_VIOLATION
 			}
@@ -3584,9 +3643,8 @@ func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElemen
 		if keyType.isString() {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		} else if keyType.isUnionType() {
-			it_1 := foreach_(obj_(keyType.toMaybeUnionType().getAlternates()))
-			for it_1.next() {
-				var alternate *JSType = to_JSType(it_1.v)
+			for _, el_1 := range keyType.toMaybeUnionType().getAlternates().items {
+				var alternate *JSType = el_1
 				if alternate.isString() {
 					return ConformanceRules_ConformanceResult_VIOLATION
 				}
@@ -3614,7 +3672,7 @@ const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NS string = "setAttr
 const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE string = "setAttributeNode"
 const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE_NS string = "setAttributeNodeNS"
 
-var ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES *ImmutableSet
+var ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES *ImmutableSet[string]
 
 const ConformanceRules_BanElementSetAttribute_GLOBAL_NAMESPACE_ANALYSIS_LIMIT int32 = 10000
 
@@ -3625,13 +3683,13 @@ func ConformanceRules_BanElementSetAttribute_clinit() {
 		return
 	}
 	ConformanceRules_BanElementSetAttribute_clinit_done = true
-	ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES = ImmutableSet_of_Object_Object_Object_Object(strobj_(ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE), strobj_(ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NS), strobj_(ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE), strobj_(ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE_NS))
+	ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES = immutableSetOf_(tc_string, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NS, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE, ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE_NS)
 
 }
 
 type ConformanceRules_BanSettingAttributes struct {
 	ConformanceRules_AbstractRule
-	restrictions ImmutableListOf[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction]
+	restrictions []*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction
 }
 
 func (this *ConformanceRules_BanSettingAttributes) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -3663,7 +3721,7 @@ func ConformanceRules_BanSettingAttributes_create(compiler *AbstractCompiler, re
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanSettingAttributes) initBanSettingAttributes(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3671,12 +3729,12 @@ func (this *ConformanceRules_BanSettingAttributes) initBanSettingAttributes(comp
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	if icast_ProtocolStringList(requirement.getValueList()).isEmpty() {
+	if ProtocolStringList(requirement.getValueList()).isEmpty() {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
-	var builder ImmutableList_BuilderOf[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction] = ImmutableList_builder()
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
+	var builder []*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction
+	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var type_ Optional[string] = ConformanceRules_ConformanceUtil_getClassFromDeclarationName(value)
@@ -3684,9 +3742,9 @@ func (this *ConformanceRules_BanSettingAttributes) initBanSettingAttributes(comp
 		if type_.isEmpty() || property.isEmpty() {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("bad prop value").up_Throwable())
 		}
-		builder.add(obj_(new_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction(registry.getGlobalType(type_.get()), property.get())))
+		builder = immAdd_(tc_p_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction, builder, new_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction(registry.getGlobalType(type_.get()), property.get()))
 	}
-	this.restrictions = cast_[*ImmutableList](obj_(builder.build()))
+	this.restrictions = immBuilt_(builder)
 	return Outcome_base_ok_0()
 }
 
@@ -3718,9 +3776,7 @@ func (this *ConformanceRules_BanSettingAttributes) getBannedPropertyName(node No
 		return Optional_base_absent()
 	}
 	var propertyName string = target.getString()
-	it_1 := foreach_(obj_(this.restrictions))
-	for it_1.next() {
-		var restricted *ConformanceRules_BanSettingAttributes_AttributeSettingRestriction = cast_[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction](it_1.v)
+	for _, restricted := range this.restrictions {
 		if ((propertyName == restricted.property_) && (restricted.type__ != nil)) && type_.isSubtypeOf(restricted.type__) {
 			return Optional_base_of(strobj_(propertyName))
 		}
@@ -3764,7 +3820,7 @@ func new_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction(type_
 
 type ConformanceRules_BanExecCommand struct {
 	ConformanceRules_AbstractRule
-	bannedAttrs ImmutableListOf[string]
+	bannedAttrs []string
 }
 
 func (this *ConformanceRules_BanExecCommand) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -3796,7 +3852,7 @@ func ConformanceRules_BanExecCommand_create(compiler *AbstractCompiler, requirem
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanExecCommand) initBanExecCommand(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3804,13 +3860,11 @@ func (this *ConformanceRules_BanExecCommand) initBanExecCommand(compiler *Abstra
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	var bannedAttrsBuilder ImmutableList_BuilderOf[string] = ImmutableList_builder()
-	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
-	for it_1.next() {
-		var v string = str_(it_1.v)
-		bannedAttrsBuilder.add(strobj_(String_toLowerCase(v, Locale_ROOT)))
+	var bannedAttrsBuilder []string
+	for v := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
+		bannedAttrsBuilder = immAdd_(tc_string, bannedAttrsBuilder, strings.ToLower(v))
 	}
-	this.bannedAttrs = cast_[*ImmutableList](obj_(bannedAttrsBuilder.build()))
+	this.bannedAttrs = immBuilt_(bannedAttrsBuilder)
 	return Outcome_base_ok_0()
 }
 
@@ -3826,7 +3880,7 @@ func (this *ConformanceRules_BanExecCommand) checkConformance_impl(traversal *No
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	var attrName string = attr.getString()
-	if Collection_contains_s(this.bannedAttrs, String_toLowerCase(attrName, Locale_ROOT)) {
+	if sliceHasStr_(this.bannedAttrs, strings.ToLower(attrName)) {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -3895,7 +3949,7 @@ func ConformanceRules_BanStaticThis_create(compiler *AbstractCompiler, requireme
 	if inited.isErr() {
 		return Outcome_base_err[CheckConformance_Rule](inited.error())
 	}
-	return Outcome_base_ok_Object[CheckConformance_Rule](icast_CheckConformance_Rule(obj_(rule)))
+	return Outcome_base_ok_Object[CheckConformance_Rule](CheckConformance_Rule(rule))
 }
 
 func (this *ConformanceRules_BanStaticThis) initBanStaticThis(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[any] {
@@ -3918,321 +3972,289 @@ func (this *ConformanceRules_BanStaticThis) checkConformance_impl(t *NodeTravers
 }
 
 func ConformanceRules_BanStaticThis_isStaticMethod(n Node) bool {
-	Preconditions_checkArgument(n.isFunction())
+	if !n.isFunction() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var parent Node = n.getParent()
 	return (((parent != 0) && parent.isMemberFunctionDef()) && parent.isStaticMember())
 }
 
-type ConformanceRules_BannedProperty_RequirementPrecondition_1 struct {
-	ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) up_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition {
-	if this == nil {
-		return nil
+// checkConformance: an object that is exactly a ConformanceRules_NoOp calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_NoOp) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_NoOp); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	return &this.ConformanceRules_BannedProperty_RequirementPrecondition
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) up_Enum() *Enum {
-	if this == nil {
-		return nil
+// checkConformance: an object that is exactly a ConformanceRules_InferredConstCheck calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_InferredConstCheck) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_InferredConstCheck); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	return &this.Enum
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) init_ConformanceRules_BannedProperty_RequirementPrecondition_1(name_ string, ordinal_ int32) {
-	this.ConformanceRules_BannedProperty_RequirementPrecondition.init_ConformanceRules_BannedProperty_RequirementPrecondition(name_, ordinal_)
-}
-
-func new_ConformanceRules_BannedProperty_RequirementPrecondition_1(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_1 {
-	this := &ConformanceRules_BannedProperty_RequirementPrecondition_1{}
-	this.self_ = this
-	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_1(name_, ordinal_)
-	return this
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_1) shouldCheck_impl(n Node) bool {
-	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_STRING_KEY, Token_rhino_GETPROP, Token_rhino_GETELEM, Token_rhino_COMPUTED_PROP:
-			return true
-		default:
-			return false
-		}
-		panic("unreachable")
-	}()
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_1_values() []*ConformanceRules_BannedProperty_RequirementPrecondition_1 {
-	return append([]*ConformanceRules_BannedProperty_RequirementPrecondition_1(nil), ConformanceRules_BannedProperty_RequirementPrecondition_1_values_...)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_1_valueOf(name string) *ConformanceRules_BannedProperty_RequirementPrecondition_1 {
-	for _, v := range ConformanceRules_BannedProperty_RequirementPrecondition_1_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
+// checkConformance: an object that is exactly a ConformanceRules_BannedDependency calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BannedDependency) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BannedDependency); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	panic(enumValueOfFail_("", name))
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-var ConformanceRules_BannedProperty_RequirementPrecondition_1_values_ []*ConformanceRules_BannedProperty_RequirementPrecondition_1
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_1_clinit_done bool
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_1_clinit() {
-	if ConformanceRules_BannedProperty_RequirementPrecondition_1_clinit_done {
-		return
+// checkConformance: an object that is exactly a ConformanceRules_BannedDependencyRegex calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BannedDependencyRegex) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BannedDependencyRegex); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	ConformanceRules_BannedProperty_RequirementPrecondition_1_clinit_done = true
-	ConformanceRules_BannedProperty_RequirementPrecondition_1_values_ = []*ConformanceRules_BannedProperty_RequirementPrecondition_1{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ConformanceRules.BannedProperty.RequirementPrecondition>", enumValues_(ConformanceRules_BannedProperty_RequirementPrecondition_1_values_))
-
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-type ConformanceRules_BannedProperty_RequirementPrecondition_2 struct {
-	ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) up_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition {
-	if this == nil {
-		return nil
+// getPrecondition: an object that is exactly a ConformanceRules_BannedName calls its getPrecondition_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BannedName) getPrecondition() CheckConformance_Precondition {
+	if p, _ := this.self_.(*ConformanceRules_BannedName); p == this {
+		return this.getPrecondition_impl()
 	}
-	return &this.ConformanceRules_BannedProperty_RequirementPrecondition
+	return this.self_.getPrecondition_impl()
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) up_Enum() *Enum {
-	if this == nil {
-		return nil
+// checkConformance: an object that is exactly a ConformanceRules_BannedName calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BannedName) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BannedName); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	return &this.Enum
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) init_ConformanceRules_BannedProperty_RequirementPrecondition_2(name_ string, ordinal_ int32) {
-	this.ConformanceRules_BannedProperty_RequirementPrecondition.init_ConformanceRules_BannedProperty_RequirementPrecondition(name_, ordinal_)
-}
-
-func new_ConformanceRules_BannedProperty_RequirementPrecondition_2(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_2 {
-	this := &ConformanceRules_BannedProperty_RequirementPrecondition_2{}
-	this.self_ = this
-	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_2(name_, ordinal_)
-	return this
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_2) shouldCheck_impl(n Node) bool {
-	return NodeUtil_isLValue(n)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_2_values() []*ConformanceRules_BannedProperty_RequirementPrecondition_2 {
-	return append([]*ConformanceRules_BannedProperty_RequirementPrecondition_2(nil), ConformanceRules_BannedProperty_RequirementPrecondition_2_values_...)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_2_valueOf(name string) *ConformanceRules_BannedProperty_RequirementPrecondition_2 {
-	for _, v := range ConformanceRules_BannedProperty_RequirementPrecondition_2_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
+// getPrecondition: an object that is exactly a ConformanceRules_BannedProperty calls its getPrecondition_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BannedProperty) getPrecondition() CheckConformance_Precondition {
+	if p, _ := this.self_.(*ConformanceRules_BannedProperty); p == this {
+		return this.getPrecondition_impl()
 	}
-	panic(enumValueOfFail_("", name))
+	return this.self_.getPrecondition_impl()
 }
 
-var ConformanceRules_BannedProperty_RequirementPrecondition_2_values_ []*ConformanceRules_BannedProperty_RequirementPrecondition_2
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_2_clinit_done bool
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_2_clinit() {
-	if ConformanceRules_BannedProperty_RequirementPrecondition_2_clinit_done {
-		return
+// checkConformance: an object that is exactly a ConformanceRules_BannedProperty calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BannedProperty) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BannedProperty); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	ConformanceRules_BannedProperty_RequirementPrecondition_2_clinit_done = true
-	ConformanceRules_BannedProperty_RequirementPrecondition_2_values_ = []*ConformanceRules_BannedProperty_RequirementPrecondition_2{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ConformanceRules.BannedProperty.RequirementPrecondition>", enumValues_(ConformanceRules_BannedProperty_RequirementPrecondition_2_values_))
-
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-type ConformanceRules_BannedProperty_RequirementPrecondition_3 struct {
-	ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) up_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition {
-	if this == nil {
-		return nil
+// checkConformance: an object that is exactly a ConformanceRules_BannedStringRegex calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BannedStringRegex) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BannedStringRegex); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	return &this.ConformanceRules_BannedProperty_RequirementPrecondition
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) up_Enum() *Enum {
-	if this == nil {
-		return nil
+// checkConformance: an object that is exactly a ConformanceRules_RestrictedNameCall calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_RestrictedNameCall) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_RestrictedNameCall); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	return &this.Enum
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) init_ConformanceRules_BannedProperty_RequirementPrecondition_3(name_ string, ordinal_ int32) {
-	this.ConformanceRules_BannedProperty_RequirementPrecondition.init_ConformanceRules_BannedProperty_RequirementPrecondition(name_, ordinal_)
-}
-
-func new_ConformanceRules_BannedProperty_RequirementPrecondition_3(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_3 {
-	this := &ConformanceRules_BannedProperty_RequirementPrecondition_3{}
-	this.self_ = this
-	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_3(name_, ordinal_)
-	return this
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) shouldCheck_impl(n Node) bool {
-	if !NodeUtil_isLValue(n) {
-		return false
+// checkConformance: an object that is exactly a ConformanceRules_RestrictedMethodCall calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_RestrictedMethodCall) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_RestrictedMethodCall); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	if NodeUtil_isLhsOfAssign(n) && (NodeUtil_isLiteralValue(n.getNext(), false) || NodeUtil_isSomeCompileTimeConstStringValue(n.getNext())) {
-		return false
+	return this.self_.checkConformance_impl(p0, p1)
+}
+
+// checkConformance: an object that is exactly a ConformanceRules_RestrictedPropertyWrite calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_RestrictedPropertyWrite) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_RestrictedPropertyWrite); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	return true
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-func ConformanceRules_BannedProperty_RequirementPrecondition_3_values() []*ConformanceRules_BannedProperty_RequirementPrecondition_3 {
-	return append([]*ConformanceRules_BannedProperty_RequirementPrecondition_3(nil), ConformanceRules_BannedProperty_RequirementPrecondition_3_values_...)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_3_valueOf(name string) *ConformanceRules_BannedProperty_RequirementPrecondition_3 {
-	for _, v := range ConformanceRules_BannedProperty_RequirementPrecondition_3_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
+// checkConformance: an object that is exactly a ConformanceRules_BannedCodePattern calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BannedCodePattern) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BannedCodePattern); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	panic(enumValueOfFail_("", name))
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-var ConformanceRules_BannedProperty_RequirementPrecondition_3_values_ []*ConformanceRules_BannedProperty_RequirementPrecondition_3
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_3_clinit_done bool
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_3_clinit() {
-	if ConformanceRules_BannedProperty_RequirementPrecondition_3_clinit_done {
-		return
+// checkConformance: an object that is exactly a ConformanceRules_BanForOf calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanForOf) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanForOf); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	ConformanceRules_BannedProperty_RequirementPrecondition_3_clinit_done = true
-	ConformanceRules_BannedProperty_RequirementPrecondition_3_values_ = []*ConformanceRules_BannedProperty_RequirementPrecondition_3{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ConformanceRules.BannedProperty.RequirementPrecondition>", enumValues_(ConformanceRules_BannedProperty_RequirementPrecondition_3_values_))
-
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-type ConformanceRules_BannedProperty_RequirementPrecondition_4 struct {
-	ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) up_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition {
-	if this == nil {
-		return nil
+// checkConformance: an object that is exactly a ConformanceRules_RequireUseStrict calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_RequireUseStrict) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_RequireUseStrict); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	return &this.ConformanceRules_BannedProperty_RequirementPrecondition
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) up_Enum() *Enum {
-	if this == nil {
-		return nil
+// checkConformance: an object that is exactly a ConformanceRules_BanThrowOfNonErrorTypes calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanThrowOfNonErrorTypes) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanThrowOfNonErrorTypes); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	return &this.Enum
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) init_ConformanceRules_BannedProperty_RequirementPrecondition_4(name_ string, ordinal_ int32) {
-	this.ConformanceRules_BannedProperty_RequirementPrecondition.init_ConformanceRules_BannedProperty_RequirementPrecondition(name_, ordinal_)
-}
-
-func new_ConformanceRules_BannedProperty_RequirementPrecondition_4(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_4 {
-	this := &ConformanceRules_BannedProperty_RequirementPrecondition_4{}
-	this.self_ = this
-	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_4(name_, ordinal_)
-	return this
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_4) shouldCheck_impl(n Node) bool {
-	return (!NodeUtil_isLValue(n) && NodeUtil_isExpressionResultUsed(n))
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_4_values() []*ConformanceRules_BannedProperty_RequirementPrecondition_4 {
-	return append([]*ConformanceRules_BannedProperty_RequirementPrecondition_4(nil), ConformanceRules_BannedProperty_RequirementPrecondition_4_values_...)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_4_valueOf(name string) *ConformanceRules_BannedProperty_RequirementPrecondition_4 {
-	for _, v := range ConformanceRules_BannedProperty_RequirementPrecondition_4_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
+// checkConformance: an object that is exactly a ConformanceRules_BanNullDeref calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanNullDeref) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanNullDeref); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	panic(enumValueOfFail_("", name))
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-var ConformanceRules_BannedProperty_RequirementPrecondition_4_values_ []*ConformanceRules_BannedProperty_RequirementPrecondition_4
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_4_clinit_done bool
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_4_clinit() {
-	if ConformanceRules_BannedProperty_RequirementPrecondition_4_clinit_done {
-		return
+// tsIsAllowlisted: an object that is exactly a ConformanceRules_BanUnknownThis calls its tsIsAllowlisted_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanUnknownThis) tsIsAllowlisted() bool {
+	if p, _ := this.self_.(*ConformanceRules_BanUnknownThis); p == this {
+		return this.tsIsAllowlisted_impl()
 	}
-	ConformanceRules_BannedProperty_RequirementPrecondition_4_clinit_done = true
-	ConformanceRules_BannedProperty_RequirementPrecondition_4_values_ = []*ConformanceRules_BannedProperty_RequirementPrecondition_4{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ConformanceRules.BannedProperty.RequirementPrecondition>", enumValues_(ConformanceRules_BannedProperty_RequirementPrecondition_4_values_))
-
+	return this.self_.tsIsAllowlisted_impl()
 }
 
-type ConformanceRules_BannedProperty_RequirementPrecondition_5 struct {
-	ConformanceRules_BannedProperty_RequirementPrecondition
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) up_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition {
-	if this == nil {
-		return nil
+// checkConformance: an object that is exactly a ConformanceRules_BanUnknownThis calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanUnknownThis) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanUnknownThis); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	return &this.ConformanceRules_BannedProperty_RequirementPrecondition
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) up_Enum() *Enum {
-	if this == nil {
-		return nil
+// checkConformance: an object that is exactly a ConformanceRules_BanUnknownDirectThisPropsReferences calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanUnknownDirectThisPropsReferences) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanUnknownDirectThisPropsReferences); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	return &this.Enum
+	return this.self_.checkConformance_impl(p0, p1)
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) init_ConformanceRules_BannedProperty_RequirementPrecondition_5(name_ string, ordinal_ int32) {
-	this.ConformanceRules_BannedProperty_RequirementPrecondition.init_ConformanceRules_BannedProperty_RequirementPrecondition(name_, ordinal_)
-}
-
-func new_ConformanceRules_BannedProperty_RequirementPrecondition_5(name_ string, ordinal_ int32) *ConformanceRules_BannedProperty_RequirementPrecondition_5 {
-	this := &ConformanceRules_BannedProperty_RequirementPrecondition_5{}
-	this.self_ = this
-	this.init_ConformanceRules_BannedProperty_RequirementPrecondition_5(name_, ordinal_)
-	return this
-}
-
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition_5) shouldCheck_impl(n Node) bool {
-	return ConformanceRules_ConformanceUtil_isCallTarget(n)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_5_values() []*ConformanceRules_BannedProperty_RequirementPrecondition_5 {
-	return append([]*ConformanceRules_BannedProperty_RequirementPrecondition_5(nil), ConformanceRules_BannedProperty_RequirementPrecondition_5_values_...)
-}
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_5_valueOf(name string) *ConformanceRules_BannedProperty_RequirementPrecondition_5 {
-	for _, v := range ConformanceRules_BannedProperty_RequirementPrecondition_5_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
+// tsIsAllowlisted: an object that is exactly a ConformanceRules_BanUnknownTypedClassPropsReferences calls its tsIsAllowlisted_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) tsIsAllowlisted() bool {
+	if p, _ := this.self_.(*ConformanceRules_BanUnknownTypedClassPropsReferences); p == this {
+		return this.tsIsAllowlisted_impl()
 	}
-	panic(enumValueOfFail_("", name))
+	return this.self_.tsIsAllowlisted_impl()
 }
 
-var ConformanceRules_BannedProperty_RequirementPrecondition_5_values_ []*ConformanceRules_BannedProperty_RequirementPrecondition_5
-
-var ConformanceRules_BannedProperty_RequirementPrecondition_5_clinit_done bool
-
-func ConformanceRules_BannedProperty_RequirementPrecondition_5_clinit() {
-	if ConformanceRules_BannedProperty_RequirementPrecondition_5_clinit_done {
-		return
+// checkConformance: an object that is exactly a ConformanceRules_BanUnknownTypedClassPropsReferences calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanUnknownTypedClassPropsReferences); p == this {
+		return this.checkConformance_impl(p0, p1)
 	}
-	ConformanceRules_BannedProperty_RequirementPrecondition_5_clinit_done = true
-	ConformanceRules_BannedProperty_RequirementPrecondition_5_values_ = []*ConformanceRules_BannedProperty_RequirementPrecondition_5{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.ConformanceRules.BannedProperty.RequirementPrecondition>", enumValues_(ConformanceRules_BannedProperty_RequirementPrecondition_5_values_))
+	return this.self_.checkConformance_impl(p0, p1)
+}
 
+// checkConformance: an object that is exactly a ConformanceRules_BanUnresolvedType calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanUnresolvedType) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanUnresolvedType); p == this {
+		return this.checkConformance_impl(p0, p1)
+	}
+	return this.self_.checkConformance_impl(p0, p1)
+}
+
+// checkConformance: an object that is exactly a ConformanceRules_StrictBanUnresolvedType calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_StrictBanUnresolvedType) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_StrictBanUnresolvedType); p == this {
+		return this.checkConformance_impl(p0, p1)
+	}
+	return this.self_.checkConformance_impl(p0, p1)
+}
+
+// checkConformance: an object that is exactly a ConformanceRules_BanGlobalVars calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanGlobalVars) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanGlobalVars); p == this {
+		return this.checkConformance_impl(p0, p1)
+	}
+	return this.self_.checkConformance_impl(p0, p1)
+}
+
+// checkConformance: an object that is exactly a ConformanceRules_BannedEnhance calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BannedEnhance) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BannedEnhance); p == this {
+		return this.checkConformance_impl(p0, p1)
+	}
+	return this.self_.checkConformance_impl(p0, p1)
+}
+
+// getPrecondition: an object that is exactly a ConformanceRules_BannedEnhance calls its getPrecondition_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BannedEnhance) getPrecondition() CheckConformance_Precondition {
+	if p, _ := this.self_.(*ConformanceRules_BannedEnhance); p == this {
+		return this.getPrecondition_impl()
+	}
+	return this.self_.getPrecondition_impl()
+}
+
+// checkConformance: an object that is exactly a ConformanceRules_BannedModsRegex calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BannedModsRegex) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BannedModsRegex); p == this {
+		return this.checkConformance_impl(p0, p1)
+	}
+	return this.self_.checkConformance_impl(p0, p1)
+}
+
+// getPrecondition: an object that is exactly a ConformanceRules_BannedModsRegex calls its getPrecondition_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BannedModsRegex) getPrecondition() CheckConformance_Precondition {
+	if p, _ := this.self_.(*ConformanceRules_BannedModsRegex); p == this {
+		return this.getPrecondition_impl()
+	}
+	return this.self_.getPrecondition_impl()
+}
+
+// checkConformance: an object that is exactly a ConformanceRules_BanCreateElement calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanCreateElement) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanCreateElement); p == this {
+		return this.checkConformance_impl(p0, p1)
+	}
+	return this.self_.checkConformance_impl(p0, p1)
+}
+
+// checkConformance: an object that is exactly a ConformanceRules_BanCreateDom calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanCreateDom) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanCreateDom); p == this {
+		return this.checkConformance_impl(p0, p1)
+	}
+	return this.self_.checkConformance_impl(p0, p1)
+}
+
+// checkConformance: an object that is exactly a ConformanceRules_BanElementSetAttribute calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanElementSetAttribute) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanElementSetAttribute); p == this {
+		return this.checkConformance_impl(p0, p1)
+	}
+	return this.self_.checkConformance_impl(p0, p1)
+}
+
+// checkConformance: an object that is exactly a ConformanceRules_BanSettingAttributes calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanSettingAttributes) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanSettingAttributes); p == this {
+		return this.checkConformance_impl(p0, p1)
+	}
+	return this.self_.checkConformance_impl(p0, p1)
+}
+
+// checkConformance: an object that is exactly a ConformanceRules_BanExecCommand calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanExecCommand) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanExecCommand); p == this {
+		return this.checkConformance_impl(p0, p1)
+	}
+	return this.self_.checkConformance_impl(p0, p1)
+}
+
+// checkConformance: an object that is exactly a ConformanceRules_BanStaticThis calls its checkConformance_impl directly (post-flip); others dispatch.
+func (this *ConformanceRules_BanStaticThis) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
+	if p, _ := this.self_.(*ConformanceRules_BanStaticThis); p == this {
+		return this.checkConformance_impl(p0, p1)
+	}
+	return this.self_.checkConformance_impl(p0, p1)
 }

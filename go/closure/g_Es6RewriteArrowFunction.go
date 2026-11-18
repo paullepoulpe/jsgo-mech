@@ -21,20 +21,23 @@ func new_Es6RewriteArrowFunction(compiler *AbstractCompiler) *Es6RewriteArrowFun
 }
 
 func (this *Es6RewriteArrowFunction) process_2(externs Node, root Node) {
-	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteArrowFunction_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(any(this))})
+	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteArrowFunction_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6RewriteArrowFunction_transpiledFeatures)
 }
 
 func (this *Es6RewriteArrowFunction) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		this.contextStack.push(this.contextForScript(n, t.getInput()))
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		if !n.isArrowFunction() {
 			this.contextStack.push(this.contextForFunction(n, t.getInput()))
 		}
-	case Token_rhino_SUPER:
-		var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = cast_[*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext](Preconditions_checkNotNull(obj_(this.contextStack.peek())))
+	case tokOrd1_SUPER:
+		var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = this.contextStack.peek()
+		if context == nil {
+			panic(new_NullPointerException_0())
+		}
 		if (context.isConstructor_ && parent.isCall()) && (parent.getFirstChild() == n) {
 			context.lastSuperStatement = this.getEnclosingStatement(parent, context.scopeBody)
 		}
@@ -45,7 +48,10 @@ func (this *Es6RewriteArrowFunction) shouldTraverse(t *NodeTraversal, n Node, pa
 
 func (this *Es6RewriteArrowFunction) getEnclosingStatement(n Node, block Node) Node {
 	for Node_of_(Preconditions_checkNotNull(n.getParent().box_())) != block {
-		n = Node_of_(Preconditions_checkNotNull(NodeUtil_getEnclosingStatement(n.getParent()).box_()))
+		n = NodeUtil_getEnclosingStatement(n.getParent())
+		if n == 0 {
+			panic(new_NullPointerException_0())
+		}
 	}
 	return n
 }
@@ -53,7 +59,10 @@ func (this *Es6RewriteArrowFunction) getEnclosingStatement(n Node, block Node) N
 func (this *Es6RewriteArrowFunction) visit(t *NodeTraversal, n Node, parent Node) {
 	var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = this.contextStack.peek()
 	if n.isArrowFunction() {
-		this.visitArrowFunction(t, n, cast_[*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext](Preconditions_checkNotNull(obj_(context))))
+		if context == nil {
+			panic(new_NullPointerException_0())
+		}
+		this.visitArrowFunction(t, n, context)
 	} else if (context != nil) && (context.scopeBody == n) {
 		this.contextStack.pop()
 		context.addVarDeclarations(this.compiler_, this.astFactory_, t.getCurrentScript())
@@ -63,9 +72,11 @@ func (this *Es6RewriteArrowFunction) visit(t *NodeTraversal, n Node, parent Node
 func (this *Es6RewriteArrowFunction) visitArrowFunction(t *NodeTraversal, n Node, context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext) {
 	n.setIsArrowFunction(false)
 	var body Node = n.getLastChild()
-	Preconditions_checkState_boolean_Object(body.isBlock(), strobj_("Arrow function body must be a block after normalization"))
+	if !body.isBlock() {
+		panic(new_IllegalStateException_String("Arrow function body must be a block after normalization"))
+	}
 	var updater *ThisAndArgumentsReferenceUpdater = new_ThisAndArgumentsReferenceUpdater(this.compiler_, context, this.astFactory_)
-	NodeTraversal_traverse(this.compiler_, body, icast_NodeTraversal_Callback(obj_(updater)))
+	NodeTraversal_traverse(this.compiler_, body, updater)
 	t.reportCodeChange()
 }
 

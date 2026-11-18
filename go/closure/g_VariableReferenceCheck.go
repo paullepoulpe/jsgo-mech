@@ -25,7 +25,7 @@ func new_VariableReferenceCheck(compiler *AbstractCompiler) *VariableReferenceCh
 }
 
 func (this *VariableReferenceCheck) process_2(externs Node, root Node) {
-	new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, icast_ReferenceCollector_Behavior(obj_(new_VariableReferenceCheck_ReferenceCheckingBehavior(this))), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))).process_2(externs, root)
+	new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, new_VariableReferenceCheck_ReferenceCheckingBehavior(this), new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)).process_2(externs, root)
 }
 
 func (this *VariableReferenceCheck) lookForHoistedFunction(references *JTList[*Reference]) *Reference {
@@ -61,7 +61,7 @@ func (this *VariableReferenceCheck) checkRedeclaration(v *Var, reference *Refere
 			return false
 		} else {
 			diagnosticType = func() *DiagnosticType {
-				if cast_[*Scope](v.getScope()).isGlobal() {
+				if v.getScope().(*Scope).isGlobal() {
 					return VarCheck_VAR_MULTIPLY_DECLARED_ERROR
 				}
 				return VariableReferenceCheck_REDECLARED_VARIABLE
@@ -176,7 +176,7 @@ var VariableReferenceCheck_UNUSED_LOCAL_ASSIGNMENT *DiagnosticType
 var VariableReferenceCheck_GOOG_REQUIRE *QualifiedName
 var VariableReferenceCheck_GOOG_REQUIRE_TYPE *QualifiedName
 var VariableReferenceCheck_GOOG_FORWARD_DECLARE *QualifiedName
-var VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS *ImmutableSet
+var VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS *ErasedImmutableSet
 var VariableReferenceCheck_GOOG_SCOPE *QualifiedName
 
 var VariableReferenceCheck_clinit_done bool
@@ -197,7 +197,7 @@ func VariableReferenceCheck_clinit() {
 	VariableReferenceCheck_GOOG_REQUIRE = QualifiedName_of("goog.require")
 	VariableReferenceCheck_GOOG_REQUIRE_TYPE = QualifiedName_of("goog.requireType")
 	VariableReferenceCheck_GOOG_FORWARD_DECLARE = QualifiedName_of("goog.forwardDeclare")
-	VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS = Sets_immutableEnumSet(Token_rhino_IF.up_Enum(), []*Enum{Token_rhino_FOR.up_Enum(), Token_rhino_FOR_IN.up_Enum(), Token_rhino_FOR_OF.up_Enum(), Token_rhino_FOR_AWAIT_OF.up_Enum(), Token_rhino_WHILE.up_Enum()})
+	VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS = Sets_immutableEnumSet(Token_rhino_IF.enum_(), []*Enum{Token_rhino_FOR.enum_(), Token_rhino_FOR_IN.enum_(), Token_rhino_FOR_OF.enum_(), Token_rhino_FOR_AWAIT_OF.enum_(), Token_rhino_WHILE.enum_()})
 	VariableReferenceCheck_GOOG_SCOPE = QualifiedName_of("goog.scope")
 
 }
@@ -222,15 +222,11 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterExitScope(t *
 	var scope *Scope = t.getScope()
 	if scope.isFunctionBlockScope() {
 		this.varsInFunctionBody.clear()
-		it_1 := foreach_(any(scope.getVarIterable()))
-		for it_1.next() {
-			var v *Var = cast_[*Var](it_1.v)
+		for v := range elemsAs_[*Var](scope.getVarIterable()) {
 			this.varsInFunctionBody.add(v.getName())
 		}
 	}
-	it_3 := foreach_(any(scope.getVarIterable()))
-	for it_3.next() {
-		var v *Var = cast_[*Var](it_3.v)
+	for v := range elemsAs_[*Var](scope.getVarIterable()) {
 		var referenceCollection *ReferenceCollection = referenceMap.getReferences_Var(v)
 		if referenceCollection != nil {
 			if scope.getRootNode().isFunction() && v.isDefaultParam() {
@@ -248,7 +244,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterExitScope(t *
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(param *Var, scope *Scope, varsInFunctionBody *JTSet[string]) {
-	NodeTraversal_traverse(this.outer_.compiler_, param.getParentNode().getSecondChild(), icast_NodeTraversal_Callback(obj_(new_VariableReferenceCheck_ReferenceCheckingBehavior_1(this, varsInFunctionBody, scope))))
+	NodeTraversal_traverse(this.outer_.compiler_, param.getParentNode().getSecondChild(), new_VariableReferenceCheck_ReferenceCheckingBehavior_1(this, varsInFunctionBody, scope))
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references *JTList[*Reference]) {
@@ -339,11 +335,11 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, r
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) beforeTraverseNode(p0 *NodeTraversal, p1 Node, p2 Node) {
-	ReferenceCollector_Behavior_beforeTraverseNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2)
+	ReferenceCollector_Behavior_beforeTraverseNode_default(this, p0, p1, p2)
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterVisitNode(p0 *NodeTraversal, p1 Node, p2 Node, p3 *Reference) {
-	ReferenceCollector_Behavior_afterVisitNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2, p3)
+	ReferenceCollector_Behavior_afterVisitNode_default(this, p0, p1, p2, p3)
 }
 
 type VariableReferenceCheck_ReferenceCheckingBehavior_1 struct {
@@ -382,4 +378,13 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) visit_impl(t *No
 	if this.cap_varsInFunctionBody.has(refName) && !this.cap_scope.hasSlot(refName) {
 		this.outer_.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, VariableReferenceCheck_EARLY_REFERENCE_ERROR, []string{refName}))
 	}
+}
+
+// visit: an object that is exactly a VariableReferenceCheck_ReferenceCheckingBehavior_1 calls its visit_impl directly (post-flip); others dispatch.
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*VariableReferenceCheck_ReferenceCheckingBehavior_1); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

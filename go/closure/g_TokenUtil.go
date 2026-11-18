@@ -21,7 +21,6 @@ func TokenUtil_isJSSpace(c int32) bool {
 	} else {
 		return ((c == 160) || (Character_getType_char(uint16(c)) == int32(int8(12))))
 	}
-	panic("unreachable")
 }
 
 func TokenUtil_isJSFormatChar(c int32) bool {
@@ -32,21 +31,20 @@ func TokenUtil_isWhitespace(c int32) bool {
 	return Character_isWhitespace(c)
 }
 
-func TokenUtil_isStrWhiteSpaceChar(c int32) *Tri {
-	return func() *Tri {
+func TokenUtil_isStrWhiteSpaceChar(c int32) Tri {
+	return func() Tri {
 		switch c {
 		case 11:
 			return Tri_UNKNOWN
 		case 32, 10, 13, 9, 160, 12, 8232, 8233, 65279:
 			return Tri_TRUE
 		default:
-			return func() *Tri {
+			return func() Tri {
 				if Character_getType(c) == int32(int8(12)) {
 					return Tri_TRUE
 				}
 				return Tri_FALSE
 			}()
 		}
-		panic("unreachable")
 	}()
 }

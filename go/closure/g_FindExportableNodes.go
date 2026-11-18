@@ -49,25 +49,25 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			return
 		}
 	}
-	var mode *FindExportableNodes_Mode = nil
+	var mode FindExportableNodes_Mode = 0
 	var export Optional[string] = Optional_empty[string]()
 	var context Node = 0
-	switch n.getToken() {
-	case Token_rhino_FUNCTION, Token_rhino_CLASS:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION, tokOrd1_CLASS:
 		if parent.isScript() {
 			export = Optional_of[string](NodeUtil_getName(n)).filter(&Predicate_tfn_string{func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			}})
 			context = n
 			mode = FindExportableNodes_Mode_EXPORT
 		}
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		var grandparent Node = parent.getParent()
 		var child Node = n.getFirstChild()
 		if parent.isExprResult() && !n.getLastChild().isAssign() {
 			if ((grandparent != 0) && grandparent.isScript()) && child.isQualifiedName() {
 				export = Optional_of[string](child.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-					return !String_isEmpty(s)
+					return s != ""
 				}})
 				context = n
 				mode = FindExportableNodes_Mode_EXPORT
@@ -76,7 +76,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 				mode = FindExportableNodes_Mode_EXTERN
 			}
 		}
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		if parent.isScript() {
 			if n.getFirstChild().hasChildren() && !n.getFirstFirstChild().isAssign() {
 				export = Optional_of[string](n.getFirstChild().getString())
@@ -84,7 +84,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 				mode = FindExportableNodes_Mode_EXPORT
 			}
 		}
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		{
 			if this.allowLocalExports && parent.isExprResult() {
 				export = Optional_of[string](n.getString())
@@ -92,11 +92,11 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			}
 			break
 		}
-	case Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_MEMBER_FIELD_DEF:
 		if n.isStaticMember() {
 			var classNode Node = parent.getParent()
 			var className string = NodeUtil_getName(classNode)
-			if String_isEmpty(className) {
+			if className == "" {
 				t.report(n, FindExportableNodes_EXPORT_ANNOTATION_NOT_ALLOWED, []string{})
 				return
 			}
@@ -107,7 +107,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			export = Optional_of[string](n.getString())
 			mode = FindExportableNodes_Mode_EXTERN
 		}
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		if parent.getParent().isClass() {
 			var methodOwnerName Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(parent.getParent()))
 			if methodOwnerName.isEmpty() {
@@ -123,7 +123,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			return
 		}
 		fallthrough
-	case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+	case tokOrd1_STRING_KEY, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if this.allowLocalExports {
 			export = Optional_of[string](n.getString())
 			mode = FindExportableNodes_Mode_EXTERN
@@ -132,12 +132,20 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	}
 	if export.isPresent() {
 		if mode == FindExportableNodes_Mode_EXPORT {
-			Preconditions_checkNotNull(context.box_())
+			if context == 0 {
+				panic(new_NullPointerException_0())
+			}
 			this.exports.put(export.get(), context)
 		} else {
-			Preconditions_checkState((context == 0))
-			Preconditions_checkState((mode == FindExportableNodes_Mode_EXTERN))
-			Preconditions_checkState(!String_isEmpty(export.get()))
+			if context != 0 {
+				panic(new_IllegalStateException_0())
+			}
+			if mode != FindExportableNodes_Mode_EXTERN {
+				panic(new_IllegalStateException_0())
+			}
+			if export.get() == "" {
+				panic(new_IllegalStateException_0())
+			}
 			this.localExports.add(export.get())
 		}
 	} else if !(n.isGetProp() && parent.isExprResult()) {
@@ -178,44 +186,64 @@ func FindExportableNodes_clinit() {
 
 }
 
-type FindExportableNodes_Mode struct {
-	Enum
+type FindExportableNodes_Mode uint8
+
+// FindExportableNodes_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FindExportableNodes_Mode_enum_ = [2]Enum{
+	{self_: FindExportableNodes_Mode_EXPORT, name_: "EXPORT", ordinal_: 0},
+	{self_: FindExportableNodes_Mode_EXTERN, name_: "EXTERN", ordinal_: 1},
 }
 
-func (this *FindExportableNodes_Mode) up_Enum() *Enum {
-	if this == nil {
+func (this FindExportableNodes_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FindExportableNodes_Mode_enum_[this-1]
 }
 
-func (this *FindExportableNodes_Mode) init_FindExportableNodes_Mode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FindExportableNodes_Mode) name() string {
+	return this.enum_().name_
 }
 
-func new_FindExportableNodes_Mode(name_ string, ordinal_ int32) *FindExportableNodes_Mode {
-	this := &FindExportableNodes_Mode{}
-	this.self_ = this
-	this.init_FindExportableNodes_Mode(name_, ordinal_)
+func (this FindExportableNodes_Mode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this FindExportableNodes_Mode) toString() string {
+	return this.enum_().name_
+}
+
+func (this FindExportableNodes_Mode) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this FindExportableNodes_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FindExportableNodes_Mode_values() []*FindExportableNodes_Mode {
-	return append([]*FindExportableNodes_Mode(nil), FindExportableNodes_Mode_values_...)
+func FindExportableNodes_Mode_values() []FindExportableNodes_Mode {
+	return append([]FindExportableNodes_Mode(nil), FindExportableNodes_Mode_values_...)
 }
 
-func FindExportableNodes_Mode_valueOf(name string) *FindExportableNodes_Mode {
+func FindExportableNodes_Mode_valueOf(name string) FindExportableNodes_Mode {
 	for _, v := range FindExportableNodes_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var FindExportableNodes_Mode_EXPORT *FindExportableNodes_Mode
-var FindExportableNodes_Mode_EXTERN *FindExportableNodes_Mode
-var FindExportableNodes_Mode_values_ []*FindExportableNodes_Mode
+const FindExportableNodes_Mode_EXPORT FindExportableNodes_Mode = 1
+const FindExportableNodes_Mode_EXTERN FindExportableNodes_Mode = 2
+
+var FindExportableNodes_Mode_values_ []FindExportableNodes_Mode
 
 var FindExportableNodes_Mode_clinit_done bool
 
@@ -224,9 +252,16 @@ func FindExportableNodes_Mode_clinit() {
 		return
 	}
 	FindExportableNodes_Mode_clinit_done = true
-	FindExportableNodes_Mode_EXPORT = new_FindExportableNodes_Mode("EXPORT", 0)
-	FindExportableNodes_Mode_EXTERN = new_FindExportableNodes_Mode("EXTERN", 1)
-	FindExportableNodes_Mode_values_ = []*FindExportableNodes_Mode{FindExportableNodes_Mode_EXPORT, FindExportableNodes_Mode_EXTERN}
+	FindExportableNodes_Mode_values_ = []FindExportableNodes_Mode{FindExportableNodes_Mode_EXPORT, FindExportableNodes_Mode_EXTERN}
 	registerEnum_("com.google.javascript.jscomp.FindExportableNodes.Mode", enumValues_(FindExportableNodes_Mode_values_))
 
+}
+
+// visit: an object that is exactly a FindExportableNodes calls its visit_impl directly (post-flip); others dispatch.
+func (this *FindExportableNodes) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*FindExportableNodes); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

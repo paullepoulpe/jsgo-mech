@@ -54,7 +54,7 @@ func sameSlice_(a, b []any) bool {
 }
 
 // TestHashMapAgainstModel drives a LinkedHashMap and the model with the same random
-// operations (string, boxed int, identity and equals/hashCode keys; removal directly, through
+// operations (string, boxed int, node handle, identity and equals/hashCode keys; removal directly, through
 // the views and through iterators; entry objects) and compares contents and order throughout.
 func TestHashMapAgainstModel(t *testing.T) {
 	for seed := int64(1); seed <= 60; seed++ {
@@ -78,6 +78,10 @@ func TestHashMapAgainstModel(t *testing.T) {
 			case 3:
 				if n == 0 {
 					return nil, nullstr_, true
+				}
+			case 4:
+				if seed%3 == 0 {
+					return Node(n + 1), "", false // a node handle, found by findNode
 				}
 			}
 			s := "k" + istr_(int64(n))
@@ -361,4 +365,148 @@ func TestForeachLikeIterator(t *testing.T) {
 		}
 	}()
 	foreach_(nil)
+}
+
+// TestTMapHashedKeysAgainstModel drives a typed map whose keys compare by equals/hashCode
+// (*tkey_, many sharing a hash code, and null) and the model with the same random puts,
+// removals (directly and through an iterator of the view), clears and lookups, and compares
+// contents and order throughout, past the index threshold and through compaction.
+func TestTMapHashedKeysAgainstModel(t *testing.T) {
+	kc := &tconv_[*tkey_]{box: func(v *tkey_) any { return obj_(v) }, unbox: func(v any) *tkey_ { return cast_[*tkey_](v) },
+		hash: func(v *tkey_) int32 { return objhash_(obj_(v)) }, eq: func(a, b *tkey_) bool { return objequals_(obj_(a), obj_(b)) }}
+	vc := &tconv_[int32]{box: func(v int32) any { return v }, unbox: func(v any) int32 { return v.(int32) }}
+	for seed := int64(1); seed <= 40; seed++ {
+		rnd := rand.New(rand.NewSource(seed))
+		span := []int{3, 12, 40, 200}[seed%4]
+		key := func() *tkey_ {
+			n := rnd.Intn(span)
+			if n == 0 && rnd.Intn(2) == 0 {
+				return nil
+			}
+			return &tkey_{int32(n)}
+		}
+		m, ref := newTMap_(kc, vc), &refMap_{}
+		check := func(what string) {
+			t.Helper()
+			var ks, vs []any
+			for e := m.each(); e.next(); {
+				ks, vs = append(ks, obj_(e.k)), append(vs, e.v)
+			}
+			if int(m.Len()) != len(ref.keys) || !sameSlice_(ks, ref.keys) || !sameSlice_(vs, ref.vals) {
+				t.Fatalf("seed %d after %s: got %v=%v, want %v=%v", seed, what, ks, vs, ref.keys, ref.vals)
+			}
+		}
+		for step := 0; step < 800; step++ {
+			k := key()
+			switch op := rnd.Intn(20); {
+			case op < 9:
+				v := int32(step)
+				got := m.Put(k, v)
+				want := ref.put(obj_(k), v)
+				if want == nil {
+					want = int32(0)
+				}
+				if got != want {
+					t.Fatalf("seed %d: put returned %v, want %v", seed, got, want)
+				}
+			case op < 13:
+				got := m.Delete(k)
+				want := int32(0)
+				if i := ref.find(obj_(k)); i >= 0 {
+					want = ref.vals[i].(int32)
+					ref.removeAt(i)
+				}
+				if got != want {
+					t.Fatalf("seed %d: remove returned %v, want %v", seed, got, want)
+				}
+			case op < 14:
+				// Remove through an iterator of the erased view.
+				for it := m.asMap().keySet().iterator(); it.hasNext(); {
+					if x := it.next(); objequals_(x, obj_(k)) {
+						Iterator_remove(it)
+						ref.removeAt(ref.find(obj_(k)))
+						break
+					}
+				}
+			case op < 19:
+				has := m.Has(k)
+				if want := ref.find(obj_(k)) >= 0; has != want || m.asMap().containsKey(obj_(k)) != want {
+					t.Fatalf("seed %d: containsKey(%v) = %v, want %v", seed, k, has, want)
+				}
+			default:
+				if rnd.Intn(8) == 0 {
+					m.Clear()
+					ref.keys, ref.vals = nil, nil
+				}
+			}
+			check("step")
+		}
+	}
+}
+
+// TestTSetWorkQueueAgainstModel uses a typed set as FixedPointGraphTraversal uses its work set
+// (take the first, remove it, add others at the end), mixed with removals elsewhere, iterator
+// removals and clears, and compares getFirst, iteration order and the for-each cursor with the
+// model throughout, across compactions (the first-live hint).
+func TestTSetWorkQueueAgainstModel(t *testing.T) {
+	kc := &tconv_[int32]{box: func(v int32) any { return v }, unbox: func(v any) int32 { return v.(int32) }}
+	for seed := int64(1); seed <= 30; seed++ {
+		rnd := rand.New(rand.NewSource(seed))
+		span := []int{5, 30, 300}[seed%3]
+		s, ref := newTSet_(kc), &refMap_{}
+		check := func(what string) {
+			t.Helper()
+			var ks, its []any
+			for e := s.each(); e.next(); {
+				ks = append(ks, e.v)
+			}
+			for it := s.asSet().iterator(); it.hasNext(); {
+				its = append(its, it.next())
+			}
+			if int(s.Len()) != len(ref.keys) || !sameSlice_(ks, ref.keys) || !sameSlice_(its, ref.keys) {
+				t.Fatalf("seed %d after %s: got %v / %v, want %v", seed, what, ks, its, ref.keys)
+			}
+		}
+		for step := 0; step < 2000; step++ {
+			k := int32(rnd.Intn(span))
+			switch op := rnd.Intn(20); {
+			case op < 8:
+				if s.Add(k) != (ref.find(k) < 0) {
+					t.Fatalf("seed %d: add(%d) disagrees", seed, k)
+				}
+				ref.put(k, nil)
+			case op < 15:
+				if len(ref.keys) == 0 {
+					continue
+				}
+				f := SequencedCollection_getFirst(icast_SequencedCollection(any(s.asSet())))
+				if !objequals_(f, ref.keys[0]) {
+					t.Fatalf("seed %d: getFirst = %v, want %v", seed, f, ref.keys[0])
+				}
+				s.Delete(f.(int32))
+				ref.removeAt(0)
+			case op < 17:
+				if s.Delete(k) != (ref.find(k) >= 0) {
+					t.Fatalf("seed %d: remove(%d) disagrees", seed, k)
+				}
+				if i := ref.find(k); i >= 0 {
+					ref.removeAt(i)
+				}
+			case op < 19:
+				for it := s.asSet().iterator(); it.hasNext(); {
+					if x := it.next(); objequals_(x, k) {
+						Iterator_remove(it)
+						ref.removeAt(ref.find(k))
+						break
+					}
+				}
+			default:
+				if rnd.Intn(10) == 0 {
+					s.Clear()
+					ref.keys, ref.vals = nil, nil
+				}
+			}
+			check("step")
+		}
+	}
 }

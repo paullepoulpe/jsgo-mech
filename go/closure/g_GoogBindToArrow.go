@@ -44,7 +44,7 @@ func (this *GoogBindToArrow) matches_impl(node Node, metadata *NodeMetadata) boo
 	return (((secondArg != 0) && secondArg.isThis()) && (secondArg.getNext() == 0))
 }
 
-func (this *GoogBindToArrow) processMatch_impl(match *Match) List {
+func (this *GoogBindToArrow) processMatch_impl(match *Match) []*SuggestedFix {
 	var compiler *AbstractCompiler = match.getMetadata().getCompiler()
 	var googBindCall Node = match.getNode()
 	var function Node = googBindCall.getFirstChild().getNext()
@@ -59,7 +59,7 @@ func (this *GoogBindToArrow) processMatch_impl(match *Match) List {
 	}
 	var fix *SuggestedFix_Builder = new_SuggestedFix_Builder()
 	fix.replace(googBindCall, arrowFunction, compiler)
-	return icast_List(obj_(ImmutableList_of_Object(obj_(fix.build()))))
+	return sliceOf_(tc_p_SuggestedFix, fix.build())
 }
 
 var GoogBindToArrow_GOOG_BIND_NAME *QualifiedName
@@ -73,4 +73,20 @@ func GoogBindToArrow_clinit() {
 	GoogBindToArrow_clinit_done = true
 	GoogBindToArrow_GOOG_BIND_NAME = QualifiedName_of("goog.bind")
 
+}
+
+// matches: an object that is exactly a GoogBindToArrow calls its matches_impl directly (post-flip); others dispatch.
+func (this *GoogBindToArrow) matches(p0 Node, p1 *NodeMetadata) bool {
+	if p, _ := this.self_.(*GoogBindToArrow); p == this {
+		return this.matches_impl(p0, p1)
+	}
+	return this.self_.(*GoogBindToArrow).matches_impl(p0, p1)
+}
+
+// processMatch: an object that is exactly a GoogBindToArrow calls its processMatch_impl directly (post-flip); others dispatch.
+func (this *GoogBindToArrow) processMatch(p0 *Match) []*SuggestedFix {
+	if p, _ := this.self_.(*GoogBindToArrow); p == this {
+		return this.processMatch_impl(p0)
+	}
+	return this.self_.processMatch_impl(p0)
 }

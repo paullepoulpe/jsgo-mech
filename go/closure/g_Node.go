@@ -2,6 +2,11 @@
 
 package closure
 
+import (
+	"strconv"
+	"strings"
+)
+
 type Node uint32
 
 type Node_ns_ struct {
@@ -181,18 +186,18 @@ func (this Node) finit_Node() {
 	this.cs_().originalName = strid_("")
 }
 
-func (this Node) init_Node_Token(token *Token_rhino) {
+func (this Node) init_Node_Token(token Token_rhino) {
 	this.finit_Node()
-	this.ns_().token = Token_rhino_ord1_(token)
+	this.ns_().token = uint8(token)
 }
 
-func new_Node_Token(token *Token_rhino) Node {
+func new_Node_Token(token Token_rhino) Node {
 	this := Node_alloc_()
 	this.init_Node_Token(token)
 	return this
 }
 
-func (this Node) init_Node_Token_Node(token *Token_rhino, child Node) {
+func (this Node) init_Node_Token_Node(token Token_rhino, child Node) {
 	this.init_Node_Token(token)
 	this.ns_().first = child
 	child.checkDetached()
@@ -200,13 +205,13 @@ func (this Node) init_Node_Token_Node(token *Token_rhino, child Node) {
 	child.ns_().parent = this
 }
 
-func new_Node_Token_Node(token *Token_rhino, child Node) Node {
+func new_Node_Token_Node(token Token_rhino, child Node) Node {
 	this := Node_alloc_()
 	this.init_Node_Token_Node(token, child)
 	return this
 }
 
-func (this Node) init_Node_Token_Node_Node(token *Token_rhino, left Node, right Node) {
+func (this Node) init_Node_Token_Node_Node(token Token_rhino, left Node, right Node) {
 	this.init_Node_Token(token)
 	this.ns_().first = left
 	left.checkDetached()
@@ -218,13 +223,13 @@ func (this Node) init_Node_Token_Node_Node(token *Token_rhino, left Node, right 
 	right.ns_().parent = this
 }
 
-func new_Node_Token_Node_Node(token *Token_rhino, left Node, right Node) Node {
+func new_Node_Token_Node_Node(token Token_rhino, left Node, right Node) Node {
 	this := Node_alloc_()
 	this.init_Node_Token_Node_Node(token, left, right)
 	return this
 }
 
-func (this Node) init_Node_Token_Node_Node_Node(token *Token_rhino, left Node, mid Node, right Node) {
+func (this Node) init_Node_Token_Node_Node_Node(token Token_rhino, left Node, mid Node, right Node) {
 	this.init_Node_Token(token)
 	this.ns_().first = left
 	left.checkDetached()
@@ -240,7 +245,7 @@ func (this Node) init_Node_Token_Node_Node_Node(token *Token_rhino, left Node, m
 	right.ns_().parent = this
 }
 
-func new_Node_Token_Node_Node_Node(token *Token_rhino, left Node, mid Node, right Node) Node {
+func new_Node_Token_Node_Node_Node(token Token_rhino, left Node, mid Node, right Node) Node {
 	this := Node_alloc_()
 	this.init_Node_Token_Node_Node_Node(token, left, mid, right)
 	return this
@@ -250,7 +255,7 @@ func (this Node) getNonJSDocCommentString() string {
 	if this.getProp(Node_Prop_NON_JSDOC_COMMENT) == nil {
 		return ""
 	}
-	return cast_[*NonJSDocComment](this.getProp(Node_Prop_NON_JSDOC_COMMENT)).getCommentString()
+	return this.getProp(Node_Prop_NON_JSDOC_COMMENT).(*NonJSDocComment).getCommentString()
 }
 
 func (this Node) getNonJSDocComment() *NonJSDocComment {
@@ -261,7 +266,7 @@ func (this Node) getTrailingNonJSDocCommentString() string {
 	if this.getProp(Node_Prop_TRAILING_NON_JSDOC_COMMENT) == nil {
 		return ""
 	}
-	return cast_[*NonJSDocComment](this.getProp(Node_Prop_TRAILING_NON_JSDOC_COMMENT)).getCommentString()
+	return this.getProp(Node_Prop_TRAILING_NON_JSDOC_COMMENT).(*NonJSDocComment).getCommentString()
 }
 
 func (this Node) getTrailingNonJSDocComment() *NonJSDocComment {
@@ -279,7 +284,9 @@ func (this Node) setTrailingNonJSDocComment(comment *NonJSDocComment) Node {
 }
 
 func (this Node) setIsParenthesized(b bool) {
-	Preconditions_checkState(IR_mayBeExpression(this))
+	if !IR_mayBeExpression(this) {
+		panic(new_IllegalStateException_0())
+	}
 	this.putBooleanProp(Node_Prop_IS_PARENTHESIZED, b)
 }
 
@@ -305,13 +312,13 @@ func Node_newString_String(str string) Node {
 	return Node_newString_Token_String(Token_rhino_STRINGLIT, str)
 }
 
-func Node_newString_Token_String(token *Token_rhino, str string) Node {
+func Node_newString_Token_String(token Token_rhino, str string) Node {
 	var n Node = new_Node_Token(token)
 	n.payload_sets_(RhinoStringPool_addOrGet(str))
 	return n
 }
 
-func Node_newString_Token_LazyInternedStringList_int(token *Token_rhino, stringPool *RhinoStringPool_LazyInternedStringList, offset int32) Node {
+func Node_newString_Token_LazyInternedStringList_int(token Token_rhino, stringPool *RhinoStringPool_LazyInternedStringList, offset int32) Node {
 	var n Node = new_Node_Token(token)
 	n.payload_sets_(stringPool.get(offset))
 	return n
@@ -339,12 +346,12 @@ func Node_newTemplateLitString_LazyInternedStringList_int_int(stringPool *RhinoS
 	return n
 }
 
-func (this Node) getToken() *Token_rhino {
-	return Token_rhino_byOrd1_[this.ns_().token]
+func (this Node) getToken() Token_rhino {
+	return Token_rhino(this.ns_().token)
 }
 
-func (this Node) setToken(token *Token_rhino) {
-	this.ns_().token = Token_rhino_ord1_(token)
+func (this Node) setToken(token Token_rhino) {
+	this.ns_().token = uint8(token)
 }
 
 func (this Node) hasChildren() bool {
@@ -352,7 +359,9 @@ func (this Node) hasChildren() bool {
 }
 
 func (this Node) getOnlyChild() Node {
-	Preconditions_checkState(this.hasOneChild())
+	if !this.hasOneChild() {
+		panic(new_IllegalStateException_0())
+	}
 	return this.ns_().first
 }
 
@@ -391,13 +400,17 @@ func (this Node) getPrevious() Node {
 }
 
 func (this Node) setClosureUnawareShadow(shadowRoot Node) {
-	Preconditions_checkState_boolean_Object((this.ns_().first == 0), strobj_("Cannot set shadow root on a node with children"))
-	Preconditions_checkState_boolean_Object((Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NAME), strobj_("Only NAME nodes can be used as shadows"))
+	if this.ns_().first != 0 {
+		panic(new_IllegalStateException_String("Cannot set shadow root on a node with children"))
+	}
+	if this.ns_().token != tokOrd1_NAME {
+		panic(new_IllegalStateException_String("Only NAME nodes can be used as shadows"))
+	}
 	this.putProp(Node_Prop_CLOSURE_UNAWARE_SHADOW, shadowRoot.box_())
 }
 
 func (this Node) getClosureUnawareShadow() Node {
-	if Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_NAME {
+	if this.ns_().token != tokOrd1_NAME {
 		return 0
 	}
 	return Node_of_(this.getProp(Node_Prop_CLOSURE_UNAWARE_SHADOW))
@@ -405,7 +418,7 @@ func (this Node) getClosureUnawareShadow() Node {
 
 func (this Node) setIsInClosureUnawareSubtree(value bool) {
 	if (this.propListHead_isnull_() || (int32(this.propListHead_get_().propType) != Node_Prop_SOURCE_FILE.ordinal())) || (this.propListHead_get_().next_ != nil) {
-		panic(new_IllegalArgumentException_String(String_format("Cannot set IS_IN_CLOSURE_UNAWARE_SUBTREE property on a node which proplist is not a single SOURCE_FILE prop: %s %s", []any{this.box_(), strobj_(this.getPropListDebugString())})).self())
+		panic(new_IllegalArgumentException_String(String_format("Cannot set IS_IN_CLOSURE_UNAWARE_SUBTREE property on a node which proplist is not a single SOURCE_FILE prop: %s %s", []any{this.box_(), strobj_(this.getPropListDebugString())})))
 	}
 	this.putBooleanProp(Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE, value)
 }
@@ -437,9 +450,15 @@ func (this Node) getIndexOfChild(child Node) int32 {
 }
 
 func (this Node) addChildToFront(child Node) {
-	Preconditions_checkArgument((child.ns_().parent == 0))
-	Preconditions_checkArgument((child.ns_().next_ == 0))
-	Preconditions_checkArgument((child.cs_().previous == 0))
+	if child.ns_().parent != 0 {
+		panic(new_IllegalArgumentException_0())
+	}
+	if child.ns_().next_ != 0 {
+		panic(new_IllegalArgumentException_0())
+	}
+	if child.cs_().previous != 0 {
+		panic(new_IllegalArgumentException_0())
+	}
 	child.ns_().parent = this
 	child.ns_().next_ = this.ns_().first
 	if this.ns_().first == 0 {
@@ -454,9 +473,15 @@ func (this Node) addChildToFront(child Node) {
 }
 
 func (this Node) addChildToBack(child Node) {
-	Preconditions_checkArgument_boolean_String_Object_Object_Object((child.ns_().parent == 0), "Cannot add already-owned child node.\nChild: %s\nExisting parent: %s\nNew parent: %s", child.box_(), child.ns_().parent.box_(), this.box_())
-	Preconditions_checkArgument((child.ns_().next_ == 0))
-	Preconditions_checkArgument((child.cs_().previous == 0))
+	if ok_, a1_, a2_, a3_ := (child.ns_().parent == 0), child, child.ns_().parent, this; !ok_ {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Cannot add already-owned child node.\nChild: %s\nExisting parent: %s\nNew parent: %s", []any{a1_.box_(), a2_.box_(), a3_.box_()})))
+	}
+	if child.ns_().next_ != 0 {
+		panic(new_IllegalArgumentException_0())
+	}
+	if child.cs_().previous != 0 {
+		panic(new_IllegalArgumentException_0())
+	}
 	if this.ns_().first == 0 {
 		child.cs_().previous = child
 		this.ns_().first = child
@@ -473,11 +498,15 @@ func (this Node) addChildrenToFront(children Node) {
 	if children == 0 {
 		return
 	}
-	Preconditions_checkNotNull_Object_Object(children.cs_().previous.box_(), children.box_())
+	if children.cs_().previous == 0 {
+		panic(new_NullPointerException_String(tostr_(children)))
+	}
 	{
 		var child Node = children
 		for ; child != 0; child = child.ns_().next_ {
-			Preconditions_checkArgument((child.ns_().parent == 0))
+			if child.ns_().parent != 0 {
+				panic(new_IllegalArgumentException_0())
+			}
 			child.ns_().parent = this
 		}
 	}
@@ -531,8 +560,12 @@ func (this Node) addChildrenAfter(children Node, node Node) {
 	if children == 0 {
 		return
 	}
-	Preconditions_checkArgument(((node == 0) || (node.ns_().parent == this)))
-	Preconditions_checkNotNull_Object_Object(children.cs_().previous.box_(), children.box_())
+	if node != 0 && node.ns_().parent != this {
+		panic(new_IllegalArgumentException_0())
+	}
+	if children.cs_().previous == 0 {
+		panic(new_NullPointerException_String(tostr_(children)))
+	}
 	if node == 0 {
 		this.addChildrenToFront(children)
 		return
@@ -540,7 +573,9 @@ func (this Node) addChildrenAfter(children Node, node Node) {
 	{
 		var child Node = children
 		for ; child != 0; child = child.ns_().next_ {
-			Preconditions_checkArgument((child.ns_().parent == 0))
+			if child.ns_().parent != 0 {
+				panic(new_IllegalArgumentException_0())
+			}
 			child.ns_().parent = this
 		}
 	}
@@ -603,13 +638,21 @@ func (this Node) detach() Node {
 }
 
 func (this Node) checkAttached() {
-	Preconditions_checkState_boolean_String_Object((this.ns_().parent != 0), "Has no parent: %s", this.box_())
+	if this.ns_().parent == 0 {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Has no parent: %s", []any{this.box_()})))
+	}
 }
 
 func (this Node) checkDetached() {
-	Preconditions_checkState_boolean_String_Object((this.ns_().parent == 0), "Has parent: %s", this.box_())
-	Preconditions_checkState_boolean_String_Object((this.ns_().next_ == 0), "Has next: %s", this.box_())
-	Preconditions_checkState_boolean_String_Object((this.cs_().previous == 0), "Has previous: %s", this.box_())
+	if this.ns_().parent != 0 {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Has parent: %s", []any{this.box_()})))
+	}
+	if this.ns_().next_ != 0 {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Has next: %s", []any{this.box_()})))
+	}
+	if this.cs_().previous != 0 {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Has previous: %s", []any{this.box_()})))
+	}
 }
 
 func (this Node) removeFirstChild() Node {
@@ -656,60 +699,64 @@ func (this Node) lookupProperty(prop *Node_Prop) *Node_PropListItem {
 }
 
 func (this Node) clonePropsFrom(other Node) Node {
-	Preconditions_checkState_boolean_Object(this.propListHead_isnull_(), strobj_("Node has existing properties."))
+	if !this.propListHead_isnull_() {
+		panic(new_IllegalStateException_String("Node has existing properties."))
+	}
 	this.propListHead_copy_(other)
 	return this
 }
 
-func (this Node) validateProperties(violationMessageConsumer ConsumerOf[string]) {
+func (this Node) validateProperties(violationMessageConsumer func(any)) {
 	if this.propListHead_isnull_() {
 		return
 	}
-	if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ROOT {
-		violationMessageConsumer.accept(strobj_("ROOT has properties"))
+	if this.ns_().token == tokOrd1_ROOT {
+		violationMessageConsumer(strobj_("ROOT has properties"))
 	}
 	{
 		var propListItem *Node_PropListItem = this.propListHead_get_()
 		for ; propListItem != nil; propListItem = propListItem.next_ {
 			var prop *Node_Prop = Node_propValues[propListItem.propType]
-			Preconditions_checkState_boolean_String_Object((prop.ordinal() == int32(propListItem.propType)), "ordinal doesn't match: %s", obj_(prop))
+			if prop.ordinal() != int32(propListItem.propType) {
+				panic(new_IllegalStateException_String(Strings_lenientFormat("ordinal doesn't match: %s", []any{obj_(prop)})))
+			}
 			switch prop {
 			case Node_Prop_IS_PARENTHESIZED:
 				if !IR_mayBeExpression(this) {
-					violationMessageConsumer.accept(strobj_("non-expression is parenthesized"))
+					violationMessageConsumer(strobj_("non-expression is parenthesized"))
 				}
 			case Node_Prop_ARROW_FN:
 				if !this.isFunction() {
-					violationMessageConsumer.accept(strobj_("invalid ARROW_FN prop"))
+					violationMessageConsumer(strobj_("invalid ARROW_FN prop"))
 				}
 			case Node_Prop_ASYNC_FN:
 				if !this.isFunction() {
-					violationMessageConsumer.accept(strobj_("invalid ASYNC_FN prop"))
+					violationMessageConsumer(strobj_("invalid ASYNC_FN prop"))
 				}
 			case Node_Prop_SYNTHETIC:
 				if !this.isBlock() {
-					violationMessageConsumer.accept(strobj_("invalid SYNTHETIC prop"))
+					violationMessageConsumer(strobj_("invalid SYNTHETIC prop"))
 				}
 			case Node_Prop_COLOR_FROM_CAST:
 				if this.getColor() == nil {
-					violationMessageConsumer.accept(strobj_("COLOR_FROM_CAST with no Color"))
+					violationMessageConsumer(strobj_("COLOR_FROM_CAST with no Color"))
 				}
 			case Node_Prop_START_OF_OPT_CHAIN:
 				if !((this.isOptChainCall() || this.isOptChainGetElem()) || this.isOptChainGetProp()) {
-					violationMessageConsumer.accept(strobj_("START_OF_OPT_CHAIN on non-optional Node"))
+					violationMessageConsumer(strobj_("START_OF_OPT_CHAIN on non-optional Node"))
 				}
 			case Node_Prop_CONSTANT_VAR_FLAGS:
 				if !(this.isName() || this.isImportStar()) {
-					violationMessageConsumer.accept(strobj_("invalid CONST_VAR_FLAGS"))
+					violationMessageConsumer(strobj_("invalid CONST_VAR_FLAGS"))
 				}
 			case Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION:
 				if !this.isVar() {
-					violationMessageConsumer.accept(strobj_("Expected all synthetic unfulfilled declarations to be `var <name>`"))
+					violationMessageConsumer(strobj_("Expected all synthetic unfulfilled declarations to be `var <name>`"))
 				}
 			case Node_Prop_CLOSURE_UNAWARE_SHADOW:
 				var shadowProp *Node_PropListItem = this.lookupProperty(Node_Prop_CLOSURE_UNAWARE_SHADOW)
 				if !is_[*Node_ObjectPropListItem](shadowProp.self()) || !is_[Node](shadowProp.getObjectValue()) {
-					violationMessageConsumer.accept(strobj_("CLOSURE_UNAWARE_SHADOW property must point to a Node"))
+					violationMessageConsumer(strobj_("CLOSURE_UNAWARE_SHADOW property must point to a Node"))
 				}
 			default:
 			}
@@ -731,7 +778,6 @@ func Node_rebuildListWithoutProp(item *Node_PropListItem, prop *Node_Prop) *Node
 			return item.chain(result)
 		}()
 	}
-	panic("unreachable")
 }
 
 func (this Node) putBooleanProp(propType *Node_Prop, value bool) {
@@ -743,19 +789,19 @@ func (this Node) putBooleanProp(propType *Node_Prop, value bool) {
 	}())
 }
 
-func Node_nodePropertyToBit(prop *NodeProperty) int64 {
+func Node_nodePropertyToBit(prop NodeProperty) int64 {
 	return (int64(1) << (uint32(prop.getNumber()) & 63))
 }
 
-func Node_setNodePropertyBit(bitset int64, prop *NodeProperty) int64 {
+func Node_setNodePropertyBit(bitset int64, prop NodeProperty) int64 {
 	return (bitset | Node_nodePropertyToBit(prop))
 }
 
-func Node_removeNodePropertyBit(bitset int64, prop *NodeProperty) int64 {
+func Node_removeNodePropertyBit(bitset int64, prop NodeProperty) int64 {
 	return (bitset & (^Node_nodePropertyToBit(prop)))
 }
 
-func Node_hasNodePropertyBitSet(bitset int64, prop *NodeProperty) bool {
+func Node_hasNodePropertyBitSet(bitset int64, prop NodeProperty) bool {
 	return ((bitset & Node_nodePropertyToBit(prop)) != 0)
 }
 
@@ -785,9 +831,9 @@ func (this Node) serializeProperties() int64 {
 			case Node_Prop_CLOSURE_UNAWARE_SHADOW:
 				propSet = Node_setNodePropertyBit(propSet, NodeProperty_CLOSURE_UNAWARE_SHADOW)
 			default:
-				if is_[*Node_IntPropListItem](propListItem.self()) {
-					var nodeProperty *NodeProperty = PropTranslator_serialize(prop)
-					if nodeProperty != nil {
+				if _, ok := propListItem.self().(*Node_IntPropListItem); ok {
+					var nodeProperty NodeProperty = PropTranslator_serialize(prop)
+					if nodeProperty != 0 {
 						propSet = Node_setNodePropertyBit(propSet, nodeProperty)
 					}
 				}
@@ -826,9 +872,13 @@ func (this Node) getPropListDebugString() string {
 
 func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree bool) {
 	if this.isRoot() {
-		Preconditions_checkState_boolean_Object(this.propListHead_isnull_(), this.propListHead_get_().self())
+		if ok_, a1_ := this.propListHead_isnull_(), this.propListHead_get_(); !ok_ {
+			panic(new_IllegalStateException_String(objstr_(a1_.self())))
+		}
 	} else {
-		Preconditions_checkState_boolean_Object(this.validatePropListTailOrdering(isInClosureUnawareSubtree), strobj_("Node not ready to receive properties"))
+		if !this.validatePropListTailOrdering(isInClosureUnawareSubtree) {
+			panic(new_IllegalStateException_String("Node not ready to receive properties"))
+		}
 	}
 	var constantVarFlags int32 = 0
 	var sideEffectFlags int32 = 0
@@ -836,7 +886,7 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 		if !Node_hasBitSet(propSet, i) {
 			continue
 		}
-		var nodeProperty *NodeProperty = NodeProperty_forNumber(i)
+		var nodeProperty NodeProperty = NodeProperty_forNumber(i)
 		switch nodeProperty {
 		case NodeProperty_IS_DECLARED_CONSTANT:
 			constantVarFlags |= Node_ConstantVarFlags_DECLARED
@@ -854,7 +904,7 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 		default:
 			var prop *Node_Prop = PropTranslator_deserialize(nodeProperty)
 			if prop == nil {
-				panic(new_IllegalStateException_String(("Can not translate " + objstr_(obj_(nodeProperty)) + " to AST Prop")).self())
+				panic(new_IllegalStateException_String(("Can not translate " + tostr_(nodeProperty) + " to AST Prop")))
 			}
 			this.propListHead_set_(new_Node_IntPropListItem(int8(prop.ordinal()), 1, this.propListHead_get_()).up_Node_PropListItem())
 		}
@@ -865,9 +915,9 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 	if sideEffectFlags != 0 {
 		this.propListHead_set_(new_Node_IntPropListItem(int8(Node_Prop_SIDE_EFFECT_FLAGS.ordinal()), sideEffectFlags, this.propListHead_get_()).up_Node_PropListItem())
 	}
-	this.validateProperties(&Consumer_tfn_string{func(errorMessage string) {
-		panic(new_IllegalStateException_String(("deserialize error: " + sstr_(errorMessage) + ": " + objstr_(this.box_()))).self())
-	}})
+	this.validateProperties((&Consumer_tfn_string{func(errorMessage string) {
+		panic(new_IllegalStateException_String(("deserialize error: " + sstr_(errorMessage) + ": " + tostr_(this))))
+	}}).accept)
 }
 
 func (this Node) setDeclaredTypeExpression(typeExpression Node) {
@@ -906,11 +956,11 @@ func (this Node) setConstructSignature(value bool) {
 	this.putBooleanProp(Node_Prop_CONSTRUCT_SIGNATURE, value)
 }
 
-func (this Node) getAccessModifier() *JSDocInfo_Visibility {
-	return cast_[*JSDocInfo_Visibility](this.getProp(Node_Prop_ACCESS_MODIFIER))
+func (this Node) getAccessModifier() JSDocInfo_Visibility {
+	return cast_[JSDocInfo_Visibility](this.getProp(Node_Prop_ACCESS_MODIFIER))
 }
 
-func (this Node) setAccessModifier(visibility *JSDocInfo_Visibility) {
+func (this Node) setAccessModifier(visibility JSDocInfo_Visibility) {
 	this.putProp(Node_Prop_ACCESS_MODIFIER, obj_(visibility))
 }
 
@@ -918,8 +968,8 @@ func (this Node) getFeatureSet() any {
 	return this.getProp(Node_Prop_FEATURE_SET)
 }
 
-func (this Node) setFeatureSet(featureSet any) {
-	this.putProp(Node_Prop_FEATURE_SET, featureSet)
+func (this Node) setFeatureSet(featureSet *FeatureSet) {
+	this.putProp(Node_Prop_FEATURE_SET, obj_(featureSet))
 }
 
 func (this Node) removeDirectEvalProp() {
@@ -939,7 +989,9 @@ func (this Node) getJSTypeBeforeCast() *JSType {
 }
 
 func (this Node) setColorFromTypeCast() {
-	Preconditions_checkState_boolean_Object((this.getColor() != nil), strobj_("Only use on nodes with colors present"))
+	if this.getColor() == nil {
+		panic(new_IllegalStateException_String("Only use on nodes with colors present"))
+	}
 	this.putBooleanProp(Node_Prop_COLOR_FROM_CAST, true)
 }
 
@@ -977,16 +1029,20 @@ func (this Node) getDouble() float64 {
 		number = any(float64(this.payload_d_()))
 		return true
 	}()) {
-		panic(this.payloadKindMismatch("number").self())
+		panic(this.payloadKindMismatch("number"))
 	}
 	return unbox_[float64](number)
 }
 
 func (this Node) setDouble(x float64) {
-	Preconditions_checkState_boolean_Object(!Double_isNaN(x), any(float64(x)))
-	Preconditions_checkState_boolean_Object(JSCompDoubles_isPositive(x), any(float64(x)))
+	if Double_isNaN(x) {
+		panic(new_IllegalStateException_String(dstr_(float64(x))))
+	}
+	if !JSCompDoubles_isPositive(x) {
+		panic(new_IllegalStateException_String(dstr_(float64(x))))
+	}
 	if !this.payload_isd_() {
-		panic(this.payloadKindMismatch("number").self())
+		panic(this.payloadKindMismatch("number"))
 	}
 	this.payload_setd_(x)
 }
@@ -996,22 +1052,27 @@ func (this Node) getBigInt() *BigInteger {
 	_ = bigint
 	if !(func() bool {
 		v_ := this.payload_obj_()
-		if !is_[*BigInteger](v_) {
+		p, ok := v_.(*BigInteger)
+		if !ok {
 			return false
 		}
-		bigint = cast_[*BigInteger](v_)
+		bigint = p
 		return true
 	}()) {
-		panic(this.payloadKindMismatch("bigint").self())
+		panic(this.payloadKindMismatch("bigint"))
 	}
 	return bigint
 }
 
 func (this Node) setBigInt(number *BigInteger) {
-	Preconditions_checkNotNull(obj_(number))
-	Preconditions_checkState_boolean_Object((number.signum() >= 0), obj_(number))
-	if !is_[*BigInteger](this.payload_obj_()) {
-		panic(this.payloadKindMismatch("bigint").self())
+	if number == nil {
+		panic(new_NullPointerException_0())
+	}
+	if number.signum() < 0 {
+		panic(new_IllegalStateException_String(tostr_(number)))
+	}
+	if _, ok := this.payload_obj_().(*BigInteger); !ok {
+		panic(this.payloadKindMismatch("bigint"))
 	}
 	this.payload_set_(obj_(number))
 }
@@ -1030,21 +1091,21 @@ func (this Node) getString() string {
 		str = this.payload_s_()
 		return true
 	}()) {
-		panic(this.payloadKindMismatch("string").self())
+		panic(this.payloadKindMismatch("string"))
 	}
 	return str
 }
 
 func (this Node) setString(str string) {
 	if !this.payload_iss_() {
-		panic(this.payloadKindMismatch("string").self())
+		panic(this.payloadKindMismatch("string"))
 	}
 	this.payload_sets_(RhinoStringPool_addOrGet(str))
 }
 
 func (this Node) setStringFromStringPool(stringPool *RhinoStringPool_LazyInternedStringList, offset int32) {
 	if !this.payload_iss_() {
-		panic(this.payloadKindMismatch("string").self())
+		panic(this.payloadKindMismatch("string"))
 	}
 	this.payload_sets_(stringPool.get(offset))
 }
@@ -1054,13 +1115,14 @@ func (this Node) getRawString() string {
 	_ = substring
 	if !(func() bool {
 		v_ := this.payload_obj_()
-		if !is_[*Node_TemplateLiteralSubstring](v_) {
+		p, ok := v_.(*Node_TemplateLiteralSubstring)
+		if !ok {
 			return false
 		}
-		substring = cast_[*Node_TemplateLiteralSubstring](v_)
+		substring = p
 		return true
 	}()) {
-		panic(this.payloadKindMismatch("template literal string").self())
+		panic(this.payloadKindMismatch("template literal string"))
 	}
 	return substring.raw
 }
@@ -1070,19 +1132,20 @@ func (this Node) getCookedString() Optional[string] {
 	_ = substring
 	if !(func() bool {
 		v_ := this.payload_obj_()
-		if !is_[*Node_TemplateLiteralSubstring](v_) {
+		p, ok := v_.(*Node_TemplateLiteralSubstring)
+		if !ok {
 			return false
 		}
-		substring = cast_[*Node_TemplateLiteralSubstring](v_)
+		substring = p
 		return true
 	}()) {
-		panic(this.payloadKindMismatch("template literal string").self())
+		panic(this.payloadKindMismatch("template literal string"))
 	}
 	return substring.cooked
 }
 
 func (this Node) payloadKindMismatch(wanted string) *ClassCastException {
-	return new_ClassCastException_String((objstr_(obj_(Token_rhino_byOrd1_[this.ns_().token])) + " node is not a " + sstr_(wanted) + " node"))
+	return new_ClassCastException_String((tostr_(Token_rhino(this.ns_().token)) + " node is not a " + sstr_(wanted) + " node"))
 }
 
 func (this Node) toString() string {
@@ -1090,24 +1153,24 @@ func (this Node) toString() string {
 }
 
 func (this Node) toString_3(printSource bool, printAnnotations bool, printType bool) string {
-	var sb *StringBuilder = new_StringBuilder()
-	this.toString_4(sb, printSource, printAnnotations, printType)
-	return Object_toString(obj_(sb))
+	var sb strBuilder_
+	this.toString_4(&sb, printSource, printAnnotations, printType)
+	return sb.toString()
 }
 
-func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotations bool, printType bool) {
-	sb.append_Object(obj_(Token_rhino_byOrd1_[this.ns_().token]))
+func (this Node) toString_4(sb *strBuilder_, printSource bool, printAnnotations bool, printType bool) {
+	sb.append_Object(obj_(Token_rhino(this.ns_().token)))
 	if this.payload_iss_() {
 		sb.append_char(' ')
 		sb.append(this.getString())
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FUNCTION {
+	} else if this.ns_().token == tokOrd1_FUNCTION {
 		sb.append_char(' ')
-		if (this.ns_().first == 0) || (Token_rhino_byOrd1_[this.ns_().first.ns_().token] != Token_rhino_NAME) {
+		if (this.ns_().first == 0) || (Token_rhino(this.ns_().first.ns_().token) != Token_rhino_NAME) {
 			sb.append("<invalid>")
 		} else {
 			sb.append(this.ns_().first.getString())
 		}
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NUMBER {
+	} else if this.ns_().token == tokOrd1_NUMBER {
 		sb.append_char(' ')
 		sb.append_double(this.getDouble())
 	}
@@ -1136,12 +1199,12 @@ func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotation
 			}
 			var x *Node_PropListItem = this.lookupProperty(type_)
 			sb.append(" [")
-			sb.append(Ascii_toLowerCase(String_valueOf_Object(obj_(type_))))
+			sb.append(Ascii_toLowerCase(tostr_(type_)))
 			sb.append(": ")
 			sb.append_Object(x.self())
 			sb.append_char(']')
 		}
-		if !String_isEmpty(strid_str_(this.cs_().originalName)) {
+		if strid_str_(this.cs_().originalName) != "" {
 			sb.append(" [original_name: ")
 			sb.append(strid_str_(this.cs_().originalName))
 			sb.append_char(']')
@@ -1163,59 +1226,59 @@ func Node_createJsonPairRawValue(name string, value string) string {
 
 func (this Node) toJson(sb Appendable) {
 	sb.append_char('{')
-	sb.append_CharSequence(strobj_(Node_createJsonPair("token", Object_toString(obj_(Token_rhino_byOrd1_[this.ns_().token])))))
+	sb.append_CharSequence_s(Node_createJsonPair("token", tostrNN_(Token_rhino(this.ns_().token))))
 	if this.payload_iss_() {
 		sb.append_char(',')
-		sb.append_CharSequence(strobj_(Node_createJsonPair("string", this.getString())))
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FUNCTION {
+		sb.append_CharSequence_s(Node_createJsonPair("string", this.getString()))
+	} else if this.ns_().token == tokOrd1_FUNCTION {
 		sb.append_char(',')
-		if (this.ns_().first == 0) || (Token_rhino_byOrd1_[this.ns_().first.ns_().token] != Token_rhino_NAME) {
-			sb.append_CharSequence(strobj_(Node_createJsonPair("functionName", "<invalid>")))
+		if (this.ns_().first == 0) || (Token_rhino(this.ns_().first.ns_().token) != Token_rhino_NAME) {
+			sb.append_CharSequence_s(Node_createJsonPair("functionName", "<invalid>"))
 		} else {
-			sb.append_CharSequence(strobj_(Node_createJsonPair("functionName", this.ns_().first.getString())))
+			sb.append_CharSequence_s(Node_createJsonPair("functionName", this.ns_().first.getString()))
 		}
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NUMBER {
+	} else if this.ns_().token == tokOrd1_NUMBER {
 		sb.append_char(',')
-		sb.append_CharSequence(strobj_(Node_createJsonPair("number", String_valueOf_double(this.getDouble()))))
+		sb.append_CharSequence_s(Node_createJsonPair("number", Double_toString(this.getDouble())))
 	}
 	var lineno int32 = this.getLineno()
 	if lineno != -1 {
 		sb.append_char(',')
-		sb.append_CharSequence(strobj_("\"sourceLocation\":{"))
-		sb.append_CharSequence(strobj_(Node_createJsonPairRawValue("line", String_valueOf(lineno))))
+		sb.append_CharSequence_s("\"sourceLocation\":{")
+		sb.append_CharSequence_s(Node_createJsonPairRawValue("line", strconv.Itoa(int(lineno))))
 		sb.append_char(',')
-		sb.append_CharSequence(strobj_(Node_createJsonPairRawValue("col", String_valueOf(this.getCharno()))))
+		sb.append_CharSequence_s(Node_createJsonPairRawValue("col", strconv.Itoa(int(this.getCharno()))))
 		if this.cs_().length_ != 0 {
 			sb.append_char(',')
-			sb.append_CharSequence(strobj_(Node_createJsonPairRawValue("length", String_valueOf(this.cs_().length_))))
+			sb.append_CharSequence_s(Node_createJsonPairRawValue("length", strconv.Itoa(int(this.cs_().length_))))
 		}
-		sb.append_CharSequence(strobj_("}"))
+		sb.append_CharSequence_s("}")
 	}
-	if !String_isEmpty(strid_str_(this.cs_().originalName)) {
-		sb.append_CharSequence(strobj_(","))
-		sb.append_CharSequence(strobj_(Node_createJsonPair("original_name", strid_str_(this.cs_().originalName))))
+	if strid_str_(this.cs_().originalName) != "" {
+		sb.append_CharSequence_s(",")
+		sb.append_CharSequence_s(Node_createJsonPair("original_name", strid_str_(this.cs_().originalName)))
 	}
 	var keys []int8 = this.getSortedPropTypes()
 	if int32(len(keys)) != 0 {
-		sb.append_CharSequence(strobj_(","))
-		sb.append_CharSequence(strobj_("\"props\":{"))
+		sb.append_CharSequence_s(",")
+		sb.append_CharSequence_s("\"props\":{")
 		for i := int32(0); i < int32(len(keys)); i++ {
 			var type_ *Node_Prop = Node_propValues[keys[i]]
 			var x *Node_PropListItem = this.lookupProperty(type_)
-			sb.append_CharSequence(strobj_(Node_createJsonPair(Ascii_toLowerCase(String_valueOf_Object(obj_(type_))), String_replace(String_replace(Object_toString(x.self()), strobj_("\n"), strobj_("\\n")), strobj_("\""), strobj_("\\\"")))))
+			sb.append_CharSequence_s(Node_createJsonPair(Ascii_toLowerCase(tostr_(type_)), strings.ReplaceAll(strings.ReplaceAll(Object_toString(x.self()), "\n", "\\n"), "\"", "\\\"")))
 			if (i + 1) < int32(len(keys)) {
 				sb.append_char(',')
 			}
 		}
-		sb.append_CharSequence(strobj_("}"))
+		sb.append_CharSequence_s("}")
 	}
 	if this.cs_().jstypeOrColor != 0 {
 		sb.append_char(',')
-		sb.append_CharSequence(strobj_(Node_createJsonPair("typeString", String_replace(Object_toString(this.jstypeOrColor_get_()), strobj_("\""), strobj_("\\\"")))))
+		sb.append_CharSequence_s(Node_createJsonPair("typeString", strings.ReplaceAll(Object_toString(this.jstypeOrColor_get_()), "\"", "\\\"")))
 	}
 	if this.ns_().first != 0 {
 		sb.append_char(',')
-		sb.append_CharSequence(strobj_("\"children\":["))
+		sb.append_CharSequence_s("\"children\":[")
 		{
 			var child Node = this.ns_().first
 			for ; child != 0; child = child.ns_().next_ {
@@ -1225,7 +1288,7 @@ func (this Node) toJson(sb Appendable) {
 				}
 			}
 		}
-		sb.append_CharSequence(strobj_("]"))
+		sb.append_CharSequence_s("]")
 	}
 	sb.append_char('}')
 }
@@ -1235,29 +1298,9 @@ func (this Node) toStringTree() string {
 }
 
 func (this Node) toStringTreeImpl() string {
-	var ret_1 string
-	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_IOException(ex_) {
-					var e *IOException = to_IOException(ex_)
-					panic(new_IllegalStateException_String(("Should not happen\n" + objstr_(e.self()))).self())
-					return
-				}
-				panic(r_)
-			}
-		}()
-		var s *StringBuilder = new_StringBuilder()
-		this.appendStringTree(icast_Appendable(obj_(s)))
-		ret_1 = Object_toString(obj_(s))
-		return 1
-		return 0
-	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	var s strBuilder_
+	this.appendStringTree(appendable_(&s))
+	return s.toString()
 }
 
 func (this Node) appendStringTree(appendable Appendable) {
@@ -1266,9 +1309,9 @@ func (this Node) appendStringTree(appendable Appendable) {
 
 func Node_toStringTreeHelper(n Node, level int32, sb Appendable) {
 	for i := int32(0); i != level; i++ {
-		sb.append_CharSequence(strobj_("    "))
+		sb.append_CharSequence_s("    ")
 	}
-	sb.append_CharSequence(strobj_(n.toString()))
+	sb.append_CharSequence_s(n.toString())
 	sb.append_char('\n')
 	{
 		var cursor Node = n.ns_().first
@@ -1305,7 +1348,7 @@ func (this Node) setStaticSourceFileFrom(other Node) {
 }
 
 func (this Node) setStaticSourceFile(file StaticSourceFile) Node {
-	this.putProp(Node_Prop_SOURCE_FILE, any(file))
+	this.putProp(Node_Prop_SOURCE_FILE, file)
 	return this
 }
 
@@ -1341,7 +1384,7 @@ func (this Node) getOriginalName() string {
 
 func (this Node) setOriginalName(s string) {
 	this.cs_().originalName = strid_(func() string {
-		if String_isEmpty(s) {
+		if s == "" {
 			return ""
 		}
 		return RhinoStringPool_addOrGet(s)
@@ -1403,7 +1446,6 @@ func (this Node) getLineno() int32 {
 	} else {
 		return int32(uint32(this.cs_().linenoCharno) >> 12)
 	}
-	panic("unreachable")
 }
 
 func (this Node) getCharno() int32 {
@@ -1412,7 +1454,6 @@ func (this Node) getCharno() int32 {
 	} else {
 		return (this.cs_().linenoCharno & Node_MAX_COLUMN_NUMBER)
 	}
-	panic("unreachable")
 }
 
 func (this Node) getLocation() string {
@@ -1449,11 +1490,10 @@ func (this Node) setLinenoCharno(lineno int32, charno int32) Node {
 
 func (this Node) children() IterableOf[Node] {
 	if this.ns_().first == 0 {
-		return icast_Iterable(obj_(ImmutableSet_of()))
+		return ImmutableSet_of()
 	} else {
-		return icast_Iterable(obj_(new_Node_SiblingNodeIterable(this.ns_().first)))
+		return new_Node_SiblingNodeIterable(this.ns_().first)
 	}
-	panic("unreachable")
 }
 
 func (this Node) getPropListHeadForTesting() *Node_PropListItem {
@@ -1482,7 +1522,9 @@ func (this Node) getGrandparent() Node {
 }
 
 func (this Node) getAncestor(level int32) Node {
-	Preconditions_checkArgument((level >= 0))
+	if level < 0 {
+		panic(new_IllegalArgumentException_0())
+	}
 	var node Node = this
 	for (node != 0) && (level > 0) {
 		level--
@@ -1656,22 +1698,22 @@ func (this Node) isEquivalentTo_4(node Node, compareType bool, recurse bool, jsD
 }
 
 func (this Node) isEquivalentToBoolean(node Node, compareType bool, recurse bool, jsDoc bool, sideEffect bool) bool {
-	return this.isEquivalentTo_5(node, func() *Node_RecursionMode {
+	return this.isEquivalentTo_5(node, func() Node_RecursionMode {
 		if recurse {
 			return Node_RecursionMode_DEEP
 		}
 		return Node_RecursionMode_SHALLOW
-	}(), func() *Node_TypeComparison {
+	}(), func() Node_TypeComparison {
 		if compareType {
 			return Node_TypeComparison_COMPARE
 		}
 		return Node_TypeComparison_IGNORE
-	}(), func() *Node_JsDocComparison {
+	}(), func() Node_JsDocComparison {
 		if jsDoc {
 			return Node_JsDocComparison_COMPARE
 		}
 		return Node_JsDocComparison_IGNORE
-	}(), func() *Node_SideEffectComparison {
+	}(), func() Node_SideEffectComparison {
 		if sideEffect {
 			return Node_SideEffectComparison_COMPARE
 		}
@@ -1679,8 +1721,8 @@ func (this Node) isEquivalentToBoolean(node Node, compareType bool, recurse bool
 	}())
 }
 
-func (this Node) isEquivalentTo_5(node Node, recursion *Node_RecursionMode, typeConfig *Node_TypeComparison, jsDocConfig *Node_JsDocComparison, sideEffectConfig *Node_SideEffectComparison) bool {
-	if ((Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_byOrd1_[node.ns_().token]) || (this.getChildCount() != node.getChildCount())) || (Node_payloadClass(this.payload_get_()) != Node_payloadClass(node.payload_get_())) {
+func (this Node) isEquivalentTo_5(node Node, recursion Node_RecursionMode, typeConfig Node_TypeComparison, jsDocConfig Node_JsDocComparison, sideEffectConfig Node_SideEffectComparison) bool {
+	if ((Token_rhino(this.ns_().token) != Token_rhino(node.ns_().token)) || (this.getChildCount() != node.getChildCount())) || (Node_payloadClass(this.payload_get_()) != Node_payloadClass(node.payload_get_())) {
 		return false
 	}
 	if (typeConfig == Node_TypeComparison_COMPARE) && !Objects_equals(this.jstypeOrColor_get_(), node.jstypeOrColor_get_()) {
@@ -1787,22 +1829,24 @@ func (this Node) isEquivalentTo_5(node Node, recursion *Node_RecursionMode, type
 			_ = bigint
 			if func() bool {
 				v_ := this.payload_obj_()
-				if !is_[*BigInteger](v_) {
+				p, ok := v_.(*BigInteger)
+				if !ok {
 					return false
 				}
-				bigint = cast_[*BigInteger](v_)
+				bigint = p
 				return true
 			}() {
-				return Object_equals(obj_(bigint), node.payload_get_())
+				return equalsBy_(bigint, node.payload_get_(), (*BigInteger).equals)
 			} else {
 				var substring *Node_TemplateLiteralSubstring
 				_ = substring
 				if func() bool {
 					v_ := this.payload_obj_()
-					if !is_[*Node_TemplateLiteralSubstring](v_) {
+					p2, ok2 := v_.(*Node_TemplateLiteralSubstring)
+					if !ok2 {
 						return false
 					}
-					substring = cast_[*Node_TemplateLiteralSubstring](v_)
+					substring = p2
 					return true
 				}() {
 					var other *Node_TemplateLiteralSubstring = cast_[*Node_TemplateLiteralSubstring](node.payload_get_())
@@ -1825,23 +1869,17 @@ func Node_payloadClass(payload any) ClassOf[any] {
 
 func (this Node) getQualifiedName() string {
 	return func() string {
-		switch Token_rhino_byOrd1_[this.ns_().token] {
+		switch Token_rhino(this.ns_().token) {
 		case Token_rhino_NAME:
 			var name string = this.getString()
 			return func() string {
-				if String_isEmpty(name) {
+				if name == "" {
 					return ""
 				}
 				return name
 			}()
 		case Token_rhino_GETPROP:
-			var builder *StringBuilder = this.getQualifiedNameForGetProp(0)
-			return func() string {
-				if builder != nil {
-					return Object_toString(obj_(builder))
-				}
-				return ""
-			}()
+			return this.qualifiedNameOfGetProp_()
 		case Token_rhino_THIS:
 			return "this"
 		case Token_rhino_SUPER:
@@ -1849,7 +1887,6 @@ func (this Node) getQualifiedName() string {
 		default:
 			return ""
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1862,10 +1899,39 @@ func (this Node) getQualifiedNameObject() *QualifiedName {
 	}()
 }
 
-func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
+// qualifiedNameOfGetProp_ is getQualifiedNameForGetProp(0).toString(), or "" for null, built
+// in one string of the exact length (post-flip manual step: a StringBuilder, its buffer and
+// the copy toString makes were three allocations per qualified name).
+func (this Node) qualifiedNameOfGetProp_() string {
+	n, size := this, 0
+	for ; n.isGetProp(); n = n.ns_().first {
+		size += 1 + len(n.getString())
+	}
+	left := n.getQualifiedName()
+	if left == "" {
+		return ""
+	}
+	var b strings.Builder
+	b.Grow(len(left) + size)
+	b.WriteString(left)
+	this.appendGetPropNames_(&b)
+	return b.String()
+}
+
+// appendGetPropNames_ appends ".name" for each GETPROP of the chain that ends at this, outermost last.
+func (this Node) appendGetPropNames_(b *strings.Builder) {
+	if !this.isGetProp() {
+		return
+	}
+	this.ns_().first.appendGetPropNames_(b)
+	b.WriteByte('.')
+	b.WriteString(this.getString())
+}
+
+func (this Node) getQualifiedNameForGetProp(reserve int32) *strBuilder_ {
 	var propName string = this.getString()
 	reserve += (1 + String_length(propName))
-	var builder *StringBuilder
+	var builder *strBuilder_
 	if this.ns_().first.isGetProp() {
 		builder = this.ns_().first.getQualifiedNameForGetProp(reserve)
 		if builder == nil {
@@ -1873,71 +1939,69 @@ func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
 		}
 	} else {
 		var left string = this.ns_().first.getQualifiedName()
-		if String_isEmpty(left) {
+		if left == "" {
 			return nil
 		}
-		builder = new_StringBuilder_int((String_length(left) + reserve))
+		builder = strBuilderCap_((int32(len(left)) + reserve))
 		builder.append(left)
 	}
-	cast_[*StringBuilder](builder.append_char('.')).append(propName)
+	builder.append_char('.').append(propName)
 	return builder
 }
 
 func (this Node) getOriginalQualifiedName() string {
-	if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NAME {
+	if this.ns_().token == tokOrd1_NAME {
 		var name string = this.getOriginalName()
-		if String_isEmpty(name) {
+		if name == "" {
 			name = this.getString()
 		}
 		return name
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_GETPROP {
+	} else if this.ns_().token == tokOrd1_GETPROP {
 		var left string = this.getFirstChild().getOriginalQualifiedName()
-		if String_isEmpty(left) {
+		if left == "" {
 			return ""
 		}
 		var right string = this.getOriginalName()
-		if String_isEmpty(right) {
+		if right == "" {
 			right = this.getString()
 		}
 		return (sstr_(left) + "." + sstr_(right))
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_THIS {
+	} else if this.ns_().token == tokOrd1_THIS {
 		return "this"
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SUPER {
+	} else if this.ns_().token == tokOrd1_SUPER {
 		return "super"
 	} else {
 		return ""
 	}
-	panic("unreachable")
 }
 
 func (this Node) isQualifiedName() bool {
-	switch this.getToken() {
-	case Token_rhino_NAME:
-		return !String_isEmpty(this.getString())
-	case Token_rhino_THIS, Token_rhino_SUPER:
+	switch this.ns_().token {
+	case tokOrd1_NAME:
+		return this.getString() != ""
+	case tokOrd1_THIS, tokOrd1_SUPER:
 		return true
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		return this.getFirstChild().isQualifiedName()
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this Node) matchesName(name string) bool {
-	if Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_NAME {
+	if this.ns_().token != tokOrd1_NAME {
 		return false
 	}
 	var internalString string = this.getString()
-	return (!String_isEmpty(internalString) && (name == internalString))
+	return (internalString != "" && (name == internalString))
 }
 
 func (this Node) matchesNameNode(n Node) bool {
-	if (Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_NAME) || (Token_rhino_byOrd1_[n.ns_().token] != Token_rhino_NAME) {
+	if (this.ns_().token != tokOrd1_NAME) || (n.ns_().token != tokOrd1_NAME) {
 		return false
 	}
 	var internalString string = this.getString()
-	return (!String_isEmpty(internalString) && RhinoStringPool_uncheckedEquals(internalString, n.getString()))
+	return (internalString != "" && RhinoStringPool_uncheckedEquals(internalString, n.getString()))
 }
 
 func (this Node) matchesQualifiedName(name string) bool {
@@ -1946,28 +2010,28 @@ func (this Node) matchesQualifiedName(name string) bool {
 
 func (this Node) matchesQualifiedName_2(qname string, endIndex int32) bool {
 	var start int32 = (String_lastIndexOf_int_int(qname, 46, (endIndex-1)) + 1)
-	switch this.getToken() {
-	case Token_rhino_NAME, Token_rhino_IMPORT_STAR:
+	switch this.ns_().token {
+	case tokOrd1_NAME, tokOrd1_IMPORT_STAR:
 		var name string = this.getString()
-		return ((((start == 0) && !String_isEmpty(name)) && (String_length(name) == endIndex)) && String_startsWith(qname, name))
-	case Token_rhino_THIS:
-		return (((start == 0) && (endIndex == 4)) && String_startsWith(qname, "this"))
-	case Token_rhino_SUPER:
-		return (((start == 0) && (endIndex == 5)) && String_startsWith(qname, "super"))
-	case Token_rhino_GETPROP:
+		return ((((start == 0) && name != "") && (String_length(name) == endIndex)) && strings.HasPrefix(qname, name))
+	case tokOrd1_THIS:
+		return (((start == 0) && (endIndex == 4)) && strings.HasPrefix(qname, "this"))
+	case tokOrd1_SUPER:
+		return (((start == 0) && (endIndex == 5)) && strings.HasPrefix(qname, "super"))
+	case tokOrd1_GETPROP:
 		var prop string = this.getString()
-		return ((((start > 1) && (String_length(prop) == (endIndex - start))) && String_regionMatches_int_String_int_int(prop, 0, qname, start, (endIndex-start))) && this.getFirstChild().matchesQualifiedName_2(qname, (start-1)))
+		propU16 := utf16Of_(prop)
+		return ((((start > 1) && (propU16.length() == (endIndex - start))) && propU16.regionMatches_int_String_int_int(0, qname, start, (endIndex-start))) && this.getFirstChild().matchesQualifiedName_2(qname, (start-1)))
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this Node) matchesQualifiedNameNode(n Node) bool {
-	if Token_rhino_byOrd1_[n.ns_().token] != Token_rhino_byOrd1_[this.ns_().token] {
+	if Token_rhino(n.ns_().token) != Token_rhino(this.ns_().token) {
 		return false
 	}
-	switch Token_rhino_byOrd1_[this.ns_().token] {
+	switch Token_rhino(this.ns_().token) {
 	case Token_rhino_NAME:
 		return this.matchesNameNode(n)
 	case Token_rhino_THIS, Token_rhino_SUPER:
@@ -1977,37 +2041,34 @@ func (this Node) matchesQualifiedNameNode(n Node) bool {
 	default:
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this Node) isUnscopedQualifiedName() bool {
 	return func() bool {
-		switch this.getToken() {
-		case Token_rhino_NAME:
-			return !String_isEmpty(this.getString())
-		case Token_rhino_GETPROP:
+		switch this.ns_().token {
+		case tokOrd1_NAME:
+			return this.getString() != ""
+		case tokOrd1_GETPROP:
 			return this.getFirstChild().isUnscopedQualifiedName()
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this Node) isValidAssignmentTarget() bool {
 	return func() bool {
-		switch this.getToken() {
-		case Token_rhino_NAME, Token_rhino_GETPROP, Token_rhino_GETELEM, Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
+		switch this.ns_().token {
+		case tokOrd1_NAME, tokOrd1_GETPROP, tokOrd1_GETELEM, tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 			return true
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this Node) clone() any {
-	panic(new_UnsupportedOperationException_String("Did you mean cloneNode?").self())
+	panic(new_UnsupportedOperationException_String("Did you mean cloneNode?"))
 }
 
 func (this Node) cloneNode() Node {
@@ -2015,7 +2076,7 @@ func (this Node) cloneNode() Node {
 }
 
 func (this Node) cloneNode_1(cloneTypeExprs bool) Node {
-	var clone Node = new_Node_Token(Token_rhino_byOrd1_[this.ns_().token])
+	var clone Node = new_Node_Token(Token_rhino(this.ns_().token))
 	Node_copyBaseNodeFields(this, clone, cloneTypeExprs)
 	clone.payload_copy_(this)
 	return clone
@@ -2095,7 +2156,7 @@ func (this Node) srcrefIfMissing(other Node) Node {
 		this.cs_().linenoCharno = other.cs_().linenoCharno
 		this.cs_().length_ = other.cs_().length_
 	}
-	if String_isEmpty(strid_str_(this.cs_().originalName)) {
+	if strid_str_(this.cs_().originalName) == "" {
 		this.cs_().originalName = other.cs_().originalName
 	}
 	return this
@@ -2130,11 +2191,17 @@ func (this Node) getJSType() *JSType {
 }
 
 func (this Node) getJSTypeRequired() *JSType {
-	return to_JSType(Preconditions_checkNotNull_Object_String_Object(this.getJSType().self(), "no jstypeOrColor: %s", this.box_()))
+	nn_1 := this.getJSType()
+	if nn_1 == nil {
+		nullFail_(Strings_lenientFormat("no jstypeOrColor: %s", []any{this.box_()}))
+	}
+	return nn_1
 }
 
 func (this Node) setJSType(x *JSType) Node {
-	Preconditions_checkState_boolean_Object(((this.cs_().jstypeOrColor == 0) || (this.cs_().jstypeOrColor&1 != 0)), this.box_())
+	if this.cs_().jstypeOrColor != 0 && this.cs_().jstypeOrColor&1 == 0 {
+		panic(new_IllegalStateException_String(tostr_(this)))
+	}
 	this.jstypeOrColor_set_(x.self())
 	return this
 }
@@ -2145,10 +2212,11 @@ func (this Node) getColor() *Color {
 	return func() *Color {
 		if func() bool {
 			v_ := this.jstypeOrColor_get_()
-			if !is_[*Color](v_) {
+			p, ok := v_.(*Color)
+			if !ok {
 				return false
 			}
-			color = cast_[*Color](v_)
+			color = p
 			return true
 		}() {
 			return color
@@ -2158,7 +2226,9 @@ func (this Node) getColor() *Color {
 }
 
 func (this Node) setColor(x *Color) Node {
-	Preconditions_checkState_boolean_Object(((this.cs_().jstypeOrColor == 0) || is_[*Color](this.jstypeOrColor_get_())), this.box_())
+	if this.cs_().jstypeOrColor != 0 && !is_[*Color](this.jstypeOrColor_get_()) {
+		panic(new_IllegalStateException_String(tostr_(this)))
+	}
 	this.jstypeOrColor_set_(obj_(x))
 	return this
 }
@@ -2222,7 +2292,9 @@ func (this Node) isOptionalEs6Typed() bool {
 }
 
 func (this Node) setIsSyntheticBlock(val bool) {
-	Preconditions_checkState((Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_BLOCK))
+	if this.ns_().token != tokOrd1_BLOCK {
+		panic(new_IllegalStateException_0())
+	}
 	this.putBooleanProp(Node_Prop_SYNTHETIC, val)
 }
 
@@ -2231,7 +2303,9 @@ func (this Node) isSyntheticBlock() bool {
 }
 
 func (this Node) setIsSynthesizedUnfulfilledNameDeclaration(val bool) {
-	Preconditions_checkState_boolean_String_Object((((Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_VAR) && this.hasOneChild()) && this.getFirstChild().isName()), "Expected all synthetic unfulfilled declarations to be `var <name>`, found %s", this.box_())
+	if !(((this.ns_().token == tokOrd1_VAR) && this.hasOneChild()) && this.getFirstChild().isName()) {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected all synthetic unfulfilled declarations to be `var <name>`, found %s", []any{this.box_()})))
+	}
 	this.putBooleanProp(Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION, val)
 }
 
@@ -2288,7 +2362,9 @@ func (this Node) isGeneratorSafe() bool {
 }
 
 func (this Node) setIsOptionalChainStart(isOptionalChainStart bool) {
-	Preconditions_checkState_boolean_Object((((!isOptionalChainStart || this.isOptChainGetElem()) || this.isOptChainGetProp()) || this.isOptChainCall()), strobj_("cannot make a non-optional node the start of an optional chain."))
+	if !(((!isOptionalChainStart || this.isOptChainGetElem()) || this.isOptChainGetProp()) || this.isOptChainCall()) {
+		panic(new_IllegalStateException_String("cannot make a non-optional node the start of an optional chain."))
+	}
 	this.putBooleanProp(Node_Prop_START_OF_OPT_CHAIN, isOptionalChainStart)
 }
 
@@ -2297,7 +2373,9 @@ func (this Node) isOptionalChainStart() bool {
 }
 
 func (this Node) setIsArrowFunction(isArrow bool) {
-	Preconditions_checkState(this.isFunction())
+	if !this.isFunction() {
+		panic(new_IllegalStateException_0())
+	}
 	this.putBooleanProp(Node_Prop_ARROW_FN, isArrow)
 }
 
@@ -2306,7 +2384,9 @@ func (this Node) isArrowFunction() bool {
 }
 
 func (this Node) setIsAsyncFunction(isAsync bool) {
-	Preconditions_checkState(this.isFunction())
+	if !this.isFunction() {
+		panic(new_IllegalStateException_0())
+	}
 	this.putBooleanProp(Node_Prop_ASYNC_FN, isAsync)
 }
 
@@ -2335,7 +2415,9 @@ func (this Node) hasTrailingComma() bool {
 }
 
 func (this Node) setSideEffectFlagsInt(flags int32) {
-	Preconditions_checkState_boolean_String_Object((((this.isCall() || this.isOptChainCall()) || this.isNew()) || this.isTaggedTemplateLit()), "Side-effect flags can only be set on invocation nodes; got %s", this.box_())
+	if !(((this.isCall() || this.isOptChainCall()) || this.isNew()) || this.isTaggedTemplateLit()) {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Side-effect flags can only be set on invocation nodes; got %s", []any{this.box_()})))
+	}
 	this.putIntProp(Node_Prop_SIDE_EFFECT_FLAGS, ((^flags) & Node_SideEffectFlags_USED_BITS_MASK))
 }
 
@@ -2392,22 +2474,30 @@ func (this Node) setConstantVarFlag(flag int32, value bool) {
 }
 
 func (this Node) isDeclaredConstantVar() bool {
-	Preconditions_checkState_boolean_String_Object((this.isName() || this.isImportStar()), "Should only be called on name or import * nodes. Found %s", this.box_())
+	if !this.isName() && !this.isImportStar() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Should only be called on name or import * nodes. Found %s", []any{this.box_()})))
+	}
 	return Node_anyBitSet(this.getConstantVarFlags(), Node_ConstantVarFlags_DECLARED)
 }
 
 func (this Node) setDeclaredConstantVar(value bool) {
-	Preconditions_checkState_boolean_String_Object((this.isName() || this.isImportStar()), "Should only be called on name or import * nodes. Found %s", this.box_())
+	if !this.isName() && !this.isImportStar() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Should only be called on name or import * nodes. Found %s", []any{this.box_()})))
+	}
 	this.setConstantVarFlag(Node_ConstantVarFlags_DECLARED, value)
 }
 
 func (this Node) isInferredConstantVar() bool {
-	Preconditions_checkState_boolean_String_Object((this.isName() || this.isImportStar()), "Should only be called on name or import * nodes. Found %s", this.box_())
+	if !this.isName() && !this.isImportStar() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Should only be called on name or import * nodes. Found %s", []any{this.box_()})))
+	}
 	return Node_anyBitSet(this.getConstantVarFlags(), Node_ConstantVarFlags_INFERRED)
 }
 
 func (this Node) setInferredConstantVar(value bool) {
-	Preconditions_checkState_boolean_String_Object((this.isName() || this.isImportStar()), "Should only be called on name or import * nodes. Found %s", this.box_())
+	if !this.isName() && !this.isImportStar() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Should only be called on name or import * nodes. Found %s", []any{this.box_()})))
+	}
 	this.setConstantVarFlag(Node_ConstantVarFlags_INFERRED, value)
 }
 
@@ -2416,7 +2506,9 @@ func (this Node) isQuotedStringKey() bool {
 }
 
 func (this Node) setQuotedStringKey() {
-	Preconditions_checkState_boolean_Object(this.payload_iss_(), this.box_())
+	if !this.payload_iss_() {
+		panic(new_IllegalStateException_String(tostr_(this)))
+	}
 	this.putBooleanProp(Node_Prop_QUOTED, true)
 }
 
@@ -2425,41 +2517,45 @@ func (this Node) isPrivateIdentifier() bool {
 }
 
 func (this Node) setPrivateIdentifier() {
-	Preconditions_checkState_boolean_Object(this.payload_iss_(), this.box_())
-	Preconditions_checkState(String_startsWith(this.getString(), "#"))
+	if !this.payload_iss_() {
+		panic(new_IllegalStateException_String(tostr_(this)))
+	}
+	if !strings.HasPrefix(this.getString(), "#") {
+		panic(new_IllegalStateException_0())
+	}
 	this.putBooleanProp(Node_Prop_PRIVATE_IDENTIFIER, true)
 }
 
 func (this Node) isAdd() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ADD)
+	return (this.ns_().token == tokOrd1_ADD)
 }
 
 func (this Node) isSub() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SUB)
+	return (this.ns_().token == tokOrd1_SUB)
 }
 
 func (this Node) isAnd() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_AND)
+	return (this.ns_().token == tokOrd1_AND)
 }
 
 func (this Node) isAssignAnd() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ASSIGN_AND)
+	return (this.ns_().token == tokOrd1_ASSIGN_AND)
 }
 
 func (this Node) isArrayLit() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ARRAYLIT)
+	return (this.ns_().token == tokOrd1_ARRAYLIT)
 }
 
 func (this Node) isArrayPattern() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ARRAY_PATTERN)
+	return (this.ns_().token == tokOrd1_ARRAY_PATTERN)
 }
 
 func (this Node) isAssign() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ASSIGN)
+	return (this.ns_().token == tokOrd1_ASSIGN)
 }
 
 func (this Node) isAssignAdd() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ASSIGN_ADD)
+	return (this.ns_().token == tokOrd1_ASSIGN_ADD)
 }
 
 func (this Node) isNormalBlock() bool {
@@ -2467,91 +2563,91 @@ func (this Node) isNormalBlock() bool {
 }
 
 func (this Node) isBlock() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_BLOCK)
+	return (this.ns_().token == tokOrd1_BLOCK)
 }
 
 func (this Node) isRoot() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ROOT)
+	return (this.ns_().token == tokOrd1_ROOT)
 }
 
 func (this Node) isAwait() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_AWAIT)
+	return (this.ns_().token == tokOrd1_AWAIT)
 }
 
 func (this Node) isBigInt() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_BIGINT)
+	return (this.ns_().token == tokOrd1_BIGINT)
 }
 
 func (this Node) isBitNot() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_BITNOT)
+	return (this.ns_().token == tokOrd1_BITNOT)
 }
 
 func (this Node) isBreak() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_BREAK)
+	return (this.ns_().token == tokOrd1_BREAK)
 }
 
 func (this Node) isCall() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CALL)
+	return (this.ns_().token == tokOrd1_CALL)
 }
 
 func (this Node) isCase() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CASE)
+	return (this.ns_().token == tokOrd1_CASE)
 }
 
 func (this Node) isCast() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CAST)
+	return (this.ns_().token == tokOrd1_CAST)
 }
 
 func (this Node) isCatch() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CATCH)
+	return (this.ns_().token == tokOrd1_CATCH)
 }
 
 func (this Node) isClass() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CLASS)
+	return (this.ns_().token == tokOrd1_CLASS)
 }
 
 func (this Node) isClassMembers() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CLASS_MEMBERS)
+	return (this.ns_().token == tokOrd1_CLASS_MEMBERS)
 }
 
 func (this Node) isComma() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_COMMA)
+	return (this.ns_().token == tokOrd1_COMMA)
 }
 
 func (this Node) isComputedProp() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_COMPUTED_PROP)
+	return (this.ns_().token == tokOrd1_COMPUTED_PROP)
 }
 
 func (this Node) isContinue() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CONTINUE)
+	return (this.ns_().token == tokOrd1_CONTINUE)
 }
 
 func (this Node) isConst() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CONST)
+	return (this.ns_().token == tokOrd1_CONST)
 }
 
 func (this Node) isDebugger() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DEBUGGER)
+	return (this.ns_().token == tokOrd1_DEBUGGER)
 }
 
 func (this Node) isDec() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DEC)
+	return (this.ns_().token == tokOrd1_DEC)
 }
 
 func (this Node) isDefaultCase() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DEFAULT_CASE)
+	return (this.ns_().token == tokOrd1_DEFAULT_CASE)
 }
 
 func (this Node) isDefaultValue() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DEFAULT_VALUE)
+	return (this.ns_().token == tokOrd1_DEFAULT_VALUE)
 }
 
 func (this Node) isDelProp() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DELPROP)
+	return (this.ns_().token == tokOrd1_DELPROP)
 }
 
 func (this Node) isDestructuringLhs() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DESTRUCTURING_LHS)
+	return (this.ns_().token == tokOrd1_DESTRUCTURING_LHS)
 }
 
 func (this Node) isDestructuringPattern() bool {
@@ -2559,359 +2655,359 @@ func (this Node) isDestructuringPattern() bool {
 }
 
 func (this Node) isDo() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DO)
+	return (this.ns_().token == tokOrd1_DO)
 }
 
 func (this Node) isEmpty() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EMPTY)
+	return (this.ns_().token == tokOrd1_EMPTY)
 }
 
 func (this Node) isExponent() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EXPONENT)
+	return (this.ns_().token == tokOrd1_EXPONENT)
 }
 
 func (this Node) isAssignExponent() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ASSIGN_EXPONENT)
+	return (this.ns_().token == tokOrd1_ASSIGN_EXPONENT)
 }
 
 func (this Node) isExport() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EXPORT)
+	return (this.ns_().token == tokOrd1_EXPORT)
 }
 
 func (this Node) isExportSpec() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EXPORT_SPEC)
+	return (this.ns_().token == tokOrd1_EXPORT_SPEC)
 }
 
 func (this Node) isExportSpecs() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EXPORT_SPECS)
+	return (this.ns_().token == tokOrd1_EXPORT_SPECS)
 }
 
 func (this Node) isExprResult() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EXPR_RESULT)
+	return (this.ns_().token == tokOrd1_EXPR_RESULT)
 }
 
 func (this Node) isFalse() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FALSE)
+	return (this.ns_().token == tokOrd1_FALSE)
 }
 
 func (this Node) isVanillaFor() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FOR)
+	return (this.ns_().token == tokOrd1_FOR)
 }
 
 func (this Node) isForIn() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FOR_IN)
+	return (this.ns_().token == tokOrd1_FOR_IN)
 }
 
 func (this Node) isForOf() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FOR_OF)
+	return (this.ns_().token == tokOrd1_FOR_OF)
 }
 
 func (this Node) isForAwaitOf() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FOR_AWAIT_OF)
+	return (this.ns_().token == tokOrd1_FOR_AWAIT_OF)
 }
 
 func (this Node) isFunction() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FUNCTION)
+	return (this.ns_().token == tokOrd1_FUNCTION)
 }
 
 func (this Node) isGetterDef() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_GETTER_DEF)
+	return (this.ns_().token == tokOrd1_GETTER_DEF)
 }
 
 func (this Node) isGetElem() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_GETELEM)
+	return (this.ns_().token == tokOrd1_GETELEM)
 }
 
 func (this Node) isGetProp() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_GETPROP)
+	return (this.ns_().token == tokOrd1_GETPROP)
 }
 
 func (this Node) isHook() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_HOOK)
+	return (this.ns_().token == tokOrd1_HOOK)
 }
 
 func (this Node) isIf() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IF)
+	return (this.ns_().token == tokOrd1_IF)
 }
 
 func (this Node) isImport() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IMPORT)
+	return (this.ns_().token == tokOrd1_IMPORT)
 }
 
 func (this Node) isImportMeta() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IMPORT_META)
+	return (this.ns_().token == tokOrd1_IMPORT_META)
 }
 
 func (this Node) isImportStar() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IMPORT_STAR)
+	return (this.ns_().token == tokOrd1_IMPORT_STAR)
 }
 
 func (this Node) isImportSpec() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IMPORT_SPEC)
+	return (this.ns_().token == tokOrd1_IMPORT_SPEC)
 }
 
 func (this Node) isImportSpecs() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IMPORT_SPECS)
+	return (this.ns_().token == tokOrd1_IMPORT_SPECS)
 }
 
 func (this Node) isIn() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IN)
+	return (this.ns_().token == tokOrd1_IN)
 }
 
 func (this Node) isInc() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_INC)
+	return (this.ns_().token == tokOrd1_INC)
 }
 
 func (this Node) isInstanceOf() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_INSTANCEOF)
+	return (this.ns_().token == tokOrd1_INSTANCEOF)
 }
 
 func (this Node) isInterface() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_INTERFACE)
+	return (this.ns_().token == tokOrd1_INTERFACE)
 }
 
 func (this Node) isInterfaceMembers() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_INTERFACE_MEMBERS)
+	return (this.ns_().token == tokOrd1_INTERFACE_MEMBERS)
 }
 
 func (this Node) isRecordType() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_RECORD_TYPE)
+	return (this.ns_().token == tokOrd1_RECORD_TYPE)
 }
 
 func (this Node) isCallSignature() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CALL_SIGNATURE)
+	return (this.ns_().token == tokOrd1_CALL_SIGNATURE)
 }
 
 func (this Node) isIndexSignature() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_INDEX_SIGNATURE)
+	return (this.ns_().token == tokOrd1_INDEX_SIGNATURE)
 }
 
 func (this Node) isLabel() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_LABEL)
+	return (this.ns_().token == tokOrd1_LABEL)
 }
 
 func (this Node) isLabelName() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_LABEL_NAME)
+	return (this.ns_().token == tokOrd1_LABEL_NAME)
 }
 
 func (this Node) isLet() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_LET)
+	return (this.ns_().token == tokOrd1_LET)
 }
 
 func (this Node) isMemberFunctionDef() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_MEMBER_FUNCTION_DEF)
+	return (this.ns_().token == tokOrd1_MEMBER_FUNCTION_DEF)
 }
 
 func (this Node) isMemberVariableDef() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_MEMBER_VARIABLE_DEF)
+	return (this.ns_().token == tokOrd1_MEMBER_VARIABLE_DEF)
 }
 
 func (this Node) isMemberFieldDef() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_MEMBER_FIELD_DEF)
+	return (this.ns_().token == tokOrd1_MEMBER_FIELD_DEF)
 }
 
 func (this Node) isComputedFieldDef() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_COMPUTED_FIELD_DEF)
+	return (this.ns_().token == tokOrd1_COMPUTED_FIELD_DEF)
 }
 
 func (this Node) isModuleBody() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_MODULE_BODY)
+	return (this.ns_().token == tokOrd1_MODULE_BODY)
 }
 
 func (this Node) isName() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NAME)
+	return (this.ns_().token == tokOrd1_NAME)
 }
 
 func (this Node) isNE() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NE)
+	return (this.ns_().token == tokOrd1_NE)
 }
 
 func (this Node) isSHNE() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SHNE)
+	return (this.ns_().token == tokOrd1_SHNE)
 }
 
 func (this Node) isEQ() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EQ)
+	return (this.ns_().token == tokOrd1_EQ)
 }
 
 func (this Node) isSHEQ() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SHEQ)
+	return (this.ns_().token == tokOrd1_SHEQ)
 }
 
 func (this Node) isNeg() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NEG)
+	return (this.ns_().token == tokOrd1_NEG)
 }
 
 func (this Node) isNew() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NEW)
+	return (this.ns_().token == tokOrd1_NEW)
 }
 
 func (this Node) isNot() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NOT)
+	return (this.ns_().token == tokOrd1_NOT)
 }
 
 func (this Node) isNull() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NULL)
+	return (this.ns_().token == tokOrd1_NULL)
 }
 
 func (this Node) isNullishCoalesce() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_COALESCE)
+	return (this.ns_().token == tokOrd1_COALESCE)
 }
 
 func (this Node) isAssignNullishCoalesce() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ASSIGN_COALESCE)
+	return (this.ns_().token == tokOrd1_ASSIGN_COALESCE)
 }
 
 func (this Node) isNumber() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NUMBER)
+	return (this.ns_().token == tokOrd1_NUMBER)
 }
 
 func (this Node) isObjectLit() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OBJECTLIT)
+	return (this.ns_().token == tokOrd1_OBJECTLIT)
 }
 
 func (this Node) isObjectPattern() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OBJECT_PATTERN)
+	return (this.ns_().token == tokOrd1_OBJECT_PATTERN)
 }
 
 func (this Node) isOptChainCall() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OPTCHAIN_CALL)
+	return (this.ns_().token == tokOrd1_OPTCHAIN_CALL)
 }
 
 func (this Node) isOptChainGetElem() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OPTCHAIN_GETELEM)
+	return (this.ns_().token == tokOrd1_OPTCHAIN_GETELEM)
 }
 
 func (this Node) isOptChainGetProp() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OPTCHAIN_GETPROP)
+	return (this.ns_().token == tokOrd1_OPTCHAIN_GETPROP)
 }
 
 func (this Node) isOr() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OR)
+	return (this.ns_().token == tokOrd1_OR)
 }
 
 func (this Node) isAssignOr() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ASSIGN_OR)
+	return (this.ns_().token == tokOrd1_ASSIGN_OR)
 }
 
 func (this Node) isParamList() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_PARAM_LIST)
+	return (this.ns_().token == tokOrd1_PARAM_LIST)
 }
 
 func (this Node) isPos() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_POS)
+	return (this.ns_().token == tokOrd1_POS)
 }
 
 func (this Node) isRegExp() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_REGEXP)
+	return (this.ns_().token == tokOrd1_REGEXP)
 }
 
 func (this Node) isRest() bool {
-	return ((Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ITER_REST) || (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OBJECT_REST))
+	return ((this.ns_().token == tokOrd1_ITER_REST) || (this.ns_().token == tokOrd1_OBJECT_REST))
 }
 
 func (this Node) isObjectRest() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OBJECT_REST)
+	return (this.ns_().token == tokOrd1_OBJECT_REST)
 }
 
 func (this Node) isReturn() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_RETURN)
+	return (this.ns_().token == tokOrd1_RETURN)
 }
 
 func (this Node) isScript() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SCRIPT)
+	return (this.ns_().token == tokOrd1_SCRIPT)
 }
 
 func (this Node) isSetterDef() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SETTER_DEF)
+	return (this.ns_().token == tokOrd1_SETTER_DEF)
 }
 
 func (this Node) isSpread() bool {
-	return ((Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ITER_SPREAD) || (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OBJECT_SPREAD))
+	return ((this.ns_().token == tokOrd1_ITER_SPREAD) || (this.ns_().token == tokOrd1_OBJECT_SPREAD))
 }
 
 func (this Node) isString() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_STRINGLIT)
+	return (this.ns_().token == tokOrd1_STRINGLIT)
 }
 
 func (this Node) isStringKey() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_STRING_KEY)
+	return (this.ns_().token == tokOrd1_STRING_KEY)
 }
 
 func (this Node) isStringLit() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_STRINGLIT)
+	return (this.ns_().token == tokOrd1_STRINGLIT)
 }
 
 func (this Node) isSuper() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SUPER)
+	return (this.ns_().token == tokOrd1_SUPER)
 }
 
 func (this Node) isSwitch() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SWITCH)
+	return (this.ns_().token == tokOrd1_SWITCH)
 }
 
 func (this Node) isSwitchBody() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SWITCH_BODY)
+	return (this.ns_().token == tokOrd1_SWITCH_BODY)
 }
 
 func (this Node) isTaggedTemplateLit() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TAGGED_TEMPLATELIT)
+	return (this.ns_().token == tokOrd1_TAGGED_TEMPLATELIT)
 }
 
 func (this Node) isTemplateLit() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TEMPLATELIT)
+	return (this.ns_().token == tokOrd1_TEMPLATELIT)
 }
 
 func (this Node) isTemplateLitString() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TEMPLATELIT_STRING)
+	return (this.ns_().token == tokOrd1_TEMPLATELIT_STRING)
 }
 
 func (this Node) isTemplateLitSub() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TEMPLATELIT_SUB)
+	return (this.ns_().token == tokOrd1_TEMPLATELIT_SUB)
 }
 
 func (this Node) isThis() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_THIS)
+	return (this.ns_().token == tokOrd1_THIS)
 }
 
 func (this Node) isThrow() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_THROW)
+	return (this.ns_().token == tokOrd1_THROW)
 }
 
 func (this Node) isTrue() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TRUE)
+	return (this.ns_().token == tokOrd1_TRUE)
 }
 
 func (this Node) isTry() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TRY)
+	return (this.ns_().token == tokOrd1_TRY)
 }
 
 func (this Node) isTypeOf() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TYPEOF)
+	return (this.ns_().token == tokOrd1_TYPEOF)
 }
 
 func (this Node) isVar() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_VAR)
+	return (this.ns_().token == tokOrd1_VAR)
 }
 
 func (this Node) isVoid() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_VOID)
+	return (this.ns_().token == tokOrd1_VOID)
 }
 
 func (this Node) isWhile() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_WHILE)
+	return (this.ns_().token == tokOrd1_WHILE)
 }
 
 func (this Node) isWith() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_WITH)
+	return (this.ns_().token == tokOrd1_WITH)
 }
 
 func (this Node) isYield() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_YIELD)
+	return (this.ns_().token == tokOrd1_YIELD)
 }
 
 func (this Node) isDeclare() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DECLARE)
+	return (this.ns_().token == tokOrd1_DECLARE)
 }
 
 var Node_propValues []*Node_Prop
@@ -2949,7 +3045,7 @@ var Node_BIGINT_PAYLOAD_UNSET *BigInteger
 const Node_CHARNO_BITS int32 = 12
 const Node_MAX_COLUMN_NUMBER int32 = 4095
 
-var Node_PROP_MAP_FOR_EQUALITY *ImmutableMap
+var Node_PROP_MAP_FOR_EQUALITY *ErasedImmutableMap
 var Node_propMapForEqualityKeys *EnumSet
 
 var Node_clinit_done bool
@@ -2990,25 +3086,25 @@ func Node_clinit() {
 	Node_ES6_MODULE = Node_Prop_ES6_MODULE
 	Node_NUMBER_PAYLOAD_UNSET = any(float64(0.0))
 	Node_BIGINT_PAYLOAD_UNSET = BigInteger_ZERO
-	Node_PROP_MAP_FOR_EQUALITY = new_ImmutableMap_Builder().put(obj_(Node_Prop_ARROW_FN), any(&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isArrowFunction())) }})).put(obj_(Node_Prop_ASYNC_FN), any(&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isAsyncFunction())) }})).put(obj_(Node_Prop_GENERATOR_FN), any(&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isGeneratorFunction())) }})).put(obj_(Node_Prop_START_OF_OPT_CHAIN), any(&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isOptionalChainStart())) }})).put(obj_(Node_Prop_STATIC_MEMBER), any(&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isStaticMember())) }})).put(obj_(Node_Prop_YIELD_ALL), any(&Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isYieldAll())) }})).put(obj_(Node_Prop_EXPORT_DEFAULT), any(&Function_tfn_Node_any{func(n Node) any {
+	Node_PROP_MAP_FOR_EQUALITY = immutableMapBuilder_(tc_p_Node_Prop, tc_p_Function_tfn_Node_any).put(Node_Prop_ARROW_FN, &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isArrowFunction())) }}).put(Node_Prop_ASYNC_FN, &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isAsyncFunction())) }}).put(Node_Prop_GENERATOR_FN, &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isGeneratorFunction())) }}).put(Node_Prop_START_OF_OPT_CHAIN, &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isOptionalChainStart())) }}).put(Node_Prop_STATIC_MEMBER, &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isStaticMember())) }}).put(Node_Prop_YIELD_ALL, &Function_tfn_Node_any{func(p0 Node) any { return any(bool(p0.isYieldAll())) }}).put(Node_Prop_EXPORT_DEFAULT, &Function_tfn_Node_any{func(n Node) any {
 		return any(int32(n.getIntProp(Node_Prop_EXPORT_DEFAULT)))
-	}})).put(obj_(Node_Prop_EXPORT_ALL_FROM), any(&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_EXPORT_ALL_FROM, &Function_tfn_Node_any{func(n Node) any {
 		return any(int32(n.getIntProp(Node_Prop_EXPORT_ALL_FROM)))
-	}})).put(obj_(Node_Prop_INCRDECR), any(&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_INCRDECR, &Function_tfn_Node_any{func(n Node) any {
 		return any(int32(n.getIntProp(Node_Prop_INCRDECR)))
-	}})).put(obj_(Node_Prop_QUOTED), any(&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_QUOTED, &Function_tfn_Node_any{func(n Node) any {
 		return any(int32(n.getIntProp(Node_Prop_QUOTED)))
-	}})).put(obj_(Node_Prop_FREE_CALL), any(&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_FREE_CALL, &Function_tfn_Node_any{func(n Node) any {
 		return any(bool(n.getBooleanProp(Node_Prop_FREE_CALL)))
-	}})).put(obj_(Node_Prop_DIRECT_EVAL), any(&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_DIRECT_EVAL, &Function_tfn_Node_any{func(n Node) any {
 		return any(bool(n.getBooleanProp(Node_Prop_DIRECT_EVAL)))
-	}})).put(obj_(Node_Prop_COMPUTED_PROP_METHOD), any(&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_COMPUTED_PROP_METHOD, &Function_tfn_Node_any{func(n Node) any {
 		return any(bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_METHOD)))
-	}})).put(obj_(Node_Prop_COMPUTED_PROP_GETTER), any(&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_COMPUTED_PROP_GETTER, &Function_tfn_Node_any{func(n Node) any {
 		return any(bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_GETTER)))
-	}})).put(obj_(Node_Prop_COMPUTED_PROP_SETTER), any(&Function_tfn_Node_any{func(n Node) any {
+	}}).put(Node_Prop_COMPUTED_PROP_SETTER, &Function_tfn_Node_any{func(n Node) any {
 		return any(bool(n.getBooleanProp(Node_Prop_COMPUTED_PROP_SETTER)))
-	}})).buildOrThrow()
+	}}).buildOrThrowErased()
 	Node_propMapForEqualityKeys = EnumSet_copyOf(Collection(Node_PROP_MAP_FOR_EQUALITY.keySet()))
 
 }
@@ -3198,24 +3294,20 @@ func new_Node_TemplateLiteralSubstring(cooked Optional[string], raw string) *Nod
 }
 
 type Node_PropListItem struct {
-	self_    any
+	self_    Node_PropListItem_I
 	next_    *Node_PropListItem
 	propType int8
 }
 
+// Node_PropListItem_I holds the methods the dispatchers of Node_PropListItem's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type Node_PropListItem_I interface {
+	chain_impl(*Node_PropListItem) *Node_PropListItem
+	getIntValue_impl() int32
+	getObjectValue_impl() any
+}
+
 func (this *Node_PropListItem) as_Node_PropListItem() *Node_PropListItem { return this }
-
-func to_Node_PropListItem(v any) *Node_PropListItem {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_Node_PropListItem() *Node_PropListItem }).as_Node_PropListItem()
-}
-
-func is_Node_PropListItem(v any) bool {
-	_, ok := v.(interface{ as_Node_PropListItem() *Node_PropListItem })
-	return ok
-}
 
 func (this *Node_PropListItem) self() any {
 	if this == nil {
@@ -3230,17 +3322,15 @@ func (this *Node_PropListItem) init_Node_PropListItem(propType int8, next *Node_
 }
 
 func (this *Node_PropListItem) getIntValue() int32 {
-	return this.self_.(interface{ getIntValue_impl() int32 }).getIntValue_impl()
+	return this.self_.getIntValue_impl()
 }
 
 func (this *Node_PropListItem) getObjectValue() any {
-	return this.self_.(interface{ getObjectValue_impl() any }).getObjectValue_impl()
+	return this.self_.getObjectValue_impl()
 }
 
 func (this *Node_PropListItem) chain(p0 *Node_PropListItem) *Node_PropListItem {
-	return this.self_.(interface {
-		chain_impl(*Node_PropListItem) *Node_PropListItem
-	}).chain_impl(p0)
+	return this.self_.chain_impl(p0)
 }
 
 type Node_ObjectPropListItem struct {
@@ -3257,7 +3347,10 @@ func (this *Node_ObjectPropListItem) up_Node_PropListItem() *Node_PropListItem {
 
 func (this *Node_ObjectPropListItem) init_Node_ObjectPropListItem(propType int8, objectValue any, next *Node_PropListItem) {
 	this.Node_PropListItem.init_Node_PropListItem(propType, next)
-	this.objectValue = Preconditions_checkNotNull(objectValue)
+	if objectValue == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.objectValue = objectValue
 }
 
 func new_Node_ObjectPropListItem(propType int8, objectValue any, next *Node_PropListItem) *Node_ObjectPropListItem {
@@ -3268,7 +3361,7 @@ func new_Node_ObjectPropListItem(propType int8, objectValue any, next *Node_Prop
 }
 
 func (this *Node_ObjectPropListItem) getIntValue_impl() int32 {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *Node_ObjectPropListItem) getObjectValue_impl() any {
@@ -3276,7 +3369,7 @@ func (this *Node_ObjectPropListItem) getObjectValue_impl() any {
 }
 
 func (this *Node_ObjectPropListItem) toString() string {
-	return String_valueOf_Object(this.objectValue)
+	return objstr_(this.objectValue)
 }
 
 func (this *Node_ObjectPropListItem) chain_impl(next *Node_PropListItem) *Node_PropListItem {
@@ -3298,7 +3391,9 @@ func (this *Node_IntPropListItem) up_Node_PropListItem() *Node_PropListItem {
 func (this *Node_IntPropListItem) init_Node_IntPropListItem(propType int8, intValue int32, next *Node_PropListItem) {
 	this.Node_PropListItem.init_Node_PropListItem(propType, next)
 	this.intValue = intValue
-	Preconditions_checkState((this.intValue != 0))
+	if this.intValue == 0 {
+		panic(new_IllegalStateException_0())
+	}
 }
 
 func new_Node_IntPropListItem(propType int8, intValue int32, next *Node_PropListItem) *Node_IntPropListItem {
@@ -3313,11 +3408,11 @@ func (this *Node_IntPropListItem) getIntValue_impl() int32 {
 }
 
 func (this *Node_IntPropListItem) getObjectValue_impl() any {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *Node_IntPropListItem) toString() string {
-	return String_valueOf(this.intValue)
+	return strconv.Itoa(int(this.intValue))
 }
 
 func (this *Node_IntPropListItem) chain_impl(next *Node_PropListItem) *Node_PropListItem {
@@ -3339,7 +3434,7 @@ func new_Node_SiblingNodeIterable(start Node) *Node_SiblingNodeIterable {
 }
 
 func (this *Node_SiblingNodeIterable) iterator() IteratorOf[Node] {
-	return icast_Iterator(obj_(new_Node_SiblingNodeIterator(this.start_)))
+	return new_Node_SiblingNodeIterator(this.start_)
 }
 
 type Node_SiblingNodeIterator struct {
@@ -3362,7 +3457,7 @@ func (this *Node_SiblingNodeIterator) hasNext() bool {
 
 func (this *Node_SiblingNodeIterator) next() any {
 	if this.current_ == 0 {
-		panic(new_NoSuchElementException_0().self())
+		panic(new_NoSuchElementException_0())
 	}
 	var n Node = this.current_
 	this.current_ = this.current_.getNext()
@@ -3370,7 +3465,7 @@ func (this *Node_SiblingNodeIterator) next() any {
 }
 
 func (this *Node_SiblingNodeIterator) remove() {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 type Node_AncestorIterable struct {
@@ -3388,56 +3483,73 @@ func new_Node_AncestorIterable(cur Node) *Node_AncestorIterable {
 }
 
 func (this *Node_AncestorIterable) iterator() IteratorOf[Node] {
-	return icast_Iterator(obj_(new_Node_AncestorIterable_1(this)))
+	return new_Node_AncestorIterable_1(this)
 }
 
-type Node_RecursionMode struct {
-	Enum
+type Node_RecursionMode uint8
+
+// Node_RecursionMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Node_RecursionMode_enum_ = [3]Enum{
+	{self_: Node_RecursionMode_SHALLOW, name_: "SHALLOW", ordinal_: 0},
+	{self_: Node_RecursionMode_DEEP_NO_SHADOW, name_: "DEEP_NO_SHADOW", ordinal_: 1},
+	{self_: Node_RecursionMode_DEEP, name_: "DEEP", ordinal_: 2},
 }
 
-func (this *Node_RecursionMode) up_Enum() *Enum {
-	if this == nil {
+func (this Node_RecursionMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Node_RecursionMode_enum_[this-1]
 }
 
-func (this *Node_RecursionMode) init_Node_RecursionMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Node_RecursionMode) name() string { return this.enum_().name_ }
+
+func (this Node_RecursionMode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_Node_RecursionMode(name_ string, ordinal_ int32) *Node_RecursionMode {
-	this := &Node_RecursionMode{}
-	this.self_ = this
-	this.init_Node_RecursionMode(name_, ordinal_)
+func (this Node_RecursionMode) toString() string { return this.enum_().name_ }
+
+func (this Node_RecursionMode) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this Node_RecursionMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *Node_RecursionMode) recurseShadowAst() bool {
+func (this Node_RecursionMode) recurseShadowAst() bool {
 	return (this == Node_RecursionMode_DEEP)
 }
 
-func (this *Node_RecursionMode) recurseChildren() bool {
+func (this Node_RecursionMode) recurseChildren() bool {
 	return ((this == Node_RecursionMode_DEEP) || (this == Node_RecursionMode_DEEP_NO_SHADOW))
 }
 
-func Node_RecursionMode_values() []*Node_RecursionMode {
-	return append([]*Node_RecursionMode(nil), Node_RecursionMode_values_...)
+func Node_RecursionMode_values() []Node_RecursionMode {
+	return append([]Node_RecursionMode(nil), Node_RecursionMode_values_...)
 }
 
-func Node_RecursionMode_valueOf(name string) *Node_RecursionMode {
+func Node_RecursionMode_valueOf(name string) Node_RecursionMode {
 	for _, v := range Node_RecursionMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("RecursionMode", name))
 }
 
-var Node_RecursionMode_SHALLOW *Node_RecursionMode
-var Node_RecursionMode_DEEP_NO_SHADOW *Node_RecursionMode
-var Node_RecursionMode_DEEP *Node_RecursionMode
-var Node_RecursionMode_values_ []*Node_RecursionMode
+const Node_RecursionMode_SHALLOW Node_RecursionMode = 1
+const Node_RecursionMode_DEEP_NO_SHADOW Node_RecursionMode = 2
+const Node_RecursionMode_DEEP Node_RecursionMode = 3
+
+var Node_RecursionMode_values_ []Node_RecursionMode
 
 var Node_RecursionMode_clinit_done bool
 
@@ -3446,52 +3558,65 @@ func Node_RecursionMode_clinit() {
 		return
 	}
 	Node_RecursionMode_clinit_done = true
-	Node_RecursionMode_SHALLOW = new_Node_RecursionMode("SHALLOW", 0)
-	Node_RecursionMode_DEEP_NO_SHADOW = new_Node_RecursionMode("DEEP_NO_SHADOW", 1)
-	Node_RecursionMode_DEEP = new_Node_RecursionMode("DEEP", 2)
-	Node_RecursionMode_values_ = []*Node_RecursionMode{Node_RecursionMode_SHALLOW, Node_RecursionMode_DEEP_NO_SHADOW, Node_RecursionMode_DEEP}
+	Node_RecursionMode_values_ = []Node_RecursionMode{Node_RecursionMode_SHALLOW, Node_RecursionMode_DEEP_NO_SHADOW, Node_RecursionMode_DEEP}
 	registerEnum_("com.google.javascript.rhino.Node.RecursionMode", enumValues_(Node_RecursionMode_values_))
 
 }
 
-type Node_TypeComparison struct {
-	Enum
+type Node_TypeComparison uint8
+
+// Node_TypeComparison_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Node_TypeComparison_enum_ = [2]Enum{
+	{self_: Node_TypeComparison_IGNORE, name_: "IGNORE", ordinal_: 0},
+	{self_: Node_TypeComparison_COMPARE, name_: "COMPARE", ordinal_: 1},
 }
 
-func (this *Node_TypeComparison) up_Enum() *Enum {
-	if this == nil {
+func (this Node_TypeComparison) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Node_TypeComparison_enum_[this-1]
 }
 
-func (this *Node_TypeComparison) init_Node_TypeComparison(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Node_TypeComparison) name() string { return this.enum_().name_ }
+
+func (this Node_TypeComparison) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_Node_TypeComparison(name_ string, ordinal_ int32) *Node_TypeComparison {
-	this := &Node_TypeComparison{}
-	this.self_ = this
-	this.init_Node_TypeComparison(name_, ordinal_)
+func (this Node_TypeComparison) toString() string { return this.enum_().name_ }
+
+func (this Node_TypeComparison) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this Node_TypeComparison) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Node_TypeComparison_values() []*Node_TypeComparison {
-	return append([]*Node_TypeComparison(nil), Node_TypeComparison_values_...)
+func Node_TypeComparison_values() []Node_TypeComparison {
+	return append([]Node_TypeComparison(nil), Node_TypeComparison_values_...)
 }
 
-func Node_TypeComparison_valueOf(name string) *Node_TypeComparison {
+func Node_TypeComparison_valueOf(name string) Node_TypeComparison {
 	for _, v := range Node_TypeComparison_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TypeComparison", name))
 }
 
-var Node_TypeComparison_IGNORE *Node_TypeComparison
-var Node_TypeComparison_COMPARE *Node_TypeComparison
-var Node_TypeComparison_values_ []*Node_TypeComparison
+const Node_TypeComparison_IGNORE Node_TypeComparison = 1
+const Node_TypeComparison_COMPARE Node_TypeComparison = 2
+
+var Node_TypeComparison_values_ []Node_TypeComparison
 
 var Node_TypeComparison_clinit_done bool
 
@@ -3500,51 +3625,65 @@ func Node_TypeComparison_clinit() {
 		return
 	}
 	Node_TypeComparison_clinit_done = true
-	Node_TypeComparison_IGNORE = new_Node_TypeComparison("IGNORE", 0)
-	Node_TypeComparison_COMPARE = new_Node_TypeComparison("COMPARE", 1)
-	Node_TypeComparison_values_ = []*Node_TypeComparison{Node_TypeComparison_IGNORE, Node_TypeComparison_COMPARE}
+	Node_TypeComparison_values_ = []Node_TypeComparison{Node_TypeComparison_IGNORE, Node_TypeComparison_COMPARE}
 	registerEnum_("com.google.javascript.rhino.Node.TypeComparison", enumValues_(Node_TypeComparison_values_))
 
 }
 
-type Node_JsDocComparison struct {
-	Enum
+type Node_JsDocComparison uint8
+
+// Node_JsDocComparison_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Node_JsDocComparison_enum_ = [2]Enum{
+	{self_: Node_JsDocComparison_IGNORE, name_: "IGNORE", ordinal_: 0},
+	{self_: Node_JsDocComparison_COMPARE, name_: "COMPARE", ordinal_: 1},
 }
 
-func (this *Node_JsDocComparison) up_Enum() *Enum {
-	if this == nil {
+func (this Node_JsDocComparison) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Node_JsDocComparison_enum_[this-1]
 }
 
-func (this *Node_JsDocComparison) init_Node_JsDocComparison(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Node_JsDocComparison) name() string { return this.enum_().name_ }
+
+func (this Node_JsDocComparison) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_Node_JsDocComparison(name_ string, ordinal_ int32) *Node_JsDocComparison {
-	this := &Node_JsDocComparison{}
-	this.self_ = this
-	this.init_Node_JsDocComparison(name_, ordinal_)
+func (this Node_JsDocComparison) toString() string { return this.enum_().name_ }
+
+func (this Node_JsDocComparison) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this Node_JsDocComparison) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Node_JsDocComparison_values() []*Node_JsDocComparison {
-	return append([]*Node_JsDocComparison(nil), Node_JsDocComparison_values_...)
+func Node_JsDocComparison_values() []Node_JsDocComparison {
+	return append([]Node_JsDocComparison(nil), Node_JsDocComparison_values_...)
 }
 
-func Node_JsDocComparison_valueOf(name string) *Node_JsDocComparison {
+func Node_JsDocComparison_valueOf(name string) Node_JsDocComparison {
 	for _, v := range Node_JsDocComparison_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("JsDocComparison", name))
 }
 
-var Node_JsDocComparison_IGNORE *Node_JsDocComparison
-var Node_JsDocComparison_COMPARE *Node_JsDocComparison
-var Node_JsDocComparison_values_ []*Node_JsDocComparison
+const Node_JsDocComparison_IGNORE Node_JsDocComparison = 1
+const Node_JsDocComparison_COMPARE Node_JsDocComparison = 2
+
+var Node_JsDocComparison_values_ []Node_JsDocComparison
 
 var Node_JsDocComparison_clinit_done bool
 
@@ -3553,51 +3692,69 @@ func Node_JsDocComparison_clinit() {
 		return
 	}
 	Node_JsDocComparison_clinit_done = true
-	Node_JsDocComparison_IGNORE = new_Node_JsDocComparison("IGNORE", 0)
-	Node_JsDocComparison_COMPARE = new_Node_JsDocComparison("COMPARE", 1)
-	Node_JsDocComparison_values_ = []*Node_JsDocComparison{Node_JsDocComparison_IGNORE, Node_JsDocComparison_COMPARE}
+	Node_JsDocComparison_values_ = []Node_JsDocComparison{Node_JsDocComparison_IGNORE, Node_JsDocComparison_COMPARE}
 	registerEnum_("com.google.javascript.rhino.Node.JsDocComparison", enumValues_(Node_JsDocComparison_values_))
 
 }
 
-type Node_SideEffectComparison struct {
-	Enum
+type Node_SideEffectComparison uint8
+
+// Node_SideEffectComparison_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Node_SideEffectComparison_enum_ = [2]Enum{
+	{self_: Node_SideEffectComparison_IGNORE, name_: "IGNORE", ordinal_: 0},
+	{self_: Node_SideEffectComparison_COMPARE, name_: "COMPARE", ordinal_: 1},
 }
 
-func (this *Node_SideEffectComparison) up_Enum() *Enum {
-	if this == nil {
+func (this Node_SideEffectComparison) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Node_SideEffectComparison_enum_[this-1]
 }
 
-func (this *Node_SideEffectComparison) init_Node_SideEffectComparison(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Node_SideEffectComparison) name() string {
+	return this.enum_().name_
 }
 
-func new_Node_SideEffectComparison(name_ string, ordinal_ int32) *Node_SideEffectComparison {
-	this := &Node_SideEffectComparison{}
-	this.self_ = this
-	this.init_Node_SideEffectComparison(name_, ordinal_)
+func (this Node_SideEffectComparison) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this Node_SideEffectComparison) toString() string {
+	return this.enum_().name_
+}
+
+func (this Node_SideEffectComparison) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this Node_SideEffectComparison) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Node_SideEffectComparison_values() []*Node_SideEffectComparison {
-	return append([]*Node_SideEffectComparison(nil), Node_SideEffectComparison_values_...)
+func Node_SideEffectComparison_values() []Node_SideEffectComparison {
+	return append([]Node_SideEffectComparison(nil), Node_SideEffectComparison_values_...)
 }
 
-func Node_SideEffectComparison_valueOf(name string) *Node_SideEffectComparison {
+func Node_SideEffectComparison_valueOf(name string) Node_SideEffectComparison {
 	for _, v := range Node_SideEffectComparison_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("SideEffectComparison", name))
 }
 
-var Node_SideEffectComparison_IGNORE *Node_SideEffectComparison
-var Node_SideEffectComparison_COMPARE *Node_SideEffectComparison
-var Node_SideEffectComparison_values_ []*Node_SideEffectComparison
+const Node_SideEffectComparison_IGNORE Node_SideEffectComparison = 1
+const Node_SideEffectComparison_COMPARE Node_SideEffectComparison = 2
+
+var Node_SideEffectComparison_values_ []Node_SideEffectComparison
 
 var Node_SideEffectComparison_clinit_done bool
 
@@ -3606,9 +3763,7 @@ func Node_SideEffectComparison_clinit() {
 		return
 	}
 	Node_SideEffectComparison_clinit_done = true
-	Node_SideEffectComparison_IGNORE = new_Node_SideEffectComparison("IGNORE", 0)
-	Node_SideEffectComparison_COMPARE = new_Node_SideEffectComparison("COMPARE", 1)
-	Node_SideEffectComparison_values_ = []*Node_SideEffectComparison{Node_SideEffectComparison_IGNORE, Node_SideEffectComparison_COMPARE}
+	Node_SideEffectComparison_values_ = []Node_SideEffectComparison{Node_SideEffectComparison_IGNORE, Node_SideEffectComparison_COMPARE}
 	registerEnum_("com.google.javascript.rhino.Node.SideEffectComparison", enumValues_(Node_SideEffectComparison_values_))
 
 }
@@ -3677,7 +3832,8 @@ func (this *Node_SideEffectFlags) setMutatesArguments() *Node_SideEffectFlags {
 }
 
 func (this *Node_SideEffectFlags) toString() string {
-	var builder *StringBuilder = new_StringBuilder_String("Side effects: ")
+	var builder strBuilder_
+	builder.append("Side effects: ")
 	if (this.value_ & Node_SideEffectFlags_MUTATES_THIS) != 0 {
 		builder.append("this ")
 	}
@@ -3690,7 +3846,7 @@ func (this *Node_SideEffectFlags) toString() string {
 	if (this.value_ & Node_SideEffectFlags_MUTATES_ARGUMENTS) != 0 {
 		builder.append("args ")
 	}
-	return Object_toString(obj_(builder))
+	return builder.toString()
 }
 
 const Node_SideEffectFlags_MUTATES_GLOBAL_STATE int32 = 1
@@ -3738,7 +3894,7 @@ func (this *Node_AncestorIterable_1) hasNext() bool {
 
 func (this *Node_AncestorIterable_1) next() any {
 	if !this.hasNext() {
-		panic(new_NoSuchElementException_0().self())
+		panic(new_NoSuchElementException_0())
 	}
 	var n Node = this.outer_.cur
 	this.outer_.cur = this.outer_.cur.getParent()
@@ -3746,5 +3902,53 @@ func (this *Node_AncestorIterable_1) next() any {
 }
 
 func (this *Node_AncestorIterable_1) remove() {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
+}
+
+// getIntValue: an object that is exactly a Node_ObjectPropListItem calls its getIntValue_impl directly (post-flip); others dispatch.
+func (this *Node_ObjectPropListItem) getIntValue() int32 {
+	if p, _ := this.self_.(*Node_ObjectPropListItem); p == this {
+		return this.getIntValue_impl()
+	}
+	return this.self_.getIntValue_impl()
+}
+
+// getObjectValue: an object that is exactly a Node_ObjectPropListItem calls its getObjectValue_impl directly (post-flip); others dispatch.
+func (this *Node_ObjectPropListItem) getObjectValue() any {
+	if p, _ := this.self_.(*Node_ObjectPropListItem); p == this {
+		return this.getObjectValue_impl()
+	}
+	return this.self_.getObjectValue_impl()
+}
+
+// chain: an object that is exactly a Node_ObjectPropListItem calls its chain_impl directly (post-flip); others dispatch.
+func (this *Node_ObjectPropListItem) chain(p0 *Node_PropListItem) *Node_PropListItem {
+	if p, _ := this.self_.(*Node_ObjectPropListItem); p == this {
+		return this.chain_impl(p0)
+	}
+	return this.self_.chain_impl(p0)
+}
+
+// getIntValue: an object that is exactly a Node_IntPropListItem calls its getIntValue_impl directly (post-flip); others dispatch.
+func (this *Node_IntPropListItem) getIntValue() int32 {
+	if p, _ := this.self_.(*Node_IntPropListItem); p == this {
+		return this.getIntValue_impl()
+	}
+	return this.self_.getIntValue_impl()
+}
+
+// getObjectValue: an object that is exactly a Node_IntPropListItem calls its getObjectValue_impl directly (post-flip); others dispatch.
+func (this *Node_IntPropListItem) getObjectValue() any {
+	if p, _ := this.self_.(*Node_IntPropListItem); p == this {
+		return this.getObjectValue_impl()
+	}
+	return this.self_.getObjectValue_impl()
+}
+
+// chain: an object that is exactly a Node_IntPropListItem calls its chain_impl directly (post-flip); others dispatch.
+func (this *Node_IntPropListItem) chain(p0 *Node_PropListItem) *Node_PropListItem {
+	if p, _ := this.self_.(*Node_IntPropListItem); p == this {
+		return this.chain_impl(p0)
+	}
+	return this.self_.chain_impl(p0)
 }

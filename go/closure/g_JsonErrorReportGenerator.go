@@ -22,9 +22,8 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 	var jsonWriter *SimpleJsonWriter = new_SimpleJsonWriter()
 	{
 		jsonWriter.beginArray()
-		it_1 := foreach_(any(manager.getSortedDiagnostics()))
-		for it_1.next() {
-			var message *SortingErrorManager_ErrorWithLevel = cast_[*SortingErrorManager_ErrorWithLevel](it_1.v)
+		var sourceExcerptU16 utf16_
+		for message := range elemsAs_[*SortingErrorManager_ErrorWithLevel](manager.getSortedDiagnostics()) {
 			var sourceName Optional[string] = message.error_.sourceName()
 			var lineNumber int32 = message.error_.getLineNumber()
 			var charno int32 = message.error_.charno()
@@ -41,9 +40,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 				jsonWriter.name("requirement").beginObject()
 				jsonWriter.name("ruleId").stringValue(Optional_ofNullable[string](message.error_.requirement().getRuleId()))
 				jsonWriter.name("configFiles").beginArray()
-				it_3 := foreach_(any(icast_ProtocolStringList(message.error_.requirement().getConfigFileList())))
-				for it_3.next() {
-					var configFile string = str_(it_3.v)
+				for configFile := range elemsBy_(ProtocolStringList(message.error_.requirement().getConfigFileList()), str_) {
 					jsonWriter.stringValue(Optional_of[string](configFile))
 				}
 				jsonWriter.endArray()
@@ -59,11 +56,12 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 			}
 			var sourceExcerpt Optional[string] = SourceExcerptProvider_SourceExcerpt_LINE.get(this.sourceExcerptProvider, sourceName, lineNumber, icast_SourceExcerptProvider_ExcerptFormatter(obj_(JsonErrorReportGenerator_excerptFormatter)))
 			if sourceExcerpt.isPresent() {
-				var b *StringBuilder = new_StringBuilder_String(sourceExcerpt.get())
+				var b strBuilder_
+				b.append(sourceExcerpt.get())
 				b.append("\n")
-				if (0 <= charno) && (charno <= String_length(sourceExcerpt.get())) {
+				if (0 <= charno) && (charno <= sourceExcerptU16.of(sourceExcerpt.get()).length()) {
 					for i := int32(0); i < charno; i++ {
-						var c uint16 = String_charAt(sourceExcerpt.get(), i)
+						var c uint16 = sourceExcerptU16.of(sourceExcerpt.get()).charAt(i)
 						if TokenUtil_isWhitespace(int32(c)) {
 							b.append_char(c)
 						} else {
@@ -73,13 +71,13 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 					if node == 0 {
 						b.append("^")
 					} else {
-						var length int32 = Math_max(1, Math_min(regionLength, (String_length(sourceExcerpt.get())-charno)))
+						var length int32 = Math_max(1, Math_min(regionLength, (sourceExcerptU16.of(sourceExcerpt.get()).length()-charno)))
 						for i := int32(0); i < length; i++ {
 							b.append("^")
 						}
 					}
 				}
-				jsonWriter.name("context").stringValue(Optional_of[string](Object_toString(obj_(b))))
+				jsonWriter.name("context").stringValue(Optional_of[string](b.toString()))
 			}
 			var mapping *Mapping_OriginalMapping = this.sourceExcerptProvider.getSourceMapping_Optional_int_int(sourceName, message.error_.getLineNumber(), message.error_.charno())
 			if mapping != nil {
@@ -91,19 +89,19 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 			}
 			jsonWriter.endObject()
 		}
-		var summaryBuilder *StringBuilder = new_StringBuilder()
+		var summaryBuilder strBuilder_
 		if manager.getTypedPercent() > 0.0 {
 			summaryBuilder.append(String_format("%d error(s), %d warning(s), %.1f%% typed", []any{any(int32(manager.getErrorCount())), any(int32(manager.getWarningCount())), any(float64(manager.getTypedPercent()))}))
 		} else {
-			summaryBuilder.append(String_format("%d error(s), %d warning(s)", []any{any(int32(manager.getErrorCount())), any(int32(manager.getWarningCount()))}))
+			summaryBuilder.append((istr_(int64(int32(manager.getErrorCount()))) + " error(s), " + istr_(int64(int32(manager.getWarningCount()))) + " warning(s)"))
 		}
 		jsonWriter.beginObject()
 		jsonWriter.name("level").stringValue(Optional_of[string]("info"))
-		jsonWriter.name("description").stringValue(Optional_of[string](Object_toString(obj_(summaryBuilder))))
+		jsonWriter.name("description").stringValue(Optional_of[string](summaryBuilder.toString()))
 		jsonWriter.endObject()
 		jsonWriter.endArray()
 	}
-	this.stream.append_CharSequence(strobj_(Io_utf8String(Io_utf8Bytes(jsonWriter.toString()))))
+	this.stream.append_CharSequence_s(Io_utf8String(Io_utf8Bytes(jsonWriter.toString())))
 	this.stream.flush()
 }
 

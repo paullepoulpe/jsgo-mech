@@ -14,15 +14,15 @@ func (this *ColorGraphBuilder) finit_ColorGraphBuilder() {
 	this.colorHoldsInstanceGraph = LinkedDirectedGraph_createWithoutAnnotations[*ColorGraphNode, any]()
 }
 
-func (this *ColorGraphBuilder) init_ColorGraphBuilder(nodeFactory *ColorGraphNodeFactory, lcaFinderFactory LowestCommonAncestorFinder_Factory[*ColorGraphNode, any], registry *ColorRegistry) {
+func (this *ColorGraphBuilder) init_ColorGraphBuilder(nodeFactory *ColorGraphNodeFactory, lcaFinderFactory func(*DiGraph[*ColorGraphNode]) *LowestCommonAncestorFinder[*ColorGraphNode, any], registry *ColorRegistry) {
 	this.finit_ColorGraphBuilder()
 	this.registry = registry
 	this.nodeFactory = nodeFactory
-	this.lcaFinder = lcaFinderFactory.create(this.colorHoldsInstanceGraph.up_DiGraph())
+	this.lcaFinder = lcaFinderFactory(this.colorHoldsInstanceGraph.up_DiGraph())
 	this.topNode = to_LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any](this.colorHoldsInstanceGraph.createNode(this.nodeFactory.createNode(StandardColors_UNKNOWN)))
 }
 
-func new_ColorGraphBuilder(nodeFactory *ColorGraphNodeFactory, lcaFinderFactory LowestCommonAncestorFinder_Factory[*ColorGraphNode, any], registry *ColorRegistry) *ColorGraphBuilder {
+func new_ColorGraphBuilder(nodeFactory *ColorGraphNodeFactory, lcaFinderFactory func(*DiGraph[*ColorGraphNode]) *LowestCommonAncestorFinder[*ColorGraphNode, any], registry *ColorRegistry) *ColorGraphBuilder {
 	this := &ColorGraphBuilder{}
 	this.init_ColorGraphBuilder(nodeFactory, lcaFinderFactory, registry)
 	return this
@@ -37,9 +37,9 @@ func (this *ColorGraphBuilder) addAll(flats CollectionOf[*ColorGraphNode]) {
 }
 
 func (this *ColorGraphBuilder) build() *LinkedDirectedGraph[*ColorGraphNode, any] {
-	Iterable_forEach(Iterable(this.colorHoldsInstanceGraph.getNodes()), &Consumer_fn{func(p0 any) {
+	Iterable_forEach_f(Iterable(this.colorHoldsInstanceGraph.getNodes()), func(p0 any) {
 		this.connectUnionWithAncestors(to_LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any](p0))
-	}})
+	})
 	var temp *LinkedDirectedGraph[*ColorGraphNode, any] = this.colorHoldsInstanceGraph
 	this.colorHoldsInstanceGraph = nil
 	return temp
@@ -50,18 +50,18 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 	if !flatUnion.getColor().isUnion() {
 		return
 	}
-	Preconditions_checkState(!unionNode.getOutEdges().isEmpty())
-	var graphNodesBuilder ImmutableSet_BuilderOf[*ColorGraphNode] = ImmutableSet_builder()
-	it_1 := foreach_(obj_(flatUnion.getColor().getUnionElements()))
-	for it_1.next() {
-		var element *Color = cast_[*Color](it_1.v)
-		graphNodesBuilder.add(obj_(this.nodeFactory.createNode(element)))
+	if unionNode.getOutEdges().isEmpty() {
+		panic(new_IllegalStateException_0())
 	}
-	var graphNodes ImmutableSetOf[*ColorGraphNode] = cast_[*ImmutableSet](obj_(graphNodesBuilder.build()))
-	it_3 := foreach_(obj_(this.lcaFinder.findAll(icast_Set(obj_(graphNodes)))))
-	for it_3.next() {
-		var lca *ColorGraphNode = cast_[*ColorGraphNode](it_3.v)
-		this.connectSourceToDest(to_LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any](Preconditions_checkNotNull(any(this.colorHoldsInstanceGraph.getNode(lca)))), ColorGraphBuilder_EdgeReason_ALGEBRAIC, unionNode)
+	var graphNodesBuilder *ImmutableSet_Builder[*ColorGraphNode] = immutableSetBuilder_(tc_p_ColorGraphNode)
+	for _, el := range flatUnion.getColor().getUnionElements().keys {
+		element := el
+		graphNodesBuilder.add(this.nodeFactory.createNode(element))
+	}
+	var graphNodes *ImmutableSet[*ColorGraphNode] = graphNodesBuilder.build()
+	for _, el2 := range immElems_(this.lcaFinder.findAll(icast_Set(obj_(graphNodes.asImm())))) {
+		lca := cast_[*ColorGraphNode](el2)
+		this.connectSourceToDest(to_LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any](Preconditions_checkNotNull(this.colorHoldsInstanceGraph.getNode(lca))), ColorGraphBuilder_EdgeReason_ALGEBRAIC, unionNode)
 	}
 }
 
@@ -76,9 +76,8 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 	}
 	flatNode = to_LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any](this.colorHoldsInstanceGraph.createNode(node))
 	if node.getColor().isUnion() {
-		it_1 := foreach_(obj_(node.getColor().getUnionElements()))
-		for it_1.next() {
-			var alt *Color = cast_[*Color](it_1.v)
+		for _, el := range node.getColor().getUnionElements().keys {
+			alt := el
 			this.connectSourceToDest(flatNode, ColorGraphBuilder_EdgeReason_ALGEBRAIC, this.addInternal(alt))
 		}
 		return flatNode
@@ -88,72 +87,91 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 	if supertypes.isEmpty() {
 		this.connectSourceToDest(this.topNode, ColorGraphBuilder_EdgeReason_ALGEBRAIC, flatNode)
 	} else {
-		it_3 := foreach_(any(supertypes))
-		for it_3.next() {
-			var supertype *Color = cast_[*Color](it_3.v)
+		for supertype := range elemsAs_[*Color](supertypes) {
 			this.connectSourceToDest(this.addInternal(supertype), ColorGraphBuilder_EdgeReason_CAN_HOLD, flatNode)
 		}
 	}
-	it_5 := foreach_(obj_(color.getPrototypes()))
-	for it_5.next() {
-		var prototype *Color = cast_[*Color](it_5.v)
+	for _, el2 := range color.getPrototypes().keys {
+		prototype := el2
 		this.addInternal(prototype)
 	}
-	it_7 := foreach_(obj_(color.getInstanceColors()))
-	for it_7.next() {
-		var instanceColor *Color = cast_[*Color](it_7.v)
+	for _, el3 := range color.getInstanceColors().keys {
+		instanceColor := el3
 		this.addInternal(instanceColor)
 	}
 	return flatNode
 }
 
-func (this *ColorGraphBuilder) connectSourceToDest(source *LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any], reason *ColorGraphBuilder_EdgeReason, dest *LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any]) {
-	if (Object_equals(source.self(), dest.self()) || this.colorHoldsInstanceGraph.isConnectedInDirectionLinkedDiGraphNode(source, &Predicate_base_fn{func(t any) bool {
-		return true
-	}}, dest)) {
+func (this *ColorGraphBuilder) connectSourceToDest(source *LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any], reason ColorGraphBuilder_EdgeReason, dest *LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any]) {
+	if equalsId_(source, dest) || this.colorHoldsInstanceGraph.isConnectedInDirectionLinkedDiGraphNode(source, lambda_ColorGraphBuilder_connectSourceToDest_1_, dest) {
 		return
 	}
 	this.colorHoldsInstanceGraph.connectDiGraphNode(cast_[DiGraph_DiGraphNode[*ColorGraphNode]](source.self()), obj_(reason), cast_[DiGraph_DiGraphNode[*ColorGraphNode]](dest.self()))
 }
 
-type ColorGraphBuilder_EdgeReason struct {
-	Enum
+// lambda_ColorGraphBuilder_connectSourceToDest_1_ is a lambda of ColorGraphBuilder_connectSourceToDest that captures nothing (post-flip step lambdas).
+var lambda_ColorGraphBuilder_connectSourceToDest_1_ = &Predicate_base_fn{func(t any) bool {
+	return true
+}}
+
+type ColorGraphBuilder_EdgeReason uint8
+
+// ColorGraphBuilder_EdgeReason_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ColorGraphBuilder_EdgeReason_enum_ = [2]Enum{
+	{self_: ColorGraphBuilder_EdgeReason_ALGEBRAIC, name_: "ALGEBRAIC", ordinal_: 0},
+	{self_: ColorGraphBuilder_EdgeReason_CAN_HOLD, name_: "CAN_HOLD", ordinal_: 1},
 }
 
-func (this *ColorGraphBuilder_EdgeReason) up_Enum() *Enum {
-	if this == nil {
+func (this ColorGraphBuilder_EdgeReason) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ColorGraphBuilder_EdgeReason_enum_[this-1]
 }
 
-func (this *ColorGraphBuilder_EdgeReason) init_ColorGraphBuilder_EdgeReason(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ColorGraphBuilder_EdgeReason) name() string {
+	return this.enum_().name_
 }
 
-func new_ColorGraphBuilder_EdgeReason(name_ string, ordinal_ int32) *ColorGraphBuilder_EdgeReason {
-	this := &ColorGraphBuilder_EdgeReason{}
-	this.self_ = this
-	this.init_ColorGraphBuilder_EdgeReason(name_, ordinal_)
+func (this ColorGraphBuilder_EdgeReason) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ColorGraphBuilder_EdgeReason) toString() string {
+	return this.enum_().name_
+}
+
+func (this ColorGraphBuilder_EdgeReason) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ColorGraphBuilder_EdgeReason) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ColorGraphBuilder_EdgeReason_values() []*ColorGraphBuilder_EdgeReason {
-	return append([]*ColorGraphBuilder_EdgeReason(nil), ColorGraphBuilder_EdgeReason_values_...)
+func ColorGraphBuilder_EdgeReason_values() []ColorGraphBuilder_EdgeReason {
+	return append([]ColorGraphBuilder_EdgeReason(nil), ColorGraphBuilder_EdgeReason_values_...)
 }
 
-func ColorGraphBuilder_EdgeReason_valueOf(name string) *ColorGraphBuilder_EdgeReason {
+func ColorGraphBuilder_EdgeReason_valueOf(name string) ColorGraphBuilder_EdgeReason {
 	for _, v := range ColorGraphBuilder_EdgeReason_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("EdgeReason", name))
 }
 
-var ColorGraphBuilder_EdgeReason_ALGEBRAIC *ColorGraphBuilder_EdgeReason
-var ColorGraphBuilder_EdgeReason_CAN_HOLD *ColorGraphBuilder_EdgeReason
-var ColorGraphBuilder_EdgeReason_values_ []*ColorGraphBuilder_EdgeReason
+const ColorGraphBuilder_EdgeReason_ALGEBRAIC ColorGraphBuilder_EdgeReason = 1
+const ColorGraphBuilder_EdgeReason_CAN_HOLD ColorGraphBuilder_EdgeReason = 2
+
+var ColorGraphBuilder_EdgeReason_values_ []ColorGraphBuilder_EdgeReason
 
 var ColorGraphBuilder_EdgeReason_clinit_done bool
 
@@ -162,9 +180,7 @@ func ColorGraphBuilder_EdgeReason_clinit() {
 		return
 	}
 	ColorGraphBuilder_EdgeReason_clinit_done = true
-	ColorGraphBuilder_EdgeReason_ALGEBRAIC = new_ColorGraphBuilder_EdgeReason("ALGEBRAIC", 0)
-	ColorGraphBuilder_EdgeReason_CAN_HOLD = new_ColorGraphBuilder_EdgeReason("CAN_HOLD", 1)
-	ColorGraphBuilder_EdgeReason_values_ = []*ColorGraphBuilder_EdgeReason{ColorGraphBuilder_EdgeReason_ALGEBRAIC, ColorGraphBuilder_EdgeReason_CAN_HOLD}
+	ColorGraphBuilder_EdgeReason_values_ = []ColorGraphBuilder_EdgeReason{ColorGraphBuilder_EdgeReason_ALGEBRAIC, ColorGraphBuilder_EdgeReason_CAN_HOLD}
 	registerEnum_("com.google.javascript.jscomp.disambiguate.ColorGraphBuilder.EdgeReason", enumValues_(ColorGraphBuilder_EdgeReason_values_))
 
 }

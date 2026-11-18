@@ -2,172 +2,299 @@
 
 package closure
 
-type Msg struct {
-	Enum
-	text string
+import "strings"
+
+type Msg uint8
+
+// Msg_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Msg_enum_ = [110]Enum{
+	{self_: Msg_BAD_FILEOVERVIEW_VISIBIIITY_ANNOTATION, name_: "BAD_FILEOVERVIEW_VISIBIIITY_ANNOTATION", ordinal_: 0},
+	{self_: Msg_BAD_JSDOC_TAG, name_: "BAD_JSDOC_TAG", ordinal_: 1},
+	{self_: Msg_DUP_VARIABLE_NAME, name_: "DUP_VARIABLE_NAME", ordinal_: 2},
+	{self_: Msg_END_ANNOTATION_EXPECTED, name_: "END_ANNOTATION_EXPECTED", ordinal_: 3},
+	{self_: Msg_INVALID_VARIABLE_NAME, name_: "INVALID_VARIABLE_NAME", ordinal_: 4},
+	{self_: Msg_JSDOC_ALTERNATEMESSAGEID_EXTRA, name_: "JSDOC_ALTERNATEMESSAGEID_EXTRA", ordinal_: 5},
+	{self_: Msg_JSDOC_REQUIRE_INLINING, name_: "JSDOC_REQUIRE_INLINING", ordinal_: 6},
+	{self_: Msg_JSDOC_ENCOURAGE_INLINING, name_: "JSDOC_ENCOURAGE_INLINING", ordinal_: 7},
+	{self_: Msg_JSDOC_AUTHORMISSING, name_: "JSDOC_AUTHORMISSING", ordinal_: 8},
+	{self_: Msg_JSDOC_CLOSUREPRIMITIVE_EXTRA, name_: "JSDOC_CLOSUREPRIMITIVE_EXTRA", ordinal_: 9},
+	{self_: Msg_JSDOC_CLOSUREPRIMITIVE_INVALID, name_: "JSDOC_CLOSUREPRIMITIVE_INVALID", ordinal_: 10},
+	{self_: Msg_JSDOC_CLOSUREPRIMITIVE_MISSING, name_: "JSDOC_CLOSUREPRIMITIVE_MISSING", ordinal_: 11},
+	{self_: Msg_JSDOC_CLOSURE_UNAWARE_CODE_EXTRA, name_: "JSDOC_CLOSURE_UNAWARE_CODE_EXTRA", ordinal_: 12},
+	{self_: Msg_JSDOC_CLOSURE_UNAWARE_CONFIG_INVALID_VALUE, name_: "JSDOC_CLOSURE_UNAWARE_CONFIG_INVALID_VALUE", ordinal_: 13},
+	{self_: Msg_JSDOC_CLOSURE_UNAWARE_CODE_INVALID, name_: "JSDOC_CLOSURE_UNAWARE_CODE_INVALID", ordinal_: 14},
+	{self_: Msg_JSDOC_COLLAPSIBLEORBREAKMYCODE, name_: "JSDOC_COLLAPSIBLEORBREAKMYCODE", ordinal_: 15},
+	{self_: Msg_JSDOC_CONST, name_: "JSDOC_CONST", ordinal_: 16},
+	{self_: Msg_JSDOC_CUSTOMELEMENT_EXTRA, name_: "JSDOC_CUSTOMELEMENT_EXTRA", ordinal_: 17},
+	{self_: Msg_JSDOC_DEFINE, name_: "JSDOC_DEFINE", ordinal_: 18},
+	{self_: Msg_JSDOC_DEPRECATED, name_: "JSDOC_DEPRECATED", ordinal_: 19},
+	{self_: Msg_JSDOC_DESC_EXTRA, name_: "JSDOC_DESC_EXTRA", ordinal_: 20},
+	{self_: Msg_JSDOC_EXPORT, name_: "JSDOC_EXPORT", ordinal_: 21},
+	{self_: Msg_JSDOC_EXTENDS_DUPLICATE, name_: "JSDOC_EXTENDS_DUPLICATE", ordinal_: 22},
+	{self_: Msg_JSDOC_EXTERNS, name_: "JSDOC_EXTERNS", ordinal_: 23},
+	{self_: Msg_JSDOC_EXTRAVERSION, name_: "JSDOC_EXTRAVERSION", ordinal_: 24},
+	{self_: Msg_JSDOC_EXTRA_VISIBILITY, name_: "JSDOC_EXTRA_VISIBILITY", ordinal_: 25},
+	{self_: Msg_JSDOC_FILEOVERVIEW_EXTRA, name_: "JSDOC_FILEOVERVIEW_EXTRA", ordinal_: 26},
+	{self_: Msg_JSDOC_FINAL, name_: "JSDOC_FINAL", ordinal_: 27},
+	{self_: Msg_JSDOC_FUNCTION_NEWNOTOBJECT, name_: "JSDOC_FUNCTION_NEWNOTOBJECT", ordinal_: 28},
+	{self_: Msg_JSDOC_FUNCTION_VARARGS, name_: "JSDOC_FUNCTION_VARARGS", ordinal_: 29},
+	{self_: Msg_JSDOC_IDGEN_BAD, name_: "JSDOC_IDGEN_BAD", ordinal_: 30},
+	{self_: Msg_JSDOC_IDGEN_DUPLICATE, name_: "JSDOC_IDGEN_DUPLICATE", ordinal_: 31},
+	{self_: Msg_JSDOC_IDGEN_UNKNOWN, name_: "JSDOC_IDGEN_UNKNOWN", ordinal_: 32},
+	{self_: Msg_JSDOC_IMPLEMENTS_DUPLICATE, name_: "JSDOC_IMPLEMENTS_DUPLICATE", ordinal_: 33},
+	{self_: Msg_JSDOC_IMPLEMENTS_EXTRAQUALIFIER, name_: "JSDOC_IMPLEMENTS_EXTRAQUALIFIER", ordinal_: 34},
+	{self_: Msg_JSDOC_IMPLICITCAST, name_: "JSDOC_IMPLICITCAST", ordinal_: 35},
+	{self_: Msg_JSDOC_IMPORT, name_: "JSDOC_IMPORT", ordinal_: 36},
+	{self_: Msg_JSDOC_INCOMPAT_TYPE, name_: "JSDOC_INCOMPAT_TYPE", ordinal_: 37},
+	{self_: Msg_JSDOC_INCOMPAT_INLINING, name_: "JSDOC_INCOMPAT_INLINING", ordinal_: 38},
+	{self_: Msg_JSDOC_INTERFACE_CONSTRUCTOR, name_: "JSDOC_INTERFACE_CONSTRUCTOR", ordinal_: 39},
+	{self_: Msg_JSDOC_LEGACY_TS_EXPORT, name_: "JSDOC_LEGACY_TS_EXPORT", ordinal_: 40},
+	{self_: Msg_JSDOC_LENDS_INCOMPATIBLE, name_: "JSDOC_LENDS_INCOMPATIBLE", ordinal_: 41},
+	{self_: Msg_JSDOC_LENDS_MISSING, name_: "JSDOC_LENDS_MISSING", ordinal_: 42},
+	{self_: Msg_JSDOC_LOCALEFILE, name_: "JSDOC_LOCALEFILE", ordinal_: 43},
+	{self_: Msg_JSDOC_LOCALEOBJECT, name_: "JSDOC_LOCALEOBJECT", ordinal_: 44},
+	{self_: Msg_JSDOC_LOCALESELECT, name_: "JSDOC_LOCALESELECT", ordinal_: 45},
+	{self_: Msg_JSDOC_LOCALEVALUE, name_: "JSDOC_LOCALEVALUE", ordinal_: 46},
+	{self_: Msg_JSDOC_PROVIDE_GOOG, name_: "JSDOC_PROVIDE_GOOG", ordinal_: 47},
+	{self_: Msg_JSDOC_PROVIDE_ALREADY_PROVIDED, name_: "JSDOC_PROVIDE_ALREADY_PROVIDED", ordinal_: 48},
+	{self_: Msg_JSDOC_MEANING_EXTRA, name_: "JSDOC_MEANING_EXTRA", ordinal_: 49},
+	{self_: Msg_JSDOC_MISSING_BRACES, name_: "JSDOC_MISSING_BRACES", ordinal_: 50},
+	{self_: Msg_JSDOC_MISSING_COLON, name_: "JSDOC_MISSING_COLON", ordinal_: 51},
+	{self_: Msg_JSDOC_MISSING_GT, name_: "JSDOC_MISSING_GT", ordinal_: 52},
+	{self_: Msg_JSDOC_MISSING_LC, name_: "JSDOC_MISSING_LC", ordinal_: 53},
+	{self_: Msg_JSDOC_MISSING_LP, name_: "JSDOC_MISSING_LP", ordinal_: 54},
+	{self_: Msg_JSDOC_MISSING_RB, name_: "JSDOC_MISSING_RB", ordinal_: 55},
+	{self_: Msg_JSDOC_MISSING_RC, name_: "JSDOC_MISSING_RC", ordinal_: 56},
+	{self_: Msg_JSDOC_MISSING_RP, name_: "JSDOC_MISSING_RP", ordinal_: 57},
+	{self_: Msg_JSDOC_MISSING_TYPE_DECLARATION, name_: "JSDOC_MISSING_TYPE_DECLARATION", ordinal_: 58},
+	{self_: Msg_JSDOC_MIXINCLASS_EXTRA, name_: "JSDOC_MIXINCLASS_EXTRA", ordinal_: 59},
+	{self_: Msg_JSDOC_MIXINFUNCTION_EXTRA, name_: "JSDOC_MIXINFUNCTION_EXTRA", ordinal_: 60},
+	{self_: Msg_JSDOC_MODIFIES, name_: "JSDOC_MODIFIES", ordinal_: 61},
+	{self_: Msg_JSDOC_MODIFIES_DUPLICATE, name_: "JSDOC_MODIFIES_DUPLICATE", ordinal_: 62},
+	{self_: Msg_JSDOC_MODIFIES_UNKNOWN, name_: "JSDOC_MODIFIES_UNKNOWN", ordinal_: 63},
+	{self_: Msg_JSDOC_MODS, name_: "JSDOC_MODS", ordinal_: 64},
+	{self_: Msg_JSDOC_MODS_EXTRA, name_: "JSDOC_MODS_EXTRA", ordinal_: 65},
+	{self_: Msg_JSDOC_NAME_SYNTAX, name_: "JSDOC_NAME_SYNTAX", ordinal_: 66},
+	{self_: Msg_JSDOC_NGINJECT_EXTRA, name_: "JSDOC_NGINJECT_EXTRA", ordinal_: 67},
+	{self_: Msg_JSDOC_NOCOLLAPSE, name_: "JSDOC_NOCOLLAPSE", ordinal_: 68},
+	{self_: Msg_JSDOC_NOCOMPILE, name_: "JSDOC_NOCOMPILE", ordinal_: 69},
+	{self_: Msg_JSDOC_NOCOVERAGE, name_: "JSDOC_NOCOVERAGE", ordinal_: 70},
+	{self_: Msg_JSDOC_NODTS, name_: "JSDOC_NODTS", ordinal_: 71},
+	{self_: Msg_JSDOC_NOINLINE, name_: "JSDOC_NOINLINE", ordinal_: 72},
+	{self_: Msg_JSDOC_NOSIDEEFFECTS, name_: "JSDOC_NOSIDEEFFECTS", ordinal_: 73},
+	{self_: Msg_JSDOC_NOSIDEEFFECTS_WITH_MODIFIES, name_: "JSDOC_NOSIDEEFFECTS_WITH_MODIFIES", ordinal_: 74},
+	{self_: Msg_JSDOC_NOSIDEEFFECTS_WITH_THROWS, name_: "JSDOC_NOSIDEEFFECTS_WITH_THROWS", ordinal_: 75},
+	{self_: Msg_JSDOC_OVERRIDE, name_: "JSDOC_OVERRIDE", ordinal_: 76},
+	{self_: Msg_JSDOC_POLYMERBEHAVIOR_EXTRA, name_: "JSDOC_POLYMERBEHAVIOR_EXTRA", ordinal_: 77},
+	{self_: Msg_JSDOC_POLYMER_EXTRA, name_: "JSDOC_POLYMER_EXTRA", ordinal_: 78},
+	{self_: Msg_JSDOC_PUREORBREAKMYCODE, name_: "JSDOC_PUREORBREAKMYCODE", ordinal_: 79},
+	{self_: Msg_JSDOC_RECORD, name_: "JSDOC_RECORD", ordinal_: 80},
+	{self_: Msg_JSDOC_SASS_GENERATED_CSS_TS, name_: "JSDOC_SASS_GENERATED_CSS_TS", ordinal_: 81},
+	{self_: Msg_JSDOC_SEEMISSING, name_: "JSDOC_SEEMISSING", ordinal_: 82},
+	{self_: Msg_JSDOC_SUPPRESS, name_: "JSDOC_SUPPRESS", ordinal_: 83},
+	{self_: Msg_JSDOC_SUPPRESS_UNKNOWN, name_: "JSDOC_SUPPRESS_UNKNOWN", ordinal_: 84},
+	{self_: Msg_JSDOC_TEMPLATE_BOUNDEDGENERICS_USED, name_: "JSDOC_TEMPLATE_BOUNDEDGENERICS_USED", ordinal_: 85},
+	{self_: Msg_JSDOC_TEMPLATE_BOUNDSWITHTTL, name_: "JSDOC_TEMPLATE_BOUNDSWITHTTL", ordinal_: 86},
+	{self_: Msg_JSDOC_TEMPLATE_MULTIPLEDECLARATION, name_: "JSDOC_TEMPLATE_MULTIPLEDECLARATION", ordinal_: 87},
+	{self_: Msg_JSDOC_TEMPLATE_NAME_MISSING, name_: "JSDOC_TEMPLATE_NAME_MISSING", ordinal_: 88},
+	{self_: Msg_JSDOC_TEMPLATE_NAME_REDECLARATION, name_: "JSDOC_TEMPLATE_NAME_REDECLARATION", ordinal_: 89},
+	{self_: Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_EXPRESSIONMISSING, name_: "JSDOC_TEMPLATE_TYPETRANSFORMATION_EXPRESSIONMISSING", ordinal_: 90},
+	{self_: Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_MISSINGDELIMIIER, name_: "JSDOC_TEMPLATE_TYPETRANSFORMATION_MISSINGDELIMIIER", ordinal_: 91},
+	{self_: Msg_JSDOC_THROWS, name_: "JSDOC_THROWS", ordinal_: 92},
+	{self_: Msg_JSDOC_TYPE, name_: "JSDOC_TYPE", ordinal_: 93},
+	{self_: Msg_JSDOC_TYPESUMMARY, name_: "JSDOC_TYPESUMMARY", ordinal_: 94},
+	{self_: Msg_JSDOC_TYPETRANSFORMATION_EXTRA_PARAM, name_: "JSDOC_TYPETRANSFORMATION_EXTRA_PARAM", ordinal_: 95},
+	{self_: Msg_JSDOC_TYPETRANSFORMATION_INVALID, name_: "JSDOC_TYPETRANSFORMATION_INVALID", ordinal_: 96},
+	{self_: Msg_JSDOC_TYPETRANSFORMATION_INVALID_EXPRESSION, name_: "JSDOC_TYPETRANSFORMATION_INVALID_EXPRESSION", ordinal_: 97},
+	{self_: Msg_JSDOC_TYPETRANSFORMATION_INVALID_INSIDE, name_: "JSDOC_TYPETRANSFORMATION_INVALID_INSIDE", ordinal_: 98},
+	{self_: Msg_JSDOC_TYPETRANSFORMATION_MISSING_PARAM, name_: "JSDOC_TYPETRANSFORMATION_MISSING_PARAM", ordinal_: 99},
+	{self_: Msg_JSDOC_TYPE_RECORD_DUPLICATE, name_: "JSDOC_TYPE_RECORD_DUPLICATE", ordinal_: 100},
+	{self_: Msg_JSDOC_TYPE_SYNTAX, name_: "JSDOC_TYPE_SYNTAX", ordinal_: 101},
+	{self_: Msg_JSDOC_USEDVIADOTCONSTRUCTOR, name_: "JSDOC_USEDVIADOTCONSTRUCTOR", ordinal_: 102},
+	{self_: Msg_JSDOC_UNNECESSARY_BRACES, name_: "JSDOC_UNNECESSARY_BRACES", ordinal_: 103},
+	{self_: Msg_JSDOC_VERSIONMISSING, name_: "JSDOC_VERSIONMISSING", ordinal_: 104},
+	{self_: Msg_JSDOC_WIZACTION, name_: "JSDOC_WIZACTION", ordinal_: 105},
+	{self_: Msg_MISSING_VARIABLE_NAME, name_: "MISSING_VARIABLE_NAME", ordinal_: 106},
+	{self_: Msg_NO_TYPE_NAME, name_: "NO_TYPE_NAME", ordinal_: 107},
+	{self_: Msg_UNEXPECTED_EOF, name_: "UNEXPECTED_EOF", ordinal_: 108},
+	{self_: Msg_JSDOC_WIZCALLBACK, name_: "JSDOC_WIZCALLBACK", ordinal_: 109},
 }
 
-func (this *Msg) up_Enum() *Enum {
-	if this == nil {
+var Msg_text_ [110]string
+
+func (this Msg) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Msg_enum_[this-1]
 }
 
-func (this *Msg) zero_Msg() {
-	this.text = nullstr_
+func (this Msg) name() string { return this.enum_().name_ }
+
+func (this Msg) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func (this *Msg) init_Msg(name_ string, ordinal_ int32, text string) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.text = text
-}
+func (this Msg) toString() string { return this.enum_().name_ }
 
-func new_Msg(name_ string, ordinal_ int32, text string) *Msg {
-	this := &Msg{}
-	this.self_ = this
-	this.zero_Msg()
-	this.init_Msg(name_, ordinal_, text)
+func (this Msg) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this Msg) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *Msg) format() string {
-	return this.text
+func (this Msg) zero_Msg() {
+	Msg_text_[this-1] = nullstr_
 }
 
-func (this *Msg) format_1(args []any) string {
-	var s string = this.text
+func (this Msg) init_Msg(text string) {
+	Msg_text_[this-1] = text
+}
+
+func (this Msg) format() string {
+	return Msg_text_[this-1]
+}
+
+func (this Msg) format_1(args []any) string {
+	var s string = Msg_text_[this-1]
 	for i := int32(0); i < int32(len(args)); i++ {
 		var toReplace string = ("{" + istr_(int64(i)) + "}")
-		s = String_replace(s, strobj_(toReplace), strobj_(String_valueOf_Object(args[i])))
+		s = strings.ReplaceAll(s, csStr_(toReplace), csStr_(objstr_(args[i])))
 	}
 	return s
 }
 
-func Msg_values() []*Msg {
-	return append([]*Msg(nil), Msg_values_...)
+func Msg_values() []Msg {
+	return append([]Msg(nil), Msg_values_...)
 }
 
-func Msg_valueOf(name string) *Msg {
+func Msg_valueOf(name string) Msg {
 	for _, v := range Msg_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Msg", name))
 }
 
-var Msg_BAD_FILEOVERVIEW_VISIBIIITY_ANNOTATION *Msg
-var Msg_BAD_JSDOC_TAG *Msg
-var Msg_DUP_VARIABLE_NAME *Msg
-var Msg_END_ANNOTATION_EXPECTED *Msg
-var Msg_INVALID_VARIABLE_NAME *Msg
-var Msg_JSDOC_ALTERNATEMESSAGEID_EXTRA *Msg
-var Msg_JSDOC_REQUIRE_INLINING *Msg
-var Msg_JSDOC_ENCOURAGE_INLINING *Msg
-var Msg_JSDOC_AUTHORMISSING *Msg
-var Msg_JSDOC_CLOSUREPRIMITIVE_EXTRA *Msg
-var Msg_JSDOC_CLOSUREPRIMITIVE_INVALID *Msg
-var Msg_JSDOC_CLOSUREPRIMITIVE_MISSING *Msg
-var Msg_JSDOC_CLOSURE_UNAWARE_CODE_EXTRA *Msg
-var Msg_JSDOC_CLOSURE_UNAWARE_CONFIG_INVALID_VALUE *Msg
-var Msg_JSDOC_CLOSURE_UNAWARE_CODE_INVALID *Msg
-var Msg_JSDOC_COLLAPSIBLEORBREAKMYCODE *Msg
-var Msg_JSDOC_CONST *Msg
-var Msg_JSDOC_CUSTOMELEMENT_EXTRA *Msg
-var Msg_JSDOC_DEFINE *Msg
-var Msg_JSDOC_DEPRECATED *Msg
-var Msg_JSDOC_DESC_EXTRA *Msg
-var Msg_JSDOC_EXPORT *Msg
-var Msg_JSDOC_EXTENDS_DUPLICATE *Msg
-var Msg_JSDOC_EXTERNS *Msg
-var Msg_JSDOC_EXTRAVERSION *Msg
-var Msg_JSDOC_EXTRA_VISIBILITY *Msg
-var Msg_JSDOC_FILEOVERVIEW_EXTRA *Msg
-var Msg_JSDOC_FINAL *Msg
-var Msg_JSDOC_FUNCTION_NEWNOTOBJECT *Msg
-var Msg_JSDOC_FUNCTION_VARARGS *Msg
-var Msg_JSDOC_IDGEN_BAD *Msg
-var Msg_JSDOC_IDGEN_DUPLICATE *Msg
-var Msg_JSDOC_IDGEN_UNKNOWN *Msg
-var Msg_JSDOC_IMPLEMENTS_DUPLICATE *Msg
-var Msg_JSDOC_IMPLEMENTS_EXTRAQUALIFIER *Msg
-var Msg_JSDOC_IMPLICITCAST *Msg
-var Msg_JSDOC_IMPORT *Msg
-var Msg_JSDOC_INCOMPAT_TYPE *Msg
-var Msg_JSDOC_INCOMPAT_INLINING *Msg
-var Msg_JSDOC_INTERFACE_CONSTRUCTOR *Msg
-var Msg_JSDOC_LEGACY_TS_EXPORT *Msg
-var Msg_JSDOC_LENDS_INCOMPATIBLE *Msg
-var Msg_JSDOC_LENDS_MISSING *Msg
-var Msg_JSDOC_LOCALEFILE *Msg
-var Msg_JSDOC_LOCALEOBJECT *Msg
-var Msg_JSDOC_LOCALESELECT *Msg
-var Msg_JSDOC_LOCALEVALUE *Msg
-var Msg_JSDOC_PROVIDE_GOOG *Msg
-var Msg_JSDOC_PROVIDE_ALREADY_PROVIDED *Msg
-var Msg_JSDOC_MEANING_EXTRA *Msg
-var Msg_JSDOC_MISSING_BRACES *Msg
-var Msg_JSDOC_MISSING_COLON *Msg
-var Msg_JSDOC_MISSING_GT *Msg
-var Msg_JSDOC_MISSING_LC *Msg
-var Msg_JSDOC_MISSING_LP *Msg
-var Msg_JSDOC_MISSING_RB *Msg
-var Msg_JSDOC_MISSING_RC *Msg
-var Msg_JSDOC_MISSING_RP *Msg
-var Msg_JSDOC_MISSING_TYPE_DECLARATION *Msg
-var Msg_JSDOC_MIXINCLASS_EXTRA *Msg
-var Msg_JSDOC_MIXINFUNCTION_EXTRA *Msg
-var Msg_JSDOC_MODIFIES *Msg
-var Msg_JSDOC_MODIFIES_DUPLICATE *Msg
-var Msg_JSDOC_MODIFIES_UNKNOWN *Msg
-var Msg_JSDOC_MODS *Msg
-var Msg_JSDOC_MODS_EXTRA *Msg
-var Msg_JSDOC_NAME_SYNTAX *Msg
-var Msg_JSDOC_NGINJECT_EXTRA *Msg
-var Msg_JSDOC_NOCOLLAPSE *Msg
-var Msg_JSDOC_NOCOMPILE *Msg
-var Msg_JSDOC_NOCOVERAGE *Msg
-var Msg_JSDOC_NODTS *Msg
-var Msg_JSDOC_NOINLINE *Msg
-var Msg_JSDOC_NOSIDEEFFECTS *Msg
-var Msg_JSDOC_NOSIDEEFFECTS_WITH_MODIFIES *Msg
-var Msg_JSDOC_NOSIDEEFFECTS_WITH_THROWS *Msg
-var Msg_JSDOC_OVERRIDE *Msg
-var Msg_JSDOC_POLYMERBEHAVIOR_EXTRA *Msg
-var Msg_JSDOC_POLYMER_EXTRA *Msg
-var Msg_JSDOC_PUREORBREAKMYCODE *Msg
-var Msg_JSDOC_RECORD *Msg
-var Msg_JSDOC_SASS_GENERATED_CSS_TS *Msg
-var Msg_JSDOC_SEEMISSING *Msg
-var Msg_JSDOC_SUPPRESS *Msg
-var Msg_JSDOC_SUPPRESS_UNKNOWN *Msg
-var Msg_JSDOC_TEMPLATE_BOUNDEDGENERICS_USED *Msg
-var Msg_JSDOC_TEMPLATE_BOUNDSWITHTTL *Msg
-var Msg_JSDOC_TEMPLATE_MULTIPLEDECLARATION *Msg
-var Msg_JSDOC_TEMPLATE_NAME_MISSING *Msg
-var Msg_JSDOC_TEMPLATE_NAME_REDECLARATION *Msg
-var Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_EXPRESSIONMISSING *Msg
-var Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_MISSINGDELIMIIER *Msg
-var Msg_JSDOC_THROWS *Msg
-var Msg_JSDOC_TYPE *Msg
-var Msg_JSDOC_TYPESUMMARY *Msg
-var Msg_JSDOC_TYPETRANSFORMATION_EXTRA_PARAM *Msg
-var Msg_JSDOC_TYPETRANSFORMATION_INVALID *Msg
-var Msg_JSDOC_TYPETRANSFORMATION_INVALID_EXPRESSION *Msg
-var Msg_JSDOC_TYPETRANSFORMATION_INVALID_INSIDE *Msg
-var Msg_JSDOC_TYPETRANSFORMATION_MISSING_PARAM *Msg
-var Msg_JSDOC_TYPE_RECORD_DUPLICATE *Msg
-var Msg_JSDOC_TYPE_SYNTAX *Msg
-var Msg_JSDOC_USEDVIADOTCONSTRUCTOR *Msg
-var Msg_JSDOC_UNNECESSARY_BRACES *Msg
-var Msg_JSDOC_VERSIONMISSING *Msg
-var Msg_JSDOC_WIZACTION *Msg
-var Msg_MISSING_VARIABLE_NAME *Msg
-var Msg_NO_TYPE_NAME *Msg
-var Msg_UNEXPECTED_EOF *Msg
-var Msg_JSDOC_WIZCALLBACK *Msg
-var Msg_values_ []*Msg
+const Msg_BAD_FILEOVERVIEW_VISIBIIITY_ANNOTATION Msg = 1
+const Msg_BAD_JSDOC_TAG Msg = 2
+const Msg_DUP_VARIABLE_NAME Msg = 3
+const Msg_END_ANNOTATION_EXPECTED Msg = 4
+const Msg_INVALID_VARIABLE_NAME Msg = 5
+const Msg_JSDOC_ALTERNATEMESSAGEID_EXTRA Msg = 6
+const Msg_JSDOC_REQUIRE_INLINING Msg = 7
+const Msg_JSDOC_ENCOURAGE_INLINING Msg = 8
+const Msg_JSDOC_AUTHORMISSING Msg = 9
+const Msg_JSDOC_CLOSUREPRIMITIVE_EXTRA Msg = 10
+const Msg_JSDOC_CLOSUREPRIMITIVE_INVALID Msg = 11
+const Msg_JSDOC_CLOSUREPRIMITIVE_MISSING Msg = 12
+const Msg_JSDOC_CLOSURE_UNAWARE_CODE_EXTRA Msg = 13
+const Msg_JSDOC_CLOSURE_UNAWARE_CONFIG_INVALID_VALUE Msg = 14
+const Msg_JSDOC_CLOSURE_UNAWARE_CODE_INVALID Msg = 15
+const Msg_JSDOC_COLLAPSIBLEORBREAKMYCODE Msg = 16
+const Msg_JSDOC_CONST Msg = 17
+const Msg_JSDOC_CUSTOMELEMENT_EXTRA Msg = 18
+const Msg_JSDOC_DEFINE Msg = 19
+const Msg_JSDOC_DEPRECATED Msg = 20
+const Msg_JSDOC_DESC_EXTRA Msg = 21
+const Msg_JSDOC_EXPORT Msg = 22
+const Msg_JSDOC_EXTENDS_DUPLICATE Msg = 23
+const Msg_JSDOC_EXTERNS Msg = 24
+const Msg_JSDOC_EXTRAVERSION Msg = 25
+const Msg_JSDOC_EXTRA_VISIBILITY Msg = 26
+const Msg_JSDOC_FILEOVERVIEW_EXTRA Msg = 27
+const Msg_JSDOC_FINAL Msg = 28
+const Msg_JSDOC_FUNCTION_NEWNOTOBJECT Msg = 29
+const Msg_JSDOC_FUNCTION_VARARGS Msg = 30
+const Msg_JSDOC_IDGEN_BAD Msg = 31
+const Msg_JSDOC_IDGEN_DUPLICATE Msg = 32
+const Msg_JSDOC_IDGEN_UNKNOWN Msg = 33
+const Msg_JSDOC_IMPLEMENTS_DUPLICATE Msg = 34
+const Msg_JSDOC_IMPLEMENTS_EXTRAQUALIFIER Msg = 35
+const Msg_JSDOC_IMPLICITCAST Msg = 36
+const Msg_JSDOC_IMPORT Msg = 37
+const Msg_JSDOC_INCOMPAT_TYPE Msg = 38
+const Msg_JSDOC_INCOMPAT_INLINING Msg = 39
+const Msg_JSDOC_INTERFACE_CONSTRUCTOR Msg = 40
+const Msg_JSDOC_LEGACY_TS_EXPORT Msg = 41
+const Msg_JSDOC_LENDS_INCOMPATIBLE Msg = 42
+const Msg_JSDOC_LENDS_MISSING Msg = 43
+const Msg_JSDOC_LOCALEFILE Msg = 44
+const Msg_JSDOC_LOCALEOBJECT Msg = 45
+const Msg_JSDOC_LOCALESELECT Msg = 46
+const Msg_JSDOC_LOCALEVALUE Msg = 47
+const Msg_JSDOC_PROVIDE_GOOG Msg = 48
+const Msg_JSDOC_PROVIDE_ALREADY_PROVIDED Msg = 49
+const Msg_JSDOC_MEANING_EXTRA Msg = 50
+const Msg_JSDOC_MISSING_BRACES Msg = 51
+const Msg_JSDOC_MISSING_COLON Msg = 52
+const Msg_JSDOC_MISSING_GT Msg = 53
+const Msg_JSDOC_MISSING_LC Msg = 54
+const Msg_JSDOC_MISSING_LP Msg = 55
+const Msg_JSDOC_MISSING_RB Msg = 56
+const Msg_JSDOC_MISSING_RC Msg = 57
+const Msg_JSDOC_MISSING_RP Msg = 58
+const Msg_JSDOC_MISSING_TYPE_DECLARATION Msg = 59
+const Msg_JSDOC_MIXINCLASS_EXTRA Msg = 60
+const Msg_JSDOC_MIXINFUNCTION_EXTRA Msg = 61
+const Msg_JSDOC_MODIFIES Msg = 62
+const Msg_JSDOC_MODIFIES_DUPLICATE Msg = 63
+const Msg_JSDOC_MODIFIES_UNKNOWN Msg = 64
+const Msg_JSDOC_MODS Msg = 65
+const Msg_JSDOC_MODS_EXTRA Msg = 66
+const Msg_JSDOC_NAME_SYNTAX Msg = 67
+const Msg_JSDOC_NGINJECT_EXTRA Msg = 68
+const Msg_JSDOC_NOCOLLAPSE Msg = 69
+const Msg_JSDOC_NOCOMPILE Msg = 70
+const Msg_JSDOC_NOCOVERAGE Msg = 71
+const Msg_JSDOC_NODTS Msg = 72
+const Msg_JSDOC_NOINLINE Msg = 73
+const Msg_JSDOC_NOSIDEEFFECTS Msg = 74
+const Msg_JSDOC_NOSIDEEFFECTS_WITH_MODIFIES Msg = 75
+const Msg_JSDOC_NOSIDEEFFECTS_WITH_THROWS Msg = 76
+const Msg_JSDOC_OVERRIDE Msg = 77
+const Msg_JSDOC_POLYMERBEHAVIOR_EXTRA Msg = 78
+const Msg_JSDOC_POLYMER_EXTRA Msg = 79
+const Msg_JSDOC_PUREORBREAKMYCODE Msg = 80
+const Msg_JSDOC_RECORD Msg = 81
+const Msg_JSDOC_SASS_GENERATED_CSS_TS Msg = 82
+const Msg_JSDOC_SEEMISSING Msg = 83
+const Msg_JSDOC_SUPPRESS Msg = 84
+const Msg_JSDOC_SUPPRESS_UNKNOWN Msg = 85
+const Msg_JSDOC_TEMPLATE_BOUNDEDGENERICS_USED Msg = 86
+const Msg_JSDOC_TEMPLATE_BOUNDSWITHTTL Msg = 87
+const Msg_JSDOC_TEMPLATE_MULTIPLEDECLARATION Msg = 88
+const Msg_JSDOC_TEMPLATE_NAME_MISSING Msg = 89
+const Msg_JSDOC_TEMPLATE_NAME_REDECLARATION Msg = 90
+const Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_EXPRESSIONMISSING Msg = 91
+const Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_MISSINGDELIMIIER Msg = 92
+const Msg_JSDOC_THROWS Msg = 93
+const Msg_JSDOC_TYPE Msg = 94
+const Msg_JSDOC_TYPESUMMARY Msg = 95
+const Msg_JSDOC_TYPETRANSFORMATION_EXTRA_PARAM Msg = 96
+const Msg_JSDOC_TYPETRANSFORMATION_INVALID Msg = 97
+const Msg_JSDOC_TYPETRANSFORMATION_INVALID_EXPRESSION Msg = 98
+const Msg_JSDOC_TYPETRANSFORMATION_INVALID_INSIDE Msg = 99
+const Msg_JSDOC_TYPETRANSFORMATION_MISSING_PARAM Msg = 100
+const Msg_JSDOC_TYPE_RECORD_DUPLICATE Msg = 101
+const Msg_JSDOC_TYPE_SYNTAX Msg = 102
+const Msg_JSDOC_USEDVIADOTCONSTRUCTOR Msg = 103
+const Msg_JSDOC_UNNECESSARY_BRACES Msg = 104
+const Msg_JSDOC_VERSIONMISSING Msg = 105
+const Msg_JSDOC_WIZACTION Msg = 106
+const Msg_MISSING_VARIABLE_NAME Msg = 107
+const Msg_NO_TYPE_NAME Msg = 108
+const Msg_UNEXPECTED_EOF Msg = 109
+const Msg_JSDOC_WIZCALLBACK Msg = 110
+
+var Msg_values_ []Msg
 
 var Msg_clinit_done bool
 
@@ -176,117 +303,227 @@ func Msg_clinit() {
 		return
 	}
 	Msg_clinit_done = true
-	Msg_BAD_FILEOVERVIEW_VISIBIIITY_ANNOTATION = new_Msg("BAD_FILEOVERVIEW_VISIBIIITY_ANNOTATION", 0, "{0} visibility not allowed in @fileoverview block")
-	Msg_BAD_JSDOC_TAG = new_Msg("BAD_JSDOC_TAG", 1, "illegal use of unknown JSDoc tag \"{0}\"; ignoring it. Place another character before the @ to stop JSCompiler from parsing it as an annotation.")
-	Msg_DUP_VARIABLE_NAME = new_Msg("DUP_VARIABLE_NAME", 2, "duplicate variable name \"{0}\"")
-	Msg_END_ANNOTATION_EXPECTED = new_Msg("END_ANNOTATION_EXPECTED", 3, "expected end of line or comment.")
-	Msg_INVALID_VARIABLE_NAME = new_Msg("INVALID_VARIABLE_NAME", 4, "invalid param name \"{0}\"")
-	Msg_JSDOC_ALTERNATEMESSAGEID_EXTRA = new_Msg("JSDOC_ALTERNATEMESSAGEID_EXTRA", 5, "extra @alternateMessageId tag")
-	Msg_JSDOC_REQUIRE_INLINING = new_Msg("JSDOC_REQUIRE_INLINING", 6, "extra @requireInlining tag")
-	Msg_JSDOC_ENCOURAGE_INLINING = new_Msg("JSDOC_ENCOURAGE_INLINING", 7, "extra @encourageInlining tag")
-	Msg_JSDOC_AUTHORMISSING = new_Msg("JSDOC_AUTHORMISSING", 8, "@author tag missing author")
-	Msg_JSDOC_CLOSUREPRIMITIVE_EXTRA = new_Msg("JSDOC_CLOSUREPRIMITIVE_EXTRA", 9, "conflicting @closurePrimitive tag")
-	Msg_JSDOC_CLOSUREPRIMITIVE_INVALID = new_Msg("JSDOC_CLOSUREPRIMITIVE_INVALID", 10, "invalid id in @closurePrimitive tag.")
-	Msg_JSDOC_CLOSUREPRIMITIVE_MISSING = new_Msg("JSDOC_CLOSUREPRIMITIVE_MISSING", 11, "missing id in @closurePrimitive tag.")
-	Msg_JSDOC_CLOSURE_UNAWARE_CODE_EXTRA = new_Msg("JSDOC_CLOSURE_UNAWARE_CODE_EXTRA", 12, "extra @closureUnaware tag")
-	Msg_JSDOC_CLOSURE_UNAWARE_CONFIG_INVALID_VALUE = new_Msg("JSDOC_CLOSURE_UNAWARE_CONFIG_INVALID_VALUE", 13, "invalid value for @closureUnaware: {0}")
-	Msg_JSDOC_CLOSURE_UNAWARE_CODE_INVALID = new_Msg("JSDOC_CLOSURE_UNAWARE_CODE_INVALID", 14, "@closureUnaware annotation is not allowed in this compilation")
-	Msg_JSDOC_COLLAPSIBLEORBREAKMYCODE = new_Msg("JSDOC_COLLAPSIBLEORBREAKMYCODE", 15, "extra @collapsibleOrBreakMyCode tag")
-	Msg_JSDOC_CONST = new_Msg("JSDOC_CONST", 16, "conflicting @const tag")
-	Msg_JSDOC_CUSTOMELEMENT_EXTRA = new_Msg("JSDOC_CUSTOMELEMENT_EXTRA", 17, "extra @customElement tag")
-	Msg_JSDOC_DEFINE = new_Msg("JSDOC_DEFINE", 18, "conflicting @define tag")
-	Msg_JSDOC_DEPRECATED = new_Msg("JSDOC_DEPRECATED", 19, "extra @deprecated tag")
-	Msg_JSDOC_DESC_EXTRA = new_Msg("JSDOC_DESC_EXTRA", 20, "extra @desc tag")
-	Msg_JSDOC_EXPORT = new_Msg("JSDOC_EXPORT", 21, "extra @export tag")
-	Msg_JSDOC_EXTENDS_DUPLICATE = new_Msg("JSDOC_EXTENDS_DUPLICATE", 22, "duplicate @extends tag")
-	Msg_JSDOC_EXTERNS = new_Msg("JSDOC_EXTERNS", 23, "extra @externs tag")
-	Msg_JSDOC_EXTRAVERSION = new_Msg("JSDOC_EXTRAVERSION", 24, "conflicting @version tag")
-	Msg_JSDOC_EXTRA_VISIBILITY = new_Msg("JSDOC_EXTRA_VISIBILITY", 25, "extra visibility tag")
-	Msg_JSDOC_FILEOVERVIEW_EXTRA = new_Msg("JSDOC_FILEOVERVIEW_EXTRA", 26, "extra @fileoverview tag")
-	Msg_JSDOC_FINAL = new_Msg("JSDOC_FINAL", 27, "extra @final tag.")
-	Msg_JSDOC_FUNCTION_NEWNOTOBJECT = new_Msg("JSDOC_FUNCTION_NEWNOTOBJECT", 28, "constructed type must be an object type")
-	Msg_JSDOC_FUNCTION_VARARGS = new_Msg("JSDOC_FUNCTION_VARARGS", 29, "variable length argument must be last.")
-	Msg_JSDOC_IDGEN_BAD = new_Msg("JSDOC_IDGEN_BAD", 30, "malformed @idGenerator tag")
-	Msg_JSDOC_IDGEN_DUPLICATE = new_Msg("JSDOC_IDGEN_DUPLICATE", 31, "extra @idGenerator tag")
-	Msg_JSDOC_IDGEN_UNKNOWN = new_Msg("JSDOC_IDGEN_UNKNOWN", 32, "unknown @idGenerator parameter: {0}")
-	Msg_JSDOC_IMPLEMENTS_DUPLICATE = new_Msg("JSDOC_IMPLEMENTS_DUPLICATE", 33, "duplicate @implements tag.")
-	Msg_JSDOC_IMPLEMENTS_EXTRAQUALIFIER = new_Msg("JSDOC_IMPLEMENTS_EXTRAQUALIFIER", 34, "@implements/@extends requires a bare interface/record name without ! or ?.")
-	Msg_JSDOC_IMPLICITCAST = new_Msg("JSDOC_IMPLICITCAST", 35, "extra @implicitCast tag.")
-	Msg_JSDOC_IMPORT = new_Msg("JSDOC_IMPORT", 36, "Import in typedef is not supported.")
-	Msg_JSDOC_INCOMPAT_TYPE = new_Msg("JSDOC_INCOMPAT_TYPE", 37, "type annotation incompatible with other annotations.")
-	Msg_JSDOC_INCOMPAT_INLINING = new_Msg("JSDOC_INCOMPAT_INLINING", 38, "@requireInlining, @encourageInlining, and @noinline are mutually exclusive.")
-	Msg_JSDOC_INTERFACE_CONSTRUCTOR = new_Msg("JSDOC_INTERFACE_CONSTRUCTOR", 39, "cannot be both an interface and a constructor.")
-	Msg_JSDOC_LEGACY_TS_EXPORT = new_Msg("JSDOC_LEGACY_TS_EXPORT", 40, "extra @legacyNamedTsExport tag")
-	Msg_JSDOC_LENDS_INCOMPATIBLE = new_Msg("JSDOC_LENDS_INCOMPATIBLE", 41, "@lends tag incompatible with other annotations.")
-	Msg_JSDOC_LENDS_MISSING = new_Msg("JSDOC_LENDS_MISSING", 42, "missing object name in @lends tag.")
-	Msg_JSDOC_LOCALEFILE = new_Msg("JSDOC_LOCALEFILE", 43, "extra @localeFile tag")
-	Msg_JSDOC_LOCALEOBJECT = new_Msg("JSDOC_LOCALEOBJECT", 44, "extra @localeObject tag")
-	Msg_JSDOC_LOCALESELECT = new_Msg("JSDOC_LOCALESELECT", 45, "extra @localeSelect tag")
-	Msg_JSDOC_LOCALEVALUE = new_Msg("JSDOC_LOCALEVALUE", 46, "extra @localeValue tag")
-	Msg_JSDOC_PROVIDE_GOOG = new_Msg("JSDOC_PROVIDE_GOOG", 47, "extra @provideGoog tag")
-	Msg_JSDOC_PROVIDE_ALREADY_PROVIDED = new_Msg("JSDOC_PROVIDE_ALREADY_PROVIDED", 48, "extra @provideAlreadyProvided tag")
-	Msg_JSDOC_MEANING_EXTRA = new_Msg("JSDOC_MEANING_EXTRA", 49, "extra @meaning tag")
-	Msg_JSDOC_MISSING_BRACES = new_Msg("JSDOC_MISSING_BRACES", 50, "Type annotations should have curly braces.")
-	Msg_JSDOC_MISSING_COLON = new_Msg("JSDOC_MISSING_COLON", 51, "expecting colon after this")
-	Msg_JSDOC_MISSING_GT = new_Msg("JSDOC_MISSING_GT", 52, "missing closing >")
-	Msg_JSDOC_MISSING_LC = new_Msg("JSDOC_MISSING_LC", 53, "missing opening {")
-	Msg_JSDOC_MISSING_LP = new_Msg("JSDOC_MISSING_LP", 54, "missing opening (")
-	Msg_JSDOC_MISSING_RB = new_Msg("JSDOC_MISSING_RB", 55, "missing closing ]")
-	Msg_JSDOC_MISSING_RC = new_Msg("JSDOC_MISSING_RC", 56, "expected closing }")
-	Msg_JSDOC_MISSING_RP = new_Msg("JSDOC_MISSING_RP", 57, "missing closing )")
-	Msg_JSDOC_MISSING_TYPE_DECLARATION = new_Msg("JSDOC_MISSING_TYPE_DECLARATION", 58, "Missing type declaration.")
-	Msg_JSDOC_MIXINCLASS_EXTRA = new_Msg("JSDOC_MIXINCLASS_EXTRA", 59, "extra @mixinClass tag")
-	Msg_JSDOC_MIXINFUNCTION_EXTRA = new_Msg("JSDOC_MIXINFUNCTION_EXTRA", 60, "extra @mixinFunction tag")
-	Msg_JSDOC_MODIFIES = new_Msg("JSDOC_MODIFIES", 61, "malformed @modifies tag")
-	Msg_JSDOC_MODIFIES_DUPLICATE = new_Msg("JSDOC_MODIFIES_DUPLICATE", 62, "conflicting @modifies tag")
-	Msg_JSDOC_MODIFIES_UNKNOWN = new_Msg("JSDOC_MODIFIES_UNKNOWN", 63, "unknown @modifies parameter: {0}")
-	Msg_JSDOC_MODS = new_Msg("JSDOC_MODS", 64, "malformed @mods tag")
-	Msg_JSDOC_MODS_EXTRA = new_Msg("JSDOC_MODS_EXTRA", 65, "extra @mods tag")
-	Msg_JSDOC_NAME_SYNTAX = new_Msg("JSDOC_NAME_SYNTAX", 66, "name not recognized due to syntax error.")
-	Msg_JSDOC_NGINJECT_EXTRA = new_Msg("JSDOC_NGINJECT_EXTRA", 67, "extra @ngInject tag")
-	Msg_JSDOC_NOCOLLAPSE = new_Msg("JSDOC_NOCOLLAPSE", 68, "extra @nocollapse tag")
-	Msg_JSDOC_NOCOMPILE = new_Msg("JSDOC_NOCOMPILE", 69, "extra @nocompile tag")
-	Msg_JSDOC_NOCOVERAGE = new_Msg("JSDOC_NOCOVERAGE", 70, "extra @nocoverage tag")
-	Msg_JSDOC_NODTS = new_Msg("JSDOC_NODTS", 71, "extra @nodts tag")
-	Msg_JSDOC_NOINLINE = new_Msg("JSDOC_NOINLINE", 72, "extra @noinline tag")
-	Msg_JSDOC_NOSIDEEFFECTS = new_Msg("JSDOC_NOSIDEEFFECTS", 73, "conflicting @nosideeffects tag")
-	Msg_JSDOC_NOSIDEEFFECTS_WITH_MODIFIES = new_Msg("JSDOC_NOSIDEEFFECTS_WITH_MODIFIES", 74, "@nosideeffects functions cannot have @modifies (modifying arguments/this is a side effect)")
-	Msg_JSDOC_NOSIDEEFFECTS_WITH_THROWS = new_Msg("JSDOC_NOSIDEEFFECTS_WITH_THROWS", 75, "@nosideeffects functions cannot have @throws (throwing is a side effect)")
-	Msg_JSDOC_OVERRIDE = new_Msg("JSDOC_OVERRIDE", 76, "extra @override/@inheritDoc tag.")
-	Msg_JSDOC_POLYMERBEHAVIOR_EXTRA = new_Msg("JSDOC_POLYMERBEHAVIOR_EXTRA", 77, "extra @polymerBehavior tag")
-	Msg_JSDOC_POLYMER_EXTRA = new_Msg("JSDOC_POLYMER_EXTRA", 78, "extra @polymer tag")
-	Msg_JSDOC_PUREORBREAKMYCODE = new_Msg("JSDOC_PUREORBREAKMYCODE", 79, "extra @pureOrBreakMyCode tag")
-	Msg_JSDOC_RECORD = new_Msg("JSDOC_RECORD", 80, "conflicting @record tag.")
-	Msg_JSDOC_SASS_GENERATED_CSS_TS = new_Msg("JSDOC_SASS_GENERATED_CSS_TS", 81, "extra @sassGeneratedCssTs tag")
-	Msg_JSDOC_SEEMISSING = new_Msg("JSDOC_SEEMISSING", 82, "@see tag missing description")
-	Msg_JSDOC_SUPPRESS = new_Msg("JSDOC_SUPPRESS", 83, "malformed @suppress tag")
-	Msg_JSDOC_SUPPRESS_UNKNOWN = new_Msg("JSDOC_SUPPRESS_UNKNOWN", 84, "unknown @suppress parameter: {0}")
-	Msg_JSDOC_TEMPLATE_BOUNDEDGENERICS_USED = new_Msg("JSDOC_TEMPLATE_BOUNDEDGENERICS_USED", 85, "Bounded generic semantics are currently still in development")
-	Msg_JSDOC_TEMPLATE_BOUNDSWITHTTL = new_Msg("JSDOC_TEMPLATE_BOUNDSWITHTTL", 86, "Template types cannot combine bounds and TTL.")
-	Msg_JSDOC_TEMPLATE_MULTIPLEDECLARATION = new_Msg("JSDOC_TEMPLATE_MULTIPLEDECLARATION", 87, "Multiple template names cannot be declared with bounds or TTL.")
-	Msg_JSDOC_TEMPLATE_NAME_MISSING = new_Msg("JSDOC_TEMPLATE_NAME_MISSING", 88, "@template tag missing type name.")
-	Msg_JSDOC_TEMPLATE_NAME_REDECLARATION = new_Msg("JSDOC_TEMPLATE_NAME_REDECLARATION", 89, "Type name(s) for @template annotation declared twice.")
-	Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_EXPRESSIONMISSING = new_Msg("JSDOC_TEMPLATE_TYPETRANSFORMATION_EXPRESSIONMISSING", 90, "Missing type transformation expression.")
-	Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_MISSINGDELIMIIER = new_Msg("JSDOC_TEMPLATE_TYPETRANSFORMATION_MISSINGDELIMIIER", 91, "Expected end delimiter for a type transformation.")
-	Msg_JSDOC_THROWS = new_Msg("JSDOC_THROWS", 92, "conflicting @throws tag")
-	Msg_JSDOC_TYPE = new_Msg("JSDOC_TYPE", 93, "conflicting @type tag")
-	Msg_JSDOC_TYPESUMMARY = new_Msg("JSDOC_TYPESUMMARY", 94, "extra @typeSummary tag")
-	Msg_JSDOC_TYPETRANSFORMATION_EXTRA_PARAM = new_Msg("JSDOC_TYPETRANSFORMATION_EXTRA_PARAM", 95, "Found extra parameter in {0}")
-	Msg_JSDOC_TYPETRANSFORMATION_INVALID = new_Msg("JSDOC_TYPETRANSFORMATION_INVALID", 96, "Invalid {0}")
-	Msg_JSDOC_TYPETRANSFORMATION_INVALID_EXPRESSION = new_Msg("JSDOC_TYPETRANSFORMATION_INVALID_EXPRESSION", 97, "Invalid {0} expression")
-	Msg_JSDOC_TYPETRANSFORMATION_INVALID_INSIDE = new_Msg("JSDOC_TYPETRANSFORMATION_INVALID_INSIDE", 98, "Invalid expression inside {0}")
-	Msg_JSDOC_TYPETRANSFORMATION_MISSING_PARAM = new_Msg("JSDOC_TYPETRANSFORMATION_MISSING_PARAM", 99, "Missing parameter in {0}")
-	Msg_JSDOC_TYPE_RECORD_DUPLICATE = new_Msg("JSDOC_TYPE_RECORD_DUPLICATE", 100, "Duplicate record field {0}.")
-	Msg_JSDOC_TYPE_SYNTAX = new_Msg("JSDOC_TYPE_SYNTAX", 101, "type not recognized due to syntax error.")
-	Msg_JSDOC_USEDVIADOTCONSTRUCTOR = new_Msg("JSDOC_USEDVIADOTCONSTRUCTOR", 102, "extra @usedViaDotConstructor tag")
-	Msg_JSDOC_UNNECESSARY_BRACES = new_Msg("JSDOC_UNNECESSARY_BRACES", 103, "braces are not required here")
-	Msg_JSDOC_VERSIONMISSING = new_Msg("JSDOC_VERSIONMISSING", 104, "@version tag missing version information")
-	Msg_JSDOC_WIZACTION = new_Msg("JSDOC_WIZACTION", 105, "extra @wizaction tag")
-	Msg_MISSING_VARIABLE_NAME = new_Msg("MISSING_VARIABLE_NAME", 106, "expecting a variable name in a @param tag.")
-	Msg_NO_TYPE_NAME = new_Msg("NO_TYPE_NAME", 107, "expecting a type name.")
-	Msg_UNEXPECTED_EOF = new_Msg("UNEXPECTED_EOF", 108, "Unexpected end of file")
-	Msg_JSDOC_WIZCALLBACK = new_Msg("JSDOC_WIZCALLBACK", 109, "extra @wizcallback tag")
-	Msg_values_ = []*Msg{Msg_BAD_FILEOVERVIEW_VISIBIIITY_ANNOTATION, Msg_BAD_JSDOC_TAG, Msg_DUP_VARIABLE_NAME, Msg_END_ANNOTATION_EXPECTED, Msg_INVALID_VARIABLE_NAME, Msg_JSDOC_ALTERNATEMESSAGEID_EXTRA, Msg_JSDOC_REQUIRE_INLINING, Msg_JSDOC_ENCOURAGE_INLINING, Msg_JSDOC_AUTHORMISSING, Msg_JSDOC_CLOSUREPRIMITIVE_EXTRA, Msg_JSDOC_CLOSUREPRIMITIVE_INVALID, Msg_JSDOC_CLOSUREPRIMITIVE_MISSING, Msg_JSDOC_CLOSURE_UNAWARE_CODE_EXTRA, Msg_JSDOC_CLOSURE_UNAWARE_CONFIG_INVALID_VALUE, Msg_JSDOC_CLOSURE_UNAWARE_CODE_INVALID, Msg_JSDOC_COLLAPSIBLEORBREAKMYCODE, Msg_JSDOC_CONST, Msg_JSDOC_CUSTOMELEMENT_EXTRA, Msg_JSDOC_DEFINE, Msg_JSDOC_DEPRECATED, Msg_JSDOC_DESC_EXTRA, Msg_JSDOC_EXPORT, Msg_JSDOC_EXTENDS_DUPLICATE, Msg_JSDOC_EXTERNS, Msg_JSDOC_EXTRAVERSION, Msg_JSDOC_EXTRA_VISIBILITY, Msg_JSDOC_FILEOVERVIEW_EXTRA, Msg_JSDOC_FINAL, Msg_JSDOC_FUNCTION_NEWNOTOBJECT, Msg_JSDOC_FUNCTION_VARARGS, Msg_JSDOC_IDGEN_BAD, Msg_JSDOC_IDGEN_DUPLICATE, Msg_JSDOC_IDGEN_UNKNOWN, Msg_JSDOC_IMPLEMENTS_DUPLICATE, Msg_JSDOC_IMPLEMENTS_EXTRAQUALIFIER, Msg_JSDOC_IMPLICITCAST, Msg_JSDOC_IMPORT, Msg_JSDOC_INCOMPAT_TYPE, Msg_JSDOC_INCOMPAT_INLINING, Msg_JSDOC_INTERFACE_CONSTRUCTOR, Msg_JSDOC_LEGACY_TS_EXPORT, Msg_JSDOC_LENDS_INCOMPATIBLE, Msg_JSDOC_LENDS_MISSING, Msg_JSDOC_LOCALEFILE, Msg_JSDOC_LOCALEOBJECT, Msg_JSDOC_LOCALESELECT, Msg_JSDOC_LOCALEVALUE, Msg_JSDOC_PROVIDE_GOOG, Msg_JSDOC_PROVIDE_ALREADY_PROVIDED, Msg_JSDOC_MEANING_EXTRA, Msg_JSDOC_MISSING_BRACES, Msg_JSDOC_MISSING_COLON, Msg_JSDOC_MISSING_GT, Msg_JSDOC_MISSING_LC, Msg_JSDOC_MISSING_LP, Msg_JSDOC_MISSING_RB, Msg_JSDOC_MISSING_RC, Msg_JSDOC_MISSING_RP, Msg_JSDOC_MISSING_TYPE_DECLARATION, Msg_JSDOC_MIXINCLASS_EXTRA, Msg_JSDOC_MIXINFUNCTION_EXTRA, Msg_JSDOC_MODIFIES, Msg_JSDOC_MODIFIES_DUPLICATE, Msg_JSDOC_MODIFIES_UNKNOWN, Msg_JSDOC_MODS, Msg_JSDOC_MODS_EXTRA, Msg_JSDOC_NAME_SYNTAX, Msg_JSDOC_NGINJECT_EXTRA, Msg_JSDOC_NOCOLLAPSE, Msg_JSDOC_NOCOMPILE, Msg_JSDOC_NOCOVERAGE, Msg_JSDOC_NODTS, Msg_JSDOC_NOINLINE, Msg_JSDOC_NOSIDEEFFECTS, Msg_JSDOC_NOSIDEEFFECTS_WITH_MODIFIES, Msg_JSDOC_NOSIDEEFFECTS_WITH_THROWS, Msg_JSDOC_OVERRIDE, Msg_JSDOC_POLYMERBEHAVIOR_EXTRA, Msg_JSDOC_POLYMER_EXTRA, Msg_JSDOC_PUREORBREAKMYCODE, Msg_JSDOC_RECORD, Msg_JSDOC_SASS_GENERATED_CSS_TS, Msg_JSDOC_SEEMISSING, Msg_JSDOC_SUPPRESS, Msg_JSDOC_SUPPRESS_UNKNOWN, Msg_JSDOC_TEMPLATE_BOUNDEDGENERICS_USED, Msg_JSDOC_TEMPLATE_BOUNDSWITHTTL, Msg_JSDOC_TEMPLATE_MULTIPLEDECLARATION, Msg_JSDOC_TEMPLATE_NAME_MISSING, Msg_JSDOC_TEMPLATE_NAME_REDECLARATION, Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_EXPRESSIONMISSING, Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_MISSINGDELIMIIER, Msg_JSDOC_THROWS, Msg_JSDOC_TYPE, Msg_JSDOC_TYPESUMMARY, Msg_JSDOC_TYPETRANSFORMATION_EXTRA_PARAM, Msg_JSDOC_TYPETRANSFORMATION_INVALID, Msg_JSDOC_TYPETRANSFORMATION_INVALID_EXPRESSION, Msg_JSDOC_TYPETRANSFORMATION_INVALID_INSIDE, Msg_JSDOC_TYPETRANSFORMATION_MISSING_PARAM, Msg_JSDOC_TYPE_RECORD_DUPLICATE, Msg_JSDOC_TYPE_SYNTAX, Msg_JSDOC_USEDVIADOTCONSTRUCTOR, Msg_JSDOC_UNNECESSARY_BRACES, Msg_JSDOC_VERSIONMISSING, Msg_JSDOC_WIZACTION, Msg_MISSING_VARIABLE_NAME, Msg_NO_TYPE_NAME, Msg_UNEXPECTED_EOF, Msg_JSDOC_WIZCALLBACK}
+	Msg_BAD_FILEOVERVIEW_VISIBIIITY_ANNOTATION.zero_Msg()
+	Msg_BAD_FILEOVERVIEW_VISIBIIITY_ANNOTATION.init_Msg("{0} visibility not allowed in @fileoverview block")
+	Msg_BAD_JSDOC_TAG.zero_Msg()
+	Msg_BAD_JSDOC_TAG.init_Msg("illegal use of unknown JSDoc tag \"{0}\"; ignoring it. Place another character before the @ to stop JSCompiler from parsing it as an annotation.")
+	Msg_DUP_VARIABLE_NAME.zero_Msg()
+	Msg_DUP_VARIABLE_NAME.init_Msg("duplicate variable name \"{0}\"")
+	Msg_END_ANNOTATION_EXPECTED.zero_Msg()
+	Msg_END_ANNOTATION_EXPECTED.init_Msg("expected end of line or comment.")
+	Msg_INVALID_VARIABLE_NAME.zero_Msg()
+	Msg_INVALID_VARIABLE_NAME.init_Msg("invalid param name \"{0}\"")
+	Msg_JSDOC_ALTERNATEMESSAGEID_EXTRA.zero_Msg()
+	Msg_JSDOC_ALTERNATEMESSAGEID_EXTRA.init_Msg("extra @alternateMessageId tag")
+	Msg_JSDOC_REQUIRE_INLINING.zero_Msg()
+	Msg_JSDOC_REQUIRE_INLINING.init_Msg("extra @requireInlining tag")
+	Msg_JSDOC_ENCOURAGE_INLINING.zero_Msg()
+	Msg_JSDOC_ENCOURAGE_INLINING.init_Msg("extra @encourageInlining tag")
+	Msg_JSDOC_AUTHORMISSING.zero_Msg()
+	Msg_JSDOC_AUTHORMISSING.init_Msg("@author tag missing author")
+	Msg_JSDOC_CLOSUREPRIMITIVE_EXTRA.zero_Msg()
+	Msg_JSDOC_CLOSUREPRIMITIVE_EXTRA.init_Msg("conflicting @closurePrimitive tag")
+	Msg_JSDOC_CLOSUREPRIMITIVE_INVALID.zero_Msg()
+	Msg_JSDOC_CLOSUREPRIMITIVE_INVALID.init_Msg("invalid id in @closurePrimitive tag.")
+	Msg_JSDOC_CLOSUREPRIMITIVE_MISSING.zero_Msg()
+	Msg_JSDOC_CLOSUREPRIMITIVE_MISSING.init_Msg("missing id in @closurePrimitive tag.")
+	Msg_JSDOC_CLOSURE_UNAWARE_CODE_EXTRA.zero_Msg()
+	Msg_JSDOC_CLOSURE_UNAWARE_CODE_EXTRA.init_Msg("extra @closureUnaware tag")
+	Msg_JSDOC_CLOSURE_UNAWARE_CONFIG_INVALID_VALUE.zero_Msg()
+	Msg_JSDOC_CLOSURE_UNAWARE_CONFIG_INVALID_VALUE.init_Msg("invalid value for @closureUnaware: {0}")
+	Msg_JSDOC_CLOSURE_UNAWARE_CODE_INVALID.zero_Msg()
+	Msg_JSDOC_CLOSURE_UNAWARE_CODE_INVALID.init_Msg("@closureUnaware annotation is not allowed in this compilation")
+	Msg_JSDOC_COLLAPSIBLEORBREAKMYCODE.zero_Msg()
+	Msg_JSDOC_COLLAPSIBLEORBREAKMYCODE.init_Msg("extra @collapsibleOrBreakMyCode tag")
+	Msg_JSDOC_CONST.zero_Msg()
+	Msg_JSDOC_CONST.init_Msg("conflicting @const tag")
+	Msg_JSDOC_CUSTOMELEMENT_EXTRA.zero_Msg()
+	Msg_JSDOC_CUSTOMELEMENT_EXTRA.init_Msg("extra @customElement tag")
+	Msg_JSDOC_DEFINE.zero_Msg()
+	Msg_JSDOC_DEFINE.init_Msg("conflicting @define tag")
+	Msg_JSDOC_DEPRECATED.zero_Msg()
+	Msg_JSDOC_DEPRECATED.init_Msg("extra @deprecated tag")
+	Msg_JSDOC_DESC_EXTRA.zero_Msg()
+	Msg_JSDOC_DESC_EXTRA.init_Msg("extra @desc tag")
+	Msg_JSDOC_EXPORT.zero_Msg()
+	Msg_JSDOC_EXPORT.init_Msg("extra @export tag")
+	Msg_JSDOC_EXTENDS_DUPLICATE.zero_Msg()
+	Msg_JSDOC_EXTENDS_DUPLICATE.init_Msg("duplicate @extends tag")
+	Msg_JSDOC_EXTERNS.zero_Msg()
+	Msg_JSDOC_EXTERNS.init_Msg("extra @externs tag")
+	Msg_JSDOC_EXTRAVERSION.zero_Msg()
+	Msg_JSDOC_EXTRAVERSION.init_Msg("conflicting @version tag")
+	Msg_JSDOC_EXTRA_VISIBILITY.zero_Msg()
+	Msg_JSDOC_EXTRA_VISIBILITY.init_Msg("extra visibility tag")
+	Msg_JSDOC_FILEOVERVIEW_EXTRA.zero_Msg()
+	Msg_JSDOC_FILEOVERVIEW_EXTRA.init_Msg("extra @fileoverview tag")
+	Msg_JSDOC_FINAL.zero_Msg()
+	Msg_JSDOC_FINAL.init_Msg("extra @final tag.")
+	Msg_JSDOC_FUNCTION_NEWNOTOBJECT.zero_Msg()
+	Msg_JSDOC_FUNCTION_NEWNOTOBJECT.init_Msg("constructed type must be an object type")
+	Msg_JSDOC_FUNCTION_VARARGS.zero_Msg()
+	Msg_JSDOC_FUNCTION_VARARGS.init_Msg("variable length argument must be last.")
+	Msg_JSDOC_IDGEN_BAD.zero_Msg()
+	Msg_JSDOC_IDGEN_BAD.init_Msg("malformed @idGenerator tag")
+	Msg_JSDOC_IDGEN_DUPLICATE.zero_Msg()
+	Msg_JSDOC_IDGEN_DUPLICATE.init_Msg("extra @idGenerator tag")
+	Msg_JSDOC_IDGEN_UNKNOWN.zero_Msg()
+	Msg_JSDOC_IDGEN_UNKNOWN.init_Msg("unknown @idGenerator parameter: {0}")
+	Msg_JSDOC_IMPLEMENTS_DUPLICATE.zero_Msg()
+	Msg_JSDOC_IMPLEMENTS_DUPLICATE.init_Msg("duplicate @implements tag.")
+	Msg_JSDOC_IMPLEMENTS_EXTRAQUALIFIER.zero_Msg()
+	Msg_JSDOC_IMPLEMENTS_EXTRAQUALIFIER.init_Msg("@implements/@extends requires a bare interface/record name without ! or ?.")
+	Msg_JSDOC_IMPLICITCAST.zero_Msg()
+	Msg_JSDOC_IMPLICITCAST.init_Msg("extra @implicitCast tag.")
+	Msg_JSDOC_IMPORT.zero_Msg()
+	Msg_JSDOC_IMPORT.init_Msg("Import in typedef is not supported.")
+	Msg_JSDOC_INCOMPAT_TYPE.zero_Msg()
+	Msg_JSDOC_INCOMPAT_TYPE.init_Msg("type annotation incompatible with other annotations.")
+	Msg_JSDOC_INCOMPAT_INLINING.zero_Msg()
+	Msg_JSDOC_INCOMPAT_INLINING.init_Msg("@requireInlining, @encourageInlining, and @noinline are mutually exclusive.")
+	Msg_JSDOC_INTERFACE_CONSTRUCTOR.zero_Msg()
+	Msg_JSDOC_INTERFACE_CONSTRUCTOR.init_Msg("cannot be both an interface and a constructor.")
+	Msg_JSDOC_LEGACY_TS_EXPORT.zero_Msg()
+	Msg_JSDOC_LEGACY_TS_EXPORT.init_Msg("extra @legacyNamedTsExport tag")
+	Msg_JSDOC_LENDS_INCOMPATIBLE.zero_Msg()
+	Msg_JSDOC_LENDS_INCOMPATIBLE.init_Msg("@lends tag incompatible with other annotations.")
+	Msg_JSDOC_LENDS_MISSING.zero_Msg()
+	Msg_JSDOC_LENDS_MISSING.init_Msg("missing object name in @lends tag.")
+	Msg_JSDOC_LOCALEFILE.zero_Msg()
+	Msg_JSDOC_LOCALEFILE.init_Msg("extra @localeFile tag")
+	Msg_JSDOC_LOCALEOBJECT.zero_Msg()
+	Msg_JSDOC_LOCALEOBJECT.init_Msg("extra @localeObject tag")
+	Msg_JSDOC_LOCALESELECT.zero_Msg()
+	Msg_JSDOC_LOCALESELECT.init_Msg("extra @localeSelect tag")
+	Msg_JSDOC_LOCALEVALUE.zero_Msg()
+	Msg_JSDOC_LOCALEVALUE.init_Msg("extra @localeValue tag")
+	Msg_JSDOC_PROVIDE_GOOG.zero_Msg()
+	Msg_JSDOC_PROVIDE_GOOG.init_Msg("extra @provideGoog tag")
+	Msg_JSDOC_PROVIDE_ALREADY_PROVIDED.zero_Msg()
+	Msg_JSDOC_PROVIDE_ALREADY_PROVIDED.init_Msg("extra @provideAlreadyProvided tag")
+	Msg_JSDOC_MEANING_EXTRA.zero_Msg()
+	Msg_JSDOC_MEANING_EXTRA.init_Msg("extra @meaning tag")
+	Msg_JSDOC_MISSING_BRACES.zero_Msg()
+	Msg_JSDOC_MISSING_BRACES.init_Msg("Type annotations should have curly braces.")
+	Msg_JSDOC_MISSING_COLON.zero_Msg()
+	Msg_JSDOC_MISSING_COLON.init_Msg("expecting colon after this")
+	Msg_JSDOC_MISSING_GT.zero_Msg()
+	Msg_JSDOC_MISSING_GT.init_Msg("missing closing >")
+	Msg_JSDOC_MISSING_LC.zero_Msg()
+	Msg_JSDOC_MISSING_LC.init_Msg("missing opening {")
+	Msg_JSDOC_MISSING_LP.zero_Msg()
+	Msg_JSDOC_MISSING_LP.init_Msg("missing opening (")
+	Msg_JSDOC_MISSING_RB.zero_Msg()
+	Msg_JSDOC_MISSING_RB.init_Msg("missing closing ]")
+	Msg_JSDOC_MISSING_RC.zero_Msg()
+	Msg_JSDOC_MISSING_RC.init_Msg("expected closing }")
+	Msg_JSDOC_MISSING_RP.zero_Msg()
+	Msg_JSDOC_MISSING_RP.init_Msg("missing closing )")
+	Msg_JSDOC_MISSING_TYPE_DECLARATION.zero_Msg()
+	Msg_JSDOC_MISSING_TYPE_DECLARATION.init_Msg("Missing type declaration.")
+	Msg_JSDOC_MIXINCLASS_EXTRA.zero_Msg()
+	Msg_JSDOC_MIXINCLASS_EXTRA.init_Msg("extra @mixinClass tag")
+	Msg_JSDOC_MIXINFUNCTION_EXTRA.zero_Msg()
+	Msg_JSDOC_MIXINFUNCTION_EXTRA.init_Msg("extra @mixinFunction tag")
+	Msg_JSDOC_MODIFIES.zero_Msg()
+	Msg_JSDOC_MODIFIES.init_Msg("malformed @modifies tag")
+	Msg_JSDOC_MODIFIES_DUPLICATE.zero_Msg()
+	Msg_JSDOC_MODIFIES_DUPLICATE.init_Msg("conflicting @modifies tag")
+	Msg_JSDOC_MODIFIES_UNKNOWN.zero_Msg()
+	Msg_JSDOC_MODIFIES_UNKNOWN.init_Msg("unknown @modifies parameter: {0}")
+	Msg_JSDOC_MODS.zero_Msg()
+	Msg_JSDOC_MODS.init_Msg("malformed @mods tag")
+	Msg_JSDOC_MODS_EXTRA.zero_Msg()
+	Msg_JSDOC_MODS_EXTRA.init_Msg("extra @mods tag")
+	Msg_JSDOC_NAME_SYNTAX.zero_Msg()
+	Msg_JSDOC_NAME_SYNTAX.init_Msg("name not recognized due to syntax error.")
+	Msg_JSDOC_NGINJECT_EXTRA.zero_Msg()
+	Msg_JSDOC_NGINJECT_EXTRA.init_Msg("extra @ngInject tag")
+	Msg_JSDOC_NOCOLLAPSE.zero_Msg()
+	Msg_JSDOC_NOCOLLAPSE.init_Msg("extra @nocollapse tag")
+	Msg_JSDOC_NOCOMPILE.zero_Msg()
+	Msg_JSDOC_NOCOMPILE.init_Msg("extra @nocompile tag")
+	Msg_JSDOC_NOCOVERAGE.zero_Msg()
+	Msg_JSDOC_NOCOVERAGE.init_Msg("extra @nocoverage tag")
+	Msg_JSDOC_NODTS.zero_Msg()
+	Msg_JSDOC_NODTS.init_Msg("extra @nodts tag")
+	Msg_JSDOC_NOINLINE.zero_Msg()
+	Msg_JSDOC_NOINLINE.init_Msg("extra @noinline tag")
+	Msg_JSDOC_NOSIDEEFFECTS.zero_Msg()
+	Msg_JSDOC_NOSIDEEFFECTS.init_Msg("conflicting @nosideeffects tag")
+	Msg_JSDOC_NOSIDEEFFECTS_WITH_MODIFIES.zero_Msg()
+	Msg_JSDOC_NOSIDEEFFECTS_WITH_MODIFIES.init_Msg("@nosideeffects functions cannot have @modifies (modifying arguments/this is a side effect)")
+	Msg_JSDOC_NOSIDEEFFECTS_WITH_THROWS.zero_Msg()
+	Msg_JSDOC_NOSIDEEFFECTS_WITH_THROWS.init_Msg("@nosideeffects functions cannot have @throws (throwing is a side effect)")
+	Msg_JSDOC_OVERRIDE.zero_Msg()
+	Msg_JSDOC_OVERRIDE.init_Msg("extra @override/@inheritDoc tag.")
+	Msg_JSDOC_POLYMERBEHAVIOR_EXTRA.zero_Msg()
+	Msg_JSDOC_POLYMERBEHAVIOR_EXTRA.init_Msg("extra @polymerBehavior tag")
+	Msg_JSDOC_POLYMER_EXTRA.zero_Msg()
+	Msg_JSDOC_POLYMER_EXTRA.init_Msg("extra @polymer tag")
+	Msg_JSDOC_PUREORBREAKMYCODE.zero_Msg()
+	Msg_JSDOC_PUREORBREAKMYCODE.init_Msg("extra @pureOrBreakMyCode tag")
+	Msg_JSDOC_RECORD.zero_Msg()
+	Msg_JSDOC_RECORD.init_Msg("conflicting @record tag.")
+	Msg_JSDOC_SASS_GENERATED_CSS_TS.zero_Msg()
+	Msg_JSDOC_SASS_GENERATED_CSS_TS.init_Msg("extra @sassGeneratedCssTs tag")
+	Msg_JSDOC_SEEMISSING.zero_Msg()
+	Msg_JSDOC_SEEMISSING.init_Msg("@see tag missing description")
+	Msg_JSDOC_SUPPRESS.zero_Msg()
+	Msg_JSDOC_SUPPRESS.init_Msg("malformed @suppress tag")
+	Msg_JSDOC_SUPPRESS_UNKNOWN.zero_Msg()
+	Msg_JSDOC_SUPPRESS_UNKNOWN.init_Msg("unknown @suppress parameter: {0}")
+	Msg_JSDOC_TEMPLATE_BOUNDEDGENERICS_USED.zero_Msg()
+	Msg_JSDOC_TEMPLATE_BOUNDEDGENERICS_USED.init_Msg("Bounded generic semantics are currently still in development")
+	Msg_JSDOC_TEMPLATE_BOUNDSWITHTTL.zero_Msg()
+	Msg_JSDOC_TEMPLATE_BOUNDSWITHTTL.init_Msg("Template types cannot combine bounds and TTL.")
+	Msg_JSDOC_TEMPLATE_MULTIPLEDECLARATION.zero_Msg()
+	Msg_JSDOC_TEMPLATE_MULTIPLEDECLARATION.init_Msg("Multiple template names cannot be declared with bounds or TTL.")
+	Msg_JSDOC_TEMPLATE_NAME_MISSING.zero_Msg()
+	Msg_JSDOC_TEMPLATE_NAME_MISSING.init_Msg("@template tag missing type name.")
+	Msg_JSDOC_TEMPLATE_NAME_REDECLARATION.zero_Msg()
+	Msg_JSDOC_TEMPLATE_NAME_REDECLARATION.init_Msg("Type name(s) for @template annotation declared twice.")
+	Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_EXPRESSIONMISSING.zero_Msg()
+	Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_EXPRESSIONMISSING.init_Msg("Missing type transformation expression.")
+	Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_MISSINGDELIMIIER.zero_Msg()
+	Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_MISSINGDELIMIIER.init_Msg("Expected end delimiter for a type transformation.")
+	Msg_JSDOC_THROWS.zero_Msg()
+	Msg_JSDOC_THROWS.init_Msg("conflicting @throws tag")
+	Msg_JSDOC_TYPE.zero_Msg()
+	Msg_JSDOC_TYPE.init_Msg("conflicting @type tag")
+	Msg_JSDOC_TYPESUMMARY.zero_Msg()
+	Msg_JSDOC_TYPESUMMARY.init_Msg("extra @typeSummary tag")
+	Msg_JSDOC_TYPETRANSFORMATION_EXTRA_PARAM.zero_Msg()
+	Msg_JSDOC_TYPETRANSFORMATION_EXTRA_PARAM.init_Msg("Found extra parameter in {0}")
+	Msg_JSDOC_TYPETRANSFORMATION_INVALID.zero_Msg()
+	Msg_JSDOC_TYPETRANSFORMATION_INVALID.init_Msg("Invalid {0}")
+	Msg_JSDOC_TYPETRANSFORMATION_INVALID_EXPRESSION.zero_Msg()
+	Msg_JSDOC_TYPETRANSFORMATION_INVALID_EXPRESSION.init_Msg("Invalid {0} expression")
+	Msg_JSDOC_TYPETRANSFORMATION_INVALID_INSIDE.zero_Msg()
+	Msg_JSDOC_TYPETRANSFORMATION_INVALID_INSIDE.init_Msg("Invalid expression inside {0}")
+	Msg_JSDOC_TYPETRANSFORMATION_MISSING_PARAM.zero_Msg()
+	Msg_JSDOC_TYPETRANSFORMATION_MISSING_PARAM.init_Msg("Missing parameter in {0}")
+	Msg_JSDOC_TYPE_RECORD_DUPLICATE.zero_Msg()
+	Msg_JSDOC_TYPE_RECORD_DUPLICATE.init_Msg("Duplicate record field {0}.")
+	Msg_JSDOC_TYPE_SYNTAX.zero_Msg()
+	Msg_JSDOC_TYPE_SYNTAX.init_Msg("type not recognized due to syntax error.")
+	Msg_JSDOC_USEDVIADOTCONSTRUCTOR.zero_Msg()
+	Msg_JSDOC_USEDVIADOTCONSTRUCTOR.init_Msg("extra @usedViaDotConstructor tag")
+	Msg_JSDOC_UNNECESSARY_BRACES.zero_Msg()
+	Msg_JSDOC_UNNECESSARY_BRACES.init_Msg("braces are not required here")
+	Msg_JSDOC_VERSIONMISSING.zero_Msg()
+	Msg_JSDOC_VERSIONMISSING.init_Msg("@version tag missing version information")
+	Msg_JSDOC_WIZACTION.zero_Msg()
+	Msg_JSDOC_WIZACTION.init_Msg("extra @wizaction tag")
+	Msg_MISSING_VARIABLE_NAME.zero_Msg()
+	Msg_MISSING_VARIABLE_NAME.init_Msg("expecting a variable name in a @param tag.")
+	Msg_NO_TYPE_NAME.zero_Msg()
+	Msg_NO_TYPE_NAME.init_Msg("expecting a type name.")
+	Msg_UNEXPECTED_EOF.zero_Msg()
+	Msg_UNEXPECTED_EOF.init_Msg("Unexpected end of file")
+	Msg_JSDOC_WIZCALLBACK.zero_Msg()
+	Msg_JSDOC_WIZCALLBACK.init_Msg("extra @wizcallback tag")
+	Msg_values_ = []Msg{Msg_BAD_FILEOVERVIEW_VISIBIIITY_ANNOTATION, Msg_BAD_JSDOC_TAG, Msg_DUP_VARIABLE_NAME, Msg_END_ANNOTATION_EXPECTED, Msg_INVALID_VARIABLE_NAME, Msg_JSDOC_ALTERNATEMESSAGEID_EXTRA, Msg_JSDOC_REQUIRE_INLINING, Msg_JSDOC_ENCOURAGE_INLINING, Msg_JSDOC_AUTHORMISSING, Msg_JSDOC_CLOSUREPRIMITIVE_EXTRA, Msg_JSDOC_CLOSUREPRIMITIVE_INVALID, Msg_JSDOC_CLOSUREPRIMITIVE_MISSING, Msg_JSDOC_CLOSURE_UNAWARE_CODE_EXTRA, Msg_JSDOC_CLOSURE_UNAWARE_CONFIG_INVALID_VALUE, Msg_JSDOC_CLOSURE_UNAWARE_CODE_INVALID, Msg_JSDOC_COLLAPSIBLEORBREAKMYCODE, Msg_JSDOC_CONST, Msg_JSDOC_CUSTOMELEMENT_EXTRA, Msg_JSDOC_DEFINE, Msg_JSDOC_DEPRECATED, Msg_JSDOC_DESC_EXTRA, Msg_JSDOC_EXPORT, Msg_JSDOC_EXTENDS_DUPLICATE, Msg_JSDOC_EXTERNS, Msg_JSDOC_EXTRAVERSION, Msg_JSDOC_EXTRA_VISIBILITY, Msg_JSDOC_FILEOVERVIEW_EXTRA, Msg_JSDOC_FINAL, Msg_JSDOC_FUNCTION_NEWNOTOBJECT, Msg_JSDOC_FUNCTION_VARARGS, Msg_JSDOC_IDGEN_BAD, Msg_JSDOC_IDGEN_DUPLICATE, Msg_JSDOC_IDGEN_UNKNOWN, Msg_JSDOC_IMPLEMENTS_DUPLICATE, Msg_JSDOC_IMPLEMENTS_EXTRAQUALIFIER, Msg_JSDOC_IMPLICITCAST, Msg_JSDOC_IMPORT, Msg_JSDOC_INCOMPAT_TYPE, Msg_JSDOC_INCOMPAT_INLINING, Msg_JSDOC_INTERFACE_CONSTRUCTOR, Msg_JSDOC_LEGACY_TS_EXPORT, Msg_JSDOC_LENDS_INCOMPATIBLE, Msg_JSDOC_LENDS_MISSING, Msg_JSDOC_LOCALEFILE, Msg_JSDOC_LOCALEOBJECT, Msg_JSDOC_LOCALESELECT, Msg_JSDOC_LOCALEVALUE, Msg_JSDOC_PROVIDE_GOOG, Msg_JSDOC_PROVIDE_ALREADY_PROVIDED, Msg_JSDOC_MEANING_EXTRA, Msg_JSDOC_MISSING_BRACES, Msg_JSDOC_MISSING_COLON, Msg_JSDOC_MISSING_GT, Msg_JSDOC_MISSING_LC, Msg_JSDOC_MISSING_LP, Msg_JSDOC_MISSING_RB, Msg_JSDOC_MISSING_RC, Msg_JSDOC_MISSING_RP, Msg_JSDOC_MISSING_TYPE_DECLARATION, Msg_JSDOC_MIXINCLASS_EXTRA, Msg_JSDOC_MIXINFUNCTION_EXTRA, Msg_JSDOC_MODIFIES, Msg_JSDOC_MODIFIES_DUPLICATE, Msg_JSDOC_MODIFIES_UNKNOWN, Msg_JSDOC_MODS, Msg_JSDOC_MODS_EXTRA, Msg_JSDOC_NAME_SYNTAX, Msg_JSDOC_NGINJECT_EXTRA, Msg_JSDOC_NOCOLLAPSE, Msg_JSDOC_NOCOMPILE, Msg_JSDOC_NOCOVERAGE, Msg_JSDOC_NODTS, Msg_JSDOC_NOINLINE, Msg_JSDOC_NOSIDEEFFECTS, Msg_JSDOC_NOSIDEEFFECTS_WITH_MODIFIES, Msg_JSDOC_NOSIDEEFFECTS_WITH_THROWS, Msg_JSDOC_OVERRIDE, Msg_JSDOC_POLYMERBEHAVIOR_EXTRA, Msg_JSDOC_POLYMER_EXTRA, Msg_JSDOC_PUREORBREAKMYCODE, Msg_JSDOC_RECORD, Msg_JSDOC_SASS_GENERATED_CSS_TS, Msg_JSDOC_SEEMISSING, Msg_JSDOC_SUPPRESS, Msg_JSDOC_SUPPRESS_UNKNOWN, Msg_JSDOC_TEMPLATE_BOUNDEDGENERICS_USED, Msg_JSDOC_TEMPLATE_BOUNDSWITHTTL, Msg_JSDOC_TEMPLATE_MULTIPLEDECLARATION, Msg_JSDOC_TEMPLATE_NAME_MISSING, Msg_JSDOC_TEMPLATE_NAME_REDECLARATION, Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_EXPRESSIONMISSING, Msg_JSDOC_TEMPLATE_TYPETRANSFORMATION_MISSINGDELIMIIER, Msg_JSDOC_THROWS, Msg_JSDOC_TYPE, Msg_JSDOC_TYPESUMMARY, Msg_JSDOC_TYPETRANSFORMATION_EXTRA_PARAM, Msg_JSDOC_TYPETRANSFORMATION_INVALID, Msg_JSDOC_TYPETRANSFORMATION_INVALID_EXPRESSION, Msg_JSDOC_TYPETRANSFORMATION_INVALID_INSIDE, Msg_JSDOC_TYPETRANSFORMATION_MISSING_PARAM, Msg_JSDOC_TYPE_RECORD_DUPLICATE, Msg_JSDOC_TYPE_SYNTAX, Msg_JSDOC_USEDVIADOTCONSTRUCTOR, Msg_JSDOC_UNNECESSARY_BRACES, Msg_JSDOC_VERSIONMISSING, Msg_JSDOC_WIZACTION, Msg_MISSING_VARIABLE_NAME, Msg_NO_TYPE_NAME, Msg_UNEXPECTED_EOF, Msg_JSDOC_WIZCALLBACK}
 	registerEnum_("com.google.javascript.rhino.Msg", enumValues_(Msg_values_))
 
 }

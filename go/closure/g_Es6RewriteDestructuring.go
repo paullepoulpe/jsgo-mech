@@ -2,9 +2,11 @@
 
 package closure
 
+import "strings"
+
 type Es6RewriteDestructuring struct {
 	compiler_                    *AbstractCompiler
-	rewriteMode                  *Es6RewriteDestructuring_ObjectDestructuringRewriteMode
+	rewriteMode                  Es6RewriteDestructuring_ObjectDestructuringRewriteMode
 	astFactory_                  *AstFactory
 	namespace_                   StaticScope
 	useJscompAssign              bool
@@ -28,13 +30,13 @@ func (this *Es6RewriteDestructuring) init_Es6RewriteDestructuring(builder *Es6Re
 	this.useJscompAssign = !this.compiler_.getOptions().getOutputFeatureSet().containsFeatureSet(FeatureSet_ES2015)
 	switch this.rewriteMode {
 	case Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS:
-		this.featuresToTriggerRunningPass = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_DEFAULT_PARAMETERS, FeatureSet_Feature_ARRAY_DESTRUCTURING, FeatureSet_Feature_ARRAY_PATTERN_REST, FeatureSet_Feature_OBJECT_DESTRUCTURING})
+		this.featuresToTriggerRunningPass = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]FeatureSet_Feature{FeatureSet_Feature_DEFAULT_PARAMETERS, FeatureSet_Feature_ARRAY_DESTRUCTURING, FeatureSet_Feature_ARRAY_PATTERN_REST, FeatureSet_Feature_OBJECT_DESTRUCTURING})
 		this.featuresToMarkAsRemoved = this.featuresToTriggerRunningPass.with(FeatureSet_Feature_OBJECT_PATTERN_REST)
 	case Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST:
 		this.featuresToTriggerRunningPass = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_OBJECT_PATTERN_REST)
 		this.featuresToMarkAsRemoved = this.featuresToTriggerRunningPass
 	default:
-		panic(new_AssertionError_Object(strobj_(("Es6RewriteDestructuring cannot handle ObjectDestructuringRewriteMode " + objstr_(obj_(this.rewriteMode))))).self())
+		panic(new_AssertionError_Object(strobj_(("Es6RewriteDestructuring cannot handle ObjectDestructuringRewriteMode " + tostr_(this.rewriteMode)))))
 	}
 }
 
@@ -45,10 +47,14 @@ func new_Es6RewriteDestructuring(builder *Es6RewriteDestructuring_Builder) *Es6R
 }
 
 func (this *Es6RewriteDestructuring) process_2(externs Node, root Node) {
-	Preconditions_checkState(this.patternNestingStack.isEmpty())
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	if !this.patternNestingStack.isEmpty() {
+		panic(new_IllegalStateException_0())
+	}
+	NodeTraversal_traverse(this.compiler_, root, this)
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, this.featuresToMarkAsRemoved)
-	Preconditions_checkState(this.patternNestingStack.isEmpty())
+	if !this.patternNestingStack.isEmpty() {
+		panic(new_IllegalStateException_0())
+	}
 }
 
 func (this *Es6RewriteDestructuring) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -56,10 +62,10 @@ func (this *Es6RewriteDestructuring) shouldTraverse(t *NodeTraversal, n Node, pa
 		var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(n)
 		return scriptFeatures.containsAtLeastOneOf(this.featuresToTriggerRunningPass)
 	}
-	switch n.getToken() {
-	case Token_rhino_PARAM_LIST:
+	switch n.ns_().token {
+	case tokOrd1_PARAM_LIST:
 		this.pullDestructuringOutOfParams(n, parent)
-	case Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 		var hasRest bool = ((n.isObjectPattern() && n.hasChildren()) && n.getLastChild().isRest())
 		if !this.patternNestingStack.isEmpty() && hasRest {
 			it_2 := this.patternNestingStack.each()
@@ -79,10 +85,10 @@ func (this *Es6RewriteDestructuring) shouldTraverse(t *NodeTraversal, n Node, pa
 }
 
 func (this *Es6RewriteDestructuring) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
+	switch n.ns_().token {
+	case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 		this.visitPattern(t, n)
-		if n == cast_[*Es6RewriteDestructuring_PatternNestingLevel](SequencedCollection_getLast(SequencedCollection(this.patternNestingStack.asDeque()))).pattern {
+		if n == SequencedCollection_getLast(SequencedCollection(this.patternNestingStack.asDeque())).(*Es6RewriteDestructuring_PatternNestingLevel).pattern {
 			SequencedCollection_removeLast(SequencedCollection(this.patternNestingStack.asDeque()))
 		}
 	default:
@@ -178,20 +184,28 @@ func (this *Es6RewriteDestructuring) replacePatternParamWithTempVar(function Nod
 }
 
 func (this *Es6RewriteDestructuring) rewriteVarDestructuringDeclaration(destructuringLhs Node) Node {
-	Preconditions_checkState_boolean_Object(destructuringLhs.isDestructuringLhs(), destructuringLhs.box_())
-	Preconditions_checkState_boolean_Object(!destructuringLhs.getGrandparent().isExport(), strobj_("Export destructuring declarations not expected inside a function body."))
+	if !destructuringLhs.isDestructuringLhs() {
+		panic(new_IllegalStateException_String(tostr_(destructuringLhs)))
+	}
+	if destructuringLhs.getGrandparent().isExport() {
+		panic(new_IllegalStateException_String("Export destructuring declarations not expected inside a function body."))
+	}
 	var var_ Node = destructuringLhs.getParent()
-	NodeUtil_visitLhsNodesInNode(destructuringLhs, &Consumer_tfn_Node{func(name Node) {
-		Preconditions_checkState_boolean_String_Object(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
+	NodeUtil_visitLhsNodesInNode(destructuringLhs, (&Consumer_tfn_Node{func(name Node) {
+		if !name.isName() {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})))
+		}
 		var newName Node = IR_name(name.getString()).srcref(name)
 		if name.getBooleanProp(Node_IS_CONSTANT_NAME) {
 			newName.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 		}
 		var newVar Node = IR_var_Node(newName).srcref(name)
 		newVar.insertBefore(var_)
-	}})
+	}}).accept)
 	var destructuringPattern Node = destructuringLhs.removeFirstChild()
-	Preconditions_checkState_boolean_String_Object(destructuringPattern.isDestructuringPattern(), "Expected destructuring pattern but got %s", strobj_(destructuringPattern.toStringTree()))
+	if ok_, a1_ := destructuringPattern.isDestructuringPattern(), destructuringPattern.toStringTree(); !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected destructuring pattern but got %s", []any{strobj_(a1_)})))
+	}
 	var rhs Node = destructuringLhs.removeFirstChild()
 	var assign Node = this.astFactory_.createAssign(destructuringPattern, rhs)
 	assign.srcref(var_)
@@ -213,8 +227,8 @@ func (this *Es6RewriteDestructuring) getTempVariableName() string {
 
 func (this *Es6RewriteDestructuring) visitPattern(t *NodeTraversal, pattern Node) {
 	var parent Node = pattern.getParent()
-	switch parent.getToken() {
-	case Token_rhino_DESTRUCTURING_LHS:
+	switch parent.ns_().token {
+	case tokOrd1_DESTRUCTURING_LHS:
 		{
 			var declaration Node = parent.getParent()
 			var declarationParent Node = declaration.getParent()
@@ -226,31 +240,33 @@ func (this *Es6RewriteDestructuring) visitPattern(t *NodeTraversal, pattern Node
 				this.replacePattern(t, pattern, pattern.getNext(), declaration, declaration)
 			}
 		}
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		if parent.getParent().isExprResult() {
 			this.replacePattern(t, pattern, pattern.getNext(), parent, parent.getParent())
 		} else {
 			this.wrapAssignOrDestructuringInCallToArrow(t, parent)
 		}
-	case Token_rhino_OBJECT_REST, Token_rhino_ITER_REST, Token_rhino_STRING_KEY, Token_rhino_ARRAY_PATTERN, Token_rhino_DEFAULT_VALUE, Token_rhino_COMPUTED_PROP:
-	case Token_rhino_FOR_OF, Token_rhino_FOR_IN, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_OBJECT_REST, tokOrd1_ITER_REST, tokOrd1_STRING_KEY, tokOrd1_ARRAY_PATTERN, tokOrd1_DEFAULT_VALUE, tokOrd1_COMPUTED_PROP:
+	case tokOrd1_FOR_OF, tokOrd1_FOR_IN, tokOrd1_FOR_AWAIT_OF:
 		this.visitDestructuringPatternInEnhancedForWithOuterVars(pattern)
-	case Token_rhino_CATCH:
+	case tokOrd1_CATCH:
 		this.visitDestructuringPatternInCatch(t, pattern)
 	default:
-		panic(new_IllegalStateException_String("unexpected parent").self())
+		panic(new_IllegalStateException_String("unexpected parent"))
 	}
 }
 
 func (this *Es6RewriteDestructuring) replacePattern(t *NodeTraversal, pattern Node, rhs Node, parent Node, nodeToDetach Node) {
-	Preconditions_checkArgument_boolean_Object(NodeUtil_isStatement(nodeToDetach), nodeToDetach.box_())
-	switch pattern.getToken() {
-	case Token_rhino_ARRAY_PATTERN:
+	if !NodeUtil_isStatement(nodeToDetach) {
+		panic(new_IllegalArgumentException_String(tostr_(nodeToDetach)))
+	}
+	switch pattern.ns_().token {
+	case tokOrd1_ARRAY_PATTERN:
 		this.replaceArrayPattern(t, pattern, rhs, parent, nodeToDetach)
-	case Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECT_PATTERN:
 		this.replaceObjectPattern(t, pattern, rhs, parent, nodeToDetach)
 	default:
-		panic(new_IllegalStateException_String("unexpected").self())
+		panic(new_IllegalStateException_String("unexpected"))
 	}
 }
 
@@ -339,7 +355,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 				}
 			} else if child.isRest() {
 				if next != 0 {
-					panic(new_IllegalStateException_String("object rest may not be followed by any properties").self())
+					panic(new_IllegalStateException_String("object rest may not be followed by any properties"))
 				}
 				var assignCall Node = func() Node {
 					if this.useJscompAssign {
@@ -351,15 +367,17 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 				restTempDecl.srcrefTreeIfMissing(objectPattern)
 				restTempDecl.insertBefore(nodeToDetach)
 				var restName Node = child.getOnlyChild()
-				if String_startsWith(restName.getString(), Es6RewriteDestructuring_DESTRUCTURING_TEMP_VAR) {
-					Preconditions_checkState_boolean_Object(restName.isName(), restName.box_())
+				if strings.HasPrefix(restName.getString(), Es6RewriteDestructuring_DESTRUCTURING_TEMP_VAR) {
+					if !restName.isName() {
+						panic(new_IllegalStateException_String(tostr_(restName)))
+					}
 					newLHS = this.createTempVarNameNode(restName.getString(), AstFactory_type_Node(restName))
 				} else {
 					newLHS = restName.detach()
 				}
 				newRHS = this.objectPatternRestRHS(objectPattern, child, restTempVarName.get(), propsToDeleteForRest)
 			} else {
-				panic(new_IllegalStateException_String("unexpected child").self())
+				panic(new_IllegalStateException_String("unexpected child"))
 			}
 			var newNode Node
 			if NodeUtil_isNameDeclaration(parent) {
@@ -370,7 +388,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 			} else if parent.isAssign() {
 				newNode = IR_exprResult(this.astFactory_.createAssign(newLHS, newRHS))
 			} else {
-				panic(new_IllegalStateException_String("not reached").self())
+				panic(new_IllegalStateException_String("not reached"))
 			}
 			newNode.srcrefTreeIfMissing(child)
 			newNode.insertBefore(nodeToDetach)
@@ -382,7 +400,9 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 }
 
 func (this *Es6RewriteDestructuring) objectPatternRestRHS(objectPattern Node, rest Node, restTempVarName string, statedProperties *JTList[Node]) Node {
-	Preconditions_checkArgument((objectPattern.getLastChild() == rest))
+	if objectPattern.getLastChild() != rest {
+		panic(new_IllegalArgumentException_0())
+	}
 	var restTempVarModel Node = this.createTempVarNameNode(restTempVarName, AstFactory_type_Node(objectPattern))
 	var result Node = restTempVarModel.cloneNode()
 	if !statedProperties.isEmpty() {
@@ -399,20 +419,19 @@ func (this *Es6RewriteDestructuring) objectPatternRestRHS(objectPattern Node, re
 
 func (this *Es6RewriteDestructuring) deletionNodeForRestProperty(restTempVarNameNode Node, property Node) Node {
 	var get Node = func() Node {
-		switch property.getToken() {
-		case Token_rhino_STRING_KEY:
+		switch property.ns_().token {
+		case tokOrd1_STRING_KEY:
 			return func() Node {
 				if property.isQuotedStringKey() {
 					return this.astFactory_.createGetElem(restTempVarNameNode, this.astFactory_.createString(property.getString()))
 				}
 				return this.astFactory_.createGetPropWithUnknownType(restTempVarNameNode, property.getString())
 			}()
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			return this.astFactory_.createGetElem(restTempVarNameNode, property)
 		default:
-			panic(new_IllegalStateException_String(("Unexpected property to delete node: " + sstr_(property.toStringTree()))).self())
+			panic(new_IllegalStateException_String(("Unexpected property to delete node: " + sstr_(property.toStringTree()))))
 		}
-		panic("unreachable")
 	}()
 	return this.astFactory_.createDelProp(get)
 }
@@ -497,29 +516,33 @@ func (this *Es6RewriteDestructuring) wrapAssignOrDestructuringInCallToArrow(t *N
 }
 
 func (this *Es6RewriteDestructuring) validateNoAwaitOrYieldInNestedAssignmentPattern(pattern Node) {
-	var hasAwaitOrYieldInLhs bool = (NodeUtil_findPreorder(pattern, &Predicate_base_tfn_Node{func(n Node) bool {
+	var hasAwaitOrYieldInLhs bool = (NodeUtil_findPreorder(pattern, (&Predicate_base_tfn_Node{func(n Node) bool {
 		return (n.isAwait() || n.isYield())
-	}}, NodeUtil_MATCH_NOT_FUNCTION) != 0)
-	Preconditions_checkState_boolean_String_Object(!hasAwaitOrYieldInLhs, "Cannot transpile yet: destructuring assignment referencing await or yield in lhs, in nested sub-expression: %s", pattern.box_())
+	}}).apply, NodeUtil_MATCH_NOT_FUNCTION) != 0)
+	if hasAwaitOrYieldInLhs {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot transpile yet: destructuring assignment referencing await or yield in lhs, in nested sub-expression: %s", []any{pattern.box_()})))
+	}
 }
 
 func (this *Es6RewriteDestructuring) visitDestructuringPatternInVanillaForInnerVars(t *NodeTraversal, pattern Node) {
-	Preconditions_checkArgument(pattern.isDestructuringPattern())
+	if !pattern.isDestructuringPattern() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var destructuringLhs Node = pattern.getParent()
 	var declaration Node = destructuringLhs.getParent()
 	var insertionPoint Node = declaration.getParent()
 	for insertionPoint.getParent().isLabel() {
 		insertionPoint = insertionPoint.getParent()
 	}
-	switch declaration.getToken() {
-	case Token_rhino_CONST:
+	switch declaration.ns_().token {
+	case tokOrd1_CONST:
 		{
 			var block Node = IR_block_0().srcref(insertionPoint)
 			insertionPoint.replaceWith(block)
 			block.addChildToBack(insertionPoint)
 		}
 		fallthrough
-	case Token_rhino_VAR:
+	case tokOrd1_VAR:
 		{
 			{
 				var c Node = declaration.getFirstChild()
@@ -537,33 +560,39 @@ func (this *Es6RewriteDestructuring) visitDestructuringPatternInVanillaForInnerV
 				declaration.replaceWith(IR_empty())
 			}
 		}
-	case Token_rhino_LET:
+	case tokOrd1_LET:
 		{
-			ParsingUtil_getParamOrPatternNames(pattern, &Consumer_tfn_Node{func(name Node) {
+			ParsingUtil_getParamOrPatternNames(pattern, (&Consumer_tfn_Node{func(name Node) {
 				name.cloneNode().insertBefore(destructuringLhs)
-			}})
+			}}).accept)
 			var unusedVar Node = this.astFactory_.createNameWithUnknownType((sstr_(this.getTempVariableName()) + "$unused")).srcref(destructuringLhs)
 			destructuringLhs.replaceWith(unusedVar)
 			unusedVar.addChildToBack(destructuringLhs)
 			this.wrapAssignOrDestructuringInCallToArrow(t, destructuringLhs)
 		}
 	default:
-		panic(new_IllegalStateException_String(declaration.toString()).self())
+		panic(new_IllegalStateException_String(declaration.toString()))
 	}
 	this.compiler_.reportChangeToEnclosingScope(insertionPoint)
 }
 
 func (this *Es6RewriteDestructuring) visitDestructuringPatternInEnhancedForInnerVars(pattern Node) {
-	Preconditions_checkArgument(pattern.isDestructuringPattern())
+	if !pattern.isDestructuringPattern() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var tempVarName string = this.getTempVariableName()
 	var destructuringLhs Node = pattern.getParent()
-	Preconditions_checkState(destructuringLhs.isDestructuringLhs())
+	if !destructuringLhs.isDestructuringLhs() {
+		panic(new_IllegalStateException_0())
+	}
 	var declarationNode Node = destructuringLhs.getParent()
 	var forNode Node = declarationNode.getParent()
-	Preconditions_checkState(NodeUtil_isEnhancedFor(forNode))
+	if !NodeUtil_isEnhancedFor(forNode) {
+		panic(new_IllegalStateException_0())
+	}
 	var block Node = forNode.getLastChild()
 	destructuringLhs.replaceWith(this.createTempVarNameNode(tempVarName, AstFactory_type_Node(pattern)).srcref(pattern))
-	var declarationType *Token_rhino = declarationNode.getToken()
+	var declarationType Token_rhino = declarationNode.getToken()
 	var decl Node = IR_declaration_Node_Node_Token(pattern.detach(), this.createTempVarNameNode(tempVarName, AstFactory_type_Node(pattern)), declarationType)
 	decl.srcrefTreeIfMissing(pattern)
 	var newBlock Node = IR_block_Node(decl)
@@ -572,7 +601,9 @@ func (this *Es6RewriteDestructuring) visitDestructuringPatternInEnhancedForInner
 }
 
 func (this *Es6RewriteDestructuring) visitDestructuringPatternInEnhancedForWithOuterVars(pattern Node) {
-	Preconditions_checkArgument(pattern.isDestructuringPattern())
+	if !pattern.isDestructuringPattern() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var tempVarName string = this.getTempVariableName()
 	var forNode Node = pattern.getParent()
 	var block Node = forNode.getLastChild()
@@ -606,44 +637,64 @@ func (this *Es6RewriteDestructuring) defaultValueHook(getprop Node, defaultValue
 
 const Es6RewriteDestructuring_DESTRUCTURING_TEMP_VAR string = "$jscomp$destructuring$var"
 
-type Es6RewriteDestructuring_ObjectDestructuringRewriteMode struct {
-	Enum
+type Es6RewriteDestructuring_ObjectDestructuringRewriteMode uint8
+
+// Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_ = [2]Enum{
+	{self_: Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS, name_: "REWRITE_ALL_OBJECT_PATTERNS", ordinal_: 0},
+	{self_: Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST, name_: "REWRITE_OBJECT_REST", ordinal_: 1},
 }
 
-func (this *Es6RewriteDestructuring_ObjectDestructuringRewriteMode) up_Enum() *Enum {
-	if this == nil {
+func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Es6RewriteDestructuring_ObjectDestructuringRewriteMode_enum_[this-1]
 }
 
-func (this *Es6RewriteDestructuring_ObjectDestructuringRewriteMode) init_Es6RewriteDestructuring_ObjectDestructuringRewriteMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) name() string {
+	return this.enum_().name_
 }
 
-func new_Es6RewriteDestructuring_ObjectDestructuringRewriteMode(name_ string, ordinal_ int32) *Es6RewriteDestructuring_ObjectDestructuringRewriteMode {
-	this := &Es6RewriteDestructuring_ObjectDestructuringRewriteMode{}
-	this.self_ = this
-	this.init_Es6RewriteDestructuring_ObjectDestructuringRewriteMode(name_, ordinal_)
+func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) toString() string {
+	return this.enum_().name_
+}
+
+func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this Es6RewriteDestructuring_ObjectDestructuringRewriteMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values() []*Es6RewriteDestructuring_ObjectDestructuringRewriteMode {
-	return append([]*Es6RewriteDestructuring_ObjectDestructuringRewriteMode(nil), Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_...)
+func Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values() []Es6RewriteDestructuring_ObjectDestructuringRewriteMode {
+	return append([]Es6RewriteDestructuring_ObjectDestructuringRewriteMode(nil), Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_...)
 }
 
-func Es6RewriteDestructuring_ObjectDestructuringRewriteMode_valueOf(name string) *Es6RewriteDestructuring_ObjectDestructuringRewriteMode {
+func Es6RewriteDestructuring_ObjectDestructuringRewriteMode_valueOf(name string) Es6RewriteDestructuring_ObjectDestructuringRewriteMode {
 	for _, v := range Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ObjectDestructuringRewriteMode", name))
 }
 
-var Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS *Es6RewriteDestructuring_ObjectDestructuringRewriteMode
-var Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST *Es6RewriteDestructuring_ObjectDestructuringRewriteMode
-var Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_ []*Es6RewriteDestructuring_ObjectDestructuringRewriteMode
+const Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS Es6RewriteDestructuring_ObjectDestructuringRewriteMode = 1
+const Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST Es6RewriteDestructuring_ObjectDestructuringRewriteMode = 2
+
+var Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_ []Es6RewriteDestructuring_ObjectDestructuringRewriteMode
 
 var Es6RewriteDestructuring_ObjectDestructuringRewriteMode_clinit_done bool
 
@@ -652,16 +703,14 @@ func Es6RewriteDestructuring_ObjectDestructuringRewriteMode_clinit() {
 		return
 	}
 	Es6RewriteDestructuring_ObjectDestructuringRewriteMode_clinit_done = true
-	Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS = new_Es6RewriteDestructuring_ObjectDestructuringRewriteMode("REWRITE_ALL_OBJECT_PATTERNS", 0)
-	Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST = new_Es6RewriteDestructuring_ObjectDestructuringRewriteMode("REWRITE_OBJECT_REST", 1)
-	Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_ = []*Es6RewriteDestructuring_ObjectDestructuringRewriteMode{Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS, Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST}
+	Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_ = []Es6RewriteDestructuring_ObjectDestructuringRewriteMode{Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_ALL_OBJECT_PATTERNS, Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST}
 	registerEnum_("com.google.javascript.jscomp.Es6RewriteDestructuring.ObjectDestructuringRewriteMode", enumValues_(Es6RewriteDestructuring_ObjectDestructuringRewriteMode_values_))
 
 }
 
 type Es6RewriteDestructuring_Builder struct {
 	compiler_   *AbstractCompiler
-	rewriteMode *Es6RewriteDestructuring_ObjectDestructuringRewriteMode
+	rewriteMode Es6RewriteDestructuring_ObjectDestructuringRewriteMode
 }
 
 func (this *Es6RewriteDestructuring_Builder) finit_Es6RewriteDestructuring_Builder() {
@@ -679,7 +728,7 @@ func new_Es6RewriteDestructuring_Builder(compiler *AbstractCompiler) *Es6Rewrite
 	return this
 }
 
-func (this *Es6RewriteDestructuring_Builder) setDestructuringRewriteMode(rewriteMode *Es6RewriteDestructuring_ObjectDestructuringRewriteMode) *Es6RewriteDestructuring_Builder {
+func (this *Es6RewriteDestructuring_Builder) setDestructuringRewriteMode(rewriteMode Es6RewriteDestructuring_ObjectDestructuringRewriteMode) *Es6RewriteDestructuring_Builder {
 	this.rewriteMode = rewriteMode
 	return this
 }

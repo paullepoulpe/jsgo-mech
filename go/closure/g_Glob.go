@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Glob struct {
 }
 
@@ -29,8 +31,9 @@ func Glob_matches(glob string, path string) bool {
 func Glob_expandBraces(glob string) *JTList[string] {
 	var result *JTList[string] = jnewTList_(jtc_string)
 	var open int32 = -1
-	for i := int32(0); (i < String_length(glob)) && (open < 0); i++ {
-		var c uint16 = String_charAt(glob, i)
+	globU16 := utf16Of_(glob)
+	for i := int32(0); (i < globU16.length()) && (open < 0); i++ {
+		var c uint16 = globU16.charAt(i)
 		if c == '\\' {
 			i++
 		} else if c == '{' {
@@ -47,8 +50,8 @@ func Glob_expandBraces(glob string) *JTList[string] {
 		result.add(glob)
 		return result
 	}
-	var head string = String_substring(glob, 0, open)
-	var tails *JTList[string] = Glob_expandBraces(String_substring_int(glob, (close_ + 1)))
+	var head string = globU16.substring(0, open)
+	var tails *JTList[string] = Glob_expandBraces(globU16.substring_int((close_ + 1)))
 	var start int32 = (open + 1)
 	for start <= close_ {
 		var comma int32 = Glob_findUnescaped(glob, ',', start)
@@ -61,7 +64,7 @@ func Glob_expandBraces(glob string) *JTList[string] {
 		it_3 := tails.each()
 		for it_3.next() {
 			var tail string = it_3.v
-			result.add((sstr_(head) + sstr_(String_substring(glob, start, end)) + sstr_(tail)))
+			result.add((sstr_(head) + sstr_(globU16.substring(start, end)) + sstr_(tail)))
 		}
 		start = (end + 1)
 	}
@@ -69,10 +72,11 @@ func Glob_expandBraces(glob string) *JTList[string] {
 }
 
 func Glob_findUnescaped(glob string, c uint16, from int32) int32 {
-	for i := int32(from); i < String_length(glob); i++ {
-		if String_charAt(glob, i) == '\\' {
+	globU16 := utf16Of_(glob)
+	for i := int32(from); i < globU16.length(); i++ {
+		if globU16.charAt(i) == '\\' {
 			i++
-		} else if String_charAt(glob, i) == c {
+		} else if globU16.charAt(i) == c {
 			return i
 		}
 	}
@@ -80,14 +84,16 @@ func Glob_findUnescaped(glob string, c uint16, from int32) int32 {
 }
 
 func Glob_matchesWithoutBraces(glob string, path string) bool {
-	var reached []bool = make([]bool, (String_length(path) + 1))
+	pathU16 := utf16Of_(path)
+	var reached []bool = make([]bool, (pathU16.length() + 1))
 	reached[0] = true
 	var i int32 = 0
-	for i < String_length(glob) {
-		var c uint16 = String_charAt(glob, i)
-		var next []bool = make([]bool, (String_length(path) + 1))
+	globU16 := utf16Of_(glob)
+	for i < globU16.length() {
+		var c uint16 = globU16.charAt(i)
+		var next []bool = make([]bool, (pathU16.length() + 1))
 		if c == '*' {
-			var acrossNames bool = (((i + 1) < String_length(glob)) && (String_charAt(glob, (i+1)) == '*'))
+			var acrossNames bool = (((i + 1) < globU16.length()) && (globU16.charAt((i + 1)) == '*'))
 			i += func() int32 {
 				if acrossNames {
 					return 2
@@ -95,8 +101,8 @@ func Glob_matchesWithoutBraces(glob string, path string) bool {
 				return 1
 			}()
 			var open bool = false
-			for p := int32(0); p <= String_length(path); p++ {
-				if ((p > 0) && (String_charAt(path, (p-1)) == '/')) && !acrossNames {
+			for p := int32(0); p <= pathU16.length(); p++ {
+				if ((p > 0) && (pathU16.charAt((p - 1)) == '/')) && !acrossNames {
 					open = false
 				}
 				open = (open || reached[p])
@@ -106,24 +112,24 @@ func Glob_matchesWithoutBraces(glob string, path string) bool {
 			var end int32 = (i + 1)
 			var classClose int32 = func() int32 {
 				if c == '[' {
-					return String_indexOf_int_int(glob, 93, (i + 2))
+					return globU16.indexOf_int_int(93, (i + 2))
 				}
 				return -1
 			}()
 			if classClose >= 0 {
 				end = (classClose + 1)
-			} else if (c == '\\') && ((i + 1) < String_length(glob)) {
+			} else if (c == '\\') && ((i + 1) < globU16.length()) {
 				end = (i + 2)
 			}
-			for p := int32(0); p < String_length(path); p++ {
+			for p, u_ := range stringUnits_(path) {
 				if reached[p] {
-					var actual uint16 = String_charAt(path, p)
+					var actual uint16 = u_
 					if classClose >= 0 {
-						next[(p + 1)] = ((actual != '/') && Glob_classHas(String_substring(glob, (i+1), classClose), actual))
+						next[(p + 1)] = ((actual != '/') && Glob_classHas(globU16.substring((i+1), classClose), actual))
 					} else if c == '?' {
 						next[(p + 1)] = (actual != '/')
 					} else {
-						next[(p + 1)] = (actual == String_charAt(glob, (end-1)))
+						next[(p + 1)] = (actual == globU16.charAt((end - 1)))
 					}
 				}
 			}
@@ -131,11 +137,11 @@ func Glob_matchesWithoutBraces(glob string, path string) bool {
 		}
 		reached = next
 	}
-	return reached[String_length(path)]
+	return reached[pathU16.length()]
 }
 
 func Glob_classHas(body string, c uint16) bool {
-	var negated bool = String_startsWith(body, "!")
+	var negated bool = strings.HasPrefix(body, "!")
 	var found bool = false
 	var i int32 = func() int32 {
 		if negated {
@@ -143,11 +149,12 @@ func Glob_classHas(body string, c uint16) bool {
 		}
 		return 0
 	}()
-	for i < String_length(body) {
-		var low uint16 = String_charAt(body, i)
+	bodyU16 := utf16Of_(body)
+	for i < bodyU16.length() {
+		var low uint16 = bodyU16.charAt(i)
 		var high uint16 = low
-		if ((i + 2) < String_length(body)) && (String_charAt(body, (i+1)) == '-') {
-			high = String_charAt(body, (i + 2))
+		if ((i + 2) < bodyU16.length()) && (bodyU16.charAt((i + 1)) == '-') {
+			high = bodyU16.charAt((i + 2))
 			i += 2
 		}
 		found = (found || ((int32(c) >= int32(low)) && (int32(c) <= int32(high))))

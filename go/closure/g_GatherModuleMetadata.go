@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type GatherModuleMetadata struct {
 	modulesByPath          *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
 	modulesByGoogNamespace *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
@@ -10,7 +12,7 @@ type GatherModuleMetadata struct {
 	loadModuleCall         Node
 	compiler_              *AbstractCompiler
 	processCommonJsModules bool
-	moduleResolutionMode   *ModuleLoader_ResolutionMode
+	moduleResolutionMode   ModuleLoader_ResolutionMode
 }
 
 func (this *GatherModuleMetadata) finit_GatherModuleMetadata() {
@@ -18,39 +20,39 @@ func (this *GatherModuleMetadata) finit_GatherModuleMetadata() {
 	this.modulesByGoogNamespace = jnewTMap_(jtc_string, jtc_p_ModuleMetadataMap_ModuleMetadata)
 }
 
-func (this *GatherModuleMetadata) init_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules bool, moduleResolutionMode *ModuleLoader_ResolutionMode) {
+func (this *GatherModuleMetadata) init_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules bool, moduleResolutionMode ModuleLoader_ResolutionMode) {
 	this.finit_GatherModuleMetadata()
 	this.compiler_ = compiler
 	this.processCommonJsModules = processCommonJsModules
 	this.moduleResolutionMode = moduleResolutionMode
 }
 
-func new_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules bool, moduleResolutionMode *ModuleLoader_ResolutionMode) *GatherModuleMetadata {
+func new_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules bool, moduleResolutionMode ModuleLoader_ResolutionMode) *GatherModuleMetadata {
 	this := &GatherModuleMetadata{}
 	this.init_GatherModuleMetadata(compiler, processCommonJsModules, moduleResolutionMode)
 	return this
 }
 
 func (this *GatherModuleMetadata) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(new_GatherModuleMetadata_Finder(this))))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_GatherModuleMetadata_Finder(this))))
+	NodeTraversal_traverse(this.compiler_, externs, new_GatherModuleMetadata_Finder(this))
+	NodeTraversal_traverse(this.compiler_, root, new_GatherModuleMetadata_Finder(this))
 	this.compiler_.setModuleMetadataMap(new_ModuleMetadataMap(this.modulesByPath.asMap(), this.modulesByGoogNamespace.asMap()))
 }
 
 func GatherModuleMetadata_isValidModuleId(id string) bool {
-	it_1 := foreach_(any(GatherModuleMetadata_DOT_SPLITTER.split(strobj_(id))))
+	it_1 := foreach_(GatherModuleMetadata_DOT_SPLITTER.split_s(id))
 	for it_1.next() {
 		var segment string = str_(it_1.v)
-		if String_isEmpty(segment) {
+		if segment == "" {
 			return false
 		}
-		for i := int32(0); i < String_length(segment); i++ {
-			if !Identifiers_isIdentifierPart(String_charAt(segment, i)) {
+		for _, u_ := range stringUnits_(segment) {
+			if !Identifiers_isIdentifierPart(u_) {
 				return false
 			}
 		}
 	}
-	return GatherModuleMetadata_NAMESPACE_SEGMENT_REGEX.matcher(strobj_(id)).matches()
+	return GatherModuleMetadata_NAMESPACE_SEGMENT_REGEX.matcher_s(id).matches()
 }
 
 var GatherModuleMetadata_MIXED_MODULE_TYPE *DiagnosticType
@@ -124,11 +126,11 @@ type GatherModuleMetadata_ModuleMetadataBuilder struct {
 	declaredModuleId        Node
 	declaresLegacyNamespace Node
 	metadataBuilder         *ModuleMetadataMap_ModuleMetadata_Builder
-	googNamespaces_         *SimpleMultiset
+	googNamespaces_         *SimpleMultiset[any]
 }
 
 func (this *GatherModuleMetadata_ModuleMetadataBuilder) finit_GatherModuleMetadata_ModuleMetadataBuilder() {
-	this.googNamespaces_ = SimpleMultiset_create()
+	this.googNamespaces_ = SimpleMultiset_create[any]()
 }
 
 func (this *GatherModuleMetadata_ModuleMetadataBuilder) init_GatherModuleMetadata_ModuleMetadataBuilder(rootNode Node, path *ModuleLoader_ModulePath) {
@@ -143,8 +145,10 @@ func new_GatherModuleMetadata_ModuleMetadataBuilder(outer_ *GatherModuleMetadata
 	return this
 }
 
-func (this *GatherModuleMetadata_ModuleMetadataBuilder) moduleType(type_ *ModuleMetadataMap_ModuleType, t *NodeTraversal, n Node) {
-	Preconditions_checkNotNull(obj_(type_))
+func (this *GatherModuleMetadata_ModuleMetadataBuilder) moduleType(type_ ModuleMetadataMap_ModuleType, t *NodeTraversal, n Node) {
+	if type_ == 0 {
+		panic(new_NullPointerException_0())
+	}
 	if this.metadataBuilder.moduleType() == type_ {
 		return
 	}
@@ -153,7 +157,7 @@ func (this *GatherModuleMetadata_ModuleMetadataBuilder) moduleType(type_ *Module
 		return
 	}
 	this.ambiguous = true
-	t.report(n, GatherModuleMetadata_MIXED_MODULE_TYPE, []string{this.metadataBuilder.moduleType().description_, type_.description_})
+	t.report(n, GatherModuleMetadata_MIXED_MODULE_TYPE, []string{ModuleMetadataMap_ModuleType_description__[this.metadataBuilder.moduleType()-1], ModuleMetadataMap_ModuleType_description__[type_-1]})
 }
 
 func (this *GatherModuleMetadata_ModuleMetadataBuilder) recordDeclareModuleId(declaredModuleId Node) {
@@ -211,19 +215,19 @@ func new_GatherModuleMetadata_Finder(outer_ *GatherModuleMetadata) *GatherModule
 }
 
 func (this *GatherModuleMetadata_Finder) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		this.enterModule(t, n, t.getInput().getPath())
-	case Token_rhino_IMPORT, Token_rhino_EXPORT:
+	case tokOrd1_IMPORT, tokOrd1_EXPORT:
 		this.visitImportOrExport(t, n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		if n.isCall() && GatherModuleMetadata_GOOG_LOADMODULE.matches(n.getFirstChild()) {
 			this.outer_.loadModuleCall = n
 			this.enterModule(t, n, nil)
 		}
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		this.outer_.currentModule.hasModuleBody = true
-	case Token_rhino_DYNAMIC_IMPORT:
+	case tokOrd1_DYNAMIC_IMPORT:
 		this.visitDynamicImport(n)
 	default:
 	}
@@ -231,16 +235,18 @@ func (this *GatherModuleMetadata_Finder) shouldTraverse(t *NodeTraversal, n Node
 }
 
 func (this *GatherModuleMetadata_Finder) visitImportOrExport(t *NodeTraversal, importOrExport Node) {
-	Preconditions_checkNotNull(obj_(this.outer_.currentModule))
+	if this.outer_.currentModule == nil {
+		panic(new_NullPointerException_0())
+	}
 	this.outer_.currentModule.moduleType(ModuleMetadataMap_ModuleType_ES6_MODULE, t, importOrExport)
 	if importOrExport.isImport() || (importOrExport.hasTwoChildren() && importOrExport.getLastChild().isStringLit()) {
-		this.outer_.currentModule.metadataBuilder.es6ImportSpecifiersBuilder().add(strobj_(importOrExport.getLastChild().getString()))
+		this.outer_.currentModule.metadataBuilder.es6ImportSpecifiersBuilder().add_s(importOrExport.getLastChild().getString())
 	}
 }
 
 func (this *GatherModuleMetadata_Finder) visitDynamicImport(dynamicImport Node) {
 	if dynamicImport.getFirstChild().isStringLit() {
-		this.outer_.currentModule.metadataBuilder.es6ImportSpecifiersBuilder().add(strobj_(dynamicImport.getFirstChild().getString()))
+		this.outer_.currentModule.metadataBuilder.es6ImportSpecifiersBuilder().add_s(dynamicImport.getFirstChild().getString())
 	}
 }
 
@@ -256,18 +262,18 @@ func (this *GatherModuleMetadata_Finder) enterModule(t *NodeTraversal, n Node, p
 }
 
 func (this *GatherModuleMetadata_Finder) leaveModule() {
-	Preconditions_checkNotNull(obj_(this.outer_.currentModule))
+	if this.outer_.currentModule == nil {
+		panic(new_NullPointerException_0())
+	}
 	var module *ModuleMetadataMap_ModuleMetadata = this.outer_.currentModule.build()
 	if module.path() != nil {
 		this.outer_.modulesByPath.put(module.path().toString(), module)
 	}
-	it_1 := foreach_(obj_(module.googNamespaces()))
-	for it_1.next() {
-		var namespace string = str_(it_1.v)
+	for namespace := range elemsBy_(obj_(module.googNamespaces()), str_) {
 		this.outer_.modulesByGoogNamespace.put(namespace, module)
 	}
 	if this.outer_.parentModule != nil {
-		this.outer_.parentModule.metadataBuilder.nestedModulesBuilder().add(obj_(module))
+		this.outer_.parentModule.metadataBuilder.nestedModulesBuilder().add(module)
 	}
 	this.outer_.currentModule = this.outer_.parentModule
 	this.outer_.parentModule = nil
@@ -280,12 +286,12 @@ func (this *GatherModuleMetadata_Finder) visit(t *NodeTraversal, n Node, parent 
 			return
 		}
 	}
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		this.leaveModule()
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		this.visitName(t, n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		if this.outer_.loadModuleCall == n {
 			this.leaveModule()
 			this.outer_.loadModuleCall = 0
@@ -298,7 +304,7 @@ func (this *GatherModuleMetadata_Finder) visit(t *NodeTraversal, n Node, parent 
 
 func (this *GatherModuleMetadata_Finder) isFromGoogImport(goog *Var) bool {
 	var nameNode Node = goog.getNameNode()
-	return (((((nameNode != 0) && nameNode.isImportStar()) && (nameNode.getString() == "goog")) && nameNode.getParent().getFirstChild().isEmpty()) && String_endsWith(nameNode.getParent().getLastChild().getString(), "/goog.js"))
+	return (((((nameNode != 0) && nameNode.isImportStar()) && (nameNode.getString() == "goog")) && nameNode.getParent().getFirstChild().isEmpty()) && strings.HasSuffix(nameNode.getParent().getLastChild().getString(), "/goog.js"))
 }
 
 func (this *GatherModuleMetadata_Finder) visitName(t *NodeTraversal, n Node) {
@@ -337,10 +343,10 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 		return
 	}
 	var root *Var = cast_[*Var](t.getScope().getVar("goog").self())
-	if ((root != nil) && root.isLocal()) && !cast_[*Scope](root.getScope()).isModuleScope() {
+	if ((root != nil) && root.isLocal()) && !root.getScope().(*Scope).isModuleScope() {
 		return
 	}
-	if ((root != nil) && cast_[*Scope](root.getScope()).isModuleScope()) && !this.isFromGoogImport(root) {
+	if ((root != nil) && root.getScope().(*Scope).isModuleScope()) && !this.isFromGoogImport(root) {
 		return
 	}
 	if (root == nil) || (NodeUtil_getEnclosingScript(root.getNameNode()) != NodeUtil_getEnclosingScript(n)) {
@@ -365,7 +371,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 			this.outer_.currentModule.metadataBuilder.usesClosure(false)
 		}
 	} else if getprop.matchesQualifiedNameNode(GatherModuleMetadata_GOOG_MODULE_GET) {
-		if (!n.hasTwoChildren() || !n.getLastChild().isStringLit()) || !String_endsWith(n.getLastChild().getString(), "$2etoggles") {
+		if (!n.hasTwoChildren() || !n.getLastChild().isStringLit()) || !strings.HasSuffix(n.getLastChild().getString(), "$2etoggles") {
 			return
 		}
 		var parent Node = n.getParent()
@@ -390,14 +396,12 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 	} else if getprop.matchesQualifiedNameNode(GatherModuleMetadata_GOOG_REQUIRE) {
 		if n.hasTwoChildren() && n.getLastChild().isStringLit() {
 			var namespace string = n.getLastChild().getString()
-			this.outer_.currentModule.metadataBuilder.stronglyRequiredGoogNamespacesBuilder().add(strobj_(namespace))
-			if String_endsWith(namespace, "$2etoggles") {
+			this.outer_.currentModule.metadataBuilder.stronglyRequiredGoogNamespacesBuilder().add_s(namespace)
+			if strings.HasSuffix(namespace, "$2etoggles") {
 				var callParent Node = n.getParent()
 				var lhs Node = callParent.getFirstChild()
 				if callParent.isDestructuringLhs() {
-					it_2 := foreach_(any(lhs.children()))
-					for it_2.next() {
-						var key Node = Node_of_(it_2.v)
+					for key := range elemsBy_(lhs.children(), Node_of_) {
 						if key.isStringKey() {
 							this.addToggle(t, n, key.getString())
 						} else {
@@ -418,13 +422,13 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 		}
 	} else if getprop.matchesQualifiedNameNode(GatherModuleMetadata_GOOG_REQUIRE_TYPE) {
 		if n.hasTwoChildren() && n.getLastChild().isStringLit() {
-			this.outer_.currentModule.metadataBuilder.weaklyRequiredGoogNamespacesBuilder().add(strobj_(n.getLastChild().getString()))
+			this.outer_.currentModule.metadataBuilder.weaklyRequiredGoogNamespacesBuilder().add_s(n.getLastChild().getString())
 		} else {
 			t.report(n, GatherModuleMetadata_INVALID_REQUIRE_TYPE, []string{})
 		}
 	} else if getprop.matchesQualifiedNameNode(GatherModuleMetadata_GOOG_MAYBE_REQUIRE) {
 		if n.hasTwoChildren() && n.getLastChild().isStringLit() {
-			this.outer_.currentModule.metadataBuilder.maybeRequiredGoogNamespacesBuilder().add(strobj_(n.getLastChild().getString()))
+			this.outer_.currentModule.metadataBuilder.maybeRequiredGoogNamespacesBuilder().add_s(n.getLastChild().getString())
 		} else {
 			t.report(n, GatherModuleMetadata_INVALID_MAYBE_REQUIRE, []string{})
 		}
@@ -436,7 +440,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 		}
 	} else if getprop.matchesQualifiedNameNode(GatherModuleMetadata_GOOG_REQUIRE_DYNAMIC) {
 		if n.hasTwoChildren() && n.getLastChild().isStringLit() {
-			this.outer_.currentModule.metadataBuilder.dynamicallyRequiredGoogNamespacesBuilder().add(strobj_(n.getLastChild().getString()))
+			this.outer_.currentModule.metadataBuilder.dynamicallyRequiredGoogNamespacesBuilder().add_s(n.getLastChild().getString())
 		} else {
 			t.report(n, GatherModuleMetadata_INVALID_REQUIRE_DYNAMIC, []string{})
 		}
@@ -444,28 +448,28 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 }
 
 func (this *GatherModuleMetadata_Finder) addToggle(t *NodeTraversal, n Node, name string) {
-	if String_startsWith(name, GatherModuleMetadata_TOGGLE_NAME_PREFIX) {
-		var toggleName string = String_substring_int(name, String_length(GatherModuleMetadata_TOGGLE_NAME_PREFIX))
-		this.outer_.currentModule.metadataBuilder.readTogglesBuilder().add(strobj_(toggleName))
+	if strings.HasPrefix(name, GatherModuleMetadata_TOGGLE_NAME_PREFIX) {
+		var toggleName string = name[len(GatherModuleMetadata_TOGGLE_NAME_PREFIX):]
+		this.outer_.currentModule.metadataBuilder.readTogglesBuilder().add_s(toggleName)
 	} else {
 		t.report(n, GatherModuleMetadata_INVALID_TOGGLE_USAGE, []string{"all toggle names must start with `TOGGLE_`"})
 	}
 }
 
-func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetadata_ModuleMetadataBuilder, moduleType *ModuleMetadataMap_ModuleType, namespace string, t *NodeTraversal, n Node) {
-	if Object_equals(obj_(moduleType), obj_(ModuleMetadataMap_ModuleType_GOOG_PROVIDE)) || Object_equals(obj_(moduleType), obj_(ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE)) {
+func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetadata_ModuleMetadataBuilder, moduleType ModuleMetadataMap_ModuleType, namespace string, t *NodeTraversal, n Node) {
+	if equalsId_(moduleType, ModuleMetadataMap_ModuleType_GOOG_PROVIDE) || equalsId_(moduleType, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE) {
 		if !NodeUtil_isValidQualifiedName(this.outer_.compiler_.getOptions().getLanguageIn().toFeatureSet(), namespace) {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, GatherModuleMetadata_INVALID_NAMESPACE_OR_MODULE_ID, []string{namespace}))
 		}
 	}
-	if Object_equals(obj_(moduleType), obj_(ModuleMetadataMap_ModuleType_GOOG_MODULE)) || Object_equals(obj_(moduleType), obj_(ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE)) {
+	if equalsId_(moduleType, ModuleMetadataMap_ModuleType_GOOG_MODULE) || equalsId_(moduleType, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE) {
 		if !GatherModuleMetadata_isValidModuleId(namespace) {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, GatherModuleMetadata_INVALID_NAMESPACE_OR_MODULE_ID, []string{namespace}))
 		}
 	}
-	var existingType *ModuleMetadataMap_ModuleType = nil
+	var existingType ModuleMetadataMap_ModuleType = 0
 	var existingFileSource Optional[string] = Optional_empty[string]()
-	if module.googNamespaces_.contains(strobj_(namespace)) {
+	if module.googNamespaces_.contains_s(namespace) {
 		existingType = module.metadataBuilder.moduleType()
 		existingFileSource = t.getSourceName()
 	} else {
@@ -473,16 +477,16 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		if existingModule != nil {
 			existingType = existingModule.moduleType()
 			existingFileSource = Optional_of[string](existingModule.rootNode().getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
-				return !String_isEmpty(s)
+				return s != ""
 			}})
 		}
 	}
-	this.outer_.currentModule.googNamespaces_.add(strobj_(namespace))
-	if existingType != nil {
+	this.outer_.currentModule.googNamespaces_.add_s(namespace)
+	if existingType != 0 {
 		switch existingType {
 		case ModuleMetadataMap_ModuleType_ES6_MODULE, ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 			var diagnostic *DiagnosticType = func() *DiagnosticType {
-				if Object_equals(obj_(moduleType), obj_(ModuleMetadataMap_ModuleType_GOOG_PROVIDE)) {
+				if equalsId_(moduleType, ModuleMetadataMap_ModuleType_GOOG_PROVIDE) {
 					return ClosurePrimitiveErrors_DUPLICATE_NAMESPACE_AND_MODULE
 				}
 				return ClosurePrimitiveErrors_DUPLICATE_MODULE
@@ -491,7 +495,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 			return
 		case ModuleMetadataMap_ModuleType_GOOG_PROVIDE:
 			var diagnostic *DiagnosticType = func() *DiagnosticType {
-				if Object_equals(obj_(moduleType), obj_(ModuleMetadataMap_ModuleType_GOOG_PROVIDE)) {
+				if equalsId_(moduleType, ModuleMetadataMap_ModuleType_GOOG_PROVIDE) {
 					return ClosurePrimitiveErrors_DUPLICATE_NAMESPACE
 				}
 				return ClosurePrimitiveErrors_DUPLICATE_NAMESPACE_AND_MODULE
@@ -500,6 +504,6 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 			return
 		case ModuleMetadataMap_ModuleType_COMMON_JS, ModuleMetadataMap_ModuleType_SCRIPT:
 		}
-		panic(new_IllegalStateException_String(("Unexpected module type: " + objstr_(obj_(existingType)))).self())
+		panic(new_IllegalStateException_String(("Unexpected module type: " + tostr_(existingType))))
 	}
 }

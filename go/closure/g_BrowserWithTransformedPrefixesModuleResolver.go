@@ -2,9 +2,11 @@
 
 package closure
 
+import "strings"
+
 type BrowserWithTransformedPrefixesModuleResolver struct {
 	ModuleResolver
-	prefixReplacements ImmutableSetOf[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement]
+	prefixReplacements *ImmutableSet[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement]
 	expectedPrefixes   string
 }
 
@@ -19,29 +21,27 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) zero_BrowserWithTransf
 	this.expectedPrefixes = nullstr_
 }
 
-func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper, prefixReplacements ImmutableMapOf[string, string]) {
+func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements *ImmutableMap[string, string]) {
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
 	var sortedReplacements *JTList[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement] = jnewTList_(jtc_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement)
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](prefixReplacements.entrySet())))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](prefixReplacements.asImm().entrySet())) {
+		entry := icast_Map_Entry(el)
 		sortedReplacements.add(BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_of(str_(entry.getKey()), str_(entry.getValue())))
 	}
 	List_sort(sortedReplacements.asList(), Comparator_thenComparing(Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement{func(r *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) int32 {
 		return String_length(r.prefix())
 	}})), &Function_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_string{func(p0 *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) string { return p0.prefix() }}))
-	this.prefixReplacements = ImmutableSet_copyOf(Collection(sortedReplacements.asList()))
+	this.prefixReplacements = immutableSetCopyOf_(tch_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement, Collection(sortedReplacements.asList()))
 	var sortedPrefixes *JTList[string] = jnewTList_(jtc_string)
-	it_3 := foreach_(obj_(this.prefixReplacements))
-	for it_3.next() {
-		var replacement *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](it_3.v)
+	for _, el2 := range this.prefixReplacements.keys {
+		replacement := el2
 		sortedPrefixes.add(replacement.prefix())
 	}
 	Collections_sort(sortedPrefixes.asList())
-	this.expectedPrefixes = String_join(strobj_(", "), Iterable(sortedPrefixes.asList()))
+	this.expectedPrefixes = String_join_s(", ", Iterable(sortedPrefixes.asList()))
 }
 
-func new_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper, prefixReplacements ImmutableMapOf[string, string]) *BrowserWithTransformedPrefixesModuleResolver {
+func new_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements *ImmutableMap[string, string]) *BrowserWithTransformedPrefixesModuleResolver {
 	this := &BrowserWithTransformedPrefixesModuleResolver{}
 	this.self_ = this
 	this.zero_BrowserWithTransformedPrefixesModuleResolver()
@@ -54,11 +54,12 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) replacePathPrefixes(mo
 		return Optional_empty[string]()
 	}
 	var transformedAddress string = moduleAddress.get()
-	it_1 := foreach_(obj_(this.prefixReplacements))
-	for it_1.next() {
-		var prefixReplacement *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](it_1.v)
-		if String_startsWith(moduleAddress.get(), prefixReplacement.prefix()) {
-			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(String_substring_int(moduleAddress.get(), String_length(prefixReplacement.prefix()))))
+	var moduleAddressU16 utf16_
+	var prefixU16 utf16_
+	for _, el := range this.prefixReplacements.keys {
+		prefixReplacement := el
+		if strings.HasPrefix(moduleAddress.get(), prefixReplacement.prefix()) {
+			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(moduleAddressU16.of(moduleAddress.get()).substring_int(prefixU16.of(prefixReplacement.prefix()).length())))
 			break
 		}
 	}
@@ -89,11 +90,12 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) resolveModuleAsPath_im
 		return this.ModuleResolver.resolveModuleAsPath_impl(scriptAddress, moduleAddress)
 	}
 	var transformedAddress string = moduleAddress
-	it_1 := foreach_(obj_(this.prefixReplacements))
-	for it_1.next() {
-		var prefixReplacement *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](it_1.v)
-		if String_startsWith(moduleAddress, prefixReplacement.prefix()) {
-			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(String_substring_int(moduleAddress, String_length(prefixReplacement.prefix()))))
+	moduleAddressU16 := utf16Of_(moduleAddress)
+	var prefixU16 utf16_
+	for _, el := range this.prefixReplacements.keys {
+		prefixReplacement := el
+		if strings.HasPrefix(moduleAddress, prefixReplacement.prefix()) {
+			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(moduleAddressU16.substring_int(prefixU16.of(prefixReplacement.prefix()).length())))
 			break
 		}
 	}
@@ -114,20 +116,20 @@ func BrowserWithTransformedPrefixesModuleResolver_clinit() {
 }
 
 type BrowserWithTransformedPrefixesModuleResolver_Factory struct {
-	prefixReplacements ImmutableMapOf[string, string]
+	prefixReplacements *ImmutableMap[string, string]
 }
 
-func (this *BrowserWithTransformedPrefixesModuleResolver_Factory) init_BrowserWithTransformedPrefixesModuleResolver_Factory(prefixReplacements ImmutableMapOf[string, string]) {
+func (this *BrowserWithTransformedPrefixesModuleResolver_Factory) init_BrowserWithTransformedPrefixesModuleResolver_Factory(prefixReplacements *ImmutableMap[string, string]) {
 	this.prefixReplacements = prefixReplacements
 }
 
-func new_BrowserWithTransformedPrefixesModuleResolver_Factory(prefixReplacements ImmutableMapOf[string, string]) *BrowserWithTransformedPrefixesModuleResolver_Factory {
+func new_BrowserWithTransformedPrefixesModuleResolver_Factory(prefixReplacements *ImmutableMap[string, string]) *BrowserWithTransformedPrefixesModuleResolver_Factory {
 	this := &BrowserWithTransformedPrefixesModuleResolver_Factory{}
 	this.init_BrowserWithTransformedPrefixesModuleResolver_Factory(prefixReplacements)
 	return this
 }
 
-func (this *BrowserWithTransformedPrefixesModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *ModuleResolver {
+func (this *BrowserWithTransformedPrefixesModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
 	return new_BrowserWithTransformedPrefixesModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper, this.prefixReplacements).up_ModuleResolver()
 }
 
@@ -175,11 +177,35 @@ func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) equa
 
 func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.prefix_))
-	h = h*31 + Objects_hashCode(strobj_(this.replacement_))
+	h = h*31 + objhashStr_(this.prefix_)
+	h = h*31 + objhashStr_(this.replacement_)
 	return h
 }
 
 func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) toString() string {
-	return "PrefixReplacement[" + "prefix=" + objstr_(strobj_(this.prefix_)) + ", replacement=" + objstr_(strobj_(this.replacement_)) + "]"
+	return "PrefixReplacement[" + "prefix=" + sstr_(this.prefix_) + ", replacement=" + sstr_(this.replacement_) + "]"
+}
+
+// resolveJsModule: an object that is exactly a BrowserWithTransformedPrefixesModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
+func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional[string], p3 int32, p4 int32) Optional[string] {
+	if p, _ := this.self_.(*BrowserWithTransformedPrefixesModuleResolver); p == this {
+		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
+	}
+	return this.self_.resolveJsModule_impl(p0, p1, p2, p3, p4)
+}
+
+// resolveJsModuleSilently: an object that is exactly a BrowserWithTransformedPrefixesModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
+func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional[string] {
+	if p, _ := this.self_.(*BrowserWithTransformedPrefixesModuleResolver); p == this {
+		return this.resolveJsModuleSilently_impl(p0, p1)
+	}
+	return this.self_.resolveJsModuleSilently_impl(p0, p1)
+}
+
+// resolveModuleAsPath: an object that is exactly a BrowserWithTransformedPrefixesModuleResolver calls its resolveModuleAsPath_impl directly (post-flip); others dispatch.
+func (this *BrowserWithTransformedPrefixesModuleResolver) resolveModuleAsPath(p0 string, p1 string) string {
+	if p, _ := this.self_.(*BrowserWithTransformedPrefixesModuleResolver); p == this {
+		return this.resolveModuleAsPath_impl(p0, p1)
+	}
+	return this.self_.resolveModuleAsPath_impl(p0, p1)
 }

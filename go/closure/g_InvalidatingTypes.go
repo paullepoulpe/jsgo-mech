@@ -3,14 +3,14 @@
 package closure
 
 type InvalidatingTypes struct {
-	typeToLocation *SimpleSetMultimap
+	typeToLocation *SimpleSetMultimap[any, Node]
 }
 
-func (this *InvalidatingTypes) init_InvalidatingTypes(typeToLocation *SimpleSetMultimap) {
+func (this *InvalidatingTypes) init_InvalidatingTypes(typeToLocation *SimpleSetMultimap[any, Node]) {
 	this.typeToLocation = typeToLocation
 }
 
-func new_InvalidatingTypes(typeToLocation *SimpleSetMultimap) *InvalidatingTypes {
+func new_InvalidatingTypes(typeToLocation *SimpleSetMultimap[any, Node]) *InvalidatingTypes {
 	this := &InvalidatingTypes{}
 	this.init_InvalidatingTypes(typeToLocation)
 	return this
@@ -23,7 +23,7 @@ func (this *InvalidatingTypes) isInvalidating(type_ *JSType) bool {
 	if type_.isUnionType() {
 		type_ = type_.restrictByNotNullOrUndefined()
 		if type_.isUnionType() {
-			it_1 := foreach_(any(type_.getUnionMembers()))
+			it_1 := foreach_(type_.getUnionMembers())
 			for it_1.next() {
 				var alt *JSType = to_JSType(it_1.v)
 				if this.isInvalidating(alt) {
@@ -43,7 +43,7 @@ func (this *InvalidatingTypes) isInvalidating(type_ *JSType) bool {
 	return (this.typeToLocation.containsKey(objType.self()) || InvalidatingTypes_isAmbiguousOrStructuralType(objType))
 }
 
-func (this *InvalidatingTypes) getMismatchLocations() *SimpleSetMultimap {
+func (this *InvalidatingTypes) getMismatchLocations() *SimpleSetMultimap[any, Node] {
 	return this.typeToLocation
 }
 
@@ -65,7 +65,7 @@ func InvalidatingTypes_isAmbiguousOrStructuralType(type_ *ObjectType) bool {
 	return true
 }
 
-var InvalidatingTypes_ALWAYS_INVALIDATING_TYPES *ImmutableList
+var InvalidatingTypes_ALWAYS_INVALIDATING_TYPES *ImmutableList[JSTypeNative]
 var InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION Node
 
 var InvalidatingTypes_clinit_done bool
@@ -75,18 +75,18 @@ func InvalidatingTypes_clinit() {
 		return
 	}
 	InvalidatingTypes_clinit_done = true
-	InvalidatingTypes_ALWAYS_INVALIDATING_TYPES = ImmutableList_of_Object_Object_Object_Object_Object_Object_Object(obj_(JSTypeNative_FUNCTION_FUNCTION_TYPE), obj_(JSTypeNative_FUNCTION_TYPE), obj_(JSTypeNative_FUNCTION_PROTOTYPE), obj_(JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE), obj_(JSTypeNative_OBJECT_TYPE), obj_(JSTypeNative_OBJECT_PROTOTYPE), obj_(JSTypeNative_OBJECT_FUNCTION_TYPE))
+	InvalidatingTypes_ALWAYS_INVALIDATING_TYPES = immutableListOf_(tc_JSTypeNative, JSTypeNative_FUNCTION_FUNCTION_TYPE, JSTypeNative_FUNCTION_TYPE, JSTypeNative_FUNCTION_PROTOTYPE, JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE, JSTypeNative_OBJECT_TYPE, JSTypeNative_OBJECT_PROTOTYPE, JSTypeNative_OBJECT_FUNCTION_TYPE)
 	InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION = IR_name("alwaysInvalidatingLocation").setStaticSourceFile(icast_StaticSourceFile(obj_(SourceFile_jscomp_fromCode_String_String("InvalidatingTypes_alwaysInvalidatingLocation", ""))))
 
 }
 
 type InvalidatingTypes_Builder struct {
 	registry       *JSTypeRegistry
-	typeToLocation *SimpleSetMultimap
+	typeToLocation *SimpleSetMultimap[any, Node]
 }
 
 func (this *InvalidatingTypes_Builder) finit_InvalidatingTypes_Builder() {
-	this.typeToLocation = SimpleSetMultimap_create()
+	this.typeToLocation = SimpleSetMultimap_create[any, Node]()
 }
 
 func (this *InvalidatingTypes_Builder) init_InvalidatingTypes_Builder(registry *JSTypeRegistry) {
@@ -101,18 +101,15 @@ func new_InvalidatingTypes_Builder(registry *JSTypeRegistry) *InvalidatingTypes_
 }
 
 func (this *InvalidatingTypes_Builder) build() *InvalidatingTypes {
-	it_1 := foreach_(obj_(InvalidatingTypes_ALWAYS_INVALIDATING_TYPES))
-	for it_1.next() {
-		var t *JSTypeNative = cast_[*JSTypeNative](it_1.v)
-		this.typeToLocation.put(this.registry.getNativeType(t).self(), InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION.box_())
+	for _, el := range InvalidatingTypes_ALWAYS_INVALIDATING_TYPES.items {
+		t := el
+		this.typeToLocation.put(this.registry.getNativeType(t).self(), InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION)
 	}
 	return new_InvalidatingTypes(this.typeToLocation.immutableCopy())
 }
 
 func (this *InvalidatingTypes_Builder) addAllTypeMismatches(mismatches IterableOf[*TypeMismatch]) *InvalidatingTypes_Builder {
-	it_1 := foreach_(any(mismatches))
-	for it_1.next() {
-		var mismatch *TypeMismatch = cast_[*TypeMismatch](it_1.v)
+	for mismatch := range elemsAs_[*TypeMismatch](mismatches) {
 		this.addTypeWithReason(mismatch.found(), mismatch.location())
 		this.addTypeWithReason(mismatch.required(), mismatch.location())
 	}
@@ -122,9 +119,7 @@ func (this *InvalidatingTypes_Builder) addAllTypeMismatches(mismatches IterableO
 func (this *InvalidatingTypes_Builder) addTypeWithReason(type_ *JSType, location Node) {
 	type_ = type_.restrictByNotNullOrUndefined()
 	if type_.isUnionType() {
-		it_1 := foreach_(any(type_.getUnionMembers()))
-		for it_1.next() {
-			var alt *JSType = to_JSType(it_1.v)
+		for alt := range elemsBy_(type_.getUnionMembers(), to_JSType) {
 			this.addTypeWithReason(alt, location)
 		}
 		return
@@ -157,5 +152,5 @@ func (this *InvalidatingTypes_Builder) recordTypeWithReason(type_ *ObjectType, l
 	if InvalidatingTypes_isAmbiguousOrStructuralType(type_) {
 		return
 	}
-	this.typeToLocation.put(type_.self(), location.box_())
+	this.typeToLocation.put(type_.self(), location)
 }

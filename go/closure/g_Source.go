@@ -7,8 +7,8 @@ type Source struct {
 	sourceMap_            string
 	sourceUrl_            string
 	sourceMappingUrl_     string
-	runtimes_             ImmutableSetOf[string]
-	loadFlags_            ImmutableMapOf[string, string]
+	runtimes_             *ImmutableSet[string]
+	loadFlags_            *ImmutableMap[string, string]
 	estimatedSize_        int32
 	codeSupplier_         *Source_Lazy
 	originalCodeSupplier_ *Source_Lazy
@@ -21,10 +21,16 @@ func (this *Source) zero_Source() {
 	this.sourceMappingUrl_ = nullstr_
 }
 
-func (this *Source) init_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes ImmutableSetOf[string], loadFlags ImmutableMapOf[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) {
-	Objects_requireNonNull(obj_(runtimes), "runtimes")
-	Objects_requireNonNull(obj_(loadFlags), "loadFlags")
-	Objects_requireNonNull(codeSupplier.self(), "codeSupplier")
+func (this *Source) init_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes *ImmutableSet[string], loadFlags *ImmutableMap[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) {
+	if runtimes == nil {
+		panic(new_NullPointerException_String("runtimes"))
+	}
+	if loadFlags == nil {
+		panic(new_NullPointerException_String("loadFlags"))
+	}
+	if codeSupplier == nil {
+		panic(new_NullPointerException_String("codeSupplier"))
+	}
 	this.path_ = path
 	this.sourceMap_ = sourceMap
 	this.sourceUrl_ = sourceUrl
@@ -36,7 +42,7 @@ func (this *Source) init_Source(path string, sourceMap string, sourceUrl string,
 	this.originalCodeSupplier_ = originalCodeSupplier
 }
 
-func new_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes ImmutableSetOf[string], loadFlags ImmutableMapOf[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) *Source {
+func new_Source(path string, sourceMap string, sourceUrl string, sourceMappingUrl string, runtimes *ImmutableSet[string], loadFlags *ImmutableMap[string, string], estimatedSize int32, codeSupplier *Source_Lazy, originalCodeSupplier *Source_Lazy) *Source {
 	this := &Source{}
 	this.zero_Source()
 	this.init_Source(path, sourceMap, sourceUrl, sourceMappingUrl, runtimes, loadFlags, estimatedSize, codeSupplier, originalCodeSupplier)
@@ -44,7 +50,7 @@ func new_Source(path string, sourceMap string, sourceUrl string, sourceMappingUr
 }
 
 func (this *Source) toString() string {
-	return ("Source{path=" + sstr_(this.path_) + ", sourceMap=" + sstr_(this.sourceMap_) + ", sourceUrl=" + sstr_(this.sourceUrl_) + ", sourceMappingUrl=" + sstr_(this.sourceMappingUrl_) + ", runtimes=" + objstr_(obj_(this.runtimes_)) + ", loadFlags=" + objstr_(obj_(this.loadFlags_)) + ", estimatedSize=" + istr_(int64(this.estimatedSize_)) + ", codeSupplier=" + objstr_(this.codeSupplier_.self()) + ", originalCodeSupplier=" + objstr_(this.originalCodeSupplier_.self()) + "}")
+	return ("Source{path=" + sstr_(this.path_) + ", sourceMap=" + sstr_(this.sourceMap_) + ", sourceUrl=" + sstr_(this.sourceUrl_) + ", sourceMappingUrl=" + sstr_(this.sourceMappingUrl_) + ", runtimes=" + tostr_(this.runtimes_.asImm()) + ", loadFlags=" + tostr_(this.loadFlags_.asImm()) + ", estimatedSize=" + istr_(int64(this.estimatedSize_)) + ", codeSupplier=" + objstr_(this.codeSupplier_.self()) + ", originalCodeSupplier=" + objstr_(this.originalCodeSupplier_.self()) + "}")
 }
 
 func (this *Source) code() string {
@@ -60,7 +66,7 @@ func (this *Source) toBuilder() *Source_Builder {
 }
 
 func Source_builder() *Source_Builder {
-	return new_Source_Builder_0().setPath(Source_DEV_NULL).setCode("").setOriginalCodeSupplier(nil).setSourceMap("").setSourceUrl("").setSourceMappingUrl("").setRuntimes(ImmutableSet_of()).setLoadFlags(ImmutableMap_of()).setEstimatedSize(0)
+	return new_Source_Builder_0().setPath(Source_DEV_NULL).setCode("").setOriginalCodeSupplier(nil).setSourceMap("").setSourceUrl("").setSourceMappingUrl("").setRuntimes(immutableSetOf_(tc_string)).setLoadFlags(immutableMapOf_(tc_string, tc_string, []string{}, []string{})).setEstimatedSize(0)
 }
 
 func (this *Source) path() string {
@@ -79,11 +85,11 @@ func (this *Source) sourceMappingUrl() string {
 	return this.sourceMappingUrl_
 }
 
-func (this *Source) runtimes() *ImmutableSet {
+func (this *Source) runtimes() *ImmutableSet[string] {
 	return this.runtimes_
 }
 
-func (this *Source) loadFlags() *ImmutableMap {
+func (this *Source) loadFlags() *ImmutableMap[string, string] {
 	return this.loadFlags_
 }
 
@@ -104,20 +110,20 @@ func (this *Source) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.path_ == o.path_ && this.sourceMap_ == o.sourceMap_ && this.sourceUrl_ == o.sourceUrl_ && this.sourceMappingUrl_ == o.sourceMappingUrl_ && Objects_equals(obj_(this.runtimes_), obj_(o.runtimes_)) && Objects_equals(obj_(this.loadFlags_), obj_(o.loadFlags_)) && this.estimatedSize_ == o.estimatedSize_ && Objects_equals(this.codeSupplier_.self(), o.codeSupplier_.self()) && Objects_equals(this.originalCodeSupplier_.self(), o.originalCodeSupplier_.self())
+	return true && this.path_ == o.path_ && this.sourceMap_ == o.sourceMap_ && this.sourceUrl_ == o.sourceUrl_ && this.sourceMappingUrl_ == o.sourceMappingUrl_ && tsetEq_(this.runtimes_, o.runtimes_, true) && tmapEq_(this.loadFlags_, o.loadFlags_, true) && this.estimatedSize_ == o.estimatedSize_ && objequalsBy_(this.codeSupplier_, o.codeSupplier_.self(), (*Source_Lazy).equals) && objequalsBy_(this.originalCodeSupplier_, o.originalCodeSupplier_.self(), (*Source_Lazy).equals)
 }
 
 func (this *Source) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.path_))
-	h = h*31 + Objects_hashCode(strobj_(this.sourceMap_))
-	h = h*31 + Objects_hashCode(strobj_(this.sourceUrl_))
-	h = h*31 + Objects_hashCode(strobj_(this.sourceMappingUrl_))
-	h = h*31 + Objects_hashCode(obj_(this.runtimes_))
-	h = h*31 + Objects_hashCode(obj_(this.loadFlags_))
-	h = h*31 + Objects_hashCode(any(int32(this.estimatedSize_)))
-	h = h*31 + Objects_hashCode(this.codeSupplier_.self())
-	h = h*31 + Objects_hashCode(this.originalCodeSupplier_.self())
+	h = h*31 + objhashStr_(this.path_)
+	h = h*31 + objhashStr_(this.sourceMap_)
+	h = h*31 + objhashStr_(this.sourceUrl_)
+	h = h*31 + objhashStr_(this.sourceMappingUrl_)
+	h = h*31 + tsetHash_(this.runtimes_, true)
+	h = h*31 + tmapHash_(this.loadFlags_, true)
+	h = h*31 + int32(this.estimatedSize_)
+	h = h*31 + objhashBy_(this.codeSupplier_, (*Source_Lazy).hashCode)
+	h = h*31 + objhashBy_(this.originalCodeSupplier_, (*Source_Lazy).hashCode)
 	return h
 }
 
@@ -128,8 +134,8 @@ type Source_Builder struct {
 	sourceMap_                Optional[string]
 	sourceUrl_                Optional[string]
 	sourceMappingUrl_         Optional[string]
-	runtimesField             ImmutableSetOf[string]
-	loadFlags_                ImmutableMapOf[string, string]
+	runtimesField             *ImmutableSet[string]
+	loadFlags_                *ImmutableMap[string, string]
 	estimatedSize_            int32
 	codeSupplierField         *Source_Lazy
 	originalCodeSupplierField *Source_Lazy
@@ -193,17 +199,17 @@ func (this *Source_Builder) setSourceMappingUrl(sourceMappingUrl string) *Source
 	return this
 }
 
-func (this *Source_Builder) setRuntimes(runtimes ImmutableSetOf[string]) *Source_Builder {
+func (this *Source_Builder) setRuntimes(runtimes *ImmutableSet[string]) *Source_Builder {
 	if runtimes == nil {
-		panic(new_NullPointerException_String("Null runtimes").self())
+		panic(new_NullPointerException_String("Null runtimes"))
 	}
 	this.runtimesField = runtimes
 	return this
 }
 
-func (this *Source_Builder) setLoadFlags(flags ImmutableMapOf[string, string]) *Source_Builder {
+func (this *Source_Builder) setLoadFlags(flags *ImmutableMap[string, string]) *Source_Builder {
 	if flags == nil {
-		panic(new_NullPointerException_String("Null loadFlags").self())
+		panic(new_NullPointerException_String("Null loadFlags"))
 	}
 	this.loadFlags_ = flags
 	return this
@@ -215,20 +221,20 @@ func (this *Source_Builder) setEstimatedSize(estimatedSize int32) *Source_Builde
 	return this
 }
 
-func (this *Source_Builder) setCodeFromSupplier(code Supplier_baseOf[string]) *Source_Builder {
+func (this *Source_Builder) setCodeFromSupplier(code func() any) *Source_Builder {
 	return this.setCodeSupplier(Source_Lazy_memoize(code))
 }
 
 func (this *Source_Builder) setCode(code string) *Source_Builder {
-	return this.setCodeSupplier(Source_Lazy_ofInstance(strobj_(code)))
+	return this.setCodeSupplier(Source_Lazy_ofInstance(code))
 }
 
 func (this *Source_Builder) setOriginalCode(code string) *Source_Builder {
-	return this.setOriginalCodeSupplier(Source_Lazy_ofInstance(strobj_(code)))
+	return this.setOriginalCodeSupplier(Source_Lazy_ofInstance(code))
 }
 
 func (this *Source_Builder) addRuntime(runtimes []string) *Source_Builder {
-	return this.setRuntimes(cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(this.runtimes()))))).add_ObjectArr(arrmap_(runtimes, func(v_ string) any { return strobj_(v_) })))).build())))
+	return this.setRuntimes(tsetFrom_(tc_string, ImmutableSet_builder().addAll(icast_Iterable(obj_(this.runtimes().asImm()))).add_ObjectArr(arrmap_(runtimes, func(v_ string) any { return strobj_(v_) })).build(), true))
 }
 
 func (this *Source_Builder) setDependencyInfo(info DependencyInfo) *Source_Builder {
@@ -244,7 +250,7 @@ func (this *Source_Builder) build() *Source {
 
 func (this *Source_Builder) setCodeSupplier(code *Source_Lazy) *Source_Builder {
 	if code == nil {
-		panic(new_NullPointerException_String("Null codeSupplier").self())
+		panic(new_NullPointerException_String("Null codeSupplier"))
 	}
 	this.codeSupplierField = code
 	return this
@@ -255,23 +261,23 @@ func (this *Source_Builder) setOriginalCodeSupplier(code *Source_Lazy) *Source_B
 	return this
 }
 
-func (this *Source_Builder) runtimes() ImmutableSetOf[string] {
+func (this *Source_Builder) runtimes() *ImmutableSet[string] {
 	if this.runtimesField == nil {
-		panic(new_IllegalStateException_String("Property \"runtimes\" has not been set").self())
+		panic(new_IllegalStateException_String("Property \"runtimes\" has not been set"))
 	}
 	return this.runtimesField
 }
 
 func (this *Source_Builder) codeSupplier() *Source_Lazy {
 	if this.codeSupplierField == nil {
-		panic(new_IllegalStateException_String("Property \"codeSupplier\" has not been set").self())
+		panic(new_IllegalStateException_String("Property \"codeSupplier\" has not been set"))
 	}
 	return this.codeSupplierField
 }
 
 func (this *Source_Builder) autoBuild() *Source {
 	if (((((((int32(this.set0) != 1) || this.path_.isEmpty()) || this.sourceMap_.isEmpty()) || this.sourceUrl_.isEmpty()) || this.sourceMappingUrl_.isEmpty()) || (this.runtimesField == nil)) || (this.loadFlags_ == nil)) || (this.codeSupplierField == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.path_.isEmpty() {
 			missing.append(" path")
 		}
@@ -296,7 +302,7 @@ func (this *Source_Builder) autoBuild() *Source {
 		if this.codeSupplierField == nil {
 			missing.append(" codeSupplier")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_Source(this.path_.get(), this.sourceMap_.get(), this.sourceUrl_.get(), this.sourceMappingUrl_.get(), this.runtimesField, this.loadFlags_, this.estimatedSize_, this.codeSupplierField, this.originalCodeSupplierField)
 }
@@ -332,15 +338,18 @@ func (this *Source_Transformer_fn) compose(p0 Source_Transformer) Source_Transfo
 	return Source_Transformer_compose_default(this, p0)
 }
 
-func Source_Transformer_of(function FunctionOf[*Source, *Source]) Source_Transformer {
-	return &Source_Transformer_fn{func(p0 *Source) *Source { return cast_[*Source](function.apply(obj_(p0))) }}
+func Source_Transformer_of(function func(any) any) Source_Transformer {
+	return &Source_Transformer_fn{func(p0 *Source) *Source { return cast_[*Source](function(obj_(p0))) }}
 }
 
 func Source_Transformer_identity() Source_Transformer {
-	return &Source_Transformer_fn{func(x *Source) *Source {
-		return x
-	}}
+	return lambda_Source_Transformer_identity_1_
 }
+
+// lambda_Source_Transformer_identity_1_ is a lambda of Source_Transformer_identity that captures nothing (post-flip step lambdas).
+var lambda_Source_Transformer_identity_1_ = &Source_Transformer_fn{func(x *Source) *Source {
+	return x
+}}
 
 func Source_Transformer_asFunction_default(this Source_Transformer) FunctionOf[*Source, *Source] {
 	return &Function_tfn_Source_Source{func(p0 *Source) *Source { return this.transform(p0) }}
@@ -361,20 +370,37 @@ func Source_Transformer_compose_default(this Source_Transformer, before Source_T
 }
 
 type Source_Lazy struct {
-	self_ any
+	self_ Source_Lazy_I
+}
+
+// Source_Lazy_I holds the methods the dispatchers of Source_Lazy's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type Source_Lazy_I interface {
+	get_impl() any
+}
+
+// Source_Lazy_as is implemented by Source_Lazy and the classes that extend it: a cast to Source_Lazy asserts to it
+// (post-flip).
+type Source_Lazy_as interface {
+	as_Source_Lazy() *Source_Lazy
 }
 
 func (this *Source_Lazy) as_Source_Lazy() *Source_Lazy { return this }
 
 func to_Source_Lazy(v any) *Source_Lazy {
-	if v == nil {
+	switch p := v.(type) {
+	case *Source_Lazy_1:
+		return p.as_Source_Lazy()
+	case *Source_Lazy_2:
+		return p.as_Source_Lazy()
+	case nil:
 		return nil
 	}
-	return v.(interface{ as_Source_Lazy() *Source_Lazy }).as_Source_Lazy()
+	return v.(Source_Lazy_as).as_Source_Lazy()
 }
 
 func is_Source_Lazy(v any) bool {
-	_, ok := v.(interface{ as_Source_Lazy() *Source_Lazy })
+	_, ok := v.(Source_Lazy_as)
 	return ok
 }
 
@@ -397,17 +423,17 @@ func (this *Source_Lazy) hashCode() int32 {
 	return Objects_hashCode(this.get())
 }
 
-func Source_Lazy_ofInstance(instance any) *Source_Lazy {
-	return new_Source_Lazy_1(instance).up_Source_Lazy()
+func Source_Lazy_ofInstance(instance string) *Source_Lazy {
+	return new_Source_Lazy_1(strobj_(instance)).up_Source_Lazy()
 }
 
-func Source_Lazy_memoize(supplier Supplier_baseOf[any]) *Source_Lazy {
-	var memoized Supplier_baseOf[any] = Suppliers_memoize(supplier)
+func Source_Lazy_memoize(supplier func() any) *Source_Lazy {
+	var memoized Supplier_baseOf[any] = Suppliers_memoize_f(supplier)
 	return new_Source_Lazy_2(memoized).up_Source_Lazy()
 }
 
 func (this *Source_Lazy) get() any {
-	return this.self_.(interface{ get_impl() any }).get_impl()
+	return this.self_.get_impl()
 }
 
 type Source_Lazy_1 struct {
@@ -464,4 +490,20 @@ func new_Source_Lazy_2(cap_memoized Supplier_base) *Source_Lazy_2 {
 
 func (this *Source_Lazy_2) get_impl() any {
 	return this.cap_memoized.get()
+}
+
+// get: an object that is exactly a Source_Lazy_1 calls its get_impl directly (post-flip); others dispatch.
+func (this *Source_Lazy_1) get() any {
+	if p, _ := this.self_.(*Source_Lazy_1); p == this {
+		return this.get_impl()
+	}
+	return this.self_.get_impl()
+}
+
+// get: an object that is exactly a Source_Lazy_2 calls its get_impl directly (post-flip); others dispatch.
+func (this *Source_Lazy_2) get() any {
+	if p, _ := this.self_.(*Source_Lazy_2); p == this {
+		return this.get_impl()
+	}
+	return this.self_.get_impl()
 }

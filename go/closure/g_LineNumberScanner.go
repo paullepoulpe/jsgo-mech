@@ -36,7 +36,9 @@ func new_LineNumberScanner(sourceFile *SourceFile_parser) *LineNumberScanner {
 }
 
 func (this *LineNumberScanner) getSourcePosition(offset int32) *SourcePosition_util {
-	Preconditions_checkArgument_boolean_String_int_int((offset >= this.lastLineStart), "Must call rewindTo before calling getSourcePosition for an earlier line (%s < %s)", offset, this.lastLineStart)
+	if offset < this.lastLineStart {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Must call rewindTo before calling getSourcePosition for an earlier line (%s < %s)", []any{offset, this.lastLineStart})))
+	}
 	for offset >= this.nextLineStart {
 		this.advanceLine()
 	}
@@ -48,7 +50,9 @@ func (this *LineNumberScanner) getSourceRange(startOffset int32, endOffset int32
 }
 
 func (this *LineNumberScanner) rewindTo(position *SourcePosition_util) {
-	Preconditions_checkArgument(Objects_equals(obj_(position.source), obj_(this.sourceFile)))
+	if position.source != this.sourceFile {
+		panic(new_IllegalArgumentException_0())
+	}
 	if position.offset < this.lastLineStart {
 		this.lastLine = (position.line_ - 1)
 		this.nextLineStart = (position.offset - position.column_)
@@ -59,10 +63,11 @@ func (this *LineNumberScanner) rewindTo(position *SourcePosition_util) {
 func (this *LineNumberScanner) advanceLine() {
 	this.lastLine++
 	this.lastLineStart = this.nextLineStart
+	contentsU16 := utf16Of_(this.contents)
 	for index := int32(this.lastLineStart); index < this.sourceLength; index++ {
-		var ch uint16 = String_charAt(this.contents, index)
+		var ch uint16 = contentsU16.charAt(index)
 		if LineNumberScanner_isLineTerminator(ch) {
-			if ((ch == '\r') && ((index + 1) < this.sourceLength)) && (String_charAt(this.contents, (index+1)) == '\n') {
+			if ((ch == '\r') && ((index + 1) < this.sourceLength)) && (contentsU16.charAt((index + 1)) == '\n') {
 				index++
 			}
 			this.nextLineStart = (index + 1)
@@ -80,6 +85,5 @@ func LineNumberScanner_isLineTerminator(ch uint16) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }

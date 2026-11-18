@@ -3,9 +3,21 @@
 package closure
 
 type Token_parser struct {
-	self_     any
+	self_     Token_parser_I
 	location_ *SourceRange
-	type__    *TokenType
+	type__    TokenType
+}
+
+// Token_parser_I holds the methods the dispatchers of Token_parser's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type Token_parser_I interface {
+	toString_impl() string
+}
+
+// Token_parser_as is implemented by Token_parser and the classes that extend it: a cast to Token_parser asserts to it
+// (post-flip).
+type Token_parser_as interface {
+	as_Token_parser() *Token_parser
 }
 
 func (this *Token_parser) as_Token_parser() *Token_parser { return this }
@@ -14,12 +26,7 @@ func to_Token_parser(v any) *Token_parser {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Token_parser() *Token_parser }).as_Token_parser()
-}
-
-func is_Token_parser(v any) bool {
-	_, ok := v.(interface{ as_Token_parser() *Token_parser })
-	return ok
+	return v.(Token_parser_as).as_Token_parser()
 }
 
 func (this *Token_parser) self() any {
@@ -29,12 +36,12 @@ func (this *Token_parser) self() any {
 	return this.self_
 }
 
-func (this *Token_parser) init_Token_parser(type_ *TokenType, location *SourceRange) {
+func (this *Token_parser) init_Token_parser(type_ TokenType, location *SourceRange) {
 	this.type__ = type_
 	this.location_ = location
 }
 
-func new_Token_parser(type_ *TokenType, location *SourceRange) *Token_parser {
+func new_Token_parser(type_ TokenType, location *SourceRange) *Token_parser {
 	this := &Token_parser{}
 	this.self_ = this
 	this.init_Token_parser(type_, location)
@@ -50,7 +57,7 @@ func (this *Token_parser) toString_impl() string {
 }
 
 func (this *Token_parser) asIdentifier() *IdentifierToken {
-	return cast_[*IdentifierToken](this.self())
+	return this.self().(*IdentifierToken)
 }
 
 func (this *Token_parser) asLiteral() *LiteralToken {
@@ -58,9 +65,9 @@ func (this *Token_parser) asLiteral() *LiteralToken {
 }
 
 func (this *Token_parser) asTemplateLiteral() *TemplateLiteralToken {
-	return cast_[*TemplateLiteralToken](this.self())
+	return this.self().(*TemplateLiteralToken)
 }
 
 func (this *Token_parser) toString() string {
-	return this.self_.(interface{ toString_impl() string }).toString_impl()
+	return this.self_.toString_impl()
 }

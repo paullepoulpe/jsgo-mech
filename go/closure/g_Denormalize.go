@@ -19,9 +19,9 @@ func new_Denormalize(compiler *AbstractCompiler, outputFeatureSet *FeatureSet) *
 }
 
 func (this *Denormalize) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	if this.compiler_.getOptions().getSyntheticBlockStartMarker().isEmpty() {
-		new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, icast_ReferenceCollector_Behavior(any(this)), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))).process(root)
+		new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, this, new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)).process(root)
 	}
 }
 
@@ -33,18 +33,14 @@ func (this *Denormalize) afterExitScope(t *NodeTraversal, referenceMap Reference
 	var scopeRoot Node = t.getScopeRoot()
 	if scopeRoot.isBlock() && scopeRoot.getParent().isFunction() {
 		var changed bool = false
-		it_1 := foreach_(any(t.getScope().getVarIterable()))
-		for it_1.next() {
-			var v *Var = cast_[*Var](it_1.v)
+		for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
 			var references *ReferenceCollection = referenceMap.getReferences_Var(v)
 			var declaration *Reference = nil
 			var assign *Reference = nil
-			it_3 := foreach_(obj_(references))
-			for it_3.next() {
-				var r *Reference = cast_[*Reference](it_3.v)
+			for r := range elemsAs_[*Reference](obj_(references)) {
 				if (r.isVarDeclaration() && NodeUtil_isStatement(r.getNode().getParent())) && !r.isInitializingDeclaration() {
 					declaration = r
-				} else if ((assign == nil) && r.isSimpleAssignmentToName()) && Object_equals(obj_(cast_[*Scope](r.getScope().getClosestHoistScope().self())), obj_(t.getScope())) {
+				} else if ((assign == nil) && r.isSimpleAssignmentToName()) && equalsId_(cast_[*Scope](r.getScope().getClosestHoistScope().self()), t.getScope()) {
 					assign = r
 				}
 			}
@@ -55,7 +51,9 @@ func (this *Denormalize) afterExitScope(t *NodeTraversal, referenceMap Reference
 					var rhs Node = lhs.getNext()
 					assignNode.getParent().replaceWith(IR_var_Node_Node(lhs.detach(), rhs.detach()))
 					var var_ Node = declaration.getNode().getParent()
-					Preconditions_checkState_boolean_Object(var_.isVar(), var_.box_())
+					if !var_.isVar() {
+						panic(new_IllegalStateException_String(tostr_(var_)))
+					}
 					NodeUtil_removeChild(var_, declaration.getNode())
 					changed = true
 				}
@@ -95,7 +93,7 @@ func (this *Denormalize) maybeCollapseIntoForStatements(n Node, parent Node) {
 			}
 		}
 	} else if nextSibling.isVanillaFor() && nextSibling.getFirstChild().isEmpty() {
-		if NodeUtil_has(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isIn() }}, Predicates_alwaysTrue()) {
+		if NodeUtil_has(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isIn() }}).apply, Predicates_alwaysTrue()) {
 			return
 		}
 		var forNode Node = nextSibling
@@ -105,7 +103,9 @@ func (this *Denormalize) maybeCollapseIntoForStatements(n Node, parent Node) {
 		if n.isVar() {
 			newInitializer = n
 		} else {
-			Preconditions_checkState_boolean_Object(n.hasOneChild(), n.box_())
+			if !n.hasOneChild() {
+				panic(new_IllegalStateException_String(tostr_(n)))
+			}
 			newInitializer = n.getFirstChild()
 			newInitializer.detach()
 		}
@@ -119,7 +119,7 @@ func (this *Denormalize) maybeCollapseAssignShorthand(n Node, parent Node) {
 		return
 	}
 	var op Node = n.getLastChild()
-	var assignOp *Token_rhino = this.getAssignOpFromOp(op)
+	var assignOp Token_rhino = this.getAssignOpFromOp(op)
 	if n.getFirstChild().getString() == op.getFirstChild().getString() {
 		op.setToken(assignOp)
 		var opDetached Node = op.detach()
@@ -134,7 +134,7 @@ func (this *Denormalize) maybeCollapseLogicalAssignShorthand(t *NodeTraversal, n
 		return
 	}
 	var op Node = n.getLastChild()
-	var assignOp *Token_rhino = this.getAssignOpFromOp(n)
+	var assignOp Token_rhino = this.getAssignOpFromOp(n)
 	if n.getFirstChild().getString() == op.getFirstChild().getString() {
 		op.setToken(assignOp)
 		var opDetached Node = op.detach()
@@ -153,62 +153,60 @@ func (this *Denormalize) isCollapsableLogicalAssign(n Node) bool {
 	return ((((this.outputFeatureSet.has(FeatureSet_Feature_LOGICAL_ASSIGNMENT) && ((n.isOr() || n.isAnd()) || n.isNullishCoalesce())) && n.getFirstChild().isName()) && n.getLastChild().isAssign()) && n.getLastChild().getFirstChild().isName())
 }
 
-func (this *Denormalize) getAssignOpFromOp(n Node) *Token_rhino {
-	return func() *Token_rhino {
-		switch n.getToken() {
-		case Token_rhino_BITOR:
+func (this *Denormalize) getAssignOpFromOp(n Node) Token_rhino {
+	return func() Token_rhino {
+		switch n.ns_().token {
+		case tokOrd1_BITOR:
 			return Token_rhino_ASSIGN_BITOR
-		case Token_rhino_BITXOR:
+		case tokOrd1_BITXOR:
 			return Token_rhino_ASSIGN_BITXOR
-		case Token_rhino_BITAND:
+		case tokOrd1_BITAND:
 			return Token_rhino_ASSIGN_BITAND
-		case Token_rhino_LSH:
+		case tokOrd1_LSH:
 			return Token_rhino_ASSIGN_LSH
-		case Token_rhino_RSH:
+		case tokOrd1_RSH:
 			return Token_rhino_ASSIGN_RSH
-		case Token_rhino_URSH:
+		case tokOrd1_URSH:
 			return Token_rhino_ASSIGN_URSH
-		case Token_rhino_ADD:
+		case tokOrd1_ADD:
 			return Token_rhino_ASSIGN_ADD
-		case Token_rhino_SUB:
+		case tokOrd1_SUB:
 			return Token_rhino_ASSIGN_SUB
-		case Token_rhino_MUL:
+		case tokOrd1_MUL:
 			return Token_rhino_ASSIGN_MUL
-		case Token_rhino_EXPONENT:
+		case tokOrd1_EXPONENT:
 			return Token_rhino_ASSIGN_EXPONENT
-		case Token_rhino_DIV:
+		case tokOrd1_DIV:
 			return Token_rhino_ASSIGN_DIV
-		case Token_rhino_MOD:
+		case tokOrd1_MOD:
 			return Token_rhino_ASSIGN_MOD
-		case Token_rhino_OR:
+		case tokOrd1_OR:
 			return Token_rhino_ASSIGN_OR
-		case Token_rhino_AND:
+		case tokOrd1_AND:
 			return Token_rhino_ASSIGN_AND
-		case Token_rhino_COALESCE:
+		case tokOrd1_COALESCE:
 			return Token_rhino_ASSIGN_COALESCE
 		default:
-			panic(new_IllegalStateException_String(("Unexpected operator: " + objstr_(n.box_()))).self())
+			panic(new_IllegalStateException_String(("Unexpected operator: " + tostr_(n))))
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *Denormalize) hasCorrespondingAssignmentOp(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_LSH, Token_rhino_RSH, Token_rhino_URSH, Token_rhino_ADD, Token_rhino_SUB, Token_rhino_MUL, Token_rhino_DIV, Token_rhino_MOD:
+		switch n.ns_().token {
+		case tokOrd1_BITOR, tokOrd1_BITXOR, tokOrd1_BITAND, tokOrd1_LSH, tokOrd1_RSH, tokOrd1_URSH, tokOrd1_ADD, tokOrd1_SUB, tokOrd1_MUL, tokOrd1_DIV, tokOrd1_MOD:
 			return true
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *Denormalize) beforeTraverseNode(p0 *NodeTraversal, p1 Node, p2 Node) {
-	ReferenceCollector_Behavior_beforeTraverseNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2)
+	ReferenceCollector_Behavior_beforeTraverseNode_default(this, p0, p1, p2)
 }
 
 func (this *Denormalize) afterVisitNode(p0 *NodeTraversal, p1 Node, p2 Node, p3 *Reference) {
-	ReferenceCollector_Behavior_afterVisitNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2, p3)
+	ReferenceCollector_Behavior_afterVisitNode_default(this, p0, p1, p2, p3)
 }

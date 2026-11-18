@@ -4,12 +4,12 @@ package closure
 
 type CheckNoMutatedEs6Exports struct {
 	compiler_          *AbstractCompiler
-	mutatedNames       *SimpleSetMultimap
+	mutatedNames       *SimpleSetMultimap[any, Node]
 	exportedLocalNames *JTSet[string]
 }
 
 func (this *CheckNoMutatedEs6Exports) finit_CheckNoMutatedEs6Exports() {
-	this.mutatedNames = SimpleSetMultimap_create()
+	this.mutatedNames = SimpleSetMultimap_create[any, Node]()
 	this.exportedLocalNames = jnewTSet_(jtc_string)
 }
 
@@ -25,13 +25,9 @@ func new_CheckNoMutatedEs6Exports(compiler *AbstractCompiler) *CheckNoMutatedEs6
 }
 
 func (this *CheckNoMutatedEs6Exports) checkNoMutations() {
-	var mutatedExports SetOf[string] = icast_Set(obj_(Sets_intersection(this.mutatedNames.keySet(), this.exportedLocalNames.asSet())))
-	it_1 := foreach_(any(mutatedExports))
-	for it_1.next() {
-		var mutatedExport string = str_(it_1.v)
-		it_3 := foreach_(any(this.mutatedNames.get(strobj_(mutatedExport))))
-		for it_3.next() {
-			var mutation Node = Node_of_(it_3.v)
+	var mutatedExports SetOf[string] = Sets_intersection(this.mutatedNames.keySet(), this.exportedLocalNames.asSet())
+	for mutatedExport := range elemsBy_(mutatedExports, str_) {
+		for mutation := range elemsBy_(this.mutatedNames.get_s(mutatedExport), Node_of_) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(mutation, CheckNoMutatedEs6Exports_MUTATED_EXPORT, []string{mutatedExport}))
 		}
 	}
@@ -47,19 +43,18 @@ func (this *CheckNoMutatedEs6Exports) visit(t *NodeTraversal, n Node, parent Nod
 
 func (this *CheckNoMutatedEs6Exports) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_SCRIPT:
+		switch n.ns_().token {
+		case tokOrd1_SCRIPT:
 			return n.getBooleanProp(Node_ES6_MODULE)
-		case Token_rhino_EXPORT:
+		case tokOrd1_EXPORT:
 			this.visitExport(n)
 			return true
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			this.visitName(t, n)
 			return true
 		default:
 			return true
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -68,27 +63,33 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 		{
 			var exportSpec Node = export.getFirstFirstChild()
 			for ; exportSpec != 0; exportSpec = exportSpec.getNext() {
-				Preconditions_checkState(exportSpec.hasTwoChildren())
+				if !exportSpec.hasTwoChildren() {
+					panic(new_IllegalStateException_0())
+				}
 				this.exportedLocalNames.add(exportSpec.getFirstChild().getString())
 			}
 		}
 	} else if export.hasOneChild() && !export.getBooleanProp(Node_EXPORT_ALL_FROM) {
 		var declaration Node = export.getFirstChild()
 		if NodeUtil_isNameDeclaration(declaration) {
-			NodeUtil_visitLhsNodesInNode(declaration, &Consumer_tfn_Node{func(lhs Node) {
-				Preconditions_checkState(lhs.isName())
+			NodeUtil_visitLhsNodesInNode(declaration, (&Consumer_tfn_Node{func(lhs Node) {
+				if !lhs.isName() {
+					panic(new_IllegalStateException_0())
+				}
 				this.exportedLocalNames.add(lhs.getString())
-			}})
+			}}).accept)
 		} else if export.getBooleanProp(Node_EXPORT_DEFAULT) {
 			if !declaration.isClass() && !declaration.isFunction() {
 				return
 			}
 			var nameNode Node = declaration.getFirstChild()
-			if !nameNode.isEmpty() && !String_isEmpty(nameNode.getString()) {
+			if !nameNode.isEmpty() && nameNode.getString() != "" {
 				this.exportedLocalNames.add(nameNode.getString())
 			}
 		} else {
-			Preconditions_checkState((declaration.isClass() || declaration.isFunction()))
+			if !declaration.isClass() && !declaration.isFunction() {
+				panic(new_IllegalStateException_0())
+			}
 			var nameNode Node = declaration.getFirstChild()
 			this.exportedLocalNames.add(nameNode.getString())
 		}
@@ -97,16 +98,16 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 
 func (this *CheckNoMutatedEs6Exports) visitName(t *NodeTraversal, name Node) {
 	var scope *Scope = t.getScope()
-	if NodeUtil_isLValue(name) && !cast_[*Scope](scope.getClosestHoistScope().self()).isModuleScope() {
+	if NodeUtil_isLValue(name) && !scope.getClosestHoistScope().self().(*Scope).isModuleScope() {
 		var var_ *Var = cast_[*Var](scope.getVar(name.getString()).self())
-		if (var_ != nil) && cast_[*Scope](var_.getScope()).isModuleScope() {
-			this.mutatedNames.put(strobj_(name.getString()), name.box_())
+		if (var_ != nil) && var_.getScope().(*Scope).isModuleScope() {
+			this.mutatedNames.put_s(name.getString(), name)
 		}
 	}
 }
 
 func (this *CheckNoMutatedEs6Exports) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 var CheckNoMutatedEs6Exports_MUTATED_EXPORT *DiagnosticType

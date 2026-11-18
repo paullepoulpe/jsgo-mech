@@ -2,16 +2,18 @@
 
 package closure
 
+import "strings"
+
 type ProcessDefines struct {
 	compiler_                           *AbstractCompiler
 	registry                            *JSTypeRegistry
-	replacementValuesFromFlags          ImmutableMapOf[string, Node]
-	mode_                               *ProcessDefines_Mode
-	namespaceSupplier                   SupplierOf[*GlobalNamespace]
+	replacementValuesFromFlags          *ImmutableMap[string, Node]
+	mode_                               ProcessDefines_Mode
+	namespaceSupplier                   func() any
 	recognizeClosureDefines             bool
 	enableZonesDefineName               Optional[string]
 	zoneInputPattern                    *Pattern
-	unknownDefinesToIgnore              ImmutableSetOf[string]
+	unknownDefinesToIgnore              *ImmutableSet[string]
 	knownDefineJsdocs                   *JTSet[*JSDocInfo]
 	knownGoogDefineCalls                *JTSet[Node]
 	defineByDefineName                  *JTMap[string, *ProcessDefines_Define]
@@ -35,17 +37,17 @@ func (this *ProcessDefines) init_ProcessDefines(builder *ProcessDefines_Builder)
 	this.mode_ = builder.mode_
 	this.compiler_ = builder.compiler_
 	this.registry = func() *JSTypeRegistry {
-		if this.mode_.check_ {
+		if ProcessDefines_Mode_check__[this.mode_-1] {
 			return this.compiler_.getTypeRegistry()
 		}
 		return nil
 	}()
-	this.replacementValuesFromFlags = ImmutableMap_copyOf(builder.replacementValues.asMap())
+	this.replacementValuesFromFlags = immutableMapCopyOf_(tc_string, tc_Node, builder.replacementValues.asMap())
 	this.namespaceSupplier = builder.namespaceSupplier
 	this.recognizeClosureDefines = builder.recognizeClosureDefines
 	this.enableZonesDefineName = builder.enableZonesDefineName
 	this.zoneInputPattern = builder.zoneInputPattern
-	this.unknownDefinesToIgnore = ImmutableSet_copyOf(icast_Collection(obj_(builder.unknownDefinesToIgnore)))
+	this.unknownDefinesToIgnore = immutableSetCopyOf_(tc_string, sliceView_(tc_string, builder.unknownDefinesToIgnore))
 }
 
 func new_ProcessDefines(builder *ProcessDefines_Builder) *ProcessDefines {
@@ -66,7 +68,7 @@ func (this *ProcessDefines) process_2(externs Node, root Node) {
 
 func (this *ProcessDefines) initNamespace(externs Node, root Node) {
 	if this.namespaceSupplier != nil {
-		this.namespace_ = cast_[*GlobalNamespace](this.namespaceSupplier.get())
+		this.namespace_ = cast_[*GlobalNamespace](this.namespaceSupplier())
 	}
 	if this.namespace_ == nil {
 		this.namespace_ = new_GlobalNamespace_AbstractCompiler_Node_Node(this.compiler_, externs, root)
@@ -74,7 +76,7 @@ func (this *ProcessDefines) initNamespace(externs Node, root Node) {
 }
 
 func (this *ProcessDefines) overrideDefines() {
-	if this.mode_.optimize {
+	if ProcessDefines_Mode_optimize_[this.mode_-1] {
 		it_1 := this.defineByDefineName.eachValue()
 		for it_1.next() {
 			var define *ProcessDefines_Define = it_1.v
@@ -104,7 +106,9 @@ func (this *ProcessDefines) overrideDefines() {
 						}
 						return define.valueParent.cloneNode()
 					}()
-					Preconditions_checkState_boolean_Object((defineLhs.isName() || defineLhs.isQualifiedName()), defineLhs.box_())
+					if !defineLhs.isName() && !defineLhs.isQualifiedName() {
+						panic(new_IllegalStateException_String(tostr_(defineLhs)))
+					}
 					var globalDefineVar Node = IR_var_Node_Node(globalDefineName, defineLhs).srcrefTreeIfMissing(define.valueParent)
 					globalDefineVar.insertAfter(define.valueParent.getParent())
 					this.compiler_.reportChangeToEnclosingScope(define.valueParent.getParent())
@@ -112,21 +116,19 @@ func (this *ProcessDefines) overrideDefines() {
 			}
 		}
 	}
-	if this.mode_.optimize {
-		var unusedReplacements SetOf[string] = icast_Set(obj_(Sets_difference(icast_Set(obj_(Sets_union(this.replacementValuesFromFlags.keySet(), this.replacementValuesFromClosureDefines.asMap().keySet()))), icast_Set(obj_(Sets_union(icast_Set(obj_(Sets_union(icast_Set(obj_(ProcessDefines_KNOWN_DEFINES)), this.defineByDefineName.asMap().keySet()))), icast_Set(obj_(this.unknownDefinesToIgnore))))))))
-		it_3 := foreach_(any(unusedReplacements))
-		for it_3.next() {
-			var unknownDefine string = str_(it_3.v)
+	if ProcessDefines_Mode_optimize_[this.mode_-1] {
+		var unusedReplacements SetOf[string] = Sets_difference(Sets_union(this.replacementValuesFromFlags.asImm().keySet(), this.replacementValuesFromClosureDefines.asMap().keySet()), Sets_union(Sets_union(icast_Set(obj_(ProcessDefines_KNOWN_DEFINES.asImm())), this.defineByDefineName.asMap().keySet()), icast_Set(obj_(this.unknownDefinesToIgnore.asImm()))))
+		for unknownDefine := range elemsBy_(unusedReplacements, str_) {
 			this.compiler_.report(JSError_make_DiagnosticType_StringArr(ProcessDefines_UNKNOWN_DEFINE_WARNING, []string{unknownDefine}))
 		}
 	}
 }
 
 func ProcessDefines_getGlobalDefineAlias(defineName string) string {
-	if Collection_contains_s(ProcessDefines_KNOWN_DEFINES, defineName) || (defineName == "goog.LOCALE") {
+	if ProcessDefines_KNOWN_DEFINES.Has(defineName) || (defineName == "goog.LOCALE") {
 		return defineName
 	}
-	return ("jscomp$defines$" + sstr_(String_replace_char_char(defineName, '.', '$')))
+	return ("jscomp$defines$" + sstr_(strings.ReplaceAll(defineName, ".", "$")))
 }
 
 func (this *ProcessDefines) getReplacementForDefine(define *ProcessDefines_Define) Node {
@@ -143,7 +145,7 @@ func (this *ProcessDefines) getReplacementForDefine(define *ProcessDefines_Defin
 func (this *ProcessDefines) getReplacementForDefineName(defineName Optional[string]) Node {
 	var replacementFromFlags Node = func() Node {
 		if defineName.isPresent() {
-			return Node_of_(Map_get_s(this.replacementValuesFromFlags, defineName.get()))
+			return this.replacementValuesFromFlags.Get(defineName.get())
 		}
 		return 0
 	}()
@@ -169,11 +171,9 @@ func (this *ProcessDefines) isValidDefineType(expression *JSTypeExpression) bool
 
 func (this *ProcessDefines) collectDefines(root Node) {
 	if this.recognizeClosureDefines {
-		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(new_ProcessDefines_ClosureDefinesCollector(this)))).traverse(root)
+		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_ProcessDefines_ClosureDefinesCollector(this)).traverse(root)
 	}
-	it_1 := foreach_(any(icast_Collection(this.namespace_.getAllSymbols())))
-	for it_1.next() {
-		var name *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](it_1.v)
+	for name := range elemsAs_[*GlobalNamespace_Name](icast_Collection(this.namespace_.getAllSymbols())) {
 		var declaration *GlobalNamespace_Ref = this.selectDefineDeclaration(name)
 		if declaration == nil {
 			continue
@@ -199,20 +199,18 @@ func (this *ProcessDefines) collectDefines(root Node) {
 			totalSets += existingDefine.name_.getTotalSets()
 		}
 		if totalSets > 1 {
-			it_3 := foreach_(any(name.getRefs()))
-			for it_3.next() {
-				var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_3.v)
-				if ref.isSet() && !Object_equals(obj_(ref), obj_(declaration)) {
+			for ref := range elemsAs_[*GlobalNamespace_Ref](name.getRefs()) {
+				if ref.isSet() && !equalsId_(ref, declaration) {
 					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(ref.getNode(), ProcessDefines_NON_CONST_DEFINE, []string{defineName, declaration.getNode().getLocation()}))
 				}
 			}
 		}
 	}
-	this.compiler_.setDefineNames(icast_Collection(obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(ProcessDefines_KNOWN_DEFINES))))).addAll(Iterable(this.defineByDefineName.asMap().keySet())))).build())))
+	this.compiler_.setDefineNames(icast_Collection(obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(ProcessDefines_KNOWN_DEFINES.asImm()))).addAll(Iterable(this.defineByDefineName.asMap().keySet())).build())))
 }
 
 func (this *ProcessDefines) selectDefineDeclaration(name *GlobalNamespace_Name) *GlobalNamespace_Ref {
-	it_1 := foreach_(any(name.getRefs()))
+	it_1 := foreach_(name.getRefs())
 	for it_1.next() {
 		var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
 		if !ref.isSetFromGlobal() {
@@ -236,7 +234,9 @@ func ProcessDefines_getValueParentForDefine(declaration *GlobalNamespace_Ref) No
 	var declarationNode Node = declaration.getNode()
 	var declarationParent Node = declarationNode.getParent()
 	if declarationParent.isVar() || declarationParent.isConst() {
-		Preconditions_checkState_boolean_Object(declarationNode.isName(), declarationNode.box_())
+		if !declarationNode.isName() {
+			panic(new_IllegalStateException_String(tostr_(declarationNode)))
+		}
 		return declarationNode
 	} else if declarationParent.isAssign() && declarationNode.isFirstChildOf(declarationParent) {
 		return declarationParent
@@ -246,9 +246,7 @@ func ProcessDefines_getValueParentForDefine(declaration *GlobalNamespace_Ref) No
 
 func (this *ProcessDefines) collectValidDefineValueExpressions() {
 	var namesToCheck *JTSet[*GlobalNamespace_Name] = jnewTSet_(jtc_p_GlobalNamespace_Name)
-	it_1 := foreach_(any(icast_Collection(this.namespace_.getAllSymbols())))
-	for it_1.next() {
-		var name *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](it_1.v)
+	for name := range elemsAs_[*GlobalNamespace_Name](icast_Collection(this.namespace_.getAllSymbols())) {
 		if ProcessDefines_isGlobalConst(name) {
 			namesToCheck.add(name)
 		}
@@ -257,9 +255,7 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 	for it_3.next() {
 		var define *ProcessDefines_Define = it_3.v
 		namesToCheck.del(define.name_)
-		it_5 := foreach_(any(define.name_.getRefs()))
-		for it_5.next() {
-			var r *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_5.v)
+		for r := range elemsAs_[*GlobalNamespace_Ref](define.name_.getRefs()) {
 			if !r.isSet() {
 				this.validDefineValueExpressions.add(r.getNode())
 			}
@@ -270,12 +266,10 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 		it_8 := namesToCheck.each()
 		for it_8.next() {
 			var name *GlobalNamespace_Name = it_8.v
-			var declValue Node = ProcessDefines_getConstantDeclValue(cast_[*GlobalNamespace_Ref](name.getDeclaration()).getNode())
+			var declValue Node = ProcessDefines_getConstantDeclValue(name.getDeclaration().(*GlobalNamespace_Ref).getNode())
 			switch this.isValidDefineValue(declValue) {
 			case Tri_TRUE:
-				it_11 := foreach_(any(name.getRefs()))
-				for it_11.next() {
-					var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_11.v)
+				for ref := range elemsAs_[*GlobalNamespace_Ref](name.getRefs()) {
 					this.validDefineValueExpressions.add(ref.getNode())
 				}
 			case Tri_UNKNOWN:
@@ -292,14 +286,14 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 }
 
 func (this *ProcessDefines) validateDefineDeclarations() {
-	if !this.mode_.check_ {
+	if !ProcessDefines_Mode_check__[this.mode_-1] {
 		return
 	}
 	it_1 := this.defineByDefineName.eachValue()
 	for it_1.next() {
 		var define *ProcessDefines_Define = it_1.v
 		var declarationNode Node = define.declaration_.getNode()
-		if (!this.isGoogDefineCall(define.value_) && !Collection_contains_s(ProcessDefines_KNOWN_DEFINES, define.defineName_)) && !String_startsWith(define.defineName_, "$jscomp.") {
+		if (!this.isGoogDefineCall(define.value_) && !ProcessDefines_KNOWN_DEFINES.Has(define.defineName_)) && !strings.HasPrefix(define.defineName_, "$jscomp.") {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(Node_of_(MoreObjects_firstNonNull(define.value_.box_(), MoreObjects_firstNonNull(define.valueParent.box_(), declarationNode.box_()))), ProcessDefines_DEFINE_WITHOUT_GOOG_DEFINE, []string{define.defineName_, "go/js-practices/locals#defines"}))
 		}
 		if !this.hasValidValue(define) {
@@ -313,10 +307,10 @@ func (this *ProcessDefines) validateDefineDeclarations() {
 }
 
 func (this *ProcessDefines) reportInvalidDefineLocations(root Node) {
-	if !this.mode_.check_ {
+	if !ProcessDefines_Mode_check__[this.mode_-1] {
 		return
 	}
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(&NodeTraversal_AbstractPostOrderCallbackInterface_fn{func(t *NodeTraversal, n Node, parent Node) {
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, n Node, parent Node) {
 		var jsdoc *JSDocInfo = n.getJSDocInfo()
 		if ((jsdoc != nil) && jsdoc.isDefine()) && this.knownDefineJsdocs.add(jsdoc) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessDefines_INVALID_DEFINE_LOCATION, []string{}))
@@ -327,7 +321,7 @@ func (this *ProcessDefines) reportInvalidDefineLocations(root Node) {
 		if (n.matchesName("CLOSURE_DEFINES") && (NodeUtil_isNameDeclaration(parent) || (parent.isGetElem() && parent.getParent().isAssign()))) && !NodeUtil_getEnclosingScopeRoot(n).isRoot() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessDefines_NON_GLOBAL_CLOSURE_DEFINES_ERROR, []string{}))
 		}
-	}}).traverse(root)
+	}).traverse(root)
 }
 
 func (this *ProcessDefines) handleClosureDefinesValue(stringNode Node, valueNode Node, errorNode Node) {
@@ -337,22 +331,21 @@ func (this *ProcessDefines) handleClosureDefinesValue(stringNode Node, valueNode
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorNode, ProcessDefines_CLOSURE_DEFINES_MULTIPLE, []string{key, this.replacementValuesFromClosureDefines.get(key).getLocation()}))
 		}
 		this.replacementValuesFromClosureDefines.put(key, valueNode)
-	} else if this.mode_.check_ {
+	} else if ProcessDefines_Mode_check__[this.mode_-1] {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorNode, ProcessDefines_CLOSURE_DEFINES_ERROR, []string{}))
 	}
 }
 
 func ProcessDefines_isValidClosureDefinesValue(val Node) bool {
 	return func() bool {
-		switch val.getToken() {
-		case Token_rhino_STRINGLIT, Token_rhino_NUMBER, Token_rhino_TRUE, Token_rhino_FALSE:
+		switch val.ns_().token {
+		case tokOrd1_STRINGLIT, tokOrd1_NUMBER, tokOrd1_TRUE, tokOrd1_FALSE:
 			return true
-		case Token_rhino_NEG:
+		case tokOrd1_NEG:
 			return val.getFirstChild().isNumber()
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -364,36 +357,35 @@ func (this *ProcessDefines) hasValidValue(define *ProcessDefines_Define) bool {
 	} else {
 		return this.isValidDefineValue(define.value_).toBoolean(false)
 	}
-	panic("unreachable")
 }
 
 func ProcessDefines_isGlobalConst(name *GlobalNamespace_Name) bool {
-	return (((name.getTotalSets() == 1) && (cast_[*GlobalNamespace_Ref](name.getDeclaration()) != nil)) && cast_[*GlobalNamespace_Ref](name.getDeclaration()).isSetFromGlobal())
+	return (((name.getTotalSets() == 1) && (cast_[*GlobalNamespace_Ref](name.getDeclaration()) != nil)) && name.getDeclaration().(*GlobalNamespace_Ref).isSetFromGlobal())
 }
 
-func (this *ProcessDefines) isValidDefineValue(val Node) *Tri {
+func (this *ProcessDefines) isValidDefineValue(val Node) Tri {
 	if val == 0 {
 		return Tri_FALSE
 	}
-	switch val.getToken() {
-	case Token_rhino_STRINGLIT, Token_rhino_NUMBER, Token_rhino_TRUE, Token_rhino_FALSE:
+	switch val.ns_().token {
+	case tokOrd1_STRINGLIT, tokOrd1_NUMBER, tokOrd1_TRUE, tokOrd1_FALSE:
 		return Tri_TRUE
-	case Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_ADD, Token_rhino_BITAND, Token_rhino_BITNOT, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_DIV, Token_rhino_EQ, Token_rhino_EXPONENT, Token_rhino_GE, Token_rhino_GT, Token_rhino_LE, Token_rhino_LSH, Token_rhino_LT, Token_rhino_MOD, Token_rhino_MUL, Token_rhino_NE, Token_rhino_RSH, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_SUB, Token_rhino_URSH:
+	case tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_ADD, tokOrd1_BITAND, tokOrd1_BITNOT, tokOrd1_BITOR, tokOrd1_BITXOR, tokOrd1_DIV, tokOrd1_EQ, tokOrd1_EXPONENT, tokOrd1_GE, tokOrd1_GT, tokOrd1_LE, tokOrd1_LSH, tokOrd1_LT, tokOrd1_MOD, tokOrd1_MUL, tokOrd1_NE, tokOrd1_RSH, tokOrd1_SHEQ, tokOrd1_SHNE, tokOrd1_SUB, tokOrd1_URSH:
 		return this.isValidDefineValue(val.getFirstChild()).and(this.isValidDefineValue(val.getLastChild()))
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		return this.isValidDefineValue(val.getFirstChild()).and(this.isValidDefineValue(val.getSecondChild())).and(this.isValidDefineValue(val.getLastChild()))
-	case Token_rhino_NOT, Token_rhino_NEG, Token_rhino_POS:
+	case tokOrd1_NOT, tokOrd1_NEG, tokOrd1_POS:
 		return this.isValidDefineValue(val.getFirstChild())
-	case Token_rhino_NAME, Token_rhino_GETPROP:
+	case tokOrd1_NAME, tokOrd1_GETPROP:
 		if val.isQualifiedName() {
-			return func() *Tri {
+			return func() Tri {
 				if this.validDefineValueExpressions.has(val) {
 					return Tri_TRUE
 				}
 				return Tri_UNKNOWN
 			}()
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		if !this.isGoogDefineCall(val) {
 			return Tri_FALSE
 		}
@@ -521,7 +513,7 @@ func (this *ProcessDefines) verifyIsLast(methodName Node, arg Node) bool {
 	return true
 }
 
-func (this *ProcessDefines) verifyOfType(methodName Node, arg Node, desiredType *Token_rhino) bool {
+func (this *ProcessDefines) verifyOfType(methodName Node, arg Node, desiredType Token_rhino) bool {
 	if arg.getToken() != desiredType {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(methodName, ClosurePrimitiveErrors_INVALID_ARGUMENT_ERROR, []string{methodName.getQualifiedName()}))
 		return false
@@ -529,7 +521,7 @@ func (this *ProcessDefines) verifyOfType(methodName Node, arg Node, desiredType 
 	return true
 }
 
-var ProcessDefines_KNOWN_DEFINES *ImmutableSet
+var ProcessDefines_KNOWN_DEFINES *ImmutableSet[string]
 var ProcessDefines_GOOG_DEFINE Node
 var ProcessDefines_UNKNOWN_DEFINE_WARNING *DiagnosticType
 var ProcessDefines_INVALID_DEFINE_NAME_ERROR *DiagnosticType
@@ -552,7 +544,7 @@ func ProcessDefines_clinit() {
 		return
 	}
 	ProcessDefines_clinit_done = true
-	ProcessDefines_KNOWN_DEFINES = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("COMPILED"), strobj_("goog.DEBUG"), strobj_("$jscomp.ASSUME_ES5"), strobj_("$jscomp.ASSUME_ES6"), strobj_("$jscomp.ASSUME_ES2020"), strobj_("$jscomp.ISOLATE_POLYFILLS"), []any{strobj_("$jscomp.INSTRUMENT_ASYNC_CONTEXT")})
+	ProcessDefines_KNOWN_DEFINES = immutableSetOf_(tc_string, "COMPILED", "goog.DEBUG", "$jscomp.ASSUME_ES5", "$jscomp.ASSUME_ES6", "$jscomp.ASSUME_ES2020", "$jscomp.ISOLATE_POLYFILLS", "$jscomp.INSTRUMENT_ASYNC_CONTEXT")
 	ProcessDefines_GOOG_DEFINE = IR_getprop_Node_String(IR_name("goog"), "define")
 	ProcessDefines_UNKNOWN_DEFINE_WARNING = DiagnosticType_warning("JSC_UNKNOWN_DEFINE_WARNING", "unknown @define variable {0}")
 	ProcessDefines_INVALID_DEFINE_NAME_ERROR = DiagnosticType_error("JSC_INVALID_DEFINE_NAME_ERROR", "\"{0}\" is not a valid JS identifier name")
@@ -570,49 +562,71 @@ func ProcessDefines_clinit() {
 
 }
 
-type ProcessDefines_Mode struct {
-	Enum
-	check_   bool
-	optimize bool
+type ProcessDefines_Mode uint8
+
+// ProcessDefines_Mode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ProcessDefines_Mode_enum_ = [3]Enum{
+	{self_: ProcessDefines_Mode_CHECK, name_: "CHECK", ordinal_: 0},
+	{self_: ProcessDefines_Mode_OPTIMIZE, name_: "OPTIMIZE", ordinal_: 1},
+	{self_: ProcessDefines_Mode_CHECK_AND_OPTIMIZE, name_: "CHECK_AND_OPTIMIZE", ordinal_: 2},
 }
 
-func (this *ProcessDefines_Mode) up_Enum() *Enum {
-	if this == nil {
+var ProcessDefines_Mode_check__ [3]bool
+
+var ProcessDefines_Mode_optimize_ [3]bool
+
+func (this ProcessDefines_Mode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ProcessDefines_Mode_enum_[this-1]
 }
 
-func (this *ProcessDefines_Mode) init_ProcessDefines_Mode(name_ string, ordinal_ int32, check bool, optimize bool) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.check_ = check
-	this.optimize = optimize
+func (this ProcessDefines_Mode) name() string { return this.enum_().name_ }
+
+func (this ProcessDefines_Mode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_ProcessDefines_Mode(name_ string, ordinal_ int32, check bool, optimize bool) *ProcessDefines_Mode {
-	this := &ProcessDefines_Mode{}
-	this.self_ = this
-	this.init_ProcessDefines_Mode(name_, ordinal_, check, optimize)
+func (this ProcessDefines_Mode) toString() string { return this.enum_().name_ }
+
+func (this ProcessDefines_Mode) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ProcessDefines_Mode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ProcessDefines_Mode_values() []*ProcessDefines_Mode {
-	return append([]*ProcessDefines_Mode(nil), ProcessDefines_Mode_values_...)
+func (this ProcessDefines_Mode) init_ProcessDefines_Mode(check bool, optimize bool) {
+	ProcessDefines_Mode_check__[this-1] = check
+	ProcessDefines_Mode_optimize_[this-1] = optimize
 }
 
-func ProcessDefines_Mode_valueOf(name string) *ProcessDefines_Mode {
+func ProcessDefines_Mode_values() []ProcessDefines_Mode {
+	return append([]ProcessDefines_Mode(nil), ProcessDefines_Mode_values_...)
+}
+
+func ProcessDefines_Mode_valueOf(name string) ProcessDefines_Mode {
 	for _, v := range ProcessDefines_Mode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Mode", name))
 }
 
-var ProcessDefines_Mode_CHECK *ProcessDefines_Mode
-var ProcessDefines_Mode_OPTIMIZE *ProcessDefines_Mode
-var ProcessDefines_Mode_CHECK_AND_OPTIMIZE *ProcessDefines_Mode
-var ProcessDefines_Mode_values_ []*ProcessDefines_Mode
+const ProcessDefines_Mode_CHECK ProcessDefines_Mode = 1
+const ProcessDefines_Mode_OPTIMIZE ProcessDefines_Mode = 2
+const ProcessDefines_Mode_CHECK_AND_OPTIMIZE ProcessDefines_Mode = 3
+
+var ProcessDefines_Mode_values_ []ProcessDefines_Mode
 
 var ProcessDefines_Mode_clinit_done bool
 
@@ -621,10 +635,10 @@ func ProcessDefines_Mode_clinit() {
 		return
 	}
 	ProcessDefines_Mode_clinit_done = true
-	ProcessDefines_Mode_CHECK = new_ProcessDefines_Mode("CHECK", 0, true, false)
-	ProcessDefines_Mode_OPTIMIZE = new_ProcessDefines_Mode("OPTIMIZE", 1, false, true)
-	ProcessDefines_Mode_CHECK_AND_OPTIMIZE = new_ProcessDefines_Mode("CHECK_AND_OPTIMIZE", 2, true, true)
-	ProcessDefines_Mode_values_ = []*ProcessDefines_Mode{ProcessDefines_Mode_CHECK, ProcessDefines_Mode_OPTIMIZE, ProcessDefines_Mode_CHECK_AND_OPTIMIZE}
+	ProcessDefines_Mode_CHECK.init_ProcessDefines_Mode(true, false)
+	ProcessDefines_Mode_OPTIMIZE.init_ProcessDefines_Mode(false, true)
+	ProcessDefines_Mode_CHECK_AND_OPTIMIZE.init_ProcessDefines_Mode(true, true)
+	ProcessDefines_Mode_values_ = []ProcessDefines_Mode{ProcessDefines_Mode_CHECK, ProcessDefines_Mode_OPTIMIZE, ProcessDefines_Mode_CHECK_AND_OPTIMIZE}
 	registerEnum_("com.google.javascript.jscomp.ProcessDefines.Mode", enumValues_(ProcessDefines_Mode_values_))
 
 }
@@ -632,12 +646,12 @@ func ProcessDefines_Mode_clinit() {
 type ProcessDefines_Builder struct {
 	compiler_               *AbstractCompiler
 	replacementValues       *JTMap[string, Node]
-	mode_                   *ProcessDefines_Mode
-	namespaceSupplier       SupplierOf[*GlobalNamespace]
+	mode_                   ProcessDefines_Mode
+	namespaceSupplier       func() any
 	recognizeClosureDefines bool
 	enableZonesDefineName   Optional[string]
 	zoneInputPattern        *Pattern
-	unknownDefinesToIgnore  ImmutableListOf[string]
+	unknownDefinesToIgnore  []string
 }
 
 func (this *ProcessDefines_Builder) finit_ProcessDefines_Builder() {
@@ -645,7 +659,7 @@ func (this *ProcessDefines_Builder) finit_ProcessDefines_Builder() {
 	this.recognizeClosureDefines = true
 	this.enableZonesDefineName = Optional_empty[string]()
 	this.zoneInputPattern = nil
-	this.unknownDefinesToIgnore = ImmutableList_of()
+	this.unknownDefinesToIgnore = []string{}
 }
 
 func (this *ProcessDefines_Builder) init_ProcessDefines_Builder(compiler *AbstractCompiler) {
@@ -664,17 +678,17 @@ func (this *ProcessDefines_Builder) putReplacements(replacementValues MapOf[stri
 	return this
 }
 
-func (this *ProcessDefines_Builder) setMode(x *ProcessDefines_Mode) *ProcessDefines_Builder {
+func (this *ProcessDefines_Builder) setMode(x ProcessDefines_Mode) *ProcessDefines_Builder {
 	this.mode_ = x
 	return this
 }
 
-func (this *ProcessDefines_Builder) injectNamespace(namespaceSupplier SupplierOf[*GlobalNamespace]) *ProcessDefines_Builder {
+func (this *ProcessDefines_Builder) injectNamespace(namespaceSupplier func() any) *ProcessDefines_Builder {
 	this.namespaceSupplier = namespaceSupplier
 	return this
 }
 
-func (this *ProcessDefines_Builder) setUnknownDefinesToIgnore(unknownDefinesToIgnore ImmutableListOf[string]) *ProcessDefines_Builder {
+func (this *ProcessDefines_Builder) setUnknownDefinesToIgnore(unknownDefinesToIgnore []string) *ProcessDefines_Builder {
 	this.unknownDefinesToIgnore = unknownDefinesToIgnore
 	return this
 }
@@ -720,7 +734,7 @@ func (this *ProcessDefines_ClosureDefinesCollector) shouldTraverse(t *NodeTraver
 func (this *ProcessDefines_ClosureDefinesCollector) visit(t *NodeTraversal, n Node, parent Node) {
 	if n.isScript() && (this.outer_.zoneInputPattern != nil) {
 		var source string = n.getSourceFileName()
-		if !String_isEmpty(source) && this.outer_.zoneInputPattern.matcher(strobj_(source)).matches() {
+		if source != "" && this.outer_.zoneInputPattern.matcher_s(source).matches() {
 			this.outer_.hasZoneInput = true
 		}
 	}
@@ -755,8 +769,12 @@ func (this *ProcessDefines_Define) zero_ProcessDefines_Define() {
 }
 
 func (this *ProcessDefines_Define) init_ProcessDefines_Define(defineName string, name *GlobalNamespace_Name, declaration *GlobalNamespace_Ref, valueParent Node, value Node) {
-	Preconditions_checkState((((valueParent == 0) || (value == 0)) || (value.getParent() == valueParent)))
-	Preconditions_checkState(declaration.isSet())
+	if !(((valueParent == 0) || (value == 0)) || (value.getParent() == valueParent)) {
+		panic(new_IllegalStateException_0())
+	}
+	if !declaration.isSet() {
+		panic(new_IllegalStateException_0())
+	}
 	this.defineName_ = defineName
 	this.name_ = name
 	this.declaration_ = declaration

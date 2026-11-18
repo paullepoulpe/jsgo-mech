@@ -39,28 +39,28 @@ func (this *ValidityCheck) checkVars(externs Node, root Node) {
 }
 
 func (this *ValidityCheck) checkNormalization(externs Node, root Node) {
-	var handler CodeChangeHandler = icast_CodeChangeHandler(obj_(new_ForbiddenChange()))
+	var handler CodeChangeHandler = new_ForbiddenChange()
 	this.changeTracker.addChangeHandler(handler)
 	if this.compiler_.getLifeCycleStage().isNormalized() {
 		Normalize_builder(this.compiler_).assertOnChange(true).build().process_2(externs, root)
 		if this.compiler_.getLifeCycleStage().isNormalizedUnobfuscated() {
 			var checkUserDeclarations bool = true
-			var pass CompilerPass = icast_CompilerPass(obj_(new_ValidityCheck_VerifyConstants(this.compiler_, checkUserDeclarations)))
-			pass.process_2(externs, root)
+			var pass func(Node, Node) = new_ValidityCheck_VerifyConstants(this.compiler_, checkUserDeclarations).process_2
+			pass(externs, root)
 		}
 	}
 	this.changeTracker.removeChangeHandler(handler)
 }
 
 func (this *ValidityCheck) checkExternProperties(externs Node) {
-	var externProperties ImmutableSetOf[string] = this.compiler_.getExternProperties()
+	var externProperties *ImmutableSet[string] = this.compiler_.getExternProperties()
 	if externProperties == nil {
 		return
 	}
 	new_GatherExternProperties(this.compiler_, GatherExternProperties_Mode_CHECK).process_2(externs, 0)
-	if !Object_equals(obj_(this.compiler_.getExternProperties()), obj_(externProperties)) {
-		this.compiler_.report(JSError_make_DiagnosticType_StringArr(ValidityCheck_EXTERN_PROPERTIES_CHANGED, []string{Object_toString(obj_(externProperties)), Object_toString(obj_(this.compiler_.getExternProperties()))}))
-		panic(new_IllegalStateException_String(("Validity Check failed: Extern properties changed from:\n" + objstr_(obj_(externProperties)) + "\nto:\n" + objstr_(obj_(this.compiler_.getExternProperties())))).self())
+	if !tsetEq_(this.compiler_.getExternProperties(), externProperties, false) {
+		this.compiler_.report(JSError_make_DiagnosticType_StringArr(ValidityCheck_EXTERN_PROPERTIES_CHANGED, []string{tostrNN_(externProperties.asImm()), tostrNN_(this.compiler_.getExternProperties().asImm())}))
+		panic(new_IllegalStateException_String(("Validity Check failed: Extern properties changed from:\n" + tostr_(externProperties.asImm()) + "\nto:\n" + tostr_(this.compiler_.getExternProperties().asImm()))))
 	}
 }
 
@@ -111,15 +111,19 @@ func new_ValidityCheck_VerifyConstants(compiler *AbstractCompiler, checkUserDecl
 
 func (this *ValidityCheck_VerifyConstants) process_2(externs Node, root Node) {
 	var externsAndJs Node = root.getParent()
-	Preconditions_checkState((externsAndJs != 0))
-	Preconditions_checkState(externsAndJs.hasChild(externs))
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
+	if externsAndJs == 0 {
+		panic(new_IllegalStateException_0())
+	}
+	if !externsAndJs.hasChild(externs) {
+		panic(new_IllegalStateException_0())
+	}
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 }
 
 func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
 		var name string = n.getString()
-		if String_isEmpty(n.getString()) {
+		if n.getString() == "" {
 			return
 		}
 		var isConst bool = n.getBooleanProp(Node_IS_CONSTANT_NAME)
@@ -142,16 +146,29 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 				}
 			}
 			if expectedConst {
-				Preconditions_checkState_boolean_String_Object((expectedConst == isConst), "The name %s is not annotated as constant.", strobj_(name))
+				if expectedConst != isConst {
+					panic(new_IllegalStateException_String(Strings_lenientFormat("The name %s is not annotated as constant.", []any{strobj_(name)})))
+				}
 			} else {
-				Preconditions_checkState_boolean_String_Object((expectedConst == isConst), "The name %s should not be annotated as constant.", strobj_(name))
+				if expectedConst != isConst {
+					panic(new_IllegalStateException_String(Strings_lenientFormat("The name %s should not be annotated as constant.", []any{strobj_(name)})))
+				}
 			}
 		}
 		var value any = this.constantMap.get(name)
 		if value == nil {
 			this.constantMap.put(name, any(bool(isConst)))
 		} else if Boolean_booleanValue(value) != isConst {
-			panic(new_IllegalStateException_String(("The name " + sstr_(name) + " is not consistently annotated as constant. Current constness: " + boolstr_(isConst) + ", previous constness: " + boolstr_(Boolean_booleanValue(value)) + "\n\nAt node: " + objstr_(n.box_()))).self())
+			panic(new_IllegalStateException_String(("The name " + sstr_(name) + " is not consistently annotated as constant. Current constness: " + boolstr_(isConst) + ", previous constness: " + boolstr_(Boolean_booleanValue(value)) + "\n\nAt node: " + tostr_(n))))
 		}
 	}
+}
+
+// visit: an object that is exactly a ValidityCheck_VerifyConstants calls its visit_impl directly (post-flip); others dispatch.
+func (this *ValidityCheck_VerifyConstants) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ValidityCheck_VerifyConstants); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

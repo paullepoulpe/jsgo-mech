@@ -2,289 +2,343 @@
 
 package closure
 
-type SimpleSetMultimap struct {
+type SimpleSetMultimap[K, V comparable] struct {
 	map__      MapOf[any, SetOf[any]]
 	sorted     bool
-	entryOrder LinkedHashSetOf[*SimpleSetMultimap_Entry]
+	entryOrder *TSet[*SimpleSetMultimap_Entry[any, any]]
 	frozen     bool
 }
 
-func (this *SimpleSetMultimap) finit_SimpleSetMultimap() {
+func (this *SimpleSetMultimap[K, V]) finit_SimpleSetMultimap() {
 	this.frozen = false
 }
 
-func (this *SimpleSetMultimap) init_SimpleSetMultimap(sorted bool, insertionOrdered bool) {
+func (this *SimpleSetMultimap[K, V]) init_SimpleSetMultimap(sorted bool, insertionOrdered bool) {
 	this.finit_SimpleSetMultimap()
 	this.map__ = func() Map {
 		if sorted {
-			return icast_Map(obj_(new_TreeMap()))
+			return new_TreeMap()
 		}
-		return icast_Map(obj_(new_LinkedHashMap()))
+		return new_LinkedHashMap()
 	}()
 	this.sorted = sorted
-	this.entryOrder = func() *LinkedHashSet {
+	this.entryOrder = func() *TSet[*SimpleSetMultimap_Entry[any, any]] {
 		if insertionOrdered {
-			return new_LinkedHashSet()
+			return newTSet_(tch_p_SimpleSetMultimap_Entry)
 		}
 		return nil
 	}()
 }
 
-func new_SimpleSetMultimap(sorted bool, insertionOrdered bool) *SimpleSetMultimap {
-	this := &SimpleSetMultimap{}
+func new_SimpleSetMultimap[K, V comparable](sorted bool, insertionOrdered bool) *SimpleSetMultimap[K, V] {
+	this := &SimpleSetMultimap[K, V]{}
 	this.init_SimpleSetMultimap(sorted, insertionOrdered)
 	return this
 }
 
-func SimpleSetMultimap_create() *SimpleSetMultimap {
-	return new_SimpleSetMultimap(false, false)
+func SimpleSetMultimap_create[K, V comparable]() *SimpleSetMultimap[K, V] {
+	return new_SimpleSetMultimap[K, V](false, false)
 }
 
-func SimpleSetMultimap_createInsertionOrdered() *SimpleSetMultimap {
-	return new_SimpleSetMultimap(false, true)
+func SimpleSetMultimap_createInsertionOrdered[K, V comparable]() *SimpleSetMultimap[K, V] {
+	return new_SimpleSetMultimap[K, V](false, true)
 }
 
-func SimpleSetMultimap_createSorted() *SimpleSetMultimap {
-	return new_SimpleSetMultimap(true, false)
+func SimpleSetMultimap_createSorted[K, V comparable]() *SimpleSetMultimap[K, V] {
+	return new_SimpleSetMultimap[K, V](true, false)
 }
 
-func (this *SimpleSetMultimap) immutableCopy() *SimpleSetMultimap {
-	var copy_ *SimpleSetMultimap = new_SimpleSetMultimap(false, false)
-	it_1 := foreach_(any(this.map__.entrySet()))
-	for it_1.next() {
-		var e Map_Entry = icast_Map_Entry(it_1.v)
+func (this *SimpleSetMultimap[K, V]) immutableCopy() *SimpleSetMultimap[K, V] {
+	var copy_ *SimpleSetMultimap[K, V] = new_SimpleSetMultimap[K, V](false, false)
+	for e := range elemsBy_(this.map__.entrySet(), icast_Map_Entry) {
 		copy_.map__.put(e.getKey(), obj_(new_LinkedHashSet_Collection(icast_Collection(e.getValue()))))
 	}
 	copy_.frozen = true
 	return copy_
 }
 
-func (this *SimpleSetMultimap) inverse() *SimpleSetMultimap {
-	var inverse *SimpleSetMultimap = new_SimpleSetMultimap(false, false)
-	it_1 := foreach_(any(this.map__.entrySet()))
-	for it_1.next() {
-		var e Map_Entry = icast_Map_Entry(it_1.v)
-		it_3 := foreach_(any(icast_Set(e.getValue())))
-		for it_3.next() {
-			var value any = it_3.v
-			inverse.put(value, e.getKey())
+func (this *SimpleSetMultimap[K, V]) inverse() *SimpleSetMultimap[V, K] {
+	var inverse *SimpleSetMultimap[V, K] = new_SimpleSetMultimap[V, K](false, false)
+	for e := range elemsBy_(this.map__.entrySet(), icast_Map_Entry) {
+		for value := range elems_(icast_Set(e.getValue())) {
+			inverse.put(unboxT_[V](value), unboxT_[K](e.getKey()))
 		}
 	}
 	inverse.frozen = true
 	return inverse
 }
 
-func (this *SimpleSetMultimap) put(key any, value any) bool {
-	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
-	var values SetOf[any] = icast_Set(this.map__.get(key))
+func (this *SimpleSetMultimap[K, V]) put(key K, value V) bool {
+	keyBox_ := boxNull_(key)
+	valueBox_ := boxNull_(value)
+	if this.frozen {
+		panic(new_IllegalStateException_String("immutable"))
+	}
+	var values SetOf[any] = icast_Set(this.map__.get(keyBox_))
 	if values == nil {
 		values = func() Set {
 			if this.sorted {
-				return icast_Set(obj_(new_TreeSet()))
+				return new_TreeSet()
 			}
-			return icast_Set(obj_(new_LinkedHashSet()))
+			return new_LinkedHashSet()
 		}()
-		values.add(value)
-		this.map__.put(key, any(values))
-	} else if !values.add(value) {
+		values.add(valueBox_)
+		this.map__.put(keyBox_, values)
+	} else if !values.add(valueBox_) {
 		return false
 	}
 	if this.entryOrder != nil {
-		this.entryOrder.add(obj_(new_SimpleSetMultimap_Entry(key, value)))
+		this.entryOrder.Add(new_SimpleSetMultimap_Entry[any, any](keyBox_, valueBox_))
 	}
 	return true
 }
 
-func (this *SimpleSetMultimap) putAll_2(key any, values IterableOf[any]) {
-	it_1 := foreach_(any(values))
-	for it_1.next() {
-		var value any = it_1.v
-		this.put(key, value)
+// put_s is put for a string key that is not boxed (post-flip manual step). An
+// insertion-ordered multimap keeps the key in an entry too: it is boxed once, by put.
+func (this *SimpleSetMultimap[K, V]) put_s(key string, value V) bool {
+	valueBox_ := boxNull_(value)
+	if this.entryOrder != nil {
+		k := strobj_(key)
+		return this.put(unboxT_[K](k), value)
+	}
+	if this.frozen {
+		panic(new_IllegalStateException_String("immutable"))
+	}
+	var values SetOf[any] = icast_Set(Map_get_s(this.map__, key))
+	if values == nil {
+		values = func() Set {
+			if this.sorted {
+				return new_TreeSet()
+			}
+			return new_LinkedHashSet()
+		}()
+		values.add(valueBox_)
+		Map_put_s(this.map__, key, values)
+	} else if !values.add(valueBox_) {
+		return false
+	}
+	return true
+}
+
+func (this *SimpleSetMultimap[K, V]) putAll_2(key K, values IterableOf[any]) {
+	for value := range elems_(values) {
+		this.put(key, unboxT_[V](value))
 	}
 }
 
-func (this *SimpleSetMultimap) putAll(other *SimpleSetMultimap) {
+func (this *SimpleSetMultimap[K, V]) putAll(other *SimpleSetMultimap[any, any]) {
 	if other.entryOrder != nil {
-		it_1 := foreach_(obj_(other.entryOrder))
-		for it_1.next() {
-			var e *SimpleSetMultimap_Entry = cast_[*SimpleSetMultimap_Entry](it_1.v)
-			this.put(e.key(), e.value())
+		for e := range other.entryOrder.All() {
+			this.put(unboxT_[K](e.key()), unboxT_[V](e.value()))
 		}
 	} else {
-		it_3 := foreach_(any(other.map__.entrySet()))
-		for it_3.next() {
-			var e Map_Entry = icast_Map_Entry(it_3.v)
-			this.putAll_2(e.getKey(), icast_Iterable(e.getValue()))
+		for e := range elemsBy_(other.map__.entrySet(), icast_Map_Entry) {
+			this.putAll_2(unboxT_[K](e.getKey()), icast_Iterable(e.getValue()))
 		}
 	}
 }
 
-func (this *SimpleSetMultimap) get(key any) SetOf[any] {
+func (this *SimpleSetMultimap[K, V]) get(key any) SetOf[any] {
 	var values SetOf[any] = icast_Set(this.map__.get(key))
 	return func() Set {
 		if values == nil {
-			return icast_Set(obj_(ImmutableSet_of()))
+			return ImmutableSet_of()
 		}
 		return Collections_unmodifiableSet(values)
 	}()
 }
 
-func (this *SimpleSetMultimap) containsKey(key any) bool {
+// get_s is get for a string key that is not boxed (post-flip manual step).
+func (this *SimpleSetMultimap[K, V]) get_s(key string) SetOf[any] {
+	var values SetOf[any] = icast_Set(Map_get_s(this.map__, key))
+	if values == nil {
+		return ImmutableSet_of()
+	}
+	return Collections_unmodifiableSet(values)
+}
+
+func (this *SimpleSetMultimap[K, V]) containsKey(key any) bool {
 	return this.map__.containsKey(key)
 }
 
-func (this *SimpleSetMultimap) containsEntry(key any, value any) bool {
-	var values SetOf[any] = icast_Set(this.map__.get(key))
-	return ((values != nil) && values.contains(value))
+// containsKey_s is containsKey for a string key that is not boxed (post-flip manual step).
+func (this *SimpleSetMultimap[K, V]) containsKey_s(key string) bool {
+	return Map_containsKey_s(this.map__, key)
 }
 
-func (this *SimpleSetMultimap) removeAll(key any) SetOf[any] {
-	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
+func (this *SimpleSetMultimap[K, V]) containsEntry(key any, value string) bool {
+	var values SetOf[any] = icast_Set(this.map__.get(key))
+	return ((values != nil) && Collection_contains_s(values, value))
+}
+
+func (this *SimpleSetMultimap[K, V]) removeAll(key any) SetOf[any] {
+	if this.frozen {
+		panic(new_IllegalStateException_String("immutable"))
+	}
 	var values SetOf[any] = icast_Set(this.map__.remove(key))
 	if values == nil {
-		return icast_Set(obj_(ImmutableSet_of()))
+		return ImmutableSet_of()
 	}
 	if this.entryOrder != nil {
-		it_1 := foreach_(any(values))
-		for it_1.next() {
-			var value any = it_1.v
-			this.entryOrder.remove_Object(obj_(new_SimpleSetMultimap_Entry(key, value)))
+		for value := range elems_(values) {
+			this.entryOrder.Delete(new_SimpleSetMultimap_Entry(key, value))
 		}
 	}
 	return Collections_unmodifiableSet(values)
 }
 
-func (this *SimpleSetMultimap) clear() {
-	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
+// removeAll_s is removeAll for a string key that is not boxed (post-flip manual step).
+func (this *SimpleSetMultimap[K, V]) removeAll_s(key string) SetOf[any] {
+	if this.frozen {
+		panic(new_IllegalStateException_String("immutable"))
+	}
+	var values SetOf[any] = icast_Set(Map_remove_s(this.map__, key))
+	if values == nil {
+		return ImmutableSet_of()
+	}
+	if this.entryOrder != nil {
+		k := strobj_(key)
+		for value := range elems_(values) {
+			this.entryOrder.Delete(new_SimpleSetMultimap_Entry(k, value))
+		}
+	}
+	return Collections_unmodifiableSet(values)
+}
+
+func (this *SimpleSetMultimap[K, V]) clear() {
+	if this.frozen {
+		panic(new_IllegalStateException_String("immutable"))
+	}
 	this.map__.clear()
 	if this.entryOrder != nil {
-		this.entryOrder.clear()
+		this.entryOrder.Clear()
 	}
 }
 
-func (this *SimpleSetMultimap) keySet() SetOf[any] {
+func (this *SimpleSetMultimap[K, V]) keySet() SetOf[any] {
 	return Collections_unmodifiableSet(this.map__.keySet())
 }
 
-func (this *SimpleSetMultimap) values() CollectionOf[any] {
-	return icast_Collection(obj_(new_SimpleSetMultimap_1(this)))
+func (this *SimpleSetMultimap[K, V]) values() CollectionOf[any] {
+	return new_SimpleSetMultimap_1(this)
 }
 
-func (this *SimpleSetMultimap) asMap() MapOf[any, SetOf[any]] {
+func (this *SimpleSetMultimap[K, V]) asMap() MapOf[any, SetOf[any]] {
 	return Collections_unmodifiableMap(this.map__)
 }
 
-func (this *SimpleSetMultimap) size() int32 {
+func (this *SimpleSetMultimap[K, V]) size() int32 {
 	var size int32 = 0
-	it_1 := foreach_(any(this.map__.values()))
-	for it_1.next() {
-		var values Set = icast_Set(it_1.v)
+	for values := range elemsBy_(this.map__.values(), icast_Set) {
 		size += values.size()
 	}
 	return size
 }
 
-func (this *SimpleSetMultimap) isEmpty() bool {
+func (this *SimpleSetMultimap[K, V]) isEmpty() bool {
 	return this.map__.isEmpty()
 }
 
-func (this *SimpleSetMultimap) equals(o any) bool {
-	var that *SimpleSetMultimap
+func (this *SimpleSetMultimap[K, V]) equals(o any) bool {
+	var that *SimpleSetMultimap[any, any]
 	_ = that
 	return (func() bool {
 		v_ := o
-		if !is_[*SimpleSetMultimap](v_) {
+		p, ok := v_.(*SimpleSetMultimap[any, any])
+		if !ok {
 			return false
 		}
-		that = cast_[*SimpleSetMultimap](v_)
+		that = p
 		return true
-	}() && Object_equals(any(this.map__), any(that.map__)))
+	}() && equalsDyn_(this.map__, that.map__))
 }
 
-func (this *SimpleSetMultimap) hashCode() int32 {
-	return Object_hashCode(any(this.map__))
+func (this *SimpleSetMultimap[K, V]) hashCode() int32 {
+	return hashDyn_(this.map__)
 }
 
-func (this *SimpleSetMultimap) toString() string {
-	return Object_toString(any(this.map__))
+func (this *SimpleSetMultimap[K, V]) toString() string {
+	return Object_toString(this.map__)
 }
 
-type SimpleSetMultimap_Entry struct {
-	key_   any
-	value_ any
+type SimpleSetMultimap_Entry[K, V comparable] struct {
+	key_   K
+	value_ V
 }
 
-func (this *SimpleSetMultimap_Entry) init_SimpleSetMultimap_Entry(key any, value any) {
+func (this *SimpleSetMultimap_Entry[K, V]) init_SimpleSetMultimap_Entry(key K, value V) {
 	this.key_ = key
 	this.value_ = value
 }
 
-func new_SimpleSetMultimap_Entry(key any, value any) *SimpleSetMultimap_Entry {
-	this := &SimpleSetMultimap_Entry{}
+func new_SimpleSetMultimap_Entry[K, V comparable](key K, value V) *SimpleSetMultimap_Entry[K, V] {
+	this := &SimpleSetMultimap_Entry[K, V]{key_: null_[K](), value_: null_[V]()}
 	this.init_SimpleSetMultimap_Entry(key, value)
 	return this
 }
 
-func (this *SimpleSetMultimap_Entry) key() any {
+func (this *SimpleSetMultimap_Entry[K, V]) key() K {
 	return this.key_
 }
 
-func (this *SimpleSetMultimap_Entry) value() any {
+func (this *SimpleSetMultimap_Entry[K, V]) value() V {
 	return this.value_
 }
 
-func (this *SimpleSetMultimap_Entry) equals(p0 any) bool {
-	o, ok := p0.(*SimpleSetMultimap_Entry)
+func (this *SimpleSetMultimap_Entry[K, V]) equals(p0 any) bool {
+	o, ok := p0.(*SimpleSetMultimap_Entry[any, any])
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.key_, o.key_) && Objects_equals(this.value_, o.value_)
+	return true && Objects_equals(boxNull_(this.key_), o.key_) && Objects_equals(boxNull_(this.value_), o.value_)
 }
 
-func (this *SimpleSetMultimap_Entry) hashCode() int32 {
+func (this *SimpleSetMultimap_Entry[K, V]) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.key_)
-	h = h*31 + Objects_hashCode(this.value_)
+	h = h*31 + Objects_hashCode(boxNull_(this.key_))
+	h = h*31 + Objects_hashCode(boxNull_(this.value_))
 	return h
 }
 
-func (this *SimpleSetMultimap_Entry) toString() string {
-	return "Entry[" + "key=" + objstr_(this.key_) + ", value=" + objstr_(this.value_) + "]"
+func (this *SimpleSetMultimap_Entry[K, V]) toString() string {
+	return "Entry[" + "key=" + objstr_(boxNull_(this.key_)) + ", value=" + objstr_(boxNull_(this.value_)) + "]"
 }
 
-type SimpleSetMultimap_InsertionOrderedValuesIterator struct {
-	outer_  *SimpleSetMultimap
-	entries IteratorOf[*SimpleSetMultimap_Entry]
-	last    *SimpleSetMultimap_Entry
+type SimpleSetMultimap_InsertionOrderedValuesIterator[K, V comparable] struct {
+	outer_  *SimpleSetMultimap[K, V]
+	entries IteratorOf[*SimpleSetMultimap_Entry[any, any]]
+	last    *SimpleSetMultimap_Entry[any, any]
 }
 
-func (this *SimpleSetMultimap_InsertionOrderedValuesIterator) finit_SimpleSetMultimap_InsertionOrderedValuesIterator() {
-	this.entries = this.outer_.entryOrder.iterator()
+func (this *SimpleSetMultimap_InsertionOrderedValuesIterator[K, V]) finit_SimpleSetMultimap_InsertionOrderedValuesIterator() {
+	this.entries = this.outer_.entryOrder.asSet().iterator()
 	this.last = nil
 }
 
-func (this *SimpleSetMultimap_InsertionOrderedValuesIterator) init_SimpleSetMultimap_InsertionOrderedValuesIterator() {
+func (this *SimpleSetMultimap_InsertionOrderedValuesIterator[K, V]) init_SimpleSetMultimap_InsertionOrderedValuesIterator() {
 	this.finit_SimpleSetMultimap_InsertionOrderedValuesIterator()
 }
 
-func new_SimpleSetMultimap_InsertionOrderedValuesIterator(outer_ *SimpleSetMultimap) *SimpleSetMultimap_InsertionOrderedValuesIterator {
-	this := &SimpleSetMultimap_InsertionOrderedValuesIterator{}
+func new_SimpleSetMultimap_InsertionOrderedValuesIterator[K, V comparable](outer_ *SimpleSetMultimap[K, V]) *SimpleSetMultimap_InsertionOrderedValuesIterator[K, V] {
+	this := &SimpleSetMultimap_InsertionOrderedValuesIterator[K, V]{}
 	this.outer_ = outer_
 	this.init_SimpleSetMultimap_InsertionOrderedValuesIterator()
 	return this
 }
 
-func (this *SimpleSetMultimap_InsertionOrderedValuesIterator) hasNext() bool {
+func (this *SimpleSetMultimap_InsertionOrderedValuesIterator[K, V]) hasNext() bool {
 	return this.entries.hasNext()
 }
 
-func (this *SimpleSetMultimap_InsertionOrderedValuesIterator) next() any {
-	this.last = cast_[*SimpleSetMultimap_Entry](this.entries.next())
+func (this *SimpleSetMultimap_InsertionOrderedValuesIterator[K, V]) next() any {
+	this.last = cast_[*SimpleSetMultimap_Entry[any, any]](this.entries.next())
 	return this.last.value()
 }
 
-func (this *SimpleSetMultimap_InsertionOrderedValuesIterator) remove() {
-	Preconditions_checkState_boolean_Object(!this.outer_.frozen, strobj_("immutable"))
+func (this *SimpleSetMultimap_InsertionOrderedValuesIterator[K, V]) remove() {
+	if this.outer_.frozen {
+		panic(new_IllegalStateException_String("immutable"))
+	}
 	Iterator_remove(this.entries)
 	var values SetOf[any] = icast_Set(this.outer_.map__.get(this.last.key()))
 	values.remove_Object(this.last.value())
@@ -293,39 +347,39 @@ func (this *SimpleSetMultimap_InsertionOrderedValuesIterator) remove() {
 	}
 }
 
-type SimpleSetMultimap_1 struct {
+type SimpleSetMultimap_1[K, V comparable] struct {
 	AbstractCollection
-	outer_ *SimpleSetMultimap
+	outer_ *SimpleSetMultimap[K, V]
 }
 
-func (this *SimpleSetMultimap_1) up_AbstractCollection() *AbstractCollection {
+func (this *SimpleSetMultimap_1[K, V]) up_AbstractCollection() *AbstractCollection {
 	if this == nil {
 		return nil
 	}
 	return &this.AbstractCollection
 }
 
-func (this *SimpleSetMultimap_1) init_SimpleSetMultimap_1() {
+func (this *SimpleSetMultimap_1[K, V]) init_SimpleSetMultimap_1() {
 	this.AbstractCollection.init_AbstractCollection()
 }
 
-func new_SimpleSetMultimap_1(outer_ *SimpleSetMultimap) *SimpleSetMultimap_1 {
-	this := &SimpleSetMultimap_1{}
+func new_SimpleSetMultimap_1[K, V comparable](outer_ *SimpleSetMultimap[K, V]) *SimpleSetMultimap_1[K, V] {
+	this := &SimpleSetMultimap_1[K, V]{}
 	this.self_ = this
 	this.outer_ = outer_
 	this.init_SimpleSetMultimap_1()
 	return this
 }
 
-func (this *SimpleSetMultimap_1) iterator() IteratorOf[any] {
+func (this *SimpleSetMultimap_1[K, V]) iterator() IteratorOf[any] {
 	return func() Iterator {
 		if this.outer_.entryOrder != nil {
-			return icast_Iterator(obj_(new_SimpleSetMultimap_InsertionOrderedValuesIterator(this.outer_)))
+			return new_SimpleSetMultimap_InsertionOrderedValuesIterator(this.outer_)
 		}
 		return Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterable(this.outer_.map__.values()))).iterator()
 	}()
 }
 
-func (this *SimpleSetMultimap_1) size() int32 {
+func (this *SimpleSetMultimap_1[K, V]) size() int32 {
 	return this.outer_.size()
 }

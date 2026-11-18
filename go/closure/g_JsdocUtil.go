@@ -16,7 +16,7 @@ func new_JsdocUtil() *JsdocUtil {
 }
 
 func JsdocUtil_isPrivate(jsdoc *JSDocInfo) bool {
-	return ((jsdoc != nil) && Object_equals(obj_(jsdoc.getVisibility()), obj_(JSDocInfo_Visibility_PRIVATE)))
+	return ((jsdoc != nil) && equalsId_(jsdoc.getVisibility(), JSDocInfo_Visibility_PRIVATE))
 }
 
 func JsdocUtil_getUnusableTypeJSDoc(oldJSDoc *JSDocInfo) *JSDocInfo {
@@ -104,7 +104,7 @@ func JsdocUtil_replaceAnnotatedTypesWithUnusableType(jsdoc *JSDocInfo) *JSDocInf
 	if jsdoc.isConstant() {
 		builder.recordConstancy()
 	}
-	if jsdoc.getVisibility() != nil {
+	if jsdoc.getVisibility() != 0 {
 		builder.recordVisibility(jsdoc.getVisibility())
 	}
 	return builder.build()
@@ -155,14 +155,14 @@ func JsdocUtil_getJSDocForName(decl *Var, oldJSDoc *JSDocInfo) *JSDocInfo {
 		return nil
 	}
 	var typeAst Node = expr.getRoot()
-	switch typeAst.getToken() {
-	case Token_rhino_EQUALS:
+	switch typeAst.ns_().token {
+	case tokOrd1_EQUALS:
 		var typeRoot Node = typeAst.getFirstChild().cloneTree()
 		if !decl.isDefaultParam() {
 			typeRoot = new_Node_Token_Node_Node(Token_rhino_PIPE, typeRoot, IR_string("undefined"))
 		}
 		typeAst = typeRoot
-	case Token_rhino_ITER_REST:
+	case tokOrd1_ITER_REST:
 		var newType Node = new_Node_Token(Token_rhino_BANG)
 		var array Node = IR_string("Array")
 		newType.addChildToBack(array)
@@ -176,7 +176,7 @@ func JsdocUtil_getJSDocForName(decl *Var, oldJSDoc *JSDocInfo) *JSDocInfo {
 
 func JsdocUtil_isUnknownType(type_ *JSTypeExpression) bool {
 	var typeAst Node = type_.getRoot()
-	return ((typeAst.getToken() == Token_rhino_QMARK) && !typeAst.hasChildren())
+	return ((typeAst.ns_().token == tokOrd1_QMARK) && !typeAst.hasChildren())
 }
 
 const JsdocUtil_SYNTHETIC_FILE_NAME string = "<synthetic>"
@@ -191,7 +191,7 @@ func JsdocUtil_clinit() {
 		return
 	}
 	JsdocUtil_clinit_done = true
-	JsdocUtil_SYNTHETIC_FILE = icast_StaticSourceFile(obj_(new_SimpleSourceFile(JsdocUtil_SYNTHETIC_FILE_NAME, StaticSourceFile_SourceKind_EXTERN)))
+	JsdocUtil_SYNTHETIC_FILE = new_SimpleSourceFile(JsdocUtil_SYNTHETIC_FILE_NAME, StaticSourceFile_SourceKind_EXTERN)
 	JsdocUtil_SYNTETIC_SRCINFO_NODE = new_Node_Token(Token_rhino_EMPTY).setStaticSourceFile(JsdocUtil_SYNTHETIC_FILE)
 
 }

@@ -37,8 +37,8 @@ func (this *JSChunk) getName() string {
 	return this.name_
 }
 
-func (this *JSChunk) getProvides() ImmutableListOf[string] {
-	return ImmutableList_of_Object(strobj_(this.name_))
+func (this *JSChunk) getProvides() *ImmutableList[string] {
+	return immutableListOf_(tc_string, this.name_)
 }
 
 func (this *JSChunk) getHasExternsAnnotation() bool {
@@ -49,34 +49,34 @@ func (this *JSChunk) getHasNoCompileAnnotation() bool {
 	return false
 }
 
-func (this *JSChunk) getRequires() ImmutableListOf[*DependencyInfo_Require] {
-	var builder ImmutableList_BuilderOf[*DependencyInfo_Require] = ImmutableList_builder()
+func (this *JSChunk) getRequires() *ImmutableList[*DependencyInfo_Require] {
+	var builder *ImmutableList_Builder[*DependencyInfo_Require] = immutableListBuilder_(tc_p_DependencyInfo_Require)
 	it_1 := this.deps.each()
 	for it_1.next() {
 		var chunk *JSChunk = it_1.v
-		builder.add(obj_(DependencyInfo_Require_compilerChunk(chunk.getName())))
+		builder.add(DependencyInfo_Require_compilerChunk(chunk.getName()))
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return builder.build()
 }
 
-func (this *JSChunk) getTypeRequires() ImmutableListOf[string] {
-	return ImmutableList_of()
+func (this *JSChunk) getTypeRequires() *ImmutableList[string] {
+	return immutableListOf_(tc_string)
 }
 
 func (this *JSChunk) getPathRelativeToClosureBase() string {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
-func (this *JSChunk) getLoadFlags() ImmutableMapOf[string, string] {
-	panic(new_UnsupportedOperationException_0().self())
+func (this *JSChunk) getLoadFlags() *ImmutableMap[string, string] {
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *JSChunk) isGoogModule() bool {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *JSChunk) isEs6Module() bool {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *JSChunk) add(file *SourceFile_jscomp) {
@@ -86,13 +86,19 @@ func (this *JSChunk) add(file *SourceFile_jscomp) {
 func (this *JSChunk) addCompilerInput(input *CompilerInput) {
 	var inputName string = input.getName()
 	var previous *CompilerInput = this.inputs.put(inputName, input)
-	Preconditions_checkState_boolean_String_Object_Object((previous == nil), "%s already exist in chunk %s", strobj_(inputName), strobj_(this.getName()))
+	if ok_, a1_, a2_ := (previous == nil), inputName, this.getName(); !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s already exist in chunk %s", []any{strobj_(a1_), strobj_(a2_)})))
+	}
 	input.setChunk(this)
 }
 
 func (this *JSChunk) addDependency(dep *JSChunk) {
-	Preconditions_checkNotNull(obj_(dep))
-	Preconditions_checkState_boolean_String_Object((dep != this), "Cannot add dependency on self (%s)", any(this))
+	if dep == nil {
+		panic(new_NullPointerException_0())
+	}
+	if dep == this {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot add dependency on self (%s)", []any{any(this)})))
+	}
 	this.deps.add(dep)
 }
 
@@ -110,15 +116,13 @@ func (this *JSChunk) removeAll() {
 	this.inputs.clear()
 }
 
-func (this *JSChunk) getDependencies() ImmutableListOf[*JSChunk] {
-	return ImmutableList_copyOf(Collection(this.deps.asList()))
+func (this *JSChunk) getDependencies() []*JSChunk {
+	return immCopyOf_(tc_p_JSChunk, Collection(this.deps.asList()))
 }
 
 func (this *JSChunk) getSortedDependencyNames() *JTList[string] {
 	var names *JTList[string] = jnewTList_(jtc_string)
-	it_1 := foreach_(obj_(this.getDependencies()))
-	for it_1.next() {
-		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
+	for _, chunk := range this.getDependencies() {
 		names.add(chunk.getName())
 	}
 	Collections_sort(names.asList())
@@ -154,7 +158,7 @@ func (this *JSChunk) getInputCount() int32 {
 }
 
 func (this *JSChunk) getFirst() *CompilerInput {
-	return cast_[*CompilerInput](this.inputs.asMap().values().iterator().next())
+	return cast_[*CompilerInput](first_(this.inputs.asMap().values()))
 }
 
 func (this *JSChunk) getInputs() ImmutableListOf[*CompilerInput] {
@@ -194,15 +198,15 @@ func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
 	}
 	var sortedList ListOf[*CompilerInput] = new_SortedDependencies[*CompilerInput](icast_List(obj_(this.getInputs()))).getSortedList()
 	this.inputs.clear()
-	it_3 := foreach_(any(sortedList))
-	for it_3.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_3.v)
+	for input := range elemsAs_[*CompilerInput](sortedList) {
 		this.inputs.put(input.getName(), input)
 	}
 }
 
 func (this *JSChunk) setDepth(dep int32) {
-	Preconditions_checkArgument_boolean_String_int((dep >= 0), "invalid depth: %s", dep)
+	if dep < 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("invalid depth: %s", []any{dep})))
+	}
 	this.depth = dep
 }
 
@@ -211,7 +215,9 @@ func (this *JSChunk) getDepth() int32 {
 }
 
 func (this *JSChunk) setIndex(index int32) {
-	Preconditions_checkArgument_boolean_String_int((index >= 0), "Invalid chunk index: %s", index)
+	if index < 0 {
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Invalid chunk index: %s", []any{index})))
+	}
 	this.index_ = index
 }
 
@@ -224,8 +230,8 @@ func (this *JSChunk) readObject(in *ObjectInputStream) {
 	this.inputs = jnewTMap_(jtc_string, jtc_p_CompilerInput)
 }
 
-func (this *JSChunk) getRequiredSymbols() *ImmutableList {
-	return DependencyInfo_getRequiredSymbols_default(icast_DependencyInfo(any(this)))
+func (this *JSChunk) getRequiredSymbols() *ImmutableList[string] {
+	return DependencyInfo_getRequiredSymbols_default(this)
 }
 
 const JSChunk_STRONG_CHUNK_NAME string = "$strong$"

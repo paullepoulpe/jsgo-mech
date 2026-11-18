@@ -2,9 +2,14 @@
 
 package closure
 
+import (
+	"strconv"
+	"strings"
+)
+
 type PerformanceTracker struct {
 	externsRoot                    Node
-	mode_                          *CompilerOptions_TracerMode
+	mode_                          CompilerOptions_TracerMode
 	codeChange                     *RecentChange
 	jsRoot                         Node
 	initAstSize                    int32
@@ -34,8 +39,8 @@ type PerformanceTracker struct {
 	diff                           int32
 	gzDiff                         int32
 	currentPass                    *TDeque[*PerformanceTracker_Stats]
-	passSummary                    ImmutableMapOf[string, *PerformanceTracker_Stats]
-	astManifest                    *SimpleMultiset
+	passSummary                    *ImmutableMap[string, *PerformanceTracker_Stats]
+	astManifest                    *SimpleMultiset[Token_rhino]
 	log_                           *JTList[*PerformanceTracker_Stats]
 	pruningAnalysisSummary         string
 	disambiguatePropertiesSummary  string
@@ -81,16 +86,18 @@ func (this *PerformanceTracker) finit_PerformanceTracker() {
 	this.ambiguatePropertiesSummary = "not executed"
 }
 
-func (this *PerformanceTracker) init_PerformanceTracker(externsRoot Node, jsRoot Node, mode *CompilerOptions_TracerMode) {
+func (this *PerformanceTracker) init_PerformanceTracker(externsRoot Node, jsRoot Node, mode CompilerOptions_TracerMode) {
 	this.finit_PerformanceTracker()
-	Preconditions_checkArgument_boolean_Object((mode != CompilerOptions_TracerMode_OFF), strobj_("PerformanceTracker can't work without tracer data."))
+	if mode == CompilerOptions_TracerMode_OFF {
+		panic(new_IllegalArgumentException_String("PerformanceTracker can't work without tracer data."))
+	}
 	this.startTime = System_currentTimeMillis()
 	this.externsRoot = externsRoot
 	this.jsRoot = jsRoot
 	this.mode_ = mode
 }
 
-func new_PerformanceTracker(externsRoot Node, jsRoot Node, mode *CompilerOptions_TracerMode) *PerformanceTracker {
+func new_PerformanceTracker(externsRoot Node, jsRoot Node, mode CompilerOptions_TracerMode) *PerformanceTracker {
 	this := &PerformanceTracker{}
 	this.zero_PerformanceTracker()
 	this.init_PerformanceTracker(externsRoot, jsRoot, mode)
@@ -133,7 +140,9 @@ func (this *PerformanceTracker) updateAfterDeserialize(jsRoot Node) {
 func (this *PerformanceTracker) recordPassStop(passName string, runtime int64) {
 	var allocMem int32 = this.getAllocatedMegabytes()
 	var logStats *PerformanceTracker_Stats = this.currentPass.pop()
-	Preconditions_checkState((passName == logStats.pass))
+	if passName != logStats.pass {
+		panic(new_IllegalStateException_0())
+	}
 	this.log_.add(logStats)
 	logStats.runtime_ = runtime
 	logStats.allocMem = allocMem
@@ -283,7 +292,7 @@ func (this *PerformanceTracker) getLoopRuns() int32 {
 	return this.loopRuns
 }
 
-func (this *PerformanceTracker) getStats() ImmutableMapOf[string, *PerformanceTracker_Stats] {
+func (this *PerformanceTracker) getStats() *ImmutableMap[string, *PerformanceTracker_Stats] {
 	this.calcTotalStats()
 	return this.passSummary
 }
@@ -294,9 +303,8 @@ func (this *PerformanceTracker) calcTotalStats() {
 	}
 	this.endTime = System_currentTimeMillis()
 	this.populatePassSummary()
-	it_1 := foreach_(obj_(cast_[*ImmutableCollection](this.passSummary.values())))
-	for it_1.next() {
-		var stats *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](it_1.v)
+	for _, el := range immElems_(cast_[*ImmutableCollection](this.passSummary.asImm().values())) {
+		stats := cast_[*PerformanceTracker_Stats](el)
 		this.passesRuntime = int32((int64(this.passesRuntime) + stats.runtime_))
 		this.maxMem = Math_max(this.maxMem, stats.allocMem)
 		this.runs += stats.runs
@@ -309,9 +317,15 @@ func (this *PerformanceTracker) calcTotalStats() {
 		this.diff += stats.diff
 		this.gzDiff += stats.gzDiff
 	}
-	Preconditions_checkState((!this.tracksAstSize() || (this.initAstSize == (this.astDiff + this.astSize))))
-	Preconditions_checkState((!this.tracksSize() || (this.initCodeSize == (this.diff + this.codeSize))))
-	Preconditions_checkState((!this.tracksGzSize() || (this.initGzCodeSize == (this.gzDiff + this.gzCodeSize))))
+	if this.tracksAstSize() && this.initAstSize != (this.astDiff+this.astSize) {
+		panic(new_IllegalStateException_0())
+	}
+	if this.tracksSize() && this.initCodeSize != (this.diff+this.codeSize) {
+		panic(new_IllegalStateException_0())
+	}
+	if this.tracksGzSize() && this.initGzCodeSize != (this.gzDiff+this.gzCodeSize) {
+		panic(new_IllegalStateException_0())
+	}
 }
 
 func (this *PerformanceTracker) populatePassSummary() {
@@ -331,16 +345,16 @@ func (this *PerformanceTracker) populatePassSummary() {
 		entry.diff += logStat.diff
 		entry.gzDiff += logStat.gzDiff
 	}
-	this.passSummary = ImmutableMap_copyOf(tmpPassSummary.asMap())
+	this.passSummary = immutableMapCopyOf_(tc_string, tc_p_PerformanceTracker_Stats, tmpPassSummary.asMap())
 }
 
 func (this *PerformanceTracker) populateAstManifest() {
 	if this.astManifest != nil {
 		return
 	}
-	var builder *SimpleMultiset = SimpleMultiset_create()
+	var builder *SimpleMultiset[Token_rhino] = SimpleMultiset_create[Token_rhino]()
 	NodeUtil_visitPreOrder_Node_Visitor(this.jsRoot, &NodeUtil_Visitor_fn{func(n Node) {
-		builder.add(obj_(n.getToken()))
+		builder.add(n.getToken())
 	}})
 	this.astManifest = builder.immutableCopy()
 }
@@ -350,20 +364,16 @@ func (this *PerformanceTracker) setPruningAnalysisSummary(summary string) {
 }
 
 func (this *PerformanceTracker) recordPrePruningInputCount(originalInputs IterableOf[*CompilerInput], originalExterns IterableOf[*CompilerInput]) {
-	it_1 := foreach_(any(originalExterns))
-	for it_1.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
+	for input := range elemsAs_[*CompilerInput](originalExterns) {
 		var name string = input.getSourceFile().getName()
-		if String_endsWith(name, ".i.js") {
+		if strings.HasSuffix(name, ".i.js") {
 			this.transitiveSummarySourcesParsed += 1
 			this.transitiveSummaryLinesParsed += input.getSourceFile().getNumLines()
 		}
 	}
-	it_3 := foreach_(any(originalInputs))
-	for it_3.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_3.v)
+	for input := range elemsAs_[*CompilerInput](originalInputs) {
 		var name string = input.getSourceFile().getName()
-		if String_endsWith(name, ".i.js") {
+		if strings.HasSuffix(name, ".i.js") {
 			this.transitiveSummarySourcesParsed += 1
 			this.transitiveSummaryLinesParsed += input.getSourceFile().getNumLines()
 		}
@@ -395,29 +405,27 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 		return this.transitiveSummarySources
 	}()))), ("Type summary sources (post-pruning):   " + istr_(int64(this.transitiveSummarySources))), "", ("Dependency pruning analysis: " + sstr_(this.pruningAnalysisSummary))}))
 	output.println(JSCompStrings_lines([]string{"", "Summary:", "pass,runtime,allocMem,runs,changingRuns,astReduction,reduction,gzReduction"}))
-	var sortedPassSummary *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(this.passSummary.entrySet()))
+	var sortedPassSummary *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(this.passSummary.asImm().entrySet()))
 	List_sort(sortedPassSummary.asList(), Comparator_comparingLong(&ToLongFunction_tfn_Map_Entry{func(e Map_Entry) int64 {
-		return cast_[*PerformanceTracker_Stats](e.getValue()).runtime_
+		return e.getValue().(*PerformanceTracker_Stats).runtime_
 	}}))
 	it_1 := sortedPassSummary.each()
 	for it_1.next() {
 		var entry Map_Entry = it_1.v
 		var key string = str_(entry.getKey())
 		var stats *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](entry.getValue())
-		output.println(String_format("%s,%d,%d,%d,%d,%d,%d,%d", []any{strobj_(key), any(int64(stats.runtime_)), any(int32(stats.allocMem)), any(int32(stats.runs)), any(int32(stats.changes)), any(int32(stats.astDiff)), any(int32(stats.diff)), any(int32(stats.gzDiff))}))
+		output.println((sstr_(key) + "," + istr_(int64(int64(stats.runtime_))) + "," + istr_(int64(int32(stats.allocMem))) + "," + istr_(int64(int32(stats.runs))) + "," + istr_(int64(int32(stats.changes))) + "," + istr_(int64(int32(stats.astDiff))) + "," + istr_(int64(int32(stats.diff))) + "," + istr_(int64(int32(stats.gzDiff)))))
 	}
 	output.println(JSCompStrings_lines([]string{"", "Log:", "pass,runtime,allocMem,codeChanged,astReduction,reduction,gzReduction,astSize,size,gzSize"}))
 	it_3 := this.log_.each()
 	for it_3.next() {
 		var stats *PerformanceTracker_Stats = it_3.v
-		output.print(String_format("%s,%d,%d,%s,%d,%d,%d,%d,%d,%d\n", []any{strobj_(stats.pass), any(int64(stats.runtime_)), any(int32(stats.allocMem)), strobj_(String_valueOf_boolean((stats.changes == 1))), any(int32(stats.astDiff)), any(int32(stats.diff)), any(int32(stats.gzDiff)), any(int32(stats.astSize)), any(int32(stats.size_)), any(int32(stats.gzSize))}))
+		output.print((sstr_(stats.pass) + "," + istr_(int64(int64(stats.runtime_))) + "," + istr_(int64(int32(stats.allocMem))) + "," + sstr_(strconv.FormatBool((stats.changes == 1))) + "," + istr_(int64(int32(stats.astDiff))) + "," + istr_(int64(int32(stats.diff))) + "," + istr_(int64(int32(stats.gzDiff))) + "," + istr_(int64(int32(stats.astSize))) + "," + istr_(int64(int32(stats.size_))) + "," + istr_(int64(int32(stats.gzSize))) + "\n"))
 	}
 	if this.astManifest != nil {
 		output.println(JSCompStrings_lines([]string{"", "Input AST Manifest:", "token,count"}))
 		var manifestLines *JTList[string] = jnewTList_(jtc_string)
-		it_5 := foreach_(any(this.astManifest.entrySet()))
-		for it_5.next() {
-			var e Map_Entry = icast_Map_Entry(it_5.v)
+		for e := range elemsBy_(this.astManifest.entrySet(), icast_Map_Entry) {
 			manifestLines.add(String_format("%s,%d", []any{e.getKey(), e.getValue()}))
 		}
 		Collections_sort(manifestLines.asList())

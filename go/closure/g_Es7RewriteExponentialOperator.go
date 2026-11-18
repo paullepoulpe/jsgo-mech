@@ -27,7 +27,7 @@ func new_Es7RewriteExponentialOperator(compiler *AbstractCompiler) *Es7RewriteEx
 }
 
 func (this *Es7RewriteExponentialOperator) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	TranspilationPasses_maybeMarkFeatureAsTranspiledAway(this.compiler_, root, FeatureSet_Feature_EXPONENT_OP)
 }
 
@@ -40,12 +40,12 @@ func (this *Es7RewriteExponentialOperator) shouldTraverse(t *NodeTraversal, n No
 }
 
 func (this *Es7RewriteExponentialOperator) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_EXPONENT:
+	switch n.ns_().token {
+	case tokOrd1_EXPONENT:
 		if this.checkOperatorType(n) {
 			this.visitExponentiationOperator(n)
 		}
-	case Token_rhino_ASSIGN_EXPONENT:
+	case tokOrd1_ASSIGN_EXPONENT:
 		if this.checkOperatorType(n) {
 			this.visitExponentiationAssignmentOperator(t, n)
 		}
@@ -69,7 +69,9 @@ func (this *Es7RewriteExponentialOperator) visitExponentiationAssignmentOperator
 	if left.isName() {
 		replacement = this.handleLHSName(operator, left)
 	} else {
-		Preconditions_checkState_boolean_Object((left.isGetProp() || left.isGetElem()), left.box_())
+		if !left.isGetProp() && !left.isGetElem() {
+			panic(new_IllegalStateException_String(tostr_(left)))
+		}
 		replacement = this.handleLHSPropertyReference(t, operator, left, enclosingStatement)
 	}
 	operator.replaceWith(replacement)
@@ -99,7 +101,9 @@ func (this *Es7RewriteExponentialOperator) handleLHSPropertyReference(t *NodeTra
 		tempPropOrElem = this.astFactory_.createGetProp(tempName.cloneNode(), propertyName, AstFactory_type_Node(left)).srcref(left)
 		newLHS = this.astFactory_.createGetProp(assignTemp, propertyName, AstFactory_type_Node(left)).srcref(left)
 	} else {
-		Preconditions_checkState_boolean_Object(left.isGetElem(), left.box_())
+		if !left.isGetElem() {
+			panic(new_IllegalStateException_String(tostr_(left)))
+		}
 		var tempIndexVarName string = (sstr_(Es7RewriteExponentialOperator_TEMP_INDEX_VAR_NAME_PREFIX) + sstr_(uniqueId))
 		var indexExprNode Node = left.getLastChild().detach()
 		var letIndex Node = this.astFactory_.createSingleLetNameDeclaration(tempIndexVarName).srcrefTree(operator)
@@ -121,9 +125,11 @@ func (this *Es7RewriteExponentialOperator) createMathPowCall() Node {
 }
 
 func (this *Es7RewriteExponentialOperator) checkOperatorType(operator Node) bool {
-	Preconditions_checkArgument_boolean_Object((operator.isExponent() || operator.isAssignExponent()), operator.box_())
+	if !operator.isExponent() && !operator.isAssignExponent() {
+		panic(new_IllegalArgumentException_String(tostr_(operator)))
+	}
 	if this.compiler_.hasTypeCheckingRun() {
-		if operator.getColor().equals(obj_(StandardColors_BIGINT)) {
+		if operator.getColor().equals_Color(StandardColors_BIGINT) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(operator, Es7RewriteExponentialOperator_TRANSPILE_EXPONENT_USING_BIGINT, []string{}))
 			return false
 		}

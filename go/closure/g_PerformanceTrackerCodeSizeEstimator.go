@@ -27,7 +27,7 @@ func (this *PerformanceTrackerCodeSizeEstimator) init_PerformanceTrackerCodeSize
 	this.finit_PerformanceTrackerCodeSizeEstimator()
 	this.trackGzSize = trackGzSize
 	if trackGzSize {
-		this.output = icast_List(new_ArrayList_0().self())
+		this.output = new_ArrayList_0()
 	} else {
 		this.output = nil
 	}
@@ -47,10 +47,11 @@ func PerformanceTrackerCodeSizeEstimator_estimate(jsRoot Node, trackGzSize bool)
 }
 
 func (this *PerformanceTrackerCodeSizeEstimator) append_impl(str string) {
-	var len_ int32 = String_length(str)
+	strU16 := utf16Of_(str)
+	var len_ int32 = strU16.length()
 	if len_ > 0 {
 		this.size_ += len_
-		this.lastChar = String_charAt(str, (len_ - 1))
+		this.lastChar = strU16.charAt((len_ - 1))
 		if this.trackGzSize {
 			this.output.add(any(Io_utf8Bytes(str)))
 		}
@@ -68,22 +69,34 @@ func (this *PerformanceTrackerCodeSizeEstimator) getCodeSize() int32 {
 func (this *PerformanceTrackerCodeSizeEstimator) getZippedCodeSize() int32 {
 	if this.trackGzSize {
 		var length int32 = 0
-		it_1 := foreach_(any(this.output))
-		for it_1.next() {
-			var chunk []int8 = cast_[[]int8](it_1.v)
+		for chunk := range elemsAs_[[]int8](this.output) {
 			length += int32(len(chunk))
 		}
 		var bytes []int8 = make([]int8, length)
 		var offset int32 = 0
-		it_3 := foreach_(any(this.output))
-		for it_3.next() {
-			var chunk []int8 = cast_[[]int8](it_3.v)
-			System_arraycopy(any(chunk), 0, any(bytes), offset, int32(len(chunk)))
+		for chunk := range elemsAs_[[]int8](this.output) {
+			arraycopy_(chunk, 0, bytes, offset, int32(len(chunk)))
 			offset += int32(len(chunk))
 		}
 		return int32(len(Io_gzip(bytes)))
 	} else {
 		return 0
 	}
-	panic("unreachable")
+}
+
+// append: an object that is exactly a PerformanceTrackerCodeSizeEstimator calls its append_impl directly (post-flip); others dispatch.
+func (this *PerformanceTrackerCodeSizeEstimator) append(p0 string) {
+	if p, _ := this.self_.(*PerformanceTrackerCodeSizeEstimator); p == this {
+		this.append_impl(p0)
+		return
+	}
+	this.self_.append_impl(p0)
+}
+
+// getLastChar: an object that is exactly a PerformanceTrackerCodeSizeEstimator calls its getLastChar_impl directly (post-flip); others dispatch.
+func (this *PerformanceTrackerCodeSizeEstimator) getLastChar() uint16 {
+	if p, _ := this.self_.(*PerformanceTrackerCodeSizeEstimator); p == this {
+		return this.getLastChar_impl()
+	}
+	return this.self_.getLastChar_impl()
 }

@@ -21,15 +21,13 @@ func new_PrintStreamErrorReportGenerator(formatter MessageFormatter, stream *Out
 }
 
 func (this *PrintStreamErrorReportGenerator) generateReport(manager *SortingErrorManager) {
-	it_1 := foreach_(any(manager.getSortedDiagnostics()))
-	for it_1.next() {
-		var e *SortingErrorManager_ErrorWithLevel = cast_[*SortingErrorManager_ErrorWithLevel](it_1.v)
+	for e := range elemsAs_[*SortingErrorManager_ErrorWithLevel](manager.getSortedDiagnostics()) {
 		this.println(e.level_, e.error_)
 	}
 	this.printSummary(icast_ErrorManager(manager.self()))
 }
 
-func (this *PrintStreamErrorReportGenerator) println(level *CheckLevel, error_ *JSError) {
+func (this *PrintStreamErrorReportGenerator) println(level CheckLevel, error_ *JSError) {
 	this.stream.println(error_.format(level, this.formatter).get())
 }
 
@@ -38,7 +36,7 @@ func (this *PrintStreamErrorReportGenerator) printSummary(manager ErrorManager) 
 		if manager.getTypedPercent() > 0.0 {
 			this.stream.print(String_format("%d error(s), %d warning(s), %.1f%% typed\n", []any{any(int32(manager.getErrorCount())), any(int32(manager.getWarningCount())), any(float64(manager.getTypedPercent()))}))
 		} else {
-			this.stream.print(String_format("%d error(s), %d warning(s)\n", []any{any(int32(manager.getErrorCount())), any(int32(manager.getWarningCount()))}))
+			this.stream.print((istr_(int64(int32(manager.getErrorCount()))) + " error(s), " + istr_(int64(int32(manager.getWarningCount()))) + " warning(s)\n"))
 		}
 	}
 }

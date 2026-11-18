@@ -2,15 +2,17 @@
 
 package closure
 
+import "strings"
+
 type SourceMap struct {
 	generator                SourceMapGenerator
-	prefixMappings           ListOf[SourceMap_LocationMapping]
+	prefixMappings           []SourceMap_LocationMapping
 	sourceLocationFixupCache *JTMap[string, string]
-	mapping                  SourceFileMapping
+	mapping                  func(Optional[string], int32, int32) *Mapping_OriginalMapping
 }
 
 func (this *SourceMap) finit_SourceMap() {
-	this.prefixMappings = icast_List(obj_(ImmutableList_of()))
+	this.prefixMappings = []SourceMap_LocationMapping{}
 	this.sourceLocationFixupCache = jnewTMap_(jtc_string, jtc_string)
 }
 
@@ -38,19 +40,19 @@ func (this *SourceMap) addMapping_3(node Node, outputStartPosition *FilePosition
 	var lineNo int32 = node.getLineno()
 	var charNo int32 = node.getCharno()
 	var originalName Optional[string] = Optional_of[string](SourceMap_getOriginalName(node)).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 	if this.mapping != nil {
-		var sourceMapping *Mapping_OriginalMapping = this.mapping.getSourceMapping_Optional_int_int(sourceFileName, lineNo, charNo)
+		var sourceMapping *Mapping_OriginalMapping = this.mapping(sourceFileName, lineNo, charNo)
 		if sourceMapping == nil {
-		} else if Object_equals(obj_(sourceMapping), obj_(Mapping_OriginalMapping_getDefaultInstance())) {
+		} else if equalsBy_(sourceMapping, obj_(Mapping_OriginalMapping_getDefaultInstance()), (*Mapping_OriginalMapping).equals) {
 			return
 		} else {
 			sourceFileName = Optional_ofNullable[string](sourceMapping.getOriginalFile())
 			lineNo = sourceMapping.getLineNumber()
 			charNo = sourceMapping.getColumnPosition()
 			var identifier string = sourceMapping.getIdentifier()
-			if sourceMapping.hasIdentifier() && !String_isEmpty(identifier) {
+			if sourceMapping.hasIdentifier() && identifier != "" {
 				originalName = Optional_of[string](identifier)
 			}
 		}
@@ -65,7 +67,7 @@ func (this *SourceMap) addSourceFile(name string, code string) {
 }
 
 func SourceMap_getOriginalName(node Node) string {
-	if !String_isEmpty(node.getOriginalName()) {
+	if node.getOriginalName() != "" {
 		return node.getOriginalName()
 	}
 	if node.isName() {
@@ -81,7 +83,7 @@ func SourceMap_getOriginalName(node Node) string {
 }
 
 func (this *SourceMap) fixupSourceLocation(sourceFile Optional[string]) Optional[string] {
-	if this.prefixMappings.isEmpty() {
+	if len(this.prefixMappings) == 0 {
 		return sourceFile
 	}
 	var fixed Optional[string] = func() Optional[string] {
@@ -93,9 +95,7 @@ func (this *SourceMap) fixupSourceLocation(sourceFile Optional[string]) Optional
 	if fixed.isPresent() {
 		return fixed
 	}
-	it_1 := foreach_(any(this.prefixMappings))
-	for it_1.next() {
-		var mapping SourceMap_LocationMapping = icast_SourceMap_LocationMapping(it_1.v)
+	for _, mapping := range this.prefixMappings {
 		fixed = mapping.map_(sourceFile)
 		if fixed.isPresent() {
 			break
@@ -129,70 +129,86 @@ func (this *SourceMap) validate(validate bool) {
 	this.generator.validate(validate)
 }
 
-func (this *SourceMap) setPrefixMappings(sourceMapLocationMappings ListOf[SourceMap_LocationMapping]) {
+func (this *SourceMap) setPrefixMappings(sourceMapLocationMappings []SourceMap_LocationMapping) {
 	this.prefixMappings = sourceMapLocationMappings
 }
 
-func (this *SourceMap) setSourceFileMapping(mapping SourceFileMapping) {
+func (this *SourceMap) setSourceFileMapping(mapping func(Optional[string], int32, int32) *Mapping_OriginalMapping) {
 	this.mapping = mapping
 }
 
-type SourceMap_Format struct {
-	Enum
+type SourceMap_Format uint8
+
+// SourceMap_Format_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var SourceMap_Format_enum_ = [2]Enum{
+	{self_: SourceMap_Format_DEFAULT, name_: "DEFAULT", ordinal_: 0},
+	{self_: SourceMap_Format_V3, name_: "V3", ordinal_: 1},
 }
 
-func (this *SourceMap_Format) as_SourceMap_Format() *SourceMap_Format { return this }
+func (this SourceMap_Format) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &SourceMap_Format_enum_[this-1]
+}
 
-func to_SourceMap_Format(v any) *SourceMap_Format {
+func (this SourceMap_Format) name() string { return this.enum_().name_ }
+
+func (this SourceMap_Format) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this SourceMap_Format) toString() string { return this.enum_().name_ }
+
+func (this SourceMap_Format) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this SourceMap_Format) self() any {
+	if this == 0 {
+		return nil
+	}
+	return this
+}
+
+func (this SourceMap_Format) as_SourceMap_Format() SourceMap_Format { return this }
+
+func to_SourceMap_Format(v any) SourceMap_Format {
 	if v == nil {
-		return nil
+		return 0
 	}
-	return v.(interface{ as_SourceMap_Format() *SourceMap_Format }).as_SourceMap_Format()
+	return v.(interface{ as_SourceMap_Format() SourceMap_Format }).as_SourceMap_Format()
 }
 
-func is_SourceMap_Format(v any) bool {
-	_, ok := v.(interface{ as_SourceMap_Format() *SourceMap_Format })
-	return ok
-}
-
-func (this *SourceMap_Format) self() any {
-	if this == nil {
-		return nil
+func (this SourceMap_Format) getInstance() *SourceMap {
+	switch this {
+	case SourceMap_Format_DEFAULT:
+		return new_SourceMap(SourceMapGeneratorFactory_getInstance(SourceMapFormat_DEFAULT))
+	case SourceMap_Format_V3:
+		return new_SourceMap(SourceMapGeneratorFactory_getInstance(SourceMapFormat_V3))
+	default:
+		panic(new_NullPointerException_0()) // a call on null
 	}
-	return this.self_
 }
 
-func (this *SourceMap_Format) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
+func SourceMap_Format_values() []SourceMap_Format {
+	return append([]SourceMap_Format(nil), SourceMap_Format_values_...)
 }
 
-func (this *SourceMap_Format) init_SourceMap_Format(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
-
-func (this *SourceMap_Format) getInstance() *SourceMap {
-	return this.self_.(interface{ getInstance_impl() *SourceMap }).getInstance_impl()
-}
-
-func SourceMap_Format_values() []*SourceMap_Format {
-	return append([]*SourceMap_Format(nil), SourceMap_Format_values_...)
-}
-
-func SourceMap_Format_valueOf(name string) *SourceMap_Format {
+func SourceMap_Format_valueOf(name string) SourceMap_Format {
 	for _, v := range SourceMap_Format_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Format", name))
 }
 
-var SourceMap_Format_DEFAULT *SourceMap_Format
-var SourceMap_Format_V3 *SourceMap_Format
-var SourceMap_Format_values_ []*SourceMap_Format
+const SourceMap_Format_DEFAULT SourceMap_Format = 1
+const SourceMap_Format_V3 SourceMap_Format = 2
+
+var SourceMap_Format_values_ []SourceMap_Format
 
 var SourceMap_Format_clinit_done bool
 
@@ -201,73 +217,84 @@ func SourceMap_Format_clinit() {
 		return
 	}
 	SourceMap_Format_clinit_done = true
-	SourceMap_Format_DEFAULT = new_SourceMap_Format_1("DEFAULT", 0).up_SourceMap_Format()
-	SourceMap_Format_V3 = new_SourceMap_Format_2("V3", 1).up_SourceMap_Format()
-	SourceMap_Format_values_ = []*SourceMap_Format{SourceMap_Format_DEFAULT, SourceMap_Format_V3}
+	SourceMap_Format_values_ = []SourceMap_Format{SourceMap_Format_DEFAULT, SourceMap_Format_V3}
 	registerEnum_("com.google.javascript.jscomp.SourceMap.Format", enumValues_(SourceMap_Format_values_))
 
 }
 
-type SourceMap_DetailLevel struct {
-	Enum
+type SourceMap_DetailLevel uint8
+
+// SourceMap_DetailLevel_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var SourceMap_DetailLevel_enum_ = [2]Enum{
+	{self_: SourceMap_DetailLevel_ALL, name_: "ALL", ordinal_: 0},
+	{self_: SourceMap_DetailLevel_SYMBOLS, name_: "SYMBOLS", ordinal_: 1},
 }
 
-func (this *SourceMap_DetailLevel) as_SourceMap_DetailLevel() *SourceMap_DetailLevel { return this }
-
-func to_SourceMap_DetailLevel(v any) *SourceMap_DetailLevel {
-	if v == nil {
+func (this SourceMap_DetailLevel) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return v.(interface{ as_SourceMap_DetailLevel() *SourceMap_DetailLevel }).as_SourceMap_DetailLevel()
+	return &SourceMap_DetailLevel_enum_[this-1]
 }
 
-func is_SourceMap_DetailLevel(v any) bool {
-	_, ok := v.(interface{ as_SourceMap_DetailLevel() *SourceMap_DetailLevel })
-	return ok
+func (this SourceMap_DetailLevel) name() string { return this.enum_().name_ }
+
+func (this SourceMap_DetailLevel) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func (this *SourceMap_DetailLevel) self() any {
-	if this == nil {
+func (this SourceMap_DetailLevel) toString() string { return this.enum_().name_ }
+
+func (this SourceMap_DetailLevel) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this SourceMap_DetailLevel) self() any {
+	if this == 0 {
 		return nil
 	}
-	return this.self_
+	return this
 }
 
-func (this *SourceMap_DetailLevel) up_Enum() *Enum {
-	if this == nil {
-		return nil
+func (this SourceMap_DetailLevel) as_SourceMap_DetailLevel() SourceMap_DetailLevel { return this }
+
+func (this SourceMap_DetailLevel) apply(node_ any) bool {
+	switch this {
+	case SourceMap_DetailLevel_ALL:
+		var node Node = Node_of_(node_)
+		_ = node
+		return true
+	case SourceMap_DetailLevel_SYMBOLS:
+		var node Node = Node_of_(node_)
+		_ = node
+		return ((((((node.isCall() || node.isNew()) || node.isFunction()) || node.isName()) || NodeUtil_isNormalOrOptChainGet(node)) || NodeUtil_mayBeObjectLitKey(node)) || node.isTaggedTemplateLit())
+	default:
+		panic(new_NullPointerException_0()) // a call on null
 	}
-	return &this.Enum
 }
 
-func (this *SourceMap_DetailLevel) init_SourceMap_DetailLevel(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
-
-func (this *SourceMap_DetailLevel) apply(p0 any) bool {
-	return this.self_.(interface{ apply_impl(any) bool }).apply_impl(p0)
-}
-
-func (this *SourceMap_DetailLevel) test(p0 any) bool {
+func (this SourceMap_DetailLevel) test(p0 any) bool {
 	return Predicate_base_test(icast_Predicate_base(this.self()), p0)
 }
 
-func SourceMap_DetailLevel_values() []*SourceMap_DetailLevel {
-	return append([]*SourceMap_DetailLevel(nil), SourceMap_DetailLevel_values_...)
+func SourceMap_DetailLevel_values() []SourceMap_DetailLevel {
+	return append([]SourceMap_DetailLevel(nil), SourceMap_DetailLevel_values_...)
 }
 
-func SourceMap_DetailLevel_valueOf(name string) *SourceMap_DetailLevel {
+func SourceMap_DetailLevel_valueOf(name string) SourceMap_DetailLevel {
 	for _, v := range SourceMap_DetailLevel_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("DetailLevel", name))
 }
 
-var SourceMap_DetailLevel_ALL *SourceMap_DetailLevel
-var SourceMap_DetailLevel_SYMBOLS *SourceMap_DetailLevel
-var SourceMap_DetailLevel_values_ []*SourceMap_DetailLevel
+const SourceMap_DetailLevel_ALL SourceMap_DetailLevel = 1
+const SourceMap_DetailLevel_SYMBOLS SourceMap_DetailLevel = 2
+
+var SourceMap_DetailLevel_values_ []SourceMap_DetailLevel
 
 var SourceMap_DetailLevel_clinit_done bool
 
@@ -276,9 +303,7 @@ func SourceMap_DetailLevel_clinit() {
 		return
 	}
 	SourceMap_DetailLevel_clinit_done = true
-	SourceMap_DetailLevel_ALL = new_SourceMap_DetailLevel_1("ALL", 0).up_SourceMap_DetailLevel()
-	SourceMap_DetailLevel_SYMBOLS = new_SourceMap_DetailLevel_2("SYMBOLS", 1).up_SourceMap_DetailLevel()
-	SourceMap_DetailLevel_values_ = []*SourceMap_DetailLevel{SourceMap_DetailLevel_ALL, SourceMap_DetailLevel_SYMBOLS}
+	SourceMap_DetailLevel_values_ = []SourceMap_DetailLevel{SourceMap_DetailLevel_ALL, SourceMap_DetailLevel_SYMBOLS}
 	registerEnum_("com.google.javascript.jscomp.SourceMap.DetailLevel", enumValues_(SourceMap_DetailLevel_values_))
 
 }
@@ -318,8 +343,8 @@ func new_SourceMap_PrefixLocationMapping(prefix string, replacement string) *Sou
 }
 
 func (this *SourceMap_PrefixLocationMapping) map_(location Optional[string]) Optional[string] {
-	if String_startsWith(location.get(), this.prefix_) {
-		return Optional_of[string]((sstr_(this.replacement_) + sstr_(String_substring_int(location.get(), String_length(this.prefix_)))))
+	if strings.HasPrefix(location.get(), this.prefix_) {
+		return Optional_of[string]((sstr_(this.replacement_) + sstr_(location.get()[len(this.prefix_):])))
 	}
 	return Optional_empty[string]()
 }
@@ -333,21 +358,21 @@ func (this *SourceMap_PrefixLocationMapping) equals(other any) bool {
 	_ = prefixLocationMapping
 	if func() bool {
 		v_ := other
-		if !is_[*SourceMap_PrefixLocationMapping](v_) {
+		p, ok := v_.(*SourceMap_PrefixLocationMapping)
+		if !ok {
 			return false
 		}
-		prefixLocationMapping = cast_[*SourceMap_PrefixLocationMapping](v_)
+		prefixLocationMapping = p
 		return true
 	}() {
 		return ((prefixLocationMapping.prefix_ == this.prefix_) && (prefixLocationMapping.replacement_ == this.replacement_))
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *SourceMap_PrefixLocationMapping) hashCode() int32 {
-	return Objects_hash([]any{strobj_(this.prefix_), strobj_(this.replacement_)})
+	return hashOf_(objhashStr_(this.prefix_), objhashStr_(this.replacement_))
 }
 
 type SourceMap_Mapping struct {
@@ -367,249 +392,5 @@ func new_SourceMap_Mapping() *SourceMap_Mapping {
 }
 
 func (this *SourceMap_Mapping) toString() string {
-	return ("Mapping: start " + objstr_(obj_(this.start_)) + ", end " + objstr_(obj_(this.end_)) + ", node " + objstr_(this.node_.box_()))
-}
-
-type SourceMap_Format_1 struct {
-	SourceMap_Format
-}
-
-func (this *SourceMap_Format_1) up_SourceMap_Format() *SourceMap_Format {
-	if this == nil {
-		return nil
-	}
-	return &this.SourceMap_Format
-}
-
-func (this *SourceMap_Format_1) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *SourceMap_Format_1) init_SourceMap_Format_1(name_ string, ordinal_ int32) {
-	this.SourceMap_Format.init_SourceMap_Format(name_, ordinal_)
-}
-
-func new_SourceMap_Format_1(name_ string, ordinal_ int32) *SourceMap_Format_1 {
-	this := &SourceMap_Format_1{}
-	this.self_ = this
-	this.init_SourceMap_Format_1(name_, ordinal_)
-	return this
-}
-
-func (this *SourceMap_Format_1) getInstance_impl() *SourceMap {
-	return new_SourceMap(SourceMapGeneratorFactory_getInstance(SourceMapFormat_DEFAULT))
-}
-
-func SourceMap_Format_1_values() []*SourceMap_Format_1 {
-	return append([]*SourceMap_Format_1(nil), SourceMap_Format_1_values_...)
-}
-
-func SourceMap_Format_1_valueOf(name string) *SourceMap_Format_1 {
-	for _, v := range SourceMap_Format_1_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var SourceMap_Format_1_values_ []*SourceMap_Format_1
-
-var SourceMap_Format_1_clinit_done bool
-
-func SourceMap_Format_1_clinit() {
-	if SourceMap_Format_1_clinit_done {
-		return
-	}
-	SourceMap_Format_1_clinit_done = true
-	SourceMap_Format_1_values_ = []*SourceMap_Format_1{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.SourceMap.Format>", enumValues_(SourceMap_Format_1_values_))
-
-}
-
-type SourceMap_Format_2 struct {
-	SourceMap_Format
-}
-
-func (this *SourceMap_Format_2) up_SourceMap_Format() *SourceMap_Format {
-	if this == nil {
-		return nil
-	}
-	return &this.SourceMap_Format
-}
-
-func (this *SourceMap_Format_2) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *SourceMap_Format_2) init_SourceMap_Format_2(name_ string, ordinal_ int32) {
-	this.SourceMap_Format.init_SourceMap_Format(name_, ordinal_)
-}
-
-func new_SourceMap_Format_2(name_ string, ordinal_ int32) *SourceMap_Format_2 {
-	this := &SourceMap_Format_2{}
-	this.self_ = this
-	this.init_SourceMap_Format_2(name_, ordinal_)
-	return this
-}
-
-func (this *SourceMap_Format_2) getInstance_impl() *SourceMap {
-	return new_SourceMap(SourceMapGeneratorFactory_getInstance(SourceMapFormat_V3))
-}
-
-func SourceMap_Format_2_values() []*SourceMap_Format_2 {
-	return append([]*SourceMap_Format_2(nil), SourceMap_Format_2_values_...)
-}
-
-func SourceMap_Format_2_valueOf(name string) *SourceMap_Format_2 {
-	for _, v := range SourceMap_Format_2_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var SourceMap_Format_2_values_ []*SourceMap_Format_2
-
-var SourceMap_Format_2_clinit_done bool
-
-func SourceMap_Format_2_clinit() {
-	if SourceMap_Format_2_clinit_done {
-		return
-	}
-	SourceMap_Format_2_clinit_done = true
-	SourceMap_Format_2_values_ = []*SourceMap_Format_2{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.SourceMap.Format>", enumValues_(SourceMap_Format_2_values_))
-
-}
-
-type SourceMap_DetailLevel_1 struct {
-	SourceMap_DetailLevel
-}
-
-func (this *SourceMap_DetailLevel_1) up_SourceMap_DetailLevel() *SourceMap_DetailLevel {
-	if this == nil {
-		return nil
-	}
-	return &this.SourceMap_DetailLevel
-}
-
-func (this *SourceMap_DetailLevel_1) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *SourceMap_DetailLevel_1) init_SourceMap_DetailLevel_1(name_ string, ordinal_ int32) {
-	this.SourceMap_DetailLevel.init_SourceMap_DetailLevel(name_, ordinal_)
-}
-
-func new_SourceMap_DetailLevel_1(name_ string, ordinal_ int32) *SourceMap_DetailLevel_1 {
-	this := &SourceMap_DetailLevel_1{}
-	this.self_ = this
-	this.init_SourceMap_DetailLevel_1(name_, ordinal_)
-	return this
-}
-
-func (this *SourceMap_DetailLevel_1) apply_impl(node_ any) bool {
-	var node Node = Node_of_(node_)
-	_ = node
-	return true
-}
-
-func SourceMap_DetailLevel_1_values() []*SourceMap_DetailLevel_1 {
-	return append([]*SourceMap_DetailLevel_1(nil), SourceMap_DetailLevel_1_values_...)
-}
-
-func SourceMap_DetailLevel_1_valueOf(name string) *SourceMap_DetailLevel_1 {
-	for _, v := range SourceMap_DetailLevel_1_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var SourceMap_DetailLevel_1_values_ []*SourceMap_DetailLevel_1
-
-var SourceMap_DetailLevel_1_clinit_done bool
-
-func SourceMap_DetailLevel_1_clinit() {
-	if SourceMap_DetailLevel_1_clinit_done {
-		return
-	}
-	SourceMap_DetailLevel_1_clinit_done = true
-	SourceMap_DetailLevel_1_values_ = []*SourceMap_DetailLevel_1{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.SourceMap.DetailLevel>", enumValues_(SourceMap_DetailLevel_1_values_))
-
-}
-
-type SourceMap_DetailLevel_2 struct {
-	SourceMap_DetailLevel
-}
-
-func (this *SourceMap_DetailLevel_2) up_SourceMap_DetailLevel() *SourceMap_DetailLevel {
-	if this == nil {
-		return nil
-	}
-	return &this.SourceMap_DetailLevel
-}
-
-func (this *SourceMap_DetailLevel_2) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *SourceMap_DetailLevel_2) init_SourceMap_DetailLevel_2(name_ string, ordinal_ int32) {
-	this.SourceMap_DetailLevel.init_SourceMap_DetailLevel(name_, ordinal_)
-}
-
-func new_SourceMap_DetailLevel_2(name_ string, ordinal_ int32) *SourceMap_DetailLevel_2 {
-	this := &SourceMap_DetailLevel_2{}
-	this.self_ = this
-	this.init_SourceMap_DetailLevel_2(name_, ordinal_)
-	return this
-}
-
-func (this *SourceMap_DetailLevel_2) apply_impl(node_ any) bool {
-	var node Node = Node_of_(node_)
-	_ = node
-	return ((((((node.isCall() || node.isNew()) || node.isFunction()) || node.isName()) || NodeUtil_isNormalOrOptChainGet(node)) || NodeUtil_mayBeObjectLitKey(node)) || node.isTaggedTemplateLit())
-}
-
-func SourceMap_DetailLevel_2_values() []*SourceMap_DetailLevel_2 {
-	return append([]*SourceMap_DetailLevel_2(nil), SourceMap_DetailLevel_2_values_...)
-}
-
-func SourceMap_DetailLevel_2_valueOf(name string) *SourceMap_DetailLevel_2 {
-	for _, v := range SourceMap_DetailLevel_2_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var SourceMap_DetailLevel_2_values_ []*SourceMap_DetailLevel_2
-
-var SourceMap_DetailLevel_2_clinit_done bool
-
-func SourceMap_DetailLevel_2_clinit() {
-	if SourceMap_DetailLevel_2_clinit_done {
-		return
-	}
-	SourceMap_DetailLevel_2_clinit_done = true
-	SourceMap_DetailLevel_2_values_ = []*SourceMap_DetailLevel_2{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.SourceMap.DetailLevel>", enumValues_(SourceMap_DetailLevel_2_values_))
-
+	return ("Mapping: start " + tostr_(this.start_) + ", end " + tostr_(this.end_) + ", node " + tostr_(this.node_))
 }

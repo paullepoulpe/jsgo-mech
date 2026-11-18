@@ -5,8 +5,8 @@ package closure
 type CoverageInstrumentationPass struct {
 	compiler_                          *AbstractCompiler
 	instrumentationData                *JTMap[string, *FileInstrumentationData]
-	reach                              *CoverageInstrumentationPass_CoverageReach
-	instrumentOption                   *CompilerOptions_InstrumentOption
+	reach                              CoverageInstrumentationPass_CoverageReach
+	instrumentOption                   CompilerOptions_InstrumentOption
 	productionInstrumentationArrayName string
 }
 
@@ -14,7 +14,7 @@ func (this *CoverageInstrumentationPass) zero_CoverageInstrumentationPass() {
 	this.productionInstrumentationArrayName = nullstr_
 }
 
-func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler *AbstractCompiler, reach *CoverageInstrumentationPass_CoverageReach, instrumentOption *CompilerOptions_InstrumentOption, productionInstrumentationArrayName string) {
+func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler *AbstractCompiler, reach CoverageInstrumentationPass_CoverageReach, instrumentOption CompilerOptions_InstrumentOption, productionInstrumentationArrayName string) {
 	this.compiler_ = compiler
 	this.reach = reach
 	this.instrumentOption = instrumentOption
@@ -22,18 +22,18 @@ func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_Abstra
 	this.instrumentationData = jnewTMap_(jtc_string, jtc_p_FileInstrumentationData)
 }
 
-func new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler *AbstractCompiler, reach *CoverageInstrumentationPass_CoverageReach, instrumentOption *CompilerOptions_InstrumentOption, productionInstrumentationArrayName string) *CoverageInstrumentationPass {
+func new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler *AbstractCompiler, reach CoverageInstrumentationPass_CoverageReach, instrumentOption CompilerOptions_InstrumentOption, productionInstrumentationArrayName string) *CoverageInstrumentationPass {
 	this := &CoverageInstrumentationPass{}
 	this.zero_CoverageInstrumentationPass()
 	this.init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler, reach, instrumentOption, productionInstrumentationArrayName)
 	return this
 }
 
-func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach(compiler *AbstractCompiler, reach *CoverageInstrumentationPass_CoverageReach) {
+func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach(compiler *AbstractCompiler, reach CoverageInstrumentationPass_CoverageReach) {
 	this.init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler, reach, CompilerOptions_InstrumentOption_LINE_ONLY, "")
 }
 
-func new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach(compiler *AbstractCompiler, reach *CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationPass {
+func new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach(compiler *AbstractCompiler, reach CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationPass {
 	this := &CoverageInstrumentationPass{}
 	this.zero_CoverageInstrumentationPass()
 	this.init_CoverageInstrumentationPass_AbstractCompiler_CoverageReach(compiler, reach)
@@ -53,26 +53,28 @@ func (this *CoverageInstrumentationPass) addProductionHeaderCode(script Node, ar
 }
 
 func (this *CoverageInstrumentationPass) checkIfArrayNameExternDeclared(externsNode Node, arrayName string) {
-	if !Collection_contains_s(NodeUtil_collectExternVariableNames(this.compiler_, externsNode), arrayName) {
-		panic(new_AssertionError_Object(strobj_("The array name passed to --production_instrumentation_array_name was not declared as an extern. This will result in undefined behaviour")).self())
+	if !NodeUtil_collectExternVariableNames(this.compiler_, externsNode).Has(arrayName) {
+		panic(new_AssertionError_Object(strobj_("The array name passed to --production_instrumentation_array_name was not declared as an extern. This will result in undefined behaviour")))
 	}
 }
 
 func (this *CoverageInstrumentationPass) process_2(externsNode Node, rootNode Node) {
 	if rootNode.hasChildren() {
 		if this.instrumentOption == CompilerOptions_InstrumentOption_BRANCH_ONLY {
-			NodeTraversal_traverse(this.compiler_, rootNode, icast_NodeTraversal_Callback(obj_(new_BranchCoverageInstrumentationCallback(this.compiler_, this.instrumentationData))))
+			NodeTraversal_traverse(this.compiler_, rootNode, new_BranchCoverageInstrumentationCallback(this.compiler_, this.instrumentationData))
 		} else if this.instrumentOption == CompilerOptions_InstrumentOption_PRODUCTION {
 			var productionCoverageInstrumentationCallback *ProductionCoverageInstrumentationCallback = new_ProductionCoverageInstrumentationCallback(this.compiler_, this.productionInstrumentationArrayName)
-			NodeTraversal_traverse(this.compiler_, rootNode, icast_NodeTraversal_Callback(obj_(productionCoverageInstrumentationCallback)))
+			NodeTraversal_traverse(this.compiler_, rootNode, productionCoverageInstrumentationCallback)
 			this.checkIfArrayNameExternDeclared(externsNode, this.productionInstrumentationArrayName)
 			var instrumentationMapping *VariableMap = productionCoverageInstrumentationCallback.getInstrumentationMapping()
 			this.compiler_.setInstrumentationMapping(instrumentationMapping)
 		} else {
-			NodeTraversal_traverse(this.compiler_, rootNode, icast_NodeTraversal_Callback(obj_(new_CoverageInstrumentationCallback(this.instrumentationData, this.reach))))
+			NodeTraversal_traverse(this.compiler_, rootNode, new_CoverageInstrumentationCallback(this.instrumentationData, this.reach))
 		}
 		var firstScript Node = rootNode.getFirstChild()
-		Preconditions_checkState(firstScript.isScript())
+		if !firstScript.isScript() {
+			panic(new_IllegalStateException_0())
+		}
 		if firstScript.hasChildren() && firstScript.getFirstChild().isModuleBody() {
 			firstScript = firstScript.getFirstChild()
 		}
@@ -92,9 +94,8 @@ func (this *CoverageInstrumentationPass) createConditionalObjectDecl(name string
 		case CompilerOptions_InstrumentOption_LINE_ONLY:
 			return IR_objectlit([]Node{IR_quotedStringKey("fileNames", IR_arraylit([]Node{})), IR_quotedStringKey("instrumentedLines", IR_arraylit([]Node{})), IR_quotedStringKey("executedLines", IR_arraylit([]Node{}))})
 		default:
-			panic(new_AssertionError_Object(strobj_(("Unexpected option: " + objstr_(obj_(this.instrumentOption))))).self())
+			panic(new_AssertionError_Object(strobj_(("Unexpected option: " + tostr_(this.instrumentOption)))))
 		}
-		panic("unreachable")
 	}()
 	var var_ Node = IR_var_Node_Node(IR_name(name), IR_or(IR_getelem(IR_getprop_Node_String(IR_name("window"), "top"), IR_string("__jscov")), IR_assign(IR_getelem(IR_getprop_Node_String(IR_name("window"), "top"), IR_string("__jscov")), jscovData)))
 	return var_.srcrefTreeIfMissing(srcref)
@@ -102,44 +103,64 @@ func (this *CoverageInstrumentationPass) createConditionalObjectDecl(name string
 
 const CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME string = "__jscov"
 
-type CoverageInstrumentationPass_CoverageReach struct {
-	Enum
+type CoverageInstrumentationPass_CoverageReach uint8
+
+// CoverageInstrumentationPass_CoverageReach_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var CoverageInstrumentationPass_CoverageReach_enum_ = [2]Enum{
+	{self_: CoverageInstrumentationPass_CoverageReach_ALL, name_: "ALL", ordinal_: 0},
+	{self_: CoverageInstrumentationPass_CoverageReach_CONDITIONAL, name_: "CONDITIONAL", ordinal_: 1},
 }
 
-func (this *CoverageInstrumentationPass_CoverageReach) up_Enum() *Enum {
-	if this == nil {
+func (this CoverageInstrumentationPass_CoverageReach) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &CoverageInstrumentationPass_CoverageReach_enum_[this-1]
 }
 
-func (this *CoverageInstrumentationPass_CoverageReach) init_CoverageInstrumentationPass_CoverageReach(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this CoverageInstrumentationPass_CoverageReach) name() string {
+	return this.enum_().name_
 }
 
-func new_CoverageInstrumentationPass_CoverageReach(name_ string, ordinal_ int32) *CoverageInstrumentationPass_CoverageReach {
-	this := &CoverageInstrumentationPass_CoverageReach{}
-	this.self_ = this
-	this.init_CoverageInstrumentationPass_CoverageReach(name_, ordinal_)
+func (this CoverageInstrumentationPass_CoverageReach) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this CoverageInstrumentationPass_CoverageReach) toString() string {
+	return this.enum_().name_
+}
+
+func (this CoverageInstrumentationPass_CoverageReach) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this CoverageInstrumentationPass_CoverageReach) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func CoverageInstrumentationPass_CoverageReach_values() []*CoverageInstrumentationPass_CoverageReach {
-	return append([]*CoverageInstrumentationPass_CoverageReach(nil), CoverageInstrumentationPass_CoverageReach_values_...)
+func CoverageInstrumentationPass_CoverageReach_values() []CoverageInstrumentationPass_CoverageReach {
+	return append([]CoverageInstrumentationPass_CoverageReach(nil), CoverageInstrumentationPass_CoverageReach_values_...)
 }
 
-func CoverageInstrumentationPass_CoverageReach_valueOf(name string) *CoverageInstrumentationPass_CoverageReach {
+func CoverageInstrumentationPass_CoverageReach_valueOf(name string) CoverageInstrumentationPass_CoverageReach {
 	for _, v := range CoverageInstrumentationPass_CoverageReach_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("CoverageReach", name))
 }
 
-var CoverageInstrumentationPass_CoverageReach_ALL *CoverageInstrumentationPass_CoverageReach
-var CoverageInstrumentationPass_CoverageReach_CONDITIONAL *CoverageInstrumentationPass_CoverageReach
-var CoverageInstrumentationPass_CoverageReach_values_ []*CoverageInstrumentationPass_CoverageReach
+const CoverageInstrumentationPass_CoverageReach_ALL CoverageInstrumentationPass_CoverageReach = 1
+const CoverageInstrumentationPass_CoverageReach_CONDITIONAL CoverageInstrumentationPass_CoverageReach = 2
+
+var CoverageInstrumentationPass_CoverageReach_values_ []CoverageInstrumentationPass_CoverageReach
 
 var CoverageInstrumentationPass_CoverageReach_clinit_done bool
 
@@ -148,9 +169,7 @@ func CoverageInstrumentationPass_CoverageReach_clinit() {
 		return
 	}
 	CoverageInstrumentationPass_CoverageReach_clinit_done = true
-	CoverageInstrumentationPass_CoverageReach_ALL = new_CoverageInstrumentationPass_CoverageReach("ALL", 0)
-	CoverageInstrumentationPass_CoverageReach_CONDITIONAL = new_CoverageInstrumentationPass_CoverageReach("CONDITIONAL", 1)
-	CoverageInstrumentationPass_CoverageReach_values_ = []*CoverageInstrumentationPass_CoverageReach{CoverageInstrumentationPass_CoverageReach_ALL, CoverageInstrumentationPass_CoverageReach_CONDITIONAL}
+	CoverageInstrumentationPass_CoverageReach_values_ = []CoverageInstrumentationPass_CoverageReach{CoverageInstrumentationPass_CoverageReach_ALL, CoverageInstrumentationPass_CoverageReach_CONDITIONAL}
 	registerEnum_("com.google.javascript.jscomp.instrumentation.CoverageInstrumentationPass.CoverageReach", enumValues_(CoverageInstrumentationPass_CoverageReach_values_))
 
 }

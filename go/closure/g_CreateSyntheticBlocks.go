@@ -45,7 +45,7 @@ func new_CreateSyntheticBlocks(compiler *AbstractCompiler, startMarkerName strin
 }
 
 func (this *CreateSyntheticBlocks) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	it_1 := this.markerStack.each()
 	for it_1.next() {
 		var node Node = it_1.v
@@ -72,7 +72,9 @@ func (this *CreateSyntheticBlocks) rewriteFunctionDeclaration(n Node) {
 }
 
 func (this *CreateSyntheticBlocks) rewriteFunctionDeclarationsInBlock(block Node) {
-	Preconditions_checkState(block.isBlock())
+	if !block.isBlock() {
+		panic(new_IllegalStateException_0())
+	}
 	var next Node = 0
 	{
 		var current Node = block.getFirstChild()
@@ -96,14 +98,22 @@ func (this *CreateSyntheticBlocks) addBlocks(marker *CreateSyntheticBlocks_Marke
 	outerBlock.addChildToBack(innerBlock)
 	outerBlock.addChildToBack(outerBlock.getNext().detach())
 	this.rewriteFunctionDeclarationsInBlock(innerBlock)
-	Preconditions_checkState_boolean_Object((outerBlock.getParent().isBlock() || outerBlock.getParent().isScript()), outerBlock.getParent().box_())
-	Preconditions_checkState(innerBlock.getParent().isBlock())
+	if ok_, a1_ := (outerBlock.getParent().isBlock() || outerBlock.getParent().isScript()), outerBlock.getParent(); !ok_ {
+		panic(new_IllegalStateException_String(tostr_(a1_)))
+	}
+	if !innerBlock.getParent().isBlock() {
+		panic(new_IllegalStateException_0())
+	}
 	this.compiler_.reportChangeToEnclosingScope(outerBlock)
 }
 
 func (this *CreateSyntheticBlocks) moveSiblingExclusive(dest Node, start Node, end Node) {
-	Preconditions_checkNotNull(start.box_())
-	Preconditions_checkNotNull(end.box_())
+	if start == 0 {
+		panic(new_NullPointerException_0())
+	}
+	if end == 0 {
+		panic(new_NullPointerException_0())
+	}
 	for start.getNext() != end {
 		var child Node = start.getNext().detach()
 		dest.addChildToBack(child)
@@ -175,4 +185,13 @@ func new_CreateSyntheticBlocks_Marker(startMarker Node, endMarker Node) *CreateS
 	this := &CreateSyntheticBlocks_Marker{}
 	this.init_CreateSyntheticBlocks_Marker(startMarker, endMarker)
 	return this
+}
+
+// visit: an object that is exactly a CreateSyntheticBlocks calls its visit_impl directly (post-flip); others dispatch.
+func (this *CreateSyntheticBlocks) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CreateSyntheticBlocks); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

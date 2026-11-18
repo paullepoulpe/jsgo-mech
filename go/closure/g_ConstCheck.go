@@ -29,12 +29,12 @@ func new_ConstCheck(compiler *AbstractCompiler) *ConstCheck {
 }
 
 func (this *ConstCheck) process_2(externs Node, root Node) {
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(this)), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, this, externs, root)
 }
 
 func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		if NodeUtil_isNameDeclaration(parent) {
 			var name string = n.getString()
 			var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
@@ -48,7 +48,7 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 				}
 			}
 		}
-	case Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_EXPONENT:
+	case tokOrd1_ASSIGN, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD, tokOrd1_ASSIGN_EXPONENT:
 		var lhs Node = n.getFirstChild()
 		if lhs.isName() {
 			var name string = lhs.getString()
@@ -59,7 +59,7 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ConstCheck_CONST_REASSIGNED_VALUE_ERROR, []string{"exports", n.getSourceFileName()}))
 			}
 		}
-	case Token_rhino_INC, Token_rhino_DEC:
+	case tokOrd1_INC, tokOrd1_DEC:
 		var lhs Node = n.getFirstChild()
 		if lhs.isName() {
 			var name string = lhs.getString()
@@ -73,7 +73,9 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *ConstCheck) isConstant(var_ *Var, nameNode Node) bool {
-	Preconditions_checkNotNull_Object_String_Object(obj_(var_), "Found unexpected undeclared name %s", nameNode.box_())
+	if var_ == nil {
+		panic(new_NullPointerException_String(Strings_lenientFormat("Found unexpected undeclared name %s", []any{nameNode.box_()})))
+	}
 	return (var_.isConst() || var_.isDeclaredOrInferredConst())
 }
 
@@ -97,4 +99,13 @@ func ConstCheck_clinit() {
 	ConstCheck_clinit_done = true
 	ConstCheck_CONST_REASSIGNED_VALUE_ERROR = DiagnosticType_warning("JSC_CONSTANT_REASSIGNED_VALUE_ERROR", "constant {0} assigned a value more than once.\nOriginal definition at {1}")
 
+}
+
+// visit: an object that is exactly a ConstCheck calls its visit_impl directly (post-flip); others dispatch.
+func (this *ConstCheck) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ConstCheck); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

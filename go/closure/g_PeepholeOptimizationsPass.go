@@ -41,9 +41,9 @@ func (this *PeepholeOptimizationsPass) process_2(externs Node, root Node) {
 		var changedScopeNodes ListOf[Node] = this.compiler_.getChangeTracker().getChangedScopeNodesForPass(this.passName)
 		for ; (changedScopeNodes == nil) || !changedScopeNodes.isEmpty(); changedScopeNodes = this.compiler_.getChangeTracker().getChangedScopeNodesForPass(this.passName) {
 			if changedScopeNodes == nil {
-				NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_PeepholeOptimizationsPass_PeepCallback(this))))
+				NodeTraversal_traverse(this.compiler_, root, new_PeepholeOptimizationsPass_PeepCallback(this))
 			} else {
-				NodeTraversal_traverseScopeRoots(this.compiler_, changedScopeNodes, icast_NodeTraversal_Callback(obj_(new_PeepholeOptimizationsPass_PeepCallback(this))), false)
+				NodeTraversal_traverseScopeRoots(this.compiler_, changedScopeNodes, new_PeepholeOptimizationsPass_PeepCallback(this), false)
 			}
 			if !this.retraverseOnChange {
 				break
@@ -109,10 +109,37 @@ func (this *PeepholeOptimizationsPass_PeepCallback) exitScope_impl(t *NodeTraver
 
 func (this *PeepholeOptimizationsPass_PeepCallback) updateFeatures(t *NodeTraversal) {
 	for _, optim := range this.outer_.peepholeOptimizations {
-		var newFeatures ImmutableSetOf[*FeatureSet_Feature] = optim.getNewFeatures()
-		if !newFeatures.isEmpty() {
-			NodeUtil_addFeaturesToScript(t.getCurrentScript(), FeatureSet_BARE_MINIMUM.withSet(icast_Set(obj_(newFeatures))), this.outer_.compiler_)
+		var newFeatures *ImmutableSet[FeatureSet_Feature] = optim.getNewFeatures()
+		if !newFeatures.IsEmpty() {
+			NodeUtil_addFeaturesToScript(t.getCurrentScript(), FeatureSet_BARE_MINIMUM.withSet(icast_Set(obj_(newFeatures.asImm()))), this.outer_.compiler_)
 		}
 		optim.clearNewFeatures()
 	}
+}
+
+// visit: an object that is exactly a PeepholeOptimizationsPass_PeepCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *PeepholeOptimizationsPass_PeepCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*PeepholeOptimizationsPass_PeepCallback); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// enterScope: an object that is exactly a PeepholeOptimizationsPass_PeepCallback calls its enterScope_impl directly (post-flip); others dispatch.
+func (this *PeepholeOptimizationsPass_PeepCallback) enterScope(p0 *NodeTraversal) {
+	if p, _ := this.self_.(*PeepholeOptimizationsPass_PeepCallback); p == this {
+		this.enterScope_impl(p0)
+		return
+	}
+	this.self_.enterScope_impl(p0)
+}
+
+// exitScope: an object that is exactly a PeepholeOptimizationsPass_PeepCallback calls its exitScope_impl directly (post-flip); others dispatch.
+func (this *PeepholeOptimizationsPass_PeepCallback) exitScope(p0 *NodeTraversal) {
+	if p, _ := this.self_.(*PeepholeOptimizationsPass_PeepCallback); p == this {
+		this.exitScope_impl(p0)
+		return
+	}
+	this.self_.exitScope_impl(p0)
 }

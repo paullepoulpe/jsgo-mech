@@ -4,51 +4,53 @@ package closure
 
 type ClosureRequireProcessor struct {
 	nameDeclaration Node
-	requireKind     *Binding_CreatedBy
+	requireKind     Binding_CreatedBy
 }
 
-func (this *ClosureRequireProcessor) init_ClosureRequireProcessor(nameDeclaration Node, requireKind *Binding_CreatedBy) {
-	Preconditions_checkArgument(NodeUtil_isNameDeclaration(nameDeclaration))
+func (this *ClosureRequireProcessor) init_ClosureRequireProcessor(nameDeclaration Node, requireKind Binding_CreatedBy) {
+	if !NodeUtil_isNameDeclaration(nameDeclaration) {
+		panic(new_IllegalArgumentException_0())
+	}
 	this.nameDeclaration = nameDeclaration
 	this.requireKind = requireKind
 }
 
-func new_ClosureRequireProcessor(nameDeclaration Node, requireKind *Binding_CreatedBy) *ClosureRequireProcessor {
+func new_ClosureRequireProcessor(nameDeclaration Node, requireKind Binding_CreatedBy) *ClosureRequireProcessor {
 	this := &ClosureRequireProcessor{}
 	this.init_ClosureRequireProcessor(nameDeclaration, requireKind)
 	return this
 }
 
-func ClosureRequireProcessor_getAllRequires(nameDeclaration Node) ImmutableListOf[*ClosureRequireProcessor_Require] {
+func ClosureRequireProcessor_getAllRequires(nameDeclaration Node) []*ClosureRequireProcessor_Require {
 	var rhs Node = func() Node {
 		if nameDeclaration.getFirstChild().isDestructuringLhs() {
 			return nameDeclaration.getFirstChild().getSecondChild()
 		}
 		return nameDeclaration.getFirstFirstChild()
 	}()
-	var requireKind *Binding_CreatedBy = ClosureRequireProcessor_getModuleDependencyTypeFromRhs(rhs)
-	if requireKind == nil {
-		return ImmutableList_of()
+	var requireKind Binding_CreatedBy = ClosureRequireProcessor_getModuleDependencyTypeFromRhs(rhs)
+	if requireKind == 0 {
+		return []*ClosureRequireProcessor_Require{}
 	}
 	return new_ClosureRequireProcessor(nameDeclaration, requireKind).getAllRequiresInDeclaration()
 }
 
-func ClosureRequireProcessor_getModuleDependencyTypeFromRhs(value Node) *Binding_CreatedBy {
+func ClosureRequireProcessor_getModuleDependencyTypeFromRhs(value Node) Binding_CreatedBy {
 	if (((value == 0) || !value.isCall()) || !value.hasTwoChildren()) || !value.getSecondChild().isStringLit() {
-		return nil
+		return 0
 	}
 	var callee Node = value.getFirstChild()
 	if !callee.isGetProp() {
-		return nil
+		return 0
 	}
 	var owner Node = callee.getFirstChild()
 	if !owner.isName() || !(owner.getString() == "goog") {
-		return nil
+		return 0
 	}
-	return cast_[*Binding_CreatedBy](Map_get_s(ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS, callee.getString()))
+	return ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS.Get(callee.getString())
 }
 
-func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() ImmutableListOf[*ClosureRequireProcessor_Require] {
+func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() []*ClosureRequireProcessor_Require {
 	var rhs Node = func() Node {
 		if this.nameDeclaration.getFirstChild().isDestructuringLhs() {
 			return this.nameDeclaration.getFirstChild().getSecondChild()
@@ -58,19 +60,18 @@ func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() ImmutableList
 	var namespace string = rhs.getSecondChild().getString()
 	if this.nameDeclaration.getFirstChild().isName() {
 		var lhs Node = this.nameDeclaration.getFirstChild()
-		return ImmutableList_of_Object(obj_(ClosureRequireProcessor_Require_create(lhs.getString(), Import_builder().moduleRequest(namespace).localName(lhs.getString()).importName(Export_NAMESPACE).importNode(this.nameDeclaration).nameNode(lhs).build(), this.requireKind)))
+		return sliceOf_(tc_p_ClosureRequireProcessor_Require, ClosureRequireProcessor_Require_create(lhs.getString(), Import_builder().moduleRequest(namespace).localName(lhs.getString()).importName(Export_NAMESPACE).importNode(this.nameDeclaration).nameNode(lhs).build(), this.requireKind))
 	} else {
 		var objectPattern Node = this.nameDeclaration.getFirstFirstChild()
 		if !objectPattern.isObjectPattern() {
-			return ImmutableList_of()
+			return []*ClosureRequireProcessor_Require{}
 		}
 		return this.getAllRequiresFromDestructuring(objectPattern, namespace)
 	}
-	panic("unreachable")
 }
 
-func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPattern Node, namespace string) ImmutableListOf[*ClosureRequireProcessor_Require] {
-	var requireBuilder ImmutableList_BuilderOf[*ClosureRequireProcessor_Require] = ImmutableList_builder()
+func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPattern Node, namespace string) []*ClosureRequireProcessor_Require {
+	var requireBuilder []*ClosureRequireProcessor_Require
 	{
 		var key Node = objectPattern.getFirstChild()
 		for ; key != 0; key = key.getNext() {
@@ -81,13 +82,13 @@ func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPatte
 			if !lhs.isName() {
 				continue
 			}
-			requireBuilder.add(obj_(ClosureRequireProcessor_Require_create(lhs.getString(), Import_builder().moduleRequest(namespace).localName(lhs.getString()).importName(key.getString()).importNode(this.nameDeclaration).nameNode(lhs).build(), this.requireKind)))
+			requireBuilder = immAdd_(tc_p_ClosureRequireProcessor_Require, requireBuilder, ClosureRequireProcessor_Require_create(lhs.getString(), Import_builder().moduleRequest(namespace).localName(lhs.getString()).importName(key.getString()).importNode(this.nameDeclaration).nameNode(lhs).build(), this.requireKind))
 		}
 	}
-	return cast_[*ImmutableList](obj_(requireBuilder.build()))
+	return immBuilt_(requireBuilder)
 }
 
-var ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS *ImmutableMap
+var ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS *ImmutableMap[string, Binding_CreatedBy]
 
 var ClosureRequireProcessor_clinit_done bool
 
@@ -96,37 +97,43 @@ func ClosureRequireProcessor_clinit() {
 		return
 	}
 	ClosureRequireProcessor_clinit_done = true
-	ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS = ImmutableMap_of_Object_Object_Object_Object_Object_Object(strobj_("require"), obj_(Binding_CreatedBy_GOOG_REQUIRE), strobj_("requireType"), obj_(Binding_CreatedBy_GOOG_REQUIRE_TYPE), strobj_("forwardDeclare"), obj_(Binding_CreatedBy_GOOG_FORWARD_DECLARE))
+	ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS = immutableMapOf_(tc_string, tc_Binding_CreatedBy, []string{"require", "requireType", "forwardDeclare"}, []Binding_CreatedBy{Binding_CreatedBy_GOOG_REQUIRE, Binding_CreatedBy_GOOG_REQUIRE_TYPE, Binding_CreatedBy_GOOG_FORWARD_DECLARE})
 
 }
 
 type ClosureRequireProcessor_Require struct {
 	localName_    string
 	importRecord_ *Import
-	createdBy_    *Binding_CreatedBy
+	createdBy_    Binding_CreatedBy
 }
 
 func (this *ClosureRequireProcessor_Require) zero_ClosureRequireProcessor_Require() {
 	this.localName_ = nullstr_
 }
 
-func (this *ClosureRequireProcessor_Require) init_ClosureRequireProcessor_Require(localName string, importRecord *Import, createdBy *Binding_CreatedBy) {
-	Objects_requireNonNull(obj_(importRecord), "importRecord")
-	Objects_requireNonNull(obj_(createdBy), "createdBy")
-	Preconditions_checkArgument(createdBy.isClosureImport())
+func (this *ClosureRequireProcessor_Require) init_ClosureRequireProcessor_Require(localName string, importRecord *Import, createdBy Binding_CreatedBy) {
+	if importRecord == nil {
+		panic(new_NullPointerException_String("importRecord"))
+	}
+	if createdBy == 0 {
+		panic(new_NullPointerException_String("createdBy"))
+	}
+	if !createdBy.isClosureImport() {
+		panic(new_IllegalArgumentException_0())
+	}
 	this.localName_ = localName
 	this.importRecord_ = importRecord
 	this.createdBy_ = createdBy
 }
 
-func new_ClosureRequireProcessor_Require(localName string, importRecord *Import, createdBy *Binding_CreatedBy) *ClosureRequireProcessor_Require {
+func new_ClosureRequireProcessor_Require(localName string, importRecord *Import, createdBy Binding_CreatedBy) *ClosureRequireProcessor_Require {
 	this := &ClosureRequireProcessor_Require{}
 	this.zero_ClosureRequireProcessor_Require()
 	this.init_ClosureRequireProcessor_Require(localName, importRecord, createdBy)
 	return this
 }
 
-func ClosureRequireProcessor_Require_create(localName string, importRecord *Import, createdBy *Binding_CreatedBy) *ClosureRequireProcessor_Require {
+func ClosureRequireProcessor_Require_create(localName string, importRecord *Import, createdBy Binding_CreatedBy) *ClosureRequireProcessor_Require {
 	return new_ClosureRequireProcessor_Require(localName, importRecord, createdBy)
 }
 
@@ -138,7 +145,7 @@ func (this *ClosureRequireProcessor_Require) importRecord() *Import {
 	return this.importRecord_
 }
 
-func (this *ClosureRequireProcessor_Require) createdBy() *Binding_CreatedBy {
+func (this *ClosureRequireProcessor_Require) createdBy() Binding_CreatedBy {
 	return this.createdBy_
 }
 
@@ -147,17 +154,17 @@ func (this *ClosureRequireProcessor_Require) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.localName_ == o.localName_ && Objects_equals(obj_(this.importRecord_), obj_(o.importRecord_)) && Objects_equals(obj_(this.createdBy_), obj_(o.createdBy_))
+	return true && this.localName_ == o.localName_ && objequalsBy_(this.importRecord_, obj_(o.importRecord_), (*Import).equals) && this.createdBy_ == o.createdBy_
 }
 
 func (this *ClosureRequireProcessor_Require) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.localName_))
-	h = h*31 + Objects_hashCode(obj_(this.importRecord_))
-	h = h*31 + Objects_hashCode(obj_(this.createdBy_))
+	h = h*31 + objhashStr_(this.localName_)
+	h = h*31 + objhashBy_(this.importRecord_, (*Import).hashCode)
+	h = h*31 + objhashId_(this.createdBy_)
 	return h
 }
 
 func (this *ClosureRequireProcessor_Require) toString() string {
-	return "Require[" + "localName=" + objstr_(strobj_(this.localName_)) + ", importRecord=" + objstr_(obj_(this.importRecord_)) + ", createdBy=" + objstr_(obj_(this.createdBy_)) + "]"
+	return "Require[" + "localName=" + sstr_(this.localName_) + ", importRecord=" + tostr_(this.importRecord_) + ", createdBy=" + tostr_(this.createdBy_) + "]"
 }

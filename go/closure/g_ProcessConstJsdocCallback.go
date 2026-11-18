@@ -11,22 +11,6 @@ func (this *ProcessConstJsdocCallback) as_ProcessConstJsdocCallback() *ProcessCo
 	return this
 }
 
-func to_ProcessConstJsdocCallback(v any) *ProcessConstJsdocCallback {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_ProcessConstJsdocCallback() *ProcessConstJsdocCallback
-	}).as_ProcessConstJsdocCallback()
-}
-
-func is_ProcessConstJsdocCallback(v any) bool {
-	_, ok := v.(interface {
-		as_ProcessConstJsdocCallback() *ProcessConstJsdocCallback
-	})
-	return ok
-}
-
 func (this *ProcessConstJsdocCallback) self() any {
 	if this == nil {
 		return nil
@@ -65,8 +49,8 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 		}
 	case Token_rhino_EXPR_RESULT:
 		var expr Node = n.getFirstChild()
-		switch expr.getToken() {
-		case Token_rhino_CALL:
+		switch expr.ns_().token {
+		case tokOrd1_CALL:
 			var callee Node = expr.getFirstChild()
 			if ProcessConstJsdocCallback_GOOG_PROVIDE.matches(callee) {
 				this.currentFile.markProvided(expr.getLastChild().getString())
@@ -75,16 +59,18 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 			} else if ProcessConstJsdocCallback_GOOG_DEFINE.matches(callee) {
 				this.currentFile.recordDefine(expr)
 			}
-		case Token_rhino_ASSIGN:
+		case tokOrd1_ASSIGN:
 			this.recordDeclaration(t, expr.getFirstChild(), expr.getLastChild())
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			this.currentFile.recordNameDeclaration(expr)
-		case Token_rhino_GETELEM:
+		case tokOrd1_GETELEM:
 		default:
-			panic(new_IllegalArgumentException_String(("Unexpected declaration: " + objstr_(expr.box_()))).self())
+			panic(new_IllegalArgumentException_String(("Unexpected declaration: " + tostr_(expr))))
 		}
 	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
-		Preconditions_checkState_boolean_Object(n.hasOneChild(), n.box_())
+		if !n.hasOneChild() {
+			panic(new_IllegalStateException_String(tostr_(n)))
+		}
 		this.recordDeclaration(t, n.getFirstChild(), n.getFirstChild().getLastChild())
 	case Token_rhino_STRING_KEY:
 		if parent.isObjectLit() && n.hasOneChild() {
@@ -109,28 +95,34 @@ func (this *ProcessConstJsdocCallback) recordDeclaration(t *NodeTraversal, lhs N
 }
 
 func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node) {
-	Preconditions_checkArgument((NodeUtil_isNameDeclaration(lhs.getParent()) || lhs.getParent().isAssign()))
+	if !NodeUtil_isNameDeclaration(lhs.getParent()) && !lhs.getParent().isAssign() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var isImport bool = PotentialDeclaration_isImportRhs(rhs)
 	var isAlias bool = PotentialDeclaration_isAliasDeclaration(lhs, rhs)
-	NodeUtil_visitLhsNodesInNode(lhs.getParent(), &Consumer_tfn_Node{func(name Node) {
+	NodeUtil_visitLhsNodesInNode(lhs.getParent(), (&Consumer_tfn_Node{func(name Node) {
 		if isAlias || isImport {
 			this.currentFile.recordAliasDeclaration(name)
 		} else {
 			this.currentFile.recordNameDeclaration(name)
 		}
-	}})
+	}}).accept)
 }
 
 func (this *ProcessConstJsdocCallback) processDeclarationWithRhs(t *NodeTraversal, lhs Node) {
-	Preconditions_checkArgument_boolean_Object(((lhs.isQualifiedName() || lhs.isStringKey()) || lhs.isMemberFieldDef()), lhs.box_())
-	Preconditions_checkState_boolean_Object((NodeUtil_getRValueOfLValue(lhs) != 0), lhs.box_())
+	if !((lhs.isQualifiedName() || lhs.isStringKey()) || lhs.isMemberFieldDef()) {
+		panic(new_IllegalArgumentException_String(tostr_(lhs)))
+	}
+	if NodeUtil_getRValueOfLValue(lhs) == 0 {
+		panic(new_IllegalStateException_String(tostr_(lhs)))
+	}
 	if PotentialDeclaration_isConstToBeInferred(lhs) {
 		this.processConstWithRhs(t, lhs)
 	}
 }
 
 func (this *ProcessConstJsdocCallback) processConstWithRhs(p0 *NodeTraversal, p1 Node) {
-	this.self_.(interface{ processConstWithRhs_impl(*NodeTraversal, Node) }).processConstWithRhs_impl(p0, p1)
+	this.self_.(*ConvertToTypedInterface_PropagateConstJsdoc).processConstWithRhs_impl(p0, p1)
 }
 
 var ProcessConstJsdocCallback_GOOG_DEFINE *QualifiedName
@@ -150,4 +142,13 @@ func ProcessConstJsdocCallback_clinit() {
 	ProcessConstJsdocCallback_GOOG_REQUIRE = QualifiedName_of("goog.require")
 	ProcessConstJsdocCallback_CJS_REQUIRE = QualifiedName_of("require")
 
+}
+
+// visit: an object that is exactly a ProcessConstJsdocCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *ProcessConstJsdocCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ProcessConstJsdocCallback); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

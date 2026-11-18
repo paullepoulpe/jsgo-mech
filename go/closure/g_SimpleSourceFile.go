@@ -4,19 +4,19 @@ package closure
 
 type SimpleSourceFile struct {
 	name_ string
-	kind_ *StaticSourceFile_SourceKind
+	kind_ StaticSourceFile_SourceKind
 }
 
 func (this *SimpleSourceFile) zero_SimpleSourceFile() {
 	this.name_ = nullstr_
 }
 
-func (this *SimpleSourceFile) init_SimpleSourceFile(name string, kind *StaticSourceFile_SourceKind) {
+func (this *SimpleSourceFile) init_SimpleSourceFile(name string, kind StaticSourceFile_SourceKind) {
 	this.name_ = name
 	this.kind_ = kind
 }
 
-func new_SimpleSourceFile(name string, kind *StaticSourceFile_SourceKind) *SimpleSourceFile {
+func new_SimpleSourceFile(name string, kind StaticSourceFile_SourceKind) *SimpleSourceFile {
 	this := &SimpleSourceFile{}
 	this.zero_SimpleSourceFile()
 	this.init_SimpleSourceFile(name, kind)
@@ -27,7 +27,7 @@ func (this *SimpleSourceFile) getName() string {
 	return this.name_
 }
 
-func (this *SimpleSourceFile) getKind() *StaticSourceFile_SourceKind {
+func (this *SimpleSourceFile) getKind() StaticSourceFile_SourceKind {
 	return this.kind_
 }
 
@@ -45,7 +45,7 @@ func (this *SimpleSourceFile) getLineOfOffset(offset int32) int32 {
 
 func (this *SimpleSourceFile) getLineOffset(line int32) int32 {
 	if line < 1 {
-		panic(new_IllegalStateException_String(("Should not call getLineOffset with line number " + istr_(int64(line)))).self())
+		panic(new_IllegalStateException_String(("Should not call getLineOffset with line number " + istr_(int64(line)))))
 	}
 	return int32(-2147483648)
 }
@@ -55,21 +55,21 @@ func (this *SimpleSourceFile) toString() string {
 }
 
 func (this *SimpleSourceFile) isStrong() bool {
-	return StaticSourceFile_isStrong_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isStrong_default(this)
 }
 
 func (this *SimpleSourceFile) isWeak() bool {
-	return StaticSourceFile_isWeak_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isWeak_default(this)
 }
 
 func (this *SimpleSourceFile) isExtern() bool {
-	return StaticSourceFile_isExtern_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isExtern_default(this)
 }
 
 func (this *SimpleSourceFile) isNonCode() bool {
-	return StaticSourceFile_isNonCode_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isNonCode_default(this)
 }
 
 func (this *SimpleSourceFile) isTypeScriptSource() bool {
-	return StaticSourceFile_isTypeScriptSource_default(icast_StaticSourceFile(any(this)))
+	return StaticSourceFile_isTypeScriptSource_default(this)
 }

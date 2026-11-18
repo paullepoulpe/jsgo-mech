@@ -9,9 +9,15 @@ type TypeMismatch struct {
 }
 
 func (this *TypeMismatch) init_TypeMismatch(found *JSType, required *JSType, location Node) {
-	Objects_requireNonNull(found.self(), "found")
-	Objects_requireNonNull(required.self(), "required")
-	Objects_requireNonNull(location.box_(), "location")
+	if found == nil {
+		panic(new_NullPointerException_String("found"))
+	}
+	if required == nil {
+		panic(new_NullPointerException_String("required"))
+	}
+	if location == 0 {
+		panic(new_NullPointerException_String("location"))
+	}
 	this.found_ = found
 	this.required_ = required
 	this.location_ = location
@@ -60,19 +66,19 @@ func (this *TypeMismatch) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.found_.self(), o.found_.self()) && Objects_equals(this.required_.self(), o.required_.self()) && Objects_equals(this.location_.box_(), o.location_.box_())
+	return true && objequalsBy_(this.found_, o.found_.self(), (*JSType).equals) && objequalsBy_(this.required_, o.required_.self(), (*JSType).equals) && this.location_ == o.location_
 }
 
 func (this *TypeMismatch) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.found_.self())
-	h = h*31 + Objects_hashCode(this.required_.self())
-	h = h*31 + Objects_hashCode(this.location_.box_())
+	h = h*31 + objhashBy_(this.found_, (*JSType).hashCode)
+	h = h*31 + objhashBy_(this.required_, (*JSType).hashCode)
+	h = h*31 + objhashId_(this.location_)
 	return h
 }
 
 func (this *TypeMismatch) toString() string {
-	return "TypeMismatch[" + "found=" + objstr_(this.found_.self()) + ", required=" + objstr_(this.required_.self()) + ", location=" + objstr_(this.location_.box_()) + "]"
+	return "TypeMismatch[" + "found=" + objstr_(this.found_.self()) + ", required=" + objstr_(this.required_.self()) + ", location=" + tostr_(this.location_) + "]"
 }
 
 var TypeMismatch_TEST_LOCATION Node
@@ -113,9 +119,8 @@ func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JST
 		return
 	}
 	if required.isUnionType() {
-		it_1 := foreach_(obj_(required.toMaybeUnionType().getAlternates()))
-		for it_1.next() {
-			var requiredAltType *JSType = to_JSType(it_1.v)
+		for _, el_1 := range required.toMaybeUnionType().getAlternates().items {
+			var requiredAltType *JSType = el_1
 			if requiredAltType.isSubtypeOf(found) {
 				return
 			}
@@ -127,10 +132,10 @@ func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JST
 	if found.isFunctionType() && required.isFunctionType() {
 		var fnTypeA *FunctionType = found.toMaybeFunctionType()
 		var fnTypeB *FunctionType = required.toMaybeFunctionType()
-		var paramItA IteratorOf[*FunctionType_Parameter] = fnTypeA.getParameters().iterator()
-		var paramItB IteratorOf[*FunctionType_Parameter] = fnTypeB.getParameters().iterator()
+		var paramItA *immCursor_ = immCursorOf_(fnTypeA.getParameters().asImm())
+		var paramItB *immCursor_ = immCursorOf_(fnTypeB.getParameters().asImm())
 		for paramItA.hasNext() && paramItB.hasNext() {
-			this.registerIfMismatch(location, cast_[*FunctionType_Parameter](paramItA.next()).getJSType(), cast_[*FunctionType_Parameter](paramItB.next()).getJSType())
+			this.registerIfMismatch(location, paramItA.next().(*FunctionType_Parameter).getJSType(), paramItB.next().(*FunctionType_Parameter).getJSType())
 		}
 		this.registerIfMismatch(location, fnTypeA.getReturnType(), fnTypeB.getReturnType())
 	}

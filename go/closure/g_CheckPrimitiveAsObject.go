@@ -27,7 +27,7 @@ func new_CheckPrimitiveAsObject(compiler *AbstractCompiler) *CheckPrimitiveAsObj
 }
 
 func (this *CheckPrimitiveAsObject) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckPrimitiveAsObject) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -38,9 +38,7 @@ func (this *CheckPrimitiveAsObject) visit_impl(t *NodeTraversal, n Node, parent 
 func (this *CheckPrimitiveAsObject) checkForPrimitiveObjectDeclaration(t *NodeTraversal, n Node) {
 	var jsDocInfo *JSDocInfo = n.getJSDocInfo()
 	if jsDocInfo != nil {
-		it_1 := foreach_(any(jsDocInfo.getTypeNodes()))
-		for it_1.next() {
-			var typeRoot Node = Node_of_(it_1.v)
+		for typeRoot := range elemsBy_(jsDocInfo.getTypeNodes(), Node_of_) {
 			this.checkTypeNodeForPrimitiveObjectDeclaration(t, typeRoot)
 		}
 	}
@@ -50,7 +48,7 @@ func (this *CheckPrimitiveAsObject) checkTypeNodeForPrimitiveObjectDeclaration(t
 	NodeUtil_visitPreOrder_Node_Visitor(typeRoot, &NodeUtil_Visitor_fn{func(node Node) {
 		if node.isStringLit() {
 			var typeName string = node.getString()
-			if Collection_contains_s(CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS, typeName) {
+			if CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS.Has(typeName) {
 				t.report(node, CheckPrimitiveAsObject_PRIMITIVE_OBJECT_DECLARATION, []string{typeName})
 			}
 		}
@@ -62,7 +60,7 @@ func (this *CheckPrimitiveAsObject) checkForPrimitiveObjectConstructor(t *NodeTr
 		var constructorFunction Node = n.getFirstChild()
 		if constructorFunction.isName() {
 			var constructorName string = constructorFunction.getString()
-			if Collection_contains_s(CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS, constructorName) {
+			if CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS.Has(constructorName) {
 				t.report(n, CheckPrimitiveAsObject_NEW_PRIMITIVE_OBJECT, []string{constructorName})
 			}
 		}
@@ -71,7 +69,7 @@ func (this *CheckPrimitiveAsObject) checkForPrimitiveObjectConstructor(t *NodeTr
 
 var CheckPrimitiveAsObject_NEW_PRIMITIVE_OBJECT *DiagnosticType
 var CheckPrimitiveAsObject_PRIMITIVE_OBJECT_DECLARATION *DiagnosticType
-var CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS *ImmutableSet
+var CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS *ImmutableSet[string]
 
 var CheckPrimitiveAsObject_clinit_done bool
 
@@ -82,6 +80,15 @@ func CheckPrimitiveAsObject_clinit() {
 	CheckPrimitiveAsObject_clinit_done = true
 	CheckPrimitiveAsObject_NEW_PRIMITIVE_OBJECT = DiagnosticType_warning("JSC_PRIMITIVE_OBJECT", "Explicit creation of a {0} object.")
 	CheckPrimitiveAsObject_PRIMITIVE_OBJECT_DECLARATION = DiagnosticType_warning("JSC_PRIMITIVE_OBJECT_DECLARATION", "Declaration of {0} object instead of primitive type.")
-	CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS = ImmutableSet_of_Object_Object_Object(strobj_("Boolean"), strobj_("Number"), strobj_("String"))
+	CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS = immutableSetOf_(tc_string, "Boolean", "Number", "String")
 
+}
+
+// visit: an object that is exactly a CheckPrimitiveAsObject calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckPrimitiveAsObject) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckPrimitiveAsObject); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

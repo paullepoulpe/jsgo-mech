@@ -2,44 +2,58 @@
 
 package closure
 
-type SourceMapFormat struct {
-	Enum
+type SourceMapFormat uint8
+
+// SourceMapFormat_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var SourceMapFormat_enum_ = [2]Enum{
+	{self_: SourceMapFormat_DEFAULT, name_: "DEFAULT", ordinal_: 0},
+	{self_: SourceMapFormat_V3, name_: "V3", ordinal_: 1},
 }
 
-func (this *SourceMapFormat) up_Enum() *Enum {
-	if this == nil {
+func (this SourceMapFormat) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &SourceMapFormat_enum_[this-1]
 }
 
-func (this *SourceMapFormat) init_SourceMapFormat(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this SourceMapFormat) name() string { return this.enum_().name_ }
+
+func (this SourceMapFormat) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_SourceMapFormat(name_ string, ordinal_ int32) *SourceMapFormat {
-	this := &SourceMapFormat{}
-	this.self_ = this
-	this.init_SourceMapFormat(name_, ordinal_)
+func (this SourceMapFormat) toString() string { return this.enum_().name_ }
+
+func (this SourceMapFormat) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this SourceMapFormat) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func SourceMapFormat_values() []*SourceMapFormat {
-	return append([]*SourceMapFormat(nil), SourceMapFormat_values_...)
+func SourceMapFormat_values() []SourceMapFormat {
+	return append([]SourceMapFormat(nil), SourceMapFormat_values_...)
 }
 
-func SourceMapFormat_valueOf(name string) *SourceMapFormat {
+func SourceMapFormat_valueOf(name string) SourceMapFormat {
 	for _, v := range SourceMapFormat_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("SourceMapFormat", name))
 }
 
-var SourceMapFormat_DEFAULT *SourceMapFormat
-var SourceMapFormat_V3 *SourceMapFormat
-var SourceMapFormat_values_ []*SourceMapFormat
+const SourceMapFormat_DEFAULT SourceMapFormat = 1
+const SourceMapFormat_V3 SourceMapFormat = 2
+
+var SourceMapFormat_values_ []SourceMapFormat
 
 var SourceMapFormat_clinit_done bool
 
@@ -48,9 +62,7 @@ func SourceMapFormat_clinit() {
 		return
 	}
 	SourceMapFormat_clinit_done = true
-	SourceMapFormat_DEFAULT = new_SourceMapFormat("DEFAULT", 0)
-	SourceMapFormat_V3 = new_SourceMapFormat("V3", 1)
-	SourceMapFormat_values_ = []*SourceMapFormat{SourceMapFormat_DEFAULT, SourceMapFormat_V3}
+	SourceMapFormat_values_ = []SourceMapFormat{SourceMapFormat_DEFAULT, SourceMapFormat_V3}
 	registerEnum_("com.google.debugging.sourcemap.SourceMapFormat", enumValues_(SourceMapFormat_values_))
 
 }

@@ -28,7 +28,7 @@ func new_ConcretizeStaticInheritanceForInlining(compiler *AbstractCompiler) *Con
 
 func (this *ConcretizeStaticInheritanceForInlining) process_2(externs Node, root Node) {
 	var findStaticMembers *ConcretizeStaticInheritanceForInlining_FindStaticMembers = new_ConcretizeStaticInheritanceForInlining_FindStaticMembers(this)
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(findStaticMembers)))
+	NodeTraversal_traverse(this.compiler_, root, findStaticMembers)
 	this.processInherits(findStaticMembers)
 }
 
@@ -57,7 +57,9 @@ func (this *ConcretizeStaticInheritanceForInlining) copyStaticMembers(superClass
 	it_1 := superClass.staticMembers.each()
 	for it_1.next() {
 		var staticMember Node = it_1.v
-		Preconditions_checkState_boolean_Object(staticMember.isAssign(), staticMember.box_())
+		if !staticMember.isAssign() {
+			panic(new_IllegalStateException_String(tostr_(staticMember)))
+		}
 		var memberName string = staticMember.getFirstChild().getString()
 		if superClass.definedProperties.has(memberName) {
 			continue
@@ -110,7 +112,7 @@ func (this *ConcretizeStaticInheritanceForInlining) isReferenceToClass(t *NodeTr
 }
 
 var ConcretizeStaticInheritanceForInlining_DUPLICATE_CLASS *DiagnosticType
-var ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES *ImmutableSet
+var ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES *ImmutableSet[string]
 
 var ConcretizeStaticInheritanceForInlining_clinit_done bool
 
@@ -120,7 +122,7 @@ func ConcretizeStaticInheritanceForInlining_clinit() {
 	}
 	ConcretizeStaticInheritanceForInlining_clinit_done = true
 	ConcretizeStaticInheritanceForInlining_DUPLICATE_CLASS = DiagnosticType_error("DUPLICATE_CLASS", "Multiple classes cannot share the same name: {0}")
-	ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES = ImmutableSet_of_Object_Object(strobj_("prototype"), strobj_("getInstance"))
+	ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES = immutableSetOf_(tc_string, "prototype", "getInstance")
 
 }
 
@@ -184,8 +186,8 @@ func new_ConcretizeStaticInheritanceForInlining_FindStaticMembers(outer_ *Concre
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_CALL:
 		if this.outer_.inherits.matches(n.getFirstChild()) {
 			this.inheritsCalls.add(n)
 			this.nodeOrder.put(n, any(int32(this.nodeOrder.size())))
@@ -193,11 +195,11 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visit_impl
 		if NodeUtil_isObjectDefinePropertiesDefinition(n) {
 			this.visitDefinedPropertiesCall(t, n)
 		}
-	case Token_rhino_CONST, Token_rhino_LET, Token_rhino_VAR:
+	case tokOrd1_CONST, tokOrd1_LET, tokOrd1_VAR:
 		this.visitVariableDeclaration(n)
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		this.visitAssign(t, n)
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.visitFunctionClassDef(n)
 	default:
 	}
@@ -208,9 +210,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitDefin
 	if this.outer_.isReferenceToClass(t, object) {
 		var className string = object.getQualifiedName()
 		var c *ConcretizeStaticInheritanceForInlining_JavascriptClass = this.outer_.classByAlias.get(className)
-		it_1 := foreach_(any(NodeUtil_getObjectDefinedPropertiesKeys(definePropertiesCall)))
-		for it_1.next() {
-			var prop Node = Node_of_(it_1.v)
+		for prop := range elemsBy_(NodeUtil_getObjectDefinedPropertiesKeys(definePropertiesCall), Node_of_) {
 			c.definedProperties.add(prop.getString())
 		}
 	}
@@ -220,7 +220,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitFunct
 	var classInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 	if (classInfo != nil) && classInfo.isConstructor() {
 		var name string = NodeUtil_getName(n)
-		if String_isEmpty(name) {
+		if name == "" {
 			return
 		}
 		if this.outer_.classByAlias.has(name) {
@@ -232,21 +232,23 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitFunct
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) setAlias(original string, alias string) {
-	Preconditions_checkArgument(this.outer_.classByAlias.has(original))
+	if !this.outer_.classByAlias.has(original) {
+		panic(new_IllegalArgumentException_0())
+	}
 	this.outer_.classByAlias.put(alias, this.outer_.classByAlias.get(original))
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitAssign(t *NodeTraversal, n Node) {
 	var existingClassQname string = n.getLastChild().getQualifiedName()
-	if !String_isEmpty(existingClassQname) && this.outer_.classByAlias.has(existingClassQname) {
+	if existingClassQname != "" && this.outer_.classByAlias.has(existingClassQname) {
 		var alias string = n.getFirstChild().getQualifiedName()
-		if !String_isEmpty(alias) {
+		if alias != "" {
 			this.setAlias(existingClassQname, alias)
 		}
 	} else if n.getFirstChild().isGetProp() {
 		var getProp Node = n.getFirstChild()
 		var classNode Node = getProp.getFirstChild()
-		if this.outer_.isReferenceToClass(t, classNode) && !Collection_contains_s(ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES, getProp.getString()) {
+		if this.outer_.isReferenceToClass(t, classNode) && !ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES.Has(getProp.getString()) {
 			this.outer_.classByAlias.get(classNode.getQualifiedName()).addStaticMember(n)
 			this.nodeOrder.put(n, any(int32(this.nodeOrder.size())))
 		}
@@ -259,9 +261,9 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitVaria
 		return
 	}
 	var maybeOriginalName string = child.getFirstChild().getQualifiedName()
-	if !String_isEmpty(maybeOriginalName) && this.outer_.classByAlias.has(maybeOriginalName) {
+	if maybeOriginalName != "" && this.outer_.classByAlias.has(maybeOriginalName) {
 		var maybeAlias string = child.getQualifiedName()
-		if !String_isEmpty(maybeAlias) {
+		if maybeAlias != "" {
 			this.setAlias(maybeOriginalName, maybeAlias)
 		}
 	}
@@ -271,4 +273,13 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) isBefore(e
 	var earlierPosition any = this.nodeOrder.get(earlier)
 	var laterPosition any = this.nodeOrder.get(later)
 	return (((earlierPosition != nil) && (laterPosition != nil)) && (unbox_[int32](earlierPosition) < unbox_[int32](laterPosition)))
+}
+
+// visit: an object that is exactly a ConcretizeStaticInheritanceForInlining_FindStaticMembers calls its visit_impl directly (post-flip); others dispatch.
+func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ConcretizeStaticInheritanceForInlining_FindStaticMembers); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

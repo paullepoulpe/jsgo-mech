@@ -44,7 +44,9 @@ func (this *PropertyClustering) getClusters() *StandardUnionFind[*ColorGraphNode
 }
 
 func (this *PropertyClustering) getOriginalNameClusterRep() *ColorGraphNode {
-	Preconditions_checkState(!this.isInvalidated())
+	if this.isInvalidated() {
+		panic(new_IllegalStateException_0())
+	}
 	return func() *ColorGraphNode {
 		if this.originalNameClusterRep == nil {
 			return nil
@@ -58,16 +60,23 @@ func (this *PropertyClustering) isInvalidated() bool {
 }
 
 func (this *PropertyClustering) invalidate(invalidation *Invalidation) {
-	this.lastInvalidation = to_Invalidation(Preconditions_checkNotNull(invalidation.self()))
+	if invalidation == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.lastInvalidation = invalidation
 }
 
 func (this *PropertyClustering) getLastInvalidation() *Invalidation {
-	Preconditions_checkState(this.isInvalidated())
+	if !this.isInvalidated() {
+		panic(new_IllegalStateException_0())
+	}
 	return this.lastInvalidation
 }
 
 func (this *PropertyClustering) registerOriginalNameType(type_ *ColorGraphNode) {
-	Preconditions_checkState(!this.isInvalidated())
+	if this.isInvalidated() {
+		panic(new_IllegalStateException_0())
+	}
 	if this.originalNameClusterRep == nil {
 		this.originalNameClusterRep = type_
 	}
@@ -75,5 +84,5 @@ func (this *PropertyClustering) registerOriginalNameType(type_ *ColorGraphNode) 
 }
 
 func (this *PropertyClustering) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("name", strobj_(this.name_))))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add("name", strobj_(this.name_)))
 }

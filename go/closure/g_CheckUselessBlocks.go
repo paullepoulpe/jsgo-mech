@@ -19,7 +19,7 @@ func new_CheckUselessBlocks(compiler *AbstractCompiler) *CheckUselessBlocks {
 }
 
 func (this *CheckUselessBlocks) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckUselessBlocks) isLoneBlock(n Node) bool {
@@ -40,18 +40,18 @@ func (this *CheckUselessBlocks) allowLoneBlock(parent Node) {
 }
 
 func (this *CheckUselessBlocks) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_BLOCK:
+	switch n.ns_().token {
+	case tokOrd1_BLOCK:
 		if this.isLoneBlock(n) {
 			this.loneBlocks.push(n)
 		}
-	case Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_LET, tokOrd1_CONST:
 		this.allowLoneBlock(parent)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		if NodeUtil_isClassDeclaration(n) {
 			this.allowLoneBlock(parent)
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		if NodeUtil_isFunctionDeclaration(n) {
 			this.allowLoneBlock(parent)
 		}

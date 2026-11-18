@@ -36,7 +36,9 @@ func SourceInformationAnnotator_createWithAnnotationChecks(sourceFile string) *S
 
 func (this *SourceInformationAnnotator) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if this.sourceFileToCheck.isPresent() {
-		Preconditions_checkState((this.sourceFileToCheck.get() == n.getSourceFileName()))
+		if this.sourceFileToCheck.get() != n.getSourceFileName() {
+			panic(new_IllegalStateException_0())
+		}
 	}
 	if SourceInformationAnnotator_isStringNodeRequiringOriginalName(n) {
 		SourceInformationAnnotator_setOriginalName(n, n)
@@ -52,26 +54,34 @@ func (this *SourceInformationAnnotator) visit_impl(t *NodeTraversal, n Node, par
 
 func SourceInformationAnnotator_isStringNodeRequiringOriginalName(node Node) bool {
 	return func() bool {
-		switch node.getToken() {
-		case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_NAME:
+		switch node.ns_().token {
+		case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_NAME:
 			return true
-		case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_STRING_KEY:
+		case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_STRING_KEY:
 			return (node.getParent().isObjectLit() && !node.isQuotedStringKey())
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
 func SourceInformationAnnotator_setOriginalNameString(n Node, name string) {
-	if !String_isEmpty(name) && String_isEmpty(n.getOriginalName()) {
+	if name != "" && n.getOriginalName() == "" {
 		n.setOriginalName(name)
 	}
 }
 
 func SourceInformationAnnotator_setOriginalName(n Node, name Node) {
-	if !String_isEmpty(name.getString()) && String_isEmpty(n.getOriginalName()) {
+	if name.getString() != "" && n.getOriginalName() == "" {
 		n.setOriginalNameFromName(name)
 	}
+}
+
+// visit: an object that is exactly a SourceInformationAnnotator calls its visit_impl directly (post-flip); others dispatch.
+func (this *SourceInformationAnnotator) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*SourceInformationAnnotator); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

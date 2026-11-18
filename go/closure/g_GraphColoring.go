@@ -15,11 +15,6 @@ type GraphColoring_vt_[N any, E any] interface {
 
 func (this *GraphColoring[N, E]) isa_GraphColoring_() {}
 
-func is_GraphColoring(v any) bool {
-	_, ok := v.(interface{ isa_GraphColoring_() })
-	return ok
-}
-
 func (this *GraphColoring[N, E]) as_GraphColoring() *GraphColoring[N, E] { return this }
 
 func (this *GraphColoring[N, E]) as_GraphColoring_() any { return this }
@@ -43,7 +38,9 @@ func (this *GraphColoring[N, E]) init_GraphColoring(graph AdjacencyGraph[N]) {
 }
 
 func (this *GraphColoring[N, E]) getPartitionSuperNode(node N) N {
-	Preconditions_checkNotNull_Object_Object(any(this.colorToNodeMap), strobj_("No coloring founded. color() should be called first."))
+	if this.colorToNodeMap == nil {
+		nullFail_(sstr_("No coloring founded. color() should be called first."))
+	}
 	var color *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(node))))
 	var headNode N = this.colorToNodeMap[color.value_]
 	if jisnull_(headNode) {
@@ -52,16 +49,21 @@ func (this *GraphColoring[N, E]) getPartitionSuperNode(node N) N {
 	} else {
 		return headNode
 	}
-	panic("unreachable")
 }
 
 func (this *GraphColoring[N, E]) haveSameColor(first N, second N) bool {
-	Preconditions_checkNotNull_Object_Object(any(this.colorToNodeMap), strobj_("No coloring founded. color() should be called first."))
+	if this.colorToNodeMap == nil {
+		nullFail_(sstr_("No coloring founded. color() should be called first."))
+	}
 	var colorFirst *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(first))))
 	var colorSecond *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(second))))
-	Preconditions_checkNotNull(obj_(colorFirst))
-	Preconditions_checkNotNull(obj_(colorSecond))
-	return colorFirst.equals(obj_(colorSecond))
+	if colorFirst == nil {
+		panic(new_NullPointerException_0())
+	}
+	if colorSecond == nil {
+		panic(new_NullPointerException_0())
+	}
+	return colorFirst.equals_GraphColoring_Color(colorSecond)
 }
 
 func (this *GraphColoring[N, E]) getGraph() AdjacencyGraph[N] {
@@ -92,21 +94,17 @@ func new_GraphColoring_Color(value int32) *GraphColoring_Color {
 }
 
 func (this *GraphColoring_Color) equals(other any) bool {
-	var color *GraphColoring_Color
-	_ = color
-	if !(func() bool {
-		v_ := other
-		if !is_[*GraphColoring_Color](v_) {
-			return false
-		}
-		color = cast_[*GraphColoring_Color](v_)
-		return true
-	}()) {
+	p, ok := other.(*GraphColoring_Color)
+	return ok && this.equals_GraphColoring_Color(p)
+}
+
+// equals_GraphColoring_Color is equals of a GraphColoring_Color (post-flip step eqtyped).
+func (this *GraphColoring_Color) equals_GraphColoring_Color(color *GraphColoring_Color) bool {
+	if !(color != nil) {
 		return false
 	} else {
 		return (this.value_ == color.value_)
 	}
-	panic("unreachable")
 }
 
 func (this *GraphColoring_Color) hashCode() int32 {
@@ -119,11 +117,6 @@ type GraphColoring_GreedyGraphColoring[N any, E any] struct {
 }
 
 func (this *GraphColoring_GreedyGraphColoring[N, E]) isa_GraphColoring_GreedyGraphColoring_() {}
-
-func is_GraphColoring_GreedyGraphColoring(v any) bool {
-	_, ok := v.(interface{ isa_GraphColoring_GreedyGraphColoring_() })
-	return ok
-}
 
 func (this *GraphColoring_GreedyGraphColoring[N, E]) up_GraphColoring() *GraphColoring[N, E] {
 	if this == nil {
@@ -158,7 +151,7 @@ func new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[N any, E an
 }
 
 func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
-	var worklist ListOf[GraphNode[N]] = icast_List(new_ArrayList_Collection(this.graph.getNodes()).self())
+	var worklist ListOf[GraphNode[N]] = new_ArrayList_Collection(this.graph.getNodes()).self().(List)
 	Collections_sort_List_Comparator(worklist, Comparator_comparing_Function_Comparator(&Function_tfn[GraphNode[N], any]{func(p0 GraphNode[N]) any { return boxT_(p0.getValue()) }}, &Comparator_tfn[N, N]{func(leftProperty N, rightProperty N) int32 {
 		var result int32 = (this.graph.getWeight(rightProperty) - this.graph.getWeight(leftProperty))
 		return func() int32 {
@@ -167,7 +160,6 @@ func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
 			}
 			return result
 		}()
-		panic("unreachable")
 	}}))
 	var count int32 = 0
 	for do_2 := true; do_2; do_2 = !worklist.isEmpty() {
@@ -179,7 +171,7 @@ func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
 				var node GraphNode[N] = cast_[GraphNode[N]](i.next())
 				if subgraph.isIndependentOf(node.getValue()) {
 					subgraph.addNode(node.getValue())
-					node.setAnnotation(icast_Annotation_graph(obj_(color)))
+					node.setAnnotation(color)
 					Iterator_remove(i)
 				}
 			}

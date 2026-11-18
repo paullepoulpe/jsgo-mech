@@ -31,7 +31,7 @@ func (this *ChangeTracker) addChangeHandler(handler CodeChangeHandler) {
 }
 
 func (this *ChangeTracker) removeChangeHandler(handler CodeChangeHandler) {
-	this.codeChangeHandlers.asList().remove_Object(any(handler))
+	this.codeChangeHandlers.asList().remove_Object(handler)
 }
 
 func (this *ChangeTracker) getRecentChange() *RecentChange {
@@ -44,7 +44,9 @@ func (this *ChangeTracker) reportChangeToEnclosingScope(n Node) {
 }
 
 func (this *ChangeTracker) reportChangeToChangeScope(changeScopeRoot Node) {
-	Preconditions_checkState((changeScopeRoot.isScript() || changeScopeRoot.isFunction()))
+	if !changeScopeRoot.isScript() && !changeScopeRoot.isFunction() {
+		panic(new_IllegalStateException_0())
+	}
 	this.recordChange(changeScopeRoot)
 	this.notifyChangeHandlers()
 }
@@ -62,7 +64,9 @@ func (this *ChangeTracker) markNewScopesChanged(node Node) {
 }
 
 func (this *ChangeTracker) reportFunctionDeleted(n Node) {
-	Preconditions_checkState(n.isFunction())
+	if !n.isFunction() {
+		panic(new_IllegalStateException_0())
+	}
 	n.setDeleted(true)
 	this.changeTimeline.remove(n)
 }
@@ -110,7 +114,7 @@ func (this *ChangeTracker) getChangeScopeForNode(n Node) Node {
 	}
 	var enclosingScopeNode Node = ChangeTracker_getEnclosingChangeScopeRoot(n.getParent())
 	if enclosingScopeNode == 0 {
-		panic(new_IllegalStateException_String(("An enclosing scope is required for change reports but node " + objstr_(n.box_()) + " doesn't have one.")).self())
+		panic(new_IllegalStateException_String(("An enclosing scope is required for change reports but node " + tostr_(n) + " doesn't have one.")))
 	}
 	return enclosingScopeNode
 }

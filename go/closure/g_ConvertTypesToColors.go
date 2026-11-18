@@ -22,10 +22,12 @@ func (this *ConvertTypesToColors) process_2(externs Node, root Node) {
 	if this.compiler_.getLifeCycleStage().hasColorAndSimplifiedJSDoc() {
 		return
 	}
-	Preconditions_checkState_boolean_Object(!this.compiler_.getLifeCycleStage().isNormalized(), strobj_("Not expected to run after normalization"))
+	if this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_String("Not expected to run after normalization"))
+	}
 	var externsAndJsRoot Node = root.getParent()
 	if !this.compiler_.hasTypeCheckingRun() {
-		NodeTraversal_traverse(this.compiler_, externsAndJsRoot, icast_NodeTraversal_Callback(new_ConvertTypesToColors_RemoveTypes().self()))
+		NodeTraversal_traverse(this.compiler_, externsAndJsRoot, new_ConvertTypesToColors_RemoveTypes())
 		this.compiler_.clearJSTypeRegistry()
 		this.compiler_.initRuntimeLibraryTypedAsts(Optional_base_absent())
 		return
@@ -39,7 +41,7 @@ func (this *ConvertTypesToColors) process_2(externs Node, root Node) {
 	this.compiler_.initRuntimeLibraryTypedAsts(Optional_base_of(obj_(colorPoolBuilder)))
 	var callback *ConvertTypesToColors_RemoveTypesAndApplyColors = new_ConvertTypesToColors_RemoveTypesAndApplyColors(colorPoolBuilder.addShard(typePool, stringPool), serializeJstypes.getTypePointersByJstype())
 	var colorPool *ColorPool = colorPoolBuilder.build()
-	NodeTraversal_traverse(this.compiler_, externsAndJsRoot, icast_NodeTraversal_Callback(obj_(callback)))
+	NodeTraversal_traverse(this.compiler_, externsAndJsRoot, callback)
 	this.compiler_.clearJSTypeRegistry()
 	this.compiler_.setColorRegistry(colorPool.getRegistry())
 }
@@ -50,22 +52,6 @@ type ConvertTypesToColors_RemoveTypes struct {
 
 func (this *ConvertTypesToColors_RemoveTypes) as_ConvertTypesToColors_RemoveTypes() *ConvertTypesToColors_RemoveTypes {
 	return this
-}
-
-func to_ConvertTypesToColors_RemoveTypes(v any) *ConvertTypesToColors_RemoveTypes {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_ConvertTypesToColors_RemoveTypes() *ConvertTypesToColors_RemoveTypes
-	}).as_ConvertTypesToColors_RemoveTypes()
-}
-
-func is_ConvertTypesToColors_RemoveTypes(v any) bool {
-	_, ok := v.(interface {
-		as_ConvertTypesToColors_RemoveTypes() *ConvertTypesToColors_RemoveTypes
-	})
-	return ok
 }
 
 func (this *ConvertTypesToColors_RemoveTypes) self() any {
@@ -150,4 +136,22 @@ func (this *ConvertTypesToColors_RemoveTypesAndApplyColors) visit_impl(t *NodeTr
 	if oldTypeBeforeCast != nil {
 		n.setColorFromTypeCast()
 	}
+}
+
+// visit: an object that is exactly a ConvertTypesToColors_RemoveTypes calls its visit_impl directly (post-flip); others dispatch.
+func (this *ConvertTypesToColors_RemoveTypes) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ConvertTypesToColors_RemoveTypes); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a ConvertTypesToColors_RemoveTypesAndApplyColors calls its visit_impl directly (post-flip); others dispatch.
+func (this *ConvertTypesToColors_RemoveTypesAndApplyColors) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ConvertTypesToColors_RemoveTypesAndApplyColors); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

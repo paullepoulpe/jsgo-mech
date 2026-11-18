@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type GoogleCodingConvention struct {
 	CodingConventions_Proxy
 }
@@ -14,7 +16,7 @@ func (this *GoogleCodingConvention) up_CodingConventions_Proxy() *CodingConventi
 }
 
 func (this *GoogleCodingConvention) init_GoogleCodingConvention_0() {
-	this.init_GoogleCodingConvention_CodingConvention(icast_CodingConvention(obj_(new_ClosureCodingConvention_0())))
+	this.init_GoogleCodingConvention_CodingConvention(new_ClosureCodingConvention_0())
 }
 
 func new_GoogleCodingConvention_0() *GoogleCodingConvention {
@@ -36,17 +38,18 @@ func new_GoogleCodingConvention_CodingConvention(convention CodingConvention) *G
 }
 
 func (this *GoogleCodingConvention) isConstant_impl(name string) bool {
-	if String_length(name) <= 1 {
+	nameU16 := utf16Of_(name)
+	if nameU16.length() <= 1 {
 		return false
 	}
-	var pos int32 = String_lastIndexOf(name, 36)
+	var pos int32 = nameU16.lastIndexOf(36)
 	var start int32 = func() int32 {
 		if pos >= 0 {
 			return (pos + 1)
 		}
 		return 0
 	}()
-	return GoogleCodingConvention_isConstantKey(name, start, String_length(name))
+	return GoogleCodingConvention_isConstantKey(name, start, nameU16.length())
 }
 
 func (this *GoogleCodingConvention) isConstantKey_impl(name string) bool {
@@ -54,11 +57,12 @@ func (this *GoogleCodingConvention) isConstantKey_impl(name string) bool {
 }
 
 func GoogleCodingConvention_isConstantKey(name string, start int32, end int32) bool {
-	if (start >= end) || !Character_isUpperCase(String_charAt(name, start)) {
+	nameU16 := utf16Of_(name)
+	if (start >= end) || !Character_isUpperCase(nameU16.charAt(start)) {
 		return false
 	}
 	for i := int32((start + 1)); i < end; i++ {
-		if Character_toUpperCase(String_charAt(name, i)) != String_charAt(name, i) {
+		if Character_toUpperCase(nameU16.charAt(i)) != nameU16.charAt(i) {
 			return false
 		}
 	}
@@ -66,11 +70,11 @@ func GoogleCodingConvention_isConstantKey(name string, start int32, end int32) b
 }
 
 func (this *GoogleCodingConvention) isValidEnumKey_impl(key Optional[string]) bool {
-	return GoogleCodingConvention_ENUM_KEY_PATTERN.matcher(strobj_(key.get())).matches()
+	return GoogleCodingConvention_ENUM_KEY_PATTERN.matcher_s(key.get()).matches()
 }
 
 func (this *GoogleCodingConvention) isOptionalParameter_impl(parameter Node) bool {
-	return (this.CodingConventions_Proxy.isOptionalParameter_impl(parameter) || (parameter.isName() && String_startsWith(parameter.getString(), GoogleCodingConvention_OPTIONAL_ARG_PREFIX)))
+	return (this.CodingConventions_Proxy.isOptionalParameter_impl(parameter) || (parameter.isName() && strings.HasPrefix(parameter.getString(), GoogleCodingConvention_OPTIONAL_ARG_PREFIX)))
 }
 
 func (this *GoogleCodingConvention) isVarArgsParameter_impl(parameter Node) bool {
@@ -78,7 +82,7 @@ func (this *GoogleCodingConvention) isVarArgsParameter_impl(parameter Node) bool
 }
 
 func (this *GoogleCodingConvention) isExported_2_impl(name string, local bool) bool {
-	return (this.CodingConventions_Proxy.isExported_2_impl(name, local) || (!local && String_startsWith(name, "_")))
+	return (this.CodingConventions_Proxy.isExported_2_impl(name, local) || (!local && strings.HasPrefix(name, "_")))
 }
 
 func (this *GoogleCodingConvention) isClassFactoryCall_impl(callNode Node) bool {
@@ -88,23 +92,22 @@ func (this *GoogleCodingConvention) isClassFactoryCall_impl(callNode Node) bool 
 
 func (this *GoogleCodingConvention) getPackageName_impl(source StaticSourceFile) Optional[string] {
 	var name string = source.getName()
-	var genfilesMatcher *Matcher_re2j = GoogleCodingConvention_GENFILES_DIR.matcher(strobj_(name))
+	var genfilesMatcher *Matcher_re2j = GoogleCodingConvention_GENFILES_DIR.matcher_s(name)
 	if genfilesMatcher.find() {
 		name = genfilesMatcher.group(2)
 	}
-	var m *Matcher_re2j = GoogleCodingConvention_PACKAGE_WITH_TEST_DIR.matcher(strobj_(name))
+	var m *Matcher_re2j = GoogleCodingConvention_PACKAGE_WITH_TEST_DIR.matcher_s(name)
 	if m.find() {
 		return Optional_ofNullable[string](m.group(1))
 	} else {
-		var lastSlash int32 = String_lastIndexOf(name, 47)
+		var lastSlash int32 = int32(strings.LastIndexByte(name, '/'))
 		return func() Optional[string] {
 			if lastSlash == -1 {
 				return Optional_of[string]("")
 			}
-			return Optional_of[string](String_substring(name, 0, lastSlash))
+			return Optional_of[string](name[:lastSlash])
 		}()
 	}
-	panic("unreachable")
 }
 
 const GoogleCodingConvention_serialVersionUID int64 = 1
@@ -126,4 +129,68 @@ func GoogleCodingConvention_clinit() {
 	GoogleCodingConvention_PACKAGE_WITH_TEST_DIR = Pattern_compile(("^(" + sstr_(JavaRegex_DOT) + "*)/(?:test|tests|testing)/(?:[^/]+)" + sstr_(JavaRegex_END)))
 	GoogleCodingConvention_GENFILES_DIR = Pattern_compile(("-out/" + sstr_(JavaRegex_DOT) + "*/(bin|genfiles)/(" + sstr_(JavaRegex_DOT) + "*)" + sstr_(JavaRegex_END)))
 
+}
+
+// isConstant: an object that is exactly a GoogleCodingConvention calls its isConstant_impl directly (post-flip); others dispatch.
+func (this *GoogleCodingConvention) isConstant(p0 string) bool {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
+		return this.isConstant_impl(p0)
+	}
+	return this.self_.isConstant_impl(p0)
+}
+
+// isConstantKey: an object that is exactly a GoogleCodingConvention calls its isConstantKey_impl directly (post-flip); others dispatch.
+func (this *GoogleCodingConvention) isConstantKey(p0 string) bool {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
+		return this.isConstantKey_impl(p0)
+	}
+	return this.self_.isConstantKey_impl(p0)
+}
+
+// isValidEnumKey: an object that is exactly a GoogleCodingConvention calls its isValidEnumKey_impl directly (post-flip); others dispatch.
+func (this *GoogleCodingConvention) isValidEnumKey(p0 Optional[string]) bool {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
+		return this.isValidEnumKey_impl(p0)
+	}
+	return this.self_.isValidEnumKey_impl(p0)
+}
+
+// isOptionalParameter: an object that is exactly a GoogleCodingConvention calls its isOptionalParameter_impl directly (post-flip); others dispatch.
+func (this *GoogleCodingConvention) isOptionalParameter(p0 Node) bool {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
+		return this.isOptionalParameter_impl(p0)
+	}
+	return this.self_.isOptionalParameter_impl(p0)
+}
+
+// isVarArgsParameter: an object that is exactly a GoogleCodingConvention calls its isVarArgsParameter_impl directly (post-flip); others dispatch.
+func (this *GoogleCodingConvention) isVarArgsParameter(p0 Node) bool {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
+		return this.isVarArgsParameter_impl(p0)
+	}
+	return this.self_.isVarArgsParameter_impl(p0)
+}
+
+// isExported_2: an object that is exactly a GoogleCodingConvention calls its isExported_2_impl directly (post-flip); others dispatch.
+func (this *GoogleCodingConvention) isExported_2(p0 string, p1 bool) bool {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
+		return this.isExported_2_impl(p0, p1)
+	}
+	return this.self_.isExported_2_impl(p0, p1)
+}
+
+// isClassFactoryCall: an object that is exactly a GoogleCodingConvention calls its isClassFactoryCall_impl directly (post-flip); others dispatch.
+func (this *GoogleCodingConvention) isClassFactoryCall(p0 Node) bool {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
+		return this.isClassFactoryCall_impl(p0)
+	}
+	return this.self_.isClassFactoryCall_impl(p0)
+}
+
+// getPackageName: an object that is exactly a GoogleCodingConvention calls its getPackageName_impl directly (post-flip); others dispatch.
+func (this *GoogleCodingConvention) getPackageName(p0 StaticSourceFile) Optional[string] {
+	if p, _ := this.self_.(*GoogleCodingConvention); p == this {
+		return this.getPackageName_impl(p0)
+	}
+	return this.self_.getPackageName_impl(p0)
 }

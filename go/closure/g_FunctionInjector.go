@@ -2,10 +2,12 @@
 
 package closure
 
+import "strconv"
+
 type FunctionInjector struct {
 	compiler_                 *AbstractCompiler
 	allowDecomposition_       bool
-	knownConstantFunctions    ImmutableSetOf[string]
+	knownConstantFunctions    *ImmutableSet[string]
 	assumeStrictThis_         bool
 	safeNameIdSupplier_       SupplierOf[string]
 	throwawayNameSupplier     SupplierOf[string]
@@ -15,19 +17,28 @@ type FunctionInjector struct {
 }
 
 func (this *FunctionInjector) finit_FunctionInjector() {
-	this.knownConstantFunctions = ImmutableSet_of()
-	this.throwawayNameSupplier = icast_Supplier(obj_(new_FunctionInjector_1(this)))
+	this.knownConstantFunctions = immutableSetOf_(tc_string)
+	this.throwawayNameSupplier = new_FunctionInjector_1(this)
 	this.referencesEvalCache = jnewTMap_(jtc_Node, tc_Boolean)
 	this.innerFunctionCache = jnewTMap_(jtc_Node, jtc_Node)
 }
 
 func (this *FunctionInjector) init_FunctionInjector(builder *FunctionInjector_Builder) {
 	this.finit_FunctionInjector()
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(builder.compiler_.self()))
-	this.safeNameIdSupplier_ = icast_Supplier(Preconditions_checkNotNull(any(builder.safeNameIdSupplierField)))
+	if builder.compiler_ == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.compiler_ = builder.compiler_
+	if builder.safeNameIdSupplierField == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.safeNameIdSupplier_ = builder.safeNameIdSupplierField
 	this.assumeStrictThis_ = builder.assumeStrictThisField
 	this.allowDecomposition_ = builder.allowDecompositionField
-	this.functionArgumentInjector_ = cast_[*FunctionArgumentInjector](Preconditions_checkNotNull(obj_(builder.functionArgumentInjectorField)))
+	if builder.functionArgumentInjectorField == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.functionArgumentInjector_ = builder.functionArgumentInjectorField
 }
 
 func new_FunctionInjector(builder *FunctionInjector_Builder) *FunctionInjector {
@@ -40,19 +51,18 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 	var block Node = NodeUtil_getFunctionBody(fnNode)
 	var fnRecursionName string = fnNode.getFirstChild().getString()
 	var referencesArguments bool = NodeUtil_isNameReferenced_Node_String_Predicate(block, "arguments", NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION)
-	var blocksInjection Predicate_baseOf[Node] = &Predicate_base_tfn_Node{func(n Node) bool {
+	var blocksInjection func(any) bool = (&Predicate_base_tfn_Node{func(n Node) bool {
 		if n.isName() {
-			return (((n.getString() == "eval") || (!String_isEmpty(fnName) && (n.getString() == fnName))) || (!String_isEmpty(fnRecursionName) && (n.getString() == fnRecursionName)))
-		} else if n.isSuper() || (n.getToken() == Token_rhino_NEW_TARGET) {
+			return (((n.getString() == "eval") || (fnName != "" && (n.getString() == fnName))) || (fnRecursionName != "" && (n.getString() == fnRecursionName)))
+		} else if n.isSuper() || (n.ns_().token == tokOrd1_NEW_TARGET) {
 			return true
 		}
 		return false
-		panic("unreachable")
-	}}
+	}}).apply
 	return (!referencesArguments && !NodeUtil_has(block, blocksInjection, Predicates_alwaysTrue()))
 }
 
-func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector_Reference, fnNode Node, needAliases ImmutableSetOf[string], referencesThis bool, containsClosures bool) *FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector_Reference, fnNode Node, needAliases *ImmutableSet[string], referencesThis bool, containsClosures bool) FunctionInjector_CanInlineResult {
 	var callNode Node = ref.callNode_
 	if !this.isSupportedCallType(callNode, fnNode) {
 		return FunctionInjector_CanInlineResult_NO
@@ -75,7 +85,6 @@ func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector
 	} else {
 		return this.canInlineReferenceAsStatementBlock(ref, fnNode, needAliases)
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionInjector) isSupportedCallType(callNode Node, fnNode Node) bool {
@@ -95,7 +104,9 @@ func (this *FunctionInjector) isSupportedCallType(callNode Node, fnNode Node) bo
 }
 
 func FunctionInjector_hasSpreadCallArgument(callNode Node) bool {
-	Preconditions_checkArgument_boolean_Object(NodeUtil_isNormalOrOptChainCall(callNode), callNode.box_())
+	if !NodeUtil_isNormalOrOptChainCall(callNode) {
+		panic(new_IllegalArgumentException_String(tostr_(callNode)))
+	}
 	{
 		var arg Node = callNode.getSecondChild()
 		for ; arg != 0; arg = arg.getNext() {
@@ -108,7 +119,9 @@ func FunctionInjector_hasSpreadCallArgument(callNode Node) bool {
 }
 
 func (this *FunctionInjector) inline(ref *FunctionInjector_Reference, fnName Optional[string], fnNode Node) Node {
-	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
+	if !this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0())
+	}
 	return this.internalInline(ref, fnName, fnNode)
 }
 
@@ -130,12 +143,11 @@ func (this *FunctionInjector) internalInline(ref *FunctionInjector_Reference, fn
 func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference, fnNode Node) Node {
 	var callNode Node = ref.callNode_
 	var block Node = fnNode.getLastChild()
-	var paramToArgMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.safeNameIdSupplier_)
+	var paramToArgMap *ImmutableMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.safeNameIdSupplier_)
 	var paramReplacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](paramToArgMap.entrySet())))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		paramReplacements.put(str_(entry.getKey()), cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg())
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.asImm().entrySet())) {
+		entry := icast_Map_Entry(el)
+		paramReplacements.put(str_(entry.getKey()), entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg())
 	}
 	var newExpression Node
 	if !block.hasChildren() {
@@ -143,10 +155,14 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 		newExpression = NodeUtil_newUndefinedNode(srcLocation)
 	} else {
 		var returnNode Node = block.getFirstChild()
-		Preconditions_checkArgument_boolean_Object(returnNode.isReturn(), returnNode.box_())
+		if !returnNode.isReturn() {
+			panic(new_IllegalArgumentException_String(tostr_(returnNode)))
+		}
 		var safeReturnNode Node = returnNode.cloneTree()
 		var inlineResult Node = this.functionArgumentInjector_.inject(nil, safeReturnNode, 0, paramReplacements)
-		Preconditions_checkArgument((safeReturnNode == inlineResult))
+		if safeReturnNode != inlineResult {
+			panic(new_IllegalArgumentException_0())
+		}
 		newExpression = safeReturnNode.removeFirstChild()
 		NodeUtil_markNewScopesChanged(newExpression, this.compiler_)
 	}
@@ -164,7 +180,7 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 	return newExpression
 }
 
-func (this *FunctionInjector) classifyCallSite(ref *FunctionInjector_Reference) *FunctionInjector_CallSiteType {
+func (this *FunctionInjector) classifyCallSite(ref *FunctionInjector_Reference) FunctionInjector_CallSiteType {
 	var callNode Node = ref.callNode_
 	var parent Node = callNode.getParent()
 	var grandParent Node = parent.getParent()
@@ -192,7 +208,7 @@ func (this *FunctionInjector) getDecomposer(scope *Scope) *ExpressionDecomposer 
 }
 
 func (this *FunctionInjector) maybePrepareCall(ref *FunctionInjector_Reference) {
-	var callSiteType *FunctionInjector_CallSiteType = this.classifyCallSite(ref)
+	var callSiteType FunctionInjector_CallSiteType = this.classifyCallSite(ref)
 	callSiteType.prepare(this, ref)
 }
 
@@ -200,8 +216,10 @@ func (this *FunctionInjector) inlineFunction(ref *FunctionInjector_Reference, fn
 	var callNode Node = ref.callNode_
 	var parent Node = callNode.getParent()
 	var grandParent Node = parent.getParent()
-	var callSiteType *FunctionInjector_CallSiteType = this.classifyCallSite(ref)
-	Preconditions_checkArgument((callSiteType != FunctionInjector_CallSiteType_UNSUPPORTED))
+	var callSiteType FunctionInjector_CallSiteType = this.classifyCallSite(ref)
+	if callSiteType == FunctionInjector_CallSiteType_UNSUPPORTED {
+		panic(new_IllegalArgumentException_0())
+	}
 	var resultName Optional[string] = Optional_empty[string]()
 	var needsDefaultReturnResult bool = true
 	switch callSiteType {
@@ -215,11 +233,11 @@ func (this *FunctionInjector) inlineFunction(ref *FunctionInjector_Reference, fn
 		resultName = Optional_empty[string]()
 		needsDefaultReturnResult = false
 	case FunctionInjector_CallSiteType_EXPRESSION:
-		panic(new_IllegalStateException_String("Movable expressions must be moved before inlining.").self())
+		panic(new_IllegalStateException_String("Movable expressions must be moved before inlining."))
 	case FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION:
-		panic(new_IllegalStateException_String("Decomposable expressions must be decomposed before inlining.").self())
+		panic(new_IllegalStateException_String("Decomposable expressions must be decomposed before inlining."))
 	default:
-		panic(new_IllegalStateException_String("Unexpected call site type.").self())
+		panic(new_IllegalStateException_String("Unexpected call site type."))
 	}
 	var mutator *FunctionToBlockMutator = new_FunctionToBlockMutator(this.compiler_, this.safeNameIdSupplier_)
 	var isCallInLoop bool = NodeUtil_isWithinLoop(callNode)
@@ -229,18 +247,24 @@ func (this *FunctionInjector) inlineFunction(ref *FunctionInjector_Reference, fn
 	case FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT:
 		var firstChild Node = parent.removeFirstChild()
 		NodeUtil_markFunctionsDeleted(firstChild, this.compiler_)
-		Preconditions_checkState(!parent.hasChildren())
+		if parent.hasChildren() {
+			panic(new_IllegalStateException_0())
+		}
 		newBlock.insertAfter(grandParent)
 	case FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT:
-		Preconditions_checkState(grandParent.isExprResult())
+		if !grandParent.isExprResult() {
+			panic(new_IllegalStateException_0())
+		}
 		grandParent.replaceWith(newBlock)
 		NodeUtil_markFunctionsDeleted(grandParent, this.compiler_)
 	case FunctionInjector_CallSiteType_SIMPLE_CALL:
-		Preconditions_checkState(parent.isExprResult())
+		if !parent.isExprResult() {
+			panic(new_IllegalStateException_0())
+		}
 		parent.replaceWith(newBlock)
 		NodeUtil_markFunctionsDeleted(parent, this.compiler_)
 	default:
-		panic(new_IllegalStateException_String("Unexpected call site type.").self())
+		panic(new_IllegalStateException_String("Unexpected call site type."))
 	}
 	return newBlock
 }
@@ -273,8 +297,8 @@ func FunctionInjector_isDirectCallNodeReplacementPossible(fnNode Node) bool {
 	return false
 }
 
-func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionInjector_Reference, fnNode Node, namesToAlias ImmutableSetOf[string]) *FunctionInjector_CanInlineResult {
-	var callSiteType *FunctionInjector_CallSiteType = this.classifyCallSite(ref)
+func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *ImmutableSet[string]) FunctionInjector_CanInlineResult {
+	var callSiteType FunctionInjector_CallSiteType = this.classifyCallSite(ref)
 	if callSiteType == FunctionInjector_CallSiteType_UNSUPPORTED {
 		return FunctionInjector_CanInlineResult_NO
 	}
@@ -289,33 +313,36 @@ func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionIn
 	} else {
 		return FunctionInjector_CanInlineResult_YES
 	}
-	panic("unreachable")
 }
 
 func (this *FunctionInjector) referencesEval(fn Node) bool {
-	Preconditions_checkState(fn.isFunction())
+	if !fn.isFunction() {
+		panic(new_IllegalStateException_0())
+	}
 	var cached any = this.referencesEvalCache.get(fn)
 	if cached != nil {
 		return unbox_[bool](cached)
 	}
-	var result bool = NodeUtil_has(fn, &Predicate_base_tfn_Node{func(n Node) bool {
+	var result bool = NodeUtil_has(fn, (&Predicate_base_tfn_Node{func(n Node) bool {
 		return (n.isName() && (n.getString() == "eval"))
-	}}, &Predicate_base_tfn_Node{func(n Node) bool {
-		return (!n.isFunction() || Object_equals(n.box_(), fn.box_()))
+	}}).apply, &Predicate_base_tfn_Node{func(n Node) bool {
+		return (!n.isFunction() || equalsId_(n, fn))
 	}})
 	this.referencesEvalCache.put(fn, any(bool(result)))
 	return result
 }
 
 func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
-	Preconditions_checkState(containerFn.isFunction())
+	if !containerFn.isFunction() {
+		panic(new_IllegalStateException_0())
+	}
 	var cached Node = this.innerFunctionCache.get(containerFn)
 	if cached != 0 {
 		return cached
 	}
 	var innerFns *JTList[Node] = jnewTList_(jtc_Node)
 	NodeUtil_visitPreOrder_Node_Visitor(containerFn, &NodeUtil_Visitor_fn{func(n Node) {
-		if Object_equals(n.box_(), containerFn.box_()) {
+		if equalsId_(n, containerFn) {
 			return
 		}
 		if NodeUtil_isFunctionOrNonStaticClassFieldInitializer(n) {
@@ -331,22 +358,21 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 		default:
 			return FunctionInjector_MULTIPLE_FUNCTIONS
 		}
-		panic("unreachable")
 	}()
 	this.innerFunctionCache.put(containerFn, cached)
 	return cached
 }
 
-func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias ImmutableSetOf[string]) bool {
-	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), icast_Predicate_base(obj_(new_NodeUtil_MatchDeclaration())), icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
+func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias *ImmutableSet[string]) bool {
+	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().apply, new_NodeUtil_MatchShallowStatement())
 	var forbidTemps bool = false
-	if !cast_[*Scope](callRef.scope_.getClosestHoistScope().self()).isGlobal() {
-		var callerFn Node = cast_[*Scope](callRef.scope_.getClosestHoistScope().self()).getRootNode().getParent()
+	if !callRef.scope_.getClosestHoistScope().self().(*Scope).isGlobal() {
+		var callerFn Node = callRef.scope_.getClosestHoistScope().self().(*Scope).getRootNode().getParent()
 		if this.referencesEval(callerFn) {
 			forbidTemps = true
 		} else {
 			var innerFn Node = this.innerFunctionOf(callerFn)
-			var calleeIsOnlyInnerFn bool = (Object_equals(innerFn.box_(), FunctionInjector_NO_FUNCTIONS.box_()) || Object_equals(innerFn.box_(), calleeFn.box_()))
+			var calleeIsOnlyInnerFn bool = (equalsId_(innerFn, FunctionInjector_NO_FUNCTIONS) || equalsId_(innerFn, calleeFn))
 			forbidTemps = !calleeIsOnlyInnerFn
 		}
 	}
@@ -354,14 +380,14 @@ func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *Functi
 		return false
 	}
 	if forbidTemps {
-		var args ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(calleeFn, callRef.callNode_, this.safeNameIdSupplier_)
-		var hasArgs bool = !args.isEmpty()
+		var args *ImmutableMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(calleeFn, callRef.callNode_, this.safeNameIdSupplier_)
+		var hasArgs bool = !args.IsEmpty()
 		if hasArgs {
-			if !namesToAlias.isEmpty() {
+			if !namesToAlias.IsEmpty() {
 				return false
 			}
-			var allTemps ImmutableSetOf[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, calleeFn, args, namesToAlias, this.compiler_.getCodingConvention())
-			if !allTemps.isEmpty() {
+			var allTemps *ImmutableSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, calleeFn, args, namesToAlias, this.compiler_.getCodingConvention())
+			if !allTemps.IsEmpty() {
 				return false
 			}
 		}
@@ -369,7 +395,7 @@ func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *Functi
 	return true
 }
 
-func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_Reference, fnNode Node, namesToAlias ImmutableSetOf[string]) *FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *ImmutableSet[string]) FunctionInjector_CanInlineResult {
 	if !FunctionInjector_isDirectCallNodeReplacementPossible(fnNode) {
 		return FunctionInjector_CanInlineResult_NO
 	}
@@ -384,24 +410,26 @@ func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_R
 				cArg = cArg.getNext()
 			}
 		} else {
-			Preconditions_checkState(!NodeUtil_isFunctionObjectApply(callNode))
+			if NodeUtil_isFunctionObjectApply(callNode) {
+				panic(new_IllegalStateException_0())
+			}
 		}
 	}
-	var args ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.throwawayNameSupplier)
-	var hasArgs bool = !args.isEmpty()
+	var args *ImmutableMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.throwawayNameSupplier)
+	var hasArgs bool = !args.IsEmpty()
 	if hasArgs {
-		if !namesToAlias.isEmpty() {
+		if !namesToAlias.IsEmpty() {
 			return FunctionInjector_CanInlineResult_NO
 		}
-		var allTemps ImmutableSetOf[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, fnNode, args, namesToAlias, this.compiler_.getCodingConvention())
-		if !allTemps.isEmpty() {
+		var allTemps *ImmutableSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, fnNode, args, namesToAlias, this.compiler_.getCodingConvention())
+		if !allTemps.IsEmpty() {
 			return FunctionInjector_CanInlineResult_NO
 		}
 	}
 	return FunctionInjector_CanInlineResult_YES
 }
 
-func (this *FunctionInjector) inliningLowersCost(fnChunk *JSChunk, fnNode Node, refs CollectionOf[*FunctionInjector_Reference], namesToAlias SetOf[string], isRemovable bool, referencesThis bool) bool {
+func (this *FunctionInjector) inliningLowersCost(fnChunk *JSChunk, fnNode Node, refs CollectionOf[*FunctionInjector_Reference], namesToAlias map[string]struct{}, isRemovable bool, referencesThis bool) bool {
 	var referenceCount int32 = refs.size()
 	if referenceCount == 0 {
 		return true
@@ -409,9 +437,7 @@ func (this *FunctionInjector) inliningLowersCost(fnChunk *JSChunk, fnNode Node, 
 	var referencesUsingBlockInlining int32 = 0
 	var checkChunks bool = (isRemovable && (fnChunk != nil))
 	var chunkGraph *JSChunkGraph = this.compiler_.getChunkGraph()
-	it_1 := foreach_(any(refs))
-	for it_1.next() {
-		var ref *FunctionInjector_Reference = to_FunctionInjector_Reference(it_1.v)
+	for ref := range elemsBy_(refs, to_FunctionInjector_Reference) {
 		if ref.mode_ == FunctionInjector_InliningMode_BLOCK {
 			referencesUsingBlockInlining++
 		}
@@ -461,7 +487,7 @@ func FunctionInjector_estimateCallCost(fnNode Node, referencesThis bool) int32 {
 	return callCost
 }
 
-func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias SetOf[string], mode *FunctionInjector_InliningMode) int32 {
+func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias map[string]struct{}, mode FunctionInjector_InliningMode) int32 {
 	var paramCount int32 = NodeUtil_getFunctionParameters(fnNode).getChildCount()
 	var commaCount int32 = func() int32 {
 		if paramCount > 1 {
@@ -477,12 +503,12 @@ func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias SetOf[string], m
 	if mode == FunctionInjector_InliningMode_DIRECT {
 		return (-(costDeltaFunctionOverhead + 7))
 	} else {
-		var aliasCount int32 = namesToAlias.size()
+		var aliasCount int32 = int32(len(mapNN_(namesToAlias)))
 		var inlineBlockOverhead int32 = 4
 		var perReturnOverhead int32 = 2
 		var perReturnResultOverhead int32 = 3
 		var perAliasOverhead int32 = 3
-		var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
+		var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, new_NodeUtil_MatchShallowStatement())
 		var resultCount int32 = func() int32 {
 			if returnCount > 0 {
 				return (returnCount - 1)
@@ -498,11 +524,12 @@ func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias SetOf[string], m
 		var overhead int32 = (((baseOverhead + (returnCount * perReturnOverhead)) + (resultCount * perReturnResultOverhead)) + (aliasCount * perAliasOverhead))
 		return (overhead - costDeltaFunctionOverhead)
 	}
-	panic("unreachable")
 }
 
-func (this *FunctionInjector) setKnownConstantFunctions(knownConstantFunctions ImmutableSetOf[string]) {
-	Preconditions_checkState(this.knownConstantFunctions.isEmpty())
+func (this *FunctionInjector) setKnownConstantFunctions(knownConstantFunctions *ImmutableSet[string]) {
+	if !this.knownConstantFunctions.IsEmpty() {
+		panic(new_IllegalStateException_0())
+	}
 	this.knownConstantFunctions = knownConstantFunctions
 }
 
@@ -543,7 +570,10 @@ func (this *FunctionInjector_Builder) finit_FunctionInjector_Builder() {
 
 func (this *FunctionInjector_Builder) init_FunctionInjector_Builder(compiler *AbstractCompiler) {
 	this.finit_FunctionInjector_Builder()
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	if compiler == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.compiler_ = compiler
 }
 
 func new_FunctionInjector_Builder(compiler *AbstractCompiler) *FunctionInjector_Builder {
@@ -553,7 +583,10 @@ func new_FunctionInjector_Builder(compiler *AbstractCompiler) *FunctionInjector_
 }
 
 func (this *FunctionInjector_Builder) safeNameIdSupplier(safeNameIdSupplier SupplierOf[string]) *FunctionInjector_Builder {
-	this.safeNameIdSupplierField = icast_Supplier(Preconditions_checkNotNull(any(safeNameIdSupplier)))
+	if safeNameIdSupplier == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.safeNameIdSupplierField = safeNameIdSupplier
 	return this
 }
 
@@ -568,7 +601,10 @@ func (this *FunctionInjector_Builder) assumeStrictThis(assumeStrictThis bool) *F
 }
 
 func (this *FunctionInjector_Builder) functionArgumentInjector(functionArgumentInjector *FunctionArgumentInjector) *FunctionInjector_Builder {
-	this.functionArgumentInjectorField = cast_[*FunctionArgumentInjector](Preconditions_checkNotNull(obj_(functionArgumentInjector)))
+	if functionArgumentInjector == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.functionArgumentInjectorField = functionArgumentInjector
 	return this
 }
 
@@ -577,49 +613,73 @@ func (this *FunctionInjector_Builder) build() *FunctionInjector {
 		this.safeNameIdSupplierField = this.compiler_.getUniqueNameIdSupplier()
 	}
 	if this.functionArgumentInjectorField == nil {
-		this.functionArgumentInjectorField = new_FunctionArgumentInjector(cast_[*AstAnalyzer](Preconditions_checkNotNull(obj_(this.compiler_.getAstAnalyzer()))))
+		nn_1 := this.compiler_.getAstAnalyzer()
+		if nn_1 == nil {
+			panic(new_NullPointerException_0())
+		}
+		this.functionArgumentInjectorField = new_FunctionArgumentInjector(nn_1)
 	}
 	return new_FunctionInjector(this)
 }
 
-type FunctionInjector_InliningMode struct {
-	Enum
+type FunctionInjector_InliningMode uint8
+
+// FunctionInjector_InliningMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FunctionInjector_InliningMode_enum_ = [2]Enum{
+	{self_: FunctionInjector_InliningMode_DIRECT, name_: "DIRECT", ordinal_: 0},
+	{self_: FunctionInjector_InliningMode_BLOCK, name_: "BLOCK", ordinal_: 1},
 }
 
-func (this *FunctionInjector_InliningMode) up_Enum() *Enum {
-	if this == nil {
+func (this FunctionInjector_InliningMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FunctionInjector_InliningMode_enum_[this-1]
 }
 
-func (this *FunctionInjector_InliningMode) init_FunctionInjector_InliningMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FunctionInjector_InliningMode) name() string {
+	return this.enum_().name_
 }
 
-func new_FunctionInjector_InliningMode(name_ string, ordinal_ int32) *FunctionInjector_InliningMode {
-	this := &FunctionInjector_InliningMode{}
-	this.self_ = this
-	this.init_FunctionInjector_InliningMode(name_, ordinal_)
+func (this FunctionInjector_InliningMode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this FunctionInjector_InliningMode) toString() string {
+	return this.enum_().name_
+}
+
+func (this FunctionInjector_InliningMode) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this FunctionInjector_InliningMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FunctionInjector_InliningMode_values() []*FunctionInjector_InliningMode {
-	return append([]*FunctionInjector_InliningMode(nil), FunctionInjector_InliningMode_values_...)
+func FunctionInjector_InliningMode_values() []FunctionInjector_InliningMode {
+	return append([]FunctionInjector_InliningMode(nil), FunctionInjector_InliningMode_values_...)
 }
 
-func FunctionInjector_InliningMode_valueOf(name string) *FunctionInjector_InliningMode {
+func FunctionInjector_InliningMode_valueOf(name string) FunctionInjector_InliningMode {
 	for _, v := range FunctionInjector_InliningMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("InliningMode", name))
 }
 
-var FunctionInjector_InliningMode_DIRECT *FunctionInjector_InliningMode
-var FunctionInjector_InliningMode_BLOCK *FunctionInjector_InliningMode
-var FunctionInjector_InliningMode_values_ []*FunctionInjector_InliningMode
+const FunctionInjector_InliningMode_DIRECT FunctionInjector_InliningMode = 1
+const FunctionInjector_InliningMode_BLOCK FunctionInjector_InliningMode = 2
+
+var FunctionInjector_InliningMode_values_ []FunctionInjector_InliningMode
 
 var FunctionInjector_InliningMode_clinit_done bool
 
@@ -628,9 +688,7 @@ func FunctionInjector_InliningMode_clinit() {
 		return
 	}
 	FunctionInjector_InliningMode_clinit_done = true
-	FunctionInjector_InliningMode_DIRECT = new_FunctionInjector_InliningMode("DIRECT", 0)
-	FunctionInjector_InliningMode_BLOCK = new_FunctionInjector_InliningMode("BLOCK", 1)
-	FunctionInjector_InliningMode_values_ = []*FunctionInjector_InliningMode{FunctionInjector_InliningMode_DIRECT, FunctionInjector_InliningMode_BLOCK}
+	FunctionInjector_InliningMode_values_ = []FunctionInjector_InliningMode{FunctionInjector_InliningMode_DIRECT, FunctionInjector_InliningMode_BLOCK}
 	registerEnum_("com.google.javascript.jscomp.FunctionInjector.InliningMode", enumValues_(FunctionInjector_InliningMode_values_))
 
 }
@@ -640,7 +698,13 @@ type FunctionInjector_Reference struct {
 	callNode_ Node
 	scope_    *Scope
 	chunk_    *JSChunk
-	mode_     *FunctionInjector_InliningMode
+	mode_     FunctionInjector_InliningMode
+}
+
+// FunctionInjector_Reference_as is implemented by FunctionInjector_Reference and the classes that extend it: a cast to FunctionInjector_Reference asserts to it
+// (post-flip).
+type FunctionInjector_Reference_as interface {
+	as_FunctionInjector_Reference() *FunctionInjector_Reference
 }
 
 func (this *FunctionInjector_Reference) as_FunctionInjector_Reference() *FunctionInjector_Reference {
@@ -648,19 +712,15 @@ func (this *FunctionInjector_Reference) as_FunctionInjector_Reference() *Functio
 }
 
 func to_FunctionInjector_Reference(v any) *FunctionInjector_Reference {
-	if v == nil {
+	switch p := v.(type) {
+	case *FunctionInjector_Reference:
+		return p
+	case *InlineFunctions_Reference:
+		return p.as_FunctionInjector_Reference()
+	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_FunctionInjector_Reference() *FunctionInjector_Reference
-	}).as_FunctionInjector_Reference()
-}
-
-func is_FunctionInjector_Reference(v any) bool {
-	_, ok := v.(interface {
-		as_FunctionInjector_Reference() *FunctionInjector_Reference
-	})
-	return ok
+	return v.(FunctionInjector_Reference_as).as_FunctionInjector_Reference()
 }
 
 func (this *FunctionInjector_Reference) self() any {
@@ -670,14 +730,14 @@ func (this *FunctionInjector_Reference) self() any {
 	return this.self_
 }
 
-func (this *FunctionInjector_Reference) init_FunctionInjector_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode *FunctionInjector_InliningMode) {
+func (this *FunctionInjector_Reference) init_FunctionInjector_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode FunctionInjector_InliningMode) {
 	this.callNode_ = callNode
 	this.scope_ = scope
 	this.chunk_ = chunk
 	this.mode_ = mode
 }
 
-func new_FunctionInjector_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode *FunctionInjector_InliningMode) *FunctionInjector_Reference {
+func new_FunctionInjector_Reference(callNode Node, scope *Scope, chunk *JSChunk, mode FunctionInjector_InliningMode) *FunctionInjector_Reference {
 	this := &FunctionInjector_Reference{}
 	this.self_ = this
 	this.init_FunctionInjector_Reference(callNode, scope, chunk, mode)
@@ -685,77 +745,100 @@ func new_FunctionInjector_Reference(callNode Node, scope *Scope, chunk *JSChunk,
 }
 
 func (this *FunctionInjector_Reference) toString() string {
-	return ("Reference @ " + objstr_(this.callNode_.box_()))
+	return ("Reference @ " + tostr_(this.callNode_))
 }
 
-type FunctionInjector_CallSiteType struct {
-	Enum
+type FunctionInjector_CallSiteType uint8
+
+// FunctionInjector_CallSiteType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FunctionInjector_CallSiteType_enum_ = [6]Enum{
+	{self_: FunctionInjector_CallSiteType_UNSUPPORTED, name_: "UNSUPPORTED", ordinal_: 0},
+	{self_: FunctionInjector_CallSiteType_SIMPLE_CALL, name_: "SIMPLE_CALL", ordinal_: 1},
+	{self_: FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT, name_: "SIMPLE_ASSIGNMENT", ordinal_: 2},
+	{self_: FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT, name_: "VAR_DECL_SIMPLE_ASSIGNMENT", ordinal_: 3},
+	{self_: FunctionInjector_CallSiteType_EXPRESSION, name_: "EXPRESSION", ordinal_: 4},
+	{self_: FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION, name_: "DECOMPOSABLE_EXPRESSION", ordinal_: 5},
 }
 
-func (this *FunctionInjector_CallSiteType) as_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
+func (this FunctionInjector_CallSiteType) enum_() *Enum {
+	if this == 0 {
+		return nil
+	}
+	return &FunctionInjector_CallSiteType_enum_[this-1]
+}
+
+func (this FunctionInjector_CallSiteType) name() string { return this.enum_().name_ }
+
+func (this FunctionInjector_CallSiteType) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this FunctionInjector_CallSiteType) toString() string { return this.enum_().name_ }
+
+func (this FunctionInjector_CallSiteType) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this FunctionInjector_CallSiteType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func to_FunctionInjector_CallSiteType(v any) *FunctionInjector_CallSiteType {
-	if v == nil {
-		return nil
+func (this FunctionInjector_CallSiteType) as_FunctionInjector_CallSiteType() FunctionInjector_CallSiteType {
+	return this
+}
+
+func (this FunctionInjector_CallSiteType) prepare(injector *FunctionInjector, ref *FunctionInjector_Reference) {
+	switch this {
+	case FunctionInjector_CallSiteType_UNSUPPORTED:
+		panic(new_IllegalStateException_String(("unexpected: " + objstr_(ref.self()))))
+	case FunctionInjector_CallSiteType_SIMPLE_CALL, FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT, FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT:
+
+	case FunctionInjector_CallSiteType_EXPRESSION:
+		var callNode Node = ref.callNode_
+		injector.getDecomposer(ref.scope_).moveExpression(callNode)
+		var callSiteType FunctionInjector_CallSiteType = injector.classifyCallSite(ref)
+		if this == callSiteType {
+			panic(new_IllegalStateException_0())
+		}
+		callSiteType.prepare(injector, ref)
+	case FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION:
+		var callNode Node = ref.callNode_
+		injector.getDecomposer(ref.scope_).maybeExposeExpression(callNode)
+		var callSiteType FunctionInjector_CallSiteType = injector.classifyCallSite(ref)
+		if this == callSiteType {
+			panic(new_IllegalStateException_0())
+		}
+		callSiteType.prepare(injector, ref)
+	default:
+		panic(new_NullPointerException_0()) // a call on null
 	}
-	return v.(interface {
-		as_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType
-	}).as_FunctionInjector_CallSiteType()
 }
 
-func is_FunctionInjector_CallSiteType(v any) bool {
-	_, ok := v.(interface {
-		as_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType
-	})
-	return ok
+func FunctionInjector_CallSiteType_values() []FunctionInjector_CallSiteType {
+	return append([]FunctionInjector_CallSiteType(nil), FunctionInjector_CallSiteType_values_...)
 }
 
-func (this *FunctionInjector_CallSiteType) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
-func (this *FunctionInjector_CallSiteType) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *FunctionInjector_CallSiteType) init_FunctionInjector_CallSiteType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-}
-
-func (this *FunctionInjector_CallSiteType) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	this.self_.(interface {
-		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
-	}).prepare_impl(p0, p1)
-}
-
-func FunctionInjector_CallSiteType_values() []*FunctionInjector_CallSiteType {
-	return append([]*FunctionInjector_CallSiteType(nil), FunctionInjector_CallSiteType_values_...)
-}
-
-func FunctionInjector_CallSiteType_valueOf(name string) *FunctionInjector_CallSiteType {
+func FunctionInjector_CallSiteType_valueOf(name string) FunctionInjector_CallSiteType {
 	for _, v := range FunctionInjector_CallSiteType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("CallSiteType", name))
 }
 
-var FunctionInjector_CallSiteType_UNSUPPORTED *FunctionInjector_CallSiteType
-var FunctionInjector_CallSiteType_SIMPLE_CALL *FunctionInjector_CallSiteType
-var FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT *FunctionInjector_CallSiteType
-var FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT *FunctionInjector_CallSiteType
-var FunctionInjector_CallSiteType_EXPRESSION *FunctionInjector_CallSiteType
-var FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION *FunctionInjector_CallSiteType
-var FunctionInjector_CallSiteType_values_ []*FunctionInjector_CallSiteType
+const FunctionInjector_CallSiteType_UNSUPPORTED FunctionInjector_CallSiteType = 1
+const FunctionInjector_CallSiteType_SIMPLE_CALL FunctionInjector_CallSiteType = 2
+const FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT FunctionInjector_CallSiteType = 3
+const FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT FunctionInjector_CallSiteType = 4
+const FunctionInjector_CallSiteType_EXPRESSION FunctionInjector_CallSiteType = 5
+const FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION FunctionInjector_CallSiteType = 6
+
+var FunctionInjector_CallSiteType_values_ []FunctionInjector_CallSiteType
 
 var FunctionInjector_CallSiteType_clinit_done bool
 
@@ -764,56 +847,71 @@ func FunctionInjector_CallSiteType_clinit() {
 		return
 	}
 	FunctionInjector_CallSiteType_clinit_done = true
-	FunctionInjector_CallSiteType_UNSUPPORTED = new_FunctionInjector_CallSiteType_1("UNSUPPORTED", 0).up_FunctionInjector_CallSiteType()
-	FunctionInjector_CallSiteType_SIMPLE_CALL = new_FunctionInjector_CallSiteType_2("SIMPLE_CALL", 1).up_FunctionInjector_CallSiteType()
-	FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT = new_FunctionInjector_CallSiteType_3("SIMPLE_ASSIGNMENT", 2).up_FunctionInjector_CallSiteType()
-	FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT = new_FunctionInjector_CallSiteType_4("VAR_DECL_SIMPLE_ASSIGNMENT", 3).up_FunctionInjector_CallSiteType()
-	FunctionInjector_CallSiteType_EXPRESSION = new_FunctionInjector_CallSiteType_5("EXPRESSION", 4).up_FunctionInjector_CallSiteType()
-	FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION = new_FunctionInjector_CallSiteType_6("DECOMPOSABLE_EXPRESSION", 5).up_FunctionInjector_CallSiteType()
-	FunctionInjector_CallSiteType_values_ = []*FunctionInjector_CallSiteType{FunctionInjector_CallSiteType_UNSUPPORTED, FunctionInjector_CallSiteType_SIMPLE_CALL, FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT, FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT, FunctionInjector_CallSiteType_EXPRESSION, FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION}
+	FunctionInjector_CallSiteType_values_ = []FunctionInjector_CallSiteType{FunctionInjector_CallSiteType_UNSUPPORTED, FunctionInjector_CallSiteType_SIMPLE_CALL, FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT, FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT, FunctionInjector_CallSiteType_EXPRESSION, FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION}
 	registerEnum_("com.google.javascript.jscomp.FunctionInjector.CallSiteType", enumValues_(FunctionInjector_CallSiteType_values_))
 
 }
 
-type FunctionInjector_CanInlineResult struct {
-	Enum
+type FunctionInjector_CanInlineResult uint8
+
+// FunctionInjector_CanInlineResult_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FunctionInjector_CanInlineResult_enum_ = [3]Enum{
+	{self_: FunctionInjector_CanInlineResult_YES, name_: "YES", ordinal_: 0},
+	{self_: FunctionInjector_CanInlineResult_AFTER_PREPARATION, name_: "AFTER_PREPARATION", ordinal_: 1},
+	{self_: FunctionInjector_CanInlineResult_NO, name_: "NO", ordinal_: 2},
 }
 
-func (this *FunctionInjector_CanInlineResult) up_Enum() *Enum {
-	if this == nil {
+func (this FunctionInjector_CanInlineResult) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FunctionInjector_CanInlineResult_enum_[this-1]
 }
 
-func (this *FunctionInjector_CanInlineResult) init_FunctionInjector_CanInlineResult(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FunctionInjector_CanInlineResult) name() string {
+	return this.enum_().name_
 }
 
-func new_FunctionInjector_CanInlineResult(name_ string, ordinal_ int32) *FunctionInjector_CanInlineResult {
-	this := &FunctionInjector_CanInlineResult{}
-	this.self_ = this
-	this.init_FunctionInjector_CanInlineResult(name_, ordinal_)
+func (this FunctionInjector_CanInlineResult) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this FunctionInjector_CanInlineResult) toString() string {
+	return this.enum_().name_
+}
+
+func (this FunctionInjector_CanInlineResult) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this FunctionInjector_CanInlineResult) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FunctionInjector_CanInlineResult_values() []*FunctionInjector_CanInlineResult {
-	return append([]*FunctionInjector_CanInlineResult(nil), FunctionInjector_CanInlineResult_values_...)
+func FunctionInjector_CanInlineResult_values() []FunctionInjector_CanInlineResult {
+	return append([]FunctionInjector_CanInlineResult(nil), FunctionInjector_CanInlineResult_values_...)
 }
 
-func FunctionInjector_CanInlineResult_valueOf(name string) *FunctionInjector_CanInlineResult {
+func FunctionInjector_CanInlineResult_valueOf(name string) FunctionInjector_CanInlineResult {
 	for _, v := range FunctionInjector_CanInlineResult_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("CanInlineResult", name))
 }
 
-var FunctionInjector_CanInlineResult_YES *FunctionInjector_CanInlineResult
-var FunctionInjector_CanInlineResult_AFTER_PREPARATION *FunctionInjector_CanInlineResult
-var FunctionInjector_CanInlineResult_NO *FunctionInjector_CanInlineResult
-var FunctionInjector_CanInlineResult_values_ []*FunctionInjector_CanInlineResult
+const FunctionInjector_CanInlineResult_YES FunctionInjector_CanInlineResult = 1
+const FunctionInjector_CanInlineResult_AFTER_PREPARATION FunctionInjector_CanInlineResult = 2
+const FunctionInjector_CanInlineResult_NO FunctionInjector_CanInlineResult = 3
+
+var FunctionInjector_CanInlineResult_values_ []FunctionInjector_CanInlineResult
 
 var FunctionInjector_CanInlineResult_clinit_done bool
 
@@ -822,10 +920,7 @@ func FunctionInjector_CanInlineResult_clinit() {
 		return
 	}
 	FunctionInjector_CanInlineResult_clinit_done = true
-	FunctionInjector_CanInlineResult_YES = new_FunctionInjector_CanInlineResult("YES", 0)
-	FunctionInjector_CanInlineResult_AFTER_PREPARATION = new_FunctionInjector_CanInlineResult("AFTER_PREPARATION", 1)
-	FunctionInjector_CanInlineResult_NO = new_FunctionInjector_CanInlineResult("NO", 2)
-	FunctionInjector_CanInlineResult_values_ = []*FunctionInjector_CanInlineResult{FunctionInjector_CanInlineResult_YES, FunctionInjector_CanInlineResult_AFTER_PREPARATION, FunctionInjector_CanInlineResult_NO}
+	FunctionInjector_CanInlineResult_values_ = []FunctionInjector_CanInlineResult{FunctionInjector_CanInlineResult_YES, FunctionInjector_CanInlineResult_AFTER_PREPARATION, FunctionInjector_CanInlineResult_NO}
 	registerEnum_("com.google.javascript.jscomp.FunctionInjector.CanInlineResult", enumValues_(FunctionInjector_CanInlineResult_values_))
 
 }
@@ -851,375 +946,7 @@ func new_FunctionInjector_1(outer_ *FunctionInjector) *FunctionInjector_1 {
 }
 
 func (this *FunctionInjector_1) get() any {
-	var result string = String_valueOf(this.nextId)
+	var result string = strconv.Itoa(int(this.nextId))
 	this.nextId++
 	return strobj_(result)
-}
-
-type FunctionInjector_CallSiteType_1 struct {
-	FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_1) up_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
-	if this == nil {
-		return nil
-	}
-	return &this.FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_1) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *FunctionInjector_CallSiteType_1) init_FunctionInjector_CallSiteType_1(name_ string, ordinal_ int32) {
-	this.FunctionInjector_CallSiteType.init_FunctionInjector_CallSiteType(name_, ordinal_)
-}
-
-func new_FunctionInjector_CallSiteType_1(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_1 {
-	this := &FunctionInjector_CallSiteType_1{}
-	this.self_ = this
-	this.init_FunctionInjector_CallSiteType_1(name_, ordinal_)
-	return this
-}
-
-func (this *FunctionInjector_CallSiteType_1) prepare_impl(injector *FunctionInjector, ref *FunctionInjector_Reference) {
-	panic(new_IllegalStateException_String(("unexpected: " + objstr_(ref.self()))).self())
-}
-
-func FunctionInjector_CallSiteType_1_values() []*FunctionInjector_CallSiteType_1 {
-	return append([]*FunctionInjector_CallSiteType_1(nil), FunctionInjector_CallSiteType_1_values_...)
-}
-
-func FunctionInjector_CallSiteType_1_valueOf(name string) *FunctionInjector_CallSiteType_1 {
-	for _, v := range FunctionInjector_CallSiteType_1_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var FunctionInjector_CallSiteType_1_values_ []*FunctionInjector_CallSiteType_1
-
-var FunctionInjector_CallSiteType_1_clinit_done bool
-
-func FunctionInjector_CallSiteType_1_clinit() {
-	if FunctionInjector_CallSiteType_1_clinit_done {
-		return
-	}
-	FunctionInjector_CallSiteType_1_clinit_done = true
-	FunctionInjector_CallSiteType_1_values_ = []*FunctionInjector_CallSiteType_1{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_1_values_))
-
-}
-
-type FunctionInjector_CallSiteType_2 struct {
-	FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_2) up_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
-	if this == nil {
-		return nil
-	}
-	return &this.FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_2) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *FunctionInjector_CallSiteType_2) init_FunctionInjector_CallSiteType_2(name_ string, ordinal_ int32) {
-	this.FunctionInjector_CallSiteType.init_FunctionInjector_CallSiteType(name_, ordinal_)
-}
-
-func new_FunctionInjector_CallSiteType_2(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_2 {
-	this := &FunctionInjector_CallSiteType_2{}
-	this.self_ = this
-	this.init_FunctionInjector_CallSiteType_2(name_, ordinal_)
-	return this
-}
-
-func (this *FunctionInjector_CallSiteType_2) prepare_impl(injector *FunctionInjector, ref *FunctionInjector_Reference) {
-
-}
-
-func FunctionInjector_CallSiteType_2_values() []*FunctionInjector_CallSiteType_2 {
-	return append([]*FunctionInjector_CallSiteType_2(nil), FunctionInjector_CallSiteType_2_values_...)
-}
-
-func FunctionInjector_CallSiteType_2_valueOf(name string) *FunctionInjector_CallSiteType_2 {
-	for _, v := range FunctionInjector_CallSiteType_2_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var FunctionInjector_CallSiteType_2_values_ []*FunctionInjector_CallSiteType_2
-
-var FunctionInjector_CallSiteType_2_clinit_done bool
-
-func FunctionInjector_CallSiteType_2_clinit() {
-	if FunctionInjector_CallSiteType_2_clinit_done {
-		return
-	}
-	FunctionInjector_CallSiteType_2_clinit_done = true
-	FunctionInjector_CallSiteType_2_values_ = []*FunctionInjector_CallSiteType_2{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_2_values_))
-
-}
-
-type FunctionInjector_CallSiteType_3 struct {
-	FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_3) up_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
-	if this == nil {
-		return nil
-	}
-	return &this.FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_3) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *FunctionInjector_CallSiteType_3) init_FunctionInjector_CallSiteType_3(name_ string, ordinal_ int32) {
-	this.FunctionInjector_CallSiteType.init_FunctionInjector_CallSiteType(name_, ordinal_)
-}
-
-func new_FunctionInjector_CallSiteType_3(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_3 {
-	this := &FunctionInjector_CallSiteType_3{}
-	this.self_ = this
-	this.init_FunctionInjector_CallSiteType_3(name_, ordinal_)
-	return this
-}
-
-func (this *FunctionInjector_CallSiteType_3) prepare_impl(injector *FunctionInjector, ref *FunctionInjector_Reference) {
-
-}
-
-func FunctionInjector_CallSiteType_3_values() []*FunctionInjector_CallSiteType_3 {
-	return append([]*FunctionInjector_CallSiteType_3(nil), FunctionInjector_CallSiteType_3_values_...)
-}
-
-func FunctionInjector_CallSiteType_3_valueOf(name string) *FunctionInjector_CallSiteType_3 {
-	for _, v := range FunctionInjector_CallSiteType_3_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var FunctionInjector_CallSiteType_3_values_ []*FunctionInjector_CallSiteType_3
-
-var FunctionInjector_CallSiteType_3_clinit_done bool
-
-func FunctionInjector_CallSiteType_3_clinit() {
-	if FunctionInjector_CallSiteType_3_clinit_done {
-		return
-	}
-	FunctionInjector_CallSiteType_3_clinit_done = true
-	FunctionInjector_CallSiteType_3_values_ = []*FunctionInjector_CallSiteType_3{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_3_values_))
-
-}
-
-type FunctionInjector_CallSiteType_4 struct {
-	FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_4) up_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
-	if this == nil {
-		return nil
-	}
-	return &this.FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_4) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *FunctionInjector_CallSiteType_4) init_FunctionInjector_CallSiteType_4(name_ string, ordinal_ int32) {
-	this.FunctionInjector_CallSiteType.init_FunctionInjector_CallSiteType(name_, ordinal_)
-}
-
-func new_FunctionInjector_CallSiteType_4(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_4 {
-	this := &FunctionInjector_CallSiteType_4{}
-	this.self_ = this
-	this.init_FunctionInjector_CallSiteType_4(name_, ordinal_)
-	return this
-}
-
-func (this *FunctionInjector_CallSiteType_4) prepare_impl(injector *FunctionInjector, ref *FunctionInjector_Reference) {
-
-}
-
-func FunctionInjector_CallSiteType_4_values() []*FunctionInjector_CallSiteType_4 {
-	return append([]*FunctionInjector_CallSiteType_4(nil), FunctionInjector_CallSiteType_4_values_...)
-}
-
-func FunctionInjector_CallSiteType_4_valueOf(name string) *FunctionInjector_CallSiteType_4 {
-	for _, v := range FunctionInjector_CallSiteType_4_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var FunctionInjector_CallSiteType_4_values_ []*FunctionInjector_CallSiteType_4
-
-var FunctionInjector_CallSiteType_4_clinit_done bool
-
-func FunctionInjector_CallSiteType_4_clinit() {
-	if FunctionInjector_CallSiteType_4_clinit_done {
-		return
-	}
-	FunctionInjector_CallSiteType_4_clinit_done = true
-	FunctionInjector_CallSiteType_4_values_ = []*FunctionInjector_CallSiteType_4{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_4_values_))
-
-}
-
-type FunctionInjector_CallSiteType_5 struct {
-	FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_5) up_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
-	if this == nil {
-		return nil
-	}
-	return &this.FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_5) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *FunctionInjector_CallSiteType_5) init_FunctionInjector_CallSiteType_5(name_ string, ordinal_ int32) {
-	this.FunctionInjector_CallSiteType.init_FunctionInjector_CallSiteType(name_, ordinal_)
-}
-
-func new_FunctionInjector_CallSiteType_5(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_5 {
-	this := &FunctionInjector_CallSiteType_5{}
-	this.self_ = this
-	this.init_FunctionInjector_CallSiteType_5(name_, ordinal_)
-	return this
-}
-
-func (this *FunctionInjector_CallSiteType_5) prepare_impl(injector *FunctionInjector, ref *FunctionInjector_Reference) {
-	var callNode Node = ref.callNode_
-	injector.getDecomposer(ref.scope_).moveExpression(callNode)
-	var callSiteType *FunctionInjector_CallSiteType = injector.classifyCallSite(ref)
-	Preconditions_checkState((this.up_FunctionInjector_CallSiteType() != callSiteType))
-	callSiteType.prepare(injector, ref)
-}
-
-func FunctionInjector_CallSiteType_5_values() []*FunctionInjector_CallSiteType_5 {
-	return append([]*FunctionInjector_CallSiteType_5(nil), FunctionInjector_CallSiteType_5_values_...)
-}
-
-func FunctionInjector_CallSiteType_5_valueOf(name string) *FunctionInjector_CallSiteType_5 {
-	for _, v := range FunctionInjector_CallSiteType_5_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var FunctionInjector_CallSiteType_5_values_ []*FunctionInjector_CallSiteType_5
-
-var FunctionInjector_CallSiteType_5_clinit_done bool
-
-func FunctionInjector_CallSiteType_5_clinit() {
-	if FunctionInjector_CallSiteType_5_clinit_done {
-		return
-	}
-	FunctionInjector_CallSiteType_5_clinit_done = true
-	FunctionInjector_CallSiteType_5_values_ = []*FunctionInjector_CallSiteType_5{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_5_values_))
-
-}
-
-type FunctionInjector_CallSiteType_6 struct {
-	FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_6) up_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
-	if this == nil {
-		return nil
-	}
-	return &this.FunctionInjector_CallSiteType
-}
-
-func (this *FunctionInjector_CallSiteType_6) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *FunctionInjector_CallSiteType_6) init_FunctionInjector_CallSiteType_6(name_ string, ordinal_ int32) {
-	this.FunctionInjector_CallSiteType.init_FunctionInjector_CallSiteType(name_, ordinal_)
-}
-
-func new_FunctionInjector_CallSiteType_6(name_ string, ordinal_ int32) *FunctionInjector_CallSiteType_6 {
-	this := &FunctionInjector_CallSiteType_6{}
-	this.self_ = this
-	this.init_FunctionInjector_CallSiteType_6(name_, ordinal_)
-	return this
-}
-
-func (this *FunctionInjector_CallSiteType_6) prepare_impl(injector *FunctionInjector, ref *FunctionInjector_Reference) {
-	var callNode Node = ref.callNode_
-	injector.getDecomposer(ref.scope_).maybeExposeExpression(callNode)
-	var callSiteType *FunctionInjector_CallSiteType = injector.classifyCallSite(ref)
-	Preconditions_checkState((this.up_FunctionInjector_CallSiteType() != callSiteType))
-	callSiteType.prepare(injector, ref)
-}
-
-func FunctionInjector_CallSiteType_6_values() []*FunctionInjector_CallSiteType_6 {
-	return append([]*FunctionInjector_CallSiteType_6(nil), FunctionInjector_CallSiteType_6_values_...)
-}
-
-func FunctionInjector_CallSiteType_6_valueOf(name string) *FunctionInjector_CallSiteType_6 {
-	for _, v := range FunctionInjector_CallSiteType_6_values_ {
-		if v.Enum.name() == name {
-			return v
-		}
-	}
-	panic(enumValueOfFail_("", name))
-}
-
-var FunctionInjector_CallSiteType_6_values_ []*FunctionInjector_CallSiteType_6
-
-var FunctionInjector_CallSiteType_6_clinit_done bool
-
-func FunctionInjector_CallSiteType_6_clinit() {
-	if FunctionInjector_CallSiteType_6_clinit_done {
-		return
-	}
-	FunctionInjector_CallSiteType_6_clinit_done = true
-	FunctionInjector_CallSiteType_6_values_ = []*FunctionInjector_CallSiteType_6{}
-	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_6_values_))
-
 }

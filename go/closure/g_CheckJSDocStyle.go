@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CheckJSDocStyle struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
@@ -27,24 +29,24 @@ func new_CheckJSDocStyle(compiler *AbstractCompiler) *CheckJSDocStyle {
 }
 
 func (this *CheckJSDocStyle) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(new_CheckJSDocStyle_ExternsCallback())))
+	NodeTraversal_traverse(this.compiler_, root, this)
+	NodeTraversal_traverse(this.compiler_, externs, new_CheckJSDocStyle_ExternsCallback())
 }
 
 func (this *CheckJSDocStyle) visit_impl(t *NodeTraversal, n Node, unused Node) {
-	switch n.getToken() {
-	case Token_rhino_FUNCTION:
+	switch n.ns_().token {
+	case tokOrd1_FUNCTION:
 		this.visitFunction(t, n)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.visitClass(t, n)
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		this.checkStyleForPrivateProperties(t, n)
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_STRING_KEY:
-	case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_STRING_KEY:
+	case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if NodeUtil_getEnclosingClass(n) != 0 {
 			this.checkStyleForPrivateProperties(t, n)
 		}
-	case Token_rhino_SCRIPT:
+	case tokOrd1_SCRIPT:
 		this.checkLicenseComment(t, n)
 	default:
 		this.visitNonFunction(t, n)
@@ -87,7 +89,7 @@ func (this *CheckJSDocStyle) visitFunction(t *NodeTraversal, function Node) {
 	if (jsDoc == nil) && !this.hasAnyInlineJsDoc(function) {
 		this.checkMissingJsDoc(t, function)
 	} else {
-		if (((t.inGlobalScope() || this.hasAnyInlineJsDoc(function)) || !jsDoc.getParameterNames().isEmpty()) || jsDoc.hasReturnType()) || jsDoc.isOverride() {
+		if (((t.inGlobalScope() || this.hasAnyInlineJsDoc(function)) || !jsDoc.getParameterNames().IsEmpty()) || jsDoc.hasReturnType()) || jsDoc.isOverride() {
 			this.checkParams(t, function, jsDoc)
 		}
 		CheckJSDocStyle_checkNoTypeOnGettersAndSetters(t, function, jsDoc)
@@ -155,17 +157,17 @@ func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc 
 	if (jsDoc != nil) && (jsDoc.getType() != nil) {
 		return
 	}
-	var paramsFromJsDoc ListOf[string] = func() List {
+	var paramsFromJsDoc []string = func() []string {
 		if jsDoc == nil {
-			return icast_List(obj_(ImmutableList_of()))
+			return []string{}
 		}
-		return icast_List(obj_(ImmutableList_copyOf(Collection(jsDoc.getParameterNames()))))
+		return immCopyOf_(tc_string, Collection(jsDoc.getParameterNames().asSet()))
 	}()
-	if paramsFromJsDoc.isEmpty() {
+	if len(paramsFromJsDoc) == 0 {
 		this.checkInlineParams(t, function, jsDoc)
 	} else {
 		var paramList Node = NodeUtil_getFunctionParameters(function)
-		if !paramList.hasXChildren(paramsFromJsDoc.size()) {
+		if !paramList.hasXChildren(int32(len(paramsFromJsDoc))) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(paramList, CheckJSDocStyle_WRONG_NUMBER_OF_PARAMS, []string{func() string {
 				if jsDoc.isOverride() {
 					return ""
@@ -175,9 +177,7 @@ func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc 
 			return
 		}
 		var param Node = paramList.getFirstChild()
-		it_1 := foreach_(any(paramsFromJsDoc))
-		for it_1.next() {
-			var s string = str_(it_1.v)
+		for _, s := range paramsFromJsDoc {
 			if param.getJSDocInfo() != nil {
 				t.report(param, CheckJSDocStyle_MIXED_PARAM_JSDOC_STYLES, []string{})
 			}
@@ -212,7 +212,9 @@ func (this *CheckJSDocStyle) checkInlineParams(t *NodeTraversal, function Node, 
 				return
 			} else {
 				var paramType *JSTypeExpression = jsDoc.getType()
-				Preconditions_checkNotNull_Object_Object(obj_(paramType), strobj_("Inline JSDoc info should always have a type"))
+				if paramType == nil {
+					panic(new_NullPointerException_String("Inline JSDoc info should always have a type"))
+				}
 				this.checkParam(t, param, Optional_empty[string](), paramType)
 			}
 		}
@@ -226,9 +228,11 @@ func (this *CheckJSDocStyle) checkParam(t *NodeTraversal, param Node, name Optio
 		nodeToCheck = param.getFirstChild()
 		nameOptional = true
 	} else if param.isName() {
-		nameOptional = String_startsWith(param.getString(), "opt_")
+		nameOptional = strings.HasPrefix(param.getString(), "opt_")
 	} else {
-		Preconditions_checkState_boolean_Object((param.isDestructuringPattern() || param.isRest()), param.box_())
+		if !param.isDestructuringPattern() && !param.isRest() {
+			panic(new_IllegalStateException_String(tostr_(param)))
+		}
 		nameOptional = false
 	}
 	if name.isEmpty() || !nodeToCheck.isName() {
@@ -289,7 +293,7 @@ func (this *CheckJSDocStyle) checkReturn(function Node, jsDoc *JSDocInfo) {
 		return
 	}
 	var finder *CheckJSDocStyle_FindNonTrivialReturn = new_CheckJSDocStyle_FindNonTrivialReturn()
-	NodeTraversal_traverse(this.compiler_, function.getLastChild(), icast_NodeTraversal_Callback(obj_(finder)))
+	NodeTraversal_traverse(this.compiler_, function.getLastChild(), finder)
 	if finder.found_ {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(function, CheckJSDocStyle_MISSING_RETURN_JSDOC, []string{func() string {
 			if (jsDoc != nil) && jsDoc.isOverride() {
@@ -305,7 +309,7 @@ func (this *CheckJSDocStyle) checkLicenseComment(t *NodeTraversal, n Node) {
 		return
 	}
 	var license string = n.getJSDocInfo().getLicense().get()
-	if String_contains(license, strobj_("@externs")) {
+	if strings.Contains(license, "@externs") {
 		t.report(n, CheckJSDocStyle_LICENSE_CONTAINS_AT_EXTERNS, []string{})
 	}
 }
@@ -410,4 +414,21 @@ func (this *CheckJSDocStyle_ExternsCallback) visit(t *NodeTraversal, n Node, par
 			t.report(n, CheckJSDocStyle_EXTERNS_FILES_SHOULD_BE_ANNOTATED, []string{})
 		}
 	}
+}
+
+// visit: an object that is exactly a CheckJSDocStyle calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckJSDocStyle) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckJSDocStyle); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}
+
+// shouldTraverse: an object that is exactly a CheckJSDocStyle_FindNonTrivialReturn calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *CheckJSDocStyle_FindNonTrivialReturn) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if p, _ := this.self_.(*CheckJSDocStyle_FindNonTrivialReturn); p == this {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

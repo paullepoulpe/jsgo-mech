@@ -7,18 +7,26 @@ type LiteralToken struct {
 	value_ string
 }
 
+// LiteralToken_as is implemented by LiteralToken and the classes that extend it: a cast to LiteralToken asserts to it
+// (post-flip).
+type LiteralToken_as interface {
+	as_LiteralToken() *LiteralToken
+}
+
 func (this *LiteralToken) as_LiteralToken() *LiteralToken { return this }
 
 func to_LiteralToken(v any) *LiteralToken {
-	if v == nil {
+	switch p := v.(type) {
+	case *LiteralToken:
+		return p
+	case *StringLiteralToken:
+		return p.as_LiteralToken()
+	case *TemplateLiteralToken:
+		return p.as_LiteralToken()
+	case nil:
 		return nil
 	}
-	return v.(interface{ as_LiteralToken() *LiteralToken }).as_LiteralToken()
-}
-
-func is_LiteralToken(v any) bool {
-	_, ok := v.(interface{ as_LiteralToken() *LiteralToken })
-	return ok
+	return v.(LiteralToken_as).as_LiteralToken()
 }
 
 func (this *LiteralToken) self() any {
@@ -39,12 +47,12 @@ func (this *LiteralToken) zero_LiteralToken() {
 	this.value_ = nullstr_
 }
 
-func (this *LiteralToken) init_LiteralToken(type_ *TokenType, value string, location *SourceRange) {
+func (this *LiteralToken) init_LiteralToken(type_ TokenType, value string, location *SourceRange) {
 	this.Token_parser.init_Token_parser(type_, location)
 	this.value_ = value
 }
 
-func new_LiteralToken(type_ *TokenType, value string, location *SourceRange) *LiteralToken {
+func new_LiteralToken(type_ TokenType, value string, location *SourceRange) *LiteralToken {
 	this := &LiteralToken{}
 	this.self_ = this
 	this.zero_LiteralToken()
@@ -54,4 +62,12 @@ func new_LiteralToken(type_ *TokenType, value string, location *SourceRange) *Li
 
 func (this *LiteralToken) toString_impl() string {
 	return this.value_
+}
+
+// toString: an object that is exactly a LiteralToken calls its toString_impl directly (post-flip); others dispatch.
+func (this *LiteralToken) toString() string {
+	if p, _ := this.self_.(*LiteralToken); p == this {
+		return this.toString_impl()
+	}
+	return this.self_.toString_impl()
 }

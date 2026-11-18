@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PathUtil struct {
 }
 
@@ -17,13 +19,11 @@ func new_PathUtil() *PathUtil {
 
 func PathUtil_collapseDots(path string) string {
 	path = PathUtil_removeExtraneousSlashes(path)
-	if !String_contains(path, strobj_(".")) {
+	if !strings.Contains(path, ".") {
 		return path
 	}
 	var dstFragments *JTList[string] = jnewTList_(jtc_string)
-	it_1 := foreach_(any(Splitter_on('/').split(strobj_(path))))
-	for it_1.next() {
-		var fragment string = str_(it_1.v)
+	for fragment := range elemsBy_(Splitter_on('/').split_s(path), str_) {
 		if fragment == ".." {
 			if !dstFragments.isEmpty() {
 				dstFragments.removeAt((dstFragments.size() - 1))
@@ -32,14 +32,14 @@ func PathUtil_collapseDots(path string) string {
 			dstFragments.add(fragment)
 		}
 	}
-	if (dstFragments.size() == 1) && String_isEmpty(dstFragments.get(0)) {
+	if (dstFragments.size() == 1) && dstFragments.get(0) == "" {
 		return "/"
 	}
 	return Joiner_on("/").join(Iterable(dstFragments.asList()))
 }
 
 func PathUtil_isAbsolute(path string) bool {
-	return String_startsWith(path, "/")
+	return strings.HasPrefix(path, "/")
 }
 
 func PathUtil_removeExtraneousSlashes(s string) string {
@@ -63,7 +63,7 @@ func PathUtil_makeAbsolute_String_String(path string, rootPath string) string {
 
 func PathUtil_makeRelative(basePath string, targetPath string) string {
 	if PathUtil_isAbsolute(basePath) != PathUtil_isAbsolute(targetPath) {
-		panic(new_IllegalArgumentException_String(("Paths must both be relative or both absolute.\n  basePath: " + sstr_(basePath) + "\n  targetPath: " + sstr_(targetPath))).self())
+		panic(new_IllegalArgumentException_String(("Paths must both be relative or both absolute.\n  basePath: " + sstr_(basePath) + "\n  targetPath: " + sstr_(targetPath))))
 	}
 	basePath = PathUtil_collapseDots(basePath)
 	targetPath = PathUtil_collapseDots(targetPath)
@@ -75,12 +75,12 @@ func PathUtil_makeRelative(basePath string, targetPath string) string {
 		if (i == int32(len(baseFragments))) && (i == int32(len(targetFragments))) {
 			return "."
 		} else if i == int32(len(baseFragments)) {
-			return Joiner_on("/").join(icast_Iterable(Lists_newArrayList(Iterator(Arrays_asList(arrmap_(targetFragments, func(v_ string) any { return strobj_(v_) })).listIterator(i))).self()))
+			return Joiner_on("/").join(Lists_newArrayList(Iterator(Arrays_asList(arrmap_(targetFragments, func(v_ string) any { return strobj_(v_) })).listIterator(i))).self().(Iterable))
 		} else if i == int32(len(targetFragments)) {
 			return (sstr_(String_repeat("../", ((int32(len(baseFragments))-i)-1))) + "..")
 		}
 	}
-	return (sstr_(String_repeat("../", (int32(len(baseFragments))-i))) + sstr_(Joiner_on("/").join(icast_Iterable(Lists_newArrayList(Iterator(Arrays_asList(arrmap_(targetFragments, func(v_ string) any { return strobj_(v_) })).listIterator(i))).self()))))
+	return (sstr_(String_repeat("../", (int32(len(baseFragments))-i))) + sstr_(Joiner_on("/").join(Lists_newArrayList(Iterator(Arrays_asList(arrmap_(targetFragments, func(v_ string) any { return strobj_(v_) })).listIterator(i))).self().(Iterable))))
 }
 
 var PathUtil_SLASH_PATTERN *Pattern

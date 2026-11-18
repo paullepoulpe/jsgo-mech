@@ -3,8 +3,8 @@
 package closure
 
 type EqualityChecker struct {
-	eqMethod       *EqualityChecker_EqMethod
-	eqCache        *JTMap[*EqualityChecker_CacheKey, *JSType_MatchStatus]
+	eqMethod       EqualityChecker_EqMethod
+	eqCache        *JTMap[*EqualityChecker_CacheKey, JSType_MatchStatus]
 	recursionDepth int32
 	hasRun         bool
 }
@@ -24,15 +24,19 @@ func new_EqualityChecker() *EqualityChecker {
 	return this
 }
 
-func (this *EqualityChecker) setEqMethod(x *EqualityChecker_EqMethod) *EqualityChecker {
+func (this *EqualityChecker) setEqMethod(x EqualityChecker_EqMethod) *EqualityChecker {
 	this.checkHasNotRun()
-	Preconditions_checkState((this.eqMethod == nil))
+	if this.eqMethod != 0 {
+		panic(new_IllegalStateException_0())
+	}
 	this.eqMethod = x
 	return this
 }
 
 func (this *EqualityChecker) checkHasNotRun() {
-	Preconditions_checkState(!this.hasRun)
+	if this.hasRun {
+		panic(new_IllegalStateException_0())
+	}
 }
 
 func (this *EqualityChecker) check(left *JSType, right *JSType) bool {
@@ -62,15 +66,14 @@ func (this *EqualityChecker) areEqualCaching(left *JSType, right *JSType) bool {
 			this.recursionDepth++
 			ret_1 = this.areEqualInternal(left, right)
 			return 1
-			return 0
 		}()
 		if code_1 == 1 {
 			return ret_1
 		}
 	}
 	var key *EqualityChecker_CacheKey = new_EqualityChecker_CacheKey(left, right)
-	var cached *JSType_MatchStatus = this.eqCache.putIfAbsent(key, JSType_MatchStatus_PROCESSING)
-	if cached == nil {
+	var cached JSType_MatchStatus = this.eqCache.putIfAbsent(key, JSType_MatchStatus_PROCESSING)
+	if cached == 0 {
 		var result bool = this.areEqualInternal(left, right)
 		this.eqCache.put(key, JSType_MatchStatus_valueOfBoolean(result))
 		return result
@@ -103,14 +106,14 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	if left.isUnionType() && right.isUnionType() {
 		return this.areUnionEqual(left.toMaybeUnionType(), right.toMaybeUnionType())
 	} else if left.isUnionType() {
-		var leftAlts ImmutableListOf[*JSType] = left.toMaybeUnionType().getAlternates()
+		var leftAlts *ImmutableList[*JSType] = left.toMaybeUnionType().getAlternates()
 		if leftAlts.size() == 1 {
-			return this.areEqualInternal(to_JSType(leftAlts.get(0)), right)
+			return this.areEqualInternal(leftAlts.get(0), right)
 		}
 	} else if right.isUnionType() {
-		var rightAlts ImmutableListOf[*JSType] = right.toMaybeUnionType().getAlternates()
+		var rightAlts *ImmutableList[*JSType] = right.toMaybeUnionType().getAlternates()
 		if rightAlts.size() == 1 {
-			return this.areEqualInternal(left, to_JSType(rightAlts.get(0)))
+			return this.areEqualInternal(left, rightAlts.get(0))
 		}
 	}
 	if left.isFunctionType() && right.isFunctionType() {
@@ -122,17 +125,19 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	_ = rightArrow
 	if func() bool {
 		v_ := left.self()
-		if !is_[*ArrowType](v_) {
+		p, ok := v_.(*ArrowType)
+		if !ok {
 			return false
 		}
-		leftArrow = cast_[*ArrowType](v_)
+		leftArrow = p
 		return true
 	}() && func() bool {
 		v_ := right.self()
-		if !is_[*ArrowType](v_) {
+		p2, ok2 := v_.(*ArrowType)
+		if !ok2 {
 			return false
 		}
-		rightArrow = cast_[*ArrowType](v_)
+		rightArrow = p2
 		return true
 	}() {
 		return this.areArrowEqual(leftArrow, rightArrow)
@@ -146,7 +151,9 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	if left.isNominalType() && right.isNominalType() {
 		var leftUnwrapped *ObjectType = EqualityChecker_unwrapNominalTypeProxies(left.toObjectType())
 		var rightUnwrapped *ObjectType = EqualityChecker_unwrapNominalTypeProxies(right.toObjectType())
-		Preconditions_checkState((leftUnwrapped.isNominalType() && rightUnwrapped.isNominalType()))
+		if !leftUnwrapped.isNominalType() || !rightUnwrapped.isNominalType() {
+			panic(new_IllegalStateException_0())
+		}
 		if left.isResolved() && right.isResolved() {
 			return JSCompObjects_identical(leftUnwrapped.self(), rightUnwrapped.self())
 		} else {
@@ -161,10 +168,11 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	_ = proxyObjectType
 	if func() bool {
 		v_ := left.self()
-		if !is_ProxyObjectType(v_) {
+		p3, ok3 := v_.(ProxyObjectType_as)
+		if !ok3 {
 			return false
 		}
-		proxyObjectType = to_ProxyObjectType(v_)
+		proxyObjectType = p3.as_ProxyObjectType()
 		return true
 	}() && !is_[*TemplateType](left.self()) {
 		return this.areEqualCaching(proxyObjectType.getReferencedTypeInternal(), right)
@@ -173,10 +181,11 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	_ = proxyObjectType_1
 	if func() bool {
 		v_ := right.self()
-		if !is_ProxyObjectType(v_) {
+		p4, ok4 := v_.(ProxyObjectType_as)
+		if !ok4 {
 			return false
 		}
-		proxyObjectType_1 = to_ProxyObjectType(v_)
+		proxyObjectType_1 = p4.as_ProxyObjectType()
 		return true
 	}() && !is_[*TemplateType](right.self()) {
 		return this.areEqualCaching(left, proxyObjectType_1.getReferencedTypeInternal())
@@ -185,16 +194,16 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 }
 
 func (this *EqualityChecker) areUnionEqual(left *UnionType, right *UnionType) bool {
-	var leftAlternates ImmutableListOf[*JSType] = left.getAlternates()
-	var rightAlternates ImmutableListOf[*JSType] = right.getAlternates()
+	var leftAlternates *ImmutableList[*JSType] = left.getAlternates()
+	var rightAlternates *ImmutableList[*JSType] = right.getAlternates()
 	if (this.eqMethod == EqualityChecker_EqMethod_IDENTITY) && (leftAlternates.size() != rightAlternates.size()) {
 		return false
 	}
 outer_:
 	for i := int32(0); i < rightAlternates.size(); i++ {
-		var rightAlt *JSType = to_JSType(rightAlternates.get(i))
+		var rightAlt *JSType = rightAlternates.get(i)
 		for k := int32(0); k < leftAlternates.size(); k++ {
-			var leftAlt *JSType = to_JSType(leftAlternates.get(k))
+			var leftAlt *JSType = leftAlternates.get(k)
 			if this.areEqualCaching(leftAlt, rightAlt) {
 				continue outer_
 			}
@@ -209,10 +218,11 @@ func EqualityChecker_getGoogModuleId(type_ *ObjectType) string {
 	_ = functionType
 	if func() bool {
 		v_ := type_.self()
-		if !is_FunctionType(v_) {
+		p, ok := v_.(FunctionType_as)
+		if !ok {
 			return false
 		}
-		functionType = to_FunctionType(v_)
+		functionType = p.as_FunctionType()
 		return true
 	}() {
 		return functionType.getGoogModuleId()
@@ -227,7 +237,7 @@ func (this *EqualityChecker) areFunctionEqual(left *FunctionType, right *Functio
 	if JSCompObjects_identical(left.self(), right.self()) {
 		return true
 	}
-	if !Objects_equals(obj_(left.getKind()), obj_(right.getKind())) {
+	if left.getKind() != right.getKind() {
 		return false
 	}
 	return func() bool {
@@ -235,11 +245,10 @@ func (this *EqualityChecker) areFunctionEqual(left *FunctionType, right *Functio
 		case FunctionType_Kind_CONSTRUCTOR, FunctionType_Kind_INTERFACE:
 			return false
 		case FunctionType_Kind_ORDINARY:
-			return ((this.areEqualCaching(left.getTypeOfThis(), right.getTypeOfThis()) && this.areEqualCaching(left.getInternalArrowType().up_JSType(), right.getInternalArrowType().up_JSType())) && Objects_equals(obj_(left.getClosurePrimitive()), obj_(right.getClosurePrimitive())))
+			return ((this.areEqualCaching(left.getTypeOfThis(), right.getTypeOfThis()) && this.areEqualCaching(left.getInternalArrowType().up_JSType(), right.getInternalArrowType().up_JSType())) && left.getClosurePrimitive() == right.getClosurePrimitive())
 		default:
-			panic(new_AssertionError_0().self())
+			panic(new_AssertionError_0())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -252,8 +261,8 @@ func (this *EqualityChecker) areArrowParameterEqual(left *ArrowType, right *Arro
 		return false
 	}
 	for i := int32(0); i < left.getParameterList().size(); i++ {
-		var leftParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](left.getParameterList().get(i))
-		var rightParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](right.getParameterList().get(i))
+		var leftParam *FunctionType_Parameter = left.getParameterList().get(i)
+		var rightParam *FunctionType_Parameter = right.getParameterList().get(i)
 		var leftParamType *JSType = leftParam.getJSType()
 		var rightParamType *JSType = rightParam.getJSType()
 		if leftParamType != nil {
@@ -278,10 +287,10 @@ func (this *EqualityChecker) areArrowParameterEqual(left *ArrowType, right *Arro
 func (this *EqualityChecker) areRecordEqual(left *RecordType, right *RecordType) bool {
 	var leftKeys SetOf[string] = left.getOwnPropertyNames()
 	var rightKeys SetOf[string] = right.getOwnPropertyNames()
-	if !Object_equals(any(rightKeys), any(leftKeys)) {
+	if !equalsDyn_(rightKeys, leftKeys) {
 		return false
 	}
-	it_1 := foreach_(any(leftKeys))
+	it_1 := foreach_(leftKeys)
 	for it_1.next() {
 		var key string = str_(it_1.v)
 		if !this.areEqualCaching(left.getPropertyType(key), right.getPropertyType(key)) {
@@ -292,28 +301,28 @@ func (this *EqualityChecker) areRecordEqual(left *RecordType, right *RecordType)
 }
 
 func (this *EqualityChecker) areTypeMapEqual(left *TemplateTypeMap, right *TemplateTypeMap) bool {
-	var leftKeys ImmutableListOf[*TemplateType] = left.getTemplateKeys()
-	var leftValues ImmutableListOf[*JSType] = left.getTemplateValues()
-	var rightKeys ImmutableListOf[*TemplateType] = right.getTemplateKeys()
-	var rightValues ImmutableListOf[*JSType] = right.getTemplateValues()
+	var leftKeys *ImmutableList[*TemplateType] = left.getTemplateKeys()
+	var leftValues []*JSType = left.getTemplateValues()
+	var rightKeys *ImmutableList[*TemplateType] = right.getTemplateKeys()
+	var rightValues []*JSType = right.getTemplateValues()
 outer_:
 	for i := int32(0); i < leftKeys.size(); i++ {
-		var leftKey *TemplateType = cast_[*TemplateType](leftKeys.get(i))
+		var leftKey *TemplateType = leftKeys.get(i)
 	inner_:
 		for j := int32(0); j < rightKeys.size(); j++ {
-			var rightKey *TemplateType = cast_[*TemplateType](rightKeys.get(j))
+			var rightKey *TemplateType = rightKeys.get(j)
 			if !JSCompObjects_identical(obj_(leftKey), obj_(rightKey)) {
 				continue inner_
 			}
 			var leftValue *JSType = func() *JSType {
-				if i < leftValues.size() {
-					return to_JSType(leftValues.get(i))
+				if i < int32(len(leftValues)) {
+					return sliceAt_(leftValues, i)
 				}
 				return left.defaultValueType(leftKey)
 			}()
 			var rightValue *JSType = func() *JSType {
-				if j < rightValues.size() {
-					return to_JSType(rightValues.get(j))
+				if j < int32(len(rightValues)) {
+					return sliceAt_(rightValues, j)
 				}
 				return right.defaultValueType(rightKey)
 			}()
@@ -341,44 +350,64 @@ func EqualityChecker_unwrapNominalTypeProxies(objType *ObjectType) *ObjectType {
 
 const EqualityChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH int32 = 20
 
-type EqualityChecker_EqMethod struct {
-	Enum
+type EqualityChecker_EqMethod uint8
+
+// EqualityChecker_EqMethod_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var EqualityChecker_EqMethod_enum_ = [2]Enum{
+	{self_: EqualityChecker_EqMethod_IDENTITY, name_: "IDENTITY", ordinal_: 0},
+	{self_: EqualityChecker_EqMethod_DATA_FLOW, name_: "DATA_FLOW", ordinal_: 1},
 }
 
-func (this *EqualityChecker_EqMethod) up_Enum() *Enum {
-	if this == nil {
+func (this EqualityChecker_EqMethod) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &EqualityChecker_EqMethod_enum_[this-1]
 }
 
-func (this *EqualityChecker_EqMethod) init_EqualityChecker_EqMethod(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this EqualityChecker_EqMethod) name() string {
+	return this.enum_().name_
 }
 
-func new_EqualityChecker_EqMethod(name_ string, ordinal_ int32) *EqualityChecker_EqMethod {
-	this := &EqualityChecker_EqMethod{}
-	this.self_ = this
-	this.init_EqualityChecker_EqMethod(name_, ordinal_)
+func (this EqualityChecker_EqMethod) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this EqualityChecker_EqMethod) toString() string {
+	return this.enum_().name_
+}
+
+func (this EqualityChecker_EqMethod) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this EqualityChecker_EqMethod) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func EqualityChecker_EqMethod_values() []*EqualityChecker_EqMethod {
-	return append([]*EqualityChecker_EqMethod(nil), EqualityChecker_EqMethod_values_...)
+func EqualityChecker_EqMethod_values() []EqualityChecker_EqMethod {
+	return append([]EqualityChecker_EqMethod(nil), EqualityChecker_EqMethod_values_...)
 }
 
-func EqualityChecker_EqMethod_valueOf(name string) *EqualityChecker_EqMethod {
+func EqualityChecker_EqMethod_valueOf(name string) EqualityChecker_EqMethod {
 	for _, v := range EqualityChecker_EqMethod_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("EqMethod", name))
 }
 
-var EqualityChecker_EqMethod_IDENTITY *EqualityChecker_EqMethod
-var EqualityChecker_EqMethod_DATA_FLOW *EqualityChecker_EqMethod
-var EqualityChecker_EqMethod_values_ []*EqualityChecker_EqMethod
+const EqualityChecker_EqMethod_IDENTITY EqualityChecker_EqMethod = 1
+const EqualityChecker_EqMethod_DATA_FLOW EqualityChecker_EqMethod = 2
+
+var EqualityChecker_EqMethod_values_ []EqualityChecker_EqMethod
 
 var EqualityChecker_EqMethod_clinit_done bool
 
@@ -387,9 +416,7 @@ func EqualityChecker_EqMethod_clinit() {
 		return
 	}
 	EqualityChecker_EqMethod_clinit_done = true
-	EqualityChecker_EqMethod_IDENTITY = new_EqualityChecker_EqMethod("IDENTITY", 0)
-	EqualityChecker_EqMethod_DATA_FLOW = new_EqualityChecker_EqMethod("DATA_FLOW", 1)
-	EqualityChecker_EqMethod_values_ = []*EqualityChecker_EqMethod{EqualityChecker_EqMethod_IDENTITY, EqualityChecker_EqMethod_DATA_FLOW}
+	EqualityChecker_EqMethod_values_ = []EqualityChecker_EqMethod{EqualityChecker_EqMethod_IDENTITY, EqualityChecker_EqMethod_DATA_FLOW}
 	registerEnum_("com.google.javascript.rhino.jstype.EqualityChecker.EqMethod", enumValues_(EqualityChecker_EqMethod_values_))
 
 }

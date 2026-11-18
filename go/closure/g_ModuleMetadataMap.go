@@ -3,15 +3,15 @@
 package closure
 
 type ModuleMetadataMap struct {
-	modulesByPath          ImmutableMapOf[string, *ModuleMetadataMap_ModuleMetadata]
-	modulesByGoogNamespace ImmutableMapOf[string, *ModuleMetadataMap_ModuleMetadata]
-	moduleMetadata_        ImmutableSetOf[*ModuleMetadataMap_ModuleMetadata]
+	modulesByPath          *ImmutableMap[string, *ModuleMetadataMap_ModuleMetadata]
+	modulesByGoogNamespace *ImmutableMap[string, *ModuleMetadataMap_ModuleMetadata]
+	moduleMetadata_        *ImmutableSet[*ModuleMetadataMap_ModuleMetadata]
 }
 
 func (this *ModuleMetadataMap) init_ModuleMetadataMap(modulesByPath MapOf[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace MapOf[string, *ModuleMetadataMap_ModuleMetadata]) {
-	this.modulesByPath = ImmutableMap_copyOf(modulesByPath)
-	this.modulesByGoogNamespace = ImmutableMap_copyOf(modulesByGoogNamespace)
-	this.moduleMetadata_ = cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(Iterable(modulesByPath.values())))).addAll(Iterable(modulesByGoogNamespace.values())))).build()))
+	this.modulesByPath = immutableMapCopyOf_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, modulesByPath)
+	this.modulesByGoogNamespace = immutableMapCopyOf_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, modulesByGoogNamespace)
+	this.moduleMetadata_ = immutableSetBuilder_(tc_p_ModuleMetadataMap_ModuleMetadata).addAll(Iterable(modulesByPath.values())).addAll(Iterable(modulesByGoogNamespace.values())).build()
 }
 
 func new_ModuleMetadataMap(modulesByPath MapOf[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace MapOf[string, *ModuleMetadataMap_ModuleMetadata]) *ModuleMetadataMap {
@@ -20,71 +20,98 @@ func new_ModuleMetadataMap(modulesByPath MapOf[string, *ModuleMetadataMap_Module
 	return this
 }
 
-func (this *ModuleMetadataMap) getModulesByPath() ImmutableMapOf[string, *ModuleMetadataMap_ModuleMetadata] {
+func (this *ModuleMetadataMap) getModulesByPath() *ImmutableMap[string, *ModuleMetadataMap_ModuleMetadata] {
 	return this.modulesByPath
 }
 
-func (this *ModuleMetadataMap) getModulesByGoogNamespace() ImmutableMapOf[string, *ModuleMetadataMap_ModuleMetadata] {
+func (this *ModuleMetadataMap) getModulesByGoogNamespace() *ImmutableMap[string, *ModuleMetadataMap_ModuleMetadata] {
 	return this.modulesByGoogNamespace
 }
 
-func (this *ModuleMetadataMap) getAllModuleMetadata() ImmutableSetOf[*ModuleMetadataMap_ModuleMetadata] {
+func (this *ModuleMetadataMap) getAllModuleMetadata() *ImmutableSet[*ModuleMetadataMap_ModuleMetadata] {
 	return this.moduleMetadata_
 }
 
 func ModuleMetadataMap_emptyForTesting() *ModuleMetadataMap {
-	return new_ModuleMetadataMap(icast_Map(obj_(ImmutableMap_of())), icast_Map(obj_(ImmutableMap_of())))
+	return new_ModuleMetadataMap(ImmutableMap_of(), ImmutableMap_of())
 }
 
-type ModuleMetadataMap_ModuleType struct {
-	Enum
-	description_ string
+type ModuleMetadataMap_ModuleType uint8
+
+// ModuleMetadataMap_ModuleType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ModuleMetadataMap_ModuleType_enum_ = [6]Enum{
+	{self_: ModuleMetadataMap_ModuleType_ES6_MODULE, name_: "ES6_MODULE", ordinal_: 0},
+	{self_: ModuleMetadataMap_ModuleType_GOOG_MODULE, name_: "GOOG_MODULE", ordinal_: 1},
+	{self_: ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE, name_: "LEGACY_GOOG_MODULE", ordinal_: 2},
+	{self_: ModuleMetadataMap_ModuleType_COMMON_JS, name_: "COMMON_JS", ordinal_: 3},
+	{self_: ModuleMetadataMap_ModuleType_GOOG_PROVIDE, name_: "GOOG_PROVIDE", ordinal_: 4},
+	{self_: ModuleMetadataMap_ModuleType_SCRIPT, name_: "SCRIPT", ordinal_: 5},
 }
 
-func (this *ModuleMetadataMap_ModuleType) up_Enum() *Enum {
-	if this == nil {
+var ModuleMetadataMap_ModuleType_description__ [6]string
+
+func (this ModuleMetadataMap_ModuleType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ModuleMetadataMap_ModuleType_enum_[this-1]
 }
 
-func (this *ModuleMetadataMap_ModuleType) zero_ModuleMetadataMap_ModuleType() {
-	this.description_ = nullstr_
+func (this ModuleMetadataMap_ModuleType) name() string {
+	return this.enum_().name_
 }
 
-func (this *ModuleMetadataMap_ModuleType) init_ModuleMetadataMap_ModuleType(name_ string, ordinal_ int32, description string) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.description_ = description
+func (this ModuleMetadataMap_ModuleType) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_ModuleMetadataMap_ModuleType(name_ string, ordinal_ int32, description string) *ModuleMetadataMap_ModuleType {
-	this := &ModuleMetadataMap_ModuleType{}
-	this.self_ = this
-	this.zero_ModuleMetadataMap_ModuleType()
-	this.init_ModuleMetadataMap_ModuleType(name_, ordinal_, description)
+func (this ModuleMetadataMap_ModuleType) toString() string {
+	return this.enum_().name_
+}
+
+func (this ModuleMetadataMap_ModuleType) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ModuleMetadataMap_ModuleType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ModuleMetadataMap_ModuleType_values() []*ModuleMetadataMap_ModuleType {
-	return append([]*ModuleMetadataMap_ModuleType(nil), ModuleMetadataMap_ModuleType_values_...)
+func (this ModuleMetadataMap_ModuleType) zero_ModuleMetadataMap_ModuleType() {
+	ModuleMetadataMap_ModuleType_description__[this-1] = nullstr_
 }
 
-func ModuleMetadataMap_ModuleType_valueOf(name string) *ModuleMetadataMap_ModuleType {
+func (this ModuleMetadataMap_ModuleType) init_ModuleMetadataMap_ModuleType(description string) {
+	ModuleMetadataMap_ModuleType_description__[this-1] = description
+}
+
+func ModuleMetadataMap_ModuleType_values() []ModuleMetadataMap_ModuleType {
+	return append([]ModuleMetadataMap_ModuleType(nil), ModuleMetadataMap_ModuleType_values_...)
+}
+
+func ModuleMetadataMap_ModuleType_valueOf(name string) ModuleMetadataMap_ModuleType {
 	for _, v := range ModuleMetadataMap_ModuleType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ModuleType", name))
 }
 
-var ModuleMetadataMap_ModuleType_ES6_MODULE *ModuleMetadataMap_ModuleType
-var ModuleMetadataMap_ModuleType_GOOG_MODULE *ModuleMetadataMap_ModuleType
-var ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE *ModuleMetadataMap_ModuleType
-var ModuleMetadataMap_ModuleType_COMMON_JS *ModuleMetadataMap_ModuleType
-var ModuleMetadataMap_ModuleType_GOOG_PROVIDE *ModuleMetadataMap_ModuleType
-var ModuleMetadataMap_ModuleType_SCRIPT *ModuleMetadataMap_ModuleType
-var ModuleMetadataMap_ModuleType_values_ []*ModuleMetadataMap_ModuleType
+const ModuleMetadataMap_ModuleType_ES6_MODULE ModuleMetadataMap_ModuleType = 1
+const ModuleMetadataMap_ModuleType_GOOG_MODULE ModuleMetadataMap_ModuleType = 2
+const ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE ModuleMetadataMap_ModuleType = 3
+const ModuleMetadataMap_ModuleType_COMMON_JS ModuleMetadataMap_ModuleType = 4
+const ModuleMetadataMap_ModuleType_GOOG_PROVIDE ModuleMetadataMap_ModuleType = 5
+const ModuleMetadataMap_ModuleType_SCRIPT ModuleMetadataMap_ModuleType = 6
+
+var ModuleMetadataMap_ModuleType_values_ []ModuleMetadataMap_ModuleType
 
 var ModuleMetadataMap_ModuleType_clinit_done bool
 
@@ -93,43 +120,67 @@ func ModuleMetadataMap_ModuleType_clinit() {
 		return
 	}
 	ModuleMetadataMap_ModuleType_clinit_done = true
-	ModuleMetadataMap_ModuleType_ES6_MODULE = new_ModuleMetadataMap_ModuleType("ES6_MODULE", 0, "an ES6 module")
-	ModuleMetadataMap_ModuleType_GOOG_MODULE = new_ModuleMetadataMap_ModuleType("GOOG_MODULE", 1, "a goog.module")
-	ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE = new_ModuleMetadataMap_ModuleType("LEGACY_GOOG_MODULE", 2, "a goog.module")
-	ModuleMetadataMap_ModuleType_COMMON_JS = new_ModuleMetadataMap_ModuleType("COMMON_JS", 3, "a CommonJS module")
-	ModuleMetadataMap_ModuleType_GOOG_PROVIDE = new_ModuleMetadataMap_ModuleType("GOOG_PROVIDE", 4, "a script file that contains at least one goog.provide")
-	ModuleMetadataMap_ModuleType_SCRIPT = new_ModuleMetadataMap_ModuleType("SCRIPT", 5, "a script file that does not contain a goog.provide")
-	ModuleMetadataMap_ModuleType_values_ = []*ModuleMetadataMap_ModuleType{ModuleMetadataMap_ModuleType_ES6_MODULE, ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE, ModuleMetadataMap_ModuleType_COMMON_JS, ModuleMetadataMap_ModuleType_GOOG_PROVIDE, ModuleMetadataMap_ModuleType_SCRIPT}
+	ModuleMetadataMap_ModuleType_ES6_MODULE.zero_ModuleMetadataMap_ModuleType()
+	ModuleMetadataMap_ModuleType_ES6_MODULE.init_ModuleMetadataMap_ModuleType("an ES6 module")
+	ModuleMetadataMap_ModuleType_GOOG_MODULE.zero_ModuleMetadataMap_ModuleType()
+	ModuleMetadataMap_ModuleType_GOOG_MODULE.init_ModuleMetadataMap_ModuleType("a goog.module")
+	ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE.zero_ModuleMetadataMap_ModuleType()
+	ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE.init_ModuleMetadataMap_ModuleType("a goog.module")
+	ModuleMetadataMap_ModuleType_COMMON_JS.zero_ModuleMetadataMap_ModuleType()
+	ModuleMetadataMap_ModuleType_COMMON_JS.init_ModuleMetadataMap_ModuleType("a CommonJS module")
+	ModuleMetadataMap_ModuleType_GOOG_PROVIDE.zero_ModuleMetadataMap_ModuleType()
+	ModuleMetadataMap_ModuleType_GOOG_PROVIDE.init_ModuleMetadataMap_ModuleType("a script file that contains at least one goog.provide")
+	ModuleMetadataMap_ModuleType_SCRIPT.zero_ModuleMetadataMap_ModuleType()
+	ModuleMetadataMap_ModuleType_SCRIPT.init_ModuleMetadataMap_ModuleType("a script file that does not contain a goog.provide")
+	ModuleMetadataMap_ModuleType_values_ = []ModuleMetadataMap_ModuleType{ModuleMetadataMap_ModuleType_ES6_MODULE, ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE, ModuleMetadataMap_ModuleType_COMMON_JS, ModuleMetadataMap_ModuleType_GOOG_PROVIDE, ModuleMetadataMap_ModuleType_SCRIPT}
 	registerEnum_("com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleType", enumValues_(ModuleMetadataMap_ModuleType_values_))
 
 }
 
 type ModuleMetadataMap_ModuleMetadata struct {
-	moduleType_                        *ModuleMetadataMap_ModuleType
+	moduleType_                        ModuleMetadataMap_ModuleType
 	rootNode_                          Node
 	usesClosure_                       bool
 	isTestOnly_                        bool
-	googNamespaces_                    *SimpleMultiset
-	stronglyRequiredGoogNamespaces_    *SimpleMultiset
-	dynamicallyRequiredGoogNamespaces_ *SimpleMultiset
-	maybeRequiredGoogNamespaces_       *SimpleMultiset
-	weaklyRequiredGoogNamespaces_      *SimpleMultiset
-	es6ImportSpecifiers_               *SimpleMultiset
-	nestedModules_                     ImmutableListOf[*ModuleMetadataMap_ModuleMetadata]
-	readToggles_                       *SimpleMultiset
+	googNamespaces_                    *SimpleMultiset[any]
+	stronglyRequiredGoogNamespaces_    *SimpleMultiset[any]
+	dynamicallyRequiredGoogNamespaces_ *SimpleMultiset[any]
+	maybeRequiredGoogNamespaces_       *SimpleMultiset[any]
+	weaklyRequiredGoogNamespaces_      *SimpleMultiset[any]
+	es6ImportSpecifiers_               *SimpleMultiset[any]
+	nestedModules_                     *ImmutableList[*ModuleMetadataMap_ModuleMetadata]
+	readToggles_                       *SimpleMultiset[any]
 	path_                              *ModuleLoader_ModulePath
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetadata(moduleType *ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset, stronglyRequiredGoogNamespaces *SimpleMultiset, dynamicallyRequiredGoogNamespaces *SimpleMultiset, maybeRequiredGoogNamespaces *SimpleMultiset, weaklyRequiredGoogNamespaces *SimpleMultiset, es6ImportSpecifiers *SimpleMultiset, nestedModules ImmutableListOf[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset, path *ModuleLoader_ModulePath) {
-	Objects_requireNonNull(obj_(moduleType), "moduleType")
-	Objects_requireNonNull(obj_(googNamespaces), "googNamespaces")
-	Objects_requireNonNull(obj_(stronglyRequiredGoogNamespaces), "stronglyRequiredGoogNamespaces")
-	Objects_requireNonNull(obj_(dynamicallyRequiredGoogNamespaces), "dynamicallyRequiredGoogNamespaces")
-	Objects_requireNonNull(obj_(maybeRequiredGoogNamespaces), "maybeRequiredGoogNamespaces")
-	Objects_requireNonNull(obj_(weaklyRequiredGoogNamespaces), "weaklyRequiredGoogNamespaces")
-	Objects_requireNonNull(obj_(es6ImportSpecifiers), "es6ImportSpecifiers")
-	Objects_requireNonNull(obj_(nestedModules), "nestedModules")
-	Objects_requireNonNull(obj_(readToggles), "readToggles")
+func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[any], stronglyRequiredGoogNamespaces *SimpleMultiset[any], dynamicallyRequiredGoogNamespaces *SimpleMultiset[any], maybeRequiredGoogNamespaces *SimpleMultiset[any], weaklyRequiredGoogNamespaces *SimpleMultiset[any], es6ImportSpecifiers *SimpleMultiset[any], nestedModules *ImmutableList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[any], path *ModuleLoader_ModulePath) {
+	if moduleType == 0 {
+		panic(new_NullPointerException_String("moduleType"))
+	}
+	if googNamespaces == nil {
+		panic(new_NullPointerException_String("googNamespaces"))
+	}
+	if stronglyRequiredGoogNamespaces == nil {
+		panic(new_NullPointerException_String("stronglyRequiredGoogNamespaces"))
+	}
+	if dynamicallyRequiredGoogNamespaces == nil {
+		panic(new_NullPointerException_String("dynamicallyRequiredGoogNamespaces"))
+	}
+	if maybeRequiredGoogNamespaces == nil {
+		panic(new_NullPointerException_String("maybeRequiredGoogNamespaces"))
+	}
+	if weaklyRequiredGoogNamespaces == nil {
+		panic(new_NullPointerException_String("weaklyRequiredGoogNamespaces"))
+	}
+	if es6ImportSpecifiers == nil {
+		panic(new_NullPointerException_String("es6ImportSpecifiers"))
+	}
+	if nestedModules == nil {
+		panic(new_NullPointerException_String("nestedModules"))
+	}
+	if readToggles == nil {
+		panic(new_NullPointerException_String("readToggles"))
+	}
 	this.moduleType_ = moduleType
 	this.rootNode_ = rootNode
 	this.usesClosure_ = usesClosure
@@ -145,14 +196,14 @@ func (this *ModuleMetadataMap_ModuleMetadata) init_ModuleMetadataMap_ModuleMetad
 	this.path_ = path
 }
 
-func new_ModuleMetadataMap_ModuleMetadata(moduleType *ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset, stronglyRequiredGoogNamespaces *SimpleMultiset, dynamicallyRequiredGoogNamespaces *SimpleMultiset, maybeRequiredGoogNamespaces *SimpleMultiset, weaklyRequiredGoogNamespaces *SimpleMultiset, es6ImportSpecifiers *SimpleMultiset, nestedModules ImmutableListOf[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset, path *ModuleLoader_ModulePath) *ModuleMetadataMap_ModuleMetadata {
+func new_ModuleMetadataMap_ModuleMetadata(moduleType ModuleMetadataMap_ModuleType, rootNode Node, usesClosure bool, isTestOnly bool, googNamespaces *SimpleMultiset[any], stronglyRequiredGoogNamespaces *SimpleMultiset[any], dynamicallyRequiredGoogNamespaces *SimpleMultiset[any], maybeRequiredGoogNamespaces *SimpleMultiset[any], weaklyRequiredGoogNamespaces *SimpleMultiset[any], es6ImportSpecifiers *SimpleMultiset[any], nestedModules *ImmutableList[*ModuleMetadataMap_ModuleMetadata], readToggles *SimpleMultiset[any], path *ModuleLoader_ModulePath) *ModuleMetadataMap_ModuleMetadata {
 	this := &ModuleMetadataMap_ModuleMetadata{}
 	this.init_ModuleMetadataMap_ModuleMetadata(moduleType, rootNode, usesClosure, isTestOnly, googNamespaces, stronglyRequiredGoogNamespaces, dynamicallyRequiredGoogNamespaces, maybeRequiredGoogNamespaces, weaklyRequiredGoogNamespaces, es6ImportSpecifiers, nestedModules, readToggles, path)
 	return this
 }
 
 func (this *ModuleMetadataMap_ModuleMetadata) toString() string {
-	return ("ModuleMetadata{moduleType=" + objstr_(obj_(this.moduleType_)) + ", rootNode=" + objstr_(this.rootNode_.box_()) + ", usesClosure=" + boolstr_(this.usesClosure_) + ", isTestOnly=" + boolstr_(this.isTestOnly_) + ", googNamespaces=" + objstr_(obj_(this.googNamespaces_)) + ", stronglyRequiredGoogNamespaces=" + objstr_(obj_(this.stronglyRequiredGoogNamespaces_)) + ", dynamicallyRequiredGoogNamespaces=" + objstr_(obj_(this.dynamicallyRequiredGoogNamespaces_)) + ", maybeRequiredGoogNamespaces=" + objstr_(obj_(this.maybeRequiredGoogNamespaces_)) + ", weaklyRequiredGoogNamespaces=" + objstr_(obj_(this.weaklyRequiredGoogNamespaces_)) + ", es6ImportSpecifiers=" + objstr_(obj_(this.es6ImportSpecifiers_)) + ", nestedModules=" + objstr_(obj_(this.nestedModules_)) + ", readToggles=" + objstr_(obj_(this.readToggles_)) + ", path=" + objstr_(obj_(this.path_)) + "}")
+	return ("ModuleMetadata{moduleType=" + tostr_(this.moduleType_) + ", rootNode=" + tostr_(this.rootNode_) + ", usesClosure=" + boolstr_(this.usesClosure_) + ", isTestOnly=" + boolstr_(this.isTestOnly_) + ", googNamespaces=" + tostr_(this.googNamespaces_) + ", stronglyRequiredGoogNamespaces=" + tostr_(this.stronglyRequiredGoogNamespaces_) + ", dynamicallyRequiredGoogNamespaces=" + tostr_(this.dynamicallyRequiredGoogNamespaces_) + ", maybeRequiredGoogNamespaces=" + tostr_(this.maybeRequiredGoogNamespaces_) + ", weaklyRequiredGoogNamespaces=" + tostr_(this.weaklyRequiredGoogNamespaces_) + ", es6ImportSpecifiers=" + tostr_(this.es6ImportSpecifiers_) + ", nestedModules=" + tostr_(this.nestedModules_.asImm()) + ", readToggles=" + tostr_(this.readToggles_) + ", path=" + tostr_(this.path_) + "}")
 }
 
 func (this *ModuleMetadataMap_ModuleMetadata) isEs6Module() bool {
@@ -195,7 +246,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) isModule() bool {
 		case ModuleMetadataMap_ModuleType_COMMON_JS, ModuleMetadataMap_ModuleType_ES6_MODULE, ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 			return true
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
@@ -211,7 +262,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) hashCode() int32 {
 	return System_identityHashCode(any(this))
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) moduleType() *ModuleMetadataMap_ModuleType {
+func (this *ModuleMetadataMap_ModuleMetadata) moduleType() ModuleMetadataMap_ModuleType {
 	return this.moduleType_
 }
 
@@ -227,35 +278,35 @@ func (this *ModuleMetadataMap_ModuleMetadata) isTestOnly() bool {
 	return this.isTestOnly_
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) googNamespaces() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata) googNamespaces() *SimpleMultiset[any] {
 	return this.googNamespaces_
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) stronglyRequiredGoogNamespaces() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata) stronglyRequiredGoogNamespaces() *SimpleMultiset[any] {
 	return this.stronglyRequiredGoogNamespaces_
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) dynamicallyRequiredGoogNamespaces() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata) dynamicallyRequiredGoogNamespaces() *SimpleMultiset[any] {
 	return this.dynamicallyRequiredGoogNamespaces_
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) maybeRequiredGoogNamespaces() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata) maybeRequiredGoogNamespaces() *SimpleMultiset[any] {
 	return this.maybeRequiredGoogNamespaces_
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) weaklyRequiredGoogNamespaces() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata) weaklyRequiredGoogNamespaces() *SimpleMultiset[any] {
 	return this.weaklyRequiredGoogNamespaces_
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) es6ImportSpecifiers() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata) es6ImportSpecifiers() *SimpleMultiset[any] {
 	return this.es6ImportSpecifiers_
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) nestedModules() *ImmutableList {
+func (this *ModuleMetadataMap_ModuleMetadata) nestedModules() *ImmutableList[*ModuleMetadataMap_ModuleMetadata] {
 	return this.nestedModules_
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) readToggles() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata) readToggles() *SimpleMultiset[any] {
 	return this.readToggles_
 }
 
@@ -264,26 +315,26 @@ func (this *ModuleMetadataMap_ModuleMetadata) path() *ModuleLoader_ModulePath {
 }
 
 type ModuleMetadataMap_ModuleMetadata_Builder struct {
-	moduleTypeField                               *ModuleMetadataMap_ModuleType
+	moduleTypeField                               ModuleMetadataMap_ModuleType
 	rootNodeField                                 Node
 	usesClosureField                              bool
 	isTestOnlyField                               bool
-	googNamespacesBuilderField                    *SimpleMultiset
-	googNamespaces_                               *SimpleMultiset
-	stronglyRequiredGoogNamespacesBuilderField    *SimpleMultiset
-	stronglyRequiredGoogNamespaces_               *SimpleMultiset
-	dynamicallyRequiredGoogNamespacesBuilderField *SimpleMultiset
-	dynamicallyRequiredGoogNamespaces_            *SimpleMultiset
-	maybeRequiredGoogNamespacesBuilderField       *SimpleMultiset
-	maybeRequiredGoogNamespaces_                  *SimpleMultiset
-	weaklyRequiredGoogNamespacesBuilderField      *SimpleMultiset
-	weaklyRequiredGoogNamespaces_                 *SimpleMultiset
-	es6ImportSpecifiersBuilderField               *SimpleMultiset
-	es6ImportSpecifiers_                          *SimpleMultiset
-	nestedModulesBuilderField                     ImmutableList_BuilderOf[*ModuleMetadataMap_ModuleMetadata]
-	nestedModules_                                ImmutableListOf[*ModuleMetadataMap_ModuleMetadata]
-	readTogglesBuilderField                       *SimpleMultiset
-	readToggles_                                  *SimpleMultiset
+	googNamespacesBuilderField                    *SimpleMultiset[any]
+	googNamespaces_                               *SimpleMultiset[any]
+	stronglyRequiredGoogNamespacesBuilderField    *SimpleMultiset[any]
+	stronglyRequiredGoogNamespaces_               *SimpleMultiset[any]
+	dynamicallyRequiredGoogNamespacesBuilderField *SimpleMultiset[any]
+	dynamicallyRequiredGoogNamespaces_            *SimpleMultiset[any]
+	maybeRequiredGoogNamespacesBuilderField       *SimpleMultiset[any]
+	maybeRequiredGoogNamespaces_                  *SimpleMultiset[any]
+	weaklyRequiredGoogNamespacesBuilderField      *SimpleMultiset[any]
+	weaklyRequiredGoogNamespaces_                 *SimpleMultiset[any]
+	es6ImportSpecifiersBuilderField               *SimpleMultiset[any]
+	es6ImportSpecifiers_                          *SimpleMultiset[any]
+	nestedModulesBuilderField                     *ImmutableList_Builder[*ModuleMetadataMap_ModuleMetadata]
+	nestedModules_                                *ImmutableList[*ModuleMetadataMap_ModuleMetadata]
+	readTogglesBuilderField                       *SimpleMultiset[any]
+	readToggles_                                  *SimpleMultiset[any]
 	pathField                                     *ModuleLoader_ModulePath
 	set0                                          int8
 }
@@ -302,46 +353,46 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) build() *ModuleMetadataMap
 	if this.googNamespacesBuilderField != nil {
 		this.googNamespaces_ = this.googNamespacesBuilderField.immutableCopy()
 	} else if this.googNamespaces_ == nil {
-		this.googNamespaces_ = SimpleMultiset_of()
+		this.googNamespaces_ = SimpleMultiset_of[any]()
 	}
 	if this.stronglyRequiredGoogNamespacesBuilderField != nil {
 		this.stronglyRequiredGoogNamespaces_ = this.stronglyRequiredGoogNamespacesBuilderField.immutableCopy()
 	} else if this.stronglyRequiredGoogNamespaces_ == nil {
-		this.stronglyRequiredGoogNamespaces_ = SimpleMultiset_of()
+		this.stronglyRequiredGoogNamespaces_ = SimpleMultiset_of[any]()
 	}
 	if this.dynamicallyRequiredGoogNamespacesBuilderField != nil {
 		this.dynamicallyRequiredGoogNamespaces_ = this.dynamicallyRequiredGoogNamespacesBuilderField.immutableCopy()
 	} else if this.dynamicallyRequiredGoogNamespaces_ == nil {
-		this.dynamicallyRequiredGoogNamespaces_ = SimpleMultiset_of()
+		this.dynamicallyRequiredGoogNamespaces_ = SimpleMultiset_of[any]()
 	}
 	if this.maybeRequiredGoogNamespacesBuilderField != nil {
 		this.maybeRequiredGoogNamespaces_ = this.maybeRequiredGoogNamespacesBuilderField.immutableCopy()
 	} else if this.maybeRequiredGoogNamespaces_ == nil {
-		this.maybeRequiredGoogNamespaces_ = SimpleMultiset_of()
+		this.maybeRequiredGoogNamespaces_ = SimpleMultiset_of[any]()
 	}
 	if this.weaklyRequiredGoogNamespacesBuilderField != nil {
 		this.weaklyRequiredGoogNamespaces_ = this.weaklyRequiredGoogNamespacesBuilderField.immutableCopy()
 	} else if this.weaklyRequiredGoogNamespaces_ == nil {
-		this.weaklyRequiredGoogNamespaces_ = SimpleMultiset_of()
+		this.weaklyRequiredGoogNamespaces_ = SimpleMultiset_of[any]()
 	}
 	if this.es6ImportSpecifiersBuilderField != nil {
 		this.es6ImportSpecifiers_ = this.es6ImportSpecifiersBuilderField.immutableCopy()
 	} else if this.es6ImportSpecifiers_ == nil {
-		this.es6ImportSpecifiers_ = SimpleMultiset_of()
+		this.es6ImportSpecifiers_ = SimpleMultiset_of[any]()
 	}
 	if this.nestedModulesBuilderField != nil {
-		this.nestedModules_ = cast_[*ImmutableList](obj_(this.nestedModulesBuilderField.build()))
+		this.nestedModules_ = this.nestedModulesBuilderField.build()
 	} else if this.nestedModules_ == nil {
-		this.nestedModules_ = ImmutableList_of()
+		this.nestedModules_ = immutableListOf_(tc_p_ModuleMetadataMap_ModuleMetadata)
 	}
 	if this.readTogglesBuilderField != nil {
 		this.readToggles_ = this.readTogglesBuilderField.immutableCopy()
 	} else if this.readToggles_ == nil {
-		this.readToggles_ = SimpleMultiset_of()
+		this.readToggles_ = SimpleMultiset_of[any]()
 	}
-	if (int32(this.set0) != 3) || (this.moduleTypeField == nil) {
-		var missing *StringBuilder = new_StringBuilder()
-		if this.moduleTypeField == nil {
+	if (int32(this.set0) != 3) || (this.moduleTypeField == 0) {
+		var missing strBuilder_
+		if this.moduleTypeField == 0 {
 			missing.append(" moduleType")
 		}
 		if (int32(this.set0) & 1) == 0 {
@@ -350,68 +401,68 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) build() *ModuleMetadataMap
 		if (int32(this.set0) & 2) == 0 {
 			missing.append(" isTestOnly")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_ModuleMetadataMap_ModuleMetadata(this.moduleTypeField, this.rootNodeField, this.usesClosureField, this.isTestOnlyField, this.googNamespaces_, this.stronglyRequiredGoogNamespaces_, this.dynamicallyRequiredGoogNamespaces_, this.maybeRequiredGoogNamespaces_, this.weaklyRequiredGoogNamespaces_, this.es6ImportSpecifiers_, this.nestedModules_, this.readToggles_, this.pathField)
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) googNamespacesBuilder() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) googNamespacesBuilder() *SimpleMultiset[any] {
 	if this.googNamespacesBuilderField == nil {
-		this.googNamespacesBuilderField = SimpleMultiset_create()
+		this.googNamespacesBuilderField = SimpleMultiset_create[any]()
 	}
 	return this.googNamespacesBuilderField
 }
 
 func (this *ModuleMetadataMap_ModuleMetadata_Builder) addGoogNamespace(namespace string) *ModuleMetadataMap_ModuleMetadata_Builder {
-	this.googNamespacesBuilder().add(strobj_(namespace))
+	this.googNamespacesBuilder().add_s(namespace)
 	return this
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) stronglyRequiredGoogNamespacesBuilder() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) stronglyRequiredGoogNamespacesBuilder() *SimpleMultiset[any] {
 	if this.stronglyRequiredGoogNamespacesBuilderField == nil {
-		this.stronglyRequiredGoogNamespacesBuilderField = SimpleMultiset_create()
+		this.stronglyRequiredGoogNamespacesBuilderField = SimpleMultiset_create[any]()
 	}
 	return this.stronglyRequiredGoogNamespacesBuilderField
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) dynamicallyRequiredGoogNamespacesBuilder() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) dynamicallyRequiredGoogNamespacesBuilder() *SimpleMultiset[any] {
 	if this.dynamicallyRequiredGoogNamespacesBuilderField == nil {
-		this.dynamicallyRequiredGoogNamespacesBuilderField = SimpleMultiset_create()
+		this.dynamicallyRequiredGoogNamespacesBuilderField = SimpleMultiset_create[any]()
 	}
 	return this.dynamicallyRequiredGoogNamespacesBuilderField
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) maybeRequiredGoogNamespacesBuilder() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) maybeRequiredGoogNamespacesBuilder() *SimpleMultiset[any] {
 	if this.maybeRequiredGoogNamespacesBuilderField == nil {
-		this.maybeRequiredGoogNamespacesBuilderField = SimpleMultiset_create()
+		this.maybeRequiredGoogNamespacesBuilderField = SimpleMultiset_create[any]()
 	}
 	return this.maybeRequiredGoogNamespacesBuilderField
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) weaklyRequiredGoogNamespacesBuilder() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) weaklyRequiredGoogNamespacesBuilder() *SimpleMultiset[any] {
 	if this.weaklyRequiredGoogNamespacesBuilderField == nil {
-		this.weaklyRequiredGoogNamespacesBuilderField = SimpleMultiset_create()
+		this.weaklyRequiredGoogNamespacesBuilderField = SimpleMultiset_create[any]()
 	}
 	return this.weaklyRequiredGoogNamespacesBuilderField
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) es6ImportSpecifiersBuilder() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) es6ImportSpecifiersBuilder() *SimpleMultiset[any] {
 	if this.es6ImportSpecifiersBuilderField == nil {
-		this.es6ImportSpecifiersBuilderField = SimpleMultiset_create()
+		this.es6ImportSpecifiersBuilderField = SimpleMultiset_create[any]()
 	}
 	return this.es6ImportSpecifiersBuilderField
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) nestedModulesBuilder() ImmutableList_BuilderOf[*ModuleMetadataMap_ModuleMetadata] {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) nestedModulesBuilder() *ImmutableList_Builder[*ModuleMetadataMap_ModuleMetadata] {
 	if this.nestedModulesBuilderField == nil {
-		this.nestedModulesBuilderField = ImmutableList_builder()
+		this.nestedModulesBuilderField = immutableListBuilder_(tc_p_ModuleMetadataMap_ModuleMetadata)
 	}
 	return this.nestedModulesBuilderField
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) readTogglesBuilder() *SimpleMultiset {
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) readTogglesBuilder() *SimpleMultiset[any] {
 	if this.readTogglesBuilderField == nil {
-		this.readTogglesBuilderField = SimpleMultiset_create()
+		this.readTogglesBuilderField = SimpleMultiset_create[any]()
 	}
 	return this.readTogglesBuilderField
 }
@@ -433,16 +484,16 @@ func (this *ModuleMetadataMap_ModuleMetadata_Builder) isTestOnly(value bool) *Mo
 	return this
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) moduleType() *ModuleMetadataMap_ModuleType {
-	if this.moduleTypeField == nil {
-		panic(new_IllegalStateException_String("Property \"moduleType\" has not been set").self())
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) moduleType() ModuleMetadataMap_ModuleType {
+	if this.moduleTypeField == 0 {
+		panic(new_IllegalStateException_String("Property \"moduleType\" has not been set"))
 	}
 	return this.moduleTypeField
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata_Builder) moduleType_1(value *ModuleMetadataMap_ModuleType) *ModuleMetadataMap_ModuleMetadata_Builder {
-	if value == nil {
-		panic(new_NullPointerException_String("Null moduleType").self())
+func (this *ModuleMetadataMap_ModuleMetadata_Builder) moduleType_1(value ModuleMetadataMap_ModuleType) *ModuleMetadataMap_ModuleMetadata_Builder {
+	if value == 0 {
+		panic(new_NullPointerException_String("Null moduleType"))
 	}
 	this.moduleTypeField = value
 	return this

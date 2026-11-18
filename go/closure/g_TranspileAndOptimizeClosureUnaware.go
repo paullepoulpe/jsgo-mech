@@ -4,15 +4,15 @@ package closure
 
 type TranspileAndOptimizeClosureUnaware struct {
 	original_ *AbstractCompiler
-	mode_     *NestedCompilerRunner_Mode
+	mode_     NestedCompilerRunner_Mode
 }
 
-func (this *TranspileAndOptimizeClosureUnaware) init_TranspileAndOptimizeClosureUnaware(original *AbstractCompiler, mode *NestedCompilerRunner_Mode) {
+func (this *TranspileAndOptimizeClosureUnaware) init_TranspileAndOptimizeClosureUnaware(original *AbstractCompiler, mode NestedCompilerRunner_Mode) {
 	this.original_ = original
 	this.mode_ = mode
 }
 
-func new_TranspileAndOptimizeClosureUnaware(original *AbstractCompiler, mode *NestedCompilerRunner_Mode) *TranspileAndOptimizeClosureUnaware {
+func new_TranspileAndOptimizeClosureUnaware(original *AbstractCompiler, mode NestedCompilerRunner_Mode) *TranspileAndOptimizeClosureUnaware {
 	this := &TranspileAndOptimizeClosureUnaware{}
 	this.init_TranspileAndOptimizeClosureUnaware(original, mode)
 	return this
@@ -20,7 +20,7 @@ func new_TranspileAndOptimizeClosureUnaware(original *AbstractCompiler, mode *Ne
 
 func (this *TranspileAndOptimizeClosureUnaware) process_2(externs Node, root Node) {
 	var collector *TranspileAndOptimizeClosureUnaware_CollectShadowAsts = new_TranspileAndOptimizeClosureUnaware_CollectShadowAsts()
-	NodeTraversal_traverse(this.original_, root, icast_NodeTraversal_Callback(obj_(collector)))
+	NodeTraversal_traverse(this.original_, root, collector)
 	if collector.shadowAsts.isEmpty() {
 		return
 	}
@@ -33,14 +33,10 @@ func (this *TranspileAndOptimizeClosureUnaware) process_2(externs Node, root Nod
 	this.reattachShadowNodes(collector.shadowAsts)
 }
 
-func (this *TranspileAndOptimizeClosureUnaware) initShadowInputs(shadowCompiler *NestedCompilerRunner, perFileInputs *SimpleSetMultimap) {
-	it_1 := foreach_(any(perFileInputs.keySet()))
-	for it_1.next() {
-		var sourceFile *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
+func (this *TranspileAndOptimizeClosureUnaware) initShadowInputs(shadowCompiler *NestedCompilerRunner, perFileInputs *SimpleSetMultimap[*SourceFile_jscomp, *TranspileAndOptimizeClosureUnaware_ShadowAst]) {
+	for sourceFile := range elemsAs_[*SourceFile_jscomp](perFileInputs.keySet()) {
 		var indexInFile int32 = 0
-		it_3 := foreach_(any(perFileInputs.get(obj_(sourceFile))))
-		for it_3.next() {
-			var shadowAst *TranspileAndOptimizeClosureUnaware_ShadowAst = cast_[*TranspileAndOptimizeClosureUnaware_ShadowAst](it_3.v)
+		for shadowAst := range elemsAs_[*TranspileAndOptimizeClosureUnaware_ShadowAst](perFileInputs.get(obj_(sourceFile))) {
 			var uniqueName string = (sstr_(sourceFile.getName()) + ".shadow" + istr_(int64(indexInFile)))
 			indexInFile++
 			shadowCompiler.addScript(shadowAst.script().detach(), uniqueName)
@@ -48,12 +44,12 @@ func (this *TranspileAndOptimizeClosureUnaware) initShadowInputs(shadowCompiler 
 	}
 }
 
-func (this *TranspileAndOptimizeClosureUnaware) reattachShadowNodes(inputs *SimpleSetMultimap) {
-	it_1 := foreach_(any(inputs.values()))
-	for it_1.next() {
-		var shadowAst *TranspileAndOptimizeClosureUnaware_ShadowAst = cast_[*TranspileAndOptimizeClosureUnaware_ShadowAst](it_1.v)
+func (this *TranspileAndOptimizeClosureUnaware) reattachShadowNodes(inputs *SimpleSetMultimap[*SourceFile_jscomp, *TranspileAndOptimizeClosureUnaware_ShadowAst]) {
+	for shadowAst := range elemsAs_[*TranspileAndOptimizeClosureUnaware_ShadowAst](inputs.values()) {
 		var script Node = shadowAst.script()
-		Preconditions_checkState_boolean_Object(script.hasOneChild(), strobj_(script.toStringTree()))
+		if ok_, a1_ := script.hasOneChild(), script.toStringTree(); !ok_ {
+			panic(new_IllegalStateException_String(sstr_(a1_)))
+		}
 		shadowAst.originalRoot().addChildToFront(script.detach())
 		script.setInputId(nil)
 		script.setStaticSourceFile(nil)
@@ -61,30 +57,26 @@ func (this *TranspileAndOptimizeClosureUnaware) reattachShadowNodes(inputs *Simp
 }
 
 func (this *TranspileAndOptimizeClosureUnaware) setScriptFeaturesets(inputs CollectionOf[*TranspileAndOptimizeClosureUnaware_ShadowAst]) {
-	it_1 := foreach_(any(inputs))
-	for it_1.next() {
-		var shadowAst *TranspileAndOptimizeClosureUnaware_ShadowAst = cast_[*TranspileAndOptimizeClosureUnaware_ShadowAst](it_1.v)
+	for shadowAst := range elemsAs_[*TranspileAndOptimizeClosureUnaware_ShadowAst](inputs) {
 		var shadowScript Node = shadowAst.script()
 		var collector *FeatureCollector = new_FeatureCollector()
 		collector.visitScript(shadowScript)
-		shadowScript.setFeatureSet(obj_(collector.allFeatures()))
+		shadowScript.setFeatureSet(collector.allFeatures())
 	}
 }
 
 func (this *TranspileAndOptimizeClosureUnaware) createInjectRuntimeLibrariesPass(shadowAsts CollectionOf[*TranspileAndOptimizeClosureUnaware_ShadowAst]) *PassFactory {
-	var callSites ImmutableList_BuilderOf[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite] = ImmutableList_builder()
-	it_1 := foreach_(any(shadowAsts))
-	for it_1.next() {
-		var shadowAst *TranspileAndOptimizeClosureUnaware_ShadowAst = cast_[*TranspileAndOptimizeClosureUnaware_ShadowAst](it_1.v)
-		var closureUnawareFunction Node = NodeUtil_findPreorder(shadowAst.script(), &Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isFunction() }}, &Predicate_base_tfn_Node{func(childToVisit Node) bool {
+	var callSites *ImmutableList_Builder[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite] = immutableListBuilder_(tc_p_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite)
+	for shadowAst := range elemsAs_[*TranspileAndOptimizeClosureUnaware_ShadowAst](shadowAsts) {
+		var closureUnawareFunction Node = NodeUtil_findPreorder(shadowAst.script(), (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isFunction() }}).apply, &Predicate_base_tfn_Node{func(childToVisit Node) bool {
 			return true
 		}})
-		callSites.add(obj_(new_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite(shadowAst.callNode(), closureUnawareFunction)))
+		callSites.add(new_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite(shadowAst.callNode(), closureUnawareFunction))
 	}
 	return PassFactory_builder().setName("injectClosureUnawareRuntimeLibs").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return icast_CompilerPass(obj_(new_InjectClosureUnawareRuntimeLibraries(this.original_, compiler, icast_List(obj_(callSites.build())))))
+		return new_InjectClosureUnawareRuntimeLibraries(this.original_, compiler, callSites.build().items)
 	}}).build()
 }
 
@@ -123,27 +115,27 @@ func (this *TranspileAndOptimizeClosureUnaware_ShadowAst) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.originalRoot_.box_(), o.originalRoot_.box_()) && Objects_equals(this.callNode_.box_(), o.callNode_.box_()) && Objects_equals(this.script_.box_(), o.script_.box_())
+	return true && this.originalRoot_ == o.originalRoot_ && this.callNode_ == o.callNode_ && this.script_ == o.script_
 }
 
 func (this *TranspileAndOptimizeClosureUnaware_ShadowAst) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.originalRoot_.box_())
-	h = h*31 + Objects_hashCode(this.callNode_.box_())
-	h = h*31 + Objects_hashCode(this.script_.box_())
+	h = h*31 + objhashId_(this.originalRoot_)
+	h = h*31 + objhashId_(this.callNode_)
+	h = h*31 + objhashId_(this.script_)
 	return h
 }
 
 func (this *TranspileAndOptimizeClosureUnaware_ShadowAst) toString() string {
-	return "ShadowAst[" + "originalRoot=" + objstr_(this.originalRoot_.box_()) + ", callNode=" + objstr_(this.callNode_.box_()) + ", script=" + objstr_(this.script_.box_()) + "]"
+	return "ShadowAst[" + "originalRoot=" + tostr_(this.originalRoot_) + ", callNode=" + tostr_(this.callNode_) + ", script=" + tostr_(this.script_) + "]"
 }
 
 type TranspileAndOptimizeClosureUnaware_CollectShadowAsts struct {
-	shadowAsts *SimpleSetMultimap
+	shadowAsts *SimpleSetMultimap[*SourceFile_jscomp, *TranspileAndOptimizeClosureUnaware_ShadowAst]
 }
 
 func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) finit_TranspileAndOptimizeClosureUnaware_CollectShadowAsts() {
-	this.shadowAsts = SimpleSetMultimap_createInsertionOrdered()
+	this.shadowAsts = SimpleSetMultimap_createInsertionOrdered[*SourceFile_jscomp, *TranspileAndOptimizeClosureUnaware_ShadowAst]()
 }
 
 func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) init_TranspileAndOptimizeClosureUnaware_CollectShadowAsts() {
@@ -164,10 +156,10 @@ func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) shouldTraverse
 		return false
 	}
 	var fileJsDoc *JSDocInfo = n.getJSDocInfo()
-	if (fileJsDoc == nil) || (fileJsDoc.getPerFileClosureUnawareMode() == nil) {
+	if (fileJsDoc == nil) || (fileJsDoc.getPerFileClosureUnawareMode() == 0) {
 		return true
 	}
-	var minificationLevel *JSDocInfo_PerFileClosureUnawareMode = fileJsDoc.getPerFileClosureUnawareMode()
+	var minificationLevel JSDocInfo_PerFileClosureUnawareMode = fileJsDoc.getPerFileClosureUnawareMode()
 	return func() bool {
 		switch minificationLevel {
 		case JSDocInfo_PerFileClosureUnawareMode_UNSPECIFIED, JSDocInfo_PerFileClosureUnawareMode_SIMPLE:
@@ -175,7 +167,7 @@ func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) shouldTraverse
 		case JSDocInfo_PerFileClosureUnawareMode_WHITESPACE:
 			return false
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
@@ -190,8 +182,10 @@ func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) visit(t *NodeT
 		}
 		return n.getGrandparent()
 	}()
-	Preconditions_checkState_boolean_Object(callNode.isCall(), callNode.box_())
-	this.shadowAsts.put(obj_(t.getInput().getSourceFile()), obj_(new_TranspileAndOptimizeClosureUnaware_ShadowAst(shadow, callNode, shadow.getOnlyChild())))
+	if !callNode.isCall() {
+		panic(new_IllegalStateException_String(tostr_(callNode)))
+	}
+	this.shadowAsts.put(t.getInput().getSourceFile(), new_TranspileAndOptimizeClosureUnaware_ShadowAst(shadow, callNode, shadow.getOnlyChild()))
 }
 
 type TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig struct {
@@ -235,4 +229,20 @@ func (this *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig) ge
 	var passes *PassListBuilder = this.PassConfig_PassConfigDelegate.getFinalizations_impl()
 	passes.addAfter(this.injectRuntimeLibs, PassNames_MARK_UNNORMALIZED)
 	return passes
+}
+
+// getTranspileOnlyPasses: an object that is exactly a TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig calls its getTranspileOnlyPasses_impl directly (post-flip); others dispatch.
+func (this *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig) getTranspileOnlyPasses() *PassListBuilder {
+	if p, _ := this.self_.(*TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig); p == this {
+		return this.getTranspileOnlyPasses_impl()
+	}
+	return this.self_.getTranspileOnlyPasses_impl()
+}
+
+// getFinalizations: an object that is exactly a TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig calls its getFinalizations_impl directly (post-flip); others dispatch.
+func (this *TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig) getFinalizations() *PassListBuilder {
+	if p, _ := this.self_.(*TranspileAndOptimizeClosureUnaware_RuntimeLibInjectionPassConfig); p == this {
+		return this.getFinalizations_impl()
+	}
+	return this.self_.getFinalizations_impl()
 }

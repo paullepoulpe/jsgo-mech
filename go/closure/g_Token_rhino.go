@@ -2,29 +2,220 @@
 
 package closure
 
-type Token_rhino struct {
-	Enum
+type Token_rhino uint8
+
+// Token_rhino_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Token_rhino_enum_ = [180]Enum{
+	{self_: Token_rhino_RETURN, name_: "RETURN", ordinal_: 0},
+	{self_: Token_rhino_BITOR, name_: "BITOR", ordinal_: 1},
+	{self_: Token_rhino_BITXOR, name_: "BITXOR", ordinal_: 2},
+	{self_: Token_rhino_BITAND, name_: "BITAND", ordinal_: 3},
+	{self_: Token_rhino_EQ, name_: "EQ", ordinal_: 4},
+	{self_: Token_rhino_NE, name_: "NE", ordinal_: 5},
+	{self_: Token_rhino_LT, name_: "LT", ordinal_: 6},
+	{self_: Token_rhino_LE, name_: "LE", ordinal_: 7},
+	{self_: Token_rhino_GT, name_: "GT", ordinal_: 8},
+	{self_: Token_rhino_GE, name_: "GE", ordinal_: 9},
+	{self_: Token_rhino_LSH, name_: "LSH", ordinal_: 10},
+	{self_: Token_rhino_RSH, name_: "RSH", ordinal_: 11},
+	{self_: Token_rhino_URSH, name_: "URSH", ordinal_: 12},
+	{self_: Token_rhino_ADD, name_: "ADD", ordinal_: 13},
+	{self_: Token_rhino_SUB, name_: "SUB", ordinal_: 14},
+	{self_: Token_rhino_MUL, name_: "MUL", ordinal_: 15},
+	{self_: Token_rhino_DIV, name_: "DIV", ordinal_: 16},
+	{self_: Token_rhino_MOD, name_: "MOD", ordinal_: 17},
+	{self_: Token_rhino_EXPONENT, name_: "EXPONENT", ordinal_: 18},
+	{self_: Token_rhino_NOT, name_: "NOT", ordinal_: 19},
+	{self_: Token_rhino_BITNOT, name_: "BITNOT", ordinal_: 20},
+	{self_: Token_rhino_POS, name_: "POS", ordinal_: 21},
+	{self_: Token_rhino_NEG, name_: "NEG", ordinal_: 22},
+	{self_: Token_rhino_NEW, name_: "NEW", ordinal_: 23},
+	{self_: Token_rhino_DELPROP, name_: "DELPROP", ordinal_: 24},
+	{self_: Token_rhino_TYPEOF, name_: "TYPEOF", ordinal_: 25},
+	{self_: Token_rhino_GETPROP, name_: "GETPROP", ordinal_: 26},
+	{self_: Token_rhino_GETELEM, name_: "GETELEM", ordinal_: 27},
+	{self_: Token_rhino_CALL, name_: "CALL", ordinal_: 28},
+	{self_: Token_rhino_OPTCHAIN_GETPROP, name_: "OPTCHAIN_GETPROP", ordinal_: 29},
+	{self_: Token_rhino_OPTCHAIN_GETELEM, name_: "OPTCHAIN_GETELEM", ordinal_: 30},
+	{self_: Token_rhino_OPTCHAIN_CALL, name_: "OPTCHAIN_CALL", ordinal_: 31},
+	{self_: Token_rhino_NAME, name_: "NAME", ordinal_: 32},
+	{self_: Token_rhino_NUMBER, name_: "NUMBER", ordinal_: 33},
+	{self_: Token_rhino_BIGINT, name_: "BIGINT", ordinal_: 34},
+	{self_: Token_rhino_STRINGLIT, name_: "STRINGLIT", ordinal_: 35},
+	{self_: Token_rhino_NULL, name_: "NULL", ordinal_: 36},
+	{self_: Token_rhino_THIS, name_: "THIS", ordinal_: 37},
+	{self_: Token_rhino_FALSE, name_: "FALSE", ordinal_: 38},
+	{self_: Token_rhino_TRUE, name_: "TRUE", ordinal_: 39},
+	{self_: Token_rhino_SHEQ, name_: "SHEQ", ordinal_: 40},
+	{self_: Token_rhino_SHNE, name_: "SHNE", ordinal_: 41},
+	{self_: Token_rhino_REGEXP, name_: "REGEXP", ordinal_: 42},
+	{self_: Token_rhino_THROW, name_: "THROW", ordinal_: 43},
+	{self_: Token_rhino_IN, name_: "IN", ordinal_: 44},
+	{self_: Token_rhino_INSTANCEOF, name_: "INSTANCEOF", ordinal_: 45},
+	{self_: Token_rhino_ARRAYLIT, name_: "ARRAYLIT", ordinal_: 46},
+	{self_: Token_rhino_OBJECTLIT, name_: "OBJECTLIT", ordinal_: 47},
+	{self_: Token_rhino_TRY, name_: "TRY", ordinal_: 48},
+	{self_: Token_rhino_PARAM_LIST, name_: "PARAM_LIST", ordinal_: 49},
+	{self_: Token_rhino_COMMA, name_: "COMMA", ordinal_: 50},
+	{self_: Token_rhino_ASSIGN, name_: "ASSIGN", ordinal_: 51},
+	{self_: Token_rhino_ASSIGN_BITOR, name_: "ASSIGN_BITOR", ordinal_: 52},
+	{self_: Token_rhino_ASSIGN_BITXOR, name_: "ASSIGN_BITXOR", ordinal_: 53},
+	{self_: Token_rhino_ASSIGN_BITAND, name_: "ASSIGN_BITAND", ordinal_: 54},
+	{self_: Token_rhino_ASSIGN_LSH, name_: "ASSIGN_LSH", ordinal_: 55},
+	{self_: Token_rhino_ASSIGN_RSH, name_: "ASSIGN_RSH", ordinal_: 56},
+	{self_: Token_rhino_ASSIGN_URSH, name_: "ASSIGN_URSH", ordinal_: 57},
+	{self_: Token_rhino_ASSIGN_ADD, name_: "ASSIGN_ADD", ordinal_: 58},
+	{self_: Token_rhino_ASSIGN_SUB, name_: "ASSIGN_SUB", ordinal_: 59},
+	{self_: Token_rhino_ASSIGN_MUL, name_: "ASSIGN_MUL", ordinal_: 60},
+	{self_: Token_rhino_ASSIGN_DIV, name_: "ASSIGN_DIV", ordinal_: 61},
+	{self_: Token_rhino_ASSIGN_MOD, name_: "ASSIGN_MOD", ordinal_: 62},
+	{self_: Token_rhino_ASSIGN_EXPONENT, name_: "ASSIGN_EXPONENT", ordinal_: 63},
+	{self_: Token_rhino_ASSIGN_OR, name_: "ASSIGN_OR", ordinal_: 64},
+	{self_: Token_rhino_ASSIGN_AND, name_: "ASSIGN_AND", ordinal_: 65},
+	{self_: Token_rhino_ASSIGN_COALESCE, name_: "ASSIGN_COALESCE", ordinal_: 66},
+	{self_: Token_rhino_HOOK, name_: "HOOK", ordinal_: 67},
+	{self_: Token_rhino_OR, name_: "OR", ordinal_: 68},
+	{self_: Token_rhino_AND, name_: "AND", ordinal_: 69},
+	{self_: Token_rhino_COALESCE, name_: "COALESCE", ordinal_: 70},
+	{self_: Token_rhino_INC, name_: "INC", ordinal_: 71},
+	{self_: Token_rhino_DEC, name_: "DEC", ordinal_: 72},
+	{self_: Token_rhino_FUNCTION, name_: "FUNCTION", ordinal_: 73},
+	{self_: Token_rhino_IF, name_: "IF", ordinal_: 74},
+	{self_: Token_rhino_SWITCH, name_: "SWITCH", ordinal_: 75},
+	{self_: Token_rhino_CASE, name_: "CASE", ordinal_: 76},
+	{self_: Token_rhino_DEFAULT_CASE, name_: "DEFAULT_CASE", ordinal_: 77},
+	{self_: Token_rhino_WHILE, name_: "WHILE", ordinal_: 78},
+	{self_: Token_rhino_DO, name_: "DO", ordinal_: 79},
+	{self_: Token_rhino_FOR, name_: "FOR", ordinal_: 80},
+	{self_: Token_rhino_FOR_IN, name_: "FOR_IN", ordinal_: 81},
+	{self_: Token_rhino_BREAK, name_: "BREAK", ordinal_: 82},
+	{self_: Token_rhino_CONTINUE, name_: "CONTINUE", ordinal_: 83},
+	{self_: Token_rhino_VAR, name_: "VAR", ordinal_: 84},
+	{self_: Token_rhino_WITH, name_: "WITH", ordinal_: 85},
+	{self_: Token_rhino_CATCH, name_: "CATCH", ordinal_: 86},
+	{self_: Token_rhino_VOID, name_: "VOID", ordinal_: 87},
+	{self_: Token_rhino_EMPTY, name_: "EMPTY", ordinal_: 88},
+	{self_: Token_rhino_ROOT, name_: "ROOT", ordinal_: 89},
+	{self_: Token_rhino_BLOCK, name_: "BLOCK", ordinal_: 90},
+	{self_: Token_rhino_SWITCH_BODY, name_: "SWITCH_BODY", ordinal_: 91},
+	{self_: Token_rhino_LABEL, name_: "LABEL", ordinal_: 92},
+	{self_: Token_rhino_EXPR_RESULT, name_: "EXPR_RESULT", ordinal_: 93},
+	{self_: Token_rhino_SCRIPT, name_: "SCRIPT", ordinal_: 94},
+	{self_: Token_rhino_GETTER_DEF, name_: "GETTER_DEF", ordinal_: 95},
+	{self_: Token_rhino_SETTER_DEF, name_: "SETTER_DEF", ordinal_: 96},
+	{self_: Token_rhino_CONST, name_: "CONST", ordinal_: 97},
+	{self_: Token_rhino_DEBUGGER, name_: "DEBUGGER", ordinal_: 98},
+	{self_: Token_rhino_LABEL_NAME, name_: "LABEL_NAME", ordinal_: 99},
+	{self_: Token_rhino_STRING_KEY, name_: "STRING_KEY", ordinal_: 100},
+	{self_: Token_rhino_CAST, name_: "CAST", ordinal_: 101},
+	{self_: Token_rhino_ARRAY_PATTERN, name_: "ARRAY_PATTERN", ordinal_: 102},
+	{self_: Token_rhino_OBJECT_PATTERN, name_: "OBJECT_PATTERN", ordinal_: 103},
+	{self_: Token_rhino_DESTRUCTURING_LHS, name_: "DESTRUCTURING_LHS", ordinal_: 104},
+	{self_: Token_rhino_CLASS, name_: "CLASS", ordinal_: 105},
+	{self_: Token_rhino_CLASS_MEMBERS, name_: "CLASS_MEMBERS", ordinal_: 106},
+	{self_: Token_rhino_MEMBER_FUNCTION_DEF, name_: "MEMBER_FUNCTION_DEF", ordinal_: 107},
+	{self_: Token_rhino_MEMBER_FIELD_DEF, name_: "MEMBER_FIELD_DEF", ordinal_: 108},
+	{self_: Token_rhino_COMPUTED_FIELD_DEF, name_: "COMPUTED_FIELD_DEF", ordinal_: 109},
+	{self_: Token_rhino_SUPER, name_: "SUPER", ordinal_: 110},
+	{self_: Token_rhino_LET, name_: "LET", ordinal_: 111},
+	{self_: Token_rhino_FOR_OF, name_: "FOR_OF", ordinal_: 112},
+	{self_: Token_rhino_FOR_AWAIT_OF, name_: "FOR_AWAIT_OF", ordinal_: 113},
+	{self_: Token_rhino_YIELD, name_: "YIELD", ordinal_: 114},
+	{self_: Token_rhino_AWAIT, name_: "AWAIT", ordinal_: 115},
+	{self_: Token_rhino_IMPORT, name_: "IMPORT", ordinal_: 116},
+	{self_: Token_rhino_IMPORT_SPECS, name_: "IMPORT_SPECS", ordinal_: 117},
+	{self_: Token_rhino_IMPORT_SPEC, name_: "IMPORT_SPEC", ordinal_: 118},
+	{self_: Token_rhino_IMPORT_STAR, name_: "IMPORT_STAR", ordinal_: 119},
+	{self_: Token_rhino_EXPORT, name_: "EXPORT", ordinal_: 120},
+	{self_: Token_rhino_EXPORT_SPECS, name_: "EXPORT_SPECS", ordinal_: 121},
+	{self_: Token_rhino_EXPORT_SPEC, name_: "EXPORT_SPEC", ordinal_: 122},
+	{self_: Token_rhino_MODULE_BODY, name_: "MODULE_BODY", ordinal_: 123},
+	{self_: Token_rhino_DYNAMIC_IMPORT, name_: "DYNAMIC_IMPORT", ordinal_: 124},
+	{self_: Token_rhino_ITER_REST, name_: "ITER_REST", ordinal_: 125},
+	{self_: Token_rhino_OBJECT_REST, name_: "OBJECT_REST", ordinal_: 126},
+	{self_: Token_rhino_ITER_SPREAD, name_: "ITER_SPREAD", ordinal_: 127},
+	{self_: Token_rhino_OBJECT_SPREAD, name_: "OBJECT_SPREAD", ordinal_: 128},
+	{self_: Token_rhino_COMPUTED_PROP, name_: "COMPUTED_PROP", ordinal_: 129},
+	{self_: Token_rhino_TAGGED_TEMPLATELIT, name_: "TAGGED_TEMPLATELIT", ordinal_: 130},
+	{self_: Token_rhino_TEMPLATELIT, name_: "TEMPLATELIT", ordinal_: 131},
+	{self_: Token_rhino_TEMPLATELIT_SUB, name_: "TEMPLATELIT_SUB", ordinal_: 132},
+	{self_: Token_rhino_TEMPLATELIT_STRING, name_: "TEMPLATELIT_STRING", ordinal_: 133},
+	{self_: Token_rhino_DEFAULT_VALUE, name_: "DEFAULT_VALUE", ordinal_: 134},
+	{self_: Token_rhino_NEW_TARGET, name_: "NEW_TARGET", ordinal_: 135},
+	{self_: Token_rhino_IMPORT_META, name_: "IMPORT_META", ordinal_: 136},
+	{self_: Token_rhino_STRING_TYPE, name_: "STRING_TYPE", ordinal_: 137},
+	{self_: Token_rhino_BOOLEAN_TYPE, name_: "BOOLEAN_TYPE", ordinal_: 138},
+	{self_: Token_rhino_NUMBER_TYPE, name_: "NUMBER_TYPE", ordinal_: 139},
+	{self_: Token_rhino_FUNCTION_TYPE, name_: "FUNCTION_TYPE", ordinal_: 140},
+	{self_: Token_rhino_PARAMETERIZED_TYPE, name_: "PARAMETERIZED_TYPE", ordinal_: 141},
+	{self_: Token_rhino_UNION_TYPE, name_: "UNION_TYPE", ordinal_: 142},
+	{self_: Token_rhino_ANY_TYPE, name_: "ANY_TYPE", ordinal_: 143},
+	{self_: Token_rhino_NULLABLE_TYPE, name_: "NULLABLE_TYPE", ordinal_: 144},
+	{self_: Token_rhino_VOID_TYPE, name_: "VOID_TYPE", ordinal_: 145},
+	{self_: Token_rhino_REST_PARAMETER_TYPE, name_: "REST_PARAMETER_TYPE", ordinal_: 146},
+	{self_: Token_rhino_NAMED_TYPE, name_: "NAMED_TYPE", ordinal_: 147},
+	{self_: Token_rhino_OPTIONAL_PARAMETER, name_: "OPTIONAL_PARAMETER", ordinal_: 148},
+	{self_: Token_rhino_RECORD_TYPE, name_: "RECORD_TYPE", ordinal_: 149},
+	{self_: Token_rhino_UNDEFINED_TYPE, name_: "UNDEFINED_TYPE", ordinal_: 150},
+	{self_: Token_rhino_ARRAY_TYPE, name_: "ARRAY_TYPE", ordinal_: 151},
+	{self_: Token_rhino_GENERIC_TYPE, name_: "GENERIC_TYPE", ordinal_: 152},
+	{self_: Token_rhino_GENERIC_TYPE_LIST, name_: "GENERIC_TYPE_LIST", ordinal_: 153},
+	{self_: Token_rhino_ANNOTATION, name_: "ANNOTATION", ordinal_: 154},
+	{self_: Token_rhino_PIPE, name_: "PIPE", ordinal_: 155},
+	{self_: Token_rhino_STAR, name_: "STAR", ordinal_: 156},
+	{self_: Token_rhino_EOC, name_: "EOC", ordinal_: 157},
+	{self_: Token_rhino_QMARK, name_: "QMARK", ordinal_: 158},
+	{self_: Token_rhino_BANG, name_: "BANG", ordinal_: 159},
+	{self_: Token_rhino_EQUALS, name_: "EQUALS", ordinal_: 160},
+	{self_: Token_rhino_LB, name_: "LB", ordinal_: 161},
+	{self_: Token_rhino_LC, name_: "LC", ordinal_: 162},
+	{self_: Token_rhino_COLON, name_: "COLON", ordinal_: 163},
+	{self_: Token_rhino_INTERFACE, name_: "INTERFACE", ordinal_: 164},
+	{self_: Token_rhino_INTERFACE_EXTENDS, name_: "INTERFACE_EXTENDS", ordinal_: 165},
+	{self_: Token_rhino_INTERFACE_MEMBERS, name_: "INTERFACE_MEMBERS", ordinal_: 166},
+	{self_: Token_rhino_ENUM, name_: "ENUM", ordinal_: 167},
+	{self_: Token_rhino_ENUM_MEMBERS, name_: "ENUM_MEMBERS", ordinal_: 168},
+	{self_: Token_rhino_IMPLEMENTS, name_: "IMPLEMENTS", ordinal_: 169},
+	{self_: Token_rhino_TYPE_ALIAS, name_: "TYPE_ALIAS", ordinal_: 170},
+	{self_: Token_rhino_DECLARE, name_: "DECLARE", ordinal_: 171},
+	{self_: Token_rhino_MEMBER_VARIABLE_DEF, name_: "MEMBER_VARIABLE_DEF", ordinal_: 172},
+	{self_: Token_rhino_INDEX_SIGNATURE, name_: "INDEX_SIGNATURE", ordinal_: 173},
+	{self_: Token_rhino_CALL_SIGNATURE, name_: "CALL_SIGNATURE", ordinal_: 174},
+	{self_: Token_rhino_NAMESPACE, name_: "NAMESPACE", ordinal_: 175},
+	{self_: Token_rhino_NAMESPACE_ELEMENTS, name_: "NAMESPACE_ELEMENTS", ordinal_: 176},
+	{self_: Token_rhino_PLACEHOLDER1, name_: "PLACEHOLDER1", ordinal_: 177},
+	{self_: Token_rhino_PLACEHOLDER2, name_: "PLACEHOLDER2", ordinal_: 178},
+	{self_: Token_rhino_PLACEHOLDER3, name_: "PLACEHOLDER3", ordinal_: 179},
 }
 
-func (this *Token_rhino) up_Enum() *Enum {
-	if this == nil {
+func (this Token_rhino) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Token_rhino_enum_[this-1]
 }
 
-func (this *Token_rhino) init_Token_rhino(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this Token_rhino) name() string { return this.enum_().name_ }
+
+func (this Token_rhino) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_Token_rhino(name_ string, ordinal_ int32) *Token_rhino {
-	this := &Token_rhino{}
-	this.self_ = this
-	this.init_Token_rhino(name_, ordinal_)
+func (this Token_rhino) toString() string { return this.enum_().name_ }
+
+func (this Token_rhino) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this Token_rhino) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func Token_rhino_arity(token *Token_rhino) int32 {
+func Token_rhino_arity(token Token_rhino) int32 {
 	return func() int32 {
 		switch token {
 		case Token_rhino_ANNOTATION, Token_rhino_ARRAYLIT, Token_rhino_BANG, Token_rhino_BLOCK, Token_rhino_ROOT, Token_rhino_BREAK, Token_rhino_CALL, Token_rhino_OPTCHAIN_CALL, Token_rhino_COLON, Token_rhino_CONST, Token_rhino_CONTINUE, Token_rhino_DEBUGGER, Token_rhino_EOC, Token_rhino_EQUALS, Token_rhino_FOR, Token_rhino_IF, Token_rhino_LB, Token_rhino_LC, Token_rhino_NEW, Token_rhino_OBJECTLIT, Token_rhino_PARAM_LIST, Token_rhino_PIPE, Token_rhino_QMARK, Token_rhino_REGEXP, Token_rhino_RETURN, Token_rhino_SCRIPT, Token_rhino_STAR, Token_rhino_STRING_KEY, Token_rhino_SWITCH_BODY, Token_rhino_TEMPLATELIT, Token_rhino_TRY, Token_rhino_VAR, Token_rhino_YIELD, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
@@ -38,214 +229,206 @@ func Token_rhino_arity(token *Token_rhino) int32 {
 		case Token_rhino_CLASS, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_FUNCTION, Token_rhino_HOOK, Token_rhino_IMPORT, Token_rhino_INTERFACE:
 			return 3
 		default:
-			panic(new_IllegalStateException_String(("No arity defined for " + objstr_(obj_(token)))).self())
+			panic(new_IllegalStateException_String(("No arity defined for " + tostr_(token))))
 		}
-		panic("unreachable")
 	}()
 }
 
-func Token_rhino_ord1_(v *Token_rhino) uint8 {
-	if v == nil {
-		return 0
-	}
-	return uint8(v.Enum.ordinal_ + 1)
+func Token_rhino_values() []Token_rhino {
+	return append([]Token_rhino(nil), Token_rhino_values_...)
 }
 
-func Token_rhino_values() []*Token_rhino {
-	return append([]*Token_rhino(nil), Token_rhino_values_...)
-}
-
-func Token_rhino_valueOf(name string) *Token_rhino {
+func Token_rhino_valueOf(name string) Token_rhino {
 	for _, v := range Token_rhino_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Token", name))
 }
 
-var Token_rhino_RETURN *Token_rhino
-var Token_rhino_BITOR *Token_rhino
-var Token_rhino_BITXOR *Token_rhino
-var Token_rhino_BITAND *Token_rhino
-var Token_rhino_EQ *Token_rhino
-var Token_rhino_NE *Token_rhino
-var Token_rhino_LT *Token_rhino
-var Token_rhino_LE *Token_rhino
-var Token_rhino_GT *Token_rhino
-var Token_rhino_GE *Token_rhino
-var Token_rhino_LSH *Token_rhino
-var Token_rhino_RSH *Token_rhino
-var Token_rhino_URSH *Token_rhino
-var Token_rhino_ADD *Token_rhino
-var Token_rhino_SUB *Token_rhino
-var Token_rhino_MUL *Token_rhino
-var Token_rhino_DIV *Token_rhino
-var Token_rhino_MOD *Token_rhino
-var Token_rhino_EXPONENT *Token_rhino
-var Token_rhino_NOT *Token_rhino
-var Token_rhino_BITNOT *Token_rhino
-var Token_rhino_POS *Token_rhino
-var Token_rhino_NEG *Token_rhino
-var Token_rhino_NEW *Token_rhino
-var Token_rhino_DELPROP *Token_rhino
-var Token_rhino_TYPEOF *Token_rhino
-var Token_rhino_GETPROP *Token_rhino
-var Token_rhino_GETELEM *Token_rhino
-var Token_rhino_CALL *Token_rhino
-var Token_rhino_OPTCHAIN_GETPROP *Token_rhino
-var Token_rhino_OPTCHAIN_GETELEM *Token_rhino
-var Token_rhino_OPTCHAIN_CALL *Token_rhino
-var Token_rhino_NAME *Token_rhino
-var Token_rhino_NUMBER *Token_rhino
-var Token_rhino_BIGINT *Token_rhino
-var Token_rhino_STRINGLIT *Token_rhino
-var Token_rhino_NULL *Token_rhino
-var Token_rhino_THIS *Token_rhino
-var Token_rhino_FALSE *Token_rhino
-var Token_rhino_TRUE *Token_rhino
-var Token_rhino_SHEQ *Token_rhino
-var Token_rhino_SHNE *Token_rhino
-var Token_rhino_REGEXP *Token_rhino
-var Token_rhino_THROW *Token_rhino
-var Token_rhino_IN *Token_rhino
-var Token_rhino_INSTANCEOF *Token_rhino
-var Token_rhino_ARRAYLIT *Token_rhino
-var Token_rhino_OBJECTLIT *Token_rhino
-var Token_rhino_TRY *Token_rhino
-var Token_rhino_PARAM_LIST *Token_rhino
-var Token_rhino_COMMA *Token_rhino
-var Token_rhino_ASSIGN *Token_rhino
-var Token_rhino_ASSIGN_BITOR *Token_rhino
-var Token_rhino_ASSIGN_BITXOR *Token_rhino
-var Token_rhino_ASSIGN_BITAND *Token_rhino
-var Token_rhino_ASSIGN_LSH *Token_rhino
-var Token_rhino_ASSIGN_RSH *Token_rhino
-var Token_rhino_ASSIGN_URSH *Token_rhino
-var Token_rhino_ASSIGN_ADD *Token_rhino
-var Token_rhino_ASSIGN_SUB *Token_rhino
-var Token_rhino_ASSIGN_MUL *Token_rhino
-var Token_rhino_ASSIGN_DIV *Token_rhino
-var Token_rhino_ASSIGN_MOD *Token_rhino
-var Token_rhino_ASSIGN_EXPONENT *Token_rhino
-var Token_rhino_ASSIGN_OR *Token_rhino
-var Token_rhino_ASSIGN_AND *Token_rhino
-var Token_rhino_ASSIGN_COALESCE *Token_rhino
-var Token_rhino_HOOK *Token_rhino
-var Token_rhino_OR *Token_rhino
-var Token_rhino_AND *Token_rhino
-var Token_rhino_COALESCE *Token_rhino
-var Token_rhino_INC *Token_rhino
-var Token_rhino_DEC *Token_rhino
-var Token_rhino_FUNCTION *Token_rhino
-var Token_rhino_IF *Token_rhino
-var Token_rhino_SWITCH *Token_rhino
-var Token_rhino_CASE *Token_rhino
-var Token_rhino_DEFAULT_CASE *Token_rhino
-var Token_rhino_WHILE *Token_rhino
-var Token_rhino_DO *Token_rhino
-var Token_rhino_FOR *Token_rhino
-var Token_rhino_FOR_IN *Token_rhino
-var Token_rhino_BREAK *Token_rhino
-var Token_rhino_CONTINUE *Token_rhino
-var Token_rhino_VAR *Token_rhino
-var Token_rhino_WITH *Token_rhino
-var Token_rhino_CATCH *Token_rhino
-var Token_rhino_VOID *Token_rhino
-var Token_rhino_EMPTY *Token_rhino
-var Token_rhino_ROOT *Token_rhino
-var Token_rhino_BLOCK *Token_rhino
-var Token_rhino_SWITCH_BODY *Token_rhino
-var Token_rhino_LABEL *Token_rhino
-var Token_rhino_EXPR_RESULT *Token_rhino
-var Token_rhino_SCRIPT *Token_rhino
-var Token_rhino_GETTER_DEF *Token_rhino
-var Token_rhino_SETTER_DEF *Token_rhino
-var Token_rhino_CONST *Token_rhino
-var Token_rhino_DEBUGGER *Token_rhino
-var Token_rhino_LABEL_NAME *Token_rhino
-var Token_rhino_STRING_KEY *Token_rhino
-var Token_rhino_CAST *Token_rhino
-var Token_rhino_ARRAY_PATTERN *Token_rhino
-var Token_rhino_OBJECT_PATTERN *Token_rhino
-var Token_rhino_DESTRUCTURING_LHS *Token_rhino
-var Token_rhino_CLASS *Token_rhino
-var Token_rhino_CLASS_MEMBERS *Token_rhino
-var Token_rhino_MEMBER_FUNCTION_DEF *Token_rhino
-var Token_rhino_MEMBER_FIELD_DEF *Token_rhino
-var Token_rhino_COMPUTED_FIELD_DEF *Token_rhino
-var Token_rhino_SUPER *Token_rhino
-var Token_rhino_LET *Token_rhino
-var Token_rhino_FOR_OF *Token_rhino
-var Token_rhino_FOR_AWAIT_OF *Token_rhino
-var Token_rhino_YIELD *Token_rhino
-var Token_rhino_AWAIT *Token_rhino
-var Token_rhino_IMPORT *Token_rhino
-var Token_rhino_IMPORT_SPECS *Token_rhino
-var Token_rhino_IMPORT_SPEC *Token_rhino
-var Token_rhino_IMPORT_STAR *Token_rhino
-var Token_rhino_EXPORT *Token_rhino
-var Token_rhino_EXPORT_SPECS *Token_rhino
-var Token_rhino_EXPORT_SPEC *Token_rhino
-var Token_rhino_MODULE_BODY *Token_rhino
-var Token_rhino_DYNAMIC_IMPORT *Token_rhino
-var Token_rhino_ITER_REST *Token_rhino
-var Token_rhino_OBJECT_REST *Token_rhino
-var Token_rhino_ITER_SPREAD *Token_rhino
-var Token_rhino_OBJECT_SPREAD *Token_rhino
-var Token_rhino_COMPUTED_PROP *Token_rhino
-var Token_rhino_TAGGED_TEMPLATELIT *Token_rhino
-var Token_rhino_TEMPLATELIT *Token_rhino
-var Token_rhino_TEMPLATELIT_SUB *Token_rhino
-var Token_rhino_TEMPLATELIT_STRING *Token_rhino
-var Token_rhino_DEFAULT_VALUE *Token_rhino
-var Token_rhino_NEW_TARGET *Token_rhino
-var Token_rhino_IMPORT_META *Token_rhino
-var Token_rhino_STRING_TYPE *Token_rhino
-var Token_rhino_BOOLEAN_TYPE *Token_rhino
-var Token_rhino_NUMBER_TYPE *Token_rhino
-var Token_rhino_FUNCTION_TYPE *Token_rhino
-var Token_rhino_PARAMETERIZED_TYPE *Token_rhino
-var Token_rhino_UNION_TYPE *Token_rhino
-var Token_rhino_ANY_TYPE *Token_rhino
-var Token_rhino_NULLABLE_TYPE *Token_rhino
-var Token_rhino_VOID_TYPE *Token_rhino
-var Token_rhino_REST_PARAMETER_TYPE *Token_rhino
-var Token_rhino_NAMED_TYPE *Token_rhino
-var Token_rhino_OPTIONAL_PARAMETER *Token_rhino
-var Token_rhino_RECORD_TYPE *Token_rhino
-var Token_rhino_UNDEFINED_TYPE *Token_rhino
-var Token_rhino_ARRAY_TYPE *Token_rhino
-var Token_rhino_GENERIC_TYPE *Token_rhino
-var Token_rhino_GENERIC_TYPE_LIST *Token_rhino
-var Token_rhino_ANNOTATION *Token_rhino
-var Token_rhino_PIPE *Token_rhino
-var Token_rhino_STAR *Token_rhino
-var Token_rhino_EOC *Token_rhino
-var Token_rhino_QMARK *Token_rhino
-var Token_rhino_BANG *Token_rhino
-var Token_rhino_EQUALS *Token_rhino
-var Token_rhino_LB *Token_rhino
-var Token_rhino_LC *Token_rhino
-var Token_rhino_COLON *Token_rhino
-var Token_rhino_INTERFACE *Token_rhino
-var Token_rhino_INTERFACE_EXTENDS *Token_rhino
-var Token_rhino_INTERFACE_MEMBERS *Token_rhino
-var Token_rhino_ENUM *Token_rhino
-var Token_rhino_ENUM_MEMBERS *Token_rhino
-var Token_rhino_IMPLEMENTS *Token_rhino
-var Token_rhino_TYPE_ALIAS *Token_rhino
-var Token_rhino_DECLARE *Token_rhino
-var Token_rhino_MEMBER_VARIABLE_DEF *Token_rhino
-var Token_rhino_INDEX_SIGNATURE *Token_rhino
-var Token_rhino_CALL_SIGNATURE *Token_rhino
-var Token_rhino_NAMESPACE *Token_rhino
-var Token_rhino_NAMESPACE_ELEMENTS *Token_rhino
-var Token_rhino_PLACEHOLDER1 *Token_rhino
-var Token_rhino_PLACEHOLDER2 *Token_rhino
-var Token_rhino_PLACEHOLDER3 *Token_rhino
-var Token_rhino_values_ []*Token_rhino
-var Token_rhino_byOrd1_ [256]*Token_rhino
+const Token_rhino_RETURN Token_rhino = 1
+const Token_rhino_BITOR Token_rhino = 2
+const Token_rhino_BITXOR Token_rhino = 3
+const Token_rhino_BITAND Token_rhino = 4
+const Token_rhino_EQ Token_rhino = 5
+const Token_rhino_NE Token_rhino = 6
+const Token_rhino_LT Token_rhino = 7
+const Token_rhino_LE Token_rhino = 8
+const Token_rhino_GT Token_rhino = 9
+const Token_rhino_GE Token_rhino = 10
+const Token_rhino_LSH Token_rhino = 11
+const Token_rhino_RSH Token_rhino = 12
+const Token_rhino_URSH Token_rhino = 13
+const Token_rhino_ADD Token_rhino = 14
+const Token_rhino_SUB Token_rhino = 15
+const Token_rhino_MUL Token_rhino = 16
+const Token_rhino_DIV Token_rhino = 17
+const Token_rhino_MOD Token_rhino = 18
+const Token_rhino_EXPONENT Token_rhino = 19
+const Token_rhino_NOT Token_rhino = 20
+const Token_rhino_BITNOT Token_rhino = 21
+const Token_rhino_POS Token_rhino = 22
+const Token_rhino_NEG Token_rhino = 23
+const Token_rhino_NEW Token_rhino = 24
+const Token_rhino_DELPROP Token_rhino = 25
+const Token_rhino_TYPEOF Token_rhino = 26
+const Token_rhino_GETPROP Token_rhino = 27
+const Token_rhino_GETELEM Token_rhino = 28
+const Token_rhino_CALL Token_rhino = 29
+const Token_rhino_OPTCHAIN_GETPROP Token_rhino = 30
+const Token_rhino_OPTCHAIN_GETELEM Token_rhino = 31
+const Token_rhino_OPTCHAIN_CALL Token_rhino = 32
+const Token_rhino_NAME Token_rhino = 33
+const Token_rhino_NUMBER Token_rhino = 34
+const Token_rhino_BIGINT Token_rhino = 35
+const Token_rhino_STRINGLIT Token_rhino = 36
+const Token_rhino_NULL Token_rhino = 37
+const Token_rhino_THIS Token_rhino = 38
+const Token_rhino_FALSE Token_rhino = 39
+const Token_rhino_TRUE Token_rhino = 40
+const Token_rhino_SHEQ Token_rhino = 41
+const Token_rhino_SHNE Token_rhino = 42
+const Token_rhino_REGEXP Token_rhino = 43
+const Token_rhino_THROW Token_rhino = 44
+const Token_rhino_IN Token_rhino = 45
+const Token_rhino_INSTANCEOF Token_rhino = 46
+const Token_rhino_ARRAYLIT Token_rhino = 47
+const Token_rhino_OBJECTLIT Token_rhino = 48
+const Token_rhino_TRY Token_rhino = 49
+const Token_rhino_PARAM_LIST Token_rhino = 50
+const Token_rhino_COMMA Token_rhino = 51
+const Token_rhino_ASSIGN Token_rhino = 52
+const Token_rhino_ASSIGN_BITOR Token_rhino = 53
+const Token_rhino_ASSIGN_BITXOR Token_rhino = 54
+const Token_rhino_ASSIGN_BITAND Token_rhino = 55
+const Token_rhino_ASSIGN_LSH Token_rhino = 56
+const Token_rhino_ASSIGN_RSH Token_rhino = 57
+const Token_rhino_ASSIGN_URSH Token_rhino = 58
+const Token_rhino_ASSIGN_ADD Token_rhino = 59
+const Token_rhino_ASSIGN_SUB Token_rhino = 60
+const Token_rhino_ASSIGN_MUL Token_rhino = 61
+const Token_rhino_ASSIGN_DIV Token_rhino = 62
+const Token_rhino_ASSIGN_MOD Token_rhino = 63
+const Token_rhino_ASSIGN_EXPONENT Token_rhino = 64
+const Token_rhino_ASSIGN_OR Token_rhino = 65
+const Token_rhino_ASSIGN_AND Token_rhino = 66
+const Token_rhino_ASSIGN_COALESCE Token_rhino = 67
+const Token_rhino_HOOK Token_rhino = 68
+const Token_rhino_OR Token_rhino = 69
+const Token_rhino_AND Token_rhino = 70
+const Token_rhino_COALESCE Token_rhino = 71
+const Token_rhino_INC Token_rhino = 72
+const Token_rhino_DEC Token_rhino = 73
+const Token_rhino_FUNCTION Token_rhino = 74
+const Token_rhino_IF Token_rhino = 75
+const Token_rhino_SWITCH Token_rhino = 76
+const Token_rhino_CASE Token_rhino = 77
+const Token_rhino_DEFAULT_CASE Token_rhino = 78
+const Token_rhino_WHILE Token_rhino = 79
+const Token_rhino_DO Token_rhino = 80
+const Token_rhino_FOR Token_rhino = 81
+const Token_rhino_FOR_IN Token_rhino = 82
+const Token_rhino_BREAK Token_rhino = 83
+const Token_rhino_CONTINUE Token_rhino = 84
+const Token_rhino_VAR Token_rhino = 85
+const Token_rhino_WITH Token_rhino = 86
+const Token_rhino_CATCH Token_rhino = 87
+const Token_rhino_VOID Token_rhino = 88
+const Token_rhino_EMPTY Token_rhino = 89
+const Token_rhino_ROOT Token_rhino = 90
+const Token_rhino_BLOCK Token_rhino = 91
+const Token_rhino_SWITCH_BODY Token_rhino = 92
+const Token_rhino_LABEL Token_rhino = 93
+const Token_rhino_EXPR_RESULT Token_rhino = 94
+const Token_rhino_SCRIPT Token_rhino = 95
+const Token_rhino_GETTER_DEF Token_rhino = 96
+const Token_rhino_SETTER_DEF Token_rhino = 97
+const Token_rhino_CONST Token_rhino = 98
+const Token_rhino_DEBUGGER Token_rhino = 99
+const Token_rhino_LABEL_NAME Token_rhino = 100
+const Token_rhino_STRING_KEY Token_rhino = 101
+const Token_rhino_CAST Token_rhino = 102
+const Token_rhino_ARRAY_PATTERN Token_rhino = 103
+const Token_rhino_OBJECT_PATTERN Token_rhino = 104
+const Token_rhino_DESTRUCTURING_LHS Token_rhino = 105
+const Token_rhino_CLASS Token_rhino = 106
+const Token_rhino_CLASS_MEMBERS Token_rhino = 107
+const Token_rhino_MEMBER_FUNCTION_DEF Token_rhino = 108
+const Token_rhino_MEMBER_FIELD_DEF Token_rhino = 109
+const Token_rhino_COMPUTED_FIELD_DEF Token_rhino = 110
+const Token_rhino_SUPER Token_rhino = 111
+const Token_rhino_LET Token_rhino = 112
+const Token_rhino_FOR_OF Token_rhino = 113
+const Token_rhino_FOR_AWAIT_OF Token_rhino = 114
+const Token_rhino_YIELD Token_rhino = 115
+const Token_rhino_AWAIT Token_rhino = 116
+const Token_rhino_IMPORT Token_rhino = 117
+const Token_rhino_IMPORT_SPECS Token_rhino = 118
+const Token_rhino_IMPORT_SPEC Token_rhino = 119
+const Token_rhino_IMPORT_STAR Token_rhino = 120
+const Token_rhino_EXPORT Token_rhino = 121
+const Token_rhino_EXPORT_SPECS Token_rhino = 122
+const Token_rhino_EXPORT_SPEC Token_rhino = 123
+const Token_rhino_MODULE_BODY Token_rhino = 124
+const Token_rhino_DYNAMIC_IMPORT Token_rhino = 125
+const Token_rhino_ITER_REST Token_rhino = 126
+const Token_rhino_OBJECT_REST Token_rhino = 127
+const Token_rhino_ITER_SPREAD Token_rhino = 128
+const Token_rhino_OBJECT_SPREAD Token_rhino = 129
+const Token_rhino_COMPUTED_PROP Token_rhino = 130
+const Token_rhino_TAGGED_TEMPLATELIT Token_rhino = 131
+const Token_rhino_TEMPLATELIT Token_rhino = 132
+const Token_rhino_TEMPLATELIT_SUB Token_rhino = 133
+const Token_rhino_TEMPLATELIT_STRING Token_rhino = 134
+const Token_rhino_DEFAULT_VALUE Token_rhino = 135
+const Token_rhino_NEW_TARGET Token_rhino = 136
+const Token_rhino_IMPORT_META Token_rhino = 137
+const Token_rhino_STRING_TYPE Token_rhino = 138
+const Token_rhino_BOOLEAN_TYPE Token_rhino = 139
+const Token_rhino_NUMBER_TYPE Token_rhino = 140
+const Token_rhino_FUNCTION_TYPE Token_rhino = 141
+const Token_rhino_PARAMETERIZED_TYPE Token_rhino = 142
+const Token_rhino_UNION_TYPE Token_rhino = 143
+const Token_rhino_ANY_TYPE Token_rhino = 144
+const Token_rhino_NULLABLE_TYPE Token_rhino = 145
+const Token_rhino_VOID_TYPE Token_rhino = 146
+const Token_rhino_REST_PARAMETER_TYPE Token_rhino = 147
+const Token_rhino_NAMED_TYPE Token_rhino = 148
+const Token_rhino_OPTIONAL_PARAMETER Token_rhino = 149
+const Token_rhino_RECORD_TYPE Token_rhino = 150
+const Token_rhino_UNDEFINED_TYPE Token_rhino = 151
+const Token_rhino_ARRAY_TYPE Token_rhino = 152
+const Token_rhino_GENERIC_TYPE Token_rhino = 153
+const Token_rhino_GENERIC_TYPE_LIST Token_rhino = 154
+const Token_rhino_ANNOTATION Token_rhino = 155
+const Token_rhino_PIPE Token_rhino = 156
+const Token_rhino_STAR Token_rhino = 157
+const Token_rhino_EOC Token_rhino = 158
+const Token_rhino_QMARK Token_rhino = 159
+const Token_rhino_BANG Token_rhino = 160
+const Token_rhino_EQUALS Token_rhino = 161
+const Token_rhino_LB Token_rhino = 162
+const Token_rhino_LC Token_rhino = 163
+const Token_rhino_COLON Token_rhino = 164
+const Token_rhino_INTERFACE Token_rhino = 165
+const Token_rhino_INTERFACE_EXTENDS Token_rhino = 166
+const Token_rhino_INTERFACE_MEMBERS Token_rhino = 167
+const Token_rhino_ENUM Token_rhino = 168
+const Token_rhino_ENUM_MEMBERS Token_rhino = 169
+const Token_rhino_IMPLEMENTS Token_rhino = 170
+const Token_rhino_TYPE_ALIAS Token_rhino = 171
+const Token_rhino_DECLARE Token_rhino = 172
+const Token_rhino_MEMBER_VARIABLE_DEF Token_rhino = 173
+const Token_rhino_INDEX_SIGNATURE Token_rhino = 174
+const Token_rhino_CALL_SIGNATURE Token_rhino = 175
+const Token_rhino_NAMESPACE Token_rhino = 176
+const Token_rhino_NAMESPACE_ELEMENTS Token_rhino = 177
+const Token_rhino_PLACEHOLDER1 Token_rhino = 178
+const Token_rhino_PLACEHOLDER2 Token_rhino = 179
+const Token_rhino_PLACEHOLDER3 Token_rhino = 180
+
+var Token_rhino_values_ []Token_rhino
 
 var Token_rhino_clinit_done bool
 
@@ -254,190 +437,7 @@ func Token_rhino_clinit() {
 		return
 	}
 	Token_rhino_clinit_done = true
-	Token_rhino_RETURN = new_Token_rhino("RETURN", 0)
-	Token_rhino_BITOR = new_Token_rhino("BITOR", 1)
-	Token_rhino_BITXOR = new_Token_rhino("BITXOR", 2)
-	Token_rhino_BITAND = new_Token_rhino("BITAND", 3)
-	Token_rhino_EQ = new_Token_rhino("EQ", 4)
-	Token_rhino_NE = new_Token_rhino("NE", 5)
-	Token_rhino_LT = new_Token_rhino("LT", 6)
-	Token_rhino_LE = new_Token_rhino("LE", 7)
-	Token_rhino_GT = new_Token_rhino("GT", 8)
-	Token_rhino_GE = new_Token_rhino("GE", 9)
-	Token_rhino_LSH = new_Token_rhino("LSH", 10)
-	Token_rhino_RSH = new_Token_rhino("RSH", 11)
-	Token_rhino_URSH = new_Token_rhino("URSH", 12)
-	Token_rhino_ADD = new_Token_rhino("ADD", 13)
-	Token_rhino_SUB = new_Token_rhino("SUB", 14)
-	Token_rhino_MUL = new_Token_rhino("MUL", 15)
-	Token_rhino_DIV = new_Token_rhino("DIV", 16)
-	Token_rhino_MOD = new_Token_rhino("MOD", 17)
-	Token_rhino_EXPONENT = new_Token_rhino("EXPONENT", 18)
-	Token_rhino_NOT = new_Token_rhino("NOT", 19)
-	Token_rhino_BITNOT = new_Token_rhino("BITNOT", 20)
-	Token_rhino_POS = new_Token_rhino("POS", 21)
-	Token_rhino_NEG = new_Token_rhino("NEG", 22)
-	Token_rhino_NEW = new_Token_rhino("NEW", 23)
-	Token_rhino_DELPROP = new_Token_rhino("DELPROP", 24)
-	Token_rhino_TYPEOF = new_Token_rhino("TYPEOF", 25)
-	Token_rhino_GETPROP = new_Token_rhino("GETPROP", 26)
-	Token_rhino_GETELEM = new_Token_rhino("GETELEM", 27)
-	Token_rhino_CALL = new_Token_rhino("CALL", 28)
-	Token_rhino_OPTCHAIN_GETPROP = new_Token_rhino("OPTCHAIN_GETPROP", 29)
-	Token_rhino_OPTCHAIN_GETELEM = new_Token_rhino("OPTCHAIN_GETELEM", 30)
-	Token_rhino_OPTCHAIN_CALL = new_Token_rhino("OPTCHAIN_CALL", 31)
-	Token_rhino_NAME = new_Token_rhino("NAME", 32)
-	Token_rhino_NUMBER = new_Token_rhino("NUMBER", 33)
-	Token_rhino_BIGINT = new_Token_rhino("BIGINT", 34)
-	Token_rhino_STRINGLIT = new_Token_rhino("STRINGLIT", 35)
-	Token_rhino_NULL = new_Token_rhino("NULL", 36)
-	Token_rhino_THIS = new_Token_rhino("THIS", 37)
-	Token_rhino_FALSE = new_Token_rhino("FALSE", 38)
-	Token_rhino_TRUE = new_Token_rhino("TRUE", 39)
-	Token_rhino_SHEQ = new_Token_rhino("SHEQ", 40)
-	Token_rhino_SHNE = new_Token_rhino("SHNE", 41)
-	Token_rhino_REGEXP = new_Token_rhino("REGEXP", 42)
-	Token_rhino_THROW = new_Token_rhino("THROW", 43)
-	Token_rhino_IN = new_Token_rhino("IN", 44)
-	Token_rhino_INSTANCEOF = new_Token_rhino("INSTANCEOF", 45)
-	Token_rhino_ARRAYLIT = new_Token_rhino("ARRAYLIT", 46)
-	Token_rhino_OBJECTLIT = new_Token_rhino("OBJECTLIT", 47)
-	Token_rhino_TRY = new_Token_rhino("TRY", 48)
-	Token_rhino_PARAM_LIST = new_Token_rhino("PARAM_LIST", 49)
-	Token_rhino_COMMA = new_Token_rhino("COMMA", 50)
-	Token_rhino_ASSIGN = new_Token_rhino("ASSIGN", 51)
-	Token_rhino_ASSIGN_BITOR = new_Token_rhino("ASSIGN_BITOR", 52)
-	Token_rhino_ASSIGN_BITXOR = new_Token_rhino("ASSIGN_BITXOR", 53)
-	Token_rhino_ASSIGN_BITAND = new_Token_rhino("ASSIGN_BITAND", 54)
-	Token_rhino_ASSIGN_LSH = new_Token_rhino("ASSIGN_LSH", 55)
-	Token_rhino_ASSIGN_RSH = new_Token_rhino("ASSIGN_RSH", 56)
-	Token_rhino_ASSIGN_URSH = new_Token_rhino("ASSIGN_URSH", 57)
-	Token_rhino_ASSIGN_ADD = new_Token_rhino("ASSIGN_ADD", 58)
-	Token_rhino_ASSIGN_SUB = new_Token_rhino("ASSIGN_SUB", 59)
-	Token_rhino_ASSIGN_MUL = new_Token_rhino("ASSIGN_MUL", 60)
-	Token_rhino_ASSIGN_DIV = new_Token_rhino("ASSIGN_DIV", 61)
-	Token_rhino_ASSIGN_MOD = new_Token_rhino("ASSIGN_MOD", 62)
-	Token_rhino_ASSIGN_EXPONENT = new_Token_rhino("ASSIGN_EXPONENT", 63)
-	Token_rhino_ASSIGN_OR = new_Token_rhino("ASSIGN_OR", 64)
-	Token_rhino_ASSIGN_AND = new_Token_rhino("ASSIGN_AND", 65)
-	Token_rhino_ASSIGN_COALESCE = new_Token_rhino("ASSIGN_COALESCE", 66)
-	Token_rhino_HOOK = new_Token_rhino("HOOK", 67)
-	Token_rhino_OR = new_Token_rhino("OR", 68)
-	Token_rhino_AND = new_Token_rhino("AND", 69)
-	Token_rhino_COALESCE = new_Token_rhino("COALESCE", 70)
-	Token_rhino_INC = new_Token_rhino("INC", 71)
-	Token_rhino_DEC = new_Token_rhino("DEC", 72)
-	Token_rhino_FUNCTION = new_Token_rhino("FUNCTION", 73)
-	Token_rhino_IF = new_Token_rhino("IF", 74)
-	Token_rhino_SWITCH = new_Token_rhino("SWITCH", 75)
-	Token_rhino_CASE = new_Token_rhino("CASE", 76)
-	Token_rhino_DEFAULT_CASE = new_Token_rhino("DEFAULT_CASE", 77)
-	Token_rhino_WHILE = new_Token_rhino("WHILE", 78)
-	Token_rhino_DO = new_Token_rhino("DO", 79)
-	Token_rhino_FOR = new_Token_rhino("FOR", 80)
-	Token_rhino_FOR_IN = new_Token_rhino("FOR_IN", 81)
-	Token_rhino_BREAK = new_Token_rhino("BREAK", 82)
-	Token_rhino_CONTINUE = new_Token_rhino("CONTINUE", 83)
-	Token_rhino_VAR = new_Token_rhino("VAR", 84)
-	Token_rhino_WITH = new_Token_rhino("WITH", 85)
-	Token_rhino_CATCH = new_Token_rhino("CATCH", 86)
-	Token_rhino_VOID = new_Token_rhino("VOID", 87)
-	Token_rhino_EMPTY = new_Token_rhino("EMPTY", 88)
-	Token_rhino_ROOT = new_Token_rhino("ROOT", 89)
-	Token_rhino_BLOCK = new_Token_rhino("BLOCK", 90)
-	Token_rhino_SWITCH_BODY = new_Token_rhino("SWITCH_BODY", 91)
-	Token_rhino_LABEL = new_Token_rhino("LABEL", 92)
-	Token_rhino_EXPR_RESULT = new_Token_rhino("EXPR_RESULT", 93)
-	Token_rhino_SCRIPT = new_Token_rhino("SCRIPT", 94)
-	Token_rhino_GETTER_DEF = new_Token_rhino("GETTER_DEF", 95)
-	Token_rhino_SETTER_DEF = new_Token_rhino("SETTER_DEF", 96)
-	Token_rhino_CONST = new_Token_rhino("CONST", 97)
-	Token_rhino_DEBUGGER = new_Token_rhino("DEBUGGER", 98)
-	Token_rhino_LABEL_NAME = new_Token_rhino("LABEL_NAME", 99)
-	Token_rhino_STRING_KEY = new_Token_rhino("STRING_KEY", 100)
-	Token_rhino_CAST = new_Token_rhino("CAST", 101)
-	Token_rhino_ARRAY_PATTERN = new_Token_rhino("ARRAY_PATTERN", 102)
-	Token_rhino_OBJECT_PATTERN = new_Token_rhino("OBJECT_PATTERN", 103)
-	Token_rhino_DESTRUCTURING_LHS = new_Token_rhino("DESTRUCTURING_LHS", 104)
-	Token_rhino_CLASS = new_Token_rhino("CLASS", 105)
-	Token_rhino_CLASS_MEMBERS = new_Token_rhino("CLASS_MEMBERS", 106)
-	Token_rhino_MEMBER_FUNCTION_DEF = new_Token_rhino("MEMBER_FUNCTION_DEF", 107)
-	Token_rhino_MEMBER_FIELD_DEF = new_Token_rhino("MEMBER_FIELD_DEF", 108)
-	Token_rhino_COMPUTED_FIELD_DEF = new_Token_rhino("COMPUTED_FIELD_DEF", 109)
-	Token_rhino_SUPER = new_Token_rhino("SUPER", 110)
-	Token_rhino_LET = new_Token_rhino("LET", 111)
-	Token_rhino_FOR_OF = new_Token_rhino("FOR_OF", 112)
-	Token_rhino_FOR_AWAIT_OF = new_Token_rhino("FOR_AWAIT_OF", 113)
-	Token_rhino_YIELD = new_Token_rhino("YIELD", 114)
-	Token_rhino_AWAIT = new_Token_rhino("AWAIT", 115)
-	Token_rhino_IMPORT = new_Token_rhino("IMPORT", 116)
-	Token_rhino_IMPORT_SPECS = new_Token_rhino("IMPORT_SPECS", 117)
-	Token_rhino_IMPORT_SPEC = new_Token_rhino("IMPORT_SPEC", 118)
-	Token_rhino_IMPORT_STAR = new_Token_rhino("IMPORT_STAR", 119)
-	Token_rhino_EXPORT = new_Token_rhino("EXPORT", 120)
-	Token_rhino_EXPORT_SPECS = new_Token_rhino("EXPORT_SPECS", 121)
-	Token_rhino_EXPORT_SPEC = new_Token_rhino("EXPORT_SPEC", 122)
-	Token_rhino_MODULE_BODY = new_Token_rhino("MODULE_BODY", 123)
-	Token_rhino_DYNAMIC_IMPORT = new_Token_rhino("DYNAMIC_IMPORT", 124)
-	Token_rhino_ITER_REST = new_Token_rhino("ITER_REST", 125)
-	Token_rhino_OBJECT_REST = new_Token_rhino("OBJECT_REST", 126)
-	Token_rhino_ITER_SPREAD = new_Token_rhino("ITER_SPREAD", 127)
-	Token_rhino_OBJECT_SPREAD = new_Token_rhino("OBJECT_SPREAD", 128)
-	Token_rhino_COMPUTED_PROP = new_Token_rhino("COMPUTED_PROP", 129)
-	Token_rhino_TAGGED_TEMPLATELIT = new_Token_rhino("TAGGED_TEMPLATELIT", 130)
-	Token_rhino_TEMPLATELIT = new_Token_rhino("TEMPLATELIT", 131)
-	Token_rhino_TEMPLATELIT_SUB = new_Token_rhino("TEMPLATELIT_SUB", 132)
-	Token_rhino_TEMPLATELIT_STRING = new_Token_rhino("TEMPLATELIT_STRING", 133)
-	Token_rhino_DEFAULT_VALUE = new_Token_rhino("DEFAULT_VALUE", 134)
-	Token_rhino_NEW_TARGET = new_Token_rhino("NEW_TARGET", 135)
-	Token_rhino_IMPORT_META = new_Token_rhino("IMPORT_META", 136)
-	Token_rhino_STRING_TYPE = new_Token_rhino("STRING_TYPE", 137)
-	Token_rhino_BOOLEAN_TYPE = new_Token_rhino("BOOLEAN_TYPE", 138)
-	Token_rhino_NUMBER_TYPE = new_Token_rhino("NUMBER_TYPE", 139)
-	Token_rhino_FUNCTION_TYPE = new_Token_rhino("FUNCTION_TYPE", 140)
-	Token_rhino_PARAMETERIZED_TYPE = new_Token_rhino("PARAMETERIZED_TYPE", 141)
-	Token_rhino_UNION_TYPE = new_Token_rhino("UNION_TYPE", 142)
-	Token_rhino_ANY_TYPE = new_Token_rhino("ANY_TYPE", 143)
-	Token_rhino_NULLABLE_TYPE = new_Token_rhino("NULLABLE_TYPE", 144)
-	Token_rhino_VOID_TYPE = new_Token_rhino("VOID_TYPE", 145)
-	Token_rhino_REST_PARAMETER_TYPE = new_Token_rhino("REST_PARAMETER_TYPE", 146)
-	Token_rhino_NAMED_TYPE = new_Token_rhino("NAMED_TYPE", 147)
-	Token_rhino_OPTIONAL_PARAMETER = new_Token_rhino("OPTIONAL_PARAMETER", 148)
-	Token_rhino_RECORD_TYPE = new_Token_rhino("RECORD_TYPE", 149)
-	Token_rhino_UNDEFINED_TYPE = new_Token_rhino("UNDEFINED_TYPE", 150)
-	Token_rhino_ARRAY_TYPE = new_Token_rhino("ARRAY_TYPE", 151)
-	Token_rhino_GENERIC_TYPE = new_Token_rhino("GENERIC_TYPE", 152)
-	Token_rhino_GENERIC_TYPE_LIST = new_Token_rhino("GENERIC_TYPE_LIST", 153)
-	Token_rhino_ANNOTATION = new_Token_rhino("ANNOTATION", 154)
-	Token_rhino_PIPE = new_Token_rhino("PIPE", 155)
-	Token_rhino_STAR = new_Token_rhino("STAR", 156)
-	Token_rhino_EOC = new_Token_rhino("EOC", 157)
-	Token_rhino_QMARK = new_Token_rhino("QMARK", 158)
-	Token_rhino_BANG = new_Token_rhino("BANG", 159)
-	Token_rhino_EQUALS = new_Token_rhino("EQUALS", 160)
-	Token_rhino_LB = new_Token_rhino("LB", 161)
-	Token_rhino_LC = new_Token_rhino("LC", 162)
-	Token_rhino_COLON = new_Token_rhino("COLON", 163)
-	Token_rhino_INTERFACE = new_Token_rhino("INTERFACE", 164)
-	Token_rhino_INTERFACE_EXTENDS = new_Token_rhino("INTERFACE_EXTENDS", 165)
-	Token_rhino_INTERFACE_MEMBERS = new_Token_rhino("INTERFACE_MEMBERS", 166)
-	Token_rhino_ENUM = new_Token_rhino("ENUM", 167)
-	Token_rhino_ENUM_MEMBERS = new_Token_rhino("ENUM_MEMBERS", 168)
-	Token_rhino_IMPLEMENTS = new_Token_rhino("IMPLEMENTS", 169)
-	Token_rhino_TYPE_ALIAS = new_Token_rhino("TYPE_ALIAS", 170)
-	Token_rhino_DECLARE = new_Token_rhino("DECLARE", 171)
-	Token_rhino_MEMBER_VARIABLE_DEF = new_Token_rhino("MEMBER_VARIABLE_DEF", 172)
-	Token_rhino_INDEX_SIGNATURE = new_Token_rhino("INDEX_SIGNATURE", 173)
-	Token_rhino_CALL_SIGNATURE = new_Token_rhino("CALL_SIGNATURE", 174)
-	Token_rhino_NAMESPACE = new_Token_rhino("NAMESPACE", 175)
-	Token_rhino_NAMESPACE_ELEMENTS = new_Token_rhino("NAMESPACE_ELEMENTS", 176)
-	Token_rhino_PLACEHOLDER1 = new_Token_rhino("PLACEHOLDER1", 177)
-	Token_rhino_PLACEHOLDER2 = new_Token_rhino("PLACEHOLDER2", 178)
-	Token_rhino_PLACEHOLDER3 = new_Token_rhino("PLACEHOLDER3", 179)
-	Token_rhino_values_ = []*Token_rhino{Token_rhino_RETURN, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_EQ, Token_rhino_NE, Token_rhino_LT, Token_rhino_LE, Token_rhino_GT, Token_rhino_GE, Token_rhino_LSH, Token_rhino_RSH, Token_rhino_URSH, Token_rhino_ADD, Token_rhino_SUB, Token_rhino_MUL, Token_rhino_DIV, Token_rhino_MOD, Token_rhino_EXPONENT, Token_rhino_NOT, Token_rhino_BITNOT, Token_rhino_POS, Token_rhino_NEG, Token_rhino_NEW, Token_rhino_DELPROP, Token_rhino_TYPEOF, Token_rhino_GETPROP, Token_rhino_GETELEM, Token_rhino_CALL, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_CALL, Token_rhino_NAME, Token_rhino_NUMBER, Token_rhino_BIGINT, Token_rhino_STRINGLIT, Token_rhino_NULL, Token_rhino_THIS, Token_rhino_FALSE, Token_rhino_TRUE, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_REGEXP, Token_rhino_THROW, Token_rhino_IN, Token_rhino_INSTANCEOF, Token_rhino_ARRAYLIT, Token_rhino_OBJECTLIT, Token_rhino_TRY, Token_rhino_PARAM_LIST, Token_rhino_COMMA, Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_EXPONENT, Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_COALESCE, Token_rhino_HOOK, Token_rhino_OR, Token_rhino_AND, Token_rhino_COALESCE, Token_rhino_INC, Token_rhino_DEC, Token_rhino_FUNCTION, Token_rhino_IF, Token_rhino_SWITCH, Token_rhino_CASE, Token_rhino_DEFAULT_CASE, Token_rhino_WHILE, Token_rhino_DO, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_BREAK, Token_rhino_CONTINUE, Token_rhino_VAR, Token_rhino_WITH, Token_rhino_CATCH, Token_rhino_VOID, Token_rhino_EMPTY, Token_rhino_ROOT, Token_rhino_BLOCK, Token_rhino_SWITCH_BODY, Token_rhino_LABEL, Token_rhino_EXPR_RESULT, Token_rhino_SCRIPT, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_CONST, Token_rhino_DEBUGGER, Token_rhino_LABEL_NAME, Token_rhino_STRING_KEY, Token_rhino_CAST, Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN, Token_rhino_DESTRUCTURING_LHS, Token_rhino_CLASS, Token_rhino_CLASS_MEMBERS, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_SUPER, Token_rhino_LET, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_YIELD, Token_rhino_AWAIT, Token_rhino_IMPORT, Token_rhino_IMPORT_SPECS, Token_rhino_IMPORT_SPEC, Token_rhino_IMPORT_STAR, Token_rhino_EXPORT, Token_rhino_EXPORT_SPECS, Token_rhino_EXPORT_SPEC, Token_rhino_MODULE_BODY, Token_rhino_DYNAMIC_IMPORT, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST, Token_rhino_ITER_SPREAD, Token_rhino_OBJECT_SPREAD, Token_rhino_COMPUTED_PROP, Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_TEMPLATELIT, Token_rhino_TEMPLATELIT_SUB, Token_rhino_TEMPLATELIT_STRING, Token_rhino_DEFAULT_VALUE, Token_rhino_NEW_TARGET, Token_rhino_IMPORT_META, Token_rhino_STRING_TYPE, Token_rhino_BOOLEAN_TYPE, Token_rhino_NUMBER_TYPE, Token_rhino_FUNCTION_TYPE, Token_rhino_PARAMETERIZED_TYPE, Token_rhino_UNION_TYPE, Token_rhino_ANY_TYPE, Token_rhino_NULLABLE_TYPE, Token_rhino_VOID_TYPE, Token_rhino_REST_PARAMETER_TYPE, Token_rhino_NAMED_TYPE, Token_rhino_OPTIONAL_PARAMETER, Token_rhino_RECORD_TYPE, Token_rhino_UNDEFINED_TYPE, Token_rhino_ARRAY_TYPE, Token_rhino_GENERIC_TYPE, Token_rhino_GENERIC_TYPE_LIST, Token_rhino_ANNOTATION, Token_rhino_PIPE, Token_rhino_STAR, Token_rhino_EOC, Token_rhino_QMARK, Token_rhino_BANG, Token_rhino_EQUALS, Token_rhino_LB, Token_rhino_LC, Token_rhino_COLON, Token_rhino_INTERFACE, Token_rhino_INTERFACE_EXTENDS, Token_rhino_INTERFACE_MEMBERS, Token_rhino_ENUM, Token_rhino_ENUM_MEMBERS, Token_rhino_IMPLEMENTS, Token_rhino_TYPE_ALIAS, Token_rhino_DECLARE, Token_rhino_MEMBER_VARIABLE_DEF, Token_rhino_INDEX_SIGNATURE, Token_rhino_CALL_SIGNATURE, Token_rhino_NAMESPACE, Token_rhino_NAMESPACE_ELEMENTS, Token_rhino_PLACEHOLDER1, Token_rhino_PLACEHOLDER2, Token_rhino_PLACEHOLDER3}
+	Token_rhino_values_ = []Token_rhino{Token_rhino_RETURN, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_EQ, Token_rhino_NE, Token_rhino_LT, Token_rhino_LE, Token_rhino_GT, Token_rhino_GE, Token_rhino_LSH, Token_rhino_RSH, Token_rhino_URSH, Token_rhino_ADD, Token_rhino_SUB, Token_rhino_MUL, Token_rhino_DIV, Token_rhino_MOD, Token_rhino_EXPONENT, Token_rhino_NOT, Token_rhino_BITNOT, Token_rhino_POS, Token_rhino_NEG, Token_rhino_NEW, Token_rhino_DELPROP, Token_rhino_TYPEOF, Token_rhino_GETPROP, Token_rhino_GETELEM, Token_rhino_CALL, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_CALL, Token_rhino_NAME, Token_rhino_NUMBER, Token_rhino_BIGINT, Token_rhino_STRINGLIT, Token_rhino_NULL, Token_rhino_THIS, Token_rhino_FALSE, Token_rhino_TRUE, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_REGEXP, Token_rhino_THROW, Token_rhino_IN, Token_rhino_INSTANCEOF, Token_rhino_ARRAYLIT, Token_rhino_OBJECTLIT, Token_rhino_TRY, Token_rhino_PARAM_LIST, Token_rhino_COMMA, Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_EXPONENT, Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_COALESCE, Token_rhino_HOOK, Token_rhino_OR, Token_rhino_AND, Token_rhino_COALESCE, Token_rhino_INC, Token_rhino_DEC, Token_rhino_FUNCTION, Token_rhino_IF, Token_rhino_SWITCH, Token_rhino_CASE, Token_rhino_DEFAULT_CASE, Token_rhino_WHILE, Token_rhino_DO, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_BREAK, Token_rhino_CONTINUE, Token_rhino_VAR, Token_rhino_WITH, Token_rhino_CATCH, Token_rhino_VOID, Token_rhino_EMPTY, Token_rhino_ROOT, Token_rhino_BLOCK, Token_rhino_SWITCH_BODY, Token_rhino_LABEL, Token_rhino_EXPR_RESULT, Token_rhino_SCRIPT, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_CONST, Token_rhino_DEBUGGER, Token_rhino_LABEL_NAME, Token_rhino_STRING_KEY, Token_rhino_CAST, Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN, Token_rhino_DESTRUCTURING_LHS, Token_rhino_CLASS, Token_rhino_CLASS_MEMBERS, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_SUPER, Token_rhino_LET, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_YIELD, Token_rhino_AWAIT, Token_rhino_IMPORT, Token_rhino_IMPORT_SPECS, Token_rhino_IMPORT_SPEC, Token_rhino_IMPORT_STAR, Token_rhino_EXPORT, Token_rhino_EXPORT_SPECS, Token_rhino_EXPORT_SPEC, Token_rhino_MODULE_BODY, Token_rhino_DYNAMIC_IMPORT, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST, Token_rhino_ITER_SPREAD, Token_rhino_OBJECT_SPREAD, Token_rhino_COMPUTED_PROP, Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_TEMPLATELIT, Token_rhino_TEMPLATELIT_SUB, Token_rhino_TEMPLATELIT_STRING, Token_rhino_DEFAULT_VALUE, Token_rhino_NEW_TARGET, Token_rhino_IMPORT_META, Token_rhino_STRING_TYPE, Token_rhino_BOOLEAN_TYPE, Token_rhino_NUMBER_TYPE, Token_rhino_FUNCTION_TYPE, Token_rhino_PARAMETERIZED_TYPE, Token_rhino_UNION_TYPE, Token_rhino_ANY_TYPE, Token_rhino_NULLABLE_TYPE, Token_rhino_VOID_TYPE, Token_rhino_REST_PARAMETER_TYPE, Token_rhino_NAMED_TYPE, Token_rhino_OPTIONAL_PARAMETER, Token_rhino_RECORD_TYPE, Token_rhino_UNDEFINED_TYPE, Token_rhino_ARRAY_TYPE, Token_rhino_GENERIC_TYPE, Token_rhino_GENERIC_TYPE_LIST, Token_rhino_ANNOTATION, Token_rhino_PIPE, Token_rhino_STAR, Token_rhino_EOC, Token_rhino_QMARK, Token_rhino_BANG, Token_rhino_EQUALS, Token_rhino_LB, Token_rhino_LC, Token_rhino_COLON, Token_rhino_INTERFACE, Token_rhino_INTERFACE_EXTENDS, Token_rhino_INTERFACE_MEMBERS, Token_rhino_ENUM, Token_rhino_ENUM_MEMBERS, Token_rhino_IMPLEMENTS, Token_rhino_TYPE_ALIAS, Token_rhino_DECLARE, Token_rhino_MEMBER_VARIABLE_DEF, Token_rhino_INDEX_SIGNATURE, Token_rhino_CALL_SIGNATURE, Token_rhino_NAMESPACE, Token_rhino_NAMESPACE_ELEMENTS, Token_rhino_PLACEHOLDER1, Token_rhino_PLACEHOLDER2, Token_rhino_PLACEHOLDER3}
 	registerEnum_("com.google.javascript.rhino.Token", enumValues_(Token_rhino_values_))
-	for i_, v_ := range Token_rhino_values_ {
-		Token_rhino_byOrd1_[i_+1] = v_
-	}
 
 }

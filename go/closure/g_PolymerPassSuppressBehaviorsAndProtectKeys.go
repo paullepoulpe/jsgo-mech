@@ -80,18 +80,16 @@ func PolymerPassSuppressBehaviorsAndProtectKeys_isBehavior(value Node) bool {
 }
 
 func (this *PolymerPassSuppressBehaviorsAndProtectKeys) stripPropertyTypes(behaviorValue Node) {
-	var properties ImmutableListOf[*PolymerPass_MemberDefinition] = PolymerPassStaticUtils_extractProperties(behaviorValue, PolymerClassDefinition_DefinitionType_ObjectLiteral, this.compiler_, 0)
-	it_1 := foreach_(obj_(properties))
-	for it_1.next() {
-		var property *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](it_1.v)
+	var properties *ImmutableList[*PolymerPass_MemberDefinition] = PolymerPassStaticUtils_extractProperties(behaviorValue, PolymerClassDefinition_DefinitionType_ObjectLiteral, this.compiler_, 0)
+	for _, el := range properties.items {
+		property := el
 		property.name_.setJSDocInfo(nil)
 	}
 }
 
 func (this *PolymerPassSuppressBehaviorsAndProtectKeys) suppressDefaultValues(behaviorValue Node) {
-	it_1 := foreach_(obj_(PolymerPassStaticUtils_extractProperties(behaviorValue, PolymerClassDefinition_DefinitionType_ObjectLiteral, this.compiler_, 0)))
-	for it_1.next() {
-		var property *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](it_1.v)
+	for _, el := range PolymerPassStaticUtils_extractProperties(behaviorValue, PolymerClassDefinition_DefinitionType_ObjectLiteral, this.compiler_, 0).items {
+		property := el
 		if !property.value_.isObjectLit() {
 			continue
 		}
@@ -118,6 +116,15 @@ func (this *PolymerPassSuppressBehaviorsAndProtectKeys) addBehaviorSuppressions(
 
 func (this *PolymerPassSuppressBehaviorsAndProtectKeys) addSuppressionJsDocAnnotations(node Node) {
 	var suppressDoc *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(node.getJSDocInfo())
-	suppressDoc.recordSuppressions(icast_Set(obj_(ImmutableSet_of_Object_Object_Object(strobj_("checkTypes"), strobj_("globalThis"), strobj_("visibility")))))
+	suppressDoc.recordSuppressions(ImmutableSet_of_Object_Object_Object(strobj_("checkTypes"), strobj_("globalThis"), strobj_("visibility")))
 	node.setJSDocInfo(suppressDoc.build())
+}
+
+// visit: an object that is exactly a PolymerPassSuppressBehaviorsAndProtectKeys calls its visit_impl directly (post-flip); others dispatch.
+func (this *PolymerPassSuppressBehaviorsAndProtectKeys) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*PolymerPassSuppressBehaviorsAndProtectKeys); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

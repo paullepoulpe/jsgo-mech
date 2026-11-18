@@ -4,22 +4,10 @@ package closure
 
 type RhinoErrorReporter struct {
 	self_            any
-	internalReporter ErrorHandler
+	internalReporter func(CheckLevel, *JSError)
 }
 
 func (this *RhinoErrorReporter) as_RhinoErrorReporter() *RhinoErrorReporter { return this }
-
-func to_RhinoErrorReporter(v any) *RhinoErrorReporter {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_RhinoErrorReporter() *RhinoErrorReporter }).as_RhinoErrorReporter()
-}
-
-func is_RhinoErrorReporter(v any) bool {
-	_, ok := v.(interface{ as_RhinoErrorReporter() *RhinoErrorReporter })
-	return ok
-}
 
 func (this *RhinoErrorReporter) self() any {
 	if this == nil {
@@ -28,11 +16,11 @@ func (this *RhinoErrorReporter) self() any {
 	return this.self_
 }
 
-func (this *RhinoErrorReporter) init_RhinoErrorReporter(internalReporter ErrorHandler) {
+func (this *RhinoErrorReporter) init_RhinoErrorReporter(internalReporter func(CheckLevel, *JSError)) {
 	this.internalReporter = internalReporter
 }
 
-func new_RhinoErrorReporter(internalReporter ErrorHandler) *RhinoErrorReporter {
+func new_RhinoErrorReporter(internalReporter func(CheckLevel, *JSError)) *RhinoErrorReporter {
 	this := &RhinoErrorReporter{}
 	this.self_ = this
 	this.init_RhinoErrorReporter(internalReporter)
@@ -41,37 +29,37 @@ func new_RhinoErrorReporter(internalReporter ErrorHandler) *RhinoErrorReporter {
 
 func RhinoErrorReporter_replacePlaceHolders(s string) *Pattern {
 	var parts []string = RhinoErrorReporter_PLACE_HOLDER.split_String_int(s, -1)
-	var regex *StringBuilder = new_StringBuilder_String(Pattern_quote(parts[0]))
+	var regex strBuilder_
+	regex.append(Pattern_quote(parts[0]))
 	for i := int32(1); i < int32(len(parts)); i++ {
 		regex.append(JavaRegex_DOT).append("*").append(Pattern_quote(parts[i]))
 	}
-	return Pattern_compile(Object_toString(obj_(regex)))
+	return Pattern_compile(regex.toString())
 }
 
-func RhinoErrorReporter_forOldRhino(internalReporter ErrorHandler) ErrorReporter_rhino {
-	return icast_ErrorReporter_rhino(obj_(new_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter)))
+func RhinoErrorReporter_forOldRhino(internalReporter func(CheckLevel, *JSError)) ErrorReporter_rhino {
+	return new_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter)
 }
 
 func (this *RhinoErrorReporter) warningAtLine(message string, sourceName Optional[string], line int32, lineOffset int32) {
-	this.internalReporter.report_2(nil, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_WARNING))
+	this.internalReporter(0, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_WARNING))
 }
 
 func (this *RhinoErrorReporter) errorAtLine(message string, sourceName Optional[string], line int32, lineOffset int32) {
-	this.internalReporter.report_2(nil, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_ERROR))
+	this.internalReporter(0, RhinoErrorReporter_makeError(message, sourceName, line, lineOffset, CheckLevel_ERROR))
 }
 
 func RhinoErrorReporter_mapError(message string) *DiagnosticType {
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](RhinoErrorReporter_typeMap.entrySet())))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		if cast_[*Pattern](entry.getKey()).matcher(strobj_(message)).matches() {
+	for _, el_1 := range immElems_(cast_[*ErasedImmutableSet](RhinoErrorReporter_typeMap.entrySet())) {
+		var entry Map_Entry = icast_Map_Entry(el_1)
+		if entry.getKey().(*Pattern).matcher_s(message).matches() {
 			return cast_[*DiagnosticType](entry.getValue())
 		}
 	}
 	return nil
 }
 
-func RhinoErrorReporter_makeError(message string, sourceName Optional[string], line int32, lineOffset int32, defaultLevel *CheckLevel) *JSError {
+func RhinoErrorReporter_makeError(message string, sourceName Optional[string], line int32, lineOffset int32, defaultLevel CheckLevel) *JSError {
 	var type_ *DiagnosticType = RhinoErrorReporter_mapError(message)
 	var builder *JSError_Builder = JSError_builder(func() *DiagnosticType {
 		if type_ != nil {
@@ -110,7 +98,7 @@ var RhinoErrorReporter_UNSUPPORTED_BOUNDED_GENERIC_TYPES *DiagnosticType
 var RhinoErrorReporter_BOUNDED_GENERIC_TYPE_ERROR *DiagnosticType
 var RhinoErrorReporter_CLOSURE_UNAWARE_ANNOTATION_PRESENT *DiagnosticType
 var RhinoErrorReporter_PLACE_HOLDER *Pattern
-var RhinoErrorReporter_typeMap *ImmutableMap
+var RhinoErrorReporter_typeMap *ErasedImmutableMap
 
 var RhinoErrorReporter_clinit_done bool
 
@@ -144,7 +132,7 @@ func RhinoErrorReporter_clinit() {
 	RhinoErrorReporter_BOUNDED_GENERIC_TYPE_ERROR = DiagnosticType_error("JSC_BOUNDED_GENERIC_TYPE_ERROR", "Bounded generic type error. {0} assigned to template type {1} is not a subtype of bound {2}")
 	RhinoErrorReporter_CLOSURE_UNAWARE_ANNOTATION_PRESENT = DiagnosticType_disabled("JSC_CLOSURE_UNAWARE_ANNOTATION_PRESENT", Msg_JSDOC_CLOSURE_UNAWARE_CODE_INVALID.format())
 	RhinoErrorReporter_PLACE_HOLDER = Pattern_compile("\\{\\d+\\}")
-	RhinoErrorReporter_typeMap = ImmutableMap_builder().put(obj_(Pattern_compile("Trailing comma is not legal in an ECMA-262 object initializer")), obj_(RhinoErrorReporter_TRAILING_COMMA)).put(obj_(RhinoErrorReporter_replacePlaceHolders("Duplicate parameter name \"{0}\"")), obj_(RhinoErrorReporter_DUPLICATE_PARAM)).put(obj_(RhinoErrorReporter_replacePlaceHolders(Msg_JSDOC_EXTRA_VISIBILITY.format())), obj_(RhinoErrorReporter_DUPLICATE_VISIBILITY)).put(obj_(Pattern_compile(("Unnecessary escape:"+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_UNNECESSARY_ESCAPE)).put(obj_(Pattern_compile(("^invalid param name"+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_INVALID_PARAM)).put(obj_(RhinoErrorReporter_replacePlaceHolders(Msg_BAD_JSDOC_TAG.format())), obj_(RhinoErrorReporter_BAD_JSDOC_ANNOTATION)).put(obj_(Pattern_compile(("^Keywords and reserved words are not allowed as unquoted property"+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_INVALID_ES3_PROP_NAME)).put(obj_(Pattern_compile(("^Too many template parameters\n"+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_TOO_MANY_TEMPLATE_PARAMS)).put(obj_(Pattern_compile((sstr_(JavaRegex_DOT)+"*Type annotations should have curly braces"+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_JSDOC_MISSING_BRACES_WARNING)).put(obj_(Pattern_compile("Missing type declaration\\.")), obj_(RhinoErrorReporter_JSDOC_MISSING_TYPE_WARNING)).put(obj_(Pattern_compile((sstr_(JavaRegex_DOT)+"*Unknown type"+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_UNRECOGNIZED_TYPE_ERROR)).put(obj_(Pattern_compile((sstr_(JavaRegex_DOT)+"*Unknown type"+sstr_(JavaRegex_DOT)+"*\n"+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_UNRECOGNIZED_TYPE_ERROR)).put(obj_(Pattern_compile(("^Missing type for `typeof` value"+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_UNRECOGNIZED_TYPEOF_ERROR)).put(obj_(Pattern_compile(("^Cycle detected in inheritance chain of type "+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_CYCLIC_INHERITANCE_ERROR)).put(obj_(Pattern_compile(("^Bad type annotation"+sstr_(JavaRegex_DOT)+" Import in typedef"+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_JSDOC_IMPORT_TYPE_WARNING)).put(obj_(Pattern_compile(("^Bad type annotation"+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_TYPE_PARSE_ERROR)).put(obj_(Pattern_compile("constructed type must be an object type")), obj_(RhinoErrorReporter_TYPE_PARSE_ERROR)).put(obj_(Pattern_compile("Too deep recursion while parsing")), obj_(RhinoErrorReporter_PARSE_TREE_TOO_DEEP)).put(obj_(Pattern_compile(("^Octal "+sstr_(JavaRegex_DOT)+"*literal"+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_INVALID_OCTAL_LITERAL)).put(obj_(Pattern_compile(("^String continuations"+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_STRING_CONTINUATION)).put(obj_(Pattern_compile(("^This language feature is only supported for "+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_LANGUAGE_FEATURE)).put(obj_(Pattern_compile(("^This language feature is not currently supported by the compiler: "+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_UNSUPPORTED_LANGUAGE_FEATURE)).put(obj_(Pattern_compile("Bounded generic semantics are currently still in development")), obj_(RhinoErrorReporter_UNSUPPORTED_BOUNDED_GENERIC_TYPES)).put(obj_(Pattern_compile(("^Bounded generic type error"+sstr_(JavaRegex_DOT)+"*"))), obj_(RhinoErrorReporter_BOUNDED_GENERIC_TYPE_ERROR)).put(obj_(RhinoErrorReporter_replacePlaceHolders(Msg_JSDOC_CLOSURE_UNAWARE_CODE_INVALID.format())), obj_(RhinoErrorReporter_CLOSURE_UNAWARE_ANNOTATION_PRESENT)).buildOrThrow()
+	RhinoErrorReporter_typeMap = immutableMapBuilder_(tc_p_Pattern, tc_p_DiagnosticType).put(Pattern_compile("Trailing comma is not legal in an ECMA-262 object initializer"), RhinoErrorReporter_TRAILING_COMMA).put(RhinoErrorReporter_replacePlaceHolders("Duplicate parameter name \"{0}\""), RhinoErrorReporter_DUPLICATE_PARAM).put(RhinoErrorReporter_replacePlaceHolders(Msg_JSDOC_EXTRA_VISIBILITY.format()), RhinoErrorReporter_DUPLICATE_VISIBILITY).put(Pattern_compile(("Unnecessary escape:"+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_UNNECESSARY_ESCAPE).put(Pattern_compile(("^invalid param name"+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_INVALID_PARAM).put(RhinoErrorReporter_replacePlaceHolders(Msg_BAD_JSDOC_TAG.format()), RhinoErrorReporter_BAD_JSDOC_ANNOTATION).put(Pattern_compile(("^Keywords and reserved words are not allowed as unquoted property"+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_INVALID_ES3_PROP_NAME).put(Pattern_compile(("^Too many template parameters\n"+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_TOO_MANY_TEMPLATE_PARAMS).put(Pattern_compile((sstr_(JavaRegex_DOT)+"*Type annotations should have curly braces"+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_JSDOC_MISSING_BRACES_WARNING).put(Pattern_compile("Missing type declaration\\."), RhinoErrorReporter_JSDOC_MISSING_TYPE_WARNING).put(Pattern_compile((sstr_(JavaRegex_DOT)+"*Unknown type"+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_UNRECOGNIZED_TYPE_ERROR).put(Pattern_compile((sstr_(JavaRegex_DOT)+"*Unknown type"+sstr_(JavaRegex_DOT)+"*\n"+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_UNRECOGNIZED_TYPE_ERROR).put(Pattern_compile(("^Missing type for `typeof` value"+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_UNRECOGNIZED_TYPEOF_ERROR).put(Pattern_compile(("^Cycle detected in inheritance chain of type "+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_CYCLIC_INHERITANCE_ERROR).put(Pattern_compile(("^Bad type annotation"+sstr_(JavaRegex_DOT)+" Import in typedef"+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_JSDOC_IMPORT_TYPE_WARNING).put(Pattern_compile(("^Bad type annotation"+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_TYPE_PARSE_ERROR).put(Pattern_compile("constructed type must be an object type"), RhinoErrorReporter_TYPE_PARSE_ERROR).put(Pattern_compile("Too deep recursion while parsing"), RhinoErrorReporter_PARSE_TREE_TOO_DEEP).put(Pattern_compile(("^Octal "+sstr_(JavaRegex_DOT)+"*literal"+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_INVALID_OCTAL_LITERAL).put(Pattern_compile(("^String continuations"+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_STRING_CONTINUATION).put(Pattern_compile(("^This language feature is only supported for "+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_LANGUAGE_FEATURE).put(Pattern_compile(("^This language feature is not currently supported by the compiler: "+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_UNSUPPORTED_LANGUAGE_FEATURE).put(Pattern_compile("Bounded generic semantics are currently still in development"), RhinoErrorReporter_UNSUPPORTED_BOUNDED_GENERIC_TYPES).put(Pattern_compile(("^Bounded generic type error"+sstr_(JavaRegex_DOT)+"*")), RhinoErrorReporter_BOUNDED_GENERIC_TYPE_ERROR).put(RhinoErrorReporter_replacePlaceHolders(Msg_JSDOC_CLOSURE_UNAWARE_CODE_INVALID.format()), RhinoErrorReporter_CLOSURE_UNAWARE_ANNOTATION_PRESENT).buildOrThrowErased()
 
 }
 
@@ -159,11 +147,11 @@ func (this *RhinoErrorReporter_OldRhinoErrorReporter) up_RhinoErrorReporter() *R
 	return &this.RhinoErrorReporter
 }
 
-func (this *RhinoErrorReporter_OldRhinoErrorReporter) init_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter ErrorHandler) {
+func (this *RhinoErrorReporter_OldRhinoErrorReporter) init_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter func(CheckLevel, *JSError)) {
 	this.RhinoErrorReporter.init_RhinoErrorReporter(internalReporter)
 }
 
-func new_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter ErrorHandler) *RhinoErrorReporter_OldRhinoErrorReporter {
+func new_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter func(CheckLevel, *JSError)) *RhinoErrorReporter_OldRhinoErrorReporter {
 	this := &RhinoErrorReporter_OldRhinoErrorReporter{}
 	this.self_ = this
 	this.init_RhinoErrorReporter_OldRhinoErrorReporter(internalReporter)

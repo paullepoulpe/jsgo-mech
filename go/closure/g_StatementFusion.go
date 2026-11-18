@@ -56,18 +56,18 @@ func (this *StatementFusion) canFuseIntoOneStatement(block Node) bool {
 }
 
 func (this *StatementFusion) isFusableControlStatement(n Node) bool {
-	switch n.getToken() {
-	case Token_rhino_IF, Token_rhino_THROW, Token_rhino_SWITCH, Token_rhino_EXPR_RESULT:
+	switch n.ns_().token {
+	case tokOrd1_IF, tokOrd1_THROW, tokOrd1_SWITCH, tokOrd1_EXPR_RESULT:
 		return true
-	case Token_rhino_RETURN:
+	case tokOrd1_RETURN:
 		return n.hasChildren()
-	case Token_rhino_FOR:
+	case tokOrd1_FOR:
 		return !NodeUtil_isNameDeclaration(n.getFirstChild())
-	case Token_rhino_FOR_IN:
+	case tokOrd1_FOR_IN:
 		return !this.mayHaveSideEffects(n.getFirstChild())
-	case Token_rhino_LABEL:
+	case tokOrd1_LABEL:
 		return this.isFusableControlStatement(n.getLastChild())
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		return (((this.isASTNormalized() || NodeUtil_canMergeBlock(n)) && !n.isSyntheticBlock()) && this.isFusableControlStatement(n.getFirstChild()))
 	default:
 	}
@@ -93,20 +93,22 @@ func StatementFusion_fuseIntoOneStatement(first Node, last Node) Node {
 }
 
 func StatementFusion_fuseExpressionIntoControlFlowStatement(before Node, control Node) {
-	Preconditions_checkArgument_boolean_Object(before.isExprResult(), strobj_("before must be expression result"))
-	switch control.getToken() {
-	case Token_rhino_IF, Token_rhino_RETURN, Token_rhino_THROW, Token_rhino_SWITCH, Token_rhino_EXPR_RESULT, Token_rhino_FOR:
+	if !before.isExprResult() {
+		panic(new_IllegalArgumentException_String("before must be expression result"))
+	}
+	switch control.ns_().token {
+	case tokOrd1_IF, tokOrd1_RETURN, tokOrd1_THROW, tokOrd1_SWITCH, tokOrd1_EXPR_RESULT, tokOrd1_FOR:
 		before.detach()
 		StatementFusion_fuseExpressionIntoFirstChild(before.removeFirstChild(), control)
-	case Token_rhino_FOR_IN:
+	case tokOrd1_FOR_IN:
 		before.detach()
 		StatementFusion_fuseExpressionIntoSecondChild(before.removeFirstChild(), control)
-	case Token_rhino_LABEL:
+	case tokOrd1_LABEL:
 		StatementFusion_fuseExpressionIntoControlFlowStatement(before, control.getLastChild())
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		StatementFusion_fuseExpressionIntoControlFlowStatement(before, control.getFirstChild())
 	default:
-		panic(new_IllegalStateException_String("Statement fusion missing.").self())
+		panic(new_IllegalStateException_String("Statement fusion missing."))
 	}
 }
 
@@ -120,4 +122,12 @@ func StatementFusion_fuseExpressionIntoSecondChild(exp Node, stmt Node) {
 	var val Node = stmt.getSecondChild().detach()
 	var comma Node = AstManipulations_fuseExpressions(exp, val)
 	comma.insertAfter(stmt.getFirstChild())
+}
+
+// optimizeSubtree: an object that is exactly a StatementFusion calls its optimizeSubtree_impl directly (post-flip); others dispatch.
+func (this *StatementFusion) optimizeSubtree(p0 Node) Node {
+	if p, _ := this.self_.(*StatementFusion); p == this {
+		return this.optimizeSubtree_impl(p0)
+	}
+	return this.self_.optimizeSubtree_impl(p0)
 }

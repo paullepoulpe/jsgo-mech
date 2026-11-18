@@ -2,57 +2,75 @@
 
 package closure
 
-type Tri struct {
-	Enum
-	value_ int32
+import "strings"
+
+type Tri uint8
+
+// Tri_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var Tri_enum_ = [3]Enum{
+	{self_: Tri_FALSE, name_: "FALSE", ordinal_: 0},
+	{self_: Tri_UNKNOWN, name_: "UNKNOWN", ordinal_: 1},
+	{self_: Tri_TRUE, name_: "TRUE", ordinal_: 2},
 }
 
-func (this *Tri) up_Enum() *Enum {
-	if this == nil {
+var Tri_value__ [3]int32
+
+func (this Tri) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &Tri_enum_[this-1]
 }
 
-func (this *Tri) init_Tri(name_ string, ordinal_ int32, value int32) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.value_ = value
+func (this Tri) name() string { return this.enum_().name_ }
+
+func (this Tri) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_Tri(name_ string, ordinal_ int32, value int32) *Tri {
-	this := &Tri{}
-	this.self_ = this
-	this.init_Tri(name_, ordinal_, value)
+func (this Tri) compareTo(o any) int32 { return this.enum_().compareTo(o) }
+
+func (this Tri) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *Tri) or(x *Tri) *Tri {
-	return func() *Tri {
-		if this.value_ > x.value_ {
+func (this Tri) init_Tri(value int32) {
+	Tri_value__[this-1] = value
+}
+
+func (this Tri) or(x Tri) Tri {
+	return func() Tri {
+		if Tri_value__[this-1] > Tri_value__[x-1] {
 			return this
 		}
 		return x
 	}()
 }
 
-func (this *Tri) and(x *Tri) *Tri {
-	return func() *Tri {
-		if this.value_ < x.value_ {
+func (this Tri) and(x Tri) Tri {
+	return func() Tri {
+		if Tri_value__[this-1] < Tri_value__[x-1] {
 			return this
 		}
 		return x
 	}()
 }
 
-func (this *Tri) xor(x *Tri) *Tri {
-	return Tri_forInt(((-this.value_) * x.value_))
+func (this Tri) xor(x Tri) Tri {
+	return Tri_forInt(((-Tri_value__[this-1]) * Tri_value__[x-1]))
 }
 
-func (this *Tri) not() *Tri {
-	return Tri_forInt((-this.value_))
+func (this Tri) not() Tri {
+	return Tri_forInt((-Tri_value__[this-1]))
 }
 
-func (this *Tri) toBoolean(x bool) bool {
+func (this Tri) toBoolean(x bool) bool {
 	return func() bool {
 		switch this {
 		case Tri_FALSE:
@@ -62,12 +80,12 @@ func (this *Tri) toBoolean(x bool) bool {
 		case Tri_TRUE:
 			return true
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
-func Tri_forBoolean(x bool) *Tri {
-	return func() *Tri {
+func Tri_forBoolean(x bool) Tri {
+	return func() Tri {
 		if x {
 			return Tri_TRUE
 		}
@@ -75,32 +93,33 @@ func Tri_forBoolean(x bool) *Tri {
 	}()
 }
 
-func (this *Tri) toString() string {
-	return String_toLowerCase(this.name(), Locale_ROOT)
+func (this Tri) toString() string {
+	return strings.ToLower(this.name())
 }
 
-func Tri_forInt(x int32) *Tri {
+func Tri_forInt(x int32) Tri {
 	return Tri_VALUES[(x + 1)]
 }
 
-func Tri_values() []*Tri {
-	return append([]*Tri(nil), Tri_values_...)
+func Tri_values() []Tri {
+	return append([]Tri(nil), Tri_values_...)
 }
 
-func Tri_valueOf(name string) *Tri {
+func Tri_valueOf(name string) Tri {
 	for _, v := range Tri_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Tri", name))
 }
 
-var Tri_FALSE *Tri
-var Tri_UNKNOWN *Tri
-var Tri_TRUE *Tri
-var Tri_values_ []*Tri
-var Tri_VALUES []*Tri
+const Tri_FALSE Tri = 1
+const Tri_UNKNOWN Tri = 2
+const Tri_TRUE Tri = 3
+
+var Tri_values_ []Tri
+var Tri_VALUES []Tri
 
 var Tri_clinit_done bool
 
@@ -109,10 +128,10 @@ func Tri_clinit() {
 		return
 	}
 	Tri_clinit_done = true
-	Tri_FALSE = new_Tri("FALSE", 0, -1)
-	Tri_UNKNOWN = new_Tri("UNKNOWN", 1, 0)
-	Tri_TRUE = new_Tri("TRUE", 2, 1)
-	Tri_values_ = []*Tri{Tri_FALSE, Tri_UNKNOWN, Tri_TRUE}
+	Tri_FALSE.init_Tri(-1)
+	Tri_UNKNOWN.init_Tri(0)
+	Tri_TRUE.init_Tri(1)
+	Tri_values_ = []Tri{Tri_FALSE, Tri_UNKNOWN, Tri_TRUE}
 	registerEnum_("com.google.javascript.jscomp.base.Tri", enumValues_(Tri_values_))
 	Tri_VALUES = Tri_values()
 

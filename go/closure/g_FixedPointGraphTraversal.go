@@ -4,22 +4,17 @@ package closure
 
 type FixedPointGraphTraversal[N any, E any] struct {
 	callback           FixedPointGraphTraversal_EdgeCallback[N, E]
-	traversalDirection *FixedPointGraphTraversal_TraversalDirection
+	traversalDirection FixedPointGraphTraversal_TraversalDirection
 }
 
 func (this *FixedPointGraphTraversal[N, E]) isa_FixedPointGraphTraversal_() {}
 
-func is_FixedPointGraphTraversal(v any) bool {
-	_, ok := v.(interface{ isa_FixedPointGraphTraversal_() })
-	return ok
-}
-
-func (this *FixedPointGraphTraversal[N, E]) init_FixedPointGraphTraversal(callback FixedPointGraphTraversal_EdgeCallback[N, E], traversalDirection *FixedPointGraphTraversal_TraversalDirection) {
+func (this *FixedPointGraphTraversal[N, E]) init_FixedPointGraphTraversal(callback FixedPointGraphTraversal_EdgeCallback[N, E], traversalDirection FixedPointGraphTraversal_TraversalDirection) {
 	this.callback = callback
 	this.traversalDirection = traversalDirection
 }
 
-func new_FixedPointGraphTraversal[N any, E any](callback FixedPointGraphTraversal_EdgeCallback[N, E], traversalDirection *FixedPointGraphTraversal_TraversalDirection) *FixedPointGraphTraversal[N, E] {
+func new_FixedPointGraphTraversal[N any, E any](callback FixedPointGraphTraversal_EdgeCallback[N, E], traversalDirection FixedPointGraphTraversal_TraversalDirection) *FixedPointGraphTraversal[N, E] {
 	this := &FixedPointGraphTraversal[N, E]{}
 	this.init_FixedPointGraphTraversal(callback, traversalDirection)
 	return this
@@ -34,17 +29,15 @@ func FixedPointGraphTraversal_newReverseTraversal[NodeT any, EdgeT any](callback
 }
 
 func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint(graph *DiGraph[N]) {
-	var nodes SetOf[N] = icast_Set(obj_(new_LinkedHashSet()))
-	it_1 := foreach_(any(graph.getNodes()))
-	for it_1.next() {
-		var node DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](it_1.v)
+	var nodes SetOf[N] = new_LinkedHashSet()
+	for node := range elemsAs_[DiGraph_DiGraphNode[N]](graph.getNodes()) {
 		nodes.add(boxT_(node.getValue()))
 	}
 	this.computeFixedPointSet(graph, nodes)
 }
 
 func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint_2(graph *DiGraph[N], entry N) {
-	var entrySet SetOf[N] = icast_Set(obj_(new_LinkedHashSet()))
+	var entrySet SetOf[N] = new_LinkedHashSet()
 	entrySet.add(boxT_(entry))
 	this.computeFixedPointSet(graph, entrySet)
 }
@@ -54,44 +47,41 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph[
 	var nodeCount int64 = Math_min_long_long(int64(graph.getNodeCount()), FixedPointGraphTraversal_MAX_NODE_COUNT_FOR_ITERATION_LIMIT)
 	var maxIterations int64 = Math_max_long_long(((nodeCount * nodeCount) * nodeCount), 100)
 	var workSet LinkedHashSetOf[DiGraph_DiGraphNode[N]] = new_LinkedHashSet()
-	it_1 := foreach_(any(entrySet))
-	for it_1.next() {
-		var n N = junboxT_[N](it_1.v)
-		workSet.add(any(graph.getNode(n)))
+	for el_1 := range elems_(entrySet) {
+		var n N = junboxT_[N](el_1)
+		workSet.add(graph.getNode(n))
 	}
 	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
-		this.visitNode(cast_[DiGraph_DiGraphNode[N]](SequencedCollection_getFirst(icast_SequencedCollection(obj_(workSet)))), workSet)
+		this.visitNode(cast_[DiGraph_DiGraphNode[N]](SequencedCollection_getFirst(workSet)), workSet)
 	}
-	Preconditions_checkState_boolean_Object((cycleCount != maxIterations), strobj_(FixedPointGraphTraversal_NON_HALTING_ERROR_MSG))
+	if cycleCount == maxIterations {
+		panic(new_IllegalStateException_String(FixedPointGraphTraversal_NON_HALTING_ERROR_MSG))
+	}
 }
 
 func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N], workSet LinkedHashSetOf[DiGraph_DiGraphNode[N]]) {
-	workSet.remove_Object(any(node))
+	workSet.remove_Object(node)
 	switch this.traversalDirection {
 	case FixedPointGraphTraversal_TraversalDirection_OUTWARDS:
 		var sourceValue N = node.getValue()
-		it_2 := foreach_(any(node.getOutEdges()))
-		for it_2.next() {
-			var edge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_2.v)
+		for edge := range elemsAs_[DiGraph_DiGraphEdge[N]](node.getOutEdges()) {
 			var destValue N = edge.getDestination().getValue()
 			if this.callback.traverseEdge(sourceValue, junboxT_[E](edge.getValue()), destValue) {
-				workSet.add(any(edge.getDestination()))
+				workSet.add(edge.getDestination())
 			}
 		}
 		return
 	case FixedPointGraphTraversal_TraversalDirection_INWARDS:
 		var revSourceValue N = node.getValue()
-		it_4 := foreach_(any(node.getInEdges()))
-		for it_4.next() {
-			var edge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_4.v)
+		for edge := range elemsAs_[DiGraph_DiGraphEdge[N]](node.getInEdges()) {
 			var revDestValue N = edge.getSource().getValue()
 			if this.callback.traverseEdge(revSourceValue, junboxT_[E](edge.getValue()), revDestValue) {
-				workSet.add(any(edge.getSource()))
+				workSet.add(edge.getSource())
 			}
 		}
 		return
 	}
-	panic(new_AssertionError_Object(strobj_(("Unrecognized direction " + objstr_(obj_(this.traversalDirection))))).self())
+	panic(new_AssertionError_Object(strobj_(("Unrecognized direction " + tostr_(this.traversalDirection)))))
 }
 
 const FixedPointGraphTraversal_NON_HALTING_ERROR_MSG string = "Fixed point computation not halting"
@@ -109,44 +99,64 @@ func FixedPointGraphTraversal_clinit() {
 
 }
 
-type FixedPointGraphTraversal_TraversalDirection struct {
-	Enum
+type FixedPointGraphTraversal_TraversalDirection uint8
+
+// FixedPointGraphTraversal_TraversalDirection_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var FixedPointGraphTraversal_TraversalDirection_enum_ = [2]Enum{
+	{self_: FixedPointGraphTraversal_TraversalDirection_INWARDS, name_: "INWARDS", ordinal_: 0},
+	{self_: FixedPointGraphTraversal_TraversalDirection_OUTWARDS, name_: "OUTWARDS", ordinal_: 1},
 }
 
-func (this *FixedPointGraphTraversal_TraversalDirection) up_Enum() *Enum {
-	if this == nil {
+func (this FixedPointGraphTraversal_TraversalDirection) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &FixedPointGraphTraversal_TraversalDirection_enum_[this-1]
 }
 
-func (this *FixedPointGraphTraversal_TraversalDirection) init_FixedPointGraphTraversal_TraversalDirection(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this FixedPointGraphTraversal_TraversalDirection) name() string {
+	return this.enum_().name_
 }
 
-func new_FixedPointGraphTraversal_TraversalDirection(name_ string, ordinal_ int32) *FixedPointGraphTraversal_TraversalDirection {
-	this := &FixedPointGraphTraversal_TraversalDirection{}
-	this.self_ = this
-	this.init_FixedPointGraphTraversal_TraversalDirection(name_, ordinal_)
+func (this FixedPointGraphTraversal_TraversalDirection) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this FixedPointGraphTraversal_TraversalDirection) toString() string {
+	return this.enum_().name_
+}
+
+func (this FixedPointGraphTraversal_TraversalDirection) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this FixedPointGraphTraversal_TraversalDirection) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func FixedPointGraphTraversal_TraversalDirection_values() []*FixedPointGraphTraversal_TraversalDirection {
-	return append([]*FixedPointGraphTraversal_TraversalDirection(nil), FixedPointGraphTraversal_TraversalDirection_values_...)
+func FixedPointGraphTraversal_TraversalDirection_values() []FixedPointGraphTraversal_TraversalDirection {
+	return append([]FixedPointGraphTraversal_TraversalDirection(nil), FixedPointGraphTraversal_TraversalDirection_values_...)
 }
 
-func FixedPointGraphTraversal_TraversalDirection_valueOf(name string) *FixedPointGraphTraversal_TraversalDirection {
+func FixedPointGraphTraversal_TraversalDirection_valueOf(name string) FixedPointGraphTraversal_TraversalDirection {
 	for _, v := range FixedPointGraphTraversal_TraversalDirection_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("TraversalDirection", name))
 }
 
-var FixedPointGraphTraversal_TraversalDirection_INWARDS *FixedPointGraphTraversal_TraversalDirection
-var FixedPointGraphTraversal_TraversalDirection_OUTWARDS *FixedPointGraphTraversal_TraversalDirection
-var FixedPointGraphTraversal_TraversalDirection_values_ []*FixedPointGraphTraversal_TraversalDirection
+const FixedPointGraphTraversal_TraversalDirection_INWARDS FixedPointGraphTraversal_TraversalDirection = 1
+const FixedPointGraphTraversal_TraversalDirection_OUTWARDS FixedPointGraphTraversal_TraversalDirection = 2
+
+var FixedPointGraphTraversal_TraversalDirection_values_ []FixedPointGraphTraversal_TraversalDirection
 
 var FixedPointGraphTraversal_TraversalDirection_clinit_done bool
 
@@ -155,9 +165,7 @@ func FixedPointGraphTraversal_TraversalDirection_clinit() {
 		return
 	}
 	FixedPointGraphTraversal_TraversalDirection_clinit_done = true
-	FixedPointGraphTraversal_TraversalDirection_INWARDS = new_FixedPointGraphTraversal_TraversalDirection("INWARDS", 0)
-	FixedPointGraphTraversal_TraversalDirection_OUTWARDS = new_FixedPointGraphTraversal_TraversalDirection("OUTWARDS", 1)
-	FixedPointGraphTraversal_TraversalDirection_values_ = []*FixedPointGraphTraversal_TraversalDirection{FixedPointGraphTraversal_TraversalDirection_INWARDS, FixedPointGraphTraversal_TraversalDirection_OUTWARDS}
+	FixedPointGraphTraversal_TraversalDirection_values_ = []FixedPointGraphTraversal_TraversalDirection{FixedPointGraphTraversal_TraversalDirection_INWARDS, FixedPointGraphTraversal_TraversalDirection_OUTWARDS}
 	registerEnum_("com.google.javascript.jscomp.graph.FixedPointGraphTraversal.TraversalDirection", enumValues_(FixedPointGraphTraversal_TraversalDirection_values_))
 
 }

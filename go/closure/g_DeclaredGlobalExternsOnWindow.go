@@ -35,7 +35,7 @@ func new_DeclaredGlobalExternsOnWindow(compiler *AbstractCompiler) *DeclaredGlob
 }
 
 func (this *DeclaredGlobalExternsOnWindow) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, externs, this)
 	this.addWindowProperties()
 }
 
@@ -90,7 +90,7 @@ func DeclaredGlobalExternsOnWindow_addExtern(node Node, defineOnWindow bool) {
 			}
 			builder = JSDocInfo_Builder_copyFrom(oldJSDocInfo)
 		}
-		builder.recordSuppressions(icast_Set(obj_(ImmutableSet_of_Object_Object(strobj_("const"), strobj_("duplicate")))))
+		builder.recordSuppressions(ImmutableSet_of_Object_Object(strobj_("const"), strobj_("duplicate")))
 		var jsDocInfo *JSDocInfo = builder.build()
 		newNode.setJSDocInfo(jsDocInfo)
 	}
@@ -120,3 +120,12 @@ func (this *DeclaredGlobalExternsOnWindow) visit_impl(t *NodeTraversal, n Node, 
 }
 
 const DeclaredGlobalExternsOnWindow_WINDOW_NAME string = "window"
+
+// visit: an object that is exactly a DeclaredGlobalExternsOnWindow calls its visit_impl directly (post-flip); others dispatch.
+func (this *DeclaredGlobalExternsOnWindow) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*DeclaredGlobalExternsOnWindow); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
+}

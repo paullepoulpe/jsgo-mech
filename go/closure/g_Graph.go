@@ -28,11 +28,6 @@ type Graph_vt_[N any] interface {
 
 func (this *Graph[N]) isa_Graph_() {}
 
-func is_Graph(v any) bool {
-	_, ok := v.(interface{ isa_Graph_() })
-	return ok
-}
-
 func (this *Graph[N]) as_Graph() *Graph[N] { return this }
 
 func (this *Graph[N]) as_Graph_() any { return this }
@@ -72,23 +67,19 @@ func (this *Graph[N]) hasNode(n N) bool {
 func (this *Graph[N]) getNodeOrFail(val N) GraphNode[N] {
 	var node GraphNode[N] = this.getNode(val)
 	if node == nil {
-		panic(new_IllegalArgumentException_String((objstr_(boxT_(val)) + " does not exist in graph")).self())
+		panic(new_IllegalArgumentException_String((objstr_(boxT_(val)) + " does not exist in graph")))
 	}
 	return node
 }
 
 func (this *Graph[N]) clearNodeAnnotations() {
-	it_1 := foreach_(any(this.getNodes()))
-	for it_1.next() {
-		var n GraphNode[N] = cast_[GraphNode[N]](it_1.v)
+	for n := range elemsAs_[GraphNode[N]](this.getNodes()) {
 		n.setAnnotation(nil)
 	}
 }
 
 func (this *Graph[N]) clearEdgeAnnotations() {
-	it_1 := foreach_(any(this.getEdges()))
-	for it_1.next() {
-		var e Graph_GraphEdge[N] = cast_[Graph_GraphEdge[N]](it_1.v)
+	for e := range elemsAs_[Graph_GraphEdge[N]](this.getEdges()) {
 		e.setAnnotation(nil)
 	}
 }
@@ -101,7 +92,9 @@ func (this *Graph[N]) pushNodeAnnotations() {
 }
 
 func (this *Graph[N]) popNodeAnnotations() {
-	Preconditions_checkNotNull_Object_Object(any(this.nodeAnnotationStack.asDeque()), strobj_("Popping node annotations without pushing."))
+	if this.nodeAnnotationStack.asDeque() == nil {
+		panic(new_NullPointerException_String("Popping node annotations without pushing."))
+	}
 	Graph_popAnnotations(this.nodeAnnotationStack)
 }
 
@@ -113,24 +106,22 @@ func (this *Graph[N]) pushEdgeAnnotations() {
 }
 
 func (this *Graph[N]) popEdgeAnnotations() {
-	Preconditions_checkNotNull_Object_Object(any(this.edgeAnnotationStack.asDeque()), strobj_("Popping edge annotations without pushing."))
+	if this.edgeAnnotationStack.asDeque() == nil {
+		panic(new_NullPointerException_String("Popping edge annotations without pushing."))
+	}
 	Graph_popAnnotations(this.edgeAnnotationStack)
 }
 
 func Graph_pushAnnotations(stack *TDeque[*Graph_GraphAnnotationState], haveAnnotations CollectionOf[Annotatable]) {
 	stack.push(new_Graph_GraphAnnotationState(haveAnnotations.size()))
-	it_1 := foreach_(any(haveAnnotations))
-	for it_1.next() {
-		var h Annotatable = icast_Annotatable(it_1.v)
+	for h := range elemsBy_(haveAnnotations, icast_Annotatable) {
 		stack.peek().add(obj_(new_Graph_AnnotationState(h, Annotatable_getAnnotation(h))))
 		h.setAnnotation(nil)
 	}
 }
 
 func Graph_popAnnotations(stack *TDeque[*Graph_GraphAnnotationState]) {
-	it_1 := foreach_(obj_(stack.pop()))
-	for it_1.next() {
-		var as *Graph_AnnotationState = cast_[*Graph_AnnotationState](it_1.v)
+	for as := range elemsAs_[*Graph_AnnotationState](obj_(stack.pop())) {
 		as.first.setAnnotation(as.second)
 	}
 }
@@ -245,13 +236,8 @@ type Graph_SimpleSubGraph[N any, E any] struct {
 
 func (this *Graph_SimpleSubGraph[N, E]) isa_Graph_SimpleSubGraph_() {}
 
-func is_Graph_SimpleSubGraph(v any) bool {
-	_, ok := v.(interface{ isa_Graph_SimpleSubGraph_() })
-	return ok
-}
-
 func (this *Graph_SimpleSubGraph[N, E]) finit_Graph_SimpleSubGraph() {
-	this.nodes_ = icast_List(new_ArrayList_0().self())
+	this.nodes_ = new_ArrayList_0()
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) init_Graph_SimpleSubGraph(graph *Graph[N]) {
@@ -267,10 +253,10 @@ func new_Graph_SimpleSubGraph[N any, E any](graph *Graph[N]) *Graph_SimpleSubGra
 
 func (this *Graph_SimpleSubGraph[N, E]) isIndependentOf(value N) bool {
 	var node GraphNode[N] = this.graph.getNode(value)
-	it_1 := foreach_(any(this.nodes_))
+	it_1 := foreach_(this.nodes_)
 	for it_1.next() {
 		var n GraphNode[N] = cast_[GraphNode[N]](it_1.v)
-		if this.graph.getNeighborNodes(n.getValue()).contains(any(node)) {
+		if this.graph.getNeighborNodes(n.getValue()).contains(node) {
 			return false
 		}
 	}
@@ -278,5 +264,5 @@ func (this *Graph_SimpleSubGraph[N, E]) isIndependentOf(value N) bool {
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) addNode(value N) {
-	this.nodes_.add(any(this.graph.getNodeOrFail(value)))
+	this.nodes_.add(this.graph.getNodeOrFail(value))
 }

@@ -64,16 +64,24 @@ func (this *Scope) getParent_impl() *AbstractScope {
 }
 
 func (this *Scope) declare(name string, nameNode Node, input *CompilerInput) *Var {
-	Preconditions_checkArgument(!String_isEmpty(name))
-	Preconditions_checkState((cast_[*Var](this.getOwnSlot(name)) == nil))
+	if name == "" {
+		panic(new_IllegalArgumentException_0())
+	}
+	if cast_[*Var](this.getOwnSlot(name)) != nil {
+		panic(new_IllegalStateException_0())
+	}
 	var var_ *Var = new_Var(name, nameNode, this, this.getVarCount(), input, 0)
 	this.declareInternal(name, var_.up_AbstractVar())
 	return var_
 }
 
 func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition Node) *Var {
-	Preconditions_checkArgument(!String_isEmpty(name))
-	Preconditions_checkState_boolean_String_Object(this.isGlobal(), "Cannot declare implicit goog namespace in local scope %s", obj_(this))
+	if name == "" {
+		panic(new_IllegalArgumentException_0())
+	}
+	if !this.isGlobal() {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot declare implicit goog namespace in local scope %s", []any{obj_(this)})))
+	}
 	var var_ *Var = cast_[*Var](this.getOwnSlot(name))
 	if var_ == nil {
 		var_ = Var_createImplicitGoogNamespace(name, this, definition)
@@ -84,6 +92,38 @@ func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition 
 	return var_
 }
 
-func (this *Scope) makeImplicitVar_impl(var_ *AbstractScope_ImplicitVar) *AbstractVar {
-	return new_Var(var_.nameField, 0, this, -1, nil, 0).up_AbstractVar()
+func (this *Scope) makeImplicitVar_impl(var_ AbstractScope_ImplicitVar) *AbstractVar {
+	return new_Var(AbstractScope_ImplicitVar_nameField_[var_-1], 0, this, -1, nil, 0).up_AbstractVar()
+}
+
+// untyped: an object that is exactly a Scope calls its untyped_impl directly (post-flip); others dispatch.
+func (this *Scope) untyped() *Scope {
+	if p, _ := this.self_.(*Scope); p == this {
+		return this.untyped_impl()
+	}
+	return this.self_.untyped_impl()
+}
+
+// getDepth: an object that is exactly a Scope calls its getDepth_impl directly (post-flip); others dispatch.
+func (this *Scope) getDepth() int32 {
+	if p, _ := this.self_.(*Scope); p == this {
+		return this.getDepth_impl()
+	}
+	return this.self_.getDepth_impl()
+}
+
+// getParent: an object that is exactly a Scope calls its getParent_impl directly (post-flip); others dispatch.
+func (this *Scope) getParent() *AbstractScope {
+	if p, _ := this.self_.(*Scope); p == this {
+		return this.getParent_impl()
+	}
+	return this.self_.getParent_impl()
+}
+
+// makeImplicitVar: an object that is exactly a Scope calls its makeImplicitVar_impl directly (post-flip); others dispatch.
+func (this *Scope) makeImplicitVar(p0 AbstractScope_ImplicitVar) *AbstractVar {
+	if p, _ := this.self_.(*Scope); p == this {
+		return this.makeImplicitVar_impl(p0)
+	}
+	return this.self_.makeImplicitVar_impl(p0)
 }

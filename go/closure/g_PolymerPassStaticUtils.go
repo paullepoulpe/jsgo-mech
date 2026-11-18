@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PolymerPassStaticUtils struct {
 }
 
@@ -40,20 +42,24 @@ func PolymerPassStaticUtils_matches(n Node, name string) bool {
 }
 
 func PolymerPassStaticUtils_switchDollarSignPropsToBrackets(def Node, compiler *AbstractCompiler) {
-	Preconditions_checkState((def.isObjectLit() || def.isClassMembers()))
+	if !def.isObjectLit() && !def.isClassMembers() {
+		panic(new_IllegalStateException_0())
+	}
 	{
 		var keyNode Node = def.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var value Node = keyNode.getFirstChild()
 			if (value != 0) && value.isFunction() {
-				NodeUtil_visitPostOrder_Node_Visitor(value.getLastChild(), icast_NodeUtil_Visitor(obj_(new_PolymerPassStaticUtils_1(compiler))))
+				NodeUtil_visitPostOrder_Node_Visitor(value.getLastChild(), new_PolymerPassStaticUtils_1(compiler).visit)
 			}
 		}
 	}
 }
 
 func PolymerPassStaticUtils_quoteListenerAndHostAttributeKeys(objLit Node, compiler *AbstractCompiler) {
-	Preconditions_checkState(objLit.isObjectLit())
+	if !objLit.isObjectLit() {
+		panic(new_IllegalStateException_0())
+	}
 	{
 		var keyNode Node = objLit.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -77,7 +83,9 @@ func PolymerPassStaticUtils_quoteListenerAndHostAttributeKeys(objLit Node, compi
 }
 
 func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLit Node) {
-	Preconditions_checkState(behaviorObjLit.isObjectLit())
+	if !behaviorObjLit.isObjectLit() {
+		panic(new_IllegalStateException_0())
+	}
 	var methodsToProtect *JTSet[string] = jnewTSet_(jtc_string)
 	methodsToProtect.asSet().addAll(Collection(PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit).asSet()))
 	methodsToProtect.asSet().addAll(Collection(PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit).asSet()))
@@ -144,10 +152,10 @@ func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) *JT
 }
 
 func PolymerPassStaticUtils_extractMethodName(signature string) Optional[string] {
-	var openParenIndex int32 = String_indexOf(signature, 40)
+	var openParenIndex int32 = int32(strings.IndexByte(signature, '('))
 	return func() Optional[string] {
 		if openParenIndex > 0 {
-			return Optional_of[string](String_trim(String_substring(signature, 0, openParenIndex)))
+			return Optional_of[string](strings.Trim(signature[:openParenIndex], javaSpace_))
 		}
 		return Optional_empty[string]()
 	}()
@@ -160,20 +168,20 @@ func PolymerPassStaticUtils_addExportAndNoCollapseToKey(keyNode Node) {
 	keyNode.setJSDocInfo(newDocs.build())
 }
 
-func PolymerPassStaticUtils_extractProperties(descriptor Node, defType *PolymerClassDefinition_DefinitionType, compiler *AbstractCompiler, constructor Node) ImmutableListOf[*PolymerPass_MemberDefinition] {
+func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerClassDefinition_DefinitionType, compiler *AbstractCompiler, constructor Node) *ImmutableList[*PolymerPass_MemberDefinition] {
 	var properties Node = descriptor
 	if defType == PolymerClassDefinition_DefinitionType_ObjectLiteral {
 		properties = NodeUtil_getFirstPropMatchingKey(descriptor, "properties")
 	}
 	if properties == 0 {
-		return ImmutableList_of()
+		return immutableListOf_(tc_p_PolymerPass_MemberDefinition)
 	}
 	var constructorPropertyJsDoc *JTMap[string, *JSDocInfo] = jnewTMap_(jtc_string, jtc_p_JSDocInfo)
 	if constructor != 0 {
 		PolymerPassStaticUtils_collectConstructorPropertyJsDoc(constructor, constructorPropertyJsDoc)
 	}
 	var enclosingModule Node = NodeUtil_getEnclosingModuleIfPresent(descriptor)
-	var members ImmutableList_BuilderOf[*PolymerPass_MemberDefinition] = ImmutableList_builder()
+	var members *ImmutableList_Builder[*PolymerPass_MemberDefinition] = immutableListBuilder_(tc_p_PolymerPass_MemberDefinition)
 	{
 		var keyNode Node = properties.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -188,14 +196,16 @@ func PolymerPassStaticUtils_extractProperties(descriptor Node, defType *PolymerC
 			} else {
 				bestJsDoc = propertiesConfigJsDoc
 			}
-			members.add(obj_(new_PolymerPass_MemberDefinition(bestJsDoc, keyNode, keyNode.getFirstChild(), enclosingModule)))
+			members.add(new_PolymerPass_MemberDefinition(bestJsDoc, keyNode, keyNode.getFirstChild(), enclosingModule))
 		}
 	}
-	return cast_[*ImmutableList](obj_(members.build()))
+	return members.build()
 }
 
 func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ *JTMap[string, *JSDocInfo]) {
-	Preconditions_checkNotNull(node.box_())
+	if node == 0 {
+		panic(new_NullPointerException_0())
+	}
 	{
 		var child Node = node.getFirstChild()
 		for ; child != 0; child = child.getNext() {
@@ -250,7 +260,7 @@ func PolymerPassStaticUtils_getPolymerElementType(cls *PolymerClassDefinition) s
 		}
 		return CaseFormat_LOWER_HYPHEN.to(CaseFormat_UPPER_CAMEL, cls.nativeBaseElement.get())
 	}()
-	return String_format("Polymer%sElement", []any{strobj_(nativeElementName)})
+	return ("Polymer" + sstr_(nativeElementName) + "Element")
 }
 
 const PolymerPassStaticUtils_VIRTUAL_FILE string = "<PolymerPassStaticUtils.java>"

@@ -13,11 +13,6 @@ type CheckPathsBetweenNodes[N any, E any] struct {
 
 func (this *CheckPathsBetweenNodes[N, E]) isa_CheckPathsBetweenNodes_() {}
 
-func is_CheckPathsBetweenNodes(v any) bool {
-	_, ok := v.(interface{ isa_CheckPathsBetweenNodes_() })
-	return ok
-}
-
 func (this *CheckPathsBetweenNodes[N, E]) init_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean(graph *DiGraph[N], a DiGraph_DiGraphNode[N], b DiGraph_DiGraphNode[N], nodePredicate Predicate_baseOf[N], edgePredicate Predicate_baseOf[DiGraph_DiGraphEdge[N]], inclusive bool) {
 	this.graph = graph
 	this.start_ = a
@@ -70,9 +65,7 @@ func (this *CheckPathsBetweenNodes[N, E]) tearDown() {
 
 func (this *CheckPathsBetweenNodes[N, E]) discoverBackEdges(u DiGraph_DiGraphNode[N]) {
 	u.setAnnotation(CheckPathsBetweenNodes_GRAY)
-	it_1 := foreach_(any(u.getOutEdges()))
-	for it_1.next() {
-		var e DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_1.v)
+	for e := range elemsAs_[DiGraph_DiGraphEdge[N]](u.getOutEdges()) {
 		if this.ignoreEdge(e) {
 			continue
 		}
@@ -87,7 +80,7 @@ func (this *CheckPathsBetweenNodes[N, E]) discoverBackEdges(u DiGraph_DiGraphNod
 }
 
 func (this *CheckPathsBetweenNodes[N, E]) ignoreEdge(e DiGraph_DiGraphEdge[N]) bool {
-	return !this.edgePredicate.apply(any(e))
+	return !this.edgePredicate.apply(e)
 }
 
 func (this *CheckPathsBetweenNodes[N, E]) checkAllPathsWithoutBackEdges(a DiGraph_DiGraphNode[N], b DiGraph_DiGraphNode[N]) bool {
@@ -97,7 +90,7 @@ func (this *CheckPathsBetweenNodes[N, E]) checkAllPathsWithoutBackEdges(a DiGrap
 	if a == b {
 		return false
 	}
-	it_1 := foreach_(any(a.getOutEdges()))
+	it_1 := foreach_(a.getOutEdges())
 	for it_1.next() {
 		var e DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_1.v)
 		if Annotatable_getAnnotation(Annotatable(e)) == CheckPathsBetweenNodes_VISITED_EDGE {
@@ -125,7 +118,7 @@ func (this *CheckPathsBetweenNodes[N, E]) checkSomePathsWithoutBackEdges(a DiGra
 	if a == b {
 		return false
 	}
-	it_1 := foreach_(any(a.getOutEdges()))
+	it_1 := foreach_(a.getOutEdges())
 	for it_1.next() {
 		var e DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_1.v)
 		if Annotatable_getAnnotation(Annotatable(e)) == CheckPathsBetweenNodes_VISITED_EDGE {
@@ -159,11 +152,11 @@ func CheckPathsBetweenNodes_clinit() {
 		return
 	}
 	CheckPathsBetweenNodes_clinit_done = true
-	CheckPathsBetweenNodes_BACK_EDGE = icast_Annotation_graph(obj_(new_CheckPathsBetweenNodes_1()))
-	CheckPathsBetweenNodes_VISITED_EDGE = icast_Annotation_graph(obj_(new_CheckPathsBetweenNodes_2()))
+	CheckPathsBetweenNodes_BACK_EDGE = new_CheckPathsBetweenNodes_1()
+	CheckPathsBetweenNodes_VISITED_EDGE = new_CheckPathsBetweenNodes_2()
 	CheckPathsBetweenNodes_WHITE = nil
-	CheckPathsBetweenNodes_GRAY = icast_Annotation_graph(obj_(new_CheckPathsBetweenNodes_3()))
-	CheckPathsBetweenNodes_BLACK = icast_Annotation_graph(obj_(new_CheckPathsBetweenNodes_4()))
+	CheckPathsBetweenNodes_GRAY = new_CheckPathsBetweenNodes_3()
+	CheckPathsBetweenNodes_BLACK = new_CheckPathsBetweenNodes_4()
 
 }
 

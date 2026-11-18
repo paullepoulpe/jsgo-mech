@@ -6,30 +6,32 @@ type AliasStrings struct {
 	compiler_                 *AbstractCompiler
 	chunkGraph                *JSChunkGraph
 	outputStringUsageField    bool
-	stringInfoMap             SortedMapOf[string, *AliasStrings_StringInfo]
+	stringInfoMap             *TTreeMap[string, *AliasStrings_StringInfo]
 	usedHashedAliases         *JTSet[string]
-	aliasStringsMode          *CompilerOptions_AliasStringsMode
+	aliasStringsMode          CompilerOptions_AliasStringsMode
 	chunkVarParentMap         *JTMap[*JSChunk, Node]
 	unitTestHashReductionMask int32
 }
 
 func (this *AliasStrings) finit_AliasStrings() {
-	this.stringInfoMap = icast_SortedMap(obj_(new_TreeMap()))
+	this.stringInfoMap = newTTreeMap_(tc_string, tc_p_AliasStrings_StringInfo)
 	this.usedHashedAliases = jnewTSet_(jtc_string)
 	this.chunkVarParentMap = jnewTMap_(jtc_p_JSChunk, jtc_Node)
 	this.unitTestHashReductionMask = -1
 }
 
-func (this *AliasStrings) init_AliasStrings(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, outputStringUsage bool, aliasStringsMode *CompilerOptions_AliasStringsMode) {
+func (this *AliasStrings) init_AliasStrings(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, outputStringUsage bool, aliasStringsMode CompilerOptions_AliasStringsMode) {
 	this.finit_AliasStrings()
 	this.compiler_ = compiler
 	this.chunkGraph = chunkGraph
 	this.outputStringUsageField = outputStringUsage
-	Preconditions_checkState((aliasStringsMode != CompilerOptions_AliasStringsMode_NONE))
+	if aliasStringsMode == CompilerOptions_AliasStringsMode_NONE {
+		panic(new_IllegalStateException_0())
+	}
 	this.aliasStringsMode = aliasStringsMode
 }
 
-func new_AliasStrings(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, outputStringUsage bool, aliasStringsMode *CompilerOptions_AliasStringsMode) *AliasStrings {
+func new_AliasStrings(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, outputStringUsage bool, aliasStringsMode CompilerOptions_AliasStringsMode) *AliasStrings {
 	this := &AliasStrings{}
 	this.init_AliasStrings(compiler, chunkGraph, outputStringUsage, aliasStringsMode)
 	return this
@@ -37,7 +39,7 @@ func new_AliasStrings(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, outp
 
 func (this *AliasStrings) process_2(externs Node, root Node) {
 	AliasStrings_logger.fine("Aliasing common strings")
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 	this.replaceStringsWithAliases()
 	this.addAliasDeclarationNodes()
 	if this.outputStringUsageField {
@@ -47,15 +49,14 @@ func (this *AliasStrings) process_2(externs Node, root Node) {
 
 func (this *AliasStrings) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_TEMPLATELIT, Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_TEMPLATELIT_SUB:
+		switch n.ns_().token {
+		case tokOrd1_TEMPLATELIT, tokOrd1_TAGGED_TEMPLATELIT, tokOrd1_TEMPLATELIT_SUB:
 			return false
-		case Token_rhino_CALL:
+		case tokOrd1_CALL:
 			return !ReplaceMessagesConstants_isProtectedMessage(n)
 		default:
 			return true
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -87,18 +88,16 @@ func (this *AliasStrings) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *AliasStrings) getOrCreateStringInfo(string_ string) *AliasStrings_StringInfo {
-	var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](Map_get_s(this.stringInfoMap, string_))
+	var info *AliasStrings_StringInfo = this.stringInfoMap.get(string_)
 	if info == nil {
 		info = new_AliasStrings_StringInfo(this, this.stringInfoMap.size())
-		Map_put_s(this.stringInfoMap, string_, obj_(info))
+		this.stringInfoMap.put(string_, info)
 	}
 	return info
 }
 
 func (this *AliasStrings) replaceStringsWithAliases() {
-	it_1 := foreach_(any(this.stringInfoMap.entrySet()))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.stringInfoMap.asMap().entrySet(), icast_Map_Entry) {
 		var literal string = str_(entry.getKey())
 		var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](entry.getValue())
 		if this.shouldReplaceWithAlias(literal, info) {
@@ -112,9 +111,7 @@ func (this *AliasStrings) replaceStringsWithAliases() {
 }
 
 func (this *AliasStrings) addAliasDeclarationNodes() {
-	it_1 := foreach_(any(this.stringInfoMap.entrySet()))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(this.stringInfoMap.asMap().entrySet(), icast_Map_Entry) {
 		var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](entry.getValue())
 		if !info.isAliased {
 			continue
@@ -152,10 +149,9 @@ func (this *AliasStrings) replaceStringWithAliasName(n Node, name string, info *
 }
 
 func (this *AliasStrings) outputStringUsage() {
-	var sb *StringBuilder = new_StringBuilder_String("Strings used more than once:\n")
-	it_1 := foreach_(any(this.stringInfoMap.entrySet()))
-	for it_1.next() {
-		var stringInfoEntry Map_Entry = icast_Map_Entry(it_1.v)
+	var sb strBuilder_
+	sb.append("Strings used more than once:\n")
+	for stringInfoEntry := range elemsBy_(this.stringInfoMap.asMap().entrySet(), icast_Map_Entry) {
 		var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](stringInfoEntry.getValue())
 		var count int32 = info.occurrences.size()
 		if count > 1 {
@@ -165,7 +161,7 @@ func (this *AliasStrings) outputStringUsage() {
 			sb.append_char('\n')
 		}
 	}
-	AliasStrings_logger.fine(Object_toString(obj_(sb)))
+	AliasStrings_logger.fine(sb.toString())
 }
 
 var AliasStrings_logger *Logger
@@ -222,13 +218,14 @@ func (this *AliasStrings_StringInfo) getVariableName(stringLiteral string) Optio
 
 func (this *AliasStrings_StringInfo) encodeStringAsIdentifier(prefix string, s string) string {
 	var maxLimit int32 = 20
-	var length int32 = String_length(s)
+	sU16 := utf16Of_(s)
+	var length int32 = sU16.length()
 	var limit int32 = Math_min(length, maxLimit)
-	var sb *StringBuilder = new_StringBuilder()
+	var sb strBuilder_
 	sb.append(prefix)
 	var protectHex bool = false
 	for i := int32(0); i < limit; i++ {
-		var ch uint16 = String_charAt(s, i)
+		var ch uint16 = sU16.charAt(i)
 		if protectHex {
 			if ((int32(ch) >= 48) && (int32(ch) <= 57)) || ((int32(ch) >= 97) && (int32(ch) <= 102)) {
 				sb.append_char('_')
@@ -244,12 +241,12 @@ func (this *AliasStrings_StringInfo) encodeStringAsIdentifier(prefix string, s s
 		}
 	}
 	if length == limit {
-		return Object_toString(obj_(sb))
+		return sb.toString()
 	}
-	var hash int32 = (String_hashCode(s) & this.outer_.unitTestHashReductionMask)
+	var hash int32 = (utf16Hash_(s) & this.outer_.unitTestHashReductionMask)
 	sb.append_char('_')
 	sb.append(Integer_toHexString(hash))
-	var encoded string = Object_toString(obj_(sb))
+	var encoded string = sb.toString()
 	if !this.outer_.usedHashedAliases.add(encoded) {
 		encoded += sstr_(("_" + istr_(int64(this.id))))
 	}

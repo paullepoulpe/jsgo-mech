@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ModuleNames struct {
 }
 
@@ -24,26 +26,26 @@ func ModuleNames_fileToJsIdentifier(path string) string {
 }
 
 func ModuleNames_escapePath(input string) string {
-	var encodedInput string = String_replace(String_replace(String_replace(String_replace(String_replace(String_replace_char_char(String_replace_char_char(input, ':', '-'), '\\', '/'), strobj_(" "), strobj_("%20")), strobj_("["), strobj_("%5B")), strobj_("]"), strobj_("%5D")), strobj_("<"), strobj_("%3C")), strobj_(">"), strobj_("%3E"))
+	var encodedInput string = strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(input, ":", "-"), "\\", "/"), " ", "%20"), "[", "%5B"), "]", "%5D"), "<", "%3C"), ">", "%3E")
 	return ModuleNames_canonicalizePath(encodedInput)
 }
 
 func ModuleNames_toJSIdentifier(path string) string {
-	return String_replace(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace(ModuleNames_LEADING_DOT_SLASH_PATTERN.matcher(strobj_(ModuleNames_stripJsExtension(path))).replaceFirst(""), strobj_(ModuleNames_MODULE_SLASH), strobj_("$")), '\\', '$'), '@', '$'), '+', '$'), '!', '$'), '-', '_'), ':', '_'), '.', '_'), strobj_("%20"), strobj_("_"))
+	return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(ModuleNames_LEADING_DOT_SLASH_PATTERN.matcher_s(ModuleNames_stripJsExtension(path)).replaceFirst(""), ModuleNames_MODULE_SLASH, "$"), "\\", "$"), "@", "$"), "+", "$"), "!", "$"), "-", "_"), ":", "_"), ".", "_"), "%20", "_")
 }
 
 func ModuleNames_toModuleName(path string) string {
-	if String_startsWith(path, ModuleNames_MODULE_SLASH) {
-		path = String_substring_int(path, 1)
+	if strings.HasPrefix(path, ModuleNames_MODULE_SLASH) {
+		path = path[1:]
 	}
 	return ("module$" + sstr_(ModuleNames_toJSIdentifier(path)))
 }
 
 func ModuleNames_stripJsExtension(fileName string) string {
-	if String_endsWith(fileName, ".js") {
-		fileName = String_substring(fileName, 0, (String_length(fileName) - String_length(".js")))
-		if String_endsWith(fileName, ".js.i") {
-			fileName = String_substring(fileName, 0, (String_length(fileName) - String_length(".js.i")))
+	if strings.HasSuffix(fileName, ".js") {
+		fileName = fileName[:len(fileName)-len(".js")]
+		if strings.HasSuffix(fileName, ".js.i") {
+			fileName = fileName[:len(fileName)-len(".js.i")]
 		}
 	}
 	return fileName
@@ -54,7 +56,7 @@ func ModuleNames_canonicalizePath(path string) string {
 	var buffer []string = newstrarr_(int32(len(parts)))
 	var position int32 = 0
 	var available int32 = 0
-	var absolutePath bool = ((int32(len(parts)) > 1) && String_isEmpty(parts[0]))
+	var absolutePath bool = ((int32(len(parts)) > 1) && parts[0] == "")
 	if absolutePath {
 		available--
 	}

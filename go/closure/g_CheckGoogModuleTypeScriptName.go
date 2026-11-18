@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CheckGoogModuleTypeScriptName struct {
 	compiler_ *AbstractCompiler
 	finished  bool
@@ -23,7 +25,7 @@ func new_CheckGoogModuleTypeScriptName(compiler *AbstractCompiler) *CheckGoogMod
 }
 
 func (this *CheckGoogModuleTypeScriptName) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckGoogModuleTypeScriptName) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -43,18 +45,18 @@ func (this *CheckGoogModuleTypeScriptName) checkGoogModuleNamespace(t *NodeTrave
 	if originalNamespace.isEmpty() || sourceName.isEmpty() {
 		return
 	}
-	var google3Index int32 = String_indexOf_String(sourceName.get(), "google3")
+	var google3Index int32 = int32(strings.Index(sourceName.get(), "google3"))
 	if google3Index == -1 {
 		sourceName = Optional_of[string](("google3/" + sstr_(sourceName.get())))
 	} else if google3Index != 0 {
-		sourceName = Optional_of[string](String_substring_int(sourceName.get(), google3Index))
+		sourceName = Optional_of[string](sourceName.get()[google3Index:])
 	}
-	var replacementNamespace string = String_substring(String_replace_char_char(sourceName.get(), '/', '.'), 0, (String_length(sourceName.get()) - String_length(".js")))
+	var replacementNamespace string = String_substring(strings.ReplaceAll(sourceName.get(), "/", "."), 0, (String_length(sourceName.get()) - int32(len(".js"))))
 	if !(originalNamespace.get() == replacementNamespace) {
 		it_1 := CheckGoogModuleTypeScriptName_allowedDirectories.each()
 		for it_1.next() {
 			var allowedDirectory string = it_1.v
-			if String_startsWith(sourceName.get(), allowedDirectory) {
+			if strings.HasPrefix(sourceName.get(), allowedDirectory) {
 				t.report(n, CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE, []string{replacementNamespace})
 				return
 			}

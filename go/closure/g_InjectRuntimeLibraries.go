@@ -4,15 +4,15 @@ package closure
 
 type InjectRuntimeLibraries struct {
 	runtimeLibs            *RuntimeJsLibManager
-	forceInjectedLibraries ImmutableSetOf[string]
+	forceInjectedLibraries *ImmutableSet[string]
 }
 
-func (this *InjectRuntimeLibraries) init_InjectRuntimeLibraries(compiler *AbstractCompiler, forceInjectedLibraries ImmutableSetOf[string]) {
+func (this *InjectRuntimeLibraries) init_InjectRuntimeLibraries(compiler *AbstractCompiler, forceInjectedLibraries *ImmutableSet[string]) {
 	this.runtimeLibs = compiler.getRuntimeJsLibManager()
 	this.forceInjectedLibraries = forceInjectedLibraries
 }
 
-func new_InjectRuntimeLibraries(compiler *AbstractCompiler, forceInjectedLibraries ImmutableSetOf[string]) *InjectRuntimeLibraries {
+func new_InjectRuntimeLibraries(compiler *AbstractCompiler, forceInjectedLibraries *ImmutableSet[string]) *InjectRuntimeLibraries {
 	this := &InjectRuntimeLibraries{}
 	this.init_InjectRuntimeLibraries(compiler, forceInjectedLibraries)
 	return this
@@ -23,9 +23,8 @@ func (this *InjectRuntimeLibraries) process_2(externs Node, root Node) {
 }
 
 func (this *InjectRuntimeLibraries) injectLibraries() {
-	it_1 := foreach_(obj_(this.forceInjectedLibraries))
-	for it_1.next() {
-		var forced string = str_(it_1.v)
+	for _, el := range this.forceInjectedLibraries.keys {
+		forced := el
 		this.runtimeLibs.ensureLibraryInjected(forced, true)
 	}
 }

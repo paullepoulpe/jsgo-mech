@@ -5,7 +5,7 @@ package closure
 type DiagnosticType struct {
 	key_        string
 	formatField string
-	level_      *CheckLevel
+	level_      CheckLevel
 }
 
 func (this *DiagnosticType) zero_DiagnosticType() {
@@ -13,13 +13,13 @@ func (this *DiagnosticType) zero_DiagnosticType() {
 	this.formatField = nullstr_
 }
 
-func (this *DiagnosticType) init_DiagnosticType(key string, level *CheckLevel, format string) {
+func (this *DiagnosticType) init_DiagnosticType(key string, level CheckLevel, format string) {
 	this.key_ = key
 	this.level_ = level
 	this.formatField = format
 }
 
-func new_DiagnosticType(key string, level *CheckLevel, format string) *DiagnosticType {
+func new_DiagnosticType(key string, level CheckLevel, format string) *DiagnosticType {
 	this := &DiagnosticType{}
 	this.zero_DiagnosticType()
 	this.init_DiagnosticType(key, level, format)
@@ -38,7 +38,7 @@ func DiagnosticType_disabled(name string, descriptionFormat string) *DiagnosticT
 	return DiagnosticType_make(name, CheckLevel_OFF, descriptionFormat)
 }
 
-func DiagnosticType_make(name string, level *CheckLevel, descriptionFormat string) *DiagnosticType {
+func DiagnosticType_make(name string, level CheckLevel, descriptionFormat string) *DiagnosticType {
 	return new_DiagnosticType(name, level, descriptionFormat)
 }
 
@@ -47,26 +47,23 @@ func (this *DiagnosticType) format(arguments []string) string {
 }
 
 func (this *DiagnosticType) equals(type_ any) bool {
-	var diagnosticType *DiagnosticType
-	_ = diagnosticType
-	return (func() bool {
-		v_ := type_
-		if !is_[*DiagnosticType](v_) {
-			return false
-		}
-		diagnosticType = cast_[*DiagnosticType](v_)
-		return true
-	}() && (diagnosticType.key_ == this.key_))
+	p, ok := type_.(*DiagnosticType)
+	return ok && this.equals_DiagnosticType(p)
+}
+
+// equals_DiagnosticType is equals of a DiagnosticType (post-flip step eqtyped).
+func (this *DiagnosticType) equals_DiagnosticType(diagnosticType *DiagnosticType) bool {
+	return ((diagnosticType != nil) && (diagnosticType.key_ == this.key_))
 }
 
 func (this *DiagnosticType) hashCode() int32 {
-	return String_hashCode(this.key_)
+	return utf16Hash_(this.key_)
 }
 
 func (this *DiagnosticType) compareTo(diagnosticType_ any) int32 {
 	var diagnosticType *DiagnosticType = cast_[*DiagnosticType](diagnosticType_)
 	_ = diagnosticType
-	return String_compareTo(this.key_, diagnosticType.key_)
+	return utf16Compare_(this.key_, diagnosticType.key_)
 }
 
 func (this *DiagnosticType) toString() string {

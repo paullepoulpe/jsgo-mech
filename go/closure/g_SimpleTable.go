@@ -8,11 +8,6 @@ type SimpleTable[R any, C any, V any] struct {
 
 func (this *SimpleTable[R, C, V]) isa_SimpleTable_() {}
 
-func is_SimpleTable(v any) bool {
-	_, ok := v.(interface{ isa_SimpleTable_() })
-	return ok
-}
-
 func (this *SimpleTable[R, C, V]) finit_SimpleTable() {
 	this.rows = new_LinkedHashMap()
 }
@@ -34,8 +29,8 @@ func SimpleTable_create[R any, C any, V any]() *SimpleTable[R, C, V] {
 func (this *SimpleTable[R, C, V]) put(rowKey R, columnKey C, value V) V {
 	var row MapOf[C, V] = icast_Map(this.rows.get(boxT_(rowKey)))
 	if row == nil {
-		row = icast_Map(obj_(new_LinkedHashMap()))
-		this.rows.put(boxT_(rowKey), any(row))
+		row = new_LinkedHashMap()
+		this.rows.put(boxT_(rowKey), row)
 	}
 	return junboxT_[V](row.put(boxT_(columnKey), boxT_(value)))
 }
@@ -75,7 +70,7 @@ func (this *SimpleTable[R, C, V]) row(rowKey any) MapOf[C, V] {
 	var row MapOf[C, V] = icast_Map(this.rows.get(rowKey))
 	return func() Map {
 		if row == nil {
-			return icast_Map(obj_(ImmutableMap_of()))
+			return ImmutableMap_of()
 		}
 		return Collections_unmodifiableMap(row)
 	}()
@@ -94,5 +89,5 @@ func (this *SimpleTable[R, C, V]) isEmpty() bool {
 }
 
 func (this *SimpleTable[R, C, V]) toString() string {
-	return Object_toString(obj_(this.rows))
+	return tostrNN_(this.rows)
 }

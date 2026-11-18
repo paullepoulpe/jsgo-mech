@@ -4,12 +4,12 @@ package closure
 
 type RewriteGlobalDeclarationsForTryCatchWrapping struct {
 	compiler_ *AbstractCompiler
-	functions *SimpleListMultimap
+	functions *SimpleListMultimap[*JSChunk, Node]
 	classes   *JTList[Node]
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) finit_RewriteGlobalDeclarationsForTryCatchWrapping() {
-	this.functions = SimpleListMultimap_create()
+	this.functions = SimpleListMultimap_create[*JSChunk, Node]()
 	this.classes = jnewTList_(jtc_Node)
 }
 
@@ -25,16 +25,12 @@ func new_RewriteGlobalDeclarationsForTryCatchWrapping(compiler *AbstractCompiler
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
-	it_1 := foreach_(any(this.functions.asMap().entrySet()))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	NodeTraversal_traverse(this.compiler_, root, this)
+	for entry := range elemsBy_(this.functions.asMap().entrySet(), icast_Map_Entry) {
 		var addingRoot Node = this.compiler_.getNodeForCodeInsertion(cast_[*JSChunk](entry.getKey()))
 		var fnNodes ListOf[Node] = Lists_reverse(icast_List(entry.getValue()))
 		if !fnNodes.isEmpty() {
-			it_3 := foreach_(any(fnNodes))
-			for it_3.next() {
-				var n Node = Node_of_(it_3.v)
+			for n := range elemsBy_(fnNodes, Node_of_) {
 				var parent Node = n.getParent()
 				n.detach()
 				this.compiler_.reportChangeToEnclosingScope(parent)
@@ -69,7 +65,7 @@ func (this *RewriteGlobalDeclarationsForTryCatchWrapping) visit(t *NodeTraversal
 		return
 	}
 	if NodeUtil_isFunctionDeclaration(n) {
-		this.functions.put(obj_(t.getChunk()), n.box_())
+		this.functions.put(t.getChunk(), n)
 	}
 	if NodeUtil_isClassDeclaration(n) {
 		this.classes.add(n)

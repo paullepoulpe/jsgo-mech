@@ -19,7 +19,7 @@ func new_InlineObjectLiterals(compiler *AbstractCompiler, safeNameIdSupplier Sup
 }
 
 func (this *InlineObjectLiterals) process_2(externs Node, root Node) {
-	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, icast_ReferenceCollector_Behavior(obj_(new_InlineObjectLiterals_InliningBehavior(this))), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))))
+	var callback *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, new_InlineObjectLiterals_InliningBehavior(this), new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))
 	callback.process_2(externs, root)
 }
 
@@ -47,9 +47,7 @@ func new_InlineObjectLiterals_InliningBehavior(outer_ *InlineObjectLiterals) *In
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) afterExitScope(t *NodeTraversal, referenceMap ReferenceMap) {
-	it_1 := foreach_(any(t.getScope().getVarIterable()))
-	for it_1.next() {
-		var v *Var = cast_[*Var](it_1.v)
+	for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
 		if this.isVarInlineForbidden(v) {
 			continue
 		}
@@ -66,7 +64,7 @@ func (this *InlineObjectLiterals_InliningBehavior) afterExitScope(t *NodeTravers
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) recordStaleVarReferencesInTree(root Node, scope *Scope) {
-	NodeUtil_visitPreOrder_Node_Visitor_Predicate(root, icast_NodeUtil_Visitor(obj_(new_InlineObjectLiterals_InliningBehavior_1(this, scope))), NodeUtil_MATCH_NOT_FUNCTION)
+	NodeUtil_visitPreOrder_Node_Visitor_Predicate(root, new_InlineObjectLiterals_InliningBehavior_1(this, scope), NodeUtil_MATCH_NOT_FUNCTION)
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) isVarInlineForbidden(var_ *Var) bool {
@@ -83,7 +81,9 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *JTLis
 		var parent Node = ref.getParent()
 		var grandparent Node = ref.getGrandparent()
 		if NodeUtil_isNormalOrOptChainGetProp(parent) {
-			Preconditions_checkState((parent.getFirstChild() == name))
+			if parent.getFirstChild() != name {
+				panic(new_IllegalStateException_0())
+			}
 			if NodeUtil_isInvocationTarget(parent) {
 				return false
 			}
@@ -116,12 +116,12 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *JTLis
 		{
 			var child Node = val.getFirstChild()
 			for ; child != 0; child = child.getNext() {
-				switch child.getToken() {
-				case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_COMPUTED_PROP, Token_rhino_OBJECT_SPREAD:
+				switch child.ns_().token {
+				case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_COMPUTED_PROP, tokOrd1_OBJECT_SPREAD:
 					return false
-				case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_STRING_KEY:
+				case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_STRING_KEY:
 				default:
-					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))).self())
+					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))))
 				}
 				validProperties.add(child.getString())
 				var childVal Node = child.getFirstChild()
@@ -156,7 +156,9 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 		if ref.isLvalue() || ref.isInitializingDeclaration() {
 			var val Node = ref.getAssignedValue()
 			if val != 0 {
-				Preconditions_checkState_boolean_Object(val.isObjectLit(), val.box_())
+				if !val.isObjectLit() {
+					panic(new_IllegalStateException_String(tostr_(val)))
+				}
 				{
 					var child Node = val.getFirstChild()
 					for ; child != 0; child = child.getNext() {
@@ -176,7 +178,9 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 		} else if NodeUtil_isNameDeclaration(ref.getParent()) {
 		} else {
 			var getprop Node = ref.getParent()
-			Preconditions_checkState_boolean_Object(NodeUtil_isNormalOrOptChainGetProp(getprop), getprop.box_())
+			if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
+				panic(new_IllegalStateException_String(tostr_(getprop)))
+			}
 			var varname string = getprop.getString()
 			if varmap.has(varname) {
 				continue
@@ -190,7 +194,9 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 
 func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals *JTMap[string, Node]) {
 	var object Node = init_.getAssignedValue()
-	Preconditions_checkState_boolean_Object(object.isObjectLit(), object.box_())
+	if !object.isObjectLit() {
+		panic(new_IllegalStateException_String(tostr_(object)))
+	}
 	{
 		var key Node = object.getFirstChild()
 		for ; key != 0; key = key.getNext() {
@@ -200,10 +206,12 @@ func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Refe
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v *Var, ref *Reference, varmap *JTMap[string, string]) {
-	var nodes ListOf[Node] = icast_List(new_ArrayList_0().self())
+	var nodes ListOf[Node] = new_ArrayList_0()
 	var val Node = ref.getAssignedValue()
 	this.recordStaleVarReferencesInTree(val, cast_[*Scope](v.getScope()))
-	Preconditions_checkState_boolean_Object(val.isObjectLit(), val.box_())
+	if !val.isObjectLit() {
+		panic(new_IllegalStateException_String(tostr_(val)))
+	}
 	var all *JTSet[string] = jtsetFrom_(jtc_string, Collection(varmap.asMap().keySet()))
 	{
 		var key Node = val.getFirstChild()
@@ -259,7 +267,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		vnode = init_.getParent()
 		this.fillInitialValues(init_, initvals)
 	} else if isBlockScoped {
-		var scopeRoot Node = cast_[*Scope](v.getScope()).getRootNode()
+		var scopeRoot Node = v.getScope().(*Scope).getRootNode()
 		vnode = scopeRoot.getFirstChild()
 		if !NodeUtil_isStatement(vnode) && NodeUtil_isStatement(scopeRoot) {
 			vnode = scopeRoot
@@ -267,9 +275,11 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 			vnode = scopeRoot.getParent()
 		}
 	} else {
-		vnode = cast_[*Scope](cast_[*Scope](v.getScope()).getClosestHoistScope().self()).getRootNode().getFirstChild()
+		vnode = v.getScope().(*Scope).getClosestHoistScope().self().(*Scope).getRootNode().getFirstChild()
 	}
-	Preconditions_checkState_boolean_Object(NodeUtil_isStatement(vnode), vnode.box_())
+	if !NodeUtil_isStatement(vnode) {
+		panic(new_IllegalStateException_String(tostr_(vnode)))
+	}
 	if isBlockScoped && !varmap.isEmpty() {
 		var script Node = NodeUtil_getEnclosingScript(vnode)
 		if script != 0 {
@@ -281,7 +291,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 		var entry *TEntry[string, string] = it_1.entry()
 		var val Node = initvals.get(entry.getKey())
 		var lhs Node = IR_name(entry.getValue())
-		var declarationType *Token_rhino = func() *Token_rhino {
+		var declarationType Token_rhino = func() Token_rhino {
 			if isBlockScoped {
 				return Token_rhino_LET
 			}
@@ -314,9 +324,13 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 			ref.getParent().detach()
 		} else {
 			var getprop Node = ref.getParent()
-			Preconditions_checkState_boolean_Object(NodeUtil_isNormalOrOptChainGetProp(getprop), getprop.box_())
+			if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
+				panic(new_IllegalStateException_String(tostr_(getprop)))
+			}
 			var var_ string = getprop.getString()
-			Preconditions_checkState(varmap.has(var_))
+			if !varmap.has(var_) {
+				panic(new_IllegalStateException_0())
+			}
 			var replacement Node = IR_name(varmap.get(var_))
 			replacement.srcrefIfMissing(getprop)
 			ref.getParent().replaceWith(replacement)
@@ -325,11 +339,11 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) beforeTraverseNode(p0 *NodeTraversal, p1 Node, p2 Node) {
-	ReferenceCollector_Behavior_beforeTraverseNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2)
+	ReferenceCollector_Behavior_beforeTraverseNode_default(this, p0, p1, p2)
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) afterVisitNode(p0 *NodeTraversal, p1 Node, p2 Node, p3 *Reference) {
-	ReferenceCollector_Behavior_afterVisitNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2, p3)
+	ReferenceCollector_Behavior_afterVisitNode_default(this, p0, p1, p2, p3)
 }
 
 type InlineObjectLiterals_InliningBehavior_1 struct {

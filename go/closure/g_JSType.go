@@ -3,7 +3,7 @@
 package closure
 
 type JSType struct {
-	self_                                                  any
+	self_                                                  JSType_I
 	resolveResult                                          *JSType
 	templateTypeMap                                        *TemplateTypeMap
 	loosenTypecheckingDueToForwardReferencedSupertypeField bool
@@ -13,17 +13,206 @@ type JSType struct {
 	registry                                               *JSTypeRegistry
 }
 
+// JSType_I holds the methods the dispatchers of JSType's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type JSType_I interface {
+	appendTo_impl(*TypeStringBuilder)
+	autobox_impl() *JSType
+	autoboxesTo_impl() *JSType
+	canBeCalled_impl() bool
+	collapseUnion_impl() *JSType
+	findPropertyTypeWithoutConsideringTemplateTypes_impl(Property_Key) *JSType
+	getDisplayName_impl() Optional[string]
+	getGreatestSubtype_impl(*JSType) *JSType
+	getJSDocInfo_impl() *JSDocInfo
+	getLeastSupertype_impl(*JSType) *JSType
+	getPossibleToBooleanOutcomes_impl() BooleanLiteralSet
+	getPropertyKind_2_impl(Property_Key, bool) JSType_HasPropertyKind
+	getRestrictedTypeGivenOutcome_impl(Outcome_rhino) *JSType
+	getTemplateParamCount_impl() int32
+	getTemplateTypeMap_impl() *TemplateTypeMap
+	getTypeClass_impl() JSTypeClass
+	getTypesUnderEquality_impl(*JSType) *JSType_TypePair
+	getTypesUnderInequality_impl(*JSType) *JSType_TypePair
+	getTypesUnderShallowInequality_impl(*JSType) *JSType_TypePair
+	hasAnyTemplateTypesInternal_impl() bool
+	hasDisplayName_impl() bool
+	isAllType_impl() bool
+	isArrayType_impl() bool
+	isBigIntObjectType_impl() bool
+	isBigIntValueType_impl() bool
+	isBooleanObjectType_impl() bool
+	isBooleanValueType_impl() bool
+	isCheckedUnknownType_impl() bool
+	isConstructor_impl() bool
+	isDateType_impl() bool
+	isDict_impl() bool
+	isExplicitlyVoidable_impl() bool
+	isFunctionPrototypeType_impl() bool
+	isInstanceType_impl() bool
+	isInterface_impl() bool
+	isKnownSymbolValueType_impl() bool
+	isNativeObjectType_impl() bool
+	isNoObjectType_impl() bool
+	isNoResolvedType_impl() bool
+	isNoType_impl() bool
+	isNominalType_impl() bool
+	isNullType_impl() bool
+	isNullable_impl() bool
+	isNumberObjectType_impl() bool
+	isNumberValueType_impl() bool
+	isObject_impl() bool
+	isOrdinaryFunction_impl() bool
+	isReadonlyArrayType_impl() bool
+	isRegexpType_impl() bool
+	isStringObjectType_impl() bool
+	isStringValueType_impl() bool
+	isStruct_impl() bool
+	isStructuralInterface_impl() bool
+	isStructuralType_impl() bool
+	isSymbolObjectType_impl() bool
+	isSymbolValueType_impl() bool
+	isTheObjectType_impl() bool
+	isUnknownType_impl() bool
+	isVoidType_impl() bool
+	isVoidable_impl() bool
+	loosenTypecheckingDueToForwardReferencedSupertype_impl() bool
+	matchConstraint_impl(*JSType)
+	matchesNumberContext_impl() bool
+	matchesObjectContext_impl() bool
+	matchesStringContext_impl() bool
+	matchesSymbolContext_impl() bool
+	recursionUnsafeHashCode_impl() int32
+	resolveInternal_impl(ErrorReporter_rhino) *JSType
+	restrictByNotNullOrUndefined_impl() *JSType
+	restrictByNotNull_impl() *JSType
+	restrictByNotUndefined_impl() *JSType
+	setValidator_impl(Predicate_base) bool
+	testForEquality_impl(*JSType) Tri
+	toMaybeEnumElementType_impl() *EnumElementType
+	toMaybeEnumType_impl() *EnumType
+	toMaybeFunctionType_impl() *FunctionType
+	toMaybeKnownSymbolType_impl() *KnownSymbolType
+	toMaybeNamedType_impl() *NamedType
+	toMaybeRecordType_impl() *RecordType
+	toMaybeTemplateType_impl() *TemplateType
+	toMaybeTemplatizedType_impl() *TemplatizedType
+	toMaybeUnionType_impl() *UnionType
+	toString_impl() string
+	visitUntyped_2_impl(RelationshipVisitor, *JSType) any
+	visitUntyped_impl(Visitor) any
+	clearCachedValues_impl()
+	defineProperty_impl(Property_Key, *JSType, bool, Node) bool
+	getConstructor_impl() *FunctionType
+	getCtorExtendedInterfaces_impl() Iterable
+	getCtorImplementedInterfaces_impl() Iterable
+	getEnumeratedTypeOfEnumObject_impl() *JSType
+	getImplicitPrototype_impl() *ObjectType
+	getOwnPropertyNames_impl() Set
+	getOwnerFunction_impl() *FunctionType
+	getPropertyMap_impl() *PropertyMap
+	getPropertyTypeKey_impl(Property_Key) *JSType
+	getPropertyTypeMap_impl() Map
+	getReferenceName_impl() Optional[string]
+	getSlot_impl(Property_Key) *Property
+	getSuperClassConstructor_impl() *FunctionType
+	getTemplateTypes_impl() *ImmutableList[*JSType]
+	getTypeOfThis_impl() *JSType
+	hasCachedValues_impl() bool
+	setJSDocInfo_impl(*JSDocInfo)
+	setOwnerFunction_impl(*FunctionType)
+	setPropertyJSDocInfoKey_impl(Property_Key, *JSDocInfo)
+	setPropertyNode_impl(Property_Key, Node)
+}
+
+// Bodies of the methods that only the subclasses of ObjectType (22) implement. They put the
+// methods in JSType_I, so that the dispatchers of those classes call them through self_ without
+// an assertion. They are never run (a dispatcher's object is of a subclass of its class,
+// which has the method) and panic where the assertion would have (post-flip).
+func (this *JSType) clearCachedValues_impl() {
+	panic("clearCachedValues_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) defineProperty_impl(Property_Key, *JSType, bool, Node) bool {
+	panic("defineProperty_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getConstructor_impl() *FunctionType {
+	panic("getConstructor_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getCtorExtendedInterfaces_impl() Iterable {
+	panic("getCtorExtendedInterfaces_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getCtorImplementedInterfaces_impl() Iterable {
+	panic("getCtorImplementedInterfaces_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getEnumeratedTypeOfEnumObject_impl() *JSType {
+	panic("getEnumeratedTypeOfEnumObject_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getImplicitPrototype_impl() *ObjectType {
+	panic("getImplicitPrototype_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getOwnPropertyNames_impl() Set {
+	panic("getOwnPropertyNames_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getOwnerFunction_impl() *FunctionType {
+	panic("getOwnerFunction_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getPropertyMap_impl() *PropertyMap {
+	panic("getPropertyMap_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getPropertyTypeKey_impl(Property_Key) *JSType {
+	panic("getPropertyTypeKey_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getPropertyTypeMap_impl() Map {
+	panic("getPropertyTypeMap_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getReferenceName_impl() Optional[string] {
+	panic("getReferenceName_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getSlot_impl(Property_Key) *Property {
+	panic("getSlot_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getSuperClassConstructor_impl() *FunctionType {
+	panic("getSuperClassConstructor_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getTemplateTypes_impl() *ImmutableList[*JSType] {
+	panic("getTemplateTypes_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) getTypeOfThis_impl() *JSType {
+	panic("getTypeOfThis_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) hasCachedValues_impl() bool {
+	panic("hasCachedValues_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) setJSDocInfo_impl(*JSDocInfo) {
+	panic("setJSDocInfo_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) setOwnerFunction_impl(*FunctionType) {
+	panic("setOwnerFunction_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) setPropertyJSDocInfoKey_impl(Property_Key, *JSDocInfo) {
+	panic("setPropertyJSDocInfoKey_impl called on a " + goTypeName_(this.self_))
+}
+func (this *JSType) setPropertyNode_impl(Property_Key, Node) {
+	panic("setPropertyNode_impl called on a " + goTypeName_(this.self_))
+}
+
+// JSType_as is implemented by JSType and the classes that extend it: a cast to JSType asserts to it
+// (post-flip).
+type JSType_as interface {
+	as_JSType() *JSType
+}
+
 func (this *JSType) as_JSType() *JSType { return this }
 
 func to_JSType(v any) *JSType {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_JSType() *JSType }).as_JSType()
+	return v.(JSType_as).as_JSType()
 }
 
 func is_JSType(v any) bool {
-	_, ok := v.(interface{ as_JSType() *JSType })
+	_, ok := v.(JSType_as)
 	return ok
 }
 
@@ -57,7 +246,7 @@ func (this *JSType) init_JSType_JSTypeRegistry_TemplateTypeMap(registry *JSTypeR
 	registry.getResolver().addUnresolved(this)
 }
 
-func (this *JSType) getNativeType(typeId *JSTypeNative) *JSType {
+func (this *JSType) getNativeType(typeId JSTypeNative) *JSType {
 	return this.registry.getNativeType(typeId)
 }
 
@@ -71,31 +260,31 @@ func (this *JSType) getDisplayName_impl() Optional[string] {
 
 func (this *JSType) hasDisplayName_impl() bool {
 	var displayName Optional[string] = this.getDisplayName()
-	return (displayName.isPresent() && !String_isEmpty(displayName.get()))
+	return (displayName.isPresent() && displayName.get() != "")
 }
 
-func (this *JSType) getPropertyKindKey(pname Property_Key) *JSType_HasPropertyKind {
+func (this *JSType) getPropertyKindKey(pname Property_Key) JSType_HasPropertyKind {
 	return this.getPropertyKind_2(pname, true)
 }
 
-func (this *JSType) getPropertyKind_2_impl(pname Property_Key, autobox bool) *JSType_HasPropertyKind {
+func (this *JSType) getPropertyKind_2_impl(pname Property_Key, autobox bool) JSType_HasPropertyKind {
 	return JSType_HasPropertyKind_ABSENT
 }
 
-func (this *JSType) getPropertyKindString(pname string, autobox bool) *JSType_HasPropertyKind {
-	return this.getPropertyKind_2(icast_Property_Key(obj_(new_Property_StringKey(pname))), autobox)
+func (this *JSType) getPropertyKindString(pname string, autobox bool) JSType_HasPropertyKind {
+	return this.getPropertyKind_2(new_Property_StringKey(pname), autobox)
 }
 
-func (this *JSType) getPropertyKind(pname string) *JSType_HasPropertyKind {
-	return this.getPropertyKindKey(icast_Property_Key(obj_(new_Property_StringKey(pname))))
+func (this *JSType) getPropertyKind(pname string) JSType_HasPropertyKind {
+	return this.getPropertyKindKey(new_Property_StringKey(pname))
 }
 
 func (this *JSType) hasProperty(pname string) bool {
-	return this.hasPropertyKey(icast_Property_Key(obj_(new_Property_StringKey(pname))))
+	return this.hasPropertyKey(new_Property_StringKey(pname))
 }
 
 func (this *JSType) hasPropertyKey(pname Property_Key) bool {
-	return !Object_equals(obj_(this.getPropertyKind_2(pname, false)), obj_(JSType_HasPropertyKind_ABSENT))
+	return !equalsId_(this.getPropertyKind_2(pname, false), JSType_HasPropertyKind_ABSENT)
 }
 
 func (this *JSType) isNoType_impl() bool {
@@ -264,7 +453,7 @@ func (this *JSType) isDict_impl() bool {
 
 func (this *JSType) containsReferenceAncestor(target *JSType) bool {
 	var visitor *ContainsUpperBoundSuperTypeVisitor = new_ContainsUpperBoundSuperTypeVisitor(target)
-	return (cast_[*ContainsUpperBoundSuperTypeVisitor_Result](this.visit(icast_Visitor(obj_(visitor)))) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
+	return (cast_[ContainsUpperBoundSuperTypeVisitor_Result](this.visit(visitor)) == ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
 }
 
 func (this *JSType) isLiteralObject() bool {
@@ -272,10 +461,11 @@ func (this *JSType) isLiteralObject() bool {
 	_ = prototypeObjectType
 	if func() bool {
 		v_ := this.self()
-		if !is_PrototypeObjectType(v_) {
+		p, ok := v_.(PrototypeObjectType_as)
+		if !ok {
 			return false
 		}
-		prototypeObjectType = to_PrototypeObjectType(v_)
+		prototypeObjectType = p.as_PrototypeObjectType()
 		return true
 	}() {
 		return prototypeObjectType.isAnonymous()
@@ -300,12 +490,18 @@ func (this *JSType) toMaybeFunctionType_impl() *FunctionType {
 }
 
 func (this *JSType) assertFunctionType() *FunctionType {
-	var result *FunctionType = to_FunctionType(Preconditions_checkNotNull_Object_String_Object(this.toMaybeFunctionType().self(), "not a FunctionType: %s", this.self()))
+	var result *FunctionType = this.toMaybeFunctionType()
+	if result == nil {
+		nullFail_(Strings_lenientFormat("not a FunctionType: %s", []any{this.self()}))
+	}
 	return result
 }
 
 func (this *JSType) assertObjectType() *ObjectType {
-	var result *ObjectType = to_ObjectType(Preconditions_checkNotNull_Object_String_Object(this.toMaybeObjectType().self(), "Not an ObjectType: %s", this.self()))
+	var result *ObjectType = this.toMaybeObjectType()
+	if result == nil {
+		nullFail_(Strings_lenientFormat("Not an ObjectType: %s", []any{this.self()}))
+	}
 	return result
 }
 
@@ -412,9 +608,9 @@ func (this *JSType) getTemplateTypeMap_impl() *TemplateTypeMap {
 	return this.templateTypeMap
 }
 
-func (this *JSType) getTypeParameters() ImmutableListOf[*TemplateType] {
+func (this *JSType) getTypeParameters() *ImmutableList[*TemplateType] {
 	var map_ *TemplateTypeMap = this.getTemplateTypeMap()
-	return cast_[*ImmutableList](map_.getTemplateKeys().subList((map_.size() - this.getTemplateParamCount()), map_.size()))
+	return tlistImm_(tc_p_TemplateType, cast_[*ErasedImmutableList](map_.getTemplateKeys().asImm().subList((map_.size()-this.getTemplateParamCount()), map_.size())))
 }
 
 func (this *JSType) getTemplateParamCount_impl() int32 {
@@ -424,7 +620,7 @@ func (this *JSType) getTemplateParamCount_impl() int32 {
 func (this *JSType) mergeSupertypeTemplateTypes(other *ObjectType) {
 	this.maybeLoosenTypecheckingDueToForwardReferencedSupertype(other.up_JSType())
 	if other.isRawTypeOfTemplatizedType() {
-		other = this.registry.createTemplatizedTypeImmutableList(other, ImmutableList_of()).up_ObjectType()
+		other = this.registry.createTemplatizedTypeImmutableList(other, immutableListOf_(tc_p_JSType)).up_ObjectType()
 	}
 	this.templateTypeMap = other.getTemplateTypeMap().copyWithExtension(this.getTemplateTypeMap())
 }
@@ -489,16 +685,16 @@ func (this *JSType) equals(other any) bool {
 	if this.self() == other {
 		return true
 	}
-	var jSType *JSType
-	_ = jSType
-	return (func() bool {
-		v_ := other
-		if !is_JSType(v_) {
-			return false
-		}
-		jSType = to_JSType(v_)
+	p, ok := other.(JSType_as)
+	return ok && this.equals_JSType(p.as_JSType())
+}
+
+// equals_JSType is equals of a JSType (post-flip step eqtyped).
+func (this *JSType) equals_JSType(jSType *JSType) bool {
+	if jSType == this {
 		return true
-	}() && new_EqualityChecker().setEqMethod(EqualityChecker_EqMethod_IDENTITY).check(this, jSType))
+	}
+	return ((jSType != nil) && new_EqualityChecker().setEqMethod(EqualityChecker_EqMethod_IDENTITY).check(this, jSType))
 }
 
 func (this *JSType) differsFrom(that *JSType) bool {
@@ -548,11 +744,11 @@ func (this *JSType) findPropertyTypeKey(propertyName Property_Key) *JSType {
 	}
 	var typeMap *TemplateTypeMap = this.getTemplateTypeMap()
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forPartialReplacement(this.registry, typeMap)
-	return to_JSType(propertyType.visit(icast_Visitor(obj_(replacer))))
+	return to_JSType(propertyType.visit(replacer))
 }
 
 func (this *JSType) findPropertyType(propertyName string) *JSType {
-	return this.findPropertyTypeKey(icast_Property_Key(obj_(new_Property_StringKey(propertyName))))
+	return this.findPropertyTypeKey(new_Property_StringKey(propertyName))
 }
 
 func (this *JSType) findPropertyTypeWithoutConsideringTemplateTypes_impl(propertyName Property_Key) *JSType {
@@ -585,10 +781,11 @@ func (this *JSType) toObjectType() *ObjectType {
 	return func() *ObjectType {
 		if func() bool {
 			v_ := this.self()
-			if !is_ObjectType(v_) {
+			p, ok := v_.(ObjectType_as)
+			if !ok {
 				return false
 			}
-			objectType = to_ObjectType(v_)
+			objectType = p.as_ObjectType()
 			return true
 		}() {
 			return objectType
@@ -613,14 +810,14 @@ func (this *JSType) dereference() *ObjectType {
 }
 
 func (this *JSType) canTestForEqualityWith(that *JSType) bool {
-	return Object_equals(obj_(this.testForEquality(that)), obj_(Tri_UNKNOWN))
+	return equalsId_(this.testForEquality(that), Tri_UNKNOWN)
 }
 
-func (this *JSType) testForEquality_impl(that *JSType) *Tri {
+func (this *JSType) testForEquality_impl(that *JSType) Tri {
 	return this.testForEqualityHelper(this, that)
 }
 
-func (this *JSType) testForEqualityHelper(aType *JSType, bType *JSType) *Tri {
+func (this *JSType) testForEqualityHelper(aType *JSType, bType *JSType) Tri {
 	if ((((bType.isAllType() || bType.isUnknownType()) || bType.isNoResolvedType()) || aType.isAllType()) || aType.isUnknownType()) || aType.isNoResolvedType() {
 		return Tri_UNKNOWN
 	}
@@ -657,7 +854,7 @@ func (this *JSType) testForEqualityHelper(aType *JSType, bType *JSType) *Tri {
 		return bType.testForEquality(aType)
 	}
 	if aType.isSymbol() {
-		return func() *Tri {
+		return func() Tri {
 			if bType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_TYPE)) || bType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE)) {
 				return Tri_UNKNOWN
 			}
@@ -665,14 +862,14 @@ func (this *JSType) testForEqualityHelper(aType *JSType, bType *JSType) *Tri {
 		}()
 	}
 	if bType.isSymbol() {
-		return func() *Tri {
+		return func() Tri {
 			if aType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_TYPE)) || aType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE)) {
 				return Tri_UNKNOWN
 			}
 			return Tri_FALSE
 		}()
 	}
-	return nil
+	return 0
 }
 
 func (this *JSType) canTestForShallowEqualityWith(that *JSType) bool {
@@ -713,7 +910,7 @@ func (this *JSType) getLeastSupertype_impl(that *JSType) *JSType {
 }
 
 func JSType_getLeastSupertype(thisType *JSType, thatType *JSType) *JSType {
-	var areEquivalent bool = thisType.equals(thatType.self())
+	var areEquivalent bool = thisType.equals_JSType(thatType)
 	return func() *JSType {
 		if areEquivalent {
 			return thisType
@@ -729,7 +926,7 @@ func (this *JSType) getGreatestSubtype_impl(that *JSType) *JSType {
 func JSType_getGreatestSubtype(thisType *JSType, thatType *JSType) *JSType {
 	if thisType.isFunctionType() && thatType.isFunctionType() {
 		return thisType.toMaybeFunctionType().supAndInfHelper(thatType.toMaybeFunctionType(), false).up_JSType()
-	} else if thisType.equals(thatType.self()) {
+	} else if thisType.equals_JSType(thatType) {
 		return thisType
 	} else if thisType.isUnknownType() {
 		if !thatType.isUnknownType() {
@@ -775,7 +972,7 @@ func JSType_getGreatestSubtype(thisType *JSType, thatType *JSType) *JSType {
 	return thisType.getNativeType(JSTypeNative_NO_TYPE)
 }
 
-func (this *JSType) getRestrictedTypeGivenOutcome_impl(outcome *Outcome_rhino) *JSType {
+func (this *JSType) getRestrictedTypeGivenOutcome_impl(outcome Outcome_rhino) *JSType {
 	if outcome.isTruthy() && JSCompObjects_identical(this.self(), this.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()) {
 		return this.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE)
 	}
@@ -786,13 +983,12 @@ func (this *JSType) getRestrictedTypeGivenOutcome_impl(outcome *Outcome_rhino) *
 			return this.getNativeType(JSTypeNative_NO_TYPE)
 		}
 	}
-	var literals *BooleanLiteralSet = this.getPossibleToBooleanOutcomes()
+	var literals BooleanLiteralSet = this.getPossibleToBooleanOutcomes()
 	if literals.contains(outcome.isTruthy()) {
 		return this
 	} else {
 		return this.getNativeType(JSTypeNative_NO_TYPE)
 	}
-	panic("unreachable")
 }
 
 func (this *JSType) getTypesUnderEquality_impl(that *JSType) *JSType_TypePair {
@@ -807,7 +1003,7 @@ func (this *JSType) getTypesUnderEquality_impl(that *JSType) *JSType_TypePair {
 		case Tri_TRUE, Tri_UNKNOWN:
 			return new_JSType_TypePair(this, that)
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
@@ -846,7 +1042,7 @@ func (this *JSType) isNullTypeOrVoidType() bool {
 func (this *JSType) getUnionMembers() IterableOf[*JSType] {
 	return func() Iterable {
 		if this.isUnionType() {
-			return icast_Iterable(obj_(this.toMaybeUnionType().getAlternates()))
+			return icast_Iterable(obj_(this.toMaybeUnionType().getAlternates().asImm()))
 		}
 		return nil
 	}()
@@ -865,23 +1061,23 @@ func (this *JSType) restrictByNotNull_impl() *JSType {
 }
 
 func (this *JSType) isSubtypeWithoutStructuralTyping(supertype *JSType) bool {
-	return new_SubtypeChecker(this.registry).setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(false).setSubtypingMode(JSType_SubtypingMode_NORMAL).check()
+	return this.registry.subtypeChecker_().setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(false).setSubtypingMode(JSType_SubtypingMode_NORMAL).checkAndRelease_()
 }
 
 func (this *JSType) isSubtype(supertype *JSType) bool {
 	return this.isSubtypeOf(supertype)
 }
 
-func (this *JSType) isSubtype_2(supertype *JSType, mode *JSType_SubtypingMode) bool {
+func (this *JSType) isSubtype_2(supertype *JSType, mode JSType_SubtypingMode) bool {
 	return this.isSubtypeOf_2(supertype, mode)
 }
 
 func (this *JSType) isSubtypeOf(supertype *JSType) bool {
-	return new_SubtypeChecker(this.registry).setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(JSType_SubtypingMode_NORMAL).check()
+	return this.registry.subtypeChecker_().setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(JSType_SubtypingMode_NORMAL).checkAndRelease_()
 }
 
-func (this *JSType) isSubtypeOf_2(supertype *JSType, mode *JSType_SubtypingMode) bool {
-	return new_SubtypeChecker(this.registry).setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(mode).check()
+func (this *JSType) isSubtypeOf_2(supertype *JSType, mode JSType_SubtypingMode) bool {
+	return this.registry.subtypeChecker_().setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(mode).checkAndRelease_()
 }
 
 func (this *JSType) visit(visitor Visitor) any {
@@ -897,13 +1093,17 @@ func (this *JSType) resolve(reporter ErrorReporter_rhino) *JSType {
 	if !this.isResolved() {
 		this.resolveResult = this
 		this.resolveResult = this.resolveInternal(reporter)
-		Preconditions_checkState(this.isResolved())
+		if !this.isResolved() {
+			panic(new_IllegalStateException_0())
+		}
 	}
 	return this.resolveResult
 }
 
 func (this *JSType) eagerlyResolveToSelf() {
-	Preconditions_checkState_boolean_Object(!this.isResolved(), this.self())
+	if this.isResolved() {
+		panic(new_IllegalStateException_String(objstr_(this.self())))
+	}
 	this.resolveResult = this
 	this.registry.getResolver().resolveIfClosed(this, this.getTypeClass())
 }
@@ -937,7 +1137,7 @@ func (this *JSType) toString_impl() string {
 	return new_TypeStringBuilder(false).appendJSType(this).build()
 }
 
-func (this *JSType) toAnnotationString(nullability *JSType_Nullability) string {
+func (this *JSType) toAnnotationString(nullability JSType_Nullability) string {
 	var builder *TypeStringBuilder = new_TypeStringBuilder(true)
 	return func() *TypeStringBuilder {
 		if nullability == JSType_Nullability_EXPLICIT {
@@ -955,356 +1155,344 @@ func (this *JSType) toMaybeObjectType() *ObjectType {
 	return this.toObjectType()
 }
 
-func (this *JSType) getTypeClass() *JSTypeClass {
-	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+func (this *JSType) getTypeClass() JSTypeClass {
+	return this.self_.getTypeClass_impl()
 }
 
 func (this *JSType) isAllType() bool {
-	return this.self_.(interface{ isAllType_impl() bool }).isAllType_impl()
+	return this.self_.isAllType_impl()
 }
 
 func (this *JSType) matchesStringContext() bool {
-	return this.self_.(interface{ matchesStringContext_impl() bool }).matchesStringContext_impl()
+	return this.self_.matchesStringContext_impl()
 }
 
 func (this *JSType) matchesObjectContext() bool {
-	return this.self_.(interface{ matchesObjectContext_impl() bool }).matchesObjectContext_impl()
+	return this.self_.matchesObjectContext_impl()
 }
 
-func (this *JSType) testForEquality(p0 *JSType) *Tri {
-	return this.self_.(interface{ testForEquality_impl(*JSType) *Tri }).testForEquality_impl(p0)
+func (this *JSType) testForEquality(p0 *JSType) Tri {
+	return this.self_.testForEquality_impl(p0)
 }
 
 func (this *JSType) appendTo(p0 *TypeStringBuilder) {
-	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+	this.self_.appendTo_impl(p0)
 }
 
 func (this *JSType) getDisplayName() Optional[string] {
-	return this.self_.(interface{ getDisplayName_impl() Optional[string] }).getDisplayName_impl()
+	return this.self_.getDisplayName_impl()
 }
 
 func (this *JSType) hasDisplayName() bool {
-	return this.self_.(interface{ hasDisplayName_impl() bool }).hasDisplayName_impl()
+	return this.self_.hasDisplayName_impl()
 }
 
 func (this *JSType) visitUntyped(p0 Visitor) any {
-	return this.self_.(interface{ visitUntyped_impl(Visitor) any }).visitUntyped_impl(p0)
+	return this.self_.visitUntyped_impl(p0)
 }
 
 func (this *JSType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	return this.self_.(interface {
-		visitUntyped_2_impl(RelationshipVisitor, *JSType) any
-	}).visitUntyped_2_impl(p0, p1)
+	return this.self_.visitUntyped_2_impl(p0, p1)
 }
 
-func (this *JSType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
-	return this.self_.(interface{ getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet }).getPossibleToBooleanOutcomes_impl()
+func (this *JSType) getPossibleToBooleanOutcomes() BooleanLiteralSet {
+	return this.self_.getPossibleToBooleanOutcomes_impl()
 }
 
 func (this *JSType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
-	return this.self_.(interface {
-		resolveInternal_impl(ErrorReporter_rhino) *JSType
-	}).resolveInternal_impl(p0)
+	return this.self_.resolveInternal_impl(p0)
 }
 
 func (this *JSType) recursionUnsafeHashCode() int32 {
-	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+	return this.self_.recursionUnsafeHashCode_impl()
 }
 
 func (this *JSType) isNullable() bool {
-	return this.self_.(interface{ isNullable_impl() bool }).isNullable_impl()
+	return this.self_.isNullable_impl()
 }
 
 func (this *JSType) isVoidable() bool {
-	return this.self_.(interface{ isVoidable_impl() bool }).isVoidable_impl()
+	return this.self_.isVoidable_impl()
 }
 
 func (this *JSType) getLeastSupertype(p0 *JSType) *JSType {
-	return this.self_.(interface{ getLeastSupertype_impl(*JSType) *JSType }).getLeastSupertype_impl(p0)
+	return this.self_.getLeastSupertype_impl(p0)
 }
 
 func (this *JSType) getGreatestSubtype(p0 *JSType) *JSType {
-	return this.self_.(interface{ getGreatestSubtype_impl(*JSType) *JSType }).getGreatestSubtype_impl(p0)
+	return this.self_.getGreatestSubtype_impl(p0)
 }
 
 func (this *JSType) hasAnyTemplateTypesInternal() bool {
-	return this.self_.(interface{ hasAnyTemplateTypesInternal_impl() bool }).hasAnyTemplateTypesInternal_impl()
+	return this.self_.hasAnyTemplateTypesInternal_impl()
 }
 
 func (this *JSType) toString() string {
-	return this.self_.(interface{ toString_impl() string }).toString_impl()
+	return this.self_.toString_impl()
 }
 
 func (this *JSType) isBigIntValueType() bool {
-	return this.self_.(interface{ isBigIntValueType_impl() bool }).isBigIntValueType_impl()
+	return this.self_.isBigIntValueType_impl()
 }
 
 func (this *JSType) matchesNumberContext() bool {
-	return this.self_.(interface{ matchesNumberContext_impl() bool }).matchesNumberContext_impl()
+	return this.self_.matchesNumberContext_impl()
 }
 
 func (this *JSType) autoboxesTo() *JSType {
-	return this.self_.(interface{ autoboxesTo_impl() *JSType }).autoboxesTo_impl()
+	return this.self_.autoboxesTo_impl()
 }
 
 func (this *JSType) isBooleanValueType() bool {
-	return this.self_.(interface{ isBooleanValueType_impl() bool }).isBooleanValueType_impl()
+	return this.self_.isBooleanValueType_impl()
 }
 
-func (this *JSType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType_HasPropertyKind {
-	return this.self_.(interface {
-		getPropertyKind_2_impl(Property_Key, bool) *JSType_HasPropertyKind
-	}).getPropertyKind_2_impl(p0, p1)
+func (this *JSType) getPropertyKind_2(p0 Property_Key, p1 bool) JSType_HasPropertyKind {
+	return this.self_.getPropertyKind_2_impl(p0, p1)
 }
 
 func (this *JSType) toMaybeEnumElementType() *EnumElementType {
-	return this.self_.(interface{ toMaybeEnumElementType_impl() *EnumElementType }).toMaybeEnumElementType_impl()
+	return this.self_.toMaybeEnumElementType_impl()
 }
 
 func (this *JSType) matchesSymbolContext() bool {
-	return this.self_.(interface{ matchesSymbolContext_impl() bool }).matchesSymbolContext_impl()
+	return this.self_.matchesSymbolContext_impl()
 }
 
 func (this *JSType) canBeCalled() bool {
-	return this.self_.(interface{ canBeCalled_impl() bool }).canBeCalled_impl()
+	return this.self_.canBeCalled_impl()
 }
 
 func (this *JSType) isObject() bool {
-	return this.self_.(interface{ isObject_impl() bool }).isObject_impl()
+	return this.self_.isObject_impl()
 }
 
 func (this *JSType) isNominalType() bool {
-	return this.self_.(interface{ isNominalType_impl() bool }).isNominalType_impl()
+	return this.self_.isNominalType_impl()
 }
 
 func (this *JSType) findPropertyTypeWithoutConsideringTemplateTypes(p0 Property_Key) *JSType {
-	return this.self_.(interface{ findPropertyTypeWithoutConsideringTemplateTypes_impl(Property_Key) *JSType }).findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
+	return this.self_.findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
 }
 
 func (this *JSType) toMaybeEnumType() *EnumType {
-	return this.self_.(interface{ toMaybeEnumType_impl() *EnumType }).toMaybeEnumType_impl()
+	return this.self_.toMaybeEnumType_impl()
 }
 
 func (this *JSType) isInstanceType() bool {
-	return this.self_.(interface{ isInstanceType_impl() bool }).isInstanceType_impl()
+	return this.self_.isInstanceType_impl()
 }
 
 func (this *JSType) isConstructor() bool {
-	return this.self_.(interface{ isConstructor_impl() bool }).isConstructor_impl()
+	return this.self_.isConstructor_impl()
 }
 
 func (this *JSType) isInterface() bool {
-	return this.self_.(interface{ isInterface_impl() bool }).isInterface_impl()
+	return this.self_.isInterface_impl()
 }
 
 func (this *JSType) isOrdinaryFunction() bool {
-	return this.self_.(interface{ isOrdinaryFunction_impl() bool }).isOrdinaryFunction_impl()
+	return this.self_.isOrdinaryFunction_impl()
 }
 
 func (this *JSType) toMaybeFunctionType() *FunctionType {
-	return this.self_.(interface{ toMaybeFunctionType_impl() *FunctionType }).toMaybeFunctionType_impl()
+	return this.self_.toMaybeFunctionType_impl()
 }
 
 func (this *JSType) isStructuralInterface() bool {
-	return this.self_.(interface{ isStructuralInterface_impl() bool }).isStructuralInterface_impl()
+	return this.self_.isStructuralInterface_impl()
 }
 
 func (this *JSType) isTheObjectType() bool {
-	return this.self_.(interface{ isTheObjectType_impl() bool }).isTheObjectType_impl()
+	return this.self_.isTheObjectType_impl()
 }
 
 func (this *JSType) isArrayType() bool {
-	return this.self_.(interface{ isArrayType_impl() bool }).isArrayType_impl()
+	return this.self_.isArrayType_impl()
 }
 
 func (this *JSType) isReadonlyArrayType() bool {
-	return this.self_.(interface{ isReadonlyArrayType_impl() bool }).isReadonlyArrayType_impl()
+	return this.self_.isReadonlyArrayType_impl()
 }
 
 func (this *JSType) isBigIntObjectType() bool {
-	return this.self_.(interface{ isBigIntObjectType_impl() bool }).isBigIntObjectType_impl()
+	return this.self_.isBigIntObjectType_impl()
 }
 
 func (this *JSType) isStringObjectType() bool {
-	return this.self_.(interface{ isStringObjectType_impl() bool }).isStringObjectType_impl()
+	return this.self_.isStringObjectType_impl()
 }
 
 func (this *JSType) isSymbolObjectType() bool {
-	return this.self_.(interface{ isSymbolObjectType_impl() bool }).isSymbolObjectType_impl()
+	return this.self_.isSymbolObjectType_impl()
 }
 
 func (this *JSType) isBooleanObjectType() bool {
-	return this.self_.(interface{ isBooleanObjectType_impl() bool }).isBooleanObjectType_impl()
+	return this.self_.isBooleanObjectType_impl()
 }
 
 func (this *JSType) isNumberObjectType() bool {
-	return this.self_.(interface{ isNumberObjectType_impl() bool }).isNumberObjectType_impl()
+	return this.self_.isNumberObjectType_impl()
 }
 
 func (this *JSType) isDateType() bool {
-	return this.self_.(interface{ isDateType_impl() bool }).isDateType_impl()
+	return this.self_.isDateType_impl()
 }
 
 func (this *JSType) isRegexpType() bool {
-	return this.self_.(interface{ isRegexpType_impl() bool }).isRegexpType_impl()
+	return this.self_.isRegexpType_impl()
 }
 
 func (this *JSType) isKnownSymbolValueType() bool {
-	return this.self_.(interface{ isKnownSymbolValueType_impl() bool }).isKnownSymbolValueType_impl()
+	return this.self_.isKnownSymbolValueType_impl()
 }
 
 func (this *JSType) toMaybeKnownSymbolType() *KnownSymbolType {
-	return this.self_.(interface{ toMaybeKnownSymbolType_impl() *KnownSymbolType }).toMaybeKnownSymbolType_impl()
+	return this.self_.toMaybeKnownSymbolType_impl()
 }
 
 func (this *JSType) toMaybeNamedType() *NamedType {
-	return this.self_.(interface{ toMaybeNamedType_impl() *NamedType }).toMaybeNamedType_impl()
+	return this.self_.toMaybeNamedType_impl()
 }
 
 func (this *JSType) setValidator(p0 Predicate_base) bool {
-	return this.self_.(interface{ setValidator_impl(Predicate_base) bool }).setValidator_impl(p0)
+	return this.self_.setValidator_impl(p0)
 }
 
 func (this *JSType) isNoObjectType() bool {
-	return this.self_.(interface{ isNoObjectType_impl() bool }).isNoObjectType_impl()
+	return this.self_.isNoObjectType_impl()
 }
 
 func (this *JSType) isNoResolvedType() bool {
-	return this.self_.(interface{ isNoResolvedType_impl() bool }).isNoResolvedType_impl()
+	return this.self_.isNoResolvedType_impl()
 }
 
 func (this *JSType) isNoType() bool {
-	return this.self_.(interface{ isNoType_impl() bool }).isNoType_impl()
+	return this.self_.isNoType_impl()
 }
 
 func (this *JSType) isNullType() bool {
-	return this.self_.(interface{ isNullType_impl() bool }).isNullType_impl()
+	return this.self_.isNullType_impl()
 }
 
 func (this *JSType) restrictByNotNullOrUndefined() *JSType {
-	return this.self_.(interface{ restrictByNotNullOrUndefined_impl() *JSType }).restrictByNotNullOrUndefined_impl()
+	return this.self_.restrictByNotNullOrUndefined_impl()
 }
 
 func (this *JSType) restrictByNotNull() *JSType {
-	return this.self_.(interface{ restrictByNotNull_impl() *JSType }).restrictByNotNull_impl()
+	return this.self_.restrictByNotNull_impl()
 }
 
 func (this *JSType) isNumberValueType() bool {
-	return this.self_.(interface{ isNumberValueType_impl() bool }).isNumberValueType_impl()
+	return this.self_.isNumberValueType_impl()
 }
 
 func (this *JSType) getJSDocInfo() *JSDocInfo {
-	return this.self_.(interface{ getJSDocInfo_impl() *JSDocInfo }).getJSDocInfo_impl()
+	return this.self_.getJSDocInfo_impl()
 }
 
 func (this *JSType) isStructuralType() bool {
-	return this.self_.(interface{ isStructuralType_impl() bool }).isStructuralType_impl()
+	return this.self_.isStructuralType_impl()
 }
 
 func (this *JSType) isUnknownType() bool {
-	return this.self_.(interface{ isUnknownType_impl() bool }).isUnknownType_impl()
+	return this.self_.isUnknownType_impl()
 }
 
 func (this *JSType) isNativeObjectType() bool {
-	return this.self_.(interface{ isNativeObjectType_impl() bool }).isNativeObjectType_impl()
+	return this.self_.isNativeObjectType_impl()
 }
 
 func (this *JSType) isFunctionPrototypeType() bool {
-	return this.self_.(interface{ isFunctionPrototypeType_impl() bool }).isFunctionPrototypeType_impl()
+	return this.self_.isFunctionPrototypeType_impl()
 }
 
 func (this *JSType) getTemplateParamCount() int32 {
-	return this.self_.(interface{ getTemplateParamCount_impl() int32 }).getTemplateParamCount_impl()
+	return this.self_.getTemplateParamCount_impl()
 }
 
 func (this *JSType) matchConstraint(p0 *JSType) {
-	this.self_.(interface{ matchConstraint_impl(*JSType) }).matchConstraint_impl(p0)
+	this.self_.matchConstraint_impl(p0)
 }
 
 func (this *JSType) loosenTypecheckingDueToForwardReferencedSupertype() bool {
-	return this.self_.(interface{ loosenTypecheckingDueToForwardReferencedSupertype_impl() bool }).loosenTypecheckingDueToForwardReferencedSupertype_impl()
+	return this.self_.loosenTypecheckingDueToForwardReferencedSupertype_impl()
 }
 
 func (this *JSType) isCheckedUnknownType() bool {
-	return this.self_.(interface{ isCheckedUnknownType_impl() bool }).isCheckedUnknownType_impl()
+	return this.self_.isCheckedUnknownType_impl()
 }
 
 func (this *JSType) isStruct() bool {
-	return this.self_.(interface{ isStruct_impl() bool }).isStruct_impl()
+	return this.self_.isStruct_impl()
 }
 
 func (this *JSType) isDict() bool {
-	return this.self_.(interface{ isDict_impl() bool }).isDict_impl()
+	return this.self_.isDict_impl()
 }
 
 func (this *JSType) toMaybeRecordType() *RecordType {
-	return this.self_.(interface{ toMaybeRecordType_impl() *RecordType }).toMaybeRecordType_impl()
+	return this.self_.toMaybeRecordType_impl()
 }
 
 func (this *JSType) toMaybeUnionType() *UnionType {
-	return this.self_.(interface{ toMaybeUnionType_impl() *UnionType }).toMaybeUnionType_impl()
+	return this.self_.toMaybeUnionType_impl()
 }
 
 func (this *JSType) collapseUnion() *JSType {
-	return this.self_.(interface{ collapseUnion_impl() *JSType }).collapseUnion_impl()
+	return this.self_.collapseUnion_impl()
 }
 
 func (this *JSType) toMaybeTemplatizedType() *TemplatizedType {
-	return this.self_.(interface{ toMaybeTemplatizedType_impl() *TemplatizedType }).toMaybeTemplatizedType_impl()
+	return this.self_.toMaybeTemplatizedType_impl()
 }
 
 func (this *JSType) toMaybeTemplateType() *TemplateType {
-	return this.self_.(interface{ toMaybeTemplateType_impl() *TemplateType }).toMaybeTemplateType_impl()
+	return this.self_.toMaybeTemplateType_impl()
 }
 
 func (this *JSType) getTemplateTypeMap() *TemplateTypeMap {
-	return this.self_.(interface{ getTemplateTypeMap_impl() *TemplateTypeMap }).getTemplateTypeMap_impl()
+	return this.self_.getTemplateTypeMap_impl()
 }
 
 func (this *JSType) isStringValueType() bool {
-	return this.self_.(interface{ isStringValueType_impl() bool }).isStringValueType_impl()
+	return this.self_.isStringValueType_impl()
 }
 
 func (this *JSType) isSymbolValueType() bool {
-	return this.self_.(interface{ isSymbolValueType_impl() bool }).isSymbolValueType_impl()
+	return this.self_.isSymbolValueType_impl()
 }
 
 func (this *JSType) autobox() *JSType {
-	return this.self_.(interface{ autobox_impl() *JSType }).autobox_impl()
+	return this.self_.autobox_impl()
 }
 
 func (this *JSType) restrictByNotUndefined() *JSType {
-	return this.self_.(interface{ restrictByNotUndefined_impl() *JSType }).restrictByNotUndefined_impl()
+	return this.self_.restrictByNotUndefined_impl()
 }
 
 func (this *JSType) isExplicitlyVoidable() bool {
-	return this.self_.(interface{ isExplicitlyVoidable_impl() bool }).isExplicitlyVoidable_impl()
+	return this.self_.isExplicitlyVoidable_impl()
 }
 
-func (this *JSType) getRestrictedTypeGivenOutcome(p0 *Outcome_rhino) *JSType {
-	return this.self_.(interface{ getRestrictedTypeGivenOutcome_impl(*Outcome_rhino) *JSType }).getRestrictedTypeGivenOutcome_impl(p0)
+func (this *JSType) getRestrictedTypeGivenOutcome(p0 Outcome_rhino) *JSType {
+	return this.self_.getRestrictedTypeGivenOutcome_impl(p0)
 }
 
 func (this *JSType) getTypesUnderEquality(p0 *JSType) *JSType_TypePair {
-	return this.self_.(interface {
-		getTypesUnderEquality_impl(*JSType) *JSType_TypePair
-	}).getTypesUnderEquality_impl(p0)
+	return this.self_.getTypesUnderEquality_impl(p0)
 }
 
 func (this *JSType) getTypesUnderInequality(p0 *JSType) *JSType_TypePair {
-	return this.self_.(interface {
-		getTypesUnderInequality_impl(*JSType) *JSType_TypePair
-	}).getTypesUnderInequality_impl(p0)
+	return this.self_.getTypesUnderInequality_impl(p0)
 }
 
 func (this *JSType) getTypesUnderShallowInequality(p0 *JSType) *JSType_TypePair {
-	return this.self_.(interface {
-		getTypesUnderShallowInequality_impl(*JSType) *JSType_TypePair
-	}).getTypesUnderShallowInequality_impl(p0)
+	return this.self_.getTypesUnderShallowInequality_impl(p0)
 }
 
 func (this *JSType) isVoidType() bool {
-	return this.self_.(interface{ isVoidType_impl() bool }).isVoidType_impl()
+	return this.self_.isVoidType_impl()
 }
 
 const JSType_serialVersionUID int64 = 1
@@ -1322,30 +1510,48 @@ func JSType_clinit() {
 
 }
 
-type JSType_HasPropertyKind struct {
-	Enum
+type JSType_HasPropertyKind uint8
+
+// JSType_HasPropertyKind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSType_HasPropertyKind_enum_ = [3]Enum{
+	{self_: JSType_HasPropertyKind_ABSENT, name_: "ABSENT", ordinal_: 0},
+	{self_: JSType_HasPropertyKind_KNOWN_PRESENT, name_: "KNOWN_PRESENT", ordinal_: 1},
+	{self_: JSType_HasPropertyKind_MAYBE_PRESENT, name_: "MAYBE_PRESENT", ordinal_: 2},
 }
 
-func (this *JSType_HasPropertyKind) up_Enum() *Enum {
-	if this == nil {
+func (this JSType_HasPropertyKind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSType_HasPropertyKind_enum_[this-1]
 }
 
-func (this *JSType_HasPropertyKind) init_JSType_HasPropertyKind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JSType_HasPropertyKind) name() string { return this.enum_().name_ }
+
+func (this JSType_HasPropertyKind) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_JSType_HasPropertyKind(name_ string, ordinal_ int32) *JSType_HasPropertyKind {
-	this := &JSType_HasPropertyKind{}
-	this.self_ = this
-	this.init_JSType_HasPropertyKind(name_, ordinal_)
+func (this JSType_HasPropertyKind) toString() string {
+	return this.enum_().name_
+}
+
+func (this JSType_HasPropertyKind) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this JSType_HasPropertyKind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSType_HasPropertyKind_of(has bool) *JSType_HasPropertyKind {
-	return func() *JSType_HasPropertyKind {
+func JSType_HasPropertyKind_of(has bool) JSType_HasPropertyKind {
+	return func() JSType_HasPropertyKind {
 		if has {
 			return JSType_HasPropertyKind_KNOWN_PRESENT
 		}
@@ -1353,23 +1559,24 @@ func JSType_HasPropertyKind_of(has bool) *JSType_HasPropertyKind {
 	}()
 }
 
-func JSType_HasPropertyKind_values() []*JSType_HasPropertyKind {
-	return append([]*JSType_HasPropertyKind(nil), JSType_HasPropertyKind_values_...)
+func JSType_HasPropertyKind_values() []JSType_HasPropertyKind {
+	return append([]JSType_HasPropertyKind(nil), JSType_HasPropertyKind_values_...)
 }
 
-func JSType_HasPropertyKind_valueOf(name string) *JSType_HasPropertyKind {
+func JSType_HasPropertyKind_valueOf(name string) JSType_HasPropertyKind {
 	for _, v := range JSType_HasPropertyKind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("HasPropertyKind", name))
 }
 
-var JSType_HasPropertyKind_ABSENT *JSType_HasPropertyKind
-var JSType_HasPropertyKind_KNOWN_PRESENT *JSType_HasPropertyKind
-var JSType_HasPropertyKind_MAYBE_PRESENT *JSType_HasPropertyKind
-var JSType_HasPropertyKind_values_ []*JSType_HasPropertyKind
+const JSType_HasPropertyKind_ABSENT JSType_HasPropertyKind = 1
+const JSType_HasPropertyKind_KNOWN_PRESENT JSType_HasPropertyKind = 2
+const JSType_HasPropertyKind_MAYBE_PRESENT JSType_HasPropertyKind = 3
+
+var JSType_HasPropertyKind_values_ []JSType_HasPropertyKind
 
 var JSType_HasPropertyKind_clinit_done bool
 
@@ -1378,52 +1585,65 @@ func JSType_HasPropertyKind_clinit() {
 		return
 	}
 	JSType_HasPropertyKind_clinit_done = true
-	JSType_HasPropertyKind_ABSENT = new_JSType_HasPropertyKind("ABSENT", 0)
-	JSType_HasPropertyKind_KNOWN_PRESENT = new_JSType_HasPropertyKind("KNOWN_PRESENT", 1)
-	JSType_HasPropertyKind_MAYBE_PRESENT = new_JSType_HasPropertyKind("MAYBE_PRESENT", 2)
-	JSType_HasPropertyKind_values_ = []*JSType_HasPropertyKind{JSType_HasPropertyKind_ABSENT, JSType_HasPropertyKind_KNOWN_PRESENT, JSType_HasPropertyKind_MAYBE_PRESENT}
+	JSType_HasPropertyKind_values_ = []JSType_HasPropertyKind{JSType_HasPropertyKind_ABSENT, JSType_HasPropertyKind_KNOWN_PRESENT, JSType_HasPropertyKind_MAYBE_PRESENT}
 	registerEnum_("com.google.javascript.rhino.jstype.JSType.HasPropertyKind", enumValues_(JSType_HasPropertyKind_values_))
 
 }
 
-type JSType_SubtypingMode struct {
-	Enum
+type JSType_SubtypingMode uint8
+
+// JSType_SubtypingMode_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSType_SubtypingMode_enum_ = [2]Enum{
+	{self_: JSType_SubtypingMode_NORMAL, name_: "NORMAL", ordinal_: 0},
+	{self_: JSType_SubtypingMode_IGNORE_NULL_UNDEFINED, name_: "IGNORE_NULL_UNDEFINED", ordinal_: 1},
 }
 
-func (this *JSType_SubtypingMode) up_Enum() *Enum {
-	if this == nil {
+func (this JSType_SubtypingMode) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSType_SubtypingMode_enum_[this-1]
 }
 
-func (this *JSType_SubtypingMode) init_JSType_SubtypingMode(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JSType_SubtypingMode) name() string { return this.enum_().name_ }
+
+func (this JSType_SubtypingMode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_JSType_SubtypingMode(name_ string, ordinal_ int32) *JSType_SubtypingMode {
-	this := &JSType_SubtypingMode{}
-	this.self_ = this
-	this.init_JSType_SubtypingMode(name_, ordinal_)
+func (this JSType_SubtypingMode) toString() string { return this.enum_().name_ }
+
+func (this JSType_SubtypingMode) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this JSType_SubtypingMode) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSType_SubtypingMode_values() []*JSType_SubtypingMode {
-	return append([]*JSType_SubtypingMode(nil), JSType_SubtypingMode_values_...)
+func JSType_SubtypingMode_values() []JSType_SubtypingMode {
+	return append([]JSType_SubtypingMode(nil), JSType_SubtypingMode_values_...)
 }
 
-func JSType_SubtypingMode_valueOf(name string) *JSType_SubtypingMode {
+func JSType_SubtypingMode_valueOf(name string) JSType_SubtypingMode {
 	for _, v := range JSType_SubtypingMode_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("SubtypingMode", name))
 }
 
-var JSType_SubtypingMode_NORMAL *JSType_SubtypingMode
-var JSType_SubtypingMode_IGNORE_NULL_UNDEFINED *JSType_SubtypingMode
-var JSType_SubtypingMode_values_ []*JSType_SubtypingMode
+const JSType_SubtypingMode_NORMAL JSType_SubtypingMode = 1
+const JSType_SubtypingMode_IGNORE_NULL_UNDEFINED JSType_SubtypingMode = 2
+
+var JSType_SubtypingMode_values_ []JSType_SubtypingMode
 
 var JSType_SubtypingMode_clinit_done bool
 
@@ -1432,9 +1652,7 @@ func JSType_SubtypingMode_clinit() {
 		return
 	}
 	JSType_SubtypingMode_clinit_done = true
-	JSType_SubtypingMode_NORMAL = new_JSType_SubtypingMode("NORMAL", 0)
-	JSType_SubtypingMode_IGNORE_NULL_UNDEFINED = new_JSType_SubtypingMode("IGNORE_NULL_UNDEFINED", 1)
-	JSType_SubtypingMode_values_ = []*JSType_SubtypingMode{JSType_SubtypingMode_NORMAL, JSType_SubtypingMode_IGNORE_NULL_UNDEFINED}
+	JSType_SubtypingMode_values_ = []JSType_SubtypingMode{JSType_SubtypingMode_NORMAL, JSType_SubtypingMode_IGNORE_NULL_UNDEFINED}
 	registerEnum_("com.google.javascript.rhino.jstype.JSType.SubtypingMode", enumValues_(JSType_SubtypingMode_values_))
 
 }
@@ -1460,36 +1678,56 @@ type JSType_WithSourceRef interface {
 	getGoogModuleId() string
 }
 
-type JSType_MatchStatus struct {
-	Enum
-	isSubtype_ bool
+type JSType_MatchStatus uint8
+
+// JSType_MatchStatus_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSType_MatchStatus_enum_ = [3]Enum{
+	{self_: JSType_MatchStatus_MATCH, name_: "MATCH", ordinal_: 0},
+	{self_: JSType_MatchStatus_NOT_MATCH, name_: "NOT_MATCH", ordinal_: 1},
+	{self_: JSType_MatchStatus_PROCESSING, name_: "PROCESSING", ordinal_: 2},
 }
 
-func (this *JSType_MatchStatus) up_Enum() *Enum {
-	if this == nil {
+var JSType_MatchStatus_isSubtype__ [3]bool
+
+func (this JSType_MatchStatus) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSType_MatchStatus_enum_[this-1]
 }
 
-func (this *JSType_MatchStatus) init_JSType_MatchStatus(name_ string, ordinal_ int32, isSubtype bool) {
-	this.Enum.init_Enum(name_, ordinal_)
-	this.isSubtype_ = isSubtype
+func (this JSType_MatchStatus) name() string { return this.enum_().name_ }
+
+func (this JSType_MatchStatus) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_JSType_MatchStatus(name_ string, ordinal_ int32, isSubtype bool) *JSType_MatchStatus {
-	this := &JSType_MatchStatus{}
-	this.self_ = this
-	this.init_JSType_MatchStatus(name_, ordinal_, isSubtype)
+func (this JSType_MatchStatus) toString() string { return this.enum_().name_ }
+
+func (this JSType_MatchStatus) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this JSType_MatchStatus) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *JSType_MatchStatus) subtypeValue() bool {
-	return this.isSubtype_
+func (this JSType_MatchStatus) init_JSType_MatchStatus(isSubtype bool) {
+	JSType_MatchStatus_isSubtype__[this-1] = isSubtype
 }
 
-func JSType_MatchStatus_valueOfBoolean(match bool) *JSType_MatchStatus {
-	return func() *JSType_MatchStatus {
+func (this JSType_MatchStatus) subtypeValue() bool {
+	return JSType_MatchStatus_isSubtype__[this-1]
+}
+
+func JSType_MatchStatus_valueOfBoolean(match bool) JSType_MatchStatus {
+	return func() JSType_MatchStatus {
 		if match {
 			return JSType_MatchStatus_MATCH
 		}
@@ -1497,23 +1735,24 @@ func JSType_MatchStatus_valueOfBoolean(match bool) *JSType_MatchStatus {
 	}()
 }
 
-func JSType_MatchStatus_values() []*JSType_MatchStatus {
-	return append([]*JSType_MatchStatus(nil), JSType_MatchStatus_values_...)
+func JSType_MatchStatus_values() []JSType_MatchStatus {
+	return append([]JSType_MatchStatus(nil), JSType_MatchStatus_values_...)
 }
 
-func JSType_MatchStatus_valueOf(name string) *JSType_MatchStatus {
+func JSType_MatchStatus_valueOf(name string) JSType_MatchStatus {
 	for _, v := range JSType_MatchStatus_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("MatchStatus", name))
 }
 
-var JSType_MatchStatus_MATCH *JSType_MatchStatus
-var JSType_MatchStatus_NOT_MATCH *JSType_MatchStatus
-var JSType_MatchStatus_PROCESSING *JSType_MatchStatus
-var JSType_MatchStatus_values_ []*JSType_MatchStatus
+const JSType_MatchStatus_MATCH JSType_MatchStatus = 1
+const JSType_MatchStatus_NOT_MATCH JSType_MatchStatus = 2
+const JSType_MatchStatus_PROCESSING JSType_MatchStatus = 3
+
+var JSType_MatchStatus_values_ []JSType_MatchStatus
 
 var JSType_MatchStatus_clinit_done bool
 
@@ -1522,52 +1761,68 @@ func JSType_MatchStatus_clinit() {
 		return
 	}
 	JSType_MatchStatus_clinit_done = true
-	JSType_MatchStatus_MATCH = new_JSType_MatchStatus("MATCH", 0, true)
-	JSType_MatchStatus_NOT_MATCH = new_JSType_MatchStatus("NOT_MATCH", 1, false)
-	JSType_MatchStatus_PROCESSING = new_JSType_MatchStatus("PROCESSING", 2, true)
-	JSType_MatchStatus_values_ = []*JSType_MatchStatus{JSType_MatchStatus_MATCH, JSType_MatchStatus_NOT_MATCH, JSType_MatchStatus_PROCESSING}
+	JSType_MatchStatus_MATCH.init_JSType_MatchStatus(true)
+	JSType_MatchStatus_NOT_MATCH.init_JSType_MatchStatus(false)
+	JSType_MatchStatus_PROCESSING.init_JSType_MatchStatus(true)
+	JSType_MatchStatus_values_ = []JSType_MatchStatus{JSType_MatchStatus_MATCH, JSType_MatchStatus_NOT_MATCH, JSType_MatchStatus_PROCESSING}
 	registerEnum_("com.google.javascript.rhino.jstype.JSType.MatchStatus", enumValues_(JSType_MatchStatus_values_))
 
 }
 
-type JSType_Nullability struct {
-	Enum
+type JSType_Nullability uint8
+
+// JSType_Nullability_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var JSType_Nullability_enum_ = [2]Enum{
+	{self_: JSType_Nullability_EXPLICIT, name_: "EXPLICIT", ordinal_: 0},
+	{self_: JSType_Nullability_IMPLICIT, name_: "IMPLICIT", ordinal_: 1},
 }
 
-func (this *JSType_Nullability) up_Enum() *Enum {
-	if this == nil {
+func (this JSType_Nullability) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &JSType_Nullability_enum_[this-1]
 }
 
-func (this *JSType_Nullability) init_JSType_Nullability(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this JSType_Nullability) name() string { return this.enum_().name_ }
+
+func (this JSType_Nullability) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_JSType_Nullability(name_ string, ordinal_ int32) *JSType_Nullability {
-	this := &JSType_Nullability{}
-	this.self_ = this
-	this.init_JSType_Nullability(name_, ordinal_)
+func (this JSType_Nullability) toString() string { return this.enum_().name_ }
+
+func (this JSType_Nullability) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this JSType_Nullability) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func JSType_Nullability_values() []*JSType_Nullability {
-	return append([]*JSType_Nullability(nil), JSType_Nullability_values_...)
+func JSType_Nullability_values() []JSType_Nullability {
+	return append([]JSType_Nullability(nil), JSType_Nullability_values_...)
 }
 
-func JSType_Nullability_valueOf(name string) *JSType_Nullability {
+func JSType_Nullability_valueOf(name string) JSType_Nullability {
 	for _, v := range JSType_Nullability_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Nullability", name))
 }
 
-var JSType_Nullability_EXPLICIT *JSType_Nullability
-var JSType_Nullability_IMPLICIT *JSType_Nullability
-var JSType_Nullability_values_ []*JSType_Nullability
+const JSType_Nullability_EXPLICIT JSType_Nullability = 1
+const JSType_Nullability_IMPLICIT JSType_Nullability = 2
+
+var JSType_Nullability_values_ []JSType_Nullability
 
 var JSType_Nullability_clinit_done bool
 
@@ -1576,9 +1831,7 @@ func JSType_Nullability_clinit() {
 		return
 	}
 	JSType_Nullability_clinit_done = true
-	JSType_Nullability_EXPLICIT = new_JSType_Nullability("EXPLICIT", 0)
-	JSType_Nullability_IMPLICIT = new_JSType_Nullability("IMPLICIT", 1)
-	JSType_Nullability_values_ = []*JSType_Nullability{JSType_Nullability_EXPLICIT, JSType_Nullability_IMPLICIT}
+	JSType_Nullability_values_ = []JSType_Nullability{JSType_Nullability_EXPLICIT, JSType_Nullability_IMPLICIT}
 	registerEnum_("com.google.javascript.rhino.jstype.JSType.Nullability", enumValues_(JSType_Nullability_values_))
 
 }

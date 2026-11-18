@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ClosureRewriteModule struct {
 	compiler_                         *AbstractCompiler
 	astFactory_                       *AstFactory
@@ -33,7 +35,9 @@ func (this *ClosureRewriteModule) finit_ClosureRewriteModule() {
 
 func (this *ClosureRewriteModule) init_ClosureRewriteModule(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope) {
 	this.finit_ClosureRewriteModule()
-	Preconditions_checkArgument(((globalTypedScope == nil) || globalTypedScope.isGlobal()))
+	if globalTypedScope != nil && !globalTypedScope.isGlobal() {
+		panic(new_IllegalArgumentException_0())
+	}
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.preprocessorSymbolTable = preprocessorSymbolTable
@@ -48,20 +52,18 @@ func new_ClosureRewriteModule(compiler *AbstractCompiler, preprocessorSymbolTabl
 }
 
 func ClosureRewriteModule_getBinaryModuleNamespace(namespaceId string) string {
-	return (sstr_(ClosureRewriteModule_MODULE_EXPORTS_PREFIX) + sstr_(String_replace_char_char(namespaceId, '.', '$')))
+	return (sstr_(ClosureRewriteModule_MODULE_EXPORTS_PREFIX) + sstr_(strings.ReplaceAll(namespaceId, ".", "$")))
 }
 
 func (this *ClosureRewriteModule) rewriteJsdoc(info *JSDocInfo, scope *Scope) {
 	var replacer *ClosureRewriteModule_ReplaceJsDocRefs = new_ClosureRewriteModule_ReplaceJsDocRefs(this, scope)
-	it_1 := foreach_(any(info.getTypeNodes()))
-	for it_1.next() {
-		var typeNode Node = Node_of_(it_1.v)
-		NodeUtil_visitPreOrder_Node_Visitor(typeNode, icast_NodeUtil_Visitor(obj_(replacer)))
+	for typeNode := range elemsBy_(info.getTypeNodes(), Node_of_) {
+		NodeUtil_visitPreOrder_Node_Visitor(typeNode, replacer)
 	}
 }
 
 func (this *ClosureRewriteModule) isWeakNamespace(namespaceId string) bool {
-	var metadata *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.compiler_.getModuleMetadataMap().getModulesByGoogNamespace(), namespaceId))
+	var metadata *ModuleMetadataMap_ModuleMetadata = this.compiler_.getModuleMetadataMap().getModulesByGoogNamespace().Get(namespaceId)
 	return ((metadata != nil) && metadata.rootNode().getStaticSourceFile().isWeak())
 }
 
@@ -69,25 +71,26 @@ func (this *ClosureRewriteModule) isUnrequiredWeakNamespace(call Node, namespace
 	if call.getStaticSourceFile().isWeak() || !this.isWeakNamespace(namespaceId) {
 		return false
 	}
-	var callerMetadata *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.compiler_.getModuleMetadataMap().getModulesByPath(), call.getSourceFileName()))
-	return ((callerMetadata == nil) || !callerMetadata.stronglyRequiredGoogNamespaces().contains(strobj_(namespaceId)))
+	var callerMetadata *ModuleMetadataMap_ModuleMetadata = this.compiler_.getModuleMetadataMap().getModulesByPath().Get(call.getSourceFileName())
+	return ((callerMetadata == nil) || !callerMetadata.stronglyRequiredGoogNamespaces().contains_s(namespaceId))
 }
 
 func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 	var scriptDescriptions *TDeque[*ClosureRewriteModule_ScriptDescription] = newTDeque_(jtc_p_ClosureRewriteModule_ScriptDescription)
-	it_1 := foreach_(obj_(ImmutableList_of_Object_Object(externs.box_(), root.box_())))
-	for it_1.next() {
-		var parent Node = Node_of_(it_1.v)
+	for _, el := range immElems_(ImmutableList_of_Object_Object(externs.box_(), root.box_())) {
+		parent := Node_of_(el)
 		{
 			var script Node = parent.getFirstChild()
 			for ; script != 0; script = script.getNext() {
-				Preconditions_checkState_boolean_Object(script.isScript(), script.box_())
-				NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_ClosureRewriteModule_UnwrapGoogLoadModule(this))))
+				if !script.isScript() {
+					panic(new_IllegalStateException_String(tostr_(script)))
+				}
+				NodeTraversal_traverse(this.compiler_, script, new_ClosureRewriteModule_UnwrapGoogLoadModule(this))
 				this.pushScript(new_ClosureRewriteModule_ScriptDescription())
 				this.currentScript.rootNode_ = script
 				scriptDescriptions.add(this.currentScript)
-				NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_ClosureRewriteModule_ScriptPreprocessor(this))))
-				NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_ClosureRewriteModule_ScriptRecorder(this))))
+				NodeTraversal_traverse(this.compiler_, script, new_ClosureRewriteModule_ScriptPreprocessor(this))
+				NodeTraversal_traverse(this.compiler_, script, new_ClosureRewriteModule_ScriptRecorder(this))
 				this.popScript()
 			}
 		}
@@ -96,27 +99,27 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 	if this.compiler_.hasHaltingErrors() {
 		return
 	}
-	NodeTraversal_traverseRoots(this.compiler_, icast_NodeTraversal_Callback(obj_(new_ClosureRewriteModule_ScriptUpdater(this, scriptDescriptions))), externs, root)
+	NodeTraversal_traverseRoots(this.compiler_, new_ClosureRewriteModule_ScriptUpdater(this, scriptDescriptions), externs, root)
 	this.declareSyntheticExterns()
 	Iterable_forEach(Iterable(this.googModuleGetCalls.asList()), &Consumer_tfn_Node{func(p0 Node) { this.updateGoogModuleGetCall(p0) }})
 	Iterable_forEach(Iterable(this.googRequireDynamicCalls.asList()), &Consumer_tfn_Node{func(p0 Node) { this.updateGoogRequireDynamicCall(p0) }})
 }
 
 func (this *ClosureRewriteModule) declareSyntheticExterns() {
-	var varsBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
+	var varsBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	it_1 := this.syntheticExterns.eachValue()
 	for it_1.next() {
 		var lhs Node = it_1.v
 		if !this.isNameInGlobalScope(lhs.getString()) {
-			varsBuilder.add(IR_var_Node(this.astFactory_.createNameWithUnknownType(lhs.getString())).srcrefTree(lhs).box_())
+			varsBuilder.add(IR_var_Node(this.astFactory_.createNameWithUnknownType(lhs.getString())).srcrefTree(lhs))
 		}
 	}
-	var vars ImmutableListOf[Node] = cast_[*ImmutableList](obj_(varsBuilder.build()))
+	var vars *ImmutableList[Node] = varsBuilder.build()
 	if vars.isEmpty() {
 		return
 	}
 	var root Node = this.compiler_.getSynthesizedExternsInput().getAstRoot(this.compiler_)
-	Iterable_forEach(icast_Iterable(obj_(vars)), &Consumer_tfn_Node{func(p0 Node) { root.addChildToBack(p0) }})
+	Iterable_forEach(icast_Iterable(obj_(vars.asImm())), &Consumer_tfn_Node{func(p0 Node) { root.addChildToBack(p0) }})
 }
 
 func (this *ClosureRewriteModule) isNameInGlobalScope(name string) bool {
@@ -127,7 +130,9 @@ func (this *ClosureRewriteModule) preprocessExportDeclaration(t *NodeTraversal, 
 	if (!ClosureRewriteModule_isGoogModuleExportsRef(t, n) || !ClosureRewriteModule_isAssignTarget(n)) || !n.getGrandparent().isExprResult() {
 		return
 	}
-	Preconditions_checkState((this.currentScript.defaultExport == nil))
+	if this.currentScript.defaultExport != nil {
+		panic(new_IllegalStateException_0())
+	}
 	var exportRhs Node = n.getNext()
 	if NodeUtil_isNamedExportsLiteral(exportRhs) {
 		var insertionPoint Node = n.getGrandparent()
@@ -164,7 +169,7 @@ func (this *ClosureRewriteModule) recordGoogModule(t *NodeTraversal, call Node) 
 	this.currentScript.contentsPrefix = ClosureRewriteModule_toModuleContentsPrefix(namespaceId)
 	var scriptNode Node = NodeUtil_getEnclosingScript(this.currentScript.rootNode_)
 	this.rewriteState.scriptDescriptionsByGoogModuleNamespace.put(namespaceId, this.currentScript)
-	this.rewriteState.namespaceIdsByScriptNode.put(scriptNode.box_(), strobj_(namespaceId))
+	this.rewriteState.namespaceIdsByScriptNode.put(scriptNode, namespaceId)
 }
 
 func (this *ClosureRewriteModule) recordGoogDeclareLegacyNamespace() {
@@ -174,8 +179,8 @@ func (this *ClosureRewriteModule) recordGoogDeclareLegacyNamespace() {
 
 func (this *ClosureRewriteModule) updateLegacyScriptNamespacesAndPrefixes(namespace string) {
 	this.legacyScriptNamespacesAndPrefixes.add(namespace)
-	for dot := int32(String_lastIndexOf(namespace, 46)); dot != -1; dot = String_lastIndexOf(namespace, 46) {
-		namespace = String_substring(namespace, 0, dot)
+	for dot := int32(strings.LastIndexByte(namespace, '.')); dot != -1; dot = int32(strings.LastIndexByte(namespace, '.')) {
+		namespace = namespace[:dot]
 		this.legacyScriptNamespacesAndPrefixes.add(namespace)
 	}
 }
@@ -192,7 +197,7 @@ func (this *ClosureRewriteModule) recordGoogProvide(t *NodeTraversal, call Node)
 	}
 	var scriptNode Node = NodeUtil_getEnclosingScript(call)
 	this.rewriteState.providedNamespaces.add(namespaceId)
-	this.rewriteState.namespaceIdsByScriptNode.put(scriptNode.box_(), strobj_(namespaceId))
+	this.rewriteState.namespaceIdsByScriptNode.put(scriptNode, namespaceId)
 	this.updateLegacyScriptNamespacesAndPrefixes(namespaceId)
 }
 
@@ -277,16 +282,16 @@ func (this *ClosureRewriteModule) recordGoogModuleGet(t *NodeTraversal, call Nod
 
 func (this *ClosureRewriteModule) recordTopLevelClassOrFunctionName(classOrFunctionNode Node) {
 	var nameNode Node = classOrFunctionNode.getFirstChild()
-	if nameNode.isName() && !String_isEmpty(nameNode.getString()) {
+	if nameNode.isName() && nameNode.getString() != "" {
 		var name string = nameNode.getString()
 		this.currentScript.topLevelNames.add(name)
 	}
 }
 
 func (this *ClosureRewriteModule) recordTopLevelVarNames(varNode Node) {
-	NodeUtil_visitLhsNodesInNode(varNode, &Consumer_tfn_Node{func(lhs Node) {
+	NodeUtil_visitLhsNodesInNode(varNode, (&Consumer_tfn_Node{func(lhs Node) {
 		this.currentScript.topLevelNames.add(lhs.getString())
-	}})
+	}}).accept)
 }
 
 func (this *ClosureRewriteModule) maybeRecordExportDeclaration(t *NodeTraversal, n Node) {
@@ -302,7 +307,9 @@ func (this *ClosureRewriteModule) maybeRecordExportDeclaration(t *NodeTraversal,
 		this.currentScript.defaultExportLocalName = Optional_empty[string]()
 	}
 	var exportRhs Node = n.getNext()
-	Preconditions_checkState_boolean_Object(!NodeUtil_isNamedExportsLiteral(exportRhs), strobj_("Exports object should have been converted already"))
+	if NodeUtil_isNamedExportsLiteral(exportRhs) {
+		panic(new_IllegalStateException_String("Exports object should have been converted already"))
+	}
 	this.currentScript.willCreateExportsObject = true
 	var defaultExport *ClosureRewriteModule_ExportDefinition = ClosureRewriteModule_ExportDefinition_newDefaultExport(t, exportRhs)
 	this.currentScript.defaultExport = defaultExport
@@ -330,7 +337,9 @@ func (this *ClosureRewriteModule) updateGoogModule(t *NodeTraversal, call Node) 
 		this.compiler_.reportChangeToEnclosingScope(call)
 	}
 	if !this.currentScript.willCreateExportsObject {
-		Preconditions_checkState_boolean_Object(!this.currentScript.hasCreatedExportObject, obj_(this.currentScript))
+		if this.currentScript.hasCreatedExportObject {
+			panic(new_IllegalStateException_String(objstr_(obj_(this.currentScript))))
+		}
 		this.exportTheEmptyBinaryNamespaceAt(NodeUtil_getEnclosingStatement(call), ClosureRewriteModule_AddAt_AFTER, t)
 	}
 	if !this.currentScript.declareLegacyNamespace && !this.preserveSugar {
@@ -369,7 +378,9 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 			{
 				var importSpec Node = lhs.getFirstFirstChild()
 				for ; importSpec != 0; importSpec = importSpec.getNext() {
-					Preconditions_checkState_boolean_Object(importSpec.hasChildren(), importSpec.box_())
+					if !importSpec.hasChildren() {
+						panic(new_IllegalStateException_String(tostr_(importSpec)))
+					}
 					var importedProperty string = importSpec.getString()
 					var aliasNode Node = importSpec.getFirstChild()
 					var aliasName string = aliasNode.getString()
@@ -380,7 +391,7 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 				}
 			}
 		} else {
-			panic(new_RuntimeException_String(("Illegal goog.module import: " + objstr_(lhs.box_()))).self())
+			panic(new_RuntimeException_String(("Illegal goog.module import: " + tostr_(lhs))))
 		}
 	}
 	if this.currentScript.isModule_ || targetIsNonLegacyGoogModule {
@@ -390,7 +401,9 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 				statementNode.detach()
 			}
 		} else if targetIsNonLegacyGoogModule {
-			Preconditions_checkState_boolean_String_Object(this.isTopLevel(t, statementNode, ClosureRewriteModule_ScopeType_EXEC_CONTEXT), "Unexpected non-top-level require at %s", call.box_())
+			if !this.isTopLevel(t, statementNode, ClosureRewriteModule_ScopeType_EXEC_CONTEXT) {
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected non-top-level require at %s", []any{call.box_()})))
+			}
 			if importHasAlias || !this.rewriteState.isLegacyModule(namespaceId) {
 				if !this.preserveSugar {
 					this.compiler_.reportChangeToEnclosingScope(statementNode)
@@ -406,7 +419,9 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 }
 
 func (this *ClosureRewriteModule) maybeWarnForInvalidDestructuring(t *NodeTraversal, importNode Node, importedNamespace string) {
-	Preconditions_checkArgument_boolean_Object(importNode.getFirstChild().isDestructuringLhs(), importNode.box_())
+	if !importNode.getFirstChild().isDestructuringLhs() {
+		panic(new_IllegalArgumentException_String(tostr_(importNode)))
+	}
 	var importedModule *ClosureRewriteModule_ScriptDescription = this.rewriteState.scriptDescriptionsByGoogModuleNamespace.get(importedNamespace)
 	if importedModule == nil {
 		return
@@ -442,7 +457,9 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCall(call Node) {
 	if parent == 0 {
 		return
 	}
-	Preconditions_checkState_boolean_Object((parent.isAwait() || (parent.isGetProp() && (parent.getString() == "then"))), strobj_("goog.requireDynamic() in only allowed in await/then expression"))
+	if !(parent.isAwait() || (parent.isGetProp() && (parent.getString() == "then"))) {
+		panic(new_IllegalStateException_String("goog.requireDynamic() in only allowed in await/then expression"))
+	}
 	if parent.isAwait() {
 		this.updateGoogRequireDynamicCallInAwait(call)
 	} else {
@@ -454,28 +471,42 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInThen(call Node) 
 	var namespaceIdNode Node = call.getSecondChild()
 	var namespaceId string = namespaceIdNode.getString()
 	var exportedNamespace Optional[string] = this.rewriteState.getExportedNamespaceOrScript(namespaceId)
-	Preconditions_checkState_boolean_Object(exportedNamespace.isPresent(), strobj_("Exported namespace for goog.requireDynamic() canot be null"))
+	if !exportedNamespace.isPresent() {
+		panic(new_IllegalStateException_String("Exported namespace for goog.requireDynamic() canot be null"))
+	}
 	var getProp Node = call.getParent()
 	var thenCallNode Node = getProp.getParent()
-	Preconditions_checkState_boolean_Object(((thenCallNode != 0) && thenCallNode.isCall()), strobj_("must be a 'then' call expression"))
+	if thenCallNode == 0 || !thenCallNode.isCall() {
+		panic(new_IllegalStateException_String("must be a 'then' call expression"))
+	}
 	var argNode Node = this.astFactory_.createString(this.namespaceIdToXid(namespaceId)).srcref(namespaceIdNode)
 	namespaceIdNode.replaceWith(argNode)
 	var calleeNode Node = call.getFirstChild()
-	Preconditions_checkState_boolean_Object(calleeNode.matchesQualifiedName(ClosureRewriteModule_GOOG_REQUIREDYNAMIC_NAME), calleeNode.box_())
+	if !calleeNode.matchesQualifiedName(ClosureRewriteModule_GOOG_REQUIREDYNAMIC_NAME) {
+		panic(new_IllegalStateException_String(tostr_(calleeNode)))
+	}
 	calleeNode.setString(ClosureRewriteModule_IMPORT_HANDLER_NAME)
 	var exportedNamespaceNameNode Node = this.astFactory_.createNameStaticScope(icast_StaticScope(obj_(this.globalTypedScope)), exportedNamespace.get()).srcrefTree(call)
 	exportedNamespaceNameNode.setOriginalName(namespaceId)
 	var functionNode Node = thenCallNode.getSecondChild()
-	Preconditions_checkState_boolean_Object(((functionNode != 0) && functionNode.isFunction()), strobj_("must be a function in `then`"))
+	if functionNode == 0 || !functionNode.isFunction() {
+		panic(new_IllegalStateException_String("must be a function in `then`"))
+	}
 	var paramListNode Node = functionNode.getSecondChild()
-	Preconditions_checkState_boolean_Object((paramListNode.getChildCount() == 1), strobj_("function must have only one parameter"))
+	if paramListNode.getChildCount() != 1 {
+		panic(new_IllegalStateException_String("function must have only one parameter"))
+	}
 	var functionBody Node = paramListNode.getNext()
 	var objectPatternOrNameNode Node = paramListNode.getOnlyChild()
-	Preconditions_checkState_boolean_Object((objectPatternOrNameNode.isObjectPattern() || objectPatternOrNameNode.isName()), strobj_("parameter of callback function must be object pattern or name"))
+	if !objectPatternOrNameNode.isObjectPattern() && !objectPatternOrNameNode.isName() {
+		panic(new_IllegalStateException_String("parameter of callback function must be object pattern or name"))
+	}
 	objectPatternOrNameNode.detach()
 	paramListNode.removeChildren()
-	var languageIn *CompilerOptions_LanguageMode = this.compiler_.getOptions().getLanguageIn()
-	Preconditions_checkState_boolean_String_Object_Object(languageIn.toFeatureSet().contains(FeatureSet_Feature_CONST_DECLARATIONS), "'%s' does not contain '%s'", obj_(languageIn), obj_(FeatureSet_Feature_CONST_DECLARATIONS))
+	var languageIn CompilerOptions_LanguageMode = this.compiler_.getOptions().getLanguageIn()
+	if !languageIn.toFeatureSet().contains(FeatureSet_Feature_CONST_DECLARATIONS) {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("'%s' does not contain '%s'", []any{obj_(languageIn), obj_(FeatureSet_Feature_CONST_DECLARATIONS)})))
+	}
 	var enclosingScript Node = NodeUtil_getEnclosingScript(call)
 	NodeUtil_addFeatureToScript(enclosingScript, FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
 	var declarationNode Node
@@ -501,9 +532,13 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInAwait(call Node)
 	var namespaceIdNode Node = call.getSecondChild()
 	var namespaceId string = namespaceIdNode.getString()
 	var exportedNamespace Optional[string] = this.rewriteState.getExportedNamespaceOrScript(namespaceId)
-	Preconditions_checkState_boolean_Object(exportedNamespace.isPresent(), strobj_("Exported namespace for goog.requireDynamic() cannot be null"))
+	if !exportedNamespace.isPresent() {
+		panic(new_IllegalStateException_String("Exported namespace for goog.requireDynamic() cannot be null"))
+	}
 	var existingAwait Node = call.getParent()
-	Preconditions_checkState_boolean_Object(existingAwait.isAwait(), strobj_("Only goog.requireDynamic() in await expression is supported now"))
+	if !existingAwait.isAwait() {
+		panic(new_IllegalStateException_String("Only goog.requireDynamic() in await expression is supported now"))
+	}
 	var awaitParent Node = existingAwait.getParent()
 	if (awaitParent == 0) || (!awaitParent.isDestructuringLhs() && !awaitParent.isName()) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ClosureRewriteModule_ILLEGAL_STMT_OF_GOOG_REQUIRE_DYNAMIC_IN_AWAIT, []string{}))
@@ -518,7 +553,9 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInAwait(call Node)
 	var argNode Node = this.astFactory_.createString(this.namespaceIdToXid(namespaceId)).srcref(namespaceIdNode)
 	namespaceIdNode.replaceWith(argNode)
 	var calleeNode Node = call.getFirstChild()
-	Preconditions_checkState_boolean_Object(calleeNode.matchesQualifiedName(ClosureRewriteModule_GOOG_REQUIREDYNAMIC_NAME), calleeNode.box_())
+	if !calleeNode.matchesQualifiedName(ClosureRewriteModule_GOOG_REQUIREDYNAMIC_NAME) {
+		panic(new_IllegalStateException_String(tostr_(calleeNode)))
+	}
 	calleeNode.setString(ClosureRewriteModule_IMPORT_HANDLER_NAME)
 	existingAwait.replaceWith(exportedNamespaceNameNode)
 	var awaitStatement Node = this.astFactory_.exprResult(existingAwait).srcref(existingAwait)
@@ -562,9 +599,13 @@ func (this *ClosureRewriteModule) recordExportsPropertyAssignment(t *NodeTravers
 		return
 	}
 	var parent Node = getpropNode.getParent()
-	Preconditions_checkState_boolean_Object((parent.isAssign() || parent.isExprResult()), parent.box_())
+	if !parent.isAssign() && !parent.isExprResult() {
+		panic(new_IllegalStateException_String(tostr_(parent)))
+	}
 	var exportsNameNode Node = getpropNode.getFirstChild()
-	Preconditions_checkState_boolean_Object((exportsNameNode.getString() == "exports"), exportsNameNode.box_())
+	if exportsNameNode.getString() != "exports" {
+		panic(new_IllegalStateException_String(tostr_(exportsNameNode)))
+	}
 	if t.inModuleScope() {
 		var exportName string = getpropNode.getString()
 		this.currentScript.namedExports.add(exportName)
@@ -582,9 +623,13 @@ func (this *ClosureRewriteModule) updateExportsPropertyAssignment(getpropNode No
 		return
 	}
 	var parent Node = getpropNode.getParent()
-	Preconditions_checkState_boolean_Object((parent.isAssign() || parent.isExprResult()), parent.box_())
+	if !parent.isAssign() && !parent.isExprResult() {
+		panic(new_IllegalStateException_String(tostr_(parent)))
+	}
 	var exportsNameNode Node = getpropNode.getFirstChild()
-	Preconditions_checkState((exportsNameNode.getString() == "exports"))
+	if exportsNameNode.getString() != "exports" {
+		panic(new_IllegalStateException_0())
+	}
 	var exportedNamespace Optional[string] = this.currentScript.getExportedNamespace()
 	this.safeSetMaybeQualifiedString(exportsNameNode, exportedNamespace.get(), false)
 	var jsdocNode Node = func() Node {
@@ -605,7 +650,7 @@ func (this *ClosureRewriteModule) maybeUpdateTopLevelName(t *NodeTraversal, name
 		return
 	}
 	var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
-	if (var_ == nil) || (cast_[*Scope](var_.getScope()).getRootNode() != this.currentScript.rootNode_) {
+	if (var_ == nil) || (var_.getScope().(*Scope).getRootNode() != this.currentScript.rootNode_) {
 		return
 	}
 	if ((var_.getNameNode() == nameNode) && nameNode.getParent().isStringKey()) && nameNode.getGrandparent().isObjectPattern() {
@@ -624,10 +669,10 @@ func (this *ClosureRewriteModule) maybeUpdateTopLevelName(t *NodeTraversal, name
 		}
 		var isModuleNamespace bool = ((inline.namespaceId.isPresent() && this.rewriteState.scriptDescriptionsByGoogModuleNamespace.has(inline.namespaceId.get())) && !this.rewriteState.scriptDescriptionsByGoogModuleNamespace.get(inline.namespaceId.get()).willCreateExportsObject)
 		this.safeSetMaybeQualifiedString(nameNode, namespaceToInline, isModuleNamespace)
-		if String_indexOf(namespaceToInline, 46) != -1 {
-			var firstQualifiedName string = String_substring(namespaceToInline, 0, String_indexOf(namespaceToInline, 46))
+		if strings.Contains(namespaceToInline, ".") {
+			var firstQualifiedName string = namespaceToInline[:strings.IndexByte(namespaceToInline, '.')]
 			var shadowedVar *Var = cast_[*Var](t.getScope().getVar(firstQualifiedName).self())
-			if ((shadowedVar == nil) || shadowedVar.isGlobal()) || cast_[*Scope](shadowedVar.getScope()).isModuleScope() {
+			if ((shadowedVar == nil) || shadowedVar.isGlobal()) || shadowedVar.getScope().(*Scope).isModuleScope() {
 				return
 			}
 			t.report(shadowedVar.getNode(), ClosureRewriteModule_IMPORT_INLINING_SHADOWS_VAR, []string{shadowedVar.getName(), namespaceToInline})
@@ -735,11 +780,15 @@ func (this *ClosureRewriteModule) maybeUpdateExportNameRef(t *NodeTraversal, n N
 		return
 	}
 	this.safeSetString(n, this.currentScript.getBinaryNamespace().get())
-	Preconditions_checkState((this.currentScript.willCreateExportsObject || this.currentScript.hasCreatedExportObject))
+	if !this.currentScript.willCreateExportsObject && !this.currentScript.hasCreatedExportObject {
+		panic(new_IllegalStateException_0())
+	}
 }
 
 func (this *ClosureRewriteModule) updateModuleBody(moduleBody Node) {
-	Preconditions_checkArgument_boolean_Object((moduleBody.isModuleBody() && moduleBody.getParent().getBooleanProp(Node_GOOG_MODULE)), moduleBody.box_())
+	if !moduleBody.isModuleBody() || !moduleBody.getParent().getBooleanProp(Node_GOOG_MODULE) {
+		panic(new_IllegalArgumentException_String(tostr_(moduleBody)))
+	}
 	moduleBody.setToken(Token_rhino_BLOCK)
 	NodeUtil_tryMergeBlock(moduleBody, true)
 	it_1 := this.currentScript.exportsToInline.eachValue()
@@ -748,8 +797,12 @@ func (this *ClosureRewriteModule) updateModuleBody(moduleBody Node) {
 		var nameNode Node = export.nameDecl.getNameNode()
 		this.safeSetMaybeQualifiedString(nameNode, (sstr_(this.currentScript.getBinaryNamespace().orElse("null")) + sstr_(export.getExportPostfix())), false)
 	}
-	Preconditions_checkState_boolean_Object(this.currentScript.isModule_, obj_(this.currentScript))
-	Preconditions_checkState_boolean_Object((this.currentScript.declareLegacyNamespace || this.currentScript.hasCreatedExportObject), obj_(this.currentScript))
+	if !this.currentScript.isModule_ {
+		panic(new_IllegalStateException_String(objstr_(obj_(this.currentScript))))
+	}
+	if !this.currentScript.declareLegacyNamespace && !this.currentScript.hasCreatedExportObject {
+		panic(new_IllegalStateException_String(objstr_(obj_(this.currentScript))))
+	}
 	this.popScript()
 }
 
@@ -767,7 +820,7 @@ func (this *ClosureRewriteModule) popScript() {
 	this.currentScript = this.scriptStack.peek()
 }
 
-func (this *ClosureRewriteModule) exportTheEmptyBinaryNamespaceAt(atNode Node, addAt *ClosureRewriteModule_AddAt, t *NodeTraversal) {
+func (this *ClosureRewriteModule) exportTheEmptyBinaryNamespaceAt(atNode Node, addAt ClosureRewriteModule_AddAt, t *NodeTraversal) {
 	if this.currentScript.declareLegacyNamespace {
 		return
 	}
@@ -790,7 +843,9 @@ func (this *ClosureRewriteModule) exportTheEmptyBinaryNamespaceAt(atNode Node, a
 }
 
 func ClosureRewriteModule_checkAndSetStrictModeDirective(t *NodeTraversal, n Node) {
-	Preconditions_checkState_boolean_Object(n.isScript(), n.box_())
+	if !n.isScript() {
+		panic(new_IllegalStateException_String(tostr_(n)))
+	}
 	if n.isUseStrict() {
 		t.report(n, ClosureRewriteModule_USELESS_USE_STRICT_DIRECTIVE, []string{})
 	} else {
@@ -823,8 +878,12 @@ func ClosureRewriteModule_markConstAndCopyJsDoc(from Node, target Node) {
 }
 
 func (this *ClosureRewriteModule) recordExportToInline(exportDefinition *ClosureRewriteModule_ExportDefinition) {
-	Preconditions_checkState_boolean_String_Object_Object(exportDefinition.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()), "exportDefinition: %s\n\nexportsToInline keys: %s", obj_(exportDefinition), any(this.currentScript.exportsToInline.asMap().keySet()))
-	Preconditions_checkState_boolean_String_Object((this.currentScript.exportsToInline.put(exportDefinition.nameDecl, exportDefinition) == nil), "Already found a mapping for inlining export: %s", obj_(exportDefinition.nameDecl))
+	if ok_, a1_, a2_ := exportDefinition.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()), exportDefinition, this.currentScript.exportsToInline.asMap().keySet(); !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("exportDefinition: %s\n\nexportsToInline keys: %s", []any{obj_(a1_), a2_})))
+	}
+	if ok_, a1_ := (this.currentScript.exportsToInline.put(exportDefinition.nameDecl, exportDefinition) == nil), exportDefinition.nameDecl; !ok_ {
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Already found a mapping for inlining export: %s", []any{obj_(a1_)})))
+	}
 	var localName Optional[string] = exportDefinition.getLocalName()
 	var fullExportedName string = (sstr_(this.currentScript.getBinaryNamespace().orElse("null")) + sstr_(exportDefinition.getExportPostfix()))
 	this.recordNameToInline(localName.orElseThrow(), fullExportedName, Optional_empty[string]())
@@ -858,9 +917,9 @@ func (this *ClosureRewriteModule) reportUnrecognizedRequires() {
 			continue
 		}
 		enclosingStatement.detach()
-		NodeUtil_visitLhsNodesInNode(enclosingStatement, &Consumer_tfn_Node{func(lhs Node) {
+		NodeUtil_visitLhsNodesInNode(enclosingStatement, (&Consumer_tfn_Node{func(lhs Node) {
 			this.syntheticExterns.putIfAbsent(lhs.getString(), lhs)
-		}})
+		}}).accept)
 	}
 }
 
@@ -870,7 +929,7 @@ func (this *ClosureRewriteModule) safeSetString(n Node, newString string) {
 	}
 	var originalName string = n.getString()
 	n.setString(newString)
-	if String_isEmpty(n.getOriginalName()) {
+	if n.getOriginalName() == "" {
 		n.setOriginalName(originalName)
 	}
 	var changeScope Node = ChangeTracker_getEnclosingChangeScopeRoot(n)
@@ -880,7 +939,7 @@ func (this *ClosureRewriteModule) safeSetString(n Node, newString string) {
 }
 
 func (this *ClosureRewriteModule) safeSetMaybeQualifiedString(nameNode Node, newString string, isModuleNamespace bool) {
-	if !String_contains(newString, strobj_(".")) {
+	if !strings.Contains(newString, ".") {
 		this.safeSetString(nameNode, newString)
 		var parent Node = nameNode.getParent()
 		if ((isModuleNamespace && parent.isGetProp()) && nameNode.getGrandparent().isCall()) && parent.isFirstChildOf(nameNode.getGrandparent()) {
@@ -904,8 +963,8 @@ func (this *ClosureRewriteModule) safeSetMaybeQualifiedString(nameNode Node, new
 
 func ClosureRewriteModule_safeSetStringIfDeclaration(nameParent Node, nameNode Node, newQualifiedName Node) bool {
 	var jsdoc *JSDocInfo = nameParent.getJSDocInfo()
-	switch nameParent.getToken() {
-	case Token_rhino_FUNCTION, Token_rhino_CLASS:
+	switch nameParent.ns_().token {
+	case tokOrd1_FUNCTION, tokOrd1_CLASS:
 		if !NodeUtil_isStatement(nameParent) || (nameParent.getFirstChild() != nameNode) {
 			return false
 		}
@@ -922,7 +981,7 @@ func ClosureRewriteModule_safeSetStringIfDeclaration(nameParent Node, nameNode N
 		placeholder.replaceWith(newDeclaration)
 		NodeUtil_removeName(nameParent)
 		return true
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		var rhs Node = func() Node {
 			if nameNode.hasChildren() {
 				return nameNode.getLastChild().detach()
@@ -947,22 +1006,26 @@ func ClosureRewriteModule_safeSetStringIfDeclaration(nameParent Node, nameNode N
 		newStatement.srcrefTreeIfMissing(nameParent)
 		NodeUtil_replaceDeclarationChild(nameNode, newStatement)
 		return true
-	case Token_rhino_OBJECT_PATTERN, Token_rhino_ARRAY_PATTERN, Token_rhino_PARAM_LIST:
-		panic(new_RuntimeException_String("Not supported").self())
+	case tokOrd1_OBJECT_PATTERN, tokOrd1_ARRAY_PATTERN, tokOrd1_PARAM_LIST:
+		panic(new_RuntimeException_String("Not supported"))
 	default:
 	}
 	return false
 }
 
 func ClosureRewriteModule_updateSourceInfoForExportedTopLevelVariable(assign Node, sourceName Node) {
-	Preconditions_checkState(assign.isAssign())
-	Preconditions_checkState(sourceName.isName())
+	if !assign.isAssign() {
+		panic(new_IllegalStateException_0())
+	}
+	if !sourceName.isName() {
+		panic(new_IllegalStateException_0())
+	}
 	var getProp Node = assign.getFirstChild()
 	if !getProp.isGetProp() {
 		return
 	}
 	var name Optional[string] = Optional_of[string](sourceName.getOriginalName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 	if name.isEmpty() {
 		name = Optional_of[string](sourceName.getString())
@@ -972,25 +1035,24 @@ func ClosureRewriteModule_updateSourceInfoForExportedTopLevelVariable(assign Nod
 	getProp.srcrefTree(sourceName)
 }
 
-func (this *ClosureRewriteModule) isTopLevel(t *NodeTraversal, n Node, scopeType *ClosureRewriteModule_ScopeType) bool {
+func (this *ClosureRewriteModule) isTopLevel(t *NodeTraversal, n Node, scopeType ClosureRewriteModule_ScopeType) bool {
 	if scopeType == ClosureRewriteModule_ScopeType_EXEC_CONTEXT {
 		return (t.inGlobalScope() || (t.getClosestHoistScopeRoot() == this.currentScript.rootNode_))
 	} else {
 		return (n.getParent() == this.currentScript.rootNode_)
 	}
-	panic("unreachable")
 }
 
 func ClosureRewriteModule_toModuleContentsPrefix(namespaceId string) string {
-	return (sstr_(ClosureRewriteModule_MODULE_CONTENTS_PREFIX) + sstr_(String_replace_char_char(namespaceId, '.', '$')) + "_")
+	return (sstr_(ClosureRewriteModule_MODULE_CONTENTS_PREFIX) + sstr_(strings.ReplaceAll(namespaceId, ".", "$")) + "_")
 }
 
 func ClosureRewriteModule_isModuleExport(name string) bool {
-	return String_startsWith(name, ClosureRewriteModule_MODULE_EXPORTS_PREFIX)
+	return strings.HasPrefix(name, ClosureRewriteModule_MODULE_EXPORTS_PREFIX)
 }
 
 func ClosureRewriteModule_isModuleContent(name string) bool {
-	return String_startsWith(name, ClosureRewriteModule_MODULE_CONTENTS_PREFIX)
+	return strings.HasPrefix(name, ClosureRewriteModule_MODULE_CONTENTS_PREFIX)
 }
 
 func ClosureRewriteModule_isGoogModuleExportsRef(t *NodeTraversal, target Node) bool {
@@ -1031,13 +1093,15 @@ func (this *ClosureRewriteModule) maybeAddAliasToSymbolTable(n Node, module Opti
 }
 
 func (this *ClosureRewriteModule) declareGlobalVariable(n Node, t *NodeTraversal) {
-	Preconditions_checkState(n.isName())
+	if !n.isName() {
+		panic(new_IllegalStateException_0())
+	}
 	if this.globalTypedScope == nil {
 		return
 	}
 	var name string = n.getString()
 	if this.globalTypedScope.hasOwnSlot(name) {
-		var original Node = cast_[*TypedVar](this.globalTypedScope.getOwnSlot(name)).getNode()
+		var original Node = this.globalTypedScope.getOwnSlot(name).(*TypedVar).getNode()
 		t.report(t.getCurrentScript(), ClosureRewriteModule_ILLEGAL_MODULE_RENAMING_CONFLICT, []string{name, func() string {
 			if original != 0 {
 				return original.toString()
@@ -1045,7 +1109,10 @@ func (this *ClosureRewriteModule) declareGlobalVariable(n Node, t *NodeTraversal
 			return "<unknown>"
 		}()})
 	} else {
-		var type_ *JSType = to_JSType(Preconditions_checkNotNull(n.getJSType().self()))
+		var type_ *JSType = n.getJSType()
+		if type_ == nil {
+			panic(new_NullPointerException_0())
+		}
 		this.globalTypedScope.declare(name, n, type_, t.getInput(), false)
 	}
 }
@@ -1112,44 +1179,64 @@ func ClosureRewriteModule_clinit() {
 
 }
 
-type ClosureRewriteModule_AddAt struct {
-	Enum
+type ClosureRewriteModule_AddAt uint8
+
+// ClosureRewriteModule_AddAt_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ClosureRewriteModule_AddAt_enum_ = [2]Enum{
+	{self_: ClosureRewriteModule_AddAt_BEFORE, name_: "BEFORE", ordinal_: 0},
+	{self_: ClosureRewriteModule_AddAt_AFTER, name_: "AFTER", ordinal_: 1},
 }
 
-func (this *ClosureRewriteModule_AddAt) up_Enum() *Enum {
-	if this == nil {
+func (this ClosureRewriteModule_AddAt) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ClosureRewriteModule_AddAt_enum_[this-1]
 }
 
-func (this *ClosureRewriteModule_AddAt) init_ClosureRewriteModule_AddAt(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ClosureRewriteModule_AddAt) name() string {
+	return this.enum_().name_
 }
 
-func new_ClosureRewriteModule_AddAt(name_ string, ordinal_ int32) *ClosureRewriteModule_AddAt {
-	this := &ClosureRewriteModule_AddAt{}
-	this.self_ = this
-	this.init_ClosureRewriteModule_AddAt(name_, ordinal_)
+func (this ClosureRewriteModule_AddAt) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ClosureRewriteModule_AddAt) toString() string {
+	return this.enum_().name_
+}
+
+func (this ClosureRewriteModule_AddAt) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ClosureRewriteModule_AddAt) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ClosureRewriteModule_AddAt_values() []*ClosureRewriteModule_AddAt {
-	return append([]*ClosureRewriteModule_AddAt(nil), ClosureRewriteModule_AddAt_values_...)
+func ClosureRewriteModule_AddAt_values() []ClosureRewriteModule_AddAt {
+	return append([]ClosureRewriteModule_AddAt(nil), ClosureRewriteModule_AddAt_values_...)
 }
 
-func ClosureRewriteModule_AddAt_valueOf(name string) *ClosureRewriteModule_AddAt {
+func ClosureRewriteModule_AddAt_valueOf(name string) ClosureRewriteModule_AddAt {
 	for _, v := range ClosureRewriteModule_AddAt_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("AddAt", name))
 }
 
-var ClosureRewriteModule_AddAt_BEFORE *ClosureRewriteModule_AddAt
-var ClosureRewriteModule_AddAt_AFTER *ClosureRewriteModule_AddAt
-var ClosureRewriteModule_AddAt_values_ []*ClosureRewriteModule_AddAt
+const ClosureRewriteModule_AddAt_BEFORE ClosureRewriteModule_AddAt = 1
+const ClosureRewriteModule_AddAt_AFTER ClosureRewriteModule_AddAt = 2
+
+var ClosureRewriteModule_AddAt_values_ []ClosureRewriteModule_AddAt
 
 var ClosureRewriteModule_AddAt_clinit_done bool
 
@@ -1158,51 +1245,69 @@ func ClosureRewriteModule_AddAt_clinit() {
 		return
 	}
 	ClosureRewriteModule_AddAt_clinit_done = true
-	ClosureRewriteModule_AddAt_BEFORE = new_ClosureRewriteModule_AddAt("BEFORE", 0)
-	ClosureRewriteModule_AddAt_AFTER = new_ClosureRewriteModule_AddAt("AFTER", 1)
-	ClosureRewriteModule_AddAt_values_ = []*ClosureRewriteModule_AddAt{ClosureRewriteModule_AddAt_BEFORE, ClosureRewriteModule_AddAt_AFTER}
+	ClosureRewriteModule_AddAt_values_ = []ClosureRewriteModule_AddAt{ClosureRewriteModule_AddAt_BEFORE, ClosureRewriteModule_AddAt_AFTER}
 	registerEnum_("com.google.javascript.jscomp.ClosureRewriteModule.AddAt", enumValues_(ClosureRewriteModule_AddAt_values_))
 
 }
 
-type ClosureRewriteModule_ScopeType struct {
-	Enum
+type ClosureRewriteModule_ScopeType uint8
+
+// ClosureRewriteModule_ScopeType_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ClosureRewriteModule_ScopeType_enum_ = [2]Enum{
+	{self_: ClosureRewriteModule_ScopeType_EXEC_CONTEXT, name_: "EXEC_CONTEXT", ordinal_: 0},
+	{self_: ClosureRewriteModule_ScopeType_BLOCK, name_: "BLOCK", ordinal_: 1},
 }
 
-func (this *ClosureRewriteModule_ScopeType) up_Enum() *Enum {
-	if this == nil {
+func (this ClosureRewriteModule_ScopeType) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ClosureRewriteModule_ScopeType_enum_[this-1]
 }
 
-func (this *ClosureRewriteModule_ScopeType) init_ClosureRewriteModule_ScopeType(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ClosureRewriteModule_ScopeType) name() string {
+	return this.enum_().name_
 }
 
-func new_ClosureRewriteModule_ScopeType(name_ string, ordinal_ int32) *ClosureRewriteModule_ScopeType {
-	this := &ClosureRewriteModule_ScopeType{}
-	this.self_ = this
-	this.init_ClosureRewriteModule_ScopeType(name_, ordinal_)
+func (this ClosureRewriteModule_ScopeType) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this ClosureRewriteModule_ScopeType) toString() string {
+	return this.enum_().name_
+}
+
+func (this ClosureRewriteModule_ScopeType) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this ClosureRewriteModule_ScopeType) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ClosureRewriteModule_ScopeType_values() []*ClosureRewriteModule_ScopeType {
-	return append([]*ClosureRewriteModule_ScopeType(nil), ClosureRewriteModule_ScopeType_values_...)
+func ClosureRewriteModule_ScopeType_values() []ClosureRewriteModule_ScopeType {
+	return append([]ClosureRewriteModule_ScopeType(nil), ClosureRewriteModule_ScopeType_values_...)
 }
 
-func ClosureRewriteModule_ScopeType_valueOf(name string) *ClosureRewriteModule_ScopeType {
+func ClosureRewriteModule_ScopeType_valueOf(name string) ClosureRewriteModule_ScopeType {
 	for _, v := range ClosureRewriteModule_ScopeType_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ScopeType", name))
 }
 
-var ClosureRewriteModule_ScopeType_EXEC_CONTEXT *ClosureRewriteModule_ScopeType
-var ClosureRewriteModule_ScopeType_BLOCK *ClosureRewriteModule_ScopeType
-var ClosureRewriteModule_ScopeType_values_ []*ClosureRewriteModule_ScopeType
+const ClosureRewriteModule_ScopeType_EXEC_CONTEXT ClosureRewriteModule_ScopeType = 1
+const ClosureRewriteModule_ScopeType_BLOCK ClosureRewriteModule_ScopeType = 2
+
+var ClosureRewriteModule_ScopeType_values_ []ClosureRewriteModule_ScopeType
 
 var ClosureRewriteModule_ScopeType_clinit_done bool
 
@@ -1211,9 +1316,7 @@ func ClosureRewriteModule_ScopeType_clinit() {
 		return
 	}
 	ClosureRewriteModule_ScopeType_clinit_done = true
-	ClosureRewriteModule_ScopeType_EXEC_CONTEXT = new_ClosureRewriteModule_ScopeType("EXEC_CONTEXT", 0)
-	ClosureRewriteModule_ScopeType_BLOCK = new_ClosureRewriteModule_ScopeType("BLOCK", 1)
-	ClosureRewriteModule_ScopeType_values_ = []*ClosureRewriteModule_ScopeType{ClosureRewriteModule_ScopeType_EXEC_CONTEXT, ClosureRewriteModule_ScopeType_BLOCK}
+	ClosureRewriteModule_ScopeType_values_ = []ClosureRewriteModule_ScopeType{ClosureRewriteModule_ScopeType_EXEC_CONTEXT, ClosureRewriteModule_ScopeType_BLOCK}
 	registerEnum_("com.google.javascript.jscomp.ClosureRewriteModule.ScopeType", enumValues_(ClosureRewriteModule_ScopeType_values_))
 
 }
@@ -1260,12 +1363,12 @@ func new_ClosureRewriteModule_ExportDefinition() *ClosureRewriteModule_ExportDef
 }
 
 func (this *ClosureRewriteModule_ExportDefinition) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("exportName", func() any {
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add("exportName", func() any {
 		if this.exportName_.isPresent() {
 			return strobj_(this.exportName_.get())
 		}
 		return nil
-	}()).add("rhs", this.rhs.box_()).add("nameDecl", obj_(this.nameDecl)).omitNullValues()))
+	}()).add("rhs", this.rhs.box_()).add("nameDecl", obj_(this.nameDecl)).omitNullValues())
 }
 
 func ClosureRewriteModule_ExportDefinition_newDefaultExport(t *NodeTraversal, rhs Node) *ClosureRewriteModule_ExportDefinition {
@@ -1318,7 +1421,7 @@ func (this *ClosureRewriteModule_ExportDefinition) getLocalName() Optional[strin
 	}()
 }
 
-var ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS *ImmutableSet
+var ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS *ErasedImmutableSet
 
 var ClosureRewriteModule_ExportDefinition_clinit_done bool
 
@@ -1327,7 +1430,7 @@ func ClosureRewriteModule_ExportDefinition_clinit() {
 		return
 	}
 	ClosureRewriteModule_ExportDefinition_clinit_done = true
-	ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS = Sets_immutableEnumSet(Token_rhino_VAR.up_Enum(), []*Enum{Token_rhino_CONST.up_Enum(), Token_rhino_LET.up_Enum(), Token_rhino_FUNCTION.up_Enum(), Token_rhino_CLASS.up_Enum()})
+	ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS = Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_CONST.enum_(), Token_rhino_LET.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_()})
 
 }
 
@@ -1442,21 +1545,20 @@ func new_ClosureRewriteModule_ScriptPreprocessor(outer_ *ClosureRewriteModule) *
 
 func (this *ClosureRewriteModule_ScriptPreprocessor) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_ROOT, Token_rhino_MODULE_BODY:
+		switch n.ns_().token {
+		case tokOrd1_ROOT, tokOrd1_MODULE_BODY:
 			return true
-		case Token_rhino_SCRIPT:
+		case tokOrd1_SCRIPT:
 			if NodeUtil_isGoogModuleFile(n) {
 				ClosureRewriteModule_checkAndSetStrictModeDirective(t, n)
 			}
 			return true
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			this.outer_.preprocessExportDeclaration(t, n)
 			return true
 		default:
 			return !parent.isScript()
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1476,10 +1578,10 @@ func new_ClosureRewriteModule_ScriptRecorder(outer_ *ClosureRewriteModule) *Clos
 }
 
 func (this *ClosureRewriteModule_ScriptRecorder) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_MODULE_BODY:
+	switch n.ns_().token {
+	case tokOrd1_MODULE_BODY:
 		this.outer_.recordModuleBody(n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		var method Node = n.getFirstChild()
 		if !method.isGetProp() {
 			break
@@ -1501,12 +1603,12 @@ func (this *ClosureRewriteModule_ScriptRecorder) shouldTraverse(t *NodeTraversal
 		} else if method.matchesQualifiedNameNode(ClosureRewriteModule_GOOG_MODULE_GET) {
 			this.outer_.recordGoogModuleGet(t, n)
 		}
-	case Token_rhino_CLASS, Token_rhino_FUNCTION:
+	case tokOrd1_CLASS, tokOrd1_FUNCTION:
 		if this.outer_.isTopLevel(t, n, ClosureRewriteModule_ScopeType_BLOCK) {
 			this.outer_.recordTopLevelClassOrFunctionName(n)
 		}
-	case Token_rhino_CONST, Token_rhino_LET, Token_rhino_VAR:
-		if this.outer_.isTopLevel(t, n, func() *ClosureRewriteModule_ScopeType {
+	case tokOrd1_CONST, tokOrd1_LET, tokOrd1_VAR:
+		if this.outer_.isTopLevel(t, n, func() ClosureRewriteModule_ScopeType {
 			if n.isVar() {
 				return ClosureRewriteModule_ScopeType_EXEC_CONTEXT
 			}
@@ -1514,11 +1616,11 @@ func (this *ClosureRewriteModule_ScriptRecorder) shouldTraverse(t *NodeTraversal
 		}()) {
 			this.outer_.recordTopLevelVarNames(n)
 		}
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		if ClosureRewriteModule_isExportPropertyAssignment(t, n) {
 			this.outer_.recordExportsPropertyAssignment(t, n)
 		}
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		this.outer_.maybeRecordExportDeclaration(t, n)
 	default:
 	}
@@ -1548,26 +1650,30 @@ func new_ClosureRewriteModule_ScriptUpdater(outer_ *ClosureRewriteModule, script
 }
 
 func (this *ClosureRewriteModule_ScriptUpdater) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		var currentDescription *ClosureRewriteModule_ScriptDescription = this.scriptDescriptions.pop()
-		Preconditions_checkState((currentDescription.rootNode_ == n))
+		if currentDescription.rootNode_ != n {
+			panic(new_IllegalStateException_0())
+		}
 		if n.isFromExterns() && !NodeUtil_isFromTypeSummary(n) {
 			return false
 		}
-		Preconditions_checkState(this.outer_.scriptStack.isEmpty())
+		if !this.outer_.scriptStack.isEmpty() {
+			panic(new_IllegalStateException_0())
+		}
 		this.outer_.pushScript(currentDescription)
 		t.getScope()
 		if this.outer_.globalScope == nil {
 			this.outer_.globalScope = cast_[*Scope](t.getScope().getGlobalScope().self())
 		}
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		if parent.getBooleanProp(Node_GOOG_MODULE) {
 			this.outer_.updateModuleBodyEarly(n)
 		} else {
 			return false
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		var method Node = n.getFirstChild()
 		if !method.isGetProp() {
 			break
@@ -1583,7 +1689,7 @@ func (this *ClosureRewriteModule_ScriptUpdater) shouldTraverse(t *NodeTraversal,
 		} else if ClosureRewriteModule_GOOG_MODULE_PREVENTMODULEEXPORTSEALING.matches(method) {
 			ClosureRewriteModule_updateGoogPreventModuleExportsSealing(n)
 		}
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		if ClosureRewriteModule_isExportPropertyAssignment(t, n) {
 			this.outer_.updateExportsPropertyAssignment(n, t)
 		}
@@ -1596,16 +1702,18 @@ func (this *ClosureRewriteModule_ScriptUpdater) shouldTraverse(t *NodeTraversal,
 }
 
 func (this *ClosureRewriteModule_ScriptUpdater) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_MODULE_BODY:
+	switch n.ns_().token {
+	case tokOrd1_MODULE_BODY:
 		this.outer_.updateModuleBody(n)
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		this.outer_.maybeUpdateTopLevelName(t, n)
 		this.outer_.maybeUpdateExportDeclaration(t, n)
 		t.getScope()
 		this.outer_.maybeUpdateExportNameRef(t, n)
-	case Token_rhino_SCRIPT:
-		Preconditions_checkState((this.outer_.currentScript.rootNode_ == n))
+	case tokOrd1_SCRIPT:
+		if this.outer_.currentScript.rootNode_ != n {
+			panic(new_IllegalStateException_0())
+		}
 		this.outer_.popScript()
 	default:
 	}
@@ -1632,15 +1740,15 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) visit(typeRefNode Node) {
 		return
 	}
 	var typeName string = typeRefNode.getString()
-	var dot int32 = String_indexOf(typeName, 46)
+	var dot int32 = int32(strings.IndexByte(typeName, '.'))
 	var rootOfType string = func() string {
 		if dot == -1 {
 			return typeName
 		}
-		return String_substring(typeName, 0, dot)
+		return typeName[:dot]
 	}()
 	var rootVar *Var = cast_[*Var](this.scope_.getVar(rootOfType).self())
-	if ((rootVar != nil) && !cast_[*Scope](cast_[*Scope](rootVar.getScope()).getClosestHoistScope().self()).isGlobal()) && !cast_[*Scope](rootVar.getScope()).isModuleScope() {
+	if ((rootVar != nil) && !rootVar.getScope().(*Scope).getClosestHoistScope().self().(*Scope).isGlobal()) && !rootVar.getScope().(*Scope).isModuleScope() {
 		return
 	}
 	if this.outer_.currentScript.namesToInlineByAlias.has(rootOfType) {
@@ -1655,7 +1763,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) visit(typeRefNode Node) {
 			if dot == -1 {
 				return ""
 			}
-			return String_substring_int(typeName, dot)
+			return typeName[dot:]
 		}()
 		this.outer_.safeSetString(typeRefNode, (sstr_(aliasedNamespace) + sstr_(remainder)))
 	} else if this.outer_.currentScript.isModule_ && this.outer_.currentScript.topLevelNames.has(rootOfType) {
@@ -1666,7 +1774,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) visit(typeRefNode Node) {
 			if dot == -1 {
 				return ""
 			}
-			return String_substring_int(typeName, dot)
+			return typeName[dot:]
 		}()
 		this.outer_.safeSetString(typeRefNode, (sstr_(namespace.orElse("null")) + sstr_(remainder)))
 	} else {
@@ -1677,6 +1785,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) visit(typeRefNode Node) {
 func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(typeName string, typeRefNode Node) {
 	var prefixTypeName string = typeName
 	var suffix string = ""
+	typeNameU16 := utf16Of_(typeName)
 	for {
 		var binaryNamespaceIfModule Optional[string] = this.outer_.rewriteState.getBinaryNamespace(prefixTypeName)
 		if this.outer_.legacyScriptNamespacesAndPrefixes.has(prefixTypeName) && binaryNamespaceIfModule.isEmpty() {
@@ -1686,9 +1795,9 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(
 			this.outer_.safeSetString(typeRefNode, (sstr_(binaryNamespaceIfModule.get()) + sstr_(suffix)))
 			return
 		}
-		if String_contains(prefixTypeName, strobj_(".")) {
-			prefixTypeName = String_substring(prefixTypeName, 0, String_lastIndexOf(prefixTypeName, 46))
-			suffix = String_substring_int(typeName, String_length(prefixTypeName))
+		if strings.Contains(prefixTypeName, ".") {
+			prefixTypeName = prefixTypeName[:strings.LastIndexByte(prefixTypeName, '.')]
+			suffix = typeNameU16.substring_int(String_length(prefixTypeName))
 		} else {
 			break
 		}
@@ -1697,13 +1806,13 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(
 
 type ClosureRewriteModule_GlobalRewriteState struct {
 	scriptDescriptionsByGoogModuleNamespace *JTMap[string, *ClosureRewriteModule_ScriptDescription]
-	namespaceIdsByScriptNode                *SimpleSetMultimap
+	namespaceIdsByScriptNode                *SimpleSetMultimap[Node, string]
 	providedNamespaces                      *JTSet[string]
 }
 
 func (this *ClosureRewriteModule_GlobalRewriteState) finit_ClosureRewriteModule_GlobalRewriteState() {
 	this.scriptDescriptionsByGoogModuleNamespace = jnewTMap_(jtc_string, jtc_p_ClosureRewriteModule_ScriptDescription)
-	this.namespaceIdsByScriptNode = SimpleSetMultimap_createInsertionOrdered()
+	this.namespaceIdsByScriptNode = SimpleSetMultimap_createInsertionOrdered[Node, string]()
 	this.providedNamespaces = jnewTSet_(jtc_string)
 }
 
@@ -1722,7 +1831,9 @@ func (this *ClosureRewriteModule_GlobalRewriteState) containsModule(namespaceId 
 }
 
 func (this *ClosureRewriteModule_GlobalRewriteState) isLegacyModule(namespaceId string) bool {
-	Preconditions_checkArgument(this.containsModule(namespaceId))
+	if !this.containsModule(namespaceId) {
+		panic(new_IllegalArgumentException_0())
+	}
 	return this.scriptDescriptionsByGoogModuleNamespace.get(namespaceId).declareLegacyNamespace
 }
 
@@ -1785,10 +1896,10 @@ func new_ClosureRewriteModule_UnwrapGoogLoadModule(outer_ *ClosureRewriteModule)
 
 func (this *ClosureRewriteModule_UnwrapGoogLoadModule) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_ROOT, Token_rhino_SCRIPT:
+		switch n.ns_().token {
+		case tokOrd1_ROOT, tokOrd1_SCRIPT:
 			return true
-		case Token_rhino_EXPR_RESULT:
+		case tokOrd1_EXPR_RESULT:
 			var call Node = n.getFirstChild()
 			if NodeUtil_isCallToNode(call, ClosureRewriteModule_GOOG_LOADMODULE) && call.getLastChild().isFunction() {
 				parent.putBooleanProp(Node_GOOG_MODULE, true)
@@ -1811,6 +1922,21 @@ func (this *ClosureRewriteModule_UnwrapGoogLoadModule) shouldTraverse_impl(t *No
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
+}
+
+// shouldTraverse: an object that is exactly a ClosureRewriteModule_ScriptPreprocessor calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *ClosureRewriteModule_ScriptPreprocessor) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if p, _ := this.self_.(*ClosureRewriteModule_ScriptPreprocessor); p == this {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
+}
+
+// shouldTraverse: an object that is exactly a ClosureRewriteModule_UnwrapGoogLoadModule calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *ClosureRewriteModule_UnwrapGoogLoadModule) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if p, _ := this.self_.(*ClosureRewriteModule_UnwrapGoogLoadModule); p == this {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }

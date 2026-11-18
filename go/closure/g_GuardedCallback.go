@@ -6,9 +6,9 @@ type GuardedCallback[T any] struct {
 	self_               any
 	vt_GuardedCallback_ GuardedCallback_vt_[T]
 	compiler_           *AbstractCompiler
-	registeredGuards    *SimpleSetMultimap
-	guarded             *SimpleMultiset
-	installedGuards     *SimpleListMultimap
+	registeredGuards    *SimpleSetMultimap[Node, any]
+	guarded             *SimpleMultiset[any]
+	installedGuards     *SimpleListMultimap[Node, any]
 	contextStack        *TDeque[*GuardedCallback_Context]
 }
 
@@ -17,11 +17,6 @@ type GuardedCallback_vt_[T any] interface {
 }
 
 func (this *GuardedCallback[T]) isa_GuardedCallback_() {}
-
-func is_GuardedCallback(v any) bool {
-	_, ok := v.(interface{ isa_GuardedCallback_() })
-	return ok
-}
 
 func (this *GuardedCallback[T]) as_GuardedCallback() *GuardedCallback[T] { return this }
 
@@ -42,9 +37,9 @@ func (this *GuardedCallback[T]) self() any {
 }
 
 func (this *GuardedCallback[T]) finit_GuardedCallback() {
-	this.registeredGuards = SimpleSetMultimap_create()
-	this.guarded = SimpleMultiset_create()
-	this.installedGuards = SimpleListMultimap_create()
+	this.registeredGuards = SimpleSetMultimap_create[Node, any]()
+	this.guarded = SimpleMultiset_create[any]()
+	this.installedGuards = SimpleListMultimap_create[Node, any]()
 	this.contextStack = newTDeque_(jtc_p_GuardedCallback_Context)
 }
 
@@ -59,11 +54,10 @@ func (this *GuardedCallback[T]) shouldTraverse(traversal *NodeTraversal, n Node,
 	} else {
 		this.contextStack.push(this.contextStack.peek().descend(this.compiler_, parent, n))
 		if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.contains(obj_(parent.getToken()))) && this.registeredGuards.containsKey(parent.box_()) {
-			it_1 := foreach_(any(this.registeredGuards.removeAll(parent.box_())))
-			for it_1.next() {
-				var resource T = junboxT_[T](it_1.v)
+			for el_1 := range elems_(this.registeredGuards.removeAll(parent.box_())) {
+				var resource T = junboxT_[T](el_1)
 				this.guarded.add(boxT_(resource))
-				this.installedGuards.put(parent.box_(), boxT_(resource))
+				this.installedGuards.put(parent, boxT_(resource))
 			}
 		}
 	}
@@ -88,7 +82,7 @@ func (this *GuardedCallback[T]) promoteAbruptReturns(parent Node) {
 	if parent.isIf() && this.installedGuards.containsKey(parent.box_()) {
 		var grandparent Node = parent.getParent()
 		if grandparent.isBlock() || grandparent.isScript() {
-			this.registeredGuards.putAll_2(grandparent.box_(), Iterable(this.installedGuards.get(parent.box_())))
+			this.registeredGuards.putAll_2(grandparent, Iterable(this.installedGuards.get(parent.box_())))
 		}
 	}
 }
@@ -102,7 +96,7 @@ func (this *GuardedCallback[T]) isGuarded(resource T) bool {
 		return false
 	}
 	for (context != nil) && (context.conditional != 0) {
-		this.registeredGuards.put(context.conditional.box_(), boxT_(resource))
+		this.registeredGuards.put(context.conditional, boxT_(resource))
 		context = context.linked
 	}
 	return true
@@ -128,7 +122,7 @@ func (this *GuardedCallback[T]) visitGuarded(p0 *NodeTraversal, p1 Node, p2 Node
 	this.vt_GuardedCallback_.visitGuarded_impl(p0, p1, p2)
 }
 
-var GuardedCallback_CAN_HAVE_GUARDS *ImmutableSet
+var GuardedCallback_CAN_HAVE_GUARDS *ErasedImmutableSet
 
 var GuardedCallback_clinit_done bool
 
@@ -137,7 +131,7 @@ func GuardedCallback_clinit() {
 		return
 	}
 	GuardedCallback_clinit_done = true
-	GuardedCallback_CAN_HAVE_GUARDS = Sets_immutableEnumSet(Token_rhino_AND.up_Enum(), []*Enum{Token_rhino_OR.up_Enum(), Token_rhino_COALESCE.up_Enum(), Token_rhino_HOOK.up_Enum(), Token_rhino_IF.up_Enum(), Token_rhino_BLOCK.up_Enum(), Token_rhino_SCRIPT.up_Enum(), Token_rhino_OPTCHAIN_CALL.up_Enum(), Token_rhino_OPTCHAIN_GETELEM.up_Enum(), Token_rhino_OPTCHAIN_GETPROP.up_Enum()})
+	GuardedCallback_CAN_HAVE_GUARDS = Sets_immutableEnumSet(Token_rhino_AND.enum_(), []*Enum{Token_rhino_OR.enum_(), Token_rhino_COALESCE.enum_(), Token_rhino_HOOK.enum_(), Token_rhino_IF.enum_(), Token_rhino_BLOCK.enum_(), Token_rhino_SCRIPT.enum_(), Token_rhino_OPTCHAIN_CALL.enum_(), Token_rhino_OPTCHAIN_GETELEM.enum_(), Token_rhino_OPTCHAIN_GETPROP.enum_()})
 
 }
 
@@ -179,53 +173,53 @@ func (this *GuardedCallback_Context) propagate(newSafe bool) *GuardedCallback_Co
 
 func (this *GuardedCallback_Context) descend(compiler *AbstractCompiler, parent Node, child Node) *GuardedCallback_Context {
 	var first bool = (child == parent.getFirstChild())
-	switch parent.getToken() {
-	case Token_rhino_CAST:
+	switch parent.ns_().token {
+	case tokOrd1_CAST:
 		return this
-	case Token_rhino_COMMA:
+	case tokOrd1_COMMA:
 		return func() *GuardedCallback_Context {
 			if child == parent.getLastChild() {
 				return this
 			}
 			return this.propagate(true)
 		}()
-	case Token_rhino_AND:
+	case tokOrd1_AND:
 		return func() *GuardedCallback_Context {
 			if first {
 				return this.link(parent, true)
 			}
 			return this
 		}()
-	case Token_rhino_OR, Token_rhino_COALESCE:
+	case tokOrd1_OR, tokOrd1_COALESCE:
 		return func() *GuardedCallback_Context {
 			if first {
 				return this.link(parent, false)
 			}
 			return this
 		}()
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		return func() *GuardedCallback_Context {
 			if first {
 				return this.link(parent, true)
 			}
 			return this
 		}()
-	case Token_rhino_IF:
+	case tokOrd1_IF:
 		return func() *GuardedCallback_Context {
 			if first {
 				return this.link(parent, true)
 			}
 			return GuardedCallback_Context_EMPTY
 		}()
-	case Token_rhino_INSTANCEOF, Token_rhino_ASSIGN:
+	case tokOrd1_INSTANCEOF, tokOrd1_ASSIGN:
 		return this.propagate(first)
-	case Token_rhino_TYPEOF, Token_rhino_NOT, Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE:
+	case tokOrd1_TYPEOF, tokOrd1_NOT, tokOrd1_EQ, tokOrd1_NE, tokOrd1_SHEQ, tokOrd1_SHNE:
 		return this.propagate(true)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		return this.propagate((!first && GuardedCallback_isPropertyTestFunction(compiler, parent)))
-	case Token_rhino_ROOT:
+	case tokOrd1_ROOT:
 		return GuardedCallback_Context_EMPTY
-	case Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP:
+	case tokOrd1_OPTCHAIN_CALL, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP:
 		if first {
 			return this.link(parent, parent.isOptionalChainStart())
 		} else {
@@ -239,7 +233,6 @@ func (this *GuardedCallback_Context) descend(compiler *AbstractCompiler, parent 
 			return this.propagate(false)
 		}()
 	}
-	panic("unreachable")
 }
 
 var GuardedCallback_Context_EMPTY *GuardedCallback_Context

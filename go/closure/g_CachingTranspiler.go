@@ -8,7 +8,9 @@ type CachingTranspiler struct {
 }
 
 func (this *CachingTranspiler) init_CachingTranspiler(delegate Transpiler_transpile, builder CacheBuilderOf[any, any]) {
-	Preconditions_checkNotNull(any(delegate))
+	if delegate == nil {
+		panic(new_NullPointerException_0())
+	}
 	this.cache = builder.build(new_CachingTranspiler_1(this, delegate).up_CacheLoader())
 	this.runtimeField = Suppliers_memoize(&Supplier_base_tfn_string{func() string { return delegate.runtime() }})
 }
@@ -19,32 +21,21 @@ func new_CachingTranspiler(delegate Transpiler_transpile, builder CacheBuilderOf
 	return this
 }
 
-func (this *CachingTranspiler) transpile(path string, code string) *TranspileResult {
-	var ret_1 *TranspileResult
-	code_1 := func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_UncheckedExecutionException(ex_) {
-					var e *UncheckedExecutionException = to_UncheckedExecutionException(ex_)
-					if is_[*TranspilationException](e.getCause().self()) {
-						panic(obj_(new_TranspilationException_Exception(e.up_Exception())))
-					} else {
-						panic(e.self())
-					}
-					return
+func (this *CachingTranspiler) transpile(path string, code string) (ret_1 *TranspileResult) {
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if e, ok := ex_.(*UncheckedExecutionException); ok {
+				if _, ok2 := e.getCause().self().(*TranspilationException); ok2 {
+					panic(new_TranspilationException_Exception(e.up_Exception()))
+				} else {
+					panic(e.self())
 				}
-				panic(r_)
 			}
-		}()
-		ret_1 = cast_[*TranspileResult](this.cache.getUnchecked(obj_(new_CachingTranspiler_Key(path, code))))
-		return 1
-		return 0
+			panic(r_)
+		}
 	}()
-	if code_1 == 1 {
-		return ret_1
-	}
-	panic("unreachable")
+	return cast_[*TranspileResult](this.cache.getUnchecked(obj_(new_CachingTranspiler_Key(path, code))))
 }
 
 func (this *CachingTranspiler) runtime() string {
@@ -78,16 +69,17 @@ func (this *CachingTranspiler_Key) equals(other any) bool {
 	_ = key
 	return ((func() bool {
 		v_ := other
-		if !is_[*CachingTranspiler_Key](v_) {
+		p, ok := v_.(*CachingTranspiler_Key)
+		if !ok {
 			return false
 		}
-		key = cast_[*CachingTranspiler_Key](v_)
+		key = p
 		return true
 	}() && (key.path_ == this.path_)) && (key.code_ == this.code_))
 }
 
 func (this *CachingTranspiler_Key) hashCode() int32 {
-	return Objects_hash([]any{strobj_(this.path_), strobj_(this.code_)})
+	return hashOf_(objhashStr_(this.path_), objhashStr_(this.code_))
 }
 
 type CachingTranspiler_1 struct {

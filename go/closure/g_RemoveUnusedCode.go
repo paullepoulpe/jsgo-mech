@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type RemoveUnusedCode struct {
 	compiler_                                      *AbstractCompiler
 	astAnalyzer                                    *AstAnalyzer
@@ -12,10 +14,10 @@ type RemoveUnusedCode struct {
 	worklist                                       *TDeque[*RemoveUnusedCode_Continuation]
 	varInfoMap                                     *JTMap[*Var, RemoveUnusedCode_VarInfo]
 	pinnedPropertyNames                            *JTSet[string]
-	removablesForPropertyNames                     *SimpleSetMultimap
+	removablesForPropertyNames                     *SimpleSetMultimap[any, *RemoveUnusedCode_Removable]
 	canonicalUnremovableVarInfo                    RemoveUnusedCode_VarInfo
 	allFunctionParamScopes                         *JTList[*Scope]
-	polyfills                                      *SimpleSetMultimap
+	polyfills                                      *SimpleSetMultimap[any, *RemoveUnusedCode_PolyfillInfo]
 	guardedUsages                                  *JTSet[Node]
 	polyfillsFromTable                             *PolyfillUsageFinder_Polyfills
 	polyfillUsageFinder                            *PolyfillUsageFinder
@@ -33,10 +35,10 @@ type RemoveUnusedCode struct {
 func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.worklist = newTDeque_(jtc_p_RemoveUnusedCode_Continuation)
 	this.varInfoMap = jnewTMap_(tce_p_Var, tc_RemoveUnusedCode_VarInfo)
-	this.pinnedPropertyNames = jtsetFrom_(jtc_string, icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES)))
-	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered()
+	this.pinnedPropertyNames = jtsetFrom_(jtc_string, icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES.asImm())))
+	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_Removable]()
 	this.allFunctionParamScopes = jnewTList_(tc_p_Scope)
-	this.polyfills = SimpleSetMultimap_createInsertionOrdered()
+	this.polyfills = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_PolyfillInfo]()
 	this.guardedUsages = jnewTSet_(jtc_Node)
 }
 
@@ -57,7 +59,7 @@ func (this *RemoveUnusedCode) init_RemoveUnusedCode(builder *RemoveUnusedCode_Bu
 	this.polyfillsFromTable = PolyfillUsageFinder_Polyfills_fromTable(ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/polyfills.txt")))
 	this.polyfillUsageFinder = new_PolyfillUsageFinder(this.compiler_, this.polyfillsFromTable, this.disambiguateProperties_)
 	this.assumeGettersArePure_ = builder.assumeGettersArePureField
-	this.canonicalUnremovableVarInfo = icast_RemoveUnusedCode_VarInfo(obj_(new_RemoveUnusedCode_CanonicalUnremovableVarInfo(this)))
+	this.canonicalUnremovableVarInfo = new_RemoveUnusedCode_CanonicalUnremovableVarInfo(this)
 }
 
 func new_RemoveUnusedCode(builder *RemoveUnusedCode_Builder) *RemoveUnusedCode {
@@ -67,22 +69,21 @@ func new_RemoveUnusedCode(builder *RemoveUnusedCode_Builder) *RemoveUnusedCode {
 }
 
 func (this *RemoveUnusedCode) process_2(externs Node, root Node) {
-	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
-	this.pinnedPropertyNames.asSet().addAll(icast_Collection(obj_(this.compiler_.getExternProperties())))
-	_ = func() (code_ int) {
-		defer func() {
-			this.removalLog = nil
-			this.unremovableLog = nil
-		}()
-		var removalLogFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "removals.log", []string{})
-		defer closeResource_(removalLogFile.self())
-		var keepLogFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "unremovable.log", []string{})
-		defer closeResource_(keepLogFile.self())
-		this.removalLog = removalLogFile
-		this.unremovableLog = keepLogFile
-		this.traverseAndRemoveUnusedReferences(root)
-		return 0
+	if !this.compiler_.getLifeCycleStage().isNormalized() {
+		panic(new_IllegalStateException_0())
+	}
+	this.pinnedPropertyNames.asSet().addAll(icast_Collection(obj_(this.compiler_.getExternProperties().asImm())))
+	defer func() {
+		this.removalLog = nil
+		this.unremovableLog = nil
 	}()
+	var removalLogFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "removals.log", []string{})
+	defer closeResource_(removalLogFile.self())
+	var keepLogFile *LogFile = this.compiler_.createOrReopenIndexedLog(Object_getClass(any(this)), "unremovable.log", []string{})
+	defer closeResource_(keepLogFile.self())
+	this.removalLog = removalLogFile
+	this.unremovableLog = keepLogFile
+	this.traverseAndRemoveUnusedReferences(root)
 }
 
 func (this *RemoveUnusedCode) traverseAndRemoveUnusedReferences(root Node) {
@@ -90,7 +91,7 @@ func (this *RemoveUnusedCode) traverseAndRemoveUnusedReferences(root Node) {
 	if !scope.hasSlot(NodeUtil_JSC_PROPERTY_NAME_FN) {
 		scope.declare(NodeUtil_JSC_PROPERTY_NAME_FN, 0, nil)
 	}
-	this.polyfillUsageFinder.traverseOnlyGuarded(root, &Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.storePolyfill(p0) }})
+	this.polyfillUsageFinder.traverseOnlyGuarded(root, (&Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.storePolyfill(p0) }}).accept)
 	this.worklist.add(new_RemoveUnusedCode_Continuation(this, root, scope))
 	for !this.worklist.isEmpty() {
 		var continuation *RemoveUnusedCode_Continuation = this.worklist.pop()
@@ -110,13 +111,9 @@ func (this *RemoveUnusedCode) storePolyfill(polyfillUsage *PolyfillUsageFinder_P
 }
 
 func (this *RemoveUnusedCode) removeIndependentlyRemovableProperties() {
-	it_1 := foreach_(any(this.removablesForPropertyNames.keySet()))
-	for it_1.next() {
-		var propName string = str_(it_1.v)
-		this.removalLog.log(icast_Supplier(obj_(RemoveUnusedCode_RemovalLogRecord_forProperty(propName))))
-		it_3 := foreach_(any(this.removablesForPropertyNames.get(strobj_(propName))))
-		for it_3.next() {
-			var removable *RemoveUnusedCode_Removable = to_RemoveUnusedCode_Removable(it_3.v)
+	for propName := range elemsBy_(this.removablesForPropertyNames.keySet(), str_) {
+		this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forProperty(propName))
+		for removable := range elemsBy_(this.removablesForPropertyNames.get_s(propName), to_RemoveUnusedCode_Removable) {
 			removable.remove(this.compiler_)
 		}
 	}
@@ -124,7 +121,7 @@ func (this *RemoveUnusedCode) removeIndependentlyRemovableProperties() {
 
 func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 	var parent Node = n.getParent()
-	var type_ *Token_rhino = n.getToken()
+	var type_ Token_rhino = n.getToken()
 	switch type_ {
 	case Token_rhino_CATCH:
 		this.traverseCatch(n, scope)
@@ -136,9 +133,9 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 				var functionDeclaration *RemoveUnusedCode_FunctionDeclaration = new_RemoveUnusedCode_RemovableBuilder(this).addContinuation(new_RemoveUnusedCode_Continuation(this, n, scope)).buildFunctionDeclaration(n)
 				varInfo.addRemovable(functionDeclaration.up_RemoveUnusedCode_Removable())
 				if parent.isExport() {
-					varInfo.setIsExplicitlyNotRemovable(&Supplier_tfn_string{func() string {
+					varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 						return "exported class"
-					}})
+					}}).get)
 				}
 			} else {
 				this.traverseFunction(n, scope)
@@ -176,18 +173,26 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 	case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
 		this.traverseEnhancedFor(n, scope)
 	case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
-		Preconditions_checkState(NodeUtil_isStatement(n))
+		if !NodeUtil_isStatement(n) {
+			panic(new_IllegalStateException_0())
+		}
 		this.traverseDeclarationStatement(n, scope)
 	case Token_rhino_INSTANCEOF:
 		this.traverseInstanceof(n, scope)
 	case Token_rhino_NAME:
-		Preconditions_checkState(!n.hasChildren())
+		if n.hasChildren() {
+			panic(new_IllegalStateException_0())
+		}
 		if !parent.isParamList() {
-			Preconditions_checkState(!NodeUtil_isNameDeclaration(parent))
-			Preconditions_checkState(!((parent.isFunction() || parent.isClass()) && (parent.getFirstChild() == n)))
-			this.traverseNameNode(n, scope).setIsExplicitlyNotRemovable(&Supplier_tfn_string{func() string {
-				return String_format("reference found: %s", []any{strobj_(n.getLocation())})
-			}})
+			if NodeUtil_isNameDeclaration(parent) {
+				panic(new_IllegalStateException_0())
+			}
+			if (parent.isFunction() || parent.isClass()) && (parent.getFirstChild() == n) {
+				panic(new_IllegalStateException_0())
+			}
+			this.traverseNameNode(n, scope).setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
+				return ("reference found: " + sstr_(n.getLocation()))
+			}}).get)
 		}
 	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
 		this.traverseNormalOrOptChainGetProp(n, scope)
@@ -197,7 +202,9 @@ func (this *RemoveUnusedCode) traverseNode(n Node, scope *Scope) {
 }
 
 func (this *RemoveUnusedCode) traverseInstanceof(instanceofNode Node, scope *Scope) {
-	Preconditions_checkArgument_boolean_Object(instanceofNode.isInstanceOf(), instanceofNode.box_())
+	if !instanceofNode.isInstanceOf() {
+		panic(new_IllegalArgumentException_String(tostr_(instanceofNode)))
+	}
 	var lhs Node = instanceofNode.getFirstChild()
 	var rhs Node = lhs.getNext()
 	this.traverseNode(lhs, scope)
@@ -211,13 +218,13 @@ func (this *RemoveUnusedCode) traverseInstanceof(instanceofNode Node, scope *Sco
 }
 
 func (this *RemoveUnusedCode) traverseNormalOrOptChainGetProp(getProp Node, scope *Scope) {
-	Preconditions_checkState_boolean_Object(NodeUtil_isNormalOrOptChainGetProp(getProp), getProp.box_())
+	if !NodeUtil_isNormalOrOptChainGetProp(getProp) {
+		panic(new_IllegalStateException_String(tostr_(getProp)))
+	}
 	var objectNode Node = getProp.getFirstChild()
 	var propertyName string = getProp.getString()
-	if this.polyfills.containsKey(strobj_(propertyName)) {
-		it_1 := foreach_(any(this.polyfills.get(strobj_(propertyName))))
-		for it_1.next() {
-			var info *RemoveUnusedCode_PolyfillInfo = to_RemoveUnusedCode_PolyfillInfo(it_1.v)
+	if this.polyfills.containsKey_s(propertyName) {
+		for info := range elemsBy_(this.polyfills.get_s(propertyName), to_RemoveUnusedCode_PolyfillInfo) {
 			if info.isRemovable_ {
 				info.considerPossibleReference(getProp)
 			}
@@ -250,7 +257,9 @@ func (this *RemoveUnusedCode) traverseNormalOrOptChainGetProp(getProp Node, scop
 }
 
 func (this *RemoveUnusedCode) traverseIncrementOrDecrementOp(incOrDecOp Node, scope *Scope) {
-	Preconditions_checkArgument_boolean_Object((incOrDecOp.isInc() || incOrDecOp.isDec()), incOrDecOp.box_())
+	if !incOrDecOp.isInc() && !incOrDecOp.isDec() {
+		panic(new_IllegalArgumentException_String(tostr_(incOrDecOp)))
+	}
 	var arg Node = incOrDecOp.getOnlyChild()
 	if NodeUtil_isExpressionResultUsed(incOrDecOp) {
 		this.traverseNode(arg, scope)
@@ -307,10 +316,8 @@ func (this *RemoveUnusedCode) traverseCompoundAssign(compoundAssignNode Node, sc
 }
 
 func (this *RemoveUnusedCode) traverseNameNode(n Node, scope *Scope) RemoveUnusedCode_VarInfo {
-	if this.polyfills.containsKey(strobj_(n.getString())) {
-		it_1 := foreach_(any(this.polyfills.get(strobj_(n.getString()))))
-		for it_1.next() {
-			var info *RemoveUnusedCode_PolyfillInfo = to_RemoveUnusedCode_PolyfillInfo(it_1.v)
+	if this.polyfills.containsKey_s(n.getString()) {
+		for info := range elemsBy_(this.polyfills.get_s(n.getString()), to_RemoveUnusedCode_PolyfillInfo) {
 			if info.isRemovable_ {
 				info.considerPossibleReference(n)
 			}
@@ -332,11 +339,11 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 	} else if this.removeUnusedPolyfills_ && RemoveUnusedCode_isJscompPolyfill(callee) {
 		var firstArg Node = callee.getNext()
 		var polyfillName string = firstArg.getString()
-		if String_endsWith(callee.getString(), "polyfillTypedArrayMethod") {
+		if strings.HasSuffix(callee.getString(), "polyfillTypedArrayMethod") {
 			polyfillName = ("TypedArray.prototype." + sstr_(polyfillName))
 		}
 		var info *RemoveUnusedCode_PolyfillInfo = this.createPolyfillInfo(callNode, scope, polyfillName)
-		this.polyfills.put(strobj_(info.key_), info.self())
+		this.polyfills.put_s(info.key_, info)
 		this.traverseNode(callNode.getFirstChild(), scope)
 	} else if (NodeUtil_isGoogWeakUsageCall(callNode) && callNode.hasTwoChildren()) && callNode.getSecondChild().isName() {
 		var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(callNode.getSecondChild(), scope)
@@ -354,13 +361,17 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 				classDefiningCall = true
 			} else {
 				classVarName = Optional_of[string](this.codingConvention.getSingletonGetterClassName(callNode)).filter(&Predicate_tfn_string{func(s string) bool {
-					return !String_isEmpty(s)
+					return s != ""
 				}})
 			}
 		}
 		var classVar *Var = nil
 		if classVarName.isPresent() && NodeUtil_isValidSimpleName(classVarName.get()) {
-			classVar = cast_[*Var](Preconditions_checkNotNull_Object_Object(scope.getVar(classVarName.get()).self(), strobj_(classVarName.get())))
+			nn_, nn1_ := scope.getVar(classVarName.get()), classVarName.get()
+			if nn_ == nil {
+				panic(new_NullPointerException_String(sstr_(nn1_)))
+			}
+			classVar = nn_.self().(*Var)
 		}
 		if (classVar == nil) || !classVar.isGlobal() {
 			this.traverseChildren(callNode, scope)
@@ -379,17 +390,16 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 
 func RemoveUnusedCode_isJscompPolyfill(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_NAME:
+		switch n.ns_().token {
+		case tokOrd1_NAME:
 			var name string = n.getString()
 			return ((((name == "$jscomp$polyfill") || (name == "$jscomp$patch")) || (name == "$jscomp$polyfillTypedArrayMethod")) && n.getNext().isStringLit())
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			var propertyName string = n.getString()
 			return ((((((propertyName == "polyfill") || (propertyName == "patch")) || (propertyName == "polyfillTypedArrayMethod")) && n.getFirstChild().isName()) && (n.getFirstChild().getString() == "$jscomp")) && n.getNext().isStringLit())
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -442,11 +452,17 @@ func (this *RemoveUnusedCode) traverseObjectDefinePropertiesLiteral(propertyDefi
 }
 
 func (this *RemoveUnusedCode) getVarForNameNode(nameNode Node, scope *Scope) *Var {
-	return cast_[*Var](Preconditions_checkNotNull_Object_Object(scope.getVar(nameNode.getString()).self(), nameNode.box_()))
+	nn_ := scope.getVar(nameNode.getString())
+	if nn_ == nil {
+		panic(new_NullPointerException_String(tostr_(nameNode)))
+	}
+	return nn_.self().(*Var)
 }
 
 func (this *RemoveUnusedCode) traverseObjectLiteral(objectLiteral Node, scope *Scope) {
-	Preconditions_checkArgument_boolean_Object(objectLiteral.isObjectLit(), objectLiteral.box_())
+	if !objectLiteral.isObjectLit() {
+		panic(new_IllegalArgumentException_String(tostr_(objectLiteral)))
+	}
 	if this.isAssignmentToPrototype(objectLiteral.getParent()) {
 		this.traversePrototypeLiteral(objectLiteral, scope)
 	} else if this.isObjectDefinePropertiesSecondArgument(objectLiteral) {
@@ -506,9 +522,9 @@ func (this *RemoveUnusedCode) traverseCatch(catchNode Node, scope *Scope) {
 	var block Node = exceptionNameNode.getNext()
 	if exceptionNameNode.isName() {
 		var exceptionVarInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(exceptionNameNode, scope)
-		exceptionVarInfo.setIsExplicitlyNotRemovable(&Supplier_tfn_string{func() string {
+		exceptionVarInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 			return "catch variable"
-		}})
+		}}).get)
 	} else {
 		this.traverseNode(exceptionNameNode, scope)
 	}
@@ -522,20 +538,24 @@ func (this *RemoveUnusedCode) traverseEnhancedFor(enhancedFor Node, scope *Scope
 	var body Node = collection.getNext()
 	if iterationTarget.isName() {
 		var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(iterationTarget, forScope)
-		varInfo.setIsExplicitlyNotRemovable(&Supplier_tfn_string{func() string {
+		varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 			return "for-of or for-in loop variable"
-		}})
+		}}).get)
 	} else if NodeUtil_isNameDeclaration(iterationTarget) {
 		var declNode Node = iterationTarget.getOnlyChild()
 		if declNode.isDestructuringLhs() {
 			this.traverseNode(declNode, forScope)
 		} else {
-			Preconditions_checkState(declNode.isName())
-			Preconditions_checkState(!declNode.hasChildren())
+			if !declNode.isName() {
+				panic(new_IllegalStateException_0())
+			}
+			if declNode.hasChildren() {
+				panic(new_IllegalStateException_0())
+			}
 			var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(declNode, forScope)
-			varInfo.setIsExplicitlyNotRemovable(&Supplier_tfn_string{func() string {
+			varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 				return "for-of or for-in loop variable"
-			}})
+			}}).get)
 		}
 	} else {
 		this.traverseNode(iterationTarget, forScope)
@@ -573,9 +593,9 @@ func (this *RemoveUnusedCode) traverseVanillaForNameDeclarations(nameDeclaration
 				if valueNode == 0 {
 					varInfo.addRemovable(new_RemoveUnusedCode_RemovableBuilder(this).buildVanillaForNameDeclaration(nameNode).up_RemoveUnusedCode_Removable())
 				} else if this.mayHaveSideEffects(valueNode) {
-					varInfo.setIsExplicitlyNotRemovable(&Supplier_tfn_string{func() string {
+					varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 						return "for-loop variable initialization has side-effects"
-					}})
+					}}).get)
 					this.traverseNode(valueNode, scope)
 				} else {
 					var vanillaForNameDeclaration *RemoveUnusedCode_VanillaForNameDeclaration = new_RemoveUnusedCode_RemovableBuilder(this).addContinuation(new_RemoveUnusedCode_Continuation(this, valueNode, scope)).buildVanillaForNameDeclaration(nameNode)
@@ -609,7 +629,9 @@ func (this *RemoveUnusedCode) traverseDeclarationStatement(declarationStatement 
 }
 
 func (this *RemoveUnusedCode) traverseAssign(assignNode Node, scope *Scope) {
-	Preconditions_checkState(NodeUtil_isAssignmentOp(assignNode))
+	if !NodeUtil_isAssignmentOp(assignNode) {
+		panic(new_IllegalStateException_0())
+	}
 	var lhs Node = assignNode.getFirstChild()
 	var valueNode Node = assignNode.getLastChild()
 	if lhs.isName() {
@@ -700,40 +722,44 @@ func (this *RemoveUnusedCode) isNameDotPrototype(n Node) bool {
 }
 
 func (this *RemoveUnusedCode) traverseObjectPattern(pattern Node, scope *Scope) {
-	Preconditions_checkState_boolean_Object(pattern.isObjectPattern(), pattern.box_())
+	if !pattern.isObjectPattern() {
+		panic(new_IllegalStateException_String(tostr_(pattern)))
+	}
 	{
 		var elem Node = pattern.getFirstChild()
 		for ; elem != 0; elem = elem.getNext() {
-			switch elem.getToken() {
-			case Token_rhino_COMPUTED_PROP:
+			switch elem.ns_().token {
+			case tokOrd1_COMPUTED_PROP:
 				this.traverseIndirectAssignment(elem, elem.getSecondChild(), scope)
-			case Token_rhino_STRING_KEY:
+			case tokOrd1_STRING_KEY:
 				if !elem.isQuotedStringKey() {
 					this.markPropertyNameAsPinned(elem.getString())
 				}
 				this.traverseIndirectAssignment(elem, elem.getOnlyChild(), scope)
-			case Token_rhino_ITER_REST, Token_rhino_OBJECT_REST:
+			case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 				this.traverseIndirectAssignment(elem, elem.getOnlyChild(), scope)
 			default:
-				panic(new_IllegalStateException_String(("Unexpected child of " + objstr_(obj_(pattern.getToken())) + ": " + sstr_(elem.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(pattern.getToken()) + ": " + sstr_(elem.toStringTree()))))
 			}
 		}
 	}
 }
 
 func (this *RemoveUnusedCode) traverseIndirectAssignmentList(list Node, scope *Scope) {
-	Preconditions_checkState_boolean_Object((list.isArrayPattern() || list.isParamList()), list.box_())
+	if !list.isArrayPattern() && !list.isParamList() {
+		panic(new_IllegalStateException_String(tostr_(list)))
+	}
 	{
 		var elem Node = list.getFirstChild()
 		for ; elem != 0; elem = elem.getNext() {
-			switch elem.getToken() {
-			case Token_rhino_EMPTY:
-			case Token_rhino_ARRAY_PATTERN, Token_rhino_DEFAULT_VALUE, Token_rhino_GETELEM, Token_rhino_GETPROP, Token_rhino_NAME, Token_rhino_OBJECT_PATTERN:
+			switch elem.ns_().token {
+			case tokOrd1_EMPTY:
+			case tokOrd1_ARRAY_PATTERN, tokOrd1_DEFAULT_VALUE, tokOrd1_GETELEM, tokOrd1_GETPROP, tokOrd1_NAME, tokOrd1_OBJECT_PATTERN:
 				this.traverseIndirectAssignment(elem, elem, scope)
-			case Token_rhino_ITER_REST, Token_rhino_OBJECT_REST:
+			case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 				this.traverseIndirectAssignment(elem, elem.getOnlyChild(), scope)
 			default:
-				panic(new_IllegalStateException_String(("Unexpected child of " + objstr_(obj_(list.getToken())) + ": " + sstr_(elem.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(list.getToken()) + ": " + sstr_(elem.toStringTree()))))
 			}
 		}
 	}
@@ -741,7 +767,9 @@ func (this *RemoveUnusedCode) traverseIndirectAssignmentList(list Node, scope *S
 
 func (this *RemoveUnusedCode) traverseIndirectAssignment(root Node, target Node, scope *Scope) {
 	var rootParent Node = root.getParent()
-	Preconditions_checkArgument_boolean_Object((rootParent.isDestructuringPattern() || rootParent.isParamList()), rootParent.box_())
+	if !rootParent.isDestructuringPattern() && !rootParent.isParamList() {
+		panic(new_IllegalArgumentException_String(tostr_(rootParent)))
+	}
 	if target.isDefaultValue() {
 		target = target.getFirstChild()
 	}
@@ -771,7 +799,9 @@ func (this *RemoveUnusedCode) traverseChildren(n Node, scope *Scope) {
 }
 
 func (this *RemoveUnusedCode) traverseClass(classNode Node, scope *Scope) {
-	Preconditions_checkArgument(classNode.isClass())
+	if !classNode.isClass() {
+		panic(new_IllegalArgumentException_0())
+	}
 	if NodeUtil_isClassDeclaration(classNode) {
 		this.traverseClassDeclaration(classNode, scope)
 	} else {
@@ -780,28 +810,30 @@ func (this *RemoveUnusedCode) traverseClass(classNode Node, scope *Scope) {
 }
 
 func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Scope) {
-	Preconditions_checkArgument(classNode.isClass())
+	if !classNode.isClass() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var classNameNode Node = classNode.getFirstChild()
 	var baseClassExpression Node = classNameNode.getNext()
 	var classBodyNode Node = baseClassExpression.getNext()
 	var classScope *Scope = this.scopeCreator.createScope(classNode, scope)
 	var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(classNameNode, scope)
 	if classNode.getParent().isExport() {
-		varInfo.setIsExplicitlyNotRemovable(&Supplier_tfn_string{func() string {
+		varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 			return "exported class"
-		}})
+		}}).get)
 		this.traverseNode(baseClassExpression, scope)
 		this.traverseChildren(classBodyNode, classScope)
 	} else if this.mayHaveSideEffects(baseClassExpression) {
-		varInfo.setIsExplicitlyNotRemovable(&Supplier_tfn_string{func() string {
+		varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 			return "base class expression has side-effects"
-		}})
+		}}).get)
 		this.traverseNode(baseClassExpression, scope)
 		this.traverseClassMembers(classBodyNode, classScope)
 	} else if this.mayHaveSideEffects(classBodyNode) {
-		varInfo.setIsExplicitlyNotRemovable(&Supplier_tfn_string{func() string {
+		varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 			return "class body has side-effects"
-		}})
+		}}).get)
 		this.traverseNode(baseClassExpression, scope)
 		this.traverseClassMembers(classBodyNode, classScope)
 	} else {
@@ -811,7 +843,9 @@ func (this *RemoveUnusedCode) traverseClassDeclaration(classNode Node, scope *Sc
 }
 
 func (this *RemoveUnusedCode) traverseClassExpression(classNode Node, scope *Scope) {
-	Preconditions_checkArgument(classNode.isClass())
+	if !classNode.isClass() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var classNameNode Node = classNode.getFirstChild()
 	var baseClassExpression Node = classNameNode.getNext()
 	var classBodyNode Node = baseClassExpression.getNext()
@@ -826,7 +860,9 @@ func (this *RemoveUnusedCode) traverseClassExpression(classNode Node, scope *Sco
 }
 
 func (this *RemoveUnusedCode) traverseClassMembers(node Node, scope *Scope) {
-	Preconditions_checkArgument_boolean_Object(node.isClassMembers(), node.box_())
+	if !node.isClassMembers() {
+		panic(new_IllegalArgumentException_String(tostr_(node)))
+	}
 	if !this.removeUnusedPrototypeProperties_ {
 		this.traverseChildren(node, scope)
 		return
@@ -834,37 +870,43 @@ func (this *RemoveUnusedCode) traverseClassMembers(node Node, scope *Scope) {
 	{
 		var member Node = node.getFirstChild()
 		for ; member != 0; member = member.getNext() {
-			switch member.getToken() {
-			case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF:
+			switch member.ns_().token {
+			case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FUNCTION_DEF:
 				this.considerForIndependentRemoval(new_RemoveUnusedCode_RemovableBuilder(this).addContinuation(new_RemoveUnusedCode_Continuation(this, member, scope)).buildClassOrPrototypeNamedProperty(member).up_RemoveUnusedCode_Removable())
-			case Token_rhino_MEMBER_FIELD_DEF:
+			case tokOrd1_MEMBER_FIELD_DEF:
 				if !member.hasChildren() || !this.mayHaveSideEffects(member.getFirstChild()) {
 					this.considerForIndependentRemoval(new_RemoveUnusedCode_RemovableBuilder(this).addContinuation(new_RemoveUnusedCode_Continuation(this, member, scope)).buildClassOrPrototypeNamedProperty(member).up_RemoveUnusedCode_Removable())
 				}
 				if member.hasChildren() {
 					this.traverseChildren(member, scope)
 				}
-			case Token_rhino_COMPUTED_PROP, Token_rhino_COMPUTED_FIELD_DEF:
+			case tokOrd1_COMPUTED_PROP, tokOrd1_COMPUTED_FIELD_DEF:
 				this.traverseChildren(member, scope)
-			case Token_rhino_BLOCK:
+			case tokOrd1_BLOCK:
 				this.traverseChildren(member, this.scopeCreator.createScope(member, scope))
 			default:
-				panic(new_IllegalStateException_String(("Unexpected child of CLASS_MEMBERS: " + sstr_(member.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected child of CLASS_MEMBERS: " + sstr_(member.toStringTree()))))
 			}
 		}
 	}
 }
 
 func (this *RemoveUnusedCode) traverseFunction(function Node, parentScope *Scope) {
-	Preconditions_checkState_boolean_Object(function.hasXChildren(3), function.box_())
-	Preconditions_checkState_boolean_Object(function.isFunction(), function.box_())
+	if !function.hasXChildren(3) {
+		panic(new_IllegalStateException_String(tostr_(function)))
+	}
+	if !function.isFunction() {
+		panic(new_IllegalStateException_String(tostr_(function)))
+	}
 	var paramlist Node = NodeUtil_getFunctionParameters(function)
 	var body Node = function.getLastChild()
-	Preconditions_checkState_boolean_Object(((body.getNext() == 0) && body.isBlock()), body.box_())
+	if body.getNext() != 0 || !body.isBlock() {
+		panic(new_IllegalStateException_String(tostr_(body)))
+	}
 	var fparamScope *Scope = this.scopeCreator.createScope(function, parentScope)
 	var fbodyScope *Scope = this.scopeCreator.createScope(body, fparamScope)
 	var nameNode Node = function.getFirstChild()
-	if !String_isEmpty(nameNode.getString()) {
+	if nameNode.getString() != "" {
 		var varInfo RemoveUnusedCode_VarInfo = this.traverseNameNode(nameNode, fparamScope)
 		if NodeUtil_isExpressionResultUsed(function) {
 			varInfo.setHasNonLocalOrNonLiteralValue()
@@ -876,7 +918,9 @@ func (this *RemoveUnusedCode) traverseFunction(function Node, parentScope *Scope
 }
 
 func (this *RemoveUnusedCode) canRemoveParameters(parameterList Node) bool {
-	Preconditions_checkState(parameterList.isParamList())
+	if !parameterList.isParamList() {
+		panic(new_IllegalStateException_0())
+	}
 	var function Node = parameterList.getParent()
 	return (this.removeGlobals_ && !NodeUtil_isGetOrSetKey(function.getParent()))
 }
@@ -886,7 +930,9 @@ func (this *RemoveUnusedCode) removeUnreferencedFunctionArgs(fparamScope *Scope)
 		return
 	}
 	var function Node = fparamScope.getRootNode()
-	Preconditions_checkState(function.isFunction())
+	if !function.isFunction() {
+		panic(new_IllegalStateException_0())
+	}
 	if NodeUtil_isGetOrSetKey(function.getParent()) {
 		return
 	}
@@ -897,9 +943,7 @@ func (this *RemoveUnusedCode) removeUnreferencedFunctionArgs(fparamScope *Scope)
 
 func (this *RemoveUnusedCode) markPropertyNameAsPinned(propertyName string) {
 	if this.pinnedPropertyNames.add(propertyName) {
-		it_1 := foreach_(any(this.removablesForPropertyNames.removeAll(strobj_(propertyName))))
-		for it_1.next() {
-			var removable *RemoveUnusedCode_Removable = to_RemoveUnusedCode_Removable(it_1.v)
+		for removable := range elemsBy_(this.removablesForPropertyNames.removeAll_s(propertyName), to_RemoveUnusedCode_Removable) {
 			removable.applyContinuations()
 		}
 	}
@@ -911,7 +955,7 @@ func (this *RemoveUnusedCode) considerForIndependentRemoval(removable *RemoveUnu
 		if this.pinnedPropertyNames.has(propertyName) || this.codingConvention.isExported_2(propertyName, false) {
 			removable.applyContinuations()
 		} else if this.isIndependentlyRemovable(removable) {
-			this.removablesForPropertyNames.put(strobj_(propertyName), removable.self())
+			this.removablesForPropertyNames.put_s(propertyName, removable)
 		} else {
 			removable.applyContinuations()
 			this.markPropertyNameAsPinned(propertyName)
@@ -921,10 +965,12 @@ func (this *RemoveUnusedCode) considerForIndependentRemoval(removable *RemoveUnu
 	}
 }
 
-func (this *RemoveUnusedCode) considerForAccessorSideEffects(getprop Node, usage *AccessorSummary_PropertyAccessKind) bool {
-	Preconditions_checkState_boolean_Object(NodeUtil_isNormalOrOptChainGetProp(getprop), getprop.box_())
+func (this *RemoveUnusedCode) considerForAccessorSideEffects(getprop Node, usage AccessorSummary_PropertyAccessKind) bool {
+	if !NodeUtil_isNormalOrOptChainGetProp(getprop) {
+		panic(new_IllegalStateException_String(tostr_(getprop)))
+	}
 	var propName string = getprop.getString()
-	var recorded *AccessorSummary_PropertyAccessKind = this.compiler_.getAccessorSummary().getKind(propName)
+	var recorded AccessorSummary_PropertyAccessKind = this.compiler_.getAccessorSummary().getKind(propName)
 	if ((recorded.hasGetter() && usage.hasGetter()) && !this.assumeGettersArePure_) || (recorded.hasSetter() && usage.hasSetter()) {
 		this.markPropertyNameAsPinned(propName)
 		return true
@@ -944,11 +990,12 @@ func (this *RemoveUnusedCode) isIndependentlyRemovable(removable *RemoveUnusedCo
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *RemoveUnusedCode) markUnusedParameters(paramList Node, fparamScope *Scope) {
-	Preconditions_checkArgument_boolean_Object(paramList.isParamList(), paramList.box_())
+	if !paramList.isParamList() {
+		panic(new_IllegalArgumentException_String(tostr_(paramList)))
+	}
 	{
 		var param Node = paramList.getFirstChild()
 		for ; param != 0; param = param.getNext() {
@@ -963,14 +1010,16 @@ func (this *RemoveUnusedCode) markUnusedParameters(paramList Node, fparamScope *
 			if varInfo.isRemovable() {
 				param.setUnusedParameter(true)
 				this.compiler_.reportChangeToEnclosingScope(paramList)
-				this.removalLog.log(icast_Supplier(obj_(RemoveUnusedCode_RemovalLogRecord_forMarkingNamedArg(paramNameNode, paramList))))
+				this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forMarkingNamedArg(paramNameNode, paramList))
 			}
 		}
 	}
 }
 
 func (this *RemoveUnusedCode) maybeRemoveUnusedTrailingParameters(argList Node, fparamScope *Scope) {
-	Preconditions_checkArgument_boolean_Object(argList.isParamList(), argList.box_())
+	if !argList.isParamList() {
+		panic(new_IllegalArgumentException_String(tostr_(argList)))
+	}
 	var lastArg Node
 	for {
 		lastArg = argList.getLastChild()
@@ -992,14 +1041,14 @@ func (this *RemoveUnusedCode) maybeRemoveUnusedTrailingParameters(argList Node, 
 				break
 			} else {
 				NodeUtil_deleteNode(lastArg, this.compiler_)
-				this.removalLog.log(icast_Supplier(obj_(RemoveUnusedCode_RemovalLogRecord_forDestructuringArg(argList))))
+				this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forDestructuringArg(argList))
 				continue
 			}
 		}
 		var varInfo RemoveUnusedCode_VarInfo = this.getVarInfo(this.getVarForNameNode(argNode, fparamScope))
 		if varInfo.isRemovable() {
 			NodeUtil_deleteNode(lastArg, this.compiler_)
-			this.removalLog.log(icast_Supplier(obj_(RemoveUnusedCode_RemovalLogRecord_forNamedArg(argNode, argList))))
+			this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forNamedArg(argNode, argList))
 		} else {
 			break
 		}
@@ -1007,9 +1056,11 @@ func (this *RemoveUnusedCode) maybeRemoveUnusedTrailingParameters(argList Node, 
 }
 
 func (this *RemoveUnusedCode) traverseVar(var_ *Var) RemoveUnusedCode_VarInfo {
-	Preconditions_checkNotNull(obj_(var_))
+	if var_ == nil {
+		panic(new_NullPointerException_0())
+	}
 	if this.removeLocalVars_ && var_.isArguments() {
-		var functionScope *Scope = cast_[*Scope](cast_[*Scope](var_.getScope()).getClosestHoistScope().self())
+		var functionScope *Scope = cast_[*Scope](var_.getScope().(*Scope).getClosestHoistScope().self())
 		var paramList Node = NodeUtil_getFunctionParameters(functionScope.getRootNode())
 		{
 			var param Node = paramList.getFirstChild()
@@ -1018,47 +1069,47 @@ func (this *RemoveUnusedCode) traverseVar(var_ *Var) RemoveUnusedCode_VarInfo {
 				if lValue == 0 {
 					continue
 				}
-				this.getVarInfo(this.getVarForNameNode(lValue, functionScope)).setIsExplicitlyNotRemovable(&Supplier_tfn_string{func() string {
+				this.getVarInfo(this.getVarForNameNode(lValue, functionScope)).setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 					return "parameter in function using arguments"
-				}})
+				}}).get)
 			}
 		}
 		return this.canonicalUnremovableVarInfo
 	} else {
 		return this.getVarInfo(var_)
 	}
-	panic("unreachable")
 }
 
 func RemoveUnusedCode_nameOfParam(param Node) Node {
 	return func() Node {
-		switch param.getToken() {
-		case Token_rhino_NAME:
+		switch param.ns_().token {
+		case tokOrd1_NAME:
 			return param
-		case Token_rhino_DEFAULT_VALUE:
+		case tokOrd1_DEFAULT_VALUE:
 			return RemoveUnusedCode_nameOfParam(param.getFirstChild())
-		case Token_rhino_ITER_REST:
+		case tokOrd1_ITER_REST:
 			return RemoveUnusedCode_nameOfParam(param.getOnlyChild())
-		case Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
+		case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 			return 0
 		default:
-			panic(new_IllegalStateException_String(("Unexpected child of PARAM_LIST: " + sstr_(param.toStringTree()))).self())
+			panic(new_IllegalStateException_String(("Unexpected child of PARAM_LIST: " + sstr_(param.toStringTree()))))
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
-	Preconditions_checkNotNull(obj_(var_))
+	if var_ == nil {
+		panic(new_NullPointerException_0())
+	}
 	var isGlobal bool = var_.isGlobal()
 	if var_.isExtern() {
 		this.unremovableLog.log(&Supplier_tfn_string{func() string {
-			return String_format("%s: extern", []any{strobj_(var_.getName())})
+			return (sstr_(var_.getName()) + ": extern")
 		}})
 		return this.canonicalUnremovableVarInfo
 	} else if this.codingConvention.isExported_2(var_.getName(), !isGlobal) {
 		this.unremovableLog.log(&Supplier_tfn_string{func() string {
-			return String_format("%s: exported by convention", []any{strobj_(var_.getName())})
+			return (sstr_(var_.getName()) + ": exported by convention")
 		}})
 		return this.canonicalUnremovableVarInfo
 	} else if var_.isArguments() {
@@ -1066,24 +1117,23 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 	} else {
 		var varInfo RemoveUnusedCode_VarInfo = this.varInfoMap.get(var_)
 		if varInfo == nil {
-			varInfo = icast_RemoveUnusedCode_VarInfo(obj_(new_RemoveUnusedCode_RealVarInfo(this, var_.getName())))
+			varInfo = new_RemoveUnusedCode_RealVarInfo(this, var_.getName())
 			if var_.getParentNode().isParamList() {
 				varInfo.setHasNonLocalOrNonLiteralValue()
 			}
 			if !this.removeGlobals_ && isGlobal {
-				varInfo.setIsExplicitlyNotRemovable(&Supplier_tfn_string{func() string {
+				varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 					return "not removing globals"
-				}})
+				}}).get)
 			} else if !this.removeLocalVars_ && !isGlobal {
-				varInfo.setIsExplicitlyNotRemovable(&Supplier_tfn_string{func() string {
+				varInfo.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 					return "not removing locals"
-				}})
+				}}).get)
 			}
 			this.varInfoMap.put(var_, varInfo)
 		}
 		return varInfo
 	}
-	panic("unreachable")
 }
 
 func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
@@ -1095,7 +1145,7 @@ func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
 		if !varInfo.isRemovable() {
 			continue
 		}
-		this.removalLog.log(icast_Supplier(obj_(RemoveUnusedCode_RemovalLogRecord_forVar(var_))))
+		this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forVar(var_))
 		varInfo.removeAllRemovables()
 		var nameNode Node = var_.getNameNode()
 		var toRemove Node = nameNode.getParent()
@@ -1107,14 +1157,16 @@ func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
 				fnNameNode.setString("")
 			}
 		} else {
-			Preconditions_checkState_boolean_String_Object((toRemove.isParamList() || (toRemove.getParent().isParamList() && (toRemove.isDefaultValue() || toRemove.isRest()))), "unremoved code: %s", toRemove.box_())
+			if !(toRemove.isParamList() || (toRemove.getParent().isParamList() && (toRemove.isDefaultValue() || toRemove.isRest()))) {
+				panic(new_IllegalStateException_String(Strings_lenientFormat("unremoved code: %s", []any{toRemove.box_()})))
+			}
 		}
 	}
 	var iter IteratorOf[*RemoveUnusedCode_PolyfillInfo] = this.polyfills.values().iterator()
 	for iter.hasNext() {
 		var polyfill *RemoveUnusedCode_PolyfillInfo = to_RemoveUnusedCode_PolyfillInfo(iter.next())
 		if polyfill.isRemovable_ {
-			this.removalLog.log(icast_Supplier(obj_(RemoveUnusedCode_RemovalLogRecord_forPolyfill(polyfill))))
+			this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forPolyfill(polyfill))
 			polyfill.removable.remove(this.compiler_)
 			Iterator_remove(iter)
 		}
@@ -1131,7 +1183,10 @@ func RemoveUnusedCode_isDotPrototypeDotProperty(n Node) bool {
 
 func RemoveUnusedCode_maybeUnwrapQnameOrDefaultValueNode(targetNode Node, valueNode Node) Node {
 	if valueNode.isOr() && targetNode.isQualifiedName() {
-		var lhsOfOr Node = Node_of_(Preconditions_checkNotNull(valueNode.getFirstChild().box_()))
+		var lhsOfOr Node = valueNode.getFirstChild()
+		if lhsOfOr == 0 {
+			panic(new_NullPointerException_0())
+		}
 		if lhsOfOr.matchesQualifiedNameNode(targetNode) {
 			return valueNode.getLastChild()
 		}
@@ -1164,7 +1219,9 @@ func RemoveUnusedCode_alreadyRemoved(n Node) bool {
 }
 
 func (this *RemoveUnusedCode) createPolyfillInfo(call Node, scope *Scope, name string) *RemoveUnusedCode_PolyfillInfo {
-	Preconditions_checkState(call.getParent().isExprResult())
+	if !call.getParent().isExprResult() {
+		panic(new_IllegalStateException_0())
+	}
 	var builder *RemoveUnusedCode_RemovableBuilder = new_RemoveUnusedCode_RemovableBuilder(this)
 	{
 		var n Node = call.getFirstChild().getNext()
@@ -1173,21 +1230,23 @@ func (this *RemoveUnusedCode) createPolyfillInfo(call Node, scope *Scope, name s
 		}
 	}
 	var removable *RemoveUnusedCode_Polyfill = builder.buildPolyfill(call.getParent())
-	var lastDot int32 = String_lastIndexOf_String(name, ".")
+	var lastDot int32 = int32(strings.LastIndex(name, "."))
 	if lastDot < 0 {
 		return new_RemoveUnusedCode_GlobalPolyfillInfo(this, removable, name).up_RemoveUnusedCode_PolyfillInfo()
 	}
-	var owner string = String_substring(name, 0, lastDot)
-	var prop string = String_substring_int(name, (lastDot + 1))
-	if String_endsWith(owner, RemoveUnusedCode_DOT_PROTOTYPE) {
-		owner = String_substring(owner, 0, (String_length(owner) - String_length(RemoveUnusedCode_DOT_PROTOTYPE)))
+	var owner string = name[:lastDot]
+	var prop string = name[lastDot+1:]
+	if strings.HasSuffix(owner, RemoveUnusedCode_DOT_PROTOTYPE) {
+		owner = owner[:len(owner)-len(RemoveUnusedCode_DOT_PROTOTYPE)]
 		return new_RemoveUnusedCode_PrototypePropertyPolyfillInfo(this, removable, prop, owner).up_RemoveUnusedCode_PolyfillInfo()
 	}
 	return new_RemoveUnusedCode_StaticPropertyPolyfillInfo(this, removable, prop, owner).up_RemoveUnusedCode_PolyfillInfo()
 }
 
 func (this *RemoveUnusedCode) removeExpressionCompletely(expression Node) {
-	Preconditions_checkState_boolean_Object(!NodeUtil_isExpressionResultUsed(expression), expression.box_())
+	if NodeUtil_isExpressionResultUsed(expression) {
+		panic(new_IllegalStateException_String(tostr_(expression)))
+	}
 	var parent Node = expression.getParent()
 	if parent.isExprResult() {
 		NodeUtil_deleteNode(parent, this.compiler_)
@@ -1208,7 +1267,7 @@ func (this *RemoveUnusedCode) replaceNodeWith(n Node, replacement Node) {
 	NodeUtil_markFunctionsDeleted(n, this.compiler_)
 }
 
-var RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES *ImmutableSet
+var RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES *ImmutableSet[string]
 
 const RemoveUnusedCode_DOT_PROTOTYPE string = ".prototype"
 
@@ -1219,7 +1278,7 @@ func RemoveUnusedCode_clinit() {
 		return
 	}
 	RemoveUnusedCode_clinit_done = true
-	RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES = ImmutableSet_of_Object_Object_Object_Object_Object(strobj_("length"), strobj_("toString"), strobj_("valueOf"), strobj_("constructor"), strobj_("prototype"))
+	RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES = immutableSetOf_(tc_string, "length", "toString", "valueOf", "constructor", "prototype")
 
 }
 
@@ -1310,7 +1369,7 @@ func (this *RemoveUnusedCode_Builder) build() *RemoveUnusedCode {
 
 type RemoveUnusedCode_RemovalLogRecord struct {
 	kind_                string
-	nameSupplier         SupplierOf[string]
+	nameSupplier         func() any
 	functionNameSupplier SupplierOf[string]
 }
 
@@ -1318,26 +1377,32 @@ func (this *RemoveUnusedCode_RemovalLogRecord) zero_RemoveUnusedCode_RemovalLogR
 	this.kind_ = nullstr_
 }
 
-func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier SupplierOf[string], functionNameSupplier SupplierOf[string]) {
+func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier func() any, functionNameSupplier SupplierOf[string]) {
 	this.kind_ = kind
-	this.nameSupplier = icast_Supplier(Preconditions_checkNotNull(any(nameSupplier)))
-	this.functionNameSupplier = icast_Supplier(Preconditions_checkNotNull(any(functionNameSupplier)))
+	if nameSupplier == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.nameSupplier = nameSupplier
+	if functionNameSupplier == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.functionNameSupplier = functionNameSupplier
 }
 
-func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier SupplierOf[string], functionNameSupplier SupplierOf[string]) *RemoveUnusedCode_RemovalLogRecord {
+func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier func() any, functionNameSupplier SupplierOf[string]) *RemoveUnusedCode_RemovalLogRecord {
 	this := &RemoveUnusedCode_RemovalLogRecord{}
 	this.zero_RemoveUnusedCode_RemovalLogRecord()
 	this.init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind, nameSupplier, functionNameSupplier)
 	return this
 }
 
-func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier SupplierOf[string]) {
+func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier func() any) {
 	this.init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind, nameSupplier, &Supplier_tfn_string{func() string {
 		return ""
 	}})
 }
 
-func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier SupplierOf[string]) *RemoveUnusedCode_RemovalLogRecord {
+func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier func() any) *RemoveUnusedCode_RemovalLogRecord {
 	this := &RemoveUnusedCode_RemovalLogRecord{}
 	this.zero_RemoveUnusedCode_RemovalLogRecord()
 	this.init_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind, nameSupplier)
@@ -1345,42 +1410,44 @@ func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupp
 }
 
 func (this *RemoveUnusedCode_RemovalLogRecord) get() any {
-	return strobj_(String_join_CharSequence_CharSequenceArr(strobj_("\t"), []any{strobj_(this.kind_), this.nameSupplier.get(), this.functionNameSupplier.get()}))
+	return strobj_(String_join_CharSequence_CharSequenceArr_s("\t", []any{strobj_(this.kind_), this.nameSupplier(), this.functionNameSupplier.get()}))
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forProperty(propName string) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("prop", &Supplier_tfn_string{func() string {
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("prop", (&Supplier_tfn_string{func() string {
 		return propName
-	}})
+	}}).get)
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forVar(var_ *Var) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("var", &Supplier_tfn_string{func() string { return var_.getName() }})
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("var", (&Supplier_tfn_string{func() string { return var_.getName() }}).get)
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forPolyfill(polyfillInfo *RemoveUnusedCode_PolyfillInfo) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("poly", &Supplier_tfn_string{func() string { return polyfillInfo.getName() }})
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier("poly", (&Supplier_tfn_string{func() string { return polyfillInfo.getName() }}).get)
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forNamedArg(nameNode Node, argList Node) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("arg", &Supplier_tfn_string{func() string { return nameNode.getString() }}, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("arg", (&Supplier_tfn_string{func() string { return nameNode.getString() }}).get, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forDestructuringArg(argList Node) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("arg", &Supplier_tfn_string{func() string {
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("arg", (&Supplier_tfn_string{func() string {
 		return "<pattern>"
-	}}, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
+	}}).get, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
 }
 
 func RemoveUnusedCode_RemovalLogRecord_forMarkingNamedArg(nameNode Node, argList Node) *RemoveUnusedCode_RemovalLogRecord {
-	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("argmark", &Supplier_tfn_string{func() string { return nameNode.getString() }}, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
+	return new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier("argmark", (&Supplier_tfn_string{func() string { return nameNode.getString() }}).get, RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList))
 }
 
 func RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList Node) SupplierOf[string] {
 	return &Supplier_tfn_string{func() string {
-		var functionName Optional[string] = NodeUtil_getNearestFunctionName(Node_of_(Preconditions_checkNotNull(argList.box_())).getParent())
+		if argList == 0 {
+			panic(new_NullPointerException_0())
+		}
+		var functionName Optional[string] = NodeUtil_getNearestFunctionName(argList.getParent())
 		return functionName.orElse("<anonymous>")
-		panic("unreachable")
 	}}
 }
 
@@ -1411,7 +1478,7 @@ func (this *RemoveUnusedCode_Continuation) apply() {
 }
 
 type RemoveUnusedCode_Removable struct {
-	self_                                any
+	self_                                RemoveUnusedCode_Removable_I
 	outer_                               *RemoveUnusedCode
 	continuations                        *JTList[*RemoveUnusedCode_Continuation]
 	propertyName_                        Optional[string]
@@ -1422,6 +1489,30 @@ type RemoveUnusedCode_Removable struct {
 	isRemoved                            bool
 }
 
+// RemoveUnusedCode_Removable_I holds the methods the dispatchers of RemoveUnusedCode_Removable's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type RemoveUnusedCode_Removable_I interface {
+	getLocalAssignedValue_impl() Node
+	getPropertyName_impl() string
+	isAssignedValueLocal_impl() bool
+	isClassOrPrototypeNamedProperty_impl() bool
+	isNamedPropertyAssignment_impl() bool
+	isNamedProperty_impl() bool
+	isObjectDefinePropertiesDefinition_impl() bool
+	isPrototypeProperty_impl() bool
+	isStaticProperty_impl() bool
+	isThisDotPropertyReference_impl() bool
+	isVariableAssignment_impl() bool
+	preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl() bool
+	removeInternal_impl(*AbstractCompiler)
+}
+
+// RemoveUnusedCode_Removable_as is implemented by RemoveUnusedCode_Removable and the classes that extend it: a cast to RemoveUnusedCode_Removable asserts to it
+// (post-flip).
+type RemoveUnusedCode_Removable_as interface {
+	as_RemoveUnusedCode_Removable() *RemoveUnusedCode_Removable
+}
+
 func (this *RemoveUnusedCode_Removable) as_RemoveUnusedCode_Removable() *RemoveUnusedCode_Removable {
 	return this
 }
@@ -1430,16 +1521,7 @@ func to_RemoveUnusedCode_Removable(v any) *RemoveUnusedCode_Removable {
 	if v == nil {
 		return nil
 	}
-	return v.(interface {
-		as_RemoveUnusedCode_Removable() *RemoveUnusedCode_Removable
-	}).as_RemoveUnusedCode_Removable()
-}
-
-func is_RemoveUnusedCode_Removable(v any) bool {
-	_, ok := v.(interface {
-		as_RemoveUnusedCode_Removable() *RemoveUnusedCode_Removable
-	})
-	return ok
+	return v.(RemoveUnusedCode_Removable_as).as_RemoveUnusedCode_Removable()
 }
 
 func (this *RemoveUnusedCode_Removable) self() any {
@@ -1539,55 +1621,55 @@ func (this *RemoveUnusedCode_Removable) preventsRemovalOfVariableWithNonLocalVal
 }
 
 func (this *RemoveUnusedCode_Removable) removeInternal(p0 *AbstractCompiler) {
-	this.self_.(interface{ removeInternal_impl(*AbstractCompiler) }).removeInternal_impl(p0)
+	this.self_.removeInternal_impl(p0)
 }
 
 func (this *RemoveUnusedCode_Removable) preventsRemovalOfVariableWithNonLocalValueOrPrototype() bool {
-	return this.self_.(interface{ preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl() bool }).preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
+	return this.self_.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
 }
 
 func (this *RemoveUnusedCode_Removable) isVariableAssignment() bool {
-	return this.self_.(interface{ isVariableAssignment_impl() bool }).isVariableAssignment_impl()
+	return this.self_.isVariableAssignment_impl()
 }
 
 func (this *RemoveUnusedCode_Removable) isThisDotPropertyReference() bool {
-	return this.self_.(interface{ isThisDotPropertyReference_impl() bool }).isThisDotPropertyReference_impl()
+	return this.self_.isThisDotPropertyReference_impl()
 }
 
 func (this *RemoveUnusedCode_Removable) isNamedProperty() bool {
-	return this.self_.(interface{ isNamedProperty_impl() bool }).isNamedProperty_impl()
+	return this.self_.isNamedProperty_impl()
 }
 
 func (this *RemoveUnusedCode_Removable) isNamedPropertyAssignment() bool {
-	return this.self_.(interface{ isNamedPropertyAssignment_impl() bool }).isNamedPropertyAssignment_impl()
+	return this.self_.isNamedPropertyAssignment_impl()
 }
 
 func (this *RemoveUnusedCode_Removable) getPropertyName() string {
-	return this.self_.(interface{ getPropertyName_impl() string }).getPropertyName_impl()
+	return this.self_.getPropertyName_impl()
 }
 
 func (this *RemoveUnusedCode_Removable) isAssignedValueLocal() bool {
-	return this.self_.(interface{ isAssignedValueLocal_impl() bool }).isAssignedValueLocal_impl()
+	return this.self_.isAssignedValueLocal_impl()
 }
 
 func (this *RemoveUnusedCode_Removable) getLocalAssignedValue() Node {
-	return this.self_.(interface{ getLocalAssignedValue_impl() Node }).getLocalAssignedValue_impl()
+	return this.self_.getLocalAssignedValue_impl()
 }
 
 func (this *RemoveUnusedCode_Removable) isStaticProperty() bool {
-	return this.self_.(interface{ isStaticProperty_impl() bool }).isStaticProperty_impl()
+	return this.self_.isStaticProperty_impl()
 }
 
 func (this *RemoveUnusedCode_Removable) isClassOrPrototypeNamedProperty() bool {
-	return this.self_.(interface{ isClassOrPrototypeNamedProperty_impl() bool }).isClassOrPrototypeNamedProperty_impl()
+	return this.self_.isClassOrPrototypeNamedProperty_impl()
 }
 
 func (this *RemoveUnusedCode_Removable) isObjectDefinePropertiesDefinition() bool {
-	return this.self_.(interface{ isObjectDefinePropertiesDefinition_impl() bool }).isObjectDefinePropertiesDefinition_impl()
+	return this.self_.isObjectDefinePropertiesDefinition_impl()
 }
 
 func (this *RemoveUnusedCode_Removable) isPrototypeProperty() bool {
-	return this.self_.(interface{ isPrototypeProperty_impl() bool }).isPrototypeProperty_impl()
+	return this.self_.isPrototypeProperty_impl()
 }
 
 type RemoveUnusedCode_RemovableBuilder struct {
@@ -1648,7 +1730,9 @@ func (this *RemoveUnusedCode_RemovableBuilder) buildNamedClassExpression(classNo
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) buildClassOrPrototypeNamedProperty(propertyNode Node) *RemoveUnusedCode_ClassOrPrototypeNamedProperty {
-	Preconditions_checkArgument_boolean_Object((((propertyNode.isMemberFunctionDef() || propertyNode.isMemberFieldDef()) || NodeUtil_isGetOrSetKey(propertyNode)) || (propertyNode.isStringKey() && !propertyNode.isQuotedStringKey())), propertyNode.box_())
+	if !(((propertyNode.isMemberFunctionDef() || propertyNode.isMemberFieldDef()) || NodeUtil_isGetOrSetKey(propertyNode)) || (propertyNode.isStringKey() && !propertyNode.isQuotedStringKey())) {
+		panic(new_IllegalArgumentException_String(tostr_(propertyNode)))
+	}
 	this.propertyName_ = Optional_of[string](propertyNode.getString())
 	return new_RemoveUnusedCode_ClassOrPrototypeNamedProperty(this.outer_, this, propertyNode)
 }
@@ -1734,7 +1818,9 @@ func (this *RemoveUnusedCode_UnusedReadReference) up_RemoveUnusedCode_Removable(
 func (this *RemoveUnusedCode_UnusedReadReference) init_RemoveUnusedCode_UnusedReadReference(builder *RemoveUnusedCode_RemovableBuilder, referenceNode Node) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(0, builder)
-	Preconditions_checkState_boolean_Object((RemoveUnusedCode_isThisDotProperty(referenceNode) || RemoveUnusedCode_isDotPrototypeDotProperty(referenceNode)), referenceNode.box_())
+	if !RemoveUnusedCode_isThisDotProperty(referenceNode) && !RemoveUnusedCode_isDotPrototypeDotProperty(referenceNode) {
+		panic(new_IllegalStateException_String(tostr_(referenceNode)))
+	}
 	this.referenceNode = referenceNode
 }
 
@@ -1751,7 +1837,9 @@ func (this *RemoveUnusedCode_UnusedReadReference) removeInternal_impl(compiler *
 		if RemoveUnusedCode_isThisDotProperty(this.referenceNode) {
 			this.outer_.removeExpressionCompletely(this.referenceNode)
 		} else {
-			Preconditions_checkState_boolean_Object(RemoveUnusedCode_isDotPrototypeDotProperty(this.referenceNode), this.referenceNode.box_())
+			if !RemoveUnusedCode_isDotPrototypeDotProperty(this.referenceNode) {
+				panic(new_IllegalStateException_String(tostr_(this.referenceNode)))
+			}
 			var objExpression Node = this.referenceNode.getFirstFirstChild()
 			if this.outer_.mayHaveSideEffects(objExpression) {
 				this.outer_.replaceNodeWith(this.referenceNode, objExpression.detach())
@@ -1763,7 +1851,7 @@ func (this *RemoveUnusedCode_UnusedReadReference) removeInternal_impl(compiler *
 }
 
 func (this *RemoveUnusedCode_UnusedReadReference) toString() string {
-	return ("UnusedReadReference:" + objstr_(this.referenceNode.box_()))
+	return ("UnusedReadReference:" + tostr_(this.referenceNode))
 }
 
 type RemoveUnusedCode_InstanceofName struct {
@@ -1782,7 +1870,9 @@ func (this *RemoveUnusedCode_InstanceofName) up_RemoveUnusedCode_Removable() *Re
 func (this *RemoveUnusedCode_InstanceofName) init_RemoveUnusedCode_InstanceofName(builder *RemoveUnusedCode_RemovableBuilder, instanceofNode Node) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(0, builder)
-	Preconditions_checkArgument_boolean_Object(instanceofNode.isInstanceOf(), instanceofNode.box_())
+	if !instanceofNode.isInstanceOf() {
+		panic(new_IllegalArgumentException_String(tostr_(instanceofNode)))
+	}
 	this.instanceofNode = instanceofNode
 }
 
@@ -1811,7 +1901,7 @@ func (this *RemoveUnusedCode_InstanceofName) preventsRemovalOfVariableWithNonLoc
 }
 
 func (this *RemoveUnusedCode_InstanceofName) toString() string {
-	return ("InstanceofName:" + objstr_(this.instanceofNode.box_()))
+	return ("InstanceofName:" + tostr_(this.instanceofNode))
 }
 
 type RemoveUnusedCode_WeakUsageCall struct {
@@ -1830,7 +1920,9 @@ func (this *RemoveUnusedCode_WeakUsageCall) up_RemoveUnusedCode_Removable() *Rem
 func (this *RemoveUnusedCode_WeakUsageCall) init_RemoveUnusedCode_WeakUsageCall(builder *RemoveUnusedCode_RemovableBuilder, weakCallNode Node) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(0, builder)
-	Preconditions_checkArgument_boolean_Object(weakCallNode.isCall(), weakCallNode.box_())
+	if !weakCallNode.isCall() {
+		panic(new_IllegalArgumentException_String(tostr_(weakCallNode)))
+	}
 	this.weakCallNode = weakCallNode
 }
 
@@ -1850,7 +1942,7 @@ func (this *RemoveUnusedCode_WeakUsageCall) removeInternal_impl(compiler *Abstra
 }
 
 func (this *RemoveUnusedCode_WeakUsageCall) toString() string {
-	return ("weakUsageCall:" + objstr_(this.weakCallNode.box_()))
+	return ("weakUsageCall:" + tostr_(this.weakCallNode))
 }
 
 type RemoveUnusedCode_IncOrDecOp struct {
@@ -1870,9 +1962,13 @@ func (this *RemoveUnusedCode_IncOrDecOp) up_RemoveUnusedCode_Removable() *Remove
 func (this *RemoveUnusedCode_IncOrDecOp) init_RemoveUnusedCode_IncOrDecOp(builder *RemoveUnusedCode_RemovableBuilder, incOrDecNode Node, toPreserve Node) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(incOrDecNode.getOnlyChild(), builder)
-	Preconditions_checkArgument_boolean_Object((incOrDecNode.isInc() || incOrDecNode.isDec()), incOrDecNode.box_())
+	if !incOrDecNode.isInc() && !incOrDecNode.isDec() {
+		panic(new_IllegalArgumentException_String(tostr_(incOrDecNode)))
+	}
 	var arg Node = incOrDecNode.getOnlyChild()
-	Preconditions_checkState_boolean_Object((RemoveUnusedCode_isThisDotProperty(arg) || RemoveUnusedCode_isDotPrototypeDotProperty(arg)), arg.box_())
+	if !RemoveUnusedCode_isThisDotProperty(arg) && !RemoveUnusedCode_isDotPrototypeDotProperty(arg) {
+		panic(new_IllegalStateException_String(tostr_(arg)))
+	}
 	this.incOrDecNode = incOrDecNode
 	this.toPreserve = toPreserve
 }
@@ -1890,7 +1986,9 @@ func (this *RemoveUnusedCode_IncOrDecOp) removeInternal_impl(compiler *AbstractC
 		return
 	}
 	var arg Node = this.incOrDecNode.getOnlyChild()
-	Preconditions_checkState_boolean_Object(arg.isGetProp(), arg.box_())
+	if !arg.isGetProp() {
+		panic(new_IllegalStateException_String(tostr_(arg)))
+	}
 	if this.toPreserve == 0 {
 		this.outer_.removeExpressionCompletely(this.incOrDecNode)
 	} else {
@@ -1899,7 +1997,7 @@ func (this *RemoveUnusedCode_IncOrDecOp) removeInternal_impl(compiler *AbstractC
 }
 
 func (this *RemoveUnusedCode_IncOrDecOp) toString() string {
-	return ("IncOrDecOp:" + objstr_(this.incOrDecNode.box_()))
+	return ("IncOrDecOp:" + tostr_(this.incOrDecNode))
 }
 
 type RemoveUnusedCode_IndirectAssign struct {
@@ -1919,8 +2017,12 @@ func (this *RemoveUnusedCode_IndirectAssign) init_RemoveUnusedCode_IndirectAssig
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(targetNode, builder)
 	var rootParent Node = root.getParent()
-	Preconditions_checkState_boolean_Object((rootParent.isDestructuringPattern() || rootParent.isParamList()), rootParent.box_())
-	Preconditions_checkState_boolean_Object((targetNode.isName() || targetNode.isGetProp()), targetNode.box_())
+	if !rootParent.isDestructuringPattern() && !rootParent.isParamList() {
+		panic(new_IllegalStateException_String(tostr_(rootParent)))
+	}
+	if !targetNode.isName() && !targetNode.isGetProp() {
+		panic(new_IllegalStateException_String(tostr_(targetNode)))
+	}
 	this.root = root
 }
 
@@ -1951,7 +2053,6 @@ func (this *RemoveUnusedCode_IndirectAssign) preventsRemovalOfVariableWithNonLoc
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *RemoveUnusedCode_IndirectAssign) isNamedPropertyAssignment_impl() bool {
@@ -1959,7 +2060,9 @@ func (this *RemoveUnusedCode_IndirectAssign) isNamedPropertyAssignment_impl() bo
 }
 
 func (this *RemoveUnusedCode_IndirectAssign) getPropertyName_impl() string {
-	Preconditions_checkState_boolean_Object(this.targetNode.isGetProp(), this.targetNode.box_())
+	if !this.targetNode.isGetProp() {
+		panic(new_IllegalStateException_String(tostr_(this.targetNode)))
+	}
 	return this.targetNode.getString()
 }
 
@@ -1971,8 +2074,8 @@ func (this *RemoveUnusedCode_IndirectAssign) removeInternal_impl(compiler *Abstr
 
 func (this *RemoveUnusedCode_IndirectAssign) removeRoot() {
 	var rootParent Node = this.root.getParent()
-	switch rootParent.getToken() {
-	case Token_rhino_ARRAY_PATTERN:
+	switch rootParent.ns_().token {
+	case tokOrd1_ARRAY_PATTERN:
 		this.outer_.replaceNodeWith(this.root, IR_empty().srcref(this.root))
 		{
 			var maybeEmpty Node = rootParent.getLastChild()
@@ -1981,23 +2084,25 @@ func (this *RemoveUnusedCode_IndirectAssign) removeRoot() {
 			}
 		}
 		this.outer_.compiler_.reportChangeToEnclosingScope(rootParent)
-	case Token_rhino_PARAM_LIST:
+	case tokOrd1_PARAM_LIST:
 		if !this.root.isDefaultValue() {
 			return
 		}
 		this.outer_.compiler_.reportChangeToEnclosingScope(rootParent)
 		var name Node = this.root.getFirstChild()
-		Preconditions_checkState(name.isName())
+		if !name.isName() {
+			panic(new_IllegalStateException_0())
+		}
 		if ((this.root == rootParent.getLastChild()) && this.outer_.removeGlobals_) && this.outer_.canRemoveParameters(rootParent) {
 			this.root.detach()
 		} else {
 			this.root.replaceWith(name.detach())
 		}
 		NodeUtil_markFunctionsDeleted(this.root, this.outer_.compiler_)
-	case Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECT_PATTERN:
 		NodeUtil_deleteNode(this.root, this.outer_.compiler_)
 	default:
-		panic(new_IllegalStateException_String(("Unexpected parent of indirect assignment: " + sstr_(rootParent.toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unexpected parent of indirect assignment: " + sstr_(rootParent.toStringTree()))))
 	}
 }
 
@@ -2019,7 +2124,7 @@ func (this *RemoveUnusedCode_Polyfill) init_RemoveUnusedCode_Polyfill(builder *R
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(0, builder)
 	this.polyfillNode = polyfillNode
-	this.isPatch = String_contains(polyfillNode.getFirstFirstChild().getString(), strobj_("patch"))
+	this.isPatch = strings.Contains(polyfillNode.getFirstFirstChild().getString(), "patch")
 }
 
 func new_RemoveUnusedCode_Polyfill(outer_ *RemoveUnusedCode, builder *RemoveUnusedCode_RemovableBuilder, polyfillNode Node) *RemoveUnusedCode_Polyfill {
@@ -2040,7 +2145,7 @@ func (this *RemoveUnusedCode_Polyfill) toString() string {
 			return "Patch:"
 		}
 		return "Polyfill:"
-	}()) + objstr_(this.polyfillNode.box_()))
+	}()) + tostr_(this.polyfillNode))
 }
 
 type RemoveUnusedCode_ClassDeclaration struct {
@@ -2087,7 +2192,7 @@ func (this *RemoveUnusedCode_ClassDeclaration) getLocalAssignedValue_impl() Node
 }
 
 func (this *RemoveUnusedCode_ClassDeclaration) toString() string {
-	return ("ClassDeclaration:" + objstr_(this.classDeclarationNode.box_()))
+	return ("ClassDeclaration:" + tostr_(this.classDeclarationNode))
 }
 
 type RemoveUnusedCode_NamedClassExpression struct {
@@ -2128,7 +2233,7 @@ func (this *RemoveUnusedCode_NamedClassExpression) removeInternal_impl(compiler 
 }
 
 func (this *RemoveUnusedCode_NamedClassExpression) toString() string {
-	return ("NamedClassExpression:" + objstr_(this.classNode.box_()))
+	return ("NamedClassExpression:" + tostr_(this.classNode))
 }
 
 type RemoveUnusedCode_ClassOrPrototypeNamedProperty struct {
@@ -2171,7 +2276,7 @@ func (this *RemoveUnusedCode_ClassOrPrototypeNamedProperty) removeInternal_impl(
 }
 
 func (this *RemoveUnusedCode_ClassOrPrototypeNamedProperty) toString() string {
-	return ("ClassOrPrototypeNamedProperty:" + objstr_(this.propertyNode.box_()))
+	return ("ClassOrPrototypeNamedProperty:" + tostr_(this.propertyNode))
 }
 
 type RemoveUnusedCode_ObjectDefinePropertiesDefinition struct {
@@ -2253,7 +2358,7 @@ func (this *RemoveUnusedCode_FunctionDeclaration) getLocalAssignedValue_impl() N
 }
 
 func (this *RemoveUnusedCode_FunctionDeclaration) toString() string {
-	return ("FunctionDeclaration:" + objstr_(this.functionDeclarationNode.box_()))
+	return ("FunctionDeclaration:" + tostr_(this.functionDeclarationNode))
 }
 
 type RemoveUnusedCode_NameDeclarationStatement struct {
@@ -2272,7 +2377,9 @@ func (this *RemoveUnusedCode_NameDeclarationStatement) up_RemoveUnusedCode_Remov
 func (this *RemoveUnusedCode_NameDeclarationStatement) init_RemoveUnusedCode_NameDeclarationStatement(builder *RemoveUnusedCode_RemovableBuilder, declarationStatement Node) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(declarationStatement.getOnlyChild(), builder)
-	Preconditions_checkArgument_boolean_Object(NodeUtil_isNameDeclaration(declarationStatement), declarationStatement.box_())
+	if !NodeUtil_isNameDeclaration(declarationStatement) {
+		panic(new_IllegalArgumentException_String(tostr_(declarationStatement)))
+	}
 	this.declarationStatement = declarationStatement
 }
 
@@ -2326,48 +2433,65 @@ func (this *RemoveUnusedCode_NameDeclarationStatement) getLocalAssignedValue_imp
 }
 
 func (this *RemoveUnusedCode_NameDeclarationStatement) toString() string {
-	return ("NameDeclStmt:" + objstr_(this.declarationStatement.box_()))
+	return ("NameDeclStmt:" + tostr_(this.declarationStatement))
 }
 
-type RemoveUnusedCode_Kind struct {
-	Enum
+type RemoveUnusedCode_Kind uint8
+
+// RemoveUnusedCode_Kind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var RemoveUnusedCode_Kind_enum_ = [3]Enum{
+	{self_: RemoveUnusedCode_Kind_VARIABLE, name_: "VARIABLE", ordinal_: 0},
+	{self_: RemoveUnusedCode_Kind_NAMED_PROPERTY, name_: "NAMED_PROPERTY", ordinal_: 1},
+	{self_: RemoveUnusedCode_Kind_COMPUTED_PROPERTY, name_: "COMPUTED_PROPERTY", ordinal_: 2},
 }
 
-func (this *RemoveUnusedCode_Kind) up_Enum() *Enum {
-	if this == nil {
+func (this RemoveUnusedCode_Kind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &RemoveUnusedCode_Kind_enum_[this-1]
 }
 
-func (this *RemoveUnusedCode_Kind) init_RemoveUnusedCode_Kind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this RemoveUnusedCode_Kind) name() string { return this.enum_().name_ }
+
+func (this RemoveUnusedCode_Kind) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
-func new_RemoveUnusedCode_Kind(name_ string, ordinal_ int32) *RemoveUnusedCode_Kind {
-	this := &RemoveUnusedCode_Kind{}
-	this.self_ = this
-	this.init_RemoveUnusedCode_Kind(name_, ordinal_)
+func (this RemoveUnusedCode_Kind) toString() string { return this.enum_().name_ }
+
+func (this RemoveUnusedCode_Kind) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this RemoveUnusedCode_Kind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func RemoveUnusedCode_Kind_values() []*RemoveUnusedCode_Kind {
-	return append([]*RemoveUnusedCode_Kind(nil), RemoveUnusedCode_Kind_values_...)
+func RemoveUnusedCode_Kind_values() []RemoveUnusedCode_Kind {
+	return append([]RemoveUnusedCode_Kind(nil), RemoveUnusedCode_Kind_values_...)
 }
 
-func RemoveUnusedCode_Kind_valueOf(name string) *RemoveUnusedCode_Kind {
+func RemoveUnusedCode_Kind_valueOf(name string) RemoveUnusedCode_Kind {
 	for _, v := range RemoveUnusedCode_Kind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Kind", name))
 }
 
-var RemoveUnusedCode_Kind_VARIABLE *RemoveUnusedCode_Kind
-var RemoveUnusedCode_Kind_NAMED_PROPERTY *RemoveUnusedCode_Kind
-var RemoveUnusedCode_Kind_COMPUTED_PROPERTY *RemoveUnusedCode_Kind
-var RemoveUnusedCode_Kind_values_ []*RemoveUnusedCode_Kind
+const RemoveUnusedCode_Kind_VARIABLE RemoveUnusedCode_Kind = 1
+const RemoveUnusedCode_Kind_NAMED_PROPERTY RemoveUnusedCode_Kind = 2
+const RemoveUnusedCode_Kind_COMPUTED_PROPERTY RemoveUnusedCode_Kind = 3
+
+var RemoveUnusedCode_Kind_values_ []RemoveUnusedCode_Kind
 
 var RemoveUnusedCode_Kind_clinit_done bool
 
@@ -2376,10 +2500,7 @@ func RemoveUnusedCode_Kind_clinit() {
 		return
 	}
 	RemoveUnusedCode_Kind_clinit_done = true
-	RemoveUnusedCode_Kind_VARIABLE = new_RemoveUnusedCode_Kind("VARIABLE", 0)
-	RemoveUnusedCode_Kind_NAMED_PROPERTY = new_RemoveUnusedCode_Kind("NAMED_PROPERTY", 1)
-	RemoveUnusedCode_Kind_COMPUTED_PROPERTY = new_RemoveUnusedCode_Kind("COMPUTED_PROPERTY", 2)
-	RemoveUnusedCode_Kind_values_ = []*RemoveUnusedCode_Kind{RemoveUnusedCode_Kind_VARIABLE, RemoveUnusedCode_Kind_NAMED_PROPERTY, RemoveUnusedCode_Kind_COMPUTED_PROPERTY}
+	RemoveUnusedCode_Kind_values_ = []RemoveUnusedCode_Kind{RemoveUnusedCode_Kind_VARIABLE, RemoveUnusedCode_Kind_NAMED_PROPERTY, RemoveUnusedCode_Kind_COMPUTED_PROPERTY}
 	registerEnum_("com.google.javascript.jscomp.RemoveUnusedCode.Kind", enumValues_(RemoveUnusedCode_Kind_values_))
 
 }
@@ -2388,7 +2509,7 @@ type RemoveUnusedCode_Assign struct {
 	RemoveUnusedCode_Removable
 	outer_     *RemoveUnusedCode
 	assignNode Node
-	kind_      *RemoveUnusedCode_Kind
+	kind_      RemoveUnusedCode_Kind
 	varInfo    RemoveUnusedCode_VarInfo
 }
 
@@ -2399,17 +2520,27 @@ func (this *RemoveUnusedCode_Assign) up_RemoveUnusedCode_Removable() *RemoveUnus
 	return &this.RemoveUnusedCode_Removable
 }
 
-func (this *RemoveUnusedCode_Assign) init_RemoveUnusedCode_Assign(builder *RemoveUnusedCode_RemovableBuilder, assignNode Node, kind *RemoveUnusedCode_Kind, propertyNode Node, varInfo RemoveUnusedCode_VarInfo) {
+func (this *RemoveUnusedCode_Assign) init_RemoveUnusedCode_Assign(builder *RemoveUnusedCode_RemovableBuilder, assignNode Node, kind RemoveUnusedCode_Kind, propertyNode Node, varInfo RemoveUnusedCode_VarInfo) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(assignNode.getFirstChild(), builder)
-	Preconditions_checkArgument_boolean_Object(NodeUtil_isAssignmentOp(assignNode), assignNode.box_())
+	if !NodeUtil_isAssignmentOp(assignNode) {
+		panic(new_IllegalArgumentException_String(tostr_(assignNode)))
+	}
 	if kind == RemoveUnusedCode_Kind_VARIABLE {
-		Preconditions_checkArgument_boolean_String_Object((propertyNode == 0), "got property node for simple variable assignment: %s", propertyNode.box_())
-		Preconditions_checkArgument_boolean_String_Object((varInfo != nil), "missing VarInfo for variable assignment: %s", propertyNode.box_())
+		if propertyNode != 0 {
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("got property node for simple variable assignment: %s", []any{propertyNode.box_()})))
+		}
+		if varInfo == nil {
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("missing VarInfo for variable assignment: %s", []any{propertyNode.box_()})))
+		}
 	} else {
-		Preconditions_checkArgument_boolean_Object((propertyNode != 0), strobj_("missing property node"))
+		if propertyNode == 0 {
+			panic(new_IllegalArgumentException_String("missing property node"))
+		}
 		if kind == RemoveUnusedCode_Kind_NAMED_PROPERTY {
-			Preconditions_checkArgument_boolean_String_Object(propertyNode.isGetProp(), "property name is not a GETPROP: %s", propertyNode.box_())
+			if !propertyNode.isGetProp() {
+				panic(new_IllegalArgumentException_String(Strings_lenientFormat("property name is not a GETPROP: %s", []any{propertyNode.box_()})))
+			}
 		}
 	}
 	this.assignNode = assignNode
@@ -2417,7 +2548,7 @@ func (this *RemoveUnusedCode_Assign) init_RemoveUnusedCode_Assign(builder *Remov
 	this.varInfo = varInfo
 }
 
-func new_RemoveUnusedCode_Assign(outer_ *RemoveUnusedCode, builder *RemoveUnusedCode_RemovableBuilder, assignNode Node, kind *RemoveUnusedCode_Kind, propertyNode Node, varInfo RemoveUnusedCode_VarInfo) *RemoveUnusedCode_Assign {
+func new_RemoveUnusedCode_Assign(outer_ *RemoveUnusedCode, builder *RemoveUnusedCode_RemovableBuilder, assignNode Node, kind RemoveUnusedCode_Kind, propertyNode Node, varInfo RemoveUnusedCode_VarInfo) *RemoveUnusedCode_Assign {
 	this := &RemoveUnusedCode_Assign{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -2444,7 +2575,6 @@ func (this *RemoveUnusedCode_Assign) getLocalAssignedValue_impl() Node {
 			return 0
 		}
 	}
-	panic("unreachable")
 }
 
 func (this *RemoveUnusedCode_Assign) preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl() bool {
@@ -2465,7 +2595,6 @@ func (this *RemoveUnusedCode_Assign) isStaticProperty_impl() bool {
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *RemoveUnusedCode_Assign) removeInternal_impl(compiler *AbstractCompiler) {
@@ -2491,7 +2620,7 @@ func (this *RemoveUnusedCode_Assign) removeInternal_impl(compiler *AbstractCompi
 }
 
 func (this *RemoveUnusedCode_Assign) toString() string {
-	return ("Assign:" + objstr_(this.assignNode.box_()))
+	return ("Assign:" + tostr_(this.assignNode))
 }
 
 type RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign struct {
@@ -2510,8 +2639,12 @@ func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) up_RemoveUnu
 func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) init_RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign(builder *RemoveUnusedCode_RemovableBuilder, assignNode Node) {
 	this.RemoveUnusedCode_Removable.outer_ = this.outer_
 	this.RemoveUnusedCode_Removable.init_RemoveUnusedCode_Removable(assignNode.getFirstChild(), builder)
-	Preconditions_checkState(builder.propertyName_.isPresent())
-	Preconditions_checkArgument_boolean_Object(assignNode.isAssign(), assignNode.box_())
+	if !builder.propertyName_.isPresent() {
+		panic(new_IllegalStateException_0())
+	}
+	if !assignNode.isAssign() {
+		panic(new_IllegalArgumentException_String(tostr_(assignNode)))
+	}
 	this.assignNode = assignNode
 }
 
@@ -2531,11 +2664,17 @@ func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) removeIntern
 	compiler.reportChangeToEnclosingScope(parent)
 	var lhs Node = this.assignNode.getFirstChild()
 	var rhs Node = this.assignNode.getLastChild()
-	Preconditions_checkState_boolean_Object(lhs.isGetProp(), lhs.box_())
+	if !lhs.isGetProp() {
+		panic(new_IllegalStateException_String(tostr_(lhs)))
+	}
 	var objDotPrototype Node = lhs.getFirstChild()
-	Preconditions_checkState_boolean_Object(objDotPrototype.isGetProp(), objDotPrototype.box_())
+	if !objDotPrototype.isGetProp() {
+		panic(new_IllegalStateException_String(tostr_(objDotPrototype)))
+	}
 	var objExpression Node = objDotPrototype.getFirstChild()
-	Preconditions_checkState_boolean_Object((objDotPrototype.getString() == "prototype"), objDotPrototype.box_())
+	if objDotPrototype.getString() != "prototype" {
+		panic(new_IllegalStateException_String(tostr_(objDotPrototype)))
+	}
 	var mustPreserveRhs bool = (this.outer_.mayHaveSideEffects(rhs) || NodeUtil_isExpressionResultUsed(this.assignNode))
 	var mustPreserveObjExpression bool = this.outer_.mayHaveSideEffects(objExpression)
 	if mustPreserveRhs && mustPreserveObjExpression {
@@ -2555,7 +2694,7 @@ func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) isPrototypeP
 }
 
 func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) toString() string {
-	return ("AnonymousPrototypeNamedPropertyAssign:" + objstr_(this.assignNode.box_()))
+	return ("AnonymousPrototypeNamedPropertyAssign:" + tostr_(this.assignNode))
 }
 
 type RemoveUnusedCode_ClassSetupCall struct {
@@ -2613,7 +2752,10 @@ func (this *RemoveUnusedCode_ClassSetupCall) removeInternal_impl(compiler *Abstr
 	} else {
 		if (parent.isComma() || parent.isAnd()) || parent.isOr() {
 			if parent.getFirstChild() == this.callNode_ {
-				var rhs Node = Node_of_(Preconditions_checkNotNull(this.callNode_.getNext().box_()))
+				var rhs Node = this.callNode_.getNext()
+				if rhs == 0 {
+					panic(new_NullPointerException_0())
+				}
 				compiler.reportChangeToEnclosingScope(parent)
 				parent.replaceWith(rhs.detach())
 			} else {
@@ -2633,13 +2775,13 @@ func (this *RemoveUnusedCode_ClassSetupCall) preventsRemovalOfVariableWithNonLoc
 }
 
 func (this *RemoveUnusedCode_ClassSetupCall) toString() string {
-	return ("ClassSetupCall:" + objstr_(this.callNode_.box_()))
+	return ("ClassSetupCall:" + tostr_(this.callNode_))
 }
 
 type RemoveUnusedCode_VarInfo interface {
 	addRemovable(*RemoveUnusedCode_Removable)
 	isRemovable() bool
-	setIsExplicitlyNotRemovable(Supplier)
+	setIsExplicitlyNotRemovable(func() any)
 	setHasNonLocalOrNonLiteralValue()
 	hasFunctionOrClassLiteralValue() bool
 	removeAllRemovables()
@@ -2668,7 +2810,7 @@ func (this *RemoveUnusedCode_CanonicalUnremovableVarInfo) isRemovable() bool {
 	return false
 }
 
-func (this *RemoveUnusedCode_CanonicalUnremovableVarInfo) setIsExplicitlyNotRemovable(reasonSupplier SupplierOf[string]) {
+func (this *RemoveUnusedCode_CanonicalUnremovableVarInfo) setIsExplicitlyNotRemovable(reasonSupplier func() any) {
 
 }
 
@@ -2736,9 +2878,9 @@ func (this *RemoveUnusedCode_RealVarInfo) addRemovable(removable *RemoveUnusedCo
 		this.requiresLocalLiteralValueForRemoval = true
 	}
 	if this.hasNonLocalOrNonLiteralValue && this.requiresLocalLiteralValueForRemoval {
-		this.setIsExplicitlyNotRemovable(&Supplier_tfn_string{func() string {
+		this.setIsExplicitlyNotRemovable((&Supplier_tfn_string{func() string {
 			return "hasNonLocalOrNonLiteralValue && requiresLocalLiteralValueForRemoval"
-		}})
+		}}).get)
 	}
 	if this.isEntirelyRemovable {
 		this.removables.add(removable)
@@ -2751,10 +2893,10 @@ func (this *RemoveUnusedCode_RealVarInfo) isRemovable() bool {
 	return this.isEntirelyRemovable
 }
 
-func (this *RemoveUnusedCode_RealVarInfo) setIsExplicitlyNotRemovable(reasonSupplier SupplierOf[string]) {
+func (this *RemoveUnusedCode_RealVarInfo) setIsExplicitlyNotRemovable(reasonSupplier func() any) {
 	if this.isEntirelyRemovable {
 		this.isEntirelyRemovable = false
-		this.outer_.unremovableLog.logString(String_format("%s: %s", []any{strobj_(this.varName_), reasonSupplier.get()}))
+		this.outer_.unremovableLog.logString((sstr_(this.varName_) + ": " + objstr_(reasonSupplier())))
 		it_1 := this.removables.each()
 		for it_1.next() {
 			var r *RemoveUnusedCode_Removable = it_1.v
@@ -2773,7 +2915,9 @@ func (this *RemoveUnusedCode_RealVarInfo) hasFunctionOrClassLiteralValue() bool 
 }
 
 func (this *RemoveUnusedCode_RealVarInfo) removeAllRemovables() {
-	Preconditions_checkState(this.isEntirelyRemovable)
+	if !this.isEntirelyRemovable {
+		panic(new_IllegalStateException_0())
+	}
 	it_1 := this.removables.each()
 	for it_1.next() {
 		var removable *RemoveUnusedCode_Removable = it_1.v
@@ -2783,11 +2927,24 @@ func (this *RemoveUnusedCode_RealVarInfo) removeAllRemovables() {
 }
 
 type RemoveUnusedCode_PolyfillInfo struct {
-	self_        any
+	self_        RemoveUnusedCode_PolyfillInfo_I
 	outer_       *RemoveUnusedCode
 	removable    *RemoveUnusedCode_Polyfill
 	key_         string
 	isRemovable_ bool
+}
+
+// RemoveUnusedCode_PolyfillInfo_I holds the methods the dispatchers of RemoveUnusedCode_PolyfillInfo's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type RemoveUnusedCode_PolyfillInfo_I interface {
+	considerPossibleReferenceInternal_impl(Node)
+	getName_impl() string
+}
+
+// RemoveUnusedCode_PolyfillInfo_as is implemented by RemoveUnusedCode_PolyfillInfo and the classes that extend it: a cast to RemoveUnusedCode_PolyfillInfo asserts to it
+// (post-flip).
+type RemoveUnusedCode_PolyfillInfo_as interface {
+	as_RemoveUnusedCode_PolyfillInfo() *RemoveUnusedCode_PolyfillInfo
 }
 
 func (this *RemoveUnusedCode_PolyfillInfo) as_RemoveUnusedCode_PolyfillInfo() *RemoveUnusedCode_PolyfillInfo {
@@ -2795,19 +2952,17 @@ func (this *RemoveUnusedCode_PolyfillInfo) as_RemoveUnusedCode_PolyfillInfo() *R
 }
 
 func to_RemoveUnusedCode_PolyfillInfo(v any) *RemoveUnusedCode_PolyfillInfo {
-	if v == nil {
+	switch p := v.(type) {
+	case *RemoveUnusedCode_GlobalPolyfillInfo:
+		return p.as_RemoveUnusedCode_PolyfillInfo()
+	case *RemoveUnusedCode_PrototypePropertyPolyfillInfo:
+		return p.as_RemoveUnusedCode_PolyfillInfo()
+	case *RemoveUnusedCode_StaticPropertyPolyfillInfo:
+		return p.as_RemoveUnusedCode_PolyfillInfo()
+	case nil:
 		return nil
 	}
-	return v.(interface {
-		as_RemoveUnusedCode_PolyfillInfo() *RemoveUnusedCode_PolyfillInfo
-	}).as_RemoveUnusedCode_PolyfillInfo()
-}
-
-func is_RemoveUnusedCode_PolyfillInfo(v any) bool {
-	_, ok := v.(interface {
-		as_RemoveUnusedCode_PolyfillInfo() *RemoveUnusedCode_PolyfillInfo
-	})
-	return ok
+	return v.(RemoveUnusedCode_PolyfillInfo_as).as_RemoveUnusedCode_PolyfillInfo()
 }
 
 func (this *RemoveUnusedCode_PolyfillInfo) self() any {
@@ -2845,11 +3000,11 @@ func (this *RemoveUnusedCode_PolyfillInfo) getName_impl() string {
 }
 
 func (this *RemoveUnusedCode_PolyfillInfo) considerPossibleReferenceInternal(p0 Node) {
-	this.self_.(interface{ considerPossibleReferenceInternal_impl(Node) }).considerPossibleReferenceInternal_impl(p0)
+	this.self_.considerPossibleReferenceInternal_impl(p0)
 }
 
 func (this *RemoveUnusedCode_PolyfillInfo) getName() string {
-	return this.self_.(interface{ getName_impl() string }).getName_impl()
+	return this.self_.getName_impl()
 }
 
 type RemoveUnusedCode_GlobalPolyfillInfo struct {
@@ -3007,7 +3162,10 @@ func new_RemoveUnusedCode_VanillaForNameDeclaration(outer_ *RemoveUnusedCode, bu
 }
 
 func (this *RemoveUnusedCode_VanillaForNameDeclaration) removeInternal_impl(compiler *AbstractCompiler) {
-	var declaration Node = Node_of_(Preconditions_checkNotNull(this.nameNode_.getParent().box_()))
+	var declaration Node = this.nameNode_.getParent()
+	if declaration == 0 {
+		panic(new_NullPointerException_0())
+	}
 	compiler.reportChangeToEnclosingScope(declaration)
 	if (this.nameNode_.getPrevious() == 0) && (this.nameNode_.getNext() == 0) {
 		declaration.replaceWith(IR_empty().srcref(declaration))
@@ -3042,4 +3200,431 @@ func (this *RemoveUnusedCode_VanillaForNameDeclaration) getLocalAssignedValue_im
 		}
 		return 0
 	}()
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_UnusedReadReference calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_UnusedReadReference) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_UnusedReadReference); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_InstanceofName calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_InstanceofName) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_InstanceofName); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// preventsRemovalOfVariableWithNonLocalValueOrPrototype: an object that is exactly a RemoveUnusedCode_InstanceofName calls its preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_InstanceofName) preventsRemovalOfVariableWithNonLocalValueOrPrototype() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_InstanceofName); p == this {
+		return this.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
+	}
+	return this.self_.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_WeakUsageCall calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_WeakUsageCall) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_WeakUsageCall); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_IncOrDecOp calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_IncOrDecOp) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_IncOrDecOp); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// isVariableAssignment: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its isVariableAssignment_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_IndirectAssign) isVariableAssignment() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
+		return this.isVariableAssignment_impl()
+	}
+	return this.self_.isVariableAssignment_impl()
+}
+
+// isThisDotPropertyReference: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its isThisDotPropertyReference_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_IndirectAssign) isThisDotPropertyReference() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
+		return this.isThisDotPropertyReference_impl()
+	}
+	return this.self_.isThisDotPropertyReference_impl()
+}
+
+// isNamedProperty: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its isNamedProperty_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_IndirectAssign) isNamedProperty() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
+		return this.isNamedProperty_impl()
+	}
+	return this.self_.isNamedProperty_impl()
+}
+
+// preventsRemovalOfVariableWithNonLocalValueOrPrototype: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_IndirectAssign) preventsRemovalOfVariableWithNonLocalValueOrPrototype() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
+		return this.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
+	}
+	return this.self_.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
+}
+
+// isNamedPropertyAssignment: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its isNamedPropertyAssignment_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_IndirectAssign) isNamedPropertyAssignment() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
+		return this.isNamedPropertyAssignment_impl()
+	}
+	return this.self_.isNamedPropertyAssignment_impl()
+}
+
+// getPropertyName: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its getPropertyName_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_IndirectAssign) getPropertyName() string {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
+		return this.getPropertyName_impl()
+	}
+	return this.self_.getPropertyName_impl()
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_IndirectAssign calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_IndirectAssign) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_IndirectAssign); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_Polyfill calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_Polyfill) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_Polyfill); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_ClassDeclaration calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_ClassDeclaration) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassDeclaration); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// isVariableAssignment: an object that is exactly a RemoveUnusedCode_ClassDeclaration calls its isVariableAssignment_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_ClassDeclaration) isVariableAssignment() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassDeclaration); p == this {
+		return this.isVariableAssignment_impl()
+	}
+	return this.self_.isVariableAssignment_impl()
+}
+
+// isAssignedValueLocal: an object that is exactly a RemoveUnusedCode_ClassDeclaration calls its isAssignedValueLocal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_ClassDeclaration) isAssignedValueLocal() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassDeclaration); p == this {
+		return this.isAssignedValueLocal_impl()
+	}
+	return this.self_.isAssignedValueLocal_impl()
+}
+
+// getLocalAssignedValue: an object that is exactly a RemoveUnusedCode_ClassDeclaration calls its getLocalAssignedValue_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_ClassDeclaration) getLocalAssignedValue() Node {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassDeclaration); p == this {
+		return this.getLocalAssignedValue_impl()
+	}
+	return this.self_.getLocalAssignedValue_impl()
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_NamedClassExpression calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_NamedClassExpression) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_NamedClassExpression); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// isStaticProperty: an object that is exactly a RemoveUnusedCode_ClassOrPrototypeNamedProperty calls its isStaticProperty_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_ClassOrPrototypeNamedProperty) isStaticProperty() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassOrPrototypeNamedProperty); p == this {
+		return this.isStaticProperty_impl()
+	}
+	return this.self_.isStaticProperty_impl()
+}
+
+// isClassOrPrototypeNamedProperty: an object that is exactly a RemoveUnusedCode_ClassOrPrototypeNamedProperty calls its isClassOrPrototypeNamedProperty_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_ClassOrPrototypeNamedProperty) isClassOrPrototypeNamedProperty() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassOrPrototypeNamedProperty); p == this {
+		return this.isClassOrPrototypeNamedProperty_impl()
+	}
+	return this.self_.isClassOrPrototypeNamedProperty_impl()
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_ClassOrPrototypeNamedProperty calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_ClassOrPrototypeNamedProperty) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassOrPrototypeNamedProperty); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// isObjectDefinePropertiesDefinition: an object that is exactly a RemoveUnusedCode_ObjectDefinePropertiesDefinition calls its isObjectDefinePropertiesDefinition_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_ObjectDefinePropertiesDefinition) isObjectDefinePropertiesDefinition() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_ObjectDefinePropertiesDefinition); p == this {
+		return this.isObjectDefinePropertiesDefinition_impl()
+	}
+	return this.self_.isObjectDefinePropertiesDefinition_impl()
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_ObjectDefinePropertiesDefinition calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_ObjectDefinePropertiesDefinition) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ObjectDefinePropertiesDefinition); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_FunctionDeclaration calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_FunctionDeclaration) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_FunctionDeclaration); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// isVariableAssignment: an object that is exactly a RemoveUnusedCode_FunctionDeclaration calls its isVariableAssignment_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_FunctionDeclaration) isVariableAssignment() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_FunctionDeclaration); p == this {
+		return this.isVariableAssignment_impl()
+	}
+	return this.self_.isVariableAssignment_impl()
+}
+
+// isAssignedValueLocal: an object that is exactly a RemoveUnusedCode_FunctionDeclaration calls its isAssignedValueLocal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_FunctionDeclaration) isAssignedValueLocal() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_FunctionDeclaration); p == this {
+		return this.isAssignedValueLocal_impl()
+	}
+	return this.self_.isAssignedValueLocal_impl()
+}
+
+// getLocalAssignedValue: an object that is exactly a RemoveUnusedCode_FunctionDeclaration calls its getLocalAssignedValue_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_FunctionDeclaration) getLocalAssignedValue() Node {
+	if p, _ := this.self_.(*RemoveUnusedCode_FunctionDeclaration); p == this {
+		return this.getLocalAssignedValue_impl()
+	}
+	return this.self_.getLocalAssignedValue_impl()
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_NameDeclarationStatement calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_NameDeclarationStatement) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_NameDeclarationStatement); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// isVariableAssignment: an object that is exactly a RemoveUnusedCode_NameDeclarationStatement calls its isVariableAssignment_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_NameDeclarationStatement) isVariableAssignment() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_NameDeclarationStatement); p == this {
+		return this.isVariableAssignment_impl()
+	}
+	return this.self_.isVariableAssignment_impl()
+}
+
+// isAssignedValueLocal: an object that is exactly a RemoveUnusedCode_NameDeclarationStatement calls its isAssignedValueLocal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_NameDeclarationStatement) isAssignedValueLocal() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_NameDeclarationStatement); p == this {
+		return this.isAssignedValueLocal_impl()
+	}
+	return this.self_.isAssignedValueLocal_impl()
+}
+
+// getLocalAssignedValue: an object that is exactly a RemoveUnusedCode_NameDeclarationStatement calls its getLocalAssignedValue_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_NameDeclarationStatement) getLocalAssignedValue() Node {
+	if p, _ := this.self_.(*RemoveUnusedCode_NameDeclarationStatement); p == this {
+		return this.getLocalAssignedValue_impl()
+	}
+	return this.self_.getLocalAssignedValue_impl()
+}
+
+// isVariableAssignment: an object that is exactly a RemoveUnusedCode_Assign calls its isVariableAssignment_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_Assign) isVariableAssignment() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
+		return this.isVariableAssignment_impl()
+	}
+	return this.self_.isVariableAssignment_impl()
+}
+
+// isAssignedValueLocal: an object that is exactly a RemoveUnusedCode_Assign calls its isAssignedValueLocal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_Assign) isAssignedValueLocal() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
+		return this.isAssignedValueLocal_impl()
+	}
+	return this.self_.isAssignedValueLocal_impl()
+}
+
+// getLocalAssignedValue: an object that is exactly a RemoveUnusedCode_Assign calls its getLocalAssignedValue_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_Assign) getLocalAssignedValue() Node {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
+		return this.getLocalAssignedValue_impl()
+	}
+	return this.self_.getLocalAssignedValue_impl()
+}
+
+// preventsRemovalOfVariableWithNonLocalValueOrPrototype: an object that is exactly a RemoveUnusedCode_Assign calls its preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_Assign) preventsRemovalOfVariableWithNonLocalValueOrPrototype() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
+		return this.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
+	}
+	return this.self_.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
+}
+
+// isNamedPropertyAssignment: an object that is exactly a RemoveUnusedCode_Assign calls its isNamedPropertyAssignment_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_Assign) isNamedPropertyAssignment() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
+		return this.isNamedPropertyAssignment_impl()
+	}
+	return this.self_.isNamedPropertyAssignment_impl()
+}
+
+// isStaticProperty: an object that is exactly a RemoveUnusedCode_Assign calls its isStaticProperty_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_Assign) isStaticProperty() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
+		return this.isStaticProperty_impl()
+	}
+	return this.self_.isStaticProperty_impl()
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_Assign calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_Assign) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_Assign); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// isPrototypeProperty: an object that is exactly a RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign calls its isPrototypeProperty_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign) isPrototypeProperty() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign); p == this {
+		return this.isPrototypeProperty_impl()
+	}
+	return this.self_.isPrototypeProperty_impl()
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_ClassSetupCall calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_ClassSetupCall) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassSetupCall); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// preventsRemovalOfVariableWithNonLocalValueOrPrototype: an object that is exactly a RemoveUnusedCode_ClassSetupCall calls its preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_ClassSetupCall) preventsRemovalOfVariableWithNonLocalValueOrPrototype() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_ClassSetupCall); p == this {
+		return this.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
+	}
+	return this.self_.preventsRemovalOfVariableWithNonLocalValueOrPrototype_impl()
+}
+
+// considerPossibleReferenceInternal: an object that is exactly a RemoveUnusedCode_GlobalPolyfillInfo calls its considerPossibleReferenceInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_GlobalPolyfillInfo) considerPossibleReferenceInternal(p0 Node) {
+	if p, _ := this.self_.(*RemoveUnusedCode_GlobalPolyfillInfo); p == this {
+		this.considerPossibleReferenceInternal_impl(p0)
+		return
+	}
+	this.self_.considerPossibleReferenceInternal_impl(p0)
+}
+
+// getName: an object that is exactly a RemoveUnusedCode_StaticPropertyPolyfillInfo calls its getName_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_StaticPropertyPolyfillInfo) getName() string {
+	if p, _ := this.self_.(*RemoveUnusedCode_StaticPropertyPolyfillInfo); p == this {
+		return this.getName_impl()
+	}
+	return this.self_.getName_impl()
+}
+
+// considerPossibleReferenceInternal: an object that is exactly a RemoveUnusedCode_StaticPropertyPolyfillInfo calls its considerPossibleReferenceInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_StaticPropertyPolyfillInfo) considerPossibleReferenceInternal(p0 Node) {
+	if p, _ := this.self_.(*RemoveUnusedCode_StaticPropertyPolyfillInfo); p == this {
+		this.considerPossibleReferenceInternal_impl(p0)
+		return
+	}
+	this.self_.considerPossibleReferenceInternal_impl(p0)
+}
+
+// getName: an object that is exactly a RemoveUnusedCode_PrototypePropertyPolyfillInfo calls its getName_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_PrototypePropertyPolyfillInfo) getName() string {
+	if p, _ := this.self_.(*RemoveUnusedCode_PrototypePropertyPolyfillInfo); p == this {
+		return this.getName_impl()
+	}
+	return this.self_.getName_impl()
+}
+
+// considerPossibleReferenceInternal: an object that is exactly a RemoveUnusedCode_PrototypePropertyPolyfillInfo calls its considerPossibleReferenceInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_PrototypePropertyPolyfillInfo) considerPossibleReferenceInternal(p0 Node) {
+	if p, _ := this.self_.(*RemoveUnusedCode_PrototypePropertyPolyfillInfo); p == this {
+		this.considerPossibleReferenceInternal_impl(p0)
+		return
+	}
+	this.self_.considerPossibleReferenceInternal_impl(p0)
+}
+
+// removeInternal: an object that is exactly a RemoveUnusedCode_VanillaForNameDeclaration calls its removeInternal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_VanillaForNameDeclaration) removeInternal(p0 *AbstractCompiler) {
+	if p, _ := this.self_.(*RemoveUnusedCode_VanillaForNameDeclaration); p == this {
+		this.removeInternal_impl(p0)
+		return
+	}
+	this.self_.removeInternal_impl(p0)
+}
+
+// isVariableAssignment: an object that is exactly a RemoveUnusedCode_VanillaForNameDeclaration calls its isVariableAssignment_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_VanillaForNameDeclaration) isVariableAssignment() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_VanillaForNameDeclaration); p == this {
+		return this.isVariableAssignment_impl()
+	}
+	return this.self_.isVariableAssignment_impl()
+}
+
+// isAssignedValueLocal: an object that is exactly a RemoveUnusedCode_VanillaForNameDeclaration calls its isAssignedValueLocal_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_VanillaForNameDeclaration) isAssignedValueLocal() bool {
+	if p, _ := this.self_.(*RemoveUnusedCode_VanillaForNameDeclaration); p == this {
+		return this.isAssignedValueLocal_impl()
+	}
+	return this.self_.isAssignedValueLocal_impl()
+}
+
+// getLocalAssignedValue: an object that is exactly a RemoveUnusedCode_VanillaForNameDeclaration calls its getLocalAssignedValue_impl directly (post-flip); others dispatch.
+func (this *RemoveUnusedCode_VanillaForNameDeclaration) getLocalAssignedValue() Node {
+	if p, _ := this.self_.(*RemoveUnusedCode_VanillaForNameDeclaration); p == this {
+		return this.getLocalAssignedValue_impl()
+	}
+	return this.self_.getLocalAssignedValue_impl()
 }

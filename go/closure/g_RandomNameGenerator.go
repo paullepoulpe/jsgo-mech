@@ -6,21 +6,23 @@ type RandomNameGenerator struct {
 	firstChars       ImmutableSetOf[BoxedOf[uint16]]
 	nonFirstChars    ImmutableSetOf[BoxedOf[uint16]]
 	random           *Random
-	reservedNames    ImmutableSetOf[string]
+	reservedNames    *ImmutableSet[string]
 	prefix_          string
+	prefix_U16       utf16_
 	nameCount        int32
 	shuffledFirst    string
-	shuffledNonFirst ImmutableListOf[string]
+	shuffledNonFirst []string
 }
 
 func (this *RandomNameGenerator) zero_RandomNameGenerator() {
 	this.prefix_ = nullstr_
+	this.prefix_U16 = utf16Kept_(this.prefix_)
 	this.shuffledFirst = nullstr_
 }
 
 func (this *RandomNameGenerator) init_RandomNameGenerator_Random(random *Random) {
 	this.random = random
-	this.reset(icast_Set(obj_(ImmutableSet_of())), "", icast_Set(obj_(ImmutableSet_of())))
+	this.reset(ImmutableSet_of(), "", ImmutableSet_of())
 }
 
 func new_RandomNameGenerator_Random(random *Random) *RandomNameGenerator {
@@ -59,8 +61,9 @@ func (this *RandomNameGenerator) reset(reservedNames SetOf[string], prefix strin
 }
 
 func (this *RandomNameGenerator) reset_4(reservedNames SetOf[string], prefix string, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]]) {
-	this.reservedNames = ImmutableSet_copyOf(Collection(reservedNames))
+	this.reservedNames = immutableSetCopyOf_(tc_string, Collection(reservedNames))
 	this.prefix_ = prefix
+	this.prefix_U16 = utf16Kept_(this.prefix_)
 	this.nameCount = 0
 	this.firstChars = Sets_difference(icast_Set(obj_(RandomNameGenerator_FIRST_CHAR)), reservedFirstCharacters).immutableCopy()
 	this.nonFirstChars = Sets_difference(icast_Set(obj_(RandomNameGenerator_NONFIRST_CHAR)), reservedNonFirstCharacters).immutableCopy()
@@ -69,11 +72,11 @@ func (this *RandomNameGenerator) reset_4(reservedNames SetOf[string], prefix str
 }
 
 func (this *RandomNameGenerator) clone(reservedNames SetOf[string], prefix string, reservedCharacters SetOf[BoxedOf[uint16]]) NameGenerator {
-	return icast_NameGenerator(obj_(new_RandomNameGenerator_Set_String_Set_Random(reservedNames, prefix, reservedCharacters, this.random)))
+	return new_RandomNameGenerator_Set_String_Set_Random(reservedNames, prefix, reservedCharacters, this.random)
 }
 
 func RandomNameGenerator_asSet(chars []uint16) ImmutableSetOf[BoxedOf[uint16]] {
-	return func() *ImmutableSet {
+	return func() *ErasedImmutableSet {
 		if chars == nil {
 			return ImmutableSet_of()
 		}
@@ -82,13 +85,13 @@ func RandomNameGenerator_asSet(chars []uint16) ImmutableSetOf[BoxedOf[uint16]] {
 }
 
 func (this *RandomNameGenerator) checkPrefix(prefix string) {
-	if String_length(prefix) > 0 {
+	if len(prefix) != 0 {
 		if !this.firstChars.contains(any(uint16(String_charAt(prefix, 0)))) {
-			panic(new_IllegalArgumentException_String(("prefix must start with one of: " + sstr_(Joiner_on(", ").join(icast_Iterable(obj_(this.firstChars)))))).self())
+			panic(new_IllegalArgumentException_String(("prefix must start with one of: " + sstr_(Joiner_on(", ").join(icast_Iterable(obj_(this.firstChars)))))))
 		}
-		for pos := int32(1); pos < String_length(prefix); pos++ {
-			if !this.nonFirstChars.contains(any(uint16(String_charAt(prefix, pos)))) {
-				panic(new_IllegalArgumentException_String(("prefix has invalid characters, must be one of: " + sstr_(Joiner_on(", ").join(icast_Iterable(obj_(this.nonFirstChars)))))).self())
+		for _, u_ := range stringUnitsFrom_(prefix, int32(1)) {
+			if !this.nonFirstChars.contains(any(uint16(u_))) {
+				panic(new_IllegalArgumentException_String(("prefix has invalid characters, must be one of: " + sstr_(Joiner_on(", ").join(icast_Iterable(obj_(this.nonFirstChars)))))))
 			}
 		}
 	}
@@ -102,11 +105,11 @@ func RandomNameGenerator_shuffleAndCopyAlphabet(input SetOf[BoxedOf[uint16]], ra
 
 func (this *RandomNameGenerator) shuffleAlphabets() {
 	this.shuffledFirst = RandomNameGenerator_shuffleAndCopyAlphabet(icast_Set(obj_(this.firstChars)), this.random)
-	var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
+	var builder []string
 	for i := int32(0); i < RandomNameGenerator_NUM_SHUFFLES; i++ {
-		builder.add(strobj_(RandomNameGenerator_shuffleAndCopyAlphabet(icast_Set(obj_(this.nonFirstChars)), this.random)))
+		builder = immAdd_(tc_string, builder, RandomNameGenerator_shuffleAndCopyAlphabet(icast_Set(obj_(this.nonFirstChars)), this.random))
 	}
-	this.shuffledNonFirst = cast_[*ImmutableList](obj_(builder.build()))
+	this.shuffledNonFirst = immBuilt_(builder)
 }
 
 func (this *RandomNameGenerator) getNameLength(position int32, nameIdx int32) int32 {
@@ -128,44 +131,46 @@ func (this *RandomNameGenerator) getNameLength(position int32, nameIdx int32) in
 }
 
 func (this *RandomNameGenerator) generateSuffix(position int32, nameIdx int32) string {
-	var name *StringBuilder = new_StringBuilder()
+	var name strBuilder_
 	var length int32 = this.getNameLength(position, nameIdx)
 	nameIdx++
 	for do_2 := true; do_2; do_2 = (nameIdx > 0) {
 		nameIdx--
 		var alphabet string
+		var alphabetU16 utf16_
 		if position == 0 {
 			alphabet = this.shuffledFirst
+			alphabetU16 = utf16Of_(alphabet)
 		} else {
 			var hasher Hasher = Hashing_murmur3_128().newHasher()
 			hasher.putInt(length)
-			hasher.putUnencodedChars(obj_(name))
+			hasher.putUnencodedChars(obj_(&name))
 			var alphabetIdx int32 = ((hasher.hash().asInt() & 2147483647) % RandomNameGenerator_NUM_SHUFFLES)
-			alphabet = str_(this.shuffledNonFirst.get(alphabetIdx))
+			alphabet = sliceAt_(this.shuffledNonFirst, alphabetIdx)
+			alphabetU16 = utf16Of_(alphabet)
 		}
-		var alphabetSize int32 = String_length(alphabet)
-		var character uint16 = String_charAt(alphabet, (nameIdx % alphabetSize))
+		var alphabetSize int32 = alphabetU16.length()
+		var character uint16 = alphabetU16.charAt((nameIdx % alphabetSize))
 		name.append_char(character)
 		nameIdx /= alphabetSize
 		position++
 	}
-	return Object_toString(obj_(name))
+	return name.toString()
 }
 
 func (this *RandomNameGenerator) generateNextName() string {
 	for {
-		var name string = (sstr_(this.prefix_) + sstr_(this.generateSuffix(String_length(this.prefix_), this.nameCount)))
+		var name string = (sstr_(this.prefix_) + sstr_(this.generateSuffix(this.prefix_U16.length(), this.nameCount)))
 		this.nameCount++
-		if (TokenStream_isKeyword(name) || Collection_contains_s(this.reservedNames, name)) || DefaultNameGenerator_isBadName(name) {
+		if (TokenStream_isKeyword(name) || this.reservedNames.Has(name)) || DefaultNameGenerator_isBadName(name) {
 			continue
 		}
 		return name
 	}
-	panic("unreachable")
 }
 
-var RandomNameGenerator_FIRST_CHAR *ImmutableSet
-var RandomNameGenerator_NONFIRST_CHAR *ImmutableSet
+var RandomNameGenerator_FIRST_CHAR *ErasedImmutableSet
+var RandomNameGenerator_NONFIRST_CHAR *ErasedImmutableSet
 
 const RandomNameGenerator_NUM_SHUFFLES int32 = 16
 

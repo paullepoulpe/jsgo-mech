@@ -9,7 +9,10 @@ type FunctionToBlockMutator struct {
 }
 
 func (this *FunctionToBlockMutator) init_FunctionToBlockMutator(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string]) {
-	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
+	if compiler == nil {
+		panic(new_NullPointerException_0())
+	}
+	this.compiler_ = compiler
 	this.safeNameIdSupplier_ = safeNameIdSupplier
 	this.functionArgumentInjector_ = new_FunctionArgumentInjector(compiler.getAstAnalyzer())
 }
@@ -35,26 +38,30 @@ func (this *FunctionToBlockMutator) mutateInternal(fnName string, fnNode Node, c
 		this.makeLocalNamesUnique(newFnNode, isCallInLoop)
 		FunctionToBlockMutator_rewriteFunctionDeclarations(newFnNode.getLastChild())
 	}
-	var modifiedParameters ImmutableSetOf[string] = this.functionArgumentInjector_.findModifiedParameters(newFnNode)
-	var args ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(newFnNode, callNode, this.safeNameIdSupplier_)
-	var hasArgs bool = !args.isEmpty()
-	var allNamesToAlias ImmutableSetOf[string] = ImmutableSet_of()
+	var modifiedParameters *ImmutableSet[string] = this.functionArgumentInjector_.findModifiedParameters(newFnNode)
+	var args *ImmutableMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(newFnNode, callNode, this.safeNameIdSupplier_)
+	var hasArgs bool = !args.IsEmpty()
+	var allNamesToAlias *ImmutableSet[string] = immutableSetOf_(tc_string)
 	if hasArgs {
-		var temps ImmutableSetOf[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, newFnNode, args, modifiedParameters, this.compiler_.getCodingConvention())
-		allNamesToAlias = cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(modifiedParameters))))).addAll(icast_Iterable(obj_(temps))))).build()))
+		var temps *ImmutableSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, newFnNode, args, modifiedParameters, this.compiler_.getCodingConvention())
+		allNamesToAlias = immutableSetBuilder_(tc_string).addAll(icast_Iterable(obj_(modifiedParameters.asImm()))).addAll(icast_Iterable(obj_(temps.asImm()))).build()
 	}
 	var newBlock Node = NodeUtil_getFunctionBody(newFnNode)
 	newBlock.detach()
 	if hasArgs {
-		var inlineResult Node = this.aliasAndInlineArguments(newBlock, args, icast_Set(obj_(allNamesToAlias)))
-		Preconditions_checkState((newBlock == inlineResult))
+		var inlineResult Node = this.aliasAndInlineArguments(newBlock, args, setImm_(tc_string, allNamesToAlias.asImm()))
+		if newBlock != inlineResult {
+			panic(new_IllegalStateException_0())
+		}
 	}
 	if isCallInLoop {
 		FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node(newBlock, newBlock)
 	}
 	var labelName string = this.getLabelNameForFunction(fnName)
 	var injectableBlock Node = FunctionToBlockMutator_replaceReturns(newBlock, resultName, labelName, needsDefaultResult)
-	Preconditions_checkState((injectableBlock != 0))
+	if injectableBlock == 0 {
+		panic(new_IllegalStateException_0())
+	}
 	return injectableBlock
 }
 
@@ -164,13 +171,13 @@ func FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node_boolean(n 
 
 func (this *FunctionToBlockMutator) makeLocalNamesUnique(fnNode Node, isCallInLoop bool) {
 	var idSupplier SupplierOf[string] = this.compiler_.getUniqueNameIdSupplier()
-	NodeTraversal_traverseScopeRoots(this.compiler_, icast_List(obj_(ImmutableList_of_Object(fnNode.box_()))), icast_NodeTraversal_Callback(obj_(MakeDeclaredNamesUnique_builder().withRenamer(icast_MakeDeclaredNamesUnique_Renamer(obj_(new_MakeDeclaredNamesUnique_InlineRenamer(this.compiler_.getCodingConvention(), idSupplier, "inline_", isCallInLoop, true, nil)))).withMarkChanges(false).build())), true)
-	new_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(this.compiler_, icast_Supplier(obj_(new_FunctionToBlockMutator_LabelNameSupplier(idSupplier))), false, false).process_2(0, fnNode)
+	NodeTraversal_traverseScopeRoots(this.compiler_, ImmutableList_of_Object(fnNode.box_()), icast_NodeTraversal_Callback(obj_(MakeDeclaredNamesUnique_builder().withRenamer(new_MakeDeclaredNamesUnique_InlineRenamer(this.compiler_.getCodingConvention(), idSupplier, "inline_", isCallInLoop, true, nil)).withMarkChanges(false).build())), true)
+	new_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(this.compiler_, new_FunctionToBlockMutator_LabelNameSupplier(idSupplier).get, false, false).process_2(0, fnNode)
 }
 
 func (this *FunctionToBlockMutator) getLabelNameForFunction(fnName string) string {
 	var name string = func() string {
-		if String_isEmpty(fnName) {
+		if fnName == "" {
 			return "anon"
 		}
 		return fnName
@@ -182,26 +189,26 @@ func (this *FunctionToBlockMutator) getUniqueThisName() string {
 	return ("JSCompiler_inline_this_" + sstr_(str_(this.safeNameIdSupplier_.get())))
 }
 
-func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias SetOf[string]) Node {
-	if (namesToAlias == nil) || namesToAlias.isEmpty() {
+func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap *ImmutableMap[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias map[string]struct{}) Node {
+	if (namesToAlias == nil) || len(mapNN_(namesToAlias)) == 0 {
 		var replacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
-		it_1 := foreach_(obj_(cast_[*ImmutableSet](paramToArgMap.entrySet())))
-		for it_1.next() {
-			var entry Map_Entry = icast_Map_Entry(it_1.v)
-			replacements.put(str_(entry.getKey()), cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg())
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.asImm().entrySet())) {
+			entry := icast_Map_Entry(el)
+			replacements.put(str_(entry.getKey()), entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg())
 		}
 		var result Node = this.functionArgumentInjector_.inject(this.compiler_, fnTemplateRoot, 0, replacements)
-		Preconditions_checkState((result == fnTemplateRoot))
+		if result != fnTemplateRoot {
+			panic(new_IllegalStateException_0())
+		}
 		return result
 	} else {
 		var paramReplacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
 		var newAliasesToAdd *JTList[Node] = jnewTList_(jtc_Node)
-		it_3 := foreach_(obj_(cast_[*ImmutableSet](paramToArgMap.entrySet())))
-		for it_3.next() {
-			var entry Map_Entry = icast_Map_Entry(it_3.v)
+		for _, el2 := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.asImm().entrySet())) {
+			entry := icast_Map_Entry(el2)
 			var name string = str_(entry.getKey())
 			var arg *FunctionArgumentInjector_ParamArgPair = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue())
-			if !Collection_contains_s(namesToAlias, name) {
+			if !has_(namesToAlias, name) {
 				paramReplacements.put(name, arg.arg())
 				continue
 			}
@@ -226,7 +233,9 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 			}
 		}
 		var result Node = this.functionArgumentInjector_.inject(this.compiler_, fnTemplateRoot, 0, paramReplacements)
-		Preconditions_checkState((result == fnTemplateRoot))
+		if result != fnTemplateRoot {
+			panic(new_IllegalStateException_0())
+		}
 		it_5 := newAliasesToAdd.each()
 		for it_5.next() {
 			var n Node = it_5.v
@@ -234,14 +243,15 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 		}
 		return result
 	}
-	panic("unreachable")
 }
 
 func FunctionToBlockMutator_replaceReturns(block Node, resultName Optional[string], labelName string, resultMustBeSet bool) Node {
-	Preconditions_checkNotNull(block.box_())
+	if block == 0 {
+		panic(new_NullPointerException_0())
+	}
 	var root Node = block
 	var hasReturnAtExit bool = false
-	var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
+	var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, new_NodeUtil_MatchShallowStatement())
 	if returnCount > 0 {
 		hasReturnAtExit = FunctionToBlockMutator_hasReturnAtExit(block)
 		if hasReturnAtExit {
@@ -264,7 +274,9 @@ func FunctionToBlockMutator_replaceReturns(block Node, resultName Optional[strin
 }
 
 func FunctionToBlockMutator_addDummyAssignment(node Node, resultName string) {
-	Preconditions_checkArgument(node.isBlock())
+	if !node.isBlock() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var srcLocation Node = node
 	var retVal Node = NodeUtil_newUndefinedNode(srcLocation)
 	var resultNode Node = FunctionToBlockMutator_createAssignStatementNode(resultName, retVal)
@@ -274,7 +286,9 @@ func FunctionToBlockMutator_addDummyAssignment(node Node, resultName string) {
 
 func FunctionToBlockMutator_convertLastReturnToStatement(block Node, resultName Optional[string]) {
 	var ret Node = block.getLastChild()
-	Preconditions_checkArgument(ret.isReturn())
+	if !ret.isReturn() {
+		panic(new_IllegalArgumentException_0())
+	}
 	var resultNode Node = FunctionToBlockMutator_getReplacementReturnStatement(ret, resultName)
 	if resultNode == 0 {
 		ret.detach()
@@ -319,7 +333,9 @@ func FunctionToBlockMutator_replaceReturnWithBreak(current Node, parent Node, re
 		return current
 	}
 	if current.isReturn() {
-		Preconditions_checkState(NodeUtil_isStatementBlock(parent))
+		if !NodeUtil_isStatementBlock(parent) {
+			panic(new_IllegalStateException_0())
+		}
 		var resultNode Node = FunctionToBlockMutator_getReplacementReturnStatement(current, resultName)
 		var breakNode Node = IR_breakNode_Node(IR_labelName(labelName))
 		breakNode.srcrefTreeIfMissing(current)

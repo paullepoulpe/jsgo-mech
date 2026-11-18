@@ -16,7 +16,9 @@ type Export struct {
 }
 
 func (this *Export) init_Export(exportName Optional[string], moduleRequest Optional[string], importName Optional[string], localName Optional[string], modulePath *ModuleLoader_ModulePath, exportNode Node, nameNode Node, moduleMetadata *ModuleMetadataMap_ModuleMetadata, closureNamespace Optional[string], mutated bool) {
-	Objects_requireNonNull(obj_(moduleMetadata), "moduleMetadata")
+	if moduleMetadata == nil {
+		panic(new_NullPointerException_String("moduleMetadata"))
+	}
 	this.exportName_ = exportName
 	this.moduleRequest_ = moduleRequest
 	this.importName_ = importName
@@ -92,7 +94,7 @@ func (this *Export) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.exportName_.box_(), o.exportName_.box_()) && Objects_equals(this.moduleRequest_.box_(), o.moduleRequest_.box_()) && Objects_equals(this.importName_.box_(), o.importName_.box_()) && Objects_equals(this.localName_.box_(), o.localName_.box_()) && Objects_equals(obj_(this.modulePath_), obj_(o.modulePath_)) && Objects_equals(this.exportNode_.box_(), o.exportNode_.box_()) && Objects_equals(this.nameNode_.box_(), o.nameNode_.box_()) && Objects_equals(obj_(this.moduleMetadata_), obj_(o.moduleMetadata_)) && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_()) && this.mutated_ == o.mutated_
+	return true && Objects_equals(this.exportName_.box_(), o.exportName_.box_()) && Objects_equals(this.moduleRequest_.box_(), o.moduleRequest_.box_()) && Objects_equals(this.importName_.box_(), o.importName_.box_()) && Objects_equals(this.localName_.box_(), o.localName_.box_()) && this.modulePath_ == o.modulePath_ && this.exportNode_ == o.exportNode_ && this.nameNode_ == o.nameNode_ && objequalsBy_(this.moduleMetadata_, obj_(o.moduleMetadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && Objects_equals(this.closureNamespace_.box_(), o.closureNamespace_.box_()) && this.mutated_ == o.mutated_
 }
 
 func (this *Export) hashCode() int32 {
@@ -101,17 +103,17 @@ func (this *Export) hashCode() int32 {
 	h = h*31 + Objects_hashCode(this.moduleRequest_.box_())
 	h = h*31 + Objects_hashCode(this.importName_.box_())
 	h = h*31 + Objects_hashCode(this.localName_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.modulePath_))
-	h = h*31 + Objects_hashCode(this.exportNode_.box_())
-	h = h*31 + Objects_hashCode(this.nameNode_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.moduleMetadata_))
+	h = h*31 + objhashId_(this.modulePath_)
+	h = h*31 + objhashId_(this.exportNode_)
+	h = h*31 + objhashId_(this.nameNode_)
+	h = h*31 + objhashBy_(this.moduleMetadata_, (*ModuleMetadataMap_ModuleMetadata).hashCode)
 	h = h*31 + Objects_hashCode(this.closureNamespace_.box_())
-	h = h*31 + Objects_hashCode(any(bool(this.mutated_)))
+	h = h*31 + Boolean_hashCode(bool(this.mutated_))
 	return h
 }
 
 func (this *Export) toString() string {
-	return "Export[" + "exportName=" + objstr_(this.exportName_.box_()) + ", moduleRequest=" + objstr_(this.moduleRequest_.box_()) + ", importName=" + objstr_(this.importName_.box_()) + ", localName=" + objstr_(this.localName_.box_()) + ", modulePath=" + objstr_(obj_(this.modulePath_)) + ", exportNode=" + objstr_(this.exportNode_.box_()) + ", nameNode=" + objstr_(this.nameNode_.box_()) + ", moduleMetadata=" + objstr_(obj_(this.moduleMetadata_)) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + ", mutated=" + objstr_(any(bool(this.mutated_))) + "]"
+	return "Export[" + "exportName=" + objstr_(this.exportName_.box_()) + ", moduleRequest=" + objstr_(this.moduleRequest_.box_()) + ", importName=" + objstr_(this.importName_.box_()) + ", localName=" + objstr_(this.localName_.box_()) + ", modulePath=" + tostr_(this.modulePath_) + ", exportNode=" + tostr_(this.exportNode_) + ", nameNode=" + tostr_(this.nameNode_) + ", moduleMetadata=" + tostr_(this.moduleMetadata_) + ", closureNamespace=" + objstr_(this.closureNamespace_.box_()) + ", mutated=" + boolstr_(bool(this.mutated_)) + "]"
 }
 
 const Export_DEFAULT_EXPORT_NAME string = "*default*"
@@ -208,7 +210,7 @@ func (this *Export_Builder) nameNode(value Node) *Export_Builder {
 
 func (this *Export_Builder) moduleMetadata(value *ModuleMetadataMap_ModuleMetadata) *Export_Builder {
 	if value == nil {
-		panic(new_NullPointerException_String("Null moduleMetadata").self())
+		panic(new_NullPointerException_String("Null moduleMetadata"))
 	}
 	this.moduleMetadataField = value
 	return this
@@ -227,14 +229,14 @@ func (this *Export_Builder) mutated(value bool) *Export_Builder {
 
 func (this *Export_Builder) autoBuild() *Export {
 	if (int32(this.set0) != 1) || (this.moduleMetadataField == nil) {
-		var missing *StringBuilder = new_StringBuilder()
+		var missing strBuilder_
 		if this.moduleMetadataField == nil {
 			missing.append(" moduleMetadata")
 		}
 		if (int32(this.set0) & 1) == 0 {
 			missing.append(" mutated")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + missing.toString())))
 	}
 	return new_Export(this.exportNameField, this.moduleRequestField, this.importNameField, this.localNameField, this.modulePathField, this.exportNodeField, this.nameNodeField, this.moduleMetadataField, this.closureNamespaceField, this.mutatedField)
 }
@@ -252,27 +254,61 @@ func (this *Export_Builder) build() *Export {
 }
 
 func (this *Export_Builder) validateEsModule(e *Export) {
-	Preconditions_checkState(e.closureNamespace().isEmpty())
-	Preconditions_checkState_boolean_Object((!("*" == e.importName().orElse("")) || ((e.moduleRequest().isPresent() && e.exportName().isEmpty()) && e.localName().isEmpty())), strobj_("Star exports should not have exported / local names."))
-	Preconditions_checkState_boolean_Object((e.localName().isEmpty() || e.moduleRequest().isEmpty()), strobj_("Local exports should not have module requests."))
-	Preconditions_checkState_boolean_Object((e.moduleRequest().isEmpty() || e.localName().isEmpty()), strobj_("Reexports should not have local names."))
-	Preconditions_checkState_boolean_Object((e.moduleRequest().isEmpty() || e.importName().isPresent()), strobj_("Reexports should have import names."))
-	Preconditions_checkState_boolean_Object((e.importName().isEmpty() || e.moduleRequest().isPresent()), strobj_("Exports with an import name should be a reexport."))
+	if !e.closureNamespace().isEmpty() {
+		panic(new_IllegalStateException_0())
+	}
+	if !(!("*" == e.importName().orElse("")) || ((e.moduleRequest().isPresent() && e.exportName().isEmpty()) && e.localName().isEmpty())) {
+		panic(new_IllegalStateException_String("Star exports should not have exported / local names."))
+	}
+	if !e.localName().isEmpty() && !e.moduleRequest().isEmpty() {
+		panic(new_IllegalStateException_String("Local exports should not have module requests."))
+	}
+	if !e.moduleRequest().isEmpty() && !e.localName().isEmpty() {
+		panic(new_IllegalStateException_String("Reexports should not have local names."))
+	}
+	if !e.moduleRequest().isEmpty() && !e.importName().isPresent() {
+		panic(new_IllegalStateException_String("Reexports should have import names."))
+	}
+	if !e.importName().isEmpty() && !e.moduleRequest().isPresent() {
+		panic(new_IllegalStateException_String("Exports with an import name should be a reexport."))
+	}
 }
 
 func Export_Builder_validateGoogModule(e *Export) {
-	Preconditions_checkState_boolean_Object(e.closureNamespace().isPresent(), strobj_("Exports should be associated with a namespace"))
-	Preconditions_checkState_boolean_Object(e.exportName().isPresent(), strobj_("Exports should be named"))
-	Preconditions_checkState_boolean_Object((e.exportNode() != 0), strobj_("Exports should have a node"))
-	Preconditions_checkState_boolean_Object(e.localName().isEmpty(), strobj_("goog.module Exports don't set a localName"))
-	Preconditions_checkState_boolean_Object(e.moduleRequest().isEmpty(), strobj_("goog modules cannot export from other modules"))
+	if !e.closureNamespace().isPresent() {
+		panic(new_IllegalStateException_String("Exports should be associated with a namespace"))
+	}
+	if !e.exportName().isPresent() {
+		panic(new_IllegalStateException_String("Exports should be named"))
+	}
+	if e.exportNode() == 0 {
+		panic(new_IllegalStateException_String("Exports should have a node"))
+	}
+	if !e.localName().isEmpty() {
+		panic(new_IllegalStateException_String("goog.module Exports don't set a localName"))
+	}
+	if !e.moduleRequest().isEmpty() {
+		panic(new_IllegalStateException_String("goog modules cannot export from other modules"))
+	}
 }
 
 func Export_Builder_validateOtherModule(e *Export) {
-	Preconditions_checkState(e.exportName().isPresent())
-	Preconditions_checkState((e.exportNode() == 0))
-	Preconditions_checkState(e.localName().isEmpty())
-	Preconditions_checkState(e.moduleRequest().isEmpty())
-	Preconditions_checkState(e.importName().isEmpty())
-	Preconditions_checkState((e.nameNode() == 0))
+	if !e.exportName().isPresent() {
+		panic(new_IllegalStateException_0())
+	}
+	if e.exportNode() != 0 {
+		panic(new_IllegalStateException_0())
+	}
+	if !e.localName().isEmpty() {
+		panic(new_IllegalStateException_0())
+	}
+	if !e.moduleRequest().isEmpty() {
+		panic(new_IllegalStateException_0())
+	}
+	if !e.importName().isEmpty() {
+		panic(new_IllegalStateException_0())
+	}
+	if e.nameNode() != 0 {
+		panic(new_IllegalStateException_0())
+	}
 }

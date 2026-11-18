@@ -27,7 +27,7 @@ func new_CheckVar(compiler *AbstractCompiler) *CheckVar {
 }
 
 func (this *CheckVar) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckVar) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -47,4 +47,13 @@ func CheckVar_clinit() {
 	CheckVar_clinit_done = true
 	CheckVar_VAR = DiagnosticType_disabled("JSC_VAR", "Using `var` (prefer `const` or `let`).")
 
+}
+
+// visit: an object that is exactly a CheckVar calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckVar) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckVar); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

@@ -5,7 +5,7 @@ package closure
 type ReplaceToggles struct {
 	compiler_      *AbstractCompiler
 	astFactory_    *AstFactory
-	ordinalMapping ImmutableMapOf[string, BoxedOf[int32]]
+	ordinalMapping *ImmutableMap[string, any]
 }
 
 func (this *ReplaceToggles) finit_ReplaceToggles() {
@@ -25,7 +25,7 @@ func new_ReplaceToggles(compiler *AbstractCompiler) *ReplaceToggles {
 }
 
 func (this *ReplaceToggles) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_ReplaceToggles_Traversal(this))))
+	NodeTraversal_traverse(this.compiler_, root, new_ReplaceToggles_Traversal(this))
 }
 
 var ReplaceToggles_INVALID_TOGGLE_PARAMETER *DiagnosticType
@@ -126,7 +126,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 				ordinals.add(any(int32(intValue)))
 			}
 		}
-		this.outer_.ordinalMapping = ImmutableMap_copyOf(mapping.asMap())
+		this.outer_.ordinalMapping = immutableMapCopyOf_(tc_string, tc_any, mapping.asMap())
 		return
 	}
 	if !n.isCall() {
@@ -143,7 +143,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 	}
 	var ordinal any = func() any {
 		if this.outer_.ordinalMapping != nil {
-			return Map_get_s(this.outer_.ordinalMapping, arg.getString())
+			return this.outer_.ordinalMapping.Get(arg.getString())
 		}
 		return nil
 	}()
@@ -163,4 +163,13 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 	}
 	n.replaceWith(this.outer_.astFactory_.createNot(this.outer_.astFactory_.createNot(bitAnd)).srcrefTreeIfMissing(n))
 	t.reportCodeChange()
+}
+
+// visit: an object that is exactly a ReplaceToggles_Traversal calls its visit_impl directly (post-flip); others dispatch.
+func (this *ReplaceToggles_Traversal) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ReplaceToggles_Traversal); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

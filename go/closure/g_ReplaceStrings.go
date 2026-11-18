@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ReplaceStrings struct {
 	NodeTraversal_AbstractPostOrderCallback
 	placeholderToken string
@@ -27,12 +29,12 @@ func (this *ReplaceStrings) finit_ReplaceStrings() {
 	this.results = jnewTMap_(jtc_string, jtc_p_ReplaceStrings_Result)
 }
 
-func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect ListOf[string]) {
+func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect []string) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_ReplaceStrings()
 	this.compiler_ = compiler
 	this.placeholderToken = func() string {
-		if String_isEmpty(placeholderToken) {
+		if placeholderToken == "" {
 			return ReplaceStrings_DEFAULT_PLACEHOLDER_TOKEN
 		}
 		return placeholderToken
@@ -41,7 +43,7 @@ func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, plac
 	this.parseConfigurationList(functionsToInspect)
 }
 
-func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect ListOf[string]) *ReplaceStrings {
+func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect []string) *ReplaceStrings {
 	this := &ReplaceStrings{}
 	this.self_ = this
 	this.zero_ReplaceStrings()
@@ -49,30 +51,28 @@ func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, fun
 	return this
 }
 
-func (this *ReplaceStrings) getResult() ListOf[*ReplaceStrings_Result] {
-	return icast_List(obj_(ImmutableList_copyOf_Iterable(Iterables_filter(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS))))
+func (this *ReplaceStrings) getResult() []*ReplaceStrings_Result {
+	return immCopyOf_(tc_p_ReplaceStrings_Result, Iterables_filter_f(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS))
 }
 
 func (this *ReplaceStrings) getStringMap() *VariableMap {
-	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_1 := foreach_(any(Iterables_filter(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)))
-	for it_1.next() {
-		var result *ReplaceStrings_Result = cast_[*ReplaceStrings_Result](it_1.v)
-		map_.put(strobj_(result.replacement_), strobj_(result.original_))
+	var map_ *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
+	for result := range elemsAs_[*ReplaceStrings_Result](Iterables_filter_f(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)) {
+		map_.put(result.replacement_, result.original_)
 	}
-	return new_VariableMap(icast_Map(obj_(map_.buildOrThrow())))
+	return new_VariableMap(icast_Map(obj_(map_.buildOrThrowErased())))
 }
 
 func (this *ReplaceStrings) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *ReplaceStrings) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_NEW, Token_rhino_CALL, Token_rhino_TAGGED_TEMPLATELIT:
+	switch n.ns_().token {
+	case tokOrd1_NEW, tokOrd1_CALL, tokOrd1_TAGGED_TEMPLATELIT:
 		var calledFn Node = n.getFirstChild()
 		var name string = calledFn.getOriginalQualifiedName()
-		if !String_isEmpty(name) {
+		if name != "" {
 			var config *ReplaceStrings_Config = this.findMatching(name, n.getSourceFileName())
 			if config != nil {
 				this.doSubstitutions(t, config, n)
@@ -86,14 +86,13 @@ func (this *ReplaceStrings) visit_impl(t *NodeTraversal, n Node, parent Node) {
 func (this *ReplaceStrings) findMatching(name string, callsiteSourceFileName string) *ReplaceStrings_Config {
 	var config *ReplaceStrings_Config = this.functions.get(name)
 	if config == nil {
-		name = String_replace_char_char(name, '$', '.')
+		name = strings.ReplaceAll(name, "$", ".")
 		config = this.functions.get(name)
 	}
 	if config != nil {
-		it_1 := foreach_(obj_(config.excludedFilenameSuffixes))
-		for it_1.next() {
-			var excludedSuffix string = str_(it_1.v)
-			if String_endsWith(callsiteSourceFileName, excludedSuffix) {
+		for _, el_1 := range config.excludedFilenameSuffixes.keys {
+			var excludedSuffix string = el_1
+			if strings.HasSuffix(callsiteSourceFileName, excludedSuffix) {
 				return nil
 			}
 		}
@@ -106,7 +105,9 @@ func (this *ReplaceStrings) doSubstitutions(t *NodeTraversal, config *ReplaceStr
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceStrings_STRING_REPLACEMENT_TAGGED_TEMPLATE, []string{}))
 		return
 	}
-	Preconditions_checkState((n.isNew() || n.isCall()))
+	if !n.isNew() && !n.isCall() {
+		panic(new_IllegalStateException_0())
+	}
 	if !config.isReplaceAll() {
 		it_1 := config.parameters.each()
 		for it_1.next() {
@@ -131,16 +132,16 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 	var replacement Node
 	var key Optional[string] = Optional_empty[string]()
 	var replacementString string
-	switch expr.getToken() {
-	case Token_rhino_STRINGLIT:
+	switch expr.ns_().token {
+	case tokOrd1_STRINGLIT:
 		key = Optional_of[string](expr.getString())
 		replacementString = this.getReplacement(key.orElse(nullstr_))
 		replacement = IR_string(replacementString)
-	case Token_rhino_TEMPLATELIT, Token_rhino_ADD, Token_rhino_NAME:
-		var keyBuilder *StringBuilder = new_StringBuilder()
+	case tokOrd1_TEMPLATELIT, tokOrd1_ADD, tokOrd1_NAME:
+		var keyBuilder strBuilder_
 		var keyNode Node = IR_string("")
-		replacement = this.buildReplacement(t, expr, keyNode, keyBuilder)
-		key = Optional_of[string](Object_toString(obj_(keyBuilder)))
+		replacement = this.buildReplacement(t, expr, keyNode, &keyBuilder)
+		key = Optional_of[string](keyBuilder.toString())
 		if key.get() == this.placeholderToken {
 			return expr
 		}
@@ -149,7 +150,9 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 	default:
 		return expr
 	}
-	Preconditions_checkState(key.isPresent())
+	if !key.isPresent() {
+		panic(new_IllegalStateException_0())
+	}
 	this.recordReplacement(key.get())
 	replacement.srcrefTreeIfMissing(expr)
 	expr.replaceWith(replacement)
@@ -170,11 +173,13 @@ func (this *ReplaceStrings) getReplacement(key string) string {
 
 func (this *ReplaceStrings) recordReplacement(key string) {
 	var result *ReplaceStrings_Result = this.results.get(key)
-	Preconditions_checkState((result != nil))
+	if result == nil {
+		panic(new_IllegalStateException_0())
+	}
 	result.didReplacement = true
 }
 
-func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix Node, keyBuilder *StringBuilder) Node {
+func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix Node, keyBuilder *strBuilder_) Node {
 	switch expr.getToken() {
 	case Token_rhino_ADD:
 		var left Node = expr.getFirstChild()
@@ -185,13 +190,13 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 		{
 			var child Node = expr.getFirstChild()
 			for ; child != 0; child = child.getNext() {
-				switch child.getToken() {
-				case Token_rhino_TEMPLATELIT_STRING:
+				switch child.ns_().token {
+				case tokOrd1_TEMPLATELIT_STRING:
 					keyBuilder.append(child.getCookedString().orElse("null"))
-				case Token_rhino_TEMPLATELIT_SUB:
+				case tokOrd1_TEMPLATELIT_SUB:
 					prefix = this.buildReplacement(t, child.getFirstChild(), prefix, keyBuilder)
 				default:
-					panic(new_IllegalStateException_String(("Unexpected TEMPLATELIT child: " + objstr_(child.box_()))).self())
+					panic(new_IllegalStateException_String(("Unexpected TEMPLATELIT child: " + tostr_(child))))
 				}
 			}
 		}
@@ -205,10 +210,10 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 			var initialValue Node = var_.getInitialValue()
 			if initialValue != 0 {
 				var newKeyNode Node = IR_string("")
-				var newKeyBuilder *StringBuilder = new_StringBuilder()
-				var replacement Node = this.buildReplacement(t, initialValue, newKeyNode, newKeyBuilder)
+				var newKeyBuilder strBuilder_
+				var replacement Node = this.buildReplacement(t, initialValue, newKeyNode, &newKeyBuilder)
 				if replacement == newKeyNode {
-					keyBuilder.append_CharSequence(obj_(newKeyBuilder))
+					keyBuilder.append_CharSequence(obj_(&newKeyBuilder))
 					return prefix
 				}
 			}
@@ -219,13 +224,10 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 		prefix = IR_add(prefix, IR_string(this.placeholderToken))
 		return IR_add(prefix, expr.cloneTree())
 	}
-	panic("unreachable")
 }
 
-func (this *ReplaceStrings) parseConfigurationList(functionsToInspect ListOf[string]) {
-	it_1 := foreach_(any(functionsToInspect))
-	for it_1.next() {
-		var function string = str_(it_1.v)
+func (this *ReplaceStrings) parseConfigurationList(functionsToInspect []string) {
+	for _, function := range functionsToInspect {
 		var config *ReplaceStrings_Config = this.parseConfiguration(function)
 		if config != nil {
 			this.functions.put(config.name_, config)
@@ -234,46 +236,54 @@ func (this *ReplaceStrings) parseConfigurationList(functionsToInspect ListOf[str
 }
 
 func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_Config {
-	var first int32 = String_indexOf(function, 40)
-	var last int32 = String_indexOf(function, 41)
-	var colon int32 = String_indexOf_String(function, ReplaceStrings_EXCLUSION_PREFIX)
-	Preconditions_checkState(((first != -1) && (last != -1)))
-	if String_contains(function, strobj_(".prototype.")) {
+	var first int32 = int32(strings.IndexByte(function, '('))
+	var last int32 = int32(strings.IndexByte(function, ')'))
+	var colon int32 = int32(strings.Index(function, ReplaceStrings_EXCLUSION_PREFIX))
+	if first == -1 || last == -1 {
+		panic(new_IllegalStateException_0())
+	}
+	if strings.Contains(function, ".prototype.") {
 		this.compiler_.report(JSError_make_DiagnosticType_StringArr(ReplaceStrings_BAD_REPLACEMENT_CONFIGURATION, []string{function, "Cannot replace strings passed to prototype methods."}))
 		return nil
 	}
-	var name string = String_substring(function, 0, first)
-	var params string = String_substring(function, (first + 1), last)
+	var name string = function[:first]
+	var params string = cutBytes_(function, (first + 1), last)
 	var paramCount int32 = 0
 	var replacementParameters *JTList[any] = jnewTList_(tc_Integer)
-	var parts ListOf[string] = Splitter_on(',').splitToList(strobj_(params))
-	it_1 := foreach_(any(parts))
-	for it_1.next() {
-		var param string = str_(it_1.v)
+	var parts []string = sliceImm_(tc_string, Splitter_on(',').splitToList_s(params))
+	for _, param := range parts {
 		paramCount++
 		if param == ReplaceStrings_REPLACE_ALL_MARKER {
-			Preconditions_checkState(((paramCount == 1) && (parts.size() == 1)))
+			if paramCount != 1 || int32(len(parts)) != 1 {
+				panic(new_IllegalStateException_0())
+			}
 			replacementParameters.add(any(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE)))
 		} else if param == ReplaceStrings_REPLACE_ONE_MARKER {
-			Preconditions_checkState(!replacementParameters.asList().contains(any(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE))))
+			if replacementParameters.asList().contains(any(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE))) {
+				panic(new_IllegalStateException_0())
+			}
 			replacementParameters.add(any(int32(paramCount)))
 		} else {
-			Preconditions_checkState_boolean_String_Object(String_isEmpty(param), "Unknown marker (%s)", strobj_(param))
+			if param != "" {
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Unknown marker (%s)", []any{strobj_(param)})))
+			}
 		}
 	}
-	Preconditions_checkState(!replacementParameters.isEmpty())
-	return new_ReplaceStrings_Config(name, replacementParameters, func() *ImmutableSet {
+	if replacementParameters.isEmpty() {
+		panic(new_IllegalStateException_0())
+	}
+	return new_ReplaceStrings_Config(name, replacementParameters, func() *ImmutableSet[string] {
 		if colon == -1 {
-			return ImmutableSet_of()
+			return immutableSetOf_(tc_string)
 		}
-		return ImmutableSet_copyOf_ObjectArr(arrmap_(ReplaceStrings_COMMA_PATTERN.split(String_substring_int(function, (colon+String_length(ReplaceStrings_EXCLUSION_PREFIX)))), func(v_ string) any { return strobj_(v_) }))
+		return tsetFrom_(tc_string, ImmutableSet_copyOf_ObjectArr(arrmap_(ReplaceStrings_COMMA_PATTERN.split(function[colon+int32(len(ReplaceStrings_EXCLUSION_PREFIX)):]), func(v_ string) any { return strobj_(v_) })), true)
 	}())
 }
 
 func ReplaceStrings_createNameGenerator() *DefaultNameGenerator {
 	var namePrefix string = ""
-	var reservedChars ImmutableSetOf[BoxedOf[uint16]] = ImmutableSet_of()
-	return new_DefaultNameGenerator_Set_String_Set(icast_Set(obj_(ImmutableSet_of())), namePrefix, icast_Set(obj_(reservedChars)))
+	var reservedChars *ImmutableSet[uint16] = immutableSetOf_(tc_uint16)
+	return new_DefaultNameGenerator_Set_String_Set(ImmutableSet_of(), namePrefix, reservedChars.asImm())
 }
 
 var ReplaceStrings_COMMA_PATTERN *Pattern
@@ -285,7 +295,7 @@ const ReplaceStrings_EXCLUSION_PREFIX string = ":!"
 const ReplaceStrings_REPLACE_ONE_MARKER string = "?"
 const ReplaceStrings_REPLACE_ALL_MARKER string = "*"
 
-var ReplaceStrings_USED_RESULTS Predicate_base
+var ReplaceStrings_USED_RESULTS func(any) bool
 
 var ReplaceStrings_clinit_done bool
 
@@ -297,29 +307,29 @@ func ReplaceStrings_clinit() {
 	ReplaceStrings_COMMA_PATTERN = Pattern_compile(",")
 	ReplaceStrings_BAD_REPLACEMENT_CONFIGURATION = DiagnosticType_error("JSC_BAD_REPLACEMENT_CONFIGURATION", "Bad replacement configuration \"{0}\": {1}")
 	ReplaceStrings_STRING_REPLACEMENT_TAGGED_TEMPLATE = DiagnosticType_warning("JSC_STRING_REPLACEMENT_TAGGED_TEMPLATE", "Cannot string-replace arguments of a template literal tag function.")
-	ReplaceStrings_USED_RESULTS = &Predicate_base_tfn_ReplaceStrings_Result{func(result *ReplaceStrings_Result) bool {
+	ReplaceStrings_USED_RESULTS = (&Predicate_base_tfn_ReplaceStrings_Result{func(result *ReplaceStrings_Result) bool {
 		return result.didReplacement
-	}}
+	}}).apply
 
 }
 
 type ReplaceStrings_Config struct {
 	name_                    string
 	parameters               *JTList[any]
-	excludedFilenameSuffixes ImmutableSetOf[string]
+	excludedFilenameSuffixes *ImmutableSet[string]
 }
 
 func (this *ReplaceStrings_Config) zero_ReplaceStrings_Config() {
 	this.name_ = nullstr_
 }
 
-func (this *ReplaceStrings_Config) init_ReplaceStrings_Config(name string, replacementParameters *JTList[any], excludedFilenameSuffixes ImmutableSetOf[string]) {
+func (this *ReplaceStrings_Config) init_ReplaceStrings_Config(name string, replacementParameters *JTList[any], excludedFilenameSuffixes *ImmutableSet[string]) {
 	this.name_ = name
 	this.parameters = replacementParameters
 	this.excludedFilenameSuffixes = excludedFilenameSuffixes
 }
 
-func new_ReplaceStrings_Config(name string, replacementParameters *JTList[any], excludedFilenameSuffixes ImmutableSetOf[string]) *ReplaceStrings_Config {
+func new_ReplaceStrings_Config(name string, replacementParameters *JTList[any], excludedFilenameSuffixes *ImmutableSet[string]) *ReplaceStrings_Config {
 	this := &ReplaceStrings_Config{}
 	this.zero_ReplaceStrings_Config()
 	this.init_ReplaceStrings_Config(name, replacementParameters, excludedFilenameSuffixes)
@@ -358,4 +368,13 @@ func new_ReplaceStrings_Result(original string, replacement string) *ReplaceStri
 	this.zero_ReplaceStrings_Result()
 	this.init_ReplaceStrings_Result(original, replacement)
 	return this
+}
+
+// visit: an object that is exactly a ReplaceStrings calls its visit_impl directly (post-flip); others dispatch.
+func (this *ReplaceStrings) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*ReplaceStrings); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

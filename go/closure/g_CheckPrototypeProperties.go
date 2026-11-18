@@ -17,7 +17,7 @@ func new_CheckPrototypeProperties(compiler *AbstractCompiler) *CheckPrototypePro
 }
 
 func (this *CheckPrototypeProperties) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(any(this)))
+	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
 func (this *CheckPrototypeProperties) visit(unused *NodeTraversal, n Node, parent Node) {

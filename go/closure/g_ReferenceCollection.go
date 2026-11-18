@@ -37,7 +37,9 @@ func (this *ReferenceCollection) isWellDefined() bool {
 	if init_ == nil {
 		return false
 	}
-	Preconditions_checkState(this.references.get(0).isDeclaration())
+	if !this.references.get(0).isDeclaration() {
+		panic(new_IllegalStateException_0())
+	}
 	var initBlock *BasicBlock = init_.getBasicBlock()
 	for i := int32(1); i < size; i++ {
 		if !initBlock.provablyExecutesBefore(this.references.get(i).getBasicBlock()) {
@@ -109,7 +111,9 @@ func (this *ReferenceCollection) isInitializingAssignmentAt(index int32) bool {
 	if (index < this.references.size()) && (index > 0) {
 		var maybeDecl *Reference = this.references.get((index - 1))
 		if maybeDecl.isVarDeclaration() || maybeDecl.isLetDeclaration() {
-			Preconditions_checkState(!maybeDecl.isInitializingDeclaration())
+			if maybeDecl.isInitializingDeclaration() {
+				panic(new_IllegalStateException_0())
+			}
 			var maybeInit *Reference = this.references.get(index)
 			if maybeInit.isSimpleAssignmentToName() {
 				return true
@@ -129,7 +133,7 @@ func (this *ReferenceCollection) getInitializingReference() *Reference {
 }
 
 func (this *ReferenceCollection) areInSameFile(ref0 int32, ref1 int32) bool {
-	return Objects_equals(obj_(this.references.get(ref0).getInputId()), obj_(this.references.get(ref1).getInputId()))
+	return objequalsBy_(this.references.get(ref0).getInputId(), obj_(this.references.get(ref1).getInputId()), (*InputId).equals)
 }
 
 func (this *ReferenceCollection) getInitializingReferenceForConstants() *Reference {
@@ -151,12 +155,12 @@ func (this *ReferenceCollection) isAssignedOnceInLifetime() bool {
 		var block *BasicBlock = ref.getBasicBlock()
 		for ; block != nil; block = block.getParent() {
 			if block.isFunction() {
-				if cast_[*Scope](cast_[*Scope](cast_[*Var](ref.getSymbol()).getScope()).getClosestHoistScope().self()) != cast_[*Scope](ref.getScope().getClosestHoistScope().self()) {
+				if cast_[*Scope](ref.getSymbol().(*Var).getScope().(*Scope).getClosestHoistScope().self()) != cast_[*Scope](ref.getScope().getClosestHoistScope().self()) {
 					return false
 				}
 				break
 			}
-			if block.getRoot() == cast_[*Scope](cast_[*Var](ref.getSymbol()).getScope()).getRootNode() {
+			if block.getRoot() == ref.getSymbol().(*Var).getScope().(*Scope).getRootNode() {
 				break
 			}
 			if block.isLoop() {
@@ -211,5 +215,5 @@ func (this *ReferenceCollection) firstReferenceIsAssigningDeclaration() bool {
 }
 
 func (this *ReferenceCollection) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("initRef", obj_(this.getInitializingReference())).add("references", any(this.references.asList())).add_String_boolean("wellDefined", this.isWellDefined()).add_String_boolean("assignedOnce", this.isAssignedOnceInLifetime())))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add("initRef", obj_(this.getInitializingReference())).add("references", this.references.asList()).add_String_boolean("wellDefined", this.isWellDefined()).add_String_boolean("assignedOnce", this.isAssignedOnceInLifetime()))
 }

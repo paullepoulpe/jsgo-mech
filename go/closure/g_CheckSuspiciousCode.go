@@ -35,30 +35,32 @@ func (this *CheckSuspiciousCode) visit_impl(t *NodeTraversal, n Node, parent Nod
 }
 
 func (this *CheckSuspiciousCode) checkMissingSemicolon(t *NodeTraversal, n Node) {
-	switch n.getToken() {
-	case Token_rhino_IF:
+	switch n.ns_().token {
+	case tokOrd1_IF:
 		var trueCase Node = n.getSecondChild()
 		CheckSuspiciousCode_reportIfWasEmpty(t, trueCase)
 		var elseCase Node = trueCase.getNext()
 		if elseCase != 0 {
 			CheckSuspiciousCode_reportIfWasEmpty(t, elseCase)
 		}
-	case Token_rhino_WHILE, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_WHILE, tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 		CheckSuspiciousCode_reportIfWasEmpty(t, NodeUtil_getLoopCodeBlock(n))
 	default:
 	}
 }
 
 func CheckSuspiciousCode_reportIfWasEmpty(t *NodeTraversal, block Node) {
-	Preconditions_checkState(block.isBlock())
+	if !block.isBlock() {
+		panic(new_IllegalStateException_0())
+	}
 	if !block.hasChildren() && block.isAddedBlock() {
 		t.getCompiler().report(JSError_make_Node_DiagnosticType_StringArr(block, CheckSuspiciousCode_SUSPICIOUS_SEMICOLON, []string{}))
 	}
 }
 
 func (this *CheckSuspiciousCode) checkNaN(t *NodeTraversal, n Node) {
-	switch n.getToken() {
-	case Token_rhino_EQ, Token_rhino_GE, Token_rhino_GT, Token_rhino_LE, Token_rhino_LT, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE:
+	switch n.ns_().token {
+	case tokOrd1_EQ, tokOrd1_GE, tokOrd1_GT, tokOrd1_LE, tokOrd1_LT, tokOrd1_NE, tokOrd1_SHEQ, tokOrd1_SHNE:
 		CheckSuspiciousCode_reportIfNaN(t, n.getFirstChild())
 		CheckSuspiciousCode_reportIfNaN(t, n.getLastChild())
 	default:
@@ -105,7 +107,7 @@ func (this *CheckSuspiciousCode) checkLeftOperandOfLogicalOperator(t *NodeTraver
 			}
 			return "&&"
 		}()
-		var v *Tri = this.getBooleanValueWithTypes(n.getFirstChild())
+		var v Tri = this.getBooleanValueWithTypes(n.getFirstChild())
 		if v != Tri_UNKNOWN {
 			var result string = func() string {
 				if v == Tri_TRUE {
@@ -127,34 +129,34 @@ func CheckSuspiciousCode_checkSuspiciousBreakingOutOfOptionalChain(t *NodeTraver
 	}
 }
 
-func (this *CheckSuspiciousCode) getBooleanValueWithTypes(n Node) *Tri {
-	switch n.getToken() {
-	case Token_rhino_ASSIGN, Token_rhino_COMMA:
+func (this *CheckSuspiciousCode) getBooleanValueWithTypes(n Node) Tri {
+	switch n.ns_().token {
+	case tokOrd1_ASSIGN, tokOrd1_COMMA:
 		return this.getBooleanValueWithTypes(n.getLastChild())
-	case Token_rhino_NOT:
+	case tokOrd1_NOT:
 		return this.getBooleanValueWithTypes(n.getLastChild()).not()
-	case Token_rhino_AND:
+	case tokOrd1_AND:
 		return Tri_UNKNOWN.and(this.getBooleanValueWithTypes(n.getLastChild()))
-	case Token_rhino_OR:
+	case tokOrd1_OR:
 		return Tri_UNKNOWN.or(this.getBooleanValueWithTypes(n.getLastChild()))
-	case Token_rhino_HOOK:
-		var trueValue *Tri = this.getBooleanValueWithTypes(n.getSecondChild())
-		var falseValue *Tri = this.getBooleanValueWithTypes(n.getLastChild())
-		return func() *Tri {
-			if Object_equals(obj_(trueValue), obj_(falseValue)) {
+	case tokOrd1_HOOK:
+		var trueValue Tri = this.getBooleanValueWithTypes(n.getSecondChild())
+		var falseValue Tri = this.getBooleanValueWithTypes(n.getLastChild())
+		return func() Tri {
+			if equalsId_(trueValue, falseValue) {
 				return trueValue
 			}
 			return Tri_UNKNOWN
 		}()
-	case Token_rhino_FUNCTION, Token_rhino_CLASS, Token_rhino_NEW, Token_rhino_ARRAYLIT, Token_rhino_OBJECTLIT:
+	case tokOrd1_FUNCTION, tokOrd1_CLASS, tokOrd1_NEW, tokOrd1_ARRAYLIT, tokOrd1_OBJECTLIT:
 		return Tri_TRUE
-	case Token_rhino_VOID:
+	case tokOrd1_VOID:
 		return Tri_FALSE
-	case Token_rhino_GETPROP, Token_rhino_GETELEM, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP:
+	case tokOrd1_GETPROP, tokOrd1_GETELEM, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP:
 		return Tri_UNKNOWN
 	default:
 	}
-	var literalValue *Tri = NodeUtil_getBooleanValue(n)
+	var literalValue Tri = NodeUtil_getBooleanValue(n)
 	if (literalValue != Tri_UNKNOWN) || n.isName() {
 		return literalValue
 	}
@@ -188,4 +190,13 @@ func CheckSuspiciousCode_clinit() {
 	CheckSuspiciousCode_SUSPICIOUS_NEGATED_LEFT_OPERAND_OF_IN_OPERATOR = DiagnosticType_warning("JSC_SUSPICIOUS_NEGATED_LEFT_OPERAND_OF_IN_OPERATOR", "Suspicious negated left operand of 'in' operator.")
 	CheckSuspiciousCode_SUSPICIOUS_BREAKING_OUT_OF_OPTIONAL_CHAIN = DiagnosticType_warning("SUSPICIOUS_BREAKING_OUT_OF_OPTIONAL_CHAIN", "Suspicious breaking out of optional chain. May result in TypeError if optional chain is undefined.")
 
+}
+
+// visit: an object that is exactly a CheckSuspiciousCode calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckSuspiciousCode) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if p, _ := this.self_.(*CheckSuspiciousCode); p == this {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.visit_impl(p0, p1, p2)
 }

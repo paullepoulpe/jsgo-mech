@@ -6,13 +6,13 @@ type DestructuredTarget struct {
 	registry            *JSTypeRegistry
 	objectPatternKey    Node
 	node_               Node
-	patternTypeSupplier Supplier_baseOf[*JSType]
+	patternTypeSupplier func() any
 	defaultValue        Node
 	isRest_             bool
 	pattern             Node
 }
 
-func (this *DestructuredTarget) init_DestructuredTarget(pattern Node, node Node, defaultValue Node, objectPatternKey Node, registry *JSTypeRegistry, patternTypeSupplier Supplier_baseOf[*JSType], isRest bool) {
+func (this *DestructuredTarget) init_DestructuredTarget(pattern Node, node Node, defaultValue Node, objectPatternKey Node, registry *JSTypeRegistry, patternTypeSupplier func() any, isRest bool) {
 	this.pattern = pattern
 	this.node_ = node
 	this.objectPatternKey = objectPatternKey
@@ -22,7 +22,7 @@ func (this *DestructuredTarget) init_DestructuredTarget(pattern Node, node Node,
 	this.defaultValue = defaultValue
 }
 
-func new_DestructuredTarget(pattern Node, node Node, defaultValue Node, objectPatternKey Node, registry *JSTypeRegistry, patternTypeSupplier Supplier_baseOf[*JSType], isRest bool) *DestructuredTarget {
+func new_DestructuredTarget(pattern Node, node Node, defaultValue Node, objectPatternKey Node, registry *JSTypeRegistry, patternTypeSupplier func() any, isRest bool) *DestructuredTarget {
 	this := &DestructuredTarget{}
 	this.init_DestructuredTarget(pattern, node, defaultValue, objectPatternKey, registry, patternTypeSupplier, isRest)
 	return this
@@ -67,17 +67,19 @@ func (this *DestructuredTarget) getNode() Node {
 }
 
 func DestructuredTarget_createTargetJSType(registry *JSTypeRegistry, destructuringPatternType *JSType, destructuringChild Node) *DestructuredTarget {
-	return DestructuredTarget_createTarget(registry, &Supplier_base_fn{func() any {
+	return DestructuredTarget_createTarget(registry, func() any {
 		return destructuringPatternType.self()
-	}}, destructuringChild)
+	}, destructuringChild)
 }
 
-func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatternType Supplier_baseOf[*JSType], destructuringChild Node) *DestructuredTarget {
-	Preconditions_checkArgument_boolean_Object(destructuringChild.getParent().isDestructuringPattern(), destructuringChild.box_())
+func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatternType func() any, destructuringChild Node) *DestructuredTarget {
+	if !destructuringChild.getParent().isDestructuringPattern() {
+		panic(new_IllegalArgumentException_String(tostr_(destructuringChild)))
+	}
 	var builder *DestructuredTarget_Builder = new_DestructuredTarget_Builder(registry, destructuringChild.getParent(), destructuringPatternType)
 	var value Node
-	switch destructuringChild.getToken() {
-	case Token_rhino_STRING_KEY:
+	switch destructuringChild.ns_().token {
+	case tokOrd1_STRING_KEY:
 		builder.setObjectPatternKey(destructuringChild)
 		value = destructuringChild.getFirstChild()
 		if value.isDefaultValue() {
@@ -86,7 +88,7 @@ func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatt
 		} else {
 			builder.setNode(value)
 		}
-	case Token_rhino_COMPUTED_PROP:
+	case tokOrd1_COMPUTED_PROP:
 		builder.setObjectPatternKey(destructuringChild)
 		value = destructuringChild.getSecondChild()
 		if value.isDefaultValue() {
@@ -95,39 +97,41 @@ func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatt
 		} else {
 			builder.setNode(value)
 		}
-	case Token_rhino_OBJECT_PATTERN, Token_rhino_ARRAY_PATTERN, Token_rhino_NAME, Token_rhino_GETELEM, Token_rhino_GETPROP:
+	case tokOrd1_OBJECT_PATTERN, tokOrd1_ARRAY_PATTERN, tokOrd1_NAME, tokOrd1_GETELEM, tokOrd1_GETPROP:
 		builder.setNode(destructuringChild)
-	case Token_rhino_DEFAULT_VALUE:
+	case tokOrd1_DEFAULT_VALUE:
 		builder.setNode(destructuringChild.getFirstChild())
 		builder.setDefaultValue(destructuringChild.getSecondChild())
-	case Token_rhino_ITER_REST, Token_rhino_OBJECT_REST:
+	case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 		builder.setNode(destructuringChild.getFirstChild())
 		builder.setIsRest(true)
 	default:
-		panic(new_IllegalArgumentException_String(("Unexpected child of destructuring pattern " + objstr_(destructuringChild.box_()))).self())
+		panic(new_IllegalArgumentException_String(("Unexpected child of destructuring pattern " + tostr_(destructuringChild))))
 	}
 	return builder.build()
 }
 
-func DestructuredTarget_createAllNonEmptyTargetsInPattern(registry *JSTypeRegistry, patternType *JSType, pattern Node) ImmutableListOf[*DestructuredTarget] {
-	return DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry, &Supplier_base_fn{func() any {
+func DestructuredTarget_createAllNonEmptyTargetsInPattern(registry *JSTypeRegistry, patternType *JSType, pattern Node) []*DestructuredTarget {
+	return DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry, func() any {
 		return patternType.self()
-	}}, pattern)
+	}, pattern)
 }
 
-func DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry *JSTypeRegistry, patternType Supplier_baseOf[*JSType], pattern Node) ImmutableListOf[*DestructuredTarget] {
-	Preconditions_checkArgument_boolean_Object(pattern.isDestructuringPattern(), pattern.box_())
-	var builder ImmutableList_BuilderOf[*DestructuredTarget] = ImmutableList_builder()
+func DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry *JSTypeRegistry, patternType func() any, pattern Node) []*DestructuredTarget {
+	if !pattern.isDestructuringPattern() {
+		panic(new_IllegalArgumentException_String(tostr_(pattern)))
+	}
+	var builder []*DestructuredTarget
 	{
 		var child Node = pattern.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			if child.isEmpty() {
 				continue
 			}
-			builder.add(obj_(DestructuredTarget_createTarget(registry, patternType, child)))
+			builder = immAdd_(tc_p_DestructuredTarget, builder, DestructuredTarget_createTarget(registry, patternType, child))
 		}
 	}
-	return cast_[*ImmutableList](obj_(builder.build()))
+	return immBuilt_(builder)
 }
 
 func (this *DestructuredTarget) inferTypeWithoutUsingDefaultValue() *JSType {
@@ -136,7 +140,6 @@ func (this *DestructuredTarget) inferTypeWithoutUsingDefaultValue() *JSType {
 	} else {
 		return this.inferArrayPatternTargetType()
 	}
-	panic("unreachable")
 }
 
 func (this *DestructuredTarget) inferType() *JSType {
@@ -150,11 +153,10 @@ func (this *DestructuredTarget) inferType() *JSType {
 	} else {
 		return inferredType
 	}
-	panic("unreachable")
 }
 
 func (this *DestructuredTarget) inferObjectPatternKeyType() *JSType {
-	var patternType *JSType = to_JSType(this.patternTypeSupplier.get())
+	var patternType *JSType = to_JSType(this.patternTypeSupplier())
 	if this.isRest_ {
 		return this.registry.getNativeType(JSTypeNative_OBJECT_TYPE)
 	}
@@ -179,26 +181,24 @@ func (this *DestructuredTarget) inferObjectPatternKeyType() *JSType {
 				return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 			}()
 		default:
-			panic(new_IllegalStateException_String(("Unexpected key " + objstr_(this.objectPatternKey.box_()))).self())
+			panic(new_IllegalStateException_String(("Unexpected key " + tostr_(this.objectPatternKey))))
 		}
-		panic("unreachable")
 	}()
 }
 
 func (this *DestructuredTarget) inferArrayPatternTargetType() *JSType {
-	var patternType *JSType = to_JSType(this.patternTypeSupplier.get())
+	var patternType *JSType = to_JSType(this.patternTypeSupplier())
 	var templateTypeOfIterable *JSType = patternType.getTemplateTypeMap().getResolvedTemplateType(this.registry.getIterableValueTemplate())
 	if this.isRest_ {
 		return this.registry.createTemplatizedType(this.registry.getNativeObjectType(JSTypeNative_ARRAY_TYPE), []*JSType{templateTypeOfIterable}).up_JSType()
 	} else {
 		return templateTypeOfIterable
 	}
-	panic("unreachable")
 }
 
 type DestructuredTarget_Builder struct {
 	registry            *JSTypeRegistry
-	patternTypeSupplier Supplier_baseOf[*JSType]
+	patternTypeSupplier func() any
 	pattern             Node
 	node_               Node
 	defaultValue        Node
@@ -212,14 +212,14 @@ func (this *DestructuredTarget_Builder) finit_DestructuredTarget_Builder() {
 	this.isRest_ = false
 }
 
-func (this *DestructuredTarget_Builder) init_DestructuredTarget_Builder(registry *JSTypeRegistry, pattern Node, patternTypeSupplier Supplier_baseOf[*JSType]) {
+func (this *DestructuredTarget_Builder) init_DestructuredTarget_Builder(registry *JSTypeRegistry, pattern Node, patternTypeSupplier func() any) {
 	this.finit_DestructuredTarget_Builder()
 	this.registry = registry
 	this.patternTypeSupplier = patternTypeSupplier
 	this.pattern = pattern
 }
 
-func new_DestructuredTarget_Builder(registry *JSTypeRegistry, pattern Node, patternTypeSupplier Supplier_baseOf[*JSType]) *DestructuredTarget_Builder {
+func new_DestructuredTarget_Builder(registry *JSTypeRegistry, pattern Node, patternTypeSupplier func() any) *DestructuredTarget_Builder {
 	this := &DestructuredTarget_Builder{}
 	this.init_DestructuredTarget_Builder(registry, pattern, patternTypeSupplier)
 	return this
@@ -246,6 +246,8 @@ func (this *DestructuredTarget_Builder) setIsRest(isRest bool) *DestructuredTarg
 }
 
 func (this *DestructuredTarget_Builder) build() *DestructuredTarget {
-	Preconditions_checkNotNull_Object_Object(this.node_.box_(), strobj_("Must set a node"))
+	if this.node_ == 0 {
+		panic(new_NullPointerException_String("Must set a node"))
+	}
 	return new_DestructuredTarget(this.pattern, this.node_, this.defaultValue, this.objectPatternKey, this.registry, this.patternTypeSupplier, this.isRest_)
 }

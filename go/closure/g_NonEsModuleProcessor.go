@@ -48,10 +48,10 @@ func new_NonEsModuleProcessor_NonEsModule(metadata *ModuleMetadataMap_ModuleMeta
 }
 
 func (this *NonEsModuleProcessor_NonEsModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName Optional[string]) *ResolveExportResult {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet SetOf[*ExportTrace], exportStarSet SetOf[*UnresolvedModule]) *ResolveExportResult {
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string], exportName Optional[string], resolveSet map[exportTraceKey_]struct{}, exportStarSet map[*UnresolvedModule]struct{}) *ResolveExportResult {
 	var namespace Optional[string] = Optional_empty[string]()
 	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.get()) {
 		namespace = Optional_of[string](GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()))
@@ -75,17 +75,74 @@ func (this *NonEsModuleProcessor_NonEsModule) resolve_2_impl(moduleRequestResolv
 	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.get()) {
 		namespace = Optional_of[string](GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()))
 	}
-	return Module_builder().path(this.path_).metadata(this.metadataField).namespace(ImmutableMap_of()).boundNames(ImmutableMap_of()).localNameToLocalExport(ImmutableMap_of()).closureNamespace(namespace).build()
+	return Module_builder().path(this.path_).metadata(this.metadataField).namespace(immutableMapOf_(tc_string, tc_p_Binding, []string{}, []*Binding{})).boundNames(immutableMapOf_(tc_string, tc_p_Binding, []string{}, []*Binding{})).localNameToLocalExport(immutableMapOf_(tc_string, tc_p_Export, []string{}, []*Export{})).closureNamespace(namespace).build()
 }
 
 func (this *NonEsModuleProcessor_NonEsModule) metadata_impl() *ModuleMetadataMap_ModuleMetadata {
 	return this.metadataField
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) ImmutableSetOf[string] {
-	panic(new_UnsupportedOperationException_0().self())
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) *ImmutableSet[string] {
+	panic(new_UnsupportedOperationException_0())
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited SetOf[*UnresolvedModule]) ImmutableSetOf[string] {
-	panic(new_UnsupportedOperationException_0().self())
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited map[*UnresolvedModule]struct{}) *ImmutableSet[string] {
+	panic(new_UnsupportedOperationException_0())
+}
+
+// resolveExport: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolveExport_impl directly (post-flip); others dispatch.
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport(p0 ModuleRequestResolver, p1 Optional[string]) *ResolveExportResult {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
+		return this.resolveExport_impl(p0, p1)
+	}
+	return this.self_.resolveExport_impl(p0, p1)
+}
+
+// resolveExport_5: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolveExport_5_impl directly (post-flip); others dispatch.
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
+		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
+	}
+	return this.self_.resolveExport_5_impl(p0, p1, p2, p3, p4)
+}
+
+// reset: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its reset_impl directly (post-flip); others dispatch.
+func (this *NonEsModuleProcessor_NonEsModule) reset() {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
+		this.reset_impl()
+		return
+	}
+	this.self_.reset_impl()
+}
+
+// resolve_2: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolve_2_impl directly (post-flip); others dispatch.
+func (this *NonEsModuleProcessor_NonEsModule) resolve_2(p0 ModuleRequestResolver, p1 Optional[string]) *Module {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
+		return this.resolve_2_impl(p0, p1)
+	}
+	return this.self_.resolve_2_impl(p0, p1)
+}
+
+// metadata: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its metadata_impl directly (post-flip); others dispatch.
+func (this *NonEsModuleProcessor_NonEsModule) metadata() *ModuleMetadataMap_ModuleMetadata {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
+		return this.metadata_impl()
+	}
+	return this.self_.metadata_impl()
+}
+
+// getExportedNames: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its getExportedNames_impl directly (post-flip); others dispatch.
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames(p0 ModuleRequestResolver) *ImmutableSet[string] {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
+		return this.getExportedNames_impl(p0)
+	}
+	return this.self_.getExportedNames_impl(p0)
+}
+
+// getExportedNames_2: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its getExportedNames_2_impl directly (post-flip); others dispatch.
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ImmutableSet[string] {
+	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
+		return this.getExportedNames_2_impl(p0, p1)
+	}
+	return this.self_.getExportedNames_2_impl(p0, p1)
 }

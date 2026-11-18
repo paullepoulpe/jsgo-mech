@@ -5,7 +5,7 @@ package closure
 type DiagnosticGroupWarningsGuard struct {
 	WarningsGuard
 	group      *DiagnosticGroup
-	levelField *CheckLevel
+	levelField CheckLevel
 }
 
 func (this *DiagnosticGroupWarningsGuard) up_WarningsGuard() *WarningsGuard {
@@ -15,51 +15,49 @@ func (this *DiagnosticGroupWarningsGuard) up_WarningsGuard() *WarningsGuard {
 	return &this.WarningsGuard
 }
 
-func (this *DiagnosticGroupWarningsGuard) init_DiagnosticGroupWarningsGuard(group *DiagnosticGroup, level *CheckLevel) {
+func (this *DiagnosticGroupWarningsGuard) init_DiagnosticGroupWarningsGuard(group *DiagnosticGroup, level CheckLevel) {
 	this.WarningsGuard.init_WarningsGuard()
 	this.group = group
 	this.levelField = level
 }
 
-func new_DiagnosticGroupWarningsGuard(group *DiagnosticGroup, level *CheckLevel) *DiagnosticGroupWarningsGuard {
+func new_DiagnosticGroupWarningsGuard(group *DiagnosticGroup, level CheckLevel) *DiagnosticGroupWarningsGuard {
 	this := &DiagnosticGroupWarningsGuard{}
 	this.self_ = this
 	this.init_DiagnosticGroupWarningsGuard(group, level)
 	return this
 }
 
-func (this *DiagnosticGroupWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
-	return func() *CheckLevel {
+func (this *DiagnosticGroupWarningsGuard) level_impl(error_ *JSError) CheckLevel {
+	return func() CheckLevel {
 		if this.group.matches(error_) {
 			return this.levelField
 		}
-		return nil
+		return 0
 	}()
 }
 
-func (this *DiagnosticGroupWarningsGuard) mustRunChecks_impl(otherGroup *DiagnosticGroup) *Tri {
+func (this *DiagnosticGroupWarningsGuard) mustRunChecks_impl(otherGroup *DiagnosticGroup) Tri {
 	if this.levelField.isOn() {
-		return func() *Tri {
+		return func() Tri {
 			if this.groupMatchesAny(otherGroup.getTypes()) {
 				return Tri_TRUE
 			}
 			return Tri_UNKNOWN
 		}()
 	} else {
-		return func() *Tri {
+		return func() Tri {
 			if this.groupMatchesAll(otherGroup.getTypes()) {
 				return Tri_FALSE
 			}
 			return Tri_UNKNOWN
 		}()
 	}
-	panic("unreachable")
 }
 
-func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types ImmutableSetOf[*DiagnosticType]) bool {
-	it_1 := foreach_(obj_(types))
-	for it_1.next() {
-		var type_ *DiagnosticType = cast_[*DiagnosticType](it_1.v)
+func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types *ImmutableSet[*DiagnosticType]) bool {
+	for _, el_1 := range types.keys {
+		var type_ *DiagnosticType = el_1
 		if this.group.matchesDiagnosticType(type_) {
 			return true
 		}
@@ -67,10 +65,9 @@ func (this *DiagnosticGroupWarningsGuard) groupMatchesAny(types ImmutableSetOf[*
 	return false
 }
 
-func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types ImmutableSetOf[*DiagnosticType]) bool {
-	it_1 := foreach_(obj_(types))
-	for it_1.next() {
-		var type_ *DiagnosticType = cast_[*DiagnosticType](it_1.v)
+func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types *ImmutableSet[*DiagnosticType]) bool {
+	for _, el_1 := range types.keys {
+		var type_ *DiagnosticType = el_1
 		if !this.group.matchesDiagnosticType(type_) {
 			return false
 		}
@@ -79,7 +76,23 @@ func (this *DiagnosticGroupWarningsGuard) groupMatchesAll(types ImmutableSetOf[*
 }
 
 func (this *DiagnosticGroupWarningsGuard) toString() string {
-	return (objstr_(obj_(this.group)) + "(" + objstr_(obj_(this.levelField)) + ")")
+	return (tostr_(this.group) + "(" + tostr_(this.levelField) + ")")
 }
 
 const DiagnosticGroupWarningsGuard_serialVersionUID int64 = 1
+
+// level: an object that is exactly a DiagnosticGroupWarningsGuard calls its level_impl directly (post-flip); others dispatch.
+func (this *DiagnosticGroupWarningsGuard) level(p0 *JSError) CheckLevel {
+	if p, _ := this.self_.(*DiagnosticGroupWarningsGuard); p == this {
+		return this.level_impl(p0)
+	}
+	return this.self_.level_impl(p0)
+}
+
+// mustRunChecks: an object that is exactly a DiagnosticGroupWarningsGuard calls its mustRunChecks_impl directly (post-flip); others dispatch.
+func (this *DiagnosticGroupWarningsGuard) mustRunChecks(p0 *DiagnosticGroup) Tri {
+	if p, _ := this.self_.(*DiagnosticGroupWarningsGuard); p == this {
+		return this.mustRunChecks_impl(p0)
+	}
+	return this.self_.mustRunChecks_impl(p0)
+}

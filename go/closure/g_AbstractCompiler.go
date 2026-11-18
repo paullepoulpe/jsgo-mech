@@ -2,22 +2,34 @@
 
 package closure
 
+import "strings"
+
 type AbstractCompiler struct {
-	self_ any
+	self_ AbstractCompiler_I
+}
+
+// AbstractCompiler_I holds the methods the dispatchers of AbstractCompiler's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type AbstractCompiler_I interface {
+	initRuntimeLibraryTypedAsts_impl(Optional_base)
+}
+
+// AbstractCompiler_as is implemented by AbstractCompiler and the classes that extend it: a cast to AbstractCompiler asserts to it
+// (post-flip).
+type AbstractCompiler_as interface {
+	as_AbstractCompiler() *AbstractCompiler
 }
 
 func (this *AbstractCompiler) as_AbstractCompiler() *AbstractCompiler { return this }
 
 func to_AbstractCompiler(v any) *AbstractCompiler {
-	if v == nil {
+	switch p := v.(type) {
+	case *Compiler:
+		return p.as_AbstractCompiler()
+	case nil:
 		return nil
 	}
-	return v.(interface{ as_AbstractCompiler() *AbstractCompiler }).as_AbstractCompiler()
-}
-
-func is_AbstractCompiler(v any) bool {
-	_, ok := v.(interface{ as_AbstractCompiler() *AbstractCompiler })
-	return ok
+	return v.(AbstractCompiler_as).as_AbstractCompiler()
 }
 
 func (this *AbstractCompiler) self() any {
@@ -36,11 +48,11 @@ func AbstractCompiler_createFillFileName(chunkName string) string {
 }
 
 func AbstractCompiler_isFillFileName(fileName string) bool {
-	return String_endsWith(fileName, AbstractCompiler_FILL_FILE_SUFFIX)
+	return strings.HasSuffix(fileName, AbstractCompiler_FILL_FILE_SUFFIX)
 }
 
 func (this *AbstractCompiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional_baseOf[*ColorPool_Builder]) {
-	panic(new_UnsupportedOperationException_String("Implementation in Compiler.java is not J2CL compatible.").self())
+	panic(new_UnsupportedOperationException_String("Implementation in Compiler.java is not J2CL compatible."))
 }
 
 func (this *AbstractCompiler) getIndex(type_ ClassOf[any]) any {
@@ -48,501 +60,471 @@ func (this *AbstractCompiler) getIndex(type_ ClassOf[any]) any {
 }
 
 func (this *AbstractCompiler) getTypedAstDeserializer(p0 *SourceFile_jscomp) Supplier {
-	return this.self_.(interface {
-		getTypedAstDeserializer_impl(*SourceFile_jscomp) Supplier
-	}).getTypedAstDeserializer_impl(p0)
+	return this.self_.(*Compiler).getTypedAstDeserializer_impl(p0)
 }
 
-func (this *AbstractCompiler) initRuntimeLibraryTypedAsts(p0 *Optional_base) {
-	this.self_.(interface{ initRuntimeLibraryTypedAsts_impl(*Optional_base) }).initRuntimeLibraryTypedAsts_impl(p0)
+func (this *AbstractCompiler) initRuntimeLibraryTypedAsts(p0 Optional_base) {
+	this.self_.initRuntimeLibraryTypedAsts_impl(p0)
 }
 
 func (this *AbstractCompiler) getRuntimeJsLibManager() *RuntimeJsLibManager {
-	return this.self_.(interface{ getRuntimeJsLibManager_impl() *RuntimeJsLibManager }).getRuntimeJsLibManager_impl()
+	return this.self_.(*Compiler).getRuntimeJsLibManager_impl()
 }
 
 func (this *AbstractCompiler) setExternExports(p0 string) {
-	this.self_.(interface{ setExternExports_impl(string) }).setExternExports_impl(p0)
+	this.self_.(*Compiler).setExternExports_impl(p0)
 }
 
 func (this *AbstractCompiler) process(p0 CompilerPass) {
-	this.self_.(interface{ process_impl(CompilerPass) }).process_impl(p0)
+	this.self_.(*Compiler).process_impl(p0)
 }
 
 func (this *AbstractCompiler) beforePass(p0 string) {
-	this.self_.(interface{ beforePass_impl(string) }).beforePass_impl(p0)
+	this.self_.(*Compiler).beforePass_impl(p0)
 }
 
 func (this *AbstractCompiler) afterPass(p0 string) {
-	this.self_.(interface{ afterPass_impl(string) }).afterPass_impl(p0)
+	this.self_.(*Compiler).afterPass_impl(p0)
 }
 
-func (this *AbstractCompiler) getLifeCycleStage() *AbstractCompiler_LifeCycleStage {
-	return this.self_.(interface {
-		getLifeCycleStage_impl() *AbstractCompiler_LifeCycleStage
-	}).getLifeCycleStage_impl()
+func (this *AbstractCompiler) getLifeCycleStage() AbstractCompiler_LifeCycleStage {
+	return this.self_.(*Compiler).getLifeCycleStage_impl()
 }
 
-func (this *AbstractCompiler) setLifeCycleStage(p0 *AbstractCompiler_LifeCycleStage) {
-	this.self_.(interface {
-		setLifeCycleStage_impl(*AbstractCompiler_LifeCycleStage)
-	}).setLifeCycleStage_impl(p0)
+func (this *AbstractCompiler) setLifeCycleStage(p0 AbstractCompiler_LifeCycleStage) {
+	this.self_.(*Compiler).setLifeCycleStage_impl(p0)
 }
 
 func (this *AbstractCompiler) createAstFactory() *AstFactory {
-	return this.self_.(interface{ createAstFactory_impl() *AstFactory }).createAstFactory_impl()
+	return this.self_.(*Compiler).createAstFactory_impl()
 }
 
 func (this *AbstractCompiler) createAstFactoryWithoutTypes() *AstFactory {
-	return this.self_.(interface{ createAstFactoryWithoutTypes_impl() *AstFactory }).createAstFactoryWithoutTypes_impl()
+	return this.self_.(*Compiler).createAstFactoryWithoutTypes_impl()
 }
 
 func (this *AbstractCompiler) getAstAnalyzer() *AstAnalyzer {
-	return this.self_.(interface{ getAstAnalyzer_impl() *AstAnalyzer }).getAstAnalyzer_impl()
+	return this.self_.(*Compiler).getAstAnalyzer_impl()
 }
 
 func (this *AbstractCompiler) createDefaultExpressionDecomposer() *ExpressionDecomposer {
-	return this.self_.(interface{ createDefaultExpressionDecomposer_impl() *ExpressionDecomposer }).createDefaultExpressionDecomposer_impl()
+	return this.self_.(*Compiler).createDefaultExpressionDecomposer_impl()
 }
 
-func (this *AbstractCompiler) createExpressionDecomposer(p0 Supplier, p1 *ImmutableSet, p2 *Scope) *ExpressionDecomposer {
-	return this.self_.(interface {
-		createExpressionDecomposer_impl(Supplier, *ImmutableSet, *Scope) *ExpressionDecomposer
-	}).createExpressionDecomposer_impl(p0, p1, p2)
+func (this *AbstractCompiler) createExpressionDecomposer(p0 Supplier, p1 *ImmutableSet[string], p2 *Scope) *ExpressionDecomposer {
+	return this.self_.(*Compiler).createExpressionDecomposer_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) isDebugLoggingEnabled() bool {
-	return this.self_.(interface{ isDebugLoggingEnabled_impl() bool }).isDebugLoggingEnabled_impl()
+	return this.self_.(*Compiler).isDebugLoggingEnabled_impl()
 }
 
-func (this *AbstractCompiler) getDebugLogFilterList() List {
-	return this.self_.(interface{ getDebugLogFilterList_impl() List }).getDebugLogFilterList_impl()
+func (this *AbstractCompiler) getDebugLogFilterList() []string {
+	return this.self_.(*Compiler).getDebugLogFilterList_impl()
 }
 
 func (this *AbstractCompiler) createOrReopenLog(p0 *Class, p1 string, p2 []string) *LogFile {
-	return this.self_.(interface {
-		createOrReopenLog_impl(*Class, string, []string) *LogFile
-	}).createOrReopenLog_impl(p0, p1, p2)
+	return this.self_.(*Compiler).createOrReopenLog_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) createOrReopenIndexedLog(p0 *Class, p1 string, p2 []string) *LogFile {
-	return this.self_.(interface {
-		createOrReopenIndexedLog_impl(*Class, string, []string) *LogFile
-	}).createOrReopenIndexedLog_impl(p0, p1, p2)
+	return this.self_.(*Compiler).createOrReopenIndexedLog_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) getScriptNode(p0 string) Node {
-	return this.self_.(interface{ getScriptNode_impl(string) Node }).getScriptNode_impl(p0)
+	return this.self_.(*Compiler).getScriptNode_impl(p0)
 }
 
 func (this *AbstractCompiler) getRoot() Node {
-	return this.self_.(interface{ getRoot_impl() Node }).getRoot_impl()
+	return this.self_.(*Compiler).getRoot_impl()
 }
 
 func (this *AbstractCompiler) getAllowableFeatures() *FeatureSet {
-	return this.self_.(interface{ getAllowableFeatures_impl() *FeatureSet }).getAllowableFeatures_impl()
+	return this.self_.(*Compiler).getAllowableFeatures_impl()
 }
 
 func (this *AbstractCompiler) setAllowableFeatures(p0 *FeatureSet) {
-	this.self_.(interface{ setAllowableFeatures_impl(*FeatureSet) }).setAllowableFeatures_impl(p0)
+	this.self_.(*Compiler).setAllowableFeatures_impl(p0)
 }
 
-func (this *AbstractCompiler) markFeatureNotAllowed(p0 *FeatureSet_Feature) {
-	this.self_.(interface{ markFeatureNotAllowed_impl(*FeatureSet_Feature) }).markFeatureNotAllowed_impl(p0)
+func (this *AbstractCompiler) markFeatureNotAllowed(p0 FeatureSet_Feature) {
+	this.self_.(*Compiler).markFeatureNotAllowed_impl(p0)
 }
 
 func (this *AbstractCompiler) markFeatureSetNotAllowed(p0 *FeatureSet) {
-	this.self_.(interface{ markFeatureSetNotAllowed_impl(*FeatureSet) }).markFeatureSetNotAllowed_impl(p0)
+	this.self_.(*Compiler).markFeatureSetNotAllowed_impl(p0)
 }
 
 func (this *AbstractCompiler) getUniqueIdSupplier() *UniqueIdSupplier {
-	return this.self_.(interface{ getUniqueIdSupplier_impl() *UniqueIdSupplier }).getUniqueIdSupplier_impl()
+	return this.self_.(*Compiler).getUniqueIdSupplier_impl()
 }
 
 func (this *AbstractCompiler) getUniqueNameIdSupplier() Supplier {
-	return this.self_.(interface{ getUniqueNameIdSupplier_impl() Supplier }).getUniqueNameIdSupplier_impl()
+	return this.self_.(*Compiler).getUniqueNameIdSupplier_impl()
 }
 
 func (this *AbstractCompiler) areNodesEqualForInlining(p0 Node, p1 Node) bool {
-	return this.self_.(interface{ areNodesEqualForInlining_impl(Node, Node) bool }).areNodesEqualForInlining_impl(p0, p1)
+	return this.self_.(*Compiler).areNodesEqualForInlining_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getInput(p0 *InputId) *CompilerInput {
-	return this.self_.(interface{ getInput_impl(*InputId) *CompilerInput }).getInput_impl(p0)
+	return this.self_.(*Compiler).getInput_impl(p0)
 }
 
 func (this *AbstractCompiler) getChunkGraph() *JSChunkGraph {
-	return this.self_.(interface{ getChunkGraph_impl() *JSChunkGraph }).getChunkGraph_impl()
+	return this.self_.(*Compiler).getChunkGraph_impl()
 }
 
 func (this *AbstractCompiler) clearJSTypeRegistry() {
-	this.self_.(interface{ clearJSTypeRegistry_impl() }).clearJSTypeRegistry_impl()
+	this.self_.(*Compiler).clearJSTypeRegistry_impl()
 }
 
 func (this *AbstractCompiler) isTypeRegistryCleared() bool {
-	return this.self_.(interface{ isTypeRegistryCleared_impl() bool }).isTypeRegistryCleared_impl()
+	return this.self_.(*Compiler).isTypeRegistryCleared_impl()
 }
 
 func (this *AbstractCompiler) getTypeRegistry() *JSTypeRegistry {
-	return this.self_.(interface{ getTypeRegistry_impl() *JSTypeRegistry }).getTypeRegistry_impl()
+	return this.self_.(*Compiler).getTypeRegistry_impl()
 }
 
 func (this *AbstractCompiler) getColorRegistry() *ColorRegistry {
-	return this.self_.(interface{ getColorRegistry_impl() *ColorRegistry }).getColorRegistry_impl()
+	return this.self_.(*Compiler).getColorRegistry_impl()
 }
 
 func (this *AbstractCompiler) setColorRegistry(p0 *ColorRegistry) {
-	this.self_.(interface{ setColorRegistry_impl(*ColorRegistry) }).setColorRegistry_impl(p0)
+	this.self_.(*Compiler).setColorRegistry_impl(p0)
 }
 
 func (this *AbstractCompiler) forwardDeclareType(p0 string) {
-	this.self_.(interface{ forwardDeclareType_impl(string) }).forwardDeclareType_impl(p0)
+	this.self_.(*Compiler).forwardDeclareType_impl(p0)
 }
 
 func (this *AbstractCompiler) setTypeCheckingHasRun(p0 bool) {
-	this.self_.(interface{ setTypeCheckingHasRun_impl(bool) }).setTypeCheckingHasRun_impl(p0)
+	this.self_.(*Compiler).setTypeCheckingHasRun_impl(p0)
 }
 
 func (this *AbstractCompiler) hasTypeCheckingRun() bool {
-	return this.self_.(interface{ hasTypeCheckingRun_impl() bool }).hasTypeCheckingRun_impl()
+	return this.self_.(*Compiler).hasTypeCheckingRun_impl()
 }
 
 func (this *AbstractCompiler) hasOptimizationColors() bool {
-	return this.self_.(interface{ hasOptimizationColors_impl() bool }).hasOptimizationColors_impl()
+	return this.self_.(*Compiler).hasOptimizationColors_impl()
 }
 
 func (this *AbstractCompiler) getTypedScopeCreator() ScopeCreator {
-	return this.self_.(interface{ getTypedScopeCreator_impl() ScopeCreator }).getTypedScopeCreator_impl()
+	return this.self_.(*Compiler).getTypedScopeCreator_impl()
 }
 
 func (this *AbstractCompiler) clearTypedScopeCreator() {
-	this.self_.(interface{ clearTypedScopeCreator_impl() }).clearTypedScopeCreator_impl()
+	this.self_.(*Compiler).clearTypedScopeCreator_impl()
 }
 
 func (this *AbstractCompiler) getTopScope() *TypedScope {
-	return this.self_.(interface{ getTopScope_impl() *TypedScope }).getTopScope_impl()
+	return this.self_.(*Compiler).getTopScope_impl()
 }
 
 func (this *AbstractCompiler) setTopScope(p0 *TypedScope) {
-	this.self_.(interface{ setTopScope_impl(*TypedScope) }).setTopScope_impl(p0)
+	this.self_.(*Compiler).setTopScope_impl(p0)
 }
 
 func (this *AbstractCompiler) getReverseAbstractInterpreter() ReverseAbstractInterpreter {
-	return this.self_.(interface {
-		getReverseAbstractInterpreter_impl() ReverseAbstractInterpreter
-	}).getReverseAbstractInterpreter_impl()
+	return this.self_.(*Compiler).getReverseAbstractInterpreter_impl()
 }
 
 func (this *AbstractCompiler) getTypeValidator() *TypeValidator {
-	return this.self_.(interface{ getTypeValidator_impl() *TypeValidator }).getTypeValidator_impl()
+	return this.self_.(*Compiler).getTypeValidator_impl()
 }
 
 func (this *AbstractCompiler) getTypeMismatches() Iterable {
-	return this.self_.(interface{ getTypeMismatches_impl() Iterable }).getTypeMismatches_impl()
+	return this.self_.(*Compiler).getTypeMismatches_impl()
 }
 
 func (this *AbstractCompiler) getTranspilationNamespace() StaticScope {
-	return this.self_.(interface{ getTranspilationNamespace_impl() StaticScope }).getTranspilationNamespace_impl()
+	return this.self_.(*Compiler).getTranspilationNamespace_impl()
 }
 
 func (this *AbstractCompiler) preferRegexParser() bool {
-	return this.self_.(interface{ preferRegexParser_impl() bool }).preferRegexParser_impl()
+	return this.self_.(*Compiler).preferRegexParser_impl()
 }
 
 func (this *AbstractCompiler) parseSyntheticCode(p0 string, p1 string) Node {
-	return this.self_.(interface{ parseSyntheticCode_impl(string, string) Node }).parseSyntheticCode_impl(p0, p1)
+	return this.self_.(*Compiler).parseSyntheticCode_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) parseTestCode(p0 string) Node {
-	return this.self_.(interface{ parseTestCode_impl(string) Node }).parseTestCode_impl(p0)
+	return this.self_.(*Compiler).parseTestCode_impl(p0)
 }
 
-func (this *AbstractCompiler) parseTestCodeImmutableList(p0 *ImmutableList) Node {
-	return this.self_.(interface{ parseTestCodeImmutableList_impl(*ImmutableList) Node }).parseTestCodeImmutableList_impl(p0)
+func (this *AbstractCompiler) parseTestCodeImmutableList(p0 []string) Node {
+	return this.self_.(*Compiler).parseTestCodeImmutableList_impl(p0)
 }
 
 func (this *AbstractCompiler) getDefaultErrorReporter() ErrorReporter_rhino {
-	return this.self_.(interface{ getDefaultErrorReporter_impl() ErrorReporter_rhino }).getDefaultErrorReporter_impl()
+	return this.self_.(*Compiler).getDefaultErrorReporter_impl()
 }
 
 func (this *AbstractCompiler) toSource() string {
-	return this.self_.(interface{ toSource_impl() string }).toSource_impl()
+	return this.self_.(*Compiler).toSource_impl()
 }
 
 func (this *AbstractCompiler) toSource_1(p0 Node) string {
-	return this.self_.(interface{ toSource_1_impl(Node) string }).toSource_1_impl(p0)
+	return this.self_.(*Compiler).toSource_1_impl(p0)
 }
 
 func (this *AbstractCompiler) getChangeTracker() *ChangeTracker {
-	return this.self_.(interface{ getChangeTracker_impl() *ChangeTracker }).getChangeTracker_impl()
+	return this.self_.(*Compiler).getChangeTracker_impl()
 }
 
 func (this *AbstractCompiler) addIndexProvider(p0 IndexProvider) {
-	this.self_.(interface{ addIndexProvider_impl(IndexProvider) }).addIndexProvider_impl(p0)
+	this.self_.(*Compiler).addIndexProvider_impl(p0)
 }
 
 func (this *AbstractCompiler) getIndexUntyped(p0 *Class) any {
-	return this.self_.(interface{ getIndexUntyped_impl(*Class) any }).getIndexUntyped_impl(p0)
+	return this.self_.(*Compiler).getIndexUntyped_impl(p0)
 }
 
 func (this *AbstractCompiler) getJsRoot() Node {
-	return this.self_.(interface{ getJsRoot_impl() Node }).getJsRoot_impl()
+	return this.self_.(*Compiler).getJsRoot_impl()
 }
 
 func (this *AbstractCompiler) hasScopeChanged(p0 Node) bool {
-	return this.self_.(interface{ hasScopeChanged_impl(Node) bool }).hasScopeChanged_impl(p0)
+	return this.self_.(*Compiler).hasScopeChanged_impl(p0)
 }
 
 func (this *AbstractCompiler) reportChangeToChangeScope(p0 Node) {
-	this.self_.(interface{ reportChangeToChangeScope_impl(Node) }).reportChangeToChangeScope_impl(p0)
+	this.self_.(*Compiler).reportChangeToChangeScope_impl(p0)
 }
 
 func (this *AbstractCompiler) reportFunctionDeleted(p0 Node) {
-	this.self_.(interface{ reportFunctionDeleted_impl(Node) }).reportFunctionDeleted_impl(p0)
+	this.self_.(*Compiler).reportFunctionDeleted_impl(p0)
 }
 
-func (this *AbstractCompiler) reportDisambiguatePropertiesSummary(p0 Supplier) {
-	this.self_.(interface{ reportDisambiguatePropertiesSummary_impl(Supplier) }).reportDisambiguatePropertiesSummary_impl(p0)
+func (this *AbstractCompiler) reportDisambiguatePropertiesSummary(p0 func() any) {
+	this.self_.(*Compiler).reportDisambiguatePropertiesSummary_impl(p0)
 }
 
 func (this *AbstractCompiler) reportAmbiguatePropertiesSummary(p0 Supplier) {
-	this.self_.(interface{ reportAmbiguatePropertiesSummary_impl(Supplier) }).reportAmbiguatePropertiesSummary_impl(p0)
+	this.self_.(*Compiler).reportAmbiguatePropertiesSummary_impl(p0)
 }
 
 func (this *AbstractCompiler) reportChangeToEnclosingScope(p0 Node) {
-	this.self_.(interface{ reportChangeToEnclosingScope_impl(Node) }).reportChangeToEnclosingScope_impl(p0)
+	this.self_.(*Compiler).reportChangeToEnclosingScope_impl(p0)
 }
 
 func (this *AbstractCompiler) getCodingConvention() CodingConvention {
-	return this.self_.(interface{ getCodingConvention_impl() CodingConvention }).getCodingConvention_impl()
+	return this.self_.(*Compiler).getCodingConvention_impl()
 }
 
-func (this *AbstractCompiler) getParserConfig(p0 *AbstractCompiler_ConfigContext) *Config {
-	return this.self_.(interface {
-		getParserConfig_impl(*AbstractCompiler_ConfigContext) *Config
-	}).getParserConfig_impl(p0)
+func (this *AbstractCompiler) getParserConfig(p0 AbstractCompiler_ConfigContext) *Config {
+	return this.self_.(*Compiler).getParserConfig_impl(p0)
 }
 
 func (this *AbstractCompiler) report(p0 *JSError) {
-	this.self_.(interface{ report_impl(*JSError) }).report_impl(p0)
+	this.self_.(*Compiler).report_impl(p0)
 }
 
-func (this *AbstractCompiler) getErrorLevel(p0 *JSError) *CheckLevel {
-	return this.self_.(interface{ getErrorLevel_impl(*JSError) *CheckLevel }).getErrorLevel_impl(p0)
+func (this *AbstractCompiler) getErrorLevel(p0 *JSError) CheckLevel {
+	return this.self_.(*Compiler).getErrorLevel_impl(p0)
 }
 
 func (this *AbstractCompiler) throwInternalError(p0 string, p1 *Throwable) {
-	this.self_.(interface{ throwInternalError_impl(string, *Throwable) }).throwInternalError_impl(p0, p1)
+	this.self_.(*Compiler).throwInternalError_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) hasHaltingErrors() bool {
-	return this.self_.(interface{ hasHaltingErrors_impl() bool }).hasHaltingErrors_impl()
+	return this.self_.(*Compiler).hasHaltingErrors_impl()
 }
 
 func (this *AbstractCompiler) getSourceFileByName(p0 Optional[string]) *SourceFile_jscomp {
-	return this.self_.(interface {
-		getSourceFileByName_impl(Optional[string]) *SourceFile_jscomp
-	}).getSourceFileByName_impl(p0)
+	return this.self_.(*Compiler).getSourceFileByName_impl(p0)
 }
 
 func (this *AbstractCompiler) addInputSourceMap(p0 string, p1 *SourceMapInput) {
-	this.self_.(interface{ addInputSourceMap_impl(string, *SourceMapInput) }).addInputSourceMap_impl(p0, p1)
+	this.self_.(*Compiler).addInputSourceMap_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getBase64SourceMapContents(p0 Optional[string]) Optional[string] {
-	return this.self_.(interface {
-		getBase64SourceMapContents_impl(Optional[string]) Optional[string]
-	}).getBase64SourceMapContents_impl(p0)
+	return this.self_.(*Compiler).getBase64SourceMapContents_impl(p0)
 }
 
 func (this *AbstractCompiler) getSourceMapping_Optional_int_int(p0 Optional[string], p1 int32, p2 int32) *Mapping_OriginalMapping {
-	return this.self_.(interface {
-		getSourceMapping_Optional_int_int_impl(Optional[string], int32, int32) *Mapping_OriginalMapping
-	}).getSourceMapping_Optional_int_int_impl(p0, p1, p2)
+	return this.self_.(*Compiler).getSourceMapping_Optional_int_int_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) getSourceLine(p0 Optional[string], p1 int32) Optional[string] {
-	return this.self_.(interface {
-		getSourceLine_impl(Optional[string], int32) Optional[string]
-	}).getSourceLine_impl(p0, p1)
+	return this.self_.(*Compiler).getSourceLine_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getSourceLines(p0 Optional[string], p1 int32, p2 int32) Region {
-	return this.self_.(interface {
-		getSourceLines_impl(Optional[string], int32, int32) Region
-	}).getSourceLines_impl(p0, p1, p2)
+	return this.self_.(*Compiler).getSourceLines_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) getSourceRegion(p0 Optional[string], p1 int32) Region {
-	return this.self_.(interface {
-		getSourceRegion_impl(Optional[string], int32) Region
-	}).getSourceRegion_impl(p0, p1)
+	return this.self_.(*Compiler).getSourceRegion_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getNodeForCodeInsertion(p0 *JSChunk) Node {
-	return this.self_.(interface{ getNodeForCodeInsertion_impl(*JSChunk) Node }).getNodeForCodeInsertion_impl(p0)
+	return this.self_.(*Compiler).getNodeForCodeInsertion_impl(p0)
 }
 
 func (this *AbstractCompiler) setVariableMap(p0 *VariableMap) {
-	this.self_.(interface{ setVariableMap_impl(*VariableMap) }).setVariableMap_impl(p0)
+	this.self_.(*Compiler).setVariableMap_impl(p0)
 }
 
 func (this *AbstractCompiler) setPropertyMap(p0 *VariableMap) {
-	this.self_.(interface{ setPropertyMap_impl(*VariableMap) }).setPropertyMap_impl(p0)
+	this.self_.(*Compiler).setPropertyMap_impl(p0)
 }
 
 func (this *AbstractCompiler) setStringMap(p0 *VariableMap) {
-	this.self_.(interface{ setStringMap_impl(*VariableMap) }).setStringMap_impl(p0)
+	this.self_.(*Compiler).setStringMap_impl(p0)
 }
 
-func (this *AbstractCompiler) setCssNames(p0 Set) {
-	this.self_.(interface{ setCssNames_impl(Set) }).setCssNames_impl(p0)
+func (this *AbstractCompiler) setCssNames(p0 *TSet[string]) {
+	this.self_.(*Compiler).setCssNames_impl(p0)
 }
 
 func (this *AbstractCompiler) setIdGeneratorMap(p0 string) {
-	this.self_.(interface{ setIdGeneratorMap_impl(string) }).setIdGeneratorMap_impl(p0)
+	this.self_.(*Compiler).setIdGeneratorMap_impl(p0)
 }
 
 func (this *AbstractCompiler) getTranspiledFiles() bool {
-	return this.self_.(interface{ getTranspiledFiles_impl() bool }).getTranspiledFiles_impl()
+	return this.self_.(*Compiler).getTranspiledFiles_impl()
 }
 
 func (this *AbstractCompiler) getCrossChunkIdGenerator() *IdGenerator {
-	return this.self_.(interface{ getCrossChunkIdGenerator_impl() *IdGenerator }).getCrossChunkIdGenerator_impl()
+	return this.self_.(*Compiler).getCrossChunkIdGenerator_impl()
 }
 
 func (this *AbstractCompiler) setAnonymousFunctionNameMap(p0 *VariableMap) {
-	this.self_.(interface{ setAnonymousFunctionNameMap_impl(*VariableMap) }).setAnonymousFunctionNameMap_impl(p0)
+	this.self_.(*Compiler).setAnonymousFunctionNameMap_impl(p0)
 }
 
 func (this *AbstractCompiler) setInstrumentationMapping(p0 *VariableMap) {
-	this.self_.(interface{ setInstrumentationMapping_impl(*VariableMap) }).setInstrumentationMapping_impl(p0)
+	this.self_.(*Compiler).setInstrumentationMapping_impl(p0)
 }
 
 func (this *AbstractCompiler) addExportedNames(p0 Set) {
-	this.self_.(interface{ addExportedNames_impl(Set) }).addExportedNames_impl(p0)
+	this.self_.(*Compiler).addExportedNames_impl(p0)
 }
 
 func (this *AbstractCompiler) getExportedNames() Set {
-	return this.self_.(interface{ getExportedNames_impl() Set }).getExportedNames_impl()
+	return this.self_.(*Compiler).getExportedNames_impl()
 }
 
 func (this *AbstractCompiler) setDefineNames(p0 Collection) {
-	this.self_.(interface{ setDefineNames_impl(Collection) }).setDefineNames_impl(p0)
+	this.self_.(*Compiler).setDefineNames_impl(p0)
 }
 
-func (this *AbstractCompiler) getDefineNames() *ImmutableSet {
-	return this.self_.(interface{ getDefineNames_impl() *ImmutableSet }).getDefineNames_impl()
+func (this *AbstractCompiler) getDefineNames() *ImmutableSet[string] {
+	return this.self_.(*Compiler).getDefineNames_impl()
 }
 
 func (this *AbstractCompiler) getOptions() *CompilerOptions {
-	return this.self_.(interface{ getOptions_impl() *CompilerOptions }).getOptions_impl()
+	return this.self_.(*Compiler).getOptions_impl()
 }
 
 func (this *AbstractCompiler) getErrorManager() ErrorManager {
-	return this.self_.(interface{ getErrorManager_impl() ErrorManager }).getErrorManager_impl()
+	return this.self_.(*Compiler).getErrorManager_impl()
 }
 
 func (this *AbstractCompiler) getInputsInOrder() Iterable {
-	return this.self_.(interface{ getInputsInOrder_impl() Iterable }).getInputsInOrder_impl()
+	return this.self_.(*Compiler).getInputsInOrder_impl()
 }
 
 func (this *AbstractCompiler) getNumberOfInputs() int32 {
-	return this.self_.(interface{ getNumberOfInputs_impl() int32 }).getNumberOfInputs_impl()
+	return this.self_.(*Compiler).getNumberOfInputs_impl()
 }
 
 func (this *AbstractCompiler) hasRegExpGlobalReferences() bool {
-	return this.self_.(interface{ hasRegExpGlobalReferences_impl() bool }).hasRegExpGlobalReferences_impl()
+	return this.self_.(*Compiler).hasRegExpGlobalReferences_impl()
 }
 
 func (this *AbstractCompiler) setHasRegExpGlobalReferences(p0 bool) {
-	this.self_.(interface{ setHasRegExpGlobalReferences_impl(bool) }).setHasRegExpGlobalReferences_impl(p0)
+	this.self_.(*Compiler).setHasRegExpGlobalReferences_impl(p0)
 }
 
 func (this *AbstractCompiler) setRunJ2clPasses(p0 bool) {
-	this.self_.(interface{ setRunJ2clPasses_impl(bool) }).setRunJ2clPasses_impl(p0)
+	this.self_.(*Compiler).setRunJ2clPasses_impl(p0)
 }
 
 func (this *AbstractCompiler) runJ2clPasses() bool {
-	return this.self_.(interface{ runJ2clPasses_impl() bool }).runJ2clPasses_impl()
+	return this.self_.(*Compiler).runJ2clPasses_impl()
 }
 
 func (this *AbstractCompiler) getSynthesizedExternsInput() *CompilerInput {
-	return this.self_.(interface{ getSynthesizedExternsInput_impl() *CompilerInput }).getSynthesizedExternsInput_impl()
+	return this.self_.(*Compiler).getSynthesizedExternsInput_impl()
 }
 
 func (this *AbstractCompiler) getSynthesizedTypeSummaryInput() *CompilerInput {
-	return this.self_.(interface{ getSynthesizedTypeSummaryInput_impl() *CompilerInput }).getSynthesizedTypeSummaryInput_impl()
+	return this.self_.(*Compiler).getSynthesizedTypeSummaryInput_impl()
 }
 
 func (this *AbstractCompiler) getSyntheticCodeInputId() *InputId {
-	return this.self_.(interface{ getSyntheticCodeInputId_impl() *InputId }).getSyntheticCodeInputId_impl()
+	return this.self_.(*Compiler).getSyntheticCodeInputId_impl()
 }
 
 func (this *AbstractCompiler) initializeSyntheticCodeInput() {
-	this.self_.(interface{ initializeSyntheticCodeInput_impl() }).initializeSyntheticCodeInput_impl()
+	this.self_.(*Compiler).initializeSyntheticCodeInput_impl()
 }
 
 func (this *AbstractCompiler) removeSyntheticCodeInput() {
-	this.self_.(interface{ removeSyntheticCodeInput_impl() }).removeSyntheticCodeInput_impl()
+	this.self_.(*Compiler).removeSyntheticCodeInput_impl()
 }
 
 func (this *AbstractCompiler) mergeSyntheticCodeInput() {
-	this.self_.(interface{ mergeSyntheticCodeInput_impl() }).mergeSyntheticCodeInput_impl()
+	this.self_.(*Compiler).mergeSyntheticCodeInput_impl()
 }
 
 func (this *AbstractCompiler) getLastPassName() string {
-	return this.self_.(interface{ getLastPassName_impl() string }).getLastPassName_impl()
+	return this.self_.(*Compiler).getLastPassName_impl()
 }
 
-func (this *AbstractCompiler) setExternProperties(p0 *ImmutableSet) {
-	this.self_.(interface{ setExternProperties_impl(*ImmutableSet) }).setExternProperties_impl(p0)
+func (this *AbstractCompiler) setExternProperties(p0 *ImmutableSet[string]) {
+	this.self_.(*Compiler).setExternProperties_impl(p0)
 }
 
-func (this *AbstractCompiler) getExternProperties() *ImmutableSet {
-	return this.self_.(interface{ getExternProperties_impl() *ImmutableSet }).getExternProperties_impl()
+func (this *AbstractCompiler) getExternProperties() *ImmutableSet[string] {
+	return this.self_.(*Compiler).getExternProperties_impl()
 }
 
 func (this *AbstractCompiler) getAccessorSummary() *AccessorSummary {
-	return this.self_.(interface{ getAccessorSummary_impl() *AccessorSummary }).getAccessorSummary_impl()
+	return this.self_.(*Compiler).getAccessorSummary_impl()
 }
 
 func (this *AbstractCompiler) setAccessorSummary(p0 *AccessorSummary) {
-	this.self_.(interface{ setAccessorSummary_impl(*AccessorSummary) }).setAccessorSummary_impl(p0)
+	this.self_.(*Compiler).setAccessorSummary_impl(p0)
 }
 
-func (this *AbstractCompiler) addComments(p0 string, p1 List) {
-	this.self_.(interface{ addComments_impl(string, List) }).addComments_impl(p0, p1)
+func (this *AbstractCompiler) addComments(p0 string, p1 *TList[*Comment]) {
+	this.self_.(*Compiler).addComments_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getComments(p0 Optional[string]) List {
-	return this.self_.(interface{ getComments_impl(Optional[string]) List }).getComments_impl(p0)
+	return this.self_.(*Compiler).getComments_impl(p0)
 }
 
 func (this *AbstractCompiler) getModuleLoader() *ModuleLoader {
-	return this.self_.(interface{ getModuleLoader_impl() *ModuleLoader }).getModuleLoader_impl()
+	return this.self_.(*Compiler).getModuleLoader_impl()
 }
 
-func (this *AbstractCompiler) getModuleTypeByName(p0 Optional[string]) *CompilerInput_ModuleType {
-	return this.self_.(interface {
-		getModuleTypeByName_impl(Optional[string]) *CompilerInput_ModuleType
-	}).getModuleTypeByName_impl(p0)
+func (this *AbstractCompiler) getModuleTypeByName(p0 Optional[string]) CompilerInput_ModuleType {
+	return this.self_.(*Compiler).getModuleTypeByName_impl(p0)
 }
 
 func (this *AbstractCompiler) getModuleMetadataMap() *ModuleMetadataMap {
-	return this.self_.(interface{ getModuleMetadataMap_impl() *ModuleMetadataMap }).getModuleMetadataMap_impl()
+	return this.self_.(*Compiler).getModuleMetadataMap_impl()
 }
 
 func (this *AbstractCompiler) setModuleMetadataMap(p0 *ModuleMetadataMap) {
-	this.self_.(interface{ setModuleMetadataMap_impl(*ModuleMetadataMap) }).setModuleMetadataMap_impl(p0)
+	this.self_.(*Compiler).setModuleMetadataMap_impl(p0)
 }
 
 func (this *AbstractCompiler) getModuleMap() *ModuleMap {
-	return this.self_.(interface{ getModuleMap_impl() *ModuleMap }).getModuleMap_impl()
+	return this.self_.(*Compiler).getModuleMap_impl()
 }
 
 func (this *AbstractCompiler) setModuleMap(p0 *ModuleMap) {
-	this.self_.(interface{ setModuleMap_impl(*ModuleMap) }).setModuleMap_impl(p0)
+	this.self_.(*Compiler).setModuleMap_impl(p0)
 }
 
 var AbstractCompiler_READ_ERROR *DiagnosticType
@@ -561,44 +543,64 @@ func AbstractCompiler_clinit() {
 
 }
 
-type AbstractCompiler_ConfigContext struct {
-	Enum
+type AbstractCompiler_ConfigContext uint8
+
+// AbstractCompiler_ConfigContext_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var AbstractCompiler_ConfigContext_enum_ = [2]Enum{
+	{self_: AbstractCompiler_ConfigContext_DEFAULT, name_: "DEFAULT", ordinal_: 0},
+	{self_: AbstractCompiler_ConfigContext_EXTERNS, name_: "EXTERNS", ordinal_: 1},
 }
 
-func (this *AbstractCompiler_ConfigContext) up_Enum() *Enum {
-	if this == nil {
+func (this AbstractCompiler_ConfigContext) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &AbstractCompiler_ConfigContext_enum_[this-1]
 }
 
-func (this *AbstractCompiler_ConfigContext) init_AbstractCompiler_ConfigContext(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this AbstractCompiler_ConfigContext) name() string {
+	return this.enum_().name_
 }
 
-func new_AbstractCompiler_ConfigContext(name_ string, ordinal_ int32) *AbstractCompiler_ConfigContext {
-	this := &AbstractCompiler_ConfigContext{}
-	this.self_ = this
-	this.init_AbstractCompiler_ConfigContext(name_, ordinal_)
+func (this AbstractCompiler_ConfigContext) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this AbstractCompiler_ConfigContext) toString() string {
+	return this.enum_().name_
+}
+
+func (this AbstractCompiler_ConfigContext) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this AbstractCompiler_ConfigContext) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func AbstractCompiler_ConfigContext_values() []*AbstractCompiler_ConfigContext {
-	return append([]*AbstractCompiler_ConfigContext(nil), AbstractCompiler_ConfigContext_values_...)
+func AbstractCompiler_ConfigContext_values() []AbstractCompiler_ConfigContext {
+	return append([]AbstractCompiler_ConfigContext(nil), AbstractCompiler_ConfigContext_values_...)
 }
 
-func AbstractCompiler_ConfigContext_valueOf(name string) *AbstractCompiler_ConfigContext {
+func AbstractCompiler_ConfigContext_valueOf(name string) AbstractCompiler_ConfigContext {
 	for _, v := range AbstractCompiler_ConfigContext_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("ConfigContext", name))
 }
 
-var AbstractCompiler_ConfigContext_DEFAULT *AbstractCompiler_ConfigContext
-var AbstractCompiler_ConfigContext_EXTERNS *AbstractCompiler_ConfigContext
-var AbstractCompiler_ConfigContext_values_ []*AbstractCompiler_ConfigContext
+const AbstractCompiler_ConfigContext_DEFAULT AbstractCompiler_ConfigContext = 1
+const AbstractCompiler_ConfigContext_EXTERNS AbstractCompiler_ConfigContext = 2
+
+var AbstractCompiler_ConfigContext_values_ []AbstractCompiler_ConfigContext
 
 var AbstractCompiler_ConfigContext_clinit_done bool
 
@@ -607,69 +609,89 @@ func AbstractCompiler_ConfigContext_clinit() {
 		return
 	}
 	AbstractCompiler_ConfigContext_clinit_done = true
-	AbstractCompiler_ConfigContext_DEFAULT = new_AbstractCompiler_ConfigContext("DEFAULT", 0)
-	AbstractCompiler_ConfigContext_EXTERNS = new_AbstractCompiler_ConfigContext("EXTERNS", 1)
-	AbstractCompiler_ConfigContext_values_ = []*AbstractCompiler_ConfigContext{AbstractCompiler_ConfigContext_DEFAULT, AbstractCompiler_ConfigContext_EXTERNS}
+	AbstractCompiler_ConfigContext_values_ = []AbstractCompiler_ConfigContext{AbstractCompiler_ConfigContext_DEFAULT, AbstractCompiler_ConfigContext_EXTERNS}
 	registerEnum_("com.google.javascript.jscomp.AbstractCompiler.ConfigContext", enumValues_(AbstractCompiler_ConfigContext_values_))
 
 }
 
-type AbstractCompiler_LifeCycleStage struct {
-	Enum
+type AbstractCompiler_LifeCycleStage uint8
+
+// AbstractCompiler_LifeCycleStage_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var AbstractCompiler_LifeCycleStage_enum_ = [4]Enum{
+	{self_: AbstractCompiler_LifeCycleStage_RAW, name_: "RAW", ordinal_: 0},
+	{self_: AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC, name_: "COLORS_AND_SIMPLIFIED_JSDOC", ordinal_: 1},
+	{self_: AbstractCompiler_LifeCycleStage_NORMALIZED, name_: "NORMALIZED", ordinal_: 2},
+	{self_: AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED, name_: "NORMALIZED_OBFUSCATED", ordinal_: 3},
 }
 
-func (this *AbstractCompiler_LifeCycleStage) up_Enum() *Enum {
-	if this == nil {
+func (this AbstractCompiler_LifeCycleStage) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &AbstractCompiler_LifeCycleStage_enum_[this-1]
 }
 
-func (this *AbstractCompiler_LifeCycleStage) init_AbstractCompiler_LifeCycleStage(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this AbstractCompiler_LifeCycleStage) name() string {
+	return this.enum_().name_
 }
 
-func new_AbstractCompiler_LifeCycleStage(name_ string, ordinal_ int32) *AbstractCompiler_LifeCycleStage {
-	this := &AbstractCompiler_LifeCycleStage{}
-	this.self_ = this
-	this.init_AbstractCompiler_LifeCycleStage(name_, ordinal_)
+func (this AbstractCompiler_LifeCycleStage) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
+
+func (this AbstractCompiler_LifeCycleStage) toString() string {
+	return this.enum_().name_
+}
+
+func (this AbstractCompiler_LifeCycleStage) compareTo(o any) int32 {
+	return this.enum_().compareTo(o)
+}
+
+func (this AbstractCompiler_LifeCycleStage) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *AbstractCompiler_LifeCycleStage) isNormalized() bool {
+func (this AbstractCompiler_LifeCycleStage) isNormalized() bool {
 	return ((this == AbstractCompiler_LifeCycleStage_NORMALIZED) || (this == AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED))
 }
 
-func (this *AbstractCompiler_LifeCycleStage) isNormalizedUnobfuscated() bool {
+func (this AbstractCompiler_LifeCycleStage) isNormalizedUnobfuscated() bool {
 	return (this == AbstractCompiler_LifeCycleStage_NORMALIZED)
 }
 
-func (this *AbstractCompiler_LifeCycleStage) isNormalizedObfuscated() bool {
+func (this AbstractCompiler_LifeCycleStage) isNormalizedObfuscated() bool {
 	return (this == AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED)
 }
 
-func (this *AbstractCompiler_LifeCycleStage) hasColorAndSimplifiedJSDoc() bool {
+func (this AbstractCompiler_LifeCycleStage) hasColorAndSimplifiedJSDoc() bool {
 	return (this != AbstractCompiler_LifeCycleStage_RAW)
 }
 
-func AbstractCompiler_LifeCycleStage_values() []*AbstractCompiler_LifeCycleStage {
-	return append([]*AbstractCompiler_LifeCycleStage(nil), AbstractCompiler_LifeCycleStage_values_...)
+func AbstractCompiler_LifeCycleStage_values() []AbstractCompiler_LifeCycleStage {
+	return append([]AbstractCompiler_LifeCycleStage(nil), AbstractCompiler_LifeCycleStage_values_...)
 }
 
-func AbstractCompiler_LifeCycleStage_valueOf(name string) *AbstractCompiler_LifeCycleStage {
+func AbstractCompiler_LifeCycleStage_valueOf(name string) AbstractCompiler_LifeCycleStage {
 	for _, v := range AbstractCompiler_LifeCycleStage_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("LifeCycleStage", name))
 }
 
-var AbstractCompiler_LifeCycleStage_RAW *AbstractCompiler_LifeCycleStage
-var AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC *AbstractCompiler_LifeCycleStage
-var AbstractCompiler_LifeCycleStage_NORMALIZED *AbstractCompiler_LifeCycleStage
-var AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED *AbstractCompiler_LifeCycleStage
-var AbstractCompiler_LifeCycleStage_values_ []*AbstractCompiler_LifeCycleStage
+const AbstractCompiler_LifeCycleStage_RAW AbstractCompiler_LifeCycleStage = 1
+const AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC AbstractCompiler_LifeCycleStage = 2
+const AbstractCompiler_LifeCycleStage_NORMALIZED AbstractCompiler_LifeCycleStage = 3
+const AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED AbstractCompiler_LifeCycleStage = 4
+
+var AbstractCompiler_LifeCycleStage_values_ []AbstractCompiler_LifeCycleStage
 
 var AbstractCompiler_LifeCycleStage_clinit_done bool
 
@@ -678,11 +700,7 @@ func AbstractCompiler_LifeCycleStage_clinit() {
 		return
 	}
 	AbstractCompiler_LifeCycleStage_clinit_done = true
-	AbstractCompiler_LifeCycleStage_RAW = new_AbstractCompiler_LifeCycleStage("RAW", 0)
-	AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC = new_AbstractCompiler_LifeCycleStage("COLORS_AND_SIMPLIFIED_JSDOC", 1)
-	AbstractCompiler_LifeCycleStage_NORMALIZED = new_AbstractCompiler_LifeCycleStage("NORMALIZED", 2)
-	AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED = new_AbstractCompiler_LifeCycleStage("NORMALIZED_OBFUSCATED", 3)
-	AbstractCompiler_LifeCycleStage_values_ = []*AbstractCompiler_LifeCycleStage{AbstractCompiler_LifeCycleStage_RAW, AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC, AbstractCompiler_LifeCycleStage_NORMALIZED, AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED}
+	AbstractCompiler_LifeCycleStage_values_ = []AbstractCompiler_LifeCycleStage{AbstractCompiler_LifeCycleStage_RAW, AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC, AbstractCompiler_LifeCycleStage_NORMALIZED, AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED}
 	registerEnum_("com.google.javascript.jscomp.AbstractCompiler.LifeCycleStage", enumValues_(AbstractCompiler_LifeCycleStage_values_))
 
 }

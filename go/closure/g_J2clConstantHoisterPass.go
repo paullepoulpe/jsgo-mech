@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clConstantHoisterPass struct {
 	compiler_ *AbstractCompiler
 }
@@ -20,19 +22,17 @@ func (this *J2clConstantHoisterPass) process_2(externs Node, root Node) {
 	if !J2clSourceFileChecker_shouldRunJ2clPasses(this.compiler_) {
 		return
 	}
-	var fieldAssignments *SimpleListMultimap = SimpleListMultimap_create()
+	var fieldAssignments *SimpleListMultimap[any, Node] = SimpleListMultimap_create[any, Node]()
 	var hoistableFunctions *JTSet[Node] = jnewTSet_(jtc_Node)
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(&NodeTraversal_AbstractPostOrderCallbackInterface_fn{func(t *NodeTraversal, node Node, parent Node) {
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, node Node, parent Node) {
 		if (parent != 0) && NodeUtil_isLValue(node) {
-			fieldAssignments.put(strobj_(node.getQualifiedName()), parent.box_())
+			fieldAssignments.put_s(node.getQualifiedName(), parent)
 		}
 		if J2clConstantHoisterPass_isHoistableFunction(t, node) {
 			hoistableFunctions.add(node)
 		}
-	}}).traverse(root)
-	it_1 := foreach_(any(fieldAssignments.asMap().values()))
-	for it_1.next() {
-		var assignments Collection = icast_Collection(it_1.v)
+	}).traverse(root)
+	for assignments := range elemsBy_(fieldAssignments.asMap().values(), icast_Collection) {
 		this.maybeHoistClassField(assignments, Collection(hoistableFunctions.asSet()))
 	}
 }
@@ -83,8 +83,10 @@ func (this *J2clConstantHoisterPass) hoistConstantLikeField(clinitAssignment Nod
 	if declarationAssignedValue == 0 {
 		declarationInClass.addChildToFront(clinitAssignedValue)
 		this.compiler_.reportChangeToEnclosingScope(topLevelDeclaration)
-	} else if !Object_equals(declarationAssignedValue.box_(), clinitAssignedValue.box_()) {
-		Preconditions_checkState(NodeUtil_isLiteralValue(declarationAssignedValue, false))
+	} else if !equalsId_(declarationAssignedValue, clinitAssignedValue) {
+		if !NodeUtil_isLiteralValue(declarationAssignedValue, false) {
+			panic(new_IllegalStateException_0())
+		}
 		declarationAssignedValue.replaceWith(clinitAssignedValue)
 		this.compiler_.reportChangeToEnclosingScope(topLevelDeclaration)
 	}
@@ -104,9 +106,9 @@ func J2clConstantHoisterPass_isClinitMethod(fnNode Node) bool {
 		return false
 	}
 	var fnName string = NodeUtil_getName(fnNode)
-	return (!String_isEmpty(fnName) && J2clConstantHoisterPass_isClinitMethodName(Optional_of[string](fnName)))
+	return (fnName != "" && J2clConstantHoisterPass_isClinitMethodName(Optional_of[string](fnName)))
 }
 
 func J2clConstantHoisterPass_isClinitMethodName(methodName Optional[string]) bool {
-	return (methodName.isPresent() && (String_endsWith(methodName.get(), "$$0clinit") || String_endsWith(methodName.get(), ".$clinit")))
+	return (methodName.isPresent() && (strings.HasSuffix(methodName.get(), "$$0clinit") || strings.HasSuffix(methodName.get(), ".$clinit")))
 }
