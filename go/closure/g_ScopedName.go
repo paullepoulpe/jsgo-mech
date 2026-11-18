@@ -38,7 +38,14 @@ func ScopedName_of(name string, scopeRoot Node) *ScopedName {
 func (this *ScopedName) equals(other any) bool {
 	var scopedName *ScopedName
 	_ = scopedName
-	if !(func() bool { v_ := other; if !is_ScopedName(v_) { return false }; scopedName = to_ScopedName(v_); return true }()) {
+	if !(func() bool {
+		v_ := other
+		if !is_ScopedName(v_) {
+			return false
+		}
+		scopedName = to_ScopedName(v_)
+		return true
+	}()) {
 		return false
 	}
 	return ((this.getName() == scopedName.getName()) && Object_equals(this.getScopeRoot().box_(), scopedName.getScopeRoot().box_()))
@@ -63,7 +70,7 @@ func (this *ScopedName) getScopeRoot() Node {
 
 type ScopedName_Simple struct {
 	ScopedName
-	name_ string
+	name_     string
 	scopeRoot Node
 }
 
@@ -99,4 +106,3 @@ func (this *ScopedName_Simple) getName_impl() string {
 func (this *ScopedName_Simple) getScopeRoot_impl() Node {
 	return this.scopeRoot
 }
-

@@ -2,9 +2,14 @@
 
 package closure
 
-type StaticSymbolTable[S interface{ StaticSlot; comparable }, R interface{ StaticRef; comparable }] interface {
+type StaticSymbolTable[S interface {
+	StaticSlot
+	comparable
+}, R interface {
+	StaticRef
+	comparable
+}] interface {
 	getReferences_StaticSlot(S) Iterable
 	getScope(S) StaticScope
 	getAllSymbols() Iterable
 }
-

@@ -97,4 +97,3 @@ func (this *WritingLogFile) close_impl() {
 func (this *WritingLogFile) isLogging_impl() bool {
 	return true
 }
-

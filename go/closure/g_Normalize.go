@@ -3,8 +3,8 @@
 package closure
 
 type Normalize struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
+	compiler_       *AbstractCompiler
+	astFactory_     *AstFactory
 	assertOnChange_ bool
 }
 
@@ -36,11 +36,11 @@ func (this *Normalize) reportCodeChange(changeDescription string, n Node) {
 }
 
 func Normalize_isFunctionExpressionNameNode(n Node) bool {
-	if ((n == 0) || !n.isName()) {
+	if (n == 0) || !n.isName() {
 		return false
 	}
 	var parent Node = n.getParent()
-	if (parent == 0) {
+	if parent == 0 {
 		return false
 	}
 	return (NodeUtil_isFunctionExpression(parent) && n.isFirstChildOf(parent))
@@ -56,7 +56,7 @@ func (this *Normalize) process_2(externs Node, root Node) {
 }
 
 type Normalize_Builder struct {
-	compiler_ *AbstractCompiler
+	compiler_           *AbstractCompiler
 	assertOnChangeField bool
 }
 
@@ -85,7 +85,7 @@ func (this *Normalize_Builder) build() *Normalize {
 }
 
 type Normalize_PropagateConstantPropertyOverVars struct {
-	compiler_ *AbstractCompiler
+	compiler_       *AbstractCompiler
 	assertOnChange_ bool
 }
 
@@ -113,14 +113,19 @@ func (this *Normalize_PropagateConstantPropertyOverVars) shouldTraverse(t *NodeT
 }
 
 func (this *Normalize_PropagateConstantPropertyOverVars) visit(t *NodeTraversal, n Node, parent Node) {
-	if (!n.isName() || String_isEmpty(n.getString())) {
+	if !n.isName() || String_isEmpty(n.getString()) {
 		return
 	}
 	var var_ *Var = cast_[*Var](t.getScope().getVar(n.getString()).self())
-	var info *JSDocInfo = func() *JSDocInfo { if (var_ != nil) { return var_.getJSDocInfo() }; return nil }()
+	var info *JSDocInfo = func() *JSDocInfo {
+		if var_ != nil {
+			return var_.getJSDocInfo()
+		}
+		return nil
+	}()
 	var shouldBeConstant bool = ((((var_ != nil) && (var_.isConst() || Normalize_isFunctionExpressionNameNode(var_.getNode()))) || ((info != nil) && info.isConstant())) || NodeUtil_isConstantByConvention(this.compiler_.getCodingConvention(), n))
 	var isMarkedConstant bool = n.getBooleanProp(Node_IS_CONSTANT_NAME)
-	if (shouldBeConstant && !isMarkedConstant) {
+	if shouldBeConstant && !isMarkedConstant {
 		if this.assertOnChange_ {
 			var name string = n.getString()
 			panic(new_IllegalStateException_String(("Should be const but not marked as const.\n  name: " + sstr_(name) + "\n  parent:" + sstr_(n.getParent().toStringTree()))).self())
@@ -130,10 +135,10 @@ func (this *Normalize_PropagateConstantPropertyOverVars) visit(t *NodeTraversal,
 }
 
 type Normalize_NormalizeStatements struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
-	assertOnChange_ bool
-	makeDeclaredNamesUnique *MakeDeclaredNamesUnique
+	compiler_                               *AbstractCompiler
+	astFactory_                             *AstFactory
+	assertOnChange_                         bool
+	makeDeclaredNamesUnique                 *MakeDeclaredNamesUnique
 	rewriteLogicalAssignmentOperatorsHelper *RewriteLogicalAssignmentOperatorsHelper
 }
 
@@ -159,19 +164,19 @@ func (this *Normalize_NormalizeStatements) reportCodeChange(changeDescription st
 }
 
 func (this *Normalize_NormalizeStatements) enterScope(t *NodeTraversal) {
-	if (this.makeDeclaredNamesUnique != nil) {
+	if this.makeDeclaredNamesUnique != nil {
 		this.makeDeclaredNamesUnique.enterScope(t)
 	}
 }
 
 func (this *Normalize_NormalizeStatements) exitScope(t *NodeTraversal) {
-	if (this.makeDeclaredNamesUnique != nil) {
+	if this.makeDeclaredNamesUnique != nil {
 		this.makeDeclaredNamesUnique.exitScope(t)
 	}
 }
 
 func (this *Normalize_NormalizeStatements) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	if (this.makeDeclaredNamesUnique != nil) {
+	if this.makeDeclaredNamesUnique != nil {
 		var unused bool = this.makeDeclaredNamesUnique.shouldTraverse(t, n, parent)
 		_ = unused
 	}
@@ -182,7 +187,7 @@ func (this *Normalize_NormalizeStatements) shouldTraverse(t *NodeTraversal, n No
 }
 
 func (this *Normalize_NormalizeStatements) visit(t *NodeTraversal, n Node, parent Node) {
-	if (this.makeDeclaredNamesUnique != nil) {
+	if this.makeDeclaredNamesUnique != nil {
 		this.makeDeclaredNamesUnique.visit(t, n, parent)
 	}
 	switch n.getToken() {
@@ -212,7 +217,7 @@ func (this *Normalize_NormalizeStatements) annotateConstantsByConvention(n Node)
 	if this.compiler_.getLifeCycleStage().isNormalizedObfuscated() {
 		return
 	}
-	if (!n.getBooleanProp(Node_IS_CONSTANT_NAME) && NodeUtil_isConstantByConvention(this.compiler_.getCodingConvention(), n)) {
+	if !n.getBooleanProp(Node_IS_CONSTANT_NAME) && NodeUtil_isConstantByConvention(this.compiler_.getCodingConvention(), n) {
 		Preconditions_checkState_boolean_String_Object_H(!this.assertOnChange_, "Not marked as constant when it should be: %s", n)
 		n.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 	}
@@ -229,13 +234,13 @@ func (this *Normalize_NormalizeStatements) splitExportDeclaration(n Node) {
 	if n.getBooleanProp(Node_EXPORT_DEFAULT) {
 		return
 	}
-	var destructuringLhsNodes *TList[Node] = newTList_(tc_Node)
+	var destructuringLhsNodes *JTList[Node] = jnewTList_(jtc_Node)
 	var c Node = n.getFirstChild()
 	if NodeUtil_isDeclaration(c) {
 		c.detach()
 		var exportSpecs Node = new_Node_Token(Token_rhino_EXPORT_SPECS).srcref(n)
 		n.addChildToFront(exportSpecs)
-		if (c.isClass() || c.isFunction()) {
+		if c.isClass() || c.isFunction() {
 			var name Node = c.getFirstChild()
 			c.insertBefore(n)
 			this.addNameNodeToExportSpecs(exportSpecs, name)
@@ -245,7 +250,7 @@ func (this *Normalize_NormalizeStatements) splitExportDeclaration(n Node) {
 			}})
 			{
 				var child Node = c.getFirstChild()
-				for (child != 0) {
+				for child != 0 {
 					var next Node = child.getNext()
 					child.detach()
 					var newDeclaration Node = new_Node_Token_Node(c.getToken(), child).srcref(n)
@@ -288,7 +293,7 @@ func (this *Normalize_NormalizeStatements) doStatementNormalizations(n Node) {
 	if n.isLabel() {
 		this.normalizeLabels(n)
 	}
-	if (NodeUtil_isStatementBlock(n) || n.isLabel()) {
+	if NodeUtil_isStatementBlock(n) || n.isLabel() {
 		this.extractForInitializer(n, 0, 0)
 	}
 	if NodeUtil_isStatementBlock(n) {
@@ -304,7 +309,7 @@ func (this *Normalize_NormalizeStatements) doStatementNormalizations(n Node) {
 	if n.isExport() {
 		this.splitExportDeclaration(n)
 	}
-	if (NodeUtil_isCompoundAssignmentOp(n) && !NodeUtil_isLogicalAssignmentOp(n)) {
+	if NodeUtil_isCompoundAssignmentOp(n) && !NodeUtil_isLogicalAssignmentOp(n) {
 		this.normalizeAssignShorthand(n)
 	}
 }
@@ -363,11 +368,21 @@ func (this *Normalize_NormalizeStatements) extractForInitializer(n Node, before 
 	{
 		var next Node
 		var c Node = n.getFirstChild()
-		L_1:
-		for ; (c != 0); c = next {
+	L_1:
+		for ; c != 0; c = next {
 			next = c.getNext()
-			var insertBefore Node = func() Node { if (before == 0) { return c }; return before }()
-			var insertBeforeParent Node = func() Node { if (before == 0) { return n }; return beforeParent }()
+			var insertBefore Node = func() Node {
+				if before == 0 {
+					return c
+				}
+				return before
+			}()
+			var insertBeforeParent Node = func() Node {
+				if before == 0 {
+					return n
+				}
+				return beforeParent
+			}()
 			switch c.getToken() {
 			case Token_rhino_LABEL:
 				this.extractForInitializer(c, insertBefore, insertBeforeParent)
@@ -395,7 +410,7 @@ func (this *Normalize_NormalizeStatements) extractForInitializer(n Node, before 
 			case Token_rhino_FOR:
 				if !c.getFirstChild().isEmpty() {
 					var init_ Node = c.getFirstChild()
-					if (((init_.isLet() || init_.isConst()) || init_.isClass()) || init_.isFunction()) {
+					if ((init_.isLet() || init_.isConst()) || init_.isClass()) || init_.isFunction() {
 						continue L_1
 					}
 					var empty Node = IR_empty()
@@ -420,13 +435,13 @@ func (this *Normalize_NormalizeStatements) splitVarDeclarations(n Node) {
 	{
 		var next Node
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = next {
+		for ; c != 0; c = next {
 			next = c.getNext()
 			if NodeUtil_isNameDeclaration(c) {
-				if (this.assertOnChange_ && !c.hasChildren()) {
+				if this.assertOnChange_ && !c.hasChildren() {
 					panic(new_IllegalStateException_String("Empty VAR node.").self())
 				}
-				for (c.getFirstChild() != c.getLastChild()) {
+				for c.getFirstChild() != c.getLastChild() {
 					var name Node = c.getFirstChild()
 					name.detach()
 					var newVar Node = new_Node_Token_Node(c.getToken(), name).srcref(n)
@@ -442,11 +457,11 @@ func (this *Normalize_NormalizeStatements) moveNamedFunctions(body Node) {
 	Preconditions_checkState((body.getParent().isFunction() || NodeUtil_isClassStaticBlock(body)))
 	var insertAfter Node = 0
 	var current Node = body.getFirstChild()
-	for ((current != 0) && NodeUtil_isFunctionDeclaration(current)) {
+	for (current != 0) && NodeUtil_isFunctionDeclaration(current) {
 		insertAfter = current
 		current = current.getNext()
 	}
-	for (current != 0) {
+	for current != 0 {
 		var next Node = current.getNext()
 		if NodeUtil_isFunctionDeclaration(current) {
 			current.detach()
@@ -476,7 +491,7 @@ func (this *Normalize_NormalizeStatements) normalizeAssignShorthand(shorthand No
 }
 
 func Normalize_NormalizeStatements_addToFront(parent Node, newChild Node, after Node) Node {
-	if (after == 0) {
+	if after == 0 {
 		parent.addChildToFront(newChild)
 	} else {
 		newChild.insertAfter(after)
@@ -485,12 +500,12 @@ func Normalize_NormalizeStatements_addToFront(parent Node, newChild Node, after 
 }
 
 type Normalize_DuplicateDeclarationHandler struct {
-	outer_ *Normalize
-	hasOkDuplicateDeclaration *TSet[*Var]
+	outer_                    *Normalize
+	hasOkDuplicateDeclaration *JTSet[*Var]
 }
 
 func (this *Normalize_DuplicateDeclarationHandler) finit_Normalize_DuplicateDeclarationHandler() {
-	this.hasOkDuplicateDeclaration = newTSet_(tce_p_Var)
+	this.hasOkDuplicateDeclaration = jnewTSet_(tce_p_Var)
 }
 
 func (this *Normalize_DuplicateDeclarationHandler) init_Normalize_DuplicateDeclarationHandler() {
@@ -509,7 +524,7 @@ func (this *Normalize_DuplicateDeclarationHandler) onRedeclaration(s *Scope, nam
 	var parent Node = n.getParent()
 	var v *Var = cast_[*Var](s.getVar(name).self())
 	if s.isGlobal() {
-		if (v.isExtern() && !input.isExtern()) {
+		if v.isExtern() && !input.isExtern() {
 			if this.hasOkDuplicateDeclaration.add(v) {
 				return
 			}
@@ -544,4 +559,3 @@ func (this *Normalize_DuplicateDeclarationHandler) replaceVarWithAssignment(n No
 		this.outer_.reportCodeChange("Duplicate VAR declaration", grandparent)
 	}
 }
-

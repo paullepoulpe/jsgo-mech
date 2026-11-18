@@ -7,4 +7,3 @@ type StaticRef interface {
 	getNode() Node
 	getSourceFile() StaticSourceFile
 }
-

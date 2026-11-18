@@ -3,12 +3,12 @@
 package closure
 
 type IsolatePolyfills struct {
-	compiler_ *AbstractCompiler
-	polyfills *PolyfillUsageFinder_Polyfills
-	jscompPolyfillsObject Node
-	jscompLookupMethod Node
+	compiler_                *AbstractCompiler
+	polyfills                *PolyfillUsageFinder_Polyfills
+	jscompPolyfillsObject    Node
+	jscompLookupMethod       Node
 	usedPolyfillMethodLookup bool
-	isTempVarInitialized bool
+	isTempVarInitialized     bool
 }
 
 func (this *IsolatePolyfills) finit_IsolatePolyfills() {
@@ -32,7 +32,12 @@ func (this *IsolatePolyfills) init_IsolatePolyfills_AbstractCompiler_Polyfills(c
 	this.compiler_ = compiler
 	this.polyfills = polyfills
 	var hasPropertyCollapsingRun bool = Object_equals(obj_(compiler.getOptions().getPropertyCollapseLevel()), obj_(CompilerOptions_PropertyCollapseLevel_ALL))
-	this.jscompPolyfillsObject = func() Node { if hasPropertyCollapsingRun { return IsolatePolyfills_createCollapsedName() }; return IsolatePolyfills_createJSCompPolyfillsAccess() }()
+	this.jscompPolyfillsObject = func() Node {
+		if hasPropertyCollapsingRun {
+			return IsolatePolyfills_createCollapsedName()
+		}
+		return IsolatePolyfills_createJSCompPolyfillsAccess()
+	}()
 }
 
 func new_IsolatePolyfills_AbstractCompiler_Polyfills(compiler *AbstractCompiler, polyfills *PolyfillUsageFinder_Polyfills) *IsolatePolyfills {
@@ -54,15 +59,15 @@ func IsolatePolyfills_createJSCompPolyfillsAccess() Node {
 }
 
 func (this *IsolatePolyfills) process_2(externs Node, root Node) {
-	var injectedPolyfills *TSet[string] = this.findAllInjectedPolyfills()
+	var injectedPolyfills *JTSet[string] = this.findAllInjectedPolyfills()
 	var polyfillUsages ListOf[*PolyfillUsageFinder_PolyfillUsage] = icast_List(new_ArrayList_0().self())
 	var shouldDisambiguateProperties bool = this.compiler_.getOptions().shouldDisambiguateProperties()
 	new_PolyfillUsageFinder(this.compiler_, this.polyfills, shouldDisambiguateProperties).traverseIncludingGuarded(root, &Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { polyfillUsages.add(obj_(p0)) }})
-	var visitedNodes *TSet[Node] = newTSet_(tc_Node)
+	var visitedNodes *JTSet[Node] = jnewTSet_(jtc_Node)
 	it_1 := foreach_(any(polyfillUsages))
 	for it_1.next() {
 		var usage *PolyfillUsageFinder_PolyfillUsage = cast_[*PolyfillUsageFinder_PolyfillUsage](it_1.v)
-		if ((visitedNodes.contains(usage.node()) || String_isEmpty(usage.polyfill().library)) || !injectedPolyfills.contains(usage.polyfill().nativeSymbol)) {
+		if (visitedNodes.contains(usage.node()) || String_isEmpty(usage.polyfill().library)) || !injectedPolyfills.contains(usage.polyfill().nativeSymbol) {
 			continue
 		}
 		this.rewritePolyfill(usage)
@@ -71,8 +76,8 @@ func (this *IsolatePolyfills) process_2(externs Node, root Node) {
 	this.cleanUpJscompLookupPolyfilledValue()
 }
 
-func (this *IsolatePolyfills) findAllInjectedPolyfills() *TSet[string] {
-	var actualPolyfills *TSetBuilder[string] = newTSetBuilder_(tc_string)
+func (this *IsolatePolyfills) findAllInjectedPolyfills() *JTSet[string] {
+	var actualPolyfills *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	var lastInjectedNode Node = this.compiler_.getNodeForCodeInsertion(nil)
 	NodeTraversal_traverse(this.compiler_, lastInjectedNode, NodeTraversal_Callback(new_IsolatePolyfills_1(this, actualPolyfills)))
 	return actualPolyfills.build()
@@ -82,7 +87,12 @@ func (this *IsolatePolyfills) isJSCompPolyfillCall(call Node) bool {
 	if !call.isCall() {
 		return false
 	}
-	var jscompPolyfillName string = func() string { if Object_equals(obj_(this.compiler_.getOptions().getPropertyCollapseLevel()), obj_(CompilerOptions_PropertyCollapseLevel_ALL)) { return "$jscomp$polyfill" }; return "$jscomp.polyfill" }()
+	var jscompPolyfillName string = func() string {
+		if Object_equals(obj_(this.compiler_.getOptions().getPropertyCollapseLevel()), obj_(CompilerOptions_PropertyCollapseLevel_ALL)) {
+			return "$jscomp$polyfill"
+		}
+		return "$jscomp.polyfill"
+	}()
 	return call.getFirstChild().matchesQualifiedName(jscompPolyfillName)
 }
 
@@ -96,14 +106,14 @@ func (this *IsolatePolyfills) rewritePolyfill(polyfillUsage *PolyfillUsageFinder
 	if IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES.contains(polyfillAccess.getSourceFileName()) {
 		return
 	}
-	if (NodeUtil_isLValue(polyfillAccess) || (parent.isAssign() && polyfillAccess.isFirstChildOf(parent))) {
+	if NodeUtil_isLValue(polyfillAccess) || (parent.isAssign() && polyfillAccess.isFirstChildOf(parent)) {
 		return
 	}
 	var name string = polyfillUsage.name()
 	var isGlobalClass bool = ((String_indexOf(name, 46) == -1) && Object_equals(obj_(polyfill.kind_), obj_(PolyfillUsageFinder_Polyfill_Kind_STATIC)))
 	if isGlobalClass {
 		polyfillAccess.replaceWith(IR_getelem(this.jscompPolyfillsObject.cloneTree(), IR_string(name)).srcrefTree(polyfillAccess))
-	} else if ((parent.isCall() || parent.isOptChainCall()) && polyfillAccess.isFirstChildOf(parent)) {
+	} else if (parent.isCall() || parent.isOptChainCall()) && polyfillAccess.isFirstChildOf(parent) {
 		this.rewritePolyfillInCall(polyfillAccess)
 	} else {
 		var methodName Node = IR_string(polyfillAccess.getString()).srcref(polyfillAccess)
@@ -169,13 +179,14 @@ func (this *IsolatePolyfills) cleanUpJscompLookupPolyfilledValue() {
 	}
 	var syntheticCodeScope *Scope = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScope(this.compiler_.getNodeForCodeInsertion(nil), nil)
 	var syntheticVar *Var = cast_[*Var](syntheticCodeScope.getVar(this.jscompLookupMethod.getString()).self())
-	if (syntheticVar != nil) {
+	if syntheticVar != nil {
 		NodeUtil_deleteNode(syntheticVar.getParentNode(), this.compiler_)
 	}
 }
 
 const IsolatePolyfills_POLYFILL_TEMP string = "$jscomp$polyfillTmp"
-var IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES *TSet[string]
+
+var IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES *JTSet[string]
 
 var IsolatePolyfills_clinit_done bool
 
@@ -184,13 +195,13 @@ func IsolatePolyfills_clinit() {
 		return
 	}
 	IsolatePolyfills_clinit_done = true
-	IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES = immutableSetOf_[string](tc_string, (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "util/global.js"), (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "util/shouldpolyfill.js"), (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "es6/util/construct.js"))
+	IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES = jimmutableSetOf_[string](jtc_string, (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "util/global.js"), (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "util/shouldpolyfill.js"), (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "es6/util/construct.js"))
 
 }
 
 type IsolatePolyfills_1 struct {
 	NodeTraversal_AbstractShallowCallback
-	outer_ *IsolatePolyfills
+	outer_              *IsolatePolyfills
 	cap_actualPolyfills *TSetBuilder[string]
 }
 
@@ -220,4 +231,3 @@ func (this *IsolatePolyfills_1) visit_impl(t *NodeTraversal, n Node, parent Node
 		this.cap_actualPolyfills.add(polyfilledSymbol)
 	}
 }
-

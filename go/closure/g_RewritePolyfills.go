@@ -3,14 +3,14 @@
 package closure
 
 type RewritePolyfills struct {
-	compiler_ *AbstractCompiler
-	runtimeJsLibManager *RuntimeJsLibManager
-	polyfills *PolyfillUsageFinder_Polyfills
-	injectPolyfills bool
-	isolatePolyfills bool
-	libraries *TSet[string]
+	compiler_                *AbstractCompiler
+	runtimeJsLibManager      *RuntimeJsLibManager
+	polyfills                *PolyfillUsageFinder_Polyfills
+	injectPolyfills          bool
+	isolatePolyfills         bool
+	libraries                *JTSet[string]
 	injectPolyfillsNewerThan *CompilerOptions_LanguageMode
-	disambiguateProperties_ bool
+	disambiguateProperties_  bool
 }
 
 func (this *RewritePolyfills) init_RewritePolyfills_AbstractCompiler_boolean_boolean_LanguageMode_boolean(compiler *AbstractCompiler, injectPolyfills bool, isolatePolyfills bool, injectPolyfillsNewerThan *CompilerOptions_LanguageMode, disambiguateProperties bool) {
@@ -47,17 +47,17 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 		synthesizedExternsAstRoot.addChildToBack(jscompLookupMethodDecl)
 		this.compiler_.reportChangeToEnclosingScope(jscompLookupMethodDecl)
 	}
-	if (!this.injectPolyfills && (this.injectPolyfillsNewerThan == nil)) {
+	if !this.injectPolyfills && (this.injectPolyfillsNewerThan == nil) {
 		return
 	}
 	if this.injectPolyfills {
-		this.libraries = newTSet_(tc_string)
+		this.libraries = jnewTSet_(jtc_string)
 		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, &Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.inject(p0) }})
 	}
-	var librariesToInject *TList[string]
-	if (this.injectPolyfillsNewerThan != nil) {
-		var polyfillsToInject *TList[*PolyfillUsageFinder_Polyfill] = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
-		var librariesToInjectBuilder *TListBuilder[string] = newTListBuilder_(tc_string)
+	var librariesToInject *JTList[string]
+	if this.injectPolyfillsNewerThan != nil {
+		var polyfillsToInject *JTList[*PolyfillUsageFinder_Polyfill] = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
+		var librariesToInjectBuilder *TListBuilder[string] = newTListBuilder_(jtc_string)
 		it_1 := polyfillsToInject.each()
 		for it_1.next() {
 			var p *PolyfillUsageFinder_Polyfill = it_1.v
@@ -67,7 +67,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 		}
 		librariesToInject = librariesToInjectBuilder.build()
 	} else {
-		librariesToInject = immutableListCopyOf_(tc_string, Collection(this.libraries.asSet()))
+		librariesToInject = jimmutableListCopyOf_(jtc_string, Collection(this.libraries.asSet()))
 	}
 	this.injectAll(Iterable(librariesToInject.asList()), (this.injectPolyfillsNewerThan != nil))
 }
@@ -80,7 +80,7 @@ func (this *RewritePolyfills) injectAll(librariesToInject IterableOf[string], fo
 		Preconditions_checkState_boolean_Object(!String_isEmpty(library), "unexpected empty library")
 		lastNode = this.runtimeJsLibManager.ensureLibraryInjected(library, forceInjection)
 	}
-	if (lastNode != 0) {
+	if lastNode != 0 {
 		var parent Node = lastNode.getParent()
 		this.removeUnneededPolyfills(parent, lastNode.getNext())
 		this.compiler_.reportChangeToEnclosingScope(parent)
@@ -90,10 +90,10 @@ func (this *RewritePolyfills) injectAll(librariesToInject IterableOf[string], fo
 func (this *RewritePolyfills) removeUnneededPolyfills(parent Node, runtimeEnd Node) {
 	var node Node = parent.getFirstChild()
 	var outputFeatureSet *FeatureSet = this.compiler_.getOptions().getOutputFeatureSet()
-	for ((node != 0) && (node != runtimeEnd)) {
+	for (node != 0) && (node != runtimeEnd) {
 		var next Node = node.getNext()
 		var polyfillSupportedFeatureSet *FeatureSet = this.getPolyfillSupportedFeatureSet(node)
-		if ((polyfillSupportedFeatureSet != nil) && outputFeatureSet.containsFeatureSet(polyfillSupportedFeatureSet)) {
+		if (polyfillSupportedFeatureSet != nil) && outputFeatureSet.containsFeatureSet(polyfillSupportedFeatureSet) {
 			NodeUtil_removeChild(parent, node)
 			NodeUtil_markFunctionsDeleted(node, this.compiler_)
 		}
@@ -119,10 +119,10 @@ func (this *RewritePolyfills) inject(polyfillUsage *PolyfillUsageFinder_Polyfill
 	var polyfill *PolyfillUsageFinder_Polyfill = polyfillUsage.polyfill()
 	var outputFeatureSet *FeatureSet = this.compiler_.getOptions().getOutputFeatureSet()
 	var featuresRequiredByPolyfill *FeatureSet = FeatureSet_valueOf(polyfill.polyfillVersion)
-	if (Object_equals(obj_(polyfill.kind_), obj_(PolyfillUsageFinder_Polyfill_Kind_STATIC)) && !outputFeatureSet.containsFeatureSet(featuresRequiredByPolyfill)) {
+	if Object_equals(obj_(polyfill.kind_), obj_(PolyfillUsageFinder_Polyfill_Kind_STATIC)) && !outputFeatureSet.containsFeatureSet(featuresRequiredByPolyfill) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(polyfillUsage.node(), RewritePolyfills_INSUFFICIENT_OUTPUT_VERSION_ERROR, []string{polyfillUsage.name(), outputFeatureSet.version()}))
 	}
-	if (!outputFeatureSet.containsFeatureSet(FeatureSet_valueOf(polyfill.nativeVersion)) && !String_isEmpty(polyfill.library)) {
+	if !outputFeatureSet.containsFeatureSet(FeatureSet_valueOf(polyfill.nativeVersion)) && !String_isEmpty(polyfill.library) {
 		this.libraries.add(polyfill.library)
 	}
 }
@@ -141,4 +141,3 @@ func RewritePolyfills_clinit() {
 	RewritePolyfills_JSCOMP_POLYFILL = QualifiedName_of("$jscomp.polyfill")
 
 }
-

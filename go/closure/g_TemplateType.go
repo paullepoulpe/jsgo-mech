@@ -4,8 +4,8 @@ package closure
 
 type TemplateType struct {
 	ProxyObjectType
-	name_ string
-	bound *JSType
+	name_              string
+	bound              *JSType
 	typeTransformation Node
 }
 
@@ -59,9 +59,19 @@ func new_TemplateType_JSTypeRegistry_String_JSType(registry *JSTypeRegistry, nam
 }
 
 func (this *TemplateType) init_TemplateType_JSTypeRegistry_String_JSType_Node(registry *JSTypeRegistry, name string, bound *JSType, typeTransformation Node) {
-	this.ProxyObjectType.init_ProxyObjectType_JSTypeRegistry_JSType(registry, func() *JSType { if (bound == nil) { return registry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE).up_JSType() }; return bound }())
+	this.ProxyObjectType.init_ProxyObjectType_JSTypeRegistry_JSType(registry, func() *JSType {
+		if bound == nil {
+			return registry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE).up_JSType()
+		}
+		return bound
+	}())
 	this.name_ = name
-	this.bound = func() *JSType { if (bound == nil) { return registry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE).up_JSType() }; return bound }()
+	this.bound = func() *JSType {
+		if bound == nil {
+			return registry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE).up_JSType()
+		}
+		return bound
+	}()
 	this.typeTransformation = typeTransformation
 	registry.getResolver().resolveIfClosed(this.up_JSType(), TemplateType_TYPE_CLASS_FIELD)
 }
@@ -152,4 +162,3 @@ func TemplateType_clinit() {
 	TemplateType_TYPE_CLASS_FIELD = JSTypeClass_TEMPLATE
 
 }
-

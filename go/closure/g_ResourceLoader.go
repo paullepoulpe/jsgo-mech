@@ -23,7 +23,7 @@ func ResourceLoader_loadTextResource(name string) string {
 	return Io_utf8String(bytes.get())
 }
 
-func ResourceLoader_loadPropertiesMap(resourceName string) *TMap[string, string] {
+func ResourceLoader_loadPropertiesMap(resourceName string) *JTMap[string, string] {
 	return PropertiesParser_parse(ResourceLoader_loadTextResource(resourceName))
 }
 
@@ -32,4 +32,3 @@ func ResourceLoader_resourceExists(name string) bool {
 }
 
 const ResourceLoader_JSCOMP string = "com/google/javascript/jscomp/"
-

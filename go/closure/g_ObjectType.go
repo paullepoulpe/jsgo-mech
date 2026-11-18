@@ -58,7 +58,12 @@ func (this *ObjectType) getPropertyMap_impl() *PropertyMap {
 
 func (this *ObjectType) getSlot_impl(name Property_Key) *Property {
 	var property *Property_OwnedProperty = this.getPropertyMap().findClosest(name)
-	return func() *Property { if (property == nil) { return nil }; return property.getValue() }()
+	return func() *Property {
+		if property == nil {
+			return nil
+		}
+		return property.getValue()
+	}()
 }
 
 func (this *ObjectType) getSlotString(name string) *Property {
@@ -77,8 +82,8 @@ func (this *ObjectType) getTypeOfThis_impl() *JSType {
 	return nil
 }
 
-func (this *ObjectType) getTemplateTypes_impl() *TList[*JSType] {
-	return tlistEmptyImm_(tc_p_JSType)
+func (this *ObjectType) getTemplateTypes_impl() *JTList[*JSType] {
+	return jtlistEmptyImm_(jtc_p_JSType)
 }
 
 func (this *ObjectType) getJSDocInfo_impl() *JSDocInfo {
@@ -92,7 +97,7 @@ func (this *ObjectType) setJSDocInfo_impl(info *JSDocInfo) {
 func (this *ObjectType) detectImplicitPrototypeCycle() bool {
 	this.visited = true
 	var p *ObjectType = this.getImplicitPrototype()
-	for (p != nil) {
+	for p != nil {
 		if p.visited {
 			return true
 		} else {
@@ -109,7 +114,7 @@ func (this *ObjectType) detectImplicitPrototypeCycle() bool {
 }
 
 func (this *ObjectType) detectInheritanceCycle() bool {
-	if (this.detectImplicitPrototypeCycle() || Iterables_contains(this.getCtorImplementedInterfaces(), this.self())) {
+	if this.detectImplicitPrototypeCycle() || Iterables_contains(this.getCtorImplementedInterfaces(), this.self()) {
 		return true
 	}
 	var fnType *FunctionType = this.getConstructor()
@@ -124,10 +129,15 @@ func (this *ObjectType) getNormalizedReferenceName() Optional[string] {
 	var name Optional[string] = this.getReferenceName()
 	if name.isPresent() {
 		var start int32 = String_indexOf(name.get(), 40)
-		if (start != -1) {
+		if start != -1 {
 			var end int32 = String_lastIndexOf(name.get(), 41)
 			var prefix string = String_substring(name.get(), 0, start)
-			return func() Optional[string] { if ((end + (1 % String_length(name.get()))) == 0) { return Optional_of[string](prefix) }; return Optional_of[string]((sstr_(prefix) + sstr_(String_substring_int(name.get(), (end + 1))))) }()
+			return func() Optional[string] {
+				if (end + (1 % String_length(name.get()))) == 0 {
+					return Optional_of[string](prefix)
+				}
+				return Optional_of[string]((sstr_(prefix) + sstr_(String_substring_int(name.get(), (end+1)))))
+			}()
 		}
 	}
 	return name
@@ -143,15 +153,20 @@ func ObjectType_createDelegateSuffix(suffix string) string {
 
 func (this *ObjectType) getRawType() *ObjectType {
 	var t *TemplatizedType = this.toMaybeTemplatizedType()
-	return func() *ObjectType { if (t == nil) { return this }; return t.getReferencedType() }()
+	return func() *ObjectType {
+		if t == nil {
+			return this
+		}
+		return t.getReferencedType()
+	}()
 }
 
 func (this *ObjectType) testForEquality_impl(that *JSType) *Tri {
 	var result *Tri = this.JSType.testForEquality_impl(that)
-	if (result != nil) {
+	if result != nil {
 		return result
 	}
-	if ((((((that.isUnknownType() || that.isSubtypeOf(this.getNativeType(JSTypeNative_OBJECT_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_NUMBER_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_STRING_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BOOLEAN_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_SYMBOL_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_TYPE))) {
+	if (((((that.isUnknownType() || that.isSubtypeOf(this.getNativeType(JSTypeNative_OBJECT_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_NUMBER_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_STRING_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BOOLEAN_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_SYMBOL_TYPE))) || that.isSubtypeOf(this.getNativeType(JSTypeNative_BIGINT_TYPE)) {
 		return Tri_UNKNOWN
 	}
 	return Tri_FALSE
@@ -159,16 +174,26 @@ func (this *ObjectType) testForEquality_impl(that *JSType) *Tri {
 
 func (this *ObjectType) getSuperClassConstructor_impl() *FunctionType {
 	var iproto *ObjectType = this.getImplicitPrototype()
-	if (iproto == nil) {
+	if iproto == nil {
 		return nil
 	}
 	iproto = iproto.getImplicitPrototype()
-	return func() *FunctionType { if (iproto == nil) { return nil }; return iproto.getConstructor() }()
+	return func() *FunctionType {
+		if iproto == nil {
+			return nil
+		}
+		return iproto.getConstructor()
+	}()
 }
 
 func (this *ObjectType) getClosestDefiningType(propertyName string) *ObjectType {
 	var property *Property_OwnedProperty = this.getPropertyMap().findClosest(Property_Key(new_Property_StringKey(propertyName)))
-	return func() *ObjectType { if (property == nil) { return nil }; return property.getOwner() }()
+	return func() *ObjectType {
+		if property == nil {
+			return nil
+		}
+		return property.getOwner()
+	}()
 }
 
 func (this *ObjectType) findClosestDefinitionString(propertyName string) *Property_OwnedProperty {
@@ -230,7 +255,12 @@ func (this *ObjectType) getPropertyNode(propertyName string) Node {
 
 func (this *ObjectType) getPropertyNodeKey(propertyName Property_Key) Node {
 	var p *Property = this.getSlot(propertyName)
-	return func() Node { if (p == nil) { return 0 }; return p.getNode() }()
+	return func() Node {
+		if p == nil {
+			return 0
+		}
+		return p.getNode()
+	}()
 }
 
 func (this *ObjectType) getPropertyDefSite(propertyName string) Node {
@@ -247,7 +277,12 @@ func (this *ObjectType) getPropertyJSDocInfo(propertyName string) *JSDocInfo {
 
 func (this *ObjectType) getPropertyJSDocInfoKey(propertyName Property_Key) *JSDocInfo {
 	var p *Property = this.getSlot(propertyName)
-	return func() *JSDocInfo { if (p == nil) { return nil }; return p.getJSDocInfo() }()
+	return func() *JSDocInfo {
+		if p == nil {
+			return nil
+		}
+		return p.getJSDocInfo()
+	}()
 }
 
 func (this *ObjectType) getOwnPropertyJSDocInfo(propertyName string) *JSDocInfo {
@@ -256,7 +291,12 @@ func (this *ObjectType) getOwnPropertyJSDocInfo(propertyName string) *JSDocInfo 
 
 func (this *ObjectType) getOwnPropertyJSDocInfoKey(propertyName Property_Key) *JSDocInfo {
 	var p *Property = this.getOwnSlot(propertyName)
-	return func() *JSDocInfo { if (p == nil) { return nil }; return p.getJSDocInfo() }()
+	return func() *JSDocInfo {
+		if p == nil {
+			return nil
+		}
+		return p.getJSDocInfo()
+	}()
 }
 
 func (this *ObjectType) getOwnPropertyDefSite(propertyName string) Node {
@@ -265,7 +305,12 @@ func (this *ObjectType) getOwnPropertyDefSite(propertyName string) Node {
 
 func (this *ObjectType) getOwnPropertyDefSiteKey(propertyName Property_Key) Node {
 	var p *Property = this.getOwnSlot(propertyName)
-	return func() Node { if (p == nil) { return 0 }; return p.getNode() }()
+	return func() Node {
+		if p == nil {
+			return 0
+		}
+		return p.getNode()
+	}()
 }
 
 func (this *ObjectType) setPropertyJSDocInfo(propertyName string, info *JSDocInfo) {
@@ -285,7 +330,12 @@ func (this *ObjectType) setPropertyNode_impl(propertyName Property_Key, defSite 
 }
 
 func (this *ObjectType) findPropertyTypeWithoutConsideringTemplateTypes_impl(propertyName Property_Key) *JSType {
-	return func() *JSType { if this.hasPropertyKey(propertyName) { return this.getPropertyTypeKey(propertyName) }; return nil }()
+	return func() *JSType {
+		if this.hasPropertyKey(propertyName) {
+			return this.getPropertyTypeKey(propertyName)
+		}
+		return nil
+	}()
 }
 
 func (this *ObjectType) getPropertyType(propertyName string) *JSType {
@@ -298,8 +348,8 @@ func (this *ObjectType) getPropertyTypeKey_impl(propertyName Property_Key) *JSTy
 }
 
 func (this *ObjectType) getPropertyTypeFromSlot(slot StaticTypedSlot) *JSType {
-	if (slot == nil) {
-		if (this.isNoResolvedType() || this.isCheckedUnknownType()) {
+	if slot == nil {
+		if this.isNoResolvedType() || this.isCheckedUnknownType() {
 			return this.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE)
 		} else if this.isEmptyType() {
 			return this.getNativeType(JSTypeNative_NO_TYPE)
@@ -318,7 +368,12 @@ func (this *ObjectType) getOwnPropertyKindString(propertyName string) *JSType_Ha
 }
 
 func (this *ObjectType) getOwnPropertyKind(propertyName Property_Key) *JSType_HasPropertyKind {
-	return func() *JSType_HasPropertyKind { if (this.getOwnSlot(propertyName) != nil) { return JSType_HasPropertyKind_KNOWN_PRESENT }; return JSType_HasPropertyKind_ABSENT }()
+	return func() *JSType_HasPropertyKind {
+		if this.getOwnSlot(propertyName) != nil {
+			return JSType_HasPropertyKind_KNOWN_PRESENT
+		}
+		return JSType_HasPropertyKind_ABSENT
+	}()
 }
 
 func (this *ObjectType) hasOwnProperty(propertyName string) bool {
@@ -337,7 +392,7 @@ func (this *ObjectType) getOwnPropertyNames_impl() SetOf[string] {
 	return this.getPropertyMap().getOwnPropertyNames()
 }
 
-func (this *ObjectType) getOwnPropertyKeys() *TSet[Property_Key] {
+func (this *ObjectType) getOwnPropertyKeys() *JTSet[Property_Key] {
 	var ownPropertyNames SetOf[string] = this.getOwnPropertyNames()
 	var ownSymbols SetOf[*KnownSymbolType] = this.getOwnPropertyKnownSymbols()
 	var ownPropertyKeys *TSetBuilder[Property_Key] = newTSetBuilder_(tce_Property_Key)
@@ -360,7 +415,12 @@ func (this *ObjectType) isPropertyTypeInferred(propertyName string) bool {
 
 func (this *ObjectType) isPropertyTypeInferredKey(propertyName Property_Key) bool {
 	var slot StaticTypedSlot = Property_as_StaticTypedSlot(this.getSlot(propertyName))
-	return func() bool { if (slot == nil) { return false }; return slot.isTypeInferred() }()
+	return func() bool {
+		if slot == nil {
+			return false
+		}
+		return slot.isTypeInferred()
+	}()
 }
 
 func (this *ObjectType) isPropertyTypeDeclared(propertyName string) bool {
@@ -369,7 +429,12 @@ func (this *ObjectType) isPropertyTypeDeclared(propertyName string) bool {
 
 func (this *ObjectType) isPropertyTypeDeclaredKey(propertyName Property_Key) bool {
 	var slot StaticTypedSlot = Property_as_StaticTypedSlot(this.getSlot(propertyName))
-	return func() bool { if (slot == nil) { return false }; return !slot.isTypeInferred() }()
+	return func() bool {
+		if slot == nil {
+			return false
+		}
+		return !slot.isTypeInferred()
+	}()
 }
 
 func (this *ObjectType) isStructuralType_impl() bool {
@@ -387,7 +452,12 @@ func (this *ObjectType) hasOwnDeclaredPropertyKey(name Property_Key) bool {
 
 func (this *ObjectType) isPropertyInExterns(propertyName string) bool {
 	var p *Property = this.getSlotString(propertyName)
-	return func() bool { if (p == nil) { return false }; return p.isFromExterns() }()
+	return func() bool {
+		if p == nil {
+			return false
+		}
+		return p.isFromExterns()
+	}()
 }
 
 func (this *ObjectType) getPropertiesCount() int32 {
@@ -414,7 +484,7 @@ func (this *ObjectType) isImplicitPrototypeOf(other *ObjectType) bool {
 	var unwrappedThis *ObjectType = ObjectType_deeplyUnwrap(this)
 	{
 		other = ObjectType_deeplyUnwrap(other)
-		for ; (other != nil); other = ObjectType_deeplyUnwrap(other.getImplicitPrototype()) {
+		for ; other != nil; other = ObjectType_deeplyUnwrap(other.getImplicitPrototype()) {
 			if JSCompObjects_identical(unwrappedThis.self(), other.self()) {
 				return true
 			}
@@ -447,7 +517,7 @@ func (this *ObjectType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
 func (this *ObjectType) isUnknownType_impl() bool {
 	if this.unknown {
 		var implicitProto *ObjectType = this.getImplicitPrototype()
-		if ((implicitProto == nil) || implicitProto.isNativeObjectType()) {
+		if (implicitProto == nil) || implicitProto.isNativeObjectType() {
 			this.unknown = false
 			it_1 := foreach_(any(this.getCtorExtendedInterfaces()))
 			for it_1.next() {
@@ -481,7 +551,12 @@ func (this *ObjectType) isNativeObjectType_impl() bool {
 }
 
 func ObjectType_cast(type_ *JSType) *ObjectType {
-	return func() *ObjectType { if (type_ == nil) { return nil }; return type_.toObjectType() }()
+	return func() *ObjectType {
+		if type_ == nil {
+			return nil
+		}
+		return type_.toObjectType()
+	}()
 }
 
 func (this *ObjectType) isFunctionPrototypeType_impl() bool {
@@ -504,8 +579,8 @@ func (this *ObjectType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType]
 	return ImmutableSet_as_Iterable(ImmutableSet_of())
 }
 
-func (this *ObjectType) getPropertyTypeMap_impl() *TMap[string, *JSType] {
-	var propTypeMap *TMapBuilder[string, *JSType] = newTMapBuilder_(tc_string, tc_p_JSType)
+func (this *ObjectType) getPropertyTypeMap_impl() *JTMap[string, *JSType] {
+	var propTypeMap *TMapBuilder[string, *JSType] = newTMapBuilder_(jtc_string, jtc_p_JSType)
 	it_1 := foreach_(obj_(this.getPropertyNames()))
 	for it_1.next() {
 		var name string = str_(it_1.v)
@@ -527,7 +602,9 @@ func (this *ObjectType) getReferenceName() Optional[string] {
 }
 
 func (this *ObjectType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
-	return this.self_.(interface{ defineProperty_impl(Property_Key, *JSType, bool, Node) bool }).defineProperty_impl(p0, p1, p2, p3)
+	return this.self_.(interface {
+		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
+	}).defineProperty_impl(p0, p1, p2, p3)
 }
 
 func (this *ObjectType) getImplicitPrototype() *ObjectType {
@@ -570,8 +647,10 @@ func (this *ObjectType) hasCachedValues() bool {
 	return this.self_.(interface{ hasCachedValues_impl() bool }).hasCachedValues_impl()
 }
 
-func (this *ObjectType) getPropertyTypeMap() *TMap[string, *JSType] {
-	return this.self_.(interface{ getPropertyTypeMap_impl() *TMap[string, *JSType] }).getPropertyTypeMap_impl()
+func (this *ObjectType) getPropertyTypeMap() *JTMap[string, *JSType] {
+	return this.self_.(interface {
+		getPropertyTypeMap_impl() *JTMap[string, *JSType]
+	}).getPropertyTypeMap_impl()
 }
 
 func (this *ObjectType) getCtorImplementedInterfaces() Iterable {
@@ -582,12 +661,14 @@ func (this *ObjectType) getCtorExtendedInterfaces() Iterable {
 	return this.self_.(interface{ getCtorExtendedInterfaces_impl() Iterable }).getCtorExtendedInterfaces_impl()
 }
 
-func (this *ObjectType) getTemplateTypes() *TList[*JSType] {
-	return this.self_.(interface{ getTemplateTypes_impl() *TList[*JSType] }).getTemplateTypes_impl()
+func (this *ObjectType) getTemplateTypes() *JTList[*JSType] {
+	return this.self_.(interface{ getTemplateTypes_impl() *JTList[*JSType] }).getTemplateTypes_impl()
 }
 
 func (this *ObjectType) setPropertyJSDocInfoKey(p0 Property_Key, p1 *JSDocInfo) {
-	this.self_.(interface{ setPropertyJSDocInfoKey_impl(Property_Key, *JSDocInfo) }).setPropertyJSDocInfoKey_impl(p0, p1)
+	this.self_.(interface {
+		setPropertyJSDocInfoKey_impl(Property_Key, *JSDocInfo)
+	}).setPropertyJSDocInfoKey_impl(p0, p1)
 }
 
 func (this *ObjectType) setPropertyNode(p0 Property_Key, p1 Node) {
@@ -608,8 +689,8 @@ func (this *ObjectType) setJSDocInfo(p0 *JSDocInfo) {
 
 type ObjectType_1 struct {
 	AbstractIterator
-	outer_ *ObjectType
-	cap_self *ObjectType
+	outer_    *ObjectType
+	cap_self  *ObjectType
 	nextField *ObjectType
 }
 
@@ -640,6 +721,10 @@ func new_ObjectType_1(outer_ *ObjectType, cap_self *ObjectType) *ObjectType_1 {
 
 func (this *ObjectType_1) computeNext() any {
 	this.nextField = this.nextField.getImplicitPrototype()
-	return func() any { if (this.nextField != nil) { return this.nextField.self() }; return this.endOfData() }()
+	return func() any {
+		if this.nextField != nil {
+			return this.nextField.self()
+		}
+		return this.endOfData()
+	}()
 }
-

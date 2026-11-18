@@ -3,17 +3,17 @@
 package closure
 
 type Config struct {
-	languageMode_ *Config_LanguageMode
-	strictMode_ *Config_StrictMode
-	jsDocParsingMode_ *Config_JsDocParsing
-	runMode_ *Config_RunMode
-	annotations_ *TMap[string, *Annotation_parsing]
-	suppressionNames_ *TSet[string]
-	closurePrimitiveNames_ *TSet[string]
+	languageMode_          *Config_LanguageMode
+	strictMode_            *Config_StrictMode
+	jsDocParsingMode_      *Config_JsDocParsing
+	runMode_               *Config_RunMode
+	annotations_           *JTMap[string, *Annotation_parsing]
+	suppressionNames_      *JTSet[string]
+	closurePrimitiveNames_ *JTSet[string]
 	parseInlineSourceMaps_ bool
 }
 
-func (this *Config) init_Config(languageMode *Config_LanguageMode, strictMode *Config_StrictMode, jsDocParsingMode *Config_JsDocParsing, runMode *Config_RunMode, annotations *TMap[string, *Annotation_parsing], suppressionNames *TSet[string], closurePrimitiveNames *TSet[string], parseInlineSourceMaps bool) {
+func (this *Config) init_Config(languageMode *Config_LanguageMode, strictMode *Config_StrictMode, jsDocParsingMode *Config_JsDocParsing, runMode *Config_RunMode, annotations *JTMap[string, *Annotation_parsing], suppressionNames *JTSet[string], closurePrimitiveNames *JTSet[string], parseInlineSourceMaps bool) {
 	Objects_requireNonNull_T(languageMode, "languageMode")
 	Objects_requireNonNull_T(strictMode, "strictMode")
 	Objects_requireNonNull_T(jsDocParsingMode, "jsDocParsingMode")
@@ -31,17 +31,17 @@ func (this *Config) init_Config(languageMode *Config_LanguageMode, strictMode *C
 	this.parseInlineSourceMaps_ = parseInlineSourceMaps
 }
 
-func new_Config(languageMode *Config_LanguageMode, strictMode *Config_StrictMode, jsDocParsingMode *Config_JsDocParsing, runMode *Config_RunMode, annotations *TMap[string, *Annotation_parsing], suppressionNames *TSet[string], closurePrimitiveNames *TSet[string], parseInlineSourceMaps bool) *Config {
+func new_Config(languageMode *Config_LanguageMode, strictMode *Config_StrictMode, jsDocParsingMode *Config_JsDocParsing, runMode *Config_RunMode, annotations *JTMap[string, *Annotation_parsing], suppressionNames *JTSet[string], closurePrimitiveNames *JTSet[string], parseInlineSourceMaps bool) *Config {
 	this := &Config{}
 	this.init_Config(languageMode, strictMode, jsDocParsingMode, runMode, annotations, suppressionNames, closurePrimitiveNames, parseInlineSourceMaps)
 	return this
 }
 
 func (this *Config) toString() string {
-	return ("Config{languageMode=" + tostr_(this.languageMode_) + ", strictMode=" + tostr_(this.strictMode_) + ", jsDocParsingMode=" + tostr_(this.jsDocParsingMode_) + ", runMode=" + tostr_(this.runMode_) + ", annotations=" + objstr_(any(this.annotations_.asMap())) + ", suppressionNames=" + objstr_(any(this.suppressionNames_.asSet())) + ", closurePrimitiveNames=" + objstr_(any(this.closurePrimitiveNames_.asSet())) + ", parseInlineSourceMaps=" + boolstr_(this.parseInlineSourceMaps_) + "}")
+	return ("Config{languageMode=" + jtostr_(this.languageMode_) + ", strictMode=" + jtostr_(this.strictMode_) + ", jsDocParsingMode=" + jtostr_(this.jsDocParsingMode_) + ", runMode=" + jtostr_(this.runMode_) + ", annotations=" + objstr_(any(this.annotations_.asMap())) + ", suppressionNames=" + objstr_(any(this.suppressionNames_.asSet())) + ", closurePrimitiveNames=" + objstr_(any(this.closurePrimitiveNames_.asSet())) + ", parseInlineSourceMaps=" + boolstr_(this.parseInlineSourceMaps_) + "}")
 }
 
-func (this *Config) annotationNames() *TSet[string] {
+func (this *Config) annotationNames() *JTSet[string] {
 	return this.annotations().keySetImm()
 }
 
@@ -53,13 +53,13 @@ func Config_builder() *Config_Builder {
 	return new_Config_Builder_0().setLanguageMode(Config_LanguageMode_UNSUPPORTED).setStrictMode(Config_StrictMode_STRICT).setJsDocParsingMode(Config_JsDocParsing_TYPES_ONLY).setRunMode(Config_RunMode_STOP_AFTER_ERROR).setExtraAnnotationNames(ImmutableSet_as_Iterable(ImmutableSet_of())).setSuppressionNames(ImmutableSet_as_Iterable(ImmutableSet_of())).setClosurePrimitiveNames(ImmutableSet_as_Iterable(ImmutableSet_of())).setParseInlineSourceMaps(false)
 }
 
-func Config_buildAnnotations(allowlist IterableOf[string]) *TMap[string, *Annotation_parsing] {
-	var annotationsBuilder *TMapBuilder[string, *Annotation_parsing] = newTMapBuilder_(tc_string, tc_p_Annotation_parsing)
+func Config_buildAnnotations(allowlist IterableOf[string]) *JTMap[string, *Annotation_parsing] {
+	var annotationsBuilder *TMapBuilder[string, *Annotation_parsing] = newTMapBuilder_(jtc_string, tc_p_Annotation_parsing)
 	annotationsBuilder.putAll(Annotation_parsing_recognizedAnnotations.asMap())
 	it_1 := foreach_(any(allowlist))
 	for it_1.next() {
 		var unrecognizedAnnotation string = str_(it_1.v)
-		if (!String_isEmpty(unrecognizedAnnotation) && !Annotation_parsing_recognizedAnnotations.containsKey(unrecognizedAnnotation)) {
+		if !String_isEmpty(unrecognizedAnnotation) && !Annotation_parsing_recognizedAnnotations.containsKey(unrecognizedAnnotation) {
 			annotationsBuilder.put(unrecognizedAnnotation, Annotation_parsing_NOT_IMPLEMENTED)
 		}
 	}
@@ -82,15 +82,15 @@ func (this *Config) runMode() *Config_RunMode {
 	return this.runMode_
 }
 
-func (this *Config) annotations() *TMap[string, *Annotation_parsing] {
+func (this *Config) annotations() *JTMap[string, *Annotation_parsing] {
 	return this.annotations_
 }
 
-func (this *Config) suppressionNames() *TSet[string] {
+func (this *Config) suppressionNames() *JTSet[string] {
 	return this.suppressionNames_
 }
 
-func (this *Config) closurePrimitiveNames() *TSet[string] {
+func (this *Config) closurePrimitiveNames() *JTSet[string] {
 	return this.closurePrimitiveNames_
 }
 
@@ -206,7 +206,7 @@ func Config_LanguageMode_minimumRequiredFor(feature *FeatureSet_Feature) *Config
 			return mode
 		}
 	}
-	panic(new_IllegalStateException_String(("No input language mode supports feature: " + tostr_(feature))).self())
+	panic(new_IllegalStateException_String(("No input language mode supports feature: " + jtostr_(feature))).self())
 }
 
 func Config_LanguageMode_minimumRequiredForSet(featureSet *FeatureSet) *Config_LanguageMode {
@@ -215,7 +215,7 @@ func Config_LanguageMode_minimumRequiredForSet(featureSet *FeatureSet) *Config_L
 			return mode
 		}
 	}
-	panic(new_IllegalStateException_String(("No input language mode supports feature set: " + tostr_(featureSet))).self())
+	panic(new_IllegalStateException_String(("No input language mode supports feature set: " + jtostr_(featureSet))).self())
 }
 
 func Config_LanguageMode_latestEcmaScript() *Config_LanguageMode {
@@ -396,15 +396,15 @@ func Config_RunMode_clinit() {
 }
 
 type Config_Builder struct {
-	languageMode_ *Config_LanguageMode
-	strictMode_ *Config_StrictMode
-	jsDocParsingMode_ *Config_JsDocParsing
-	runMode_ *Config_RunMode
-	annotations_ *TMap[string, *Annotation_parsing]
-	suppressionNames_ *TSet[string]
-	closurePrimitiveNames_ *TSet[string]
+	languageMode_          *Config_LanguageMode
+	strictMode_            *Config_StrictMode
+	jsDocParsingMode_      *Config_JsDocParsing
+	runMode_               *Config_RunMode
+	annotations_           *JTMap[string, *Annotation_parsing]
+	suppressionNames_      *JTSet[string]
+	closurePrimitiveNames_ *JTSet[string]
 	parseInlineSourceMaps_ bool
-	set0 int8
+	set0                   int8
 }
 
 func (this *Config_Builder) init_Config_Builder_0() {
@@ -436,7 +436,7 @@ func new_Config_Builder_Config(source *Config) *Config_Builder {
 }
 
 func (this *Config_Builder) setLanguageMode(mode *Config_LanguageMode) *Config_Builder {
-	if (mode == nil) {
+	if mode == nil {
 		panic(new_NullPointerException_String("Null languageMode").self())
 	}
 	this.languageMode_ = mode
@@ -444,7 +444,7 @@ func (this *Config_Builder) setLanguageMode(mode *Config_LanguageMode) *Config_B
 }
 
 func (this *Config_Builder) setStrictMode(mode *Config_StrictMode) *Config_Builder {
-	if (mode == nil) {
+	if mode == nil {
 		panic(new_NullPointerException_String("Null strictMode").self())
 	}
 	this.strictMode_ = mode
@@ -452,7 +452,7 @@ func (this *Config_Builder) setStrictMode(mode *Config_StrictMode) *Config_Build
 }
 
 func (this *Config_Builder) setJsDocParsingMode(mode *Config_JsDocParsing) *Config_Builder {
-	if (mode == nil) {
+	if mode == nil {
 		panic(new_NullPointerException_String("Null jsDocParsingMode").self())
 	}
 	this.jsDocParsingMode_ = mode
@@ -460,7 +460,7 @@ func (this *Config_Builder) setJsDocParsingMode(mode *Config_JsDocParsing) *Conf
 }
 
 func (this *Config_Builder) setRunMode(mode *Config_RunMode) *Config_Builder {
-	if (mode == nil) {
+	if mode == nil {
 		panic(new_NullPointerException_String("Null runMode").self())
 	}
 	this.runMode_ = mode
@@ -474,12 +474,12 @@ func (this *Config_Builder) setParseInlineSourceMaps(parseInlineSourceMaps bool)
 }
 
 func (this *Config_Builder) setSuppressionNames(names IterableOf[string]) *Config_Builder {
-	this.suppressionNames_ = immutableSetCopyOf_(tc_string, names)
+	this.suppressionNames_ = jimmutableSetCopyOf_(jtc_string, names)
 	return this
 }
 
 func (this *Config_Builder) setClosurePrimitiveNames(names IterableOf[string]) *Config_Builder {
-	this.closurePrimitiveNames_ = immutableSetCopyOf_(tc_string, names)
+	this.closurePrimitiveNames_ = jimmutableSetCopyOf_(jtc_string, names)
 	return this
 }
 
@@ -488,42 +488,41 @@ func (this *Config_Builder) setExtraAnnotationNames(names IterableOf[string]) *C
 }
 
 func (this *Config_Builder) build() *Config {
-	if ((((((((int32(this.set0) != 1) || (this.languageMode_ == nil)) || (this.strictMode_ == nil)) || (this.jsDocParsingMode_ == nil)) || (this.runMode_ == nil)) || (this.annotations_ == nil)) || (this.suppressionNames_ == nil)) || (this.closurePrimitiveNames_ == nil)) {
+	if (((((((int32(this.set0) != 1) || (this.languageMode_ == nil)) || (this.strictMode_ == nil)) || (this.jsDocParsingMode_ == nil)) || (this.runMode_ == nil)) || (this.annotations_ == nil)) || (this.suppressionNames_ == nil)) || (this.closurePrimitiveNames_ == nil) {
 		var missing *StringBuilder = new_StringBuilder()
-		if (this.languageMode_ == nil) {
+		if this.languageMode_ == nil {
 			missing.append(" languageMode")
 		}
-		if (this.strictMode_ == nil) {
+		if this.strictMode_ == nil {
 			missing.append(" strictMode")
 		}
-		if (this.jsDocParsingMode_ == nil) {
+		if this.jsDocParsingMode_ == nil {
 			missing.append(" jsDocParsingMode")
 		}
-		if (this.runMode_ == nil) {
+		if this.runMode_ == nil {
 			missing.append(" runMode")
 		}
-		if (this.annotations_ == nil) {
+		if this.annotations_ == nil {
 			missing.append(" annotations")
 		}
-		if (this.suppressionNames_ == nil) {
+		if this.suppressionNames_ == nil {
 			missing.append(" suppressionNames")
 		}
-		if (this.closurePrimitiveNames_ == nil) {
+		if this.closurePrimitiveNames_ == nil {
 			missing.append(" closurePrimitiveNames")
 		}
-		if ((int32(this.set0) & 1) == 0) {
+		if (int32(this.set0) & 1) == 0 {
 			missing.append(" parseInlineSourceMaps")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_Config(this.languageMode_, this.strictMode_, this.jsDocParsingMode_, this.runMode_, this.annotations_, this.suppressionNames_, this.closurePrimitiveNames_, this.parseInlineSourceMaps_)
 }
 
-func (this *Config_Builder) setAnnotations(names *TMap[string, *Annotation_parsing]) *Config_Builder {
-	if (names == nil) {
+func (this *Config_Builder) setAnnotations(names *JTMap[string, *Annotation_parsing]) *Config_Builder {
+	if names == nil {
 		panic(new_NullPointerException_String("Null annotations").self())
 	}
 	this.annotations_ = names
 	return this
 }
-

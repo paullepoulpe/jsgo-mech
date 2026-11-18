@@ -3,8 +3,8 @@
 package closure
 
 type ThisAndArgumentsReferenceUpdater struct {
-	compiler_ *AbstractCompiler
-	context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext
+	compiler_   *AbstractCompiler
+	context     *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext
 	astFactory_ *AstFactory
 }
 
@@ -29,7 +29,7 @@ func (this *ThisAndArgumentsReferenceUpdater) visit(t *NodeTraversal, n Node, pa
 			name.setOriginalName("this")
 		}
 		n.replaceWith(name)
-	} else if (n.isName() && (n.getString() == "arguments")) {
+	} else if n.isName() && (n.getString() == "arguments") {
 		this.context.setNeedsArgumentsVar()
 		var name Node = this.astFactory_.createName((sstr_(ThisAndArgumentsReferenceUpdater_ARGUMENTS_VAR) + "$" + sstr_(this.context.uniqueId)), AstFactory_type_Node(n)).srcref(n)
 		if this.compiler_.getOptions().preservesDetailedSourceInfo() {
@@ -43,7 +43,7 @@ func (this *ThisAndArgumentsReferenceUpdater) shouldTraverse(t *NodeTraversal, n
 	if n.isMemberFieldDef() {
 		return false
 	}
-	if (((parent != 0) && parent.isComputedFieldDef()) && (n != parent.getFirstChild())) {
+	if ((parent != 0) && parent.isComputedFieldDef()) && (n != parent.getFirstChild()) {
 		return false
 	}
 	return (!n.isFunction() || n.isArrowFunction())
@@ -53,13 +53,13 @@ const ThisAndArgumentsReferenceUpdater_ARGUMENTS_VAR string = "$jscomp$arguments
 const ThisAndArgumentsReferenceUpdater_THIS_VAR string = "$jscomp$this"
 
 type ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext struct {
-	scopeBody Node
-	isConstructor_ bool
+	scopeBody          Node
+	isConstructor_     bool
 	lastSuperStatement Node
-	uniqueId string
-	needsThisVar bool
-	thisType AstFactory_Type
-	needsArgumentsVar bool
+	uniqueId           string
+	needsThisVar       bool
+	thisType           AstFactory_Type
+	needsArgumentsVar  bool
 }
 
 func (this *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext) zero_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext() {
@@ -109,7 +109,7 @@ func (this *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext) addVarDecl
 		NodeUtil_addFeatureToScript(script, FeatureSet_Feature_CONST_DECLARATIONS, compiler)
 		thisVar.srcrefTreeIfMissing(this.scopeBody)
 		ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext_makeTreeNonIndexable(thisVar)
-		if (this.lastSuperStatement == 0) {
+		if this.lastSuperStatement == 0 {
 			ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext_insertVarDeclaration(thisVar, this.scopeBody)
 		} else {
 			thisVar.insertAfter(this.lastSuperStatement)
@@ -128,7 +128,7 @@ func (this *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext) addVarDecl
 func ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext_insertVarDeclaration(varDeclaration Node, scopeBody Node) {
 	if scopeBody.getParent().isFunction() {
 		var insertBeforePoint Node = NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(scopeBody)
-		if (insertBeforePoint != 0) {
+		if insertBeforePoint != 0 {
 			varDeclaration.insertBefore(insertBeforePoint)
 		} else {
 			scopeBody.addChildToBack(varDeclaration)
@@ -142,9 +142,8 @@ func ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext_makeTreeNonIndexab
 	n.makeNonIndexable()
 	{
 		var child Node = n.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext_makeTreeNonIndexable(child)
 		}
 	}
 }
-

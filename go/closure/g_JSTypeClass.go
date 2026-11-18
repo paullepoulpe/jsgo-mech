@@ -104,4 +104,3 @@ func JSTypeClass_clinit() {
 	registerEnum_("com.google.javascript.rhino.jstype.JSTypeClass", enumValues_(JSTypeClass_values_))
 
 }
-

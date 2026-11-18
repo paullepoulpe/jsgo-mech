@@ -24,7 +24,7 @@ func Util_escapeString(s string) string {
 	sb.append_char(quote)
 	var region *Util_1UnescapedRegion = new_Util_1UnescapedRegion(sb, s)
 	var length int32 = String_length(s)
-	for i := int32(0); (i < length); i++ {
+	for i := int32(0); i < length; i++ {
 		var c uint16 = String_charAt(s, i)
 		switch c {
 		case '\n':
@@ -40,7 +40,7 @@ func Util_escapeString(s string) string {
 		case '\'':
 			region.appendForEscapedChar(singlequoteEscape)
 		case '>':
-			if ((i >= 2) && (((String_charAt(s, (i - 1)) == '-') && (String_charAt(s, (i - 2)) == '-')) || ((String_charAt(s, (i - 1)) == ']') && (String_charAt(s, (i - 2)) == ']')))) {
+			if (i >= 2) && (((String_charAt(s, (i-1)) == '-') && (String_charAt(s, (i-2)) == '-')) || ((String_charAt(s, (i-1)) == ']') && (String_charAt(s, (i-2)) == ']'))) {
 				region.appendForEscapedChar("\\u003e")
 			} else {
 				region.incrementForNormalChar()
@@ -56,7 +56,7 @@ func Util_escapeString(s string) string {
 				region.incrementForNormalChar()
 			}
 		default:
-			if ((int32(c) > 31) && (int32(c) <= 127)) {
+			if (int32(c) > 31) && (int32(c) <= 127) {
 				region.incrementForNormalChar()
 			} else {
 				region.appendUnescaped()
@@ -95,7 +95,7 @@ func Util_appendHexJavaScriptRepresentationInt(codePoint int32, out Appendable) 
 		Util_appendHexJavaScriptRepresentationInt(int32(surrogates[1]), out)
 		return
 	}
-	Appendable_append_s(out, "\\u").append_char(Util_HEX_CHARS[(int32(uint32(codePoint) >> 12) & 15)]).append_char(Util_HEX_CHARS[(int32(uint32(codePoint) >> 8) & 15)]).append_char(Util_HEX_CHARS[(int32(uint32(codePoint) >> 4) & 15)]).append_char(Util_HEX_CHARS[(codePoint & 15)])
+	Appendable_append_s(out, "\\u").append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>12) & 15)]).append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>8) & 15)]).append_char(Util_HEX_CHARS[(int32(uint32(codePoint)>>4) & 15)]).append_char(Util_HEX_CHARS[(codePoint & 15)])
 }
 
 var Util_HEX_CHARS []uint16
@@ -112,10 +112,10 @@ func Util_clinit() {
 }
 
 type Util_1UnescapedRegion struct {
-	cap_sb *StringBuilder
-	cap_s string
+	cap_sb               *StringBuilder
+	cap_s                string
 	unescapedRegionStart int32
-	unescapedRegionEnd int32
+	unescapedRegionEnd   int32
 }
 
 func (this *Util_1UnescapedRegion) finit_Util_1UnescapedRegion() {
@@ -136,7 +136,7 @@ func new_Util_1UnescapedRegion(cap_sb *StringBuilder, cap_s string) *Util_1Unesc
 }
 
 func (this *Util_1UnescapedRegion) appendUnescaped() {
-	if (this.unescapedRegionStart != this.unescapedRegionEnd) {
+	if this.unescapedRegionStart != this.unescapedRegionEnd {
 		this.cap_sb.append(String_substring(this.cap_s, this.unescapedRegionStart, this.unescapedRegionEnd))
 	}
 	this.unescapedRegionStart = this.unescapedRegionEnd
@@ -147,7 +147,7 @@ func (this *Util_1UnescapedRegion) incrementForNormalChar() {
 }
 
 func (this *Util_1UnescapedRegion) incrementForEscapedChar() {
-	if (this.unescapedRegionStart != this.unescapedRegionEnd) {
+	if this.unescapedRegionStart != this.unescapedRegionEnd {
 		panic(new_IllegalStateException_0().self())
 	}
 	this.unescapedRegionStart++
@@ -159,4 +159,3 @@ func (this *Util_1UnescapedRegion) appendForEscapedChar(escaped string) {
 	this.incrementForEscapedChar()
 	this.cap_sb.append(escaped)
 }
-

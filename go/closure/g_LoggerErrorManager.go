@@ -5,7 +5,7 @@ package closure
 type LoggerErrorManager struct {
 	BasicErrorManager
 	formatter MessageFormatter
-	logger *Logger
+	logger    *Logger
 }
 
 func (this *LoggerErrorManager) up_BasicErrorManager() *BasicErrorManager {
@@ -57,11 +57,15 @@ func (this *LoggerErrorManager) println_impl(level *CheckLevel, error_ *JSError)
 }
 
 func (this *LoggerErrorManager) printSummary_impl() {
-	var level *Level = func() *Level { if ((this.getErrorCount() + this.getWarningCount()) == 0) { return Level_INFO }; return Level_WARNING }()
-	if (this.getTypedPercent() > 0.0) {
+	var level *Level = func() *Level {
+		if (this.getErrorCount() + this.getWarningCount()) == 0 {
+			return Level_INFO
+		}
+		return Level_WARNING
+	}()
+	if this.getTypedPercent() > 0.0 {
 		this.logger.log_Level_String(level, String_format("%d error(s), %d warning(s), %.1f%% typed", []any{any(int32(this.getErrorCount())), any(int32(this.getWarningCount())), any(float64(this.getTypedPercent()))}))
-	} else if ((this.getErrorCount() + this.getWarningCount()) > 0) {
+	} else if (this.getErrorCount() + this.getWarningCount()) > 0 {
 		this.logger.log_Level_String(level, String_format("%d error(s), %d warning(s)", []any{any(int32(this.getErrorCount())), any(int32(this.getWarningCount()))}))
 	}
 }
-

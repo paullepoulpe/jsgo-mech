@@ -4,9 +4,9 @@ package closure
 
 type EnumType struct {
 	PrototypeObjectType
-	elementType *EnumElementType
-	elements_ *TSet[string]
-	source Node
+	elementType  *EnumElementType
+	elements_    *JTSet[string]
+	source       Node
 	googModuleId string
 }
 
@@ -36,7 +36,7 @@ func (this *EnumType) zero_EnumType() {
 }
 
 func (this *EnumType) finit_EnumType() {
-	this.elements_ = newTSet_(tc_string)
+	this.elements_ = jnewTSet_(jtc_string)
 }
 
 func (this *EnumType) init_EnumType(builder *EnumType_Builder) {
@@ -72,7 +72,7 @@ func (this *EnumType) getImplicitPrototype_impl() *ObjectType {
 	return this.registry.getNativeObjectType(JSTypeNative_OBJECT_TYPE)
 }
 
-func (this *EnumType) getElements() *TSet[string] {
+func (this *EnumType) getElements() *JTSet[string] {
 	return this.elements_
 }
 
@@ -91,14 +91,24 @@ func (this *EnumType) getEnumeratedTypeOfEnumObject_impl() *JSType {
 
 func (this *EnumType) testForEquality_impl(that *JSType) *Tri {
 	var result *Tri = this.PrototypeObjectType.testForEquality_impl(that)
-	if (result != nil) {
+	if result != nil {
 		return result
 	}
-	return func() *Tri { if this.equals(that.self()) { return Tri_TRUE }; return Tri_FALSE }()
+	return func() *Tri {
+		if this.equals(that.self()) {
+			return Tri_TRUE
+		}
+		return Tri_FALSE
+	}()
 }
 
 func (this *EnumType) appendTo_impl(sb *TypeStringBuilder) {
-	sb.append(func() string { if sb.isForAnnotations() { return "!Object" }; return this.getReferenceName().orElse(nullstr_) }())
+	sb.append(func() string {
+		if sb.isForAnnotations() {
+			return "!Object"
+		}
+		return this.getReferenceName().orElse(nullstr_)
+	}())
 }
 
 func (this *EnumType) getDisplayName_impl() Optional[string] {
@@ -157,10 +167,10 @@ func EnumType_clinit() {
 
 type EnumType_Builder struct {
 	PrototypeObjectType_Builder
-	elementName Optional[string]
-	source Node
+	elementName  Optional[string]
+	source       Node
 	googModuleId string
-	elementType *JSType
+	elementType  *JSType
 }
 
 func (this *EnumType_Builder) up_PrototypeObjectType_Builder() *PrototypeObjectType_Builder {
@@ -216,4 +226,3 @@ func (this *EnumType_Builder) setElementType(x *JSType) *EnumType_Builder {
 func (this *EnumType_Builder) build_impl() *PrototypeObjectType {
 	return new_EnumType(this).up_PrototypeObjectType()
 }
-

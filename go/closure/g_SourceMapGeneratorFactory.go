@@ -24,4 +24,3 @@ func SourceMapGeneratorFactory_getInstance(format *SourceMapFormat) SourceMapGen
 		panic("unreachable")
 	}()
 }
-

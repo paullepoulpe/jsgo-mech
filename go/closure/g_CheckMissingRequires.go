@@ -4,8 +4,8 @@ package closure
 
 type CheckMissingRequires struct {
 	NodeTraversal_AbstractModuleCallback
-	templateParamNames *TSet[string]
-	moduleByNamespace *TMap[string, *ModuleMetadataMap_ModuleMetadata]
+	templateParamNames    *JTSet[string]
+	moduleByNamespace     *JTMap[string, *ModuleMetadataMap_ModuleMetadata]
 	controlFlowScopeDepth int32
 }
 
@@ -17,7 +17,7 @@ func (this *CheckMissingRequires) up_NodeTraversal_AbstractModuleCallback() *Nod
 }
 
 func (this *CheckMissingRequires) finit_CheckMissingRequires() {
-	this.templateParamNames = newTSet_(tc_string)
+	this.templateParamNames = jnewTSet_(jtc_string)
 	this.controlFlowScopeDepth = 0
 }
 
@@ -39,10 +39,10 @@ func (this *CheckMissingRequires) process_2(externs Node, root Node) {
 }
 
 func (this *CheckMissingRequires) shouldTraverse_4_impl(t *NodeTraversal, n Node, currentModule *ModuleMetadataMap_ModuleMetadata, scopeRoot Node) bool {
-	if (NodeUtil_isValidCfgRoot(n) && !this.isInGlobalControlFlowScope(n)) {
+	if NodeUtil_isValidCfgRoot(n) && !this.isInGlobalControlFlowScope(n) {
 		this.controlFlowScopeDepth++
 	}
-	if (currentModule == nil) {
+	if currentModule == nil {
 		return true
 	}
 	this.visitNode(t, n, currentModule)
@@ -57,7 +57,7 @@ func (this *CheckMissingRequires) isInGlobalControlFlowScope(n Node) bool {
 		case Token_rhino_MODULE_BODY, Token_rhino_BLOCK:
 			return false
 		case Token_rhino_FUNCTION:
-			if (this.controlFlowScopeDepth > 0) {
+			if this.controlFlowScopeDepth > 0 {
 				return false
 			}
 			if CheckMissingRequires_isGoogScopeBody(NodeUtil_getFunctionBody(n)) {
@@ -76,31 +76,31 @@ func CheckMissingRequires_isIIFE(n Node) bool {
 }
 
 func (this *CheckMissingRequires) visit_4_impl(t *NodeTraversal, n Node, currentModule *ModuleMetadataMap_ModuleMetadata, scopeRoot Node) {
-	if (NodeUtil_isValidCfgRoot(n) && !this.isInGlobalControlFlowScope(n)) {
+	if NodeUtil_isValidCfgRoot(n) && !this.isInGlobalControlFlowScope(n) {
 		this.controlFlowScopeDepth--
 	}
-	if ((currentModule != nil) && (n == currentModule.rootNode())) {
+	if (currentModule != nil) && (n == currentModule.rootNode()) {
 		this.templateParamNames.clear()
 	}
 }
 
 func (this *CheckMissingRequires) visitNode(t *NodeTraversal, n Node, currentModule *ModuleMetadataMap_ModuleMetadata) {
 	var info *JSDocInfo = n.getJSDocInfo()
-	if (info != nil) {
+	if info != nil {
 		this.visitJsDocInfo(t, currentModule, info)
 	}
-	if (!n.getParent().isGetProp() && n.isQualifiedName()) {
+	if !n.getParent().isGetProp() && n.isQualifiedName() {
 		var qualifiedName *QualifiedName = n.getQualifiedNameObject()
 		var root string = qualifiedName.getRoot()
-		if ((root == "this") || (root == "super")) {
+		if (root == "this") || (root == "super") {
 			return
 		}
 		this.visitQualifiedName(t, n, currentModule, qualifiedName, CheckMissingRequires_Strength_CODE)
 	}
-	if (n.isName() && !String_isEmpty(n.getString())) {
+	if n.isName() && !String_isEmpty(n.getString()) {
 		this.visitMaybeDeclaration(t, n, currentModule)
 	}
-	if (n.isCall() && (this.controlFlowScopeDepth == 0)) {
+	if n.isCall() && (this.controlFlowScopeDepth == 0) {
 		this.visitMaybeGoogModuleGet(t, n, currentModule)
 	}
 }
@@ -164,7 +164,7 @@ func (this *CheckMissingRequires) visitMaybeGoogModuleGet(t *NodeTraversal, goog
 	}
 	var importedNamespace string = googModuleGet.getSecondChild().getString()
 	var requiredFile *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.get(importedNamespace)
-	if (requiredFile == nil) {
+	if requiredFile == nil {
 		return
 	}
 	if !CheckMissingRequires_hasAcceptableRequire(currentFile, QualifiedName_of(importedNamespace), requiredFile, CheckMissingRequires_Strength_WEAK_TYPE) {
@@ -182,30 +182,35 @@ func (this *CheckMissingRequires) visitMaybeDeclaration(t *NodeTraversal, n Node
 	Preconditions_checkState(n.isName())
 	var rootName string = n.getString()
 	var var_ *Var = cast_[*Var](t.getScope().getVar(rootName).self())
-	if (var_ == nil) {
+	if var_ == nil {
 		return
 	}
 	var declaration *Var = cast_[*Var](var_.getDeclaration())
-	if ((declaration == nil) || (declaration.getNode() != n)) {
+	if (declaration == nil) || (declaration.getNode() != n) {
 		return
 	}
 	if cast_[*Scope](var_.getScope()).isLocal() {
 		var require *NodeUtil_GoogRequire = NodeUtil_getGoogRequireInfo_Var(var_)
-		if (require == nil) {
+		if require == nil {
 			return
 		}
 		if require.property().isEmpty() {
 			return
 		}
 		var requiredFile *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.get(require.namespace())
-		if ((requiredFile == nil) || !requiredFile.hasLegacyGoogNamespaces()) {
+		if (requiredFile == nil) || !requiredFile.hasLegacyGoogNamespaces() {
 			return
 		}
 		var reference string = (sstr_(require.namespace()) + "." + sstr_(require.property().get()))
 		if !currentFile.googNamespaces().contains(strobj_(reference)) {
 			var alternateFile *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.get(reference)
-			if ((alternateFile != nil) && (alternateFile != requiredFile)) {
-				var toReport *DiagnosticType = func() *DiagnosticType { if require.isStrongRequire() { return CheckMissingRequires_INCORRECT_NAMESPACE_ALIAS_REQUIRE }; return CheckMissingRequires_INCORRECT_NAMESPACE_ALIAS_REQUIRE_TYPE }()
+			if (alternateFile != nil) && (alternateFile != requiredFile) {
+				var toReport *DiagnosticType = func() *DiagnosticType {
+					if require.isStrongRequire() {
+						return CheckMissingRequires_INCORRECT_NAMESPACE_ALIAS_REQUIRE
+					}
+					return CheckMissingRequires_INCORRECT_NAMESPACE_ALIAS_REQUIRE_TYPE
+				}()
 				t.report(n, toReport, []string{reference})
 			}
 		}
@@ -227,7 +232,7 @@ func (this *CheckMissingRequires) visitQualifiedName(t *NodeTraversal, n Node, c
 		return
 	}
 	var var_ *Var = cast_[*Var](t.getScope().getVar(rootName).self())
-	if ((var_ != nil) && cast_[*Scope](var_.getScope()).isLocal()) {
+	if (var_ != nil) && cast_[*Scope](var_.getScope()).isLocal() {
 		this.checkMissingRequireThroughShortName(t, n, var_, currentFile, qualifiedName, referenceStrength)
 	} else {
 		this.checkMissingRequireThroughFullyQualifiedName(t, n, currentFile, qualifiedName, referenceStrength)
@@ -240,7 +245,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortName(t *NodeTra
 	}
 	var inModule bool = currentFile.isModule()
 	var inGoogScope bool = (!inModule && CheckMissingRequires_isGoogScopeBody(localVar.getScopeRoot()))
-	if (!inModule && !inGoogScope) {
+	if !inModule && !inGoogScope {
 		return
 	}
 	if qualifiedName.isSimple() {
@@ -255,7 +260,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortName(t *NodeTra
 
 func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInGoogScope(t *NodeTraversal, n Node, localVar *Var, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength *CheckMissingRequires_Strength) {
 	var initialValue Node = localVar.getInitialValue()
-	if (initialValue == 0) {
+	if initialValue == 0 {
 		return
 	}
 	if initialValue.isQualifiedName() {
@@ -264,10 +269,15 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInGoogScope
 		var originalImport *ModuleMetadataMap_ModuleMetadata = nil
 		{
 			var subName *QualifiedName = aliasedName
-			for ; (subName != nil); subName = subName.getOwner() {
+			for ; subName != nil; subName = subName.getOwner() {
 				var joined Optional[string] = subName.join()
-				var imported *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata { if joined.isPresent() { return this.moduleByNamespace.get(joined.get()) }; return nil }()
-				if (imported != nil) {
+				var imported *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
+					if joined.isPresent() {
+						return this.moduleByNamespace.get(joined.get())
+					}
+					return nil
+				}()
+				if imported != nil {
 					originalImport = imported
 					break
 				}
@@ -284,7 +294,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInGoogScope
 	}
 	var importedNamespace string = initialValue.getSecondChild().getString()
 	var originalImport *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.get(importedNamespace)
-	if ((originalImport != nil) && !originalImport.hasLegacyGoogNamespaces()) {
+	if (originalImport != nil) && !originalImport.hasLegacyGoogNamespaces() {
 		return
 	}
 	var aliasedName *QualifiedName = QualifiedName_of(importedNamespace)
@@ -299,11 +309,11 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInGoogScope
 }
 
 func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInModule(t *NodeTraversal, n Node, require *NodeUtil_GoogRequire, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength *CheckMissingRequires_Strength) {
-	if (require == nil) {
+	if require == nil {
 		return
 	}
 	var originalRequiredFile *ModuleMetadataMap_ModuleMetadata = this.moduleByNamespace.get(require.namespace())
-	if ((originalRequiredFile == nil) || !originalRequiredFile.hasLegacyGoogNamespaces()) {
+	if (originalRequiredFile == nil) || !originalRequiredFile.hasLegacyGoogNamespaces() {
 		return
 	}
 	var normalizeQualifiedName *QualifiedName = this.normalizeQualifiedNamePlusImport(qualifiedName, require)
@@ -313,32 +323,47 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInModule(t 
 func (this *CheckMissingRequires) checkNormalizedShortNameImport(t *NodeTraversal, n Node, currentFile *ModuleMetadataMap_ModuleMetadata, originalImport *ModuleMetadataMap_ModuleMetadata, originalQualifiedName *QualifiedName, normalizedQualifiedName *QualifiedName, referenceStrength *CheckMissingRequires_Strength) {
 	{
 		var subName *QualifiedName = normalizedQualifiedName
-		for ; (subName != nil); subName = subName.getOwner() {
+		for ; subName != nil; subName = subName.getOwner() {
 			var namespace Optional[string] = subName.join()
 			if this.isAllowedNamespace(currentFile, namespace.get()) {
 				return
 			}
-			var requiredFile *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata { if namespace.isPresent() { return this.moduleByNamespace.get(namespace.get()) }; return nil }()
-			if (requiredFile == nil) {
+			var requiredFile *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
+				if namespace.isPresent() {
+					return this.moduleByNamespace.get(namespace.get())
+				}
+				return nil
+			}()
+			if requiredFile == nil {
 				continue
 			}
-			if ((!CheckMissingRequires_hasAcceptableRequire(currentFile, subName, requiredFile, referenceStrength) || (originalImport == nil)) || (originalImport != requiredFile)) {
+			if (!CheckMissingRequires_hasAcceptableRequire(currentFile, subName, requiredFile, referenceStrength) || (originalImport == nil)) || (originalImport != requiredFile) {
 				var toReport *DiagnosticType
 				if currentFile.isModule() {
-					toReport = func() *DiagnosticType { if referenceStrength.isStrong_ { return CheckMissingRequires_INDIRECT_NAMESPACE_REF_REQUIRE }; return CheckMissingRequires_INDIRECT_NAMESPACE_REF_REQUIRE_TYPE }()
+					toReport = func() *DiagnosticType {
+						if referenceStrength.isStrong_ {
+							return CheckMissingRequires_INDIRECT_NAMESPACE_REF_REQUIRE
+						}
+						return CheckMissingRequires_INDIRECT_NAMESPACE_REF_REQUIRE_TYPE
+					}()
 				} else {
-					toReport = func() *DiagnosticType { if referenceStrength.isStrong_ { return CheckMissingRequires_MISSING_REQUIRE_IN_GOOG_SCOPE }; return CheckMissingRequires_MISSING_REQUIRE_TYPE_IN_GOOG_SCOPE }()
+					toReport = func() *DiagnosticType {
+						if referenceStrength.isStrong_ {
+							return CheckMissingRequires_MISSING_REQUIRE_IN_GOOG_SCOPE
+						}
+						return CheckMissingRequires_MISSING_REQUIRE_TYPE_IN_GOOG_SCOPE
+					}()
 				}
 				var errorNode Node = n
 				var diff int32 = (normalizedQualifiedName.getComponentCount() - subName.getComponentCount())
 				if n.isQualifiedName() {
-					for i := int32(0); ((i < diff) && errorNode.isGetProp()); i++ {
+					for i := int32(0); (i < diff) && errorNode.isGetProp(); i++ {
 						errorNode = errorNode.getFirstChild()
 					}
 					t.report_4(NodeUtil_getRootOfQualifiedName(errorNode), errorNode, toReport, []string{namespace.orElse("null")})
 				} else {
 					var errorQName *QualifiedName = originalQualifiedName
-					for i := int32(0); (i < diff); i++ {
+					for i := int32(0); i < diff; i++ {
 						errorQName = errorQName.getOwner()
 					}
 					var correctName Optional[string] = errorQName.join()
@@ -356,22 +381,37 @@ func (this *CheckMissingRequires) checkNormalizedShortNameImport(t *NodeTraversa
 func (this *CheckMissingRequires) checkMissingRequireThroughFullyQualifiedName(t *NodeTraversal, n Node, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength *CheckMissingRequires_Strength) {
 	{
 		var subName *QualifiedName = qualifiedName
-		for ; (subName != nil); subName = subName.getOwner() {
+		for ; subName != nil; subName = subName.getOwner() {
 			var namespace Optional[string] = subName.join()
 			if this.isAllowedNamespace(currentFile, namespace.get()) {
 				return
 			}
-			var requiredFile *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata { if namespace.isPresent() { return this.moduleByNamespace.get(namespace.get()) }; return nil }()
-			if (requiredFile == nil) {
+			var requiredFile *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
+				if namespace.isPresent() {
+					return this.moduleByNamespace.get(namespace.get())
+				}
+				return nil
+			}()
+			if requiredFile == nil {
 				continue
 			}
 			var fileName string = requiredFile.rootNode().getSourceFileName()
 			var toReport *DiagnosticType
 			if currentFile.isModule() {
-				toReport = func() *DiagnosticType { if referenceStrength.isStrong_ { return CheckMissingRequires_MISSING_REQUIRE }; return CheckMissingRequires_MISSING_REQUIRE_TYPE }()
+				toReport = func() *DiagnosticType {
+					if referenceStrength.isStrong_ {
+						return CheckMissingRequires_MISSING_REQUIRE
+					}
+					return CheckMissingRequires_MISSING_REQUIRE_TYPE
+				}()
 			} else if !CheckMissingRequires_hasAcceptableRequire(currentFile, subName, requiredFile, referenceStrength) {
-				toReport = func() *DiagnosticType { if referenceStrength.isStrong_ { return CheckMissingRequires_MISSING_REQUIRE_IN_PROVIDES_FILE }; return CheckMissingRequires_MISSING_REQUIRE_TYPE_IN_PROVIDES_FILE }()
-			} else if (!referenceStrength.isTypeOnly && requiredFile.isNonLegacyGoogModule()) {
+				toReport = func() *DiagnosticType {
+					if referenceStrength.isStrong_ {
+						return CheckMissingRequires_MISSING_REQUIRE_IN_PROVIDES_FILE
+					}
+					return CheckMissingRequires_MISSING_REQUIRE_TYPE_IN_PROVIDES_FILE
+				}()
+			} else if !referenceStrength.isTypeOnly && requiredFile.isNonLegacyGoogModule() {
 				toReport = CheckMissingRequires_NON_LEGACY_GOOG_MODULE_REFERENCE
 			} else {
 				return
@@ -402,7 +442,7 @@ func CheckMissingRequires_swapRootOfQualifiedName(original *QualifiedName, newRo
 }
 
 func (this *CheckMissingRequires) isAllowedNamespace(currentFile *ModuleMetadataMap_ModuleMetadata, namespace string) bool {
-	if (namespace == "goog.module") {
+	if namespace == "goog.module" {
 		return true
 	}
 	if currentFile.googNamespaces().contains(strobj_(namespace)) {
@@ -419,9 +459,9 @@ func CheckMissingRequires_hasAcceptableRequire(rdep *ModuleMetadataMap_ModuleMet
 	acceptableRequires = Sets_SetView_as_Set(Sets_intersection(acceptableRequires, dep.googNamespaces().elementSet()))
 	{
 		var parent *QualifiedName = namespace
-		for ; (parent != nil); parent = parent.getOwner() {
+		for ; parent != nil; parent = parent.getOwner() {
 			var joined Optional[string] = parent.join()
-			if (joined.isPresent() && Collection_contains_s(acceptableRequires, joined.get())) {
+			if joined.isPresent() && Collection_contains_s(acceptableRequires, joined.get()) {
 				return true
 			}
 		}
@@ -468,7 +508,7 @@ func CheckMissingRequires_clinit() {
 
 type CheckMissingRequires_Strength struct {
 	Enum
-	isStrong_ bool
+	isStrong_  bool
 	isTypeOnly bool
 }
 
@@ -524,4 +564,3 @@ func CheckMissingRequires_Strength_clinit() {
 	registerEnum_("com.google.javascript.jscomp.CheckMissingRequires.Strength", enumValues_(CheckMissingRequires_Strength_values_))
 
 }
-

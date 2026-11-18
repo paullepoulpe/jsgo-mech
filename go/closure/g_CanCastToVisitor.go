@@ -53,7 +53,7 @@ func (this *CanCastToVisitor) canCastToFunction(thisType *JSType, functionType *
 
 func (this *CanCastToVisitor) isInterface(type_ *JSType) bool {
 	var objType *ObjectType = type_.toObjectType()
-	if (objType != nil) {
+	if objType != nil {
 		var constructor *JSType = objType.getConstructor().up_JSType()
 		return ((constructor != nil) && constructor.isInterface())
 	}
@@ -63,11 +63,11 @@ func (this *CanCastToVisitor) isInterface(type_ *JSType) bool {
 func (this *CanCastToVisitor) castCastToHelper(thisType *JSType, thatType *JSType) any {
 	if thisType.isNoResolvedType() {
 		return any(bool(true))
-	} else if ((((thatType.isUnknownType() || thatType.isAllType()) || thatType.isNoObjectType()) || thatType.isNoResolvedType()) || thatType.isNoType()) {
+	} else if (((thatType.isUnknownType() || thatType.isAllType()) || thatType.isNoObjectType()) || thatType.isNoResolvedType()) || thatType.isNoType() {
 		return any(bool(true))
-	} else if (thisType.isRecordType() || thatType.isRecordType()) {
+	} else if thisType.isRecordType() || thatType.isRecordType() {
 		return any(bool(true))
-	} else if (this.isInterface(thisType) || this.isInterface(thatType)) {
+	} else if this.isInterface(thisType) || this.isInterface(thatType) {
 		return any(bool(true))
 	} else if thatType.isEnumElementType() {
 		return thisType.visit_2(RelationshipVisitor(this), thatType.toMaybeEnumElementType().getPrimitiveType())
@@ -98,7 +98,7 @@ func (this *CanCastToVisitor) caseUnionType(thisType *UnionType, thatType *JSTyp
 	it_1 := thisType.getAlternates().each()
 	for it_1.next() {
 		var type_ *JSType = it_1.v
-		if (type_.isVoidType() || type_.isNullType()) {
+		if type_.isVoidType() || type_.isNullType() {
 		} else {
 			visited = true
 			if unbox_[bool](type_.visit_2(RelationshipVisitor(this), thatType)) {
@@ -125,4 +125,3 @@ func (this *CanCastToVisitor) caseTemplateType(thisType *TemplateType, thatType 
 func (this *CanCastToVisitor) caseEnumElementType(typeType *EnumElementType, thatType *JSType) any {
 	return typeType.getPrimitiveType().visit_2(RelationshipVisitor(this), thatType)
 }
-

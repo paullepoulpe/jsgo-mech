@@ -26,14 +26,14 @@ func ClassUtil_getFullyQualifiedNameOfThisProp(getProp Node) string {
 }
 
 func ClassUtil_getClassNameOfThisProp(getprop Node) string {
-	if (!getprop.isGetProp() || !getprop.getFirstChild().isThis()) {
+	if !getprop.isGetProp() || !getprop.getFirstChild().isThis() {
 		return ""
 	}
 	if getprop.isPrivateIdentifier() {
 		return ""
 	}
 	var function Node = NodeUtil_getEnclosingFunction(getprop)
-	if (function == 0) {
+	if function == 0 {
 		return ""
 	}
 	var className string = ClassUtil_getMemberFunctionClassName(function)
@@ -54,7 +54,12 @@ func ClassUtil_isComputedMemberInsideClassWithName(fieldNode Node) bool {
 func ClassUtil_getFullyQualifiedNameOfMemberFieldDef(fieldNode Node) string {
 	Preconditions_checkArgument(ClassUtil_isMemberFieldDefInsideClassWithName(fieldNode))
 	var className string = ClassUtil_getMemberFieldDefClassName(fieldNode)
-	return func() string { if fieldNode.isStaticMember() { return (sstr_(className) + "." + sstr_(fieldNode.getString())) }; return (sstr_(className) + ".prototype." + sstr_(fieldNode.getString())) }()
+	return func() string {
+		if fieldNode.isStaticMember() {
+			return (sstr_(className) + "." + sstr_(fieldNode.getString()))
+		}
+		return (sstr_(className) + ".prototype." + sstr_(fieldNode.getString()))
+	}()
 }
 
 func ClassUtil_getMemberFieldDefClassName(fieldNode Node) string {
@@ -70,7 +75,12 @@ func ClassUtil_getFullyQualifiedNameOfMethod(function Node) string {
 	Preconditions_checkState((!String_isEmpty(className) && !String_isEmpty(className)))
 	var memberFunctionDef Node = function.getParent()
 	var methodName string = memberFunctionDef.getString()
-	return func() string { if memberFunctionDef.isStaticMember() { return (sstr_(className) + "." + sstr_(methodName)) }; return (sstr_(className) + ".prototype." + sstr_(methodName)) }()
+	return func() string {
+		if memberFunctionDef.isStaticMember() {
+			return (sstr_(className) + "." + sstr_(methodName))
+		}
+		return (sstr_(className) + ".prototype." + sstr_(methodName))
+	}()
 }
 
 func ClassUtil_isClassMethod(functionNode Node) bool {
@@ -103,4 +113,3 @@ func ClassUtil_isConstructor(functionNode Node) bool {
 	var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(functionNode)
 	return ((jsdoc != nil) && jsdoc.isConstructorOrInterface())
 }
-

@@ -3,15 +3,15 @@
 package closure
 
 type JSError struct {
-	type__ *DiagnosticType
-	description_ string
-	sourceName_ Optional[string]
-	lineno_ int32
-	charno_ int32
-	length_ int32
-	node_ Node
+	type__        *DiagnosticType
+	description_  string
+	sourceName_   Optional[string]
+	lineno_       int32
+	charno_       int32
+	length_       int32
+	node_         Node
 	defaultLevel_ *CheckLevel
-	requirement_ *Requirement
+	requirement_  *Requirement
 }
 
 func (this *JSError) zero_JSError() {
@@ -100,9 +100,24 @@ func JSError_builder(type_ *DiagnosticType, arguments []string) *JSError_Builder
 }
 
 func (this *JSError) toString() string {
-	var sourceName string = func() string { if String_isEmpty(this.sourceName().orElse("")) { return "(unknown source)" }; return this.sourceName().get() }()
-	var lineno string = func() string { if (this.lineno() != JSError_DEFAULT_LINENO) { return String_valueOf(this.lineno()) }; return "(unknown line)" }()
-	var charno string = func() string { if (this.charno() != JSError_DEFAULT_CHARNO) { return String_valueOf(this.charno()) }; return "(unknown column)" }()
+	var sourceName string = func() string {
+		if String_isEmpty(this.sourceName().orElse("")) {
+			return "(unknown source)"
+		}
+		return this.sourceName().get()
+	}()
+	var lineno string = func() string {
+		if this.lineno() != JSError_DEFAULT_LINENO {
+			return String_valueOf(this.lineno())
+		}
+		return "(unknown line)"
+	}()
+	var charno string = func() string {
+		if this.charno() != JSError_DEFAULT_CHARNO {
+			return String_valueOf(this.charno())
+		}
+		return "(unknown column)"
+	}()
 	return (sstr_(this.type_().key_) + ". " + sstr_(this.description()) + " at " + sstr_(sourceName) + " line " + sstr_(lineno) + " : " + sstr_(charno))
 }
 
@@ -121,7 +136,12 @@ func (this *JSError) format(level *CheckLevel, formatter MessageFormatter) Optio
 }
 
 func (this *JSError) getNodeSourceOffset() int32 {
-	return func() int32 { if (this.node() != 0) { return this.node().getSourceOffset() }; return -1 }()
+	return func() int32 {
+		if this.node() != 0 {
+			return this.node().getSourceOffset()
+		}
+		return -1
+	}()
 }
 
 func (this *JSError) getLineNumber() int32 {
@@ -189,6 +209,7 @@ func (this *JSError) hashCode() int32 {
 const JSError_DEFAULT_LINENO int32 = -1
 const JSError_DEFAULT_CHARNO int32 = -1
 const JSError_DEFAULT_LENGTH int32 = 0
+
 var JSError_DEFAULT_SOURCENAME Optional[string]
 var JSError_DEFAULT_NODE Node
 var JSError_DEFAULT_REQUIREMENT *Requirement
@@ -207,14 +228,14 @@ func JSError_clinit() {
 }
 
 type JSError_Builder struct {
-	type__ *DiagnosticType
-	args []string
-	level_ *CheckLevel
-	n Node
-	sourceName_ Optional[string]
-	lineno_ int32
-	charno_ int32
-	length_ int32
+	type__       *DiagnosticType
+	args         []string
+	level_       *CheckLevel
+	n            Node
+	sourceName_  Optional[string]
+	lineno_      int32
+	charno_      int32
+	length_      int32
 	requirement_ *Requirement
 }
 
@@ -262,7 +283,7 @@ func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder
 	this.charno_ = this.n.getCharno()
 	var endOffset int32 = end.getSourceOffset()
 	var startOffset int32 = start.getSourceOffset()
-	if ((endOffset != -1) && (startOffset != -1)) {
+	if (endOffset != -1) && (startOffset != -1) {
 		this.length_ = ((end.getSourceOffset() + end.getLength()) - start.getSourceOffset())
 	}
 	return this
@@ -289,4 +310,3 @@ func (this *JSError_Builder) setSourceLocation(sourceName Optional[string], line
 func (this *JSError_Builder) build() *JSError {
 	return new_JSError(this.type__, this.type__.format(this.args), this.sourceName_, this.lineno_, this.charno_, this.length_, this.n, this.level_, this.requirement_)
 }
-

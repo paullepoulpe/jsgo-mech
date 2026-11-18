@@ -5,8 +5,8 @@ package closure
 type ForOfStatementTree struct {
 	ParseTree
 	initializer *ParseTree
-	collection *ParseTree
-	body *ParseTree
+	collection  *ParseTree
+	body        *ParseTree
 }
 
 func (this *ForOfStatementTree) up_ParseTree() *ParseTree {
@@ -29,4 +29,3 @@ func new_ForOfStatementTree(location *SourceRange, initializer *ParseTree, colle
 	this.init_ForOfStatementTree(location, initializer, collection, body)
 	return this
 }
-

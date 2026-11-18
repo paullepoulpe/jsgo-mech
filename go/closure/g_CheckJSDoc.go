@@ -4,8 +4,8 @@ package closure
 
 type CheckJSDoc struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	inExterns_ bool
+	compiler_              *AbstractCompiler
+	inExterns_             bool
 	checkJsDocTypesVisitor *CheckJSDoc_CheckJsdocTypes
 }
 
@@ -47,7 +47,7 @@ func (this *CheckJSDoc) checkJsDocInBlockComments(fileName Optional[string]) {
 	it_1 := foreach_(any(this.compiler_.getComments(fileName)))
 	for it_1.next() {
 		var comment *Comment = cast_[*Comment](it_1.v)
-		if (comment.type__ == Comment_Type_BLOCK) {
+		if comment.type__ == Comment_Type_BLOCK {
 			if CheckJSDoc_COMMENT_PATTERN.matcher_s(comment.value_).find() {
 				this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(fileName, (comment.location_.start_.line_ + 1), comment.location_.start_.column_, CheckJSDoc_JSDOC_IN_BLOCK_COMMENT, []string{}))
 			}
@@ -86,7 +86,7 @@ func (this *CheckJSDoc) visit_impl(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *CheckJSDoc) validateSuppress(n Node, info *JSDocInfo) {
-	if ((info == nil) || info.getSuppressions().isEmpty()) {
+	if (info == nil) || info.getSuppressions().isEmpty() {
 		return
 	}
 	switch n.getToken() {
@@ -116,19 +116,24 @@ func (this *CheckJSDoc) validateSuppress(n Node, info *JSDocInfo) {
 }
 
 func CheckJSDoc_containsOnlySuppressionFor(jsdoc *JSDocInfo, allowedSuppression string) bool {
-	var suppressions *TSet[string] = jsdoc.getSuppressions()
+	var suppressions *JTSet[string] = jsdoc.getSuppressions()
 	return ((suppressions.size() == 1) && (str_(Iterables_getOnlyElement(Iterable(suppressions.asSet()))) == allowedSuppression))
 }
 
 func (this *CheckJSDoc) validateTypedefs(n Node, info *JSDocInfo) {
-	if ((info == nil) || !info.hasTypedefType()) {
+	if (info == nil) || !info.hasTypedefType() {
 		return
 	}
 	if this.isClassDecl(n) {
 		this.reportMisplaced(n, "typedef", "@typedef is not allowed on a class declaration.")
 		return
 	}
-	var lvalue Node = func() Node { if (NodeUtil_isNameDeclaration(n) || n.isAssign()) { return n.getFirstChild() }; return n }()
+	var lvalue Node = func() Node {
+		if NodeUtil_isNameDeclaration(n) || n.isAssign() {
+			return n.getFirstChild()
+		}
+		return n
+	}()
 	if !lvalue.isQualifiedName() {
 		this.reportMisplaced(n, "typedef", "@typedef is only allowed on qualified name declarations. Did you mean @type?")
 	} else if CheckJSDoc_isPrototypeOrInstanceDecl(lvalue) {
@@ -137,7 +142,7 @@ func (this *CheckJSDoc) validateTypedefs(n Node, info *JSDocInfo) {
 }
 
 func (this *CheckJSDoc) validateTemplates(n Node, info *JSDocInfo) {
-	if ((((((info != nil) && !info.getTemplateTypeNames().isEmpty()) && !info.isConstructorOrInterface()) && !this.isClassDecl(n)) && !info.containsFunctionDeclaration()) && (CheckJSDoc_getFunctionDecl(n) == 0)) {
+	if (((((info != nil) && !info.getTemplateTypeNames().isEmpty()) && !info.isConstructorOrInterface()) && !this.isClassDecl(n)) && !info.containsFunctionDeclaration()) && (CheckJSDoc_getFunctionDecl(n) == 0) {
 		this.reportMisplaced(n, "template", "@template is only allowed in class, constructor, interface, function or method declarations")
 	}
 }
@@ -149,16 +154,16 @@ func CheckJSDoc_getFunctionDecl(n Node) Node {
 	if n.isMemberFunctionDef() {
 		return n.getFirstChild()
 	}
-	if ((NodeUtil_isNameDeclaration(n) && (n.getFirstFirstChild() != 0)) && n.getFirstFirstChild().isFunction()) {
+	if (NodeUtil_isNameDeclaration(n) && (n.getFirstFirstChild() != 0)) && n.getFirstFirstChild().isFunction() {
 		return n.getFirstFirstChild()
 	}
-	if ((n.isAssign() && n.getFirstChild().isQualifiedName()) && n.getLastChild().isFunction()) {
+	if (n.isAssign() && n.getFirstChild().isQualifiedName()) && n.getLastChild().isFunction() {
 		return n.getLastChild()
 	}
-	if (n.isGetterDef() || n.isSetterDef()) {
+	if n.isGetterDef() || n.isSetterDef() {
 		return n.getFirstChild()
 	}
-	if (n.isComputedProp() && n.getLastChild().isFunction()) {
+	if n.isComputedProp() && n.getLastChild().isFunction() {
 		return n.getLastChild()
 	}
 	return 0
@@ -188,13 +193,13 @@ func CheckJSDoc_isPrototypeOrInstanceDecl(n Node) bool {
 }
 
 func (this *CheckJSDoc) validateClassLevelJsDoc(n Node, info *JSDocInfo) {
-	if (((info != nil) && n.isMemberFunctionDef()) && CheckJSDoc_hasClassLevelJsDoc(info)) {
+	if ((info != nil) && n.isMemberFunctionDef()) && CheckJSDoc_hasClassLevelJsDoc(info) {
 		this.report(n, CheckJSDoc_DISALLOWED_MEMBER_JSDOC, []string{})
 	}
 }
 
 func (this *CheckJSDoc) validateAbstractJsDoc(n Node, info *JSDocInfo) {
-	if ((info == nil) || !info.isAbstract()) {
+	if (info == nil) || !info.isAbstract() {
 		return
 	}
 	if this.isClassDecl(n) {
@@ -210,11 +215,11 @@ func (this *CheckJSDoc) validateAbstractJsDoc(n Node, info *JSDocInfo) {
 		return
 	}
 	var functionNode Node = CheckJSDoc_getFunctionDecl(n)
-	if (functionNode == 0) {
+	if functionNode == 0 {
 		this.report(n, CheckJSDoc_MISPLACED_ANNOTATION, []string{"@abstract", "only functions or non-static methods can be abstract"})
 		return
 	}
-	if (!info.isConstructor() && NodeUtil_getFunctionBody(functionNode).hasChildren()) {
+	if !info.isConstructor() && NodeUtil_getFunctionBody(functionNode).hasChildren() {
 		this.report(n, CheckJSDoc_MISPLACED_ANNOTATION, []string{"@abstract", "function with a non-empty body cannot be abstract"})
 		return
 	}
@@ -222,7 +227,7 @@ func (this *CheckJSDoc) validateAbstractJsDoc(n Node, info *JSDocInfo) {
 		this.report(n, CheckJSDoc_MISPLACED_ANNOTATION, []string{"@abstract", "constructors cannot be abstract"})
 		return
 	}
-	if ((((((!info.isConstructor() && !n.isMemberFunctionDef()) && !n.isStringKey()) && !n.isComputedProp()) && !n.isGetterDef()) && !n.isSetterDef()) && !NodeUtil_isPrototypeMethod(functionNode)) {
+	if (((((!info.isConstructor() && !n.isMemberFunctionDef()) && !n.isStringKey()) && !n.isComputedProp()) && !n.isGetterDef()) && !n.isSetterDef()) && !NodeUtil_isPrototypeMethod(functionNode) {
 		this.report(n, CheckJSDoc_MISPLACED_ANNOTATION, []string{"@abstract", "only functions or non-static methods can be abstract"})
 		return
 	}
@@ -237,14 +242,14 @@ func CheckJSDoc_hasClassLevelJsDoc(info *JSDocInfo) bool {
 }
 
 func (this *CheckJSDoc) validateNoCollapse(n Node, info *JSDocInfo) {
-	if ((info == nil) || !info.isNoCollapse()) {
+	if (info == nil) || !info.isNoCollapse() {
 		return
 	}
 	if n.isFromExterns() {
 		this.reportMisplaced(n, "nocollapse", "This JSDoc has no effect in externs.")
 		return
 	}
-	if (NodeUtil_isPrototypePropertyDeclaration(n.getParent()) || (n.getParent().isClassMembers() && !n.isStaticMember())) {
+	if NodeUtil_isPrototypePropertyDeclaration(n.getParent()) || (n.getParent().isClassMembers() && !n.isStaticMember()) {
 		this.reportMisplaced(n, "nocollapse", "This JSDoc has no effect on prototype properties and non-static fields.")
 	}
 	if n.isAssign() {
@@ -259,10 +264,10 @@ func (this *CheckJSDoc) validateNoCollapse(n Node, info *JSDocInfo) {
 }
 
 func (this *CheckJSDoc) validateFunctionJsDoc(n Node, info *JSDocInfo) {
-	if (info == nil) {
+	if info == nil {
 		return
 	}
-	if ((info.containsFunctionDeclaration() && !info.hasType()) && !this.isJSDocOnFunctionNode(n, info)) {
+	if (info.containsFunctionDeclaration() && !info.hasType()) && !this.isJSDocOnFunctionNode(n, info) {
 		this.reportMisplaced(n, "function", "This JSDoc is not attached to a function node. Are you missing parentheses?")
 	}
 }
@@ -280,7 +285,7 @@ func (this *CheckJSDoc) isJSDocOnFunctionNode(n Node, info *JSDocInfo) bool {
 		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_ASSIGN:
 			var lhs Node = n.getFirstChild()
 			var rhs Node = NodeUtil_getRValueOfLValue(lhs)
-			if (((rhs != 0) && this.isClass(rhs)) && !info.isConstructor()) {
+			if ((rhs != 0) && this.isClass(rhs)) && !info.isConstructor() {
 				return false
 			}
 			return true
@@ -292,11 +297,11 @@ func (this *CheckJSDoc) isJSDocOnFunctionNode(n Node, info *JSDocInfo) bool {
 }
 
 func (this *CheckJSDoc) validateMsgJsDoc(n Node, info *JSDocInfo) {
-	if (info == nil) {
+	if info == nil {
 		return
 	}
 	var hasNonDescMsgTag bool = (info.getMeaning().isPresent() || info.getAlternateMessageId().isPresent())
-	if (hasNonDescMsgTag || (info.getDescription().isPresent() && !CheckJSDoc_isFromTs(n))) {
+	if hasNonDescMsgTag || (info.getDescription().isPresent() && !CheckJSDoc_isFromTs(n)) {
 		var descOkay bool = false
 		switch n.getToken() {
 		case Token_rhino_ASSIGN, Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
@@ -304,7 +309,7 @@ func (this *CheckJSDoc) validateMsgJsDoc(n Node, info *JSDocInfo) {
 		case Token_rhino_STRING_KEY:
 			descOkay = CheckJSDoc_isValidMsgName(n)
 		case Token_rhino_GETPROP:
-			if (n.isFromExterns() && n.isQualifiedName()) {
+			if n.isFromExterns() && n.isQualifiedName() {
 				descOkay = CheckJSDoc_isValidMsgName(n)
 			}
 		default:
@@ -316,7 +321,7 @@ func (this *CheckJSDoc) validateMsgJsDoc(n Node, info *JSDocInfo) {
 }
 
 func CheckJSDoc_isValidMsgName(nameNode Node) bool {
-	if (nameNode.isName() || nameNode.isStringKey()) {
+	if nameNode.isName() || nameNode.isStringKey() {
 		return String_startsWith(nameNode.getString(), "MSG_")
 	} else if nameNode.isQualifiedName() {
 		return String_startsWith(nameNode.getString(), "MSG_")
@@ -327,7 +332,7 @@ func CheckJSDoc_isValidMsgName(nameNode Node) bool {
 }
 
 func (this *CheckJSDoc) validateTypeAnnotations(n Node, info *JSDocInfo) {
-	if ((info != nil) && info.hasType()) {
+	if (info != nil) && info.hasType() {
 		var valid bool = false
 		switch n.getToken() {
 		case Token_rhino_FUNCTION:
@@ -375,82 +380,87 @@ func (this *CheckJSDoc) report(n Node, type_ *DiagnosticType, arguments []string
 func (this *CheckJSDoc) validateArrowFunction(n Node) {
 	if n.isArrowFunction() {
 		var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-		if ((info != nil) && info.isConstructorOrInterface()) {
+		if (info != nil) && info.isConstructorOrInterface() {
 			this.report(n, CheckJSDoc_ARROW_FUNCTION_AS_CONSTRUCTOR, []string{})
 		}
 	}
 }
 
 func (this *CheckJSDoc) validateRestParameter(restParam Node) {
-	if (!restParam.isRest() || !restParam.getParent().isParamList()) {
+	if !restParam.isRest() || !restParam.getParent().isParamList() {
 		return
 	}
 	var paramList Node = restParam.getParent()
 	var inlineInfo *JSDocInfo = restParam.getFirstChild().getJSDocInfo()
 	var functionInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(paramList.getParent())
 	var paramTypeAnnotation *JSTypeExpression
-	if (inlineInfo != nil) {
+	if inlineInfo != nil {
 		paramTypeAnnotation = inlineInfo.getType()
-	} else if (functionInfo != nil) {
+	} else if functionInfo != nil {
 		if restParam.getFirstChild().isName() {
 			var paramName string = restParam.getFirstChild().getString()
 			paramTypeAnnotation = functionInfo.getParameterType(Optional_of[string](paramName))
 		} else {
 			var indexOfRest int32 = paramList.getIndexOfChild(restParam)
-			paramTypeAnnotation = func() *JSTypeExpression { if (functionInfo.getParameterCount() >= indexOfRest) { return functionInfo.getParameterType(functionInfo.getParameterNameAt(indexOfRest)) }; return nil }()
+			paramTypeAnnotation = func() *JSTypeExpression {
+				if functionInfo.getParameterCount() >= indexOfRest {
+					return functionInfo.getParameterType(functionInfo.getParameterNameAt(indexOfRest))
+				}
+				return nil
+			}()
 		}
 	} else {
 		paramTypeAnnotation = nil
 	}
-	if ((paramTypeAnnotation != nil) && (paramTypeAnnotation.getRoot().getToken() != Token_rhino_ITER_REST)) {
+	if (paramTypeAnnotation != nil) && (paramTypeAnnotation.getRoot().getToken() != Token_rhino_ITER_REST) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(restParam, CheckJSDoc_BAD_REST_PARAMETER_ANNOTATION, []string{}))
 	}
 }
 
 func (this *CheckJSDoc) validateDefaultValue(n Node) {
-	if (n.isDefaultValue() && n.getParent().isParamList()) {
+	if n.isDefaultValue() && n.getParent().isParamList() {
 		var targetNode Node = n.getFirstChild()
 		var info *JSDocInfo = targetNode.getJSDocInfo()
-		if (info == nil) {
+		if info == nil {
 			return
 		}
 		var typeExpr *JSTypeExpression = info.getType()
-		if (typeExpr == nil) {
+		if typeExpr == nil {
 			return
 		}
 		var typeNode Node = typeExpr.getRoot()
-		if (typeNode.getToken() != Token_rhino_EQUALS) {
+		if typeNode.getToken() != Token_rhino_EQUALS {
 			this.report(typeNode, CheckJSDoc_DEFAULT_PARAM_MUST_BE_MARKED_OPTIONAL, []string{})
 		}
 	}
 }
 
 func (this *CheckJSDoc) validateNoSideEffects(n Node, info *JSDocInfo) {
-	if (info == nil) {
+	if info == nil {
 		return
 	}
 	if n.isFromExterns() {
 		return
 	}
-	if (info.hasSideEffectsArgumentsAnnotation() || info.modifiesThis()) {
+	if info.hasSideEffectsArgumentsAnnotation() || info.modifiesThis() {
 		this.report(n, CheckJSDoc_INVALID_MODIFIES_ANNOTATION, []string{})
 	}
 }
 
 func (this *CheckJSDoc) validateDefinesDeclaration(n Node, info *JSDocInfo) {
-	if (((info != nil) && info.isDefine()) && n.isLet()) {
+	if ((info != nil) && info.isDefine()) && n.isLet() {
 		this.report(n, CheckJSDoc_INVALID_DEFINE_ON_LET, []string{})
 	}
 }
 
 func (this *CheckJSDoc) validateImplicitCast(n Node, info *JSDocInfo) {
-	if ((!this.inExterns_ && (info != nil)) && info.isImplicitCast()) {
+	if (!this.inExterns_ && (info != nil)) && info.isImplicitCast() {
 		this.report(n, TypeCheck_ILLEGAL_IMPLICIT_CAST, []string{})
 	}
 }
 
 func (this *CheckJSDoc) validateClosurePrimitive(n Node, info *JSDocInfo) {
-	if ((info == nil) || !info.hasClosurePrimitiveId()) {
+	if (info == nil) || !info.hasClosurePrimitiveId() {
 		return
 	}
 	if !this.isJSDocOnFunctionNode(n, info) {
@@ -459,16 +469,16 @@ func (this *CheckJSDoc) validateClosurePrimitive(n Node, info *JSDocInfo) {
 }
 
 func (this *CheckJSDoc) validateReturnJsDoc(n Node, info *JSDocInfo) {
-	if (!n.isReturn() || (info == nil)) {
+	if !n.isReturn() || (info == nil) {
 		return
 	}
-	if ((info.containsDeclaration() && !info.hasType()) && !info.hasTypedefType()) {
+	if (info.containsDeclaration() && !info.hasType()) && !info.hasTypedefType() {
 		this.report(n, CheckJSDoc_JSDOC_ON_RETURN, []string{})
 	}
 }
 
 func (this *CheckJSDoc) validateTsType(n Node, info *JSDocInfo) {
-	if ((info == nil) || info.getTsTypes().isEmpty()) {
+	if (info == nil) || info.getTsTypes().isEmpty() {
 		return
 	}
 	if !this.isJSDocOnFunctionNode(n, info) {
@@ -481,7 +491,7 @@ func CheckJSDoc_isFromTs(n Node) bool {
 }
 
 func (this *CheckJSDoc) validateJsDocTypeNames(info *JSDocInfo) {
-	if (info == nil) {
+	if info == nil {
 		return
 	}
 	it_1 := foreach_(any(info.getTypeNodes()))
@@ -492,20 +502,20 @@ func (this *CheckJSDoc) validateJsDocTypeNames(info *JSDocInfo) {
 }
 
 func (this *CheckJSDoc) validateIsUsedViaDotConstructor(n Node, info *JSDocInfo) {
-	if ((info == nil) || !info.isUsedViaDotConstructor()) {
+	if (info == nil) || !info.isUsedViaDotConstructor() {
 		return
 	}
-	if (!(n.isFunction() && info.isConstructor()) && !NodeUtil_isEs6ConstructorMemberFunctionDef(n)) {
+	if !(n.isFunction() && info.isConstructor()) && !NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
 		this.report(n, CheckJSDoc_MISPLACED_ANNOTATION, []string{"usedViaDotConstructor", "must be on a constructor"})
 	}
 }
 
 func (this *CheckJSDoc) validateLegacyNamedTsExport(n Node, info *JSDocInfo) {
-	if ((info == nil) || !info.isLegacyNamedTsExport()) {
+	if (info == nil) || !info.isLegacyNamedTsExport() {
 		return
 	}
 	var parent Node = n.getParent()
-	if (!n.isCall() || !(NodeUtil_isGoogModuleCall(parent) || NodeUtil_isGoogProvideCall(parent))) {
+	if !n.isCall() || !(NodeUtil_isGoogModuleCall(parent) || NodeUtil_isGoogProvideCall(parent)) {
 		this.report(n, CheckJSDoc_MISPLACED_ANNOTATION, []string{"@legacyNamedTsExport", "must be on a goog.module or goog.provide call"})
 	}
 }
@@ -570,9 +580,13 @@ func (this *CheckJSDoc_CheckJsdocTypes) visit(typeRefNode Node) {
 	}
 	var typeName string = typeRefNode.getString()
 	var dot int32 = String_indexOf(typeName, 46)
-	var rootOfType string = func() string { if (dot == -1) { return typeName }; return String_substring(typeName, 0, dot) }()
-	if (ClosureRewriteModule_isModuleExport(rootOfType) || ClosureRewriteModule_isModuleContent(rootOfType)) {
+	var rootOfType string = func() string {
+		if dot == -1 {
+			return typeName
+		}
+		return String_substring(typeName, 0, dot)
+	}()
+	if ClosureRewriteModule_isModuleExport(rootOfType) || ClosureRewriteModule_isModuleContent(rootOfType) {
 		typeRefNode.setString(("UnrecognizedType_" + sstr_(typeName)))
 	}
 }
-

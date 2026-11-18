@@ -3,19 +3,19 @@
 package closure
 
 type Es6RewriteDestructuring struct {
-	compiler_ *AbstractCompiler
-	rewriteMode *Es6RewriteDestructuring_ObjectDestructuringRewriteMode
-	astFactory_ *AstFactory
-	namespace_ StaticScope
-	useJscompAssign bool
+	compiler_                    *AbstractCompiler
+	rewriteMode                  *Es6RewriteDestructuring_ObjectDestructuringRewriteMode
+	astFactory_                  *AstFactory
+	namespace_                   StaticScope
+	useJscompAssign              bool
 	featuresToTriggerRunningPass *FeatureSet
-	featuresToMarkAsRemoved *FeatureSet
-	patternNestingStack *TDeque[*Es6RewriteDestructuring_PatternNestingLevel]
-	destructuringVarCounter int32
+	featuresToMarkAsRemoved      *FeatureSet
+	patternNestingStack          *TDeque[*Es6RewriteDestructuring_PatternNestingLevel]
+	destructuringVarCounter      int32
 }
 
 func (this *Es6RewriteDestructuring) finit_Es6RewriteDestructuring() {
-	this.patternNestingStack = newTDeque_(tc_p_Es6RewriteDestructuring_PatternNestingLevel)
+	this.patternNestingStack = newTDeque_(jtc_p_Es6RewriteDestructuring_PatternNestingLevel)
 	this.destructuringVarCounter = 0
 }
 
@@ -34,7 +34,7 @@ func (this *Es6RewriteDestructuring) init_Es6RewriteDestructuring(builder *Es6Re
 		this.featuresToTriggerRunningPass = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_OBJECT_PATTERN_REST)
 		this.featuresToMarkAsRemoved = this.featuresToTriggerRunningPass
 	default:
-		panic(new_AssertionError_Object(strobj_(("Es6RewriteDestructuring cannot handle ObjectDestructuringRewriteMode " + tostr_(this.rewriteMode)))).self())
+		panic(new_AssertionError_Object(strobj_(("Es6RewriteDestructuring cannot handle ObjectDestructuringRewriteMode " + jtostr_(this.rewriteMode)))).self())
 	}
 }
 
@@ -61,7 +61,7 @@ func (this *Es6RewriteDestructuring) shouldTraverse(t *NodeTraversal, n Node, pa
 		this.pullDestructuringOutOfParams(n, parent)
 	case Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
 		var hasRest bool = ((n.isObjectPattern() && n.hasChildren()) && n.getLastChild().isRest())
-		if (!this.patternNestingStack.isEmpty() && hasRest) {
+		if !this.patternNestingStack.isEmpty() && hasRest {
 			it_2 := this.patternNestingStack.each()
 			for it_2.next() {
 				var level *Es6RewriteDestructuring_PatternNestingLevel = it_2.v
@@ -82,7 +82,7 @@ func (this *Es6RewriteDestructuring) visit(t *NodeTraversal, n Node, parent Node
 	switch n.getToken() {
 	case Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
 		this.visitPattern(t, n)
-		if (n == cast_[*Es6RewriteDestructuring_PatternNestingLevel](SequencedCollection_getLast(SequencedCollection(this.patternNestingStack.asDeque()))).pattern) {
+		if n == cast_[*Es6RewriteDestructuring_PatternNestingLevel](SequencedCollection_getLast(SequencedCollection(this.patternNestingStack.asDeque()))).pattern {
 			SequencedCollection_removeLast(SequencedCollection(this.patternNestingStack.asDeque()))
 		}
 	default:
@@ -95,7 +95,7 @@ func (this *Es6RewriteDestructuring) pullDestructuringOutOfParams(paramList Node
 	var next Node = 0
 	{
 		var param Node = paramList.getFirstChild()
-		for ; (param != 0); param = next {
+		for ; param != 0; param = next {
 			next = param.getNext()
 			if param.isDefaultValue() {
 				var nameOrPattern Node = param.removeFirstChild()
@@ -113,14 +113,24 @@ func (this *Es6RewriteDestructuring) pullDestructuringOutOfParams(paramList Node
 				if isNoop {
 					newParam = nameOrPattern.cloneTree()
 				} else {
-					newParam = func() Node { if nameOrPattern.isName() { return nameOrPattern }; return this.createTempVarNameNode(this.getTempVariableName(), AstFactory_type_Node(nameOrPattern)) }()
+					newParam = func() Node {
+						if nameOrPattern.isName() {
+							return nameOrPattern
+						}
+						return this.createTempVarNameNode(this.getTempVariableName(), AstFactory_type_Node(nameOrPattern))
+					}()
 					var lhs Node = nameOrPattern.cloneTree()
 					var rhs Node = this.defaultValueHook(newParam.cloneTree(), defaultValue)
-					var newStatement Node = func() Node { if nameOrPattern.isName() { return IR_exprResult(this.astFactory_.createAssign(lhs, rhs)) }; return IR_var_Node_Node(lhs, rhs) }()
+					var newStatement Node = func() Node {
+						if nameOrPattern.isName() {
+							return IR_exprResult(this.astFactory_.createAssign(lhs, rhs))
+						}
+						return IR_var_Node_Node(lhs, rhs)
+					}()
 					newStatement.srcrefTreeIfMissing(param)
-					if (insertSpot == 0) {
+					if insertSpot == 0 {
 						insertSpot = NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(body)
-						if (insertSpot != 0) {
+						if insertSpot != 0 {
 							newStatement.insertBefore(insertSpot)
 						} else {
 							body.addChildToBack(newStatement)
@@ -139,7 +149,7 @@ func (this *Es6RewriteDestructuring) pullDestructuringOutOfParams(paramList Node
 			} else if param.isDestructuringPattern() {
 				insertSpot = this.replacePatternParamWithTempVar(function, insertSpot, param, this.getTempVariableName())
 				this.compiler_.reportChangeToChangeScope(function)
-			} else if (param.isRest() && param.getFirstChild().isDestructuringPattern()) {
+			} else if param.isRest() && param.getFirstChild().isDestructuringPattern() {
 				insertSpot = this.replacePatternParamWithTempVar(function, insertSpot, param.getFirstChild(), this.getTempVariableName())
 				this.compiler_.reportChangeToChangeScope(function)
 			}
@@ -154,9 +164,9 @@ func (this *Es6RewriteDestructuring) replacePatternParamWithTempVar(function Nod
 	patternParam.replaceWith(newParam)
 	var newDecl Node = IR_var_Node_Node(patternParam, this.createTempVarNameNode(tempVarName, paramType))
 	newDecl.srcrefTreeIfMissing(patternParam)
-	if (insertSpot == 0) {
+	if insertSpot == 0 {
 		insertSpot = NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(function.getLastChild())
-		if (insertSpot != 0) {
+		if insertSpot != 0 {
 			newDecl.insertBefore(insertSpot)
 		} else {
 			function.getLastChild().addChildToBack(newDecl)
@@ -248,11 +258,11 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 	var tempVarName string = this.getTempVariableName()
 	var tempVarType AstFactory_Type = AstFactory_type_Node(objectPattern)
 	var restTempVarName Optional[string] = Optional_empty[string]()
-	var propsToDeleteForRest *TList[Node] = nil
-	if (objectPattern.hasChildren() && objectPattern.getLastChild().isRest()) {
-		propsToDeleteForRest = newTList_(tc_Node)
+	var propsToDeleteForRest *JTList[Node] = nil
+	if objectPattern.hasChildren() && objectPattern.getLastChild().isRest() {
+		propsToDeleteForRest = jnewTList_(jtc_Node)
 		restTempVarName = Optional_of[string](this.getTempVariableName())
-	} else if (this.rewriteMode == Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST) {
+	} else if this.rewriteMode == Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST {
 		if !this.patternNestingStack.peekLast().hasNestedObjectRest {
 			this.destructuringVarCounter--
 			return
@@ -268,13 +278,18 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 	{
 		var child Node = objectPattern.getFirstChild()
 		var next Node
-		for ; (child != 0); child = next {
+		for ; child != 0; child = next {
 			next = child.getNext()
 			var newLHS Node
 			var newRHS Node
 			if child.isStringKey() {
 				var tempVarNameNode Node = this.createTempVarNameNode(tempVarName, tempVarType)
-				var getprop Node = func() Node { if child.isQuotedStringKey() { return this.astFactory_.createGetElem(tempVarNameNode, this.astFactory_.createString(child.getString())) }; return this.astFactory_.createGetProp(tempVarNameNode, child.getString(), tempVarType) }()
+				var getprop Node = func() Node {
+					if child.isQuotedStringKey() {
+						return this.astFactory_.createGetElem(tempVarNameNode, this.astFactory_.createString(child.getString()))
+					}
+					return this.astFactory_.createGetProp(tempVarNameNode, child.getString(), tempVarType)
+				}()
 				var value Node = child.removeFirstChild()
 				if !value.isDefaultValue() {
 					newLHS = value
@@ -288,7 +303,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 					intermediateDecl.insertBefore(nodeToDetach)
 					newRHS = this.defaultValueHook(this.createTempVarNameNode(intermediateTempVarName, AstFactory_type_Node(getprop)), defaultValue)
 				}
-				if (propsToDeleteForRest != nil) {
+				if propsToDeleteForRest != nil {
 					propsToDeleteForRest.add(child)
 				}
 			} else if child.isComputedProp() {
@@ -303,7 +318,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 					newLHS = child.removeFirstChild()
 					defaultValue = 0
 				}
-				if (propsToDeleteForRest != nil) {
+				if propsToDeleteForRest != nil {
 					var exprEvalTempVarName string = this.getTempVariableName()
 					var exprEvalTempVarModel Node = this.createTempVarNameNode(exprEvalTempVarName, AstFactory_type_Node(propExpr))
 					var exprEvalDecl Node = IR_var_Node_Node(exprEvalTempVarModel.cloneNode(), propExpr)
@@ -323,10 +338,15 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 					newRHS = this.astFactory_.createGetElem(this.createTempVarNameNode(tempVarName, AstFactory_type_Node(newLHS)), propExpr)
 				}
 			} else if child.isRest() {
-				if (next != 0) {
+				if next != 0 {
 					panic(new_IllegalStateException_String("object rest may not be followed by any properties").self())
 				}
-				var assignCall Node = func() Node { if this.useJscompAssign { return this.astFactory_.createJscompAssignCall(this.namespace_, AstFactory_typeColor(StandardColors_TOP_OBJECT), []Node{this.astFactory_.createObjectLit([]Node{}), this.createTempVarNameNode(tempVarName, tempVarType)}) }; return this.astFactory_.createObjectDotAssignCall(this.namespace_, AstFactory_typeColor(StandardColors_TOP_OBJECT), []Node{this.astFactory_.createObjectLit([]Node{}), this.createTempVarNameNode(tempVarName, tempVarType)}) }()
+				var assignCall Node = func() Node {
+					if this.useJscompAssign {
+						return this.astFactory_.createJscompAssignCall(this.namespace_, AstFactory_typeColor(StandardColors_TOP_OBJECT), []Node{this.astFactory_.createObjectLit([]Node{}), this.createTempVarNameNode(tempVarName, tempVarType)})
+					}
+					return this.astFactory_.createObjectDotAssignCall(this.namespace_, AstFactory_typeColor(StandardColors_TOP_OBJECT), []Node{this.astFactory_.createObjectLit([]Node{}), this.createTempVarNameNode(tempVarName, tempVarType)})
+				}()
 				var restTempDecl Node = IR_var_Node_Node(this.createTempVarNameNode(restTempVarName.get(), tempVarType), assignCall)
 				restTempDecl.srcrefTreeIfMissing(objectPattern)
 				restTempDecl.insertBefore(nodeToDetach)
@@ -361,7 +381,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 	t.reportCodeChange()
 }
 
-func (this *Es6RewriteDestructuring) objectPatternRestRHS(objectPattern Node, rest Node, restTempVarName string, statedProperties *TList[Node]) Node {
+func (this *Es6RewriteDestructuring) objectPatternRestRHS(objectPattern Node, rest Node, restTempVarName string, statedProperties *JTList[Node]) Node {
 	Preconditions_checkArgument((objectPattern.getLastChild() == rest))
 	var restTempVarModel Node = this.createTempVarNameNode(restTempVarName, AstFactory_type_Node(objectPattern))
 	var result Node = restTempVarModel.cloneNode()
@@ -381,7 +401,12 @@ func (this *Es6RewriteDestructuring) deletionNodeForRestProperty(restTempVarName
 	var get Node = func() Node {
 		switch property.getToken() {
 		case Token_rhino_STRING_KEY:
-			return func() Node { if property.isQuotedStringKey() { return this.astFactory_.createGetElem(restTempVarNameNode, this.astFactory_.createString(property.getString())) }; return this.astFactory_.createGetPropWithUnknownType(restTempVarNameNode, property.getString()) }()
+			return func() Node {
+				if property.isQuotedStringKey() {
+					return this.astFactory_.createGetElem(restTempVarNameNode, this.astFactory_.createString(property.getString()))
+				}
+				return this.astFactory_.createGetPropWithUnknownType(restTempVarNameNode, property.getString())
+			}()
 		case Token_rhino_NAME:
 			return this.astFactory_.createGetElem(restTempVarNameNode, property)
 		default:
@@ -393,8 +418,8 @@ func (this *Es6RewriteDestructuring) deletionNodeForRestProperty(restTempVarName
 }
 
 func (this *Es6RewriteDestructuring) replaceArrayPattern(t *NodeTraversal, arrayPattern Node, rhs Node, parent Node, nodeToDetach Node) {
-	if (this.rewriteMode == Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST) {
-		if (this.patternNestingStack.isEmpty() || !this.patternNestingStack.peekLast().hasNestedObjectRest) {
+	if this.rewriteMode == Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST {
+		if this.patternNestingStack.isEmpty() || !this.patternNestingStack.peekLast().hasNestedObjectRest {
 			return
 		}
 	}
@@ -407,7 +432,7 @@ func (this *Es6RewriteDestructuring) replaceArrayPattern(t *NodeTraversal, array
 	{
 		var child Node = arrayPattern.getFirstChild()
 		var next Node
-		for ; (child != 0); child = next {
+		for ; child != 0; child = next {
 			next = child.getNext()
 			if child.isEmpty() {
 				var nextCall Node = IR_exprResult(this.astFactory_.createCallWithUnknownType(this.astFactory_.createGetProp(tempVarModel.cloneNode(), "next", AstFactory_typeColor(StandardColors_TOP_OBJECT)), []Node{}))
@@ -498,7 +523,7 @@ func (this *Es6RewriteDestructuring) visitDestructuringPatternInVanillaForInnerV
 		{
 			{
 				var c Node = declaration.getFirstChild()
-				for ; (c != destructuringLhs); c = declaration.getFirstChild() {
+				for ; c != destructuringLhs; c = declaration.getFirstChild() {
 					var newDeclaration Node = declaration.cloneNode()
 					newDeclaration.addChildToBack(c.detach())
 					newDeclaration.insertBefore(insertionPoint)
@@ -635,7 +660,7 @@ func Es6RewriteDestructuring_ObjectDestructuringRewriteMode_clinit() {
 }
 
 type Es6RewriteDestructuring_Builder struct {
-	compiler_ *AbstractCompiler
+	compiler_   *AbstractCompiler
 	rewriteMode *Es6RewriteDestructuring_ObjectDestructuringRewriteMode
 }
 
@@ -664,7 +689,7 @@ func (this *Es6RewriteDestructuring_Builder) build() *Es6RewriteDestructuring {
 }
 
 type Es6RewriteDestructuring_PatternNestingLevel struct {
-	pattern Node
+	pattern             Node
 	hasNestedObjectRest bool
 }
 
@@ -678,4 +703,3 @@ func new_Es6RewriteDestructuring_PatternNestingLevel(pattern Node, hasNestedRest
 	this.init_Es6RewriteDestructuring_PatternNestingLevel(pattern, hasNestedRest)
 	return this
 }
-

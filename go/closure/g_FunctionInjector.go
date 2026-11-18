@@ -3,22 +3,22 @@
 package closure
 
 type FunctionInjector struct {
-	compiler_ *AbstractCompiler
-	allowDecomposition_ bool
-	knownConstantFunctions *TSet[string]
-	assumeStrictThis_ bool
-	safeNameIdSupplier_ SupplierOf[string]
-	throwawayNameSupplier SupplierOf[string]
+	compiler_                 *AbstractCompiler
+	allowDecomposition_       bool
+	knownConstantFunctions    *JTSet[string]
+	assumeStrictThis_         bool
+	safeNameIdSupplier_       SupplierOf[string]
+	throwawayNameSupplier     SupplierOf[string]
 	functionArgumentInjector_ *FunctionArgumentInjector
-	referencesEvalCache *TMap[Node, any]
-	innerFunctionCache *TMap[Node, Node]
+	referencesEvalCache       *JTMap[Node, any]
+	innerFunctionCache        *JTMap[Node, Node]
 }
 
 func (this *FunctionInjector) finit_FunctionInjector() {
-	this.knownConstantFunctions = tsetEmptyImm_(tc_string)
+	this.knownConstantFunctions = jtsetEmptyImm_(jtc_string)
 	this.throwawayNameSupplier = Supplier(new_FunctionInjector_1(this))
-	this.referencesEvalCache = newTMap_(tc_Node, tc_Boolean)
-	this.innerFunctionCache = newTMap_(tc_Node, tc_Node)
+	this.referencesEvalCache = jnewTMap_(jtc_Node, tc_Boolean)
+	this.innerFunctionCache = jnewTMap_(jtc_Node, jtc_Node)
 }
 
 func (this *FunctionInjector) init_FunctionInjector(builder *FunctionInjector_Builder) {
@@ -43,7 +43,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 	var blocksInjection Predicate_baseOf[Node] = &Predicate_base_tfn_Node{func(n Node) bool {
 		if n.isName() {
 			return (((n.getString() == "eval") || (!String_isEmpty(fnName) && (n.getString() == fnName))) || (!String_isEmpty(fnRecursionName) && (n.getString() == fnRecursionName)))
-		} else if (n.isSuper() || (n.getToken() == Token_rhino_NEW_TARGET)) {
+		} else if n.isSuper() || (n.getToken() == Token_rhino_NEW_TARGET) {
 			return true
 		}
 		return false
@@ -52,7 +52,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 	return (!referencesArguments && !NodeUtil_has(block, blocksInjection, Predicates_alwaysTrue()))
 }
 
-func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector_Reference, fnNode Node, needAliases *TSet[string], referencesThis bool, containsClosures bool) *FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector_Reference, fnNode Node, needAliases *JTSet[string], referencesThis bool, containsClosures bool) *FunctionInjector_CanInlineResult {
 	var callNode Node = ref.callNode_
 	if !this.isSupportedCallType(callNode, fnNode) {
 		return FunctionInjector_CanInlineResult_NO
@@ -67,10 +67,10 @@ func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector
 			return FunctionInjector_CanInlineResult_NO
 		}
 	}
-	if (referencesThis && !NodeUtil_isFunctionObjectCall(callNode)) {
+	if referencesThis && !NodeUtil_isFunctionObjectCall(callNode) {
 		return FunctionInjector_CanInlineResult_NO
 	}
-	if (ref.mode_ == FunctionInjector_InliningMode_DIRECT) {
+	if ref.mode_ == FunctionInjector_InliningMode_DIRECT {
 		return this.canInlineReferenceDirectly(ref, fnNode, needAliases)
 	} else {
 		return this.canInlineReferenceAsStatementBlock(ref, fnNode, needAliases)
@@ -81,9 +81,9 @@ func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector
 func (this *FunctionInjector) isSupportedCallType(callNode Node, fnNode Node) bool {
 	if !callNode.getFirstChild().isName() {
 		if NodeUtil_isFunctionObjectCall(callNode) {
-			if (!this.assumeStrictThis_ && !fnNode.isArrowFunction()) {
+			if !this.assumeStrictThis_ && !fnNode.isArrowFunction() {
 				var thisValue Node = callNode.getSecondChild()
-				if ((thisValue == 0) || !thisValue.isThis()) {
+				if (thisValue == 0) || !thisValue.isThis() {
 					return false
 				}
 			}
@@ -98,7 +98,7 @@ func FunctionInjector_hasSpreadCallArgument(callNode Node) bool {
 	Preconditions_checkArgument_boolean_Object_H(NodeUtil_isNormalOrOptChainCall(callNode), callNode)
 	{
 		var arg Node = callNode.getSecondChild()
-		for ; (arg != 0); arg = arg.getNext() {
+		for ; arg != 0; arg = arg.getNext() {
 			if arg.isSpread() {
 				return true
 			}
@@ -118,7 +118,7 @@ func (this *FunctionInjector) unsafeInline(ref *FunctionInjector_Reference, fnNa
 
 func (this *FunctionInjector) internalInline(ref *FunctionInjector_Reference, fnName Optional[string], fnNode Node) Node {
 	var result Node
-	if (ref.mode_ == FunctionInjector_InliningMode_DIRECT) {
+	if ref.mode_ == FunctionInjector_InliningMode_DIRECT {
 		result = this.inlineReturnValue(ref, fnNode)
 	} else {
 		result = this.inlineFunction(ref, fnNode, fnName.orElse(""))
@@ -130,8 +130,8 @@ func (this *FunctionInjector) internalInline(ref *FunctionInjector_Reference, fn
 func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference, fnNode Node) Node {
 	var callNode Node = ref.callNode_
 	var block Node = fnNode.getLastChild()
-	var paramToArgMap *TMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.safeNameIdSupplier_)
-	var paramReplacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
+	var paramToArgMap *JTMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.safeNameIdSupplier_)
+	var paramReplacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
 	it_1 := paramToArgMap.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, *FunctionArgumentInjector_ParamArgPair] = it_1.entry()
@@ -151,11 +151,11 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 		NodeUtil_markNewScopesChanged(newExpression, this.compiler_)
 	}
 	var typeBeforeCast *JSType = callNode.getJSTypeBeforeCast()
-	if (typeBeforeCast != nil) {
+	if typeBeforeCast != nil {
 		newExpression.setJSTypeBeforeCast(typeBeforeCast)
 		newExpression.setJSType(callNode.getJSType())
 	}
-	if ((callNode.getColor() != nil) && callNode.isColorFromTypeCast()) {
+	if (callNode.getColor() != nil) && callNode.isColorFromTypeCast() {
 		newExpression.setColor(callNode.getColor())
 		newExpression.setColorFromTypeCast()
 	}
@@ -170,9 +170,9 @@ func (this *FunctionInjector) classifyCallSite(ref *FunctionInjector_Reference) 
 	var grandParent Node = parent.getParent()
 	if NodeUtil_isExprCall(parent) {
 		return FunctionInjector_CallSiteType_SIMPLE_CALL
-	} else if (((NodeUtil_isExprAssign(grandParent) && !NodeUtil_isNameDeclOrSimpleAssignLhs(callNode, parent)) && parent.getFirstChild().isName()) && !NodeUtil_isConstantName(parent.getFirstChild())) {
+	} else if ((NodeUtil_isExprAssign(grandParent) && !NodeUtil_isNameDeclOrSimpleAssignLhs(callNode, parent)) && parent.getFirstChild().isName()) && !NodeUtil_isConstantName(parent.getFirstChild()) {
 		return FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT
-	} else if (((parent.isName() && !NodeUtil_isConstantName(parent)) && grandParent.isVar()) && grandParent.hasOneChild()) {
+	} else if ((parent.isName() && !NodeUtil_isConstantName(parent)) && grandParent.isVar()) && grandParent.hasOneChild() {
 		return FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT
 	} else {
 		var decomposer *ExpressionDecomposer = this.getDecomposer(ref.scope_)
@@ -247,8 +247,13 @@ func (this *FunctionInjector) inlineFunction(ref *FunctionInjector_Reference, fn
 
 func FunctionInjector_removeConstantVarAnnotation(scope *Scope, name string) {
 	var var_ *Var = cast_[*Var](scope.getVar(name).self())
-	var nameNode Node = func() Node { if (var_ == nil) { return 0 }; return var_.getNameNode() }()
-	if (nameNode == 0) {
+	var nameNode Node = func() Node {
+		if var_ == nil {
+			return 0
+		}
+		return var_.getNameNode()
+	}()
+	if nameNode == 0 {
 		return
 	}
 	if nameNode.isDeclaredConstantVar() {
@@ -261,25 +266,25 @@ func FunctionInjector_isDirectCallNodeReplacementPossible(fnNode Node) bool {
 	if !block.hasChildren() {
 		return true
 	} else if block.hasOneChild() {
-		if (block.getFirstChild().isReturn() && (block.getFirstFirstChild() != 0)) {
+		if block.getFirstChild().isReturn() && (block.getFirstFirstChild() != 0) {
 			return true
 		}
 	}
 	return false
 }
 
-func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *TSet[string]) *FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *JTSet[string]) *FunctionInjector_CanInlineResult {
 	var callSiteType *FunctionInjector_CallSiteType = this.classifyCallSite(ref)
-	if (callSiteType == FunctionInjector_CallSiteType_UNSUPPORTED) {
+	if callSiteType == FunctionInjector_CallSiteType_UNSUPPORTED {
 		return FunctionInjector_CanInlineResult_NO
 	}
-	if (!this.allowDecomposition_ && ((callSiteType == FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION) || (callSiteType == FunctionInjector_CallSiteType_EXPRESSION))) {
+	if !this.allowDecomposition_ && ((callSiteType == FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION) || (callSiteType == FunctionInjector_CallSiteType_EXPRESSION)) {
 		return FunctionInjector_CanInlineResult_NO
 	}
 	if !this.callMeetsBlockInliningRequirements(ref, fnNode, namesToAlias) {
 		return FunctionInjector_CanInlineResult_NO
 	}
-	if ((callSiteType == FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION) || (callSiteType == FunctionInjector_CallSiteType_EXPRESSION)) {
+	if (callSiteType == FunctionInjector_CallSiteType_DECOMPOSABLE_EXPRESSION) || (callSiteType == FunctionInjector_CallSiteType_EXPRESSION) {
 		return FunctionInjector_CanInlineResult_AFTER_PREPARATION
 	} else {
 		return FunctionInjector_CanInlineResult_YES
@@ -290,7 +295,7 @@ func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionIn
 func (this *FunctionInjector) referencesEval(fn Node) bool {
 	Preconditions_checkState(fn.isFunction())
 	var cached any = this.referencesEvalCache.get(fn)
-	if (cached != nil) {
+	if cached != nil {
 		return unbox_[bool](cached)
 	}
 	var result bool = NodeUtil_has(fn, &Predicate_base_tfn_Node{func(n Node) bool {
@@ -305,10 +310,10 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	Preconditions_checkState(containerFn.isFunction())
 	var cached Node = this.innerFunctionCache.get(containerFn)
-	if (cached != 0) {
+	if cached != 0 {
 		return cached
 	}
-	var innerFns *TList[Node] = newTList_(tc_Node)
+	var innerFns *JTList[Node] = jnewTList_(jtc_Node)
 	NodeUtil_visitPreOrder_Node_Visitor(containerFn, &NodeUtil_Visitor_fn{func(n Node) {
 		if Object_equals(n.box_(), containerFn.box_()) {
 			return
@@ -332,7 +337,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	return cached
 }
 
-func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias *TSet[string]) bool {
+func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias *JTSet[string]) bool {
 	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), icast_Predicate_base(obj_(new_NodeUtil_MatchDeclaration())), icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
 	var forbidTemps bool = false
 	if !cast_[*Scope](callRef.scope_.getClosestHoistScope().self()).isGlobal() {
@@ -345,17 +350,17 @@ func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *Functi
 			forbidTemps = !calleeIsOnlyInnerFn
 		}
 	}
-	if (calleeContainsVars && forbidTemps) {
+	if calleeContainsVars && forbidTemps {
 		return false
 	}
 	if forbidTemps {
-		var args *TMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(calleeFn, callRef.callNode_, this.safeNameIdSupplier_)
+		var args *JTMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(calleeFn, callRef.callNode_, this.safeNameIdSupplier_)
 		var hasArgs bool = !args.isEmpty()
 		if hasArgs {
 			if !namesToAlias.isEmpty() {
 				return false
 			}
-			var allTemps *TSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, calleeFn, args, namesToAlias, this.compiler_.getCodingConvention())
+			var allTemps *JTSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, calleeFn, args, namesToAlias, this.compiler_.getCodingConvention())
 			if !allTemps.isEmpty() {
 				return false
 			}
@@ -364,7 +369,7 @@ func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *Functi
 	return true
 }
 
-func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *TSet[string]) *FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *JTSet[string]) *FunctionInjector_CanInlineResult {
 	if !FunctionInjector_isDirectCallNodeReplacementPossible(fnNode) {
 		return FunctionInjector_CanInlineResult_NO
 	}
@@ -372,23 +377,23 @@ func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_R
 	var cArg Node = callNode.getSecondChild()
 	if !callNode.getFirstChild().isName() {
 		if NodeUtil_isFunctionObjectCall(callNode) {
-			if (!fnNode.isArrowFunction() && ((cArg == 0) || !cArg.isThis())) {
+			if !fnNode.isArrowFunction() && ((cArg == 0) || !cArg.isThis()) {
 				return FunctionInjector_CanInlineResult_NO
 			}
-			if (cArg != 0) {
+			if cArg != 0 {
 				cArg = cArg.getNext()
 			}
 		} else {
 			Preconditions_checkState(!NodeUtil_isFunctionObjectApply(callNode))
 		}
 	}
-	var args *TMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.throwawayNameSupplier)
+	var args *JTMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.throwawayNameSupplier)
 	var hasArgs bool = !args.isEmpty()
 	if hasArgs {
 		if !namesToAlias.isEmpty() {
 			return FunctionInjector_CanInlineResult_NO
 		}
-		var allTemps *TSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, fnNode, args, namesToAlias, this.compiler_.getCodingConvention())
+		var allTemps *JTSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, fnNode, args, namesToAlias, this.compiler_.getCodingConvention())
 		if !allTemps.isEmpty() {
 			return FunctionInjector_CanInlineResult_NO
 		}
@@ -396,9 +401,9 @@ func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_R
 	return FunctionInjector_CanInlineResult_YES
 }
 
-func (this *FunctionInjector) inliningLowersCost(fnChunk *JSChunk, fnNode Node, refs CollectionOf[*FunctionInjector_Reference], namesToAlias *TSet[string], isRemovable bool, referencesThis bool) bool {
+func (this *FunctionInjector) inliningLowersCost(fnChunk *JSChunk, fnNode Node, refs CollectionOf[*FunctionInjector_Reference], namesToAlias *JTSet[string], isRemovable bool, referencesThis bool) bool {
 	var referenceCount int32 = refs.size()
-	if (referenceCount == 0) {
+	if referenceCount == 0 {
 		return true
 	}
 	var referencesUsingBlockInlining int32 = 0
@@ -407,18 +412,18 @@ func (this *FunctionInjector) inliningLowersCost(fnChunk *JSChunk, fnNode Node, 
 	it_1 := foreach_(any(refs))
 	for it_1.next() {
 		var ref *FunctionInjector_Reference = to_FunctionInjector_Reference(it_1.v)
-		if (ref.mode_ == FunctionInjector_InliningMode_BLOCK) {
+		if ref.mode_ == FunctionInjector_InliningMode_BLOCK {
 			referencesUsingBlockInlining++
 		}
-		if (checkChunks && (ref.chunk_ != nil)) {
-			if ((ref.chunk_ != fnChunk) && !chunkGraph.dependsOn(ref.chunk_, fnChunk)) {
+		if checkChunks && (ref.chunk_ != nil) {
+			if (ref.chunk_ != fnChunk) && !chunkGraph.dependsOn(ref.chunk_, fnChunk) {
 				isRemovable = false
 				checkChunks = false
 			}
 		}
 	}
 	var referencesUsingDirectInlining int32 = (referenceCount - referencesUsingBlockInlining)
-	if (((referenceCount == 1) && isRemovable) && (referencesUsingDirectInlining == 1)) {
+	if ((referenceCount == 1) && isRemovable) && (referencesUsingDirectInlining == 1) {
 		return true
 	}
 	var callCost int32 = FunctionInjector_estimateCallCost(fnNode, referencesThis)
@@ -429,20 +434,25 @@ func (this *FunctionInjector) inliningLowersCost(fnChunk *JSChunk, fnNode Node, 
 }
 
 func FunctionInjector_doesLowerCost(fnNode Node, callCost int32, directInlines int32, costDeltaDirect int32, blockInlines int32, costDeltaBlock int32, removable bool) bool {
-	var fnInstanceCount int32 = ((directInlines + blockInlines) - func() int32 { if removable { return 1 }; return 0 }())
-	if (fnInstanceCount == 0) {
+	var fnInstanceCount int32 = ((directInlines + blockInlines) - func() int32 {
+		if removable {
+			return 1
+		}
+		return 0
+	}())
+	if fnInstanceCount == 0 {
 		return ((blockInlines <= 0) || (costDeltaBlock <= 0))
 	}
 	var costDelta int32 = ((directInlines * (-costDeltaDirect)) + (blockInlines * (-costDeltaBlock)))
 	var threshold int32 = ((callCost + costDelta) / fnInstanceCount)
-	return (InlineCostEstimator_getCost_Node_int(fnNode, (threshold + 1)) <= threshold)
+	return (InlineCostEstimator_getCost_Node_int(fnNode, (threshold+1)) <= threshold)
 }
 
 func FunctionInjector_estimateCallCost(fnNode Node, referencesThis bool) int32 {
 	var argsNode Node = NodeUtil_getFunctionParameters(fnNode)
 	var numArgs int32 = argsNode.getChildCount()
 	var callCost int32 = (FunctionInjector_NAME_COST_ESTIMATE + FunctionInjector_PAREN_COST)
-	if (numArgs > 0) {
+	if numArgs > 0 {
 		callCost += ((numArgs * FunctionInjector_NAME_COST_ESTIMATE) + ((numArgs - 1) * FunctionInjector_COMMA_COST))
 	}
 	if referencesThis {
@@ -451,15 +461,20 @@ func FunctionInjector_estimateCallCost(fnNode Node, referencesThis bool) int32 {
 	return callCost
 }
 
-func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias *TSet[string], mode *FunctionInjector_InliningMode) int32 {
+func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias *JTSet[string], mode *FunctionInjector_InliningMode) int32 {
 	var paramCount int32 = NodeUtil_getFunctionParameters(fnNode).getChildCount()
-	var commaCount int32 = func() int32 { if (paramCount > 1) { return (paramCount - 1) }; return 0 }()
+	var commaCount int32 = func() int32 {
+		if paramCount > 1 {
+			return (paramCount - 1)
+		}
+		return 0
+	}()
 	var costDeltaFunctionOverhead int32 = ((15 + commaCount) + (paramCount * InlineCostEstimator_ESTIMATED_IDENTIFIER_COST))
 	var block Node = fnNode.getLastChild()
 	if !block.hasChildren() {
 		return (-costDeltaFunctionOverhead)
 	}
-	if (mode == FunctionInjector_InliningMode_DIRECT) {
+	if mode == FunctionInjector_InliningMode_DIRECT {
 		return (-(costDeltaFunctionOverhead + 7))
 	} else {
 		var aliasCount int32 = namesToAlias.size()
@@ -468,15 +483,25 @@ func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias *TSet[string], m
 		var perReturnResultOverhead int32 = 3
 		var perAliasOverhead int32 = 3
 		var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
-		var resultCount int32 = func() int32 { if (returnCount > 0) { return (returnCount - 1) }; return 0 }()
-		var baseOverhead int32 = func() int32 { if (returnCount > 0) { return inlineBlockOverhead }; return 0 }()
+		var resultCount int32 = func() int32 {
+			if returnCount > 0 {
+				return (returnCount - 1)
+			}
+			return 0
+		}()
+		var baseOverhead int32 = func() int32 {
+			if returnCount > 0 {
+				return inlineBlockOverhead
+			}
+			return 0
+		}()
 		var overhead int32 = (((baseOverhead + (returnCount * perReturnOverhead)) + (resultCount * perReturnResultOverhead)) + (aliasCount * perAliasOverhead))
 		return (overhead - costDeltaFunctionOverhead)
 	}
 	panic("unreachable")
 }
 
-func (this *FunctionInjector) setKnownConstantFunctions(knownConstantFunctions *TSet[string]) {
+func (this *FunctionInjector) setKnownConstantFunctions(knownConstantFunctions *JTSet[string]) {
 	Preconditions_checkState(this.knownConstantFunctions.isEmpty())
 	this.knownConstantFunctions = knownConstantFunctions
 }
@@ -484,6 +509,7 @@ func (this *FunctionInjector) setKnownConstantFunctions(knownConstantFunctions *
 var FunctionInjector_NO_FUNCTIONS Node
 var FunctionInjector_MULTIPLE_FUNCTIONS Node
 var FunctionInjector_NAME_COST_ESTIMATE int32
+
 const FunctionInjector_COMMA_COST int32 = 1
 const FunctionInjector_PAREN_COST int32 = 2
 
@@ -501,10 +527,10 @@ func FunctionInjector_clinit() {
 }
 
 type FunctionInjector_Builder struct {
-	compiler_ *AbstractCompiler
-	safeNameIdSupplierField SupplierOf[string]
-	assumeStrictThisField bool
-	allowDecompositionField bool
+	compiler_                     *AbstractCompiler
+	safeNameIdSupplierField       SupplierOf[string]
+	assumeStrictThisField         bool
+	allowDecompositionField       bool
 	functionArgumentInjectorField *FunctionArgumentInjector
 }
 
@@ -547,10 +573,10 @@ func (this *FunctionInjector_Builder) functionArgumentInjector(functionArgumentI
 }
 
 func (this *FunctionInjector_Builder) build() *FunctionInjector {
-	if (this.safeNameIdSupplierField == nil) {
+	if this.safeNameIdSupplierField == nil {
 		this.safeNameIdSupplierField = this.compiler_.getUniqueNameIdSupplier()
 	}
-	if (this.functionArgumentInjectorField == nil) {
+	if this.functionArgumentInjectorField == nil {
 		this.functionArgumentInjectorField = new_FunctionArgumentInjector(Preconditions_checkNotNull_T(this.compiler_.getAstAnalyzer()))
 	}
 	return new_FunctionInjector(this)
@@ -610,24 +636,30 @@ func FunctionInjector_InliningMode_clinit() {
 }
 
 type FunctionInjector_Reference struct {
-	self_ any
+	self_     any
 	callNode_ Node
-	scope_ *Scope
-	chunk_ *JSChunk
-	mode_ *FunctionInjector_InliningMode
+	scope_    *Scope
+	chunk_    *JSChunk
+	mode_     *FunctionInjector_InliningMode
 }
 
-func (this *FunctionInjector_Reference) as_FunctionInjector_Reference() *FunctionInjector_Reference { return this }
+func (this *FunctionInjector_Reference) as_FunctionInjector_Reference() *FunctionInjector_Reference {
+	return this
+}
 
 func to_FunctionInjector_Reference(v any) *FunctionInjector_Reference {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_FunctionInjector_Reference() *FunctionInjector_Reference }).as_FunctionInjector_Reference()
+	return v.(interface {
+		as_FunctionInjector_Reference() *FunctionInjector_Reference
+	}).as_FunctionInjector_Reference()
 }
 
 func is_FunctionInjector_Reference(v any) bool {
-	_, ok := v.(interface{ as_FunctionInjector_Reference() *FunctionInjector_Reference })
+	_, ok := v.(interface {
+		as_FunctionInjector_Reference() *FunctionInjector_Reference
+	})
 	return ok
 }
 
@@ -660,17 +692,23 @@ type FunctionInjector_CallSiteType struct {
 	Enum
 }
 
-func (this *FunctionInjector_CallSiteType) as_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType { return this }
+func (this *FunctionInjector_CallSiteType) as_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType {
+	return this
+}
 
 func to_FunctionInjector_CallSiteType(v any) *FunctionInjector_CallSiteType {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType }).as_FunctionInjector_CallSiteType()
+	return v.(interface {
+		as_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType
+	}).as_FunctionInjector_CallSiteType()
 }
 
 func is_FunctionInjector_CallSiteType(v any) bool {
-	_, ok := v.(interface{ as_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType })
+	_, ok := v.(interface {
+		as_FunctionInjector_CallSiteType() *FunctionInjector_CallSiteType
+	})
 	return ok
 }
 
@@ -693,7 +731,9 @@ func (this *FunctionInjector_CallSiteType) init_FunctionInjector_CallSiteType(na
 }
 
 func (this *FunctionInjector_CallSiteType) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
-	this.self_.(interface{ prepare_impl(*FunctionInjector, *FunctionInjector_Reference) }).prepare_impl(p0, p1)
+	this.self_.(interface {
+		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
+	}).prepare_impl(p0, p1)
 }
 
 func FunctionInjector_CallSiteType_values() []*FunctionInjector_CallSiteType {
@@ -1183,4 +1223,3 @@ func FunctionInjector_CallSiteType_6_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_6_values_))
 
 }
-

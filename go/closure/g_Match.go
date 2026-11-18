@@ -3,7 +3,7 @@
 package closure
 
 type Match struct {
-	node_ Node
+	node_     Node
 	metadata_ *NodeMetadata
 }
 
@@ -25,4 +25,3 @@ func (this *Match) getNode() Node {
 func (this *Match) getMetadata() *NodeMetadata {
 	return this.metadata_
 }
-

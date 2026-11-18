@@ -3,10 +3,10 @@
 package closure
 
 type ColorGraphBuilder struct {
-	registry *ColorRegistry
-	nodeFactory *ColorGraphNodeFactory
-	lcaFinder *LowestCommonAncestorFinder[*ColorGraphNode, any]
-	topNode *LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any]
+	registry                *ColorRegistry
+	nodeFactory             *ColorGraphNodeFactory
+	lcaFinder               *LowestCommonAncestorFinder[*ColorGraphNode, any]
+	topNode                 *LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any]
 	colorHoldsInstanceGraph *LinkedDirectedGraph[*ColorGraphNode, any]
 }
 
@@ -37,7 +37,9 @@ func (this *ColorGraphBuilder) addAll(flats CollectionOf[*ColorGraphNode]) {
 }
 
 func (this *ColorGraphBuilder) build() *LinkedDirectedGraph[*ColorGraphNode, any] {
-	Iterable_forEach(Iterable(this.colorHoldsInstanceGraph.getNodes()), &Consumer_fn{func(p0 any) { this.connectUnionWithAncestors(to_LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any](p0)) }})
+	Iterable_forEach(Iterable(this.colorHoldsInstanceGraph.getNodes()), &Consumer_fn{func(p0 any) {
+		this.connectUnionWithAncestors(to_LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any](p0))
+	}})
 	var temp *LinkedDirectedGraph[*ColorGraphNode, any] = this.colorHoldsInstanceGraph
 	this.colorHoldsInstanceGraph = nil
 	return temp
@@ -49,13 +51,13 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 		return
 	}
 	Preconditions_checkState(!unionNode.getOutEdges().isEmpty())
-	var graphNodesBuilder *TSetBuilder[*ColorGraphNode] = newTSetBuilder_(tc_p_ColorGraphNode)
+	var graphNodesBuilder *TSetBuilder[*ColorGraphNode] = newTSetBuilder_(jtc_p_ColorGraphNode)
 	it_1 := flatUnion.getColor().getUnionElements().each()
 	for it_1.next() {
 		var element *Color = it_1.v
 		graphNodesBuilder.add(this.nodeFactory.createNode(element))
 	}
-	var graphNodes *TSet[*ColorGraphNode] = graphNodesBuilder.build()
+	var graphNodes *JTSet[*ColorGraphNode] = graphNodesBuilder.build()
 	it_3 := foreach_(obj_(this.lcaFinder.findAll(graphNodes.asSet())))
 	for it_3.next() {
 		var lca *ColorGraphNode = cast_[*ColorGraphNode](it_3.v)
@@ -69,7 +71,7 @@ func (this *ColorGraphBuilder) addInternal(color *Color) *LinkedDirectedGraph_Li
 
 func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any] {
 	var flatNode *LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any] = to_LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any](this.colorHoldsInstanceGraph.getNode(node))
-	if (flatNode != nil) {
+	if flatNode != nil {
 		return flatNode
 	}
 	flatNode = to_LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any](this.colorHoldsInstanceGraph.createNode(node))
@@ -166,4 +168,3 @@ func ColorGraphBuilder_EdgeReason_clinit() {
 	registerEnum_("com.google.javascript.jscomp.disambiguate.ColorGraphBuilder.EdgeReason", enumValues_(ColorGraphBuilder_EdgeReason_values_))
 
 }
-

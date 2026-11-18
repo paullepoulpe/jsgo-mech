@@ -56,7 +56,7 @@ func (this *ValueType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JS
 }
 
 func (this *ValueType) getPropertyKind_2_impl(propertyName Property_Key, autobox bool) *JSType_HasPropertyKind {
-	if (autobox && this.isBoxableScalar()) {
+	if autobox && this.isBoxableScalar() {
 		return this.autoboxesTo().getPropertyKind_2(propertyName, autobox)
 	} else {
 		return this.JSType.getPropertyKind_2_impl(propertyName, autobox)
@@ -67,4 +67,3 @@ func (this *ValueType) getPropertyKind_2_impl(propertyName Property_Key, autobox
 func (this *ValueType) recursionUnsafeHashCode_impl() int32 {
 	return System_identityHashCode(this.self())
 }
-

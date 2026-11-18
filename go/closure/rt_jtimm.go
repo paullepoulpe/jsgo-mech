@@ -4,7 +4,7 @@ import "sync"
 
 // Typed immutable collections (j2go rule "typed collections"): Guava's ImmutableList<T>,
 // ImmutableSet<K> and ImmutableMap<K, V> in a typed declaration are the typed list, set and
-// map of rt_tlist.go, rt_tset.go and rt_tmap.go with `twin` set: a *TList[T] that never
+// map of rt_tlist.go, rt_tset.go and rt_tmap.go with `twin` set: a *JTList[T] that never
 // changes (every change throws UnsupportedOperationException, as Guava's do). So a List<T>
 // declaration holds an ArrayList or an ImmutableList in one Go type, as it does in Java.
 //
@@ -13,7 +13,7 @@ import "sync"
 // asImm(), which asList() / asSet() / asMap() also return for an immutable collection. The
 // twin is made the first time erased code needs it (the contents never change, so the copy
 // cannot be told from the collection), and it knows its typed collection (typed_). An
-// immutable collection that erased code made enters a typed declaration through tlistImm_ /
+// immutable collection that erased code made enters a typed declaration through jtlistImm_ /
 // tsetImm_ / tmapImm_, which make the typed collection of its twin once. Either way a Java
 // object is one typed object and one erased object, each found from the other, so == and
 // "copyOf returns its argument" hold on both sides.
@@ -29,22 +29,22 @@ import "sync"
 var immPending_ = &ImmutableCollection{}
 
 // unmodMark_ marks a typed list that cannot be changed but is not an ImmutableList (see
-// TList.twin).
+// JTList.twin).
 var unmodMark_ = &ImmutableCollection{}
 
 // timmMap_ is what an immutable typed map has beside its mappings.
 type timmMap_ struct {
 	twin *ImmutableMap // the map as erased code sees it, once that is needed
-	keys any           // keySet() as typed code sees it (a *TSet[K]), once that is needed
+	keys any           // keySet() as typed code sees it (a *JTSet[K]), once that is needed
 }
 
 // immPendingMap_ is shared by the immutable typed maps that have neither yet.
 var immPendingMap_ = &timmMap_{}
 
-// immNull_ reports whether x is Java's null.
-func immNull_[T any](c *tconv_[T], x T) bool { return any(x) == any(c.null) }
+// jimmNull_ reports whether x is Java's null.
+func jimmNull_[T any](c *jtconv_[T], x T) bool { return any(x) == any(c.null) }
 
-func boxAll_[T any](c *tconv_[T], s []T) []any {
+func jboxAll_[T any](c *jtconv_[T], s []T) []any {
 	out := make([]any, len(s))
 	for i, x := range s {
 		out[i] = c.box(x)
@@ -79,70 +79,70 @@ func classCastImm_(from, to string) {
 }
 
 // frozen_ is the panic of a change to an immutable typed collection: catch_ makes it Java's
-// UnsupportedOperationException. (A panic statement keeps TList.add and set inlinable; a call
+// UnsupportedOperationException. (A panic statement keeps JTList.add and set inlinable; a call
 // of a function that throws does not.)
 type frozen_ struct{}
 
 // ---- lists
 
-// tlistEmptyImm_ is ImmutableList.of() as a list of T: one per element type; its twin is the
+// jtlistEmptyImm_ is ImmutableList.of() as a list of T: one per element type; its twin is the
 // runtime's empty list.
-func tlistEmptyImm_[T any](c *tconv_[T]) *TList[T] {
-	if l, ok := c.emptyL.(*TList[T]); ok {
+func jtlistEmptyImm_[T any](c *jtconv_[T]) *JTList[T] {
+	if l, ok := c.emptyL.(*JTList[T]); ok {
 		return l
 	}
-	l := &TList[T]{items: []T{}, c: c, twin: emptyImmList_}
+	l := &JTList[T]{items: []T{}, c: c, twin: emptyImmList_}
 	l.view.l = l
 	c.emptyL = l
 	return l
 }
 
 // tlistOwn_ is the immutable list of items, which it owns (not empty, no nulls).
-func tlistOwn_[T any](c *tconv_[T], items []T) *TList[T] {
-	l := &TList[T]{items: items, c: c, twin: immPending_}
+func tlistOwn_[T any](c *jtconv_[T], items []T) *JTList[T] {
+	l := &JTList[T]{items: items, c: c, twin: immPending_}
 	l.view.l = l
 	return l
 }
 
-// immutableListOf_ is ImmutableList.of(xs...), which owns xs: a null element throws
+// jimmutableListOf_ is ImmutableList.of(xs...), which owns xs: a null element throws
 // NullPointerException.
-func immutableListOf_[T any](c *tconv_[T], xs ...T) *TList[T] {
+func jimmutableListOf_[T any](c *jtconv_[T], xs ...T) *JTList[T] {
 	for i, x := range xs {
-		if immNull_(c, x) {
+		if jimmNull_(c, x) {
 			throwNPE_("at index " + istr_(int64(i)))
 		}
 	}
 	if len(xs) == 0 {
-		return tlistEmptyImm_(c)
+		return jtlistEmptyImm_(c)
 	}
 	return tlistOwn_(c, xs)
 }
 
-// tlistImm_ is an ImmutableList that erased code made, entering a typed declaration: the typed
+// jtlistImm_ is an ImmutableList that erased code made, entering a typed declaration: the typed
 // list of its twin ic, made once (nil for null).
-func tlistImm_[T any](c *tconv_[T], ic *ImmutableCollection) *TList[T] {
+func jtlistImm_[T any](c *jtconv_[T], ic *ImmutableCollection) *JTList[T] {
 	if ic == nil {
 		return nil
 	}
-	if l, ok := ic.typed_.(*TList[T]); ok {
+	if l, ok := ic.typed_.(*JTList[T]); ok {
 		return l
 	}
 	return tlistImmNew_(c, ic)
 }
 
-func tlistImmNew_[T any](c *tconv_[T], ic *ImmutableCollection) *TList[T] {
+func tlistImmNew_[T any](c *jtconv_[T], ic *ImmutableCollection) *JTList[T] {
 	if ic.kind != icList_ {
 		classCastImm_("com.google.common.collect.ImmutableSet", "com.google.common.collect.ImmutableList")
 	}
 	if len(ic.items) == 0 {
-		return tlistEmptyImm_(c)
+		return jtlistEmptyImm_(c)
 	}
-	mk := func() *TList[T] {
+	mk := func() *JTList[T] {
 		items := make([]T, len(ic.items))
 		for i, x := range ic.items {
 			items[i] = c.unbox(x)
 		}
-		l := &TList[T]{items: items, c: c, twin: ic}
+		l := &JTList[T]{items: items, c: c, twin: ic}
 		l.view.l = l
 		return l
 	}
@@ -156,12 +156,12 @@ func tlistImmNew_[T any](c *tconv_[T], ic *ImmutableCollection) *TList[T] {
 
 // asImm is an immutable list as erased code sees it: its twin, the runtime's ImmutableList
 // (nil for null). A list that is not immutable is not an ImmutableList: ClassCastException.
-func (l *TList[T]) asImm() *ImmutableCollection {
+func (l *JTList[T]) asImm() *ImmutableCollection {
 	if l == nil {
 		return nil
 	}
 	if l.twin == immPending_ {
-		t := &ImmutableCollection{kind: icList_, items: boxAll_(l.c, l.items)}
+		t := &ImmutableCollection{kind: icList_, items: jboxAll_(l.c, l.items)}
 		t.typed_ = l
 		l.twin = t
 	} else if l.twin == nil || l.twin == unmodMark_ {
@@ -175,7 +175,7 @@ func (l *TList[T]) asImm() *ImmutableCollection {
 // (not inlined, so that asList is: its common case is the view)
 //
 //go:noinline
-func (l *TList[T]) asOtherList() List {
+func (l *JTList[T]) asOtherList() List {
 	if l == nil {
 		return nil
 	}
@@ -187,24 +187,24 @@ func (l *TList[T]) asOtherList() List {
 
 // ---- sets
 
-// tsetEmptyImm_ is ImmutableSet.of() as a set of K: one per element type.
-func tsetEmptyImm_[K comparable](c *tconv_[K]) *TSet[K] {
-	if s, ok := c.emptyS.(*TSet[K]); ok {
+// jtsetEmptyImm_ is ImmutableSet.of() as a set of K: one per element type.
+func jtsetEmptyImm_[K comparable](c *jtconv_[K]) *JTSet[K] {
+	if s, ok := c.emptyS.(*JTSet[K]); ok {
 		return s
 	}
-	s := newTSet_(c)
+	s := jnewTSet_(c)
 	s.twin = emptyImmSet_
 	c.emptyS = s
 	return s
 }
 
-// tsetMake_ is the immutable set of the distinct elements of xs, in first-seen order (xs is
+// jtsetMake_ is the immutable set of the distinct elements of xs, in first-seen order (xs is
 // checked for nulls).
-func tsetMake_[K comparable](c *tconv_[K], xs []K) *TSet[K] {
+func jtsetMake_[K comparable](c *jtconv_[K], xs []K) *JTSet[K] {
 	if len(xs) == 0 {
-		return tsetEmptyImm_(c)
+		return jtsetEmptyImm_(c)
 	}
-	s := newTSet_(c)
+	s := jnewTSet_(c)
 	if !c.byEquals {
 		s.keys = make([]K, 0, len(xs))
 	}
@@ -215,37 +215,37 @@ func tsetMake_[K comparable](c *tconv_[K], xs []K) *TSet[K] {
 	return s
 }
 
-// immutableSetOf_ is ImmutableSet.of(xs...): a null element throws NullPointerException.
-func immutableSetOf_[K comparable](c *tconv_[K], xs ...K) *TSet[K] {
+// jimmutableSetOf_ is ImmutableSet.of(xs...): a null element throws NullPointerException.
+func jimmutableSetOf_[K comparable](c *jtconv_[K], xs ...K) *JTSet[K] {
 	for _, x := range xs {
-		if immNull_(c, x) {
+		if jimmNull_(c, x) {
 			panic(new_NullPointerException_0().self())
 		}
 	}
-	return tsetMake_(c, xs)
+	return jtsetMake_(c, xs)
 }
 
 // tsetImm_ is an ImmutableSet that erased code made, entering a typed declaration (see
-// tlistImm_).
-func tsetImm_[K comparable](c *tconv_[K], ic *ImmutableCollection) *TSet[K] {
+// jtlistImm_).
+func tsetImm_[K comparable](c *jtconv_[K], ic *ImmutableCollection) *JTSet[K] {
 	if ic == nil {
 		return nil
 	}
-	if s, ok := ic.typed_.(*TSet[K]); ok {
+	if s, ok := ic.typed_.(*JTSet[K]); ok {
 		return s
 	}
 	return tsetImmNew_(c, ic)
 }
 
-func tsetImmNew_[K comparable](c *tconv_[K], ic *ImmutableCollection) *TSet[K] {
+func tsetImmNew_[K comparable](c *jtconv_[K], ic *ImmutableCollection) *JTSet[K] {
 	if ic.kind == icList_ {
 		classCastImm_("com.google.common.collect.ImmutableList", "com.google.common.collect.ImmutableSet")
 	}
 	if ic == emptyImmSet_ {
-		return tsetEmptyImm_(c)
+		return jtsetEmptyImm_(c)
 	}
-	mk := func() *TSet[K] {
-		s := newTSet_(c)
+	mk := func() *JTSet[K] {
+		s := jnewTSet_(c)
 		if ic.kind == icSorted_ {
 			// an ImmutableSortedSet: a sorted typed set with its comparator, the elements as
 			// they are ordered
@@ -272,7 +272,7 @@ func tsetImmNew_[K comparable](c *tconv_[K], ic *ImmutableCollection) *TSet[K] {
 }
 
 // liveKeys is the elements of the set in order (the set's own slice if nothing was removed).
-func (s *TSet[K]) liveKeys() []K {
+func (s *JTSet[K]) liveKeys() []K {
 	if s.gone == nil {
 		return s.keys
 	}
@@ -286,13 +286,13 @@ func (s *TSet[K]) liveKeys() []K {
 }
 
 // asImm is an immutable set as erased code sees it: its twin, the runtime's ImmutableSet.
-func (s *TSet[K]) asImm() *ImmutableCollection {
+func (s *JTSet[K]) asImm() *ImmutableCollection {
 	if s == nil {
 		return nil
 	}
 	if s.twin == immPending_ {
 		// the twin's index is built on its first lookup (ImmutableCollection.find_)
-		t := &ImmutableCollection{kind: icSet_, items: boxAll_(s.c, s.keys)}
+		t := &ImmutableCollection{kind: icSet_, items: jboxAll_(s.c, s.keys)}
 		t.typed_ = s
 		s.twin = t
 	} else if s.twin == nil || s.twin == sortedMark_ {
@@ -306,7 +306,7 @@ func (s *TSet[K]) asImm() *ImmutableCollection {
 // (not inlined, so that asSet is: its common case is the view)
 //
 //go:noinline
-func (s *TSet[K]) asOtherSet() Set {
+func (s *JTSet[K]) asOtherSet() Set {
 	if s == nil {
 		return nil
 	}
@@ -318,46 +318,46 @@ func (s *TSet[K]) asOtherSet() Set {
 
 // ---- maps
 
-// tmapEmptyImm_ is ImmutableMap.of() as a map of K to V: one per key and value type.
-func tmapEmptyImm_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *TMap[K, V] {
-	if m, ok := vc.emptyM.(*TMap[K, V]); ok && m.kc == kc {
+// jtmapEmptyImm_ is ImmutableMap.of() as a map of K to V: one per key and value type.
+func jtmapEmptyImm_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V]) *JTMap[K, V] {
+	if m, ok := vc.emptyM.(*JTMap[K, V]); ok && m.kc == kc {
 		return m
 	}
-	if m, ok := kc.emptyM.(*TMap[K, V]); ok && m.vc == vc {
+	if m, ok := kc.emptyM.(*JTMap[K, V]); ok && m.vc == vc {
 		return m
 	}
-	m := newTMap_(kc, vc)
+	m := jnewTMap_(kc, vc)
 	m.imm = &timmMap_{twin: emptyImmMap_}
 	if vc.emptyM == nil {
 		vc.emptyM = m
 	} else if kc.emptyM == nil {
 		kc.emptyM = m
 	} else {
-		return immAltGet_(any(emptyImmMap_), func() *TMap[K, V] { return m })
+		return immAltGet_(any(emptyImmMap_), func() *JTMap[K, V] { return m })
 	}
 	return m
 }
 
-// tmapMake_ is the immutable map of parallel keys and values, as immMap_ makes an
+// jtmapMake_ is the immutable map of parallel keys and values, as immMap_ makes an
 // ImmutableMap: nulls are checked first, then a duplicate key throws
 // IllegalArgumentException.
-func tmapMake_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], keys []K, vals []V) *TMap[K, V] {
+func jtmapMake_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], keys []K, vals []V) *JTMap[K, V] {
 	if len(keys) == 0 {
-		return tmapEmptyImm_(kc, vc)
+		return jtmapEmptyImm_(kc, vc)
 	}
 	for i := range keys {
-		if immNull_(kc, keys[i]) {
+		if jimmNull_(kc, keys[i]) {
 			throwNPE_("null key in entry: null=" + objstr_(vc.box(vals[i])))
 		}
-		if immNull_(vc, vals[i]) {
+		if jimmNull_(vc, vals[i]) {
 			throwNPE_("null value in entry: " + objstr_(kc.box(keys[i])) + "=null")
 		}
 	}
-	m := newTMap_(kc, vc)
+	m := jnewTMap_(kc, vc)
 	for i, k := range keys {
 		j, h := m.locate(k)
 		if j >= 0 {
-			immDup_(boxAll_(kc, keys), boxAll_(vc, vals))
+			immDup_(jboxAll_(kc, keys), jboxAll_(vc, vals))
 		}
 		m.append(k, vals[i], h)
 	}
@@ -367,44 +367,44 @@ func tmapMake_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], keys []K, vals
 
 // immutableMapOf1_ ... immutableMapOf5_ are ImmutableMap.of(k1, v1, ...): the arguments in
 // Java's order.
-func immutableMapOf1_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], k1 K, v1 V) *TMap[K, V] {
-	return tmapMake_(kc, vc, []K{k1}, []V{v1})
+func immutableMapOf1_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], k1 K, v1 V) *JTMap[K, V] {
+	return jtmapMake_(kc, vc, []K{k1}, []V{v1})
 }
 
-func immutableMapOf2_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], k1 K, v1 V, k2 K, v2 V) *TMap[K, V] {
-	return tmapMake_(kc, vc, []K{k1, k2}, []V{v1, v2})
+func immutableMapOf2_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], k1 K, v1 V, k2 K, v2 V) *JTMap[K, V] {
+	return jtmapMake_(kc, vc, []K{k1, k2}, []V{v1, v2})
 }
 
-func immutableMapOf3_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], k1 K, v1 V, k2 K, v2 V, k3 K, v3 V) *TMap[K, V] {
-	return tmapMake_(kc, vc, []K{k1, k2, k3}, []V{v1, v2, v3})
+func immutableMapOf3_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], k1 K, v1 V, k2 K, v2 V, k3 K, v3 V) *JTMap[K, V] {
+	return jtmapMake_(kc, vc, []K{k1, k2, k3}, []V{v1, v2, v3})
 }
 
-func immutableMapOf4_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], k1 K, v1 V, k2 K, v2 V, k3 K, v3 V, k4 K, v4 V) *TMap[K, V] {
-	return tmapMake_(kc, vc, []K{k1, k2, k3, k4}, []V{v1, v2, v3, v4})
+func immutableMapOf4_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], k1 K, v1 V, k2 K, v2 V, k3 K, v3 V, k4 K, v4 V) *JTMap[K, V] {
+	return jtmapMake_(kc, vc, []K{k1, k2, k3, k4}, []V{v1, v2, v3, v4})
 }
 
-func immutableMapOf5_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], k1 K, v1 V, k2 K, v2 V, k3 K, v3 V, k4 K, v4 V, k5 K, v5 V) *TMap[K, V] {
-	return tmapMake_(kc, vc, []K{k1, k2, k3, k4, k5}, []V{v1, v2, v3, v4, v5})
+func immutableMapOf5_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], k1 K, v1 V, k2 K, v2 V, k3 K, v3 V, k4 K, v4 V, k5 K, v5 V) *JTMap[K, V] {
+	return jtmapMake_(kc, vc, []K{k1, k2, k3, k4, k5}, []V{v1, v2, v3, v4, v5})
 }
 
 // tmapImm_ is an ImmutableMap that erased code made, entering a typed declaration (see
-// tlistImm_).
-func tmapImm_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], im *ImmutableMap) *TMap[K, V] {
+// jtlistImm_).
+func tmapImm_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *ImmutableMap) *JTMap[K, V] {
 	if im == nil {
 		return nil
 	}
-	if m, ok := im.typed_.(*TMap[K, V]); ok {
+	if m, ok := im.typed_.(*JTMap[K, V]); ok {
 		return m
 	}
 	return tmapImmNew_(kc, vc, im)
 }
 
-func tmapImmNew_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], im *ImmutableMap) *TMap[K, V] {
+func tmapImmNew_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *ImmutableMap) *JTMap[K, V] {
 	if im == emptyImmMap_ {
-		return tmapEmptyImm_(kc, vc)
+		return jtmapEmptyImm_(kc, vc)
 	}
-	mk := func() *TMap[K, V] {
-		m := newTMap_(kc, vc)
+	mk := func() *JTMap[K, V] {
+		m := jnewTMap_(kc, vc)
 		if im.kind == imSorted_ {
 			// an ImmutableSortedMap: a sorted typed map with its comparator
 			m.eq = &teq_{sorted: true, cmp: im.cmp}
@@ -426,7 +426,7 @@ func tmapImmNew_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], im *Immutabl
 }
 
 // asImm is an immutable map as erased code sees it: its twin, the runtime's ImmutableMap.
-func (m *TMap[K, V]) asImm() *ImmutableMap {
+func (m *JTMap[K, V]) asImm() *ImmutableMap {
 	if m == nil {
 		return nil
 	}
@@ -436,9 +436,9 @@ func (m *TMap[K, V]) asImm() *ImmutableMap {
 	x := m.info()
 	if x.twin == nil {
 		// the twin's index is built on its first lookup (ImmutableMap.index_)
-		t := &ImmutableMap{kind: imMap_, keys: boxAll_(m.kc, m.keys), vals: boxAll_(m.vc, m.vals)}
+		t := &ImmutableMap{kind: imMap_, keys: jboxAll_(m.kc, m.keys), vals: jboxAll_(m.vc, m.vals)}
 		t.typed_ = m
-		if s, ok := x.keys.(*TSet[K]); ok {
+		if s, ok := x.keys.(*JTSet[K]); ok {
 			// its key set is the one that typed code has
 			t.keySet_ = s.asImm()
 		}
@@ -448,7 +448,7 @@ func (m *TMap[K, V]) asImm() *ImmutableMap {
 }
 
 // info is what the immutable map has beside its mappings, to fill in.
-func (m *TMap[K, V]) info() *timmMap_ {
+func (m *JTMap[K, V]) info() *timmMap_ {
 	if m.imm == immPendingMap_ {
 		m.imm = &timmMap_{}
 	}
@@ -457,20 +457,20 @@ func (m *TMap[K, V]) info() *timmMap_ {
 
 // keySetImm is keySet() of an immutable map (an ImmutableSet<K>) for a typed declaration: one
 // typed set, the same object as the key set that erased code gets from the map's twin.
-func (m *TMap[K, V]) keySetImm() *TSet[K] {
+func (m *JTMap[K, V]) keySetImm() *JTSet[K] {
 	if m.imm == nil || m.imm == sortedMapMark_ {
 		classCastImm_("java.util."+m.view.goName_(), "com.google.common.collect.ImmutableMap")
 	}
 	x := m.info()
-	if s, ok := x.keys.(*TSet[K]); ok {
+	if s, ok := x.keys.(*JTSet[K]); ok {
 		return s
 	}
-	var s *TSet[K]
+	var s *JTSet[K]
 	if x.twin != nil {
 		// the key set of the twin, as a typed set
 		s = tsetImm_(m.kc, x.twin.keySet().(*ImmutableCollection))
 	} else {
-		s = newTSet_(m.kc)
+		s = jnewTSet_(m.kc)
 		for _, k := range m.keys {
 			s.add0(k)
 		}
@@ -485,7 +485,7 @@ func (m *TMap[K, V]) keySetImm() *TSet[K] {
 // (not inlined, so that asMap is: its common case is the view)
 //
 //go:noinline
-func (m *TMap[K, V]) asOtherMap() Map {
+func (m *JTMap[K, V]) asOtherMap() Map {
 	if m == nil {
 		return nil
 	}
@@ -500,39 +500,39 @@ func (m *TMap[K, V]) asOtherMap() Map {
 // immutableListCopyOfT_ is ImmutableList.copyOf(l) of a typed list of the same element type:
 // an immutable list is itself; any other is copied (a null element throws
 // NullPointerException).
-func immutableListCopyOfT_[T any](c *tconv_[T], l *TList[T]) *TList[T] {
+func immutableListCopyOfT_[T any](c *jtconv_[T], l *JTList[T]) *JTList[T] {
 	if l.twin != nil && l.twin != unmodMark_ {
 		return l
 	}
-	return immutableListCopyOfArr_(c, l.items)
+	return jimmutableListCopyOfArr_(c, l.items)
 }
 
-// immutableListCopyOfArr_ is ImmutableList.copyOf(a) of an array a.
-func immutableListCopyOfArr_[T any](c *tconv_[T], a []T) *TList[T] {
+// jimmutableListCopyOfArr_ is ImmutableList.copyOf(a) of an array a.
+func jimmutableListCopyOfArr_[T any](c *jtconv_[T], a []T) *JTList[T] {
 	for i, x := range a {
-		if immNull_(c, x) {
+		if jimmNull_(c, x) {
 			throwNPE_("at index " + istr_(int64(i)))
 		}
 	}
 	if len(a) == 0 {
-		return tlistEmptyImm_(c)
+		return jtlistEmptyImm_(c)
 	}
 	return tlistOwn_(c, append([]T(nil), a...))
 }
 
-// immutableListCopyOf_ is ImmutableList.copyOf(from) of a collection as erased code sees it:
+// jimmutableListCopyOf_ is ImmutableList.copyOf(from) of a collection as erased code sees it:
 // an immutable collection gives its asList() (itself, for a list).
-func immutableListCopyOf_[T any](c *tconv_[T], from Iterable) *TList[T] {
+func jimmutableListCopyOf_[T any](c *jtconv_[T], from Iterable) *JTList[T] {
 	switch x := from.(type) {
 	case *ImmutableCollection:
-		return tlistImm_(c, x.asList())
-	case *tlistView_[T]:
-		return immutableListCopyOfArr_(c, x.l.items)
+		return jtlistImm_(c, x.asList())
+	case *jtlistView_[T]:
+		return jimmutableListCopyOfArr_(c, x.l.items)
 	}
 	src := toSlice_(from)
 	checkNoNulls_(src)
 	if len(src) == 0 {
-		return tlistEmptyImm_(c)
+		return jtlistEmptyImm_(c)
 	}
 	items := make([]T, len(src))
 	for i, x := range src {
@@ -542,25 +542,25 @@ func immutableListCopyOf_[T any](c *tconv_[T], from Iterable) *TList[T] {
 }
 
 // immutableSetCopyOfT_ is ImmutableSet.copyOf(s) of a typed set of the same element type.
-func immutableSetCopyOfT_[K comparable](c *tconv_[K], s *TSet[K]) *TSet[K] {
+func immutableSetCopyOfT_[K comparable](c *jtconv_[K], s *JTSet[K]) *JTSet[K] {
 	if s.twin != nil && s.twin != sortedMark_ && (s.eq == nil || !s.eq.sorted) {
 		return s
 	}
-	return immutableSetOf_(c, s.liveKeys()...)
+	return jimmutableSetOf_(c, s.liveKeys()...)
 }
 
-// immutableSetCopyOf_ is ImmutableSet.copyOf(from) of a collection as erased code sees it: an
+// jimmutableSetCopyOf_ is ImmutableSet.copyOf(from) of a collection as erased code sees it: an
 // ImmutableSet (not a sorted one) is itself.
-func immutableSetCopyOf_[K comparable](c *tconv_[K], from Iterable) *TSet[K] {
+func jimmutableSetCopyOf_[K comparable](c *jtconv_[K], from Iterable) *JTSet[K] {
 	switch x := from.(type) {
 	case *ImmutableCollection:
 		if x.kind == icSet_ {
 			return tsetImm_(c, x)
 		}
-	case *tsetView_[K]:
-		return immutableSetOf_(c, x.s.liveKeys()...)
-	case *tlistView_[K]:
-		return immutableSetOf_(c, x.l.items...)
+	case *jtsetView_[K]:
+		return jimmutableSetOf_(c, x.s.liveKeys()...)
+	case *jtlistView_[K]:
+		return jimmutableSetOf_(c, x.l.items...)
 	}
 	src := toSlice_(from)
 	xs := make([]K, len(src))
@@ -570,12 +570,12 @@ func immutableSetCopyOf_[K comparable](c *tconv_[K], from Iterable) *TSet[K] {
 		}
 		xs[i] = c.unbox(x)
 	}
-	return tsetMake_(c, xs)
+	return jtsetMake_(c, xs)
 }
 
 // liveKV is the keys and values of the map in order (the map's own slices if nothing was
 // removed).
-func (m *TMap[K, V]) liveKV() ([]K, []V) {
+func (m *JTMap[K, V]) liveKV() ([]K, []V) {
 	if m.gone == nil {
 		return m.keys, m.vals
 	}
@@ -589,25 +589,25 @@ func (m *TMap[K, V]) liveKV() ([]K, []V) {
 }
 
 // immutableMapCopyOfT_ is ImmutableMap.copyOf(m) of a typed map of the same types.
-func immutableMapCopyOfT_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m *TMap[K, V]) *TMap[K, V] {
+func immutableMapCopyOfT_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], m *JTMap[K, V]) *JTMap[K, V] {
 	if m.imm != nil && m.imm != sortedMapMark_ && (m.eq == nil || !m.eq.sorted) {
 		return m
 	}
 	keys, vals := m.liveKV()
-	return tmapMake_(kc, vc, keys, vals)
+	return jtmapMake_(kc, vc, keys, vals)
 }
 
-// immutableMapCopyOf_ is ImmutableMap.copyOf(from) of a map as erased code sees it: an
+// jimmutableMapCopyOf_ is ImmutableMap.copyOf(from) of a map as erased code sees it: an
 // ImmutableMap (not a sorted one) is itself.
-func immutableMapCopyOf_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map) *TMap[K, V] {
+func jimmutableMapCopyOf_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], from Map) *JTMap[K, V] {
 	switch x := from.(type) {
 	case *ImmutableMap:
 		if x.kind != imSorted_ {
 			return tmapImm_(kc, vc, x)
 		}
-	case *tmapView_[K, V]:
+	case *jtmapView_[K, V]:
 		keys, vals := x.m.liveKV()
-		return tmapMake_(kc, vc, keys, vals)
+		return jtmapMake_(kc, vc, keys, vals)
 	}
 	bk, bv := mapKV_(from)
 	for i := range bk {
@@ -622,7 +622,7 @@ func immutableMapCopyOf_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from
 	for i := range bk {
 		keys[i], vals[i] = kc.unbox(bk[i]), vc.unbox(bv[i])
 	}
-	return tmapMake_(kc, vc, keys, vals)
+	return jtmapMake_(kc, vc, keys, vals)
 }
 
 // ---- builders
@@ -635,19 +635,19 @@ func immutableMapCopyOf_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from
 
 type TListBuilder[T any] struct {
 	items []T
-	c     *tconv_[T]
+	c     *jtconv_[T]
 }
 
 // newTListBuilder_ is ImmutableList.builder() or new ImmutableList.Builder<>().
-func newTListBuilder_[T any](c *tconv_[T]) *TListBuilder[T] { return &TListBuilder[T]{c: c} }
+func newTListBuilder_[T any](c *jtconv_[T]) *TListBuilder[T] { return &TListBuilder[T]{c: c} }
 
 // newTListBuilderN_ is ImmutableList.builderWithExpectedSize(n).
-func newTListBuilderN_[T any](c *tconv_[T], n int32) *TListBuilder[T] {
+func newTListBuilderN_[T any](c *jtconv_[T], n int32) *TListBuilder[T] {
 	return &TListBuilder[T]{c: c, items: make([]T, 0, n)}
 }
 
 func (b *TListBuilder[T]) add(x T) *TListBuilder[T] {
-	if immNull_(b.c, x) {
+	if jimmNull_(b.c, x) {
 		panic(new_NullPointerException_0().self())
 	}
 	b.items = append(b.items, x)
@@ -657,13 +657,13 @@ func (b *TListBuilder[T]) add(x T) *TListBuilder[T] {
 // addAll adds the elements of a collection as erased code sees it, each as add does.
 func (b *TListBuilder[T]) addAll(from Iterable) *TListBuilder[T] {
 	switch x := from.(type) {
-	case *tlistView_[T]:
+	case *jtlistView_[T]:
 		for _, e := range x.l.items {
 			b.add(e)
 		}
 		return b
 	case *ImmutableCollection:
-		if l, ok := x.typed_.(*TList[T]); ok {
+		if l, ok := x.typed_.(*JTList[T]); ok {
 			b.items = append(b.items, l.items...)
 			return b
 		}
@@ -679,28 +679,28 @@ func (b *TListBuilder[T]) addAll(from Iterable) *TListBuilder[T] {
 
 // build is the list of the elements added so far. It shares them with the builder, which only
 // appends: the capacity is cut, so a later add never reaches a list already built.
-func (b *TListBuilder[T]) build() *TList[T] {
+func (b *TListBuilder[T]) build() *JTList[T] {
 	if len(b.items) == 0 {
-		return tlistEmptyImm_(b.c)
+		return jtlistEmptyImm_(b.c)
 	}
 	return tlistOwn_(b.c, b.items[:len(b.items):len(b.items)])
 }
 
 type TSetBuilder[K comparable] struct {
 	items []K
-	c     *tconv_[K]
+	c     *jtconv_[K]
 }
 
 // newTSetBuilder_ is ImmutableSet.builder() or new ImmutableSet.Builder<>().
-func newTSetBuilder_[K comparable](c *tconv_[K]) *TSetBuilder[K] { return &TSetBuilder[K]{c: c} }
+func newTSetBuilder_[K comparable](c *jtconv_[K]) *TSetBuilder[K] { return &TSetBuilder[K]{c: c} }
 
 // newTSetBuilderN_ is ImmutableSet.builderWithExpectedSize(n).
-func newTSetBuilderN_[K comparable](c *tconv_[K], n int32) *TSetBuilder[K] {
+func newTSetBuilderN_[K comparable](c *jtconv_[K], n int32) *TSetBuilder[K] {
 	return &TSetBuilder[K]{c: c, items: make([]K, 0, n)}
 }
 
 func (b *TSetBuilder[K]) add(x K) *TSetBuilder[K] {
-	if immNull_(b.c, x) {
+	if jimmNull_(b.c, x) {
 		panic(new_NullPointerException_0().self())
 	}
 	b.items = append(b.items, x)
@@ -709,22 +709,22 @@ func (b *TSetBuilder[K]) add(x K) *TSetBuilder[K] {
 
 func (b *TSetBuilder[K]) addAll(from Iterable) *TSetBuilder[K] {
 	switch x := from.(type) {
-	case *tsetView_[K]:
+	case *jtsetView_[K]:
 		for _, e := range x.s.liveKeys() {
 			b.add(e)
 		}
 		return b
-	case *tlistView_[K]:
+	case *jtlistView_[K]:
 		for _, e := range x.l.items {
 			b.add(e)
 		}
 		return b
 	case *ImmutableCollection:
 		switch t := x.typed_.(type) {
-		case *TSet[K]:
+		case *JTSet[K]:
 			b.items = append(b.items, t.keys...)
 			return b
-		case *TList[K]:
+		case *JTList[K]:
 			b.items = append(b.items, t.items...)
 			return b
 		}
@@ -739,30 +739,30 @@ func (b *TSetBuilder[K]) addAll(from Iterable) *TSetBuilder[K] {
 }
 
 // build is the set of the distinct elements added so far, in first-seen order.
-func (b *TSetBuilder[K]) build() *TSet[K] { return tsetMake_(b.c, b.items) }
+func (b *TSetBuilder[K]) build() *JTSet[K] { return jtsetMake_(b.c, b.items) }
 
 type TMapBuilder[K comparable, V any] struct {
 	keys []K
 	vals []V
-	kc   *tconv_[K]
-	vc   *tconv_[V]
+	kc   *jtconv_[K]
+	vc   *jtconv_[V]
 }
 
 // newTMapBuilder_ is ImmutableMap.builder() or new ImmutableMap.Builder<>().
-func newTMapBuilder_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *TMapBuilder[K, V] {
+func newTMapBuilder_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V]) *TMapBuilder[K, V] {
 	return &TMapBuilder[K, V]{kc: kc, vc: vc}
 }
 
 // newTMapBuilderN_ is ImmutableMap.builderWithExpectedSize(n).
-func newTMapBuilderN_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], n int32) *TMapBuilder[K, V] {
+func newTMapBuilderN_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], n int32) *TMapBuilder[K, V] {
 	return &TMapBuilder[K, V]{kc: kc, vc: vc, keys: make([]K, 0, n), vals: make([]V, 0, n)}
 }
 
 func (b *TMapBuilder[K, V]) put(k K, v V) *TMapBuilder[K, V] {
-	if immNull_(b.kc, k) {
+	if jimmNull_(b.kc, k) {
 		throwNPE_("null key in entry: null=" + objstr_(b.vc.box(v)))
 	}
-	if immNull_(b.vc, v) {
+	if jimmNull_(b.vc, v) {
 		throwNPE_("null value in entry: " + objstr_(b.kc.box(k)) + "=null")
 	}
 	b.keys = append(b.keys, k)
@@ -772,12 +772,12 @@ func (b *TMapBuilder[K, V]) put(k K, v V) *TMapBuilder[K, V] {
 
 // putAll puts the mappings of a map as erased code sees it, each as put does.
 func (b *TMapBuilder[K, V]) putAll(from Map) *TMapBuilder[K, V] {
-	var t *TMap[K, V]
+	var t *JTMap[K, V]
 	switch x := from.(type) {
-	case *tmapView_[K, V]:
+	case *jtmapView_[K, V]:
 		t = x.m
 	case *ImmutableMap:
-		t, _ = x.typed_.(*TMap[K, V])
+		t, _ = x.typed_.(*JTMap[K, V])
 	}
 	if t != nil {
 		keys, vals := t.liveKV()
@@ -800,17 +800,19 @@ func (b *TMapBuilder[K, V]) putAll(from Map) *TMapBuilder[K, V] {
 	return b
 }
 
-func (b *TMapBuilder[K, V]) build() *TMap[K, V] { return tmapMake_(b.kc, b.vc, b.keys, b.vals) }
+func (b *TMapBuilder[K, V]) build() *JTMap[K, V] { return jtmapMake_(b.kc, b.vc, b.keys, b.vals) }
 
-func (b *TMapBuilder[K, V]) buildOrThrow() *TMap[K, V] { return tmapMake_(b.kc, b.vc, b.keys, b.vals) }
+func (b *TMapBuilder[K, V]) buildOrThrow() *JTMap[K, V] {
+	return jtmapMake_(b.kc, b.vc, b.keys, b.vals)
+}
 
 // buildKeepingLast is the map in which a key put more than once keeps its first position and
 // has its last value (as immMap_ makes it).
-func (b *TMapBuilder[K, V]) buildKeepingLast() *TMap[K, V] {
+func (b *TMapBuilder[K, V]) buildKeepingLast() *JTMap[K, V] {
 	if len(b.keys) == 0 {
-		return tmapEmptyImm_(b.kc, b.vc)
+		return jtmapEmptyImm_(b.kc, b.vc)
 	}
-	m := newTMap_(b.kc, b.vc)
+	m := jnewTMap_(b.kc, b.vc)
 	for i, k := range b.keys {
 		j, h := m.locate(k)
 		if j >= 0 {

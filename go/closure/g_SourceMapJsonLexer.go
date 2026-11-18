@@ -3,8 +3,8 @@
 package closure
 
 type SourceMapJsonLexer struct {
-	json string
-	pos int32
+	json    string
+	pos     int32
 	length_ int32
 }
 
@@ -30,9 +30,9 @@ func new_SourceMapJsonLexer(json string) *SourceMapJsonLexer {
 }
 
 func (this *SourceMapJsonLexer) skipWhitespace() {
-	for (this.pos < this.length_) {
+	for this.pos < this.length_ {
 		var c uint16 = String_charAt(this.json, this.pos)
-		if ((((c == ' ') || (c == '\t')) || (c == '\n')) || (c == '\r')) {
+		if (((c == ' ') || (c == '\t')) || (c == '\n')) || (c == '\r') {
 			this.pos++
 		} else {
 			break
@@ -42,7 +42,7 @@ func (this *SourceMapJsonLexer) skipWhitespace() {
 
 func (this *SourceMapJsonLexer) hasNext() bool {
 	this.skipWhitespace()
-	if (this.pos >= this.length_) {
+	if this.pos >= this.length_ {
 		return false
 	}
 	var c uint16 = String_charAt(this.json, this.pos)
@@ -51,7 +51,7 @@ func (this *SourceMapJsonLexer) hasNext() bool {
 
 func (this *SourceMapJsonLexer) beginObject() *Outcome_base[any] {
 	this.skipWhitespace()
-	if ((this.pos < this.length_) && (String_charAt(this.json, this.pos) == '{')) {
+	if (this.pos < this.length_) && (String_charAt(this.json, this.pos) == '{') {
 		this.pos++
 	} else {
 		return Outcome_base_err[any](new_SourceMapParseException("Expected '{'").up_Throwable())
@@ -61,7 +61,7 @@ func (this *SourceMapJsonLexer) beginObject() *Outcome_base[any] {
 
 func (this *SourceMapJsonLexer) endObject() *Outcome_base[any] {
 	this.skipWhitespace()
-	if ((this.pos < this.length_) && (String_charAt(this.json, this.pos) == '}')) {
+	if (this.pos < this.length_) && (String_charAt(this.json, this.pos) == '}') {
 		this.pos++
 	} else {
 		return Outcome_base_err[any](new_SourceMapParseException("Expected '}'").up_Throwable())
@@ -71,7 +71,7 @@ func (this *SourceMapJsonLexer) endObject() *Outcome_base[any] {
 
 func (this *SourceMapJsonLexer) beginArray() *Outcome_base[any] {
 	this.skipWhitespace()
-	if ((this.pos < this.length_) && (String_charAt(this.json, this.pos) == '[')) {
+	if (this.pos < this.length_) && (String_charAt(this.json, this.pos) == '[') {
 		this.pos++
 	} else {
 		return Outcome_base_err[any](new_SourceMapParseException("Expected '['").up_Throwable())
@@ -81,7 +81,7 @@ func (this *SourceMapJsonLexer) beginArray() *Outcome_base[any] {
 
 func (this *SourceMapJsonLexer) endArray() *Outcome_base[any] {
 	this.skipWhitespace()
-	if ((this.pos < this.length_) && (String_charAt(this.json, this.pos) == ']')) {
+	if (this.pos < this.length_) && (String_charAt(this.json, this.pos) == ']') {
 		this.pos++
 	} else {
 		return Outcome_base_err[any](new_SourceMapParseException("Expected ']'").up_Throwable())
@@ -96,7 +96,7 @@ func (this *SourceMapJsonLexer) nextName() *Outcome_base[string] {
 	}
 	var name string = nameOutcome.get()
 	this.skipWhitespace()
-	if ((this.pos < this.length_) && (String_charAt(this.json, this.pos) == ':')) {
+	if (this.pos < this.length_) && (String_charAt(this.json, this.pos) == ':') {
 		this.pos++
 	} else {
 		return Outcome_base_err[string](new_SourceMapParseException("Expected ':'").up_Throwable())
@@ -106,7 +106,7 @@ func (this *SourceMapJsonLexer) nextName() *Outcome_base[string] {
 
 func (this *SourceMapJsonLexer) nextStringOrNull() *Outcome_base[string] {
 	this.skipWhitespace()
-	if ((this.pos < this.length_) && String_startsWith_String_int(this.json, "null", this.pos)) {
+	if (this.pos < this.length_) && String_startsWith_String_int(this.json, "null", this.pos) {
 		this.pos += 4
 		return Outcome_base_ok_Object[string](nullstr_)
 	}
@@ -115,24 +115,24 @@ func (this *SourceMapJsonLexer) nextStringOrNull() *Outcome_base[string] {
 
 func (this *SourceMapJsonLexer) nextString() *Outcome_base[string] {
 	this.skipWhitespace()
-	if ((this.pos >= this.length_) || (String_charAt(this.json, this.pos) != '"')) {
+	if (this.pos >= this.length_) || (String_charAt(this.json, this.pos) != '"') {
 		return Outcome_base_err[string](new_SourceMapParseException("Expected string").up_Throwable())
 	}
 	this.pos++
 	var start int32 = this.pos
 	var hasEscape bool = false
-	for (this.pos < this.length_) {
+	for this.pos < this.length_ {
 		var c uint16 = String_charAt(this.json, this.pos)
-		if (c == '"') {
+		if c == '"' {
 			break
 		}
-		if (c == '\\') {
+		if c == '\\' {
 			hasEscape = true
 			this.pos++
 		}
 		this.pos++
 	}
-	if (this.pos >= this.length_) {
+	if this.pos >= this.length_ {
 		return Outcome_base_err[string](new_SourceMapParseException("Unterminated string").up_Throwable())
 	}
 	var result string
@@ -152,17 +152,17 @@ func (this *SourceMapJsonLexer) nextString() *Outcome_base[string] {
 func (this *SourceMapJsonLexer) nextInt() *Outcome_base[any] {
 	this.skipWhitespace()
 	var start int32 = this.pos
-	if ((this.pos < this.length_) && (String_charAt(this.json, this.pos) == '-')) {
+	if (this.pos < this.length_) && (String_charAt(this.json, this.pos) == '-') {
 		this.pos++
 	}
-	for (((this.pos < this.length_) && (int32(String_charAt(this.json, this.pos)) >= 48)) && (int32(String_charAt(this.json, this.pos)) <= 57)) {
+	for ((this.pos < this.length_) && (int32(String_charAt(this.json, this.pos)) >= 48)) && (int32(String_charAt(this.json, this.pos)) <= 57) {
 		this.pos++
 	}
-	if (start == this.pos) {
+	if start == this.pos {
 		return Outcome_base_err[any](new_SourceMapParseException("Expected integer").up_Throwable())
 	}
 	var value any = Ints_tryParse(String_substring(this.json, start, this.pos))
-	if (value == nil) {
+	if value == nil {
 		return Outcome_base_err[any](new_SourceMapParseException(("Invalid integer: " + sstr_(String_substring(this.json, start, this.pos)))).up_Throwable())
 	}
 	return Outcome_base_ok_Object[any](value)
@@ -180,11 +180,11 @@ func (this *SourceMapJsonLexer) nextRawValue() *Outcome_base[string] {
 
 func (this *SourceMapJsonLexer) skipValue() *Outcome_base[any] {
 	this.skipWhitespace()
-	if (this.pos >= this.length_) {
+	if this.pos >= this.length_ {
 		return Outcome_base_err[any](new_SourceMapParseException("Unexpected end of input").up_Throwable())
 	}
 	var c uint16 = String_charAt(this.json, this.pos)
-	if (c == '{') {
+	if c == '{' {
 		this.pos++
 		for this.hasNext() {
 			var name *Outcome_base[string] = this.nextName()
@@ -204,7 +204,7 @@ func (this *SourceMapJsonLexer) skipValue() *Outcome_base[any] {
 		if ended.isErr() {
 			return Outcome_base_err[any](ended.error())
 		}
-	} else if (c == '[') {
+	} else if c == '[' {
 		this.pos++
 		for this.hasNext() {
 			var skipped *Outcome_base[any] = this.skipValue()
@@ -220,22 +220,22 @@ func (this *SourceMapJsonLexer) skipValue() *Outcome_base[any] {
 		if ended.isErr() {
 			return Outcome_base_err[any](ended.error())
 		}
-	} else if (c == '"') {
+	} else if c == '"' {
 		var string_ *Outcome_base[string] = this.nextString()
 		if string_.isErr() {
 			return Outcome_base_err[any](string_.error())
 		}
-	} else if ((c == 't') && String_startsWith_String_int(this.json, "true", this.pos)) {
+	} else if (c == 't') && String_startsWith_String_int(this.json, "true", this.pos) {
 		this.pos += 4
-	} else if ((c == 'f') && String_startsWith_String_int(this.json, "false", this.pos)) {
+	} else if (c == 'f') && String_startsWith_String_int(this.json, "false", this.pos) {
 		this.pos += 5
-	} else if ((c == 'n') && String_startsWith_String_int(this.json, "null", this.pos)) {
+	} else if (c == 'n') && String_startsWith_String_int(this.json, "null", this.pos) {
 		this.pos += 4
-	} else if ((c == '-') || ((int32(c) >= 48) && (int32(c) <= 57))) {
-		if (c == '-') {
+	} else if (c == '-') || ((int32(c) >= 48) && (int32(c) <= 57)) {
+		if c == '-' {
 			this.pos++
 		}
-		for ((this.pos < this.length_) && (((((((int32(String_charAt(this.json, this.pos)) >= 48) && (int32(String_charAt(this.json, this.pos)) <= 57)) || (String_charAt(this.json, this.pos) == '.')) || (String_charAt(this.json, this.pos) == 'e')) || (String_charAt(this.json, this.pos) == 'E')) || (String_charAt(this.json, this.pos) == '+')) || (String_charAt(this.json, this.pos) == '-'))) {
+		for (this.pos < this.length_) && (((((((int32(String_charAt(this.json, this.pos)) >= 48) && (int32(String_charAt(this.json, this.pos)) <= 57)) || (String_charAt(this.json, this.pos) == '.')) || (String_charAt(this.json, this.pos) == 'e')) || (String_charAt(this.json, this.pos) == 'E')) || (String_charAt(this.json, this.pos) == '+')) || (String_charAt(this.json, this.pos) == '-')) {
 			this.pos++
 		}
 	} else {
@@ -246,10 +246,10 @@ func (this *SourceMapJsonLexer) skipValue() *Outcome_base[any] {
 
 func (this *SourceMapJsonLexer) checkComma() *Outcome_base[any] {
 	var hasComma bool = this.tryConsumeComma()
-	if (hasComma && !this.hasNext()) {
+	if hasComma && !this.hasNext() {
 		return Outcome_base_err[any](new_SourceMapParseException("Unexpected trailing comma").up_Throwable())
 	}
-	if (!hasComma && this.hasNext()) {
+	if !hasComma && this.hasNext() {
 		return Outcome_base_err[any](new_SourceMapParseException("Expected ','").up_Throwable())
 	}
 	return Outcome_base_ok_0()
@@ -257,7 +257,7 @@ func (this *SourceMapJsonLexer) checkComma() *Outcome_base[any] {
 
 func (this *SourceMapJsonLexer) tryConsumeComma() bool {
 	this.skipWhitespace()
-	if ((this.pos < this.length_) && (String_charAt(this.json, this.pos) == ',')) {
+	if (this.pos < this.length_) && (String_charAt(this.json, this.pos) == ',') {
 		this.pos++
 		return true
 	}
@@ -265,9 +265,9 @@ func (this *SourceMapJsonLexer) tryConsumeComma() bool {
 }
 
 func SourceMapJsonLexer_isParsableHex4(s string, start int32) bool {
-	for i := int32(start); (i < (start + 4)); i++ {
+	for i := int32(start); i < (start + 4); i++ {
 		var c uint16 = String_charAt(s, i)
-		if ((Character_digit(c, 16) < 0) && !((i == start) && ((c == '+') || (c == '-')))) {
+		if (Character_digit(c, 16) < 0) && !((i == start) && ((c == '+') || (c == '-'))) {
 			return false
 		}
 	}
@@ -276,9 +276,9 @@ func SourceMapJsonLexer_isParsableHex4(s string, start int32) bool {
 
 func SourceMapJsonLexer_unescape(s string, start int32, end int32) *Outcome_base[string] {
 	var sb *StringBuilder = new_StringBuilder_int((end - start))
-	for i := int32(start); (i < end); i++ {
+	for i := int32(start); i < end; i++ {
 		var c uint16 = String_charAt(s, i)
-		if ((c == '\\') && ((i + 1) < end)) {
+		if (c == '\\') && ((i + 1) < end) {
 			i++
 			var next uint16 = String_charAt(s, i)
 			switch next {
@@ -299,11 +299,11 @@ func SourceMapJsonLexer_unescape(s string, start int32, end int32) *Outcome_base
 			case 't':
 				sb.append_char('\t')
 			case 'u':
-				if ((i + 4) >= end) {
+				if (i + 4) >= end {
 					return Outcome_base_err[string](new_SourceMapParseException("Invalid unicode escape sequence").up_Throwable())
 				}
 				if !SourceMapJsonLexer_isParsableHex4(s, (i + 1)) {
-					return Outcome_base_err[string](new_SourceMapParseException(("Invalid unicode escape: " + sstr_(String_substring(s, (i + 1), (i + 5))))).up_Throwable())
+					return Outcome_base_err[string](new_SourceMapParseException(("Invalid unicode escape: " + sstr_(String_substring(s, (i+1), (i+5))))).up_Throwable())
 				}
 				sb.append_char(uint16(Integer_parseInt_CharSequence_int_int_int(strobj_(s), (i + 1), (i + 5), 16)))
 				i += 4
@@ -316,4 +316,3 @@ func SourceMapJsonLexer_unescape(s string, start int32, end int32) *Outcome_base
 	}
 	return Outcome_base_ok_Object[string](Object_toString(obj_(sb)))
 }
-

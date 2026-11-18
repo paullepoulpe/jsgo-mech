@@ -3,13 +3,13 @@
 package closure
 
 type VariableReferenceCheck struct {
-	compiler_ *AbstractCompiler
-	checkUnusedLocals bool
-	blocksWithDeclarations *TSet[*BasicBlock]
+	compiler_              *AbstractCompiler
+	checkUnusedLocals      bool
+	blocksWithDeclarations *JTSet[*BasicBlock]
 }
 
 func (this *VariableReferenceCheck) finit_VariableReferenceCheck() {
-	this.blocksWithDeclarations = newTSet_(tc_p_BasicBlock)
+	this.blocksWithDeclarations = jnewTSet_(jtc_p_BasicBlock)
 }
 
 func (this *VariableReferenceCheck) init_VariableReferenceCheck(compiler *AbstractCompiler) {
@@ -28,7 +28,7 @@ func (this *VariableReferenceCheck) process_2(externs Node, root Node) {
 	new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_Behavior(new_VariableReferenceCheck_ReferenceCheckingBehavior(this)), ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))).process_2(externs, root)
 }
 
-func (this *VariableReferenceCheck) lookForHoistedFunction(references *TList[*Reference]) *Reference {
+func (this *VariableReferenceCheck) lookForHoistedFunction(references *JTList[*Reference]) *Reference {
 	it_1 := references.each()
 	for it_1.next() {
 		var reference *Reference = it_1.v
@@ -41,7 +41,7 @@ func (this *VariableReferenceCheck) lookForHoistedFunction(references *TList[*Re
 }
 
 func (this *VariableReferenceCheck) checkBlocklessDeclaration(v *Var, reference *Reference, referenceNode Node) {
-	if ((!reference.isVarDeclaration() && reference.getGrandparent().isAddedBlock()) && VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS.contains(reference.getGrandparent().getParent().getToken())) {
+	if (!reference.isVarDeclaration() && reference.getGrandparent().isAddedBlock()) && VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS.contains(reference.getGrandparent().getParent().getToken()) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(referenceNode, VariableReferenceCheck_DECLARATION_NOT_DIRECTLY_IN_BLOCK, []string{v.getName()}))
 	}
 }
@@ -50,25 +50,30 @@ func (this *VariableReferenceCheck) checkRedeclaration(v *Var, reference *Refere
 	var letConstShadowsVar bool = (v.getParentNode().isVar() && (reference.isLetDeclaration() || reference.isConstDeclaration()))
 	var isVarNodeSameAsReferenceNode bool = (v.getNode() == reference.getNode())
 	var shadowCatchVar bool = (v.getParentNode().isCatch() && !isVarNodeSameAsReferenceNode)
-	if (this.isRedeclaration(basicBlock) && !VarCheck_hasDuplicateDeclarationSuppression(this.compiler_, referenceNode, v.getNameNode())) {
+	if this.isRedeclaration(basicBlock) && !VarCheck_hasDuplicateDeclarationSuppression(this.compiler_, referenceNode, v.getNameNode()) {
 		var diagnosticType *DiagnosticType
 		var warningNode Node = referenceNode
 		var shadowParam bool = ((v.isParam() && NodeUtil_isBlockScopedDeclaration(referenceNode.getParent())) && (cast_[*Scope](v.getScope()) == cast_[*Scope](reference.getScope().getParent().self())))
 		var isFunctionDecl bool = (((v.getParentNode() != 0) && v.getParentNode().isFunction()) && (v.getParentNode().getFirstChild() == referenceNode))
-		if (((((((v.isLet() || v.isConst()) || v.isClass()) || letConstShadowsVar) || shadowCatchVar) || shadowParam) || v.isImport()) || isFunctionDecl) {
+		if ((((((v.isLet() || v.isConst()) || v.isClass()) || letConstShadowsVar) || shadowCatchVar) || shadowParam) || v.isImport()) || isFunctionDecl {
 			diagnosticType = VariableReferenceCheck_REDECLARED_VARIABLE_ERROR
 		} else if reference.getNode().getParent().isCatch() {
 			return false
 		} else {
-			diagnosticType = func() *DiagnosticType { if cast_[*Scope](v.getScope()).isGlobal() { return VarCheck_VAR_MULTIPLY_DECLARED_ERROR }; return VariableReferenceCheck_REDECLARED_VARIABLE }()
-			if ((isVarNodeSameAsReferenceNode && (hoistedFn != nil)) && (v.getName() == hoistedFn.getNode().getString())) {
+			diagnosticType = func() *DiagnosticType {
+				if cast_[*Scope](v.getScope()).isGlobal() {
+					return VarCheck_VAR_MULTIPLY_DECLARED_ERROR
+				}
+				return VariableReferenceCheck_REDECLARED_VARIABLE
+			}()
+			if (isVarNodeSameAsReferenceNode && (hoistedFn != nil)) && (v.getName() == hoistedFn.getNode().getString()) {
 				warningNode = hoistedFn.getNode()
 			}
 		}
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(warningNode, diagnosticType, []string{v.getName(), VariableReferenceCheck_locationOf(v.getNode())}))
 		return true
 	}
-	if ((letConstShadowsVar || shadowCatchVar) && (cast_[*Scope](v.getScope()) == reference.getScope())) {
+	if (letConstShadowsVar || shadowCatchVar) && (cast_[*Scope](v.getScope()) == reference.getScope()) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(referenceNode, VariableReferenceCheck_REDECLARED_VARIABLE_ERROR, []string{v.getName()}))
 		return true
 	}
@@ -87,28 +92,43 @@ func (this *VariableReferenceCheck) isRedeclaration(newDeclaration *BasicBlock) 
 }
 
 func VariableReferenceCheck_locationOf(n Node) string {
-	return func() string { if (n == 0) { return "<unknown>" }; return n.getLocation() }()
+	return func() string {
+		if n == 0 {
+			return "<unknown>"
+		}
+		return n.getLocation()
+	}()
 }
 
 func (this *VariableReferenceCheck) checkEarlyReference(v *Var, reference *Reference, referenceNode Node) bool {
-	if (referenceNode.isFromExterns() || v.isImplicitGoogNamespace()) {
+	if referenceNode.isFromExterns() || v.isImplicitGoogNamespace() {
 		return false
 	}
 	if v.isVar() {
 		var curr Node = reference.getParent()
-		for (curr.isOr() && (curr.getParent().getFirstChild() == curr)) {
+		for curr.isOr() && (curr.getParent().getFirstChild() == curr) {
 			curr = curr.getParent()
 		}
-		if (curr.isName() && (curr.getString() == v.getName())) {
+		if curr.isName() && (curr.getString() == v.getName()) {
 			return false
 		}
 	}
 	var referenceScopeRoot Node = reference.getScope().getRootNode()
-	if (referenceScopeRoot.isMemberFieldDef() && !referenceScopeRoot.isStaticMember()) {
+	if referenceScopeRoot.isMemberFieldDef() && !referenceScopeRoot.isStaticMember() {
 		return false
 	}
-	if (reference.getScope().hasSameContainerScope(to_AbstractScope(v.getScope())) && !(v.getName() == "goog")) {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(reference.getNode(), func() *DiagnosticType { if v.isGoogModuleExports() { return VariableReferenceCheck_EARLY_EXPORTS_REFERENCE }; return func() *DiagnosticType { if (((v.isLet() || v.isConst()) || v.isClass()) || v.isParam()) { return VariableReferenceCheck_EARLY_REFERENCE_ERROR }; return VariableReferenceCheck_EARLY_REFERENCE }() }(), []string{v.getName()}))
+	if reference.getScope().hasSameContainerScope(to_AbstractScope(v.getScope())) && !(v.getName() == "goog") {
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(reference.getNode(), func() *DiagnosticType {
+			if v.isGoogModuleExports() {
+				return VariableReferenceCheck_EARLY_EXPORTS_REFERENCE
+			}
+			return func() *DiagnosticType {
+				if ((v.isLet() || v.isConst()) || v.isClass()) || v.isParam() {
+					return VariableReferenceCheck_EARLY_REFERENCE_ERROR
+				}
+				return VariableReferenceCheck_EARLY_REFERENCE
+			}()
+		}(), []string{v.getName()}))
 		return true
 	}
 	return false
@@ -119,7 +139,7 @@ func (this *VariableReferenceCheck) checkForUnusedLocalVar(v *Var, unusedAssignm
 		return
 	}
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(unusedAssignment.getNode())
-	if ((jsDoc != nil) && jsDoc.hasTypedefType()) {
+	if (jsDoc != nil) && jsDoc.hasTypedefType() {
 		return
 	}
 	var inGoogScope bool = false
@@ -137,7 +157,7 @@ func (this *VariableReferenceCheck) checkForUnusedLocalVar(v *Var, unusedAssignm
 		if NodeUtil_isNameDeclaration(statement) {
 			var lhs Node = statement.getFirstChild()
 			var rhs Node = lhs.getFirstChild()
-			if ((rhs != 0) && (((NodeUtil_isCallToQualifiedName(rhs, VariableReferenceCheck_GOOG_FORWARD_DECLARE) || NodeUtil_isCallToQualifiedName(rhs, VariableReferenceCheck_GOOG_REQUIRE_TYPE)) || NodeUtil_isCallToQualifiedName(rhs, VariableReferenceCheck_GOOG_REQUIRE)) || rhs.isQualifiedName())) {
+			if (rhs != 0) && (((NodeUtil_isCallToQualifiedName(rhs, VariableReferenceCheck_GOOG_FORWARD_DECLARE) || NodeUtil_isCallToQualifiedName(rhs, VariableReferenceCheck_GOOG_REQUIRE_TYPE)) || NodeUtil_isCallToQualifiedName(rhs, VariableReferenceCheck_GOOG_REQUIRE)) || rhs.isQualifiedName()) {
 				return
 			}
 		}
@@ -156,7 +176,7 @@ var VariableReferenceCheck_UNUSED_LOCAL_ASSIGNMENT *DiagnosticType
 var VariableReferenceCheck_GOOG_REQUIRE *QualifiedName
 var VariableReferenceCheck_GOOG_REQUIRE_TYPE *QualifiedName
 var VariableReferenceCheck_GOOG_FORWARD_DECLARE *QualifiedName
-var VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS *TSet[*Token_rhino]
+var VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS *JTSet[*Token_rhino]
 var VariableReferenceCheck_GOOG_SCOPE *QualifiedName
 
 var VariableReferenceCheck_clinit_done bool
@@ -183,12 +203,12 @@ func VariableReferenceCheck_clinit() {
 }
 
 type VariableReferenceCheck_ReferenceCheckingBehavior struct {
-	outer_ *VariableReferenceCheck
-	varsInFunctionBody *TSet[string]
+	outer_             *VariableReferenceCheck
+	varsInFunctionBody *JTSet[string]
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) init_VariableReferenceCheck_ReferenceCheckingBehavior() {
-	this.varsInFunctionBody = newTSet_(tc_string)
+	this.varsInFunctionBody = jnewTSet_(jtc_string)
 }
 
 func new_VariableReferenceCheck_ReferenceCheckingBehavior(outer_ *VariableReferenceCheck) *VariableReferenceCheck_ReferenceCheckingBehavior {
@@ -212,8 +232,8 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterExitScope(t *
 	for it_3.next() {
 		var v *Var = cast_[*Var](it_3.v)
 		var referenceCollection *ReferenceCollection = referenceMap.getReferences_Var(v)
-		if (referenceCollection != nil) {
-			if (scope.getRootNode().isFunction() && v.isDefaultParam()) {
+		if referenceCollection != nil {
+			if scope.getRootNode().isFunction() && v.isDefaultParam() {
 				this.checkDefaultParam(v, scope, this.varsInFunctionBody)
 			}
 			if scope.getRootNode().isFunction() {
@@ -227,17 +247,17 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterExitScope(t *
 	}
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(param *Var, scope *Scope, varsInFunctionBody *TSet[string]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(param *Var, scope *Scope, varsInFunctionBody *JTSet[string]) {
 	NodeTraversal_traverse(this.outer_.compiler_, param.getParentNode().getSecondChild(), NodeTraversal_Callback(new_VariableReferenceCheck_ReferenceCheckingBehavior_1(this, varsInFunctionBody, scope)))
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references *TList[*Reference]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references *JTList[*Reference]) {
 	var maybeParam *Var = cast_[*Var](functionScope.getVar(v.getName()).self())
-	if (((maybeParam != nil) && maybeParam.isParam()) && (cast_[*Scope](maybeParam.getScope()) == functionScope)) {
+	if ((maybeParam != nil) && maybeParam.isParam()) && (cast_[*Scope](maybeParam.getScope()) == functionScope) {
 		it_1 := references.each()
 		for it_1.next() {
 			var r *Reference = it_1.v
-			if ((r.isVarDeclaration() || r.isHoistedFunction()) && (r.getNode() != v.getNameNode())) {
+			if (r.isVarDeclaration() || r.isHoistedFunction()) && (r.getNode() != v.getNameNode()) {
 				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(r.getNode(), VariableReferenceCheck_REDECLARED_VARIABLE, []string{v.getName()}))
 			}
 		}
@@ -246,7 +266,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkGoogModuleExports(exportsVar *Var, referenceMap ReferenceMap) {
 	var references *ReferenceCollection = referenceMap.getReferences_Var(exportsVar)
-	if ((references == nil) || references.isNeverAssigned()) {
+	if (references == nil) || references.isNeverAssigned() {
 		return
 	}
 	it_1 := references.references.each()
@@ -259,20 +279,20 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkGoogModuleExp
 	}
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, references *TList[*Reference]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, references *JTList[*Reference]) {
 	this.outer_.blocksWithDeclarations.clear()
 	var hasSeenDeclaration bool = false
 	var hasErrors bool = false
 	var isRead bool = false
 	var unusedAssignment *Reference = nil
 	var hoistedFn *Reference = this.outer_.lookForHoistedFunction(references)
-	if (hoistedFn != nil) {
+	if hoistedFn != nil {
 		hasSeenDeclaration = true
 	}
 	it_1 := references.each()
 	for it_1.next() {
 		var reference *Reference = it_1.v
-		if (reference == hoistedFn) {
+		if reference == hoistedFn {
 			continue
 		}
 		var referenceNode Node = reference.getNode()
@@ -291,10 +311,10 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, r
 			if !hasSeenDeclaration {
 				hasErrors = this.outer_.checkEarlyReference(v, reference, referenceNode)
 			}
-			if ((!hasErrors && v.isConst()) && reference.isLvalue()) {
+			if (!hasErrors && v.isConst()) && reference.isLvalue() {
 				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(referenceNode, VariableReferenceCheck_REASSIGNED_CONSTANT, []string{v.getName()}))
 			}
-			if (((v.isLet() || v.isConst()) && (cast_[*Scope](v.getScope()) == reference.getScope())) && NodeUtil_isEnhancedFor(reference.getScope().getRootNode())) {
+			if ((v.isLet() || v.isConst()) && (cast_[*Scope](v.getScope()) == reference.getScope())) && NodeUtil_isEnhancedFor(reference.getScope().getRootNode()) {
 				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(referenceNode, VariableReferenceCheck_EARLY_REFERENCE_ERROR, []string{v.getName()}))
 			}
 		}
@@ -303,17 +323,17 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, r
 			var declNode Node = decl.getNode()
 			var gp Node = declNode.getGrandparent()
 			var lhsOfForInLoop bool = (gp.isForIn() && (gp.getFirstFirstChild() == declNode))
-			if (((decl.getScope().isLocal() && ((decl.isVarDeclaration() || decl.isLetDeclaration()) || decl.isConstDeclaration())) && !decl.getNode().isFromExterns()) && !lhsOfForInLoop) {
+			if ((decl.getScope().isLocal() && ((decl.isVarDeclaration() || decl.isLetDeclaration()) || decl.isConstDeclaration())) && !decl.getNode().isFromExterns()) && !lhsOfForInLoop {
 				unusedAssignment = reference
 			}
-			if (((reference.getParent().isDec() || reference.getParent().isInc()) || NodeUtil_isCompoundAssignmentOp(reference.getParent())) && NodeUtil_isExpressionResultUsed(reference.getNode())) {
+			if ((reference.getParent().isDec() || reference.getParent().isInc()) || NodeUtil_isCompoundAssignmentOp(reference.getParent())) && NodeUtil_isExpressionResultUsed(reference.getNode()) {
 				isRead = true
 			}
 		} else {
 			isRead = true
 		}
 	}
-	if (((this.outer_.checkUnusedLocals && (unusedAssignment != nil)) && !isRead) && !hasErrors) {
+	if ((this.outer_.checkUnusedLocals && (unusedAssignment != nil)) && !isRead) && !hasErrors {
 		this.outer_.checkForUnusedLocalVar(v, unusedAssignment)
 	}
 }
@@ -328,9 +348,9 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterVisitNode(p0 
 
 type VariableReferenceCheck_ReferenceCheckingBehavior_1 struct {
 	NodeTraversal_AbstractShallowCallback
-	outer_ *VariableReferenceCheck_ReferenceCheckingBehavior
-	cap_varsInFunctionBody *TSet[string]
-	cap_scope *Scope
+	outer_                 *VariableReferenceCheck_ReferenceCheckingBehavior
+	cap_varsInFunctionBody *JTSet[string]
+	cap_scope              *Scope
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) up_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback {
@@ -344,7 +364,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) init_VariableRef
 	this.NodeTraversal_AbstractShallowCallback.init_NodeTraversal_AbstractShallowCallback()
 }
 
-func new_VariableReferenceCheck_ReferenceCheckingBehavior_1(outer_ *VariableReferenceCheck_ReferenceCheckingBehavior, cap_varsInFunctionBody *TSet[string], cap_scope *Scope) *VariableReferenceCheck_ReferenceCheckingBehavior_1 {
+func new_VariableReferenceCheck_ReferenceCheckingBehavior_1(outer_ *VariableReferenceCheck_ReferenceCheckingBehavior, cap_varsInFunctionBody *JTSet[string], cap_scope *Scope) *VariableReferenceCheck_ReferenceCheckingBehavior_1 {
 	this := &VariableReferenceCheck_ReferenceCheckingBehavior_1{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -359,8 +379,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) visit_impl(t *No
 		return
 	}
 	var refName string = n.getString()
-	if (this.cap_varsInFunctionBody.contains(refName) && !this.cap_scope.hasSlot(refName)) {
+	if this.cap_varsInFunctionBody.contains(refName) && !this.cap_scope.hasSlot(refName) {
 		this.outer_.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, VariableReferenceCheck_EARLY_REFERENCE_ERROR, []string{refName}))
 	}
 }
-

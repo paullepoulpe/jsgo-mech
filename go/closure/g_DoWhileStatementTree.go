@@ -4,7 +4,7 @@ package closure
 
 type DoWhileStatementTree struct {
 	ParseTree
-	body *ParseTree
+	body      *ParseTree
 	condition *ParseTree
 }
 
@@ -27,4 +27,3 @@ func new_DoWhileStatementTree(location *SourceRange, body *ParseTree, condition 
 	this.init_DoWhileStatementTree(location, body, condition)
 	return this
 }
-

@@ -3,15 +3,15 @@
 package closure
 
 type CmdLineParser struct {
-	options_ *TList[*CmdLineParser_Option]
+	options_      *JTList[*CmdLineParser_Option]
 	optionsSorted bool
 	argumentField *CmdLineParser_Option
-	usageWidth int32
+	usageWidth    int32
 	currentOption *CmdLineParser_Option
 }
 
 func (this *CmdLineParser) finit_CmdLineParser() {
-	this.options_ = newTList_(tc_p_CmdLineParser_Option)
+	this.options_ = jnewTList_(jtc_p_CmdLineParser_Option)
 	this.optionsSorted = true
 	this.argumentField = nil
 	this.usageWidth = 80
@@ -37,7 +37,7 @@ func (this *CmdLineParser) option(name string) *CmdLineParser_Option {
 }
 
 func (this *CmdLineParser) argument(get SupplierOf[ListOf[string]], set ConsumerOf[ListOf[string]]) {
-	if (this.argumentField != nil) {
+	if this.argumentField != nil {
 		panic(new_IllegalStateException_String("Argument with index 0 is used more than once").self())
 	}
 	this.argumentField = new_CmdLineParser_Option(this, "", true)
@@ -45,12 +45,12 @@ func (this *CmdLineParser) argument(get SupplierOf[ListOf[string]], set Consumer
 }
 
 func (this *CmdLineParser) checkOptionNotDefined(name string) {
-	if (this.findOptionByName(name) != nil) {
+	if this.findOptionByName(name) != nil {
 		panic(new_IllegalStateException_String(("Option name " + sstr_(name) + " is used more than once")).self())
 	}
 }
 
-func (this *CmdLineParser) sortedOptions() *TList[*CmdLineParser_Option] {
+func (this *CmdLineParser) sortedOptions() *JTList[*CmdLineParser_Option] {
 	if !this.optionsSorted {
 		Collections_sort_List_Comparator(this.options_.asList(), &Comparator_tfn_CmdLineParser_Option_CmdLineParser_Option{func(o1 *CmdLineParser_Option, o2 *CmdLineParser_Option) int32 {
 			return String_compareTo(o1.toString(), o2.toString())
@@ -61,7 +61,7 @@ func (this *CmdLineParser) sortedOptions() *TList[*CmdLineParser_Option] {
 }
 
 func (this *CmdLineParser) setUsageWidth(usageWidth int32) {
-	if (usageWidth < 0) {
+	if usageWidth < 0 {
 		panic(new_IllegalArgumentException_String("Usage width is negative").self())
 	}
 	this.usageWidth = usageWidth
@@ -73,7 +73,12 @@ func (this *CmdLineParser) printUsage(out *StringBuilder, filter PredicateOf[*Cm
 	it_1 := this.sortedOptions().each()
 	for it_1.next() {
 		var option *CmdLineParser_Option = it_1.v
-		var curLen int32 = func() int32 { if (String_length(option.usageField) == 0) { return 0 }; return String_length(option.getNameAndMeta()) }()
+		var curLen int32 = func() int32 {
+			if String_length(option.usageField) == 0 {
+				return 0
+			}
+			return String_length(option.getNameAndMeta())
+		}()
 		len_ = Math_max(len_, curLen)
 	}
 	it_3 := this.sortedOptions().each()
@@ -84,24 +89,39 @@ func (this *CmdLineParser) printUsage(out *StringBuilder, filter PredicateOf[*Cm
 }
 
 func (this *CmdLineParser) printOption(out *StringBuilder, option *CmdLineParser_Option, len_ int32, filter PredicateOf[*CmdLineParser_Option]) {
-	if ((String_length(option.usageField) == 0) || !filter.test(obj_(option))) {
+	if (String_length(option.usageField) == 0) || !filter.test(obj_(option)) {
 		return
 	}
 	var widthMetadata int32 = Math_min(len_, ((this.usageWidth - 4) / 2))
 	var widthUsage int32 = ((this.usageWidth - 4) - widthMetadata)
 	var defaultValuePart string = CmdLineParser_createDefaultValuePart(option)
-	var namesAndMetas *TList[string] = CmdLineParser_wrapLines(option.getNameAndMeta(), widthMetadata)
-	var usages *TList[string] = CmdLineParser_wrapLines((sstr_(option.usageField) + sstr_(defaultValuePart)), widthUsage)
-	for i := int32(0); (i < Math_max(namesAndMetas.size(), usages.size())); i++ {
-		var nameAndMeta string = func() string { if (i >= namesAndMetas.size()) { return "" }; return namesAndMetas.get(i) }()
-		var usage string = func() string { if (i >= usages.size()) { return "" }; return usages.get(i) }()
-		var separator string = func() string { if ((String_length(nameAndMeta) > 0) && (i == 0)) { return " : " }; return "   " }()
+	var namesAndMetas *JTList[string] = CmdLineParser_wrapLines(option.getNameAndMeta(), widthMetadata)
+	var usages *JTList[string] = CmdLineParser_wrapLines((sstr_(option.usageField) + sstr_(defaultValuePart)), widthUsage)
+	for i := int32(0); i < Math_max(namesAndMetas.size(), usages.size()); i++ {
+		var nameAndMeta string = func() string {
+			if i >= namesAndMetas.size() {
+				return ""
+			}
+			return namesAndMetas.get(i)
+		}()
+		var usage string = func() string {
+			if i >= usages.size() {
+				return ""
+			}
+			return usages.get(i)
+		}()
+		var separator string = func() string {
+			if (String_length(nameAndMeta) > 0) && (i == 0) {
+				return " : "
+			}
+			return "   "
+		}()
 		out.append((" " + sstr_(Strings_padEnd(nameAndMeta, widthMetadata, ' ')) + sstr_(separator) + sstr_(Strings_padEnd(usage, 1, ' ')))).append(System_lineSeparator())
 	}
 }
 
 func CmdLineParser_createDefaultValuePart(option *CmdLineParser_Option) string {
-	if (!option.requiredField && (option.defaultValues != nil)) {
+	if !option.requiredField && (option.defaultValues != nil) {
 		var v Optional[string] = option.printDefaultValue()
 		if v.isPresent() {
 			return (" (default: " + sstr_(v.get()) + ")")
@@ -110,14 +130,14 @@ func CmdLineParser_createDefaultValuePart(option *CmdLineParser_Option) string {
 	return ""
 }
 
-func CmdLineParser_wrapLines(line string, maxLength int32) *TList[string] {
-	var rv *TList[string] = newTList_(tc_string)
+func CmdLineParser_wrapLines(line string, maxLength int32) *JTList[string] {
+	var rv *JTList[string] = jnewTList_(jtc_string)
 	for _, restOfLine := range CmdLineParser_NEWLINE_PATTERN.split(line) {
-		for (String_length(restOfLine) > maxLength) {
+		for String_length(restOfLine) > maxLength {
 			var lineLength int32
 			var candidate string = String_substring(restOfLine, 0, maxLength)
 			var sp int32 = String_lastIndexOf(candidate, 32)
-			if (sp > ((maxLength * 3) / 5)) {
+			if sp > ((maxLength * 3) / 5) {
 				lineLength = sp
 			} else {
 				lineLength = maxLength
@@ -140,13 +160,18 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 		return Outcome_base_err[any](expandedArgs.error())
 	}
 	var cmdLine *CmdLineParser_CmdLineImpl = new_CmdLineParser_CmdLineImpl(this, expandedArgs.get())
-	var present *TSet[*CmdLineParser_Option] = newTSet_(tc_p_CmdLineParser_Option)
+	var present *JTSet[*CmdLineParser_Option] = jnewTSet_(jtc_p_CmdLineParser_Option)
 	for cmdLine.hasMore() {
 		var arg string = cmdLine.getCurrentToken()
 		if String_startsWith(arg, "-") {
-			var isKeyValuePair bool = (String_contains_s(arg, " ") || (String_indexOf(arg, 61) != -1))
-			this.currentOption = func() *CmdLineParser_Option { if isKeyValuePair { return this.findOptionOfKeyValuePair(arg) }; return this.findOptionByName(arg) }()
-			if (this.currentOption == nil) {
+			var isKeyValuePair bool = (JString_contains_s(arg, " ") || (String_indexOf(arg, 61) != -1))
+			this.currentOption = func() *CmdLineParser_Option {
+				if isKeyValuePair {
+					return this.findOptionOfKeyValuePair(arg)
+				}
+				return this.findOptionByName(arg)
+			}()
+			if this.currentOption == nil {
 				return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this, ("\"" + sstr_(arg) + "\" is not a valid option")).up_Throwable())
 			}
 			if isKeyValuePair {
@@ -155,7 +180,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 				cmdLine.proceed(1)
 			}
 		} else {
-			if (this.argumentField == nil) {
+			if this.argumentField == nil {
 				return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this, ("No argument is allowed: " + sstr_(arg))).up_Throwable())
 			}
 			this.currentOption = this.argumentField
@@ -170,15 +195,15 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 	it_2 := this.sortedOptions().each()
 	for it_2.next() {
 		var option *CmdLineParser_Option = it_2.v
-		if (option.requiredField && !present.contains(option)) {
-			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this, ("Option \"" + tostr_(option) + "\" is required")).up_Throwable())
+		if option.requiredField && !present.contains(option) {
+			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this, ("Option \"" + jtostr_(option) + "\" is required")).up_Throwable())
 		}
 	}
 	return Outcome_base_ok_0()
 }
 
 func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base[[]string] {
-	var result *TList[string] = newTList_(tc_string)
+	var result *JTList[string] = jnewTList_(jtc_string)
 	for _, arg := range args {
 		if String_startsWith(arg, "@") {
 			var file string = FilePaths_clean(String_substring_int(arg, 1))
@@ -199,10 +224,10 @@ func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base[[]string] 
 
 func (this *CmdLineParser) findOptionOfKeyValuePair(name string) *CmdLineParser_Option {
 	var pos int32 = String_indexOf_String(name, " ")
-	if (pos < 0) {
+	if pos < 0 {
 		pos = String_indexOf(name, 61)
 	}
-	if (pos > 0) {
+	if pos > 0 {
 		name = String_substring(name, 0, pos)
 	}
 	return this.findOptionByName(name)
@@ -212,13 +237,13 @@ func (this *CmdLineParser) findOptionByName(name string) *CmdLineParser_Option {
 	it_1 := this.options_.each()
 	for it_1.next() {
 		var option *CmdLineParser_Option = it_1.v
-		if (name == option.nameField) {
+		if name == option.nameField {
 			return option
 		}
 		it_3 := option.aliasesField.each()
 		for it_3.next() {
 			var alias string = it_3.v
-			if (name == alias) {
+			if name == alias {
 				return option
 			}
 		}
@@ -227,8 +252,8 @@ func (this *CmdLineParser) findOptionByName(name string) *CmdLineParser_Option {
 }
 
 var CmdLineParser_NEWLINE_PATTERN *Pattern
-var CmdLineParser_TRUES *TSet[string]
-var CmdLineParser_FALSES *TSet[string]
+var CmdLineParser_TRUES *JTSet[string]
+var CmdLineParser_FALSES *JTSet[string]
 
 var CmdLineParser_clinit_done bool
 
@@ -238,8 +263,8 @@ func CmdLineParser_clinit() {
 	}
 	CmdLineParser_clinit_done = true
 	CmdLineParser_NEWLINE_PATTERN = Pattern_compile("\\n")
-	CmdLineParser_TRUES = immutableSetOf_[string](tc_string, "true", "on", "yes", "1")
-	CmdLineParser_FALSES = immutableSetOf_[string](tc_string, "false", "off", "no", "0")
+	CmdLineParser_TRUES = jimmutableSetOf_[string](jtc_string, "true", "on", "yes", "1")
+	CmdLineParser_FALSES = jimmutableSetOf_[string](jtc_string, "false", "off", "no", "0")
 
 }
 
@@ -261,16 +286,16 @@ func (this *CmdLineParser_Handler_fn) parseArguments(p0 CmdLineParser_Parameters
 }
 
 type CmdLineParser_Option struct {
-	owner_ *CmdLineParser
-	nameField string
-	isArgument bool
-	aliasesField *TList[string]
-	usageField string
-	hiddenField bool
+	owner_        *CmdLineParser
+	nameField     string
+	isArgument    bool
+	aliasesField  *JTList[string]
+	usageField    string
+	hiddenField   bool
 	requiredField bool
-	metaVariable Optional[string]
+	metaVariable  Optional[string]
 	defaultValues SupplierOf[ListOf[any]]
-	handler CmdLineParser_Handler
+	handler       CmdLineParser_Handler
 }
 
 func (this *CmdLineParser_Option) zero_CmdLineParser_Option() {
@@ -279,7 +304,7 @@ func (this *CmdLineParser_Option) zero_CmdLineParser_Option() {
 }
 
 func (this *CmdLineParser_Option) finit_CmdLineParser_Option() {
-	this.aliasesField = tlistEmptyImm_(tc_string)
+	this.aliasesField = jtlistEmptyImm_(jtc_string)
 	this.usageField = ""
 	this.hiddenField = false
 	this.requiredField = false
@@ -314,7 +339,7 @@ func (this *CmdLineParser_Option) aliases(aliases []string) *CmdLineParser_Optio
 	for _, alias := range aliases {
 		this.owner_.checkOptionNotDefined(alias)
 	}
-	this.aliasesField = immutableListCopyOfArr_(tc_string, aliases)
+	this.aliasesField = jimmutableListCopyOfArr_(jtc_string, aliases)
 	this.owner_.optionsSorted = false
 	return this
 }
@@ -392,7 +417,7 @@ func (this *CmdLineParser_Option) integer(get SupplierOf[BoxedOf[int32]], set Co
 		}
 		var token string = tokenOutcome.get()
 		var value any = JSCompStrings_parseIntOrNull(Optional_of[string](token))
-		if (value == nil) {
+		if value == nil {
 			var flagName *Outcome_base[string] = params.getParameter(-1)
 			if flagName.isErr() {
 				return Outcome_base_err[any](flagName.error())
@@ -482,7 +507,7 @@ func (this *CmdLineParser_Option) map_(get SupplierOf[MapOf[string, string]], se
 	}}
 	this.handler = &CmdLineParser_Handler_fn{func(params CmdLineParser_Parameters) *Outcome_base[any] {
 		var map_ MapOf[string, string] = icast_Map(get.get())
-		if (map_ == nil) {
+		if map_ == nil {
 			map_ = Map(new_LinkedHashMap())
 			set.accept(any(map_))
 		}
@@ -492,15 +517,15 @@ func (this *CmdLineParser_Option) map_(get SupplierOf[MapOf[string, string]], se
 		}
 		var argument string = argumentOutcome.get()
 		var idx int32 = String_indexOf(argument, 61)
-		if (idx == -1) {
+		if idx == -1 {
 			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this.owner_, "An argument for setting a Map must contain a \"=\"").up_Throwable())
 		}
 		var mapKey string = String_substring(argument, 0, idx)
 		var mapValue Optional[string] = Optional_of[string](String_substring_int(argument, (idx + 1)))
-		if (String_length(mapValue.get()) == 0) {
+		if String_length(mapValue.get()) == 0 {
 			mapValue = Optional_empty[string]()
 		}
-		if (String_length(mapKey) == 0) {
+		if String_length(mapKey) == 0 {
 			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this.owner_, "A key must be set.").up_Throwable())
 		}
 		Map_put_s(map_, mapKey, strobj_(mapValue.orElse(nullstr_)))
@@ -540,7 +565,7 @@ func CmdLineParser_Option_enumMetaVariable(values []*Enum) string {
 
 func CmdLineParser_Option_addValue(get SupplierOf[ListOf[any]], set ConsumerOf[ListOf[any]], value any) {
 	var list ListOf[any] = icast_List(get.get())
-	if (list == nil) {
+	if list == nil {
 		list = icast_List(new_ArrayList_0().self())
 		set.accept(any(list))
 	}
@@ -548,7 +573,7 @@ func CmdLineParser_Option_addValue(get SupplierOf[ListOf[any]], set ConsumerOf[L
 }
 
 func CmdLineParser_Option_asList(value any) ListOf[any] {
-	if (value != nil) {
+	if value != nil {
 		return Collections_singletonList(value)
 	}
 	return Collections_emptyList()
@@ -563,7 +588,7 @@ func (this *CmdLineParser_Option) toString() string {
 		return ""
 	}
 	if !this.aliasesField.isEmpty() {
-		return (sstr_(this.nameField) + " (" + sstr_(String_join_s(", ", Iterable(this.aliasesField.asList()))) + ")")
+		return (sstr_(this.nameField) + " (" + sstr_(JString_join_s(", ", Iterable(this.aliasesField.asList()))) + ")")
 	}
 	return this.nameField
 }
@@ -571,7 +596,7 @@ func (this *CmdLineParser_Option) toString() string {
 func (this *CmdLineParser_Option) getNameAndMeta() string {
 	var str string = this.toString()
 	if this.metaVariable.isPresent() {
-		if (String_length(str) > 0) {
+		if String_length(str) > 0 {
 			str += " "
 		}
 		str += sstr_(this.metaVariable.get())
@@ -581,13 +606,18 @@ func (this *CmdLineParser_Option) getNameAndMeta() string {
 
 func (this *CmdLineParser_Option) printDefaultValue() Optional[string] {
 	var values ListOf[any] = icast_List(this.defaultValues.get())
-	if ((values != nil) && !values.isEmpty()) {
+	if (values != nil) && !values.isEmpty() {
 		var buf *StringBuilder = new_StringBuilder()
-		if (values.size() > 1) {
+		if values.size() > 1 {
 			it_1 := foreach_(any(values))
 			for it_1.next() {
 				var v any = it_1.v
-				buf.append_char(func() uint16 { if (buf.length() == 0) { return '[' }; return ',' }())
+				buf.append_char(func() uint16 {
+					if buf.length() == 0 {
+						return '['
+					}
+					return ','
+				}())
 				buf.append(String_valueOf_Object(v))
 			}
 			buf.append_char(']')
@@ -601,8 +631,8 @@ func (this *CmdLineParser_Option) printDefaultValue() Optional[string] {
 
 type CmdLineParser_CmdLineImpl struct {
 	outer_ *CmdLineParser
-	args []string
-	pos int32
+	args   []string
+	pos    int32
 }
 
 func (this *CmdLineParser_CmdLineImpl) init_CmdLineParser_CmdLineImpl(args []string) {
@@ -630,25 +660,24 @@ func (this *CmdLineParser_CmdLineImpl) proceed(n int32) {
 }
 
 func (this *CmdLineParser_CmdLineImpl) getParameter(idx int32) *Outcome_base[string] {
-	if (((this.pos + idx) >= int32(len(this.args))) || ((this.pos + idx) < 0)) {
-		return Outcome_base_err[string](new_CmdLineException_CmdLineParser_String(this.outer_, ("Option \"" + tostr_(this.outer_.currentOption) + "\" takes an operand")).up_Throwable())
+	if ((this.pos + idx) >= int32(len(this.args))) || ((this.pos + idx) < 0) {
+		return Outcome_base_err[string](new_CmdLineException_CmdLineParser_String(this.outer_, ("Option \"" + jtostr_(this.outer_.currentOption) + "\" takes an operand")).up_Throwable())
 	}
 	return Outcome_base_ok_Object[string](this.args[(this.pos + idx)])
 }
 
 func (this *CmdLineParser_CmdLineImpl) getParameterOrNull(idx int32) Optional[string] {
-	if (((this.pos + idx) >= int32(len(this.args))) || ((this.pos + idx) < 0)) {
+	if ((this.pos + idx) >= int32(len(this.args))) || ((this.pos + idx) < 0) {
 		return Optional_empty[string]()
 	}
 	return Optional_of[string](this.args[(this.pos + idx)])
 }
 
 func (this *CmdLineParser_CmdLineImpl) splitToken() {
-	if ((this.pos < int32(len(this.args))) && (this.pos >= 0)) {
+	if (this.pos < int32(len(this.args))) && (this.pos >= 0) {
 		var idx int32 = String_indexOf_String(this.args[this.pos], "=")
-		if (idx > 0) {
+		if idx > 0 {
 			this.args[this.pos] = String_substring_int(this.args[this.pos], (idx + 1))
 		}
 	}
 }
-

@@ -23,4 +23,3 @@ func new_SourceMapParseException(message string) *SourceMapParseException {
 	this.init_SourceMapParseException(message)
 	return this
 }
-

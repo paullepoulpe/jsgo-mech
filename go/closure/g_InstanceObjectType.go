@@ -63,7 +63,7 @@ func (this *InstanceObjectType) getConstructor_impl() *FunctionType {
 
 func (this *InstanceObjectType) defineProperty_impl(name Property_Key, type_ *JSType, inferred bool, propertyNode Node) bool {
 	var proto *ObjectType = this.getImplicitPrototype()
-	if ((proto != nil) && proto.hasOwnDeclaredPropertyKey(name)) {
+	if (proto != nil) && proto.hasOwnDeclaredPropertyKey(name) {
 		return false
 	}
 	return this.PrototypeObjectType.defineProperty_impl(name, type_, inferred, propertyNode)
@@ -80,7 +80,17 @@ func (this *InstanceObjectType) appendTo_impl(sb *TypeStringBuilder) {
 	var name Optional[string] = this.constructor_.getReferenceName()
 	if String_isEmpty(name.get()) {
 		var n Node = this.constructor_.getSource()
-		sb.append("<anonymous@").append(func() string { if (n != 0) { return n.getSourceFileName() }; return "unknown" }()).append(":").append(Integer_toString(func() int32 { if (n != 0) { return n.getLineno() }; return 0 }())).append(">")
+		sb.append("<anonymous@").append(func() string {
+			if n != 0 {
+				return n.getSourceFileName()
+			}
+			return "unknown"
+		}()).append(":").append(Integer_toString(func() int32 {
+			if n != 0 {
+				return n.getLineno()
+			}
+			return 0
+		}())).append(">")
 	}
 	sb.append(name.orElse(nullstr_))
 }
@@ -201,4 +211,3 @@ func (this *InstanceObjectType_Builder) setConstructor(x *FunctionType) *Instanc
 func (this *InstanceObjectType_Builder) build_impl() *PrototypeObjectType {
 	return new_InstanceObjectType(this).up_PrototypeObjectType()
 }
-

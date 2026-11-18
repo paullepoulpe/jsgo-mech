@@ -3,13 +3,13 @@
 package closure
 
 type InvocationTemplateTypeMatcher struct {
-	matchedTypes *LinkedIdentityHashMap[*TemplateType, *JSType]
-	seenTypes *LinkedIdentityHashSet[*JSType]
-	registry *JSTypeRegistry
-	calleeType *FunctionType
+	matchedTypes  *LinkedIdentityHashMap[*TemplateType, *JSType]
+	seenTypes     *LinkedIdentityHashSet[*JSType]
+	registry      *JSTypeRegistry
+	calleeType    *FunctionType
 	localThisType *JSType
-	invocation Node
-	unknownType *JSType
+	invocation    Node
+	unknownType   *JSType
 }
 
 func (this *InvocationTemplateTypeMatcher) finit_InvocationTemplateTypeMatcher() {
@@ -32,15 +32,20 @@ func new_InvocationTemplateTypeMatcher(registry *JSTypeRegistry, calleeType *Fun
 	return this
 }
 
-func (this *InvocationTemplateTypeMatcher) match() *TMap[*TemplateType, *JSType] {
+func (this *InvocationTemplateTypeMatcher) match() *JTMap[*TemplateType, *JSType] {
 	if this.calleeType.getTemplateTypeMap().isEmpty() {
-		return tmapEmptyImm_(tce_p_TemplateType, tc_p_JSType)
+		return jtmapEmptyImm_(tce_p_TemplateType, jtc_p_JSType)
 	}
 	var target Node = this.invocation.getFirstChild()
 	if NodeUtil_isNormalGet(target) {
 		var obj Node = target.getFirstChild()
 		var typeOfThisRequiredByTheFunction *JSType = this.calleeType.getTypeOfThis()
-		var typeOfThisProvidedByTheCall *JSType = func() *JSType { if obj.isSuper() { return this.localThisType }; return this.getTypeOrUnknown(obj) }()
+		var typeOfThisProvidedByTheCall *JSType = func() *JSType {
+			if obj.isSuper() {
+				return this.localThisType
+			}
+			return this.getTypeOrUnknown(obj)
+		}()
 		typeOfThisProvidedByTheCall = typeOfThisProvidedByTheCall.restrictByNotNullOrUndefined()
 		this.matchTemplateTypesRecursive(typeOfThisRequiredByTheFunction, typeOfThisProvidedByTheCall)
 	}
@@ -82,21 +87,21 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 	if paramType.isFunctionType() {
 		var paramFunctionType *FunctionType = paramType.toMaybeFunctionType()
 		var argFunctionType *FunctionType = argType.restrictByNotNullOrUndefined().collapseUnion().toMaybeFunctionType()
-		if ((argFunctionType != nil) && argFunctionType.isSubtype(paramType)) {
+		if (argFunctionType != nil) && argFunctionType.isSubtype(paramType) {
 			this.matchTemplateTypesRecursive(paramFunctionType.getTypeOfThis(), argFunctionType.getTypeOfThis())
 			this.matchTemplateTypesRecursive(paramFunctionType.getReturnType(), argFunctionType.getReturnType())
 			this.matchTemplateTypesFromParameters(paramFunctionType.getParameters().iterator(), argFunctionType.getParameters().iterator())
 		}
-	} else if (paramType.isRecordType() && !paramType.isNominalType()) {
+	} else if paramType.isRecordType() && !paramType.isNominalType() {
 		if this.seenTypes.add(paramType) {
 			var paramRecordType *ObjectType = paramType.toObjectType()
 			var argObjectType *ObjectType = argType.restrictByNotNullOrUndefined().toObjectType()
-			if (((argObjectType != nil) && !argObjectType.isUnknownType()) && !argObjectType.isEmptyType()) {
+			if ((argObjectType != nil) && !argObjectType.isUnknownType()) && !argObjectType.isEmptyType() {
 				var names ImmutableSortedSetOf[string] = paramRecordType.getPropertyNames()
 				it_5 := foreach_(obj_(names))
 				for it_5.next() {
 					var name string = str_(it_5.v)
-					if (paramRecordType.hasOwnProperty(name) && argObjectType.hasProperty(name)) {
+					if paramRecordType.hasOwnProperty(name) && argObjectType.hasProperty(name) {
 						this.matchTemplateTypesRecursive(paramRecordType.getPropertyType(name), argObjectType.getPropertyType(name))
 					}
 				}
@@ -106,14 +111,14 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 	} else if paramType.isTemplatizedType() {
 		var templatizedParamType *TemplatizedType = paramType.toMaybeTemplatizedType()
 		var keyCount int32 = templatizedParamType.getTemplateTypes().size()
-		if (keyCount == 0) {
+		if keyCount == 0 {
 			return
 		}
 		var argObjectType *JSType = argType.restrictByNotNullOrUndefined().collapseUnion()
 		var paramTypeMap *TemplateTypeMap = paramType.getTemplateTypeMap()
-		var keys *TList[*TemplateType] = paramTypeMap.getTemplateKeys()
+		var keys *JTList[*TemplateType] = paramTypeMap.getTemplateKeys()
 		var argTypeMap *TemplateTypeMap = argObjectType.getTemplateTypeMap()
-		for index := int32((keys.size() - keyCount)); (index < keys.size()); index++ {
+		for index := int32((keys.size() - keyCount)); index < keys.size(); index++ {
 			var key *TemplateType = keys.get(index)
 			this.matchTemplateTypesRecursive(paramTypeMap.getResolvedTemplateType(key), argTypeMap.getResolvedTemplateType(key))
 		}
@@ -125,7 +130,7 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesFromNodes(declParam
 }
 
 func (this *InvocationTemplateTypeMatcher) matchTemplateTypesFromNodesIterator(declParams IteratorOf[*FunctionType_Parameter], callParams IteratorOf[Node]) {
-	for (declParams.hasNext() && callParams.hasNext()) {
+	for declParams.hasNext() && callParams.hasNext() {
 		var declParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](declParams.next())
 		this.matchTemplateTypesRecursive(declParam.getJSType(), this.getTypeOrUnknown(Node_of_(callParams.next())))
 		if declParam.isVariadic() {
@@ -137,7 +142,7 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesFromNodesIterator(d
 }
 
 func (this *InvocationTemplateTypeMatcher) matchTemplateTypesFromParameters(declParams IteratorOf[*FunctionType_Parameter], callParams IteratorOf[*FunctionType_Parameter]) {
-	for (declParams.hasNext() && callParams.hasNext()) {
+	for declParams.hasNext() && callParams.hasNext() {
 		var declParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](declParams.next())
 		this.matchTemplateTypesRecursive(declParam.getJSType(), cast_[*FunctionType_Parameter](callParams.next()).getJSType())
 		if declParam.isVariadic() {
@@ -155,14 +160,18 @@ func (this *InvocationTemplateTypeMatcher) recordTemplateMatch(template *Templat
 	this.matchedTypes.merge(template, match, &BiFunction_fn{func(p0 any, p1 any) any { return to_JSType(p0).getLeastSupertype(to_JSType(p1)).self() }})
 }
 
-func (this *InvocationTemplateTypeMatcher) copyMatchedTypes() *TMap[*TemplateType, *JSType] {
+func (this *InvocationTemplateTypeMatcher) copyMatchedTypes() *JTMap[*TemplateType, *JSType] {
 	var builder ImmutableMap_BuilderOf[*TemplateType, *JSType] = ImmutableMap_builder()
 	this.matchedTypes.forEach(&BiConsumer_tfn_TemplateType_any{func(p0 *TemplateType, p1 any) { builder.put(obj_(p0), to_JSType(p1).self()) }})
-	return tmapImm_(tce_p_TemplateType, tc_p_JSType, builder.buildOrThrow())
+	return tmapImm_(tce_p_TemplateType, jtc_p_JSType, builder.buildOrThrow())
 }
 
 func (this *InvocationTemplateTypeMatcher) getTypeOrUnknown(n Node) *JSType {
 	var type_ *JSType = n.getJSType()
-	return func() *JSType { if (type_ == nil) { return this.unknownType }; return type_ }()
+	return func() *JSType {
+		if type_ == nil {
+			return this.unknownType
+		}
+		return type_
+	}()
 }
-

@@ -3,7 +3,7 @@
 package closure
 
 type BaseTranspiler struct {
-	compilerSupplier *BaseTranspiler_CompilerSupplier
+	compilerSupplier   *BaseTranspiler_CompilerSupplier
 	runtimeLibraryName string
 }
 
@@ -64,10 +64,10 @@ func BaseTranspiler_clinit() {
 }
 
 type BaseTranspiler_CompilerSupplier struct {
-	moduleResolution *ModuleLoader_ResolutionMode
-	moduleRoots *TList[string]
-	prefixReplacements *TMap[string, string]
-	outputFeatureSet *FeatureSet
+	moduleResolution   *ModuleLoader_ResolutionMode
+	moduleRoots        *JTList[string]
+	prefixReplacements *JTMap[string, string]
+	outputFeatureSet   *FeatureSet
 }
 
 func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_0() {
@@ -81,7 +81,7 @@ func new_BaseTranspiler_CompilerSupplier_0() *BaseTranspiler_CompilerSupplier {
 }
 
 func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet) {
-	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, new_CompilerOptions().getModuleResolutionMode(), tlistEmptyImm_(tc_string), tmapEmptyImm_(tc_string, tc_string))
+	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, new_CompilerOptions().getModuleResolutionMode(), jtlistEmptyImm_(jtc_string), jtmapEmptyImm_(jtc_string, jtc_string))
 }
 
 func new_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet) *BaseTranspiler_CompilerSupplier {
@@ -90,14 +90,14 @@ func new_BaseTranspiler_CompilerSupplier_FeatureSet(outputFeatureSet *FeatureSet
 	return this
 }
 
-func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution *ModuleLoader_ResolutionMode, moduleRoots *TList[string], prefixReplacements *TMap[string, string]) {
+func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution *ModuleLoader_ResolutionMode, moduleRoots *JTList[string], prefixReplacements *JTMap[string, string]) {
 	this.outputFeatureSet = outputFeatureSet
 	this.moduleResolution = moduleResolution
 	this.moduleRoots = moduleRoots
 	this.prefixReplacements = prefixReplacements
 }
 
-func new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution *ModuleLoader_ResolutionMode, moduleRoots *TList[string], prefixReplacements *TMap[string, string]) *BaseTranspiler_CompilerSupplier {
+func new_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet *FeatureSet, moduleResolution *ModuleLoader_ResolutionMode, moduleRoots *JTList[string], prefixReplacements *JTMap[string, string]) *BaseTranspiler_CompilerSupplier {
 	this := &BaseTranspiler_CompilerSupplier{}
 	this.init_BaseTranspiler_CompilerSupplier_FeatureSet_ResolutionMode_ImmutableList_ImmutableMap(outputFeatureSet, moduleResolution, moduleRoots, prefixReplacements)
 	return this
@@ -108,7 +108,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 	var result *Result = compiler.compileSourceFile(this.createTrivialExterns(), SourceFile_jscomp_fromCode_String_String(path, code), this.options())
 	var source string = compiler.toSource()
 	var sourceMap *StringBuilder = new_StringBuilder()
-	if (result.sourceMap_ != nil) {
+	if result.sourceMap_ != nil {
 		_ = func() (code_ int) {
 			defer func() {
 				if r_ := recover(); r_ != nil {
@@ -129,7 +129,12 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 	if !result.errors_.isEmpty() {
 		panic(obj_(new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(Compiler_as_SourceExcerptProvider(compiler), result.errors_, result.warnings_)))
 	}
-	return new_BaseTranspiler_CompileResult(source, transpiled, func() string { if transpiled { return Object_toString(obj_(sourceMap)) }; return "" }())
+	return new_BaseTranspiler_CompileResult(source, transpiled, func() string {
+		if transpiled {
+			return Object_toString(obj_(sourceMap))
+		}
+		return ""
+	}())
 }
 
 func (this *BaseTranspiler_CompilerSupplier) runtime(library string) string {
@@ -171,8 +176,8 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setApplyInputSourceMaps(true)
 	options.setSourceMapOutputPath(Optional_of[string]("/dev/null"))
 	options.setSourceMapIncludeSourcesContent(true)
-	options.setSourceMapLocationMappings(immutableListOf_[SourceMap_LocationMapping](tc_SourceMap_LocationMapping, &SourceMap_LocationMapping_fn{func(location Optional[string]) Optional[string] {
-		if (Uris_isValid(location.get()) && Uris_hasScheme(location.get())) {
+	options.setSourceMapLocationMappings(jimmutableListOf_[SourceMap_LocationMapping](jtc_SourceMap_LocationMapping, &SourceMap_LocationMapping_fn{func(location Optional[string]) Optional[string] {
+		if Uris_isValid(location.get()) && Uris_hasScheme(location.get()) {
 			return location
 		}
 		return new_SourceMap_PrefixLocationMapping("", "/").map_(location)
@@ -189,9 +194,9 @@ func (this *BaseTranspiler_CompilerSupplier) createEmptySource() *SourceFile_jsc
 }
 
 type BaseTranspiler_CompileResult struct {
-	source string
+	source      string
 	transpiled_ bool
-	sourceMap_ string
+	sourceMap_  string
 }
 
 func (this *BaseTranspiler_CompileResult) zero_BaseTranspiler_CompileResult() {
@@ -211,4 +216,3 @@ func new_BaseTranspiler_CompileResult(source string, transpiled bool, sourceMap 
 	this.init_BaseTranspiler_CompileResult(source, transpiled, sourceMap)
 	return this
 }
-

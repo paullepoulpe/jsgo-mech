@@ -6,4 +6,3 @@ type SourceMapConsumer interface {
 	SourceMapping
 	parse(string) *Outcome_base[any]
 }
-

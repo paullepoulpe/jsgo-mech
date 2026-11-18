@@ -16,7 +16,7 @@ func new_Base64VLQ() *Base64VLQ {
 }
 
 func Base64VLQ_toVLQSigned(value int32) int32 {
-	if (value < 0) {
+	if value < 0 {
 		return (((-value) << 1) + 1)
 	} else {
 		return ((value << 1) + 0)
@@ -38,7 +38,7 @@ func Base64VLQ_encode(out Appendable, value int32) {
 	for do_2 := true; do_2; do_2 = (value > 0) {
 		var digit int32 = (value & Base64VLQ_VLQ_BASE_MASK)
 		value = int32(uint32(value) >> 5)
-		if (value > 0) {
+		if value > 0 {
 			digit |= Base64VLQ_VLQ_CONTINUATION_BIT
 		}
 		out.append_char(Base64_toBase64(digit))
@@ -69,4 +69,3 @@ type Base64VLQ_CharIterator interface {
 	hasNext() bool
 	next() uint16
 }
-

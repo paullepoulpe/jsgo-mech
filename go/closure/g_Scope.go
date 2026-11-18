@@ -5,7 +5,7 @@ package closure
 type Scope struct {
 	AbstractScope
 	parent *Scope
-	depth int32
+	depth  int32
 }
 
 func (this *Scope) up_AbstractScope() *AbstractScope {
@@ -75,7 +75,7 @@ func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition 
 	Preconditions_checkArgument(!String_isEmpty(name))
 	Preconditions_checkState_boolean_String_Object(this.isGlobal(), "Cannot declare implicit goog namespace in local scope %s", this)
 	var var_ *Var = cast_[*Var](this.getOwnSlot(name))
-	if (var_ == nil) {
+	if var_ == nil {
 		var_ = Var_createImplicitGoogNamespace(name, this, definition)
 		this.declareInternal(name, var_.up_AbstractVar())
 	} else if var_.isImplicitGoogNamespace() {
@@ -87,4 +87,3 @@ func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition 
 func (this *Scope) makeImplicitVar_impl(var_ *AbstractScope_ImplicitVar) *AbstractVar {
 	return new_Var(var_.nameField, 0, this, -1, nil, 0).up_AbstractVar()
 }
-

@@ -26,7 +26,7 @@ func PropTranslator_deserialize(x *NodeProperty) *Node_Prop {
 func PropTranslator_setProps() {
 	for _, rhinoProp := range Node_Prop_values() {
 		var protoProp *NodeProperty = PropTranslator_serializeProp(rhinoProp)
-		if (protoProp != nil) {
+		if protoProp != nil {
 			Preconditions_checkState_boolean_String_Object_int((protoProp.getNumber() < 63), "enum %s value %s", protoProp, protoProp.getNumber())
 			PropTranslator_protoToRhinoProp[protoProp.ordinal()] = rhinoProp
 			PropTranslator_rhinoToProtoProp[rhinoProp.ordinal()] = protoProp
@@ -146,4 +146,3 @@ func PropTranslator_clinit() {
 	}
 
 }
-

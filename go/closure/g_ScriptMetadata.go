@@ -3,15 +3,15 @@
 package closure
 
 type ScriptMetadata struct {
-	script_ Node
+	script_                     Node
 	supportsRequireAliasesField bool
-	requireAliases *TMap[string, string]
-	namesInUse *TSet[string]
+	requireAliases              *JTMap[string, string]
+	namesInUse                  *JTSet[string]
 }
 
 func (this *ScriptMetadata) finit_ScriptMetadata() {
-	this.requireAliases = newTMap_(tc_string, tc_string)
-	this.namesInUse = newTSet_(tc_string)
+	this.requireAliases = jnewTMap_(jtc_string, jtc_string)
+	this.namesInUse = jnewTSet_(jtc_string)
 }
 
 func (this *ScriptMetadata) init_ScriptMetadata(script Node) {
@@ -108,7 +108,7 @@ func (this *ScriptMetadata_FillerCallback) updateSupportsRequireAlias(n Node) {
 	switch n.getToken() {
 	case Token_rhino_MODULE_BODY:
 	case Token_rhino_CALL:
-		if (((n.getChildCount() != 2) || !ScriptMetadata_FillerCallback_GOOG_MODULE.matches(n.getFirstChild())) || !n.getSecondChild().isStringLit()) {
+		if ((n.getChildCount() != 2) || !ScriptMetadata_FillerCallback_GOOG_MODULE.matches(n.getFirstChild())) || !n.getSecondChild().isStringLit() {
 			return
 		}
 	default:
@@ -140,7 +140,7 @@ func (this *ScriptMetadata_FillerCallback) maybeCollectRequirelikeAlias(n Node) 
 }
 
 func (this *ScriptMetadata_FillerCallback) isRequirelikeCall(call Node) bool {
-	if ((((call == 0) || !call.isCall()) || (call.getChildCount() != 2)) || !call.getSecondChild().isStringLit()) {
+	if (((call == 0) || !call.isCall()) || (call.getChildCount() != 2)) || !call.getSecondChild().isStringLit() {
 		return false
 	}
 	var callee Node = call.getFirstChild()
@@ -152,7 +152,7 @@ func (this *ScriptMetadata_FillerCallback) maybeCollectNames(n Node) {
 		this.toFill.namesInUse.add(n.getString())
 	}
 	var jsdoc *JSDocInfo = n.getJSDocInfo()
-	if (jsdoc != nil) {
+	if jsdoc != nil {
 		it_1 := foreach_(any(jsdoc.getTypeExpressions()))
 		for it_1.next() {
 			var expr *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
@@ -183,4 +183,3 @@ func ScriptMetadata_FillerCallback_clinit() {
 	ScriptMetadata_FillerCallback_GOOG_FORWARDDECLARE = QualifiedName_of("goog.forwardDeclare")
 
 }
-

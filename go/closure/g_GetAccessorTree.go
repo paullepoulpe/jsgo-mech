@@ -6,8 +6,8 @@ type GetAccessorTree struct {
 	ParseTree
 	propertyName_ *Token_parser
 	isClassMember bool
-	isStatic bool
-	body *BlockTree
+	isStatic      bool
+	body          *BlockTree
 }
 
 func (this *GetAccessorTree) up_ParseTree() *ParseTree {
@@ -31,4 +31,3 @@ func new_GetAccessorTree(location *SourceRange, propertyName *Token_parser, isCl
 	this.init_GetAccessorTree(location, propertyName, isClassMember, isStatic, body)
 	return this
 }
-

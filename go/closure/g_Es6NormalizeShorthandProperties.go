@@ -34,4 +34,3 @@ func (this *Es6NormalizeShorthandProperties) transpileSubtree_impl(subtree Node)
 func (this *Es6NormalizeShorthandProperties) getTranspiledAwayFeatures_impl() *FeatureSet {
 	return FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES)
 }
-

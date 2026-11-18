@@ -17,5 +17,5 @@ for n in $(awk '{ n = $1; p = (n ~ /^[A-Z]/) ? "J" : "j"; print p n }' "$names")
   if grep -qw "$n" go/closure/*.go; then echo "name $n exists already" >&2; exit 1; fi
 done
 perl -pi -e "$expr" go/closure/*.go
-for f in tlist tmap tset tdeque; do git mv go/closure/rt_$f.go go/closure/rt_j$f.go; done
+for f in tlist tmap tset tdeque timm tsorted; do git mv go/closure/rt_$f.go go/closure/rt_j$f.go; done
 gofmt -w go/closure/*.go

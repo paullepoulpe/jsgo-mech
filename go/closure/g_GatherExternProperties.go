@@ -3,20 +3,20 @@
 package closure
 
 type GatherExternProperties struct {
-	compiler_ *AbstractCompiler
-	externProperties *TSet[string]
-	mode_ *GatherExternProperties_Mode
+	compiler_        *AbstractCompiler
+	externProperties *JTSet[string]
+	mode_            *GatherExternProperties_Mode
 }
 
 func (this *GatherExternProperties) finit_GatherExternProperties() {
-	this.externProperties = newTSet_(tc_string)
+	this.externProperties = jnewTSet_(jtc_string)
 }
 
 func (this *GatherExternProperties) init_GatherExternProperties(compiler *AbstractCompiler, mode *GatherExternProperties_Mode) {
 	this.finit_GatherExternProperties()
 	this.compiler_ = compiler
 	this.mode_ = mode
-	if (compiler.getExternProperties() != nil) {
+	if compiler.getExternProperties() != nil {
 		this.externProperties.asSet().addAll(Collection(compiler.getExternProperties().asSet()))
 	}
 }
@@ -29,7 +29,7 @@ func new_GatherExternProperties(compiler *AbstractCompiler, mode *GatherExternPr
 
 func (this *GatherExternProperties) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, externs, NodeTraversal_Callback(this))
-	this.compiler_.setExternProperties(immutableSetCopyOfT_(tc_string, this.externProperties))
+	this.compiler_.setExternProperties(immutableSetCopyOfT_(jtc_string, this.externProperties))
 }
 
 func (this *GatherExternProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
@@ -51,7 +51,7 @@ func (this *GatherExternProperties) visit(t *NodeTraversal, n Node, parent Node)
 		}
 	}
 	var jsDocInfo *JSDocInfo = n.getJSDocInfo()
-	if ((jsDocInfo != nil) && this.mode_.check_) {
+	if (jsDocInfo != nil) && this.mode_.check_ {
 		this.gatherPropertiesFromJSDocInfo(jsDocInfo)
 	}
 }
@@ -71,7 +71,7 @@ func (this *GatherExternProperties) gatherPropertiesFromJsTypeExpressionNode(jsT
 	default:
 		{
 			var child Node = jsTypeExpressionNode.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				this.gatherPropertiesFromJsTypeExpressionNode(child)
 			}
 		}
@@ -82,10 +82,10 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 	Preconditions_checkState_boolean_Object_H((jsDocRecordNode.getToken() == Token_rhino_LB), jsDocRecordNode)
 	{
 		var fieldNode Node = jsDocRecordNode.getFirstChild()
-		for ; (fieldNode != 0); fieldNode = fieldNode.getNext() {
+		for ; fieldNode != 0; fieldNode = fieldNode.getNext() {
 			var fieldNameNode Node
 			var fieldTypeNode Node
-			if (fieldNode.getToken() == Token_rhino_COLON) {
+			if fieldNode.getToken() == Token_rhino_COLON {
 				fieldNameNode = fieldNode.getFirstChild()
 				fieldTypeNode = fieldNameNode.getNext()
 			} else {
@@ -94,11 +94,11 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 			}
 			Preconditions_checkState_boolean_Object_H(fieldNameNode.isStringKey(), fieldNameNode)
 			var fieldName string = fieldNameNode.getString()
-			if (String_startsWith(fieldName, "'") || String_startsWith(fieldName, "\"")) {
+			if String_startsWith(fieldName, "'") || String_startsWith(fieldName, "\"") {
 				fieldName = String_substring(fieldName, 1, (String_length(fieldName) - 1))
 			}
 			this.externProperties.add(fieldName)
-			if (fieldTypeNode != 0) {
+			if fieldTypeNode != 0 {
 				this.gatherPropertiesFromJsTypeExpressionNode(fieldTypeNode)
 			}
 		}
@@ -107,7 +107,7 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 
 type GatherExternProperties_Mode struct {
 	Enum
-	check_ bool
+	check_   bool
 	optimize bool
 }
 
@@ -163,4 +163,3 @@ func GatherExternProperties_Mode_clinit() {
 	registerEnum_("com.google.javascript.jscomp.GatherExternProperties.Mode", enumValues_(GatherExternProperties_Mode_values_))
 
 }
-

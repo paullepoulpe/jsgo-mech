@@ -3,14 +3,14 @@
 package closure
 
 type ClosureBundler struct {
-	transpiler Transpiler_transpile
+	transpiler          Transpiler_transpile
 	es6ModuleTranspiler Transpiler_transpile
-	mode_ *ClosureBundler_EvalMode
-	sourceUrl_ Optional[string]
-	path_ string
+	mode_               *ClosureBundler_EvalMode
+	sourceUrl_          Optional[string]
+	path_               string
 	embedSourcemapField bool
-	sourceMapCache MapOf[string, string]
-	minifier any
+	sourceMapCache      MapOf[string, string]
+	minifier            any
 }
 
 func (this *ClosureBundler) zero_ClosureBundler() {
@@ -85,7 +85,12 @@ func (this *ClosureBundler) disableJ2clMinifier() *ClosureBundler {
 }
 
 func (this *ClosureBundler) useEval(useEval bool) *ClosureBundler {
-	var newMode *ClosureBundler_EvalMode = func() *ClosureBundler_EvalMode { if useEval { return ClosureBundler_EvalMode_EVAL }; return ClosureBundler_EvalMode_NORMAL }()
+	var newMode *ClosureBundler_EvalMode = func() *ClosureBundler_EvalMode {
+		if useEval {
+			return ClosureBundler_EvalMode_EVAL
+		}
+		return ClosureBundler_EvalMode_NORMAL
+	}()
 	return new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(this.transpiler, this.es6ModuleTranspiler, newMode, this.sourceUrl_, this.path_, this.minifier, this.sourceMapCache, this.embedSourcemapField)
 }
 
@@ -109,7 +114,7 @@ func (this *ClosureBundler) appendTo(out Appendable, info DependencyInfo_, conte
 	var code string = content
 	if info.isGoogModule() {
 		this.mode_.appendGoogModule(this.transpile(code), out, this.sourceUrl_)
-	} else if (info.isEs6Module() && (this.transpiler == Transpiler_transpile_NULL)) {
+	} else if info.isEs6Module() && (this.transpiler == Transpiler_transpile_NULL) {
 		this.mode_.appendTraditional(this.transpileEs6Module(code), out, this.sourceUrl_)
 	} else {
 		this.mode_.appendTraditional(this.transpile(code), out, this.sourceUrl_)
@@ -121,7 +126,7 @@ func (this *ClosureBundler) appendRuntimeTo(out Appendable) {
 	if !String_isEmpty(runtime) {
 		this.mode_.appendTraditional(runtime, out, Optional_empty[string]())
 	}
-	if (this.transpiler == Transpiler_transpile_NULL) {
+	if this.transpiler == Transpiler_transpile_NULL {
 		this.mode_.appendTraditional(this.es6ModuleTranspiler.runtime(), out, Optional_empty[string]())
 	}
 	this.mode_.appendTraditional("this.CLOSURE_EVAL_PREFILTER = function(s) { return s; };", out, Optional_empty[string]())
@@ -143,7 +148,12 @@ func (this *ClosureBundler) transpile_2(s string, t Transpiler_transpile) string
 	}
 	var result *TranspileResult = t.transpile(this.path_, s)
 	Map_put_s(this.sourceMapCache, this.path_, strobj_(result.sourceMap()))
-	return func() string { if this.embedSourcemapField { return result.embedSourcemapBase64().transpiled() }; return result.transpiled() }()
+	return func() string {
+		if this.embedSourcemapField {
+			return result.embedSourcemapBase64().transpiled()
+		}
+		return result.transpiled()
+	}()
 }
 
 func (this *ClosureBundler) transpile(s string) string {
@@ -166,17 +176,23 @@ type ClosureBundler_EvalMode struct {
 	Enum
 }
 
-func (this *ClosureBundler_EvalMode) as_ClosureBundler_EvalMode() *ClosureBundler_EvalMode { return this }
+func (this *ClosureBundler_EvalMode) as_ClosureBundler_EvalMode() *ClosureBundler_EvalMode {
+	return this
+}
 
 func to_ClosureBundler_EvalMode(v any) *ClosureBundler_EvalMode {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ClosureBundler_EvalMode() *ClosureBundler_EvalMode }).as_ClosureBundler_EvalMode()
+	return v.(interface {
+		as_ClosureBundler_EvalMode() *ClosureBundler_EvalMode
+	}).as_ClosureBundler_EvalMode()
 }
 
 func is_ClosureBundler_EvalMode(v any) bool {
-	_, ok := v.(interface{ as_ClosureBundler_EvalMode() *ClosureBundler_EvalMode })
+	_, ok := v.(interface {
+		as_ClosureBundler_EvalMode() *ClosureBundler_EvalMode
+	})
 	return ok
 }
 
@@ -199,11 +215,15 @@ func (this *ClosureBundler_EvalMode) init_ClosureBundler_EvalMode(name_ string, 
 }
 
 func (this *ClosureBundler_EvalMode) appendTraditional(p0 string, p1 Appendable, p2 Optional[string]) {
-	this.self_.(interface{ appendTraditional_impl(string, Appendable, Optional[string]) }).appendTraditional_impl(p0, p1, p2)
+	this.self_.(interface {
+		appendTraditional_impl(string, Appendable, Optional[string])
+	}).appendTraditional_impl(p0, p1, p2)
 }
 
 func (this *ClosureBundler_EvalMode) appendGoogModule(p0 string, p1 Appendable, p2 Optional[string]) {
-	this.self_.(interface{ appendGoogModule_impl(string, Appendable, Optional[string]) }).appendGoogModule_impl(p0, p1, p2)
+	this.self_.(interface {
+		appendGoogModule_impl(string, Appendable, Optional[string])
+	}).appendGoogModule_impl(p0, p1, p2)
 }
 
 func ClosureBundler_EvalMode_values() []*ClosureBundler_EvalMode {
@@ -241,17 +261,23 @@ type ClosureBundler_EscapeMode struct {
 	Enum
 }
 
-func (this *ClosureBundler_EscapeMode) as_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode { return this }
+func (this *ClosureBundler_EscapeMode) as_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode {
+	return this
+}
 
 func to_ClosureBundler_EscapeMode(v any) *ClosureBundler_EscapeMode {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode }).as_ClosureBundler_EscapeMode()
+	return v.(interface {
+		as_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode
+	}).as_ClosureBundler_EscapeMode()
 }
 
 func is_ClosureBundler_EscapeMode(v any) bool {
-	_, ok := v.(interface{ as_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode })
+	_, ok := v.(interface {
+		as_ClosureBundler_EscapeMode() *ClosureBundler_EscapeMode
+	})
 	return ok
 }
 
@@ -565,4 +591,3 @@ func ClosureBundler_EscapeMode_2_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.deps.ClosureBundler.EscapeMode>", enumValues_(ClosureBundler_EscapeMode_2_values_))
 
 }
-

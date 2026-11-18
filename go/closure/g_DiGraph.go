@@ -118,4 +118,3 @@ type DiGraph_DiGraphEdge[N comparable] interface {
 	getSource() DiGraph_DiGraphNode[N]
 	getDestination() DiGraph_DiGraphNode[N]
 }
-

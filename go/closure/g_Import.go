@@ -4,11 +4,11 @@ package closure
 
 type Import struct {
 	moduleRequest_ string
-	importName_ string
-	localName_ string
-	modulePath_ *ModuleLoader_ModulePath
-	importNode_ Node
-	nameNode_ Node
+	importName_    string
+	localName_     string
+	modulePath_    *ModuleLoader_ModulePath
+	importNode_    Node
+	nameNode_      Node
 }
 
 func (this *Import) zero_Import() {
@@ -83,16 +83,16 @@ func (this *Import) hashCode() int32 {
 }
 
 func (this *Import) toString() string {
-	return "Import[" + "moduleRequest=" + sstr_(this.moduleRequest_) + ", importName=" + sstr_(this.importName_) + ", localName=" + sstr_(this.localName_) + ", modulePath=" + tostr_(this.modulePath_) + ", importNode=" + tostrH_(this.importNode_) + ", nameNode=" + tostrH_(this.nameNode_) + "]"
+	return "Import[" + "moduleRequest=" + sstr_(this.moduleRequest_) + ", importName=" + sstr_(this.importName_) + ", localName=" + sstr_(this.localName_) + ", modulePath=" + jtostr_(this.modulePath_) + ", importNode=" + tostrH_(this.importNode_) + ", nameNode=" + tostrH_(this.nameNode_) + "]"
 }
 
 type Import_Builder struct {
 	moduleRequestField Optional[string]
-	importNameField Optional[string]
-	localNameField Optional[string]
-	modulePathField *ModuleLoader_ModulePath
-	importNodeField Node
-	nameNodeField Node
+	importNameField    Optional[string]
+	localNameField     Optional[string]
+	modulePathField    *ModuleLoader_ModulePath
+	importNodeField    Node
+	nameNodeField      Node
 }
 
 func (this *Import_Builder) finit_Import_Builder() {
@@ -132,7 +132,7 @@ func (this *Import_Builder) modulePath(value *ModuleLoader_ModulePath) *Import_B
 }
 
 func (this *Import_Builder) importNode(value Node) *Import_Builder {
-	if (value == 0) {
+	if value == 0 {
 		panic(new_NullPointerException_String("Null importNode").self())
 	}
 	this.importNodeField = value
@@ -140,7 +140,7 @@ func (this *Import_Builder) importNode(value Node) *Import_Builder {
 }
 
 func (this *Import_Builder) nameNode(value Node) *Import_Builder {
-	if (value == 0) {
+	if value == 0 {
 		panic(new_NullPointerException_String("Null nameNode").self())
 	}
 	this.nameNodeField = value
@@ -148,7 +148,7 @@ func (this *Import_Builder) nameNode(value Node) *Import_Builder {
 }
 
 func (this *Import_Builder) build() *Import {
-	if ((((this.moduleRequestField.isEmpty() || this.importNameField.isEmpty()) || this.localNameField.isEmpty()) || (this.importNodeField == 0)) || (this.nameNodeField == 0)) {
+	if (((this.moduleRequestField.isEmpty() || this.importNameField.isEmpty()) || this.localNameField.isEmpty()) || (this.importNodeField == 0)) || (this.nameNodeField == 0) {
 		var missing *StringBuilder = new_StringBuilder()
 		if this.moduleRequestField.isEmpty() {
 			missing.append(" moduleRequest")
@@ -159,14 +159,13 @@ func (this *Import_Builder) build() *Import {
 		if this.localNameField.isEmpty() {
 			missing.append(" localName")
 		}
-		if (this.importNodeField == 0) {
+		if this.importNodeField == 0 {
 			missing.append(" importNode")
 		}
-		if (this.nameNodeField == 0) {
+		if this.nameNodeField == 0 {
 			missing.append(" nameNode")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + tostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
 	}
 	return new_Import(this.moduleRequestField.get(), this.importNameField.get(), this.localNameField.get(), this.modulePathField, this.importNodeField, this.nameNodeField)
 }
-

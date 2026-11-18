@@ -3,10 +3,10 @@
 package closure
 
 type BasicBlock struct {
-	parent *BasicBlock
-	root Node
+	parent          *BasicBlock
+	root            Node
 	isFunctionField bool
-	isLoopField bool
+	isLoopField     bool
 }
 
 func (this *BasicBlock) init_BasicBlock(parent *BasicBlock, root Node) {
@@ -39,10 +39,10 @@ func (this *BasicBlock) provablyExecutesBefore(thatBlock *BasicBlock) bool {
 	var currentBlock *BasicBlock
 	{
 		currentBlock = thatBlock
-		for ; ((currentBlock != nil) && (currentBlock != this)); currentBlock = currentBlock.getParent() {
+		for ; (currentBlock != nil) && (currentBlock != this); currentBlock = currentBlock.getParent() {
 		}
 	}
-	if (currentBlock == this) {
+	if currentBlock == this {
 		return true
 	}
 	return (this.isGlobalScopeBlock() && thatBlock.isGlobalScopeBlock())
@@ -63,4 +63,3 @@ func (this *BasicBlock) getRoot() Node {
 func (this *BasicBlock) toString() string {
 	return ("BasicBlock @ " + tostrH_(this.root))
 }
-

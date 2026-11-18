@@ -4,15 +4,15 @@ package closure
 
 type PolymerPass struct {
 	NodeTraversal_ExternsSkippingCallback
-	compiler_ *AbstractCompiler
-	tagNameMap *TMap[string, string]
-	polymerElementExterns Node
-	nativeExternsAdded *TSet[string]
-	polymerElementProps *TList[Node]
-	globalNames *GlobalNamespace
-	behaviorExtractor *PolymerBehaviorExtractor
+	compiler_                    *AbstractCompiler
+	tagNameMap                   *JTMap[string, string]
+	polymerElementExterns        Node
+	nativeExternsAdded           *JTSet[string]
+	polymerElementProps          *JTList[Node]
+	globalNames                  *GlobalNamespace
+	behaviorExtractor            *PolymerBehaviorExtractor
 	warnedPolymer1ExternsMissing bool
-	propertySinkExternInjected bool
+	propertySinkExternInjected   bool
 }
 
 func (this *PolymerPass) up_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback {
@@ -32,7 +32,7 @@ func (this *PolymerPass) init_PolymerPass(compiler *AbstractCompiler) {
 	this.finit_PolymerPass()
 	this.compiler_ = compiler
 	this.tagNameMap = TagNameToType_getMap()
-	this.nativeExternsAdded = newTSet_(tc_string)
+	this.nativeExternsAdded = jnewTSet_(jtc_string)
 }
 
 func new_PolymerPass(compiler *AbstractCompiler) *PolymerPass {
@@ -57,7 +57,7 @@ func (this *PolymerPass) process_2(externs Node, root Node) {
 
 func (this *PolymerPass) visit_impl(traversal *NodeTraversal, node Node, parent Node) {
 	if PolymerPassStaticUtils_isPolymerCall(node) {
-		if (this.polymerElementExterns != 0) {
+		if this.polymerElementExterns != 0 {
 			this.rewritePolymer1ClassDefinition(node, parent, traversal)
 		} else if !this.warnedPolymer1ExternsMissing {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, PolymerPassErrors_POLYMER_MISSING_EXTERNS, []string{}))
@@ -70,7 +70,7 @@ func (this *PolymerPass) visit_impl(traversal *NodeTraversal, node Node, parent 
 
 func (this *PolymerPass) getModuleMetadata(traversal *NodeTraversal) *ModuleMetadataMap_ModuleMetadata {
 	var script Node = traversal.getCurrentScript()
-	if ((script != 0) && script.getFirstChild().isModuleBody()) {
+	if (script != 0) && script.getFirstChild().isModuleBody() {
 		return ModuleImportResolver_getModuleFromScopeRoot(this.compiler_.getModuleMap(), icast_CompilerInputProvider(this.compiler_.self()), script.getFirstChild()).metadata()
 	}
 	var scopeRoot Node = traversal.getScopeRoot()
@@ -85,17 +85,17 @@ func (this *PolymerPass) rewritePolymer1ClassDefinition(node Node, parent Node, 
 	if grandparent.isConst() {
 		grandparent.setToken(Token_rhino_LET)
 		var scriptNode Node = traversal.getCurrentScript()
-		if (scriptNode != 0) {
+		if scriptNode != 0 {
 			NodeUtil_addFeatureToScript(scriptNode, FeatureSet_Feature_LET_DECLARATIONS, this.compiler_)
 		}
 		traversal.reportCodeChange()
 	}
-	if (NodeUtil_isNameDeclaration(grandparent) && grandparent.getParent().isExport()) {
+	if NodeUtil_isNameDeclaration(grandparent) && grandparent.getParent().isExport() {
 		this.normalizePolymerExport(grandparent, grandparent.getParent())
 		traversal.reportCodeChange()
 	}
 	var def *PolymerClassDefinition = PolymerClassDefinition_extractFromCallNode(node, this.compiler_, this.getModuleMetadata(traversal), this.behaviorExtractor)
-	if (def != nil) {
+	if def != nil {
 		if def.nativeBaseElement.isPresent() {
 			this.appendPolymerElementExterns(def)
 		}
@@ -106,7 +106,7 @@ func (this *PolymerPass) rewritePolymer1ClassDefinition(node Node, parent Node, 
 
 func (this *PolymerPass) rewritePolymer2ClassDefinition(node Node, traversal *NodeTraversal) {
 	var def *PolymerClassDefinition = PolymerClassDefinition_extractFromClassNode(node, this.compiler_)
-	if (def != nil) {
+	if def != nil {
 		var rewriter *PolymerClassRewriter = new_PolymerClassRewriter(this.compiler_)
 		rewriter.propertySinkExternInjected = this.propertySinkExternInjected
 		rewriter.rewritePolymerClassDeclaration(node, traversal, def)
@@ -132,7 +132,12 @@ func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition
 	var baseExterns Node = this.polymerElementExterns.cloneTree()
 	var polymerElementType string = PolymerPassStaticUtils_getPolymerElementType(def)
 	baseExterns.getFirstChild().setString(polymerElementType)
-	var elementType Optional[string] = func() Optional[string] { if def.nativeBaseElement.isPresent() { return Optional_ofNullable[string](this.tagNameMap.get(def.nativeBaseElement.get())) }; return Optional_empty[string]() }()
+	var elementType Optional[string] = func() Optional[string] {
+		if def.nativeBaseElement.isPresent() {
+			return Optional_ofNullable[string](this.tagNameMap.get(def.nativeBaseElement.get()))
+		}
+		return Optional_empty[string]()
+	}()
 	if elementType.isEmpty() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(def.descriptor, PolymerPassErrors_POLYMER_INVALID_EXTENDS, []string{def.nativeBaseElement.orElse("null")}))
 		return
@@ -161,20 +166,20 @@ func PolymerPass_exportTsickleProps(classNode Node, classQualifiedName string) {
 	var classStmt Node = Preconditions_checkNotNull_T(NodeUtil_getEnclosingStatement(classNode))
 	{
 		var sibling Node = classStmt.getNext()
-		for ; (sibling != 0); sibling = sibling.getNext() {
+		for ; sibling != 0; sibling = sibling.getNext() {
 			var ifBlock Node = PolymerPass_maybeGetTsicklePropTypesIfBlock(sibling)
-			if (ifBlock == 0) {
+			if ifBlock == 0 {
 				continue
 			}
 			{
 				var stmt Node = ifBlock.getFirstChild()
-				for ; (stmt != 0); stmt = stmt.getNext() {
+				for ; stmt != 0; stmt = stmt.getNext() {
 					var prop Node = PolymerPass_getTsickleClassPrototypeProp(stmt, classQualifiedName)
-					if (prop == 0) {
+					if prop == 0 {
 						continue
 					}
 					var jsdoc *JSDocInfo = Preconditions_checkNotNull_Object_String_Object_T(prop.getJSDocInfo(), "No JSDoc found for %s", prop.box_())
-					if (jsdoc.getVisibility() == JSDocInfo_Visibility_PRIVATE) {
+					if jsdoc.getVisibility() == JSDocInfo_Visibility_PRIVATE {
 						continue
 					}
 					var builder *JSDocInfo_Builder = JSDocInfo_Builder_copyFrom(jsdoc)
@@ -209,7 +214,7 @@ func PolymerPass_getTsickleClassPrototypeProp(stmt Node, classQualifiedName stri
 		return 0
 	}
 	var owner Node = expr.getFirstChild()
-	if (!owner.isGetProp() || !(owner.getString() == "prototype")) {
+	if !owner.isGetProp() || !(owner.getString() == "prototype") {
 		return 0
 	}
 	var classRef Node = owner.getFirstChild()
@@ -222,9 +227,9 @@ func PolymerPass_getTsickleClassPrototypeProp(stmt Node, classQualifiedName stri
 const PolymerPass_VIRTUAL_FILE string = "<PolymerPass.java>"
 
 type PolymerPass_MemberDefinition struct {
-	info *JSDocInfo
-	name_ Node
-	value_ Node
+	info            *JSDocInfo
+	name_           Node
+	value_          Node
 	enclosingModule Node
 }
 
@@ -244,4 +249,3 @@ func new_PolymerPass_MemberDefinition(info *JSDocInfo, name Node, value Node, en
 func (this *PolymerPass_MemberDefinition) toString() string {
 	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("name", this.name_.box_()).add("value", this.value_.box_())))
 }
-

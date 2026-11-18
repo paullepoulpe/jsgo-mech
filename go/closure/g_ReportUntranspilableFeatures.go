@@ -4,8 +4,8 @@ package closure
 
 type ReportUntranspilableFeatures struct {
 	AbstractPeepholeTranspilation
-	compiler_ *AbstractCompiler
-	browserFeatureSetYear *CompilerOptions_BrowserFeaturesetYear
+	compiler_                      *AbstractCompiler
+	browserFeatureSetYear          *CompilerOptions_BrowserFeaturesetYear
 	untranspilableFeaturesToRemove *FeatureSet
 }
 
@@ -44,7 +44,12 @@ func (this *ReportUntranspilableFeatures) checkForUntranspilable(root Node) {
 	switch root.getToken() {
 	case Token_rhino_REGEXP:
 		var pattern string = root.getFirstChild().getString()
-		var flags string = func() string { if root.hasTwoChildren() { return root.getLastChild().getString() }; return "" }()
+		var flags string = func() string {
+			if root.hasTwoChildren() {
+				return root.getLastChild().getString()
+			}
+			return ""
+		}()
 		var reg *RegExpTree
 		code_2 := func() (code_ int) {
 			defer func() {
@@ -103,16 +108,16 @@ func (this *ReportUntranspilableFeatures) checkForUntranspilable(root Node) {
 
 func (this *ReportUntranspilableFeatures) reportUntranspilable(feature *FeatureSet_Feature, node Node) {
 	var minimumLanguageMode *Config_LanguageMode = Config_LanguageMode_minimumRequiredFor(feature)
-	if (minimumLanguageMode == Config_LanguageMode_UNSUPPORTED) {
+	if minimumLanguageMode == Config_LanguageMode_UNSUPPORTED {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, ReportUntranspilableFeatures_UNSUPPORTED_FEATURE_PRESENT, []string{feature.toString()}))
 		return
 	}
 	var minimum string
 	var suggestion string = " Consider targeting a more modern output."
-	if (this.browserFeatureSetYear != nil) {
+	if this.browserFeatureSetYear != nil {
 		var minimumYear *CompilerOptions_BrowserFeaturesetYear = CompilerOptions_BrowserFeaturesetYear_minimumRequiredFor(feature)
-		if (minimumYear == nil) {
-			minimum = (tostr_(minimumLanguageMode) + ", which is not yet supported by any browser featureset year")
+		if minimumYear == nil {
+			minimum = (jtostr_(minimumLanguageMode) + ", which is not yet supported by any browser featureset year")
 			suggestion = ""
 		} else {
 			minimum = ("browser featureset year " + istr_(int64(minimumYear.getYear())))
@@ -126,8 +131,13 @@ func (this *ReportUntranspilableFeatures) reportUntranspilable(feature *FeatureS
 
 func (this *ReportUntranspilableFeatures) checkForRegExpSFlag(regexpNode Node) {
 	Preconditions_checkArgument(regexpNode.isRegExp())
-	var flags string = func() string { if regexpNode.hasTwoChildren() { return regexpNode.getLastChild().getString() }; return "" }()
-	if String_contains_s(flags, "s") {
+	var flags string = func() string {
+		if regexpNode.hasTwoChildren() {
+			return regexpNode.getLastChild().getString()
+		}
+		return ""
+	}()
+	if JString_contains_s(flags, "s") {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_FLAG_S, regexpNode)
 	}
 }
@@ -167,15 +177,20 @@ func (this *ReportUntranspilableFeatures) checkForUnicodePropertyEscape(regexpNo
 
 func (this *ReportUntranspilableFeatures) checkForRegExpDFlag(regexpNode Node) {
 	Preconditions_checkArgument(regexpNode.isRegExp())
-	var flags string = func() string { if regexpNode.hasTwoChildren() { return regexpNode.getLastChild().getString() }; return "" }()
-	if String_contains_s(flags, "d") {
+	var flags string = func() string {
+		if regexpNode.hasTwoChildren() {
+			return regexpNode.getLastChild().getString()
+		}
+		return ""
+	}()
+	if JString_contains_s(flags, "d") {
 		this.reportUntranspilable(FeatureSet_Feature_REGEXP_FLAG_D, regexpNode)
 	}
 }
 
 func (this *ReportUntranspilableFeatures) checkForTopLevelAwait(awaitNode Node) {
 	Preconditions_checkArgument((awaitNode.isAwait() || awaitNode.isForAwaitOf()))
-	if (NodeUtil_getEnclosingFunction(awaitNode) == 0) {
+	if NodeUtil_getEnclosingFunction(awaitNode) == 0 {
 		Preconditions_checkArgument_boolean_Object(NodeUtil_getEnclosingScript(awaitNode).getBooleanProp(Node_ES6_MODULE), "Top-level await is only allowed in ES module sources")
 		this.reportUntranspilable(FeatureSet_Feature_TOP_LEVEL_AWAIT, awaitNode)
 	}
@@ -226,4 +241,3 @@ func ReportUntranspilableFeatures_clinit() {
 	ReportUntranspilableFeatures_ALL_UNTRANSPILABLE_FEATURES = FeatureSet_BARE_MINIMUM.union(ReportUntranspilableFeatures_UNTRANSPILABLE_ES5_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2018_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2019_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2022_FEATURES).union(ReportUntranspilableFeatures_UNTRANSPILABLE_2020_FEATURES)
 
 }
-

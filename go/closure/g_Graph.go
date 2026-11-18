@@ -3,8 +3,8 @@
 package closure
 
 type Graph[N comparable] struct {
-	self_ any
-	vt_Graph_ Graph_vt_[N]
+	self_               any
+	vt_Graph_           Graph_vt_[N]
 	nodeAnnotationStack *TDeque[*Graph_GraphAnnotationState]
 	edgeAnnotationStack *TDeque[*Graph_GraphAnnotationState]
 }
@@ -71,7 +71,7 @@ func (this *Graph[N]) hasNode(n N) bool {
 
 func (this *Graph[N]) getNodeOrFail(val N) GraphNode[N] {
 	var node GraphNode[N] = this.getNode(val)
-	if (node == nil) {
+	if node == nil {
 		panic(new_IllegalArgumentException_String((objstr_(boxT_(val)) + " does not exist in graph")).self())
 	}
 	return node
@@ -94,8 +94,8 @@ func (this *Graph[N]) clearEdgeAnnotations() {
 }
 
 func (this *Graph[N]) pushNodeAnnotations() {
-	if (this.nodeAnnotationStack == nil) {
-		this.nodeAnnotationStack = newTDeque_(tc_p_Graph_GraphAnnotationState)
+	if this.nodeAnnotationStack == nil {
+		this.nodeAnnotationStack = newTDeque_(jtc_p_Graph_GraphAnnotationState)
 	}
 	Graph_pushAnnotations(this.nodeAnnotationStack, this.getNodes())
 }
@@ -106,8 +106,8 @@ func (this *Graph[N]) popNodeAnnotations() {
 }
 
 func (this *Graph[N]) pushEdgeAnnotations() {
-	if (this.edgeAnnotationStack == nil) {
-		this.edgeAnnotationStack = newTDeque_(tc_p_Graph_GraphAnnotationState)
+	if this.edgeAnnotationStack == nil {
+		this.edgeAnnotationStack = newTDeque_(jtc_p_Graph_GraphAnnotationState)
 	}
 	Graph_pushAnnotations(this.edgeAnnotationStack, Collection(this.getEdges()))
 }
@@ -192,7 +192,7 @@ func (this *Graph[N]) getNodeDegree(p0 N) int32 {
 }
 
 type Graph_AnnotationState struct {
-	first Annotatable
+	first  Annotatable
 	second Annotation_graph
 }
 
@@ -239,8 +239,8 @@ type Graph_GraphEdge[N comparable] interface {
 }
 
 type Graph_SimpleSubGraph[N comparable, E comparable] struct {
-	graph *Graph[N]
-	nodes_ *TList[GraphNode[N]]
+	graph  *Graph[N]
+	nodes_ *JTList[GraphNode[N]]
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) isa_Graph_SimpleSubGraph_() {}
@@ -251,7 +251,7 @@ func is_Graph_SimpleSubGraph(v any) bool {
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) finit_Graph_SimpleSubGraph() {
-	this.nodes_ = newTList_(tc_GraphNode_N_[N, E]())
+	this.nodes_ = jnewTList_(tc_GraphNode_N_[N, E]())
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) init_Graph_SimpleSubGraph(graph *Graph[N]) {
@@ -280,4 +280,3 @@ func (this *Graph_SimpleSubGraph[N, E]) isIndependentOf(value N) bool {
 func (this *Graph_SimpleSubGraph[N, E]) addNode(value N) {
 	this.nodes_.add(this.graph.getNodeOrFail(value))
 }
-

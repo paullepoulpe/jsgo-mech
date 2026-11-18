@@ -35,30 +35,30 @@ func (this *J2clChecksPass) visit_impl(unused *NodeTraversal, n Node, parent Nod
 }
 
 func (this *J2clChecksPass) checkReferenceEquality(n Node, typeName string, fileName string) {
-	if (((n.isSHEQ() || n.isEQ()) || n.isSHNE()) || n.isNE()) {
+	if ((n.isSHEQ() || n.isEQ()) || n.isSHNE()) || n.isNE() {
 		var firstJsType *JSType = n.getFirstChild().getJSType()
 		var lastJsType *JSType = n.getLastChild().getJSType()
 		var hasType bool = (this.isType(firstJsType, fileName) || this.isType(lastJsType, fileName))
 		var hasNullType bool = (this.isNullType(firstJsType) || this.isNullType(lastJsType))
-		if (hasType && !hasNullType) {
+		if hasType && !hasNullType {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, J2clChecksPass_J2CL_REFERENCE_EQUALITY, []string{typeName}))
 		}
 	}
 }
 
 func (this *J2clChecksPass) isNullType(jsType *JSType) bool {
-	if (jsType == nil) {
+	if jsType == nil {
 		return false
 	}
 	return (jsType.isNullType() || jsType.isVoidType())
 }
 
 func (this *J2clChecksPass) isType(jsType *JSType, fileName string) bool {
-	if (jsType == nil) {
+	if jsType == nil {
 		return false
 	}
 	jsType = jsType.restrictByNotNullOrUndefined()
-	if (jsType.toMaybeObjectType() == nil) {
+	if jsType.toMaybeObjectType() == nil {
 		return false
 	}
 	var sourceName Optional[string] = this.getSourceName(jsType)
@@ -67,7 +67,7 @@ func (this *J2clChecksPass) isType(jsType *JSType, fileName string) bool {
 
 func (this *J2clChecksPass) getSourceName(jsType *JSType) Optional[string] {
 	var constructor *FunctionType = jsType.toMaybeObjectType().getConstructor()
-	if (constructor == nil) {
+	if constructor == nil {
 		return Optional_of[string]("")
 	}
 	return Optional_of[string](NodeUtil_getSourceName(constructor.getSource())).filter(&Predicate_tfn_string{func(s string) bool {
@@ -80,7 +80,7 @@ func (this *J2clChecksPass) process_2(externs Node, root Node) {
 }
 
 var J2clChecksPass_J2CL_REFERENCE_EQUALITY *DiagnosticType
-var J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS *TMap[string, string]
+var J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS *JTMap[string, string]
 
 var J2clChecksPass_clinit_done bool
 
@@ -90,7 +90,6 @@ func J2clChecksPass_clinit() {
 	}
 	J2clChecksPass_clinit_done = true
 	J2clChecksPass_J2CL_REFERENCE_EQUALITY = DiagnosticType_warning("JSC_J2CL_REFERENCE_EQUALITY", "Reference equality may not be used with the specified type: {0}")
-	J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS = immutableMapOf3_[string, string](tc_string, tc_string, "java.lang.Integer", "java/lang/Integer.impl.java.js", "java.lang.Float", "java/lang/Float.impl.java.js", "goog.math.Long", "javascript/closure/math/long.js")
+	J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS = immutableMapOf3_[string, string](jtc_string, jtc_string, "java.lang.Integer", "java/lang/Integer.impl.java.js", "java.lang.Float", "java/lang/Float.impl.java.js", "goog.math.Long", "javascript/closure/math/long.js")
 
 }
-

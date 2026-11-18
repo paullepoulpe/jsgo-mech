@@ -37,7 +37,7 @@ func new_ChromeCodingConvention_CodingConvention(wrapped CodingConvention) *Chro
 
 func (this *ChromeCodingConvention) getSingletonGetterClassName_impl(callNode Node) string {
 	var callArg Node = callNode.getFirstChild()
-	if (!ChromeCodingConvention_CR_ADD_SINGLETON_GETTER.matches(callArg) || !callNode.hasTwoChildren()) {
+	if !ChromeCodingConvention_CR_ADD_SINGLETON_GETTER.matches(callArg) || !callNode.hasTwoChildren() {
 		return this.CodingConventions_Proxy.getSingletonGetterClassName_impl(callNode)
 	}
 	return callArg.getNext().getQualifiedName()
@@ -61,4 +61,3 @@ func ChromeCodingConvention_clinit() {
 	ChromeCodingConvention_CR_ADD_SINGLETON_GETTER = QualifiedName_of("cr.addSingletonGetter")
 
 }
-

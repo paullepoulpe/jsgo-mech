@@ -10,4 +10,3 @@ type Annotatable interface {
 func Annotatable_getAnnotation(annotatable Annotatable) Annotation_graph {
 	return annotatable.getAnnotationUntyped()
 }
-

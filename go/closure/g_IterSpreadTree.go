@@ -25,4 +25,3 @@ func new_IterSpreadTree(location *SourceRange, expression *ParseTree) *IterSprea
 	this.init_IterSpreadTree(location, expression)
 	return this
 }
-

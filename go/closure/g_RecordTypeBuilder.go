@@ -3,16 +3,16 @@
 package closure
 
 type RecordTypeBuilder struct {
-	isEmpty_ bool
+	isEmpty_   bool
 	isDeclared bool
-	registry *JSTypeRegistry
-	properties *TMap[string, *RecordTypeBuilder_RecordProperty]
+	registry   *JSTypeRegistry
+	properties *JTMap[string, *RecordTypeBuilder_RecordProperty]
 }
 
 func (this *RecordTypeBuilder) finit_RecordTypeBuilder() {
 	this.isEmpty_ = true
 	this.isDeclared = true
-	this.properties = newTMap_(tc_string, tc_p_RecordTypeBuilder_RecordProperty)
+	this.properties = jnewTMap_(jtc_string, jtc_p_RecordTypeBuilder_RecordProperty)
 }
 
 func (this *RecordTypeBuilder) init_RecordTypeBuilder(registry *JSTypeRegistry) {
@@ -46,7 +46,7 @@ func (this *RecordTypeBuilder) build() *JSType {
 }
 
 type RecordTypeBuilder_RecordProperty struct {
-	type__ *JSType
+	type__       *JSType
 	propertyNode Node
 }
 
@@ -72,4 +72,3 @@ func (this *RecordTypeBuilder_RecordProperty) getPropertyNode() Node {
 func (this *RecordTypeBuilder_RecordProperty) toString() string {
 	return ("RecordProperty{type: " + objstr_(this.type__.self()) + ", node: " + tostrH_(this.propertyNode) + "}")
 }
-

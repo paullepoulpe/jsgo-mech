@@ -3,9 +3,9 @@
 package closure
 
 type SourceMapInput struct {
-	sourceFile *SourceFile_jscomp
+	sourceFile      *SourceFile_jscomp
 	parsedSourceMap *SourceMapConsumerV3
-	cached bool
+	cached          bool
 }
 
 func (this *SourceMapInput) finit_SourceMapInput() {
@@ -43,7 +43,7 @@ func (this *SourceMapInput) getSourceMap(errorManager ErrorManager) *SourceMapCo
 			errorManager.report_2(error_.defaultLevel(), error_)
 			return this.parsedSourceMap
 		}
-		if ((((((consumer.getFile().isPresent() && !String_isEmpty(consumer.getFile().get())) && (consumer.getOriginalSources().size() == 1)) && Collection_contains_s(consumer.getOriginalSources(), consumer.getFile().get())) && (consumer.getOriginalSourcesContent().size() == 1)) && consumer.getOriginalNames().isEmpty()) && (consumer.getLineCount() == -1)) {
+		if (((((consumer.getFile().isPresent() && !String_isEmpty(consumer.getFile().get())) && (consumer.getOriginalSources().size() == 1)) && Collection_contains_s(consumer.getOriginalSources(), consumer.getFile().get())) && (consumer.getOriginalSourcesContent().size() == 1)) && consumer.getOriginalNames().isEmpty()) && (consumer.getLineCount() == -1) {
 			consumer = nil
 		}
 		this.parsedSourceMap = consumer
@@ -77,4 +77,3 @@ func SourceMapInput_clinit() {
 	SourceMapInput_SOURCEMAP_PARSE_FAILED = DiagnosticType_warning("SOURCEMAP_PARSE_FAILED", "Failed to parse malformed sourcemap in {0}: {1}")
 
 }
-

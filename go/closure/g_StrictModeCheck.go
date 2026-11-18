@@ -4,7 +4,7 @@ package closure
 
 type StrictModeCheck struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
+	compiler_     *AbstractCompiler
 	defaultLevel_ *CheckLevel
 }
 
@@ -73,9 +73,9 @@ func StrictModeCheck_isDeclaration(n Node) bool {
 
 func (this *StrictModeCheck) checkAssignment(n Node) {
 	if n.getFirstChild().isName() {
-		if ("arguments" == n.getFirstChild().getString()) {
+		if "arguments" == n.getFirstChild().getString() {
 			this.report(n, StrictModeCheck_ARGUMENTS_ASSIGNMENT, []string{})
-		} else if ("eval" == n.getFirstChild().getString()) {
+		} else if "eval" == n.getFirstChild().getString() {
 			this.report(n, StrictModeCheck_EVAL_ASSIGNMENT, []string{})
 		}
 	}
@@ -84,32 +84,42 @@ func (this *StrictModeCheck) checkAssignment(n Node) {
 func (this *StrictModeCheck) checkDelete(t *NodeTraversal, n Node) {
 	if n.getFirstChild().isName() {
 		var v *Var = cast_[*Var](t.getScope().getVar(n.getFirstChild().getString()).self())
-		if (v != nil) {
+		if v != nil {
 			this.report(n, StrictModeCheck_DELETE_VARIABLE, []string{})
 		}
 	}
 }
 
 func (this *StrictModeCheck) checkObjectLiteralOrClass(n Node) {
-	var getters *TSet[string] = newTSet_(tc_string)
-	var setters *TSet[string] = newTSet_(tc_string)
-	var staticGetters *TSet[string] = newTSet_(tc_string)
-	var staticSetters *TSet[string] = newTSet_(tc_string)
+	var getters *JTSet[string] = jnewTSet_(jtc_string)
+	var setters *JTSet[string] = jnewTSet_(jtc_string)
+	var staticGetters *JTSet[string] = jnewTSet_(jtc_string)
+	var staticSetters *JTSet[string] = jnewTSet_(jtc_string)
 	{
 		var key Node = n.getLastChild()
-		for ; (key != 0); key = key.getPrevious() {
-			if ((((key.isEmpty() || key.isComputedProp()) || key.isSpread()) || key.isComputedFieldDef()) || NodeUtil_isClassStaticBlock(key)) {
+		for ; key != 0; key = key.getPrevious() {
+			if (((key.isEmpty() || key.isComputedProp()) || key.isSpread()) || key.isComputedFieldDef()) || NodeUtil_isClassStaticBlock(key) {
 				continue
 			}
 			var keyName string = key.getString()
 			if !key.isSetterDef() {
-				var set *TSet[string] = func() *TSet[string] { if key.isStaticMember() { return staticGetters }; return getters }()
+				var set *JTSet[string] = func() *JTSet[string] {
+					if key.isStaticMember() {
+						return staticGetters
+					}
+					return getters
+				}()
 				if !set.add(keyName) {
 					this.report(key, StrictModeCheck_DUPLICATE_MEMBER, []string{keyName})
 				}
 			}
 			if !key.isGetterDef() {
-				var set *TSet[string] = func() *TSet[string] { if key.isStaticMember() { return staticSetters }; return setters }()
+				var set *JTSet[string] = func() *JTSet[string] {
+					if key.isStaticMember() {
+						return staticSetters
+					}
+					return setters
+				}()
 				if !set.add(keyName) {
 					this.report(key, StrictModeCheck_DUPLICATE_MEMBER, []string{keyName})
 				}
@@ -185,7 +195,7 @@ func new_StrictModeCheck_NonExternChecks(outer_ *StrictModeCheck) *StrictModeChe
 }
 
 func (this *StrictModeCheck_NonExternChecks) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (n.isName() && StrictModeCheck_isDeclaration(n)) {
+	if n.isName() && StrictModeCheck_isDeclaration(n) {
 		this.checkDeclaration(n)
 	} else if n.isGetProp() {
 		this.checkGetProp(n)
@@ -193,9 +203,9 @@ func (this *StrictModeCheck_NonExternChecks) visit_impl(t *NodeTraversal, n Node
 }
 
 func (this *StrictModeCheck_NonExternChecks) checkDeclaration(n Node) {
-	if ("eval" == n.getString()) {
+	if "eval" == n.getString() {
 		this.outer_.report(n, StrictModeCheck_EVAL_DECLARATION, []string{})
-	} else if ("arguments" == n.getString()) {
+	} else if "arguments" == n.getString() {
 		this.outer_.report(n, StrictModeCheck_ARGUMENTS_DECLARATION, []string{})
 	}
 }
@@ -203,18 +213,17 @@ func (this *StrictModeCheck_NonExternChecks) checkDeclaration(n Node) {
 func (this *StrictModeCheck_NonExternChecks) checkGetProp(n Node) {
 	var target Node = n.getFirstChild()
 	var name string = n.getString()
-	if (name == "callee") {
-		if (target.isName() && (target.getString() == "arguments")) {
+	if name == "callee" {
+		if target.isName() && (target.getString() == "arguments") {
 			this.outer_.report(n, StrictModeCheck_ARGUMENTS_CALLEE_FORBIDDEN, []string{})
 		}
-	} else if (name == "caller") {
-		if (target.isName() && (target.getString() == "arguments")) {
+	} else if name == "caller" {
+		if target.isName() && (target.getString() == "arguments") {
 			this.outer_.report(n, StrictModeCheck_ARGUMENTS_CALLER_FORBIDDEN, []string{})
 		} else if StrictModeCheck_isFunctionType(target) {
 			this.outer_.report(n, StrictModeCheck_FUNCTION_CALLER_FORBIDDEN, []string{})
 		}
-	} else if ((name == "arguments") && StrictModeCheck_isFunctionType(target)) {
+	} else if (name == "arguments") && StrictModeCheck_isFunctionType(target) {
 		this.outer_.report(n, StrictModeCheck_FUNCTION_ARGUMENTS_PROP_FORBIDDEN, []string{})
 	}
 }
-

@@ -3,13 +3,13 @@
 package closure
 
 type SortingErrorManager struct {
-	self_ any
-	messages *TSet[*SortingErrorManager_ErrorWithLevel]
-	originalErrorCount int32
-	promotedErrorCount int32
-	warningCount int32
-	typedPercent float64
-	errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]
+	self_                 any
+	messages              *JTSet[*SortingErrorManager_ErrorWithLevel]
+	originalErrorCount    int32
+	promotedErrorCount    int32
+	warningCount          int32
+	typedPercent          float64
+	errorReportGenerators *JTSet[SortingErrorManager_ErrorReportGenerator]
 }
 
 func (this *SortingErrorManager) as_SortingErrorManager() *SortingErrorManager { return this }
@@ -41,12 +41,12 @@ func (this *SortingErrorManager) finit_SortingErrorManager() {
 	this.typedPercent = 0.0
 }
 
-func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) {
+func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators *JTSet[SortingErrorManager_ErrorReportGenerator]) {
 	this.finit_SortingErrorManager()
 	this.errorReportGenerators = immutableSetCopyOfT_(tce_SortingErrorManager_ErrorReportGenerator, errorReportGenerators)
 }
 
-func new_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {
+func new_SortingErrorManager(errorReportGenerators *JTSet[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {
 	this := &SortingErrorManager{}
 	this.self_ = this
 	this.init_SortingErrorManager(errorReportGenerators)
@@ -56,13 +56,13 @@ func new_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_Err
 func (this *SortingErrorManager) report_2_impl(level *CheckLevel, error_ *JSError) {
 	var e *SortingErrorManager_ErrorWithLevel = new_SortingErrorManager_ErrorWithLevel(error_, level)
 	if this.messages.add(e) {
-		if (level == CheckLevel_ERROR) {
-			if (error_.type_().level_ == CheckLevel_ERROR) {
+		if level == CheckLevel_ERROR {
+			if error_.type_().level_ == CheckLevel_ERROR {
 				this.originalErrorCount++
 			} else {
 				this.promotedErrorCount++
 			}
-		} else if (level == CheckLevel_WARNING) {
+		} else if level == CheckLevel_WARNING {
 			this.warningCount++
 		}
 	}
@@ -80,11 +80,11 @@ func (this *SortingErrorManager) getWarningCount() int32 {
 	return this.warningCount
 }
 
-func (this *SortingErrorManager) getErrors() *TList[*JSError] {
+func (this *SortingErrorManager) getErrors() *JTList[*JSError] {
 	return this.filterToListOf(CheckLevel_ERROR)
 }
 
-func (this *SortingErrorManager) getWarnings() *TList[*JSError] {
+func (this *SortingErrorManager) getWarnings() *JTList[*JSError] {
 	return this.filterToListOf(CheckLevel_WARNING)
 }
 
@@ -100,12 +100,12 @@ func (this *SortingErrorManager) getTypedPercent() float64 {
 	return this.typedPercent
 }
 
-func (this *SortingErrorManager) filterToListOf(level *CheckLevel) *TList[*JSError] {
-	var result *TListBuilder[*JSError] = newTListBuilder_(tc_p_JSError)
+func (this *SortingErrorManager) filterToListOf(level *CheckLevel) *JTList[*JSError] {
+	var result *TListBuilder[*JSError] = newTListBuilder_(jtc_p_JSError)
 	it_1 := this.messages.each()
 	for it_1.next() {
 		var e *SortingErrorManager_ErrorWithLevel = it_1.v
-		if (e.level_ == level) {
+		if e.level_ == level {
 			result.add(e.error_)
 		}
 	}
@@ -162,44 +162,44 @@ func (this *SortingErrorManager_LeveledJSErrorComparator) compare(p1_ any, p2_ a
 	_ = p1
 	var p2 *SortingErrorManager_ErrorWithLevel = cast_[*SortingErrorManager_ErrorWithLevel](p2_)
 	_ = p2
-	if (p2 == nil) {
-		if (p1 == nil) {
+	if p2 == nil {
+		if p1 == nil {
 			return 0
 		} else {
 			return SortingErrorManager_LeveledJSErrorComparator_P1_GT_P2
 		}
 	}
-	if (p1.level_ != p2.level_) {
+	if p1.level_ != p2.level_ {
 		return p2.level_.compareTo(obj_(p1.level_))
 	}
 	var source1 Optional[string] = p1.error_.sourceName()
 	var source2 Optional[string] = p2.error_.sourceName()
-	if (source1.isPresent() && source2.isPresent()) {
+	if source1.isPresent() && source2.isPresent() {
 		var sourceCompare int32 = String_compareTo(source1.get(), source2.get())
-		if (sourceCompare != 0) {
+		if sourceCompare != 0 {
 			return sourceCompare
 		}
-	} else if (source1.isEmpty() && source2.isPresent()) {
+	} else if source1.isEmpty() && source2.isPresent() {
 		return SortingErrorManager_LeveledJSErrorComparator_P1_LT_P2
-	} else if (source1.isPresent() && source2.isEmpty()) {
+	} else if source1.isPresent() && source2.isEmpty() {
 		return SortingErrorManager_LeveledJSErrorComparator_P1_GT_P2
 	}
 	var lineno1 int32 = p1.error_.getLineNumber()
 	var lineno2 int32 = p2.error_.getLineNumber()
-	if (lineno1 != lineno2) {
+	if lineno1 != lineno2 {
 		return (lineno1 - lineno2)
-	} else if ((lineno1 < 0) && (0 <= lineno2)) {
+	} else if (lineno1 < 0) && (0 <= lineno2) {
 		return SortingErrorManager_LeveledJSErrorComparator_P1_LT_P2
-	} else if ((0 <= lineno1) && (lineno2 < 0)) {
+	} else if (0 <= lineno1) && (lineno2 < 0) {
 		return SortingErrorManager_LeveledJSErrorComparator_P1_GT_P2
 	}
 	var charno1 int32 = p1.error_.charno()
 	var charno2 int32 = p2.error_.charno()
-	if (charno1 != charno2) {
+	if charno1 != charno2 {
 		return (charno1 - charno2)
-	} else if ((charno1 < 0) && (0 <= charno2)) {
+	} else if (charno1 < 0) && (0 <= charno2) {
 		return SortingErrorManager_LeveledJSErrorComparator_P1_LT_P2
-	} else if ((0 <= charno1) && (charno2 < 0)) {
+	} else if (0 <= charno1) && (charno2 < 0) {
 		return SortingErrorManager_LeveledJSErrorComparator_P1_GT_P2
 	}
 	return String_compareTo(p1.error_.description(), p2.error_.description())
@@ -231,9 +231,15 @@ func (this *SortingErrorManager_ErrorWithLevel) hashCode() int32 {
 func (this *SortingErrorManager_ErrorWithLevel) equals(obj any) bool {
 	var e *SortingErrorManager_ErrorWithLevel
 	_ = e
-	if !(func() bool { v_ := obj; if !is_[*SortingErrorManager_ErrorWithLevel](v_) { return false }; e = cast_[*SortingErrorManager_ErrorWithLevel](v_); return true }()) {
+	if !(func() bool {
+		v_ := obj
+		if !is_[*SortingErrorManager_ErrorWithLevel](v_) {
+			return false
+		}
+		e = cast_[*SortingErrorManager_ErrorWithLevel](v_)
+		return true
+	}()) {
 		return false
 	}
 	return ((((Objects_equals(obj_(this.level_), obj_(e.level_)) && (this.error_.description() == e.error_.description())) && Object_equals(this.error_.sourceName().box_(), e.error_.sourceName().box_())) && (this.error_.getLineNumber() == e.error_.getLineNumber())) && (this.error_.charno() == e.error_.charno()))
 }
-

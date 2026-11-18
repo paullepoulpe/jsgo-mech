@@ -13,4 +13,3 @@ type CodeChangeHandler_fn struct {
 func (this *CodeChangeHandler_fn) reportChange() {
 	this.f()
 }
-

@@ -3,13 +3,13 @@
 package closure
 
 type GuardedCallback[T comparable] struct {
-	self_ any
+	self_               any
 	vt_GuardedCallback_ GuardedCallback_vt_[T]
-	compiler_ *AbstractCompiler
-	registeredGuards *SimpleSetMultimap
-	guarded *SimpleMultiset
-	installedGuards *SimpleListMultimap
-	contextStack *TDeque[*GuardedCallback_Context]
+	compiler_           *AbstractCompiler
+	registeredGuards    *SimpleSetMultimap
+	guarded             *SimpleMultiset
+	installedGuards     *SimpleListMultimap
+	contextStack        *TDeque[*GuardedCallback_Context]
 }
 
 type GuardedCallback_vt_[T comparable] interface {
@@ -45,7 +45,7 @@ func (this *GuardedCallback[T]) finit_GuardedCallback() {
 	this.registeredGuards = SimpleSetMultimap_create()
 	this.guarded = SimpleMultiset_create()
 	this.installedGuards = SimpleListMultimap_create()
-	this.contextStack = newTDeque_(tc_p_GuardedCallback_Context)
+	this.contextStack = newTDeque_(jtc_p_GuardedCallback_Context)
 }
 
 func (this *GuardedCallback[T]) init_GuardedCallback(compiler *AbstractCompiler) {
@@ -54,14 +54,14 @@ func (this *GuardedCallback[T]) init_GuardedCallback(compiler *AbstractCompiler)
 }
 
 func (this *GuardedCallback[T]) shouldTraverse(traversal *NodeTraversal, n Node, parent Node) bool {
-	if (parent == 0) {
+	if parent == 0 {
 		this.contextStack.push(GuardedCallback_Context_EMPTY)
 	} else {
 		this.contextStack.push(this.contextStack.peek().descend(this.compiler_, parent, n))
-		if (((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.contains(parent.getToken())) && this.registeredGuards.containsKey(parent.box_())) {
+		if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.contains(parent.getToken())) && this.registeredGuards.containsKey(parent.box_()) {
 			it_1 := foreach_(any(this.registeredGuards.removeAll(parent.box_())))
 			for it_1.next() {
-				var resource T = unboxT_[T](it_1.v)
+				var resource T = junboxT_[T](it_1.v)
 				this.guarded.add(boxT_(resource))
 				this.installedGuards.put(parent.box_(), boxT_(resource))
 			}
@@ -71,7 +71,7 @@ func (this *GuardedCallback[T]) shouldTraverse(traversal *NodeTraversal, n Node,
 }
 
 func (this *GuardedCallback[T]) visit(traversal *NodeTraversal, n Node, parent Node) {
-	if (((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.contains(n.getToken())) && this.installedGuards.containsKey(n.box_())) {
+	if ((parent != 0) && GuardedCallback_CAN_HAVE_GUARDS.contains(n.getToken())) && this.installedGuards.containsKey(n.box_()) {
 		this.guarded.removeAll(Iterable(this.installedGuards.removeAll(n.box_())))
 	}
 	if GuardedCallback_isAbrupt(n) {
@@ -85,9 +85,9 @@ func (this *GuardedCallback[T]) promoteAbruptReturns(parent Node) {
 	if parent.isBlock() {
 		parent = parent.getParent()
 	}
-	if (parent.isIf() && this.installedGuards.containsKey(parent.box_())) {
+	if parent.isIf() && this.installedGuards.containsKey(parent.box_()) {
 		var grandparent Node = parent.getParent()
-		if (grandparent.isBlock() || grandparent.isScript()) {
+		if grandparent.isBlock() || grandparent.isScript() {
 			this.registeredGuards.putAll_2(grandparent.box_(), Iterable(this.installedGuards.get(parent.box_())))
 		}
 	}
@@ -101,7 +101,7 @@ func (this *GuardedCallback[T]) isGuarded(resource T) bool {
 	if !context.safe {
 		return false
 	}
-	for ((context != nil) && (context.conditional != 0)) {
+	for (context != nil) && (context.conditional != 0) {
 		this.registeredGuards.put(context.conditional.box_(), boxT_(resource))
 		context = context.linked
 	}
@@ -128,7 +128,7 @@ func (this *GuardedCallback[T]) visitGuarded(p0 *NodeTraversal, p1 Node, p2 Node
 	this.vt_GuardedCallback_.visitGuarded_impl(p0, p1, p2)
 }
 
-var GuardedCallback_CAN_HAVE_GUARDS *TSet[*Token_rhino]
+var GuardedCallback_CAN_HAVE_GUARDS *JTSet[*Token_rhino]
 
 var GuardedCallback_clinit_done bool
 
@@ -143,8 +143,8 @@ func GuardedCallback_clinit() {
 
 type GuardedCallback_Context struct {
 	conditional Node
-	safe bool
-	linked *GuardedCallback_Context
+	safe        bool
+	linked      *GuardedCallback_Context
 }
 
 func (this *GuardedCallback_Context) init_GuardedCallback_Context(conditional Node, safe bool, linked *GuardedCallback_Context) {
@@ -160,11 +160,21 @@ func new_GuardedCallback_Context(conditional Node, safe bool, linked *GuardedCal
 }
 
 func (this *GuardedCallback_Context) link(newConditional Node, newSafe bool) *GuardedCallback_Context {
-	return new_GuardedCallback_Context(newConditional, newSafe, func() *GuardedCallback_Context { if (this.conditional != 0) { return this }; return nil }())
+	return new_GuardedCallback_Context(newConditional, newSafe, func() *GuardedCallback_Context {
+		if this.conditional != 0 {
+			return this
+		}
+		return nil
+	}())
 }
 
 func (this *GuardedCallback_Context) propagate(newSafe bool) *GuardedCallback_Context {
-	return func() *GuardedCallback_Context { if (newSafe == this.safe) { return this }; return new_GuardedCallback_Context(this.conditional, newSafe, this.linked) }()
+	return func() *GuardedCallback_Context {
+		if newSafe == this.safe {
+			return this
+		}
+		return new_GuardedCallback_Context(this.conditional, newSafe, this.linked)
+	}()
 }
 
 func (this *GuardedCallback_Context) descend(compiler *AbstractCompiler, parent Node, child Node) *GuardedCallback_Context {
@@ -173,15 +183,40 @@ func (this *GuardedCallback_Context) descend(compiler *AbstractCompiler, parent 
 	case Token_rhino_CAST:
 		return this
 	case Token_rhino_COMMA:
-		return func() *GuardedCallback_Context { if (child == parent.getLastChild()) { return this }; return this.propagate(true) }()
+		return func() *GuardedCallback_Context {
+			if child == parent.getLastChild() {
+				return this
+			}
+			return this.propagate(true)
+		}()
 	case Token_rhino_AND:
-		return func() *GuardedCallback_Context { if first { return this.link(parent, true) }; return this }()
+		return func() *GuardedCallback_Context {
+			if first {
+				return this.link(parent, true)
+			}
+			return this
+		}()
 	case Token_rhino_OR, Token_rhino_COALESCE:
-		return func() *GuardedCallback_Context { if first { return this.link(parent, false) }; return this }()
+		return func() *GuardedCallback_Context {
+			if first {
+				return this.link(parent, false)
+			}
+			return this
+		}()
 	case Token_rhino_HOOK:
-		return func() *GuardedCallback_Context { if first { return this.link(parent, true) }; return this }()
+		return func() *GuardedCallback_Context {
+			if first {
+				return this.link(parent, true)
+			}
+			return this
+		}()
 	case Token_rhino_IF:
-		return func() *GuardedCallback_Context { if first { return this.link(parent, true) }; return GuardedCallback_Context_EMPTY }()
+		return func() *GuardedCallback_Context {
+			if first {
+				return this.link(parent, true)
+			}
+			return GuardedCallback_Context_EMPTY
+		}()
 	case Token_rhino_INSTANCEOF, Token_rhino_ASSIGN:
 		return this.propagate(first)
 	case Token_rhino_TYPEOF, Token_rhino_NOT, Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE:
@@ -197,7 +232,12 @@ func (this *GuardedCallback_Context) descend(compiler *AbstractCompiler, parent 
 			return this.propagate(false)
 		}
 	default:
-		return func() *GuardedCallback_Context { if NodeUtil_isStatement(parent) { return GuardedCallback_Context_EMPTY }; return this.propagate(false) }()
+		return func() *GuardedCallback_Context {
+			if NodeUtil_isStatement(parent) {
+				return GuardedCallback_Context_EMPTY
+			}
+			return this.propagate(false)
+		}()
 	}
 	panic("unreachable")
 }
@@ -214,4 +254,3 @@ func GuardedCallback_Context_clinit() {
 	GuardedCallback_Context_EMPTY = new_GuardedCallback_Context(0, false, nil)
 
 }
-

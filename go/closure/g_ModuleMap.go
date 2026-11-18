@@ -3,16 +3,16 @@
 package closure
 
 type ModuleMap struct {
-	resolvedModules *TMap[string, *Module]
-	resolvedClosureModules *TMap[string, *Module]
+	resolvedModules        *JTMap[string, *Module]
+	resolvedClosureModules *JTMap[string, *Module]
 }
 
-func (this *ModuleMap) init_ModuleMap(resolvedModules *TMap[string, *Module], resolvedClosureModules *TMap[string, *Module]) {
+func (this *ModuleMap) init_ModuleMap(resolvedModules *JTMap[string, *Module], resolvedClosureModules *JTMap[string, *Module]) {
 	this.resolvedModules = resolvedModules
 	this.resolvedClosureModules = resolvedClosureModules
 }
 
-func new_ModuleMap(resolvedModules *TMap[string, *Module], resolvedClosureModules *TMap[string, *Module]) *ModuleMap {
+func new_ModuleMap(resolvedModules *JTMap[string, *Module], resolvedClosureModules *JTMap[string, *Module]) *ModuleMap {
 	this := &ModuleMap{}
 	this.init_ModuleMap(resolvedModules, resolvedClosureModules)
 	return this
@@ -26,11 +26,11 @@ func (this *ModuleMap) getModule(path *ModuleLoader_ModulePath) *Module {
 	return this.getModuleString(path.toModuleName())
 }
 
-func (this *ModuleMap) getModulesByPath() *TMap[string, *Module] {
+func (this *ModuleMap) getModulesByPath() *JTMap[string, *Module] {
 	return this.resolvedModules
 }
 
-func (this *ModuleMap) getModulesByClosureNamespace() *TMap[string, *Module] {
+func (this *ModuleMap) getModulesByClosureNamespace() *JTMap[string, *Module] {
 	return this.resolvedClosureModules
 }
 
@@ -39,6 +39,5 @@ func (this *ModuleMap) getClosureModule(namespace string) *Module {
 }
 
 func ModuleMap_emptyForTesting() *ModuleMap {
-	return new_ModuleMap(tmapEmptyImm_(tc_string, tc_p_Module), tmapEmptyImm_(tc_string, tc_p_Module))
+	return new_ModuleMap(jtmapEmptyImm_(jtc_string, jtc_p_Module), jtmapEmptyImm_(jtc_string, jtc_p_Module))
 }
-

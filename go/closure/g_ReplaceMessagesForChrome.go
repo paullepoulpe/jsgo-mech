@@ -4,7 +4,7 @@ package closure
 
 type ReplaceMessagesForChrome struct {
 	JsMessageVisitor
-	astFactory_ *AstFactory
+	astFactory_            *AstFactory
 	introducesRegexpSyntax bool
 }
 
@@ -62,10 +62,10 @@ func (this *ReplaceMessagesForChrome) processJsMessageDefinition_impl(definition
 func (this *ReplaceMessagesForChrome) getNewValueNode(message *JsMessage, definition JsMessageDefinition) Node {
 	var newValueNode Node = this.getChromeI18nGetMessageNode(message.getId())
 	var isHtml bool = definition.shouldEscapeLessThan()
-	if (!message.jsPlaceholderNames().isEmpty() || isHtml) {
+	if !message.jsPlaceholderNames().isEmpty() || isHtml {
 		var placeholderNames ListOf[string] = Ordering_natural().sortedCopy(Iterable(message.jsPlaceholderNames().asSet()))
 		var placeholderValueArray Node = this.astFactory_.createArraylit([]Node{})
-		var placeholderValueMap *TMap[string, Node] = definition.getPlaceholderValueMap()
+		var placeholderValueMap *JTMap[string, Node] = definition.getPlaceholderValueMap()
 		it_1 := foreach_(any(placeholderNames))
 		for it_1.next() {
 			var name string = str_(it_1.v)
@@ -102,4 +102,3 @@ func ReplaceMessagesForChrome_clinit() {
 	ReplaceMessagesForChrome_DECLARE_ICU_TEMPLATE_NOT_SUPPORTED = DiagnosticType_error("JSC_DECLARE_ICU_TEMPLATE", "goog.i18n.messages.declareIcuTemplate() is not supported for Chrome i18n.")
 
 }
-

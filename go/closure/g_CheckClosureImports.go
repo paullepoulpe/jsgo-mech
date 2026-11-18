@@ -3,16 +3,16 @@
 package closure
 
 type CheckClosureImports struct {
-	compiler_ *AbstractCompiler
-	checker *CheckClosureImports_Checker
-	namespacesSeen *TSet[string]
-	chunkGraph *JSChunkGraph
+	compiler_      *AbstractCompiler
+	checker        *CheckClosureImports_Checker
+	namespacesSeen *JTSet[string]
+	chunkGraph     *JSChunkGraph
 }
 
 func (this *CheckClosureImports) init_CheckClosureImports(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap) {
 	this.compiler_ = compiler
 	this.checker = new_CheckClosureImports_Checker(this, compiler, moduleMetadataMap)
-	this.namespacesSeen = newTSet_(tc_string)
+	this.namespacesSeen = jnewTSet_(jtc_string)
 	this.chunkGraph = compiler.getChunkGraph()
 }
 
@@ -32,14 +32,14 @@ func (this *CheckClosureImports) verifyRequireOrder(namespace string, call Node,
 		t.report(call, CheckClosureImports_LATE_PROVIDE_ERROR, []string{namespace})
 		return
 	}
-	if ((requiredModule.rootNode() == 0) || requiredModule.rootNode().isFromExterns()) {
+	if (requiredModule.rootNode() == 0) || requiredModule.rootNode().isFromExterns() {
 		return
 	}
 	var requiredInputId *InputId = NodeUtil_getInputId(requiredModule.rootNode())
 	var requiredInput *CompilerInput = Preconditions_checkNotNull_Object_String_Object_T(this.compiler_.getInput(requiredInputId), "Cannot find CompilerInput for %s", requiredModule)
 	var requiredChunk *JSChunk = requiredInput.getChunk()
 	var currentChunk *JSChunk = t.getChunk()
-	if ((currentChunk != requiredChunk) && !this.chunkGraph.dependsOn(currentChunk, requiredChunk)) {
+	if (currentChunk != requiredChunk) && !this.chunkGraph.dependsOn(currentChunk, requiredChunk) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, CheckClosureImports_CROSS_CHUNK_REQUIRE_ERROR, []string{namespace, requiredChunk.getName(), currentChunk.getName()}))
 	}
 }
@@ -85,17 +85,23 @@ type CheckClosureImports_ClosureImport struct {
 	Enum
 }
 
-func (this *CheckClosureImports_ClosureImport) as_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport { return this }
+func (this *CheckClosureImports_ClosureImport) as_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport {
+	return this
+}
 
 func to_CheckClosureImports_ClosureImport(v any) *CheckClosureImports_ClosureImport {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport }).as_CheckClosureImports_ClosureImport()
+	return v.(interface {
+		as_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport
+	}).as_CheckClosureImports_ClosureImport()
 }
 
 func is_CheckClosureImports_ClosureImport(v any) bool {
-	_, ok := v.(interface{ as_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport })
+	_, ok := v.(interface {
+		as_CheckClosureImports_ClosureImport() *CheckClosureImports_ClosureImport
+	})
 	return ok
 }
 
@@ -170,7 +176,7 @@ func CheckClosureImports_ClosureImport_clinit() {
 
 type CheckClosureImports_Checker struct {
 	NodeTraversal_AbstractModuleCallback
-	outer_ *CheckClosureImports
+	outer_                 *CheckClosureImports
 	moduleMetadataMapField *ModuleMetadataMap
 }
 
@@ -199,13 +205,13 @@ func (this *CheckClosureImports_Checker) enterModule_impl(currentModule *ModuleM
 }
 
 func (this *CheckClosureImports_Checker) visit_4_impl(t *NodeTraversal, n Node, currentModule *ModuleMetadataMap_ModuleMetadata, moduleScopeRoot Node) {
-	if (currentModule == nil) {
+	if currentModule == nil {
 		return
 	}
 	var parent Node = n.getParent()
 	if n.isCall() {
 		var kindOfCall *CheckClosureImports_ClosureImport = this.kindOfCall(n)
-		if (kindOfCall != nil) {
+		if kindOfCall != nil {
 			this.checkImport(t, n, parent, currentModule, kindOfCall)
 		} else if n.getFirstChild().matchesQualifiedNameNode(CheckClosureImports_GOOG_MODULE_GET) {
 			this.checkGoogModuleGet(t, n, currentModule)
@@ -231,19 +237,24 @@ func (this *CheckClosureImports_Checker) kindOfCall(callNode Node) *CheckClosure
 
 func (this *CheckClosureImports_Checker) checkValidImportCodeReference(t *NodeTraversal, nameNode Node) {
 	var var_ *Var = cast_[*Var](t.getScope().getVar(nameNode.getString()).self())
-	if ((var_ == nil) || (var_.getNameNode() == nameNode)) {
+	if (var_ == nil) || (var_.getNameNode() == nameNode) {
 		return
 	}
 	var declarationNameNode Node = var_.getNameNode()
-	if ((declarationNameNode == 0) || !NodeUtil_isDeclarationLValue(declarationNameNode)) {
+	if (declarationNameNode == 0) || !NodeUtil_isDeclarationLValue(declarationNameNode) {
 		return
 	}
-	var decl Node = func() Node { if declarationNameNode.getParent().isStringKey() { return declarationNameNode.getGrandparent().getGrandparent() }; return declarationNameNode.getParent() }()
-	if (((!NodeUtil_isNameDeclaration(decl) || !decl.hasOneChild()) || !decl.getFirstChild().hasChildren()) || !decl.getFirstChild().getLastChild().isCall()) {
+	var decl Node = func() Node {
+		if declarationNameNode.getParent().isStringKey() {
+			return declarationNameNode.getGrandparent().getGrandparent()
+		}
+		return declarationNameNode.getParent()
+	}()
+	if ((!NodeUtil_isNameDeclaration(decl) || !decl.hasOneChild()) || !decl.getFirstChild().hasChildren()) || !decl.getFirstChild().getLastChild().isCall() {
 		return
 	}
 	var kindOfCall *CheckClosureImports_ClosureImport = this.kindOfCall(decl.getFirstChild().getLastChild())
-	if (kindOfCall == nil) {
+	if kindOfCall == nil {
 		return
 	}
 }
@@ -253,7 +264,7 @@ func (this *CheckClosureImports_Checker) checkGoogModuleGet(t *NodeTraversal, ca
 		t.report(call, ClosurePrimitiveErrors_MODULE_USES_GOOG_MODULE_GET, []string{})
 		return
 	}
-	if ((!currentModule.isEs6Module() && !currentModule.isGoogModule()) && (this.compiler_.getOptions().getModuleResolutionMode() != ModuleLoader_ResolutionMode_WEBPACK)) {
+	if (!currentModule.isEs6Module() && !currentModule.isGoogModule()) && (this.compiler_.getOptions().getModuleResolutionMode() != ModuleLoader_ResolutionMode_WEBPACK) {
 		if t.inGlobalScope() {
 			var getSubExprRoot Node = call
 			for NodeUtil_isNormalOrOptChainGetProp(getSubExprRoot.getParent()) {
@@ -261,11 +272,11 @@ func (this *CheckClosureImports_Checker) checkGoogModuleGet(t *NodeTraversal, ca
 			}
 			var invalid bool = false
 			var parent Node = getSubExprRoot.getParent()
-			if (parent.isName() || parent.isDestructuringLhs()) {
+			if parent.isName() || parent.isDestructuringLhs() {
 				invalid = true
 			} else if parent.isAssign() {
 				var target Node = parent.getFirstChild()
-				if (target.isName() || target.isObjectPattern()) {
+				if target.isName() || target.isObjectPattern() {
 					invalid = true
 				}
 			}
@@ -274,28 +285,28 @@ func (this *CheckClosureImports_Checker) checkGoogModuleGet(t *NodeTraversal, ca
 			}
 		}
 	}
-	if (!call.hasTwoChildren() || !call.getSecondChild().isStringLit()) {
+	if !call.hasTwoChildren() || !call.getSecondChild().isStringLit() {
 		t.report(call, CheckClosureImports_INVALID_CLOSURE_IMPORT_CALL, []string{"goog.module.get"})
 		return
 	}
 	var namespace string = call.getSecondChild().getString()
 	var requiredModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMapField.getModulesByGoogNamespace().get(namespace)
-	if (requiredModule == nil) {
+	if requiredModule == nil {
 		t.report(call, ClosurePrimitiveErrors_MISSING_MODULE_OR_PROVIDE, []string{namespace})
 		return
 	}
 	var maybeAssign Node = call.getParent()
 	var isFillingAnAlias bool = (maybeAssign.isAssign() && maybeAssign.getFirstChild().isName())
 	var isModule bool = (currentModule.isGoogModule() || currentModule.isEs6Module())
-	if (isFillingAnAlias && isModule) {
+	if isFillingAnAlias && isModule {
 		var aliasName string = call.getParent().getFirstChild().getString()
 		var aliasVar *Var = cast_[*Var](t.getScope().getVar(aliasName).self())
-		if (aliasVar == nil) {
+		if aliasVar == nil {
 			t.report(call, ClosureRewriteModule_INVALID_GET_ALIAS, []string{})
 			return
 		}
 		var aliasVarNodeRhs Node = NodeUtil_getRValueOfLValue(aliasVar.getNode())
-		if ((aliasVarNodeRhs == 0) || !NodeUtil_isCallToNode(aliasVarNodeRhs, CheckClosureImports_GOOG_FORWARD_DECLARE)) {
+		if (aliasVarNodeRhs == 0) || !NodeUtil_isCallToNode(aliasVarNodeRhs, CheckClosureImports_GOOG_FORWARD_DECLARE) {
 			t.report(call, ClosureRewriteModule_INVALID_GET_ALIAS, []string{})
 			return
 		}
@@ -314,11 +325,11 @@ func (this *CheckClosureImports_Checker) isValidDestructuringImport(destructurin
 	}
 	{
 		var stringKey Node = objectPattern.getFirstChild()
-		for ; (stringKey != 0); stringKey = stringKey.getNext() {
+		for ; stringKey != 0; stringKey = stringKey.getNext() {
 			if !stringKey.isStringKey() {
 				return false
 			}
-			if (!stringKey.hasChildren() || !stringKey.getFirstChild().isName()) {
+			if !stringKey.hasChildren() || !stringKey.getFirstChild().isName() {
 				return false
 			}
 		}
@@ -329,11 +340,16 @@ func (this *CheckClosureImports_Checker) isValidDestructuringImport(destructurin
 func (this *CheckClosureImports_Checker) checkShortName(t *NodeTraversal, shortNameNode Node, namespace string) {
 	var shortName string = shortNameNode.getString()
 	var lastSegment string = String_substring_int(namespace, (String_lastIndexOf(namespace, 46) + 1))
-	if ((shortName == lastSegment) || String_isEmpty(lastSegment)) {
+	if (shortName == lastSegment) || String_isEmpty(lastSegment) {
 		return
 	}
-	if (Ascii_isUpperCase(String_charAt(shortName, 0)) != Ascii_isUpperCase(String_charAt(lastSegment, 0))) {
-		var newStartChar uint16 = func() uint16 { if Ascii_isUpperCase(String_charAt(shortName, 0)) { return Ascii_toLowerCase_char(String_charAt(shortName, 0)) }; return Ascii_toUpperCase_char(String_charAt(shortName, 0)) }()
+	if Ascii_isUpperCase(String_charAt(shortName, 0)) != Ascii_isUpperCase(String_charAt(lastSegment, 0)) {
+		var newStartChar uint16 = func() uint16 {
+			if Ascii_isUpperCase(String_charAt(shortName, 0)) {
+				return Ascii_toLowerCase_char(String_charAt(shortName, 0))
+			}
+			return Ascii_toUpperCase_char(String_charAt(shortName, 0))
+		}()
 		var correctedName string = (chrstr_(newStartChar) + sstr_(String_substring_int(shortName, 1)))
 		t.report(shortNameNode, ClosureCheckModule_INCORRECT_SHORTNAME_CAPITALIZATION, []string{shortName, correctedName})
 	}
@@ -344,15 +360,15 @@ func (this *CheckClosureImports_Checker) checkImport(t *NodeTraversal, call Node
 	var isModule bool = currentModule.isModule()
 	var validAssignment bool = (isModule || parent.isExprResult())
 	var isAliased bool = NodeUtil_isNameDeclaration(parent.getParent())
-	if ((!atTopLevelScope || !validAssignment) && (importType != CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC)) {
+	if (!atTopLevelScope || !validAssignment) && (importType != CheckClosureImports_ClosureImport_REQUIRE_DYNAMIC) {
 		t.report(call, ClosurePrimitiveErrors_INVALID_CLOSURE_CALL_SCOPE_ERROR, []string{})
 		return
 	}
-	if (!call.hasTwoChildren() || !call.getSecondChild().isStringLit()) {
+	if !call.hasTwoChildren() || !call.getSecondChild().isStringLit() {
 		t.report(call, CheckClosureImports_INVALID_CLOSURE_IMPORT_CALL, []string{importType.callName()})
 		return
 	}
-	if (isModule && isAliased) {
+	if isModule && isAliased {
 		var declaration Node = parent.getParent()
 		if !declaration.hasOneChild() {
 			t.report(call, CheckClosureImports_ONE_CLOSURE_IMPORT_PER_DECLARATION, []string{importType.callName()})
@@ -361,7 +377,7 @@ func (this *CheckClosureImports_Checker) checkImport(t *NodeTraversal, call Node
 		if importType.aliasMustBeConstant() {
 			if declaration.isLet() {
 				t.report(call, CheckClosureImports_LET_CLOSURE_IMPORT, []string{importType.callName()})
-			} else if (!declaration.isConst() && currentModule.isEs6Module()) {
+			} else if !declaration.isConst() && currentModule.isEs6Module() {
 				t.report(call, CheckClosureImports_LHS_OF_CLOSURE_IMPORT_MUST_BE_CONST_IN_ES_MODULE, []string{importType.callName()})
 			}
 		}
@@ -380,9 +396,9 @@ func (this *CheckClosureImports_Checker) checkImport(t *NodeTraversal, call Node
 	}
 	var namespace string = call.getSecondChild().getString()
 	var requiredModule *ModuleMetadataMap_ModuleMetadata = this.moduleMetadataMapField.getModulesByGoogNamespace().get(namespace)
-	if (requiredModule == nil) {
-		if (importType == CheckClosureImports_ClosureImport_FORWARD_DECLARE) {
-			if (isAliased && isModule) {
+	if requiredModule == nil {
+		if importType == CheckClosureImports_ClosureImport_FORWARD_DECLARE {
+			if isAliased && isModule {
 				t.report(call, ClosurePrimitiveErrors_MISSING_MODULE_OR_PROVIDE_FOR_FORWARD_DECLARE, []string{namespace})
 			}
 			return
@@ -393,7 +409,7 @@ func (this *CheckClosureImports_Checker) checkImport(t *NodeTraversal, call Node
 	if importType.mustBeOrdered() {
 		this.outer_.verifyRequireOrder(namespace, call, t, requiredModule)
 	}
-	if (((importType == CheckClosureImports_ClosureImport_REQUIRE) && currentModule.isEs6Module()) && requiredModule.isEs6Module()) {
+	if ((importType == CheckClosureImports_ClosureImport_REQUIRE) && currentModule.isEs6Module()) && requiredModule.isEs6Module() {
 		t.report(call, Es6RewriteModules_SHOULD_IMPORT_ES6_MODULE, []string{})
 	}
 }
@@ -685,4 +701,3 @@ func CheckClosureImports_ClosureImport_4_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.CheckClosureImports.ClosureImport>", enumValues_(CheckClosureImports_ClosureImport_4_values_))
 
 }
-

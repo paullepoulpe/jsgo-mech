@@ -3,9 +3,9 @@
 package closure
 
 type ModuleImportResolver struct {
-	moduleMap *ModuleMap
+	moduleMap         *ModuleMap
 	nodeToScopeMapper FunctionOf[Node, *TypedScope]
-	registry *JSTypeRegistry
+	registry          *JSTypeRegistry
 }
 
 func (this *ModuleImportResolver) init_ModuleImportResolver(moduleMap *ModuleMap, nodeToScopeMapper FunctionOf[Node, *TypedScope], registry *JSTypeRegistry) {
@@ -21,7 +21,7 @@ func new_ModuleImportResolver(moduleMap *ModuleMap, nodeToScopeMapper FunctionOf
 }
 
 func ModuleImportResolver_isGoogModuleDependencyCall(value Node) bool {
-	if ((((value == 0) || !value.isCall()) || !value.hasTwoChildren()) || !value.getSecondChild().isStringLit()) {
+	if (((value == 0) || !value.isCall()) || !value.hasTwoChildren()) || !value.getSecondChild().isStringLit() {
 		return false
 	}
 	var callee Node = value.getFirstChild()
@@ -33,7 +33,7 @@ func ModuleImportResolver_isGoogModuleDependencyCall(value Node) bool {
 }
 
 func (this *ModuleImportResolver) getClosureNamespaceTypeFromCall(googRequire Node) *ScopedName {
-	if (this.moduleMap == nil) {
+	if this.moduleMap == nil {
 		return nil
 	}
 	var moduleId string = googRequire.getSecondChild().getString()
@@ -42,20 +42,25 @@ func (this *ModuleImportResolver) getClosureNamespaceTypeFromCall(googRequire No
 
 func (this *ModuleImportResolver) getScopedNameForClosureNamespace(moduleId string) *ScopedName {
 	var module *Module = this.moduleMap.getClosureModule(moduleId)
-	if (module == nil) {
+	if module == nil {
 		return nil
 	}
 	switch module.metadata().moduleType() {
 	case ModuleMetadataMap_ModuleType_GOOG_PROVIDE:
 		var provide Node = module.metadata().rootNode()
-		if ((provide != 0) && provide.isScript()) {
+		if (provide != 0) && provide.isScript() {
 			return ScopedName_of(moduleId, provide.getGrandparent())
 		} else {
 			return nil
 		}
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 		var scopeRoot Node = this.getGoogModuleScopeRoot(module)
-		return func() *ScopedName { if (scopeRoot != 0) { return ScopedName_of("exports", scopeRoot) }; return nil }()
+		return func() *ScopedName {
+			if scopeRoot != 0 {
+				return ScopedName_of("exports", scopeRoot)
+			}
+			return nil
+		}()
 	case ModuleMetadataMap_ModuleType_ES6_MODULE:
 		var moduleBody Node = module.metadata().rootNode().getFirstChild()
 		return ScopedName_of(Export_NAMESPACE, moduleBody)
@@ -70,7 +75,7 @@ func (this *ModuleImportResolver) getScopedNameForClosureNamespace(moduleId stri
 func (this *ModuleImportResolver) getGoogModuleScopeRoot(module *Module) Node {
 	Preconditions_checkArgument_boolean_Object(module.metadata().isGoogModule(), module.metadata())
 	var scriptNode Node = module.metadata().rootNode()
-	if ((scriptNode.isScript() && scriptNode.hasOneChild()) && scriptNode.getOnlyChild().isModuleBody()) {
+	if (scriptNode.isScript() && scriptNode.hasOneChild()) && scriptNode.getOnlyChild().isModuleBody() {
 		return scriptNode.getOnlyChild()
 	} else if scriptNode.isCall() {
 		var functionLiteral Node = scriptNode.getSecondChild()
@@ -79,10 +84,10 @@ func (this *ModuleImportResolver) getGoogModuleScopeRoot(module *Module) Node {
 	return 0
 }
 
-func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *TypedScope, moduleInput *CompilerInput) *TMap[Node, *ScopedName] {
+func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *TypedScope, moduleInput *CompilerInput) *JTMap[Node, *ScopedName] {
 	Preconditions_checkArgument_boolean_Object(module.metadata().isEs6Module(), module)
 	Preconditions_checkArgument_boolean_Object(scope.isModuleScope(), scope)
-	var missingNames *TMapBuilder[Node, *ScopedName] = newTMapBuilder_(tc_Node, tc_p_ScopedName)
+	var missingNames *TMapBuilder[Node, *ScopedName] = newTMapBuilder_(jtc_Node, jtc_p_ScopedName)
 	it_1 := module.boundNames().eachEntry()
 	for it_1.next() {
 		var boundName *TEntry[string, *Binding] = it_1.entry()
@@ -93,7 +98,7 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 		}
 		var export *ScopedName = this.getScopedNameFromEsBinding(binding)
 		var modScope *TypedScope = cast_[*TypedScope](this.nodeToScopeMapper.apply(export.getScopeRoot().box_()))
-		if (modScope == nil) {
+		if modScope == nil {
 			Preconditions_checkState_boolean_Object_H((binding.sourceNode().getString() == localName), binding.sourceNode())
 			missingNames.put(binding.sourceNode(), export)
 			continue
@@ -101,9 +106,9 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 		var originalVar *TypedVar = cast_[*TypedVar](modScope.getVar(export.getName()).self())
 		var importType *JSType = originalVar.getType()
 		scope.declare(localName, binding.sourceNode(), importType, moduleInput, originalVar.isTypeInferred())
-		if (!binding.isModuleNamespace() && (binding.sourceNode().getTypedefTypeProp() == nil)) {
+		if !binding.isModuleNamespace() && (binding.sourceNode().getTypedefTypeProp() == nil) {
 			var typedefType *JSType = originalVar.getNameNode().getTypedefTypeProp()
-			if (typedefType != nil) {
+			if typedefType != nil {
 				binding.sourceNode().setTypedefTypeProp(typedefType)
 				this.registry.declareType(TypedScope_as_StaticScope(scope), localName, typedefType)
 			}
@@ -125,15 +130,20 @@ func (this *ModuleImportResolver) updateEsModuleNamespaceType(namespace *ObjectT
 		var binding *Binding = boundName.getValue()
 		var bindingSourceNode Node = binding.sourceNode()
 		var export *ScopedName = this.getScopedNameFromEsBinding(binding)
-		var originalScope *TypedScope = func() *TypedScope { if (export.getScopeRoot() == scope.getRootNode()) { return scope }; return cast_[*TypedScope](this.nodeToScopeMapper.apply(export.getScopeRoot().box_())) }()
-		if (originalScope == nil) {
+		var originalScope *TypedScope = func() *TypedScope {
+			if export.getScopeRoot() == scope.getRootNode() {
+				return scope
+			}
+			return cast_[*TypedScope](this.nodeToScopeMapper.apply(export.getScopeRoot().box_()))
+		}()
+		if originalScope == nil {
 			namespace.defineInferredProperty(exportKey, this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE), bindingSourceNode)
 			this.updateAstForExport(bindingSourceNode, this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE), nil)
 			continue
 		}
 		var originalName *TypedVar = cast_[*TypedVar](originalScope.getSlot(export.getName()))
 		var exportType *JSType = originalName.getType()
-		if (exportType == nil) {
+		if exportType == nil {
 			exportType = this.registry.getNativeType(JSTypeNative_NO_TYPE)
 		}
 		if originalName.isTypeInferred() {
@@ -154,17 +164,32 @@ func (this *ModuleImportResolver) updateAstForExport(bindingSourceNode Node, exp
 }
 
 func (this *ModuleImportResolver) getScopedNameFromEsBinding(binding *Binding) *ScopedName {
-	var name Optional[string] = func() Optional[string] { if binding.isModuleNamespace() { return Optional_of[string](Export_NAMESPACE) }; return binding.boundName() }()
-	var originalMetadata *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata { if binding.isModuleNamespace() { return binding.metadata() }; return binding.originatingExport().moduleMetadata() }()
+	var name Optional[string] = func() Optional[string] {
+		if binding.isModuleNamespace() {
+			return Optional_of[string](Export_NAMESPACE)
+		}
+		return binding.boundName()
+	}()
+	var originalMetadata *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
+		if binding.isModuleNamespace() {
+			return binding.metadata()
+		}
+		return binding.originatingExport().moduleMetadata()
+	}()
 	return func() *ScopedName {
 		switch originalMetadata.moduleType() {
 		case ModuleMetadataMap_ModuleType_ES6_MODULE:
 			var scriptNode Node = originalMetadata.rootNode()
 			Preconditions_checkState_boolean_Object_H(((scriptNode == 0) || scriptNode.isScript()), scriptNode)
-			return ScopedName_of(name.orElse(nullstr_), func() Node { if (scriptNode != 0) { return scriptNode.getOnlyChild() }; return 0 }())
+			return ScopedName_of(name.orElse(nullstr_), func() Node {
+				if scriptNode != 0 {
+					return scriptNode.getOnlyChild()
+				}
+				return 0
+			}())
 		case ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_GOOG_PROVIDE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 			var closureModuleObject *ScopedName = this.getScopedNameForClosureNamespace(binding.closureNamespace().orElse(nullstr_))
-			if (closureModuleObject == nil) {
+			if closureModuleObject == nil {
 				return ScopedName_of(binding.closureNamespace().orElse(nullstr_), 0)
 			}
 			if binding.isModuleNamespace() {
@@ -205,7 +230,8 @@ func ModuleImportResolver_isGoogModuleBody(moduleBody Node) bool {
 }
 
 const ModuleImportResolver_GOOG string = "goog"
-var ModuleImportResolver_GOOG_DEPENDENCY_CALLS *TSet[string]
+
+var ModuleImportResolver_GOOG_DEPENDENCY_CALLS *JTSet[string]
 var ModuleImportResolver_GOOG_MODULE_GET *QualifiedName
 
 var ModuleImportResolver_clinit_done bool
@@ -215,8 +241,7 @@ func ModuleImportResolver_clinit() {
 		return
 	}
 	ModuleImportResolver_clinit_done = true
-	ModuleImportResolver_GOOG_DEPENDENCY_CALLS = immutableSetOf_[string](tc_string, "require", "requireType", "forwardDeclare", "requireDynamic")
+	ModuleImportResolver_GOOG_DEPENDENCY_CALLS = jimmutableSetOf_[string](jtc_string, "require", "requireType", "forwardDeclare", "requireDynamic")
 	ModuleImportResolver_GOOG_MODULE_GET = QualifiedName_of("goog.module.get")
 
 }
-

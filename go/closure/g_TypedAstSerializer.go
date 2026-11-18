@@ -3,20 +3,20 @@
 package closure
 
 type TypedAstSerializer struct {
-	compiler_ *AbstractCompiler
-	serializationMode *SerializationOptions
-	stringPool *StringPool_Builder
-	previousLine int32
-	previousColumn int32
+	compiler_          *AbstractCompiler
+	serializationMode  *SerializationOptions
+	stringPool         *StringPool_Builder
+	previousLine       int32
+	previousColumn     int32
 	subtreeSourceFiles *TDeque[*SourceFile_jscomp]
-	sourceFilePointers *TMap[*SourceFile_jscomp, any]
-	typeSerializer TypedAstSerializer_TypeSerializer
+	sourceFilePointers *JTMap[*SourceFile_jscomp, any]
+	typeSerializer     TypedAstSerializer_TypeSerializer
 }
 
 func (this *TypedAstSerializer) finit_TypedAstSerializer() {
 	this.stringPool = StringPool_builder()
-	this.subtreeSourceFiles = newTDeque_(tc_p_SourceFile_jscomp)
-	this.sourceFilePointers = newTMap_(tc_p_SourceFile_jscomp, tc_Integer)
+	this.subtreeSourceFiles = newTDeque_(jtc_p_SourceFile_jscomp)
+	this.sourceFilePointers = jnewTMap_(jtc_p_SourceFile_jscomp, tc_Integer)
 	this.typeSerializer = nil
 }
 
@@ -45,7 +45,7 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 	var builder *TypedAst_Builder = TypedAst_newBuilder()
 	{
 		var script Node = externsRoot.getFirstChild()
-		for ; (script != 0); script = script.getNext() {
+		for ; script != 0; script = script.getNext() {
 			if NodeUtil_isFromTypeSummary(script) {
 				continue
 			}
@@ -54,7 +54,7 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 	}
 	{
 		var script Node = jsRoot.getFirstChild()
-		for ; (script != 0); script = script.getNext() {
+		for ; script != 0; script = script.getNext() {
 			if NodeUtil_isFromTypeSummary(script) {
 				continue
 			}
@@ -62,7 +62,7 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 		}
 	}
 	var sourceFiles *SourceFilePool = cast_[*SourceFilePool](SourceFilePool_newBuilder().addAllSourceFile(Iterable(this.sourceFileProtos().asList())).build())
-	if (this.compiler_.getExternProperties() != nil) {
+	if this.compiler_.getExternProperties() != nil {
 		var externsSummary *ExternsSummary_Builder = ExternsSummary_newBuilder()
 		it_3 := this.compiler_.getExternProperties().each()
 		for it_3.next() {
@@ -74,8 +74,8 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 	return cast_[*TypedAst](builder.addAllRuntimeLibraryToInject(Iterable(this.serializationMode.runtimeLibraries().asList())).setTypePool(this.typeSerializer.generateTypePool()).setStringPool(this.stringPool.build().toProto()).setSourceFilePool(sourceFiles).build())
 }
 
-func (this *TypedAstSerializer) sourceFileProtos() *TList[*SourceFileProto] {
-	var result *TListBuilder[*SourceFileProto] = newTListBuilder_(tc_p_SourceFileProto)
+func (this *TypedAstSerializer) sourceFileProtos() *JTList[*SourceFileProto] {
+	var result *TListBuilder[*SourceFileProto] = newTListBuilder_(jtc_p_SourceFileProto)
 	it_1 := this.sourceFilePointers.eachKey()
 	for it_1.next() {
 		var sourceFile *SourceFile_jscomp = it_1.v
@@ -115,7 +115,7 @@ func (this *TypedAstSerializer) visit(n Node) *AstNode {
 	var builder *AstNode_Builder = this.createWithPositionInfo(n)
 	this.addType(n, builder)
 	var serializedJsdoc *OptimizationJsdoc = JSDocSerializer_serializeJsdoc(n.getJSDocInfo(), this.stringPool)
-	if (serializedJsdoc != nil) {
+	if serializedJsdoc != nil {
 		builder.setJsdoc(serializedJsdoc)
 	}
 	builder.setKind(this.kindTranslator(n))
@@ -125,15 +125,15 @@ func (this *TypedAstSerializer) visit(n Node) *AstNode {
 	builder.setSourceFile(sourceFile)
 	{
 		var child Node = n.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			builder.addChild(this.visit(child))
 		}
 	}
 	var shadowedCode Node = n.getClosureUnawareShadow()
-	if (shadowedCode != 0) {
+	if shadowedCode != 0 {
 		builder.addChild(this.visit(shadowedCode.getFirstFirstChild().getFirstChild()))
 	}
-	if (sourceFile != 0) {
+	if sourceFile != 0 {
 		SequencedCollection_removeLast(SequencedCollection(this.subtreeSourceFiles.asDeque()))
 	}
 	this.setOriginalName(builder, n)
@@ -142,7 +142,7 @@ func (this *TypedAstSerializer) visit(n Node) *AstNode {
 
 func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 	var sourceFile *SourceFile_jscomp = cast_[*SourceFile_jscomp](n.getStaticSourceFile())
-	if (sourceFile == nil) {
+	if sourceFile == nil {
 		Preconditions_checkState_boolean_String_Object_Object(this.subtreeSourceFiles.peekLast().isExtern(), "Unexpected null SourceFile for node %s with parent %s", n.toStringTree(), n.getParent().box_())
 		return 0
 	}
@@ -165,7 +165,12 @@ func (this *TypedAstSerializer) valueTranslator(builder *AstNode_Builder, n Node
 		builder.setStringValuePointer(this.stringPool.put(n.getString()))
 		return
 	case Token_rhino_TEMPLATELIT_STRING:
-		builder.setTemplateStringValue(cast_[*TemplateStringValue](TemplateStringValue_newBuilder().setRawStringPointer(this.stringPool.put(n.getRawString())).setCookedStringPointer(func() int32 { if n.getCookedString().isEmpty() { return -1 }; return this.stringPool.put(n.getCookedString().get()) }()).build()))
+		builder.setTemplateStringValue(cast_[*TemplateStringValue](TemplateStringValue_newBuilder().setRawStringPointer(this.stringPool.put(n.getRawString())).setCookedStringPointer(func() int32 {
+			if n.getCookedString().isEmpty() {
+				return -1
+			}
+			return this.stringPool.put(n.getCookedString().get())
+		}()).build()))
 		return
 	case Token_rhino_NUMBER:
 		builder.setDoubleValue(n.getDouble())
@@ -288,9 +293,19 @@ func (this *TypedAstSerializer) kindTranslator(n Node) *NodeKind {
 	case Token_rhino_URSH:
 		return NodeKind_UNSIGNED_RIGHT_SHIFT
 	case Token_rhino_INC:
-		return func() *NodeKind { if n.getBooleanProp(Node_INCRDECR_PROP) { return NodeKind_POST_INCREMENT }; return NodeKind_PRE_INCREMENT }()
+		return func() *NodeKind {
+			if n.getBooleanProp(Node_INCRDECR_PROP) {
+				return NodeKind_POST_INCREMENT
+			}
+			return NodeKind_PRE_INCREMENT
+		}()
 	case Token_rhino_DEC:
-		return func() *NodeKind { if n.getBooleanProp(Node_INCRDECR_PROP) { return NodeKind_POST_DECREMENT }; return NodeKind_PRE_DECREMENT }()
+		return func() *NodeKind {
+			if n.getBooleanProp(Node_INCRDECR_PROP) {
+				return NodeKind_POST_DECREMENT
+			}
+			return NodeKind_PRE_DECREMENT
+		}()
 	case Token_rhino_ASSIGN_ADD:
 		return NodeKind_ASSIGN_ADD
 	case Token_rhino_ASSIGN_SUB:
@@ -416,7 +431,12 @@ func (this *TypedAstSerializer) kindTranslator(n Node) *NodeKind {
 	case Token_rhino_PARAM_LIST:
 		return NodeKind_PARAMETER_LIST
 	case Token_rhino_STRING_KEY:
-		return func() *NodeKind { if n.isQuotedStringKey() { return NodeKind_QUOTED_STRING_KEY }; return NodeKind_RENAMABLE_STRING_KEY }()
+		return func() *NodeKind {
+			if n.isQuotedStringKey() {
+				return NodeKind_QUOTED_STRING_KEY
+			}
+			return NodeKind_RENAMABLE_STRING_KEY
+		}()
 	case Token_rhino_CASE:
 		return NodeKind_CASE
 	case Token_rhino_DEFAULT_CASE:
@@ -434,9 +454,19 @@ func (this *TypedAstSerializer) kindTranslator(n Node) *NodeKind {
 	case Token_rhino_DEFAULT_VALUE:
 		return NodeKind_DEFAULT_VALUE
 	case Token_rhino_GETTER_DEF:
-		return func() *NodeKind { if n.isQuotedStringKey() { return NodeKind_QUOTED_GETTER_DEF }; return NodeKind_RENAMABLE_GETTER_DEF }()
+		return func() *NodeKind {
+			if n.isQuotedStringKey() {
+				return NodeKind_QUOTED_GETTER_DEF
+			}
+			return NodeKind_RENAMABLE_GETTER_DEF
+		}()
 	case Token_rhino_SETTER_DEF:
-		return func() *NodeKind { if n.isQuotedStringKey() { return NodeKind_QUOTED_SETTER_DEF }; return NodeKind_RENAMABLE_SETTER_DEF }()
+		return func() *NodeKind {
+			if n.isQuotedStringKey() {
+				return NodeKind_QUOTED_SETTER_DEF
+			}
+			return NodeKind_RENAMABLE_SETTER_DEF
+		}()
 	case Token_rhino_IMPORT_SPECS:
 		return NodeKind_IMPORT_SPECS
 	case Token_rhino_IMPORT_SPEC:
@@ -476,8 +506,8 @@ func (this *TypedAstSerializer) createColorTypeSerializer(compiler *AbstractComp
 	return new_TypedAstSerializer_ColorTypeSerializer(colorSerializer, compiler.getColorRegistry())
 }
 
-func TypedAstSerializer_collectUsedPropertyNames(compiler *AbstractCompiler) *TSet[string] {
-	var propertyNamesBuilder *TSetBuilder[string] = newTSetBuilder_(tc_string)
+func TypedAstSerializer_collectUsedPropertyNames(compiler *AbstractCompiler) *JTSet[string] {
+	var propertyNamesBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	NodeTraversal_traverse(compiler, compiler.getRoot(), NodeTraversal_Callback(new_TypedAstSerializer_1(propertyNamesBuilder)))
 	return propertyNamesBuilder.build()
 }
@@ -510,7 +540,7 @@ func (this *TypedAstSerializer_NoOpTypeSerializer) generateTypePool() *TypePool 
 
 type TypedAstSerializer_JSTypeSerializer struct {
 	typesToPointers *LinkedIdentityHashMap[*JSType, any]
-	typePool *TypePool
+	typePool        *TypePool
 }
 
 func (this *TypedAstSerializer_JSTypeSerializer) init_TypedAstSerializer_JSTypeSerializer(typesToPointers *LinkedIdentityHashMap[*JSType, any], typePool *TypePool) {
@@ -526,7 +556,7 @@ func new_TypedAstSerializer_JSTypeSerializer(typesToPointers *LinkedIdentityHash
 
 func (this *TypedAstSerializer_JSTypeSerializer) addTypeForNode(node Node, astNodeBuilder *AstNode_Builder) {
 	var type_ *JSType = node.getJSType()
-	if (type_ != nil) {
+	if type_ != nil {
 		astNodeBuilder.setType(unbox_[int32](Preconditions_checkNotNull_Object_String_Object(this.typesToPointers.get(type_), "cannot find pointer for %s", type_)))
 	}
 }
@@ -537,7 +567,7 @@ func (this *TypedAstSerializer_JSTypeSerializer) generateTypePool() *TypePool {
 
 type TypedAstSerializer_ColorTypeSerializer struct {
 	colorSerializer *ColorSerializer
-	colorRegistry *ColorRegistry
+	colorRegistry   *ColorRegistry
 }
 
 func (this *TypedAstSerializer_ColorTypeSerializer) init_TypedAstSerializer_ColorTypeSerializer(colorSerializer *ColorSerializer, colorRegistry *ColorRegistry) {
@@ -553,7 +583,7 @@ func new_TypedAstSerializer_ColorTypeSerializer(colorSerializer *ColorSerializer
 
 func (this *TypedAstSerializer_ColorTypeSerializer) addTypeForNode(node Node, astNodeBuilder *AstNode_Builder) {
 	var color *Color = node.getColor()
-	if (color != nil) {
+	if color != nil {
 		astNodeBuilder.setType(this.colorSerializer.addColor(color))
 	}
 }
@@ -595,4 +625,3 @@ func (this *TypedAstSerializer_1) visit(t *NodeTraversal, n Node, parent Node) {
 	default:
 	}
 }
-

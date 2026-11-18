@@ -3,25 +3,31 @@
 package closure
 
 type ChainableReverseAbstractInterpreter struct {
-	self_ any
-	typeRegistry *JSTypeRegistry
-	firstLink *ChainableReverseAbstractInterpreter
-	nextLink *ChainableReverseAbstractInterpreter
-	restrictToArrayVisitor Visitor
+	self_                     any
+	typeRegistry              *JSTypeRegistry
+	firstLink                 *ChainableReverseAbstractInterpreter
+	nextLink                  *ChainableReverseAbstractInterpreter
+	restrictToArrayVisitor    Visitor
 	restrictToNotArrayVisitor Visitor
 }
 
-func (this *ChainableReverseAbstractInterpreter) as_ChainableReverseAbstractInterpreter() *ChainableReverseAbstractInterpreter { return this }
+func (this *ChainableReverseAbstractInterpreter) as_ChainableReverseAbstractInterpreter() *ChainableReverseAbstractInterpreter {
+	return this
+}
 
 func to_ChainableReverseAbstractInterpreter(v any) *ChainableReverseAbstractInterpreter {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ChainableReverseAbstractInterpreter() *ChainableReverseAbstractInterpreter }).as_ChainableReverseAbstractInterpreter()
+	return v.(interface {
+		as_ChainableReverseAbstractInterpreter() *ChainableReverseAbstractInterpreter
+	}).as_ChainableReverseAbstractInterpreter()
 }
 
 func is_ChainableReverseAbstractInterpreter(v any) bool {
-	_, ok := v.(interface{ as_ChainableReverseAbstractInterpreter() *ChainableReverseAbstractInterpreter })
+	_, ok := v.(interface {
+		as_ChainableReverseAbstractInterpreter() *ChainableReverseAbstractInterpreter
+	})
 	return ok
 }
 
@@ -60,16 +66,21 @@ func (this *ChainableReverseAbstractInterpreter) firstPreciserScopeKnowingCondit
 }
 
 func (this *ChainableReverseAbstractInterpreter) nextPreciserScopeKnowingConditionOutcome(condition Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
-	return func() FlowScope { if (this.nextLink != nil) { return this.nextLink.getPreciserScopeKnowingConditionOutcome(condition, blindScope, outcome) }; return blindScope }()
+	return func() FlowScope {
+		if this.nextLink != nil {
+			return this.nextLink.getPreciserScopeKnowingConditionOutcome(condition, blindScope, outcome)
+		}
+		return blindScope
+	}()
 }
 
 func (this *ChainableReverseAbstractInterpreter) getTypeIfRefinable(node Node, scope FlowScope) *JSType {
 	switch node.getToken() {
 	case Token_rhino_NAME:
 		var nameVar StaticTypedSlot = icast_StaticTypedSlot(scope.getSlot(node.getString()))
-		if (nameVar != nil) {
+		if nameVar != nil {
 			var nameVarType *JSType = nameVar.getType()
-			if (nameVarType == nil) {
+			if nameVarType == nil {
 				nameVarType = node.getJSType()
 			}
 			return nameVarType
@@ -82,13 +93,13 @@ func (this *ChainableReverseAbstractInterpreter) getTypeIfRefinable(node Node, s
 		}
 		var propVar StaticTypedSlot = icast_StaticTypedSlot(scope.getSlot(qualifiedName))
 		var propVarType *JSType = nil
-		if (propVar != nil) {
+		if propVar != nil {
 			propVarType = propVar.getType()
 		}
-		if (propVarType == nil) {
+		if propVarType == nil {
 			propVarType = node.getJSType()
 		}
-		if (propVarType == nil) {
+		if propVarType == nil {
 			propVarType = this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		}
 		return propVarType
@@ -106,7 +117,12 @@ func (this *ChainableReverseAbstractInterpreter) declareNameInScope(scope FlowSc
 			var qualifiedName string = node.getQualifiedName()
 			Preconditions_checkState(!String_isEmpty(qualifiedName))
 			var origType *JSType = node.getJSType()
-			origType = func() *JSType { if (origType == nil) { return this.getNativeType(JSTypeNative_UNKNOWN_TYPE) }; return origType }()
+			origType = func() *JSType {
+				if origType == nil {
+					return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
+				}
+				return origType
+			}()
 			return scope.inferQualifiedSlot(node, qualifiedName, origType, type_, false)
 		case Token_rhino_THIS:
 			return scope
@@ -118,10 +134,15 @@ func (this *ChainableReverseAbstractInterpreter) declareNameInScope(scope FlowSc
 }
 
 func (this *ChainableReverseAbstractInterpreter) getRestrictedByTypeOfResult(type_ *JSType, value string, resultEqualsValue bool) *JSType {
-	if (type_ == nil) {
+	if type_ == nil {
 		if resultEqualsValue {
 			var result *JSType = this.getNativeTypeForTypeOf(value)
-			return func() *JSType { if (result == nil) { return this.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE) }; return result }()
+			return func() *JSType {
+				if result == nil {
+					return this.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE)
+				}
+				return result
+			}()
 		} else {
 			return nil
 		}
@@ -158,25 +179,33 @@ func (this *ChainableReverseAbstractInterpreter) getNativeTypeForTypeOf(value st
 }
 
 func (this *ChainableReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 *Outcome_rhino) FlowScope {
-	return this.self_.(interface{ getPreciserScopeKnowingConditionOutcome_impl(Node, FlowScope, *Outcome_rhino) FlowScope }).getPreciserScopeKnowingConditionOutcome_impl(p0, p1, p2)
+	return this.self_.(interface {
+		getPreciserScopeKnowingConditionOutcome_impl(Node, FlowScope, *Outcome_rhino) FlowScope
+	}).getPreciserScopeKnowingConditionOutcome_impl(p0, p1, p2)
 }
 
 type ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor struct {
-	self_ any
+	self_  any
 	outer_ *ChainableReverseAbstractInterpreter
 }
 
-func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) as_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor { return this }
+func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) as_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor {
+	return this
+}
 
 func to_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor(v any) *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor }).as_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor()
+	return v.(interface {
+		as_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor
+	}).as_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor()
 }
 
 func is_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor(v any) bool {
-	_, ok := v.(interface{ as_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor })
+	_, ok := v.(interface {
+		as_ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor
+	})
 	return ok
 }
 
@@ -205,8 +234,8 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) c
 	for it_1.next() {
 		var alternate *JSType = it_1.v
 		var restrictedAlternate *JSType = to_JSType(alternate.visit(icast_Visitor(this.self())))
-		if (restrictedAlternate != nil) {
-			if (restricted == nil) {
+		if restrictedAlternate != nil {
+			if restricted == nil {
 				restricted = restrictedAlternate
 			} else {
 				restricted = restrictedAlternate.getLeastSupertype(restricted)
@@ -222,7 +251,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) c
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor) caseEnumElementType(enumElementType *EnumElementType) any {
 	var type_ *JSType = to_JSType(enumElementType.getPrimitiveType().visit(icast_Visitor(this.self())))
-	if ((type_ != nil) && enumElementType.getPrimitiveType().equals(type_.self())) {
+	if (type_ != nil) && enumElementType.getPrimitiveType().equals(type_.self()) {
 		return obj_(enumElementType)
 	} else {
 		return type_.self()
@@ -303,17 +332,23 @@ type ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor struc
 	outer_ *ChainableReverseAbstractInterpreter
 }
 
-func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor) as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor { return this }
+func (this *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor) as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor {
+	return this
+}
 
 func to_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor(v any) *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor }).as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor()
+	return v.(interface {
+		as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor
+	}).as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor()
 }
 
 func is_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor(v any) bool {
-	_, ok := v.(interface{ as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor })
+	_, ok := v.(interface {
+		as_ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByTrueTypeOfResultVisitor
+	})
 	return ok
 }
 
@@ -381,17 +416,23 @@ type ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor stru
 	outer_ *ChainableReverseAbstractInterpreter
 }
 
-func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor) as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor { return this }
+func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor) as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor {
+	return this
+}
 
 func to_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor(v any) *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor }).as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor()
+	return v.(interface {
+		as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor
+	}).as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor()
 }
 
 func is_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor(v any) bool {
-	_, ok := v.(interface{ as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor })
+	_, ok := v.(interface {
+		as_ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor() *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisitor
+	})
 	return ok
 }
 
@@ -460,8 +501,8 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByFalseTypeOfResultVisit
 
 type ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor struct {
 	ChainableReverseAbstractInterpreter_RestrictByTypeOfResultVisitor
-	outer_ *ChainableReverseAbstractInterpreter
-	value_ string
+	outer_            *ChainableReverseAbstractInterpreter
+	value_            string
 	resultEqualsValue bool
 }
 
@@ -500,7 +541,7 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 	var result *JSType = topType
 	if this.resultEqualsValue {
 		var typeByName *JSType = this.outer_.getNativeTypeForTypeOf(this.value_)
-		if (typeByName != nil) {
+		if typeByName != nil {
 			result = typeByName
 		}
 	}
@@ -508,51 +549,106 @@ func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor) caseNoObjectType_impl() any {
-	return func() any { if (((this.value_ == "object") || (this.value_ == "function")) == this.resultEqualsValue) { return this.outer_.getNativeType(JSTypeNative_NO_OBJECT_TYPE).self() }; return nil }()
+	return func() any {
+		if ((this.value_ == "object") || (this.value_ == "function")) == this.resultEqualsValue {
+			return this.outer_.getNativeType(JSTypeNative_NO_OBJECT_TYPE).self()
+		}
+		return nil
+	}()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor) caseBooleanType_impl() any {
-	return func() any { if this.matchesExpectation("boolean") { return this.outer_.getNativeType(JSTypeNative_BOOLEAN_TYPE).self() }; return nil }()
+	return func() any {
+		if this.matchesExpectation("boolean") {
+			return this.outer_.getNativeType(JSTypeNative_BOOLEAN_TYPE).self()
+		}
+		return nil
+	}()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor) caseFunctionType_impl(type_ *FunctionType) any {
-	return func() any { if this.matchesExpectation("function") { return type_.self() }; return nil }()
+	return func() any {
+		if this.matchesExpectation("function") {
+			return type_.self()
+		}
+		return nil
+	}()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor) caseNullType_impl() any {
-	return func() any { if this.matchesExpectation("object") { return this.outer_.getNativeType(JSTypeNative_NULL_TYPE).self() }; return nil }()
+	return func() any {
+		if this.matchesExpectation("object") {
+			return this.outer_.getNativeType(JSTypeNative_NULL_TYPE).self()
+		}
+		return nil
+	}()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor) caseNumberType_impl() any {
-	return func() any { if this.matchesExpectation("number") { return this.outer_.getNativeType(JSTypeNative_NUMBER_TYPE).self() }; return nil }()
+	return func() any {
+		if this.matchesExpectation("number") {
+			return this.outer_.getNativeType(JSTypeNative_NUMBER_TYPE).self()
+		}
+		return nil
+	}()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor) caseBigIntType_impl() any {
-	return func() any { if this.matchesExpectation("bigint") { return this.outer_.getNativeType(JSTypeNative_BIGINT_TYPE).self() }; return nil }()
+	return func() any {
+		if this.matchesExpectation("bigint") {
+			return this.outer_.getNativeType(JSTypeNative_BIGINT_TYPE).self()
+		}
+		return nil
+	}()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor) caseObjectType_impl(type_ *ObjectType) any {
-	if (this.value_ == "function") {
+	if this.value_ == "function" {
 		var ctorType *JSType = this.outer_.getNativeType(JSTypeNative_FUNCTION_TYPE)
 		if this.resultEqualsValue {
 			return ctorType.getGreatestSubtype(type_.up_JSType()).self()
 		} else {
-			return func() any { if type_.isSubtypeOf(ctorType) { return nil }; return type_.self() }()
+			return func() any {
+				if type_.isSubtypeOf(ctorType) {
+					return nil
+				}
+				return type_.self()
+			}()
 		}
 	}
-	return func() any { if this.matchesExpectation("object") { return type_.self() }; return nil }()
+	return func() any {
+		if this.matchesExpectation("object") {
+			return type_.self()
+		}
+		return nil
+	}()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor) caseStringType_impl() any {
-	return func() any { if this.matchesExpectation("string") { return this.outer_.getNativeType(JSTypeNative_STRING_TYPE).self() }; return nil }()
+	return func() any {
+		if this.matchesExpectation("string") {
+			return this.outer_.getNativeType(JSTypeNative_STRING_TYPE).self()
+		}
+		return nil
+	}()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor) caseSymbolType_impl(type_ *SymbolType) any {
-	return func() any { if this.matchesExpectation("symbol") { return type_.self() }; return nil }()
+	return func() any {
+		if this.matchesExpectation("symbol") {
+			return type_.self()
+		}
+		return nil
+	}()
 }
 
 func (this *ChainableReverseAbstractInterpreter_RestrictByOneTypeOfResultVisitor) caseVoidType_impl() any {
-	return func() any { if this.matchesExpectation("undefined") { return this.outer_.getNativeType(JSTypeNative_VOID_TYPE).self() }; return nil }()
+	return func() any {
+		if this.matchesExpectation("undefined") {
+			return this.outer_.getNativeType(JSTypeNative_VOID_TYPE).self()
+		}
+		return nil
+	}()
 }
 
 type ChainableReverseAbstractInterpreter_1 struct {
@@ -588,12 +684,22 @@ func new_ChainableReverseAbstractInterpreter_1(outer_ *ChainableReverseAbstractI
 }
 
 func (this *ChainableReverseAbstractInterpreter_1) caseTopType_impl(topType *JSType) *JSType {
-	return func() *JSType { if topType.isAllType() { return this.outer_.getNativeType(JSTypeNative_ARRAY_TYPE) }; return topType }()
+	return func() *JSType {
+		if topType.isAllType() {
+			return this.outer_.getNativeType(JSTypeNative_ARRAY_TYPE)
+		}
+		return topType
+	}()
 }
 
 func (this *ChainableReverseAbstractInterpreter_1) caseObjectType_impl(type_ *ObjectType) any {
 	var arrayType *JSType = this.outer_.getNativeType(JSTypeNative_ARRAY_TYPE)
-	return func() any { if arrayType.isSubtypeOf(type_.up_JSType()) { return arrayType.self() }; return nil }()
+	return func() any {
+		if arrayType.isSubtypeOf(type_.up_JSType()) {
+			return arrayType.self()
+		}
+		return nil
+	}()
 }
 
 type ChainableReverseAbstractInterpreter_2 struct {
@@ -629,6 +735,10 @@ func new_ChainableReverseAbstractInterpreter_2(outer_ *ChainableReverseAbstractI
 }
 
 func (this *ChainableReverseAbstractInterpreter_2) caseObjectType_impl(type_ *ObjectType) any {
-	return func() any { if type_.isSubtypeOf(this.outer_.getNativeType(JSTypeNative_ARRAY_TYPE)) { return nil }; return type_.self() }()
+	return func() any {
+		if type_.isSubtypeOf(this.outer_.getNativeType(JSTypeNative_ARRAY_TYPE)) {
+			return nil
+		}
+		return type_.self()
+	}()
 }
-

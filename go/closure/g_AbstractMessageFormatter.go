@@ -3,22 +3,28 @@
 package closure
 
 type AbstractMessageFormatter struct {
-	self_ any
-	source SourceExcerptProvider
+	self_    any
+	source   SourceExcerptProvider
 	colorize bool
 }
 
-func (this *AbstractMessageFormatter) as_AbstractMessageFormatter() *AbstractMessageFormatter { return this }
+func (this *AbstractMessageFormatter) as_AbstractMessageFormatter() *AbstractMessageFormatter {
+	return this
+}
 
 func to_AbstractMessageFormatter(v any) *AbstractMessageFormatter {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_AbstractMessageFormatter() *AbstractMessageFormatter }).as_AbstractMessageFormatter()
+	return v.(interface {
+		as_AbstractMessageFormatter() *AbstractMessageFormatter
+	}).as_AbstractMessageFormatter()
 }
 
 func is_AbstractMessageFormatter(v any) bool {
-	_, ok := v.(interface{ as_AbstractMessageFormatter() *AbstractMessageFormatter })
+	_, ok := v.(interface {
+		as_AbstractMessageFormatter() *AbstractMessageFormatter
+	})
 	return ok
 }
 
@@ -81,7 +87,7 @@ func (this *AbstractMessageFormatter) formatWarning(p0 *JSError) string {
 	return this.self_.(interface{ formatWarning_impl(*JSError) string }).formatWarning_impl(p0)
 }
 
-var AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS *TSet[string]
+var AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS *JTSet[string]
 
 var AbstractMessageFormatter_clinit_done bool
 
@@ -90,7 +96,7 @@ func AbstractMessageFormatter_clinit() {
 		return
 	}
 	AbstractMessageFormatter_clinit_done = true
-	AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS = immutableSetOf_[string](tc_string, "xterm", "xterm-color", "xterm-256color", "screen-bce")
+	AbstractMessageFormatter_SUPPORTED_COLOR_TERMINALS = jimmutableSetOf_[string](jtc_string, "xterm", "xterm-color", "xterm-256color", "screen-bce")
 
 }
 
@@ -163,4 +169,3 @@ func AbstractMessageFormatter_Color_clinit() {
 	registerEnum_("com.google.javascript.jscomp.AbstractMessageFormatter.Color", enumValues_(AbstractMessageFormatter_Color_values_))
 
 }
-

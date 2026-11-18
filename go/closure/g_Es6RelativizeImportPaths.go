@@ -19,7 +19,7 @@ func new_Es6RelativizeImportPaths(compiler *AbstractCompiler) *Es6RelativizeImpo
 func (this *Es6RelativizeImportPaths) process_2(externs Node, root Node) {
 	{
 		var script Node = root.getFirstChild()
-		for ; (script != 0); script = script.getNext() {
+		for ; script != 0; script = script.getNext() {
 			if Es6RewriteModules_isEs6ModuleRoot(script) {
 				NodeTraversal_traverse(this.compiler_, script, NodeTraversal_Callback(new_Es6RelativizeImportPaths_Rewriter()))
 			}
@@ -108,4 +108,3 @@ func (this *Es6RelativizeImportPaths_Rewriter) visitExport(t *NodeTraversal, exp
 		this.visitImport(t, export)
 	}
 }
-

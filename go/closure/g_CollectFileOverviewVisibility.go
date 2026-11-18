@@ -23,7 +23,7 @@ func new_CollectFileOverviewVisibility(compiler *AbstractCompiler) *CollectFileO
 func (this *CollectFileOverviewVisibility) process_2(externs Node, root Node) {
 	{
 		var script Node = root.getFirstChild()
-		for ; (script != 0); script = script.getNext() {
+		for ; script != 0; script = script.getNext() {
 			Preconditions_checkState(script.isScript())
 			this.visit(script)
 		}
@@ -32,17 +32,16 @@ func (this *CollectFileOverviewVisibility) process_2(externs Node, root Node) {
 
 func (this *CollectFileOverviewVisibility) visit(scriptNode Node) {
 	var jsDocInfo *JSDocInfo = scriptNode.getJSDocInfo()
-	if (jsDocInfo == nil) {
+	if jsDocInfo == nil {
 		return
 	}
 	var v *JSDocInfo_Visibility = jsDocInfo.getVisibility()
-	if (v == nil) {
+	if v == nil {
 		return
 	}
 	this.builder.put(scriptNode.getStaticSourceFile(), v)
 }
 
-func (this *CollectFileOverviewVisibility) getFileOverviewVisibilityMap() *TMap[StaticSourceFile, *JSDocInfo_Visibility] {
+func (this *CollectFileOverviewVisibility) getFileOverviewVisibilityMap() *JTMap[StaticSourceFile, *JSDocInfo_Visibility] {
 	return this.builder.buildOrThrow()
 }
-

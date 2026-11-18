@@ -3,26 +3,26 @@
 package closure
 
 type ReplaceCssNames struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
-	cssNameCollector ReplaceCssNames_CssNameCollector
-	cssNamesBySymbol *TMap[string, string]
-	classesObjectsQualifiedNames *TSet[string]
-	symbolMap CssRenamingMap
-	skiplist *TSet[string]
+	compiler_                    *AbstractCompiler
+	astFactory_                  *AstFactory
+	cssNameCollector             ReplaceCssNames_CssNameCollector
+	cssNamesBySymbol             *JTMap[string, string]
+	classesObjectsQualifiedNames *JTSet[string]
+	symbolMap                    CssRenamingMap
+	skiplist                     *JTSet[string]
 }
 
-func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist *TSet[string]) {
+func (this *ReplaceCssNames) init_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist *JTSet[string]) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.symbolMap = symbolMap
 	this.cssNameCollector = cssNameCollector
 	this.skiplist = skiplist
-	this.cssNamesBySymbol = newTMap_(tc_string, tc_string)
-	this.classesObjectsQualifiedNames = newTSet_(tc_string)
+	this.cssNamesBySymbol = jnewTMap_(jtc_string, jtc_string)
+	this.classesObjectsQualifiedNames = jnewTSet_(jtc_string)
 }
 
-func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist *TSet[string]) *ReplaceCssNames {
+func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, cssNameCollector ReplaceCssNames_CssNameCollector, skiplist *JTSet[string]) *ReplaceCssNames {
 	this := &ReplaceCssNames{}
 	this.init_ReplaceCssNames(compiler, symbolMap, cssNameCollector, skiplist)
 	return this
@@ -30,7 +30,7 @@ func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, c
 
 func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ReplaceCssNames_FindSetCssNameTraversal(this)))
-	var getCssNameInstances *TList[*ReplaceCssNames_GetCssNameInstance] = this.gatherGetCssNameInstances(root)
+	var getCssNameInstances *JTList[*ReplaceCssNames_GetCssNameInstance] = this.gatherGetCssNameInstances(root)
 	it_1 := getCssNameInstances.each()
 	for it_1.next() {
 		var getCssNameInstance *ReplaceCssNames_GetCssNameInstance = it_1.v
@@ -46,7 +46,7 @@ func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ReplaceCssNames_CountCssNamesBySymbol(this)))
 }
 
-func (this *ReplaceCssNames) gatherGetCssNameInstances(root Node) *TList[*ReplaceCssNames_GetCssNameInstance] {
+func (this *ReplaceCssNames) gatherGetCssNameInstances(root Node) *JTList[*ReplaceCssNames_GetCssNameInstance] {
 	var gatherCssNamesTraversal *ReplaceCssNames_GatherCssNamesTraversal = new_ReplaceCssNames_GatherCssNamesTraversal(this)
 	NodeTraversal_traverse(this.compiler_, root, ReplaceCssNames_GatherCssNamesTraversal_as_NodeTraversal_Callback(gatherCssNamesTraversal))
 	return gatherCssNamesTraversal.listOfCssNameInstances
@@ -106,11 +106,11 @@ func (this *ReplaceCssNames) validateTwoArgGetCssNameCall(callNode Node) *JSErro
 
 func (this *ReplaceCssNames) processStringNode(n Node) {
 	var name string = n.getString()
-	if ((this.skiplist != nil) && this.skiplist.contains(name)) {
+	if (this.skiplist != nil) && this.skiplist.contains(name) {
 		return
 	}
 	var parts []string = ReplaceCssNames_DASH_PATTERN.split(name)
-	if (this.symbolMap != nil) {
+	if this.symbolMap != nil {
 		var replacement Optional[string] = Optional_empty[string]()
 		if String_startsWith(name, "--") {
 			replacement = this.symbolMap.get(name)
@@ -128,7 +128,7 @@ func (this *ReplaceCssNames) processStringNode(n Node) {
 				}
 			case CssRenamingMap_Style_BY_PART:
 				var replaced []string = newstrarr_(int32(len(parts)))
-				for i := int32(0); (i < int32(len(parts))); i++ {
+				for i := int32(0); i < int32(len(parts)); i++ {
 					var part Optional[string] = this.symbolMap.get(parts[i])
 					if part.isEmpty() {
 						this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_WARNING, []string{parts[i], name}))
@@ -213,7 +213,7 @@ func new_ReplaceCssNames_FindSetCssNameTraversal(outer_ *ReplaceCssNames) *Repla
 }
 
 func (this *ReplaceCssNames_FindSetCssNameTraversal) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (!n.isCall() || !parent.isExprResult()) {
+	if !n.isCall() || !parent.isExprResult() {
 		return
 	}
 	var callee Node = n.getFirstChild()
@@ -227,13 +227,13 @@ func (this *ReplaceCssNames_FindSetCssNameTraversal) visit_impl(t *NodeTraversal
 }
 
 type ReplaceCssNames_GatherCssNamesTraversal struct {
-	outer_ *ReplaceCssNames
-	listOfCssNameInstances *TList[*ReplaceCssNames_GetCssNameInstance]
-	traversalState *ReplaceCssNames_GatherCssNamesTraversal_TraversalState
+	outer_                 *ReplaceCssNames
+	listOfCssNameInstances *JTList[*ReplaceCssNames_GetCssNameInstance]
+	traversalState         *ReplaceCssNames_GatherCssNamesTraversal_TraversalState
 }
 
 func (this *ReplaceCssNames_GatherCssNamesTraversal) finit_ReplaceCssNames_GatherCssNamesTraversal() {
-	this.listOfCssNameInstances = newTList_(tc_p_ReplaceCssNames_GetCssNameInstance)
+	this.listOfCssNameInstances = jnewTList_(jtc_p_ReplaceCssNames_GetCssNameInstance)
 	this.traversalState = new_ReplaceCssNames_GatherCssNamesTraversal_TraversalState()
 }
 
@@ -250,14 +250,14 @@ func new_ReplaceCssNames_GatherCssNamesTraversal(outer_ *ReplaceCssNames) *Repla
 
 func (this *ReplaceCssNames_GatherCssNamesTraversal) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	var sassGeneratedCssTsExpert *ReplaceCssNames_GatherCssNamesTraversal_SassGeneratedCssTsExpert = this.createSassGeneratedCssTsExpert(n)
-	if (sassGeneratedCssTsExpert.sassGeneratedCssTsValidationError != nil) {
+	if sassGeneratedCssTsExpert.sassGeneratedCssTsValidationError != nil {
 		this.outer_.compiler_.report(sassGeneratedCssTsExpert.sassGeneratedCssTsValidationError)
 		return false
 	}
 	if n.isScript() {
 		this.traversalState.inSassGeneratedCssTsScript = sassGeneratedCssTsExpert.hasSassGeneratedCssTsJsDoc
 		this.traversalState.cssClosureClassesQualifiedName = Optional_empty[string]()
-	} else if (this.traversalState.inSassGeneratedCssTsScript && sassGeneratedCssTsExpert.isCssClosureClassesAssignment) {
+	} else if this.traversalState.inSassGeneratedCssTsScript && sassGeneratedCssTsExpert.isCssClosureClassesAssignment {
 		this.traversalState.cssClosureClassesQualifiedName = Optional_of[string](sassGeneratedCssTsExpert.cssClosureClassesQualifiedName)
 	}
 	return true
@@ -278,7 +278,7 @@ func (this *ReplaceCssNames_GatherCssNamesTraversal) createSassGeneratedCssTsExp
 	var hasSassGeneratedCssTsJsDoc bool = ((n.getJSDocInfo() != nil) && n.getJSDocInfo().isSassGeneratedCssTs())
 	var sassGeneratedCssTsValidationError *JSError = nil
 	var isInvalidSassGeneratedCssTsJsDoc bool = (!n.isScript() || this.outer_.isNotInCssClosureFile(n))
-	if (hasSassGeneratedCssTsJsDoc && isInvalidSassGeneratedCssTsJsDoc) {
+	if hasSassGeneratedCssTsJsDoc && isInvalidSassGeneratedCssTsJsDoc {
 		sassGeneratedCssTsValidationError = JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNEXPECTED_SASS_GENERATED_CSS_TS_ERROR, []string{})
 	}
 	var assignmentTarget Node = n.getFirstChild()
@@ -291,10 +291,10 @@ func (this *ReplaceCssNames_GatherCssNamesTraversal) createSassGeneratedCssTsExp
 }
 
 type ReplaceCssNames_GatherCssNamesTraversal_SassGeneratedCssTsExpert struct {
-	hasSassGeneratedCssTsJsDoc bool
+	hasSassGeneratedCssTsJsDoc        bool
 	sassGeneratedCssTsValidationError *JSError
-	isCssClosureClassesAssignment bool
-	cssClosureClassesQualifiedName string
+	isCssClosureClassesAssignment     bool
+	cssClosureClassesQualifiedName    string
 }
 
 func (this *ReplaceCssNames_GatherCssNamesTraversal_SassGeneratedCssTsExpert) zero_ReplaceCssNames_GatherCssNamesTraversal_SassGeneratedCssTsExpert() {
@@ -316,7 +316,7 @@ func new_ReplaceCssNames_GatherCssNamesTraversal_SassGeneratedCssTsExpert(hasSas
 }
 
 type ReplaceCssNames_GatherCssNamesTraversal_TraversalState struct {
-	inSassGeneratedCssTsScript bool
+	inSassGeneratedCssTsScript     bool
 	cssClosureClassesQualifiedName Optional[string]
 }
 
@@ -335,9 +335,9 @@ func new_ReplaceCssNames_GatherCssNamesTraversal_TraversalState() *ReplaceCssNam
 }
 
 type ReplaceCssNames_GetCssNameInstance struct {
-	outer_ *ReplaceCssNames
-	callNode_ Node
-	validationError *JSError
+	outer_                         *ReplaceCssNames
+	callNode_                      Node
+	validationError                *JSError
 	cssClosureClassesQualifiedName Optional[string]
 }
 
@@ -467,20 +467,19 @@ func (this *ReplaceCssNames_CountCssNamesBySymbol) shouldTraverse(t *NodeTravers
 
 func (this *ReplaceCssNames_CountCssNamesBySymbol) visit(t *NodeTraversal, n Node, parent Node) {
 	var classesObjectQualifiedName string = n.getQualifiedName()
-	if (String_isEmpty(classesObjectQualifiedName) || !this.outer_.classesObjectsQualifiedNames.contains(classesObjectQualifiedName)) {
+	if String_isEmpty(classesObjectQualifiedName) || !this.outer_.classesObjectsQualifiedNames.contains(classesObjectQualifiedName) {
 		return
 	}
 	var classNameNode Node = n.getParent()
-	if (!n.isGetProp() || !classNameNode.isGetProp()) {
+	if !n.isGetProp() || !classNameNode.isGetProp() {
 		this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_INVALID_USE_OF_CLASSES_OBJECT_ERROR, []string{}))
 		return
 	}
 	var classQualifiedName string = classNameNode.getQualifiedName()
-	if (String_isEmpty(classQualifiedName) || !this.outer_.cssNamesBySymbol.containsKey(classQualifiedName)) {
+	if String_isEmpty(classQualifiedName) || !this.outer_.cssNamesBySymbol.containsKey(classQualifiedName) {
 		this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_ERROR, []string{classNameNode.getString()}))
 		return
 	}
 	var className string = this.outer_.cssNamesBySymbol.get(classQualifiedName)
 	this.outer_.cssNameCollector.add(className)
 }
-

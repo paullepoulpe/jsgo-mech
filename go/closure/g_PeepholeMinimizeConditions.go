@@ -31,7 +31,7 @@ func (this *PeepholeMinimizeConditions) optimizeSubtree_impl(node Node) Node {
 		switch node.getToken() {
 		case Token_rhino_THROW, Token_rhino_RETURN:
 			var result Node = this.tryRemoveRedundantExit(node)
-			if (result != node) {
+			if result != node {
 				return result
 			}
 			return this.tryReplaceExitWithBreak(node)
@@ -69,10 +69,10 @@ func (this *PeepholeMinimizeConditions) tryJoinForCondition(n Node) {
 	}
 	var block Node = n.getLastChild()
 	var maybeIf Node = block.getFirstChild()
-	if ((maybeIf != 0) && maybeIf.isIf()) {
+	if (maybeIf != 0) && maybeIf.isIf() {
 		var thenBlock Node = maybeIf.getSecondChild()
 		var maybeBreak Node = thenBlock.getFirstChild()
-		if (((maybeBreak != 0) && maybeBreak.isBreak()) && !maybeBreak.hasChildren()) {
+		if ((maybeBreak != 0) && maybeBreak.isBreak()) && !maybeBreak.hasChildren() {
 			if maybeIf.hasXChildren(3) {
 				maybeIf.replaceWith(maybeIf.getLastChild().detach())
 			} else {
@@ -100,14 +100,14 @@ func (this *PeepholeMinimizeConditions) tryReplaceIf(n Node) Node {
 	var next Node = 0
 	{
 		var child Node = n.getFirstChild()
-		for ; (child != 0); child = next {
+		for ; child != 0; child = next {
 			next = child.getNext()
 			if child.isIf() {
 				var cond Node = child.getFirstChild()
 				var thenBranch Node = cond.getNext()
 				var elseBranch Node = thenBranch.getNext()
 				var nextNode Node = child.getNext()
-				if ((((nextNode != 0) && (elseBranch == 0)) && PeepholeMinimizeConditions_isReturnBlock(thenBranch)) && nextNode.isIf()) {
+				if (((nextNode != 0) && (elseBranch == 0)) && PeepholeMinimizeConditions_isReturnBlock(thenBranch)) && nextNode.isIf() {
 					var nextCond Node = nextNode.getFirstChild()
 					var nextThen Node = nextCond.getNext()
 					var nextElse Node = nextThen.getNext()
@@ -118,7 +118,7 @@ func (this *PeepholeMinimizeConditions) tryReplaceIf(n Node) Node {
 						nextCond.replaceWith(newCond)
 						newCond.addChildToBack(nextCond)
 						this.reportChangeToEnclosingScope(newCond)
-					} else if ((nextElse != 0) && this.areNodesEqualForInlining(thenBranch, nextElse)) {
+					} else if (nextElse != 0) && this.areNodesEqualForInlining(thenBranch, nextElse) {
 						child.detach()
 						child.detachChildren()
 						var newCond Node = new_Node_Token_Node(Token_rhino_AND, IR_not(cond).srcref(cond))
@@ -126,7 +126,7 @@ func (this *PeepholeMinimizeConditions) tryReplaceIf(n Node) Node {
 						newCond.addChildToBack(nextCond)
 						this.reportChangeToEnclosingScope(newCond)
 					}
-				} else if ((((nextNode != 0) && (elseBranch == 0)) && PeepholeMinimizeConditions_isReturnBlock(thenBranch)) && PeepholeMinimizeConditions_isReturnExpression(nextNode)) {
+				} else if (((nextNode != 0) && (elseBranch == 0)) && PeepholeMinimizeConditions_isReturnBlock(thenBranch)) && PeepholeMinimizeConditions_isReturnExpression(nextNode) {
 					var thenExpr Node = 0
 					if PeepholeMinimizeConditions_isReturnExpressBlock(thenBranch) {
 						thenExpr = PeepholeMinimizeConditions_getBlockReturnExpression(thenBranch)
@@ -142,7 +142,7 @@ func (this *PeepholeMinimizeConditions) tryReplaceIf(n Node) Node {
 					nextNode.detach()
 					this.reportChangeToEnclosingScope(n)
 					break
-				} else if ((elseBranch != 0) && PeepholeMinimizeConditions_statementMustExitParent(thenBranch)) {
+				} else if (elseBranch != 0) && PeepholeMinimizeConditions_statementMustExitParent(thenBranch) {
 					elseBranch.detach()
 					elseBranch.insertAfter(child)
 					this.reportChangeToEnclosingScope(n)
@@ -173,7 +173,7 @@ func (this *PeepholeMinimizeConditions) tryReplaceExitWithBreak(n Node) Node {
 	var result Node = n.getFirstChild()
 	var breakTarget Node = n
 	for ; !ControlFlowAnalysis_isBreakTarget(breakTarget, Optional_empty[string]()); breakTarget = breakTarget.getParent() {
-		if (breakTarget.isFunction() || breakTarget.isScript()) {
+		if breakTarget.isFunction() || breakTarget.isScript() {
 			return n
 		}
 	}
@@ -181,15 +181,15 @@ func (this *PeepholeMinimizeConditions) tryReplaceExitWithBreak(n Node) Node {
 	var prefinallyFollows Node = follow
 	follow = PeepholeMinimizeConditions_skipFinallyNodes(follow)
 	var innerFollow Node = ControlFlowAnalysis_computeFollowNode_Node(n)
-	if ((prefinallyFollows != follow) || (innerFollow != PeepholeMinimizeConditions_skipFinallyNodes(innerFollow))) {
+	if (prefinallyFollows != follow) || (innerFollow != PeepholeMinimizeConditions_skipFinallyNodes(innerFollow)) {
 		if !this.isPure(result) {
 			return n
 		}
 	}
-	if ((follow == 0) && (n.isThrow() || (result != 0))) {
+	if (follow == 0) && (n.isThrow() || (result != 0)) {
 		return n
 	}
-	if ((follow == 0) || this.areMatchingExits(n, follow)) {
+	if (follow == 0) || this.areMatchingExits(n, follow) {
 		var replacement Node = IR_breakNode_0()
 		n.replaceWith(replacement)
 		this.reportChangeToEnclosingScope(replacement)
@@ -203,15 +203,15 @@ func (this *PeepholeMinimizeConditions) tryRemoveRedundantExit(n Node) Node {
 	var follow Node = ControlFlowAnalysis_computeFollowNode_Node(n)
 	var prefinallyFollows Node = follow
 	follow = PeepholeMinimizeConditions_skipFinallyNodes(follow)
-	if (prefinallyFollows != follow) {
+	if prefinallyFollows != follow {
 		if !this.isPure(exitExpr) {
 			return n
 		}
 	}
-	if ((follow == 0) && (n.isThrow() || (exitExpr != 0))) {
+	if (follow == 0) && (n.isThrow() || (exitExpr != 0)) {
 		return n
 	}
-	if ((follow == 0) || this.areMatchingExits(n, follow)) {
+	if (follow == 0) || this.areMatchingExits(n, follow) {
 		this.reportChangeToEnclosingScope(n)
 		n.detach()
 		return 0
@@ -224,14 +224,14 @@ func (this *PeepholeMinimizeConditions) isPure(n Node) bool {
 }
 
 func PeepholeMinimizeConditions_skipFinallyNodes(n Node) Node {
-	for ((n != 0) && NodeUtil_isTryFinallyNode(n.getParent(), n)) {
+	for (n != 0) && NodeUtil_isTryFinallyNode(n.getParent(), n) {
 		n = ControlFlowAnalysis_computeFollowNode_Node(n)
 	}
 	return n
 }
 
 func (this *PeepholeMinimizeConditions) areMatchingExits(nodeThis Node, nodeThat Node) bool {
-	if ((!this.isASTNormalized() && (nodeThis.isThrow() || nodeThis.isReturn())) && nodeThis.hasChildren()) {
+	if (!this.isASTNormalized() && (nodeThis.isThrow() || nodeThis.isReturn())) && nodeThis.hasChildren() {
 		return false
 	}
 	return (nodeThis.isEquivalentTo(nodeThat) && (!PeepholeMinimizeConditions_isExceptionPossible(nodeThis) || (PeepholeMinimizeConditions_getExceptionHandler(nodeThis) == PeepholeMinimizeConditions_getExceptionHandler(nodeThat))))
@@ -294,22 +294,32 @@ func (this *PeepholeMinimizeConditions) tryMinimizeHook(n Node) Node {
 	var originalCond Node = n.getFirstChild()
 	var thenBranch Node = originalCond.getNext()
 	var elseBranch Node = thenBranch.getNext()
-	if (NodeUtil_isBooleanResult(thenBranch) && NodeUtil_isBooleanResult(elseBranch)) {
+	if NodeUtil_isBooleanResult(thenBranch) && NodeUtil_isBooleanResult(elseBranch) {
 		var thenVal *Tri = this.getSideEffectFreeBooleanValue(thenBranch)
 		var elseVal *Tri = this.getSideEffectFreeBooleanValue(elseBranch)
 		var replacement Node = 0
-		if ((thenVal == Tri_TRUE) && (elseVal == Tri_FALSE)) {
+		if (thenVal == Tri_TRUE) && (elseVal == Tri_FALSE) {
 			var cond Node = originalCond.detach()
-			replacement = func() Node { if NodeUtil_isBooleanResult(cond) { return cond }; return IR_not(IR_not(cond).srcref(n)).srcref(n) }()
-		} else if ((thenVal == Tri_FALSE) && (elseVal == Tri_TRUE)) {
+			replacement = func() Node {
+				if NodeUtil_isBooleanResult(cond) {
+					return cond
+				}
+				return IR_not(IR_not(cond).srcref(n)).srcref(n)
+			}()
+		} else if (thenVal == Tri_FALSE) && (elseVal == Tri_TRUE) {
 			var cond Node = originalCond.detach()
 			replacement = IR_not(cond).srcref(n)
 		}
-		if (replacement != 0) {
+		if replacement != 0 {
 			n.replaceWith(replacement)
 			this.reportChangeToEnclosingScope(replacement)
 			this.markFunctionsDeleted(n)
-			return func() Node { if replacement.isNot() { return this.tryMinimizeNot(replacement) }; return replacement }()
+			return func() Node {
+				if replacement.isNot() {
+					return this.tryMinimizeNot(replacement)
+				}
+				return replacement
+			}()
 		}
 	}
 	var minCond *MinimizedCondition = MinimizedCondition_fromConditionNode(originalCond)
@@ -336,10 +346,10 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 	var minCond *MinimizedCondition = MinimizedCondition_fromConditionNode(originalCond)
 	var unnegatedCond *MinimizedCondition_MeasuredNode = minCond.getMinimized(MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED)
 	var shortCond *MinimizedCondition_MeasuredNode = minCond.getMinimized(MinimizedCondition_MinimizationStyle_ALLOW_LEADING_NOT)
-	if (elseBranch == 0) {
+	if elseBranch == 0 {
 		if PeepholeMinimizeConditions_isFoldableExpressBlock(thenBranch) {
 			var expr Node = PeepholeMinimizeConditions_getBlockExpression(thenBranch)
-			if (!this.late && PeepholeMinimizeConditions_isPropertyAssignmentInExpression(expr)) {
+			if !this.late && PeepholeMinimizeConditions_isPropertyAssignmentInExpression(expr) {
 				this.replaceNode(originalCond, unnegatedCond)
 				return n
 			}
@@ -351,7 +361,7 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 				this.reportChangeToEnclosingScope(parent)
 				return newExpr
 			}
-			if (shortCond.isLowerPrecedenceThan(PeepholeMinimizeConditions_AND_PRECEDENCE) && PeepholeMinimizeConditions_isLowerPrecedence(expr.getFirstChild(), PeepholeMinimizeConditions_AND_PRECEDENCE)) {
+			if shortCond.isLowerPrecedenceThan(PeepholeMinimizeConditions_AND_PRECEDENCE) && PeepholeMinimizeConditions_isLowerPrecedence(expr.getFirstChild(), PeepholeMinimizeConditions_AND_PRECEDENCE) {
 				this.replaceNode(originalCond, shortCond)
 				return n
 			}
@@ -362,13 +372,13 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 			this.reportChangeToEnclosingScope(parent)
 			return newExpr
 		} else {
-			if (NodeUtil_isStatementBlock(thenBranch) && thenBranch.hasOneChild()) {
+			if NodeUtil_isStatementBlock(thenBranch) && thenBranch.hasOneChild() {
 				var innerIf Node = thenBranch.getFirstChild()
 				if innerIf.isIf() {
 					var innerCond Node = innerIf.getFirstChild()
 					var innerThenBranch Node = innerCond.getNext()
 					var innerElseBranch Node = innerThenBranch.getNext()
-					if ((innerElseBranch == 0) && !(unnegatedCond.isLowerPrecedenceThan(PeepholeMinimizeConditions_AND_PRECEDENCE) && PeepholeMinimizeConditions_isLowerPrecedence(innerCond, PeepholeMinimizeConditions_AND_PRECEDENCE))) {
+					if (innerElseBranch == 0) && !(unnegatedCond.isLowerPrecedenceThan(PeepholeMinimizeConditions_AND_PRECEDENCE) && PeepholeMinimizeConditions_isLowerPrecedence(innerCond, PeepholeMinimizeConditions_AND_PRECEDENCE)) {
 						var replacementCond Node = this.replaceNode(originalCond, unnegatedCond).detach()
 						n.detachChildren()
 						n.addChildToBack(IR_and(replacementCond, innerCond.detach()).srcref(originalCond))
@@ -383,14 +393,14 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 		return n
 	}
 	this.tryRemoveRepeatedStatements(n)
-	if (shortCond.isNot() && !PeepholeMinimizeConditions_consumesDanglingElse(elseBranch)) {
+	if shortCond.isNot() && !PeepholeMinimizeConditions_consumesDanglingElse(elseBranch) {
 		this.replaceNode(originalCond, shortCond.withoutNot())
 		thenBranch.detach()
 		n.addChildToBack(thenBranch)
 		this.reportChangeToEnclosingScope(n)
 		return n
 	}
-	if (PeepholeMinimizeConditions_isReturnExpressBlock(thenBranch) && PeepholeMinimizeConditions_isReturnExpressBlock(elseBranch)) {
+	if PeepholeMinimizeConditions_isReturnExpressBlock(thenBranch) && PeepholeMinimizeConditions_isReturnExpressBlock(elseBranch) {
 		var thenExpr Node = PeepholeMinimizeConditions_getBlockReturnExpression(thenBranch)
 		var elseExpr Node = PeepholeMinimizeConditions_getBlockReturnExpression(elseBranch)
 		var replacementCond Node = this.replaceNode(originalCond, shortCond).detach()
@@ -403,13 +413,13 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 	}
 	var thenBranchIsExpressionBlock bool = PeepholeMinimizeConditions_isFoldableExpressBlock(thenBranch)
 	var elseBranchIsExpressionBlock bool = PeepholeMinimizeConditions_isFoldableExpressBlock(elseBranch)
-	if (thenBranchIsExpressionBlock && elseBranchIsExpressionBlock) {
+	if thenBranchIsExpressionBlock && elseBranchIsExpressionBlock {
 		var thenOp Node = PeepholeMinimizeConditions_getBlockExpression(thenBranch).getFirstChild()
 		var elseOp Node = PeepholeMinimizeConditions_getBlockExpression(elseBranch).getFirstChild()
-		if (thenOp.getToken() == elseOp.getToken()) {
+		if thenOp.getToken() == elseOp.getToken() {
 			if NodeUtil_isAssignmentOp(thenOp) {
 				var lhs Node = thenOp.getFirstChild()
-				if ((this.areNodesEqualForInlining(lhs, elseOp.getFirstChild()) && !this.mayEffectMutableState(lhs)) && (!this.mayHaveSideEffects(originalCond) || (thenOp.isAssign() && thenOp.getFirstChild().isName()))) {
+				if (this.areNodesEqualForInlining(lhs, elseOp.getFirstChild()) && !this.mayEffectMutableState(lhs)) && (!this.mayHaveSideEffects(originalCond) || (thenOp.isAssign() && thenOp.getFirstChild().isName())) {
 					var replacementCond Node = this.replaceNode(originalCond, shortCond).detach()
 					var assignName Node = thenOp.removeFirstChild()
 					var thenExpr Node = thenOp.removeFirstChild()
@@ -434,12 +444,12 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 	}
 	var thenBranchIsVar bool = PeepholeMinimizeConditions_isVarBlock(thenBranch)
 	var elseBranchIsVar bool = PeepholeMinimizeConditions_isVarBlock(elseBranch)
-	if ((thenBranchIsVar && elseBranchIsExpressionBlock) && PeepholeMinimizeConditions_getBlockExpression(elseBranch).getFirstChild().isAssign()) {
+	if (thenBranchIsVar && elseBranchIsExpressionBlock) && PeepholeMinimizeConditions_getBlockExpression(elseBranch).getFirstChild().isAssign() {
 		var var_ Node = PeepholeMinimizeConditions_getBlockVar(thenBranch)
 		var elseAssign Node = PeepholeMinimizeConditions_getBlockExpression(elseBranch).getFirstChild()
 		var name1 Node = var_.getFirstChild()
 		var maybeName2 Node = elseAssign.getFirstChild()
-		if ((name1.hasChildren() && maybeName2.isName()) && (name1.getString() == maybeName2.getString())) {
+		if (name1.hasChildren() && maybeName2.isName()) && (name1.getString() == maybeName2.getString()) {
 			Preconditions_checkState(name1.hasOneChild())
 			var thenExpr Node = name1.removeFirstChild()
 			var elseExpr Node = elseAssign.getLastChild().detach()
@@ -451,12 +461,12 @@ func (this *PeepholeMinimizeConditions) tryMinimizeIf(n Node) Node {
 			this.reportChangeToEnclosingScope(parent)
 			return var_
 		}
-	} else if ((elseBranchIsVar && thenBranchIsExpressionBlock) && PeepholeMinimizeConditions_getBlockExpression(thenBranch).getFirstChild().isAssign()) {
+	} else if (elseBranchIsVar && thenBranchIsExpressionBlock) && PeepholeMinimizeConditions_getBlockExpression(thenBranch).getFirstChild().isAssign() {
 		var var_ Node = PeepholeMinimizeConditions_getBlockVar(elseBranch)
 		var thenAssign Node = PeepholeMinimizeConditions_getBlockExpression(thenBranch).getFirstChild()
 		var maybeName1 Node = thenAssign.getFirstChild()
 		var name2 Node = var_.getFirstChild()
-		if ((name2.hasChildren() && maybeName1.isName()) && (maybeName1.getString() == name2.getString())) {
+		if (name2.hasChildren() && maybeName1.isName()) && (maybeName1.getString() == name2.getString()) {
 			var thenExpr Node = thenAssign.getLastChild().detach()
 			Preconditions_checkState(name2.hasOneChild())
 			var elseExpr Node = name2.removeFirstChild()
@@ -490,7 +500,7 @@ func (this *PeepholeMinimizeConditions) tryRemoveRepeatedStatements(n Node) {
 	for {
 		var lastTrue Node = trueBranch.getLastChild()
 		var lastFalse Node = falseBranch.getLastChild()
-		if (((lastTrue == 0) || (lastFalse == 0)) || !this.areNodesEqualForInlining(lastTrue, lastFalse)) {
+		if ((lastTrue == 0) || (lastFalse == 0)) || !this.areNodesEqualForInlining(lastTrue, lastFalse) {
 			break
 		}
 		lastTrue.detach()
@@ -505,11 +515,11 @@ func PeepholeMinimizeConditions_isFoldableExpressBlock(n Node) bool {
 		if n.hasOneChild() {
 			var maybeExpr Node = n.getFirstChild()
 			if maybeExpr.isExprResult() {
-				if (maybeExpr.getFirstChild().isCall() || maybeExpr.getFirstChild().isOptChainCall()) {
+				if maybeExpr.getFirstChild().isCall() || maybeExpr.getFirstChild().isOptChainCall() {
 					var calledFn Node = maybeExpr.getFirstFirstChild()
-					if (calledFn.isGetElem() || calledFn.isOptChainGetElem()) {
+					if calledFn.isGetElem() || calledFn.isOptChainGetElem() {
 						return false
-					} else if ((calledFn.isGetProp() || calledFn.isOptChainGetProp()) && String_startsWith(calledFn.getString(), "on")) {
+					} else if (calledFn.isGetProp() || calledFn.isOptChainGetProp()) && String_startsWith(calledFn.getString(), "on") {
 						return false
 					}
 				}
@@ -578,11 +588,11 @@ func PeepholeMinimizeConditions_getBlockVar(n Node) Node {
 }
 
 func PeepholeMinimizeConditions_consumesDanglingElse(n Node) bool {
-	L_1:
+L_1:
 	for {
 		switch n.getToken() {
 		case Token_rhino_IF:
-			if (n.getChildCount() < 3) {
+			if n.getChildCount() < 3 {
 				return true
 			}
 			n = n.getLastChild()
@@ -639,11 +649,11 @@ func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) No
 			left = this.performConditionSubstitutions(left)
 			right = this.performConditionSubstitutions(right)
 			var rightVal *Tri = this.getSideEffectFreeBooleanValue(right)
-			if (this.getSideEffectFreeBooleanValue(right) != Tri_UNKNOWN) {
+			if this.getSideEffectFreeBooleanValue(right) != Tri_UNKNOWN {
 				var type_ *Token_rhino = n.getToken()
 				var replacement Node = 0
 				var rval bool = rightVal.toBoolean(true)
-				if (((type_ == Token_rhino_OR) && !rval) || ((type_ == Token_rhino_AND) && rval)) {
+				if ((type_ == Token_rhino_OR) && !rval) || ((type_ == Token_rhino_AND) && rval) {
 					replacement = left
 				} else if !this.mayHaveSideEffects(left) {
 					replacement = right
@@ -651,7 +661,7 @@ func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) No
 					n.detachChildren()
 					replacement = IR_comma(left, right)
 				}
-				if (replacement != 0) {
+				if replacement != 0 {
 					n.detachChildren()
 					n.replaceWith(replacement)
 					this.reportChangeToEnclosingScope(parent)
@@ -668,23 +678,23 @@ func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) No
 			var replacement Node = 0
 			var trueNodeVal *Tri = this.getSideEffectFreeBooleanValue(trueNode)
 			var falseNodeVal *Tri = this.getSideEffectFreeBooleanValue(falseNode)
-			if ((trueNodeVal == Tri_TRUE) && (falseNodeVal == Tri_FALSE)) {
+			if (trueNodeVal == Tri_TRUE) && (falseNodeVal == Tri_FALSE) {
 				condition.detach()
 				replacement = condition
-			} else if ((trueNodeVal == Tri_FALSE) && (falseNodeVal == Tri_TRUE)) {
+			} else if (trueNodeVal == Tri_FALSE) && (falseNodeVal == Tri_TRUE) {
 				condition.detach()
 				replacement = IR_not(condition)
-			} else if (trueNodeVal == Tri_TRUE) {
+			} else if trueNodeVal == Tri_TRUE {
 				n.detachChildren()
 				replacement = IR_or(condition, falseNode)
-			} else if (falseNodeVal == Tri_FALSE) {
+			} else if falseNodeVal == Tri_FALSE {
 				n.detachChildren()
 				replacement = IR_and(condition, trueNode)
-			} else if ((!this.mayHaveSideEffects(condition) && !this.mayHaveSideEffects(trueNode)) && condition.isEquivalentTo(trueNode)) {
+			} else if (!this.mayHaveSideEffects(condition) && !this.mayHaveSideEffects(trueNode)) && condition.isEquivalentTo(trueNode) {
 				n.detachChildren()
 				replacement = IR_or(trueNode, falseNode)
 			}
-			if (replacement != 0) {
+			if replacement != 0 {
 				n.replaceWith(replacement)
 				this.reportChangeToEnclosingScope(replacement)
 				n = replacement
@@ -692,9 +702,14 @@ func (this *PeepholeMinimizeConditions) performConditionSubstitutions(n Node) No
 			return n
 		default:
 			var nVal *Tri = this.getSideEffectFreeBooleanValue(n)
-			if (nVal != Tri_UNKNOWN) {
+			if nVal != Tri_UNKNOWN {
 				var result bool = nVal.toBoolean(true)
-				var equivalentResult int32 = func() int32 { if result { return 1 }; return 0 }()
+				var equivalentResult int32 = func() int32 {
+					if result {
+						return 1
+					}
+					return 0
+				}()
 				return this.maybeReplaceChildWithNumber(n, equivalentResult)
 			}
 			return n
@@ -726,4 +741,3 @@ func PeepholeMinimizeConditions_clinit() {
 	PeepholeMinimizeConditions_AND_PRECEDENCE = NodeUtil_precedence(Token_rhino_AND)
 
 }
-

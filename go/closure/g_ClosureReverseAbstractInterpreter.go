@@ -4,9 +4,9 @@ package closure
 
 type ClosureReverseAbstractInterpreter struct {
 	ChainableReverseAbstractInterpreter
-	restrictToObjectVisitor Visitor
+	restrictToObjectVisitor    Visitor
 	restrictToNotObjectVisitor Visitor
-	restricters *TMap[string, Function_base]
+	restricters                *JTMap[string, Function_base]
 }
 
 func (this *ClosureReverseAbstractInterpreter) up_ChainableReverseAbstractInterpreter() *ChainableReverseAbstractInterpreter {
@@ -24,11 +24,21 @@ func (this *ClosureReverseAbstractInterpreter) finit_ClosureReverseAbstractInter
 func (this *ClosureReverseAbstractInterpreter) init_ClosureReverseAbstractInterpreter(typeRegistry *JSTypeRegistry) {
 	this.ChainableReverseAbstractInterpreter.init_ChainableReverseAbstractInterpreter(typeRegistry)
 	this.finit_ClosureReverseAbstractInterpreter()
-	this.restricters = immutableMapOf1_[string, Function_base](tc_string, tc_Function_base, "isObject", &Function_base_tfn_ClosureReverseAbstractInterpreter_TypeRestriction_any{func(p *ClosureReverseAbstractInterpreter_TypeRestriction) any {
-		if (p.type__ == nil) {
-			return func() any { if p.outcome { return this.getNativeType(JSTypeNative_OBJECT_TYPE).self() }; return nil }()
+	this.restricters = immutableMapOf1_[string, Function_base](jtc_string, tc_Function_base, "isObject", &Function_base_tfn_ClosureReverseAbstractInterpreter_TypeRestriction_any{func(p *ClosureReverseAbstractInterpreter_TypeRestriction) any {
+		if p.type__ == nil {
+			return func() any {
+				if p.outcome {
+					return this.getNativeType(JSTypeNative_OBJECT_TYPE).self()
+				}
+				return nil
+			}()
 		}
-		var visitor Visitor = func() Visitor { if p.outcome { return this.restrictToObjectVisitor }; return this.restrictToNotObjectVisitor }()
+		var visitor Visitor = func() Visitor {
+			if p.outcome {
+				return this.restrictToObjectVisitor
+			}
+			return this.restrictToNotObjectVisitor
+		}()
 		return p.type__.visit(visitor)
 		panic("unreachable")
 	}})
@@ -42,15 +52,15 @@ func new_ClosureReverseAbstractInterpreter(typeRegistry *JSTypeRegistry) *Closur
 }
 
 func (this *ClosureReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome_impl(condition Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
-	if (condition.isCall() && condition.hasTwoChildren()) {
+	if condition.isCall() && condition.hasTwoChildren() {
 		var callee Node = condition.getFirstChild()
 		var param Node = condition.getLastChild()
-		if (callee.isGetProp() && param.isQualifiedName()) {
+		if callee.isGetProp() && param.isQualifiedName() {
 			var paramType *JSType = this.getTypeIfRefinable(param, blindScope)
 			var receiver Node = callee.getFirstChild()
-			if (receiver.isName() && ("goog" == receiver.getString())) {
+			if receiver.isName() && ("goog" == receiver.getString()) {
 				var restricter Function_baseOf[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType] = this.restricters.get(callee.getString())
-				if (restricter != nil) {
+				if restricter != nil {
 					return this.restrictParameter(param, paramType, blindScope, restricter, outcome.isTruthy())
 				}
 			}
@@ -61,7 +71,7 @@ func (this *ClosureReverseAbstractInterpreter) getPreciserScopeKnowingConditionO
 
 func (this *ClosureReverseAbstractInterpreter) restrictParameter(parameter Node, type_ *JSType, blindScope FlowScope, restriction Function_baseOf[*ClosureReverseAbstractInterpreter_TypeRestriction, *JSType], outcome bool) FlowScope {
 	type_ = to_JSType(restriction.apply(new_ClosureReverseAbstractInterpreter_TypeRestriction(type_, outcome)))
-	if (type_ != nil) {
+	if type_ != nil {
 		return this.declareNameInScope(blindScope, parameter, type_)
 	} else {
 		return blindScope
@@ -70,7 +80,7 @@ func (this *ClosureReverseAbstractInterpreter) restrictParameter(parameter Node,
 }
 
 type ClosureReverseAbstractInterpreter_TypeRestriction struct {
-	type__ *JSType
+	type__  *JSType
 	outcome bool
 }
 
@@ -168,4 +178,3 @@ func (this *ClosureReverseAbstractInterpreter_2) caseObjectType_impl(type_ *Obje
 func (this *ClosureReverseAbstractInterpreter_2) caseFunctionType_impl(type_ *FunctionType) any {
 	return nil
 }
-

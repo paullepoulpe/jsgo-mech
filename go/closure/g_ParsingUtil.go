@@ -28,7 +28,7 @@ func ParsingUtil_getParamOrPatternNames(n Node, cb ConsumerOf[Node]) {
 	case Token_rhino_OBJECT_PATTERN, Token_rhino_ARRAY_PATTERN, Token_rhino_PARAM_LIST:
 		{
 			var c Node = n.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				ParsingUtil_getParamOrPatternNames(c, cb)
 			}
 		}
@@ -36,4 +36,3 @@ func ParsingUtil_getParamOrPatternNames(n Node, cb ConsumerOf[Node]) {
 		panic(new_IllegalStateException_String("Unexpected parameter structure").self())
 	}
 }
-

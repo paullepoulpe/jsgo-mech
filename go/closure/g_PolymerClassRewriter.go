@@ -3,8 +3,8 @@
 package closure
 
 type PolymerClassRewriter struct {
-	compiler_ *AbstractCompiler
-	externsInsertionRef Node
+	compiler_                  *AbstractCompiler
+	externsInsertionRef        Node
 	propertySinkExternInjected bool
 }
 
@@ -112,7 +112,7 @@ func (this *PolymerClassRewriter) insertGeneratedPropsAndBehaviorCode(enclosingN
 		Preconditions_checkState(PolymerClassRewriter_isFunctionArgInGoogLoadModule(enclosingNode))
 		var functionBlock Node = enclosingNode.getLastChild()
 		var insertionPoint Node = PolymerClassRewriter_getInsertionPointForGoogModule(functionBlock)
-		if (insertionPoint != 0) {
+		if insertionPoint != 0 {
 			functionBlock.addChildrenAfter(statements, insertionPoint)
 		}
 	default:
@@ -121,7 +121,12 @@ func (this *PolymerClassRewriter) insertGeneratedPropsAndBehaviorCode(enclosingN
 
 func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition, traversal *NodeTraversal) {
 	var callParent Node = cls.definition.getParent()
-	var exprRoot Node = func() Node { if callParent.isExprResult() { return callParent }; return callParent.getParent() }()
+	var exprRoot Node = func() Node {
+		if callParent.isExprResult() {
+			return callParent
+		}
+		return callParent.getParent()
+	}()
 	Preconditions_checkState_boolean_Object_H(NodeUtil_isStatementParent(exprRoot.getParent()), exprRoot.getParent())
 	var objLit Node = Preconditions_checkNotNull_T(cls.descriptor)
 	var objLitDoc *JSDocInfo_Builder = JSDocInfo_builder().parseDocumentation()
@@ -142,12 +147,12 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 	var propsAndBehaviorBlock Node = IR_block_0()
 	var constructorDoc *JSDocInfo_Builder = this.getConstructorDoc(cls)
 	var ctorKey Node = cls.constructor_.value_.getParent()
-	if (ctorKey != 0) {
+	if ctorKey != 0 {
 		ctorKey.setJSDocInfo(nil)
 	}
 	if !traversal.inGlobalScope() {
 		var polymerElement *Var = cast_[*Var](traversal.getScope().getVar("PolymerElement").self())
-		if ((polymerElement != nil) && !cast_[*Scope](polymerElement.getScope()).isGlobal()) {
+		if (polymerElement != nil) && !cast_[*Scope](polymerElement.getScope()).isGlobal() {
 			var nameNode Node = polymerElement.getNameNode()
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(cls.constructor_.value_, PolymerClassRewriter_POLYMER_ELEMENT_CONFLICT, []string{nameNode.getSourceFileName(), Integer_toString(nameNode.getLineno()), Integer_toString(nameNode.getCharno())}))
 		}
@@ -157,38 +162,38 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 	this.appendBehaviorPropertiesToBlock(cls, propsAndBehaviorBlock, basePath, false)
 	this.appendPropertiesToBlock(cls.props, propsAndBehaviorBlock, basePath, false)
 	this.appendBehaviorMembersToBlock(cls, propsAndBehaviorBlock)
-	var readOnlyPropsAll *TList[*PolymerPass_MemberDefinition] = this.parseReadOnlyProperties(cls, propsAndBehaviorBlock)
+	var readOnlyPropsAll *JTList[*PolymerPass_MemberDefinition] = this.parseReadOnlyProperties(cls, propsAndBehaviorBlock)
 	this.createExportsAndExterns(cls, readOnlyPropsAll)
 	this.removePropertyDocs(objLit, cls.defType)
 	var propsAndBehaviorCode Node = propsAndBehaviorBlock.removeChildren()
 	var parent Node = exprRoot.getParent()
-	if ((!traversal.inGlobalScope() && cls.hasGeneratedLhs) && !cls.target.isGetProp()) {
+	if (!traversal.inGlobalScope() && cls.hasGeneratedLhs) && !cls.target.isGetProp() {
 		var enclosingNode Node = NodeUtil_getEnclosingNode(parent, &Predicate_base_tfn_Node{func(node Node) bool {
 			return (((node.isScript() || node.isModuleBody()) || PolymerClassRewriter_isIIFE(node)) || PolymerClassRewriter_isFunctionArgInGoogLoadModule(node))
 		}})
 		this.insertGeneratedDeclarationCodeToGlobalScope(enclosingNode, declarationCode)
-		if (propsAndBehaviorCode != 0) {
+		if propsAndBehaviorCode != 0 {
 			this.insertGeneratedPropsAndBehaviorCode(enclosingNode, propsAndBehaviorCode)
 		}
 	} else {
 		var beforeRoot Node = exprRoot.getPrevious()
-		if (beforeRoot == 0) {
-			if (propsAndBehaviorCode != 0) {
+		if beforeRoot == 0 {
+			if propsAndBehaviorCode != 0 {
 				parent.addChildrenToFront(propsAndBehaviorCode)
 			}
 			parent.addChildToFront(declarationCode)
 		} else {
-			if (propsAndBehaviorCode != 0) {
+			if propsAndBehaviorCode != 0 {
 				parent.addChildrenAfter(propsAndBehaviorCode, beforeRoot)
 			}
 			declarationCode.insertAfter(beforeRoot)
 		}
 		this.compiler_.reportChangeToEnclosingScope(parent)
 	}
-	if (propsAndBehaviorCode != 0) {
+	if propsAndBehaviorCode != 0 {
 		this.compiler_.reportChangeToEnclosingScope(propsAndBehaviorCode)
 	}
-	if (cls.features_ != nil) {
+	if cls.features_ != nil {
 		var scriptNode Node = NodeUtil_getEnclosingScript(parent)
 		var oldFeatures *FeatureSet = cast_[*FeatureSet](scriptNode.getFeatureSet())
 		var newFeatures *FeatureSet = oldFeatures.union(cls.features_)
@@ -202,16 +207,16 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 		exprRoot.replaceWith(assignExpr)
 		this.compiler_.reportChangeToEnclosingScope(assignExpr)
 	}
-	if (cls.descriptor != 0) {
+	if cls.descriptor != 0 {
 		var props Node = NodeUtil_getFirstPropMatchingKey(cls.descriptor, "properties")
-		if ((props != 0) && props.isObjectLit()) {
+		if (props != 0) && props.isObjectLit() {
 			this.addPropertiesConfigObjectReflection(cls, props)
 		}
 	}
 }
 
 func (this *PolymerClassRewriter) rewritePolymerClassDeclaration(clazz Node, traversal *NodeTraversal, cls *PolymerClassDefinition) {
-	if (cls.descriptor != 0) {
+	if cls.descriptor != 0 {
 		this.addTypesToFunctions(cls.descriptor, cls.target.getQualifiedName(), cls.defType)
 	}
 	PolymerPassStaticUtils_switchDollarSignPropsToBrackets(NodeUtil_getClassMembers(clazz), this.compiler_)
@@ -225,7 +230,7 @@ func (this *PolymerClassRewriter) rewritePolymerClassDeclaration(clazz Node, tra
 	var block Node = IR_block_0()
 	this.appendBehaviorPropertiesToBlock(cls, block, (sstr_(cls.target.getQualifiedName()) + ".prototype."), false)
 	this.appendPropertiesToBlock(cls.props, block, (sstr_(cls.target.getQualifiedName()) + ".prototype."), false)
-	var readOnlyProps *TList[*PolymerPass_MemberDefinition] = this.parseReadOnlyProperties(cls, block)
+	var readOnlyProps *JTList[*PolymerPass_MemberDefinition] = this.parseReadOnlyProperties(cls, block)
 	this.createExportsAndExterns(cls, readOnlyProps)
 	var jsDocInfoNode Node = NodeUtil_getBestJSDocInfoNode(clazz)
 	var classInfo *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(jsDocInfoNode.getJSDocInfo())
@@ -249,11 +254,11 @@ func (this *PolymerClassRewriter) rewritePolymerClassDeclaration(clazz Node, tra
 	array.addChildToBack(arrayTemplateType)
 	PolymerClassRewriter_addReturnTypeIfMissing(cls, "observers", new_JSTypeExpression(type_, PolymerClassRewriter_VIRTUAL_FILE))
 	PolymerClassRewriter_addReturnTypeIfMissing(cls, "properties", new_JSTypeExpression(IR_string(PolymerClassRewriter_POLYMER_ELEMENT_PROP_CONFIG), PolymerClassRewriter_VIRTUAL_FILE))
-	if (cls.descriptor != 0) {
+	if cls.descriptor != 0 {
 		this.convertSimpleObserverStringsToReferences(cls)
 		this.addPropertiesConfigObjectReflection(cls, cls.descriptor)
 	}
-	if (cls.descriptor != 0) {
+	if cls.descriptor != 0 {
 		this.validateComputedPropertiesReflectionCalls(cls)
 		this.validateComplexObserverReflectionCalls(cls)
 	}
@@ -262,9 +267,9 @@ func (this *PolymerClassRewriter) rewritePolymerClassDeclaration(clazz Node, tra
 func PolymerClassRewriter_addReturnTypeIfMissing(cls *PolymerClassDefinition, getterPropName string, jsType *JSTypeExpression) {
 	var classMembers Node = NodeUtil_getClassMembers(cls.definition)
 	var getter Node = NodeUtil_getFirstGetterMatchingKey(classMembers, getterPropName)
-	if (getter != 0) {
+	if getter != 0 {
 		var info *JSDocInfo = NodeUtil_getBestJSDocInfo(getter)
-		if ((info == nil) || !info.hasReturnType()) {
+		if (info == nil) || !info.hasReturnType() {
 			var builder *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(info)
 			builder.recordReturnType(jsType)
 			jsType.getRoot().srcrefTreeIfMissing(getter)
@@ -287,9 +292,9 @@ func (this *PolymerClassRewriter) addTypesToFunctions(objLit Node, thisType stri
 	Preconditions_checkState(objLit.isObjectLit())
 	{
 		var keyNode Node = objLit.getFirstChild()
-		for ; (keyNode != 0); keyNode = keyNode.getNext() {
+		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var value Node = keyNode.getLastChild()
-			if ((value != 0) && value.isFunction()) {
+			if (value != 0) && value.isFunction() {
 				var fnDoc *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(keyNode.getJSDocInfo())
 				fnDoc.recordThisType(new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(thisType)).srcrefTree(keyNode), PolymerClassRewriter_VIRTUAL_FILE))
 				keyNode.setJSDocInfo(fnDoc.build())
@@ -303,7 +308,7 @@ func (this *PolymerClassRewriter) addTypesToFunctions(objLit Node, thisType stri
 			continue
 		}
 		var defaultValue Node = NodeUtil_getFirstPropMatchingKey(property.value_, "value")
-		if ((defaultValue == 0) || !defaultValue.isFunction()) {
+		if (defaultValue == 0) || !defaultValue.isFunction() {
 			continue
 		}
 		var defaultValueKey Node = defaultValue.getParent()
@@ -314,15 +319,15 @@ func (this *PolymerClassRewriter) addTypesToFunctions(objLit Node, thisType stri
 	}
 }
 
-func (this *PolymerClassRewriter) parseReadOnlyProperties(cls *PolymerClassDefinition, block Node) *TList[*PolymerPass_MemberDefinition] {
+func (this *PolymerClassRewriter) parseReadOnlyProperties(cls *PolymerClassDefinition, block Node) *JTList[*PolymerPass_MemberDefinition] {
 	var qualifiedPath string = (sstr_(cls.target.getQualifiedName()) + ".prototype.")
-	var readOnlyProps *TListBuilder[*PolymerPass_MemberDefinition] = newTListBuilder_(tc_p_PolymerPass_MemberDefinition)
+	var readOnlyProps *TListBuilder[*PolymerPass_MemberDefinition] = newTListBuilder_(jtc_p_PolymerPass_MemberDefinition)
 	it_1 := cls.props.each()
 	for it_1.next() {
 		var prop *PolymerPass_MemberDefinition = it_1.v
 		if prop.value_.isObjectLit() {
 			var readOnlyValue Node = NodeUtil_getFirstPropMatchingKey(prop.value_, "readOnly")
-			if ((readOnlyValue != 0) && readOnlyValue.isTrue()) {
+			if (readOnlyValue != 0) && readOnlyValue.isTrue() {
 				var setter Node = this.makeReadOnlySetter(prop, qualifiedPath)
 				setter.srcrefTreeIfMissing(prop.name_)
 				block.addChildToBack(setter)
@@ -330,13 +335,13 @@ func (this *PolymerClassRewriter) parseReadOnlyProperties(cls *PolymerClassDefin
 			}
 		}
 	}
-	if (cls.behaviorProps != nil) {
+	if cls.behaviorProps != nil {
 		it_3 := cls.behaviorProps.eachKey()
 		for it_3.next() {
 			var prop *PolymerPass_MemberDefinition = it_3.v
 			if prop.value_.isObjectLit() {
 				var readOnlyValue Node = NodeUtil_getFirstPropMatchingKey(prop.value_, "readOnly")
-				if ((readOnlyValue != 0) && readOnlyValue.isTrue()) {
+				if (readOnlyValue != 0) && readOnlyValue.isTrue() {
 					var setter Node = this.makeReadOnlySetter(prop, qualifiedPath)
 					setter.srcrefTreeIfMissing(prop.name_)
 					block.addChildToBack(setter)
@@ -374,7 +379,7 @@ func (this *PolymerClassRewriter) generateDeclarationCode(exprRoot Node, cls *Po
 		var_.setJSDocInfo(constructorDoc.build())
 		var name string = cls.target.getString()
 		var existingVar *Var = cast_[*Var](traversal.getScope().getSlot(name))
-		if ((existingVar != nil) && cls.hasGeneratedLhs) {
+		if (existingVar != nil) && cls.hasGeneratedLhs {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(cls.constructor_.value_, PolymerClassRewriter_IMPLICIT_GLOBAL_CONFLICT, []string{name}))
 		}
 		return var_
@@ -386,7 +391,7 @@ func (this *PolymerClassRewriter) replaceJSDocAndAddNewVars(prop *PolymerPass_Me
 	var infoBuilder *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(prop.info)
 	infoBuilder.recordType(propType)
 	var origInfo *JSDocInfo = infoBuilder.build()
-	var propertyNames *TSet[string] = propType.getRecordPropertyNames()
+	var propertyNames *JTSet[string] = propType.getRecordPropertyNames()
 	this.createVarsInExternsBlock(block, propertyNames, propType, prop)
 	var unknown *JSTypeExpression = new_JSTypeExpression(new_Node_Token(Token_rhino_QMARK), propType.getSourceName())
 	var newInfoBuilder *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFromWithNewType(origInfo, unknown)
@@ -403,7 +408,7 @@ func (this *PolymerClassRewriter) getPropertyNode(prop *PolymerPass_MemberDefini
 }
 
 func (this *PolymerClassRewriter) appendBehaviorPropertiesToBlock(cls *PolymerClassDefinition, block Node, basePath string, isExternsBlock bool) {
-	if (((cls.behaviors == nil) || cls.behaviors.isEmpty()) || (cls.behaviorProps == nil)) {
+	if ((cls.behaviors == nil) || cls.behaviors.isEmpty()) || (cls.behaviorProps == nil) {
 		return
 	}
 	it_1 := cls.behaviorProps.eachEntry()
@@ -412,11 +417,11 @@ func (this *PolymerClassRewriter) appendBehaviorPropertiesToBlock(cls *PolymerCl
 		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = itr.getValue()
 		var prop *PolymerPass_MemberDefinition = itr.getKey()
 		var propertyNode Node = this.getPropertyNode(prop, basePath)
-		if (propertyNode == 0) {
+		if propertyNode == 0 {
 			continue
 		}
 		var propType *JSTypeExpression = PolymerPassStaticUtils_getTypeFromProperty(prop, this.compiler_)
-		if (propType == nil) {
+		if propType == nil {
 			continue
 		}
 		var info *JSDocInfo = nil
@@ -432,16 +437,16 @@ func (this *PolymerClassRewriter) appendBehaviorPropertiesToBlock(cls *PolymerCl
 	}
 }
 
-func (this *PolymerClassRewriter) appendPropertiesToBlock(props *TList[*PolymerPass_MemberDefinition], block Node, basePath string, isExternsBlock bool) {
+func (this *PolymerClassRewriter) appendPropertiesToBlock(props *JTList[*PolymerPass_MemberDefinition], block Node, basePath string, isExternsBlock bool) {
 	it_1 := props.each()
 	for it_1.next() {
 		var prop *PolymerPass_MemberDefinition = it_1.v
 		var propertyNode Node = this.getPropertyNode(prop, basePath)
-		if (propertyNode == 0) {
+		if propertyNode == 0 {
 			continue
 		}
 		var propType *JSTypeExpression = PolymerPassStaticUtils_getTypeFromProperty(prop, this.compiler_)
-		if (propType == nil) {
+		if propType == nil {
 			continue
 		}
 		var info *JSDocInfo = nil
@@ -457,7 +462,7 @@ func (this *PolymerClassRewriter) appendPropertiesToBlock(props *TList[*PolymerP
 	}
 }
 
-func (this *PolymerClassRewriter) createVarsInExternsBlock(block Node, propertyNames *TSet[string], propType *JSTypeExpression, prop *PolymerPass_MemberDefinition) {
+func (this *PolymerClassRewriter) createVarsInExternsBlock(block Node, propertyNames *JTSet[string], propType *JSTypeExpression, prop *PolymerPass_MemberDefinition) {
 	it_1 := propertyNames.each()
 	for it_1.next() {
 		var propName string = it_1.v
@@ -501,8 +506,8 @@ func (this *PolymerClassRewriter) removePropertyDocs(objLit Node, defType *Polym
 
 func (this *PolymerClassRewriter) getJSDocInfoBuilderForBehavior(behavior *PolymerBehaviorExtractor_BehaviorDefinition, behaviorFunctionOrProp *PolymerPass_MemberDefinition) *JSDocInfo_Builder {
 	var info *JSDocInfo_Builder
-	if ((!behavior.isGlobalDeclaration && (behaviorFunctionOrProp.info != nil)) && behaviorFunctionOrProp.info.containsTypeDeclaration()) {
-		if (behavior.behaviorModule != 0) {
+	if (!behavior.isGlobalDeclaration && (behaviorFunctionOrProp.info != nil)) && behaviorFunctionOrProp.info.containsTypeDeclaration() {
+		if behavior.behaviorModule != 0 {
 			info = JSDocInfo_Builder_maybeCopyFromAndReplaceNames(behaviorFunctionOrProp.info, behavior.getModuleLocalNames(this.compiler_))
 		} else {
 			info = JSDocInfo_Builder_maybeCopyFrom(behaviorFunctionOrProp.info)
@@ -515,7 +520,7 @@ func (this *PolymerClassRewriter) getJSDocInfoBuilderForBehavior(behavior *Polym
 
 func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClassDefinition, block Node) {
 	var qualifiedPath string = (sstr_(cls.target.getQualifiedName()) + ".prototype.")
-	var nameToExprResult *TMap[string, Node] = newTMap_(tc_string, tc_Node)
+	var nameToExprResult *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
 	it_1 := cls.behaviors.each()
 	for it_1.next() {
 		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = it_1.v
@@ -523,7 +528,7 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 		for it_3.next() {
 			var behaviorFunction *PolymerPass_MemberDefinition = it_3.v
 			var fnName string = behaviorFunction.name_.getString()
-			if (NodeUtil_getFirstPropMatchingKey(cls.descriptor, fnName) != 0) {
+			if NodeUtil_getFirstPropMatchingKey(cls.descriptor, fnName) != 0 {
 				continue
 			}
 			if nameToExprResult.containsKey(fnName) {
@@ -531,15 +536,15 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 			}
 			var fnValue Node = behaviorFunction.value_.cloneTree()
 			NodeUtil_markNewScopesChanged(fnValue, this.compiler_)
-			var exprResult Node = IR_exprResult(IR_assign(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, (sstr_(qualifiedPath) + sstr_(fnName))), fnValue))
+			var exprResult Node = IR_exprResult(IR_assign(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, (sstr_(qualifiedPath)+sstr_(fnName))), fnValue))
 			exprResult.srcrefTreeIfMissing(behaviorFunction.name_)
 			var info *JSDocInfo_Builder = this.getJSDocInfoBuilderForBehavior(behavior, behaviorFunction)
-			if ((behaviorFunction.info != nil) && (behaviorFunction.info.getVisibility() == JSDocInfo_Visibility_PROTECTED)) {
+			if (behaviorFunction.info != nil) && (behaviorFunction.info.getVisibility() == JSDocInfo_Visibility_PROTECTED) {
 				info.overwriteVisibility(JSDocInfo_Visibility_PUBLIC)
 			}
 			if !behavior.isGlobalDeclaration {
 				var body Node = NodeUtil_getFunctionBody(fnValue)
-				if (fnValue.isArrowFunction() && !NodeUtil_getFunctionBody(fnValue).isBlock()) {
+				if fnValue.isArrowFunction() && !NodeUtil_getFunctionBody(fnValue).isBlock() {
 					body.replaceWith(NodeUtil_newUndefinedNode(body))
 				} else {
 					body.removeChildren()
@@ -547,14 +552,14 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 				var paramIndex int32 = 0
 				{
 					var param Node = NodeUtil_getFunctionParameters(fnValue).getFirstChild()
-					for (param != 0) {
+					for param != 0 {
 						var next Node = param.getNext()
 						PolymerClassRewriter_makeParamSafe(param, paramIndex)
 						paramIndex++
 						param = next
 					}
 				}
-				if ((behaviorFunction.info == nil) || (behaviorFunction.info.getReturnType() == nil)) {
+				if (behaviorFunction.info == nil) || (behaviorFunction.info.getReturnType() == nil) {
 					info.recordReturnType(new_JSTypeExpression(new_Node_Token(Token_rhino_QMARK).srcref(fnValue), fnValue.getSourceFileName()))
 				}
 			}
@@ -574,9 +579,9 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 			var info *JSDocInfo_Builder = this.getJSDocInfoBuilderForBehavior(behavior, behaviorProp)
 			if behaviorProp.name_.isGetterDef() {
 				info = JSDocInfo_builder().parseDocumentation()
-				if ((behaviorProp.info != nil) && (behaviorProp.info.getReturnType() != nil)) {
+				if (behaviorProp.info != nil) && (behaviorProp.info.getReturnType() != nil) {
 					info.recordType(behaviorProp.info.getReturnType())
-					if (behaviorProp.enclosingModule != 0) {
+					if behaviorProp.enclosingModule != 0 {
 						info = JSDocInfo_Builder_maybeCopyFromAndReplaceNames(info.build(), behavior.getModuleLocalNames(this.compiler_))
 					}
 				}
@@ -606,7 +611,7 @@ func (this *PolymerClassRewriter) makeReadOnlySetter(prop *PolymerPass_MemberDef
 	var setterName string = ("_set" + sstr_(String_toUpperCase(String_substring(propName, 0, 1), Locale_ROOT)) + sstr_(String_substring_int(propName, 1)))
 	var fnNode Node = IR_function(IR_name(""), IR_paramList([]Node{IR_name(propName)}), IR_block_0())
 	this.compiler_.reportChangeToChangeScope(fnNode)
-	var exprResNode Node = IR_exprResult(IR_assign(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, (sstr_(qualifiedPath) + sstr_(setterName))), fnNode))
+	var exprResNode Node = IR_exprResult(IR_assign(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, (sstr_(qualifiedPath)+sstr_(setterName))), fnNode))
 	var info *JSDocInfo_Builder = JSDocInfo_builder().parseDocumentation()
 	info.recordOverride()
 	var propType *JSTypeExpression = PolymerPassStaticUtils_getTypeFromProperty(prop, this.compiler_)
@@ -615,7 +620,7 @@ func (this *PolymerClassRewriter) makeReadOnlySetter(prop *PolymerPass_MemberDef
 	return exprResNode
 }
 
-func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefinition, readOnlyProps *TList[*PolymerPass_MemberDefinition]) {
+func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefinition, readOnlyProps *JTList[*PolymerPass_MemberDefinition]) {
 	var block Node = IR_block_0()
 	var interfaceName Optional[string] = cls.getInterfaceName(this.compiler_.getUniqueIdSupplier())
 	var fnNode Node = NodeUtil_emptyFunction()
@@ -628,8 +633,8 @@ func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefin
 	var interfaceBasePath string = (sstr_(interfaceName.orElse("null")) + ".prototype.")
 	this.appendBehaviorPropertiesToBlock(cls, block, interfaceBasePath, true)
 	this.appendPropertiesToBlock(cls.props, block, interfaceBasePath, true)
-	var uniqueMethods *TMap[string, *PolymerPass_MemberDefinition] = newTMap_(tc_string, tc_p_PolymerPass_MemberDefinition)
-	if (cls.behaviors != nil) {
+	var uniqueMethods *JTMap[string, *PolymerPass_MemberDefinition] = jnewTMap_(jtc_string, jtc_p_PolymerPass_MemberDefinition)
+	if cls.behaviors != nil {
 		it_1 := cls.behaviors.each()
 		for it_1.next() {
 			var behavior *PolymerBehaviorExtractor_BehaviorDefinition = it_1.v
@@ -680,7 +685,7 @@ func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefin
 func (this *PolymerClassRewriter) addMethodToObjectExternsUsingExportAnnotation(cls *PolymerClassDefinition, method *PolymerPass_MemberDefinition) {
 	var getprop Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, (sstr_(cls.target.getQualifiedName()) + ".prototype." + sstr_(method.name_.getString())))
 	var info *JSDocInfo_Builder = JSDocInfo_builder().parseDocumentation()
-	if (method.info != nil) {
+	if method.info != nil {
 		info.recordVisibility(method.info.getVisibility())
 	}
 	info.recordExport()
@@ -705,7 +710,7 @@ func (this *PolymerClassRewriter) convertSimpleObserverStringsToReferences(cls *
 		var prop *PolymerPass_MemberDefinition = it_1.v
 		if prop.value_.isObjectLit() {
 			var observer Node = NodeUtil_getFirstPropMatchingKey(prop.value_, "observer")
-			if ((observer != 0) && observer.isStringLit()) {
+			if (observer != 0) && observer.isStringLit() {
 				var observerDirectReference Node = IR_getprop_Node_String_StringArr(cls.target.cloneTree(), "prototype", []string{observer.getString()}).srcref(observer)
 				observer.replaceWith(observerDirectReference)
 				this.compiler_.reportChangeToEnclosingScope(observerDirectReference)
@@ -720,7 +725,7 @@ func (this *PolymerClassRewriter) validateComputedPropertiesReflectionCalls(cls 
 		var prop *PolymerPass_MemberDefinition = it_1.v
 		if prop.value_.isObjectLit() {
 			var computed Node = NodeUtil_getFirstPropMatchingKey(prop.value_, "computed")
-			if ((computed != 0) && computed.isStringLit()) {
+			if (computed != 0) && computed.isStringLit() {
 				this.validateReflectedString(computed)
 			}
 		}
@@ -730,23 +735,23 @@ func (this *PolymerClassRewriter) validateComputedPropertiesReflectionCalls(cls 
 func (this *PolymerClassRewriter) validateComplexObserverReflectionCalls(cls *PolymerClassDefinition) {
 	var classMembers Node = NodeUtil_getClassMembers(cls.definition)
 	var getter Node = NodeUtil_getFirstGetterMatchingKey(classMembers, "observers")
-	if (getter != 0) {
+	if getter != 0 {
 		var complexObservers Node = 0
 		{
 			var child Node = NodeUtil_getFunctionBody(getter.getFirstChild()).getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				if child.isReturn() {
-					if (child.hasChildren() && child.getFirstChild().isArrayLit()) {
+					if child.hasChildren() && child.getFirstChild().isArrayLit() {
 						complexObservers = child.getFirstChild()
 						break
 					}
 				}
 			}
 		}
-		if (complexObservers != 0) {
+		if complexObservers != 0 {
 			{
 				var complexObserver Node = complexObservers.getFirstChild()
-				for (complexObserver != 0) {
+				for complexObserver != 0 {
 					var next Node = complexObserver.getNext()
 					if complexObserver.isStringLit() {
 						this.validateReflectedString(complexObserver)
@@ -762,11 +767,11 @@ func (this *PolymerClassRewriter) validateReflectedString(methodSignature Node) 
 	Preconditions_checkArgument(methodSignature.isStringLit())
 	var methodSignatureString string = String_trim(methodSignature.getString())
 	var openParenIndex int32 = String_indexOf(methodSignatureString, 40)
-	if ((String_charAt(methodSignatureString, (String_length(methodSignatureString) - 1)) != ')') || (openParenIndex < 1)) {
+	if (String_charAt(methodSignatureString, (String_length(methodSignatureString)-1)) != ')') || (openParenIndex < 1) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(methodSignature, PolymerPassErrors_POLYMER_UNPARSABLE_STRING, []string{}))
 		return
 	}
-	if (openParenIndex < (String_length(methodSignatureString) - 2)) {
+	if openParenIndex < (String_length(methodSignatureString) - 2) {
 		var methodParamsString string = String_trim(String_substring(methodSignatureString, (openParenIndex + 1), (String_length(methodSignatureString) - 1)))
 		this.parseMethodParams(methodParamsString, methodSignature)
 	}
@@ -774,16 +779,16 @@ func (this *PolymerClassRewriter) validateReflectedString(methodSignature Node) 
 
 func (this *PolymerClassRewriter) parseMethodParams(methodParameters string, methodSignature Node) {
 	var nextDelimeter uint16 = ','
-	for i := int32(0); (i < String_length(methodParameters)); i++ {
-		if (String_charAt(methodParameters, i) == nextDelimeter) {
+	for i := int32(0); i < String_length(methodParameters); i++ {
+		if String_charAt(methodParameters, i) == nextDelimeter {
 			nextDelimeter = ','
 		} else {
-			if ((String_charAt(methodParameters, i) == '"') || (String_charAt(methodParameters, i) == '\'')) {
+			if (String_charAt(methodParameters, i) == '"') || (String_charAt(methodParameters, i) == '\'') {
 				nextDelimeter = String_charAt(methodParameters, i)
 			}
 		}
 	}
-	if (nextDelimeter != ',') {
+	if nextDelimeter != ',' {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(methodSignature, PolymerPassErrors_POLYMER_UNPARSABLE_STRING, []string{}))
 	}
 }
@@ -791,7 +796,7 @@ func (this *PolymerClassRewriter) parseMethodParams(methodParameters string, met
 func PolymerClassRewriter_getInsertionPointForGoogModule(moduleBody Node) Node {
 	var insertionPoint Node = moduleBody.getFirstChild()
 	var next Node = insertionPoint.getNext()
-	for ((PolymerClassRewriter_isGoogRequireExpr(next) || NodeUtil_isGoogModuleDeclareLegacyNamespaceCall(next)) || NodeUtil_isGoogSetTestOnlyCall(next)) {
+	for (PolymerClassRewriter_isGoogRequireExpr(next) || NodeUtil_isGoogModuleDeclareLegacyNamespaceCall(next)) || NodeUtil_isGoogSetTestOnlyCall(next) {
 		insertionPoint = next
 		next = next.getNext()
 	}
@@ -799,18 +804,24 @@ func PolymerClassRewriter_getInsertionPointForGoogModule(moduleBody Node) Node {
 }
 
 func PolymerClassRewriter_isGoogRequireExpr(statement Node) bool {
-	if (NodeUtil_isExprCall(statement) && ModuleImportResolver_isGoogModuleDependencyCall(statement.getOnlyChild())) {
+	if NodeUtil_isExprCall(statement) && ModuleImportResolver_isGoogModuleDependencyCall(statement.getOnlyChild()) {
 		return true
 	}
 	if !NodeUtil_isNameDeclaration(statement) {
 		return false
 	}
-	var rhs Node = func() Node { if statement.getFirstChild().isName() { return statement.getFirstFirstChild() }; return statement.getFirstChild().getSecondChild() }()
+	var rhs Node = func() Node {
+		if statement.getFirstChild().isName() {
+			return statement.getFirstFirstChild()
+		}
+		return statement.getFirstChild().getSecondChild()
+	}()
 	return ModuleImportResolver_isGoogModuleDependencyCall(rhs)
 }
 
 const PolymerClassRewriter_VIRTUAL_FILE string = "<PolymerClassRewriter.java>"
 const PolymerClassRewriter_POLYMER_ELEMENT_PROP_CONFIG string = "PolymerElementProperties"
+
 var PolymerClassRewriter_IMPLICIT_GLOBAL_CONFLICT *DiagnosticType
 var PolymerClassRewriter_POLYMER_ELEMENT_CONFLICT *DiagnosticType
 
@@ -825,4 +836,3 @@ func PolymerClassRewriter_clinit() {
 	PolymerClassRewriter_POLYMER_ELEMENT_CONFLICT = DiagnosticType_error("JSC_POLYMER_ELEMENT_CONFLICT", "Cannot generate correct types for Polymer call due to PolymerElement definition at {0}:{2}:{1}.\nRename the local PolymerElement to avoid shadowing the PolymerElement externs.")
 
 }
-

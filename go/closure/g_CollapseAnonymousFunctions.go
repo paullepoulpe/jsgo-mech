@@ -44,16 +44,16 @@ func (this *CollapseAnonymousFunctions) visit_impl(t *NodeTraversal, n Node, par
 		return
 	}
 	var value Node = name.getFirstChild()
-	if ((((value != 0) && value.isFunction()) && !value.isArrowFunction()) && !this.isRecursiveFunction(value)) {
+	if (((value != 0) && value.isFunction()) && !value.isArrowFunction()) && !this.isRecursiveFunction(value) {
 		var fnName Node = value.getFirstChild()
-		if (fnName.getBooleanProp(Node_IS_CONSTANT_NAME) && !name.getBooleanProp(Node_IS_CONSTANT_NAME)) {
+		if fnName.getBooleanProp(Node_IS_CONSTANT_NAME) && !name.getBooleanProp(Node_IS_CONSTANT_NAME) {
 			fnName.putBooleanProp(Node_IS_CONSTANT_NAME, false)
 		}
 		fnName.setString(name.getString())
 		NodeUtil_copyNameAnnotations(name, fnName)
 		value.detach()
 		n.replaceWith(value)
-		if (!t.inGlobalScope() && NodeUtil_isHoistedFunctionDeclaration(value)) {
+		if !t.inGlobalScope() && NodeUtil_isHoistedFunctionDeclaration(value) {
 			parent.addChildToFront(value.detach())
 		}
 		this.compiler_.reportChangeToChangeScope(value)
@@ -72,12 +72,12 @@ func (this *CollapseAnonymousFunctions) isRecursiveFunction(function Node) bool 
 }
 
 func (this *CollapseAnonymousFunctions) containsName(n Node, name string) bool {
-	if (n.isName() && (n.getString() == name)) {
+	if n.isName() && (n.getString() == name) {
 		return true
 	}
 	{
 		var child Node = n.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if this.containsName(child, name) {
 				return true
 			}
@@ -85,4 +85,3 @@ func (this *CollapseAnonymousFunctions) containsName(n Node, name string) bool {
 	}
 	return false
 }
-

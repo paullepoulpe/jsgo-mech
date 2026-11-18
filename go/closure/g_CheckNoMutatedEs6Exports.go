@@ -3,14 +3,14 @@
 package closure
 
 type CheckNoMutatedEs6Exports struct {
-	compiler_ *AbstractCompiler
-	mutatedNames *SimpleSetMultimap
-	exportedLocalNames *TSet[string]
+	compiler_          *AbstractCompiler
+	mutatedNames       *SimpleSetMultimap
+	exportedLocalNames *JTSet[string]
 }
 
 func (this *CheckNoMutatedEs6Exports) finit_CheckNoMutatedEs6Exports() {
 	this.mutatedNames = SimpleSetMultimap_create()
-	this.exportedLocalNames = newTSet_(tc_string)
+	this.exportedLocalNames = jnewTSet_(jtc_string)
 }
 
 func (this *CheckNoMutatedEs6Exports) init_CheckNoMutatedEs6Exports(compiler *AbstractCompiler) {
@@ -64,15 +64,15 @@ func (this *CheckNoMutatedEs6Exports) shouldTraverse(t *NodeTraversal, n Node, p
 }
 
 func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
-	if (export.hasOneChild() && export.getFirstChild().isExportSpecs()) {
+	if export.hasOneChild() && export.getFirstChild().isExportSpecs() {
 		{
 			var exportSpec Node = export.getFirstFirstChild()
-			for ; (exportSpec != 0); exportSpec = exportSpec.getNext() {
+			for ; exportSpec != 0; exportSpec = exportSpec.getNext() {
 				Preconditions_checkState(exportSpec.hasTwoChildren())
 				this.exportedLocalNames.add(exportSpec.getFirstChild().getString())
 			}
 		}
-	} else if (export.hasOneChild() && !export.getBooleanProp(Node_EXPORT_ALL_FROM)) {
+	} else if export.hasOneChild() && !export.getBooleanProp(Node_EXPORT_ALL_FROM) {
 		var declaration Node = export.getFirstChild()
 		if NodeUtil_isNameDeclaration(declaration) {
 			NodeUtil_visitLhsNodesInNode(declaration, &Consumer_tfn_Node{func(lhs Node) {
@@ -80,11 +80,11 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 				this.exportedLocalNames.add(lhs.getString())
 			}})
 		} else if export.getBooleanProp(Node_EXPORT_DEFAULT) {
-			if (!declaration.isClass() && !declaration.isFunction()) {
+			if !declaration.isClass() && !declaration.isFunction() {
 				return
 			}
 			var nameNode Node = declaration.getFirstChild()
-			if (!nameNode.isEmpty() && !String_isEmpty(nameNode.getString())) {
+			if !nameNode.isEmpty() && !String_isEmpty(nameNode.getString()) {
 				this.exportedLocalNames.add(nameNode.getString())
 			}
 		} else {
@@ -97,9 +97,9 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 
 func (this *CheckNoMutatedEs6Exports) visitName(t *NodeTraversal, name Node) {
 	var scope *Scope = t.getScope()
-	if (NodeUtil_isLValue(name) && !cast_[*Scope](scope.getClosestHoistScope().self()).isModuleScope()) {
+	if NodeUtil_isLValue(name) && !cast_[*Scope](scope.getClosestHoistScope().self()).isModuleScope() {
 		var var_ *Var = cast_[*Var](scope.getVar(name.getString()).self())
-		if ((var_ != nil) && cast_[*Scope](var_.getScope()).isModuleScope()) {
+		if (var_ != nil) && cast_[*Scope](var_.getScope()).isModuleScope() {
 			this.mutatedNames.put(strobj_(name.getString()), name.box_())
 		}
 	}
@@ -121,4 +121,3 @@ func CheckNoMutatedEs6Exports_clinit() {
 	CheckNoMutatedEs6Exports_MUTATED_EXPORT = DiagnosticType_warning("JSC_MUTATED_EXPORT", "The name \"{0}\" is exported and should not be mutated outside of module initialization. Mutable exports are generally difficult to reason about. You can work around this by exporting getter/setter functions, or an object with mutable properties instead.")
 
 }
-

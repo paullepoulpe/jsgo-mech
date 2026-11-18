@@ -4,10 +4,10 @@ package closure
 
 type EnumElementType struct {
 	ObjectType
-	primitiveType *JSType
+	primitiveType       *JSType
 	primitiveObjectType *ObjectType
-	name_ Optional[string]
-	enumType *EnumType
+	name_               Optional[string]
+	enumType            *EnumType
 }
 
 func (this *EnumElementType) up_ObjectType() *ObjectType {
@@ -53,7 +53,12 @@ func (this *EnumElementType) getPropertyKind_2_impl(propertyName Property_Key, a
 }
 
 func (this *EnumElementType) getPropertyMap_impl() *PropertyMap {
-	return func() *PropertyMap { if (this.primitiveObjectType == nil) { return PropertyMap_immutableEmptyMap() }; return this.primitiveObjectType.getPropertyMap() }()
+	return func() *PropertyMap {
+		if this.primitiveObjectType == nil {
+			return PropertyMap_immutableEmptyMap()
+		}
+		return this.primitiveObjectType.getPropertyMap()
+	}()
 }
 
 func (this *EnumElementType) toMaybeEnumElementType_impl() *EnumElementType {
@@ -140,7 +145,12 @@ func (this *EnumElementType) findPropertyTypeWithoutConsideringTemplateTypes_imp
 }
 
 func (this *EnumElementType) getConstructor_impl() *FunctionType {
-	return func() *FunctionType { if (this.primitiveObjectType == nil) { return nil }; return this.primitiveObjectType.getConstructor() }()
+	return func() *FunctionType {
+		if this.primitiveObjectType == nil {
+			return nil
+		}
+		return this.primitiveObjectType.getConstructor()
+	}()
 }
 
 func (this *EnumElementType) autoboxesTo_impl() *JSType {
@@ -179,4 +189,3 @@ func EnumElementType_clinit() {
 	EnumElementType_TYPE_CLASS = JSTypeClass_ENUM_ELEMENT
 
 }
-

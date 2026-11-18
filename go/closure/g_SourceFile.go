@@ -3,15 +3,15 @@
 package closure
 
 type SourceFile_jscomp struct {
-	fileName string
-	kind_ *StaticSourceFile_SourceKind
-	loader *SourceFile_CodeLoader
+	fileName                                     string
+	kind_                                        *StaticSourceFile_SourceKind
+	loader                                       *SourceFile_CodeLoader
 	isStubSourceFileForAlreadyProvidedInputField bool
-	lineOffsets []int32
-	code_ Optional[string]
-	numLines int32
-	numBytes int32
-	isClosureUnawareCodeField bool
+	lineOffsets                                  []int32
+	code_                                        Optional[string]
+	numLines                                     int32
+	numBytes                                     int32
+	isClosureUnawareCodeField                    bool
 }
 
 func (this *SourceFile_jscomp) zero_SourceFile_jscomp() {
@@ -33,7 +33,7 @@ func (this *SourceFile_jscomp) init_SourceFile_jscomp(loader *SourceFile_CodeLoa
 		panic(new_IllegalArgumentException_String("a source must have a name").self())
 	}
 	if !("/" == Platform_getFileSeperator()) {
-		fileName = String_replace_s(fileName, Platform_getFileSeperator(), "/")
+		fileName = JString_replace_s(fileName, Platform_getFileSeperator(), "/")
 	}
 	this.loader = loader
 	this.fileName = fileName
@@ -57,7 +57,7 @@ func (this *SourceFile_jscomp) setIsStubSourceFileForAlreadyProvidedInput(isStub
 
 func (this *SourceFile_jscomp) getLineOffset(lineno int32) int32 {
 	this.findLineOffsets()
-	if ((lineno < 1) || (lineno > int32(len(this.lineOffsets)))) {
+	if (lineno < 1) || (lineno > int32(len(this.lineOffsets))) {
 		panic(new_IllegalArgumentException_String(("Expected line number between 1 and " + istr_(int64(int32(len(this.lineOffsets)))) + "\nActual: " + istr_(int64(lineno)))).self())
 	}
 	return this.lineOffsets[(lineno - 1)]
@@ -69,7 +69,7 @@ func (this *SourceFile_jscomp) isValidLineNumber(lineno int32) bool {
 }
 
 func (this *SourceFile_jscomp) getNumLines() int32 {
-	if (this.numLines < 0) {
+	if this.numLines < 0 {
 		if this.readCode().isErr() {
 			return 0
 		}
@@ -78,7 +78,7 @@ func (this *SourceFile_jscomp) getNumLines() int32 {
 }
 
 func (this *SourceFile_jscomp) getNumBytes() int32 {
-	if (this.numBytes < 0) {
+	if this.numBytes < 0 {
 		if this.readCode().isErr() {
 			return 0
 		}
@@ -99,7 +99,7 @@ func SourceFile_jscomp_isLineTerminator(ch uint16) bool {
 }
 
 func (this *SourceFile_jscomp) findLineOffsets() {
-	if (this.lineOffsets != nil) {
+	if this.lineOffsets != nil {
 		return
 	}
 	var localCode Optional[string] = this.code_
@@ -114,10 +114,10 @@ func (this *SourceFile_jscomp) findLineOffsets() {
 	}
 	var offsets []int32 = make([]int32, this.numLines)
 	var index int32 = 1
-	for i := int32(0); (i < String_length(localCode.get())); i++ {
+	for i := int32(0); i < String_length(localCode.get()); i++ {
 		var ch uint16 = String_charAt(localCode.get(), i)
 		if SourceFile_jscomp_isLineTerminator(ch) {
-			if (((ch == '\r') && ((i + 1) < String_length(localCode.get()))) && (String_charAt(localCode.get(), (i + 1)) == '\n')) {
+			if ((ch == '\r') && ((i + 1) < String_length(localCode.get()))) && (String_charAt(localCode.get(), (i+1)) == '\n') {
 				i++
 			}
 			offsets[index] = (i + 1)
@@ -152,7 +152,7 @@ func (this *SourceFile_jscomp) readCodeWithoutCaching() *Outcome_base[string] {
 		{
 			if this.code_.isEmpty() {
 				var uncachedText *Outcome_base[string] = this.loader.loadUncachedText()
-				if (uncachedText != nil) {
+				if uncachedText != nil {
 					return uncachedText
 				}
 			}
@@ -170,10 +170,10 @@ func (this *SourceFile_jscomp) setCodeAndDoBookkeeping(sourceCode Optional[strin
 		}
 		this.numBytes = String_length(sourceCode.get())
 		var numLines int32 = 1
-		for i := int32(0); (i < String_length(sourceCode.get())); i++ {
+		for i := int32(0); i < String_length(sourceCode.get()); i++ {
 			var ch uint16 = String_charAt(sourceCode.get(), i)
 			if SourceFile_jscomp_isLineTerminator(ch) {
-				if (((ch == '\r') && ((i + 1) < String_length(sourceCode.get()))) && (String_charAt(sourceCode.get(), (i + 1)) == '\n')) {
+				if ((ch == '\r') && ((i + 1) < String_length(sourceCode.get()))) && (String_charAt(sourceCode.get(), (i+1)) == '\n') {
 					i++
 				}
 				numLines++
@@ -220,18 +220,18 @@ func (this *SourceFile_jscomp) getLineOfOffset(offset int32) int32 {
 	Preconditions_checkArgument_boolean_String_int((offset >= 0), "offset must be non-negative: %s", offset)
 	this.findLineOffsets()
 	var search int32 = Arrays_binarySearch(this.lineOffsets, offset)
-	if (search >= 0) {
+	if search >= 0 {
 		return (search + 1)
 	} else {
 		var insertionPoint int32 = (-1 * (search + 1))
-		return (Math_min((insertionPoint - 1), (int32(len(this.lineOffsets)) - 1)) + 1)
+		return (Math_min((insertionPoint-1), (int32(len(this.lineOffsets))-1)) + 1)
 	}
 	panic("unreachable")
 }
 
 func (this *SourceFile_jscomp) getColumnOfOffset(offset int32) int32 {
 	var line int32 = this.getLineOfOffset(offset)
-	return (offset - this.lineOffsets[(line - 1)])
+	return (offset - this.lineOffsets[(line-1)])
 }
 
 func (this *SourceFile_jscomp) getLine(lineNumber int32) Optional[string] {
@@ -241,22 +241,22 @@ func (this *SourceFile_jscomp) getLine(lineNumber int32) Optional[string] {
 	}
 	var js string = codeRes.get()
 	this.findLineOffsets()
-	if (lineNumber > int32(len(this.lineOffsets))) {
+	if lineNumber > int32(len(this.lineOffsets)) {
 		return Optional_empty[string]()
 	}
-	if (lineNumber < 1) {
+	if lineNumber < 1 {
 		lineNumber = 1
 	}
 	var pos int32 = this.lineOffsets[(lineNumber - 1)]
-	if (lineNumber < int32(len(this.lineOffsets))) {
+	if lineNumber < int32(len(this.lineOffsets)) {
 		var nextPos int32 = this.lineOffsets[lineNumber]
 		var endPos int32 = (nextPos - 1)
-		if (((String_charAt(js, endPos) == '\n') && (endPos > pos)) && (String_charAt(js, (endPos - 1)) == '\r')) {
+		if ((String_charAt(js, endPos) == '\n') && (endPos > pos)) && (String_charAt(js, (endPos-1)) == '\r') {
 			endPos--
 		}
 		return Optional_of[string](String_substring(js, pos, endPos))
 	} else {
-		if (pos >= String_length(js)) {
+		if pos >= String_length(js) {
 			return Optional_empty[string]()
 		} else {
 			return Optional_of[string](String_substring_int(js, pos))
@@ -272,32 +272,37 @@ func (this *SourceFile_jscomp) getLines(lineNumber int32, length int32) Region {
 	}
 	var js string = codeRes.get()
 	this.findLineOffsets()
-	if (lineNumber > int32(len(this.lineOffsets))) {
+	if lineNumber > int32(len(this.lineOffsets)) {
 		return nil
 	}
-	if (lineNumber < 1) {
+	if lineNumber < 1 {
 		lineNumber = 1
 	}
-	if (length <= 0) {
+	if length <= 0 {
 		length = 1
 	}
 	var pos int32 = this.lineOffsets[(lineNumber - 1)]
-	if (pos == String_length(js)) {
+	if pos == String_length(js) {
 		return Region(new_SimpleRegion(lineNumber, lineNumber, ""))
 	}
 	var endChar int32 = pos
 	var endLine int32 = lineNumber
-	for ; ((endChar < (pos + length)) && (endLine <= int32(len(this.lineOffsets)))); endLine++ {
-		endChar = func() int32 { if (endLine < int32(len(this.lineOffsets))) { return this.lineOffsets[endLine] }; return String_length(js) }()
-	}
-	if (endChar > pos) {
-		if (String_charAt(js, (endChar - 1)) == '\n') {
-			if (((endChar - 1) > pos) && (String_charAt(js, (endChar - 2)) == '\r')) {
-				return Region(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar - 2))))
+	for ; (endChar < (pos + length)) && (endLine <= int32(len(this.lineOffsets))); endLine++ {
+		endChar = func() int32 {
+			if endLine < int32(len(this.lineOffsets)) {
+				return this.lineOffsets[endLine]
 			}
-			return Region(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar - 1))))
+			return String_length(js)
+		}()
+	}
+	if endChar > pos {
+		if String_charAt(js, (endChar-1)) == '\n' {
+			if ((endChar - 1) > pos) && (String_charAt(js, (endChar-2)) == '\r') {
+				return Region(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-2))))
+			}
+			return Region(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-1))))
 		} else if SourceFile_jscomp_isLineTerminator(String_charAt(js, (endChar - 1))) {
-			return Region(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar - 1))))
+			return Region(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, (endChar-1))))
 		}
 	}
 	return Region(new_SimpleRegion(lineNumber, endLine, String_substring(js, pos, endChar)))
@@ -311,9 +316,9 @@ func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
 	var js string = codeRes.get()
 	var pos int32 = 0
 	var startLine int32 = Math_max(1, ((lineNumber - 3) + 1))
-	for n := int32(1); (n < startLine); n++ {
+	for n := int32(1); n < startLine; n++ {
 		var nextpos int32 = String_indexOf_int_int(js, 10, pos)
-		if (nextpos == -1) {
+		if nextpos == -1 {
 			break
 		}
 		pos = (nextpos + 1)
@@ -330,17 +335,17 @@ func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
 			break
 		}
 		end = String_indexOf_int_int(js, 10, end)
-		if (end == -1) {
+		if end == -1 {
 			break
 		}
 		end++
 	}
-	if (lineNumber >= endLine) {
+	if lineNumber >= endLine {
 		return nil
 	}
-	if (end == -1) {
+	if end == -1 {
 		var last int32 = (String_length(js) - 1)
-		if (String_charAt(js, last) == '\n') {
+		if String_charAt(js, last) == '\n' {
 			return Region(new_SimpleRegion(startLine, endLine, String_substring(js, pos, last)))
 		} else {
 			return Region(new_SimpleRegion(startLine, endLine, String_substring_int(js, pos)))
@@ -371,9 +376,9 @@ func SourceFile_jscomp_fromZipInput(zipName string, zipBytes []int8, inputCharse
 	return SourceFile_jscomp_fromZipEntryNames(zipName, archive.get().names(), inputCharset)
 }
 
-func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *TList[string], inputCharset string) *Outcome_base[List] {
+func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *JTList[string], inputCharset string) *Outcome_base[List] {
 	var absoluteZipPath string = FilePaths_toAbsolute(zipName)
-	var sourceFiles *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
+	var sourceFiles *JTList[*SourceFile_jscomp] = jnewTList_(jtc_p_SourceFile_jscomp)
 	it_1 := entryNames.each()
 	for it_1.next() {
 		var entryName string = it_1.v
@@ -416,12 +421,12 @@ func SourceFile_jscomp_stripConfigSegment(path string) string {
 		return String_substring_int(path, 9)
 	}
 	var blazeOutIdx int32 = String_indexOf_String(path, "blaze-out/")
-	if (blazeOutIdx == -1) {
+	if blazeOutIdx == -1 {
 		blazeOutIdx = String_indexOf_String(path, "bazel-out/")
 	}
-	if (blazeOutIdx != -1) {
+	if blazeOutIdx != -1 {
 		var nextSlash int32 = String_indexOf_int_int(path, 47, (blazeOutIdx + 10))
-		if (nextSlash != -1) {
+		if nextSlash != -1 {
 			if String_startsWith_String_int(path, "bin/", (nextSlash + 1)) {
 				return String_substring_int(path, (nextSlash + 5))
 			}
@@ -442,15 +447,25 @@ func SourceFile_jscomp_canonicalizePathForMatching(path string) string {
 
 func (this *SourceFile_jscomp) restoreCachedStateFrom(protoSourceFile *SourceFileProto) {
 	Preconditions_checkState_boolean_String_Object_Object(((protoSourceFile.getFilename() == this.getName()) || (SourceFile_jscomp_canonicalizePathForMatching(protoSourceFile.getFilename()) == SourceFile_jscomp_canonicalizePathForMatching(this.getName()))), "Cannot restore state for %s from %s", this.getName(), protoSourceFile.getFilename())
-	if (protoSourceFile.getSourceKind() == SourceFileProto_SourceKind_EXTERN) {
+	if protoSourceFile.getSourceKind() == SourceFileProto_SourceKind_EXTERN {
 		Preconditions_checkState_boolean_String_Object((this.getKind() == StaticSourceFile_SourceKind_EXTERN), "TypedAST compilations must pass all extern files as externs, not js, but found %s", this.getName())
 	}
 	var protoNumLines int32 = (protoSourceFile.getNumLinesPlusOne() - 1)
 	var protoNumBytes int32 = (protoSourceFile.getNumBytesPlusOne() - 1)
 	Preconditions_checkState_boolean_String_int((protoNumLines >= -1), "protoNumLines must be >= -1: %s", protoNumLines)
 	Preconditions_checkState_boolean_String_int((protoNumBytes >= -1), "protoNumBytes must be >= -1: %s", protoNumBytes)
-	this.numLines = func() int32 { if (protoNumLines != -1) { return protoNumLines }; return this.numLines }()
-	this.numBytes = func() int32 { if (protoNumBytes != -1) { return protoNumBytes }; return this.numBytes }()
+	this.numLines = func() int32 {
+		if protoNumLines != -1 {
+			return protoNumLines
+		}
+		return this.numLines
+	}()
+	this.numBytes = func() int32 {
+		if protoNumBytes != -1 {
+			return protoNumBytes
+		}
+		return this.numBytes
+	}()
 	this.isClosureUnawareCodeField = protoSourceFile.getIsClosureUnawareCode()
 }
 
@@ -474,7 +489,12 @@ func SourceFile_jscomp_fromProto_SourceFileProto_SourceKind(protoSourceFile *Sou
 	case SourceFileProto_LoaderCase_PRELOADED_CONTENTS:
 		return SourceFile_jscomp_fromCode_String_String_SourceKind(protoSourceFile.getFilename(), protoSourceFile.getPreloadedContents(), sourceKind)
 	case SourceFileProto_LoaderCase_FILE_ON_DISK:
-		var pathOnDisk string = func() string { if String_isEmpty(protoSourceFile.getFileOnDisk().getActualPath()) { return protoSourceFile.getFilename() }; return protoSourceFile.getFileOnDisk().getActualPath() }()
+		var pathOnDisk string = func() string {
+			if String_isEmpty(protoSourceFile.getFileOnDisk().getActualPath()) {
+				return protoSourceFile.getFilename()
+			}
+			return protoSourceFile.getFileOnDisk().getActualPath()
+		}()
 		return SourceFile_jscomp_builder().withCharset(SourceFile_jscomp_toCharset(protoSourceFile.getFileOnDisk().getCharset())).withOriginalPath(protoSourceFile.getFilename()).withKind(sourceKind).withPath(pathOnDisk).build()
 	case SourceFileProto_LoaderCase_ZIP_ENTRY:
 		var zipEntry *SourceFileProto_ZipEntryOnDisk = protoSourceFile.getZipEntry()
@@ -550,7 +570,9 @@ func (this *SourceFile_jscomp) isTypeScriptSource() bool {
 }
 
 const SourceFile_jscomp_UTF8_BOM string = "\ufeff"
+
 var SourceFile_jscomp_BANG_SLASH string
+
 const SourceFile_jscomp_SOURCE_EXCERPT_REGION_LENGTH int32 = 5
 
 var SourceFile_jscomp_clinit_done bool
@@ -565,13 +587,13 @@ func SourceFile_jscomp_clinit() {
 }
 
 type SourceFile_Builder struct {
-	kind_ *StaticSourceFile_SourceKind
-	charset string
-	originalPath Optional[string]
+	kind_                                    *StaticSourceFile_SourceKind
+	charset                                  string
+	originalPath                             Optional[string]
 	isStubSourceFileForAlreadyProvidedInput_ bool
-	path_ Optional[string]
-	zipEntryPath Optional[string]
-	lazyContent SupplierOf[string]
+	path_                                    Optional[string]
+	zipEntryPath                             Optional[string]
+	lazyContent                              SupplierOf[string]
 }
 
 func (this *SourceFile_Builder) zero_SourceFile_Builder() {
@@ -635,13 +657,23 @@ func (this *SourceFile_Builder) setIsStubSourceFileForAlreadyProvidedInput() *So
 }
 
 func (this *SourceFile_Builder) build() *SourceFile_jscomp {
-	var displayPath Optional[string] = func() Optional[string] { if this.originalPath.isPresent() { return this.originalPath }; return func() Optional[string] { if this.zipEntryPath.isEmpty() { return this.path_ }; return Optional_of[string]((sstr_(this.path_.orElse("null")) + sstr_(SourceFile_jscomp_BANG_SLASH) + sstr_(this.zipEntryPath.get()))) }() }()
+	var displayPath Optional[string] = func() Optional[string] {
+		if this.originalPath.isPresent() {
+			return this.originalPath
+		}
+		return func() Optional[string] {
+			if this.zipEntryPath.isEmpty() {
+				return this.path_
+			}
+			return Optional_of[string]((sstr_(this.path_.orElse("null")) + sstr_(SourceFile_jscomp_BANG_SLASH) + sstr_(this.zipEntryPath.get())))
+		}()
+	}()
 	if this.isStubSourceFileForAlreadyProvidedInput_ {
 		var file *SourceFile_jscomp = new_SourceFile_jscomp(new_SourceFile_CodeLoader_StubSourceFileCodeLoader().up_SourceFile_CodeLoader(), displayPath.get(), this.kind_)
 		file.setIsStubSourceFileForAlreadyProvidedInput(true)
 		return file
 	}
-	if (this.lazyContent != nil) {
+	if this.lazyContent != nil {
 		return new_SourceFile_jscomp(new_SourceFile_CodeLoader_Preloaded(str_(this.lazyContent.get())).up_SourceFile_CodeLoader(), displayPath.get(), this.kind_)
 	}
 	if this.zipEntryPath.isPresent() {
@@ -652,10 +684,10 @@ func (this *SourceFile_Builder) build() *SourceFile_jscomp {
 
 func (this *SourceFile_Builder) withPathInternal(path string) *SourceFile_Builder {
 	var bangSlashIndex int32 = String_indexOf_String(path, SourceFile_jscomp_BANG_SLASH)
-	if (bangSlashIndex >= 0) {
+	if bangSlashIndex >= 0 {
 		var zipPath string = String_substring(path, 0, bangSlashIndex)
 		var entryPath string = String_substring_int(path, (bangSlashIndex + String_length(SourceFile_jscomp_BANG_SLASH)))
-		if (String_endsWith(zipPath, ".zip") && (String_endsWith(entryPath, ".js") || String_endsWith(entryPath, ".js.map"))) {
+		if String_endsWith(zipPath, ".zip") && (String_endsWith(entryPath, ".js") || String_endsWith(entryPath, ".js.map")) {
 			return this.withZipEntryPath(zipPath, entryPath)
 		}
 	}
@@ -705,7 +737,9 @@ func (this *SourceFile_CodeLoader) loadUncachedCode() *Outcome_base[string] {
 }
 
 func (this *SourceFile_CodeLoader) toProtoLocationBuilder(p0 string) *SourceFileProto_Builder {
-	return this.self_.(interface{ toProtoLocationBuilder_impl(string) *SourceFileProto_Builder }).toProtoLocationBuilder_impl(p0)
+	return this.self_.(interface {
+		toProtoLocationBuilder_impl(string) *SourceFileProto_Builder
+	}).toProtoLocationBuilder_impl(p0)
 }
 
 func (this *SourceFile_CodeLoader) loadUncachedText() *Outcome_base[string] {
@@ -786,7 +820,7 @@ const SourceFile_CodeLoader_StubSourceFileCodeLoader_serialVersionUID int64 = 2
 type SourceFile_CodeLoader_OnDisk struct {
 	SourceFile_CodeLoader
 	serializableCharset string
-	relativePath string
+	relativePath        string
 }
 
 func (this *SourceFile_CodeLoader_OnDisk) up_SourceFile_CodeLoader() *SourceFile_CodeLoader {
@@ -825,15 +859,25 @@ func (this *SourceFile_CodeLoader_OnDisk) loadUncachedText_impl() *Outcome_base[
 
 func (this *SourceFile_CodeLoader_OnDisk) toProtoLocationBuilder_impl(fileName string) *SourceFileProto_Builder {
 	var actualPath string = this.relativePath
-	return SourceFileProto_newBuilder().setFileOnDisk(SourceFileProto_FileOnDisk_newBuilder().setActualPath(func() string { if (fileName == actualPath) { return "" }; return actualPath }()).setCharset(func() string { if (this.serializableCharset == Charsets_UTF_8) { return "" }; return this.serializableCharset }()))
+	return SourceFileProto_newBuilder().setFileOnDisk(SourceFileProto_FileOnDisk_newBuilder().setActualPath(func() string {
+		if fileName == actualPath {
+			return ""
+		}
+		return actualPath
+	}()).setCharset(func() string {
+		if this.serializableCharset == Charsets_UTF_8 {
+			return ""
+		}
+		return this.serializableCharset
+	}()))
 }
 
 const SourceFile_CodeLoader_OnDisk_serialVersionUID int64 = 1
 
 type SourceFile_CodeLoader_AtZip struct {
 	SourceFile_CodeLoader
-	zipName string
-	entryName string
+	zipName             string
+	entryName           string
 	serializableCharset string
 }
 
@@ -878,8 +922,12 @@ func (this *SourceFile_CodeLoader_AtZip) loadUncachedText_impl() *Outcome_base[s
 }
 
 func (this *SourceFile_CodeLoader_AtZip) toProtoLocationBuilder_impl(fileName string) *SourceFileProto_Builder {
-	return SourceFileProto_newBuilder().setFilename(fileName).setZipEntry(cast_[*SourceFileProto_ZipEntryOnDisk](SourceFileProto_ZipEntryOnDisk_newBuilder().setEntryName(this.entryName).setZipPath(this.zipName).setCharset(func() string { if (this.serializableCharset == Charsets_UTF_8) { return "" }; return this.serializableCharset }()).build()))
+	return SourceFileProto_newBuilder().setFilename(fileName).setZipEntry(cast_[*SourceFileProto_ZipEntryOnDisk](SourceFileProto_ZipEntryOnDisk_newBuilder().setEntryName(this.entryName).setZipPath(this.zipName).setCharset(func() string {
+		if this.serializableCharset == Charsets_UTF_8 {
+			return ""
+		}
+		return this.serializableCharset
+	}()).build()))
 }
 
 const SourceFile_CodeLoader_AtZip_serialVersionUID int64 = 1
-

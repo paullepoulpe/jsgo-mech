@@ -24,12 +24,12 @@ func ModuleNames_fileToJsIdentifier(path string) string {
 }
 
 func ModuleNames_escapePath(input string) string {
-	var encodedInput string = String_replace_s(String_replace_s(String_replace_s(String_replace_s(String_replace_s(String_replace_char_char(String_replace_char_char(input, ':', '-'), '\\', '/'), " ", "%20"), "[", "%5B"), "]", "%5D"), "<", "%3C"), ">", "%3E")
+	var encodedInput string = JString_replace_s(JString_replace_s(JString_replace_s(JString_replace_s(JString_replace_s(String_replace_char_char(String_replace_char_char(input, ':', '-'), '\\', '/'), " ", "%20"), "[", "%5B"), "]", "%5D"), "<", "%3C"), ">", "%3E")
 	return ModuleNames_canonicalizePath(encodedInput)
 }
 
 func ModuleNames_toJSIdentifier(path string) string {
-	return String_replace_s(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace_s(ModuleNames_LEADING_DOT_SLASH_PATTERN.matcher_s(ModuleNames_stripJsExtension(path)).replaceFirst(""), ModuleNames_MODULE_SLASH, "$"), '\\', '$'), '@', '$'), '+', '$'), '!', '$'), '-', '_'), ':', '_'), '.', '_'), "%20", "_")
+	return JString_replace_s(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace_char_char(String_replace_char_char(JString_replace_s(ModuleNames_LEADING_DOT_SLASH_PATTERN.matcher_s(ModuleNames_stripJsExtension(path)).replaceFirst(""), ModuleNames_MODULE_SLASH, "$"), '\\', '$'), '@', '$'), '+', '$'), '!', '$'), '-', '_'), ':', '_'), '.', '_'), "%20", "_")
 }
 
 func ModuleNames_toModuleName(path string) string {
@@ -59,11 +59,11 @@ func ModuleNames_canonicalizePath(path string) string {
 		available--
 	}
 	for _, part := range parts {
-		if (part == ".") {
+		if part == "." {
 			continue
 		}
-		if (part == "..") {
-			if (available > 0) {
+		if part == ".." {
+			if available > 0 {
 				position--
 				available--
 			} else if !absolutePath {
@@ -76,14 +76,16 @@ func ModuleNames_canonicalizePath(path string) string {
 		position++
 		available++
 	}
-	if (absolutePath && (position == 1)) {
+	if absolutePath && (position == 1) {
 		return ModuleNames_MODULE_SLASH
 	}
 	return ModuleNames_MODULE_JOINER.join_ObjectArr(Arrays_copyOf_ObjectArr_int(arrmap_(buffer, func(v_ string) any { return strobj_(v_) }), position))
 }
 
 var ModuleNames_LEADING_DOT_SLASH_PATTERN *Pattern
+
 const ModuleNames_MODULE_SLASH string = "/"
+
 var ModuleNames_MODULE_SLASH_PATTERN *Pattern
 var ModuleNames_MODULE_JOINER *Joiner
 
@@ -99,4 +101,3 @@ func ModuleNames_clinit() {
 	ModuleNames_MODULE_JOINER = Joiner_on(ModuleNames_MODULE_SLASH)
 
 }
-

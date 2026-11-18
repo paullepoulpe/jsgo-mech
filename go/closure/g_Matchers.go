@@ -157,21 +157,21 @@ func Matchers_matchesPrototypeInstanceVar(node Node, metadata *NodeMetadata, nam
 	var className string = parts[0]
 	var propertyName string = parts[1]
 	var providedJsType *JSType = Matchers_getJsType(metadata, className)
-	if (providedJsType == nil) {
+	if providedJsType == nil {
 		return false
 	}
 	var jsType *JSType = nil
 	if node.hasChildren() {
 		jsType = node.getFirstChild().getJSType()
 	}
-	if (jsType == nil) {
+	if jsType == nil {
 		return false
 	}
 	jsType = jsType.restrictByNotNullOrUndefined()
-	if ((!jsType.isUnknownType() && !jsType.isAllType()) && jsType.isSubtypeOf(providedJsType)) {
-		if (node.isName() && (propertyName == node.getString())) {
+	if (!jsType.isUnknownType() && !jsType.isAllType()) && jsType.isSubtypeOf(providedJsType) {
+		if node.isName() && (propertyName == node.getString()) {
 			return true
-		} else if (node.isGetProp() && (propertyName == node.getString())) {
+		} else if node.isGetProp() && (propertyName == node.getString()) {
 			return true
 		}
 	}
@@ -296,12 +296,12 @@ func new_Matchers_5(cap_name Optional[string]) *Matchers_5 {
 
 func (this *Matchers_5) matches(node Node, metadata *NodeMetadata) bool {
 	var info *JSDocInfo = node.getJSDocInfo()
-	if ((info != nil) && info.isConstructor()) {
+	if (info != nil) && info.isConstructor() {
 		var firstChild Node = node.getFirstChild()
 		if this.cap_name.isEmpty() {
 			return true
 		}
-		if ((firstChild.isGetProp() || firstChild.isName()) && firstChild.matchesQualifiedName(this.cap_name.get())) {
+		if (firstChild.isGetProp() || firstChild.isName()) && firstChild.matchesQualifiedName(this.cap_name.get()) {
 			return true
 		}
 	}
@@ -345,11 +345,11 @@ func (this *Matchers_7) matches(node Node, metadata *NodeMetadata) bool {
 		return false
 	}
 	var providedJsType *JSType = Matchers_getJsType(metadata, this.cap_className)
-	if (providedJsType == nil) {
+	if providedJsType == nil {
 		return false
 	}
 	var jsType *JSType = node.getJSType()
-	if (jsType == nil) {
+	if jsType == nil {
 		return false
 	}
 	jsType = jsType.restrictByNotNullOrUndefined()
@@ -416,7 +416,7 @@ func (this *Matchers_10) matches(node Node, metadata *NodeMetadata) bool {
 		}
 		if node.matchesQualifiedName(this.cap_name.get()) {
 			return true
-		} else if String_contains_s(this.cap_name.get(), ".prototype.") {
+		} else if JString_contains_s(this.cap_name.get(), ".prototype.") {
 			return Matchers_matchesPrototypeInstanceVar(node, metadata, this.cap_name.get())
 		}
 	}
@@ -458,7 +458,7 @@ func new_Matchers_12(cap_type_ string) *Matchers_12 {
 
 func (this *Matchers_12) matches(node Node, metadata *NodeMetadata) bool {
 	var providedJsType *JSType = Matchers_getJsType(metadata, this.cap_type_)
-	if (providedJsType == nil) {
+	if providedJsType == nil {
 		return false
 	}
 	providedJsType = providedJsType.restrictByNotNullOrUndefined()
@@ -502,11 +502,16 @@ func new_Matchers_14(cap_type_ string) *Matchers_14 {
 
 func (this *Matchers_14) matches(node Node, metadata *NodeMetadata) bool {
 	var providedJsType *JSType = Matchers_getJsType(metadata, this.cap_type_)
-	if (providedJsType == nil) {
+	if providedJsType == nil {
 		return false
 	}
 	providedJsType = providedJsType.restrictByNotNullOrUndefined()
-	var jsDoc *JSDocInfo = func() *JSDocInfo { if NodeUtil_isNameDeclaration(node.getParent()) { return node.getParent().getJSDocInfo() }; return node.getJSDocInfo() }()
+	var jsDoc *JSDocInfo = func() *JSDocInfo {
+		if NodeUtil_isNameDeclaration(node.getParent()) {
+			return node.getParent().getJSDocInfo()
+		}
+		return node.getJSDocInfo()
+	}()
 	var jsType *JSType = node.getJSType()
 	return ((((jsDoc != nil) && jsDoc.hasType()) && (jsType != nil)) && providedJsType.equals(jsType.restrictByNotNullOrUndefined().self()))
 }
@@ -525,15 +530,15 @@ func new_Matchers_15() *Matchers_15 {
 }
 
 func (this *Matchers_15) matches(node Node, metadata *NodeMetadata) bool {
-	if ((!node.isAssign() || !node.getFirstChild().isGetProp()) || !node.getFirstFirstChild().isThis()) {
+	if (!node.isAssign() || !node.getFirstChild().isGetProp()) || !node.getFirstFirstChild().isThis() {
 		return false
 	}
-	for ((node != 0) && !node.isFunction()) {
+	for (node != 0) && !node.isFunction() {
 		node = node.getParent()
 	}
-	if ((node != 0) && node.isFunction()) {
+	if (node != 0) && node.isFunction() {
 		var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(node)
-		if (jsDoc != nil) {
+		if jsDoc != nil {
 			return jsDoc.isConstructor()
 		}
 	}
@@ -555,7 +560,7 @@ func new_Matchers_16() *Matchers_16 {
 
 func (this *Matchers_16) matches(node Node, metadata *NodeMetadata) bool {
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(node)
-	if (jsDoc != nil) {
+	if jsDoc != nil {
 		return (jsDoc.getVisibility() == JSDocInfo_Visibility_PRIVATE)
 	}
 	return false
@@ -578,10 +583,10 @@ func new_Matchers_17(cap_requireFunctionType bool) *Matchers_17 {
 
 func (this *Matchers_17) matches(node Node, metadata *NodeMetadata) bool {
 	var firstChild Node = node.getFirstChild()
-	if ((node.isGetProp() && firstChild.isGetProp()) && ("prototype" == firstChild.getString())) {
+	if (node.isGetProp() && firstChild.isGetProp()) && ("prototype" == firstChild.getString()) {
 		var fnJsType *JSType = Matchers_getJsTypeJSTypeNative(metadata, JSTypeNative_FUNCTION_FUNCTION_TYPE)
 		var jsType *JSType = node.getJSType()
-		if (jsType == nil) {
+		if jsType == nil {
 			return false
 		} else if this.cap_requireFunctionType {
 			return jsType.canCastTo(fnJsType)
@@ -591,4 +596,3 @@ func (this *Matchers_17) matches(node Node, metadata *NodeMetadata) bool {
 	}
 	return false
 }
-

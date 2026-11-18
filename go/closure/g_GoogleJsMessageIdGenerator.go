@@ -16,7 +16,7 @@ func new_GoogleJsMessageIdGenerator(projectId Optional[string]) *GoogleJsMessage
 	return this
 }
 
-func (this *GoogleJsMessageIdGenerator) generateId(meaning Optional[string], messageParts *TList[JsMessage_Part]) string {
+func (this *GoogleJsMessageIdGenerator) generateId(meaning Optional[string], messageParts *JTList[JsMessage_Part]) string {
 	Preconditions_checkState(meaning.isPresent())
 	var sb *StringBuilder = new_StringBuilder()
 	it_1 := messageParts.each()
@@ -29,7 +29,12 @@ func (this *GoogleJsMessageIdGenerator) generateId(meaning Optional[string], mes
 		}
 	}
 	var tcValue string = Object_toString(obj_(sb))
-	var projectScopedMeaning string = (sstr_(func() string { if String_isEmpty(this.projectId.orElse("")) { return "" }; return (sstr_(this.projectId.get()) + ": ") }()) + sstr_(meaning.get()))
+	var projectScopedMeaning string = (sstr_(func() string {
+		if String_isEmpty(this.projectId.orElse("")) {
+			return ""
+		}
+		return (sstr_(this.projectId.get()) + ": ")
+	}()) + sstr_(meaning.get()))
 	return String_valueOf_long(GoogleJsMessageIdGenerator_MessageId_generateId(tcValue, Optional_of[string](projectScopedMeaning)))
 }
 
@@ -49,7 +54,7 @@ func new_GoogleJsMessageIdGenerator_FP() *GoogleJsMessageIdGenerator_FP {
 func GoogleJsMessageIdGenerator_FP_fingerprint_byteArr_int_int(str []int8, start int32, limit int32) int64 {
 	var hi int32 = GoogleJsMessageIdGenerator_FP_hash32(str, start, limit, 0)
 	var lo int32 = GoogleJsMessageIdGenerator_FP_hash32(str, start, limit, 102072)
-	if ((hi == 0) && ((lo == 0) || (lo == 1))) {
+	if (hi == 0) && ((lo == 0) || (lo == 1)) {
 		hi ^= 319790063
 		lo ^= -1801410264
 	}
@@ -67,10 +72,10 @@ func GoogleJsMessageIdGenerator_FP_hash32(str []int8, start int32, limit int32, 
 	var i int32
 	{
 		i = start
-		for ; ((i + 12) <= limit); i += 12 {
-			a += (((((int32(str[(i + 0)]) & 255) << 0) | ((int32(str[(i + 1)]) & 255) << 8)) | ((int32(str[(i + 2)]) & 255) << 16)) | ((int32(str[(i + 3)]) & 255) << 24))
-			b += (((((int32(str[(i + 4)]) & 255) << 0) | ((int32(str[(i + 5)]) & 255) << 8)) | ((int32(str[(i + 6)]) & 255) << 16)) | ((int32(str[(i + 7)]) & 255) << 24))
-			c += (((((int32(str[(i + 8)]) & 255) << 0) | ((int32(str[(i + 9)]) & 255) << 8)) | ((int32(str[(i + 10)]) & 255) << 16)) | ((int32(str[(i + 11)]) & 255) << 24))
+		for ; (i + 12) <= limit; i += 12 {
+			a += (((((int32(str[(i+0)]) & 255) << 0) | ((int32(str[(i+1)]) & 255) << 8)) | ((int32(str[(i+2)]) & 255) << 16)) | ((int32(str[(i+3)]) & 255) << 24))
+			b += (((((int32(str[(i+4)]) & 255) << 0) | ((int32(str[(i+5)]) & 255) << 8)) | ((int32(str[(i+6)]) & 255) << 16)) | ((int32(str[(i+7)]) & 255) << 24))
+			c += (((((int32(str[(i+8)]) & 255) << 0) | ((int32(str[(i+9)]) & 255) << 8)) | ((int32(str[(i+10)]) & 255) << 16)) | ((int32(str[(i+11)]) & 255) << 24))
 			a -= b
 			a -= c
 			a ^= int32(uint32(c) >> 13)
@@ -102,38 +107,38 @@ func GoogleJsMessageIdGenerator_FP_hash32(str []int8, start int32, limit int32, 
 	}
 	c += (limit - start)
 	var tmp int32 = (limit - i)
-	if (tmp == 11) {
-		c += ((int32(str[(i + 10)]) & 255) << 24)
+	if tmp == 11 {
+		c += ((int32(str[(i+10)]) & 255) << 24)
 	}
-	if (tmp >= 10) {
-		c += ((int32(str[(i + 9)]) & 255) << 16)
+	if tmp >= 10 {
+		c += ((int32(str[(i+9)]) & 255) << 16)
 	}
-	if (tmp >= 9) {
-		c += ((int32(str[(i + 8)]) & 255) << 8)
+	if tmp >= 9 {
+		c += ((int32(str[(i+8)]) & 255) << 8)
 	}
-	if (tmp >= 8) {
-		b += ((int32(str[(i + 7)]) & 255) << 24)
+	if tmp >= 8 {
+		b += ((int32(str[(i+7)]) & 255) << 24)
 	}
-	if (tmp >= 7) {
-		b += ((int32(str[(i + 6)]) & 255) << 16)
+	if tmp >= 7 {
+		b += ((int32(str[(i+6)]) & 255) << 16)
 	}
-	if (tmp >= 6) {
-		b += ((int32(str[(i + 5)]) & 255) << 8)
+	if tmp >= 6 {
+		b += ((int32(str[(i+5)]) & 255) << 8)
 	}
-	if (tmp >= 5) {
-		b += (int32(str[(i + 4)]) & 255)
+	if tmp >= 5 {
+		b += (int32(str[(i+4)]) & 255)
 	}
-	if (tmp >= 4) {
-		a += ((int32(str[(i + 3)]) & 255) << 24)
+	if tmp >= 4 {
+		a += ((int32(str[(i+3)]) & 255) << 24)
 	}
-	if (tmp >= 3) {
-		a += ((int32(str[(i + 2)]) & 255) << 16)
+	if tmp >= 3 {
+		a += ((int32(str[(i+2)]) & 255) << 16)
 	}
-	if (tmp >= 2) {
-		a += ((int32(str[(i + 1)]) & 255) << 8)
+	if tmp >= 2 {
+		a += ((int32(str[(i+1)]) & 255) << 8)
 	}
-	if (tmp >= 1) {
-		a += (int32(str[(i + 0)]) & 255)
+	if tmp >= 1 {
+		a += (int32(str[(i+0)]) & 255)
 	}
 	a -= b
 	a -= c
@@ -180,10 +185,14 @@ func new_GoogleJsMessageIdGenerator_MessageId() *GoogleJsMessageIdGenerator_Mess
 
 func GoogleJsMessageIdGenerator_MessageId_generateId(message string, meaning Optional[string]) int64 {
 	var fp int64 = GoogleJsMessageIdGenerator_FP_fingerprint_String(message)
-	if (meaning.isPresent() && (String_length(meaning.get()) > 0)) {
+	if meaning.isPresent() && (String_length(meaning.get()) > 0) {
 		var fp2 int64 = GoogleJsMessageIdGenerator_FP_fingerprint_String(meaning.get())
-		fp = ((fp2 + (fp << 1)) + int64(func() int32 { if (fp < 0) { return 1 }; return 0 }()))
+		fp = ((fp2 + (fp << 1)) + int64(func() int32 {
+			if fp < 0 {
+				return 1
+			}
+			return 0
+		}()))
 	}
 	return (fp & 9223372036854775807)
 }
-

@@ -22,7 +22,7 @@ func JsFileFullParser_parse(code string, filename string, reporter JsFileFullPar
 	var options *CompilerOptions = new_CompilerOptions()
 	options.setChecksOnly(true)
 	compiler.init(ImmutableList_as_List(ImmutableList_of()), ImmutableList_as_List(ImmutableList_of_Object(obj_(source))), options)
-	var config *Config = ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(Config_LanguageMode_ES_NEXT, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_RunMode_STOP_AFTER_ERROR, tsetEmptyImm_(tc_string), true, Config_StrictMode_SLOPPY)
+	var config *Config = ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(Config_LanguageMode_ES_NEXT, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_RunMode_STOP_AFTER_ERROR, jtsetEmptyImm_(jtc_string), true, Config_StrictMode_SLOPPY)
 	var info *JsFileFullParser_FileInfo = new_JsFileFullParser_FileInfo()
 	var parsed *ParserRunner_ParseResult = ParserRunner_parse(SourceFile_jscomp_as_StaticSourceFile(source), code, config, JsFileFullParser_DelegatingReporter_as_ErrorReporter_rhino(errorReporter))
 	if errorReporter.seenError {
@@ -37,7 +37,7 @@ func JsFileFullParser_parse(code string, filename string, reporter JsFileFullPar
 	var gatherModuleMetadata *GatherModuleMetadata = new_GatherModuleMetadata(compiler.up_AbstractCompiler(), false, ModuleLoader_ResolutionMode_BROWSER)
 	gatherModuleMetadata.process_2(new_Node_Token(Token_rhino_ROOT), parsed.ast)
 	compiler.generateReport()
-	if (compiler.getModuleMetadataMap().getModulesByPath().size() != 1) {
+	if compiler.getModuleMetadataMap().getModulesByPath().size() != 1 {
 		return info
 	}
 	var module *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Iterables_getOnlyElement(Iterable(compiler.getModuleMetadataMap().getModulesByPath().asImm().values())))
@@ -83,19 +83,19 @@ func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, modu
 }
 
 type JsFileFullParser_FileInfo struct {
-	goog bool
-	testonly bool
-	moduleType_ *JsFileFullParser_FileInfo_ModuleType
+	goog              bool
+	testonly          bool
+	moduleType_       *JsFileFullParser_FileInfo_ModuleType
 	isLegacyNamespace bool
-	importedModules *TSet[string]
-	dynamicRequires *TSet[string]
-	readToggles_ *TSet[string]
-	provides *SimpleMultiset
-	requires *SimpleMultiset
-	typeRequires *SimpleMultiset
-	maybeRequires *SimpleMultiset
-	loadFlags_ *SimpleSetMultimap
-	parsed *ParserRunner_ParseResult
+	importedModules   *JTSet[string]
+	dynamicRequires   *JTSet[string]
+	readToggles_      *JTSet[string]
+	provides          *SimpleMultiset
+	requires          *SimpleMultiset
+	typeRequires      *SimpleMultiset
+	maybeRequires     *SimpleMultiset
+	loadFlags_        *SimpleSetMultimap
+	parsed            *ParserRunner_ParseResult
 }
 
 func (this *JsFileFullParser_FileInfo) finit_JsFileFullParser_FileInfo() {
@@ -103,9 +103,9 @@ func (this *JsFileFullParser_FileInfo) finit_JsFileFullParser_FileInfo() {
 	this.testonly = false
 	this.moduleType_ = JsFileFullParser_FileInfo_ModuleType_UNKNOWN
 	this.isLegacyNamespace = false
-	this.importedModules = newTSet_(tc_string)
-	this.dynamicRequires = newTSet_(tc_string)
-	this.readToggles_ = newTSet_(tc_string)
+	this.importedModules = jnewTSet_(jtc_string)
+	this.dynamicRequires = jnewTSet_(jtc_string)
+	this.readToggles_ = jnewTSet_(jtc_string)
 	this.provides = SimpleMultiset_createSorted()
 	this.requires = SimpleMultiset_createSorted()
 	this.typeRequires = SimpleMultiset_createSorted()
@@ -194,7 +194,7 @@ func (this *JsFileFullParser_Reporter_fn) report(p0 bool, p1 string, p2 Optional
 }
 
 type JsFileFullParser_DelegatingReporter struct {
-	delegate JsFileFullParser_Reporter
+	delegate  JsFileFullParser_Reporter
 	seenError bool
 }
 
@@ -254,9 +254,9 @@ func new_JsFileFullParser_1(cap_errorReporter *JsFileFullParser_DelegatingReport
 }
 
 func (this *JsFileFullParser_1) println_impl(level *CheckLevel, error_ *JSError) {
-	if (level == CheckLevel_ERROR) {
+	if level == CheckLevel_ERROR {
 		this.cap_errorReporter.error(error_.description(), error_.sourceName(), error_.getLineNumber(), error_.charno())
-	} else if (level == CheckLevel_WARNING) {
+	} else if level == CheckLevel_WARNING {
 		this.cap_errorReporter.warning(error_.description(), error_.sourceName(), error_.getLineNumber(), error_.charno())
 	}
 }
@@ -264,4 +264,3 @@ func (this *JsFileFullParser_1) println_impl(level *CheckLevel, error_ *JSError)
 func (this *JsFileFullParser_1) printSummary_impl() {
 
 }
-

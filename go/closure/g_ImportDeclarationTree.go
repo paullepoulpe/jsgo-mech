@@ -4,10 +4,10 @@ package closure
 
 type ImportDeclarationTree struct {
 	ParseTree
-	defaultBindingIdentifier *IdentifierToken
-	importSpecifierList *TList[*ParseTree]
+	defaultBindingIdentifier  *IdentifierToken
+	importSpecifierList       *JTList[*ParseTree]
 	nameSpaceImportIdentifier *IdentifierToken
-	moduleSpecifier *LiteralToken
+	moduleSpecifier           *LiteralToken
 }
 
 func (this *ImportDeclarationTree) up_ParseTree() *ParseTree {
@@ -17,7 +17,7 @@ func (this *ImportDeclarationTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *ImportDeclarationTree) init_ImportDeclarationTree(location *SourceRange, defaultBindingIdentifier *IdentifierToken, importSpecifierList *TList[*ParseTree], nameSpaceImportIdentifier *IdentifierToken, moduleSpecifier *LiteralToken) {
+func (this *ImportDeclarationTree) init_ImportDeclarationTree(location *SourceRange, defaultBindingIdentifier *IdentifierToken, importSpecifierList *JTList[*ParseTree], nameSpaceImportIdentifier *IdentifierToken, moduleSpecifier *LiteralToken) {
 	this.ParseTree.init_ParseTree(ParseTreeType_IMPORT_DECLARATION, location)
 	this.defaultBindingIdentifier = defaultBindingIdentifier
 	this.importSpecifierList = importSpecifierList
@@ -25,10 +25,9 @@ func (this *ImportDeclarationTree) init_ImportDeclarationTree(location *SourceRa
 	this.moduleSpecifier = moduleSpecifier
 }
 
-func new_ImportDeclarationTree(location *SourceRange, defaultBindingIdentifier *IdentifierToken, importSpecifierList *TList[*ParseTree], nameSpaceImportIdentifier *IdentifierToken, moduleSpecifier *LiteralToken) *ImportDeclarationTree {
+func new_ImportDeclarationTree(location *SourceRange, defaultBindingIdentifier *IdentifierToken, importSpecifierList *JTList[*ParseTree], nameSpaceImportIdentifier *IdentifierToken, moduleSpecifier *LiteralToken) *ImportDeclarationTree {
 	this := &ImportDeclarationTree{}
 	this.self_ = this
 	this.init_ImportDeclarationTree(location, defaultBindingIdentifier, importSpecifierList, nameSpaceImportIdentifier, moduleSpecifier)
 	return this
 }
-

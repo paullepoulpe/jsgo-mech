@@ -3,21 +3,21 @@
 package closure
 
 type JsDocTokenStream struct {
-	string_ string
-	stringBuffer []uint16
+	string_         string
+	stringBuffer    []uint16
 	stringBufferTop int32
-	ungetBuffer []int32
-	ungetCursor int32
-	lineStart int32
-	lineEndChar int32
-	lineno_ int32
-	charno_ int32
-	initCharno int32
-	initLineno int32
-	sourceString string
-	sourceEnd int32
-	sourceCursor int32
-	cursor int32
+	ungetBuffer     []int32
+	ungetCursor     int32
+	lineStart       int32
+	lineEndChar     int32
+	lineno_         int32
+	charno_         int32
+	initCharno      int32
+	initLineno      int32
+	sourceString    string
+	sourceEnd       int32
+	sourceCursor    int32
+	cursor          int32
 }
 
 func (this *JsDocTokenStream) zero_JsDocTokenStream() {
@@ -81,9 +81,9 @@ func (this *JsDocTokenStream) getJsDocToken() *JsDocToken {
 		for {
 			this.charno_ = -1
 			c = this.getChar()
-			if (c == JsDocTokenStream_EOF_CHAR) {
+			if c == JsDocTokenStream_EOF_CHAR {
 				return JsDocToken_EOF
-			} else if (c == 10) {
+			} else if c == 10 {
 				return JsDocToken_EOL
 			} else if !TokenUtil_isJSSpace(c) {
 				break
@@ -139,12 +139,12 @@ func (this *JsDocTokenStream) getJsDocToken() *JsDocToken {
 			return JsDocToken_LEFT_ANGLE
 		case 46:
 			c = this.getChar()
-			if (c == 60) {
+			if c == 60 {
 				return JsDocToken_LEFT_ANGLE
 			} else {
-				if (c == 46) {
+				if c == 46 {
 					c = this.getChar()
-					if (c == 46) {
+					if c == 46 {
 						return JsDocToken_ITER_REST
 					} else {
 						this.addToString(46)
@@ -169,7 +169,7 @@ func (this *JsDocTokenStream) getJsDocToken() *JsDocToken {
 					for do_7 := true; do_7; do_7 = true {
 						c1 = c2
 						c2 = this.getChar()
-						if ((c1 == 46) && (c2 == 60)) {
+						if (c1 == 46) && (c2 == 60) {
 							this.ungetChar(c2)
 							this.ungetChar(c1)
 							this.string_ = this.getStringFromBuffer()
@@ -200,7 +200,7 @@ func (this *JsDocTokenStream) getRemainingJSDocLine() string {
 		c = this.getChar()
 		switch c {
 		case 42:
-			if (this.peekChar() != 47) {
+			if this.peekChar() != 47 {
 				this.addToString(c)
 				break
 			}
@@ -222,7 +222,12 @@ func (this *JsDocTokenStream) getLineno() int32 {
 }
 
 func (this *JsDocTokenStream) getCharno() int32 {
-	return func() int32 { if (this.lineno_ == this.initLineno) { return (this.initCharno + this.charno_) }; return this.charno_ }()
+	return func() int32 {
+		if this.lineno_ == this.initLineno {
+			return (this.initCharno + this.charno_)
+		}
+		return this.charno_
+	}()
 }
 
 func (this *JsDocTokenStream) getString() string {
@@ -235,7 +240,7 @@ func (this *JsDocTokenStream) getStringFromBuffer() string {
 
 func (this *JsDocTokenStream) addToString(c int32) {
 	var n int32 = this.stringBufferTop
-	if (n == int32(len(this.stringBuffer))) {
+	if n == int32(len(this.stringBuffer)) {
 		var tmp []uint16 = make([]uint16, (int32(len(this.stringBuffer)) * 2))
 		System_arraycopy(any(this.stringBuffer), 0, any(tmp), 0, n)
 		this.stringBuffer = tmp
@@ -252,7 +257,7 @@ func (this *JsDocTokenStream) ungetChar(c int32) {
 
 func (this *JsDocTokenStream) matchChar(test int32) bool {
 	var c int32 = this.getCharIgnoreLineEnd()
-	if (c == test) {
+	if c == test {
 		return true
 	} else {
 		this.ungetCharIgnoreLineEnd(c)
@@ -262,7 +267,7 @@ func (this *JsDocTokenStream) matchChar(test int32) bool {
 }
 
 func JsDocTokenStream_isAlpha(c int32) bool {
-	if (c <= 90) {
+	if c <= 90 {
 		return (65 <= c)
 	} else {
 		return ((97 <= c) && (c <= 122))
@@ -293,18 +298,18 @@ func (this *JsDocTokenStream) peekChar() int32 {
 }
 
 func (this *JsDocTokenStream) getChar() int32 {
-	if (this.ungetCursor != 0) {
+	if this.ungetCursor != 0 {
 		this.cursor++
 		this.ungetCursor--
-		if (this.charno_ == -1) {
+		if this.charno_ == -1 {
 			this.charno_ = this.getLineOffset()
 		}
 		return this.ungetBuffer[this.ungetCursor]
 	}
 	for {
 		var c int32
-		if (this.sourceCursor == this.sourceEnd) {
-			if (this.charno_ == -1) {
+		if this.sourceCursor == this.sourceEnd {
+			if this.charno_ == -1 {
 				this.charno_ = this.getLineOffset()
 			}
 			return JsDocTokenStream_EOF_CHAR
@@ -312,8 +317,8 @@ func (this *JsDocTokenStream) getChar() int32 {
 		this.cursor++
 		c = int32(String_charAt(this.sourceString, this.sourceCursor))
 		this.sourceCursor++
-		if (this.lineEndChar >= 0) {
-			if ((this.lineEndChar == 13) && (c == 10)) {
+		if this.lineEndChar >= 0 {
+			if (this.lineEndChar == 13) && (c == 10) {
 				this.lineEndChar = 10
 				continue
 			}
@@ -321,8 +326,8 @@ func (this *JsDocTokenStream) getChar() int32 {
 			this.lineStart = (this.sourceCursor - 1)
 			this.lineno_++
 		}
-		if (c <= 127) {
-			if ((c == 10) || (c == 13)) {
+		if c <= 127 {
+			if (c == 10) || (c == 13) {
 				this.lineEndChar = c
 				c = 10
 			}
@@ -335,7 +340,7 @@ func (this *JsDocTokenStream) getChar() int32 {
 				c = 10
 			}
 		}
-		if (this.charno_ == -1) {
+		if this.charno_ == -1 {
 			this.charno_ = this.getLineOffset()
 		}
 		return c
@@ -344,18 +349,18 @@ func (this *JsDocTokenStream) getChar() int32 {
 }
 
 func (this *JsDocTokenStream) getCharIgnoreLineEnd() int32 {
-	if (this.ungetCursor != 0) {
+	if this.ungetCursor != 0 {
 		this.cursor++
 		this.ungetCursor--
-		if (this.charno_ == -1) {
+		if this.charno_ == -1 {
 			this.charno_ = this.getLineOffset()
 		}
 		return this.ungetBuffer[this.ungetCursor]
 	}
 	for {
 		var c int32
-		if (this.sourceCursor == this.sourceEnd) {
-			if (this.charno_ == -1) {
+		if this.sourceCursor == this.sourceEnd {
+			if this.charno_ == -1 {
 				this.charno_ = this.getLineOffset()
 			}
 			return JsDocTokenStream_EOF_CHAR
@@ -363,8 +368,8 @@ func (this *JsDocTokenStream) getCharIgnoreLineEnd() int32 {
 		this.cursor++
 		c = int32(String_charAt(this.sourceString, this.sourceCursor))
 		this.sourceCursor++
-		if (c <= 127) {
-			if ((c == 10) || (c == 13)) {
+		if c <= 127 {
+			if (c == 10) || (c == 13) {
 				this.lineEndChar = c
 				c = 10
 			}
@@ -377,7 +382,7 @@ func (this *JsDocTokenStream) getCharIgnoreLineEnd() int32 {
 				c = 10
 			}
 		}
-		if (this.charno_ == -1) {
+		if this.charno_ == -1 {
 			this.charno_ = this.getLineOffset()
 		}
 		return c
@@ -386,7 +391,7 @@ func (this *JsDocTokenStream) getCharIgnoreLineEnd() int32 {
 }
 
 func JsDocTokenStream_isJSLineTerminator(c int32) bool {
-	if ((c & 57296) != 0) {
+	if (c & 57296) != 0 {
 		return false
 	}
 	return ((((c == 10) || (c == 13)) || (c == 8232)) || (c == 8233))
@@ -407,4 +412,3 @@ func (this *JsDocTokenStream) getCursor() int32 {
 }
 
 const JsDocTokenStream_EOF_CHAR int32 = -1
-

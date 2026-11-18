@@ -3,7 +3,7 @@
 package closure
 
 type UseSiteRenamer struct {
-	mutationCb ConsumerOf[Node]
+	mutationCb    ConsumerOf[Node]
 	renamingIndex *SimpleSetMultimap
 }
 
@@ -27,8 +27,8 @@ func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) *UseSiteRenamer
 		this.renamingIndex.put(strobj_(prop.getName()), strobj_(UseSiteRenamer_INVALIDATED_NAME_VALUE))
 		return UseSiteRenamer_RenameUsesResult_INVALIDATED
 	}
-	var clusterNames *TMap[*ColorGraphNode, string] = UseSiteRenamer_createAllClusterNames(prop)
-	if (clusterNames.size() <= 1) {
+	var clusterNames *JTMap[*ColorGraphNode, string] = UseSiteRenamer_createAllClusterNames(prop)
+	if clusterNames.size() <= 1 {
 		this.renamingIndex.put(strobj_(prop.getName()), strobj_(prop.getName()))
 		return UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER
 	}
@@ -51,8 +51,8 @@ func (this *UseSiteRenamer) getRenamingIndex() *SimpleSetMultimap {
 	return this.renamingIndex.immutableCopy()
 }
 
-func UseSiteRenamer_createAllClusterNames(prop *PropertyClustering) *TMap[*ColorGraphNode, string] {
-	var result *TMapBuilder[*ColorGraphNode, string] = newTMapBuilder_(tc_p_ColorGraphNode, tc_string)
+func UseSiteRenamer_createAllClusterNames(prop *PropertyClustering) *JTMap[*ColorGraphNode, string] {
+	var result *TMapBuilder[*ColorGraphNode, string] = newTMapBuilder_(jtc_p_ColorGraphNode, jtc_string)
 	it_1 := foreach_(obj_(prop.getClusters().allRepresentatives()))
 	for it_1.next() {
 		var r *ColorGraphNode = cast_[*ColorGraphNode](it_1.v)
@@ -124,4 +124,3 @@ func UseSiteRenamer_RenameUsesResult_clinit() {
 	registerEnum_("com.google.javascript.jscomp.disambiguate.UseSiteRenamer.RenameUsesResult", enumValues_(UseSiteRenamer_RenameUsesResult_values_))
 
 }
-

@@ -4,7 +4,7 @@ package closure
 
 type PropertyNameAssignmentTree struct {
 	ParseTree
-	name_ *Token_parser
+	name_  *Token_parser
 	value_ *ParseTree
 }
 
@@ -27,4 +27,3 @@ func new_PropertyNameAssignmentTree(location *SourceRange, name *Token_parser, v
 	this.init_PropertyNameAssignmentTree(location, name, value)
 	return this
 }
-

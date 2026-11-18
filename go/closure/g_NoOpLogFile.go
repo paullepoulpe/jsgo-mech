@@ -59,4 +59,3 @@ func (this *NoOpLogFile) close_impl() {
 func (this *NoOpLogFile) isLogging_impl() bool {
 	return false
 }
-

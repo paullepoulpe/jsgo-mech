@@ -2,10 +2,13 @@
 
 package closure
 
-type SimpleReference[T interface{ StaticTypedSlot; comparable }] struct {
-	self_ any
+type SimpleReference[T interface {
+	StaticTypedSlot
+	comparable
+}] struct {
+	self_   any
 	symbol_ T
-	node_ Node
+	node_   Node
 }
 
 func (this *SimpleReference[T]) isa_SimpleReference_() {}
@@ -19,7 +22,10 @@ func (this *SimpleReference[T]) as_SimpleReference() *SimpleReference[T] { retur
 
 func (this *SimpleReference[T]) as_SimpleReference_() any { return this }
 
-func to_SimpleReference[T interface{ StaticTypedSlot; comparable }](v any) *SimpleReference[T] {
+func to_SimpleReference[T interface {
+	StaticTypedSlot
+	comparable
+}](v any) *SimpleReference[T] {
 	if v == nil {
 		return nil
 	}
@@ -34,7 +40,7 @@ func (this *SimpleReference[T]) self() any {
 }
 
 func (this *SimpleReference[T]) zero_SimpleReference() {
-	this.symbol_ = null_[T]()
+	this.symbol_ = jnull_[T]()
 }
 
 func (this *SimpleReference[T]) init_SimpleReference(symbol T, node Node) {
@@ -42,7 +48,10 @@ func (this *SimpleReference[T]) init_SimpleReference(symbol T, node Node) {
 	this.node_ = node
 }
 
-func new_SimpleReference[T interface{ StaticTypedSlot; comparable }](symbol T, node Node) *SimpleReference[T] {
+func new_SimpleReference[T interface {
+	StaticTypedSlot
+	comparable
+}](symbol T, node Node) *SimpleReference[T] {
 	this := &SimpleReference[T]{}
 	this.self_ = this
 	this.zero_SimpleReference()
@@ -63,8 +72,17 @@ func (this *SimpleReference[T]) getSourceFile() StaticSourceFile {
 }
 
 func (this *SimpleReference[T]) toString() string {
-	var sourceName string = func() string { if (this.node_ == 0) { return "" }; return this.node_.getSourceFileName() }()
-	var lineNo int32 = func() int32 { if (this.node_ == 0) { return -1 }; return this.node_.getLineno() }()
+	var sourceName string = func() string {
+		if this.node_ == 0 {
+			return ""
+		}
+		return this.node_.getSourceFileName()
+	}()
+	var lineNo int32 = func() int32 {
+		if this.node_ == 0 {
+			return -1
+		}
+		return this.node_.getLineno()
+	}()
 	return (sstr_(this.node_.getQualifiedName()) + "@" + sstr_(sourceName) + ":" + istr_(int64(lineNo)))
 }
-

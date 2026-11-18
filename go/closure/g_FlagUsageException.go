@@ -25,4 +25,3 @@ func new_FlagUsageException(message string) *FlagUsageException {
 }
 
 const FlagUsageException_serialVersionUID int64 = 1
-

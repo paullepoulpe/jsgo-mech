@@ -23,4 +23,3 @@ func new_IllegalFormatCodePointException(codePoint int32) *IllegalFormatCodePoin
 	this.init_IllegalFormatCodePointException(codePoint)
 	return this
 }
-

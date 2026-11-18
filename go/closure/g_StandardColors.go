@@ -49,10 +49,10 @@ var StandardColors_TOP_OBJECT *Color
 var StandardColors_TOP_FUNCTION *Color
 var StandardColors_UNKNOWN *Color
 var StandardColors_GBIGINT *Color
-var StandardColors_AXIOMATIC_COLORS *TMap[*ColorId, *Color]
-var StandardColors_PRIMITIVE_COLORS *TMap[*ColorId, *Color]
-var StandardColors_PRIMITIVE_BOX_IDS *TSet[*ColorId]
-var StandardColors_STANDARD_OBJECT_IDS *TSet[*ColorId]
+var StandardColors_AXIOMATIC_COLORS *JTMap[*ColorId, *Color]
+var StandardColors_PRIMITIVE_COLORS *JTMap[*ColorId, *Color]
+var StandardColors_PRIMITIVE_BOX_IDS *JTSet[*ColorId]
+var StandardColors_STANDARD_OBJECT_IDS *JTSet[*ColorId]
 
 var StandardColors_clinit_done bool
 
@@ -95,10 +95,9 @@ func StandardColors_clinit() {
 	StandardColors_TOP_FUNCTION = Color_singleBuilder().setId(ColorId_fromUnsigned(674977848)).setBoxId(nil).setInvalidating(true).buildAxiomatic()
 	StandardColors_UNKNOWN = Color_singleBuilder().setBoxId(nil).setId(ColorId_fromUnsigned(0)).setInvalidating(true).buildAxiomatic()
 	StandardColors_GBIGINT = Color_singleBuilder().setId(ColorId_fromUnsigned(-1431423368)).setBoxId(nil).setInvalidating(false).buildAxiomatic()
-	StandardColors_AXIOMATIC_COLORS = tmapImm_(tce_p_ColorId, tc_p_Color, ImmutableMap_builder().put(obj_(StandardColors_BIGINT.getId()), obj_(StandardColors_BIGINT)).put(obj_(StandardColors_BOOLEAN.getId()), obj_(StandardColors_BOOLEAN)).put(obj_(StandardColors_NULL_OR_VOID.getId()), obj_(StandardColors_NULL_OR_VOID)).put(obj_(StandardColors_NUMBER.getId()), obj_(StandardColors_NUMBER)).put(obj_(StandardColors_STRING.getId()), obj_(StandardColors_STRING)).put(obj_(StandardColors_SYMBOL.getId()), obj_(StandardColors_SYMBOL)).put(obj_(StandardColors_TOP_OBJECT.getId()), obj_(StandardColors_TOP_OBJECT)).put(obj_(StandardColors_UNKNOWN.getId()), obj_(StandardColors_UNKNOWN)).put(obj_(StandardColors_GBIGINT.getId()), obj_(StandardColors_GBIGINT)).put(obj_(StandardColors_TOP_FUNCTION.getId()), obj_(StandardColors_TOP_FUNCTION)).buildOrThrow())
-	StandardColors_PRIMITIVE_COLORS = tmapImm_(tce_p_ColorId, tc_p_Color, ImmutableMap_builder().put(obj_(StandardColors_BIGINT.getId()), obj_(StandardColors_BIGINT)).put(obj_(StandardColors_BOOLEAN.getId()), obj_(StandardColors_BOOLEAN)).put(obj_(StandardColors_NULL_OR_VOID.getId()), obj_(StandardColors_NULL_OR_VOID)).put(obj_(StandardColors_NUMBER.getId()), obj_(StandardColors_NUMBER)).put(obj_(StandardColors_STRING.getId()), obj_(StandardColors_STRING)).put(obj_(StandardColors_SYMBOL.getId()), obj_(StandardColors_SYMBOL)).put(obj_(StandardColors_GBIGINT.getId()), obj_(StandardColors_GBIGINT)).buildOrThrow())
-	StandardColors_PRIMITIVE_BOX_IDS = immutableSetOf_[*ColorId](tce_p_ColorId, StandardColors_BIGINT_OBJECT_ID, StandardColors_BOOLEAN_OBJECT_ID, StandardColors_NUMBER_OBJECT_ID, StandardColors_STRING_OBJECT_ID, StandardColors_SYMBOL_OBJECT_ID)
+	StandardColors_AXIOMATIC_COLORS = tmapImm_(tce_p_ColorId, jtc_p_Color, ImmutableMap_builder().put(obj_(StandardColors_BIGINT.getId()), obj_(StandardColors_BIGINT)).put(obj_(StandardColors_BOOLEAN.getId()), obj_(StandardColors_BOOLEAN)).put(obj_(StandardColors_NULL_OR_VOID.getId()), obj_(StandardColors_NULL_OR_VOID)).put(obj_(StandardColors_NUMBER.getId()), obj_(StandardColors_NUMBER)).put(obj_(StandardColors_STRING.getId()), obj_(StandardColors_STRING)).put(obj_(StandardColors_SYMBOL.getId()), obj_(StandardColors_SYMBOL)).put(obj_(StandardColors_TOP_OBJECT.getId()), obj_(StandardColors_TOP_OBJECT)).put(obj_(StandardColors_UNKNOWN.getId()), obj_(StandardColors_UNKNOWN)).put(obj_(StandardColors_GBIGINT.getId()), obj_(StandardColors_GBIGINT)).put(obj_(StandardColors_TOP_FUNCTION.getId()), obj_(StandardColors_TOP_FUNCTION)).buildOrThrow())
+	StandardColors_PRIMITIVE_COLORS = tmapImm_(tce_p_ColorId, jtc_p_Color, ImmutableMap_builder().put(obj_(StandardColors_BIGINT.getId()), obj_(StandardColors_BIGINT)).put(obj_(StandardColors_BOOLEAN.getId()), obj_(StandardColors_BOOLEAN)).put(obj_(StandardColors_NULL_OR_VOID.getId()), obj_(StandardColors_NULL_OR_VOID)).put(obj_(StandardColors_NUMBER.getId()), obj_(StandardColors_NUMBER)).put(obj_(StandardColors_STRING.getId()), obj_(StandardColors_STRING)).put(obj_(StandardColors_SYMBOL.getId()), obj_(StandardColors_SYMBOL)).put(obj_(StandardColors_GBIGINT.getId()), obj_(StandardColors_GBIGINT)).buildOrThrow())
+	StandardColors_PRIMITIVE_BOX_IDS = jimmutableSetOf_[*ColorId](tce_p_ColorId, StandardColors_BIGINT_OBJECT_ID, StandardColors_BOOLEAN_OBJECT_ID, StandardColors_NUMBER_OBJECT_ID, StandardColors_STRING_OBJECT_ID, StandardColors_SYMBOL_OBJECT_ID)
 	StandardColors_STANDARD_OBJECT_IDS = tsetImm_(tce_p_ColorId, ImmutableSet_builder().addAll(Iterable(StandardColors_PRIMITIVE_BOX_IDS.asSet())).add(obj_(StandardColors_ARRAY_ID)).add(obj_(StandardColors_ARRAY_PROTOTYPE_ID)).add(obj_(StandardColors_READONLY_ARRAY_ID)).add(obj_(StandardColors_READONLY_ARRAY_PROTOTYPE_ID)).add(obj_(StandardColors_ARGUMENTS_ID)).add(obj_(StandardColors_ASYNC_ITERATOR_ITERABLE_ID)).add(obj_(StandardColors_GENERATOR_ID)).add(obj_(StandardColors_I_TEMPLATE_ARRAY_ID)).add(obj_(StandardColors_I_TEMPLATE_ARRAY_PROTOTYPE_ID)).add(obj_(StandardColors_ITERATOR_ID)).add(obj_(StandardColors_MAP_ID)).add(obj_(StandardColors_MAP_PROTOTYPE_ID)).add(obj_(StandardColors_READONLY_MAP_ID)).add(obj_(StandardColors_READONLY_MAP_PROTOTYPE_ID)).add(obj_(StandardColors_SET_ID)).add(obj_(StandardColors_SET_PROTOTYPE_ID)).add(obj_(StandardColors_READONLY_SET_ID)).add(obj_(StandardColors_READONLY_SET_PROTOTYPE_ID)).add(obj_(StandardColors_PROMISE_ID)).build())
 
 }
-

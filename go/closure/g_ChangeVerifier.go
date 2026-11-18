@@ -3,9 +3,9 @@
 package closure
 
 type ChangeVerifier struct {
-	changeTracker *ChangeTracker
+	changeTracker   *ChangeTracker
 	clonesByCurrent *SimpleBiMap
-	snapshotChange int32
+	snapshotChange  int32
 }
 
 func (this *ChangeVerifier) finit_ChangeVerifier() {
@@ -40,12 +40,12 @@ func (this *ChangeVerifier) checkRecordedChanges_2(passName string, root Node) {
 }
 
 func (this *ChangeVerifier) associateClones(n Node, snapshot Node) {
-	if (n.isRoot() || ChangeTracker_isChangeScopeRoot(n)) {
+	if n.isRoot() || ChangeTracker_isChangeScopeRoot(n) {
 		this.clonesByCurrent.put(n.box_(), snapshot.box_())
 	}
 	var child Node = n.getFirstChild()
 	var snapshotChild Node = snapshot.getFirstChild()
-	for (child != 0) {
+	for child != 0 {
 		this.associateClones(child, snapshotChild)
 		child = child.getNext()
 		snapshotChild = snapshotChild.getNext()
@@ -53,14 +53,19 @@ func (this *ChangeVerifier) associateClones(n Node, snapshot Node) {
 }
 
 func (this *ChangeVerifier) verifyScopeChangesHaveBeenRecorded(passName string, root Node) {
-	var passNameMsg string = func() string { if String_isEmpty(passName) { return "" }; return (sstr_(passName) + ": ") }()
-	var snapshotScopeNodes *TSet[Node] = newTSet_(tc_Node)
+	var passNameMsg string = func() string {
+		if String_isEmpty(passName) {
+			return ""
+		}
+		return (sstr_(passName) + ": ")
+	}()
+	var snapshotScopeNodes *JTSet[Node] = jnewTSet_(jtc_Node)
 	NodeUtil_visitPreOrder_Node_Visitor(Node_of_(this.clonesByCurrent.get(root.box_())), NodeUtil_Visitor(new_ChangeVerifier_1(this, snapshotScopeNodes)))
 	NodeUtil_visitPreOrder_Node_Visitor(root, NodeUtil_Visitor(new_ChangeVerifier_2(this, snapshotScopeNodes, passNameMsg)))
 	this.verifyDeletedScopeNodes(passNameMsg, snapshotScopeNodes)
 }
 
-func (this *ChangeVerifier) verifyDeletedScopeNodes(passNameMsg string, deletedScopeNodes *TSet[Node]) {
+func (this *ChangeVerifier) verifyDeletedScopeNodes(passNameMsg string, deletedScopeNodes *JTSet[Node]) {
 	it_1 := deletedScopeNodes.each()
 	for it_1.next() {
 		var snapshotScopeNode Node = it_1.v
@@ -80,14 +85,14 @@ func (this *ChangeVerifier) verifyNode(passNameMsg string, n Node) {
 
 func (this *ChangeVerifier) verifyNewNode(passNameMsg string, n Node) {
 	var changeTime int32 = n.getChangeTime()
-	if ((changeTime == 0) || (changeTime < this.snapshotChange)) {
+	if (changeTime == 0) || (changeTime < this.snapshotChange) {
 		panic(new_IllegalStateException_String((sstr_(passNameMsg) + "new scope not explicitly marked as changed:\n" + sstr_(n.toStringTree()))).self())
 	}
 }
 
 func (this *ChangeVerifier) verifyRoot(root Node) {
 	Preconditions_checkState(root.isRoot())
-	if (root.getChangeTime() != 0) {
+	if root.getChangeTime() != 0 {
 		panic(new_IllegalStateException_String("Root nodes should never be marked as changed.").self())
 	}
 }
@@ -97,7 +102,7 @@ func (this *ChangeVerifier) verifyNodeChange(passNameMsg string, n Node, snapsho
 		return
 	}
 	var result *ChangeVerifier_EqualsResult = ChangeVerifier_getInequivalenceReasonExcludingFunctions(n, snapshot)
-	if (n.getChangeTime() > snapshot.getChangeTime()) {
+	if n.getChangeTime() > snapshot.getChangeTime() {
 		if result.equals_0() {
 			panic(new_IllegalStateException_String((sstr_(passNameMsg) + "unchanged scope marked as changed: " + sstr_(this.getNameForNode(n)))).self())
 		}
@@ -128,17 +133,17 @@ func (this *ChangeVerifier) getNameForNode(n Node) string {
 }
 
 func (this *ChangeVerifier) path(ancestor Node, child Node) string {
-	var childToAncestor *TList[string] = newTList_(tc_string)
+	var childToAncestor *JTList[string] = jnewTList_(jtc_string)
 	{
 		var current Node = child
-		for ; (current != ancestor); current = current.getParent() {
+		for ; current != ancestor; current = current.getParent() {
 			childToAncestor.add(current.toString())
 		}
 	}
 	childToAncestor.add(ancestor.toString())
 	Collections_reverse(childToAncestor.asList())
 	var result *StringBuilder = new_StringBuilder()
-	for i := int32(0); (i < childToAncestor.size()); i++ {
+	for i := int32(0); i < childToAncestor.size(); i++ {
 		result.repeat_int_int(32, (i * 2))
 		result.append(childToAncestor.get(i))
 		result.append("\n")
@@ -149,25 +154,25 @@ func (this *ChangeVerifier) path(ancestor Node, child Node) string {
 func ChangeVerifier_getInequivalenceReasonExcludingFunctions(thisNode Node, thatNode Node) *ChangeVerifier_EqualsResult {
 	Preconditions_checkNotNull_T(thisNode)
 	Preconditions_checkNotNull_T(thatNode)
-	if (thisNode.getChildCount() != thatNode.getChildCount()) {
+	if thisNode.getChildCount() != thatNode.getChildCount() {
 		return ChangeVerifier_EqualsResult_notEqual(thisNode, "differing child count", strobj_((tostrH_(thisNode) + ": " + istr_(int64(thisNode.getChildCount())))), strobj_((tostrH_(thatNode) + ": " + istr_(int64(thatNode.getChildCount())))))
 	}
 	if !thisNode.isEquivalentWithSideEffectsToShallow(thatNode) {
 		return ChangeVerifier_EqualsResult_notEqual(thisNode, "shallow inequivalence", thisNode.box_(), thatNode.box_())
 	}
-	if (thisNode.isFunction() && thatNode.isFunction()) {
-		if (NodeUtil_isFunctionDeclaration(thisNode) != NodeUtil_isFunctionDeclaration(thatNode)) {
+	if thisNode.isFunction() && thatNode.isFunction() {
+		if NodeUtil_isFunctionDeclaration(thisNode) != NodeUtil_isFunctionDeclaration(thatNode) {
 			return ChangeVerifier_EqualsResult_notEqual(thisNode, "mismatched isFunctionDeclaration", thisNode.box_(), thatNode.box_())
 		}
 	}
 	var thisChild Node = thisNode.getFirstChild()
 	var thatChild Node = thatNode.getFirstChild()
-	for ((thisChild != 0) && (thatChild != 0)) {
-		if (thisChild.isFunction() || thisChild.isScript()) {
-			if (thatChild.getToken() != thisChild.getToken()) {
+	for (thisChild != 0) && (thatChild != 0) {
+		if thisChild.isFunction() || thisChild.isScript() {
+			if thatChild.getToken() != thisChild.getToken() {
 				return ChangeVerifier_EqualsResult_notEqual(thisNode, "different tokens", thisChild.box_(), thatChild.box_())
 			}
-			if (thisChild.isFunction() && NodeUtil_isFunctionDeclaration(thisChild)) {
+			if thisChild.isFunction() && NodeUtil_isFunctionDeclaration(thisChild) {
 				var thisName string = thisChild.getFirstChild().getString()
 				var thatName string = thatChild.getFirstChild().getString()
 				if !(thisName == thatName) {
@@ -187,8 +192,8 @@ func ChangeVerifier_getInequivalenceReasonExcludingFunctions(thisNode Node, that
 }
 
 type ChangeVerifier_EqualsResult struct {
-	equals_ bool
-	errorNode_ Node
+	equals_       bool
+	errorNode_    Node
 	errorMessage_ SupplierOf[string]
 }
 
@@ -245,19 +250,19 @@ func (this *ChangeVerifier_EqualsResult) hashCode() int32 {
 }
 
 func (this *ChangeVerifier_EqualsResult) toString() string {
-	return "EqualsResult[" + "equals=" + boolstr_(this.equals_) + ", errorNode=" + tostrH_(this.errorNode_) + ", errorMessage=" + tostr_(this.errorMessage_) + "]"
+	return "EqualsResult[" + "equals=" + boolstr_(this.equals_) + ", errorNode=" + tostrH_(this.errorNode_) + ", errorMessage=" + jtostr_(this.errorMessage_) + "]"
 }
 
 type ChangeVerifier_1 struct {
-	outer_ *ChangeVerifier
-	cap_snapshotScopeNodes *TSet[Node]
+	outer_                 *ChangeVerifier
+	cap_snapshotScopeNodes *JTSet[Node]
 }
 
 func (this *ChangeVerifier_1) init_ChangeVerifier_1() {
 
 }
 
-func new_ChangeVerifier_1(outer_ *ChangeVerifier, cap_snapshotScopeNodes *TSet[Node]) *ChangeVerifier_1 {
+func new_ChangeVerifier_1(outer_ *ChangeVerifier, cap_snapshotScopeNodes *JTSet[Node]) *ChangeVerifier_1 {
 	this := &ChangeVerifier_1{}
 	this.outer_ = outer_
 	this.cap_snapshotScopeNodes = cap_snapshotScopeNodes
@@ -272,16 +277,16 @@ func (this *ChangeVerifier_1) visit(oldNode Node) {
 }
 
 type ChangeVerifier_2 struct {
-	outer_ *ChangeVerifier
-	cap_snapshotScopeNodes *TSet[Node]
-	cap_passNameMsg string
+	outer_                 *ChangeVerifier
+	cap_snapshotScopeNodes *JTSet[Node]
+	cap_passNameMsg        string
 }
 
 func (this *ChangeVerifier_2) init_ChangeVerifier_2() {
 
 }
 
-func new_ChangeVerifier_2(outer_ *ChangeVerifier, cap_snapshotScopeNodes *TSet[Node], cap_passNameMsg string) *ChangeVerifier_2 {
+func new_ChangeVerifier_2(outer_ *ChangeVerifier, cap_snapshotScopeNodes *JTSet[Node], cap_passNameMsg string) *ChangeVerifier_2 {
 	this := &ChangeVerifier_2{}
 	this.outer_ = outer_
 	this.cap_snapshotScopeNodes = cap_snapshotScopeNodes
@@ -297,11 +302,10 @@ func (this *ChangeVerifier_2) visit(n Node) {
 		var clone Node = Node_of_(this.outer_.clonesByCurrent.get(n.box_()))
 		this.cap_snapshotScopeNodes.remove(clone)
 		this.outer_.verifyNode(this.cap_passNameMsg, n)
-		if (clone == 0) {
+		if clone == 0 {
 			this.outer_.verifyNewNode(this.cap_passNameMsg, n)
 		} else {
 			this.outer_.verifyNodeChange(this.cap_passNameMsg, n, clone)
 		}
 	}
 }
-

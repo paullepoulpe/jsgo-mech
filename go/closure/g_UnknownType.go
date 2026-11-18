@@ -103,7 +103,12 @@ func (this *UnknownType) getConstructor_impl() *FunctionType {
 }
 
 func (this *UnknownType) getReferenceName_impl() Optional[string] {
-	return func() Optional[string] { if this.isChecked { return Optional_of[string]("??") }; return Optional_of[string]("?") }()
+	return func() Optional[string] {
+		if this.isChecked {
+			return Optional_of[string]("??")
+		}
+		return Optional_of[string]("?")
+	}()
 }
 
 func (this *UnknownType) getDisplayName_impl() Optional[string] {
@@ -125,4 +130,3 @@ func (this *UnknownType) resolveInternal_impl(reporter ErrorReporter_rhino) *JST
 func (this *UnknownType) recursionUnsafeHashCode_impl() int32 {
 	return System_identityHashCode(obj_(this))
 }
-

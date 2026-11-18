@@ -48,7 +48,9 @@ func (this *AbstractCompiler) getIndex(type_ ClassOf[any]) any {
 }
 
 func (this *AbstractCompiler) getTypedAstDeserializer(p0 *SourceFile_jscomp) Supplier {
-	return this.self_.(interface{ getTypedAstDeserializer_impl(*SourceFile_jscomp) Supplier }).getTypedAstDeserializer_impl(p0)
+	return this.self_.(interface {
+		getTypedAstDeserializer_impl(*SourceFile_jscomp) Supplier
+	}).getTypedAstDeserializer_impl(p0)
 }
 
 func (this *AbstractCompiler) initRuntimeLibraryTypedAsts(p0 *Optional_base) {
@@ -76,11 +78,15 @@ func (this *AbstractCompiler) afterPass(p0 string) {
 }
 
 func (this *AbstractCompiler) getLifeCycleStage() *AbstractCompiler_LifeCycleStage {
-	return this.self_.(interface{ getLifeCycleStage_impl() *AbstractCompiler_LifeCycleStage }).getLifeCycleStage_impl()
+	return this.self_.(interface {
+		getLifeCycleStage_impl() *AbstractCompiler_LifeCycleStage
+	}).getLifeCycleStage_impl()
 }
 
 func (this *AbstractCompiler) setLifeCycleStage(p0 *AbstractCompiler_LifeCycleStage) {
-	this.self_.(interface{ setLifeCycleStage_impl(*AbstractCompiler_LifeCycleStage) }).setLifeCycleStage_impl(p0)
+	this.self_.(interface {
+		setLifeCycleStage_impl(*AbstractCompiler_LifeCycleStage)
+	}).setLifeCycleStage_impl(p0)
 }
 
 func (this *AbstractCompiler) createAstFactory() *AstFactory {
@@ -99,24 +105,30 @@ func (this *AbstractCompiler) createDefaultExpressionDecomposer() *ExpressionDec
 	return this.self_.(interface{ createDefaultExpressionDecomposer_impl() *ExpressionDecomposer }).createDefaultExpressionDecomposer_impl()
 }
 
-func (this *AbstractCompiler) createExpressionDecomposer(p0 Supplier, p1 *TSet[string], p2 *Scope) *ExpressionDecomposer {
-	return this.self_.(interface{ createExpressionDecomposer_impl(Supplier, *TSet[string], *Scope) *ExpressionDecomposer }).createExpressionDecomposer_impl(p0, p1, p2)
+func (this *AbstractCompiler) createExpressionDecomposer(p0 Supplier, p1 *JTSet[string], p2 *Scope) *ExpressionDecomposer {
+	return this.self_.(interface {
+		createExpressionDecomposer_impl(Supplier, *JTSet[string], *Scope) *ExpressionDecomposer
+	}).createExpressionDecomposer_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) isDebugLoggingEnabled() bool {
 	return this.self_.(interface{ isDebugLoggingEnabled_impl() bool }).isDebugLoggingEnabled_impl()
 }
 
-func (this *AbstractCompiler) getDebugLogFilterList() *TList[string] {
-	return this.self_.(interface{ getDebugLogFilterList_impl() *TList[string] }).getDebugLogFilterList_impl()
+func (this *AbstractCompiler) getDebugLogFilterList() *JTList[string] {
+	return this.self_.(interface{ getDebugLogFilterList_impl() *JTList[string] }).getDebugLogFilterList_impl()
 }
 
 func (this *AbstractCompiler) createOrReopenLog(p0 *Class, p1 string, p2 []string) *LogFile {
-	return this.self_.(interface{ createOrReopenLog_impl(*Class, string, []string) *LogFile }).createOrReopenLog_impl(p0, p1, p2)
+	return this.self_.(interface {
+		createOrReopenLog_impl(*Class, string, []string) *LogFile
+	}).createOrReopenLog_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) createOrReopenIndexedLog(p0 *Class, p1 string, p2 []string) *LogFile {
-	return this.self_.(interface{ createOrReopenIndexedLog_impl(*Class, string, []string) *LogFile }).createOrReopenIndexedLog_impl(p0, p1, p2)
+	return this.self_.(interface {
+		createOrReopenIndexedLog_impl(*Class, string, []string) *LogFile
+	}).createOrReopenIndexedLog_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) getScriptNode(p0 string) Node {
@@ -216,7 +228,9 @@ func (this *AbstractCompiler) setTopScope(p0 *TypedScope) {
 }
 
 func (this *AbstractCompiler) getReverseAbstractInterpreter() ReverseAbstractInterpreter {
-	return this.self_.(interface{ getReverseAbstractInterpreter_impl() ReverseAbstractInterpreter }).getReverseAbstractInterpreter_impl()
+	return this.self_.(interface {
+		getReverseAbstractInterpreter_impl() ReverseAbstractInterpreter
+	}).getReverseAbstractInterpreter_impl()
 }
 
 func (this *AbstractCompiler) getTypeValidator() *TypeValidator {
@@ -243,8 +257,8 @@ func (this *AbstractCompiler) parseTestCode(p0 string) Node {
 	return this.self_.(interface{ parseTestCode_impl(string) Node }).parseTestCode_impl(p0)
 }
 
-func (this *AbstractCompiler) parseTestCodeImmutableList(p0 *TList[string]) Node {
-	return this.self_.(interface{ parseTestCodeImmutableList_impl(*TList[string]) Node }).parseTestCodeImmutableList_impl(p0)
+func (this *AbstractCompiler) parseTestCodeImmutableList(p0 *JTList[string]) Node {
+	return this.self_.(interface{ parseTestCodeImmutableList_impl(*JTList[string]) Node }).parseTestCodeImmutableList_impl(p0)
 }
 
 func (this *AbstractCompiler) getDefaultErrorReporter() ErrorReporter_rhino {
@@ -304,7 +318,9 @@ func (this *AbstractCompiler) getCodingConvention() CodingConvention {
 }
 
 func (this *AbstractCompiler) getParserConfig(p0 *AbstractCompiler_ConfigContext) *Config {
-	return this.self_.(interface{ getParserConfig_impl(*AbstractCompiler_ConfigContext) *Config }).getParserConfig_impl(p0)
+	return this.self_.(interface {
+		getParserConfig_impl(*AbstractCompiler_ConfigContext) *Config
+	}).getParserConfig_impl(p0)
 }
 
 func (this *AbstractCompiler) report(p0 *JSError) {
@@ -324,7 +340,9 @@ func (this *AbstractCompiler) hasHaltingErrors() bool {
 }
 
 func (this *AbstractCompiler) getSourceFileByName(p0 Optional[string]) *SourceFile_jscomp {
-	return this.self_.(interface{ getSourceFileByName_impl(Optional[string]) *SourceFile_jscomp }).getSourceFileByName_impl(p0)
+	return this.self_.(interface {
+		getSourceFileByName_impl(Optional[string]) *SourceFile_jscomp
+	}).getSourceFileByName_impl(p0)
 }
 
 func (this *AbstractCompiler) addInputSourceMap(p0 string, p1 *SourceMapInput) {
@@ -332,23 +350,33 @@ func (this *AbstractCompiler) addInputSourceMap(p0 string, p1 *SourceMapInput) {
 }
 
 func (this *AbstractCompiler) getBase64SourceMapContents(p0 Optional[string]) Optional[string] {
-	return this.self_.(interface{ getBase64SourceMapContents_impl(Optional[string]) Optional[string] }).getBase64SourceMapContents_impl(p0)
+	return this.self_.(interface {
+		getBase64SourceMapContents_impl(Optional[string]) Optional[string]
+	}).getBase64SourceMapContents_impl(p0)
 }
 
 func (this *AbstractCompiler) getSourceMapping_Optional_int_int(p0 Optional[string], p1 int32, p2 int32) *Mapping_OriginalMapping {
-	return this.self_.(interface{ getSourceMapping_Optional_int_int_impl(Optional[string], int32, int32) *Mapping_OriginalMapping }).getSourceMapping_Optional_int_int_impl(p0, p1, p2)
+	return this.self_.(interface {
+		getSourceMapping_Optional_int_int_impl(Optional[string], int32, int32) *Mapping_OriginalMapping
+	}).getSourceMapping_Optional_int_int_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) getSourceLine(p0 Optional[string], p1 int32) Optional[string] {
-	return this.self_.(interface{ getSourceLine_impl(Optional[string], int32) Optional[string] }).getSourceLine_impl(p0, p1)
+	return this.self_.(interface {
+		getSourceLine_impl(Optional[string], int32) Optional[string]
+	}).getSourceLine_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getSourceLines(p0 Optional[string], p1 int32, p2 int32) Region {
-	return this.self_.(interface{ getSourceLines_impl(Optional[string], int32, int32) Region }).getSourceLines_impl(p0, p1, p2)
+	return this.self_.(interface {
+		getSourceLines_impl(Optional[string], int32, int32) Region
+	}).getSourceLines_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) getSourceRegion(p0 Optional[string], p1 int32) Region {
-	return this.self_.(interface{ getSourceRegion_impl(Optional[string], int32) Region }).getSourceRegion_impl(p0, p1)
+	return this.self_.(interface {
+		getSourceRegion_impl(Optional[string], int32) Region
+	}).getSourceRegion_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getNodeForCodeInsertion(p0 *JSChunk) Node {
@@ -367,8 +395,8 @@ func (this *AbstractCompiler) setStringMap(p0 *VariableMap) {
 	this.self_.(interface{ setStringMap_impl(*VariableMap) }).setStringMap_impl(p0)
 }
 
-func (this *AbstractCompiler) setCssNames(p0 *TSet[string]) {
-	this.self_.(interface{ setCssNames_impl(*TSet[string]) }).setCssNames_impl(p0)
+func (this *AbstractCompiler) setCssNames(p0 *JTSet[string]) {
+	this.self_.(interface{ setCssNames_impl(*JTSet[string]) }).setCssNames_impl(p0)
 }
 
 func (this *AbstractCompiler) setIdGeneratorMap(p0 string) {
@@ -391,20 +419,20 @@ func (this *AbstractCompiler) setInstrumentationMapping(p0 *VariableMap) {
 	this.self_.(interface{ setInstrumentationMapping_impl(*VariableMap) }).setInstrumentationMapping_impl(p0)
 }
 
-func (this *AbstractCompiler) addExportedNames(p0 *TSet[string]) {
-	this.self_.(interface{ addExportedNames_impl(*TSet[string]) }).addExportedNames_impl(p0)
+func (this *AbstractCompiler) addExportedNames(p0 *JTSet[string]) {
+	this.self_.(interface{ addExportedNames_impl(*JTSet[string]) }).addExportedNames_impl(p0)
 }
 
-func (this *AbstractCompiler) getExportedNames() *TSet[string] {
-	return this.self_.(interface{ getExportedNames_impl() *TSet[string] }).getExportedNames_impl()
+func (this *AbstractCompiler) getExportedNames() *JTSet[string] {
+	return this.self_.(interface{ getExportedNames_impl() *JTSet[string] }).getExportedNames_impl()
 }
 
 func (this *AbstractCompiler) setDefineNames(p0 Collection) {
 	this.self_.(interface{ setDefineNames_impl(Collection) }).setDefineNames_impl(p0)
 }
 
-func (this *AbstractCompiler) getDefineNames() *TSet[string] {
-	return this.self_.(interface{ getDefineNames_impl() *TSet[string] }).getDefineNames_impl()
+func (this *AbstractCompiler) getDefineNames() *JTSet[string] {
+	return this.self_.(interface{ getDefineNames_impl() *JTSet[string] }).getDefineNames_impl()
 }
 
 func (this *AbstractCompiler) getOptions() *CompilerOptions {
@@ -467,12 +495,12 @@ func (this *AbstractCompiler) getLastPassName() string {
 	return this.self_.(interface{ getLastPassName_impl() string }).getLastPassName_impl()
 }
 
-func (this *AbstractCompiler) setExternProperties(p0 *TSet[string]) {
-	this.self_.(interface{ setExternProperties_impl(*TSet[string]) }).setExternProperties_impl(p0)
+func (this *AbstractCompiler) setExternProperties(p0 *JTSet[string]) {
+	this.self_.(interface{ setExternProperties_impl(*JTSet[string]) }).setExternProperties_impl(p0)
 }
 
-func (this *AbstractCompiler) getExternProperties() *TSet[string] {
-	return this.self_.(interface{ getExternProperties_impl() *TSet[string] }).getExternProperties_impl()
+func (this *AbstractCompiler) getExternProperties() *JTSet[string] {
+	return this.self_.(interface{ getExternProperties_impl() *JTSet[string] }).getExternProperties_impl()
 }
 
 func (this *AbstractCompiler) getAccessorSummary() *AccessorSummary {
@@ -483,8 +511,10 @@ func (this *AbstractCompiler) setAccessorSummary(p0 *AccessorSummary) {
 	this.self_.(interface{ setAccessorSummary_impl(*AccessorSummary) }).setAccessorSummary_impl(p0)
 }
 
-func (this *AbstractCompiler) addComments(p0 string, p1 *TList[*Comment]) {
-	this.self_.(interface{ addComments_impl(string, *TList[*Comment]) }).addComments_impl(p0, p1)
+func (this *AbstractCompiler) addComments(p0 string, p1 *JTList[*Comment]) {
+	this.self_.(interface {
+		addComments_impl(string, *JTList[*Comment])
+	}).addComments_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getComments(p0 Optional[string]) List {
@@ -496,7 +526,9 @@ func (this *AbstractCompiler) getModuleLoader() *ModuleLoader {
 }
 
 func (this *AbstractCompiler) getModuleTypeByName(p0 Optional[string]) *CompilerInput_ModuleType {
-	return this.self_.(interface{ getModuleTypeByName_impl(Optional[string]) *CompilerInput_ModuleType }).getModuleTypeByName_impl(p0)
+	return this.self_.(interface {
+		getModuleTypeByName_impl(Optional[string]) *CompilerInput_ModuleType
+	}).getModuleTypeByName_impl(p0)
 }
 
 func (this *AbstractCompiler) getModuleMetadataMap() *ModuleMetadataMap {
@@ -516,6 +548,7 @@ func (this *AbstractCompiler) setModuleMap(p0 *ModuleMap) {
 }
 
 var AbstractCompiler_READ_ERROR *DiagnosticType
+
 const AbstractCompiler_FILL_FILE_SUFFIX string = "$fillFile"
 const AbstractCompiler_RUNTIME_LIB_DIR string = "src/com/google/javascript/jscomp/js/"
 
@@ -655,4 +688,3 @@ func AbstractCompiler_LifeCycleStage_clinit() {
 	registerEnum_("com.google.javascript.jscomp.AbstractCompiler.LifeCycleStage", enumValues_(AbstractCompiler_LifeCycleStage_values_))
 
 }
-

@@ -3,15 +3,15 @@
 package closure
 
 type VarCheck struct {
-	undefinedNamesFromExterns *TSet[string]
-	compiler_ *AbstractCompiler
-	validityCheck bool
-	strictExternCheck bool
-	dupHandler *VarCheck_RedeclarationCheckHandler
+	undefinedNamesFromExterns *JTSet[string]
+	compiler_                 *AbstractCompiler
+	validityCheck             bool
+	strictExternCheck         bool
+	dupHandler                *VarCheck_RedeclarationCheckHandler
 }
 
 func (this *VarCheck) finit_VarCheck() {
-	this.undefinedNamesFromExterns = newTSet_(tc_string)
+	this.undefinedNamesFromExterns = jnewTSet_(jtc_string)
 }
 
 func (this *VarCheck) init_VarCheck_AbstractCompiler(compiler *AbstractCompiler) {
@@ -58,7 +58,7 @@ func (this *VarCheck) process_2(externs Node, root Node) {
 		var varName string = it_1.v
 		this.createSynthesizedExternVar(varName, false)
 	}
-	if (this.dupHandler != nil) {
+	if this.dupHandler != nil {
 		this.dupHandler.removeDuplicates()
 	}
 }
@@ -81,8 +81,8 @@ func (this *VarCheck) checkName(t *NodeTraversal, n Node, parent Node) {
 	}
 	var scope *Scope = t.getScope()
 	var var_ *Var = cast_[*Var](scope.getVar(varName).self())
-	if (var_ == nil) {
-		if ((NodeUtil_isFunctionExpression(parent) || NodeUtil_isClassExpression(parent)) && n.isFirstChildOf(parent)) {
+	if var_ == nil {
+		if (NodeUtil_isFunctionExpression(parent) || NodeUtil_isClassExpression(parent)) && n.isFirstChildOf(parent) {
 			return
 		}
 		if NodeUtil_isNonlocalModuleExportName(n) {
@@ -92,19 +92,19 @@ func (this *VarCheck) checkName(t *NodeTraversal, n Node, parent Node) {
 		cast_[*Scope](scope.getGlobalScope().self()).declare(varName, n, this.compiler_.getSynthesizedExternsInput())
 		return
 	}
-	if ((var_.isImplicitGoogNamespace() && Object_equals(obj_(var_.getImplicitGoogNamespaceStrength()), obj_(StaticSourceFile_SourceKind_WEAK))) && Object_equals(obj_(VarCheck_strengthOf(n)), obj_(StaticSourceFile_SourceKind_STRONG))) {
+	if (var_.isImplicitGoogNamespace() && Object_equals(obj_(var_.getImplicitGoogNamespaceStrength()), obj_(StaticSourceFile_SourceKind_WEAK))) && Object_equals(obj_(VarCheck_strengthOf(n)), obj_(StaticSourceFile_SourceKind_STRONG)) {
 		this.handleUndeclaredVariableRef(t, n)
 		return
 	}
 	var currInput *CompilerInput = t.getInput()
 	var varInput *CompilerInput = var_.getInput()
-	if (((currInput == varInput) || (currInput == nil)) || (varInput == nil)) {
+	if ((currInput == varInput) || (currInput == nil)) || (varInput == nil) {
 		return
 	}
 	var currChunk *JSChunk = currInput.getChunk()
 	var varChunk *JSChunk = varInput.getChunk()
 	var chunkGraph *JSChunkGraph = this.compiler_.getChunkGraph()
-	if (((!this.validityCheck && (varChunk != currChunk)) && (varChunk != nil)) && (currChunk != nil)) {
+	if ((!this.validityCheck && (varChunk != currChunk)) && (varChunk != nil)) && (currChunk != nil) {
 		if varChunk.isWeak() {
 			this.handleUndeclaredVariableRef(t, n)
 		}
@@ -125,7 +125,7 @@ func (this *VarCheck) checkName(t *NodeTraversal, n Node, parent Node) {
 
 func VarCheck_strengthOf(n Node) *StaticSourceFile_SourceKind {
 	var source StaticSourceFile = n.getStaticSourceFile()
-	if (source == nil) {
+	if source == nil {
 		return StaticSourceFile_SourceKind_EXTERN
 	}
 	return source.getKind()
@@ -135,8 +135,8 @@ func (this *VarCheck) handleUndeclaredVariableRef(t *NodeTraversal, n Node) {
 	Preconditions_checkState(n.isName())
 	var varName string = n.getString()
 	if n.getParent().isTypeOf() {
-	} else if (varName == VarCheck_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME) {
-	} else if (this.strictExternCheck && t.getInput().isExtern()) {
+	} else if varName == VarCheck_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME {
+	} else if this.strictExternCheck && t.getInput().isExtern() {
 	} else {
 		t.report(n, VarCheck_UNDEFINED_VAR_ERROR, []string{varName})
 	}
@@ -152,13 +152,13 @@ func (this *VarCheck) enterScope(t *NodeTraversal) {
 }
 
 func (this *VarCheck) exitScope(t *NodeTraversal) {
-	if (!this.validityCheck && t.inGlobalScope()) {
+	if !this.validityCheck && t.inGlobalScope() {
 		var scope *Scope = t.getScope()
 		it_1 := VarCheck_REQUIRED_SYMBOLS.each()
 		for it_1.next() {
 			var requiredSymbol string = it_1.v
 			var var_ *Var = cast_[*Var](scope.getVar(requiredSymbol).self())
-			if (var_ == nil) {
+			if var_ == nil {
 				this.undefinedNamesFromExterns.add(requiredSymbol)
 			}
 		}
@@ -196,7 +196,12 @@ func (this *VarCheck) reportBlockScopedMultipleDeclaration(current Node, name st
 }
 
 func VarCheck_locationOf(n Node) string {
-	return func() string { if (n == 0) { return "<unknown>" }; return n.getLocation() }()
+	return func() string {
+		if n == 0 {
+			return "<unknown>"
+		}
+		return n.getLocation()
+	}()
 }
 
 func VarCheck_getSynthesizedExternsRoot(compiler *AbstractCompiler) Node {
@@ -212,10 +217,12 @@ var VarCheck_UNDEFINED_EXTERN_VAR_ERROR *DiagnosticType
 var VarCheck_VAR_MULTIPLY_DECLARED_ERROR *DiagnosticType
 var VarCheck_BLOCK_SCOPED_DECL_MULTIPLY_DECLARED_ERROR *DiagnosticType
 var VarCheck_VAR_ARGUMENTS_SHADOWED_ERROR *DiagnosticType
+
 const VarCheck_ARGUMENTS string = "arguments"
 const VarCheck_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME string = "$jscomp_wrap_closure_unaware_code"
+
 var VarCheck_googForwardDeclare Node
-var VarCheck_REQUIRED_SYMBOLS *TSet[string]
+var VarCheck_REQUIRED_SYMBOLS *JTSet[string]
 
 var VarCheck_clinit_done bool
 
@@ -234,7 +241,7 @@ func VarCheck_clinit() {
 	VarCheck_BLOCK_SCOPED_DECL_MULTIPLY_DECLARED_ERROR = DiagnosticType_error("JSC_BLOCK_SCOPED_DECL_MULTIPLY_DECLARED_ERROR", "Block-scoped variable {0} declared more than once. First occurrence: {1}")
 	VarCheck_VAR_ARGUMENTS_SHADOWED_ERROR = DiagnosticType_error("JSC_VAR_ARGUMENTS_SHADOWED_ERROR", "Shadowing \"arguments\" is not allowed")
 	VarCheck_googForwardDeclare = IR_getprop_Node_String(IR_name("goog"), "forwardDeclare")
-	VarCheck_REQUIRED_SYMBOLS = immutableSetOf_[string](tc_string, "AggregateError", "Array", "Error", "Float32Array", "Function", "Infinity", "Iterator", "JSCOMPILER_PRESERVE", "JSCompiler_renameProperty", "Map", "Math", "NaN", "Number", "Object", "Promise", "RangeError", "ReferenceError", "Reflect", "RegExp", "Set", "String", "SuppressedError", "Symbol", "TypeError", "WeakMap", "global", "globalThis", "isNaN", "parseFloat", "parseInt", "self", "undefined", "window")
+	VarCheck_REQUIRED_SYMBOLS = jimmutableSetOf_[string](jtc_string, "AggregateError", "Array", "Error", "Float32Array", "Function", "Infinity", "Iterator", "JSCOMPILER_PRESERVE", "JSCompiler_renameProperty", "Map", "Math", "NaN", "Number", "Object", "Promise", "RangeError", "ReferenceError", "Reflect", "RegExp", "Set", "String", "SuppressedError", "Symbol", "TypeError", "WeakMap", "global", "globalThis", "isNaN", "parseFloat", "parseInt", "self", "undefined", "window")
 
 }
 
@@ -267,10 +274,10 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 				return
 			}
 		case Token_rhino_GETPROP:
-			if (n == parent.getFirstChild()) {
+			if n == parent.getFirstChild() {
 				var scope *Scope = t.getScope()
 				var var_ *Var = cast_[*Var](scope.getVar(n.getString()).self())
-				if (var_ != nil) {
+				if var_ != nil {
 					return
 				}
 				if parent.matchesQualifiedNameNode(VarCheck_googForwardDeclare) {
@@ -281,7 +288,7 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 			}
 			return
 		case Token_rhino_ASSIGN:
-			if (((n == parent.getLastChild()) && n.isQualifiedName()) && parent.getFirstChild().isQualifiedName()) {
+			if ((n == parent.getLastChild()) && n.isQualifiedName()) && parent.getFirstChild().isQualifiedName() {
 				return
 			}
 		case Token_rhino_NAME:
@@ -297,19 +304,19 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 		t.report(n, VarCheck_NAME_REFERENCE_IN_EXTERNS_ERROR, []string{n.getString()})
 		var scope *Scope = t.getScope()
 		var var_ *Var = cast_[*Var](scope.getVar(n.getString()).self())
-		if (var_ == nil) {
+		if var_ == nil {
 			this.outer_.undefinedNamesFromExterns.add(n.getString())
 		}
 	}
 }
 
 type VarCheck_RedeclarationCheckHandler struct {
-	outer_ *VarCheck
-	dupDeclNodes *TList[Node]
+	outer_       *VarCheck
+	dupDeclNodes *JTList[Node]
 }
 
 func (this *VarCheck_RedeclarationCheckHandler) finit_VarCheck_RedeclarationCheckHandler() {
-	this.dupDeclNodes = newTList_(tc_Node)
+	this.dupDeclNodes = jnewTList_(jtc_Node)
 }
 
 func (this *VarCheck_RedeclarationCheckHandler) init_VarCheck_RedeclarationCheckHandler() {
@@ -327,20 +334,25 @@ func (this *VarCheck_RedeclarationCheckHandler) onRedeclaration(s *Scope, name s
 	var parent Node = NodeUtil_getDeclaringParent(n)
 	var origVar *Var = cast_[*Var](s.getVar(name).self())
 	var origNode Node = origVar.getNode()
-	var origParent Node = func() Node { if (origNode == 0) { return 0 }; return NodeUtil_getDeclaringParent(origNode) }()
+	var origParent Node = func() Node {
+		if origNode == 0 {
+			return 0
+		}
+		return NodeUtil_getDeclaringParent(origNode)
+	}()
 	switch parent.getToken() {
 	case Token_rhino_CLASS, Token_rhino_CONST, Token_rhino_LET:
 		this.outer_.reportBlockScopedMultipleDeclaration(n, name, origNode)
 		return
 	default:
 	}
-	if (origParent != 0) {
+	if origParent != 0 {
 		switch origParent.getToken() {
 		case Token_rhino_CLASS, Token_rhino_CONST, Token_rhino_LET:
 			this.outer_.reportBlockScopedMultipleDeclaration(n, name, origNode)
 			return
 		case Token_rhino_FUNCTION:
-			if (!s.isGlobal() && parent.isFunction()) {
+			if !s.isGlobal() && parent.isFunction() {
 				this.outer_.reportBlockScopedMultipleDeclaration(n, name, origNode)
 				return
 			}
@@ -348,7 +360,7 @@ func (this *VarCheck_RedeclarationCheckHandler) onRedeclaration(s *Scope, name s
 		}
 	}
 	if s.isGlobal() {
-		if (origParent.isCatch() && parent.isCatch()) {
+		if origParent.isCatch() && parent.isCatch() {
 			return
 		}
 		var allowDupe bool = VarCheck_hasDuplicateDeclarationSuppression(this.outer_.compiler_, n, origVar.getNameNode())
@@ -359,7 +371,7 @@ func (this *VarCheck_RedeclarationCheckHandler) onRedeclaration(s *Scope, name s
 		if !allowDupe {
 			VarCheck_reportVarMultiplyDeclared(this.outer_.compiler_, n, name, origNode)
 		}
-	} else if ((name == VarCheck_ARGUMENTS) && !(NodeUtil_isNameDeclaration(n.getParent()) && n.isName())) {
+	} else if (name == VarCheck_ARGUMENTS) && !(NodeUtil_isNameDeclaration(n.getParent()) && n.isName()) {
 		this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, VarCheck_VAR_ARGUMENTS_SHADOWED_ERROR, []string{}))
 	}
 }
@@ -369,10 +381,9 @@ func (this *VarCheck_RedeclarationCheckHandler) removeDuplicates() {
 	for it_1.next() {
 		var n Node = it_1.v
 		var parent Node = n.getParent()
-		if (parent != 0) {
+		if parent != 0 {
 			n.detach()
 			this.outer_.compiler_.reportChangeToEnclosingScope(parent)
 		}
 	}
 }
-

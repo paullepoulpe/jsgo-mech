@@ -5,7 +5,6 @@ package closure
 type DependencyResolver interface {
 	getDependencies(string) Collection
 	getDependenciesCollection(Collection) Collection
-	getDependencies_3(string, *TSet[string], bool) Collection
-	getDependencies_2(Collection, *TSet[string]) Collection
+	getDependencies_3(string, *JTSet[string], bool) Collection
+	getDependencies_2(Collection, *JTSet[string]) Collection
 }
-

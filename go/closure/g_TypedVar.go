@@ -4,10 +4,10 @@ package closure
 
 type TypedVar struct {
 	AbstractVar
-	type__ *JSType
-	markedEscaped bool
+	type__                    *JSType
+	markedEscaped             bool
 	markedAssignedExactlyOnce bool
-	typeInferred bool
+	typeInferred              bool
 }
 
 func (this *TypedVar) up_AbstractVar() *AbstractVar {
@@ -36,7 +36,7 @@ func (this *TypedVar) finit_TypedVar() {
 func (this *TypedVar) init_TypedVar(inferred bool, name string, nameNode Node, type_ *JSType, scope *TypedScope, index int32, input *CompilerInput) {
 	this.AbstractVar.init_AbstractVar(name, nameNode, scope.up_AbstractScope(), index, input, 0)
 	this.finit_TypedVar()
-	if (nameNode != 0) {
+	if nameNode != 0 {
 		Preconditions_checkArgument_boolean_String_Object(TypedVar_NAME_NODE_TYPES.contains(nameNode.getToken()), "Invalid name node token %s", nameNode.getToken())
 	}
 	this.type__ = type_
@@ -60,7 +60,7 @@ func (this *TypedVar) setType(type_ *JSType) {
 }
 
 func (this *TypedVar) resolveType(errorReporter ErrorReporter_rhino) {
-	if (this.type__ != nil) {
+	if this.type__ != nil {
 		this.type__ = this.type__.resolve(errorReporter)
 	}
 }
@@ -70,7 +70,7 @@ func (this *TypedVar) isTypeInferred() bool {
 }
 
 func (this *TypedVar) getInputName() string {
-	if (this.getInput() == nil) {
+	if this.getInput() == nil {
 		return "<non-file>"
 	}
 	return this.getInput().getName()
@@ -96,7 +96,7 @@ func (this *TypedVar) isMarkedAssignedExactlyOnce() bool {
 	return this.markedAssignedExactlyOnce
 }
 
-var TypedVar_NAME_NODE_TYPES *TSet[*Token_rhino]
+var TypedVar_NAME_NODE_TYPES *JTSet[*Token_rhino]
 
 var TypedVar_clinit_done bool
 
@@ -108,4 +108,3 @@ func TypedVar_clinit() {
 	TypedVar_NAME_NODE_TYPES = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_NAME.up_Enum(), []*Enum{Token_rhino_THIS.up_Enum(), Token_rhino_IMPORT_STAR.up_Enum(), Token_rhino_EXPR_RESULT.up_Enum(), Token_rhino_EXPORT.up_Enum(), Token_rhino_GETPROP.up_Enum(), Token_rhino_FUNCTION.up_Enum(), Token_rhino_STRING_KEY.up_Enum(), Token_rhino_SETTER_DEF.up_Enum(), Token_rhino_GETTER_DEF.up_Enum(), Token_rhino_MEMBER_FUNCTION_DEF.up_Enum(), Token_rhino_MODULE_BODY.up_Enum()}))
 
 }
-

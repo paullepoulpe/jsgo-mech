@@ -4,7 +4,7 @@ package closure
 
 type MapDiagnosticToSuppression struct {
 	output *DiagnosticToSuppressionMapper_OutputFormat
-	help bool
+	help   bool
 }
 
 func (this *MapDiagnosticToSuppression) finit_MapDiagnosticToSuppression() {
@@ -45,7 +45,7 @@ func (this *MapDiagnosticToSuppression) printSuppressions(args []string) {
 	var parsed *Outcome_base[any] = parser.parseArgument(args)
 	if parsed.isErr() {
 		var ex *CmdLineException = cast_[*CmdLineException](parsed.error().self())
-		Output_stderr().println(("Could not parse arguments: " + tostr_(ex)))
+		Output_stderr().println(("Could not parse arguments: " + jtostr_(ex)))
 		MapDiagnosticToSuppression_printHelp()
 		return
 	}
@@ -55,4 +55,3 @@ func (this *MapDiagnosticToSuppression) printSuppressions(args []string) {
 	}
 	new_DiagnosticToSuppressionMapper(ParserRunner_getSuppressionNames(), DiagnosticGroups_getRegisteredGroups()).printSuppressions(this.output)
 }
-

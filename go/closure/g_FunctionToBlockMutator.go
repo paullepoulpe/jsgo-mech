@@ -3,8 +3,8 @@
 package closure
 
 type FunctionToBlockMutator struct {
-	compiler_ *AbstractCompiler
-	safeNameIdSupplier_ SupplierOf[string]
+	compiler_                 *AbstractCompiler
+	safeNameIdSupplier_       SupplierOf[string]
 	functionArgumentInjector_ *FunctionArgumentInjector
 }
 
@@ -35,13 +35,13 @@ func (this *FunctionToBlockMutator) mutateInternal(fnName string, fnNode Node, c
 		this.makeLocalNamesUnique(newFnNode, isCallInLoop)
 		FunctionToBlockMutator_rewriteFunctionDeclarations(newFnNode.getLastChild())
 	}
-	var modifiedParameters *TSet[string] = this.functionArgumentInjector_.findModifiedParameters(newFnNode)
-	var args *TMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(newFnNode, callNode, this.safeNameIdSupplier_)
+	var modifiedParameters *JTSet[string] = this.functionArgumentInjector_.findModifiedParameters(newFnNode)
+	var args *JTMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(newFnNode, callNode, this.safeNameIdSupplier_)
 	var hasArgs bool = !args.isEmpty()
-	var allNamesToAlias *TSet[string] = tsetEmptyImm_(tc_string)
+	var allNamesToAlias *JTSet[string] = jtsetEmptyImm_(jtc_string)
 	if hasArgs {
-		var temps *TSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, newFnNode, args, modifiedParameters, this.compiler_.getCodingConvention())
-		allNamesToAlias = tsetImm_(tc_string, ImmutableSet_builder().addAll(Iterable(modifiedParameters.asSet())).addAll(Iterable(temps.asSet())).build())
+		var temps *JTSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, newFnNode, args, modifiedParameters, this.compiler_.getCodingConvention())
+		allNamesToAlias = tsetImm_(jtc_string, ImmutableSet_builder().addAll(Iterable(modifiedParameters.asSet())).addAll(Iterable(temps.asSet())).build())
 	}
 	var newBlock Node = NodeUtil_getFunctionBody(newFnNode)
 	newBlock.detach()
@@ -71,14 +71,14 @@ func FunctionToBlockMutator_rewriteFunctionDeclarations(n Node) Node {
 		}
 		return 0
 	}
-	var functionsToHoist *TList[Node] = newTList_(tc_Node)
+	var functionsToHoist *JTList[Node] = jnewTList_(jtc_Node)
 	{
 		var c Node = n.getFirstChild()
 		var next Node
-		for ; (c != 0); c = next {
+		for ; c != 0; c = next {
 			next = c.getNext()
 			var fnVar Node = FunctionToBlockMutator_rewriteFunctionDeclarations(c)
-			if (fnVar != 0) {
+			if fnVar != 0 {
 				functionsToHoist.insert(0, fnVar)
 			}
 		}
@@ -86,7 +86,7 @@ func FunctionToBlockMutator_rewriteFunctionDeclarations(n Node) Node {
 	it_2 := functionsToHoist.each()
 	for it_2.next() {
 		var fnVar Node = it_2.v
-		if (n.getFirstChild() != fnVar) {
+		if n.getFirstChild() != fnVar {
 			n.addChildToFront(fnVar.detach())
 		}
 	}
@@ -103,18 +103,18 @@ func FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node_boolean(n 
 	}
 	if NodeUtil_isLoopStructure(n) {
 		var body Node = NodeUtil_getLoopCodeBlock(n)
-		if (body != 0) {
+		if body != 0 {
 			FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node_boolean(body, containingBlock, true)
 		}
 		if n.isVanillaFor() {
 			var init_ Node = n.getFirstChild()
-			if ((init_ != 0) && !init_.isEmpty()) {
+			if (init_ != 0) && !init_.isEmpty() {
 				FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node_boolean(init_, containingBlock, true)
 			}
 		}
 		return
 	}
-	if ((inLoop && n.isVar()) && n.hasOneChild()) {
+	if (inLoop && n.isVar()) && n.hasOneChild() {
 		var name Node = n.getFirstChild()
 		var srcLocation Node = name
 		var parent Node = n.getParent()
@@ -124,13 +124,13 @@ func FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node_boolean(n 
 		if name.hasChildren() {
 			var value Node = name.removeFirstChild()
 			var assign Node = IR_assign(name.detach(), value).srcref(n)
-			if (((parent != 0) && parent.isVanillaFor()) && (parent.getFirstChild() == n)) {
+			if ((parent != 0) && parent.isVanillaFor()) && (parent.getFirstChild() == n) {
 				n.replaceWith(assign)
 			} else {
 				n.replaceWith(NodeUtil_newExpr(assign))
 			}
 		} else {
-			if (((parent != 0) && parent.isVanillaFor()) && (parent.getFirstChild() == n)) {
+			if ((parent != 0) && parent.isVanillaFor()) && (parent.getFirstChild() == n) {
 				n.replaceWith(IR_empty())
 			} else {
 				n.detach()
@@ -138,14 +138,14 @@ func FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node_boolean(n 
 		}
 		return
 	}
-	if ((!inLoop && (n.isVar() || n.isLet())) && n.hasOneChild()) {
+	if (!inLoop && (n.isVar() || n.isLet())) && n.hasOneChild() {
 		var name Node = n.getFirstChild()
 		if !name.hasChildren() {
 			var srcLocation Node = name
 			var undefinedNode Node = NodeUtil_newUndefinedNode(srcLocation)
 			name.addChildToBack(undefinedNode)
 			var parent Node = n.getParent()
-			if (((parent != 0) && parent.isVanillaFor()) && (parent.getFirstChild() == n)) {
+			if ((parent != 0) && parent.isVanillaFor()) && (parent.getFirstChild() == n) {
 				n.replaceWith(IR_empty())
 			} else {
 				n.detach()
@@ -156,7 +156,7 @@ func FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node_boolean(n 
 	}
 	{
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node_boolean(c, containingBlock, inLoop)
 		}
 	}
@@ -169,7 +169,12 @@ func (this *FunctionToBlockMutator) makeLocalNamesUnique(fnNode Node, isCallInLo
 }
 
 func (this *FunctionToBlockMutator) getLabelNameForFunction(fnName string) string {
-	var name string = func() string { if String_isEmpty(fnName) { return "anon" }; return fnName }()
+	var name string = func() string {
+		if String_isEmpty(fnName) {
+			return "anon"
+		}
+		return fnName
+	}()
 	return ("JSCompiler_inline_label_" + sstr_(name) + "_" + sstr_(str_(this.safeNameIdSupplier_.get())))
 }
 
@@ -177,9 +182,9 @@ func (this *FunctionToBlockMutator) getUniqueThisName() string {
 	return ("JSCompiler_inline_this_" + sstr_(str_(this.safeNameIdSupplier_.get())))
 }
 
-func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap *TMap[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias *TSet[string]) Node {
-	if ((namesToAlias == nil) || namesToAlias.isEmpty()) {
-		var replacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
+func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap *JTMap[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias *JTSet[string]) Node {
+	if (namesToAlias == nil) || namesToAlias.isEmpty() {
+		var replacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
 		it_1 := paramToArgMap.eachEntry()
 		for it_1.next() {
 			var entry *TEntry[string, *FunctionArgumentInjector_ParamArgPair] = it_1.entry()
@@ -189,8 +194,8 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 		Preconditions_checkState((result == fnTemplateRoot))
 		return result
 	} else {
-		var paramReplacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
-		var newAliasesToAdd *TList[Node] = newTList_(tc_Node)
+		var paramReplacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
+		var newAliasesToAdd *JTList[Node] = jnewTList_(jtc_Node)
 		it_3 := paramToArgMap.eachEntry()
 		for it_3.next() {
 			var entry *TEntry[string, *FunctionArgumentInjector_ParamArgPair] = it_3.entry()
@@ -200,11 +205,11 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 				paramReplacements.put(name, arg.arg())
 				continue
 			}
-			if (name == FunctionArgumentInjector_THIS_MARKER) {
+			if name == FunctionArgumentInjector_THIS_MARKER {
 				var referencesThis bool = NodeUtil_referencesEnclosingReceiver(fnTemplateRoot)
 				var originalValue Node = arg.arg()
 				var replacement Node = originalValue
-				if (!originalValue.isThis() && (referencesThis || this.compiler_.getAstAnalyzer().mayHaveSideEffects(originalValue))) {
+				if !originalValue.isThis() && (referencesThis || this.compiler_.getAstAnalyzer().mayHaveSideEffects(originalValue)) {
 					var newName string = this.getUniqueThisName()
 					var newValue Node = originalValue.cloneTree()
 					var newNode Node = NodeUtil_newVarNode(newName, newValue).srcrefTreeIfMissing(newValue)
@@ -237,13 +242,13 @@ func FunctionToBlockMutator_replaceReturns(block Node, resultName Optional[strin
 	var root Node = block
 	var hasReturnAtExit bool = false
 	var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
-	if (returnCount > 0) {
+	if returnCount > 0 {
 		hasReturnAtExit = FunctionToBlockMutator_hasReturnAtExit(block)
 		if hasReturnAtExit {
 			FunctionToBlockMutator_convertLastReturnToStatement(block, resultName)
 			returnCount--
 		}
-		if (returnCount > 0) {
+		if returnCount > 0 {
 			FunctionToBlockMutator_replaceReturnWithBreak(block, 0, resultName, labelName)
 			var name Node = IR_labelName(labelName).srcref(block)
 			var label Node = IR_label(name, block).srcref(block)
@@ -252,7 +257,7 @@ func FunctionToBlockMutator_replaceReturns(block Node, resultName Optional[strin
 			root = newRoot
 		}
 	}
-	if ((resultMustBeSet && !hasReturnAtExit) && resultName.isPresent()) {
+	if (resultMustBeSet && !hasReturnAtExit) && resultName.isPresent() {
 		FunctionToBlockMutator_addDummyAssignment(block, resultName.get())
 	}
 	return root
@@ -271,7 +276,7 @@ func FunctionToBlockMutator_convertLastReturnToStatement(block Node, resultName 
 	var ret Node = block.getLastChild()
 	Preconditions_checkArgument(ret.isReturn())
 	var resultNode Node = FunctionToBlockMutator_getReplacementReturnStatement(ret, resultName)
-	if (resultNode == 0) {
+	if resultNode == 0 {
 		ret.detach()
 	} else {
 		resultNode.srcrefTreeIfMissing(ret)
@@ -292,11 +297,11 @@ func FunctionToBlockMutator_getReplacementReturnStatement(node Node, resultName 
 		retVal = node.getFirstChild().cloneTree()
 	}
 	if resultName.isEmpty() {
-		if (retVal != 0) {
+		if retVal != 0 {
 			resultNode = NodeUtil_newExpr(retVal)
 		}
 	} else {
-		if (retVal == 0) {
+		if retVal == 0 {
 			var srcLocation Node = node
 			retVal = NodeUtil_newUndefinedNode(srcLocation)
 		}
@@ -310,7 +315,7 @@ func FunctionToBlockMutator_hasReturnAtExit(block Node) bool {
 }
 
 func FunctionToBlockMutator_replaceReturnWithBreak(current Node, parent Node, resultName Optional[string], labelName string) Node {
-	if (current.isFunction() || current.isExprResult()) {
+	if current.isFunction() || current.isExprResult() {
 		return current
 	}
 	if current.isReturn() {
@@ -319,7 +324,7 @@ func FunctionToBlockMutator_replaceReturnWithBreak(current Node, parent Node, re
 		var breakNode Node = IR_breakNode_Node(IR_labelName(labelName))
 		breakNode.srcrefTreeIfMissing(current)
 		current.replaceWith(breakNode)
-		if (resultNode != 0) {
+		if resultNode != 0 {
 			resultNode.srcrefTreeIfMissing(current)
 			resultNode.insertBefore(breakNode)
 		}
@@ -327,7 +332,7 @@ func FunctionToBlockMutator_replaceReturnWithBreak(current Node, parent Node, re
 	} else {
 		{
 			var c Node = current.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				c = FunctionToBlockMutator_replaceReturnWithBreak(c, current, resultName, labelName)
 			}
 		}
@@ -352,4 +357,3 @@ func new_FunctionToBlockMutator_LabelNameSupplier(idSupplier SupplierOf[string])
 func (this *FunctionToBlockMutator_LabelNameSupplier) get() any {
 	return strobj_(("JSCompiler_inline_label_" + sstr_(str_(this.idSupplier.get()))))
 }
-

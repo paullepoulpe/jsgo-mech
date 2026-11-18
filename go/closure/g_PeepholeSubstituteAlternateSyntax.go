@@ -44,7 +44,12 @@ func (this *PeepholeSubstituteAlternateSyntax) optimizeSubtree_impl(node Node) N
 		case Token_rhino_RETURN:
 			return this.tryReduceReturn(node)
 		case Token_rhino_EXPR_RESULT:
-			return func() Node { if node.getFirstChild().isComma() { return this.trySplitComma(node) }; return node }()
+			return func() Node {
+				if node.getFirstChild().isComma() {
+					return this.trySplitComma(node)
+				}
+				return node
+			}()
 		case Token_rhino_NAME:
 			return this.tryReplaceUndefined(node)
 		case Token_rhino_ARRAYLIT:
@@ -56,7 +61,12 @@ func (this *PeepholeSubstituteAlternateSyntax) optimizeSubtree_impl(node Node) N
 		case Token_rhino_AND, Token_rhino_OR, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_COALESCE:
 			return this.tryRotateAssociativeOperator(node)
 		case Token_rhino_MUL:
-			return func() Node { if this.mayHaveSideEffects(node) { return node }; return this.tryRotateCommutativeOperator(node) }()
+			return func() Node {
+				if this.mayHaveSideEffects(node) {
+					return node
+				}
+				return this.tryRotateCommutativeOperator(node)
+			}()
 		default:
 			return node
 		}
@@ -71,12 +81,12 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeWindowRefs(node Node) 
 	Preconditions_checkArgument(node.isGetProp())
 	if node.getFirstChild().isName() {
 		var nameNode Node = node.getFirstChild()
-		if (("window" == nameNode.getString()) && PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS.contains(node.getString())) {
+		if ("window" == nameNode.getString()) && PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS.contains(node.getString()) {
 			var newNameNode Node = IR_name(node.getString())
 			var parentNode Node = node.getParent()
 			newNameNode.srcref(node)
 			node.replaceWith(newNameNode)
-			if (parentNode.isCall() || parentNode.isOptChainCall()) {
+			if parentNode.isCall() || parentNode.isOptChainCall() {
 				parentNode.putBooleanProp(Node_FREE_CALL, true)
 			}
 			this.reportChangeToEnclosingScope(parentNode)
@@ -92,13 +102,13 @@ func (this *PeepholeSubstituteAlternateSyntax) tryRotateCommutativeOperator(n No
 	}
 	var rhs Node = n.getLastChild()
 	var lhs Node = n.getFirstChild()
-	for ((lhs.getToken() == n.getToken()) && NodeUtil_isAssociative(n.getToken())) {
+	for (lhs.getToken() == n.getToken()) && NodeUtil_isAssociative(n.getToken()) {
 		lhs = lhs.getFirstChild()
 	}
 	var precedence int32 = NodeUtil_precedence(n.getToken())
 	var lhsPrecedence int32 = NodeUtil_precedence(lhs.getToken())
 	var rhsPrecedence int32 = NodeUtil_precedence(rhs.getToken())
-	if ((rhsPrecedence == precedence) && (lhsPrecedence != precedence)) {
+	if (rhsPrecedence == precedence) && (lhsPrecedence != precedence) {
 		rhs.detach()
 		lhs.replaceWith(rhs)
 		n.addChildToBack(lhs)
@@ -113,7 +123,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryRotateAssociativeOperator(n No
 	}
 	Preconditions_checkArgument(NodeUtil_isAssociative(n.getToken()))
 	var rhs Node = n.getLastChild()
-	if (n.getToken() == rhs.getToken()) {
+	if n.getToken() == rhs.getToken() {
 		var first Node = n.removeFirstChild()
 		var second Node = rhs.removeFirstChild()
 		var third Node = rhs.getLastChild().detach()
@@ -122,7 +132,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryRotateAssociativeOperator(n No
 		n.replaceWith(newRoot)
 		this.reportChangeToEnclosingScope(newRoot)
 		return newRoot
-	} else if (NodeUtil_isCommutative(n.getToken()) && !this.mayHaveSideEffects(n)) {
+	} else if NodeUtil_isCommutative(n.getToken()) && !this.mayHaveSideEffects(n) {
 		return this.tryRotateCommutativeOperator(n)
 	}
 	return n
@@ -131,14 +141,14 @@ func (this *PeepholeSubstituteAlternateSyntax) tryRotateAssociativeOperator(n No
 func (this *PeepholeSubstituteAlternateSyntax) tryFoldSimpleFunctionCall(n Node) Node {
 	Preconditions_checkState_boolean_Object_H(n.isCall(), n)
 	var callTarget Node = n.getFirstChild()
-	if ((callTarget == 0) || !callTarget.isName()) {
+	if (callTarget == 0) || !callTarget.isName() {
 		return n
 	}
 	var targetName string = callTarget.getString()
 	switch targetName {
 	case "Boolean":
 		var paramCount int32 = (n.getChildCount() - 1)
-		if (paramCount == 1) {
+		if paramCount == 1 {
 			var value Node = n.getLastChild().detach()
 			var replacement Node
 			if NodeUtil_isBooleanResult(value) {
@@ -151,7 +161,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldSimpleFunctionCall(n Node)
 		}
 	case "String":
 		var value Node = callTarget.getNext()
-		if (((value != 0) && (value.getNext() == 0)) && NodeUtil_isImmutableValue(value)) {
+		if ((value != 0) && (value.getNext() == 0)) && NodeUtil_isImmutableValue(value) {
 			var addition Node = IR_add(IR_string("").srcref(callTarget), value.detach())
 			n.replaceWith(addition)
 			this.reportChangeToEnclosingScope(addition)
@@ -166,12 +176,12 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldImmediateCallToBoundFuncti
 	Preconditions_checkState(n.isCall())
 	var callTarget Node = n.getFirstChild()
 	var bind *CodingConvention_Bind = this.getCodingConvention().describeFunctionBind(callTarget, false)
-	if (bind != nil) {
+	if bind != nil {
 		bind.target.detach()
 		callTarget.replaceWith(bind.target)
 		callTarget = bind.target
 		PeepholeSubstituteAlternateSyntax_addParameterAfter(bind.parameters, callTarget)
-		if ((bind.thisValue != 0) && !NodeUtil_isUndefined(bind.thisValue)) {
+		if (bind.thisValue != 0) && !NodeUtil_isUndefined(bind.thisValue) {
 			var newCallTarget Node = IR_getprop_Node_String(callTarget.cloneTree(), "call")
 			this.markNewScopesChanged(newCallTarget)
 			callTarget.replaceWith(newCallTarget)
@@ -187,7 +197,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldImmediateCallToBoundFuncti
 }
 
 func PeepholeSubstituteAlternateSyntax_addParameterAfter(parameterList Node, after Node) {
-	if (parameterList != 0) {
+	if parameterList != 0 {
 		PeepholeSubstituteAlternateSyntax_addParameterAfter(parameterList.getNext(), after)
 		parameterList.cloneTree().insertAfter(after)
 	}
@@ -235,7 +245,7 @@ func (this *PeepholeSubstituteAlternateSyntax) trySplitComma(n Node) Node {
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) tryReplaceUndefined(n Node) Node {
-	if ((this.isASTNormalized() && NodeUtil_isUndefined(n)) && !NodeUtil_isLValue(n)) {
+	if (this.isASTNormalized() && NodeUtil_isUndefined(n)) && !NodeUtil_isLValue(n) {
 		var replacement Node = NodeUtil_newUndefinedNode(n)
 		n.replaceWith(replacement)
 		this.reportChangeToEnclosingScope(replacement)
@@ -246,9 +256,9 @@ func (this *PeepholeSubstituteAlternateSyntax) tryReplaceUndefined(n Node) Node 
 
 func (this *PeepholeSubstituteAlternateSyntax) tryReduceCall(node Node) Node {
 	var result Node = this.tryFoldLiteralConstructor(node)
-	if (result == node) {
+	if result == node {
 		result = this.tryFoldSimpleFunctionCall(node)
-		if (result == node) {
+		if result == node {
 			result = this.tryFoldImmediateCallToBoundFunction(node)
 		}
 	}
@@ -257,7 +267,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryReduceCall(node Node) Node {
 
 func (this *PeepholeSubstituteAlternateSyntax) tryReduceReturn(n Node) Node {
 	var result Node = n.getFirstChild()
-	if (result != 0) {
+	if result != 0 {
 		switch result.getToken() {
 		case Token_rhino_VOID:
 			var operand Node = result.getFirstChild()
@@ -267,7 +277,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryReduceReturn(n Node) Node {
 			}
 		case Token_rhino_NAME:
 			var name string = result.getString()
-			if (name == "undefined") {
+			if name == "undefined" {
 				n.removeFirstChild()
 				this.reportChangeToEnclosingScope(n)
 			}
@@ -288,13 +298,13 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldStandardConstructors(n Nod
 }
 
 func (this *PeepholeSubstituteAlternateSyntax) canFoldStandardConstructors(n Node) bool {
-	if (this.isASTNormalized() && n.getFirstChild().isName()) {
+	if this.isASTNormalized() && n.getFirstChild().isName() {
 		var className string = n.getFirstChild().getString()
 		if PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS.contains(className) {
 			return true
 		}
-		if ("RegExp" == className) {
-			if ((n.getSecondChild() == 0) || n.getSecondChild().isStringLit()) {
+		if "RegExp" == className {
+			if (n.getSecondChild() == 0) || n.getSecondChild().isStringLit() {
 				return true
 			}
 		}
@@ -306,24 +316,24 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldLiteralConstructor(n Node)
 	Preconditions_checkArgument((n.isCall() || n.isNew()))
 	var constructorNameNode Node = n.getFirstChild()
 	var newLiteralNode Node = 0
-	if (this.isASTNormalized() && constructorNameNode.isName()) {
+	if this.isASTNormalized() && constructorNameNode.isName() {
 		var className string = constructorNameNode.getString()
 		var constructorHasArgs bool = (constructorNameNode.getNext() != 0)
-		if (("Object" == className) && !constructorHasArgs) {
+		if ("Object" == className) && !constructorHasArgs {
 			newLiteralNode = IR_objectlit([]Node{})
-		} else if ("Array" == className) {
+		} else if "Array" == className {
 			var arg0 Node = constructorNameNode.getNext()
 			var action *PeepholeSubstituteAlternateSyntax_FoldArrayAction = PeepholeSubstituteAlternateSyntax_isSafeToFoldArrayConstructor(arg0)
-			if ((action == PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS) || (action == PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS)) {
+			if (action == PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS) || (action == PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS) {
 				newLiteralNode = IR_arraylit([]Node{})
 				n.removeFirstChild()
 				var elements Node = n.removeChildren()
-				if (action == PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS) {
+				if action == PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS {
 					newLiteralNode.addChildrenToFront(elements)
 				}
 			}
 		}
-		if (newLiteralNode != 0) {
+		if newLiteralNode != 0 {
 			n.replaceWith(newLiteralNode)
 			this.reportChangeToEnclosingScope(newLiteralNode)
 			return newLiteralNode
@@ -334,16 +344,16 @@ func (this *PeepholeSubstituteAlternateSyntax) tryFoldLiteralConstructor(n Node)
 
 func PeepholeSubstituteAlternateSyntax_isSafeToFoldArrayConstructor(arg Node) *PeepholeSubstituteAlternateSyntax_FoldArrayAction {
 	var action *PeepholeSubstituteAlternateSyntax_FoldArrayAction = PeepholeSubstituteAlternateSyntax_FoldArrayAction_NOT_SAFE_TO_FOLD
-	if (arg == 0) {
+	if arg == 0 {
 		action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS
-	} else if (arg.getNext() != 0) {
+	} else if arg.getNext() != 0 {
 		action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS
 	} else {
 		switch arg.getToken() {
 		case Token_rhino_STRINGLIT:
 			action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITH_ARGS
 		case Token_rhino_NUMBER:
-			if (arg.getDouble() == 0) {
+			if arg.getDouble() == 0 {
 				action = PeepholeSubstituteAlternateSyntax_FoldArrayAction_SAFE_TO_FOLD_WITHOUT_ARGS
 			}
 		case Token_rhino_ARRAYLIT:
@@ -361,9 +371,14 @@ func (this *PeepholeSubstituteAlternateSyntax) reduceSubstractionAssignment(n No
 		isNegative = true
 		right = right.getOnlyChild()
 	}
-	if (right.isNumber() && (right.getDouble() == 1)) {
+	if right.isNumber() && (right.getDouble() == 1) {
 		var left Node = n.removeFirstChild()
-		var newNode Node = func() Node { if isNegative { return IR_inc(left, false) }; return IR_dec(left, false) }()
+		var newNode Node = func() Node {
+			if isNegative {
+				return IR_inc(left, false)
+			}
+			return IR_dec(left, false)
+		}()
 		n.replaceWith(newNode)
 		this.reportChangeToEnclosingScope(newNode)
 		return newNode
@@ -375,13 +390,23 @@ func (this *PeepholeSubstituteAlternateSyntax) reduceTrueFalse(n Node) Node {
 	if this.late {
 		switch n.getParent().getToken() {
 		case Token_rhino_EQ, Token_rhino_GT, Token_rhino_GE, Token_rhino_LE, Token_rhino_LT, Token_rhino_NE:
-			var number Node = IR_number(float64(func() int32 { if n.isTrue() { return 1 }; return 0 }()))
+			var number Node = IR_number(float64(func() int32 {
+				if n.isTrue() {
+					return 1
+				}
+				return 0
+			}()))
 			n.replaceWith(number)
 			this.reportChangeToEnclosingScope(number)
 			return number
 		default:
 		}
-		var not Node = IR_not(IR_number(float64(func() int32 { if n.isTrue() { return 0 }; return 1 }())))
+		var not Node = IR_not(IR_number(float64(func() int32 {
+			if n.isTrue() {
+				return 0
+			}
+			return 1
+		}())))
 		not.srcrefTreeIfMissing(n)
 		n.replaceWith(not)
 		this.reportChangeToEnclosingScope(not)
@@ -394,7 +419,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeArrayLiteral(n Node) N
 	var allStrings bool = true
 	{
 		var cur Node = n.getFirstChild()
-		for ; (cur != 0); cur = cur.getNext() {
+		for ; cur != 0; cur = cur.getNext() {
 			if !cur.isStringLit() {
 				allStrings = false
 			}
@@ -414,14 +439,14 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeStringArrayLiteral(n N
 	}
 	var numElements int32 = n.getChildCount()
 	var saving int32 = ((numElements * 2) - PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD)
-	if (saving <= 0) {
+	if saving <= 0 {
 		return n
 	}
 	var strings []string = newstrarr_(numElements)
 	var idx int32 = 0
 	{
 		var cur Node = n.getFirstChild()
-		for ; (cur != 0); cur = cur.getNext() {
+		for ; cur != 0; cur = cur.getNext() {
 			strings[idx] = cur.getString()
 			idx++
 		}
@@ -456,7 +481,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryTurnTemplateStringsToStrings(n
 func PeepholeSubstituteAlternateSyntax_pickDelimiter(strings []string) Optional[string] {
 	var allLength1 bool = true
 	for _, s := range strings {
-		if (String_length(s) != 1) {
+		if String_length(s) != 1 {
 			allLength1 = false
 			break
 		}
@@ -466,10 +491,10 @@ func PeepholeSubstituteAlternateSyntax_pickDelimiter(strings []string) Optional[
 	}
 	var delimiters []string = []string{" ", ";", ",", "{", "}", nullstr_}
 	var i int32 = 0
-	NEXT_DELIMITER_:
-	for ; (delimiters[i] != nullstr_); i++ {
+NEXT_DELIMITER_:
+	for ; delimiters[i] != nullstr_; i++ {
 		for _, cur := range strings {
-			if String_contains_s(cur, delimiters[i]) {
+			if JString_contains_s(cur, delimiters[i]) {
 				continue NEXT_DELIMITER_
 			}
 		}
@@ -479,8 +504,8 @@ func PeepholeSubstituteAlternateSyntax_pickDelimiter(strings []string) Optional[
 }
 
 var PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD int32
-var PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS *TSet[string]
-var PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS *TSet[string]
+var PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS *JTSet[string]
+var PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS *JTSet[string]
 
 var PeepholeSubstituteAlternateSyntax_clinit_done bool
 
@@ -490,8 +515,8 @@ func PeepholeSubstituteAlternateSyntax_clinit() {
 	}
 	PeepholeSubstituteAlternateSyntax_clinit_done = true
 	PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD = String_length(".split('.')")
-	PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS = immutableSetOf_[string](tc_string, "Object", "Array", "Error", "RegExp", "Math")
-	PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS = immutableSetOf_[string](tc_string, "Object", "Array", "Error")
+	PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS = jimmutableSetOf_[string](jtc_string, "Object", "Array", "Error", "RegExp", "Math")
+	PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS = jimmutableSetOf_[string](jtc_string, "Object", "Array", "Error")
 
 }
 
@@ -549,4 +574,3 @@ func PeepholeSubstituteAlternateSyntax_FoldArrayAction_clinit() {
 	registerEnum_("com.google.javascript.jscomp.PeepholeSubstituteAlternateSyntax.FoldArrayAction", enumValues_(PeepholeSubstituteAlternateSyntax_FoldArrayAction_values_))
 
 }
-

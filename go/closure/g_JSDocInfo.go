@@ -3,14 +3,14 @@
 package closure
 
 type JSDocInfo struct {
-	propertyBits int64
+	propertyBits       int64
 	propertyKeysBitset int64
-	propertyValues any
+	propertyValues     any
 }
 
 func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Property, any]) {
 	var keys int64 = 0
-	var values *TList[any] = newTList_(tc_Object)
+	var values *JTList[any] = jnewTList_(tc_Object)
 	it_1 := foreach_(any(props.entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
@@ -41,7 +41,7 @@ func (this *JSDocInfo) asMap() TreeMapOf[*JSDocInfo_Property, any] {
 	var map_ TreeMapOf[*JSDocInfo_Property, any] = new_TreeMap()
 	var bits int64 = this.propertyKeysBitset
 	var index int32 = 0
-	for (bits > 0) {
+	for bits > 0 {
 		var low int32 = Long_numberOfTrailingZeros(bits)
 		bits &= (^(int64(1) << (uint32(low) & 63)))
 		map_.put(JSDocInfo_Property_values[low].self(), this.getPropertyValueByIndex(index))
@@ -75,38 +75,43 @@ func (this *JSDocInfo) clone() any {
 	return obj_(this.clone_1(false))
 }
 
-func (this *JSDocInfo) cloneAndReplaceTypeNames(names *TSet[string]) *JSDocInfo {
+func (this *JSDocInfo) cloneAndReplaceTypeNames(names *JTSet[string]) *JSDocInfo {
 	return this.toBuilder_1(&JSDocInfo_TypeTransform_fn{func(type_ *JSTypeExpression) *JSTypeExpression {
 		return type_.replaceNamesWithUnknownType(names)
 	}}).build()
 }
 
 func (this *JSDocInfo) clone_1(cloneTypeNodes bool) *JSDocInfo {
-	return func() *JSDocInfo { if cloneTypeNodes { return this.toBuilder_1(&JSDocInfo_TypeTransform_fn{func(p0 *JSTypeExpression) *JSTypeExpression { return p0.copy() }}).build() }; return this.toBuilder().build() }()
+	return func() *JSDocInfo {
+		if cloneTypeNodes {
+			return this.toBuilder_1(&JSDocInfo_TypeTransform_fn{func(p0 *JSTypeExpression) *JSTypeExpression { return p0.copy() }}).build()
+		}
+		return this.toBuilder().build()
+	}()
 }
 
 func JSDocInfo_areEquivalent(jsDoc1 *JSDocInfo, jsDoc2 *JSDocInfo) bool {
-	if ((jsDoc1 == nil) != (jsDoc2 == nil)) {
+	if (jsDoc1 == nil) != (jsDoc2 == nil) {
 		return false
-	} else if (jsDoc1 == nil) {
+	} else if jsDoc1 == nil {
 		return true
 	}
-	if (((jsDoc1.propertyBits ^ jsDoc2.propertyBits) & (^JSDocInfo_EQUIVALENCE_IGNORED_BITS)) != 0) {
+	if ((jsDoc1.propertyBits ^ jsDoc2.propertyBits) & (^JSDocInfo_EQUIVALENCE_IGNORED_BITS)) != 0 {
 		return false
 	}
-	if (jsDoc1.propertyKeysBitset != jsDoc2.propertyKeysBitset) {
+	if jsDoc1.propertyKeysBitset != jsDoc2.propertyKeysBitset {
 		return false
 	}
 	var bits int64 = jsDoc1.propertyKeysBitset
 	var index int32 = 0
-	for (bits > 0) {
+	for bits > 0 {
 		var low int32 = Long_numberOfTrailingZeros(bits)
 		bits &= (^(int64(1) << (uint32(low) & 63)))
 		var prop *JSDocInfo_Property = JSDocInfo_Property_values[low]
 		var a any = jsDoc1.getPropertyValueByIndex(index)
 		var b any = jsDoc2.getPropertyValueByIndex(index)
 		index++
-		if (((a == nil) != (b == nil)) || ((a != nil) && !prop.equalValues(a, b))) {
+		if ((a == nil) != (b == nil)) || ((a != nil) && !prop.equalValues(a, b)) {
 			return false
 		}
 	}
@@ -278,11 +283,11 @@ func (this *JSDocInfo) containsDeclaration() bool {
 }
 
 func (this *JSDocInfo) containsFunctionDeclaration() bool {
-	if (this.checkBit(JSDocInfo_Bit_CONSTRUCTOR) || ((this.propertyKeysBitset & ((JSDocInfo_RETURN_TYPE.mask | JSDocInfo_THIS_TYPE.mask) | JSDocInfo_PARAMETERS.mask)) != 0)) {
+	if this.checkBit(JSDocInfo_Bit_CONSTRUCTOR) || ((this.propertyKeysBitset & ((JSDocInfo_RETURN_TYPE.mask | JSDocInfo_THIS_TYPE.mask) | JSDocInfo_PARAMETERS.mask)) != 0) {
 		return true
 	}
 	var type_ *JSTypeExpression = cast_[*JSTypeExpression](JSDocInfo_TYPE.get(this))
-	if (type_ != nil) {
+	if type_ != nil {
 		return type_.getRoot().isFunction()
 	}
 	return this.checkBit(JSDocInfo_Bit_NOSIDEEFFECTS)
@@ -294,17 +299,37 @@ func (this *JSDocInfo) containsTypeDefinition() bool {
 
 func (this *JSDocInfo) isAtSignCodePresent() bool {
 	var entireComment Optional[string] = this.getOriginalCommentString()
-	return func() bool { if entireComment.isEmpty() { return false }; return String_contains_s(entireComment.get(), "@code") }()
+	return func() bool {
+		if entireComment.isEmpty() {
+			return false
+		}
+		return JString_contains_s(entireComment.get(), "@code")
+	}()
 }
 
 func (this *JSDocInfo) getVisibility() *JSDocInfo_Visibility {
 	var visibility *JSDocInfo_Visibility = cast_[*JSDocInfo_Visibility](JSDocInfo_VISIBILITY.get(this))
-	return func() *JSDocInfo_Visibility { if (visibility != nil) { return visibility }; return JSDocInfo_Visibility_INHERITED }()
+	return func() *JSDocInfo_Visibility {
+		if visibility != nil {
+			return visibility
+		}
+		return JSDocInfo_Visibility_INHERITED
+	}()
 }
 
 func (this *JSDocInfo) getParameterType(parameter Optional[string]) *JSTypeExpression {
 	var params LinkedHashMapOf[string, *JSTypeExpression] = cast_[*LinkedHashMap](JSDocInfo_PARAMETERS.get(this))
-	return func() *JSTypeExpression { if (params != nil) { return func() *JSTypeExpression { if parameter.isPresent() { return cast_[*JSTypeExpression](Map_get_s(params, parameter.get())) }; return nil }() }; return nil }()
+	return func() *JSTypeExpression {
+		if params != nil {
+			return func() *JSTypeExpression {
+				if parameter.isPresent() {
+					return cast_[*JSTypeExpression](Map_get_s(params, parameter.get()))
+				}
+				return nil
+			}()
+		}
+		return nil
+	}()
 }
 
 func (this *JSDocInfo) hasParameter(parameter string) bool {
@@ -316,14 +341,19 @@ func (this *JSDocInfo) hasParameterType(parameter Optional[string]) bool {
 	return (this.getParameterType(parameter) != nil)
 }
 
-func (this *JSDocInfo) getParameterNames() *TSet[string] {
+func (this *JSDocInfo) getParameterNames() *JTSet[string] {
 	var params LinkedHashMapOf[string, *JSTypeExpression] = cast_[*LinkedHashMap](JSDocInfo_PARAMETERS.get(this))
-	return func() *TSet[string] { if (params != nil) { return immutableSetCopyOf_(tc_string, Collection(params.keySet())) }; return tsetEmptyImm_(tc_string) }()
+	return func() *JTSet[string] {
+		if params != nil {
+			return jimmutableSetCopyOf_(jtc_string, Collection(params.keySet()))
+		}
+		return jtsetEmptyImm_(jtc_string)
+	}()
 }
 
 func (this *JSDocInfo) getParameterNameAt(index int32) Optional[string] {
 	var params LinkedHashMapOf[string, *JSTypeExpression] = cast_[*LinkedHashMap](JSDocInfo_PARAMETERS.get(this))
-	if ((params == nil) || (index >= params.size())) {
+	if (params == nil) || (index >= params.size()) {
 		return Optional_empty[string]()
 	}
 	return Optional_ofNullable[string](str_(Iterables_get(Iterable(params.keySet()), index)))
@@ -331,12 +361,22 @@ func (this *JSDocInfo) getParameterNameAt(index int32) Optional[string] {
 
 func (this *JSDocInfo) getParameterCount() int32 {
 	var params LinkedHashMapOf[string, *JSTypeExpression] = cast_[*LinkedHashMap](JSDocInfo_PARAMETERS.get(this))
-	return func() int32 { if (params != nil) { return params.size() }; return 0 }()
+	return func() int32 {
+		if params != nil {
+			return params.size()
+		}
+		return 0
+	}()
 }
 
 func (this *JSDocInfo) getThrowsAnnotations() ListOf[string] {
 	var annotations ListOf[string] = icast_List(JSDocInfo_THROWS_ANNOTATIONS.get(this))
-	return func() List { if (annotations != nil) { return annotations }; return ImmutableList_as_List(ImmutableList_of()) }()
+	return func() List {
+		if annotations != nil {
+			return annotations
+		}
+		return ImmutableList_as_List(ImmutableList_of())
+	}()
 }
 
 func (this *JSDocInfo) hasEnumParameterType() bool {
@@ -395,9 +435,14 @@ func (this *JSDocInfo) getDescription() Optional[string] {
 	return Optional_ofNullable[string](str_(JSDocInfo_DESCRIPTION.get(this)))
 }
 
-func (this *JSDocInfo) getTsTypes() *TList[string] {
+func (this *JSDocInfo) getTsTypes() *JTList[string] {
 	var types ListOf[string] = icast_List(JSDocInfo_TS_TYPES.get(this))
-	return func() *TList[string] { if (types != nil) { return immutableListCopyOf_(tc_string, Collection(types)) }; return tlistEmptyImm_(tc_string) }()
+	return func() *JTList[string] {
+		if types != nil {
+			return jimmutableListCopyOf_(jtc_string, Collection(types))
+		}
+		return jtlistEmptyImm_(jtc_string)
+	}()
 }
 
 func (this *JSDocInfo) getMeaning() Optional[string] {
@@ -481,7 +526,12 @@ func (this *JSDocInfo) toString() string {
 }
 
 func (this *JSDocInfo) toStringVerbose() string {
-	var helper *MoreObjects_ToStringHelper = MoreObjects_toStringHelper(any(this)).add("bitset", func() any { if (this.propertyBits == 0) { return nil }; return strobj_(Long_toHexString(this.propertyBits)) }())
+	var helper *MoreObjects_ToStringHelper = MoreObjects_toStringHelper(any(this)).add("bitset", func() any {
+		if this.propertyBits == 0 {
+			return nil
+		}
+		return strobj_(Long_toHexString(this.propertyBits))
+	}())
 	for _, b := range JSDocInfo_Bit_values() {
 		if this.checkBit(b) {
 			helper.add_String_boolean(("bit:" + sstr_(b.nameField)), true)
@@ -489,7 +539,7 @@ func (this *JSDocInfo) toStringVerbose() string {
 	}
 	var bits int64 = this.propertyKeysBitset
 	var index int32 = 0
-	for (bits > 0) {
+	for bits > 0 {
 		var low int32 = Long_numberOfTrailingZeros(bits)
 		bits &= (^(int64(1) << (uint32(low) & 63)))
 		helper = helper.add(JSDocInfo_Property_values[low].name_, this.getPropertyValueByIndex(index))
@@ -508,7 +558,12 @@ func (this *JSDocInfo) getImplementedInterfaces() ListOf[*JSTypeExpression] {
 
 func (this *JSDocInfo) getImplementedInterfaceCount() int32 {
 	var list ArrayListOf[any] = to_ArrayList(JSDocInfo_IMPLEMENTED_INTERFACES.get(this))
-	return func() int32 { if (list != nil) { return list.size() }; return 0 }()
+	return func() int32 {
+		if list != nil {
+			return list.size()
+		}
+		return 0
+	}()
 }
 
 func (this *JSDocInfo) getExtendedInterfaces() ListOf[*JSTypeExpression] {
@@ -517,36 +572,51 @@ func (this *JSDocInfo) getExtendedInterfaces() ListOf[*JSTypeExpression] {
 
 func (this *JSDocInfo) getExtendedInterfacesCount() int32 {
 	var list ArrayListOf[any] = to_ArrayList(JSDocInfo_EXTENDED_INTERFACES.get(this))
-	return func() int32 { if (list != nil) { return list.size() }; return 0 }()
+	return func() int32 {
+		if list != nil {
+			return list.size()
+		}
+		return 0
+	}()
 }
 
 func (this *JSDocInfo) getDeprecationReason() Optional[string] {
 	return Optional_ofNullable[string](str_(JSDocInfo_DEPRECATION_REASON.get(this)))
 }
 
-func (this *JSDocInfo) getSuppressions() *TSet[string] {
+func (this *JSDocInfo) getSuppressions() *JTSet[string] {
 	var suppressions ImmutableMapOf[ImmutableSetOf[string], string] = cast_[*ImmutableMap](JSDocInfo_SUPPRESSIONS.get(this))
-	if (suppressions == nil) {
-		return tsetEmptyImm_(tc_string)
+	if suppressions == nil {
+		return jtsetEmptyImm_(jtc_string)
 	}
 	var nameSets ImmutableSetOf[ImmutableSetOf[string]] = cast_[*ImmutableSet](suppressions.keySet())
-	var names *TSet[string] = newTSet_(tc_string)
+	var names *JTSet[string] = jnewTSet_(jtc_string)
 	it_1 := foreach_(obj_(nameSets))
 	for it_1.next() {
 		var nameSet Set = icast_Set(it_1.v)
 		names.asSet().addAll(Collection(nameSet))
 	}
-	return immutableSetCopyOfT_(tc_string, names)
+	return immutableSetCopyOfT_(jtc_string, names)
 }
 
 func (this *JSDocInfo) getSuppressionsAndTheirDescription() ImmutableMapOf[ImmutableSetOf[string], string] {
 	var suppressions ImmutableMapOf[ImmutableSetOf[string], string] = cast_[*ImmutableMap](JSDocInfo_SUPPRESSIONS.get(this))
-	return func() *ImmutableMap { if (suppressions != nil) { return suppressions }; return ImmutableMap_of() }()
+	return func() *ImmutableMap {
+		if suppressions != nil {
+			return suppressions
+		}
+		return ImmutableMap_of()
+	}()
 }
 
-func (this *JSDocInfo) getModifies() *TSet[string] {
-	var modifies *TSet[string] = tsetImm_(tc_string, cast_[*ImmutableSet](JSDocInfo_MODIFIES.get(this)))
-	return func() *TSet[string] { if (modifies != nil) { return modifies }; return tsetEmptyImm_(tc_string) }()
+func (this *JSDocInfo) getModifies() *JTSet[string] {
+	var modifies *JTSet[string] = tsetImm_(jtc_string, cast_[*ImmutableSet](JSDocInfo_MODIFIES.get(this)))
+	return func() *JTSet[string] {
+		if modifies != nil {
+			return modifies
+		}
+		return jtsetEmptyImm_(jtc_string)
+	}()
 }
 
 func (this *JSDocInfo) hasDescriptionForParameter(name string) bool {
@@ -556,7 +626,12 @@ func (this *JSDocInfo) hasDescriptionForParameter(name string) bool {
 
 func (this *JSDocInfo) getDescriptionForParameter(name string) Optional[string] {
 	var params LinkedHashMapOf[string, string] = cast_[*LinkedHashMap](JSDocInfo_PARAMETER_DESCRIPTIONS.get(this))
-	return func() Optional[string] { if (params != nil) { return Optional_ofNullable[string](str_(Map_get_s(params, name))) }; return Optional_empty[string]() }()
+	return func() Optional[string] {
+		if params != nil {
+			return Optional_ofNullable[string](str_(Map_get_s(params, name)))
+		}
+		return Optional_empty[string]()
+	}()
 }
 
 func (this *JSDocInfo) getAuthors() ListOf[string] {
@@ -601,29 +676,49 @@ func (this *JSDocInfo) getMods() string {
 
 func (this *JSDocInfo) getMarkers() CollectionOf[*JSDocInfo_Marker] {
 	var markers ArrayListOf[*JSDocInfo_Marker] = to_ArrayList(JSDocInfo_MARKERS.get(this))
-	return func() Collection { if (markers != nil) { return icast_Collection(markers.self()) }; return ImmutableList_as_Collection(ImmutableList_of()) }()
+	return func() Collection {
+		if markers != nil {
+			return icast_Collection(markers.self())
+		}
+		return ImmutableList_as_Collection(ImmutableList_of())
+	}()
 }
 
-func (this *JSDocInfo) getTemplateTypeNames() *TList[string] {
+func (this *JSDocInfo) getTemplateTypeNames() *JTList[string] {
 	var map_ LinkedHashMapOf[string, *JSTypeExpression] = cast_[*LinkedHashMap](JSDocInfo_TEMPLATE_TYPE_NAMES.get(this))
-	return func() *TList[string] { if (map_ != nil) { return immutableListCopyOf_(tc_string, Collection(map_.keySet())) }; return tlistEmptyImm_(tc_string) }()
+	return func() *JTList[string] {
+		if map_ != nil {
+			return jimmutableListCopyOf_(jtc_string, Collection(map_.keySet()))
+		}
+		return jtlistEmptyImm_(jtc_string)
+	}()
 }
 
-func (this *JSDocInfo) getTemplateTypes() *TMap[string, *JSTypeExpression] {
+func (this *JSDocInfo) getTemplateTypes() *JTMap[string, *JSTypeExpression] {
 	var map_ LinkedHashMapOf[string, *JSTypeExpression] = cast_[*LinkedHashMap](JSDocInfo_TEMPLATE_TYPE_NAMES.get(this))
-	return func() *TMap[string, *JSTypeExpression] { if (map_ != nil) { return immutableMapCopyOf_(tc_string, tc_p_JSTypeExpression, LinkedHashMap_as_Map(map_)) }; return tmapEmptyImm_(tc_string, tc_p_JSTypeExpression) }()
+	return func() *JTMap[string, *JSTypeExpression] {
+		if map_ != nil {
+			return jimmutableMapCopyOf_(jtc_string, jtc_p_JSTypeExpression, LinkedHashMap_as_Map(map_))
+		}
+		return jtmapEmptyImm_(jtc_string, jtc_p_JSTypeExpression)
+	}()
 }
 
-func (this *JSDocInfo) getTypeTransformations() *TMap[string, Node] {
+func (this *JSDocInfo) getTypeTransformations() *JTMap[string, Node] {
 	var map_ LinkedHashMapOf[string, Node] = cast_[*LinkedHashMap](JSDocInfo_TYPE_TRANSFORMATIONS.get(this))
-	return func() *TMap[string, Node] { if (map_ != nil) { return immutableMapCopyOf_(tc_string, tc_Node, LinkedHashMap_as_Map(map_)) }; return tmapEmptyImm_(tc_string, tc_Node) }()
+	return func() *JTMap[string, Node] {
+		if map_ != nil {
+			return jimmutableMapCopyOf_(jtc_string, jtc_Node, LinkedHashMap_as_Map(map_))
+		}
+		return jtmapEmptyImm_(jtc_string, jtc_Node)
+	}()
 }
 
 func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
-	var builder *TListBuilder[*JSTypeExpression] = newTListBuilder_(tc_p_JSTypeExpression)
+	var builder *TListBuilder[*JSTypeExpression] = newTListBuilder_(jtc_p_JSTypeExpression)
 	var bits int64 = this.propertyKeysBitset
 	var index int32 = 0
-	for (bits > 0) {
+	for bits > 0 {
 		var low int32 = Long_numberOfTrailingZeros(bits)
 		bits &= (^(int64(1) << (uint32(low) & 63)))
 		var prop *JSDocInfo_Property = JSDocInfo_Property_values[low]
@@ -632,7 +727,7 @@ func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
 		it_2 := foreach_(any(prop.getTypeExpressions(propValue)))
 		for it_2.next() {
 			var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_2.v)
-			if (type_ != nil) {
+			if type_ != nil {
 				builder.add(type_)
 			}
 		}
@@ -641,7 +736,7 @@ func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
 }
 
 func (this *JSDocInfo) getTypeNodes() CollectionOf[Node] {
-	var nodes *TList[Node] = newTList_(tc_Node)
+	var nodes *JTList[Node] = jnewTList_(jtc_Node)
 	it_1 := foreach_(any(this.getTypeExpressions()))
 	for it_1.next() {
 		var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
@@ -660,7 +755,12 @@ func (this *JSDocInfo) getOriginalCommentString() Optional[string] {
 
 func (this *JSDocInfo) getOriginalCommentPosition() int32 {
 	var pos any = JSDocInfo_ORIGINAL_COMMENT_POSITION.get(this)
-	return func() int32 { if (pos != nil) { return unbox_[int32](pos) }; return 0 }()
+	return func() int32 {
+		if pos != nil {
+			return unbox_[int32](pos)
+		}
+		return 0
+	}()
 }
 
 func (this *JSDocInfo) modifiesThis() bool {
@@ -668,7 +768,7 @@ func (this *JSDocInfo) modifiesThis() bool {
 }
 
 func (this *JSDocInfo) hasSideEffectsArgumentsAnnotation() bool {
-	var modifies *TSet[string] = this.getModifies()
+	var modifies *JTSet[string] = this.getModifies()
 	return ((modifies.size() > 1) || ((modifies.size() == 1) && !modifies.contains("this")))
 }
 
@@ -677,26 +777,43 @@ func (this *JSDocInfo) getLogTypeInCompiler() bool {
 }
 
 func (this *JSDocInfo) getPropertyValueByIndex(index int32) any {
-	if (this.propertyValues == nil) {
+	if this.propertyValues == nil {
 		panic(new_IllegalArgumentException_String("no property value").self())
 	}
 	var array []any
 	_ = array
-	if func() bool { v_ := this.propertyValues; if !is_[[]any](v_) { return false }; array = cast_[[]any](v_); return true }() {
+	if func() bool {
+		v_ := this.propertyValues
+		if !is_[[]any](v_) {
+			return false
+		}
+		array = cast_[[]any](v_)
+		return true
+	}() {
 		return array[index]
 	}
-	if (index != 0) {
+	if index != 0 {
 		panic(new_ArrayIndexOutOfBoundsException_int(index).self())
 	}
 	return this.propertyValues
 }
 
-func JSDocInfo_packPropertyValues(values *TList[any]) any {
-	return func() any { if values.isEmpty() { return nil }; return func() any { if (values.size() == 1) { return values.get(0) }; return any(values.asList().toArray_0()) }() }()
+func JSDocInfo_packPropertyValues(values *JTList[any]) any {
+	return func() any {
+		if values.isEmpty() {
+			return nil
+		}
+		return func() any {
+			if values.size() == 1 {
+				return values.get(0)
+			}
+			return any(values.asList().toArray_0())
+		}()
+	}()
 }
 
-func JSDocInfo_internSet(strings *TSet[string]) *TSet[string] {
-	var interned *TSetBuilder[string] = newTSetBuilderN_(tc_string, strings.size())
+func JSDocInfo_internSet(strings *JTSet[string]) *JTSet[string] {
+	var interned *TSetBuilder[string] = newTSetBuilderN_(jtc_string, strings.size())
 	it_1 := strings.each()
 	for it_1.next() {
 		var s string = it_1.v
@@ -706,6 +823,7 @@ func JSDocInfo_internSet(strings *TSet[string]) *TSet[string] {
 }
 
 const JSDocInfo_serialVersionUID int64 = 1
+
 var JSDocInfo_VISIBILITY *JSDocInfo_Property
 var JSDocInfo_TYPE *JSDocInfo_TypeProperty
 var JSDocInfo_RETURN_TYPE *JSDocInfo_TypeProperty
@@ -794,8 +912,8 @@ func JSDocInfo_clinit() {
 type JSDocInfo_Property struct {
 	self_ any
 	name_ string
-	bit int32
-	mask int64
+	bit   int32
+	mask  int64
 }
 
 func (this *JSDocInfo_Property) as_JSDocInfo_Property() *JSDocInfo_Property { return this }
@@ -828,7 +946,7 @@ func (this *JSDocInfo_Property) init_JSDocInfo_Property(name string) {
 	this.bit = JSDocInfo_Property_bitCounter
 	JSDocInfo_Property_bitCounter++
 	this.mask = (int64(1) << (uint32(this.bit) & 63))
-	if (this.bit > 63) {
+	if this.bit > 63 {
 		panic(new_AssertionError_Object("Too many Properties").self())
 	}
 	JSDocInfo_Property_values[this.bit] = this
@@ -843,7 +961,7 @@ func new_JSDocInfo_Property(name string) *JSDocInfo_Property {
 }
 
 func (this *JSDocInfo_Property) get(info *JSDocInfo) any {
-	if ((info.propertyKeysBitset & this.mask) == 0) {
+	if (info.propertyKeysBitset & this.mask) == 0 {
 		return nil
 	}
 	return info.getPropertyValueByIndex(Long_bitCount((info.propertyKeysBitset & (this.mask - 1))))
@@ -876,7 +994,9 @@ func (this *JSDocInfo_Property) equalValues(p0 any, p1 any) bool {
 }
 
 func (this *JSDocInfo_Property) clone(p0 any, p1 JSDocInfo_TypeTransform) any {
-	return this.self_.(interface{ clone_impl(any, JSDocInfo_TypeTransform) any }).clone_impl(p0, p1)
+	return this.self_.(interface {
+		clone_impl(any, JSDocInfo_TypeTransform) any
+	}).clone_impl(p0, p1)
 }
 
 func (this *JSDocInfo_Property) getTypeExpressions(p0 any) Iterable {
@@ -930,13 +1050,13 @@ func (this *JSDocInfo_MarkerListProperty) equalValues_impl(a_ any, b_ any) bool 
 	_ = a
 	var b *ArrayList = to_ArrayList(b_)
 	_ = b
-	if (a.size() != b.size()) {
+	if a.size() != b.size() {
 		return false
 	}
-	for i := int32(0); (i < a.size()); i++ {
+	for i := int32(0); i < a.size(); i++ {
 		var m1 *JSDocInfo_Marker = cast_[*JSDocInfo_Marker](a.get(i))
 		var m2 *JSDocInfo_Marker = cast_[*JSDocInfo_Marker](b.get(i))
-		if (((m1 == nil) != (m2 == nil)) || ((m1 != nil) && !m1.isEquivalentTo(m2))) {
+		if ((m1 == nil) != (m2 == nil)) || ((m1 != nil) && !m1.isEquivalentTo(m2)) {
 			return false
 		}
 	}
@@ -973,7 +1093,12 @@ func new_JSDocInfo_TypeProperty(name string) *JSDocInfo_TypeProperty {
 func (this *JSDocInfo_TypeProperty) clone_impl(arg_ any, transform JSDocInfo_TypeTransform) any {
 	var arg *JSTypeExpression = cast_[*JSTypeExpression](arg_)
 	_ = arg
-	return func() any { if ((arg != nil) && (transform != nil)) { return obj_(transform.apply(arg)) }; return obj_(arg) }()
+	return func() any {
+		if (arg != nil) && (transform != nil) {
+			return obj_(transform.apply(arg))
+		}
+		return obj_(arg)
+	}()
 }
 
 func (this *JSDocInfo_TypeProperty) equalValues_impl(left_ any, right_ any) bool {
@@ -1019,17 +1144,22 @@ func new_JSDocInfo_TypeListProperty(name string) *JSDocInfo_TypeListProperty {
 
 func (this *JSDocInfo_TypeListProperty) getUnmodifiable(info *JSDocInfo) ListOf[*JSTypeExpression] {
 	var value ArrayListOf[*JSTypeExpression] = to_ArrayList(this.get(info))
-	return func() List { if (value != nil) { return Collections_unmodifiableList(icast_List(value.self())) }; return ImmutableList_as_List(ImmutableList_of()) }()
+	return func() List {
+		if value != nil {
+			return Collections_unmodifiableList(icast_List(value.self()))
+		}
+		return ImmutableList_as_List(ImmutableList_of())
+	}()
 }
 
 func (this *JSDocInfo_TypeListProperty) clone_impl(arg_ any, transform JSDocInfo_TypeTransform) any {
 	var arg *ArrayList = to_ArrayList(arg_)
 	_ = arg
 	var out ArrayListOf[*JSTypeExpression] = new_ArrayList_Collection(icast_Collection(arg.self()))
-	if (transform != nil) {
-		for i := int32(0); (i < out.size()); i++ {
+	if transform != nil {
+		for i := int32(0); i < out.size(); i++ {
 			var elem *JSTypeExpression = cast_[*JSTypeExpression](out.get(i))
-			if (elem != nil) {
+			if elem != nil {
 				out.set(i, obj_(transform.apply(elem)))
 			}
 		}
@@ -1042,7 +1172,7 @@ func (this *JSDocInfo_TypeListProperty) equalValues_impl(left_ any, right_ any) 
 	_ = left
 	var right *ArrayList = to_ArrayList(right_)
 	_ = right
-	if (left.size() != right.size()) {
+	if left.size() != right.size() {
 		return false
 	}
 	var leftIterator IteratorOf[*JSTypeExpression] = left.iterator()
@@ -1094,12 +1224,12 @@ func (this *JSDocInfo_TypeMapProperty) clone_impl(arg_ any, transform JSDocInfo_
 	var arg *LinkedHashMap = cast_[*LinkedHashMap](arg_)
 	_ = arg
 	var out LinkedHashMapOf[string, *JSTypeExpression] = new_LinkedHashMap_Map(LinkedHashMap_as_Map(arg))
-	if (transform != nil) {
+	if transform != nil {
 		it_1 := foreach_(any(out.entrySet()))
 		for it_1.next() {
 			var entry Map_Entry = icast_Map_Entry(it_1.v)
 			var elem *JSTypeExpression = cast_[*JSTypeExpression](entry.getValue())
-			if (elem != nil) {
+			if elem != nil {
 				entry.setValue(obj_(transform.apply(elem)))
 			}
 		}
@@ -1177,14 +1307,14 @@ func (this *JSDocInfo_NodeMapProperty) equalValues_impl(left_ any, right_ any) b
 	_ = left
 	var right *LinkedHashMap = cast_[*LinkedHashMap](right_)
 	_ = right
-	if (left.size() != right.size()) {
+	if left.size() != right.size() {
 		return false
 	}
 	it_1 := foreach_(any(left.entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var rightValue Node = Node_of_(Map_get_s(right, str_(entry.getKey())))
-		if ((rightValue == 0) || !Node_of_(entry.getValue()).isEquivalentTo(rightValue)) {
+		if (rightValue == 0) || !Node_of_(entry.getValue()).isEquivalentTo(rightValue) {
 			return false
 		}
 	}
@@ -1194,7 +1324,7 @@ func (this *JSDocInfo_NodeMapProperty) equalValues_impl(left_ any, right_ any) b
 type JSDocInfo_Bit struct {
 	Enum
 	nameField string
-	mask int64
+	mask      int64
 }
 
 func (this *JSDocInfo_Bit) up_Enum() *Enum {
@@ -1210,7 +1340,7 @@ func (this *JSDocInfo_Bit) zero_JSDocInfo_Bit() {
 
 func (this *JSDocInfo_Bit) init_JSDocInfo_Bit(name_ string, ordinal_ int32) {
 	this.Enum.init_Enum(name_, ordinal_)
-	if (this.ordinal() > 63) {
+	if this.ordinal() > 63 {
 		panic(new_AssertionError_Object("Too many Bits").self())
 	}
 	this.nameField = CaseFormat_UPPER_UNDERSCORE.to(CaseFormat_LOWER_CAMEL, this.name())
@@ -1545,9 +1675,13 @@ func is_JSDocInfo_ComparableSourcePosition(v any) bool {
 	return ok
 }
 
-func (this *JSDocInfo_ComparableSourcePosition[T]) as_JSDocInfo_ComparableSourcePosition() *JSDocInfo_ComparableSourcePosition[T] { return this }
+func (this *JSDocInfo_ComparableSourcePosition[T]) as_JSDocInfo_ComparableSourcePosition() *JSDocInfo_ComparableSourcePosition[T] {
+	return this
+}
 
-func (this *JSDocInfo_ComparableSourcePosition[T]) as_JSDocInfo_ComparableSourcePosition_() any { return this }
+func (this *JSDocInfo_ComparableSourcePosition[T]) as_JSDocInfo_ComparableSourcePosition_() any {
+	return this
+}
 
 func to_JSDocInfo_ComparableSourcePosition[T comparable](v any) *JSDocInfo_ComparableSourcePosition[T] {
 	if v == nil {
@@ -1582,17 +1716,23 @@ type JSDocInfo_StringPosition struct {
 	JSDocInfo_ComparableSourcePosition[string]
 }
 
-func (this *JSDocInfo_StringPosition) as_JSDocInfo_StringPosition() *JSDocInfo_StringPosition { return this }
+func (this *JSDocInfo_StringPosition) as_JSDocInfo_StringPosition() *JSDocInfo_StringPosition {
+	return this
+}
 
 func to_JSDocInfo_StringPosition(v any) *JSDocInfo_StringPosition {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_JSDocInfo_StringPosition() *JSDocInfo_StringPosition }).as_JSDocInfo_StringPosition()
+	return v.(interface {
+		as_JSDocInfo_StringPosition() *JSDocInfo_StringPosition
+	}).as_JSDocInfo_StringPosition()
 }
 
 func is_JSDocInfo_StringPosition(v any) bool {
-	_, ok := v.(interface{ as_JSDocInfo_StringPosition() *JSDocInfo_StringPosition })
+	_, ok := v.(interface {
+		as_JSDocInfo_StringPosition() *JSDocInfo_StringPosition
+	})
 	return ok
 }
 
@@ -1673,7 +1813,7 @@ func new_JSDocInfo_TrimmedStringPosition() *JSDocInfo_TrimmedStringPosition {
 func (this *JSDocInfo_TrimmedStringPosition) setItem_impl(item_ any) {
 	var item string = str_(item_)
 	_ = item
-	Preconditions_checkArgument_boolean_Object(((String_charAt(item, 0) != ' ') && (String_charAt(item, (String_length(item) - 1)) != ' ')), "String has leading or trailing whitespace")
+	Preconditions_checkArgument_boolean_Object(((String_charAt(item, 0) != ' ') && (String_charAt(item, (String_length(item)-1)) != ' ')), "String has leading or trailing whitespace")
 	this.JSDocInfo_StringPosition.setItem_impl(strobj_(item))
 }
 
@@ -1708,7 +1848,7 @@ func new_JSDocInfo_NamePosition() *JSDocInfo_NamePosition {
 }
 
 func (this *JSDocInfo_NamePosition) isEquivalentTo_impl(that *SourcePosition_rhino) bool {
-	if (((that == nil) || !this.isSamePositionAs(that)) || ((Node_of_(this.getItem()) == 0) != (Node_of_(that.getItem()) == 0))) {
+	if ((that == nil) || !this.isSamePositionAs(that)) || ((Node_of_(this.getItem()) == 0) != (Node_of_(that.getItem()) == 0)) {
 		return false
 	}
 	return ((Node_of_(this.getItem()) == 0) || Node_of_(this.getItem()).isEquivalentTo(Node_of_(that.getItem())))
@@ -1761,17 +1901,24 @@ func (this *JSDocInfo_TypePosition) setHasBrackets(newVal bool) {
 func (this *JSDocInfo_TypePosition) isEquivalentTo_impl(that *SourcePosition_rhino) bool {
 	var typePosition *JSDocInfo_TypePosition
 	_ = typePosition
-	if (((!(func() bool { v_ := that.self(); if !is_[*JSDocInfo_TypePosition](v_) { return false }; typePosition = cast_[*JSDocInfo_TypePosition](v_); return true }()) || !this.isSamePositionAs(that)) || (this.brackets != typePosition.brackets)) || ((Node_of_(this.getItem()) == 0) != (Node_of_(that.getItem()) == 0))) {
+	if ((!(func() bool {
+		v_ := that.self()
+		if !is_[*JSDocInfo_TypePosition](v_) {
+			return false
+		}
+		typePosition = cast_[*JSDocInfo_TypePosition](v_)
+		return true
+	}()) || !this.isSamePositionAs(that)) || (this.brackets != typePosition.brackets)) || ((Node_of_(this.getItem()) == 0) != (Node_of_(that.getItem()) == 0)) {
 		return false
 	}
 	return ((Node_of_(this.getItem()) == 0) || Node_of_(this.getItem()).isEquivalentTo(Node_of_(that.getItem())))
 }
 
 type JSDocInfo_Marker struct {
-	annotation *JSDocInfo_TrimmedStringPosition
-	nameNode_ *JSDocInfo_NamePosition
+	annotation   *JSDocInfo_TrimmedStringPosition
+	nameNode_    *JSDocInfo_NamePosition
 	description_ *JSDocInfo_StringPosition
-	type__ *JSDocInfo_TypePosition
+	type__       *JSDocInfo_TypePosition
 }
 
 func (this *JSDocInfo_Marker) init_JSDocInfo_Marker() {
@@ -1825,11 +1972,11 @@ func JSDocInfo_Marker_areEquivalent[T comparable](p1 *JSDocInfo_ComparableSource
 }
 
 type JSDocInfo_Builder struct {
-	props TreeMapOf[*JSDocInfo_Property, any]
-	bits int64
-	populated bool
+	props         TreeMapOf[*JSDocInfo_Property, any]
+	bits          int64
+	populated     bool
 	currentMarker *JSDocInfo_Marker
-	licenseTexts *TSet[string]
+	licenseTexts  *JTSet[string]
 }
 
 func (this *JSDocInfo_Builder) finit_JSDocInfo_Builder() {
@@ -1852,11 +1999,16 @@ func JSDocInfo_Builder_copyFrom(info *JSDocInfo) *JSDocInfo_Builder {
 }
 
 func JSDocInfo_Builder_maybeCopyFrom(info *JSDocInfo) *JSDocInfo_Builder {
-	return func() *JSDocInfo_Builder { if (info != nil) { return info.toBuilder() }; return JSDocInfo_builder().parseDocumentation() }()
+	return func() *JSDocInfo_Builder {
+		if info != nil {
+			return info.toBuilder()
+		}
+		return JSDocInfo_builder().parseDocumentation()
+	}()
 }
 
 func JSDocInfo_Builder_maybeCopyFromWithNewType(info *JSDocInfo, typeExpression *JSTypeExpression) *JSDocInfo_Builder {
-	if (info == nil) {
+	if info == nil {
 		return JSDocInfo_builder().parseDocumentation().setType(typeExpression)
 	}
 	return info.toBuilder().setType(typeExpression)
@@ -1866,11 +2018,16 @@ func JSDocInfo_Builder_copyFromWithNewType(info *JSDocInfo, typeExpression *JSTy
 	return info.toBuilder().setType(typeExpression)
 }
 
-func JSDocInfo_Builder_maybeCopyFromAndReplaceNames(info *JSDocInfo, moduleLocalNamesToReplace *TSet[string]) *JSDocInfo_Builder {
-	return func() *JSDocInfo_Builder { if (info != nil) { return JSDocInfo_Builder_copyFromAndReplaceNames(info, moduleLocalNamesToReplace) }; return JSDocInfo_builder().parseDocumentation() }()
+func JSDocInfo_Builder_maybeCopyFromAndReplaceNames(info *JSDocInfo, moduleLocalNamesToReplace *JTSet[string]) *JSDocInfo_Builder {
+	return func() *JSDocInfo_Builder {
+		if info != nil {
+			return JSDocInfo_Builder_copyFromAndReplaceNames(info, moduleLocalNamesToReplace)
+		}
+		return JSDocInfo_builder().parseDocumentation()
+	}()
 }
 
-func JSDocInfo_Builder_copyFromAndReplaceNames(info *JSDocInfo, oldNames *TSet[string]) *JSDocInfo_Builder {
+func JSDocInfo_Builder_copyFromAndReplaceNames(info *JSDocInfo, oldNames *JTSet[string]) *JSDocInfo_Builder {
 	return info.cloneAndReplaceTypeNames(oldNames).toBuilder()
 }
 
@@ -1922,7 +2079,7 @@ func (this *JSDocInfo_Builder) build() *JSDocInfo {
 }
 
 func (this *JSDocInfo_Builder) build_1(always bool) *JSDocInfo {
-	if (this.populated || always) {
+	if this.populated || always {
 		var info *JSDocInfo = new_JSDocInfo(this.bits, this.props)
 		this.populated = false
 		return info
@@ -1940,7 +2097,7 @@ func (this *JSDocInfo_Builder) buildAndReset() *JSDocInfo {
 
 func (this *JSDocInfo_Builder) markAnnotation(annotation string, lineno int32, charno int32) {
 	var marker *JSDocInfo_Marker = this.addMarker()
-	if (marker != nil) {
+	if marker != nil {
 		var position *JSDocInfo_TrimmedStringPosition = new_JSDocInfo_TrimmedStringPosition()
 		position.setItem(strobj_(annotation))
 		position.setPositionInformation(lineno, charno, lineno, (charno + String_length(annotation)))
@@ -1953,7 +2110,7 @@ func (this *JSDocInfo_Builder) markAnnotation(annotation string, lineno int32, c
 func (this *JSDocInfo_Builder) addMarker() *JSDocInfo_Marker {
 	if this.shouldParseDocumentation() {
 		var markers ArrayListOf[*JSDocInfo_Marker] = to_ArrayList(this.getProp(JSDocInfo_MARKERS))
-		if (markers == nil) {
+		if markers == nil {
 			markers = new_ArrayList_0()
 			this.setProp(JSDocInfo_MARKERS, markers.self())
 		}
@@ -1965,7 +2122,7 @@ func (this *JSDocInfo_Builder) addMarker() *JSDocInfo_Marker {
 }
 
 func (this *JSDocInfo_Builder) markText(text string, startLineno int32, startCharno int32, endLineno int32, endCharno int32) {
-	if (this.currentMarker != nil) {
+	if this.currentMarker != nil {
 		var position *JSDocInfo_StringPosition = new_JSDocInfo_StringPosition()
 		position.setItem(strobj_(text))
 		position.setPositionInformation(startLineno, startCharno, endLineno, endCharno)
@@ -1974,7 +2131,7 @@ func (this *JSDocInfo_Builder) markText(text string, startLineno int32, startCha
 }
 
 func (this *JSDocInfo_Builder) markTypeNode(typeNode Node, lineno int32, startCharno int32, endLineno int32, endCharno int32, hasLC bool) {
-	if (this.currentMarker != nil) {
+	if this.currentMarker != nil {
 		var position *JSDocInfo_TypePosition = new_JSDocInfo_TypePosition()
 		position.setItem(typeNode.box_())
 		position.setHasBrackets(hasLC)
@@ -1984,14 +2141,14 @@ func (this *JSDocInfo_Builder) markTypeNode(typeNode Node, lineno int32, startCh
 }
 
 func (this *JSDocInfo_Builder) markName(name string, templateNode Node, lineno int32, charno int32) {
-	if (this.currentMarker != nil) {
+	if this.currentMarker != nil {
 		var position *JSDocInfo_TrimmedStringPosition = new_JSDocInfo_TrimmedStringPosition()
 		position.setItem(strobj_(name))
 		position.setPositionInformation(lineno, charno, lineno, (charno + String_length(name)))
 		var nodePos *JSDocInfo_NamePosition = new_JSDocInfo_NamePosition()
 		var node Node = Node_newString_Token_String(Token_rhino_NAME, name).setLinenoCharno(lineno, charno)
 		node.setLength(String_length(name))
-		if (templateNode != 0) {
+		if templateNode != 0 {
 			node.setStaticSourceFileFrom(templateNode)
 		}
 		nodePos.setItem(node.box_())
@@ -2009,7 +2166,7 @@ func (this *JSDocInfo_Builder) recordBlockDescription(description string) bool {
 }
 
 func (this *JSDocInfo_Builder) recordVisibility(visibility *JSDocInfo_Visibility) bool {
-	if (cast_[*JSDocInfo_Visibility](this.getProp(JSDocInfo_VISIBILITY)) == nil) {
+	if cast_[*JSDocInfo_Visibility](this.getProp(JSDocInfo_VISIBILITY)) == nil {
 		this.populated = true
 		this.setProp(JSDocInfo_VISIBILITY, obj_(visibility))
 		return true
@@ -2038,11 +2195,11 @@ func (this *JSDocInfo_Builder) recordTemplateTypeName(name string) bool {
 }
 
 func (this *JSDocInfo_Builder) recordTemplateTypeName_2(name string, bound *JSTypeExpression) bool {
-	if (bound == nil) {
+	if bound == nil {
 		bound = JSTypeExpression_IMPLICIT_TEMPLATE_BOUND
 	}
 	var transformations MapOf[string, Node] = icast_Map(this.getProp(JSDocInfo_TYPE_TRANSFORMATIONS.up_JSDocInfo_Property()))
-	if (((transformations != nil) && Map_containsKey_s(transformations, name)) || this.props.containsKey(obj_(JSDocInfo_TYPEDEF_TYPE))) {
+	if ((transformations != nil) && Map_containsKey_s(transformations, name)) || this.props.containsKey(obj_(JSDocInfo_TYPEDEF_TYPE)) {
 		return false
 	}
 	return this.populatePropEntry(JSDocInfo_TEMPLATE_TYPE_NAMES.up_JSDocInfo_Property(), strobj_(RhinoStringPool_addOrGet(name)), obj_(bound))
@@ -2050,7 +2207,7 @@ func (this *JSDocInfo_Builder) recordTemplateTypeName_2(name string, bound *JSTy
 
 func (this *JSDocInfo_Builder) recordTypeTransformation(name string, expr Node) bool {
 	var names MapOf[string, *JSTypeExpression] = icast_Map(this.getProp(JSDocInfo_TEMPLATE_TYPE_NAMES.up_JSDocInfo_Property()))
-	if ((names != nil) && Map_containsKey_s(names, name)) {
+	if (names != nil) && Map_containsKey_s(names, name) {
 		return false
 	}
 	return this.populatePropEntry(JSDocInfo_TYPE_TRANSFORMATIONS.up_JSDocInfo_Property(), strobj_(RhinoStringPool_addOrGet(name)), expr.box_())
@@ -2116,11 +2273,11 @@ func (this *JSDocInfo_Builder) isDeprecationReasonRecorded() bool {
 	return Optional_ofNullable[string](str_(this.getProp(JSDocInfo_DEPRECATION_REASON))).isPresent()
 }
 
-func (this *JSDocInfo_Builder) recordSuppressions_2(suppressions *TSet[string], description string) {
+func (this *JSDocInfo_Builder) recordSuppressions_2(suppressions *JTSet[string], description string) {
 	this.populated = true
 	var mapBuilder ImmutableMap_BuilderOf[ImmutableSetOf[string], string] = ImmutableMap_builder()
 	var current ImmutableMapOf[ImmutableSetOf[string], string] = cast_[*ImmutableMap](this.getProp(JSDocInfo_SUPPRESSIONS))
-	if (current != nil) {
+	if current != nil {
 		if current.containsKey(any(suppressions.asSet())) {
 			return
 		}
@@ -2131,15 +2288,15 @@ func (this *JSDocInfo_Builder) recordSuppressions_2(suppressions *TSet[string], 
 	this.setProp(JSDocInfo_SUPPRESSIONS, obj_(suppressionsMap))
 }
 
-func (this *JSDocInfo_Builder) recordSuppressions(suppressions *TSet[string]) {
-	this.recordSuppressions_2(immutableSetCopyOfT_(tc_string, suppressions), "")
+func (this *JSDocInfo_Builder) recordSuppressions(suppressions *JTSet[string]) {
+	this.recordSuppressions_2(immutableSetCopyOfT_(jtc_string, suppressions), "")
 }
 
 func (this *JSDocInfo_Builder) recordSuppression(suppression string) {
-	this.recordSuppressions_2(immutableSetOf_[string](tc_string, suppression), "")
+	this.recordSuppressions_2(jimmutableSetOf_[string](jtc_string, suppression), "")
 }
 
-func (this *JSDocInfo_Builder) recordModifies(modifies *TSet[string]) bool {
+func (this *JSDocInfo_Builder) recordModifies(modifies *JTSet[string]) bool {
 	return (!this.hasAnySingletonSideEffectTags() && this.populateProp(JSDocInfo_MODIFIES, any(JSDocInfo_internSet(modifies).asSet())))
 }
 
@@ -2167,14 +2324,14 @@ func (this *JSDocInfo_Builder) recordReturnDescription(description string) bool 
 }
 
 func (this *JSDocInfo_Builder) recordDefineType(type_ *JSTypeExpression) bool {
-	if ((((type_ != nil) && !this.checkBit(JSDocInfo_Bit_CONST)) && !this.checkBit(JSDocInfo_Bit_DEFINE)) && this.recordType(type_)) {
+	if (((type_ != nil) && !this.checkBit(JSDocInfo_Bit_CONST)) && !this.checkBit(JSDocInfo_Bit_DEFINE)) && this.recordType(type_) {
 		return this.populateBit(JSDocInfo_Bit_DEFINE, true)
 	}
 	return false
 }
 
 func (this *JSDocInfo_Builder) recordEnumParameterType(type_ *JSTypeExpression) bool {
-	if ((type_ != nil) && !this.hasAnyTypeRelatedTags()) {
+	if (type_ != nil) && !this.hasAnyTypeRelatedTags() {
 		this.setProp(JSDocInfo_ENUM_PARAMETER_TYPE.up_JSDocInfo_Property(), obj_(type_))
 		this.populated = true
 		return true
@@ -2191,7 +2348,7 @@ func (this *JSDocInfo_Builder) recordBaseType(type_ *JSTypeExpression) bool {
 }
 
 func (this *JSDocInfo_Builder) changeBaseType(type_ *JSTypeExpression) bool {
-	if ((type_ != nil) && !this.hasAnySingletonTypeTags()) {
+	if (type_ != nil) && !this.hasAnySingletonTypeTags() {
 		this.setProp(JSDocInfo_BASE_TYPE.up_JSDocInfo_Property(), obj_(type_))
 		this.populated = true
 		return true
@@ -2262,8 +2419,8 @@ func (this *JSDocInfo_Builder) recordLicense(license string) bool {
 }
 
 func (this *JSDocInfo_Builder) addLicense(license string) bool {
-	if (this.licenseTexts == nil) {
-		this.licenseTexts = newTSet_(tc_string)
+	if this.licenseTexts == nil {
+		this.licenseTexts = jnewTSet_(jtc_string)
 	}
 	if !this.licenseTexts.add(license) {
 		return false
@@ -2597,7 +2754,7 @@ func (this *JSDocInfo_Builder) getProp(prop *JSDocInfo_Property) any {
 
 func (this *JSDocInfo_Builder) getPropWithDefault(prop *JSDocInfo_Property, supplier SupplierOf[any]) any {
 	var value any = this.getProp(prop)
-	if (value == nil) {
+	if value == nil {
 		value = supplier.get()
 		this.setProp(prop, value)
 	}
@@ -2634,11 +2791,10 @@ func (this *JSDocInfo_Builder) setBit(bit *JSDocInfo_Bit, value bool) {
 }
 
 func (this *JSDocInfo_Builder) populateBit(bit *JSDocInfo_Bit, value bool) bool {
-	if (this.checkBit(bit) != value) {
+	if this.checkBit(bit) != value {
 		this.setBit(bit, value)
 		this.populated = true
 		return true
 	}
 	return false
 }
-

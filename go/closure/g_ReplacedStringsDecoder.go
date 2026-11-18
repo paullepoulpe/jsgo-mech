@@ -3,11 +3,11 @@
 package closure
 
 type ReplacedStringsDecoder struct {
-	originalToNewNameMap *TMap[string, string]
+	originalToNewNameMap *JTMap[string, string]
 }
 
 func (this *ReplacedStringsDecoder) init_ReplacedStringsDecoder(variableMap *VariableMap) {
-	this.originalToNewNameMap = tmapImm_(tc_string, tc_string, variableMap.getOriginalNameToNewNameMap())
+	this.originalToNewNameMap = tmapImm_(jtc_string, jtc_string, variableMap.getOriginalNameToNewNameMap())
 }
 
 func new_ReplacedStringsDecoder(variableMap *VariableMap) *ReplacedStringsDecoder {
@@ -24,14 +24,25 @@ func (this *ReplacedStringsDecoder) decode(encodedStr string) string {
 	}
 	var originalBits []string = ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN.split_String_int(originalStr.get(), -1)
 	var sb *StringBuilder = new_StringBuilder_String(originalBits[0])
-	for i := int32(1); (i < Math_max(int32(len(originalBits)), int32(len(suppliedBits)))); i++ {
-		sb.append(func() string { if (i < int32(len(suppliedBits))) { return suppliedBits[i] }; return "-" }())
-		sb.append(func() string { if (i < int32(len(originalBits))) { return originalBits[i] }; return "-" }())
+	for i := int32(1); i < Math_max(int32(len(originalBits)), int32(len(suppliedBits))); i++ {
+		sb.append(func() string {
+			if i < int32(len(suppliedBits)) {
+				return suppliedBits[i]
+			}
+			return "-"
+		}())
+		sb.append(func() string {
+			if i < int32(len(originalBits)) {
+				return originalBits[i]
+			}
+			return "-"
+		}())
 	}
 	return Object_toString(obj_(sb))
 }
 
 const ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER string = "`"
+
 var ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN *Pattern
 var ReplacedStringsDecoder_NULL_DECODER *ReplacedStringsDecoder
 
@@ -43,7 +54,6 @@ func ReplacedStringsDecoder_clinit() {
 	}
 	ReplacedStringsDecoder_clinit_done = true
 	ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN = Pattern_compile(ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER)
-	ReplacedStringsDecoder_NULL_DECODER = new_ReplacedStringsDecoder(VariableMap_fromMap(tmapEmptyImm_(tc_string, tc_string)))
+	ReplacedStringsDecoder_NULL_DECODER = new_ReplacedStringsDecoder(VariableMap_fromMap(jtmapEmptyImm_(jtc_string, jtc_string)))
 
 }
-

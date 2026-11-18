@@ -3,9 +3,9 @@
 package closure
 
 type SourceMapSection struct {
-	type__ *SourceMapSection_SectionType
-	value_ string
-	line_ int32
+	type__  *SourceMapSection_SectionType
+	value_  string
+	line_   int32
 	column_ int32
 }
 
@@ -85,7 +85,7 @@ func (this *SourceMapSection) hashCode() int32 {
 }
 
 func (this *SourceMapSection) toString() string {
-	return "SourceMapSection[" + "type=" + tostr_(this.type__) + ", value=" + sstr_(this.value_) + ", line=" + istr_(int64(this.line_)) + ", column=" + istr_(int64(this.column_)) + "]"
+	return "SourceMapSection[" + "type=" + jtostr_(this.type__) + ", value=" + sstr_(this.value_) + ", line=" + istr_(int64(this.line_)) + ", column=" + istr_(int64(this.column_)) + "]"
 }
 
 type SourceMapSection_SectionType struct {
@@ -140,4 +140,3 @@ func SourceMapSection_SectionType_clinit() {
 	registerEnum_("com.google.debugging.sourcemap.SourceMapSection.SectionType", enumValues_(SourceMapSection_SectionType_values_))
 
 }
-

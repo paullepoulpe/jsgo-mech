@@ -6,4 +6,3 @@ type IndexProvider interface {
 	get() any
 	getType() *Class
 }
-

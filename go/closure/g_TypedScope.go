@@ -4,11 +4,11 @@ package closure
 
 type TypedScope struct {
 	AbstractScope
-	parent *TypedScope
-	depth int32
-	module_ *Module
+	parent        *TypedScope
+	depth         int32
+	module_       *Module
 	isBottomField bool
-	reservedNames *TSet[string]
+	reservedNames *JTSet[string]
 }
 
 func (this *TypedScope) up_AbstractScope() *AbstractScope {
@@ -18,17 +18,22 @@ func (this *TypedScope) up_AbstractScope() *AbstractScope {
 	return &this.AbstractScope
 }
 
-func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *TSet[string], module *Module) {
+func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *JTSet[string], module *Module) {
 	this.AbstractScope.init_AbstractScope(rootNode)
 	this.checkChildScope(parent.up_AbstractScope())
 	this.parent = parent
 	this.depth = (parent.depth + 1)
 	this.isBottomField = false
-	this.reservedNames = func() *TSet[string] { if reservedNames.isEmpty() { return tsetEmptyImm_(tc_string) }; return tsetCopy_(tc_string, reservedNames) }()
+	this.reservedNames = func() *JTSet[string] {
+		if reservedNames.isEmpty() {
+			return jtsetEmptyImm_(jtc_string)
+		}
+		return tsetCopy_(jtc_string, reservedNames)
+	}()
 	this.module_ = module
 }
 
-func new_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *TSet[string], module *Module) *TypedScope {
+func new_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *JTSet[string], module *Module) *TypedScope {
 	this := &TypedScope{}
 	this.self_ = this
 	this.init_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, reservedNames, module)
@@ -41,7 +46,7 @@ func (this *TypedScope) init_TypedScope_Node_boolean(rootNode Node, isBottom boo
 	this.parent = nil
 	this.depth = 0
 	this.isBottomField = isBottom
-	this.reservedNames = tsetEmptyImm_(tc_string)
+	this.reservedNames = jtsetEmptyImm_(jtc_string)
 	this.module_ = nil
 }
 
@@ -53,7 +58,7 @@ func new_TypedScope_Node_boolean(rootNode Node, isBottom bool) *TypedScope {
 }
 
 func TypedScope_createFromParent(parent *TypedScope, rootNode Node) *TypedScope {
-	return new_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, newTSet_(tc_string), nil)
+	return new_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, jnewTSet_(jtc_string), nil)
 }
 
 func TypedScope_createGlobalScope(rootNode Node) *TypedScope {
@@ -70,7 +75,7 @@ func (this *TypedScope) typed_impl() *TypedScope {
 
 func (this *TypedScope) validateCompletelyBuilt() {
 	Preconditions_checkState_boolean_String_Object_Object(this.reservedNames.isEmpty(), "Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", this, any(this.reservedNames.asSet()))
-	this.reservedNames = tsetEmptyImm_(tc_string)
+	this.reservedNames = jtsetEmptyImm_(jtc_string)
 }
 
 func (this *TypedScope) isBottom() bool {
@@ -95,14 +100,14 @@ func (this *TypedScope) getTypeOfThis() *JSType {
 		return ObjectType_cast(root.getJSType()).up_JSType()
 	} else if NodeUtil_isNonArrowFunction(root) {
 		var nodeType *JSType = root.getJSType()
-		if ((nodeType != nil) && nodeType.isFunctionType()) {
+		if (nodeType != nil) && nodeType.isFunctionType() {
 			return nodeType.toMaybeFunctionType().getTypeOfThis()
 		} else {
 			return nil
 		}
 	} else if this.isStaticBlockScope() {
 		return cast_[*TypedScope](this.getParent().self()).getRootNode().getJSType()
-	} else if (this.isMemberFieldDefScope() || this.isComputedFieldDefRhsScope()) {
+	} else if this.isMemberFieldDefScope() || this.isComputedFieldDefRhsScope() {
 		var classType *JSType = cast_[*TypedScope](this.getParent().self()).getRootNode().getJSType()
 		if root.isStaticMember() {
 			return classType
@@ -142,16 +147,26 @@ func (this *TypedScope) getImplicitVarType(var_ *AbstractScope_ImplicitVar) *JST
 	switch var_ {
 	case AbstractScope_ImplicitVar_ARGUMENTS:
 		var globalArgs *TypedVar = cast_[*TypedVar](cast_[*TypedScope](this.getGlobalScope().self()).getVar(Var_ARGUMENTS).self())
-		return func() *JSType { if ((globalArgs != nil) && globalArgs.isExtern()) { return globalArgs.getType() }; return nil }()
+		return func() *JSType {
+			if (globalArgs != nil) && globalArgs.isExtern() {
+				return globalArgs.getType()
+			}
+			return nil
+		}()
 	case AbstractScope_ImplicitVar_THIS:
 		return this.getTypeOfThis()
 	case AbstractScope_ImplicitVar_SUPER:
 		var receiverType *ObjectType = ObjectType_cast(this.getTypeOfThis())
-		if (receiverType == nil) {
+		if receiverType == nil {
 			return nil
 		} else if receiverType.isInstanceType() {
 			var superclassCtor *FunctionType = receiverType.getSuperClassConstructor()
-			return func() *JSType { if (superclassCtor == nil) { return nil }; return superclassCtor.getInstanceType().up_JSType() }()
+			return func() *JSType {
+				if superclassCtor == nil {
+					return nil
+				}
+				return superclassCtor.getInstanceType().up_JSType()
+			}()
 		} else {
 			return receiverType.getImplicitPrototype().up_JSType()
 		}
@@ -171,17 +186,22 @@ func (this *TypedScope) isDeclarativelyUnboundVarWithoutType(var_ *TypedVar) boo
 
 func (this *TypedScope) getVar_impl(name string) *AbstractVar {
 	var ownSlot *TypedVar = cast_[*TypedVar](this.getOwnSlot(name))
-	if (ownSlot != nil) {
+	if ownSlot != nil {
 		return ownSlot.up_AbstractVar()
-	} else if (cast_[*TypedScope](this.getParent().self()) == nil) {
+	} else if cast_[*TypedScope](this.getParent().self()) == nil {
 		return nil
 	}
 	var dot int32 = String_indexOf(name, 46)
-	var rootName string = func() string { if (dot < 0) { return name }; return String_substring(name, 0, dot) }()
+	var rootName string = func() string {
+		if dot < 0 {
+			return name
+		}
+		return String_substring(name, 0, dot)
+	}()
 	var rootVar *TypedVar = cast_[*TypedVar](this.AbstractScope.getVar_impl(rootName).self())
-	if (dot < 0) {
+	if dot < 0 {
 		return rootVar.up_AbstractVar()
-	} else if (rootVar == nil) {
+	} else if rootVar == nil {
 		return to_AbstractVar(cast_[*TypedScope](cast_[*TypedScope](this.getParent().self()).getGlobalScope().self()).getOwnSlot(name))
 	} else {
 		return to_AbstractVar(cast_[*TypedScope](rootVar.getScope()).getOwnSlot(name))
@@ -191,25 +211,30 @@ func (this *TypedScope) getVar_impl(name string) *AbstractVar {
 
 func (this *TypedScope) getTypeThroughNamespace(moduleId string) *JSType {
 	var split int32 = String_lastIndexOf(moduleId, 46)
-	if (split >= 0) {
+	if split >= 0 {
 		var parentName string = String_substring(moduleId, 0, split)
 		var prop string = String_substring_int(moduleId, (split + 1))
 		var parentType *JSType = this.getTypeThroughNamespace(parentName)
-		if ((parentType == nil) || (parentType.toMaybeObjectType() == nil)) {
+		if (parentType == nil) || (parentType.toMaybeObjectType() == nil) {
 			return nil
 		}
 		return parentType.assertObjectType().getPropertyType(prop)
 	} else {
 		var var_ *TypedVar = cast_[*TypedVar](this.getSlot(moduleId))
-		return func() *JSType { if (var_ != nil) { return var_.getType() }; return nil }()
+		return func() *JSType {
+			if var_ != nil {
+				return var_.getType()
+			}
+			return nil
+		}()
 	}
 	panic("unreachable")
 }
 
 func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) StaticScope {
-	if ((cast_[*TypedVar](this.getOwnSlot(name)) != nil) || this.reservedNames.contains(name)) {
+	if (cast_[*TypedVar](this.getOwnSlot(name)) != nil) || this.reservedNames.contains(name) {
 		return StaticScope(this)
-	} else if (cast_[*TypedScope](this.getParent().self()) == nil) {
+	} else if cast_[*TypedScope](this.getParent().self()) == nil {
 		return nil
 	} else {
 		return cast_[*TypedScope](this.getParent().self()).getTopmostScopeOfEventualDeclaration(name)
@@ -220,4 +245,3 @@ func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) S
 func (this *TypedScope) lookupQualifiedName(p0 *QualifiedName) *JSType {
 	return StaticTypedScope_lookupQualifiedName_default(icast_StaticTypedScope(obj_(this)), p0)
 }
-

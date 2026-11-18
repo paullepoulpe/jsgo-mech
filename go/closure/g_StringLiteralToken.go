@@ -41,4 +41,3 @@ func new_StringLiteralToken(value string, location *SourceRange, hasUnescapedUni
 func (this *StringLiteralToken) hasUnescapedUnicodeLineOrParagraphSeparator() bool {
 	return this.hasUnescapedUnicodeLineOrParagraphSeparatorField
 }
-

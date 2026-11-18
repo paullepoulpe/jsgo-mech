@@ -7,26 +7,26 @@ type RefactoringDriver struct {
 	rootNode_ Node
 }
 
-func (this *RefactoringDriver) init_RefactoringDriver(inputs *TList[*SourceFile_jscomp], externs *TList[*SourceFile_jscomp], compilerOptions *CompilerOptions) {
+func (this *RefactoringDriver) init_RefactoringDriver(inputs *JTList[*SourceFile_jscomp], externs *JTList[*SourceFile_jscomp], compilerOptions *CompilerOptions) {
 	this.compiler_ = RefactoringDriver_createCompiler(inputs, externs, compilerOptions)
 	this.rootNode_ = this.compiler_.getRoot()
 }
 
-func new_RefactoringDriver(inputs *TList[*SourceFile_jscomp], externs *TList[*SourceFile_jscomp], compilerOptions *CompilerOptions) *RefactoringDriver {
+func new_RefactoringDriver(inputs *JTList[*SourceFile_jscomp], externs *JTList[*SourceFile_jscomp], compilerOptions *CompilerOptions) *RefactoringDriver {
 	this := &RefactoringDriver{}
 	this.init_RefactoringDriver(inputs, externs, compilerOptions)
 	return this
 }
 
-func (this *RefactoringDriver) drive_2(scanner *Scanner_refactoring, includeFilePattern *Pattern) *TList[*SuggestedFix] {
+func (this *RefactoringDriver) drive_2(scanner *Scanner_refactoring, includeFilePattern *Pattern) *JTList[*SuggestedFix] {
 	var callback *JsFlumeCallback = new_JsFlumeCallback(scanner, includeFilePattern)
 	NodeTraversal_traverse(this.compiler_.up_AbstractCompiler(), this.rootNode_, JsFlumeCallback_as_NodeTraversal_Callback(callback))
-	var fixes *TList[*SuggestedFix] = callback.getFixes()
+	var fixes *JTList[*SuggestedFix] = callback.getFixes()
 	fixes.asList().addAll(Collection(scanner.processAllMatches(Collection(callback.getMatches().asList())).asList()))
 	return fixes
 }
 
-func (this *RefactoringDriver) drive(scanner *Scanner_refactoring) *TList[*SuggestedFix] {
+func (this *RefactoringDriver) drive(scanner *Scanner_refactoring) *JTList[*SuggestedFix] {
 	return this.drive_2(scanner, nil)
 }
 
@@ -34,7 +34,7 @@ func (this *RefactoringDriver) getCompiler() *Compiler {
 	return this.compiler_
 }
 
-func RefactoringDriver_createCompiler(inputs *TList[*SourceFile_jscomp], externs *TList[*SourceFile_jscomp], compilerOptions *CompilerOptions) *Compiler {
+func RefactoringDriver_createCompiler(inputs *JTList[*SourceFile_jscomp], externs *JTList[*SourceFile_jscomp], compilerOptions *CompilerOptions) *Compiler {
 	var compiler *Compiler = Compiler_createFromErrorManager(ErrorManager(new_BlackHoleErrorManager()))
 	compiler.disableThreads()
 	compiler.compile(externs, inputs, compilerOptions)
@@ -61,14 +61,14 @@ func RefactoringDriver_getCompilerOptions() *CompilerOptions {
 }
 
 type RefactoringDriver_Builder struct {
-	inputs *TListBuilder[*SourceFile_jscomp]
-	externs *TListBuilder[*SourceFile_jscomp]
+	inputs          *TListBuilder[*SourceFile_jscomp]
+	externs         *TListBuilder[*SourceFile_jscomp]
 	compilerOptions *CompilerOptions
 }
 
 func (this *RefactoringDriver_Builder) finit_RefactoringDriver_Builder() {
-	this.inputs = newTListBuilder_(tc_p_SourceFile_jscomp)
-	this.externs = newTListBuilder_(tc_p_SourceFile_jscomp)
+	this.inputs = newTListBuilder_(jtc_p_SourceFile_jscomp)
+	this.externs = newTListBuilder_(jtc_p_SourceFile_jscomp)
 	this.compilerOptions = RefactoringDriver_getCompilerOptions()
 }
 
@@ -149,4 +149,3 @@ func RefactoringDriver_Builder_clinit() {
 	}}
 
 }
-

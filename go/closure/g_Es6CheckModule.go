@@ -37,21 +37,21 @@ func (this *Es6CheckModule) visit_impl(t *NodeTraversal, n Node, parent Node) {
 			t.report(n, Es6CheckModule_ES6_MODULE_REFERENCES_THIS, []string{})
 		}
 	case Token_rhino_GETPROP, Token_rhino_GETELEM:
-		if ((NodeUtil_isLValue(n) && !NodeUtil_isDeclarationLValue(n)) && n.getFirstChild().isName()) {
+		if (NodeUtil_isLValue(n) && !NodeUtil_isDeclarationLValue(n)) && n.getFirstChild().isName() {
 			var var_ *Var = cast_[*Var](t.getScope().getVar(n.getFirstChild().getString()).self())
-			if (var_ != nil) {
+			if var_ != nil {
 				var nameNode Node = var_.getNameNode()
-				if ((nameNode != 0) && nameNode.isImportStar()) {
+				if (nameNode != 0) && nameNode.isImportStar() {
 					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, Es6CheckModule_IMPORT_CANNOT_BE_REASSIGNED, []string{nameNode.getString()}))
 				}
 			}
 		}
 	case Token_rhino_NAME:
-		if (NodeUtil_isLValue(n) && !NodeUtil_isDeclarationLValue(n)) {
+		if NodeUtil_isLValue(n) && !NodeUtil_isDeclarationLValue(n) {
 			var var_ *Var = cast_[*Var](t.getScope().getVar(n.getString()).self())
-			if (var_ != nil) {
+			if var_ != nil {
 				var nameNode Node = var_.getNameNode()
-				if ((nameNode != 0) && (nameNode != n)) {
+				if (nameNode != 0) && (nameNode != n) {
 					if NodeUtil_isImportedName(nameNode) {
 						this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, Es6CheckModule_IMPORT_CANNOT_BE_REASSIGNED, []string{nameNode.getString()}))
 					}
@@ -76,4 +76,3 @@ func Es6CheckModule_clinit() {
 	Es6CheckModule_IMPORT_CANNOT_BE_REASSIGNED = DiagnosticType_error("JSC_IMPORT_CANNOT_BE_REASSIGNED", "Assignment to constant variable \"{0}\".")
 
 }
-

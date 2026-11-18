@@ -3,19 +3,19 @@
 package closure
 
 type SourceMapObject struct {
-	version_ int32
-	lineCount int32
-	sourceRoot Optional[string]
-	file Optional[string]
-	mappings Optional[string]
-	sources []string
+	version_       int32
+	lineCount      int32
+	sourceRoot     Optional[string]
+	file           Optional[string]
+	mappings       Optional[string]
+	sources        []string
 	sourcesContent []string
-	names_ []string
-	sections *TList[*SourceMapSection]
-	extensions *TMap[string, any]
+	names_         []string
+	sections       *JTList[*SourceMapSection]
+	extensions     *JTMap[string, any]
 }
 
-func (this *SourceMapObject) init_SourceMapObject(version int32, lineCount int32, sourceRoot Optional[string], file Optional[string], mappings Optional[string], sources []string, sourcesContent []string, names []string, sections *TList[*SourceMapSection], extensions *TMap[string, any]) {
+func (this *SourceMapObject) init_SourceMapObject(version int32, lineCount int32, sourceRoot Optional[string], file Optional[string], mappings Optional[string], sources []string, sourcesContent []string, names []string, sections *JTList[*SourceMapSection], extensions *JTMap[string, any]) {
 	this.version_ = version
 	this.lineCount = lineCount
 	this.sourceRoot = sourceRoot
@@ -28,7 +28,7 @@ func (this *SourceMapObject) init_SourceMapObject(version int32, lineCount int32
 	this.extensions = extensions
 }
 
-func new_SourceMapObject(version int32, lineCount int32, sourceRoot Optional[string], file Optional[string], mappings Optional[string], sources []string, sourcesContent []string, names []string, sections *TList[*SourceMapSection], extensions *TMap[string, any]) *SourceMapObject {
+func new_SourceMapObject(version int32, lineCount int32, sourceRoot Optional[string], file Optional[string], mappings Optional[string], sources []string, sourcesContent []string, names []string, sections *JTList[*SourceMapSection], extensions *JTMap[string, any]) *SourceMapObject {
 	this := &SourceMapObject{}
 	this.init_SourceMapObject(version, lineCount, sourceRoot, file, mappings, sources, sourcesContent, names, sections, extensions)
 	return this
@@ -66,11 +66,11 @@ func (this *SourceMapObject) getNames() []string {
 	return this.names_
 }
 
-func (this *SourceMapObject) getSections() *TList[*SourceMapSection] {
+func (this *SourceMapObject) getSections() *JTList[*SourceMapSection] {
 	return this.sections
 }
 
-func (this *SourceMapObject) getExtensions() *TMap[string, any] {
+func (this *SourceMapObject) getExtensions() *JTMap[string, any] {
 	return this.extensions
 }
 
@@ -79,16 +79,16 @@ func SourceMapObject_builder() *SourceMapObject_Builder {
 }
 
 type SourceMapObject_Builder struct {
-	version_ int32
-	lineCount int32
-	sourceRoot Optional[string]
-	file Optional[string]
-	mappings Optional[string]
-	sources []string
+	version_       int32
+	lineCount      int32
+	sourceRoot     Optional[string]
+	file           Optional[string]
+	mappings       Optional[string]
+	sources        []string
 	sourcesContent []string
-	names_ []string
-	sections *TList[*SourceMapSection]
-	extensions *TMap[string, any]
+	names_         []string
+	sections       *JTList[*SourceMapSection]
+	extensions     *JTMap[string, any]
 }
 
 func (this *SourceMapObject_Builder) finit_SourceMapObject_Builder() {
@@ -147,12 +147,12 @@ func (this *SourceMapObject_Builder) setNames(names []string) *SourceMapObject_B
 	return this
 }
 
-func (this *SourceMapObject_Builder) setSections(sections *TList[*SourceMapSection]) *SourceMapObject_Builder {
+func (this *SourceMapObject_Builder) setSections(sections *JTList[*SourceMapSection]) *SourceMapObject_Builder {
 	this.sections = sections
 	return this
 }
 
-func (this *SourceMapObject_Builder) setExtensions(extensions *TMap[string, any]) *SourceMapObject_Builder {
+func (this *SourceMapObject_Builder) setExtensions(extensions *JTMap[string, any]) *SourceMapObject_Builder {
 	this.extensions = extensions
 	return this
 }
@@ -160,4 +160,3 @@ func (this *SourceMapObject_Builder) setExtensions(extensions *TMap[string, any]
 func (this *SourceMapObject_Builder) build() *SourceMapObject {
 	return new_SourceMapObject(this.version_, this.lineCount, this.sourceRoot, this.file, this.mappings, this.sources, this.sourcesContent, this.names_, this.sections, this.extensions)
 }
-

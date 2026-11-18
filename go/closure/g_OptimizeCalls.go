@@ -3,18 +3,18 @@
 package closure
 
 type OptimizeCalls struct {
-	compiler_ *AbstractCompiler
-	passes *TList[OptimizeCalls_CallGraphCompilerPass]
+	compiler_       *AbstractCompiler
+	passes          *JTList[OptimizeCalls_CallGraphCompilerPass]
 	considerExterns bool
 }
 
-func (this *OptimizeCalls) init_OptimizeCalls(compiler *AbstractCompiler, passes *TList[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) {
+func (this *OptimizeCalls) init_OptimizeCalls(compiler *AbstractCompiler, passes *JTList[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) {
 	this.compiler_ = compiler
 	this.passes = passes
 	this.considerExterns = considerExterns
 }
 
-func new_OptimizeCalls(compiler *AbstractCompiler, passes *TList[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) *OptimizeCalls {
+func new_OptimizeCalls(compiler *AbstractCompiler, passes *JTList[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) *OptimizeCalls {
 	this := &OptimizeCalls{}
 	this.init_OptimizeCalls(compiler, passes, considerExterns)
 	return this
@@ -43,15 +43,20 @@ func (this *OptimizeCalls) eliminateAccessorsFrom(references *OptimizeCalls_Refe
 	references.props.asMap().keySet().removeAll(Collection(this.compiler_.getAccessorSummary().getAccessors().asImm().keySet()))
 }
 
-func OptimizeCalls_safeSet(set *TSet[string]) *TSet[string] {
-	return func() *TSet[string] { if (set != nil) { return immutableSetCopyOfT_(tc_string, set) }; return tsetEmptyImm_(tc_string) }()
+func OptimizeCalls_safeSet(set *JTSet[string]) *JTSet[string] {
+	return func() *JTSet[string] {
+		if set != nil {
+			return immutableSetCopyOfT_(jtc_string, set)
+		}
+		return jtsetEmptyImm_(jtc_string)
+	}()
 }
 
 func OptimizeCalls_mayBeOptimizableName(compiler *AbstractCompiler, name string) bool {
 	if compiler.getCodingConvention().isExported(name) {
 		return false
 	}
-	if ((((name == NodeUtil_JSC_PROPERTY_NAME_FN) || (name == "inherits")) || (name == "$jscomp$inherits")) || (name == "goog$inherits")) {
+	if (((name == NodeUtil_JSC_PROPERTY_NAME_FN) || (name == "inherits")) || (name == "$jscomp$inherits")) || (name == "goog$inherits") {
 		return false
 	}
 	return true
@@ -66,7 +71,7 @@ func OptimizeCalls_isAllowedReference(n Node) bool {
 		return true
 	case Token_rhino_GETELEM, Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM:
 		var grandparent Node = parent.getParent()
-		if (((n == parent.getFirstChild()) && (grandparent != 0)) && ((grandparent.isCall() || grandparent.isOptChainCall()) || grandparent.isTaggedTemplateLit())) {
+		if ((n == parent.getFirstChild()) && (grandparent != 0)) && ((grandparent.isCall() || grandparent.isOptChainCall()) || grandparent.isTaggedTemplateLit()) {
 			return false
 		}
 		return true
@@ -75,14 +80,14 @@ func OptimizeCalls_isAllowedReference(n Node) bool {
 			return false
 		} else {
 			Preconditions_checkState_boolean_Object_H(n.isSecondChildOf(parent), parent)
-			if (NodeUtil_getEs6ClassConstructorMemberFunctionDef(parent) == 0) {
+			if NodeUtil_getEs6ClassConstructorMemberFunctionDef(parent) == 0 {
 				return false
 			} else {
 				return true
 			}
 		}
 	default:
-		if (NodeUtil_isNameDeclaration(parent) && !n.hasChildren()) {
+		if NodeUtil_isNameDeclaration(parent) && !n.hasChildren() {
 			return true
 		}
 	}
@@ -102,13 +107,13 @@ func (this *OptimizeCalls_CallGraphCompilerPass_fn) process_3(p0 Node, p1 Node, 
 }
 
 type OptimizeCalls_Builder struct {
-	compiler_ *AbstractCompiler
-	passes *TListBuilder[OptimizeCalls_CallGraphCompilerPass]
+	compiler_       *AbstractCompiler
+	passes          *TListBuilder[OptimizeCalls_CallGraphCompilerPass]
 	considerExterns any
 }
 
 func (this *OptimizeCalls_Builder) finit_OptimizeCalls_Builder() {
-	this.passes = newTListBuilder_(tc_OptimizeCalls_CallGraphCompilerPass)
+	this.passes = newTListBuilder_(jtc_OptimizeCalls_CallGraphCompilerPass)
 }
 
 func (this *OptimizeCalls_Builder) init_OptimizeCalls_Builder() {
@@ -144,13 +149,13 @@ func (this *OptimizeCalls_Builder) build() *OptimizeCalls {
 
 type OptimizeCalls_ReferenceMap struct {
 	globalScope *Scope
-	names_ *TMap[string, *ArrayList]
-	props *TMap[string, *ArrayList]
+	names_      *JTMap[string, *ArrayList]
+	props       *JTMap[string, *ArrayList]
 }
 
 func (this *OptimizeCalls_ReferenceMap) finit_OptimizeCalls_ReferenceMap() {
-	this.names_ = newTMap_(tc_string, tc_p_ArrayList)
-	this.props = newTMap_(tc_string, tc_p_ArrayList)
+	this.names_ = jnewTMap_(jtc_string, tc_p_ArrayList)
+	this.props = jnewTMap_(jtc_string, tc_p_ArrayList)
 }
 
 func (this *OptimizeCalls_ReferenceMap) init_OptimizeCalls_ReferenceMap() {
@@ -163,7 +168,7 @@ func new_OptimizeCalls_ReferenceMap() *OptimizeCalls_ReferenceMap {
 	return this
 }
 
-func (this *OptimizeCalls_ReferenceMap) addReference(data *TMap[string, *ArrayList], name string, n Node) {
+func (this *OptimizeCalls_ReferenceMap) addReference(data *JTMap[string, *ArrayList], name string, n Node) {
 	var refs ArrayListOf[Node] = data.computeIfAbsent(name, &Function_tfn_string_any{func(k string) any {
 		return new_ArrayList_0().self()
 	}})
@@ -200,20 +205,20 @@ func OptimizeCalls_ReferenceMap_getFunctionNodes(definitionSites ListOf[Node]) *
 	return result.immutableCopy()
 }
 
-func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) *TList[Node] {
-	if (definitionSite.isGetterDef() || definitionSite.isSetterDef()) {
-		return tlistEmptyImm_(tc_Node)
+func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) *JTList[Node] {
+	if definitionSite.isGetterDef() || definitionSite.isSetterDef() {
+		return jtlistEmptyImm_(jtc_Node)
 	}
 	var parent Node = definitionSite.getParent()
-	if (parent == 0) {
-		return tlistEmptyImm_(tc_Node)
+	if parent == 0 {
+		return jtlistEmptyImm_(jtc_Node)
 	}
-	var fns *TListBuilder[Node] = newTListBuilder_(tc_Node)
+	var fns *TListBuilder[Node] = newTListBuilder_(jtc_Node)
 	switch parent.getToken() {
 	case Token_rhino_CLASS:
 		if definitionSite.isFirstChildOf(parent) {
 			var constructorFnDef Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(parent)
-			if (constructorFnDef != 0) {
+			if constructorFnDef != 0 {
 				fns.add(constructorFnDef.getOnlyChild())
 			}
 		}
@@ -225,7 +230,7 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 		} else {
 			Preconditions_checkArgument_boolean_Object_H(definitionSite.isMemberFieldDef(), definitionSite)
 			var value Node = definitionSite.getFirstChild()
-			if (value != 0) {
+			if value != 0 {
 				OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, value)
 			}
 		}
@@ -235,11 +240,11 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 	case Token_rhino_ASSIGN:
 		var target Node = parent.getFirstChild()
 		var value Node = parent.getLastChild()
-		if (definitionSite == target) {
+		if definitionSite == target {
 			OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, value)
 		}
 	case Token_rhino_CONST, Token_rhino_LET, Token_rhino_VAR:
-		if (definitionSite.isName() && definitionSite.hasChildren()) {
+		if definitionSite.isName() && definitionSite.hasChildren() {
 			OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns, definitionSite.getFirstChild())
 		}
 	default:
@@ -252,7 +257,7 @@ func OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns *TListBuilder[Node], n
 	case Token_rhino_CLASS:
 		{
 			var constructorFnDef Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(n)
-			if (constructorFnDef != 0) {
+			if constructorFnDef != 0 {
 				fns.add(constructorFnDef.getOnlyChild())
 			}
 		}
@@ -276,7 +281,7 @@ func OptimizeCalls_ReferenceMap_isNormalOrOptChainCallOrNewTarget(n Node) bool {
 
 func OptimizeCalls_ReferenceMap_isCallTarget(n Node) bool {
 	var parent Node = n.getParent()
-	if (parent.isCall() && n.isFirstChildOf(parent)) {
+	if parent.isCall() && n.isFirstChildOf(parent) {
 		return true
 	}
 	var grandParent Node = parent.getParent()
@@ -285,7 +290,7 @@ func OptimizeCalls_ReferenceMap_isCallTarget(n Node) bool {
 
 func OptimizeCalls_ReferenceMap_isOptChainCallTarget(n Node) bool {
 	var parent Node = n.getParent()
-	if (parent.isOptChainCall() && n.isFirstChildOf(parent)) {
+	if parent.isOptChainCall() && n.isFirstChildOf(parent) {
 		return true
 	}
 	var grandParent Node = parent.getParent()
@@ -335,9 +340,9 @@ func OptimizeCalls_ReferenceMap_isSimpleAssignmentTarget(n Node) bool {
 }
 
 type OptimizeCalls_ReferenceMapBuildingCallback struct {
-	outer_ *OptimizeCalls
-	externProps *TSet[string]
-	references *OptimizeCalls_ReferenceMap
+	outer_      *OptimizeCalls
+	externProps *JTSet[string]
+	references  *OptimizeCalls_ReferenceMap
 	globalScope *Scope
 }
 
@@ -363,7 +368,7 @@ func (this *OptimizeCalls_ReferenceMapBuildingCallback) visit(t *NodeTraversal, 
 		var fnName Node = n.getFirstChild()
 		if this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(fnName) {
 			var propName Node = NodeUtil_getArgumentForCallOrNew(n, 0)
-			if (propName != 0) {
+			if propName != 0 {
 				this.maybeAddPropReference(propName.getString(), n)
 			}
 		}
@@ -380,7 +385,7 @@ func (this *OptimizeCalls_ReferenceMapBuildingCallback) visit(t *NodeTraversal, 
 
 func (this *OptimizeCalls_ReferenceMapBuildingCallback) visitSuper(superNode Node) {
 	var parent Node = superNode.getParent()
-	if (parent.isCall() && superNode.isFirstChildOf(parent)) {
+	if parent.isCall() && superNode.isFirstChildOf(parent) {
 		var enclosingClass Node = Preconditions_checkNotNull_T(NodeUtil_getEnclosingClass(parent))
 		var extendsNode Node = enclosingClass.getSecondChild()
 		Preconditions_checkState_boolean_Object(!extendsNode.isEmpty(), "super call appears in class without extends clause")
@@ -394,13 +399,13 @@ func (this *OptimizeCalls_ReferenceMapBuildingCallback) visitSuper(superNode Nod
 
 func (this *OptimizeCalls_ReferenceMapBuildingCallback) maybeAddNameReference(name string, n Node) {
 	var var_ *Var = cast_[*Var](this.globalScope.getSlot(name))
-	if ((var_ != nil) && (this.outer_.considerExterns || !var_.isExtern())) {
+	if (var_ != nil) && (this.outer_.considerExterns || !var_.isExtern()) {
 		this.references.addNameReference(name, n)
 	}
 }
 
 func (this *OptimizeCalls_ReferenceMapBuildingCallback) maybeAddPropReference(name string, n Node) {
-	if (this.outer_.considerExterns || !this.externProps.contains(name)) {
+	if this.outer_.considerExterns || !this.externProps.contains(name) {
 		this.references.addPropReference(name, n)
 	}
 }
@@ -424,4 +429,3 @@ func (this *OptimizeCalls_ReferenceMapBuildingCallback) enterScope(t *NodeTraver
 func (this *OptimizeCalls_ReferenceMapBuildingCallback) exitScope(t *NodeTraversal) {
 
 }
-

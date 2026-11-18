@@ -3,10 +3,10 @@
 package closure
 
 type RenameLabels struct {
-	compiler_ *AbstractCompiler
+	compiler_    *AbstractCompiler
 	nameSupplier SupplierOf[string]
 	removeUnused bool
-	markChanges bool
+	markChanges  bool
 }
 
 func (this *RenameLabels) init_RenameLabels_AbstractCompiler(compiler *AbstractCompiler) {
@@ -41,7 +41,7 @@ type RenameLabels_DefaultNameSupplier struct {
 }
 
 func (this *RenameLabels_DefaultNameSupplier) init_RenameLabels_DefaultNameSupplier() {
-	this.nameGenerator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(Set(new_LinkedHashSet()), "", tsetEmptyImm_(tc_Character)))
+	this.nameGenerator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(Set(new_LinkedHashSet()), "", jtsetEmptyImm_(tc_Character)))
 }
 
 func new_RenameLabels_DefaultNameSupplier() *RenameLabels_DefaultNameSupplier {
@@ -55,15 +55,15 @@ func (this *RenameLabels_DefaultNameSupplier) get() any {
 }
 
 type RenameLabels_ProcessLabels struct {
-	outer_ *RenameLabels
-	markChanges bool
+	outer_         *RenameLabels
+	markChanges    bool
 	namespaceStack *TDeque[*RenameLabels_LabelNamespace]
-	names_ *TList[string]
+	names_         *JTList[string]
 }
 
 func (this *RenameLabels_ProcessLabels) finit_RenameLabels_ProcessLabels() {
-	this.namespaceStack = newTDeque_(tc_p_RenameLabels_LabelNamespace)
-	this.names_ = newTList_(tc_string)
+	this.namespaceStack = newTDeque_(jtc_p_RenameLabels_LabelNamespace)
+	this.names_ = jnewTList_(jtc_string)
 }
 
 func (this *RenameLabels_ProcessLabels) init_RenameLabels_ProcessLabels(markChanges bool) {
@@ -99,7 +99,7 @@ func (this *RenameLabels_ProcessLabels) shouldTraverse(nodeTraversal *NodeTraver
 		var li *RenameLabels_LabelInfo = new_RenameLabels_LabelInfo(currentDepth)
 		Preconditions_checkState(!current.renameMap.containsKey(name))
 		current.renameMap.put(name, li)
-		if (this.names_.size() < currentDepth) {
+		if this.names_.size() < currentDepth {
 			this.names_.add(str_(this.outer_.nameSupplier.get()))
 		}
 	}
@@ -118,11 +118,11 @@ func (this *RenameLabels_ProcessLabels) visit(t *NodeTraversal, node Node, paren
 
 func (this *RenameLabels_ProcessLabels) visitBreakOrContinue(t *NodeTraversal, node Node) {
 	var nameNode Node = node.getFirstChild()
-	if (nameNode != 0) {
+	if nameNode != 0 {
 		var name string = nameNode.getString()
 		Preconditions_checkState(!String_isEmpty(name))
 		var li *RenameLabels_LabelInfo = this.getLabelInfo(name)
-		if (li != nil) {
+		if li != nil {
 			var newName string = this.getNameForId(li.id)
 			li.referenced = true
 			if !(name == newName) {
@@ -140,7 +140,7 @@ func (this *RenameLabels_ProcessLabels) visitLabel(t *NodeTraversal, node Node) 
 	Preconditions_checkState((nameNode != 0))
 	var name string = nameNode.getString()
 	var li *RenameLabels_LabelInfo = this.getLabelInfo(name)
-	if (li.referenced || !this.outer_.removeUnused) {
+	if li.referenced || !this.outer_.removeUnused {
 		var newName string = this.getNameForId(li.id)
 		if !(name == newName) {
 			nameNode.setString(newName)
@@ -172,7 +172,7 @@ func (this *RenameLabels_ProcessLabels) getLabelInfo(name string) *RenameLabels_
 
 type RenameLabels_LabelInfo struct {
 	referenced bool
-	id int32
+	id         int32
 }
 
 func (this *RenameLabels_LabelInfo) finit_RenameLabels_LabelInfo() {
@@ -191,11 +191,11 @@ func new_RenameLabels_LabelInfo(id int32) *RenameLabels_LabelInfo {
 }
 
 type RenameLabels_LabelNamespace struct {
-	renameMap *TMap[string, *RenameLabels_LabelInfo]
+	renameMap *JTMap[string, *RenameLabels_LabelInfo]
 }
 
 func (this *RenameLabels_LabelNamespace) finit_RenameLabels_LabelNamespace() {
-	this.renameMap = newTMap_(tc_string, tc_p_RenameLabels_LabelInfo)
+	this.renameMap = jnewTMap_(jtc_string, tc_p_RenameLabels_LabelInfo)
 }
 
 func (this *RenameLabels_LabelNamespace) init_RenameLabels_LabelNamespace() {
@@ -207,4 +207,3 @@ func new_RenameLabels_LabelNamespace() *RenameLabels_LabelNamespace {
 	this.init_RenameLabels_LabelNamespace()
 	return this
 }
-

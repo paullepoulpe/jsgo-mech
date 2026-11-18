@@ -40,7 +40,7 @@ func (this *CheckSuspiciousCode) checkMissingSemicolon(t *NodeTraversal, n Node)
 		var trueCase Node = n.getSecondChild()
 		CheckSuspiciousCode_reportIfWasEmpty(t, trueCase)
 		var elseCase Node = trueCase.getNext()
-		if (elseCase != 0) {
+		if elseCase != 0 {
 			CheckSuspiciousCode_reportIfWasEmpty(t, elseCase)
 		}
 	case Token_rhino_WHILE, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
@@ -51,7 +51,7 @@ func (this *CheckSuspiciousCode) checkMissingSemicolon(t *NodeTraversal, n Node)
 
 func CheckSuspiciousCode_reportIfWasEmpty(t *NodeTraversal, block Node) {
 	Preconditions_checkState(block.isBlock())
-	if (!block.hasChildren() && block.isAddedBlock()) {
+	if !block.hasChildren() && block.isAddedBlock() {
 		t.getCompiler().report(JSError_make_Node_DiagnosticType_StringArr(block, CheckSuspiciousCode_SUSPICIOUS_SEMICOLON, []string{}))
 	}
 }
@@ -84,7 +84,7 @@ func (this *CheckSuspiciousCode) checkNonObjectInstanceOf(t *NodeTraversal, n No
 }
 
 func CheckSuspiciousCode_reportIfNonObject(t *NodeTraversal, n Node, diagnosticType *DiagnosticType) bool {
-	if (n.isAdd() || !NodeUtil_mayBeObject(n)) {
+	if n.isAdd() || !NodeUtil_mayBeObject(n) {
 		t.report(n.getParent(), diagnosticType, []string{})
 		return true
 	}
@@ -92,17 +92,27 @@ func CheckSuspiciousCode_reportIfNonObject(t *NodeTraversal, n Node, diagnosticT
 }
 
 func (this *CheckSuspiciousCode) checkNegatedLeftOperandOfInOperator(t *NodeTraversal, n Node) {
-	if (n.isIn() && n.getFirstChild().isNot()) {
+	if n.isIn() && n.getFirstChild().isNot() {
 		t.report(n.getFirstChild(), CheckSuspiciousCode_SUSPICIOUS_NEGATED_LEFT_OPERAND_OF_IN_OPERATOR, []string{})
 	}
 }
 
 func (this *CheckSuspiciousCode) checkLeftOperandOfLogicalOperator(t *NodeTraversal, n Node) {
-	if (n.isOr() || n.isAnd()) {
-		var operator string = func() string { if n.isOr() { return "||" }; return "&&" }()
+	if n.isOr() || n.isAnd() {
+		var operator string = func() string {
+			if n.isOr() {
+				return "||"
+			}
+			return "&&"
+		}()
 		var v *Tri = this.getBooleanValueWithTypes(n.getFirstChild())
-		if (v != Tri_UNKNOWN) {
-			var result string = func() string { if (v == Tri_TRUE) { return "truthy" }; return "falsy" }()
+		if v != Tri_UNKNOWN {
+			var result string = func() string {
+				if v == Tri_TRUE {
+					return "truthy"
+				}
+				return "falsy"
+			}()
 			t.report(n, CheckSuspiciousCode_SUSPICIOUS_LEFT_OPERAND_OF_LOGICAL_OPERATOR, []string{operator, result})
 		}
 	}
@@ -111,7 +121,7 @@ func (this *CheckSuspiciousCode) checkLeftOperandOfLogicalOperator(t *NodeTraver
 func CheckSuspiciousCode_checkSuspiciousBreakingOutOfOptionalChain(t *NodeTraversal, n Node) {
 	if NodeUtil_isOptChainNode(n) {
 		var parent Node = n.getParent()
-		if (n.isFirstChildOf(parent) && ((parent.isGetProp() || parent.isGetElem()) || parent.isCall())) {
+		if n.isFirstChildOf(parent) && ((parent.isGetProp() || parent.isGetElem()) || parent.isCall()) {
 			t.report(n, CheckSuspiciousCode_SUSPICIOUS_BREAKING_OUT_OF_OPTIONAL_CHAIN, []string{})
 		}
 	}
@@ -130,7 +140,12 @@ func (this *CheckSuspiciousCode) getBooleanValueWithTypes(n Node) *Tri {
 	case Token_rhino_HOOK:
 		var trueValue *Tri = this.getBooleanValueWithTypes(n.getSecondChild())
 		var falseValue *Tri = this.getBooleanValueWithTypes(n.getLastChild())
-		return func() *Tri { if Object_equals(obj_(trueValue), obj_(falseValue)) { return trueValue }; return Tri_UNKNOWN }()
+		return func() *Tri {
+			if Object_equals(obj_(trueValue), obj_(falseValue)) {
+				return trueValue
+			}
+			return Tri_UNKNOWN
+		}()
 	case Token_rhino_FUNCTION, Token_rhino_CLASS, Token_rhino_NEW, Token_rhino_ARRAYLIT, Token_rhino_OBJECTLIT:
 		return Tri_TRUE
 	case Token_rhino_VOID:
@@ -140,11 +155,11 @@ func (this *CheckSuspiciousCode) getBooleanValueWithTypes(n Node) *Tri {
 	default:
 	}
 	var literalValue *Tri = NodeUtil_getBooleanValue(n)
-	if ((literalValue != Tri_UNKNOWN) || n.isName()) {
+	if (literalValue != Tri_UNKNOWN) || n.isName() {
 		return literalValue
 	}
 	var type_ *JSType = n.getJSType()
-	if (type_ != nil) {
+	if type_ != nil {
 		return Tri_UNKNOWN.and(type_.getPossibleToBooleanOutcomes().toTri())
 	}
 	return Tri_UNKNOWN
@@ -174,4 +189,3 @@ func CheckSuspiciousCode_clinit() {
 	CheckSuspiciousCode_SUSPICIOUS_BREAKING_OUT_OF_OPTIONAL_CHAIN = DiagnosticType_warning("SUSPICIOUS_BREAKING_OUT_OF_OPTIONAL_CHAIN", "Suspicious breaking out of optional chain. May result in TypeError if optional chain is undefined.")
 
 }
-

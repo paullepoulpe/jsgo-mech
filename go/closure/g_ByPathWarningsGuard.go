@@ -4,9 +4,9 @@ package closure
 
 type ByPathWarningsGuard struct {
 	WarningsGuard
-	paths *TList[string]
-	include bool
-	priority int32
+	paths      *JTList[string]
+	include    bool
+	priority   int32
 	levelField *CheckLevel
 }
 
@@ -17,42 +17,47 @@ func (this *ByPathWarningsGuard) up_WarningsGuard() *WarningsGuard {
 	return &this.WarningsGuard
 }
 
-func (this *ByPathWarningsGuard) init_ByPathWarningsGuard(paths *TList[string], include bool, level *CheckLevel) {
+func (this *ByPathWarningsGuard) init_ByPathWarningsGuard(paths *JTList[string], include bool, level *CheckLevel) {
 	this.WarningsGuard.init_WarningsGuard()
 	Preconditions_checkArgument((paths != nil))
 	Preconditions_checkArgument(((level == CheckLevel_OFF) || (level == CheckLevel_ERROR)))
 	this.paths = paths
 	this.include = include
 	this.levelField = level
-	this.priority = func() int32 { if (level == CheckLevel_ERROR) { return WarningsGuard_Priority_STRICT.value_ }; return WarningsGuard_Priority_FILTER_BY_PATH.value_ }()
+	this.priority = func() int32 {
+		if level == CheckLevel_ERROR {
+			return WarningsGuard_Priority_STRICT.value_
+		}
+		return WarningsGuard_Priority_FILTER_BY_PATH.value_
+	}()
 }
 
-func new_ByPathWarningsGuard(paths *TList[string], include bool, level *CheckLevel) *ByPathWarningsGuard {
+func new_ByPathWarningsGuard(paths *JTList[string], include bool, level *CheckLevel) *ByPathWarningsGuard {
 	this := &ByPathWarningsGuard{}
 	this.self_ = this
 	this.init_ByPathWarningsGuard(paths, include, level)
 	return this
 }
 
-func ByPathWarningsGuard_forPath(paths *TList[string], level *CheckLevel) *ByPathWarningsGuard {
+func ByPathWarningsGuard_forPath(paths *JTList[string], level *CheckLevel) *ByPathWarningsGuard {
 	return new_ByPathWarningsGuard(paths, true, level)
 }
 
-func ByPathWarningsGuard_exceptPath(paths *TList[string], level *CheckLevel) *ByPathWarningsGuard {
+func ByPathWarningsGuard_exceptPath(paths *JTList[string], level *CheckLevel) *ByPathWarningsGuard {
 	return new_ByPathWarningsGuard(paths, false, level)
 }
 
 func (this *ByPathWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 	var errorPath Optional[string] = error_.sourceName()
 	var defaultLevel *CheckLevel = error_.defaultLevel()
-	if ((defaultLevel != CheckLevel_ERROR) && errorPath.isPresent()) {
+	if (defaultLevel != CheckLevel_ERROR) && errorPath.isPresent() {
 		var inPath bool = false
 		it_1 := this.paths.each()
 		for it_1.next() {
 			var path string = it_1.v
-			inPath = bor_(inPath, String_contains_s(errorPath.get(), path))
+			inPath = bor_(inPath, JString_contains_s(errorPath.get(), path))
 		}
-		if (inPath == this.include) {
+		if inPath == this.include {
 			return this.levelField
 		}
 	}
@@ -64,4 +69,3 @@ func (this *ByPathWarningsGuard) getPriority_impl() int32 {
 }
 
 const ByPathWarningsGuard_serialVersionUID int64 = 1
-

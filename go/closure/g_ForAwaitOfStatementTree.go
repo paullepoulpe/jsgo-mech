@@ -5,8 +5,8 @@ package closure
 type ForAwaitOfStatementTree struct {
 	ParseTree
 	initializer *ParseTree
-	collection *ParseTree
-	body *ParseTree
+	collection  *ParseTree
+	body        *ParseTree
 }
 
 func (this *ForAwaitOfStatementTree) up_ParseTree() *ParseTree {
@@ -29,4 +29,3 @@ func new_ForAwaitOfStatementTree(location *SourceRange, initializer *ParseTree, 
 	this.init_ForAwaitOfStatementTree(location, initializer, collection, body)
 	return this
 }
-

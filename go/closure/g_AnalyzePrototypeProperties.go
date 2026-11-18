@@ -3,18 +3,18 @@
 package closure
 
 type AnalyzePrototypeProperties struct {
-	compiler_ *AbstractCompiler
-	canModifyExterns bool
-	anchorUnusedVars bool
+	compiler_              *AbstractCompiler
+	canModifyExterns       bool
+	anchorUnusedVars       bool
 	rootScopeUsesAreGlobal bool
-	chunkGraph *JSChunkGraph
-	firstChunk *JSChunk
-	symbolGraph *LinkedDirectedGraph[*AnalyzePrototypeProperties_NameInfo, *JSChunk]
-	globalNode *AnalyzePrototypeProperties_NameInfo
-	externNode *AnalyzePrototypeProperties_NameInfo
-	anonymousNode *AnalyzePrototypeProperties_NameInfo
-	propertyNameInfo *TMap[string, *AnalyzePrototypeProperties_NameInfo]
-	varNameInfo *TMap[string, *AnalyzePrototypeProperties_NameInfo]
+	chunkGraph             *JSChunkGraph
+	firstChunk             *JSChunk
+	symbolGraph            *LinkedDirectedGraph[*AnalyzePrototypeProperties_NameInfo, *JSChunk]
+	globalNode             *AnalyzePrototypeProperties_NameInfo
+	externNode             *AnalyzePrototypeProperties_NameInfo
+	anonymousNode          *AnalyzePrototypeProperties_NameInfo
+	propertyNameInfo       *JTMap[string, *AnalyzePrototypeProperties_NameInfo]
+	varNameInfo            *JTMap[string, *AnalyzePrototypeProperties_NameInfo]
 }
 
 func (this *AnalyzePrototypeProperties) finit_AnalyzePrototypeProperties() {
@@ -22,8 +22,8 @@ func (this *AnalyzePrototypeProperties) finit_AnalyzePrototypeProperties() {
 	this.globalNode = new_AnalyzePrototypeProperties_NameInfo(this, "[global]")
 	this.externNode = new_AnalyzePrototypeProperties_NameInfo(this, "[extern]")
 	this.anonymousNode = new_AnalyzePrototypeProperties_NameInfo(this, "[anonymous]")
-	this.propertyNameInfo = newTMap_(tc_string, tc_p_AnalyzePrototypeProperties_NameInfo)
-	this.varNameInfo = newTMap_(tc_string, tc_p_AnalyzePrototypeProperties_NameInfo)
+	this.propertyNameInfo = jnewTMap_(jtc_string, jtc_p_AnalyzePrototypeProperties_NameInfo)
+	this.varNameInfo = jnewTMap_(jtc_string, jtc_p_AnalyzePrototypeProperties_NameInfo)
 }
 
 func (this *AnalyzePrototypeProperties) init_AnalyzePrototypeProperties(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, canModifyExterns bool, anchorUnusedVars bool, rootScopeUsesAreGlobal bool) {
@@ -33,7 +33,7 @@ func (this *AnalyzePrototypeProperties) init_AnalyzePrototypeProperties(compiler
 	this.canModifyExterns = canModifyExterns
 	this.anchorUnusedVars = anchorUnusedVars
 	this.rootScopeUsesAreGlobal = rootScopeUsesAreGlobal
-	if (chunkGraph.getChunkCount() > 1) {
+	if chunkGraph.getChunkCount() > 1 {
 		this.firstChunk = chunkGraph.getRootChunk()
 	} else {
 		this.firstChunk = nil
@@ -46,7 +46,7 @@ func (this *AnalyzePrototypeProperties) init_AnalyzePrototypeProperties(compiler
 	for it_1.next() {
 		var property string = it_1.v
 		var nameInfo *AnalyzePrototypeProperties_NameInfo = this.getNameInfoForName(property, AnalyzePrototypeProperties_PROPERTY)
-		if (chunkGraph == nil) {
+		if chunkGraph == nil {
 			this.symbolGraph.connect(this.externNode, nil, nameInfo)
 		} else {
 			it_3 := foreach_(any(chunkGraph.getAllChunks()))
@@ -70,18 +70,28 @@ func (this *AnalyzePrototypeProperties) process_2(externRoot Node, root Node) {
 		NodeTraversal_traverse(this.compiler_, externRoot, NodeTraversal_Callback(new_AnalyzePrototypeProperties_ProcessExternProperties(this)))
 	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_AnalyzePrototypeProperties_ProcessProperties(this)))
-	var t *FixedPointGraphTraversal[*AnalyzePrototypeProperties_NameInfo, *JSChunk] = FixedPointGraphTraversal_newTraversal[*AnalyzePrototypeProperties_NameInfo, *JSChunk](func() FixedPointGraphTraversal_EdgeCallback[*AnalyzePrototypeProperties_NameInfo, *JSChunk] { if v := new_AnalyzePrototypeProperties_PropagateReferences(this); v != nil { return v }; return nil }())
+	var t *FixedPointGraphTraversal[*AnalyzePrototypeProperties_NameInfo, *JSChunk] = FixedPointGraphTraversal_newTraversal[*AnalyzePrototypeProperties_NameInfo, *JSChunk](func() FixedPointGraphTraversal_EdgeCallback[*AnalyzePrototypeProperties_NameInfo, *JSChunk] {
+		if v := new_AnalyzePrototypeProperties_PropagateReferences(this); v != nil {
+			return v
+		}
+		return nil
+	}())
 	t.computeFixedPointSet(this.symbolGraph.up_DiGraph(), ImmutableSet_as_Set(ImmutableSet_of_Object_Object(obj_(this.externNode), obj_(this.globalNode))))
 }
 
 func (this *AnalyzePrototypeProperties) getAllNameInfo() CollectionOf[*AnalyzePrototypeProperties_NameInfo] {
-	var result *TList[*AnalyzePrototypeProperties_NameInfo] = tlistFrom_(tc_p_AnalyzePrototypeProperties_NameInfo, this.propertyNameInfo.asMap().values())
+	var result *JTList[*AnalyzePrototypeProperties_NameInfo] = jtlistFrom_(jtc_p_AnalyzePrototypeProperties_NameInfo, this.propertyNameInfo.asMap().values())
 	result.asList().addAll(this.varNameInfo.asMap().values())
 	return Collection(result.asList())
 }
 
 func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ *AnalyzePrototypeProperties_SymbolType) *AnalyzePrototypeProperties_NameInfo {
-	var map_ *TMap[string, *AnalyzePrototypeProperties_NameInfo] = func() *TMap[string, *AnalyzePrototypeProperties_NameInfo] { if (type_ == AnalyzePrototypeProperties_PROPERTY) { return this.propertyNameInfo }; return this.varNameInfo }()
+	var map_ *JTMap[string, *AnalyzePrototypeProperties_NameInfo] = func() *JTMap[string, *AnalyzePrototypeProperties_NameInfo] {
+		if type_ == AnalyzePrototypeProperties_PROPERTY {
+			return this.propertyNameInfo
+		}
+		return this.varNameInfo
+	}()
 	if map_.containsKey(name) {
 		return map_.get(name)
 	} else {
@@ -95,7 +105,7 @@ func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ *A
 
 var AnalyzePrototypeProperties_PROPERTY *AnalyzePrototypeProperties_SymbolType
 var AnalyzePrototypeProperties_VAR *AnalyzePrototypeProperties_SymbolType
-var AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES *TSet[string]
+var AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES *JTSet[string]
 
 var AnalyzePrototypeProperties_clinit_done bool
 
@@ -106,17 +116,17 @@ func AnalyzePrototypeProperties_clinit() {
 	AnalyzePrototypeProperties_clinit_done = true
 	AnalyzePrototypeProperties_PROPERTY = AnalyzePrototypeProperties_SymbolType_PROPERTY
 	AnalyzePrototypeProperties_VAR = AnalyzePrototypeProperties_SymbolType_VAR
-	AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES = immutableSetOf_[string](tc_string, "length", "toString", "valueOf")
+	AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES = jimmutableSetOf_[string](jtc_string, "length", "toString", "valueOf")
 
 }
 
 type AnalyzePrototypeProperties_ProcessProperties struct {
-	outer_ *AnalyzePrototypeProperties
+	outer_      *AnalyzePrototypeProperties
 	symbolStack *TDeque[*AnalyzePrototypeProperties_NameContext]
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) finit_AnalyzePrototypeProperties_ProcessProperties() {
-	this.symbolStack = newTDeque_(tc_p_AnalyzePrototypeProperties_NameContext)
+	this.symbolStack = newTDeque_(jtc_p_AnalyzePrototypeProperties_NameContext)
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) init_AnalyzePrototypeProperties_ProcessProperties() {
@@ -140,7 +150,12 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) enterScope(t *NodeTrav
 			this.symbolStack.push(new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(propName.get(), AnalyzePrototypeProperties_PROPERTY), scope))
 		} else if this.isGlobalFunctionDeclaration(t, n) {
 			var parent Node = n.getParent()
-			var name string = func() string { if parent.isName() { return parent.getString() }; return n.getFirstChild().getString() }()
+			var name string = func() string {
+				if parent.isName() {
+					return parent.getString()
+				}
+				return n.getFirstChild().getString()
+			}()
 			this.symbolStack.push(new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(name, AnalyzePrototypeProperties_VAR), cast_[*Scope](scope.getClosestHoistScope().self())))
 		} else {
 			this.symbolStack.push(new_AnalyzePrototypeProperties_NameContext(this.outer_.anonymousNode, scope))
@@ -183,7 +198,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 	case Token_rhino_GETPROP:
 		var propName string = n.getString()
 		if n.isQualifiedName() {
-			if (propName == "prototype") {
+			if propName == "prototype" {
 				if this.handlePossibleAssignmentToPrototype(t, n) {
 					return
 				}
@@ -191,7 +206,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 				this.addGlobalUseOfSymbol(propName, t.getChunk(), AnalyzePrototypeProperties_PROPERTY)
 				return
 			} else {
-				if (parent.isAssign() && (n == parent.getFirstChild())) {
+				if parent.isAssign() && (n == parent.getFirstChild()) {
 					var rValueName Optional[string] = this.getPrototypePropertyNameFromRValue(n)
 					if rValueName.isPresent() {
 						return
@@ -202,14 +217,14 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 		this.addSymbolUse(propName, t.getChunk(), AnalyzePrototypeProperties_PROPERTY)
 	case Token_rhino_OBJECTLIT:
 		var lValueName Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
-		if (lValueName.isPresent() && String_endsWith(lValueName.get(), ".prototype")) {
+		if lValueName.isPresent() && String_endsWith(lValueName.get(), ".prototype") {
 			return
 		}
 		fallthrough
 	case Token_rhino_OBJECT_PATTERN:
 		{
 			var propNode Node = n.getFirstChild()
-			for ; (propNode != 0); propNode = propNode.getNext() {
+			for ; propNode != 0; propNode = propNode.getNext() {
 				switch propNode.getToken() {
 				case Token_rhino_COMPUTED_PROP, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST, Token_rhino_ITER_SPREAD, Token_rhino_OBJECT_SPREAD:
 				case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF:
@@ -217,7 +232,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 						this.addSymbolUse(propNode.getString(), t.getChunk(), AnalyzePrototypeProperties_PROPERTY)
 					}
 				default:
-					panic(new_IllegalStateException_String(("Unexpected child of " + tostr_(n.getToken()) + ": " + sstr_(propNode.toStringTree()))).self())
+					panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(n.getToken()) + ": " + sstr_(propNode.toStringTree()))).self())
 				}
 			}
 		}
@@ -225,8 +240,8 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 		var classMembers Node = n.getLastChild()
 		{
 			var child Node = classMembers.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
-				if ((child.isMemberFunctionDef() || child.isSetterDef()) || child.isGetterDef()) {
+			for ; child != 0; child = child.getNext() {
+				if (child.isMemberFunctionDef() || child.isSetterDef()) || child.isGetterDef() {
 					this.processMemberDef(t, child)
 				}
 			}
@@ -234,9 +249,9 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 	case Token_rhino_NAME:
 		var name string = n.getString()
 		var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
-		if (var_ != nil) {
+		if var_ != nil {
 			if var_.isGlobal() {
-				if ((var_.getInitialValue() != 0) && var_.getInitialValue().isFunction()) {
+				if (var_.getInitialValue() != 0) && var_.getInitialValue().isFunction() {
 					if t.inGlobalHoistScope() {
 						if !this.processGlobalFunctionDeclaration(t, n, var_) {
 							this.addGlobalUseOfSymbol(name, t.getChunk(), AnalyzePrototypeProperties_VAR)
@@ -245,11 +260,11 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 						this.addSymbolUse(name, t.getChunk(), AnalyzePrototypeProperties_VAR)
 					}
 				}
-			} else if (cast_[*Scope](var_.getScope()) != t.getScope()) {
+			} else if cast_[*Scope](var_.getScope()) != t.getScope() {
 				it_7 := this.symbolStack.each()
 				for it_7.next() {
 					var context *AnalyzePrototypeProperties_NameContext = it_7.v
-					if (context.scope_ == cast_[*Scope](var_.getScope())) {
+					if context.scope_ == cast_[*Scope](var_.getScope()) {
 						break
 					}
 					context.name_.readClosureVariables = true
@@ -258,7 +273,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 		}
 	default:
 	}
-	if (!this.outer_.rootScopeUsesAreGlobal && this.processNonFunctionPrototypeAssign(n, parent).isPresent()) {
+	if !this.outer_.rootScopeUsesAreGlobal && this.processNonFunctionPrototypeAssign(n, parent).isPresent() {
 		this.symbolStack.pop()
 	}
 }
@@ -270,7 +285,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) addSymbolUse(name stri
 	for it_1.next() {
 		var context *AnalyzePrototypeProperties_NameContext = it_1.v
 		def = context.name_
-		if (def != this.outer_.anonymousNode) {
+		if def != this.outer_.anonymousNode {
 			break
 		}
 	}
@@ -280,7 +295,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) addSymbolUse(name stri
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) processNonFunctionPrototypeAssign(n Node, parent Node) Optional[string] {
-	if (this.isAssignRValue(n, parent) && !n.isFunction()) {
+	if this.isAssignRValue(n, parent) && !n.isFunction() {
 		return this.getPrototypePropertyNameFromRValue(n)
 	}
 	return Optional_empty[string]()
@@ -299,7 +314,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) isAssignRValue(n Node,
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) getPrototypePropertyNameFromRValue(rValue Node) Optional[string] {
 	var lValue Node = NodeUtil_getBestLValue(rValue)
-	if ((lValue == 0) || !((NodeUtil_mayBeObjectLitKey(lValue) && !lValue.isQuotedStringKey()) || NodeUtil_isExprAssign(lValue.getGrandparent()))) {
+	if (lValue == 0) || !((NodeUtil_mayBeObjectLitKey(lValue) && !lValue.isQuotedStringKey()) || NodeUtil_isExprAssign(lValue.getGrandparent())) {
 		return Optional_empty[string]()
 	}
 	var lValueName Optional[string] = NodeUtil_getBestLValueName(lValue)
@@ -307,7 +322,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) getPrototypePropertyNa
 		return Optional_empty[string]()
 	}
 	var lastDot int32 = String_lastIndexOf(lValueName.get(), 46)
-	if (lastDot == -1) {
+	if lastDot == -1 {
 		return Optional_empty[string]()
 	}
 	var firstPart string = String_substring(lValueName.get(), 0, lastDot)
@@ -320,10 +335,10 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) getPrototypePropertyNa
 func (this *AnalyzePrototypeProperties_ProcessProperties) processGlobalFunctionDeclaration(t *NodeTraversal, nameNode Node, v *Var) bool {
 	var firstChild Node = nameNode.getFirstChild()
 	var parent Node = nameNode.getParent()
-	if (this.isGlobalFunctionDeclaration(t, parent) || ((firstChild != 0) && this.isGlobalFunctionDeclaration(t, firstChild))) {
+	if this.isGlobalFunctionDeclaration(t, parent) || ((firstChild != 0) && this.isGlobalFunctionDeclaration(t, firstChild)) {
 		var name string = nameNode.getString()
 		this.outer_.getNameInfoForName(name, AnalyzePrototypeProperties_VAR).getDeclarations().add(AnalyzePrototypeProperties_Symbol(new_AnalyzePrototypeProperties_GlobalFunction(nameNode, v, t.getChunk())))
-		if (this.outer_.compiler_.getCodingConvention().isExported_2(name, false) || this.outer_.anchorUnusedVars) {
+		if this.outer_.compiler_.getCodingConvention().isExported_2(name, false) || this.outer_.anchorUnusedVars {
 			this.addGlobalUseOfSymbol(name, t.getChunk(), AnalyzePrototypeProperties_VAR)
 		}
 		return true
@@ -338,7 +353,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) handlePossibleAssignme
 	case Token_rhino_GETPROP:
 		var parent Node = n.getParent()
 		var grandParent Node = parent.getParent()
-		if (NodeUtil_isExprAssign(grandParent) && NodeUtil_isNameDeclOrSimpleAssignLhs(n, parent)) {
+		if NodeUtil_isExprAssign(grandParent) && NodeUtil_isNameDeclOrSimpleAssignLhs(n, parent) {
 			var prop AnalyzePrototypeProperties_PrototypeProperty = AnalyzePrototypeProperties_PrototypeProperty(new_AnalyzePrototypeProperties_AssignmentPrototypeProperty(grandParent, this.maybeGetVar(t, root), t.getChunk()))
 			this.outer_.getNameInfoForName(n.getString(), AnalyzePrototypeProperties_PROPERTY).getDeclarations().add(AnalyzePrototypeProperties_Symbol(prop))
 			return true
@@ -348,8 +363,8 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) handlePossibleAssignme
 		if map_.isObjectLit() {
 			{
 				var key Node = map_.getFirstChild()
-				for ; (key != 0); key = key.getNext() {
-					if (!key.isQuotedStringKey() && !key.isComputedProp()) {
+				for ; key != 0; key = key.getNext() {
+					if !key.isQuotedStringKey() && !key.isComputedProp() {
 						var name string = key.getString()
 						var prop AnalyzePrototypeProperties_PrototypeProperty = AnalyzePrototypeProperties_PrototypeProperty(new_AnalyzePrototypeProperties_LiteralPrototypeProperty(key.getFirstChild(), n, this.maybeGetVar(t, root), t.getChunk()))
 						this.outer_.getNameInfoForName(name, AnalyzePrototypeProperties_PROPERTY).getDeclarations().add(AnalyzePrototypeProperties_Symbol(prop))
@@ -366,16 +381,26 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) handlePossibleAssignme
 func (this *AnalyzePrototypeProperties_ProcessProperties) processMemberDef(t *NodeTraversal, n Node) {
 	Preconditions_checkState(((n.isMemberFunctionDef() || n.isGetterDef()) || n.isSetterDef()))
 	var name string = n.getString()
-	if (NodeUtil_isEs6ConstructorMemberFunctionDef(n) || n.isStaticMember()) {
+	if NodeUtil_isEs6ConstructorMemberFunctionDef(n) || n.isStaticMember() {
 		return
 	}
 	var classNameNode Node = NodeUtil_getNameNode(n.getGrandparent())
-	var var_ *Var = func() *Var { if ((classNameNode != 0) && classNameNode.isName()) { return cast_[*Var](t.getScope().getVar(classNameNode.getString()).self()) }; return nil }()
+	var var_ *Var = func() *Var {
+		if (classNameNode != 0) && classNameNode.isName() {
+			return cast_[*Var](t.getScope().getVar(classNameNode.getString()).self())
+		}
+		return nil
+	}()
 	this.outer_.getNameInfoForName(name, AnalyzePrototypeProperties_PROPERTY).getDeclarations().add(AnalyzePrototypeProperties_Symbol(new_AnalyzePrototypeProperties_ClassMemberFunction(n, var_, t.getChunk())))
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) maybeGetVar(t *NodeTraversal, maybeName Node) *Var {
-	return func() *Var { if maybeName.isName() { return cast_[*Var](t.getScope().getVar(maybeName.getString()).self()) }; return nil }()
+	return func() *Var {
+		if maybeName.isName() {
+			return cast_[*Var](t.getScope().getVar(maybeName.getString()).self())
+		}
+		return nil
+	}()
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) addGlobalUseOfSymbol(name string, chunk *JSChunk, type_ *AnalyzePrototypeProperties_SymbolType) {
@@ -409,7 +434,7 @@ func new_AnalyzePrototypeProperties_ProcessExternProperties(outer_ *AnalyzeProto
 func (this *AnalyzePrototypeProperties_ProcessExternProperties) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isGetProp() {
 		this.outer_.symbolGraph.connect(this.outer_.externNode, obj_(this.outer_.firstChunk), this.outer_.getNameInfoForName(n.getString(), AnalyzePrototypeProperties_PROPERTY))
-	} else if ((n.isMemberFunctionDef() || n.isGetterDef()) || n.isSetterDef()) {
+	} else if (n.isMemberFunctionDef() || n.isGetterDef()) || n.isSetterDef() {
 		this.outer_.symbolGraph.connect(this.outer_.externNode, obj_(this.outer_.firstChunk), this.outer_.getNameInfoForName(n.getString(), AnalyzePrototypeProperties_PROPERTY))
 	}
 }
@@ -432,7 +457,7 @@ func new_AnalyzePrototypeProperties_PropagateReferences(outer_ *AnalyzePrototype
 func (this *AnalyzePrototypeProperties_PropagateReferences) traverseEdge(start *AnalyzePrototypeProperties_NameInfo, edge *JSChunk, dest *AnalyzePrototypeProperties_NameInfo) bool {
 	if start.isReferenced() {
 		var startChunk *JSChunk = start.getDeepestCommonChunkRef()
-		if ((startChunk != nil) && this.outer_.chunkGraph.dependsOn(startChunk, edge)) {
+		if (startChunk != nil) && this.outer_.chunkGraph.dependsOn(startChunk, edge) {
 			return dest.markReference(startChunk)
 		} else {
 			return dest.markReference(edge)
@@ -500,7 +525,7 @@ func AnalyzePrototypeProperties_SymbolType_clinit() {
 }
 
 type AnalyzePrototypeProperties_GlobalFunction struct {
-	var_ *Var
+	var_   *Var
 	chunk_ *JSChunk
 }
 
@@ -530,8 +555,8 @@ type AnalyzePrototypeProperties_Property interface {
 }
 
 type AnalyzePrototypeProperties_ClassMemberFunction struct {
-	node_ Node
-	var_ *Var
+	node_  Node
+	var_   *Var
 	chunk_ *JSChunk
 }
 
@@ -573,8 +598,8 @@ type AnalyzePrototypeProperties_PrototypeProperty interface {
 
 type AnalyzePrototypeProperties_AssignmentPrototypeProperty struct {
 	exprNode Node
-	rootVar *Var
-	chunk_ *JSChunk
+	rootVar  *Var
+	chunk_   *JSChunk
 }
 
 func (this *AnalyzePrototypeProperties_AssignmentPrototypeProperty) init_AnalyzePrototypeProperties_AssignmentPrototypeProperty(node Node, rootVar *Var, chunk *JSChunk) {
@@ -610,10 +635,10 @@ func (this *AnalyzePrototypeProperties_AssignmentPrototypeProperty) getChunk() *
 }
 
 type AnalyzePrototypeProperties_LiteralPrototypeProperty struct {
-	value_ Node
-	assign Node
+	value_  Node
+	assign  Node
 	rootVar *Var
-	chunk_ *JSChunk
+	chunk_  *JSChunk
 }
 
 func (this *AnalyzePrototypeProperties_LiteralPrototypeProperty) init_AnalyzePrototypeProperties_LiteralPrototypeProperty(value Node, assign Node, rootVar *Var, chunk *JSChunk) {
@@ -646,7 +671,7 @@ func (this *AnalyzePrototypeProperties_LiteralPrototypeProperty) getChunk() *JSC
 }
 
 type AnalyzePrototypeProperties_NameContext struct {
-	name_ *AnalyzePrototypeProperties_NameInfo
+	name_  *AnalyzePrototypeProperties_NameInfo
 	scope_ *Scope
 }
 
@@ -662,13 +687,13 @@ func new_AnalyzePrototypeProperties_NameContext(name *AnalyzePrototypeProperties
 }
 
 type AnalyzePrototypeProperties_NameInfo struct {
-	outer_ *AnalyzePrototypeProperties
-	name_ string
-	referenced bool
-	declarations *TDeque[AnalyzePrototypeProperties_Symbol]
+	outer_                *AnalyzePrototypeProperties
+	name_                 string
+	referenced            bool
+	declarations          *TDeque[AnalyzePrototypeProperties_Symbol]
 	deepestCommonChunkRef *JSChunk
-	readClosureVariables bool
-	referencesSuperField bool
+	readClosureVariables  bool
+	referencesSuperField  bool
 }
 
 func (this *AnalyzePrototypeProperties_NameInfo) zero_AnalyzePrototypeProperties_NameInfo() {
@@ -719,12 +744,12 @@ func (this *AnalyzePrototypeProperties_NameInfo) markReference(chunk *JSChunk) b
 		hasChanged = true
 	}
 	var originalDeepestCommon *JSChunk = this.deepestCommonChunkRef
-	if (this.deepestCommonChunkRef == nil) {
+	if this.deepestCommonChunkRef == nil {
 		this.deepestCommonChunkRef = chunk
 	} else {
 		this.deepestCommonChunkRef = this.outer_.chunkGraph.getDeepestCommonDependencyInclusive_2(this.deepestCommonChunkRef, chunk)
 	}
-	if (originalDeepestCommon != this.deepestCommonChunkRef) {
+	if originalDeepestCommon != this.deepestCommonChunkRef {
 		hasChanged = true
 	}
 	return hasChanged
@@ -737,4 +762,3 @@ func (this *AnalyzePrototypeProperties_NameInfo) getDeepestCommonChunkRef() *JSC
 func (this *AnalyzePrototypeProperties_NameInfo) getDeclarations() *TDeque[AnalyzePrototypeProperties_Symbol] {
 	return this.declarations
 }
-

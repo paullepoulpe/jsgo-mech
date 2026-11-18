@@ -4,7 +4,7 @@ package closure
 
 type MemberExpressionTree struct {
 	ParseTree
-	operand *ParseTree
+	operand    *ParseTree
 	memberName *IdentifierToken
 }
 
@@ -27,4 +27,3 @@ func new_MemberExpressionTree(location *SourceRange, operand *ParseTree, memberN
 	this.init_MemberExpressionTree(location, operand, memberName)
 	return this
 }
-
