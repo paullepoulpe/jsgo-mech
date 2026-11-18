@@ -406,3 +406,140 @@ translated code as a whole is level with round 8's (flat 35.1 against 34.9 s on 
 Binaries: $S/proto/m_rfn8 (tip), m_m8final (round 8). Scripts: $S/rf/meas.sh, mem.sh, cum2.py
 (cumulative-time diff of two `pprof -top -cum` listings by name pattern), cpudiff.py, rec.sh
 (appends a commit to steps.txt with its patch); the milestone log is $S/rf/milestone4.log.
+
+## Round after the re-flip: the Java-isms left (branch reflip-javaisms, 2026-11-18)
+
+The post-flip tools of POSTFLIP.md's section "Planned: what is left after the re-flip", built
+and run on this tree (from 7b082bc9). Steps 429-432 of steps.txt, each `<commit> run t <tool>`
+with the tools of its commit; each was re-run from its parent's tree and gives the commit's
+`go/` byte for byte.
+
+| step | tool commit | step commit | what | counts |
+|---|---|---|---|---|
+| 429 | cc9fc951 | 86dbb30a | `deadeq`: an equals(any)/hashCode() that nothing can call is deleted | 30 classes lose both (60 methods, 501 lines); 82 equals and 84 hashCode left |
+| 430 | 7039ea65 | 0ada6163 | `patinst`: `x instanceof T v` (a function literal called on the spot) is a comma-ok assertion | 89 of 104 patterns; 979 lines out, 127 in |
+| 431 | 7c16350f | 24f0ea99 | `varargs`: `Object...` is `...any`, the calls pass the values bare | 20 functions and method groups, 453 calls in 137 files; `[]any{` in g_*.go 427 -> 15 (24f0ea99's message says 44: that counted the runtime's and the tests' too) |
+| 432 | 6f69883c | 7a93c38f | `instof`: a test of a local variable inside && / \|\| is an assertion before the condition | 4 |
+
+New shared package `tools/postflip/anyflow` (in cc9fc951): the whole-program flow of values held
+in interfaces, over the generated code and the handwritten runtime: slots (variables, fields,
+parameters, results of interface type, and slices/maps of them), stores as edges, calls through
+interfaces (every implementing method) and through function values (the functions the slot can
+hold, a small 0-CFA), type arguments bound to the type parameters of generic functions and of
+the methods of generic types (per method, where the method is named or the value is held as an
+interface), and sinks where a value goes somewhere that is not followed. `deadeq` asks it one
+question (can a value that has this equals reach the runtime's dynamic lookup); a step that
+retypes Object slots can ask it what a slot holds (`ClassInto`, `TypesInto`, `Succ`).
+
+How `deadeq` was checked (the gate's four programs do not run every path): `deadeq -trap`
+keeps a dead method and makes it panic; under the gate this found two holes in the model
+while it was written (a generic class was not taken as a class; a typed value given to a type
+parameter that is instantiated with an interface type is a conversion) and none in the final
+tool. Independently, the VTA call graph of golang.org/x/tools (v0.52.0, from the module cache;
+the checker is not in the repository, it would give tools/postflip a dependency) over package
+closure has no caller for the equals/hashCode of 27 of the 30 classes; for the other 3 its
+type-based propagation merges what anyflow keeps apart (a Callable's result, a Consumer's
+argument, a format argument), checked by hand.
+
+Census (tools/postflip/census.py), 7b082bc9 -> 7a93c38f; the rows that move:
+
+```
+  75 ->   71  instanceof is_X(
+2969 -> 2952  boxing to any: obj_( / strobj_( / .box_() / any(
+ 165 ->  159  Java equals/hashCode protocol (calls)
+1724 -> 1694  fields/params declared any (approx)
+```
+
+Not rows of the census: equals/hashCode method declarations 226 -> 166; instanceof patterns as
+function literals 104 -> 15; `[]any{...}` literals 427 -> 15.
+
+### What is left, with counted reasons
+
+**equals/hashCode (82 + 84 methods left; jsgo keeps Equals on 57 classes).** `deadeq -n -v`
+lists every class with the path. By first reason, methods: 41 a value reaches the argument of a
+function value the step cannot name; 30 a store through a pointer or into something not
+followed; 29 an x.equals()/x.hashCode() on an interface value (Object_equals, the hashing
+collections, the typed collections' element conversions with hash and eq); 46 as a type
+argument of a typed collection that is also seen as an erased one (TMap.asMap/asImm,
+TList.asList/asImm, a builder's erased build, sliceViewP_) or of a generic class of the program
+(DataFlowAnalysis, the multimaps, HamtPMap); 6 an address taken (the erased collections'
+iterators over their own storage); 14 named by live code ((*C).equals given to equalsBy_, a
+direct call, another live equals). The model is field-based and does not tell one
+erased collection from another: once a record's typed list is viewed as a `List`, its elements
+are with every erased list's elements, some of which are compared. Fewer would be left with
+(a) the remaining erased views gone (colls/native taught the generic classes, REFLIP handover
+1) and (b) typed-equality containers taking `equals_K(K)` constraints as jsgo's do.
+Not done: comparable structs as map keys. 30 key types of typed hashed collections are compared
+by equals (the `tch_` conversions); 3 of them are records equal on all fields by `==`
+(FileInstrumentationData.BranchIndexPair, Es6RewriteModulesToCommonJsModules.ModuleRequest,
+BrowserWithTransformedPrefixesModuleResolver.PrefixReplacement), one map or set each, of which
+the PrefixReplacement set is iterated (its order must stay); the others compare JSTypes, Colors
+or strings through equals. CachingTranspiler.Key (jsgo's example) is the key of the runtime's
+erased LoadingCache here, SortingErrorManager.ErrorWithLevel is in a TreeSet/HashSet pair. A
+tool for two maps was not written.
+
+**instanceof (71 `is_X(` left, 15 patterns).** 21 in catch clauses (the exceptions step reads
+`is_X(ex_)`); 31 inside expressions whose operand is a call or a field read (hoisting the
+assertion would evaluate it earlier or when Java does not) or that are arguments; the rest of
+the 71 are the helpers' own declarations; 11 patterns that are not the first
+operand of their condition; 4 patterns on a class with subclasses outside an if's whole
+condition; 2 two tests in one else-if. if/else-if chains of assertions on one operand that
+could be a type switch: 3 (6 arms): no tool.
+
+**casts (2,356 in the generated code; `tools/postflip/castcensus` prints the table).**
+857 take a typed value boxed on the spot (`to_X(v.self())`, `cast_[*T](obj_(v))`): real
+downcasts and cross-casts, of which jsgo keeps 643 as comma-ok assertions; here they stay
+helpers because Java's cast throws ClassCastException for a wrong class and passes null,
+which `v, _ := x.(*T)` does not, and nothing shows that they cannot fail (the translator rules
+of the plan remove most: F-bounded scopes and vars about 250, visit 76, single-implementation
+interfaces). 752 take a variable or parameter declared Object: the parameters of lambda
+adapters and the elements of erased collections in for-each loops. 264 the Object result of a
+function of the program (JSType.visit 22, Var.getScope 22, Name.getDeclaration 20, the JSDoc
+property bag 37), 220 of a runtime function (erased immutable maps' entries and keys 67,
+Map.get 15), 149 of a method called through an interface (Map.Entry.getValue/getKey 55, Map.get
+29, Iterator.next 17), 62 an Object field (the command line flags 60), 19 a lambda's result.
+A function whose every call casts its Object result to one type (the cast could move into
+it): 9 functions, 21 casts (Node.getFeatureSet 6). No tool was written for these counts.
+
+**Object slots retyped.** A survey with anyflow of the 1,809 variables, parameters, results and
+fields declared `any` in the generated code: 80 hold values of one type and nothing from the
+runtime or a type parameter, and nearly all of those are a nullable boxed Boolean or Integer
+(command line flags, tri-state caches), which a `bool` cannot hold; 1,205 are fed from runtime
+slots or type parameters (erased collections, lambda adapters), 467 are parameters nothing in
+the program stores into (called by the runtime), 57 hold two or more types. The examples of the plan are each another
+kind: ClosureBundler.minifier is a function held as an Object, the `<ColorGraphNode, Object>`
+graph a type argument, Node.getFeatureSet a property-bag read, Property.name a String or a
+KnownSymbolType. objslots (step of the first flip) has taken the single-type classes it can
+prove; what is left needs the typed collections and typed lambdas first. No tool.
+
+**The Object-keyed map** (CodingConvention.AssertionFunctionLookup.internal, keys a String or
+a ClosurePrimitive): one site, as it was. Splitting it needs the put written as a type switch
+on `spec.getId()` and the builder's duplicate-key and null-key exceptions kept for each half:
+a hand edit in jsgo, no tool here.
+
+**varargs.** 41 literals left (15 in g_*.go), all given to functions that are also called with
+an existing array (immList_, listOf_, immSet_, Arrays_asList, registerEnum_).
+
+### Measurements
+
+Per step, CPU against the binary before (fb.py ABBA under gate.lock, medians, no PGO); the
+outputs are byte-identical throughout.
+
+| | typed-full cpu (wall) | bundle cpu (wall) | allocations typed-full; bundle |
+|---|---|---|---|
+| 7b082bc9 (base) | 58.88 s (49.77) | 25.43 s (23.48) | 182.5M objects, 11.52 GB; 86.2M, 6.02 GB |
+| 429 deadeq, 2 rounds, load 1.1-1.7 | 58.19 s (48.84) | 25.55 s (23.55) | 182.5M, 11.52 GB; 86.2M, 6.02 GB |
+| base again / 430 patinst / 431 varargs, 2 rounds, load 1.2-1.8 | 55.59 / 54.16 / 52.78 s (46.89 / 45.48 / 44.24) | 23.02 / - / 23.22 s (21.36 / - / 21.49) | 431: bundle 86.2M, 6.02 GB |
+| base / tip 7a93c38f (429-432), 3 rounds, load 1.1-2.0 | 54.33 / 52.96 s (45.72 / 44.53): -2.5% | 23.25 / 24.10 s (21.33 / 22.35) | tip: 182.5M, 11.52 GB; 86.2M, 6.02 GB |
+| bundle again: base / 431 / tip, 4 rounds, load 1.0-1.8 | | 23.72 / 24.36 / 24.48 s (22.00 / 22.49 / 22.66) | |
+| bundle again: base / tip, 6 rounds, load 1.0-1.7 | | 23.57 / 23.81 s (21.87 / 21.98): +1.0% | |
+
+typed-full: about 2.5% less CPU at the tip in both runs (the patterns' function literals are
+gone from the type tests). bundle: the three runs give +3.7%, +3.2% and +1.0% for the tip
+(medians of 3, 4 and 6 rounds), with single runs of one binary between 22.5 and 24.5 s in the
+same run: not separated from the noise of the host, and not explained (the allocations are
+the same to the object, and the changed code is not on bundle's path as far as the diffs
+show). A bundle measurement on an idle host, with a CPU profile if it holds, is left to do.
+
+(The base's own CPU moved 58.9 -> 55.6 -> 54.3 s between the runs with the host's load; each
+row compares binaries interleaved in one run.)

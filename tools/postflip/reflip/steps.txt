@@ -605,3 +605,11 @@ a97d418c patch 423-a97d418c-manual.patch
 938295dd patch 427-938295dd-rt.patch
 # 428. postflip (manual, re-flip): HamtPMap hashes a key without boxing it
 65fbff8a patch 428-65fbff8a-manual.patch
+# 429. postflip step (re-flip): equals and hashCode methods that nothing can call are deleted
+86dbb30a run t deadeq && f
+# 430. postflip step (re-flip): binding instanceof patterns are comma-ok type assertions
+0ada6163 run t patinst && f
+# 431. postflip step (re-flip): Java varargs are Go variadic parameters, called with the values bare
+24f0ea99 run t varargs && fa
+# 432. postflip step (re-flip): instanceof tests of a local variable inside && / || are comma-ok assertions before the condition
+7a93c38f run t instof && f
