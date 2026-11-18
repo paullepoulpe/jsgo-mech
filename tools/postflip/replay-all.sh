@@ -4,6 +4,7 @@
 # applying the handwritten runtime and the manual edits as patches. Nothing else touches go/.
 #
 #   tools/postflip/replay-all.sh [-w DIR] [-base COMMIT] [-to COMMIT] [-noverify] [-trim] [-list]
+#                                [-steps FILE] [-overlay DIR]
 #
 #   -w DIR       the replay worktree (default ../<repo>-replay-w); made with `git worktree add`
 #                at the base commit when it does not exist. A rerun resumes after the last
@@ -14,6 +15,10 @@
 #   -to C        stop after replaying commit C.
 #   -noverify    do not compare go/ with the original commit after each step.
 #   -list        print the counts of steps.txt and exit.
+#   -steps FILE  the list of steps to follow instead of steps.txt (a re-flip's edited copy:
+#                steps dropped as no-ops, tools of an adapted commit).
+#   -overlay DIR a directory of patches that replace the patches of the same name in patches/
+#                (a manual or runtime patch regenerated for the re-flip's text).
 #   -trim        after each step, delete the files over 8 MB from $GOCACHE (the steps that
 #                build go/closure leave about 300 MB each). Only with a GOCACHE of your own.
 #
@@ -48,6 +53,7 @@ base=01f4f269
 to=
 verify=1
 trim=0
+overlay=
 while [[ $# -gt 0 ]]; do
   case $1 in
     -w) W=$2; shift 2 ;;
@@ -55,6 +61,8 @@ while [[ $# -gt 0 ]]; do
     -to) to=$2; shift 2 ;;
     -noverify) verify=0; shift ;;
     -trim) trim=1; shift ;;
+    -steps) steps=$(realpath "$2"); shift 2 ;;
+    -overlay) overlay=$(realpath "$2"); shift 2 ;;
     -list)
       awk '!/^#/ && NF {
              if ($2 == "run") run[$1] = 1
@@ -63,7 +71,7 @@ while [[ $# -gt 0 ]]; do
            END { for (k in c) n++; for (k in run) r++
                  printf "commits replayed: %d; with tool runs: %d; runtime patches: %d; manual patches: %d; residue patches: %d\n", n, r, rt, man, res }' "$steps"
       exit 0 ;;
-    *) echo "usage: $0 [-w DIR] [-base COMMIT] [-to COMMIT] [-noverify] [-trim] [-list]" >&2; exit 2 ;;
+    *) echo "usage: $0 [-w DIR] [-base COMMIT] [-to COMMIT] [-noverify] [-trim] [-list] [-steps FILE] [-overlay DIR]" >&2; exit 2 ;;
   esac
 done
 
@@ -137,7 +145,10 @@ while read -r c action arg; do
   [[ $skipping == 1 ]] && continue
   case $action in
     tools) toolsof=$arg ;;
-    patch) git apply --whitespace=nowarn "$patches/$arg" ;;
+    patch)
+      pf=$patches/$arg
+      [[ -n $overlay && -f $overlay/$arg ]] && pf=$overlay/$arg
+      if ! git apply --whitespace=nowarn "$pf"; then echo "FAILED at $c: patch $pf" >&2; exit 1; fi ;;
     run)
       settools "$toolsof"
       echo "=== $c: $arg" >> "$log"
