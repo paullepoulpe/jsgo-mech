@@ -207,6 +207,36 @@ view that reached erased code would fail (the program has neither; a declaration
 type that a typed collection reaches is typed too, or the collection stays erased).
 `J2GO_ERASED=1` skips the rule.
 
+**Conversions without a box** (`Conv.java`). The erased translation converts between two Go
+types through Object: `icast_I(obj_(v))`. Where the Java conversion needs no check, these rules
+keep the value at its static type. Each has a switch `J2GO_NO<RULE>=1` that gives the previous
+translation, for bisecting.
+
+- *Static upcast* (`Conv.upcast`, `J2GO_NOUPCAST`). A class without subclasses becomes an
+  interface that it implements as Go converts a pointer to an interface. `this` and a new
+  object are never null: `NodeTraversal_Callback(this)`, `List(new_ArrayList_0())`. Any other
+  value goes through a generated function that keeps null as the nil interface (a nil pointer
+  converted by Go would be an interface that is not nil), one per pair of types in
+  `g_0casts.go`:
+
+  ```go
+  func Compiler_as_SourceExcerptProvider(v *Compiler) SourceExcerptProvider {
+  	if v == nil {
+  		return nil
+  	}
+  	return v
+  }
+  ```
+
+  The interface value is the one the type assertion made: the pointer of a class without
+  subclasses is the object itself. A class of the program must have every method of the Go
+  interface (`Ctx.implementsInGo`); for a class of the runtime (`*ArrayList`, `*ImmutableList`,
+  the view of a typed collection) the Go compiler checks the conversion. What stays
+  `icast_I(v.self())`: a class with subclasses (its value may be a part of a larger object),
+  a program class that lacks a method of the Go interface (a method implementing the methods
+  of two interfaces is in one group only), and values that are not statically subtypes (an
+  erased result).
+
 **Type arguments in declarations.** Library types stay erased; the declared type of a field,
 local or parameter whose Java type is a parameterized library type is written through a generic
 alias: `List<Reference>` becomes

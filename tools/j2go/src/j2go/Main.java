@@ -342,6 +342,7 @@ public final class Main {
       cb.append("\nfunc icast_").append(gt).append("(v any) ").append(gt).append(" {\n\tif v == nil {\n\t\treturn nil\n\t}\n\treturn v.(")
           .append(gt).append(")\n}\n");
     }
+    for (String d : cx.conv.upcasts.values()) cb.append("\n").append(d);
     for (String d : cx.tconvs.values()) cb.append("\n").append(d);
     Files.writeString(out.resolve("g_0casts.go"), cb.toString());
     // Java names of the Go types, for getClass().

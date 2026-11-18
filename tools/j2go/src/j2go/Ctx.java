@@ -1301,6 +1301,9 @@ final class Ctx {
     });
   }
 
+  /** The conversions that need no box (Conv). */
+  final Conv conv = new Conv(this);
+
   /** Go interface types that some conversion casts to: each gets a function icast_I. */
   final TreeSet<String> icasts = new TreeSet<>();
 
@@ -1348,6 +1351,10 @@ final class Ctx {
         // (icast_I, in g_0casts.go). Go caches a type assertion to an interface per assertion
         // site; inside the generic cast_ it cannot, and looks the method table up each time.
         // A generic interface of the program (typed) has no icast_: its instantiations are many.
+        if (kf == K.CLS) {
+          String up = conv.upcast(code, from, to, gf, gt);
+          if (up != null) return up;
+        }
         String cast = typedDecl(to) ? "cast_[" + gt + "]" : "icast_" + gt;
         if (!typedDecl(to)) icasts.add(gt);
         switch (kf) {
