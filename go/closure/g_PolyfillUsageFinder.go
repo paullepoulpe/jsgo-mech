@@ -155,43 +155,32 @@ func (this *PolyfillUsageFinder) isDisjointFromIterator(receiver *Color) bool {
 	return (!this.hasInSupertypesList(receiver, iteratorColor) && !this.hasInSupertypesList(iteratorColor, receiver))
 }
 
-func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *Color) bool {
+func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *Color) (ret_1 bool) {
 	if !this.hasInSupertypesListSeenSet.add(subCtor) {
 		return false
 	}
-	var ret_1 bool
-	code_1 := func() (code_ int) {
-		defer func() {
-			this.hasInSupertypesListSeenSet.remove(subCtor)
-		}()
-		if subCtor.equals_Color(superCtor) {
-			ret_1 = true
-			return 1
-		}
-		it_2 := foreach_(this.registry.getDisambiguationSupertypes(subCtor))
-		for it_2.next() {
-			var immediateSupertype *Color = cast_[*Color](it_2.v)
-			if immediateSupertype.isUnion() {
-				it_4 := immediateSupertype.getUnionElements().each()
-				for it_4.next() {
-					var alt *Color = it_4.v
-					if this.hasInSupertypesList(alt, superCtor) {
-						ret_1 = true
-						return 1
-					}
-				}
-			} else if this.hasInSupertypesList(immediateSupertype, superCtor) {
-				ret_1 = true
-				return 1
-			}
-		}
-		ret_1 = false
-		return 1
+	defer func() {
+		this.hasInSupertypesListSeenSet.remove(subCtor)
 	}()
-	if code_1 == 1 {
-		return ret_1
+	if subCtor.equals_Color(superCtor) {
+		return true
 	}
-	panic("unreachable")
+	it_2 := foreach_(this.registry.getDisambiguationSupertypes(subCtor))
+	for it_2.next() {
+		var immediateSupertype *Color = cast_[*Color](it_2.v)
+		if immediateSupertype.isUnion() {
+			it_4 := immediateSupertype.getUnionElements().each()
+			for it_4.next() {
+				var alt *Color = it_4.v
+				if this.hasInSupertypesList(alt, superCtor) {
+					return true
+				}
+			}
+		} else if this.hasInSupertypesList(immediateSupertype, superCtor) {
+			return true
+		}
+	}
+	return false
 }
 
 var PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN *Pattern

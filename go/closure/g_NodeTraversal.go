@@ -90,25 +90,22 @@ func (this *NodeTraversal) formatNodeContext(label string, n Node) string {
 }
 
 func (this *NodeTraversal) traverse(root Node) {
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_Error(ex_) || is_Exception(ex_) {
-					var unexpectedException *Throwable = to_Throwable(ex_)
-					this.throwUnexpectedException(unexpectedException)
-					return
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if is_Error(ex_) || is_Exception(ex_) {
+				var unexpectedException *Throwable = to_Throwable(ex_)
+				this.throwUnexpectedException(unexpectedException)
+				return
 			}
-		}()
-		this.initTraversal(root)
-		this.currentNode = root
-		this.pushScope(root)
-		this.traverseBranch(root, 0)
-		this.popScope()
-		return 0
+			panic(r_)
+		}
 	}()
+	this.initTraversal(root)
+	this.currentNode = root
+	this.pushScope(root)
+	this.traverseBranch(root, 0)
+	this.popScope()
 }
 
 func NodeTraversal_traverse(compiler *AbstractCompiler, root Node, cb NodeTraversal_Callback) {
@@ -116,31 +113,28 @@ func NodeTraversal_traverse(compiler *AbstractCompiler, root Node, cb NodeTraver
 }
 
 func (this *NodeTraversal) traverseRoots(externs Node, root Node) {
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_Error(ex_) || is_Exception(ex_) {
-					var unexpectedException *Throwable = to_Throwable(ex_)
-					this.throwUnexpectedException(unexpectedException)
-					return
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if is_Error(ex_) || is_Exception(ex_) {
+				var unexpectedException *Throwable = to_Throwable(ex_)
+				this.throwUnexpectedException(unexpectedException)
+				return
 			}
-		}()
-		var scopeRoot Node = externs.getParent()
-		Preconditions_checkNotNull_T(scopeRoot)
-		this.initTraversal(scopeRoot)
-		this.currentNode = scopeRoot
-		this.pushScope(scopeRoot)
-		this.traverseBranch(externs, scopeRoot)
-		if root.getParent() != scopeRoot {
-			panic(new_IllegalStateException_0())
+			panic(r_)
 		}
-		this.traverseBranch(root, scopeRoot)
-		this.popScope()
-		return 0
 	}()
+	var scopeRoot Node = externs.getParent()
+	Preconditions_checkNotNull_T(scopeRoot)
+	this.initTraversal(scopeRoot)
+	this.currentNode = scopeRoot
+	this.pushScope(scopeRoot)
+	this.traverseBranch(externs, scopeRoot)
+	if root.getParent() != scopeRoot {
+		panic(new_IllegalStateException_0())
+	}
+	this.traverseBranch(root, scopeRoot)
+	this.popScope()
 }
 
 func NodeTraversal_traverseRoots(compiler *AbstractCompiler, cb NodeTraversal_Callback, externs Node, root Node) {
@@ -165,25 +159,22 @@ func (this *NodeTraversal) traverseWithScope(root Node, s *AbstractScope) {
 	if !s.isGlobal() && !s.isModuleScope() {
 		panic(new_IllegalStateException_String(objstr_(s)))
 	}
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_Error(ex_) || is_Exception(ex_) {
-					var unexpectedException *Throwable = to_Throwable(ex_)
-					this.throwUnexpectedException(unexpectedException)
-					return
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if is_Error(ex_) || is_Exception(ex_) {
+				var unexpectedException *Throwable = to_Throwable(ex_)
+				this.throwUnexpectedException(unexpectedException)
+				return
 			}
-		}()
-		this.initTraversal(root)
-		this.currentNode = root
-		this.pushScopeAbstractScope(s)
-		this.traverseBranch(root, 0)
-		this.popScope()
-		return 0
+			panic(r_)
+		}
 	}()
+	this.initTraversal(root)
+	this.currentNode = root
+	this.pushScopeAbstractScope(s)
+	this.traverseBranch(root, 0)
+	this.popScope()
 }
 
 func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
@@ -281,24 +272,21 @@ func NodeTraversal_traverseScopeRoots(compiler *AbstractCompiler, scopeNodes Lis
 }
 
 func (this *NodeTraversal) traverseScopeRoot(scopeRoot Node) {
-	_ = func() (code_ int) {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if is_Error(ex_) || is_Exception(ex_) {
-					var unexpectedException *Throwable = to_Throwable(ex_)
-					this.throwUnexpectedException(unexpectedException)
-					return
-				}
-				panic(r_)
+	defer func() {
+		if r_ := recover(); r_ != nil {
+			ex_ := catch_(r_)
+			if is_Error(ex_) || is_Exception(ex_) {
+				var unexpectedException *Throwable = to_Throwable(ex_)
+				this.throwUnexpectedException(unexpectedException)
+				return
 			}
-		}()
-		this.initTraversal(scopeRoot)
-		this.currentNode = scopeRoot
-		this.initScopeRoots(scopeRoot.getParent())
-		this.traverseBranch(scopeRoot, scopeRoot.getParent())
-		return 0
+			panic(r_)
+		}
 	}()
+	this.initTraversal(scopeRoot)
+	this.currentNode = scopeRoot
+	this.initScopeRoots(scopeRoot.getParent())
+	this.traverseBranch(scopeRoot, scopeRoot.getParent())
 }
 
 func (this *NodeTraversal) getCompiler() *AbstractCompiler {
