@@ -31,6 +31,11 @@ type jtconv_[T any] struct {
 func (c *jtconv_[T]) t_() *tconv_[T] {
 	if c.post == nil {
 		c.post = &tconv_[T]{box: c.box, unbox: c.unbox, null: c.null}
+		if c.byEquals {
+			// Keys compared by equals and hashCode, through their boxes as teqFind_ compares them.
+			c.post.hash = func(k T) int32 { return objhash_(c.box(k)) }
+			c.post.eq = func(a, b T) bool { return objequals_(c.box(a), c.box(b)) }
+		}
 	}
 	return c.post
 }
