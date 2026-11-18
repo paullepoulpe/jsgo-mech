@@ -543,10 +543,11 @@ func (this *JSTypeRegistry) getTypeInternal(scope StaticScope, name string) *JST
 	_ = syntheticTemplateScope
 	if func() bool {
 		v_ := any(scope)
-		if !is_[*JSTypeRegistry_SyntheticTemplateScope](v_) {
+		p, ok := v_.(*JSTypeRegistry_SyntheticTemplateScope)
+		if !ok {
 			return false
 		}
-		syntheticTemplateScope = cast_[*JSTypeRegistry_SyntheticTemplateScope](v_)
+		syntheticTemplateScope = p
 		return true
 	}() {
 		var type_ *TemplateType = syntheticTemplateScope.getTemplateType(name)
@@ -573,10 +574,11 @@ func (this *JSTypeRegistry) resolveViaComponents(scope StaticScope, qualifiedNam
 	_ = resolutionScope
 	if String_isEmpty(qualifiedName) || !(func() bool {
 		v_ := any(scope)
-		if !is_[StaticTypedScope](v_) {
+		p, ok := v_.(StaticTypedScope)
+		if !ok {
 			return false
 		}
-		resolutionScope = icast_StaticTypedScope(v_)
+		resolutionScope = p
 		return true
 	}()) {
 		return nil
@@ -666,10 +668,11 @@ func (this *JSTypeRegistry) resolveViaPropertyGivenSlot(slotType *JSType, defini
 		_ = enumType
 		if func() bool {
 			v_ := slotType.self()
-			if !is_[*EnumType](v_) {
+			p, ok := v_.(*EnumType)
+			if !ok {
 				return false
 			}
-			enumType = cast_[*EnumType](v_)
+			enumType = p
 			return true
 		}() {
 			return enumType.getElementsType().up_JSType()
@@ -750,10 +753,11 @@ func (this *JSTypeRegistry) registerPropertyOnType(propertyName string, type_ *J
 	_ = objType
 	if func() bool {
 		v_ := type_.self()
-		if !is_ObjectType(v_) {
+		p, ok := v_.(ObjectType_as)
+		if !ok {
 			return false
 		}
-		objType = to_ObjectType(v_)
+		objType = p.as_ObjectType()
 		return true
 	}() && objType.hasReferenceName() {
 		this.eachRefTypeIndexedByProperty.put_s(propertyName, objType.self())
@@ -897,13 +901,13 @@ func (this *JSTypeRegistry) getReadableTypeNameNoDeref(n Node) Optional[string] 
 }
 
 func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) Optional[string] {
-	if is_[*AllType](type_.self()) {
+	if _, ok := type_.self().(*AllType); ok {
 		return Optional_of[string](type_.toString())
-	} else if is_ValueType(type_.self()) {
+	} else if _, ok2 := type_.self().(ValueType_as); ok2 {
 		return Optional_of[string](type_.toString())
 	} else if type_.isFunctionPrototypeType() {
 		return Optional_of[string](type_.toString())
-	} else if is_ObjectType(type_.self()) {
+	} else if _, ok3 := type_.self().(ObjectType_as); ok3 {
 		if !JSTypeRegistry_isReadableObjectType(type_.toMaybeObjectType()) {
 			return Optional_empty[string]()
 		}
@@ -918,7 +922,7 @@ func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) Optional[string] 
 			}
 		}
 		return Optional_of[string](type_.toString())
-	} else if is_[*UnionType](type_.self()) {
+	} else if _, ok4 := type_.self().(*UnionType); ok4 {
 		var unionType *UnionType = type_.toMaybeUnionType()
 		var union Optional[string] = Optional_empty[string]()
 		it_1 := unionType.getAlternates().each()
@@ -1193,10 +1197,11 @@ func (this *JSTypeRegistry) resetImplicitPrototype(type_ *JSType, newImplicitPro
 	_ = poType
 	if func() bool {
 		v_ := type_.self()
-		if !is_PrototypeObjectType(v_) {
+		p, ok := v_.(PrototypeObjectType_as)
+		if !ok {
 			return false
 		}
-		poType = to_PrototypeObjectType(v_)
+		poType = p.as_PrototypeObjectType()
 		return true
 	}() {
 		poType.clearCachedValues()
@@ -1278,10 +1283,11 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 			_ = namedType
 			if func() bool {
 				v_ := child.self()
-				if !is_[*NamedType](v_) {
+				p, ok := v_.(*NamedType)
+				if !ok {
 					return false
 				}
-				namedType = cast_[*NamedType](v_)
+				namedType = p
 				return true
 			}() {
 				return namedType.getBangType()
@@ -1340,10 +1346,11 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 			_ = objectType
 			if !(func() bool {
 				v_ := nominalType.self()
-				if !is_ObjectType(v_) {
+				p2, ok2 := v_.(ObjectType_as)
+				if !ok2 {
 					return false
 				}
-				objectType = to_ObjectType(v_)
+				objectType = p2.as_ObjectType()
 				return true
 			}()) {
 				return nominalType
@@ -1628,10 +1635,11 @@ func (this *JSTypeRegistry_SyntheticTemplateScope) init_JSTypeRegistry_Synthetic
 	var types PMap[string, *TemplateType] = func() PMap[string, *TemplateType] {
 		if func() bool {
 			v_ := any(delegate)
-			if !is_[*JSTypeRegistry_SyntheticTemplateScope](v_) {
+			p, ok := v_.(*JSTypeRegistry_SyntheticTemplateScope)
+			if !ok {
 				return false
 			}
-			syntheticTemplateScope = cast_[*JSTypeRegistry_SyntheticTemplateScope](v_)
+			syntheticTemplateScope = p
 			return true
 		}() {
 			return syntheticTemplateScope.types

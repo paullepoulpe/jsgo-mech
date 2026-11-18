@@ -1498,10 +1498,11 @@ func (this *TypeInference) traverseInstantiation(n Node, ctorType *JSType, scope
 	_ = functionType
 	if (ctorFnType == nil) && func() bool {
 		v_ := ctorType.self()
-		if !is_FunctionType(v_) {
+		p, ok := v_.(FunctionType_as)
+		if !ok {
 			return false
 		}
-		functionType = to_FunctionType(v_)
+		functionType = p.as_FunctionType()
 		return true
 	}() {
 		ctorFnType = functionType

@@ -60,10 +60,11 @@ func (this *ScopedName) equals(other any) bool {
 	_ = scopedName
 	if !(func() bool {
 		v_ := other
-		if !is_ScopedName(v_) {
+		p, ok := v_.(ScopedName_as)
+		if !ok {
 			return false
 		}
-		scopedName = to_ScopedName(v_)
+		scopedName = p.as_ScopedName()
 		return true
 	}()) {
 		return false

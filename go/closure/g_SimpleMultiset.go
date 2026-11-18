@@ -205,10 +205,11 @@ func (this *SimpleMultiset) equals(o any) bool {
 	_ = that
 	return (func() bool {
 		v_ := o
-		if !is_[*SimpleMultiset](v_) {
+		p, ok := v_.(*SimpleMultiset)
+		if !ok {
 			return false
 		}
-		that = cast_[*SimpleMultiset](v_)
+		that = p
 		return true
 	}() && Object_equals(any(this.counts), any(that.counts)))
 }

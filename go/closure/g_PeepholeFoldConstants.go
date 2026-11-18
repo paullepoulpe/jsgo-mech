@@ -634,8 +634,7 @@ func (this *PeepholeFoldConstants) performBigIntArithmeticOp(n Node, left Node, 
 				defer func() {
 					if r_ := recover(); r_ != nil {
 						ex_ := catch_(r_)
-						if is_ArithmeticException(ex_) {
-							var exception *ArithmeticException = to_ArithmeticException(ex_)
+						if exception, ok := ex_.(*ArithmeticException); ok {
 							_ = exception
 							ret_2 = 0
 							code_ = 1

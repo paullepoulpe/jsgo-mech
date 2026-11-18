@@ -203,10 +203,11 @@ func (this *LinkedFlowScope) equals(other any) bool {
 	_ = that
 	if !(func() bool {
 		v_ := other
-		if !is_[*LinkedFlowScope](v_) {
+		p, ok := v_.(*LinkedFlowScope)
+		if !ok {
 			return false
 		}
-		that = cast_[*LinkedFlowScope](v_)
+		that = p
 		return true
 	}()) {
 		return false

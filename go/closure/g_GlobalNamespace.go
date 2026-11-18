@@ -1264,10 +1264,11 @@ func (this *GlobalNamespace_Name) checkNoExistingRefsForNode(node Node) {
 	_ = ref
 	if func() bool {
 		v_ := this.refsForNode
-		if !is_[*GlobalNamespace_Ref](v_) {
+		p, ok := v_.(*GlobalNamespace_Ref)
+		if !ok {
 			return false
 		}
-		ref = cast_[*GlobalNamespace_Ref](v_)
+		ref = p
 		return true
 	}() {
 		if !(ref.node_ != node) {
@@ -1294,7 +1295,7 @@ func (this *GlobalNamespace_Name) putRef(node Node, ref *GlobalNamespace_Ref) {
 		this.refsForNode = obj_(ref)
 		return
 	}
-	if is_[*GlobalNamespace_Ref](this.refsForNode) {
+	if _, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		var refsForNodeMap *JTMap[Node, *GlobalNamespace_Ref] = jnewTMap_(jtc_Node, jtc_p_GlobalNamespace_Ref)
 		var existingRef *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](this.refsForNode)
 		refsForNodeMap.put(existingRef.node_, existingRef)
@@ -1378,7 +1379,7 @@ func (this *GlobalNamespace_Name) updateRefNode(ref *GlobalNamespace_Ref, newNod
 	ref.node_ = newNode
 	if this.refsForNode == nil {
 		this.refsForNode = obj_(ref)
-	} else if is_[*GlobalNamespace_Ref](this.refsForNode) {
+	} else if _, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		Preconditions_checkState((this.refsForNode == obj_(ref)))
 	} else {
 		var refsForNodeMap MapOf[Node, *GlobalNamespace_Ref] = this.castRefsForNodeMap()
@@ -1397,7 +1398,7 @@ func (this *GlobalNamespace_Name) removeRef(ref *GlobalNamespace_Ref) {
 	if this.refsForNode == nil {
 		Preconditions_checkNotNull_Object_String_Object(nil, "removeRef(%s): unknown ref", ref)
 	}
-	if is_[*GlobalNamespace_Ref](this.refsForNode) {
+	if _, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		if !(this.refsForNode == obj_(ref)) {
 			Preconditions_checkState_boolean_String_Object(false, "removeRef(%s): unknown ref", ref)
 		}
@@ -1470,7 +1471,7 @@ func (this *GlobalNamespace_Name) removeRefFromNodeMap(ref *GlobalNamespace_Ref)
 	if this.refsForNode == nil {
 		Preconditions_checkNotNull_Object_String_Object(nil, "Missing ref when trying to remove it: %s", ref)
 	}
-	if is_[*GlobalNamespace_Ref](this.refsForNode) {
+	if _, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		this.refsForNode = nil
 	} else {
 		var refsForNode *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](this.castRefsForNodeMap().get(refNode.box_()))
@@ -1489,10 +1490,11 @@ func (this *GlobalNamespace_Name) getRefs() CollectionOf[*GlobalNamespace_Ref] {
 	_ = ref
 	if func() bool {
 		v_ := this.refsForNode
-		if !is_[*GlobalNamespace_Ref](v_) {
+		p, ok := v_.(*GlobalNamespace_Ref)
+		if !ok {
 			return false
 		}
-		ref = cast_[*GlobalNamespace_Ref](v_)
+		ref = p
 		return true
 	}() {
 		return ImmutableSet_as_Collection(ImmutableSet_of_Object(obj_(ref)))
@@ -1509,10 +1511,11 @@ func (this *GlobalNamespace_Name) getRefForNode(node Node) *GlobalNamespace_Ref 
 	_ = ref
 	if func() bool {
 		v_ := this.refsForNode
-		if !is_[*GlobalNamespace_Ref](v_) {
+		p, ok := v_.(*GlobalNamespace_Ref)
+		if !ok {
 			return false
 		}
-		ref = cast_[*GlobalNamespace_Ref](v_)
+		ref = p
 		return true
 	}() {
 		return func() *GlobalNamespace_Ref {
@@ -1531,10 +1534,11 @@ func (this *GlobalNamespace_Name) getFirstRef() *GlobalNamespace_Ref {
 	_ = ref
 	if func() bool {
 		v_ := this.refsForNode
-		if !is_[*GlobalNamespace_Ref](v_) {
+		p, ok := v_.(*GlobalNamespace_Ref)
+		if !ok {
 			return false
 		}
-		ref = cast_[*GlobalNamespace_Ref](v_)
+		ref = p
 		return true
 	}() {
 		return ref
