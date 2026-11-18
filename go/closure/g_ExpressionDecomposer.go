@@ -788,7 +788,7 @@ func new_ExpressionDecomposer_DecompositionState() *ExpressionDecomposer_Decompo
 }
 
 func (this *ExpressionDecomposer_DecompositionState) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add_String_boolean("sideEffects", this.sideEffects).add("extractBeforeStatement", this.extractBeforeStatement.box_())))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add_String_boolean("sideEffects", this.sideEffects).add("extractBeforeStatement", this.extractBeforeStatement.box_()))
 }
 
 type ExpressionDecomposer_EvaluationDirection uint8

@@ -73,7 +73,7 @@ func (this *CheckSideEffects) visit_impl(t *NodeTraversal, n Node, parent Node) 
 				if n.isStringLit() || n.isTemplateLit() {
 					msg = "Is there a missing '+' on the previous line?"
 				} else if isSimpleOp {
-					msg = ("The result of the '" + sstr_(Ascii_toLowerCase(Object_toString(obj_(n.getToken())))) + "' operator is not being used.")
+					msg = ("The result of the '" + sstr_(Ascii_toLowerCase(tostrNN_(n.getToken()))) + "' operator is not being used.")
 				}
 				t.report(n, CheckSideEffects_USELESS_CODE_ERROR, []string{msg})
 			}

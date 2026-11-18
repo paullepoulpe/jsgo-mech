@@ -45,10 +45,10 @@ func (this *VerifyingErrorManager) report_2_impl(level CheckLevel, error_ *JSErr
 				Iterator_remove(iterator)
 				continue
 			}
-			if Object_toString(obj_(matchedPattern)) == Object_toString(obj_(p)) {
+			if tostrNN_(matchedPattern) == tostrNN_(p) {
 				continue
 			}
-			this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_AMBIGUOUS_EXPECTATION, []string{formattedError, Object_toString(obj_(matchedPattern)), Object_toString(obj_(p))}))
+			this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_AMBIGUOUS_EXPECTATION, []string{formattedError, tostrNN_(matchedPattern), tostrNN_(p)}))
 			Iterator_remove(iterator)
 		}
 	}
@@ -66,7 +66,7 @@ func (this *VerifyingErrorManager) reportMissingExpectations() {
 	it_1 := this.unmatchedExpectations.each()
 	for it_1.next() {
 		var p *Pattern = it_1.v
-		this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_EXPECTED_DIAGNOSTIC_NOT_FOUND, []string{Object_toString(obj_(p))}))
+		this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_EXPECTED_DIAGNOSTIC_NOT_FOUND, []string{tostrNN_(p)}))
 	}
 	this.unmatchedExpectations.clear()
 }

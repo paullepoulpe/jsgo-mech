@@ -116,7 +116,7 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 		boldLine.append("] ")
 	}
 	boldLine.append(error_.description())
-	b.append(this.maybeEmbolden(Object_toString(obj_(boldLine))))
+	b.append(this.maybeEmbolden(tostrNN_(boldLine)))
 	b.append_char('\n')
 	var sourceExcerptWithPosition Optional[string] = this.getExcerptWithPosition_5(error_, sourceName, lineNumber, charno, func() SourceExcerptProvider_SourceExcerpt {
 		if mapping != nil {
@@ -127,7 +127,7 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 	if sourceExcerptWithPosition.isPresent() {
 		b.append(sourceExcerptWithPosition.get())
 	}
-	return Object_toString(obj_(b))
+	return tostrNN_(b)
 }
 
 func (this *LightweightMessageFormatter) getExcerptWithPosition(error_ *JSError) string {
@@ -159,7 +159,7 @@ func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSErro
 	}
 	var success bool = this.padSourceExcerpt(error_, sourceExcerpt.get(), charno, length, format, b)
 	if success {
-		return Object_toString(obj_(b))
+		return tostrNN_(b)
 	}
 	var message string = "Source excerpt could not be formatted. This may indicate a bug in the compiler."
 	return message
@@ -331,7 +331,7 @@ func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(reg
 			lineNumber++
 		}
 	}
-	return Optional_of[string](Object_toString(obj_(builder)))
+	return Optional_of[string](tostrNN_(builder))
 }
 
 // formatError: an object that is exactly a LightweightMessageFormatter calls its formatError_impl directly (post-flip); others dispatch.

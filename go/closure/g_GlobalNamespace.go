@@ -2093,7 +2093,7 @@ func (this *GlobalNamespace_Ref) isUninitializedDeclaration() bool {
 }
 
 func (this *GlobalNamespace_Ref) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).omitNullValues().add("type", obj_(this.type__)).add("node", this.node_.box_()).add("scope", obj_(this.scope_))))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).omitNullValues().add("type", obj_(this.type__)).add("node", this.node_.box_()).add("scope", obj_(this.scope_)))
 }
 
 type GlobalNamespace_Ref_Type uint8

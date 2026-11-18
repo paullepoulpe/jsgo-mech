@@ -267,7 +267,7 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 		Base64VLQ_encode(StringBuilder_as_Appendable(sb), colNo)
 		return 0
 	}()
-	var encodedParam string = Object_toString(obj_(sb))
+	var encodedParam string = tostrNN_(sb)
 	if !this.paramValueEncodings.containsKey(encodedParam) {
 		var uniqueIdentifier int64 = this.generateUniqueIdentifier()
 		if uniqueIdentifier > int64(int32(2147483647)) {
@@ -289,7 +289,7 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 			Base64VLQ_encode(StringBuilder_as_Appendable(sb), Math_toIntExact(uniqueIdentifier))
 			return 0
 		}()
-		this.paramValueEncodings.put(encodedParam, Object_toString(obj_(sb)))
+		this.paramValueEncodings.put(encodedParam, tostrNN_(sb))
 	}
 	return this.paramValueEncodings.get(encodedParam)
 }

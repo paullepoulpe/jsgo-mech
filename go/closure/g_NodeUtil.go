@@ -135,7 +135,7 @@ func NodeUtil_getStringValue(n Node) Optional[string] {
 			}
 			return Optional_empty[string]()
 		case tokOrd1_BIGINT:
-			return Optional_ofNullable[string](Object_toString(obj_(n.getBigInt())))
+			return Optional_ofNullable[string](tostrNN_(n.getBigInt()))
 		case tokOrd1_FALSE:
 			return Optional_of[string]("false")
 		case tokOrd1_TRUE:

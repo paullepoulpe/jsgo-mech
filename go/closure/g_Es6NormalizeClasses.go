@@ -1054,7 +1054,7 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 				case tokOrd1_COMPUTED_FIELD_DEF:
 					return this.convCompFieldToGetElem(nameToUse, staticMember, true)
 				default:
-					panic(new_IllegalStateException_String(String_valueOf_Object(staticMember.box_())).self())
+					panic(new_IllegalStateException_String(tostr_(staticMember)).self())
 				}
 				panic("unreachable")
 			}()

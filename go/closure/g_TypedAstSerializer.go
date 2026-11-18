@@ -178,7 +178,7 @@ func (this *TypedAstSerializer) valueTranslator(builder *AstNode_Builder, n Node
 		builder.setDoubleValue(n.getDouble())
 		return
 	case tokOrd1_BIGINT:
-		builder.setStringValuePointer(this.stringPool.put(Object_toString(obj_(n.getBigInt()))))
+		builder.setStringValuePointer(this.stringPool.put(tostrNN_(n.getBigInt())))
 		return
 	default:
 		return

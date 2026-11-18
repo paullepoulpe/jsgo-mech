@@ -561,7 +561,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 	if this.config.jsDocParsingMode() != Config_JsDocParsing_INCLUDE_ALL_COMMENTS {
 		return nil
 	}
-	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(firstComment.location_.start_, lastComment.location_.end_, Object_toString(obj_(result)))
+	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(firstComment.location_.start_, lastComment.location_.end_, tostrNN_(result))
 	nonJSDocComment.setEndsAsLineComment((lastComment.type__ == Comment_Type_LINE))
 	nonJSDocComment.setIsInline(isInline)
 	return nonJSDocComment
@@ -900,7 +900,7 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 		cur = String_indexOf_int_int(value, 92, start)
 	}
 	Appendable_append_s_int_int(result, value, start, lastSlash)
-	return Object_toString(obj_(result))
+	return tostrNN_(result)
 }
 
 func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool) string {
@@ -1002,7 +1002,7 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 		}
 		return (String_length(value) - 1)
 	}())
-	return Object_toString(obj_(result))
+	return tostrNN_(result)
 }
 
 func (this *IRFactory) isSupportedForInputLanguageMode(feature FeatureSet_Feature) bool {
@@ -1215,7 +1215,7 @@ func IRFactory_transformBooleanTokenType(token TokenType) Token_rhino {
 		case TokenType_FALSE:
 			return Token_rhino_FALSE
 		default:
-			panic(new_IllegalStateException_String(String_valueOf_Object(obj_(token))).self())
+			panic(new_IllegalStateException_String(tostr_(token)).self())
 		}
 		panic("unreachable")
 	}()
@@ -1229,7 +1229,7 @@ func IRFactory_transformUpdateTokenType(token TokenType) Token_rhino {
 		case TokenType_MINUS_MINUS:
 			return Token_rhino_DEC
 		default:
-			panic(new_IllegalStateException_String(String_valueOf_Object(obj_(token))).self())
+			panic(new_IllegalStateException_String(tostr_(token)).self())
 		}
 		panic("unreachable")
 	}()
@@ -1253,7 +1253,7 @@ func IRFactory_transformUnaryTokenType(token TokenType) Token_rhino {
 		case TokenType_VOID:
 			return Token_rhino_VOID
 		default:
-			panic(new_IllegalStateException_String(String_valueOf_Object(obj_(token))).self())
+			panic(new_IllegalStateException_String(tostr_(token)).self())
 		}
 		panic("unreachable")
 	}()
@@ -1347,7 +1347,7 @@ func IRFactory_transformBinaryTokenType(token TokenType) Token_rhino {
 		case TokenType_QUESTION_QUESTION_EQUAL:
 			return Token_rhino_ASSIGN_COALESCE
 		default:
-			panic(new_IllegalStateException_String(String_valueOf_Object(obj_(token))).self())
+			panic(new_IllegalStateException_String(tostr_(token)).self())
 		}
 		panic("unreachable")
 	}()
@@ -1619,7 +1619,7 @@ func (this *IRFactory_TransformDispatcher) processObjectLitKey(input *Token_pars
 		case TokenType_NUMBER:
 			return this.outer_.newStringNode_2(output, DToA_numberToString(this.outer_.normalizeNumber(literal)))
 		case TokenType_BIGINT:
-			return this.outer_.newStringNode_2(output, Object_toString(obj_(this.outer_.normalizeBigInt(literal))))
+			return this.outer_.newStringNode_2(output, tostrNN_(this.outer_.normalizeBigInt(literal)))
 		default:
 			return this.outer_.newStringNode_2(output, this.outer_.normalizeString(literal, false))
 		}
@@ -2025,7 +2025,7 @@ func (this *IRFactory_TransformDispatcher) addExtraTrailingComment(node Node, la
 		comment.append("\n")
 	}
 	comment.append(lastComment.getCommentString())
-	var allComments *NonJSDocComment = new_NonJSDocComment(currentComment.getStartPosition(), lastComment.getEndPosition(), Object_toString(obj_(comment)))
+	var allComments *NonJSDocComment = new_NonJSDocComment(currentComment.getStartPosition(), lastComment.getEndPosition(), tostrNN_(comment))
 	allComments.setEndsAsLineComment(lastComment.isEndingAsLineComment())
 	allComments.setIsInline(true)
 	node.getLastChild().setTrailingNonJSDocComment(allComments)

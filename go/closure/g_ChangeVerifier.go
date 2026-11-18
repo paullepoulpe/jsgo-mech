@@ -148,7 +148,7 @@ func (this *ChangeVerifier) path(ancestor Node, child Node) string {
 		result.append(childToAncestor.get(i))
 		result.append("\n")
 	}
-	return Object_toString(obj_(result))
+	return tostrNN_(result)
 }
 
 func ChangeVerifier_getInequivalenceReasonExcludingFunctions(thisNode Node, thatNode Node) *ChangeVerifier_EqualsResult {

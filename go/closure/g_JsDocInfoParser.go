@@ -219,7 +219,7 @@ func (this *JsDocInfoParser) parseHelperLoop(token JsDocToken, extendedTypes *JT
 				var visibility JSDocInfo_Visibility = this.fileOverviewJSDocInfo.getVisibility()
 				switch visibility {
 				case JSDocInfo_Visibility_PRIVATE, JSDocInfo_Visibility_PROTECTED:
-					this.addParserWarning_2(Msg_BAD_FILEOVERVIEW_VISIBIIITY_ANNOTATION, Ascii_toLowerCase(Object_toString(obj_(visibility))))
+					this.addParserWarning_2(Msg_BAD_FILEOVERVIEW_VISIBIIITY_ANNOTATION, Ascii_toLowerCase(tostrNN_(visibility)))
 					success = false
 				default:
 				}
@@ -1256,7 +1256,7 @@ func (this *JsDocInfoParser) toString(token JsDocToken) string {
 		case JsDocToken_STRING:
 			return this.stream.getString()
 		default:
-			panic(new_IllegalStateException_String(Object_toString(obj_(token))).self())
+			panic(new_IllegalStateException_String(tostrNN_(token)).self())
 		}
 		panic("unreachable")
 	}()
@@ -1363,7 +1363,7 @@ L_1:
 				lineStartChar = -1
 			}
 			if ((token == JsDocToken_EOC) || (token == JsDocToken_EOF)) || ((token == JsDocToken_ANNOTATION) && !includeAnnotations) {
-				var multilineText string = Object_toString(obj_(builder))
+				var multilineText string = tostrNN_(builder)
 				if option != JsDocInfoParser_WhitespaceOption_PRESERVE {
 					multilineText = String_trim(multilineText)
 				}

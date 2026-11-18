@@ -53,7 +53,7 @@ func (this *HamtPMap[K, V]) toString() string {
 	if !this.isEmpty() {
 		this.appendTo(sb)
 	}
-	return Object_toString(obj_(sb.append("}")))
+	return tostrNN_(sb.append("}"))
 }
 
 func (this *HamtPMap[K, V]) appendTo(sb *StringBuilder) {

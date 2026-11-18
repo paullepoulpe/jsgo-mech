@@ -161,7 +161,7 @@ func (this *ReplaceMessages) createConditionForGrammaticalGender(type_ AstFactor
 	} else {
 		var googNode Node = this.astFactory_.createName("goog", type_)
 		googNode.putBooleanProp(Node_IS_CONSTANT_NAME, true)
-		return this.astFactory_.createGetProp(this.astFactory_.createGetProp(googNode, "msgKind", AstFactory_type_Node(nodeToReplace)), Object_toString(obj_(grammaticalGender)), AstFactory_type_Node(nodeToReplace))
+		return this.astFactory_.createGetProp(this.astFactory_.createGetProp(googNode, "msgKind", AstFactory_type_Node(nodeToReplace)), tostrNN_(grammaticalGender), AstFactory_type_Node(nodeToReplace))
 	}
 	panic("unreachable")
 }

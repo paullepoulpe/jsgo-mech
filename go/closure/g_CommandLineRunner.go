@@ -142,7 +142,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 			if quoted {
 				builder.append_char(uint16(c))
 			} else if builder.length() != 0 {
-				tokens.add(Object_toString(obj_(builder)))
+				tokens.add(tostrNN_(builder))
 				builder.setLength(0)
 			}
 		} else if c == 34 {
@@ -161,7 +161,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 		escaped = (c == 92)
 	}
 	if builder.length() != 0 {
-		tokens.add(Object_toString(obj_(builder)))
+		tokens.add(tostrNN_(builder))
 	}
 	this.flags.flagFiles = new_ArrayList_0()
 	tokens = CommandLineRunner_processArgs(arrmap_(tokens.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
@@ -1504,7 +1504,7 @@ func (this *CommandLineRunner_Flags) printUsage(ps *Output) {
 		this.printCategoryUsage(str_(entry.getKey()), icast_Collection(entry.getValue()), outputStream, Optional_of[string](prefix), Optional_of[string](suffix))
 	}
 	var encoded *Output = ps.encodedAs(Charsets_UTF_8)
-	encoded.print(Object_toString(obj_(outputStream)))
+	encoded.print(tostrNN_(outputStream))
 	encoded.flush()
 	ps.flush()
 }
@@ -1522,7 +1522,7 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 			this.parser.printUsage(stringWriter, (&Predicate_tfn_CmdLineParser_Option{func(option *CmdLineParser_Option) bool {
 				return (!option.hidden() && (optionName == CommandLineRunner_LEADING_DASHES_PATTERN.matcher_s(option.name()).replaceFirst("")))
 			}}).test)
-			var rawOptionUsage string = Object_toString(obj_(stringWriter))
+			var rawOptionUsage string = tostrNN_(stringWriter)
 			var delimiterIndex int32 = String_indexOf_String(rawOptionUsage, " : ")
 			if delimiterIndex > 0 {
 				outputStream.append(("\n**" + sstr_(String_trim(String_substring(rawOptionUsage, 0, delimiterIndex))) + "**  \n"))

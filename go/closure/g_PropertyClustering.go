@@ -75,5 +75,5 @@ func (this *PropertyClustering) registerOriginalNameType(type_ *ColorGraphNode) 
 }
 
 func (this *PropertyClustering) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("name", strobj_(this.name_))))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add("name", strobj_(this.name_)))
 }

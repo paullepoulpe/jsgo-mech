@@ -1117,7 +1117,7 @@ func (this Node) toString() string {
 func (this Node) toString_3(printSource bool, printAnnotations bool, printType bool) string {
 	var sb *StringBuilder = new_StringBuilder()
 	this.toString_4(sb, printSource, printAnnotations, printType)
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotations bool, printType bool) {
@@ -1161,7 +1161,7 @@ func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotation
 			}
 			var x *Node_PropListItem = this.lookupProperty(type_)
 			sb.append(" [")
-			sb.append(Ascii_toLowerCase(String_valueOf_Object(obj_(type_))))
+			sb.append(Ascii_toLowerCase(tostr_(type_)))
 			sb.append(": ")
 			sb.append_Object(x.self())
 			sb.append_char(']')
@@ -1188,7 +1188,7 @@ func Node_createJsonPairRawValue(name string, value string) string {
 
 func (this Node) toJson(sb Appendable) {
 	sb.append_char('{')
-	Appendable_append_s(sb, Node_createJsonPair("token", Object_toString(obj_(Token_rhino(this.ns_().token)))))
+	Appendable_append_s(sb, Node_createJsonPair("token", tostrNN_(Token_rhino(this.ns_().token))))
 	if this.payload_iss_() {
 		sb.append_char(',')
 		Appendable_append_s(sb, Node_createJsonPair("string", this.getString()))
@@ -1227,7 +1227,7 @@ func (this Node) toJson(sb Appendable) {
 		for i := int32(0); i < int32(len(keys)); i++ {
 			var type_ *Node_Prop = Node_propValues[keys[i]]
 			var x *Node_PropListItem = this.lookupProperty(type_)
-			Appendable_append_s(sb, Node_createJsonPair(Ascii_toLowerCase(String_valueOf_Object(obj_(type_))), JString_replace_s(JString_replace_s(Object_toString(x.self()), "\n", "\\n"), "\"", "\\\"")))
+			Appendable_append_s(sb, Node_createJsonPair(Ascii_toLowerCase(tostr_(type_)), JString_replace_s(JString_replace_s(Object_toString(x.self()), "\n", "\\n"), "\"", "\\\"")))
 			if (i + 1) < int32(len(keys)) {
 				sb.append_char(',')
 			}
@@ -1275,7 +1275,7 @@ func (this Node) toStringTreeImpl() string {
 		}()
 		var s *StringBuilder = new_StringBuilder()
 		this.appendStringTree(StringBuilder_as_Appendable(s))
-		ret_1 = Object_toString(obj_(s))
+		ret_1 = tostrNN_(s)
 		return 1
 		return 0
 	}()
