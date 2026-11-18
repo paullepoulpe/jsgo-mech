@@ -1,0 +1,44 @@
+diff --git a/go/closure/rt_ttree.go b/go/closure/rt_ttree.go
+index 64308d16..6200eed7 100644
+--- a/go/closure/rt_ttree.go
++++ b/go/closure/rt_ttree.go
+@@ -6,7 +6,8 @@ package closure
+ // called with the same arguments in the same order, so a comparator sees what it saw, an
+ // element the comparator throws on (null under natural ordering) throws as it did, and an
+ // equal element is found where it was. asSet / asMap give erased code a view with the
+-// collection's identity.
++// collection's identity. colls types only strings in natural order this way (other elements
++// compare as Objects, so typing them would box both elements of every comparison).
+ 
+ import (
+ 	"iter"
+@@ -20,18 +21,21 @@ func ttreeCmp_[K any](kc *tconv_[K], c Comparator) func(a, b K) int32 {
+ 	if c != nil {
+ 		return func(a, b K) int32 { return c.compare(kc.box(a), kc.box(b)) }
+ 	}
+-	if sc, ok := any(kc).(*tconv_[string]); ok {
+-		f := func(a, b string) int32 {
+-			if a == nullstr_ || b == nullstr_ {
+-				return compareNatural_(sc.box(a), sc.box(b))
+-			}
+-			return String_compareTo(a, b)
+-		}
+-		return any(f).(func(a, b K) int32)
++	if _, ok := any(kc).(*tconv_[string]); ok {
++		return any(ttreeStrCmp_).(func(a, b K) int32)
+ 	}
+ 	return func(a, b K) int32 { return compareNatural_(kc.box(a), kc.box(b)) }
+ }
+ 
++// ttreeStrCmp_ is natural ordering of strings (a function, so a map or set made with it
++// allocates no closure); a null string goes through compareNatural_ as a boxed null did.
++func ttreeStrCmp_(a, b string) int32 {
++	if a == nullstr_ || b == nullstr_ {
++		return compareNatural_(strobj_(a), strobj_(b))
++	}
++	return String_compareTo(a, b)
++}
++
+ // ttreeSearch_ is the position of k in sorted keys and whether it is there (TreeSet.search).
+ func ttreeSearch_[K any](keys []K, cmp func(a, b K) int32, k K) (int, bool) {
+ 	i := sort.Search(len(keys), func(i int) bool { return cmp(keys[i], k) >= 0 })
