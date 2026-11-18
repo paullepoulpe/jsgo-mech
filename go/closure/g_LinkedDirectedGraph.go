@@ -151,14 +151,24 @@ func (this *LinkedDirectedGraph[N, E]) getOutEdges_impl(nodeValue N) ListOf[*Lin
 }
 
 func (this *LinkedDirectedGraph[N, E]) createNode_impl(nodeValue N) GraphNode[N] {
-	return cast_[GraphNode[N]](Map_computeIfAbsent(this.nodes_, boxT_(nodeValue), &Function_tfn[N, any]{func(k N) any {
-		return func() any {
-			if this.useNodeAnnotations {
-				return obj_(new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E](k))
-			}
-			return new_LinkedDirectedGraph_LinkedDiGraphNode[N, E](k).self()
-		}()
-	}}))
+	return cast_[GraphNode[N]](this.getOrCreateNode_(nodeValue))
+}
+
+// getOrCreateNode_ is nodes.computeIfAbsent(nodeValue, new node) without the function object
+// (post-flip manual step: two allocations per call); the node made is never null.
+func (this *LinkedDirectedGraph[N, E]) getOrCreateNode_(nodeValue N) any {
+	key := boxT_(nodeValue)
+	if n := this.nodes_.get(key); n != nil {
+		return n
+	}
+	var n any
+	if this.useNodeAnnotations {
+		n = obj_(new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E](nodeValue))
+	} else {
+		n = new_LinkedDirectedGraph_LinkedDiGraphNode[N, E](nodeValue).self()
+	}
+	this.nodes_.put(key, n)
+	return n
 }
 
 func (this *LinkedDirectedGraph[N, E]) getEdges_2_impl(n1 N, n2 N) ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
@@ -220,7 +230,32 @@ func (this *LinkedDirectedGraph[N, E]) isConnectedInDirection_impl(source N, des
 func (this *LinkedDirectedGraph[N, E]) isConnectedInDirection_3_impl(source N, edgeValue_ any, dest N) bool {
 	var edgeValue E = junboxT_[E](edgeValue_)
 	_ = edgeValue
-	return this.isConnectedInDirectionPredicate(source, Predicates_equalTo(boxT_(edgeValue)), dest)
+	// Predicates.equalTo(edgeValue) is Objects.equals(edgeValue, v); compared here without the
+	// predicate object (post-flip manual step: one allocation per call).
+	target := boxT_(edgeValue)
+	dNode1 := to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(source))
+	dNode2 := to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(dest))
+	return dNode1.isConnectedTo_(dNode2, func(v any) bool { return Objects_equals(target, v) })
+}
+
+// isConnectedTo_ is isConnectedInDirectionLinkedDiGraphNode with the edge filter as a function.
+func (source *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) isConnectedTo_(dest *LinkedDirectedGraph_LinkedDiGraphNode[N, E], match func(any) bool) bool {
+	if len(source.outEdges_.items) < len(dest.inEdges_.items) {
+		for _, x := range source.outEdges_.items {
+			outEdge := cast_[DiGraph_DiGraphEdge[N]](x)
+			if (outEdge.getDestination() == dest.self()) && match(outEdge.getValue()) {
+				return true
+			}
+		}
+	} else {
+		for _, x := range dest.inEdges_.items {
+			inEdge := cast_[DiGraph_DiGraphEdge[N]](x)
+			if (inEdge.getSource() == source.self()) && match(inEdge.getValue()) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func (this *LinkedDirectedGraph[N, E]) isConnectedInDirectionLinkedDiGraphNode(source *LinkedDirectedGraph_LinkedDiGraphNode[N, E], edgeFilter Predicate_baseOf[E], dest *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) bool {
@@ -340,10 +375,15 @@ func (this *LinkedDirectedGraph[N, E]) getNodeDegree_impl(value N) int32 {
 type LinkedDirectedGraph_LinkedDiGraphNode[N any, E any] struct {
 	self_                                     any
 	vt_LinkedDirectedGraph_LinkedDiGraphNode_ LinkedDirectedGraph_LinkedDiGraphNode_vt_[N, E]
-	inEdgeList                                ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]]
-	outEdgeList                               ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]]
-	value_                                    N
-	priority                                  int32
+	// The two edge lists are part of the node, not objects of their own, with room for the
+	// first in-edge and the first out-edge (post-flip manual steps: most nodes of a
+	// control-flow graph have one of each; nothing replaces the lists, so a pointer to them is
+	// the list Java's fields hold, and a second edge moves a list to an array of its own, as
+	// appending past capacity does).
+	inEdges_, outEdges_ ArrayList
+	inEdge1_, outEdge1_ [1]any
+	value_              N
+	priority            int32
 }
 
 type LinkedDirectedGraph_LinkedDiGraphNode_vt_[N any, E any] interface {
@@ -382,8 +422,8 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) zero_LinkedDirectedGrap
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) finit_LinkedDirectedGraph_LinkedDiGraphNode() {
-	this.inEdgeList = new_ArrayList_int(1)
-	this.outEdgeList = new_ArrayList_int(1)
+	this.inEdges_.self_, this.inEdges_.items = &this.inEdges_, this.inEdge1_[:0]
+	this.outEdges_.self_, this.outEdges_.items = &this.outEdges_, this.outEdge1_[:0]
 	this.priority = -1
 }
 
@@ -430,11 +470,11 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) toString() string {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) getInEdges() ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
-	return this.inEdgeList
+	return &this.inEdges_
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) getOutEdges() ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
-	return this.outEdgeList
+	return &this.outEdges_
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) hasPriority() bool {
