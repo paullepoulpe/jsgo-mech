@@ -1,5 +1,7 @@
 package closure
 
+import "unsafe"
+
 // Typed lists (j2go rule "typed collections"): an ArrayList<T> that the translator finds typable
 // is a *TList[T], a slice of T. Its elements are Java's values of type T themselves (a string, a
 // class pointer, a handle), not boxes.
@@ -31,7 +33,8 @@ type TList[T any] struct {
 	// twin: nil for a list that can change (an ArrayList). An immutable list (Guava's
 	// ImmutableList, rt_timm.go) has here the ImmutableList that erased code sees it as, or
 	// immPending_ until erased code first needs it; every change of such a list throws
-	// UnsupportedOperationException.
+	// UnsupportedOperationException. unmodMark_: a list that cannot be changed and is no
+	// ImmutableList (Collections.unmodifiableList of a private list): erased code sees its view.
 	twin *ImmutableCollection
 }
 
@@ -177,7 +180,7 @@ func (l *TList[T]) iterator() Iterator {
 // which erased code sees is still one object. An immutable list is seen as its ImmutableList.
 func (l *TList[T]) asList() List {
 	if l == nil || l.twin != nil {
-		return l.asImmList()
+		return l.asOtherList()
 	}
 	return &l.view
 }
@@ -229,6 +232,9 @@ func (v *tlistView_[T]) remove(i int32) any            { return v.l.c.box(v.l.re
 func (v *tlistView_[T]) clear()                        { v.l.clear() }
 
 func (v *tlistView_[T]) addAll(c Collection) bool {
+	if v.l.twin != nil {
+		panic(frozen_{})
+	}
 	if o, ok := c.(*tlistView_[T]); ok && o != nil {
 		return v.l.addAllT(o.l)
 	}
@@ -311,6 +317,9 @@ func (v *tlistView_[T]) remove_Object(x any) bool {
 
 func (v *tlistView_[T]) removeAll(c Collection) bool {
 	l := v.l
+	if l.twin != nil {
+		panic(frozen_{})
+	}
 	out := l.items[:0]
 	for _, x := range l.items {
 		if !c.contains(l.c.box(x)) {
@@ -373,12 +382,36 @@ func tcT_[T any]() *tconv_[T] {
 	})
 }
 
-// tceT_ is tcT_ for the elements of a set or the keys of a map that are compared by equals and
-// hashCode.
+// tceT_ is tcT_ for the elements of a set or the keys of a map (a Set<T>, a Map<T, V> in a
+// generic class): the collection compares them with == where that is Java's equals for the
+// instantiation (a String, a class that the translator registered with regGoEquals_), else by
+// equals and hashCode (an interface, Object, a class with its own equals, a library class).
 func tceT_[T any]() *tconv_[T] {
 	return single_(&tceT_single_, func() *tconv_[T] {
-		return &tconv_[T]{box: boxT_[T], unbox: unboxT_[T], null: null_[T](), byEquals: true}
+		var z T
+		return &tconv_[T]{box: boxT_[T], unbox: unboxT_[T], null: null_[T](), byEquals: !goEquals_(any(z))}
 	})
 }
 
 var tcT_single_, tceT_single_ singles_
+
+// goEqualsTypes_ holds the Go types (of the program's classes) whose == is Java's equals.
+var goEqualsTypes_ = map[unsafe.Pointer]struct{}{}
+
+// regGoEquals_ registers the types of xs (generated: g_0casts.go).
+func regGoEquals_(xs ...any) {
+	for _, x := range xs {
+		goEqualsTypes_[(*eface_)(unsafe.Pointer(&x)).typ] = struct{}{}
+	}
+}
+
+// goEquals_ reports whether == on values of the type of z (the zero value of a type argument)
+// is Java's equals: a string, or a registered class. The zero value of an interface type has
+// no type: its values are compared by equals.
+func goEquals_(z any) bool {
+	if _, ok := z.(string); ok {
+		return true
+	}
+	_, ok := goEqualsTypes_[(*eface_)(unsafe.Pointer(&z)).typ]
+	return z != nil && ok
+}

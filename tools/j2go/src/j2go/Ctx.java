@@ -60,11 +60,98 @@ final class Ctx {
     return c.substring(0, c.length() - 1) + ", " + o.substring(1);
   }
 
-  /** The Go constraint of kept type parameter tp: its bound, an interface of the program, or any. */
+  /**
+   * The Go constraint of kept type parameter tp: `comparable`, with its bound if that is an
+   * interface of the program. Every type that instantiates a kept type parameter is comparable
+   * in Go (a pointer, an interface, a string, a handle, a box), so the constraint costs
+   * nothing, and a type parameter can then be the element type of a typed set or the key type
+   * of a typed map (rule "typed collections"). J2GO_NOCOMPARABLE=1: `any` or the bound.
+   */
   String constraint(TypeParameterElement tp) {
+    String b = bound(tp);
+    if (notComparable.contains(tp) || "1".equals(System.getenv("J2GO_NOCOMPARABLE"))) return b == null ? "any" : b;
+    return b == null ? "comparable" : "interface{ " + b + "; comparable }";
+  }
+
+  /**
+   * The kept type parameters that are not `comparable`: some use instantiates them with a type
+   * that Go cannot compare (an array: Outcome<byte[]>), or with another such type parameter.
+   */
+  final Set<TypeParameterElement> notComparable = new HashSet<>();
+
+  /** Finds notComparable: every type that the program names or that an expression has, and the type arguments javac infers for the calls of generic methods. */
+  void findComparable(List<? extends CompilationUnitTree> units) {
+    Map<TypeParameterElement, Set<TypeParameterElement>> gives = new HashMap<>();  // X -> the parameters that X instantiates
+    Set<TypeMirror> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+    class Scan {
+      void arg(TypeParameterElement p, TypeMirror a) {
+        if (a == null || !keptVars.contains(p)) return;
+        if (a.getKind() == TypeKind.WILDCARD) {
+          arg(p, ((WildcardType) a).getExtendsBound());
+          arg(p, ((WildcardType) a).getSuperBound());
+        } else if (a.getKind() == TypeKind.ARRAY) {
+          notComparable.add(p);
+        } else if (typedVar(a)) {
+          gives.computeIfAbsent((TypeParameterElement) ((TypeVariable) a).asElement(), k -> new HashSet<>()).add(p);
+        }
+      }
+
+      void type(TypeMirror t) {
+        if (t == null || !seen.add(t)) return;
+        if (t.getKind() == TypeKind.ARRAY) {
+          type(((ArrayType) t).getComponentType());
+        } else if (t.getKind() == TypeKind.WILDCARD) {
+          type(((WildcardType) t).getExtendsBound());
+          type(((WildcardType) t).getSuperBound());
+        } else if (t.getKind() == TypeKind.DECLARED) {
+          DeclaredType d = (DeclaredType) t;
+          List<? extends TypeParameterElement> ps = typeElement(d).getTypeParameters();
+          for (int i = 0; i < d.getTypeArguments().size() && i < ps.size(); i++) {
+            arg(ps.get(i), d.getTypeArguments().get(i));
+            type(d.getTypeArguments().get(i));
+          }
+          type(d.getEnclosingType());
+        } else if (t.getKind() == TypeKind.EXECUTABLE) {
+          type(((ExecutableType) t).getReturnType());
+          for (TypeMirror p : ((ExecutableType) t).getParameterTypes()) type(p);
+        }
+      }
+    }
+    Scan sc = new Scan();
+    for (CompilationUnitTree cu : units) {
+      new TreePathScanner<Void, Void>() {
+        @Override
+        public Void scan(Tree t, Void v) {
+          if (t == null) return null;
+          TreePath p = new TreePath(getCurrentPath(), t);
+          try {
+            TypeMirror tm = trees.getTypeMirror(p);
+            sc.type(tm);
+            if (t instanceof MethodInvocationTree mi && trees.getElement(new TreePath(p, mi.getMethodSelect())) instanceof ExecutableElement m
+                && trees.getTypeMirror(new TreePath(p, mi.getMethodSelect())) instanceof ExecutableType inst && !m.getTypeParameters().isEmpty()) {
+              // the type arguments javac inferred for a generic method
+              Map<Element, TypeMirror> u = new HashMap<>();
+              ExprEmitter.unify(m.getReturnType(), inst.getReturnType(), u);
+              for (int i = 0; i < m.getParameters().size() && i < inst.getParameterTypes().size(); i++) ExprEmitter.unify(m.getParameters().get(i).asType(), inst.getParameterTypes().get(i), u);
+              for (TypeParameterElement tp : m.getTypeParameters()) sc.arg(tp, u.get(tp));
+            }
+          } catch (RuntimeException ex) {
+            // a tree without attribution
+          }
+          return super.scan(t, v);
+        }
+      }.scan(new TreePath(cu), null);
+    }
+    ArrayDeque<TypeParameterElement> work = new ArrayDeque<>(notComparable);
+    while (!work.isEmpty()) {
+      for (TypeParameterElement p : gives.getOrDefault(work.poll(), Set.of())) if (notComparable.add(p)) work.add(p);
+    }
+  }
+
+  /** The Go type of the bound of kept type parameter tp where that is an interface of the program; else null. */
+  String bound(TypeParameterElement tp) {
     List<? extends TypeMirror> bs = tp.getBounds();
-    if (bs.size() == 1 && kind(bs.get(0)) == K.IFACE && isSource(typeElement(bs.get(0)))) return goType(bs.get(0));
-    return "any";
+    return bs.size() == 1 && kind(bs.get(0)) == K.IFACE && isSource(typeElement(bs.get(0))) ? goType(bs.get(0)) : null;
   }
 
   /** A type variable that is a Go type parameter: of a typed declaration, or of a static generic method of one. */
@@ -286,14 +373,27 @@ final class Ctx {
     String immClass;
     /** The classes that an immutable typed collection is seen as through asImm() (immClass and its superclasses). */
     Set<String> immTypes = Set.of();
+    /**
+     * The sorted class of the kind (TreeSet for a set), or null: `new TreeSet<>(..)` makes the
+     * typed collection in its sorted mode (rt_tsorted.go), and a declaration of that type is one
+     * of the kind.
+     */
+    String sortedClass;
+    /** The interfaces that a sorted typed collection is seen as through asSorted() (SortedSet, NavigableSet). */
+    Set<String> sortedTypes = Set.of();
 
     CollKind(String name, String view, String viewType, Set<String> declared, Map<String, String> made, Set<String> viewTypes) {
       this.name = name;
       this.view = view;
       this.viewType = viewType;
       this.declared = new HashSet<>(declared);
-      this.made = made;
+      this.made = new HashMap<>(made);
       this.viewTypes = new HashSet<>(viewTypes);
+    }
+
+    /** Whether te is an interface that a sorted collection of this kind is seen as through asSorted(). */
+    boolean sortedType(TypeElement te) {
+      return te != null && sortedTypes.contains(te.getQualifiedName().toString());
     }
 
     /** Whether the kind has two type arguments (a key and a value). */
@@ -345,6 +445,18 @@ final class Ctx {
     entry.stub = elems.getTypeElement("j2go.rt.TEntry");
     boolean nomaps = "1".equals(System.getenv("J2GO_COLLS_NOMAPS"));
     List<CollKind> kinds = new ArrayList<>(List.of(list, set, deque, map, entry));
+    if (!"1".equals(System.getenv("J2GO_COLLS_NOSORTED"))) {
+      for (CollKind k : List.of(set, map)) {
+        String cap = k == set ? "Set" : "Map";
+        k.sortedClass = "java.util.Tree" + cap;
+        k.sortedTypes = Set.of("java.util.Sorted" + cap, "java.util.Navigable" + cap);
+        k.declared.add(k.sortedClass);
+        k.declared.addAll(k.sortedTypes);
+        k.made.put(k.sortedClass, "Sorted" + cap);
+        k.viewTypes.addAll(k.sortedTypes);
+        if (k == set) k.viewTypes.add("java.util.SequencedSet");
+      }
+    }
     if (!"1".equals(System.getenv("J2GO_COLLS_NOIMM"))) {
       String g = "com.google.common.collect.";
       for (CollKind k : List.of(list, set, map)) {
@@ -372,6 +484,21 @@ final class Ctx {
       typedClasses.add(k.stub);
       keptVars.addAll(k.stub.getTypeParameters());
     }
+  }
+
+  /**
+   * Library methods that make a list for their caller alone, each with the runtime function
+   * that makes the typed list instead (its arguments: the conversion, the receiver, the
+   * method's arguments) and the list's element type: Splitter.splitToList is splitToListT_.
+   */
+  static final Map<String, String[]> TYPED_MAKERS = Map.of(
+      "com.google.common.base.Splitter.splitToList", new String[] {"splitToListT_", "java.lang.String"});
+
+  /** The entry of TYPED_MAKERS for method m where it makes a collection for kind k with type arguments args; else null. */
+  String[] typedMaker(Element m, CollKind k, List<TypeMirror> args) {
+    if (!(m instanceof ExecutableElement me) || !k.name.equals("list") || args.size() != 1 || "1".equals(System.getenv("J2GO_COLLS_NOMAKERS"))) return null;
+    String[] tm = TYPED_MAKERS.get(((TypeElement) me.getEnclosingElement()).getQualifiedName() + "." + me.getSimpleName());
+    return tm != null && types.isSameType(args.get(0), elems.getTypeElement(tm[1]).asType()) ? tm : null;
   }
 
   /** The kind of typed collection that type t (TList<X>, TSet<X>) is, or null. */
@@ -438,8 +565,8 @@ final class Ctx {
     boolean simple = !"1".equals(System.getenv("J2GO_COLLS_SIMPLE"));
     boolean generic = simple && !"1".equals(System.getenv("J2GO_COLLS_NOGENERIC"));
     if (a.getKind() == TypeKind.TYPEVAR && generic) {
-      // a Go type parameter: its constraint is `any`, which a compared type cannot have
-      if (typedVar(a)) return compared ? null : a;
+      // a Go type parameter (its constraint is `comparable`: a set or a map can compare it)
+      if (typedVar(a)) return compared && !constraint((TypeParameterElement) ((TypeVariable) a).asElement()).contains("comparable") ? null : a;
       // an erased type variable: what it is erased to (its bound)
       TypeMirror e = erase(a);
       return e.getKind() == TypeKind.DECLARED ? typedArg(e, compared) : null;
@@ -485,6 +612,8 @@ final class Ctx {
    * interface, a library class.
    */
   boolean byEquals(TypeMirror a) {
+    // a type parameter: decided for each instantiation when its conversion is made (tceT_)
+    if (a.getKind() == TypeKind.TYPEVAR) return true;
     if (unboxed(a) != null) return false;
     return !goEquals(typeElement(a));
   }
@@ -1427,6 +1556,8 @@ final class Ctx {
       if (isTypedColl(to)) throw new IllegalStateException("typed collections of two types: " + gf + " to " + gt);
       // a place of Guava's immutable class: the immutable collection's erased twin (rt_timm.go)
       if (to.getKind() == TypeKind.DECLARED && typedColl(from).immType(typeElement(to))) return code + ".asImm()";
+      // a place of type SortedSet / NavigableSet: the sorted collection's erased view
+      if (to.getKind() == TypeKind.DECLARED && typedColl(from).sortedType(typeElement(to))) return code + ".asSorted()";
       if (typedColl(from).view == null) throw new IllegalStateException("a typed builder (" + gf + ") reaches a place of type " + gt);
       return coerce(code + "." + typedColl(from).view + "()", typedView(from), to);
     }

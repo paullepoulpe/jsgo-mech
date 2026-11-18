@@ -257,6 +257,11 @@ abstract class ExprEmitter extends Base {
     TypeMirror at = typeOf(a);
     String lower = "t" + Character.toLowerCase(fn.charAt(0)) + fn.substring(1);
     if (at.getKind() == TypeKind.INT) return "newT" + fn + "N_(" + tc + ", " + exprAs(a, at) + ")";
+    if (elemOf(n) instanceof ExecutableElement ctor && ctor.getParameters().size() == 1 && cx.erase(ctor.getParameters().get(0).asType()) instanceof DeclaredType pt
+        && Ctx.typeElement(pt).getQualifiedName().contentEquals("java.util.Comparator")) {
+      // new TreeSet<>(comparator)
+      return "newT" + fn + "C_(" + tc + ", " + exprAs(a, pt) + ")";
+    }
     if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return lower + "Copy_(" + tc + ", " + expr(a) + ")";
     return lower + "From_(" + tc + ", " + exprAs(a, cx.elems.getTypeElement(cx.typedColl(target).fromType).asType()) + ")";
   }
@@ -276,6 +281,13 @@ abstract class ExprEmitter extends Base {
       String fn = "newT" + ck.made.values().iterator().next() + ck.factory(m) + "_(" + tc;
       for (ExpressionTree a : as) fn += ", " + exprAs(a, typeOf(a));
       return fn + ")";
+    }
+    String[] maker = cx.typedMaker(m, ck, new ArrayList<>(((DeclaredType) target).getTypeArguments()));
+    if (maker != null && mi.getMethodSelect() instanceof MemberSelectTree ms && !m.getModifiers().contains(Modifier.STATIC)) {
+      // a library method that makes a list for its caller: the runtime's typed twin
+      StringBuilder sb = new StringBuilder(maker[0] + "(" + tc + ", " + exprAs(ms.getExpression(), cx.ownerOf(m).asType()));
+      for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), cx.erase(m.getParameters().get(i).asType())));
+      return sb.append(")").toString();
     }
     if (ck.name.equals("set") && m.getSimpleName().contentEquals("keySet") && as.isEmpty() && mi.getMethodSelect() instanceof MemberSelectTree ms) {
       // keySet() of an immutable typed map (javac finds the method in ImmutableMap): its typed key set
@@ -1134,8 +1146,15 @@ abstract class ExprEmitter extends Base {
         owner = cx.ownerOf(tm);
         src = false;
       } else {
-        // a method of Guava's immutable class (reverse(), asList()) is called on the twin
-        TypeMirror view = cx.typedColl(recv.type).immType(owner) ? cx.types.erasure(owner.asType()) : cx.typedView(recv.type);
+        Ctx.CollKind rk = cx.typedColl(recv.type);
+        if (owner.getQualifiedName().contentEquals(String.valueOf(rk.sortedClass))) {
+          // a method that javac finds in TreeSet / TreeMap: the method of the interface it implements
+          e = cx.root(e);
+          owner = cx.ownerOf(e);
+        }
+        // a method of Guava's immutable class (reverse(), asList()) is called on the twin, one
+        // of SortedSet / NavigableSet (tailSet) on the sorted view
+        TypeMirror view = rk.immType(owner) || rk.sortedType(owner) ? cx.types.erasure(owner.asType()) : cx.typedView(recv.type);
         recv = new Recv(cx.coerce(recv.code, recv.type, view), view);
       }
     }
@@ -1239,7 +1258,7 @@ abstract class ExprEmitter extends Base {
     } else {
       Ctx.K rk = cx.kind(recv.type);
       String rc = recv.code;
-      boolean boxedTvar = rk == Ctx.K.TVAR && cx.constraint((TypeParameterElement) ((TypeVariable) cx.erase(recv.type)).asElement()).equals("any");
+      boolean boxedTvar = rk == Ctx.K.TVAR && cx.bound((TypeParameterElement) ((TypeVariable) cx.erase(recv.type)).asElement()) == null;
       if (rk == Ctx.K.ANY || rk == Ctx.K.STR || rk == Ctx.K.ARR || rk == Ctx.K.PRIM || boxedTvar) {
         rc = cx.coerce(rc, recv.type, owner.asType());
       } else if (rk == Ctx.K.CLS && owner.getKind().isInterface() && !cx.sub(recv.type, owner.asType())) {

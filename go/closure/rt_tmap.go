@@ -20,9 +20,10 @@ type TMap[K comparable, V any] struct {
 	vc   *tconv_[V]
 	eq   *teq_           // of keys compared by equals and hashCode (kc.byEquals); else nil
 	view tmapView_[K, V] // the map as erased code sees it (asMap): part of the map
-	// imm: nil for a map that can change; an immutable map (Guava's ImmutableMap, rt_timm.go)
-	// has here what it has beside its mappings: the ImmutableMap that erased code sees it as
-	// and its typed key set, each once it is needed (immPendingMap_ until then).
+	// imm: nil for a hash map that can change; an immutable map (Guava's ImmutableMap,
+	// rt_timm.go) has here what it has beside its mappings: the ImmutableMap that erased code
+	// sees it as and its typed key set, each once it is needed (immPendingMap_ until then). A
+	// sorted map that can change (a TreeMap, rt_tsorted.go) has sortedMapMark_.
 	imm *timmMap_
 }
 
@@ -59,7 +60,14 @@ func (m *TMap[K, V]) dead(i int) bool { return m.gone != nil && m.gone[i] }
 
 // find returns the position of key k, or -1.
 func (m *TMap[K, V]) find(k K) int32 {
-	if m.kc.byEquals {
+	if m.eq != nil {
+		// compared by equals and hashCode, or sorted
+		if m.eq.sorted {
+			if i, ok := tsortSearch_(m.eq, m.kc, m.keys, k); ok && !m.dead(i) {
+				return int32(i)
+			}
+			return -1
+		}
 		return teqFind_(m.eq, m.keys, m.gone, m.kc, k, objhash_(m.kc.box(k)))
 	}
 	if m.idx != nil {
@@ -101,6 +109,14 @@ func (m *TMap[K, V]) getOr(k K, def V) V {
 // locate returns the position of key k, or -1, and the key's hash code if the map compares its
 // keys by equals and hashCode (for append).
 func (m *TMap[K, V]) locate(k K) (i int32, h int32) {
+	if m.eq != nil && m.eq.sorted {
+		// h: the position at which append puts the key
+		p, ok := tsortSearch_(m.eq, m.kc, m.keys, k)
+		if ok && !m.dead(p) {
+			return int32(p), 0
+		}
+		return -1, int32(p)
+	}
 	if m.kc.byEquals {
 		h = objhash_(m.kc.box(k))
 		return teqFind_(m.eq, m.keys, m.gone, m.kc, k, h), h
@@ -110,7 +126,7 @@ func (m *TMap[K, V]) locate(k K) (i int32, h int32) {
 
 // put returns the value that key k had, or null.
 func (m *TMap[K, V]) put(k K, v V) V {
-	if m.imm != nil {
+	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
 	i, h := m.locate(k)
@@ -125,6 +141,10 @@ func (m *TMap[K, V]) put(k K, v V) V {
 
 // append adds a mapping for a key that the map does not have (h: see locate).
 func (m *TMap[K, V]) append(k K, v V, h int32) {
+	if m.eq != nil && m.eq.sorted {
+		m.insertSorted(k, v, int(h))
+		return
+	}
 	if n := len(m.keys) - int(m.live); n > hsmall_ && n > int(m.live) {
 		m.compact()
 	}
@@ -160,7 +180,7 @@ func (m *TMap[K, V]) isNull(v V) bool { return any(v) == any(m.vc.null) }
 
 // putIfAbsent maps k to v unless k has a value that is not null, which it returns.
 func (m *TMap[K, V]) putIfAbsent(k K, v V) V {
-	if m.imm != nil {
+	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
 	i, h := m.locate(k)
@@ -178,7 +198,7 @@ func (m *TMap[K, V]) putIfAbsent(k K, v V) V {
 // computeIfAbsent returns the value of key k if it has one that is not null; else the value f
 // makes for the key, which becomes the key's value unless it is null.
 func (m *TMap[K, V]) computeIfAbsent(k K, f Function) V {
-	if m.imm != nil {
+	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
 	if i := m.find(k); i >= 0 && !m.isNull(m.vals[i]) {
@@ -193,7 +213,7 @@ func (m *TMap[K, V]) computeIfAbsent(k K, f Function) V {
 
 // del is remove(key): the value the key had, or null.
 func (m *TMap[K, V]) del(k K) V {
-	if m.imm != nil {
+	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
 	i := m.find(k)
@@ -213,9 +233,13 @@ func (m *TMap[K, V]) delAt(i int) {
 		m.gone = make([]bool, len(m.keys), cap(m.keys))
 	}
 	m.gone[i] = true
-	var zk K
 	var zv V
-	m.keys[i], m.vals[i] = zk, zv
+	m.vals[i] = zv
+	if m.eq == nil || !m.eq.sorted {
+		// (a sorted map keeps the key at a dead position: the order of the positions)
+		var zk K
+		m.keys[i] = zk
+	}
 	m.live--
 }
 
@@ -244,7 +268,7 @@ func (m *TMap[K, V]) compact() {
 }
 
 func (m *TMap[K, V]) clear() {
-	if m.imm != nil {
+	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
 	clear(m.keys)
@@ -252,13 +276,15 @@ func (m *TMap[K, V]) clear() {
 	m.keys, m.vals = m.keys[:0], m.vals[:0]
 	m.gone = nil
 	m.idx = nil
-	m.eq = nil
+	if m.eq != nil && !m.eq.sorted {
+		m.eq = nil
+	}
 	m.live = 0
 }
 
 // putAllT is putAll of another typed map of the same types.
 func (m *TMap[K, V]) putAllT(o *TMap[K, V]) {
-	if m.imm != nil {
+	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
 	for i, k := range o.keys {
@@ -379,7 +405,7 @@ func (e *TEntry[K, V]) getValue() V {
 }
 
 func (e *TEntry[K, V]) setValue(v V) V {
-	if e.m.imm != nil {
+	if e.m.imm != nil && e.m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
 	old := e.getValue()
@@ -423,7 +449,7 @@ func (v *tentryView_[K, V]) toString() string {
 // code.
 func (m *TMap[K, V]) asMap() Map {
 	if m == nil || m.imm != nil {
-		return m.asImmMap()
+		return m.asOtherMap()
 	}
 	return &m.view
 }

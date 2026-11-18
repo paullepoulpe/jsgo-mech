@@ -99,7 +99,10 @@ final class Colls {
   Slot candidate(Element e, TypeMirror type, Ctx.CollKind kind) {
     List<TypeMirror> args = cx.typedArgs(kind, type);
     if (args == null) {
-      if (kind != null && kind != cx.entryKind) untypable.merge(kind.name + ": " + whyNot(kind, type), 1, Integer::sum);
+      if (kind != null && kind != cx.entryKind) {
+        untypable.merge(kind.name + ": " + whyNot(kind, type), 1, Integer::sum);
+        if ("2".equals(System.getenv("J2GO_COLLS"))) System.err.println("colls: no typed " + kind.name + " for " + e.getEnclosingElement() + "." + e + " of type " + type + ": " + whyNot(kind, type));
+      }
       return null;
     }
     Slot s = new Slot();
@@ -461,7 +464,14 @@ final class Colls {
             TypeMirror made = typeOf(x);
             TypeElement me = made == null ? null : Ctx.typeElement(cx.types.erasure(made));
             if (n.getClassBody() == null && me != null && s.kind.made.containsKey(me.getQualifiedName().toString()) && n.getArguments().size() <= 1) {
-              if (sameArgs(cx.typedArgs(s.kind, made), s.args)) {
+              // the constructors that the runtime has: (), (int), (Collection) or (Map), (Comparator)
+              boolean ctor = true;
+              if (n.getArguments().size() == 1 && elemOf(new TreePath(parent, x)) instanceof ExecutableElement ce && ce.getParameters().size() == 1) {
+                TypeMirror pt = cx.types.erasure(ce.getParameters().get(0).asType());
+                String pn = pt.getKind() == TypeKind.DECLARED ? Ctx.typeElement(pt).getQualifiedName().toString() : "";
+                ctor = pt.getKind() == TypeKind.INT || pn.equals(s.kind.fromType) || pn.equals("java.util.Comparator");
+              }
+              if (ctor && sameArgs(cx.typedArgs(s.kind, made), s.args)) {
                 s.made = true;
                 return;
               }
@@ -489,6 +499,11 @@ final class Colls {
             Element m = elemOf(new TreePath(new TreePath(parent, x), ((MethodInvocationTree) x).getMethodSelect()));
             if (s.kind.factory(m) != null && sameArgs(cx.typedArgs(s.kind, typeOf(x)), s.args)) {
               // ImmutableList.builder(): a new builder
+              s.made = true;
+              return;
+            }
+            if (cx.typedMaker(m, s.kind, s.args) != null) {
+              // a library method that makes a list for its caller (Splitter.splitToList)
               s.made = true;
               return;
             }
