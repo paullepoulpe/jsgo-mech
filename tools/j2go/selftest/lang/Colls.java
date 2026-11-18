@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -320,11 +322,110 @@ public class Colls {
     p(o + " " + (o instanceof List) + " " + ((List<?>) o).size() + " " + o.getClass().getSimpleName().isEmpty());
   }
 
+  // ---- sets: LinkedHashSets of Strings, of enums, of classes without equals
+  enum Color {
+    RED,
+    GREEN,
+    BLUE
+  }
+
+  static final class Plain {
+    final String name;
+
+    Plain(String name) {
+      this.name = name;
+    }
+
+    @Override
+    public String toString() {
+      return name;
+    }
+  }
+
+  private final Set<String> seen = new LinkedHashSet<>();
+  private final LinkedHashSet<Color> colors = new LinkedHashSet<>();
+  // stays erased: Derived has its own equals
+  private final Set<Base> byEquals = new LinkedHashSet<>();
+
+  static boolean both(Set<String> a, String x, String y) {
+    return a.contains(x) && a.contains(y);
+  }
+
+  static Set<Plain> plains(Plain... ps) {
+    Set<Plain> s = new LinkedHashSet<>();
+    for (Plain p : ps) {
+      s.add(p);
+    }
+    return s;
+  }
+
+  void sets() {
+    p(seen.add("a") + " " + seen.add("b") + " " + seen.add("a") + " " + seen.add(null) + " " + seen.add(null) + " " + seen.size() + " " + seen);
+    p(seen.contains("a") + " " + seen.contains("zz") + " " + seen.contains(null) + " " + both(seen, "a", "b") + " " + count(seen) + " " + seen.isEmpty());
+    Object key = "b";
+    Object other = 42;
+    p(seen.contains(key) + " " + seen.contains(other) + " " + seen.remove(other) + " " + seen.remove(key) + " " + seen.remove("b") + " " + seen.remove(null) + " " + seen);
+    for (int i = 0; i < 40; i++) {
+      seen.add("k" + i);
+    }
+    for (int i = 0; i < 40; i += 2) {
+      seen.remove("k" + i);
+    }
+    seen.add("z");
+    StringBuilder sb = new StringBuilder();
+    for (String s : seen) {
+      sb.append(s).append(' ');
+    }
+    p(sb + " " + seen.size() + " " + seen.contains("k1") + " " + seen.contains("k2"));
+    for (Iterator<String> it = seen.iterator(); it.hasNext(); ) {
+      if (it.next().startsWith("k")) {
+        it.remove();
+      }
+    }
+    Set<String> copy = new LinkedHashSet<>(seen);
+    copy.add("extra");
+    Set<String> fromList = new LinkedHashSet<>(Collections.nCopies(3, "dup"));
+    fromList.addAll(copy);
+    p(seen + " " + copy + " " + fromList + " " + copy.containsAll(seen) + " " + seen.equals(copy) + " " + copy.equals(fromList) + " " + (seen.hashCode() == copy.hashCode()));
+    Object o = seen;
+    Set<String> viaObject = (Set<String>) o;
+    viaObject.add("viaObject");
+    p(seen.contains("viaObject") + " " + (viaObject == seen) + " " + o.equals(seen) + " " + (asObject(seen) == same(seen)) + " " + seen.size());
+    seen.clear();
+    p(seen + " " + seen.isEmpty() + " " + seen.add("again") + " " + seen);
+    colors.add(Color.BLUE);
+    colors.add(Color.RED);
+    colors.add(Color.BLUE);
+    p(colors + " " + colors.contains(Color.RED) + " " + colors.contains(Color.GREEN) + " " + colors.remove(Color.BLUE) + " " + colors);
+    Plain x = new Plain("x");
+    Plain y = new Plain("y");
+    Set<Plain> ps = plains(x, y, x, null);
+    p(ps + " " + ps.size() + " " + ps.contains(x) + " " + ps.contains(new Plain("x")) + " " + ps.contains(null) + " " + ps.remove(y) + " " + ps);
+    Derived d = new Derived(1);
+    byEquals.add(d);
+    byEquals.add(new Derived(1));
+    byEquals.add(new Base(1));
+    p(byEquals.size() + " " + byEquals.contains(new Derived(1)) + " " + byEquals.contains(new Base(1)));
+    Set<String> none = null;
+    p(none == null);
+    p(fail(() -> none.contains("a")));
+    p(fail(() -> {
+      for (String s : none) {
+        p(s);
+      }
+    }));
+    Set<Integer> ints = new LinkedHashSet<>();
+    ints.add(3);
+    ints.add(3);
+    p(ints);
+  }
+
   public static String run() {
     new Colls().fields();
     locals(true);
     locals(false);
     methods();
+    new Colls().sets();
     return out.toString();
   }
 

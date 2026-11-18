@@ -98,12 +98,14 @@ public final class Main {
   static List<JavaFileObject> withStubs(Iterable<? extends JavaFileObject> files) {
     List<JavaFileObject> out = new ArrayList<>();
     for (JavaFileObject f : files) out.add(f);
-    out.add(new SimpleJavaFileObject(java.net.URI.create("string:///j2go/rt/TList.java"), JavaFileObject.Kind.SOURCE) {
-      @Override
-      public CharSequence getCharContent(boolean ignoreEncodingErrors) {
-        return Ctx.TLIST_STUB;
-      }
-    });
+    for (var e : Ctx.STUBS.entrySet()) {
+      out.add(new SimpleJavaFileObject(java.net.URI.create("string:///j2go/rt/" + e.getKey() + ".java"), JavaFileObject.Kind.SOURCE) {
+        @Override
+        public CharSequence getCharContent(boolean ignoreEncodingErrors) {
+          return e.getValue();
+        }
+      });
+    }
     return out;
   }
 
@@ -122,7 +124,7 @@ public final class Main {
         withStubs(fm.getJavaFileObjectsFromFiles(files)));
     List<CompilationUnitTree> units = new ArrayList<>();
     for (CompilationUnitTree cu : task.parse()) {
-      // the translator's own stub classes (Ctx.TLIST_STUB) are library classes: not translated
+      // the translator's own stub classes (Ctx.STUBS) are library classes: not translated
       if (!cu.getSourceFile().getName().startsWith("/j2go/rt/")) units.add(cu);
     }
     task.analyze();

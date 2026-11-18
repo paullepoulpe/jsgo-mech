@@ -7,32 +7,37 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.*;
 
 /**
- * Rule "typed collections": decides, declaration by declaration, which fields and local
- * variables of type List<X> / ArrayList<X> hold a typed list (*TList[X], rt_tlist.go) instead of
- * the erased ArrayList.
+ * Rule "typed collections": decides, declaration by declaration, which fields, local variables,
+ * parameters and method results of a collection type hold the runtime's typed collection
+ * instead of the erased one: a *TList[X] (rt_tlist.go) for List<X> / ArrayList<X>, a *TSet[X]
+ * (rt_tset.go) for Set<X> / HashSet<X> / LinkedHashSet<X> (Ctx.collKinds).
  *
  * A declaration is typed when
  * - X is a type that has one Go type and no type arguments (a String, a class, an interface, a
- *   handle);
- * - every value that enters it is `new ArrayList<>()`, `new ArrayList<>(n)`,
- *   `new ArrayList<>(collection)`, null, or the value of another typed declaration (so the
- *   declaration never holds a list that erased code made); and
- * - every use of it is one the typed list or its erased view serves as the ArrayList did: a
- *   call of a List method (not subList, listIterator, getClass: the view is not an ArrayList
- *   there), a for-each loop, ==, a string concatenation, or a place of a type the view has (a
- *   variable, parameter, result or cast of type List, Collection, Iterable, Object or a type
- *   variable) -- not a place that wants the class ArrayList itself, unless that place is a typed
- *   declaration too.
+ *   handle); for a set, one whose Go == is Java's equals (Ctx.goEquals);
+ * - every value that enters it is a new collection of its kind (`new ArrayList<>()`,
+ *   `new ArrayList<>(n)`, `new ArrayList<>(collection)`; `new LinkedHashSet<>(..)`), null, or
+ *   the value of another typed declaration (so the declaration never holds a collection that
+ *   erased code made); an argument enters the parameter, a returned expression the result; and
+ * - every use of it is one the typed collection or its erased view serves as the Java class
+ *   did: a call of a List / Set method (not subList, listIterator, getClass: the view is not
+ *   the Java class there), a for-each loop, ==, a string concatenation, or a place of a type
+ *   the view has (a variable, parameter, result or cast of type List / Set, Collection,
+ *   Iterable, Object or a type variable) -- not a place that wants the class (ArrayList,
+ *   LinkedHashSet) itself, unless that place is a typed declaration too.
+ * Parameters and results are those of methods whose signature is their own (closedMethod).
  *
- * Java's behaviour is kept: the list is one object wherever it goes (TList.asList() is its one
- * view), null is nil, and the view implements List as ArrayList in rt_coll.go does.
- * J2GO_COLLS=1 reports every declaration and why it stays erased; J2GO_ERASED=1 skips the rule.
+ * Java's behaviour is kept: the collection is one object wherever it goes (asList() / asSet()
+ * is its one view), null is nil, and the view implements List / Set as the erased class in
+ * rt_coll.go does. J2GO_COLLS=1 reports the counts and why declarations stay erased,
+ * J2GO_COLLS=2 every declaration; J2GO_ERASED=1 skips the rule.
  */
 final class Colls {
   final Ctx cx;
   final Trees trees;
 
   static final class Slot {
+    Ctx.CollKind kind;
     Element v;  // a field, a local variable, a parameter; or a method, for its result
     TypeMirror elem;
     String why;
@@ -50,8 +55,11 @@ final class Colls {
     this.trees = trees;
   }
 
-  static final Set<String> VIEW_TYPES = Set.of("java.util.List", "java.util.Collection", "java.lang.Iterable", "java.util.SequencedCollection", "java.lang.Object");
   static final Set<String> NOT_ON_VIEW = Set.of("subList", "listIterator", "getClass", "wait", "notify", "notifyAll", "reversed", "spliterator");
+
+  boolean same(Slot a, Slot b) {
+    return a.kind == b.kind && cx.types.isSameType(a.elem, b.elem);
+  }
 
   void poison(Slot s, String why) {
     if (s.why == null) s.why = why;
@@ -63,9 +71,10 @@ final class Colls {
   }
 
   Slot candidate(Element e, TypeMirror type) {
-    TypeMirror elem = cx.tlistElem(type);
+    TypeMirror elem = cx.typedElem(type);
     if (elem == null) return null;
     Slot s = new Slot();
+    s.kind = cx.collKindOf(type);
     s.v = e;
     s.elem = elem;
     slots.put(e, s);
@@ -119,8 +128,8 @@ final class Colls {
           candidate(m, m.getReturnType());
         } else if (e instanceof ExecutableElement m) {
           // not candidates: the signature belongs to a group of overriding methods (or to a lambda's interface)
-          if (cx.tlistElem(m.getReturnType()) != null) openResults++;
-          for (VariableElement p : m.getParameters()) if (cx.tlistElem(p.asType()) != null) openParams++;
+          if (cx.typedElem(m.getReturnType()) != null) openResults++;
+          for (VariableElement p : m.getParameters()) if (cx.typedElem(p.asType()) != null) openParams++;
         }
         return super.visitMethod(t, v);
       }
@@ -203,8 +212,8 @@ final class Colls {
             NewClassTree n = (NewClassTree) x;
             TypeMirror made = typeOf(x);
             TypeElement me = made == null ? null : Ctx.typeElement(cx.types.erasure(made));
-            if (n.getClassBody() == null && me != null && me.getQualifiedName().contentEquals("java.util.ArrayList") && n.getArguments().size() <= 1) {
-              TypeMirror elem = cx.tlistElem(made);
+            if (n.getClassBody() == null && me != null && s.kind.made.containsKey(me.getQualifiedName().toString()) && n.getArguments().size() <= 1) {
+              TypeMirror elem = cx.typedElem(made);
               if (elem != null && cx.types.isSameType(elem, s.elem)) {
                 s.made = true;
                 return;
@@ -215,7 +224,7 @@ final class Colls {
           }
           case IDENTIFIER, MEMBER_SELECT: {
             Slot from = slotOf(x, parent);
-            if (from != null && cx.types.isSameType(from.elem, s.elem)) {
+            if (from != null && same(from, s)) {
               from.taints.add(s);
               s.made = true;
               return;
@@ -225,7 +234,7 @@ final class Colls {
           }
           case METHOD_INVOCATION: {
             Slot from = slotOf(x, parent);
-            if (from != null && cx.types.isSameType(from.elem, s.elem)) {
+            if (from != null && same(from, s)) {
               from.taints.add(s);
               s.made = true;
               return;
@@ -242,8 +251,8 @@ final class Colls {
       /** The value of s reaches a place of type target (target slot ts, if the place is a candidate). */
       void escape(Slot s, TypeMirror target, Slot ts) {
         TypeElement te = target == null ? null : Ctx.typeElement(cx.types.erasure(target));
-        if (te != null && VIEW_TYPES.contains(te.getQualifiedName().toString())) return;
-        if (ts != null && cx.types.isSameType(ts.elem, s.elem)) {
+        if (te != null && s.kind.viewTypes.contains(te.getQualifiedName().toString())) return;
+        if (ts != null && same(ts, s)) {
           ts.taints.add(s);  // an ArrayList variable: it takes the typed list or s stays erased
           return;
         }
@@ -302,9 +311,8 @@ final class Colls {
             poison(s, "used as " + parent);
             return;
           }
-          if (cx.tlistMethod(me) != null) return;
           TypeElement ro = cx.ownerOf(cx.root(me));
-          if (!VIEW_TYPES.contains(ro.getQualifiedName().toString()) || NOT_ON_VIEW.contains(me.getSimpleName().toString())) {
+          if (!s.kind.viewTypes.contains(ro.getQualifiedName().toString()) || NOT_ON_VIEW.contains(me.getSimpleName().toString())) {
             poison(s, "method " + ro.getSimpleName() + "." + me.getSimpleName());
           }
           return;
@@ -450,30 +458,30 @@ final class Colls {
         }
       }
     }
-    int typed = 0, fields = 0, params = 0, results = 0;
+    Map<String, int[]> counts = new TreeMap<>();
     Map<String, Integer> whys = new TreeMap<>(), elems = new TreeMap<>();
     boolean report = System.getenv("J2GO_COLLS") != null;
     for (Slot s : slots.values()) {
+      int[] n = counts.computeIfAbsent(s.kind.name, k -> new int[6]);
+      n[0]++;
       if (s.why != null) {
-        whys.merge(s.why.replaceAll("exchanges values with .*", "exchanges values with an erased declaration"), 1, Integer::sum);
-        if ("2".equals(System.getenv("J2GO_COLLS"))) System.err.println("colls: erased " + s.v.getEnclosingElement() + "." + s.v + ": " + s.why);
+        whys.merge(s.kind.name + ": " + s.why.replaceAll("exchanges values with .*", "exchanges values with an erased declaration"), 1, Integer::sum);
+        if ("2".equals(System.getenv("J2GO_COLLS"))) System.err.println("colls: erased " + s.kind.name + " " + s.v.getEnclosingElement() + "." + s.v + ": " + s.why);
         continue;
       }
-      typed++;
-      if (s.v.getKind() == ElementKind.FIELD) fields++;
-      if (s.v.getKind() == ElementKind.PARAMETER) params++;
-      elems.merge(s.elem.toString(), 1, Integer::sum);
-      TypeMirror t = cx.tlistOf(s.elem);
-      if (s.v instanceof ExecutableElement m) {
-        results++;
-        cx.typedResults.put(m, t);
-      } else {
-        cx.refinedVars.put(s.v, t);
-      }
+      n[1]++;
+      n[s.v.getKind() == ElementKind.FIELD ? 2 : s.v.getKind() == ElementKind.PARAMETER ? 4 : s.v instanceof ExecutableElement ? 5 : 3]++;
+      elems.merge(s.kind.name + " of " + s.elem, 1, Integer::sum);
+      TypeMirror t = cx.typedOf(s.kind, s.elem);
+      if (s.v instanceof ExecutableElement m) cx.typedResults.put(m, t);
+      else cx.refinedVars.put(s.v, t);
       for (Tree u : s.uses) cx.refinedTrees.put(u, t);
     }
-    System.err.println("typed collections: " + typed + " of " + slots.size() + " List/ArrayList declarations are typed lists (" + fields + " fields, "
-        + (typed - fields - params - results) + " locals, " + params + " parameters, " + results + " results)");
+    for (var e : counts.entrySet()) {
+      int[] n = e.getValue();
+      System.err.println("typed collections: " + n[1] + " of " + n[0] + " " + e.getKey() + " declarations are typed (" + n[2] + " fields, " + n[3] + " locals, "
+          + n[4] + " parameters, " + n[5] + " results)");
+    }
     if (report) {
       System.err.println("colls: not candidates: " + openParams + " parameters and " + openResults + " results of methods in groups of overriding methods");
       List<Map.Entry<String, Integer>> l = new ArrayList<>(whys.entrySet());

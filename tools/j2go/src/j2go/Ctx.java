@@ -157,14 +157,17 @@ final class Ctx {
 
   /**
    * Typed collections (rule "typed collections", Colls): a declaration (a field, a local
-   * variable) of type List<X> or ArrayList<X> that only ever holds lists the program makes
-   * there (`new ArrayList<>(..)`, null, or the value of another such declaration) holds a
-   * *TList[X] (rt_tlist.go), whose elements are X values, not boxes. The translator sees such a
-   * declaration, and the expressions that read it, at the type TList<X> of a class that exists
-   * for it alone (TLIST_STUB: the typed methods of the runtime's TList); every other site
-   * that the list reaches sees it as Java's List through its one erased view (asList()).
+   * variable, a parameter or the result of a method) of a collection type that only ever holds
+   * collections the program makes for it (`new ArrayList<>(..)`, null, or the value of another
+   * such declaration) holds the runtime's typed collection (*TList[X], *TSet[X]; rt_tlist.go,
+   * rt_tset.go), whose elements are X values, not boxes. The translator sees such a declaration,
+   * and the expressions that read it, at the type TList<X> / TSet<X> of a class that exists for
+   * it alone (STUBS: the typed methods of the runtime's type); every other site that the
+   * collection reaches sees it as Java's List / Set through its one erased view (asList(),
+   * asSet()).
    */
-  static final String TLIST_STUB = """
+  static final Map<String, String> STUBS = Map.of(
+      "TList", """
       package j2go.rt;
       public final class TList<T> {
         public native int size();
@@ -177,26 +180,87 @@ final class Ctx {
         public native void clear();
         public native java.util.Iterator<T> iterator();
       }
-      """;
-  TypeElement tlist;
+      """,
+      "TSet", """
+      package j2go.rt;
+      public final class TSet<T> {
+        public native int size();
+        public native boolean isEmpty();
+        public native boolean add(T v);
+        public native boolean has(T v);
+        public native boolean del(T v);
+        public native void clear();
+        public native java.util.Iterator<T> iterator();
+      }
+      """);
+
+  /** One kind of typed collection. */
+  static final class CollKind {
+    final String name;  // list, set
+    TypeElement stub;  // TList, TSet
+    final String view, viewType;  // asList, java.util.List
+    /** The types of the declarations that can hold one. */
+    final Set<String> declared;
+    /** The classes whose `new` makes one, each with the name its runtime functions carry (newT<x>_, t<x>From_, t<x>Copy_). */
+    final Map<String, String> made;
+    /** The types of the places that its erased view serves. */
+    final Set<String> viewTypes;
+
+    CollKind(String name, String view, String viewType, Set<String> declared, Map<String, String> made, Set<String> viewTypes) {
+      this.name = name;
+      this.view = view;
+      this.viewType = viewType;
+      this.declared = declared;
+      this.made = made;
+      this.viewTypes = viewTypes;
+    }
+  }
+
+  final List<CollKind> collKinds = new ArrayList<>();
 
   void registerTypedColls() {
-    tlist = elems.getTypeElement("j2go.rt.TList");
-    if (tlist == null) return;
-    typedClasses.add(tlist);
-    keptVars.addAll(tlist.getTypeParameters());
+    CollKind list = new CollKind("list", "asList", "java.util.List", Set.of("java.util.List", "java.util.ArrayList"),
+        Map.of("java.util.ArrayList", "List"),
+        Set.of("java.util.List", "java.util.Collection", "java.lang.Iterable", "java.util.SequencedCollection", "java.lang.Object"));
+    CollKind set = new CollKind("set", "asSet", "java.util.Set", Set.of("java.util.Set", "java.util.HashSet", "java.util.LinkedHashSet"),
+        Map.of("java.util.LinkedHashSet", "Set"),
+        Set.of("java.util.Set", "java.util.Collection", "java.lang.Iterable", "java.lang.Object"));
+    list.stub = elems.getTypeElement("j2go.rt.TList");
+    set.stub = elems.getTypeElement("j2go.rt.TSet");
+    for (CollKind k : List.of(list, set)) {
+      if (k.stub == null) continue;
+      if (k == set && "1".equals(System.getenv("J2GO_COLLS_NOSETS"))) continue;
+      collKinds.add(k);
+      typedClasses.add(k.stub);
+      keptVars.addAll(k.stub.getTypeParameters());
+    }
   }
 
-  boolean isTList(TypeMirror t) {
-    return tlist != null && t != null && t.getKind() == TypeKind.DECLARED && tlist.equals(typeElement(t));
-  }
-
-  /** The element type of a List/ArrayList type that a typed list can hold, or null. */
-  TypeMirror tlistElem(TypeMirror t) {
+  /** The kind of typed collection that type t (TList<X>, TSet<X>) is, or null. */
+  CollKind typedColl(TypeMirror t) {
     if (t == null || t.getKind() != TypeKind.DECLARED) return null;
+    TypeElement te = typeElement(t);
+    for (CollKind k : collKinds) if (k.stub.equals(te)) return k;
+    return null;
+  }
+
+  boolean isTypedColl(TypeMirror t) {
+    return typedColl(t) != null;
+  }
+
+  /** The kind of typed collection that a declaration of type t (List<X>, HashSet<X>) can hold, or null. */
+  CollKind collKindOf(TypeMirror t) {
+    if (t == null || t.getKind() != TypeKind.DECLARED) return null;
+    String qn = typeElement(t).getQualifiedName().toString();
+    for (CollKind k : collKinds) if (k.declared.contains(qn)) return k;
+    return null;
+  }
+
+  /** The element type of a collection type that a typed collection of its kind can hold, or null. */
+  TypeMirror typedElem(TypeMirror t) {
+    CollKind ck = collKindOf(t);
+    if (ck == null) return null;
     DeclaredType d = (DeclaredType) t;
-    String qn = typeElement(d).getQualifiedName().toString();
-    if (!qn.equals("java.util.List") && !qn.equals("java.util.ArrayList")) return null;
     if (d.getTypeArguments().size() != 1) return null;
     TypeMirror a = d.getTypeArguments().get(0);
     if (a.getKind() != TypeKind.DECLARED || !((DeclaredType) a).getTypeArguments().isEmpty()) return null;
@@ -206,35 +270,85 @@ final class Ctx {
     if (k != K.STR && k != K.CLS && k != K.IFACE) return null;
     if (isSource(ae) && (ae.getNestingKind() == NestingKind.LOCAL || ae.getNestingKind() == NestingKind.ANONYMOUS)) return null;
     if (isValueLib(ae)) return null;
+    if (ck.name.equals("set") && !goEquals(ae)) return null;
     return a;
   }
 
-  /** TList<elem>. */
-  TypeMirror tlistOf(TypeMirror elem) {
-    return types.getDeclaredType(tlist, elem);
+  private final Map<TypeElement, Boolean> goEqualsCache = new HashMap<>();
+
+  /**
+   * Whether Go's == on values of class te is Java's equals (and so finds an element of a hash
+   * set exactly when Java does): a String, an enum, or a class of the program (a handle class
+   * too: its number) that inherits Object's equals and hashCode, as every subclass of it does.
+   */
+  boolean goEquals(TypeElement te) {
+    if (te.getQualifiedName().contentEquals("java.lang.String")) return true;
+    if (!isSource(te)) return false;
+    Boolean c = goEqualsCache.get(te);
+    if (c != null) return c;
+    boolean ok = te.getKind() == ElementKind.ENUM || te.getKind() == ElementKind.CLASS && !ownEquals(te, true) && !ownEquals(te, false);
+    goEqualsCache.put(te, ok);
+    return ok;
   }
 
-  /** List<X> for a TList<X>: the type its erased view has. */
-  TypeMirror tlistView(TypeMirror t) {
-    return types.getDeclaredType(elems.getTypeElement("java.util.List"), ((DeclaredType) t).getTypeArguments().get(0));
+  /** Whether te, a superclass of it (up) or a subclass of it (down) declares equals or hashCode, or is not a class of the program. */
+  private boolean ownEquals(TypeElement te, boolean up) {
+    if (te.getQualifiedName().contentEquals("java.lang.Object")) return false;
+    if (!isSource(te) || te.getKind() != ElementKind.CLASS) return true;
+    for (Element e : te.getEnclosedElements()) {
+      if (e instanceof ExecutableElement m && !m.getModifiers().contains(Modifier.STATIC)
+          && (m.getSimpleName().contentEquals("equals") && m.getParameters().size() == 1 || m.getSimpleName().contentEquals("hashCode") && m.getParameters().isEmpty())) return true;
+    }
+    if (up) {
+      TypeElement sup = superclass(te);
+      return sup != null && ownEquals(sup, true);
+    }
+    for (TypeElement sub : subclasses.getOrDefault(te, List.of())) if (ownEquals(sub, false)) return true;
+    return false;
   }
 
-  /** The typed method of TList that implements method m of List/ArrayList (by name and arity), or null. */
-  ExecutableElement tlistMethod(ExecutableElement m) {
+  /** The typed collection type of kind k with elements elem: TList<elem>. */
+  TypeMirror typedOf(CollKind k, TypeMirror elem) {
+    return types.getDeclaredType(k.stub, elem);
+  }
+
+  /** The type the erased view of typed collection type t has: List<X> for a TList<X>. */
+  TypeMirror typedView(TypeMirror t) {
+    return types.getDeclaredType(elems.getTypeElement(typedColl(t).viewType), ((DeclaredType) t).getTypeArguments().get(0));
+  }
+
+  /**
+   * The typed method of typed collection type recv that implements method m of its Java type,
+   * called with arguments of types args; null if the view serves the call.
+   */
+  ExecutableElement typedMethod(TypeMirror recv, ExecutableElement m, List<TypeMirror> args) {
+    CollKind ck = typedColl(recv);
     String n = m.getSimpleName().toString();
     int np = m.getParameters().size();
     boolean int0 = np > 0 && m.getParameters().get(0).asType().getKind() == TypeKind.INT;
-    String tn;
-    switch (n + "/" + np) {
-      case "size/0", "isEmpty/0", "clear/0", "set/2", "iterator/0": tn = n; break;
-      case "get/1": tn = int0 ? n : null; break;
-      case "add/1": tn = n; break;
-      case "add/2": tn = "insert"; break;
-      case "remove/1": tn = int0 ? "removeAt" : null; break;
-      default: tn = null;
+    String tn = null;
+    if (ck.name.equals("list")) {
+      switch (n + "/" + np) {
+        case "size/0", "isEmpty/0", "clear/0", "set/2", "iterator/0", "add/1": tn = n; break;
+        case "get/1": tn = int0 ? n : null; break;
+        case "add/2": tn = "insert"; break;
+        case "remove/1": tn = int0 ? "removeAt" : null; break;
+        default: break;
+      }
+    } else {
+      // contains and remove take an Object: typed when the argument is an element by its static type
+      TypeMirror elem = ((DeclaredType) recv).getTypeArguments().get(0);
+      boolean elemArg = args != null && args.size() == 1 && args.get(0) != null
+          && (args.get(0).getKind() == TypeKind.NULL || types.isSubtype(types.erasure(args.get(0)), types.erasure(elem)));
+      switch (n + "/" + np) {
+        case "size/0", "isEmpty/0", "clear/0", "iterator/0", "add/1": tn = n; break;
+        case "contains/1": tn = elemArg ? "has" : null; break;
+        case "remove/1": tn = elemArg ? "del" : null; break;
+        default: break;
+      }
     }
     if (tn == null) return null;
-    for (Element e : tlist.getEnclosedElements()) {
+    for (Element e : ck.stub.getEnclosedElements()) {
       if (e instanceof ExecutableElement t && t.getSimpleName().contentEquals(tn)) return t;
     }
     return null;
@@ -857,7 +971,7 @@ final class Ctx {
     List<? extends TypeMirror> args = ((DeclaredType) t).getTypeArguments();
     TypeElement te = typeElement(erase(t));
     K k = kind(erase(t));
-    if (args.isEmpty() || te == null || isSource(te) || isValueLib(te) || te.equals(tlist) || (k != K.CLS && k != K.IFACE)) return g;
+    if (args.isEmpty() || te == null || isSource(te) || isValueLib(te) || isTypedColl(t) || (k != K.CLS && k != K.IFACE)) return g;
     String alias = className(te) + "Of";
     StringBuilder ps = new StringBuilder(), as = new StringBuilder();
     for (int i = 0; i < args.size(); i++) {
@@ -950,13 +1064,14 @@ final class Ctx {
     String gf = goType(from), gt = goType(to);
     if (gf.equals(gt)) return code;
     TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
-    // A typed list meets every other type as Java's List, through its erased view (the one
-    // object that erased code sees); nothing but a typed list of the same type becomes one.
-    if (isTList(from)) {
-      if (isTList(to)) throw new IllegalStateException("typed lists of two types: " + gf + " to " + gt);
-      return coerce(code + ".asList()", tlistView(from), to);
+    // A typed collection meets every other type as Java's List or Set, through its erased view
+    // (the one object that erased code sees); nothing but a typed collection of the same type
+    // becomes one.
+    if (isTypedColl(from)) {
+      if (isTypedColl(to)) throw new IllegalStateException("typed collections of two types: " + gf + " to " + gt);
+      return coerce(code + "." + typedColl(from).view + "()", typedView(from), to);
     }
-    if (isTList(to)) throw new IllegalStateException("a value of type " + from + " cannot become the typed list " + gt);
+    if (isTypedColl(to)) throw new IllegalStateException("a value of type " + from + " cannot become the typed collection " + gt);
     // A value library class: between two instantiations the content is converted; from an
     // object it is unboxed (nil is null, the zero value).
     if (isValueLibType(to)) {

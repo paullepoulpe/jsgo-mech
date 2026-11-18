@@ -186,8 +186,8 @@ abstract class ExprEmitter extends Base {
   String exprAs(ExpressionTree t, TypeMirror target) {
     TypeMirror from = typeOf(t);
     target = cx.erase(target);
-    if (cx.isTList(target)) {
-      String made = newTList(strip(t), target);
+    if (cx.isTypedColl(target)) {
+      String made = newTyped(strip(t), target);
       if (made != null) return made;
     }
     Ctx.K kt = cx.kind(target);
@@ -239,21 +239,24 @@ abstract class ExprEmitter extends Base {
   }
 
   /**
-   * `new ArrayList<>(..)` where a typed list is wanted (rule "typed collections"): the runtime's
-   * typed list with the conversion of its element type; null for any other expression.
+   * `new ArrayList<>(..)` or `new HashSet<>(..)` where a typed collection is wanted (rule "typed
+   * collections"): the runtime's typed collection with the conversion of its element type; null
+   * for any other expression.
    */
-  String newTList(ExpressionTree t, TypeMirror target) {
+  String newTyped(ExpressionTree t, TypeMirror target) {
     if (!(t instanceof NewClassTree n) || n.getClassBody() != null) return null;
     TypeElement made = Ctx.typeElement(cx.erase(typeOf(t)));
-    if (made == null || !made.getQualifiedName().contentEquals("java.util.ArrayList")) return null;
+    String fn = made == null ? null : cx.typedColl(target).made.get(made.getQualifiedName().toString());
+    if (fn == null) return null;
     String tc = cx.tconv(((DeclaredType) target).getTypeArguments().get(0));
     List<? extends ExpressionTree> as = n.getArguments();
-    if (as.isEmpty()) return "newTList_(" + tc + ")";
+    if (as.isEmpty()) return "newT" + fn + "_(" + tc + ")";
     ExpressionTree a = as.get(0);
     TypeMirror at = typeOf(a);
-    if (at.getKind() == TypeKind.INT) return "newTListN_(" + tc + ", " + exprAs(a, at) + ")";
-    if (cx.isTList(at) && cx.goType(at).equals(cx.goType(target))) return "tlistCopy_(" + tc + ", " + expr(a) + ")";
-    return "tlistFrom_(" + tc + ", " + exprAs(a, cx.elems.getTypeElement("java.util.Collection").asType()) + ")";
+    String lower = "t" + Character.toLowerCase(fn.charAt(0)) + fn.substring(1);
+    if (at.getKind() == TypeKind.INT) return "newT" + fn + "N_(" + tc + ", " + exprAs(a, at) + ")";
+    if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return lower + "Copy_(" + tc + ", " + expr(a) + ")";
+    return lower + "From_(" + tc + ", " + exprAs(a, cx.elems.getTypeElement("java.util.Collection").asType()) + ")";
   }
 
   String cond(ExpressionTree t) {
@@ -1009,15 +1012,17 @@ abstract class ExprEmitter extends Base {
       return new CallResult(name + "(" + argList(e, params, args) + ")", ret);
     }
     if (recv == null) recv = implicitRecv(owner);
-    if (cx.isTList(recv.type) && !superCall) {
-      // A typed list: its typed method, or the List method on its erased view.
-      ExecutableElement tm = cx.tlistMethod(e);
+    if (cx.isTypedColl(recv.type) && !superCall) {
+      // A typed collection: its typed method, or the method of List or Set on its erased view.
+      List<TypeMirror> ats = new ArrayList<>();
+      for (Arg a : args) ats.add(a.type);
+      ExecutableElement tm = cx.typedMethod(recv.type, e, ats);
       if (tm != null) {
         e = tm;
-        owner = cx.tlist;
+        owner = cx.ownerOf(tm);
         src = false;
       } else {
-        TypeMirror view = cx.tlistView(recv.type);
+        TypeMirror view = cx.typedView(recv.type);
         recv = new Recv(cx.coerce(recv.code, recv.type, view), view);
       }
     }
@@ -1187,7 +1192,7 @@ abstract class ExprEmitter extends Base {
     if (!(el instanceof ExecutableElement e)) throw unsupported(t, "unresolved call " + sel);
     List<Arg> as = args(t.getArguments());
     curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
-    retOverride = e.getModifiers().contains(Modifier.STATIC) && !cx.isTList(cx.refinedTrees.get(t)) ? cx.refinedTrees.get(t) : null;
+    retOverride = e.getModifiers().contains(Modifier.STATIC) && !cx.isTypedColl(cx.refinedTrees.get(t)) ? cx.refinedTrees.get(t) : null;
     if (sel instanceof MemberSelectTree ms) {
       ExpressionTree q = ms.getExpression();
       if (e.getModifiers().contains(Modifier.STATIC)) return special(e, null, as);
@@ -1209,7 +1214,7 @@ abstract class ExprEmitter extends Base {
       // the receiver's code first: a call in it sets curInst for itself
       String rcode = expr(q);
       curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
-      retOverride = e.getModifiers().contains(Modifier.STATIC) && !cx.isTList(cx.refinedTrees.get(t)) ? cx.refinedTrees.get(t) : null;
+      retOverride = e.getModifiers().contains(Modifier.STATIC) && !cx.isTypedColl(cx.refinedTrees.get(t)) ? cx.refinedTrees.get(t) : null;
       return special(e, new Recv(rcode, qt), as);
     }
     return special(e, null, as);

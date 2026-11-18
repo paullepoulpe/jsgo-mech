@@ -57,16 +57,17 @@ type each_ struct {
 	v    any      // the current element
 	src  *[]any   // the collection is one of: a slice (the list's own, read anew at each step),
 	t    *htable_ // a hash table (keys, values or entries according to mode),
-	at   listAt_  // the erased view of a typed list (rt_tlist.go), read by position,
+	at   stepper_ // the erased view of a typed collection (rt_tlist.go, rt_tset.go),
 	it   Iterator // or something with an iterator
 	i    int
 	mode int8
 }
 
-// listAt_ is a list that a for-each cursor reads by position, as it reads an ArrayList's slice.
-type listAt_ interface {
-	len_() int
-	at_(i int) any
+// stepper_ is a collection that a for-each cursor reads by position, as it reads the runtime's
+// own: step_(i) is the element at or after position i with the position to go on from, or a
+// negative position when there is none.
+type stepper_ interface {
+	step_(i int) (v any, next int)
 }
 
 func foreach_(c any) each_ {
@@ -87,7 +88,7 @@ func foreach_(c any) each_ {
 		return each_{t: x.t(), mode: hvals_}
 	case *mapEntries_:
 		return each_{t: x.t(), mode: hentries_}
-	case listAt_:
+	case stepper_:
 		return each_{at: x}
 	case nil:
 		panic(new_NullPointerException_0().self())
@@ -128,12 +129,12 @@ func (e *each_) more() bool {
 		return false
 	}
 	if l := e.at; l != nil {
-		if e.i < l.len_() {
-			e.v = l.at_(e.i)
-			e.i++
-			return true
+		v, next := l.step_(e.i)
+		if next < 0 {
+			return false
 		}
-		return false
+		e.v, e.i = v, next
+		return true
 	}
 	if e.it.hasNext() {
 		e.v = e.it.next()
@@ -1687,6 +1688,9 @@ func Collection_add_s(c any, k string) bool {
 	if x, ok := c.(*LinkedHashSet); ok && x != nil && k != nullstr_ {
 		return x.t().addStr(k)
 	}
+	if x, ok := c.(interface{ add_s(string) bool }); ok {
+		return x.add_s(k) // the erased view of a typed set (rt_tset.go)
+	}
 	return asColl_(c).add(strobj_(k))
 }
 
@@ -1694,6 +1698,9 @@ func Collection_remove_s(c any, k string) bool {
 	if t := hashSetOf_(c); t != nil && k != nullstr_ {
 		_, existed := t.removeStr(k)
 		return existed
+	}
+	if x, ok := c.(interface{ remove_s(string) bool }); ok {
+		return x.remove_s(k) // the erased view of a typed set (rt_tset.go)
 	}
 	return asColl_(c).remove_Object(strobj_(k))
 }

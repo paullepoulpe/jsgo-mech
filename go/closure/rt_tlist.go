@@ -172,9 +172,13 @@ func (v *tlistView_[T]) boxed() []any {
 	return out
 }
 
-// len_ and at_ are for the cursor of a for-each loop in erased code (foreach_).
-func (v *tlistView_[T]) len_() int     { return len(v.l.items) }
-func (v *tlistView_[T]) at_(i int) any { return v.l.c.box(v.l.items[i]) }
+// step_ is for the cursor of a for-each loop in erased code (foreach_).
+func (v *tlistView_[T]) step_(i int) (any, int) {
+	if i < len(v.l.items) {
+		return v.l.c.box(v.l.items[i]), i + 1
+	}
+	return nil, -1
+}
 
 // goName_ makes getClass() of the view java.util.ArrayList, the class of the Java object.
 func (v *tlistView_[T]) goName_() string { return "ArrayList" }

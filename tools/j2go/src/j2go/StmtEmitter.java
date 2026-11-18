@@ -457,8 +457,8 @@ abstract class StmtEmitter extends ExprEmitter {
         head = "for _, " + tmp + " := range " + src + " ";
         bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(tmp, comp, vt) + "\n";
       }
-    } else if (cx.isTList(et)) {
-      // A typed list: the cursor reads its items as they are, unboxed.
+    } else if (cx.isTypedColl(et)) {
+      // A typed collection: the cursor reads its elements as they are, unboxed.
       TypeMirror comp = ((DeclaredType) et).getTypeArguments().get(0);
       String it = fresh("it");
       lab = enter("loop");
