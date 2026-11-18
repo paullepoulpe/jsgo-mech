@@ -143,7 +143,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve(e *Export) *Unre
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolveForClosure(namespace string) *UnresolvedModule {
-	return this.outer_.unresolvedModulesByClosureNamespace.computeIfAbsent(namespace, &Function_tfn_string_any{func(p0 string) any { return this.getFallbackForMissingClosureModule(p0).self() }})
+	return this.outer_.unresolvedModulesByClosureNamespace.ComputeIfAbsentObj(namespace, func(p0 string) any { return this.getFallbackForMissingClosureModule(p0).self() })
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve_3(moduleRequest string, modulePath *ModuleLoader_ModulePath, forLineInfo Node) *UnresolvedModule {

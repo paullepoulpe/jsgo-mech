@@ -61,9 +61,9 @@ func (this *PreprocessorSymbolTable) addReference(node Node) {
 }
 
 func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
-	this.symbols.computeIfAbsent(name, &Function_tfn_string_any{func(k string) any {
+	this.symbols.ComputeIfAbsentObj(name, func(k string) any {
 		return new_SimpleSlot(k, nil, true).self()
-	}})
+	})
 	this.refs.put_s(name, new_PreprocessorSymbolTable_Reference(this.symbols.Get(name), node))
 }
 
