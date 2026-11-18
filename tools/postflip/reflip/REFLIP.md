@@ -121,3 +121,29 @@ Not counted by census.py in the trial tree (j2go family, renamed): 818 jnewTList
 ## Measurements
 
 NOT DONE (WIP): the interleaved fb.py run (typed-full 6, bundle 6: rf_final, rf_m8final, rf_flip0) was queued behind other agents on gate.lock when the session had to stop; no CPU/wall/allocation numbers exist for this tree. Binaries built: $S/proto/m_reflip_final (this tree, go/closure 4c78626f, commit below) and $S/proto/m_reflip0 (the trial flip 40caeeed); the machine they are on goes away, rebuild with cd go && go build -o m ./cmd/mech.
+
+## Milestone measurement (2026-11-18, idle host, load 1.1-2.4, no PGO)
+
+Interleaved, 6 rounds each, the trial tip (c6049668, rebuilt) against postflip5's round 8
+(72b0f693) and pre-flip Java; out.js/stdout/stderr byte-identical with Java on both tasks.
+
+| task | pre-flip Java | trial | round 8 | Java/Go trial | Java/Go round 8 |
+|---|---:|---:|---:|---:|---:|
+| typed-full | 51.31s | 58.19s (cpu 69.8s) | 48.60s (cpu 59.7s) | **0.882** | 1.056 |
+| bundle | 26.89s | 28.82s (cpu 31.2s) | 22.62s (cpu 26.7s) | **0.933** | 1.189 |
+
+Allocations (JSGO_MEMSTATS): typed-full 317.2M objects / 13.96 GB against 185.1M / 11.42 GB;
+bundle 183.7M / 8.08 GB against 88.9M / 6.08 GB. The trial allocates about twice the objects.
+
+Where (JSGO_MEM_PROFILE, bundle, alloc_objects, trial minus round 8, sampled):
+new_ArrayList_int +8.5M; hashId_ +6.0M; typed-list add +5.9M; TSet.asSet (erased views of typed
+sets) +5.6M; new typed sets +5.0M; ReferenceCollector.addReference +5.1M;
+RemoveUnusedCode.traverseNode +5.0M; LinkedDirectedGraph.createNode +4.8M; TMap append/out
++5.7M; InlineVariables InitiallyUnknown boxes +3.5M; Predicates_equalTo +2.2M; ArrayList
+iterator/add +2.0M. These are the hot sites that postflip5's dropped manual patches (graph,
+ReferenceCollector, RemoveUnusedCode, NodeTraversal...) and the collection steps (native: typed
+lists to slices, typed maps/sets to Go maps) had fixed: in the trial the manual patches no longer
+apply and native does not see j2go's renamed JT* collections. So the re-flip is a regression
+until (1) one typed-collection runtime serves j2go and the post-flip tools, so native/tnames
+convert j2go's collections, and (2) the dropped hot-path manual patches are re-made on the new
+text or turned into tools.
