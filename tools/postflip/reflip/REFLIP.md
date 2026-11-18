@@ -120,4 +120,19 @@ Not counted by census.py in the trial tree (j2go family, renamed): 818 jnewTList
 
 ## Measurements
 
-NOT DONE (WIP): the interleaved fb.py run (typed-full 6, bundle 6: rf_final, rf_m8final, rf_flip0) was queued behind other agents on gate.lock when the session had to stop; no CPU/wall/allocation numbers exist for this tree. Binaries built: $S/proto/m_reflip_final (this tree, go/closure 4c78626f, commit below) and $S/proto/m_reflip0 (the trial flip 40caeeed); the machine they are on goes away, rebuild with cd go && go build -o m ./cmd/mech.
+2026-11-18, on the VPS (8 cores, idle: load 1.2-2.8), JDK 21.0.13, Go 1.27.3, no PGO, fb.py
+(6 rounds per task, alternating order), against postflip5 (cac00d61) and pre-flip Java in the
+same run. out.js, out.js.map, stdout and stderr are byte-identical between the three on both tasks.
+
+| task | pre-flip Java (median wall) | postflip5 | trial after replay (c6049668) | Java/postflip5 | Java/trial |
+|---|---:|---:|---:|---|---|
+| bundle | 24.25s | 21.48s (CPU 24.68s) | 28.27s (CPU 31.12s) | 1.129 (1.124-1.160, 6 of 6 > 1) | 0.858 (0.844-0.884, 0 of 6) |
+| typed-full | 49.00s | 43.58s (CPU 54.08s) | 53.62s (CPU 65.72s) | 1.124 (1.100-1.139, 6 of 6 > 1) | 0.914 (0.900-0.931, 0 of 6) |
+
+Objects allocated (JSGO_MEMSTATS): bundle 88.9M (postflip5) against 183.7M (trial), typed-full
+185.1M against 317.2M; bytes 6.08G against 8.08G and 11.42G against 13.96G.
+
+The trial tree is 26% (bundle CPU) and 22% (typed-full CPU) slower than postflip5: what the 35
+dropped manual patches, the dropped passfn step and the second typed-collection family (which
+native and tnames do not reach) cost. The harness exports GOMEMLIMIT=6GiB next to its ulimit
+(inherited from fb.py), the same for both Go binaries.
