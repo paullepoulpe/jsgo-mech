@@ -170,9 +170,9 @@ func (this *InferJSDocInfo) inferJSDocForProperty(n Node, parent Node) {
 	}
 	var propType *ObjectType = InferJSDocInfo_dereferenced(lhsType.getPropertyType(propName))
 	if InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(propType, aliasedType) {
-		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, Optional_of[string](n.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
 			return s != ""
-		}}))
+		}))
 	}
 }
 

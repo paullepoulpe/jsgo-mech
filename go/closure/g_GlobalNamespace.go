@@ -609,9 +609,9 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 		if !n.isQualifiedName() {
 			return
 		}
-		name = Optional_of[string](n.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+		name = Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
 			return s != ""
-		}})
+		})
 	case Token_rhino_CALL:
 		if (parent.isExprResult() && GlobalNamespace_GOOG_PROVIDE.matches(n.getFirstChild())) && n.getSecondChild().isStringLit() {
 			this.createNamesFromProvide(n.getSecondChild().getString())

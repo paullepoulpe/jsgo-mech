@@ -271,9 +271,9 @@ func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
 		panic(new_IllegalStateException_String("Cannot provide a Node when there's already a source name"))
 	}
 	this.n = n
-	this.sourceName_ = Optional_of[string](n.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
+	this.sourceName_ = Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
 		return s != ""
-	}})
+	})
 	this.lineno_ = n.getLineno()
 	this.charno_ = n.getCharno()
 	this.length_ = n.getLength()
@@ -285,9 +285,9 @@ func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder
 		panic(new_IllegalStateException_String("Cannot provide a Node when there's already a source name"))
 	}
 	this.n = start
-	this.sourceName_ = Optional_of[string](this.n.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
+	this.sourceName_ = Optional_of[string](this.n.getSourceFileName()).filterFn_(func(s string) bool {
 		return s != ""
-	}})
+	})
 	this.lineno_ = this.n.getLineno()
 	this.charno_ = this.n.getCharno()
 	var endOffset int32 = end.getSourceOffset()

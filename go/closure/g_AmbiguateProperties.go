@@ -147,7 +147,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 }
 
 func (this *AmbiguateProperties) getProperty(name string) *AmbiguateProperties_Property {
-	return this.propertyMap.computeIfAbsent(name, &Function_tfn_string_AmbiguateProperties_Property{func(p0 string) *AmbiguateProperties_Property { return new_AmbiguateProperties_Property(this, p0) }})
+	return this.propertyMap.ComputeIfAbsent(name, func(p0 string) *AmbiguateProperties_Property { return new_AmbiguateProperties_Property(this, p0) })
 }
 
 func (this *AmbiguateProperties) getColor(n Node) *Color {

@@ -151,9 +151,9 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve_3(moduleRequest 
 		var namespace string = GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleRequest)
 		return this.resolveForClosure(namespace)
 	}
-	var requestedPath *ModuleLoader_ModulePath = modulePath.resolveJsModule(moduleRequest, Optional_of[string](forLineInfo.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
+	var requestedPath *ModuleLoader_ModulePath = modulePath.resolveJsModule(moduleRequest, Optional_of[string](forLineInfo.getSourceFileName()).filterFn_(func(s string) bool {
 		return s != ""
-	}}), forLineInfo.getLineno(), forLineInfo.getCharno())
+	}), forLineInfo.getLineno(), forLineInfo.getCharno())
 	if requestedPath == nil {
 		requestedPath = modulePath.resolveModuleAsPath(moduleRequest)
 		if !this.outer_.unresolvedModules.Has(requestedPath.toModuleName()) {

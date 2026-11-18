@@ -256,9 +256,9 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = new_ExtractPrototypeMemberDeclarations_ExtractionInstance(this.outer_, prototypeMember, n)
 			cur = Iterables_getLast(Iterable(sliceViewP_(tc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration, instance.declarations))).(*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration).node_
 			if instance.isFavorable() {
-				this.instancesByChunk.computeIfAbsent(t.getChunk(), &Function_tfn_JSChunk_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo{func(k *JSChunk) *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo {
+				this.instancesByChunk.ComputeIfAbsent(t.getChunk(), func(k *JSChunk) *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo {
 					return new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo()
-				}})
+				})
 				var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.Get(t.getChunk())
 				*instanceInfo.instances = append(*instanceInfo.instances, instance)
 				instanceInfo.totalDelta += instance.delta
@@ -347,9 +347,9 @@ func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) init_
 	this.memberName = NodeUtil_getPrototypePropertyName(lhs)
 	this.node_ = node
 	var classNode Node = ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_getPrototypeClassName(lhs)
-	this.qualifiedClassName = Optional_of[string](classNode.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+	this.qualifiedClassName = Optional_of[string](classNode.getQualifiedName()).filterFn_(func(s string) bool {
 		return s != ""
-	}})
+	})
 	this.constant = classNode.getBooleanProp(Node_IS_CONSTANT_NAME)
 }
 

@@ -338,9 +338,9 @@ func (this *QualifiedName_NodeQname) appendTo_impl(sb *strBuilder_, separator an
 }
 
 func (this *QualifiedName_NodeQname) join_impl() Optional[string] {
-	return Optional_of[string](this.node_.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+	return Optional_of[string](this.node_.getQualifiedName()).filterFn_(func(s string) bool {
 		return s != ""
-	}})
+	})
 }
 
 func (this *QualifiedName_NodeQname) matches_impl(n Node) bool {

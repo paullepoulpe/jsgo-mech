@@ -344,9 +344,9 @@ func (this *NamedType) setValidator_impl(validator Predicate_baseOf[*JSType]) bo
 }
 
 func (this *NamedType) warning(reporter ErrorReporter_rhino, message string) {
-	reporter.warning(message, Optional_of[string](this.sourceName_).filter(&Predicate_tfn_string{func(s string) bool {
+	reporter.warning(message, Optional_of[string](this.sourceName_).filterFn_(func(s string) bool {
 		return s != ""
-	}}), this.lineno_, this.charno_)
+	}), this.lineno_, this.charno_)
 }
 
 func (this *NamedType) isObject_impl() bool {

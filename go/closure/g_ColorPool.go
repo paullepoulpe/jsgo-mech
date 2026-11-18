@@ -228,9 +228,9 @@ func (this *ColorPool_Builder) build() *ColorPool {
 	}
 	for _, el2 := range immElems_(ColorRegistry_REQUIRED_IDS) {
 		colorId := cast_[*ColorId](el2)
-		this.registry.setNativeColor(this.idToColor.computeIfAbsent(colorId, &Function_tfn_ColorId_Color{func(unused *ColorId) *Color {
+		this.registry.setNativeColor(this.idToColor.ComputeIfAbsent(colorId, func(unused *ColorId) *Color {
 			return Color_singleBuilder().setId(colorId).build()
-		}}))
+		}))
 	}
 	this.forEachShard((&Consumer_tfn_ColorPool_ShardView{func(shard *ColorPool_ShardView) {
 		for edge := range elemsAs_[*SubtypingEdge](shard.typePool.getDisambiguationEdgesList()) {

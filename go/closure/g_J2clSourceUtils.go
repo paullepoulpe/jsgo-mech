@@ -25,9 +25,9 @@ func J2clSourceUtils_isJ2clSource(scriptNode Node) bool {
 	if !scriptNode.isScript() {
 		panic(new_IllegalArgumentException_0())
 	}
-	return J2clSourceUtils_isJ2clSourceString(Optional_of[string](scriptNode.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
+	return J2clSourceUtils_isJ2clSourceString(Optional_of[string](scriptNode.getSourceFileName()).filterFn_(func(s string) bool {
 		return s != ""
-	}}))
+	}))
 }
 
 func J2clSourceUtils_isInsideJ2clSource(node Node) bool {

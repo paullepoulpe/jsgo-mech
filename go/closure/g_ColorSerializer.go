@@ -41,11 +41,11 @@ func (this *ColorSerializer) addColors(colors CollectionOf[*Color]) ImmutableLis
 }
 
 func (this *ColorSerializer) addColor(color *Color) int32 {
-	return unbox_[int32](this.colorIdToTypePointer.computeIfAbsent(color.getId(), &Function_tfn_ColorId_any{func(unusedKey *ColorId) any {
+	return unbox_[int32](this.colorIdToTypePointer.ComputeIfAbsent(color.getId(), func(unusedKey *ColorId) any {
 		var index int32 = int32(len(*this.colorsInSerializedOrder))
 		*this.colorsInSerializedOrder = append(*this.colorsInSerializedOrder, color)
 		return any(int32(index))
-	}}))
+	}))
 }
 
 func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func(any) any, getMismatchSourceRefsFn func(any) any) *TypePool {

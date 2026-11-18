@@ -379,9 +379,9 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit_impl(unused *NodeTravers
 	}
 	var name Optional[string] = Optional_empty[string]()
 	if n.isAssign() {
-		name = Optional_of[string](n.getFirstChild().getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+		name = Optional_of[string](n.getFirstChild().getQualifiedName()).filterFn_(func(s string) bool {
 			return s != ""
-		}})
+		})
 	} else if NodeUtil_isNameDeclaration(n) {
 		name = Optional_of[string](n.getFirstChild().getString())
 	} else if n.isFunction() {
@@ -488,13 +488,13 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) visit_impl(t *NodeTraversal, 
 		}
 	}
 	if n.isCall() {
-		this.maybeReplaceCall(t, n, Optional_of[string](callName).filter(&Predicate_tfn_string{func(s string) bool {
+		this.maybeReplaceCall(t, n, Optional_of[string](callName).filterFn_(func(s string) bool {
 			return s != ""
-		}}), nameGenerator)
+		}), nameGenerator)
 	} else {
-		this.maybeReplaceTaggedTemplateLit(t, n, Optional_of[string](callName).filter(&Predicate_tfn_string{func(s string) bool {
+		this.maybeReplaceTaggedTemplateLit(t, n, Optional_of[string](callName).filterFn_(func(s string) bool {
 			return s != ""
-		}}), nameGenerator)
+		}), nameGenerator)
 	}
 }
 

@@ -74,9 +74,9 @@ func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, paren
 			break
 		}
 		var lhs string = n.getFirstFirstChild().getQualifiedName()
-		this.checkPossibleGoogProvideInit(Optional_of[string](lhs).filter(&Predicate_tfn_string{func(s string) bool {
+		this.checkPossibleGoogProvideInit(Optional_of[string](lhs).filterFn_(func(s string) bool {
 			return s != ""
-		}}), n.getFirstChild().getJSDocInfo(), n)
+		}), n.getFirstChild().getJSDocInfo(), n)
 	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET:
 		if !n.getFirstChild().isName() {
 			break
@@ -185,9 +185,9 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 	var enclosingFnNameNode Node = ProcessClosurePrimitives_getEnclosingDeclNameNode(n)
 	if (enclosingFnNameNode == 0) || !enclosingFnNameNode.isUnscopedQualifiedName() {
 		if has_(this.knownClosureSubclasses, baseContainer) {
-			this.reportBadBaseMethodUse(n, Optional_of[string](baseContainer).filter(&Predicate_tfn_string{func(s string) bool {
+			this.reportBadBaseMethodUse(n, Optional_of[string](baseContainer).filterFn_(func(s string) bool {
 				return s != ""
-			}}), "Could not find enclosing method.")
+			}), "Could not find enclosing method.")
 		} else if ProcessClosurePrimitives_baseUsedInClass(n) {
 			var clazz Node = NodeUtil_getEnclosingClass(n)
 			if (clazz.getFirstChild().isName() && (clazz.getFirstChild().getString() == baseContainer)) || (clazz.getSecondChild().isName() && (clazz.getSecondChild().getString() == baseContainer)) {
@@ -204,15 +204,15 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 	}
 	var enclosingQname string = enclosingFnNameNode.getQualifiedName()
 	if !strings.Contains(enclosingQname, ".prototype.") {
-		this.rewriteBaseCallInConstructor(enclosingQname, Optional_of[string](baseContainer).filter(&Predicate_tfn_string{func(s string) bool {
+		this.rewriteBaseCallInConstructor(enclosingQname, Optional_of[string](baseContainer).filterFn_(func(s string) bool {
 			return s != ""
-		}}), n, enclosingFnNameNode)
+		}), n, enclosingFnNameNode)
 	} else {
-		this.rewriteBaseCallInMethod(Optional_of[string](enclosingQname).filter(&Predicate_tfn_string{func(s string) bool {
+		this.rewriteBaseCallInMethod(Optional_of[string](enclosingQname).filterFn_(func(s string) bool {
 			return s != ""
-		}}), Optional_of[string](baseContainer).filter(&Predicate_tfn_string{func(s string) bool {
+		}), Optional_of[string](baseContainer).filterFn_(func(s string) bool {
 			return s != ""
-		}}), n, enclosingFnNameNode)
+		}), n, enclosingFnNameNode)
 	}
 }
 

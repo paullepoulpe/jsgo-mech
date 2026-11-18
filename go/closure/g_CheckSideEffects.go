@@ -176,9 +176,9 @@ func (this *CheckSideEffects_StripProtection) visit_impl(t *NodeTraversal, n Nod
 			return
 		}
 		if target.getString() == CheckSideEffects_J2CL_PROTECTOR_FN {
-			if !J2clSourceUtils_isJ2clSourceString(Optional_of[string](n.getSourceFileName()).filter(&Predicate_tfn_string{func(s string) bool {
+			if !J2clSourceUtils_isJ2clSourceString(Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
 				return s != ""
-			}})) {
+			})) {
 				panic(new_IllegalStateException_String("Only allowed for J2CL code"))
 			}
 			NodeUtil_deleteFunctionCall(n, this.compiler_)
