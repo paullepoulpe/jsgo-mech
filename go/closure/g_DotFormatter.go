@@ -198,8 +198,9 @@ func (this *DotFormatter) key(n Node) int32 {
 
 func DotFormatter_getNodeLabel(n Node) string {
 	var content string = n.getString()
-	if String_length(content) > DotFormatter_MAX_LABEL_NAME_LENGTH {
-		content = String_substring(content, 0, DotFormatter_MAX_LABEL_NAME_LENGTH)
+	contentU16 := utf16Of_(content)
+	if contentU16.length() > DotFormatter_MAX_LABEL_NAME_LENGTH {
+		content = contentU16.substring(0, DotFormatter_MAX_LABEL_NAME_LENGTH)
 	}
 	if content != "" {
 		content = ("(" + sstr_(content) + ")")

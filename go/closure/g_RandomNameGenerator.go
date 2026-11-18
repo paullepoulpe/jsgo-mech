@@ -8,6 +8,7 @@ type RandomNameGenerator struct {
 	random           *Random
 	reservedNames    *JTSet[string]
 	prefix_          string
+	prefix_U16       utf16_
 	nameCount        int32
 	shuffledFirst    string
 	shuffledNonFirst *JTList[string]
@@ -15,6 +16,7 @@ type RandomNameGenerator struct {
 
 func (this *RandomNameGenerator) zero_RandomNameGenerator() {
 	this.prefix_ = nullstr_
+	this.prefix_U16 = utf16Of_(this.prefix_)
 	this.shuffledFirst = nullstr_
 }
 
@@ -61,6 +63,7 @@ func (this *RandomNameGenerator) reset(reservedNames SetOf[string], prefix strin
 func (this *RandomNameGenerator) reset_4(reservedNames SetOf[string], prefix string, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any]) {
 	this.reservedNames = jimmutableSetCopyOf_(jtc_string, Collection(reservedNames))
 	this.prefix_ = prefix
+	this.prefix_U16 = utf16Of_(this.prefix_)
 	this.nameCount = 0
 	this.firstChars = tsetImm_(tc_Character, Sets_difference(RandomNameGenerator_FIRST_CHAR.asSet(), reservedFirstCharacters.asSet()).immutableCopy())
 	this.nonFirstChars = tsetImm_(tc_Character, Sets_difference(RandomNameGenerator_NONFIRST_CHAR.asSet(), reservedNonFirstCharacters.asSet()).immutableCopy())
@@ -134,17 +137,20 @@ func (this *RandomNameGenerator) generateSuffix(position int32, nameIdx int32) s
 	for do_2 := true; do_2; do_2 = (nameIdx > 0) {
 		nameIdx--
 		var alphabet string
+		var alphabetU16 utf16_
 		if position == 0 {
 			alphabet = this.shuffledFirst
+			alphabetU16 = utf16Of_(alphabet)
 		} else {
 			var hasher Hasher = Hashing_murmur3_128().newHasher()
 			hasher.putInt(length)
 			hasher.putUnencodedChars(obj_(&name))
 			var alphabetIdx int32 = ((hasher.hash().asInt() & 2147483647) % RandomNameGenerator_NUM_SHUFFLES)
 			alphabet = this.shuffledNonFirst.get(alphabetIdx)
+			alphabetU16 = utf16Of_(alphabet)
 		}
-		var alphabetSize int32 = String_length(alphabet)
-		var character uint16 = String_charAt(alphabet, (nameIdx % alphabetSize))
+		var alphabetSize int32 = alphabetU16.length()
+		var character uint16 = alphabetU16.charAt((nameIdx % alphabetSize))
 		name.append_char(character)
 		nameIdx /= alphabetSize
 		position++
@@ -154,7 +160,7 @@ func (this *RandomNameGenerator) generateSuffix(position int32, nameIdx int32) s
 
 func (this *RandomNameGenerator) generateNextName() string {
 	for {
-		var name string = (sstr_(this.prefix_) + sstr_(this.generateSuffix(String_length(this.prefix_), this.nameCount)))
+		var name string = (sstr_(this.prefix_) + sstr_(this.generateSuffix(this.prefix_U16.length(), this.nameCount)))
 		this.nameCount++
 		if (TokenStream_isKeyword(name) || this.reservedNames.contains(name)) || DefaultNameGenerator_isBadName(name) {
 			continue

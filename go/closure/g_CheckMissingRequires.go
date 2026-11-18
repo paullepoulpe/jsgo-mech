@@ -322,6 +322,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInModule(t 
 func (this *CheckMissingRequires) checkNormalizedShortNameImport(t *NodeTraversal, n Node, currentFile *ModuleMetadataMap_ModuleMetadata, originalImport *ModuleMetadataMap_ModuleMetadata, originalQualifiedName *QualifiedName, normalizedQualifiedName *QualifiedName, referenceStrength CheckMissingRequires_Strength) {
 	{
 		var subName *QualifiedName = normalizedQualifiedName
+		var correctNameU16 utf16_
 		for ; subName != nil; subName = subName.getOwner() {
 			var namespace Optional[string] = subName.join()
 			if this.isAllowedNamespace(currentFile, namespace.get()) {
@@ -368,7 +369,7 @@ func (this *CheckMissingRequires) checkNormalizedShortNameImport(t *NodeTraversa
 					var correctName Optional[string] = errorQName.join()
 					var newErrorNode Node = n.cloneNode()
 					newErrorNode.setString(correctName.get())
-					newErrorNode.setLength(String_length(correctName.get()))
+					newErrorNode.setLength(correctNameU16.of(correctName.get()).length())
 					t.report(newErrorNode, toReport, []string{namespace.orElse("null")})
 				}
 			}

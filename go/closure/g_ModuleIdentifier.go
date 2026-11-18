@@ -50,15 +50,17 @@ func (this *ModuleIdentifier) toString() string {
 
 func ModuleIdentifier_forClosure(name string) *ModuleIdentifier {
 	var normalizedName string = name
+	normalizedNameU16 := utf16Of_(normalizedName)
 	if strings.HasPrefix(normalizedName, "goog:") {
 		normalizedName = normalizedName[len("goog:"):]
+		normalizedNameU16 = utf16Of_(normalizedName)
 	}
 	var namespace string = normalizedName
 	var moduleName string = normalizedName
-	var splitPoint int32 = String_indexOf(normalizedName, 58)
+	var splitPoint int32 = normalizedNameU16.indexOf(58)
 	if splitPoint != -1 {
-		moduleName = String_substring(normalizedName, 0, splitPoint)
-		namespace = String_substring_int(normalizedName, Math_min((splitPoint+1), (String_length(normalizedName)-1)))
+		moduleName = normalizedNameU16.substring(0, splitPoint)
+		namespace = normalizedNameU16.substring_int(Math_min((splitPoint + 1), (normalizedNameU16.length() - 1)))
 	}
 	return new_ModuleIdentifier(normalizedName, namespace, moduleName)
 }
