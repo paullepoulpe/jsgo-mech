@@ -334,7 +334,7 @@ abstract class StmtEmitter extends ExprEmitter {
           String name = Ctx.safe(v.getName().toString());
           mc.names.put(ve, name);
           predeclared.add(ve);
-          sb.append("var ").append(name).append(" ").append(cx.goType(ve.asType())).append("\n_ = ").append(name).append("\n");
+          sb.append("var ").append(name).append(" ").append(cx.goType(cx.vtype(ve))).append("\n_ = ").append(name).append("\n");
         }
       }
     }
@@ -345,13 +345,13 @@ abstract class StmtEmitter extends ExprEmitter {
     Element e = elemOf(v);
     if (predeclared.contains(e)) {
       if (v.getInitializer() == null) return "";
-      return mc.names.get(e) + " = " + exprAs(v.getInitializer(), cx.erase(e.asType()));
+      return mc.names.get(e) + " = " + exprAs(v.getInitializer(), cx.erase(cx.vtype(e)));
     }
     String name = Ctx.safe(v.getName().toString());
     if (mc.hoisted.contains(name)) name = fresh(name);
     mc.names.put(e, name);
-    TypeMirror ty = cx.erase(e.asType());
-    String gt = cx.declType(e.asType());
+    TypeMirror ty = cx.erase(cx.vtype(e));
+    String gt = cx.declType(cx.vtype(e));
     String code = "var " + name + " " + gt;
     if (v.getInitializer() != null) {
       ExpressionTree init = v.getInitializer();
@@ -381,11 +381,11 @@ abstract class StmtEmitter extends ExprEmitter {
       if (mc.hoisted.contains(name)) name = fresh(name);
       mc.names.put(e, name);
       mc.reads.add(e);
-      TypeMirror ty = cx.erase(e.asType());
+      TypeMirror ty = cx.erase(cx.vtype(e));
       String val = exprAs(v.getInitializer(), ty);
       init = name + " := " + cx.goType(ty) + "(" + val + ")";
       if (cx.kind(ty) != Ctx.K.PRIM || ty.getKind() == TypeKind.BOOLEAN) {
-        pre.append("var ").append(name).append(" ").append(cx.declType(e.asType())).append(" = ").append(val).append("\n");
+        pre.append("var ").append(name).append(" ").append(cx.declType(cx.vtype(e))).append(" = ").append(val).append("\n");
         init = "";
       }
     } else {
@@ -441,7 +441,7 @@ abstract class StmtEmitter extends ExprEmitter {
     String name = Ctx.safe(v.getName().toString());
     if (mc.hoisted.contains(name)) name = fresh(name);
     mc.names.put(e, name);
-    TypeMirror vt = cx.erase(e.asType());
+    TypeMirror vt = cx.erase(cx.vtype(e));
     ExpressionTree ex = t.getExpression();
     TypeMirror et = cx.erase(typeOf(ex));
     String lab;
@@ -518,7 +518,7 @@ abstract class StmtEmitter extends ExprEmitter {
   String caseLabel(ExpressionTree l, TypeMirror selType) {
     Element e = elemOf(l);
     if (e != null && e.getKind() == ElementKind.ENUM_CONSTANT) {
-      return cx.coerce(staticField((VariableElement) e), e.asType(), selType);
+      return cx.coerce(staticField((VariableElement) e), cx.vtype(e), selType);
     }
     if (l instanceof IdentifierTree id && cx.kind(selType) == Ctx.K.CLS) {
       // An unqualified enum constant that javac did not attribute as an expression.
@@ -557,7 +557,7 @@ abstract class StmtEmitter extends ExprEmitter {
         } else if (l instanceof PatternCaseLabelTree pl) {
           if (!(pl.getPattern() instanceof BindingPatternTree bp)) throw unsupported(c, "case pattern");
           Element ve = elemOf(bp.getVariable());
-          TypeMirror vt = cx.erase(ve.asType());
+          TypeMirror vt = cx.erase(cx.vtype(ve));
           String any = cx.coerce("sel_", selType, objectType());
           String check = isCheck(any, vt);
           if (c.getGuard() != null) {

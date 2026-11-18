@@ -106,8 +106,336 @@ final class GenScan {
     for (TypeParameterElement tp : te.getTypeParameters()) erase(tp, w);
   }
 
+  /** J2GO_GENERICS=2: every reason to erase a type parameter, not only the first. */
+  static final boolean ALL = "2".equals(System.getenv("J2GO_GENERICS"));
+
   void erase(TypeParameterElement tp, String w) {
+    if (ALL && pwhy.containsKey(tp)) System.err.println("erase " + tp.getGenericElement() + "." + tp + ": " + w);
     if (pwhy.containsKey(tp) && pwhy.get(tp) == null) pwhy.put(tp, w);
+  }
+
+  /**
+   * Rule "refined locals": a local variable (or the variable of a for-each loop) that is never
+   * assigned again, whose declared type C<..?..> has wildcard type arguments, and whose
+   * initializer (or iterated element) has a type whose view of C names a type at such a position,
+   * has that type there instead. Java's own typing allows it: the variable only ever holds that
+   * one value, and a wildcard promises less than the type it stands for. The expressions that
+   * read the variable, and method calls on them, are typed from the refined type. Then a wildcard
+   * written only for brevity (`for (DiGraphEdge<?, E> edge : getEdgesInDirection(a, b))`) does
+   * not erase the type parameter for the whole program.
+   */
+  void refine(CompilationUnitTree cu) {
+    Set<Element> assigned = new HashSet<>();
+    new TreePathScanner<Void, Void>() {
+      void note(Tree target) {
+        Element e = trees.getElement(new TreePath(getCurrentPath(), target));
+        if (e != null) assigned.add(e);
+      }
+
+      @Override
+      public Void visitAssignment(AssignmentTree t, Void v) {
+        note(t.getVariable());
+        return super.visitAssignment(t, v);
+      }
+
+      @Override
+      public Void visitCompoundAssignment(CompoundAssignmentTree t, Void v) {
+        note(t.getVariable());
+        return super.visitCompoundAssignment(t, v);
+      }
+
+      @Override
+      public Void visitUnary(UnaryTree t, Void v) {
+        switch (t.getKind()) {
+          case PREFIX_INCREMENT, PREFIX_DECREMENT, POSTFIX_INCREMENT, POSTFIX_DECREMENT -> note(t.getExpression());
+          default -> {
+          }
+        }
+        return super.visitUnary(t, v);
+      }
+    }.scan(cu, null);
+    new TreePathScanner<Void, Void>() {
+      TypeMirror ty(Tree child) {
+        TypeMirror r = cx.refinedTrees.get(child);
+        if (r != null) return r;
+        try {
+          return trees.getTypeMirror(new TreePath(getCurrentPath(), child));
+        } catch (RuntimeException ex) {
+          return null;
+        }
+      }
+
+      @Override
+      public Void visitVariable(VariableTree t, Void v) {
+        super.visitVariable(t, v);
+        Element e = trees.getElement(getCurrentPath());
+        if (e != null && e.getKind() == ElementKind.LOCAL_VARIABLE && t.getInitializer() != null && !assigned.contains(e)) tryRefine(e, t, ty(t.getInitializer()));
+        return null;
+      }
+
+      @Override
+      public Void visitEnhancedForLoop(EnhancedForLoopTree t, Void v) {
+        scan(t.getExpression(), v);
+        Element e = trees.getElement(new TreePath(getCurrentPath(), t.getVariable()));
+        if (e != null && !assigned.contains(e)) tryRefine(e, t.getVariable(), elementType(ty(t.getExpression())));
+        scan(t.getVariable(), v);
+        scan(t.getStatement(), v);
+        return null;
+      }
+
+      @Override
+      public Void visitIdentifier(IdentifierTree t, Void v) {
+        TypeMirror r = cx.refinedVars.get(trees.getElement(getCurrentPath()));
+        if (r != null) cx.refinedTrees.put(t, r);
+        return null;
+      }
+
+      @Override
+      public Void visitParenthesized(ParenthesizedTree t, Void v) {
+        super.visitParenthesized(t, v);
+        TypeMirror r = cx.refinedTrees.get(t.getExpression());
+        if (r != null) cx.refinedTrees.put(t, r);
+        return null;
+      }
+
+      @Override
+      public Void visitMethodInvocation(MethodInvocationTree t, Void v) {
+        super.visitMethodInvocation(t, v);
+        if (t.getMethodSelect() instanceof MemberSelectTree sel && cx.refinedTrees.get(sel.getExpression()) instanceof DeclaredType r
+            && trees.getElement(new TreePath(getCurrentPath(), sel)) instanceof ExecutableElement m
+            && !m.getModifiers().contains(Modifier.STATIC) && m.getTypeParameters().isEmpty()) {
+          try {
+            cx.refinedTrees.put(t, ((ExecutableType) cx.types.asMemberOf(r, m)).getReturnType());
+          } catch (RuntimeException ex) {
+            // not a member of the refined type as javac sees it: the tree keeps its own type
+          }
+        }
+        // <T> T m(.., T x, ..) called with a refined argument for x (checkNotNull(child)): the argument's type
+        Element me = trees.getElement(new TreePath(getCurrentPath(), t.getMethodSelect()));
+        if (me instanceof ExecutableElement m && m.getReturnType().getKind() == TypeKind.TYPEVAR && m.getTypeParameters().contains(((TypeVariable) m.getReturnType()).asElement())) {
+          for (int i = 0; i < t.getArguments().size() && i < m.getParameters().size(); i++) {
+            TypeMirror r = cx.refinedTrees.get(t.getArguments().get(i));
+            if (r != null && cx.types.isSameType(m.getParameters().get(i).asType(), m.getReturnType())) cx.refinedTrees.put(t, r);
+          }
+        }
+        return null;
+      }
+    }.scan(cu, null);
+  }
+
+  /** Whether t is C<?, ..., ?>: a candidate generic class with only unbounded wildcards. */
+  boolean allWild(TypeMirror t) {
+    if (!(t instanceof DeclaredType d) || t.getKind() != TypeKind.DECLARED || d.getTypeArguments().isEmpty() || !why.containsKey(Ctx.typeElement(d))) return false;
+    for (TypeMirror a : d.getTypeArguments()) {
+      if (!(a instanceof WildcardType w) || w.getExtendsBound() != null || w.getSuperBound() != null) return false;
+    }
+    return true;
+  }
+
+  /** Whether t is an instantiation of te without wildcards. */
+  static boolean instOf(TypeMirror t, TypeElement te) {
+    if (!(t instanceof DeclaredType d) || t.getKind() != TypeKind.DECLARED || !te.equals(Ctx.typeElement(d)) || d.getTypeArguments().isEmpty()) return false;
+    for (TypeMirror a : d.getTypeArguments()) if (a.getKind() == TypeKind.WILDCARD || captured(a)) return false;
+    return true;
+  }
+
+  /**
+   * Rule "shared statics": a static final field declared C<?, ..., ?> and initialized with
+   * `new C<>(...)`, which the program only casts to an instantiation of C or compares (==, !=)
+   * with a value of one, is one object per instantiation: a generic function C_F[K, V]() that
+   * makes it on first use (single_, rt_generic.go). Java shares one object between all
+   * instantiations; nothing can tell, because a value of C<A, B> is only ever compared with
+   * values of C<A, B> (the Go types say so). The constructor then runs once per instantiation, on
+   * first use instead of at class initialization: it must not have effects beyond the new object.
+   * A static final field C<?, ..., ?>[] initialized with an array of length 0, which is only cast
+   * to an instantiation's array, is an empty array of that instantiation at each cast (an empty
+   * array has no state; the program must not compare it by identity, and a cast is no comparison).
+   * A new array of C<?, ..., ?> directly under a cast to an instantiation's array is a new array
+   * of that instantiation.
+   */
+  void shared(List<? extends CompilationUnitTree> units) {
+    Map<Element, String> cand = new LinkedHashMap<>();
+    Map<Element, VariableTree> decl = new HashMap<>();
+    Map<Element, TreePath> declPath = new HashMap<>();
+    for (CompilationUnitTree cu : units) {
+      new TreePathScanner<Void, Void>() {
+        @Override
+        public Void visitVariable(VariableTree t, Void v) {
+          Element e = trees.getElement(getCurrentPath());
+          if (e != null && e.getKind() == ElementKind.FIELD && e.getModifiers().contains(Modifier.STATIC) && e.getModifiers().contains(Modifier.FINAL)
+              && t.getInitializer() != null) {
+            TypeMirror ft = e.asType();
+            ExpressionTree init = t.getInitializer();
+            while (init instanceof ParenthesizedTree p) init = p.getExpression();
+            String kind = null;
+            if (ft.getKind() == TypeKind.ARRAY && allWild(((ArrayType) ft).getComponentType())) {
+              if (init instanceof NewArrayTree na && na.getInitializers() == null && na.getDimensions().size() == 1
+                  && na.getDimensions().get(0) instanceof LiteralTree lit && Integer.valueOf(0).equals(lit.getValue())) kind = "array";
+            } else if (allWild(ft)) {
+              if (init instanceof NewClassTree nc && nc.getClassBody() == null
+                  && trees.getElement(new TreePath(getCurrentPath(), nc)) instanceof ExecutableElement ctor
+                  && ctor.getEnclosingElement().equals(Ctx.typeElement(ft))) kind = "single";
+            }
+            if (kind != null) {
+              cand.put(e, kind);
+              decl.put(e, t);
+              declPath.put(e, getCurrentPath());
+            }
+          }
+          return super.visitVariable(t, v);
+        }
+      }.scan(cu, null);
+    }
+    if (cand.isEmpty()) return;
+    Map<Element, String> bad = new HashMap<>();
+    Map<Element, List<Tree>> uses = new HashMap<>();
+    for (CompilationUnitTree cu : units) {
+      new TreePathScanner<Void, Void>() {
+        void use() {
+          Element e = trees.getElement(getCurrentPath());
+          if (!cand.containsKey(e)) return;
+          TypeElement te = Ctx.typeElement(e.asType().getKind() == TypeKind.ARRAY ? ((ArrayType) e.asType()).getComponentType() : e.asType());
+          TreePath pp = getCurrentPath().getParentPath();
+          Tree child = getCurrentPath().getLeaf();
+          while (pp.getLeaf() instanceof ParenthesizedTree) {
+            child = pp.getLeaf();
+            pp = pp.getParentPath();
+          }
+          boolean ok = false;
+          if (pp.getLeaf() instanceof TypeCastTree) {
+            TypeMirror tm = trees.getTypeMirror(pp);
+            ok = cand.get(e).equals("array") ? tm.getKind() == TypeKind.ARRAY && instOf(((ArrayType) tm).getComponentType(), te) : instOf(tm, te);
+          } else if (pp.getLeaf() instanceof BinaryTree b && (b.getKind() == Tree.Kind.EQUAL_TO || b.getKind() == Tree.Kind.NOT_EQUAL_TO) && cand.get(e).equals("single")) {
+            Tree other = b.getLeftOperand() == child ? b.getRightOperand() : b.getLeftOperand();
+            ok = instOf(trees.getTypeMirror(new TreePath(pp, other)), te);
+          }
+          if (!ok) bad.putIfAbsent(e, "used at " + cu.getSourceFile().getName().replaceAll(".*/", "") + ":" + cu.getLineMap().getLineNumber(trees.getSourcePositions().getStartPosition(cu, getCurrentPath().getLeaf())));
+          uses.computeIfAbsent(e, k -> new ArrayList<>()).add(getCurrentPath().getLeaf());
+        }
+
+        @Override
+        public Void visitIdentifier(IdentifierTree t, Void v) {
+          use();
+          return null;
+        }
+
+        @Override
+        public Void visitMemberSelect(MemberSelectTree t, Void v) {
+          use();
+          return super.visitMemberSelect(t, v);
+        }
+
+        @Override
+        public Void visitTypeCast(TypeCastTree t, Void v) {
+          // (C<K, V>[]) new C<?, ?>[n]: a new array of the instantiation
+          ExpressionTree x = t.getExpression();
+          while (x instanceof ParenthesizedTree p) x = p.getExpression();
+          TypeMirror tm = trees.getTypeMirror(getCurrentPath());
+          if (x instanceof NewArrayTree na && na.getType() != null && tm != null && tm.getKind() == TypeKind.ARRAY) {
+            TypeMirror comp = ((ArrayType) tm).getComponentType();
+            TypeMirror nt = trees.getTypeMirror(new TreePath(getCurrentPath(), t.getExpression()));
+            if (nt != null && nt.getKind() == TypeKind.ARRAY && allWild(((ArrayType) nt).getComponentType())
+                && instOf(comp, Ctx.typeElement(((ArrayType) nt).getComponentType()))) {
+              cx.refinedTrees.put(na, tm);
+              cx.refinedTypeTrees.add(na.getType());
+            }
+          }
+          return super.visitTypeCast(t, v);
+        }
+      }.scan(cu, null);
+    }
+    for (var c : cand.entrySet()) {
+      Element f = c.getKey();
+      if (bad.containsKey(f)) {
+        if (System.getenv("J2GO_GENERICS") != null) System.err.println("static " + f.getEnclosingElement() + "." + f + " of a wildcard type is not shared: " + bad.get(f));
+        continue;
+      }
+      cx.sharedStatics.put(f, c.getValue());
+      cx.refinedTypeTrees.add(decl.get(f));
+      for (Tree u : uses.getOrDefault(f, List.of())) cx.refinedTypeTrees.add(u);
+      if (System.getenv("J2GO_GENERICS") != null) System.err.println("shared static " + f.getEnclosingElement() + "." + f + ": " + c.getValue());
+      if (c.getValue().equals("single")) {
+        // The initializer is translated at C's own type parameters; a call of a generic method
+        // among the constructor's arguments returns the parameter's type.
+        ExpressionTree init = decl.get(f).getInitializer();
+        while (init instanceof ParenthesizedTree p) init = p.getExpression();
+        NewClassTree nc = (NewClassTree) init;
+        cx.refinedTrees.put(nc, Ctx.typeElement(f.asType()).asType());
+        ExecutableElement ctor = (ExecutableElement) trees.getElement(new TreePath(declPath.get(f), nc));
+        for (int i = 0; i < nc.getArguments().size() && i < ctor.getParameters().size(); i++) {
+          ExpressionTree a = nc.getArguments().get(i);
+          while (a instanceof ParenthesizedTree p) a = p.getExpression();
+          if (a instanceof MethodInvocationTree) cx.refinedTrees.put(a, ctor.getParameters().get(i).asType());
+        }
+      }
+    }
+  }
+
+  static boolean captured(TypeMirror t) {
+    return t.getKind() == TypeKind.TYPEVAR && t.toString().startsWith("capture");
+  }
+
+  /** The type of the elements a for-each loop over a value of type t iterates over, or null. */
+  TypeMirror elementType(TypeMirror t) {
+    if (t == null) return null;
+    if (t.getKind() == TypeKind.ARRAY) return ((ArrayType) t).getComponentType();
+    if (captured(t)) t = ((TypeVariable) t).getUpperBound();
+    TypeMirror it = viewOf(t, cx.elems.getTypeElement("java.lang.Iterable"), 0);
+    if (!(it instanceof DeclaredType d) || d.getTypeArguments().size() != 1) return null;
+    TypeMirror a = d.getTypeArguments().get(0);
+    if (a.getKind() == TypeKind.WILDCARD) a = ((WildcardType) a).getExtendsBound();
+    if (a != null && captured(a)) a = ((TypeVariable) a).getUpperBound();
+    return a;
+  }
+
+  /** t's view of declaration te (t itself or the supertype of t that is a te<...>), or null. */
+  TypeMirror viewOf(TypeMirror t, TypeElement te, int depth) {
+    if (t == null || depth > 12) return null;
+    if (t.getKind() == TypeKind.TYPEVAR) return viewOf(((TypeVariable) t).getUpperBound(), te, depth + 1);
+    if (t.getKind() == TypeKind.INTERSECTION) {
+      for (TypeMirror b : ((IntersectionType) t).getBounds()) {
+        TypeMirror r = viewOf(b, te, depth + 1);
+        if (r != null) return r;
+      }
+      return null;
+    }
+    if (t.getKind() != TypeKind.DECLARED) return null;
+    if (te.equals(Ctx.typeElement(t))) return t;
+    for (TypeMirror s : cx.types.directSupertypes(t)) {
+      TypeMirror r = viewOf(s, te, depth + 1);
+      if (r != null) return r;
+    }
+    return null;
+  }
+
+  int nRefined;
+
+  void tryRefine(Element e, VariableTree vt, TypeMirror src) {
+    if (src == null || !(e.asType() instanceof DeclaredType decl) || decl.getKind() != TypeKind.DECLARED) return;
+    TypeElement te = Ctx.typeElement(decl);
+    List<? extends TypeMirror> da = decl.getTypeArguments();
+    boolean wild = false;
+    for (TypeMirror a : da) wild |= a.getKind() == TypeKind.WILDCARD;
+    if (!wild || !cx.isSource(te) || (te.getNestingKind() != NestingKind.TOP_LEVEL && !te.getModifiers().contains(Modifier.STATIC) && !te.getKind().isInterface())) return;
+    if (!(viewOf(src, te, 0) instanceof DeclaredType view) || view.getTypeArguments().size() != da.size()) return;
+    TypeMirror[] args = new TypeMirror[da.size()];
+    boolean any = false;
+    for (int i = 0; i < args.length; i++) {
+      TypeMirror a = da.get(i), s = view.getTypeArguments().get(i);
+      if (a.getKind() == TypeKind.WILDCARD && s.getKind() != TypeKind.WILDCARD && !captured(s)) {
+        args[i] = s;
+        any = true;
+      } else {
+        args[i] = a;
+      }
+    }
+    if (!any) return;
+    TypeMirror refined = cx.types.getDeclaredType(te, args);
+    cx.refinedVars.put(e, refined);
+    cx.refinedTrees.put(vt, refined);
+    cx.refinedTypeTrees.add(vt.getType());
+    nRefined++;
+    if (System.getenv("J2GO_GENERICS") != null) System.err.println("refined local " + e + ": " + decl + " -> " + refined);
   }
 
   void scan(CompilationUnitTree cu) {
@@ -144,6 +472,7 @@ final class GenScan {
                   Element v = ((TypeVariable) a).asElement();
                   if (v instanceof TypeParameterElement vp) {
                     if (vp != ps.get(i)) deps.computeIfAbsent(ps.get(i), k -> new LinkedHashSet<>()).add(vp);
+                    if (ALL && captured(a)) System.err.println("erase " + te + "." + ps.get(i) + ": a captured type" + where());
                   } else erase(ps.get(i), "a captured type" + where());
                 } else if (a.getKind() == TypeKind.INTERSECTION || a.getKind() == TypeKind.UNION) erase(ps.get(i), "an intersection type" + where());
               }
@@ -167,10 +496,12 @@ final class GenScan {
       @Override
       public Void scan(Tree t, Void v) {
         if (t != null) {
+          // the type written for a refined local is not a use of it
+          if (cx.refinedTypeTrees.contains(t)) return null;
           TreePath p = new TreePath(getCurrentPath(), t);
-          TypeMirror tm = null;
+          TypeMirror tm = cx.refinedTrees.get(t);
           try {
-            tm = trees.getTypeMirror(p);
+            if (tm == null) tm = trees.getTypeMirror(p);
           } catch (RuntimeException ex) {
             // no type for this tree
           }
@@ -190,7 +521,9 @@ final class GenScan {
         TypeMirror tm = trees.getTypeMirror(getCurrentPath());
         ExpressionTree x = t.getExpression();
         while (x instanceof ParenthesizedTree pt) x = pt.getExpression();
-        if (tm != null && tm.getKind() == TypeKind.ARRAY && !(x instanceof NewArrayTree)) eraseIn(((ArrayType) tm).getComponentType(), "a cast to an array" + where(), 0);
+        boolean sharedArray = "array".equals(cx.sharedStatics.get(trees.getElement(new TreePath(getCurrentPath(), t.getExpression()))))
+            || "array".equals(cx.sharedStatics.get(trees.getElement(new TreePath(new TreePath(getCurrentPath(), t.getExpression()), x))));
+        if (tm != null && tm.getKind() == TypeKind.ARRAY && !(x instanceof NewArrayTree) && !sharedArray) eraseIn(((ArrayType) tm).getComponentType(), "a cast to an array" + where(), 0);
         return super.visitTypeCast(t, v);
       }
 

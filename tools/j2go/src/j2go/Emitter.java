@@ -941,6 +941,19 @@ final class Emitter extends StmtEmitter {
           decls.append("const ").append(fn).append(" ").append(cx.goType(ft)).append(" = ").append(lit).append("\n");
           continue;
         }
+        String shared = cx.sharedStatics.get(f);
+        if ("array".equals(shared)) continue;
+        if ("single".equals(shared)) {
+          // One object per instantiation, made on first use (rule "shared statics").
+          TypeElement st = Ctx.typeElement(f.asType());
+          String sty = cx.ref(st);
+          String made = exprAs(v.getInitializer(), st.asType());
+          if (!mc.pre.isEmpty()) throw new IllegalStateException("shared static " + fn + ": its initializer needs statements");
+          decls.append("var ").append(fn).append("_single_ singles_\n");
+          file.append("func ").append(fn).append(cx.goTparamsDecl(st)).append("() ").append(sty).append(" {\n\treturn single_(&").append(fn)
+              .append("_single_, func() ").append(sty).append(" { return ").append(made).append(" })\n}\n\n");
+          continue;
+        }
         decls.append("var ").append(fn).append(" ").append(cx.goType(ft)).append("\n");
         if (v.getInitializer() != null) {
           int mark = init.length();

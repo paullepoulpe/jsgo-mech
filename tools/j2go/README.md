@@ -63,6 +63,20 @@ somewhere makes `DiGraph[N]`, with the second parameter `any` everywhere). Then:
 - A value of a type parameter meets `Object` as the erased code boxed it (`boxT_`, `unboxT_`,
   `null_`, `isnull_`, `eqT_`, and `hashCodeT_`/`equalsT_`/`toStringT_` without boxing a String;
   `go/closure/rt_generic.go`).
+- Wildcards written for brevity do not erase. A local variable (or the variable of a for-each
+  loop) that is never assigned again and whose declared type has wildcard type arguments is
+  typed from its initializer or from the elements it iterates over
+  (`for (DiGraphEdge<?, E> edge : getEdgesInDirection(a, b))` is a `DiGraph_DiGraphEdge[N]`);
+  the expressions that read it are typed from that (`GenScan.refine`). A static final field
+  `C<?, ?>` initialized with `new C<>(...)`, which the program only casts to an instantiation
+  or compares with one (`==`), is one object per instantiation, made on first use by a generic
+  function (`HamtPMap_EMPTY[K, V]()`, `single_` in `rt_generic.go`); a static final empty array
+  `C<?, ?>[]` that is only cast is an empty array of the instantiation at each cast, and
+  `(C<K, V>[]) new C<?, ?>[n]` is a new array of the instantiation (`GenScan.shared`). The
+  constructor of a shared static must have no effect but the new object: it runs once per
+  instantiation, on first use.
+- A class without subclasses converts to a typed interface it implements as Go converts it
+  (null stays the nil interface), not through `cast_`.
 - Performance rule: generic Go code does not assert a value to an interface type that names a
   type parameter where it can be avoided (Go caches such an assertion per site in ordinary code,
   but looks the method table up on every call when the interface comes from a type parameter).

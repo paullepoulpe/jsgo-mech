@@ -759,6 +759,39 @@ final class Ctx {
     return "obj_(" + code + ")";
   }
 
+  private final Map<String, Boolean> implCache = new HashMap<>();
+
+  /**
+   * Whether the Go type of class fe has every method of the Go interface of iface: each method of
+   * iface is implemented in fe by a method of the same group (one Java method implementing the
+   * methods of two interfaces is in one group only: the other interface's method is not there).
+   */
+  boolean implementsInGo(TypeElement fe, TypeElement iface) {
+    return implCache.computeIfAbsent(fe.getQualifiedName() + " " + iface.getQualifiedName(), k -> {
+      List<ExecutableElement> mine = new ArrayList<>();
+      for (Element e : elems.getAllMembers(fe)) if (e instanceof ExecutableElement m && isInstanceMethod(m)) mine.add(m);
+      for (Element e : elems.getAllMembers(iface)) {
+        if (!(e instanceof ExecutableElement im) || !isInstanceMethod(im) || ownerOf(im).getQualifiedName().contentEquals("java.lang.Object")) continue;
+        if (im.getModifiers().contains(Modifier.PRIVATE)) continue;
+        boolean found = false;
+        for (ExecutableElement m : mine) {
+          if (m == im) {
+            // inherited as it is: a default method (bridged) or a method of an abstract class
+            found = im.isDefault();
+            break;
+          }
+          if (m.getSimpleName().equals(im.getSimpleName()) && elems.overrides(m, im, fe)) {
+            if (root(m) != root(im)) return false;
+            found = true;
+            break;
+          }
+        }
+        if (!found) return false;
+      }
+      return true;
+    });
+  }
+
   /** Go interface types that some conversion casts to: each gets a function icast_I. */
   final TreeSet<String> icasts = new TreeSet<>();
 
@@ -793,7 +826,15 @@ final class Ctx {
         String cast = typedDecl(to) ? "cast_[" + gt + "]" : "icast_" + gt;
         if (!typedDecl(to)) icasts.add(gt);
         switch (kf) {
-          case CLS: return cast + "(" + canon(code, from) + ")";
+          case CLS: {
+            // A class without subclasses that implements the typed interface: Go converts it
+            // (performance rule: cast_ of a generic interface is looked up at run time on every
+            // call). A null pointer is the nil interface.
+            TypeElement fe = typeElement(from);
+            DeclaredType view = typedDecl(to) && fe != null && isSource(fe) && isLeaf(fe) && !isHandle(fe) ? superView(from, typeElement(to)) : null;
+            if (view != null && goType(view).equals(gt) && implementsInGo(fe, typeElement(to))) return "func() " + gt + " { if v := " + code + "; v != nil { return v }; return nil }()";
+            return cast + "(" + canon(code, from) + ")";
+          }
           case IFACE:
             if (types.isSubtype(from, to)) return gt + "(" + code + ")";
             return cast + "(" + code + ")";
@@ -1458,6 +1499,29 @@ final class Ctx {
    * (X_tfn_A_B: {interface, the func's parameter types, its result type, the type arguments}).
    */
   final TreeMap<String, Object[]> extConcreteAdapters = new TreeMap<>();
+
+  /**
+   * Refined locals (GenScan.refine): a local variable that is never assigned again and whose
+   * declared type has wildcard type arguments has the type arguments of its initializer (or of
+   * the elements it iterates over) instead, and the expressions that read it are typed from that.
+   */
+  final Map<Element, TypeMirror> refinedVars = new HashMap<>();
+  final IdentityHashMap<com.sun.source.tree.Tree, TypeMirror> refinedTrees = new IdentityHashMap<>();
+  final Set<com.sun.source.tree.Tree> refinedTypeTrees = Collections.newSetFromMap(new IdentityHashMap<>());
+
+  /**
+   * Shared statics (GenScan.shared): static final fields of type C<?, ...> (or an empty array of
+   * it) that the program only casts to an instantiation of C or compares with one:
+   * "single" (one object per instantiation, made by a generic function) or "array" (an empty
+   * array: every cast of it is an empty array of the instantiation).
+   */
+  final Map<Element, String> sharedStatics = new HashMap<>();
+
+  /** The type of variable e: its refined type, or its declared type. */
+  TypeMirror vtype(Element e) {
+    TypeMirror r = refinedVars.get(e);
+    return r != null ? r : e.asType();
+  }
 
   /** Whether t names a kept type variable. */
   boolean mentionsTypedVar(TypeMirror t) {

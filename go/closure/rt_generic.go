@@ -7,6 +7,8 @@ package closure
 
 import (
 	"reflect"
+	"sync"
+	"sync/atomic"
 	"unsafe"
 )
 
@@ -188,4 +190,45 @@ func eqT_[T any](a, b T) bool {
 		return *p == *any(&b).(*Node)
 	}
 	return boxT_(a) == boxT_(b)
+}
+
+// singles_ holds the objects of one shared static of a generic class (j2go rule "shared
+// statics"): Java's one object of type C<?, ?>, of which the Go program has one per instantiation.
+type singles_ struct {
+	list atomic.Pointer[[]singleEntry_]
+	mu   sync.Mutex
+}
+
+type singleEntry_ struct {
+	typ unsafe.Pointer
+	v   any
+}
+
+// single_ is the object of s for instantiation T (a pointer type), made by mk on first use.
+func single_[T any](s *singles_, mk func() T) T {
+	var z T
+	x := any(z)
+	typ := (*eface_)(unsafe.Pointer(&x)).typ
+	if l := s.list.Load(); l != nil {
+		for i := range *l {
+			if (*l)[i].typ == typ {
+				return (*l)[i].v.(T)
+			}
+		}
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var old []singleEntry_
+	if l := s.list.Load(); l != nil {
+		old = *l
+		for i := range old {
+			if old[i].typ == typ {
+				return old[i].v.(T)
+			}
+		}
+	}
+	v := mk()
+	l := append(append([]singleEntry_(nil), old...), singleEntry_{typ, v})
+	s.list.Store(&l)
+	return v
 }

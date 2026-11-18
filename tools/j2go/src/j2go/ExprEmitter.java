@@ -278,6 +278,9 @@ abstract class ExprEmitter extends Base {
       case TYPE_CAST: {
         TypeCastTree c = (TypeCastTree) t;
         TypeMirror to = typeOf(t);
+        String shared = cx.sharedStatics.get(elemOf(strip(c.getExpression())));
+        if ("single".equals(shared)) return sharedSingle(strip(c.getExpression()), to);
+        if ("array".equals(shared)) return cx.goType(cx.erase(to)) + "{}";
         Object[] slot = strSlotRead(c.getExpression());
         if (slot != null && cx.kind(to) == Ctx.K.STR) return slot[0] + "." + cx.fieldName((VariableElement) slot[1]) + "_str_()";
         Object cv = constOf(t);
@@ -404,7 +407,7 @@ abstract class ExprEmitter extends Base {
     Element e = elemOf(t);
     if (name.equals("this")) return "this";
     if (e == null) throw unsupported(t, "unresolved identifier " + name);
-    if (isLocalKind(e)) return cx.coerce(localRef(e), e.asType(), typeOf(t));
+    if (isLocalKind(e)) return cx.coerce(localRef(e), cx.vtype(e), typeOf(t));
     switch (e.getKind()) {
       case FIELD, ENUM_CONSTANT: {
         VariableElement f = (VariableElement) e;
@@ -468,6 +471,8 @@ abstract class ExprEmitter extends Base {
 
   /** The instantiated type of the method invocation being translated (javac's, after inference), or null. */
   ExecutableType curInst;
+  /** The type a call of a static generic function is to return, when not javac's (GenScan.shared). */
+  TypeMirror retOverride;
 
   /** Binds the type variables in generic type g to the parts of a that stand where they stand. */
   static void unify(TypeMirror g, TypeMirror a, Map<Element, TypeMirror> m) {
@@ -504,7 +509,7 @@ abstract class ExprEmitter extends Base {
         lv.code = localName(e);
         ClassCtx c = cc();
         if (c != null && !c.ownLocals.contains(e) && c.captures.contains(e)) lv.code = "this.cap_" + Ctx.safe(e.getSimpleName().toString());
-        lv.type = cx.erase(e.asType());
+        lv.type = cx.erase(cx.vtype(e));
         return lv;
       }
       VariableElement f = (VariableElement) e;
@@ -685,10 +690,25 @@ abstract class ExprEmitter extends Base {
     return exprAs(t, p);
   }
 
+  /** The object of a shared static (rule "shared statics") for instantiation ty: C_F[K, V](). */
+  String sharedSingle(ExpressionTree x, TypeMirror ty) {
+    VariableElement f = (VariableElement) elemOf(x);
+    ty = cx.erase(ty);
+    if (!cx.typedDecl(ty)) return staticFieldFn(f) + "()";
+    return staticFieldFn(f) + cx.typeArgsOf(ty) + "()";
+  }
+
+  String staticFieldFn(VariableElement f) {
+    touch(cx.ownerOf(f));
+    return cx.fieldName(f);
+  }
+
   String equality(BinaryTree t) {
     ExpressionTree l = t.getLeftOperand(), r = t.getRightOperand();
     TypeMirror tl = typeOf(l), tr = typeOf(r);
     String op = t.getKind() == Tree.Kind.EQUAL_TO ? "==" : "!=";
+    if ("single".equals(cx.sharedStatics.get(elemOf(strip(l))))) return "(" + sharedSingle(strip(l), tr) + " " + op + " " + expr(r) + ")";
+    if ("single".equals(cx.sharedStatics.get(elemOf(strip(r))))) return "(" + expr(l) + " " + op + " " + sharedSingle(strip(r), tl) + ")";
     Ctx.K kl = cx.kind(tl), kr = cx.kind(tr);
     if (kl == Ctx.K.NULL || kr == Ctx.K.NULL) {
       ExpressionTree x = kl == Ctx.K.NULL ? r : l;
@@ -790,7 +810,7 @@ abstract class ExprEmitter extends Base {
     if (!(t.getPattern() instanceof BindingPatternTree bp)) throw unsupported(t, "pattern " + t.getPattern().getKind());
     VariableTree var = bp.getVariable();
     Element ve = elemOf(var);
-    TypeMirror vt = cx.erase(ve.asType());
+    TypeMirror vt = cx.erase(cx.vtype(ve));
     String name = declareHoisted(ve);
     return "func() bool { v_ := " + v + "; if !" + isCheck("v_", vt) + " { return false }; " + name + " = "
         + cx.coerce("v_", objectType(), vt) + "; return true }()";
@@ -804,7 +824,7 @@ abstract class ExprEmitter extends Base {
       mc.hoisted.add(name);
     }
     mc.names.put(ve, name);
-    mc.pre.add("var " + name + " " + cx.goType(ve.asType()) + "\n_ = " + name);
+    mc.pre.add("var " + name + " " + cx.goType(cx.vtype(ve)) + "\n_ = " + name);
     return name;
   }
 
@@ -929,6 +949,8 @@ abstract class ExprEmitter extends Base {
     TypeElement owner = cx.ownerOf(e);
     boolean src = cx.isSource(owner);
     boolean isStatic = e.getModifiers().contains(Modifier.STATIC);
+    TypeMirror retOver = retOverride;
+    retOverride = null;
     if (isStatic) {
       touch(owner);
       List<TypeMirror> params = ownParams(e);
@@ -943,6 +965,11 @@ abstract class ExprEmitter extends Base {
         Map<Element, TypeMirror> m = new HashMap<>();
         unify(e.getReturnType(), inst.getReturnType(), m);
         for (int i = 0; i < params.size(); i++) unify(e.getParameters().get(i).asType(), inst.getParameterTypes().get(i), m);
+        if (retOver != null) {
+          // the call's type is given (an argument of a shared static's constructor)
+          m.clear();
+          unify(e.getReturnType(), retOver, m);
+        }
         Map<Element, TypeMirror> mk = new HashMap<>();
         StringBuilder ta = new StringBuilder("[");
         for (TypeParameterElement tp : cx.keptOf(e.getTypeParameters())) {
@@ -1123,6 +1150,7 @@ abstract class ExprEmitter extends Base {
     if (!(el instanceof ExecutableElement e)) throw unsupported(t, "unresolved call " + sel);
     List<Arg> as = args(t.getArguments());
     curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
+    retOverride = e.getModifiers().contains(Modifier.STATIC) ? cx.refinedTrees.get(t) : null;
     if (sel instanceof MemberSelectTree ms) {
       ExpressionTree q = ms.getExpression();
       if (e.getModifiers().contains(Modifier.STATIC)) return special(e, null, as);
@@ -1144,6 +1172,7 @@ abstract class ExprEmitter extends Base {
       // the receiver's code first: a call in it sets curInst for itself
       String rcode = expr(q);
       curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
+      retOverride = e.getModifiers().contains(Modifier.STATIC) ? cx.refinedTrees.get(t) : null;
       return special(e, new Recv(rcode, qt), as);
     }
     return special(e, null, as);
@@ -1471,6 +1500,9 @@ abstract class ExprEmitter extends Base {
         Arg first = as.remove(0);
         TypeMirror rt = cx.erase(typeOf(q));
         if (rt == null) rt = cx.ownerOf(e).asType();
+        // A typed declaration named raw (DiGraphNode::getPriority): the receiver at its own type arguments.
+        if (rt.getKind() == TypeKind.DECLARED && cx.typedClasses.contains(Ctx.typeElement(rt)) && ((DeclaredType) rt).getTypeArguments().isEmpty()
+            && first.type != null && cx.sub(first.type, rt)) rt = first.type;
         r = special(e, new Recv(first.as(rt), rt), as);
       } else if (q instanceof IdentifierTree id && id.getName().contentEquals("super")) {
         r = call(e, new Recv("this", cc().te.asType()), true, as);

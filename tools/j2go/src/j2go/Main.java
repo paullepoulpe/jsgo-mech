@@ -244,6 +244,10 @@ public final class Main {
     GenScan gs = new GenScan(cx, trees);
     gs.candidates(cx.source);
     gs.noteOverrides(cx.source);
+    if (System.getenv("J2GO_ERASED") == null) {
+      gs.shared(units);
+      for (CompilationUnitTree cu : units) gs.refine(cu);
+    }
     for (CompilationUnitTree cu : units) gs.scan(cu);
     if (System.getenv("J2GO_GENERICS") != null) gs.report();
     // J2GO_ERASED=1 translates every generic class erased (the translation before typed generics).
