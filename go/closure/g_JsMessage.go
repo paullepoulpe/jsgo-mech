@@ -9,7 +9,7 @@ type JsMessage struct {
 	isExternal_                          bool
 	getId_                               string
 	getParts_                            *JTList[JsMessage_Part]
-	getGenderedMessagesMap_              *JTMap[JsMessage_GrammaticalGenderCase, *ImmutableList]
+	getGenderedMessagesMap_              *JTMap[JsMessage_GrammaticalGenderCase, *ErasedImmutableList]
 	getAlternateId_                      Optional[string]
 	getDesc_                             Optional[string]
 	getMeaning_                          Optional[string]
@@ -24,7 +24,7 @@ func (this *JsMessage) zero_JsMessage() {
 	this.getId_ = nullstr_
 }
 
-func (this *JsMessage) init_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts *JTList[JsMessage_Part], getGenderedMessagesMap *JTMap[JsMessage_GrammaticalGenderCase, *ImmutableList], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap *JTMap[string, string], getPlaceholderNameToOriginalCodeMap *JTMap[string, string], jsPlaceholderNames *JTSet[string], canonicalPlaceholderNames *JTSet[string]) {
+func (this *JsMessage) init_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts *JTList[JsMessage_Part], getGenderedMessagesMap *JTMap[JsMessage_GrammaticalGenderCase, *ErasedImmutableList], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap *JTMap[string, string], getPlaceholderNameToOriginalCodeMap *JTMap[string, string], jsPlaceholderNames *JTSet[string], canonicalPlaceholderNames *JTSet[string]) {
 	if getParts.asList() == nil {
 		panic(new_NullPointerException_String("getParts"))
 	}
@@ -56,7 +56,7 @@ func (this *JsMessage) init_JsMessage(getSourceName Optional[string], getKey str
 	this.canonicalPlaceholderNames_ = canonicalPlaceholderNames
 }
 
-func new_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts *JTList[JsMessage_Part], getGenderedMessagesMap *JTMap[JsMessage_GrammaticalGenderCase, *ImmutableList], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap *JTMap[string, string], getPlaceholderNameToOriginalCodeMap *JTMap[string, string], jsPlaceholderNames *JTSet[string], canonicalPlaceholderNames *JTSet[string]) *JsMessage {
+func new_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts *JTList[JsMessage_Part], getGenderedMessagesMap *JTMap[JsMessage_GrammaticalGenderCase, *ErasedImmutableList], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap *JTMap[string, string], getPlaceholderNameToOriginalCodeMap *JTMap[string, string], jsPlaceholderNames *JTSet[string], canonicalPlaceholderNames *JTSet[string]) *JsMessage {
 	this := &JsMessage{}
 	this.zero_JsMessage()
 	this.init_JsMessage(getSourceName, getKey, isAnonymous, isExternal, getId, getParts, getGenderedMessagesMap, getAlternateId, getDesc, getMeaning, getPlaceholderNameToExampleMap, getPlaceholderNameToOriginalCodeMap, jsPlaceholderNames, canonicalPlaceholderNames)
@@ -79,7 +79,7 @@ func (this *JsMessage) getGenderedMessageParts(genderCase JsMessage_GrammaticalG
 }
 
 func (this *JsMessage) getGenderedMessageVariants() *JTList[JsMessage_GrammaticalGenderCase] {
-	return jtlistImm_(jtc_p_JsMessage_GrammaticalGenderCase, this.getGenderedMessagesMap().asImm().keySet().(*ImmutableSet).asList())
+	return jtlistImm_(jtc_p_JsMessage_GrammaticalGenderCase, this.getGenderedMessagesMap().asImm().keySet().(*ErasedImmutableSet).asList())
 }
 
 func (this *JsMessage) asJsMessageString() string {
@@ -160,7 +160,7 @@ func (this *JsMessage) isEmpty() bool {
 	} else {
 		it_3 := this.getGenderedMessagesMap().eachValue()
 		for it_3.next() {
-			var parts *ImmutableList = it_3.v
+			var parts *ErasedImmutableList = it_3.v
 			for _, el_5 := range immElems_(parts) {
 				var part JsMessage_Part = icast_JsMessage_Part(el_5)
 				if part.isPlaceholder() || (len(part.getString()) != 0) {
@@ -231,7 +231,7 @@ func (this *JsMessage) getParts() *JTList[JsMessage_Part] {
 	return this.getParts_
 }
 
-func (this *JsMessage) getGenderedMessagesMap() *JTMap[JsMessage_GrammaticalGenderCase, *ImmutableList] {
+func (this *JsMessage) getGenderedMessagesMap() *JTMap[JsMessage_GrammaticalGenderCase, *ErasedImmutableList] {
 	return this.getGenderedMessagesMap_
 }
 
@@ -765,13 +765,13 @@ func (this *JsMessage_Builder) build() *JsMessage {
 	if this.alternateId.isPresent() && Object_equals(this.alternateId.box_(), this.id.box_()) {
 		this.alternateId = Optional_empty[string]()
 	}
-	var immutableGenderedPartsBuilder *TMapBuilder[JsMessage_GrammaticalGenderCase, *ImmutableList] = newTMapBuilder_(jtc_p_JsMessage_GrammaticalGenderCase, tc_p_ImmutableList)
+	var immutableGenderedPartsBuilder *TMapBuilder[JsMessage_GrammaticalGenderCase, *ErasedImmutableList] = newTMapBuilder_(jtc_p_JsMessage_GrammaticalGenderCase, tc_p_ImmutableList)
 	it_1 := this.genderedMessageMap.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[JsMessage_GrammaticalGenderCase, List] = it_1.entry()
 		immutableGenderedPartsBuilder.put(entry.getKey(), ImmutableList_copyOf(Collection(entry.getValue())))
 	}
-	var immutableGenderedMessageMap *JTMap[JsMessage_GrammaticalGenderCase, *ImmutableList] = immutableGenderedPartsBuilder.buildOrThrow()
+	var immutableGenderedMessageMap *JTMap[JsMessage_GrammaticalGenderCase, *ErasedImmutableList] = immutableGenderedPartsBuilder.buildOrThrow()
 	return new_JsMessage(this.sourceName_, this.key_.get(), this.isAnonymous_, this.isExternal_, this.id.get(), immutableListCopyOfT_(jtc_JsMessage_Part, this.parts), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, immutableSetCopyOfT_(jtc_string, this.jsPlaceholderNames_), immutableSetCopyOfT_(jtc_string, this.canonicalPlaceholderNames_))
 }
 

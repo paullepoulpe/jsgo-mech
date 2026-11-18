@@ -1017,49 +1017,49 @@ func ImmutableCollection_as_Set(v *ImmutableCollection) Set {
 	return v
 }
 
-func ImmutableList_as_Collection(v *ImmutableList) Collection {
+func ImmutableList_as_Collection(v *ErasedImmutableList) Collection {
 	if v == nil {
 		return nil
 	}
 	return v
 }
 
-func ImmutableList_as_Iterable(v *ImmutableList) Iterable {
+func ImmutableList_as_Iterable(v *ErasedImmutableList) Iterable {
 	if v == nil {
 		return nil
 	}
 	return v
 }
 
-func ImmutableList_as_List(v *ImmutableList) List {
+func ImmutableList_as_List(v *ErasedImmutableList) List {
 	if v == nil {
 		return nil
 	}
 	return v
 }
 
-func ImmutableMap_as_Map(v *ImmutableMap) Map {
+func ImmutableMap_as_Map(v *ErasedImmutableMap) Map {
 	if v == nil {
 		return nil
 	}
 	return v
 }
 
-func ImmutableSet_as_Collection(v *ImmutableSet) Collection {
+func ImmutableSet_as_Collection(v *ErasedImmutableSet) Collection {
 	if v == nil {
 		return nil
 	}
 	return v
 }
 
-func ImmutableSet_as_Iterable(v *ImmutableSet) Iterable {
+func ImmutableSet_as_Iterable(v *ErasedImmutableSet) Iterable {
 	if v == nil {
 		return nil
 	}
 	return v
 }
 
-func ImmutableSet_as_Set(v *ImmutableSet) Set {
+func ImmutableSet_as_Set(v *ErasedImmutableSet) Set {
 	if v == nil {
 		return nil
 	}
@@ -2524,19 +2524,19 @@ func tc_p_HamtPMap_K__V_[K comparable, V comparable]() *jtconv_[*HamtPMap[K, V]]
 	})
 }
 
-var tc_p_ImmutableList = &jtconv_[*ImmutableList]{
-	box:   func(v *ImmutableList) any { return obj_(v) },
-	unbox: func(v any) *ImmutableList { return cast_[*ImmutableList](v) },
+var tc_p_ImmutableList = &jtconv_[*ErasedImmutableList]{
+	box:   func(v *ErasedImmutableList) any { return obj_(v) },
+	unbox: func(v any) *ErasedImmutableList { return cast_[*ErasedImmutableList](v) },
 }
 
-var tc_p_ImmutableMap = &jtconv_[*ImmutableMap]{
-	box:   func(v *ImmutableMap) any { return obj_(v) },
-	unbox: func(v any) *ImmutableMap { return cast_[*ImmutableMap](v) },
+var tc_p_ImmutableMap = &jtconv_[*ErasedImmutableMap]{
+	box:   func(v *ErasedImmutableMap) any { return obj_(v) },
+	unbox: func(v any) *ErasedImmutableMap { return cast_[*ErasedImmutableMap](v) },
 }
 
-var tc_p_ImmutableSet = &jtconv_[*ImmutableSet]{
-	box:   func(v *ImmutableSet) any { return obj_(v) },
-	unbox: func(v any) *ImmutableSet { return cast_[*ImmutableSet](v) },
+var tc_p_ImmutableSet = &jtconv_[*ErasedImmutableSet]{
+	box:   func(v *ErasedImmutableSet) any { return obj_(v) },
+	unbox: func(v any) *ErasedImmutableSet { return cast_[*ErasedImmutableSet](v) },
 }
 
 var jtc_p_ImplicitNullabilityCheck_Result = &jtconv_[*ImplicitNullabilityCheck_Result]{
