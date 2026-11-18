@@ -842,7 +842,7 @@ func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) 
 	for !stackA.isEmpty() && !stackB.isEmpty() {
 		var currentA *ObjectType = stackA.removeAt((stackA.size() - 1))
 		var currentB *ObjectType = stackB.removeAt((stackB.size() - 1))
-		if currentA.equals(currentB.self()) {
+		if currentA.equals_JSType(currentB.up_JSType()) {
 			result = currentA
 		} else {
 			return result

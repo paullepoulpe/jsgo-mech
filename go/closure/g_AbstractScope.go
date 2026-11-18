@@ -102,7 +102,7 @@ func (this *AbstractScope) undeclare(var_ *AbstractVar) {
 	if to_AbstractScope(var_.getScope()) != this {
 		panic(new_IllegalStateException_0().self())
 	}
-	if !to_AbstractVar(Map_get_s(this.vars, var_.getName())).equals(var_.self()) {
+	if !to_AbstractVar(Map_get_s(this.vars, var_.getName())).equals_ScopedName(var_.up_ScopedName()) {
 		panic(new_IllegalStateException_0().self())
 	}
 	this.undeclareInteral(var_)

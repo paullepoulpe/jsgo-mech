@@ -709,7 +709,7 @@ func (this *PeepholeFoldConstants) isNumeric(n Node) bool {
 		return true
 	}
 	if this.shouldUseTypes {
-		return ((n.getColor() != nil) && n.getColor().equals(obj_(StandardColors_NUMBER)))
+		return ((n.getColor() != nil) && n.getColor().equals_Color(StandardColors_NUMBER))
 	}
 	return false
 }
@@ -719,7 +719,7 @@ func (this *PeepholeFoldConstants) isBigInt(n Node) bool {
 		return true
 	}
 	if this.shouldUseTypes {
-		return ((n.getColor() != nil) && n.getColor().equals(obj_(StandardColors_BIGINT)))
+		return ((n.getColor() != nil) && n.getColor().equals_Color(StandardColors_BIGINT))
 	}
 	return false
 }
@@ -956,7 +956,7 @@ func (this *PeepholeFoldConstants) isStringTyped(n Node) bool {
 		return true
 	}
 	if this.shouldUseTypes {
-		return ((n.getColor() != nil) && n.getColor().equals(obj_(StandardColors_STRING)))
+		return ((n.getColor() != nil) && n.getColor().equals_Color(StandardColors_STRING))
 	}
 	return false
 }
