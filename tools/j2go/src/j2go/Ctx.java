@@ -1454,6 +1454,26 @@ final class Ctx {
   final LinkedHashSet<TypeElement> extTypedAdapters = new LinkedHashSet<>();
 
   /**
+   * Concrete typed adapters, one per instantiation whose types name no type variable
+   * (X_tfn_A_B: {interface, the func's parameter types, its result type, the type arguments}).
+   */
+  final TreeMap<String, Object[]> extConcreteAdapters = new TreeMap<>();
+
+  /** Whether t names a kept type variable. */
+  boolean mentionsTypedVar(TypeMirror t) {
+    if (t == null) return false;
+    switch (t.getKind()) {
+      case TYPEVAR: return typedVar(t);
+      case ARRAY: return mentionsTypedVar(((ArrayType) t).getComponentType());
+      case DECLARED:
+        if (!typedDecl(t)) return false;
+        for (TypeMirror a : ((DeclaredType) t).getTypeArguments()) if (mentionsTypedVar(a)) return true;
+        return false;
+      default: return false;
+    }
+  }
+
+  /**
    * A type that a value in an erased slot reaches with one type assertion (unboxT_ takes the fast
    * path): a String, a handle, a class without subclasses, an interface, an array, a kept type
    * variable. A class with subclasses needs its view (to_C), and Object or a boxed value is `any`.

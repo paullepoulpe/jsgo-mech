@@ -186,6 +186,8 @@ final class Emitter extends StmtEmitter {
     StringBuilder sb = new StringBuilder(handle ? "" : "type " + n + tps + " struct {\n");
     if (sup != null) sb.append("\t").append(cx.superStruct(te, sup)).append("\n");
     if (cx.declaresSelf(te)) sb.append("\tself_ any\n");
+    List<ExecutableElement> vt = vtRoots(te);
+    if (!vt.isEmpty()) sb.append("\tvt_").append(n).append("_ ").append(n).append("_vt_").append(cx.goTparamsUse(te)).append("\n");
     ClassCtx c = cc();
     if (c.hasOuter) sb.append("\touter_ ").append(cx.ref(cx.enclosingClass(te))).append("\n");
     for (VariableElement cap : c.captures) {
@@ -213,14 +215,31 @@ final class Emitter extends StmtEmitter {
     // type parameters; "instanceof" of it, which asks about any instantiation, has a marker method.
     String self = handle ? n : cx.ref(te), gtd = cx.goTparamsDecl(te);
     boolean generic = !handle && !gtd.isEmpty();
+    if (!vt.isEmpty()) {
+      sb.append("type ").append(n).append("_vt_").append(gtd).append(" interface {\n");
+      for (ExecutableElement r : vt) {
+        sb.append("\t").append(cx.methodName(r)).append("_impl").append(cx.goSig(cx.groupParams(r, te.asType()), cx.groupReturn(r, te.asType()))).append("\n");
+      }
+      sb.append("}\n\n");
+    }
     if (generic) {
       sb.append("func (this ").append(self).append(") isa_").append(n).append("_() {}\n\n");
       sb.append("func is_").append(n).append("(v any) bool {\n\t_, ok := v.(interface{ isa_").append(n).append("_() })\n\treturn ok\n}\n\n");
     }
     if (!leaf) {
       sb.append("func (this ").append(self).append(") as_").append(n).append("() ").append(self).append(" { return this }\n\n");
-      sb.append("func to_").append(n).append(gtd).append("(v any) ").append(self).append(" {\n\tif v == nil {\n\t\treturn nil\n\t}\n\treturn v.(interface{ as_")
-          .append(n).append("() ").append(self).append(" }).as_").append(n).append("()\n}\n\n");
+      if (generic) {
+        // Performance rule: in generic code an assertion to an interface that names a type
+        // parameter is looked up at run time on every call (no per-site cache). The view of a
+        // generic class is asked through an interface without type parameters, then asserted
+        // to the pointer type (one comparison).
+        sb.append("func (this ").append(self).append(") as_").append(n).append("_() any { return this }\n\n");
+        sb.append("func to_").append(n).append(gtd).append("(v any) ").append(self).append(" {\n\tif v == nil {\n\t\treturn nil\n\t}\n\treturn v.(interface{ as_")
+            .append(n).append("_() any }).as_").append(n).append("_().(").append(self).append(")\n}\n\n");
+      } else {
+        sb.append("func to_").append(n).append(gtd).append("(v any) ").append(self).append(" {\n\tif v == nil {\n\t\treturn nil\n\t}\n\treturn v.(interface{ as_")
+            .append(n).append("() ").append(self).append(" }).as_").append(n).append("()\n}\n\n");
+      }
       if (!generic) sb.append("func is_").append(n).append("(v any) bool {\n\t_, ok := v.(interface{ as_").append(n).append("() *").append(n).append(" })\n\treturn ok\n}\n\n");
       if (cx.hasSelf(te)) {
         sb.append("func (this ").append(self).append(") self() any {\n\tif this == nil {\n\t\treturn nil\n\t}\n\treturn this.self_\n}\n\n");
@@ -461,6 +480,11 @@ final class Emitter extends StmtEmitter {
     String targs = cx.goTparamsUse(te);
     b.append(cx.isHandle(te) ? "this := " + n + "_alloc_()\n" : "this := &" + n + targs + "{}\n");
     if (cx.hasSelf(te)) b.append("this.self_ = this\n");
+    if (!te.getModifiers().contains(Modifier.ABSTRACT)) {
+      for (TypeElement c = te; c != null && cx.isSource(c); c = cx.superclass(c)) {
+        if (!vtRoots(c).isEmpty()) b.append("this.vt_").append(cx.className(c)).append("_ = this\n");
+      }
+    }
     if (needsZero(te)) b.append("this.zero_").append(n).append("()\n");
     return b.toString();
   }
@@ -633,9 +657,31 @@ final class Emitter extends StmtEmitter {
     mc = null;
   }
 
+  /** Whether the stub of root r on class te finds the implementation in a library superclass when no subclass overrides it. */
+  boolean libraryImpl(TypeElement te, ExecutableElement r) {
+    TypeElement ro = cx.ownerOf(r);
+    return !cx.isSource(ro) && !ro.getKind().isInterface() && !r.getModifiers().contains(Modifier.ABSTRACT)
+        && !ro.getQualifiedName().contentEquals("java.lang.Object") && cx.superclass(te) != null;
+  }
+
+  /**
+   * The dispatched methods of a generic class te that are called through its typed dispatch
+   * field vt_C_ (set at construction to the most derived object) instead of an assertion of
+   * self_ (performance rule: such an assertion, to an interface naming a type parameter, is
+   * looked up at run time on every call in generic code).
+   */
+  List<ExecutableElement> vtRoots(TypeElement te) {
+    List<ExecutableElement> out = new ArrayList<>();
+    Set<ExecutableElement> roots = cx.virtualAt.get(te);
+    if (roots == null || !cx.hasSelf(te) || cx.isHandle(te) || cx.goTparamsDecl(te).isEmpty()) return out;
+    for (ExecutableElement r : roots) if (!libraryImpl(te, r)) out.add(r);
+    return out;
+  }
+
   void stubs(TypeElement te) {
     Set<ExecutableElement> roots = cx.virtualAt.get(te);
     if (roots == null) return;
+    List<ExecutableElement> vt = vtRoots(te);
     String n = cx.className(te);
     for (ExecutableElement r : roots) {
       String name = cx.methodName(r);
@@ -652,6 +698,8 @@ final class Emitter extends StmtEmitter {
         // The library superclass implements the method: classes that do not override it use that.
         body = "if o, ok := this.self_.(" + iface + "); ok {\n\t\t" + ret0 + "o." + name + "_impl(" + argNames(ps.size()) + ")\n"
             + (ret0.isEmpty() ? "\t\treturn\n" : "") + "\t}\n\t" + ret0 + "this." + cx.className(sup) + "." + name + "(" + argNames(ps.size()) + ")";
+      } else if (vt.contains(r)) {
+        body = ret0 + "this.vt_" + n + "_." + name + "_impl(" + argNames(ps.size()) + ")";
       } else if (cx.hasSelf(te)) {
         body = ret0 + "this.self_.(" + iface + ")." + name + "_impl(" + argNames(ps.size()) + ")";
       } else {

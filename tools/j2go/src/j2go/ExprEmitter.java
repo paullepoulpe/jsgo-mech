@@ -1320,6 +1320,21 @@ abstract class ExprEmitter extends Base {
     params.addAll(ps);
     ret[0] = r;
     cx.className(fi);
+    boolean generic = cx.mentionsTypedVar(r);
+    for (TypeMirror p : ps) generic |= cx.mentionsTypedVar(p);
+    if (!generic) {
+      // Every type is known here: a concrete adapter per instantiation (Stubs), whose conversions
+      // are the ones the erased code makes for these types.
+      String n = cx.className(fi) + "_tfn_" + ta.toString().replace("*", "").replace("[]", "s_").replace(", ", "_").replaceAll("[^A-Za-z0-9_]", "_");
+      Object[] was = cx.extConcreteAdapters.get(n);
+      if (was == null) {
+        adapterName(fi);
+        cx.extConcreteAdapters.put(n, new Object[] {fi, new ArrayList<>(ps), r, ta.toString()});
+      } else if (!was[3].equals(ta.toString())) {
+        throw new IllegalStateException("typed adapter name clash: " + n + " for " + was[3] + " and " + ta);
+      }
+      return n;
+    }
     if (cx.extTypedAdapters.add(fi)) adapterName(fi);
     return cx.className(fi) + "_tfn[" + ta + "]";
   }

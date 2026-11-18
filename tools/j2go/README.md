@@ -63,12 +63,23 @@ somewhere makes `DiGraph[N]`, with the second parameter `any` everywhere). Then:
 - A value of a type parameter meets `Object` as the erased code boxed it (`boxT_`, `unboxT_`,
   `null_`, `isnull_`, `eqT_`, and `hashCodeT_`/`equalsT_`/`toStringT_` without boxing a String;
   `go/closure/rt_generic.go`).
+- Performance rule: generic Go code does not assert a value to an interface type that names a
+  type parameter where it can be avoided (Go caches such an assertion per site in ordinary code,
+  but looks the method table up on every call when the interface comes from a type parameter).
+  A generic class with dispatched methods holds its most derived object a second time, as its
+  typed dispatch interface (`vt_C_ C_vt_[N]`, set next to `self_`), and its stubs call through
+  it; `to_C[X](v)` asks for the view through an interface without type parameters
+  (`as_C_() any`) and asserts the pointer type.
 
 A lambda whose target is a library functional interface is a func of its Java types inside a
-typed adapter (`&Consumer_tfn[Node]{func(name Node) {...}}`) when a parameter or the result
-that the erased signature has as `any` has a type that one type assertion reaches (a String, a
-handle, a class without subclasses, an interface, an array); the adapter converts at the erased
-signature (`unboxT_`/`boxT_`).
+typed adapter when a parameter or the result that the erased signature has as `any` has a type
+that one type assertion reaches (a String, a handle, a class without subclasses, an interface,
+an array). The adapter is generated per instantiation (`&Consumer_tfn_Node{func(name Node)
+{...}}`, `Function_tfn_string_JSChunk`; `g_zstubs.go`) and converts at the erased signature
+with the conversions the erased code makes for those types (`Node_of_`, `str_`, `cast_[*C]`,
+`icast_I`; `strobj_`, `obj_`, `box_()`), so it costs what the erased lambda cost. Only an
+adapter whose types name a type variable is generic (`Function_tfn[N, any]`, converting with
+`unboxT_`/`boxT_`).
 
 **Type arguments in declarations.** Library types stay erased; the declared type of a field,
 local or parameter whose Java type is a parameterized library type is written through a generic
