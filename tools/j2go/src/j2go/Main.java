@@ -259,6 +259,7 @@ public final class Main {
         if (tp.getGenericElement() instanceof ExecutableElement m && !m.getModifiers().contains(Modifier.STATIC)) cx.genFns.add(m);
       }
     }
+    cx.registerValueLibs();
     cx.assignClassNames();
     cx.analyzeMethods();
     Files.createDirectories(out);

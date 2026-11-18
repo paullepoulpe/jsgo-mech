@@ -715,6 +715,7 @@ abstract class ExprEmitter extends Base {
       Ctx.K kx = kl == Ctx.K.NULL ? kr : kl;
       if (kx == Ctx.K.NULL) return op.equals("==") ? "true" : "false";
       if (kx == Ctx.K.TVAR) return (op.equals("==") ? "" : "!") + "isnull_(" + expr(x) + ")";
+      if (cx.isValueLibType(cx.erase(kl == Ctx.K.NULL ? tr : tl))) return (op.equals("==") ? "" : "!") + atomOrParen(expr(x)) + ".null_()";
       return "(" + expr(x) + " " + op + " " + cx.nil(kl == Ctx.K.NULL ? tr : tl) + ")";
     }
     if (kl == Ctx.K.TVAR || kr == Ctx.K.TVAR) {
@@ -734,6 +735,7 @@ abstract class ExprEmitter extends Base {
     if (kl == Ctx.K.ARR && kr == Ctx.K.ARR) {
       return (op.equals("==") ? "" : "!") + "samearr_(" + expr(l) + ", " + expr(r) + ")";
     }
+    if (cx.isValueLibType(cx.erase(tl)) || cx.isValueLibType(cx.erase(tr))) throw unsupported(t, "identity of a value library class (" + tl + " " + op + " " + tr + ")");
     if (kl == kr && cx.goType(tl).equals(cx.goType(tr))) {
       return "(" + expr(l) + " " + op + " " + expr(r) + ")";
     }
@@ -758,6 +760,7 @@ abstract class ExprEmitter extends Base {
       case STR: return "isstr_(" + anyCode + ")";
       case CLS: {
         TypeElement te = Ctx.typeElement(target);
+        if (cx.isValueLib(te)) return "is" + cx.className(te) + "_(" + anyCode + ")";
         // a generic Go type: any instantiation, through the marker method isa_C_ (Emitter.structDecl)
         if (cx.isSource(te) && !cx.goTparams(te).isEmpty()) return "is_" + cx.className(te) + "(" + anyCode + ")";
         if (cx.isLeaf(te)) return "is_[" + cx.goType(target) + "](" + anyCode + ")";
@@ -957,7 +960,7 @@ abstract class ExprEmitter extends Base {
       TypeMirror ret = cx.erase(e.getReturnType());
       String name = cx.staticMethodName(e);
       if (!src) noteMethod("func " + name, e, params, ret, "static");
-      if (src && !cx.keptOf(e.getTypeParameters()).isEmpty()) {
+      if ((src || cx.isValueLib(owner)) && !cx.keptOf(e.getTypeParameters()).isEmpty()) {
         // A generic function: instantiated with javac's inferred type arguments (kept ones).
         ExecutableType inst = curInst;
         curInst = null;

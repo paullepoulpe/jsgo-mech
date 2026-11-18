@@ -122,6 +122,37 @@ final class Ctx {
     }
   }
 
+  /**
+   * Value library classes (Rule "Optional is a value"): library generic classes that the runtime
+   * implements as a generic Go struct whose values are immutable and have no identity the program
+   * looks at (java.util.Optional[T]: its zero value is Java's null). They are typed
+   * declarations whatever the program does with them: a wildcard, raw or erased type argument
+   * is `any` at that site only (Optional[any]), and a value passes between two instantiations
+   * by a conversion of its content (optAs_), where Java passes the same object.
+   */
+  final Set<TypeElement> valueLibs = new HashSet<>();
+
+  boolean isValueLib(TypeElement te) {
+    return te != null && valueLibs.contains(te);
+  }
+
+  boolean isValueLibType(TypeMirror t) {
+    return t != null && t.getKind() == TypeKind.DECLARED && valueLibs.contains(typeElement(t));
+  }
+
+  void registerValueLibs() {
+    for (String qn : List.of("java.util.Optional")) {
+      TypeElement te = elems.getTypeElement(qn);
+      if (te == null) continue;
+      valueLibs.add(te);
+      typedClasses.add(te);
+      keptVars.addAll(te.getTypeParameters());
+      for (Element e : te.getEnclosedElements()) {
+        if (e instanceof ExecutableElement m && m.getModifiers().contains(Modifier.STATIC)) keptVars.addAll(m.getTypeParameters());
+      }
+    }
+  }
+
   /** A parameterized type of a typed class. */
   boolean typedDecl(TypeMirror t) {
     return t != null && t.getKind() == TypeKind.DECLARED && typedClasses.contains(typeElement(t)) && !((DeclaredType) t).getTypeArguments().isEmpty();
@@ -169,6 +200,13 @@ final class Ctx {
     K k = kind(a);
     if (k == K.ANY || k == K.NULL || k == K.VOID) return "any";
     return goType(a);
+  }
+
+  /** "[any, any]": the type arguments of a raw use of value library class te. */
+  String rawArgs(TypeElement te) {
+    StringBuilder sb = new StringBuilder("[");
+    for (int i = 0; i < te.getTypeParameters().size(); i++) sb.append(i > 0 ? ", any" : "any");
+    return sb.append("]").toString();
   }
 
   /** "[X, Y]" for the type arguments of typed type t at its declaration's kept type parameters. */
@@ -304,6 +342,7 @@ final class Ctx {
   String nil(TypeMirror t) {
     if (kind(t) == K.STR) return "nullstr_";
     if (kind(t) == K.TVAR) return "null_[" + goType(t) + "]()";
+    if (isValueLibType(erase(t))) return goType(t) + "{}";
     return isHandleType(t) ? "0" : "nil";
   }
 
@@ -691,7 +730,9 @@ final class Ctx {
       case PRIM: return primName(t.getKind());
       case STR: return "string";
       case ARR: return "[]" + goType(((ArrayType) t).getComponentType());
-      case CLS: return typedDecl(t) ? "*" + className(typeElement(t)) + typeArgsOf(t) : ref(typeElement(t));
+      case CLS:
+        if (isValueLibType(t)) return className(typeElement(t)) + (typedDecl(t) ? typeArgsOf(t) : rawArgs(typeElement(t)));
+        return typedDecl(t) ? "*" + className(typeElement(t)) + typeArgsOf(t) : ref(typeElement(t));
       case IFACE: return typedDecl(t) ? className(typeElement(t)) + typeArgsOf(t) : className(typeElement(t));
       case TVAR: return tvName(t);
       case VOID: return "";
@@ -713,7 +754,7 @@ final class Ctx {
     List<? extends TypeMirror> args = ((DeclaredType) t).getTypeArguments();
     TypeElement te = typeElement(erase(t));
     K k = kind(erase(t));
-    if (args.isEmpty() || te == null || isSource(te) || (k != K.CLS && k != K.IFACE)) return g;
+    if (args.isEmpty() || te == null || isSource(te) || isValueLib(te) || (k != K.CLS && k != K.IFACE)) return g;
     String alias = className(te) + "Of";
     StringBuilder ps = new StringBuilder(), as = new StringBuilder();
     for (int i = 0; i < args.size(); i++) {
@@ -753,7 +794,7 @@ final class Ctx {
   /** Expression (taking a canonical `any`) that yields a class-typed value as its most derived object. */
   String canon(String code, TypeMirror from) {
     TypeElement te = typeElement(erase(from));
-    if (isHandle(te)) return code + ".box_()";
+    if (isHandle(te) || isValueLib(te)) return code + ".box_()";
     if (code.equals("this") && !hasSelf(te)) return "any(this)";
     if (hasSelf(te) && !isLeaf(te)) return code + ".self()";
     return "obj_(" + code + ")";
@@ -805,8 +846,16 @@ final class Ctx {
     if (kf == K.VOID) return code;
     String gf = goType(from), gt = goType(to);
     if (gf.equals(gt)) return code;
-    // A value of a type parameter meets another type through its box, as in the erased code.
     TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
+    // A value library class: between two instantiations the content is converted; from an
+    // object it is unboxed (nil is null, the zero value).
+    if (isValueLibType(to)) {
+      String ta = gt.substring(gt.indexOf('['));
+      String fn = "opt" + (className(typeElement(to)).equals("Optional") ? "" : className(typeElement(to)));
+      if (isValueLibType(from) && typeElement(from).equals(typeElement(to))) return fn + "As_" + ta + "(" + code + ")";
+      return fn + "Of_" + ta + "(" + coerce(code, from, object) + ")";
+    }
+    // A value of a type parameter meets another type through its box, as in the erased code.
     if (kf == K.TVAR) return kt == K.ANY ? "boxT_(" + code + ")" : coerce("boxT_(" + code + ")", object, to);
     if (kt == K.TVAR) return "unboxT_[" + gt + "](" + coerce(code, from, object) + ")";
     switch (kt) {

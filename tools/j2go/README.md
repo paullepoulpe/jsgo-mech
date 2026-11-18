@@ -95,6 +95,18 @@ with the conversions the erased code makes for those types (`Node_of_`, `str_`, 
 adapter whose types name a type variable is generic (`Function_tfn[N, any]`, converting with
 `unboxT_`/`boxT_`).
 
+**`java.util.Optional` is a value.** The runtime's `Optional[T]` (`rt_base.go`) is a generic
+struct, not a heap object: `Optional<X>` is `Optional[X]`, its content held as an `X`, and
+`Optional.of`/`empty`/`ofNullable` are generic functions that allocate nothing. Its zero value
+is Java's `null` (a field never assigned; `o == null` is `o.null_()`), and every method of a
+null Optional throws `NullPointerException` as a call on null does. A wildcard, raw or erased
+type argument is `any` at that site only (`Optional[any]`): an Optional passes between two
+instantiations by a conversion of its content (`optAs_`), and to and from `Object` by
+`box_()`/`optOf_` (nil for null), where Java passes one object; `equals` compares the contents
+of any two instantiations. Java gives an Optional no identity a program may use (it is a
+value-based class), and the translator refuses `==` between two Optionals. `J2GO_ERASED=1`
+keeps this representation (the runtime has no other).
+
 **Type arguments in declarations.** Library types stay erased; the declared type of a field,
 local or parameter whose Java type is a parameterized library type is written through a generic
 alias: `List<Reference>` becomes

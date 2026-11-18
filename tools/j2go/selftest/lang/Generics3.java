@@ -3,12 +3,15 @@ package lang;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Typed generics, wildcards that do not erase (j2go GenScan.refine and GenScan.shared): a local
  * with wildcard type arguments typed from its initializer, a shared static of type C<?, ?> that
  * is one object per instantiation, the shared empty array, a new array of C<?, ?> under a cast,
- * and a final class converted to a typed interface it implements (null stays null).
+ * and a final class converted to a typed interface it implements (null stays null); and
+ * java.util.Optional as a value (rule "Optional is a value"): null, empty, content, equals between
+ * instantiations, an Optional as an Object and back.
  */
 public class Generics3 {
   static final StringBuilder out = new StringBuilder();
@@ -150,6 +153,71 @@ public class Generics3 {
     return sb.toString();
   }
 
+  // ---- java.util.Optional as a value: null, empty, content, other instantiations, Object
+  static final class Holder {
+    Optional<String> name;
+    Optional<Integer> count = Optional.empty();
+    Optional<Pair<String, String>> pair = Optional.empty();
+  }
+
+  static String show(Optional<?> o) {
+    return o == null ? "null!" : o.isPresent() ? "has " + o.get() : "none";
+  }
+
+  static <T> Optional<T> first(List<T> l) {
+    return l.isEmpty() ? Optional.empty() : Optional.ofNullable(l.get(0));
+  }
+
+  static String optionals() {
+    StringBuilder sb = new StringBuilder();
+    Holder h = new Holder();
+    sb.append(h.name == null).append(' ').append(show(h.name)).append(' ').append(show(h.count)).append(' ');
+    try {
+      sb.append(h.name.isPresent());
+    } catch (NullPointerException e) {
+      sb.append("NPE");
+    }
+    h.name = Optional.of("n");
+    h.count = Optional.of(3);
+    h.pair = Optional.of(new Pair<>("a", "b"));
+    sb.append(' ').append(h.name != null).append(' ').append(show(h.name)).append(' ').append(show(h.count)).append(' ').append(h.pair.get().first());
+    sb.append('\n');
+    Optional<String> e = Optional.empty();
+    Optional<Integer> e2 = Optional.empty();
+    sb.append(e.equals(e2)).append(' ').append(h.name.equals(Optional.of("n"))).append(' ').append(h.name.equals("n")).append(' ')
+        .append(h.name.hashCode() == "n".hashCode()).append(' ').append(e.hashCode()).append(' ').append(h.name).append(' ').append(e).append(' ').append(h.count.orElse(9)).append(' ')
+        .append(e.orElse("dflt")).append(' ').append(e.orElse(null) == null).append(' ').append(e.isEmpty());
+    sb.append('\n');
+    List<Optional<String>> l = new ArrayList<>();
+    l.add(h.name);
+    l.add(e);
+    l.add(null);
+    Object o = l.get(0);
+    sb.append(o instanceof Optional).append(' ').append(l.get(2) == null).append(' ').append(l.get(1).isPresent()).append(' ').append(l.indexOf(Optional.empty())).append(' ');
+    @SuppressWarnings("unchecked")
+    Optional<String> back = (Optional<String>) o;
+    sb.append(back.get()).append(' ').append(first(l).get().get()).append(' ').append(first(new ArrayList<String>()).isPresent()).append(' ');
+    sb.append(h.name.filter(x -> x.startsWith("n")).isPresent()).append(' ').append(h.name.filter(x -> x.isEmpty()).isPresent()).append(' ');
+    h.count.ifPresent(c -> sb.append("count=").append(c + 1));
+    e.ifPresent(x -> sb.append("never"));
+    try {
+      Optional.of((String) null);
+    } catch (NullPointerException ex) {
+      sb.append(" NPE");
+    }
+    try {
+      e.get();
+    } catch (java.util.NoSuchElementException ex) {
+      sb.append(" NSE");
+    }
+    try {
+      e.orElseThrow();
+    } catch (java.util.NoSuchElementException ex) {
+      sb.append(" NSE");
+    }
+    return sb.toString();
+  }
+
   public static String run() {
     Seq<String, Integer> s = Trie.empty();
     p(s.size() + " " + s.get("a"));
@@ -166,6 +234,7 @@ public class Generics3 {
     names.add("x");
     names.add("y");
     p(firsts(names));
+    p(optionals());
     String r = out.toString();
     out.setLength(0);
     return r;
