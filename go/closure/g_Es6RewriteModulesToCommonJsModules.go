@@ -40,7 +40,7 @@ func Es6RewriteModulesToCommonJsModules_normalizePath(path string) string {
 			path = String_substring_int(path, (indexOfSlash + 1))
 		}
 	} else if strings.HasPrefix(path, "/") {
-		path = String_substring_int(path, 1)
+		path = path[1:]
 	}
 	return path
 }

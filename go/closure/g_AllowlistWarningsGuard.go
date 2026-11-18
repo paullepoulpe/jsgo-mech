@@ -48,7 +48,7 @@ func AllowlistWarningsGuard_normalizeAllowlist(allowlist *JTSet[string]) *JTSet[
 	for it_1.next() {
 		var line string = it_1.v
 		var trimmed string = strings.Trim(line, javaSpace_)
-		if trimmed == "" || (String_charAt(trimmed, 0) == '#') {
+		if trimmed == "" || (trimmed[0] == '#') {
 			continue
 		}
 		result.add(AllowlistWarningsGuard_LINE_NUMBER.matcher_s(trimmed).replaceFirst(":"))
