@@ -173,7 +173,7 @@ func Color_singleBuilder() *Color_Builder {
 }
 
 func Color_createUnion(elements *TSet[*Color]) *Color {
-	switch elements.Len() {
+	switch elements.size() {
 	case 0:
 		panic(new_IllegalStateException_0())
 	case 1:
@@ -241,7 +241,7 @@ func (this *Color) subtractNullOrVoidUncached() *Color {
 		return this
 	}
 	var elements *TSet[*Color] = tsetFrom_(tch_p_Color, icast_Collection(obj_(this.getUnionElements())), false)
-	elements.Delete(StandardColors_NULL_OR_VOID)
+	elements.remove(StandardColors_NULL_OR_VOID)
 	return Color_createUnion(elements)
 }
 

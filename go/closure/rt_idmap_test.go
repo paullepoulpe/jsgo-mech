@@ -34,9 +34,9 @@ func TestLihmAgainstLinkedIdentityHashMap(t *testing.T) {
 			var a, b any
 			switch r.Intn(4) {
 			case 0:
-				a, b = m.get(obj_(k)), tm.Get(k)
+				a, b = m.get(obj_(k)), tm.get(k)
 			case 1:
-				a, b = m.put(obj_(k), v), tm.Put(k, v)
+				a, b = m.put(obj_(k), v), tm.put(k, v)
 			case 2:
 				a, b = m.computeIfAbsent(obj_(k), fn), lihmComputeIfAbsent_(tm, k, fn)
 			case 3:

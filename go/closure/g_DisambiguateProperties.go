@@ -159,9 +159,9 @@ func (this *DisambiguateProperties) invalidateNonDeclaredPropertyAccesses(colorG
 
 func (this *DisambiguateProperties) mayHaveProperty(color *Color, propertyName string) (ret_1 bool) {
 	defer func() {
-		this.mayHavePropertySeenSet.Delete(color)
+		this.mayHavePropertySeenSet.remove(color)
 	}()
-	if !this.mayHavePropertySeenSet.Add(color) {
+	if !this.mayHavePropertySeenSet.add(color) {
 		return false
 	}
 	if color.isUnion() {
@@ -192,14 +192,14 @@ func (this *DisambiguateProperties) registerOwnDeclaredProperties(colorGraphNode
 	}
 	for _, el := range immElems_(colorGraphNode.getColor().getOwnProperties()) {
 		propName := str_(el)
-		var prop *PropertyClustering = propIndex.Get(propName)
+		var prop *PropertyClustering = propIndex.get(propName)
 		if prop == nil {
 			continue
 		} else if prop.isInvalidated() {
 			continue
 		}
 		prop.getClusters().add(obj_(colorGraphNode))
-		colorGraphNode.getAssociatedProps().Put(prop, ColorGraphNode_PropAssociation_TYPE_SYSTEM)
+		colorGraphNode.getAssociatedProps().put(prop, ColorGraphNode_PropAssociation_TYPE_SYSTEM)
 	}
 }
 

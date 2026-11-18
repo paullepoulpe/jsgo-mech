@@ -65,11 +65,11 @@ func ColorId_fromBytesAt(source any, length int32, byteAt func(any, int32) int8)
 }
 
 func ColorId_union(ids *TSet[*ColorId]) *ColorId {
-	if ids.Len() <= 1 {
+	if ids.size() <= 1 {
 		return cast_[*ColorId](Iterables_getOnlyElement(Iterable(ids.asSet())))
 	}
 	var index int32 = 0
-	var sorted []int64 = make([]int64, ids.Len())
+	var sorted []int64 = make([]int64, ids.size())
 	for id := range ids.All() {
 		sorted[index] = id.rightAligned
 		index++

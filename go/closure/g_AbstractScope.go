@@ -235,7 +235,7 @@ func (this *AbstractScope) getAllAccessibleVariables() IterableOf[any] {
 	var s *AbstractScope = this.thisScope()
 	for s != nil {
 		for v := range elemsBy_(s.getVarIterable(), to_AbstractVar) {
-			accessibleVars.PutIfAbsent(v.getName(), v.self())
+			accessibleVars.putIfAbsent(v.getName(), v.self())
 		}
 		s = s.getParent()
 	}

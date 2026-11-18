@@ -23,7 +23,7 @@ func (this *ClusterPropagator) traverseEdge(src_ any, unused any, dest_ any) boo
 	if src.getColor() == StandardColors_TOP_OBJECT {
 		return false
 	}
-	var startDestPropCount int32 = dest.getAssociatedProps().Len()
+	var startDestPropCount int32 = dest.getAssociatedProps().size()
 	for prop := range src.getAssociatedProps().Keys() {
 		if prop.isInvalidated() {
 			continue
@@ -31,5 +31,5 @@ func (this *ClusterPropagator) traverseEdge(src_ any, unused any, dest_ any) boo
 		Map_putIfAbsent(dest.getAssociatedProps().asMap(), obj_(prop), obj_(ColorGraphNode_PropAssociation_SUPERTYPE))
 		prop.getClusters().union(obj_(src), obj_(dest))
 	}
-	return (startDestPropCount < dest.getAssociatedProps().Len())
+	return (startDestPropCount < dest.getAssociatedProps().size())
 }

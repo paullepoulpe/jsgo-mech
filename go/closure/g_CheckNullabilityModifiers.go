@@ -70,9 +70,9 @@ func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, pare
 	}
 	if n.isScript() {
 		this.report(t)
-		this.redundantCandidates.Clear()
-		this.missingCandidates.Clear()
-		this.nullMissingCandidates.Clear()
+		this.redundantCandidates.clear()
+		this.missingCandidates.clear()
+		this.nullMissingCandidates.clear()
 		clear(this.templateTypeNames)
 		return
 	}
@@ -129,12 +129,12 @@ func (this *CheckNullabilityModifiers) visitTypeExpression_3(expr *JSTypeExpress
 		var isAppliedToRValue bool = ((node == root) || ((parent != 0) && (parent.ns_().token == tokOrd1_PIPE)))
 		if (((isReference && !hasBang) && !hasQmark) && !isNewOrThis) && !isTypeOfType {
 			if (isAppliedToRValue && (rValue != 0)) && rValue.isNull() {
-				this.nullMissingCandidates.Add(node)
+				this.nullMissingCandidates.add(node)
 			} else {
-				this.missingCandidates.Add(node)
+				this.missingCandidates.add(node)
 			}
 		} else if isPrimitiveOrLiteral && hasNonArtificialBang {
-			this.redundantCandidates.Add(node)
+			this.redundantCandidates.add(node)
 		}
 	}})
 }

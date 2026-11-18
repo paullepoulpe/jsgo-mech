@@ -166,10 +166,10 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, 
 		if !scope.isFunctionBlockScope() && !scope.isBlockScope() {
 			panic(new_IllegalStateException_0())
 		}
-		if !allVarsInFn.Has(name) {
+		if !allVarsInFn.containsKey(name) {
 			return
 		}
-		var var_ *Var = allVarsInFn.Get(name)
+		var var_ *Var = allVarsInFn.get(name)
 		if has_(this.liveness.getEscapedLocals(), vkey_(var_)) {
 			return
 		}

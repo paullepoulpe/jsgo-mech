@@ -83,7 +83,7 @@ func (this *JSChunk) add(file *SourceFile_jscomp) {
 
 func (this *JSChunk) addCompilerInput(input *CompilerInput) {
 	var inputName string = input.getName()
-	var previous *CompilerInput = this.inputs.Put(inputName, input)
+	var previous *CompilerInput = this.inputs.put(inputName, input)
 	if ok_, a1_, a2_ := (previous == nil), inputName, this.getName(); !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("%s already exist in chunk %s", []any{strobj_(a1_), strobj_(a2_)})))
 	}
@@ -102,14 +102,14 @@ func (this *JSChunk) addDependency(dep *JSChunk) {
 
 func (this *JSChunk) remove(input *CompilerInput) {
 	input.setChunk(nil)
-	this.inputs.Delete(input.getName())
+	this.inputs.remove(input.getName())
 }
 
 func (this *JSChunk) removeAll() {
 	for input := range this.inputs.Values() {
 		input.setChunk(nil)
 	}
-	this.inputs.Clear()
+	this.inputs.clear()
 }
 
 func (this *JSChunk) getDependencies() []*JSChunk {
@@ -133,7 +133,7 @@ func (this *JSChunk) getAllDependencies() *TSet[*JSChunk] {
 		var chunk *JSChunk = stack.pop_()
 		var chunkDeps *[]*JSChunk = chunk.deps
 		for dep := range sliceAll_(chunkDeps) {
-			if allDeps.Add(dep) {
+			if allDeps.add(dep) {
 				stack.push_(dep)
 			}
 		}
@@ -143,12 +143,12 @@ func (this *JSChunk) getAllDependencies() *TSet[*JSChunk] {
 
 func (this *JSChunk) getThisAndAllDependencies() *TSet[*JSChunk] {
 	var deps *TSet[*JSChunk] = this.getAllDependencies()
-	deps.Add(this)
+	deps.add(this)
 	return deps
 }
 
 func (this *JSChunk) getInputCount() int32 {
-	return this.inputs.Len()
+	return this.inputs.size()
 }
 
 func (this *JSChunk) getFirst() *CompilerInput {
@@ -164,11 +164,11 @@ func (this *JSChunk) getInputsIterable() IterableOf[*CompilerInput] {
 }
 
 func (this *JSChunk) getByName(name string) *CompilerInput {
-	return this.inputs.Get(name)
+	return this.inputs.get(name)
 }
 
 func (this *JSChunk) removeByName(name string) bool {
-	var value *CompilerInput = this.inputs.Delete(name)
+	var value *CompilerInput = this.inputs.remove(name)
 	return (value != nil)
 }
 
@@ -189,9 +189,9 @@ func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
 		input.setCompiler(compiler)
 	}
 	var sortedList *[]*CompilerInput = new_SortedDependencies(icast_List(obj_(this.getInputs()))).getSortedList()
-	this.inputs.Clear()
+	this.inputs.clear()
 	for input := range sliceAll_(sortedList) {
-		this.inputs.Put(input.getName(), input)
+		this.inputs.put(input.getName(), input)
 	}
 }
 

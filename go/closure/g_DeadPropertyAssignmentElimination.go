@@ -134,12 +134,12 @@ func (this *DeadPropertyAssignmentElimination_Property) markLastWriteRead() {
 func (this *DeadPropertyAssignmentElimination_Property) markChildrenRead() {
 	var propertiesSet *TSet[*DeadPropertyAssignmentElimination_Property] = tsetFrom_(tc_p_DeadPropertyAssignmentElimination_Property, Collection(this.children_.asSet()), false)
 	var propertyQueue QueueOf[*DeadPropertyAssignmentElimination_Property] = new_ArrayDeque_Collection(Collection(propertiesSet.asSet()))
-	propertiesSet.Add(this)
+	propertiesSet.add(this)
 	for !propertyQueue.isEmpty() {
 		var childProperty *DeadPropertyAssignmentElimination_Property = cast_[*DeadPropertyAssignmentElimination_Property](propertyQueue.remove_0())
 		childProperty.markLastWriteRead()
 		for grandchildProperty := range childProperty.children_.All() {
-			if propertiesSet.Add(grandchildProperty) {
+			if propertiesSet.add(grandchildProperty) {
 				propertyQueue.add(obj_(grandchildProperty))
 			}
 		}
@@ -230,7 +230,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 	if propNode.isGetProp() {
 		var parentProperty *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(propNode.getFirstChild())
 		if parentProperty != nil {
-			parentProperty.children_.Add(property)
+			parentProperty.children_.add(property)
 		}
 	}
 	return property
@@ -342,7 +342,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 				for ; child != 0; child = child.getNext() {
 					if child.isStringKey() {
 						var propName string = child.getString()
-						var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.Get(propName)
+						var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.get(propName)
 						if property != nil {
 							property.markLastWriteRead()
 							property.markChildrenRead()

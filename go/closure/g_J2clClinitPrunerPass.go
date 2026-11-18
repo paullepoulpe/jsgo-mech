@@ -32,11 +32,11 @@ func (this *J2clClinitPrunerPass) process_2(externs Node, root Node) {
 	}
 	this.removeRedundantClinits(root, this.initialChangedScopeNodes)
 	this.pruneEmptyClinits(root, this.initialChangedScopeNodes)
-	if this.emptiedClinitMethods.IsEmpty() {
+	if this.emptiedClinitMethods.isEmpty() {
 		return
 	}
 	var clinitReferences *SimpleSetMultimap[any, Node] = this.collectClinitReferences(root)
-	for do_2 := true; do_2; do_2 = !this.emptiedClinitMethods.IsEmpty() {
+	for do_2 := true; do_2; do_2 = !this.emptiedClinitMethods.isEmpty() {
 		var newChangedScopes *TList[Node] = this.cleanEmptyClinitReferences(clinitReferences)
 		this.pruneEmptyClinits(root, newChangedScopes)
 	}
@@ -50,7 +50,7 @@ func (this *J2clClinitPrunerPass) removeRedundantClinits(root Node, changedScope
 }
 
 func (this *J2clClinitPrunerPass) pruneEmptyClinits(root Node, changedScopes *TList[Node]) {
-	this.emptiedClinitMethods.Clear()
+	this.emptiedClinitMethods.clear()
 	this.traverseScopeRootsWithFallback(root, changedScopes, new_J2clClinitPrunerPass_EmptyClinitPruner(this), false)
 	for clinitReplacementEntry := range elemsBy_(this.emptiedClinitMethods.asMap().entrySet(), icast_Map_Entry) {
 		clinitReplacementEntry.setValue(this.resolveReplacement(Node_of_(clinitReplacementEntry.getValue())).box_())
@@ -71,10 +71,10 @@ func (this *J2clClinitPrunerPass) resolveReplacement(node Node) Node {
 	}
 	var clinitName OptionalOf[string] = J2clClinitPrunerPass_getClinitMethodName(node)
 	return func() Node {
-		if clinitName.isPresent() && this.emptiedClinitMethods.Has(clinitName.get()) {
+		if clinitName.isPresent() && this.emptiedClinitMethods.containsKey(clinitName.get()) {
 			return this.resolveReplacement(func() Node {
 				if clinitName.isPresent() {
-					return this.emptiedClinitMethods.Get(clinitName.get())
+					return this.emptiedClinitMethods.get(clinitName.get())
 				}
 				return 0
 			}())
@@ -372,7 +372,7 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) trySubstituteEmptyFunction(f
 	} else {
 		return
 	}
-	this.outer_.emptiedClinitMethods.Put(fnQualifiedName.get(), replaceReferencesWith)
+	this.outer_.emptiedClinitMethods.put(fnQualifiedName.get(), replaceReferencesWith)
 	NodeUtil_deleteNode(firstExpr, this.outer_.compiler_)
 }
 

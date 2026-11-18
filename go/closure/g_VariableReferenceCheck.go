@@ -32,7 +32,7 @@ func (this *VariableReferenceCheck) lookForHoistedFunction(references *TList[*Re
 	for i_1 := 0; i_1 < len(references.items); i_1++ {
 		var reference *Reference = references.items[i_1]
 		if reference.isHoistedFunction() {
-			this.blocksWithDeclarations.Add(reference.getBasicBlock())
+			this.blocksWithDeclarations.add(reference.getBasicBlock())
 			return reference
 		}
 	}
@@ -274,7 +274,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkGoogModuleExp
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, references *TList[*Reference]) {
-	this.outer_.blocksWithDeclarations.Clear()
+	this.outer_.blocksWithDeclarations.clear()
 	var hasSeenDeclaration bool = false
 	var hasErrors bool = false
 	var isRead bool = false
@@ -294,7 +294,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, r
 		if isDeclaration {
 			hasSeenDeclaration = true
 			hasErrors = this.outer_.checkRedeclaration(v, reference, referenceNode, hoistedFn, basicBlock)
-			this.outer_.blocksWithDeclarations.Add(basicBlock)
+			this.outer_.blocksWithDeclarations.add(basicBlock)
 			this.outer_.checkBlocklessDeclaration(v, reference, referenceNode)
 			if reference.getGrandparent().isExport() {
 				isRead = true

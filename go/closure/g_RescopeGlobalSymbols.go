@@ -164,7 +164,7 @@ func new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler *AbstractComp
 func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
 		var name string = n.getString()
-		if name == "" || (!this.trackLocalAccessSets && this.crossChunkNames_.Has(name)) {
+		if name == "" || (!this.trackLocalAccessSets && this.crossChunkNames_.contains(name)) {
 			return
 		}
 		this.renameHelperBuilder.recordExistingName(name)
@@ -174,33 +174,33 @@ func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit_impl(t *Node
 			return
 		}
 		if this.assumeCrossChunkNames || this.compiler_.getCodingConvention().isExported_2(name, false) {
-			this.crossChunkNames_.Add(name)
+			this.crossChunkNames_.add(name)
 		}
 		var input *CompilerInput = v.getInput()
 		if ((this.trackLocalAccessSets && !t.inGlobalScope()) && ((input == nil) || (input.getChunk() == t.getChunk()))) && NodeUtil_isLValueWrite(n) {
-			this.globalNamesWithInnerScopeWriteInDefiningChunk_.Add(name)
+			this.globalNamesWithInnerScopeWriteInDefiningChunk_.add(name)
 		}
 		if input == nil {
-			this.crossChunkNames_.Add(name)
+			this.crossChunkNames_.add(name)
 			return
 		}
 		var chunk *JSChunk = input.getChunk()
 		if chunk != t.getChunk() {
-			this.crossChunkNames_.Add(name)
+			this.crossChunkNames_.add(name)
 			if this.trackLocalAccessSets {
 				if NodeUtil_isLValueWrite(n) {
-					this.crossChunkNamesWithWriteFromOtherChunk_.Add(name)
+					this.crossChunkNamesWithWriteFromOtherChunk_.add(name)
 				}
 				if !this.compiler_.getChunkGraph().dependsOn(t.getChunk(), chunk) {
-					this.crossChunkNamesUsedInNonDependentChunk_.Add(name)
+					this.crossChunkNamesUsedInNonDependentChunk_.add(name)
 				}
 			}
 		} else if this.trackLocalAccessSets {
 			if RescopeGlobalSymbols_FindCrossChunkNamesCallback_isReadReference(n) {
-				this.globalNamesWithReadInDefiningChunk_.Add(name)
+				this.globalNamesWithReadInDefiningChunk_.add(name)
 			}
 			if NodeUtil_isLValueWrite(n) && !RescopeGlobalSymbols_FindCrossChunkNamesCallback_isWriteSafeForLocalAliasMirroring(n, parent) {
-				this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.Add(name)
+				this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.add(name)
 			}
 		}
 	}
@@ -281,7 +281,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit_impl(t *NodeTra
 		if (value == 0) && !NodeUtil_isLhsByDestructuring(n) {
 			return
 		}
-		if this.maybeReferencesThis_.Has(name) {
+		if this.maybeReferencesThis_.contains(name) {
 			return
 		}
 		var s *Scope = t.getScope()
@@ -290,7 +290,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit_impl(t *NodeTra
 			return
 		}
 		if ((value == 0) || !value.isFunction()) || NodeUtil_referencesOwnReceiver(value) {
-			this.maybeReferencesThis_.Add(name)
+			this.maybeReferencesThis_.add(name)
 		}
 	}
 }

@@ -123,7 +123,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) getAllResolvedImports(m
 		name := str_(el)
 		var b *ResolveExportResult = this.resolveImport(moduleRequestResolver, name)
 		if b.resolved() {
-			imports.Put(name, b.getBinding())
+			imports.put(name, b.getBinding())
 		}
 	}
 	return imports
@@ -278,7 +278,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeExpo
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) markExportsAssignmentInNamespace(exportsNode Node) {
-	this.namespace_.Put(Export_NAMESPACE, Binding_from_Export_Node(Export_builder().exportName(Optional_of[string](Export_NAMESPACE)).exportNode(exportsNode).moduleMetadata(this.metadata_).closureNamespace(Optional_of[string](this.closureNamespace_)).modulePath(this.metadata_.path()).build(), exportsNode))
+	this.namespace_.put(Export_NAMESPACE, Binding_from_Export_Node(Export_builder().exportName(Optional_of[string](Export_NAMESPACE)).exportNode(exportsNode).moduleMetadata(this.metadata_).closureNamespace(Optional_of[string](this.closureNamespace_)).modulePath(this.metadata_.path()).build(), exportsNode))
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) initializeNamedExportsLiteral(objectLit Node) {
@@ -293,15 +293,15 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) initializeNamedExpo
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) addPropertyExport(exportedId string, propNode Node) {
 	if this.seenExportsAssignment {
 		return
-	} else if this.namespace_.Has(exportedId) {
+	} else if this.namespace_.containsKey(exportedId) {
 		return
 	}
-	this.namespace_.Put(exportedId, Binding_from_Export_Node(Export_builder().exportName(Optional_of[string](exportedId)).exportNode(propNode).moduleMetadata(this.metadata_).closureNamespace(Optional_of[string](this.closureNamespace_)).modulePath(this.metadata_.path()).build(), propNode))
+	this.namespace_.put(exportedId, Binding_from_Export_Node(Export_builder().exportName(Optional_of[string](exportedId)).exportNode(propNode).moduleMetadata(this.metadata_).closureNamespace(Optional_of[string](this.closureNamespace_)).modulePath(this.metadata_.path()).build(), propNode))
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeRequire(nameDeclaration Node) {
 	for _, require := range ClosureRequireProcessor_getAllRequires(nameDeclaration) {
-		this.requiresByLocalName.PutIfAbsent(require.localName(), require)
+		this.requiresByLocalName.putIfAbsent(require.localName(), require)
 	}
 }
 

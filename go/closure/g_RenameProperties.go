@@ -69,7 +69,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		panic(new_IllegalStateException_0())
 	}
 	NodeTraversal_traverse(this.compiler_, root, new_RenameProperties_ProcessProperties(this))
-	var reservedNames SetOf[string] = Sets_newLinkedHashSetWithExpectedSize((this.externedNames.Len() + this.quotedNames.Len()))
+	var reservedNames SetOf[string] = Sets_newLinkedHashSetWithExpectedSize((this.externedNames.size() + this.quotedNames.size()))
 	reservedNames.addAll(Collection(this.externedNames.asSet()))
 	reservedNames.addAll(Collection(this.quotedNames.asSet()))
 	var propsByFreq SetOf[*RenameProperties_Property] = new_TreeSet_Comparator(RenameProperties_FREQUENCY_COMPARATOR)
@@ -83,7 +83,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		if has_(this.filteredOutNames, oldName) {
 			continue
 		}
-		var p *RenameProperties_Property = this.propertyMap.Get(oldName)
+		var p *RenameProperties_Property = this.propertyMap.get(oldName)
 		if (p != nil) && p.newName.isPresent() {
 			if oldName != p.oldName {
 				panic(new_IllegalStateException_0())
@@ -99,7 +99,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		var firstArg Node = nodeEntryKey.getSecondChild()
 		var sb strBuilder_
 		for oldName := range elemsBy_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()), str_) {
-			var p *RenameProperties_Property = this.propertyMap.Get(oldName)
+			var p *RenameProperties_Property = this.propertyMap.get(oldName)
 			var replacement string
 			if (p != nil) && p.newName.isPresent() {
 				if oldName != p.oldName {
@@ -233,12 +233,12 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 	case tokOrd1_GETELEM, tokOrd1_OPTCHAIN_GETELEM:
 		var child Node = n.getLastChild()
 		if (child != 0) && child.isStringLit() {
-			this.outer_.quotedNames.Add(child.getString())
+			this.outer_.quotedNames.add(child.getString())
 		}
 	case tokOrd1_CALL:
 		var fnName Node = n.getFirstChild()
 		if this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(fnName) {
-			this.outer_.callNodeToParentMap.Put(n, parent)
+			this.outer_.callNodeToParentMap.put(n, parent)
 			this.countCallCandidates(t, n)
 			var stringArgument Node = n.getSecondChild()
 			if !this.outer_.propertyRenameEligibilityFilter(n.box_()) {
@@ -252,13 +252,13 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 			panic(new_IllegalStateException_0())
 		}
 		if NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
-			this.outer_.externedNames.Add(n.getString())
+			this.outer_.externedNames.add(n.getString())
 		} else {
 			this.maybeMarkCandidate(n)
 		}
 	case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_STRING_KEY:
 		if n.isQuotedStringKey() {
-			this.outer_.quotedNames.Add(n.getString())
+			this.outer_.quotedNames.add(n.getString())
 		} else {
 			this.maybeMarkCandidate(n)
 		}
@@ -285,7 +285,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 
 func (this *RenameProperties_ProcessProperties) maybeMarkCandidate(n Node) {
 	var name string = n.getString()
-	if !this.outer_.externedNames.Has(name) {
+	if !this.outer_.externedNames.contains(name) {
 		if !this.outer_.propertyRenameEligibilityFilter(n.box_()) {
 			this.outer_.filteredOutNames[n.getString()] = struct{}{}
 		}
@@ -306,7 +306,7 @@ func (this *RenameProperties_ProcessProperties) countCallCandidates(t *NodeTrave
 			t.report(callNode, RenameProperties_BAD_ARG, []string{fnName})
 			continue
 		}
-		if !this.outer_.externedNames.Has(name) {
+		if !this.outer_.externedNames.contains(name) {
 			this.countPropertyOccurrence(name)
 		}
 	}

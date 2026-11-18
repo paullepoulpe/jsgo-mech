@@ -4237,7 +4237,7 @@ func NodeUtil_markFunctionsDeletedChangeTracker(node Node, changeTracker *Change
 func NodeUtil_getParentChangeScopeNodes(scopeNodes *TList[Node]) []Node {
 	var parentScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(scopeNodes.asList()), false)
 	for scopeNode := range scopeNodes.All() {
-		parentScopeNodes.Add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
+		parentScopeNodes.add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
 	}
 	return sliceFrom_(tc_Node, Collection(parentScopeNodes.asSet()))
 }
@@ -4248,8 +4248,8 @@ func NodeUtil_removeNestedChangeScopeNodes(scopeNodes []Node) *TList[Node] {
 		{
 			var ancestor Node = scopeNode.getParent()
 			for ; ancestor != 0; ancestor = ancestor.getParent() {
-				if ChangeTracker_isChangeScopeRoot(ancestor) && uniqueScopeNodes.Has(ancestor) {
-					uniqueScopeNodes.Delete(scopeNode)
+				if ChangeTracker_isChangeScopeRoot(ancestor) && uniqueScopeNodes.contains(ancestor) {
+					uniqueScopeNodes.remove(scopeNode)
 					break
 				}
 			}
@@ -4679,7 +4679,7 @@ func (this *NodeUtil_VarCollector) visit(n Node) {
 		NodeUtil_visitLhsNodesInNode(n, func(name_ any) {
 			var name Node = Node_of_(name_)
 			_ = name
-			this.vars.PutIfAbsent(name.getString(), name)
+			this.vars.putIfAbsent(name.getString(), name)
 		})
 	}
 }
@@ -4880,7 +4880,7 @@ type NodeUtil_AllVarsDeclaredInFunction struct {
 }
 
 func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *TMap[string, *Var], orderedVars *[]*Var) {
-	if allVarsInFn.IsEmpty() != (len(*orderedVars) == 0) {
+	if allVarsInFn.isEmpty() != (len(*orderedVars) == 0) {
 		panic(new_IllegalStateException_0())
 	}
 	this.allVarsInFn = allVarsInFn
@@ -5022,7 +5022,7 @@ func new_NodeUtil_2(cap_nameVarMap *TMap[string, *Var], cap_orderedVars *[]*Var,
 func (this *NodeUtil_2) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
 	for v := range elemsAs_[*Var](currentScope.getVarIterable()) {
-		this.cap_nameVarMap.Put(v.getName(), v)
+		this.cap_nameVarMap.put(v.getName(), v)
 		*this.cap_orderedVars = append(*this.cap_orderedVars, v)
 	}
 }

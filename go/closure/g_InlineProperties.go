@@ -272,9 +272,9 @@ func (this *InlineProperties_ReplaceCandidates) isMatchingType(n Node, src *Colo
 
 func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Color, superCtor *Color) (ret_1 bool) {
 	defer func() {
-		this.hasInSupertypesListSeenSet.Delete(subCtor)
+		this.hasInSupertypesListSeenSet.remove(subCtor)
 	}()
-	if !this.hasInSupertypesListSeenSet.Add(subCtor) {
+	if !this.hasInSupertypesListSeenSet.add(subCtor) {
 		return false
 	}
 	if (subCtor == nil) || (superCtor == nil) {

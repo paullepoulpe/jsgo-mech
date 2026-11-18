@@ -49,7 +49,7 @@ func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) Immutabl
 		if trimmed == "" || (trimmed[0] == '#') {
 			continue
 		}
-		result.Add(AllowlistWarningsGuard_LINE_NUMBER.matcher_s(trimmed).replaceFirst(":"))
+		result.add(AllowlistWarningsGuard_LINE_NUMBER.matcher_s(trimmed).replaceFirst(":"))
 	}
 	return ImmutableSet_copyOf(Collection(result.asSet()))
 }
@@ -188,7 +188,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) report_2(level CheckLevel, 
 	if equalsId_(error_.defaultLevel(), CheckLevel_ERROR) {
 		return
 	}
-	this.warnings_.Add(error_)
+	this.warnings_.add(error_)
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) writeAllowlist(out string) *Outcome_base[any] {
@@ -202,7 +202,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) writeAllowlist(out string) 
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output) {
 	out.append_CharSequence_s("# This is a list of legacy warnings that have yet to be fixed.\n")
-	if (this.productName.isPresent() && this.productName.get() != "") && !this.warnings_.IsEmpty() {
+	if (this.productName.isPresent() && this.productName.get() != "") && !this.warnings_.isEmpty() {
 		out.append_CharSequence_s(("# Please find some time and fix at least one of them and it will be the happiest day for " + sstr_(this.productName.get()) + ".\n"))
 	}
 	if this.generatorTarget.isPresent() && this.generatorTarget.get() != "" {

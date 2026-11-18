@@ -123,12 +123,12 @@ func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) recordExistingName(n
 		return
 	}
 	if strings.HasPrefix(name, RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) {
-		this.namesStartingWithUnderscore.Add(name)
+		this.namesStartingWithUnderscore.add(name)
 	}
 	if RescopeGlobalSymbolsRenameHelper_conflictsWithGlobalSymbolNamespace(name, this.globalSymbolNamespace_) {
 		var disambiguatedName string = RescopeGlobalSymbolsRenameHelper_getDisambiguatedLocalName(name)
 		if strings.HasPrefix(disambiguatedName, RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) {
-			this.namesStartingWithUnderscore.Add(disambiguatedName)
+			this.namesStartingWithUnderscore.add(disambiguatedName)
 		}
 	}
 }

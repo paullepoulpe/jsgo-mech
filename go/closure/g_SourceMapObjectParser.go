@@ -81,7 +81,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 	var extensions *TMap[string, any] = newTMap_(tc_string, tc_any)
 	for entry := range elemsBy_(sourceMapRoot.members().entrySet(), icast_Map_Entry) {
 		if strings.HasPrefix(str_(entry.getKey()), "x_") {
-			extensions.Put(str_(entry.getKey()), entry.getValue())
+			extensions.put(str_(entry.getKey()), entry.getValue())
 		}
 	}
 	builder.setExtensions(extensions)
@@ -184,7 +184,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 				if value.isErr() {
 					return Outcome_base_err[any](new_SourceMapParseException(value.errorMessage().orElse(nullstr_)).up_Throwable())
 				}
-				extensions.Put(name, value.get())
+				extensions.put(name, value.get())
 			} else {
 				var skipped *Outcome_base[any] = lexer.skipValue()
 				if skipped.isErr() {

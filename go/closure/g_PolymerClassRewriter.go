@@ -647,12 +647,12 @@ func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefin
 	if cls.behaviors != nil {
 		for _, behavior := range cls.behaviors {
 			for _, method := range behavior.functionsToCopy {
-				uniqueMethods.Put(method.name_.getString(), method)
+				uniqueMethods.put(method.name_.getString(), method)
 			}
 		}
 	}
 	for method := range sliceAll_(cls.methods) {
-		uniqueMethods.Put(method.name_.getString(), method)
+		uniqueMethods.put(method.name_.getString(), method)
 	}
 	for method := range uniqueMethods.Values() {
 		this.addMethodToObjectExternsUsingExportAnnotation(cls, method)

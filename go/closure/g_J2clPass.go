@@ -223,7 +223,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 		return
 	}
 	for _, inlineSpec := range this.currFileInlineSpecs {
-		if !inlineSpec.fnNamesToInline_.Has(fnName) {
+		if !inlineSpec.fnNamesToInline_.contains(fnName) {
 			continue
 		}
 		var inlinableFunction *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = new_J2clPass_ClassStaticFunctionsInliner_InlinableFunction(n.getLastChild(), inlineSpec.inliningMode_)

@@ -100,7 +100,7 @@ func (this *StringPool_Builder) put(string_ string) int32 {
 	return unbox_[int32](this.pool.ComputeIfAbsent(string_, func(unused_ string) any {
 		var unused string = unused_
 		_ = unused
-		return any(int32(this.pool.Len()))
+		return any(int32(this.pool.size()))
 	}))
 }
 

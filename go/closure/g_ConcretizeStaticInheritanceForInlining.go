@@ -146,7 +146,7 @@ func new_ConcretizeStaticInheritanceForInlining_JavascriptClass() *ConcretizeSta
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) addStaticMember(node Node) {
-	this.staticMembers.Add(node)
+	this.staticMembers.add(node)
 	this.staticMemberNames[node.getFirstChild().getString()] = struct{}{}
 }
 

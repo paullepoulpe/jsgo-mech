@@ -152,7 +152,7 @@ func (this *ProcessDefines) getReplacementForDefineName(defineName OptionalOf[st
 	}
 	var replacementFromClosureDefines Node = func() Node {
 		if defineName.isPresent() {
-			return this.replacementValuesFromClosureDefines.Get(defineName.get())
+			return this.replacementValuesFromClosureDefines.get(defineName.get())
 		}
 		return 0
 	}()
@@ -191,7 +191,7 @@ func (this *ProcessDefines) collectDefines(root Node) {
 		} else {
 			defineName = name.getFullName()
 		}
-		var existingDefine *ProcessDefines_Define = this.defineByDefineName.PutIfAbsent(defineName, new_ProcessDefines_Define(defineName, name, declaration, valueParent, value))
+		var existingDefine *ProcessDefines_Define = this.defineByDefineName.putIfAbsent(defineName, new_ProcessDefines_Define(defineName, name, declaration, valueParent, value))
 		if existingDefine != nil {
 			declaration = existingDefine.declaration_
 			totalSets += existingDefine.name_.getTotalSets()
@@ -246,11 +246,11 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 	var namesToCheck *TSet[*GlobalNamespace_Name] = newTSet_(tc_p_GlobalNamespace_Name)
 	for name := range elemsAs_[*GlobalNamespace_Name](icast_Collection(this.namespace_.getAllSymbols())) {
 		if ProcessDefines_isGlobalConst(name) {
-			namesToCheck.Add(name)
+			namesToCheck.add(name)
 		}
 	}
 	for define := range this.defineByDefineName.Values() {
-		namesToCheck.Delete(define.name_)
+		namesToCheck.remove(define.name_)
 		for r := range elemsAs_[*GlobalNamespace_Ref](define.name_.getRefs()) {
 			if !r.isSet() {
 				this.validDefineValueExpressions[r.getNode()] = struct{}{}
@@ -267,11 +267,11 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 					this.validDefineValueExpressions[ref.getNode()] = struct{}{}
 				}
 			case Tri_UNKNOWN:
-				namesToCheckAgain.Add(name)
+				namesToCheckAgain.add(name)
 			default:
 			}
 		}
-		if namesToCheckAgain.Len() == namesToCheck.Len() {
+		if namesToCheckAgain.size() == namesToCheck.size() {
 			break
 		} else {
 			namesToCheck = namesToCheckAgain
@@ -319,10 +319,10 @@ func (this *ProcessDefines) reportInvalidDefineLocations(root Node) {
 func (this *ProcessDefines) handleClosureDefinesValue(stringNode Node, valueNode Node, errorNode Node) {
 	if (stringNode.isStringKey() || stringNode.isStringLit()) && ProcessDefines_isValidClosureDefinesValue(valueNode) {
 		var key string = stringNode.getString()
-		if this.replacementValuesFromClosureDefines.Has(key) {
-			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorNode, ProcessDefines_CLOSURE_DEFINES_MULTIPLE, []string{key, this.replacementValuesFromClosureDefines.Get(key).getLocation()}))
+		if this.replacementValuesFromClosureDefines.containsKey(key) {
+			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorNode, ProcessDefines_CLOSURE_DEFINES_MULTIPLE, []string{key, this.replacementValuesFromClosureDefines.get(key).getLocation()}))
 		}
-		this.replacementValuesFromClosureDefines.Put(key, valueNode)
+		this.replacementValuesFromClosureDefines.put(key, valueNode)
 	} else if ProcessDefines_Mode_check__[this.mode_-1] {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorNode, ProcessDefines_CLOSURE_DEFINES_ERROR, []string{}))
 	}

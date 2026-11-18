@@ -128,7 +128,7 @@ func (this *ConvertTypesToColors_RemoveTypesAndApplyColors) visit_impl(t *NodeTr
 	var oldTypeBeforeCast *JSType = n.getJSTypeBeforeCast()
 	this.ConvertTypesToColors_RemoveTypes.visit_impl(t, n, parent)
 	if oldType != nil {
-		var pointer any = this.typePointersByJstype.Get(oldType)
+		var pointer any = this.typePointersByJstype.get(oldType)
 		if pointer != nil {
 			n.setColor(this.colorPoolShard.getColor(unbox_[int32](pointer)))
 		}

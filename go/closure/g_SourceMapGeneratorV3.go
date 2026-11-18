@@ -48,8 +48,8 @@ func (this *SourceMapGeneratorV3) reset() {
 	clear(this.mappings)
 	this.mappings = this.mappings[:0]
 	this.lastMapping = nil
-	this.sourceFileMap.Clear()
-	this.originalNameMap.Clear()
+	this.sourceFileMap.clear()
+	this.originalNameMap.clear()
 	this.lastSourceFile = Optional_empty[string]()
 	this.lastSourceFileIndex = -1
 	this.offsetPosition = new_FilePosition(0, 0)
@@ -147,10 +147,10 @@ func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, ma
 	section.visitMappings(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this).visit)
 	for entryKey, entryValue := range section.getExtensions().All() {
 		var extensionKey string = entryKey
-		if this.extensions.Has(extensionKey) {
-			this.extensions.Put(extensionKey, mergeAction(extensionKey, this.extensions.Get(extensionKey), entryValue))
+		if this.extensions.containsKey(extensionKey) {
+			this.extensions.put(extensionKey, mergeAction(extensionKey, this.extensions.get(extensionKey), entryValue))
 		} else {
-			this.extensions.Put(extensionKey, entryValue)
+			this.extensions.put(extensionKey, entryValue)
 		}
 	}
 	return Outcome_base_ok_0()
@@ -182,7 +182,7 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name OptionalOf[strin
 	out.append_CharSequence_s("]")
 	SourceMapGeneratorV3_appendFieldEnd(out)
 	for key := range this.extensions.Keys() {
-		var objValue any = this.extensions.Get(key)
+		var objValue any = this.extensions.get(key)
 		var value string
 		var string_ string
 		_ = string_
@@ -211,22 +211,22 @@ func (this *SourceMapGeneratorV3) addExtension(name string, object any) *Outcome
 	if !strings.HasPrefix(name, "x_") {
 		return Outcome_base_err[any](new_SourceMapParseException(("Extension '" + sstr_(name) + "' must start with 'x_'")).up_Throwable())
 	}
-	this.extensions.Put(name, object)
+	this.extensions.put(name, object)
 	return Outcome_base_ok_0()
 }
 
 func (this *SourceMapGeneratorV3) removeExtension(name string) {
-	if this.extensions.Has(name) {
-		this.extensions.Delete(name)
+	if this.extensions.containsKey(name) {
+		this.extensions.remove(name)
 	}
 }
 
 func (this *SourceMapGeneratorV3) hasExtension(name string) bool {
-	return this.extensions.Has(name)
+	return this.extensions.containsKey(name)
 }
 
 func (this *SourceMapGeneratorV3) getExtension(name string) any {
-	return this.extensions.Get(name)
+	return this.extensions.get(name)
 }
 
 func (this *SourceMapGeneratorV3) addSourceNameMap(out Appendable) {
@@ -235,7 +235,7 @@ func (this *SourceMapGeneratorV3) addSourceNameMap(out Appendable) {
 
 func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 	var found bool = false
-	var size int32 = this.sourceFileMap.Len()
+	var size int32 = this.sourceFileMap.size()
 	var contents []string = make([]string, 0, size)
 	sliceAddAll_(tc_string, &contents, Collection(Collections_nCopies(size, strobj_(""))))
 	for entryKey, entryValue := range this.sourceFileMap.All() {
@@ -368,12 +368,12 @@ func SourceMapGeneratorV3_appendOffsetValue(out Appendable, line int32, column i
 func (this *SourceMapGeneratorV3) getSourceId(sourceName string) int32 {
 	if !(this.lastSourceFile.isPresent() && (this.lastSourceFile.get() == sourceName)) {
 		this.lastSourceFile = Optional_of[string](sourceName)
-		var index any = this.sourceFileMap.Get(sourceName)
+		var index any = this.sourceFileMap.get(sourceName)
 		if index != nil {
 			this.lastSourceFileIndex = unbox_[int32](index)
 		} else {
-			this.lastSourceFileIndex = this.sourceFileMap.Len()
-			this.sourceFileMap.Put(sourceName, any(int32(this.lastSourceFileIndex)))
+			this.lastSourceFileIndex = this.sourceFileMap.size()
+			this.sourceFileMap.put(sourceName, any(int32(this.lastSourceFileIndex)))
 		}
 	}
 	return this.lastSourceFileIndex
@@ -381,12 +381,12 @@ func (this *SourceMapGeneratorV3) getSourceId(sourceName string) int32 {
 
 func (this *SourceMapGeneratorV3) getNameId(symbolName string) int32 {
 	var originalNameIndex int32
-	var index any = this.originalNameMap.Get(symbolName)
+	var index any = this.originalNameMap.get(symbolName)
 	if index != nil {
 		originalNameIndex = unbox_[int32](index)
 	} else {
-		originalNameIndex = this.originalNameMap.Len()
-		this.originalNameMap.Put(symbolName, any(int32(originalNameIndex)))
+		originalNameIndex = this.originalNameMap.size()
+		this.originalNameMap.put(symbolName, any(int32(originalNameIndex)))
 	}
 	return originalNameIndex
 }

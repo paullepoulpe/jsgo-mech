@@ -46,7 +46,7 @@ func (this *RewriteGoogJsImports) changeModules() {
 		closureModules.put(m.getKey(), obj_(newModule))
 	}
 	this.compiler_.setModuleMap(new_ModuleMap(resolvedModules.buildOrThrow(), closureModules.buildOrThrow()))
-	this.moduleReplacements.Clear()
+	this.moduleReplacements.clear()
 }
 
 func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
@@ -293,16 +293,16 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) init_RewriteGoogJsImports_Re
 	NodeTraversal_traverse(this.outer_.compiler_, script, this)
 	if googImportNode.getSecondChild().isImportStar() {
 		var newBindings *TMap[string, *Binding] = tmapFrom_(tc_string, tc_p_Binding, icast_Map(obj_(module.boundNames())), false)
-		newBindings.Delete("goog")
+		newBindings.remove("goog")
 		if this.hasBadExport {
 			googImportNode.getSecondChild().setOriginalName("goog")
 			googImportNode.getSecondChild().setString("$goog")
-			newBindings.Put("$goog", cast_[*Binding](Map_get_s(module.boundNames(), "goog")))
+			newBindings.put("$goog", cast_[*Binding](Map_get_s(module.boundNames(), "goog")))
 		} else {
 			googImportNode.getSecondChild().replaceWith(IR_empty())
 		}
 		var newModule *Module = module.toBuilder().boundNames(ImmutableMap_copyOf(newBindings.asMap())).build()
-		this.outer_.moduleReplacements.Put(module, newModule)
+		this.outer_.moduleReplacements.put(module, newModule)
 		this.outer_.compiler_.reportChangeToEnclosingScope(googImportNode)
 	}
 }

@@ -39,11 +39,11 @@ func RuntimeJsLibManager_create(mode RuntimeJsLibManager_RuntimeLibraryMode, res
 }
 
 func (this *RuntimeJsLibManager) recordLibraryInjected(resourceName string) {
-	this.injectedLibs.Add(resourceName)
+	this.injectedLibs.add(resourceName)
 }
 
 func (this *RuntimeJsLibManager) hasInjectedLibrary(resourceName string) bool {
-	return this.injectedLibs.Has(resourceName)
+	return this.injectedLibs.contains(resourceName)
 }
 
 func (this *RuntimeJsLibManager) getInjectedLibraries() ImmutableListOf[string] {
@@ -129,7 +129,7 @@ func (this *RuntimeJsLibManager) ensureLibraryInjected(resourceName string, forc
 		case RuntimeJsLibManager_RuntimeLibraryMode_INJECT:
 		}
 	}
-	if this.injectedLibs.Has(resourceName) {
+	if this.injectedLibs.contains(resourceName) {
 		return this.lastInjectedLibrary
 	}
 	this.recordLibraryInjected(resourceName)

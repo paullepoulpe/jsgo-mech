@@ -522,7 +522,7 @@ func (this *ScopedAliases_Traversal) exitScope(t *NodeTraversal) {
 		this.renameNamespaceShadows(t)
 		clear(this.injectedDecls)
 		clear(this.aliases_)
-		this.forbiddenLocals.Clear()
+		this.forbiddenLocals.clear()
 		this.hasNamespaceShadows = false
 	} else if this.inGoogScopeBody() {
 		this.findNamespaceShadows(t)
@@ -642,7 +642,7 @@ func (this *ScopedAliases_Traversal) recordAlias(aliasVar *Var) {
 	if rootIndex != -1 {
 		var qNameRoot string = qualifiedName[:rootIndex]
 		if !has_(this.aliases_, qNameRoot) {
-			this.forbiddenLocals.Add(qNameRoot)
+			this.forbiddenLocals.add(qNameRoot)
 		}
 	}
 }
@@ -671,7 +671,7 @@ func (this *ScopedAliases_Traversal) findNamespaceShadows(t *NodeTraversal) {
 	it_1 := foreach_(scope.getVarIterable())
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
-		if this.forbiddenLocals.Has(v.getName()) {
+		if this.forbiddenLocals.contains(v.getName()) {
 			this.hasNamespaceShadows = true
 			return
 		}

@@ -89,7 +89,7 @@ func (this *CheckJSDocStyle) visitFunction(t *NodeTraversal, function Node) {
 	if (jsDoc == nil) && !this.hasAnyInlineJsDoc(function) {
 		this.checkMissingJsDoc(t, function)
 	} else {
-		if (((t.inGlobalScope() || this.hasAnyInlineJsDoc(function)) || !jsDoc.getParameterNames().IsEmpty()) || jsDoc.hasReturnType()) || jsDoc.isOverride() {
+		if (((t.inGlobalScope() || this.hasAnyInlineJsDoc(function)) || !jsDoc.getParameterNames().isEmpty()) || jsDoc.hasReturnType()) || jsDoc.isOverride() {
 			this.checkParams(t, function, jsDoc)
 		}
 		CheckJSDocStyle_checkNoTypeOnGettersAndSetters(t, function, jsDoc)

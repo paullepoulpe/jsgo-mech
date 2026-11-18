@@ -410,7 +410,7 @@ func (this *IRFactory) setFileOverviewJsDoc(irNode Node) {
 		}
 		return this.firstFileoverview.toBuilder()
 	}()
-	if !this.licenseBuilder.IsEmpty() {
+	if !this.licenseBuilder.isEmpty() {
 		fileoverview.recordLicense(String_join_s("", this.licenseBuilder.asSet()))
 	}
 	irNode.setJSDocInfo(fileoverview.build_1(false))
@@ -434,7 +434,7 @@ func (this *IRFactory) transformBlock(node *ParseTree) Node {
 
 func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoParser) bool {
 	if jsDocParser.getLicenseText().isPresent() {
-		this.licenseBuilder.Add(jsDocParser.getLicenseText().get())
+		this.licenseBuilder.add(jsDocParser.getLicenseText().get())
 	}
 	var newFileoverview *JSDocInfo = jsDocParser.getFileOverviewJSDocInfo()
 	if JSCompObjects_identical(obj_(newFileoverview), obj_(this.firstFileoverview)) {

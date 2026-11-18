@@ -113,7 +113,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 	if (len(this.colorings) == 0 || !n.isName()) || parent.isFunction() {
 		return
 	}
-	var var_ *Var = this.liveness.getAllVariables().Get(n.getString())
+	var var_ *Var = this.liveness.getAllVariables().get(n.getString())
 	var vNode GraphNode = slicePeekTop_(tc_p_GraphColoring, this.colorings).getGraph().getNode(obj_(var_))
 	if vNode == nil {
 		return

@@ -106,7 +106,7 @@ func FeatureSet_emptyEnumSet() EnumSetOf[FeatureSet_Feature] {
 
 func FeatureSet_enumSetOf(set *TSet[FeatureSet_Feature]) EnumSetOf[FeatureSet_Feature] {
 	return func() *EnumSet {
-		if set.IsEmpty() {
+		if set.isEmpty() {
 			return FeatureSet_emptyEnumSet()
 		}
 		return EnumSet_copyOf(Collection(set.asSet()))

@@ -125,11 +125,11 @@ func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType)
 	var cached JSType_MatchStatus = cast_[JSType_MatchStatus](Map_putIfAbsent(this.subtypeCache.asMap(), obj_(key), obj_(JSType_MatchStatus_PROCESSING)))
 	if cached == 0 {
 		var result bool = this.isSubtypeDispatching(subtype, supertype)
-		this.subtypeCache.Put(key, JSType_MatchStatus_valueOfBoolean(result))
+		this.subtypeCache.put(key, JSType_MatchStatus_valueOfBoolean(result))
 		return result
 	}
 	if cached == JSType_MatchStatus_PROCESSING {
-		this.subtypeCache.Put(key, JSType_MatchStatus_MATCH)
+		this.subtypeCache.put(key, JSType_MatchStatus_MATCH)
 		return true
 	}
 	return cached.subtypeValue()

@@ -61,18 +61,18 @@ func (this *InlineFunctions) process_2(externs Node, root Node) {
 		panic(new_IllegalStateException_0())
 	}
 	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_FindCandidateFunctions(this))
-	if this.fns.IsEmpty() {
+	if this.fns.isEmpty() {
 		return
 	}
 	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_FindCandidatesReferences(this, this.fns, this.anonFns))
 	this.trimCandidatesNotMeetingMinimumRequirements()
-	if this.fns.IsEmpty() {
+	if this.fns.isEmpty() {
 		return
 	}
 	var fnNames ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(this.fns.asMap().keySet()))
 	this.injector.setKnownConstantFunctions(fnNames)
 	this.trimCandidatesUsingOnCost()
-	if this.fns.IsEmpty() {
+	if this.fns.isEmpty() {
 		return
 	}
 	this.resolveInlineConflicts()
@@ -140,7 +140,7 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 		if functionState.canInline() {
 			functionState.setChunk(chunk)
 			var namesToAlias *TSet[string] = tsetFrom_(tc_string, this.functionArgumentInjector_.findModifiedParameters(fnNode), true)
-			if !namesToAlias.IsEmpty() {
+			if !namesToAlias.isEmpty() {
 				functionState.inlineDirectly(false)
 				functionState.setNamesToAlias(namesToAlias)
 			}
@@ -311,9 +311,9 @@ func (this *InlineFunctions) resolveInlineConflictsForFunction(functionState *In
 	}
 	var fnNode Node = functionState.getFn().getFunctionNode()
 	var names *TSet[string] = this.findCalledFunctions(fnNode)
-	if !names.IsEmpty() {
+	if !names.isEmpty() {
 		for name := range names.All() {
-			var fsCalled *InlineFunctions_FunctionState = this.fns.Get(name)
+			var fsCalled *InlineFunctions_FunctionState = this.fns.get(name)
 			if (fsCalled != nil) && fsCalled.canRemove() {
 				fsCalled.setRemove(false, this.compiler_, InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO)
 				if (!this.minimizeCost(fsCalled) && !fsCalled.requireInlining()) && !fsCalled.encourageInlining() {
@@ -336,7 +336,7 @@ func InlineFunctions_findCalledFunctions(node Node, changed *TSet[string]) {
 		panic(new_IllegalArgumentException_0())
 	}
 	if node.isName() && InlineFunctions_isCandidateUsage(node) {
-		changed.Add(node.getString())
+		changed.add(node.getString())
 	}
 	{
 		var c Node = node.getFirstChild()
@@ -601,7 +601,7 @@ func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, pa
 			}
 		}
 		if name.isPresent() {
-			var functionState *InlineFunctions_FunctionState = this.functionMap.Get(name.get())
+			var functionState *InlineFunctions_FunctionState = this.functionMap.get(name.get())
 			if functionState != nil {
 				this.callback(t, n, functionState)
 			}
@@ -695,7 +695,7 @@ func (this *InlineFunctions_FindCandidatesReferences) checkNameUsage(n Node, par
 		return
 	}
 	var name string = n.getString()
-	var functionState *InlineFunctions_FunctionState = this.outer_.fns.Get(name)
+	var functionState *InlineFunctions_FunctionState = this.outer_.fns.get(name)
 	if functionState == nil {
 		return
 	}
@@ -928,7 +928,7 @@ func (this *InlineFunctions_FunctionState) inlineDirectly(directReplacement bool
 }
 
 func (this *InlineFunctions_FunctionState) hasReferences() bool {
-	return ((this.references != nil) && !this.references.IsEmpty())
+	return ((this.references != nil) && !this.references.isEmpty())
 }
 
 func (this *InlineFunctions_FunctionState) getReferencesInternal() *TMap[Node, *InlineFunctions_Reference] {
@@ -942,7 +942,7 @@ func (this *InlineFunctions_FunctionState) addReference(ref *InlineFunctions_Ref
 	if this.references == nil {
 		this.references = newTMap_(tc_Node, tc_p_InlineFunctions_Reference)
 	}
-	this.references.Put(ref.callNode_, ref)
+	this.references.put(ref.callNode_, ref)
 }
 
 func (this *InlineFunctions_FunctionState) getReferences() CollectionOf[*InlineFunctions_Reference] {
@@ -950,7 +950,7 @@ func (this *InlineFunctions_FunctionState) getReferences() CollectionOf[*InlineF
 }
 
 func (this *InlineFunctions_FunctionState) getReference(n Node) *InlineFunctions_Reference {
-	return this.getReferencesInternal().Get(n)
+	return this.getReferencesInternal().get(n)
 }
 
 func (this *InlineFunctions_FunctionState) getNamesToAlias() ImmutableSetOf[string] {

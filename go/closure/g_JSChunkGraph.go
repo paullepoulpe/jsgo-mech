@@ -84,11 +84,11 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 		if chunk.getName() == JSChunk_WEAK_CHUNK_NAME {
 			hasWeakChunk = true
 			var allOtherChunks *TSet[*JSChunk] = tsetFrom_(tc_p_JSChunk, Collection(chunksInDepOrder), false)
-			allOtherChunks.Delete(chunk)
+			allOtherChunks.remove(chunk)
 			if !chunk.getAllDependencies().asSet().containsAll(Collection(allOtherChunks.asSet())) {
 				panic(new_IllegalStateException_String("A weak chunk already exists but it does not depend on every other chunk."))
 			}
-			if chunk.getAllDependencies().Len() != allOtherChunks.Len() {
+			if chunk.getAllDependencies().size() != allOtherChunks.size() {
 				panic(new_IllegalStateException_String("The weak chunk cannot have extra dependencies."))
 			}
 			break
@@ -340,18 +340,18 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		for _, el2 := range immElems_(input.getKnownProvides()) {
 			provide := str_(el2)
 			mapComputeIfAbsent_f(tc_string, tcv_p_TSet_p_CompilerInput_, inputsByProvide, provide, lambda_JSChunkGraph_manageDependencies_1_)
-			inputsByProvide[provide].Add(input)
+			inputsByProvide[provide].add(input)
 		}
 		var chunkName string = input.getPath().toModuleName()
 		mapComputeIfAbsent_f(tc_string, tcv_p_TSet_p_CompilerInput_, inputsByProvide, chunkName, lambda_JSChunkGraph_manageDependencies_2_)
-		inputsByProvide[chunkName].Add(input)
+		inputsByProvide[chunkName].add(input)
 	}
 	for _, el3 := range immElems_(originalInputs) {
 		input := cast_[*CompilerInput](el3)
 		for _, el4 := range immElems_(input.getDynamicRequires()) {
 			require := str_(el4)
 			if has_(inputsByProvide, require) {
-				entryPointInputs.AddAll(inputsByProvide[require])
+				entryPointInputs.addAllT(inputsByProvide[require])
 			}
 		}
 	}
@@ -359,7 +359,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		input := cast_[*CompilerInput](el5)
 		for _, require := range input.getRequireDynamicImports() {
 			if has_(inputsByProvide, require) {
-				entryPointInputs.AddAll(inputsByProvide[require])
+				entryPointInputs.addAllT(inputsByProvide[require])
 			}
 		}
 	}
@@ -394,7 +394,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 			transitiveClosure = tlistImm_(tc_p_CompilerInput, sorter.getStrongDependenciesOf(entryPointInputsPerChunk.get(obj_(chunk)), dependencyOptions.shouldSort()))
 		}
 		for input := range transitiveClosure.All() {
-			if (dependencyOptions.shouldPrune() && input.getSourceFile().isWeak()) && !entryPointInputs.Has(input) {
+			if (dependencyOptions.shouldPrune() && input.getSourceFile().isWeak()) && !entryPointInputs.contains(input) {
 				compiler.report(JSError_make_DiagnosticType_StringArr(JSChunkGraph_WEAK_FILE_REACHABLE_FROM_ENTRY_POINT_ERROR, []string{input.getSourceFile().getName()}))
 			}
 			var oldChunk *JSChunk = input.getChunk()
@@ -475,7 +475,7 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 	if dependencyOptions.shouldPrune() {
 		var baseJs *CompilerInput = cast_[*CompilerInput](sorter.maybeGetInputProviding("goog"))
 		if baseJs != nil {
-			entryPointInputs.Add(baseJs)
+			entryPointInputs.add(baseJs)
 		}
 		if !dependencyOptions.shouldDropMoochers() {
 			for _, it_1 := range sorter.getInputsWithoutProvides() {
@@ -483,7 +483,7 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 				if entryPointInput.getSourceFile().isWeak() {
 					compiler.report(JSError_make_DiagnosticType_StringArr(JSChunkGraph_IMPLICIT_WEAK_ENTRY_POINT_ERROR, []string{entryPointInput.getSourceFile().getName()}))
 				} else {
-					entryPointInputs.Add(entryPointInput)
+					entryPointInputs.add(entryPointInput)
 				}
 			}
 		}
@@ -515,7 +515,7 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 			if entryPointInput.getSourceFile().isWeak() {
 				compiler.report(JSError_make_DiagnosticType_StringArr(JSChunkGraph_EXPLICIT_WEAK_ENTRY_POINT_ERROR, []string{entryPointInput.getSourceFile().getName()}))
 			} else {
-				entryPointInputs.Add(entryPointInput)
+				entryPointInputs.add(entryPointInput)
 			}
 		}
 	} else {

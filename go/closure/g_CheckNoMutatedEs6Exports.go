@@ -32,7 +32,7 @@ func (this *CheckNoMutatedEs6Exports) checkNoMutations() {
 		}
 	}
 	this.mutatedNames.clear()
-	this.exportedLocalNames.Clear()
+	this.exportedLocalNames.clear()
 }
 
 func (this *CheckNoMutatedEs6Exports) visit(t *NodeTraversal, n Node, parent Node) {
@@ -66,7 +66,7 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 				if !exportSpec.hasTwoChildren() {
 					panic(new_IllegalStateException_0())
 				}
-				this.exportedLocalNames.Add(exportSpec.getFirstChild().getString())
+				this.exportedLocalNames.add(exportSpec.getFirstChild().getString())
 			}
 		}
 	} else if export.hasOneChild() && !export.getBooleanProp(Node_EXPORT_ALL_FROM) {
@@ -78,7 +78,7 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 				if !lhs.isName() {
 					panic(new_IllegalStateException_0())
 				}
-				this.exportedLocalNames.Add(lhs.getString())
+				this.exportedLocalNames.add(lhs.getString())
 			})
 		} else if export.getBooleanProp(Node_EXPORT_DEFAULT) {
 			if !declaration.isClass() && !declaration.isFunction() {
@@ -86,14 +86,14 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 			}
 			var nameNode Node = declaration.getFirstChild()
 			if !nameNode.isEmpty() && nameNode.getString() != "" {
-				this.exportedLocalNames.Add(nameNode.getString())
+				this.exportedLocalNames.add(nameNode.getString())
 			}
 		} else {
 			if !declaration.isClass() && !declaration.isFunction() {
 				panic(new_IllegalStateException_0())
 			}
 			var nameNode Node = declaration.getFirstChild()
-			this.exportedLocalNames.Add(nameNode.getString())
+			this.exportedLocalNames.add(nameNode.getString())
 		}
 	}
 }

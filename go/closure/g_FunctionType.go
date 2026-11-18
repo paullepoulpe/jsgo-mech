@@ -417,7 +417,7 @@ func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *TSet[*
 		if !constructor.isInterface() {
 			return
 		}
-		if !set.Add(instance) {
+		if !set.add(instance) {
 			return
 		}
 		for interfaceType := range elemsBy_(instance.getCtorExtendedInterfaces(), to_ObjectType) {
@@ -911,12 +911,12 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap map[str
 		for _, el := range immElems_(iterable) {
 			interfaceType := to_ObjectType(el)
 			var superConstructor *FunctionType = interfaceType.getConstructor()
-			if (superConstructor == nil) || cache.Has(superConstructor) {
+			if (superConstructor == nil) || cache.contains(superConstructor) {
 				continue
 			}
-			cache.Add(superConstructor)
+			cache.add(superConstructor)
 			FunctionType_updatePropertyTypeMap(superConstructor, propTypeMap, cache)
-			cache.Delete(superConstructor)
+			cache.remove(superConstructor)
 		}
 	}
 }
@@ -934,20 +934,20 @@ func (this *FunctionType) checkExtendsLoop_2(cache *TSet[*FunctionType], path *[
 			if superConstructor == nil {
 				continue
 			}
-			if cache.Has(superConstructor) {
+			if cache.contains(superConstructor) {
 				*path = append(*path, superConstructor)
 				for !JSCompObjects_identical(sliceAt_(*path, 0).self(), superConstructor.self()) {
 					sliceRemoveAt_(path, 0)
 				}
 				return path
 			}
-			cache.Add(superConstructor)
+			cache.add(superConstructor)
 			*path = append(*path, superConstructor)
 			var result *[]*FunctionType = superConstructor.checkExtendsLoop_2(cache, path)
 			if result != nil {
 				return result
 			}
-			cache.Delete(superConstructor)
+			cache.remove(superConstructor)
 			sliceRemoveAt_(path, (int32(len(*path)) - 1))
 		}
 	}

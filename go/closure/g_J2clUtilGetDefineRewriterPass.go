@@ -137,14 +137,14 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) visit_impl(t *Nod
 	if J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_isAddSystemPropertyFromGoogDefine(n) {
 		var defineName OptionalOf[string] = J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_getDefineNameParameter(n)
 		if defineName.isPresent() {
-			this.defineNameToAddSystemPropertyCall.Put(defineName.get(), n)
+			this.defineNameToAddSystemPropertyCall.put(defineName.get(), n)
 		} else {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, J2clUtilGetDefineRewriterPass_J2CL_ADD_SYSTEM_PROPERTY_CONSTANT_NAME, []string{}))
 		}
 	} else if J2clUtilGetDefineRewriterPass_isUtilGetDefineCall(n) {
 		var defineName OptionalOf[string] = J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_getDefineNameParameter(n)
 		if defineName.isPresent() {
-			this.defineNameToGetDefineCall.Put(defineName.get(), n)
+			this.defineNameToGetDefineCall.put(defineName.get(), n)
 		} else {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, J2clUtilGetDefineRewriterPass_J2CL_SYSTEM_GET_PROPERTY_CONSTANT_NAME, []string{}))
 		}
@@ -161,7 +161,7 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) validateRegistere
 		if !Collection_contains_s(this.outer_.defines, entryKey2) {
 			continue
 		}
-		if !this.defineNameToAddSystemPropertyCall.Has(entryKey2) {
+		if !this.defineNameToAddSystemPropertyCall.containsKey(entryKey2) {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(entryValue2, J2clUtilGetDefineRewriterPass_J2CL_SYSTEM_GET_PROPERTY_UNKNOWN_PROPERTY, []string{entryKey2}))
 		}
 	}

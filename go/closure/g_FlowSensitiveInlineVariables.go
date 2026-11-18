@@ -61,28 +61,28 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	NodeTraversal_traverse(this.compiler_, t.getScopeRoot(), new_FlowSensitiveInlineVariables_GatherCandidates(this))
 	this.reachingUses = new_MaybeReachingVariableUse(this.cfg, escaped, allVarsInFn)
 	this.reachingUses.analyze()
-	for !this.candidates.IsEmpty() {
+	for !this.candidates.isEmpty() {
 		var c *FlowSensitiveInlineVariables_Candidate = this.candidates.First()
-		var candidateVar *Var = allVarsInFn.Get(c.varName_)
+		var candidateVar *Var = allVarsInFn.get(c.varName_)
 		if candidateVar == nil {
 			panic(new_NullPointerException_0())
 		}
 		if c.canInline(cast_[*Scope](candidateVar.getScope())) {
 			c.inlineVariable()
-			this.candidates.Delete(c)
-			if !c.defMetadata.depends.IsEmpty() {
+			this.candidates.remove(c)
+			if !c.defMetadata.depends.isEmpty() {
 				{
 					var it *tmapIter_[*FlowSensitiveInlineVariables_Candidate, struct{}] = this.candidates.cursor()
 					for it.hasNext() {
 						var other *FlowSensitiveInlineVariables_Candidate = it.nextKey()
-						if other.defMetadata.depends.Has(cast_[*Var](t.getScope().getVar(c.varName_).self())) && !other.defMetadata.depends.asSet().containsAll(Collection(c.defMetadata.depends.asSet())) {
+						if other.defMetadata.depends.contains(cast_[*Var](t.getScope().getVar(c.varName_).self())) && !other.defMetadata.depends.asSet().containsAll(Collection(c.defMetadata.depends.asSet())) {
 							it.remove()
 						}
 					}
 				}
 			}
 		} else {
-			this.candidates.Delete(c)
+			this.candidates.remove(c)
 		}
 	}
 }
@@ -286,7 +286,7 @@ func (this *FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback) visit_
 		}
 		var def *MustBeReachingVariableDef_Definition = this.outer_.reachingDef.getDef(name, this.cfgNode)
 		if (def != nil) && !this.outer_.reachingDef.dependsOnOuterScopeVars(def) {
-			this.outer_.candidates.Add(new_FlowSensitiveInlineVariables_Candidate(this.outer_, name, def, n, this.cfgNode))
+			this.outer_.candidates.add(new_FlowSensitiveInlineVariables_Candidate(this.outer_, name, def, n, this.cfgNode))
 		}
 	}
 }

@@ -47,7 +47,7 @@ func (this *PruningAnalysis) calculateBottlenecks() ImmutableMapOf[string, Boxed
 		var node string = str_(entry.getKey())
 		var retainedCount int32 = unbox_[int32](entry.getValue())
 		if !(node == PruningAnalysis_VIRTUAL_ROOT) && (retainedCount > 1) {
-			bottleneckBlame.Put(node, any(int32(retainedCount)))
+			bottleneckBlame.put(node, any(int32(retainedCount)))
 		}
 	}
 	var sortedBlame []Map_EntryOf[string, BoxedOf[int32]] = sliceFrom_(tc_Map_EntryOf_string__BoxedOf_int32__, Collection(bottleneckBlame.asMap().entrySet()))
@@ -82,7 +82,7 @@ func (this *PruningAnalysis) buildGraph() *DiGraph {
 		var depSymbols *TSet[string] = newTSet_(tc_string)
 		for _, el2 := range immElems_(input.getRequires()) {
 			req := cast_[*DependencyInfo_Require](el2)
-			depSymbols.Add(req.getSymbol())
+			depSymbols.add(req.getSymbol())
 		}
 		depSymbols.asSet().addAll(icast_Collection(obj_(input.getTypeRequires())))
 		for symbol := range depSymbols.All() {

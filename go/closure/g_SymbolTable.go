@@ -76,8 +76,8 @@ func (this *SymbolTable) getEnclosingScope(n Node) *SymbolTable_SymbolScope {
 		current = current.getParent()
 	}
 	for ; current != 0; current = current.getParent() {
-		if this.scopes.Has(current) {
-			return this.scopes.Get(current)
+		if this.scopes.containsKey(current) {
+			return this.scopes.get(current)
 		}
 	}
 	return nil
@@ -89,7 +89,7 @@ func (this *SymbolTable) getEnclosingFunctionScope(n Node) *SymbolTable_SymbolSc
 		current = current.getParent()
 	}
 	for ; current != 0; current = current.getParent() {
-		var scope *SymbolTable_SymbolScope = this.scopes.Get(current)
+		var scope *SymbolTable_SymbolScope = this.scopes.get(current)
 		if (scope != nil) && !scope.isBlockScope() {
 			return scope
 		}
@@ -117,7 +117,7 @@ func (this *SymbolTable) getScopeInFunction(sym *SymbolTable_Symbol) *SymbolTabl
 	if functionNode == 0 {
 		return nil
 	}
-	return this.scopes.Get(functionNode)
+	return this.scopes.get(functionNode)
 }
 
 func (this *SymbolTable) getSymbolForScope(scope *SymbolTable_SymbolScope) *SymbolTable_Symbol {
@@ -270,7 +270,7 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 	} else if type_.isEnumType() {
 		return this.getSymbolDeclaredByEnumType(type_.self().(*EnumType))
 	} else if type_.isRecordType() {
-		return this.symbolThatDeclaresType.Get(type_)
+		return this.symbolThatDeclaresType.get(type_)
 	}
 	return nil
 }
@@ -304,7 +304,7 @@ func (this *SymbolTable) toDebugStringTree_4(builder *strBuilder_, prefix string
 	builder.append(prefix).append_Object(obj_(scope))
 	var childrenPrefix string = (sstr_(prefix) + "    ")
 	var printedSomething bool = false
-	if !scope.ownSymbols.IsEmpty() {
+	if !scope.ownSymbols.isEmpty() {
 		printedSomething = true
 		builder.append_char('\n').append(prefix).append("  Symbols:\n")
 		for symbol := range scope.ownSymbols.Values() {
@@ -422,7 +422,7 @@ func (this *SymbolTable) addSymbolsFrom(otherSymbolTable StaticSymbolTable) {
 func (this *SymbolTable) isAnySymbolDeclared(name string, declNode Node, scope *SymbolTable_SymbolScope) *SymbolTable_Symbol {
 	var sym *SymbolTable_Symbol = this.symbols.get_s(declNode.box_(), name)
 	if sym == nil {
-		return scope.ownSymbols.Get(name)
+		return scope.ownSymbols.get(name)
 	}
 	return sym
 }
@@ -468,7 +468,7 @@ func (this *SymbolTable) addSymbol(name string, type_ *JSType, inferred bool, sc
 	if replacedSymbol != nil {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in global index. Type %s", []any{strobj_(name), type_.self()})))
 	}
-	replacedSymbol = scope.ownSymbols.Put(name, symbol)
+	replacedSymbol = scope.ownSymbols.put(name, symbol)
 	if replacedSymbol != nil {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in its scope. Type %s", []any{strobj_(name), type_.self()})))
 	}
@@ -493,7 +493,7 @@ func (this *SymbolTable) mergeSymbol(from *SymbolTable_Symbol, to *SymbolTable_S
 
 func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 	var scope *SymbolTable_SymbolScope = this.getScope(s)
-	if !s.equals_SymbolTable_Symbol(scope.ownSymbols.Delete(s.getName())) {
+	if !s.equals_SymbolTable_Symbol(scope.ownSymbols.remove(s.getName())) {
 		panic(new_IllegalStateException_String(("Symbol not found in scope " + tostr_(s))))
 	}
 	if !s.equals(obj_(this.symbols.remove(s.getDeclaration().(*SymbolTable_Reference).getNode().box_(), strobj_(s.getName())))) {
@@ -504,7 +504,7 @@ func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 			childSymbol := cast_[*SymbolTable_Symbol](el)
 			this.removeSymbol(childSymbol)
 		}
-		this.scopes.Delete(s.getDeclarationNode())
+		this.scopes.remove(s.getDeclarationNode())
 	}
 }
 
@@ -584,18 +584,18 @@ func (this *SymbolTable) fillPropertyScopes() {
 		if ((type_.isNominalConstructorOrInterface() || type_.isFunctionPrototypeType()) || type_.isEnumType()) && !s.equals_SymbolTable_Symbol(symbolForType) {
 			continue
 		}
-		this.symbolThatDeclaresType.Put(type_, s)
+		this.symbolThatDeclaresType.put(type_, s)
 	}
 	for s := range elemsAs_[*SymbolTable_Symbol](allTypes) {
 		var type_ *JSType = this.getType(icast_StaticSlot(obj_(s)))
-		if (type_ == nil) || s.equals_SymbolTable_Symbol(this.symbolThatDeclaresType.Get(type_)) {
+		if (type_ == nil) || s.equals_SymbolTable_Symbol(this.symbolThatDeclaresType.get(type_)) {
 			this.createPropertyScopeFor(s)
 		}
 	}
 	for s := range elemsAs_[*SymbolTable_Symbol](allTypes) {
 		var type_ *JSType = this.getType(icast_StaticSlot(obj_(s)))
-		if (type_ != nil) && (this.symbolThatDeclaresType.Get(type_) != nil) {
-			s.propertyScope = this.symbolThatDeclaresType.Get(type_).getPropertyScope()
+		if (type_ != nil) && (this.symbolThatDeclaresType.get(type_) != nil) {
+			s.propertyScope = this.symbolThatDeclaresType.get(type_).getPropertyScope()
 		}
 	}
 	this.pruneOrphanedNames()
@@ -706,7 +706,7 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 		return
 	}
 	if (s.getName() == "exports") && s.getDeclarationNode().isModuleBody() {
-		s.propertyScope = this.scopes.Get(s.getDeclarationNode())
+		s.propertyScope = this.scopes.get(s.getDeclarationNode())
 		return
 	}
 	var parentPropertyScope *SymbolTable_SymbolScope = this.maybeGetParentPropertyScope(type_)
@@ -911,7 +911,7 @@ func (this *SymbolTable) removeGeneratedSymbols() {
 	for _, el := range immElems_(ImmutableList_copyOf_Iterable(this.symbols.values())) {
 		symbol := cast_[*SymbolTable_Symbol](el)
 		if this.isSymbolAQuotedObjectKey(symbol) {
-			var symbolAlreadyRemoved bool = !this.getScope(symbol).ownSymbols.Has(symbol.getName())
+			var symbolAlreadyRemoved bool = !this.getScope(symbol).ownSymbols.containsKey(symbol.getName())
 			if !symbolAlreadyRemoved {
 				this.removeSymbol(symbol)
 			}
@@ -924,7 +924,7 @@ func (this *SymbolTable) removeGeneratedSymbols() {
 
 func (this *SymbolTable) createScopeFrom(otherScope StaticScope) *SymbolTable_SymbolScope {
 	var otherScopeRoot Node = otherScope.getRootNode()
-	var myScope *SymbolTable_SymbolScope = this.scopes.Get(otherScopeRoot)
+	var myScope *SymbolTable_SymbolScope = this.scopes.get(otherScopeRoot)
 	if myScope == nil {
 		var otherScopeParent StaticScope = otherScope.getParentScope()
 		if otherScopeParent == nil {
@@ -938,7 +938,7 @@ func (this *SymbolTable) createScopeFrom(otherScope StaticScope) *SymbolTable_Sy
 			}
 			return this.createScopeFrom(otherScopeParent)
 		}(), this.getTypeOfThis(otherScope), nil)
-		this.scopes.Put(otherScopeRoot, myScope)
+		this.scopes.put(otherScopeRoot, myScope)
 		if myScope.isGlobalScope() {
 			this.globalScope = myScope
 		}
@@ -1305,7 +1305,7 @@ func (this *SymbolTable_SymbolScope) getSlot(name string) *SymbolTable_Symbol {
 }
 
 func (this *SymbolTable_SymbolScope) getOwnSlot(name string) *SymbolTable_Symbol {
-	return this.ownSymbols.Get(name)
+	return this.ownSymbols.get(name)
 }
 
 func (this *SymbolTable_SymbolScope) getTypeOfThis() *JSType {
@@ -1570,7 +1570,7 @@ func (this *SymbolTable_ThisRefCollector) enterScope_impl(t *NodeTraversal) {
 		this.thisStack = append(this.thisStack, symbol)
 	} else if t.getScopeRoot().isFunction() {
 		var scopeRoot Node = t.getScopeRoot()
-		var scope *SymbolTable_SymbolScope = this.outer_.scopes.Get(scopeRoot)
+		var scope *SymbolTable_SymbolScope = this.outer_.scopes.get(scopeRoot)
 		if NodeUtil_getFunctionBody(scopeRoot).hasChildren() {
 			var scopeSymbol *SymbolTable_Symbol = this.outer_.getSymbolForScope(scope)
 			if scopeSymbol != nil {
@@ -1654,7 +1654,7 @@ func (this *SymbolTable_JSDocInfoCollector) visit_impl(t *NodeTraversal, n Node,
 	}
 	this.outer_.docInfos.add(n)
 	for typeAst := range elemsBy_(info.getTypeNodes(), Node_of_) {
-		var scope *SymbolTable_SymbolScope = this.outer_.scopes.Get(t.getScopeRoot())
+		var scope *SymbolTable_SymbolScope = this.outer_.scopes.get(t.getScopeRoot())
 		this.visitTypeNode(info.getTemplateTypes(), func() *SymbolTable_SymbolScope {
 			if scope == nil {
 				return this.outer_.globalScope
@@ -2031,7 +2031,7 @@ func (this *SymbolTable_3) visit_impl(t *NodeTraversal, n Node, parent Node) {
 		var ns *SymbolTable_Symbol = this.outer_.declareSymbol(namespaceName, nil, false, this.outer_.getGlobalScope(), arg, nil)
 		this.cap_declaredNamespaces[namespaceName] = ns
 		if n.getGrandparent().isModuleBody() {
-			this.cap_moduleScopes[arg.getString()] = this.outer_.scopes.Get(n.getGrandparent())
+			this.cap_moduleScopes[arg.getString()] = this.outer_.scopes.get(n.getGrandparent())
 		}
 	default:
 	}

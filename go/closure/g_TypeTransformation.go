@@ -493,11 +493,11 @@ func (this *TypeTransformation) evalRecord(record Node, nameResolver *TypeTransf
 				var propValue Node = this.getComputedPropValue(propNode)
 				var resolvedName string = str_(Map_get_s(nameResolver.nameVars, compPropName))
 				var resultingType *JSType = this.evalInternal(propValue, nameResolver)
-				props.Put(resolvedName, resultingType)
+				props.put(resolvedName, resultingType)
 			} else {
 				var propName string = propNode.getString()
 				var resultingType *JSType = this.evalInternal(propNode.getFirstChild(), nameResolver)
-				props.Put(propName, resultingType)
+				props.put(propName, resultingType)
 			}
 		}
 	}
@@ -530,11 +530,11 @@ func (this *TypeTransformation) evalRecordType(ttlAst Node, nameResolver *TypeTr
 }
 
 func (this *TypeTransformation) putNewPropInPropertyMap(props *TMap[string, *JSType], newPropName string, newPropValue *JSType) {
-	if (!props.Has(newPropName) || !newPropValue.isRecordType()) || !props.Get(newPropName).isRecordType() {
-		props.Put(newPropName, newPropValue)
+	if (!props.containsKey(newPropName) || !newPropValue.isRecordType()) || !props.get(newPropName).isRecordType() {
+		props.put(newPropName, newPropValue)
 		return
 	}
-	props.Put(newPropName, this.joinRecordTypes(sliceOf_(tc_p_ObjectType, to_ObjectType(props.Get(newPropName).self()), to_ObjectType(newPropValue.self()))))
+	props.put(newPropName, this.joinRecordTypes(sliceOf_(tc_p_ObjectType, to_ObjectType(props.get(newPropName).self()), to_ObjectType(newPropValue.self()))))
 }
 
 func (this *TypeTransformation) joinRecordTypes(recTypes []*ObjectType) *JSType {

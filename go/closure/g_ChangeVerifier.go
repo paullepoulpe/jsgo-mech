@@ -67,7 +67,7 @@ func (this *ChangeVerifier) verifyScopeChangesHaveBeenRecorded(passName string, 
 
 func (this *ChangeVerifier) verifyDeletedScopeNodes(passNameMsg string, deletedScopeNodes *TSet[Node]) {
 	for snapshotScopeNode := range deletedScopeNodes.All() {
-		var currentNode Node = Node_of_(strobj_(this.clonesByCurrent.inverse().Get(str_(snapshotScopeNode.box_()))))
+		var currentNode Node = Node_of_(strobj_(this.clonesByCurrent.inverse().get(str_(snapshotScopeNode.box_()))))
 		if currentNode.isDeleted() {
 			continue
 		}
@@ -278,7 +278,7 @@ func new_ChangeVerifier_1(outer_ *ChangeVerifier, cap_snapshotScopeNodes *TSet[N
 
 func (this *ChangeVerifier_1) visit(oldNode Node) {
 	if ChangeTracker_isChangeScopeRoot(oldNode) {
-		this.cap_snapshotScopeNodes.Add(oldNode)
+		this.cap_snapshotScopeNodes.add(oldNode)
 	}
 }
 
@@ -306,7 +306,7 @@ func (this *ChangeVerifier_2) visit(n Node) {
 		this.outer_.verifyRoot(n)
 	} else if ChangeTracker_isChangeScopeRoot(n) {
 		var clone Node = this.outer_.clonesByCurrent.get(n.box_())
-		this.cap_snapshotScopeNodes.Delete(clone)
+		this.cap_snapshotScopeNodes.remove(clone)
 		this.outer_.verifyNode(this.cap_passNameMsg, n)
 		if clone == 0 {
 			this.outer_.verifyNewNode(this.cap_passNameMsg, n)

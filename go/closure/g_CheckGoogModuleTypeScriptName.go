@@ -80,9 +80,9 @@ func CheckGoogModuleTypeScriptName_clinit() {
 	CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE = DiagnosticType_disabled("JSC_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE", "goog.module namespace does not match the future TypeScript namespace, which is generated from the file path. The correct namespace is: \"{0}\"")
 	CheckGoogModuleTypeScriptName_allowedDirectories = newTSet_(tc_string)
 	{
-		CheckGoogModuleTypeScriptName_allowedDirectories.Add("google3/gws/")
-		CheckGoogModuleTypeScriptName_allowedDirectories.Add("google3/java/com/google/gws/")
-		CheckGoogModuleTypeScriptName_allowedDirectories.Add("google3/javascript/search/")
+		CheckGoogModuleTypeScriptName_allowedDirectories.add("google3/gws/")
+		CheckGoogModuleTypeScriptName_allowedDirectories.add("google3/java/com/google/gws/")
+		CheckGoogModuleTypeScriptName_allowedDirectories.add("google3/javascript/search/")
 	}
 
 }

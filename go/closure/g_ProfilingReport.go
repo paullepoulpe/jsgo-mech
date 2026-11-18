@@ -30,7 +30,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping *T
 	for _, profile := range profiles {
 		for fileProfile := range elemsAs_[*FileProfile](profile.getFileProfileList()) {
 			for pointStats := range elemsAs_[*InstrumentationPointStats](fileProfile.getInstrumentationPointsStatsList()) {
-				var metric *ProfilingReport_InstrumentationPointMetrics = metrics.Get(pointStats.getPoint())
+				var metric *ProfilingReport_InstrumentationPointMetrics = metrics.get(pointStats.getPoint())
 				metric.totalTimesExecuted += pointStats.getTimesExecuted()
 				metric.numberOfReports++
 			}

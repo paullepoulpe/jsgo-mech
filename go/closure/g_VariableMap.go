@@ -23,7 +23,7 @@ func (this *VariableMap) lookupNewName(sourceName string) OptionalOf[string] {
 }
 
 func (this *VariableMap) lookupSourceName(newName OptionalOf[string]) string {
-	return this.map__.inverse().Get(newName.orElse(nullstr_))
+	return this.map__.inverse().get(newName.orElse(nullstr_))
 }
 
 func (this *VariableMap) getOriginalNameToNewNameMap() ImmutableMapOf[string, string] {

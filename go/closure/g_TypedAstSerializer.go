@@ -161,7 +161,7 @@ func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 	return unbox_[int32](Map_computeIfAbsent_f(this.sourceFilePointers.asMap(), obj_(sourceFile), func(f_ any) any {
 		var f *SourceFile_jscomp = cast_[*SourceFile_jscomp](f_)
 		_ = f
-		return any(int32((1 + this.sourceFilePointers.Len())))
+		return any(int32((1 + this.sourceFilePointers.size())))
 	}))
 }
 
@@ -567,7 +567,7 @@ func new_TypedAstSerializer_JSTypeSerializer(typesToPointers *TMap[*JSType, any]
 func (this *TypedAstSerializer_JSTypeSerializer) addTypeForNode(node Node, astNodeBuilder *AstNode_Builder) {
 	var type_ *JSType = node.getJSType()
 	if type_ != nil {
-		nn_ := this.typesToPointers.Get(type_)
+		nn_ := this.typesToPointers.get(type_)
 		if nn_ == nil {
 			panic(new_NullPointerException_String(Strings_lenientFormat("cannot find pointer for %s", []any{type_.self()})))
 		}

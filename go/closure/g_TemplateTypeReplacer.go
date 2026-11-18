@@ -42,7 +42,7 @@ func TemplateTypeReplacer_forInference(registry *JSTypeRegistry, bindings *TMap[
 	var values []*JSType
 	for _, el := range immElems_(keys) {
 		key := cast_[*TemplateType](el)
-		var value *JSType = bindings.Get(key)
+		var value *JSType = bindings.get(key)
 		values = immAddObj_(tc_p_JSType, values, func() any {
 			if value != nil {
 				return value.self()
