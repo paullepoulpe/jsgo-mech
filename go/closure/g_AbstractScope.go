@@ -108,7 +108,9 @@ func (this *AbstractScope) undeclareInteral(var_ *AbstractVar) {
 }
 
 func (this *AbstractScope) declareInternal(name string, var_ *AbstractVar) {
-	Preconditions_checkState_boolean_String_Object_H((this.hasOwnSlot(name) || this.canDeclare(name)), "Illegal shadow: %s", var_.getNode())
+	if ok_, a1_ := (this.hasOwnSlot(name) || this.canDeclare(name)), var_.getNode(); !ok_ {
+		Preconditions_checkState_boolean_String_Object_H(false, "Illegal shadow: %s", a1_)
+	}
 	var emptySentinel *JTMap[string, *AbstractVar] = jtmapEmptyImm_(jtc_string, jtc_p_AbstractVar)
 	if any(this.vars) == any(emptySentinel.asMap()) {
 		this.vars = LinkedHashMap_as_Map(Maps_newLinkedHashMapWithExpectedSize(1))
@@ -297,7 +299,9 @@ func (this *AbstractScope) getClosestContainerScope() *AbstractScope {
 	var scope *AbstractScope = this.getClosestHoistScope()
 	if scope.isFunctionBlockScope() {
 		scope = scope.getParent()
-		Preconditions_checkState_boolean_Object(!scope.isBlockScope(), scope)
+		if scope.isBlockScope() {
+			Preconditions_checkState_boolean_Object(false, scope)
+		}
 	}
 	return scope
 }
@@ -308,12 +312,18 @@ func (this *AbstractScope) thisScope() *AbstractScope {
 
 func (this *AbstractScope) checkChildScope(parent *AbstractScope) {
 	Preconditions_checkNotNull_T(parent)
-	Preconditions_checkArgument_boolean_Object_H(NodeUtil_createsScope(this.rootNode_), this.rootNode_)
-	Preconditions_checkArgument_boolean_String_Object_H((this.rootNode_ != parent.getRootNode()), "rootNode should not be the parent's root node: %s", this.rootNode_)
+	if !NodeUtil_createsScope(this.rootNode_) {
+		Preconditions_checkArgument_boolean_Object_H(false, this.rootNode_)
+	}
+	if !(this.rootNode_ != parent.getRootNode()) {
+		Preconditions_checkArgument_boolean_String_Object_H(false, "rootNode should not be the parent's root node: %s", this.rootNode_)
+	}
 }
 
 func (this *AbstractScope) checkRootScope() {
-	Preconditions_checkArgument_boolean_Object_H(((NodeUtil_createsScope(this.rootNode_) || this.rootNode_.isScript()) || this.rootNode_.isRoot()), this.rootNode_)
+	if !((NodeUtil_createsScope(this.rootNode_) || this.rootNode_.isScript()) || this.rootNode_.isRoot()) {
+		Preconditions_checkArgument_boolean_Object_H(false, this.rootNode_)
+	}
 }
 
 func (this *AbstractScope) getCommonParent(other *AbstractScope) *AbstractScope {

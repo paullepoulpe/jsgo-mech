@@ -37,7 +37,9 @@ func new_InstrumentAsyncContext(compiler *AbstractCompiler, shouldInstrumentAwai
 }
 
 func (this *InstrumentAsyncContext) process_2(externs Node, root Node) {
-	Preconditions_checkState_boolean_Object(this.compiler_.getLifeCycleStage().isNormalized(), this.compiler_.getLifeCycleStage())
+	if ok_, a1_ := this.compiler_.getLifeCycleStage().isNormalized(), this.compiler_.getLifeCycleStage(); !ok_ {
+		Preconditions_checkState_boolean_Object(false, a1_)
+	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 }
 

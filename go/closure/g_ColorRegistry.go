@@ -74,7 +74,9 @@ func new_ColorRegistry_Builder() *ColorRegistry_Builder {
 }
 
 func (this *ColorRegistry_Builder) setNativeColor(x *Color) *ColorRegistry_Builder {
-	Preconditions_checkState_boolean_Object(ColorRegistry_REQUIRED_IDS.contains(x.getId()), x)
+	if !ColorRegistry_REQUIRED_IDS.contains(x.getId()) {
+		Preconditions_checkState_boolean_Object(false, x)
+	}
 	this.nativeColors.put(x.getId(), x)
 	return this
 }

@@ -73,7 +73,9 @@ func (this *Scope) declare(name string, nameNode Node, input *CompilerInput) *Va
 
 func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition Node) *Var {
 	Preconditions_checkArgument(!String_isEmpty(name))
-	Preconditions_checkState_boolean_String_Object(this.isGlobal(), "Cannot declare implicit goog namespace in local scope %s", this)
+	if !this.isGlobal() {
+		Preconditions_checkState_boolean_String_Object(false, "Cannot declare implicit goog namespace in local scope %s", this)
+	}
 	var var_ *Var = cast_[*Var](this.getOwnSlot(name))
 	if var_ == nil {
 		var_ = Var_createImplicitGoogNamespace(name, this, definition)

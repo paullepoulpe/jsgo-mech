@@ -120,16 +120,24 @@ func (this *TypedScopeCreator) createScopeAbstractScope(root Node, parent *Abstr
 }
 
 func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *TypedScope) *TypedScope {
-	Preconditions_checkState_boolean_String_Object_H(Object_equals(obj_(this.stage), obj_(TypedScopeCreator_Stage_BUILDING)), "Cannot create scope for %s after TypedScopeCreator is frozen", root)
+	if !Object_equals(obj_(this.stage), obj_(TypedScopeCreator_Stage_BUILDING)) {
+		Preconditions_checkState_boolean_String_Object_H(false, "Cannot create scope for %s after TypedScopeCreator is frozen", root)
+	}
 	var newScope *TypedScope = nil
 	var scopeBuilder *TypedScopeCreator_AbstractScopeBuilder = nil
 	var module *Module = ModuleImportResolver_getModuleFromScopeRoot(this.moduleMap, icast_CompilerInputProvider(this.compiler_.self()), root)
 	if typedParent == nil {
-		Preconditions_checkState_boolean_Object_H(root.isRoot(), root)
+		if !root.isRoot() {
+			Preconditions_checkState_boolean_Object_H(false, root)
+		}
 		var externsRoot Node = root.getFirstChild()
 		var jsRoot Node = root.getSecondChild()
-		Preconditions_checkState_boolean_Object_H(externsRoot.isRoot(), externsRoot)
-		Preconditions_checkState_boolean_Object_H(jsRoot.isRoot(), jsRoot)
+		if !externsRoot.isRoot() {
+			Preconditions_checkState_boolean_Object_H(false, externsRoot)
+		}
+		if !jsRoot.isRoot() {
+			Preconditions_checkState_boolean_Object_H(false, jsRoot)
+		}
 		var globalThis *JSType = this.typeRegistry.getNativeObjectType(JSTypeNative_GLOBAL_THIS).up_JSType()
 		root.setJSType(globalThis)
 		externsRoot.setJSType(globalThis)
@@ -220,7 +228,9 @@ func (this *TypedScopeCreator) gatherAllProvides(root Node) {
 }
 
 func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
-	Preconditions_checkArgument_boolean_Object_H(root.isRoot(), root)
+	if !root.isRoot() {
+		Preconditions_checkArgument_boolean_Object_H(false, root)
+	}
 	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(new_TypedScopeCreator_FirstOrderFunctionAnalyzer(this))).setScopeCreator(MemoizedScopeCreator_as_ScopeCreator(scopeCreator)).traverseRoots(root.getFirstChild(), root.getLastChild())
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(new_TypedScopeCreator_IdentifyEnumsAndTypedefsAsNonNullable(this.typeRegistry))).setScopeCreator(MemoizedScopeCreator_as_ScopeCreator(scopeCreator)).traverse(root)
@@ -331,7 +341,9 @@ func TypedScopeCreator_containingGoogModuleIdOf(scope *TypedScope) Optional[stri
 		}()
 	}
 	var metadata *ModuleMetadataMap_ModuleMetadata = module.metadata()
-	Preconditions_checkState_boolean_Object(metadata.isModule(), metadata)
+	if !metadata.isModule() {
+		Preconditions_checkState_boolean_Object(false, metadata)
+	}
 	return Optional_ofNullable[string](str_(Iterables_getFirst(SimpleMultiset_as_Iterable(metadata.googNamespaces()), nil)))
 }
 
@@ -442,7 +454,9 @@ type TypedScopeCreator_WeakModuleImport struct {
 }
 
 func (this *TypedScopeCreator_WeakModuleImport) init_TypedScopeCreator_WeakModuleImport(moduleLocalNode Node, scopedImport *ScopedName, localModuleScope *TypedScope) {
-	Preconditions_checkState_boolean_Object_H((moduleLocalNode.isName() || moduleLocalNode.isImportStar()), moduleLocalNode)
+	if !(moduleLocalNode.isName() || moduleLocalNode.isImportStar()) {
+		Preconditions_checkState_boolean_Object_H(false, moduleLocalNode)
+	}
 	this.moduleLocalNode = moduleLocalNode
 	this.scopedImport = scopedImport
 	this.localModuleScope = localModuleScope
@@ -705,7 +719,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) finishDeclaringGoogModule() 
 	if rootNode.isModuleBody() {
 		rootNode.setJSType(exportsVar.getType())
 	} else {
-		Preconditions_checkState_boolean_Object_H(rootNode.isBlock(), rootNode)
+		if !rootNode.isBlock() {
+			Preconditions_checkState_boolean_Object_H(false, rootNode)
+		}
 		var fn Node = rootNode.getParent()
 		var paramList Node = NodeUtil_getFunctionParameters(fn)
 		paramList.getOnlyChild().setJSType(exportsVar.getType())
@@ -870,7 +886,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) processObjectLitProperties(o
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredTypeInAnnotation(node Node, info *JSDocInfo) *JSType {
-	Preconditions_checkArgument_boolean_Object(info.hasType(), info)
+	if !info.hasType() {
+		Preconditions_checkArgument_boolean_Object(false, info)
+	}
 	var ownerTypeKeys *JTList[*TemplateType] = this.findOwnerTypeKeys(node)
 	var templateScope StaticTypedScope = func() StaticTypedScope {
 		if !ownerTypeKeys.isEmpty() {
@@ -905,7 +923,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findOwnerTypeKeys(node Node)
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) assertDefinitionNode(n Node, type_ *Token_rhino) {
 	Preconditions_checkState(this.sourceName_.isPresent())
-	Preconditions_checkState_boolean_Object_H((n.getToken() == type_), n)
+	if !(n.getToken() == type_) {
+		Preconditions_checkState_boolean_Object_H(false, n)
+	}
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineCatch(n Node) {
@@ -919,7 +939,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineCatch(n Node) {
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineAssignAsIfVarDeclaration(assignment Node) {
 	var info *JSDocInfo = assignment.getJSDocInfo()
 	var name Node = assignment.getFirstChild()
-	Preconditions_checkArgument_boolean_Object_H(name.isName(), name)
+	if !name.isName() {
+		Preconditions_checkArgument_boolean_Object_H(false, name)
+	}
 	var rvalue Node = assignment.getSecondChild()
 	this.defineName(name, rvalue, cast_[*TypedScope](this.currentScope.getClosestHoistScope().self()), info)
 }
@@ -955,7 +977,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineVarChild(declarationIn
 		}
 		this.defineName(child, child.getFirstChild(), scope, declarationInfo)
 	} else {
-		Preconditions_checkState_boolean_Object_H(child.isDestructuringLhs(), child)
+		if !child.isDestructuringLhs() {
+			Preconditions_checkState_boolean_Object_H(false, child)
+		}
 		var pattern Node = child.getFirstChild()
 		var value Node = child.getSecondChild()
 		if ModuleImportResolver_isGoogModuleDependencyCall(value) {
@@ -1015,7 +1039,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineDestructuringPatternIn
 			this.defineDestructuringPatternInVarDeclaration(target.getNode(), scope, typeSupplier)
 		} else {
 			var name Node = target.getNode()
-			Preconditions_checkState_boolean_String_Object_H(name.isName(), "This method is only for declaring variables: %s", name)
+			if !name.isName() {
+				Preconditions_checkState_boolean_String_Object_H(false, "This method is only for declaring variables: %s", name)
+			}
 			var type_ *JSType = this.getDeclaredType(name.getJSDocInfo(), name, 0, typeSupplier)
 			if type_ == nil {
 				type_ = func() *JSType {
@@ -1130,7 +1156,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) shouldUseFunctionLiteralType
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) createClassTypeFromNodes(clazz Node, name Optional[string], syntacticName Optional[string], info *JSDocInfo, lvalueNode Node) *FunctionType {
-	Preconditions_checkArgument_boolean_Object_H(clazz.isClass(), clazz)
+	if !clazz.isClass() {
+		Preconditions_checkArgument_boolean_Object_H(false, clazz)
+	}
 	var builder *FunctionTypeBuilder = new_FunctionTypeBuilder(name, this.outer_.compiler_, clazz, this.currentScope).usingClassSyntax().setSyntacticFunctionName(syntacticName).setContents(FunctionTypeBuilder_FunctionContents(new_FunctionTypeBuilder_AstFunctionContents(clazz))).setDeclarationScope(func() *TypedScope {
 		if lvalueNode != 0 {
 			return this.getLValueRootScope(lvalueNode)
@@ -1317,7 +1345,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createFunctionTypeFromNodes(
 			ownerType = ObjectType_cast(this.currentScope.lookupQualifiedName(QualifiedName_of(ownerName.get())))
 		}
 		if ownerName.isPresent() && name.isPresent() {
-			Preconditions_checkState_boolean_String_Object_Object(String_startsWith(name.get(), ownerName.get()), "Expected \"%s\" to start with \"%s\"", strobj_(name.get()), strobj_(ownerName.get()))
+			if ok_, a1_, a2_ := String_startsWith(name.get(), ownerName.get()), name.get(), ownerName.get(); !ok_ {
+				Preconditions_checkState_boolean_String_Object_Object(false, "Expected \"%s\" to start with \"%s\"", strobj_(a1_), strobj_(a2_))
+			}
 			propName = Optional_of[string](String_substring_int(name.get(), (String_length(ownerName.get()) + 1)))
 		}
 	}
@@ -1509,7 +1539,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getLValueRootScope(n Node) *
 			case tokOrd1_LET, tokOrd1_CONST, tokOrd1_CLASS, tokOrd1_FUNCTION, tokOrd1_PARAM_LIST, tokOrd1_CATCH:
 				return this.currentScope
 			case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
-				Preconditions_checkState_boolean_Object_H(nameParent.getParent().isParamList(), nameParent)
+				if !nameParent.getParent().isParamList() {
+					Preconditions_checkState_boolean_Object_H(false, nameParent)
+				}
 				return this.currentScope
 			default:
 				if this.isGoogModuleExports(root) {
@@ -1753,7 +1785,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) checkForClassDefiningCalls(n
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) maybeDeclareGetElem(info *JSDocInfo, n Node, rhsValue Node) {
-	Preconditions_checkArgument_boolean_Object_H(n.isGetElem(), n)
+	if !n.isGetElem() {
+		Preconditions_checkArgument_boolean_Object_H(false, n)
+	}
 	var ownerNode Node = n.getFirstChild()
 	var key Node = n.getSecondChild()
 	var keyType *KnownSymbolType = TypedScopeCreator_extractKnownSymbolKey(this.currentScope, key)
@@ -2056,7 +2090,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) forGoogProvidedN
 
 func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) defineSlot() {
 	Preconditions_checkNotNull_Object_Object_T(this.declarationNode, "declarationNode not set")
-	Preconditions_checkState_boolean_String_Object_H((((((this.declarationNode.isName() || this.declarationNode.isGetProp()) || NodeUtil_mayBeObjectLitKey(this.declarationNode)) || this.declarationNode.isModuleBody()) || this.declarationNode.isExport()) || (this.forGoogProvidedNameField && NodeUtil_isExprCall(this.declarationNode))), "declaration node must be an lvalue or goog.provide call, found %s", this.declarationNode)
+	if !(((((this.declarationNode.isName() || this.declarationNode.isGetProp()) || NodeUtil_mayBeObjectLitKey(this.declarationNode)) || this.declarationNode.isModuleBody()) || this.declarationNode.isExport()) || (this.forGoogProvidedNameField && NodeUtil_isExprCall(this.declarationNode))) {
+		Preconditions_checkState_boolean_String_Object_H(false, "declaration node must be an lvalue or goog.provide call, found %s", this.declarationNode)
+	}
 	Preconditions_checkState_boolean_Object(this.variableName.isPresent(), "variableName not set")
 	Preconditions_checkState_boolean_Object((this.allowLaterTypeInferenceField || (this.type__ != nil)), "null type but inference not allowed")
 	Preconditions_checkState(!String_isEmpty(this.variableName.get()))
@@ -2360,7 +2396,9 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareDestructuringParamete
 			this.declareDestructuringParameter(isInferred, target.getNode(), parameterType)
 		} else {
 			var paramName Node = target.getNode()
-			Preconditions_checkState_boolean_String_Object_H(paramName.isName(), "Expected all parameters to be names, got %s", paramName)
+			if !paramName.isName() {
+				Preconditions_checkState_boolean_String_Object_H(false, "Expected all parameters to be names, got %s", paramName)
+			}
 			if (parameterType == nil) || parameterType.isUnknownType() {
 				var paramJSDoc *JSDocInfo = paramName.getJSDocInfo()
 				if (paramJSDoc != nil) && paramJSDoc.hasType() {
@@ -2526,7 +2564,9 @@ func (this *TypedScopeCreator_ClassScopeBuilder) determineOwnerTypeForClassMembe
 	} else if member.isMemberFieldDef() {
 		return ownerType.getInstanceType()
 	} else {
-		Preconditions_checkState_boolean_Object_H(((((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()) || member.isComputedProp()) || member.isComputedFieldDef()), member)
+		if !((((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()) || member.isComputedProp()) || member.isComputedFieldDef()) {
+			Preconditions_checkState_boolean_Object_H(false, member)
+		}
 		return ownerType.getPrototype()
 	}
 	panic("unreachable")

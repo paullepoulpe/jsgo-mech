@@ -16,8 +16,12 @@ func new_AstManipulations() *AstManipulations {
 }
 
 func AstManipulations_fuseExpressions(exp1 Node, exp2 Node) Node {
-	Preconditions_checkArgument_boolean_String_Object_H((exp1.getParent() == 0), "Expected detached node, got %s", exp1)
-	Preconditions_checkArgument_boolean_String_Object_H((exp2.getParent() == 0), "Expected detached node, got %s", exp2)
+	if !(exp1.getParent() == 0) {
+		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected detached node, got %s", exp1)
+	}
+	if !(exp2.getParent() == 0) {
+		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected detached node, got %s", exp2)
+	}
 	if exp2.isEmpty() {
 		return exp1
 	}

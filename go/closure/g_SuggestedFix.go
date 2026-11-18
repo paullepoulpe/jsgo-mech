@@ -194,7 +194,9 @@ func (this *SuggestedFix_Builder) insertBefore(nodeToInsertBefore Node, content 
 
 func (this *SuggestedFix_Builder) insertBeforeString(nodeToInsertBefore Node, content string, sortKey string) *SuggestedFix_Builder {
 	var startPosition int32 = SuggestedFix_getStartPositionForNodeConsideringComments(nodeToInsertBefore)
-	Preconditions_checkState_boolean_String_Object_H(!String_isEmpty(nodeToInsertBefore.getSourceFileName()), "No source file name for node: %s", nodeToInsertBefore)
+	if String_isEmpty(nodeToInsertBefore.getSourceFileName()) {
+		Preconditions_checkState_boolean_String_Object_H(false, "No source file name for node: %s", nodeToInsertBefore)
+	}
 	this.replacements.put(strobj_(nodeToInsertBefore.getSourceFileName()), obj_(CodeReplacement_create_int_int_String_String(startPosition, 0, content, sortKey)))
 	return this
 }
@@ -270,7 +272,9 @@ func (this *SuggestedFix_Builder) rename_3(n Node, name string, replaceNameSubtr
 			return n
 		}()
 	case tokOrd1_STRINGLIT:
-		Preconditions_checkState_boolean_Object_H(n.getParent().isGetProp(), n)
+		if !n.getParent().isGetProp() {
+			Preconditions_checkState_boolean_Object_H(false, n)
+		}
 		range_ = n
 	case tokOrd1_STRING_KEY, tokOrd1_NAME:
 		range_ = n

@@ -435,7 +435,9 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) init_ProcessClosureP
 	this.compiler_ = compiler
 	this.astFactory_ = astFactory
 	var node Node = builder.node_
-	Preconditions_checkArgument_boolean_Object_H((((node == 0) || NodeUtil_isExprCall(node)) || (!builder.explicit && ((NodeUtil_isExprAssign(node) || NodeUtil_isNameDeclaration(node)) || (node.isExprResult() && node.getFirstChild().isQualifiedName())))), node)
+	if !(((node == 0) || NodeUtil_isExprCall(node)) || (!builder.explicit && ((NodeUtil_isExprAssign(node) || NodeUtil_isNameDeclaration(node)) || (node.isExprResult() && node.getFirstChild().isQualifiedName())))) {
+		Preconditions_checkArgument_boolean_Object_H(false, node)
+	}
 	this.namespace_ = builder.namespace_
 	this.firstNode = builder.node_
 	this.firstChunk = builder.chunk_
@@ -454,7 +456,9 @@ func new_ProcessClosureProvidesAndRequires_ProvidedName(builder *ProcessClosureP
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) addProvide(node Node, chunk *JSChunk, explicit bool, chunkGraph *JSChunkGraph) {
 	if explicit {
 		Preconditions_checkState((this.explicitNode == 0))
-		Preconditions_checkArgument_boolean_Object_H(node.isExprResult(), node)
+		if !node.isExprResult() {
+			Preconditions_checkArgument_boolean_Object_H(false, node)
+		}
 		this.explicitNode = node
 	}
 	this.updateMinimumChunk(chunk, chunkGraph)
@@ -508,7 +512,9 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) updateMinimumChunk(n
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoogProvidesAndRequires bool, providedNames *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]) {
-	Preconditions_checkState_boolean_String_Object_H(!this.isFromLegacyModule(), "Cannot rewrite provides without having rewritten goog.modules, found %s", this.firstNode)
+	if this.isFromLegacyModule() {
+		Preconditions_checkState_boolean_String_Object_H(false, "Cannot rewrite provides without having rewritten goog.modules, found %s", this.firstNode)
+	}
 	if this.firstNode == 0 {
 		this.replacementNode = this.candidateDefinition
 		return
@@ -541,8 +547,12 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoog
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) convertProvideAssignmentToVarDeclaration(assignNode Node, nameNode Node) {
-	Preconditions_checkArgument_boolean_Object_H(assignNode.isAssign(), assignNode)
-	Preconditions_checkArgument_boolean_Object_H(nameNode.isName(), nameNode)
+	if !assignNode.isAssign() {
+		Preconditions_checkArgument_boolean_Object_H(false, assignNode)
+	}
+	if !nameNode.isName() {
+		Preconditions_checkArgument_boolean_Object_H(false, nameNode)
+	}
 	var valueNode Node = nameNode.getNext()
 	nameNode.detach()
 	valueNode.detach()
@@ -573,7 +583,9 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 }
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) createDeclarationNode(value Node) Node {
-	Preconditions_checkArgument_boolean_Object_H((value.isObjectLit() || value.isCast()), value)
+	if !(value.isObjectLit() || value.isCast()) {
+		Preconditions_checkArgument_boolean_Object_H(false, value)
+	}
 	if String_indexOf(this.namespace_, 46) == -1 {
 		return this.makeVarDeclNode(value)
 	} else {

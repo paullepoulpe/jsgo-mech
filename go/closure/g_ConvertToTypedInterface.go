@@ -228,7 +228,9 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) shouldTraverse(t *Nod
 	case Token_rhino_MODULE_BODY, Token_rhino_CLASS, Token_rhino_DEFAULT_CASE, Token_rhino_BLOCK, Token_rhino_EXPORT, Token_rhino_IMPORT:
 		return true
 	default:
-		Preconditions_checkState_boolean_Object(!NodeUtil_isStatement(n), n.getToken())
+		if ok_, a1_ := !NodeUtil_isStatement(n), n.getToken(); !ok_ {
+			Preconditions_checkState_boolean_Object(false, a1_)
+		}
 		return true
 	}
 	panic("unreachable")
@@ -245,7 +247,9 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) visit(t *NodeTraversa
 		}
 	case tokOrd1_SWITCH:
 		if n.hasParent() {
-			Preconditions_checkState_boolean_String_Object(n.hasOneChild(), "malfrmed sWITCH %s", n.toStringTree())
+			if ok_, a1_ := n.hasOneChild(), n.toStringTree(); !ok_ {
+				Preconditions_checkState_boolean_String_Object(false, "malfrmed sWITCH %s", a1_)
+			}
 			var children Node = n.getFirstChild().removeChildren()
 			parent.addChildrenAfter(children, n)
 			n.detach()
@@ -341,7 +345,9 @@ func new_ConvertToTypedInterface_PropagateConstJsdoc(currentFile *FileInfo) *Con
 }
 
 func (this *ConvertToTypedInterface_PropagateConstJsdoc) processConstWithRhs_impl(t *NodeTraversal, nameNode Node) {
-	Preconditions_checkArgument_boolean_Object_H((((nameNode.isQualifiedName() || nameNode.isStringKey()) || nameNode.isDestructuringLhs()) || nameNode.isMemberFieldDef()), nameNode)
+	if !(((nameNode.isQualifiedName() || nameNode.isStringKey()) || nameNode.isDestructuringLhs()) || nameNode.isMemberFieldDef()) {
+		Preconditions_checkArgument_boolean_Object_H(false, nameNode)
+	}
 	var jsdocNode Node = NodeUtil_getBestJSDocInfoNode(nameNode)
 	var originalJsdoc *JSDocInfo = jsdocNode.getJSDocInfo()
 	var rhs Node = NodeUtil_getRValueOfLValue(nameNode)
@@ -444,7 +450,9 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) processClass(n Node) {
 			case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 				this.processFunction(member.getLastChild())
 			case tokOrd1_COMPUTED_PROP:
-				Preconditions_checkState_boolean_String_Object_H(member.getSecondChild().isFunction(), "Non-function computed class member: %s", member)
+				if !member.getSecondChild().isFunction() {
+					Preconditions_checkState_boolean_String_Object_H(false, "Non-function computed class member: %s", member)
+				}
 				this.processFunction(member.getSecondChild())
 			default:
 				panic(new_AssertionError_Object(strobj_((jtostr_(member.getToken()) + " should not be handled by processClass"))).self())

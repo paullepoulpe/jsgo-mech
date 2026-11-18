@@ -993,7 +993,9 @@ func (this *JSType) resolve(reporter ErrorReporter_rhino) *JSType {
 }
 
 func (this *JSType) eagerlyResolveToSelf() {
-	Preconditions_checkState_boolean_Object(!this.isResolved(), this)
+	if this.isResolved() {
+		Preconditions_checkState_boolean_Object(false, this)
+	}
 	this.resolveResult = this
 	this.registry.getResolver().resolveIfClosed(this, this.getTypeClass())
 }

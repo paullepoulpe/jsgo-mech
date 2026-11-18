@@ -364,7 +364,9 @@ func (this *ReplaceCssNames_GetCssNameInstance) getValidationError() *JSError {
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) replaceWithExpression() {
-	Preconditions_checkState_boolean_String_Object_H(this.isValid(), "not a valid goog.getCssName() call: %s", this.callNode_)
+	if !this.isValid() {
+		Preconditions_checkState_boolean_String_Object_H(false, "not a valid goog.getCssName() call: %s", this.callNode_)
+	}
 	Preconditions_checkNotNull_Object_String_Object_T(this.callNode_.getParent(), "already replaced: %s", this.callNode_.box_())
 	var childCount int32 = this.callNode_.getChildCount()
 	switch childCount {
@@ -379,7 +381,9 @@ func (this *ReplaceCssNames_GetCssNameInstance) replaceWithExpression() {
 
 func (this *ReplaceCssNames_GetCssNameInstance) replaceWithConvertedSingleArg() {
 	var stringLitArg Node = Preconditions_checkNotNull_Object_Object_T(this.callNode_.getSecondChild(), this.callNode_.box_())
-	Preconditions_checkState_boolean_String_Object_H(stringLitArg.isStringLit(), "not a string literal: %s", stringLitArg)
+	if !stringLitArg.isStringLit() {
+		Preconditions_checkState_boolean_String_Object_H(false, "not a string literal: %s", stringLitArg)
+	}
 	stringLitArg.detach()
 	this.outer_.processStringNode(stringLitArg)
 	this.callNode_.replaceWith(stringLitArg)
@@ -403,12 +407,16 @@ func (this *ReplaceCssNames_GetCssNameInstance) isCssClosureFileClassesMember() 
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesQualifiedName() Optional[string] {
-	Preconditions_checkState_boolean_String_Object_H(this.cssClosureClassesQualifiedName.isPresent(), "Not a css closure file classes object: %s", this.callNode_)
+	if !this.cssClosureClassesQualifiedName.isPresent() {
+		Preconditions_checkState_boolean_String_Object_H(false, "Not a css closure file classes object: %s", this.callNode_)
+	}
 	return this.cssClosureClassesQualifiedName
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName() Optional[string] {
-	Preconditions_checkState_boolean_String_Object_H(this.cssClosureClassesQualifiedName.isPresent(), "Not a css closure file classes object: %s", this.callNode_)
+	if !this.cssClosureClassesQualifiedName.isPresent() {
+		Preconditions_checkState_boolean_String_Object_H(false, "Not a css closure file classes object: %s", this.callNode_)
+	}
 	var ancestors *Node_AncestorIterable = this.callNode_.getAncestors()
 	it_1 := foreach_(obj_(ancestors))
 	for it_1.next() {
@@ -421,18 +429,24 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName()
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() Optional[string] {
-	Preconditions_checkState_boolean_String_Object_H(this.isValid(), "not a valid goog.getCssName() call: %s", this.callNode_)
+	if !this.isValid() {
+		Preconditions_checkState_boolean_String_Object_H(false, "not a valid goog.getCssName() call: %s", this.callNode_)
+	}
 	Preconditions_checkNotNull_Object_String_Object_T(this.callNode_.getParent(), "already replaced: %s", this.callNode_.box_())
 	var childCount int32 = this.callNode_.getChildCount()
 	var firstArg Node = Preconditions_checkNotNull_Object_Object_T(this.callNode_.getSecondChild(), this.callNode_.box_())
 	return func() Optional[string] {
 		switch childCount {
 		case 2:
-			Preconditions_checkState_boolean_String_Object_H(firstArg.isStringLit(), "not a string literal: %s", firstArg)
+			if !firstArg.isStringLit() {
+				Preconditions_checkState_boolean_String_Object_H(false, "not a string literal: %s", firstArg)
+			}
 			return Optional_of[string](firstArg.getString())
 		case 3:
 			var secondArg Node = Preconditions_checkNotNull_Object_Object_T(firstArg.getNext(), firstArg.box_())
-			Preconditions_checkState_boolean_String_Object_H(secondArg.isStringLit(), "not a string literal: %s", secondArg)
+			if !secondArg.isStringLit() {
+				Preconditions_checkState_boolean_String_Object_H(false, "not a string literal: %s", secondArg)
+			}
 			return Optional_of[string](secondArg.getString())
 		default:
 			panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", []any{any(int32(childCount)), this.callNode_.box_()})).self())

@@ -68,7 +68,9 @@ func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) 
 	var ctx *RewriteAsyncIteration_LexicalContext = cast_[*RewriteAsyncIteration_LexicalContext](SequencedCollection_getFirst(SequencedCollection(this.contextStack.asDeque())))
 	switch n.ns_().token {
 	case tokOrd1_PARAM_LIST:
-		Preconditions_checkState_boolean_Object_H(Object_equals(n.box_(), ctx.contextRoot.box_()), n)
+		if !Object_equals(n.box_(), ctx.contextRoot.box_()) {
+			Preconditions_checkState_boolean_Object_H(false, n)
+		}
 		this.contextStack.pop()
 	case tokOrd1_FUNCTION:
 		Preconditions_checkState(Object_equals(n.box_(), ctx.contextRoot.box_()))
@@ -194,7 +196,9 @@ func (this *RewriteAsyncIteration) replaceForAwaitOf(ctx *RewriteAsyncIteration_
 	var forAwaitOfParent Node = forAwaitOf.getParent()
 	var replacementPoint Node
 	if forAwaitOfParent.isLabel() {
-		Preconditions_checkState_boolean_Object_H(forAwaitOf.isSecondChildOf(forAwaitOfParent), forAwaitOfParent)
+		if !forAwaitOf.isSecondChildOf(forAwaitOfParent) {
+			Preconditions_checkState_boolean_Object_H(false, forAwaitOfParent)
+		}
 		replacementPoint = forAwaitOfParent
 	} else {
 		replacementPoint = forAwaitOf
@@ -216,7 +220,9 @@ func (this *RewriteAsyncIteration) replaceForAwaitOf(ctx *RewriteAsyncIteration_
 			resultType = AstFactory_type_Node(declarationTarget)
 			declarationTarget.addChildToBack(this.astFactory_.createGetProp(this.astFactory_.createName(resultTempName, iterableResultType), "value", resultType))
 		} else {
-			Preconditions_checkState_boolean_Object_H(declarationTarget.isDestructuringLhs(), declarationTarget)
+			if !declarationTarget.isDestructuringLhs() {
+				Preconditions_checkState_boolean_Object_H(false, declarationTarget)
+			}
 			var destructuringPattern Node = declarationTarget.getOnlyChild()
 			resultType = AstFactory_type_Node(destructuringPattern)
 			declarationTarget.addChildToBack(this.astFactory_.createGetProp(this.astFactory_.createName(resultTempName, iterableResultType), "value", resultType))
@@ -445,9 +451,13 @@ func new_RewriteAsyncIteration_LexicalContext_Node(contextRoot Node) *RewriteAsy
 func (this *RewriteAsyncIteration_LexicalContext) init_RewriteAsyncIteration_LexicalContext_LexicalContext_Node_Node_AbstractCompiler(parent *RewriteAsyncIteration_LexicalContext, contextRoot Node, function Node, compiler *AbstractCompiler) {
 	Preconditions_checkNotNull_T(parent)
 	Preconditions_checkNotNull_T(contextRoot)
-	Preconditions_checkArgument_boolean_Object_H(((contextRoot == function) || contextRoot.isParamList()), contextRoot)
+	if !((contextRoot == function) || contextRoot.isParamList()) {
+		Preconditions_checkArgument_boolean_Object_H(false, contextRoot)
+	}
 	Preconditions_checkNotNull_T(function)
-	Preconditions_checkArgument_boolean_Object_H(function.isFunction(), function)
+	if !function.isFunction() {
+		Preconditions_checkArgument_boolean_Object_H(false, function)
+	}
 	this.contextRoot = contextRoot
 	this.function = function
 	if function.isArrowFunction() {

@@ -142,7 +142,9 @@ func (this *SourceMapConsumerV3) getMappingForLine(lineNumber int32, column int3
 		return this.getPreviousMapping(lineNumber)
 	}
 	var index int32 = this.search(column, start, (end - this.mappings.getEntrySize()))
-	Preconditions_checkState_boolean_String_int((index >= 0), "unexpected:%s", index)
+	if !(index >= 0) {
+		Preconditions_checkState_boolean_String_int(false, "unexpected:%s", index)
+	}
 	return this.getOriginalMappingForEntry(index, Mapping_OriginalMapping_Precision_EXACT)
 }
 
@@ -535,7 +537,9 @@ func (this *SourceMapConsumerV3_MappingBuilder) getSourceColumn(index int32) int
 }
 
 func (this *SourceMapConsumerV3_MappingBuilder) validateEntry(entriesCount int32, line int32) {
-	Preconditions_checkState_boolean_String_int_int(((this.lineCount < 0) || (line < this.lineCount)), "line=%s, lineCount=%s", line, this.lineCount)
+	if !((this.lineCount < 0) || (line < this.lineCount)) {
+		Preconditions_checkState_boolean_String_int_int(false, "line=%s, lineCount=%s", line, this.lineCount)
+	}
 	var sourceFileId int32 = this.getSourceFileId(entriesCount)
 	var nameId int32 = this.getNameId(entriesCount)
 	Preconditions_checkState(((sourceFileId == SourceMapConsumerV3_UNMAPPED) || (sourceFileId < int32(len(this.outer_.sources)))))

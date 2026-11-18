@@ -71,7 +71,9 @@ func (this *Es6RenameTypeReferences) renameReference(t *NodeTraversal, n Node, o
 		var currentRootNode Node = current.getRootNode()
 		var newName Optional[string] = Optional_ofNullable[string](this.renameTable.get(currentRootNode.box_(), strobj_(oldName)))
 		if newName.isPresent() {
-			Preconditions_checkState_boolean_String_Object_H(((currentRootNode.isModuleBody() || currentRootNode.isScript()) || NodeUtil_isFunctionBlock(currentRootNode)), "Not a MODULE_BODY or SCRIPT or goog.loadModule root: %s", currentRootNode)
+			if !((currentRootNode.isModuleBody() || currentRootNode.isScript()) || NodeUtil_isFunctionBlock(currentRootNode)) {
+				Preconditions_checkState_boolean_String_Object_H(false, "Not a MODULE_BODY or SCRIPT or goog.loadModule root: %s", currentRootNode)
+			}
 			var newFullName string = func() string {
 				if rest.isEmpty() {
 					return newName.get()

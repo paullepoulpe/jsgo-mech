@@ -115,8 +115,12 @@ func ScopedAliases_getAliasedNamespace(rhs Node) string {
 		case tokOrd1_NAME:
 			return rhs.getString()
 		case tokOrd1_CALL:
-			Preconditions_checkState_boolean_Object_H(NodeUtil_isCallToQualifiedName(rhs, ScopedAliases_GOOG_MODULE_GET), rhs)
-			Preconditions_checkState_boolean_Object_H(rhs.hasTwoChildren(), rhs)
+			if !NodeUtil_isCallToQualifiedName(rhs, ScopedAliases_GOOG_MODULE_GET) {
+				Preconditions_checkState_boolean_Object_H(false, rhs)
+			}
+			if !rhs.hasTwoChildren() {
+				Preconditions_checkState_boolean_Object_H(false, rhs)
+			}
 			return rhs.getLastChild().getString()
 		default:
 			panic(new_RuntimeException_String(("Invalid alias RHS:" + tostrH_(rhs))).self())
@@ -401,7 +405,9 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias_impl(compiler *AbstractCom
 		return
 	}
 	var aliasExpanded string = ScopedAliases_getAliasedNamespace(aliasDefinition)
-	Preconditions_checkState_boolean_String_Object_Object(String_startsWith(typeName, aliasName), "%s must start with %s", typeName, aliasName)
+	if !String_startsWith(typeName, aliasName) {
+		Preconditions_checkState_boolean_String_Object_Object(false, "%s must start with %s", typeName, aliasName)
+	}
 	var replacement string = (sstr_(aliasExpanded) + sstr_(String_substring_int(typeName, String_length(aliasName))))
 	this.aliasReference.setString(replacement)
 }
@@ -669,7 +675,9 @@ func (this *ScopedAliases_Traversal) findNamespaceShadows(t *NodeTraversal) {
 }
 
 func (this *ScopedAliases_Traversal) renameNamespaceShadows(t *NodeTraversal) {
-	Preconditions_checkState_boolean_Object_H(NodeUtil_isFunctionBlock(t.getScopeRoot()), t.getScopeRoot())
+	if ok_, a1_ := NodeUtil_isFunctionBlock(t.getScopeRoot()), t.getScopeRoot(); !ok_ {
+		Preconditions_checkState_boolean_Object_H(false, a1_)
+	}
 	if this.hasNamespaceShadows {
 		var renamer MakeDeclaredNamesUnique_Renamer = MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_TargettedRenamer(icast_MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_ContextualRenamer_0().self()), this.forbiddenLocals))
 		it_1 := this.forbiddenLocals.each()

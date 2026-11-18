@@ -87,7 +87,9 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 			panic(new_IllegalArgumentException_String(("Unexpected declaration: " + tostrH_(expr))).self())
 		}
 	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
-		Preconditions_checkState_boolean_Object_H(n.hasOneChild(), n)
+		if !n.hasOneChild() {
+			Preconditions_checkState_boolean_Object_H(false, n)
+		}
 		this.recordDeclaration(t, n.getFirstChild(), n.getFirstChild().getLastChild())
 	case Token_rhino_STRING_KEY:
 		if parent.isObjectLit() && n.hasOneChild() {
@@ -125,8 +127,12 @@ func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node)
 }
 
 func (this *ProcessConstJsdocCallback) processDeclarationWithRhs(t *NodeTraversal, lhs Node) {
-	Preconditions_checkArgument_boolean_Object_H(((lhs.isQualifiedName() || lhs.isStringKey()) || lhs.isMemberFieldDef()), lhs)
-	Preconditions_checkState_boolean_Object_H((NodeUtil_getRValueOfLValue(lhs) != 0), lhs)
+	if !((lhs.isQualifiedName() || lhs.isStringKey()) || lhs.isMemberFieldDef()) {
+		Preconditions_checkArgument_boolean_Object_H(false, lhs)
+	}
+	if !(NodeUtil_getRValueOfLValue(lhs) != 0) {
+		Preconditions_checkState_boolean_Object_H(false, lhs)
+	}
 	if PotentialDeclaration_isConstToBeInferred(lhs) {
 		this.processConstWithRhs(t, lhs)
 	}

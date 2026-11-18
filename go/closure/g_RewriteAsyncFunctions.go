@@ -179,16 +179,22 @@ func new_RewriteAsyncFunctions_SuperPropertyWrappers(outer_ *RewriteAsyncFunctio
 }
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropertyWrapperInfo(superDotPropertyNode Node) *RewriteAsyncFunctions_SuperPropertyWrapperInfo {
-	Preconditions_checkArgument_boolean_Object_H(superDotPropertyNode.isGetProp(), superDotPropertyNode)
+	if !superDotPropertyNode.isGetProp() {
+		Preconditions_checkArgument_boolean_Object_H(false, superDotPropertyNode)
+	}
 	var superNode Node = superDotPropertyNode.getFirstChild()
-	Preconditions_checkArgument_boolean_Object_H(superNode.isSuper(), superNode)
+	if !superNode.isSuper() {
+		Preconditions_checkArgument_boolean_Object_H(false, superNode)
+	}
 	var propertyName string = superDotPropertyNode.getString()
 	var propertyType *Color = superDotPropertyNode.getColor()
 	var superPropertyWrapperInfo *RewriteAsyncFunctions_SuperPropertyWrapperInfo
 	if this.propertyNameToTypeMap.containsKey(propertyName) {
 		superPropertyWrapperInfo = this.propertyNameToTypeMap.get(propertyName)
 		var existingColor *Color = superPropertyWrapperInfo.getPropertyType()
-		Preconditions_checkState_boolean_String_Object_Object(Objects_equals(obj_(existingColor), obj_(propertyType)), "Previous reference type: %s differs from current reference type: %s", existingColor, propertyType)
+		if !Objects_equals(obj_(existingColor), obj_(propertyType)) {
+			Preconditions_checkState_boolean_String_Object_Object(false, "Previous reference type: %s differs from current reference type: %s", existingColor, propertyType)
+		}
 	} else {
 		superPropertyWrapperInfo = this.createNewInfo(superDotPropertyNode)
 		this.propertyNameToTypeMap.put(propertyName, superPropertyWrapperInfo)
@@ -197,7 +203,9 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropert
 }
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) createNewInfo(firstSuperDotPropertyNode Node) *RewriteAsyncFunctions_SuperPropertyWrapperInfo {
-	Preconditions_checkArgument_boolean_Object_H(firstSuperDotPropertyNode.isGetProp(), firstSuperDotPropertyNode)
+	if !firstSuperDotPropertyNode.isGetProp() {
+		Preconditions_checkArgument_boolean_Object_H(false, firstSuperDotPropertyNode)
+	}
 	var propertyName string = firstSuperDotPropertyNode.getString()
 	var wrapperFunctionName string = (sstr_(RewriteAsyncFunctions_ASYNC_SUPER_PROP_GETTER_PREFIX) + sstr_(this.outer_.compiler_.getUniqueIdSupplier().getUniqueId(this.outer_.compiler_.getInput(NodeUtil_getInputId(firstSuperDotPropertyNode)))) + "$" + sstr_(propertyName))
 	return new_RewriteAsyncFunctions_SuperPropertyWrapperInfo(this.outer_, firstSuperDotPropertyNode, wrapperFunctionName, AstFactory_type_Node(firstSuperDotPropertyNode))
@@ -427,7 +435,9 @@ func new_RewriteAsyncFunctions_FunctionContext_Node_String(outer_ *RewriteAsyncF
 func (this *RewriteAsyncFunctions_FunctionContext) init_RewriteAsyncFunctions_FunctionContext_FunctionContext_Node_String(outerAsyncContext *RewriteAsyncFunctions_FunctionContext, contextRootNode Node, uniqueId string) {
 	this.RewriteAsyncFunctions_LexicalContext.init_RewriteAsyncFunctions_LexicalContext(contextRootNode, uniqueId)
 	this.finit_RewriteAsyncFunctions_FunctionContext()
-	Preconditions_checkState_boolean_Object_H(contextRootNode.isFunction(), contextRootNode)
+	if !contextRootNode.isFunction() {
+		Preconditions_checkState_boolean_Object_H(false, contextRootNode)
+	}
 	if contextRootNode.isAsyncFunction() {
 		if contextRootNode.isArrowFunction() {
 			this.asyncThisAndArgumentsContext = func() *RewriteAsyncFunctions_FunctionContext {
