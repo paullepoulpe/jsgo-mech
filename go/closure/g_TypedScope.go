@@ -245,7 +245,7 @@ func (this *TypedScope) getTopmostScopeOfEventualDeclaration_impl(name string) S
 }
 
 func (this *TypedScope) lookupQualifiedName(p0 *QualifiedName) *JSType {
-	return StaticTypedScope_lookupQualifiedName_default(icast_StaticTypedScope(obj_(this)), p0)
+	return StaticTypedScope_lookupQualifiedName_default(this, p0)
 }
 
 // typed: an object that is exactly a TypedScope calls its typed_impl directly (post-flip); others dispatch.

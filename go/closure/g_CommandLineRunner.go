@@ -163,7 +163,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	if builder.length() != 0 {
 		tokens.add(Object_toString(obj_(builder)))
 	}
-	this.flags.flagFiles = icast_List(new_ArrayList_0().self())
+	this.flags.flagFiles = new_ArrayList_0()
 	tokens = CommandLineRunner_processArgs(arrmap_(tokens.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
 	var previousGuardLevels *JTList[*AbstractCommandLineRunner_FlagEntry] = tlistCopy_(jtc_p_AbstractCommandLineRunner_FlagEntry, this.flags.guardLevels)
 	var previousMixedJsSources *JTList[*AbstractCommandLineRunner_FlagEntry] = tlistCopy_(jtc_p_AbstractCommandLineRunner_FlagEntry, this.flags.mixedJsSources)
@@ -844,11 +844,11 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.strictModeInput = true
 	this.jscompDevMode = CompilerOptions_DevMode_OFF
 	this.loggingLevel = Level_WARNING.getName()
-	this.externs = icast_List(new_ArrayList_0().self())
+	this.externs = new_ArrayList_0()
 	this.js = newTList_(tc_string)
 	this.unusedJsZip = nil
 	this.jsOutputFile = ""
-	this.chunk_ = icast_List(new_ArrayList_0().self())
+	this.chunk_ = new_ArrayList_0()
 	this.filenameToSaveTo = Optional_empty[string]()
 	this.filenameToRestoreFrom = Optional_empty[string]()
 	this.segmentOfCompilationToRun = CompilerOptions_SegmentOfCompilationToRun_ENTIRE_COMPILATION
@@ -862,18 +862,18 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.isolationMode = CompilerOptions_IsolationMode_NONE
 	this.outputWrapper = Optional_of[string]("")
 	this.outputWrapperFile = Optional_of[string]("")
-	this.chunkWrapper = icast_List(new_ArrayList_0().self())
+	this.chunkWrapper = new_ArrayList_0()
 	this.chunkOutputPathPrefix = "./"
 	this.createSourceMap = ""
 	this.sourceMapFormat = SourceMap_Format_DEFAULT
-	this.sourceMapLocationMapping = icast_List(new_ArrayList_0().self())
-	this.sourceMapInputs = icast_List(new_ArrayList_0().self())
+	this.sourceMapLocationMapping = new_ArrayList_0()
+	this.sourceMapInputs = new_ArrayList_0()
 	this.parseInlineSourceMaps_ = any(bool(true))
 	this.applyInputSourceMaps = true
 	this.jscompError = newTList_(tc_string)
 	this.jscompWarning = newTList_(tc_string)
 	this.jscompOff = newTList_(tc_string)
-	this.define = icast_List(new_ArrayList_0().self())
+	this.define = new_ArrayList_0()
 	this.charset = ""
 	this.compilationLevel = "SIMPLE"
 	this.compilationLevelParsed = 0
@@ -888,9 +888,9 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.typedAstOutputFile = Optional_empty[string]()
 	this.generateExports = true
 	this.exportLocalPropertyDefinitions = true
-	this.formatting = icast_List(new_ArrayList_0().self())
+	this.formatting = new_ArrayList_0()
 	this.processCommonJsModules = false
-	this.moduleRoot = icast_List(new_ArrayList_0().self())
+	this.moduleRoot = new_ArrayList_0()
 	this.processClosurePrimitives = true
 	this.angularPass = false
 	this.polymerVersion = nil
@@ -904,21 +904,21 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.version_ = false
 	this.translationsFile = ""
 	this.translationsProject = Optional_empty[string]()
-	this.flagFiles = icast_List(new_ArrayList_0().self())
+	this.flagFiles = new_ArrayList_0()
 	this.warningsAllowlistFile = ""
-	this.hideWarningsFor = icast_List(new_ArrayList_0().self())
-	this.extraAnnotationName = icast_List(new_ArrayList_0().self())
+	this.hideWarningsFor = new_ArrayList_0()
+	this.extraAnnotationName = new_ArrayList_0()
 	this.tracerMode = CompilerOptions_TracerMode_OFF
 	this.renamePrefix = Optional_empty[string]()
 	this.renamePrefixNamespace = Optional_empty[string]()
-	this.conformanceConfigs = icast_List(new_ArrayList_0().self())
+	this.conformanceConfigs = new_ArrayList_0()
 	this.environment = CompilerOptions_Environment_BROWSER
 	this.jsonStreamMode = CompilerOptions_JsonStreamMode_NONE
 	this.preserveTypeAnnotations = false
 	this.injectLibraries_ = true
-	this.forceInjectLibraries = icast_List(new_ArrayList_0().self())
+	this.forceInjectLibraries = new_ArrayList_0()
 	this.dependencyMode = 0
-	this.entryPoint = icast_List(new_ArrayList_0().self())
+	this.entryPoint = new_ArrayList_0()
 	this.rewritePolyfills = true
 	this.isolatePolyfills = false
 	this.printSourceAfterEachPass = false
@@ -938,8 +938,8 @@ func (this *CommandLineRunner_Flags) finit_CommandLineRunner_Flags() {
 	this.assumeNoPrototypeMethodEnumeration = false
 	this.variableMapInputFile = ""
 	this.propertyMapInputFile = ""
-	this.expectedDiagnostics = icast_List(new_ArrayList_0().self())
-	this.arguments = icast_List(new_ArrayList_0().self())
+	this.expectedDiagnostics = new_ArrayList_0()
+	this.arguments = new_ArrayList_0()
 	this.maxLineLength = 80
 }
 

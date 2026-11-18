@@ -54,7 +54,7 @@ func (this *SortingErrorManager) self() any {
 }
 
 func (this *SortingErrorManager) finit_SortingErrorManager() {
-	this.messages = newTSortedSetC_(tce_p_SortingErrorManager_ErrorWithLevel, icast_Comparator(obj_(new_SortingErrorManager_LeveledJSErrorComparator())))
+	this.messages = newTSortedSetC_(tce_p_SortingErrorManager_ErrorWithLevel, Comparator(new_SortingErrorManager_LeveledJSErrorComparator()))
 	this.originalErrorCount = 0
 	this.promotedErrorCount = 0
 	this.warningCount = 0

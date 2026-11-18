@@ -11,7 +11,7 @@ type LinterMain struct {
 func (this *LinterMain) finit_LinterMain() {
 	this.fix_ = false
 	this.resolutionMode = ModuleLoader_ResolutionMode_BROWSER
-	this.files = icast_List(new_ArrayList_0().self())
+	this.files = new_ArrayList_0()
 }
 
 func (this *LinterMain) init_LinterMain() {

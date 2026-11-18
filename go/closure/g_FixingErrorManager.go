@@ -98,7 +98,7 @@ func (this *FixingErrorManager) getFixesForJsError(error_ *JSError) ListOf[*Sugg
 
 func (this *FixingErrorManager) getFixes(fixTypes FixingErrorManager_FixTypes) CollectionOf[*SuggestedFix] {
 	var containsFixableShorthandModuleWarning bool = this.containsFixableShorthandModuleWarning()
-	var fixes CollectionOf[*SuggestedFix] = icast_Collection(new_ArrayList_0().self())
+	var fixes CollectionOf[*SuggestedFix] = new_ArrayList_0()
 	it_1 := this.getErrors().each()
 	for it_1.next() {
 		var error_ *JSError = it_1.v

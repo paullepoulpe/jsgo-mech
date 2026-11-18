@@ -342,7 +342,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 }
 
 func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias *JTSet[string]) bool {
-	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().apply, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
+	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().apply, new_NodeUtil_MatchShallowStatement())
 	var forbidTemps bool = false
 	if !cast_[*Scope](callRef.scope_.getClosestHoistScope().self()).isGlobal() {
 		var callerFn Node = cast_[*Scope](callRef.scope_.getClosestHoistScope().self()).getRootNode().getParent()
@@ -486,7 +486,7 @@ func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias *JTSet[string], 
 		var perReturnOverhead int32 = 2
 		var perReturnResultOverhead int32 = 3
 		var perAliasOverhead int32 = 3
-		var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, icast_Predicate_base(obj_(new_NodeUtil_MatchShallowStatement())))
+		var returnCount int32 = NodeUtil_getNodeTypeReferenceCount(block, Token_rhino_RETURN, new_NodeUtil_MatchShallowStatement())
 		var resultCount int32 = func() int32 {
 			if returnCount > 0 {
 				return (returnCount - 1)

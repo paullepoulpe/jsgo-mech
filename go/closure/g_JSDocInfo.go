@@ -2384,7 +2384,7 @@ func (this *JSDocInfo_Builder) recordThrowsAnnotation(annotation string) bool {
 		return false
 	}
 	if !this.hasAnySingletonTypeTags() {
-		var throwsAnnotations ListOf[string] = icast_List(this.getPropWithDefault(JSDocInfo_THROWS_ANNOTATIONS, (&Supplier_tfn_List{func() List { return icast_List(new_ArrayList_0().self()) }}).get))
+		var throwsAnnotations ListOf[string] = icast_List(this.getPropWithDefault(JSDocInfo_THROWS_ANNOTATIONS, (&Supplier_tfn_List{func() List { return new_ArrayList_0() }}).get))
 		if this.shouldParseDocumentation() {
 			throwsAnnotations.add(strobj_(annotation))
 		} else if throwsAnnotations.isEmpty() {
@@ -2397,7 +2397,7 @@ func (this *JSDocInfo_Builder) recordThrowsAnnotation(annotation string) bool {
 func (this *JSDocInfo_Builder) recordAuthor(author string) bool {
 	this.populated = true
 	if this.shouldParseDocumentation() {
-		icast_List(this.getPropWithDefault(JSDocInfo_AUTHORS, (&Supplier_tfn_List{func() List { return icast_List(new_ArrayList_0().self()) }}).get)).add(strobj_(author))
+		icast_List(this.getPropWithDefault(JSDocInfo_AUTHORS, (&Supplier_tfn_List{func() List { return new_ArrayList_0() }}).get)).add(strobj_(author))
 	}
 	return true
 }
@@ -2405,7 +2405,7 @@ func (this *JSDocInfo_Builder) recordAuthor(author string) bool {
 func (this *JSDocInfo_Builder) recordReference(reference string) bool {
 	this.populated = true
 	if this.shouldParseDocumentation() {
-		icast_List(this.getPropWithDefault(JSDocInfo_SEES, (&Supplier_tfn_List{func() List { return icast_List(new_ArrayList_0().self()) }}).get)).add(strobj_(reference))
+		icast_List(this.getPropWithDefault(JSDocInfo_SEES, (&Supplier_tfn_List{func() List { return new_ArrayList_0() }}).get)).add(strobj_(reference))
 	}
 	return true
 }
@@ -2539,7 +2539,7 @@ func (this *JSDocInfo_Builder) recordDescription(description string) bool {
 
 func (this *JSDocInfo_Builder) recordTsType(tsType string) {
 	this.populated = true
-	icast_List(this.getPropWithDefault(JSDocInfo_TS_TYPES, (&Supplier_tfn_List{func() List { return icast_List(new_ArrayList_0().self()) }}).get)).add(strobj_(tsType))
+	icast_List(this.getPropWithDefault(JSDocInfo_TS_TYPES, (&Supplier_tfn_List{func() List { return new_ArrayList_0() }}).get)).add(strobj_(tsType))
 }
 
 func (this *JSDocInfo_Builder) recordMeaning(meaning string) bool {
