@@ -16,16 +16,43 @@
 // code expecting an erased collection or Object, goes through a view (asList, asMap, asSet)
 // with the collection's identity.
 //
-// -kind deque: an ArrayDeque used only as a stack (push, pop, peek, poll, getFirst, size,
+// -kind deque (a new LinkedList held as a Deque too: the same operations, in the same order,
+// and a typed list holds null as a LinkedList does): an ArrayDeque used only as a stack (push, pop, peek, poll, getFirst, size,
 // isEmpty, clear; also addFirst, removeFirst...) becomes a *TList[T] whose end is the deque's
 // head (its order reversed: a for-each loop walks it from the end, eachRev), or a deque used
 // at its tail (add, removeLast, getLast..., and a queue: add, poll) a *TList[T] in its own
 // order. A deque pushed at its head and used at its tail, or seen as an erased collection,
 // stays erased.
 //
-// usage: colls -kind list|map|set|deque [-n] [-v] <dir of package closure>
+// new ArrayDeque(collection) is a copy into the typed list (tlistFromRev_ for a deque used at
+// its head, whose head is the end of the list).
 //
-//	(-n: report only; -v: list the classes)
+// Raw declarations (a static Map field j2go wrote without type arguments): when no slot of a
+// class states an element type, it is the static type of the values the code stores and looks
+// up (put, add, contains, get... through their unboxed arguments: obj_(x), strobj_(x), any(x),
+// x.self() of an x of type T), if all of them have one, none is an Object (which may hold
+// anything), nothing is copied in from an erased collection and erased code does not see the
+// class (except calls that only read it: copies, String.join, equals, toString...).
+//
+// Boxed primitives (BoxedOf[int32]: List<Integer>, Set<Character>...): a list, set or map key
+// holds the primitive itself when every value stored is a primitive (never an Object, which
+// may be null), erased code does not see the class, and the kind answers no null for an absent
+// element (not a deque); Integer.equals and hashCode are then Go's ==. Not for double.
+//
+// -kind idmap: Closure's LinkedIdentityHashMap with pointer keys becomes a *TMap[K, V]
+// (identity is Go's == on pointers; insertion order); get and put are typed, computeIfAbsent,
+// merge and forEach are its own (rt_idmap.go). Key and value types are inferred as above.
+//
+// -kind treeset, -kind treemap: a TreeSet / TreeMap of strings in natural order whose class
+// holds only new TreeSets / TreeMaps becomes a *TTreeSet[string] / *TTreeMap[string, V]
+// (rt_ttree.go), the same sorted slice compared by String.compareTo without boxing; the set and
+// map operations as above. Not with a Comparator, nor other keys: those compare Objects, so a
+// typed collection would box both elements of every comparison again.
+//
+// usage: colls -kind list|map|set|deque|treeset|treemap|idmap [-n] [-v] <dir of package closure>
+//
+//	(-n: report only; -v: list the classes; COLLS_CTORS=1 counts the constructors of the kind
+//	by why their class stays erased, COLLS_WHY=<text>|all lists each)
 package main
 
 import (
@@ -60,12 +87,21 @@ type class struct {
 	dqIter     bool   // a deque iterated
 	dqHeadPush string // a deque pushed at its head: the first such use
 	anyAt      string // where a value is boxed into an Object, if anywhere
+	cmpNew     bool   // a sorted collection made with a comparator (treeset, treemap)
+	// Element types inferred from the values the code stores and looks up, for a class whose
+	// slots state none (raw declarations): the static types of the unboxed arguments, per type
+	// argument; inferBad says why they cannot be used, viewAt where erased code sees the class.
+	inferred [][]types.Type
+	inferBad [2]string // per type argument
+	viewAt   string
+	infText  []string
 }
 
 // ---- kinds
 
 type kindDef struct {
 	name      string
+	base      string       // the kind whose operations it has: list, deque, map or set
 	held      []types.Type // the erased types that hold a collection of the kind
 	aliases   []string
 	nargs     int
@@ -74,6 +110,7 @@ type kindDef struct {
 	copyFns   map[string]bool
 	immutable map[string]bool
 	view      string
+	views     []types.Type // interfaces the view satisfies (default: held[0])
 	helpers   map[string]string
 	goType    func(c *class) string
 	newCode   func(c *class, cap ast.Expr) string
@@ -114,8 +151,8 @@ func kinds() map[string]*kindDef {
 			// An ArrayDeque used only as a stack: *TList[T] whose end is the deque's head.
 			name: "deque", held: []types.Type{look("Deque"), ptr("ArrayDeque")}, aliases: []string{"DequeOf", "ArrayDequeOf"}, nargs: 1,
 			conv:      []string{"icast_Deque", "to_ArrayDeque", "cast_[*ArrayDeque]", "Deque"},
-			newFns:    map[string]int{"new_ArrayDeque": 0, "new_ArrayDeque_int": 1},
-			copyFns:   map[string]bool{},
+			newFns:    map[string]int{"new_ArrayDeque": 0, "new_ArrayDeque_int": 1, "new_LinkedList": 0},
+			copyFns:   map[string]bool{"new_ArrayDeque_Collection": true},
 			immutable: map[string]bool{},
 			goType:    func(c *class) string { return "*TList[" + c.elemText[0] + "]" },
 			newCode: func(c *class, n ast.Expr) string {
@@ -123,6 +160,14 @@ func kinds() map[string]*kindDef {
 					return "newTList_(" + c.convName(0) + ")"
 				}
 				return "newTListN_(" + c.convName(0) + ", " + rw.Render(n) + ")"
+			},
+			// new ArrayDeque(c): the collection's order from head to tail; a deque used at its
+			// head keeps its head at the end of the list, so it holds them reversed.
+			fromCode: func(c *class, from string, imm bool) string {
+				if c.dqHead != "" && c.dqTail == "" {
+					return "tlistFromRev_(" + c.convName(0) + ", " + from + ")"
+				}
+				return "tlistFrom_(" + c.convName(0) + ", " + from + ")"
 			},
 		},
 		"map": {
@@ -152,6 +197,57 @@ func kinds() map[string]*kindDef {
 			newCode:   func(c *class, n ast.Expr) string { return "newTSet_(" + c.convName(0) + ")" },
 			fromCode: func(c *class, from string, imm bool) string {
 				return fmt.Sprintf("tsetFrom_(%s, %s, %v)", c.convName(0), from, imm)
+			},
+		},
+		// A TreeSet / TreeMap: *TTreeSet[K] / *TTreeMap[K, V] (rt_ttree.go), the runtime's sorted
+		// slice with the same comparator, typed. Keys compare through the comparator, so any key
+		// type with a conversion will do.
+		"treeset": {
+			name: "treeset", base: "set", held: []types.Type{look("Set"), look("SortedSet"), look("NavigableSet"), ptr("TreeSet")},
+			aliases: []string{"SetOf", "SortedSetOf", "NavigableSetOf", "TreeSetOf"}, nargs: 1,
+			conv:      []string{"Collections_unmodifiableSet", "Collections_unmodifiableSortedSet", "icast_Set", "icast_SortedSet", "icast_NavigableSet", "to_TreeSet", "cast_[*TreeSet]", "Set", "SortedSet", "NavigableSet"},
+			newFns:    map[string]int{"new_TreeSet": 0, "new_TreeSet_Comparator": 1},
+			copyFns:   map[string]bool{},
+			immutable: map[string]bool{},
+			view:      "asSet",
+			views:     []types.Type{look("Set"), look("SortedSet"), look("NavigableSet")},
+			helpers:   map[string]string{"Collection_contains_s": "contains", "Collection_add_s": "add", "Collection_remove_s": "remove"},
+			goType:    func(c *class) string { return "*TTreeSet[" + c.elemText[0] + "]" },
+			newCode: func(c *class, cmp ast.Expr) string {
+				if cmp == nil {
+					return "newTTreeSet_(" + c.convName(0) + ")"
+				}
+				return "newTTreeSetC_(" + c.convName(0) + ", " + rw.Render(cmp) + ")"
+			},
+		},
+		// Closure's LinkedIdentityHashMap (identity keys, insertion order, no removal): a
+		// *TMap[K, V] with pointer keys, which Go's == compares by identity, in insertion order.
+		"idmap": {
+			name: "idmap", base: "map", held: []types.Type{ptr("LinkedIdentityHashMap")}, nargs: 2,
+			conv:      []string{"to_LinkedIdentityHashMap", "cast_[*LinkedIdentityHashMap]"},
+			newFns:    map[string]int{"new_LinkedIdentityHashMap": 0},
+			copyFns:   map[string]bool{},
+			immutable: map[string]bool{},
+			goType:    func(c *class) string { return "*TMap[" + c.elemText[0] + ", " + c.elemText[1] + "]" },
+			newCode:   func(c *class, n ast.Expr) string { return "newTMap_(" + c.convName(0) + ", " + c.convName(1) + ")" },
+		},
+		"treemap": {
+			name: "treemap", base: "map", held: []types.Type{look("Map"), look("SortedMap"), look("NavigableMap"), ptr("TreeMap")},
+			aliases: []string{"MapOf", "SortedMapOf", "NavigableMapOf", "TreeMapOf"}, nargs: 2,
+			conv:      []string{"Collections_unmodifiableMap", "icast_Map", "icast_SortedMap", "icast_NavigableMap", "to_TreeMap", "cast_[*TreeMap]", "Map", "SortedMap", "NavigableMap"},
+			newFns:    map[string]int{"new_TreeMap": 0, "new_TreeMap_Comparator": 1},
+			copyFns:   map[string]bool{},
+			immutable: map[string]bool{},
+			view:      "asMap",
+			views:     []types.Type{look("Map"), look("SortedMap"), look("NavigableMap")},
+			helpers: map[string]string{"Map_get_s": "get", "Map_put_s": "put", "Map_containsKey_s": "containsKey", "Map_remove_s": "remove",
+				"Map_getOrDefault_s": "getOrDefault", "Map_putIfAbsent_s": "putIfAbsent", "Map_computeIfAbsent_s": "computeIfAbsent"},
+			goType: func(c *class) string { return "*TTreeMap[" + c.elemText[0] + ", " + c.elemText[1] + "]" },
+			newCode: func(c *class, cmp ast.Expr) string {
+				if cmp == nil {
+					return "newTTreeMap_(" + c.convName(0) + ", " + c.convName(1) + ")"
+				}
+				return "newTTreeMapC_(" + c.convName(0) + ", " + c.convName(1) + ", " + rw.Render(cmp) + ")"
 			},
 		},
 	}
@@ -205,6 +301,22 @@ func union(a, b int) {
 		da.dqTail = db.dqTail
 	}
 	da.dqIter = da.dqIter || db.dqIter
+	da.cmpNew = da.cmpNew || db.cmpNew
+	if da.inferred == nil {
+		da.inferred = db.inferred
+	} else if db.inferred != nil {
+		for i := range da.inferred {
+			da.inferred[i] = append(da.inferred[i], db.inferred[i]...)
+		}
+	}
+	for i := range da.inferBad {
+		if da.inferBad[i] == "" {
+			da.inferBad[i] = db.inferBad[i]
+		}
+	}
+	if da.viewAt == "" {
+		da.viewAt = db.viewAt
+	}
 	if da.dqHeadPush == "" {
 		da.dqHeadPush = db.dqHeadPush
 	}
@@ -248,6 +360,74 @@ func isList(t types.Type) bool {
 	t = types.Unalias(t)
 	for _, k := range K.held {
 		if types.Identical(t, k) {
+			return true
+		}
+	}
+	return false
+}
+
+// isPrim reports whether t is a Java primitive whose boxed equals and hashCode are Go's ==
+// (integers, char, boolean; not double, whose equals compares bits).
+func isPrim(t types.Type) bool {
+	b, ok := types.Unalias(t).(*types.Basic)
+	return ok && b.Info()&(types.IsInteger|types.IsBoolean) != 0 && b.Info()&types.IsUntyped == 0
+}
+
+// keyMode is rw.KeyMode, with primitive keys (a boxed primitive class typed as the primitive)
+// compared by ==, as Integer.equals compares.
+func keyMode(t types.Type) int {
+	if isPrim(t) {
+		return rw.KeyEq
+	}
+	return rw.KeyMode(t)
+}
+
+// convFor is rw.ConvFor, with primitives boxed by any(v) and unboxed by unbox_[T], as the
+// generated code does.
+func convFor(t types.Type) rw.Conv {
+	if isPrim(t) {
+		n := "unbox_[" + types.TypeString(t, nil) + "]"
+		return rw.Conv{Box: func(e string) string { return "any(" + e + ")" }, Unbox: func(e string) string { return n + "(" + e + ")" },
+			IsUnbox: func(m string) bool { return m == n }, OK: true}
+	}
+	return rw.ConvFor(t)
+}
+
+// primOK says why a class whose slots state BoxedOf[T] (Integer, Character, Boolean...) cannot
+// hold T itself: T has no null, so every value stored must be a primitive (never an Object
+// that may be null), erased code must not see the collection (it could store null or read an
+// absent element as null), and no operation may answer null for an absent element (the
+// deque's peek and poll; a map's values stay Objects).
+func (c *class) primOK(i int, prim []ast.Expr) string {
+	t := typeOf(prim[0])
+	for _, p := range prim {
+		if !types.Identical(typeOf(p), t) {
+			return "slots disagree on the primitive"
+		}
+	}
+	switch {
+	case !isPrim(t):
+		return types.TypeString(t, nil) + " compares other than by =="
+	case K.name != "list" && K.name != "set" && K.name != "map":
+		return "a " + K.name + " answers null for an absent element"
+	case c.inferBad[i] != "":
+		return c.inferBad[i]
+	case c.viewAt != "":
+		return "erased code sees it (" + c.viewAt + ")"
+	}
+	for _, s := range c.inferred[i] {
+		if !types.Identical(s, t) {
+			return "a value of " + types.TypeString(s, types.RelativeTo(rw.Pkg)) + " is stored"
+		}
+	}
+	return ""
+}
+
+// isView reports whether t is an interface the kind's view satisfies.
+func isView(t types.Type) bool {
+	t = types.Unalias(t)
+	for _, v := range K.views {
+		if types.Identical(t, v) {
 			return true
 		}
 	}
@@ -569,10 +749,14 @@ func flow(dest int, src ast.Expr, top ast.Expr) {
 		poison(dest, v.why)
 	case vNew:
 		capExpr := v.cap
+		if capExpr != nil && (K.name == "treeset" || K.name == "treemap") {
+			cls(dest).cmpNew = true
+		}
 		edit(dest, func(c *class) rw.Edit {
 			return rw.Edit{Node: top, Gen: func() string { return K.newCode(c, capExpr) }}
 		})
 	case vImm, vCopy:
+		inferBad(dest, -1, "an erased collection is copied in")
 		from, imm := v.from, v.kind == vImm
 		edit(dest, func(c *class) rw.Edit {
 			return rw.Edit{Node: top, Gen: func() string {
@@ -654,6 +838,9 @@ func handle(e ast.Expr) {
 		if src == 0 {
 			return
 		}
+		if !readsOnly(top) {
+			viewed(src, top)
+		}
 		if K.view == "" {
 			if os.Getenv("COLLS_ANY") != "" {
 				pp := rw.Fset.Position(top.Pos())
@@ -665,7 +852,7 @@ func handle(e ast.Expr) {
 		inner := unwrap(e)
 		if top != inner {
 			if _, ok := top.(*ast.CallExpr); ok {
-				if types.Identical(types.Unalias(typeOf(top)), K.held[0]) {
+				if isView(typeOf(top)) {
 					edit(src, func(c *class) rw.Edit {
 						return rw.Edit{Node: top, Gen: func() string { return rw.Render(inner) + "." + K.view + "()" }}
 					})
@@ -793,7 +980,7 @@ func handle(e ast.Expr) {
 				continue
 			}
 			// it := foreach_(any(l))
-			if n, _ := rw.CallName(x); n == "foreach_" && src != 0 && K.name != "map" {
+			if n, _ := rw.CallName(x); n == "foreach_" && src != 0 && K.base != "map" {
 				if K.name == "deque" {
 					cls(src).dqIter = true
 				}
@@ -861,6 +1048,218 @@ func handle(e ast.Expr) {
 	if src != 0 {
 		poison(src, fmt.Sprintf("used in a %T", p))
 	}
+}
+
+// implicitConversions poisons the slots that receive a value of another type through Go's
+// implicit conversion to an interface (var s Set = new_TreeSet(), return &X{} as a Set, an
+// argument of an anonymous Set class): no list-valued expression shows them, and the typed
+// slot could not hold the value.
+func implicitConversions() {
+	other := func(e ast.Expr) bool {
+		t := typeOf(e)
+		if t == nil || isList(t) {
+			return false
+		}
+		if b, ok := t.(*types.Basic); ok && b.Kind() == types.UntypedNil {
+			return false
+		}
+		return true
+	}
+	why := func(e ast.Expr) string {
+		return "implicitly converted from " + types.TypeString(typeOf(e), types.RelativeTo(rw.Pkg))
+	}
+	// An immutable collection is copied into the typed one, as through an explicit conversion.
+	into := func(dest int, r ast.Expr) {
+		// A new collection of the kind whose own type the kind does not hold (new_LinkedList()
+		// into a Deque slot) is a new collection like any other.
+		if n, c := rw.CallName(r); c != nil {
+			if a, ok := K.newFns[n]; ok && len(c.Args) == a {
+				flow(dest, r, r)
+				return
+			}
+		}
+		if K.fromCode == nil || !isImmutable(typeOf(r)) {
+			poison(dest, why(r))
+			return
+		}
+		inferBad(dest, -1, "an erased collection is copied in")
+		edit(dest, func(c *class) rw.Edit {
+			return rw.Edit{Node: r, Gen: func() string { return K.fromCode(c, rw.RenderChildren(r), true) }}
+		})
+	}
+	sigOf := func(n ast.Node) *types.Signature {
+		for p := rw.Parent[n]; p != nil; p = rw.Parent[p] {
+			switch f := p.(type) {
+			case *ast.FuncLit:
+				s, _ := typeOf(f).(*types.Signature)
+				return s
+			case *ast.FuncDecl:
+				if o, ok := rw.Info.Defs[f.Name].(*types.Func); ok {
+					return o.Type().(*types.Signature)
+				}
+				return nil
+			}
+		}
+		return nil
+	}
+	for _, f := range rw.Files {
+		if !generated(f.Pos()) {
+			continue
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			if n == nil {
+				return false
+			}
+			curPos = n.Pos()
+			switch x := n.(type) {
+			case *ast.AssignStmt:
+				if len(x.Lhs) != len(x.Rhs) {
+					return true
+				}
+				for i, r := range x.Rhs {
+					if dv := varOf(x.Lhs[i]); x.Tok == token.DEFINE && dv != nil && isList(dv.Type()) && !other(r) { // reflip6
+						poison(slotOfVar(dv), "variable of a short declaration")
+					}
+					if other(r) && isList(typeOf(x.Lhs[i])) {
+						if v := varOf(x.Lhs[i]); v != nil {
+							into(slotOfVar(v), r)
+						}
+					}
+				}
+			case *ast.ValueSpec:
+				if len(x.Values) != len(x.Names) {
+					return true
+				}
+				for i, r := range x.Values {
+					if v, ok := rw.Info.Defs[x.Names[i]].(*types.Var); ok && other(r) && isList(v.Type()) {
+						into(slotOfVar(v), r)
+					}
+				}
+			case *ast.ReturnStmt:
+				s := sigOf(x)
+				if s == nil || s.Results().Len() != len(x.Results) {
+					return true
+				}
+				for i, r := range x.Results {
+					if other(r) && isList(s.Results().At(i).Type()) {
+						into(resultKey(enclosingFunc(x), i), r)
+					}
+				}
+			case *ast.CallExpr:
+				for i, a := range x.Args {
+					if !other(a) {
+						continue
+					}
+					if k, ok := paramIndexKey(x, i); ok {
+						into(k, a)
+					}
+				}
+			case *ast.KeyValueExpr:
+				if id, ok := x.Key.(*ast.Ident); ok {
+					if fv, ok := rw.Info.Uses[id].(*types.Var); ok && isList(fv.Type()) && other(x.Value) {
+						into(slotOfVar(fv), x.Value)
+					}
+				}
+			}
+			return true
+		})
+	}
+}
+
+// note records the static type of value a (an argument the typed collection takes unboxed as
+// element i), for inference: obj_(x), strobj_(x), any(x), x.self() and x.box_() store x.
+func note(k, i int, a ast.Expr) {
+	c := cls(k)
+	if c.inferred == nil {
+		c.inferred = make([][]types.Type, K.nargs)
+	}
+	a = rw.Unparen(a)
+	if id, ok := a.(*ast.Ident); ok && id.Name == "nil" {
+		return
+	}
+	inner := a
+	if call, ok := a.(*ast.CallExpr); ok {
+		if id, ok := call.Fun.(*ast.Ident); ok && len(call.Args) == 1 && (id.Name == "obj_" || id.Name == "strobj_" || id.Name == "any" ||
+			id.Name == "Integer_valueOf" || id.Name == "Character_valueOf" || id.Name == "Boolean_valueOf" || id.Name == "Long_valueOf") {
+			inner = call.Args[0]
+		} else if s, ok := call.Fun.(*ast.SelectorExpr); ok && len(call.Args) == 0 && (s.Sel.Name == "self" || s.Sel.Name == "box_") {
+			inner = s.X
+		}
+	}
+	t := typeOf(inner)
+	if t == nil {
+		return
+	}
+	if b, ok := t.(*types.Basic); ok && b.Info()&types.IsUntyped != 0 {
+		t = types.Default(t)
+	}
+	if it, ok := types.Unalias(t).(*types.Interface); ok && it.Empty() {
+		inferBad(k, i, "an Object is stored or looked up ("+rw.Text(a)[:min(40, len(rw.Text(a)))]+")")
+		return
+	}
+	c.inferred[i] = append(c.inferred[i], t)
+}
+
+// viewReaders take a collection, read it during the call and keep none of its elements as
+// Objects of their own: what they see of a typed collection is what it stores.
+var viewReaders = map[string]bool{
+	"ImmutableList_copyOf": true, "ImmutableList_copyOf_Iterable": true, "ImmutableList_copyOf_Collection": true,
+	"ImmutableSet_copyOf": true, "ImmutableSet_copyOf_Iterable": true, "ImmutableSet_copyOf_Collection": true,
+	"ImmutableMap_copyOf": true, "String_join": true, "Iterables_size": true,
+}
+
+// readsOnly reports whether the collection leaving at top goes to a call that only reads it.
+func readsOnly(top ast.Expr) bool {
+	if rw.ReadOnlySink(top, false) {
+		return true
+	}
+	if c, ok := rw.Up(top).(*ast.CallExpr); ok {
+		n, _ := rw.CallName(c)
+		return viewReaders[n]
+	}
+	return false
+}
+
+// inferBad records why element type i (every one for i < 0) of class k cannot be inferred.
+func inferBad(k, i int, why string) {
+	c := cls(k)
+	for j := range c.inferBad {
+		if (i < 0 || i == j) && c.inferBad[j] == "" {
+			c.inferBad[j] = why
+		}
+	}
+}
+
+// viewed records that erased code sees class k through a view.
+func viewed(k int, at ast.Node) {
+	if c := cls(k); c.viewAt == "" {
+		p := rw.Fset.Position(at.Pos())
+		c.viewAt = fmt.Sprintf("%s:%d", filepath.Base(p.Filename), p.Line)
+	}
+}
+
+// infer is the element type of type argument i inferred from the values the class stores and
+// looks up: the type they are all assignable to.
+func (c *class) infer(i int) (types.Type, string) {
+	switch {
+	case c.inferBad[i] != "":
+		return nil, "no slot states an element type, and " + c.inferBad[i]
+	case c.viewAt != "":
+		return nil, "no slot states an element type, and erased code sees it (" + c.viewAt + ")"
+	case c.inferred == nil || len(c.inferred[i]) == 0:
+		return nil, "no slot states an element type"
+	}
+	var et types.Type
+	for _, t := range c.inferred[i] {
+		switch {
+		case et == nil, types.AssignableTo(et, t):
+			et = t
+		case types.AssignableTo(t, et):
+		default:
+			return nil, "no slot states an element type, and values of " + types.TypeString(et, types.RelativeTo(rw.Pkg)) + " and " + types.TypeString(t, types.RelativeTo(rw.Pkg)) + " are stored"
+		}
+	}
+	return et, ""
 }
 
 // iterate handles it := foreach_(any(l)) over a collection of class k: the loop walks the
@@ -934,10 +1333,56 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 		})
 	}
 	raw := func(i int) func(c *class) string { return func(c *class) string { return rw.Render(args[i]) } }
-	key := func(i int) func(c *class) string { return func(c *class) string { return keyArg(c, i) } }
-	val := func(i int) func(c *class) string { return func(c *class) string { return valArg(c, i) } }
+	key := func(i int) func(c *class) string {
+		note(k, 0, args[i])
+		return func(c *class) string { return keyArg(c, i) }
+	}
+	val := func(i int) func(c *class) string {
+		note(k, 1, args[i])
+		return func(c *class) string { return valArg(c, i) }
+	}
 	n := len(args)
-	switch K.name {
+	if K.name == "idmap" {
+		// LinkedIdentityHashMap's own methods; computeIfAbsent, merge and forEach as it defines
+		// them (rt_idmap.go).
+		fn := func(i int) func(c *class) string {
+			inferBad(k, 1, "a function's result is stored")
+			return raw(i)
+		}
+		helper := func(name string, a ...func(c *class) string) {
+			edit(k, func(c *class) rw.Edit {
+				g := func() string {
+					ps := []string{R()}
+					for _, f := range a {
+						ps = append(ps, f(c))
+					}
+					return name + "(" + strings.Join(ps, ", ") + ")"
+				}
+				if isStmt {
+					return rw.Edit{Node: call, Gen: g}
+				}
+				return rw.Read(c.cv[1], call, g)
+			})
+		}
+		switch {
+		case m == "get" && n == 1:
+			read(1, "get", key(0))
+		case m == "put" && n == 2:
+			read(1, "put", key(0), val(1))
+		case m == "computeIfAbsent" && n == 2:
+			helper("lihmComputeIfAbsent_", key(0), fn(1))
+		case m == "merge" && n == 3:
+			helper("lihmMerge_", key(0), val(1), fn(2))
+		case m == "forEach" && n == 1:
+			edit(k, func(c *class) rw.Edit {
+				return rw.Edit{Node: call, Gen: func() string { return "lihmForEach_(" + R() + ", " + rw.Render(args[0]) + ")" }}
+			})
+		default:
+			poison(k, "identity map method "+m)
+		}
+		return
+	}
+	switch K.base {
 	case "list":
 		switch {
 		case m == "add" && n == 1:
@@ -1031,7 +1476,7 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 			}
 		}
 	}
-	if m == "addAll" && n == 1 && K.name != "map" {
+	if m == "addAll" && n == 1 && K.base != "map" {
 		// addAll(other) where other is a typed collection of the same element type: typed.
 		arg := args[0]
 		for {
@@ -1048,6 +1493,7 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 		if av := valueOf(arg); av.kind == vSlot {
 			inner := unwrap(arg)
 			sel := call.Fun.(*ast.SelectorExpr)
+			viewed(k, call) // the elements of the other collection may be seen as Objects
 			edit(k, func(c *class) rw.Edit {
 				return rw.Edit{Node: call, Gen: func() string {
 					if o, ok := converted[find(av.k)]; ok && o.elemText[0] == c.elemText[0] {
@@ -1059,6 +1505,7 @@ func use(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 			return
 		}
 	}
+	viewed(k, call)
 	if m == "self" && n == 0 {
 		edit(k, func(c *class) rw.Edit {
 			return rw.Edit{Node: call, Gen: func() string { return "any(" + R() + "." + K.view + "())" }}
@@ -1089,6 +1536,9 @@ func seqUse(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 // that pushes at its head as well stays erased).
 func dequeOp(k int, recv ast.Expr, m string, atHead bool, op string, call *ast.CallExpr, args []ast.Expr) {
 	_, isStmt := rw.Up(call).(*ast.ExprStmt)
+	for _, a := range args {
+		note(k, 0, a)
+	}
 	c := cls(k)
 	if atHead && c.dqHead == "" {
 		c.dqHead = m
@@ -1129,6 +1579,10 @@ func helper(k int, recv ast.Expr, m string, call *ast.CallExpr) {
 	_, isStmt := rw.Up(call).(*ast.ExprStmt)
 	R := func() string { return rw.Render(recv) }
 	args := call.Args[1:]
+	note(k, 0, args[0])
+	if len(args) > 1 && (m == "put" || m == "getOrDefault" || m == "putIfAbsent") {
+		note(k, 1, args[1])
+	}
 	g := func(c *class, name string, n int, valAt int) func() string {
 		return func() string {
 			ps := []string{rw.Render(args[0])}
@@ -1176,13 +1630,15 @@ func (c *class) element(i int) (ast.Expr, types.Type, string) {
 	var el ast.Expr
 	var et types.Type
 	var anySlot ast.Expr
-	anyOK := K.name == "map" && i == 1
+	anyOK := K.base == "map" && i == 1
+	var prim []ast.Expr // BoxedOf[T] type arguments
 	for _, e := range c.elems[i] {
 		if a := rw.AliasArgs(e, "BoxedOf"); a != nil {
 			if anyOK {
 				continue
 			}
-			return nil, nil, "element is a boxed primitive"
+			prim = append(prim, a[0])
+			continue
 		}
 		t := typeOf(e)
 		if t == nil {
@@ -1206,6 +1662,33 @@ func (c *class) element(i int) (ast.Expr, types.Type, string) {
 			}
 		}
 	}
+	if len(prim) > 0 {
+		if et != nil || anySlot != nil {
+			return nil, nil, "element is a boxed primitive"
+		}
+		if why := c.primOK(i, prim); why != "" {
+			return nil, nil, "element is a boxed primitive (" + why + ")"
+		}
+		el, et = prim[0], typeOf(prim[0])
+	}
+	if et == nil && anySlot == nil {
+		// A raw declaration: the type of what the code stores and looks up.
+		t, why := c.infer(i)
+		if t != nil && isPrim(t) && (i != 0 || K.name != "list" && K.name != "set" && K.name != "map") {
+			// A primitive has no null: not for a map's values or a deque's elements, which
+			// answer null for an absent one.
+			t, why = nil, "no slot states an element type, and the values stored are primitives"
+		}
+		switch {
+		case t != nil:
+			if c.infText == nil {
+				c.infText = make([]string, K.nargs)
+			}
+			et, c.infText[i] = t, types.TypeString(t, types.RelativeTo(rw.Pkg))
+		case !anyOK:
+			return nil, nil, why
+		}
+	}
 	if et == nil {
 		if anyOK {
 			return nil, types.Universe.Lookup("any").Type(), ""
@@ -1225,8 +1708,13 @@ func (c *class) element(i int) (ast.Expr, types.Type, string) {
 			}
 		}
 	}
+	if i == 0 && K.name == "idmap" {
+		if _, ok := types.Unalias(et).(*types.Pointer); !ok {
+			return nil, nil, "an identity map's key type " + types.TypeString(et, types.RelativeTo(rw.Pkg)) + " is not a pointer"
+		}
+	}
 	if i == 0 && (K.name == "map" || K.name == "set") {
-		switch rw.KeyMode(et) {
+		switch keyMode(et) {
 		case rw.KeyNone:
 			return nil, nil, "key type " + rw.Text(el) + " has no typed comparison"
 		case rw.KeyHash:
@@ -1258,7 +1746,7 @@ func (c *class) convName(i int) string {
 		return n // declared by an earlier step
 	}
 	if _, ok := convs[n]; !ok {
-		cv := rw.ConvFor(t)
+		cv := convFor(t)
 		extra := ""
 		if isString(t) {
 			extra = ", null: nullstr_"
@@ -1290,8 +1778,14 @@ func main() {
 	}
 	rw.Load(os.Args[len(os.Args)-1])
 	K = kinds()[kind]
+	if K != nil && K.base == "" {
+		K.base = K.name
+	}
+	if K != nil && K.views == nil {
+		K.views = K.held[:1]
+	}
 	if K == nil {
-		fmt.Fprintln(os.Stderr, "usage: colls -kind list|map|set [-n] [-v] <dir>")
+		fmt.Fprintln(os.Stderr, "usage: colls -kind list|map|set|deque|treeset|treemap|idmap [-n] [-v] <dir>")
 		os.Exit(2)
 	}
 	transparent = map[string]bool{"obj_": true, "any": true}
@@ -1436,6 +1930,7 @@ func main() {
 			return true
 		})
 	}
+	implicitConversions()
 	// Values: every list-valued expression in generated code.
 	for _, f := range rw.Files {
 		if !generated(f.Pos()) {
@@ -1489,7 +1984,7 @@ func main() {
 		}
 		ast.Inspect(f, func(n ast.Node) bool {
 			if c, ok := n.(*ast.CallExpr); ok && len(c.Args) == 1 && isList(typeOf(c)) && !isList(typeOf(c.Args[0])) {
-				if t := types.Unalias(typeOf(c)); t != K.held[0] && !types.Identical(t, K.held[0]) {
+				if t := types.Unalias(typeOf(c)); !isView(t) {
 					concreteCasts++
 				}
 			}
@@ -1520,10 +2015,16 @@ func main() {
 				switch {
 				case w != "":
 					why = w
+				case el == nil && c.infText != nil && c.infText[i] != "":
+					if cv := convFor(et); !cv.OK {
+						why = "inferred element type " + c.infText[i] + " has no known boxing"
+					} else {
+						c.elem[i], c.elemText[i], c.cv[i] = et, c.infText[i], cv
+					}
 				case el == nil:
-					c.elem[i], c.elemText[i], c.cv[i] = et, "any", rw.ConvFor(et)
+					c.elem[i], c.elemText[i], c.cv[i] = et, "any", convFor(et)
 				default:
-					if cv := rw.ConvFor(et); !cv.OK {
+					if cv := convFor(et); !cv.OK {
 						why = "element type " + rw.Text(el) + " has no known boxing"
 					} else {
 						c.elem[i], c.elemText[i], c.cv[i] = et, rw.Text(el), cv
@@ -1539,6 +2040,18 @@ func main() {
 				case c.dqHeadPush != "" && c.dqTail != "":
 					why = "pushed at its head (" + c.dqHeadPush + ") and used at its tail (" + c.dqTail + ")"
 				}
+			}
+			// A sorted collection is typed only where that removes boxing: strings in natural order
+			// (String.compareTo on the unboxed strings). A Comparator takes Objects, and natural
+			// ordering of other classes is compareTo(Object), so typed every comparison would box
+			// both elements again, where the erased sorted slice compares the boxes it holds
+			// (measured: JSDocInfo's property map 0.76 -> 1.17 us per build); pointers box without
+			// allocating, so typing them saves nothing elsewhere.
+			if why == "" && c.cmpNew && (K.name == "treeset" || K.name == "treemap") {
+				why = "made with a Comparator, which compares Objects"
+			}
+			if why == "" && (K.name == "treeset" || K.name == "treemap") && !isString(c.elem[0]) {
+				why = "natural ordering of " + c.elemText[0] + " compares Objects"
 			}
 			if why == "" && c.strKey && !isString(c.elem[0]) {
 				why = "string-key helper on a collection whose key is not a string"
@@ -1575,6 +2088,10 @@ func main() {
 			p := rw.Fset.Position(e.Pos())
 			ctorAt[why] = fmt.Sprintf("%s:%d", filepath.Base(p.Filename), p.Line)
 		}
+		if w := os.Getenv("COLLS_WHY"); w != "" && (w == "all" || strings.Contains(why, w)) {
+			p := rw.Fset.Position(e.Pos())
+			fmt.Fprintf(os.Stderr, "WHY %s:%d %s\n", filepath.Base(p.Filename), p.Line, why)
+		}
 	}
 	for e, why := range ctorWhy {
 		if _, ok := ctorDest[e]; ok {
@@ -1585,6 +2102,10 @@ func main() {
 		if _, ok := ctorAt[why]; !ok {
 			p := rw.Fset.Position(e.Pos())
 			ctorAt[why] = fmt.Sprintf("%s:%d", filepath.Base(p.Filename), p.Line)
+		}
+		if w := os.Getenv("COLLS_WHY"); w != "" && (w == "all" || strings.Contains(why, w)) {
+			p := rw.Fset.Position(e.Pos())
+			fmt.Fprintf(os.Stderr, "WHY %s:%d %s\n", filepath.Base(p.Filename), p.Line, why)
 		}
 	}
 	if os.Getenv("COLLS_CTORS") != "" {
