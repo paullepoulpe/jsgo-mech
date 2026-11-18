@@ -48,9 +48,7 @@ func (this *AbstractCompiler) getIndex(type_ ClassOf[any]) any {
 }
 
 func (this *AbstractCompiler) getTypedAstDeserializer(p0 *SourceFile_jscomp) Supplier {
-	return this.self_.(interface {
-		getTypedAstDeserializer_impl(*SourceFile_jscomp) Supplier
-	}).getTypedAstDeserializer_impl(p0)
+	return this.self_.(*Compiler).getTypedAstDeserializer_impl(p0)
 }
 
 func (this *AbstractCompiler) initRuntimeLibraryTypedAsts(p0 *Optional_base) {
@@ -58,493 +56,463 @@ func (this *AbstractCompiler) initRuntimeLibraryTypedAsts(p0 *Optional_base) {
 }
 
 func (this *AbstractCompiler) getRuntimeJsLibManager() *RuntimeJsLibManager {
-	return this.self_.(interface{ getRuntimeJsLibManager_impl() *RuntimeJsLibManager }).getRuntimeJsLibManager_impl()
+	return this.self_.(*Compiler).getRuntimeJsLibManager_impl()
 }
 
 func (this *AbstractCompiler) setExternExports(p0 string) {
-	this.self_.(interface{ setExternExports_impl(string) }).setExternExports_impl(p0)
+	this.self_.(*Compiler).setExternExports_impl(p0)
 }
 
 func (this *AbstractCompiler) process(p0 CompilerPass) {
-	this.self_.(interface{ process_impl(CompilerPass) }).process_impl(p0)
+	this.self_.(*Compiler).process_impl(p0)
 }
 
 func (this *AbstractCompiler) beforePass(p0 string) {
-	this.self_.(interface{ beforePass_impl(string) }).beforePass_impl(p0)
+	this.self_.(*Compiler).beforePass_impl(p0)
 }
 
 func (this *AbstractCompiler) afterPass(p0 string) {
-	this.self_.(interface{ afterPass_impl(string) }).afterPass_impl(p0)
+	this.self_.(*Compiler).afterPass_impl(p0)
 }
 
 func (this *AbstractCompiler) getLifeCycleStage() *AbstractCompiler_LifeCycleStage {
-	return this.self_.(interface {
-		getLifeCycleStage_impl() *AbstractCompiler_LifeCycleStage
-	}).getLifeCycleStage_impl()
+	return this.self_.(*Compiler).getLifeCycleStage_impl()
 }
 
 func (this *AbstractCompiler) setLifeCycleStage(p0 *AbstractCompiler_LifeCycleStage) {
-	this.self_.(interface {
-		setLifeCycleStage_impl(*AbstractCompiler_LifeCycleStage)
-	}).setLifeCycleStage_impl(p0)
+	this.self_.(*Compiler).setLifeCycleStage_impl(p0)
 }
 
 func (this *AbstractCompiler) createAstFactory() *AstFactory {
-	return this.self_.(interface{ createAstFactory_impl() *AstFactory }).createAstFactory_impl()
+	return this.self_.(*Compiler).createAstFactory_impl()
 }
 
 func (this *AbstractCompiler) createAstFactoryWithoutTypes() *AstFactory {
-	return this.self_.(interface{ createAstFactoryWithoutTypes_impl() *AstFactory }).createAstFactoryWithoutTypes_impl()
+	return this.self_.(*Compiler).createAstFactoryWithoutTypes_impl()
 }
 
 func (this *AbstractCompiler) getAstAnalyzer() *AstAnalyzer {
-	return this.self_.(interface{ getAstAnalyzer_impl() *AstAnalyzer }).getAstAnalyzer_impl()
+	return this.self_.(*Compiler).getAstAnalyzer_impl()
 }
 
 func (this *AbstractCompiler) createDefaultExpressionDecomposer() *ExpressionDecomposer {
-	return this.self_.(interface{ createDefaultExpressionDecomposer_impl() *ExpressionDecomposer }).createDefaultExpressionDecomposer_impl()
+	return this.self_.(*Compiler).createDefaultExpressionDecomposer_impl()
 }
 
 func (this *AbstractCompiler) createExpressionDecomposer(p0 Supplier, p1 *JTSet[string], p2 *Scope) *ExpressionDecomposer {
-	return this.self_.(interface {
-		createExpressionDecomposer_impl(Supplier, *JTSet[string], *Scope) *ExpressionDecomposer
-	}).createExpressionDecomposer_impl(p0, p1, p2)
+	return this.self_.(*Compiler).createExpressionDecomposer_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) isDebugLoggingEnabled() bool {
-	return this.self_.(interface{ isDebugLoggingEnabled_impl() bool }).isDebugLoggingEnabled_impl()
+	return this.self_.(*Compiler).isDebugLoggingEnabled_impl()
 }
 
 func (this *AbstractCompiler) getDebugLogFilterList() *JTList[string] {
-	return this.self_.(interface{ getDebugLogFilterList_impl() *JTList[string] }).getDebugLogFilterList_impl()
+	return this.self_.(*Compiler).getDebugLogFilterList_impl()
 }
 
 func (this *AbstractCompiler) createOrReopenLog(p0 *Class, p1 string, p2 []string) *LogFile {
-	return this.self_.(interface {
-		createOrReopenLog_impl(*Class, string, []string) *LogFile
-	}).createOrReopenLog_impl(p0, p1, p2)
+	return this.self_.(*Compiler).createOrReopenLog_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) createOrReopenIndexedLog(p0 *Class, p1 string, p2 []string) *LogFile {
-	return this.self_.(interface {
-		createOrReopenIndexedLog_impl(*Class, string, []string) *LogFile
-	}).createOrReopenIndexedLog_impl(p0, p1, p2)
+	return this.self_.(*Compiler).createOrReopenIndexedLog_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) getScriptNode(p0 string) Node {
-	return this.self_.(interface{ getScriptNode_impl(string) Node }).getScriptNode_impl(p0)
+	return this.self_.(*Compiler).getScriptNode_impl(p0)
 }
 
 func (this *AbstractCompiler) getRoot() Node {
-	return this.self_.(interface{ getRoot_impl() Node }).getRoot_impl()
+	return this.self_.(*Compiler).getRoot_impl()
 }
 
 func (this *AbstractCompiler) getAllowableFeatures() *FeatureSet {
-	return this.self_.(interface{ getAllowableFeatures_impl() *FeatureSet }).getAllowableFeatures_impl()
+	return this.self_.(*Compiler).getAllowableFeatures_impl()
 }
 
 func (this *AbstractCompiler) setAllowableFeatures(p0 *FeatureSet) {
-	this.self_.(interface{ setAllowableFeatures_impl(*FeatureSet) }).setAllowableFeatures_impl(p0)
+	this.self_.(*Compiler).setAllowableFeatures_impl(p0)
 }
 
 func (this *AbstractCompiler) markFeatureNotAllowed(p0 *FeatureSet_Feature) {
-	this.self_.(interface{ markFeatureNotAllowed_impl(*FeatureSet_Feature) }).markFeatureNotAllowed_impl(p0)
+	this.self_.(*Compiler).markFeatureNotAllowed_impl(p0)
 }
 
 func (this *AbstractCompiler) markFeatureSetNotAllowed(p0 *FeatureSet) {
-	this.self_.(interface{ markFeatureSetNotAllowed_impl(*FeatureSet) }).markFeatureSetNotAllowed_impl(p0)
+	this.self_.(*Compiler).markFeatureSetNotAllowed_impl(p0)
 }
 
 func (this *AbstractCompiler) getUniqueIdSupplier() *UniqueIdSupplier {
-	return this.self_.(interface{ getUniqueIdSupplier_impl() *UniqueIdSupplier }).getUniqueIdSupplier_impl()
+	return this.self_.(*Compiler).getUniqueIdSupplier_impl()
 }
 
 func (this *AbstractCompiler) getUniqueNameIdSupplier() Supplier {
-	return this.self_.(interface{ getUniqueNameIdSupplier_impl() Supplier }).getUniqueNameIdSupplier_impl()
+	return this.self_.(*Compiler).getUniqueNameIdSupplier_impl()
 }
 
 func (this *AbstractCompiler) areNodesEqualForInlining(p0 Node, p1 Node) bool {
-	return this.self_.(interface{ areNodesEqualForInlining_impl(Node, Node) bool }).areNodesEqualForInlining_impl(p0, p1)
+	return this.self_.(*Compiler).areNodesEqualForInlining_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getInput(p0 *InputId) *CompilerInput {
-	return this.self_.(interface{ getInput_impl(*InputId) *CompilerInput }).getInput_impl(p0)
+	return this.self_.(*Compiler).getInput_impl(p0)
 }
 
 func (this *AbstractCompiler) getChunkGraph() *JSChunkGraph {
-	return this.self_.(interface{ getChunkGraph_impl() *JSChunkGraph }).getChunkGraph_impl()
+	return this.self_.(*Compiler).getChunkGraph_impl()
 }
 
 func (this *AbstractCompiler) clearJSTypeRegistry() {
-	this.self_.(interface{ clearJSTypeRegistry_impl() }).clearJSTypeRegistry_impl()
+	this.self_.(*Compiler).clearJSTypeRegistry_impl()
 }
 
 func (this *AbstractCompiler) isTypeRegistryCleared() bool {
-	return this.self_.(interface{ isTypeRegistryCleared_impl() bool }).isTypeRegistryCleared_impl()
+	return this.self_.(*Compiler).isTypeRegistryCleared_impl()
 }
 
 func (this *AbstractCompiler) getTypeRegistry() *JSTypeRegistry {
-	return this.self_.(interface{ getTypeRegistry_impl() *JSTypeRegistry }).getTypeRegistry_impl()
+	return this.self_.(*Compiler).getTypeRegistry_impl()
 }
 
 func (this *AbstractCompiler) getColorRegistry() *ColorRegistry {
-	return this.self_.(interface{ getColorRegistry_impl() *ColorRegistry }).getColorRegistry_impl()
+	return this.self_.(*Compiler).getColorRegistry_impl()
 }
 
 func (this *AbstractCompiler) setColorRegistry(p0 *ColorRegistry) {
-	this.self_.(interface{ setColorRegistry_impl(*ColorRegistry) }).setColorRegistry_impl(p0)
+	this.self_.(*Compiler).setColorRegistry_impl(p0)
 }
 
 func (this *AbstractCompiler) forwardDeclareType(p0 string) {
-	this.self_.(interface{ forwardDeclareType_impl(string) }).forwardDeclareType_impl(p0)
+	this.self_.(*Compiler).forwardDeclareType_impl(p0)
 }
 
 func (this *AbstractCompiler) setTypeCheckingHasRun(p0 bool) {
-	this.self_.(interface{ setTypeCheckingHasRun_impl(bool) }).setTypeCheckingHasRun_impl(p0)
+	this.self_.(*Compiler).setTypeCheckingHasRun_impl(p0)
 }
 
 func (this *AbstractCompiler) hasTypeCheckingRun() bool {
-	return this.self_.(interface{ hasTypeCheckingRun_impl() bool }).hasTypeCheckingRun_impl()
+	return this.self_.(*Compiler).hasTypeCheckingRun_impl()
 }
 
 func (this *AbstractCompiler) hasOptimizationColors() bool {
-	return this.self_.(interface{ hasOptimizationColors_impl() bool }).hasOptimizationColors_impl()
+	return this.self_.(*Compiler).hasOptimizationColors_impl()
 }
 
 func (this *AbstractCompiler) getTypedScopeCreator() ScopeCreator {
-	return this.self_.(interface{ getTypedScopeCreator_impl() ScopeCreator }).getTypedScopeCreator_impl()
+	return this.self_.(*Compiler).getTypedScopeCreator_impl()
 }
 
 func (this *AbstractCompiler) clearTypedScopeCreator() {
-	this.self_.(interface{ clearTypedScopeCreator_impl() }).clearTypedScopeCreator_impl()
+	this.self_.(*Compiler).clearTypedScopeCreator_impl()
 }
 
 func (this *AbstractCompiler) getTopScope() *TypedScope {
-	return this.self_.(interface{ getTopScope_impl() *TypedScope }).getTopScope_impl()
+	return this.self_.(*Compiler).getTopScope_impl()
 }
 
 func (this *AbstractCompiler) setTopScope(p0 *TypedScope) {
-	this.self_.(interface{ setTopScope_impl(*TypedScope) }).setTopScope_impl(p0)
+	this.self_.(*Compiler).setTopScope_impl(p0)
 }
 
 func (this *AbstractCompiler) getReverseAbstractInterpreter() ReverseAbstractInterpreter {
-	return this.self_.(interface {
-		getReverseAbstractInterpreter_impl() ReverseAbstractInterpreter
-	}).getReverseAbstractInterpreter_impl()
+	return this.self_.(*Compiler).getReverseAbstractInterpreter_impl()
 }
 
 func (this *AbstractCompiler) getTypeValidator() *TypeValidator {
-	return this.self_.(interface{ getTypeValidator_impl() *TypeValidator }).getTypeValidator_impl()
+	return this.self_.(*Compiler).getTypeValidator_impl()
 }
 
 func (this *AbstractCompiler) getTypeMismatches() Iterable {
-	return this.self_.(interface{ getTypeMismatches_impl() Iterable }).getTypeMismatches_impl()
+	return this.self_.(*Compiler).getTypeMismatches_impl()
 }
 
 func (this *AbstractCompiler) getTranspilationNamespace() StaticScope {
-	return this.self_.(interface{ getTranspilationNamespace_impl() StaticScope }).getTranspilationNamespace_impl()
+	return this.self_.(*Compiler).getTranspilationNamespace_impl()
 }
 
 func (this *AbstractCompiler) preferRegexParser() bool {
-	return this.self_.(interface{ preferRegexParser_impl() bool }).preferRegexParser_impl()
+	return this.self_.(*Compiler).preferRegexParser_impl()
 }
 
 func (this *AbstractCompiler) parseSyntheticCode(p0 string, p1 string) Node {
-	return this.self_.(interface{ parseSyntheticCode_impl(string, string) Node }).parseSyntheticCode_impl(p0, p1)
+	return this.self_.(*Compiler).parseSyntheticCode_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) parseTestCode(p0 string) Node {
-	return this.self_.(interface{ parseTestCode_impl(string) Node }).parseTestCode_impl(p0)
+	return this.self_.(*Compiler).parseTestCode_impl(p0)
 }
 
 func (this *AbstractCompiler) parseTestCodeImmutableList(p0 *JTList[string]) Node {
-	return this.self_.(interface{ parseTestCodeImmutableList_impl(*JTList[string]) Node }).parseTestCodeImmutableList_impl(p0)
+	return this.self_.(*Compiler).parseTestCodeImmutableList_impl(p0)
 }
 
 func (this *AbstractCompiler) getDefaultErrorReporter() ErrorReporter_rhino {
-	return this.self_.(interface{ getDefaultErrorReporter_impl() ErrorReporter_rhino }).getDefaultErrorReporter_impl()
+	return this.self_.(*Compiler).getDefaultErrorReporter_impl()
 }
 
 func (this *AbstractCompiler) toSource() string {
-	return this.self_.(interface{ toSource_impl() string }).toSource_impl()
+	return this.self_.(*Compiler).toSource_impl()
 }
 
 func (this *AbstractCompiler) toSource_1(p0 Node) string {
-	return this.self_.(interface{ toSource_1_impl(Node) string }).toSource_1_impl(p0)
+	return this.self_.(*Compiler).toSource_1_impl(p0)
 }
 
 func (this *AbstractCompiler) getChangeTracker() *ChangeTracker {
-	return this.self_.(interface{ getChangeTracker_impl() *ChangeTracker }).getChangeTracker_impl()
+	return this.self_.(*Compiler).getChangeTracker_impl()
 }
 
 func (this *AbstractCompiler) addIndexProvider(p0 IndexProvider) {
-	this.self_.(interface{ addIndexProvider_impl(IndexProvider) }).addIndexProvider_impl(p0)
+	this.self_.(*Compiler).addIndexProvider_impl(p0)
 }
 
 func (this *AbstractCompiler) getIndexUntyped(p0 *Class) any {
-	return this.self_.(interface{ getIndexUntyped_impl(*Class) any }).getIndexUntyped_impl(p0)
+	return this.self_.(*Compiler).getIndexUntyped_impl(p0)
 }
 
 func (this *AbstractCompiler) getJsRoot() Node {
-	return this.self_.(interface{ getJsRoot_impl() Node }).getJsRoot_impl()
+	return this.self_.(*Compiler).getJsRoot_impl()
 }
 
 func (this *AbstractCompiler) hasScopeChanged(p0 Node) bool {
-	return this.self_.(interface{ hasScopeChanged_impl(Node) bool }).hasScopeChanged_impl(p0)
+	return this.self_.(*Compiler).hasScopeChanged_impl(p0)
 }
 
 func (this *AbstractCompiler) reportChangeToChangeScope(p0 Node) {
-	this.self_.(interface{ reportChangeToChangeScope_impl(Node) }).reportChangeToChangeScope_impl(p0)
+	this.self_.(*Compiler).reportChangeToChangeScope_impl(p0)
 }
 
 func (this *AbstractCompiler) reportFunctionDeleted(p0 Node) {
-	this.self_.(interface{ reportFunctionDeleted_impl(Node) }).reportFunctionDeleted_impl(p0)
+	this.self_.(*Compiler).reportFunctionDeleted_impl(p0)
 }
 
 func (this *AbstractCompiler) reportDisambiguatePropertiesSummary(p0 Supplier) {
-	this.self_.(interface{ reportDisambiguatePropertiesSummary_impl(Supplier) }).reportDisambiguatePropertiesSummary_impl(p0)
+	this.self_.(*Compiler).reportDisambiguatePropertiesSummary_impl(p0)
 }
 
 func (this *AbstractCompiler) reportAmbiguatePropertiesSummary(p0 Supplier) {
-	this.self_.(interface{ reportAmbiguatePropertiesSummary_impl(Supplier) }).reportAmbiguatePropertiesSummary_impl(p0)
+	this.self_.(*Compiler).reportAmbiguatePropertiesSummary_impl(p0)
 }
 
 func (this *AbstractCompiler) reportChangeToEnclosingScope(p0 Node) {
-	this.self_.(interface{ reportChangeToEnclosingScope_impl(Node) }).reportChangeToEnclosingScope_impl(p0)
+	this.self_.(*Compiler).reportChangeToEnclosingScope_impl(p0)
 }
 
 func (this *AbstractCompiler) getCodingConvention() CodingConvention {
-	return this.self_.(interface{ getCodingConvention_impl() CodingConvention }).getCodingConvention_impl()
+	return this.self_.(*Compiler).getCodingConvention_impl()
 }
 
 func (this *AbstractCompiler) getParserConfig(p0 *AbstractCompiler_ConfigContext) *Config {
-	return this.self_.(interface {
-		getParserConfig_impl(*AbstractCompiler_ConfigContext) *Config
-	}).getParserConfig_impl(p0)
+	return this.self_.(*Compiler).getParserConfig_impl(p0)
 }
 
 func (this *AbstractCompiler) report(p0 *JSError) {
-	this.self_.(interface{ report_impl(*JSError) }).report_impl(p0)
+	this.self_.(*Compiler).report_impl(p0)
 }
 
 func (this *AbstractCompiler) getErrorLevel(p0 *JSError) *CheckLevel {
-	return this.self_.(interface{ getErrorLevel_impl(*JSError) *CheckLevel }).getErrorLevel_impl(p0)
+	return this.self_.(*Compiler).getErrorLevel_impl(p0)
 }
 
 func (this *AbstractCompiler) throwInternalError(p0 string, p1 *Throwable) {
-	this.self_.(interface{ throwInternalError_impl(string, *Throwable) }).throwInternalError_impl(p0, p1)
+	this.self_.(*Compiler).throwInternalError_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) hasHaltingErrors() bool {
-	return this.self_.(interface{ hasHaltingErrors_impl() bool }).hasHaltingErrors_impl()
+	return this.self_.(*Compiler).hasHaltingErrors_impl()
 }
 
 func (this *AbstractCompiler) getSourceFileByName(p0 Optional[string]) *SourceFile_jscomp {
-	return this.self_.(interface {
-		getSourceFileByName_impl(Optional[string]) *SourceFile_jscomp
-	}).getSourceFileByName_impl(p0)
+	return this.self_.(*Compiler).getSourceFileByName_impl(p0)
 }
 
 func (this *AbstractCompiler) addInputSourceMap(p0 string, p1 *SourceMapInput) {
-	this.self_.(interface{ addInputSourceMap_impl(string, *SourceMapInput) }).addInputSourceMap_impl(p0, p1)
+	this.self_.(*Compiler).addInputSourceMap_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getBase64SourceMapContents(p0 Optional[string]) Optional[string] {
-	return this.self_.(interface {
-		getBase64SourceMapContents_impl(Optional[string]) Optional[string]
-	}).getBase64SourceMapContents_impl(p0)
+	return this.self_.(*Compiler).getBase64SourceMapContents_impl(p0)
 }
 
 func (this *AbstractCompiler) getSourceMapping_Optional_int_int(p0 Optional[string], p1 int32, p2 int32) *Mapping_OriginalMapping {
-	return this.self_.(interface {
-		getSourceMapping_Optional_int_int_impl(Optional[string], int32, int32) *Mapping_OriginalMapping
-	}).getSourceMapping_Optional_int_int_impl(p0, p1, p2)
+	return this.self_.(*Compiler).getSourceMapping_Optional_int_int_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) getSourceLine(p0 Optional[string], p1 int32) Optional[string] {
-	return this.self_.(interface {
-		getSourceLine_impl(Optional[string], int32) Optional[string]
-	}).getSourceLine_impl(p0, p1)
+	return this.self_.(*Compiler).getSourceLine_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getSourceLines(p0 Optional[string], p1 int32, p2 int32) Region {
-	return this.self_.(interface {
-		getSourceLines_impl(Optional[string], int32, int32) Region
-	}).getSourceLines_impl(p0, p1, p2)
+	return this.self_.(*Compiler).getSourceLines_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) getSourceRegion(p0 Optional[string], p1 int32) Region {
-	return this.self_.(interface {
-		getSourceRegion_impl(Optional[string], int32) Region
-	}).getSourceRegion_impl(p0, p1)
+	return this.self_.(*Compiler).getSourceRegion_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getNodeForCodeInsertion(p0 *JSChunk) Node {
-	return this.self_.(interface{ getNodeForCodeInsertion_impl(*JSChunk) Node }).getNodeForCodeInsertion_impl(p0)
+	return this.self_.(*Compiler).getNodeForCodeInsertion_impl(p0)
 }
 
 func (this *AbstractCompiler) setVariableMap(p0 *VariableMap) {
-	this.self_.(interface{ setVariableMap_impl(*VariableMap) }).setVariableMap_impl(p0)
+	this.self_.(*Compiler).setVariableMap_impl(p0)
 }
 
 func (this *AbstractCompiler) setPropertyMap(p0 *VariableMap) {
-	this.self_.(interface{ setPropertyMap_impl(*VariableMap) }).setPropertyMap_impl(p0)
+	this.self_.(*Compiler).setPropertyMap_impl(p0)
 }
 
 func (this *AbstractCompiler) setStringMap(p0 *VariableMap) {
-	this.self_.(interface{ setStringMap_impl(*VariableMap) }).setStringMap_impl(p0)
+	this.self_.(*Compiler).setStringMap_impl(p0)
 }
 
 func (this *AbstractCompiler) setCssNames(p0 *JTSet[string]) {
-	this.self_.(interface{ setCssNames_impl(*JTSet[string]) }).setCssNames_impl(p0)
+	this.self_.(*Compiler).setCssNames_impl(p0)
 }
 
 func (this *AbstractCompiler) setIdGeneratorMap(p0 string) {
-	this.self_.(interface{ setIdGeneratorMap_impl(string) }).setIdGeneratorMap_impl(p0)
+	this.self_.(*Compiler).setIdGeneratorMap_impl(p0)
 }
 
 func (this *AbstractCompiler) getTranspiledFiles() bool {
-	return this.self_.(interface{ getTranspiledFiles_impl() bool }).getTranspiledFiles_impl()
+	return this.self_.(*Compiler).getTranspiledFiles_impl()
 }
 
 func (this *AbstractCompiler) getCrossChunkIdGenerator() *IdGenerator {
-	return this.self_.(interface{ getCrossChunkIdGenerator_impl() *IdGenerator }).getCrossChunkIdGenerator_impl()
+	return this.self_.(*Compiler).getCrossChunkIdGenerator_impl()
 }
 
 func (this *AbstractCompiler) setAnonymousFunctionNameMap(p0 *VariableMap) {
-	this.self_.(interface{ setAnonymousFunctionNameMap_impl(*VariableMap) }).setAnonymousFunctionNameMap_impl(p0)
+	this.self_.(*Compiler).setAnonymousFunctionNameMap_impl(p0)
 }
 
 func (this *AbstractCompiler) setInstrumentationMapping(p0 *VariableMap) {
-	this.self_.(interface{ setInstrumentationMapping_impl(*VariableMap) }).setInstrumentationMapping_impl(p0)
+	this.self_.(*Compiler).setInstrumentationMapping_impl(p0)
 }
 
 func (this *AbstractCompiler) addExportedNames(p0 *JTSet[string]) {
-	this.self_.(interface{ addExportedNames_impl(*JTSet[string]) }).addExportedNames_impl(p0)
+	this.self_.(*Compiler).addExportedNames_impl(p0)
 }
 
 func (this *AbstractCompiler) getExportedNames() *JTSet[string] {
-	return this.self_.(interface{ getExportedNames_impl() *JTSet[string] }).getExportedNames_impl()
+	return this.self_.(*Compiler).getExportedNames_impl()
 }
 
 func (this *AbstractCompiler) setDefineNames(p0 Collection) {
-	this.self_.(interface{ setDefineNames_impl(Collection) }).setDefineNames_impl(p0)
+	this.self_.(*Compiler).setDefineNames_impl(p0)
 }
 
 func (this *AbstractCompiler) getDefineNames() *JTSet[string] {
-	return this.self_.(interface{ getDefineNames_impl() *JTSet[string] }).getDefineNames_impl()
+	return this.self_.(*Compiler).getDefineNames_impl()
 }
 
 func (this *AbstractCompiler) getOptions() *CompilerOptions {
-	return this.self_.(interface{ getOptions_impl() *CompilerOptions }).getOptions_impl()
+	return this.self_.(*Compiler).getOptions_impl()
 }
 
 func (this *AbstractCompiler) getErrorManager() ErrorManager {
-	return this.self_.(interface{ getErrorManager_impl() ErrorManager }).getErrorManager_impl()
+	return this.self_.(*Compiler).getErrorManager_impl()
 }
 
 func (this *AbstractCompiler) getInputsInOrder() Iterable {
-	return this.self_.(interface{ getInputsInOrder_impl() Iterable }).getInputsInOrder_impl()
+	return this.self_.(*Compiler).getInputsInOrder_impl()
 }
 
 func (this *AbstractCompiler) getNumberOfInputs() int32 {
-	return this.self_.(interface{ getNumberOfInputs_impl() int32 }).getNumberOfInputs_impl()
+	return this.self_.(*Compiler).getNumberOfInputs_impl()
 }
 
 func (this *AbstractCompiler) hasRegExpGlobalReferences() bool {
-	return this.self_.(interface{ hasRegExpGlobalReferences_impl() bool }).hasRegExpGlobalReferences_impl()
+	return this.self_.(*Compiler).hasRegExpGlobalReferences_impl()
 }
 
 func (this *AbstractCompiler) setHasRegExpGlobalReferences(p0 bool) {
-	this.self_.(interface{ setHasRegExpGlobalReferences_impl(bool) }).setHasRegExpGlobalReferences_impl(p0)
+	this.self_.(*Compiler).setHasRegExpGlobalReferences_impl(p0)
 }
 
 func (this *AbstractCompiler) setRunJ2clPasses(p0 bool) {
-	this.self_.(interface{ setRunJ2clPasses_impl(bool) }).setRunJ2clPasses_impl(p0)
+	this.self_.(*Compiler).setRunJ2clPasses_impl(p0)
 }
 
 func (this *AbstractCompiler) runJ2clPasses() bool {
-	return this.self_.(interface{ runJ2clPasses_impl() bool }).runJ2clPasses_impl()
+	return this.self_.(*Compiler).runJ2clPasses_impl()
 }
 
 func (this *AbstractCompiler) getSynthesizedExternsInput() *CompilerInput {
-	return this.self_.(interface{ getSynthesizedExternsInput_impl() *CompilerInput }).getSynthesizedExternsInput_impl()
+	return this.self_.(*Compiler).getSynthesizedExternsInput_impl()
 }
 
 func (this *AbstractCompiler) getSynthesizedTypeSummaryInput() *CompilerInput {
-	return this.self_.(interface{ getSynthesizedTypeSummaryInput_impl() *CompilerInput }).getSynthesizedTypeSummaryInput_impl()
+	return this.self_.(*Compiler).getSynthesizedTypeSummaryInput_impl()
 }
 
 func (this *AbstractCompiler) getSyntheticCodeInputId() *InputId {
-	return this.self_.(interface{ getSyntheticCodeInputId_impl() *InputId }).getSyntheticCodeInputId_impl()
+	return this.self_.(*Compiler).getSyntheticCodeInputId_impl()
 }
 
 func (this *AbstractCompiler) initializeSyntheticCodeInput() {
-	this.self_.(interface{ initializeSyntheticCodeInput_impl() }).initializeSyntheticCodeInput_impl()
+	this.self_.(*Compiler).initializeSyntheticCodeInput_impl()
 }
 
 func (this *AbstractCompiler) removeSyntheticCodeInput() {
-	this.self_.(interface{ removeSyntheticCodeInput_impl() }).removeSyntheticCodeInput_impl()
+	this.self_.(*Compiler).removeSyntheticCodeInput_impl()
 }
 
 func (this *AbstractCompiler) mergeSyntheticCodeInput() {
-	this.self_.(interface{ mergeSyntheticCodeInput_impl() }).mergeSyntheticCodeInput_impl()
+	this.self_.(*Compiler).mergeSyntheticCodeInput_impl()
 }
 
 func (this *AbstractCompiler) getLastPassName() string {
-	return this.self_.(interface{ getLastPassName_impl() string }).getLastPassName_impl()
+	return this.self_.(*Compiler).getLastPassName_impl()
 }
 
 func (this *AbstractCompiler) setExternProperties(p0 *JTSet[string]) {
-	this.self_.(interface{ setExternProperties_impl(*JTSet[string]) }).setExternProperties_impl(p0)
+	this.self_.(*Compiler).setExternProperties_impl(p0)
 }
 
 func (this *AbstractCompiler) getExternProperties() *JTSet[string] {
-	return this.self_.(interface{ getExternProperties_impl() *JTSet[string] }).getExternProperties_impl()
+	return this.self_.(*Compiler).getExternProperties_impl()
 }
 
 func (this *AbstractCompiler) getAccessorSummary() *AccessorSummary {
-	return this.self_.(interface{ getAccessorSummary_impl() *AccessorSummary }).getAccessorSummary_impl()
+	return this.self_.(*Compiler).getAccessorSummary_impl()
 }
 
 func (this *AbstractCompiler) setAccessorSummary(p0 *AccessorSummary) {
-	this.self_.(interface{ setAccessorSummary_impl(*AccessorSummary) }).setAccessorSummary_impl(p0)
+	this.self_.(*Compiler).setAccessorSummary_impl(p0)
 }
 
 func (this *AbstractCompiler) addComments(p0 string, p1 *JTList[*Comment]) {
-	this.self_.(interface {
-		addComments_impl(string, *JTList[*Comment])
-	}).addComments_impl(p0, p1)
+	this.self_.(*Compiler).addComments_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getComments(p0 Optional[string]) List {
-	return this.self_.(interface{ getComments_impl(Optional[string]) List }).getComments_impl(p0)
+	return this.self_.(*Compiler).getComments_impl(p0)
 }
 
 func (this *AbstractCompiler) getModuleLoader() *ModuleLoader {
-	return this.self_.(interface{ getModuleLoader_impl() *ModuleLoader }).getModuleLoader_impl()
+	return this.self_.(*Compiler).getModuleLoader_impl()
 }
 
 func (this *AbstractCompiler) getModuleTypeByName(p0 Optional[string]) *CompilerInput_ModuleType {
-	return this.self_.(interface {
-		getModuleTypeByName_impl(Optional[string]) *CompilerInput_ModuleType
-	}).getModuleTypeByName_impl(p0)
+	return this.self_.(*Compiler).getModuleTypeByName_impl(p0)
 }
 
 func (this *AbstractCompiler) getModuleMetadataMap() *ModuleMetadataMap {
-	return this.self_.(interface{ getModuleMetadataMap_impl() *ModuleMetadataMap }).getModuleMetadataMap_impl()
+	return this.self_.(*Compiler).getModuleMetadataMap_impl()
 }
 
 func (this *AbstractCompiler) setModuleMetadataMap(p0 *ModuleMetadataMap) {
-	this.self_.(interface{ setModuleMetadataMap_impl(*ModuleMetadataMap) }).setModuleMetadataMap_impl(p0)
+	this.self_.(*Compiler).setModuleMetadataMap_impl(p0)
 }
 
 func (this *AbstractCompiler) getModuleMap() *ModuleMap {
-	return this.self_.(interface{ getModuleMap_impl() *ModuleMap }).getModuleMap_impl()
+	return this.self_.(*Compiler).getModuleMap_impl()
 }
 
 func (this *AbstractCompiler) setModuleMap(p0 *ModuleMap) {
-	this.self_.(interface{ setModuleMap_impl(*ModuleMap) }).setModuleMap_impl(p0)
+	this.self_.(*Compiler).setModuleMap_impl(p0)
 }
 
 var AbstractCompiler_READ_ERROR *DiagnosticType
