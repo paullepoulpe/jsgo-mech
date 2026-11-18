@@ -286,6 +286,7 @@ public final class Main {
       for (CompilationUnitTree cu : units) colls.flows(cu);
       colls.decide();
     }
+    cx.conv.loadAliases(out);
     cx.assignClassNames();
     cx.analyzeMethods();
     Files.createDirectories(out);

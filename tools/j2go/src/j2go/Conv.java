@@ -1,6 +1,9 @@
 package j2go;
 
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.*;
+import java.util.regex.*;
 import javax.lang.model.element.*;
 import javax.lang.model.type.*;
 
@@ -68,7 +71,11 @@ final class Conv {
     if (!UPCAST) return null;
     TypeElement fe = Ctx.typeElement(from), te = Ctx.typeElement(to);
     if (fe == null || te == null || !gf.startsWith("*") || gf.contains("[") || cx.typedDecl(to)) return null;
-    if (!cx.isLeaf(fe) || cx.isHandle(fe) || cx.isValueLib(fe) || !cx.types.isSubtype(from, to)) return null;
+    if (!cx.isLeaf(fe) || cx.isHandle(fe) || cx.isValueLib(fe)) return null;
+    // Not a subtype in Java: still a conversion in Go when the class is the one Go type of several
+    // library classes (the result of Builder.build is declared ImmutableCollection in the runtime
+    // and is a List or a Set in Java): the assertion of that Go type to the interface cannot fail.
+    if (!cx.types.isSubtype(from, to) && !(ALIAS && !cx.isSource(fe) && aliases.containsValue(gf.substring(1)))) return null;
     if (cx.isSource(fe) ? !cx.implementsInGo(fe, te) : cx.isSource(te)) return null;
     if (code.equals("this") || newCall(code)) return gt + "(" + code + ")";
     String fn = gf.substring(1) + "_as_" + gt;
@@ -166,5 +173,44 @@ final class Conv {
     if (!MSG || e.isVarArgs() || nparams < 2 || nargs != nparams || !HANDLE_MSG.contains(name) || last == null) return null;
     TypeMirror lt = cx.erase(last);
     return cx.kind(lt) == Ctx.K.CLS && cx.isHandle(Ctx.typeElement(lt)) ? lt : null;
+  }
+
+  // ------------------------------------------------------------------ library classes of one Go type
+
+  static final boolean ALIAS = !off("ALIAS");
+
+  /** Go type names that the runtime declares as aliases (`type ImmutableList = ImmutableCollection`): name -> the type it is. */
+  final Map<String, String> aliases = new HashMap<>();
+
+  /** Reads the alias declarations of the runtime (rt_*.go in the output directory). */
+  void loadAliases(Path out) throws IOException {
+    if (!ALIAS || !Files.isDirectory(out)) return;
+    Pattern decl = Pattern.compile("^type (\\w+) = (\\w+)$");
+    try (var fs = Files.list(out)) {
+      for (Path f : (Iterable<Path>) fs.sorted()::iterator) {
+        String fn = f.getFileName().toString();
+        if (!fn.startsWith("rt_") || !fn.endsWith(".go") || fn.endsWith("_test.go")) continue;
+        for (String l : Files.readAllLines(f)) {
+          Matcher m = decl.matcher(l);
+          if (m.matches()) aliases.put(m.group(1), m.group(2));
+        }
+      }
+    }
+  }
+
+  /** The Go type that the type named n is, through the runtime's aliases. */
+  String aliased(String n) {
+    for (int i = 0; i < 8 && aliases.containsKey(n); i++) n = aliases.get(n);
+    return n;
+  }
+
+  /**
+   * Rule "one Go type": two library classes that the runtime declares as one Go type (an alias:
+   * ImmutableList and ImmutableSet are ImmutableCollection) convert as the value itself. The
+   * erased translation asserted the type to itself, cast_[*ImmutableList](obj_(v)), which
+   * cannot fail and keeps nil.
+   */
+  boolean sameGoType(String gf, String gt) {
+    return ALIAS && gf.startsWith("*") && gt.startsWith("*") && !gf.contains("[") && !gt.contains("[") && aliased(gf.substring(1)).equals(aliased(gt.substring(1)));
   }
 }

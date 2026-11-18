@@ -1382,6 +1382,7 @@ final class Ctx {
           case CLS: {
             TypeElement tf = typeElement(from);
             if (isSubclass(tf, tt)) return code + ".up_" + className(tt) + "()";
+            if (conv.sameGoType(gf, gt)) return code;
             src = canon(code, from);
             break;
           }

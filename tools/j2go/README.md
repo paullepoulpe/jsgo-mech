@@ -264,6 +264,15 @@ translation, for bisecting.
   `Preconditions_checkState_boolean_Object_H(n.isName(), n)`. Interfaces, primitives, typed
   collections and value types are converted to `Object` as everywhere else.
 
+- *One Go type* (`Conv.sameGoType`, `J2GO_NOALIAS`). Two library classes that the runtime
+  declares as one Go type (`type ImmutableList = ImmutableCollection`; the translator reads
+  the alias declarations of `rt_*.go`) convert as the value itself: `this.names = b.build()`
+  where the erased translation asserted the type to itself,
+  `cast_[*ImmutableList](obj_(b.build()))` (it cannot fail and keeps nil). For the same
+  reason such a class becomes an interface by the static upcast although the declared
+  result is not a subtype in Java (`Builder.build()` is declared `*ImmutableCollection` in
+  the runtime; as a `List` it is `ImmutableCollection_as_List(b.build())`).
+
 **Type arguments in declarations.** Library types stay erased; the declared type of a field,
 local or parameter whose Java type is a parameterized library type is written through a generic
 alias: `List<Reference>` becomes

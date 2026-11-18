@@ -4,9 +4,13 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /** The conversions that need no box (j2go.Conv): the values must behave as the boxed ones did. */
 public class Unboxed {
@@ -207,11 +211,34 @@ public class Unboxed {
         + " " + thrown.startsWith("IllegalStateException:<lang.Unboxed$Thrower@") + thrown.endsWith(" threw java.lang.IllegalStateException>!") + " " + evals;
   }
 
+  // ---- library classes that are one Go type
+  static ImmutableList<String> built(String... parts) {
+    ImmutableList.Builder<String> b = ImmutableList.builder();
+    for (String p : parts) b.add(p);
+    return parts.length == 0 ? null : b.build();
+  }
+
+  static String oneGoType() {
+    ImmutableList.Builder<String> lb = ImmutableList.builder();
+    lb.add("x").add("y");
+    ImmutableList<String> l = lb.build(), none = built();
+    List<String> asList = lb.build(), noList = none;
+    Collection<String> coll = l;
+    ImmutableSet.Builder<String> sb = ImmutableSet.builder();
+    Set<String> set = sb.add("q").add("q").build();
+    ImmutableSet<String> iset = sb.build();
+    Iterable<String> it = built("i");
+    Object o = lb.build();
+    return l + " " + asList + " " + (noList == null) + (none == null) + " " + coll.size() + set + iset.contains("q") + " " + it.iterator().next()
+        + " " + l.equals(asList) + (o instanceof List) + asList.get(1) + built("a", "b").size();
+  }
+
   public static String run() {
     p(upcasts());
     p(nonNull());
     p(bare());
     p(messages());
+    p(oneGoType());
     return out.toString();
   }
 
