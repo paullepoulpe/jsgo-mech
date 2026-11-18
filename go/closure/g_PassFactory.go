@@ -59,10 +59,13 @@ func PassFactory_createEmptyPass(name string) *PassFactory {
 	return PassFactory_builder().setName(name).setInternalFactory(&Function_tfn_any_CompilerPass{func(c_ any) CompilerPass {
 		var c *AbstractCompiler = to_AbstractCompiler(c_)
 		_ = c
-		return &CompilerPass_fn{func(externs Node, root Node) {
-		}}
+		return lambda_PassFactory_createEmptyPass_1_
 	}}).build()
 }
+
+// lambda_PassFactory_createEmptyPass_1_ is a lambda of PassFactory_createEmptyPass that captures nothing (post-flip step lambdas).
+var lambda_PassFactory_createEmptyPass_1_ = &CompilerPass_fn{func(externs Node, root Node) {
+}}
 
 func (this *PassFactory) create(compiler *AbstractCompiler) CompilerPass {
 	return icast_CompilerPass(this.getInternalFactory().apply(compiler.self()))
