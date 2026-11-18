@@ -239,6 +239,35 @@ profile and `tools/pgo` are removed (c4aefc67). Measured again without PGO (no `
 
 PGO was worth about nothing on typed-full and 1.6% on bundle; the result does not depend on it.
 
+## postflip5, round 8: Java-isms (merged at 72b0f693)
+
+Six branches from 85416d7a (round 7 + the tostr re-run), each prototyped and gated by one
+agent, merged here in this order: exceptions (git merge 862987cd: the branch's steps applied to
+a tree that only had documentation commits since its base), casts (castfold -assert re-run),
+strings (runtime and tool commits cherry-picked, strbytes, sbuild, strview and strnative re-run),
+collections and immutables (runtime and tool commits cherry-picked, tool conflicts resolved by
+hand, `tools/postflip/colls/run.sh` re-run: colls kinds to a fixpoint, native, nilmaps, the
+immutable kinds between `tnames -undo` and `tnames`). Gated on the final tree: runtime tests ok,
+checks/bundle/downlevel/advanced MATCH.
+
+| group (branch) | steps | census (g_*.go, round 7 -> 72b0f693) |
+|---|---|---|
+| exceptions (r8-exc) | `throws` (3,153 throws of a new exception panic with the exception, a Go error value; exhaustive enum switches throw Java's NPE), `tryfn` (41 tries that end their function defer in it), `exceptions` (dead catches, JDK/Guava interfaces declare no checked exception, a catch around one runtime call is an error return: `Pattern_compileErr_`), `optof`, `fnobj` (15 functional interfaces only lambdas implement are `*funcObj_[F]`), `funcparams` with `_f` runtime variants, Guava Optional as a value | lambdas 201 -> 140, recover/catch 62 -> 50, defer 88 -> 82, Optional 85 -> 78, panic 3,517 -> 3,492 (3,396 panic with an error value, the rest stubs and rethrows) |
+| casts (r8-casts) | `castfold -assert`: a cast whose operand cannot be null or is dereferenced at once is a Go type assertion (runtime: a nil-interface assertion is Java's NPE) | class casts 2,018 -> 1,727 (before the collection steps) |
+| strings (r8-str) | `strbytes` (positions a function computes are byte offsets where nothing can tell), `sbuild` (builders passed as Appendable), `strview` (code that works in UTF-16 units reads a `utf16_` view: charAt/length/substring/indexOf as the helpers return them; view fields next to scanner/lexer string fields), `strnative` (format of an Object before constants) | String_* 973 -> 122, StringBuilder 24 -> 3 |
+| collections (r8-colls) | native: shared typed lists are `*[]T`, a plain `[]T` only if never null; Go maps keyed by Var's and ExportTrace's equals fields; collections held in typed containers typed; `nilmaps` (a nil Go map read throws NPE as Java's null map); `tnames` (Go method names: Get/Put/Has/Delete/Len...) | erased constructors 228 -> 194, typed TList/TMap/TSet 431 -> 339 |
+| immutables (r8-imm) | `immnames` (erased Guava types renamed Erased*), runtime ImmutableList[T]/ImmutableSet[K]/ImmutableMap[K,V] and builders with Guava's semantics and an erased twin for identity across erased code, colls imm kinds | Guava immutables 748 -> 218 |
+
+All rows together, round 7 -> round 8: boxing 5,175 -> 3,072, class casts 2,018 -> 1,512,
+interface casts 959 -> 879, unboxing 704 -> 607.
+
+Measured (interleaved, no PGO, out.js/stdout/stderr byte-identical with pre-flip Java), against
+pre-flip Java and the round-7 binary in the same run: typed-full Java/Go 1.345 (round 7: 1.295),
+bundle 1.240 (1.229); round 8 is 3.7% faster than round 7 on typed-full and 0.9% on bundle. The
+host was loaded (1.1-6.0) by another agent's builds, which slows pre-flip Java (2-3 cores) more
+than Go, so the ratios against Java are overstated; on a quiet host round 7 measured 1.082 and
+1.117. A quiet re-measurement replaces this paragraph.
+
 ## postflip5, round 7: Java-isms (merged at 2d204c0f)
 
 Five branches (postflip5-r7-erased, -typed, -strings, -misc, -generics), each prototyped and

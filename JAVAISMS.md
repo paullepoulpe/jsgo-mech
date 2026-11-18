@@ -90,3 +90,19 @@ Round 8 (in progress), one branch each: Guava immutables (postflip5-r8-imm), era
 and generic interfaces (postflip5-r8-casts), the exception model and the misc rows
 (postflip5-r8-exc), String_* and StringBuilder (postflip5-r8-str), the remaining Java collections
 and typed collections to Go slices and maps (postflip5-r8-colls).
+
+## After round 8 (72b0f693)
+
+Census (`tools/postflip/census.py`), round 7 (2d204c0f) -> round 8: String_* 973 -> 122;
+StringBuilder 24 -> 3; Guava immutables 748 -> 218; boxing 5,175 -> 3,072; class casts 2,018 ->
+1,512; interface casts 959 -> 879; unboxing 704 -> 607; erased collection constructors 228 ->
+194; typed TList/TMap/TSet 431 -> 339; lambda objects 201 -> 140; try/catch emulation 62 -> 50;
+Optional 85 -> 78; defer 88 -> 82; panic 3,517 -> 3,492; for-each cursors 101 -> 99; explicit
+iterators 102 -> 97; equals/hashCode 48 -> 52 and any declarations 1,852 -> 1,877 (conversion
+variables of the immutable steps). Every site left is counted with its reason in the step
+commits (see POSTFLIP.md, round 8). panic with an error value, defer for finally, boundary
+catch-alls and rethrows are the Go idiom; the threads, reflect and unsafe rows are name matches,
+not uses. The translator now keeps Java's types as Go generics on branch main-r8-typed (generic
+classes, interfaces, hierarchies, typed lambdas, Optional[T]; collections next) and Node is a
+store the collector never scans on main-r8-nodestore; a re-flip with both will make several of
+these steps no-ops.
