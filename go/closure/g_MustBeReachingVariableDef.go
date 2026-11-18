@@ -266,7 +266,7 @@ func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBe
 	}
 	var n GraphNode[Node] = this.getCfg().getNode(useNode)
 	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(n)))
-	return cast_[*MustBeReachingVariableDef_MustDef](state.getIn()).reachingDef.get(this.allVarsInFn.get(name))
+	return state.getIn().(*MustBeReachingVariableDef_MustDef).reachingDef.get(this.allVarsInFn.get(name))
 }
 
 func (this *MustBeReachingVariableDef) getDefNode(name string, useNode Node) Node {
@@ -286,7 +286,7 @@ func (this *MustBeReachingVariableDef) dependsOnOuterScopeVars(def *MustBeReachi
 	it_1 := def.depends.each()
 	for it_1.next() {
 		var s *Var = it_1.v
-		if cast_[*Scope](s.getScope()).isCatchScope() {
+		if s.getScope().(*Scope).isCatchScope() {
 			return true
 		}
 	}
@@ -357,7 +357,7 @@ func new_MustBeReachingVariableDef_MustDef_0() *MustBeReachingVariableDef_MustDe
 func (this *MustBeReachingVariableDef_MustDef) init_MustBeReachingVariableDef_MustDef_Collection(vars CollectionOf[*Var]) {
 	this.finit_MustBeReachingVariableDef_MustDef()
 	for var_ := range elemsAs_[*Var](vars) {
-		this.reachingDef.put(var_, new_MustBeReachingVariableDef_Definition(cast_[*Scope](var_.getScope()).getRootNode()))
+		this.reachingDef.put(var_, new_MustBeReachingVariableDef_Definition(var_.getScope().(*Scope).getRootNode()))
 	}
 }
 

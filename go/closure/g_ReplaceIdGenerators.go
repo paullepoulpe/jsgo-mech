@@ -609,7 +609,7 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) maybeReplaceCall(t *NodeTrave
 
 func (this *ReplaceIdGenerators_ReplaceGenerators) findTtlVar(t *NodeTraversal, arg Node) Node {
 	var name string = arg.getString()
-	var ttlVarName Node = cast_[*Var](t.getScope().getVar(name).self()).getNode()
+	var ttlVarName Node = t.getScope().getVar(name).self().(*Var).getNode()
 	var parent Node = ttlVarName.getParent()
 	if !parent.isVar() || !parent.getParent().isScript() {
 		return 0

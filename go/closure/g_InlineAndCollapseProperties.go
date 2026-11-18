@@ -377,7 +377,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliasesFo
 		var ref *GlobalNamespace_Ref = it_1.v
 		if (ref.isAliasingGet() && !InlineAndCollapseProperties_mayBeGlobalAlias(ref)) && !ref.isTwin() {
 			this.inlineAliasIfPossible(name, ref, namespace)
-		} else if (ref.isAliasingGet() && cast_[*Scope](ref.scope_.getClosestHoistScope().self()).isGlobal()) && !ref.isTwin() {
+		} else if (ref.isAliasingGet() && ref.scope_.getClosestHoistScope().self().(*Scope).isGlobal()) && !ref.isTwin() {
 			this.inlineGlobalAliasIfPossible(name, ref, namespace)
 		} else if (name.isClass() && ref.isSubclassingGet()) && (name.props != nil) {
 			it_3 := name.props.each()
@@ -441,7 +441,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAllSubcl
 	}
 	if subclassPropNameObj != nil {
 		var newNodes *JTSet[GlobalNamespace_AstChange] = jnewTSet_(tce_GlobalNamespace_AstChange)
-		var superclassNameNode Node = cast_[*GlobalNamespace_Ref](superclassNameObj.getDeclaration()).getNode()
+		var superclassNameNode Node = superclassNameObj.getDeclaration().(*GlobalNamespace_Ref).getNode()
 		if superclassNameNode.isName() {
 			superclassNameNode = superclassNameNode.cloneNode()
 		} else if superclassNameNode.isGetProp() {
@@ -679,7 +679,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasRef
 		if aliasingName.getInitialization() != nil {
 			return aliasingName.getInitialization().getChunk()
 		}
-		return cast_[*GlobalNamespace_Ref](aliasingName.getDeclaration()).getChunk()
+		return aliasingName.getDeclaration().(*GlobalNamespace_Ref).getChunk()
 	}()
 	it_1 := refs.each()
 	for it_1.next() {
@@ -1125,7 +1125,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesTo(
 	var originalName string = n.getFullName()
 	var isConstantName bool = this.shouldAddConstantName(func() Node {
 		if cast_[*GlobalNamespace_Ref](n.getDeclaration()) != nil {
-			return cast_[*GlobalNamespace_Ref](n.getDeclaration()).getNode()
+			return n.getDeclaration().(*GlobalNamespace_Ref).getNode()
 		}
 		return 0
 	}(), alias)
@@ -1314,7 +1314,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) moveDeclarationIntoH
 	if !varNode.isVar() {
 		Preconditions_checkState_boolean_String_Object_H(false, "Unexpected declaration %s", varNode)
 	}
-	var newRoot Node = cast_[*CompilerInput](commonAncestor.getInputs().get(0)).getAstRoot(this.outer_.compiler_)
+	var newRoot Node = commonAncestor.getInputs().get(0).(*CompilerInput).getAstRoot(this.outer_.compiler_)
 	if initializer == 0 {
 		newRoot.addChildToFront(varNode.detach())
 	} else {

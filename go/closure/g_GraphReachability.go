@@ -32,7 +32,7 @@ func new_GraphReachability_DiGraph_Predicate[N comparable, E comparable](graph *
 
 func (this *GraphReachability[N, E]) compute(entry N) {
 	this.graph.clearNodeAnnotations()
-	cast_[DiGraph_DiGraphNode[N]](this.graph.getNode(entry)).setAnnotation(GraphReachability_REACHABLE)
+	this.graph.getNode(entry).(DiGraph_DiGraphNode[N]).setAnnotation(GraphReachability_REACHABLE)
 	FixedPointGraphTraversal_newTraversal[N, E](func() FixedPointGraphTraversal_EdgeCallback[N, E] {
 		if v := this; v != nil {
 			return v

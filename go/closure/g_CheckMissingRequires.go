@@ -188,7 +188,7 @@ func (this *CheckMissingRequires) visitMaybeDeclaration(t *NodeTraversal, n Node
 	if (declaration == nil) || (declaration.getNode() != n) {
 		return
 	}
-	if cast_[*Scope](var_.getScope()).isLocal() {
+	if var_.getScope().(*Scope).isLocal() {
 		var require *NodeUtil_GoogRequire = NodeUtil_getGoogRequireInfo_Var(var_)
 		if require == nil {
 			return
@@ -231,7 +231,7 @@ func (this *CheckMissingRequires) visitQualifiedName(t *NodeTraversal, n Node, c
 		return
 	}
 	var var_ *Var = cast_[*Var](t.getScope().getVar(rootName).self())
-	if (var_ != nil) && cast_[*Scope](var_.getScope()).isLocal() {
+	if (var_ != nil) && var_.getScope().(*Scope).isLocal() {
 		this.checkMissingRequireThroughShortName(t, n, var_, currentFile, qualifiedName, referenceStrength)
 	} else {
 		this.checkMissingRequireThroughFullyQualifiedName(t, n, currentFile, qualifiedName, referenceStrength)

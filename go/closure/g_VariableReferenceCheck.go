@@ -61,7 +61,7 @@ func (this *VariableReferenceCheck) checkRedeclaration(v *Var, reference *Refere
 			return false
 		} else {
 			diagnosticType = func() *DiagnosticType {
-				if cast_[*Scope](v.getScope()).isGlobal() {
+				if v.getScope().(*Scope).isGlobal() {
 					return VarCheck_VAR_MULTIPLY_DECLARED_ERROR
 				}
 				return VariableReferenceCheck_REDECLARED_VARIABLE

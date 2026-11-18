@@ -347,7 +347,7 @@ func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars *JTS
 		}
 		return qname[:dotIndex]
 	}()
-	var otherAliasVar *Var = cast_[*Var](cast_[*Scope](this.aliasVar.getScope()).getOwnSlot(rootName))
+	var otherAliasVar *Var = cast_[*Var](this.aliasVar.getScope().(*Scope).getOwnSlot(rootName))
 	return ((otherAliasVar != nil) && !deletedAliasVars.contains(otherAliasVar))
 }
 
@@ -835,7 +835,7 @@ func new_ScopedAliases_Traversal_1(outer_ *ScopedAliases_Traversal, cap_name str
 }
 
 func (this *ScopedAliases_Traversal_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (n.isName() && (n.getString() == this.cap_name)) && (cast_[*Var](t.getScope().getVar(this.cap_name).self()).getNode() == this.cap_fnName) {
+	if (n.isName() && (n.getString() == this.cap_name)) && (t.getScope().getVar(this.cap_name).self().(*Var).getNode() == this.cap_fnName) {
 		n.setString((sstr_(this.cap_name) + "$jscomp$scopedAliases$" + sstr_(this.cap_suffix)))
 		this.outer_.outer_.compiler_.reportChangeToEnclosingScope(n)
 	}

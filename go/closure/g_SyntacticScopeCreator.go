@@ -295,7 +295,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareImplicitGoogNamespaceFrom
 
 func SyntacticScopeCreator_ScopeScanner_isShadowingAllowed(name string, s *Scope) bool {
 	if s.isFunctionBlockScope() {
-		var maybeParam *Var = cast_[*Var](cast_[*Scope](s.getParent().self()).getOwnSlot(name))
+		var maybeParam *Var = cast_[*Var](s.getParent().self().(*Scope).getOwnSlot(name))
 		return ((maybeParam == nil) || !maybeParam.isParam())
 	}
 	return true

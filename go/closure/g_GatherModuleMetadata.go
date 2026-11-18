@@ -337,10 +337,10 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 		return
 	}
 	var root *Var = cast_[*Var](t.getScope().getVar("goog").self())
-	if ((root != nil) && root.isLocal()) && !cast_[*Scope](root.getScope()).isModuleScope() {
+	if ((root != nil) && root.isLocal()) && !root.getScope().(*Scope).isModuleScope() {
 		return
 	}
-	if ((root != nil) && cast_[*Scope](root.getScope()).isModuleScope()) && !this.isFromGoogImport(root) {
+	if ((root != nil) && root.getScope().(*Scope).isModuleScope()) && !this.isFromGoogImport(root) {
 		return
 	}
 	if (root == nil) || (NodeUtil_getEnclosingScript(root.getNameNode()) != NodeUtil_getEnclosingScript(n)) {

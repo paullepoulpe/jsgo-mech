@@ -43,7 +43,7 @@ func (this *JsMessageVisitor) init_JsMessageVisitor(compiler *AbstractCompiler, 
 }
 
 func (this *JsMessageVisitor) process_2_impl(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(this.self()))
+	NodeTraversal_traverse(this.compiler_, root, this.self().(NodeTraversal_Callback))
 	it_1 := this.googMsgNodes.each()
 	for it_1.next() {
 		var msgNode Node = it_1.v

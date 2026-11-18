@@ -595,7 +595,7 @@ func (this *JSTypeRegistry) resolveViaComponents(scope StaticScope, qualifiedNam
 
 func JSTypeRegistry_isNameDefinedLocally(resolutionScope StaticTypedScope, reference string) bool {
 	var slot StaticTypedSlot = icast_StaticTypedSlot(resolutionScope.getSlot(reference))
-	return (((slot != nil) && (icast_StaticTypedScope(slot.getScope()) != nil)) && (icast_StaticTypedScope(icast_StaticTypedScope(slot.getScope()).getParentScope()) != nil))
+	return (((slot != nil) && (icast_StaticTypedScope(slot.getScope()) != nil)) && (icast_StaticTypedScope(slot.getScope().(StaticTypedScope).getParentScope()) != nil))
 }
 
 func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType {

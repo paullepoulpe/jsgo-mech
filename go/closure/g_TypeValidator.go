@@ -492,7 +492,7 @@ func (this *TypeValidator) expectInterfaceProperty(n Node, instance *ObjectType,
 			if cast_[*Property](prop.getDeclaration()) == nil {
 				return 0
 			}
-			return cast_[*Property](prop.getDeclaration()).getNode()
+			return prop.getDeclaration().(*Property).getNode()
 		}()
 		propNode = func() Node {
 			if propNode == 0 {

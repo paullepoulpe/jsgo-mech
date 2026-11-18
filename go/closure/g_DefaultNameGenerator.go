@@ -54,7 +54,7 @@ func new_DefaultNameGenerator_Set_String_Set_Set(reservedNames SetOf[string], pr
 func (this *DefaultNameGenerator) init_DefaultNameGenerator_Set_String_Set_Set_Map(reservedNames *JTSet[string], prefix string, reservedFirstCharacters *JTSet[any], reservedNonFirstCharacters *JTSet[any], priorityLookupMap MapOf[BoxedOf[uint16], *DefaultNameGenerator_CharPriority]) {
 	this.priorityLookupMap = LinkedHashMap_as_Map(Maps_newLinkedHashMapWithExpectedSize(int32(len(DefaultNameGenerator_NONFIRST_CHAR))))
 	for entry := range elemsBy_(priorityLookupMap.entrySet(), icast_Map_Entry) {
-		this.priorityLookupMap.put(entry.getKey(), cast_[*DefaultNameGenerator_CharPriority](entry.getValue()).clone())
+		this.priorityLookupMap.put(entry.getKey(), entry.getValue().(*DefaultNameGenerator_CharPriority).clone())
 	}
 	this.reset_4(reservedNames.asSet(), prefix, reservedFirstCharacters, reservedNonFirstCharacters)
 }

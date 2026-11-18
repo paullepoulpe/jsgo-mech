@@ -55,7 +55,7 @@ func (this *RewriteAsyncIteration) process_2(externs Node, root Node) {
 	this.contextStack.push(RewriteAsyncIteration_LexicalContext_newGlobalContext(root))
 	TranspilationPasses_processTranspile(this.compiler_, root, RewriteAsyncIteration_transpiledFeatures, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, RewriteAsyncIteration_transpiledFeatures)
-	if cast_[*RewriteAsyncIteration_LexicalContext](SequencedCollection_getFirst(SequencedCollection(this.contextStack.asDeque()))).function != 0 {
+	if SequencedCollection_getFirst(SequencedCollection(this.contextStack.asDeque())).(*RewriteAsyncIteration_LexicalContext).function != 0 {
 		panic(new_IllegalStateException_0())
 	}
 	this.contextStack.pop()

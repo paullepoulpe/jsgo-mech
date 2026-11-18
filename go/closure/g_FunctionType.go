@@ -802,7 +802,7 @@ func (this *FunctionType) clearCachedValues_impl() {
 			this.getInstanceType().clearCachedValues()
 		}
 		if this.prototypeSlot != nil {
-			to_ObjectType(this.prototypeSlot.getType().self()).clearCachedValues()
+			this.prototypeSlot.getType().self().(ObjectType_as).as_ObjectType().clearCachedValues()
 		}
 	}
 }

@@ -204,7 +204,7 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 	}
 	switch module.metadata().moduleType() {
 	case ModuleMetadataMap_ModuleType_ES6_MODULE:
-		this.moduleImportResolver.updateEsModuleNamespaceType(cast_[*TypedVar](syntacticBlockScope.getVar(Export_NAMESPACE).self()).getType().toObjectType(), module, syntacticBlockScope)
+		this.moduleImportResolver.updateEsModuleNamespaceType(syntacticBlockScope.getVar(Export_NAMESPACE).self().(*TypedVar).getType().toObjectType(), module, syntacticBlockScope)
 		return
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 		var exportsVar *TypedVar = Preconditions_checkNotNull_Object_String_Object_T(cast_[*TypedVar](syntacticBlockScope.getVar("exports").self()), "Missing exports var for %s", module.metadata())
@@ -514,7 +514,7 @@ func (this *TypeInference) traverseSuper(superNode Node, currentScope FlowScope)
 		}
 	case tokOrd1_GETELEM, tokOrd1_GETPROP:
 		var currentSyntacticScope StaticTypedScope = currentScope.getDeclarationScope()
-		superNodeType = ObjectType_cast(icast_StaticTypedSlot(currentSyntacticScope.getSlot("super")).getType())
+		superNodeType = ObjectType_cast(currentSyntacticScope.getSlot("super").(StaticTypedSlot).getType())
 	default:
 		panic(new_IllegalStateException_String(("Unexpected parent of SUPER: " + sstr_(superNode.getParent().toStringTree()))))
 	}
@@ -884,7 +884,7 @@ func (this *TypeInference) traverseName(n Node, scope FlowScope) FlowScope {
 			var unflowable bool = (isInferred && this.isUnflowable(TypeInference_getDeclaredVar(scope, varName)))
 			var maybeOuterVar *TypedVar = func() *TypedVar {
 				if isInferred && this.containerScope.isLocal() {
-					return cast_[*TypedVar](cast_[*TypedScope](this.containerScope.getParent().self()).getVar(varName).self())
+					return cast_[*TypedVar](this.containerScope.getParent().self().(*TypedScope).getVar(varName).self())
 				}
 				return nil
 			}()
@@ -1471,7 +1471,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 	}
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forInference(this.registry, inferred)
 	var callTarget Node = n.getFirstChild()
-	var replacementFnType *FunctionType = to_JSType(fnType.visit(TemplateTypeReplacer_as_Visitor(replacer))).toMaybeFunctionType()
+	var replacementFnType *FunctionType = fnType.visit(TemplateTypeReplacer_as_Visitor(replacer)).(JSType_as).as_JSType().toMaybeFunctionType()
 	Preconditions_checkNotNull_T(replacementFnType)
 	callTarget.setJSType(replacementFnType.up_JSType())
 	n.setJSType(replacementFnType.getReturnType())
@@ -1921,7 +1921,7 @@ func (this *TypeInference) redeclareSimpleVar(scope FlowScope, nameNode Node, va
 }
 
 func (this *TypeInference) isUnflowable(v *TypedVar) bool {
-	return ((((v != nil) && v.isLocal()) && v.isMarkedEscaped()) && (cast_[*TypedScope](cast_[*TypedScope](v.getScope()).getClosestContainerScope().self()) == this.containerScope))
+	return ((((v != nil) && v.isLocal()) && v.isMarkedEscaped()) && (cast_[*TypedScope](v.getScope().(*TypedScope).getClosestContainerScope().self()) == this.containerScope))
 }
 
 func (this *TypeInference) getJSType(n Node) *JSType {
@@ -1938,7 +1938,7 @@ func (this *TypeInference) getNativeType(typeId JSTypeNative) *JSType {
 }
 
 func TypeInference_getDeclaredVar(scope FlowScope, name string) *TypedVar {
-	return cast_[*TypedVar](cast_[*TypedScope](scope.getDeclarationScope()).getVar(name).self())
+	return cast_[*TypedVar](scope.getDeclarationScope().(*TypedScope).getVar(name).self())
 }
 
 var TypeInference_REASSIGN_CLASS_PROTOTYPE *DiagnosticType

@@ -336,7 +336,7 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 	var cfgNode DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](Preconditions_checkNotNull_T(to_LinkedDirectedGraph_LinkedDiGraphNode[Node, ControlFlowGraph_Branch](cfg.getNode(letNode))).self())
 	var state *DataFlowAnalysis_LinearFlowState[any] = Preconditions_checkNotNull_T(cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(cfgNode))))
 	var varIndex int32 = this.liveness.getVarIndex(originalVar.getName())
-	return ((varIndex >= 0) && cast_[*LiveVariablesAnalysis_LiveVariableLattice](state.getOut()).isLive(varIndex))
+	return ((varIndex >= 0) && state.getOut().(*LiveVariablesAnalysis_LiveVariableLattice).isLive(varIndex))
 }
 
 type CoalesceVariableNames_LiveRangeChecker struct {
@@ -392,7 +392,7 @@ func (this *CoalesceVariableNames_LiveRangeChecker) visit(n Node, parent Node) {
 	}
 	if !this.isAssignToList.isEmpty() {
 		for iVar := int32(0); iVar < int32(len(this.orderedVariables)); iVar++ {
-			var varOutLive bool = cast_[*LiveVariablesAnalysis_LiveVariableLattice](this.state.getOut()).isLive(iVar)
+			var varOutLive bool = this.state.getOut().(*LiveVariablesAnalysis_LiveVariableLattice).isLive(iVar)
 			if varOutLive || CoalesceVariableNames_LiveRangeChecker_isReadFrom(this.orderedVariables[iVar], n) {
 				this.isReadFromList.add(any(int32(iVar)))
 			}

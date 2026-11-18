@@ -1050,7 +1050,7 @@ func (this *RemoveUnusedCode) maybeRemoveUnusedTrailingParameters(argList Node, 
 func (this *RemoveUnusedCode) traverseVar(var_ *Var) RemoveUnusedCode_VarInfo {
 	Preconditions_checkNotNull_T(var_)
 	if this.removeLocalVars_ && var_.isArguments() {
-		var functionScope *Scope = cast_[*Scope](cast_[*Scope](var_.getScope()).getClosestHoistScope().self())
+		var functionScope *Scope = cast_[*Scope](var_.getScope().(*Scope).getClosestHoistScope().self())
 		var paramList Node = NodeUtil_getFunctionParameters(functionScope.getRootNode())
 		{
 			var param Node = paramList.getFirstChild()

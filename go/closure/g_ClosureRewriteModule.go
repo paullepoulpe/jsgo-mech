@@ -650,7 +650,7 @@ func (this *ClosureRewriteModule) maybeUpdateTopLevelName(t *NodeTraversal, name
 		return
 	}
 	var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
-	if (var_ == nil) || (cast_[*Scope](var_.getScope()).getRootNode() != this.currentScript.rootNode_) {
+	if (var_ == nil) || (var_.getScope().(*Scope).getRootNode() != this.currentScript.rootNode_) {
 		return
 	}
 	if ((var_.getNameNode() == nameNode) && nameNode.getParent().isStringKey()) && nameNode.getGrandparent().isObjectPattern() {
@@ -672,7 +672,7 @@ func (this *ClosureRewriteModule) maybeUpdateTopLevelName(t *NodeTraversal, name
 		if strings.Contains(namespaceToInline, ".") {
 			var firstQualifiedName string = namespaceToInline[:strings.IndexByte(namespaceToInline, '.')]
 			var shadowedVar *Var = cast_[*Var](t.getScope().getVar(firstQualifiedName).self())
-			if ((shadowedVar == nil) || shadowedVar.isGlobal()) || cast_[*Scope](shadowedVar.getScope()).isModuleScope() {
+			if ((shadowedVar == nil) || shadowedVar.isGlobal()) || shadowedVar.getScope().(*Scope).isModuleScope() {
 				return
 			}
 			t.report(shadowedVar.getNode(), ClosureRewriteModule_IMPORT_INLINING_SHADOWS_VAR, []string{shadowedVar.getName(), namespaceToInline})
@@ -1101,7 +1101,7 @@ func (this *ClosureRewriteModule) declareGlobalVariable(n Node, t *NodeTraversal
 	}
 	var name string = n.getString()
 	if this.globalTypedScope.hasOwnSlot(name) {
-		var original Node = cast_[*TypedVar](this.globalTypedScope.getOwnSlot(name)).getNode()
+		var original Node = this.globalTypedScope.getOwnSlot(name).(*TypedVar).getNode()
 		t.report(t.getCurrentScript(), ClosureRewriteModule_ILLEGAL_MODULE_RENAMING_CONFLICT, []string{name, func() string {
 			if original != 0 {
 				return original.toString()
@@ -1745,7 +1745,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) visit(typeRefNode Node) {
 		return typeName[:dot]
 	}()
 	var rootVar *Var = cast_[*Var](this.scope_.getVar(rootOfType).self())
-	if ((rootVar != nil) && !cast_[*Scope](cast_[*Scope](rootVar.getScope()).getClosestHoistScope().self()).isGlobal()) && !cast_[*Scope](rootVar.getScope()).isModuleScope() {
+	if ((rootVar != nil) && !rootVar.getScope().(*Scope).getClosestHoistScope().self().(*Scope).isGlobal()) && !rootVar.getScope().(*Scope).isModuleScope() {
 		return
 	}
 	if this.outer_.currentScript.namesToInlineByAlias.containsKey(rootOfType) {

@@ -675,7 +675,7 @@ func (this *JSDocInfo) getMarkers() CollectionOf[*JSDocInfo_Marker] {
 	var markers ArrayListOf[*JSDocInfo_Marker] = to_ArrayList(JSDocInfo_MARKERS.get(this))
 	return func() Collection {
 		if markers != nil {
-			return icast_Collection(markers.self())
+			return markers.self().(Collection)
 		}
 		return ImmutableList_as_Collection(ImmutableList_of())
 	}()
@@ -975,7 +975,7 @@ func (this *JSDocInfo_Property) clone_impl(arg any, unusedTransform func(*JSType
 }
 
 func (this *JSDocInfo_Property) isDefault(value any) bool {
-	return ((((value == nil) || (value == obj_(JSDocInfo_Visibility_INHERITED))) || (is_[Collection](value) && icast_Collection(value).isEmpty())) || (is_[Map](value) && icast_Map(value).isEmpty()))
+	return ((((value == nil) || (value == obj_(JSDocInfo_Visibility_INHERITED))) || (is_[Collection](value) && value.(Collection).isEmpty())) || (is_[Map](value) && value.(Map).isEmpty()))
 }
 
 func (this *JSDocInfo_Property) equalValues_impl(left any, right any) bool {
@@ -1147,7 +1147,7 @@ func (this *JSDocInfo_TypeListProperty) getUnmodifiable(info *JSDocInfo) ListOf[
 	var value ArrayListOf[*JSTypeExpression] = to_ArrayList(this.get(info))
 	return func() List {
 		if value != nil {
-			return Collections_unmodifiableList(icast_List(value.self()))
+			return Collections_unmodifiableList(value.self().(List))
 		}
 		return ImmutableList_as_List(ImmutableList_of())
 	}()

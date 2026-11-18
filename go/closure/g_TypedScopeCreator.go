@@ -646,7 +646,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getModule() *Module {
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) build() {
 	this.initializeModuleScope(this.currentScope.getRootNode())
-	NodeTraversal_builder().setCompiler(this.outer_.compiler_).setCallback(icast_NodeTraversal_Callback(this.self())).setScopeCreator(ScopeCreator_ASSERT_NO_SCOPES_CREATED).traverseAtScope(this.currentScope.up_AbstractScope())
+	NodeTraversal_builder().setCompiler(this.outer_.compiler_).setCallback(this.self().(NodeTraversal_Callback)).setScopeCreator(ScopeCreator_ASSERT_NO_SCOPES_CREATED).traverseAtScope(this.currentScope.up_AbstractScope())
 	this.finishDeclaringGoogModule()
 }
 
@@ -1027,7 +1027,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) inferTypeForDestructuredTarg
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineDestructuringPatternInVarDeclaration(pattern Node, scope *TypedScope, patternTypeSupplier func() any) {
 	it_1 := DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(this.outer_.typeRegistry, func() any {
-		return cast_[*TypedScopeCreator_RValueInfo](patternTypeSupplier()).type__.self()
+		return patternTypeSupplier().(*TypedScopeCreator_RValueInfo).type__.self()
 	}, pattern).each()
 	for it_1.next() {
 		var target *DestructuredTarget = it_1.v
@@ -1728,7 +1728,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredRValueType(lValue
 	}
 	if rValue.isCall() && rValue.getFirstChild().matchesName("Symbol") {
 		var symbolVar *TypedVar = cast_[*TypedVar](this.currentScope.getVar("Symbol").self())
-		if (symbolVar != nil) && cast_[*TypedScope](symbolVar.getScope()).isGlobal() {
+		if (symbolVar != nil) && symbolVar.getScope().(*TypedScope).isGlobal() {
 			return this.outer_.typeRegistry.getNativeType(JSTypeNative_SYMBOL_TYPE)
 		}
 	}
@@ -2364,7 +2364,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareNamesInPositionalPara
 			if argumentName == "" || (cast_[*TypedScope](this.currentScope.getParent().self()) == nil) {
 				return nil
 			}
-			return cast_[*TypedVar](cast_[*TypedScope](this.currentScope.getParent().self()).getVar(argumentName).self())
+			return cast_[*TypedVar](this.currentScope.getParent().self().(*TypedScope).getVar(argumentName).self())
 		}()
 		if (argumentVar != nil) && !argumentVar.isTypeInferred() {
 			paramType = argumentVar.getType()
