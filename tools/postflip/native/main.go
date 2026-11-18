@@ -723,7 +723,7 @@ func isImmFrom(call *ast.CallExpr, n string) (imm, from bool) {
 	return false, false
 }
 
-// uncast strips cast_[*ImmutableList](obj_(x)) of an x that already is one (kind imm).
+// uncast strips cast_[*ErasedImmutableList](obj_(x)) of an x that already is one (kind imm).
 func uncast(e ast.Expr) ast.Expr {
 	e = rw.Unparen(e)
 	if kind != "imm" {
@@ -735,7 +735,7 @@ func uncast(e ast.Expr) ast.Expr {
 			return e
 		}
 		n, _ := rw.CallName(c)
-		if n != "cast_[*ImmutableList]" && n != "cast_[*ImmutableCollection]" {
+		if n != "cast_[*ErasedImmutableList]" && n != "cast_[*ImmutableCollection]" {
 			return e
 		}
 		in, ok := rw.Unparen(c.Args[0]).(*ast.CallExpr)

@@ -97,8 +97,8 @@ func (this *TypeTransformation) reportWarning(n Node, msg *DiagnosticType, param
 	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, msg, param))
 }
 
-func (this *TypeTransformation) addNewEntry(map_ ImmutableMapOf[string, any], name string, type_ any) ImmutableMapOf[string, any] {
-	return new_ImmutableMap_Builder().putAll(ImmutableMap_as_Map(map_)).put(strobj_(name), type_).buildOrThrow()
+func (this *TypeTransformation) addNewEntry(map_ ImmutableMapOf[string, any], name string, type_ any) *ImmutableMap[string, any] {
+	return tmapFrom_(tc_string, tc_any, new_ImmutableMap_Builder().putAll(ImmutableMap_as_Map(map_)).put(strobj_(name), type_).buildOrThrow(), true)
 }
 
 func (this *TypeTransformation) getFunctionParameter(n Node, i int32) string {
@@ -438,7 +438,7 @@ func (this *TypeTransformation) evalMapunion(ttlAst Node, nameResolver *TypeTran
 	var mapFunctionBody Node = NodeUtil_getFunctionBody(mapFunction)
 	var unionType *JSType = this.evalInternal(unionParam, nameResolver)
 	if !unionType.isUnionType() {
-		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(jtc_string, jtc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramName, unionType.self())), nameResolver.nameVars)
+		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(jtc_string, jtc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramName, unionType.self()).asImm()), nameResolver.nameVars)
 		return this.evalInternal(mapFunctionBody, newNameResolver)
 	}
 	var unionElms *JTList[*JSType] = jimmutableListCopyOf_(jtc_p_JSType, unionType.getUnionMembers())
@@ -448,7 +448,7 @@ func (this *TypeTransformation) evalMapunion(ttlAst Node, nameResolver *TypeTran
 	it_1 := unionElms.each()
 	for it_1.next() {
 		var elm *JSType = it_1.v
-		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(jtc_string, jtc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramName, elm.self())), nameResolver.nameVars)
+		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(jtc_string, jtc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramName, elm.self()).asImm()), nameResolver.nameVars)
 		newUnionElms[i] = this.evalInternal(mapFunctionBody, newNameResolver)
 		i++
 	}
@@ -580,7 +580,7 @@ func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTra
 	for it_1.next() {
 		var propName string = str_(it_1.v)
 		var propValue *JSType = objtype.getPropertyType(propName)
-		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(jtc_string, jtc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramValue, propValue.self())), tmapImm_(jtc_string, jtc_string, this.addNewEntry(nameResolver.nameVars.asImm(), paramKey, strobj_(propName))))
+		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(jtc_string, jtc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramValue, propValue.self()).asImm()), tmapImm_(jtc_string, jtc_string, this.addNewEntry(nameResolver.nameVars.asImm(), paramKey, strobj_(propName)).asImm()))
 		var body *JSType = this.evalInternal(mapFnBody, newNameResolver)
 		if body.isUnknownType() {
 			return this.getUnknownType()

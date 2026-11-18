@@ -228,7 +228,7 @@ func RegExpTree_clinit() {
 	RegExpTree_SPACE_CHARS = CharRanges_withMembers([]int32{9, 10, 11, 12, 13, 32, 160, 5760, 6158, 8192, 8193, 8194, 8195, 8196, 8197, 8198, 8199, 8200, 8201, 8202, 8232, 8233, 8239, 8287, 12288, 65279})
 	RegExpTree_IE_SPACE_CHARS = CharRanges_withMembers([]int32{9, 10, 11, 12, 13, 32})
 	RegExpTree_IE_SPEC_ERRORS = RegExpTree_SPACE_CHARS.difference(RegExpTree_IE_SPACE_CHARS)
-	RegExpTree_NAMED_CHAR_GROUPS = tmapImm_(tc_Character, jtc_p_CharRanges, ImmutableMap_builder().put(any(uint16('d')), obj_(RegExpTree_DIGITS)).put(any(uint16('D')), obj_(CharRanges_ALL_CODE_UNITS.difference(RegExpTree_DIGITS))).put(any(uint16('s')), obj_(RegExpTree_SPACE_CHARS)).put(any(uint16('S')), obj_(CharRanges_ALL_CODE_UNITS.difference(RegExpTree_SPACE_CHARS))).put(any(uint16('w')), obj_(RegExpTree_WORD_CHARS)).put(any(uint16('W')), obj_(RegExpTree_INVERSE_WORD_CHARS)).buildOrThrow())
+	RegExpTree_NAMED_CHAR_GROUPS = tmapImm_(tc_Character, jtc_p_CharRanges, immutableMapBuilder_(tc_uint16, tc_p_CharRanges).put(uint16('d'), RegExpTree_DIGITS).put(uint16('D'), CharRanges_ALL_CODE_UNITS.difference(RegExpTree_DIGITS)).put(uint16('s'), RegExpTree_SPACE_CHARS).put(uint16('S'), CharRanges_ALL_CODE_UNITS.difference(RegExpTree_SPACE_CHARS)).put(uint16('w'), RegExpTree_WORD_CHARS).put(uint16('W'), RegExpTree_INVERSE_WORD_CHARS).buildOrThrowErased())
 	RegExpTree_DOT_CHARSET = new_RegExpTree_Charset(CharRanges_ALL_CODE_UNITS.difference(CharRanges_withMembers([]int32{10, 13, 8232, 8233})), CharRanges_EMPTY)
 
 }
