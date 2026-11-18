@@ -30,9 +30,7 @@ func FixedPointGraphTraversal_newReverseTraversal[NodeT comparable, EdgeT compar
 
 func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint(graph *DiGraph[N]) {
 	var nodes *JTSet[N] = jnewTSet_(tceT_[N]())
-	it_1 := foreach_(graph.getNodes())
-	for it_1.next() {
-		var node DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](it_1.v)
+	for node := range elemsAs_[DiGraph_DiGraphNode[N]](graph.getNodes()) {
 		nodes.add(node.getValue())
 	}
 	this.computeFixedPointSet(graph, nodes.asSet())
@@ -49,9 +47,8 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph[
 	var nodeCount int64 = Math_min_long_long(int64(graph.getNodeCount()), FixedPointGraphTraversal_MAX_NODE_COUNT_FOR_ITERATION_LIMIT)
 	var maxIterations int64 = Math_max_long_long(((nodeCount * nodeCount) * nodeCount), 100)
 	var workSet LinkedHashSetOf[DiGraph_DiGraphNode[N]] = new_LinkedHashSet()
-	it_1 := foreach_(entrySet)
-	for it_1.next() {
-		var n N = junboxT_[N](it_1.v)
+	for el_1 := range elems_(entrySet) {
+		var n N = junboxT_[N](el_1)
 		workSet.add(graph.getNode(n))
 	}
 	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
@@ -67,9 +64,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 	switch this.traversalDirection {
 	case FixedPointGraphTraversal_TraversalDirection_OUTWARDS:
 		var sourceValue N = node.getValue()
-		it_2 := foreach_(node.getOutEdges())
-		for it_2.next() {
-			var edge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_2.v)
+		for edge := range elemsAs_[DiGraph_DiGraphEdge[N]](node.getOutEdges()) {
 			var destValue N = edge.getDestination().getValue()
 			if this.callback.traverseEdge(sourceValue, junboxT_[E](edge.getValue()), destValue) {
 				workSet.add(edge.getDestination())
@@ -78,9 +73,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 		return
 	case FixedPointGraphTraversal_TraversalDirection_INWARDS:
 		var revSourceValue N = node.getValue()
-		it_4 := foreach_(node.getInEdges())
-		for it_4.next() {
-			var edge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_4.v)
+		for edge := range elemsAs_[DiGraph_DiGraphEdge[N]](node.getInEdges()) {
 			var revDestValue N = edge.getSource().getValue()
 			if this.callback.traverseEdge(revSourceValue, junboxT_[E](edge.getValue()), revDestValue) {
 				workSet.add(edge.getSource())

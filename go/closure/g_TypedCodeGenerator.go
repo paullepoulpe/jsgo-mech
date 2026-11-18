@@ -203,9 +203,7 @@ func (this *TypedCodeGenerator) appendTemplateAnnotations(sb *StringBuilder, typ
 	if !typeParams.isEmpty() {
 		sb.append(" * @template ")
 		var formattedTypeParams *JTList[string] = jnewTList_(jtc_string)
-		it_1 := foreach_(typeParams)
-		for it_1.next() {
-			var typeParam *JSType = to_JSType(it_1.v)
+		for typeParam := range elemsBy_(typeParams, to_JSType) {
 			formattedTypeParams.add(this.formatTypeVar(typeParam))
 		}
 		sb.append(JString_join_s(",", Iterable(formattedTypeParams.asList())))
@@ -258,9 +256,7 @@ func (this *TypedCodeGenerator) appendClassAnnotations(sb *StringBuilder, funTyp
 		}
 	}
 	var interfaces *JTSet[string] = newTSortedSet_(jtc_string)
-	it_1 := foreach_(funType.getAncestorInterfaces())
-	for it_1.next() {
-		var interfaze *ObjectType = to_ObjectType(it_1.v)
+	for interfaze := range elemsBy_(funType.getAncestorInterfaces(), to_ObjectType) {
 		interfaces.add(interfaze.toAnnotationString(JSType_Nullability_IMPLICIT))
 	}
 	it_3 := interfaces.each()
@@ -274,9 +270,7 @@ func (this *TypedCodeGenerator) appendClassAnnotations(sb *StringBuilder, funTyp
 
 func (this *TypedCodeGenerator) appendInterfaceAnnotations(sb *StringBuilder, funType *FunctionType) {
 	var interfaces *JTSet[string] = newTSortedSet_(jtc_string)
-	it_1 := foreach_(funType.getAncestorInterfaces())
-	for it_1.next() {
-		var interfaceType *ObjectType = to_ObjectType(it_1.v)
+	for interfaceType := range elemsBy_(funType.getAncestorInterfaces(), to_ObjectType) {
 		interfaces.add(interfaceType.toAnnotationString(JSType_Nullability_IMPLICIT))
 	}
 	it_3 := interfaces.each()

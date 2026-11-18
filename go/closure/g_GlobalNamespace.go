@@ -1230,9 +1230,7 @@ func (this *GlobalNamespace_Name) getParent() *GlobalNamespace_Name {
 
 func (this *GlobalNamespace_Name) getDeepestCommonAncestorChunk(chunkGraph *JSChunkGraph) *JSChunk {
 	var commonAncestor *JSChunk = cast_[*GlobalNamespace_Ref](this.getDeclaration()).getChunk()
-	it_1 := foreach_(this.getRefs())
-	for it_1.next() {
-		var r *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
+	for r := range elemsAs_[*GlobalNamespace_Ref](this.getRefs()) {
 		var rChunk *JSChunk = r.getChunk()
 		commonAncestor = chunkGraph.getDeepestCommonDependencyInclusive_2(rChunk, commonAncestor)
 	}
@@ -1422,9 +1420,7 @@ func (this *GlobalNamespace_Name) removeRef(ref *GlobalNamespace_Ref) {
 func (this *GlobalNamespace_Name) removeRefAndUpdateState(ref *GlobalNamespace_Ref) {
 	if ref == this.declaration_ {
 		this.declaration_ = nil
-		it_1 := foreach_(this.getRefs())
-		for it_1.next() {
-			var maybeNewDecl *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
+		for maybeNewDecl := range elemsAs_[*GlobalNamespace_Ref](this.getRefs()) {
 			if maybeNewDecl.type__ == GlobalNamespace_Ref_Type_SET_FROM_GLOBAL {
 				this.declaration_ = maybeNewDecl
 				break

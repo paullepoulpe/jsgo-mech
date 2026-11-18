@@ -414,9 +414,7 @@ func (this *PotentialDeclaration_NameDeclaration) breakDownDestructure_impl(comp
 	var prev Node = 0
 	var lhsNodes []Node = []Node{}
 	NodeUtil_visitLhsNodesInNode(rootTarget.getParent(), (&Consumer_tfn_Node{func(p0 Node) { lhsNodes = append(lhsNodes, p0) }}).accept)
-	it_1 := eachOf_(&lhsNodes)
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range sliceAll_(&lhsNodes) {
 		n.detach()
 		var temp Node = IR_var_Node(n)
 		if prev == 0 {

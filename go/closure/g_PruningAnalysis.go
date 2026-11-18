@@ -43,9 +43,7 @@ func (this *PruningAnalysis) calculateBottlenecks() *JTMap[string, any] {
 	var graph *DiGraph[string] = this.buildGraph()
 	var dominatorTree *DominatorTree[string] = DominatorTree_compute[string](graph, PruningAnalysis_VIRTUAL_ROOT)
 	var bottleneckBlame *JTMap[string, any] = jnewTMap_(jtc_string, tc_Integer)
-	it_1 := foreach_(obj_(cast_[*ImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(obj_(cast_[*ImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())), icast_Map_Entry) {
 		var node string = str_(entry.getKey())
 		var retainedCount int32 = unbox_[int32](entry.getValue())
 		if !(node == PruningAnalysis_VIRTUAL_ROOT) && (retainedCount > 1) {
@@ -67,9 +65,7 @@ func (this *PruningAnalysis) calculateBottlenecks() *JTMap[string, any] {
 func (this *PruningAnalysis) buildGraph() *DiGraph[string] {
 	var graph *DiGraph[string] = LinkedDirectedGraph_create[string, string]().up_DiGraph()
 	graph.createNode(PruningAnalysis_VIRTUAL_ROOT)
-	it_1 := foreach_(this.sorter_.getSortedList())
-	for it_1.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
+	for input := range elemsAs_[*CompilerInput](this.sorter_.getSortedList()) {
 		graph.createNode(input.getName())
 	}
 	it_3 := this.entryPoints_.each()
@@ -77,14 +73,10 @@ func (this *PruningAnalysis) buildGraph() *DiGraph[string] {
 		var input *CompilerInput = it_3.v
 		graph.connect(PruningAnalysis_VIRTUAL_ROOT, nil, input.getName())
 	}
-	it_5 := foreach_(this.sorter_.getSortedList())
-	for it_5.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_5.v)
+	for input := range elemsAs_[*CompilerInput](this.sorter_.getSortedList()) {
 		var name string = input.getName()
 		var depSymbols *JTSet[string] = jnewTSet_(jtc_string)
-		it_7 := foreach_(obj_(input.getRequires()))
-		for it_7.next() {
-			var req *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_7.v)
+		for req := range elemsAs_[*DependencyInfo_Require](obj_(input.getRequires())) {
 			depSymbols.add(req.getSymbol())
 		}
 		depSymbols.asSet().addAll(ImmutableList_as_Collection(input.getTypeRequires()))

@@ -278,18 +278,14 @@ func (this *SymbolTable) getSymbolForTypeHelper(type_ *JSType, linkToCtor bool) 
 
 func (this *SymbolTable) toDebugStringTree() string {
 	var childrenScopesBuilder *SimpleListMultimap = SimpleListMultimap_create()
-	it_1 := foreach_(this.getAllScopes())
-	for it_1.next() {
-		var scope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_1.v)
+	for scope := range elemsAs_[*SymbolTable_SymbolScope](this.getAllScopes()) {
 		if scope.getParentScope() != nil {
 			childrenScopesBuilder.put(obj_(scope.getParentScope()), obj_(scope))
 		}
 	}
 	var childrenScopes *SimpleListMultimap = childrenScopesBuilder.immutableCopy()
 	var builder *StringBuilder = new_StringBuilder()
-	it_3 := foreach_(this.getAllScopes())
-	for it_3.next() {
-		var scope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_3.v)
+	for scope := range elemsAs_[*SymbolTable_SymbolScope](this.getAllScopes()) {
 		if scope.getParentScope() == nil {
 			this.toDebugStringTree_4(builder, "", scope, childrenScopes)
 		}
@@ -323,9 +319,7 @@ func (this *SymbolTable) toDebugStringTree_4(builder *StringBuilder, prefix stri
 	if childrenScopes.containsKey(obj_(scope)) {
 		printedSomething = true
 		cast_[*StringBuilder](builder.append_char('\n')).append(prefix).append("  Scopes:\n")
-		it_3 := foreach_(childrenScopes.get(obj_(scope)))
-		for it_3.next() {
-			var childScope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_3.v)
+		for childScope := range elemsAs_[*SymbolTable_SymbolScope](childrenScopes.get(obj_(scope))) {
 			this.toDebugStringTree_4(builder, childrenPrefix, childScope, childrenScopes)
 		}
 	}
@@ -352,9 +346,7 @@ func (this *SymbolTable) toDebugString_4(builder *StringBuilder, prefix string, 
 	}
 	builder.append_char('\n')
 	var refCount int32 = 0
-	it_1 := foreach_(this.getReferences(symbol))
-	for it_1.next() {
-		var ref *SymbolTable_Reference = cast_[*SymbolTable_Reference](it_1.v)
+	for ref := range elemsAs_[*SymbolTable_Reference](this.getReferences(symbol)) {
 		var node Node = ref.getNode()
 		builder.append(prefix).append(String_format("  Ref %d: %s line: %d col: %d len: %d %s\n", []any{any(int32(refCount)), strobj_(node.getSourceFileName()), any(int32(node.getLineno())), any(int32(node.getCharno())), any(int32(node.getLength())), func() any {
 			if node.isIndexable() {
@@ -367,9 +359,7 @@ func (this *SymbolTable) toDebugString_4(builder *StringBuilder, prefix string, 
 }
 
 func (this *SymbolTable) addScopes(scopes CollectionOf[any]) {
-	it_1 := foreach_(scopes)
-	for it_1.next() {
-		var scope StaticScope = icast_StaticScope(it_1.v)
+	for scope := range elemsBy_(scopes, icast_StaticScope) {
 		this.createScopeFrom(scope)
 	}
 }
@@ -384,9 +374,7 @@ func (this *SymbolTable) getAllScopes() CollectionOf[*SymbolTable_SymbolScope] {
 
 func (this *SymbolTable) addAnonymousFunctions() {
 	var scopes *JTSet[*SymbolTable_SymbolScope] = newTSortedSetC_(jtc_p_SymbolTable_SymbolScope, icast_Comparator(this.lexicalScopeOrdering.self()))
-	it_1 := foreach_(this.getAllScopes())
-	for it_1.next() {
-		var scope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_1.v)
+	for scope := range elemsAs_[*SymbolTable_SymbolScope](this.getAllScopes()) {
 		if scope.isLexicalScope() {
 			scopes.add(scope)
 		}
@@ -422,9 +410,8 @@ func SymbolTable_addSymbolsFrom[S interface {
 	StaticRef
 	comparable
 }](this *SymbolTable, otherSymbolTable StaticSymbolTable[S, R]) {
-	it_1 := foreach_(otherSymbolTable.getAllSymbols())
-	for it_1.next() {
-		var otherSymbol S = junboxT_[S](it_1.v)
+	for el_1 := range elems_(otherSymbolTable.getAllSymbols()) {
+		var otherSymbol S = junboxT_[S](el_1)
 		var name string = otherSymbol.getName()
 		var myScope *SymbolTable_SymbolScope = this.createScopeFrom(otherSymbolTable.getScope(otherSymbol))
 		var decl StaticRef = SymbolTable_findBestDeclToAdd[S, R](this, otherSymbolTable, otherSymbol)
@@ -439,9 +426,8 @@ func SymbolTable_addSymbolsFrom[S interface {
 			mySymbol = myScope.getOwnSlot(name)
 		}
 		if mySymbol != nil {
-			it_3 := foreach_(otherSymbolTable.getReferences_StaticSlot(otherSymbol))
-			for it_3.next() {
-				var otherRef R = junboxT_[R](it_3.v)
+			for el_3 := range elems_(otherSymbolTable.getReferences_StaticSlot(otherSymbol)) {
+				var otherRef R = junboxT_[R](el_3)
 				if this.isGoodRefToAdd(icast_StaticRef(boxT_(otherRef))) {
 					mySymbol.defineReferenceAt(otherRef.getNode())
 				}
@@ -537,9 +523,7 @@ func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 		panic(new_IllegalStateException_String(("Symbol not found in table " + jtostr_(s))).self())
 	}
 	if (s.propertyScope != nil) && s.equals(obj_(s.propertyScope.getSymbolForScope())) {
-		it_1 := foreach_(obj_(ImmutableList_copyOf(s.propertyScope.ownSymbols.asMap().values())))
-		for it_1.next() {
-			var childSymbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_1.v)
+		for childSymbol := range elemsAs_[*SymbolTable_Symbol](obj_(ImmutableList_copyOf(s.propertyScope.ownSymbols.asMap().values()))) {
 			this.removeSymbol(childSymbol)
 		}
 		this.scopes.remove(s.getDeclarationNode())
@@ -570,9 +554,7 @@ func (this *SymbolTable) fillNamespaceReferences() {
 		if root == nil {
 			continue
 		}
-		it_3 := foreach_(this.getReferences(symbol))
-		for it_3.next() {
-			var ref *SymbolTable_Reference = cast_[*SymbolTable_Reference](it_3.v)
+		for ref := range elemsAs_[*SymbolTable_Reference](this.getReferences(symbol)) {
 			var currentNode Node = ref.getNode()
 			if !currentNode.isQualifiedName() {
 				continue
@@ -622,9 +604,7 @@ func (this *SymbolTable) fillPropertyScopes() {
 	}
 	Collections_sort_List_Comparator(types.asList(), icast_Comparator(this.getNaturalSymbolOrdering().reverse().self()))
 	var allTypes IterableOf[*SymbolTable_Symbol] = Iterables_concat(Iterable(types.asList()), Iterable(exports.asList()))
-	it_3 := foreach_(allTypes)
-	for it_3.next() {
-		var s *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_3.v)
+	for s := range elemsAs_[*SymbolTable_Symbol](allTypes) {
 		var type_ *JSType = this.getType(SymbolTable_Symbol_as_StaticSlot(s))
 		var symbolForType *SymbolTable_Symbol = this.getSymbolForTypeHelper(type_, false)
 		if ((type_.isNominalConstructorOrInterface() || type_.isFunctionPrototypeType()) || type_.isEnumType()) && !s.equals(obj_(symbolForType)) {
@@ -632,17 +612,13 @@ func (this *SymbolTable) fillPropertyScopes() {
 		}
 		this.symbolThatDeclaresType.put(type_, s)
 	}
-	it_5 := foreach_(allTypes)
-	for it_5.next() {
-		var s *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_5.v)
+	for s := range elemsAs_[*SymbolTable_Symbol](allTypes) {
 		var type_ *JSType = this.getType(SymbolTable_Symbol_as_StaticSlot(s))
 		if (type_ == nil) || s.equals(obj_(this.symbolThatDeclaresType.get(type_))) {
 			this.createPropertyScopeFor(s)
 		}
 	}
-	it_7 := foreach_(allTypes)
-	for it_7.next() {
-		var s *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_7.v)
+	for s := range elemsAs_[*SymbolTable_Symbol](allTypes) {
 		var type_ *JSType = this.getType(SymbolTable_Symbol_as_StaticSlot(s))
 		if (type_ != nil) && (this.symbolThatDeclaresType.get(type_) != nil) {
 			s.propertyScope = this.symbolThatDeclaresType.get(type_).getPropertyScope()
@@ -710,9 +686,7 @@ func (this *SymbolTable) fillJSDocInfo(externs Node, root Node) {
 		if info == nil {
 			continue
 		}
-		it_3 := foreach_(info.getMarkers())
-		for it_3.next() {
-			var marker *JSDocInfo_Marker = cast_[*JSDocInfo_Marker](it_3.v)
+		for marker := range elemsAs_[*JSDocInfo_Marker](info.getMarkers()) {
 			var pos *SourcePosition_rhino = marker.getNameNode().up_SourcePosition_rhino()
 			if pos == nil {
 				continue
@@ -775,9 +749,7 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 			propNames = Iterables_concat(propNames, Iterable(instanceType.getOwnPropertyNames()))
 		}
 	}
-	it_1 := foreach_(propNames)
-	for it_1.next() {
-		var propName string = str_(it_1.v)
+	for propName := range elemsBy_(propNames, str_) {
 		var newProp StaticSlot = Property_as_StaticSlot(instanceType.getSlotString(propName))
 		if newProp.getDeclaration() == nil {
 			continue
@@ -874,9 +846,7 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 		if !n.getFirstChild().isObjectPattern() {
 			panic(new_IllegalStateException_0().self())
 		}
-		it_2 := foreach_(n.getFirstChild().children())
-		for it_2.next() {
-			var stringKey Node = Node_of_(it_2.v)
+		for stringKey := range elemsBy_(n.getFirstChild().children(), Node_of_) {
 			if !stringKey.isStringKey() {
 				panic(new_IllegalStateException_0().self())
 			}
@@ -917,15 +887,11 @@ func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) 
 }
 
 func (this *SymbolTable) flattenGoogModuleExports() {
-	it_1 := foreach_(this.getAllScopes())
-	for it_1.next() {
-		var moduleScope *SymbolTable_SymbolScope = cast_[*SymbolTable_SymbolScope](it_1.v)
+	for moduleScope := range elemsAs_[*SymbolTable_SymbolScope](this.getAllScopes()) {
 		if !moduleScope.isModuleScope() {
 			continue
 		}
-		it_3 := foreach_(obj_(ImmutableList_copyOf(moduleScope.ownSymbols.asMap().values())))
-		for it_3.next() {
-			var sym *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_3.v)
+		for sym := range elemsAs_[*SymbolTable_Symbol](obj_(ImmutableList_copyOf(moduleScope.ownSymbols.asMap().values()))) {
 			if strings.HasPrefix(sym.getName(), "exports.") {
 				this.renameSymbol(moduleScope, sym, String_substring_int(sym.getName(), int32(len("exports."))))
 			}
@@ -945,9 +911,7 @@ func (this *SymbolTable) isSymbolDuplicatedExternOnWindow(symbol *SymbolTable_Sy
 
 func (this *SymbolTable) mergeExternSymbolsDuplicatedOnWindow() {
 	var externSymbols *SimpleTable[string, any, *SymbolTable_Symbol] = SimpleTable_create[string, any, *SymbolTable_Symbol]()
-	it_1 := foreach_(obj_(ImmutableList_copyOf_Iterable(this.symbols.values())))
-	for it_1.next() {
-		var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_1.v)
+	for symbol := range elemsAs_[*SymbolTable_Symbol](obj_(ImmutableList_copyOf_Iterable(this.symbols.values()))) {
 		if ((symbol.getDeclarationNode() == 0) || (symbol.getDeclarationNode().getStaticSourceFile() == nil)) || !symbol.getDeclarationNode().getStaticSourceFile().isExtern() {
 			continue
 		}
@@ -968,9 +932,7 @@ func (this *SymbolTable) mergeExternSymbolsDuplicatedOnWindow() {
 }
 
 func (this *SymbolTable) removeGeneratedSymbols() {
-	it_1 := foreach_(obj_(ImmutableList_copyOf_Iterable(this.symbols.values())))
-	for it_1.next() {
-		var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_1.v)
+	for symbol := range elemsAs_[*SymbolTable_Symbol](obj_(ImmutableList_copyOf_Iterable(this.symbols.values()))) {
 		if this.isSymbolAQuotedObjectKey(symbol) {
 			var symbolAlreadyRemoved bool = !this.getScope(symbol).ownSymbols.containsKey(symbol.getName())
 			if !symbolAlreadyRemoved {
@@ -1718,9 +1680,7 @@ func (this *SymbolTable_JSDocInfoCollector) visit_impl(t *NodeTraversal, n Node,
 		return
 	}
 	this.outer_.docInfos.add(n)
-	it_1 := foreach_(info.getTypeNodes())
-	for it_1.next() {
-		var typeAst Node = Node_of_(it_1.v)
+	for typeAst := range elemsBy_(info.getTypeNodes(), Node_of_) {
 		var scope *SymbolTable_SymbolScope = this.outer_.scopes.get(t.getScopeRoot())
 		this.visitTypeNode(info.getTemplateTypes(), func() *SymbolTable_SymbolScope {
 			if scope == nil {

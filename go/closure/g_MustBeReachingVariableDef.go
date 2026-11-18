@@ -360,9 +360,7 @@ func new_MustBeReachingVariableDef_MustDef_0() *MustBeReachingVariableDef_MustDe
 
 func (this *MustBeReachingVariableDef_MustDef) init_MustBeReachingVariableDef_MustDef_Collection(vars CollectionOf[*Var]) {
 	this.finit_MustBeReachingVariableDef_MustDef()
-	it_1 := foreach_(vars)
-	for it_1.next() {
-		var var_ *Var = cast_[*Var](it_1.v)
+	for var_ := range elemsAs_[*Var](vars) {
 		this.reachingDef.put(var_, new_MustBeReachingVariableDef_Definition(cast_[*Scope](var_.getScope()).getRootNode()))
 	}
 }

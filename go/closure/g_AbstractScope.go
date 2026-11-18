@@ -215,9 +215,7 @@ func (this *AbstractScope) getAllAccessibleVariables() IterableOf[any] {
 	var accessibleVars *JTMap[string, *AbstractVar] = jnewTMap_(jtc_string, jtc_p_AbstractVar)
 	var s *AbstractScope = this.thisScope()
 	for s != nil {
-		it_2 := foreach_(s.getVarIterable())
-		for it_2.next() {
-			var v *AbstractVar = to_AbstractVar(it_2.v)
+		for v := range elemsBy_(s.getVarIterable(), to_AbstractVar) {
 			accessibleVars.putIfAbsent(v.getName(), v)
 		}
 		s = s.getParent()

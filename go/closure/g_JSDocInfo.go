@@ -11,9 +11,7 @@ type JSDocInfo struct {
 func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Property, any]) {
 	var keys int64 = 0
 	var values *JTList[any] = jnewTList_(tc_Object)
-	it_1 := foreach_(props.entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(props.entrySet(), icast_Map_Entry) {
 		var prop *JSDocInfo_Property = to_JSDocInfo_Property(entry.getKey())
 		var value any = entry.getValue()
 		if !prop.isDefault(value) {
@@ -65,9 +63,7 @@ func (this *JSDocInfo) toBuilder_1(transform func(*JSTypeExpression) *JSTypeExpr
 	builder.bits = (this.propertyBits & (^JSDocInfo_Bit_mask_[JSDocInfo_Bit_INLINE_TYPE-1]))
 	builder.props = this.asMap()
 	builder.populated = true
-	it_1 := foreach_(builder.props.entrySet())
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
+	for entry := range elemsBy_(builder.props.entrySet(), icast_Map_Entry) {
 		entry.setValue(to_JSDocInfo_Property(entry.getKey()).clone(entry.getValue(), transform))
 	}
 	return builder
@@ -593,9 +589,7 @@ func (this *JSDocInfo) getSuppressions() *JTSet[string] {
 	}
 	var nameSets ImmutableSetOf[ImmutableSetOf[string]] = cast_[*ImmutableSet](suppressions.keySet())
 	var names *JTSet[string] = jnewTSet_(jtc_string)
-	it_1 := foreach_(obj_(nameSets))
-	for it_1.next() {
-		var nameSet Set = icast_Set(it_1.v)
+	for nameSet := range elemsBy_(obj_(nameSets), icast_Set) {
 		names.asSet().addAll(Collection(nameSet))
 	}
 	return immutableSetCopyOfT_(jtc_string, names)
@@ -726,9 +720,7 @@ func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
 		var prop *JSDocInfo_Property = JSDocInfo_Property_values[low]
 		var propValue any = this.getPropertyValueByIndex(index)
 		index++
-		it_2 := foreach_(prop.getTypeExpressions(propValue))
-		for it_2.next() {
-			var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_2.v)
+		for type_ := range elemsAs_[*JSTypeExpression](prop.getTypeExpressions(propValue)) {
 			if type_ != nil {
 				builder.add(type_)
 			}
@@ -739,9 +731,7 @@ func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
 
 func (this *JSDocInfo) getTypeNodes() CollectionOf[Node] {
 	var nodes *JTList[Node] = jnewTList_(jtc_Node)
-	it_1 := foreach_(this.getTypeExpressions())
-	for it_1.next() {
-		var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
+	for type_ := range elemsAs_[*JSTypeExpression](this.getTypeExpressions()) {
 		nodes.add(type_.getRoot())
 	}
 	return Collection(nodes.asList())
@@ -1235,9 +1225,7 @@ func (this *JSDocInfo_TypeMapProperty) clone_impl(arg_ any, transform func(*JSTy
 	_ = arg
 	var out LinkedHashMapOf[string, *JSTypeExpression] = new_LinkedHashMap_Map(LinkedHashMap_as_Map(arg))
 	if transform != nil {
-		it_1 := foreach_(out.entrySet())
-		for it_1.next() {
-			var entry Map_Entry = icast_Map_Entry(it_1.v)
+		for entry := range elemsBy_(out.entrySet(), icast_Map_Entry) {
 			var elem *JSTypeExpression = cast_[*JSTypeExpression](entry.getValue())
 			if elem != nil {
 				entry.setValue(obj_(transform(elem)))
