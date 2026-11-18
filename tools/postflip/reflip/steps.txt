@@ -591,3 +591,7 @@ ab26441f run t adapters && f
 ae56a16d patch 420-ae56a16d-manual.patch
 # 421. postflip (manual, re-flip): a data-flow work queue marks the graph nodes it holds instead of keeping them in a set (6073a778, 010746fe re-made)
 b4d1cfd0 patch 421-b4d1cfd0-manual.patch
+# 422. postflip (manual, re-flip): the control-flow graph and the data-flow analysis read their nodes, edges and flow states as the classes they are (fbb901b4 re-made)
+e964d92f patch 422-e964d92f-manual.patch
+# 423. postflip (manual, re-flip): Compiler.inputsById keyed by the id's string (13c7e5ba re-made)
+a97d418c patch 423-a97d418c-manual.patch
