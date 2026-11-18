@@ -207,8 +207,8 @@ func (this *OptimizeParameters) classContainsClassFieldWithRHSSideEffects(classN
 }
 
 func (this *OptimizeParameters) allDefinitionsAreCandidateFunctions(n Node) bool {
-	switch n.getToken() {
-	case Token_rhino_CLASS:
+	switch n.ns_().token {
+	case tokOrd1_CLASS:
 		if NodeUtil_isNamedClassExpression(n) {
 			return false
 		} else {
@@ -222,13 +222,13 @@ func (this *OptimizeParameters) allDefinitionsAreCandidateFunctions(n Node) bool
 				return ((!NodeUtil_doesFunctionReferenceOwnArgumentsObject(functionNode) && !OptimizeParameters_mayReferenceParamBeforeBody(functionNode)) && !OptimizeParameters_isUsedViaDotConstructor(functionNode))
 			}
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		return (((!NodeUtil_isNamedFunctionExpression(n) && !NodeUtil_doesFunctionReferenceOwnArgumentsObject(n)) && !OptimizeParameters_mayReferenceParamBeforeBody(n)) && !OptimizeParameters_isUsedViaDotConstructor(n))
-	case Token_rhino_CAST, Token_rhino_COMMA:
+	case tokOrd1_CAST, tokOrd1_COMMA:
 		return this.allDefinitionsAreCandidateFunctions(n.getLastChild())
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		return (this.allDefinitionsAreCandidateFunctions(n.getSecondChild()) && this.allDefinitionsAreCandidateFunctions(n.getLastChild()))
-	case Token_rhino_OR, Token_rhino_AND, Token_rhino_COALESCE:
+	case tokOrd1_OR, tokOrd1_AND, tokOrd1_COALESCE:
 		return (this.allDefinitionsAreCandidateFunctions(n.getFirstChild()) && this.allDefinitionsAreCandidateFunctions(n.getLastChild()))
 	default:
 		return false
@@ -491,12 +491,12 @@ func (this *OptimizeParameters) setParameterSideEffectInfo(p *OptimizeParameters
 }
 
 func OptimizeParameters_isMovableValue(n Node, globalScope *Scope) bool {
-	switch n.getToken() {
-	case Token_rhino_AWAIT, Token_rhino_YIELD, Token_rhino_THIS, Token_rhino_SUPER, Token_rhino_ITER_SPREAD, Token_rhino_OBJECT_SPREAD, Token_rhino_NEW_TARGET, Token_rhino_IMPORT_META:
+	switch n.ns_().token {
+	case tokOrd1_AWAIT, tokOrd1_YIELD, tokOrd1_THIS, tokOrd1_SUPER, tokOrd1_ITER_SPREAD, tokOrd1_OBJECT_SPREAD, tokOrd1_NEW_TARGET, tokOrd1_IMPORT_META:
 		return false
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		return false
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if n.getString() == "arguments" {
 			return false
 		} else {

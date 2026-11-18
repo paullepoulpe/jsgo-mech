@@ -904,8 +904,8 @@ func (this *ClosureRewriteModule) safeSetMaybeQualifiedString(nameNode Node, new
 
 func ClosureRewriteModule_safeSetStringIfDeclaration(nameParent Node, nameNode Node, newQualifiedName Node) bool {
 	var jsdoc *JSDocInfo = nameParent.getJSDocInfo()
-	switch nameParent.getToken() {
-	case Token_rhino_FUNCTION, Token_rhino_CLASS:
+	switch nameParent.ns_().token {
+	case tokOrd1_FUNCTION, tokOrd1_CLASS:
 		if !NodeUtil_isStatement(nameParent) || (nameParent.getFirstChild() != nameNode) {
 			return false
 		}
@@ -922,7 +922,7 @@ func ClosureRewriteModule_safeSetStringIfDeclaration(nameParent Node, nameNode N
 		placeholder.replaceWith(newDeclaration)
 		NodeUtil_removeName(nameParent)
 		return true
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		var rhs Node = func() Node {
 			if nameNode.hasChildren() {
 				return nameNode.getLastChild().detach()
@@ -947,7 +947,7 @@ func ClosureRewriteModule_safeSetStringIfDeclaration(nameParent Node, nameNode N
 		newStatement.srcrefTreeIfMissing(nameParent)
 		NodeUtil_replaceDeclarationChild(nameNode, newStatement)
 		return true
-	case Token_rhino_OBJECT_PATTERN, Token_rhino_ARRAY_PATTERN, Token_rhino_PARAM_LIST:
+	case tokOrd1_OBJECT_PATTERN, tokOrd1_ARRAY_PATTERN, tokOrd1_PARAM_LIST:
 		panic(new_RuntimeException_String("Not supported").self())
 	default:
 	}
@@ -1442,15 +1442,15 @@ func new_ClosureRewriteModule_ScriptPreprocessor(outer_ *ClosureRewriteModule) *
 
 func (this *ClosureRewriteModule_ScriptPreprocessor) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_ROOT, Token_rhino_MODULE_BODY:
+		switch n.ns_().token {
+		case tokOrd1_ROOT, tokOrd1_MODULE_BODY:
 			return true
-		case Token_rhino_SCRIPT:
+		case tokOrd1_SCRIPT:
 			if NodeUtil_isGoogModuleFile(n) {
 				ClosureRewriteModule_checkAndSetStrictModeDirective(t, n)
 			}
 			return true
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			this.outer_.preprocessExportDeclaration(t, n)
 			return true
 		default:
@@ -1476,10 +1476,10 @@ func new_ClosureRewriteModule_ScriptRecorder(outer_ *ClosureRewriteModule) *Clos
 }
 
 func (this *ClosureRewriteModule_ScriptRecorder) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_MODULE_BODY:
+	switch n.ns_().token {
+	case tokOrd1_MODULE_BODY:
 		this.outer_.recordModuleBody(n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		var method Node = n.getFirstChild()
 		if !method.isGetProp() {
 			break
@@ -1501,11 +1501,11 @@ func (this *ClosureRewriteModule_ScriptRecorder) shouldTraverse(t *NodeTraversal
 		} else if method.matchesQualifiedNameNode(ClosureRewriteModule_GOOG_MODULE_GET) {
 			this.outer_.recordGoogModuleGet(t, n)
 		}
-	case Token_rhino_CLASS, Token_rhino_FUNCTION:
+	case tokOrd1_CLASS, tokOrd1_FUNCTION:
 		if this.outer_.isTopLevel(t, n, ClosureRewriteModule_ScopeType_BLOCK) {
 			this.outer_.recordTopLevelClassOrFunctionName(n)
 		}
-	case Token_rhino_CONST, Token_rhino_LET, Token_rhino_VAR:
+	case tokOrd1_CONST, tokOrd1_LET, tokOrd1_VAR:
 		if this.outer_.isTopLevel(t, n, func() *ClosureRewriteModule_ScopeType {
 			if n.isVar() {
 				return ClosureRewriteModule_ScopeType_EXEC_CONTEXT
@@ -1514,11 +1514,11 @@ func (this *ClosureRewriteModule_ScriptRecorder) shouldTraverse(t *NodeTraversal
 		}()) {
 			this.outer_.recordTopLevelVarNames(n)
 		}
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		if ClosureRewriteModule_isExportPropertyAssignment(t, n) {
 			this.outer_.recordExportsPropertyAssignment(t, n)
 		}
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		this.outer_.maybeRecordExportDeclaration(t, n)
 	default:
 	}
@@ -1548,8 +1548,8 @@ func new_ClosureRewriteModule_ScriptUpdater(outer_ *ClosureRewriteModule, script
 }
 
 func (this *ClosureRewriteModule_ScriptUpdater) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		var currentDescription *ClosureRewriteModule_ScriptDescription = this.scriptDescriptions.pop()
 		Preconditions_checkState((currentDescription.rootNode_ == n))
 		if n.isFromExterns() && !NodeUtil_isFromTypeSummary(n) {
@@ -1561,13 +1561,13 @@ func (this *ClosureRewriteModule_ScriptUpdater) shouldTraverse(t *NodeTraversal,
 		if this.outer_.globalScope == nil {
 			this.outer_.globalScope = cast_[*Scope](t.getScope().getGlobalScope().self())
 		}
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		if parent.getBooleanProp(Node_GOOG_MODULE) {
 			this.outer_.updateModuleBodyEarly(n)
 		} else {
 			return false
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		var method Node = n.getFirstChild()
 		if !method.isGetProp() {
 			break
@@ -1583,7 +1583,7 @@ func (this *ClosureRewriteModule_ScriptUpdater) shouldTraverse(t *NodeTraversal,
 		} else if ClosureRewriteModule_GOOG_MODULE_PREVENTMODULEEXPORTSEALING.matches(method) {
 			ClosureRewriteModule_updateGoogPreventModuleExportsSealing(n)
 		}
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		if ClosureRewriteModule_isExportPropertyAssignment(t, n) {
 			this.outer_.updateExportsPropertyAssignment(n, t)
 		}
@@ -1596,15 +1596,15 @@ func (this *ClosureRewriteModule_ScriptUpdater) shouldTraverse(t *NodeTraversal,
 }
 
 func (this *ClosureRewriteModule_ScriptUpdater) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_MODULE_BODY:
+	switch n.ns_().token {
+	case tokOrd1_MODULE_BODY:
 		this.outer_.updateModuleBody(n)
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		this.outer_.maybeUpdateTopLevelName(t, n)
 		this.outer_.maybeUpdateExportDeclaration(t, n)
 		t.getScope()
 		this.outer_.maybeUpdateExportNameRef(t, n)
-	case Token_rhino_SCRIPT:
+	case tokOrd1_SCRIPT:
 		Preconditions_checkState((this.outer_.currentScript.rootNode_ == n))
 		this.outer_.popScript()
 	default:
@@ -1785,10 +1785,10 @@ func new_ClosureRewriteModule_UnwrapGoogLoadModule(outer_ *ClosureRewriteModule)
 
 func (this *ClosureRewriteModule_UnwrapGoogLoadModule) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_ROOT, Token_rhino_SCRIPT:
+		switch n.ns_().token {
+		case tokOrd1_ROOT, tokOrd1_SCRIPT:
 			return true
-		case Token_rhino_EXPR_RESULT:
+		case tokOrd1_EXPR_RESULT:
 			var call Node = n.getFirstChild()
 			if NodeUtil_isCallToNode(call, ClosureRewriteModule_GOOG_LOADMODULE) && call.getLastChild().isFunction() {
 				parent.putBooleanProp(Node_GOOG_MODULE, true)

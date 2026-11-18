@@ -37,19 +37,19 @@ func PolymerClassRewriter_isFunctionArgInGoogLoadModule(n Node) bool {
 }
 
 func (this *PolymerClassRewriter) insertGeneratedDeclarationCodeToGlobalScope(enclosingNode Node, declarationCode Node) {
-	switch enclosingNode.getToken() {
-	case Token_rhino_MODULE_BODY:
+	switch enclosingNode.ns_().token {
+	case tokOrd1_MODULE_BODY:
 		{
 			var insertionPoint Node = this.getNodeForInsertion(enclosingNode.getParent())
 			insertionPoint.addChildToFront(declarationCode)
 			this.compiler_.reportChangeToChangeScope(NodeUtil_getEnclosingScript(insertionPoint))
 		}
-	case Token_rhino_SCRIPT:
+	case tokOrd1_SCRIPT:
 		{
 			enclosingNode.addChildToFront(declarationCode)
 			this.compiler_.reportChangeToChangeScope(NodeUtil_getEnclosingScript(enclosingNode))
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		{
 			Preconditions_checkState(PolymerClassRewriter_isIIFE(enclosingNode))
 			var enclosingNodeForIIFE Node = NodeUtil_getEnclosingNode(enclosingNode.getParent(), &Predicate_base_tfn_Node{func(node Node) bool {
@@ -65,7 +65,7 @@ func (this *PolymerClassRewriter) insertGeneratedDeclarationCodeToGlobalScope(en
 				this.compiler_.reportChangeToChangeScope(NodeUtil_getEnclosingScript(insertionPoint))
 			}
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		{
 			Preconditions_checkState(PolymerClassRewriter_isFunctionArgInGoogLoadModule(enclosingNode))
 			var enclosingScript Node = NodeUtil_getEnclosingScript(enclosingNode)
@@ -88,8 +88,8 @@ func (this *PolymerClassRewriter) getNodeForInsertion(enclosingScript Node) Node
 }
 
 func (this *PolymerClassRewriter) insertGeneratedPropsAndBehaviorCode(enclosingNode Node, statements Node) {
-	switch enclosingNode.getToken() {
-	case Token_rhino_MODULE_BODY:
+	switch enclosingNode.ns_().token {
+	case tokOrd1_MODULE_BODY:
 		{
 			if enclosingNode.getParent().getBooleanProp(Node_GOOG_MODULE) {
 				var insertionPoint Node = PolymerClassRewriter_getInsertionPointForGoogModule(enclosingNode)
@@ -98,17 +98,17 @@ func (this *PolymerClassRewriter) insertGeneratedPropsAndBehaviorCode(enclosingN
 				enclosingNode.addChildrenToFront(statements)
 			}
 		}
-	case Token_rhino_SCRIPT:
+	case tokOrd1_SCRIPT:
 		enclosingNode.addChildrenToBack(statements)
 		this.compiler_.reportChangeToChangeScope(NodeUtil_getEnclosingScript(enclosingNode))
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		{
 			Preconditions_checkState(PolymerClassRewriter_isIIFE(enclosingNode))
 			var functionNode Node = enclosingNode.getFirstChild()
 			var functionBlock Node = functionNode.getLastChild()
 			functionBlock.addChildrenToFront(statements)
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		Preconditions_checkState(PolymerClassRewriter_isFunctionArgInGoogLoadModule(enclosingNode))
 		var functionBlock Node = enclosingNode.getLastChild()
 		var insertionPoint Node = PolymerClassRewriter_getInsertionPointForGoogModule(functionBlock)

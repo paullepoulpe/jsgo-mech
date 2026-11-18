@@ -189,8 +189,8 @@ func new_StripCode_Strip(outer_ *StripCode, decisionsLog *LogFile) *StripCode_St
 }
 
 func (this *StripCode_Strip) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_CALL, Token_rhino_NEW:
+	switch n.ns_().token {
+	case tokOrd1_CALL, tokOrd1_NEW:
 		if this.isMethodOrCtorCallThatTriggersRemoval(t, n, parent) {
 			this.decisionsLog.log(&Supplier_tfn_string{func() string {
 				return "removing function call"
@@ -207,18 +207,18 @@ func (this *StripCode_Strip) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 }
 
 func (this *StripCode_Strip) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
+	switch n.ns_().token {
+	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET:
 		this.removeVarDeclarationsByNameOrRvalue(t, n, parent)
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		this.maybeRemoveReferenceToRemovedVariable(t, n, parent)
-	case Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD:
+	case tokOrd1_ASSIGN, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD:
 		this.maybeEliminateAssignmentByLvalueName(t, n, parent)
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		this.eliminateKeysWithStripNamesFromObjLit(n)
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		this.maybeEliminateExpressionByName(n)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.maybeEliminateClassByNameOrExtends(t, n, parent)
 	default:
 	}
@@ -271,16 +271,16 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 }
 
 func (this *StripCode_Strip) maybeRemoveReferenceToRemovedVariable(t *NodeTraversal, n Node, parent Node) {
-	switch parent.getToken() {
-	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
-	case Token_rhino_GETPROP, Token_rhino_GETELEM:
+	switch parent.ns_().token {
+	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET:
+	case tokOrd1_GETPROP, tokOrd1_GETELEM:
 		if (parent.getFirstChild() == n) && this.isReferenceToRemovedVar(n) {
 			this.decisionsLog.log(&Supplier_tfn_string{func() string {
 				return (sstr_(n.getString()) + ": removing getelem/getprop/call chain")
 			}})
 			this.replaceHighestNestedCallWithNull(t, parent, parent.getParent())
 		}
-	case Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD:
+	case tokOrd1_ASSIGN, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD:
 		if this.isReferenceToRemovedVar(n) {
 			if parent.getFirstChild() == n {
 				var grandparent Node = parent.getParent()
@@ -305,7 +305,7 @@ func (this *StripCode_Strip) maybeRemoveReferenceToRemovedVariable(t *NodeTraver
 				t.reportCodeChange()
 			}
 		}
-	case Token_rhino_NEW, Token_rhino_CALL:
+	case tokOrd1_NEW, tokOrd1_CALL:
 		if !n.isFirstChildOf(parent) && this.isReferenceToRemovedVar(n) {
 			this.decisionsLog.log(&Supplier_tfn_string{func() string {
 				return (sstr_(n.getQualifiedName()) + ": replacing parameter reference with null")
@@ -313,7 +313,7 @@ func (this *StripCode_Strip) maybeRemoveReferenceToRemovedVariable(t *NodeTraver
 			this.replaceWithNull(n)
 			t.reportCodeChange()
 		}
-	case Token_rhino_COMMA:
+	case tokOrd1_COMMA:
 		var grandparent Node = parent.getParent()
 		var isLastChild bool = (parent.getLastChild() == n)
 		var parentIsCallee bool = ((grandparent.isCall() || grandparent.isNew()) && parent.isFirstChildOf(grandparent))
@@ -404,8 +404,8 @@ func (this *StripCode_Strip) maybeEliminateExpressionByName(n Node) {
 func (this *StripCode_Strip) eliminateKeysWithStripNamesFromObjLit(n Node) {
 	var key Node = n.getFirstChild()
 	for key != 0 {
-		switch key.getToken() {
-		case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF:
+		switch key.ns_().token {
+		case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF:
 			if this.isStripName(key.getString()) {
 				var next Node = key.getNext()
 				key.detach()

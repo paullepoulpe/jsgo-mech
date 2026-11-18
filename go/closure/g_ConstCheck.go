@@ -33,8 +33,8 @@ func (this *ConstCheck) process_2(externs Node, root Node) {
 }
 
 func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		if NodeUtil_isNameDeclaration(parent) {
 			var name string = n.getString()
 			var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
@@ -48,7 +48,7 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 				}
 			}
 		}
-	case Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_EXPONENT:
+	case tokOrd1_ASSIGN, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD, tokOrd1_ASSIGN_EXPONENT:
 		var lhs Node = n.getFirstChild()
 		if lhs.isName() {
 			var name string = lhs.getString()
@@ -59,7 +59,7 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ConstCheck_CONST_REASSIGNED_VALUE_ERROR, []string{"exports", n.getSourceFileName()}))
 			}
 		}
-	case Token_rhino_INC, Token_rhino_DEC:
+	case tokOrd1_INC, tokOrd1_DEC:
 		var lhs Node = n.getFirstChild()
 		if lhs.isName() {
 			var name string = lhs.getString()

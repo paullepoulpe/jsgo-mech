@@ -27,8 +27,8 @@ func (this *Var) zero_Var() {
 func (this *Var) init_Var(name string, nameNode Node, scope *Scope, index int32, input *CompilerInput, implicitGoogNamespaceDefinition Node) {
 	this.AbstractVar.init_AbstractVar(name, nameNode, scope.up_AbstractScope(), index, input, implicitGoogNamespaceDefinition)
 	if nameNode != 0 {
-		switch nameNode.getToken() {
-		case Token_rhino_MODULE_BODY, Token_rhino_NAME, Token_rhino_IMPORT_STAR:
+		switch nameNode.ns_().token {
+		case tokOrd1_MODULE_BODY, tokOrd1_NAME, tokOrd1_IMPORT_STAR:
 		default:
 			panic(new_IllegalArgumentException_String(("Invalid name node " + tostrH_(nameNode))).self())
 		}

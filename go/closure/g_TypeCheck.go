@@ -146,8 +146,8 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 	var right Node
 	var typeable bool = true
 	this.validator.expectWellFormedTemplatizedType(n)
-	switch n.getToken() {
-	case Token_rhino_CAST:
+	switch n.ns_().token {
+	case tokOrd1_CAST:
 		var expr Node = n.getFirstChild()
 		var exprType *JSType = this.getJSType(expr)
 		var castType *JSType = this.getJSType(n)
@@ -159,49 +159,49 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 		if castType.restrictByNotNullOrUndefined().isSubtypeOf(exprType) || expr.isObjectLit() {
 			expr.setJSType(castType)
 		}
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		typeable = this.visitName(t, n, parent)
-	case Token_rhino_COMMA:
+	case tokOrd1_COMMA:
 		this.ensureTypedJSType(n, this.getJSType(n.getLastChild()))
-	case Token_rhino_THIS:
+	case tokOrd1_THIS:
 		this.ensureTypedJSType(n, t.getTypedScope().getTypeOfThis())
-	case Token_rhino_NULL:
+	case tokOrd1_NULL:
 		this.ensureTyped_2(n, JSTypeNative_NULL_TYPE)
-	case Token_rhino_NUMBER:
+	case tokOrd1_NUMBER:
 		this.ensureTyped_2(n, JSTypeNative_NUMBER_TYPE)
-	case Token_rhino_BIGINT:
+	case tokOrd1_BIGINT:
 		this.ensureTyped_2(n, JSTypeNative_BIGINT_TYPE)
-	case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
-	case Token_rhino_ARRAYLIT:
+	case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
+	case tokOrd1_ARRAYLIT:
 		this.ensureTyped_2(n, JSTypeNative_ARRAY_TYPE)
-	case Token_rhino_REGEXP:
+	case tokOrd1_REGEXP:
 		this.ensureTyped_2(n, JSTypeNative_REGEXP_TYPE)
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		this.visitGetProp(t, n)
 		typeable = !(parent.isAssign() && (parent.getFirstChild() == n))
-	case Token_rhino_OPTCHAIN_GETPROP:
+	case tokOrd1_OPTCHAIN_GETPROP:
 		this.visitOptChainGetProp(n)
-	case Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_OPTCHAIN_GETELEM:
 		this.visitOptChainGetElem(n)
-	case Token_rhino_GETELEM:
+	case tokOrd1_GETELEM:
 		this.visitGetElem(n)
 		typeable = false
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		this.visitVar(t, n)
 		typeable = false
-	case Token_rhino_NEW:
+	case tokOrd1_NEW:
 		this.visitNew(n)
-	case Token_rhino_OPTCHAIN_CALL:
+	case tokOrd1_OPTCHAIN_CALL:
 		this.visitCall(t, n)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		this.visitCall(t, n)
 		typeable = !parent.isExprResult()
-	case Token_rhino_RETURN:
+	case tokOrd1_RETURN:
 		this.visitReturn(t, n)
 		typeable = false
-	case Token_rhino_YIELD:
+	case tokOrd1_YIELD:
 		this.visitYield(t, n)
-	case Token_rhino_DEC, Token_rhino_INC:
+	case tokOrd1_DEC, tokOrd1_INC:
 		left = n.getFirstChild()
 		this.checkPropCreation(left)
 		if this.getJSType(n).isNumber() {
@@ -210,20 +210,20 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 		} else {
 			this.validator.expectBigIntOrNumber(left, this.getJSType(left), "increment/decrement")
 		}
-	case Token_rhino_VOID:
+	case tokOrd1_VOID:
 		this.ensureTyped_2(n, JSTypeNative_VOID_TYPE)
-	case Token_rhino_STRINGLIT, Token_rhino_TYPEOF, Token_rhino_TEMPLATELIT, Token_rhino_TEMPLATELIT_STRING:
+	case tokOrd1_STRINGLIT, tokOrd1_TYPEOF, tokOrd1_TEMPLATELIT, tokOrd1_TEMPLATELIT_STRING:
 		this.ensureTyped_2(n, JSTypeNative_STRING_TYPE)
-	case Token_rhino_TAGGED_TEMPLATELIT:
+	case tokOrd1_TAGGED_TEMPLATELIT:
 		this.visitTaggedTemplateLit(n)
 		this.ensureTyped(n)
-	case Token_rhino_BITNOT:
+	case tokOrd1_BITNOT:
 		this.visitBitwiseNOT(n)
-	case Token_rhino_POS:
+	case tokOrd1_POS:
 		this.visitUnaryPlus(n)
-	case Token_rhino_NEG:
+	case tokOrd1_NEG:
 		this.visitUnaryMinus(n)
-	case Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE:
+	case tokOrd1_EQ, tokOrd1_NE, tokOrd1_SHEQ, tokOrd1_SHNE:
 		left = n.getFirstChild()
 		right = n.getLastChild()
 		if left.isTypeOf() {
@@ -257,7 +257,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 			this.report(n, TypeCheck_DETERMINISTIC_TEST, []string{leftType.toString(), rightType.toString(), result.toString()})
 		}
 		this.ensureTyped_2(n, JSTypeNative_BOOLEAN_TYPE)
-	case Token_rhino_LT, Token_rhino_LE, Token_rhino_GT, Token_rhino_GE:
+	case tokOrd1_LT, tokOrd1_LE, tokOrd1_GT, tokOrd1_GE:
 		var leftSide Node = n.getFirstChild()
 		var rightSide Node = n.getLastChild()
 		leftType = this.getJSType(leftSide)
@@ -283,7 +283,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 			}
 		}
 		this.ensureTyped_2(n, JSTypeNative_BOOLEAN_TYPE)
-	case Token_rhino_IN:
+	case tokOrd1_IN:
 		left = n.getFirstChild()
 		right = n.getLastChild()
 		rightType = this.getJSType(right)
@@ -293,49 +293,49 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 			this.report(right, TypeCheck_IN_USED_WITH_STRUCT, []string{})
 		}
 		this.ensureTyped_2(n, JSTypeNative_BOOLEAN_TYPE)
-	case Token_rhino_INSTANCEOF:
+	case tokOrd1_INSTANCEOF:
 		left = n.getFirstChild()
 		right = n.getLastChild()
 		rightType = this.getJSType(right).restrictByNotNullOrUndefined()
 		this.validator.expectAnyObject(left, this.getJSType(left), "deterministic instanceof yields false")
 		this.validator.expectActualObject(right, rightType, "instanceof requires an object")
 		this.ensureTyped_2(n, JSTypeNative_BOOLEAN_TYPE)
-	case Token_rhino_ASSIGN, Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_COALESCE:
+	case tokOrd1_ASSIGN, tokOrd1_ASSIGN_OR, tokOrd1_ASSIGN_AND, tokOrd1_ASSIGN_COALESCE:
 		this.visitAssign(t, n)
 		typeable = false
-	case Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_EXPONENT:
+	case tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_EXPONENT:
 		this.checkPropCreation(n.getFirstChild())
 		this.visitBinaryOperator(n.getToken(), n)
-	case Token_rhino_LSH, Token_rhino_RSH, Token_rhino_URSH, Token_rhino_DIV, Token_rhino_MOD, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_SUB, Token_rhino_ADD, Token_rhino_MUL, Token_rhino_EXPONENT:
+	case tokOrd1_LSH, tokOrd1_RSH, tokOrd1_URSH, tokOrd1_DIV, tokOrd1_MOD, tokOrd1_BITOR, tokOrd1_BITXOR, tokOrd1_BITAND, tokOrd1_SUB, tokOrd1_ADD, tokOrd1_MUL, tokOrd1_EXPONENT:
 		this.visitBinaryOperator(n.getToken(), n)
-	case Token_rhino_TRUE, Token_rhino_FALSE, Token_rhino_NOT, Token_rhino_DELPROP:
+	case tokOrd1_TRUE, tokOrd1_FALSE, tokOrd1_NOT, tokOrd1_DELPROP:
 		this.ensureTyped_2(n, JSTypeNative_BOOLEAN_TYPE)
-	case Token_rhino_CASE:
+	case tokOrd1_CASE:
 		var switchConditionType *JSType = this.getJSType(parent.getPrevious())
 		var caseType *JSType = this.getJSType(n.getFirstChild())
 		this.validator.expectSwitchMatchesCase(n, switchConditionType, caseType)
 		typeable = false
-	case Token_rhino_WITH:
+	case tokOrd1_WITH:
 		var child Node = n.getFirstChild()
 		childType = this.getJSType(child)
 		this.validator.expectObject(child, childType, "with requires an object")
 		typeable = false
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.visitFunction(n)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.visitClass(n)
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		this.visitModuleBody(t, n)
-	case Token_rhino_PARAM_LIST, Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_COMPUTED_PROP, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_LABEL, Token_rhino_LABEL_NAME, Token_rhino_SWITCH, Token_rhino_SWITCH_BODY, Token_rhino_BREAK, Token_rhino_CATCH, Token_rhino_TRY, Token_rhino_SCRIPT, Token_rhino_EXPORT, Token_rhino_EXPORT_SPEC, Token_rhino_EXPORT_SPECS, Token_rhino_IMPORT, Token_rhino_IMPORT_SPEC, Token_rhino_IMPORT_SPECS, Token_rhino_IMPORT_STAR, Token_rhino_EXPR_RESULT, Token_rhino_BLOCK, Token_rhino_ROOT, Token_rhino_EMPTY, Token_rhino_DEFAULT_CASE, Token_rhino_CONTINUE, Token_rhino_DEBUGGER, Token_rhino_THROW, Token_rhino_DO, Token_rhino_IF, Token_rhino_WHILE, Token_rhino_FOR, Token_rhino_TEMPLATELIT_SUB, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST, Token_rhino_DESTRUCTURING_LHS:
+	case tokOrd1_PARAM_LIST, tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_COMPUTED_PROP, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_LABEL, tokOrd1_LABEL_NAME, tokOrd1_SWITCH, tokOrd1_SWITCH_BODY, tokOrd1_BREAK, tokOrd1_CATCH, tokOrd1_TRY, tokOrd1_SCRIPT, tokOrd1_EXPORT, tokOrd1_EXPORT_SPEC, tokOrd1_EXPORT_SPECS, tokOrd1_IMPORT, tokOrd1_IMPORT_SPEC, tokOrd1_IMPORT_SPECS, tokOrd1_IMPORT_STAR, tokOrd1_EXPR_RESULT, tokOrd1_BLOCK, tokOrd1_ROOT, tokOrd1_EMPTY, tokOrd1_DEFAULT_CASE, tokOrd1_CONTINUE, tokOrd1_DEBUGGER, tokOrd1_THROW, tokOrd1_DO, tokOrd1_IF, tokOrd1_WHILE, tokOrd1_FOR, tokOrd1_TEMPLATELIT_SUB, tokOrd1_ITER_REST, tokOrd1_OBJECT_REST, tokOrd1_DESTRUCTURING_LHS:
 		typeable = false
-	case Token_rhino_DYNAMIC_IMPORT:
+	case tokOrd1_DYNAMIC_IMPORT:
 		this.visitDynamicImport(t, n)
-	case Token_rhino_ARRAY_PATTERN:
+	case tokOrd1_ARRAY_PATTERN:
 		this.ensureTyped(n)
 		this.validator.expectAutoboxesToIterable(n, this.getJSType(n), "array pattern destructuring requires an Iterable")
-	case Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECT_PATTERN:
 		this.visitObjectPattern(n)
-	case Token_rhino_DEFAULT_VALUE:
+	case tokOrd1_DEFAULT_VALUE:
 		this.checkCanAssignToWithScope(t, n, n.getFirstChild(), this.getJSType(n.getSecondChild()), nil, "default value has wrong type")
 		var lhs Node = n.getFirstChild()
 		var rhs Node = n.getSecondChild()
@@ -345,7 +345,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 			this.validator.expectObject(rhs, this.getJSType(rhs), "cannot destructure a 'null' or 'undefined' default value")
 		}
 		typeable = false
-	case Token_rhino_CLASS_MEMBERS:
+	case tokOrd1_CLASS_MEMBERS:
 		var typ *JSType = parent.getJSType().toMaybeFunctionType().getInstanceType().up_JSType()
 		{
 			var child Node = n.getFirstChild()
@@ -357,18 +357,18 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 			}
 		}
 		typeable = false
-	case Token_rhino_FOR_IN:
+	case tokOrd1_FOR_IN:
 		var obj Node = n.getSecondChild()
 		if this.getJSType(obj).isStruct() {
 			this.report(obj, TypeCheck_IN_USED_WITH_STRUCT, []string{})
 		}
 		typeable = false
-	case Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 		this.ensureTyped(n.getSecondChild())
 		typeable = false
-	case Token_rhino_SUPER, Token_rhino_NEW_TARGET, Token_rhino_IMPORT_META, Token_rhino_AWAIT, Token_rhino_AND, Token_rhino_HOOK, Token_rhino_OR, Token_rhino_COALESCE:
+	case tokOrd1_SUPER, tokOrd1_NEW_TARGET, tokOrd1_IMPORT_META, tokOrd1_AWAIT, tokOrd1_AND, tokOrd1_HOOK, tokOrd1_OR, tokOrd1_COALESCE:
 		this.ensureTyped(n)
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		if is_[*EnumType](parent.getJSType().self()) {
 			this.ensureTypedJSType(n, parent.getJSType())
 		} else {
@@ -381,7 +381,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 				this.visitObjectOrClassLiteralKey(key, n, typ)
 			}
 		}
-	case Token_rhino_ITER_SPREAD, Token_rhino_OBJECT_SPREAD:
+	case tokOrd1_ITER_SPREAD, tokOrd1_OBJECT_SPREAD:
 		this.checkSpread(n)
 		typeable = false
 	default:
@@ -441,9 +441,9 @@ func (this *TypeCheck) checkSpread(spreadNode Node) {
 	var target Node = spreadNode.getOnlyChild()
 	this.ensureTyped(target)
 	var targetType *JSType = this.getJSType(target)
-	switch spreadNode.getParent().getToken() {
-	case Token_rhino_OBJECTLIT:
-	case Token_rhino_ARRAYLIT, Token_rhino_CALL, Token_rhino_OPTCHAIN_CALL, Token_rhino_NEW:
+	switch spreadNode.getParent().ns_().token {
+	case tokOrd1_OBJECTLIT:
+	case tokOrd1_ARRAYLIT, tokOrd1_CALL, tokOrd1_OPTCHAIN_CALL, tokOrd1_NEW:
 		this.validator.expectAutoboxesToIterable(target, targetType, "Spread operator only applies to Iterable types")
 	default:
 		panic(new_IllegalStateException_String(("Unexpected parent of SPREAD: " + sstr_(spreadNode.getParent().toStringTree()))).self())
@@ -870,15 +870,15 @@ func TypeCheck_hasUnknownOrEmptySupertype(ctor *FunctionType) bool {
 
 func TypeCheck_getObjectLitKeyTypeFromValueType(key Node, valueType *JSType) *JSType {
 	if valueType != nil {
-		switch key.getToken() {
-		case Token_rhino_GETTER_DEF:
+		switch key.ns_().token {
+		case tokOrd1_GETTER_DEF:
 			if valueType.isFunctionType() {
 				var fntype *FunctionType = valueType.toMaybeFunctionType()
 				valueType = fntype.getReturnType()
 			} else {
 				return nil
 			}
-		case Token_rhino_SETTER_DEF:
+		case tokOrd1_SETTER_DEF:
 			if valueType.isFunctionType() {
 				var fntype *FunctionType = valueType.toMaybeFunctionType()
 				var param *FunctionType_Parameter = fntype.getParameters().get(0)

@@ -42,8 +42,8 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 		this.reportWarningsAndClear()
 		return
 	}
-	switch n.getToken() {
-	case Token_rhino_VAR, Token_rhino_LET:
+	switch n.ns_().token {
+	case tokOrd1_VAR, tokOrd1_LET:
 		if !t.inModuleScope() {
 			return
 		}
@@ -56,7 +56,7 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 				this.invalidNamesPerModule.put(name.getString(), name)
 			}
 		}})
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if !this.invalidNamesPerModule.containsKey(n.getString()) {
 			return
 		}
