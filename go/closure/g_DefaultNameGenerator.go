@@ -4,11 +4,11 @@ package closure
 
 type DefaultNameGenerator struct {
 	priorityLookupMap MapOf[BoxedOf[uint16], *DefaultNameGenerator_CharPriority]
-	reservedNames SetOf[string]
-	prefix_ string
-	nameCount int32
-	firstChars []*DefaultNameGenerator_CharPriority
-	nonFirstChars []*DefaultNameGenerator_CharPriority
+	reservedNames     SetOf[string]
+	prefix_           string
+	nameCount         int32
+	firstChars        []*DefaultNameGenerator_CharPriority
+	nonFirstChars     []*DefaultNameGenerator_CharPriority
 }
 
 func (this *DefaultNameGenerator) zero_DefaultNameGenerator() {
@@ -91,8 +91,22 @@ func (this *DefaultNameGenerator) reset_4(reservedNames SetOf[string], prefix st
 	this.nameCount = 0
 	this.firstChars = this.reserveCharacters(DefaultNameGenerator_FIRST_CHAR, reservedFirstCharacters)
 	this.nonFirstChars = this.reserveCharacters(DefaultNameGenerator_NONFIRST_CHAR, reservedNonFirstCharacters)
-	func() { arr_1 := this.firstChars; tmp_2 := arrmap_(arr_1, func(v_ *DefaultNameGenerator_CharPriority) any { return obj_(v_) }); Arrays_sort(tmp_2); for i_ := range tmp_2 { arr_1[i_] = cast_[*DefaultNameGenerator_CharPriority](tmp_2[i_]) } }()
-	func() { arr_3 := this.nonFirstChars; tmp_4 := arrmap_(arr_3, func(v_ *DefaultNameGenerator_CharPriority) any { return obj_(v_) }); Arrays_sort(tmp_4); for i_ := range tmp_4 { arr_3[i_] = cast_[*DefaultNameGenerator_CharPriority](tmp_4[i_]) } }()
+	func() {
+		arr_1 := this.firstChars
+		tmp_2 := arrmap_(arr_1, func(v_ *DefaultNameGenerator_CharPriority) any { return obj_(v_) })
+		Arrays_sort(tmp_2)
+		for i_ := range tmp_2 {
+			arr_1[i_] = cast_[*DefaultNameGenerator_CharPriority](tmp_2[i_])
+		}
+	}()
+	func() {
+		arr_3 := this.nonFirstChars
+		tmp_4 := arrmap_(arr_3, func(v_ *DefaultNameGenerator_CharPriority) any { return obj_(v_) })
+		Arrays_sort(tmp_4)
+		for i_ := range tmp_4 {
+			arr_3[i_] = cast_[*DefaultNameGenerator_CharPriority](tmp_4[i_])
+		}
+	}()
 	this.checkPrefix(prefix)
 }
 
@@ -101,9 +115,9 @@ func (this *DefaultNameGenerator) clone(reservedNames SetOf[string], prefix stri
 }
 
 func (this *DefaultNameGenerator) favors(sequence any) {
-	for i := int32(0); (i < CharSequence_length(sequence)); i++ {
+	for i := int32(0); i < CharSequence_length(sequence); i++ {
 		var c *DefaultNameGenerator_CharPriority = cast_[*DefaultNameGenerator_CharPriority](this.priorityLookupMap.get(any(uint16(CharSequence_charAt(sequence, i)))))
-		if (c != nil) {
+		if c != nil {
 			c.occurrence++
 		}
 	}
@@ -112,12 +126,12 @@ func (this *DefaultNameGenerator) favors(sequence any) {
 func (this *DefaultNameGenerator) reserveCharacters(chars []uint16, reservedCharacterSet SetOf[BoxedOf[uint16]]) []*DefaultNameGenerator_CharPriority {
 	if reservedCharacterSet.isEmpty() {
 		var result []*DefaultNameGenerator_CharPriority = make([]*DefaultNameGenerator_CharPriority, int32(len(chars)))
-		for i := int32(0); (i < int32(len(chars))); i++ {
+		for i := int32(0); i < int32(len(chars)); i++ {
 			result[i] = cast_[*DefaultNameGenerator_CharPriority](this.priorityLookupMap.get(any(uint16(chars[i]))))
 		}
 		return result
 	}
-	var charSet *TSet[any] = tsetFrom_(tc_Character, Collection(Chars_asList(chars)))
+	var charSet *JTSet[any] = jtsetFrom_(tc_Character, Collection(Chars_asList(chars)))
 	charSet.asSet().removeAll(Collection(reservedCharacterSet))
 	var result []*DefaultNameGenerator_CharPriority = make([]*DefaultNameGenerator_CharPriority, charSet.size())
 	var index int32 = 0
@@ -131,17 +145,17 @@ func (this *DefaultNameGenerator) reserveCharacters(chars []uint16, reservedChar
 }
 
 func (this *DefaultNameGenerator) checkPrefix(prefix string) {
-	if (String_length(prefix) > 0) {
+	if String_length(prefix) > 0 {
 		if !DefaultNameGenerator_contains(this.firstChars, String_charAt(prefix, 0)) {
 			var chars []uint16 = make([]uint16, int32(len(this.firstChars)))
-			for i := int32(0); (i < int32(len(chars))); i++ {
+			for i := int32(0); i < int32(len(chars)); i++ {
 				chars[i] = this.firstChars[i].name_
 			}
 			panic(new_IllegalArgumentException_String(("prefix must start with one of: " + sstr_(Arrays_toString(chars)))).self())
 		}
-		for pos := int32(1); (pos < String_length(prefix)); pos++ {
+		for pos := int32(1); pos < String_length(prefix); pos++ {
 			var chars []uint16 = make([]uint16, int32(len(this.nonFirstChars)))
-			for i := int32(0); (i < int32(len(chars))); i++ {
+			for i := int32(0); i < int32(len(chars)); i++ {
 				chars[i] = this.nonFirstChars[i].name_
 			}
 			if !DefaultNameGenerator_contains(this.nonFirstChars, String_charAt(prefix, pos)) {
@@ -152,8 +166,8 @@ func (this *DefaultNameGenerator) checkPrefix(prefix string) {
 }
 
 func DefaultNameGenerator_contains(arr []*DefaultNameGenerator_CharPriority, c uint16) bool {
-	for i := int32(0); (i < int32(len(arr))); i++ {
-		if (arr[i].name_ == c) {
+	for i := int32(0); i < int32(len(arr)); i++ {
+		if arr[i].name_ == c {
 			return true
 		}
 	}
@@ -168,12 +182,12 @@ func (this *DefaultNameGenerator) generateNextName() string {
 		if !String_isEmpty(this.prefix_) {
 			sb.append(this.prefix_)
 		}
-		if (sb.length() == 0) {
+		if sb.length() == 0 {
 			var pos int32 = (i % int32(len(this.firstChars)))
 			sb.append_char(this.firstChars[pos].name_)
 			i /= int32(len(this.firstChars))
 		}
-		for (i > 0) {
+		for i > 0 {
 			i--
 			var pos int32 = (i % int32(len(this.nonFirstChars)))
 			sb.append_char(this.nonFirstChars[pos].name_)
@@ -203,9 +217,9 @@ func DefaultNameGenerator_clinit() {
 }
 
 type DefaultNameGenerator_CharPriority struct {
-	name_ uint16
+	name_      uint16
 	occurrence int32
-	order int32
+	order      int32
 }
 
 func (this *DefaultNameGenerator_CharPriority) init_DefaultNameGenerator_CharPriority(name uint16, order int32) {
@@ -230,10 +244,9 @@ func (this *DefaultNameGenerator_CharPriority) compareTo(other_ any) int32 {
 	var other *DefaultNameGenerator_CharPriority = cast_[*DefaultNameGenerator_CharPriority](other_)
 	_ = other
 	var result int32 = (other.occurrence - this.occurrence)
-	if (result != 0) {
+	if result != 0 {
 		return result
 	}
 	result = (this.order - other.order)
 	return result
 }
-

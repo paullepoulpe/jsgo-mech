@@ -5,9 +5,9 @@ package closure
 type LintPassConfig struct {
 	PassConfig_PassConfigDelegate
 	gatherModuleMetadataPass *PassFactory
-	earlyLintChecks *PassFactory
-	variableReferenceCheck *PassFactory
-	lateLintChecks *PassFactory
+	earlyLintChecks          *PassFactory
+	variableReferenceCheck   *PassFactory
+	lateLintChecks           *PassFactory
 }
 
 func (this *LintPassConfig) up_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate {
@@ -35,7 +35,9 @@ func (this *LintPassConfig) finit_LintPassConfig() {
 		_ = compiler
 		return icast_CompilerPass(obj_(new_CombinedCompilerPass(compiler, icast_List(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_ObjectArr(obj_(new_CheckConstPrivateProperties(compiler)), obj_(new_CheckConstantCaseNames(compiler)), obj_(new_CheckDuplicateCase(compiler)), obj_(new_CheckEmptyStatements(compiler)), obj_(new_CheckEnums(compiler)), obj_(new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove())), obj_(new_CheckGoogModuleTypeScriptName(compiler)), obj_(new_CheckJSDocStyle(compiler)), obj_(new_CheckJSDoc(compiler)), obj_(new_CheckMissingSemicolon(compiler)), obj_(new_CheckSuper(compiler)), obj_(new_CheckPrimitiveAsObject(compiler)), []any{obj_(new_ClosureCheckModule(compiler, compiler.getModuleMetadataMap())), obj_(new_CheckNullabilityModifiers(compiler)), obj_(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckSideEffects(compiler, true, false)), obj_(new_CheckTypeImportCodeReferences(compiler)), obj_(new_CheckUnusedLabels(compiler)), obj_(new_CheckUnusedPrivateProperties(compiler)), obj_(new_CheckUselessBlocks(compiler)), obj_(new_CheckVar(compiler))}))))))
 	}}).build()
-	this.variableReferenceCheck = PassFactory_builder().setName("variableReferenceCheck").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return icast_CompilerPass(obj_(new_VariableReferenceCheck(to_AbstractCompiler(p0)))) }}).build()
+	this.variableReferenceCheck = PassFactory_builder().setName("variableReferenceCheck").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
+		return icast_CompilerPass(obj_(new_VariableReferenceCheck(to_AbstractCompiler(p0))))
+	}}).build()
 	this.lateLintChecks = PassFactory_builder().setName("lateLintChecks").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
@@ -71,4 +73,3 @@ func (this *LintPassConfig) getOptimizations_impl() *PassListBuilder {
 func (this *LintPassConfig) getFinalizations_impl() *PassListBuilder {
 	return new_PassListBuilder(this.options_)
 }
-

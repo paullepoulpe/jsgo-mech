@@ -4,11 +4,11 @@ package closure
 
 type ExportDeclarationTree struct {
 	ParseTree
-	isDefault_ bool
-	isExportAll bool
-	declaration_ *ParseTree
+	isDefault_          bool
+	isExportAll         bool
+	declaration_        *ParseTree
 	exportSpecifierList ImmutableListOf[*ParseTree]
-	from *LiteralToken
+	from                *LiteralToken
 }
 
 func (this *ExportDeclarationTree) up_ParseTree() *ParseTree {
@@ -33,4 +33,3 @@ func new_ExportDeclarationTree(location *SourceRange, isDefault bool, isExportAl
 	this.init_ExportDeclarationTree(location, isDefault, isExportAll, declaration, exportSpecifierList, from)
 	return this
 }
-

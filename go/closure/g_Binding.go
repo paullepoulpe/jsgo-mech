@@ -3,12 +3,12 @@
 package closure
 
 type Binding struct {
-	metadata_ *ModuleMetadataMap_ModuleMetadata
-	sourceNode_ Node
+	metadata_          *ModuleMetadataMap_ModuleMetadata
+	sourceNode_        Node
 	originatingExport_ *Export
 	isModuleNamespace_ bool
-	closureNamespace_ Optional[string]
-	createdBy_ *Binding_CreatedBy
+	closureNamespace_  Optional[string]
+	createdBy_         *Binding_CreatedBy
 }
 
 func (this *Binding) init_Binding(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, originatingExport *Export, isModuleNamespace bool, closureNamespace Optional[string], createdBy *Binding_CreatedBy) {
@@ -176,4 +176,3 @@ func Binding_CreatedBy_clinit() {
 	registerEnum_("com.google.javascript.jscomp.modules.Binding.CreatedBy", enumValues_(Binding_CreatedBy_values_))
 
 }
-

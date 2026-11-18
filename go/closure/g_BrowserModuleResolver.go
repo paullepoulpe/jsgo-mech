@@ -37,7 +37,12 @@ func (this *BrowserModuleResolver) resolveJsModule_impl(scriptAddress string, mo
 }
 
 func (this *BrowserModuleResolver) resolveJsModuleSilently_impl(scriptAddress string, moduleAddress string) Optional[string] {
-	return func() Optional[string] { if ModuleLoader_isAmbiguousIdentifier(moduleAddress) { return Optional_empty[string]() }; return this.locate(scriptAddress, moduleAddress) }()
+	return func() Optional[string] {
+		if ModuleLoader_isAmbiguousIdentifier(moduleAddress) {
+			return Optional_empty[string]()
+		}
+		return this.locate(scriptAddress, moduleAddress)
+	}()
 }
 
 var BrowserModuleResolver_FACTORY ModuleLoader_ModuleResolverFactory
@@ -49,7 +54,8 @@ func BrowserModuleResolver_clinit() {
 		return
 	}
 	BrowserModuleResolver_clinit_done = true
-	BrowserModuleResolver_FACTORY = &ModuleLoader_ModuleResolverFactory_fn{func(p0 *ImmutableSet, p1 *ImmutableList, p2 ErrorHandler, p3 *ModuleLoader_PathEscaper) *ModuleResolver { return new_BrowserModuleResolver(p0, p1, p2, p3).up_ModuleResolver() }}
+	BrowserModuleResolver_FACTORY = &ModuleLoader_ModuleResolverFactory_fn{func(p0 *ImmutableSet, p1 *ImmutableList, p2 ErrorHandler, p3 *ModuleLoader_PathEscaper) *ModuleResolver {
+		return new_BrowserModuleResolver(p0, p1, p2, p3).up_ModuleResolver()
+	}}
 
 }
-

@@ -13,4 +13,3 @@ type SourceMapSupplier_fn struct {
 func (this *SourceMapSupplier_fn) getSourceMap(p0 string) Optional[string] {
 	return this.f(p0)
 }
-

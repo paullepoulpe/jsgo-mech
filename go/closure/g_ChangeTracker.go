@@ -3,17 +3,17 @@
 package closure
 
 type ChangeTracker struct {
-	changeStamp int32
-	changeTimeline *Timeline[Node]
-	recentChange *RecentChange
-	codeChangeHandlers *TList[CodeChangeHandler]
+	changeStamp        int32
+	changeTimeline     *Timeline[Node]
+	recentChange       *RecentChange
+	codeChangeHandlers *JTList[CodeChangeHandler]
 }
 
 func (this *ChangeTracker) finit_ChangeTracker() {
 	this.changeStamp = 1
 	this.changeTimeline = new_Timeline[Node]()
 	this.recentChange = new_RecentChange()
-	this.codeChangeHandlers = newTList_(tc_CodeChangeHandler)
+	this.codeChangeHandlers = jnewTList_(jtc_CodeChangeHandler)
 }
 
 func (this *ChangeTracker) init_ChangeTracker() {
@@ -55,7 +55,7 @@ func (this *ChangeTracker) markNewScopesChanged(node Node) {
 	}
 	{
 		var child Node = node.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			this.markNewScopesChanged(child)
 		}
 	}
@@ -90,7 +90,7 @@ func ChangeTracker_isChangeScopeRoot(n Node) bool {
 }
 
 func ChangeTracker_getEnclosingChangeScopeRoot(n Node) Node {
-	for ((n != 0) && !ChangeTracker_isChangeScopeRoot(n)) {
+	for (n != 0) && !ChangeTracker_isChangeScopeRoot(n) {
 		n = n.getParent()
 	}
 	return n
@@ -109,7 +109,7 @@ func (this *ChangeTracker) getChangeScopeForNode(n Node) Node {
 		return n
 	}
 	var enclosingScopeNode Node = ChangeTracker_getEnclosingChangeScopeRoot(n.getParent())
-	if (enclosingScopeNode == 0) {
+	if enclosingScopeNode == 0 {
 		panic(new_IllegalStateException_String(("An enclosing scope is required for change reports but node " + objstr_(n.box_()) + " doesn't have one.")).self())
 	}
 	return enclosingScopeNode
@@ -123,4 +123,3 @@ func (this *ChangeTracker) recordChange(n Node) {
 	this.incrementChangeStamp()
 	this.changeTimeline.add(n)
 }
-

@@ -5,10 +5,10 @@ package closure
 type ReplaceStrings struct {
 	NodeTraversal_AbstractPostOrderCallback
 	placeholderToken string
-	compiler_ *AbstractCompiler
-	functions *TMap[string, *ReplaceStrings_Config]
-	nameGenerator *DefaultNameGenerator
-	results *TMap[string, *ReplaceStrings_Result]
+	compiler_        *AbstractCompiler
+	functions        *JTMap[string, *ReplaceStrings_Config]
+	nameGenerator    *DefaultNameGenerator
+	results          *JTMap[string, *ReplaceStrings_Result]
 }
 
 func (this *ReplaceStrings) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -23,15 +23,20 @@ func (this *ReplaceStrings) zero_ReplaceStrings() {
 }
 
 func (this *ReplaceStrings) finit_ReplaceStrings() {
-	this.functions = newTMap_(tc_string, tc_p_ReplaceStrings_Config)
-	this.results = newTMap_(tc_string, tc_p_ReplaceStrings_Result)
+	this.functions = jnewTMap_(jtc_string, tc_p_ReplaceStrings_Config)
+	this.results = jnewTMap_(jtc_string, jtc_p_ReplaceStrings_Result)
 }
 
 func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect ListOf[string]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_ReplaceStrings()
 	this.compiler_ = compiler
-	this.placeholderToken = func() string { if String_isEmpty(placeholderToken) { return ReplaceStrings_DEFAULT_PLACEHOLDER_TOKEN }; return placeholderToken }()
+	this.placeholderToken = func() string {
+		if String_isEmpty(placeholderToken) {
+			return ReplaceStrings_DEFAULT_PLACEHOLDER_TOKEN
+		}
+		return placeholderToken
+	}()
 	this.nameGenerator = ReplaceStrings_createNameGenerator()
 	this.parseConfigurationList(functionsToInspect)
 }
@@ -69,7 +74,7 @@ func (this *ReplaceStrings) visit_impl(t *NodeTraversal, n Node, parent Node) {
 		var name string = calledFn.getOriginalQualifiedName()
 		if !String_isEmpty(name) {
 			var config *ReplaceStrings_Config = this.findMatching(name, n.getSourceFileName())
-			if (config != nil) {
+			if config != nil {
 				this.doSubstitutions(t, config, n)
 				return
 			}
@@ -80,11 +85,11 @@ func (this *ReplaceStrings) visit_impl(t *NodeTraversal, n Node, parent Node) {
 
 func (this *ReplaceStrings) findMatching(name string, callsiteSourceFileName string) *ReplaceStrings_Config {
 	var config *ReplaceStrings_Config = this.functions.get(name)
-	if (config == nil) {
+	if config == nil {
 		name = String_replace_char_char(name, '$', '.')
 		config = this.functions.get(name)
 	}
-	if (config != nil) {
+	if config != nil {
 		it_1 := foreach_(obj_(config.excludedFilenameSuffixes))
 		for it_1.next() {
 			var excludedSuffix string = str_(it_1.v)
@@ -107,7 +112,7 @@ func (this *ReplaceStrings) doSubstitutions(t *NodeTraversal, config *ReplaceStr
 		for it_1.next() {
 			var parameter int32 = unbox_[int32](it_1.v)
 			var arg Node = n.getChildAtIndex(parameter)
-			if (arg != 0) {
+			if arg != 0 {
 				this.replaceExpression(t, arg)
 			}
 		}
@@ -115,7 +120,7 @@ func (this *ReplaceStrings) doSubstitutions(t *NodeTraversal, config *ReplaceStr
 		var firstParam Node = n.getSecondChild()
 		{
 			var arg Node = firstParam
-			for ; (arg != 0); arg = arg.getNext() {
+			for ; arg != 0; arg = arg.getNext() {
 				arg = this.replaceExpression(t, arg)
 			}
 		}
@@ -136,7 +141,7 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 		var keyNode Node = IR_string("")
 		replacement = this.buildReplacement(t, expr, keyNode, keyBuilder)
 		key = Optional_of[string](Object_toString(obj_(keyBuilder)))
-		if (key.get() == this.placeholderToken) {
+		if key.get() == this.placeholderToken {
 			return expr
 		}
 		replacementString = this.getReplacement(key.orElse(nullstr_))
@@ -154,7 +159,7 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 
 func (this *ReplaceStrings) getReplacement(key string) string {
 	var result *ReplaceStrings_Result = this.results.get(key)
-	if (result != nil) {
+	if result != nil {
 		return result.replacement_
 	}
 	var replacement string = this.nameGenerator.generateNextName()
@@ -179,7 +184,7 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 	case Token_rhino_TEMPLATELIT:
 		{
 			var child Node = expr.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				switch child.getToken() {
 				case Token_rhino_TEMPLATELIT_STRING:
 					keyBuilder.append(child.getCookedString().orElse("null"))
@@ -196,13 +201,13 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 		return prefix
 	case Token_rhino_NAME:
 		var var_ *Var = cast_[*Var](t.getScope().getVar(expr.getString()).self())
-		if ((var_ != nil) && (var_.isDeclaredOrInferredConst() || var_.isConst())) {
+		if (var_ != nil) && (var_.isDeclaredOrInferredConst() || var_.isConst()) {
 			var initialValue Node = var_.getInitialValue()
-			if (initialValue != 0) {
+			if initialValue != 0 {
 				var newKeyNode Node = IR_string("")
 				var newKeyBuilder *StringBuilder = new_StringBuilder()
 				var replacement Node = this.buildReplacement(t, initialValue, newKeyNode, newKeyBuilder)
-				if (replacement == newKeyNode) {
+				if replacement == newKeyNode {
 					keyBuilder.append_CharSequence(obj_(newKeyBuilder))
 					return prefix
 				}
@@ -222,7 +227,7 @@ func (this *ReplaceStrings) parseConfigurationList(functionsToInspect ListOf[str
 	for it_1.next() {
 		var function string = str_(it_1.v)
 		var config *ReplaceStrings_Config = this.parseConfiguration(function)
-		if (config != nil) {
+		if config != nil {
 			this.functions.put(config.name_, config)
 		}
 	}
@@ -240,16 +245,16 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var name string = String_substring(function, 0, first)
 	var params string = String_substring(function, (first + 1), last)
 	var paramCount int32 = 0
-	var replacementParameters *TList[any] = newTList_(tc_Integer)
+	var replacementParameters *JTList[any] = jnewTList_(tc_Integer)
 	var parts ListOf[string] = Splitter_on(',').splitToList(strobj_(params))
 	it_1 := foreach_(any(parts))
 	for it_1.next() {
 		var param string = str_(it_1.v)
 		paramCount++
-		if (param == ReplaceStrings_REPLACE_ALL_MARKER) {
+		if param == ReplaceStrings_REPLACE_ALL_MARKER {
 			Preconditions_checkState(((paramCount == 1) && (parts.size() == 1)))
 			replacementParameters.add(any(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE)))
-		} else if (param == ReplaceStrings_REPLACE_ONE_MARKER) {
+		} else if param == ReplaceStrings_REPLACE_ONE_MARKER {
 			Preconditions_checkState(!replacementParameters.asList().contains(any(int32(ReplaceStrings_Config_REPLACE_ALL_VALUE))))
 			replacementParameters.add(any(int32(paramCount)))
 		} else {
@@ -257,7 +262,12 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 		}
 	}
 	Preconditions_checkState(!replacementParameters.isEmpty())
-	return new_ReplaceStrings_Config(name, replacementParameters, func() *ImmutableSet { if (colon == -1) { return ImmutableSet_of() }; return ImmutableSet_copyOf_ObjectArr(arrmap_(ReplaceStrings_COMMA_PATTERN.split(String_substring_int(function, (colon + String_length(ReplaceStrings_EXCLUSION_PREFIX)))), func(v_ string) any { return strobj_(v_) })) }())
+	return new_ReplaceStrings_Config(name, replacementParameters, func() *ImmutableSet {
+		if colon == -1 {
+			return ImmutableSet_of()
+		}
+		return ImmutableSet_copyOf_ObjectArr(arrmap_(ReplaceStrings_COMMA_PATTERN.split(String_substring_int(function, (colon+String_length(ReplaceStrings_EXCLUSION_PREFIX)))), func(v_ string) any { return strobj_(v_) }))
+	}())
 }
 
 func ReplaceStrings_createNameGenerator() *DefaultNameGenerator {
@@ -269,10 +279,12 @@ func ReplaceStrings_createNameGenerator() *DefaultNameGenerator {
 var ReplaceStrings_COMMA_PATTERN *Pattern
 var ReplaceStrings_BAD_REPLACEMENT_CONFIGURATION *DiagnosticType
 var ReplaceStrings_STRING_REPLACEMENT_TAGGED_TEMPLATE *DiagnosticType
+
 const ReplaceStrings_DEFAULT_PLACEHOLDER_TOKEN string = "`"
 const ReplaceStrings_EXCLUSION_PREFIX string = ":!"
 const ReplaceStrings_REPLACE_ONE_MARKER string = "?"
 const ReplaceStrings_REPLACE_ALL_MARKER string = "*"
+
 var ReplaceStrings_USED_RESULTS Predicate_base
 
 var ReplaceStrings_clinit_done bool
@@ -292,8 +304,8 @@ func ReplaceStrings_clinit() {
 }
 
 type ReplaceStrings_Config struct {
-	name_ string
-	parameters *TList[any]
+	name_                    string
+	parameters               *JTList[any]
 	excludedFilenameSuffixes ImmutableSetOf[string]
 }
 
@@ -301,13 +313,13 @@ func (this *ReplaceStrings_Config) zero_ReplaceStrings_Config() {
 	this.name_ = nullstr_
 }
 
-func (this *ReplaceStrings_Config) init_ReplaceStrings_Config(name string, replacementParameters *TList[any], excludedFilenameSuffixes ImmutableSetOf[string]) {
+func (this *ReplaceStrings_Config) init_ReplaceStrings_Config(name string, replacementParameters *JTList[any], excludedFilenameSuffixes ImmutableSetOf[string]) {
 	this.name_ = name
 	this.parameters = replacementParameters
 	this.excludedFilenameSuffixes = excludedFilenameSuffixes
 }
 
-func new_ReplaceStrings_Config(name string, replacementParameters *TList[any], excludedFilenameSuffixes ImmutableSetOf[string]) *ReplaceStrings_Config {
+func new_ReplaceStrings_Config(name string, replacementParameters *JTList[any], excludedFilenameSuffixes ImmutableSetOf[string]) *ReplaceStrings_Config {
 	this := &ReplaceStrings_Config{}
 	this.zero_ReplaceStrings_Config()
 	this.init_ReplaceStrings_Config(name, replacementParameters, excludedFilenameSuffixes)
@@ -321,8 +333,8 @@ func (this *ReplaceStrings_Config) isReplaceAll() bool {
 const ReplaceStrings_Config_REPLACE_ALL_VALUE int32 = 0
 
 type ReplaceStrings_Result struct {
-	original_ string
-	replacement_ string
+	original_      string
+	replacement_   string
 	didReplacement bool
 }
 
@@ -347,4 +359,3 @@ func new_ReplaceStrings_Result(original string, replacement string) *ReplaceStri
 	this.init_ReplaceStrings_Result(original, replacement)
 	return this
 }
-

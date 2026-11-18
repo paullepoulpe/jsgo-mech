@@ -18,4 +18,3 @@ func new_ForbiddenChange() *ForbiddenChange {
 func (this *ForbiddenChange) reportChange() {
 	panic(new_IllegalStateException_String("Code changes forbidden").self())
 }
-

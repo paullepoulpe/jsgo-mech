@@ -48,7 +48,9 @@ func (this *AbstractCompiler) getIndex(type_ ClassOf[any]) any {
 }
 
 func (this *AbstractCompiler) getTypedAstDeserializer(p0 *SourceFile_jscomp) Supplier {
-	return this.self_.(interface{ getTypedAstDeserializer_impl(*SourceFile_jscomp) Supplier }).getTypedAstDeserializer_impl(p0)
+	return this.self_.(interface {
+		getTypedAstDeserializer_impl(*SourceFile_jscomp) Supplier
+	}).getTypedAstDeserializer_impl(p0)
 }
 
 func (this *AbstractCompiler) initRuntimeLibraryTypedAsts(p0 *Optional_base) {
@@ -76,11 +78,15 @@ func (this *AbstractCompiler) afterPass(p0 string) {
 }
 
 func (this *AbstractCompiler) getLifeCycleStage() *AbstractCompiler_LifeCycleStage {
-	return this.self_.(interface{ getLifeCycleStage_impl() *AbstractCompiler_LifeCycleStage }).getLifeCycleStage_impl()
+	return this.self_.(interface {
+		getLifeCycleStage_impl() *AbstractCompiler_LifeCycleStage
+	}).getLifeCycleStage_impl()
 }
 
 func (this *AbstractCompiler) setLifeCycleStage(p0 *AbstractCompiler_LifeCycleStage) {
-	this.self_.(interface{ setLifeCycleStage_impl(*AbstractCompiler_LifeCycleStage) }).setLifeCycleStage_impl(p0)
+	this.self_.(interface {
+		setLifeCycleStage_impl(*AbstractCompiler_LifeCycleStage)
+	}).setLifeCycleStage_impl(p0)
 }
 
 func (this *AbstractCompiler) createAstFactory() *AstFactory {
@@ -100,7 +106,9 @@ func (this *AbstractCompiler) createDefaultExpressionDecomposer() *ExpressionDec
 }
 
 func (this *AbstractCompiler) createExpressionDecomposer(p0 Supplier, p1 *ImmutableSet, p2 *Scope) *ExpressionDecomposer {
-	return this.self_.(interface{ createExpressionDecomposer_impl(Supplier, *ImmutableSet, *Scope) *ExpressionDecomposer }).createExpressionDecomposer_impl(p0, p1, p2)
+	return this.self_.(interface {
+		createExpressionDecomposer_impl(Supplier, *ImmutableSet, *Scope) *ExpressionDecomposer
+	}).createExpressionDecomposer_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) isDebugLoggingEnabled() bool {
@@ -112,11 +120,15 @@ func (this *AbstractCompiler) getDebugLogFilterList() List {
 }
 
 func (this *AbstractCompiler) createOrReopenLog(p0 *Class, p1 string, p2 []string) *LogFile {
-	return this.self_.(interface{ createOrReopenLog_impl(*Class, string, []string) *LogFile }).createOrReopenLog_impl(p0, p1, p2)
+	return this.self_.(interface {
+		createOrReopenLog_impl(*Class, string, []string) *LogFile
+	}).createOrReopenLog_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) createOrReopenIndexedLog(p0 *Class, p1 string, p2 []string) *LogFile {
-	return this.self_.(interface{ createOrReopenIndexedLog_impl(*Class, string, []string) *LogFile }).createOrReopenIndexedLog_impl(p0, p1, p2)
+	return this.self_.(interface {
+		createOrReopenIndexedLog_impl(*Class, string, []string) *LogFile
+	}).createOrReopenIndexedLog_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) getScriptNode(p0 string) Node {
@@ -216,7 +228,9 @@ func (this *AbstractCompiler) setTopScope(p0 *TypedScope) {
 }
 
 func (this *AbstractCompiler) getReverseAbstractInterpreter() ReverseAbstractInterpreter {
-	return this.self_.(interface{ getReverseAbstractInterpreter_impl() ReverseAbstractInterpreter }).getReverseAbstractInterpreter_impl()
+	return this.self_.(interface {
+		getReverseAbstractInterpreter_impl() ReverseAbstractInterpreter
+	}).getReverseAbstractInterpreter_impl()
 }
 
 func (this *AbstractCompiler) getTypeValidator() *TypeValidator {
@@ -304,7 +318,9 @@ func (this *AbstractCompiler) getCodingConvention() CodingConvention {
 }
 
 func (this *AbstractCompiler) getParserConfig(p0 *AbstractCompiler_ConfigContext) *Config {
-	return this.self_.(interface{ getParserConfig_impl(*AbstractCompiler_ConfigContext) *Config }).getParserConfig_impl(p0)
+	return this.self_.(interface {
+		getParserConfig_impl(*AbstractCompiler_ConfigContext) *Config
+	}).getParserConfig_impl(p0)
 }
 
 func (this *AbstractCompiler) report(p0 *JSError) {
@@ -324,7 +340,9 @@ func (this *AbstractCompiler) hasHaltingErrors() bool {
 }
 
 func (this *AbstractCompiler) getSourceFileByName(p0 Optional[string]) *SourceFile_jscomp {
-	return this.self_.(interface{ getSourceFileByName_impl(Optional[string]) *SourceFile_jscomp }).getSourceFileByName_impl(p0)
+	return this.self_.(interface {
+		getSourceFileByName_impl(Optional[string]) *SourceFile_jscomp
+	}).getSourceFileByName_impl(p0)
 }
 
 func (this *AbstractCompiler) addInputSourceMap(p0 string, p1 *SourceMapInput) {
@@ -332,23 +350,33 @@ func (this *AbstractCompiler) addInputSourceMap(p0 string, p1 *SourceMapInput) {
 }
 
 func (this *AbstractCompiler) getBase64SourceMapContents(p0 Optional[string]) Optional[string] {
-	return this.self_.(interface{ getBase64SourceMapContents_impl(Optional[string]) Optional[string] }).getBase64SourceMapContents_impl(p0)
+	return this.self_.(interface {
+		getBase64SourceMapContents_impl(Optional[string]) Optional[string]
+	}).getBase64SourceMapContents_impl(p0)
 }
 
 func (this *AbstractCompiler) getSourceMapping_Optional_int_int(p0 Optional[string], p1 int32, p2 int32) *Mapping_OriginalMapping {
-	return this.self_.(interface{ getSourceMapping_Optional_int_int_impl(Optional[string], int32, int32) *Mapping_OriginalMapping }).getSourceMapping_Optional_int_int_impl(p0, p1, p2)
+	return this.self_.(interface {
+		getSourceMapping_Optional_int_int_impl(Optional[string], int32, int32) *Mapping_OriginalMapping
+	}).getSourceMapping_Optional_int_int_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) getSourceLine(p0 Optional[string], p1 int32) Optional[string] {
-	return this.self_.(interface{ getSourceLine_impl(Optional[string], int32) Optional[string] }).getSourceLine_impl(p0, p1)
+	return this.self_.(interface {
+		getSourceLine_impl(Optional[string], int32) Optional[string]
+	}).getSourceLine_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getSourceLines(p0 Optional[string], p1 int32, p2 int32) Region {
-	return this.self_.(interface{ getSourceLines_impl(Optional[string], int32, int32) Region }).getSourceLines_impl(p0, p1, p2)
+	return this.self_.(interface {
+		getSourceLines_impl(Optional[string], int32, int32) Region
+	}).getSourceLines_impl(p0, p1, p2)
 }
 
 func (this *AbstractCompiler) getSourceRegion(p0 Optional[string], p1 int32) Region {
-	return this.self_.(interface{ getSourceRegion_impl(Optional[string], int32) Region }).getSourceRegion_impl(p0, p1)
+	return this.self_.(interface {
+		getSourceRegion_impl(Optional[string], int32) Region
+	}).getSourceRegion_impl(p0, p1)
 }
 
 func (this *AbstractCompiler) getNodeForCodeInsertion(p0 *JSChunk) Node {
@@ -496,7 +524,9 @@ func (this *AbstractCompiler) getModuleLoader() *ModuleLoader {
 }
 
 func (this *AbstractCompiler) getModuleTypeByName(p0 Optional[string]) *CompilerInput_ModuleType {
-	return this.self_.(interface{ getModuleTypeByName_impl(Optional[string]) *CompilerInput_ModuleType }).getModuleTypeByName_impl(p0)
+	return this.self_.(interface {
+		getModuleTypeByName_impl(Optional[string]) *CompilerInput_ModuleType
+	}).getModuleTypeByName_impl(p0)
 }
 
 func (this *AbstractCompiler) getModuleMetadataMap() *ModuleMetadataMap {
@@ -516,6 +546,7 @@ func (this *AbstractCompiler) setModuleMap(p0 *ModuleMap) {
 }
 
 var AbstractCompiler_READ_ERROR *DiagnosticType
+
 const AbstractCompiler_FILL_FILE_SUFFIX string = "$fillFile"
 const AbstractCompiler_RUNTIME_LIB_DIR string = "src/com/google/javascript/jscomp/js/"
 
@@ -655,4 +686,3 @@ func AbstractCompiler_LifeCycleStage_clinit() {
 	registerEnum_("com.google.javascript.jscomp.AbstractCompiler.LifeCycleStage", enumValues_(AbstractCompiler_LifeCycleStage_values_))
 
 }
-

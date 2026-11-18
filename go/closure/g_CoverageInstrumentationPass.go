@@ -3,10 +3,10 @@
 package closure
 
 type CoverageInstrumentationPass struct {
-	compiler_ *AbstractCompiler
-	instrumentationData *TMap[string, *FileInstrumentationData]
-	reach *CoverageInstrumentationPass_CoverageReach
-	instrumentOption *CompilerOptions_InstrumentOption
+	compiler_                          *AbstractCompiler
+	instrumentationData                *JTMap[string, *FileInstrumentationData]
+	reach                              *CoverageInstrumentationPass_CoverageReach
+	instrumentOption                   *CompilerOptions_InstrumentOption
 	productionInstrumentationArrayName string
 }
 
@@ -19,7 +19,7 @@ func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_Abstra
 	this.reach = reach
 	this.instrumentOption = instrumentOption
 	this.productionInstrumentationArrayName = productionInstrumentationArrayName
-	this.instrumentationData = newTMap_(tc_string, tc_p_FileInstrumentationData)
+	this.instrumentationData = jnewTMap_(jtc_string, jtc_p_FileInstrumentationData)
 }
 
 func new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler *AbstractCompiler, reach *CoverageInstrumentationPass_CoverageReach, instrumentOption *CompilerOptions_InstrumentOption, productionInstrumentationArrayName string) *CoverageInstrumentationPass {
@@ -60,9 +60,9 @@ func (this *CoverageInstrumentationPass) checkIfArrayNameExternDeclared(externsN
 
 func (this *CoverageInstrumentationPass) process_2(externsNode Node, rootNode Node) {
 	if rootNode.hasChildren() {
-		if (this.instrumentOption == CompilerOptions_InstrumentOption_BRANCH_ONLY) {
+		if this.instrumentOption == CompilerOptions_InstrumentOption_BRANCH_ONLY {
 			NodeTraversal_traverse(this.compiler_, rootNode, icast_NodeTraversal_Callback(obj_(new_BranchCoverageInstrumentationCallback(this.compiler_, this.instrumentationData))))
-		} else if (this.instrumentOption == CompilerOptions_InstrumentOption_PRODUCTION) {
+		} else if this.instrumentOption == CompilerOptions_InstrumentOption_PRODUCTION {
 			var productionCoverageInstrumentationCallback *ProductionCoverageInstrumentationCallback = new_ProductionCoverageInstrumentationCallback(this.compiler_, this.productionInstrumentationArrayName)
 			NodeTraversal_traverse(this.compiler_, rootNode, icast_NodeTraversal_Callback(obj_(productionCoverageInstrumentationCallback)))
 			this.checkIfArrayNameExternDeclared(externsNode, this.productionInstrumentationArrayName)
@@ -73,10 +73,10 @@ func (this *CoverageInstrumentationPass) process_2(externsNode Node, rootNode No
 		}
 		var firstScript Node = rootNode.getFirstChild()
 		Preconditions_checkState(firstScript.isScript())
-		if (firstScript.hasChildren() && firstScript.getFirstChild().isModuleBody()) {
+		if firstScript.hasChildren() && firstScript.getFirstChild().isModuleBody() {
 			firstScript = firstScript.getFirstChild()
 		}
-		if (this.instrumentOption == CompilerOptions_InstrumentOption_PRODUCTION) {
+		if this.instrumentOption == CompilerOptions_InstrumentOption_PRODUCTION {
 			this.addProductionHeaderCode(firstScript, this.productionInstrumentationArrayName)
 		} else {
 			this.addHeaderCode(firstScript)
@@ -154,4 +154,3 @@ func CoverageInstrumentationPass_CoverageReach_clinit() {
 	registerEnum_("com.google.javascript.jscomp.instrumentation.CoverageInstrumentationPass.CoverageReach", enumValues_(CoverageInstrumentationPass_CoverageReach_values_))
 
 }
-

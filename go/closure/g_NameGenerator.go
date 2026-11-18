@@ -8,4 +8,3 @@ type NameGenerator interface {
 	clone(Set, string, Set) NameGenerator
 	generateNextName() string
 }
-

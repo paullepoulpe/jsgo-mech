@@ -25,8 +25,8 @@ func ClosureModuleProcessor_mayBeAccidentalDefaultExport(importName string, expo
 	}
 	{
 		var key Node = exportedValue.getFirstChild()
-		for ; (key != 0); key = key.getNext() {
-			if (key.isStringKey() && (key.getString() == importName)) {
+		for ; key != 0; key = key.getNext() {
+			if key.isStringKey() && (key.getString() == importName) {
 				return true
 			}
 		}
@@ -44,13 +44,13 @@ func (this *ClosureModuleProcessor) process(metadata *ModuleMetadataMap_ModuleMe
 
 type ClosureModuleProcessor_UnresolvedGoogModule struct {
 	UnresolvedModule
-	metadataField *ModuleMetadataMap_ModuleMetadata
-	srcFileName string
-	path_ *ModuleLoader_ModulePath
-	namespace_ ImmutableMapOf[string, *Binding]
+	metadataField       *ModuleMetadataMap_ModuleMetadata
+	srcFileName         string
+	path_               *ModuleLoader_ModulePath
+	namespace_          ImmutableMapOf[string, *Binding]
 	requiresByLocalName ImmutableMapOf[string, *ClosureRequireProcessor_Require]
-	compiler_ *AbstractCompiler
-	resolved_ *Module
+	compiler_           *AbstractCompiler
+	resolved_           *Module
 }
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) up_UnresolvedModule() *UnresolvedModule {
@@ -88,8 +88,13 @@ func new_ClosureModuleProcessor_UnresolvedGoogModule(metadata *ModuleMetadataMap
 }
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName Optional[string]) *ResolveExportResult {
-	if (exportName.isPresent() && Map_containsKey_s(this.namespace_, exportName.get())) {
-		return ResolveExportResult_of(func() *Binding { if exportName.isPresent() { return cast_[*Binding](Map_get_s(this.namespace_, exportName.get())) }; return nil }())
+	if exportName.isPresent() && Map_containsKey_s(this.namespace_, exportName.get()) {
+		return ResolveExportResult_of(func() *Binding {
+			if exportName.isPresent() {
+				return cast_[*Binding](Map_get_s(this.namespace_, exportName.get()))
+			}
+			return nil
+		}())
 	}
 	return ResolveExportResult_NOT_FOUND
 }
@@ -99,15 +104,15 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5_impl(mo
 }
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string]) *Module {
-	if (this.resolved_ == nil) {
-		var boundNames *TMap[string, *Binding] = tmapCopy_(tc_string, tc_p_Binding, this.getAllResolvedImports(moduleRequestResolver))
+	if this.resolved_ == nil {
+		var boundNames *JTMap[string, *Binding] = tmapCopy_(jtc_string, jtc_p_Binding, this.getAllResolvedImports(moduleRequestResolver))
 		this.resolved_ = Module_builder().path(this.path_).metadata(this.metadataField).namespace(this.namespace_).boundNames(ImmutableMap_copyOf(boundNames.asMap())).localNameToLocalExport(ImmutableMap_of()).closureNamespace(Optional_ofNullable[string](str_(Iterables_getOnlyElement(icast_Iterable(obj_(this.metadataField.googNamespaces())))))).build()
 	}
 	return this.resolved_
 }
 
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) getAllResolvedImports(moduleRequestResolver ModuleRequestResolver) *TMap[string, *Binding] {
-	var imports *TMap[string, *Binding] = newTMap_(tc_string, tc_p_Binding)
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) getAllResolvedImports(moduleRequestResolver ModuleRequestResolver) *JTMap[string, *Binding] {
+	var imports *JTMap[string, *Binding] = jnewTMap_(jtc_string, jtc_p_Binding)
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](this.requiresByLocalName.keySet())))
 	for it_1.next() {
 		var name string = str_(it_1.v)
@@ -123,17 +128,22 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveImport(moduleReq
 	var require *ClosureRequireProcessor_Require = cast_[*ClosureRequireProcessor_Require](Map_get_s(this.requiresByLocalName, name))
 	var importRecord *Import = require.importRecord()
 	var requested *UnresolvedModule = moduleRequestResolver.resolveImport(importRecord)
-	if (requested == nil) {
+	if requested == nil {
 		return ResolveExportResult_ERROR
-	} else if (importRecord.importName() == Export_NAMESPACE) {
+	} else if importRecord.importName() == Export_NAMESPACE {
 		return ResolveExportResult_of(Binding_from_ModuleMetadata_Node_String_CreatedBy(requested.metadata(), importRecord.nameNode(), importRecord.moduleRequest(), require.createdBy()))
 	} else {
 		var result *ResolveExportResult = requested.resolveExport_5(moduleRequestResolver, Optional_of[string](importRecord.moduleRequest()), Optional_of[string](importRecord.importName()), icast_Set(obj_(new_LinkedHashSet())), icast_Set(obj_(new_LinkedHashSet())))
-		if (!result.found() && !result.hadError()) {
+		if !result.found() && !result.hadError() {
 			this.reportInvalidDestructuringRequire(requested, importRecord)
 			return ResolveExportResult_ERROR
 		}
-		var forSourceInfo Node = func() Node { if (importRecord.nameNode() == 0) { return importRecord.importNode() }; return importRecord.nameNode() }()
+		var forSourceInfo Node = func() Node {
+			if importRecord.nameNode() == 0 {
+				return importRecord.importNode()
+			}
+			return importRecord.nameNode()
+		}()
 		return result.copy(forSourceInfo, require.createdBy())
 	}
 	panic("unreachable")
@@ -159,7 +169,14 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) reportInvalidDestructur
 	var additionalInfo string = ""
 	var unresolvedGoogModule *ClosureModuleProcessor_UnresolvedGoogModule
 	_ = unresolvedGoogModule
-	if func() bool { v_ := requested.self(); if !is_[*ClosureModuleProcessor_UnresolvedGoogModule](v_) { return false }; unresolvedGoogModule = cast_[*ClosureModuleProcessor_UnresolvedGoogModule](v_); return true }() {
+	if func() bool {
+		v_ := requested.self()
+		if !is_[*ClosureModuleProcessor_UnresolvedGoogModule](v_) {
+			return false
+		}
+		unresolvedGoogModule = cast_[*ClosureModuleProcessor_UnresolvedGoogModule](v_)
+		return true
+	}() {
 		var exports ImmutableMapOf[string, *Binding] = unresolvedGoogModule.namespace_
 		if Map_containsKey_s(exports, Export_NAMESPACE) {
 			additionalInfo = Strings_lenientFormat("\nThe goog.module \"%s\" cannot be destructured as it contains a default export, not named exports. See %s.", []any{strobj_(importRecord.moduleRequest()), strobj_("https://github.com/google/closure-library/wiki/goog.module%3A-an-ES6-module-like-alternative-to-goog.provide#destructuring-imports")})
@@ -173,10 +190,10 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) reportInvalidDestructur
 
 type ClosureModuleProcessor_ModuleProcessingCallback struct {
 	NodeTraversal_AbstractPreOrderCallback
-	metadata_ *ModuleMetadataMap_ModuleMetadata
-	closureNamespace_ string
-	namespace_ *TMap[string, *Binding]
-	requiresByLocalName *TMap[string, *ClosureRequireProcessor_Require]
+	metadata_             *ModuleMetadataMap_ModuleMetadata
+	closureNamespace_     string
+	namespace_            *JTMap[string, *Binding]
+	requiresByLocalName   *JTMap[string, *ClosureRequireProcessor_Require]
 	seenExportsAssignment bool
 }
 
@@ -194,8 +211,8 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) zero_ClosureModuleP
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) init_ClosureModuleProcessor_ModuleProcessingCallback(metadata *ModuleMetadataMap_ModuleMetadata) {
 	this.NodeTraversal_AbstractPreOrderCallback.init_NodeTraversal_AbstractPreOrderCallback()
 	this.metadata_ = metadata
-	this.namespace_ = newTMap_(tc_string, tc_p_Binding)
-	this.requiresByLocalName = newTMap_(tc_string, tc_p_ClosureRequireProcessor_Require)
+	this.namespace_ = jnewTMap_(jtc_string, jtc_p_Binding)
+	this.requiresByLocalName = jnewTMap_(jtc_string, jtc_p_ClosureRequireProcessor_Require)
 	this.closureNamespace_ = str_(Iterables_getOnlyElement(icast_Iterable(obj_(metadata.googNamespaces()))))
 	this.seenExportsAssignment = false
 }
@@ -236,14 +253,14 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) shouldTraverse_impl
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeExports(assignment Node) {
 	var lhs Node = assignment.getFirstChild()
 	var rhs Node = assignment.getSecondChild()
-	if (lhs.isName() && (lhs.getString() == "exports")) {
+	if lhs.isName() && (lhs.getString() == "exports") {
 		if NodeUtil_isNamedExportsLiteral(rhs) {
 			this.initializeNamedExportsLiteral(rhs)
 		} else {
 			this.seenExportsAssignment = true
 			this.markExportsAssignmentInNamespace(lhs)
 		}
-	} else if ((lhs.isGetProp() && lhs.getFirstChild().isName()) && (lhs.getFirstChild().getString() == "exports")) {
+	} else if (lhs.isGetProp() && lhs.getFirstChild().isName()) && (lhs.getFirstChild().getString() == "exports") {
 		var exportedId string = lhs.getString()
 		this.addPropertyExport(exportedId, lhs)
 	}
@@ -251,7 +268,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeExpo
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeExportsStub(qname Node) {
 	var owner Node = qname.getFirstChild()
-	if (owner.isName() && (owner.getString() == "exports")) {
+	if owner.isName() && (owner.getString() == "exports") {
 		this.addPropertyExport(qname.getString(), qname)
 	}
 }
@@ -263,7 +280,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) markExportsAssignme
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) initializeNamedExportsLiteral(objectLit Node) {
 	{
 		var key Node = objectLit.getFirstChild()
-		for ; (key != 0); key = key.getNext() {
+		for ; key != 0; key = key.getNext() {
 			this.addPropertyExport(key.getString(), key)
 		}
 	}
@@ -285,4 +302,3 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeRequ
 		this.requiresByLocalName.putIfAbsent(require.localName(), require)
 	}
 }
-

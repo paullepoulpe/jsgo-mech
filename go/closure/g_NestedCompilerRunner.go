@@ -3,18 +3,18 @@
 package closure
 
 type NestedCompilerRunner struct {
-	shadowCompiler *Compiler
-	inputs *TList[*CompilerInput]
-	baseChunk *JSChunk
-	original_ *AbstractCompiler
-	shadowOptions *CompilerOptions
-	mode_ *NestedCompilerRunner_Mode
+	shadowCompiler   *Compiler
+	inputs           *JTList[*CompilerInput]
+	baseChunk        *JSChunk
+	original_        *AbstractCompiler
+	shadowOptions    *CompilerOptions
+	mode_            *NestedCompilerRunner_Mode
 	shadowPassConfig *PassConfig
 }
 
 func (this *NestedCompilerRunner) finit_NestedCompilerRunner() {
 	this.shadowCompiler = new_Compiler_0()
-	this.inputs = newTList_(tc_p_CompilerInput)
+	this.inputs = jnewTList_(jtc_p_CompilerInput)
 	this.baseChunk = new_JSChunk("shadow_base")
 }
 
@@ -170,4 +170,3 @@ func NestedCompilerRunner_Mode_clinit() {
 	registerEnum_("com.google.javascript.jscomp.NestedCompilerRunner.Mode", enumValues_(NestedCompilerRunner_Mode_values_))
 
 }
-

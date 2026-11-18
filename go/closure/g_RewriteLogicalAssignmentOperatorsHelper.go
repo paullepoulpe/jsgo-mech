@@ -3,8 +3,8 @@
 package closure
 
 type RewriteLogicalAssignmentOperatorsHelper struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
+	compiler_        *AbstractCompiler
+	astFactory_      *AstFactory
 	uniqueIdSupplier *UniqueIdSupplier
 }
 
@@ -22,7 +22,7 @@ func new_RewriteLogicalAssignmentOperatorsHelper(compiler *AbstractCompiler, ast
 
 func (this *RewriteLogicalAssignmentOperatorsHelper) visitLogicalAssignmentOperator(t *NodeTraversal, logicalAssignment Node) {
 	var enclosingFunction Node = NodeUtil_getEnclosingFunction(logicalAssignment)
-	if ((enclosingFunction != 0) && !NodeUtil_getFunctionBody(enclosingFunction).isBlock()) {
+	if (enclosingFunction != 0) && !NodeUtil_getFunctionBody(enclosingFunction).isBlock() {
 		var returnValue Node = NodeUtil_getFunctionBody(enclosingFunction)
 		var body Node = IR_block_Node(IR_returnNode_Node(returnValue.detach())).srcrefTreeIfMissing(returnValue)
 		enclosingFunction.addChildToBack(body)
@@ -87,4 +87,3 @@ func (this *RewriteLogicalAssignmentOperatorsHelper) handleLHSPropertyReference(
 
 const RewriteLogicalAssignmentOperatorsHelper_TEMP_VAR_NAME_PREFIX string = "$jscomp$logical$assign$tmp"
 const RewriteLogicalAssignmentOperatorsHelper_TEMP_INDEX_VAR_NAME_PREFIX string = "$jscomp$logical$assign$tmpindex"
-

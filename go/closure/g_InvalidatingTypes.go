@@ -17,7 +17,7 @@ func new_InvalidatingTypes(typeToLocation *SimpleSetMultimap) *InvalidatingTypes
 }
 
 func (this *InvalidatingTypes) isInvalidating(type_ *JSType) bool {
-	if (((type_ == nil) || type_.isUnknownType()) || type_.isEmptyType()) {
+	if ((type_ == nil) || type_.isUnknownType()) || type_.isEmptyType() {
 		return true
 	}
 	if type_.isUnionType() {
@@ -34,7 +34,7 @@ func (this *InvalidatingTypes) isInvalidating(type_ *JSType) bool {
 		}
 	}
 	var objType *ObjectType = type_.toMaybeObjectType()
-	if (objType == nil) {
+	if objType == nil {
 		return false
 	}
 	if objType.isTemplatizedType() {
@@ -81,7 +81,7 @@ func InvalidatingTypes_clinit() {
 }
 
 type InvalidatingTypes_Builder struct {
-	registry *JSTypeRegistry
+	registry       *JSTypeRegistry
 	typeToLocation *SimpleSetMultimap
 }
 
@@ -134,7 +134,7 @@ func (this *InvalidatingTypes_Builder) addTypeWithReason(type_ *JSType, location
 		return
 	}
 	var objType *ObjectType = type_.toMaybeObjectType()
-	if (objType == nil) {
+	if objType == nil {
 		return
 	}
 	this.recordTypeWithReason(objType, location)
@@ -148,7 +148,7 @@ func (this *InvalidatingTypes_Builder) addTypeWithReason(type_ *JSType, location
 }
 
 func (this *InvalidatingTypes_Builder) recordTypeWithReason(type_ *ObjectType, location Node) {
-	if (type_ == nil) {
+	if type_ == nil {
 		return
 	}
 	if type_.isTemplatizedType() {
@@ -159,4 +159,3 @@ func (this *InvalidatingTypes_Builder) recordTypeWithReason(type_ *ObjectType, l
 	}
 	this.typeToLocation.put(type_.self(), location.box_())
 }
-

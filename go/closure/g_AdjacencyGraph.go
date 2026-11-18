@@ -10,4 +10,3 @@ type AdjacencyGraph[N any] interface {
 	clearNodeAnnotations()
 	getWeight(N) int32
 }
-

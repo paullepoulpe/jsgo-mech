@@ -3,15 +3,15 @@
 package closure
 
 type GenerateExports struct {
-	compiler_ *AbstractCompiler
-	exportSymbolFunction Optional[string]
+	compiler_              *AbstractCompiler
+	exportSymbolFunction   Optional[string]
 	exportPropertyFunction Optional[string]
-	allowNonGlobalExports bool
-	exportedVariables *TSet[string]
+	allowNonGlobalExports  bool
+	exportedVariables      *JTSet[string]
 }
 
 func (this *GenerateExports) finit_GenerateExports() {
-	this.exportedVariables = newTSet_(tc_string)
+	this.exportedVariables = jnewTSet_(jtc_string)
 }
 
 func (this *GenerateExports) init_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool, exportSymbolFunction Optional[string], exportPropertyFunction Optional[string]) {
@@ -29,22 +29,22 @@ func new_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool,
 	return this
 }
 
-func (this *GenerateExports) getExportedVariableNames() *TSet[string] {
+func (this *GenerateExports) getExportedVariableNames() *JTSet[string] {
 	return this.exportedVariables
 }
 
 func (this *GenerateExports) process_2(externs Node, root Node) {
 	var findExportableNodes *FindExportableNodes = new_FindExportableNodes(this.compiler_, this.allowNonGlobalExports)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(findExportableNodes)))
-	var exports *TMap[string, Node] = findExportableNodes.getExports()
-	var es6Exports *TMap[Node, string] = findExportableNodes.getEs6ClassExports()
-	var localExports *TSet[string] = findExportableNodes.getLocalExports()
+	var exports *JTMap[string, Node] = findExportableNodes.getExports()
+	var es6Exports *JTMap[Node, string] = findExportableNodes.getEs6ClassExports()
+	var localExports *JTSet[string] = findExportableNodes.getLocalExports()
 	it_1 := localExports.each()
 	for it_1.next() {
 		var export string = it_1.v
 		this.addExtern(export)
 	}
-	if (!exports.isEmpty() || !es6Exports.isEmpty()) {
+	if !exports.isEmpty() || !es6Exports.isEmpty() {
 		if !this.validateExportMethodsIncluded(exports, es6Exports, root) {
 			return
 		}
@@ -63,14 +63,14 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 	}
 }
 
-func (this *GenerateExports) validateExportMethodsIncluded(exports *TMap[string, Node], es6Exports *TMap[Node, string], root Node) bool {
+func (this *GenerateExports) validateExportMethodsIncluded(exports *JTMap[string, Node], es6Exports *JTMap[Node, string], root Node) bool {
 	var errorLocation Node
 	if !exports.isEmpty() {
 		errorLocation = Node_of_(exports.asMap().values().iterator().next())
 	} else {
 		errorLocation = Node_of_(es6Exports.asMap().keySet().iterator().next())
 	}
-	if (this.exportSymbolFunction.isEmpty() || this.exportPropertyFunction.isEmpty()) {
+	if this.exportSymbolFunction.isEmpty() || this.exportPropertyFunction.isEmpty() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorLocation, GenerateExports_MISSING_EXPORT_CONVENTION, []string{}))
 		return false
 	}
@@ -92,7 +92,7 @@ func (this *GenerateExports) includesExportMethods(root Node) bool {
 func (this *GenerateExports) declareExportMethodsInExterns(srcref Node) {
 	var exportPropertyRoot string = NodeUtil_getRootOfQualifiedNameString(this.exportPropertyFunction.get())
 	var exportSymbolRoot string = NodeUtil_getRootOfQualifiedNameString(this.exportSymbolFunction.get())
-	if (exportPropertyRoot == exportSymbolRoot) {
+	if exportPropertyRoot == exportSymbolRoot {
 		this.declareSyntheticExternsVar(exportPropertyRoot, srcref)
 	} else {
 		this.declareSyntheticExternsVar(exportPropertyRoot, srcref)
@@ -122,7 +122,7 @@ func (this *GenerateExports) addExtern(export string) {
 
 func (this *GenerateExports) recordExportSymbol(qname string) {
 	var dot int32 = String_indexOf(qname, 46)
-	if (dot == -1) {
+	if dot == -1 {
 		this.exportedVariables.add(qname)
 	} else {
 		this.exportedVariables.add(String_substring(qname, 0, dot))
@@ -136,16 +136,16 @@ func (this *GenerateExports) addExportForEs6Method(memberFunction Node, ownerNam
 	this.addExportPropertyCall(ownerName, memberFunction, fullExport, memberFunction.getString())
 }
 
-func (this *GenerateExports) addExportMethod(exports *TMap[string, Node], export string, context Node) {
+func (this *GenerateExports) addExportMethod(exports *JTMap[string, Node], export string, context Node) {
 	var methodOwnerName string = ""
 	var isEs5StylePrototypeAssignment bool = false
 	var propertyName Optional[string] = Optional_empty[string]()
 	var child Node = context.getFirstChild()
-	if ((child != 0) && child.isGetProp()) {
+	if (child != 0) && child.isGetProp() {
 		var node Node = context.getFirstChild()
 		var ownerNode Node = node.getFirstChild()
 		methodOwnerName = ownerNode.getQualifiedName()
-		if (ownerNode.isGetProp() && (ownerNode.getString() == GenerateExports_PROTOTYPE_PROPERTY)) {
+		if ownerNode.isGetProp() && (ownerNode.getString() == GenerateExports_PROTOTYPE_PROPERTY) {
 			isEs5StylePrototypeAssignment = true
 		}
 		propertyName = Optional_of[string](node.getString())
@@ -153,7 +153,7 @@ func (this *GenerateExports) addExportMethod(exports *TMap[string, Node], export
 	var useExportSymbol bool = true
 	if isEs5StylePrototypeAssignment {
 		useExportSymbol = false
-	} else if (!String_isEmpty(methodOwnerName) && exports.has(methodOwnerName)) {
+	} else if !String_isEmpty(methodOwnerName) && exports.has(methodOwnerName) {
 		useExportSymbol = false
 	}
 	if useExportSymbol {
@@ -185,7 +185,7 @@ func (this *GenerateExports) addStatement(context Node, stmt Node) {
 	}
 	for {
 		var next Node = exprRoot.getNext()
-		if (((next != 0) && NodeUtil_isExprCall(next)) && (convention.getClassesDefinedByCall(next.getFirstChild()) != nil)) {
+		if ((next != 0) && NodeUtil_isExprCall(next)) && (convention.getClassesDefinedByCall(next.getFirstChild()) != nil) {
 			exprRoot = next
 		} else {
 			break
@@ -200,6 +200,7 @@ func (this *GenerateExports) getSynthesizedExternsRoot() Node {
 }
 
 const GenerateExports_PROTOTYPE_PROPERTY string = "prototype"
+
 var GenerateExports_MISSING_EXPORT_CONVENTION *DiagnosticType
 var GenerateExports_MISSING_GOOG_FOR_EXPORT *DiagnosticType
 
@@ -214,4 +215,3 @@ func GenerateExports_clinit() {
 	GenerateExports_MISSING_GOOG_FOR_EXPORT = DiagnosticType_error("JSC_MISSING_EXPORT_SYMBOL_DEFINITION", "@export cannot be used without including closure/base.js or other definition of {0} and {1}")
 
 }
-

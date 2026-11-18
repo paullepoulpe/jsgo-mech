@@ -3,7 +3,7 @@
 package closure
 
 type SimpleListMultimap struct {
-	map__ LinkedHashMapOf[any, ListOf[any]]
+	map__  LinkedHashMapOf[any, ListOf[any]]
 	frozen bool
 }
 
@@ -40,7 +40,7 @@ func (this *SimpleListMultimap) immutableCopy() *SimpleListMultimap {
 func (this *SimpleListMultimap) put(key any, value any) *SimpleListMultimap {
 	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
 	var values ListOf[any] = icast_List(this.map__.get(key))
-	if (values == nil) {
+	if values == nil {
 		values = icast_List(new_ArrayList_0().self())
 		this.map__.put(key, any(values))
 	}
@@ -70,7 +70,12 @@ func (this *SimpleListMultimap) replaceValues(key any, values IterableOf[any]) {
 
 func (this *SimpleListMultimap) get(key any) ListOf[any] {
 	var values ListOf[any] = icast_List(this.map__.get(key))
-	return func() List { if (values == nil) { return icast_List(obj_(ImmutableList_of())) }; return Collections_unmodifiableList(values) }()
+	return func() List {
+		if values == nil {
+			return icast_List(obj_(ImmutableList_of()))
+		}
+		return Collections_unmodifiableList(values)
+	}()
 }
 
 func (this *SimpleListMultimap) containsKey(key any) bool {
@@ -80,7 +85,7 @@ func (this *SimpleListMultimap) containsKey(key any) bool {
 func (this *SimpleListMultimap) remove(key any, value any) bool {
 	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
 	var values ListOf[any] = icast_List(this.map__.get(key))
-	if ((values == nil) || !values.remove_Object(value)) {
+	if (values == nil) || !values.remove_Object(value) {
 		return false
 	}
 	if values.isEmpty() {
@@ -92,7 +97,12 @@ func (this *SimpleListMultimap) remove(key any, value any) bool {
 func (this *SimpleListMultimap) removeAll(key any) ListOf[any] {
 	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
 	var values ListOf[any] = icast_List(this.map__.remove(key))
-	return func() List { if (values == nil) { return icast_List(obj_(ImmutableList_of())) }; return Collections_unmodifiableList(values) }()
+	return func() List {
+		if values == nil {
+			return icast_List(obj_(ImmutableList_of()))
+		}
+		return Collections_unmodifiableList(values)
+	}()
 }
 
 func (this *SimpleListMultimap) keySet() SetOf[any] {
@@ -124,7 +134,14 @@ func (this *SimpleListMultimap) isEmpty() bool {
 func (this *SimpleListMultimap) equals(o any) bool {
 	var that *SimpleListMultimap
 	_ = that
-	return (func() bool { v_ := o; if !is_[*SimpleListMultimap](v_) { return false }; that = cast_[*SimpleListMultimap](v_); return true }() && Object_equals(obj_(this.map__), obj_(that.map__)))
+	return (func() bool {
+		v_ := o
+		if !is_[*SimpleListMultimap](v_) {
+			return false
+		}
+		that = cast_[*SimpleListMultimap](v_)
+		return true
+	}() && Object_equals(obj_(this.map__), obj_(that.map__)))
 }
 
 func (this *SimpleListMultimap) hashCode() int32 {
@@ -166,4 +183,3 @@ func (this *SimpleListMultimap_1) iterator() IteratorOf[any] {
 func (this *SimpleListMultimap_1) size() int32 {
 	return this.outer_.size()
 }
-

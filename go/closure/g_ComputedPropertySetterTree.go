@@ -6,8 +6,8 @@ type ComputedPropertySetterTree struct {
 	ParseTree
 	property_ *ParseTree
 	parameter *FormalParameterListTree
-	isStatic bool
-	body *BlockTree
+	isStatic  bool
+	body      *BlockTree
 }
 
 func (this *ComputedPropertySetterTree) up_ParseTree() *ParseTree {
@@ -31,4 +31,3 @@ func new_ComputedPropertySetterTree(location *SourceRange, property *ParseTree, 
 	this.init_ComputedPropertySetterTree(location, property, isStatic, parameter, body)
 	return this
 }
-

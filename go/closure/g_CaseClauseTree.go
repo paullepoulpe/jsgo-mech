@@ -27,4 +27,3 @@ func new_CaseClauseTree(location *SourceRange, expression *ParseTree, statements
 	this.init_CaseClauseTree(location, expression, statements)
 	return this
 }
-

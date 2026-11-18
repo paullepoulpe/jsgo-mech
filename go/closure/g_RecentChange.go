@@ -31,4 +31,3 @@ func (this *RecentChange) hasCodeChanged() bool {
 func (this *RecentChange) reset() {
 	this.hasChanged = false
 }
-

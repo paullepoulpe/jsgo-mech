@@ -58,4 +58,3 @@ func CustomPassExecutionTime_clinit() {
 	registerEnum_("com.google.javascript.jscomp.CustomPassExecutionTime", enumValues_(CustomPassExecutionTime_values_))
 
 }
-

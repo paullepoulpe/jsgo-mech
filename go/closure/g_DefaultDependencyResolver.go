@@ -3,7 +3,7 @@
 package closure
 
 type DefaultDependencyResolver struct {
-	depsFiles ListOf[*DependencyFile]
+	depsFiles      ListOf[*DependencyFile]
 	strictRequires bool
 }
 
@@ -31,7 +31,7 @@ func (this *DefaultDependencyResolver) getDependencies_3(code string, seen SetOf
 }
 
 func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[string], seen SetOf[string]) Collection {
-	var list *TList[string] = newTList_(tc_string)
+	var list *JTList[string] = jnewTList_(jtc_string)
 	it_1 := foreach_(any(this.depsFiles))
 	for it_1.next() {
 		var depsFile *DependencyFile = cast_[*DependencyFile](it_1.v)
@@ -45,9 +45,9 @@ func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[st
 	return Collection(list.asList())
 }
 
-func (this *DefaultDependencyResolver) addDependency(symbol string, seen SetOf[string], list *TList[string]) {
+func (this *DefaultDependencyResolver) addDependency(symbol string, seen SetOf[string], list *JTList[string]) {
 	var dependency DependencyInfo = this.getDependencyInfo(symbol)
-	if (dependency == nil) {
+	if dependency == nil {
 		if this.strictRequires {
 			panic(obj_(new_ServiceException(("Unknown require of " + sstr_(symbol)))))
 		}
@@ -66,7 +66,7 @@ func DefaultDependencyResolver_parseRequires(code string, addClosureBase bool) C
 	var errorManager ErrorManager = icast_ErrorManager(obj_(new_LoggerErrorManager_Logger(DefaultDependencyResolver_logger)))
 	var parser *JsFileRegexParser = new_JsFileRegexParser(errorManager)
 	var deps DependencyInfo = parser.parseFile("<unknown path>", "<unknown path>", code)
-	var requires *TList[string] = newTList_(tc_string)
+	var requires *JTList[string] = jnewTList_(jtc_string)
 	if addClosureBase {
 		requires.add(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE)
 	}
@@ -80,7 +80,7 @@ func (this *DefaultDependencyResolver) getDependencyInfo(symbol string) Dependen
 	for it_1.next() {
 		var depsFile *DependencyFile = cast_[*DependencyFile](it_1.v)
 		var di DependencyInfo = depsFile.getDependencyInfo(symbol)
-		if (di != nil) {
+		if di != nil {
 			return di
 		}
 	}
@@ -89,6 +89,7 @@ func (this *DefaultDependencyResolver) getDependencyInfo(symbol string) Dependen
 
 const DefaultDependencyResolver_CLOSURE_BASE string = "base.js"
 const DefaultDependencyResolver_CLOSURE_BASE_PROVIDE string = "goog"
+
 var DefaultDependencyResolver_logger *Logger
 
 var DefaultDependencyResolver_clinit_done bool
@@ -101,4 +102,3 @@ func DefaultDependencyResolver_clinit() {
 	DefaultDependencyResolver_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.deps.DefaultDependencyResolver").getName())
 
 }
-

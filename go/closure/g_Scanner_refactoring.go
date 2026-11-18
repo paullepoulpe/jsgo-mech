@@ -40,10 +40,11 @@ func (this *Scanner_refactoring) processAllMatches(matches CollectionOf[*Match])
 }
 
 func (this *Scanner_refactoring) matches(p0 Node, p1 *NodeMetadata) bool {
-	return this.self_.(interface{ matches_impl(Node, *NodeMetadata) bool }).matches_impl(p0, p1)
+	return this.self_.(interface {
+		matches_impl(Node, *NodeMetadata) bool
+	}).matches_impl(p0, p1)
 }
 
 func (this *Scanner_refactoring) processMatch(p0 *Match) List {
 	return this.self_.(interface{ processMatch_impl(*Match) List }).processMatch_impl(p0)
 }
-

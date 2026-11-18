@@ -3,23 +3,23 @@
 package closure
 
 type JSTypeReconserializer struct {
-	registry *JSTypeRegistry
-	serializationMode *SerializationOptions
-	invalidatingTypes *InvalidatingTypes
-	stringPoolBuilder *StringPool_Builder
-	hasher *JSTypeColorIdHasher
+	registry                    *JSTypeRegistry
+	serializationMode           *SerializationOptions
+	invalidatingTypes           *InvalidatingTypes
+	stringPoolBuilder           *StringPool_Builder
+	hasher                      *JSTypeColorIdHasher
 	shouldPropagatePropertyName PredicateOf[string]
-	unknownRecord *JSTypeReconserializer_SeenTypeRecord
-	topFunctionRecord *JSTypeReconserializer_SeenTypeRecord
-	typeToRecordCache *LinkedIdentityHashMap[*JSType, *JSTypeReconserializer_SeenTypeRecord]
-	seenTypeRecords *TMap[*ColorId, *JSTypeReconserializer_SeenTypeRecord]
-	disambiguateEdges *SimpleSetMultimap
-	state *JSTypeReconserializer_State
+	unknownRecord               *JSTypeReconserializer_SeenTypeRecord
+	topFunctionRecord           *JSTypeReconserializer_SeenTypeRecord
+	typeToRecordCache           *LinkedIdentityHashMap[*JSType, *JSTypeReconserializer_SeenTypeRecord]
+	seenTypeRecords             *JTMap[*ColorId, *JSTypeReconserializer_SeenTypeRecord]
+	disambiguateEdges           *SimpleSetMultimap
+	state                       *JSTypeReconserializer_State
 }
 
 func (this *JSTypeReconserializer) finit_JSTypeReconserializer() {
 	this.typeToRecordCache = new_LinkedIdentityHashMap[*JSType, *JSTypeReconserializer_SeenTypeRecord]()
-	this.seenTypeRecords = newTMap_(tce_p_ColorId, tc_p_JSTypeReconserializer_SeenTypeRecord)
+	this.seenTypeRecords = jnewTMap_(tce_p_ColorId, jtc_p_JSTypeReconserializer_SeenTypeRecord)
 	this.disambiguateEdges = SimpleSetMultimap_createInsertionOrdered()
 	this.state = JSTypeReconserializer_State_COLLECTING_TYPES
 }
@@ -64,22 +64,22 @@ func (this *JSTypeReconserializer) recordType(type_ *JSType) *JSTypeReconseriali
 		forwardedType = this.registry.getNativeType(JSTypeNative_SYMBOL_TYPE)
 	} else if type_.isTemplatizedType() {
 		forwardedType = type_.toMaybeTemplatizedType().getReferencedType().up_JSType()
-	} else if (type_.isFunctionType() && (type_.toMaybeFunctionType().getCanonicalRepresentation() != nil)) {
+	} else if type_.isFunctionType() && (type_.toMaybeFunctionType().getCanonicalRepresentation() != nil) {
 		forwardedType = type_.toMaybeFunctionType().getCanonicalRepresentation().up_JSType()
 	} else {
 		forwardedType = nil
 	}
-	if (forwardedType != nil) {
+	if forwardedType != nil {
 		return this.recordType(forwardedType)
 	}
-	if ((type_.isUnknownType() || type_.isNoResolvedType()) || type_.isTemplateType()) {
+	if (type_.isUnknownType() || type_.isNoResolvedType()) || type_.isTemplateType() {
 		return this.unknownRecord
 	}
-	if ((type_.isFunctionType() && !type_.toMaybeFunctionType().hasInstanceType()) && (type_.toMaybeFunctionType().getClosurePrimitive() == nil)) {
+	if (type_.isFunctionType() && !type_.toMaybeFunctionType().hasInstanceType()) && (type_.toMaybeFunctionType().getClosurePrimitive() == nil) {
 		return this.topFunctionRecord
 	}
 	var jstypeRecord *JSTypeReconserializer_SeenTypeRecord = this.typeToRecordCache.get(type_)
-	if (jstypeRecord != nil) {
+	if jstypeRecord != nil {
 		return jstypeRecord
 	}
 	if type_.isUnionType() {
@@ -92,18 +92,18 @@ func (this *JSTypeReconserializer) recordType(type_ *JSType) *JSTypeReconseriali
 
 func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReconserializer_SeenTypeRecord {
 	Preconditions_checkNotNull(obj_(type_))
-	var altRecords *TSet[*JSTypeReconserializer_SeenTypeRecord] = newTSet_(tc_p_JSTypeReconserializer_SeenTypeRecord)
+	var altRecords *JTSet[*JSTypeReconserializer_SeenTypeRecord] = jnewTSet_(jtc_p_JSTypeReconserializer_SeenTypeRecord)
 	it_1 := foreach_(obj_(type_.getAlternates()))
 	for it_1.next() {
 		var altType *JSType = to_JSType(it_1.v)
 		var alt *JSTypeReconserializer_SeenTypeRecord = this.recordType(altType)
-		if (alt.unionMembers == nil) {
+		if alt.unionMembers == nil {
 			altRecords.add(alt)
 		} else {
 			altRecords.asSet().addAll(icast_Collection(obj_(alt.unionMembers)))
 		}
 	}
-	if (altRecords.size() == 1) {
+	if altRecords.size() == 1 {
 		return cast_[*JSTypeReconserializer_SeenTypeRecord](Iterables_getOnlyElement(Iterable(altRecords.asSet())))
 	}
 	var alternateIds ImmutableSet_BuilderOf[*ColorId] = ImmutableSet_builder()
@@ -114,7 +114,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 	}
 	var unionId *ColorId = ColorId_union(icast_Set(obj_(alternateIds.build())))
 	var record *JSTypeReconserializer_SeenTypeRecord = this.getOrCreateRecord(unionId, type_.up_JSType())
-	if (record.unionMembers == nil) {
+	if record.unionMembers == nil {
 		record.unionMembers = ImmutableSet_copyOf(Collection(altRecords.asSet()))
 	} else if this.serializationMode.runValidation() {
 		Preconditions_checkState_boolean_String_Object_Object_Object(Object_equals(any(altRecords.asSet()), obj_(record.unionMembers)), "Unions with same ID must have same members: %s => %s == %s", obj_(unionId), obj_(JSTypeReconserializer_colorIdsOf(Collection(altRecords.asSet()))), obj_(JSTypeReconserializer_colorIdsOf(icast_Collection(obj_(record.unionMembers)))))
@@ -139,7 +139,7 @@ func (this *JSTypeReconserializer) recordObjectType(type_ *ObjectType) *JSTypeRe
 	this.addSupertypeEdges(type_, any(int32(record.pointer)))
 	if type_.isFunctionType() {
 		var fnType *FunctionType = type_.toMaybeFunctionType()
-		if (fnType.hasInstanceType() && (fnType.getInstanceType() != nil)) {
+		if fnType.hasInstanceType() && (fnType.getInstanceType() != nil) {
 			this.serializeType(fnType.getInstanceType().up_JSType())
 			this.serializeType(fnType.getPrototype().up_JSType())
 		}
@@ -149,7 +149,7 @@ func (this *JSTypeReconserializer) recordObjectType(type_ *ObjectType) *JSTypeRe
 
 func (this *JSTypeReconserializer) addSupertypeEdges(subtype *ObjectType, serializedSubtype any) {
 	this.disambiguateEdges.putAll_2(serializedSubtype, icast_Iterable(obj_(this.ownAncestorInterfacesOf(subtype))))
-	if (subtype.getImplicitPrototype() != nil) {
+	if subtype.getImplicitPrototype() != nil {
 		var supertype any = any(int32(this.serializeType(subtype.getImplicitPrototype().up_JSType())))
 		this.disambiguateEdges.put(serializedSubtype, supertype)
 	}
@@ -173,7 +173,7 @@ func (this *JSTypeReconserializer) reconcileUnionTypes(seen *JSTypeReconserializ
 }
 
 func JSTypeReconserializer_sortedPointersOf(records CollectionOf[*JSTypeReconserializer_SeenTypeRecord]) ImmutableListOf[BoxedOf[int32]] {
-	var result *TList[any] = newTList_(tc_Integer)
+	var result *JTList[any] = jnewTList_(tc_Integer)
 	it_1 := foreach_(any(records))
 	for it_1.next() {
 		var r *JSTypeReconserializer_SeenTypeRecord = cast_[*JSTypeReconserializer_SeenTypeRecord](it_1.v)
@@ -184,22 +184,22 @@ func JSTypeReconserializer_sortedPointersOf(records CollectionOf[*JSTypeReconser
 }
 
 func (this *JSTypeReconserializer) serializeInvolvedTypes(types CollectionOf[*JSType]) ImmutableListOf[BoxedOf[int32]] {
-	var distinctPointers *TSet[any] = newTSet_(tc_Integer)
+	var distinctPointers *JTSet[any] = jnewTSet_(tc_Integer)
 	it_1 := foreach_(any(types))
 	for it_1.next() {
 		var t *JSType = to_JSType(it_1.v)
 		Preconditions_checkState_boolean_Object(!t.isUnionType(), t.self())
 		distinctPointers.add(any(int32(this.serializeType(t))))
 	}
-	var result *TList[any] = tlistFrom_(tc_Integer, Collection(distinctPointers.asSet()))
+	var result *JTList[any] = jtlistFrom_(tc_Integer, Collection(distinctPointers.asSet()))
 	Collections_sort(result.asList())
 	return ImmutableList_copyOf(Collection(result.asList()))
 }
 
 func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconserializer_SeenTypeRecord) *TypeProto {
-	var instancePointers *TSet[any] = newTSet_(tc_Integer)
-	var prototypePointers *TSet[any] = newTSet_(tc_Integer)
-	var ownProperties *TSet[any] = newTSet_(tc_Integer)
+	var instancePointers *JTSet[any] = jnewTSet_(tc_Integer)
+	var prototypePointers *JTSet[any] = jnewTSet_(tc_Integer)
+	var ownProperties *JTSet[any] = jnewTSet_(tc_Integer)
 	var isClosureAssert bool = false
 	var isConstructor bool = false
 	var isInvalidating bool = false
@@ -210,7 +210,7 @@ func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconseriali
 		var objType *ObjectType = to_ObjectType(Preconditions_checkNotNull_Object_Object(type_.toMaybeObjectType().self(), type_.self()))
 		if objType.isFunctionType() {
 			var fnType *FunctionType = objType.toMaybeFunctionType()
-			if (fnType.hasInstanceType() && (fnType.getInstanceType() != nil)) {
+			if fnType.hasInstanceType() && (fnType.getInstanceType() != nil) {
 				instancePointers.add(any(int32(this.serializeType(fnType.getInstanceType().up_JSType()))))
 				prototypePointers.add(any(int32(this.serializeType(fnType.getPrototype().up_JSType()))))
 				isConstructor = bor_(isConstructor, fnType.isConstructor())
@@ -233,7 +233,7 @@ func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconseriali
 
 func (this *JSTypeReconserializer) ownAncestorInterfacesOf(type_ *ObjectType) ImmutableListOf[BoxedOf[int32]] {
 	var ctorType *FunctionType = type_.getConstructor()
-	if (ctorType == nil) {
+	if ctorType == nil {
 		return ImmutableList_of()
 	}
 	var ancestors ImmutableList_BuilderOf[BoxedOf[int32]] = ImmutableList_builder()
@@ -292,7 +292,12 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 			Preconditions_checkState_boolean_String_Object(TypePointers_isAxiomatic(seen.pointer), "Missing .type for SeenTypeRecord %s", obj_(seen))
 			continue
 		}
-		builder.addType(func() *TypeProto { if (seen.unionMembers != nil) { return this.reconcileUnionTypes(seen) }; return this.reconcileObjectTypes(seen) }())
+		builder.addType(func() *TypeProto {
+			if seen.unionMembers != nil {
+				return this.reconcileUnionTypes(seen)
+			}
+			return this.reconcileObjectTypes(seen)
+		}())
 	}
 	it_3 := foreach_(any(this.disambiguateEdges.keySet()))
 	for it_3.next() {
@@ -325,7 +330,7 @@ func (this *JSTypeReconserializer) getColorIdToJSTypeMapForDebugging() *SimpleLi
 }
 
 func JSTypeReconserializer_isClosureAssert(primitive *ClosurePrimitive) bool {
-	if (primitive == nil) {
+	if primitive == nil {
 		return false
 	}
 	return func() bool {
@@ -408,14 +413,14 @@ func JSTypeReconserializer_State_clinit() {
 }
 
 type JSTypeReconserializer_SeenTypeRecord struct {
-	colorId *ColorId
-	pointer int32
-	jstypes *TList[*JSType]
+	colorId      *ColorId
+	pointer      int32
+	jstypes      *JTList[*JSType]
 	unionMembers ImmutableSetOf[*JSTypeReconserializer_SeenTypeRecord]
 }
 
 func (this *JSTypeReconserializer_SeenTypeRecord) finit_JSTypeReconserializer_SeenTypeRecord() {
-	this.jstypes = newTList_(tc_p_JSType)
+	this.jstypes = jnewTList_(jtc_p_JSType)
 	this.unionMembers = nil
 }
 
@@ -430,4 +435,3 @@ func new_JSTypeReconserializer_SeenTypeRecord(colorId *ColorId, pointer int32) *
 	this.init_JSTypeReconserializer_SeenTypeRecord(colorId, pointer)
 	return this
 }
-

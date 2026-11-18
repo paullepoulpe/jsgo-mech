@@ -80,4 +80,3 @@ func (this *ConformanceAllowlister_1) shouldReportConformanceViolation_impl(requ
 	this.cap_errors.add(obj_(diagnostic))
 	return false
 }
-

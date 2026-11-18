@@ -4,7 +4,7 @@ package closure
 
 type DiagnosticGroupWarningsGuard struct {
 	WarningsGuard
-	group *DiagnosticGroup
+	group      *DiagnosticGroup
 	levelField *CheckLevel
 }
 
@@ -29,14 +29,29 @@ func new_DiagnosticGroupWarningsGuard(group *DiagnosticGroup, level *CheckLevel)
 }
 
 func (this *DiagnosticGroupWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
-	return func() *CheckLevel { if this.group.matches(error_) { return this.levelField }; return nil }()
+	return func() *CheckLevel {
+		if this.group.matches(error_) {
+			return this.levelField
+		}
+		return nil
+	}()
 }
 
 func (this *DiagnosticGroupWarningsGuard) mustRunChecks_impl(otherGroup *DiagnosticGroup) *Tri {
 	if this.levelField.isOn() {
-		return func() *Tri { if this.groupMatchesAny(otherGroup.getTypes()) { return Tri_TRUE }; return Tri_UNKNOWN }()
+		return func() *Tri {
+			if this.groupMatchesAny(otherGroup.getTypes()) {
+				return Tri_TRUE
+			}
+			return Tri_UNKNOWN
+		}()
 	} else {
-		return func() *Tri { if this.groupMatchesAll(otherGroup.getTypes()) { return Tri_FALSE }; return Tri_UNKNOWN }()
+		return func() *Tri {
+			if this.groupMatchesAll(otherGroup.getTypes()) {
+				return Tri_FALSE
+			}
+			return Tri_UNKNOWN
+		}()
 	}
 	panic("unreachable")
 }
@@ -68,4 +83,3 @@ func (this *DiagnosticGroupWarningsGuard) toString() string {
 }
 
 const DiagnosticGroupWarningsGuard_serialVersionUID int64 = 1
-

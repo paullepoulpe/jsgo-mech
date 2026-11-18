@@ -3,11 +3,11 @@
 package closure
 
 type PropertyClustering struct {
-	name_ string
-	useSites *TMap[Node, *ColorGraphNode]
-	clusters *StandardUnionFind[*ColorGraphNode]
+	name_                  string
+	useSites               *JTMap[Node, *ColorGraphNode]
+	clusters               *StandardUnionFind[*ColorGraphNode]
 	originalNameClusterRep *ColorGraphNode
-	lastInvalidation *Invalidation
+	lastInvalidation       *Invalidation
 }
 
 func (this *PropertyClustering) zero_PropertyClustering() {
@@ -15,7 +15,7 @@ func (this *PropertyClustering) zero_PropertyClustering() {
 }
 
 func (this *PropertyClustering) finit_PropertyClustering() {
-	this.useSites = newTMap_(tc_Node, tc_p_ColorGraphNode)
+	this.useSites = jnewTMap_(jtc_Node, jtc_p_ColorGraphNode)
 	this.clusters = new_StandardUnionFind_0[*ColorGraphNode]()
 }
 
@@ -35,7 +35,7 @@ func (this *PropertyClustering) getName() string {
 	return this.name_
 }
 
-func (this *PropertyClustering) getUseSites() *TMap[Node, *ColorGraphNode] {
+func (this *PropertyClustering) getUseSites() *JTMap[Node, *ColorGraphNode] {
 	return this.useSites
 }
 
@@ -45,7 +45,12 @@ func (this *PropertyClustering) getClusters() *StandardUnionFind[*ColorGraphNode
 
 func (this *PropertyClustering) getOriginalNameClusterRep() *ColorGraphNode {
 	Preconditions_checkState(!this.isInvalidated())
-	return func() *ColorGraphNode { if (this.originalNameClusterRep == nil) { return nil }; return this.clusters.find(this.originalNameClusterRep) }()
+	return func() *ColorGraphNode {
+		if this.originalNameClusterRep == nil {
+			return nil
+		}
+		return this.clusters.find(this.originalNameClusterRep)
+	}()
 }
 
 func (this *PropertyClustering) isInvalidated() bool {
@@ -63,7 +68,7 @@ func (this *PropertyClustering) getLastInvalidation() *Invalidation {
 
 func (this *PropertyClustering) registerOriginalNameType(type_ *ColorGraphNode) {
 	Preconditions_checkState(!this.isInvalidated())
-	if (this.originalNameClusterRep == nil) {
+	if this.originalNameClusterRep == nil {
 		this.originalNameClusterRep = type_
 	}
 	this.clusters.union(this.originalNameClusterRep, type_)
@@ -72,4 +77,3 @@ func (this *PropertyClustering) registerOriginalNameType(type_ *ColorGraphNode) 
 func (this *PropertyClustering) toString() string {
 	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("name", strobj_(this.name_))))
 }
-

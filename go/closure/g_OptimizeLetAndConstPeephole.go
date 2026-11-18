@@ -41,7 +41,7 @@ func (this *OptimizeLetAndConstPeephole) optimizeSubtree_impl(subtree Node) Node
 }
 
 func (this *OptimizeLetAndConstPeephole) processLet(n Node) Node {
-	if (!this.assumeOutputIsWrapped && n.getParent().isScript()) {
+	if !this.assumeOutputIsWrapped && n.getParent().isScript() {
 		return n
 	}
 	if this.isDirectlyInHoistScope(n) {
@@ -52,7 +52,7 @@ func (this *OptimizeLetAndConstPeephole) processLet(n Node) Node {
 }
 
 func (this *OptimizeLetAndConstPeephole) processConst(n Node) Node {
-	if (!this.assumeOutputIsWrapped && n.getParent().isScript()) {
+	if !this.assumeOutputIsWrapped && n.getParent().isScript() {
 		return n
 	}
 	if this.isDirectlyInHoistScope(n) {
@@ -67,21 +67,20 @@ func (this *OptimizeLetAndConstPeephole) processConst(n Node) Node {
 
 func (this *OptimizeLetAndConstPeephole) isDirectlyInHoistScope(n Node) bool {
 	var parent Node = n.getParent()
-	for ((parent != 0) && parent.isLabel()) {
+	for (parent != 0) && parent.isLabel() {
 		parent = parent.getParent()
 	}
-	if (parent == 0) {
+	if parent == 0 {
 		return false
 	}
-	if (parent.isScript() || parent.isModuleBody()) {
+	if parent.isScript() || parent.isModuleBody() {
 		return true
 	}
 	if parent.isBlock() {
 		var grandparent Node = parent.getParent()
-		if ((grandparent != 0) && (grandparent.isFunction() || grandparent.isClassMembers())) {
+		if (grandparent != 0) && (grandparent.isFunction() || grandparent.isClassMembers()) {
 			return true
 		}
 	}
 	return false
 }
-

@@ -3,7 +3,7 @@
 package closure
 
 type Invalidation struct {
-	self_ any
+	self_  any
 	reason *Invalidation_Reason
 }
 
@@ -52,7 +52,7 @@ func Invalidation_undeclaredAccess(receiverType int32) *Invalidation {
 }
 
 func (this *Invalidation) toLogsGson_impl() any {
-	var json *TMap[string, any] = newTMap_(tc_string, tc_Object)
+	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
 	json.put("reason", obj_(this.reason))
 	return any(json.asMap())
 }
@@ -154,9 +154,8 @@ func new_Invalidation_WithReceiverType(reason *Invalidation_Reason, receiverType
 }
 
 func (this *Invalidation_WithReceiverType) toLogsGson_impl() any {
-	var json *TMap[string, any] = newTMap_(tc_string, tc_Object)
+	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
 	json.put("receiverType", any(int32(this.receiverType_)))
 	json.put("reason", obj_(this.reason))
 	return any(json.asMap())
 }
-

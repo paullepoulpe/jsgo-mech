@@ -4,9 +4,9 @@ package closure
 
 type TemplatizedType struct {
 	ProxyObjectType
-	templateTypes ImmutableListOf[*JSType]
+	templateTypes                ImmutableListOf[*JSType]
 	isSpecializedOnlyWithUnknown bool
-	replacer *TemplateTypeReplacer
+	replacer                     *TemplateTypeReplacer
 }
 
 func (this *TemplatizedType) up_ProxyObjectType() *ProxyObjectType {
@@ -61,7 +61,7 @@ func (this *TemplatizedType) getTypeClass_impl() *JSTypeClass {
 }
 
 func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
-	var resolvedImplementedInterfaces *TSet[*ObjectType] = newTSet_(tce_p_ObjectType)
+	var resolvedImplementedInterfaces *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
 	it_1 := foreach_(any(this.getReferencedObjTypeInternal().getCtorImplementedInterfaces()))
 	for it_1.next() {
 		var obj *ObjectType = to_ObjectType(it_1.v)
@@ -71,7 +71,7 @@ func (this *TemplatizedType) getCtorImplementedInterfaces_impl() IterableOf[*Obj
 }
 
 func (this *TemplatizedType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
-	var resolvedExtendedInterfaces *TSet[*ObjectType] = newTSet_(tce_p_ObjectType)
+	var resolvedExtendedInterfaces *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
 	it_1 := foreach_(any(this.getReferencedObjTypeInternal().getCtorExtendedInterfaces()))
 	for it_1.next() {
 		var obj *ObjectType = to_ObjectType(it_1.v)
@@ -113,7 +113,12 @@ func (this *TemplatizedType) getTemplateTypes_impl() ImmutableListOf[*JSType] {
 
 func (this *TemplatizedType) getPropertyTypeKey_impl(propertyName Property_Key) *JSType {
 	var result *JSType = this.ProxyObjectType.getPropertyTypeKey_impl(propertyName)
-	return func() *JSType { if (result == nil) { return nil }; return to_JSType(result.visit(icast_Visitor(obj_(this.replacer)))) }()
+	return func() *JSType {
+		if result == nil {
+			return nil
+		}
+		return to_JSType(result.visit(icast_Visitor(obj_(this.replacer))))
+	}()
 }
 
 func (this *TemplatizedType) wrapsSameRawType(that *JSType) bool {
@@ -128,7 +133,7 @@ func (this *TemplatizedType) getGreatestSubtypeHelper(rawThat *JSType) *JSType {
 		} else if rawThat.isSubtypeOf(this.up_JSType()) {
 			return rawThat
 		}
-		if (this.isObject() && rawThat.isObject()) {
+		if this.isObject() && rawThat.isObject() {
 			return this.getNativeType(JSTypeNative_NO_OBJECT_TYPE)
 		}
 		return this.getNativeType(JSTypeNative_NO_TYPE)
@@ -185,4 +190,3 @@ func TemplatizedType_clinit() {
 	TemplatizedType_TYPE_CLASS_FIELD = JSTypeClass_TEMPLATIZED
 
 }
-

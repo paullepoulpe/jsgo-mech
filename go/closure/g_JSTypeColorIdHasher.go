@@ -25,7 +25,7 @@ func new_JSTypeColorIdHasher(registry *JSTypeRegistry) *JSTypeColorIdHasher {
 func (this *JSTypeColorIdHasher) hashObjectType(type_ *ObjectType) *ColorId {
 	Preconditions_checkState_boolean_Object(((((((type_ != nil) && !type_.isEnumElementType()) && !type_.isNoResolvedType()) && !type_.isTemplatizedType()) && !type_.isUnknownType()) && !type_.isTemplateType()), type_.self())
 	var boxId *ColorId = cast_[*ColorId](this.standardColorObjectIds.get(type_.self()))
-	if (boxId != nil) {
+	if boxId != nil {
 		return boxId
 	}
 	var hasher Hasher = JSTypeColorIdHasher_FARM_64.newHasher()
@@ -50,7 +50,7 @@ func (this *JSTypeColorIdHasher) hashObjectType(type_ *ObjectType) *ColorId {
 func (this *JSTypeColorIdHasher) putReferenceNameType(hasher Hasher, type_ *ObjectType) {
 	JSTypeColorIdHasher_putUtf8(hasher, type_.getReferenceName().get())
 	var sourceRef JSType_WithSourceRef = JSTypeColorIdHasher_sourceRefFor(type_)
-	if (sourceRef == nil) {
+	if sourceRef == nil {
 		hasher.putInt(JSTypeColorIdHasher_Marker_UNKNOWN_SOURCEREF)
 		return
 	}
@@ -72,7 +72,7 @@ func JSTypeColorIdHasher_sourceRefFor(type_ *ObjectType) JSType_WithSourceRef {
 		return icast_JSType_WithSourceRef(type_.toMaybeFunctionType().self())
 	} else if type_.isFunctionPrototypeType() {
 		return icast_JSType_WithSourceRef(type_.getOwnerFunction().self())
-	} else if (type_.getConstructor() != nil) {
+	} else if type_.getConstructor() != nil {
 		return icast_JSType_WithSourceRef(type_.getConstructor().self())
 	}
 	return nil
@@ -113,4 +113,3 @@ func new_JSTypeColorIdHasher_Marker() *JSTypeColorIdHasher_Marker {
 const JSTypeColorIdHasher_Marker_HAS_INSTANCE_TYPE int32 = -1937018661
 const JSTypeColorIdHasher_Marker_NO_GOOG_MODULE_ID int32 = 630441471
 const JSTypeColorIdHasher_Marker_UNKNOWN_SOURCEREF int32 = 1712056194
-

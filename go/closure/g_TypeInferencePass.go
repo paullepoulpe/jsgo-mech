@@ -3,13 +3,13 @@
 package closure
 
 type TypeInferencePass struct {
-	compiler_ *AbstractCompiler
-	registry *JSTypeRegistry
-	reverseInterpreter ReverseAbstractInterpreter
-	topScope *TypedScope
-	scopeCreator *TypedScopeCreator
+	compiler_               *AbstractCompiler
+	registry                *JSTypeRegistry
+	reverseInterpreter      ReverseAbstractInterpreter
+	topScope                *TypedScope
+	scopeCreator            *TypedScopeCreator
 	assertionFunctionLookup *CodingConvention_AssertionFunctionLookup
-	stepCountHistogram LinkedHashMapOf[BoxedOf[int32], *SimpleMultiset]
+	stepCountHistogram      LinkedHashMapOf[BoxedOf[int32], *SimpleMultiset]
 }
 
 func (this *TypeInferencePass) init_TypeInferencePass(compiler *AbstractCompiler, reverseInterpreter ReverseAbstractInterpreter, scopeCreator *TypedScopeCreator) {
@@ -18,7 +18,12 @@ func (this *TypeInferencePass) init_TypeInferencePass(compiler *AbstractCompiler
 	this.reverseInterpreter = reverseInterpreter
 	this.scopeCreator = scopeCreator
 	this.assertionFunctionLookup = CodingConvention_AssertionFunctionLookup_of(compiler.getCodingConvention().getAssertionFunctions())
-	this.stepCountHistogram = func() *LinkedHashMap { if compiler.isDebugLoggingEnabled() { return new_LinkedHashMap() }; return nil }()
+	this.stepCountHistogram = func() *LinkedHashMap {
+		if compiler.isDebugLoggingEnabled() {
+			return new_LinkedHashMap()
+		}
+		return nil
+	}()
 }
 
 func new_TypeInferencePass(compiler *AbstractCompiler, reverseInterpreter ReverseAbstractInterpreter, scopeCreator *TypedScopeCreator) *TypeInferencePass {
@@ -45,22 +50,22 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 	it_2 := foreach_(any(this.scopeCreator.getAllSymbols()))
 	for it_2.next() {
 		var var_ *TypedVar = cast_[*TypedVar](it_2.v)
-		if (var_.getType() == nil) {
+		if var_.getType() == nil {
 			var_.setType(unknownType)
 		}
 	}
-	if (this.stepCountHistogram != nil) {
+	if this.stepCountHistogram != nil {
 		_ = func() (code_ int) {
 			var histogram *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), "step_histogram.log", []string{})
 			defer closeResource_(histogram.self())
 			histogram.logString("step_count token population")
 			var totals []int32 = []int32{0, 0}
-			var stepCounts *TList[any] = tlistFrom_(tc_Integer, Collection(this.stepCountHistogram.keySet()))
+			var stepCounts *JTList[any] = jtlistFrom_(tc_Integer, Collection(this.stepCountHistogram.keySet()))
 			List_sort(stepCounts.asList(), Comparator_reversed(Comparator_naturalOrder()))
 			it_5 := stepCounts.each()
 			for it_5.next() {
 				var stepCount any = it_5.v
-				var entries *TList[Map_Entry] = tlistFrom_(tc_Map_Entry, Collection(cast_[*SimpleMultiset](this.stepCountHistogram.get(stepCount)).entrySet()))
+				var entries *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(cast_[*SimpleMultiset](this.stepCountHistogram.get(stepCount)).entrySet()))
 				List_sort(entries.asList(), Comparator_comparingInt(&ToIntFunction_tfn_Map_Entry{func(p0 Map_Entry) int32 { return unbox_[int32](p0.getValue()) }}))
 				it_7 := entries.each()
 				for it_7.next() {
@@ -81,11 +86,11 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 	var cfg *ControlFlowGraph[Node] = this.computeCfg(n)
 	var typeInference *TypeInference = new_TypeInference(this.compiler_, cfg, this.reverseInterpreter, scope, this.scopeCreator, this.assertionFunctionLookup)
 	typeInference.analyze()
-	if (this.stepCountHistogram != nil) {
+	if this.stepCountHistogram != nil {
 		it_1 := foreach_(any(cfg.getNodes()))
 		for it_1.next() {
 			var node DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](it_1.v)
-			if (node == cfg.getImplicitReturn()) {
+			if node == cfg.getImplicitReturn() {
 				continue
 			}
 			var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
@@ -156,7 +161,7 @@ func new_TypeInferencePass_SecondScopeBuildingCallback(outer_ *TypeInferencePass
 
 func (this *TypeInferencePass_SecondScopeBuildingCallback) enterScope_impl(t *NodeTraversal) {
 	var scope *TypedScope = t.getTypedScope()
-	if (scope.isCfgRootScope() && !scope.isModuleScope()) {
+	if scope.isCfgRootScope() && !scope.isModuleScope() {
 		this.outer_.inferScope(t.getCurrentNode(), scope)
 	}
 }
@@ -164,4 +169,3 @@ func (this *TypeInferencePass_SecondScopeBuildingCallback) enterScope_impl(t *No
 func (this *TypeInferencePass_SecondScopeBuildingCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
 
 }
-

@@ -28,7 +28,7 @@ func new_PolymerPassSuppressBehaviorsAndProtectKeys(compiler *AbstractCompiler) 
 
 func (this *PolymerPassSuppressBehaviorsAndProtectKeys) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if PolymerPassSuppressBehaviorsAndProtectKeys_isBehavior(n) {
-		if (!NodeUtil_isNameDeclaration(n) && !n.isAssign()) {
+		if !NodeUtil_isNameDeclaration(n) && !n.isAssign() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, PolymerPassErrors_POLYMER_UNQUALIFIED_BEHAVIOR, []string{}))
 			return
 		}
@@ -51,21 +51,21 @@ func (this *PolymerPassSuppressBehaviorsAndProtectKeys) traverseBehaviorsAndProt
 	}
 	{
 		var child Node = n.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			this.traverseBehaviorsAndProtectKeys(child)
 		}
 	}
 }
 
 func (this *PolymerPassSuppressBehaviorsAndProtectKeys) suppressBehavior(behaviorValue Node, reportNode Node) {
-	if (behaviorValue == 0) {
+	if behaviorValue == 0 {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(reportNode, PolymerPassErrors_POLYMER_UNQUALIFIED_BEHAVIOR, []string{}))
 		return
 	}
 	if behaviorValue.isArrayLit() {
 		{
 			var child Node = behaviorValue.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				this.suppressBehavior(child, behaviorValue)
 			}
 		}
@@ -96,7 +96,7 @@ func (this *PolymerPassSuppressBehaviorsAndProtectKeys) suppressDefaultValues(be
 			continue
 		}
 		var defaultValue Node = NodeUtil_getFirstPropMatchingKey(property.value_, "value")
-		if ((defaultValue == 0) || !defaultValue.isFunction()) {
+		if (defaultValue == 0) || !defaultValue.isFunction() {
 			continue
 		}
 		var defaultValueKey Node = defaultValue.getParent()
@@ -107,7 +107,7 @@ func (this *PolymerPassSuppressBehaviorsAndProtectKeys) suppressDefaultValues(be
 func (this *PolymerPassSuppressBehaviorsAndProtectKeys) addBehaviorSuppressions(behaviorValue Node) {
 	{
 		var keyNode Node = behaviorValue.getFirstChild()
-		for ; (keyNode != 0); keyNode = keyNode.getNext() {
+		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			if keyNode.getFirstChild().isFunction() {
 				this.addSuppressionJsDocAnnotations(keyNode)
 			}
@@ -121,4 +121,3 @@ func (this *PolymerPassSuppressBehaviorsAndProtectKeys) addSuppressionJsDocAnnot
 	suppressDoc.recordSuppressions(icast_Set(obj_(ImmutableSet_of_Object_Object_Object(strobj_("checkTypes"), strobj_("globalThis"), strobj_("visibility")))))
 	node.setJSDocInfo(suppressDoc.build())
 }
-

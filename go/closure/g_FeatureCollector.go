@@ -25,17 +25,17 @@ func (this *FeatureCollector) allFeatures() *FeatureSet {
 }
 
 func (this *FeatureCollector) visitScript(script Node) {
-	var emptyContext *TList[*FeatureCollector_FeatureContext] = newTList_(tc_p_FeatureCollector_FeatureContext)
+	var emptyContext *JTList[*FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
 	emptyContext.add(FeatureCollector_FeatureContext_NONE)
 	this.visitRecursive(emptyContext, script)
 }
 
-func (this *FeatureCollector) visitRecursive(contextStack *TList[*FeatureCollector_FeatureContext], node Node) {
+func (this *FeatureCollector) visitRecursive(contextStack *JTList[*FeatureCollector_FeatureContext], node Node) {
 	var newContext *FeatureCollector_FeatureContext = this.visitSingleNode(contextStack.asList(), node)
 	contextStack.add(newContext)
 	{
 		var child Node = node.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			this.visitRecursive(contextStack, child)
 		}
 	}
@@ -69,7 +69,7 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack ListOf[*FeatureC
 		}
 	case Token_rhino_PARAM_LIST, Token_rhino_CALL, Token_rhino_NEW:
 	case Token_rhino_STRING_KEY:
-		if (node.isShorthandProperty() && Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_OBJECT_LITERAL))) {
+		if node.isShorthandProperty() && Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_OBJECT_LITERAL)) {
 			this.addScriptFeature(FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES)
 		}
 	case Token_rhino_DEFAULT_VALUE:
@@ -132,7 +132,7 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack ListOf[*FeatureC
 		} else if isSetter {
 			this.addScriptFeature(FeatureSet_Feature_SETTER)
 		}
-		if ((isGetter || isSetter) && isClassMember) {
+		if (isGetter || isSetter) && isClassMember {
 			this.addScriptFeature(FeatureSet_Feature_CLASS_GETTER_SETTER)
 		}
 	case Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM:
@@ -171,7 +171,7 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack ListOf[*FeatureC
 			this.addScriptFeature(FeatureSet_Feature_PUBLIC_CLASS_FIELDS)
 		}
 	case Token_rhino_IN:
-		if ((node.getFirstChild() != 0) && node.getFirstChild().isPrivateIdentifier()) {
+		if (node.getFirstChild() != 0) && node.getFirstChild().isPrivateIdentifier() {
 			this.addScriptFeature(FeatureSet_Feature_PRIVATE_ELEMENTS)
 		}
 	case Token_rhino_COMPUTED_FIELD_DEF:
@@ -211,7 +211,12 @@ func FeatureCollector_contextFor(contextStack ListOf[*FeatureCollector_FeatureCo
 		case Token_rhino_CATCH:
 			return FeatureCollector_FeatureContext_CATCH
 		case Token_rhino_BLOCK:
-			return func() *FeatureCollector_FeatureContext { if Object_equals(obj_(cast_[*FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack)))), obj_(FeatureCollector_FeatureContext_FUNCTION)) { return FeatureCollector_FeatureContext_NONE }; return FeatureCollector_FeatureContext_BLOCK_SCOPE }()
+			return func() *FeatureCollector_FeatureContext {
+				if Object_equals(obj_(cast_[*FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack)))), obj_(FeatureCollector_FeatureContext_FUNCTION)) {
+					return FeatureCollector_FeatureContext_NONE
+				}
+				return FeatureCollector_FeatureContext_BLOCK_SCOPE
+			}()
 		case Token_rhino_FUNCTION:
 			return FeatureCollector_FeatureContext_FUNCTION
 		case Token_rhino_OBJECTLIT:
@@ -287,4 +292,3 @@ func FeatureCollector_FeatureContext_clinit() {
 	registerEnum_("com.google.javascript.jscomp.parsing.FeatureCollector.FeatureContext", enumValues_(FeatureCollector_FeatureContext_values_))
 
 }
-

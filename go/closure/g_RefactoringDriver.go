@@ -18,15 +18,15 @@ func new_RefactoringDriver(inputs ListOf[*SourceFile_jscomp], externs ListOf[*So
 	return this
 }
 
-func (this *RefactoringDriver) drive_2(scanner *Scanner_refactoring, includeFilePattern *Pattern) *TList[*SuggestedFix] {
+func (this *RefactoringDriver) drive_2(scanner *Scanner_refactoring, includeFilePattern *Pattern) *JTList[*SuggestedFix] {
 	var callback *JsFlumeCallback = new_JsFlumeCallback(scanner, includeFilePattern)
 	NodeTraversal_traverse(this.compiler_.up_AbstractCompiler(), this.rootNode_, icast_NodeTraversal_Callback(obj_(callback)))
-	var fixes *TList[*SuggestedFix] = callback.getFixes()
+	var fixes *JTList[*SuggestedFix] = callback.getFixes()
 	fixes.asList().addAll(Collection(scanner.processAllMatches(Collection(callback.getMatches().asList()))))
 	return fixes
 }
 
-func (this *RefactoringDriver) drive(scanner *Scanner_refactoring) *TList[*SuggestedFix] {
+func (this *RefactoringDriver) drive(scanner *Scanner_refactoring) *JTList[*SuggestedFix] {
 	return this.drive_2(scanner, nil)
 }
 
@@ -61,8 +61,8 @@ func RefactoringDriver_getCompilerOptions() *CompilerOptions {
 }
 
 type RefactoringDriver_Builder struct {
-	inputs ImmutableList_BuilderOf[*SourceFile_jscomp]
-	externs ImmutableList_BuilderOf[*SourceFile_jscomp]
+	inputs          ImmutableList_BuilderOf[*SourceFile_jscomp]
+	externs         ImmutableList_BuilderOf[*SourceFile_jscomp]
 	compilerOptions *CompilerOptions
 }
 
@@ -149,4 +149,3 @@ func RefactoringDriver_Builder_clinit() {
 	}}
 
 }
-

@@ -4,15 +4,15 @@ package closure
 
 type FunctionDeclarationTree struct {
 	ParseTree
-	name_ *IdentifierToken
+	name_               *IdentifierToken
 	formalParameterList *FormalParameterListTree
-	functionBody *ParseTree
-	isClassMember bool
-	isStatic bool
-	isGenerator bool
-	isOptional_ bool
-	isAsync bool
-	kind_ *FunctionDeclarationTree_Kind
+	functionBody        *ParseTree
+	isClassMember       bool
+	isStatic            bool
+	isGenerator         bool
+	isOptional_         bool
+	isAsync             bool
+	kind_               *FunctionDeclarationTree_Kind
 }
 
 func (this *FunctionDeclarationTree) up_ParseTree() *ParseTree {
@@ -104,16 +104,16 @@ func FunctionDeclarationTree_Kind_clinit() {
 }
 
 type FunctionDeclarationTree_Builder struct {
-	kind_ *FunctionDeclarationTree_Kind
-	name_ *IdentifierToken
+	kind_               *FunctionDeclarationTree_Kind
+	name_               *IdentifierToken
 	formalParameterList *FormalParameterListTree
-	functionBody *ParseTree
-	isClassMember bool
-	isStatic bool
-	isGenerator bool
-	isOptional_ bool
-	isAsync bool
-	location_ *SourceRange
+	functionBody        *ParseTree
+	isClassMember       bool
+	isStatic            bool
+	isGenerator         bool
+	isOptional_         bool
+	isAsync             bool
+	location_           *SourceRange
 }
 
 func (this *FunctionDeclarationTree_Builder) finit_FunctionDeclarationTree_Builder() {
@@ -182,4 +182,3 @@ func (this *FunctionDeclarationTree_Builder) build(location *SourceRange) *Funct
 	this.location_ = location
 	return new_FunctionDeclarationTree(this)
 }
-

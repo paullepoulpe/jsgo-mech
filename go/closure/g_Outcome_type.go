@@ -39,7 +39,12 @@ func (this *Outcome_type) init_Outcome_type(name_ string, ordinal_ int32) {
 }
 
 func Outcome_type_forBoolean(val bool) *Outcome_type {
-	return func() *Outcome_type { if val { return Outcome_type_TRUE }; return Outcome_type_FALSE }()
+	return func() *Outcome_type {
+		if val {
+			return Outcome_type_TRUE
+		}
+		return Outcome_type_FALSE
+	}()
 }
 
 func (this *Outcome_type) isTruthy() bool {
@@ -220,4 +225,3 @@ func Outcome_2_type_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.type.Outcome>", enumValues_(Outcome_2_type_values_))
 
 }
-

@@ -19,7 +19,7 @@ func new_Es6RewriteModulesToCommonJsModules(compiler *AbstractCompiler) *Es6Rewr
 func (this *Es6RewriteModulesToCommonJsModules) process_2(externs Node, root Node) {
 	{
 		var script Node = root.getFirstChild()
-		for ; (script != 0); script = script.getNext() {
+		for ; script != 0; script = script.getNext() {
 			if Es6RewriteModules_isEs6ModuleRoot(script) {
 				NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_Es6RewriteModulesToCommonJsModules_Rewriter(this.compiler_, script))))
 			}
@@ -31,10 +31,10 @@ func (this *Es6RewriteModulesToCommonJsModules) process_2(externs Node, root Nod
 
 func Es6RewriteModulesToCommonJsModules_normalizePath(path string) string {
 	var indexOfProtocol int32 = String_indexOf_String(path, "://")
-	if (indexOfProtocol > -1) {
+	if indexOfProtocol > -1 {
 		path = String_substring_int(path, (indexOfProtocol + 3))
 		var indexOfSlash int32 = String_indexOf(path, 47)
-		if (indexOfSlash > -1) {
+		if indexOfSlash > -1 {
 			path = String_substring_int(path, (indexOfSlash + 1))
 		}
 	} else if String_startsWith(path, "/") {
@@ -49,7 +49,7 @@ const Es6RewriteModulesToCommonJsModules_EXPORTS string = "$$exports"
 const Es6RewriteModulesToCommonJsModules_REQUIRE string = "$$require"
 
 type Es6RewriteModulesToCommonJsModules_LocalQName struct {
-	qName string
+	qName             string
 	nodeForSourceInfo Node
 }
 
@@ -71,7 +71,7 @@ func new_Es6RewriteModulesToCommonJsModules_LocalQName(qName string, nodeForSour
 
 type Es6RewriteModulesToCommonJsModules_ModuleRequest struct {
 	specifier_ string
-	varName_ string
+	varName_   string
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_ModuleRequest) zero_Es6RewriteModulesToCommonJsModules_ModuleRequest() {
@@ -124,13 +124,13 @@ func (this *Es6RewriteModulesToCommonJsModules_ModuleRequest) toString() string 
 
 type Es6RewriteModulesToCommonJsModules_Rewriter struct {
 	NodeTraversal_AbstractPostOrderCallback
-	requireInsertSpot Node
-	script_ Node
+	requireInsertSpot        Node
+	script_                  Node
 	exportedNameToLocalQName MapOf[string, *Es6RewriteModulesToCommonJsModules_LocalQName]
-	imports *TSet[Node]
-	importRequests *TSet[*Es6RewriteModulesToCommonJsModules_ModuleRequest]
-	compiler_ *AbstractCompiler
-	modulePath_ *ModuleLoader_ModulePath
+	imports                  *JTSet[Node]
+	importRequests           *JTSet[*Es6RewriteModulesToCommonJsModules_ModuleRequest]
+	compiler_                *AbstractCompiler
+	modulePath_              *ModuleLoader_ModulePath
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -146,8 +146,8 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) init_Es6RewriteModulesT
 	this.script_ = script
 	this.requireInsertSpot = 0
 	this.exportedNameToLocalQName = icast_Map(obj_(new_TreeMap()))
-	this.importRequests = newTSet_(tce_p_Es6RewriteModulesToCommonJsModules_ModuleRequest)
-	this.imports = newTSet_(tc_Node)
+	this.importRequests = jnewTSet_(tce_p_Es6RewriteModulesToCommonJsModules_ModuleRequest)
+	this.imports = jnewTSet_(jtc_Node)
 	this.modulePath_ = compiler.getInput(script.getInputId()).getPath()
 }
 
@@ -204,7 +204,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) getNameOfImportedValue(
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeGetNameOfImportedValue(s *Scope, nameNode Node) Optional[string] {
 	Preconditions_checkState(nameNode.isName())
 	var var_ *Var = cast_[*Var](s.getVar(nameNode.getString()).self())
-	if ((((var_ != nil) && (var_.getNameNode() != 0)) && NodeUtil_isImportedName(var_.getNameNode())) && (nameNode != var_.getNameNode())) {
+	if (((var_ != nil) && (var_.getNameNode() != 0)) && NodeUtil_isImportedName(var_.getNameNode())) && (nameNode != var_.getNameNode()) {
 		return Optional_of[string](this.getNameOfImportedValue(var_.getNameNode()))
 	}
 	return Optional_empty[string]()
@@ -213,7 +213,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeGetNameOfImportedV
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeRenameImportedValue(t *NodeTraversal, n Node) {
 	Preconditions_checkState(n.isName())
 	var parent Node = n.getParent()
-	if (((parent.isExport() || parent.isExportSpec()) || parent.isImport()) || parent.isImportSpec()) {
+	if ((parent.isExport() || parent.isExportSpec()) || parent.isImport()) || parent.isImportSpec() {
 		return
 	}
 	var qName Optional[string] = this.maybeGetNameOfImportedValue(t.getScope(), n)
@@ -241,7 +241,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addRequireCalls() {
 			var importDecl Node = it_1.v
 			importDecl.detach()
 		}
-		var importedNames *TSet[string] = newTSet_(tc_string)
+		var importedNames *JTSet[string] = jnewTSet_(jtc_string)
 		it_3 := this.importRequests.each()
 		for it_3.next() {
 			var request *Es6RewriteModulesToCommonJsModules_ModuleRequest = it_3.v
@@ -251,7 +251,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addRequireCalls() {
 				requireCall.putBooleanProp(Node_FREE_CALL, true)
 				var decl Node = IR_var_Node_Node(IR_name(varName), requireCall)
 				decl.srcrefTreeIfMissing(this.script_)
-				if (this.requireInsertSpot == 0) {
+				if this.requireInsertSpot == 0 {
 					this.script_.addChildToFront(decl)
 				} else {
 					decl.insertAfter(this.requireInsertSpot)
@@ -311,7 +311,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitImport(path *Modul
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *NodeTraversal, export Node) {
 	var child Node = export.getFirstChild()
 	var name Optional[string] = Optional_empty[string]()
-	if (child.isFunction() || child.isClass()) {
+	if child.isFunction() || child.isClass() {
 		name = Optional_of[string](NodeUtil_getName(child)).filter(&Predicate_tfn_string{func(s string) bool {
 			return !String_isEmpty(s)
 		}})
@@ -338,8 +338,8 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportFrom(t *Node
 	var moduleName string = this.getVarNameOfImport(moduleIdentifier.getString())
 	{
 		var exportSpec Node = export.getFirstFirstChild()
-		for ; (exportSpec != 0); exportSpec = exportSpec.getNext() {
-			Map_put_s(this.exportedNameToLocalQName, exportSpec.getLastChild().getString(), obj_(new_Es6RewriteModulesToCommonJsModules_LocalQName((sstr_(moduleName) + "." + sstr_(exportSpec.getFirstChild().getString())), exportSpec)))
+		for ; exportSpec != 0; exportSpec = exportSpec.getNext() {
+			Map_put_s(this.exportedNameToLocalQName, exportSpec.getLastChild().getString(), obj_(new_Es6RewriteModulesToCommonJsModules_LocalQName((sstr_(moduleName)+"."+sstr_(exportSpec.getFirstChild().getString())), exportSpec)))
 		}
 	}
 	export.detach()
@@ -349,10 +349,10 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportFrom(t *Node
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportSpecs(t *NodeTraversal, export Node) {
 	{
 		var exportSpec Node = export.getFirstFirstChild()
-		for ; (exportSpec != 0); exportSpec = exportSpec.getNext() {
+		for ; exportSpec != 0; exportSpec = exportSpec.getNext() {
 			var localName Optional[string] = Optional_of[string](exportSpec.getFirstChild().getString())
 			var var_ *Var = cast_[*Var](t.getScope().getVar(localName.get()).self())
-			if ((var_ != nil) && NodeUtil_isImportedName(var_.getNameNode())) {
+			if (var_ != nil) && NodeUtil_isImportedName(var_.getNameNode()) {
 				localName = this.maybeGetNameOfImportedValue(t.getScope(), exportSpec.getFirstChild())
 				Preconditions_checkState(localName.isPresent())
 			}
@@ -412,4 +412,3 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExport(t *NodeTrav
 		}
 	}
 }
-

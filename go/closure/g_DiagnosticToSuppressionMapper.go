@@ -4,7 +4,7 @@ package closure
 
 type DiagnosticToSuppressionMapper struct {
 	validSuppressions SetOf[string]
-	diagnosticGroups ImmutableMapOf[string, *DiagnosticGroup]
+	diagnosticGroups  ImmutableMapOf[string, *DiagnosticGroup]
 }
 
 func (this *DiagnosticToSuppressionMapper) init_DiagnosticToSuppressionMapper(validSuppressions SetOf[string], diagnosticGroups ImmutableMapOf[string, *DiagnosticGroup]) {
@@ -28,10 +28,10 @@ func (this *DiagnosticToSuppressionMapper) printSuppressions(output *DiagnosticT
 }
 
 func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSortedMapOf[string, string] {
-	var validSuppressions *TSet[string] = tsetFrom_(tc_string, Collection(this.validSuppressions))
+	var validSuppressions *JTSet[string] = jtsetFrom_(jtc_string, Collection(this.validSuppressions))
 	validSuppressions.del("accessControls")
 	validSuppressions.del("missingSourcesWarnings")
-	var diagnosticToSuppression *TMap[*DiagnosticType, string] = newTMap_(tce_p_DiagnosticType, tc_string)
+	var diagnosticToSuppression *JTMap[*DiagnosticType, string] = jnewTMap_(tce_p_DiagnosticType, jtc_string)
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](this.diagnosticGroups.entrySet())))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
@@ -58,7 +58,12 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 func (this *DiagnosticToSuppressionMapper) preferMoreTargetedGroup(next string, current string) string {
 	var nextGroup *DiagnosticGroup = cast_[*DiagnosticGroup](Map_get_s(this.diagnosticGroups, next))
 	var currentGroup *DiagnosticGroup = cast_[*DiagnosticGroup](Map_get_s(this.diagnosticGroups, current))
-	return func() string { if (nextGroup.getTypes().size() < currentGroup.getTypes().size()) { return next }; return current }()
+	return func() string {
+		if nextGroup.getTypes().size() < currentGroup.getTypes().size() {
+			return next
+		}
+		return current
+	}()
 }
 
 func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression ImmutableSortedMapOf[string, string]) {
@@ -137,4 +142,3 @@ func DiagnosticToSuppressionMapper_OutputFormat_clinit() {
 	registerEnum_("com.google.javascript.jscomp.DiagnosticToSuppressionMapper.OutputFormat", enumValues_(DiagnosticToSuppressionMapper_OutputFormat_values_))
 
 }
-

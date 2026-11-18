@@ -3,7 +3,7 @@
 package closure
 
 type JSTypeExpression struct {
-	root Node
+	root        Node
 	sourceName_ string
 }
 
@@ -12,7 +12,12 @@ func (this *JSTypeExpression) zero_JSTypeExpression() {
 }
 
 func (this *JSTypeExpression) init_JSTypeExpression(root Node, sourceName string) {
-	this.root = func() Node { if (root.getParent() != 0) { return root.cloneTree() }; return root }()
+	this.root = func() Node {
+		if root.getParent() != 0 {
+			return root.cloneTree()
+		}
+		return root
+	}()
 	this.sourceName_ = sourceName
 }
 
@@ -23,28 +28,28 @@ func new_JSTypeExpression(root Node, sourceName string) *JSTypeExpression {
 	return this
 }
 
-func (this *JSTypeExpression) replaceNamesWithUnknownType(names *TSet[string]) *JSTypeExpression {
+func (this *JSTypeExpression) replaceNamesWithUnknownType(names *JTSet[string]) *JSTypeExpression {
 	var oldExprRoot Node = this.root.cloneTree()
 	var newExprRoot Node = JSTypeExpression_replaceNames(oldExprRoot, names)
 	var newTypeExpression *JSTypeExpression = new_JSTypeExpression(newExprRoot, this.sourceName_)
 	return newTypeExpression
 }
 
-func JSTypeExpression_replaceNames(n Node, names *TSet[string]) Node {
-	if (n == 0) {
+func JSTypeExpression_replaceNames(n Node, names *JTSet[string]) Node {
+	if n == 0 {
 		return 0
 	}
 	{
 		var child Node = n.getFirstChild()
-		for (child != 0) {
+		for child != 0 {
 			var next Node = child.getNext()
 			JSTypeExpression_replaceNames(child, names)
 			child = next
 		}
 	}
-	if (n.isStringLit() && names.has(JSTypeExpression_baseName(n.getString()))) {
+	if n.isStringLit() && names.has(JSTypeExpression_baseName(n.getString())) {
 		var qMark Node = new_Node_Token(Token_rhino_QMARK)
-		if (n.hasChildren() && !n.getFirstChild().isBlock()) {
+		if n.hasChildren() && !n.getFirstChild().isBlock() {
 			qMark.addChildrenToBack(n.removeChildren())
 		}
 		if n.hasParent() {
@@ -57,7 +62,12 @@ func JSTypeExpression_replaceNames(n Node, names *TSet[string]) Node {
 
 func JSTypeExpression_baseName(name string) string {
 	var dotIndex int32 = String_indexOf(name, 46)
-	return func() string { if (dotIndex == -1) { return name }; return String_substring(name, 0, dotIndex) }()
+	return func() string {
+		if dotIndex == -1 {
+			return name
+		}
+		return String_substring(name, 0, dotIndex)
+	}()
 }
 
 func (this *JSTypeExpression) getAllTypeNodes() ImmutableListOf[Node] {
@@ -75,12 +85,12 @@ func (this *JSTypeExpression) getAllTypeNames() ImmutableSetOf[string] {
 }
 
 func JSTypeExpression_visitAllTypeNodes(n Node, visitor ConsumerOf[Node]) {
-	if (n == 0) {
+	if n == 0 {
 		return
 	}
 	{
 		var child Node = n.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			JSTypeExpression_visitAllTypeNodes(child, visitor)
 		}
 	}
@@ -90,7 +100,7 @@ func JSTypeExpression_visitAllTypeNodes(n Node, visitor ConsumerOf[Node]) {
 }
 
 func JSTypeExpression_makeOptionalArg(expr *JSTypeExpression) *JSTypeExpression {
-	if (expr.isOptionalArg() || expr.isVarArgs()) {
+	if expr.isOptionalArg() || expr.isVarArgs() {
 		return expr
 	} else {
 		var equals Node = new_Node_Token_Node(Token_rhino_EQUALS, expr.root.cloneTree())
@@ -101,7 +111,7 @@ func JSTypeExpression_makeOptionalArg(expr *JSTypeExpression) *JSTypeExpression 
 }
 
 func JSTypeExpression_makeVarArgs(expr *JSTypeExpression) *JSTypeExpression {
-	if (expr.isOptionalArg() || expr.isVarArgs()) {
+	if expr.isOptionalArg() || expr.isVarArgs() {
 		return expr
 	} else {
 		var equals Node = new_Node_Token_Node(Token_rhino_ITER_REST, expr.root.cloneTree())
@@ -158,12 +168,12 @@ func (this *JSTypeExpression) getRecordPropertyNames() ImmutableSetOf[string] {
 }
 
 func JSTypeExpression_getRecordPropertyNamesRecursive(n Node, names ImmutableSet_BuilderOf[string]) {
-	if (n == 0) {
+	if n == 0 {
 		return
 	}
 	{
 		var child Node = n.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			JSTypeExpression_getRecordPropertyNamesRecursive(child, names)
 		}
 	}
@@ -174,6 +184,7 @@ func JSTypeExpression_getRecordPropertyNamesRecursive(n Node, names ImmutableSet
 
 const JSTypeExpression_serialVersionUID int64 = 1
 const JSTypeExpression_IMPLICIT_TEMPLATE_BOUND_SOURCE string = "<IMPLICIT_TEMPLATE_BOUND>"
+
 var JSTypeExpression_IMPLICIT_TEMPLATE_BOUND *JSTypeExpression
 
 var JSTypeExpression_clinit_done bool
@@ -189,4 +200,3 @@ func JSTypeExpression_clinit() {
 	}
 
 }
-

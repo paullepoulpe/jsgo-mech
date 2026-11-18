@@ -23,4 +23,3 @@ func new_SuperExpressionTree(location *SourceRange) *SuperExpressionTree {
 	this.init_SuperExpressionTree(location)
 	return this
 }
-

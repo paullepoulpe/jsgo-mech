@@ -12,4 +12,3 @@ type SourceMapGenerator interface {
 	setStartingPosition(int32, int32)
 	validate(bool)
 }
-

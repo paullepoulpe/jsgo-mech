@@ -64,4 +64,3 @@ func new_LinkedIdentityHashSet_Sentinel() *LinkedIdentityHashSet_Sentinel {
 	this.init_LinkedIdentityHashSet_Sentinel()
 	return this
 }
-

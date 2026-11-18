@@ -54,4 +54,3 @@ func (this *BasicErrorManager) println(p0 *CheckLevel, p1 *JSError) {
 func (this *BasicErrorManager) printSummary() {
 	this.self_.(interface{ printSummary_impl() }).printSummary_impl()
 }
-

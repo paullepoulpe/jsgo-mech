@@ -3,10 +3,10 @@
 package closure
 
 type SimpleJsonValue struct {
-	tag *SimpleJsonValue_Kind
-	text string
-	items *TList[*SimpleJsonValue]
-	named *TMap[string, *SimpleJsonValue]
+	tag   *SimpleJsonValue_Kind
+	text  string
+	items *JTList[*SimpleJsonValue]
+	named *JTMap[string, *SimpleJsonValue]
 }
 
 func (this *SimpleJsonValue) zero_SimpleJsonValue() {
@@ -14,8 +14,8 @@ func (this *SimpleJsonValue) zero_SimpleJsonValue() {
 }
 
 func (this *SimpleJsonValue) finit_SimpleJsonValue() {
-	this.items = newTList_(tc_p_SimpleJsonValue)
-	this.named = newTMap_(tc_string, tc_p_SimpleJsonValue)
+	this.items = jnewTList_(tc_p_SimpleJsonValue)
+	this.named = jnewTMap_(jtc_string, tc_p_SimpleJsonValue)
 }
 
 func (this *SimpleJsonValue) init_SimpleJsonValue(tag *SimpleJsonValue_Kind, text string) {
@@ -48,7 +48,12 @@ func SimpleJsonValue_ofNumber(jsonText string) *SimpleJsonValue {
 }
 
 func SimpleJsonValue_ofBoolean(value bool) *SimpleJsonValue {
-	return new_SimpleJsonValue(SimpleJsonValue_Kind_BOOLEAN, func() string { if value { return "true" }; return "false" }())
+	return new_SimpleJsonValue(SimpleJsonValue_Kind_BOOLEAN, func() string {
+		if value {
+			return "true"
+		}
+		return "false"
+	}())
 }
 
 func SimpleJsonValue_ofNull() *SimpleJsonValue {
@@ -59,11 +64,11 @@ func (this *SimpleJsonValue) kind() *SimpleJsonValue_Kind {
 	return this.tag
 }
 
-func (this *SimpleJsonValue) members() *TMap[string, *SimpleJsonValue] {
+func (this *SimpleJsonValue) members() *JTMap[string, *SimpleJsonValue] {
 	return this.named
 }
 
-func (this *SimpleJsonValue) elements() *TList[*SimpleJsonValue] {
+func (this *SimpleJsonValue) elements() *JTList[*SimpleJsonValue] {
 	return this.items
 }
 
@@ -72,18 +77,23 @@ func (this *SimpleJsonValue) get(name string) *SimpleJsonValue {
 }
 
 func (this *SimpleJsonValue) asString() *Outcome_base[string] {
-	if (((this.tag == SimpleJsonValue_Kind_STRING) || (this.tag == SimpleJsonValue_Kind_NUMBER)) || (this.tag == SimpleJsonValue_Kind_BOOLEAN)) {
+	if ((this.tag == SimpleJsonValue_Kind_STRING) || (this.tag == SimpleJsonValue_Kind_NUMBER)) || (this.tag == SimpleJsonValue_Kind_BOOLEAN) {
 		return Outcome_base_ok_Object[string](this.text)
 	}
 	return Outcome_base_err[string](new_SimpleJsonException(("Expected a JSON string but found " + objstr_(obj_(this.tag)))).up_Throwable())
 }
 
 func (this *SimpleJsonValue) asInt() *Outcome_base[any] {
-	var parsed any = func() any { if ((this.tag == SimpleJsonValue_Kind_STRING) || (this.tag == SimpleJsonValue_Kind_NUMBER)) { return JSCompStrings_parseIntOrNull(Optional_of[string](this.text)) }; return nil }()
-	if ((parsed == nil) && (this.tag == SimpleJsonValue_Kind_NUMBER)) {
+	var parsed any = func() any {
+		if (this.tag == SimpleJsonValue_Kind_STRING) || (this.tag == SimpleJsonValue_Kind_NUMBER) {
+			return JSCompStrings_parseIntOrNull(Optional_of[string](this.text))
+		}
+		return nil
+	}()
+	if (parsed == nil) && (this.tag == SimpleJsonValue_Kind_NUMBER) {
 		parsed = any(int32(SimpleJsonValue_wrapToInt(this.text)))
 	}
-	if (parsed == nil) {
+	if parsed == nil {
 		return Outcome_base_err[any](new_SimpleJsonException(("Expected a JSON integer but found " + objstr_(obj_(this.tag)))).up_Throwable())
 	}
 	return Outcome_base_ok_Object[any](parsed)
@@ -94,24 +104,59 @@ func SimpleJsonValue_wrapToInt(number string) int32 {
 	var end int32 = String_length(number)
 	var exponent int64 = 0
 	var e int32 = Math_max(String_indexOf(number, 101), String_indexOf(number, 69))
-	if (e >= 0) {
+	if e >= 0 {
 		end = e
-		var negativeExponent bool = (String_charAt(number, (e + 1)) == '-')
-		for i := int32((e + 1)); ((i < String_length(number)) && (exponent < 1000000)); i++ {
+		var negativeExponent bool = (String_charAt(number, (e+1)) == '-')
+		for i := int32((e + 1)); (i < String_length(number)) && (exponent < 1000000); i++ {
 			var digit int32 = (int32(String_charAt(number, i)) - 48)
-			exponent = func() int64 { if (digit >= 0) { return ((exponent * 10) + int64(digit)) }; return exponent }()
+			exponent = func() int64 {
+				if digit >= 0 {
+					return ((exponent * 10) + int64(digit))
+				}
+				return exponent
+			}()
 		}
-		exponent = func() int64 { if negativeExponent { return (-exponent) }; return exponent }()
+		exponent = func() int64 {
+			if negativeExponent {
+				return (-exponent)
+			}
+			return exponent
+		}()
 	}
-	var digits string = String_substring(number, func() int32 { if negative { return 1 }; return 0 }(), end)
+	var digits string = String_substring(number, func() int32 {
+		if negative {
+			return 1
+		}
+		return 0
+	}(), end)
 	var dot int32 = String_indexOf(digits, 46)
-	var integerDigits int64 = (int64(func() int32 { if (dot < 0) { return String_length(digits) }; return dot }()) + exponent)
-	digits = func() string { if (dot < 0) { return digits }; return (sstr_(String_substring(digits, 0, dot)) + sstr_(String_substring_int(digits, (dot + 1)))) }()
+	var integerDigits int64 = (int64(func() int32 {
+		if dot < 0 {
+			return String_length(digits)
+		}
+		return dot
+	}()) + exponent)
+	digits = func() string {
+		if dot < 0 {
+			return digits
+		}
+		return (sstr_(String_substring(digits, 0, dot)) + sstr_(String_substring_int(digits, (dot+1))))
+	}()
 	var value int32 = 0
-	for i := int32(0); ((int64(i) < integerDigits) && (i < (String_length(digits) + 32))); i++ {
-		value = ((value * 10) + func() int32 { if (i < String_length(digits)) { return (int32(String_charAt(digits, i)) - 48) }; return 0 }())
+	for i := int32(0); (int64(i) < integerDigits) && (i < (String_length(digits) + 32)); i++ {
+		value = ((value * 10) + func() int32 {
+			if i < String_length(digits) {
+				return (int32(String_charAt(digits, i)) - 48)
+			}
+			return 0
+		}())
 	}
-	return func() int32 { if negative { return (-value) }; return value }()
+	return func() int32 {
+		if negative {
+			return (-value)
+		}
+		return value
+	}()
 }
 
 func (this *SimpleJsonValue) writeTo(writer *SimpleJsonWriter) {
@@ -208,4 +253,3 @@ func SimpleJsonValue_Kind_clinit() {
 	registerEnum_("com.google.javascript.jscomp.base.SimpleJsonValue.Kind", enumValues_(SimpleJsonValue_Kind_values_))
 
 }
-

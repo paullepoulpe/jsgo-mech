@@ -3,15 +3,15 @@
 package closure
 
 type FileInfo struct {
-	providedNamespaces *TSet[string]
-	requiredLocalNames *TSet[string]
-	declarations *SimpleListMultimap
+	providedNamespaces    *JTSet[string]
+	requiredLocalNames    *JTSet[string]
+	declarations          *SimpleListMultimap
 	isFromTypeScriptField bool
 }
 
 func (this *FileInfo) finit_FileInfo() {
-	this.providedNamespaces = newTSet_(tc_string)
-	this.requiredLocalNames = newTSet_(tc_string)
+	this.providedNamespaces = jnewTSet_(jtc_string)
+	this.requiredLocalNames = jnewTSet_(jtc_string)
 	this.declarations = SimpleListMultimap_create()
 }
 
@@ -74,7 +74,7 @@ func FileInfo_containsPrefix(fullyQualifiedName string, prefixNamespaces Iterabl
 	it_1 := foreach_(any(prefixNamespaces))
 	for it_1.next() {
 		var prefix string = str_(it_1.v)
-		if ((fullyQualifiedName == prefix) || String_startsWith(fullyQualifiedName, (sstr_(prefix) + "."))) {
+		if (fullyQualifiedName == prefix) || String_startsWith(fullyQualifiedName, (sstr_(prefix)+".")) {
 			return true
 		}
 	}
@@ -103,4 +103,3 @@ func (this *FileInfo) isStrictPrefixDeclared(fullyQualifiedName string) bool {
 func (this *FileInfo) markProvided(providedName string) {
 	this.providedNamespaces.add(providedName)
 }
-

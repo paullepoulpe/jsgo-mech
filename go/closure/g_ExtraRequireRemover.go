@@ -4,13 +4,13 @@ package closure
 
 type ExtraRequireRemover struct {
 	compiler_ *AbstractCompiler
-	requires *TMap[string, Node]
-	usages *TSet[string]
+	requires  *JTMap[string, Node]
+	usages    *JTSet[string]
 }
 
 func (this *ExtraRequireRemover) finit_ExtraRequireRemover() {
-	this.requires = newTMap_(tc_string, tc_Node)
-	this.usages = newTSet_(tc_string)
+	this.requires = jnewTMap_(jtc_string, jtc_Node)
+	this.usages = jnewTSet_(jtc_string)
 }
 
 func (this *ExtraRequireRemover) init_ExtraRequireRemover(compiler *AbstractCompiler) {
@@ -37,7 +37,7 @@ func (this *ExtraRequireRemover) extractNamespace(call Node, primitiveNames []*Q
 	for _, primitiveName := range primitiveNames {
 		if primitiveName.matches(callee) {
 			var target Node = callee.getNext()
-			if ((target != 0) && target.isStringLit()) {
+			if (target != 0) && target.isStringLit() {
 				return Optional_of[string](target.getString())
 			}
 		}
@@ -57,11 +57,11 @@ func (this *ExtraRequireRemover) visit(t *NodeTraversal, n Node, parent Node) {
 	this.maybeAddJsDocUsages(n)
 	switch n.getToken() {
 	case Token_rhino_NAME:
-		if (!NodeUtil_isLValue(n) && !parent.isGetProp()) {
+		if !NodeUtil_isLValue(n) && !parent.isGetProp() {
 			this.visitQualifiedName(n)
 		}
 	case Token_rhino_GETPROP:
-		if (!parent.isGetProp() && n.isQualifiedName()) {
+		if !parent.isGetProp() && n.isQualifiedName() {
 			this.visitQualifiedName(n)
 		}
 	case Token_rhino_CALL:
@@ -93,7 +93,7 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 		return
 	}
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(call)
-	if ((jsDoc != nil) && Collection_contains_s(jsDoc.getSuppressions(), "extraRequire")) {
+	if (jsDoc != nil) && Collection_contains_s(jsDoc.getSuppressions(), "extraRequire") {
 		return
 	}
 	if ExtraRequireRemover_isTsickleProtoCall(call) {
@@ -138,11 +138,11 @@ func (this *ExtraRequireRemover) visitRequire(localName string, namespace string
 func (this *ExtraRequireRemover) visitGoogRequire(namespace string, googRequireCall Node, parent Node) {
 	if parent.isName() {
 		this.visitRequire(parent.getString(), namespace, googRequireCall)
-	} else if (parent.isDestructuringLhs() && parent.getFirstChild().isObjectPattern()) {
+	} else if parent.isDestructuringLhs() && parent.getFirstChild().isObjectPattern() {
 		if parent.getFirstChild().hasChildren() {
 			{
 				var stringKey Node = parent.getFirstFirstChild()
-				for ; (stringKey != 0); stringKey = stringKey.getNext() {
+				for ; stringKey != 0; stringKey = stringKey.getNext() {
 					var importName Node = stringKey.getFirstChild()
 					this.visitRequire(importName.getString(), namespace, importName)
 				}
@@ -162,7 +162,7 @@ func (this *ExtraRequireRemover) visitCallNode(call Node, parent Node) {
 		return
 	}
 	var callee Node = call.getFirstChild()
-	if (ExtraRequireRemover_GOOG_MODULE_GET.matches(callee) && call.getSecondChild().isStringLit()) {
+	if ExtraRequireRemover_GOOG_MODULE_GET.matches(callee) && call.getSecondChild().isStringLit() {
 		this.usages.add(call.getSecondChild().getString())
 	}
 }
@@ -182,7 +182,7 @@ func (this *ExtraRequireRemover) visitQualifiedName(n Node) {
 
 func (this *ExtraRequireRemover) maybeAddJsDocUsages(n Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
-	if (info == nil) {
+	if info == nil {
 		return
 	}
 	it_1 := foreach_(any(info.getTypeExpressions()))
@@ -197,7 +197,7 @@ func (this *ExtraRequireRemover) maybeAddJsDocUsages(n Node) {
 }
 
 func ExtraRequireRemover_isTsickleProtoCall(call Node) bool {
-	if (!call.isCall() || !String_endsWith(call.getSourceFileName(), ".closure.js")) {
+	if !call.isCall() || !String_endsWith(call.getSourceFileName(), ".closure.js") {
 		return false
 	}
 	var moduleId Node = call.getSecondChild()
@@ -224,4 +224,3 @@ func ExtraRequireRemover_clinit() {
 	ExtraRequireRemover_GOOG_MODULE_GET = QualifiedName_of("goog.module.get")
 
 }
-

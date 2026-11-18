@@ -3,10 +3,10 @@
 package closure
 
 type InjectTranspilationRuntimeLibraries struct {
-	compiler_ *AbstractCompiler
-	runtimeLibs *RuntimeJsLibManager
+	compiler_                     *AbstractCompiler
+	runtimeLibs                   *RuntimeJsLibManager
 	injectedClassExtendsLibraries bool
-	shouldInstrumentAsyncContext bool
+	shouldInstrumentAsyncContext  bool
 }
 
 func (this *InjectTranspilationRuntimeLibraries) init_InjectTranspilationRuntimeLibraries_AbstractCompiler(compiler *AbstractCompiler) {
@@ -36,7 +36,7 @@ func (this *InjectTranspilationRuntimeLibraries) process_2(externs Node, root No
 	var used *FeatureSet = FeatureSet_ES3
 	{
 		var script Node = root.getFirstChild()
-		for ; (script != 0); script = script.getNext() {
+		for ; script != 0; script = script.getNext() {
 			used = used.withFeatureSet(InjectTranspilationRuntimeLibraries_getScriptFeatures(script))
 		}
 	}
@@ -51,7 +51,7 @@ func (this *InjectTranspilationRuntimeLibraries) process_2(externs Node, root No
 		this.runtimeLibs.injectLibForField("$jscomp.createTemplateTagFirstArg")
 		this.runtimeLibs.injectLibForField("$jscomp.createTemplateTagFirstArgWithRaw")
 	}
-	if ((mustBeCompiledAway.contains(FeatureSet_Feature_FOR_OF) || mustBeCompiledAway.contains(FeatureSet_Feature_ARRAY_DESTRUCTURING)) || mustBeCompiledAway.contains(FeatureSet_Feature_OBJECT_PATTERN_REST)) {
+	if (mustBeCompiledAway.contains(FeatureSet_Feature_FOR_OF) || mustBeCompiledAway.contains(FeatureSet_Feature_ARRAY_DESTRUCTURING)) || mustBeCompiledAway.contains(FeatureSet_Feature_OBJECT_PATTERN_REST) {
 		this.runtimeLibs.injectLibForField("$jscomp.makeIterator")
 	}
 	if mustBeCompiledAway.contains(FeatureSet_Feature_FOR_OF) {
@@ -63,7 +63,7 @@ func (this *InjectTranspilationRuntimeLibraries) process_2(externs Node, root No
 	if mustBeCompiledAway.contains(FeatureSet_Feature_SPREAD_EXPRESSIONS) {
 		this.runtimeLibs.injectLibForField("$jscomp.arrayFromIterable")
 	}
-	if ((mustBeCompiledAway.contains(FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD) || mustBeCompiledAway.contains(FeatureSet_Feature_OBJECT_PATTERN_REST)) && !outputFeatures.containsFeatureSet(FeatureSet_ES2015)) {
+	if (mustBeCompiledAway.contains(FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD) || mustBeCompiledAway.contains(FeatureSet_Feature_OBJECT_PATTERN_REST)) && !outputFeatures.containsFeatureSet(FeatureSet_ES2015) {
 		this.runtimeLibs.injectLibForField("$jscomp.assign")
 	}
 	if mustBeCompiledAway.contains(FeatureSet_Feature_CLASS_GETTER_SETTER) {
@@ -98,17 +98,22 @@ func (this *InjectTranspilationRuntimeLibraries) process_2(externs Node, root No
 	if mustBeCompiledAway.contains(FeatureSet_Feature_REST_PARAMETERS) {
 		this.runtimeLibs.injectLibForField("$jscomp.getRestArguments")
 	}
-	if (used.contains(FeatureSet_Feature_PRIVATE_ELEMENTS) && mustBeCompiledAway.contains(FeatureSet_Feature_PRIVATE_ELEMENTS)) {
+	if used.contains(FeatureSet_Feature_PRIVATE_ELEMENTS) && mustBeCompiledAway.contains(FeatureSet_Feature_PRIVATE_ELEMENTS) {
 		this.runtimeLibs.injectLibForField("$jscomp.PrivateMap")
 	}
-	if (this.shouldInstrumentAsyncContext && ((outputFeatures.contains(FeatureSet_Feature_ASYNC_FUNCTIONS) || used.contains(FeatureSet_Feature_GENERATORS)) || used.contains(FeatureSet_Feature_ASYNC_GENERATORS))) {
+	if this.shouldInstrumentAsyncContext && ((outputFeatures.contains(FeatureSet_Feature_ASYNC_FUNCTIONS) || used.contains(FeatureSet_Feature_GENERATORS)) || used.contains(FeatureSet_Feature_ASYNC_GENERATORS)) {
 		this.runtimeLibs.injectLibForField("$jscomp.asyncContextStart")
 	}
 }
 
 func InjectTranspilationRuntimeLibraries_getScriptFeatures(script Node) *FeatureSet {
 	var features *FeatureSet = NodeUtil_getFeatureSetOfScript(script)
-	return func() *FeatureSet { if (features != nil) { return features }; return FeatureSet_ES3 }()
+	return func() *FeatureSet {
+		if features != nil {
+			return features
+		}
+		return FeatureSet_ES3
+	}()
 }
 
 func (this *InjectTranspilationRuntimeLibraries) checkForClassExtends(n Node) {
@@ -116,11 +121,10 @@ func (this *InjectTranspilationRuntimeLibraries) checkForClassExtends(n Node) {
 		return
 	}
 	var superclass Node = n.getSecondChild()
-	if (!this.injectedClassExtendsLibraries && !superclass.isEmpty()) {
+	if !this.injectedClassExtendsLibraries && !superclass.isEmpty() {
 		this.runtimeLibs.injectLibForField("$jscomp.construct")
 		this.runtimeLibs.injectLibForField("$jscomp.inherits")
 		this.runtimeLibs.injectLibForField("$jscomp.arrayFromIterable")
 		this.injectedClassExtendsLibraries = true
 	}
 }
-

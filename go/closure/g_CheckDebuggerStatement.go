@@ -48,4 +48,3 @@ func CheckDebuggerStatement_clinit() {
 	CheckDebuggerStatement_DEBUGGER_STATEMENT_PRESENT = DiagnosticType_disabled("JSC_DEBUGGER_STATEMENT_PRESENT", "Using the debugger statement can halt your application if the user has a JavaScript debugger running.\nTo disable this check when you want to do debugging, you can suppress this message like this:\n  /** @suppress '{'checkDebuggerStatement'}' */\n  debugger;")
 
 }
-

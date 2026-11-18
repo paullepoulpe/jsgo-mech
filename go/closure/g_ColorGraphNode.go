@@ -3,14 +3,14 @@
 package closure
 
 type ColorGraphNode struct {
-	color_ *Color
-	associatedProps *TMap[*PropertyClustering, *ColorGraphNode_PropAssociation]
-	index_ int32
-	subtypeIndices *BitSet
+	color_          *Color
+	associatedProps *JTMap[*PropertyClustering, *ColorGraphNode_PropAssociation]
+	index_          int32
+	subtypeIndices  *BitSet
 }
 
 func (this *ColorGraphNode) finit_ColorGraphNode() {
-	this.associatedProps = newTMap_(tc_p_PropertyClustering, tc_p_ColorGraphNode_PropAssociation)
+	this.associatedProps = jnewTMap_(jtc_p_PropertyClustering, jtc_p_ColorGraphNode_PropAssociation)
 	this.subtypeIndices = new_BitSet()
 }
 
@@ -50,7 +50,7 @@ func (this *ColorGraphNode) getIndex() int32 {
 	return this.index_
 }
 
-func (this *ColorGraphNode) getAssociatedProps() *TMap[*PropertyClustering, *ColorGraphNode_PropAssociation] {
+func (this *ColorGraphNode) getAssociatedProps() *JTMap[*PropertyClustering, *ColorGraphNode_PropAssociation] {
 	return this.associatedProps
 }
 
@@ -116,4 +116,3 @@ func ColorGraphNode_PropAssociation_clinit() {
 	registerEnum_("com.google.javascript.jscomp.disambiguate.ColorGraphNode.PropAssociation", enumValues_(ColorGraphNode_PropAssociation_values_))
 
 }
-

@@ -4,11 +4,11 @@ package closure
 
 type ComposeWarningsGuard struct {
 	WarningsGuard
-	orderOfAddition *TMap[*WarningsGuard, any]
-	numberOfAdds int32
+	orderOfAddition *JTMap[*WarningsGuard, any]
+	numberOfAdds    int32
 	guardComparator ComparatorOf[*WarningsGuard]
-	demoteErrors bool
-	guards TreeSetOf[*WarningsGuard]
+	demoteErrors    bool
+	guards          TreeSetOf[*WarningsGuard]
 }
 
 func (this *ComposeWarningsGuard) up_WarningsGuard() *WarningsGuard {
@@ -19,7 +19,7 @@ func (this *ComposeWarningsGuard) up_WarningsGuard() *WarningsGuard {
 }
 
 func (this *ComposeWarningsGuard) finit_ComposeWarningsGuard() {
-	this.orderOfAddition = newTMap_(tc_p_WarningsGuard, tc_Integer)
+	this.orderOfAddition = jnewTMap_(jtc_p_WarningsGuard, tc_Integer)
 	this.numberOfAdds = 0
 	this.guardComparator = icast_Comparator(obj_(new_ComposeWarningsGuard_GuardComparator(this.orderOfAddition)))
 	this.demoteErrors = false
@@ -46,7 +46,14 @@ func ComposeWarningsGuard_createFromGuards(guards []*WarningsGuard) *ComposeWarn
 func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
 	var composeGuard *ComposeWarningsGuard
 	_ = composeGuard
-	if func() bool { v_ := guard.self(); if !is_[*ComposeWarningsGuard](v_) { return false }; composeGuard = cast_[*ComposeWarningsGuard](v_); return true }() {
+	if func() bool {
+		v_ := guard.self()
+		if !is_[*ComposeWarningsGuard](v_) {
+			return false
+		}
+		composeGuard = cast_[*ComposeWarningsGuard](v_)
+		return true
+	}() {
 		if composeGuard.demoteErrors {
 			this.demoteErrors = composeGuard.demoteErrors
 		}
@@ -72,8 +79,8 @@ func (this *ComposeWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 	for it_1.next() {
 		var guard *WarningsGuard = to_WarningsGuard(it_1.v)
 		var newLevel *CheckLevel = guard.level(error_)
-		if (newLevel != nil) {
-			if (this.demoteErrors && (newLevel == CheckLevel_ERROR)) {
+		if newLevel != nil {
+			if this.demoteErrors && (newLevel == CheckLevel_ERROR) {
 				return CheckLevel_WARNING
 			}
 			return newLevel
@@ -98,7 +105,7 @@ func (this *ComposeWarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) *Tr
 
 func (this *ComposeWarningsGuard) disables(group *DiagnosticGroup) bool {
 	it_1 := foreach_(obj_(group.getTypes()))
-	nextSingleton_:
+nextSingleton_:
 	for it_1.next() {
 		var type_ *DiagnosticType = cast_[*DiagnosticType](it_1.v)
 		var singleton *DiagnosticGroup = DiagnosticGroup_forType(type_)
@@ -144,14 +151,14 @@ func (this *ComposeWarningsGuard) toString() string {
 const ComposeWarningsGuard_serialVersionUID int64 = 1
 
 type ComposeWarningsGuard_GuardComparator struct {
-	orderOfAddition *TMap[*WarningsGuard, any]
+	orderOfAddition *JTMap[*WarningsGuard, any]
 }
 
-func (this *ComposeWarningsGuard_GuardComparator) init_ComposeWarningsGuard_GuardComparator(orderOfAddition *TMap[*WarningsGuard, any]) {
+func (this *ComposeWarningsGuard_GuardComparator) init_ComposeWarningsGuard_GuardComparator(orderOfAddition *JTMap[*WarningsGuard, any]) {
 	this.orderOfAddition = orderOfAddition
 }
 
-func new_ComposeWarningsGuard_GuardComparator(orderOfAddition *TMap[*WarningsGuard, any]) *ComposeWarningsGuard_GuardComparator {
+func new_ComposeWarningsGuard_GuardComparator(orderOfAddition *JTMap[*WarningsGuard, any]) *ComposeWarningsGuard_GuardComparator {
 	this := &ComposeWarningsGuard_GuardComparator{}
 	this.init_ComposeWarningsGuard_GuardComparator(orderOfAddition)
 	return this
@@ -163,11 +170,10 @@ func (this *ComposeWarningsGuard_GuardComparator) compare(a_ any, b_ any) int32 
 	var b *WarningsGuard = to_WarningsGuard(b_)
 	_ = b
 	var priorityDiff int32 = (a.getPriority() - b.getPriority())
-	if (priorityDiff != 0) {
+	if priorityDiff != 0 {
 		return priorityDiff
 	}
 	return (Integer_intValue(this.orderOfAddition.get(b)) - Integer_intValue(this.orderOfAddition.get(a)))
 }
 
 const ComposeWarningsGuard_GuardComparator_serialVersionUID int64 = 1
-

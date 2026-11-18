@@ -25,4 +25,3 @@ func new_CommaExpressionTree(location *SourceRange, expressions ImmutableListOf[
 	this.init_CommaExpressionTree(location, expressions)
 	return this
 }
-

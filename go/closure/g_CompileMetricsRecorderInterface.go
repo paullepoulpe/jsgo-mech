@@ -8,4 +8,3 @@ type CompileMetricsRecorderInterface interface {
 	recordStartState(*AbstractCompiler)
 	recordResultMetrics(*AbstractCompiler, *Result)
 }
-

@@ -3,12 +3,12 @@
 package closure
 
 type RemoveUnnecessarySyntheticExterns struct {
-	compiler_ *AbstractCompiler
-	nodesToDetach *TSet[Node]
+	compiler_     *AbstractCompiler
+	nodesToDetach *JTSet[Node]
 }
 
 func (this *RemoveUnnecessarySyntheticExterns) finit_RemoveUnnecessarySyntheticExterns() {
-	this.nodesToDetach = newTSet_(tc_Node)
+	this.nodesToDetach = jnewTSet_(jtc_Node)
 }
 
 func (this *RemoveUnnecessarySyntheticExterns) init_RemoveUnnecessarySyntheticExterns(compiler *AbstractCompiler) {
@@ -62,8 +62,7 @@ func (this *RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler) onRedec
 		if n.getParent().isSynthesizedUnfulfilledNameDeclaration() {
 			this.outer_.nodesToDetach.add(n.getParent())
 		}
-	} else if ((origNode != 0) && origNode.getParent().isSynthesizedUnfulfilledNameDeclaration()) {
+	} else if (origNode != 0) && origNode.getParent().isSynthesizedUnfulfilledNameDeclaration() {
 		this.outer_.nodesToDetach.add(origNode.getParent())
 	}
 }
-

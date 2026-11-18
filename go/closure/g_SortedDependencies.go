@@ -3,11 +3,11 @@
 package closure
 
 type SortedDependencies[InputT DependencyInfo] struct {
-	userOrderedInputs ListOf[InputT]
-	importOrderedInputs ListOf[InputT]
-	completedInputs SetOf[InputT]
-	nonExportingInputs MapOf[string, InputT]
-	exportingInputBySymbolName MapOf[string, InputT]
+	userOrderedInputs             ListOf[InputT]
+	importOrderedInputs           ListOf[InputT]
+	completedInputs               SetOf[InputT]
+	nonExportingInputs            MapOf[string, InputT]
+	exportingInputBySymbolName    MapOf[string, InputT]
 	importedInputByImportingInput *SimpleSetMultimap
 }
 
@@ -43,22 +43,27 @@ func (this *SortedDependencies[InputT]) getStrongDependenciesOf(rootInputs ListO
 	var includedInputs SetOf[InputT] = icast_Set(obj_(new_LinkedHashSet()))
 	var worklist DequeOf[InputT] = icast_Deque(obj_(new_ArrayDeque_Collection(Collection(rootInputs))))
 	for !worklist.isEmpty() {
-		var input InputT = unboxT_[InputT](worklist.pop())
+		var input InputT = junboxT_[InputT](worklist.pop())
 		if includedInputs.add(boxT_(input)) {
 			it_2 := foreach_(obj_(input.getRequiredSymbols()))
 			for it_2.next() {
 				var symbolName string = str_(it_2.v)
-				var importedSymbolName InputT = unboxT_[InputT](Map_get_s(this.exportingInputBySymbolName, symbolName))
-				if !isnull_(importedSymbolName) {
+				var importedSymbolName InputT = junboxT_[InputT](Map_get_s(this.exportingInputBySymbolName, symbolName))
+				if !jisnull_(importedSymbolName) {
 					worklist.add(boxT_(importedSymbolName))
 				}
 			}
 		}
 	}
 	var builder ImmutableList_BuilderOf[InputT] = ImmutableList_builder()
-	it_4 := foreach_(any(func() List { if sorted { return this.importOrderedInputs }; return this.userOrderedInputs }()))
+	it_4 := foreach_(any(func() List {
+		if sorted {
+			return this.importOrderedInputs
+		}
+		return this.userOrderedInputs
+	}()))
 	for it_4.next() {
-		var input InputT = unboxT_[InputT](it_4.v)
+		var input InputT = junboxT_[InputT](it_4.v)
 		if includedInputs.contains(boxT_(input)) {
 			builder.add(boxT_(input))
 		}
@@ -68,7 +73,7 @@ func (this *SortedDependencies[InputT]) getStrongDependenciesOf(rootInputs ListO
 
 func (this *SortedDependencies[InputT]) getInputProviding(symbolName string) *Outcome_base[InputT] {
 	var input InputT = this.maybeGetInputProviding(symbolName)
-	if !isnull_(input) {
+	if !jisnull_(input) {
 		return Outcome_base_ok_Object[InputT](input)
 	}
 	return Outcome_base_err[InputT](new_SortedDependencies_MissingProvideException_String(symbolName).up_Throwable())
@@ -87,17 +92,22 @@ func (this *SortedDependencies[InputT]) getSortedWeakDependenciesOf(rootInputs L
 	var weakInputs SetOf[InputT] = icast_Set(obj_(new_LinkedHashSet()))
 	var worklist DequeOf[InputT] = icast_Deque(obj_(new_ArrayDeque_Collection(Collection(strongInputs))))
 	for !worklist.isEmpty() {
-		var input InputT = unboxT_[InputT](worklist.pop())
+		var input InputT = junboxT_[InputT](worklist.pop())
 		var isStrong bool = strongInputs.contains(boxT_(input))
-		var edges IterableOf[string] = func() Iterable { if isStrong { return icast_Iterable(obj_(input.getTypeRequires())) }; return Iterables_concat(icast_Iterable(obj_(input.getRequiredSymbols())), icast_Iterable(obj_(input.getTypeRequires()))) }()
-		if (!isStrong && !weakInputs.add(boxT_(input))) {
+		var edges IterableOf[string] = func() Iterable {
+			if isStrong {
+				return icast_Iterable(obj_(input.getTypeRequires()))
+			}
+			return Iterables_concat(icast_Iterable(obj_(input.getRequiredSymbols())), icast_Iterable(obj_(input.getTypeRequires())))
+		}()
+		if !isStrong && !weakInputs.add(boxT_(input)) {
 			continue
 		}
 		it_2 := foreach_(any(edges))
 		for it_2.next() {
 			var symbolName string = str_(it_2.v)
-			var importedSymbolName InputT = unboxT_[InputT](Map_get_s(this.exportingInputBySymbolName, symbolName))
-			if ((!isnull_(importedSymbolName) && !strongInputs.contains(boxT_(importedSymbolName))) && !weakInputs.contains(boxT_(importedSymbolName))) {
+			var importedSymbolName InputT = junboxT_[InputT](Map_get_s(this.exportingInputBySymbolName, symbolName))
+			if (!jisnull_(importedSymbolName) && !strongInputs.contains(boxT_(importedSymbolName))) && !weakInputs.contains(boxT_(importedSymbolName)) {
 				worklist.add(boxT_(importedSymbolName))
 			}
 		}
@@ -105,7 +115,7 @@ func (this *SortedDependencies[InputT]) getSortedWeakDependenciesOf(rootInputs L
 	var builder ImmutableList_BuilderOf[InputT] = ImmutableList_builder()
 	it_4 := foreach_(any(this.importOrderedInputs))
 	for it_4.next() {
-		var input InputT = unboxT_[InputT](it_4.v)
+		var input InputT = junboxT_[InputT](it_4.v)
 		if weakInputs.contains(boxT_(input)) {
 			builder.add(boxT_(input))
 		}
@@ -119,9 +129,9 @@ func (this *SortedDependencies[InputT]) getSortedList() ListOf[InputT] {
 
 func (this *SortedDependencies[InputT]) maybeGetInputProviding(symbol string) InputT {
 	if Map_containsKey_s(this.exportingInputBySymbolName, symbol) {
-		return unboxT_[InputT](Map_get_s(this.exportingInputBySymbolName, symbol))
+		return junboxT_[InputT](Map_get_s(this.exportingInputBySymbolName, symbol))
 	}
-	return unboxT_[InputT](Map_get_s(this.nonExportingInputs, ModuleNames_fileToModuleName(symbol)))
+	return junboxT_[InputT](Map_get_s(this.nonExportingInputs, ModuleNames_fileToModuleName(symbol)))
 }
 
 func (this *SortedDependencies[InputT]) orderInput(input InputT) {
@@ -131,7 +141,7 @@ func (this *SortedDependencies[InputT]) orderInput(input InputT) {
 	this.completedInputs.add(boxT_(input))
 	it_1 := foreach_(any(this.importedInputByImportingInput.get(boxT_(input))))
 	for it_1.next() {
-		var importedInput InputT = unboxT_[InputT](it_1.v)
+		var importedInput InputT = junboxT_[InputT](it_1.v)
 		this.orderInput(importedInput)
 	}
 	this.importOrderedInputs.add(boxT_(input))
@@ -140,10 +150,10 @@ func (this *SortedDependencies[InputT]) orderInput(input InputT) {
 func (this *SortedDependencies[InputT]) processInputs() {
 	it_1 := foreach_(any(this.userOrderedInputs))
 	for it_1.next() {
-		var userOrderedInput InputT = unboxT_[InputT](it_1.v)
+		var userOrderedInput InputT = junboxT_[InputT](it_1.v)
 		var provides ImmutableListOf[string] = userOrderedInput.getProvides()
 		var firstProvide Optional[string] = Optional_ofNullable[string](str_(Iterables_getFirst(icast_Iterable(obj_(provides)), nil)))
-		if (firstProvide.isEmpty() || (((provides.size() == 1) && String_startsWith(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module())) {
+		if firstProvide.isEmpty() || (((provides.size() == 1) && String_startsWith(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
 			Map_put_s(this.nonExportingInputs, ModuleNames_fileToModuleName(userOrderedInput.getName()), boxT_(userOrderedInput))
 		}
 		it_3 := foreach_(obj_(userOrderedInput.getProvides()))
@@ -154,19 +164,19 @@ func (this *SortedDependencies[InputT]) processInputs() {
 	}
 	it_5 := foreach_(any(this.userOrderedInputs))
 	for it_5.next() {
-		var userOrderedInput InputT = unboxT_[InputT](it_5.v)
+		var userOrderedInput InputT = junboxT_[InputT](it_5.v)
 		it_7 := foreach_(obj_(userOrderedInput.getRequiredSymbols()))
 		for it_7.next() {
 			var symbolName string = str_(it_7.v)
-			var importedInput InputT = unboxT_[InputT](Map_get_s(this.exportingInputBySymbolName, symbolName))
-			if !isnull_(importedInput) {
+			var importedInput InputT = junboxT_[InputT](Map_get_s(this.exportingInputBySymbolName, symbolName))
+			if !jisnull_(importedInput) {
 				this.importedInputByImportingInput.put(boxT_(userOrderedInput), boxT_(importedInput))
 			}
 		}
 	}
 	it_9 := foreach_(any(this.userOrderedInputs))
 	for it_9.next() {
-		var userOrderedInput InputT = unboxT_[InputT](it_9.v)
+		var userOrderedInput InputT = junboxT_[InputT](it_9.v)
 		this.orderInput(userOrderedInput)
 	}
 	this.completedInputs.clear()
@@ -205,4 +215,3 @@ func new_SortedDependencies_MissingProvideException_String_Exception(provide str
 	this.init_SortedDependencies_MissingProvideException_String_Exception(provide, e)
 	return this
 }
-

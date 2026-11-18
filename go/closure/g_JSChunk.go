@@ -3,10 +3,10 @@
 package closure
 
 type JSChunk struct {
-	name_ string
-	inputs *TMap[string, *CompilerInput]
-	deps *TList[*JSChunk]
-	depth int32
+	name_  string
+	inputs *JTMap[string, *CompilerInput]
+	deps   *JTList[*JSChunk]
+	depth  int32
 	index_ int32
 }
 
@@ -15,8 +15,8 @@ func (this *JSChunk) zero_JSChunk() {
 }
 
 func (this *JSChunk) finit_JSChunk() {
-	this.inputs = newTMap_(tc_string, tc_p_CompilerInput)
-	this.deps = newTList_(tc_p_JSChunk)
+	this.inputs = jnewTMap_(jtc_string, jtc_p_CompilerInput)
+	this.deps = jnewTList_(jtc_p_JSChunk)
 }
 
 func (this *JSChunk) init_JSChunk(name string) {
@@ -114,8 +114,8 @@ func (this *JSChunk) getDependencies() ImmutableListOf[*JSChunk] {
 	return ImmutableList_copyOf(Collection(this.deps.asList()))
 }
 
-func (this *JSChunk) getSortedDependencyNames() *TList[string] {
-	var names *TList[string] = newTList_(tc_string)
+func (this *JSChunk) getSortedDependencyNames() *JTList[string] {
+	var names *JTList[string] = jnewTList_(jtc_string)
 	it_1 := foreach_(obj_(this.getDependencies()))
 	for it_1.next() {
 		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
@@ -126,12 +126,12 @@ func (this *JSChunk) getSortedDependencyNames() *TList[string] {
 }
 
 func (this *JSChunk) getAllDependencies() SetOf[*JSChunk] {
-	var allDeps *TSet[*JSChunk] = newTSet_(tc_p_JSChunk)
+	var allDeps *JTSet[*JSChunk] = jnewTSet_(jtc_p_JSChunk)
 	allDeps.asSet().addAll(Collection(this.deps.asList()))
-	var stack *TDeque[*JSChunk] = tdequeFrom_(tc_p_JSChunk, Collection(this.deps.asList()))
+	var stack *TDeque[*JSChunk] = tdequeFrom_(jtc_p_JSChunk, Collection(this.deps.asList()))
 	for !stack.isEmpty() {
 		var chunk *JSChunk = stack.pop()
-		var chunkDeps *TList[*JSChunk] = chunk.deps
+		var chunkDeps *JTList[*JSChunk] = chunk.deps
 		it_2 := chunkDeps.each()
 		for it_2.next() {
 			var dep *JSChunk = it_2.v
@@ -221,7 +221,7 @@ func (this *JSChunk) getIndex() int32 {
 
 func (this *JSChunk) readObject(in *ObjectInputStream) {
 	in.defaultReadObject()
-	this.inputs = newTMap_(tc_string, tc_p_CompilerInput)
+	this.inputs = jnewTMap_(jtc_string, jtc_p_CompilerInput)
 }
 
 func (this *JSChunk) getRequiredSymbols() *ImmutableList {
@@ -231,4 +231,3 @@ func (this *JSChunk) getRequiredSymbols() *ImmutableList {
 const JSChunk_STRONG_CHUNK_NAME string = "$strong$"
 const JSChunk_WEAK_CHUNK_NAME string = "$weak$"
 const JSChunk_serialVersionUID int64 = 1
-

@@ -4,9 +4,9 @@ package closure
 
 type ByPathWarningsGuard struct {
 	WarningsGuard
-	paths ListOf[string]
-	include bool
-	priority int32
+	paths      ListOf[string]
+	include    bool
+	priority   int32
 	levelField *CheckLevel
 }
 
@@ -24,7 +24,12 @@ func (this *ByPathWarningsGuard) init_ByPathWarningsGuard(paths ListOf[string], 
 	this.paths = paths
 	this.include = include
 	this.levelField = level
-	this.priority = func() int32 { if (level == CheckLevel_ERROR) { return WarningsGuard_Priority_STRICT.value_ }; return WarningsGuard_Priority_FILTER_BY_PATH.value_ }()
+	this.priority = func() int32 {
+		if level == CheckLevel_ERROR {
+			return WarningsGuard_Priority_STRICT.value_
+		}
+		return WarningsGuard_Priority_FILTER_BY_PATH.value_
+	}()
 }
 
 func new_ByPathWarningsGuard(paths ListOf[string], include bool, level *CheckLevel) *ByPathWarningsGuard {
@@ -45,14 +50,14 @@ func ByPathWarningsGuard_exceptPath(paths ListOf[string], level *CheckLevel) *By
 func (this *ByPathWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 	var errorPath Optional[string] = error_.sourceName()
 	var defaultLevel *CheckLevel = error_.defaultLevel()
-	if ((defaultLevel != CheckLevel_ERROR) && errorPath.isPresent()) {
+	if (defaultLevel != CheckLevel_ERROR) && errorPath.isPresent() {
 		var inPath bool = false
 		it_1 := foreach_(any(this.paths))
 		for it_1.next() {
 			var path string = str_(it_1.v)
 			inPath = bor_(inPath, String_contains(errorPath.get(), strobj_(path)))
 		}
-		if (inPath == this.include) {
+		if inPath == this.include {
 			return this.levelField
 		}
 	}
@@ -64,4 +69,3 @@ func (this *ByPathWarningsGuard) getPriority_impl() int32 {
 }
 
 const ByPathWarningsGuard_serialVersionUID int64 = 1
-

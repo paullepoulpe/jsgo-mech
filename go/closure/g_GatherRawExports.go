@@ -4,8 +4,8 @@ package closure
 
 type GatherRawExports struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	exportedVariables *TSet[string]
+	compiler_         *AbstractCompiler
+	exportedVariables *JTSet[string]
 }
 
 func (this *GatherRawExports) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -16,7 +16,7 @@ func (this *GatherRawExports) up_NodeTraversal_AbstractPostOrderCallback() *Node
 }
 
 func (this *GatherRawExports) finit_GatherRawExports() {
-	this.exportedVariables = newTSet_(tc_string)
+	this.exportedVariables = jnewTSet_(jtc_string)
 }
 
 func (this *GatherRawExports) init_GatherRawExports(compiler *AbstractCompiler) {
@@ -38,10 +38,10 @@ func (this *GatherRawExports) process_2(externs Node, root Node) {
 }
 
 func (this *GatherRawExports) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (NodeUtil_isNormalOrOptChainGet(n) && GatherRawExports_isGlobalThisObject(t, n.getFirstChild())) {
+	if NodeUtil_isNormalOrOptChainGet(n) && GatherRawExports_isGlobalThisObject(t, n.getFirstChild()) {
 		if NodeUtil_isNormalOrOptChainGetProp(n) {
 			this.exportedVariables.add(n.getString())
-		} else if (NodeUtil_isNormalOrOptChainGet(n) && n.getSecondChild().isStringLit()) {
+		} else if NodeUtil_isNormalOrOptChainGet(n) && n.getSecondChild().isStringLit() {
 			this.exportedVariables.add(n.getSecondChild().getString())
 		}
 	}
@@ -52,7 +52,7 @@ func GatherRawExports_isGlobalThisObject(t *NodeTraversal, n Node) bool {
 		return t.inGlobalHoistScope()
 	} else if n.isQualifiedName() {
 		var items int32 = int32(len(GatherRawExports_GLOBAL_THIS_NAMES))
-		for i := int32(0); (i < items); i++ {
+		for i := int32(0); i < items; i++ {
 			if n.matchesQualifiedName(GatherRawExports_GLOBAL_THIS_NAMES[i]) {
 				return true
 			}
@@ -61,7 +61,7 @@ func GatherRawExports_isGlobalThisObject(t *NodeTraversal, n Node) bool {
 	return false
 }
 
-func (this *GatherRawExports) getExportedVariableNames() *TSet[string] {
+func (this *GatherRawExports) getExportedVariableNames() *JTSet[string] {
 	return this.exportedVariables
 }
 
@@ -77,4 +77,3 @@ func GatherRawExports_clinit() {
 	GatherRawExports_GLOBAL_THIS_NAMES = []string{"window", "globalThis", "top", "self", "goog$global", "goog.global", "$jscomp.global", "$jscomp$global"}
 
 }
-

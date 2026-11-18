@@ -3,7 +3,7 @@
 package closure
 
 type SourceFile_parser struct {
-	name_ string
+	name_    string
 	contents string
 }
 
@@ -23,4 +23,3 @@ func new_SourceFile_parser(name string, contents string) *SourceFile_parser {
 	this.init_SourceFile_parser(name, contents)
 	return this
 }
-

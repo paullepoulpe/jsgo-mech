@@ -4,7 +4,7 @@ package closure
 
 type VariableDeclarationTree struct {
 	ParseTree
-	lvalue *ParseTree
+	lvalue      *ParseTree
 	initializer *ParseTree
 }
 
@@ -27,4 +27,3 @@ func new_VariableDeclarationTree(location *SourceRange, lvalue *ParseTree, initi
 	this.init_VariableDeclarationTree(location, lvalue, initializer)
 	return this
 }
-

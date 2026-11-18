@@ -25,4 +25,3 @@ func new_FinallyTree(location *SourceRange, block *ParseTree) *FinallyTree {
 	this.init_FinallyTree(location, block)
 	return this
 }
-

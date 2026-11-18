@@ -16,7 +16,7 @@ func new_ClusterPropagator() *ClusterPropagator {
 }
 
 func (this *ClusterPropagator) traverseEdge(src *ColorGraphNode, unused any, dest *ColorGraphNode) bool {
-	if (src.getColor() == StandardColors_TOP_OBJECT) {
+	if src.getColor() == StandardColors_TOP_OBJECT {
 		return false
 	}
 	var startDestPropCount int32 = dest.getAssociatedProps().size()
@@ -31,4 +31,3 @@ func (this *ClusterPropagator) traverseEdge(src *ColorGraphNode, unused any, des
 	}
 	return (startDestPropCount < dest.getAssociatedProps().size())
 }
-

@@ -3,11 +3,11 @@
 package closure
 
 type CodeConsumer struct {
-	self_ any
+	self_               any
 	statementNeedsEnded bool
-	statementStarted bool
-	sawFunction bool
-	templateLitDepth int32
+	statementStarted    bool
+	sawFunction         bool
+	templateLitDepth    int32
 	templateLitSubDepth int32
 }
 
@@ -66,24 +66,24 @@ func (this *CodeConsumer) add(newcode string) {
 		return
 	}
 	var c uint16 = String_charAt(newcode, 0)
-	if ((CodeConsumer_isWordChar(c) || (c == '\\')) && CodeConsumer_isWordChar(this.getLastChar())) {
+	if (CodeConsumer_isWordChar(c) || (c == '\\')) && CodeConsumer_isWordChar(this.getLastChar()) {
 		this.append(" ")
-	} else if ((c == '/') && ((this.getLastChar() == '/') || (this.getLastChar() == '<'))) {
+	} else if (c == '/') && ((this.getLastChar() == '/') || (this.getLastChar() == '<')) {
 		this.append(" ")
-	} else if (((c == '"') || (c == '\'')) && CodeConsumer_isWordChar(this.getLastChar())) {
+	} else if ((c == '"') || (c == '\'')) && CodeConsumer_isWordChar(this.getLastChar()) {
 		this.maybeInsertSpace()
 	}
 	var startOfLine int32 = 0
 	var endOfLine int32 = String_indexOf(newcode, 10)
-	for (endOfLine >= 0) {
-		if (endOfLine > startOfLine) {
+	for endOfLine >= 0 {
+		if endOfLine > startOfLine {
 			this.append(String_substring(newcode, startOfLine, endOfLine))
 		}
 		this.startNewLine()
 		startOfLine = (endOfLine + 1)
 		endOfLine = String_indexOf_int_int(newcode, 10, startOfLine)
 	}
-	if (String_length(newcode) > startOfLine) {
+	if String_length(newcode) > startOfLine {
 		this.append(String_substring_int(newcode, startOfLine))
 	}
 }
@@ -237,11 +237,11 @@ func (this *CodeConsumer) addOp(op string, binOp bool) {
 	this.maybeEndStatement()
 	var first uint16 = String_charAt(op, 0)
 	var prev uint16 = this.getLastChar()
-	if (((first == '+') || (first == '-')) && (prev == first)) {
+	if ((first == '+') || (first == '-')) && (prev == first) {
 		this.append(" ")
-	} else if (Character_isLetter(first) && CodeConsumer_isWordChar(prev)) {
+	} else if Character_isLetter(first) && CodeConsumer_isWordChar(prev) {
 		this.append(" ")
-	} else if (((prev == '-') && (first == '>')) || ((prev == '<') && (first == '!'))) {
+	} else if ((prev == '-') && (first == '>')) || ((prev == '<') && (first == '!')) {
 		this.append(" ")
 	}
 	this.appendOp(op, binOp)
@@ -256,27 +256,27 @@ func (this *CodeConsumer) addNumber_impl(x float64, n Node) {
 }
 
 func CodeConsumer_formatNumber(x float64) string {
-	if (float64(f2i_[int64](float64(x))) != x) {
+	if float64(f2i_[int64](float64(x))) != x {
 		return CodeConsumer_LEADING_ZERO_PATTERN.matcher(strobj_(String_replace(String_valueOf_double(x), strobj_(".0E"), strobj_("E")))).replaceFirst(".")
 	}
 	var value int64 = f2i_[int64](float64(x))
 	var mantissa int64 = value
 	var exp int32 = 0
-	if (x >= 100) {
-		for ((mantissa % 10) == 0) {
+	if x >= 100 {
+		for (mantissa % 10) == 0 {
 			mantissa /= 10
 			exp++
 		}
 	}
-	if (exp > 2) {
+	if exp > 2 {
 		return (istr_(int64(mantissa)) + "E" + istr_(int64(exp)))
 	}
 	var decValueString string = Long_toString(value)
-	if (value <= 1000000000000) {
+	if value <= 1000000000000 {
 		return decValueString
 	}
 	var hexValueString string = Long_toHexString(value)
-	if ((String_length(hexValueString) + 2) < String_length(decValueString)) {
+	if (String_length(hexValueString) + 2) < String_length(decValueString) {
 		return ("0x" + sstr_(hexValueString))
 	} else {
 		return decValueString
@@ -287,7 +287,12 @@ func CodeConsumer_formatNumber(x float64) string {
 func (this *CodeConsumer) addBigInt(bi *BigInteger) {
 	var hexEncoded string = ("0x" + sstr_(bi.toString_int(16)) + "n")
 	var decimalEncoded string = (objstr_(obj_(bi)) + "n")
-	this.addConstant(func() string { if (String_length(hexEncoded) < String_length(decimalEncoded)) { return hexEncoded }; return decimalEncoded }())
+	this.addConstant(func() string {
+		if String_length(hexEncoded) < String_length(decimalEncoded) {
+			return hexEncoded
+		}
+		return decimalEncoded
+	}())
 }
 
 func (this *CodeConsumer) addConstant_impl(newcode string) {
@@ -434,4 +439,3 @@ func CodeConsumer_clinit() {
 	CodeConsumer_LEADING_ZERO_PATTERN = Pattern_compile("^0\\.")
 
 }
-

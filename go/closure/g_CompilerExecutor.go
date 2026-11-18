@@ -4,9 +4,9 @@ package closure
 
 type CompilerExecutor struct {
 	compilerThread *Thread
-	useThreads bool
-	timeout int32
-	debugMessage Optional[string]
+	useThreads     bool
+	timeout        int32
+	debugMessage   Optional[string]
 }
 
 func (this *CompilerExecutor) finit_CompilerExecutor() {
@@ -51,7 +51,7 @@ func (this *CompilerExecutor) runInCompilerThread(callable CallableOf[any], dump
 	var result any = nil
 	var exception []*Throwable = make([]*Throwable, 1)
 	Preconditions_checkState_boolean_Object(((this.compilerThread == nil) || (this.compilerThread == Thread_currentThread())), strobj_("Please do not share the Compiler across threads"))
-	if (this.useThreads && (this.compilerThread == nil)) {
+	if this.useThreads && (this.compilerThread == nil) {
 		_ = func() (code_ int) {
 			defer func() {
 				executor.shutdown()
@@ -103,7 +103,7 @@ func (this *CompilerExecutor) runInCompilerThread(callable CallableOf[any], dump
 				panic("unreachable")
 			}}
 			var future FutureOf[any] = executor.submit(bootCompilerThread)
-			if (this.timeout > 0) {
+			if this.timeout > 0 {
 				result = future.get_long_TimeUnit(int64(this.timeout), TimeUnit_SECONDS)
 			} else {
 				result = future.get()
@@ -127,7 +127,7 @@ func (this *CompilerExecutor) runInCompilerThread(callable CallableOf[any], dump
 			return 0
 		}()
 	}
-	if (exception[0] != nil) {
+	if exception[0] != nil {
 		if this.debugMessage.isPresent() {
 			panic(new_RuntimeException_String_Throwable(("Exception during compilation: " + sstr_(this.debugMessage.get())), exception[0]).self())
 		}
@@ -157,4 +157,3 @@ func (this *CompilerExecutor_1) newThread(r Runnable) *Thread {
 	t.setDaemon(true)
 	return t
 }
-

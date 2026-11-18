@@ -441,4 +441,3 @@ func Token_rhino_clinit() {
 	}
 
 }
-

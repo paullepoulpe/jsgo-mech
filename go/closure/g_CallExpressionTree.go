@@ -4,7 +4,7 @@ package closure
 
 type CallExpressionTree struct {
 	ParseTree
-	operand *ParseTree
+	operand   *ParseTree
 	arguments *ArgumentListTree
 }
 
@@ -27,4 +27,3 @@ func new_CallExpressionTree(location *SourceRange, operand *ParseTree, arguments
 	this.init_CallExpressionTree(location, operand, arguments)
 	return this
 }
-

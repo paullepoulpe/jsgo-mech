@@ -4,9 +4,9 @@ package closure
 
 type DepsFileRegexParser struct {
 	JsFileLineParser
-	depMatcher *Matcher_re2j
-	depArgsMatch *Matcher_re2j
-	depInfos *TList[DependencyInfo]
+	depMatcher     *Matcher_re2j
+	depArgsMatch   *Matcher_re2j
+	depInfos       *JTList[DependencyInfo]
 	pathTranslator Function_baseOf[string, string]
 }
 
@@ -54,8 +54,8 @@ func (this *DepsFileRegexParser) parseFile(filePath string) *Outcome_base[List] 
 	return Outcome_base_ok_Object[List](this.parseFile_2(filePath, fileContents.get()).asList())
 }
 
-func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) *TList[DependencyInfo] {
-	this.depInfos = newTList_(tc_DependencyInfo)
+func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) *JTList[DependencyInfo] {
+	this.depInfos = jnewTList_(jtc_DependencyInfo)
 	if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
 		DepsFileRegexParser_logger.fine(("Parsing Dep: " + sstr_(filePath)))
 	}
@@ -90,7 +90,7 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 				return Outcome_base_err[any](loadFlagsOutcome.error())
 			}
 			var loadFlags MapOf[string, string] = loadFlagsOutcome.get()
-			if ("es6" == str_(Map_get_s(loadFlags, "module"))) {
+			if "es6" == str_(Map_get_s(loadFlags, "module")) {
 				provides.add(strobj_(relativePath))
 			}
 			var requiresOutcome *Outcome_base[List] = this.parseJsStringArray(this.depArgsMatch.group(3))
@@ -118,9 +118,9 @@ func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) Immutabl
 }
 
 func (this *DepsFileRegexParser) parseLoadFlags(loadFlags Optional[string]) *Outcome_base[Map] {
-	if (loadFlags.isEmpty() || (loadFlags.get() == "false")) {
+	if loadFlags.isEmpty() || (loadFlags.get() == "false") {
 		return Outcome_base_ok_Object[Map](icast_Map(obj_(ImmutableMap_of())))
-	} else if (loadFlags.get() == "true") {
+	} else if loadFlags.get() == "true" {
 		return Outcome_base_ok_Object[Map](icast_Map(obj_(ImmutableMap_of_Object_Object(strobj_("module"), strobj_("goog")))))
 	} else {
 		return this.parseJsStringMap(loadFlags.get())
@@ -140,4 +140,3 @@ func DepsFileRegexParser_clinit() {
 	DepsFileRegexParser_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.deps.DepsFileRegexParser").getName())
 
 }
-

@@ -74,10 +74,15 @@ func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base[*VariableMap] {
 			continue
 		}
 		var pos int32 = VariableMap_findIndexOfUnescapedChar(line, VariableMap_SEPARATOR)
-		if (pos <= 0) {
+		if pos <= 0 {
 			return Outcome_base_err[*VariableMap](new_ParseException(("Bad line: " + sstr_(line)), 0).up_Throwable())
 		}
-		map_.put(strobj_(VariableMap_unescape(String_substring(line, 0, pos))), func() any { if (pos == (String_length(line) - 1)) { return strobj_("") }; return strobj_(VariableMap_unescape(String_substring_int(line, (pos + 1)))) }())
+		map_.put(strobj_(VariableMap_unescape(String_substring(line, 0, pos))), func() any {
+			if pos == (String_length(line) - 1) {
+				return strobj_("")
+			}
+			return strobj_(VariableMap_unescape(String_substring_int(line, (pos + 1))))
+		}())
 	}
 	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(icast_Map(obj_(map_.buildOrThrow()))))
 }
@@ -85,13 +90,13 @@ func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base[*VariableMap] {
 func VariableMap_fromLines(string_ string) *Outcome_base[*VariableMap] {
 	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
 	var startOfLine int32 = 0
-	for (startOfLine < String_length(string_)) {
+	for startOfLine < String_length(string_) {
 		var newLine int32 = String_indexOf_int_int(string_, 10, startOfLine)
-		if (newLine == -1) {
+		if newLine == -1 {
 			newLine = String_length(string_)
 		}
 		var endOfLine int32 = newLine
-		if ((newLine > 0) && (String_charAt(string_, (newLine - 1)) == '\r')) {
+		if (newLine > 0) && (String_charAt(string_, (newLine-1)) == '\r') {
 			newLine--
 		}
 		var line string = String_substring(string_, startOfLine, newLine)
@@ -100,10 +105,15 @@ func VariableMap_fromLines(string_ string) *Outcome_base[*VariableMap] {
 			continue
 		}
 		var pos int32 = VariableMap_findIndexOfUnescapedChar(line, VariableMap_SEPARATOR)
-		if (pos <= 0) {
+		if pos <= 0 {
 			return Outcome_base_err[*VariableMap](new_ParseException(("Bad line: " + sstr_(line)), 0).up_Throwable())
 		}
-		map_.put(strobj_(VariableMap_unescape(String_substring(line, 0, pos))), func() any { if (pos == (String_length(line) - 1)) { return strobj_("") }; return strobj_(VariableMap_unescape(String_substring_int(line, (pos + 1)))) }())
+		map_.put(strobj_(VariableMap_unescape(String_substring(line, 0, pos))), func() any {
+			if pos == (String_length(line) - 1) {
+				return strobj_("")
+			}
+			return strobj_(VariableMap_unescape(String_substring_int(line, (pos + 1))))
+		}())
 	}
 	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(icast_Map(obj_(map_.buildOrThrow()))))
 }
@@ -114,12 +124,12 @@ func VariableMap_escape(value string) string {
 
 func VariableMap_findIndexOfUnescapedChar(value string, stopChar uint16) int32 {
 	var len_ int32 = String_length(value)
-	for i := int32(0); (i < len_);  {
+	for i := int32(0); i < len_; {
 		var stopCharIndex int32 = String_indexOf_int_int(value, int32(stopChar), i)
-		if (stopCharIndex == -1) {
+		if stopCharIndex == -1 {
 			return -1
 		}
-		if ((stopCharIndex == 0) || (String_charAt(value, (stopCharIndex - 1)) != '\\')) {
+		if (stopCharIndex == 0) || (String_charAt(value, (stopCharIndex-1)) != '\\') {
 			return stopCharIndex
 		}
 		i = (stopCharIndex + 1)
@@ -129,17 +139,17 @@ func VariableMap_findIndexOfUnescapedChar(value string, stopChar uint16) int32 {
 
 func VariableMap_unescape(value string) string {
 	var slashIndex int32 = String_indexOf(value, 92)
-	if (slashIndex == -1) {
+	if slashIndex == -1 {
 		return value
 	}
 	var sb *StringBuilder = new_StringBuilder_int((String_length(value) - 1))
 	sb.append_CharSequence_int_int(strobj_(value), 0, slashIndex)
 	var len_ int32 = String_length(value)
-	for i := int32(slashIndex); (i < len_); i++ {
+	for i := int32(slashIndex); i < len_; i++ {
 		var c uint16 = String_charAt(value, i)
-		if (c == '\\') {
+		if c == '\\' {
 			i++
-			if (i < len_) {
+			if i < len_ {
 				c = String_charAt(value, i)
 			}
 		}
@@ -157,4 +167,3 @@ func (this *VariableMap) toMap() ImmutableMapOf[string, string] {
 }
 
 const VariableMap_SEPARATOR uint16 = ':'
-

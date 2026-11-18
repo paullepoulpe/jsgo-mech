@@ -40,7 +40,7 @@ func ConformanceRules_createTsAllowlist() *ConformanceRules_AllowList {
 }
 
 func ConformanceRules_buildPattern(reqPatterns ListOf[string]) *Outcome_base[*Pattern] {
-	if ((reqPatterns == nil) || reqPatterns.isEmpty()) {
+	if (reqPatterns == nil) || reqPatterns.isEmpty() {
 		return Outcome_base_ok_Object[*Pattern](nil)
 	}
 	it_1 := foreach_(any(reqPatterns))
@@ -120,7 +120,7 @@ func ConformanceRules_clinit() {
 
 type ConformanceRules_ConformanceResult struct {
 	level_ *ConformanceRules_ConformanceLevel
-	note string
+	note   string
 }
 
 func (this *ConformanceRules_ConformanceResult) zero_ConformanceRules_ConformanceResult() {
@@ -225,8 +225,8 @@ func ConformanceRules_ConformanceLevel_clinit() {
 }
 
 type ConformanceRules_AllowList struct {
-	prefixes ImmutableListOf[string]
-	regexp *Pattern
+	prefixes       ImmutableListOf[string]
+	regexp         *Pattern
 	allowlistEntry *RequirementScopeEntry
 }
 
@@ -261,12 +261,22 @@ func ConformanceRules_AllowList_createFromEntry(allowlistEntry *RequirementScope
 }
 
 func (this *ConformanceRules_AllowList) matches(path string) bool {
-	var tsPath Optional[string] = func() Optional[string] { if String_endsWith(path, ".closure.js") { return Optional_of[string]((sstr_(String_substring(path, 0, (String_length(path) - String_length(".closure.js")))) + ".ts")) }; return func() Optional[string] { if String_endsWith(path, ".tsx.cl.js") { return Optional_of[string](String_substring(path, 0, (String_length(path) - String_length(".cl.js")))) }; return Optional_empty[string]() }() }()
-	if (this.prefixes != nil) {
+	var tsPath Optional[string] = func() Optional[string] {
+		if String_endsWith(path, ".closure.js") {
+			return Optional_of[string]((sstr_(String_substring(path, 0, (String_length(path)-String_length(".closure.js")))) + ".ts"))
+		}
+		return func() Optional[string] {
+			if String_endsWith(path, ".tsx.cl.js") {
+				return Optional_of[string](String_substring(path, 0, (String_length(path) - String_length(".cl.js"))))
+			}
+			return Optional_empty[string]()
+		}()
+	}()
+	if this.prefixes != nil {
 		it_1 := foreach_(obj_(this.prefixes))
 		for it_1.next() {
 			var prefix string = str_(it_1.v)
-			if (!String_isEmpty(path) && (String_startsWith(path, prefix) || (tsPath.isPresent() && String_startsWith(tsPath.get(), prefix)))) {
+			if !String_isEmpty(path) && (String_startsWith(path, prefix) || (tsPath.isPresent() && String_startsWith(tsPath.get(), prefix))) {
 				return true
 			}
 		}
@@ -275,28 +285,34 @@ func (this *ConformanceRules_AllowList) matches(path string) bool {
 }
 
 type ConformanceRules_AbstractRule struct {
-	self_ any
-	compiler_ *AbstractCompiler
-	message_ string
-	severity *Requirement_Severity
-	allowlists ImmutableListOf[*ConformanceRules_AllowList]
-	onlyApplyTo *ConformanceRules_AllowList
+	self_                     any
+	compiler_                 *AbstractCompiler
+	message_                  string
+	severity                  *Requirement_Severity
+	allowlists                ImmutableListOf[*ConformanceRules_AllowList]
+	onlyApplyTo               *ConformanceRules_AllowList
 	reportLooseTypeViolations bool
-	typeMatchingStrategy *TypeMatchingStrategy
-	requirement_ *Requirement
+	typeMatchingStrategy      *TypeMatchingStrategy
+	requirement_              *Requirement
 }
 
-func (this *ConformanceRules_AbstractRule) as_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule { return this }
+func (this *ConformanceRules_AbstractRule) as_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
+	return this
+}
 
 func to_ConformanceRules_AbstractRule(v any) *ConformanceRules_AbstractRule {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule }).as_ConformanceRules_AbstractRule()
+	return v.(interface {
+		as_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule
+	}).as_ConformanceRules_AbstractRule()
 }
 
 func is_ConformanceRules_AbstractRule(v any) bool {
-	_, ok := v.(interface{ as_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule })
+	_, ok := v.(interface {
+		as_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule
+	})
 	return ok
 }
 
@@ -321,11 +337,11 @@ func (this *ConformanceRules_AbstractRule) initAbstractRule(compiler *AbstractCo
 	}
 	this.compiler_ = compiler
 	var message string = requirement.getErrorMessage()
-	if (requirement.getConfigFileCount() > 0) {
+	if requirement.getConfigFileCount() > 0 {
 		message += sstr_(("\n  defined in " + sstr_(Joiner_on("\n  extended by ").join(Iterable(requirement.getConfigFileList())))))
 	}
 	this.message_ = message
-	if (requirement.getSeverity() == Requirement_Severity_UNSPECIFIED) {
+	if requirement.getSeverity() == Requirement_Severity_UNSPECIFIED {
 		this.severity = Requirement_Severity_WARNING
 	} else {
 		this.severity = requirement.getSeverity()
@@ -352,14 +368,14 @@ func (this *ConformanceRules_AbstractRule) initAbstractRule(compiler *AbstractCo
 	if this.tsIsAllowlisted() {
 		allowlistsBuilder.add(obj_(ConformanceRules_ALL_TS_ALLOWLIST))
 	}
-	if ((requirement.getWhitelistCount() > 0) || (requirement.getWhitelistRegexpCount() > 0)) {
+	if (requirement.getWhitelistCount() > 0) || (requirement.getWhitelistRegexpCount() > 0) {
 		var allowlist *Outcome_base[*ConformanceRules_AllowList] = ConformanceRules_AllowList_create(requirement.getWhitelistList(), requirement.getWhitelistRegexpList())
 		if allowlist.isErr() {
 			return Outcome_base_err[any](allowlist.error())
 		}
 		allowlistsBuilder.add(obj_(allowlist.get()))
 	}
-	if ((requirement.getAllowlistCount() > 0) || (requirement.getAllowlistRegexpCount() > 0)) {
+	if (requirement.getAllowlistCount() > 0) || (requirement.getAllowlistRegexpCount() > 0) {
 		var allowlist *Outcome_base[*ConformanceRules_AllowList] = ConformanceRules_AllowList_create(requirement.getAllowlistList(), requirement.getAllowlistRegexpList())
 		if allowlist.isErr() {
 			return Outcome_base_err[any](allowlist.error())
@@ -367,7 +383,7 @@ func (this *ConformanceRules_AbstractRule) initAbstractRule(compiler *AbstractCo
 		allowlistsBuilder.add(obj_(allowlist.get()))
 	}
 	this.allowlists = cast_[*ImmutableList](obj_(allowlistsBuilder.build()))
-	if ((requirement.getOnlyApplyToCount() > 0) || (requirement.getOnlyApplyToRegexpCount() > 0)) {
+	if (requirement.getOnlyApplyToCount() > 0) || (requirement.getOnlyApplyToRegexpCount() > 0) {
 		var onlyApplyToOutcome *Outcome_base[*ConformanceRules_AllowList] = ConformanceRules_AllowList_create(requirement.getOnlyApplyToList(), requirement.getOnlyApplyToRegexpList())
 		if onlyApplyToOutcome.isErr() {
 			return Outcome_base_err[any](onlyApplyToOutcome.error())
@@ -421,39 +437,58 @@ func (this *ConformanceRules_AbstractRule) findAllowListForPath(path string) *Co
 
 func (this *ConformanceRules_AbstractRule) check(t *NodeTraversal, n Node, behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
 	var result *ConformanceRules_ConformanceResult = this.checkConformance(t, n)
-	if (result.level_ != ConformanceRules_ConformanceLevel_CONFORMANCE) {
+	if result.level_ != ConformanceRules_ConformanceLevel_CONFORMANCE {
 		this.report_3(n, result, behavior)
 	}
 }
 
 func (this *ConformanceRules_AbstractRule) report_3(n Node, result *ConformanceRules_ConformanceResult, behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) {
 	var msg *DiagnosticType
-	if (this.severity == Requirement_Severity_ERROR) {
+	if this.severity == Requirement_Severity_ERROR {
 		msg = CheckConformance_CONFORMANCE_ERROR
 	} else {
-		if (result.level_ == ConformanceRules_ConformanceLevel_VIOLATION) {
+		if result.level_ == ConformanceRules_ConformanceLevel_VIOLATION {
 			msg = CheckConformance_CONFORMANCE_VIOLATION
 		} else {
 			msg = CheckConformance_CONFORMANCE_POSSIBLE_VIOLATION
 		}
 	}
-	var separator string = func() string { if String_isEmpty(result.note) { return "" }; return "\n" }()
+	var separator string = func() string {
+		if String_isEmpty(result.note) {
+			return ""
+		}
+		return "\n"
+	}()
 	var err *JSError = JSError_make_Requirement_Node_DiagnosticType_StringArr(this.requirement_, n, msg, []string{this.message_, separator, result.note})
 	var path string = NodeUtil_getSourceName(n)
-	var allowlist *ConformanceRules_AllowList = func() *ConformanceRules_AllowList { if !String_isEmpty(path) { return this.findAllowListForPath(path) }; return nil }()
+	var allowlist *ConformanceRules_AllowList = func() *ConformanceRules_AllowList {
+		if !String_isEmpty(path) {
+			return this.findAllowListForPath(path)
+		}
+		return nil
+	}()
 	var isAllowlisted bool = !((allowlist == nil) && ((this.onlyApplyTo == nil) || this.onlyApplyTo.matches(path)))
-	var shouldReport bool = this.compiler_.getErrorManager().shouldReportConformanceViolation(this.requirement_, func() *Optional_base { if (allowlist != nil) { return Optional_base_fromNullable(obj_(allowlist.allowlistEntry)) }; return Optional_base_absent() }(), err, behavior, isAllowlisted)
-	if (shouldReport && !isAllowlisted) {
+	var shouldReport bool = this.compiler_.getErrorManager().shouldReportConformanceViolation(this.requirement_, func() *Optional_base {
+		if allowlist != nil {
+			return Optional_base_fromNullable(obj_(allowlist.allowlistEntry))
+		}
+		return Optional_base_absent()
+	}(), err, behavior, isAllowlisted)
+	if shouldReport && !isAllowlisted {
 		this.compiler_.report(err)
 	}
 }
 
 func (this *ConformanceRules_AbstractRule) checkConformance(p0 *NodeTraversal, p1 Node) *ConformanceRules_ConformanceResult {
-	return this.self_.(interface{ checkConformance_impl(*NodeTraversal, Node) *ConformanceRules_ConformanceResult }).checkConformance_impl(p0, p1)
+	return this.self_.(interface {
+		checkConformance_impl(*NodeTraversal, Node) *ConformanceRules_ConformanceResult
+	}).checkConformance_impl(p0, p1)
 }
 
 func (this *ConformanceRules_AbstractRule) getPrecondition() CheckConformance_Precondition {
-	return this.self_.(interface{ getPrecondition_impl() CheckConformance_Precondition }).getPrecondition_impl()
+	return this.self_.(interface {
+		getPrecondition_impl() CheckConformance_Precondition
+	}).getPrecondition_impl()
 }
 
 func (this *ConformanceRules_AbstractRule) tsIsAllowlisted() bool {
@@ -514,22 +549,28 @@ func (this *ConformanceRules_NoOp) checkConformance_impl(t *NodeTraversal, n Nod
 
 type ConformanceRules_AbstractTypeRestrictionRule struct {
 	ConformanceRules_AbstractRule
-	nativeObjectType *JSType
-	allowlistedTypes *JSType
+	nativeObjectType   *JSType
+	allowlistedTypes   *JSType
 	assertionFunctions *CodingConvention_AssertionFunctionLookup
 }
 
-func (this *ConformanceRules_AbstractTypeRestrictionRule) as_ConformanceRules_AbstractTypeRestrictionRule() *ConformanceRules_AbstractTypeRestrictionRule { return this }
+func (this *ConformanceRules_AbstractTypeRestrictionRule) as_ConformanceRules_AbstractTypeRestrictionRule() *ConformanceRules_AbstractTypeRestrictionRule {
+	return this
+}
 
 func to_ConformanceRules_AbstractTypeRestrictionRule(v any) *ConformanceRules_AbstractTypeRestrictionRule {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ConformanceRules_AbstractTypeRestrictionRule() *ConformanceRules_AbstractTypeRestrictionRule }).as_ConformanceRules_AbstractTypeRestrictionRule()
+	return v.(interface {
+		as_ConformanceRules_AbstractTypeRestrictionRule() *ConformanceRules_AbstractTypeRestrictionRule
+	}).as_ConformanceRules_AbstractTypeRestrictionRule()
 }
 
 func is_ConformanceRules_AbstractTypeRestrictionRule(v any) bool {
-	_, ok := v.(interface{ as_ConformanceRules_AbstractTypeRestrictionRule() *ConformanceRules_AbstractTypeRestrictionRule })
+	_, ok := v.(interface {
+		as_ConformanceRules_AbstractTypeRestrictionRule() *ConformanceRules_AbstractTypeRestrictionRule
+	})
 	return ok
 }
 
@@ -568,7 +609,7 @@ func (this *ConformanceRules_AbstractTypeRestrictionRule) initAbstractTypeRestri
 }
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) isAllowlistedType(n Node) bool {
-	if ((this.allowlistedTypes != nil) && (n.getJSType() != nil)) {
+	if (this.allowlistedTypes != nil) && (n.getJSType() != nil) {
 		var targetType *JSType = n.getJSType().restrictByNotNullOrUndefined()
 		if targetType.isSubtypeOf(this.allowlistedTypes) {
 			return true
@@ -617,15 +658,15 @@ func ConformanceRules_AbstractTypeRestrictionRule_isBottom(n Node) bool {
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) union(typeNames ListOf[string]) *JSType {
 	var registry *JSTypeRegistry = this.compiler_.getTypeRegistry()
-	var types *TList[*JSType] = newTList_(tc_p_JSType)
+	var types *JTList[*JSType] = jnewTList_(jtc_p_JSType)
 	it_1 := foreach_(any(typeNames))
 	for it_1.next() {
 		var typeName string = str_(it_1.v)
 		var type_ *JSType = registry.getGlobalType(typeName)
-		if (type_ == nil) {
+		if type_ == nil {
 			type_ = registry.resolveViaClosureNamespace(typeName)
 		}
-		if (type_ != nil) {
+		if type_ != nil {
 			types.add(type_)
 		}
 	}
@@ -638,7 +679,7 @@ func (this *ConformanceRules_AbstractTypeRestrictionRule) union(typeNames ListOf
 }
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) isAssertionCall(n Node) bool {
-	if (n.isCall() && n.getFirstChild().isQualifiedName()) {
+	if n.isCall() && n.getFirstChild().isQualifiedName() {
 		var target Node = n.getFirstChild()
 		return (this.assertionFunctions.lookupByCallee(target) != nil)
 	}
@@ -650,7 +691,7 @@ func (this *ConformanceRules_AbstractTypeRestrictionRule) isTypeImmediatelyTight
 }
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) isUsed(n Node) bool {
-	if (n.getParent().isName() || NodeUtil_isLhsByDestructuring(n)) {
+	if n.getParent().isName() || NodeUtil_isLhsByDestructuring(n) {
 		return false
 	}
 	if NodeUtil_isAssignmentOp(n.getParent()) {
@@ -705,12 +746,12 @@ func (this *ConformanceRules_InferredConstCheck) initInferredConstCheck(compiler
 
 func (this *ConformanceRules_InferredConstCheck) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	var jsDoc *JSDocInfo = n.getJSDocInfo()
-	if (((jsDoc != nil) && jsDoc.hasConstAnnotation()) && (jsDoc.getType() == nil)) {
+	if ((jsDoc != nil) && jsDoc.hasConstAnnotation()) && (jsDoc.getType() == nil) {
 		if n.isAssign() {
 			n = n.getFirstChild()
 		}
 		var type_ *JSType = n.getJSType()
-		if (((type_ != nil) && type_.isUnknownType()) && !NodeUtil_isNamespaceDecl(n)) {
+		if ((type_ != nil) && type_.isUnknownType()) && !NodeUtil_isNamespaceDecl(n) {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}
 	}
@@ -769,7 +810,7 @@ func (this *ConformanceRules_BannedDependency) initBannedDependency(compiler *Ab
 func (this *ConformanceRules_BannedDependency) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if n.isScript() {
 		var srcFile string = n.getSourceFileName()
-		for i := int32(0); (i < this.paths.size()); i++ {
+		for i := int32(0); i < this.paths.size(); i++ {
 			var path string = str_(this.paths.get(i))
 			if String_startsWith(srcFile, path) {
 				return ConformanceRules_ConformanceResult_VIOLATION
@@ -836,7 +877,7 @@ func (this *ConformanceRules_BannedDependencyRegex) initBannedDependencyRegex(co
 func (this *ConformanceRules_BannedDependencyRegex) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if n.isScript() {
 		var srcFile string = n.getSourceFileName()
-		if ((this.pathRegexp != nil) && this.pathRegexp.matcher(strobj_(srcFile)).find()) {
+		if (this.pathRegexp != nil) && this.pathRegexp.matcher(strobj_(srcFile)).find() {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}
 	}
@@ -846,8 +887,8 @@ func (this *ConformanceRules_BannedDependencyRegex) checkConformance_impl(t *Nod
 type ConformanceRules_BannedName struct {
 	ConformanceRules_AbstractRule
 	requirementType *Requirement_Type
-	qualifiedNames ImmutableListOf[Node]
-	shortNames ImmutableSetOf[string]
+	qualifiedNames  ImmutableListOf[Node]
+	shortNames      ImmutableSetOf[string]
 }
 
 func (this *ConformanceRules_BannedName) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -887,7 +928,7 @@ func (this *ConformanceRules_BannedName) initBannedName(compiler *AbstractCompil
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	if (requirement.getValueCount() == 0) {
+	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	this.requirementType = requirement.getType()
@@ -910,16 +951,16 @@ func (this *ConformanceRules_BannedName) getPrecondition_impl() CheckConformance
 }
 
 func (this *ConformanceRules_BannedName) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
-	if ((this.requirementType == Requirement_Type_BANNED_NAME_CALL) && !ConformanceRules_ConformanceUtil_isCallTarget(n)) {
+	if (this.requirementType == Requirement_Type_BANNED_NAME_CALL) && !ConformanceRules_ConformanceUtil_isCallTarget(n) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	if !Collection_contains_s(this.shortNames, n.getString()) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	if (NodeUtil_isInSyntheticScript(n) || !ConformanceRules_BannedName_isRootOfQualifiedNameGlobal(t, n)) {
+	if NodeUtil_isInSyntheticScript(n) || !ConformanceRules_BannedName_isRootOfQualifiedNameGlobal(t, n) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	for i := int32((this.qualifiedNames.size() - 1)); (i >= 0); i-- {
+	for i := int32((this.qualifiedNames.size() - 1)); i >= 0; i-- {
 		if n.matchesQualifiedNameNode(Node_of_(this.qualifiedNames.get(i))) {
 			return ConformanceRules_ConformanceResult_VIOLATION
 		}
@@ -960,8 +1001,8 @@ func ConformanceRules_BannedName_clinit() {
 
 type ConformanceRules_BannedProperty struct {
 	ConformanceRules_AbstractRule
-	registry *JSTypeRegistry
-	props *SimpleSetMultimap
+	registry                *JSTypeRegistry
+	props                   *SimpleSetMultimap
 	requirementPrecondition *ConformanceRules_BannedProperty_RequirementPrecondition
 }
 
@@ -1002,7 +1043,7 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	if (requirement.getValueCount() == 0) {
+	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	this.requirementPrecondition = func() *ConformanceRules_BannedProperty_RequirementPrecondition {
@@ -1029,14 +1070,14 @@ func (this *ConformanceRules_BannedProperty) initBannedProperty(compiler *Abstra
 		var value string = str_(it_2.v)
 		var typename Optional[string] = ConformanceRules_ConformanceUtil_getClassFromDeclarationName(value)
 		var property Optional[string] = ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(value)
-		if (typename.isEmpty() || property.isEmpty()) {
+		if typename.isEmpty() || property.isEmpty() {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("bad prop value").up_Throwable())
 		}
 		var type_ *JSType = this.registry.getGlobalType(typename.get())
-		if (type_ == nil) {
+		if type_ == nil {
 			type_ = this.registry.resolveViaClosureNamespace(typename.get())
 		}
-		if (((type_ == nil) || type_.isUnknownType()) || type_.isEmptyType()) {
+		if ((type_ == nil) || type_.isUnknownType()) || type_.isEmptyType() {
 			continue
 		}
 		builder.put(strobj_(property.get()), type_.self())
@@ -1051,12 +1092,17 @@ func (this *ConformanceRules_BannedProperty) getPrecondition_impl() CheckConform
 
 func (this *ConformanceRules_BannedProperty) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	var name Optional[string] = this.extractName(n)
-	var checkTypes SetOf[*JSType] = func() Set { if name.isPresent() { return this.props.get(strobj_(name.get())) }; return icast_Set(obj_(ImmutableSet_of())) }()
+	var checkTypes SetOf[*JSType] = func() Set {
+		if name.isPresent() {
+			return this.props.get(strobj_(name.get()))
+		}
+		return icast_Set(obj_(ImmutableSet_of()))
+	}()
 	if checkTypes.isEmpty() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	var foundType *JSType = this.extractType(n)
-	if (foundType == nil) {
+	if foundType == nil {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	foundType = foundType.restrictByNotNullOrUndefined()
@@ -1064,7 +1110,7 @@ func (this *ConformanceRules_BannedProperty) checkConformance_impl(t *NodeTraver
 	for it_1.next() {
 		var checkType *JSType = to_JSType(it_1.v)
 		var result *ConformanceRules_ConformanceResult = this.matchTypes(foundType, checkType)
-		if (result.level_ != ConformanceRules_ConformanceLevel_CONFORMANCE) {
+		if result.level_ != ConformanceRules_ConformanceLevel_CONFORMANCE {
 			return result
 		}
 	}
@@ -1073,7 +1119,7 @@ func (this *ConformanceRules_BannedProperty) checkConformance_impl(t *NodeTraver
 
 func (this *ConformanceRules_BannedProperty) matchTypes(foundType *JSType, checkType *JSType) *ConformanceRules_ConformanceResult {
 	var foundObj *ObjectType = foundType.toMaybeObjectType()
-	if (foundObj != nil) {
+	if foundObj != nil {
 		if foundObj.isFunctionPrototypeType() {
 			var ownerFun *FunctionType = foundObj.getOwnerFunction()
 			if ownerFun.isConstructor() {
@@ -1083,7 +1129,7 @@ func (this *ConformanceRules_BannedProperty) matchTypes(foundType *JSType, check
 			foundType = foundObj.getRawType().up_JSType()
 		}
 	}
-	if ((((foundType.isUnknownType() || foundType.isTemplateType()) || foundType.isEmptyType()) || foundType.isAllType()) || ConformanceRules_isLooseObject(foundType, this.registry)) {
+	if (((foundType.isUnknownType() || foundType.isTemplateType()) || foundType.isEmptyType()) || foundType.isAllType()) || ConformanceRules_isLooseObject(foundType, this.registry) {
 		if this.reportLooseTypeViolations {
 			return ConformanceRules_ConformanceResult_POSSIBLE_VIOLATION_DUE_TO_LOOSE_TYPES
 		}
@@ -1101,7 +1147,7 @@ func (this *ConformanceRules_BannedProperty) matchTypes(foundType *JSType, check
 
 func (this *ConformanceRules_BannedProperty) matchesPrototype(type_ *JSType, maybePrototype *JSType) bool {
 	var methodClassObjectType *ObjectType = type_.toMaybeObjectType()
-	if (methodClassObjectType != nil) {
+	if methodClassObjectType != nil {
 		if methodClassObjectType.getImplicitPrototype().equals(maybePrototype.self()) {
 			return true
 		}
@@ -1141,10 +1187,20 @@ func (this *ConformanceRules_BannedProperty) extractName(n Node) Optional[string
 			return Optional_of[string](n.getString())
 		case Token_rhino_GETELEM:
 			var string_ Node = n.getSecondChild()
-			return func() Optional[string] { if string_.isStringLit() { return Optional_of[string](string_.getString()) }; return Optional_empty[string]() }()
+			return func() Optional[string] {
+				if string_.isStringLit() {
+					return Optional_of[string](string_.getString())
+				}
+				return Optional_empty[string]()
+			}()
 		case Token_rhino_COMPUTED_PROP:
 			var string_ Node = n.getFirstChild()
-			return func() Optional[string] { if string_.isStringLit() { return Optional_of[string](string_.getString()) }; return Optional_empty[string]() }()
+			return func() Optional[string] {
+				if string_.isStringLit() {
+					return Optional_of[string](string_.getString())
+				}
+				return Optional_empty[string]()
+			}()
 		default:
 			return Optional_empty[string]()
 		}
@@ -1156,17 +1212,23 @@ type ConformanceRules_BannedProperty_RequirementPrecondition struct {
 	Enum
 }
 
-func (this *ConformanceRules_BannedProperty_RequirementPrecondition) as_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition { return this }
+func (this *ConformanceRules_BannedProperty_RequirementPrecondition) as_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition {
+	return this
+}
 
 func to_ConformanceRules_BannedProperty_RequirementPrecondition(v any) *ConformanceRules_BannedProperty_RequirementPrecondition {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition }).as_ConformanceRules_BannedProperty_RequirementPrecondition()
+	return v.(interface {
+		as_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition
+	}).as_ConformanceRules_BannedProperty_RequirementPrecondition()
 }
 
 func is_ConformanceRules_BannedProperty_RequirementPrecondition(v any) bool {
-	_, ok := v.(interface{ as_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition })
+	_, ok := v.(interface {
+		as_ConformanceRules_BannedProperty_RequirementPrecondition() *ConformanceRules_BannedProperty_RequirementPrecondition
+	})
 	return ok
 }
 
@@ -1271,7 +1333,7 @@ func (this *ConformanceRules_BannedStringRegex) initBannedStringRegex(compiler *
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	if (requirement.getValueCount() == 0) {
+	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
@@ -1297,7 +1359,7 @@ func (this *ConformanceRules_BannedStringRegex) initBannedStringRegex(compiler *
 }
 
 func (this *ConformanceRules_BannedStringRegex) checkConformance_impl(traversal *NodeTraversal, node Node) *ConformanceRules_ConformanceResult {
-	if (node == 0) {
+	if node == 0 {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	if node.isStringLit() {
@@ -1345,7 +1407,7 @@ func ConformanceRules_ConformanceUtil_isLooseType(type_ *JSType) bool {
 
 func ConformanceRules_ConformanceUtil_evaluateTypeString(compiler *AbstractCompiler, expression string) *Outcome_base[*JSType] {
 	var typeNodes Node = JsDocInfoParser_parseTypeString(expression)
-	if (typeNodes == 0) {
+	if typeNodes == 0 {
 		return Outcome_base_err[*JSType](new_CheckConformance_InvalidRequirementSpec_String("bad type expression").up_Throwable())
 	}
 	var typeExpr *JSTypeExpression = new_JSTypeExpression(typeNodes, "conformance")
@@ -1362,23 +1424,28 @@ func ConformanceRules_ConformanceUtil_validateThis(callOrNew Node, functionType 
 		return true
 	}
 	var thisType *JSType = functionType.getTypeOfThis()
-	if ((thisType == nil) || thisType.isUnknownType()) {
+	if (thisType == nil) || thisType.isUnknownType() {
 		return true
 	}
-	var thisNode Node = func() Node { if isCallInvocation { return callOrNew.getSecondChild() }; return callOrNew.getFirstFirstChild() }()
+	var thisNode Node = func() Node {
+		if isCallInvocation {
+			return callOrNew.getSecondChild()
+		}
+		return callOrNew.getFirstFirstChild()
+	}()
 	var thisNodeType *JSType = thisNode.getJSType().restrictByNotNullOrUndefined()
 	return thisNodeType.isSubtypeOf(thisType)
 }
 
 func ConformanceRules_ConformanceUtil_validateParameterList(compiler *AbstractCompiler, callOrNew Node, functionType *FunctionType, isCallInvocation bool) bool {
 	var arg Node = callOrNew.getSecondChild()
-	if (isCallInvocation && (arg != 0)) {
+	if isCallInvocation && (arg != 0) {
 		arg = arg.getNext()
 	}
 	var argumentTypes ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
-	for ; (arg != 0); arg = arg.getNext() {
+	for ; arg != 0; arg = arg.getNext() {
 		var argType *JSType = arg.getJSType()
-		if (argType == nil) {
+		if argType == nil {
 			argType = compiler.getTypeRegistry().getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		}
 		argumentTypes.add(argType.self())
@@ -1389,7 +1456,7 @@ func ConformanceRules_ConformanceUtil_validateParameterList(compiler *AbstractCo
 func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName string) Optional[string] {
 	var parts ListOf[string] = ConformanceRules_ON_PROTOTYPE.splitToList(strobj_(specName))
 	Preconditions_checkState(((parts.size() == 1) || (parts.size() == 2)))
-	if (parts.size() == 2) {
+	if parts.size() == 2 {
 		return Optional_ofNullable[string](str_(parts.get(1)))
 	}
 	return Optional_empty[string]()
@@ -1399,7 +1466,7 @@ func ConformanceRules_ConformanceUtil_getClassFromDeclarationName(specName strin
 	var tmp string = specName
 	var parts ListOf[string] = ConformanceRules_ON_PROTOTYPE.splitToList(strobj_(tmp))
 	Preconditions_checkState(((parts.size() == 1) || (parts.size() == 2)))
-	if (parts.size() == 2) {
+	if parts.size() == 2 {
 		return Optional_ofNullable[string](str_(parts.get(0)))
 	}
 	return Optional_empty[string]()
@@ -1407,7 +1474,7 @@ func ConformanceRules_ConformanceUtil_getClassFromDeclarationName(specName strin
 
 func ConformanceRules_ConformanceUtil_removeTypeDecl(specName string) *Outcome_base[string] {
 	var index int32 = String_indexOf(specName, 58)
-	if (index < 1) {
+	if index < 1 {
 		return Outcome_base_err[string](new_CheckConformance_InvalidRequirementSpec_String("value should be in the form NAME:TYPE").up_Throwable())
 	}
 	return Outcome_base_ok_Object[string](String_substring(specName, 0, index))
@@ -1415,7 +1482,7 @@ func ConformanceRules_ConformanceUtil_removeTypeDecl(specName string) *Outcome_b
 
 func ConformanceRules_ConformanceUtil_getTypeFromValue(specName string) Optional[string] {
 	var index int32 = String_indexOf(specName, 58)
-	if (index < 1) {
+	if index < 1 {
 		return Optional_empty[string]()
 	}
 	return Optional_of[string](String_substring_int(specName, (index + 1)))
@@ -1427,7 +1494,7 @@ func ConformanceRules_ConformanceUtil_isAnnotatedAsConst(jsdoc *JSDocInfo) bool 
 
 func ConformanceRules_ConformanceUtil_getValueFromGlobalName(scope *Scope, gns *GlobalNamespace, qualifiedName string) Optional[string] {
 	var gn *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](gns.getOwnSlot(qualifiedName))
-	if ((((gn == nil) || (gn.getGlobalSets() != 1)) || (gn.getTotalSets() != 1)) || !ConformanceRules_ConformanceUtil_isAnnotatedAsConst(gn.getJSDocInfo())) {
+	if (((gn == nil) || (gn.getGlobalSets() != 1)) || (gn.getTotalSets() != 1)) || !ConformanceRules_ConformanceUtil_isAnnotatedAsConst(gn.getJSDocInfo()) {
 		return Optional_empty[string]()
 	}
 	return ConformanceRules_ConformanceUtil_inferStringValue(scope, NodeUtil_getRValueOfLValue(cast_[*GlobalNamespace_Ref](gn.getDeclaration()).getNode()), &Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
@@ -1436,43 +1503,43 @@ func ConformanceRules_ConformanceUtil_getValueFromGlobalName(scope *Scope, gns *
 }
 
 func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, globalNamespaceSupplier SupplierOf[*GlobalNamespace]) Optional[string] {
-	if (node == 0) {
+	if node == 0 {
 		return Optional_empty[string]()
 	}
 	switch node.getToken() {
 	case Token_rhino_STRING_KEY, Token_rhino_STRINGLIT, Token_rhino_TEMPLATELIT, Token_rhino_TEMPLATELIT_STRING:
 		return NodeUtil_getStringValue(node)
 	case Token_rhino_NAME:
-		if (scope == nil) {
+		if scope == nil {
 			return Optional_empty[string]()
 		}
 		var name string = node.getString()
 		var var_ *Var = cast_[*Var](scope.getVar(name).self())
-		if (var_ == nil) {
+		if var_ == nil {
 			return Optional_empty[string]()
 		}
-		if (!var_.isConst() && !ConformanceRules_ConformanceUtil_isAnnotatedAsConst(var_.getJSDocInfo())) {
+		if !var_.isConst() && !ConformanceRules_ConformanceUtil_isAnnotatedAsConst(var_.getJSDocInfo()) {
 			return Optional_empty[string]()
 		}
 		var initialValue Node = var_.getInitialValue()
 		return ConformanceRules_ConformanceUtil_inferStringValue(cast_[*Scope](var_.getScope()), initialValue, globalNamespaceSupplier)
 	case Token_rhino_GETPROP:
 		var type_ *JSType = node.getJSType()
-		if (type_ == nil) {
+		if type_ == nil {
 			return Optional_empty[string]()
 		}
 		if type_.isEnumElementType() {
 			var enumSource Node = type_.toMaybeEnumElementType().getEnumType().getSource()
-			if (enumSource == 0) {
+			if enumSource == 0 {
 				return Optional_empty[string]()
 			}
-			if (!enumSource.isObjectLit() && !enumSource.isClassMembers()) {
+			if !enumSource.isObjectLit() && !enumSource.isClassMembers() {
 				return Optional_empty[string]()
 			}
 			return ConformanceRules_ConformanceUtil_inferStringValue(nil, NodeUtil_getFirstPropMatchingKey(enumSource, node.getString()), globalNamespaceSupplier)
 		} else if type_.isString() {
 			var gns *GlobalNamespace = cast_[*GlobalNamespace](globalNamespaceSupplier.get())
-			if (gns == nil) {
+			if gns == nil {
 				return Optional_empty[string]()
 			}
 			return ConformanceRules_ConformanceUtil_getValueFromGlobalName(scope, gns, node.getQualifiedName())
@@ -1484,11 +1551,11 @@ func ConformanceRules_ConformanceUtil_inferStringValue(scope *Scope, node Node, 
 }
 
 func ConformanceRules_ConformanceUtil_isXid(type_ *JSType) bool {
-	if (type_ == nil) {
+	if type_ == nil {
 		return false
 	}
 	var enumElTy *EnumElementType = type_.toMaybeEnumElementType()
-	if ((enumElTy != nil) && (enumElTy.getEnumType().getReferenceName().get() == "enum{xid.String}")) {
+	if (enumElTy != nil) && (enumElTy.getEnumType().getReferenceName().get() == "enum{xid.String}") {
 		return true
 	}
 	return false
@@ -1540,7 +1607,7 @@ func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	if (requirement.getValueCount() == 0) {
+	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var builder ImmutableList_BuilderOf[*ConformanceRules_RestrictedNameCall_Restriction] = ImmutableList_builder()
@@ -1549,7 +1616,7 @@ func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler
 		var value string = str_(it_1.v)
 		var name Node = NodeUtil_newQName_AbstractCompiler_String(compiler, ConformanceRules_RestrictedNameCall_getNameFromValue(value).get())
 		var restrictedDecl Optional[string] = ConformanceRules_ConformanceUtil_getTypeFromValue(value)
-		if ((name == 0) || restrictedDecl.isEmpty()) {
+		if (name == 0) || restrictedDecl.isEmpty() {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("bad prop value").up_Throwable())
 		}
 		var restrictedCallTypeOutcome *Outcome_base[*JSType] = ConformanceRules_ConformanceUtil_evaluateTypeString(compiler, restrictedDecl.get())
@@ -1557,7 +1624,7 @@ func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler
 			return Outcome_base_err[any](restrictedCallTypeOutcome.error())
 		}
 		var restrictedCallType *FunctionType = restrictedCallTypeOutcome.get().toMaybeFunctionType()
-		if (restrictedCallType == nil) {
+		if restrictedCallType == nil {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("invalid conformance type").up_Throwable())
 		}
 		builder.add(obj_(new_ConformanceRules_RestrictedNameCall_Restriction(name, restrictedCallType)))
@@ -1567,14 +1634,14 @@ func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler
 }
 
 func (this *ConformanceRules_RestrictedNameCall) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
-	if (ConformanceRules_ConformanceUtil_isCallTarget(n) && n.isQualifiedName()) {
-		for i := int32(0); (i < this.restrictions.size()); i++ {
+	if ConformanceRules_ConformanceUtil_isCallTarget(n) && n.isQualifiedName() {
+		for i := int32(0); i < this.restrictions.size(); i++ {
 			var r *ConformanceRules_RestrictedNameCall_Restriction = cast_[*ConformanceRules_RestrictedNameCall_Restriction](this.restrictions.get(i))
 			if n.matchesQualifiedNameNode(r.name_) {
 				if !ConformanceRules_ConformanceUtil_validateCall(this.compiler_, n.getParent(), r.restrictedCallType, false) {
 					return ConformanceRules_ConformanceResult_VIOLATION
 				}
-			} else if ((n.isGetProp() && (n.getString() == "call")) && n.getFirstChild().matchesQualifiedNameNode(r.name_)) {
+			} else if (n.isGetProp() && (n.getString() == "call")) && n.getFirstChild().matchesQualifiedNameNode(r.name_) {
 				if !ConformanceRules_ConformanceUtil_validateCall(this.compiler_, n.getParent(), r.restrictedCallType, true) {
 					return ConformanceRules_ConformanceResult_VIOLATION
 				}
@@ -1586,14 +1653,14 @@ func (this *ConformanceRules_RestrictedNameCall) checkConformance_impl(t *NodeTr
 
 func ConformanceRules_RestrictedNameCall_getNameFromValue(specName string) Optional[string] {
 	var index int32 = String_indexOf(specName, 58)
-	if (index < 1) {
+	if index < 1 {
 		return Optional_empty[string]()
 	}
 	return Optional_of[string](String_substring(specName, 0, index))
 }
 
 type ConformanceRules_RestrictedNameCall_Restriction struct {
-	name_ Node
+	name_              Node
 	restrictedCallType *FunctionType
 }
 
@@ -1650,7 +1717,7 @@ func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(comp
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	if (requirement.getValueCount() == 0) {
+	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
@@ -1669,7 +1736,7 @@ func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(comp
 		}
 		var property Optional[string] = ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(propertyDecl.get())
 		var restrictedDecl Optional[string] = ConformanceRules_ConformanceUtil_getTypeFromValue(value)
-		if ((type_.isEmpty() || property.isEmpty()) || restrictedDecl.isEmpty()) {
+		if (type_.isEmpty() || property.isEmpty()) || restrictedDecl.isEmpty() {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("bad prop value").up_Throwable())
 		}
 		var restrictedCallTypeOutcome *Outcome_base[*JSType] = ConformanceRules_ConformanceUtil_evaluateTypeString(compiler, restrictedDecl.get())
@@ -1677,7 +1744,7 @@ func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(comp
 			return Outcome_base_err[any](restrictedCallTypeOutcome.error())
 		}
 		var restrictedCallType *FunctionType = restrictedCallTypeOutcome.get().toMaybeFunctionType()
-		if (restrictedCallType == nil) {
+		if restrictedCallType == nil {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("invalid conformance type").up_Throwable())
 		}
 		builder.add(obj_(new_ConformanceRules_RestrictedMethodCall_Restriction(registry.getGlobalType(type_.get()), property.get(), restrictedCallType)))
@@ -1687,18 +1754,18 @@ func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(comp
 }
 
 func (this *ConformanceRules_RestrictedMethodCall) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
-	if (!n.isGetProp() || !ConformanceRules_ConformanceUtil_isCallTarget(n)) {
+	if !n.isGetProp() || !ConformanceRules_ConformanceUtil_isCallTarget(n) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	for i := int32(0); (i < this.restrictions.size()); i++ {
+	for i := int32(0); i < this.restrictions.size(); i++ {
 		var r *ConformanceRules_RestrictedMethodCall_Restriction = cast_[*ConformanceRules_RestrictedMethodCall_Restriction](this.restrictions.get(i))
 		var result *ConformanceRules_ConformanceResult = ConformanceRules_ConformanceResult_CONFORMANCE
 		if this.matchesProp(n, r) {
 			result = this.checkConformance_4(t, n, r, false)
-		} else if ((n.getString() == "call") && this.matchesProp(n.getFirstChild(), r)) {
+		} else if (n.getString() == "call") && this.matchesProp(n.getFirstChild(), r) {
 			result = this.checkConformance_4(t, n, r, true)
 		}
-		if (result.level_ != ConformanceRules_ConformanceLevel_CONFORMANCE) {
+		if result.level_ != ConformanceRules_ConformanceLevel_CONFORMANCE {
 			return result
 		}
 	}
@@ -1708,11 +1775,16 @@ func (this *ConformanceRules_RestrictedMethodCall) checkConformance_impl(t *Node
 func (this *ConformanceRules_RestrictedMethodCall) checkConformance_4(t *NodeTraversal, n Node, r *ConformanceRules_RestrictedMethodCall_Restriction, isCallInvocation bool) *ConformanceRules_ConformanceResult {
 	var registry *JSTypeRegistry = t.getCompiler().getTypeRegistry()
 	var methodClassType *JSType = r.type__
-	var lhs Node = func() Node { if isCallInvocation { return n.getFirstFirstChild() }; return n.getFirstChild() }()
-	if ((methodClassType != nil) && (lhs.getJSType() != nil)) {
+	var lhs Node = func() Node {
+		if isCallInvocation {
+			return n.getFirstFirstChild()
+		}
+		return n.getFirstChild()
+	}()
+	if (methodClassType != nil) && (lhs.getJSType() != nil) {
 		var targetType *JSType = lhs.getJSType().restrictByNotNullOrUndefined()
-		if (ConformanceRules_ConformanceUtil_isLooseType(targetType) || ConformanceRules_isLooseObject(targetType, registry)) {
-			if (this.reportLooseTypeViolations && !ConformanceRules_ConformanceUtil_validateCall(this.compiler_, n.getParent(), r.restrictedCallType, isCallInvocation)) {
+		if ConformanceRules_ConformanceUtil_isLooseType(targetType) || ConformanceRules_isLooseObject(targetType, registry) {
+			if this.reportLooseTypeViolations && !ConformanceRules_ConformanceUtil_validateCall(this.compiler_, n.getParent(), r.restrictedCallType, isCallInvocation) {
 				return ConformanceRules_ConformanceResult_POSSIBLE_VIOLATION_DUE_TO_LOOSE_TYPES
 			}
 		} else if targetType.isSubtypeOf(methodClassType) {
@@ -1729,8 +1801,8 @@ func (this *ConformanceRules_RestrictedMethodCall) matchesProp(n Node, r *Confor
 }
 
 type ConformanceRules_RestrictedMethodCall_Restriction struct {
-	type__ *JSType
-	property_ string
+	type__             *JSType
+	property_          string
 	restrictedCallType *FunctionType
 }
 
@@ -1793,7 +1865,7 @@ func (this *ConformanceRules_RestrictedPropertyWrite) initRestrictedPropertyWrit
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	if (requirement.getValueCount() == 0) {
+	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
@@ -1812,7 +1884,7 @@ func (this *ConformanceRules_RestrictedPropertyWrite) initRestrictedPropertyWrit
 		}
 		var property Optional[string] = ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(propertyDecl.get())
 		var restrictedDecl Optional[string] = ConformanceRules_ConformanceUtil_getTypeFromValue(value)
-		if ((type_.isEmpty() || property.isEmpty()) || restrictedDecl.isEmpty()) {
+		if (type_.isEmpty() || property.isEmpty()) || restrictedDecl.isEmpty() {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("bad prop value").up_Throwable())
 		}
 		var restrictedTypeOutcome *Outcome_base[*JSType] = ConformanceRules_ConformanceUtil_evaluateTypeString(compiler, restrictedDecl.get())
@@ -1827,22 +1899,22 @@ func (this *ConformanceRules_RestrictedPropertyWrite) initRestrictedPropertyWrit
 }
 
 func (this *ConformanceRules_RestrictedPropertyWrite) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
-	if (n.isGetProp() && NodeUtil_isLhsOfAssign(n)) {
+	if n.isGetProp() && NodeUtil_isLhsOfAssign(n) {
 		var rhsType *JSType = n.getNext().getJSType()
 		var targetType *JSType = n.getFirstChild().getJSType()
-		if ((rhsType != nil) && (targetType != nil)) {
+		if (rhsType != nil) && (targetType != nil) {
 			var targetNotNullType *JSType = nil
 			it_1 := foreach_(obj_(this.restrictions))
 			for it_1.next() {
 				var r *ConformanceRules_RestrictedPropertyWrite_Restriction = cast_[*ConformanceRules_RestrictedPropertyWrite_Restriction](it_1.v)
-				if (n.getString() == r.property_) {
+				if n.getString() == r.property_ {
 					if !rhsType.isSubtypeOf(r.restrictedType) {
 						if ConformanceRules_ConformanceUtil_isLooseType(targetType) {
 							if this.reportLooseTypeViolations {
 								return ConformanceRules_ConformanceResult_POSSIBLE_VIOLATION_DUE_TO_LOOSE_TYPES
 							}
 						} else {
-							if (targetNotNullType == nil) {
+							if targetNotNullType == nil {
 								targetNotNullType = targetType.restrictByNotNullOrUndefined()
 							}
 							if targetNotNullType.isSubtypeOf(r.type__) {
@@ -1858,8 +1930,8 @@ func (this *ConformanceRules_RestrictedPropertyWrite) checkConformance_impl(t *N
 }
 
 type ConformanceRules_RestrictedPropertyWrite_Restriction struct {
-	type__ *JSType
-	property_ string
+	type__         *JSType
+	property_      string
 	restrictedType *JSType
 }
 
@@ -1922,7 +1994,7 @@ func (this *ConformanceRules_BannedCodePattern) initBannedCodePattern(compiler *
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	if (requirement.getValueCount() == 0) {
+	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var builder ImmutableList_BuilderOf[*TemplateAstMatcher] = ImmutableList_builder()
@@ -1930,7 +2002,7 @@ func (this *ConformanceRules_BannedCodePattern) initBannedCodePattern(compiler *
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var parseRoot Node = new_CompilerInput_SourceFile(SourceFile_jscomp_fromCode_String_String("<template>", value)).getAstRoot(compiler)
-		if (!parseRoot.hasOneChild() || !parseRoot.getFirstChild().isFunction()) {
+		if !parseRoot.hasOneChild() || !parseRoot.getFirstChild().isFunction() {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String(("invalid conformance template: " + sstr_(value))).up_Throwable())
 		}
 		var templateRoot Node = parseRoot.getFirstChild()
@@ -1943,7 +2015,7 @@ func (this *ConformanceRules_BannedCodePattern) initBannedCodePattern(compiler *
 
 func (this *ConformanceRules_BannedCodePattern) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	var possibleViolation bool = false
-	for i := int32(0); (i < this.restrictions.size()); i++ {
+	for i := int32(0); i < this.restrictions.size(); i++ {
 		var matcher *TemplateAstMatcher = cast_[*TemplateAstMatcher](this.restrictions.get(i))
 		if matcher.matches(n) {
 			if matcher.isLooseMatch() {
@@ -1953,7 +2025,12 @@ func (this *ConformanceRules_BannedCodePattern) checkConformance_impl(t *NodeTra
 			}
 		}
 	}
-	return func() *ConformanceRules_ConformanceResult { if (possibleViolation && this.reportLooseTypeViolations) { return ConformanceRules_ConformanceResult_POSSIBLE_VIOLATION_DUE_TO_LOOSE_TYPES }; return ConformanceRules_ConformanceResult_CONFORMANCE }()
+	return func() *ConformanceRules_ConformanceResult {
+		if possibleViolation && this.reportLooseTypeViolations {
+			return ConformanceRules_ConformanceResult_POSSIBLE_VIOLATION_DUE_TO_LOOSE_TYPES
+		}
+		return ConformanceRules_ConformanceResult_CONFORMANCE
+	}()
 }
 
 type ConformanceRules_CustomRuleProxy struct {
@@ -2001,14 +2078,72 @@ func (this *ConformanceRules_CustomRuleProxy) check(t *NodeTraversal, n Node, be
 
 func (this *ConformanceRules_CustomRuleProxy) createRule(compiler *AbstractCompiler, requirement *Requirement) *Outcome_base[CheckConformance_Rule] {
 	var factory ConformanceRules_CustomRuleProxy_CustomRuleFactory = icast_ConformanceRules_CustomRuleProxy_CustomRuleFactory(Map_get_s(ConformanceRules_CustomRuleProxy_CUSTOM_RULE_REGISTRY, requirement.getJavaClass()))
-	if (factory == nil) {
+	if factory == nil {
 		return Outcome_base_err[CheckConformance_Rule](new_CheckConformance_InvalidRequirementSpec_String(("Unknown conformance rule: " + sstr_(requirement.getJavaClass()))).up_Throwable())
 	}
 	return factory.create(compiler, requirement)
 }
 
 func ConformanceRules_CustomRuleProxy_createCustomRuleRegistry() ImmutableMapOf[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] {
-	var builder ImmutableMap_BuilderOf[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] = ImmutableMap_builder().put(strobj_("com.google.javascript.jscomp.ConformanceRules$NoOp"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_NoOp_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$InferredConstCheck"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_InferredConstCheck_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedDependency"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BannedDependency_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedDependencyRegex"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BannedDependencyRegex_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedName"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BannedName_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedProperty"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BannedProperty_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedStringRegex"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BannedStringRegex_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedNameCall"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_RestrictedNameCall_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedMethodCall"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_RestrictedMethodCall_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedPropertyWrite"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_RestrictedPropertyWrite_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedCodePattern"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BannedCodePattern_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanForOf"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanForOf_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RequireUseStrict"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_RequireUseStrict_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanThrowOfNonErrorTypes"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanThrowOfNonErrorTypes_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanNullDeref"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanNullDeref_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownThis"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanUnknownThis_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownDirectThisPropsReferences"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanUnknownDirectThisPropsReferences_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownTypedClassPropsReferences"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanUnknownTypedClassPropsReferences_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnresolvedType"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanUnresolvedType_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$StrictBanUnresolvedType"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_StrictBanUnresolvedType_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanGlobalVars"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanGlobalVars_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedEnhance"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BannedEnhance_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedModsRegex"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BannedModsRegex_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanCreateElement"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanCreateElement_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanCreateDom"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanCreateDom_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanElementSetAttribute"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanElementSetAttribute_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanSettingAttributes"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanSettingAttributes_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanExecCommand"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanExecCommand_create(p0, p1) }})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanStaticThis"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] { return ConformanceRules_BanStaticThis_create(p0, p1) }}))
+	var builder ImmutableMap_BuilderOf[string, ConformanceRules_CustomRuleProxy_CustomRuleFactory] = ImmutableMap_builder().put(strobj_("com.google.javascript.jscomp.ConformanceRules$NoOp"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_NoOp_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$InferredConstCheck"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_InferredConstCheck_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedDependency"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BannedDependency_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedDependencyRegex"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BannedDependencyRegex_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedName"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BannedName_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedProperty"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BannedProperty_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedStringRegex"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BannedStringRegex_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedNameCall"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_RestrictedNameCall_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedMethodCall"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_RestrictedMethodCall_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RestrictedPropertyWrite"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_RestrictedPropertyWrite_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedCodePattern"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BannedCodePattern_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanForOf"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanForOf_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$RequireUseStrict"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_RequireUseStrict_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanThrowOfNonErrorTypes"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanThrowOfNonErrorTypes_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanNullDeref"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanNullDeref_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownThis"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanUnknownThis_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownDirectThisPropsReferences"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanUnknownDirectThisPropsReferences_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnknownTypedClassPropsReferences"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanUnknownTypedClassPropsReferences_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanUnresolvedType"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanUnresolvedType_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$StrictBanUnresolvedType"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_StrictBanUnresolvedType_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanGlobalVars"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanGlobalVars_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedEnhance"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BannedEnhance_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BannedModsRegex"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BannedModsRegex_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanCreateElement"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanCreateElement_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanCreateDom"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanCreateDom_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanElementSetAttribute"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanElementSetAttribute_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanSettingAttributes"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanSettingAttributes_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanExecCommand"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanExecCommand_create(p0, p1)
+	}})).put(strobj_("com.google.javascript.jscomp.ConformanceRules$BanStaticThis"), any(&ConformanceRules_CustomRuleProxy_CustomRuleFactory_fn{func(p0 *AbstractCompiler, p1 *Requirement) *Outcome_base[CheckConformance_Rule] {
+		return ConformanceRules_BanStaticThis_create(p0, p1)
+	}}))
 	return builder.buildOrThrow()
 }
 
@@ -2082,7 +2217,7 @@ func (this *ConformanceRules_BanForOf) initBanForOf(compiler *AbstractCompiler, 
 }
 
 func (this *ConformanceRules_BanForOf) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
-	if (n.isForOf() || n.isForAwaitOf()) {
+	if n.isForOf() || n.isForAwaitOf() {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -2136,7 +2271,12 @@ func (this *ConformanceRules_RequireUseStrict) initRequireUseStrict(compiler *Ab
 }
 
 func (this *ConformanceRules_RequireUseStrict) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
-	return func() *ConformanceRules_ConformanceResult { if (n.isScript() && !n.isUseStrict()) { return ConformanceRules_ConformanceResult_VIOLATION }; return ConformanceRules_ConformanceResult_CONFORMANCE }()
+	return func() *ConformanceRules_ConformanceResult {
+		if n.isScript() && !n.isUseStrict() {
+			return ConformanceRules_ConformanceResult_VIOLATION
+		}
+		return ConformanceRules_ConformanceResult_CONFORMANCE
+	}()
 }
 
 type ConformanceRules_BanThrowOfNonErrorTypes struct {
@@ -2186,10 +2326,10 @@ func (this *ConformanceRules_BanThrowOfNonErrorTypes) initBanThrowOfNonErrorType
 }
 
 func (this *ConformanceRules_BanThrowOfNonErrorTypes) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
-	if ((this.errorObjType != nil) && n.isThrow()) {
+	if (this.errorObjType != nil) && n.isThrow() {
 		var thrown *JSType = n.getFirstChild().getJSType()
-		if (thrown != nil) {
-			if (((!thrown.isUnknownType() && !thrown.isAllType()) && !thrown.isEmptyType()) && !thrown.isSubtypeOf(this.errorObjType)) {
+		if thrown != nil {
+			if ((!thrown.isUnknownType() && !thrown.isAllType()) && !thrown.isEmptyType()) && !thrown.isSubtypeOf(this.errorObjType) {
 				return ConformanceRules_ConformanceResult_VIOLATION
 			}
 		}
@@ -2260,7 +2400,12 @@ func (this *ConformanceRules_BanNullDeref) checkConformance_impl(t *NodeTraversa
 		}
 		panic("unreachable")
 	}()
-	return func() *ConformanceRules_ConformanceResult { if violation { return ConformanceRules_ConformanceResult_VIOLATION }; return ConformanceRules_ConformanceResult_CONFORMANCE }()
+	return func() *ConformanceRules_ConformanceResult {
+		if violation {
+			return ConformanceRules_ConformanceResult_VIOLATION
+		}
+		return ConformanceRules_ConformanceResult_CONFORMANCE
+	}()
 }
 
 func (this *ConformanceRules_BanNullDeref) report(n Node) bool {
@@ -2336,7 +2481,7 @@ func (this *ConformanceRules_BanUnknownThis) tsIsAllowlisted_impl() bool {
 func (this *ConformanceRules_BanUnknownThis) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if n.isThis() {
 		var type_ *JSType = n.getJSType()
-		if (((type_ != nil) && type_.isUnknownType()) && !this.isTypeImmediatelyTightened(n)) {
+		if ((type_ != nil) && type_.isUnknownType()) && !this.isTypeImmediatelyTightened(n) {
 			var root Node = t.getScopeRoot()
 			if !this.reports.contains(root) {
 				this.reports.add(root)
@@ -2399,7 +2544,7 @@ func (this *ConformanceRules_BanUnknownDirectThisPropsReferences) initBanUnknown
 }
 
 func (this *ConformanceRules_BanUnknownDirectThisPropsReferences) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
-	if ((((((n.isGetProp() && ConformanceRules_BanUnknownDirectThisPropsReferences_isKnownThis(n.getFirstChild())) && ConformanceRules_AbstractTypeRestrictionRule_isUnknown(n)) && !ConformanceRules_AbstractTypeRestrictionRule_isTemplateType(n)) && this.isUsed(n)) && !this.isTypeImmediatelyTightened(n)) && !ConformanceRules_BanUnknownDirectThisPropsReferences_isExplicitlyUnknown(n)) {
+	if (((((n.isGetProp() && ConformanceRules_BanUnknownDirectThisPropsReferences_isKnownThis(n.getFirstChild())) && ConformanceRules_AbstractTypeRestrictionRule_isUnknown(n)) && !ConformanceRules_AbstractTypeRestrictionRule_isTemplateType(n)) && this.isUsed(n)) && !this.isTypeImmediatelyTightened(n)) && !ConformanceRules_BanUnknownDirectThisPropsReferences_isExplicitlyUnknown(n) {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -2411,7 +2556,12 @@ func ConformanceRules_BanUnknownDirectThisPropsReferences_isKnownThis(n Node) bo
 
 func ConformanceRules_BanUnknownDirectThisPropsReferences_isExplicitlyUnknown(n Node) bool {
 	var owner *ObjectType = ObjectType_cast(n.getFirstChild().getJSType())
-	var prop *Property = func() *Property { if (owner != nil) { return owner.getSlotString(n.getString()) }; return nil }()
+	var prop *Property = func() *Property {
+		if owner != nil {
+			return owner.getSlotString(n.getString())
+		}
+		return nil
+	}()
 	return ((prop != nil) && !prop.isTypeInferred())
 }
 
@@ -2471,7 +2621,7 @@ func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) tsIsAllowliste
 }
 
 func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) checkConformance_impl(t *NodeTraversal, getprop Node) *ConformanceRules_ConformanceResult {
-	if ((((((getprop.isGetProp() && ConformanceRules_AbstractTypeRestrictionRule_isUnknown(getprop)) && this.isUsed(getprop)) && !this.isTypeImmediatelyTightened(getprop)) && this.isCheckablePropertySource(getprop.getFirstChild())) && !ConformanceRules_AbstractTypeRestrictionRule_isTemplateType(getprop)) && !this.isDeclaredUnknown(getprop)) {
+	if (((((getprop.isGetProp() && ConformanceRules_AbstractTypeRestrictionRule_isUnknown(getprop)) && this.isUsed(getprop)) && !this.isTypeImmediatelyTightened(getprop)) && this.isCheckablePropertySource(getprop.getFirstChild())) && !ConformanceRules_AbstractTypeRestrictionRule_isTemplateType(getprop)) && !this.isDeclaredUnknown(getprop) {
 		var propName string = getprop.getString()
 		var typeName string = getprop.getFirstChild().getJSType().toString()
 		return new_ConformanceRules_ConformanceResult_ConformanceLevel_String(ConformanceRules_ConformanceLevel_VIOLATION, ("The property \"" + sstr_(propName) + "\" on type \"" + sstr_(typeName) + "\""))
@@ -2485,11 +2635,11 @@ func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) isCheckablePro
 
 func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) isClassType(n Node) bool {
 	var type_ *ObjectType = n.getJSType().restrictByNotNullOrUndefined().toMaybeObjectType()
-	if ((type_ == nil) || !type_.isInstanceType()) {
+	if (type_ == nil) || !type_.isInstanceType() {
 		return false
 	}
 	var ctor *FunctionType = type_.getConstructor()
-	if (ctor == nil) {
+	if ctor == nil {
 		return false
 	}
 	var info *JSDocInfo = ctor.getJSDocInfo()
@@ -2500,22 +2650,22 @@ func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) isClassType(n 
 func (this *ConformanceRules_BanUnknownTypedClassPropsReferences) isDeclaredUnknown(n Node) bool {
 	var target Node = n.getFirstChild()
 	var targetType *ObjectType = target.getJSType().restrictByNotNullOrUndefined().toMaybeObjectType()
-	if (targetType == nil) {
+	if targetType == nil {
 		return false
 	}
 	var info *JSDocInfo = targetType.getPropertyJSDocInfo(n.getString())
-	if ((info == nil) || !info.hasType()) {
+	if (info == nil) || !info.hasType() {
 		return false
 	}
 	var expr *JSTypeExpression = info.getType()
 	var typeExprNode Node = expr.getRoot()
-	if ((typeExprNode.getToken() == Token_rhino_QMARK) && !typeExprNode.hasChildren()) {
+	if (typeExprNode.getToken() == Token_rhino_QMARK) && !typeExprNode.hasChildren() {
 		return true
-	} else if (typeExprNode.getToken() == Token_rhino_PIPE) {
+	} else if typeExprNode.getToken() == Token_rhino_PIPE {
 		{
 			var child Node = typeExprNode.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
-				if (child.getToken() == Token_rhino_QMARK) {
+			for ; child != 0; child = child.getNext() {
+				if child.getToken() == Token_rhino_QMARK {
 					return true
 				}
 			}
@@ -2580,7 +2730,7 @@ func (this *ConformanceRules_BanUnresolvedType) checkConformance_impl(t *NodeTra
 		var target Node = n.getFirstChild()
 		var type_ *JSType = target.getJSType()
 		var nonConformingPart Optional[string] = ConformanceRules_BanUnresolvedType_getNonConformingPart(type_)
-		if (nonConformingPart.isPresent() && !this.isTypeImmediatelyTightened(n)) {
+		if nonConformingPart.isPresent() && !this.isTypeImmediatelyTightened(n) {
 			return new_ConformanceRules_ConformanceResult_ConformanceLevel_String(ConformanceRules_ConformanceLevel_VIOLATION, ("Reference to type '" + sstr_(nonConformingPart.get()) + "' never resolved."))
 		}
 	}
@@ -2588,21 +2738,26 @@ func (this *ConformanceRules_BanUnresolvedType) checkConformance_impl(t *NodeTra
 }
 
 func ConformanceRules_BanUnresolvedType_getNonConformingPart(type_ *JSType) Optional[string] {
-	if (type_ == nil) {
+	if type_ == nil {
 		return Optional_empty[string]()
 	}
 	if type_.isUnionType() {
-		var nonConformingParts *TList[string] = nil
+		var nonConformingParts *JTList[string] = nil
 		it_1 := foreach_(any(type_.getUnionMembers()))
 		for it_1.next() {
 			var part *JSType = to_JSType(it_1.v)
 			var nonConformingPart Optional[string] = ConformanceRules_BanUnresolvedType_getNonConformingPart(part)
 			if nonConformingPart.isPresent() {
-				nonConformingParts = func() *TList[string] { if (nonConformingParts != nil) { return nonConformingParts }; return newTList_(tc_string) }()
+				nonConformingParts = func() *JTList[string] {
+					if nonConformingParts != nil {
+						return nonConformingParts
+					}
+					return jnewTList_(jtc_string)
+				}()
 				nonConformingParts.add(nonConformingPart.get())
 			}
 		}
-		if (nonConformingParts != nil) {
+		if nonConformingParts != nil {
 			return Optional_of[string](Joiner_on_char('|').join(Iterable(nonConformingParts.asList())))
 		}
 	} else if type_.isNoResolvedType() {
@@ -2665,7 +2820,7 @@ func (this *ConformanceRules_StrictBanUnresolvedType) initStrictBanUnresolvedTyp
 
 func (this *ConformanceRules_StrictBanUnresolvedType) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	var nonConformingPart Optional[string] = ConformanceRules_BanUnresolvedType_getNonConformingPart(n.getJSType())
-	if (nonConformingPart.isPresent() && !this.isTypeImmediatelyTightened(n)) {
+	if nonConformingPart.isPresent() && !this.isTypeImmediatelyTightened(n) {
 		return new_ConformanceRules_ConformanceResult_ConformanceLevel_String(ConformanceRules_ConformanceLevel_VIOLATION, ("Reference to type '" + sstr_(nonConformingPart.get()) + "' never resolved."))
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -2718,9 +2873,9 @@ func (this *ConformanceRules_BanGlobalVars) initBanGlobalVars(compiler *Abstract
 }
 
 func (this *ConformanceRules_BanGlobalVars) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
-	if (((t.inGlobalScope() && NodeUtil_isDeclaration(n)) && !n.getBooleanProp(Node_IS_NAMESPACE)) && !this.isAllowlisted(n)) {
+	if ((t.inGlobalScope() && NodeUtil_isDeclaration(n)) && !n.getBooleanProp(Node_IS_NAMESPACE)) && !this.isAllowlisted(n) {
 		var enclosingScript Node = NodeUtil_getEnclosingScript(n)
-		if ((enclosingScript != 0) && ((enclosingScript.getBooleanProp(Node_GOOG_MODULE) || enclosingScript.getBooleanProp(Node_ES6_MODULE)) || enclosingScript.getInputId().equals(obj_(this.compiler_.getSyntheticCodeInputId())))) {
+		if (enclosingScript != 0) && ((enclosingScript.getBooleanProp(Node_GOOG_MODULE) || enclosingScript.getBooleanProp(Node_ES6_MODULE)) || enclosingScript.getInputId().equals(obj_(this.compiler_.getSyntheticCodeInputId()))) {
 			return ConformanceRules_ConformanceResult_CONFORMANCE
 		}
 		return ConformanceRules_ConformanceResult_VIOLATION
@@ -2796,7 +2951,7 @@ func (this *ConformanceRules_BannedEnhance) initBannedEnhance(compiler *Abstract
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	if (requirement.getValueCount() == 0) {
+	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	this.bannedEnhancedNamespaces = ImmutableSet_copyOf(Collection(requirement.getValueList()))
@@ -2805,13 +2960,13 @@ func (this *ConformanceRules_BannedEnhance) initBannedEnhance(compiler *Abstract
 
 func (this *ConformanceRules_BannedEnhance) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	var docInfo *JSDocInfo = n.getJSDocInfo()
-	if ((docInfo == nil) || !docInfo.hasEnhance()) {
+	if (docInfo == nil) || !docInfo.hasEnhance() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	it_1 := foreach_(obj_(this.bannedEnhancedNamespaces))
 	for it_1.next() {
 		var banned string = str_(it_1.v)
-		if (docInfo.getEnhance() == banned) {
+		if docInfo.getEnhance() == banned {
 			return new_ConformanceRules_ConformanceResult_ConformanceLevel_String(ConformanceRules_ConformanceLevel_VIOLATION, ("The enhanced namespace \"" + sstr_(banned) + "\""))
 		}
 	}
@@ -2865,7 +3020,7 @@ func (this *ConformanceRules_BannedModsRegex) initBannedModsRegex(compiler *Abst
 		return Outcome_base_err[any](superInited.error())
 	}
 	var bannedModsRegexList ListOf[string] = requirement.getValueList()
-	if (requirement.getValueCount() == 0) {
+	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var bannedModsRegexOutcome *Outcome_base[*Pattern] = ConformanceRules_buildPattern(bannedModsRegexList)
@@ -2878,7 +3033,7 @@ func (this *ConformanceRules_BannedModsRegex) initBannedModsRegex(compiler *Abst
 
 func (this *ConformanceRules_BannedModsRegex) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	var docInfo *JSDocInfo = n.getJSDocInfo()
-	if ((docInfo == nil) || !docInfo.hasMods()) {
+	if (docInfo == nil) || !docInfo.hasMods() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	if this.bannedModsRegex.matcher(strobj_(docInfo.getMods())).find() {
@@ -2893,9 +3048,9 @@ func (this *ConformanceRules_BannedModsRegex) getPrecondition_impl() CheckConfor
 
 type ConformanceRules_BanCreateElement struct {
 	ConformanceRules_AbstractRule
-	bannedTags *TSet[string]
+	bannedTags    *JTSet[string]
 	domHelperType *JSType
-	documentType *JSType
+	documentType  *JSType
 }
 
 func (this *ConformanceRules_BanCreateElement) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -2935,7 +3090,7 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	this.bannedTags = newTSet_(tc_string)
+	this.bannedTags = jnewTSet_(jtc_string)
 	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
@@ -2952,7 +3107,7 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 func (this *ConformanceRules_BanCreateElement) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if n.isCall() {
 		var tag Node = n.getSecondChild()
-		if (((tag != 0) && tag.isStringLit()) && this.bannedTags.has(Ascii_toLowerCase(tag.getString()))) {
+		if ((tag != 0) && tag.isStringLit()) && this.bannedTags.has(Ascii_toLowerCase(tag.getString())) {
 			return this.checkCreateElement(n)
 		}
 	}
@@ -2965,7 +3120,7 @@ func (this *ConformanceRules_BanCreateElement) checkCreateElement(n Node) *Confo
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	var functionName string = target.getString()
-	if (!("createElement" == functionName) && !("createDom" == functionName)) {
+	if !("createElement" == functionName) && !("createDom" == functionName) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	var srcObj Node = target.getFirstChild()
@@ -2973,10 +3128,15 @@ func (this *ConformanceRules_BanCreateElement) checkCreateElement(n Node) *Confo
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	var type_ *JSType = srcObj.getJSType()
-	if ((type_ == nil) || ConformanceRules_ConformanceUtil_isLooseType(type_)) {
-		return func() *ConformanceRules_ConformanceResult { if this.reportLooseTypeViolations { return ConformanceRules_ConformanceResult_POSSIBLE_VIOLATION_DUE_TO_LOOSE_TYPES }; return ConformanceRules_ConformanceResult_CONFORMANCE }()
+	if (type_ == nil) || ConformanceRules_ConformanceUtil_isLooseType(type_) {
+		return func() *ConformanceRules_ConformanceResult {
+			if this.reportLooseTypeViolations {
+				return ConformanceRules_ConformanceResult_POSSIBLE_VIOLATION_DUE_TO_LOOSE_TYPES
+			}
+			return ConformanceRules_ConformanceResult_CONFORMANCE
+		}()
 	}
-	if (((this.domHelperType != nil) && this.domHelperType.isSubtypeOf(type_)) || ((this.documentType != nil) && this.documentType.isSubtypeOf(type_))) {
+	if ((this.domHelperType != nil) && this.domHelperType.isSubtypeOf(type_)) || ((this.documentType != nil) && this.documentType.isSubtypeOf(type_)) {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -2985,7 +3145,7 @@ func (this *ConformanceRules_BanCreateElement) checkCreateElement(n Node) *Confo
 type ConformanceRules_BanCreateDom struct {
 	ConformanceRules_AbstractRule
 	bannedTagAttrs ImmutableListOf[[]string]
-	domHelperType *JSType
+	domHelperType  *JSType
 	classNameTypes *JSType
 }
 
@@ -3031,7 +3191,7 @@ func (this *ConformanceRules_BanCreateDom) initBanCreateDom(compiler *AbstractCo
 	for it_1.next() {
 		var value string = str_(it_1.v)
 		var tagAttr ListOf[string] = ConformanceRules_ON_DOT.splitToList(strobj_(value))
-		if (((tagAttr.size() != 2) || String_isEmpty(str_(tagAttr.get(0)))) || String_isEmpty(str_(tagAttr.get(1)))) {
+		if ((tagAttr.size() != 2) || String_isEmpty(str_(tagAttr.get(0)))) || String_isEmpty(str_(tagAttr.get(1))) {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("Values must be in the format tagname.attribute.").up_Throwable())
 		}
 		var lowercasedTag string = String_toLowerCase(str_(tagAttr.get(0)), Locale_ROOT)
@@ -3050,27 +3210,27 @@ func (this *ConformanceRules_BanCreateDom) checkConformance_impl(t *NodeTraversa
 	if !this.isCreateDomCall(n) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	if (n.getChildCount() < 3) {
+	if n.getChildCount() < 3 {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	var tagNames CollectionOf[string] = this.getTagNames(n.getSecondChild())
 	var attrs Node = n.getChildAtIndex(2)
 	var attrsType *JSType = attrs.getJSType()
-	if (attrsType == nil) {
+	if attrsType == nil {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	var isClassName bool = (!attrsType.isUnknownType() && attrsType.isSubtypeOf(this.classNameTypes))
-	if (attrs.isNull() || ((attrsType != nil) && attrsType.isVoidType())) {
+	if attrs.isNull() || ((attrsType != nil) && attrsType.isVoidType()) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	it_1 := foreach_(obj_(this.bannedTagAttrs))
 	for it_1.next() {
 		var tagAttr []string = cast_[[]string](it_1.v)
-		if (((tagNames != nil) && !Collection_contains_s(tagNames, tagAttr[0])) && !(tagAttr[0] == "*")) {
+		if ((tagNames != nil) && !Collection_contains_s(tagNames, tagAttr[0])) && !(tagAttr[0] == "*") {
 			continue
 		}
 		var violation *ConformanceRules_ConformanceResult
-		if ((tagNames != nil) || (tagAttr[0] == "*")) {
+		if (tagNames != nil) || (tagAttr[0] == "*") {
 			violation = ConformanceRules_ConformanceResult_VIOLATION
 		} else if this.reportLooseTypeViolations {
 			violation = ConformanceRules_ConformanceResult_POSSIBLE_VIOLATION
@@ -3083,14 +3243,19 @@ func (this *ConformanceRules_BanCreateDom) checkConformance_impl(t *NodeTraversa
 			}
 			return violation
 		}
-		if (((tagAttr[1] == "textContent") && (n.getChildCount() > 3)) && (violation != ConformanceRules_ConformanceResult_CONFORMANCE)) {
+		if ((tagAttr[1] == "textContent") && (n.getChildCount() > 3)) && (violation != ConformanceRules_ConformanceResult_CONFORMANCE) {
 			return violation
 		}
 		if !attrs.isObjectLit() {
-			return func() *ConformanceRules_ConformanceResult { if this.reportLooseTypeViolations { return ConformanceRules_ConformanceResult_POSSIBLE_VIOLATION }; return ConformanceRules_ConformanceResult_CONFORMANCE }()
+			return func() *ConformanceRules_ConformanceResult {
+				if this.reportLooseTypeViolations {
+					return ConformanceRules_ConformanceResult_POSSIBLE_VIOLATION
+				}
+				return ConformanceRules_ConformanceResult_CONFORMANCE
+			}()
 		}
 		var prop Node = NodeUtil_getFirstPropMatchingKey(attrs, tagAttr[1])
-		if (prop != 0) {
+		if prop != 0 {
 			if NodeUtil_isSomeCompileTimeConstStringValue(prop) {
 				continue
 			}
@@ -3098,9 +3263,14 @@ func (this *ConformanceRules_BanCreateDom) checkConformance_impl(t *NodeTraversa
 		}
 		{
 			var attr Node = attrs.getFirstChild()
-			for ; (attr != 0); attr = attr.getNext() {
+			for ; attr != 0; attr = attr.getNext() {
 				if attr.isComputedProp() {
-					return func() *ConformanceRules_ConformanceResult { if this.reportLooseTypeViolations { return ConformanceRules_ConformanceResult_POSSIBLE_VIOLATION_DUE_TO_LOOSE_TYPES }; return ConformanceRules_ConformanceResult_CONFORMANCE }()
+					return func() *ConformanceRules_ConformanceResult {
+						if this.reportLooseTypeViolations {
+							return ConformanceRules_ConformanceResult_POSSIBLE_VIOLATION_DUE_TO_LOOSE_TYPES
+						}
+						return ConformanceRules_ConformanceResult_CONFORMANCE
+					}()
 				}
 			}
 		}
@@ -3111,15 +3281,15 @@ func (this *ConformanceRules_BanCreateDom) checkConformance_impl(t *NodeTraversa
 func (this *ConformanceRules_BanCreateDom) getTagNames(tag Node) CollectionOf[string] {
 	if tag.isStringLit() {
 		return icast_Collection(obj_(ImmutableSet_of_Object(strobj_(String_toLowerCase(tag.getString(), Locale_ROOT)))))
-	} else if (tag.isGetProp() && ConformanceRules_GOOG_DOM_TAGNAME.matches(tag.getFirstChild())) {
+	} else if tag.isGetProp() && ConformanceRules_GOOG_DOM_TAGNAME.matches(tag.getFirstChild()) {
 		return icast_Collection(obj_(ImmutableSet_of_Object(strobj_(String_toLowerCase(tag.getString(), Locale_ROOT)))))
 	}
 	var type_ *JSType = tag.getJSType()
-	if ((type_ == nil) || !type_.isTemplatizedType()) {
+	if (type_ == nil) || !type_.isTemplatizedType() {
 		return nil
 	}
 	var typeAsObj *ObjectType = type_.toMaybeObjectType()
-	if (typeAsObj.getRawType().getDisplayName().get() == "goog.dom.TagName") {
+	if typeAsObj.getRawType().getDisplayName().get() == "goog.dom.TagName" {
 		var tagType *JSType = to_JSType(Iterables_getOnlyElement(icast_Iterable(obj_(typeAsObj.getTemplateTypes()))))
 		return Collection(ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES.get(strobj_(tagType.getDisplayName().orElse(nullstr_))))
 	}
@@ -3142,7 +3312,7 @@ func (this *ConformanceRules_BanCreateDom) isCreateDomCall(n Node) bool {
 		return true
 	}
 	var type_ *JSType = srcObj.getJSType()
-	if (type_ == nil) {
+	if type_ == nil {
 		return false
 	}
 	if type_.equals(this.domHelperType.self()) {
@@ -3165,7 +3335,7 @@ func ConformanceRules_BanCreateDom_clinit() {
 }
 
 type ConformanceRules_SecuritySensitiveAttributes struct {
-	bannedAtrrs ImmutableSetOf[string]
+	bannedAtrrs             ImmutableSetOf[string]
 	globalNamespaceSupplier SupplierOf[*GlobalNamespace]
 }
 
@@ -3221,10 +3391,15 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) contains(attributeName
 func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAttributeName(traversal *NodeTraversal, attrName Node) *ConformanceRules_ConformanceResult {
 	var literalName Optional[string] = ConformanceRules_ConformanceUtil_inferStringValue(traversal.getScope(), attrName, this.globalNamespaceSupplier)
 	if literalName.isEmpty() {
-		return func() *ConformanceRules_ConformanceResult { if ConformanceRules_ConformanceUtil_isXid(attrName.getJSType()) { return ConformanceRules_ConformanceResult_CONFORMANCE }; return ConformanceRules_ConformanceResult_VIOLATION }()
+		return func() *ConformanceRules_ConformanceResult {
+			if ConformanceRules_ConformanceUtil_isXid(attrName.getJSType()) {
+				return ConformanceRules_ConformanceResult_CONFORMANCE
+			}
+			return ConformanceRules_ConformanceResult_VIOLATION
+		}()
 	}
 	literalName = Optional_of[string](String_toLowerCase(literalName.get(), Locale_ROOT))
-	if (Collection_contains_s(this.bannedAtrrs, literalName.get()) || ConformanceRules_ConformanceUtil_isEventHandlerAttrName(literalName.get())) {
+	if Collection_contains_s(this.bannedAtrrs, literalName.get()) || ConformanceRules_ConformanceUtil_isEventHandlerAttrName(literalName.get()) {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -3235,7 +3410,12 @@ func (this *ConformanceRules_SecuritySensitiveAttributes) checkConformanceForAtt
 	if literalName.isEmpty() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	return func() *ConformanceRules_ConformanceResult { if this.contains(String_toLowerCase(literalName.get(), Locale_ROOT)) { return ConformanceRules_ConformanceResult_VIOLATION }; return ConformanceRules_ConformanceResult_CONFORMANCE }()
+	return func() *ConformanceRules_ConformanceResult {
+		if this.contains(String_toLowerCase(literalName.get(), Locale_ROOT)) {
+			return ConformanceRules_ConformanceResult_VIOLATION
+		}
+		return ConformanceRules_ConformanceResult_CONFORMANCE
+	}()
 }
 
 var ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS *ImmutableSet
@@ -3253,10 +3433,10 @@ func ConformanceRules_SecuritySensitiveAttributes_clinit() {
 
 type ConformanceRules_BanElementSetAttribute struct {
 	ConformanceRules_AbstractRule
-	performGlobalNamespaceAnalysis bool
-	globalNamespace *GlobalNamespace
-	elementType *JSType
-	securitySensitiveAttributes *ConformanceRules_SecuritySensitiveAttributes
+	performGlobalNamespaceAnalysis   bool
+	globalNamespace                  *GlobalNamespace
+	elementType                      *JSType
+	securitySensitiveAttributes      *ConformanceRules_SecuritySensitiveAttributes
 	defaultDecisionForUncertainCases *ConformanceRules_ConformanceResult
 }
 
@@ -3303,14 +3483,19 @@ func (this *ConformanceRules_BanElementSetAttribute) initBanElementSetAttribute(
 		return Outcome_base_err[any](superInited.error())
 	}
 	this.securitySensitiveAttributes = new_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(Collection(requirement.getValueList()), &Supplier_tfn_GlobalNamespace{func() *GlobalNamespace { return this.getGlobalNamespace() }})
-	this.defaultDecisionForUncertainCases = func() *ConformanceRules_ConformanceResult { if requirement.getReportLooseTypeViolations() { return ConformanceRules_ConformanceResult_VIOLATION }; return ConformanceRules_ConformanceResult_CONFORMANCE }()
+	this.defaultDecisionForUncertainCases = func() *ConformanceRules_ConformanceResult {
+		if requirement.getReportLooseTypeViolations() {
+			return ConformanceRules_ConformanceResult_VIOLATION
+		}
+		return ConformanceRules_ConformanceResult_CONFORMANCE
+	}()
 	this.elementType = compiler.getTypeRegistry().getGlobalType(ConformanceRules_BanElementSetAttribute_ELEMENT_TYPE_NAME)
 	return Outcome_base_ok_0()
 }
 
 func (this *ConformanceRules_BanElementSetAttribute) getGlobalNamespace() *GlobalNamespace {
-	if (this.performGlobalNamespaceAnalysis && (this.globalNamespace == nil)) {
-		if (NodeUtil_countAstSizeUpToLimit(this.compiler_.getJsRoot(), ConformanceRules_BanElementSetAttribute_GLOBAL_NAMESPACE_ANALYSIS_LIMIT) >= ConformanceRules_BanElementSetAttribute_GLOBAL_NAMESPACE_ANALYSIS_LIMIT) {
+	if this.performGlobalNamespaceAnalysis && (this.globalNamespace == nil) {
+		if NodeUtil_countAstSizeUpToLimit(this.compiler_.getJsRoot(), ConformanceRules_BanElementSetAttribute_GLOBAL_NAMESPACE_ANALYSIS_LIMIT) >= ConformanceRules_BanElementSetAttribute_GLOBAL_NAMESPACE_ANALYSIS_LIMIT {
 			this.performGlobalNamespaceAnalysis = false
 		} else {
 			this.globalNamespace = new_GlobalNamespace_AbstractCompiler_Node(this.compiler_, this.compiler_.getJsRoot())
@@ -3322,7 +3507,7 @@ func (this *ConformanceRules_BanElementSetAttribute) getGlobalNamespace() *Globa
 func (this *ConformanceRules_BanElementSetAttribute) checkConformance_impl(traversal *NodeTraversal, node Node) *ConformanceRules_ConformanceResult {
 	if node.isCall() {
 		return this.checkConformanceOnPropertyCall(traversal, node)
-	} else if (node.isGetElem() && NodeUtil_isLValue(node)) {
+	} else if node.isGetElem() && NodeUtil_isLValue(node) {
 		return this.checkConformanceOnGetElement(traversal, node)
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -3333,8 +3518,8 @@ func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnPropertyC
 	if !calledProperty.isPresent() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	if (str_(calledProperty.get()) == ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE) {
-		if (callNode.getChildCount() < 3) {
+	if str_(calledProperty.get()) == ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE {
+		if callNode.getChildCount() < 3 {
 			return ConformanceRules_ConformanceResult_CONFORMANCE
 		}
 		if this.requirement_.getReportLooseTypeViolations() {
@@ -3343,8 +3528,8 @@ func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnPropertyC
 			return this.securitySensitiveAttributes.checkConformanceForAttributeNameWithHighConfidence(traversal, callNode.getSecondChild())
 		}
 	}
-	if (str_(calledProperty.get()) == ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NS) {
-		if (callNode.getChildCount() < 4) {
+	if str_(calledProperty.get()) == ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NS {
+		if callNode.getChildCount() < 4 {
 			return ConformanceRules_ConformanceResult_CONFORMANCE
 		}
 		if callNode.getSecondChild().isNull() {
@@ -3368,10 +3553,10 @@ func (this *ConformanceRules_BanElementSetAttribute) getBannedPropertyName(callN
 		return Optional_base_absent()
 	}
 	var type_ *JSType = target.getFirstChild().getJSType()
-	if (type_ == nil) {
+	if type_ == nil {
 		return Optional_base_absent()
 	}
-	if ((this.elementType != nil) && type_.restrictByNotNullOrUndefined().isSubtypeOf(this.elementType)) {
+	if (this.elementType != nil) && type_.restrictByNotNullOrUndefined().isSubtypeOf(this.elementType) {
 		return Optional_base_of(strobj_(propertyName))
 	}
 	return Optional_base_absent()
@@ -3381,7 +3566,7 @@ func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElemen
 	var key Node = getElementNode.getSecondChild()
 	var keyName Optional[string] = ConformanceRules_ConformanceUtil_inferStringValue(traversal.getScope(), key, &Supplier_tfn_GlobalNamespace{func() *GlobalNamespace { return this.getGlobalNamespace() }})
 	if keyName.isPresent() {
-		if (this.securitySensitiveAttributes.contains(String_toLowerCase(keyName.get(), Locale_ROOT)) || (this.requirement_.getReportLooseTypeViolations() && ((keyName.get() == "innerHTML") || (keyName.get() == "outerHTML")))) {
+		if this.securitySensitiveAttributes.contains(String_toLowerCase(keyName.get(), Locale_ROOT)) || (this.requirement_.getReportLooseTypeViolations() && ((keyName.get() == "innerHTML") || (keyName.get() == "outerHTML"))) {
 			if this.hasElementType(getElementNode) {
 				return ConformanceRules_ConformanceResult_VIOLATION
 			}
@@ -3392,7 +3577,7 @@ func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElemen
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	var keyType *JSType = key.getJSType()
-	if ((keyType == nil) || ConformanceRules_ConformanceUtil_isXid(keyType)) {
+	if (keyType == nil) || ConformanceRules_ConformanceUtil_isXid(keyType) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	if this.hasElementType(getElementNode) {
@@ -3413,11 +3598,11 @@ func (this *ConformanceRules_BanElementSetAttribute) checkConformanceOnGetElemen
 
 func (this *ConformanceRules_BanElementSetAttribute) hasElementType(getElementNode Node) bool {
 	var objType *JSType = getElementNode.getFirstChild().getJSType()
-	if ((objType == nil) || (this.elementType == nil)) {
+	if (objType == nil) || (this.elementType == nil) {
 		return false
 	}
 	objType = objType.restrictByNotNullOrUndefined()
-	if ((objType.isUnknownType() || objType.isEmptyType()) || !objType.isSubtypeOf(this.elementType)) {
+	if (objType.isUnknownType() || objType.isEmptyType()) || !objType.isSubtypeOf(this.elementType) {
 		return false
 	}
 	return true
@@ -3428,7 +3613,9 @@ const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE string = "setAttribu
 const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NS string = "setAttributeNS"
 const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE string = "setAttributeNode"
 const ConformanceRules_BanElementSetAttribute_SET_ATTRIBUTE_NODE_NS string = "setAttributeNodeNS"
+
 var ConformanceRules_BanElementSetAttribute_BANNED_PROPERTIES *ImmutableSet
+
 const ConformanceRules_BanElementSetAttribute_GLOBAL_NAMESPACE_ANALYSIS_LIMIT int32 = 10000
 
 var ConformanceRules_BanElementSetAttribute_clinit_done bool
@@ -3494,7 +3681,7 @@ func (this *ConformanceRules_BanSettingAttributes) initBanSettingAttributes(comp
 		var value string = str_(it_1.v)
 		var type_ Optional[string] = ConformanceRules_ConformanceUtil_getClassFromDeclarationName(value)
 		var property Optional[string] = ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(value)
-		if (type_.isEmpty() || property.isEmpty()) {
+		if type_.isEmpty() || property.isEmpty() {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("bad prop value").up_Throwable())
 		}
 		builder.add(obj_(new_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction(registry.getGlobalType(type_.get()), property.get())))
@@ -3515,7 +3702,7 @@ func (this *ConformanceRules_BanSettingAttributes) checkConformanceOnPropertyCal
 	if !calledProperty.isPresent() {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	if (node.getChildCount() < 3) {
+	if node.getChildCount() < 3 {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	return ConformanceRules_BanSettingAttributes_BANNED_ATTRS.checkConformanceForAttributeName(traversal, node.getSecondChild())
@@ -3527,14 +3714,14 @@ func (this *ConformanceRules_BanSettingAttributes) getBannedPropertyName(node No
 		return Optional_base_absent()
 	}
 	var type_ *JSType = target.getFirstChild().getJSType()
-	if (type_ == nil) {
+	if type_ == nil {
 		return Optional_base_absent()
 	}
 	var propertyName string = target.getString()
 	it_1 := foreach_(obj_(this.restrictions))
 	for it_1.next() {
 		var restricted *ConformanceRules_BanSettingAttributes_AttributeSettingRestriction = cast_[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction](it_1.v)
-		if (((propertyName == restricted.property_) && (restricted.type__ != nil)) && type_.isSubtypeOf(restricted.type__)) {
+		if ((propertyName == restricted.property_) && (restricted.type__ != nil)) && type_.isSubtypeOf(restricted.type__) {
 			return Optional_base_of(strobj_(propertyName))
 		}
 	}
@@ -3555,7 +3742,7 @@ func ConformanceRules_BanSettingAttributes_clinit() {
 }
 
 type ConformanceRules_BanSettingAttributes_AttributeSettingRestriction struct {
-	type__ *JSType
+	type__    *JSType
 	property_ string
 }
 
@@ -3631,7 +3818,7 @@ func (this *ConformanceRules_BanExecCommand) checkConformance_impl(traversal *No
 	if !this.isBannedProperty(node) {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
-	if (node.getChildCount() < 2) {
+	if node.getChildCount() < 2 {
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	var attr Node = node.getSecondChild()
@@ -3658,11 +3845,11 @@ func (this *ConformanceRules_BanExecCommand) isBannedProperty(node Node) bool {
 		return false
 	}
 	var type_ *JSType = target.getFirstChild().getJSType()
-	if (type_ == nil) {
+	if type_ == nil {
 		return false
 	}
 	var documentType *JSType = this.compiler_.getTypeRegistry().getGlobalType("Document")
-	if ((documentType == nil) || !type_.restrictByNotNullOrUndefined().isSubtypeOf(documentType)) {
+	if (documentType == nil) || !type_.restrictByNotNullOrUndefined().isSubtypeOf(documentType) {
 		return false
 	}
 	return true
@@ -3724,7 +3911,7 @@ func (this *ConformanceRules_BanStaticThis) checkConformance_impl(t *NodeTravers
 		return ConformanceRules_ConformanceResult_CONFORMANCE
 	}
 	var enclosingFunction Node = NodeUtil_getEnclosingNonArrowFunction(n)
-	if ((enclosingFunction != 0) && ConformanceRules_BanStaticThis_isStaticMethod(enclosingFunction)) {
+	if (enclosingFunction != 0) && ConformanceRules_BanStaticThis_isStaticMethod(enclosingFunction) {
 		return ConformanceRules_ConformanceResult_VIOLATION
 	}
 	return ConformanceRules_ConformanceResult_CONFORMANCE
@@ -3897,7 +4084,7 @@ func (this *ConformanceRules_BannedProperty_RequirementPrecondition_3) shouldChe
 	if !NodeUtil_isLValue(n) {
 		return false
 	}
-	if (NodeUtil_isLhsOfAssign(n) && (NodeUtil_isLiteralValue(n.getNext(), false) || NodeUtil_isSomeCompileTimeConstStringValue(n.getNext()))) {
+	if NodeUtil_isLhsOfAssign(n) && (NodeUtil_isLiteralValue(n.getNext(), false) || NodeUtil_isSomeCompileTimeConstStringValue(n.getNext())) {
 		return false
 	}
 	return true
@@ -4049,4 +4236,3 @@ func ConformanceRules_BannedProperty_RequirementPrecondition_5_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.ConformanceRules.BannedProperty.RequirementPrecondition>", enumValues_(ConformanceRules_BannedProperty_RequirementPrecondition_5_values_))
 
 }
-

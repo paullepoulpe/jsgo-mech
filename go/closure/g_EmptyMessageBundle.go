@@ -26,4 +26,3 @@ func (this *EmptyMessageBundle) getMessage(id string) *JsMessage {
 func (this *EmptyMessageBundle) getAllMessages() Iterable {
 	return icast_Iterable(obj_(ImmutableList_of()))
 }
-

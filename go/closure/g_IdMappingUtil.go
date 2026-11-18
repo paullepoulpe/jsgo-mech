@@ -15,7 +15,7 @@ func new_IdMappingUtil() *IdMappingUtil {
 	return this
 }
 
-func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *TMap[string, Map]) string {
+func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *JTMap[string, Map]) string {
 	var sb *StringBuilder = new_StringBuilder()
 	it_1 := idGeneratorMaps.eachEntry()
 	for it_1.next() {
@@ -42,7 +42,7 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 			if inSection {
 				break
 			}
-			if (mr.getSection().get() == sectionFilter) {
+			if mr.getSection().get() == sectionFilter {
 				inSection = true
 			}
 		} else if inSection {
@@ -56,7 +56,7 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) MapOf[string
 	var resultMap MapOf[string, *SimpleBiMap] = icast_Map(obj_(new_LinkedHashMap()))
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(idMappings)
 	var currentSectionMap *SimpleBiMap = nil
-	var sectionNames *TSet[string] = newTSet_(tc_string)
+	var sectionNames *JTSet[string] = jnewTSet_(jtc_string)
 	for mr.next() {
 		if mr.isSection() {
 			var sectionName Optional[string] = mr.getSection()
@@ -66,7 +66,7 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) MapOf[string
 			currentSectionMap = SimpleBiMap_create()
 			Map_put_s(resultMap, sectionName.orElse(nullstr_), obj_(currentSectionMap))
 		} else {
-			if (currentSectionMap == nil) {
+			if currentSectionMap == nil {
 				panic(new_IllegalArgumentException_String("Mapping entry outside of section").self())
 			}
 			currentSectionMap.put(strobj_(mr.getKey().orElse(nullstr_)), strobj_(mr.getValue().orElse(nullstr_)))
@@ -85,12 +85,12 @@ func IdMappingUtil_parseSerializedIdMappings(idMappings string) MapOf[string, *S
 const IdMappingUtil_NEW_LINE uint16 = '\n'
 
 type IdMappingUtil_MappingReader struct {
-	lines *TList[string]
-	nextLine int32
+	lines          *JTList[string]
+	nextLine       int32
 	currentSection Optional[string]
-	currentKey Optional[string]
-	currentValue Optional[string]
-	lineIndex int32
+	currentKey     Optional[string]
+	currentValue   Optional[string]
+	lineIndex      int32
 }
 
 func (this *IdMappingUtil_MappingReader) finit_IdMappingUtil_MappingReader() {
@@ -115,7 +115,7 @@ func new_IdMappingUtil_MappingReader(text string) *IdMappingUtil_MappingReader {
 func (this *IdMappingUtil_MappingReader) next() bool {
 	var line string
 	for {
-		if (this.nextLine == this.lines.size()) {
+		if this.nextLine == this.lines.size() {
 			break
 		}
 		line = this.lines.get(this.nextLine)
@@ -124,14 +124,14 @@ func (this *IdMappingUtil_MappingReader) next() bool {
 		if String_isEmpty(line) {
 			continue
 		}
-		if (String_charAt(line, 0) == '[') {
+		if String_charAt(line, 0) == '[' {
 			this.currentSection = Optional_of[string](String_substring(line, 1, (String_length(line) - 1)))
 			this.currentKey = Optional_empty[string]()
 			this.currentValue = Optional_empty[string]()
 			return true
 		} else {
 			var split int32 = String_indexOf(line, 58)
-			if (split != -1) {
+			if split != -1 {
 				this.currentKey = Optional_of[string](String_substring(line, 0, split))
 				this.currentValue = Optional_of[string](String_substring_int(line, (split + 1)))
 				return true
@@ -162,4 +162,3 @@ func (this *IdMappingUtil_MappingReader) getValue() Optional[string] {
 func (this *IdMappingUtil_MappingReader) getLineIndex() int32 {
 	return this.lineIndex
 }
-

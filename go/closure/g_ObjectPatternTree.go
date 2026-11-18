@@ -25,4 +25,3 @@ func new_ObjectPatternTree(location *SourceRange, fields ImmutableListOf[*ParseT
 	this.init_ObjectPatternTree(location, fields)
 	return this
 }
-

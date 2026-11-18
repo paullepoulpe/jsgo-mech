@@ -16,7 +16,7 @@ func new_ProfilingReport() *ProfilingReport {
 }
 
 func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapOf[string, *InstrumentationPoint], allInstrumentationReports ImmutableListOf[MapOf[string, BoxedOf[int64]]]) string {
-	var profiles *TList[*ReportProfile] = newTList_(tc_p_ReportProfile)
+	var profiles *JTList[*ReportProfile] = jnewTList_(tc_p_ReportProfile)
 	it_1 := foreach_(obj_(allInstrumentationReports))
 	for it_1.next() {
 		var report Map = icast_Map(it_1.v)
@@ -44,7 +44,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 			}
 		}
 	}
-	var result *TList[Map_Entry] = tlistFrom_(tc_Map_Entry, Collection(metrics.entrySet()))
+	var result *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(metrics.entrySet()))
 	Collections_sort_List_Comparator(result.asList(), Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(&Function_tfn_Map_Entry_string{func(point Map_Entry) string {
 		return cast_[*InstrumentationPoint](point.getKey()).getFileName()
 	}}), &ToLongFunction_tfn_Map_Entry{func(point Map_Entry) int64 {
@@ -54,14 +54,14 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	}}), &ToIntFunction_tfn_Map_Entry{func(point Map_Entry) int32 {
 		return cast_[*InstrumentationPoint](point.getKey()).getType().getNumber()
 	}}))
-	var output *TList[List] = newTList_(tc_List)
+	var output *JTList[List] = jnewTList_(tc_List)
 	output.add(icast_List(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred")))))
 	it_11 := result.each()
 	for it_11.next() {
 		var entry Map_Entry = it_11.v
 		output.add(icast_List(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFileName()), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFunctionName()), strobj_(String_valueOf(cast_[*InstrumentationPoint](entry.getKey()).getLineNumber())), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getType().name()), strobj_(String_valueOf_long(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).totalTimesExecuted)), strobj_(String_valueOf(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).numberOfReports))))))
 	}
-	var rows *TList[string] = newTList_(tc_string)
+	var rows *JTList[string] = jnewTList_(jtc_string)
 	it_13 := output.each()
 	for it_13.next() {
 		var row List = it_13.v
@@ -72,7 +72,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 
 type ProfilingReport_InstrumentationPointMetrics struct {
 	totalTimesExecuted int64
-	numberOfReports int32
+	numberOfReports    int32
 }
 
 func (this *ProfilingReport_InstrumentationPointMetrics) finit_ProfilingReport_InstrumentationPointMetrics() {
@@ -89,4 +89,3 @@ func new_ProfilingReport_InstrumentationPointMetrics() *ProfilingReport_Instrume
 	this.init_ProfilingReport_InstrumentationPointMetrics()
 	return this
 }
-

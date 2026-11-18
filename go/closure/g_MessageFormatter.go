@@ -6,4 +6,3 @@ type MessageFormatter interface {
 	formatError(*JSError) string
 	formatWarning(*JSError) string
 }
-

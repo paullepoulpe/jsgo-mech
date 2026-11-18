@@ -86,7 +86,7 @@ func IR_blockNodeVarargs(stmts []Node) Node {
 	return block
 }
 
-func IR_blockList(stmts *TList[Node]) Node {
+func IR_blockList(stmts *JTList[Node]) Node {
 	var paramList Node = IR_block_0()
 	it_1 := stmts.each()
 	for it_1.next() {
@@ -785,4 +785,3 @@ func IR_mayBeExpression(n Node) bool {
 		panic("unreachable")
 	}()
 }
-

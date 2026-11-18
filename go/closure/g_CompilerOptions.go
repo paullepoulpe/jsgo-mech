@@ -3,210 +3,210 @@
 package closure
 
 type CompilerOptions struct {
-	emitUseStrict Optional_baseOf[BoxedOf[bool]]
-	languageIn *CompilerOptions_LanguageMode
-	outputFeatureSet Optional_baseOf[*FeatureSet]
-	experimentalOutputFeatureSet Optional_baseOf[*CompilerOptions_ExperimentalOutputFeatureSet]
-	languageOutIsDefaultStrict Optional_baseOf[BoxedOf[bool]]
-	environment *CompilerOptions_Environment
-	browserFeaturesetYear *CompilerOptions_BrowserFeaturesetYear
-	instrumentForCoverageOnly bool
-	typedAstOutputFile Optional[string]
-	mergedPrecompiledLibraries bool
-	inferConsts bool
-	assumeStrictThisField bool
-	preserveDetailedSourceInfo bool
-	preserveNonJSDocComments bool
-	continueAfterErrors bool
-	incrementalCheckMode *CompilerOptions_IncrementalCheckMode
-	parseJsDocDocumentation *Config_JsDocParsing
-	printExterns bool
-	inferTypes bool
-	skipNonTranspilationPasses bool
-	devMode *CompilerOptions_DevMode
-	checkDeterminism bool
-	dependencyOptions *DependencyOptions
-	messageBundle MessageBundle
-	strictMessageReplacement bool
-	checkSymbols bool
-	checkSuspiciousCode bool
-	checkTypes bool
-	extraAnnotationNames ImmutableSetOf[string]
-	numParallelThreads int32
-	foldConstants bool
-	deadAssignmentElimination bool
-	deadPropertyAssignmentElimination *Tri
-	inlineConstantVars bool
-	maxFunctionSizeAfterInlining int32
-	inlineProperties bool
-	crossChunkCodeMotion bool
-	crossChunkCodeMotionNoStubMethods bool
-	parentChunkCanSeeSymbolsDeclaredInChildren bool
-	coalesceVariableNames bool
-	optimizeLetAndConst bool
-	assumeGlobalScopeIsIsolated bool
-	crossChunkMethodMotion bool
-	inlineGetters bool
-	inlineVariables bool
-	inlineLocalVariables bool
-	flowSensitiveInlineVariables bool
-	smartNameRemoval bool
-	extractPrototypeMemberDeclarations *CompilerOptions_ExtractPrototypeMemberDeclarationsMode
-	removeUnusedPrototypeProperties_ bool
-	removeUnusedClassProperties bool
-	removeUnusedVars bool
-	removeUnusedLocalVars bool
-	collapseVariableDeclarations bool
-	collapseAnonymousFunctions bool
-	aliasStringsMode *CompilerOptions_AliasStringsMode
-	outputJsStringUsage bool
-	convertToDottedProperties bool
-	rewriteFunctionExpressions bool
-	optimizeCalls bool
-	optimizeESClassConstructors bool
-	useTypesForLocalOptimization_ bool
-	useSizeHeuristicToStopOptimizationLoop bool
-	optimizationLoopMaxIterations int32
-	variableRenaming *VariableRenamingPolicy
-	propertyRenaming *PropertyRenamingPolicy
-	propertyRenamingOnlyCompilationMode bool
-	labelRenaming bool
-	reserveRawExports bool
-	preferStableNames bool
-	generatePseudoNames bool
-	renamePrefix Optional[string]
-	renamePrefixNamespace Optional[string]
-	renamePrefixNamespaceAssumeCrossChunkNames bool
-	optimizeLocalAccessForGlobalSymbolNamespace *CompilerOptions_OptimizeLocalAccess
-	collapsePropertiesLevel *CompilerOptions_PropertyCollapseLevel
-	collapseObjectLiterals bool
-	devirtualizeMethods bool
-	computeFunctionSideEffects bool
-	disambiguateProperties_ bool
-	ambiguateProperties bool
-	inputSourceMaps ImmutableMapOf[string, *SourceMapInput]
-	inputVariableMap *VariableMap
-	inputPropertyMap *VariableMap
-	exportTestFunctions bool
-	nameGenerator NameGenerator
-	replaceMessagesWithChromeI18n bool
-	tcProjectId string
-	codingConvention CodingConvention
-	syntheticBlockStartMarker Optional[string]
-	syntheticBlockEndMarker Optional[string]
-	locale Optional[string]
-	doLateLocalizationField bool
-	markAsCompiled bool
-	closurePass bool
-	preserveClosurePrimitives bool
-	angularPass bool
-	polymerPass bool
-	chromePass bool
-	j2clPassMode *CompilerOptions_J2clPassMode
-	j2clMinifierEnabled bool
-	j2clMinifierPruningManifest Optional[string]
-	removeAbstractMethods bool
-	removeClosureAsserts bool
-	removeJ2clAsserts bool
-	gatherCssNames bool
-	stripTypes ImmutableSetOf[string]
-	stripNameSuffixes ImmutableSetOf[string]
-	stripNamePrefixes ImmutableSetOf[string]
-	customPasses *SimpleSetMultimap
-	defineReplacements *TMap[string, any]
-	tweakProcessing *CompilerOptions_TweakProcessing
+	emitUseStrict                                Optional_baseOf[BoxedOf[bool]]
+	languageIn                                   *CompilerOptions_LanguageMode
+	outputFeatureSet                             Optional_baseOf[*FeatureSet]
+	experimentalOutputFeatureSet                 Optional_baseOf[*CompilerOptions_ExperimentalOutputFeatureSet]
+	languageOutIsDefaultStrict                   Optional_baseOf[BoxedOf[bool]]
+	environment                                  *CompilerOptions_Environment
+	browserFeaturesetYear                        *CompilerOptions_BrowserFeaturesetYear
+	instrumentForCoverageOnly                    bool
+	typedAstOutputFile                           Optional[string]
+	mergedPrecompiledLibraries                   bool
+	inferConsts                                  bool
+	assumeStrictThisField                        bool
+	preserveDetailedSourceInfo                   bool
+	preserveNonJSDocComments                     bool
+	continueAfterErrors                          bool
+	incrementalCheckMode                         *CompilerOptions_IncrementalCheckMode
+	parseJsDocDocumentation                      *Config_JsDocParsing
+	printExterns                                 bool
+	inferTypes                                   bool
+	skipNonTranspilationPasses                   bool
+	devMode                                      *CompilerOptions_DevMode
+	checkDeterminism                             bool
+	dependencyOptions                            *DependencyOptions
+	messageBundle                                MessageBundle
+	strictMessageReplacement                     bool
+	checkSymbols                                 bool
+	checkSuspiciousCode                          bool
+	checkTypes                                   bool
+	extraAnnotationNames                         ImmutableSetOf[string]
+	numParallelThreads                           int32
+	foldConstants                                bool
+	deadAssignmentElimination                    bool
+	deadPropertyAssignmentElimination            *Tri
+	inlineConstantVars                           bool
+	maxFunctionSizeAfterInlining                 int32
+	inlineProperties                             bool
+	crossChunkCodeMotion                         bool
+	crossChunkCodeMotionNoStubMethods            bool
+	parentChunkCanSeeSymbolsDeclaredInChildren   bool
+	coalesceVariableNames                        bool
+	optimizeLetAndConst                          bool
+	assumeGlobalScopeIsIsolated                  bool
+	crossChunkMethodMotion                       bool
+	inlineGetters                                bool
+	inlineVariables                              bool
+	inlineLocalVariables                         bool
+	flowSensitiveInlineVariables                 bool
+	smartNameRemoval                             bool
+	extractPrototypeMemberDeclarations           *CompilerOptions_ExtractPrototypeMemberDeclarationsMode
+	removeUnusedPrototypeProperties_             bool
+	removeUnusedClassProperties                  bool
+	removeUnusedVars                             bool
+	removeUnusedLocalVars                        bool
+	collapseVariableDeclarations                 bool
+	collapseAnonymousFunctions                   bool
+	aliasStringsMode                             *CompilerOptions_AliasStringsMode
+	outputJsStringUsage                          bool
+	convertToDottedProperties                    bool
+	rewriteFunctionExpressions                   bool
+	optimizeCalls                                bool
+	optimizeESClassConstructors                  bool
+	useTypesForLocalOptimization_                bool
+	useSizeHeuristicToStopOptimizationLoop       bool
+	optimizationLoopMaxIterations                int32
+	variableRenaming                             *VariableRenamingPolicy
+	propertyRenaming                             *PropertyRenamingPolicy
+	propertyRenamingOnlyCompilationMode          bool
+	labelRenaming                                bool
+	reserveRawExports                            bool
+	preferStableNames                            bool
+	generatePseudoNames                          bool
+	renamePrefix                                 Optional[string]
+	renamePrefixNamespace                        Optional[string]
+	renamePrefixNamespaceAssumeCrossChunkNames   bool
+	optimizeLocalAccessForGlobalSymbolNamespace  *CompilerOptions_OptimizeLocalAccess
+	collapsePropertiesLevel                      *CompilerOptions_PropertyCollapseLevel
+	collapseObjectLiterals                       bool
+	devirtualizeMethods                          bool
+	computeFunctionSideEffects                   bool
+	disambiguateProperties_                      bool
+	ambiguateProperties                          bool
+	inputSourceMaps                              ImmutableMapOf[string, *SourceMapInput]
+	inputVariableMap                             *VariableMap
+	inputPropertyMap                             *VariableMap
+	exportTestFunctions                          bool
+	nameGenerator                                NameGenerator
+	replaceMessagesWithChromeI18n                bool
+	tcProjectId                                  string
+	codingConvention                             CodingConvention
+	syntheticBlockStartMarker                    Optional[string]
+	syntheticBlockEndMarker                      Optional[string]
+	locale                                       Optional[string]
+	doLateLocalizationField                      bool
+	markAsCompiled                               bool
+	closurePass                                  bool
+	preserveClosurePrimitives                    bool
+	angularPass                                  bool
+	polymerPass                                  bool
+	chromePass                                   bool
+	j2clPassMode                                 *CompilerOptions_J2clPassMode
+	j2clMinifierEnabled                          bool
+	j2clMinifierPruningManifest                  Optional[string]
+	removeAbstractMethods                        bool
+	removeClosureAsserts                         bool
+	removeJ2clAsserts                            bool
+	gatherCssNames                               bool
+	stripTypes                                   ImmutableSetOf[string]
+	stripNameSuffixes                            ImmutableSetOf[string]
+	stripNamePrefixes                            ImmutableSetOf[string]
+	customPasses                                 *SimpleSetMultimap
+	defineReplacements                           *JTMap[string, any]
+	tweakProcessing                              *CompilerOptions_TweakProcessing
 	rewriteGlobalDeclarationsForTryCatchWrapping bool
-	checksOnly bool
-	outputJs *CompilerOptions_OutputJs
-	generateExports bool
-	exportLocalPropertyDefinitions bool
-	cssRenamingMap CssRenamingMap
-	cssRenamingSkiplist ImmutableSetOf[string]
-	replaceIdGenerators bool
-	idGenerators ImmutableMapOf[string, RenamingMap]
-	xidHashFunction Xid_HashFunction
-	chunkIdHashFunction Xid_HashFunction
-	idGeneratorsMapSerialized string
-	replaceStringsFunctionDescriptions ImmutableListOf[string]
-	replaceStringsPlaceholderToken string
-	propertiesThatMustDisambiguate ImmutableSetOf[string]
-	validateRequireInliningAnnotation *Tri
-	processCommonJSModules bool
-	moduleRoots ImmutableListOf[string]
-	rewritePolyfills bool
-	isolatePolyfills bool
-	injectPolyfillsNewerThan *CompilerOptions_LanguageMode
-	es6SubclassTranspilation *CompilerOptions_Es6SubclassTranspilation
-	instrumentAsyncContext bool
-	forceLibraryInjection ImmutableListOf[string]
-	runtimeLibraryMode *RuntimeJsLibManager_RuntimeLibraryMode
-	assumeForwardDeclaredForMissingTypesField bool
-	unusedImportsToRemove ImmutableSetOf[string]
-	preserveTypeAnnotations bool
-	gentsMode bool
-	prettyPrint bool
-	lineBreak bool
-	printInputDelimiter bool
-	inputDelimiter string
-	debugLogDirectory Optional[string]
-	debugLogFilter Optional[string]
-	serializeExtraDebugInfo bool
-	stateCompressionWrapper FunctionOf[[]int8, []int8]
-	stateDecompressionWrapper FunctionOf[[]int8, []int8]
-	quoteKeywordProperties bool
-	preferSingleQuotes bool
-	trustedStrings bool
-	printSourceAfterEachPass bool
-	filesToPrintAfterEachPassRegexList ListOf[string]
-	chunksToPrintAfterEachPassRegexList ListOf[string]
-	qnameUsesToPrintAfterEachPassList ListOf[string]
-	tracer *CompilerOptions_TracerMode
-	tracerOutput Optional[string]
-	colorizeErrorOutput bool
-	errorFormat *ErrorFormat
-	warningsGuard *ComposeWarningsGuard
-	summaryDetailLevel int32
-	lineLengthThreshold int32
-	useOriginalNamesInOutput bool
-	externExportsPath Optional[string]
-	extraReportGenerators *TList[SortingErrorManager_ErrorReportGenerator]
-	sourceMapOutputPath Optional[string]
-	shouldAlwaysGatherSourceMapInfo_ bool
-	sourceMapDetailLevel *SourceMap_DetailLevel
-	sourceMapFormat *SourceMap_Format
-	parseInlineSourceMaps_ bool
-	applyInputSourceMaps bool
-	resolveSourceMapAnnotations bool
-	sourceMapLocationMappings ImmutableListOf[SourceMap_LocationMapping]
-	sourceMapIncludeSourcesContent bool
-	outputCharset Optional[string]
-	protectHiddenSideEffects bool
-	assumeGettersArePure_ bool
-	assumePropertiesAreStaticallyAnalyzable bool
-	assumeStaticInheritanceIsNotUsed bool
-	errorHandler ErrorHandler
-	instrumentForCoverageOption *CompilerOptions_InstrumentOption
-	productionInstrumentationArrayName string
-	conformanceConfigs ImmutableListOf[*ConformanceConfig]
-	conformanceReportingMode *CompilerOptions_ConformanceReportingMode
-	conformanceRemoveRegexFromPath Optional_baseOf[*Pattern]
-	wrapGoogModulesForWhitespaceOnly bool
-	printConfig_ bool
-	isStrictModeInput Optional_baseOf[BoxedOf[bool]]
-	rewriteModulesBeforeTypechecking bool
-	enableModuleRewriting bool
-	moduleResolutionMode *ModuleLoader_ResolutionMode
-	browserResolverPrefixReplacements ImmutableMapOf[string, string]
-	pathEscaper *ModuleLoader_PathEscaper
-	packageJsonEntryNames ListOf[string]
-	allowDynamicImport bool
-	dynamicImportAlias Optional[string]
-	chunkOutputType *CompilerOptions_ChunkOutputType
-	unknownDefinesToIgnore ImmutableListOf[string]
-	inlineFunctionsLevel *CompilerOptions_Reach
-	enableZonesDefineName Optional[string]
-	zoneInputPattern *Pattern
-	es6ModuleTranspilation *CompilerOptions_Es6ModuleTranspilation
+	checksOnly                                   bool
+	outputJs                                     *CompilerOptions_OutputJs
+	generateExports                              bool
+	exportLocalPropertyDefinitions               bool
+	cssRenamingMap                               CssRenamingMap
+	cssRenamingSkiplist                          ImmutableSetOf[string]
+	replaceIdGenerators                          bool
+	idGenerators                                 ImmutableMapOf[string, RenamingMap]
+	xidHashFunction                              Xid_HashFunction
+	chunkIdHashFunction                          Xid_HashFunction
+	idGeneratorsMapSerialized                    string
+	replaceStringsFunctionDescriptions           ImmutableListOf[string]
+	replaceStringsPlaceholderToken               string
+	propertiesThatMustDisambiguate               ImmutableSetOf[string]
+	validateRequireInliningAnnotation            *Tri
+	processCommonJSModules                       bool
+	moduleRoots                                  ImmutableListOf[string]
+	rewritePolyfills                             bool
+	isolatePolyfills                             bool
+	injectPolyfillsNewerThan                     *CompilerOptions_LanguageMode
+	es6SubclassTranspilation                     *CompilerOptions_Es6SubclassTranspilation
+	instrumentAsyncContext                       bool
+	forceLibraryInjection                        ImmutableListOf[string]
+	runtimeLibraryMode                           *RuntimeJsLibManager_RuntimeLibraryMode
+	assumeForwardDeclaredForMissingTypesField    bool
+	unusedImportsToRemove                        ImmutableSetOf[string]
+	preserveTypeAnnotations                      bool
+	gentsMode                                    bool
+	prettyPrint                                  bool
+	lineBreak                                    bool
+	printInputDelimiter                          bool
+	inputDelimiter                               string
+	debugLogDirectory                            Optional[string]
+	debugLogFilter                               Optional[string]
+	serializeExtraDebugInfo                      bool
+	stateCompressionWrapper                      FunctionOf[[]int8, []int8]
+	stateDecompressionWrapper                    FunctionOf[[]int8, []int8]
+	quoteKeywordProperties                       bool
+	preferSingleQuotes                           bool
+	trustedStrings                               bool
+	printSourceAfterEachPass                     bool
+	filesToPrintAfterEachPassRegexList           ListOf[string]
+	chunksToPrintAfterEachPassRegexList          ListOf[string]
+	qnameUsesToPrintAfterEachPassList            ListOf[string]
+	tracer                                       *CompilerOptions_TracerMode
+	tracerOutput                                 Optional[string]
+	colorizeErrorOutput                          bool
+	errorFormat                                  *ErrorFormat
+	warningsGuard                                *ComposeWarningsGuard
+	summaryDetailLevel                           int32
+	lineLengthThreshold                          int32
+	useOriginalNamesInOutput                     bool
+	externExportsPath                            Optional[string]
+	extraReportGenerators                        *JTList[SortingErrorManager_ErrorReportGenerator]
+	sourceMapOutputPath                          Optional[string]
+	shouldAlwaysGatherSourceMapInfo_             bool
+	sourceMapDetailLevel                         *SourceMap_DetailLevel
+	sourceMapFormat                              *SourceMap_Format
+	parseInlineSourceMaps_                       bool
+	applyInputSourceMaps                         bool
+	resolveSourceMapAnnotations                  bool
+	sourceMapLocationMappings                    ImmutableListOf[SourceMap_LocationMapping]
+	sourceMapIncludeSourcesContent               bool
+	outputCharset                                Optional[string]
+	protectHiddenSideEffects                     bool
+	assumeGettersArePure_                        bool
+	assumePropertiesAreStaticallyAnalyzable      bool
+	assumeStaticInheritanceIsNotUsed             bool
+	errorHandler                                 ErrorHandler
+	instrumentForCoverageOption                  *CompilerOptions_InstrumentOption
+	productionInstrumentationArrayName           string
+	conformanceConfigs                           ImmutableListOf[*ConformanceConfig]
+	conformanceReportingMode                     *CompilerOptions_ConformanceReportingMode
+	conformanceRemoveRegexFromPath               Optional_baseOf[*Pattern]
+	wrapGoogModulesForWhitespaceOnly             bool
+	printConfig_                                 bool
+	isStrictModeInput                            Optional_baseOf[BoxedOf[bool]]
+	rewriteModulesBeforeTypechecking             bool
+	enableModuleRewriting                        bool
+	moduleResolutionMode                         *ModuleLoader_ResolutionMode
+	browserResolverPrefixReplacements            ImmutableMapOf[string, string]
+	pathEscaper                                  *ModuleLoader_PathEscaper
+	packageJsonEntryNames                        ListOf[string]
+	allowDynamicImport                           bool
+	dynamicImportAlias                           Optional[string]
+	chunkOutputType                              *CompilerOptions_ChunkOutputType
+	unknownDefinesToIgnore                       ImmutableListOf[string]
+	inlineFunctionsLevel                         *CompilerOptions_Reach
+	enableZonesDefineName                        Optional[string]
+	zoneInputPattern                             *Pattern
+	es6ModuleTranspilation                       *CompilerOptions_Es6ModuleTranspilation
 }
 
 func (this *CompilerOptions) zero_CompilerOptions() {
@@ -270,7 +270,7 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.lineLengthThreshold = CompilerOptions_DEFAULT_LINE_LENGTH_THRESHOLD
 	this.useOriginalNamesInOutput = false
 	this.externExportsPath = Optional_empty[string]()
-	this.extraReportGenerators = newTList_(tc_SortingErrorManager_ErrorReportGenerator)
+	this.extraReportGenerators = jnewTList_(jtc_SortingErrorManager_ErrorReportGenerator)
 	this.sourceMapOutputPath = Optional_empty[string]()
 	this.shouldAlwaysGatherSourceMapInfo_ = false
 	this.sourceMapDetailLevel = SourceMap_DetailLevel_ALL
@@ -379,7 +379,7 @@ func (this *CompilerOptions) init_CompilerOptions() {
 	this.stripNameSuffixes = ImmutableSet_of()
 	this.stripNamePrefixes = ImmutableSet_of()
 	this.customPasses = nil
-	this.defineReplacements = newTMap_(tc_string, tc_Object)
+	this.defineReplacements = jnewTMap_(jtc_string, tc_Object)
 	this.tweakProcessing = CompilerOptions_TweakProcessing_OFF
 	this.rewriteGlobalDeclarationsForTryCatchWrapping = false
 	this.checksOnly = false
@@ -576,7 +576,7 @@ func (this *CompilerOptions) getNameGenerator() NameGenerator {
 }
 
 func (this *CompilerOptions) setReplaceMessagesWithChromeI18n(replaceMessagesWithChromeI18n bool, tcProjectId string) {
-	if ((replaceMessagesWithChromeI18n && (this.messageBundle != nil)) && !is_[*EmptyMessageBundle](any(this.messageBundle))) {
+	if (replaceMessagesWithChromeI18n && (this.messageBundle != nil)) && !is_[*EmptyMessageBundle](any(this.messageBundle)) {
 		panic(new_RuntimeException_String("When replacing messages with chrome.i18n.getMessage, a message bundle should not be specified.").self())
 	}
 	this.replaceMessagesWithChromeI18n = replaceMessagesWithChromeI18n
@@ -670,7 +670,7 @@ func (this *CompilerOptions) setTracerOutput(out Optional[string]) {
 	this.tracerOutput = out
 }
 
-func (this *CompilerOptions) getExtraReportGenerators() *TList[SortingErrorManager_ErrorReportGenerator] {
+func (this *CompilerOptions) getExtraReportGenerators() *JTList[SortingErrorManager_ErrorReportGenerator] {
 	return this.extraReportGenerators
 }
 
@@ -799,17 +799,38 @@ func (this *CompilerOptions) getDefineReplacements() ImmutableMapOf[string, Node
 		var value any = entry.getValue()
 		var b any
 		_ = b
-		if func() bool { v_ := value; if !is_[bool](v_) { return false }; b = v_; return true }() {
+		if func() bool {
+			v_ := value
+			if !is_[bool](v_) {
+				return false
+			}
+			b = v_
+			return true
+		}() {
 			map_.put(strobj_(name), NodeUtil_booleanNode(Boolean_booleanValue(b)).box_())
 		} else {
 			var number any
 			_ = number
-			if func() bool { v_ := value; if !isNumber_(v_) { return false }; number = v_; return true }() {
+			if func() bool {
+				v_ := value
+				if !isNumber_(v_) {
+					return false
+				}
+				number = v_
+				return true
+			}() {
 				map_.put(strobj_(name), NodeUtil_numberNode(Number_doubleValue(number), 0).box_())
 			} else {
 				var string_ string
 				_ = string_
-				if func() bool { v_ := value; if !isstr_(v_) { return false }; string_ = str_(v_); return true }() {
+				if func() bool {
+					v_ := value
+					if !isstr_(v_) {
+						return false
+					}
+					string_ = str_(v_)
+					return true
+				}() {
 					map_.put(strobj_(name), IR_string(string_).box_())
 				} else {
 					panic(new_IllegalStateException_String(String_valueOf_Object(value)).self())
@@ -1174,7 +1195,12 @@ func (this *CompilerOptions) setLanguage(language *CompilerOptions_LanguageMode)
 
 func (this *CompilerOptions) setLanguageIn(languageIn *CompilerOptions_LanguageMode) {
 	Preconditions_checkState((languageIn != CompilerOptions_LanguageMode_NO_TRANSPILE))
-	this.languageIn = func() *CompilerOptions_LanguageMode { if (languageIn == CompilerOptions_LanguageMode_STABLE) { return CompilerOptions_LanguageMode_STABLE_IN }; return languageIn }()
+	this.languageIn = func() *CompilerOptions_LanguageMode {
+		if languageIn == CompilerOptions_LanguageMode_STABLE {
+			return CompilerOptions_LanguageMode_STABLE_IN
+		}
+		return languageIn
+	}()
 }
 
 func (this *CompilerOptions) getLanguageIn() *CompilerOptions_LanguageMode {
@@ -1182,11 +1208,16 @@ func (this *CompilerOptions) getLanguageIn() *CompilerOptions_LanguageMode {
 }
 
 func (this *CompilerOptions) setLanguageOut(languageOut *CompilerOptions_LanguageMode) {
-	if (languageOut == CompilerOptions_LanguageMode_NO_TRANSPILE) {
+	if languageOut == CompilerOptions_LanguageMode_NO_TRANSPILE {
 		this.languageOutIsDefaultStrict = Optional_base_absent()
 		this.outputFeatureSet = Optional_base_absent()
 	} else {
-		languageOut = func() *CompilerOptions_LanguageMode { if (languageOut == CompilerOptions_LanguageMode_STABLE) { return CompilerOptions_LanguageMode_STABLE_OUT }; return languageOut }()
+		languageOut = func() *CompilerOptions_LanguageMode {
+			if languageOut == CompilerOptions_LanguageMode_STABLE {
+				return CompilerOptions_LanguageMode_STABLE_OUT
+			}
+			return languageOut
+		}()
 		this.languageOutIsDefaultStrict = Optional_base_of(any(bool(languageOut.isDefaultStrict())))
 		this.setOutputFeatureSet(languageOut.toFeatureSet())
 	}
@@ -1492,7 +1523,12 @@ func (this *CompilerOptions) getSmartNameRemoval() bool {
 }
 
 func (this *CompilerOptions) setExtractPrototypeMemberDeclarations(enabled bool) {
-	this.extractPrototypeMemberDeclarations = func() *CompilerOptions_ExtractPrototypeMemberDeclarationsMode { if enabled { return CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_GLOBAL_TEMP }; return CompilerOptions_ExtractPrototypeMemberDeclarationsMode_OFF }()
+	this.extractPrototypeMemberDeclarations = func() *CompilerOptions_ExtractPrototypeMemberDeclarationsMode {
+		if enabled {
+			return CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_GLOBAL_TEMP
+		}
+		return CompilerOptions_ExtractPrototypeMemberDeclarationsMode_OFF
+	}()
 }
 
 func (this *CompilerOptions) setExtractPrototypeMemberDeclarationsMode(mode *CompilerOptions_ExtractPrototypeMemberDeclarationsMode) {
@@ -1678,7 +1714,12 @@ func (this *CompilerOptions) setCollapsePropertiesLevel(level *CompilerOptions_P
 }
 
 func (this *CompilerOptions) setCollapseProperties(fullyCollapse bool) {
-	this.collapsePropertiesLevel = func() *CompilerOptions_PropertyCollapseLevel { if fullyCollapse { return CompilerOptions_PropertyCollapseLevel_ALL }; return CompilerOptions_PropertyCollapseLevel_NONE }()
+	this.collapsePropertiesLevel = func() *CompilerOptions_PropertyCollapseLevel {
+		if fullyCollapse {
+			return CompilerOptions_PropertyCollapseLevel_ALL
+		}
+		return CompilerOptions_PropertyCollapseLevel_NONE
+	}()
 }
 
 func (this *CompilerOptions) getCollapsePropertiesLevel() *CompilerOptions_PropertyCollapseLevel {
@@ -1858,14 +1899,19 @@ func (this *CompilerOptions) getStripNamePrefixes() ImmutableSetOf[string] {
 }
 
 func (this *CompilerOptions) addCustomPass(time *CustomPassExecutionTime, customPass CompilerPass) {
-	if (this.customPasses == nil) {
+	if this.customPasses == nil {
 		this.customPasses = SimpleSetMultimap_createInsertionOrdered()
 	}
 	this.customPasses.put(obj_(time), any(customPass))
 }
 
 func (this *CompilerOptions) getCustomPassesAt(executionTime *CustomPassExecutionTime) ImmutableListOf[CompilerPass] {
-	return func() *ImmutableList { if (this.customPasses == nil) { return ImmutableList_of() }; return ImmutableList_copyOf(Collection(this.customPasses.get(obj_(executionTime)))) }()
+	return func() *ImmutableList {
+		if this.customPasses == nil {
+			return ImmutableList_of()
+		}
+		return ImmutableList_copyOf(Collection(this.customPasses.get(obj_(executionTime))))
+	}()
 }
 
 func (this *CompilerOptions) setDefineReplacements(defineReplacements MapOf[string, any]) {
@@ -2006,7 +2052,7 @@ func (this *CompilerOptions) setQuoteKeywordProperties(quoteKeywordProperties bo
 }
 
 func (this *CompilerOptions) shouldQuoteKeywordProperties() bool {
-	if (this.incrementalCheckMode == CompilerOptions_IncrementalCheckMode_GENERATE_IJS) {
+	if this.incrementalCheckMode == CompilerOptions_IncrementalCheckMode_GENERATE_IJS {
 		return false
 	}
 	return (this.quoteKeywordProperties || FeatureSet_ES3.containsFeatureSet(this.getOutputFeatureSet()))
@@ -2189,7 +2235,12 @@ func (this *CompilerOptions) getForceLibraryInjectionList() ImmutableListOf[stri
 }
 
 func (this *CompilerOptions) setPreventLibraryInjection(preventLibraryInjection bool) {
-	this.runtimeLibraryMode = func() *RuntimeJsLibManager_RuntimeLibraryMode { if preventLibraryInjection { return RuntimeJsLibManager_RuntimeLibraryMode_NO_OP }; return RuntimeJsLibManager_RuntimeLibraryMode_INJECT }()
+	this.runtimeLibraryMode = func() *RuntimeJsLibManager_RuntimeLibraryMode {
+		if preventLibraryInjection {
+			return RuntimeJsLibManager_RuntimeLibraryMode_NO_OP
+		}
+		return RuntimeJsLibManager_RuntimeLibraryMode_INJECT
+	}()
 }
 
 func (this *CompilerOptions) setRuntimeLibraryMode(runtimeLibraryMode *RuntimeJsLibManager_RuntimeLibraryMode) {
@@ -2314,7 +2365,62 @@ func (this *CompilerOptions) getStrictMessageReplacement() bool {
 }
 
 func (this *CompilerOptions) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).omitNullValues().add("aliasStringsMode", obj_(this.getAliasStringsMode())).add_String_boolean("ambiguateProperties", this.ambiguateProperties).add_String_boolean("angularPass", this.angularPass).add_String_boolean("assumeGettersArePure", this.assumeGettersArePure_).add_String_boolean("assumePropertiesAreStaticallyAnalyzable", this.assumePropertiesAreStaticallyAnalyzable).add_String_boolean("assumeStrictThis", this.assumeStrictThis()).add("browserResolverPrefixReplacements", obj_(this.browserResolverPrefixReplacements)).add_String_boolean("checkDeterminism", this.getCheckDeterminism()).add_String_boolean("checkSuspiciousCode", this.checkSuspiciousCode).add_String_boolean("checkSymbols", this.checkSymbols).add_String_boolean("checkTypes", this.checkTypes).add_String_boolean("checksOnly", this.checksOnly).add("chunksToPrintAfterEachPassRegexList", any(this.chunksToPrintAfterEachPassRegexList)).add_String_boolean("closurePass", this.closurePass).add_String_boolean("coalesceVariableNames", this.coalesceVariableNames).add("codingConvention", any(this.getCodingConvention())).add_String_boolean("collapseAnonymousFunctions", this.collapseAnonymousFunctions).add_String_boolean("collapseObjectLiterals", this.collapseObjectLiterals).add("collapseProperties", obj_(this.collapsePropertiesLevel)).add_String_boolean("collapseVariableDeclarations", this.collapseVariableDeclarations).add_String_boolean("colorizeErrorOutput", this.shouldColorizeErrorOutput()).add_String_boolean("computeFunctionSideEffects", this.computeFunctionSideEffects).add("conformanceConfigs", obj_(this.getConformanceConfigs())).add("conformanceRemoveRegexFromPath", obj_(this.conformanceRemoveRegexFromPath)).add("conformanceReportingMode", obj_(this.conformanceReportingMode)).add_String_boolean("continueAfterErrors", this.canContinueAfterErrors()).add_String_boolean("convertToDottedProperties", this.convertToDottedProperties).add_String_boolean("crossChunkCodeMotion", this.crossChunkCodeMotion).add_String_boolean("crossChunkCodeMotionNoStubMethods", this.crossChunkCodeMotionNoStubMethods).add_String_boolean("crossChunkMethodMotion", this.crossChunkMethodMotion).add("cssRenamingMap", any(this.cssRenamingMap)).add("cssRenamingSkiplist", obj_(this.cssRenamingSkiplist)).add("customPasses", obj_(this.customPasses)).add_String_boolean("deadAssignmentElimination", this.deadAssignmentElimination).add("debugLogDirectory", func() any { if this.debugLogDirectory.isPresent() { return strobj_(this.debugLogDirectory.get()) }; return nil }()).add("defineReplacements", obj_(this.getDefineReplacements())).add("dependencyOptions", obj_(this.getDependencyOptions())).add("devMode", obj_(this.devMode)).add_String_boolean("devirtualizeMethods", this.devirtualizeMethods).add_String_boolean("disambiguateProperties", this.disambiguateProperties_).add("emitUseStrict", obj_(this.emitUseStrict)).add_String_boolean("enableModuleRewriting", this.enableModuleRewriting).add("environment", obj_(this.getEnvironment())).add("errorFormat", this.errorFormat.self()).add("errorHandler", any(this.errorHandler)).add("es6ModuleTranspilation", obj_(this.es6ModuleTranspilation)).add("es6SubclassTranspilation", obj_(this.es6SubclassTranspilation)).add_String_boolean("exportLocalPropertyDefinitions", this.exportLocalPropertyDefinitions).add_String_boolean("exportTestFunctions", this.exportTestFunctions).add("externExportsPath", func() any { if this.externExportsPath.isPresent() { return strobj_(this.externExportsPath.get()) }; return nil }()).add("extraAnnotationNames", obj_(this.extraAnnotationNames)).add("extractPrototypeMemberDeclarations", obj_(this.extractPrototypeMemberDeclarations)).add("filesToPrintAfterEachPassRegexList", any(this.filesToPrintAfterEachPassRegexList)).add_String_boolean("flowSensitiveInlineVariables", this.flowSensitiveInlineVariables).add_String_boolean("foldConstants", this.foldConstants).add("forceLibraryInjection", obj_(this.forceLibraryInjection)).add_String_boolean("gatherCssNames", this.gatherCssNames).add_String_boolean("generateExports", this.generateExports).add_String_boolean("generatePseudoNames", this.generatePseudoNames).add_String_boolean("generateTypedExterns", this.shouldGenerateTypedExterns()).add("idGenerators", obj_(this.idGenerators)).add("idGeneratorsMapSerialized", strobj_(this.idGeneratorsMapSerialized)).add("incrementalCheckMode", obj_(this.incrementalCheckMode)).add_String_boolean("inferConsts", this.inferConsts).add_String_boolean("inferTypes", this.inferTypes).add_String_boolean("inlineConstantVars", this.inlineConstantVars).add("inlineFunctionsLevel", obj_(this.inlineFunctionsLevel)).add_String_boolean("inlineGetters", this.inlineGetters).add_String_boolean("inlineLocalVariables", this.inlineLocalVariables).add_String_boolean("inlineProperties", this.inlineProperties).add_String_boolean("inlineVariables", this.inlineVariables).add("inputDelimiter", strobj_(this.inputDelimiter)).add("inputPropertyMap", obj_(this.inputPropertyMap)).add("inputSourceMaps", obj_(this.inputSourceMaps)).add("inputVariableMap", obj_(this.inputVariableMap)).add_String_boolean("instrumentForCoverageOnly", this.instrumentForCoverageOnly).add("instrumentForCoverageOption", strobj_(Object_toString(obj_(this.instrumentForCoverageOption)))).add_String_boolean("isolatePolyfills", this.isolatePolyfills).add_String_boolean("j2clMinifierEnabled", this.j2clMinifierEnabled).add("j2clMinifierPruningManifest", func() any { if this.j2clMinifierPruningManifest.isPresent() { return strobj_(this.j2clMinifierPruningManifest.get()) }; return nil }()).add("j2clPassMode", obj_(this.j2clPassMode)).add_String_boolean("labelRenaming", this.labelRenaming).add("languageIn", obj_(this.getLanguageIn())).add("languageOutIsDefaultStrict", obj_(this.languageOutIsDefaultStrict)).add_String_boolean("lineBreak", this.lineBreak).add_String_int("lineLengthThreshold", this.lineLengthThreshold).add("locale", func() any { if this.locale.isPresent() { return strobj_(this.locale.get()) }; return nil }()).add_String_boolean("markAsCompiled", this.markAsCompiled).add_String_int("maxFunctionSizeAfterInlining", this.maxFunctionSizeAfterInlining).add("messageBundle", any(this.messageBundle)).add("moduleRoots", obj_(this.moduleRoots)).add("nameGenerator", func() any { if (this.nameGenerator == nil) { return nil }; return strobj_(Object_getClass(any(this.nameGenerator)).getName()) }()).add_String_int("numParallelThreads", this.numParallelThreads).add_String_boolean("optimizeCalls", this.optimizeCalls).add_String_boolean("optimizeESClassConstructors", this.optimizeESClassConstructors).add("optimizeLocalAccessForGlobalSymbolNamespace", obj_(this.optimizeLocalAccessForGlobalSymbolNamespace)).add("outputCharset", func() any { if this.outputCharset.isPresent() { return strobj_(this.outputCharset.get()) }; return nil }()).add("outputFeatureSet", obj_(this.outputFeatureSet)).add("outputJs", obj_(this.outputJs)).add_String_boolean("outputJsStringUsage", this.outputJsStringUsage).add_String_boolean("parentChunkCanSeeSymbolsDeclaredInChildren", this.parentChunkCanSeeSymbolsDeclaredInChildren).add("parseJsDocDocumentation", obj_(this.isParseJsDocDocumentation())).add("pathEscaper", this.pathEscaper.self()).add_String_boolean("polymerPass", this.polymerPass).add_String_boolean("preferSingleQuotes", this.preferSingleQuotes).add_String_boolean("preferStableNames", this.preferStableNames).add_String_boolean("preserveDetailedSourceInfo", this.preservesDetailedSourceInfo()).add_String_boolean("preserveGoogProvidesAndRequires", this.preserveClosurePrimitives).add_String_boolean("preserveNonJSDocComments", this.getPreserveNonJSDocComments()).add_String_boolean("preserveTypeAnnotations", this.preserveTypeAnnotations).add_String_boolean("prettyPrint", this.prettyPrint).add_String_boolean("printConfig", this.printConfig_).add_String_boolean("printInputDelimiter", this.printInputDelimiter).add_String_boolean("printSourceAfterEachPass", this.printSourceAfterEachPass).add_String_boolean("processCommonJSModules", this.processCommonJSModules).add("productionInstrumentationArrayName", strobj_(this.productionInstrumentationArrayName)).add("propertiesThatMustDisambiguate", obj_(this.propertiesThatMustDisambiguate)).add("propertyRenaming", obj_(this.propertyRenaming)).add_String_boolean("propertyRenamingOnlyCompilationMode", this.propertyRenamingOnlyCompilationMode).add_String_boolean("protectHiddenSideEffects", this.protectHiddenSideEffects).add("qnameUsesToPrintAfterEachPassRegexList", any(this.qnameUsesToPrintAfterEachPassList)).add_String_boolean("quoteKeywordProperties", this.quoteKeywordProperties).add_String_boolean("removeAbstractMethods", this.removeAbstractMethods).add_String_boolean("removeClosureAsserts", this.removeClosureAsserts).add_String_boolean("removeJ2clAsserts", this.removeJ2clAsserts).add_String_boolean("removeUnusedClassProperties", this.removeUnusedClassProperties).add_String_boolean("removeUnusedLocalVars", this.removeUnusedLocalVars).add_String_boolean("removeUnusedPrototypeProperties", this.removeUnusedPrototypeProperties_).add_String_boolean("removeUnusedVars", this.removeUnusedVars).add("renamePrefix", func() any { if this.renamePrefix.isPresent() { return strobj_(this.renamePrefix.get()) }; return nil }()).add("renamePrefixNamespace", func() any { if this.renamePrefixNamespace.isPresent() { return strobj_(this.renamePrefixNamespace.get()) }; return nil }()).add_String_boolean("renamePrefixNamespaceAssumeCrossChunkNames", this.renamePrefixNamespaceAssumeCrossChunkNames).add_String_boolean("replaceIdGenerators", this.replaceIdGenerators).add_String_boolean("replaceMessagesWithChromeI18n", this.replaceMessagesWithChromeI18n).add("replaceStringsFunctionDescriptions", obj_(this.replaceStringsFunctionDescriptions)).add("replaceStringsPlaceholderToken", strobj_(this.replaceStringsPlaceholderToken)).add_String_boolean("reserveRawExports", this.reserveRawExports).add_String_boolean("rewriteFunctionExpressions", this.rewriteFunctionExpressions).add_String_boolean("rewriteGlobalDeclarationsForTryCatchWrapping", this.rewriteGlobalDeclarationsForTryCatchWrapping).add_String_boolean("rewriteModulesBeforeTypechecking", this.rewriteModulesBeforeTypechecking).add_String_boolean("rewritePolyfills", this.rewritePolyfills).add("runtimeLibraryMode", obj_(this.runtimeLibraryMode)).add_String_boolean("skipNonTranspilationPasses", this.skipNonTranspilationPasses).add_String_boolean("smartNameRemoval", this.smartNameRemoval).add("sourceMapDetailLevel", this.sourceMapDetailLevel.self()).add("sourceMapFormat", this.sourceMapFormat.self()).add("sourceMapLocationMappings", obj_(this.sourceMapLocationMappings)).add("sourceMapOutputPath", func() any { if this.sourceMapOutputPath.isPresent() { return strobj_(this.sourceMapOutputPath.get()) }; return nil }()).add_String_boolean("strictMessageReplacement", this.strictMessageReplacement).add("stripNamePrefixes", obj_(this.stripNamePrefixes)).add("stripNameSuffixes", obj_(this.stripNameSuffixes)).add("stripTypes", obj_(this.stripTypes)).add_String_int("summaryDetailLevel", this.summaryDetailLevel).add("syntheticBlockEndMarker", func() any { if this.syntheticBlockEndMarker.isPresent() { return strobj_(this.syntheticBlockEndMarker.get()) }; return nil }()).add("syntheticBlockStartMarker", func() any { if this.syntheticBlockStartMarker.isPresent() { return strobj_(this.syntheticBlockStartMarker.get()) }; return nil }()).add("tcProjectId", strobj_(this.tcProjectId)).add("tracer", obj_(this.tracer)).add_String_boolean("trustedStrings", this.trustedStrings).add("tweakProcessing", obj_(this.getTweakProcessing())).add("unusedImportsToRemove", obj_(this.unusedImportsToRemove)).add_String_boolean("useTypesForLocalOptimization", this.useTypesForLocalOptimization_).add("variableRenaming", obj_(this.variableRenaming)).add("warningsGuard", this.getWarningsGuard().self()).add_String_boolean("wrapGoogModulesForWhitespaceOnly", this.wrapGoogModulesForWhitespaceOnly)))
+	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).omitNullValues().add("aliasStringsMode", obj_(this.getAliasStringsMode())).add_String_boolean("ambiguateProperties", this.ambiguateProperties).add_String_boolean("angularPass", this.angularPass).add_String_boolean("assumeGettersArePure", this.assumeGettersArePure_).add_String_boolean("assumePropertiesAreStaticallyAnalyzable", this.assumePropertiesAreStaticallyAnalyzable).add_String_boolean("assumeStrictThis", this.assumeStrictThis()).add("browserResolverPrefixReplacements", obj_(this.browserResolverPrefixReplacements)).add_String_boolean("checkDeterminism", this.getCheckDeterminism()).add_String_boolean("checkSuspiciousCode", this.checkSuspiciousCode).add_String_boolean("checkSymbols", this.checkSymbols).add_String_boolean("checkTypes", this.checkTypes).add_String_boolean("checksOnly", this.checksOnly).add("chunksToPrintAfterEachPassRegexList", any(this.chunksToPrintAfterEachPassRegexList)).add_String_boolean("closurePass", this.closurePass).add_String_boolean("coalesceVariableNames", this.coalesceVariableNames).add("codingConvention", any(this.getCodingConvention())).add_String_boolean("collapseAnonymousFunctions", this.collapseAnonymousFunctions).add_String_boolean("collapseObjectLiterals", this.collapseObjectLiterals).add("collapseProperties", obj_(this.collapsePropertiesLevel)).add_String_boolean("collapseVariableDeclarations", this.collapseVariableDeclarations).add_String_boolean("colorizeErrorOutput", this.shouldColorizeErrorOutput()).add_String_boolean("computeFunctionSideEffects", this.computeFunctionSideEffects).add("conformanceConfigs", obj_(this.getConformanceConfigs())).add("conformanceRemoveRegexFromPath", obj_(this.conformanceRemoveRegexFromPath)).add("conformanceReportingMode", obj_(this.conformanceReportingMode)).add_String_boolean("continueAfterErrors", this.canContinueAfterErrors()).add_String_boolean("convertToDottedProperties", this.convertToDottedProperties).add_String_boolean("crossChunkCodeMotion", this.crossChunkCodeMotion).add_String_boolean("crossChunkCodeMotionNoStubMethods", this.crossChunkCodeMotionNoStubMethods).add_String_boolean("crossChunkMethodMotion", this.crossChunkMethodMotion).add("cssRenamingMap", any(this.cssRenamingMap)).add("cssRenamingSkiplist", obj_(this.cssRenamingSkiplist)).add("customPasses", obj_(this.customPasses)).add_String_boolean("deadAssignmentElimination", this.deadAssignmentElimination).add("debugLogDirectory", func() any {
+		if this.debugLogDirectory.isPresent() {
+			return strobj_(this.debugLogDirectory.get())
+		}
+		return nil
+	}()).add("defineReplacements", obj_(this.getDefineReplacements())).add("dependencyOptions", obj_(this.getDependencyOptions())).add("devMode", obj_(this.devMode)).add_String_boolean("devirtualizeMethods", this.devirtualizeMethods).add_String_boolean("disambiguateProperties", this.disambiguateProperties_).add("emitUseStrict", obj_(this.emitUseStrict)).add_String_boolean("enableModuleRewriting", this.enableModuleRewriting).add("environment", obj_(this.getEnvironment())).add("errorFormat", this.errorFormat.self()).add("errorHandler", any(this.errorHandler)).add("es6ModuleTranspilation", obj_(this.es6ModuleTranspilation)).add("es6SubclassTranspilation", obj_(this.es6SubclassTranspilation)).add_String_boolean("exportLocalPropertyDefinitions", this.exportLocalPropertyDefinitions).add_String_boolean("exportTestFunctions", this.exportTestFunctions).add("externExportsPath", func() any {
+		if this.externExportsPath.isPresent() {
+			return strobj_(this.externExportsPath.get())
+		}
+		return nil
+	}()).add("extraAnnotationNames", obj_(this.extraAnnotationNames)).add("extractPrototypeMemberDeclarations", obj_(this.extractPrototypeMemberDeclarations)).add("filesToPrintAfterEachPassRegexList", any(this.filesToPrintAfterEachPassRegexList)).add_String_boolean("flowSensitiveInlineVariables", this.flowSensitiveInlineVariables).add_String_boolean("foldConstants", this.foldConstants).add("forceLibraryInjection", obj_(this.forceLibraryInjection)).add_String_boolean("gatherCssNames", this.gatherCssNames).add_String_boolean("generateExports", this.generateExports).add_String_boolean("generatePseudoNames", this.generatePseudoNames).add_String_boolean("generateTypedExterns", this.shouldGenerateTypedExterns()).add("idGenerators", obj_(this.idGenerators)).add("idGeneratorsMapSerialized", strobj_(this.idGeneratorsMapSerialized)).add("incrementalCheckMode", obj_(this.incrementalCheckMode)).add_String_boolean("inferConsts", this.inferConsts).add_String_boolean("inferTypes", this.inferTypes).add_String_boolean("inlineConstantVars", this.inlineConstantVars).add("inlineFunctionsLevel", obj_(this.inlineFunctionsLevel)).add_String_boolean("inlineGetters", this.inlineGetters).add_String_boolean("inlineLocalVariables", this.inlineLocalVariables).add_String_boolean("inlineProperties", this.inlineProperties).add_String_boolean("inlineVariables", this.inlineVariables).add("inputDelimiter", strobj_(this.inputDelimiter)).add("inputPropertyMap", obj_(this.inputPropertyMap)).add("inputSourceMaps", obj_(this.inputSourceMaps)).add("inputVariableMap", obj_(this.inputVariableMap)).add_String_boolean("instrumentForCoverageOnly", this.instrumentForCoverageOnly).add("instrumentForCoverageOption", strobj_(Object_toString(obj_(this.instrumentForCoverageOption)))).add_String_boolean("isolatePolyfills", this.isolatePolyfills).add_String_boolean("j2clMinifierEnabled", this.j2clMinifierEnabled).add("j2clMinifierPruningManifest", func() any {
+		if this.j2clMinifierPruningManifest.isPresent() {
+			return strobj_(this.j2clMinifierPruningManifest.get())
+		}
+		return nil
+	}()).add("j2clPassMode", obj_(this.j2clPassMode)).add_String_boolean("labelRenaming", this.labelRenaming).add("languageIn", obj_(this.getLanguageIn())).add("languageOutIsDefaultStrict", obj_(this.languageOutIsDefaultStrict)).add_String_boolean("lineBreak", this.lineBreak).add_String_int("lineLengthThreshold", this.lineLengthThreshold).add("locale", func() any {
+		if this.locale.isPresent() {
+			return strobj_(this.locale.get())
+		}
+		return nil
+	}()).add_String_boolean("markAsCompiled", this.markAsCompiled).add_String_int("maxFunctionSizeAfterInlining", this.maxFunctionSizeAfterInlining).add("messageBundle", any(this.messageBundle)).add("moduleRoots", obj_(this.moduleRoots)).add("nameGenerator", func() any {
+		if this.nameGenerator == nil {
+			return nil
+		}
+		return strobj_(Object_getClass(any(this.nameGenerator)).getName())
+	}()).add_String_int("numParallelThreads", this.numParallelThreads).add_String_boolean("optimizeCalls", this.optimizeCalls).add_String_boolean("optimizeESClassConstructors", this.optimizeESClassConstructors).add("optimizeLocalAccessForGlobalSymbolNamespace", obj_(this.optimizeLocalAccessForGlobalSymbolNamespace)).add("outputCharset", func() any {
+		if this.outputCharset.isPresent() {
+			return strobj_(this.outputCharset.get())
+		}
+		return nil
+	}()).add("outputFeatureSet", obj_(this.outputFeatureSet)).add("outputJs", obj_(this.outputJs)).add_String_boolean("outputJsStringUsage", this.outputJsStringUsage).add_String_boolean("parentChunkCanSeeSymbolsDeclaredInChildren", this.parentChunkCanSeeSymbolsDeclaredInChildren).add("parseJsDocDocumentation", obj_(this.isParseJsDocDocumentation())).add("pathEscaper", this.pathEscaper.self()).add_String_boolean("polymerPass", this.polymerPass).add_String_boolean("preferSingleQuotes", this.preferSingleQuotes).add_String_boolean("preferStableNames", this.preferStableNames).add_String_boolean("preserveDetailedSourceInfo", this.preservesDetailedSourceInfo()).add_String_boolean("preserveGoogProvidesAndRequires", this.preserveClosurePrimitives).add_String_boolean("preserveNonJSDocComments", this.getPreserveNonJSDocComments()).add_String_boolean("preserveTypeAnnotations", this.preserveTypeAnnotations).add_String_boolean("prettyPrint", this.prettyPrint).add_String_boolean("printConfig", this.printConfig_).add_String_boolean("printInputDelimiter", this.printInputDelimiter).add_String_boolean("printSourceAfterEachPass", this.printSourceAfterEachPass).add_String_boolean("processCommonJSModules", this.processCommonJSModules).add("productionInstrumentationArrayName", strobj_(this.productionInstrumentationArrayName)).add("propertiesThatMustDisambiguate", obj_(this.propertiesThatMustDisambiguate)).add("propertyRenaming", obj_(this.propertyRenaming)).add_String_boolean("propertyRenamingOnlyCompilationMode", this.propertyRenamingOnlyCompilationMode).add_String_boolean("protectHiddenSideEffects", this.protectHiddenSideEffects).add("qnameUsesToPrintAfterEachPassRegexList", any(this.qnameUsesToPrintAfterEachPassList)).add_String_boolean("quoteKeywordProperties", this.quoteKeywordProperties).add_String_boolean("removeAbstractMethods", this.removeAbstractMethods).add_String_boolean("removeClosureAsserts", this.removeClosureAsserts).add_String_boolean("removeJ2clAsserts", this.removeJ2clAsserts).add_String_boolean("removeUnusedClassProperties", this.removeUnusedClassProperties).add_String_boolean("removeUnusedLocalVars", this.removeUnusedLocalVars).add_String_boolean("removeUnusedPrototypeProperties", this.removeUnusedPrototypeProperties_).add_String_boolean("removeUnusedVars", this.removeUnusedVars).add("renamePrefix", func() any {
+		if this.renamePrefix.isPresent() {
+			return strobj_(this.renamePrefix.get())
+		}
+		return nil
+	}()).add("renamePrefixNamespace", func() any {
+		if this.renamePrefixNamespace.isPresent() {
+			return strobj_(this.renamePrefixNamespace.get())
+		}
+		return nil
+	}()).add_String_boolean("renamePrefixNamespaceAssumeCrossChunkNames", this.renamePrefixNamespaceAssumeCrossChunkNames).add_String_boolean("replaceIdGenerators", this.replaceIdGenerators).add_String_boolean("replaceMessagesWithChromeI18n", this.replaceMessagesWithChromeI18n).add("replaceStringsFunctionDescriptions", obj_(this.replaceStringsFunctionDescriptions)).add("replaceStringsPlaceholderToken", strobj_(this.replaceStringsPlaceholderToken)).add_String_boolean("reserveRawExports", this.reserveRawExports).add_String_boolean("rewriteFunctionExpressions", this.rewriteFunctionExpressions).add_String_boolean("rewriteGlobalDeclarationsForTryCatchWrapping", this.rewriteGlobalDeclarationsForTryCatchWrapping).add_String_boolean("rewriteModulesBeforeTypechecking", this.rewriteModulesBeforeTypechecking).add_String_boolean("rewritePolyfills", this.rewritePolyfills).add("runtimeLibraryMode", obj_(this.runtimeLibraryMode)).add_String_boolean("skipNonTranspilationPasses", this.skipNonTranspilationPasses).add_String_boolean("smartNameRemoval", this.smartNameRemoval).add("sourceMapDetailLevel", this.sourceMapDetailLevel.self()).add("sourceMapFormat", this.sourceMapFormat.self()).add("sourceMapLocationMappings", obj_(this.sourceMapLocationMappings)).add("sourceMapOutputPath", func() any {
+		if this.sourceMapOutputPath.isPresent() {
+			return strobj_(this.sourceMapOutputPath.get())
+		}
+		return nil
+	}()).add_String_boolean("strictMessageReplacement", this.strictMessageReplacement).add("stripNamePrefixes", obj_(this.stripNamePrefixes)).add("stripNameSuffixes", obj_(this.stripNameSuffixes)).add("stripTypes", obj_(this.stripTypes)).add_String_int("summaryDetailLevel", this.summaryDetailLevel).add("syntheticBlockEndMarker", func() any {
+		if this.syntheticBlockEndMarker.isPresent() {
+			return strobj_(this.syntheticBlockEndMarker.get())
+		}
+		return nil
+	}()).add("syntheticBlockStartMarker", func() any {
+		if this.syntheticBlockStartMarker.isPresent() {
+			return strobj_(this.syntheticBlockStartMarker.get())
+		}
+		return nil
+	}()).add("tcProjectId", strobj_(this.tcProjectId)).add("tracer", obj_(this.tracer)).add_String_boolean("trustedStrings", this.trustedStrings).add("tweakProcessing", obj_(this.getTweakProcessing())).add("unusedImportsToRemove", obj_(this.unusedImportsToRemove)).add_String_boolean("useTypesForLocalOptimization", this.useTypesForLocalOptimization_).add("variableRenaming", obj_(this.variableRenaming)).add("warningsGuard", this.getWarningsGuard().self()).add_String_boolean("wrapGoogModulesForWhitespaceOnly", this.wrapGoogModulesForWhitespaceOnly)))
 }
 
 func (this *CompilerOptions) expectStrictModeInput() bool {
@@ -2348,10 +2454,13 @@ func (this *CompilerOptions) shouldOptimize() bool {
 
 var CompilerOptions_ECMASCRIPT_PATTERN *Pattern
 var CompilerOptions_LEADING_ES_PATTERN *Pattern
+
 const CompilerOptions_DEFAULT_LINE_LENGTH_THRESHOLD int32 = 500
+
 var CompilerOptions_POLYMER_PROPERTY_RESERVED_FIRST_CHARS *ImmutableSet
 var CompilerOptions_POLYMER_PROPERTY_RESERVED_NON_FIRST_CHARS *ImmutableSet
 var CompilerOptions_ANGULAR_PROPERTY_RESERVED_FIRST_CHARS *ImmutableSet
+
 const CompilerOptions_UNLIMITED_FUN_SIZE_AFTER_INLINING int32 = -1
 
 var CompilerOptions_clinit_done bool
@@ -2489,7 +2598,7 @@ func CompilerOptions_PropertyCollapseLevel_clinit() {
 
 type CompilerOptions_BrowserFeaturesetYear struct {
 	Enum
-	year int32
+	year       int32
 	featureSet *FeatureSet
 }
 
@@ -3241,12 +3350,12 @@ func (this *CompilerOptions_LanguageMode) isDefaultStrict() bool {
 	}()
 }
 
-func CompilerOptions_LanguageMode_validCommandLineNames() *TList[string] {
-	var names *TList[string] = newTList_(tc_string)
+func CompilerOptions_LanguageMode_validCommandLineNames() *JTList[string] {
+	var names *JTList[string] = jnewTList_(jtc_string)
 	it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.CompilerOptions.LanguageMode"))))
 	for it_1.next() {
 		var mode *CompilerOptions_LanguageMode = cast_[*CompilerOptions_LanguageMode](it_1.v)
-		if (mode != CompilerOptions_LanguageMode_UNSUPPORTED) {
+		if mode != CompilerOptions_LanguageMode_UNSUPPORTED {
 			names.add(mode.name())
 			if String_startsWith(mode.name(), "ECMASCRIPT") {
 				names.add(CompilerOptions_ECMASCRIPT_PATTERN.matcher(strobj_(mode.name())).replaceFirst("ES"))
@@ -3265,11 +3374,11 @@ func CompilerOptions_LanguageMode_fromString(value Optional[string]) *CompilerOp
 		return nil
 	}
 	var canonicalizedName string = CompilerOptions_LEADING_ES_PATTERN.matcher(strobj_(Ascii_toUpperCase(String_trim(value.get())))).replaceFirst("ECMASCRIPT")
-	if ((canonicalizedName == "ECMASCRIPT6") || (canonicalizedName == "ECMASCRIPT6_STRICT")) {
+	if (canonicalizedName == "ECMASCRIPT6") || (canonicalizedName == "ECMASCRIPT6_STRICT") {
 		return CompilerOptions_LanguageMode_ECMASCRIPT_2015
 	}
 	for _, mode := range CompilerOptions_LanguageMode_values() {
-		if (mode.name() == canonicalizedName) {
+		if mode.name() == canonicalizedName {
 			return mode
 		}
 	}
@@ -3903,4 +4012,3 @@ func CompilerOptions_J2clPassMode_clinit() {
 	registerEnum_("com.google.javascript.jscomp.CompilerOptions.J2clPassMode", enumValues_(CompilerOptions_J2clPassMode_values_))
 
 }
-

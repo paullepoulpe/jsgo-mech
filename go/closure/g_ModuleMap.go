@@ -3,7 +3,7 @@
 package closure
 
 type ModuleMap struct {
-	resolvedModules ImmutableMapOf[string, *Module]
+	resolvedModules        ImmutableMapOf[string, *Module]
 	resolvedClosureModules ImmutableMapOf[string, *Module]
 }
 
@@ -41,4 +41,3 @@ func (this *ModuleMap) getClosureModule(namespace string) *Module {
 func ModuleMap_emptyForTesting() *ModuleMap {
 	return new_ModuleMap(ImmutableMap_of(), ImmutableMap_of())
 }
-

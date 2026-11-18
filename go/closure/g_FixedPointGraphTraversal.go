@@ -3,7 +3,7 @@
 package closure
 
 type FixedPointGraphTraversal[N any, E any] struct {
-	callback FixedPointGraphTraversal_EdgeCallback[N, E]
+	callback           FixedPointGraphTraversal_EdgeCallback[N, E]
 	traversalDirection *FixedPointGraphTraversal_TraversalDirection
 }
 
@@ -56,10 +56,10 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph[
 	var workSet LinkedHashSetOf[DiGraph_DiGraphNode[N]] = new_LinkedHashSet()
 	it_1 := foreach_(any(entrySet))
 	for it_1.next() {
-		var n N = unboxT_[N](it_1.v)
+		var n N = junboxT_[N](it_1.v)
 		workSet.add(any(graph.getNode(n)))
 	}
-	for ; (!workSet.isEmpty() && (cycleCount < maxIterations)); cycleCount++ {
+	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
 		this.visitNode(cast_[DiGraph_DiGraphNode[N]](SequencedCollection_getFirst(icast_SequencedCollection(obj_(workSet)))), workSet)
 	}
 	Preconditions_checkState_boolean_Object((cycleCount != maxIterations), strobj_(FixedPointGraphTraversal_NON_HALTING_ERROR_MSG))
@@ -74,7 +74,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 		for it_2.next() {
 			var edge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_2.v)
 			var destValue N = edge.getDestination().getValue()
-			if this.callback.traverseEdge(sourceValue, unboxT_[E](edge.getValue()), destValue) {
+			if this.callback.traverseEdge(sourceValue, junboxT_[E](edge.getValue()), destValue) {
 				workSet.add(any(edge.getDestination()))
 			}
 		}
@@ -85,7 +85,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 		for it_4.next() {
 			var edge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_4.v)
 			var revDestValue N = edge.getSource().getValue()
-			if this.callback.traverseEdge(revSourceValue, unboxT_[E](edge.getValue()), revDestValue) {
+			if this.callback.traverseEdge(revSourceValue, junboxT_[E](edge.getValue()), revDestValue) {
 				workSet.add(any(edge.getSource()))
 			}
 		}
@@ -95,6 +95,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 }
 
 const FixedPointGraphTraversal_NON_HALTING_ERROR_MSG string = "Fixed point computation not halting"
+
 var FixedPointGraphTraversal_MAX_NODE_COUNT_FOR_ITERATION_LIMIT int64
 
 var FixedPointGraphTraversal_clinit_done bool
@@ -104,7 +105,7 @@ func FixedPointGraphTraversal_clinit() {
 		return
 	}
 	FixedPointGraphTraversal_clinit_done = true
-	FixedPointGraphTraversal_MAX_NODE_COUNT_FOR_ITERATION_LIMIT = f2i_[int64](float64(Math_floor(Math_cbrt(6.0E10))))
+	FixedPointGraphTraversal_MAX_NODE_COUNT_FOR_ITERATION_LIMIT = f2i_[int64](float64(Math_floor(Math_cbrt(6.0e10))))
 
 }
 
@@ -172,4 +173,3 @@ type FixedPointGraphTraversal_EdgeCallback_fn[NodeT any, EdgeT any] struct {
 func (this *FixedPointGraphTraversal_EdgeCallback_fn[NodeT, EdgeT]) traverseEdge(p0 NodeT, p1 EdgeT, p2 NodeT) bool {
 	return this.f(p0, p1, p2)
 }
-

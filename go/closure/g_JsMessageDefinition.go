@@ -11,4 +11,3 @@ type JsMessageDefinition interface {
 	shouldEscapeLessThan() bool
 	shouldUnescapeHtmlEntities() bool
 }
-

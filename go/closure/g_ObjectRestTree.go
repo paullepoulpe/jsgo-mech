@@ -25,4 +25,3 @@ func new_ObjectRestTree(location *SourceRange, assignmentTarget *ParseTree) *Obj
 	this.init_ObjectRestTree(location, assignmentTarget)
 	return this
 }
-

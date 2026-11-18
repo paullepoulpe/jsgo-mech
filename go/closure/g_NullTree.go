@@ -23,4 +23,3 @@ func new_NullTree(location *SourceRange) *NullTree {
 	this.init_NullTree(location)
 	return this
 }
-

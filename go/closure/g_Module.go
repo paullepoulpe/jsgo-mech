@@ -3,12 +3,12 @@
 package closure
 
 type Module struct {
-	metadata_ *ModuleMetadataMap_ModuleMetadata
-	path_ *ModuleLoader_ModulePath
-	namespace_ ImmutableMapOf[string, *Binding]
-	boundNames_ ImmutableMapOf[string, *Binding]
+	metadata_               *ModuleMetadataMap_ModuleMetadata
+	path_                   *ModuleLoader_ModulePath
+	namespace_              ImmutableMapOf[string, *Binding]
+	boundNames_             ImmutableMapOf[string, *Binding]
 	localNameToLocalExport_ ImmutableMapOf[string, *Export]
-	closureNamespace_ Optional[string]
+	closureNamespace_       Optional[string]
 }
 
 func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace ImmutableMapOf[string, *Binding], boundNames ImmutableMapOf[string, *Binding], localNameToLocalExport ImmutableMapOf[string, *Export], closureNamespace Optional[string]) {
@@ -86,12 +86,12 @@ func (this *Module) toString() string {
 }
 
 type Module_Builder struct {
-	metadataField *ModuleMetadataMap_ModuleMetadata
-	pathField *ModuleLoader_ModulePath
-	namespaceField ImmutableMapOf[string, *Binding]
-	boundNamesField ImmutableMapOf[string, *Binding]
+	metadataField               *ModuleMetadataMap_ModuleMetadata
+	pathField                   *ModuleLoader_ModulePath
+	namespaceField              ImmutableMapOf[string, *Binding]
+	boundNamesField             ImmutableMapOf[string, *Binding]
 	localNameToLocalExportField ImmutableMapOf[string, *Export]
-	closureNamespaceField Optional[string]
+	closureNamespaceField       Optional[string]
 }
 
 func (this *Module_Builder) finit_Module_Builder() {
@@ -125,7 +125,7 @@ func new_Module_Builder_Module(source *Module) *Module_Builder {
 }
 
 func (this *Module_Builder) metadata(value *ModuleMetadataMap_ModuleMetadata) *Module_Builder {
-	if (value == nil) {
+	if value == nil {
 		panic(new_NullPointerException_String("Null metadata").self())
 	}
 	this.metadataField = value
@@ -138,7 +138,7 @@ func (this *Module_Builder) path(value *ModuleLoader_ModulePath) *Module_Builder
 }
 
 func (this *Module_Builder) namespace(value ImmutableMapOf[string, *Binding]) *Module_Builder {
-	if (value == nil) {
+	if value == nil {
 		panic(new_NullPointerException_String("Null namespace").self())
 	}
 	this.namespaceField = value
@@ -146,7 +146,7 @@ func (this *Module_Builder) namespace(value ImmutableMapOf[string, *Binding]) *M
 }
 
 func (this *Module_Builder) boundNames(value ImmutableMapOf[string, *Binding]) *Module_Builder {
-	if (value == nil) {
+	if value == nil {
 		panic(new_NullPointerException_String("Null boundNames").self())
 	}
 	this.boundNamesField = value
@@ -154,7 +154,7 @@ func (this *Module_Builder) boundNames(value ImmutableMapOf[string, *Binding]) *
 }
 
 func (this *Module_Builder) localNameToLocalExport(value ImmutableMapOf[string, *Export]) *Module_Builder {
-	if (value == nil) {
+	if value == nil {
 		panic(new_NullPointerException_String("Null localNameToLocalExport").self())
 	}
 	this.localNameToLocalExportField = value
@@ -167,22 +167,21 @@ func (this *Module_Builder) closureNamespace(value Optional[string]) *Module_Bui
 }
 
 func (this *Module_Builder) build() *Module {
-	if ((((this.metadataField == nil) || (this.namespaceField == nil)) || (this.boundNamesField == nil)) || (this.localNameToLocalExportField == nil)) {
+	if (((this.metadataField == nil) || (this.namespaceField == nil)) || (this.boundNamesField == nil)) || (this.localNameToLocalExportField == nil) {
 		var missing *StringBuilder = new_StringBuilder()
-		if (this.metadataField == nil) {
+		if this.metadataField == nil {
 			missing.append(" metadata")
 		}
-		if (this.namespaceField == nil) {
+		if this.namespaceField == nil {
 			missing.append(" namespace")
 		}
-		if (this.boundNamesField == nil) {
+		if this.boundNamesField == nil {
 			missing.append(" boundNames")
 		}
-		if (this.localNameToLocalExportField == nil) {
+		if this.localNameToLocalExportField == nil {
 			missing.append(" localNameToLocalExport")
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
 	}
 	return new_Module(this.metadataField, this.pathField, this.namespaceField, this.boundNamesField, this.localNameToLocalExportField, this.closureNamespaceField)
 }
-

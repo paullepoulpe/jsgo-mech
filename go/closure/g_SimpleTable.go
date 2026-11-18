@@ -33,16 +33,21 @@ func SimpleTable_create[R any, C any, V any]() *SimpleTable[R, C, V] {
 
 func (this *SimpleTable[R, C, V]) put(rowKey R, columnKey C, value V) V {
 	var row MapOf[C, V] = icast_Map(this.rows.get(boxT_(rowKey)))
-	if (row == nil) {
+	if row == nil {
 		row = icast_Map(obj_(new_LinkedHashMap()))
 		this.rows.put(boxT_(rowKey), any(row))
 	}
-	return unboxT_[V](row.put(boxT_(columnKey), boxT_(value)))
+	return junboxT_[V](row.put(boxT_(columnKey), boxT_(value)))
 }
 
 func (this *SimpleTable[R, C, V]) get(rowKey any, columnKey any) V {
 	var row MapOf[C, V] = icast_Map(this.rows.get(rowKey))
-	return func() V { if (row == nil) { return null_[V]() }; return unboxT_[V](row.get(columnKey)) }()
+	return func() V {
+		if row == nil {
+			return jnull_[V]()
+		}
+		return junboxT_[V](row.get(columnKey))
+	}()
 }
 
 func (this *SimpleTable[R, C, V]) contains(rowKey any, columnKey any) bool {
@@ -56,10 +61,10 @@ func (this *SimpleTable[R, C, V]) containsRow(rowKey any) bool {
 
 func (this *SimpleTable[R, C, V]) remove(rowKey any, columnKey any) V {
 	var row MapOf[C, V] = icast_Map(this.rows.get(rowKey))
-	if (row == nil) {
-		return null_[V]()
+	if row == nil {
+		return jnull_[V]()
 	}
-	var value V = unboxT_[V](row.remove(columnKey))
+	var value V = junboxT_[V](row.remove(columnKey))
 	if row.isEmpty() {
 		this.rows.remove(rowKey)
 	}
@@ -68,7 +73,12 @@ func (this *SimpleTable[R, C, V]) remove(rowKey any, columnKey any) V {
 
 func (this *SimpleTable[R, C, V]) row(rowKey any) MapOf[C, V] {
 	var row MapOf[C, V] = icast_Map(this.rows.get(rowKey))
-	return func() Map { if (row == nil) { return icast_Map(obj_(ImmutableMap_of())) }; return Collections_unmodifiableMap(row) }()
+	return func() Map {
+		if row == nil {
+			return icast_Map(obj_(ImmutableMap_of()))
+		}
+		return Collections_unmodifiableMap(row)
+	}()
 }
 
 func (this *SimpleTable[R, C, V]) rowKeySet() SetOf[R] {
@@ -86,4 +96,3 @@ func (this *SimpleTable[R, C, V]) isEmpty() bool {
 func (this *SimpleTable[R, C, V]) toString() string {
 	return Object_toString(obj_(this.rows))
 }
-

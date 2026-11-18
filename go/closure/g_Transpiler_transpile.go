@@ -40,4 +40,3 @@ func (this *Transpiler_1) transpile(path string, code string) *TranspileResult {
 func (this *Transpiler_1) runtime() string {
 	return ""
 }
-

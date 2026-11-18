@@ -32,7 +32,7 @@ func MinimizedCondition_fromConditionNode(n Node) *MinimizedCondition {
 }
 
 func (this *MinimizedCondition) getMinimized(style *MinimizedCondition_MinimizationStyle) *MinimizedCondition_MeasuredNode {
-	if (((style == MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED) || this.positive.node_.isNot()) || (this.positive.length_ <= this.negative.length_)) {
+	if ((style == MinimizedCondition_MinimizationStyle_PREFER_UNNEGATED) || this.positive.node_.isNot()) || (this.positive.length_ <= this.negative.length_) {
 		return this.positive
 	} else {
 		return this.negative.addNot()
@@ -48,10 +48,20 @@ func MinimizedCondition_unoptimized(n Node) *MinimizedCondition {
 }
 
 func MinimizedCondition_pickBest(a *MinimizedCondition_MeasuredNode, b *MinimizedCondition_MeasuredNode) *MinimizedCondition_MeasuredNode {
-	if (a.length_ == b.length_) {
-		return func() *MinimizedCondition_MeasuredNode { if b.isChanged() { return a }; return b }()
+	if a.length_ == b.length_ {
+		return func() *MinimizedCondition_MeasuredNode {
+			if b.isChanged() {
+				return a
+			}
+			return b
+		}()
 	}
-	return func() *MinimizedCondition_MeasuredNode { if (a.length_ < b.length_) { return a }; return b }()
+	return func() *MinimizedCondition_MeasuredNode {
+		if a.length_ < b.length_ {
+			return a
+		}
+		return b
+	}()
 }
 
 func MinimizedCondition_computeMinimizedCondition(n Node) *MinimizedCondition {
@@ -63,7 +73,12 @@ func MinimizedCondition_computeMinimizedCondition(n Node) *MinimizedCondition {
 			var negative *MinimizedCondition_MeasuredNode = MinimizedCondition_pickBest(subtree.negative.negate(), subtree.positive)
 			return new_MinimizedCondition(positive, negative)
 		case Token_rhino_AND, Token_rhino_OR:
-			var complementNode Node = new_Node_Token(func() *Token_rhino { if n.isAnd() { return Token_rhino_OR }; return Token_rhino_AND }()).srcref(n)
+			var complementNode Node = new_Node_Token(func() *Token_rhino {
+				if n.isAnd() {
+					return Token_rhino_OR
+				}
+				return Token_rhino_AND
+			}()).srcref(n)
 			var leftSubtree *MinimizedCondition = MinimizedCondition_computeMinimizedCondition(n.getFirstChild())
 			var rightSubtree *MinimizedCondition = MinimizedCondition_computeMinimizedCondition(n.getLastChild())
 			var positive *MinimizedCondition_MeasuredNode = MinimizedCondition_pickBest(MinimizedCondition_MeasuredNode_addNode(n, []*MinimizedCondition_MeasuredNode{leftSubtree.positive, rightSubtree.positive}), MinimizedCondition_MeasuredNode_addNode(complementNode, []*MinimizedCondition_MeasuredNode{leftSubtree.negative, rightSubtree.negative}).negate())
@@ -147,9 +162,9 @@ func MinimizedCondition_MinimizationStyle_clinit() {
 }
 
 type MinimizedCondition_MeasuredNode struct {
-	node_ Node
-	length_ int32
-	changed bool
+	node_     Node
+	length_   int32
+	changed   bool
 	children_ []*MinimizedCondition_MeasuredNode
 }
 
@@ -200,14 +215,14 @@ func (this *MinimizedCondition_MeasuredNode) negate() *MinimizedCondition_Measur
 }
 
 func MinimizedCondition_MeasuredNode_normalizeChildren(node Node, children []*MinimizedCondition_MeasuredNode) []*MinimizedCondition_MeasuredNode {
-	if ((children != nil) || !node.hasChildren()) {
+	if (children != nil) || !node.hasChildren() {
 		return children
 	} else {
 		var measuredChildren []*MinimizedCondition_MeasuredNode = make([]*MinimizedCondition_MeasuredNode, node.getChildCount())
 		var child int32 = 0
 		{
 			var c Node = node.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				measuredChildren[child] = MinimizedCondition_MeasuredNode_forNode(c)
 				child++
 			}
@@ -226,7 +241,12 @@ func (this *MinimizedCondition_MeasuredNode) addNot() *MinimizedCondition_Measur
 }
 
 func (this *MinimizedCondition_MeasuredNode) change() *MinimizedCondition_MeasuredNode {
-	return func() *MinimizedCondition_MeasuredNode { if this.isChanged() { return this }; return new_MinimizedCondition_MeasuredNode(this.node_, this.children_, this.length_, true) }()
+	return func() *MinimizedCondition_MeasuredNode {
+		if this.isChanged() {
+			return this
+		}
+		return new_MinimizedCondition_MeasuredNode(this.node_, this.children_, this.length_, true)
+	}()
 }
 
 func MinimizedCondition_MeasuredNode_estimateCostOneLevel(n Node, children []*MinimizedCondition_MeasuredNode) int32 {
@@ -271,7 +291,7 @@ func (this *MinimizedCondition_MeasuredNode) applyTo(original Node) Node {
 	Preconditions_checkNotNull(original.box_())
 	Preconditions_checkState(this.willChange(original))
 	var replacement Node = this.buildReplacement()
-	if (original != replacement) {
+	if original != replacement {
 		this.safeDetach(replacement)
 		original.replaceWith(replacement)
 	}
@@ -279,11 +299,16 @@ func (this *MinimizedCondition_MeasuredNode) applyTo(original Node) Node {
 }
 
 func (this *MinimizedCondition_MeasuredNode) safeDetach(n Node) Node {
-	return func() Node { if n.hasParent() { return n.detach() }; return n }()
+	return func() Node {
+		if n.hasParent() {
+			return n.detach()
+		}
+		return n
+	}()
 }
 
 func (this *MinimizedCondition_MeasuredNode) buildReplacement() Node {
-	if (this.children_ != nil) {
+	if this.children_ != nil {
 		this.node_.detachChildren()
 		for _, child := range this.children_ {
 			var replacementChild Node = this.safeDetach(child.buildReplacement())
@@ -292,4 +317,3 @@ func (this *MinimizedCondition_MeasuredNode) buildReplacement() Node {
 	}
 	return this.node_
 }
-

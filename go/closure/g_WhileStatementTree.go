@@ -5,7 +5,7 @@ package closure
 type WhileStatementTree struct {
 	ParseTree
 	condition *ParseTree
-	body *ParseTree
+	body      *ParseTree
 }
 
 func (this *WhileStatementTree) up_ParseTree() *ParseTree {
@@ -27,4 +27,3 @@ func new_WhileStatementTree(location *SourceRange, condition *ParseTree, body *P
 	this.init_WhileStatementTree(location, condition, body)
 	return this
 }
-

@@ -48,30 +48,41 @@ func (this *UnresolvedModule) hashCode() int32 {
 }
 
 func (this *UnresolvedModule) resolveExport(p0 ModuleRequestResolver, p1 Optional[string]) *ResolveExportResult {
-	return this.self_.(interface{ resolveExport_impl(ModuleRequestResolver, Optional[string]) *ResolveExportResult }).resolveExport_impl(p0, p1)
+	return this.self_.(interface {
+		resolveExport_impl(ModuleRequestResolver, Optional[string]) *ResolveExportResult
+	}).resolveExport_impl(p0, p1)
 }
 
 func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional[string], p2 Optional[string], p3 Set, p4 Set) *ResolveExportResult {
-	return this.self_.(interface{ resolveExport_5_impl(ModuleRequestResolver, Optional[string], Optional[string], Set, Set) *ResolveExportResult }).resolveExport_5_impl(p0, p1, p2, p3, p4)
+	return this.self_.(interface {
+		resolveExport_5_impl(ModuleRequestResolver, Optional[string], Optional[string], Set, Set) *ResolveExportResult
+	}).resolveExport_5_impl(p0, p1, p2, p3, p4)
 }
 
 func (this *UnresolvedModule) resolve_2(p0 ModuleRequestResolver, p1 Optional[string]) *Module {
-	return this.self_.(interface{ resolve_2_impl(ModuleRequestResolver, Optional[string]) *Module }).resolve_2_impl(p0, p1)
+	return this.self_.(interface {
+		resolve_2_impl(ModuleRequestResolver, Optional[string]) *Module
+	}).resolve_2_impl(p0, p1)
 }
 
 func (this *UnresolvedModule) metadata() *ModuleMetadataMap_ModuleMetadata {
-	return this.self_.(interface{ metadata_impl() *ModuleMetadataMap_ModuleMetadata }).metadata_impl()
+	return this.self_.(interface {
+		metadata_impl() *ModuleMetadataMap_ModuleMetadata
+	}).metadata_impl()
 }
 
 func (this *UnresolvedModule) getExportedNames(p0 ModuleRequestResolver) *ImmutableSet {
-	return this.self_.(interface{ getExportedNames_impl(ModuleRequestResolver) *ImmutableSet }).getExportedNames_impl(p0)
+	return this.self_.(interface {
+		getExportedNames_impl(ModuleRequestResolver) *ImmutableSet
+	}).getExportedNames_impl(p0)
 }
 
 func (this *UnresolvedModule) getExportedNames_2(p0 ModuleRequestResolver, p1 Set) *ImmutableSet {
-	return this.self_.(interface{ getExportedNames_2_impl(ModuleRequestResolver, Set) *ImmutableSet }).getExportedNames_2_impl(p0, p1)
+	return this.self_.(interface {
+		getExportedNames_2_impl(ModuleRequestResolver, Set) *ImmutableSet
+	}).getExportedNames_2_impl(p0, p1)
 }
 
 func (this *UnresolvedModule) reset() {
 	this.self_.(interface{ reset_impl() }).reset_impl()
 }
-

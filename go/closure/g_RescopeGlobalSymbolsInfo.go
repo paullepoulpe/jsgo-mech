@@ -3,16 +3,16 @@
 package closure
 
 type RescopeGlobalSymbolsInfo struct {
-	globalSymbolNamespace_ string
-	externNames_ ImmutableSetOf[string]
-	crossChunkNames_ ImmutableSetOf[string]
-	crossChunkNamesWithWriteFromOtherChunk_ ImmutableSetOf[string]
-	crossChunkNamesUsedInNonDependentChunk_ ImmutableSetOf[string]
-	globalNamesWithReadInDefiningChunk_ ImmutableSetOf[string]
-	globalNamesWithInnerScopeWriteInDefiningChunk_ ImmutableSetOf[string]
+	globalSymbolNamespace_                                  string
+	externNames_                                            ImmutableSetOf[string]
+	crossChunkNames_                                        ImmutableSetOf[string]
+	crossChunkNamesWithWriteFromOtherChunk_                 ImmutableSetOf[string]
+	crossChunkNamesUsedInNonDependentChunk_                 ImmutableSetOf[string]
+	globalNamesWithReadInDefiningChunk_                     ImmutableSetOf[string]
+	globalNamesWithInnerScopeWriteInDefiningChunk_          ImmutableSetOf[string]
 	globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ ImmutableSetOf[string]
-	maybeReferencesThis_ ImmutableSetOf[string]
-	wrappedCrossChunkNames_ ImmutableSetOf[string]
+	maybeReferencesThis_                                    ImmutableSetOf[string]
+	wrappedCrossChunkNames_                                 ImmutableSetOf[string]
 }
 
 func (this *RescopeGlobalSymbolsInfo) zero_RescopeGlobalSymbolsInfo() {
@@ -51,7 +51,7 @@ func new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(globalS
 }
 
 func RescopeGlobalSymbolsInfo_collectWrappedCrossChunkNames(externNames SetOf[string], crossChunkNames SetOf[string], crossChunkNamesWithWriteFromOtherChunk SetOf[string], crossChunkNamesUsedInNonDependentChunk SetOf[string], globalNamesWithInnerScopeWriteInDefiningChunk SetOf[string]) ImmutableSetOf[string] {
-	var candidates *TSet[string] = newTSet_(tc_string)
+	var candidates *JTSet[string] = jnewTSet_(jtc_string)
 	candidates.asSet().addAll(Collection(crossChunkNamesWithWriteFromOtherChunk))
 	candidates.asSet().addAll(Collection(crossChunkNamesUsedInNonDependentChunk))
 	it_1 := foreach_(any(globalNamesWithInnerScopeWriteInDefiningChunk))
@@ -131,4 +131,3 @@ func (this *RescopeGlobalSymbolsInfo) hashCode() int32 {
 func (this *RescopeGlobalSymbolsInfo) toString() string {
 	return "RescopeGlobalSymbolsInfo[" + "globalSymbolNamespace=" + objstr_(strobj_(this.globalSymbolNamespace_)) + ", externNames=" + objstr_(obj_(this.externNames_)) + ", crossChunkNames=" + objstr_(obj_(this.crossChunkNames_)) + ", crossChunkNamesWithWriteFromOtherChunk=" + objstr_(obj_(this.crossChunkNamesWithWriteFromOtherChunk_)) + ", crossChunkNamesUsedInNonDependentChunk=" + objstr_(obj_(this.crossChunkNamesUsedInNonDependentChunk_)) + ", globalNamesWithReadInDefiningChunk=" + objstr_(obj_(this.globalNamesWithReadInDefiningChunk_)) + ", globalNamesWithInnerScopeWriteInDefiningChunk=" + objstr_(obj_(this.globalNamesWithInnerScopeWriteInDefiningChunk_)) + ", globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk=" + objstr_(obj_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_)) + ", maybeReferencesThis=" + objstr_(obj_(this.maybeReferencesThis_)) + ", wrappedCrossChunkNames=" + objstr_(obj_(this.wrappedCrossChunkNames_)) + "]"
 }
-

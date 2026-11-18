@@ -21,7 +21,7 @@ func JSDocSerializer_convertJSDocInfoForOptimizations(jsdoc *JSDocInfo) *JSDocIn
 }
 
 func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Builder) *OptimizationJsdoc {
-	if (jsdoc == nil) {
+	if jsdoc == nil {
 		return nil
 	}
 	var builder *OptimizationJsdoc_Builder = OptimizationJsdoc_newBuilder()
@@ -129,7 +129,7 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 	if jsdoc.isUsedViaDotConstructor() {
 		builder.addKind(JsdocTag_JSDOC_USED_VIA_DOT_CONSTRUCTOR)
 	}
-	if (jsdoc.getPerFileClosureUnawareMode() != nil) {
+	if jsdoc.getPerFileClosureUnawareMode() != nil {
 		builder.setClosureUnawareModePointer(stringPool.put(jsdoc.getPerFileClosureUnawareMode().name()))
 	}
 	var result *OptimizationJsdoc = cast_[*OptimizationJsdoc](builder.build())
@@ -163,29 +163,29 @@ func JSDocSerializer_createPlaceholderType() *JSTypeExpression {
 }
 
 func JSDocSerializer_deserializeJsdoc(serializedJsdoc *OptimizationJsdoc, stringPool *StringPool) *JSDocInfo {
-	if (serializedJsdoc == nil) {
+	if serializedJsdoc == nil {
 		return nil
 	}
 	var builder *JSDocInfo_Builder = JSDocInfo_builder()
-	if (serializedJsdoc.getClosureUnawareModePointer() != 0) {
+	if serializedJsdoc.getClosureUnawareModePointer() != 0 {
 		builder.recordClosureUnawareCode_1(JSDocInfo_PerFileClosureUnawareMode_valueOf(stringPool.get(serializedJsdoc.getClosureUnawareModePointer())))
 	}
-	if (serializedJsdoc.getLicenseTextPointer() != 0) {
+	if serializedJsdoc.getLicenseTextPointer() != 0 {
 		builder.addLicense(stringPool.get(serializedJsdoc.getLicenseTextPointer()))
 	}
-	if (serializedJsdoc.getMeaningPointer() != 0) {
+	if serializedJsdoc.getMeaningPointer() != 0 {
 		builder.recordMeaning(stringPool.get(serializedJsdoc.getMeaningPointer()))
 	}
-	if (serializedJsdoc.getDescriptionPointer() != 0) {
+	if serializedJsdoc.getDescriptionPointer() != 0 {
 		builder.recordDescription(stringPool.get(serializedJsdoc.getDescriptionPointer()))
 	}
-	if (serializedJsdoc.getAlternateMessageIdPointer() != 0) {
+	if serializedJsdoc.getAlternateMessageIdPointer() != 0 {
 		builder.recordAlternateMessageId(stringPool.get(serializedJsdoc.getAlternateMessageIdPointer()))
 	}
 	var modifies TreeSetOf[string] = nil
 	var suppressions TreeSetOf[string] = nil
-	L_1:
-	for i := int32(0); (i < serializedJsdoc.getKindCount()); i++ {
+L_1:
+	for i := int32(0); i < serializedJsdoc.getKindCount(); i++ {
 		var tag *JsdocTag = cast_[*JsdocTag](serializedJsdoc.getKindList().get(i))
 		switch tag {
 		case JsdocTag_JSDOC_CONST:
@@ -231,11 +231,21 @@ func JSDocSerializer_deserializeJsdoc(serializedJsdoc *OptimizationJsdoc, string
 			builder.recordNoSideEffects()
 			continue L_1
 		case JsdocTag_JSDOC_MODIFIES_THIS:
-			modifies = func() *TreeSet { if (modifies != nil) { return modifies }; return new_TreeSet() }()
+			modifies = func() *TreeSet {
+				if modifies != nil {
+					return modifies
+				}
+				return new_TreeSet()
+			}()
 			Collection_add_s(modifies, "this")
 			continue L_1
 		case JsdocTag_JSDOC_MODIFIES_ARGUMENTS:
-			modifies = func() *TreeSet { if (modifies != nil) { return modifies }; return new_TreeSet() }()
+			modifies = func() *TreeSet {
+				if modifies != nil {
+					return modifies
+				}
+				return new_TreeSet()
+			}()
 			Collection_add_s(modifies, "arguments")
 			continue L_1
 		case JsdocTag_JSDOC_THROWS:
@@ -248,7 +258,12 @@ func JSDocSerializer_deserializeJsdoc(serializedJsdoc *OptimizationJsdoc, string
 			builder.recordInterface()
 			continue L_1
 		case JsdocTag_JSDOC_SUPPRESS_PARTIAL_ALIAS:
-			suppressions = func() *TreeSet { if (suppressions != nil) { return suppressions }; return new_TreeSet() }()
+			suppressions = func() *TreeSet {
+				if suppressions != nil {
+					return suppressions
+				}
+				return new_TreeSet()
+			}()
 			Collection_add_s(suppressions, "partialAlias")
 			continue L_1
 		case JsdocTag_JSDOC_ID_GENERATOR_CONSISTENT:
@@ -270,11 +285,21 @@ func JSDocSerializer_deserializeJsdoc(serializedJsdoc *OptimizationJsdoc, string
 			builder.recordAbstract()
 			continue L_1
 		case JsdocTag_JSDOC_SUPPRESS_MESSAGE_CONVENTION:
-			suppressions = func() *TreeSet { if (suppressions != nil) { return suppressions }; return new_TreeSet() }()
+			suppressions = func() *TreeSet {
+				if suppressions != nil {
+					return suppressions
+				}
+				return new_TreeSet()
+			}()
 			Collection_add_s(suppressions, "messageConventions")
 			continue L_1
 		case JsdocTag_JSDOC_SUPPRESS_UNTRANSPILABLE_FEATURES:
-			suppressions = func() *TreeSet { if (suppressions != nil) { return suppressions }; return new_TreeSet() }()
+			suppressions = func() *TreeSet {
+				if suppressions != nil {
+					return suppressions
+				}
+				return new_TreeSet()
+			}()
 			Collection_add_s(suppressions, "untranspilableFeatures")
 			continue L_1
 		case JsdocTag_JSDOC_FILEOVERVIEW:
@@ -294,17 +319,19 @@ func JSDocSerializer_deserializeJsdoc(serializedJsdoc *OptimizationJsdoc, string
 			panic(obj_(new_MalformedTypedAstException_Object(strobj_(("Unsupported JSDoc tag can't be deserialized: " + objstr_(obj_(tag)))))))
 		}
 	}
-	if (modifies != nil) {
+	if modifies != nil {
 		builder.recordModifies(icast_Set(obj_(modifies)))
 	}
-	if (suppressions != nil) {
+	if suppressions != nil {
 		builder.recordSuppressions(icast_Set(obj_(suppressions)))
 	}
 	return builder.build()
 }
 
 var JSDocSerializer_SYNTHETIC_SOURCE *SourceFile_jscomp
+
 const JSDocSerializer_PLACEHOLDER_TYPE_NAME string = "JSDocSerializer_placeholder_type"
+
 var JSDocSerializer_placeholderType *JSTypeExpression
 
 var JSDocSerializer_clinit_done bool
@@ -318,4 +345,3 @@ func JSDocSerializer_clinit() {
 	JSDocSerializer_placeholderType = JSDocSerializer_createPlaceholderType()
 
 }
-

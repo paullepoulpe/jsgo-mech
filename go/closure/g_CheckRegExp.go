@@ -4,9 +4,9 @@ package closure
 
 type CheckRegExp struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	reportErrors bool
-	globalRegExpPropertiesUsed bool
+	compiler_                          *AbstractCompiler
+	reportErrors                       bool
+	globalRegExpPropertiesUsed         bool
 	assumeAllGlobalRegexpUsagesVisible bool
 }
 
@@ -50,7 +50,7 @@ func (this *CheckRegExp) process_2(externs Node, root Node) {
 func (this *CheckRegExp) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if NodeUtil_isReferenceName(n) {
 		var name string = n.getString()
-		if ((name == "RegExp") && (cast_[*Var](t.getScope().getVar(name).self()) == nil)) {
+		if (name == "RegExp") && (cast_[*Var](t.getScope().getVar(name).self()) == nil) {
 			var parentType *Token_rhino = parent.getToken()
 			var first bool = (n == parent.getFirstChild())
 			if !((((((((((parentType == Token_rhino_NEW) && first) || ((parentType == Token_rhino_CALL) && first)) || ((parentType == Token_rhino_INSTANCEOF) && !first)) || (parentType == Token_rhino_EQ)) || (parentType == Token_rhino_NE)) || (parentType == Token_rhino_SHEQ)) || (parentType == Token_rhino_SHNE)) || (parentType == Token_rhino_CASE)) || (((parentType == Token_rhino_GETPROP) && first) && !Collection_contains_s(CheckRegExp_REGEXP_PROPERTY_SKIPLIST, parent.getString()))) {
@@ -60,9 +60,14 @@ func (this *CheckRegExp) visit_impl(t *NodeTraversal, n Node, parent Node) {
 				this.globalRegExpPropertiesUsed = true
 			}
 		}
-	} else if (this.reportErrors && n.isRegExp()) {
+	} else if this.reportErrors && n.isRegExp() {
 		var pattern string = n.getFirstChild().getString()
-		var flags string = func() string { if n.hasTwoChildren() { return n.getLastChild().getString() }; return "" }()
+		var flags string = func() string {
+			if n.hasTwoChildren() {
+				return n.getLastChild().getString()
+			}
+			return ""
+		}()
 		_ = func() (code_ int) {
 			defer func() {
 				if r_ := recover(); r_ != nil {
@@ -97,4 +102,3 @@ func CheckRegExp_clinit() {
 	CheckRegExp_REGEXP_PROPERTY_SKIPLIST = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("$1"), strobj_("$2"), strobj_("$3"), strobj_("$4"), strobj_("$5"), strobj_("$6"), []any{strobj_("$7"), strobj_("$8"), strobj_("$9"), strobj_("$_"), strobj_("$input"), strobj_("input"), strobj_("lastMatch"), strobj_("lastParen"), strobj_("leftContext"), strobj_("rightContext"), strobj_("global"), strobj_("ignoreCase"), strobj_("lastIndex"), strobj_("multiline"), strobj_("source")})
 
 }
-

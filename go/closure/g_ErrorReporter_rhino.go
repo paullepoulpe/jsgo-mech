@@ -63,4 +63,3 @@ func (this *ErrorReporter_2) warning(message string, sourceName Optional[string]
 func (this *ErrorReporter_2) error(message string, sourceName Optional[string], line int32, lineOffset int32) {
 	panic(new_IllegalStateException_String(message).self())
 }
-

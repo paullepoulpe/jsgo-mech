@@ -27,8 +27,13 @@ func J2clSourceUtils_isJ2clSource(scriptNode Node) bool {
 }
 
 func J2clSourceUtils_isInsideJ2clSource(node Node) bool {
-	var scriptNode Node = func() Node { if node.isScript() { return node }; return NodeUtil_getEnclosingScript(node) }()
-	if (scriptNode == 0) {
+	var scriptNode Node = func() Node {
+		if node.isScript() {
+			return node
+		}
+		return NodeUtil_getEnclosingScript(node)
+	}()
+	if scriptNode == 0 {
 		return false
 	}
 	return J2clSourceUtils_isJ2clSource(scriptNode)
@@ -37,4 +42,3 @@ func J2clSourceUtils_isInsideJ2clSource(node Node) bool {
 func J2clSourceUtils_isJ2clHeaderSource(sourceFileName Optional[string]) bool {
 	return ((sourceFileName.isPresent() && String_endsWith(sourceFileName.get(), ".java.js")) && !String_endsWith(sourceFileName.get(), ".impl.java.js"))
 }
-

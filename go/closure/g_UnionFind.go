@@ -11,4 +11,3 @@ type UnionFind[E any] interface {
 	allEquivalenceClasses() *ImmutableList
 	findAll(E) Set
 }
-

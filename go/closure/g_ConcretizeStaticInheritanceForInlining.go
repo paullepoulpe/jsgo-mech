@@ -3,15 +3,15 @@
 package closure
 
 type ConcretizeStaticInheritanceForInlining struct {
-	duplicateClassNames *TSet[string]
-	inherits RuntimeJsLibManager_JsLibField
-	compiler_ *AbstractCompiler
-	classByAlias *TMap[string, *ConcretizeStaticInheritanceForInlining_JavascriptClass]
+	duplicateClassNames *JTSet[string]
+	inherits            RuntimeJsLibManager_JsLibField
+	compiler_           *AbstractCompiler
+	classByAlias        *JTMap[string, *ConcretizeStaticInheritanceForInlining_JavascriptClass]
 }
 
 func (this *ConcretizeStaticInheritanceForInlining) finit_ConcretizeStaticInheritanceForInlining() {
-	this.duplicateClassNames = newTSet_(tc_string)
-	this.classByAlias = newTMap_(tc_string, tc_p_ConcretizeStaticInheritanceForInlining_JavascriptClass)
+	this.duplicateClassNames = jnewTSet_(jtc_string)
+	this.classByAlias = jnewTMap_(jtc_string, tc_p_ConcretizeStaticInheritanceForInlining_JavascriptClass)
 }
 
 func (this *ConcretizeStaticInheritanceForInlining) init_ConcretizeStaticInheritanceForInlining(compiler *AbstractCompiler) {
@@ -46,7 +46,7 @@ func (this *ConcretizeStaticInheritanceForInlining) processInherits(findStaticMe
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(inheritsCall, ConcretizeStaticInheritanceForInlining_DUPLICATE_CLASS, []string{superclassQname}))
 			return
 		}
-		if ((superClass == nil) || (subClass == nil)) {
+		if (superClass == nil) || (subClass == nil) {
 			continue
 		}
 		this.copyStaticMembers(superClass, subClass, inheritsCall, findStaticMembers)
@@ -125,15 +125,15 @@ func ConcretizeStaticInheritanceForInlining_clinit() {
 }
 
 type ConcretizeStaticInheritanceForInlining_JavascriptClass struct {
-	staticMembers *TSet[Node]
-	staticMemberNames *TSet[string]
-	definedProperties *TSet[string]
+	staticMembers     *JTSet[Node]
+	staticMemberNames *JTSet[string]
+	definedProperties *JTSet[string]
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) finit_ConcretizeStaticInheritanceForInlining_JavascriptClass() {
-	this.staticMembers = newTSet_(tc_Node)
-	this.staticMemberNames = newTSet_(tc_string)
-	this.definedProperties = newTSet_(tc_string)
+	this.staticMembers = jnewTSet_(jtc_Node)
+	this.staticMemberNames = jnewTSet_(jtc_string)
+	this.definedProperties = jnewTSet_(jtc_string)
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) init_ConcretizeStaticInheritanceForInlining_JavascriptClass() {
@@ -153,9 +153,9 @@ func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) addStaticMem
 
 type ConcretizeStaticInheritanceForInlining_FindStaticMembers struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *ConcretizeStaticInheritanceForInlining
-	inheritsCalls *TList[Node]
-	nodeOrder *TMap[Node, any]
+	outer_        *ConcretizeStaticInheritanceForInlining
+	inheritsCalls *JTList[Node]
+	nodeOrder     *JTMap[Node, any]
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -166,8 +166,8 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) up_NodeTra
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) finit_ConcretizeStaticInheritanceForInlining_FindStaticMembers() {
-	this.inheritsCalls = newTList_(tc_Node)
-	this.nodeOrder = newTMap_(tc_Node, tc_Integer)
+	this.inheritsCalls = jnewTList_(jtc_Node)
+	this.nodeOrder = jnewTMap_(jtc_Node, tc_Integer)
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) init_ConcretizeStaticInheritanceForInlining_FindStaticMembers() {
@@ -218,7 +218,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitDefin
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitFunctionClassDef(n Node) {
 	var classInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-	if ((classInfo != nil) && classInfo.isConstructor()) {
+	if (classInfo != nil) && classInfo.isConstructor() {
 		var name string = NodeUtil_getName(n)
 		if String_isEmpty(name) {
 			return
@@ -238,7 +238,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) setAlias(o
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitAssign(t *NodeTraversal, n Node) {
 	var existingClassQname string = n.getLastChild().getQualifiedName()
-	if (!String_isEmpty(existingClassQname) && this.outer_.classByAlias.has(existingClassQname)) {
+	if !String_isEmpty(existingClassQname) && this.outer_.classByAlias.has(existingClassQname) {
 		var alias string = n.getFirstChild().getQualifiedName()
 		if !String_isEmpty(alias) {
 			this.setAlias(existingClassQname, alias)
@@ -246,7 +246,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitAssig
 	} else if n.getFirstChild().isGetProp() {
 		var getProp Node = n.getFirstChild()
 		var classNode Node = getProp.getFirstChild()
-		if (this.outer_.isReferenceToClass(t, classNode) && !Collection_contains_s(ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES, getProp.getString())) {
+		if this.outer_.isReferenceToClass(t, classNode) && !Collection_contains_s(ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES, getProp.getString()) {
 			this.outer_.classByAlias.get(classNode.getQualifiedName()).addStaticMember(n)
 			this.nodeOrder.put(n, any(int32(this.nodeOrder.size())))
 		}
@@ -259,7 +259,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitVaria
 		return
 	}
 	var maybeOriginalName string = child.getFirstChild().getQualifiedName()
-	if (!String_isEmpty(maybeOriginalName) && this.outer_.classByAlias.has(maybeOriginalName)) {
+	if !String_isEmpty(maybeOriginalName) && this.outer_.classByAlias.has(maybeOriginalName) {
 		var maybeAlias string = child.getQualifiedName()
 		if !String_isEmpty(maybeAlias) {
 			this.setAlias(maybeOriginalName, maybeAlias)
@@ -272,4 +272,3 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) isBefore(e
 	var laterPosition any = this.nodeOrder.get(later)
 	return (((earlierPosition != nil) && (laterPosition != nil)) && (unbox_[int32](earlierPosition) < unbox_[int32](laterPosition)))
 }
-

@@ -4,8 +4,8 @@ package closure
 
 type MaybeReachingVariableUse struct {
 	DataFlowAnalysis[Node, *MaybeReachingVariableUse_ReachingUses]
-	escaped *TSet[*Var]
-	allVarsInFn *TMap[string, *Var]
+	escaped     *JTSet[*Var]
+	allVarsInFn *JTMap[string, *Var]
 }
 
 func (this *MaybeReachingVariableUse) up_DataFlowAnalysis() *DataFlowAnalysis[Node, *MaybeReachingVariableUse_ReachingUses] {
@@ -15,13 +15,13 @@ func (this *MaybeReachingVariableUse) up_DataFlowAnalysis() *DataFlowAnalysis[No
 	return &this.DataFlowAnalysis
 }
 
-func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *ControlFlowGraph[Node], escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) {
+func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *ControlFlowGraph[Node], escaped *JTSet[*Var], allVarsInFn *JTMap[string, *Var]) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.escaped = escaped
 	this.allVarsInFn = allVarsInFn
 }
 
-func new_MaybeReachingVariableUse(cfg *ControlFlowGraph[Node], escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) *MaybeReachingVariableUse {
+func new_MaybeReachingVariableUse(cfg *ControlFlowGraph[Node], escaped *JTSet[*Var], allVarsInFn *JTMap[string, *Var]) *MaybeReachingVariableUse {
 	this := &MaybeReachingVariableUse{}
 	this.self_ = this
 	this.vt_DataFlowAnalysis_ = this
@@ -42,7 +42,12 @@ func (this *MaybeReachingVariableUse) createInitialEstimateLattice_impl() *Maybe
 }
 
 func (this *MaybeReachingVariableUse) createFlowJoiner_impl() DataFlowAnalysis_FlowJoiner[*MaybeReachingVariableUse_ReachingUses] {
-	return func() DataFlowAnalysis_FlowJoiner[*MaybeReachingVariableUse_ReachingUses] { if v := new_MaybeReachingVariableUse_ReachingUsesJoinOp(); v != nil { return v }; return nil }()
+	return func() DataFlowAnalysis_FlowJoiner[*MaybeReachingVariableUse_ReachingUses] {
+		if v := new_MaybeReachingVariableUse_ReachingUsesJoinOp(); v != nil {
+			return v
+		}
+		return nil
+	}()
 }
 
 func (this *MaybeReachingVariableUse) flowThrough_impl(n Node, input *MaybeReachingVariableUse_ReachingUses) *MaybeReachingVariableUse_ReachingUses {
@@ -57,7 +62,7 @@ func (this *MaybeReachingVariableUse) hasExceptionHandler(cfgNode Node) bool {
 	it_1 := foreach_(any(branchEdges))
 	for it_1.next() {
 		var edge DiGraph_DiGraphEdge[Node] = cast_[DiGraph_DiGraphEdge[Node]](it_1.v)
-		if (cast_[*ControlFlowGraph_Branch](edge.getValue()) == ControlFlowGraph_Branch_ON_EX) {
+		if cast_[*ControlFlowGraph_Branch](edge.getValue()) == ControlFlowGraph_Branch_ON_EX {
 			return true
 		}
 	}
@@ -102,7 +107,7 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 	case Token_rhino_OPTCHAIN_CALL:
 		{
 			var c Node = n.getLastChild()
-			for ; (c != n.getFirstChild()); c = c.getPrevious() {
+			for ; c != n.getFirstChild(); c = c.getPrevious() {
 				this.computeMayUse(c, cfgNode, output, true)
 			}
 		}
@@ -140,7 +145,7 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 			this.computeMayUse(n.getFirstChild(), cfgNode, output, conditional)
 		}
 	default:
-		if (NodeUtil_isAssignmentOp(n) && n.getFirstChild().isName()) {
+		if NodeUtil_isAssignmentOp(n) && n.getFirstChild().isName() {
 			Preconditions_checkState(!NodeUtil_isLogicalAssignmentOp(n))
 			var name Node = n.getFirstChild()
 			if !conditional {
@@ -150,13 +155,13 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 				this.addToUseIfLocal(name.getString(), cfgNode, output)
 			}
 			this.computeMayUse(name.getNext(), cfgNode, output, conditional)
-		} else if (n.isAssign() && n.getFirstChild().isDestructuringPattern()) {
+		} else if n.isAssign() && n.getFirstChild().isDestructuringPattern() {
 			this.computeMayUse(n.getFirstChild(), cfgNode, output, conditional)
 			this.computeMayUse(n.getSecondChild(), cfgNode, output, conditional)
 		} else {
 			{
 				var c Node = n.getLastChild()
-				for ; (c != 0); c = c.getPrevious() {
+				for ; c != 0; c = c.getPrevious() {
 					this.computeMayUse(c, cfgNode, output, conditional)
 				}
 			}
@@ -166,7 +171,7 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 
 func (this *MaybeReachingVariableUse) addToUseIfLocal(name string, node Node, use *MaybeReachingVariableUse_ReachingUses) {
 	var var_ *Var = this.allVarsInFn.get(name)
-	if (var_ == nil) {
+	if var_ == nil {
 		return
 	}
 	if !this.escaped.has(var_) {
@@ -176,7 +181,7 @@ func (this *MaybeReachingVariableUse) addToUseIfLocal(name string, node Node, us
 
 func (this *MaybeReachingVariableUse) removeFromUseIfLocal(name string, use *MaybeReachingVariableUse_ReachingUses) {
 	var var_ *Var = this.allVarsInFn.get(name)
-	if (var_ == nil) {
+	if var_ == nil {
 		return
 	}
 	if !this.escaped.has(var_) {
@@ -196,7 +201,12 @@ type MaybeReachingVariableUse_ReachingUses struct {
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) finit_MaybeReachingVariableUse_ReachingUses() {
-	this.mayUsePMap = func() PMap[*Var, PMap[Node, Node]] { if v := HamtPMap_empty[*Var, PMap[Node, Node]](); v != nil { return v }; return nil }()
+	this.mayUsePMap = func() PMap[*Var, PMap[Node, Node]] {
+		if v := HamtPMap_empty[*Var, PMap[Node, Node]](); v != nil {
+			return v
+		}
+		return nil
+	}()
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) init_MaybeReachingVariableUse_ReachingUses_0() {
@@ -222,7 +232,12 @@ func new_MaybeReachingVariableUse_ReachingUses_ReachingUses(other *MaybeReaching
 
 func (this *MaybeReachingVariableUse_ReachingUses) get(v *Var) IterableOf[Node] {
 	var uses PMap[Node, Node] = this.mayUsePMap.get(v)
-	return func() Iterable { if (uses != nil) { return uses.keys() }; return icast_Iterable(obj_(ImmutableList_of())) }()
+	return func() Iterable {
+		if uses != nil {
+			return uses.keys()
+		}
+		return icast_Iterable(obj_(ImmutableList_of()))
+	}()
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) removeAll(v *Var) {
@@ -231,21 +246,26 @@ func (this *MaybeReachingVariableUse_ReachingUses) removeAll(v *Var) {
 
 func (this *MaybeReachingVariableUse_ReachingUses) put(v *Var, n Node) {
 	var values PMap[Node, Node] = this.mayUsePMap.get(v)
-	if (values == nil) {
-		values = func() PMap[Node, Node] { if v := HamtPMap_empty[Node, Node](); v != nil { return v }; return nil }()
+	if values == nil {
+		values = func() PMap[Node, Node] {
+			if v := HamtPMap_empty[Node, Node](); v != nil {
+				return v
+			}
+			return nil
+		}()
 	}
 	var newValues PMap[Node, Node] = values.plus(n, n)
-	if (newValues != values) {
+	if newValues != values {
 		this.mayUsePMap = this.mayUsePMap.plus(v, newValues)
 	}
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) join(other *MaybeReachingVariableUse_ReachingUses) {
 	this.mayUsePMap = this.mayUsePMap.reconcile(other.mayUsePMap, &PMap_Reconciler_fn[*Var, PMap[Node, Node]]{func(var_ *Var, thisVal PMap[Node, Node], thatVal PMap[Node, Node]) PMap[Node, Node] {
-		if (thisVal == nil) {
+		if thisVal == nil {
 			return thatVal
 		}
-		if (thatVal == nil) {
+		if thatVal == nil {
 			return thisVal
 		}
 		return thisVal.reconcile(thatVal, &PMap_Reconciler_fn[Node, Node]{func(node Node, unused1 Node, unused2 Node) Node {
@@ -258,7 +278,16 @@ func (this *MaybeReachingVariableUse_ReachingUses) join(other *MaybeReachingVari
 func (this *MaybeReachingVariableUse_ReachingUses) equals(other any) bool {
 	var reachingUses *MaybeReachingVariableUse_ReachingUses
 	_ = reachingUses
-	return (func() bool { v_ := other; if !is_[*MaybeReachingVariableUse_ReachingUses](v_) { return false }; reachingUses = cast_[*MaybeReachingVariableUse_ReachingUses](v_); return true }() && reachingUses.mayUsePMap.equivalent(this.mayUsePMap, &BiPredicate_tfn_PMap_Node_Node__PMap_Node_Node_{func(p0 PMap[Node, Node], p1 PMap[Node, Node]) bool { return MaybeReachingVariableUse_ReachingUses_equalMaps(p0, p1) }}))
+	return (func() bool {
+		v_ := other
+		if !is_[*MaybeReachingVariableUse_ReachingUses](v_) {
+			return false
+		}
+		reachingUses = cast_[*MaybeReachingVariableUse_ReachingUses](v_)
+		return true
+	}() && reachingUses.mayUsePMap.equivalent(this.mayUsePMap, &BiPredicate_tfn_PMap_Node_Node__PMap_Node_Node_{func(p0 PMap[Node, Node], p1 PMap[Node, Node]) bool {
+		return MaybeReachingVariableUse_ReachingUses_equalMaps(p0, p1)
+	}}))
 }
 
 func MaybeReachingVariableUse_ReachingUses_equalMaps(map1 PMap[Node, Node], map2 PMap[Node, Node]) bool {
@@ -298,4 +327,3 @@ func (this *MaybeReachingVariableUse_ReachingUsesJoinOp) joinFlow(uses *MaybeRea
 func (this *MaybeReachingVariableUse_ReachingUsesJoinOp) finish() *MaybeReachingVariableUse_ReachingUses {
 	return this.result
 }
-

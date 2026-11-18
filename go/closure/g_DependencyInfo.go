@@ -29,9 +29,9 @@ func DependencyInfo_isGoogModule_default(this DependencyInfo) bool {
 }
 
 type DependencyInfo_Require struct {
-	getSymbol_ string
+	getSymbol_  string
 	getRawText_ string
-	getType_ *DependencyInfo_Require_Type
+	getType_    *DependencyInfo_Require_Type
 }
 
 func (this *DependencyInfo_Require) zero_DependencyInfo_Require() {
@@ -202,7 +202,7 @@ func DependencyInfo_Require_Type_clinit() {
 type DependencyInfo_Require_Builder struct {
 	symbol_ Optional[string]
 	rawText Optional[string]
-	type__ *DependencyInfo_Require_Type
+	type__  *DependencyInfo_Require_Type
 }
 
 func (this *DependencyInfo_Require_Builder) finit_DependencyInfo_Require_Builder() {
@@ -234,7 +234,7 @@ func new_DependencyInfo_Require_Builder_Require(source *DependencyInfo_Require) 
 }
 
 func (this *DependencyInfo_Require_Builder) setType(value *DependencyInfo_Require_Type) *DependencyInfo_Require_Builder {
-	if (value == nil) {
+	if value == nil {
 		panic(new_NullPointerException_String("Null type").self())
 	}
 	this.type__ = value
@@ -252,7 +252,7 @@ func (this *DependencyInfo_Require_Builder) setSymbol(value string) *DependencyI
 }
 
 func (this *DependencyInfo_Require_Builder) build() *DependencyInfo_Require {
-	if ((this.symbol_.isEmpty() || this.rawText.isEmpty()) || (this.type__ == nil)) {
+	if (this.symbol_.isEmpty() || this.rawText.isEmpty()) || (this.type__ == nil) {
 		var missing *StringBuilder = new_StringBuilder()
 		if this.symbol_.isEmpty() {
 			missing.append(" symbol")
@@ -260,7 +260,7 @@ func (this *DependencyInfo_Require_Builder) build() *DependencyInfo_Require {
 		if this.rawText.isEmpty() {
 			missing.append(" rawText")
 		}
-		if (this.type__ == nil) {
+		if this.type__ == nil {
 			missing.append(" type")
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
@@ -295,7 +295,7 @@ func DependencyInfo_Util_writeAddDependency(out Appendable, info DependencyInfo)
 }
 
 func DependencyInfo_Util_writeJsObject(out Appendable, map_ MapOf[string, string]) {
-	var entries *TList[string] = newTList_(tc_string)
+	var entries *JTList[string] = jnewTList_(jtc_string)
 	it_1 := foreach_(any(map_.entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
@@ -316,4 +316,3 @@ func DependencyInfo_Util_writeJsArray(out Appendable, values CollectionOf[string
 	out.append_CharSequence(strobj_(Joiner_on(", ").join(quoted)))
 	out.append_CharSequence(strobj_("]"))
 }
-

@@ -5,7 +5,7 @@ package closure
 type UnaryExpressionTree struct {
 	ParseTree
 	operator *Token_parser
-	operand *ParseTree
+	operand  *ParseTree
 }
 
 func (this *UnaryExpressionTree) up_ParseTree() *ParseTree {
@@ -27,4 +27,3 @@ func new_UnaryExpressionTree(location *SourceRange, operator *Token_parser, oper
 	this.init_UnaryExpressionTree(location, operator, operand)
 	return this
 }
-

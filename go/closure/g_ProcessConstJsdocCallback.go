@@ -7,17 +7,23 @@ type ProcessConstJsdocCallback struct {
 	currentFile *FileInfo
 }
 
-func (this *ProcessConstJsdocCallback) as_ProcessConstJsdocCallback() *ProcessConstJsdocCallback { return this }
+func (this *ProcessConstJsdocCallback) as_ProcessConstJsdocCallback() *ProcessConstJsdocCallback {
+	return this
+}
 
 func to_ProcessConstJsdocCallback(v any) *ProcessConstJsdocCallback {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ProcessConstJsdocCallback() *ProcessConstJsdocCallback }).as_ProcessConstJsdocCallback()
+	return v.(interface {
+		as_ProcessConstJsdocCallback() *ProcessConstJsdocCallback
+	}).as_ProcessConstJsdocCallback()
 }
 
 func is_ProcessConstJsdocCallback(v any) bool {
-	_, ok := v.(interface{ as_ProcessConstJsdocCallback() *ProcessConstJsdocCallback })
+	_, ok := v.(interface {
+		as_ProcessConstJsdocCallback() *ProcessConstJsdocCallback
+	})
 	return ok
 }
 
@@ -47,14 +53,14 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 			this.currentFile.recordNameDeclaration(n.getFirstChild())
 		}
 	case Token_rhino_MEMBER_FIELD_DEF:
-		if (NodeUtil_getRValueOfLValue(n) != 0) {
+		if NodeUtil_getRValueOfLValue(n) != 0 {
 			this.processDeclarationWithRhs(t, n)
 		}
 		this.currentFile.recordMemberFieldDef(n)
 	case Token_rhino_FUNCTION:
 		if NodeUtil_isStatementParent(parent) {
 			this.currentFile.recordNameDeclaration(n.getFirstChild())
-		} else if (ClassUtil_isClassMethod(n) && ClassUtil_hasNamedClass(n)) {
+		} else if ClassUtil_isClassMethod(n) && ClassUtil_hasNamedClass(n) {
 			this.currentFile.recordMethod(n)
 		}
 	case Token_rhino_EXPR_RESULT:
@@ -64,7 +70,7 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 			var callee Node = expr.getFirstChild()
 			if ProcessConstJsdocCallback_GOOG_PROVIDE.matches(callee) {
 				this.currentFile.markProvided(expr.getLastChild().getString())
-			} else if (ProcessConstJsdocCallback_GOOG_REQUIRE.matches(callee) || ProcessConstJsdocCallback_CJS_REQUIRE.matches(callee)) {
+			} else if ProcessConstJsdocCallback_GOOG_REQUIRE.matches(callee) || ProcessConstJsdocCallback_CJS_REQUIRE.matches(callee) {
 				this.currentFile.recordImport(expr.getLastChild().getString())
 			} else if ProcessConstJsdocCallback_GOOG_DEFINE.matches(callee) {
 				this.currentFile.recordDefine(expr)
@@ -81,7 +87,7 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 		Preconditions_checkState_boolean_Object(n.hasOneChild(), n.box_())
 		this.recordDeclaration(t, n.getFirstChild(), n.getFirstChild().getLastChild())
 	case Token_rhino_STRING_KEY:
-		if (parent.isObjectLit() && n.hasOneChild()) {
+		if parent.isObjectLit() && n.hasOneChild() {
 			this.processDeclarationWithRhs(t, n)
 			this.currentFile.recordStringKeyDeclaration(n)
 		}
@@ -90,13 +96,13 @@ func (this *ProcessConstJsdocCallback) visit_impl(t *NodeTraversal, n Node, pare
 }
 
 func (this *ProcessConstJsdocCallback) recordDeclaration(t *NodeTraversal, lhs Node, rhs Node) {
-	if ((((rhs != 0) && rhs.isCall()) && ProcessConstJsdocCallback_GOOG_DEFINE.matches(rhs.getFirstChild())) && lhs.isQualifiedName()) {
+	if (((rhs != 0) && rhs.isCall()) && ProcessConstJsdocCallback_GOOG_DEFINE.matches(rhs.getFirstChild())) && lhs.isQualifiedName() {
 		this.currentFile.recordDefine(rhs)
 	} else if lhs.isGetElem() {
 		return
 	} else {
 		this.recordNameDeclaration(lhs, rhs)
-		if (!lhs.isDestructuringLhs() && (rhs != 0)) {
+		if !lhs.isDestructuringLhs() && (rhs != 0) {
 			this.processDeclarationWithRhs(t, lhs)
 		}
 	}
@@ -107,7 +113,7 @@ func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node)
 	var isImport bool = PotentialDeclaration_isImportRhs(rhs)
 	var isAlias bool = PotentialDeclaration_isAliasDeclaration(lhs, rhs)
 	NodeUtil_visitLhsNodesInNode(lhs.getParent(), &Consumer_tfn_Node{func(name Node) {
-		if (isAlias || isImport) {
+		if isAlias || isImport {
 			this.currentFile.recordAliasDeclaration(name)
 		} else {
 			this.currentFile.recordNameDeclaration(name)
@@ -145,4 +151,3 @@ func ProcessConstJsdocCallback_clinit() {
 	ProcessConstJsdocCallback_CJS_REQUIRE = QualifiedName_of("require")
 
 }
-

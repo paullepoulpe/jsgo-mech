@@ -37,7 +37,7 @@ func (this *Linter) fixRepeatedly(filename string) *Outcome_base[any] {
 }
 
 func (this *Linter) fixRepeatedly_2(filename string, unfixableErrors ImmutableSetOf[*DiagnosticType]) *Outcome_base[any] {
-	for i := int32(0); (i < Linter_MAX_FIXES); i++ {
+	for i := int32(0); i < Linter_MAX_FIXES; i++ {
 		var fixed *Outcome_base[any] = this.fix(filename, unfixableErrors)
 		if fixed.isErr() {
 			return Outcome_base_err[any](fixed.error())
@@ -115,4 +115,3 @@ func (this *Linter_Builder) withBrowserResolverPrefixReplacements(replacements I
 func (this *Linter_Builder) build() *Linter {
 	return new_Linter(this.options_)
 }
-

@@ -90,6 +90,10 @@ func (this *NoType) visitUntyped_2_impl(visitor RelationshipVisitor, that *JSTyp
 }
 
 func (this *NoType) appendTo_impl(sb *TypeStringBuilder) {
-	sb.append(func() string { if sb.isForAnnotations() { return "?" }; return "None" }())
+	sb.append(func() string {
+		if sb.isForAnnotations() {
+			return "?"
+		}
+		return "None"
+	}())
 }
-

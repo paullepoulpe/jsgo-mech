@@ -25,4 +25,3 @@ func new_LiteralExpressionTree(location *SourceRange, literalToken *Token_parser
 	this.init_LiteralExpressionTree(location, literalToken)
 	return this
 }
-

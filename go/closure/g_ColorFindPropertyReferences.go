@@ -4,9 +4,9 @@ package closure
 
 type ColorFindPropertyReferences struct {
 	NodeTraversal_AbstractPostOrderCallback
-	propIndex *TMap[string, *PropertyClustering]
+	propIndex             *JTMap[string, *PropertyClustering]
 	colorGraphNodeFactory *ColorGraphNodeFactory
-	isPropertyReflector ColorFindPropertyReferences_IsPropertyReflector
+	isPropertyReflector   ColorFindPropertyReferences_IsPropertyReflector
 }
 
 func (this *ColorFindPropertyReferences) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -17,7 +17,7 @@ func (this *ColorFindPropertyReferences) up_NodeTraversal_AbstractPostOrderCallb
 }
 
 func (this *ColorFindPropertyReferences) finit_ColorFindPropertyReferences() {
-	this.propIndex = newTMap_(tc_string, tc_p_PropertyClustering)
+	this.propIndex = jnewTMap_(jtc_string, jtc_p_PropertyClustering)
 }
 
 func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector ColorFindPropertyReferences_IsPropertyReflector) {
@@ -34,8 +34,8 @@ func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactor
 	return this
 }
 
-func (this *ColorFindPropertyReferences) getPropertyIndex() *TMap[string, *PropertyClustering] {
-	var tmp *TMap[string, *PropertyClustering] = this.propIndex
+func (this *ColorFindPropertyReferences) getPropertyIndex() *JTMap[string, *PropertyClustering] {
+	var tmp *JTMap[string, *PropertyClustering] = this.propIndex
 	this.propIndex = nil
 	return tmp
 }
@@ -59,7 +59,7 @@ func (this *ColorFindPropertyReferences) visit_impl(t *NodeTraversal, n Node, pa
 }
 
 func (this *ColorFindPropertyReferences) handleObjectLit(t *NodeTraversal, n Node) {
-	if (n.getParent().isCall() && NodeUtil_isObjectDefinePropertiesDefinition(n.getParent())) {
+	if n.getParent().isCall() && NodeUtil_isObjectDefinePropertiesDefinition(n.getParent()) {
 		return
 	}
 	var owner *Color = n.getColor()
@@ -87,11 +87,21 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 			return classType
 		} else if m.isMemberFieldDef() {
 			var classInstanceType ImmutableSetOf[*Color] = classType.getInstanceColors()
-			return func() *Color { if classInstanceType.isEmpty() { return StandardColors_UNKNOWN }; return Color_createUnion(icast_Set(obj_(classInstanceType))) }()
+			return func() *Color {
+				if classInstanceType.isEmpty() {
+					return StandardColors_UNKNOWN
+				}
+				return Color_createUnion(icast_Set(obj_(classInstanceType)))
+			}()
 		} else {
 			Preconditions_checkState_boolean_Object(((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()), m.box_())
 			var classPrototypeType ImmutableSetOf[*Color] = classType.getPrototypes()
-			return func() *Color { if classPrototypeType.isEmpty() { return StandardColors_UNKNOWN }; return Color_createUnion(icast_Set(obj_(classPrototypeType))) }()
+			return func() *Color {
+				if classPrototypeType.isEmpty() {
+					return StandardColors_UNKNOWN
+				}
+				return Color_createUnion(icast_Set(obj_(classPrototypeType)))
+			}()
 		}
 		panic("unreachable")
 	}})
@@ -100,7 +110,7 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 
 func (this *ColorFindPropertyReferences) handleFunction(fnNode Node) {
 	var fnType *Color = fnNode.getColor()
-	if ((fnType != nil) && !fnType.getInstanceColors().isEmpty()) {
+	if (fnType != nil) && !fnType.getInstanceColors().isEmpty() {
 		this.colorGraphNodeFactory.createNode(fnType)
 	}
 }
@@ -114,11 +124,16 @@ func (this *ColorFindPropertyReferences) handleObjectPattern(t *NodeTraversal, p
 
 func (this *ColorFindPropertyReferences) handlePropertyReflectorCall(t *NodeTraversal, call Node) {
 	var name Node = call.getSecondChild()
-	if ((name == 0) || !name.isStringLit()) {
+	if (name == 0) || !name.isStringLit() {
 		return
 	}
 	var obj Node = name.getNext()
-	var objColor *Color = func() *Color { if (obj == 0) { return nil }; return obj.getColor() }()
+	var objColor *Color = func() *Color {
+		if obj == 0 {
+			return nil
+		}
+		return obj.getColor()
+	}()
 	this.registerPropertyUse(t, name, objColor)
 }
 
@@ -138,8 +153,8 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 	Preconditions_checkState(((n.isObjectLit() || n.isObjectPattern()) || n.isClassMembers()))
 	{
 		var child Node = n.getFirstChild()
-		L_1:
-		for ; (child != 0); child = child.getNext() {
+	L_1:
+		for ; child != 0; child = child.getNext() {
 			switch child.getToken() {
 			case Token_rhino_BLOCK, Token_rhino_COMPUTED_PROP, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_OBJECT_REST, Token_rhino_OBJECT_SPREAD:
 				continue L_1
@@ -161,7 +176,7 @@ func (this *ColorFindPropertyReferences) registerPropertyUse(t *NodeTraversal, s
 	flatOwner.getAssociatedProps().put(prop, ColorGraphNode_PropAssociation_AST)
 	prop.getClusters().add(flatOwner)
 	prop.getUseSites().put(site, flatOwner)
-	if (t.getCurrentScript().isFromExterns() || ((owner != nil) && owner.getPropertiesKeepOriginalName())) {
+	if t.getCurrentScript().isFromExterns() || ((owner != nil) && owner.getPropertiesKeepOriginalName()) {
 		prop.registerOriginalNameType(flatOwner)
 	}
 }
@@ -177,4 +192,3 @@ type ColorFindPropertyReferences_IsPropertyReflector_fn struct {
 func (this *ColorFindPropertyReferences_IsPropertyReflector_fn) test(p0 Node) bool {
 	return this.f(p0)
 }
-

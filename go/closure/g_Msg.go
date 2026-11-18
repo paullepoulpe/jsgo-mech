@@ -37,7 +37,7 @@ func (this *Msg) format() string {
 
 func (this *Msg) format_1(args []any) string {
 	var s string = this.text
-	for i := int32(0); (i < int32(len(args))); i++ {
+	for i := int32(0); i < int32(len(args)); i++ {
 		var toReplace string = ("{" + istr_(int64(i)) + "}")
 		s = String_replace(s, strobj_(toReplace), strobj_(String_valueOf_Object(args[i])))
 	}
@@ -290,4 +290,3 @@ func Msg_clinit() {
 	registerEnum_("com.google.javascript.rhino.Msg", enumValues_(Msg_values_))
 
 }
-

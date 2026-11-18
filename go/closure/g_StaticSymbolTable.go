@@ -7,4 +7,3 @@ type StaticSymbolTable[S StaticSlot, R StaticRef] interface {
 	getScope(S) StaticScope
 	getAllSymbols() Iterable
 }
-

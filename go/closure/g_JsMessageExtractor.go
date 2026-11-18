@@ -3,8 +3,8 @@
 package closure
 
 type JsMessageExtractor struct {
-	idGenerator_ JsMessage_IdGenerator
-	options_ *CompilerOptions
+	idGenerator_            JsMessage_IdGenerator
+	options_                *CompilerOptions
 	extractExternalMessages bool
 }
 
@@ -62,8 +62,8 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*Sourc
 
 type JsMessageExtractor_ExtractMessagesVisitor struct {
 	JsMessageVisitor
-	outer_ *JsMessageExtractor
-	messages *TList[*JsMessage]
+	outer_   *JsMessageExtractor
+	messages *JTList[*JsMessage]
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) up_JsMessageVisitor() *JsMessageVisitor {
@@ -81,7 +81,7 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) up_NodeTraversal_Abstract
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) finit_JsMessageExtractor_ExtractMessagesVisitor() {
-	this.messages = newTList_(tc_p_JsMessage)
+	this.messages = jnewTList_(jtc_p_JsMessage)
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) init_JsMessageExtractor_ExtractMessagesVisitor(compiler *AbstractCompiler) {
@@ -106,7 +106,7 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) processIcuTemplateDefinit
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) processJsMessage(jsMessage *JsMessage) {
-	if (this.outer_.extractExternalMessages || !jsMessage.isExternal()) {
+	if this.outer_.extractExternalMessages || !jsMessage.isExternal() {
 		this.messages.add(jsMessage)
 	}
 }
@@ -114,4 +114,3 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) processJsMessage(jsMessag
 func (this *JsMessageExtractor_ExtractMessagesVisitor) getMessages() CollectionOf[*JsMessage] {
 	return Collection(this.messages.asList())
 }
-

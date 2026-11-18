@@ -3,11 +3,11 @@
 package closure
 
 type Es6RewriteClass struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
+	compiler_                    *AbstractCompiler
+	astFactory_                  *AstFactory
 	convertSuperConstructorCalls *Es6ConvertSuperConstructorCalls
-	transpilationNamespace StaticScope
-	jscompInherits RuntimeJsLibManager_JsLibField
+	transpilationNamespace       StaticScope
+	jscompInherits               RuntimeJsLibManager_JsLibField
 }
 
 func (this *Es6RewriteClass) init_Es6RewriteClass(compiler *AbstractCompiler, es6SubclassTranspilation *CompilerOptions_Es6SubclassTranspilation) {
@@ -52,7 +52,7 @@ func (this *Es6RewriteClass) visit(t *NodeTraversal, n Node, parent Node) {
 
 func (this *Es6RewriteClass) visitClass(t *NodeTraversal, classNode Node, parent Node) {
 	var metadata *Es6RewriteClass_ClassDeclarationMetadata = Es6RewriteClass_ClassDeclarationMetadata_create(classNode, parent, this.astFactory_)
-	if (metadata == nil) {
+	if metadata == nil {
 		panic(new_IllegalStateException_String(("Can only convert classes that are declarations or the right hand side of a simple assignment: " + objstr_(classNode.box_()))).self())
 	}
 	if metadata.hasSuperClass() {
@@ -63,9 +63,9 @@ func (this *Es6RewriteClass) visitClass(t *NodeTraversal, classNode Node, parent
 	var classMembers Node = classNode.getLastChild()
 	{
 		var member Node = classMembers.getFirstChild()
-		for (member != 0) {
+		for member != 0 {
 			var next Node = member.getNext()
-			if ((member.isComputedProp() && (member.getBooleanProp(Node_COMPUTED_PROP_GETTER) || member.getBooleanProp(Node_COMPUTED_PROP_SETTER))) || (member.isGetterDef() || member.isSetterDef())) {
+			if (member.isComputedProp() && (member.getBooleanProp(Node_COMPUTED_PROP_GETTER) || member.getBooleanProp(Node_COMPUTED_PROP_SETTER))) || (member.isGetterDef() || member.isSetterDef()) {
 				this.visitNonMethodMember(member, metadata)
 			} else if NodeUtil_isEs6ConstructorMemberFunctionDef(member) {
 				if !classNode.isFromExterns() {
@@ -126,7 +126,7 @@ func (this *Es6RewriteClass) visitClass(t *NodeTraversal, classNode Node, parent
 
 func (this *Es6RewriteClass) reportPrimitiveReturns(constructor Node) {
 	NodeUtil_visitPostOrder_Node_Visitor_Predicate(NodeUtil_getFunctionBody(constructor), &NodeUtil_Visitor_fn{func(n Node) {
-		if (((n.isReturn() && n.hasChildren()) && NodeUtil_isImmutableValue(n.getFirstChild())) && (NodeUtil_getKnownValueType(n.getFirstChild()) != NodeUtil_ValueType_VOID)) {
+		if ((n.isReturn() && n.hasChildren()) && NodeUtil_isImmutableValue(n.getFirstChild())) && (NodeUtil_getKnownValueType(n.getFirstChild()) != NodeUtil_ValueType_VOID) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, Es6RewriteClass_CONSTRUCTOR_PRIMITIVE_RETURN, []string{}))
 		}
 	}}, &Predicate_base_tfn_Node{func(n Node) bool {
@@ -170,21 +170,36 @@ func (this *Es6RewriteClass) flushPendingDefineProperties(metadata *Es6RewriteCl
 
 func (this *Es6RewriteClass) addToDefinePropertiesObject(metadata *Es6RewriteClass_ClassDeclarationMetadata, member Node) {
 	Preconditions_checkArgument(!member.isComputedProp())
-	var obj Node = func() Node { if member.isStaticMember() { return metadata.definePropertiesObjForClass() }; return metadata.definePropertiesObjForPrototype() }()
+	var obj Node = func() Node {
+		if member.isStaticMember() {
+			return metadata.definePropertiesObjForClass()
+		}
+		return metadata.definePropertiesObjForPrototype()
+	}()
 	var prop Node = NodeUtil_getFirstPropMatchingKey(obj, member.getString())
-	var accessorKind string = func() string { if member.isGetterDef() { return "get" }; return "set" }()
-	if ((prop != 0) && (NodeUtil_getFirstPropMatchingKey(prop, accessorKind) != 0)) {
+	var accessorKind string = func() string {
+		if member.isGetterDef() {
+			return "get"
+		}
+		return "set"
+	}()
+	if (prop != 0) && (NodeUtil_getFirstPropMatchingKey(prop, accessorKind) != 0) {
 		this.flushPendingDefineProperties(metadata, member.isStaticMember(), member)
-		obj = func() Node { if member.isStaticMember() { return metadata.definePropertiesObjForClass() }; return metadata.definePropertiesObjForPrototype() }()
+		obj = func() Node {
+			if member.isStaticMember() {
+				return metadata.definePropertiesObjForClass()
+			}
+			return metadata.definePropertiesObjForPrototype()
+		}()
 		prop = 0
 	}
-	if (prop == 0) {
+	if prop == 0 {
 		prop = this.createPropertyDescriptor()
-		if (member.getString() == "__proto__") {
+		if member.getString() == "__proto__" {
 			var stringKey Node = this.astFactory_.createComputedProperty(this.astFactory_.createString("__proto__"), prop)
 			obj.addChildToBack(stringKey)
 			var scriptNode Node = NodeUtil_getEnclosingScript(member)
-			if (scriptNode != 0) {
+			if scriptNode != 0 {
 				NodeUtil_addFeatureToScript(scriptNode, FeatureSet_Feature_COMPUTED_PROPERTIES, this.compiler_)
 			}
 		} else {
@@ -205,11 +220,21 @@ func (this *Es6RewriteClass) addToDefinePropertiesObject(metadata *Es6RewriteCla
 
 func (this *Es6RewriteClass) extractComputedProperty(computedMember Node, metadata *Es6RewriteClass_ClassDeclarationMetadata) {
 	this.flushPendingDefineProperties(metadata, computedMember.isStaticMember(), computedMember)
-	var owner Node = func() Node { if computedMember.isStaticMember() { return metadata.fullClassNameNode() }; return metadata.classPrototypeNode() }()
+	var owner Node = func() Node {
+		if computedMember.isStaticMember() {
+			return metadata.fullClassNameNode()
+		}
+		return metadata.classPrototypeNode()
+	}()
 	var property Node = computedMember.removeFirstChild()
 	var propertyValue Node = computedMember.removeFirstChild()
 	var propertyDescriptor Node = this.createPropertyDescriptor()
-	var stringKey Node = this.astFactory_.createStringKey(func() string { if computedMember.getBooleanProp(Node_COMPUTED_PROP_GETTER) { return "get" }; return "set" }(), propertyValue)
+	var stringKey Node = this.astFactory_.createStringKey(func() string {
+		if computedMember.getBooleanProp(Node_COMPUTED_PROP_GETTER) {
+			return "get"
+		}
+		return "set"
+	}(), propertyValue)
 	propertyDescriptor.addChildToBack(stringKey)
 	var objectDefinePropertyCall Node = this.astFactory_.createCall(this.createObjectDotDefineProperty(), AstFactory_type_Node(owner), []Node{owner.cloneTree(), property, propertyDescriptor})
 	metadata.insertNodeAndAdvance(IR_exprResult(objectDefinePropertyCall).srcrefTreeIfMissing(computedMember))
@@ -246,12 +271,12 @@ func (this *Es6RewriteClass) visitMethod(member Node, metadata *Es6RewriteClass_
 	var method Node = member.getLastChild().detach()
 	var assign Node = this.astFactory_.createAssign(qualifiedMemberAccess, method).srcrefIfMissing(method)
 	var info *JSDocInfo = member.getJSDocInfo()
-	if (member.isStaticMember() && NodeUtil_referencesOwnReceiver(assign.getLastChild())) {
+	if member.isStaticMember() && NodeUtil_referencesOwnReceiver(assign.getLastChild()) {
 		var memberDoc *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(info)
 		memberDoc.recordThisType(new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, new_Node_Token(Token_rhino_QMARK)).srcrefTree(member), member.getSourceFileName()))
 		info = memberDoc.build()
 	}
-	if (info != nil) {
+	if info != nil {
 		assign.setJSDocInfo(info)
 	}
 	var newNode Node = NodeUtil_newExpr(assign)
@@ -270,7 +295,12 @@ func (this *Es6RewriteClass) addTypeDeclarations(metadata *Es6RewriteClass_Class
 }
 
 func (this *Es6RewriteClass) getQualifiedMemberAccess(member Node, metadata *Es6RewriteClass_ClassDeclarationMetadata) Node {
-	var context Node = func() Node { if member.isStaticMember() { return metadata.fullClassNameNode().cloneTree() }; return metadata.classPrototypeNode().cloneTree() }()
+	var context Node = func() Node {
+		if member.isStaticMember() {
+			return metadata.fullClassNameNode().cloneTree()
+		}
+		return metadata.classPrototypeNode().cloneTree()
+	}()
 	context.makeNonIndexableRecursive()
 	if member.isComputedProp() {
 		return this.astFactory_.createGetElem(context, member.removeFirstChild()).srcrefTreeIfMissing(member)
@@ -301,9 +331,9 @@ func Es6RewriteClass_clinit() {
 }
 
 type Es6RewriteClass_ClassProperty struct {
-	propertyKey_ string
-	kind_ *Es6RewriteClass_ClassProperty_PropertyKind
-	jsDocInfo_ *JSDocInfo
+	propertyKey_  string
+	kind_         *Es6RewriteClass_ClassProperty_PropertyKind
+	jsDocInfo_    *JSDocInfo
 	propertyType_ *Color
 }
 
@@ -441,9 +471,9 @@ func Es6RewriteClass_ClassProperty_PropertyKind_clinit() {
 }
 
 type Es6RewriteClass_ClassProperty_Builder struct {
-	propertyKeyField Optional[string]
-	kindField *Es6RewriteClass_ClassProperty_PropertyKind
-	jsDocInfoField *JSDocInfo
+	propertyKeyField  Optional[string]
+	kindField         *Es6RewriteClass_ClassProperty_PropertyKind
+	jsDocInfoField    *JSDocInfo
 	propertyTypeField *Color
 }
 
@@ -467,7 +497,7 @@ func (this *Es6RewriteClass_ClassProperty_Builder) propertyKey(value string) *Es
 }
 
 func (this *Es6RewriteClass_ClassProperty_Builder) kind(value *Es6RewriteClass_ClassProperty_PropertyKind) *Es6RewriteClass_ClassProperty_Builder {
-	if (value == nil) {
+	if value == nil {
 		panic(new_NullPointerException_String("Null kind").self())
 	}
 	this.kindField = value
@@ -475,7 +505,7 @@ func (this *Es6RewriteClass_ClassProperty_Builder) kind(value *Es6RewriteClass_C
 }
 
 func (this *Es6RewriteClass_ClassProperty_Builder) jsDocInfo(value *JSDocInfo) *Es6RewriteClass_ClassProperty_Builder {
-	if (value == nil) {
+	if value == nil {
 		panic(new_NullPointerException_String("Null jsDocInfo").self())
 	}
 	this.jsDocInfoField = value
@@ -488,15 +518,15 @@ func (this *Es6RewriteClass_ClassProperty_Builder) propertyType(type_ *Color) *E
 }
 
 func (this *Es6RewriteClass_ClassProperty_Builder) build() *Es6RewriteClass_ClassProperty {
-	if ((this.propertyKeyField.isEmpty() || (this.kindField == nil)) || (this.jsDocInfoField == nil)) {
+	if (this.propertyKeyField.isEmpty() || (this.kindField == nil)) || (this.jsDocInfoField == nil) {
 		var missing *StringBuilder = new_StringBuilder()
 		if this.propertyKeyField.isEmpty() {
 			missing.append(" propertyKey")
 		}
-		if (this.kindField == nil) {
+		if this.kindField == nil {
 			missing.append(" kind")
 		}
-		if (this.jsDocInfoField == nil) {
+		if this.jsDocInfoField == nil {
 			missing.append(" jsDocInfo")
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
@@ -505,18 +535,18 @@ func (this *Es6RewriteClass_ClassProperty_Builder) build() *Es6RewriteClass_Clas
 }
 
 type Es6RewriteClass_ClassDeclarationMetadata struct {
-	insertionPointField *Es6RewriteClass_InsertionPoint
+	insertionPointField                  *Es6RewriteClass_InsertionPoint
 	definePropertiesObjForPrototypeField Node
-	definePropertiesObjForClassField Node
-	classMembersToDeclareField MapOf[string, *Es6RewriteClass_ClassProperty]
-	fullClassNameNodeField Node
-	classPrototypeNodeField Node
-	anonymousField bool
-	classNameNodeField Node
-	superClassNameNodeField Node
+	definePropertiesObjForClassField     Node
+	classMembersToDeclareField           MapOf[string, *Es6RewriteClass_ClassProperty]
+	fullClassNameNodeField               Node
+	classPrototypeNodeField              Node
+	anonymousField                       bool
+	classNameNodeField                   Node
+	superClassNameNodeField              Node
 }
 
-func (this *Es6RewriteClass_ClassDeclarationMetadata) init_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint *Es6RewriteClass_InsertionPoint, definePropertiesObjForPrototype Node, definePropertiesObjForClass Node, classMembersToDeclare *TMap[string, *Es6RewriteClass_ClassProperty], fullClassNameNode Node, classPrototypeNode Node, anonymous bool, classNameNode Node, superClassNameNode Node) {
+func (this *Es6RewriteClass_ClassDeclarationMetadata) init_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint *Es6RewriteClass_InsertionPoint, definePropertiesObjForPrototype Node, definePropertiesObjForClass Node, classMembersToDeclare *JTMap[string, *Es6RewriteClass_ClassProperty], fullClassNameNode Node, classPrototypeNode Node, anonymous bool, classNameNode Node, superClassNameNode Node) {
 	this.insertionPointField = cast_[*Es6RewriteClass_InsertionPoint](Objects_requireNonNull(obj_(insertionPoint), "insertionPoint"))
 	this.definePropertiesObjForPrototypeField = Node_of_(Objects_requireNonNull(definePropertiesObjForPrototype.box_(), "definePropertiesObjForPrototype"))
 	this.definePropertiesObjForClassField = Node_of_(Objects_requireNonNull(definePropertiesObjForClass.box_(), "definePropertiesObjForClass"))
@@ -528,7 +558,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata) init_Es6RewriteClass_Class
 	this.anonymousField = anonymous
 }
 
-func new_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint *Es6RewriteClass_InsertionPoint, definePropertiesObjForPrototype Node, definePropertiesObjForClass Node, classMembersToDeclare *TMap[string, *Es6RewriteClass_ClassProperty], fullClassNameNode Node, classPrototypeNode Node, anonymous bool, classNameNode Node, superClassNameNode Node) *Es6RewriteClass_ClassDeclarationMetadata {
+func new_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint *Es6RewriteClass_InsertionPoint, definePropertiesObjForPrototype Node, definePropertiesObjForClass Node, classMembersToDeclare *JTMap[string, *Es6RewriteClass_ClassProperty], fullClassNameNode Node, classPrototypeNode Node, anonymous bool, classNameNode Node, superClassNameNode Node) *Es6RewriteClass_ClassDeclarationMetadata {
 	this := &Es6RewriteClass_ClassDeclarationMetadata{}
 	this.init_Es6RewriteClass_ClassDeclarationMetadata(insertionPoint, definePropertiesObjForPrototype, definePropertiesObjForClass, classMembersToDeclare, fullClassNameNode, classPrototypeNode, anonymous, classNameNode, superClassNameNode)
 	return this
@@ -579,7 +609,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata) superClassNameNode() Node 
 }
 
 func Es6RewriteClass_ClassDeclarationMetadata_builder() *Es6RewriteClass_ClassDeclarationMetadata_Builder {
-	return new_Es6RewriteClass_ClassDeclarationMetadata_Builder().setClassMembersToDeclare(newTMap_(tc_string, tc_p_Es6RewriteClass_ClassProperty))
+	return new_Es6RewriteClass_ClassDeclarationMetadata_Builder().setClassMembersToDeclare(jnewTMap_(jtc_string, jtc_p_Es6RewriteClass_ClassProperty))
 }
 
 func Es6RewriteClass_ClassDeclarationMetadata_create(classNode Node, parent Node, astFactory *AstFactory) *Es6RewriteClass_ClassDeclarationMetadata {
@@ -588,7 +618,7 @@ func Es6RewriteClass_ClassDeclarationMetadata_create(classNode Node, parent Node
 	var builder *Es6RewriteClass_ClassDeclarationMetadata_Builder = Es6RewriteClass_ClassDeclarationMetadata_builder().setSuperClassNameNode(superClassNameNode).setClassNameNode(classNameNode)
 	if NodeUtil_isClassDeclaration(classNode) {
 		builder.setInsertionPoint(Es6RewriteClass_InsertionPoint_from(classNode)).setFullClassNameNode(classNameNode).setAnonymous(false)
-	} else if (parent.isAssign() && parent.getParent().isExprResult()) {
+	} else if parent.isAssign() && parent.getParent().isExprResult() {
 		var fullClassNameNode Node = parent.getFirstChild()
 		if !fullClassNameNode.isQualifiedName() {
 			return nil
@@ -617,16 +647,16 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata) hasSuperClass() bool {
 }
 
 type Es6RewriteClass_ClassDeclarationMetadata_Builder struct {
-	insertionPoint_ *Es6RewriteClass_InsertionPoint
+	insertionPoint_                  *Es6RewriteClass_InsertionPoint
 	definePropertiesObjForPrototype_ Node
-	definePropertiesObjForClass_ Node
-	classMembersToDeclare_ *TMap[string, *Es6RewriteClass_ClassProperty]
-	fullClassNameNodeField Node
-	classPrototypeNode_ Node
-	anonymous_ bool
-	classNameNode_ Node
-	superClassNameNode_ Node
-	set0 int8
+	definePropertiesObjForClass_     Node
+	classMembersToDeclare_           *JTMap[string, *Es6RewriteClass_ClassProperty]
+	fullClassNameNodeField           Node
+	classPrototypeNode_              Node
+	anonymous_                       bool
+	classNameNode_                   Node
+	superClassNameNode_              Node
+	set0                             int8
 }
 
 func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) init_Es6RewriteClass_ClassDeclarationMetadata_Builder() {
@@ -640,7 +670,7 @@ func new_Es6RewriteClass_ClassDeclarationMetadata_Builder() *Es6RewriteClass_Cla
 }
 
 func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setInsertionPoint(insertionPoint *Es6RewriteClass_InsertionPoint) *Es6RewriteClass_ClassDeclarationMetadata_Builder {
-	if (insertionPoint == nil) {
+	if insertionPoint == nil {
 		panic(new_NullPointerException_String("Null insertionPoint").self())
 	}
 	this.insertionPoint_ = insertionPoint
@@ -648,7 +678,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setInsertionPoint(
 }
 
 func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setFullClassNameNode(fullClassNameNode Node) *Es6RewriteClass_ClassDeclarationMetadata_Builder {
-	if (fullClassNameNode == 0) {
+	if fullClassNameNode == 0 {
 		panic(new_NullPointerException_String("Null fullClassNameNode").self())
 	}
 	this.fullClassNameNodeField = fullClassNameNode
@@ -656,14 +686,14 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setFullClassNameNo
 }
 
 func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) fullClassNameNode() Node {
-	if (this.fullClassNameNodeField == 0) {
+	if this.fullClassNameNodeField == 0 {
 		panic(new_IllegalStateException_String("Property \"fullClassNameNode\" has not been set").self())
 	}
 	return this.fullClassNameNodeField
 }
 
-func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setClassMembersToDeclare(classMembersToDeclare *TMap[string, *Es6RewriteClass_ClassProperty]) *Es6RewriteClass_ClassDeclarationMetadata_Builder {
-	if (classMembersToDeclare == nil) {
+func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setClassMembersToDeclare(classMembersToDeclare *JTMap[string, *Es6RewriteClass_ClassProperty]) *Es6RewriteClass_ClassDeclarationMetadata_Builder {
+	if classMembersToDeclare == nil {
 		panic(new_NullPointerException_String("Null classMembersToDeclare").self())
 	}
 	this.classMembersToDeclare_ = classMembersToDeclare
@@ -677,7 +707,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setAnonymous(anony
 }
 
 func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setClassNameNode(classNameNode Node) *Es6RewriteClass_ClassDeclarationMetadata_Builder {
-	if (classNameNode == 0) {
+	if classNameNode == 0 {
 		panic(new_NullPointerException_String("Null classNameNode").self())
 	}
 	this.classNameNode_ = classNameNode
@@ -685,7 +715,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setClassNameNode(c
 }
 
 func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setSuperClassNameNode(superClassNameNode Node) *Es6RewriteClass_ClassDeclarationMetadata_Builder {
-	if (superClassNameNode == 0) {
+	if superClassNameNode == 0 {
 		panic(new_NullPointerException_String("Null superClassNameNode").self())
 	}
 	this.superClassNameNode_ = superClassNameNode
@@ -693,7 +723,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setSuperClassNameN
 }
 
 func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setClassPrototypeNode(node Node) *Es6RewriteClass_ClassDeclarationMetadata_Builder {
-	if (node == 0) {
+	if node == 0 {
 		panic(new_NullPointerException_String("Null classPrototypeNode").self())
 	}
 	this.classPrototypeNode_ = node
@@ -701,7 +731,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setClassPrototypeN
 }
 
 func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setDefinePropertiesObjForClass(node Node) *Es6RewriteClass_ClassDeclarationMetadata_Builder {
-	if (node == 0) {
+	if node == 0 {
 		panic(new_NullPointerException_String("Null definePropertiesObjForClass").self())
 	}
 	this.definePropertiesObjForClass_ = node
@@ -709,7 +739,7 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setDefinePropertie
 }
 
 func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setDefinePropertiesObjForPrototype(node Node) *Es6RewriteClass_ClassDeclarationMetadata_Builder {
-	if (node == 0) {
+	if node == 0 {
 		panic(new_NullPointerException_String("Null definePropertiesObjForPrototype").self())
 	}
 	this.definePropertiesObjForPrototype_ = node
@@ -717,33 +747,33 @@ func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) setDefinePropertie
 }
 
 func (this *Es6RewriteClass_ClassDeclarationMetadata_Builder) build() *Es6RewriteClass_ClassDeclarationMetadata {
-	if (((((((((int32(this.set0) != 1) || (this.insertionPoint_ == nil)) || (this.definePropertiesObjForPrototype_ == 0)) || (this.definePropertiesObjForClass_ == 0)) || (this.classMembersToDeclare_ == nil)) || (this.fullClassNameNodeField == 0)) || (this.classPrototypeNode_ == 0)) || (this.classNameNode_ == 0)) || (this.superClassNameNode_ == 0)) {
+	if ((((((((int32(this.set0) != 1) || (this.insertionPoint_ == nil)) || (this.definePropertiesObjForPrototype_ == 0)) || (this.definePropertiesObjForClass_ == 0)) || (this.classMembersToDeclare_ == nil)) || (this.fullClassNameNodeField == 0)) || (this.classPrototypeNode_ == 0)) || (this.classNameNode_ == 0)) || (this.superClassNameNode_ == 0) {
 		var missing *StringBuilder = new_StringBuilder()
-		if (this.insertionPoint_ == nil) {
+		if this.insertionPoint_ == nil {
 			missing.append(" insertionPoint")
 		}
-		if (this.definePropertiesObjForPrototype_ == 0) {
+		if this.definePropertiesObjForPrototype_ == 0 {
 			missing.append(" definePropertiesObjForPrototype")
 		}
-		if (this.definePropertiesObjForClass_ == 0) {
+		if this.definePropertiesObjForClass_ == 0 {
 			missing.append(" definePropertiesObjForClass")
 		}
-		if (this.classMembersToDeclare_ == nil) {
+		if this.classMembersToDeclare_ == nil {
 			missing.append(" classMembersToDeclare")
 		}
-		if (this.fullClassNameNodeField == 0) {
+		if this.fullClassNameNodeField == 0 {
 			missing.append(" fullClassNameNode")
 		}
-		if (this.classPrototypeNode_ == 0) {
+		if this.classPrototypeNode_ == 0 {
 			missing.append(" classPrototypeNode")
 		}
-		if ((int32(this.set0) & 1) == 0) {
+		if (int32(this.set0) & 1) == 0 {
 			missing.append(" anonymous")
 		}
-		if (this.classNameNode_ == 0) {
+		if this.classNameNode_ == 0 {
 			missing.append(" classNameNode")
 		}
-		if (this.superClassNameNode_ == 0) {
+		if this.superClassNameNode_ == 0 {
 			missing.append(" superClassNameNode")
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
@@ -777,4 +807,3 @@ func Es6RewriteClass_InsertionPoint_from(start Node) *Es6RewriteClass_InsertionP
 func (this *Es6RewriteClass_InsertionPoint) getNode() Node {
 	return this.insertionPoint_
 }
-

@@ -3,10 +3,10 @@
 package closure
 
 type Es7RewriteExponentialOperator struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
+	compiler_        *AbstractCompiler
+	astFactory_      *AstFactory
 	uniqueIdSupplier *UniqueIdSupplier
-	mathPowCall SupplierOf[Node]
+	mathPowCall      SupplierOf[Node]
 }
 
 func (this *Es7RewriteExponentialOperator) finit_Es7RewriteExponentialOperator() {
@@ -132,6 +132,7 @@ func (this *Es7RewriteExponentialOperator) checkOperatorType(operator Node) bool
 }
 
 var Es7RewriteExponentialOperator_TRANSPILE_EXPONENT_USING_BIGINT *DiagnosticType
+
 const Es7RewriteExponentialOperator_TEMP_VAR_NAME_PREFIX string = "$jscomp$exp$assign$tmp"
 const Es7RewriteExponentialOperator_TEMP_INDEX_VAR_NAME_PREFIX string = "$jscomp$exp$assign$tmpindex"
 
@@ -145,4 +146,3 @@ func Es7RewriteExponentialOperator_clinit() {
 	Es7RewriteExponentialOperator_TRANSPILE_EXPONENT_USING_BIGINT = DiagnosticType_error("JSC_TRANSPILE_EXPONENT_USING_BIGINT", "Cannot transpile `**` operator applied to BigInt operands.")
 
 }
-

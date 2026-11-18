@@ -118,4 +118,3 @@ type DiGraph_DiGraphEdge[N any] interface {
 	getSource() DiGraph_DiGraphNode[N]
 	getDestination() DiGraph_DiGraphNode[N]
 }
-

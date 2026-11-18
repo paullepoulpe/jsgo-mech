@@ -4,10 +4,10 @@ package closure
 
 type FindExportableNodes struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	exports *TMap[string, Node]
-	es6ClassExports *TMap[Node, string]
-	localExports *TSet[string]
+	compiler_         *AbstractCompiler
+	exports           *JTMap[string, Node]
+	es6ClassExports   *JTMap[Node, string]
+	localExports      *JTSet[string]
 	allowLocalExports bool
 }
 
@@ -19,9 +19,9 @@ func (this *FindExportableNodes) up_NodeTraversal_AbstractPostOrderCallback() *N
 }
 
 func (this *FindExportableNodes) finit_FindExportableNodes() {
-	this.exports = newTMap_(tc_string, tc_Node)
-	this.es6ClassExports = newTMap_(tc_Node, tc_string)
-	this.localExports = newTSet_(tc_string)
+	this.exports = jnewTMap_(jtc_string, jtc_Node)
+	this.es6ClassExports = jnewTMap_(jtc_Node, jtc_string)
+	this.localExports = jnewTSet_(jtc_string)
 }
 
 func (this *FindExportableNodes) init_FindExportableNodes(compiler *AbstractCompiler, allowLocalExports bool) {
@@ -40,12 +40,12 @@ func new_FindExportableNodes(compiler *AbstractCompiler, allowLocalExports bool)
 
 func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var docInfo *JSDocInfo = n.getJSDocInfo()
-	if ((docInfo == nil) || !docInfo.isExport()) {
+	if (docInfo == nil) || !docInfo.isExport() {
 		return
 	}
-	if (parent.isAssign() && (n.isFunction() || n.isClass())) {
+	if parent.isAssign() && (n.isFunction() || n.isClass()) {
 		var parentInfo *JSDocInfo = parent.getJSDocInfo()
-		if ((parentInfo != nil) && parentInfo.isExport()) {
+		if (parentInfo != nil) && parentInfo.isExport() {
 			return
 		}
 	}
@@ -64,21 +64,21 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	case Token_rhino_ASSIGN:
 		var grandparent Node = parent.getParent()
 		var child Node = n.getFirstChild()
-		if (parent.isExprResult() && !n.getLastChild().isAssign()) {
-			if (((grandparent != 0) && grandparent.isScript()) && child.isQualifiedName()) {
+		if parent.isExprResult() && !n.getLastChild().isAssign() {
+			if ((grandparent != 0) && grandparent.isScript()) && child.isQualifiedName() {
 				export = Optional_of[string](child.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
 					return !String_isEmpty(s)
 				}})
 				context = n
 				mode = FindExportableNodes_Mode_EXPORT
-			} else if (this.allowLocalExports && child.isGetProp()) {
+			} else if this.allowLocalExports && child.isGetProp() {
 				export = Optional_of[string](child.getString())
 				mode = FindExportableNodes_Mode_EXTERN
 			}
 		}
 	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
 		if parent.isScript() {
-			if (n.getFirstChild().hasChildren() && !n.getFirstFirstChild().isAssign()) {
+			if n.getFirstChild().hasChildren() && !n.getFirstFirstChild().isAssign() {
 				export = Optional_of[string](n.getFirstChild().getString())
 				context = n
 				mode = FindExportableNodes_Mode_EXPORT
@@ -86,7 +86,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 		}
 	case Token_rhino_GETPROP:
 		{
-			if (this.allowLocalExports && parent.isExprResult()) {
+			if this.allowLocalExports && parent.isExprResult() {
 				export = Optional_of[string](n.getString())
 				mode = FindExportableNodes_Mode_EXTERN
 			}
@@ -114,7 +114,12 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 				t.report(n, FindExportableNodes_EXPORT_ANNOTATION_NOT_ALLOWED, []string{})
 				return
 			}
-			this.es6ClassExports.put(n, (sstr_(methodOwnerName.get()) + sstr_(func() string { if n.isStaticMember() { return "" }; return ".prototype" }())))
+			this.es6ClassExports.put(n, (sstr_(methodOwnerName.get()) + sstr_(func() string {
+				if n.isStaticMember() {
+					return ""
+				}
+				return ".prototype"
+			}())))
 			return
 		}
 		fallthrough
@@ -126,7 +131,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	default:
 	}
 	if export.isPresent() {
-		if (mode == FindExportableNodes_Mode_EXPORT) {
+		if mode == FindExportableNodes_Mode_EXPORT {
 			Preconditions_checkNotNull(context.box_())
 			this.exports.put(export.get(), context)
 		} else {
@@ -136,7 +141,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			this.localExports.add(export.get())
 		}
 	} else if !(n.isGetProp() && parent.isExprResult()) {
-		if (!n.isFunction() || !NodeUtil_mayBeObjectLitKey(parent)) {
+		if !n.isFunction() || !NodeUtil_mayBeObjectLitKey(parent) {
 			if this.allowLocalExports {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, FindExportableNodes_EXPORT_ANNOTATION_NOT_ALLOWED, []string{}))
 			} else {
@@ -146,15 +151,15 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	}
 }
 
-func (this *FindExportableNodes) getExports() *TMap[string, Node] {
+func (this *FindExportableNodes) getExports() *JTMap[string, Node] {
 	return this.exports
 }
 
-func (this *FindExportableNodes) getLocalExports() *TSet[string] {
+func (this *FindExportableNodes) getLocalExports() *JTSet[string] {
 	return this.localExports
 }
 
-func (this *FindExportableNodes) getEs6ClassExports() *TMap[Node, string] {
+func (this *FindExportableNodes) getEs6ClassExports() *JTMap[Node, string] {
 	return this.es6ClassExports
 }
 
@@ -225,4 +230,3 @@ func FindExportableNodes_Mode_clinit() {
 	registerEnum_("com.google.javascript.jscomp.FindExportableNodes.Mode", enumValues_(FindExportableNodes_Mode_values_))
 
 }
-

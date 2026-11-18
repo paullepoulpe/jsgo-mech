@@ -3,16 +3,16 @@
 package closure
 
 type ColorSerializer struct {
-	serializationMode *SerializationOptions
-	getStringPoolIndexFn FunctionOf[string, BoxedOf[int32]]
-	propertyFilter PredicateOf[string]
-	colorIdToTypePointer *TMap[*ColorId, any]
-	colorsInSerializedOrder *TList[*Color]
+	serializationMode       *SerializationOptions
+	getStringPoolIndexFn    FunctionOf[string, BoxedOf[int32]]
+	propertyFilter          PredicateOf[string]
+	colorIdToTypePointer    *JTMap[*ColorId, any]
+	colorsInSerializedOrder *JTList[*Color]
 }
 
 func (this *ColorSerializer) finit_ColorSerializer() {
-	this.colorIdToTypePointer = newTMap_(tce_p_ColorId, tc_Integer)
-	this.colorsInSerializedOrder = newTList_(tc_p_Color)
+	this.colorIdToTypePointer = jnewTMap_(tce_p_ColorId, tc_Integer)
+	this.colorsInSerializedOrder = jnewTList_(jtc_p_Color)
 }
 
 func (this *ColorSerializer) init_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn FunctionOf[string, BoxedOf[int32]], propertyFilter PredicateOf[string]) {
@@ -54,7 +54,7 @@ func (this *ColorSerializer) addColor(color *Color) int32 {
 
 func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn FunctionOf[*Color, SetOf[*Color]], getMismatchSourceRefsFn FunctionOf[*Color, SetOf[string]]) *TypePool {
 	var typePoolBuilder *TypePool_Builder = TypePool_newBuilder()
-	for i := int32(TypePointers_untrimOffset(0)); (i < this.colorsInSerializedOrder.size()); i++ {
+	for i := int32(TypePointers_untrimOffset(0)); i < this.colorsInSerializedOrder.size(); i++ {
 		var color *Color = this.colorsInSerializedOrder.get(i)
 		var typePointer any = this.colorIdToTypePointer.get(color.getId())
 		typePoolBuilder.addType(this.generateTypeProto(color))
@@ -67,7 +67,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Func
 	if this.serializationMode.includeDebugInfo() {
 		Preconditions_checkNotNull(any(getMismatchSourceRefsFn))
 		var debugInfoBuilder *TypePool_DebugInfo_Builder = typePoolBuilder.getDebugInfoBuilder()
-		var srcRefToTypePointerList *TMap[string, *ArrayList] = newTMap_(tc_string, tc_p_ArrayList)
+		var srcRefToTypePointerList *JTMap[string, *ArrayList] = jnewTMap_(jtc_string, tc_p_ArrayList)
 		it_4 := this.colorsInSerializedOrder.each()
 		for it_4.next() {
 			var color *Color = it_4.v
@@ -112,4 +112,3 @@ func (this *ColorSerializer) getOwnPropertyStringPoolOffsets(color *Color) Immut
 	}
 	return cast_[*ImmutableList](obj_(builder.build()))
 }
-

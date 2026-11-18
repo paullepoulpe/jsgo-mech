@@ -3,32 +3,32 @@ package closure
 import "sync/atomic"
 
 // Typed sets (j2go rule "typed collections"): a LinkedHashSet<K> that the translator finds
-// typable is a *TSet[K]: its elements in insertion order, as K values, not boxes. K is a type whose Go == is
+// typable is a *JTSet[K]: its elements in insertion order, as K values, not boxes. K is a type whose Go == is
 // Java's equals for the set: a String, a handle, an enum, a class without equals of its own.
 //
-// Erased code sees the set through asSet(), its one view (see TList). Like the erased table
+// Erased code sees the set through asSet(), its one view (see JTList). Like the erased table
 // (htable_), a small set is searched linearly and has no index, and a removed element leaves a
 // dead position until the set is compacted, so that a cursor keeps its place.
 
-type TSet[K comparable] struct {
+type JTSet[K comparable] struct {
 	keys []K
 	gone []bool      // beside keys once an element has been removed: the dead positions
 	idx  map[K]int32 // the position of each element; nil while the set is small
 	live int32
-	c    *tconv_[K]
+	c    *jtconv_[K]
 	eq   *teq_ // of elements compared by equals and hashCode (c.byEquals); else nil
-	view atomic.Pointer[tsetView_[K]]
+	view atomic.Pointer[jtsetView_[K]]
 }
 
-// newTSet_ is new LinkedHashSet<>().
-func newTSet_[K comparable](c *tconv_[K]) *TSet[K] { return &TSet[K]{c: c} }
+// jnewTSet_ is new LinkedHashSet<>().
+func jnewTSet_[K comparable](c *jtconv_[K]) *JTSet[K] { return &JTSet[K]{c: c} }
 
 // newTSetN_ is new LinkedHashSet<>(n): the capacity is not used.
-func newTSetN_[K comparable](c *tconv_[K], n int32) *TSet[K] { return &TSet[K]{c: c} }
+func newTSetN_[K comparable](c *jtconv_[K], n int32) *JTSet[K] { return &JTSet[K]{c: c} }
 
-// tsetFrom_ is new LinkedHashSet<>(from).
-func tsetFrom_[K comparable](c *tconv_[K], from Collection) *TSet[K] {
-	s := &TSet[K]{c: c}
+// jtsetFrom_ is new LinkedHashSet<>(from).
+func jtsetFrom_[K comparable](c *jtconv_[K], from Collection) *JTSet[K] {
+	s := &JTSet[K]{c: c}
 	for _, x := range toSlice_(from) {
 		s.add(c.unbox(x))
 	}
@@ -36,8 +36,8 @@ func tsetFrom_[K comparable](c *tconv_[K], from Collection) *TSet[K] {
 }
 
 // tsetCopy_ is new LinkedHashSet<>(from) of another typed set of the same element type.
-func tsetCopy_[K comparable](c *tconv_[K], from *TSet[K]) *TSet[K] {
-	s := &TSet[K]{c: c}
+func tsetCopy_[K comparable](c *jtconv_[K], from *JTSet[K]) *JTSet[K] {
+	s := &JTSet[K]{c: c}
 	for i, k := range from.keys {
 		if !from.dead(i) {
 			s.add(k)
@@ -46,10 +46,10 @@ func tsetCopy_[K comparable](c *tconv_[K], from *TSet[K]) *TSet[K] {
 	return s
 }
 
-func (s *TSet[K]) dead(i int) bool { return s.gone != nil && s.gone[i] }
+func (s *JTSet[K]) dead(i int) bool { return s.gone != nil && s.gone[i] }
 
 // find returns the position of k, or -1.
-func (s *TSet[K]) find(k K) int32 {
+func (s *JTSet[K]) find(k K) int32 {
 	if s.c.byEquals {
 		return teqFind_(s.eq, s.keys, s.gone, s.c, k, objhash_(s.c.box(k)))
 	}
@@ -67,13 +67,13 @@ func (s *TSet[K]) find(k K) int32 {
 	return -1
 }
 
-func (s *TSet[K]) size() int32   { return s.live }
-func (s *TSet[K]) isEmpty() bool { return s.live == 0 }
+func (s *JTSet[K]) size() int32   { return s.live }
+func (s *JTSet[K]) isEmpty() bool { return s.live == 0 }
 
 // has is contains.
-func (s *TSet[K]) has(k K) bool { return s.find(k) >= 0 }
+func (s *JTSet[K]) has(k K) bool { return s.find(k) >= 0 }
 
-func (s *TSet[K]) add(k K) bool {
+func (s *JTSet[K]) add(k K) bool {
 	var h int32
 	if s.c.byEquals {
 		h = objhash_(s.c.box(k))
@@ -113,7 +113,7 @@ func (s *TSet[K]) add(k K) bool {
 }
 
 // compact drops the dead positions; the order of the elements is unchanged.
-func (s *TSet[K]) compact() {
+func (s *JTSet[K]) compact() {
 	out := s.keys[:0]
 	for i, x := range s.keys {
 		if !s.gone[i] {
@@ -135,7 +135,7 @@ func (s *TSet[K]) compact() {
 }
 
 // del is remove(Object).
-func (s *TSet[K]) del(k K) bool {
+func (s *JTSet[K]) del(k K) bool {
 	i := s.find(k)
 	if i < 0 {
 		return false
@@ -144,7 +144,7 @@ func (s *TSet[K]) del(k K) bool {
 	return true
 }
 
-func (s *TSet[K]) delAt(i int) {
+func (s *JTSet[K]) delAt(i int) {
 	if s.idx != nil {
 		delete(s.idx, s.keys[i])
 	}
@@ -157,7 +157,7 @@ func (s *TSet[K]) delAt(i int) {
 	s.live--
 }
 
-func (s *TSet[K]) clear() {
+func (s *JTSet[K]) clear() {
 	clear(s.keys)
 	s.keys = s.keys[:0]
 	s.gone = nil
@@ -167,7 +167,7 @@ func (s *TSet[K]) clear() {
 }
 
 // addAllT is addAll of another typed set of the same element type.
-func (s *TSet[K]) addAllT(o *TSet[K]) bool {
+func (s *JTSet[K]) addAllT(o *JTSet[K]) bool {
 	changed := false
 	for i, k := range o.keys {
 		if !o.dead(i) && s.add(k) {
@@ -177,22 +177,22 @@ func (s *TSet[K]) addAllT(o *TSet[K]) bool {
 	return changed
 }
 
-// tsetEach_ is the cursor of a for-each loop over a typed set: its elements in insertion
+// jtsetEach_ is the cursor of a for-each loop over a typed set: its elements in insertion
 // order, read position by position as the erased cursor reads its table.
-type tsetEach_[K comparable] struct {
-	s *TSet[K]
+type jtsetEach_[K comparable] struct {
+	s *JTSet[K]
 	i int
 	v K
 }
 
 // each is the cursor of a for-each loop over the set; a null set throws NullPointerException
 // here, where the loop asked for its iterator.
-func (s *TSet[K]) each() tsetEach_[K] {
+func (s *JTSet[K]) each() jtsetEach_[K] {
 	_ = s.live
-	return tsetEach_[K]{s: s}
+	return jtsetEach_[K]{s: s}
 }
 
-func (e *tsetEach_[K]) next() bool {
+func (e *jtsetEach_[K]) next() bool {
 	s := e.s
 	for e.i < len(s.keys) {
 		i := e.i
@@ -206,7 +206,7 @@ func (e *tsetEach_[K]) next() bool {
 }
 
 // iterator is the set's Iterator (of boxed elements, with remove), as its view's.
-func (s *TSet[K]) iterator() Iterator {
+func (s *JTSet[K]) iterator() Iterator {
 	if s == nil {
 		panic(new_NullPointerException_0().self())
 	}
@@ -215,13 +215,13 @@ func (s *TSet[K]) iterator() Iterator {
 
 // asSet is the set as an erased Set (nil for null): one view per set, its identity for erased
 // code.
-func (s *TSet[K]) asSet() Set {
+func (s *JTSet[K]) asSet() Set {
 	if s == nil {
 		return nil
 	}
 	v := s.view.Load()
 	if v == nil {
-		s.view.CompareAndSwap(nil, &tsetView_[K]{s: s})
+		s.view.CompareAndSwap(nil, &jtsetView_[K]{s: s})
 		v = s.view.Load()
 	}
 	return v
@@ -239,14 +239,14 @@ func asSet_(s any) Set {
 	return nil
 }
 
-// tsetView_ is a TSet seen as an erased Set.
-type tsetView_[K comparable] struct {
-	s *TSet[K]
+// jtsetView_ is a JTSet seen as an erased Set.
+type jtsetView_[K comparable] struct {
+	s *JTSet[K]
 }
 
 // key is x as an element of the set, if it can be one (a lookup of an object of another class
 // finds nothing, as in Java).
-func (v *tsetView_[K]) key(x any) (k K, ok bool) {
+func (v *jtsetView_[K]) key(x any) (k K, ok bool) {
 	if k, ok := x.(K); ok {
 		return k, true
 	}
@@ -259,18 +259,18 @@ func (v *tsetView_[K]) key(x any) (k K, ok bool) {
 }
 
 // goName_ makes getClass() of the view java.util.LinkedHashSet, the class of the Java object.
-func (v *tsetView_[K]) goName_() string { return "LinkedHashSet" }
+func (v *jtsetView_[K]) goName_() string { return "LinkedHashSet" }
 
-func (v *tsetView_[K]) self() any     { return v }
-func (v *tsetView_[K]) size() int32   { return v.s.live }
-func (v *tsetView_[K]) isEmpty() bool { return v.s.live == 0 }
-func (v *tsetView_[K]) clear()        { v.s.clear() }
-func (v *tsetView_[K]) add(x any) bool {
+func (v *jtsetView_[K]) self() any     { return v }
+func (v *jtsetView_[K]) size() int32   { return v.s.live }
+func (v *jtsetView_[K]) isEmpty() bool { return v.s.live == 0 }
+func (v *jtsetView_[K]) clear()        { v.s.clear() }
+func (v *jtsetView_[K]) add(x any) bool {
 	return v.s.add(v.s.c.unbox(x))
 }
 
-func (v *tsetView_[K]) addAll(c Collection) bool {
-	if o, ok := c.(*tsetView_[K]); ok && o != nil {
+func (v *jtsetView_[K]) addAll(c Collection) bool {
+	if o, ok := c.(*jtsetView_[K]); ok && o != nil {
 		return v.s.addAllT(o.s)
 	}
 	changed := false
@@ -282,46 +282,46 @@ func (v *tsetView_[K]) addAll(c Collection) bool {
 	return changed
 }
 
-func (v *tsetView_[K]) contains(x any) bool {
+func (v *jtsetView_[K]) contains(x any) bool {
 	k, ok := v.key(x)
 	return ok && v.s.find(k) >= 0
 }
 
-func (v *tsetView_[K]) remove_Object(x any) bool {
+func (v *jtsetView_[K]) remove_Object(x any) bool {
 	k, ok := v.key(x)
 	return ok && v.s.del(k)
 }
 
 // strs is the set as a set of strings, if it is one (a String is looked up without its box).
-func (v *tsetView_[K]) strs() *TSet[string] {
-	s, _ := any(v.s).(*TSet[string])
+func (v *jtsetView_[K]) strs() *JTSet[string] {
+	s, _ := any(v.s).(*JTSet[string])
 	return s
 }
 
 // contains_s, add_s and remove_s are the operations on a String that is not null, without its
 // box (Collection_contains_s...).
-func (v *tsetView_[K]) contains_s(k string) bool {
+func (v *jtsetView_[K]) contains_s(k string) bool {
 	if s := v.strs(); s != nil {
 		return s.find(k) >= 0
 	}
 	return v.contains(strobj_(k))
 }
 
-func (v *tsetView_[K]) add_s(k string) bool {
+func (v *jtsetView_[K]) add_s(k string) bool {
 	if s := v.strs(); s != nil {
 		return s.add(k)
 	}
 	return v.add(strobj_(k))
 }
 
-func (v *tsetView_[K]) remove_s(k string) bool {
+func (v *jtsetView_[K]) remove_s(k string) bool {
 	if s := v.strs(); s != nil {
 		return s.del(k)
 	}
 	return v.remove_Object(strobj_(k))
 }
 
-func (v *tsetView_[K]) containsAll(c Collection) bool {
+func (v *jtsetView_[K]) containsAll(c Collection) bool {
 	for it := c.iterator(); it.hasNext(); {
 		if !v.contains(it.next()) {
 			return false
@@ -330,7 +330,7 @@ func (v *tsetView_[K]) containsAll(c Collection) bool {
 	return true
 }
 
-func (v *tsetView_[K]) removeAll(c Collection) bool {
+func (v *jtsetView_[K]) removeAll(c Collection) bool {
 	changed := false
 	for i := range v.s.keys {
 		if !v.s.dead(i) && c.contains(v.s.c.box(v.s.keys[i])) {
@@ -341,9 +341,9 @@ func (v *tsetView_[K]) removeAll(c Collection) bool {
 	return changed
 }
 
-func (v *tsetView_[K]) iterator() Iterator { return &tsetIter_[K]{s: v.s, last: -1} }
+func (v *jtsetView_[K]) iterator() Iterator { return &tsetIter_[K]{s: v.s, last: -1} }
 
-func (v *tsetView_[K]) toArray_0() []any {
+func (v *jtsetView_[K]) toArray_0() []any {
 	out := make([]any, 0, v.s.live)
 	for i, k := range v.s.keys {
 		if !v.s.dead(i) {
@@ -353,13 +353,13 @@ func (v *tsetView_[K]) toArray_0() []any {
 	return out
 }
 
-func (v *tsetView_[K]) toArray(a []any) []any { return fillArray_(v.toArray_0(), a) }
-func (v *tsetView_[K]) equals(o any) bool     { return setEquals_(v, o) }
-func (v *tsetView_[K]) hashCode() int32       { return setHash_(v) }
-func (v *tsetView_[K]) toString() string      { return collToString_(v) }
+func (v *jtsetView_[K]) toArray(a []any) []any { return fillArray_(v.toArray_0(), a) }
+func (v *jtsetView_[K]) equals(o any) bool     { return setEquals_(v, o) }
+func (v *jtsetView_[K]) hashCode() int32       { return setHash_(v) }
+func (v *jtsetView_[K]) toString() string      { return collToString_(v) }
 
 // step_ is for the cursor of a for-each loop in erased code (foreach_).
-func (v *tsetView_[K]) step_(i int) (any, int) {
+func (v *jtsetView_[K]) step_(i int) (any, int) {
 	s := v.s
 	for ; i < len(s.keys); i++ {
 		if !s.dead(i) {
@@ -369,9 +369,9 @@ func (v *tsetView_[K]) step_(i int) (any, int) {
 	return nil, -1
 }
 
-// tsetIter_ iterates over a TSet for erased code (Iterator, with remove).
+// tsetIter_ iterates over a JTSet for erased code (Iterator, with remove).
 type tsetIter_[K comparable] struct {
-	s    *TSet[K]
+	s    *JTSet[K]
 	i    int
 	last int
 }
@@ -402,7 +402,7 @@ func (it *tsetIter_[K]) remove() {
 }
 
 // teq_ is what a typed set or map keeps for keys that are compared by equals and hashCode (a
-// class with its own equals, an interface, a library class: tconv_.byEquals), so that a key is
+// class with its own equals, an interface, a library class: jtconv_.byEquals), so that a key is
 // found exactly when java.util.HashMap finds it: by the hash code it had when it was added,
 // then by identity or equals. hs holds the hash codes beside the keys; once the table is not
 // small, first and next chain the positions of equal hash codes, as the erased table does.
@@ -413,7 +413,7 @@ type teq_ struct {
 }
 
 // teqFind_ returns the position of key k with hash code h among keys, or -1.
-func teqFind_[K comparable](x *teq_, keys []K, gone []bool, c *tconv_[K], k K, h int32) int32 {
+func teqFind_[K comparable](x *teq_, keys []K, gone []bool, c *jtconv_[K], k K, h int32) int32 {
 	if x == nil {
 		return -1
 	}

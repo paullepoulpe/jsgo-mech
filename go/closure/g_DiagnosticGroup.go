@@ -66,11 +66,17 @@ func (this *DiagnosticGroup) getName() Optional[string] {
 }
 
 func (this *DiagnosticGroup) toString() string {
-	return func() string { if this.name_.isEmpty() { return defaultToString_(any(this)) }; return ("DiagnosticGroup<" + sstr_(this.name_.get()) + ">") }()
+	return func() string {
+		if this.name_.isEmpty() {
+			return defaultToString_(any(this))
+		}
+		return ("DiagnosticGroup<" + sstr_(this.name_.get()) + ">")
+	}()
 }
 
 const DiagnosticGroup_serialVersionUID int64 = 1
-var DiagnosticGroup_singletons *TMap[*DiagnosticType, *DiagnosticGroup]
+
+var DiagnosticGroup_singletons *JTMap[*DiagnosticType, *DiagnosticGroup]
 
 var DiagnosticGroup_clinit_done bool
 
@@ -79,7 +85,6 @@ func DiagnosticGroup_clinit() {
 		return
 	}
 	DiagnosticGroup_clinit_done = true
-	DiagnosticGroup_singletons = newTMap_(tce_p_DiagnosticType, tc_p_DiagnosticGroup)
+	DiagnosticGroup_singletons = jnewTMap_(tce_p_DiagnosticType, jtc_p_DiagnosticGroup)
 
 }
-

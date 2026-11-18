@@ -4,8 +4,8 @@ package closure
 
 type ArrowType struct {
 	JSType
-	parameterList ImmutableListOf[*FunctionType_Parameter]
-	returnType *JSType
+	parameterList      ImmutableListOf[*FunctionType_Parameter]
+	returnType         *JSType
 	returnTypeInferred bool
 }
 
@@ -18,8 +18,18 @@ func (this *ArrowType) up_JSType() *JSType {
 
 func (this *ArrowType) init_ArrowType(registry *JSTypeRegistry, parameters ListOf[*FunctionType_Parameter], returnType *JSType, returnTypeInferred bool) {
 	this.JSType.init_JSType_JSTypeRegistry(registry)
-	this.parameterList = func() *ImmutableList { if (parameters == nil) { return registry.createParametersWithVarArgs([]*JSType{this.getNativeType(JSTypeNative_UNKNOWN_TYPE)}) }; return ImmutableList_copyOf(Collection(parameters)) }()
-	this.returnType = func() *JSType { if (returnType == nil) { return this.getNativeType(JSTypeNative_UNKNOWN_TYPE) }; return returnType }()
+	this.parameterList = func() *ImmutableList {
+		if parameters == nil {
+			return registry.createParametersWithVarArgs([]*JSType{this.getNativeType(JSTypeNative_UNKNOWN_TYPE)})
+		}
+		return ImmutableList_copyOf(Collection(parameters))
+	}()
+	this.returnType = func() *JSType {
+		if returnType == nil {
+			return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
+		}
+		return returnType
+	}()
 	this.returnTypeInferred = returnTypeInferred
 	registry.getResolver().resolveIfClosed(this.up_JSType(), ArrowType_TYPE_CLASS)
 }
@@ -140,4 +150,3 @@ func ArrowType_clinit() {
 	ArrowType_TYPE_CLASS = JSTypeClass_ARROW
 
 }
-

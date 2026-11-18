@@ -4,7 +4,7 @@ package closure
 
 type ProxyObjectType struct {
 	ObjectType
-	referencedType *JSType
+	referencedType    *JSType
 	referencedObjType *ObjectType
 }
 
@@ -76,7 +76,12 @@ func (this *ProxyObjectType) getPropertyKind_2_impl(propertyName Property_Key, a
 }
 
 func (this *ProxyObjectType) getPropertyMap_impl() *PropertyMap {
-	return func() *PropertyMap { if (this.referencedObjType == nil) { return PropertyMap_immutableEmptyMap() }; return this.referencedObjType.getPropertyMap() }()
+	return func() *PropertyMap {
+		if this.referencedObjType == nil {
+			return PropertyMap_immutableEmptyMap()
+		}
+		return this.referencedObjType.getPropertyMap()
+	}()
 }
 
 func (this *ProxyObjectType) getReferencedTypeInternal() *JSType {
@@ -92,7 +97,14 @@ func (this *ProxyObjectType) setReferencedType(referencedType *JSType) {
 	this.referencedType = referencedType
 	var objectType *ObjectType
 	_ = objectType
-	if func() bool { v_ := referencedType.self(); if !is_ObjectType(v_) { return false }; objectType = to_ObjectType(v_); return true }() {
+	if func() bool {
+		v_ := referencedType.self()
+		if !is_ObjectType(v_) {
+			return false
+		}
+		objectType = to_ObjectType(v_)
+		return true
+	}() {
 		this.referencedObjType = objectType
 	} else {
 		this.referencedObjType = nil
@@ -108,7 +120,12 @@ func (this *ProxyObjectType) setValidator_impl(validator Predicate_baseOf[*JSTyp
 }
 
 func (this *ProxyObjectType) getReferenceName_impl() Optional[string] {
-	return func() Optional[string] { if (this.referencedObjType == nil) { return Optional_of[string]("") }; return this.referencedObjType.getReferenceName() }()
+	return func() Optional[string] {
+		if this.referencedObjType == nil {
+			return Optional_of[string]("")
+		}
+		return this.referencedObjType.getReferenceName()
+	}()
 }
 
 func (this *ProxyObjectType) matchesNumberContext_impl() bool {
@@ -200,7 +217,12 @@ func (this *ProxyObjectType) isDict_impl() bool {
 }
 
 func (this *ProxyObjectType) isNativeObjectType_impl() bool {
-	return func() bool { if (this.referencedObjType == nil) { return false }; return this.referencedObjType.isNativeObjectType() }()
+	return func() bool {
+		if this.referencedObjType == nil {
+			return false
+		}
+		return this.referencedObjType.isNativeObjectType()
+	}()
 }
 
 func (this *ProxyObjectType) toMaybeRecordType_impl() *RecordType {
@@ -228,15 +250,30 @@ func (this *ProxyObjectType) testForEquality_impl(that *JSType) *Tri {
 }
 
 func (this *ProxyObjectType) getOwnerFunction_impl() *FunctionType {
-	return func() *FunctionType { if (this.referencedObjType == nil) { return nil }; return this.referencedObjType.getOwnerFunction() }()
+	return func() *FunctionType {
+		if this.referencedObjType == nil {
+			return nil
+		}
+		return this.referencedObjType.getOwnerFunction()
+	}()
 }
 
 func (this *ProxyObjectType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
-	return func() Iterable { if (this.referencedObjType == nil) { return icast_Iterable(obj_(ImmutableList_of())) }; return this.referencedObjType.getCtorImplementedInterfaces() }()
+	return func() Iterable {
+		if this.referencedObjType == nil {
+			return icast_Iterable(obj_(ImmutableList_of()))
+		}
+		return this.referencedObjType.getCtorImplementedInterfaces()
+	}()
 }
 
 func (this *ProxyObjectType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
-	return func() Iterable { if (this.referencedObjType == nil) { return Iterable(Collections_emptyList()) }; return this.referencedObjType.getCtorExtendedInterfaces() }()
+	return func() Iterable {
+		if this.referencedObjType == nil {
+			return Iterable(Collections_emptyList())
+		}
+		return this.referencedObjType.getCtorExtendedInterfaces()
+	}()
 }
 
 func (this *ProxyObjectType) recursionUnsafeHashCode_impl() int32 {
@@ -248,7 +285,12 @@ func (this *ProxyObjectType) appendTo_impl(sb *TypeStringBuilder) {
 }
 
 func (this *ProxyObjectType) getImplicitPrototype_impl() *ObjectType {
-	return func() *ObjectType { if (this.referencedObjType == nil) { return nil }; return this.referencedObjType.getImplicitPrototype() }()
+	return func() *ObjectType {
+		if this.referencedObjType == nil {
+			return nil
+		}
+		return this.referencedObjType.getImplicitPrototype()
+	}()
 }
 
 func (this *ProxyObjectType) defineProperty_impl(propertyName Property_Key, type_ *JSType, inferred bool, propertyNode Node) bool {
@@ -264,23 +306,33 @@ func (this *ProxyObjectType) getJSDocInfo_impl() *JSDocInfo {
 }
 
 func (this *ProxyObjectType) setJSDocInfo_impl(info *JSDocInfo) {
-	if (this.referencedObjType != nil) {
+	if this.referencedObjType != nil {
 		this.referencedObjType.setJSDocInfo(info)
 	}
 }
 
 func (this *ProxyObjectType) setPropertyJSDocInfoKey_impl(propertyName Property_Key, info *JSDocInfo) {
-	if (this.referencedObjType != nil) {
+	if this.referencedObjType != nil {
 		this.referencedObjType.setPropertyJSDocInfoKey(propertyName, info)
 	}
 }
 
 func (this *ProxyObjectType) getConstructor_impl() *FunctionType {
-	return func() *FunctionType { if (this.referencedObjType == nil) { return nil }; return this.referencedObjType.getConstructor() }()
+	return func() *FunctionType {
+		if this.referencedObjType == nil {
+			return nil
+		}
+		return this.referencedObjType.getConstructor()
+	}()
 }
 
 func (this *ProxyObjectType) getTemplateTypes_impl() ImmutableListOf[*JSType] {
-	return func() *ImmutableList { if (this.referencedObjType == nil) { return nil }; return this.referencedObjType.getTemplateTypes() }()
+	return func() *ImmutableList {
+		if this.referencedObjType == nil {
+			return nil
+		}
+		return this.referencedObjType.getTemplateTypes()
+	}()
 }
 
 func (this *ProxyObjectType) getTemplateParamCount_impl() int32 {
@@ -305,7 +357,7 @@ func (this *ProxyObjectType) resolveInternal_impl(reporter ErrorReporter_rhino) 
 }
 
 func (this *ProxyObjectType) getTypeOfThis_impl() *JSType {
-	if (this.referencedObjType != nil) {
+	if this.referencedObjType != nil {
 		return this.referencedObjType.getTypeOfThis()
 	}
 	return this.ObjectType.getTypeOfThis_impl()
@@ -350,4 +402,3 @@ func ProxyObjectType_clinit() {
 	ProxyObjectType_TYPE_CLASS = JSTypeClass_PROXY_OBJECT
 
 }
-

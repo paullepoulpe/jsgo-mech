@@ -3,15 +3,15 @@
 package closure
 
 type RewriteCallerCodeLocation struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
-	callerLocationFunctionNames *TMap[string, *RewriteCallerCodeLocation_FunctionVarAndParamPosition]
+	compiler_                   *AbstractCompiler
+	astFactory_                 *AstFactory
+	callerLocationFunctionNames *JTMap[string, *RewriteCallerCodeLocation_FunctionVarAndParamPosition]
 }
 
 func (this *RewriteCallerCodeLocation) init_RewriteCallerCodeLocation(compiler *AbstractCompiler) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
-	this.callerLocationFunctionNames = newTMap_(tc_string, tc_p_RewriteCallerCodeLocation_FunctionVarAndParamPosition)
+	this.callerLocationFunctionNames = jnewTMap_(jtc_string, tc_p_RewriteCallerCodeLocation_FunctionVarAndParamPosition)
 }
 
 func new_RewriteCallerCodeLocation(compiler *AbstractCompiler) *RewriteCallerCodeLocation {
@@ -86,13 +86,13 @@ func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) isGoogCallerL
 	if !RewriteCallerCodeLocation_GOOG_CALLER_LOCATION_QUALIFIED_NAME.matches(n) {
 		return false
 	}
-	if (parent.isCall() && parent.getParent().isDefaultValue()) {
+	if parent.isCall() && parent.getParent().isDefaultValue() {
 		if parent.getGrandparent().isStringKey() {
 			return true
 		}
 		return false
 	}
-	if ((parent.isAssign() && (n.getNext() != 0)) && n.getNext().isFunction()) {
+	if (parent.isAssign() && (n.getNext() != 0)) && n.getNext().isFunction() {
 		return false
 	}
 	return true
@@ -104,7 +104,7 @@ func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) visitParamLis
 	var paramPosition int32 = 0
 	{
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			paramPosition++
 			if !c.isDefaultValue() {
 				continue
@@ -116,7 +116,7 @@ func (this *RewriteCallerCodeLocation_FindCallerLocationFunctions) visitParamLis
 			}
 			var getProp Node = call.getFirstChild()
 			if RewriteCallerCodeLocation_GOOG_CALLER_LOCATION_QUALIFIED_NAME.matches(getProp) {
-				if (defaultValuesCount > 1) {
+				if defaultValuesCount > 1 {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, RewriteCallerCodeLocation_JSC_CALLER_LOCATION_POSITION_ERROR, []string{}))
 				}
 				var functionName string = n.getParent().getFirstChild().getQualifiedName()
@@ -163,7 +163,7 @@ func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visit_
 
 func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visitCallNodeAndRewrite(n Node, t *NodeTraversal) {
 	var firstChild Node = n.getFirstChild()
-	if (((firstChild == 0) || (!firstChild.isName() && !firstChild.isGetProp())) || String_isEmpty(firstChild.getQualifiedName())) {
+	if ((firstChild == 0) || (!firstChild.isName() && !firstChild.isGetProp())) || String_isEmpty(firstChild.getQualifiedName()) {
 		return
 	}
 	var name string = firstChild.getQualifiedName()
@@ -174,14 +174,14 @@ func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visitC
 	var functionVarAndPosition *RewriteCallerCodeLocation_FunctionVarAndParamPosition = this.outer_.callerLocationFunctionNames.get(moduleContentsName)
 	var callerLocationFunction *Var = functionVarAndPosition.getFunctionVar()
 	var calleeFunction *Var = cast_[*Var](t.getScope().getVar(moduleContentsName).self())
-	if (((callerLocationFunction == nil) || (calleeFunction == nil)) || !Objects_equals(callerLocationFunction.getNameNode().box_(), calleeFunction.getNameNode().box_())) {
+	if ((callerLocationFunction == nil) || (calleeFunction == nil)) || !Objects_equals(callerLocationFunction.getNameNode().box_(), calleeFunction.getNameNode().box_()) {
 		return
 	}
 	var positionOfCallerLocationArg int32 = functionVarAndPosition.getParamPosition()
 	var numberOfArgs int32 = (n.getChildCount() - 1)
-	if (numberOfArgs >= positionOfCallerLocationArg) {
+	if numberOfArgs >= positionOfCallerLocationArg {
 		var jsType *JSType = n.getChildAtIndex(positionOfCallerLocationArg).getJSType()
-		if ((jsType != nil) && jsType.isExplicitlyVoidable()) {
+		if (jsType != nil) && jsType.isExplicitlyVoidable() {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(firstChild, RewriteCallerCodeLocation_JSC_UNDEFINED_CODE_LOCATION_ERROR, []string{}))
 		}
 		return
@@ -205,7 +205,7 @@ func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) create
 }
 
 type RewriteCallerCodeLocation_FunctionVarAndParamPosition struct {
-	functionVar *Var
+	functionVar   *Var
 	paramPosition int32
 }
 
@@ -227,4 +227,3 @@ func (this *RewriteCallerCodeLocation_FunctionVarAndParamPosition) getFunctionVa
 func (this *RewriteCallerCodeLocation_FunctionVarAndParamPosition) getParamPosition() int32 {
 	return this.paramPosition
 }
-

@@ -3,13 +3,13 @@
 package closure
 
 type PreprocessorSymbolTable struct {
-	symbols *TMap[string, *SimpleSlot]
-	refs *SimpleListMultimap
-	root Node
+	symbols *JTMap[string, *SimpleSlot]
+	refs    *SimpleListMultimap
+	root    Node
 }
 
 func (this *PreprocessorSymbolTable) finit_PreprocessorSymbolTable() {
-	this.symbols = newTMap_(tc_string, tc_p_SimpleSlot)
+	this.symbols = jnewTMap_(jtc_string, jtc_p_SimpleSlot)
 	this.refs = SimpleListMultimap_create()
 }
 
@@ -68,9 +68,14 @@ func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
 }
 
 func (this *PreprocessorSymbolTable) getQualifiedName(n Node) Optional[string] {
-	return func() Optional[string] { if n.isStringLit() { return Optional_of[string](n.getString()) }; return Optional_of[string](n.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
-	}}) }()
+	return func() Optional[string] {
+		if n.isStringLit() {
+			return Optional_of[string](n.getString())
+		}
+		return Optional_of[string](n.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
+			return !String_isEmpty(s)
+		}})
+	}()
 }
 
 func (this *PreprocessorSymbolTable) lookupQualifiedName(p0 *QualifiedName) *JSType {
@@ -125,7 +130,7 @@ func new_PreprocessorSymbolTable_CachedInstanceFactory() *PreprocessorSymbolTabl
 func (this *PreprocessorSymbolTable_CachedInstanceFactory) maybeInitialize(compiler *AbstractCompiler) {
 	if compiler.getOptions().preservesDetailedSourceInfo() {
 		var root Node = compiler.getRoot()
-		if ((this.instance_ == nil) || (this.instance_.getRootNode() != root)) {
+		if (this.instance_ == nil) || (this.instance_.getRootNode() != root) {
 			this.instance_ = new_PreprocessorSymbolTable(root)
 		}
 	}
@@ -134,4 +139,3 @@ func (this *PreprocessorSymbolTable_CachedInstanceFactory) maybeInitialize(compi
 func (this *PreprocessorSymbolTable_CachedInstanceFactory) getInstanceOrNull() *PreprocessorSymbolTable {
 	return this.instance_
 }
-

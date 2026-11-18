@@ -3,7 +3,7 @@
 package closure
 
 type LinkedIdentityHashMap[K any, V any] struct {
-	innerMap IdentityHashMapOf[K, *LinkedIdentityHashMap_Entry[K, V]]
+	innerMap       IdentityHashMapOf[K, *LinkedIdentityHashMap_Entry[K, V]]
 	iterationOrder ArrayListOf[*LinkedIdentityHashMap_Entry[K, V]]
 }
 
@@ -31,16 +31,21 @@ func new_LinkedIdentityHashMap[K any, V any]() *LinkedIdentityHashMap[K, V] {
 
 func (this *LinkedIdentityHashMap[K, V]) get(key K) V {
 	var entry *LinkedIdentityHashMap_Entry[K, V] = cast_[*LinkedIdentityHashMap_Entry[K, V]](this.innerMap.get(boxT_(key)))
-	return func() V { if (entry == nil) { return null_[V]() }; return entry.value_ }()
+	return func() V {
+		if entry == nil {
+			return jnull_[V]()
+		}
+		return entry.value_
+	}()
 }
 
 func (this *LinkedIdentityHashMap[K, V]) put(key K, value V) V {
 	var entry *LinkedIdentityHashMap_Entry[K, V] = cast_[*LinkedIdentityHashMap_Entry[K, V]](this.innerMap.get(boxT_(key)))
-	if (entry == nil) {
+	if entry == nil {
 		entry = new_LinkedIdentityHashMap_Entry[K, V](key, value)
 		this.innerMap.put(boxT_(key), obj_(entry))
 		this.iterationOrder.add(obj_(entry))
-		return null_[V]()
+		return jnull_[V]()
 	} else {
 		var oldValue V = entry.value_
 		entry.value_ = value
@@ -51,21 +56,21 @@ func (this *LinkedIdentityHashMap[K, V]) put(key K, value V) V {
 
 func (this *LinkedIdentityHashMap[K, V]) computeIfAbsent(key K, fn FunctionOf[any, V]) V {
 	var oldValue V = this.get(key)
-	if !isnull_(oldValue) {
+	if !jisnull_(oldValue) {
 		return oldValue
 	}
-	var newValue V = unboxT_[V](fn.apply(boxT_(key)))
+	var newValue V = junboxT_[V](fn.apply(boxT_(key)))
 	this.put(key, newValue)
 	return newValue
 }
 
 func (this *LinkedIdentityHashMap[K, V]) merge(key K, value V, fn BiFunctionOf[any, any, V]) V {
 	var oldValue V = this.get(key)
-	if isnull_(oldValue) {
+	if jisnull_(oldValue) {
 		this.put(key, value)
 		return value
 	}
-	var mergeValue V = unboxT_[V](fn.apply(boxT_(oldValue), boxT_(value)))
+	var mergeValue V = junboxT_[V](fn.apply(boxT_(oldValue), boxT_(value)))
 	this.put(key, mergeValue)
 	return mergeValue
 }
@@ -79,7 +84,7 @@ func (this *LinkedIdentityHashMap[K, V]) forEach(fn BiConsumerOf[any, any]) {
 }
 
 type LinkedIdentityHashMap_Entry[K any, V any] struct {
-	key_ K
+	key_   K
 	value_ V
 }
 
@@ -91,8 +96,8 @@ func is_LinkedIdentityHashMap_Entry(v any) bool {
 }
 
 func (this *LinkedIdentityHashMap_Entry[K, V]) zero_LinkedIdentityHashMap_Entry() {
-	this.key_ = null_[K]()
-	this.value_ = null_[V]()
+	this.key_ = jnull_[K]()
+	this.value_ = jnull_[V]()
 }
 
 func (this *LinkedIdentityHashMap_Entry[K, V]) init_LinkedIdentityHashMap_Entry(key K, value V) {
@@ -106,4 +111,3 @@ func new_LinkedIdentityHashMap_Entry[K any, V any](key K, value V) *LinkedIdenti
 	this.init_LinkedIdentityHashMap_Entry(key, value)
 	return this
 }
-

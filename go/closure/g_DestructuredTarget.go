@@ -3,13 +3,13 @@
 package closure
 
 type DestructuredTarget struct {
-	registry *JSTypeRegistry
-	objectPatternKey Node
-	node_ Node
+	registry            *JSTypeRegistry
+	objectPatternKey    Node
+	node_               Node
 	patternTypeSupplier Supplier_baseOf[*JSType]
-	defaultValue Node
-	isRest_ bool
-	pattern Node
+	defaultValue        Node
+	isRest_             bool
+	pattern             Node
 }
 
 func (this *DestructuredTarget) init_DestructuredTarget(pattern Node, node Node, defaultValue Node, objectPatternKey Node, registry *JSTypeRegistry, patternTypeSupplier Supplier_baseOf[*JSType], isRest bool) {
@@ -29,7 +29,12 @@ func new_DestructuredTarget(pattern Node, node Node, defaultValue Node, objectPa
 }
 
 func (this *DestructuredTarget) getComputedProperty() Node {
-	return func() Node { if this.hasComputedProperty() { return this.objectPatternKey }; return 0 }()
+	return func() Node {
+		if this.hasComputedProperty() {
+			return this.objectPatternKey
+		}
+		return 0
+	}()
 }
 
 func (this *DestructuredTarget) hasComputedProperty() bool {
@@ -41,7 +46,12 @@ func (this *DestructuredTarget) hasStringKey() bool {
 }
 
 func (this *DestructuredTarget) getStringKey() Node {
-	return func() Node { if this.hasStringKey() { return this.objectPatternKey }; return 0 }()
+	return func() Node {
+		if this.hasStringKey() {
+			return this.objectPatternKey
+		}
+		return 0
+	}()
 }
 
 func (this *DestructuredTarget) getDefaultValue() Node {
@@ -110,7 +120,7 @@ func DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(registry *JSTy
 	var builder ImmutableList_BuilderOf[*DestructuredTarget] = ImmutableList_builder()
 	{
 		var child Node = pattern.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if child.isEmpty() {
 				continue
 			}
@@ -131,9 +141,9 @@ func (this *DestructuredTarget) inferTypeWithoutUsingDefaultValue() *JSType {
 
 func (this *DestructuredTarget) inferType() *JSType {
 	var inferredType *JSType = this.inferTypeWithoutUsingDefaultValue()
-	if (!inferredType.isUnknownType() && this.hasDefaultValue()) {
+	if !inferredType.isUnknownType() && this.hasDefaultValue() {
 		var defaultValueType *JSType = this.getDefaultValue().getJSType()
-		if (defaultValueType == nil) {
+		if defaultValueType == nil {
 			defaultValueType = this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		}
 		return this.registry.createUnionType([]*JSType{inferredType.restrictByNotUndefined(), defaultValueType})
@@ -148,16 +158,26 @@ func (this *DestructuredTarget) inferObjectPatternKeyType() *JSType {
 	if this.isRest_ {
 		return this.registry.getNativeType(JSTypeNative_OBJECT_TYPE)
 	}
-	if ((patternType == nil) || patternType.isUnknownType()) {
+	if (patternType == nil) || patternType.isUnknownType() {
 		return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	}
 	return func() *JSType {
 		switch this.objectPatternKey.getToken() {
 		case Token_rhino_STRING_KEY:
 			var propertyType *JSType = patternType.findPropertyType(this.objectPatternKey.getString())
-			return func() *JSType { if (propertyType != nil) { return propertyType }; return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE) }()
+			return func() *JSType {
+				if propertyType != nil {
+					return propertyType
+				}
+				return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
+			}()
 		case Token_rhino_COMPUTED_PROP:
-			return func() *JSType { if (patternType != nil) { return patternType.getTemplateTypeMap().getResolvedTemplateType(this.registry.getObjectElementKey()) }; return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE) }()
+			return func() *JSType {
+				if patternType != nil {
+					return patternType.getTemplateTypeMap().getResolvedTemplateType(this.registry.getObjectElementKey())
+				}
+				return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
+			}()
 		default:
 			panic(new_IllegalStateException_String(("Unexpected key " + objstr_(this.objectPatternKey.box_()))).self())
 		}
@@ -177,13 +197,13 @@ func (this *DestructuredTarget) inferArrayPatternTargetType() *JSType {
 }
 
 type DestructuredTarget_Builder struct {
-	registry *JSTypeRegistry
+	registry            *JSTypeRegistry
 	patternTypeSupplier Supplier_baseOf[*JSType]
-	pattern Node
-	node_ Node
-	defaultValue Node
-	objectPatternKey Node
-	isRest_ bool
+	pattern             Node
+	node_               Node
+	defaultValue        Node
+	objectPatternKey    Node
+	isRest_             bool
 }
 
 func (this *DestructuredTarget_Builder) finit_DestructuredTarget_Builder() {
@@ -229,4 +249,3 @@ func (this *DestructuredTarget_Builder) build() *DestructuredTarget {
 	Preconditions_checkNotNull_Object_Object(this.node_.box_(), strobj_("Must set a node"))
 	return new_DestructuredTarget(this.pattern, this.node_, this.defaultValue, this.objectPatternKey, this.registry, this.patternTypeSupplier, this.isRest_)
 }
-

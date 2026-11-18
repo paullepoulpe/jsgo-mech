@@ -129,7 +129,12 @@ func (this *NoObjectType) visitUntyped_2_impl(visitor RelationshipVisitor, that 
 }
 
 func (this *NoObjectType) appendTo_impl(sb *TypeStringBuilder) {
-	sb.append(func() string { if sb.isForAnnotations() { return "?" }; return "NoObject" }())
+	sb.append(func() string {
+		if sb.isForAnnotations() {
+			return "?"
+		}
+		return "NoObject"
+	}())
 }
 
 func (this *NoObjectType) getConstructor_impl() *FunctionType {
@@ -139,4 +144,3 @@ func (this *NoObjectType) getConstructor_impl() *FunctionType {
 func (this *NoObjectType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
 	panic(new_AssertionError_0().self())
 }
-

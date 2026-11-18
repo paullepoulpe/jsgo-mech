@@ -3,55 +3,55 @@
 package closure
 
 type JSTypeRegistry struct {
-	iObjectIndexTemplateKey *TemplateType
-	iObjectElementTemplateKey *TemplateType
-	iterableValueTemplate *TemplateType
-	iterableReturnTemplate *TemplateType
-	iteratorIterableValueTemplate *TemplateType
-	iteratorIterableReturnTemplate *TemplateType
-	iteratorLikeValueTemplate *TemplateType
-	iteratorLikeReturnTemplate *TemplateType
-	iteratorValueTemplate *TemplateType
-	iteratorReturnTemplate *TemplateType
-	iiterableResultValueTemplate *TemplateType
-	asyncIterableValueTemplate *TemplateType
-	asyncIterableReturnTemplate *TemplateType
-	asyncIteratorValueTemplate *TemplateType
-	asyncIteratorReturnTemplate *TemplateType
-	generatorValueTemplate *TemplateType
-	generatorReturnTemplate *TemplateType
-	iThenableTemplateKey *TemplateType
-	promiseTemplateKey *TemplateType
-	arrayElementTemplateKey *TemplateType
+	iObjectIndexTemplateKey         *TemplateType
+	iObjectElementTemplateKey       *TemplateType
+	iterableValueTemplate           *TemplateType
+	iterableReturnTemplate          *TemplateType
+	iteratorIterableValueTemplate   *TemplateType
+	iteratorIterableReturnTemplate  *TemplateType
+	iteratorLikeValueTemplate       *TemplateType
+	iteratorLikeReturnTemplate      *TemplateType
+	iteratorValueTemplate           *TemplateType
+	iteratorReturnTemplate          *TemplateType
+	iiterableResultValueTemplate    *TemplateType
+	asyncIterableValueTemplate      *TemplateType
+	asyncIterableReturnTemplate     *TemplateType
+	asyncIteratorValueTemplate      *TemplateType
+	asyncIteratorReturnTemplate     *TemplateType
+	generatorValueTemplate          *TemplateType
+	generatorReturnTemplate         *TemplateType
+	iThenableTemplateKey            *TemplateType
+	promiseTemplateKey              *TemplateType
+	arrayElementTemplateKey         *TemplateType
 	readonlyArrayElementTemplateKey *TemplateType
-	readonlyMapKeyTemplateKey *TemplateType
-	readonlyMapValueTemplateKey *TemplateType
-	mapKeyTemplateKey *TemplateType
-	mapValueTemplateKey *TemplateType
-	reporter ErrorReporter_rhino
-	nativeTypes []*JSType
-	scopedNameTable *SimpleTable[Node, string, *JSType]
-	closureNamespaces *TMap[string, *JSTypeRegistry_ClosureNamespace]
-	nameTableGlobalRoot Node
-	nonNullableTypeNames *SimpleSetMultimap
-	forwardDeclaredTypes SetOf[string]
-	nonRefTypesIndexedByProperty *SimpleSetMultimap
-	sentinelObjectLiteral *JSType
-	propertiesOfSupertypesInUnions *TSet[string]
-	droppedPropertiesOfUnions *TSet[string]
-	eachRefTypeIndexedByProperty *SimpleSetMultimap
-	emptyTemplateTypeMap *TemplateTypeMap
-	resolver *JSTypeResolver
+	readonlyMapKeyTemplateKey       *TemplateType
+	readonlyMapValueTemplateKey     *TemplateType
+	mapKeyTemplateKey               *TemplateType
+	mapValueTemplateKey             *TemplateType
+	reporter                        ErrorReporter_rhino
+	nativeTypes                     []*JSType
+	scopedNameTable                 *SimpleTable[Node, string, *JSType]
+	closureNamespaces               *JTMap[string, *JSTypeRegistry_ClosureNamespace]
+	nameTableGlobalRoot             Node
+	nonNullableTypeNames            *SimpleSetMultimap
+	forwardDeclaredTypes            SetOf[string]
+	nonRefTypesIndexedByProperty    *SimpleSetMultimap
+	sentinelObjectLiteral           *JSType
+	propertiesOfSupertypesInUnions  *JTSet[string]
+	droppedPropertiesOfUnions       *JTSet[string]
+	eachRefTypeIndexedByProperty    *SimpleSetMultimap
+	emptyTemplateTypeMap            *TemplateTypeMap
+	resolver                        *JSTypeResolver
 }
 
 func (this *JSTypeRegistry) finit_JSTypeRegistry() {
 	this.scopedNameTable = SimpleTable_create[Node, string, *JSType]()
-	this.closureNamespaces = newTMap_(tc_string, tc_p_JSTypeRegistry_ClosureNamespace)
+	this.closureNamespaces = jnewTMap_(jtc_string, tc_p_JSTypeRegistry_ClosureNamespace)
 	this.nameTableGlobalRoot = new_Node_Token(Token_rhino_ROOT)
 	this.nonNullableTypeNames = SimpleSetMultimap_create()
 	this.nonRefTypesIndexedByProperty = SimpleSetMultimap_create()
-	this.propertiesOfSupertypesInUnions = newTSet_(tc_string)
-	this.droppedPropertiesOfUnions = newTSet_(tc_string)
+	this.propertiesOfSupertypesInUnions = jnewTSet_(jtc_string)
+	this.droppedPropertiesOfUnions = jnewTSet_(jtc_string)
 	this.eachRefTypeIndexedByProperty = SimpleSetMultimap_create()
 }
 
@@ -88,7 +88,7 @@ func new_JSTypeRegistry_ErrorReporter_Set(reporter ErrorReporter_rhino, forwardD
 }
 
 func (this *JSTypeRegistry) getSentinelObjectLiteral() *JSType {
-	if (this.sentinelObjectLiteral == nil) {
+	if this.sentinelObjectLiteral == nil {
 		this.sentinelObjectLiteral = this.createAnonymousObjectType(nil).up_JSType()
 	}
 	return this.sentinelObjectLiteral
@@ -185,8 +185,13 @@ func (this *JSTypeRegistry) getIThenableTemplate() *TemplateType {
 
 func (this *JSTypeRegistry) maybeGetTemplateTypesOfBuiltin(scope StaticScope, fnName string) ImmutableListOf[*TemplateType] {
 	var type_ *JSType = this.getType(scope, fnName)
-	var objType *ObjectType = func() *ObjectType { if (type_ == nil) { return nil }; return type_.toObjectType() }()
-	if ((objType != nil) && objType.isNativeObjectType()) {
+	var objType *ObjectType = func() *ObjectType {
+		if type_ == nil {
+			return nil
+		}
+		return type_.toObjectType()
+	}()
+	if (objType != nil) && objType.isNativeObjectType() {
 		return objType.getTypeParameters()
 	}
 	return nil
@@ -495,22 +500,32 @@ func (this *JSTypeRegistry) initializeRegistry() {
 
 func JSTypeRegistry_getRootElementOfName(name string) string {
 	var index int32 = String_indexOf(name, 46)
-	if (index != -1) {
+	if index != -1 {
 		return String_substring(name, 0, index)
 	}
 	return name
 }
 
 func JSTypeRegistry_getLookupScope(scope StaticScope, name string) StaticScope {
-	if ((scope != nil) && (scope.getParentScope() != nil)) {
+	if (scope != nil) && (scope.getParentScope() != nil) {
 		return scope.getTopmostScopeOfEventualDeclaration(JSTypeRegistry_getRootElementOfName(name))
 	}
 	return scope
 }
 
 func (this *JSTypeRegistry) getRootNodeForScope(scope StaticScope) Node {
-	var root Node = func() Node { if (scope != nil) { return scope.getRootNode() }; return 0 }()
-	return func() Node { if (((root == 0) || root.isRoot()) || root.isScript()) { return this.nameTableGlobalRoot }; return root }()
+	var root Node = func() Node {
+		if scope != nil {
+			return scope.getRootNode()
+		}
+		return 0
+	}()
+	return func() Node {
+		if ((root == 0) || root.isRoot()) || root.isScript() {
+			return this.nameTableGlobalRoot
+		}
+		return root
+	}()
 }
 
 func (this *JSTypeRegistry) isDeclaredForScope(scope StaticScope, name string) bool {
@@ -525,30 +540,49 @@ func (this *JSTypeRegistry) getTypeInternal(scope StaticScope, name string) *JST
 	JSTypeRegistry_checkTypeName(name)
 	var syntheticTemplateScope *JSTypeRegistry_SyntheticTemplateScope
 	_ = syntheticTemplateScope
-	if func() bool { v_ := any(scope); if !is_[*JSTypeRegistry_SyntheticTemplateScope](v_) { return false }; syntheticTemplateScope = cast_[*JSTypeRegistry_SyntheticTemplateScope](v_); return true }() {
+	if func() bool {
+		v_ := any(scope)
+		if !is_[*JSTypeRegistry_SyntheticTemplateScope](v_) {
+			return false
+		}
+		syntheticTemplateScope = cast_[*JSTypeRegistry_SyntheticTemplateScope](v_)
+		return true
+	}() {
 		var type_ *TemplateType = syntheticTemplateScope.getTemplateType(name)
-		if (type_ != nil) {
+		if type_ != nil {
 			return type_.up_JSType()
 		}
 	}
 	var declarationScope StaticScope = JSTypeRegistry_getLookupScope(scope, name)
 	var resolvedViaTable *JSType = this.getTypeForScopeInternal(declarationScope, name)
-	if (resolvedViaTable != nil) {
+	if resolvedViaTable != nil {
 		return resolvedViaTable
 	}
-	var bestScope StaticScope = func() StaticScope { if (declarationScope != nil) { return declarationScope }; return scope }()
+	var bestScope StaticScope = func() StaticScope {
+		if declarationScope != nil {
+			return declarationScope
+		}
+		return scope
+	}()
 	return this.resolveViaComponents(bestScope, name)
 }
 
 func (this *JSTypeRegistry) resolveViaComponents(scope StaticScope, qualifiedName string) *JSType {
 	var resolutionScope StaticTypedScope
 	_ = resolutionScope
-	if (String_isEmpty(qualifiedName) || !(func() bool { v_ := any(scope); if !is_[StaticTypedScope](v_) { return false }; resolutionScope = icast_StaticTypedScope(v_); return true }())) {
+	if String_isEmpty(qualifiedName) || !(func() bool {
+		v_ := any(scope)
+		if !is_[StaticTypedScope](v_) {
+			return false
+		}
+		resolutionScope = icast_StaticTypedScope(v_)
+		return true
+	}()) {
 		return nil
 	}
 	if !JSTypeRegistry_isNameDefinedLocally(resolutionScope, JSTypeRegistry_getRootElementOfName(qualifiedName)) {
 		var resolvedViaClosureNamespace *JSType = this.resolveViaClosureNamespace(qualifiedName)
-		if (resolvedViaClosureNamespace != nil) {
+		if resolvedViaClosureNamespace != nil {
 			return resolvedViaClosureNamespace
 		}
 	}
@@ -565,7 +599,7 @@ func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType
 	var unusedComponents ImmutableList_BuilderOf[string] = ImmutableList_builder()
 	for {
 		var namespace *JSTypeRegistry_ClosureNamespace = this.closureNamespaces.get(prefix)
-		if (namespace != nil) {
+		if namespace != nil {
 			if namespace.isLegacy() {
 				return nil
 			} else {
@@ -573,7 +607,7 @@ func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType
 			}
 		}
 		var lastDot int32 = String_lastIndexOf_String(prefix, ".")
-		if (lastDot < 0) {
+		if lastDot < 0 {
 			return nil
 		}
 		var postfix string = String_substring_int(prefix, (lastDot + 1))
@@ -587,7 +621,7 @@ func (this *JSTypeRegistry) resolveViaProperties(declarationScope StaticTypedSco
 	Preconditions_checkArgument(!String_isEmpty(qualifiedName))
 	var rootName string = JSTypeRegistry_getRootElementOfName(qualifiedName)
 	var slot StaticTypedSlot = icast_StaticTypedSlot(declarationScope.getOwnSlot(rootName))
-	if (slot == nil) {
+	if slot == nil {
 		return nil
 	}
 	var componentNames ImmutableListOf[string] = ImmutableList_copyOf_Iterable(Iterables_skip(JSTypeRegistry_DOT_SPLITTER.split(strobj_(qualifiedName)), 1))
@@ -598,38 +632,45 @@ func (this *JSTypeRegistry) resolveViaProperties(declarationScope StaticTypedSco
 func (this *JSTypeRegistry) resolveViaPropertyGivenSlot(slotType *JSType, definitionNode Node, componentNames ListOf[string]) *JSType {
 	if componentNames.isEmpty() {
 		var typedefType *JSType = JSTypeRegistry_resolveTypeFromNodeIfTypedef(definitionNode)
-		if (typedefType != nil) {
+		if typedefType != nil {
 			return typedefType
 		}
 	}
-	if (((slotType == nil) || slotType.isAllType()) || slotType.isNoType()) {
+	if ((slotType == nil) || slotType.isAllType()) || slotType.isNoType() {
 		return nil
 	}
-	for i := int32(0); (i < componentNames.size()); i++ {
+	for i := int32(0); i < componentNames.size(); i++ {
 		var component string = str_(componentNames.get(i))
 		var parentObj *ObjectType = ObjectType_cast(slotType)
-		if (((parentObj == nil) || String_isEmpty(component)) || !parentObj.hasOwnProperty(component)) {
+		if ((parentObj == nil) || String_isEmpty(component)) || !parentObj.hasOwnProperty(component) {
 			return nil
 		}
-		if (i == (componentNames.size() - 1)) {
+		if i == (componentNames.size() - 1) {
 			var def Node = parentObj.getPropertyDefSite(component)
 			var typedefType *JSType = JSTypeRegistry_resolveTypeFromNodeIfTypedef(def)
-			if (typedefType != nil) {
+			if typedefType != nil {
 				return typedefType
 			}
 		}
 		slotType = parentObj.getPropertyType(component)
 	}
-	if (slotType == nil) {
+	if slotType == nil {
 		return nil
-	} else if (slotType.isFunctionType() && (slotType.isConstructor() || slotType.isInterface())) {
+	} else if slotType.isFunctionType() && (slotType.isConstructor() || slotType.isInterface()) {
 		return slotType.toMaybeFunctionType().getInstanceType().up_JSType()
 	} else if slotType.isNoObjectType() {
 		return this.getNativeObjectType(JSTypeNative_NO_OBJECT_TYPE).up_JSType()
 	} else {
 		var enumType *EnumType
 		_ = enumType
-		if func() bool { v_ := slotType.self(); if !is_[*EnumType](v_) { return false }; enumType = cast_[*EnumType](v_); return true }() {
+		if func() bool {
+			v_ := slotType.self()
+			if !is_[*EnumType](v_) {
+				return false
+			}
+			enumType = cast_[*EnumType](v_)
+			return true
+		}() {
 			return enumType.getElementsType().up_JSType()
 		} else {
 			return nil
@@ -639,7 +680,7 @@ func (this *JSTypeRegistry) resolveViaPropertyGivenSlot(slotType *JSType, defini
 }
 
 func JSTypeRegistry_resolveTypeFromNodeIfTypedef(node Node) *JSType {
-	if (node == 0) {
+	if node == 0 {
 		return nil
 	}
 	return node.getTypedefTypeProp()
@@ -706,7 +747,14 @@ func (this *JSTypeRegistry) registerPropertyOnType(propertyName string, type_ *J
 	}
 	var objType *ObjectType
 	_ = objType
-	if (func() bool { v_ := type_.self(); if !is_ObjectType(v_) { return false }; objType = to_ObjectType(v_); return true }() && objType.hasReferenceName()) {
+	if func() bool {
+		v_ := type_.self()
+		if !is_ObjectType(v_) {
+			return false
+		}
+		objType = to_ObjectType(v_)
+		return true
+	}() && objType.hasReferenceName() {
 		this.eachRefTypeIndexedByProperty.put(strobj_(propertyName), objType.self())
 	} else {
 		this.nonRefTypesIndexedByProperty.put(strobj_(propertyName), type_.self())
@@ -727,7 +775,7 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 			panic("unreachable")
 		}()
 	} else {
-		if (!type_.isEmptyType() && !type_.isUnknownType()) {
+		if !type_.isEmptyType() && !type_.isUnknownType() {
 			switch type_.getPropertyKind(propertyName) {
 			case JSType_HasPropertyKind_KNOWN_PRESENT:
 				return JSTypeRegistry_PropDefinitionKind_KNOWN
@@ -749,13 +797,13 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 			var greatestSubtype *JSType = alternative.getGreatestSubtype(type_)
 			if !greatestSubtype.isEmptyType() {
 				var maybeRecordType *RecordType = greatestSubtype.toMaybeRecordType()
-				if ((maybeRecordType != nil) && maybeRecordType.isSynthetic()) {
+				if (maybeRecordType != nil) && maybeRecordType.isSynthetic() {
 					continue
 				}
 				return JSTypeRegistry_PropDefinitionKind_LOOSE
 			}
 		}
-		if (type_.toMaybeRecordType() != nil) {
+		if type_.toMaybeRecordType() != nil {
 			var rec *RecordType = type_.toMaybeRecordType()
 			var mayBeInUnion bool = false
 			it_5 := foreach_(any(rec.getPropertyMap().getOwnPropertyNames()))
@@ -766,7 +814,7 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 					break
 				}
 			}
-			if (mayBeInUnion && this.droppedPropertiesOfUnions.has(propertyName)) {
+			if mayBeInUnion && this.droppedPropertiesOfUnions.has(propertyName) {
 				return JSTypeRegistry_PropDefinitionKind_LOOSE
 			}
 		}
@@ -784,10 +832,10 @@ func (this *JSTypeRegistry) getEachReferenceTypeWithProperty(propertyName string
 }
 
 func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) *ObjectType {
-	var stackA *TList[*ObjectType] = JSTypeRegistry_getSuperStack(a)
-	var stackB *TList[*ObjectType] = JSTypeRegistry_getSuperStack(b)
+	var stackA *JTList[*ObjectType] = JSTypeRegistry_getSuperStack(a)
+	var stackB *JTList[*ObjectType] = JSTypeRegistry_getSuperStack(b)
 	var result *ObjectType = this.getNativeObjectType(JSTypeNative_OBJECT_TYPE)
-	for (!stackA.isEmpty() && !stackB.isEmpty()) {
+	for !stackA.isEmpty() && !stackB.isEmpty() {
 		var currentA *ObjectType = stackA.removeAt((stackA.size() - 1))
 		var currentB *ObjectType = stackB.removeAt((stackB.size() - 1))
 		if currentA.equals(currentB.self()) {
@@ -799,11 +847,11 @@ func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) 
 	return result
 }
 
-func JSTypeRegistry_getSuperStack(a *ObjectType) *TList[*ObjectType] {
-	var stack *TList[*ObjectType] = newTListN_(tc_p_ObjectType, 5)
+func JSTypeRegistry_getSuperStack(a *ObjectType) *JTList[*ObjectType] {
+	var stack *JTList[*ObjectType] = jnewTListN_(jtc_p_ObjectType, 5)
 	{
 		var current *ObjectType = a
-		for ; (current != nil); current = current.getImplicitPrototype() {
+		for ; current != nil; current = current.getImplicitPrototype() {
 			stack.add(current)
 		}
 	}
@@ -812,7 +860,7 @@ func JSTypeRegistry_getSuperStack(a *ObjectType) *TList[*ObjectType] {
 
 func (this *JSTypeRegistry) declareType(scope StaticScope, name string, type_ *JSType) bool {
 	Preconditions_checkState(!String_isEmpty(name))
-	if (this.getTypeForScopeInternal(JSTypeRegistry_getLookupScope(scope, name), name) != nil) {
+	if this.getTypeForScopeInternal(JSTypeRegistry_getLookupScope(scope, name), name) != nil {
 		return false
 	}
 	this.register(scope, type_, name)
@@ -821,7 +869,7 @@ func (this *JSTypeRegistry) declareType(scope StaticScope, name string, type_ *J
 
 func (this *JSTypeRegistry) declareTypeForExactScope(scope StaticScope, name string, type_ *JSType) bool {
 	Preconditions_checkState(!String_isEmpty(name))
-	if (this.getTypeForScopeInternal(scope, name) != nil) {
+	if this.getTypeForScopeInternal(scope, name) != nil {
 		return false
 	}
 	this.registerForScope(scope, type_, name)
@@ -857,7 +905,7 @@ func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) Optional[string] 
 			return Optional_empty[string]()
 		}
 		var source Node = type_.toObjectType().getConstructor().getSource()
-		if (source != 0) {
+		if source != 0 {
 			Preconditions_checkState_boolean_Object((source.isFunction() || source.isClass()), source.box_())
 			var readable string = source.getFirstChild().getOriginalName()
 			if !String_isEmpty(readable) {
@@ -901,7 +949,7 @@ func (this *JSTypeRegistry) getReadableJSTypeName(n Node, dereference bool) Opti
 	}
 	if n.isGetProp() {
 		var objectType *ObjectType = this.getJSTypeOrUnknown(n.getFirstChild()).dereference()
-		if (objectType != nil) {
+		if objectType != nil {
 			var propName string = n.getString()
 			objectType = objectType.getClosestDefiningType(propName)
 			if JSTypeRegistry_isReadableObjectType(objectType) {
@@ -922,7 +970,7 @@ func (this *JSTypeRegistry) getReadableJSTypeName(n Node, dereference bool) Opti
 }
 
 func JSTypeRegistry_isReadableObjectType(type_ *ObjectType) bool {
-	if (type_ == nil) {
+	if type_ == nil {
 		return false
 	} else if type_.isInstanceType() {
 		return true
@@ -936,7 +984,7 @@ func JSTypeRegistry_isReadableObjectType(type_ *ObjectType) bool {
 
 func (this *JSTypeRegistry) getJSTypeOrUnknown(n Node) *JSType {
 	var jsType *JSType = n.getJSType()
-	if (jsType == nil) {
+	if jsType == nil {
 		return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	} else {
 		return jsType
@@ -967,18 +1015,18 @@ func (this *JSTypeRegistry) getType_5(scope StaticTypedScope, jsTypeName string,
 	}
 	var type_ *JSType = nil
 	var thisType *JSType = nil
-	if ((scope != nil) && (scope.getTypeOfThis() != nil)) {
+	if (scope != nil) && (scope.getTypeOfThis() != nil) {
 		thisType = scope.getTypeOfThis().toObjectType().up_JSType()
 	}
-	if (thisType != nil) {
+	if thisType != nil {
 		type_ = thisType.getTemplateTypeMap().getLastTemplateTypeKeyByName(jsTypeName).up_JSType()
-		if (type_ != nil) {
+		if type_ != nil {
 			Preconditions_checkState_boolean_String_Object(type_.isTemplateType(), "expected:%s", type_.self())
 			return type_
 		}
 	}
 	type_ = this.getType(StaticScope(scope), jsTypeName)
-	if (type_ == nil) {
+	if type_ == nil {
 		return this.createNamedType(scope, jsTypeName, sourceName, lineno, charno).up_JSType()
 	}
 	return type_
@@ -1005,7 +1053,7 @@ func (this *JSTypeRegistry) evaluateTypeExpressionInGlobalScope(expr *JSTypeExpr
 }
 
 func (this *JSTypeRegistry) createOptionalType(type_ *JSType) *JSType {
-	if (is_[*UnknownType](type_.self()) || type_.isAllType()) {
+	if is_[*UnknownType](type_.self()) || type_.isAllType() {
 		return type_
 	} else {
 		return this.createUnionType([]*JSType{type_, this.getNativeType(JSTypeNative_VOID_TYPE)})
@@ -1065,8 +1113,8 @@ func (this *JSTypeRegistry) createParameters(parameterTypes []*JSType) Immutable
 func (this *JSTypeRegistry) createParameters_2(lastVarArgs bool, parameterTypes []*JSType) ImmutableListOf[*FunctionType_Parameter] {
 	var builder *FunctionParamBuilder = new_FunctionParamBuilder_JSTypeRegistry(this)
 	var max_ int32 = (int32(len(parameterTypes)) - 1)
-	for i := int32(0); (i <= max_); i++ {
-		if (lastVarArgs && (i == max_)) {
+	for i := int32(0); i <= max_; i++ {
+		if lastVarArgs && (i == max_) {
 			builder.addVarArgs(parameterTypes[i])
 		} else {
 			builder.addRequiredParams([]*JSType{parameterTypes[i]})
@@ -1095,7 +1143,7 @@ func (this *JSTypeRegistry) createNativeFunctionType(returnType *JSType, paramet
 
 func (this *JSTypeRegistry) buildRecordTypeFromObject(objType *ObjectType) *JSType {
 	var recType *RecordType = objType.toMaybeRecordType()
-	if (recType != nil) {
+	if recType != nil {
 		return recType.up_JSType()
 	}
 	var propNames SetOf[string] = objType.getOwnPropertyNames()
@@ -1136,7 +1184,14 @@ func (this *JSTypeRegistry) createAnonymousObjectType(info *JSDocInfo) *ObjectTy
 func (this *JSTypeRegistry) resetImplicitPrototype(type_ *JSType, newImplicitProto *ObjectType) {
 	var poType *PrototypeObjectType
 	_ = poType
-	if func() bool { v_ := type_.self(); if !is_PrototypeObjectType(v_) { return false }; poType = to_PrototypeObjectType(v_); return true }() {
+	if func() bool {
+		v_ := type_.self()
+		if !is_PrototypeObjectType(v_) {
+			return false
+		}
+		poType = to_PrototypeObjectType(v_)
+		return true
+	}() {
 		poType.clearCachedValues()
 		poType.setImplicitPrototype(newImplicitProto)
 	}
@@ -1214,13 +1269,20 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 			var child *JSType = this.createTypeFromCommentNode_3(n.getFirstChild(), sourceName, scope)
 			var namedType *NamedType
 			_ = namedType
-			if func() bool { v_ := child.self(); if !is_[*NamedType](v_) { return false }; namedType = cast_[*NamedType](v_); return true }() {
+			if func() bool {
+				v_ := child.self()
+				if !is_[*NamedType](v_) {
+					return false
+				}
+				namedType = cast_[*NamedType](v_)
+				return true
+			}() {
 				return namedType.getBangType()
 			}
 			return child.restrictByNotNullOrUndefined()
 		case Token_rhino_QMARK:
 			var firstChild Node = n.getFirstChild()
-			if (firstChild == 0) {
+			if firstChild == 0 {
 				return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 			}
 			return this.createNullableType(this.createTypeFromCommentNode_3(firstChild, sourceName, scope))
@@ -1234,7 +1296,7 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 			var builder ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
 			{
 				var child Node = n.getFirstChild()
-				for ; (child != 0); child = child.getNext() {
+				for ; child != 0; child = child.getNext() {
 					builder.add(this.createTypeFromCommentNode_3(child, sourceName, scope).self())
 				}
 			}
@@ -1250,7 +1312,7 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 			var declarationScope StaticScope = scope.getTopmostScopeOfEventualDeclaration(root)
 			var rootSlot StaticSlot = scope.getSlot(root)
 			var type_ *JSType = scope.lookupQualifiedName(qname)
-			if (((type_ == nil) || type_.isUnknownType()) || (rootSlot.getScope() != declarationScope)) {
+			if ((type_ == nil) || type_.isUnknownType()) || (rootSlot.getScope() != declarationScope) {
 				return NamedType_builder(this, ("typeof " + sstr_(name))).setScope(scope).setResolutionKind(NamedType_ResolutionKind_TYPEOF).setErrorReportingLocationFrom(n).build().up_JSType()
 			}
 			if type_.isLiteralObject() {
@@ -1261,18 +1323,25 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 		case Token_rhino_STRINGLIT:
 			var nominalType *JSType = this.getType_5(scope, n.getString(), sourceName, n.getLineno(), n.getCharno())
 			var templateArgs ImmutableListOf[*JSType] = this.parseTemplateArgs(nominalType, n, sourceName, scope)
-			if (nominalType.isNamedType() && !nominalType.isResolved()) {
-				if (templateArgs != nil) {
+			if nominalType.isNamedType() && !nominalType.isResolved() {
+				if templateArgs != nil {
 					nominalType = nominalType.toMaybeNamedType().toBuilder().setTemplateTypes(templateArgs).build().up_JSType()
 				}
 				return this.addNullabilityBasedOnParseContext(n, nominalType, StaticScope(scope))
 			}
 			var objectType *ObjectType
 			_ = objectType
-			if !(func() bool { v_ := nominalType.self(); if !is_ObjectType(v_) { return false }; objectType = to_ObjectType(v_); return true }()) {
+			if !(func() bool {
+				v_ := nominalType.self()
+				if !is_ObjectType(v_) {
+					return false
+				}
+				objectType = to_ObjectType(v_)
+				return true
+			}()) {
 				return nominalType
 			}
-			if ((templateArgs == nil) || !nominalType.isRawTypeOfTemplatizedType()) {
+			if (templateArgs == nil) || !nominalType.isRawTypeOfTemplatizedType() {
 				return this.addNullabilityBasedOnParseContext(n, nominalType, StaticScope(scope))
 			}
 			return this.addNullabilityBasedOnParseContext(n, this.createTemplatizedTypeImmutableList(objectType, templateArgs).up_JSType(), StaticScope(scope))
@@ -1280,16 +1349,16 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 			var thisType *JSType = nil
 			var isConstructor bool = false
 			var current Node = n.getFirstChild()
-			if (current.isThis() || current.isNew()) {
+			if current.isThis() || current.isNew() {
 				var contextNode Node = current.getFirstChild()
 				var candidateThisType *JSType = this.createTypeFromCommentNode_3(contextNode, sourceName, scope)
-				if (candidateThisType.isNullType() || candidateThisType.isVoidType()) {
+				if candidateThisType.isNullType() || candidateThisType.isVoidType() {
 					thisType = candidateThisType
 				} else if current.isThis() {
 					thisType = candidateThisType.restrictByNotNullOrUndefined()
 				} else if current.isNew() {
 					thisType = ObjectType_cast(candidateThisType.restrictByNotNullOrUndefined()).up_JSType()
-					if (thisType == nil) {
+					if thisType == nil {
 						this.reporter.warning(Msg_JSDOC_FUNCTION_NEWNOTOBJECT.format(), sourceName, contextNode.getLineno(), contextNode.getCharno())
 					}
 				}
@@ -1297,11 +1366,11 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 				current = current.getNext()
 			}
 			var paramBuilder *FunctionParamBuilder = new_FunctionParamBuilder_JSTypeRegistry(this)
-			if (current.getToken() == Token_rhino_PARAM_LIST) {
+			if current.getToken() == Token_rhino_PARAM_LIST {
 				{
 					var arg Node = current.getFirstChild()
-					for ; (arg != 0); arg = arg.getNext() {
-						if (arg.getToken() == Token_rhino_ITER_REST) {
+					for ; arg != 0; arg = arg.getNext() {
+						if arg.getToken() == Token_rhino_ITER_REST {
 							if !arg.hasChildren() {
 								paramBuilder.addVarArgs(this.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 							} else {
@@ -1309,7 +1378,7 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 							}
 						} else {
 							var type_ *JSType = this.createTypeFromCommentNode_3(arg, sourceName, scope)
-							if (arg.getToken() == Token_rhino_EQUALS) {
+							if arg.getToken() == Token_rhino_EQUALS {
 								var addSuccess bool = paramBuilder.addOptionalParams([]*JSType{type_})
 								if !addSuccess {
 									this.reporter.warning(Msg_JSDOC_FUNCTION_VARARGS.format(), sourceName, arg.getLineno(), arg.getCharno())
@@ -1323,7 +1392,12 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 				current = current.getNext()
 			}
 			var returnType *JSType = this.createTypeFromCommentNode_3(current, sourceName, scope)
-			return FunctionType_builder(this).withParameters_1(icast_List(obj_(paramBuilder.build()))).withReturnType(returnType).withTypeOfThis(thisType).withKind(func() *FunctionType_Kind { if isConstructor { return FunctionType_Kind_CONSTRUCTOR }; return FunctionType_Kind_ORDINARY }()).build().up_JSType()
+			return FunctionType_builder(this).withParameters_1(icast_List(obj_(paramBuilder.build()))).withReturnType(returnType).withTypeOfThis(thisType).withKind(func() *FunctionType_Kind {
+				if isConstructor {
+					return FunctionType_Kind_CONSTRUCTOR
+				}
+				return FunctionType_Kind_ORDINARY
+			}()).build().up_JSType()
 		default:
 			panic(new_IllegalStateException_String(("Unexpected node in type expression: " + objstr_(n.box_()))).self())
 		}
@@ -1338,7 +1412,7 @@ func (this *JSTypeRegistry) addNullabilityBasedOnParseContext(n Node, type_ *JST
 		return type_
 	} else if type_.isTemplateType() {
 		return type_
-	} else if (n.hasParent() && (n.getParent().getToken() == Token_rhino_BANG)) {
+	} else if n.hasParent() && (n.getParent().getToken() == Token_rhino_BANG) {
 		return type_
 	} else {
 		return this.createNullableType(type_)
@@ -1348,28 +1422,28 @@ func (this *JSTypeRegistry) addNullabilityBasedOnParseContext(n Node, type_ *JST
 
 func (this *JSTypeRegistry) parseTemplateArgs(nominalType *JSType, typeNode Node, sourceName Optional[string], scope StaticTypedScope) ImmutableListOf[*JSType] {
 	var typeList Node = typeNode.getFirstChild()
-	if (typeList == 0) {
+	if typeList == 0 {
 		return nil
 	}
 	var templateArgs ArrayListOf[*JSType] = new_ArrayList_0()
 	{
 		var templateNode Node = typeList.getFirstChild()
-		for ; (templateNode != 0); templateNode = templateNode.getNext() {
+		for ; templateNode != 0; templateNode = templateNode.getNext() {
 			templateArgs.add(this.createTypeFromCommentNode_3(templateNode, sourceName, scope).self())
 		}
 	}
 	var isObject bool = ((typeNode.getString() == "Object") || (typeNode.getString() == "window.Object"))
-	if (isObject && (templateArgs.size() == 1)) {
+	if isObject && (templateArgs.size() == 1) {
 		templateArgs.add_int_Object(0, this.getNativeType(JSTypeNative_UNKNOWN_TYPE).self())
 	}
-	if (nominalType.isNamedType() && !nominalType.isResolved()) {
+	if nominalType.isNamedType() && !nominalType.isResolved() {
 		return ImmutableList_copyOf(icast_Collection(templateArgs.self()))
 	}
 	var requiredTemplateArgCount int32 = nominalType.getTemplateParamCount()
-	if (templateArgs.size() <= requiredTemplateArgCount) {
+	if templateArgs.size() <= requiredTemplateArgCount {
 		return ImmutableList_copyOf(icast_Collection(templateArgs.self()))
 	}
-	if (!nominalType.isUnknownType() && !this.isNonNullableName(StaticScope(scope), typeNode.getString())) {
+	if !nominalType.isUnknownType() && !this.isNonNullableName(StaticScope(scope), typeNode.getString()) {
 		var firstExtraTemplateParam Node = typeNode.getFirstChild().getChildAtIndex(requiredTemplateArgCount)
 		var message string = ("Too many template parameters\nFound " + istr_(int64(templateArgs.size())) + ", required at most " + istr_(int64(requiredTemplateArgCount)))
 		this.reporter.warning(message, sourceName, firstExtraTemplateParam.getLineno(), firstExtraTemplateParam.getCharno())
@@ -1381,15 +1455,15 @@ func (this *JSTypeRegistry) createRecordTypeFromNodes(n Node, sourceName Optiona
 	var builder *RecordTypeBuilder = new_RecordTypeBuilder(this)
 	{
 		var fieldTypeNode Node = n.getFirstChild()
-		for ; (fieldTypeNode != 0); fieldTypeNode = fieldTypeNode.getNext() {
+		for ; fieldTypeNode != 0; fieldTypeNode = fieldTypeNode.getNext() {
 			var fieldNameNode Node = fieldTypeNode
 			var hasType bool = false
-			if (fieldTypeNode.getToken() == Token_rhino_COLON) {
+			if fieldTypeNode.getToken() == Token_rhino_COLON {
 				fieldNameNode = fieldTypeNode.getFirstChild()
 				hasType = true
 			}
 			var fieldName string = fieldNameNode.getString()
-			if (String_startsWith(fieldName, "'") || String_startsWith(fieldName, "\"")) {
+			if String_startsWith(fieldName, "'") || String_startsWith(fieldName, "\"") {
 				fieldName = String_substring(fieldName, 1, (String_length(fieldName) - 1))
 			}
 			var fieldType *JSType = nil
@@ -1422,7 +1496,7 @@ func (this *JSTypeRegistry) nativeConstructorBuilder(name string) *FunctionType_
 
 func (this *JSTypeRegistry) nativeInterface(name string, templateKeys []*TemplateType) *FunctionType {
 	var builder *FunctionType_Builder = FunctionType_builder(this).forNativeType().forInterface().withName(Optional_of[string](name))
-	if (int32(len(templateKeys)) > 0) {
+	if int32(len(templateKeys)) > 0 {
 		builder.withTemplateKeys(templateKeys)
 	}
 	return to_FunctionType(builder.build().self())
@@ -1443,6 +1517,7 @@ func (this *JSTypeRegistry) registerLegacyClosureNamespace(moduleName string) {
 }
 
 var JSTypeRegistry_DOT_SPLITTER *Splitter
+
 const JSTypeRegistry_I_OBJECT_ELEMENT_TEMPLATE string = "IOBJECT_VALUE"
 const JSTypeRegistry_OBJECT_ELEMENT_TEMPLATE string = "IOBJECT_VALUE"
 
@@ -1516,14 +1591,31 @@ func JSTypeRegistry_PropDefinitionKind_clinit() {
 
 type JSTypeRegistry_SyntheticTemplateScope struct {
 	delegate StaticTypedScope
-	types PMap[string, *TemplateType]
+	types    PMap[string, *TemplateType]
 }
 
 func (this *JSTypeRegistry_SyntheticTemplateScope) init_JSTypeRegistry_SyntheticTemplateScope(delegate StaticTypedScope, templates IterableOf[*TemplateType]) {
 	this.delegate = delegate
 	var syntheticTemplateScope *JSTypeRegistry_SyntheticTemplateScope
 	_ = syntheticTemplateScope
-	var types PMap[string, *TemplateType] = func() PMap[string, *TemplateType] { if func() bool { v_ := any(delegate); if !is_[*JSTypeRegistry_SyntheticTemplateScope](v_) { return false }; syntheticTemplateScope = cast_[*JSTypeRegistry_SyntheticTemplateScope](v_); return true }() { return syntheticTemplateScope.types }; return func() PMap[string, *TemplateType] { if v := HamtPMap_empty[string, *TemplateType](); v != nil { return v }; return nil }() }()
+	var types PMap[string, *TemplateType] = func() PMap[string, *TemplateType] {
+		if func() bool {
+			v_ := any(delegate)
+			if !is_[*JSTypeRegistry_SyntheticTemplateScope](v_) {
+				return false
+			}
+			syntheticTemplateScope = cast_[*JSTypeRegistry_SyntheticTemplateScope](v_)
+			return true
+		}() {
+			return syntheticTemplateScope.types
+		}
+		return func() PMap[string, *TemplateType] {
+			if v := HamtPMap_empty[string, *TemplateType](); v != nil {
+				return v
+			}
+			return nil
+		}()
+	}()
 	it_1 := foreach_(any(templates))
 	for it_1.next() {
 		var key *TemplateType = cast_[*TemplateType](it_1.v)
@@ -1563,7 +1655,7 @@ func (this *JSTypeRegistry_SyntheticTemplateScope) getTemplateType(name string) 
 }
 
 func (this *JSTypeRegistry_SyntheticTemplateScope) getTopmostScopeOfEventualDeclaration(name string) StaticScope {
-	if (this.types.get(name) != nil) {
+	if this.types.get(name) != nil {
 		return icast_StaticScope(any(this))
 	}
 	return this.delegate.getTopmostScopeOfEventualDeclaration(name)
@@ -1574,9 +1666,9 @@ func (this *JSTypeRegistry_SyntheticTemplateScope) lookupQualifiedName(p0 *Quali
 }
 
 type JSTypeRegistry_ClosureNamespace struct {
-	isLegacy_ bool
+	isLegacy_       bool
 	definitionNode_ Node
-	type__ *JSType
+	type__          *JSType
 }
 
 func (this *JSTypeRegistry_ClosureNamespace) init_JSTypeRegistry_ClosureNamespace(isLegacy bool, definitionNode Node, type_ *JSType) {
@@ -1626,4 +1718,3 @@ func (this *JSTypeRegistry_ClosureNamespace) hashCode() int32 {
 	h = h*31 + Objects_hashCode(this.type__.self())
 	return h
 }
-

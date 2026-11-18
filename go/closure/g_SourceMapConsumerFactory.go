@@ -60,4 +60,3 @@ func SourceMapConsumerFactory_parseFast(contents string) *Outcome_base[*SourceMa
 	}
 	return Outcome_base_err[*SourceMapConsumerV3](new_SourceMapParseException("unable to detect source map format").up_Throwable())
 }
-

@@ -28,7 +28,7 @@ func (this *FunctionRewriter) process_2(externs Node, root Node) {
 			continue
 		}
 		var helperCode Node = this.parseHelperCode(reducer)
-		if (helperCode == 0) {
+		if helperCode == 0 {
 			continue
 		}
 		var helperCodeCost int32 = InlineCostEstimator_getCost_Node(helperCode)
@@ -38,7 +38,7 @@ func (this *FunctionRewriter) process_2(externs Node, root Node) {
 			var reduction *FunctionRewriter_Reduction = cast_[*FunctionRewriter_Reduction](it_3.v)
 			savings += reduction.estimateSavings()
 		}
-		if (savings > (helperCodeCost + FunctionRewriter_SAVINGS_THRESHOLD)) {
+		if savings > (helperCodeCost + FunctionRewriter_SAVINGS_THRESHOLD) {
 			it_5 := foreach_(any(reductions))
 			for it_5.next() {
 				var reduction *FunctionRewriter_Reduction = cast_[*FunctionRewriter_Reduction](it_5.v)
@@ -54,7 +54,12 @@ func (this *FunctionRewriter) process_2(externs Node, root Node) {
 
 func (this *FunctionRewriter) parseHelperCode(reducer *FunctionRewriter_Reducer) Node {
 	var root Node = this.compiler_.parseSyntheticCode((objstr_(obj_(Object_getClass(reducer.self()))) + ":helper"), reducer.getHelperSource())
-	return func() Node { if (root != 0) { return root.removeFirstChild() }; return 0 }()
+	return func() Node {
+		if root != 0 {
+			return root.removeFirstChild()
+		}
+		return 0
+	}()
 }
 
 func FunctionRewriter_isReduceableFunctionExpression(n Node) bool {
@@ -65,7 +70,7 @@ func FunctionRewriter_isReduceableFunctionExpression(n Node) bool {
 const FunctionRewriter_SAVINGS_THRESHOLD int32 = 16
 
 type FunctionRewriter_Reduction struct {
-	outer_ *FunctionRewriter
+	outer_   *FunctionRewriter
 	oldChild Node
 	newChild Node
 }
@@ -93,8 +98,8 @@ func (this *FunctionRewriter_Reduction) estimateSavings() int32 {
 }
 
 type FunctionRewriter_ReductionGatherer struct {
-	outer_ *FunctionRewriter
-	reducers []*FunctionRewriter_Reducer
+	outer_     *FunctionRewriter
+	reducers   []*FunctionRewriter_Reducer
 	reductions *SimpleSetMultimap
 }
 
@@ -113,7 +118,7 @@ func new_FunctionRewriter_ReductionGatherer(outer_ *FunctionRewriter, reducers L
 func (this *FunctionRewriter_ReductionGatherer) shouldTraverse(raversal *NodeTraversal, node Node, parent Node) bool {
 	for _, reducer := range this.reducers {
 		var replacement Node = reducer.reduce(node)
-		if (replacement != node) {
+		if replacement != node {
 			this.reductions.put(reducer.self(), obj_(new_FunctionRewriter_Reduction(this.outer_, node, replacement)))
 			return false
 		}
@@ -129,17 +134,23 @@ type FunctionRewriter_Reducer struct {
 	self_ any
 }
 
-func (this *FunctionRewriter_Reducer) as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer { return this }
+func (this *FunctionRewriter_Reducer) as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer {
+	return this
+}
 
 func to_FunctionRewriter_Reducer(v any) *FunctionRewriter_Reducer {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer }).as_FunctionRewriter_Reducer()
+	return v.(interface {
+		as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer
+	}).as_FunctionRewriter_Reducer()
 }
 
 func is_FunctionRewriter_Reducer(v any) bool {
-	_, ok := v.(interface{ as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer })
+	_, ok := v.(interface {
+		as_FunctionRewriter_Reducer() *FunctionRewriter_Reducer
+	})
 	return ok
 }
 
@@ -157,7 +168,7 @@ func (this *FunctionRewriter_Reducer) init_FunctionRewriter_Reducer() {
 func (this *FunctionRewriter_Reducer) buildCallNode(methodName string, argumentNode Node, srcref Node) Node {
 	var call Node = IR_call(IR_name(methodName), []Node{}).srcrefTree(srcref)
 	call.putBooleanProp(Node_FREE_CALL, true)
-	if (argumentNode != 0) {
+	if argumentNode != 0 {
 		call.addChildToBack(argumentNode.cloneTree())
 	}
 	return call
@@ -198,7 +209,7 @@ func (this *FunctionRewriter_EmptyFunctionReducer) getHelperSource_impl() string
 }
 
 func (this *FunctionRewriter_EmptyFunctionReducer) reduce_impl(node Node) Node {
-	if (FunctionRewriter_isReduceableFunctionExpression(node) && NodeUtil_isEmptyFunctionExpression(node)) {
+	if FunctionRewriter_isReduceableFunctionExpression(node) && NodeUtil_isEmptyFunctionExpression(node) {
 		return this.buildCallNode(FunctionRewriter_EmptyFunctionReducer_FACTORY_METHOD_NAME, 0, node)
 	} else {
 		return node
@@ -213,17 +224,23 @@ type FunctionRewriter_SingleReturnStatementReducer struct {
 	FunctionRewriter_Reducer
 }
 
-func (this *FunctionRewriter_SingleReturnStatementReducer) as_FunctionRewriter_SingleReturnStatementReducer() *FunctionRewriter_SingleReturnStatementReducer { return this }
+func (this *FunctionRewriter_SingleReturnStatementReducer) as_FunctionRewriter_SingleReturnStatementReducer() *FunctionRewriter_SingleReturnStatementReducer {
+	return this
+}
 
 func to_FunctionRewriter_SingleReturnStatementReducer(v any) *FunctionRewriter_SingleReturnStatementReducer {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_FunctionRewriter_SingleReturnStatementReducer() *FunctionRewriter_SingleReturnStatementReducer }).as_FunctionRewriter_SingleReturnStatementReducer()
+	return v.(interface {
+		as_FunctionRewriter_SingleReturnStatementReducer() *FunctionRewriter_SingleReturnStatementReducer
+	}).as_FunctionRewriter_SingleReturnStatementReducer()
 }
 
 func is_FunctionRewriter_SingleReturnStatementReducer(v any) bool {
-	_, ok := v.(interface{ as_FunctionRewriter_SingleReturnStatementReducer() *FunctionRewriter_SingleReturnStatementReducer })
+	_, ok := v.(interface {
+		as_FunctionRewriter_SingleReturnStatementReducer() *FunctionRewriter_SingleReturnStatementReducer
+	})
 	return ok
 }
 
@@ -305,7 +322,7 @@ func (this *FunctionRewriter_IdentityReducer) reduce_impl(node Node) Node {
 func (this *FunctionRewriter_IdentityReducer) isIdentityFunction(functionNode Node) bool {
 	var argList Node = functionNode.getSecondChild()
 	var paramNode Node = argList.getFirstChild()
-	if ((paramNode == 0) || !paramNode.isName()) {
+	if (paramNode == 0) || !paramNode.isName() {
 		return false
 	}
 	var value Node = this.maybeGetSingleReturnRValue(functionNode)
@@ -353,7 +370,7 @@ func (this *FunctionRewriter_ReturnConstantReducer) reduce_impl(node Node) Node 
 		return node
 	}
 	var valueNode Node = this.getValueNode(node)
-	if (valueNode != 0) {
+	if valueNode != 0 {
 		return this.buildCallNode(FunctionRewriter_ReturnConstantReducer_FACTORY_METHOD_NAME, valueNode, node)
 	} else {
 		return node
@@ -363,7 +380,7 @@ func (this *FunctionRewriter_ReturnConstantReducer) reduce_impl(node Node) Node 
 
 func (this *FunctionRewriter_ReturnConstantReducer) getValueNode(functionNode Node) Node {
 	var value Node = this.maybeGetSingleReturnRValue(functionNode)
-	if ((value != 0) && NodeUtil_isImmutableValue(value)) {
+	if (value != 0) && NodeUtil_isImmutableValue(value) {
 		return value
 	}
 	return 0
@@ -406,11 +423,11 @@ func (this *FunctionRewriter_GetterReducer) getHelperSource_impl() string {
 }
 
 func (this *FunctionRewriter_GetterReducer) reduce_impl(node Node) Node {
-	if (!FunctionRewriter_isReduceableFunctionExpression(node) || node.isArrowFunction()) {
+	if !FunctionRewriter_isReduceableFunctionExpression(node) || node.isArrowFunction() {
 		return node
 	}
 	var getprop Node = this.getGetPropertyName(node)
-	if (getprop != 0) {
+	if getprop != 0 {
 		if !getprop.isGetProp() {
 			panic(new_IllegalStateException_String(("Expected GETPROP, got " + objstr_(obj_(getprop.getToken())))).self())
 		}
@@ -424,7 +441,7 @@ func (this *FunctionRewriter_GetterReducer) reduce_impl(node Node) Node {
 
 func (this *FunctionRewriter_GetterReducer) getGetPropertyName(functionNode Node) Node {
 	var value Node = this.maybeGetSingleReturnRValue(functionNode)
-	if (((value != 0) && value.isGetProp()) && value.getFirstChild().isThis()) {
+	if ((value != 0) && value.isGetProp()) && value.getFirstChild().isThis() {
 		return value
 	}
 	return 0
@@ -460,11 +477,11 @@ func (this *FunctionRewriter_SetterReducer) getHelperSource_impl() string {
 }
 
 func (this *FunctionRewriter_SetterReducer) reduce_impl(node Node) Node {
-	if (!FunctionRewriter_isReduceableFunctionExpression(node) || node.isArrowFunction()) {
+	if !FunctionRewriter_isReduceableFunctionExpression(node) || node.isArrowFunction() {
 		return node
 	}
 	var propName Node = this.getSetPropertyName(node)
-	if (propName != 0) {
+	if propName != 0 {
 		if !propName.isStringLit() {
 			panic(new_IllegalStateException_String(("Expected STRING, got " + objstr_(obj_(propName.getToken())))).self())
 		}
@@ -482,7 +499,7 @@ func (this *FunctionRewriter_SetterReducer) getSetPropertyName(functionNode Node
 	}
 	var argList Node = functionNode.getSecondChild()
 	var paramNode Node = argList.getFirstChild()
-	if ((paramNode == 0) || !paramNode.isName()) {
+	if (paramNode == 0) || !paramNode.isName() {
 		return 0
 	}
 	var statement Node = body.getFirstChild()
@@ -491,9 +508,9 @@ func (this *FunctionRewriter_SetterReducer) getSetPropertyName(functionNode Node
 	}
 	var assign Node = statement.getFirstChild()
 	var lhs Node = assign.getFirstChild()
-	if (lhs.isGetProp() && lhs.getFirstChild().isThis()) {
+	if lhs.isGetProp() && lhs.getFirstChild().isThis() {
 		var rhs Node = assign.getLastChild()
-		if (rhs.isName() && (rhs.getString() == paramNode.getString())) {
+		if rhs.isName() && (rhs.getString() == paramNode.getString()) {
 			return IR_string(lhs.getString()).clonePropsFrom(lhs).srcref(lhs)
 		}
 	}
@@ -502,4 +519,3 @@ func (this *FunctionRewriter_SetterReducer) getSetPropertyName(functionNode Node
 
 const FunctionRewriter_SetterReducer_FACTORY_METHOD_NAME string = "JSCompiler_set"
 const FunctionRewriter_SetterReducer_HELPER_SOURCE string = "function JSCompiler_set(JSCompiler_set_name) {  return function(JSCompiler_set_value) {this[JSCompiler_set_name] = JSCompiler_set_value}}"
-

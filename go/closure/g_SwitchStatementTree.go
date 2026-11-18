@@ -4,7 +4,7 @@ package closure
 
 type SwitchStatementTree struct {
 	ParseTree
-	expression *ParseTree
+	expression  *ParseTree
 	caseClauses ImmutableListOf[*ParseTree]
 }
 
@@ -27,4 +27,3 @@ func new_SwitchStatementTree(location *SourceRange, expression *ParseTree, caseC
 	this.init_SwitchStatementTree(location, expression, caseClauses)
 	return this
 }
-

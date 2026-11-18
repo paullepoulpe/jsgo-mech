@@ -6,17 +6,23 @@ type AbstractPeepholeTranspilation struct {
 	self_ any
 }
 
-func (this *AbstractPeepholeTranspilation) as_AbstractPeepholeTranspilation() *AbstractPeepholeTranspilation { return this }
+func (this *AbstractPeepholeTranspilation) as_AbstractPeepholeTranspilation() *AbstractPeepholeTranspilation {
+	return this
+}
 
 func to_AbstractPeepholeTranspilation(v any) *AbstractPeepholeTranspilation {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_AbstractPeepholeTranspilation() *AbstractPeepholeTranspilation }).as_AbstractPeepholeTranspilation()
+	return v.(interface {
+		as_AbstractPeepholeTranspilation() *AbstractPeepholeTranspilation
+	}).as_AbstractPeepholeTranspilation()
 }
 
 func is_AbstractPeepholeTranspilation(v any) bool {
-	_, ok := v.(interface{ as_AbstractPeepholeTranspilation() *AbstractPeepholeTranspilation })
+	_, ok := v.(interface {
+		as_AbstractPeepholeTranspilation() *AbstractPeepholeTranspilation
+	})
 	return ok
 }
 
@@ -46,4 +52,3 @@ func (this *AbstractPeepholeTranspilation) getTranspiledAwayFeatures() *FeatureS
 func (this *AbstractPeepholeTranspilation) getAdditionalFeaturesToRunOn() *FeatureSet {
 	return this.self_.(interface{ getAdditionalFeaturesToRunOn_impl() *FeatureSet }).getAdditionalFeaturesToRunOn_impl()
 }
-

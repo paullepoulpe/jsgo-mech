@@ -3,15 +3,15 @@
 package closure
 
 type PolyfillUsageFinder struct {
-	compiler_ *AbstractCompiler
-	polyfills *PolyfillUsageFinder_Polyfills
-	disambiguateProperties_ bool
-	registry *ColorRegistry
-	hasInSupertypesListSeenSet *TSet[*Color]
+	compiler_                  *AbstractCompiler
+	polyfills                  *PolyfillUsageFinder_Polyfills
+	disambiguateProperties_    bool
+	registry                   *ColorRegistry
+	hasInSupertypesListSeenSet *JTSet[*Color]
 }
 
 func (this *PolyfillUsageFinder) finit_PolyfillUsageFinder() {
-	this.hasInSupertypesListSeenSet = newTSet_(tce_p_Color)
+	this.hasInSupertypesListSeenSet = jnewTSet_(tce_p_Color)
 }
 
 func (this *PolyfillUsageFinder) init_PolyfillUsageFinder(compiler *AbstractCompiler, polyfills *PolyfillUsageFinder_Polyfills, disambiguateProperties bool) {
@@ -19,7 +19,12 @@ func (this *PolyfillUsageFinder) init_PolyfillUsageFinder(compiler *AbstractComp
 	this.polyfills = polyfills
 	this.compiler_ = compiler
 	this.disambiguateProperties_ = disambiguateProperties
-	this.registry = func() *ColorRegistry { if compiler.hasOptimizationColors() { return compiler.getColorRegistry() }; return nil }()
+	this.registry = func() *ColorRegistry {
+		if compiler.hasOptimizationColors() {
+			return compiler.getColorRegistry()
+		}
+		return nil
+	}()
 }
 
 func new_PolyfillUsageFinder(compiler *AbstractCompiler, polyfills *PolyfillUsageFinder_Polyfills, disambiguateProperties bool) *PolyfillUsageFinder {
@@ -50,12 +55,12 @@ func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(t
 	if !Collection_contains_s(this.polyfills.suffixes, lastComponent) {
 		return nil
 	}
-	var components *TDeque[string] = newTDeque_(tc_string)
+	var components *TDeque[string] = newTDeque_(jtc_string)
 	components.push(lastComponent)
 	var ownerNode Node
 	{
 		ownerNode = getPropNode.getFirstChild()
-		for ; (ownerNode.isGetProp() || ownerNode.isOptChainGetProp()); ownerNode = ownerNode.getFirstChild() {
+		for ; ownerNode.isGetProp() || ownerNode.isOptChainGetProp(); ownerNode = ownerNode.getFirstChild() {
 			components.push(ownerNode.getString())
 		}
 	}
@@ -68,12 +73,12 @@ func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(t
 	var globalPrefix Optional[string] = PolyfillUsageFinder_findGlobalPrefix(fullName)
 	if globalPrefix.isPresent() {
 		var polyfill *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](Map_get_s(this.polyfills.statics, String_substring_int(fullName, String_length(globalPrefix.get()))))
-		if (polyfill != nil) {
+		if polyfill != nil {
 			return PolyfillUsageFinder_PolyfillUsage_createExplicit(polyfill, getPropNode, polyfill.nativeSymbol)
 		}
 	} else {
 		var polyfill *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](Map_get_s(this.polyfills.statics, fullName))
-		if (polyfill != nil) {
+		if polyfill != nil {
 			if this.isPolyfillVisibleInScope(traversal, rootName) {
 				return PolyfillUsageFinder_PolyfillUsage_createNonExplicit(polyfill, getPropNode, polyfill.nativeSymbol)
 			}
@@ -99,7 +104,7 @@ func PolyfillUsageFinder_findGlobalPrefix(qualifiedName string) Optional[string]
 
 func PolyfillUsageFinder_getMethodOwner(nativeSymbol string) Optional[string] {
 	var protoIdx int32 = String_indexOf_String(nativeSymbol, ".prototype.")
-	if (protoIdx != -1) {
+	if protoIdx != -1 {
 		return Optional_of[string](String_substring(nativeSymbol, 0, protoIdx))
 	}
 	return Optional_empty[string]()
@@ -109,11 +114,11 @@ func (this *PolyfillUsageFinder) isDisjointFromIterator_2(getPropNode Node, owne
 	if !("Iterator" == ownerName.orElse("")) {
 		return false
 	}
-	if (this.registry == nil) {
+	if this.registry == nil {
 		return false
 	}
 	var receiverColor *Color = getPropNode.getFirstChild().getColor()
-	if (receiverColor == nil) {
+	if receiverColor == nil {
 		return false
 	}
 	return this.isDisjointFromIterator(receiverColor)
@@ -140,7 +145,7 @@ func (this *PolyfillUsageFinder) isDisjointFromIterator(receiver *Color) bool {
 	if receiver.isPrimitive() {
 		return true
 	}
-	if (receiver.isInvalidating() && !PolyfillUsageFinder_STANDARD_COLLECTION_IDS.contains(obj_(receiver.getId()))) {
+	if receiver.isInvalidating() && !PolyfillUsageFinder_STANDARD_COLLECTION_IDS.contains(obj_(receiver.getId())) {
 		return false
 	}
 	return (!this.hasInSupertypesList(receiver, iteratorColor) && !this.hasInSupertypesList(iteratorColor, receiver))
@@ -204,11 +209,11 @@ func PolyfillUsageFinder_clinit() {
 }
 
 type PolyfillUsageFinder_Polyfill struct {
-	nativeSymbol string
-	nativeVersion string
+	nativeSymbol    string
+	nativeVersion   string
 	polyfillVersion string
-	library string
-	kind_ *PolyfillUsageFinder_Polyfill_Kind
+	library         string
+	kind_           *PolyfillUsageFinder_Polyfill_Kind
 }
 
 func (this *PolyfillUsageFinder_Polyfill) zero_PolyfillUsageFinder_Polyfill() {
@@ -287,9 +292,9 @@ func PolyfillUsageFinder_Polyfill_Kind_clinit() {
 }
 
 type PolyfillUsageFinder_Polyfills struct {
-	methods *SimpleListMultimap
-	statics ImmutableMapOf[string, *PolyfillUsageFinder_Polyfill]
-	suffixes ImmutableSetOf[string]
+	methods         *SimpleListMultimap
+	statics         ImmutableMapOf[string, *PolyfillUsageFinder_Polyfill]
+	suffixes        ImmutableSetOf[string]
 	byNativeVersion *SimpleListMultimap
 }
 
@@ -297,7 +302,7 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.methods = methods
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
-	var suffixList *TList[string] = newTList_(tc_string)
+	var suffixList *JTList[string] = jnewTList_(jtc_string)
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](statics.keySet())))
 	for it_1.next() {
 		var arg string = str_(it_1.v)
@@ -320,16 +325,26 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	for it_1.next() {
 		var line string = str_(it_1.v)
 		var tokens ListOf[string] = Splitter_on(' ').omitEmptyStrings().splitToList(strobj_(String_trim(line)))
-		if ((tokens.size() == 1) && String_isEmpty(str_(tokens.get(0)))) {
+		if (tokens.size() == 1) && String_isEmpty(str_(tokens.get(0))) {
 			continue
-		} else if (tokens.size() < 3) {
+		} else if tokens.size() < 3 {
 			panic(new_IllegalArgumentException_String(("Invalid table: too few tokens on line: " + sstr_(line))).self())
 		}
 		var symbol string = str_(tokens.get(0))
 		var isPrototypeMethod bool = String_contains(symbol, strobj_(".prototype."))
 		var nativeVersionStr string = str_(tokens.get(1))
 		var polyfillVersionStr string = str_(tokens.get(2))
-		var polyfill *PolyfillUsageFinder_Polyfill = new_PolyfillUsageFinder_Polyfill(symbol, nativeVersionStr, polyfillVersionStr, func() string { if (tokens.size() > 3) { return str_(tokens.get(3)) }; return "" }(), func() *PolyfillUsageFinder_Polyfill_Kind { if isPrototypeMethod { return PolyfillUsageFinder_Polyfill_Kind_METHOD }; return PolyfillUsageFinder_Polyfill_Kind_STATIC }())
+		var polyfill *PolyfillUsageFinder_Polyfill = new_PolyfillUsageFinder_Polyfill(symbol, nativeVersionStr, polyfillVersionStr, func() string {
+			if tokens.size() > 3 {
+				return str_(tokens.get(3))
+			}
+			return ""
+		}(), func() *PolyfillUsageFinder_Polyfill_Kind {
+			if isPrototypeMethod {
+				return PolyfillUsageFinder_Polyfill_Kind_METHOD
+			}
+			return PolyfillUsageFinder_Polyfill_Kind_STATIC
+		}())
 		if isPrototypeMethod {
 			methods.put(strobj_(PolyfillUsageFinder_PROTOTYPE_PREFIX_PATTERN.matcher(strobj_(symbol)).replaceAll("")), obj_(polyfill))
 		} else {
@@ -355,9 +370,9 @@ func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode *C
 }
 
 type PolyfillUsageFinder_PolyfillUsage struct {
-	polyfill_ *PolyfillUsageFinder_Polyfill
-	node_ Node
-	name_ string
+	polyfill_         *PolyfillUsageFinder_Polyfill
+	node_             Node
+	name_             string
 	isExplicitGlobal_ bool
 }
 
@@ -497,8 +512,8 @@ func PolyfillUsageFinder_Guard_clinit() {
 
 type PolyfillUsageFinder_Traverser struct {
 	GuardedCallback[string]
-	outer_ *PolyfillUsageFinder
-	polyfillConsumer ConsumerOf[*PolyfillUsageFinder_PolyfillUsage]
+	outer_               *PolyfillUsageFinder
+	polyfillConsumer     ConsumerOf[*PolyfillUsageFinder_PolyfillUsage]
 	includeGuardedUsages *PolyfillUsageFinder_Guard
 }
 
@@ -537,29 +552,29 @@ func (this *PolyfillUsageFinder_Traverser) visitGuarded_impl(traversal *NodeTrav
 func (this *PolyfillUsageFinder_Traverser) visitName(traversal *NodeTraversal, nameNode Node) {
 	var name string = nameNode.getString()
 	var polyfill *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](Map_get_s(this.outer_.polyfills.statics, name))
-	if (polyfill == nil) {
+	if polyfill == nil {
 		return
 	}
-	if (this.outer_.isPolyfillVisibleInScope(traversal, name) && this.includeGuardedUsages.shouldInclude(this.isGuarded(name))) {
+	if this.outer_.isPolyfillVisibleInScope(traversal, name) && this.includeGuardedUsages.shouldInclude(this.isGuarded(name)) {
 		this.polyfillConsumer.accept(obj_(PolyfillUsageFinder_PolyfillUsage_createNonExplicit(polyfill, nameNode, name)))
 	}
 }
 
 func (this *PolyfillUsageFinder_Traverser) visitGetPropChain(traversal *NodeTraversal, getPropNode Node) {
 	var staticPolyfillUsage *PolyfillUsageFinder_PolyfillUsage = this.outer_.maybeCreateStaticPolyfillUsageForGetPropChain(traversal, getPropNode)
-	if (staticPolyfillUsage != nil) {
+	if staticPolyfillUsage != nil {
 		if this.includeGuardedUsages.shouldInclude(this.isGuarded(staticPolyfillUsage.name())) {
 			this.polyfillConsumer.accept(obj_(staticPolyfillUsage))
 		}
 	} else {
 		var propertyName string = getPropNode.getString()
 		var methodPolyfills ListOf[*PolyfillUsageFinder_Polyfill] = this.outer_.polyfills.methods.get(strobj_(propertyName))
-		if (!methodPolyfills.isEmpty() && this.includeGuardedUsages.shouldInclude(this.isGuarded(("." + sstr_(propertyName))))) {
+		if !methodPolyfills.isEmpty() && this.includeGuardedUsages.shouldInclude(this.isGuarded(("." + sstr_(propertyName)))) {
 			it_1 := foreach_(any(methodPolyfills))
 			for it_1.next() {
 				var polyfill *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](it_1.v)
 				var ownerName Optional[string] = PolyfillUsageFinder_getMethodOwner(polyfill.nativeSymbol)
-				if (this.outer_.disambiguateProperties_ && this.outer_.isDisjointFromIterator_2(getPropNode, ownerName)) {
+				if this.outer_.disambiguateProperties_ && this.outer_.isDisjointFromIterator_2(getPropNode, ownerName) {
 					continue
 				}
 				this.polyfillConsumer.accept(obj_(PolyfillUsageFinder_PolyfillUsage_createNonExplicit(polyfill, getPropNode, propertyName)))
@@ -567,4 +582,3 @@ func (this *PolyfillUsageFinder_Traverser) visitGetPropChain(traversal *NodeTrav
 		}
 	}
 }
-

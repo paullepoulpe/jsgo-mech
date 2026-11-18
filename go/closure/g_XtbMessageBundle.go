@@ -3,12 +3,12 @@
 package closure
 
 type XtbMessageBundle struct {
-	messages *TMap[string, *JsMessage]
+	messages         *JTMap[string, *JsMessage]
 	idGeneratorField JsMessage_IdGenerator
 }
 
 func (this *XtbMessageBundle) init_XtbMessageBundle(xtb []int8, projectId Optional[string]) {
-	this.messages = newTMap_(tc_string, tc_p_JsMessage)
+	this.messages = jnewTMap_(jtc_string, jtc_p_JsMessage)
 	this.idGeneratorField = icast_JsMessage_IdGenerator(obj_(new_GoogleJsMessageIdGenerator(projectId)))
 	_ = func() (code_ int) {
 		defer func() {
@@ -77,9 +77,9 @@ func XtbMessageBundle_clinit() {
 }
 
 type XtbMessageBundle_Handler struct {
-	outer_ *XtbMessageBundle
+	outer_     *XtbMessageBundle
 	genderCase string
-	lang Optional[string]
+	lang       Optional[string]
 	msgBuilder *JsMessage_Builder
 }
 
@@ -156,7 +156,7 @@ func (this *XtbMessageBundle_Handler) startElement(uri string, localName string,
 }
 
 func (this *XtbMessageBundle_Handler) endElement(uri string, localName string, qName string) {
-	if (XtbMessageBundle_Handler_TRANSLATION_ELEM_NAME == qName) {
+	if XtbMessageBundle_Handler_TRANSLATION_ELEM_NAME == qName {
 		Preconditions_checkState((this.msgBuilder != nil))
 		if !this.msgBuilder.hasParts() {
 			this.msgBuilder.appendStringPart("")
@@ -168,7 +168,7 @@ func (this *XtbMessageBundle_Handler) endElement(uri string, localName string, q
 }
 
 func (this *XtbMessageBundle_Handler) characters(ch []uint16, start int32, length int32) {
-	if (this.msgBuilder != nil) {
+	if this.msgBuilder != nil {
 		var part string = String_valueOf_charArr_int_int(ch, start, length)
 		if this.msgBuilder.hasGenderedVariants() {
 			this.msgBuilder.appendStringPart_2(JsMessage_GrammaticalGenderCase_valueOf(this.genderCase), part)
@@ -179,7 +179,7 @@ func (this *XtbMessageBundle_Handler) characters(ch []uint16, start int32, lengt
 }
 
 func (this *XtbMessageBundle_Handler) ignorableWhitespace(ch []uint16, start int32, length int32) {
-	if (this.msgBuilder != nil) {
+	if this.msgBuilder != nil {
 		if this.msgBuilder.hasGenderedVariants() {
 			this.msgBuilder.appendStringPart_2(JsMessage_GrammaticalGenderCase_valueOf(this.genderCase), String_valueOf_charArr_int_int(ch, start, length))
 		} else {
@@ -209,6 +209,7 @@ const XtbMessageBundle_Handler_FEMALE_GENDER_CASE string = "FEMININE"
 const XtbMessageBundle_Handler_NEUTER_GENDER_CASE string = "NEUTER"
 const XtbMessageBundle_Handler_OTHER_GENDER_CASE string = "OTHER"
 const XtbMessageBundle_Handler_GENDER_VARIANT_PATTERN string = "grammatical_gender_case:[\\s\\x0B]*(\\w+)"
+
 var XtbMessageBundle_Handler_GET_STRING_PATTERN *Pattern
 
 var XtbMessageBundle_Handler_clinit_done bool
@@ -238,4 +239,3 @@ func new_XtbMessageBundle_SecureEntityResolver() *XtbMessageBundle_SecureEntityR
 func (this *XtbMessageBundle_SecureEntityResolver) resolveEntity(publicId string, systemId string) *InputSource {
 	return new_InputSource_Reader(new_StringReader("").up_Reader())
 }
-

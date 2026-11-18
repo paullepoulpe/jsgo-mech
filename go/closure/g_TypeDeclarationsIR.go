@@ -59,7 +59,7 @@ func TypeDeclarationsIR_recordType(properties LinkedHashMapOf[string, Node]) Nod
 		var prop Map_Entry = icast_Map_Entry(it_1.v)
 		var stringKey Node = IR_stringKey_String(str_(prop.getKey()))
 		node.addChildToBack(stringKey)
-		if (Node_of_(prop.getValue()) != 0) {
+		if Node_of_(prop.getValue()) != 0 {
 			stringKey.addChildToFront(Node_of_(prop.getValue()))
 		}
 	}
@@ -67,7 +67,7 @@ func TypeDeclarationsIR_recordType(properties LinkedHashMapOf[string, Node]) Nod
 }
 
 func TypeDeclarationsIR_maybeAddType(node Node, type_ Node) Node {
-	if (type_ != 0) {
+	if type_ != 0 {
 		node.setDeclaredTypeExpression(type_)
 	}
 	return node
@@ -132,4 +132,3 @@ func TypeDeclarationsIR_unionTypeNodeVarargs(options []Node) Node {
 func TypeDeclarationsIR_optionalParameter(parameterType Node) Node {
 	return new_Node_Token_Node(Token_rhino_OPTIONAL_PARAMETER, parameterType)
 }
-

@@ -3,18 +3,18 @@
 package closure
 
 type RuntimeJsLibManager struct {
-	changeTracker *ChangeTracker
-	mode_ *RuntimeJsLibManager_RuntimeLibraryMode
-	resourceProvider RuntimeJsLibManager_ResourceProvider
+	changeTracker        *ChangeTracker
+	mode_                *RuntimeJsLibManager_RuntimeLibraryMode
+	resourceProvider     RuntimeJsLibManager_ResourceProvider
 	nodeForCodeInsertion SupplierOf[Node]
-	injectedLibs *TSet[string]
-	internedFields *TMap[string, *RuntimeJsLibManager_InternalField]
-	lastInjectedLibrary Node
+	injectedLibs         *JTSet[string]
+	internedFields       *JTMap[string, *RuntimeJsLibManager_InternalField]
+	lastInjectedLibrary  Node
 }
 
 func (this *RuntimeJsLibManager) finit_RuntimeJsLibManager() {
-	this.injectedLibs = newTSet_(tc_string)
-	this.internedFields = newTMap_(tc_string, tc_p_RuntimeJsLibManager_InternalField)
+	this.injectedLibs = jnewTSet_(jtc_string)
+	this.internedFields = jnewTMap_(jtc_string, jtc_p_RuntimeJsLibManager_InternalField)
 	this.lastInjectedLibrary = 0
 }
 
@@ -49,7 +49,7 @@ func (this *RuntimeJsLibManager) getInjectedLibraries() ImmutableListOf[string] 
 }
 
 func (this *RuntimeJsLibManager) getExternedFields() ImmutableListOf[RuntimeJsLibManager_ExternedField] {
-	if (this.mode_ != RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES) {
+	if this.mode_ != RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
 		return ImmutableList_of()
 	}
 	var result ImmutableList_BuilderOf[RuntimeJsLibManager_ExternedField] = ImmutableList_builder()
@@ -100,7 +100,7 @@ func (this *RuntimeJsLibManager) injectLibForField(fieldName string) {
 		return
 	}
 	field.markInjected()
-	if (this.mode_ == RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES) {
+	if this.mode_ == RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
 		var externRoot Node = Node_of_(this.nodeForCodeInsertion.get())
 		Preconditions_checkState_boolean_Object(externRoot.isFromExterns(), externRoot.box_())
 		var declaration Node = IR_var_Node(IR_name(field.qualifiedName()))
@@ -137,14 +137,14 @@ func (this *RuntimeJsLibManager) injectLibrary(ast Node) Node {
 	}
 	{
 		var child Node = ast.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			this.changeTracker.markNewScopesChanged(child)
 		}
 	}
 	var endOfLib Node = ast.getLastChild()
 	var firstChild Node = ast.removeChildren()
 	var parent Node = Node_of_(this.nodeForCodeInsertion.get())
-	if (this.lastInjectedLibrary == 0) {
+	if this.lastInjectedLibrary == 0 {
 		parent.addChildrenToFront(firstChild)
 	} else {
 		parent.addChildrenAfter(firstChild, this.lastInjectedLibrary)
@@ -157,7 +157,7 @@ func (this *RuntimeJsLibManager) injectLibrary(ast Node) Node {
 func (this *RuntimeJsLibManager) injectLibraryDependencies(ast Node, force bool) {
 	{
 		var node Node = ast.getFirstChild()
-		for ; (((node != 0) && node.isExprResult()) && node.getFirstChild().isStringLit()); node = ast.getFirstChild() {
+		for ; ((node != 0) && node.isExprResult()) && node.getFirstChild().isStringLit(); node = ast.getFirstChild() {
 			var directive string = node.getFirstChild().getString()
 			var words ListOf[string] = Splitter_on(' ').limit(2).splitToList(strobj_(directive))
 			switch str_(words.get(0)) {
@@ -295,11 +295,11 @@ func RuntimeJsLibManager_FieldsTable_clinit() {
 }
 
 type RuntimeJsLibManager_InternalField struct {
-	outer_ *RuntimeJsLibManager
-	resourceNameField string
-	qualifiedNameField string
+	outer_              *RuntimeJsLibManager
+	resourceNameField   string
+	qualifiedNameField  string
 	uncompiledNameField string
-	injected bool
+	injected            bool
 }
 
 func (this *RuntimeJsLibManager_InternalField) zero_RuntimeJsLibManager_InternalField() {
@@ -379,4 +379,3 @@ type RuntimeJsLibManager_ExternedField interface {
 	RuntimeJsLibManager_InjectedJsLibField
 	uncompiledName() string
 }
-

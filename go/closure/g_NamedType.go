@@ -4,16 +4,16 @@ package closure
 
 type NamedType struct {
 	ProxyObjectType
-	reference string
-	sourceName_ string
-	lineno_ int32
-	charno_ int32
-	resolutionKind *NamedType_ResolutionKind
-	resolutionScope StaticTypedScope
-	validator Predicate_baseOf[*JSType]
-	propertyContinuations *TList[*NamedType_PropertyContinuation]
-	templateTypes ImmutableListOf[*JSType]
-	restrictByNull bool
+	reference             string
+	sourceName_           string
+	lineno_               int32
+	charno_               int32
+	resolutionKind        *NamedType_ResolutionKind
+	resolutionScope       StaticTypedScope
+	validator             Predicate_baseOf[*JSType]
+	propertyContinuations *JTList[*NamedType_PropertyContinuation]
+	templateTypes         ImmutableListOf[*JSType]
+	restrictByNull        bool
 }
 
 func (this *NamedType) up_ProxyObjectType() *ProxyObjectType {
@@ -87,7 +87,12 @@ func (this *NamedType) getBangType() *JSType {
 	if this.restrictByNull {
 		return this.up_JSType()
 	} else if this.isResolved() {
-		return func() *JSType { if (this.isNoResolvedType() || this.isUnknownType()) { return this.up_JSType() }; return this.getReferencedType().restrictByNotNullOrUndefined() }()
+		return func() *JSType {
+			if this.isNoResolvedType() || this.isUnknownType() {
+				return this.up_JSType()
+			}
+			return this.getReferencedType().restrictByNotNullOrUndefined()
+		}()
 	}
 	return this.toBuilder().setRestrictByNull(true).build().up_JSType()
 }
@@ -98,8 +103,8 @@ func (this *NamedType) getTemplateTypes_impl() ImmutableListOf[*JSType] {
 
 func (this *NamedType) defineProperty_impl(propertyName Property_Key, type_ *JSType, inferred bool, propertyNode Node) bool {
 	if !this.isResolved() {
-		if (this.propertyContinuations == nil) {
-			this.propertyContinuations = newTList_(tc_p_NamedType_PropertyContinuation)
+		if this.propertyContinuations == nil {
+			this.propertyContinuations = jnewTList_(jtc_p_NamedType_PropertyContinuation)
 		}
 		this.propertyContinuations.add(new_NamedType_PropertyContinuation(propertyName, type_, inferred, propertyNode))
 		return true
@@ -111,7 +116,7 @@ func (this *NamedType) defineProperty_impl(propertyName Property_Key, type_ *JST
 
 func (this *NamedType) finishPropertyContinuations() {
 	var referencedObjType *ObjectType = this.getReferencedObjTypeInternal()
-	if (((referencedObjType != nil) && !referencedObjType.isUnknownType()) && (this.propertyContinuations != nil)) {
+	if ((referencedObjType != nil) && !referencedObjType.isUnknownType()) && (this.propertyContinuations != nil) {
 		it_1 := this.propertyContinuations.each()
 		for it_1.next() {
 			var c *NamedType_PropertyContinuation = it_1.v
@@ -131,7 +136,7 @@ func (this *NamedType) getReferenceName_impl() Optional[string] {
 
 func (this *NamedType) appendTo_impl(sb *TypeStringBuilder) {
 	var type_ *JSType = this.getReferencedType()
-	if (!this.isResolved() || type_.isNoResolvedType()) {
+	if !this.isResolved() || type_.isNoResolvedType() {
 		sb.append(this.getReferenceName().orElseThrow())
 	} else {
 		sb.appendJSType(type_)
@@ -143,11 +148,21 @@ func (this *NamedType) toMaybeNamedType_impl() *NamedType {
 }
 
 func (this *NamedType) isNominalType_impl() bool {
-	return func() bool { if this.isResolved() { return this.ProxyObjectType.isNominalType_impl() }; return true }()
+	return func() bool {
+		if this.isResolved() {
+			return this.ProxyObjectType.isNominalType_impl()
+		}
+		return true
+	}()
 }
 
 func (this *NamedType) recursionUnsafeHashCode_impl() int32 {
-	return func() int32 { if this.isSuccessfullyResolved() { return this.ProxyObjectType.recursionUnsafeHashCode_impl() }; return NamedType_nominalHashCode(this.up_ObjectType()) }()
+	return func() int32 {
+		if this.isSuccessfullyResolved() {
+			return this.ProxyObjectType.recursionUnsafeHashCode_impl()
+		}
+		return NamedType_nominalHashCode(this.up_ObjectType())
+	}()
 }
 
 func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
@@ -160,7 +175,7 @@ func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 		return this.ProxyObjectType.resolveInternal_impl(reporter)
 	}
 	Preconditions_checkState_boolean_Object(this.getReferencedType().isUnknownType(), strobj_("NamedTypes given a referenced type pre-resolution should have ResolutionKind.NONE"))
-	if (this.resolutionScope == nil) {
+	if this.resolutionScope == nil {
 		return this.up_JSType()
 	}
 	var unused bool = (this.resolveTypeof(reporter) || this.resolveViaRegistry(reporter))
@@ -174,14 +189,14 @@ func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 	if this.isSuccessfullyResolved() {
 		this.resolutionScope = nil
 		var resultAsObject *ObjectType = result.toMaybeObjectType()
-		if (resultAsObject == nil) {
+		if resultAsObject == nil {
 			return result
 		}
-		if (resolvedTypeArgs.isEmpty() || !resultAsObject.isRawTypeOfTemplatizedType()) {
+		if resolvedTypeArgs.isEmpty() || !resultAsObject.isRawTypeOfTemplatizedType() {
 			return result
 		}
 		var numKeys int32 = result.getTemplateParamCount()
-		if (numKeys < resolvedTypeArgs.size()) {
+		if numKeys < resolvedTypeArgs.size() {
 			resolvedTypeArgs = cast_[*ImmutableList](resolvedTypeArgs.subList(0, numKeys))
 		}
 		result = this.registry.createTemplatizedTypeImmutableList(resultAsObject, resolvedTypeArgs).up_JSType()
@@ -192,7 +207,7 @@ func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 
 func (this *NamedType) resolveViaRegistry(reporter ErrorReporter_rhino) bool {
 	var type_ *JSType = this.registry.getType(StaticScope(this.resolutionScope), this.reference)
-	if (type_ == nil) {
+	if type_ == nil {
 		this.handleUnresolvedType(reporter)
 		return false
 	}
@@ -206,10 +221,10 @@ func (this *NamedType) resolveTypeof(reporter ErrorReporter_rhino) bool {
 	}
 	var scopeName string = String_substring_int(this.reference, String_length("typeof "))
 	var type_ *JSType = this.resolutionScope.lookupQualifiedName(QualifiedName_of(scopeName))
-	if ((type_ == nil) || type_.isUnknownType()) {
+	if (type_ == nil) || type_.isUnknownType() {
 		if this.registry.isForwardDeclaredType(scopeName) {
 			this.setReferencedType(new_NoResolvedType(this.registry, this.getReferenceName().orElseThrow(), this.getTemplateTypes()).up_JSType())
-			if (this.validator != nil) {
+			if this.validator != nil {
 				var unused bool = this.validator.apply(this.getReferencedType().self())
 				_ = unused
 			}
@@ -231,7 +246,7 @@ func (this *NamedType) setReferencedAndResolvedType(type_ *JSType, reporter Erro
 	if this.restrictByNull {
 		type_ = type_.restrictByNotNullOrUndefined()
 	}
-	if (this.validator != nil) {
+	if this.validator != nil {
 		var unused bool = this.validator.apply(type_.self())
 		_ = unused
 	}
@@ -249,7 +264,14 @@ func (this *NamedType) checkEnumElementCycle(reporter ErrorReporter_rhino) {
 	var referencedType *JSType = this.getReferencedType()
 	var enumElementType *EnumElementType
 	_ = enumElementType
-	if (func() bool { v_ := referencedType.self(); if !is_[*EnumElementType](v_) { return false }; enumElementType = cast_[*EnumElementType](v_); return true }() && JSCompObjects_identical(obj_(this), enumElementType.getPrimitiveType().self())) {
+	if func() bool {
+		v_ := referencedType.self()
+		if !is_[*EnumElementType](v_) {
+			return false
+		}
+		enumElementType = cast_[*EnumElementType](v_)
+		return true
+	}() && JSCompObjects_identical(obj_(this), enumElementType.getPrimitiveType().self()) {
 		this.handleTypeCycle(reporter)
 	}
 }
@@ -265,16 +287,21 @@ func (this *NamedType) handleUnresolvedType(reporter ErrorReporter_rhino) {
 	var isForwardDeclared bool = this.registry.isForwardDeclaredType(this.reference)
 	if !isForwardDeclared {
 		var msg string = ("Bad type annotation. Unknown type " + sstr_(this.reference))
-		var root string = func() string { if String_contains(this.reference, strobj_(".")) { return String_substring(this.reference, 0, String_indexOf_String(this.reference, ".")) }; return this.reference }()
+		var root string = func() string {
+			if String_contains(this.reference, strobj_(".")) {
+				return String_substring(this.reference, 0, String_indexOf_String(this.reference, "."))
+			}
+			return this.reference
+		}()
 		if this.localVariableShadowsGlobalNamespace(root) {
 			msg += sstr_(("\nIt's possible that a local variable called '" + sstr_(root) + "' is shadowing the intended global namespace."))
-		} else if (icast_StaticTypedSlot(this.resolutionScope.getSlot(root)) != nil) {
+		} else if icast_StaticTypedSlot(this.resolutionScope.getSlot(root)) != nil {
 			msg += sstr_(("\nIt's possible that '" + sstr_(this.reference) + "' refers to a value, not a type."))
 		}
 		this.warning(reporter, msg)
 	} else {
 		this.setReferencedType(new_NoResolvedType(this.registry, this.getReferenceName().orElseThrow(), this.getTemplateTypes()).up_JSType())
-		if (this.validator != nil) {
+		if this.validator != nil {
 			var unused bool = this.validator.apply(this.getReferencedType().self())
 			_ = unused
 		}
@@ -283,10 +310,10 @@ func (this *NamedType) handleUnresolvedType(reporter ErrorReporter_rhino) {
 
 func (this *NamedType) localVariableShadowsGlobalNamespace(root string) bool {
 	var rootVar StaticSlot = this.resolutionScope.getSlot(root)
-	if (rootVar != nil) {
+	if rootVar != nil {
 		Preconditions_checkNotNull_Object_Object(any(rootVar.getScope()), any(rootVar))
 		var parent StaticScope = rootVar.getScope().getParentScope()
-		if (parent != nil) {
+		if parent != nil {
 			var globalVar StaticSlot = parent.getSlot(root)
 			return (globalVar != nil)
 		}
@@ -345,9 +372,9 @@ func NamedType_clinit() {
 
 type NamedType_PropertyContinuation struct {
 	propertyName_ Property_Key
-	type__ *JSType
-	inferred bool
-	propertyNode Node
+	type__        *JSType
+	inferred      bool
+	propertyNode  Node
 }
 
 func (this *NamedType_PropertyContinuation) init_NamedType_PropertyContinuation(propertyName Property_Key, type_ *JSType, inferred bool, propertyNode Node) {
@@ -423,16 +450,16 @@ func NamedType_ResolutionKind_clinit() {
 }
 
 type NamedType_Builder struct {
-	registry *JSTypeRegistry
+	registry       *JSTypeRegistry
 	resolutionKind *NamedType_ResolutionKind
-	referenceName string
-	scope_ StaticTypedScope
-	sourceName_ string
-	lineno_ int32
-	charno_ int32
+	referenceName  string
+	scope_         StaticTypedScope
+	sourceName_    string
+	lineno_        int32
+	charno_        int32
 	referencedType *JSType
 	restrictByNull bool
-	templateTypes ImmutableListOf[*JSType]
+	templateTypes  ImmutableListOf[*JSType]
 }
 
 func (this *NamedType_Builder) zero_NamedType_Builder() {
@@ -501,4 +528,3 @@ func (this *NamedType_Builder) setRestrictByNull(restrictByNull bool) *NamedType
 func (this *NamedType_Builder) build() *NamedType {
 	return new_NamedType(this)
 }
-

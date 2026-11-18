@@ -38,7 +38,12 @@ func new_TokenType_Optional(name_ string, ordinal_ int32, value Optional[string]
 }
 
 func (this *TokenType) toString() string {
-	return func() string { if this.value_.isEmpty() { return Keywords_get(this).toString() }; return this.value_.get() }()
+	return func() string {
+		if this.value_.isEmpty() {
+			return Keywords_get(this).toString()
+		}
+		return this.value_.get()
+	}()
 }
 
 func TokenType_values() []*TokenType {
@@ -301,4 +306,3 @@ func TokenType_clinit() {
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.TokenType", enumValues_(TokenType_values_))
 
 }
-

@@ -60,4 +60,3 @@ func CheckLevel_clinit() {
 	registerEnum_("com.google.javascript.jscomp.CheckLevel", enumValues_(CheckLevel_values_))
 
 }
-

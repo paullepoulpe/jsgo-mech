@@ -3,7 +3,7 @@
 package closure
 
 type SourceInfoCheck struct {
-	compiler_ *AbstractCompiler
+	compiler_           *AbstractCompiler
 	requiresLineNumbers bool
 }
 
@@ -43,13 +43,13 @@ func (this *SourceInfoCheck) visit(unused *NodeTraversal, n Node, parent Node) {
 	if n.isScript() {
 		this.requiresLineNumbers = false
 	} else if this.requiresLineNumbers {
-		if (n.getLineno() == -1) {
+		if n.getLineno() == -1 {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, SourceInfoCheck_MISSING_LINE_INFO, []string{n.toStringTree()}))
-		} else if (n.getLength() < 0) {
+		} else if n.getLength() < 0 {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, SourceInfoCheck_MISSING_LENGTH, []string{n.toStringTree()}))
 		}
 		var info *JSDocInfo = n.getJSDocInfo()
-		if (info != nil) {
+		if info != nil {
 			this.checkJSDoc(info)
 		}
 	}
@@ -69,7 +69,7 @@ func (this *SourceInfoCheck) checkJSDoc(info *JSDocInfo) {
 
 func (this *SourceInfoCheck) checkSourceFile(n Node) {
 	var sourceName StaticSourceFile = n.getStaticSourceFile()
-	if (sourceName == nil) {
+	if sourceName == nil {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, SourceInfoCheck_MISSING_SOURCE_NAME, []string{("type node " + sstr_(n.toStringTree()))}))
 	}
 }
@@ -90,4 +90,3 @@ func SourceInfoCheck_clinit() {
 	SourceInfoCheck_MISSING_SOURCE_NAME = DiagnosticType_error("JSC_MISSING_SOURCE_NAME", "No source name associated with {0}.\nMost likely a new type was created without setting the source name.")
 
 }
-

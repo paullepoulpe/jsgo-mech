@@ -3,16 +3,16 @@
 package closure
 
 type SourceMapObject struct {
-	version_ int32
-	lineCount int32
-	sourceRoot Optional[string]
-	file Optional[string]
-	mappings Optional[string]
-	sources []string
+	version_       int32
+	lineCount      int32
+	sourceRoot     Optional[string]
+	file           Optional[string]
+	mappings       Optional[string]
+	sources        []string
 	sourcesContent []string
-	names_ []string
-	sections ListOf[*SourceMapSection]
-	extensions MapOf[string, any]
+	names_         []string
+	sections       ListOf[*SourceMapSection]
+	extensions     MapOf[string, any]
 }
 
 func (this *SourceMapObject) init_SourceMapObject(version int32, lineCount int32, sourceRoot Optional[string], file Optional[string], mappings Optional[string], sources []string, sourcesContent []string, names []string, sections ListOf[*SourceMapSection], extensions MapOf[string, any]) {
@@ -79,16 +79,16 @@ func SourceMapObject_builder() *SourceMapObject_Builder {
 }
 
 type SourceMapObject_Builder struct {
-	version_ int32
-	lineCount int32
-	sourceRoot Optional[string]
-	file Optional[string]
-	mappings Optional[string]
-	sources []string
+	version_       int32
+	lineCount      int32
+	sourceRoot     Optional[string]
+	file           Optional[string]
+	mappings       Optional[string]
+	sources        []string
 	sourcesContent []string
-	names_ []string
-	sections ListOf[*SourceMapSection]
-	extensions MapOf[string, any]
+	names_         []string
+	sections       ListOf[*SourceMapSection]
+	extensions     MapOf[string, any]
 }
 
 func (this *SourceMapObject_Builder) finit_SourceMapObject_Builder() {
@@ -160,4 +160,3 @@ func (this *SourceMapObject_Builder) setExtensions(extensions MapOf[string, any]
 func (this *SourceMapObject_Builder) build() *SourceMapObject {
 	return new_SourceMapObject(this.version_, this.lineCount, this.sourceRoot, this.file, this.mappings, this.sources, this.sourcesContent, this.names_, this.sections, this.extensions)
 }
-

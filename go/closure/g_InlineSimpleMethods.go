@@ -3,14 +3,14 @@
 package closure
 
 type InlineSimpleMethods struct {
-	nonInlineableProperties *TSet[string]
-	methodDefinitions *SimpleSetMultimap
-	compiler_ *AbstractCompiler
-	astAnalyzer *AstAnalyzer
+	nonInlineableProperties *JTSet[string]
+	methodDefinitions       *SimpleSetMultimap
+	compiler_               *AbstractCompiler
+	astAnalyzer             *AstAnalyzer
 }
 
 func (this *InlineSimpleMethods) finit_InlineSimpleMethods() {
-	this.nonInlineableProperties = newTSet_(tc_string)
+	this.nonInlineableProperties = jnewTSet_(jtc_string)
 	this.methodDefinitions = SimpleSetMultimap_createInsertionOrdered()
 }
 
@@ -76,7 +76,7 @@ func (this *InlineSimpleMethods) allDefinitionsEquivalent(definitions SetOf[Node
 	it_1 := foreach_(any(definitions))
 	for it_1.next() {
 		var n Node = Node_of_(it_1.v)
-		if (first == 0) {
+		if first == 0 {
 			first = n
 		} else if !this.compiler_.areNodesEqualForInlining(first, n) {
 			return false
@@ -89,14 +89,14 @@ func (this *InlineSimpleMethods) anyDefinitionsNotInlineable(definitions SetOf[N
 	it_1 := foreach_(any(definitions))
 	for it_1.next() {
 		var n Node = Node_of_(it_1.v)
-		if (n.isAsyncFunction() || n.isGeneratorFunction()) {
+		if n.isAsyncFunction() || n.isGeneratorFunction() {
 			return true
 		}
 		if NodeUtil_functionParametersMayHaveSideEffects(n, this.astAnalyzer) {
 			return true
 		}
 		var jsDocInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(n.getParent())
-		if ((jsDocInfo != nil) && jsDocInfo.isNoInline()) {
+		if (jsDocInfo != nil) && jsDocInfo.isNoInline() {
 			return true
 		}
 	}
@@ -131,7 +131,7 @@ func (this *InlineSimpleMethods) inlineEmptyMethod(t *NodeTraversal, parent Node
 func (this *InlineSimpleMethods) argsMayHaveSideEffects(call Node) bool {
 	{
 		var currentChild Node = call.getSecondChild()
-		for ; (currentChild != 0); currentChild = currentChild.getNext() {
+		for ; currentChild != 0; currentChild = currentChild.getNext() {
 			if this.astAnalyzer.mayHaveSideEffects(currentChild) {
 				return true
 			}
@@ -141,7 +141,7 @@ func (this *InlineSimpleMethods) argsMayHaveSideEffects(call Node) bool {
 }
 
 func (this *InlineSimpleMethods) addPossibleSignature(name string, node Node) {
-	if ((node != 0) && node.isFunction()) {
+	if (node != 0) && node.isFunction() {
 		this.addSignature(name, node)
 	} else {
 		this.nonInlineableProperties.add(name)
@@ -202,10 +202,10 @@ func (this *InlineSimpleMethods_InlineTrivialAccessors) visit_4_impl(t *NodeTrav
 		return
 	}
 	var definitions SetOf[Node] = this.outer_.methodDefinitions.get(strobj_(callName))
-	if ((definitions == nil) || definitions.isEmpty()) {
+	if (definitions == nil) || definitions.isEmpty() {
 		return
 	}
-	if ((definitions.size() > 1) && !this.outer_.allDefinitionsEquivalent(definitions)) {
+	if (definitions.size() > 1) && !this.outer_.allDefinitionsEquivalent(definitions) {
 		this.outer_.nonInlineableProperties.add(callName)
 		return
 	}
@@ -214,15 +214,15 @@ func (this *InlineSimpleMethods_InlineTrivialAccessors) visit_4_impl(t *NodeTrav
 		return
 	}
 	var firstDefinition Node = Node_of_(definitions.iterator().next())
-	if (!this.outer_.argsMayHaveSideEffects(callNode) && !NodeUtil_referencesSuper(callNode)) {
+	if !this.outer_.argsMayHaveSideEffects(callNode) && !NodeUtil_referencesSuper(callNode) {
 		var returned Node = InlineSimpleMethods_returnedExpression(firstDefinition)
-		if (returned != 0) {
-			if (InlineSimpleMethods_isPropertyTree(returned) && !firstDefinition.isArrowFunction()) {
+		if returned != 0 {
+			if InlineSimpleMethods_isPropertyTree(returned) && !firstDefinition.isArrowFunction() {
 				this.outer_.inlinePropertyReturn(callNode, returned)
-			} else if (NodeUtil_isLiteralValue(returned, false) && !this.outer_.astAnalyzer.mayHaveSideEffects(callNode.getFirstChild())) {
+			} else if NodeUtil_isLiteralValue(returned, false) && !this.outer_.astAnalyzer.mayHaveSideEffects(callNode.getFirstChild()) {
 				this.outer_.inlineConstReturn(callNode, returned)
 			}
-		} else if (InlineSimpleMethods_isEmptyMethod(firstDefinition) && !this.outer_.astAnalyzer.mayHaveSideEffects(callNode.getFirstChild())) {
+		} else if InlineSimpleMethods_isEmptyMethod(firstDefinition) && !this.outer_.astAnalyzer.mayHaveSideEffects(callNode.getFirstChild()) {
 			this.outer_.inlineEmptyMethod(t, parent, callNode)
 		}
 	}
@@ -259,17 +259,17 @@ func (this *InlineSimpleMethods_GatherSignatures) visit_impl(t *NodeTraversal, n
 		if name.isEmpty() {
 			return
 		}
-		if (name.get() == "prototype") {
+		if name.get() == "prototype" {
 			this.processPrototypeParent(parent)
 		} else {
-			if (parent.isAssign() && n.isFirstChildOf(parent)) {
+			if parent.isAssign() && n.isFirstChildOf(parent) {
 				this.outer_.addPossibleSignature(name.get(), n.getNext())
 			}
 		}
 	case Token_rhino_OBJECTLIT, Token_rhino_CLASS_MEMBERS:
 		{
 			var key Node = n.getFirstChild()
-			for ; (key != 0); key = key.getNext() {
+			for ; key != 0; key = key.getNext() {
 				switch key.getToken() {
 				case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_STRING_KEY:
 					this.outer_.addPossibleSignature(key.getString(), key.getFirstChild())
@@ -294,11 +294,10 @@ func (this *InlineSimpleMethods_GatherSignatures) processPrototypeParent(n Node)
 	case Token_rhino_GETPROP, Token_rhino_GETELEM:
 		var grandparent Node = n.getGrandparent()
 		var name Optional[string] = InlineSimpleMethods_getPropName(n)
-		if (name.isPresent() && grandparent.isAssign()) {
+		if name.isPresent() && grandparent.isAssign() {
 			var assignee Node = grandparent.getSecondChild()
 			this.outer_.addPossibleSignature(name.get(), assignee)
 		}
 	default:
 	}
 }
-

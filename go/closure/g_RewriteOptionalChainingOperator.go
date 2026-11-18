@@ -3,7 +3,7 @@
 package closure
 
 type RewriteOptionalChainingOperator struct {
-	compiler_ *AbstractCompiler
+	compiler_                    *AbstractCompiler
 	getTmpVarNameCreatorForInput FunctionOf[*CompilerInput, OptionalChainRewriter_TmpVarNameCreator]
 }
 
@@ -42,14 +42,14 @@ func (this *RewriteOptionalChainingOperator) process_2(externs Node, root Node) 
 }
 
 type RewriteOptionalChainingOperator_TranspilationCallback struct {
-	outer_ *RewriteOptionalChainingOperator
+	outer_          *RewriteOptionalChainingOperator
 	rewriterBuilder *OptionalChainRewriter_Builder
-	optChains *TList[*OptionalChainRewriter]
+	optChains       *JTList[*OptionalChainRewriter]
 }
 
 func (this *RewriteOptionalChainingOperator_TranspilationCallback) finit_RewriteOptionalChainingOperator_TranspilationCallback() {
 	this.rewriterBuilder = OptionalChainRewriter_builder(this.outer_.compiler_)
-	this.optChains = newTList_(tc_p_OptionalChainRewriter)
+	this.optChains = jnewTList_(jtc_p_OptionalChainRewriter)
 }
 
 func (this *RewriteOptionalChainingOperator_TranspilationCallback) init_RewriteOptionalChainingOperator_TranspilationCallback() {
@@ -86,4 +86,3 @@ func (this *RewriteOptionalChainingOperator_TranspilationCallback) visit(t *Node
 		}
 	}
 }
-

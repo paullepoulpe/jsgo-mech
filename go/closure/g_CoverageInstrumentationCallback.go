@@ -3,16 +3,16 @@
 package closure
 
 type CoverageInstrumentationCallback struct {
-	instrumentationData *TMap[string, *FileInstrumentationData]
-	reach *CoverageInstrumentationPass_CoverageReach
+	instrumentationData *JTMap[string, *FileInstrumentationData]
+	reach               *CoverageInstrumentationPass_CoverageReach
 }
 
-func (this *CoverageInstrumentationCallback) init_CoverageInstrumentationCallback(instrumentationData *TMap[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) {
+func (this *CoverageInstrumentationCallback) init_CoverageInstrumentationCallback(instrumentationData *JTMap[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) {
 	this.instrumentationData = instrumentationData
 	this.reach = reach
 }
 
-func new_CoverageInstrumentationCallback(instrumentationData *TMap[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationCallback {
+func new_CoverageInstrumentationCallback(instrumentationData *JTMap[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationCallback {
 	this := &CoverageInstrumentationCallback{}
 	this.init_CoverageInstrumentationCallback(instrumentationData, reach)
 	return this
@@ -35,7 +35,12 @@ func (this *CoverageInstrumentationCallback) newInstrumentationNode(traversal *N
 	this.instrumentationData.computeIfAbsent(fileName.orElse(nullstr_), &Function_tfn_string_FileInstrumentationData{func(k string) *FileInstrumentationData {
 		return new_FileInstrumentationData(k, arrayName)
 	}})
-	func() *FileInstrumentationData { if fileName.isPresent() { return this.instrumentationData.get(fileName.get()) }; return nil }().setLineAsInstrumented(lineNumber)
+	func() *FileInstrumentationData {
+		if fileName.isPresent() {
+			return this.instrumentationData.get(fileName.get())
+		}
+		return nil
+	}().setLineAsInstrumented(lineNumber)
 	return exprNode.srcrefTreeIfMissing(node)
 }
 
@@ -46,7 +51,12 @@ func (this *CoverageInstrumentationCallback) newArrayDeclarationNode(traversal *
 func (this *CoverageInstrumentationCallback) newHeaderNode(traversal *NodeTraversal, srcref Node) Node {
 	var fileName Optional[string] = CoverageInstrumentationCallback_getFileName(traversal)
 	var arrayName string = this.createArrayName(traversal)
-	var data *FileInstrumentationData = func() *FileInstrumentationData { if fileName.isPresent() { return this.instrumentationData.get(fileName.get()) }; return nil }()
+	var data *FileInstrumentationData = func() *FileInstrumentationData {
+		if fileName.isPresent() {
+			return this.instrumentationData.get(fileName.get())
+		}
+		return nil
+	}()
 	Preconditions_checkNotNull(obj_(data))
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
 	return IR_blockNodeVarargs([]Node{this.newArrayDeclarationNode(traversal), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("executedLines")), "push"), []Node{IR_name(arrayName)})), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("instrumentedLines")), "push"), []Node{IR_string(data.getInstrumentedLinesAsHexString())})), IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("fileNames")), "push"), []Node{IR_string(fileName.get())}))}).srcrefTreeIfMissing(srcref)
@@ -59,8 +69,13 @@ func (this *CoverageInstrumentationCallback) shouldTraverse(nodeTraversal *NodeT
 func (this *CoverageInstrumentationCallback) visit(traversal *NodeTraversal, node Node, parent Node) {
 	if node.isScript() {
 		var fileName Optional[string] = CoverageInstrumentationCallback_getFileName(traversal)
-		if (func() *FileInstrumentationData { if fileName.isPresent() { return this.instrumentationData.get(fileName.get()) }; return nil }() != nil) {
-			if (node.hasChildren() && node.getFirstChild().isModuleBody()) {
+		if func() *FileInstrumentationData {
+			if fileName.isPresent() {
+				return this.instrumentationData.get(fileName.get())
+			}
+			return nil
+		}() != nil {
+			if node.hasChildren() && node.getFirstChild().isModuleBody() {
 				node = node.getFirstChild()
 			}
 			node.addChildrenToFront(this.newHeaderNode(traversal, node).removeChildren())
@@ -68,16 +83,16 @@ func (this *CoverageInstrumentationCallback) visit(traversal *NodeTraversal, nod
 		traversal.reportCodeChange()
 		return
 	}
-	if (((this.reach == CoverageInstrumentationPass_CoverageReach_CONDITIONAL) && (parent != 0)) && parent.isScript()) {
+	if ((this.reach == CoverageInstrumentationPass_CoverageReach_CONDITIONAL) && (parent != 0)) && parent.isScript() {
 		return
 	}
-	if (node.isFunction() && !NodeUtil_getFunctionBody(node).isBlock()) {
+	if node.isFunction() && !NodeUtil_getFunctionBody(node).isBlock() {
 		var returnValue Node = NodeUtil_getFunctionBody(node)
 		var body Node = IR_block_Node(IR_returnNode_Node(returnValue.detach()))
 		body.srcrefTreeIfMissing(returnValue)
 		node.addChildToBack(body)
 	}
-	if ((((node.isFunction() || node.isWith()) || node.isCase()) || node.isDefaultCase()) || node.isCatch()) {
+	if (((node.isFunction() || node.isWith()) || node.isCase()) || node.isDefaultCase()) || node.isCatch() {
 		var codeBlock Node = node.getLastChild()
 		codeBlock.addChildToFront(this.newInstrumentationNode(traversal, node))
 		traversal.reportCodeChange()
@@ -89,7 +104,7 @@ func (this *CoverageInstrumentationCallback) visit(traversal *NodeTraversal, nod
 		traversal.reportCodeChange()
 		return
 	}
-	if (((parent != 0) && NodeUtil_isStatementBlock(parent)) && !node.isModuleBody()) {
+	if ((parent != 0) && NodeUtil_isStatementBlock(parent)) && !node.isModuleBody() {
 		this.newInstrumentationNode(traversal, node).insertBefore(node)
 		traversal.reportCodeChange()
 		return
@@ -97,4 +112,3 @@ func (this *CoverageInstrumentationCallback) visit(traversal *NodeTraversal, nod
 }
 
 const CoverageInstrumentationCallback_ARRAY_NAME_PREFIX string = "JSCompiler_lcov_data_"
-

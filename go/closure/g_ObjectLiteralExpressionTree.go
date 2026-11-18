@@ -5,7 +5,7 @@ package closure
 type ObjectLiteralExpressionTree struct {
 	ParseTree
 	propertyNameAndValues ImmutableListOf[*ParseTree]
-	hasTrailingComma_ bool
+	hasTrailingComma_     bool
 }
 
 func (this *ObjectLiteralExpressionTree) up_ParseTree() *ParseTree {
@@ -27,4 +27,3 @@ func new_ObjectLiteralExpressionTree(location *SourceRange, propertyNameAndValue
 	this.init_ObjectLiteralExpressionTree(location, propertyNameAndValues, hasTrailingComma)
 	return this
 }
-

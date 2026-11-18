@@ -3,7 +3,7 @@
 package closure
 
 type DependencyOptions struct {
-	mode_ *DependencyOptions_DependencyMode
+	mode_        *DependencyOptions_DependencyMode
 	entryPoints_ ImmutableListOf[*ModuleIdentifier]
 }
 
@@ -67,38 +67,38 @@ func DependencyOptions_pruneForEntryPoints(entryPoints IterableOf[*ModuleIdentif
 
 func DependencyOptions_fromFlags(dependencyModeFlag *DependencyOptions_DependencyMode, entryPointFlag ListOf[string], closureEntryPointFlag ListOf[string], commonJsEntryModuleFlag Optional[string], manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base[*DependencyOptions] {
 	var hasEntryPoint bool = ((commonJsEntryModuleFlag.isPresent() || !entryPointFlag.isEmpty()) || !closureEntryPointFlag.isEmpty())
-	if (!hasEntryPoint && onlyClosureDependenciesFlag) {
+	if !hasEntryPoint && onlyClosureDependenciesFlag {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--only_closure_dependencies requires --entry_point.").up_Throwable())
 	}
-	if (!hasEntryPoint && (dependencyModeFlag == DependencyOptions_DependencyMode_PRUNE)) {
+	if !hasEntryPoint && (dependencyModeFlag == DependencyOptions_DependencyMode_PRUNE) {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--dependency_mode=PRUNE requires --entry_point.").up_Throwable())
 	}
-	if (hasEntryPoint && ((dependencyModeFlag == DependencyOptions_DependencyMode_NONE) || (dependencyModeFlag == DependencyOptions_DependencyMode_SORT_ONLY))) {
+	if hasEntryPoint && ((dependencyModeFlag == DependencyOptions_DependencyMode_NONE) || (dependencyModeFlag == DependencyOptions_DependencyMode_SORT_ONLY)) {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException(("--dependency_mode=" + objstr_(obj_(dependencyModeFlag)) + " cannot be used with --entry_point, --closure_entry_point or --common_js_entry_module.")).up_Throwable())
 	}
-	if (!entryPointFlag.isEmpty() && !closureEntryPointFlag.isEmpty()) {
+	if !entryPointFlag.isEmpty() && !closureEntryPointFlag.isEmpty() {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--closure_entry_point cannot be used with --entry_point.").up_Throwable())
 	}
-	if (commonJsEntryModuleFlag.isPresent() && (!entryPointFlag.isEmpty() || !closureEntryPointFlag.isEmpty())) {
+	if commonJsEntryModuleFlag.isPresent() && (!entryPointFlag.isEmpty() || !closureEntryPointFlag.isEmpty()) {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--common_js_entry_module cannot be used with either --entry_point or --closure_entry_point.").up_Throwable())
 	}
-	if (manageClosureDependenciesFlag && onlyClosureDependenciesFlag) {
+	if manageClosureDependenciesFlag && onlyClosureDependenciesFlag {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--only_closure_dependencies cannot be used with --manage_closure_dependencies.").up_Throwable())
 	}
-	if (manageClosureDependenciesFlag && (dependencyModeFlag != nil)) {
+	if manageClosureDependenciesFlag && (dependencyModeFlag != nil) {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--manage_closure_dependencies cannot be used with --dependency_mode.").up_Throwable())
 	}
-	if (onlyClosureDependenciesFlag && (dependencyModeFlag != nil)) {
+	if onlyClosureDependenciesFlag && (dependencyModeFlag != nil) {
 		return Outcome_base_err[*DependencyOptions](new_FlagUsageException("--only_closure_dependencies cannot be used with --dependency_mode.").up_Throwable())
 	}
 	var dependencyMode *DependencyOptions_DependencyMode
-	if ((dependencyModeFlag == DependencyOptions_DependencyMode_PRUNE) || onlyClosureDependenciesFlag) {
+	if (dependencyModeFlag == DependencyOptions_DependencyMode_PRUNE) || onlyClosureDependenciesFlag {
 		dependencyMode = DependencyOptions_DependencyMode_PRUNE
-	} else if (dependencyModeFlag == DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS) {
+	} else if dependencyModeFlag == DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS {
 		dependencyMode = DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS
-	} else if (((dependencyModeFlag == DependencyOptions_DependencyMode_PRUNE_LEGACY) || manageClosureDependenciesFlag) || hasEntryPoint) {
+	} else if ((dependencyModeFlag == DependencyOptions_DependencyMode_PRUNE_LEGACY) || manageClosureDependenciesFlag) || hasEntryPoint {
 		dependencyMode = DependencyOptions_DependencyMode_PRUNE_LEGACY
-	} else if (dependencyModeFlag != nil) {
+	} else if dependencyModeFlag != nil {
 		dependencyMode = dependencyModeFlag
 	} else {
 		return Outcome_base_ok_Object[*DependencyOptions](nil)
@@ -220,4 +220,3 @@ func DependencyOptions_DependencyMode_clinit() {
 	registerEnum_("com.google.javascript.jscomp.DependencyOptions.DependencyMode", enumValues_(DependencyOptions_DependencyMode_values_))
 
 }
-
