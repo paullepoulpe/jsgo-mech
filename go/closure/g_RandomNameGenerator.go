@@ -86,8 +86,8 @@ func (this *RandomNameGenerator) checkPrefix(prefix string) {
 		if !this.firstChars.contains(any(uint16(String_charAt(prefix, 0)))) {
 			panic(new_IllegalArgumentException_String(("prefix must start with one of: " + sstr_(Joiner_on(", ").join(Iterable(this.firstChars.asSet()))))).self())
 		}
-		for pos := int32(1); pos < String_length(prefix); pos++ {
-			if !this.nonFirstChars.contains(any(uint16(String_charAt(prefix, pos)))) {
+		for _, u_ := range stringUnitsFrom_(prefix, int32(1)) {
+			if !this.nonFirstChars.contains(any(uint16(u_))) {
 				panic(new_IllegalArgumentException_String(("prefix has invalid characters, must be one of: " + sstr_(Joiner_on(", ").join(Iterable(this.nonFirstChars.asSet()))))).self())
 			}
 		}
