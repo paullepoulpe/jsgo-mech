@@ -89,7 +89,7 @@ func (this *TypedScopeCreator) getAllSymbols() IterableOf[*TypedVar] {
 }
 
 func (this *TypedScopeCreator) getNodeToScopeMapper() FunctionOf[Node, *TypedScope] {
-	return &Function_tfn_Node_TypedScope{func(p0 Node) *TypedScope { return this.memoized.get(p0) }}
+	return &Function_tfn_Node_TypedScope{func(p0 Node) *TypedScope { return this.memoized.Get(p0) }}
 }
 
 func (this *TypedScopeCreator) getAllMemoizedScopes() CollectionOf[*TypedScope] {
@@ -97,7 +97,7 @@ func (this *TypedScopeCreator) getAllMemoizedScopes() CollectionOf[*TypedScope] 
 }
 
 func (this *TypedScopeCreator) createScope(n Node) *TypedScope {
-	var s *TypedScope = this.memoized.get(n)
+	var s *TypedScope = this.memoized.Get(n)
 	return func() *TypedScope {
 		if s != nil {
 			return s
@@ -111,14 +111,14 @@ func (this *TypedScopeCreator) createScopeAbstractScope(root Node, parent *Abstr
 		panic(new_IllegalArgumentException_0())
 	}
 	var typedParent *TypedScope = cast_[*TypedScope](parent.self())
-	var scope *TypedScope = this.memoized.get(root)
+	var scope *TypedScope = this.memoized.Get(root)
 	if scope != nil {
 		if typedParent != cast_[*TypedScope](scope.getParent().self()) {
 			panic(new_IllegalStateException_0())
 		}
 	} else {
 		scope = this.createScopeInternal(root, typedParent)
-		this.memoized.put(root, scope)
+		this.memoized.Put(root, scope)
 	}
 	return scope.up_AbstractScope()
 }
@@ -255,7 +255,7 @@ func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 	this.declareNativeValueType(s, "undefined", JSTypeNative_VOID_TYPE)
 	this.addWellKnownSymbols(s)
 	this.gatherAllProvides(root)
-	this.memoized.put(root, s)
+	this.memoized.Put(root, s)
 	return s
 }
 
@@ -486,7 +486,7 @@ func new_TypedScopeCreator_WeakModuleImport(outer_ *TypedScopeCreator, moduleLoc
 }
 
 func (this *TypedScopeCreator_WeakModuleImport) resolve() {
-	var resolvedScope *TypedScope = this.outer_.memoized.get(this.scopedImport.getScopeRoot())
+	var resolvedScope *TypedScope = this.outer_.memoized.Get(this.scopedImport.getScopeRoot())
 	var requiredVar *TypedVar = func() *TypedVar {
 		if resolvedScope != nil {
 			return cast_[*TypedVar](resolvedScope.getSlot(this.scopedImport.getName()))
@@ -1131,7 +1131,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineModuleImport(localName
 	}
 	var exportScope *TypedScope = func() *TypedScope {
 		if exportedName.getScopeRoot() != 0 {
-			return this.outer_.memoized.get(exportedName.getScopeRoot())
+			return this.outer_.memoized.Get(exportedName.getScopeRoot())
 		}
 		return nil
 	}()
@@ -1268,10 +1268,10 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(exte
 		call = call.getFirstChild()
 	}
 	var extendsCall *ScopedName = this.outer_.moduleImportResolver.getClosureNamespaceTypeFromCall(call)
-	if (extendsCall == nil) || !this.outer_.memoized.containsKey(extendsCall.getScopeRoot()) {
+	if (extendsCall == nil) || !this.outer_.memoized.Has(extendsCall.getScopeRoot()) {
 		return nil
 	}
-	var moduleScope *TypedScope = this.outer_.memoized.get(extendsCall.getScopeRoot())
+	var moduleScope *TypedScope = this.outer_.memoized.Get(extendsCall.getScopeRoot())
 	properties.insert(0, extendsCall.getName())
 	var superclassName *QualifiedName = QualifiedName_of(Joiner_on_char('.').join(Iterable(properties.asList())))
 	return moduleScope.lookupQualifiedName(superclassName)
