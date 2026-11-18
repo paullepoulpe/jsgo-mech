@@ -1781,22 +1781,6 @@ func (this *JSTypeRegistry_ClosureNamespace) type_() *JSType {
 	return this.type__
 }
 
-func (this *JSTypeRegistry_ClosureNamespace) equals(p0 any) bool {
-	o, ok := p0.(*JSTypeRegistry_ClosureNamespace)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.isLegacy_ == o.isLegacy_ && this.definitionNode_ == o.definitionNode_ && objequalsBy_(this.type__, o.type__.self(), (*JSType).equals)
-}
-
-func (this *JSTypeRegistry_ClosureNamespace) hashCode() int32 {
-	var h int32
-	h = h*31 + Boolean_hashCode(bool(this.isLegacy_))
-	h = h*31 + objhashId_(this.definitionNode_)
-	h = h*31 + objhashBy_(this.type__, (*JSType).hashCode)
-	return h
-}
-
 // subtypeChecker_ is new SubtypeChecker(this): a checker from the free list, reset to the state
 // the constructor gives it, or a new one. A check started during another check takes its own.
 func (this *JSTypeRegistry) subtypeChecker_() *SubtypeChecker {

@@ -1379,21 +1379,6 @@ func (this *InlineFunctions_ShouldRequireInlining) optMessage() string {
 	return this.optMessage_
 }
 
-func (this *InlineFunctions_ShouldRequireInlining) equals(p0 any) bool {
-	o, ok := p0.(*InlineFunctions_ShouldRequireInlining)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.shouldValidate_ == o.shouldValidate_ && this.optMessage_ == o.optMessage_
-}
-
-func (this *InlineFunctions_ShouldRequireInlining) hashCode() int32 {
-	var h int32
-	h = h*31 + Boolean_hashCode(bool(this.shouldValidate_))
-	h = h*31 + objhashStr_(this.optMessage_)
-	return h
-}
-
 func (this *InlineFunctions_ShouldRequireInlining) toString() string {
 	return "ShouldRequireInlining[" + "shouldValidate=" + boolstr_(bool(this.shouldValidate_)) + ", optMessage=" + sstr_(this.optMessage_) + "]"
 }

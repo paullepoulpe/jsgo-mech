@@ -340,23 +340,6 @@ func (this *AstAnalyzer_Options) assumeKnownBuiltinsArePure() bool {
 	return this.assumeKnownBuiltinsArePure_
 }
 
-func (this *AstAnalyzer_Options) equals(p0 any) bool {
-	o, ok := p0.(*AstAnalyzer_Options)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.useTypesForLocalOptimization_ == o.useTypesForLocalOptimization_ && this.assumeGettersArePure_ == o.assumeGettersArePure_ && this.hasRegexpGlobalReferences_ == o.hasRegexpGlobalReferences_ && this.assumeKnownBuiltinsArePure_ == o.assumeKnownBuiltinsArePure_
-}
-
-func (this *AstAnalyzer_Options) hashCode() int32 {
-	var h int32
-	h = h*31 + Boolean_hashCode(bool(this.useTypesForLocalOptimization_))
-	h = h*31 + Boolean_hashCode(bool(this.assumeGettersArePure_))
-	h = h*31 + Boolean_hashCode(bool(this.hasRegexpGlobalReferences_))
-	h = h*31 + Boolean_hashCode(bool(this.assumeKnownBuiltinsArePure_))
-	return h
-}
-
 func (this *AstAnalyzer_Options) toString() string {
 	return "Options[" + "useTypesForLocalOptimization=" + boolstr_(bool(this.useTypesForLocalOptimization_)) + ", assumeGettersArePure=" + boolstr_(bool(this.assumeGettersArePure_)) + ", hasRegexpGlobalReferences=" + boolstr_(bool(this.hasRegexpGlobalReferences_)) + ", assumeKnownBuiltinsArePure=" + boolstr_(bool(this.assumeKnownBuiltinsArePure_)) + "]"
 }

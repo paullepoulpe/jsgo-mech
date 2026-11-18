@@ -740,23 +740,6 @@ func (this *SuggestedFix_MatchedNodeInfo) inClosurizedFile() bool {
 	return this.inClosurizedFile_
 }
 
-func (this *SuggestedFix_MatchedNodeInfo) equals(p0 any) bool {
-	o, ok := p0.(*SuggestedFix_MatchedNodeInfo)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.sourceFilename_ == o.sourceFilename_ && this.lineno_ == o.lineno_ && this.charno_ == o.charno_ && this.inClosurizedFile_ == o.inClosurizedFile_
-}
-
-func (this *SuggestedFix_MatchedNodeInfo) hashCode() int32 {
-	var h int32
-	h = h*31 + objhashStr_(this.sourceFilename_)
-	h = h*31 + int32(this.lineno_)
-	h = h*31 + int32(this.charno_)
-	h = h*31 + Boolean_hashCode(bool(this.inClosurizedFile_))
-	return h
-}
-
 func (this *SuggestedFix_MatchedNodeInfo) toString() string {
 	return "MatchedNodeInfo[" + "sourceFilename=" + sstr_(this.sourceFilename_) + ", lineno=" + istr_(int64(int32(this.lineno_))) + ", charno=" + istr_(int64(int32(this.charno_))) + ", inClosurizedFile=" + boolstr_(bool(this.inClosurizedFile_)) + "]"
 }

@@ -2354,21 +2354,6 @@ func (this *GlobalNamespace_ObjLitStringKeyAnalysis) nameType() GlobalNamespace_
 	return this.nameType_
 }
 
-func (this *GlobalNamespace_ObjLitStringKeyAnalysis) equals(p0 any) bool {
-	o, ok := p0.(*GlobalNamespace_ObjLitStringKeyAnalysis)
-	if !ok || o == nil {
-		return false
-	}
-	return true && Objects_equals(this.nameString_.box_(), o.nameString_.box_()) && this.nameType_ == o.nameType_
-}
-
-func (this *GlobalNamespace_ObjLitStringKeyAnalysis) hashCode() int32 {
-	var h int32
-	h = h*31 + Objects_hashCode(this.nameString_.box_())
-	h = h*31 + objhashId_(this.nameType_)
-	return h
-}
-
 func (this *GlobalNamespace_ObjLitStringKeyAnalysis) toString() string {
 	return "ObjLitStringKeyAnalysis[" + "nameString=" + objstr_(this.nameString_.box_()) + ", nameType=" + tostr_(this.nameType_) + "]"
 }

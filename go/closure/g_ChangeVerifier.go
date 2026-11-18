@@ -236,22 +236,6 @@ func (this *ChangeVerifier_EqualsResult) errorMessage() Supplier {
 	return this.errorMessage_
 }
 
-func (this *ChangeVerifier_EqualsResult) equals(p0 any) bool {
-	o, ok := p0.(*ChangeVerifier_EqualsResult)
-	if !ok || o == nil {
-		return false
-	}
-	return true && this.equals_ == o.equals_ && this.errorNode_ == o.errorNode_ && objequalsDyn_(this.errorMessage_, o.errorMessage_)
-}
-
-func (this *ChangeVerifier_EqualsResult) hashCode() int32 {
-	var h int32
-	h = h*31 + Boolean_hashCode(bool(this.equals_))
-	h = h*31 + objhashId_(this.errorNode_)
-	h = h*31 + objhashDyn_(this.errorMessage_)
-	return h
-}
-
 func (this *ChangeVerifier_EqualsResult) toString() string {
 	return "EqualsResult[" + "equals=" + boolstr_(bool(this.equals_)) + ", errorNode=" + tostr_(this.errorNode_) + ", errorMessage=" + objstr_(this.errorMessage_) + "]"
 }

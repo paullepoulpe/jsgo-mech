@@ -121,21 +121,6 @@ func (this *PruningAnalysis_Result) bottleneckBlame() *ImmutableMap[string, any]
 	return this.bottleneckBlame_
 }
 
-func (this *PruningAnalysis_Result) equals(p0 any) bool {
-	o, ok := p0.(*PruningAnalysis_Result)
-	if !ok || o == nil {
-		return false
-	}
-	return true && tmapEq_(this.entryPointDependencyCount_, o.entryPointDependencyCount_, true) && tmapEq_(this.bottleneckBlame_, o.bottleneckBlame_, true)
-}
-
-func (this *PruningAnalysis_Result) hashCode() int32 {
-	var h int32
-	h = h*31 + tmapHash_(this.entryPointDependencyCount_, true)
-	h = h*31 + tmapHash_(this.bottleneckBlame_, true)
-	return h
-}
-
 func (this *PruningAnalysis_Result) toString() string {
 	return "Result[" + "entryPointDependencyCount=" + tostr_(this.entryPointDependencyCount_.asImm()) + ", bottleneckBlame=" + tostr_(this.bottleneckBlame_.asImm()) + "]"
 }
