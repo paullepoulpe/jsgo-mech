@@ -167,7 +167,7 @@ func (this *TranspileAndOptimizeClosureUnaware_CollectShadowAsts) shouldTraverse
 		case JSDocInfo_PerFileClosureUnawareMode_WHITESPACE:
 			return false
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 

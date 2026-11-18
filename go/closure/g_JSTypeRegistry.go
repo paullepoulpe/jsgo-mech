@@ -776,7 +776,7 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 			case JSType_HasPropertyKind_ABSENT:
 				return JSTypeRegistry_PropDefinitionKind_UNKNOWN
 			}
-			panic("unreachable")
+			panic(new_NullPointerException_0())
 		}()
 	} else {
 		if !type_.isEmptyType() && !type_.isUnknownType() {

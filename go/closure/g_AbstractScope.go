@@ -459,7 +459,7 @@ func (this AbstractScope_ImplicitVar) isMadeByScope(scope *AbstractScope) bool {
 		case AbstractScope_ImplicitVar_ARGUMENTS:
 			return NodeUtil_isNonArrowFunction(scope.getRootNode())
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
