@@ -1010,7 +1010,7 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) setMutatesArgument
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) setMutatesArgumentAt(paramIndex int32, debuggingReason Node) *PureFunctionIdentifier_AmbiguatedFunctionSummary {
 	if paramIndex < 0 {
-		panic(new_IllegalArgumentException_String(objstr_(any(int32(paramIndex)))).self())
+		panic(new_IllegalArgumentException_String(istr_(int64(int32(paramIndex)))).self())
 	}
 	this.maybeCollectImpureDebuggingReason(debuggingReason)
 	var paramBit int64 = func() int64 {

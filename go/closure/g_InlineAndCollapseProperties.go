@@ -1212,7 +1212,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) collapseDeclarationO
 	var canCollapseChildNames bool
 	if !childNameInlinability.canCollapse() {
 		this.logDecisionForNameSupplier(n, (&Supplier_tfn_string{func() string {
-			return ("child name inlinability: " + objstr_(obj_(childNameInlinability)) + ": will not collapse child names")
+			return ("child name inlinability: " + tostr_(childNameInlinability) + ": will not collapse child names")
 		}}).get)
 		canCollapseChildNames = false
 	} else if escaped.contains(n) {

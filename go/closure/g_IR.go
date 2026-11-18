@@ -896,10 +896,10 @@ func IR_memberFunctionDef(name string, function Node) Node {
 
 func IR_number(d float64) Node {
 	if Double_isNaN(d) {
-		panic(new_IllegalStateException_String(objstr_(any(float64(d)))).self())
+		panic(new_IllegalStateException_String(dstr_(float64(d))).self())
 	}
 	if !JSCompDoubles_isPositive(d) {
-		panic(new_IllegalStateException_String(objstr_(any(float64(d)))).self())
+		panic(new_IllegalStateException_String(dstr_(float64(d))).self())
 	}
 	return Node_newNumber(d)
 }

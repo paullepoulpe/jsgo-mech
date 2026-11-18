@@ -429,7 +429,7 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName()
 			return Optional_of[string]((sstr_(this.cssClosureClassesQualifiedName.get()) + "." + sstr_(ancestor.getString())))
 		}
 	}
-	panic(new_IllegalStateException_String(("No css closure classes member name found: " + objstr_(this.callNode_.box_()))).self())
+	panic(new_IllegalStateException_String(("No css closure classes member name found: " + tostr_(this.callNode_))).self())
 }
 
 func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() Optional[string] {
