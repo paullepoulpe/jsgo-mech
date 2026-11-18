@@ -225,7 +225,14 @@ func (this *RewriteAsyncFunctions_LexicalContext) as_RewriteAsyncFunctions_Lexic
 }
 
 func to_RewriteAsyncFunctions_LexicalContext(v any) *RewriteAsyncFunctions_LexicalContext {
-	if v == nil {
+	switch p := v.(type) {
+	case *RewriteAsyncFunctions_FunctionContext:
+		return p.as_RewriteAsyncFunctions_LexicalContext()
+	case *RewriteAsyncFunctions_ParameterListContext:
+		return p.as_RewriteAsyncFunctions_LexicalContext()
+	case *RewriteAsyncFunctions_RootContext:
+		return p.as_RewriteAsyncFunctions_LexicalContext()
+	case nil:
 		return nil
 	}
 	return v.(interface {

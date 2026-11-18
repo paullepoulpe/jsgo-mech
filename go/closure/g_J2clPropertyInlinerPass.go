@@ -175,7 +175,12 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty)
 }
 
 func to_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty(v any) *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty {
-	if v == nil {
+	switch p := v.(type) {
+	case *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs5:
+		return p.as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty()
+	case *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6:
+		return p.as_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty()
+	case nil:
 		return nil
 	}
 	return v.(interface {

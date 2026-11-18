@@ -20,7 +20,10 @@ func (this *AbstractMessageFormatter) as_AbstractMessageFormatter() *AbstractMes
 }
 
 func to_AbstractMessageFormatter(v any) *AbstractMessageFormatter {
-	if v == nil {
+	switch p := v.(type) {
+	case *LightweightMessageFormatter:
+		return p.as_AbstractMessageFormatter()
+	case nil:
 		return nil
 	}
 	return v.(interface {
