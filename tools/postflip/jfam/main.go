@@ -18,10 +18,16 @@
 // of a type variable of a generic class is one of these). The package must type-check
 // afterwards, or nothing is written. A rerun finds nothing.
 //
-// Not converted by this kind, and counted: typed sets and maps (JTSet, JTMap), which compare
+// -kind convs: a conversion of the translator's family (a package variable of type
+// *jtconv_[X]) whose name is tc_X is renamed jtc_X, at its declaration and every use.
+// rename.sh gave the j prefix only to the names that collided with the post-flip family's at
+// the time; tc_X is the name the post-flip tools give the *tconv_[X] of X and declare when the
+// package lacks it, so a translator conversion of that name is in their way. Only names change.
+//
+// Not converted by -kind list, and counted: typed sets and maps (JTSet, JTMap), which compare
 // keys through byEquals where the post-flip ones have hash and eq functions.
 //
-// usage: jfam [-n] -kind list <dir of package closure>
+// usage: jfam [-n] -kind list|convs <dir of package closure>
 package main
 
 import (
@@ -69,11 +75,15 @@ func main() {
 	dry := flag.Bool("n", false, "report only")
 	kind := flag.String("kind", "", "list")
 	flag.Parse()
-	if *kind != "list" || flag.NArg() != 1 {
-		fmt.Fprintln(os.Stderr, "usage: jfam [-n] -kind list <dir of package closure>")
+	if *kind != "list" && *kind != "convs" || flag.NArg() != 1 {
+		fmt.Fprintln(os.Stderr, "usage: jfam [-n] -kind list|convs <dir of package closure>")
 		os.Exit(2)
 	}
 	rw.Load(flag.Arg(0))
+	if *kind == "convs" {
+		convs(*dry)
+		return
+	}
 	jlist := lookup("JTList")
 	if jlist == nil {
 		fmt.Fprintln(os.Stderr, "jfam -kind list: no JTList in the package; nothing to do")
@@ -155,4 +165,52 @@ func sortStrings(s []string) []string {
 		}
 	}
 	return s
+}
+
+// convs renames the translator conversions named tc_X to jtc_X.
+func convs(dry bool) {
+	jt, _ := must("jtconv_").(*types.TypeName)
+	objs := map[types.Object]string{}
+	for _, name := range rw.Pkg.Scope().Names() {
+		v, ok := rw.Pkg.Scope().Lookup(name).(*types.Var)
+		if !ok || !strings.HasPrefix(name, "tc_") {
+			continue
+		}
+		p, ok := v.Type().(*types.Pointer)
+		if !ok {
+			continue
+		}
+		if n, ok := p.Elem().(*types.Named); !ok || n.Origin().Obj() != jt {
+			continue
+		}
+		if !generated(v.Pos()) {
+			fmt.Fprintf(os.Stderr, "left: %s is declared by the handwritten runtime\n", name)
+			continue
+		}
+		if lookup("j"+name) != nil {
+			fmt.Fprintf(os.Stderr, "left: %s: the package already declares j%s\n", name, name)
+			continue
+		}
+		objs[v] = "j" + name
+	}
+	uses := 0
+	for _, f := range rw.Files {
+		ast.Inspect(f, func(x ast.Node) bool {
+			if id, ok := x.(*ast.Ident); ok {
+				o := rw.Info.Uses[id]
+				if o == nil {
+					o = rw.Info.Defs[id]
+				}
+				if nw, ok := objs[o]; ok {
+					uses++
+					rw.Rewrite[id] = func() string { return nw }
+				}
+			}
+			return true
+		})
+	}
+	fmt.Fprintf(os.Stderr, "jfam -kind convs: %d translator conversions named tc_X are jtc_X, at %d identifiers\n", len(objs), uses)
+	if !dry {
+		fmt.Fprintf(os.Stderr, "files changed: %d\n", rw.SaveChecked())
+	}
 }
