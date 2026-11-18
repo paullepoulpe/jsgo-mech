@@ -239,6 +239,76 @@ profile and `tools/pgo` are removed (c4aefc67). Measured again without PGO (no `
 
 PGO was worth about nothing on typed-full and 1.6% on bundle; the result does not depend on it.
 
+## Replaying the post-flip steps
+
+`tools/postflip/replay-all.sh` rebuilds the post-flip tip's `go/` from the flip commit 01f4f269
+(the frozen j2go output) with nothing but the post-flip tools, recorded commands and listed
+patches, and checks after every original commit that `go/` is that commit's tree, byte for
+byte. `tools/postflip/steps.txt` is the list it follows, one group of lines per original
+commit; `tools/postflip/patches/` holds the patches. So every line of a `g_*.go` file at the tip
+is the frozen translator output, the output of a tool run named in steps.txt, or a hunk of a
+listed manual patch.
+
+    tools/postflip/replay-all.sh            # replay in ../<repo>-replay-w, resumes where it stopped
+    tools/postflip/replay-all.sh -list      # the counts below
+    tools/postflip/replay-all.sh -base <new flip commit> -noverify     # on a re-flip
+
+The history replayed is postflip5's first-parent chain from 01f4f269 to b9247969 (315 commits
+and the merge 862987cd), with the 24 commits of the merged branch postflip5-r8-exc in the place
+of the merge (the merge's `go/` is the branch tip's: the first parent only had document and tool
+commits since the merge base). The steps of rounds 7 and 8 are replayed as they were re-run on
+the merged tree, not as their branches first ran them. Of these 339 commits, 233 change `go/`:
+
+| what made the commit's `go/` | commits |
+|---|---|
+| a post-flip tool run (`go run ./<tool>`, a tool's `run.sh`, `tokswitch.py`), then gofmt | 99 |
+| ... of these, with a handwritten-runtime patch in the same commit | 7 |
+| a recorded command that is not a tool (below) | 4 |
+| a runtime patch only (`rt_*.go`, tests, `rt_proto_gen.go`) | 79 |
+| a manual patch of generated files (6 of them with a runtime patch) | 51 |
+
+Patches: 92 runtime, 51 manual, **0 residue**: no step commit holds anything its recorded
+command does not write. Each run uses `tools/postflip` as it was at the step's commit (the
+replay checks that tree out before the run), because a tool that later learned more no longer
+gives its old step's output: with the tools of b9247969, 51 of the 81 single-tool steps
+tried give their commit, 30 do not (colls, native, castfold, ... type or fold more now). On
+a re-flip the same holds: steps.txt names the commit whose tool each step runs.
+
+What a reviewer should know is not a plain tool run (the provenance gaps; none of them is an
+unrecorded edit):
+
+- **51b60588** (enum methods through `enum_()`) and **f5b5ffe7** (`ordinal()` as value minus 1):
+  the tool `enums` was changed to write the new method bodies, and the methods the earlier run
+  (e9c01a2d) had written were changed to match, not regenerated. The replay does it with one
+  `sed` and one `perl` substitution (in steps.txt). Running the changed tool from the tree
+  before e9c01a2d gives the same code with different line breaks (gofmt keeps the three-line
+  bodies the first run's longer lines were printed as), so the substitution, not a rerun, is
+  what reproduces the bytes.
+- **fafc63f9** (step 7) and **c13b5bff** (Guava's Optional): the type's spelling changes by the
+  two `sed` commands their commit messages record, after the `optional` tool; the tool's own
+  edits of `rt_base.go` are dropped and the commit's runtime patch applied instead (the runtime
+  section was rewritten by hand).
+- **831fc72f** reverts the manual commit 1cdb1423 after 21 other commits; it is replayed as its
+  own manual patch (the reverse of the first no longer applies).
+- **d1f93162** is gofmt of three files (`gofmt -w`); **c4aefc67** removes `go/cmd/mech/default.pgo`
+  (`rm`).
+- Tools that write handwritten files: `generics -classes` (9a272ef4: `rt_io.go`, `rt_json.go`,
+  `rt_io_test.go`) and `tnames` / `tnames -undo` (2c5fe6be, 4595566c, f7492025: the method names
+  of `rt_tmap.go`, `rt_idmap.go`, `rt_timm.go` and their tests). These changes come from the
+  tool run, not from a patch.
+- **74086be6**: `enums -runtime` runs before the runtime patch (the package builds only with
+  both); the patch includes `rt_proto_gen.go`, which `tools/protogen/run.sh` generated.
+- `lambdas/run.sh`, `enums/run.sh`, `eqhash/run.sh`, `colls/run.sh` and the other `run.sh` build
+  `go/closure` (some loop on the compiler's output), so the replay needs the Go toolchain of
+  `tools/postflip/go.mod` and about 300 MB of build cache per build (`-trim` deletes it).
+- The 51 manual patches and the two substitutions are tied to the generated text. On a re-flip
+  with a different j2go output they are the part that can stop applying; `git apply` fails
+  loudly, and the replay stops at that commit.
+
+Check (2026-11-18): the replay ran from 01f4f269 to the end, each of the 233 commits compared with
+the original; `diff -r` of the replayed `go/closure` against b9247969's is empty (tree
+85085270826ceb758e98d77529a77b95f0f6e2e7). `tools/prune/verify.sh` was not run on the replayed tree separately: it is the same git tree as b9247969, which passed the gate (at 72b0f693).
+
 ## postflip5, round 8: Java-isms (merged at 72b0f693)
 
 Six branches from 85416d7a (round 7 + the tostr re-run), each prototyped and gated by one
