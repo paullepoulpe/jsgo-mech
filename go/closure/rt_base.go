@@ -530,6 +530,18 @@ func (this *Optional_base) or_Optional(o *Optional_base) *Optional_base {
 	return o
 }
 
+// transform_f is transform of a lambda, as a Go func value (post-flip step funcparams).
+func (this *Optional_base) transform_f(f func(any) any) *Optional_base {
+	if !this.present {
+		return this
+	}
+	r := f(this.value)
+	if r == nil {
+		nullFail_("the Function passed to Optional.transform() must not return null.")
+	}
+	return &Optional_base{true, r}
+}
+
 func (this *Optional_base) transform(f Function_base) *Optional_base {
 	if f == nil {
 		panic(new_NullPointerException_0().self())
@@ -726,6 +738,14 @@ func (this Optional[T]) ifPresent(c Consumer) {
 	}
 }
 
+// ifPresent_f is ifPresent of a lambda, as a Go func value (post-flip step funcparams).
+func (this Optional[T]) ifPresent_f(c func(any)) {
+	this.nn_()
+	if this.present {
+		c(this.content_())
+	}
+}
+
 func (this Optional[T]) isEmpty() bool   { this.nn_(); return !this.present }
 func (this Optional[T]) isPresent() bool { this.nn_(); return this.present }
 
@@ -789,16 +809,22 @@ type identityFunction_ struct{}
 
 type memoizingSupplier_ struct {
 	delegate Supplier_base
+	fn       func() any // the delegate of Suppliers_memoize_f
 	done     bool
 	value    any
 }
 
 func (this *memoizingSupplier_) get() any {
 	if !this.done {
-		v := this.delegate.get()
+		var v any
+		if this.fn != nil {
+			v = this.fn()
+		} else {
+			v = this.delegate.get()
+		}
 		this.value = v
 		this.done = true
-		this.delegate = nil
+		this.delegate, this.fn = nil, nil
 	}
 	return this.value
 }
@@ -806,6 +832,9 @@ func (this *memoizingSupplier_) get() any {
 func (this *memoizingSupplier_) toString() string {
 	if this.done {
 		return "Suppliers.memoize(<supplier that returned " + objstr_(this.value) + ">)"
+	}
+	if this.fn != nil {
+		return "Suppliers.memoize(<lambda>)" // Java prints the lambda's class and identity hash
 	}
 	return "Suppliers.memoize(" + objstr_(this.delegate) + ")"
 }
@@ -818,6 +847,12 @@ func Suppliers_memoize(s Supplier_base) Supplier_base {
 		panic(new_NullPointerException_0().self())
 	}
 	return &memoizingSupplier_{delegate: s}
+}
+
+// Suppliers_memoize_f is Suppliers_memoize of a lambda, as a Go func value (post-flip step
+// funcparams): a lambda is never a memoizing supplier, nor null.
+func Suppliers_memoize_f(s func() any) Supplier_base {
+	return &memoizingSupplier_{fn: s}
 }
 
 // ---- Throwables
