@@ -38,7 +38,7 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 		case Token_rhino_NUMBER:
 			return Tri_forBoolean((n.getDouble() != 0))
 		case Token_rhino_BIGINT:
-			return Tri_forBoolean(!Object_equals(obj_(n.getBigInt()), obj_(BigInteger_ZERO)))
+			return Tri_forBoolean(!equalsBy_(n.getBigInt(), obj_(BigInteger_ZERO), (*BigInteger).equals))
 		case Token_rhino_NOT:
 			return NodeUtil_getBooleanValue(n.getLastChild()).not()
 		case Token_rhino_NAME:
@@ -61,7 +61,7 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 			}
 			var bigintVal *BigInteger = NodeUtil_getBigIntValue(n)
 			if bigintVal != nil {
-				var isFalsey bool = Object_equals(obj_(bigintVal), obj_(BigInteger_ZERO))
+				var isFalsey bool = equalsBy_(bigintVal, obj_(BigInteger_ZERO), (*BigInteger).equals)
 				return Tri_forBoolean(!isFalsey)
 			}
 			return Tri_UNKNOWN
@@ -1589,7 +1589,7 @@ func NodeUtil_convertToNonOptionalChainSegmentDownTo(endOfOptChainSegment Node, 
 	}
 	var segmentNodes *TDeque[Node] = newTDeque_(jtc_Node)
 	var segmentNode Node = endOfOptChainSegment
-	for (segmentNode != 0) && !Object_equals(segmentNode.box_(), stopNode.box_()) {
+	for (segmentNode != 0) && !equalsId_(segmentNode, stopNode) {
 		if NodeUtil_isOptChainNode(segmentNode) {
 			segmentNodes.add(segmentNode)
 		}

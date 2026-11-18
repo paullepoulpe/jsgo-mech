@@ -176,7 +176,7 @@ func (this *RewriteCallerCodeLocation_RewriteCallerLocationFunctionCalls) visitC
 	var functionVarAndPosition *RewriteCallerCodeLocation_FunctionVarAndParamPosition = this.outer_.callerLocationFunctionNames.get(moduleContentsName)
 	var callerLocationFunction *Var = functionVarAndPosition.getFunctionVar()
 	var calleeFunction *Var = cast_[*Var](t.getScope().getVar(moduleContentsName).self())
-	if ((callerLocationFunction == nil) || (calleeFunction == nil)) || !Objects_equals(callerLocationFunction.getNameNode().box_(), calleeFunction.getNameNode().box_()) {
+	if ((callerLocationFunction == nil) || (calleeFunction == nil)) || callerLocationFunction.getNameNode() != calleeFunction.getNameNode() {
 		return
 	}
 	var positionOfCallerLocationArg int32 = functionVarAndPosition.getParamPosition()

@@ -95,7 +95,7 @@ func (this *PruningAnalysis) buildGraph() *DiGraph[string] {
 			if depRes.isErr() {
 			} else {
 				var dep *CompilerInput = depRes.get()
-				if !Object_equals(obj_(dep), obj_(input)) {
+				if !equalsId_(dep, input) {
 					graph.connectIfNotFound(name, nil, dep.getName())
 				}
 			}

@@ -305,7 +305,7 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 	var result bool = NodeUtil_has(fn, &Predicate_base_tfn_Node{func(n Node) bool {
 		return (n.isName() && (n.getString() == "eval"))
 	}}, &Predicate_base_tfn_Node{func(n Node) bool {
-		return (!n.isFunction() || Object_equals(n.box_(), fn.box_()))
+		return (!n.isFunction() || equalsId_(n, fn))
 	}})
 	this.referencesEvalCache.put(fn, any(bool(result)))
 	return result
@@ -319,7 +319,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	}
 	var innerFns *JTList[Node] = jnewTList_(jtc_Node)
 	NodeUtil_visitPreOrder_Node_Visitor(containerFn, &NodeUtil_Visitor_fn{func(n Node) {
-		if Object_equals(n.box_(), containerFn.box_()) {
+		if equalsId_(n, containerFn) {
 			return
 		}
 		if NodeUtil_isFunctionOrNonStaticClassFieldInitializer(n) {
@@ -350,7 +350,7 @@ func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *Functi
 			forbidTemps = true
 		} else {
 			var innerFn Node = this.innerFunctionOf(callerFn)
-			var calleeIsOnlyInnerFn bool = (Object_equals(innerFn.box_(), FunctionInjector_NO_FUNCTIONS.box_()) || Object_equals(innerFn.box_(), calleeFn.box_()))
+			var calleeIsOnlyInnerFn bool = (equalsId_(innerFn, FunctionInjector_NO_FUNCTIONS) || equalsId_(innerFn, calleeFn))
 			forbidTemps = !calleeIsOnlyInnerFn
 		}
 	}

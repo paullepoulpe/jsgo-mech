@@ -166,7 +166,7 @@ func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSErro
 }
 
 func (this *LightweightMessageFormatter) padSourceExcerpt(error_ *JSError, sourceExcerpt string, charno int32, length int32, format *SourceExcerptProvider_SourceExcerpt, b *StringBuilder) bool {
-	if Object_equals(format.self(), SourceExcerptProvider_SourceExcerpt_FULL.self()) {
+	if equalsId_(format, SourceExcerptProvider_SourceExcerpt_FULL) {
 		if charno >= 0 {
 			var success bool = this.padMultipleLines(charno, sourceExcerpt, b, error_.node())
 			if !success {
@@ -179,7 +179,7 @@ func (this *LightweightMessageFormatter) padSourceExcerpt(error_ *JSError, sourc
 	} else {
 		b.append(sourceExcerpt)
 		b.append_char('\n')
-		if (Object_equals(format.self(), SourceExcerptProvider_SourceExcerpt_LINE.self()) && (0 <= charno)) && (charno <= String_length(sourceExcerpt)) {
+		if (equalsId_(format, SourceExcerptProvider_SourceExcerpt_LINE) && (0 <= charno)) && (charno <= String_length(sourceExcerpt)) {
 			var success bool = this.padLine(charno, sourceExcerpt, b, length, error_.node())
 			if !success {
 				return false

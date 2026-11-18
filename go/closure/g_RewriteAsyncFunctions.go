@@ -192,7 +192,7 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropert
 	if this.propertyNameToTypeMap.containsKey(propertyName) {
 		superPropertyWrapperInfo = this.propertyNameToTypeMap.get(propertyName)
 		var existingColor *Color = superPropertyWrapperInfo.getPropertyType()
-		if !Objects_equals(obj_(existingColor), obj_(propertyType)) {
+		if !objequalsBy_(existingColor, obj_(propertyType), (*Color).equals) {
 			Preconditions_checkState_boolean_String_Object_Object(false, "Previous reference type: %s differs from current reference type: %s", existingColor, propertyType)
 		}
 	} else {

@@ -1255,7 +1255,7 @@ func (this *RegExpTree_Alternation) equals_impl(o any) bool {
 		}
 		alternation = cast_[*RegExpTree_Alternation](v_)
 		return true
-	}() && Object_equals(obj_(this.alternatives.asImm()), any(alternation.alternatives.asList()))))
+	}() && equalsBy_(this.alternatives.asImm(), any(alternation.alternatives.asList()), (*ImmutableCollection).equals)))
 }
 
 func (this *RegExpTree_Alternation) hashCode_impl() int32 {
@@ -2185,7 +2185,7 @@ func (this *RegExpTree_Concatenation) equals_impl(o any) bool {
 		}
 		concatenation = cast_[*RegExpTree_Concatenation](v_)
 		return true
-	}() && Object_equals(obj_(this.elements_.asImm()), any(concatenation.elements_.asList())))
+	}() && equalsBy_(this.elements_.asImm(), any(concatenation.elements_.asList()), (*ImmutableCollection).equals))
 }
 
 func (this *RegExpTree_Concatenation) hashCode_impl() int32 {

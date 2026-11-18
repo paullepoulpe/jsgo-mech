@@ -59,7 +59,7 @@ func (this *PolymerBehaviorExtractor) extractBehaviors(behaviorArray Node, modul
 			} else {
 				resolveResult = this.resolveBehaviorName(PolymerBehaviorExtractor_getQualifiedNameThroughCast(behaviorName), moduleMetadata)
 			}
-			if Object_equals(obj_(resolveResult), obj_(PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT)) {
+			if equalsId_(resolveResult, PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT) {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(behaviorName, PolymerPassErrors_POLYMER_UNQUALIFIED_BEHAVIOR, []string{}))
 				continue
 			}
@@ -185,7 +185,7 @@ func (this *PolymerBehaviorExtractor) resolveReferenceToLegacyGoogModule(name st
 		}()
 		var result *PolymerBehaviorExtractor_ResolveBehaviorNameResult = this.resolveBehaviorName(Optional_of[string]((sstr_(PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS) + sstr_(rest))), metadata)
 		return func() *PolymerBehaviorExtractor_ResolveBehaviorNameResult {
-			if Object_equals(obj_(result), obj_(PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT)) {
+			if equalsId_(result, PolymerBehaviorExtractor_FAILED_RESOLVE_RESULT) {
 				return nil
 			}
 			return result

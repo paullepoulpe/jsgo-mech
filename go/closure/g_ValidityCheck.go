@@ -58,7 +58,7 @@ func (this *ValidityCheck) checkExternProperties(externs Node) {
 		return
 	}
 	new_GatherExternProperties(this.compiler_, GatherExternProperties_Mode_CHECK).process_2(externs, 0)
-	if !Object_equals(obj_(this.compiler_.getExternProperties().asImm()), any(externProperties.asSet())) {
+	if !equalsBy_(this.compiler_.getExternProperties().asImm(), any(externProperties.asSet()), (*ImmutableCollection).equals) {
 		this.compiler_.report(JSError_make_DiagnosticType_StringArr(ValidityCheck_EXTERN_PROPERTIES_CHANGED, []string{Object_toString(any(externProperties.asSet())), Object_toString(any(this.compiler_.getExternProperties().asSet()))}))
 		panic(new_IllegalStateException_String(("Validity Check failed: Extern properties changed from:\n" + objstr_(any(externProperties.asSet())) + "\nto:\n" + objstr_(any(this.compiler_.getExternProperties().asSet())))).self())
 	}

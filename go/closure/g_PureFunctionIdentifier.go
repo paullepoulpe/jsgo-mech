@@ -658,10 +658,10 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 		return
 	}
 	var functionEntry *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())))
-	if ok_, a1_ := Object_equals(functionScope.getRootNode().box_(), functionEntry.root.box_()), functionScope.getRootNode(); !ok_ {
+	if ok_, a1_ := equalsId_(functionScope.getRootNode(), functionEntry.root), functionScope.getRootNode(); !ok_ {
 		Preconditions_checkState_boolean_Object_H(false, a1_)
 	}
-	if Object_equals(t.getScopeRoot().box_(), functionEntry.root.box_()) {
+	if equalsId_(t.getScopeRoot(), functionEntry.root) {
 		SequencedCollection_removeLast(SequencedCollection(this.functionScopeStack.asDeque()))
 	}
 	it_1 := foreach_(any(this.outer_.summariesForAllNamesOfFunctionByNode.get(functionEntry.root.box_())))

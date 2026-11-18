@@ -45,12 +45,12 @@ func (this *Color) equals(o any) bool {
 	}
 	if is_[*Color](o) {
 		var that *Color = cast_[*Color](o)
-		return (((((((((this.id.equals(obj_(that.getId())) && Object_equals(obj_(this.prototypes.asImm()), any(that.getPrototypes().asSet()))) && Object_equals(obj_(this.instanceColors.asImm()), any(that.getInstanceColors().asSet()))) && (this.invalidating == that.isInvalidating())) && (this.propertiesKeepOriginalName == that.getPropertiesKeepOriginalName())) && (this.constructor_ == that.isConstructor())) && Object_equals(obj_(this.ownProperties.asImm()), any(that.getOwnProperties().asSet()))) && func() bool {
+		return (((((((((this.id.equals(obj_(that.getId())) && equalsBy_(this.prototypes.asImm(), any(that.getPrototypes().asSet()), (*ImmutableCollection).equals)) && equalsBy_(this.instanceColors.asImm(), any(that.getInstanceColors().asSet()), (*ImmutableCollection).equals)) && (this.invalidating == that.isInvalidating())) && (this.propertiesKeepOriginalName == that.getPropertiesKeepOriginalName())) && (this.constructor_ == that.isConstructor())) && equalsBy_(this.ownProperties.asImm(), any(that.getOwnProperties().asSet()), (*ImmutableCollection).equals)) && func() bool {
 			if this.boxId == nil {
 				return (that.getBoxId() == nil)
 			}
 			return this.boxId.equals(obj_(that.getBoxId()))
-		}()) && (this.closureAssert == that.isClosureAssert())) && Object_equals(obj_(this.unionElements.asImm()), any(that.getUnionElements().asSet())))
+		}()) && (this.closureAssert == that.isClosureAssert())) && equalsBy_(this.unionElements.asImm(), any(that.getUnionElements().asSet()), (*ImmutableCollection).equals))
 	}
 	return false
 }
