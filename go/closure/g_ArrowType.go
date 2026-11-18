@@ -16,13 +16,13 @@ func (this *ArrowType) up_JSType() *JSType {
 	return &this.JSType
 }
 
-func (this *ArrowType) init_ArrowType(registry *JSTypeRegistry, parameters ListOf[*FunctionType_Parameter], returnType *JSType, returnTypeInferred bool) {
+func (this *ArrowType) init_ArrowType(registry *JSTypeRegistry, parameters *TList[*FunctionType_Parameter], returnType *JSType, returnTypeInferred bool) {
 	this.JSType.init_JSType_JSTypeRegistry(registry)
 	this.parameterList = func() *ImmutableList[*FunctionType_Parameter] {
 		if parameters == nil {
 			return registry.createParametersWithVarArgs([]*JSType{this.getNativeType(JSTypeNative_UNKNOWN_TYPE)})
 		}
-		return immutableListCopyOf_(tc_p_FunctionType_Parameter, Collection(parameters))
+		return immutableListCopyOf_(tc_p_FunctionType_Parameter, Collection(parameters.asList()))
 	}()
 	this.returnType = func() *JSType {
 		if returnType == nil {
@@ -34,7 +34,7 @@ func (this *ArrowType) init_ArrowType(registry *JSTypeRegistry, parameters ListO
 	registry.getResolver().resolveIfClosed(this.up_JSType(), ArrowType_TYPE_CLASS)
 }
 
-func new_ArrowType(registry *JSTypeRegistry, parameters ListOf[*FunctionType_Parameter], returnType *JSType, returnTypeInferred bool) *ArrowType {
+func new_ArrowType(registry *JSTypeRegistry, parameters *TList[*FunctionType_Parameter], returnType *JSType, returnTypeInferred bool) *ArrowType {
 	this := &ArrowType{}
 	this.self_ = this
 	this.init_ArrowType(registry, parameters, returnType, returnTypeInferred)

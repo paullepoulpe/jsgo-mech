@@ -8,13 +8,13 @@ type ModuleMetadataMap struct {
 	moduleMetadata_        *ImmutableSet[*ModuleMetadataMap_ModuleMetadata]
 }
 
-func (this *ModuleMetadataMap) init_ModuleMetadataMap(modulesByPath MapOf[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace MapOf[string, *ModuleMetadataMap_ModuleMetadata]) {
-	this.modulesByPath = immutableMapCopyOf_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, modulesByPath)
-	this.modulesByGoogNamespace = immutableMapCopyOf_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, modulesByGoogNamespace)
-	this.moduleMetadata_ = immutableSetBuilder_(tc_p_ModuleMetadataMap_ModuleMetadata).addAll(Iterable(modulesByPath.values())).addAll(Iterable(modulesByGoogNamespace.values())).build()
+func (this *ModuleMetadataMap) init_ModuleMetadataMap(modulesByPath *TMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *TMap[string, *ModuleMetadataMap_ModuleMetadata]) {
+	this.modulesByPath = immutableMapCopyOf_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, modulesByPath.asMap())
+	this.modulesByGoogNamespace = immutableMapCopyOf_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, modulesByGoogNamespace.asMap())
+	this.moduleMetadata_ = immutableSetBuilder_(tc_p_ModuleMetadataMap_ModuleMetadata).addAll(Iterable(modulesByPath.asMap().values())).addAll(Iterable(modulesByGoogNamespace.asMap().values())).build()
 }
 
-func new_ModuleMetadataMap(modulesByPath MapOf[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace MapOf[string, *ModuleMetadataMap_ModuleMetadata]) *ModuleMetadataMap {
+func new_ModuleMetadataMap(modulesByPath *TMap[string, *ModuleMetadataMap_ModuleMetadata], modulesByGoogNamespace *TMap[string, *ModuleMetadataMap_ModuleMetadata]) *ModuleMetadataMap {
 	this := &ModuleMetadataMap{}
 	this.init_ModuleMetadataMap(modulesByPath, modulesByGoogNamespace)
 	return this
@@ -33,7 +33,7 @@ func (this *ModuleMetadataMap) getAllModuleMetadata() *ImmutableSet[*ModuleMetad
 }
 
 func ModuleMetadataMap_emptyForTesting() *ModuleMetadataMap {
-	return new_ModuleMetadataMap(ImmutableMap_of(), ImmutableMap_of())
+	return new_ModuleMetadataMap(immutableMapOf_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, []string{}, []*ModuleMetadataMap_ModuleMetadata{}), immutableMapOf_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, []string{}, []*ModuleMetadataMap_ModuleMetadata{}))
 }
 
 type ModuleMetadataMap_ModuleType uint8

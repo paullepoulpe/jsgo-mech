@@ -5,7 +5,7 @@ package closure
 type MustBeReachingVariableDef struct {
 	DataFlowAnalysis[Node, *MustBeReachingVariableDef_MustDef]
 	compiler_   *AbstractCompiler
-	escaped     *TSet[*Var]
+	escaped     map[varKey_]struct{}
 	allVarsInFn *TMap[string, *Var]
 }
 
@@ -16,14 +16,14 @@ func (this *MustBeReachingVariableDef) up_DataFlowAnalysis() *DataFlowAnalysis[N
 	return &this.DataFlowAnalysis
 }
 
-func (this *MustBeReachingVariableDef) init_MustBeReachingVariableDef(cfg *ControlFlowGraph[Node], compiler *AbstractCompiler, escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) {
+func (this *MustBeReachingVariableDef) init_MustBeReachingVariableDef(cfg *ControlFlowGraph[Node], compiler *AbstractCompiler, escaped map[varKey_]struct{}, allVarsInFn *TMap[string, *Var]) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.compiler_ = compiler
 	this.escaped = escaped
 	this.allVarsInFn = allVarsInFn
 }
 
-func new_MustBeReachingVariableDef(cfg *ControlFlowGraph[Node], compiler *AbstractCompiler, escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) *MustBeReachingVariableDef {
+func new_MustBeReachingVariableDef(cfg *ControlFlowGraph[Node], compiler *AbstractCompiler, escaped map[varKey_]struct{}, allVarsInFn *TMap[string, *Var]) *MustBeReachingVariableDef {
 	this := &MustBeReachingVariableDef{}
 	this.self_ = this
 	this.vt_DataFlowAnalysis_ = this
@@ -213,7 +213,7 @@ func (this *MustBeReachingVariableDef) addToDefIfLocal(name string, node Node, r
 			pair.setValue(nil)
 		}
 	}
-	if !this.escaped.Has(var_) {
+	if !has_(this.escaped, vkey_(var_)) {
 		if node == 0 {
 			def.reachingDef.Put(var_, nil)
 		} else {

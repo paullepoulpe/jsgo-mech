@@ -172,12 +172,12 @@ func Color_singleBuilder() *Color_Builder {
 	return new_Color_Builder().setClosureAssert(false).setConstructor(false).setInstanceColors(immutableSetOf_(tch_p_Color)).setInvalidating(false).setOwnProperties(immutableSetOf_(tc_string)).setPropertiesKeepOriginalName(false).setPrototypes(immutableSetOf_(tch_p_Color)).setUnionElements(immutableSetOf_(tch_p_Color))
 }
 
-func Color_createUnion(elements SetOf[*Color]) *Color {
-	switch elements.size() {
+func Color_createUnion(elements *TSet[*Color]) *Color {
+	switch elements.Len() {
 	case 0:
 		panic(new_IllegalStateException_0())
 	case 1:
-		return cast_[*Color](Iterables_getOnlyElement(Iterable(elements)))
+		return cast_[*Color](Iterables_getOnlyElement(Iterable(elements.asSet())))
 	default:
 	}
 	var instanceColors *ImmutableSet_Builder[*Color] = immutableSetBuilder_(tc_p_Color)
@@ -189,7 +189,7 @@ func Color_createUnion(elements SetOf[*Color]) *Color {
 	var isConstructor bool = true
 	var isInvalidating bool = false
 	var propertiesKeepOriginalName bool = false
-	for element := range elemsAs_[*Color](elements) {
+	for element := range elemsAs_[*Color](elements.asSet()) {
 		if element.isUnion() {
 			for _, el := range element.getUnionElements().keys {
 				nestedElement := el
@@ -208,7 +208,7 @@ func Color_createUnion(elements SetOf[*Color]) *Color {
 		propertiesKeepOriginalName = bor_(propertiesKeepOriginalName, element.getPropertiesKeepOriginalName())
 		prototypes.addAll(icast_Iterable(obj_(element.getPrototypes().asImm())))
 	}
-	return new_Color_Builder().setClosureAssert(isClosureAssert).setConstructor(isConstructor).setId(ColorId_union(icast_Set(obj_(ids.buildErased())))).setInstanceColors(instanceColors.build()).setInvalidating(isInvalidating).setOwnProperties(ownProperties.build()).setPropertiesKeepOriginalName(propertiesKeepOriginalName).setPrototypes(prototypes.build()).setUnionElements(newElements.build()).buildUnion()
+	return new_Color_Builder().setClosureAssert(isClosureAssert).setConstructor(isConstructor).setId(ColorId_union(tsetFrom_(tch_p_ColorId, ids.buildErased(), true))).setInstanceColors(instanceColors.build()).setInvalidating(isInvalidating).setOwnProperties(ownProperties.build()).setPropertiesKeepOriginalName(propertiesKeepOriginalName).setPrototypes(prototypes.build()).setUnionElements(newElements.build()).buildUnion()
 }
 
 func (this *Color) isPrimitive() bool {
@@ -242,7 +242,7 @@ func (this *Color) subtractNullOrVoidUncached() *Color {
 	}
 	var elements *TSet[*Color] = tsetFrom_(tch_p_Color, icast_Collection(obj_(this.getUnionElements().asImm())), false)
 	elements.Delete(StandardColors_NULL_OR_VOID)
-	return Color_createUnion(elements.asSet())
+	return Color_createUnion(elements)
 }
 
 type Color_Builder struct {

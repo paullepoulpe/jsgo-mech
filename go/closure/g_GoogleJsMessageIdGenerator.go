@@ -18,12 +18,12 @@ func new_GoogleJsMessageIdGenerator(projectId Optional[string]) *GoogleJsMessage
 	return this
 }
 
-func (this *GoogleJsMessageIdGenerator) generateId(meaning Optional[string], messageParts ListOf[JsMessage_Part]) string {
+func (this *GoogleJsMessageIdGenerator) generateId(meaning Optional[string], messageParts *TList[JsMessage_Part]) string {
 	if !meaning.isPresent() {
 		panic(new_IllegalStateException_0())
 	}
 	var sb strBuilder_
-	for part := range elemsBy_(messageParts, icast_JsMessage_Part) {
+	for part := range elemsBy_(messageParts.asList(), icast_JsMessage_Part) {
 		if part.isPlaceholder() {
 			sb.append(part.getCanonicalPlaceholderName())
 		} else {

@@ -47,7 +47,7 @@ func (this *UnionType) getAlternates() *ImmutableList[*JSType] {
 		var resolvedAlternates int32 = this.countResolvedAlternates()
 		if resolvedAlternates != this.resolvedAlternatesAtLastBuild {
 			this.resolvedAlternatesAtLastBuild = resolvedAlternates
-			var b *UnionType_Builder = new_UnionType_Builder(this, this.registry).addAlternates(icast_List(obj_(this.alternates.asImm())))
+			var b *UnionType_Builder = new_UnionType_Builder(this, this.registry).addAlternates(sliceImm_(tc_p_JSType, this.alternates.asImm()))
 			if !this.isResolved() && !this.alternatesResolvedBeforeBuild {
 				b.build()
 				this.resolvedAlternatesAtLastBuild = this.countResolvedAlternates()
@@ -349,13 +349,13 @@ func (this *UnionType) getRestrictedUnion(type_ *JSType) *JSType {
 
 func (this *UnionType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append("(")
-	var names *TList[string] = newTList_(tc_string)
+	var names *[]string = &[]string{}
 	for _, el := range this.alternates.items {
 		alt := el
-		names.add(sb.cloneWithConfig().appendJSType(alt).build())
+		*names = append(*names, sb.cloneWithConfig().appendJSType(alt).build())
 	}
-	Collections_sort(names.asList())
-	sb.appendAll(Iterable(names.asList()), "|")
+	Collections_sort(sliceViewP_(tc_string, names))
+	sb.appendAll(Iterable(slicePtrView_(tc_string, names)), "|")
 	sb.append(")")
 }
 
@@ -442,7 +442,7 @@ func (this *UnionType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 	for i := int32(0); i < this.alternates.size(); i++ {
 		this.alternates.get(i).self().(JSType_as).as_JSType().resolve(reporter)
 	}
-	return new_UnionType_Builder(this, this.registry).addAlternates(icast_List(obj_(this.alternates.asImm()))).build()
+	return new_UnionType_Builder(this, this.registry).addAlternates(sliceImm_(tc_p_JSType, this.alternates.asImm())).build()
 }
 
 func (this *UnionType) collapseUnion_impl() *JSType {
@@ -549,9 +549,9 @@ func (this *UnionType_Builder) addAlternatesCollection(c CollectionOf[*JSType]) 
 	return this
 }
 
-func (this *UnionType_Builder) addAlternates(list ListOf[*JSType]) *UnionType_Builder {
-	for i := int32(0); i < list.size(); i++ {
-		this.addAlternate(to_JSType(list.get(i)))
+func (this *UnionType_Builder) addAlternates(list []*JSType) *UnionType_Builder {
+	for i := int32(0); i < int32(len(list)); i++ {
+		this.addAlternate(sliceAt_(list, i))
 	}
 	return this
 }
@@ -559,7 +559,7 @@ func (this *UnionType_Builder) addAlternates(list ListOf[*JSType]) *UnionType_Bu
 func (this *UnionType_Builder) addAlternate(alternate *JSType) *UnionType_Builder {
 	this.checkHasNotBuilt()
 	if alternate.isUnionType() {
-		this.addAlternates(icast_List(obj_(alternate.toMaybeUnionType().getAlternates().asImm())))
+		this.addAlternates(sliceImm_(tc_p_JSType, alternate.toMaybeUnionType().getAlternates().asImm()))
 		return this
 	}
 	if this.alternates.size() > UnionType_MAX_UNION_SIZE {

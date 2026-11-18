@@ -17,20 +17,18 @@ func new_ProfilingReport() *ProfilingReport {
 	return this
 }
 
-func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapOf[string, *InstrumentationPoint], allInstrumentationReports []MapOf[string, BoxedOf[int64]]) string {
-	var profiles *TList[*ReportProfile] = newTList_(tc_p_ReportProfile)
+func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping *TMap[string, *InstrumentationPoint], allInstrumentationReports []MapOf[string, BoxedOf[int64]]) string {
+	var profiles []*ReportProfile = []*ReportProfile{}
 	for _, el := range allInstrumentationReports {
 		report := el
-		profiles.add(ReportDecoder_decodeReport(instrumentationMapping, report))
+		profiles = append(profiles, ReportDecoder_decodeReport(instrumentationMapping, report))
 	}
 	var metricsBuilder *ImmutableMap_Builder[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = immutableMapBuilder_(tc_p_InstrumentationPoint, tc_p_ProfilingReport_InstrumentationPointMetrics)
-	for point := range elemsAs_[*InstrumentationPoint](instrumentationMapping.values()) {
+	for point := range elemsAs_[*InstrumentationPoint](instrumentationMapping.asMap().values()) {
 		metricsBuilder.put(point, new_ProfilingReport_InstrumentationPointMetrics())
 	}
 	var metrics *TMap[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = metricsBuilder.buildOrThrow()
-	it_5 := profiles.each()
-	for it_5.next() {
-		var profile *ReportProfile = it_5.v
+	for _, profile := range profiles {
 		for fileProfile := range elemsAs_[*FileProfile](profile.getFileProfileList()) {
 			for pointStats := range elemsAs_[*InstrumentationPointStats](fileProfile.getInstrumentationPointsStatsList()) {
 				var metric *ProfilingReport_InstrumentationPointMetrics = metrics.Get(pointStats.getPoint())
@@ -39,8 +37,8 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 			}
 		}
 	}
-	var result *TList[Map_Entry] = tlistFrom_(tc_Map_Entry, Collection(metrics.asMap().entrySet()))
-	Collections_sort_List_Comparator(result.asList(), Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(&Function_tfn_Map_Entry_string{func(point Map_Entry) string {
+	var result []Map_Entry = sliceFrom_(tc_Map_Entry, Collection(metrics.asMap().entrySet()))
+	Collections_sort_List_Comparator(sliceView_(tc_Map_Entry, result), Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(&Function_tfn_Map_Entry_string{func(point Map_Entry) string {
 		return point.getKey().(*InstrumentationPoint).getFileName()
 	}}), &ToLongFunction_tfn_Map_Entry{func(point Map_Entry) int64 {
 		return (-point.getValue().(*ProfilingReport_InstrumentationPointMetrics).totalTimesExecuted)
@@ -49,17 +47,13 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	}}), &ToIntFunction_tfn_Map_Entry{func(point Map_Entry) int32 {
 		return point.getKey().(*InstrumentationPoint).getType().getNumber()
 	}}))
-	var output *TList[List] = newTList_(tc_List)
-	output.add(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred")))
-	it_11 := result.each()
-	for it_11.next() {
-		var entry Map_Entry = it_11.v
-		output.add(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(entry.getKey().(*InstrumentationPoint).getFileName()), strobj_(entry.getKey().(*InstrumentationPoint).getFunctionName()), strobj_(strconv.Itoa(int(entry.getKey().(*InstrumentationPoint).getLineNumber()))), strobj_(entry.getKey().(*InstrumentationPoint).getType().name()), strobj_(strconv.FormatInt(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).totalTimesExecuted, 10)), strobj_(strconv.Itoa(int(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).numberOfReports)))))
+	var output []List = []List{}
+	output = append(output, ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred")))
+	for _, entry := range result {
+		output = append(output, ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(entry.getKey().(*InstrumentationPoint).getFileName()), strobj_(entry.getKey().(*InstrumentationPoint).getFunctionName()), strobj_(strconv.Itoa(int(entry.getKey().(*InstrumentationPoint).getLineNumber()))), strobj_(entry.getKey().(*InstrumentationPoint).getType().name()), strobj_(strconv.FormatInt(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).totalTimesExecuted, 10)), strobj_(strconv.Itoa(int(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).numberOfReports)))))
 	}
 	var rows *TList[string] = newTList_(tc_string)
-	it_13 := output.each()
-	for it_13.next() {
-		var row List = it_13.v
+	for _, row := range output {
 		rows.add(String_join_s("\t", Iterable(row)))
 	}
 	return String_join_s("\n", Iterable(rows.asList()))

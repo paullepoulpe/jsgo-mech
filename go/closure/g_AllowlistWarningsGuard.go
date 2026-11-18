@@ -17,7 +17,7 @@ func (this *AllowlistWarningsGuard) up_WarningsGuard() *WarningsGuard {
 }
 
 func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_0() {
-	this.init_AllowlistWarningsGuard_Set(ImmutableSet_of())
+	this.init_AllowlistWarningsGuard_Set(immutableSetOf_(tc_string))
 }
 
 func new_AllowlistWarningsGuard_0() *AllowlistWarningsGuard {
@@ -27,7 +27,7 @@ func new_AllowlistWarningsGuard_0() *AllowlistWarningsGuard {
 	return this
 }
 
-func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_Set(allowlist SetOf[string]) {
+func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_Set(allowlist *TSet[string]) {
 	this.WarningsGuard.init_WarningsGuard()
 	if allowlist == nil {
 		panic(new_NullPointerException_0())
@@ -35,16 +35,16 @@ func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_Set(allowlist Se
 	this.allowlist = AllowlistWarningsGuard_normalizeAllowlist(allowlist)
 }
 
-func new_AllowlistWarningsGuard_Set(allowlist SetOf[string]) *AllowlistWarningsGuard {
+func new_AllowlistWarningsGuard_Set(allowlist *TSet[string]) *AllowlistWarningsGuard {
 	this := &AllowlistWarningsGuard{}
 	this.self_ = this
 	this.init_AllowlistWarningsGuard_Set(allowlist)
 	return this
 }
 
-func AllowlistWarningsGuard_normalizeAllowlist(allowlist SetOf[string]) *ImmutableSet[string] {
+func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) *ImmutableSet[string] {
 	var result *TSet[string] = newTSet_(tc_string)
-	for line := range elemsBy_(allowlist, str_) {
+	for line := range elemsBy_(allowlist.asSet(), str_) {
 		var trimmed string = strings.Trim(line, javaSpace_)
 		if trimmed == "" || (trimmed[0] == '#') {
 			continue
@@ -73,7 +73,7 @@ func (this *AllowlistWarningsGuard) getPriority_impl() int32 {
 }
 
 func AllowlistWarningsGuard_fromFile(file string) *AllowlistWarningsGuard {
-	return new_AllowlistWarningsGuard_Set(AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file).asSet())
+	return new_AllowlistWarningsGuard_Set(AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file))
 }
 
 func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) *TSet[string] {
@@ -86,7 +86,7 @@ func AllowlistWarningsGuard_loadAllowlistedJsWarningsFile(file string) *TSet[str
 
 func AllowlistWarningsGuard_loadAllowlistedJsWarningsText(text string) *TSet[string] {
 	var result *TSet[string] = newTSet_(tc_string)
-	result.asSet().addAll(Collection(TextFiles_splitLines(text).asList()))
+	result.asSet().addAll(Collection(sliceViewP_(tc_string, TextFiles_splitLines(text))))
 	return result
 }
 

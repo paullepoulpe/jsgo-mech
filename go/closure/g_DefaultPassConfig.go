@@ -163,18 +163,18 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.suspiciousCode = PassFactory_builder().setName("suspiciousCode").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var sharedCallbacks *TList[NodeTraversal_Callback] = newTList_(tc_NodeTraversal_Callback)
+		var sharedCallbacks []NodeTraversal_Callback = []NodeTraversal_Callback{}
 		if this.options_.getCheckSuspiciousCode() {
-			sharedCallbacks.add(new_CheckSuspiciousCode())
-			sharedCallbacks.add(new_CheckDuplicateCase(compiler))
+			sharedCallbacks = append(sharedCallbacks, new_CheckSuspiciousCode())
+			sharedCallbacks = append(sharedCallbacks, new_CheckDuplicateCase(compiler))
 		}
 		if this.options_.enables(DiagnosticGroups_GLOBAL_THIS) {
-			sharedCallbacks.add(new_CheckGlobalThis(compiler))
+			sharedCallbacks = append(sharedCallbacks, new_CheckGlobalThis(compiler))
 		}
 		if this.options_.enables(DiagnosticGroups_DEBUGGER_STATEMENT_PRESENT) {
-			sharedCallbacks.add(new_CheckDebuggerStatement(compiler))
+			sharedCallbacks = append(sharedCallbacks, new_CheckDebuggerStatement(compiler))
 		}
-		return DefaultPassConfig_combineChecks(compiler, sharedCallbacks.asList())
+		return DefaultPassConfig_combineChecks(compiler, sharedCallbacks)
 	}}).build()
 	this.extraRequires = PassFactory_builder().setName("checkExtraRequires").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
@@ -189,7 +189,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.checkJsDocAndEs6Modules = PassFactory_builder().setName("checkJsDocAndEs6Modules").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return DefaultPassConfig_combineChecks(compiler, ImmutableList_of_Object_Object(obj_(new_CheckJSDoc(compiler)), obj_(new_Es6CheckModule(compiler))))
+		return DefaultPassConfig_combineChecks(compiler, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, new_CheckJSDoc(compiler), new_Es6CheckModule(compiler)).items)
 	}}).build()
 	this.generateExports = PassFactory_builder().setName(PassNames_GENERATE_EXPORTS).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
@@ -237,7 +237,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var pass *ProcessClosureProvidesAndRequires = new_ProcessClosureProvidesAndRequires(compiler, this.options_.shouldPreservesGoogProvidesAndRequires())
 		return &CompilerPass_fn{func(externs Node, root Node) {
 			pass.process_2(externs, root)
-			compiler.addExportedNames(pass.getExportedVariableNames().asSet())
+			compiler.addExportedNames(pass.getExportedVariableNames())
 		}}
 	}}).build()
 	this.angularPass = PassFactory_builder().setName(PassNames_ANGULAR_PASS).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return new_AngularPass(to_AbstractCompiler(p0)) }}).build()
@@ -306,12 +306,12 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
-		var peepholeOptimizations *TList[*AbstractPeepholeOptimization] = newTList_(tc_p_AbstractPeepholeOptimization)
-		peepholeOptimizations.add(new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization())
+		var peepholeOptimizations *[]*AbstractPeepholeOptimization = &[]*AbstractPeepholeOptimization{}
+		*peepholeOptimizations = append(*peepholeOptimizations, new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization())
 		if compiler.getOptions().getJ2clPass().shouldAddJ2clPasses() {
-			peepholeOptimizations.add(new_J2clEqualitySameRewriterPass(useTypesForOptimization).up_AbstractPeepholeOptimization())
+			*peepholeOptimizations = append(*peepholeOptimizations, new_J2clEqualitySameRewriterPass(useTypesForOptimization).up_AbstractPeepholeOptimization())
 		}
-		return new_PeepholeOptimizationsPass(compiler, "earlyPeepholeOptimizations", peepholeOptimizations.asList())
+		return new_PeepholeOptimizationsPass(compiler, "earlyPeepholeOptimizations", slicePtrView_(tc_p_AbstractPeepholeOptimization, peepholeOptimizations))
 	}}).build()
 	this.earlyInlineVariables = PassFactory_builder().setName("earlyInlineVariables").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
@@ -410,14 +410,14 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.checkControlFlow = PassFactory_builder().setName("checkControlFlow").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var callbacks *TList[NodeTraversal_Callback] = newTList_(tc_NodeTraversal_Callback)
+		var callbacks []NodeTraversal_Callback = []NodeTraversal_Callback{}
 		if !this.options_.disables(DiagnosticGroups_CHECK_USELESS_CODE) {
-			callbacks.add(new_CheckUnreachableCode(compiler))
+			callbacks = append(callbacks, new_CheckUnreachableCode(compiler))
 		}
 		if !this.options_.disables(DiagnosticGroups_MISSING_RETURN) {
-			callbacks.add(new_CheckMissingReturn(compiler))
+			callbacks = append(callbacks, new_CheckMissingReturn(compiler))
 		}
-		return DefaultPassConfig_combineChecks(compiler, callbacks.asList())
+		return DefaultPassConfig_combineChecks(compiler, callbacks)
 	}}).build()
 	this.checkAccessControls = PassFactory_builder().setName("checkAccessControls").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
 		return new_CheckAccessControls(to_AbstractCompiler(p0))
@@ -426,18 +426,18 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		var callbacks ImmutableList_BuilderOf[NodeTraversal_Callback] = ImmutableList_builder().add(obj_(new_CheckConstPrivateProperties(compiler))).add(obj_(new_CheckConstantCaseNames(compiler))).add(obj_(new_CheckEmptyStatements(compiler))).add(obj_(new_CheckEnums(compiler))).add(obj_(new_CheckEs6ModuleFileStructure(compiler))).add(obj_(new_CheckEs6Modules(compiler))).add(obj_(new_CheckNoMutatedEs6Exports(compiler))).add(obj_(new_CheckGoogModuleTypeScriptName(compiler))).add(obj_(new_CheckInterfaces(compiler))).add(obj_(new_CheckJSDocStyle(compiler))).add(obj_(new_CheckMissingSemicolon(compiler))).add(obj_(new_CheckNullabilityModifiers(compiler))).add(obj_(new_CheckPrimitiveAsObject(compiler))).add(obj_(new_CheckPrototypeProperties(compiler))).add(obj_(new_CheckUnusedPrivateProperties(compiler))).add(obj_(new_CheckUnusedLabels(compiler))).add(obj_(new_CheckUselessBlocks(compiler))).add(obj_(new_CheckVar(compiler)))
-		return DefaultPassConfig_combineChecks(compiler, icast_List(obj_(callbacks.build())))
+		return DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, callbacks.build()))
 	}}).build()
 	this.analyzerChecks = PassFactory_builder().setName(PassNames_ANALYZER_CHECKS).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		var callbacks *ImmutableList[NodeTraversal_Callback] = immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, new_CheckArrayWithGoogObject(compiler), new_ImplicitNullabilityCheck(compiler), new_CheckNestedNames(compiler))
-		return DefaultPassConfig_combineChecks(compiler, callbacks.asImm())
+		return DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, callbacks.asImm()))
 	}}).build()
 	this.checkRequiresAndProvidesSorted = PassFactory_builder().setName("checkRequiresAndProvidesSorted").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return DefaultPassConfig_combineChecks(compiler, ImmutableList_of_Object_Object(obj_(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT))))
+		return DefaultPassConfig_combineChecks(compiler, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT), new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT)).items)
 	}}).build()
 	this.checkStrictMode = PassFactory_builder().setName("checkStrictMode").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
@@ -1537,26 +1537,26 @@ func DefaultPassConfig_createPeepholeOptimizationsPass(compiler *AbstractCompile
 	}
 	var late bool = false
 	var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
-	var optimizations *TList[*AbstractPeepholeOptimization] = newTList_(tc_p_AbstractPeepholeOptimization)
+	var optimizations *[]*AbstractPeepholeOptimization = &[]*AbstractPeepholeOptimization{}
 	if expectAstIsNormalized {
-		optimizations.add(new_MinimizeExitPoints().up_AbstractPeepholeOptimization())
+		*optimizations = append(*optimizations, new_MinimizeExitPoints().up_AbstractPeepholeOptimization())
 	}
-	optimizations.add(new_PeepholeMinimizeConditions(late).up_AbstractPeepholeOptimization())
-	optimizations.add(new_PeepholeSubstituteAlternateSyntax(late).up_AbstractPeepholeOptimization())
-	optimizations.add(new_PeepholeReplaceKnownMethods(late, useTypesForOptimization).up_AbstractPeepholeOptimization())
-	optimizations.add(new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization())
+	*optimizations = append(*optimizations, new_PeepholeMinimizeConditions(late).up_AbstractPeepholeOptimization())
+	*optimizations = append(*optimizations, new_PeepholeSubstituteAlternateSyntax(late).up_AbstractPeepholeOptimization())
+	*optimizations = append(*optimizations, new_PeepholeReplaceKnownMethods(late, useTypesForOptimization).up_AbstractPeepholeOptimization())
+	*optimizations = append(*optimizations, new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization())
 	if compiler.getOptions().getJ2clPass().shouldAddJ2clPasses() {
-		optimizations.add(new_J2clEqualitySameRewriterPass(useTypesForOptimization).up_AbstractPeepholeOptimization())
-		optimizations.add(new_J2clStringValueOfRewriterPass().up_AbstractPeepholeOptimization())
-		optimizations.add(new_J2clUndefinedChecksRewriterPass().up_AbstractPeepholeOptimization())
+		*optimizations = append(*optimizations, new_J2clEqualitySameRewriterPass(useTypesForOptimization).up_AbstractPeepholeOptimization())
+		*optimizations = append(*optimizations, new_J2clStringValueOfRewriterPass().up_AbstractPeepholeOptimization())
+		*optimizations = append(*optimizations, new_J2clUndefinedChecksRewriterPass().up_AbstractPeepholeOptimization())
 	}
-	optimizations.add(new_PeepholeFoldConstants(late, useTypesForOptimization).up_AbstractPeepholeOptimization())
-	optimizations.add(new_PeepholeCollectPropertyAssignments().up_AbstractPeepholeOptimization())
-	return new_PeepholeOptimizationsPass(compiler, passName, optimizations.asList())
+	*optimizations = append(*optimizations, new_PeepholeFoldConstants(late, useTypesForOptimization).up_AbstractPeepholeOptimization())
+	*optimizations = append(*optimizations, new_PeepholeCollectPropertyAssignments().up_AbstractPeepholeOptimization())
+	return new_PeepholeOptimizationsPass(compiler, passName, slicePtrView_(tc_p_AbstractPeepholeOptimization, optimizations))
 }
 
-func DefaultPassConfig_combineChecks(compiler *AbstractCompiler, callbacks ListOf[NodeTraversal_Callback]) CompilerPass {
-	if callbacks.isEmpty() {
+func DefaultPassConfig_combineChecks(compiler *AbstractCompiler, callbacks []NodeTraversal_Callback) CompilerPass {
+	if len(callbacks) == 0 {
 		panic(new_IllegalArgumentException_0())
 	}
 	return new_CombinedCompilerPass(compiler, callbacks)
@@ -1566,7 +1566,7 @@ func (this *DefaultPassConfig) createProcessDefines(mode ProcessDefines_Mode) *P
 	return PassFactory_builder().setName(("processDefines_" + sstr_(mode.name()))).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return icast_CompilerPass(obj_(new_ProcessDefines_Builder(compiler).putReplacements(DefaultPassConfig_getAdditionalReplacements(this.options_).asMap()).putReplacements(icast_Map(obj_(this.options_.getDefineReplacements().asImm()))).setMode(mode).setRecognizeClosureDefines(compiler.getOptions().getClosurePass()).setEnableZonesDefineName(this.options_.getEnableZonesDefineName()).setZoneInputPattern(this.options_.getZoneInputPattern()).setUnknownDefinesToIgnore(this.options_.getUnknownDefinesToIgnore()).build()))
+		return icast_CompilerPass(obj_(new_ProcessDefines_Builder(compiler).putReplacements(DefaultPassConfig_getAdditionalReplacements(this.options_)).putReplacements(tmapFrom_(tc_string, tc_Node, this.options_.getDefineReplacements().asImm(), true)).setMode(mode).setRecognizeClosureDefines(compiler.getOptions().getClosurePass()).setEnableZonesDefineName(this.options_.getEnableZonesDefineName()).setZoneInputPattern(this.options_.getZoneInputPattern()).setUnknownDefinesToIgnore(this.options_.getUnknownDefinesToIgnore()).build()))
 	}}).build()
 }
 
@@ -1576,7 +1576,7 @@ func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, p
 	if this.options_.getRenamePrefixNamespace().isPresent() {
 		reservedNames.Add(this.options_.getRenamePrefixNamespace().get())
 	}
-	reservedNames.asSet().addAll(Collection(compiler.getExportedNames()))
+	reservedNames.asSet().addAll(Collection(compiler.getExportedNames().asSet()))
 	reservedNames.asSet().addAll(icast_Collection(obj_(ParserRunner_getReservedVars().asImm())))
 	var rn *RenameVars = new_RenameVars(compiler, this.options_.getRenamePrefix(), (this.options_.getVariableRenaming() == VariableRenamingPolicy_LOCAL), this.options_.shouldGeneratePseudoNames(), this.options_.shouldPreferStableNames(), prevVariableMap, reservedChars, reservedNames, this.options_.getNameGenerator())
 	rn.process_2(externs, root)
@@ -1667,7 +1667,7 @@ func new_DefaultPassConfig_1(outer_ *DefaultPassConfig, cap_pass *GenerateExport
 
 func (this *DefaultPassConfig_1) process_2(externs Node, root Node) {
 	this.cap_pass.process_2(externs, root)
-	this.cap_compiler.addExportedNames(this.cap_pass.getExportedVariableNames().asSet())
+	this.cap_compiler.addExportedNames(this.cap_pass.getExportedVariableNames())
 }
 
 type DefaultPassConfig_2 struct {
@@ -1691,7 +1691,7 @@ func new_DefaultPassConfig_2(outer_ *DefaultPassConfig, cap_pass *GatherRawExpor
 
 func (this *DefaultPassConfig_2) process_2(externs Node, root Node) {
 	this.cap_pass.process_2(externs, root)
-	this.cap_compiler.addExportedNames(this.cap_pass.getExportedVariableNames().asSet())
+	this.cap_compiler.addExportedNames(this.cap_pass.getExportedVariableNames())
 }
 
 type DefaultPassConfig_3 struct {

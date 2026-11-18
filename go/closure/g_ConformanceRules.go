@@ -616,20 +616,20 @@ func ConformanceRules_AbstractTypeRestrictionRule_isBottom(n Node) bool {
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) union(typeNames ListOf[string]) *JSType {
 	var registry *JSTypeRegistry = this.compiler_.getTypeRegistry()
-	var types *TList[*JSType] = newTList_(tc_p_JSType)
+	var types []*JSType = []*JSType{}
 	for typeName := range elemsBy_(typeNames, str_) {
 		var type_ *JSType = registry.getGlobalType(typeName)
 		if type_ == nil {
 			type_ = registry.resolveViaClosureNamespace(typeName)
 		}
 		if type_ != nil {
-			types.add(type_)
+			types = append(types, type_)
 		}
 	}
-	if types.isEmpty() {
+	if len(types) == 0 {
 		return nil
 	} else {
-		return registry.createUnionTypeList(types.asList())
+		return registry.createUnionTypeList(types)
 	}
 }
 
@@ -2803,21 +2803,21 @@ func ConformanceRules_BanUnresolvedType_getNonConformingPart(type_ *JSType) Opti
 		return Optional_empty[string]()
 	}
 	if type_.isUnionType() {
-		var nonConformingParts *TList[string] = nil
+		var nonConformingParts *[]string = nil
 		for part := range elemsBy_(type_.getUnionMembers(), to_JSType) {
 			var nonConformingPart Optional[string] = ConformanceRules_BanUnresolvedType_getNonConformingPart(part)
 			if nonConformingPart.isPresent() {
-				nonConformingParts = func() *TList[string] {
+				nonConformingParts = func() *[]string {
 					if nonConformingParts != nil {
 						return nonConformingParts
 					}
-					return newTList_(tc_string)
+					return &[]string{}
 				}()
-				nonConformingParts.add(nonConformingPart.get())
+				*nonConformingParts = append(*nonConformingParts, nonConformingPart.get())
 			}
 		}
 		if nonConformingParts != nil {
-			return Optional_of[string](Joiner_on_char('|').join(Iterable(nonConformingParts.asList())))
+			return Optional_of[string](Joiner_on_char('|').join(Iterable(sliceViewP_(tc_string, nonConformingParts))))
 		}
 	} else if type_.isNoResolvedType() {
 		var noResolvedType *ObjectType = type_.toObjectType()
@@ -3112,7 +3112,7 @@ var lambda_ConformanceRules_BannedModsRegex_getPrecondition_impl_1_ = &CheckConf
 
 type ConformanceRules_BanCreateElement struct {
 	ConformanceRules_AbstractRule
-	bannedTags    *TSet[string]
+	bannedTags    map[string]struct{}
 	domHelperType *JSType
 	documentType  *JSType
 }
@@ -3154,11 +3154,11 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	this.bannedTags = newTSet_(tc_string)
+	this.bannedTags = map[string]struct{}{}
 	for value := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
-		this.bannedTags.Add(Ascii_toLowerCase(value))
+		this.bannedTags[Ascii_toLowerCase(value)] = struct{}{}
 	}
-	if this.bannedTags.IsEmpty() {
+	if len(mapNN_(this.bannedTags)) == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("Specify one or more values.").up_Throwable())
 	}
 	this.domHelperType = compiler.getTypeRegistry().getGlobalType("goog.dom.DomHelper")
@@ -3169,7 +3169,7 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 func (this *ConformanceRules_BanCreateElement) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if n.isCall() {
 		var tag Node = n.getSecondChild()
-		if ((tag != 0) && tag.isStringLit()) && this.bannedTags.Has(Ascii_toLowerCase(tag.getString())) {
+		if ((tag != 0) && tag.isStringLit()) && has_(this.bannedTags, Ascii_toLowerCase(tag.getString())) {
 			return this.checkCreateElement(n)
 		}
 	}

@@ -366,34 +366,32 @@ func (this *SourceFile_jscomp) toString() string {
 	return this.fileName
 }
 
-func SourceFile_jscomp_fromZipFile(zipName string, inputCharset string) *Outcome_base[List] {
+func SourceFile_jscomp_fromZipFile(zipName string, inputCharset string) *Outcome_base[*TList[*SourceFile_jscomp]] {
 	var archive *Outcome_base[*ZipArchive] = ZipArchive_open(zipName)
 	if archive.isErr() {
-		return Outcome_base_err[List](archive.error())
+		return Outcome_base_err[*TList[*SourceFile_jscomp]](archive.error())
 	}
 	return SourceFile_jscomp_fromZipEntryNames(zipName, archive.get().names(), inputCharset)
 }
 
-func SourceFile_jscomp_fromZipInput(zipName string, zipBytes []int8, inputCharset string) *Outcome_base[List] {
+func SourceFile_jscomp_fromZipInput(zipName string, zipBytes []int8, inputCharset string) *Outcome_base[*TList[*SourceFile_jscomp]] {
 	var archive Optional[*ZipArchive] = ZipArchive_parse(zipBytes)
 	if archive.isEmpty() {
-		return Outcome_base_err[List](new_IOException_String(("Cannot read zip file " + sstr_(zipName))).up_Throwable())
+		return Outcome_base_err[*TList[*SourceFile_jscomp]](new_IOException_String(("Cannot read zip file " + sstr_(zipName))).up_Throwable())
 	}
 	return SourceFile_jscomp_fromZipEntryNames(zipName, archive.get().names(), inputCharset)
 }
 
-func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *TList[string], inputCharset string) *Outcome_base[List] {
+func SourceFile_jscomp_fromZipEntryNames(zipName string, entryNames *[]string, inputCharset string) *Outcome_base[*TList[*SourceFile_jscomp]] {
 	var absoluteZipPath string = FilePaths_toAbsolute(zipName)
 	var sourceFiles *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
-	it_1 := entryNames.each()
-	for it_1.next() {
-		var entryName string = it_1.v
+	for entryName := range sliceAll_(entryNames) {
 		if !strings.HasSuffix(entryName, ".js") {
 			continue
 		}
 		sourceFiles.add(SourceFile_jscomp_builder().withCharset(inputCharset).withOriginalPath((sstr_(zipName) + sstr_(SourceFile_jscomp_BANG_SLASH) + sstr_(entryName))).withZipEntryPath(absoluteZipPath, entryName).build())
 	}
-	return Outcome_base_ok_Object[List](sourceFiles.asList())
+	return Outcome_base_ok_Object[*TList[*SourceFile_jscomp]](sourceFiles)
 }
 
 func SourceFile_jscomp_fromFile_String_String(fileName string, charset string) *SourceFile_jscomp {

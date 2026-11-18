@@ -20,7 +20,7 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 	for fix := range elemsAs_[*SuggestedFix](fixes) {
 		filenames.asSet().addAll(Collection(fix.getReplacements().keySet()))
 	}
-	var filenameToCodeMap *TMap[string, string] = newTMap_(tc_string, tc_string)
+	var filenameToCodeMap map[string]string = map[string]string{}
 	it_3 := filenames.each()
 	for it_3.next() {
 		var filename string = it_3.v
@@ -28,9 +28,9 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 		if code.isErr() {
 			return Outcome_base_err[any](code.error())
 		}
-		filenameToCodeMap.Put(filename, code.get())
+		filenameToCodeMap[filename] = code.get()
 	}
-	var newCode *ImmutableMap[string, string] = ApplySuggestedFixes_applySuggestedFixesToCode(fixes, filenameToCodeMap.asMap())
+	var newCode *ImmutableMap[string, string] = ApplySuggestedFixes_applySuggestedFixesToCode(fixes, filenameToCodeMap)
 	for _, el_5 := range immElems_(cast_[*ErasedImmutableSet](newCode.asImm().entrySet())) {
 		var entry Map_Entry = icast_Map_Entry(el_5)
 		var written *Outcome_base[any] = TextFiles_write(str_(entry.getKey()), Charsets_UTF_8, str_(entry.getValue()))
@@ -41,7 +41,7 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 	return Outcome_base_ok_0()
 }
 
-func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], fileNameToCodeMap MapOf[string, string]) []ImmutableMapOf[string, string] {
+func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], fileNameToCodeMap map[string]string) []ImmutableMapOf[string, string] {
 	if Iterables_isEmpty(fixChoices) {
 		return sliceOf_(tc_ImmutableMapOf_string__string_, ImmutableMap_of())
 	}
@@ -67,7 +67,7 @@ func ApplySuggestedFixes_allHaveAlternativeCount(fixChoices IterableOf[*Suggeste
 	return true
 }
 
-func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], choiceIndex int32, fileNameToCodeMap MapOf[string, string]) *ImmutableMap[string, string] {
+func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], choiceIndex int32, fileNameToCodeMap map[string]string) *ImmutableMap[string, string] {
 	var chosenFixesBuilder *ImmutableList_Builder[*SuggestedFix] = immutableListBuilder_(tc_p_SuggestedFix)
 	for choices := range elemsAs_[*SuggestedFix](fixChoices) {
 		chosenFixesBuilder.add(choices.getAlternatives().get(choiceIndex))
@@ -76,7 +76,7 @@ func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*S
 	return ApplySuggestedFixes_applySuggestedFixesToCode(icast_Iterable(obj_(chosenFixes.asImm())), fileNameToCodeMap)
 }
 
-func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFix], filenameToCodeMap MapOf[string, string]) *ImmutableMap[string, string] {
+func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFix], filenameToCodeMap map[string]string) *ImmutableMap[string, string] {
 	var map_ *ApplySuggestedFixes_ReplacementMap = new_ApplySuggestedFixes_ReplacementMap()
 	for fix := range elemsAs_[*SuggestedFix](fixes) {
 		map_.putIfNoOverlap(fix)
@@ -84,11 +84,11 @@ func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFi
 	var newCodeMap *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for entry := range elemsBy_(map_.entrySet(), icast_Map_Entry) {
 		var filename string = str_(entry.getKey())
-		if !Map_containsKey_s(filenameToCodeMap, filename) {
+		if !has_(filenameToCodeMap, filename) {
 			panic(new_IllegalArgumentException_String(("filenameToCodeMap missing code for file: " + sstr_(filename))))
 		}
 		var replacements SetOf[*CodeReplacement] = icast_Set(entry.getValue())
-		var newCode string = ApplySuggestedFixes_applyCodeReplacements(Collection(replacements), str_(Map_get_s(filenameToCodeMap, filename)))
+		var newCode string = ApplySuggestedFixes_applyCodeReplacements(Collection(replacements), mapStr_(filenameToCodeMap, filename))
 		newCodeMap.put(filename, newCode)
 	}
 	return newCodeMap.buildOrThrow()

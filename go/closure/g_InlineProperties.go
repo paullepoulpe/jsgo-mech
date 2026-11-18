@@ -5,11 +5,11 @@ package closure
 type InlineProperties struct {
 	compiler_ *AbstractCompiler
 	registry  *ColorRegistry
-	props     *TMap[string, *InlineProperties_PropertyInfo]
+	props     map[string]*InlineProperties_PropertyInfo
 }
 
 func (this *InlineProperties) finit_InlineProperties() {
-	this.props = newTMap_(tc_string, tc_p_InlineProperties_PropertyInfo)
+	this.props = map[string]*InlineProperties_PropertyInfo{}
 }
 
 func (this *InlineProperties) init_InlineProperties(compiler *AbstractCompiler) {
@@ -28,7 +28,7 @@ func new_InlineProperties(compiler *AbstractCompiler) *InlineProperties {
 func (this *InlineProperties) invalidateExternProperties() {
 	for _, el := range this.compiler_.getExternProperties().keys {
 		name := el
-		this.props.Put(name, InlineProperties_INVALIDATED)
+		this.props[name] = InlineProperties_INVALIDATED
 	}
 }
 
@@ -159,7 +159,7 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDef
 			if possibleInstances.IsEmpty() {
 				return StandardColors_UNKNOWN
 			}
-			return Color_createUnion(icast_Set(obj_(possibleInstances.asImm())))
+			return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstances.asImm(), true))
 		}()
 	}
 	return this.maybeStoreCandidateValue(c, propName, value)
@@ -190,15 +190,15 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateGetpropDefini
 }
 
 func (this *InlineProperties_GatherCandidates) invalidateProperty(propName string) {
-	this.outer_.props.Put(propName, InlineProperties_INVALIDATED)
+	this.outer_.props[propName] = InlineProperties_INVALIDATED
 }
 
 func (this *InlineProperties_GatherCandidates) maybeStoreCandidateValue(color *Color, propName string, value Node) bool {
 	if value == 0 {
 		panic(new_NullPointerException_0())
 	}
-	if ((!this.outer_.props.Has(propName) && !color.isInvalidating()) && NodeUtil_isImmutableValue(value)) && NodeUtil_isExecutedExactlyOnce(value) {
-		this.outer_.props.Put(propName, new_InlineProperties_PropertyInfo(color, value))
+	if ((!has_(this.outer_.props, propName) && !color.isInvalidating()) && NodeUtil_isImmutableValue(value)) && NodeUtil_isExecutedExactlyOnce(value) {
+		this.outer_.props[propName] = new_InlineProperties_PropertyInfo(color, value)
 		return true
 	}
 	return false
@@ -246,7 +246,7 @@ func (this *InlineProperties_ReplaceCandidates) visit_impl(t *NodeTraversal, n N
 	if n.isGetProp() && !NodeUtil_isLValue(n) {
 		var target Node = n.getFirstChild()
 		var propName string = n.getString()
-		var info *InlineProperties_PropertyInfo = this.outer_.props.Get(propName)
+		var info *InlineProperties_PropertyInfo = this.outer_.props[propName]
 		if ((info != nil) && (info != InlineProperties_INVALIDATED)) && this.isMatchingType(target, info.color_) {
 			var replacement Node = info.value_.cloneTree()
 			if this.outer_.compiler_.getAstAnalyzer().mayHaveSideEffects(n.getFirstChild()) {

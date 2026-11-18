@@ -43,7 +43,7 @@ func ProductionInstrumentationReporter_readFile(filePath string) *Outcome_base[s
 }
 
 func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder string) *Outcome_base[*ErasedImmutableList] {
-	var result *ImmutableList_Builder[MapOf[string, BoxedOf[int64]]] = immutableListBuilder_(tc_MapOf_string__BoxedOf_int64__)
+	var result *ImmutableList_Builder[*TMap[string, any]] = immutableListBuilder_(tcv_p_TMap_string__any_)
 	it_1 := foreach_(Io_listFiles(folder))
 	for it_1.next() {
 		var fileEntry string = str_(it_1.v)
@@ -51,19 +51,19 @@ func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder str
 		if executionResult.isErr() {
 			return Outcome_base_err[*ErasedImmutableList](executionResult.error())
 		}
-		var executedInstrumentationData *Outcome_base[Map] = ProductionInstrumentationReporter_parseJsonStringToLongMap(executionResult.get())
+		var executedInstrumentationData *Outcome_base[*TMap[string, any]] = ProductionInstrumentationReporter_parseJsonStringToLongMap(executionResult.get())
 		if executedInstrumentationData.isErr() {
 			return Outcome_base_err[*ErasedImmutableList](executedInstrumentationData.error())
 		}
-		result.add(icast_Map(executedInstrumentationData.get()))
+		result.add(executedInstrumentationData.get())
 	}
 	return Outcome_base_ok_Object[*ErasedImmutableList](result.buildErased())
 }
 
-func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Outcome_base[Map] {
+func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Outcome_base[*TMap[string, any]] {
 	var parsed *Outcome_base[*SimpleJsonValue] = Json_parse(json)
 	if parsed.isErr() {
-		return Outcome_base_err[Map](parsed.error())
+		return Outcome_base_err[*TMap[string, any]](parsed.error())
 	}
 	var document *SimpleJsonValue = parsed.get()
 	var map_ *TMap[string, any] = newTMap_(tc_string, tc_Long)
@@ -73,34 +73,34 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 			var member *TEntry[string, *SimpleJsonValue] = it_1.entry()
 			var value *Outcome_base[any] = ProductionInstrumentationReporter_readJsonLong(member.getValue())
 			if value.isErr() {
-				return Outcome_base_err[Map](value.error())
+				return Outcome_base_err[*TMap[string, any]](value.error())
 			}
 			map_.Put(member.getKey(), value.get())
 		}
-		return Outcome_base_ok_Object[Map](map_.asMap())
+		return Outcome_base_ok_Object[*TMap[string, any]](map_)
 	} else if document.kind() != SimpleJsonValue_Kind_ARRAY {
-		return Outcome_base_err[Map](new_SimpleJsonException("Malformed report: expected a JSON object").up_Throwable())
+		return Outcome_base_err[*TMap[string, any]](new_SimpleJsonException("Malformed report: expected a JSON object").up_Throwable())
 	}
 	it_3 := document.elements().each()
 	for it_3.next() {
 		var pair *SimpleJsonValue = it_3.v
 		if (pair.kind() != SimpleJsonValue_Kind_ARRAY) || (pair.elements().size() != 2) {
-			return Outcome_base_err[Map](new_SimpleJsonException("Malformed report: expected a [name, value]").up_Throwable())
+			return Outcome_base_err[*TMap[string, any]](new_SimpleJsonException("Malformed report: expected a [name, value]").up_Throwable())
 		}
 		var key *Outcome_base[string] = pair.elements().get(0).asString()
 		if key.isErr() {
-			return Outcome_base_err[Map](key.error())
+			return Outcome_base_err[*TMap[string, any]](key.error())
 		}
 		var value *Outcome_base[any] = ProductionInstrumentationReporter_readJsonLong(pair.elements().get(1))
 		if value.isErr() {
-			return Outcome_base_err[Map](value.error())
+			return Outcome_base_err[*TMap[string, any]](value.error())
 		}
 		var replaced any = map_.Put(key.get(), value.get())
 		if replaced != nil {
-			return Outcome_base_err[Map](new_SimpleJsonException(("duplicate key: " + sstr_(key.get()))).up_Throwable())
+			return Outcome_base_err[*TMap[string, any]](new_SimpleJsonException(("duplicate key: " + sstr_(key.get()))).up_Throwable())
 		}
 	}
-	return Outcome_base_ok_Object[Map](map_.asMap())
+	return Outcome_base_ok_Object[*TMap[string, any]](map_)
 }
 
 func ProductionInstrumentationReporter_readJsonLong(value *SimpleJsonValue) *Outcome_base[any] {
@@ -126,7 +126,7 @@ func (this *ProductionInstrumentationReporter) createFile(fileName string, fileC
 
 func (this *ProductionInstrumentationReporter) doMain(args []string) *Outcome_base[any] {
 	this.parseCmdLineArguments(args)
-	var mapping *Outcome_base[Map] = ReportDecoder_parseMappingFromFile(this.instrumentationMappingLocation)
+	var mapping *Outcome_base[*TMap[string, *InstrumentationPoint]] = ReportDecoder_parseMappingFromFile(this.instrumentationMappingLocation)
 	if mapping.isErr() {
 		return Outcome_base_err[any](mapping.error())
 	}

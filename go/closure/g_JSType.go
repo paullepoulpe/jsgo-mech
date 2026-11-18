@@ -112,7 +112,7 @@ type JSType_I interface {
 	getOwnerFunction_impl() *FunctionType
 	getPropertyMap_impl() *PropertyMap
 	getPropertyTypeKey_impl(Property_Key) *JSType
-	getPropertyTypeMap_impl() Map
+	getPropertyTypeMap_impl() map[string]*JSType
 	getReferenceName_impl() Optional[string]
 	getSlot_impl(Property_Key) *Property
 	getSuperClassConstructor_impl() *FunctionType
@@ -162,7 +162,7 @@ func (this *JSType) getPropertyMap_impl() *PropertyMap {
 func (this *JSType) getPropertyTypeKey_impl(Property_Key) *JSType {
 	panic("getPropertyTypeKey_impl called on a " + goTypeName_(this.self_))
 }
-func (this *JSType) getPropertyTypeMap_impl() Map {
+func (this *JSType) getPropertyTypeMap_impl() map[string]*JSType {
 	panic("getPropertyTypeMap_impl called on a " + goTypeName_(this.self_))
 }
 func (this *JSType) getReferenceName_impl() Optional[string] {

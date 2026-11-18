@@ -7,27 +7,27 @@ type CombinedCompilerPass struct {
 	compiler_ *AbstractCompiler
 }
 
-func (this *CombinedCompilerPass) init_CombinedCompilerPass(compiler *AbstractCompiler, callbacks ListOf[NodeTraversal_Callback]) {
+func (this *CombinedCompilerPass) init_CombinedCompilerPass(compiler *AbstractCompiler, callbacks []NodeTraversal_Callback) {
 	this.compiler_ = compiler
-	this.callbacks = make([]*CombinedCompilerPass_CallbackWrapper, callbacks.size())
-	for i := int32(0); i < callbacks.size(); i++ {
-		this.callbacks[i] = new_CombinedCompilerPass_CallbackWrapper(icast_NodeTraversal_Callback(callbacks.get(i)))
+	this.callbacks = make([]*CombinedCompilerPass_CallbackWrapper, int32(len(callbacks)))
+	for i := int32(0); i < int32(len(callbacks)); i++ {
+		this.callbacks[i] = new_CombinedCompilerPass_CallbackWrapper(sliceAt_(callbacks, i))
 	}
 }
 
-func new_CombinedCompilerPass(compiler *AbstractCompiler, callbacks ListOf[NodeTraversal_Callback]) *CombinedCompilerPass {
+func new_CombinedCompilerPass(compiler *AbstractCompiler, callbacks []NodeTraversal_Callback) *CombinedCompilerPass {
 	this := &CombinedCompilerPass{}
 	this.init_CombinedCompilerPass(compiler, callbacks)
 	return this
 }
 
 func CombinedCompilerPass_createFromCallbacks(compiler *AbstractCompiler, callbacks []NodeTraversal_Callback) *CombinedCompilerPass {
-	return new_CombinedCompilerPass(compiler, ImmutableList_copyOf_ObjectArr(arrmap_(callbacks, func(v_ NodeTraversal_Callback) any { return v_ })))
+	return new_CombinedCompilerPass(compiler, sliceImm_(tc_NodeTraversal_Callback, ImmutableList_copyOf_ObjectArr(arrmap_(callbacks, func(v_ NodeTraversal_Callback) any { return v_ }))))
 }
 
-func CombinedCompilerPass_traverse(compiler *AbstractCompiler, root Node, callbacks ListOf[NodeTraversal_Callback]) {
-	if callbacks.size() == 1 {
-		NodeTraversal_traverse(compiler, root, icast_NodeTraversal_Callback(callbacks.get(0)))
+func CombinedCompilerPass_traverse(compiler *AbstractCompiler, root Node, callbacks []NodeTraversal_Callback) {
+	if int32(len(callbacks)) == 1 {
+		NodeTraversal_traverse(compiler, root, sliceAt_(callbacks, 0))
 	} else {
 		new_CombinedCompilerPass(compiler, callbacks).process_2(0, root)
 	}

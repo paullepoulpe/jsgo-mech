@@ -8,11 +8,11 @@ type VariableMap struct {
 	map__ *SimpleBiMap[any, string]
 }
 
-func (this *VariableMap) init_VariableMap(map_ MapOf[string, string]) {
-	this.map__ = SimpleBiMap_copyOf[any, string](map_)
+func (this *VariableMap) init_VariableMap(map_ *TMap[string, string]) {
+	this.map__ = SimpleBiMap_copyOf[any, string](map_.asMap())
 }
 
-func new_VariableMap(map_ MapOf[string, string]) *VariableMap {
+func new_VariableMap(map_ *TMap[string, string]) *VariableMap {
 	this := &VariableMap{}
 	this.init_VariableMap(map_)
 	return this
@@ -68,9 +68,7 @@ func VariableMap_fromBytes(bytes []int8) *Outcome_base[*VariableMap] {
 
 func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base[*VariableMap] {
 	var map_ *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
-	it_1 := TextFiles_splitLines(Io_utf8String(bytes)).each()
-	for it_1.next() {
-		var line string = it_1.v
+	for line := range sliceAll_(TextFiles_splitLines(Io_utf8String(bytes))) {
 		if line == "" {
 			continue
 		}
@@ -86,7 +84,7 @@ func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base[*VariableMap] {
 			return strobj_(VariableMap_unescape(lineU16.substring_int((pos + 1))))
 		}()))
 	}
-	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(icast_Map(obj_(map_.buildOrThrowErased()))))
+	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrowErased(), true)))
 }
 
 func VariableMap_fromLines(string_ string) *Outcome_base[*VariableMap] {
@@ -119,7 +117,7 @@ func VariableMap_fromLines(string_ string) *Outcome_base[*VariableMap] {
 			return strobj_(VariableMap_unescape(lineU16.substring_int((pos + 1))))
 		}()))
 	}
-	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(icast_Map(obj_(map_.buildOrThrowErased()))))
+	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrowErased(), true)))
 }
 
 func VariableMap_escape(value string) string {
@@ -165,7 +163,7 @@ func VariableMap_unescape(value string) string {
 	return sb.toString()
 }
 
-func VariableMap_fromMap(map_ MapOf[string, string]) *VariableMap {
+func VariableMap_fromMap(map_ *TMap[string, string]) *VariableMap {
 	return new_VariableMap(map_)
 }
 

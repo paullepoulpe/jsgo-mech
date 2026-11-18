@@ -3,7 +3,7 @@
 package closure
 
 type DotFormatter struct {
-	assignments      *TMap[Node, any]
+	assignments      map[Node]any
 	keyCount         int32
 	builder          Appendable
 	cfg              *ControlFlowGraph[Node]
@@ -11,7 +11,7 @@ type DotFormatter struct {
 }
 
 func (this *DotFormatter) finit_DotFormatter() {
-	this.assignments = newTMap_(tc_Node, tc_Integer)
+	this.assignments = map[Node]any{}
 	this.keyCount = 0
 }
 
@@ -74,10 +74,10 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		}
 		return DotFormatter_LINE
 	}()
-	var nodes ListOf[GraphvizGraph_GraphvizNode] = graph.getGraphvizNodes()
-	var nodeNames []string = newstrarr_(nodes.size())
+	var nodes []GraphvizGraph_GraphvizNode = graph.getGraphvizNodes()
+	var nodeNames []string = newstrarr_(int32(len(nodes)))
 	for i := int32(0); i < int32(len(nodeNames)); i++ {
-		var gNode GraphvizGraph_GraphvizNode = icast_GraphvizGraph_GraphvizNode(nodes.get(i))
+		var gNode GraphvizGraph_GraphvizNode = sliceAt_(nodes, i)
 		nodeNames[i] = (sstr_(gNode.getId()) + " [label=\"" + sstr_(gNode.getLabel()) + "\" color=\"" + sstr_(gNode.getColor()) + "\"]")
 	}
 	func() {
@@ -161,11 +161,11 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 }
 
 func (this *DotFormatter) key(n Node) int32 {
-	var key any = this.assignments.Get(n)
+	var key any = this.assignments[n]
 	if key == nil {
 		key = any(int32(this.keyCount))
 		this.keyCount++
-		this.assignments.Put(n, key)
+		this.assignments[n] = key
 		this.builder.append_CharSequence_s(DotFormatter_INDENT)
 		this.builder.append_CharSequence_s(DotFormatter_formatNodeName(key))
 		this.builder.append_CharSequence_s(" [label=\"")

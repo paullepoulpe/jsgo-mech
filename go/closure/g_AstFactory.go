@@ -564,7 +564,7 @@ func (this *AstFactory) createPrototypeAccess(receiver Node) Node {
 			if possiblePrototypes.IsEmpty() {
 				return StandardColors_UNKNOWN
 			}
-			return Color_createUnion(icast_Set(obj_(possiblePrototypes.asImm())))
+			return Color_createUnion(tsetFrom_(tch_p_Color, possiblePrototypes.asImm(), true))
 		}())
 	case AstFactory_TypeMode_NONE:
 	}
@@ -728,7 +728,7 @@ func (this *AstFactory) createAnd(left Node, right Node) Node {
 		if rightColor == nil {
 			nullFail_(tostr_(right))
 		}
-		result.setColor(Color_createUnion(ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor))))
+		result.setColor(Color_createUnion(immutableSetOf_(tch_p_Color, leftColor, rightColor)))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -756,7 +756,7 @@ func (this *AstFactory) createOr(left Node, right Node) Node {
 		if rightColor == nil {
 			nullFail_(tostr_(right))
 		}
-		result.setColor(Color_createUnion(ImmutableSet_of_Object_Object(obj_(leftColor), obj_(rightColor))))
+		result.setColor(Color_createUnion(immutableSetOf_(tch_p_Color, leftColor, rightColor)))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -858,7 +858,7 @@ func (this *AstFactory) getInstanceOfColor(color *Color) *Color {
 		if possibleInstanceColors.IsEmpty() {
 			return StandardColors_UNKNOWN
 		}
-		return Color_createUnion(icast_Set(obj_(possibleInstanceColors.asImm())))
+		return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstanceColors.asImm(), true))
 	}()
 }
 
@@ -1021,7 +1021,7 @@ func (this *AstFactory) createHook(condition Node, expr1 Node, expr2 Node) Node 
 	case AstFactory_TypeMode_JSTYPE:
 		result.setJSType(this.registry.createUnionType([]*JSType{expr1.getJSType(), expr2.getJSType()}))
 	case AstFactory_TypeMode_COLOR:
-		result.setColor(Color_createUnion(ImmutableSet_of_Object_Object(obj_(expr1.getColor()), obj_(expr2.getColor()))))
+		result.setColor(Color_createUnion(immutableSetOf_(tch_p_Color, expr1.getColor(), expr2.getColor())))
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -1271,7 +1271,7 @@ func AstFactory_clinit() {
 	AstFactory_clinit_done = true
 	AstFactory_DOT_SPLITTER = Splitter_on_String(".")
 	AstFactory_bigintNumberStringColor = Supplier(Suppliers_memoize(&Supplier_base_tfn_Color{func() *Color {
-		return Color_createUnion(ImmutableSet_of_Object_Object_Object(obj_(StandardColors_BIGINT), obj_(StandardColors_STRING), obj_(StandardColors_NUMBER)))
+		return Color_createUnion(immutableSetOf_(tch_p_Color, StandardColors_BIGINT, StandardColors_STRING, StandardColors_NUMBER))
 	}}))
 
 }

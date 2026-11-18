@@ -7,7 +7,7 @@ import "strings"
 type ProcessClosurePrimitives struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_              *AbstractCompiler
-	knownClosureSubclasses *TSet[string]
+	knownClosureSubclasses map[string]struct{}
 	closureModules         *ImmutableMap[string, *ModuleMetadataMap_ModuleMetadata]
 }
 
@@ -19,7 +19,7 @@ func (this *ProcessClosurePrimitives) up_NodeTraversal_AbstractPostOrderCallback
 }
 
 func (this *ProcessClosurePrimitives) finit_ProcessClosurePrimitives() {
-	this.knownClosureSubclasses = newTSet_(tc_string)
+	this.knownClosureSubclasses = map[string]struct{}{}
 }
 
 func (this *ProcessClosurePrimitives) init_ProcessClosurePrimitives(compiler *AbstractCompiler) {
@@ -184,7 +184,7 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 	var baseContainer string = callTarget.getFirstChild().getQualifiedName()
 	var enclosingFnNameNode Node = ProcessClosurePrimitives_getEnclosingDeclNameNode(n)
 	if (enclosingFnNameNode == 0) || !enclosingFnNameNode.isUnscopedQualifiedName() {
-		if this.knownClosureSubclasses.Has(baseContainer) {
+		if has_(this.knownClosureSubclasses, baseContainer) {
 			this.reportBadBaseMethodUse(n, Optional_of[string](baseContainer).filter(&Predicate_tfn_string{func(s string) bool {
 				return s != ""
 			}}), "Could not find enclosing method.")
@@ -218,7 +218,7 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 
 func (this *ProcessClosurePrimitives) rewriteBaseCallInConstructor(enclosingQname string, baseContainer Optional[string], n Node, enclosingFnNameNode Node) {
 	if !Object_equals(Optional_of[string](enclosingQname).box_(), baseContainer.box_()) {
-		if baseContainer.isPresent() && this.knownClosureSubclasses.Has(baseContainer.get()) {
+		if baseContainer.isPresent() && has_(this.knownClosureSubclasses, baseContainer.get()) {
 			this.reportBadBaseMethodUse(n, baseContainer, ("Must be used within " + sstr_(baseContainer.orElse("null")) + " methods"))
 		}
 		return
@@ -250,7 +250,7 @@ func (this *ProcessClosurePrimitives) rewriteBaseCallInConstructor(enclosingQnam
 }
 
 func (this *ProcessClosurePrimitives) rewriteBaseCallInMethod(enclosingQname Optional[string], baseContainer Optional[string], n Node, enclosingFnNameNode Node) {
-	if !(baseContainer.isPresent() && this.knownClosureSubclasses.Has(baseContainer.get())) {
+	if !(baseContainer.isPresent() && has_(this.knownClosureSubclasses, baseContainer.get())) {
 		this.reportPossibleBadBaseMethodUse(n, baseContainer, ("base used outside a known Closure subclass, in: " + sstr_(baseContainer.orElse("null")) + "\nIf " + sstr_(baseContainer.orElse("null")) + " is actually a Closure subclass, the compiler is unable to statically determine this. This can happen when calling .base off of some import or other alias of the original Closure subclass, such as from a goog.require in another file. Instead of using .base, rewrite this call as ParentClass.prototype.method.call(this)"))
 		return
 	}
@@ -302,7 +302,7 @@ func (this *ProcessClosurePrimitives) processInheritsCall(n Node) {
 		var subClass Node = n.getSecondChild()
 		var superClass Node = subClass.getNext()
 		if subClass.isUnscopedQualifiedName() && superClass.isUnscopedQualifiedName() {
-			this.knownClosureSubclasses.Add(subClass.getQualifiedName())
+			this.knownClosureSubclasses[subClass.getQualifiedName()] = struct{}{}
 		}
 	}
 }
@@ -372,19 +372,19 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	}
 	var style CssRenamingMap_Style = styleOrNull
 	if style == CssRenamingMap_Style_BY_PART {
-		var errors *TList[string] = newTList_(tc_string)
+		var errors []string = []string{}
 		it_3 := cssNames.each()
 		for it_3.next() {
 			var key string = it_3.k
 			if strings.Contains(key, "-") && !strings.HasPrefix(key, "--") {
-				errors.add(key)
+				errors = append(errors, key)
 			}
 		}
-		if !errors.isEmpty() {
-			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(errors.asList())}))
+		if len(errors) != 0 {
+			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(sliceView_(tc_string, errors))}))
 		}
 	} else if style == CssRenamingMap_Style_BY_WHOLE {
-		var errors *TList[string] = newTList_(tc_string)
+		var errors []string = []string{}
 		it_5 := cssNames.eachEntry()
 		var getKeyU16 utf16_
 		for it_5.next() {
@@ -397,12 +397,12 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 				var a *TEntry[string, string] = it_7.entry()
 				var combined Optional[string] = Optional_ofNullable[string](cssNames.Get((sstr_(a.getKey()) + "-" + sstr_(b.getKey()))))
 				if combined.isPresent() && !(combined.get() == (sstr_(a.getValue()) + "-" + sstr_(b.getValue()))) {
-					errors.add(("map(" + sstr_(a.getKey()) + "-" + sstr_(b.getKey()) + ") != map(" + sstr_(a.getKey()) + ")-map(" + sstr_(b.getKey()) + ")"))
+					errors = append(errors, ("map(" + sstr_(a.getKey()) + "-" + sstr_(b.getKey()) + ") != map(" + sstr_(a.getKey()) + ")-map(" + sstr_(b.getKey()) + ")"))
 				}
 			}
 		}
-		if !errors.isEmpty() {
-			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(errors.asList())}))
+		if len(errors) != 0 {
+			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(sliceView_(tc_string, errors))}))
 		}
 	}
 	return new_ProcessClosurePrimitives_1(cssNames, style)

@@ -72,23 +72,23 @@ func new_CommandLineRunner_StringArr_Input_Output_Output(args []string, in *Io_I
 	return this
 }
 
-func CommandLineRunner_processArgs(args []string) *TList[string] {
+func CommandLineRunner_processArgs(args []string) *[]string {
 	var argPattern *Pattern = Pattern_compile_String_int("(--?[a-zA-Z_]+)=(.*)", int32(2))
 	var quotesPattern *Pattern = Pattern_compile(("^['\"](" + sstr_(JavaRegex_DOT) + "*)['\"]$"))
-	var processedArgs *TList[string] = newTList_(tc_string)
+	var processedArgs *[]string = &[]string{}
 	for _, arg := range args {
 		var matcher *Matcher_re2j = argPattern.matcher_s(arg)
 		if matcher.matches() {
-			processedArgs.add(matcher.group(1))
+			*processedArgs = append(*processedArgs, matcher.group(1))
 			var value string = matcher.group(2)
 			var quotesMatcher *Matcher_re2j = quotesPattern.matcher_s(value)
 			if quotesMatcher.matches() {
-				processedArgs.add(quotesMatcher.group(1))
+				*processedArgs = append(*processedArgs, quotesMatcher.group(1))
 			} else {
-				processedArgs.add(value)
+				*processedArgs = append(*processedArgs, value)
 			}
 		} else {
-			processedArgs.add(arg)
+			*processedArgs = append(*processedArgs, arg)
 		}
 	}
 	return processedArgs
@@ -123,7 +123,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 	var flagFileText string = buffer.get()
 	var flagFileIndex int32 = 0
 	var builder strBuilder_
-	var tokens *TList[string] = newTList_(tc_string)
+	var tokens *[]string = &[]string{}
 	var quoted bool = false
 	var escaped bool = false
 	var isFirstCharacter bool = true
@@ -145,7 +145,7 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 			if quoted {
 				builder.append_char(uint16(c))
 			} else if builder.length() != 0 {
-				tokens.add(builder.toString())
+				*tokens = append(*tokens, builder.toString())
 				builder.setLength(0)
 			}
 		} else if c == 34 {
@@ -164,10 +164,10 @@ func (this *CommandLineRunner) processFlagFile(flagFileString string) *Outcome_b
 		escaped = (c == 92)
 	}
 	if builder.length() != 0 {
-		tokens.add(builder.toString())
+		*tokens = append(*tokens, builder.toString())
 	}
 	this.flags.flagFiles = new_ArrayList_0()
-	tokens = CommandLineRunner_processArgs(arrmap_(tokens.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
+	tokens = CommandLineRunner_processArgs(arrmap_(sliceViewP_(tc_string, tokens).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }))
 	var previousGuardLevels *[]*AbstractCommandLineRunner_FlagEntry[any] = sliceRef_(sliceFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(sliceViewP_(tc_p_AbstractCommandLineRunner_FlagEntry, this.flags.guardLevels))))
 	var previousMixedJsSources *[]*AbstractCommandLineRunner_FlagEntry[any] = sliceRef_(sliceFrom_(tc_p_AbstractCommandLineRunner_FlagEntry, Collection(sliceViewP_(tc_p_AbstractCommandLineRunner_FlagEntry, this.flags.mixedJsSources))))
 	sliceClear_(this.flags.guardLevels)
@@ -188,7 +188,7 @@ func (this *CommandLineRunner) getVersionText_impl() string {
 	return ("Closure Compiler (http://github.com/google/closure-compiler)" + "\n" + sstr_("Version: "+sstr_("v20261104")))
 }
 
-func (this *CommandLineRunner) readFlagInputs(processedArgs *TList[string], flagInputs *CommandLineRunner_FlagInputs) *Outcome_base[any] {
+func (this *CommandLineRunner) readFlagInputs(processedArgs *[]string, flagInputs *CommandLineRunner_FlagInputs) *Outcome_base[any] {
 	var parsed *Outcome_base[any] = this.flags.parse(processedArgs)
 	if parsed.isErr() {
 		return Outcome_base_err[any](parsed.error())
@@ -219,7 +219,7 @@ func (this *CommandLineRunner) readFlagInputs(processedArgs *TList[string], flag
 
 func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, err *Output) {
 	this.errorStream = err
-	var processedArgs *TList[string] = CommandLineRunner_processArgs(args)
+	var processedArgs *[]string = CommandLineRunner_processArgs(args)
 	sliceClear_(this.flags.guardLevels)
 	sliceClear_(this.flags.mixedJsSources)
 	var flagInputs *CommandLineRunner_FlagInputs = new_CommandLineRunner_FlagInputs()
@@ -342,7 +342,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptio
 		if languageMode != 0 {
 			options.setLanguageIn(languageMode)
 		} else {
-			return Outcome_base_err[*CompilerOptions](new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageIn) + "' specified. Expected one of: " + objstr_(CompilerOptions_LanguageMode_validCommandLineNames().asList()))).up_Throwable())
+			return Outcome_base_err[*CompilerOptions](new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageIn) + "' specified. Expected one of: " + objstr_(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames())))).up_Throwable())
 		}
 	}
 	var languageMode CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(Optional_of[string](this.flags.languageOut))
@@ -352,7 +352,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptio
 	if languageMode != 0 {
 		options.setLanguageOut(languageMode)
 	} else {
-		return Outcome_base_err[*CompilerOptions](new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageOut) + "' specified. Expected one of: " + objstr_(CompilerOptions_LanguageMode_validCommandLineNames().asList()))).up_Throwable())
+		return Outcome_base_err[*CompilerOptions](new_FlagUsageException(("Unknown language `" + sstr_(this.flags.languageOut) + "' specified. Expected one of: " + objstr_(sliceView_(tc_string, CompilerOptions_LanguageMode_validCommandLineNames())))).up_Throwable())
 	}
 	options.setCodingConvention(new_ClosureCodingConvention_0())
 	options.setExtraAnnotationNames(Iterable(this.flags.extraAnnotationName))
@@ -586,7 +586,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 		}
 		return new_LinkedHashMap()
 	}()
-	var excludes *TSet[string] = newTSet_(tc_string)
+	var excludes map[string]struct{} = map[string]struct{}{}
 	it_1 := foreach_(patterns)
 	for it_1.next() {
 		var pattern string = str_(it_1.v)
@@ -605,7 +605,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 			} else {
 				var original string = FilePaths_clean(pattern)
 				var pathStringAbsolute string = FilePaths_toAbsolute(FilePaths_normalize(original))
-				if !excludes.Has(pathStringAbsolute) {
+				if !has_(excludes, pathStringAbsolute) {
 					Map_put_s(allJsInputs, pathStringAbsolute, strobj_(original))
 				}
 			}
@@ -619,7 +619,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 	return Outcome_base_ok_Object[List](new_ArrayList_Collection(allJsInputs.values()).self().(List))
 }
 
-func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, string], excludes *TSet[string]) *Outcome_base[any] {
+func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, string], excludes map[string]struct{}) *Outcome_base[any] {
 	var remove bool = (int32(strings.IndexByte(pattern, '!')) == 0)
 	if remove {
 		pattern = String_substring_int(pattern, 1)
@@ -645,9 +645,9 @@ func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, stri
 		}
 		var pathStringAbsolute string = FilePaths_toAbsolute(FilePaths_normalize(p))
 		if remove {
-			excludes.Add(pathStringAbsolute)
+			excludes[pathStringAbsolute] = struct{}{}
 			Map_remove_s(allJsInputs, pathStringAbsolute)
-		} else if !excludes.Has(pathStringAbsolute) {
+		} else if !has_(excludes, pathStringAbsolute) {
 			Map_put_s(allJsInputs, pathStringAbsolute, strobj_(p))
 		}
 	}
@@ -1461,8 +1461,8 @@ func new_CommandLineRunner_Flags() *CommandLineRunner_Flags {
 	return this
 }
 
-func (this *CommandLineRunner_Flags) parse(args *TList[string]) *Outcome_base[any] {
-	var parsed *Outcome_base[any] = this.parser.parseArgumentCollection(Collection(args.asList()))
+func (this *CommandLineRunner_Flags) parse(args *[]string) *Outcome_base[any] {
+	var parsed *Outcome_base[any] = this.parser.parseArgumentCollection(Collection(slicePtrView_(tc_string, args)))
 	if parsed.isErr() {
 		return Outcome_base_err[any](parsed.error())
 	}
@@ -1570,7 +1570,7 @@ func CommandLineRunner_Flags_printShortUsageAfterErrors(ps *Output) {
 
 func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[*TList[*AbstractCommandLineRunner_FlagEntry[any]]] {
 	var mixedSources *TList[*AbstractCommandLineRunner_FlagEntry[any]] = newTList_(tc_p_AbstractCommandLineRunner_FlagEntry)
-	var excludes *TSet[string] = newTSet_(tc_string)
+	var excludes map[string]struct{} = map[string]struct{}{}
 	l_1 := this.mixedJsSources
 	var getValueU16 utf16_
 	for i_1 := 0; i_1 < len(*l_1); i_1++ {
@@ -1583,7 +1583,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[*TList[*A
 				return Outcome_base_err[*TList[*AbstractCommandLineRunner_FlagEntry[any]]](found.error())
 			}
 			for filename := range elemsBy_(found.get(), str_) {
-				excludes.Add(filename)
+				excludes[filename] = struct{}{}
 				mixedSources.asList().remove_Object(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
 			}
 		} else {
@@ -1592,7 +1592,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[*TList[*A
 				return Outcome_base_err[*TList[*AbstractCommandLineRunner_FlagEntry[any]]](found.error())
 			}
 			for filename := range elemsBy_(found.get(), str_) {
-				if !excludes.Has(filename) {
+				if !has_(excludes, filename) {
 					mixedSources.add(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename))
 				}
 			}

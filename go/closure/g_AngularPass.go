@@ -5,7 +5,7 @@ package closure
 type AngularPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_   *AbstractCompiler
-	injectables *TList[*AngularPass_NodeContext]
+	injectables *[]*AngularPass_NodeContext
 }
 
 func (this *AngularPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -16,7 +16,7 @@ func (this *AngularPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTrave
 }
 
 func (this *AngularPass) finit_AngularPass() {
-	this.injectables = newTList_(tc_p_AngularPass_NodeContext)
+	this.injectables = &[]*AngularPass_NodeContext{}
 }
 
 func (this *AngularPass) init_AngularPass(compiler *AbstractCompiler) {
@@ -34,16 +34,14 @@ func new_AngularPass(compiler *AbstractCompiler) *AngularPass {
 
 func (this *AngularPass) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, this)
-	it_1 := this.injectables.each()
-	for it_1.next() {
-		var entry *AngularPass_NodeContext = it_1.v
+	for entry := range sliceAll_(this.injectables) {
 		var name string = entry.getName()
 		var fn Node = entry.getFunctionNode()
-		var dependencies *TList[Node] = this.createDependenciesList(fn)
-		if dependencies.isEmpty() {
+		var dependencies *[]Node = this.createDependenciesList(fn)
+		if len(*dependencies) == 0 {
 			continue
 		}
-		var dependenciesArray Node = IR_arraylitIterable(Iterable(dependencies.asList()))
+		var dependenciesArray Node = IR_arraylitIterable(Iterable(slicePtrView_(tc_Node, dependencies)))
 		var statement Node = IR_exprResult(IR_assign(IR_getelem(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, name), IR_string(AngularPass_INJECT_PROPERTY_NAME)), dependenciesArray))
 		statement.srcrefTree(entry.getNode())
 		statement.setOriginalName(name)
@@ -61,7 +59,7 @@ func (this *AngularPass) process_2(externs Node, root Node) {
 	}
 }
 
-func (this *AngularPass) createDependenciesList(n Node) *TList[Node] {
+func (this *AngularPass) createDependenciesList(n Node) *[]Node {
 	if !n.isFunction() {
 		panic(new_IllegalArgumentException_0())
 	}
@@ -69,21 +67,21 @@ func (this *AngularPass) createDependenciesList(n Node) *TList[Node] {
 	if params != 0 {
 		return this.createStringsFromParamList(params)
 	}
-	return newTList_(tc_Node)
+	return &[]Node{}
 }
 
-func (this *AngularPass) createStringsFromParamList(params Node) *TList[Node] {
+func (this *AngularPass) createStringsFromParamList(params Node) *[]Node {
 	var param Node = params.getFirstChild()
-	var names *TList[Node] = newTList_(tc_Node)
+	var names *[]Node = &[]Node{}
 	for param != 0 {
 		if param.isName() {
-			names.add(IR_string(param.getString()).srcref(param))
+			*names = append(*names, IR_string(param.getString()).srcref(param))
 		} else if param.isDestructuringPattern() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(param, AngularPass_INJECTED_FUNCTION_HAS_DESTRUCTURED_PARAM, []string{}))
-			return newTList_(tc_Node)
+			return &[]Node{}
 		} else if param.isDefaultValue() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(param, AngularPass_INJECTED_FUNCTION_HAS_DEFAULT_VALUE, []string{}))
-			return newTList_(tc_Node)
+			return &[]Node{}
 		}
 		param = param.getNext()
 	}
@@ -163,7 +161,7 @@ func (this *AngularPass) addNode(n Node) {
 	if !name.isPresent() {
 		panic(new_IllegalStateException_0())
 	}
-	this.injectables.add(new_AngularPass_NodeContext(name.get(), n, fn, injectAfter))
+	*this.injectables = append(*this.injectables, new_AngularPass_NodeContext(name.get(), n, fn, injectAfter))
 }
 
 func AngularPass_getDeclarationRValue(n Node) Node {

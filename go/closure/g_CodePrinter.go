@@ -47,8 +47,8 @@ func CodePrinter_toSource(root Node, outputFormat CodePrinter_Format, options *C
 type CodePrinter_MappedCodePrinter struct {
 	CodeConsumer
 	mappings                    *TDeque[*SourceMap_Mapping]
-	allMappings                 *TList[*SourceMap_Mapping]
-	completeMappings            *TList[*SourceMap_Mapping]
+	allMappings                 *[]*SourceMap_Mapping
+	completeMappings            *[]*SourceMap_Mapping
 	firstCandidateMappingForCut int32
 	createSrcMap                bool
 	sourceMapDetailLevel        SourceMap_DetailLevel
@@ -104,15 +104,15 @@ func (this *CodePrinter_MappedCodePrinter) init_CodePrinter_MappedCodePrinter(li
 		}
 		return nil
 	}()
-	this.allMappings = func() *TList[*SourceMap_Mapping] {
+	this.allMappings = func() *[]*SourceMap_Mapping {
 		if createSrcMap {
-			return newTList_(tc_p_SourceMap_Mapping)
+			return &[]*SourceMap_Mapping{}
 		}
 		return nil
 	}()
-	this.completeMappings = func() *TList[*SourceMap_Mapping] {
+	this.completeMappings = func() *[]*SourceMap_Mapping {
 		if createSrcMap {
-			return newTList_(tc_p_SourceMap_Mapping)
+			return &[]*SourceMap_Mapping{}
 		}
 		return nil
 	}()
@@ -147,7 +147,7 @@ func (this *CodePrinter_MappedCodePrinter) startSourceMapping_impl(node Node) {
 		mapping.node_ = node
 		mapping.start_ = new_FilePosition(line, index)
 		this.mappings.push(mapping)
-		this.allMappings.add(mapping)
+		*this.allMappings = append(*this.allMappings, mapping)
 	}
 }
 
@@ -160,42 +160,38 @@ func (this *CodePrinter_MappedCodePrinter) endSourceMapping_impl(node Node) {
 			panic(new_IllegalStateException_0())
 		}
 		mapping.end_ = new_FilePosition(line, index)
-		this.completeMappings.add(mapping)
+		*this.completeMappings = append(*this.completeMappings, mapping)
 	}
 }
 
-func (this *CodePrinter_MappedCodePrinter) getSourceMappings(code string) *TList[*SourceMap_Mapping] {
+func (this *CodePrinter_MappedCodePrinter) getSourceMappings(code string) *[]*SourceMap_Mapping {
 	if !this.createSrcMap {
 		return nil
 	}
 	var lineLengths ImmutableListOf[BoxedOf[int32]] = CodePrinter_MappedCodePrinter_computeLineLengths(code)
-	var fixedMappings *TList[*SourceMap_Mapping] = newTList_(tc_p_SourceMap_Mapping)
-	it_1 := this.allMappings.each()
-	for it_1.next() {
-		var mapping *SourceMap_Mapping = it_1.v
+	var fixedMappings *[]*SourceMap_Mapping = &[]*SourceMap_Mapping{}
+	for mapping := range sliceAll_(this.allMappings) {
 		var adjusted *SourceMap_Mapping = new_SourceMap_Mapping()
 		adjusted.node_ = mapping.node_
 		adjusted.start_ = mapping.start_
 		adjusted.end_ = CodePrinter_MappedCodePrinter_adjustEndPosition(icast_List(obj_(lineLengths)), mapping.end_)
-		fixedMappings.add(adjusted)
+		*fixedMappings = append(*fixedMappings, adjusted)
 	}
 	return fixedMappings
 }
 
 func (this *CodePrinter_MappedCodePrinter) reportLineCut(lineIndex int32, charIndex int32) {
 	if this.createSrcMap {
-		var mappingCount int32 = this.allMappings.size()
+		var mappingCount int32 = int32(len(*this.allMappings))
 		for i := int32(this.firstCandidateMappingForCut); i < mappingCount; i++ {
-			var mapping *SourceMap_Mapping = this.allMappings.get(i)
+			var mapping *SourceMap_Mapping = sliceAt_(*this.allMappings, i)
 			mapping.start_ = CodePrinter_MappedCodePrinter_convertPositionAfterLineCut(mapping.start_, lineIndex, charIndex)
 		}
 		this.firstCandidateMappingForCut = mappingCount
-		it_2 := this.completeMappings.each()
-		for it_2.next() {
-			var mapping *SourceMap_Mapping = it_2.v
+		for _, mapping := range *this.completeMappings {
 			mapping.end_ = CodePrinter_MappedCodePrinter_convertPositionAfterLineCut(mapping.end_, lineIndex, charIndex)
 		}
-		this.completeMappings.clear()
+		sliceClear_(this.completeMappings)
 	}
 }
 
@@ -769,7 +765,7 @@ func CodePrinter_Format_clinit() {
 
 type CodePrinter_SourceAndMappings struct {
 	source   string
-	mappings *TList[*SourceMap_Mapping]
+	mappings *[]*SourceMap_Mapping
 }
 
 func (this *CodePrinter_SourceAndMappings) zero_CodePrinter_SourceAndMappings() {

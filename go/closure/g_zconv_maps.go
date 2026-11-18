@@ -26,3 +26,5 @@ var tch_p_KnownSymbolType = &tconv_[*KnownSymbolType]{box: func(v *KnownSymbolTy
 	hash: func(v *KnownSymbolType) int32 { return objhashVia_(v) }, eq: func(a, b *KnownSymbolType) bool { return objequalsVia_(a, obj_(b)) }}
 var tch_p_TemplateType = &tconv_[*TemplateType]{box: func(v *TemplateType) any { return obj_(v) }, unbox: func(v any) *TemplateType { return cast_[*TemplateType](v) },
 	hash: func(v *TemplateType) int32 { return objhashVia_(v) }, eq: func(a, b *TemplateType) bool { return objequalsVia_(a, obj_(b)) }}
+var tcv_p_TMap_string__any_ = tmapConv_[string, any]()
+var tcv_p_TMap_string__string_ = tmapConv_[string, string]()

@@ -85,7 +85,7 @@ func ColorPool_createUnionColorId(proto *TypeProto, allObjectIds []*ColorId) *Co
 		MalformedTypedAstException_checkWellFormed_boolean_String_Object((memberId != nil), "Union member not found", obj_(proto))
 		members.Add(memberId)
 	}
-	return ColorId_union(members.asSet())
+	return ColorId_union(members)
 }
 
 func ColorPool_validatePointer(offset int32, shard *ColorPool_ShardView) int32 {
@@ -351,7 +351,7 @@ func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto Map
 			union.Add(member)
 		}
 	}})
-	var result *Color = Color_createUnion(union.asSet())
+	var result *Color = Color_createUnion(union)
 	if !id.equals_ColorId(result.getId()) {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("%s == %s", []any{obj_(id), obj_(result)})))
 	}

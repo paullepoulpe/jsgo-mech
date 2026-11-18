@@ -41,7 +41,7 @@ type PerformanceTracker struct {
 	currentPass                    *TDeque[*PerformanceTracker_Stats]
 	passSummary                    *ImmutableMap[string, *PerformanceTracker_Stats]
 	astManifest                    *SimpleMultiset[Token_rhino]
-	log_                           *TList[*PerformanceTracker_Stats]
+	log_                           *[]*PerformanceTracker_Stats
 	pruningAnalysisSummary         string
 	disambiguatePropertiesSummary  string
 	ambiguatePropertiesSummary     string
@@ -80,7 +80,7 @@ func (this *PerformanceTracker) finit_PerformanceTracker() {
 	this.diff = 0
 	this.gzDiff = 0
 	this.currentPass = newTDeque_(tc_p_PerformanceTracker_Stats)
-	this.log_ = newTList_(tc_p_PerformanceTracker_Stats)
+	this.log_ = &[]*PerformanceTracker_Stats{}
 	this.pruningAnalysisSummary = "not executed"
 	this.disambiguatePropertiesSummary = "not executed"
 	this.ambiguatePropertiesSummary = "not executed"
@@ -143,7 +143,7 @@ func (this *PerformanceTracker) recordPassStop(passName string, runtime int64) {
 	if passName != logStats.pass {
 		panic(new_IllegalStateException_0())
 	}
-	this.log_.add(logStats)
+	*this.log_ = append(*this.log_, logStats)
 	logStats.runtime_ = runtime
 	logStats.allocMem = allocMem
 	logStats.runs = 1
@@ -330,9 +330,7 @@ func (this *PerformanceTracker) calcTotalStats() {
 
 func (this *PerformanceTracker) populatePassSummary() {
 	var tmpPassSummary *TMap[string, *PerformanceTracker_Stats] = newTMap_(tc_string, tc_p_PerformanceTracker_Stats)
-	it_1 := this.log_.each()
-	for it_1.next() {
-		var logStat *PerformanceTracker_Stats = it_1.v
+	for logStat := range sliceAll_(this.log_) {
 		var passName string = logStat.pass
 		var entry *PerformanceTracker_Stats = tmpPassSummary.computeIfAbsent(passName, &Function_tfn_string_PerformanceTracker_Stats{func(k string) *PerformanceTracker_Stats {
 			return new_PerformanceTracker_Stats(k, logStat.isOneTime)
@@ -405,33 +403,27 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 		return this.transitiveSummarySources
 	}()))), ("Type summary sources (post-pruning):   " + istr_(int64(this.transitiveSummarySources))), "", ("Dependency pruning analysis: " + sstr_(this.pruningAnalysisSummary))}))
 	output.println(JSCompStrings_lines([]string{"", "Summary:", "pass,runtime,allocMem,runs,changingRuns,astReduction,reduction,gzReduction"}))
-	var sortedPassSummary *TList[Map_Entry] = tlistFrom_(tc_Map_Entry, Collection(this.passSummary.asImm().entrySet()))
-	List_sort(sortedPassSummary.asList(), Comparator_comparingLong(&ToLongFunction_tfn_Map_Entry{func(e Map_Entry) int64 {
+	var sortedPassSummary []Map_Entry = sliceFrom_(tc_Map_Entry, Collection(this.passSummary.asImm().entrySet()))
+	List_sort(sliceView_(tc_Map_Entry, sortedPassSummary), Comparator_comparingLong(&ToLongFunction_tfn_Map_Entry{func(e Map_Entry) int64 {
 		return e.getValue().(*PerformanceTracker_Stats).runtime_
 	}}))
-	it_1 := sortedPassSummary.each()
-	for it_1.next() {
-		var entry Map_Entry = it_1.v
+	for _, entry := range sortedPassSummary {
 		var key string = str_(entry.getKey())
 		var stats *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](entry.getValue())
 		output.println((sstr_(key) + "," + istr_(int64(int64(stats.runtime_))) + "," + istr_(int64(int32(stats.allocMem))) + "," + istr_(int64(int32(stats.runs))) + "," + istr_(int64(int32(stats.changes))) + "," + istr_(int64(int32(stats.astDiff))) + "," + istr_(int64(int32(stats.diff))) + "," + istr_(int64(int32(stats.gzDiff)))))
 	}
 	output.println(JSCompStrings_lines([]string{"", "Log:", "pass,runtime,allocMem,codeChanged,astReduction,reduction,gzReduction,astSize,size,gzSize"}))
-	it_3 := this.log_.each()
-	for it_3.next() {
-		var stats *PerformanceTracker_Stats = it_3.v
+	for _, stats := range *this.log_ {
 		output.print((sstr_(stats.pass) + "," + istr_(int64(int64(stats.runtime_))) + "," + istr_(int64(int32(stats.allocMem))) + "," + sstr_(strconv.FormatBool((stats.changes == 1))) + "," + istr_(int64(int32(stats.astDiff))) + "," + istr_(int64(int32(stats.diff))) + "," + istr_(int64(int32(stats.gzDiff))) + "," + istr_(int64(int32(stats.astSize))) + "," + istr_(int64(int32(stats.size_))) + "," + istr_(int64(int32(stats.gzSize))) + "\n"))
 	}
 	if this.astManifest != nil {
 		output.println(JSCompStrings_lines([]string{"", "Input AST Manifest:", "token,count"}))
-		var manifestLines *TList[string] = newTList_(tc_string)
+		var manifestLines []string = []string{}
 		for e := range elemsBy_(this.astManifest.entrySet(), icast_Map_Entry) {
-			manifestLines.add(String_format("%s,%d", []any{e.getKey(), e.getValue()}))
+			manifestLines = append(manifestLines, String_format("%s,%d", []any{e.getKey(), e.getValue()}))
 		}
-		Collections_sort(manifestLines.asList())
-		it_7 := manifestLines.each()
-		for it_7.next() {
-			var line string = it_7.v
+		Collections_sort(sliceView_(tc_string, manifestLines))
+		for _, line := range manifestLines {
 			output.println(line)
 		}
 	}

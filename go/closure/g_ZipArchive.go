@@ -4,13 +4,13 @@ package closure
 
 type ZipArchive struct {
 	bytes      []int8
-	entryNames *TList[string]
-	records    *TMap[string, any]
+	entryNames *[]string
+	records    map[string]any
 }
 
 func (this *ZipArchive) finit_ZipArchive() {
-	this.entryNames = newTList_(tc_string)
-	this.records = newTMap_(tc_string, tc_Integer)
+	this.entryNames = &[]string{}
+	this.records = map[string]any{}
 }
 
 func (this *ZipArchive) init_ZipArchive(bytes []int8) {
@@ -49,19 +49,19 @@ func ZipArchive_parse(bytes []int8) Optional[*ZipArchive] {
 			return Optional_empty[*ZipArchive]()
 		}
 		var name string = Io_utf8String(ZipArchive_slice(bytes, (position + ZipArchive_RECORD_SIZE), nameLength))
-		archive.entryNames.add(name)
-		archive.records.Put(name, any(int32(position)))
+		*archive.entryNames = append(*archive.entryNames, name)
+		archive.records[name] = any(int32(position))
 		position = next
 	}
 	return Optional_of[*ZipArchive](archive)
 }
 
-func (this *ZipArchive) names() *TList[string] {
+func (this *ZipArchive) names() *[]string {
 	return this.entryNames
 }
 
 func (this *ZipArchive) read(name string) Optional[[]int8] {
-	var record any = this.records.Get(name)
+	var record any = this.records[name]
 	if record == nil {
 		return Optional_empty[[]int8]()
 	}
@@ -106,7 +106,7 @@ func ZipArchive_int32(bytes []int8, position int32) int32 {
 
 func ZipArchive_open(path string) *Outcome_base[*ZipArchive] {
 	var modified int64 = Io_lastModified(path)
-	var known *ZipArchive_Opened = ZipArchive_opened.Get(path)
+	var known *ZipArchive_Opened = mapNN_(ZipArchive_opened)[path]
 	if (known != nil) && (known.modified == modified) {
 		return Outcome_base_ok_Object[*ZipArchive](known.archive)
 	}
@@ -118,7 +118,7 @@ func ZipArchive_open(path string) *Outcome_base[*ZipArchive] {
 	if archive.isEmpty() {
 		return Outcome_base_err[*ZipArchive](ZipArchive_unreadable(path).up_Throwable())
 	}
-	ZipArchive_opened.Put(path, new_ZipArchive_Opened(archive.get(), modified))
+	ZipArchive_opened[path] = new_ZipArchive_Opened(archive.get(), modified)
 	return Outcome_base_ok_Object[*ZipArchive](archive.get())
 }
 
@@ -145,7 +145,7 @@ const ZipArchive_RECORD_SIZE int32 = 46
 const ZipArchive_LOCAL_SIGNATURE int32 = 67324752
 const ZipArchive_LOCAL_SIZE int32 = 30
 
-var ZipArchive_opened *TMap[string, *ZipArchive_Opened]
+var ZipArchive_opened map[string]*ZipArchive_Opened
 
 var ZipArchive_clinit_done bool
 
@@ -154,7 +154,7 @@ func ZipArchive_clinit() {
 		return
 	}
 	ZipArchive_clinit_done = true
-	ZipArchive_opened = newTMap_(tc_string, tc_p_ZipArchive_Opened)
+	ZipArchive_opened = map[string]*ZipArchive_Opened{}
 
 }
 

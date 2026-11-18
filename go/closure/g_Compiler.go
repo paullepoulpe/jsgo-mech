@@ -14,7 +14,7 @@ type Compiler struct {
 	externs                        *TList[*CompilerInput]
 	chunkGraph                     *JSChunkGraph
 	moduleLoader                   *ModuleLoader
-	moduleTypesByName              *TMap[string, CompilerInput_ModuleType]
+	moduleTypesByName              map[string]CompilerInput_ModuleType
 	errorManager                   ErrorManager
 	warningsGuard                  *WarningsGuard
 	externsRoot                    Node
@@ -163,7 +163,7 @@ func (this *Compiler) init_Compiler_Output(outStream *Output) {
 	this.finit_Compiler()
 	this.changeTracker.addChangeHandler(icast_CodeChangeHandler(obj_(this.changeTracker.getRecentChange())))
 	this.outStream = outStream
-	this.moduleTypesByName = newTMap_(tc_string, tc_p_CompilerInput_ModuleType)
+	this.moduleTypesByName = map[string]CompilerInput_ModuleType{}
 }
 
 func new_Compiler_Output(outStream *Output) *Compiler {
@@ -216,7 +216,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 			this.setErrorManager(new_LoggerErrorManager_MessageFormatter_Logger(this.createMessageFormatter(), Compiler_logger))
 		} else {
 			var builder *ImmutableSet_Builder[SortingErrorManager_ErrorReportGenerator] = immutableSetBuilder_(tc_SortingErrorManager_ErrorReportGenerator)
-			builder.add(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel())).addAll(Iterable(options.getExtraReportGenerators().asList()))
+			builder.add(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel())).addAll(Iterable(sliceViewP_(tc_SortingErrorManager_ErrorReportGenerator, options.getExtraReportGenerators())))
 			this.setErrorManager(new_SortingErrorManager(builder.build()))
 		}
 	}
@@ -882,7 +882,7 @@ func (this *Compiler) createPhaseOptimizer() *PhaseOptimizer {
 func (this *Compiler) check() {
 	this.runCustomPasses(CustomPassExecutionTime_BEFORE_CHECKS)
 	this.phaseOptimizer = this.createPhaseOptimizer()
-	this.phaseOptimizer.consume(icast_List(obj_(this.getPassConfig().getChecks().build().asImm())))
+	this.phaseOptimizer.consume(tlistImm_(tc_p_PassFactory, this.getPassConfig().getChecks().build().asImm()))
 	this.phaseOptimizer.process_2(this.externsRoot, this.jsRoot)
 	if this.hasErrors() {
 		return
@@ -1081,7 +1081,7 @@ func (this *Compiler) getCurrentJsSource() string {
 		if chunks == nil {
 			panic(new_NullPointerException_0())
 		}
-		var unmatchedChunkNames *TList[string] = newTList_(tc_string)
+		var unmatchedChunkNames []string = []string{}
 		var lt *Compiler_ChunkGraphAwareLicenseTracker = new_Compiler_ChunkGraphAwareLicenseTracker(this.up_AbstractCompiler())
 		for jsChunk := range elemsAs_[*JSChunk](chunks) {
 			var chunkName string = jsChunk.getName()
@@ -1093,20 +1093,18 @@ func (this *Compiler) getCurrentJsSource() string {
 					break
 				}
 			}
-			unmatchedChunkNames.add(chunkName)
+			unmatchedChunkNames = append(unmatchedChunkNames, chunkName)
 		}
 		if builder.length() == 0 {
 			builder.append("// No chunks were matched:\n")
-			it_10 := unmatchedChunkNames.each()
-			for it_10.next() {
-				var chunkName string = it_10.v
+			for _, chunkName := range unmatchedChunkNames {
 				builder.append("// ").append(chunkName).append("\n")
 			}
 		}
 	}
 	if !qnameSet.IsEmpty() {
 		var originalToNewQNameMap *SimpleSetMultimap[any, string] = SimpleSetMultimap_createInsertionOrdered[any, string]()
-		var statements *TList[Node] = this.getTopLevelStatements(this.jsRoot)
+		var statements *[]Node = this.getTopLevelStatements(this.jsRoot)
 		builder.append("//\n")
 		builder.append("// closure-compiler: Printing all of the top-level statements\n")
 		builder.append("// that contain references to these qualified names.\n")
@@ -1120,9 +1118,7 @@ func (this *Compiler) getCurrentJsSource() string {
 			}
 		}
 		builder.append("//\n")
-		it_16 := statements.each()
-		for it_16.next() {
-			var statement Node = it_16.v
+		for statement := range sliceAll_(statements) {
 			if !NodeUtil_has(statement, (&Predicate_base_tfn_Node{func(n Node) bool {
 				if n == 0 {
 					panic(new_NullPointerException_0())
@@ -1152,8 +1148,8 @@ func (this *Compiler) getCurrentJsSource() string {
 	return builder.toString()
 }
 
-func (this *Compiler) getTopLevelStatements(root Node) *TList[Node] {
-	var result *TList[Node] = newTList_(tc_Node)
+func (this *Compiler) getTopLevelStatements(root Node) *[]Node {
+	var result *[]Node = &[]Node{}
 	NodeTraversal_traverse(this.up_AbstractCompiler(), root, new_Compiler_2(this, result))
 	return result
 }
@@ -1504,19 +1500,19 @@ func (this *Compiler) parseInputs() (ret_1 Node) {
 		if this.options_.getLanguageIn().toFeatureSet().has(FeatureSet_Feature_MODULES) {
 			this.parsePotentialModules(this.chunkGraph.getAllInputs())
 		}
-		var inputModuleIdentifiers *TMap[string, *CompilerInput] = newTMap_(tc_string, tc_p_CompilerInput)
+		var inputModuleIdentifiers map[string]*CompilerInput = map[string]*CompilerInput{}
 		for input := range elemsAs_[*CompilerInput](this.chunkGraph.getAllInputs()) {
 			if input.getKnownProvides().isEmpty() {
 				var modPath *ModuleLoader_ModulePath = this.moduleLoader.resolve(input.getSourceFile().getName())
-				inputModuleIdentifiers.Put(modPath.toModuleName(), input)
+				inputModuleIdentifiers[modPath.toModuleName()] = input
 			}
 		}
 		var inputsToRewrite *TMap[string, *CompilerInput] = newTMap_(tc_string, tc_p_CompilerInput)
 		for input := range elemsAs_[*CompilerInput](this.chunkGraph.getAllInputs()) {
 			for _, el := range input.getKnownRequiredSymbols().items {
 				require := el
-				if inputModuleIdentifiers.Has(require) && !inputsToRewrite.Has(require) {
-					inputsToRewrite.Put(require, inputModuleIdentifiers.Get(require))
+				if has_(inputModuleIdentifiers, require) && !inputsToRewrite.Has(require) {
+					inputsToRewrite.Put(require, inputModuleIdentifiers[require])
 				}
 			}
 		}
@@ -1632,44 +1628,42 @@ func (this *Compiler) orderInputs() {
 
 func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, supportCommonJSModules bool) {
 	this.maybeDoThreadedParsing()
-	var entryPoints *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)
-	var inputsByProvide *TMap[string, *CompilerInput] = newTMap_(tc_string, tc_p_CompilerInput)
-	var inputsByIdentifier *TMap[string, *CompilerInput] = newTMap_(tc_string, tc_p_CompilerInput)
+	var entryPoints []*CompilerInput = []*CompilerInput{}
+	var inputsByProvide map[string]*CompilerInput = map[string]*CompilerInput{}
+	var inputsByIdentifier map[string]*CompilerInput = map[string]*CompilerInput{}
 	for input := range elemsAs_[*CompilerInput](this.chunkGraph.getAllInputs()) {
 		var provides IterableOf[string] = Iterables_filter(icast_Iterable(obj_(input.getProvides().asImm())), &Predicate_base_tfn_string{func(p string) bool {
 			return !strings.HasPrefix(p, "module$")
 		}})
 		if !this.options_.getDependencyOptions().shouldDropMoochers() && Iterables_isEmpty(provides) {
-			entryPoints.add(input)
+			entryPoints = append(entryPoints, input)
 		}
-		inputsByIdentifier.Put(ModuleIdentifier_forFile(input.getPath().toString()).toString(), input)
+		inputsByIdentifier[ModuleIdentifier_forFile(input.getPath().toString()).toString()] = input
 		for provide := range elemsBy_(provides, str_) {
-			inputsByProvide.Put(provide, input)
+			inputsByProvide[provide] = input
 		}
 	}
 	for _, el := range this.options_.getDependencyOptions().entryPoints().items {
 		moduleIdentifier := el
-		var input *CompilerInput = inputsByProvide.Get(moduleIdentifier.toString())
+		var input *CompilerInput = inputsByProvide[moduleIdentifier.toString()]
 		if input == nil {
-			input = inputsByIdentifier.Get(moduleIdentifier.toString())
+			input = inputsByIdentifier[moduleIdentifier.toString()]
 		}
 		if input != nil {
-			entryPoints.add(input)
+			entryPoints = append(entryPoints, input)
 		}
 	}
-	var workingInputSet *TSet[*CompilerInput] = newTSet_(tc_p_CompilerInput)
+	var workingInputSet map[*CompilerInput]struct{} = map[*CompilerInput]struct{}{}
 	for input := range elemsAs_[*CompilerInput](this.chunkGraph.getAllInputs()) {
-		workingInputSet.Add(input)
+		workingInputSet[input] = struct{}{}
 	}
-	it_9 := entryPoints.each()
-	for it_9.next() {
-		var entryPoint *CompilerInput = it_9.v
+	for _, entryPoint := range entryPoints {
 		this.findModulesFromInput(entryPoint, false, workingInputSet, inputsByIdentifier, inputsByProvide, supportEs6Modules, supportCommonJSModules)
 	}
 }
 
-func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByModule bool, inputs *TSet[*CompilerInput], inputsByIdentifier *TMap[string, *CompilerInput], inputsByProvide *TMap[string, *CompilerInput], supportEs6Modules bool, supportCommonJSModules bool) {
-	if !inputs.Delete(input) {
+func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByModule bool, inputs map[*CompilerInput]struct{}, inputsByIdentifier map[string]*CompilerInput, inputsByProvide map[string]*CompilerInput, supportEs6Modules bool, supportCommonJSModules bool) {
+	if !setRemove_(inputs, input) {
 		if wasImportedByModule && (input.getJsModuleType() == CompilerInput_ModuleType_NONE) {
 			input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)
 		}
@@ -1684,16 +1678,16 @@ func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByMo
 	if wasImportedByModule && (input.getJsModuleType() == CompilerInput_ModuleType_NONE) {
 		input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)
 	}
-	this.moduleTypesByName.Put(input.getPath().toModuleName(), input.getJsModuleType())
+	this.moduleTypesByName[input.getPath().toModuleName()] = input.getJsModuleType()
 	var allDeps IterableOf[string] = Iterables_concat_Iterable_Iterable_Iterable(icast_Iterable(obj_(input.getRequiredSymbols().asImm())), icast_Iterable(obj_(input.getDynamicRequires().asImm())), icast_Iterable(obj_(input.getTypeRequires().asImm())))
 	for requiredNamespace := range elemsBy_(allDeps, str_) {
 		var requiredInput *CompilerInput = nil
 		var requiredByModuleImport bool = false
-		if inputsByProvide.Has(requiredNamespace) {
-			requiredInput = inputsByProvide.Get(requiredNamespace)
-		} else if inputsByIdentifier.Has(requiredNamespace) {
+		if has_(inputsByProvide, requiredNamespace) {
+			requiredInput = inputsByProvide[requiredNamespace]
+		} else if has_(inputsByIdentifier, requiredNamespace) {
 			requiredByModuleImport = true
-			requiredInput = inputsByIdentifier.Get(requiredNamespace)
+			requiredInput = inputsByIdentifier[requiredNamespace]
 		}
 		if requiredInput != nil {
 			this.findModulesFromInput(requiredInput, requiredByModuleImport, inputs, inputsByIdentifier, inputsByProvide, supportEs6Modules, supportCommonJSModules)
@@ -1843,9 +1837,9 @@ func (this *Compiler) parseTestCode_impl(js string) Node {
 func (this *Compiler) parseTestCodeImmutableList_impl(code []string) Node {
 	this.initCompilerOptionsIfTesting()
 	this.initBasedOnOptions()
-	var sources *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
+	var sources []*SourceFile_jscomp = []*SourceFile_jscomp{}
 	for index := int32(0); index < int32(len(code)); index++ {
-		sources.add(SourceFile_jscomp_fromCode_String_String(("testcode" + istr_(int64(index))), sliceAt_(code, index)))
+		sources = append(sources, SourceFile_jscomp_fromCode_String_String(("testcode"+istr_(int64(index))), sliceAt_(code, index)))
 	}
 	return this.parseCodeHelperList(sources)
 }
@@ -1861,11 +1855,9 @@ func (this *Compiler) parseCodeHelper(src *SourceFile_jscomp) Node {
 	return root
 }
 
-func (this *Compiler) parseCodeHelperList(srcs *TList[*SourceFile_jscomp]) Node {
+func (this *Compiler) parseCodeHelperList(srcs []*SourceFile_jscomp) Node {
 	var root Node = IR_root([]Node{})
-	it_1 := srcs.each()
-	for it_1.next() {
-		var src *SourceFile_jscomp = it_1.v
+	for _, src := range srcs {
 		root.addChildToBack(this.parseCodeHelper(src))
 	}
 	return root
@@ -1995,9 +1987,7 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 			cb.append(";")
 		}
 		if this.options_.shouldGatherSourceMapInfo() {
-			it_3 := sourceAndMappings.mappings.each()
-			for it_3.next() {
-				var mapping *SourceMap_Mapping = it_3.v
+			for mapping := range sliceAll_(sourceAndMappings.mappings) {
 				this.sourceMap_.addMapping(mapping)
 			}
 		}
@@ -2073,7 +2063,7 @@ func (this *Compiler) performTranspilationAndOptimizations(segmentOfCompilationT
 	if allOptimizationPassesToRun.isEmpty() {
 		return
 	}
-	var optimizationPassesToRunInCurrentSegment ListOf[*PassFactory] = this.getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun, icast_List(obj_(allOptimizationPassesToRun.asImm())))
+	var optimizationPassesToRunInCurrentSegment *TList[*PassFactory] = this.getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun, tlistImm_(tc_p_PassFactory, allOptimizationPassesToRun.asImm()))
 	this.markTranspiledFiles()
 	this.phaseOptimizer = this.createPhaseOptimizer()
 	this.phaseOptimizer.consume(optimizationPassesToRunInCurrentSegment)
@@ -2087,7 +2077,7 @@ func (this *Compiler) performFinalizations() {
 		return
 	}
 	this.phaseOptimizer = this.createPhaseOptimizer()
-	this.phaseOptimizer.consume(icast_List(obj_(finalizations.asImm())))
+	this.phaseOptimizer.consume(tlistImm_(tc_p_PassFactory, finalizations.asImm()))
 	this.phaseOptimizer.process_2(this.externsRoot, this.jsRoot)
 	this.phaseOptimizer = nil
 }
@@ -2100,8 +2090,8 @@ func (this *Compiler) computeCFG() *ControlFlowGraph[Node] {
 	return cfg
 }
 
-func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun, allOptimizationPassesToRun ListOf[*PassFactory]) ListOf[*PassFactory] {
-	return func() List {
+func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun, allOptimizationPassesToRun *TList[*PassFactory]) *TList[*PassFactory] {
+	return func() *TList[*PassFactory] {
 		switch segmentOfCompilationToRun {
 		case CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS:
 			return allOptimizationPassesToRun
@@ -2115,29 +2105,29 @@ func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompil
 	}()
 }
 
-func (this *Compiler) passListUntil(passes ListOf[*PassFactory], passName string) ListOf[*PassFactory] {
+func (this *Compiler) passListUntil(passes *TList[*PassFactory], passName string) *TList[*PassFactory] {
 	var passList *TList[*PassFactory] = newTList_(tc_p_PassFactory)
-	it_1 := foreach_(passes)
+	it_1 := passes.each()
 	for it_1.next() {
-		var pass *PassFactory = cast_[*PassFactory](it_1.v)
+		var pass *PassFactory = it_1.v
 		if pass.getName() == passName {
-			return passList.asList()
+			return passList
 		}
 		passList.add(pass)
 	}
-	return passList.asList()
+	return passList
 }
 
-func (this *Compiler) passListAfter(passes ListOf[*PassFactory], passName string) ListOf[*PassFactory] {
+func (this *Compiler) passListAfter(passes *TList[*PassFactory], passName string) *TList[*PassFactory] {
 	var passList *TList[*PassFactory] = newTList_(tc_p_PassFactory)
-	for pass := range elemsAs_[*PassFactory](passes) {
+	for pass := range elemsAs_[*PassFactory](passes.asList()) {
 		if pass.getName() == passName {
 			passList.clear()
 			continue
 		}
 		passList.add(pass)
 	}
-	return passList.asList()
+	return passList
 }
 
 func (this *Compiler) getChangeTracker_impl() *ChangeTracker {
@@ -2552,12 +2542,12 @@ func (this *Compiler) getInstrumentationMapping() *VariableMap {
 	return this.instrumentationMapping
 }
 
-func (this *Compiler) addExportedNames_impl(exportedNames SetOf[string]) {
-	this.exportedNames.asSet().addAll(Collection(exportedNames))
+func (this *Compiler) addExportedNames_impl(exportedNames *TSet[string]) {
+	this.exportedNames.asSet().addAll(Collection(exportedNames.asSet()))
 }
 
-func (this *Compiler) getExportedNames_impl() SetOf[string] {
-	return this.exportedNames.asSet()
+func (this *Compiler) getExportedNames_impl() *TSet[string] {
+	return this.exportedNames
 }
 
 func (this *Compiler) setDefineNames_impl(defineNames CollectionOf[string]) {
@@ -2927,7 +2917,7 @@ func Compiler_fromVariableMapEntries(entries ListOf[*VariableMapEntryProto]) *Va
 	for entry := range elemsAs_[*VariableMapEntryProto](entries) {
 		map_.Put(entry.getOriginalName(), entry.getNewName())
 	}
-	return new_VariableMap(map_.asMap())
+	return new_VariableMap(map_)
 }
 
 func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Builder {
@@ -2938,15 +2928,15 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 	}
 	builder.setTypeCheckingHasRun(this.typeCheckingHasRun).setHasRegExpGlobalReferences(this.hasRegExpGlobalReferencesField).setLifeCycleStage(Compiler_toProto(this.getLifeCycleStage())).setMergedPrecompiledLibraries(this.options_.getMergedPrecompiledLibraries())
 	var chunkList []*JSChunk = this.chunkGraph.getIntegralChunkArrayForSerialization()
-	var chunkNameMap *TMap[string, any] = newTMap_(tc_string, tc_Integer)
+	var chunkNameMap map[string]any = map[string]any{}
 	for i := int32(0); i < int32(len(chunkList)); i++ {
-		chunkNameMap.Put(chunkList[i].getName(), any(int32(i)))
+		chunkNameMap[chunkList[i].getName()] = any(int32(i))
 	}
 	for _, chunk := range chunkList {
 		var chunkBuilder *ChunkProto_Builder = ChunkProto_newBuilder()
 		chunkBuilder.setName(chunk.getName())
 		for _, dep := range chunk.getDependencies() {
-			var depIdx any = chunkNameMap.Get(dep.getName())
+			var depIdx any = chunkNameMap[dep.getName()]
 			if ok_, a1_, a2_ := (depIdx != nil), dep.getName(), chunk.getName(); !ok_ {
 				panic(new_IllegalStateException_String(Strings_lenientFormat("Missing dependency %s for chunk %s", []any{strobj_(a1_), strobj_(a2_)})))
 			}
@@ -3204,7 +3194,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 func (this *Compiler) getModuleTypeByName_impl(moduleName Optional[string]) CompilerInput_ModuleType {
 	return func() CompilerInput_ModuleType {
 		if moduleName.isPresent() {
-			return this.moduleTypesByName.Get(moduleName.get())
+			return this.moduleTypesByName[moduleName.get()]
 		}
 		return 0
 	}()
@@ -3231,21 +3221,21 @@ func Compiler_resolveSibling(fromPath string, toPath string) string {
 		return toPath
 	}
 	var fromPathParts *TList[string] = tlistFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(fromPath), func(v_ string) any { return strobj_(v_) }))))
-	var toPathParts *TList[string] = tlistFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(toPath), func(v_ string) any { return strobj_(v_) }))))
+	var toPathParts []string = sliceFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(toPath), func(v_ string) any { return strobj_(v_) }))))
 	if !fromPathParts.isEmpty() {
 		fromPathParts.removeAt((fromPathParts.size() - 1))
 	}
-	for !fromPathParts.isEmpty() && !toPathParts.isEmpty() {
-		if toPathParts.get(0) == "." {
-			toPathParts.removeAt(0)
-		} else if toPathParts.get(0) == ".." {
-			toPathParts.removeAt(0)
+	for !fromPathParts.isEmpty() && len(toPathParts) != 0 {
+		if sliceAt_(toPathParts, 0) == "." {
+			sliceRemoveAt_(&toPathParts, 0)
+		} else if sliceAt_(toPathParts, 0) == ".." {
+			sliceRemoveAt_(&toPathParts, 0)
 			fromPathParts.removeAt((fromPathParts.size() - 1))
 		} else {
 			break
 		}
 	}
-	fromPathParts.asList().addAll(Collection(toPathParts.asList()))
+	fromPathParts.asList().addAll(Collection(sliceView_(tc_string, toPathParts)))
 	return String_join_s("/", Iterable(fromPathParts.asList()))
 }
 
@@ -3380,7 +3370,7 @@ func new_Compiler_ResolvedSourceMap() *Compiler_ResolvedSourceMap {
 type Compiler_SeenSetLicenseTracker struct {
 	self_                  Compiler_SeenSetLicenseTracker_I
 	compiler_              *AbstractCompiler
-	globallyUniqueLicenses *TSet[string]
+	globallyUniqueLicenses map[string]struct{}
 	currentlySeenLicenses  *TSet[string]
 	lastSeenFile           string
 }
@@ -3407,7 +3397,7 @@ func (this *Compiler_SeenSetLicenseTracker) zero_Compiler_SeenSetLicenseTracker(
 }
 
 func (this *Compiler_SeenSetLicenseTracker) finit_Compiler_SeenSetLicenseTracker() {
-	this.globallyUniqueLicenses = newTSet_(tc_string)
+	this.globallyUniqueLicenses = map[string]struct{}{}
 	this.currentlySeenLicenses = newTSet_(tc_string)
 	this.lastSeenFile = ""
 }
@@ -3438,7 +3428,7 @@ func (this *Compiler_SeenSetLicenseTracker) trackLicensesForNode(node Node) {
 	if license.isEmpty() {
 		return
 	}
-	if this.globallyUniqueLicenses.Has(license.get()) {
+	if has_(this.globallyUniqueLicenses, license.get()) {
 		return
 	}
 	this.currentlySeenLicenses.Add(license.get())
@@ -3446,7 +3436,7 @@ func (this *Compiler_SeenSetLicenseTracker) trackLicensesForNode(node Node) {
 
 func (this *Compiler_SeenSetLicenseTracker) emitLicenses() *ImmutableSet[string] {
 	var rv *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(this.currentlySeenLicenses.asSet()))
-	this.globallyUniqueLicenses.asSet().addAll(Collection(this.currentlySeenLicenses.asSet()))
+	setAddAllFrom_(tc_string, this.globallyUniqueLicenses, Collection(this.currentlySeenLicenses.asSet()))
 	this.currentlySeenLicenses.Clear()
 	return rv
 }
@@ -3519,9 +3509,9 @@ func (this *Compiler_SingleBinaryLicenseTracker) shouldUseLicenseInfo_impl(node 
 
 type Compiler_ChunkGraphAwareLicenseTracker struct {
 	compiler_                           *AbstractCompiler
-	licensesFromChunks                  *TMap[*JSChunk, Set]
+	licensesFromChunks                  map[*JSChunk]Set
 	haveInitializedCurrentChunkLicenses bool
-	currentChunkLicencesInTDeps         *TSet[string]
+	currentChunkLicencesInTDeps         map[string]struct{}
 	lastSeenFile                        string
 	licensesNewInCurrentFile            *TSet[string]
 	licensesNewInCurrentChunk           *TSet[string]
@@ -3534,9 +3524,9 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) zero_Compiler_ChunkGraphAwar
 }
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) finit_Compiler_ChunkGraphAwareLicenseTracker() {
-	this.licensesFromChunks = newTMap_(tc_p_JSChunk, tc_Set)
+	this.licensesFromChunks = map[*JSChunk]Set{}
 	this.haveInitializedCurrentChunkLicenses = false
-	this.currentChunkLicencesInTDeps = newTSet_(tc_string)
+	this.currentChunkLicencesInTDeps = map[string]struct{}{}
 	this.lastSeenFile = ""
 	this.licensesNewInCurrentFile = newTSet_(tc_string)
 	this.licensesNewInCurrentChunk = newTSet_(tc_string)
@@ -3562,14 +3552,14 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) setLogFile(file *LogFile) {
 func (this *Compiler_ChunkGraphAwareLicenseTracker) setCurrentChunkContext(chunk *JSChunk) {
 	this.log_.log_2("Initializing licenses from deps for chunk %s", []any{obj_(chunk)})
 	this.currentChunk = chunk
-	this.currentChunkLicencesInTDeps.Clear()
+	clear(this.currentChunkLicencesInTDeps)
 	this.licensesNewInCurrentFile.Clear()
 	this.haveInitializedCurrentChunkLicenses = false
-	if this.licensesFromChunks.Has(chunk) {
+	if has_(this.licensesFromChunks, chunk) {
 		panic(new_IllegalStateException_String("Visiting a chunk more than once is not allowed."))
 	}
 	this.licensesNewInCurrentChunk = newTSet_(tc_string)
-	this.licensesFromChunks.Put(chunk, this.licensesNewInCurrentChunk.asSet())
+	this.licensesFromChunks[chunk] = this.licensesNewInCurrentChunk.asSet()
 }
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node Node) {
@@ -3588,10 +3578,10 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 	if !this.haveInitializedCurrentChunkLicenses {
 		for depChunk := range elemsAs_[*JSChunk](this.currentChunk.getAllDependencies()) {
 			this.log_.log_2("Chunk %s depends on chunk %s", []any{obj_(this.currentChunk), obj_(depChunk)})
-			if !this.licensesFromChunks.Has(depChunk) {
+			if !has_(this.licensesFromChunks, depChunk) {
 				panic(new_IllegalStateException_String("Chunk aware license analysis error - analysis out of order."))
 			}
-			this.currentChunkLicencesInTDeps.asSet().addAll(Collection(this.licensesFromChunks.Get(depChunk)))
+			setAddAllFrom_(tc_string, this.currentChunkLicencesInTDeps, Collection(this.licensesFromChunks[depChunk]))
 		}
 		this.haveInitializedCurrentChunkLicenses = true
 	}
@@ -3601,7 +3591,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 	if license.isEmpty() {
 		return
 	}
-	if this.currentChunkLicencesInTDeps.Has(license.get()) {
+	if has_(this.currentChunkLicencesInTDeps, license.get()) {
 		return
 	}
 	if this.licensesNewInCurrentChunk.Has(license.get()) {
@@ -3734,7 +3724,7 @@ func (this *Compiler_1) size() int32 {
 type Compiler_2 struct {
 	NodeTraversal_AbstractPreOrderCallback
 	outer_     *Compiler
-	cap_result *TList[Node]
+	cap_result *[]Node
 }
 
 func (this *Compiler_2) up_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {
@@ -3748,7 +3738,7 @@ func (this *Compiler_2) init_Compiler_2() {
 	this.NodeTraversal_AbstractPreOrderCallback.init_NodeTraversal_AbstractPreOrderCallback()
 }
 
-func new_Compiler_2(outer_ *Compiler, cap_result *TList[Node]) *Compiler_2 {
+func new_Compiler_2(outer_ *Compiler, cap_result *[]Node) *Compiler_2 {
 	this := &Compiler_2{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -3759,7 +3749,7 @@ func new_Compiler_2(outer_ *Compiler, cap_result *TList[Node]) *Compiler_2 {
 
 func (this *Compiler_2) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	if NodeUtil_isStatement(n) {
-		this.cap_result.add(n)
+		*this.cap_result = append(*this.cap_result, n)
 		return false
 	} else {
 		return true
@@ -4486,7 +4476,7 @@ func (this *Compiler) setInstrumentationMapping(p0 *VariableMap) {
 }
 
 // addExportedNames: an object that is exactly a Compiler calls its addExportedNames_impl directly (post-flip); others dispatch.
-func (this *Compiler) addExportedNames(p0 Set) {
+func (this *Compiler) addExportedNames(p0 *TSet[string]) {
 	if p, _ := this.self_.(*Compiler); p == this {
 		this.addExportedNames_impl(p0)
 		return
@@ -4495,7 +4485,7 @@ func (this *Compiler) addExportedNames(p0 Set) {
 }
 
 // getExportedNames: an object that is exactly a Compiler calls its getExportedNames_impl directly (post-flip); others dispatch.
-func (this *Compiler) getExportedNames() Set {
+func (this *Compiler) getExportedNames() *TSet[string] {
 	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getExportedNames_impl()
 	}

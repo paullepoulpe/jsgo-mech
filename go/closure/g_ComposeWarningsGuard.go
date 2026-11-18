@@ -4,7 +4,7 @@ package closure
 
 type ComposeWarningsGuard struct {
 	WarningsGuard
-	orderOfAddition *TMap[*WarningsGuard, any]
+	orderOfAddition map[*WarningsGuard]any
 	numberOfAdds    int32
 	guardComparator ComparatorOf[*WarningsGuard]
 	demoteErrors    bool
@@ -19,7 +19,7 @@ func (this *ComposeWarningsGuard) up_WarningsGuard() *WarningsGuard {
 }
 
 func (this *ComposeWarningsGuard) finit_ComposeWarningsGuard() {
-	this.orderOfAddition = newTMap_(tc_p_WarningsGuard, tc_Integer)
+	this.orderOfAddition = map[*WarningsGuard]any{}
 	this.numberOfAdds = 0
 	this.guardComparator = new_ComposeWarningsGuard_GuardComparator(this.orderOfAddition)
 	this.demoteErrors = false
@@ -61,7 +61,7 @@ func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {
 		this.addGuards(new_ArrayList_Collection(Collection(composeGuard.guards.descendingSet())).self().(Iterable))
 	} else {
 		this.numberOfAdds++
-		this.orderOfAddition.Put(guard, any(int32(this.numberOfAdds)))
+		this.orderOfAddition[guard] = any(int32(this.numberOfAdds))
 		this.guards.remove_Object(guard.self())
 		this.guards.add(guard.self())
 	}
@@ -150,14 +150,14 @@ func (this *ComposeWarningsGuard) toString() string {
 const ComposeWarningsGuard_serialVersionUID int64 = 1
 
 type ComposeWarningsGuard_GuardComparator struct {
-	orderOfAddition *TMap[*WarningsGuard, any]
+	orderOfAddition map[*WarningsGuard]any
 }
 
-func (this *ComposeWarningsGuard_GuardComparator) init_ComposeWarningsGuard_GuardComparator(orderOfAddition *TMap[*WarningsGuard, any]) {
+func (this *ComposeWarningsGuard_GuardComparator) init_ComposeWarningsGuard_GuardComparator(orderOfAddition map[*WarningsGuard]any) {
 	this.orderOfAddition = orderOfAddition
 }
 
-func new_ComposeWarningsGuard_GuardComparator(orderOfAddition *TMap[*WarningsGuard, any]) *ComposeWarningsGuard_GuardComparator {
+func new_ComposeWarningsGuard_GuardComparator(orderOfAddition map[*WarningsGuard]any) *ComposeWarningsGuard_GuardComparator {
 	this := &ComposeWarningsGuard_GuardComparator{}
 	this.init_ComposeWarningsGuard_GuardComparator(orderOfAddition)
 	return this
@@ -172,7 +172,7 @@ func (this *ComposeWarningsGuard_GuardComparator) compare(a_ any, b_ any) int32 
 	if priorityDiff != 0 {
 		return priorityDiff
 	}
-	return (Integer_intValue(this.orderOfAddition.Get(b)) - Integer_intValue(this.orderOfAddition.Get(a)))
+	return (Integer_intValue(this.orderOfAddition[b]) - Integer_intValue(this.orderOfAddition[a]))
 }
 
 const ComposeWarningsGuard_GuardComparator_serialVersionUID int64 = 1
