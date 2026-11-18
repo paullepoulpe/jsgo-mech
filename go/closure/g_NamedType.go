@@ -84,7 +84,7 @@ func NamedType_nominalHashCode(type_ *ObjectType) int32 {
 		panic(new_IllegalStateException_0().self())
 	}
 	var name string = type_.getReferenceName().orElseThrow()
-	return String_hashCode(name)
+	return utf16Hash_(name)
 }
 
 func (this *NamedType) getTypeClass_impl() JSTypeClass {

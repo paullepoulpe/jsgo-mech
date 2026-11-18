@@ -343,7 +343,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	var statics *TMapBuilder[string, *PolyfillUsageFinder_Polyfill] = newTMapBuilder_(jtc_string, jtc_p_PolyfillUsageFinder_Polyfill)
 	var byNativeVersion *SimpleListMultimap = SimpleListMultimap_create()
 	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(table), str_) {
-		var tokens *JTList[string] = splitToListT_(jtc_string, Splitter_on(' ').omitEmptyStrings(), strobj_(String_trim(line)))
+		var tokens *JTList[string] = splitToListT_(jtc_string, Splitter_on(' ').omitEmptyStrings(), strobj_(strings.Trim(line, javaSpace_)))
 		if (tokens.size() == 1) && tokens.get(0) == "" {
 			continue
 		} else if tokens.size() < 3 {

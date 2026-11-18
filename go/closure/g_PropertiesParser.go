@@ -30,7 +30,7 @@ func PropertiesParser_parse(source string) *JTMap[string, string] {
 			continue
 		}
 		var data string = ""
-		var key string = String_trim(String_substring(line, 0, delimeterIndex))
+		var key string = strings.Trim(String_substring(line, 0, delimeterIndex), javaSpace_)
 		line = PropertiesParser_trimLeft(String_substring_int(line, (delimeterIndex + 1)))
 		for {
 			if strings.HasSuffix(line, "\\") {

@@ -580,7 +580,7 @@ func (this *CheckRequiresSorted_ImportStatement) format() string {
 func (this *CheckRequiresSorted_ImportStatement) compareTo(other_ any) int32 {
 	var other *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](other_)
 	_ = other
-	return String_compareTo(this.formatWithoutDoc(), other.formatWithoutDoc())
+	return utf16Compare_(this.formatWithoutDoc(), other.formatWithoutDoc())
 }
 
 func (this *CheckRequiresSorted_ImportStatement) nodes() *JTList[Node] {

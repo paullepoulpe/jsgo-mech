@@ -1519,8 +1519,8 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 			var rawOptionUsage string = stringWriter.toString()
 			var delimiterIndex int32 = int32(strings.Index(rawOptionUsage, " : "))
 			if delimiterIndex > 0 {
-				outputStream.append(("\n**" + sstr_(String_trim(rawOptionUsage[:delimiterIndex])) + "**  \n"))
-				var optionDescription string = String_trim(CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE.matcher_s(rawOptionUsage[delimiterIndex+3:]).replaceAll("\\\\$0"))
+				outputStream.append(("\n**" + sstr_(strings.Trim(rawOptionUsage[:delimiterIndex], javaSpace_)) + "**  \n"))
+				var optionDescription string = strings.Trim(CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE.matcher_s(rawOptionUsage[delimiterIndex+3:]).replaceAll("\\\\$0"), javaSpace_)
 				outputStream.append((sstr_(optionDescription) + "\n"))
 			} else {
 				outputStream.append(CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE.matcher_s(rawOptionUsage).replaceAll("\\\\$0"))

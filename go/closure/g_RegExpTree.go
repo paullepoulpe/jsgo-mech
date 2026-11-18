@@ -147,14 +147,14 @@ func RegExpTree_escapeCharOnto(ch uint16, sb *strBuilder_) {
 		if (int32(ch) < 32) || (int32(ch) >= 127) {
 			if int32(ch) >= 256 {
 				sb.append("\\u")
-				sb.append_char(String_charAt("0123456789abcdef", ((int32(ch) >> 12) & 15)))
-				sb.append_char(String_charAt("0123456789abcdef", ((int32(ch) >> 8) & 15)))
-				sb.append_char(String_charAt("0123456789abcdef", ((int32(ch) >> 4) & 15)))
-				sb.append_char(String_charAt("0123456789abcdef", (int32(ch) & 15)))
+				sb.append_char(asciiCharAt_("0123456789abcdef", ((int32(ch) >> 12) & 15)))
+				sb.append_char(asciiCharAt_("0123456789abcdef", ((int32(ch) >> 8) & 15)))
+				sb.append_char(asciiCharAt_("0123456789abcdef", ((int32(ch) >> 4) & 15)))
+				sb.append_char(asciiCharAt_("0123456789abcdef", (int32(ch) & 15)))
 			} else {
 				sb.append("\\x")
-				sb.append_char(String_charAt("0123456789abcdef", ((int32(ch) >> 4) & 15)))
-				sb.append_char(String_charAt("0123456789abcdef", (int32(ch) & 15)))
+				sb.append_char(asciiCharAt_("0123456789abcdef", ((int32(ch) >> 4) & 15)))
+				sb.append_char(asciiCharAt_("0123456789abcdef", (int32(ch) & 15)))
 			}
 		} else {
 			sb.append_char(ch)
@@ -671,7 +671,7 @@ func (this *RegExpTree_NamedBackReference) equals_impl(o any) bool {
 }
 
 func (this *RegExpTree_NamedBackReference) hashCode_impl() int32 {
-	return String_hashCode(this.groupName)
+	return utf16Hash_(this.groupName)
 }
 
 type RegExpTree_Text struct {
@@ -785,7 +785,7 @@ func (this *RegExpTree_Text) equals_impl(o any) bool {
 }
 
 func (this *RegExpTree_Text) hashCode_impl() int32 {
-	return (String_hashCode(this.text) ^ 102228752)
+	return (utf16Hash_(this.text) ^ 102228752)
 }
 
 type RegExpTree_Repetition struct {
@@ -1604,7 +1604,7 @@ func (this *RegExpTree_NamedCaptureGroup) equals_impl(o any) bool {
 }
 
 func (this *RegExpTree_NamedCaptureGroup) hashCode_impl() int32 {
-	return (String_hashCode(this.name_) ^ this.body.hashCode())
+	return (utf16Hash_(this.name_) ^ this.body.hashCode())
 }
 
 type RegExpTree_UnicodePropertyEscape struct {
