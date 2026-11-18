@@ -16,6 +16,7 @@ type TSet[K comparable] struct {
 	idx  map[K]int32 // the position of each element; nil while the set is small
 	live int32
 	c    *tconv_[K]
+	eq   *teq_ // of elements compared by equals and hashCode (c.byEquals); else nil
 	view atomic.Pointer[tsetView_[K]]
 }
 
@@ -49,6 +50,9 @@ func (s *TSet[K]) dead(i int) bool { return s.gone != nil && s.gone[i] }
 
 // find returns the position of k, or -1.
 func (s *TSet[K]) find(k K) int32 {
+	if s.c.byEquals {
+		return teqFind_(s.eq, s.keys, s.gone, s.c, k, objhash_(s.c.box(k)))
+	}
 	if s.idx != nil {
 		if i, ok := s.idx[k]; ok {
 			return i
@@ -70,7 +74,13 @@ func (s *TSet[K]) isEmpty() bool { return s.live == 0 }
 func (s *TSet[K]) has(k K) bool { return s.find(k) >= 0 }
 
 func (s *TSet[K]) add(k K) bool {
-	if s.find(k) >= 0 {
+	var h int32
+	if s.c.byEquals {
+		h = objhash_(s.c.box(k))
+		if teqFind_(s.eq, s.keys, s.gone, s.c, k, h) >= 0 {
+			return false
+		}
+	} else if s.find(k) >= 0 {
 		return false
 	}
 	if n := len(s.keys) - int(s.live); n > hsmall_ && n > int(s.live) {
@@ -84,7 +94,12 @@ func (s *TSet[K]) add(k K) bool {
 		s.gone = append(s.gone, false)
 	}
 	s.live++
-	if s.idx != nil {
+	if s.c.byEquals {
+		if s.eq == nil {
+			s.eq = &teq_{}
+		}
+		s.eq.add(h)
+	} else if s.idx != nil {
 		s.idx[k] = int32(len(s.keys) - 1)
 	} else if len(s.keys) > hsmall_ {
 		s.idx = make(map[K]int32, 2*len(s.keys))
@@ -107,6 +122,9 @@ func (s *TSet[K]) compact() {
 	}
 	clear(s.keys[len(out):])
 	s.keys = out
+	if s.eq != nil {
+		s.eq.compact(s.gone)
+	}
 	s.gone = nil
 	if s.idx != nil {
 		clear(s.idx)
@@ -144,6 +162,7 @@ func (s *TSet[K]) clear() {
 	s.keys = s.keys[:0]
 	s.gone = nil
 	s.idx = nil
+	s.eq = nil
 	s.live = 0
 }
 
@@ -380,4 +399,75 @@ func (it *tsetIter_[K]) remove() {
 	}
 	it.s.delAt(it.last)
 	it.last = -1
+}
+
+// teq_ is what a typed set or map keeps for keys that are compared by equals and hashCode (a
+// class with its own equals, an interface, a library class: tconv_.byEquals), so that a key is
+// found exactly when java.util.HashMap finds it: by the hash code it had when it was added,
+// then by identity or equals. hs holds the hash codes beside the keys; once the table is not
+// small, first and next chain the positions of equal hash codes, as the erased table does.
+type teq_ struct {
+	hs    []int32
+	first map[int32]int32 // hash code -> 1 + the last position added with it
+	next  []int32         // beside hs: 1 + the previous position with the same hash code, or 0
+}
+
+// teqFind_ returns the position of key k with hash code h among keys, or -1.
+func teqFind_[K comparable](x *teq_, keys []K, gone []bool, c *tconv_[K], k K, h int32) int32 {
+	if x == nil {
+		return -1
+	}
+	if x.first == nil {
+		for i, kh := range x.hs {
+			if kh == h && (gone == nil || !gone[i]) && (keys[i] == k || objequals_(c.box(k), c.box(keys[i]))) {
+				return int32(i)
+			}
+		}
+		return -1
+	}
+	for p := x.first[h]; p != 0; p = x.next[p-1] {
+		i := p - 1
+		if (gone == nil || !gone[i]) && (keys[i] == k || objequals_(c.box(k), c.box(keys[i]))) {
+			return i
+		}
+	}
+	return -1
+}
+
+// add records hash code h for the key just appended.
+func (x *teq_) add(h int32) {
+	if x.hs == nil {
+		x.hs = make([]int32, 0, hfirst_)
+	}
+	x.hs = append(x.hs, h)
+	if x.first != nil {
+		x.next = append(x.next, x.first[h])
+		x.first[h] = int32(len(x.hs))
+	} else if len(x.hs) > hsmall_ {
+		x.index()
+	}
+}
+
+func (x *teq_) index() {
+	x.first = make(map[int32]int32, 2*len(x.hs))
+	x.next = make([]int32, len(x.hs), cap(x.hs))
+	for i, h := range x.hs {
+		x.next[i] = x.first[h]
+		x.first[h] = int32(i + 1)
+	}
+}
+
+// compact drops the hash codes of the dead positions.
+func (x *teq_) compact(gone []bool) {
+	n := 0
+	for i, h := range x.hs {
+		if !gone[i] {
+			x.hs[n] = h
+			n++
+		}
+	}
+	x.hs = x.hs[:n]
+	if x.first != nil {
+		x.index()
+	}
 }

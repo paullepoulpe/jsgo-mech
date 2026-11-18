@@ -128,11 +128,15 @@ named by a method reference). A declaration is typed when
   `*TMap[string, any]`); or a library type with type arguments, held at its erasure
   (`Map<String, List<Node>>` is a `*TMap[string, List]`, `List<List<String>>` a `*TList[List]`:
   the element is the erased `List`, as it is everywhere else). The elements of a set and the
-  keys of a map are compared, so their type must be one whose Go `==` is Java's `equals`: a
-  String, an enum, a class of the program (a handle class too) that inherits `equals` and
-  `hashCode` from Object, as all its subclasses do (`Ctx.goEquals`), or a boxed primitive that
-  is not a floating-point number (two boxes of equal values of one type are `==` as Go
-  interfaces; `Set<Character>` is a `*TSet[any]`);
+  keys of a map are compared: their type has no type arguments and is not `Object`, `Float`
+  or `Double`. Where Go's `==` is Java's `equals` for the type, the collection compares with
+  `==` (a Go map from element to position once it is not small): a String, an enum, a class of
+  the program (a handle class too) that inherits `equals` and `hashCode` from Object, as all
+  its subclasses do (`Ctx.goEquals`), and a boxed primitive (two boxes of equal values of one
+  type are `==` as Go interfaces; `Set<Character>` is a `*TSet[any]`). For any other class or
+  interface (one with its own `equals`, a library class) the collection finds an element as
+  `java.util.HashMap` does, by the hash code it had when it was added, then by identity or
+  `equals` (`Ctx.byEquals`; the conversion `tce_p_JSType` says so; `teq_` in `rt_tset.go`);
 - every value that enters it is a new collection of its kind (`new ArrayList<>()`,
   `new ArrayList<>(n)`, `new ArrayList<>(collection)`; `new LinkedHashSet<>(..)`, the only set
   the program makes; `new ArrayDeque<>(..)`; `new LinkedHashMap<>()`, `(n)`, `(map)`, the only

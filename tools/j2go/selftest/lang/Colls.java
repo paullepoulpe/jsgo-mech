@@ -220,7 +220,7 @@ public class Colls {
     adder.run();
     adder.run();
     p(size.get() + " " + captured);
-    // a list of lists stays erased; its elements are views
+    // a list of lists holds the erased List: its elements are the views of the typed lists
     List<List<Base>> nested = new ArrayList<>();
     nested.add(captured);
     nested.get(0).add(new Derived(3));
@@ -349,7 +349,7 @@ public class Colls {
 
   private final Set<String> seen = new LinkedHashSet<>();
   private final LinkedHashSet<Color> colors = new LinkedHashSet<>();
-  // stays erased: Derived has its own equals
+  // compared by equals and hashCode: Derived has its own equals
   private final Set<Base> byEquals = new LinkedHashSet<>();
 
   static boolean both(Set<String> a, String x, String y) {
@@ -482,7 +482,7 @@ public class Colls {
   private final Map<String, Base> byName = new LinkedHashMap<>();
   private final LinkedHashMap<Color, String> byColor = new LinkedHashMap<>();
   private final Map<String, List<String>> lists = new LinkedHashMap<>();
-  // stays erased: Derived has its own equals
+  // compared by equals and hashCode: Derived has its own equals
   private final Map<Base, String> keyedByEquals = new LinkedHashMap<>();
   // boxed primitives and Object: the boxes, compared as Java compares them
   private final Map<Integer, String> byNumber = new LinkedHashMap<>();
@@ -690,6 +690,92 @@ public class Colls {
     }));
   }
 
+  // ---- sets and maps compared by equals and hashCode: a class with its own equals, an interface
+  static final class Pair {
+    final int a;
+    final int b;
+
+    Pair(int a, int b) {
+      this.a = a;
+      this.b = b;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof Pair p && p.a == a && p.b == b;
+    }
+
+    @Override
+    public int hashCode() {
+      return a;  // many pairs share a hash code
+    }
+
+    @Override
+    public String toString() {
+      return a + ":" + b;
+    }
+  }
+
+  private final Set<Pair> pairs = new LinkedHashSet<>();
+  private final Map<Pair, String> pairNames = new LinkedHashMap<>();
+  private final Set<Shape> shapes = new LinkedHashSet<>();
+  private final Map<Shape, Integer> shapeIds = new LinkedHashMap<>();
+
+  void byEquals() {
+    for (int i = 0; i < 30; i++) {
+      p2(pairs.add(new Pair(i % 3, i % 10)));
+      pairNames.put(new Pair(i % 3, i % 10), "n" + i);
+    }
+    p(sb2 + " " + pairs.size() + " " + pairs + " " + pairNames);
+    sb2.setLength(0);
+    Pair probe = new Pair(1, 4);
+    Object probeObject = new Pair(2, 5);
+    p(pairs.contains(probe) + " " + pairs.contains(new Pair(1, 5)) + " " + pairs.contains(null) + " " + pairs.contains(probeObject) + " " + pairs.contains("1:4") + " "
+        + pairNames.get(probe) + " " + pairNames.get(new Pair(4, 1)) + " " + pairNames.get(probeObject) + " " + pairNames.containsKey(new Pair(0, 0)));
+    for (int i = 0; i < 30; i += 2) {
+      p2(pairs.remove(new Pair(i % 3, i % 10)));
+      p2(pairNames.remove(new Pair(i % 3, i % 10)));
+    }
+    pairs.add(null);
+    pairs.add(null);
+    pairs.add(new Pair(7, 7));
+    pairNames.put(null, "null");
+    pairNames.put(new Pair(7, 7), "seven");
+    p(sb2 + " " + pairs.size() + " " + pairs + " " + pairNames + " " + pairNames.get(null) + " " + pairs.contains(new Pair(7, 7)) + " " + pairs.contains(new Pair(0, 0)));
+    for (Iterator<Pair> it = pairs.iterator(); it.hasNext(); ) {
+      Pair q = it.next();
+      if (q != null && q.a == 1) {
+        it.remove();
+      }
+    }
+    for (int i = 0; i < 20; i++) {
+      pairs.add(new Pair(1, i));
+    }
+    Set<Pair> copy = new LinkedHashSet<>(pairs);
+    p(pairs + " " + copy.equals(pairs) + " " + (copy.hashCode() == pairs.hashCode()) + " " + copy.contains(new Pair(1, 19)) + " " + copy.remove(new Pair(1, 19)) + " "
+        + copy.equals(pairs));
+    pairs.clear();
+    p(pairs.add(probe) + " " + pairs.add(new Pair(1, 4)) + " " + pairs);
+    Base b1 = new Base(1);
+    shapes.add(b1);
+    shapes.add(new Base(1));
+    shapes.add(new Derived(1));
+    shapes.add(new Derived(1));
+    shapes.add(b1);
+    shapeIds.put(b1, 1);
+    shapeIds.put(new Derived(2), 2);
+    shapeIds.put(new Derived(2), 3);
+    shapeIds.put(new Base(2), 4);
+    p(shapes + " " + shapes.contains(new Derived(1)) + " " + shapes.contains(new Base(1)) + " " + shapes.contains(b1) + " " + shapeIds.size() + " " + shapeIds.get(new Derived(2))
+        + " " + shapeIds.get(new Base(2)) + " " + shapeIds.get(b1));
+  }
+
+  static final StringBuilder sb2 = new StringBuilder();
+
+  static void p2(Object o) {
+    sb2.append(o == null ? "-" : o instanceof Boolean ? ((Boolean) o ? "t" : "f") : o.toString());
+  }
+
   public static String run() {
     new Colls().fields();
     locals(true);
@@ -699,6 +785,7 @@ public class Colls {
     new Colls().deques();
     new Colls().maps();
     new Colls().boxes();
+    new Colls().byEquals();
     return out.toString();
   }
 

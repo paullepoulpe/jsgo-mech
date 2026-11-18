@@ -346,10 +346,12 @@ final class Ctx {
    * - a boxed primitive or Object, at that type (`any` in Go: the box, as in erased code);
    * - a library type with type arguments (a List<Node>), at its erasure: the erased List, as
    *   such a value is everywhere.
-   * An element that the collection compares (compared) is of a type whose Go == is Java's
-   * equals: a String, an enum, a class of the program without equals of its own (goEquals), or
-   * a boxed primitive that is not a floating-point number (the boxes of two equal values of
-   * one type are == as Go interfaces).
+   * An element that the collection compares (compared: the elements of a set, the keys of a
+   * map) has no type arguments and is not Object or a floating-point box. Where Go's == is
+   * Java's equals for its type (a String, an enum, a class of the program without equals of
+   * its own: goEquals; a boxed primitive: the boxes of two equal values of one type are == as
+   * Go interfaces) the collection compares with ==; for any other class or interface it
+   * compares as java.util.HashMap does, by hashCode and equals (byEquals).
    */
   TypeMirror typedArg(TypeMirror a, boolean compared) {
     if (a.getKind() != TypeKind.DECLARED) return null;
@@ -371,8 +373,18 @@ final class Ctx {
       if (!goType(a).equals(goType(types.erasure(a)))) return null;
       return types.erasure(a);
     }
-    if (compared && !goEquals(ae)) return null;
+    if (compared && !goEquals(ae) && "1".equals(System.getenv("J2GO_COLLS_NOEQUALS"))) return null;
     return a;
+  }
+
+  /**
+   * Whether a typed set or map compares elements of type a (one that typedArg accepts as a
+   * compared type) by equals and hashCode instead of Go's ==: a class with its own equals, an
+   * interface, a library class.
+   */
+  boolean byEquals(TypeMirror a) {
+    if (unboxed(a) != null) return false;
+    return !goEquals(typeElement(a));
   }
 
   private final Map<TypeElement, Boolean> goEqualsCache = new HashMap<>();
@@ -496,15 +508,23 @@ final class Ctx {
 
   /** The name of the conversion of element type elem (tc_string, tc_p_JSType), declared on first use. */
   String tconv(TypeMirror elem) {
+    return tconv(elem, false);
+  }
+
+  /**
+   * The conversion of element type elem; eq: for elements that a set or a map compares by
+   * equals and hashCode (tce_p_JSType).
+   */
+  String tconv(TypeMirror elem, boolean eq) {
     String g = goType(elem);
     // a type that is `any` in Go (Object, a boxed primitive) has the conversion of its Java type
-    String name = "tc_" + (kind(elem) == K.ANY ? className(typeElement(elem)) : g.replace("*", "p_").replaceAll("[^A-Za-z0-9_]", "_"));
+    String name = (eq ? "tce_" : "tc_") + (kind(elem) == K.ANY ? className(typeElement(elem)) : g.replace("*", "p_").replaceAll("[^A-Za-z0-9_]", "_"));
     if (!tconvs.containsKey(name)) {
       TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
       tconvs.put(name, "");
       tconvs.put(name, "var " + name + " = &tconv_[" + g + "]{\n\tbox:   func(v " + g + ") any { return " + coerce("v", elem, object)
           + " },\n\tunbox: func(v any) " + g + " { return " + coerce("v", object, elem) + " },\n"
-          + (kind(elem) == K.STR ? "\tnull:  nullstr_,\n" : "") + "}\n");
+          + (kind(elem) == K.STR ? "\tnull:  nullstr_,\n" : "") + (eq ? "\tbyEquals: true,\n" : "") + "}\n");
     }
     return name;
   }

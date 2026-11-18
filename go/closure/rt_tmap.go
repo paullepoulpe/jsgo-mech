@@ -20,6 +20,7 @@ type TMap[K comparable, V any] struct {
 	live int32
 	kc   *tconv_[K]
 	vc   *tconv_[V]
+	eq   *teq_ // of keys compared by equals and hashCode (kc.byEquals); else nil
 	view atomic.Pointer[tmapView_[K, V]]
 }
 
@@ -54,6 +55,9 @@ func (m *TMap[K, V]) dead(i int) bool { return m.gone != nil && m.gone[i] }
 
 // find returns the position of key k, or -1.
 func (m *TMap[K, V]) find(k K) int32 {
+	if m.kc.byEquals {
+		return teqFind_(m.eq, m.keys, m.gone, m.kc, k, objhash_(m.kc.box(k)))
+	}
 	if m.idx != nil {
 		if i, ok := m.idx[k]; ok {
 			return i
@@ -90,19 +94,30 @@ func (m *TMap[K, V]) getOr(k K, def V) V {
 	return def
 }
 
+// locate returns the position of key k, or -1, and the key's hash code if the map compares its
+// keys by equals and hashCode (for append).
+func (m *TMap[K, V]) locate(k K) (i int32, h int32) {
+	if m.kc.byEquals {
+		h = objhash_(m.kc.box(k))
+		return teqFind_(m.eq, m.keys, m.gone, m.kc, k, h), h
+	}
+	return m.find(k), 0
+}
+
 // put returns the value that key k had, or null.
 func (m *TMap[K, V]) put(k K, v V) V {
-	if i := m.find(k); i >= 0 {
+	i, h := m.locate(k)
+	if i >= 0 {
 		old := m.vals[i]
 		m.vals[i] = v
 		return old
 	}
-	m.append(k, v)
+	m.append(k, v, h)
 	return m.vc.null
 }
 
-// append adds a mapping for a key that the map does not have.
-func (m *TMap[K, V]) append(k K, v V) {
+// append adds a mapping for a key that the map does not have (h: see locate).
+func (m *TMap[K, V]) append(k K, v V, h int32) {
 	if n := len(m.keys) - int(m.live); n > hsmall_ && n > int(m.live) {
 		m.compact()
 	}
@@ -116,7 +131,12 @@ func (m *TMap[K, V]) append(k K, v V) {
 		m.gone = append(m.gone, false)
 	}
 	m.live++
-	if m.idx != nil {
+	if m.kc.byEquals {
+		if m.eq == nil {
+			m.eq = &teq_{}
+		}
+		m.eq.add(h)
+	} else if m.idx != nil {
 		m.idx[k] = int32(len(m.keys) - 1)
 	} else if len(m.keys) > hsmall_ {
 		m.idx = make(map[K]int32, 2*len(m.keys))
@@ -133,14 +153,15 @@ func (m *TMap[K, V]) isNull(v V) bool { return any(v) == any(m.vc.null) }
 
 // putIfAbsent maps k to v unless k has a value that is not null, which it returns.
 func (m *TMap[K, V]) putIfAbsent(k K, v V) V {
-	if i := m.find(k); i >= 0 {
+	i, h := m.locate(k)
+	if i >= 0 {
 		old := m.vals[i]
 		if m.isNull(old) {
 			m.vals[i] = v
 		}
 		return old
 	}
-	m.append(k, v)
+	m.append(k, v, h)
 	return m.vc.null
 }
 
@@ -194,6 +215,9 @@ func (m *TMap[K, V]) compact() {
 	clear(m.keys[n:])
 	clear(m.vals[n:])
 	m.keys, m.vals = m.keys[:n], m.vals[:n]
+	if m.eq != nil {
+		m.eq.compact(m.gone)
+	}
 	m.gone = nil
 	if m.idx != nil {
 		clear(m.idx)
@@ -209,6 +233,7 @@ func (m *TMap[K, V]) clear() {
 	m.keys, m.vals = m.keys[:0], m.vals[:0]
 	m.gone = nil
 	m.idx = nil
+	m.eq = nil
 	m.live = 0
 }
 
@@ -350,7 +375,8 @@ func (e *TEntry[K, V]) asEntry() Map_Entry {
 
 // tentryView_ is a TEntry seen as an erased Map.Entry.
 type tentryView_[K comparable, V any] struct {
-	e *TEntry[K, V]
+	e   *TEntry[K, V]
+	own TEntry[K, V] // the entry itself, where erased code asked the map for it (TMap.out)
 }
 
 func (v *tentryView_[K, V]) self() any     { return v }
@@ -538,7 +564,10 @@ func (m *TMap[K, V]) out(i int, mode int8) any {
 	case tvals_:
 		return m.vc.box(m.vals[i])
 	}
-	return &tentryView_[K, V]{e: &TEntry[K, V]{m: m, i: int32(i), k: m.keys[i], v: m.vals[i]}}
+	// one object: the view holds the entry it shows
+	v := &tentryView_[K, V]{own: TEntry[K, V]{m: m, i: int32(i), k: m.keys[i], v: m.vals[i]}}
+	v.e = &v.own
+	return v
 }
 
 func (m *TMap[K, V]) step(i int, mode int8) (any, int) {

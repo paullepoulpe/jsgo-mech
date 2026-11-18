@@ -19,9 +19,10 @@ import javax.lang.model.type.*;
  * - each type argument is a type a typed collection holds (Ctx.typedArg): a String, a class, an
  *   interface or a handle without type arguments; a boxed primitive or Object (the box, `any`);
  *   a library type with type arguments (at its erasure). The elements of a set and the keys of
- *   a map are compared, so their type is one whose Go == is Java's equals: a String, an enum, a
- *   class of the program without equals of its own (Ctx.goEquals), a boxed primitive that is
- *   not a floating-point number;
+ *   a map are compared: with Go's == where that is Java's equals (a String, an enum, a class of
+ *   the program without equals of its own: Ctx.goEquals; a boxed primitive that is not a
+ *   floating-point number), else by hashCode and equals as java.util.HashMap does
+ *   (Ctx.byEquals: a class with its own equals, an interface, a library class);
  * - every value that enters it is a new collection of its kind (`new ArrayList<>()`,
  *   `new ArrayList<>(n)`, `new ArrayList<>(collection)`; `new LinkedHashSet<>(..)`), null, or
  *   the value of another typed declaration (so the declaration never holds a collection that

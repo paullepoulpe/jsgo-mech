@@ -249,7 +249,12 @@ abstract class ExprEmitter extends Base {
     String fn = made == null ? null : cx.typedColl(target).made.get(made.getQualifiedName().toString());
     if (fn == null) return null;
     String tc = "";
-    for (TypeMirror a : ((DeclaredType) target).getTypeArguments()) tc += (tc.isEmpty() ? "" : ", ") + cx.tconv(a);
+    String kn = cx.typedColl(target).name;
+    for (TypeMirror a : ((DeclaredType) target).getTypeArguments()) {
+      // the elements of a set and the keys of a map are compared
+      boolean compared = tc.isEmpty() && (kn.equals("set") || kn.equals("map"));
+      tc += (tc.isEmpty() ? "" : ", ") + cx.tconv(a, compared && cx.byEquals(a));
+    }
     List<? extends ExpressionTree> as = n.getArguments();
     if (as.isEmpty()) return "newT" + fn + "_(" + tc + ")";
     ExpressionTree a = as.get(0);
