@@ -4,7 +4,7 @@ package closure
 
 type LightweightMessageFormatter struct {
 	AbstractMessageFormatter
-	defaultFormat   *SourceExcerptProvider_SourceExcerpt
+	defaultFormat   SourceExcerptProvider_SourceExcerpt
 	includeLocation bool
 	includeLevel    bool
 }
@@ -45,14 +45,14 @@ func new_LightweightMessageFormatter_SourceExcerptProvider(source SourceExcerptP
 	return this
 }
 
-func (this *LightweightMessageFormatter) init_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source SourceExcerptProvider, defaultFormat *SourceExcerptProvider_SourceExcerpt) {
+func (this *LightweightMessageFormatter) init_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source SourceExcerptProvider, defaultFormat SourceExcerptProvider_SourceExcerpt) {
 	this.AbstractMessageFormatter.init_AbstractMessageFormatter(source)
 	this.finit_LightweightMessageFormatter()
 	Preconditions_checkNotNull_T(source)
 	this.defaultFormat = defaultFormat
 }
 
-func new_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source SourceExcerptProvider, defaultFormat *SourceExcerptProvider_SourceExcerpt) *LightweightMessageFormatter {
+func new_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source SourceExcerptProvider, defaultFormat SourceExcerptProvider_SourceExcerpt) *LightweightMessageFormatter {
 	this := &LightweightMessageFormatter{}
 	this.self_ = this
 	this.init_LightweightMessageFormatter_SourceExcerptProvider_SourceExcerpt(source, defaultFormat)
@@ -118,7 +118,7 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 	boldLine.append(error_.description())
 	b.append(this.maybeEmbolden(Object_toString(obj_(boldLine))))
 	b.append_char('\n')
-	var sourceExcerptWithPosition Optional[string] = this.getExcerptWithPosition_5(error_, sourceName, lineNumber, charno, func() *SourceExcerptProvider_SourceExcerpt {
+	var sourceExcerptWithPosition Optional[string] = this.getExcerptWithPosition_5(error_, sourceName, lineNumber, charno, func() SourceExcerptProvider_SourceExcerpt {
 		if mapping != nil {
 			return SourceExcerptProvider_SourceExcerpt_LINE
 		}
@@ -134,12 +134,12 @@ func (this *LightweightMessageFormatter) getExcerptWithPosition(error_ *JSError)
 	return this.getExcerptWithPosition_6(error_, error_.sourceName(), error_.getLineNumber(), error_.charno(), error_.length(), this.defaultFormat)
 }
 
-func (this *LightweightMessageFormatter) getExcerptWithPosition_5(error_ *JSError, sourceName Optional[string], lineNumber int32, charno int32, format *SourceExcerptProvider_SourceExcerpt) Optional[string] {
+func (this *LightweightMessageFormatter) getExcerptWithPosition_5(error_ *JSError, sourceName Optional[string], lineNumber int32, charno int32, format SourceExcerptProvider_SourceExcerpt) Optional[string] {
 	var nodeLength int32 = error_.length()
 	return Optional_of[string](this.getExcerptWithPosition_6(error_, sourceName, lineNumber, charno, nodeLength, format))
 }
 
-func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSError, sourceName Optional[string], lineNumber int32, charno int32, length int32, format *SourceExcerptProvider_SourceExcerpt) string {
+func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSError, sourceName Optional[string], lineNumber int32, charno int32, length int32, format SourceExcerptProvider_SourceExcerpt) string {
 	var b *StringBuilder = new_StringBuilder()
 	var source SourceExcerptProvider = this.getSource()
 	var cookedLength int32 = func() int32 {
@@ -165,7 +165,7 @@ func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSErro
 	return message
 }
 
-func (this *LightweightMessageFormatter) padSourceExcerpt(error_ *JSError, sourceExcerpt string, charno int32, length int32, format *SourceExcerptProvider_SourceExcerpt, b *StringBuilder) bool {
+func (this *LightweightMessageFormatter) padSourceExcerpt(error_ *JSError, sourceExcerpt string, charno int32, length int32, format SourceExcerptProvider_SourceExcerpt, b *StringBuilder) bool {
 	if equalsId_(format, SourceExcerptProvider_SourceExcerpt_FULL) {
 		if charno >= 0 {
 			var success bool = this.padMultipleLines(charno, sourceExcerpt, b, error_.node())

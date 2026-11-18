@@ -14,7 +14,7 @@ type ChainableReverseAbstractInterpreter struct {
 // ChainableReverseAbstractInterpreter_I holds the methods the dispatchers of ChainableReverseAbstractInterpreter's hierarchy call on the most derived
 // object (self_); every class of the hierarchy implements them (post-flip).
 type ChainableReverseAbstractInterpreter_I interface {
-	getPreciserScopeKnowingConditionOutcome_impl(Node, FlowScope, *Outcome_rhino) FlowScope
+	getPreciserScopeKnowingConditionOutcome_impl(Node, FlowScope, Outcome_rhino) FlowScope
 }
 
 func (this *ChainableReverseAbstractInterpreter) as_ChainableReverseAbstractInterpreter() *ChainableReverseAbstractInterpreter {
@@ -72,11 +72,11 @@ func (this *ChainableReverseAbstractInterpreter) getFirst() *ChainableReverseAbs
 	return this.firstLink
 }
 
-func (this *ChainableReverseAbstractInterpreter) firstPreciserScopeKnowingConditionOutcome(condition Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *ChainableReverseAbstractInterpreter) firstPreciserScopeKnowingConditionOutcome(condition Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	return this.firstLink.getPreciserScopeKnowingConditionOutcome(condition, blindScope, outcome)
 }
 
-func (this *ChainableReverseAbstractInterpreter) nextPreciserScopeKnowingConditionOutcome(condition Node, blindScope FlowScope, outcome *Outcome_rhino) FlowScope {
+func (this *ChainableReverseAbstractInterpreter) nextPreciserScopeKnowingConditionOutcome(condition Node, blindScope FlowScope, outcome Outcome_rhino) FlowScope {
 	return func() FlowScope {
 		if this.nextLink != nil {
 			return this.nextLink.getPreciserScopeKnowingConditionOutcome(condition, blindScope, outcome)
@@ -189,7 +189,7 @@ func (this *ChainableReverseAbstractInterpreter) getNativeTypeForTypeOf(value st
 	}()
 }
 
-func (this *ChainableReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 *Outcome_rhino) FlowScope {
+func (this *ChainableReverseAbstractInterpreter) getPreciserScopeKnowingConditionOutcome(p0 Node, p1 FlowScope, p2 Outcome_rhino) FlowScope {
 	return this.self_.getPreciserScopeKnowingConditionOutcome_impl(p0, p1, p2)
 }
 
