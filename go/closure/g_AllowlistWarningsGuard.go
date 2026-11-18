@@ -233,7 +233,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 
 // level: an object that is exactly a AllowlistWarningsGuard calls its level_impl directly (post-flip); others dispatch.
 func (this *AllowlistWarningsGuard) level(p0 *JSError) CheckLevel {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllowlistWarningsGuard); p == this {
 		return this.level_impl(p0)
 	}
 	return this.self_.level_impl(p0)
@@ -241,7 +241,7 @@ func (this *AllowlistWarningsGuard) level(p0 *JSError) CheckLevel {
 
 // getPriority: an object that is exactly a AllowlistWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
 func (this *AllowlistWarningsGuard) getPriority() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AllowlistWarningsGuard); p == this {
 		return this.getPriority_impl()
 	}
 	return this.self_.getPriority_impl()

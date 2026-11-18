@@ -167,7 +167,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 
 // visit: an object that is exactly a ReplaceToggles_Traversal calls its visit_impl directly (post-flip); others dispatch.
 func (this *ReplaceToggles_Traversal) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ReplaceToggles_Traversal); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

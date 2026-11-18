@@ -172,7 +172,7 @@ func (this *TypeInferencePass_SecondScopeBuildingCallback) visit_impl(t *NodeTra
 
 // enterScope: an object that is exactly a TypeInferencePass_FirstScopeBuildingCallback calls its enterScope_impl directly (post-flip); others dispatch.
 func (this *TypeInferencePass_FirstScopeBuildingCallback) enterScope(p0 *NodeTraversal) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeInferencePass_FirstScopeBuildingCallback); p == this {
 		this.enterScope_impl(p0)
 		return
 	}
@@ -181,7 +181,7 @@ func (this *TypeInferencePass_FirstScopeBuildingCallback) enterScope(p0 *NodeTra
 
 // visit: an object that is exactly a TypeInferencePass_FirstScopeBuildingCallback calls its visit_impl directly (post-flip); others dispatch.
 func (this *TypeInferencePass_FirstScopeBuildingCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeInferencePass_FirstScopeBuildingCallback); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
@@ -190,7 +190,7 @@ func (this *TypeInferencePass_FirstScopeBuildingCallback) visit(p0 *NodeTraversa
 
 // enterScope: an object that is exactly a TypeInferencePass_SecondScopeBuildingCallback calls its enterScope_impl directly (post-flip); others dispatch.
 func (this *TypeInferencePass_SecondScopeBuildingCallback) enterScope(p0 *NodeTraversal) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeInferencePass_SecondScopeBuildingCallback); p == this {
 		this.enterScope_impl(p0)
 		return
 	}
@@ -199,7 +199,7 @@ func (this *TypeInferencePass_SecondScopeBuildingCallback) enterScope(p0 *NodeTr
 
 // visit: an object that is exactly a TypeInferencePass_SecondScopeBuildingCallback calls its visit_impl directly (post-flip); others dispatch.
 func (this *TypeInferencePass_SecondScopeBuildingCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypeInferencePass_SecondScopeBuildingCallback); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

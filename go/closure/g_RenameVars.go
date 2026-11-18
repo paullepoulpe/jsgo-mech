@@ -396,7 +396,7 @@ func (this *RenameVars_ProcessVars) incCount(name string) {
 
 // visit: an object that is exactly a RenameVars_ProcessVars calls its visit_impl directly (post-flip); others dispatch.
 func (this *RenameVars_ProcessVars) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*RenameVars_ProcessVars); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

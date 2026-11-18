@@ -526,7 +526,7 @@ func (this *AmbiguateProperties_Property) addRelatedColor(color *Color) {
 
 // visit: an object that is exactly a AmbiguateProperties_ProcessPropertiesAndConstructors calls its visit_impl directly (post-flip); others dispatch.
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AmbiguateProperties_ProcessPropertiesAndConstructors); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

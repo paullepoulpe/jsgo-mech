@@ -250,7 +250,7 @@ func (this *TypedScope) lookupQualifiedName(p0 *QualifiedName) *JSType {
 
 // typed: an object that is exactly a TypedScope calls its typed_impl directly (post-flip); others dispatch.
 func (this *TypedScope) typed() *TypedScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.typed_impl()
 	}
 	return this.self_.typed_impl()
@@ -258,7 +258,7 @@ func (this *TypedScope) typed() *TypedScope {
 
 // getDepth: an object that is exactly a TypedScope calls its getDepth_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getDepth() int32 {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getDepth_impl()
 	}
 	return this.self_.getDepth_impl()
@@ -266,7 +266,7 @@ func (this *TypedScope) getDepth() int32 {
 
 // getParent: an object that is exactly a TypedScope calls its getParent_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getParent() *AbstractScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getParent_impl()
 	}
 	return this.self_.getParent_impl()
@@ -274,7 +274,7 @@ func (this *TypedScope) getParent() *AbstractScope {
 
 // makeImplicitVar: an object that is exactly a TypedScope calls its makeImplicitVar_impl directly (post-flip); others dispatch.
 func (this *TypedScope) makeImplicitVar(p0 AbstractScope_ImplicitVar) *AbstractVar {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.makeImplicitVar_impl(p0)
 	}
 	return this.self_.makeImplicitVar_impl(p0)
@@ -282,7 +282,7 @@ func (this *TypedScope) makeImplicitVar(p0 AbstractScope_ImplicitVar) *AbstractV
 
 // hasOwnImplicitSlot: an object that is exactly a TypedScope calls its hasOwnImplicitSlot_impl directly (post-flip); others dispatch.
 func (this *TypedScope) hasOwnImplicitSlot(p0 AbstractScope_ImplicitVar) bool {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.hasOwnImplicitSlot_impl(p0)
 	}
 	return this.self_.hasOwnImplicitSlot_impl(p0)
@@ -290,7 +290,7 @@ func (this *TypedScope) hasOwnImplicitSlot(p0 AbstractScope_ImplicitVar) bool {
 
 // getVar: an object that is exactly a TypedScope calls its getVar_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getVar(p0 string) *AbstractVar {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getVar_impl(p0)
 	}
 	return this.self_.getVar_impl(p0)
@@ -298,7 +298,7 @@ func (this *TypedScope) getVar(p0 string) *AbstractVar {
 
 // getTopmostScopeOfEventualDeclaration: an object that is exactly a TypedScope calls its getTopmostScopeOfEventualDeclaration_impl directly (post-flip); others dispatch.
 func (this *TypedScope) getTopmostScopeOfEventualDeclaration(p0 string) StaticScope {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*TypedScope); p == this {
 		return this.getTopmostScopeOfEventualDeclaration_impl(p0)
 	}
 	return this.self_.getTopmostScopeOfEventualDeclaration_impl(p0)

@@ -277,7 +277,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) isBefore(e
 
 // visit: an object that is exactly a ConcretizeStaticInheritanceForInlining_FindStaticMembers calls its visit_impl directly (post-flip); others dispatch.
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*ConcretizeStaticInheritanceForInlining_FindStaticMembers); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

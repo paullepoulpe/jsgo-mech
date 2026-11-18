@@ -79,7 +79,7 @@ func Es6CheckModule_clinit() {
 
 // visit: an object that is exactly a Es6CheckModule calls its visit_impl directly (post-flip); others dispatch.
 func (this *Es6CheckModule) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*Es6CheckModule); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

@@ -308,7 +308,7 @@ func AbstractVar_clinit() {
 
 // getName: an object that is exactly a AbstractVar calls its getName_impl directly (post-flip); others dispatch.
 func (this *AbstractVar) getName() string {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AbstractVar); p == this {
 		return this.getName_impl()
 	}
 	return this.self_.getName_impl()
@@ -316,7 +316,7 @@ func (this *AbstractVar) getName() string {
 
 // getScopeRoot: an object that is exactly a AbstractVar calls its getScopeRoot_impl directly (post-flip); others dispatch.
 func (this *AbstractVar) getScopeRoot() Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AbstractVar); p == this {
 		return this.getScopeRoot_impl()
 	}
 	return this.self_.getScopeRoot_impl()

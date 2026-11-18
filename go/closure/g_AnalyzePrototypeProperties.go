@@ -785,7 +785,7 @@ func (this *AnalyzePrototypeProperties_NameInfo) getDeclarations() *TDeque[Analy
 
 // visit: an object that is exactly a AnalyzePrototypeProperties_ProcessExternProperties calls its visit_impl directly (post-flip); others dispatch.
 func (this *AnalyzePrototypeProperties_ProcessExternProperties) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*AnalyzePrototypeProperties_ProcessExternProperties); p == this {
 		this.visit_impl(p0, p1, p2)
 		return
 	}

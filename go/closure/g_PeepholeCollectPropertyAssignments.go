@@ -285,7 +285,7 @@ func PeepholeCollectPropertyAssignments_mightContainForwardReference(node Node, 
 
 // optimizeSubtree: an object that is exactly a PeepholeCollectPropertyAssignments calls its optimizeSubtree_impl directly (post-flip); others dispatch.
 func (this *PeepholeCollectPropertyAssignments) optimizeSubtree(p0 Node) Node {
-	if this.self_ == any(this) {
+	if p, _ := this.self_.(*PeepholeCollectPropertyAssignments); p == this {
 		return this.optimizeSubtree_impl(p0)
 	}
 	return this.self_.optimizeSubtree_impl(p0)
