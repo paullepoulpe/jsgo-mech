@@ -379,6 +379,7 @@ c3a614a7 run t castfold && f
 # 207. postflip step: StringBuilders that only the translated code sees are strBuilder_, across parameters, fields, results and helpers (tools/postflip/sbuild/run.sh)
 cc8beb35 run t sbuild && f
 # 208. Remove the PGO profile (go/cmd/mech/default.pgo, tools/pgo): the plan uses no PGO
+#= c4aefc67 noop: go/cmd/mech/default.pgo is already gone before the flip (main 08cadb62)
 c4aefc67 run rm -f go/cmd/mech/default.pgo
 # 210. postflip (runtime): TTreeSet and TTreeMap, TreeSet and TreeMap with unboxed elements (rt_ttree.go)
 36bf093d patch 210-36bf093d-rt.patch
@@ -417,10 +418,12 @@ a3198fe2 run t strunits && f
 # 240. postflip step: exceptions re-run, 3 IOException catch clauses that cannot fire are deleted (tools/postflip/exceptions)
 5b9d0976 run t exceptions && f
 # 242. postflip step: nnchecks, 12 Optionals made only to test a value for null are the test (tools/postflip/nnchecks)
+#= 71dca2ee noop: the tool runs and changes nothing (nnchecks: the 12 Optionals made only to test for null are not found in the typed text)
 71dca2ee run t nnchecks && f
 # 243. postflip (runtime): optOfEquals_ / optEqualsOf_, Optional.of(s).equals(o) of Strings without boxing (rt_eqhash.go)
 d4d725fc patch 243-d4d725fc-rt.patch
 # 245. postflip step: optof, 10 Optional.of(s).equals(o) of Strings compare the strings (tools/postflip/optof)
+#= 848176d7 noop: the tool runs and changes nothing (optof: Optional.of(s).equals(o) is not written that way by typed j2go)
 848176d7 run t optof && f
 # 247. postflip step: instof, 7 instanceof tests are comma-ok type assertions (tools/postflip/instof)
 6ce3bdf2 run t instof && f
@@ -457,6 +460,7 @@ b763d080 run t exceptions && f
 # 269. postflip (runtime): strNonNull_, Optional.of's null check of a String as a call that returns it
 2461fca2 patch 269-2461fca2-rt.patch
 # 271. postflip step: optof re-run, the last 5 Optional.of(s).equals(o) of Strings compare the strings
+#= 8a8cb873 noop: the tool runs and changes nothing (optof: Optional.of(s).equals(o) is not written that way by typed j2go)
 8a8cb873 run t optof
 # 273. postflip step: throws re-run, 40 exhaustive enum switches throw NullPointerException for null, as Java's switch does
 27203603 run t throws
@@ -478,6 +482,7 @@ c13b5bff patch 283-c13b5bff-rt.patch
 # 284. postflip (runtime): Comparator.thenComparingInt, comparingLong, thenComparingLong and Map.replaceAll taking a lambda as a Go func value
 b25ac187 patch 284-b25ac187-rt.patch
 # 285. postflip step: funcparams re-run, 11 package-level lambdas given to comparators and Map.replaceAll are Go functions
+#= 1875bf24 noop: the tool runs and changes nothing (funcparams: no package-level lambda left that fits; j2go writes typed adapters)
 1875bf24 run t funcparams && t funcparams && f
 # 288. postflip (runtime): a type assertion of a nil interface is Java's NullPointerException
 b1bf3d2d patch 288-b1bf3d2d-rt.patch
