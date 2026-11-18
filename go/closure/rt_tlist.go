@@ -357,6 +357,15 @@ func isNil_(c any) bool {
 }
 
 // addAllT is addAll from another typed list.
+// iterator is the list's Iterator (of boxed elements, with remove), as its view's; a null list
+// throws NullPointerException (the translator's typed lists call it; post-flip tool jfam).
+func (l *TList[T]) iterator() Iterator {
+	if l == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return l.asList().iterator()
+}
+
 func (l *TList[T]) addAllT(o *TList[T]) bool {
 	if l.imm {
 		throwUOE_()

@@ -21,6 +21,18 @@ type jtconv_[T any] struct {
 	// byEquals: a set or a map compares elements of this type by equals and hashCode (through
 	// their boxes), not by Go's == (a class with its own equals, an interface, a library class).
 	byEquals bool
+	// post: this conversion for the post-flip typed collections (t_), made on first use.
+	post *tconv_[T]
+}
+
+// t_ is the conversion as the post-flip typed list takes it (rt_tlist.go): the same box, unbox
+// and null. One per conversion, so that lists made with it share it as they shared c.
+// (Post-flip tool jfam: a list the translator typed is a *TList[T].)
+func (c *jtconv_[T]) t_() *tconv_[T] {
+	if c.post == nil {
+		c.post = &tconv_[T]{box: c.box, unbox: c.unbox, null: c.null}
+	}
+	return c.post
 }
 
 type JTList[T any] struct {
