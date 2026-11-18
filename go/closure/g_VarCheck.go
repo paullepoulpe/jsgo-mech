@@ -75,7 +75,7 @@ func (this *VarCheck) visit(t *NodeTraversal, n Node, parent Node) {
 
 func (this *VarCheck) checkName(t *NodeTraversal, n Node, parent Node) {
 	var varName string = n.getString()
-	if String_isEmpty(varName) {
+	if varName == "" {
 		if !NodeUtil_isFunctionExpression(parent) && !NodeUtil_isMethodDeclaration(parent) {
 			panic(new_IllegalStateException_0().self())
 		}

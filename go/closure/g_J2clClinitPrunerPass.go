@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clClinitPrunerPass struct {
 	emptiedClinitMethods     *JTMap[string, Node]
 	compiler_                *AbstractCompiler
@@ -142,7 +144,7 @@ func J2clClinitPrunerPass_getClinitMethodName(node Node) Optional[string] {
 }
 
 func J2clClinitPrunerPass_isClinitMethodName(fnName Optional[string]) bool {
-	return (fnName.isPresent() && (String_endsWith(fnName.get(), "$$0clinit") || String_endsWith(fnName.get(), ".$clinit")))
+	return (fnName.isPresent() && (strings.HasSuffix(fnName.get(), "$$0clinit") || strings.HasSuffix(fnName.get(), ".$clinit")))
 }
 
 func J2clClinitPrunerPass_getQualifiedNameOfFunction(function Node) Optional[string] {
@@ -357,7 +359,7 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) visit_impl(t *NodeTraversal,
 
 func (this *J2clClinitPrunerPass_EmptyClinitPruner) trySubstituteEmptyFunction(fnNode Node) {
 	var fnQualifiedName Optional[string] = J2clClinitPrunerPass_getQualifiedNameOfFunction(fnNode)
-	if String_isEmpty(fnQualifiedName.orElse("")) {
+	if fnQualifiedName.orElse("") == "" {
 		return
 	}
 	var body Node = fnNode.getLastChild()

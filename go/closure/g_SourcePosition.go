@@ -27,7 +27,7 @@ func (this *SourcePosition_util) getOffset() int32 {
 }
 
 func (this *SourcePosition_util) toString() string {
-	return String_format("%s(%d, %d)", []any{strobj_(this.shortSourceName()), any(int32((this.line_ + 1))), any(int32((this.column_ + 1)))})
+	return (sstr_(this.shortSourceName()) + "(" + istr_(int64(int32((this.line_ + 1)))) + ", " + istr_(int64(int32((this.column_ + 1)))) + ")")
 }
 
 func (this *SourcePosition_util) shortSourceName() string {

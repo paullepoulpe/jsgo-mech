@@ -173,7 +173,7 @@ func (this *DeadPropertyAssignmentElimination_PropertyWrite) init_DeadPropertyAs
 	}
 	this.assignedAt = assignedAt
 	this.qualifiedName_ = Optional_of[string](assignedAt.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 }
 
@@ -220,7 +220,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 			return Optional_of[string](propNode.getString())
 		}
 		return Optional_of[string](propNode.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}})
 	}()
 	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.computeIfAbsent(propName.orElse(nullstr_), &Function_tfn_string_DeadPropertyAssignmentElimination_Property{func(p0 string) *DeadPropertyAssignmentElimination_Property {

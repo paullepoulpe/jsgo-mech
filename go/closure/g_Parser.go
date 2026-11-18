@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Parser struct {
 	scanner              *Scanner_parser
 	errorReporter        *ErrorReporter_util
@@ -2720,7 +2722,7 @@ func (this *Parser) reportErrorSourcePosition(position *SourcePosition_util, mes
 }
 
 func (this *Parser) reportTemplateErrorIfPresent(templateToken *TemplateLiteralToken) {
-	if String_isEmpty(templateToken.errorMessage_) {
+	if templateToken.errorMessage_ == "" {
 		return
 	}
 	switch templateToken.errorLevel {
@@ -2949,8 +2951,8 @@ func new_Parser_CommentRecorder(outer_ *Parser) *Parser_CommentRecorder {
 func (this *Parser_CommentRecorder) recordComment(type_ Comment_Type, range_ *SourceRange, value string) {
 	if (this.lastCommentEndPosition == nil) || (range_.end_.offset > this.lastCommentEndPosition.offset) {
 		value = String_trim(value)
-		if String_startsWith(value, Parser_SOURCE_MAPPING_URL_PREFIX) {
-			this.outer_.sourceMapURL = Optional_of[string](String_substring_int(value, String_length(Parser_SOURCE_MAPPING_URL_PREFIX)))
+		if strings.HasPrefix(value, Parser_SOURCE_MAPPING_URL_PREFIX) {
+			this.outer_.sourceMapURL = Optional_of[string](String_substring_int(value, int32(len(Parser_SOURCE_MAPPING_URL_PREFIX))))
 		}
 		this.comments.add(new_Comment(value, range_, type_))
 		this.lastCommentEndPosition = range_.end_

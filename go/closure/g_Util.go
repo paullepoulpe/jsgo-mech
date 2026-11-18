@@ -48,9 +48,9 @@ func Util_escapeString(s string) string {
 		case '<':
 			var END_SCRIPT string = "/script"
 			var START_COMMENT string = "!--"
-			if String_regionMatches(s, true, (i + 1), END_SCRIPT, 0, String_length(END_SCRIPT)) {
+			if String_regionMatches(s, true, (i + 1), END_SCRIPT, 0, int32(len(END_SCRIPT))) {
 				region.appendForEscapedChar("\\u003c")
-			} else if String_regionMatches(s, false, (i + 1), START_COMMENT, 0, String_length(START_COMMENT)) {
+			} else if String_regionMatches(s, false, (i + 1), START_COMMENT, 0, int32(len(START_COMMENT))) {
 				region.appendForEscapedChar("\\u003c")
 			} else {
 				region.incrementForNormalChar()

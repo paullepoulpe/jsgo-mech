@@ -223,7 +223,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 			requiresTempsUpToThisParameterName = parameterName
 		}
 	}
-	if !String_isEmpty(requiresTempsUpToThisParameterName) {
+	if requiresTempsUpToThisParameterName != "" {
 		it_4 := argMap.eachKey()
 		for it_4.next() {
 			var parameterName string = it_4.v

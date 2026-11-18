@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type SourceMap struct {
 	generator                SourceMapGenerator
 	prefixMappings           *JTList[SourceMap_LocationMapping]
@@ -38,7 +40,7 @@ func (this *SourceMap) addMapping_3(node Node, outputStartPosition *FilePosition
 	var lineNo int32 = node.getLineno()
 	var charNo int32 = node.getCharno()
 	var originalName Optional[string] = Optional_of[string](SourceMap_getOriginalName(node)).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 	if this.mapping != nil {
 		var sourceMapping *Mapping_OriginalMapping = this.mapping(sourceFileName, lineNo, charNo)
@@ -50,7 +52,7 @@ func (this *SourceMap) addMapping_3(node Node, outputStartPosition *FilePosition
 			lineNo = sourceMapping.getLineNumber()
 			charNo = sourceMapping.getColumnPosition()
 			var identifier string = sourceMapping.getIdentifier()
-			if sourceMapping.hasIdentifier() && !String_isEmpty(identifier) {
+			if sourceMapping.hasIdentifier() && identifier != "" {
 				originalName = Optional_of[string](identifier)
 			}
 		}
@@ -65,7 +67,7 @@ func (this *SourceMap) addSourceFile(name string, code string) {
 }
 
 func SourceMap_getOriginalName(node Node) string {
-	if !String_isEmpty(node.getOriginalName()) {
+	if node.getOriginalName() != "" {
 		return node.getOriginalName()
 	}
 	if node.isName() {
@@ -343,7 +345,7 @@ func new_SourceMap_PrefixLocationMapping(prefix string, replacement string) *Sou
 }
 
 func (this *SourceMap_PrefixLocationMapping) map_(location Optional[string]) Optional[string] {
-	if String_startsWith(location.get(), this.prefix_) {
+	if strings.HasPrefix(location.get(), this.prefix_) {
 		return Optional_of[string]((sstr_(this.replacement_) + sstr_(String_substring_int(location.get(), String_length(this.prefix_)))))
 	}
 	return Optional_empty[string]()

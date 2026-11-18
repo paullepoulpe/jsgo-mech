@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CompilerOptions struct {
 	emitUseStrict                                Optional_baseOf[BoxedOf[bool]]
 	languageIn                                   CompilerOptions_LanguageMode
@@ -437,7 +439,7 @@ func (this *CompilerOptions) getSourceMapOutputPath() Optional[string] {
 }
 
 func (this *CompilerOptions) shouldGatherSourceMapInfo() bool {
-	return (this.shouldAlwaysGatherSourceMapInfo_ || !String_isEmpty(this.sourceMapOutputPath.orElse("")))
+	return (this.shouldAlwaysGatherSourceMapInfo_ || this.sourceMapOutputPath.orElse("") != "")
 }
 
 func (this *CompilerOptions) setAlwaysGatherSourceMapInfo(shouldAlwaysGatherSourceMapInfo bool) {
@@ -837,7 +839,7 @@ func (this *CompilerOptions) getDefineReplacements() *JTMap[string, Node] {
 				}() {
 					map_.put(name, IR_string(string_))
 				} else {
-					panic(new_IllegalStateException_String(String_valueOf_Object(value)).self())
+					panic(new_IllegalStateException_String(objstr_(value)).self())
 				}
 			}
 		}
@@ -3647,7 +3649,7 @@ func CompilerOptions_LanguageMode_validCommandLineNames() *JTList[string] {
 		var mode CompilerOptions_LanguageMode = cast_[CompilerOptions_LanguageMode](it_1.v)
 		if mode != CompilerOptions_LanguageMode_UNSUPPORTED {
 			names.add(mode.name())
-			if String_startsWith(mode.name(), "ECMASCRIPT") {
+			if strings.HasPrefix(mode.name(), "ECMASCRIPT") {
 				names.add(CompilerOptions_ECMASCRIPT_PATTERN.matcher_s(mode.name()).replaceFirst("ES"))
 			}
 		}

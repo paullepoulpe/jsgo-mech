@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type IR struct {
 }
 
@@ -364,7 +366,7 @@ func IR_label(name Node, stmt Node) Node {
 }
 
 func IR_labelName(name string) Node {
-	if String_isEmpty(name) {
+	if name == "" {
 		panic(new_IllegalStateException_0().self())
 	}
 	return Node_newString_Token_String(Token_rhino_LABEL_NAME, name)
@@ -480,7 +482,7 @@ func IR_newNode(target Node, args []Node) Node {
 }
 
 func IR_name(name string) Node {
-	if String_indexOf(name, 46) != -1 {
+	if strings.Contains(name, ".") {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Invalid name '%s'. Did you mean to use NodeUtil.newQName?", []any{name})).self())
 	}
 	return Node_newString_Token_String(Token_rhino_NAME, name)

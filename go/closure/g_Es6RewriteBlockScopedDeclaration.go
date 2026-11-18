@@ -423,7 +423,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) updateNames(node Node, paramName Node, loopObjectName string) {
-	if node.isName() && !String_isEmpty(node.getString()) {
+	if node.isName() && node.getString() != "" {
 		if node.getString() == loopObjectName {
 			node.setString(paramName.getString())
 			return

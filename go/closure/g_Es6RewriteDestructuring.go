@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Es6RewriteDestructuring struct {
 	compiler_                    *AbstractCompiler
 	rewriteMode                  Es6RewriteDestructuring_ObjectDestructuringRewriteMode
@@ -365,7 +367,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 				restTempDecl.srcrefTreeIfMissing(objectPattern)
 				restTempDecl.insertBefore(nodeToDetach)
 				var restName Node = child.getOnlyChild()
-				if String_startsWith(restName.getString(), Es6RewriteDestructuring_DESTRUCTURING_TEMP_VAR) {
+				if strings.HasPrefix(restName.getString(), Es6RewriteDestructuring_DESTRUCTURING_TEMP_VAR) {
 					if !restName.isName() {
 						Preconditions_checkState_boolean_Object_H(false, restName)
 					}

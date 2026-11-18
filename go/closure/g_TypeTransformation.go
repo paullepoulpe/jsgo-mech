@@ -358,7 +358,7 @@ func (this *TypeTransformation) evalTypePredicate(ttlAst Node, nameResolver *Typ
 func (this *TypeTransformation) evalStringPredicate(ttlAst Node, nameResolver *TypeTransformation_NameResolver) bool {
 	var params []string = this.evalStringParams(ttlAst, nameResolver)
 	for i := int32(0); i < int32(len(params)); i++ {
-		if String_isEmpty(params[i]) {
+		if params[i] == "" {
 			return false
 		}
 	}

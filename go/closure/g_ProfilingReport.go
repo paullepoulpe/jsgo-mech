@@ -2,6 +2,8 @@
 
 package closure
 
+import "strconv"
+
 type ProfilingReport struct {
 }
 
@@ -59,7 +61,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	it_11 := result.each()
 	for it_11.next() {
 		var entry Map_Entry = it_11.v
-		output.add(ImmutableList_as_List(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFileName()), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFunctionName()), strobj_(String_valueOf(cast_[*InstrumentationPoint](entry.getKey()).getLineNumber())), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getType().name()), strobj_(String_valueOf_long(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).totalTimesExecuted)), strobj_(String_valueOf(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).numberOfReports)))))
+		output.add(ImmutableList_as_List(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFileName()), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFunctionName()), strobj_(strconv.Itoa(int(cast_[*InstrumentationPoint](entry.getKey()).getLineNumber()))), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getType().name()), strobj_(strconv.FormatInt(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).totalTimesExecuted, 10)), strobj_(strconv.Itoa(int(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).numberOfReports))))))
 	}
 	var rows *JTList[string] = jnewTList_(jtc_string)
 	it_13 := output.each()

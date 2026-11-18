@@ -2,7 +2,10 @@
 
 package closure
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 type Node uint32
 
@@ -1196,7 +1199,7 @@ func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotation
 			sb.append_Object(x.self())
 			sb.append_char(']')
 		}
-		if !String_isEmpty(strid_str_(this.cs_().originalName)) {
+		if strid_str_(this.cs_().originalName) != "" {
 			sb.append(" [original_name: ")
 			sb.append(strid_str_(this.cs_().originalName))
 			sb.append_char(']')
@@ -1231,22 +1234,22 @@ func (this Node) toJson(sb Appendable) {
 		}
 	} else if this.ns_().token == tokOrd1_NUMBER {
 		sb.append_char(',')
-		Appendable_append_s(sb, Node_createJsonPair("number", String_valueOf_double(this.getDouble())))
+		Appendable_append_s(sb, Node_createJsonPair("number", Double_toString(this.getDouble())))
 	}
 	var lineno int32 = this.getLineno()
 	if lineno != -1 {
 		sb.append_char(',')
 		Appendable_append_s(sb, "\"sourceLocation\":{")
-		Appendable_append_s(sb, Node_createJsonPairRawValue("line", String_valueOf(lineno)))
+		Appendable_append_s(sb, Node_createJsonPairRawValue("line", strconv.Itoa(int(lineno))))
 		sb.append_char(',')
-		Appendable_append_s(sb, Node_createJsonPairRawValue("col", String_valueOf(this.getCharno())))
+		Appendable_append_s(sb, Node_createJsonPairRawValue("col", strconv.Itoa(int(this.getCharno()))))
 		if this.cs_().length_ != 0 {
 			sb.append_char(',')
-			Appendable_append_s(sb, Node_createJsonPairRawValue("length", String_valueOf(this.cs_().length_)))
+			Appendable_append_s(sb, Node_createJsonPairRawValue("length", strconv.Itoa(int(this.cs_().length_))))
 		}
 		Appendable_append_s(sb, "}")
 	}
-	if !String_isEmpty(strid_str_(this.cs_().originalName)) {
+	if strid_str_(this.cs_().originalName) != "" {
 		Appendable_append_s(sb, ",")
 		Appendable_append_s(sb, Node_createJsonPair("original_name", strid_str_(this.cs_().originalName)))
 	}
@@ -1396,7 +1399,7 @@ func (this Node) getOriginalName() string {
 
 func (this Node) setOriginalName(s string) {
 	this.cs_().originalName = strid_(func() string {
-		if String_isEmpty(s) {
+		if s == "" {
 			return ""
 		}
 		return RhinoStringPool_addOrGet(s)
@@ -1888,7 +1891,7 @@ func (this Node) getQualifiedName() string {
 		case Token_rhino_NAME:
 			var name string = this.getString()
 			return func() string {
-				if String_isEmpty(name) {
+				if name == "" {
 					return ""
 				}
 				return name
@@ -1924,7 +1927,7 @@ func (this Node) qualifiedNameOfGetProp_() string {
 		size += 1 + len(n.getString())
 	}
 	left := n.getQualifiedName()
-	if String_isEmpty(left) {
+	if left == "" {
 		return ""
 	}
 	var b strings.Builder
@@ -1955,7 +1958,7 @@ func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
 		}
 	} else {
 		var left string = this.ns_().first.getQualifiedName()
-		if String_isEmpty(left) {
+		if left == "" {
 			return nil
 		}
 		builder = new_StringBuilder_int((String_length(left) + reserve))
@@ -1968,17 +1971,17 @@ func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
 func (this Node) getOriginalQualifiedName() string {
 	if this.ns_().token == tokOrd1_NAME {
 		var name string = this.getOriginalName()
-		if String_isEmpty(name) {
+		if name == "" {
 			name = this.getString()
 		}
 		return name
 	} else if this.ns_().token == tokOrd1_GETPROP {
 		var left string = this.getFirstChild().getOriginalQualifiedName()
-		if String_isEmpty(left) {
+		if left == "" {
 			return ""
 		}
 		var right string = this.getOriginalName()
-		if String_isEmpty(right) {
+		if right == "" {
 			right = this.getString()
 		}
 		return (sstr_(left) + "." + sstr_(right))
@@ -1995,7 +1998,7 @@ func (this Node) getOriginalQualifiedName() string {
 func (this Node) isQualifiedName() bool {
 	switch this.ns_().token {
 	case tokOrd1_NAME:
-		return !String_isEmpty(this.getString())
+		return this.getString() != ""
 	case tokOrd1_THIS, tokOrd1_SUPER:
 		return true
 	case tokOrd1_GETPROP:
@@ -2011,7 +2014,7 @@ func (this Node) matchesName(name string) bool {
 		return false
 	}
 	var internalString string = this.getString()
-	return (!String_isEmpty(internalString) && (name == internalString))
+	return (internalString != "" && (name == internalString))
 }
 
 func (this Node) matchesNameNode(n Node) bool {
@@ -2019,7 +2022,7 @@ func (this Node) matchesNameNode(n Node) bool {
 		return false
 	}
 	var internalString string = this.getString()
-	return (!String_isEmpty(internalString) && RhinoStringPool_uncheckedEquals(internalString, n.getString()))
+	return (internalString != "" && RhinoStringPool_uncheckedEquals(internalString, n.getString()))
 }
 
 func (this Node) matchesQualifiedName(name string) bool {
@@ -2031,11 +2034,11 @@ func (this Node) matchesQualifiedName_2(qname string, endIndex int32) bool {
 	switch this.ns_().token {
 	case tokOrd1_NAME, tokOrd1_IMPORT_STAR:
 		var name string = this.getString()
-		return ((((start == 0) && !String_isEmpty(name)) && (String_length(name) == endIndex)) && String_startsWith(qname, name))
+		return ((((start == 0) && name != "") && (String_length(name) == endIndex)) && strings.HasPrefix(qname, name))
 	case tokOrd1_THIS:
-		return (((start == 0) && (endIndex == 4)) && String_startsWith(qname, "this"))
+		return (((start == 0) && (endIndex == 4)) && strings.HasPrefix(qname, "this"))
 	case tokOrd1_SUPER:
-		return (((start == 0) && (endIndex == 5)) && String_startsWith(qname, "super"))
+		return (((start == 0) && (endIndex == 5)) && strings.HasPrefix(qname, "super"))
 	case tokOrd1_GETPROP:
 		var prop string = this.getString()
 		return ((((start > 1) && (String_length(prop) == (endIndex - start))) && String_regionMatches_int_String_int_int(prop, 0, qname, start, (endIndex-start))) && this.getFirstChild().matchesQualifiedName_2(qname, (start-1)))
@@ -2066,7 +2069,7 @@ func (this Node) isUnscopedQualifiedName() bool {
 	return func() bool {
 		switch this.ns_().token {
 		case tokOrd1_NAME:
-			return !String_isEmpty(this.getString())
+			return this.getString() != ""
 		case tokOrd1_GETPROP:
 			return this.getFirstChild().isUnscopedQualifiedName()
 		default:
@@ -2177,7 +2180,7 @@ func (this Node) srcrefIfMissing(other Node) Node {
 		this.cs_().linenoCharno = other.cs_().linenoCharno
 		this.cs_().length_ = other.cs_().length_
 	}
-	if String_isEmpty(strid_str_(this.cs_().originalName)) {
+	if strid_str_(this.cs_().originalName) == "" {
 		this.cs_().originalName = other.cs_().originalName
 	}
 	return this
@@ -2537,7 +2540,7 @@ func (this Node) setPrivateIdentifier() {
 	if !this.payload_iss_() {
 		Preconditions_checkState_boolean_Object_H(false, this)
 	}
-	if !String_startsWith(this.getString(), "#") {
+	if !strings.HasPrefix(this.getString(), "#") {
 		panic(new_IllegalStateException_0().self())
 	}
 	this.putBooleanProp(Node_Prop_PRIVATE_IDENTIFIER, true)
@@ -3386,7 +3389,7 @@ func (this *Node_ObjectPropListItem) getObjectValue_impl() any {
 }
 
 func (this *Node_ObjectPropListItem) toString() string {
-	return String_valueOf_Object(this.objectValue)
+	return objstr_(this.objectValue)
 }
 
 func (this *Node_ObjectPropListItem) chain_impl(next *Node_PropListItem) *Node_PropListItem {
@@ -3429,7 +3432,7 @@ func (this *Node_IntPropListItem) getObjectValue_impl() any {
 }
 
 func (this *Node_IntPropListItem) toString() string {
-	return String_valueOf(this.intValue)
+	return strconv.Itoa(int(this.intValue))
 }
 
 func (this *Node_IntPropListItem) chain_impl(next *Node_PropListItem) *Node_PropListItem {

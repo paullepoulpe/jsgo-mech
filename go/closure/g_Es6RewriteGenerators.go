@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Es6RewriteGenerators struct {
 	jscompAsyncExecuteFunction RuntimeJsLibManager_JsLibField
 	jscompAsyncExecuteProgram  RuntimeJsLibManager_JsLibField
@@ -248,7 +250,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpile() 
 		if !genFuncName.isName() {
 			panic(new_IllegalStateException_0().self())
 		}
-		if String_isEmpty(genFuncName.getString()) {
+		if genFuncName.getString() == "" {
 			genFuncName.setString(this.context.getScopedName(Es6RewriteGenerators_GENERATOR_FUNCTION))
 			if this.outer_.astFactory_.isAddingColors() {
 				genFuncName.setColor(generatorFunction.getColor())
@@ -328,7 +330,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileUnm
 	}
 	if n.isFunction() {
 		var functionName string = n.getFirstChild().getString()
-		if String_isEmpty(functionName) || String_startsWith(functionName, Es6RewriteGenerators_GENERATOR_FUNCTION) {
+		if functionName == "" || strings.HasPrefix(functionName, Es6RewriteGenerators_GENERATOR_FUNCTION) {
 			panic(new_IllegalStateException_0().self())
 		}
 		this.hoistFunctionDeclarationNode(n)

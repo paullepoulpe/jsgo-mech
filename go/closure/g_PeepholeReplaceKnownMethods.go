@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type PeepholeReplaceKnownMethods struct {
 	AbstractPeepholeOptimization
 	late     bool
@@ -414,7 +416,7 @@ func PeepholeReplaceKnownMethods_normalizeNumericString(input string) string {
 	for ((startIndex < String_length(input)) && (String_charAt(input, startIndex) == '0')) && (String_charAt(input, startIndex) != '.') {
 		startIndex++
 	}
-	if String_indexOf(input, 46) >= 0 {
+	if strings.Contains(input, ".") {
 		for (endIndex >= 0) && (String_charAt(input, endIndex) == '0') {
 			endIndex--
 		}
@@ -470,7 +472,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName
 				return n
 			}
 			stringVal = Optional_of[string](NodeUtil_trimJsWhiteSpace(stringVal.get()))
-			if String_isEmpty(stringVal.get()) {
+			if stringVal.get() == "" {
 				return n
 			}
 			if stringVal.get() == "0" {
@@ -486,7 +488,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName
 			}
 			var newVal float64 = unbox_[float64](parsed)
 			var newNode Node = NodeUtil_numberNode(newVal, n)
-			normalizedNewVal = PeepholeReplaceKnownMethods_normalizeNumericString(String_valueOf_double(newVal))
+			normalizedNewVal = PeepholeReplaceKnownMethods_normalizeNumericString(Double_toString(newVal))
 			if !(PeepholeReplaceKnownMethods_normalizeNumericString(stringVal.get()) == normalizedNewVal) {
 				return n
 			}
@@ -500,14 +502,14 @@ func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName
 		return n
 	}
 	stringVal = Optional_of[string](NodeUtil_trimJsWhiteSpace(stringVal.get()))
-	if String_isEmpty(stringVal.get()) {
+	if stringVal.get() == "" {
 		return n
 	}
 	var isNegative bool = false
-	if String_startsWith(stringVal.get(), "-") {
+	if strings.HasPrefix(stringVal.get(), "-") {
 		isNegative = true
 		stringVal = Optional_of[string](String_substring_int(stringVal.get(), 1))
-	} else if String_startsWith(stringVal.get(), "+") {
+	} else if strings.HasPrefix(stringVal.get(), "+") {
 		stringVal = Optional_of[string](String_substring_int(stringVal.get(), 1))
 	}
 	if (radix == 0) || (radix == 16) {
@@ -515,7 +517,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldParseNumber(n Node, functionName
 			radix = 16
 			stringVal = Optional_of[string](String_substring_int(stringVal.get(), 2))
 		} else if radix == 0 {
-			if !this.isEcmaScript5OrGreater() && String_startsWith(stringVal.get(), "0") {
+			if !this.isEcmaScript5OrGreater() && strings.HasPrefix(stringVal.get(), "0") {
 				return n
 			}
 			radix = 10
@@ -862,7 +864,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		if arrayNode.hasXChildren(arrayFoldedChildren.size()) {
 			return n
 		}
-		var kJoinOverhead int32 = String_length("[].join()")
+		var kJoinOverhead int32 = int32(len("[].join()"))
 		foldedSize += kJoinOverhead
 		foldedSize += func() int32 {
 			if right != 0 {
@@ -1108,7 +1110,7 @@ func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator O
 		return []string{stringValue}
 	}
 	var splitStrings *JTList[string] = jnewTList_(jtc_string)
-	if String_isEmpty(separator.get()) {
+	if separator.get() == "" {
 		for i := int32(0); (i < String_length(stringValue)) && (i < limit); i++ {
 			splitStrings.add(String_substring(stringValue, i, (i + 1)))
 		}

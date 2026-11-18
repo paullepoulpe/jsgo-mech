@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type AbstractCommandLineRunner struct {
 	self_                       AbstractCommandLineRunner_I
 	config                      *AbstractCommandLineRunner_CommandLineConfig
@@ -152,7 +154,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	if setWarningGuardOptionsOutcome.isErr() {
 		return Outcome_base_err[any](setWarningGuardOptionsOutcome.error())
 	}
-	if !String_isEmpty(this.config.warningsAllowFile) {
+	if this.config.warningsAllowFile != "" {
 		this.addAllowlistWarningsGuard(options, FilePaths_clean(this.config.warningsAllowFile))
 	}
 	if !this.config.hideWarningsFor.isEmpty() {
@@ -191,7 +193,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 		return Outcome_base_err[any](inputCharsetOutcome.error())
 	}
 	this.inputCharset = inputCharsetOutcome.get()
-	if String_length(this.config.jsOutputFile) > 0 {
+	if len(this.config.jsOutputFile) != 0 {
 		if this.config.skipNormalOutputs {
 			return Outcome_base_err[any](new_FlagUsageException("skip_normal_outputs and js_output_file cannot be used together.").up_Throwable())
 		}
@@ -205,7 +207,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	if this.config.skipNormalOutputs && this.config.printTreeJson {
 		return Outcome_base_err[any](new_FlagUsageException("skip_normal_outputs and print_tree_json_path cannot be used together.").up_Throwable())
 	}
-	if String_length(this.config.createSourceMap) > 0 {
+	if len(this.config.createSourceMap) != 0 {
 		options.setSourceMapOutputPath(Optional_of[string](this.config.createSourceMap))
 	} else if this.isOutputInJson() {
 		options.setSourceMapOutputPath(Optional_of[string]("%outname%"))
@@ -223,14 +225,14 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 		inputSourceMaps.put(files.getKey(), new_SourceMapInput(sourceMap))
 	}
 	options.setInputSourceMaps(inputSourceMaps.buildOrThrow())
-	if !String_isEmpty(this.config.variableMapInputFile) {
+	if this.config.variableMapInputFile != "" {
 		var variableMap *Outcome_base[*VariableMap] = VariableMap_load(this.config.variableMapInputFile)
 		if variableMap.isErr() {
 			return Outcome_base_err[any](variableMap.error())
 		}
 		options.setInputVariableMap(variableMap.get())
 	}
-	if !String_isEmpty(this.config.propertyMapInputFile) {
+	if this.config.propertyMapInputFile != "" {
 		var propertyMap *Outcome_base[*VariableMap] = VariableMap_load(this.config.propertyMapInputFile)
 		if propertyMap.isErr() {
 			return Outcome_base_err[any](propertyMap.error())
@@ -260,7 +262,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	options.setProcessCommonJSModules(this.config.processCommonJSModules)
 	options.setModuleRoots(this.config.moduleRoots)
 	options.setAngularPass(this.config.angularPass)
-	if !String_isEmpty(this.config.jsonWarningsFile) {
+	if this.config.jsonWarningsFile != "" {
 		var jsonWarnings *Outcome_base[*Output] = Output_open(this.config.jsonWarningsFile, Charsets_UTF_8, false)
 		if jsonWarnings.isErr() {
 			return Outcome_base_err[any](jsonWarnings.error())
@@ -300,7 +302,7 @@ func AbstractCommandLineRunner_getBuiltinExterns(env CompilerOptions_Environment
 		var entryName string = it_1.v
 		var filename string = entryName
 		if JString_contains_s(filename, "/") {
-			if !String_startsWith(filename, envPrefix) {
+			if !strings.HasPrefix(filename, envPrefix) {
 				continue
 			}
 			filename = String_substring_int(filename, String_length(envPrefix))
@@ -540,12 +542,12 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *JTList[*Abstra
 				return Outcome_base_err[*ImmutableList](new_FlagUsageException("--ijs is incompatible with --chunk or --module.").up_Throwable())
 			}
 			var absoluteName string = file.value_
-			if !String_endsWith(absoluteName, ".i.js") {
+			if !strings.HasSuffix(absoluteName, ".i.js") {
 				errors.add(JSError_make_DiagnosticType_StringArr(IjsErrors_BAD_IJS_FILE_NAME, []string{absoluteName}))
 				continue
 			}
 			var relativeName string = this.getModuleRootRelativeName(absoluteName, moduleRoots)
-			var relativeNonIjsName string = String_substring(relativeName, 0, (String_length(relativeName) - String_length(".i.js")))
+			var relativeNonIjsName string = String_substring(relativeName, 0, (String_length(relativeName) - int32(len(".i.js"))))
 			if relativeToAbsoluteName.containsKey(relativeNonIjsName) {
 				errors.add(JSError_make_DiagnosticType_StringArr(IjsErrors_CONFLICTING_IJS_FILE, []string{relativeToAbsoluteName.get(relativeNonIjsName), absoluteName}))
 				Iterator_remove(iterator)
@@ -559,7 +561,7 @@ func (this *AbstractCommandLineRunner) getModuleRootRelativeName(filename string
 	it_1 := foreach_(any(moduleRoots))
 	for it_1.next() {
 		var moduleRoot string = str_(it_1.v)
-		if String_startsWith(filename, (sstr_(moduleRoot) + "/")) {
+		if strings.HasPrefix(filename, (sstr_(moduleRoot) + "/")) {
 			return String_substring_int(filename, (String_length(moduleRoot) + 1))
 		}
 	}
@@ -715,15 +717,15 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *JTList[string], chunks 
 	it_3 := specs.each()
 	for it_3.next() {
 		var spec string = it_3.v
-		var pos int32 = String_indexOf(spec, 58)
+		var pos int32 = int32(strings.IndexByte(spec, ':'))
 		if pos == -1 {
 			return Outcome_base_err[Map](new_FlagUsageException(("Expected chunk wrapper to have <name>:<wrapper> format: " + sstr_(spec))).up_Throwable())
 		}
-		var name string = String_substring(spec, 0, pos)
+		var name string = spec[:pos]
 		if !wrappers.containsKey(name) {
 			return Outcome_base_err[Map](new_FlagUsageException(("Unknown chunk: '" + sstr_(name) + "'")).up_Throwable())
 		}
-		var wrapper string = String_substring_int(spec, (pos + 1))
+		var wrapper string = spec[pos+1:]
 		wrapper = JString_replace_s(JString_replace_s(wrapper, "%output%", "%s"), "%n%", "\n")
 		if !JString_contains_s(wrapper, "%s") {
 			return Outcome_base_err[Map](new_FlagUsageException(("No %s placeholder in chunk wrapper: '" + sstr_(wrapper) + "'")).up_Throwable())
@@ -741,12 +743,12 @@ func AbstractCommandLineRunner_parseChunkOutputFiles(specs *JTList[string]) *Out
 	it_1 := specs.each()
 	for it_1.next() {
 		var spec string = it_1.v
-		var pos int32 = String_indexOf(spec, 58)
+		var pos int32 = int32(strings.IndexByte(spec, ':'))
 		if pos == -1 {
 			return Outcome_base_err[*ImmutableMap](new_FlagUsageException(("Expected chunk_output_file to have <name>:<output_file> format: " + sstr_(spec))).up_Throwable())
 		}
-		var name string = String_substring(spec, 0, pos)
-		var filename string = String_substring_int(spec, (pos + 1))
+		var name string = spec[:pos]
+		var filename string = spec[pos+1:]
 		outputFilesBuilder.put(name, filename)
 	}
 	return Outcome_base_ok_Object[*ImmutableMap](outputFilesBuilder.buildOrThrow().asImm())
@@ -853,7 +855,7 @@ func AbstractCommandLineRunner_maybeCreateDirsForPath(pathPrefix string) {
 }
 
 func (this *AbstractCommandLineRunner) createDefaultOutput() *Outcome_base[Appendable] {
-	var writeOutputToFile bool = !String_isEmpty(this.config.jsOutputFile)
+	var writeOutputToFile bool = this.config.jsOutputFile != ""
 	if writeOutputToFile {
 		var output *Outcome_base[*Output] = this.fileNameToLegacyOutputWriter(Optional_of[string](this.config.jsOutputFile))
 		if output.isErr() {
@@ -921,7 +923,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base[any] {
 	var externs ListOf[*SourceFile_jscomp] = externsOutcome.get()
 	var chunks ListOf[*JSChunk] = nil
 	this.rootRelativePathsMap = this.constructRootRelativePathsMap()
-	var writeOutputToFile bool = !String_isEmpty(this.config.jsOutputFile)
+	var writeOutputToFile bool = this.config.jsOutputFile != ""
 	var outputFileNames *JTList[string] = jnewTList_(jtc_string)
 	if writeOutputToFile {
 		outputFileNames.add(this.config.jsOutputFile)
@@ -952,7 +954,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base[any] {
 		it_2 := foreach_(any(jsonFiles))
 		for it_2.next() {
 			var jsonFile *AbstractCommandLineRunner_JsonFileSpec = cast_[*AbstractCommandLineRunner_JsonFileSpec](it_2.v)
-			if jsonFile.getSourceMap().isPresent() && (String_length(jsonFile.getSourceMap().get()) > 0) {
+			if jsonFile.getSourceMap().isPresent() && (len(jsonFile.getSourceMap().get()) != 0) {
 				var sourceMapPath string = (sstr_(jsonFile.getPath().orElse("null")) + ".map")
 				var sourceMap *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String(sourceMapPath, jsonFile.getSourceMap().get())
 				inputSourceMaps.put(jsonFile.getPath().get(), new_SourceMapInput(sourceMap))
@@ -1409,7 +1411,7 @@ func (this *AbstractCommandLineRunner) outputSingleBinary(options *CompilerOptio
 	if this.isOutputInJson() {
 		this.filesToStreamOut.add(this.createJsonFile(options, marker, escaper))
 	} else {
-		if !String_isEmpty(this.config.jsOutputFile) {
+		if this.config.jsOutputFile != "" {
 			AbstractCommandLineRunner_maybeCreateDirsForPath(this.config.jsOutputFile)
 		}
 		var jsOutputOutcome *Outcome_base[Appendable] = this.createDefaultOutput()
@@ -1581,7 +1583,7 @@ func (this *AbstractCommandLineRunner) createJsonFileFromChunk(chunk *JSChunk) *
 }
 
 func (this *AbstractCommandLineRunner) getInputCharset() *Outcome_base[string] {
-	if !String_isEmpty(this.config.charset) {
+	if this.config.charset != "" {
 		if !Charsets_isSupported(this.config.charset) {
 			return Outcome_base_err[string](new_FlagUsageException((sstr_(this.config.charset) + " is not a valid charset name.")).up_Throwable())
 		}
@@ -1591,7 +1593,7 @@ func (this *AbstractCommandLineRunner) getInputCharset() *Outcome_base[string] {
 }
 
 func (this *AbstractCommandLineRunner) getLegacyOutputCharset() *Outcome_base[string] {
-	if !String_isEmpty(this.config.charset) {
+	if this.config.charset != "" {
 		if !Charsets_isSupported(this.config.charset) {
 			return Outcome_base_err[string](new_FlagUsageException((sstr_(this.config.charset) + " is not a valid charset name.")).up_Throwable())
 		}
@@ -1601,7 +1603,7 @@ func (this *AbstractCommandLineRunner) getLegacyOutputCharset() *Outcome_base[st
 }
 
 func (this *AbstractCommandLineRunner) getOutputCharset2() *Outcome_base[string] {
-	if !String_isEmpty(this.config.charset) {
+	if this.config.charset != "" {
 		if !Charsets_isSupported(this.config.charset) {
 			return Outcome_base_err[string](new_FlagUsageException((sstr_(this.config.charset) + " is not a valid charset name.")).up_Throwable())
 		}
@@ -1720,15 +1722,15 @@ func (this *AbstractCommandLineRunner) outputSourceMap(options *CompilerOptions,
 
 func (this *AbstractCommandLineRunner) getMapPath(outputFile string) string {
 	var basePath string = ""
-	if String_isEmpty(outputFile) {
-		if !String_isEmpty(this.config.chunkOutputPathPrefix) {
+	if outputFile == "" {
+		if this.config.chunkOutputPathPrefix != "" {
 			basePath = this.config.chunkOutputPathPrefix
 		} else {
 			basePath = "jscompiler"
 		}
 	} else {
 		var outputFileName string = FilePaths_fileName(outputFile)
-		if String_endsWith(outputFileName, ".js") {
+		if strings.HasSuffix(outputFileName, ".js") {
 			outputFileName = String_substring(outputFileName, 0, (String_length(outputFileName) - 3))
 		}
 		var fileParent Optional[string] = FilePaths_parent(outputFile)
@@ -1749,13 +1751,13 @@ func (this *AbstractCommandLineRunner) outputNameMaps() *Outcome_base[any] {
 		propertyMapOutputPath = Optional_of[string]((sstr_(basePath) + "_props_map.out"))
 		variableMapOutputPath = Optional_of[string]((sstr_(basePath) + "_vars_map.out"))
 	}
-	if !String_isEmpty(this.config.variableMapOutputFile) {
+	if this.config.variableMapOutputFile != "" {
 		if variableMapOutputPath.isPresent() {
 			return Outcome_base_err[any](new_FlagUsageException("The flags variable_map_output_file and create_name_map_files cannot both be used simultaneously.").up_Throwable())
 		}
 		variableMapOutputPath = Optional_of[string](this.config.variableMapOutputFile)
 	}
-	if !String_isEmpty(this.config.propertyMapOutputFile) {
+	if this.config.propertyMapOutputFile != "" {
 		if propertyMapOutputPath.isPresent() {
 			return Outcome_base_err[any](new_FlagUsageException("The flags property_map_output_file and create_name_map_files cannot both be used simultaneously.").up_Throwable())
 		}
@@ -1777,7 +1779,7 @@ func (this *AbstractCommandLineRunner) outputNameMaps() *Outcome_base[any] {
 }
 
 func (this *AbstractCommandLineRunner) outputStringMap() *Outcome_base[any] {
-	if !String_isEmpty(this.config.stringMapOutputPath) {
+	if this.config.stringMapOutputPath != "" {
 		if this.compiler_.getStringMap() == nil {
 			if Io_exists(this.config.stringMapOutputPath) {
 				return Outcome_base_err[any](new_IOException_String(("Could not create file: " + sstr_(this.config.stringMapOutputPath))).up_Throwable())
@@ -1802,7 +1804,7 @@ func AbstractCommandLineRunner_createDefineReplacements(definitions *JTList[stri
 		var override string = it_1.v
 		var assignment []string = AbstractCommandLineRunner_EQUALS_PATTERN.split_String_int(override, 2)
 		var defName string = assignment[0]
-		if String_length(defName) > 0 {
+		if len(defName) != 0 {
 			var defValue string = func() string {
 				if int32(len(assignment)) == 1 {
 					return "true"
@@ -1826,7 +1828,7 @@ func AbstractCommandLineRunner_createDefineReplacements(definitions *JTList[stri
 					options.setDefineToDoubleLiteral(defName, unbox_[float64](value))
 					continue
 				}
-				if String_length(defValue) > 0 {
+				if len(defValue) != 0 {
 					options.setDefineToStringLiteral(defName, defValue)
 					continue
 				}
@@ -1878,7 +1880,7 @@ func (this *AbstractCommandLineRunner) outputManifestOrBundle(outputFiles *JTLis
 	it_1 := outputFiles.each()
 	for it_1.next() {
 		var output string = it_1.v
-		if String_isEmpty(output) {
+		if output == "" {
 			continue
 		}
 		if this.shouldGenerateOutputPerChunk(Optional_of[string](output)) {
@@ -1967,7 +1969,7 @@ func (this *AbstractCommandLineRunner) outputManifestOrBundle(outputFiles *JTLis
 }
 
 func (this *AbstractCommandLineRunner) outputChunkGraphJson() *Outcome_base[any] {
-	if this.config.outputChunkDependencies.isPresent() && (String_length(this.config.outputChunkDependencies.get()) != 0) {
+	if this.config.outputChunkDependencies.isPresent() && (len(this.config.outputChunkDependencies.get()) != 0) {
 		var outOutcome *Outcome_base[*Output] = this.fileNameToOutputWriter2(this.config.outputChunkDependencies)
 		if outOutcome.isErr() {
 			return Outcome_base_err[any](outOutcome.error())
@@ -2007,7 +2009,7 @@ func (this *AbstractCommandLineRunner) printChunkGraphManifestOrBundleTo(graph *
 		if isManifest {
 			var dependencies string = commas.join(Iterable(chunk.getSortedDependencyNames().asList()))
 			Appendable_append_s(out, String_format("{%s%s}\n", []any{strobj_(chunk.getName()), func() any {
-				if String_isEmpty(dependencies) {
+				if dependencies == "" {
 					return strobj_("")
 				}
 				return strobj_((":" + sstr_(dependencies)))
@@ -2067,7 +2069,7 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 			return Outcome_base_err[any](codeRes.error())
 		}
 		var code string = codeRes.get()
-		if AbstractCompiler_isFillFileName(name) && String_isEmpty(code) {
+		if AbstractCompiler_isFillFileName(name) && code == "" {
 			continue
 		}
 		var rootRelativePath Optional[string] = Optional_ofNullable[string](this.rootRelativePathsMap.get(name))
@@ -2094,13 +2096,13 @@ func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() *JTMap[st
 	it_1 := this.config.manifestMaps.each()
 	for it_1.next() {
 		var mapString string = it_1.v
-		var colonIndex int32 = String_indexOf(mapString, 58)
+		var colonIndex int32 = int32(strings.IndexByte(mapString, ':'))
 		if colonIndex <= 0 {
 			panic(new_IllegalStateException_0().self())
 		}
-		var execPath string = String_substring(mapString, 0, colonIndex)
-		var rootRelativePath string = String_substring_int(mapString, (colonIndex + 1))
-		if String_indexOf(rootRelativePath, 58) != -1 {
+		var execPath string = mapString[:colonIndex]
+		var rootRelativePath string = mapString[colonIndex+1:]
+		if strings.Contains(rootRelativePath, ":") {
 			panic(new_IllegalStateException_0().self())
 		}
 		rootRelativePathsMap.put(execPath, rootRelativePath)
@@ -2626,7 +2628,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setOutputManifest(outpu
 	it_1 := outputManifests.each()
 	for it_1.next() {
 		var manifestName string = it_1.v
-		if !String_isEmpty(manifestName) {
+		if manifestName != "" {
 			this.outputManifests.add(manifestName)
 		}
 	}
@@ -3069,7 +3071,7 @@ func AbstractCommandLineRunner_JsChunkSpec_create(specString string, isFirstChun
 	}
 	var name string = parts[0]
 	var deps []string = func() []string {
-		if (int32(len(parts)) > 2) && (String_length(parts[2]) > 0) {
+		if (int32(len(parts)) > 2) && (len(parts[2]) != 0) {
 			return AbstractCommandLineRunner_COMMA_PATTERN.split(parts[2])
 		}
 		return newstrarr_(0)

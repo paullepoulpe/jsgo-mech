@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CompilerInput struct {
 	chunk_                     *JSChunk
 	id                         *InputId
@@ -452,7 +454,7 @@ func (this *CompilerInput_DepsFinder) visitEs6ModuleName(n Node, parent Node) {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	var moduleName string = n.getString()
-	if String_startsWith(moduleName, "goog:") {
+	if strings.HasPrefix(moduleName, "goog:") {
 		this.requires.add(DependencyInfo_Require_googRequireSymbol(String_substring_int(moduleName, 5)))
 		return
 	}
