@@ -257,9 +257,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 	if scopeContext == nil {
 		panic(new_NullPointerException_0())
 	}
-	it_1 := scopeContext.referencedVariables.each()
-	for it_1.next() {
-		var referencedVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = it_1.v
+	for referencedVariable := range scopeContext.referencedVariables.All() {
 		scopeContext.recordPotentialConflicts(referencedVariable)
 	}
 	for _, declaredVariableInfo := range scopeContext.declaredVariableInfos {
@@ -334,9 +332,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) addPo
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attemptRename() string {
 	var disallowedNames map[string]struct{} = map[string]struct{}{}
 	disallowedNames[MakeDeclaredNamesUnique_ARGUMENTS] = struct{}{}
-	it_1 := this.potentialShadowVariables.each()
-	for it_1.next() {
-		var potentialShadowVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = it_1.v
+	for potentialShadowVariable := range this.potentialShadowVariables.All() {
 		var potentialShadowName string = potentialShadowVariable.getName()
 		disallowedNames[potentialShadowName] = struct{}{}
 	}

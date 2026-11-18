@@ -249,15 +249,11 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitScript(t *NodeTrav
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addRequireCalls() {
 	if !this.importRequests.IsEmpty() {
-		it_1 := this.imports.each()
-		for it_1.next() {
-			var importDecl Node = it_1.v
+		for importDecl := range this.imports.All() {
 			importDecl.detach()
 		}
 		var importedNames map[string]struct{} = map[string]struct{}{}
-		it_3 := this.importRequests.each()
-		for it_3.next() {
-			var request *Es6RewriteModulesToCommonJsModules_ModuleRequest = it_3.v
+		for request := range this.importRequests.All() {
 			var varName string = request.varName()
 			if setAdd_(importedNames, varName) {
 				var requireCall Node = IR_call(IR_name(Es6RewriteModulesToCommonJsModules_REQUIRE), []Node{IR_string(request.specifier())})
@@ -280,9 +276,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) registerAndLoadModule(t
 	block.addChildrenToFront(this.script_.removeChildren())
 	var moduleFunction Node = IR_function(IR_name(""), IR_paramList([]Node{IR_name(Es6RewriteModulesToCommonJsModules_REQUIRE), IR_name(Es6RewriteModulesToCommonJsModules_EXPORTS), IR_name(Es6RewriteModulesToCommonJsModules_MODULE)}), block)
 	var shallowDeps Node = new_Node_Token(Token_rhino_ARRAYLIT)
-	it_1 := this.importRequests.each()
-	for it_1.next() {
-		var request *Es6RewriteModulesToCommonJsModules_ModuleRequest = it_1.v
+	for request := range this.importRequests.All() {
 		shallowDeps.addChildToBack(IR_string(request.specifier()))
 	}
 	var exprResult Node = IR_exprResult(IR_call(IR_getprop_Node_String(IR_name("$jscomp"), "registerAndLoadModule"), []Node{moduleFunction, IR_string(Es6RewriteModulesToCommonJsModules_normalizePath(this.compiler_.getModuleLoader().resolve(t.getInput().getName()).toString())), shallowDeps}))

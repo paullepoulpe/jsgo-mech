@@ -440,9 +440,7 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroup) addReferenceToGlobal
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) makeReferencesImmovable() {
 	this.declaredGlobalSymbol.addImmovableReference(this.currentChunk)
-	it_1 := this.referencedGlobalSymbols.each()
-	for it_1.next() {
-		var symbol *CrossChunkCodeMotion_GlobalSymbol = it_1.v
+	for symbol := range this.referencedGlobalSymbols.All() {
 		if symbol.isMoveDeclarationStatementsDone {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("symbol %s moved before referring symbol %s", []any{obj_(symbol), obj_(this.declaredGlobalSymbol)})))
 		}
@@ -495,9 +493,7 @@ func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) processGlobalSymb
 	this.preorderCounter++
 	this.componentRoots.push(symbol)
 	this.componentContents.push(symbol)
-	it_1 := symbol.referencingGlobalSymbols.each()
-	for it_1.next() {
-		var referringSymbol *CrossChunkCodeMotion_GlobalSymbol = it_1.v
+	for referringSymbol := range symbol.referencingGlobalSymbols.All() {
 		if referringSymbol.preorderNumber < 0 {
 			this.processGlobalSymbol(referringSymbol)
 		} else {

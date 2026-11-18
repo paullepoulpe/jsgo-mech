@@ -411,9 +411,9 @@ func (this *AbstractCommandLineRunner) parseJsonFilesFromInputStream() *Outcome_
 	if parsed.get().kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err[*TList[*AbstractCommandLineRunner_JsonFileSpec]](new_SimpleJsonException("Malformed JSON stream: expected an array").up_Throwable())
 	}
-	it_1 := parsed.get().elements().each()
-	for it_1.next() {
-		var element *SimpleJsonValue = it_1.v
+	l_1 := parsed.get().elements()
+	for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+		var element *SimpleJsonValue = l_1.items[i_1]
 		var jsonFile *Outcome_base[*AbstractCommandLineRunner_JsonFileSpec] = AbstractCommandLineRunner_JsonFileSpec_readJson(element)
 		if jsonFile.isErr() {
 			return Outcome_base_err[*TList[*AbstractCommandLineRunner_JsonFileSpec]](jsonFile.error())
@@ -1767,9 +1767,7 @@ func (this *AbstractCommandLineRunner) outputStringMap() *Outcome_base[any] {
 }
 
 func AbstractCommandLineRunner_createDefineReplacements(definitions *TList[string], options *CompilerOptions) {
-	it_1 := definitions.each()
-	for it_1.next() {
-		var override string = it_1.v
+	for override := range definitions.All() {
 		var assignment []string = AbstractCommandLineRunner_EQUALS_PATTERN.split_String_int(override, 2)
 		var defName string = assignment[0]
 		if len(defName) != 0 {

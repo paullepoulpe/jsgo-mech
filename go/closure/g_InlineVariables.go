@@ -302,9 +302,9 @@ func (this *InlineVariables_InliningBehavior) varsInThisScopeMayBeModifiedUsingA
 		var arguments *Var = cast_[*Var](scope.getArgumentsVar().self())
 		var refs *ReferenceCollection = referenceMap.getReferences_Var(arguments)
 		if (refs != nil) && !refs.references.isEmpty() {
-			it_1 := refs.references.each()
-			for it_1.next() {
-				var ref *Reference = it_1.v
+			l_1 := refs.references
+			for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+				var ref *Reference = l_1.items[i_1]
 				if !this.isSafeUseOfArguments(ref.getNode()) {
 					return true
 				}
@@ -405,9 +405,7 @@ func (this *InlineVariables_InliningBehavior) inline(decl *Reference, init_ *Ref
 }
 
 func (this *InlineVariables_InliningBehavior) inlineWellDefinedVariable(v *Var, value Node, refSet *TList[*Reference]) {
-	it_1 := refSet.each()
-	for it_1.next() {
-		var r *Reference = it_1.v
+	for r := range refSet.All() {
 		if r.getNode() == v.getNameNode() {
 			this.removeDeclaration(r)
 		} else if r.isSimpleAssignmentToName() {
@@ -695,9 +693,9 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) allReferencesAre
 		var neverAssigned bool = this.isNeverAssigned()
 		if hasValidDeclaration && (hasValidInitialization || neverAssigned) {
 			var initialization *Reference = this.getInitialization()
-			it_1 := this.referenceInfo.references.each()
-			for it_1.next() {
-				var ref *Reference = it_1.v
+			l_1 := this.referenceInfo.references
+			for i_1 := 0; i_1 < len(l_1.items); i_1++ {
+				var ref *Reference = l_1.items[i_1]
 				if ((ref != this.declaration_) && (ref != initialization)) && !this.outer_.isValidReference(ref) {
 					return unbox_[bool](this.allReferencesAreValidField.setKnownValueOnce(any(bool(false))))
 				}

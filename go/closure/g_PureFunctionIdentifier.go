@@ -63,9 +63,7 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 	if !this.validateArtificialPurityField {
 		return
 	}
-	it_1 := this.artificiallyPureLiteralsForDebugging.each()
-	for it_1.next() {
-		var function Node = it_1.v
+	for function := range this.artificiallyPureLiteralsForDebugging.All() {
 		for summary := range elemsAs_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](this.summariesForAllNamesOfFunctionByNode.get(function.box_())) {
 			if summary.hasNoFlagsSet() {
 				continue

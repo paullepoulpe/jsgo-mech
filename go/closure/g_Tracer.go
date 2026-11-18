@@ -552,9 +552,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 	if !this.outstandingEvents.IsEmpty() {
 		var now int64 = Tracer_clock()
 		sb.append(" Unstopped timers:\n")
-		it_3 := this.outstandingEvents.each()
-		for it_3.next() {
-			var t *Tracer = it_3.v
+		for t := range this.outstandingEvents.All() {
 			sb.append("  ").append_Object(obj_(t)).append(" (").append_long((now - t.startTimeMs)).append(" ms, started at ").append(Tracer_formatTime(t.startTimeMs)).append(")\n")
 		}
 	}

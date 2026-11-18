@@ -55,9 +55,7 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClos
 	if parameterParent.hasChildren() && parameterParent.getLastChild().isRest() {
 		panic(new_IllegalStateException_String(("rest parameters not allowed in closureUnaware function parameters, found " + tostr_(parameterParent.getLastChild()))))
 	}
-	it_1 := toInject.each()
-	for it_1.next() {
-		var field RuntimeJsLibManager_ExternedField = it_1.v
+	for field := range toInject.All() {
 		var parameter Node = IR_name(field.qualifiedName()).srcref(parameterParent)
 		var argument Node = NodeUtil_newQName_AbstractCompiler_String(this.mainCompiler, field.uncompiledName()).srcrefTree(argumentParent)
 		parameterParent.addChildToBack(parameter)

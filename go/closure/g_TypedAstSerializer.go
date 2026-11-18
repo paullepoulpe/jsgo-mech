@@ -79,9 +79,7 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 
 func (this *TypedAstSerializer) sourceFileProtos() *ImmutableList[*SourceFileProto] {
 	var result *ImmutableList_Builder[*SourceFileProto] = immutableListBuilder_(tc_p_SourceFileProto)
-	it_1 := this.sourceFilePointers.each()
-	for it_1.next() {
-		var sourceFile *SourceFile_jscomp = it_1.k
+	for sourceFile := range this.sourceFilePointers.Keys() {
 		result.add(sourceFile.getProto())
 	}
 	return result.build()

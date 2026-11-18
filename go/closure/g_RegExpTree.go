@@ -1761,9 +1761,7 @@ func (this *RegExpTree_Charset) simplify_impl(flags string) *RegExpTree {
 		options.Add(this.ranges_.union(ucaseLettersToLower).difference(ucaseLetters))
 		options.Add(this.ranges_.union(lcaseLettersToUpper).difference(lcaseLetters))
 		var bestComplexity int32 = RegExpTree_Charset_complexityWordFolded(this.ranges_)
-		it_1 := options.each()
-		for it_1.next() {
-			var option *CharRanges = it_1.v
+		for option := range options.All() {
 			var complexity int32 = RegExpTree_Charset_complexityWordFolded(option)
 			if complexity < bestComplexity {
 				bestComplexity = complexity

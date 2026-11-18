@@ -159,9 +159,7 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 	var ancestors *TSet[*PropertyMap] = newTSet_(tch_p_PropertyMap)
 	this.collectAllAncestors(ancestors)
 	var maxAncestorCounter int32 = 0
-	it_1 := ancestors.each()
-	for it_1.next() {
-		var ancestor *PropertyMap = it_1.v
+	for ancestor := range ancestors.All() {
 		if ancestor.cachedKeySetCounter > maxAncestorCounter {
 			maxAncestorCounter = ancestor.cachedKeySetCounter
 		}
@@ -169,9 +167,7 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 	if (maxAncestorCounter != this.cachedKeySetCounter) || (this.cachedKeySet == nil) {
 		var keys *TTreeSet[string] = newTTreeSet_(tc_string)
 		var knownSymbolsKeys *TSet[*KnownSymbolType] = newTSet_(tch_p_KnownSymbolType)
-		it_3 := ancestors.each()
-		for it_3.next() {
-			var ancestor *PropertyMap = it_3.v
+		for ancestor := range ancestors.All() {
 			ancestor.cachedKeySetCounter = maxAncestorCounter
 			ancestor.cachedKeySet = nil
 			ancestor.cachedKnownSymbolsKeySet = nil

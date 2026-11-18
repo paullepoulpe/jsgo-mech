@@ -351,9 +351,7 @@ func (this *PolymerClassRewriter) parseReadOnlyProperties(cls *PolymerClassDefin
 		}
 	}
 	if cls.behaviorProps != nil {
-		it_3 := cls.behaviorProps.each()
-		for it_3.next() {
-			var prop *PolymerPass_MemberDefinition = it_3.k
+		for prop := range cls.behaviorProps.Keys() {
 			if prop.value_.isObjectLit() {
 				var readOnlyValue Node = NodeUtil_getFirstPropMatchingKey(prop.value_, "readOnly")
 				if (readOnlyValue != 0) && readOnlyValue.isTrue() {
@@ -649,9 +647,7 @@ func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefin
 	for method := range sliceAll_(cls.methods) {
 		uniqueMethods.Put(method.name_.getString(), method)
 	}
-	it_7 := uniqueMethods.each()
-	for it_7.next() {
-		var method *PolymerPass_MemberDefinition = it_7.v
+	for method := range uniqueMethods.Values() {
 		this.addMethodToObjectExternsUsingExportAnnotation(cls, method)
 	}
 	for _, prop := range readOnlyProps {

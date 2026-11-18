@@ -307,9 +307,7 @@ func (this *SymbolTable) toDebugStringTree_4(builder *strBuilder_, prefix string
 	if !scope.ownSymbols.IsEmpty() {
 		printedSomething = true
 		builder.append_char('\n').append(prefix).append("  Symbols:\n")
-		it_1 := scope.ownSymbols.each()
-		for it_1.next() {
-			var symbol *SymbolTable_Symbol = it_1.v
+		for symbol := range scope.ownSymbols.Values() {
 			this.toDebugString_4(builder, childrenPrefix, symbol, false)
 		}
 	}
@@ -487,9 +485,7 @@ func (this *SymbolTable) declareSymbol(name string, type_ *JSType, inferred bool
 }
 
 func (this *SymbolTable) mergeSymbol(from *SymbolTable_Symbol, to *SymbolTable_Symbol) {
-	it_1 := from.references.each()
-	for it_1.next() {
-		var nodeToMove Node = it_1.k
+	for nodeToMove := range from.references.Keys() {
 		if !equalsId_(nodeToMove, from.getDeclarationNode()) {
 			to.defineReferenceAt(nodeToMove)
 		}
@@ -746,9 +742,7 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 				newSym.setJSDocInfo(oldProp.getJSDocInfo())
 			}
 			newSym.setPropertyScope(oldProp.propertyScope)
-			it_3 := oldProp.references.each()
-			for it_3.next() {
-				var ref *SymbolTable_Reference = it_3.v
+			for ref := range oldProp.references.Values() {
 				newSym.defineReferenceAt(ref.getNode())
 			}
 			this.removeSymbol(oldProp)

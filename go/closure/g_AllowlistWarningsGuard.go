@@ -212,9 +212,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 		out.append_CharSequence_s(("#" + sstr_(Joiner_on("\n# ").join(Splitter_on('\n').split_s(this.headerNote.get()))) + "\n"))
 	}
 	var warningsByType *SimpleSetMultimap[*DiagnosticType, string] = SimpleSetMultimap_createSorted[*DiagnosticType, string]()
-	it_1 := this.warnings_.each()
-	for it_1.next() {
-		var warning *JSError = it_1.v
+	for warning := range this.warnings_.All() {
 		warningsByType.put(warning.type_(), this.outer_.formatWarning_2(warning, true))
 	}
 	for type_ := range elemsAs_[*DiagnosticType](warningsByType.keySet()) {

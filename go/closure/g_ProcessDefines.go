@@ -77,9 +77,7 @@ func (this *ProcessDefines) initNamespace(externs Node, root Node) {
 
 func (this *ProcessDefines) overrideDefines() {
 	if ProcessDefines_Mode_optimize_[this.mode_-1] {
-		it_1 := this.defineByDefineName.each()
-		for it_1.next() {
-			var define *ProcessDefines_Define = it_1.v
+		for define := range this.defineByDefineName.Values() {
 			if define.valueParent == 0 {
 				continue
 			}
@@ -251,9 +249,7 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 			namesToCheck.Add(name)
 		}
 	}
-	it_3 := this.defineByDefineName.each()
-	for it_3.next() {
-		var define *ProcessDefines_Define = it_3.v
+	for define := range this.defineByDefineName.Values() {
 		namesToCheck.Delete(define.name_)
 		for r := range elemsAs_[*GlobalNamespace_Ref](define.name_.getRefs()) {
 			if !r.isSet() {
@@ -263,9 +259,7 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 	}
 	for {
 		var namesToCheckAgain *TSet[*GlobalNamespace_Name] = newTSet_(tc_p_GlobalNamespace_Name)
-		it_8 := namesToCheck.each()
-		for it_8.next() {
-			var name *GlobalNamespace_Name = it_8.v
+		for name := range namesToCheck.All() {
 			var declValue Node = ProcessDefines_getConstantDeclValue(name.getDeclaration().(*GlobalNamespace_Ref).getNode())
 			switch this.isValidDefineValue(declValue) {
 			case Tri_TRUE:
@@ -289,9 +283,7 @@ func (this *ProcessDefines) validateDefineDeclarations() {
 	if !ProcessDefines_Mode_check__[this.mode_-1] {
 		return
 	}
-	it_1 := this.defineByDefineName.each()
-	for it_1.next() {
-		var define *ProcessDefines_Define = it_1.v
+	for define := range this.defineByDefineName.Values() {
 		var declarationNode Node = define.declaration_.getNode()
 		if (!this.isGoogDefineCall(define.value_) && !ProcessDefines_KNOWN_DEFINES.Has(define.defineName_)) && !strings.HasPrefix(define.defineName_, "$jscomp.") {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(Node_of_(MoreObjects_firstNonNull(define.value_.box_(), MoreObjects_firstNonNull(define.valueParent.box_(), declarationNode.box_()))), ProcessDefines_DEFINE_WITHOUT_GOOG_DEFINE, []string{define.defineName_, "go/js-practices/locals#defines"}))

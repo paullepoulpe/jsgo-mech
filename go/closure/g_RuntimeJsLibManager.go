@@ -55,9 +55,7 @@ func (this *RuntimeJsLibManager) getExternedFields() []RuntimeJsLibManager_Exter
 		return []RuntimeJsLibManager_ExternedField{}
 	}
 	var result []RuntimeJsLibManager_ExternedField
-	it_1 := this.internedFields.each()
-	for it_1.next() {
-		var field *RuntimeJsLibManager_InternalField = it_1.v
+	for field := range this.internedFields.Values() {
 		if field.isInjected() {
 			result = immAddObj_(tc_RuntimeJsLibManager_ExternedField, result, obj_(field))
 		}

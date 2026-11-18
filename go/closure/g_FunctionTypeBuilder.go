@@ -414,9 +414,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 			}()
 		}
 	}
-	it_3 := allJsDocParams.each()
-	for it_3.next() {
-		var inexistentName string = it_3.v
+	for inexistentName := range allJsDocParams.All() {
 		this.reportWarning(FunctionTypeBuilder_INEXISTENT_PARAM, []string{inexistentName, this.formatFnName()})
 	}
 	this.parameters = builder.build()

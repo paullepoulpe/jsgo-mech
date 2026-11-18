@@ -182,9 +182,7 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name Optional[string]
 	this.addSymbolNameMap(out)
 	out.append_CharSequence_s("]")
 	SourceMapGeneratorV3_appendFieldEnd(out)
-	it_1 := this.extensions.each()
-	for it_1.next() {
-		var key string = it_1.k
+	for key := range this.extensions.Keys() {
 		var objValue any = this.extensions.Get(key)
 		var value string
 		var string_ string

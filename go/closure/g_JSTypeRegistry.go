@@ -1216,8 +1216,8 @@ func (this *JSTypeRegistry) buildRecordTypeFromObject(objType *ObjectType) *JSTy
 func (this *JSTypeRegistry) createRecordType(props *TMap[string, *JSType]) *JSType {
 	var propMap *TMap[string, *JSType] = props
 	var builder *RecordTypeBuilder = new_RecordTypeBuilder(this)
-	for e := range elemsBy_(propMap.asMap().entrySet(), icast_Map_Entry) {
-		builder.addProperty(str_(e.getKey()), to_JSType(e.getValue()), 0)
+	for eKey, eValue := range propMap.All() {
+		builder.addProperty(eKey, eValue, 0)
 	}
 	return builder.build()
 }

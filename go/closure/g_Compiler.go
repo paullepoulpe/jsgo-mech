@@ -1109,9 +1109,7 @@ func (this *Compiler) getCurrentJsSource() string {
 		builder.append("// closure-compiler: Printing all of the top-level statements\n")
 		builder.append("// that contain references to these qualified names.\n")
 		builder.append("//\n")
-		it_12 := qnameSet.each()
-		for it_12.next() {
-			var qname string = it_12.v
+		for qname := range qnameSet.All() {
 			builder.append(("// '" + sstr_(qname) + "'\n"))
 			for newName := range elemsBy_(originalToNewQNameMap.get_s(qname), str_) {
 				builder.append(("// '" + sstr_(newName) + "' (originally '" + sstr_(qname) + "')\n"))
@@ -1516,9 +1514,7 @@ func (this *Compiler) parseInputs() (ret_1 Node) {
 				}
 			}
 		}
-		it_10 := inputsToRewrite.each()
-		for it_10.next() {
-			var input *CompilerInput = it_10.v
+		for input := range inputsToRewrite.Values() {
 			input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)
 		}
 	}
@@ -1801,9 +1797,7 @@ func (this *Compiler) parsePotentialModules(inputsToProcess IterableOf[*Compiler
 	if this.options_.getNumParallelThreads() > 1 {
 		new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(Iterable(filteredInputs.asList()))
 	}
-	it_3 := filteredInputs.each()
-	for it_3.next() {
-		var input *CompilerInput = it_3.v
+	for input := range filteredInputs.All() {
 		input.setCompiler(this.up_AbstractCompiler())
 		input.getRequires()
 		input.setJsModuleType(CompilerInput_ModuleType_ES6)
@@ -2107,9 +2101,8 @@ func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompil
 
 func (this *Compiler) passListUntil(passes *TList[*PassFactory], passName string) *TList[*PassFactory] {
 	var passList *TList[*PassFactory] = newTList_(tc_p_PassFactory)
-	it_1 := passes.each()
-	for it_1.next() {
-		var pass *PassFactory = it_1.v
+	for i_1 := 0; i_1 < len(passes.items); i_1++ {
+		var pass *PassFactory = passes.items[i_1]
 		if pass.getName() == passName {
 			return passList
 		}

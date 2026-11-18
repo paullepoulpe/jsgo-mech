@@ -61,9 +61,7 @@ func (this *DepsGenerator) computeDependencyCalls() *Outcome_base[string] {
 
 func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles *TMap[string, DependencyInfo], jsFiles *TMap[string, DependencyInfo]) {
 	var depsPathsCopy *TSet[string] = tsetFrom_(tc_string, Collection(depsFiles.asMap().keySet()), false)
-	it_1 := depsPathsCopy.each()
-	for it_1.next() {
-		var path string = it_1.v
+	for path := range depsPathsCopy.All() {
 		if this.mergeStrategy != DepsGenerator_InclusionStrategy_WHEN_IN_SRCS {
 			jsFiles.Delete(path)
 		}
@@ -78,7 +76,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles *TMap[string, Dependency
 	var providesMap map[string]DependencyInfo = map[string]DependencyInfo{}
 	this.addToProvideMap(Iterable(depFiles.asMap().values()), providesMap, true)
 	this.addToProvideMap(Iterable(jsFiles.asMap().values()), providesMap, false)
-	for dependencyInfo := range elemsBy_(jsFiles.asMap().values(), icast_DependencyInfo) {
+	for dependencyInfo := range jsFiles.Values() {
 		var newRequires *TList[*DependencyInfo_Require] = newTList_(tc_p_DependencyInfo_Require)
 		for _, el := range dependencyInfo.getRequires().items {
 			require := el
@@ -297,7 +295,7 @@ func (this *DepsGenerator) writeDepsContent(depsFiles *TMap[string, DependencyIn
 	DepsGenerator_writeDepInfos(out, jsFiles.asMap().values())
 	if this.mergeStrategy == DepsGenerator_InclusionStrategy_ALWAYS {
 		var infosIndex *SimpleListMultimap[any, DependencyInfo] = SimpleListMultimap_create[any, DependencyInfo]()
-		for info := range elemsBy_(depsFiles.asMap().values(), icast_DependencyInfo) {
+		for info := range depsFiles.Values() {
 			infosIndex.put_s(info.getName(), info)
 		}
 		for depsPath := range elemsBy_(infosIndex.keySet(), str_) {

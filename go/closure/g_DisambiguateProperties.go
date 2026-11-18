@@ -77,9 +77,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		return nil
 	}()).computeFixedPoint(graph)
 	var trackerSummaryGenerator *DisambiguateProperties_TrackerSummaryGenerator = new_DisambiguateProperties_TrackerSummaryGenerator()
-	it_7 := propIndex.each()
-	for it_7.next() {
-		var prop *PropertyClustering = it_7.v
+	for prop := range propIndex.Values() {
 		var renameUsesResult UseSiteRenamer_RenameUsesResult = renamer.renameUses(prop)
 		trackerSummaryGenerator.addRenameUsesResult(renameUsesResult)
 		if prop.isInvalidated() && this.propertiesThatMustDisambiguate.Has(prop.getName()) {
@@ -105,9 +103,7 @@ func (this *DisambiguateProperties) createInvalidationError(prop *PropertyCluste
 func DisambiguateProperties_buildRenamingIndex(props *TMap[string, *PropertyClustering], renamer *UseSiteRenamer) *ImmutableMap[string, any] {
 	var newNames *SimpleSetMultimap[string, string] = renamer.getRenamingIndex()
 	var result ImmutableSortedMap_BuilderOf[string, any] = ImmutableSortedMap_naturalOrder()
-	it_1 := props.each()
-	for it_1.next() {
-		var prop *PropertyClustering = it_1.v
+	for prop := range props.Values() {
 		result.put(strobj_(prop.getName()), func() any {
 			if prop.isInvalidated() {
 				return prop.getLastInvalidation().self()
@@ -129,9 +125,7 @@ func (this *DisambiguateProperties) invalidateBasedOnType(flattener *ColorGraphN
 	for _, el := range flattener.getAllKnownTypes().keys {
 		type_ := el
 		if type_.getColor().isInvalidating() {
-			it_3 := type_.getAssociatedProps().each()
-			for it_3.next() {
-				var prop *PropertyClustering = it_3.k
+			for prop := range type_.getAssociatedProps().Keys() {
 				prop.invalidate(Invalidation_invalidatingType(type_.getIndex()))
 			}
 		} else {
@@ -145,9 +139,7 @@ func (this *DisambiguateProperties) invalidateNonDeclaredPropertyAccesses(colorG
 	if color.isInvalidating() {
 		panic(new_IllegalArgumentException_String("Not applicable to invalidating types. All their properties are invalidated"))
 	}
-	it_1 := colorGraphNode.getAssociatedProps().each()
-	for it_1.next() {
-		var prop *PropertyClustering = it_1.k
+	for prop := range colorGraphNode.getAssociatedProps().Keys() {
 		if prop.isInvalidated() {
 			continue
 		}
@@ -457,9 +449,7 @@ func new_DisambiguateProperties_1(outer_ *DisambiguateProperties, cap_propIndex 
 
 func (this *DisambiguateProperties_1) writeJson(writer *SimpleJsonWriter) {
 	var propRefsJsonBuilder ImmutableSortedSet_BuilderOf[*DisambiguateProperties_PropertyReferenceIndexJson] = ImmutableSortedSet_naturalOrder()
-	it_1 := this.cap_propIndex.each()
-	for it_1.next() {
-		var prop *PropertyClustering = it_1.v
+	for prop := range this.cap_propIndex.Values() {
 		propRefsJsonBuilder.add(obj_(new_DisambiguateProperties_PropertyReferenceIndexJson(prop)))
 	}
 	var propRefsJson ImmutableSortedSetOf[*DisambiguateProperties_PropertyReferenceIndexJson] = propRefsJsonBuilder.build()

@@ -217,9 +217,7 @@ func (this *TypedScopeCreator) gatherAllProvides(root Node) {
 	var externs Node = root.getFirstChild()
 	var js Node = root.getSecondChild()
 	var providedNames *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] = new_ProcessClosureProvidesAndRequires(this.compiler_, true).collectProvidedNames(externs, js)
-	it_1 := providedNames.each()
-	for it_1.next() {
-		var name *ProcessClosureProvidesAndRequires_ProvidedName = it_1.v
+	for name := range providedNames.Values() {
 		if name.hasImplicitInitialization() {
 			continue
 		}
@@ -2353,9 +2351,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBo
 	}
 	var input *CompilerInput = this.getCompilerInput()
 	var voidType *JSType = this.outer_.getNativeType(JSTypeNative_VOID_TYPE)
-	it_3 := templateNames.each()
-	for it_3.next() {
-		var name string = it_3.v
+	for name := range templateNames.All() {
 		if !this.currentScope.canDeclare(name) {
 			this.outer_.validator.expectUndeclaredVariable(Optional_of[string](NodeUtil_getSourceName(functionNode)).filter(&Predicate_tfn_string{func(s string) bool {
 				return s != ""

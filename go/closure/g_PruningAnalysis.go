@@ -80,9 +80,7 @@ func (this *PruningAnalysis) buildGraph() *DiGraph[string] {
 			depSymbols.Add(req.getSymbol())
 		}
 		depSymbols.asSet().addAll(icast_Collection(obj_(input.getTypeRequires().asImm())))
-		it_9 := depSymbols.each()
-		for it_9.next() {
-			var symbol string = it_9.v
+		for symbol := range depSymbols.All() {
 			var depRes *Outcome_base[*CompilerInput] = this.sorter_.getInputProviding(symbol)
 			if depRes.isErr() {
 			} else {

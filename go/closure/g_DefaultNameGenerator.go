@@ -133,9 +133,8 @@ func (this *DefaultNameGenerator) reserveCharacters(chars []uint16, reservedChar
 	charSet.asSet().removeAll(Collection(reservedCharacterSet))
 	var result []*DefaultNameGenerator_CharPriority = make([]*DefaultNameGenerator_CharPriority, charSet.Len())
 	var index int32 = 0
-	it_2 := charSet.each()
-	for it_2.next() {
-		var c uint16 = unbox_[uint16](it_2.v)
+	for el_2 := range charSet.All() {
+		var c uint16 = unbox_[uint16](el_2)
 		result[index] = cast_[*DefaultNameGenerator_CharPriority](this.priorityLookupMap.get(any(uint16(c))))
 		index++
 	}

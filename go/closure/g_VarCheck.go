@@ -52,9 +52,7 @@ func (this *VarCheck) process_2(externs Node, root Node) {
 		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_VarCheck_NameRefInExternsCheck(this)).setScopeCreator(scopeCreator).traverse(externs)
 	}
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).setScopeCreator(scopeCreator).traverseRoots(externs, root)
-	it_1 := this.undefinedNamesFromExterns.each()
-	for it_1.next() {
-		var varName string = it_1.v
+	for varName := range this.undefinedNamesFromExterns.All() {
 		this.createSynthesizedExternVar(varName, false)
 	}
 	if this.dupHandler != nil {
