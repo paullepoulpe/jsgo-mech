@@ -38,3 +38,18 @@ elsewhere. Nothing here is part of the plan's provenance chain; the plan is on t
    "Planned" section), merge main-r8-upcast, then the real re-flip with the node store and
    `replay-all.sh`.
 3. The post-flip round after the re-flip (POSTFLIP.md).
+
+## State at the move (all pushed)
+
+- **main-r8-typed @ 4936ec55.** Slices 11 (Guava immutables, 466f7df5) and 12 (TreeSet/TreeMap sorted mode, 2b9b5e94) are gated; 12 lacks its typed-full timing. Slices 13 (type variables as keys, 1be86b45) and 14 (Splitter.splitToList, 4936ec55) are WIP and not gated: run `tools/j2go/run.sh` and the gate, and bisect with `J2GO_NOCOMPARABLE=1` / `J2GO_COLLS_NOMAKERS=1` if it fails. Raw census after slice 11: boxing 9,061, interface casts 1,977, class casts 2,615, erased immutables 196.
+- **main-r8-upcast @ 3f2a8ac9.**
+  - P1-P5, typed Object methods (records and string concatenation), and String for CharSequence are each gated.
+  - The top commit merges main-r8-typed 466f7df5 and is WIP, not gated.
+  - Three commit messages are shifted by one: P3 is "WIP P3 bare", P4 carries P3's message, and P5 carries P4's. The note commit b0520c58 has the mapping, and the correct texts are in `upcast/`. A force-push to reword them needs the user's permission.
+  - P5 (alias) may be slower on typed-full: 94.20 against 87.87 CPU s, in 2 rounds; `J2GO_NOALIAS=1` turns it off. Re-measure it.
+  - Raw census on the merged tree: boxing 4,430, interface casts 514, class casts 2,376, unboxing 516.
+- **reflip-trial @ c6049668.** typed + node store, a trial flip, and the replay of all 233 go/-changing commits.
+  - Per category: 178 as-is, 12 adapted, 5 no-op, 4 partly dropped, 34 dropped (most of them manual patches of code j2go now writes differently).
+  - The replayed tree is gated: runtime tests ok, four MATCH.
+  - Not measured yet (milestone timing and allocations).
+  - Write-up: `tools/postflip/reflip/REFLIP.md`. Main blocker for the real re-flip: two typed-collection runtimes (j2go's, renamed J* for the trial, and the post-flip one).
