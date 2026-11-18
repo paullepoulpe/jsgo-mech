@@ -223,6 +223,17 @@ Where typed-full still trails pre-flip Java (pass time, tracer):
 | checkTypes | 1.61s | 2.17s | 0.74 |
 | coalesceVariableNames | 1.01s | 1.36s | 0.74 |
 
+## How steps are measured
+
+Each step: interleaved against the previous Go binary (fb.py, alternating rounds), CPU time as
+the primary number, wall time and host load beside it. On this 4-core host CPU time moves about
+1.5% under load (load 3 and more against under 2) where wall time moves about 8% for Go and 24-35%
+for pre-flip Java, so steps can be measured while other work runs. At milestones (a merged
+round, a re-flip): wall time interleaved against pre-flip Java on an idle host, reported as
+Java/Go. Pre-flip Java is not a stored number: even on an idle host its runs vary by about 6%
+across a day, more than a step is worth, and its CPU time (JIT and parallel GC threads, about
+twice Go's) is not the measure a user waits on.
+
 ## Correction: PGO (13-17 Nov)
 
 `go/cmd/mech/default.pgo` was in the tree from 1fef152c (13 Nov) to c4aefc67 (17 Nov), and
