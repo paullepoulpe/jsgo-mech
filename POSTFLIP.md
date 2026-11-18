@@ -223,6 +223,32 @@ Where typed-full still trails pre-flip Java (pass time, tracer):
 | checkTypes | 1.61s | 2.17s | 0.74 |
 | coalesceVariableNames | 1.01s | 1.36s | 0.74 |
 
+## Planned: the post-flip round after the re-flip
+
+After the re-flip (the transpiled Go of the typed translator with the node store, the post-flip
+steps replayed by `replay-all.sh`), a round for the Java-isms the translator cannot remove
+because they need whole-program flow. Each is a tool, measured as every step is:
+
+- **Type switches and comma-ok assertions.** An `instanceof` chain on one variable becomes a
+  type switch; an `instanceof` followed by a cast of the same value becomes one comma-ok
+  assertion; an `instanceof` inside `&&`/`||` has its assertion hoisted before the expression.
+  What stays: casts of values that may be null and are stored or passed on (Java lets null
+  through a cast, a Go assertion of a nil interface panics), with their count.
+- **Sealed unions for `Object` fields.** A field declared `Object` whose assigned values have a
+  finite set of static types becomes a sealed interface (an unexported marker method on each
+  case) or one typed field per case, and its `instanceof` reads become type switches or nil
+  tests (e.g. GlobalNamespace's `refsForNode`: null, a map or one Ref).
+- **Typed `Object`-keyed maps.** A map keyed by `Object` whose keys in practice have one or two
+  types becomes a typed map (or one keyed by a comparable struct for Java value equality); what
+  stays is a `map[any]V` with keys whose `==` is Java's `equals`, or the canonical-key wrapper.
+- **Fewer `equals(Object)`.** Every class's `equals`/`hashCode` reached only with values of its
+  own type gets a typed form (`eqtyped` does part of this), and the `equals(any)` method goes
+  where nothing calls it through `Object`; value classes whose equality is their fields become
+  comparable Go structs where nothing observes their identity. (The hand port keeps 67
+  `Equals(any)` methods and `HashCode()` in 41 files, so this would go further than it.)
+- `String.format` / log varargs stay `...any` (Go's own idiom, as `fmt.Sprintf`); the formats a
+  tool cannot turn into concatenation keep a Java-semantics formatter.
+
 ## How steps are measured
 
 Each step: interleaved against the previous Go binary (fb.py, alternating rounds), CPU time as
