@@ -412,7 +412,7 @@ func (this *PolymerClassRewriter) replaceJSDocAndAddNewVars(prop *PolymerPass_Me
 	var infoBuilder *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(prop.info)
 	infoBuilder.recordType(propType)
 	var origInfo *JSDocInfo = infoBuilder.build()
-	var propertyNames ImmutableSetOf[string] = propType.getRecordPropertyNames()
+	var propertyNames *ImmutableSet[string] = propType.getRecordPropertyNames()
 	this.createVarsInExternsBlock(block, propertyNames, propType, prop)
 	var unknown *JSTypeExpression = new_JSTypeExpression(new_Node_Token(Token_rhino_QMARK), propType.getSourceName())
 	var newInfoBuilder *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFromWithNewType(origInfo, unknown)
@@ -479,9 +479,9 @@ func (this *PolymerClassRewriter) appendPropertiesToBlock(props *[]*PolymerPass_
 	}
 }
 
-func (this *PolymerClassRewriter) createVarsInExternsBlock(block Node, propertyNames ImmutableSetOf[string], propType *JSTypeExpression, prop *PolymerPass_MemberDefinition) {
-	for _, el := range immElems_(propertyNames) {
-		propName := str_(el)
+func (this *PolymerClassRewriter) createVarsInExternsBlock(block Node, propertyNames *ImmutableSet[string], propType *JSTypeExpression, prop *PolymerPass_MemberDefinition) {
+	for _, el := range propertyNames.keys {
+		propName := el
 		var varName string = ("PolymerDummyVar" + sstr_(str_(this.compiler_.getUniqueNameIdSupplier().get())))
 		var n Node = Node_newString_Token_String(Token_rhino_NAME, varName)
 		var var_ Node = new_Node_Token(Token_rhino_VAR)
@@ -647,12 +647,12 @@ func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefin
 	if cls.behaviors != nil {
 		for _, behavior := range cls.behaviors {
 			for _, method := range behavior.functionsToCopy {
-				uniqueMethods.put(method.name_.getString(), method)
+				uniqueMethods.Put(method.name_.getString(), method)
 			}
 		}
 	}
 	for method := range sliceAll_(cls.methods) {
-		uniqueMethods.put(method.name_.getString(), method)
+		uniqueMethods.Put(method.name_.getString(), method)
 	}
 	for method := range uniqueMethods.Values() {
 		this.addMethodToObjectExternsUsingExportAnnotation(cls, method)

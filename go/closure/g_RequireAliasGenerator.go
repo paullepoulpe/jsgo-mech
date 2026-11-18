@@ -18,13 +18,13 @@ func new_RequireAliasGenerator(namespace string) *RequireAliasGenerator {
 	return this
 }
 
-func RequireAliasGenerator_createSkiplistedAliases() ImmutableSetOf[string] {
-	var seeds ImmutableSetOf[string] = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_(""), strobj_("array"), strobj_("event"), strobj_("map"), strobj_("math"), strobj_("object"), []any{strobj_("promise"), strobj_("set"), strobj_("string"), strobj_("thenable")})
-	var builder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	for _, el := range immElems_(seeds) {
-		seed := str_(el)
-		builder.add(strobj_(RequireAliasGenerator_captializeFirstChar(seed)))
-		builder.add(strobj_(Ascii_toLowerCase(seed)))
+func RequireAliasGenerator_createSkiplistedAliases() *ImmutableSet[string] {
+	var seeds *ImmutableSet[string] = immutableSetOf_(tc_string, "", "array", "event", "map", "math", "object", "promise", "set", "string", "thenable")
+	var builder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
+	for _, el := range seeds.keys {
+		seed := el
+		builder.add(RequireAliasGenerator_captializeFirstChar(seed))
+		builder.add(Ascii_toLowerCase(seed))
 	}
 	return builder.build()
 }
@@ -45,7 +45,7 @@ func RequireAliasGenerator_captializeFirstChar(w string) string {
 	return (chrstr_(Ascii_toUpperCase_char(wU16.charAt(0))) + sstr_(wU16.substring_int(1)))
 }
 
-var RequireAliasGenerator_SKIPLISTED_ALIASES *ErasedImmutableSet
+var RequireAliasGenerator_SKIPLISTED_ALIASES *ImmutableSet[string]
 var RequireAliasGenerator_DOT_SPLITTER *Splitter
 
 var RequireAliasGenerator_clinit_done bool
@@ -101,7 +101,7 @@ func new_RequireAliasGenerator_NameIterator(outer_ *RequireAliasGenerator) *Requ
 
 func (this *RequireAliasGenerator_NameIterator) computeNext() any {
 	var next string
-	for do_2 := true; do_2; do_2 = Collection_contains_s(RequireAliasGenerator_SKIPLISTED_ALIASES, next) {
+	for do_2 := true; do_2; do_2 = RequireAliasGenerator_SKIPLISTED_ALIASES.Has(next) {
 		next = this.computeNextWithoutFiltering()
 	}
 	return strobj_(next)

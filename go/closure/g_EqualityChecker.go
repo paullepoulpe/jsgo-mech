@@ -75,11 +75,11 @@ func (this *EqualityChecker) areEqualCaching(left *JSType, right *JSType) bool {
 	var cached JSType_MatchStatus = cast_[JSType_MatchStatus](Map_putIfAbsent(this.eqCache.asMap(), obj_(key), obj_(JSType_MatchStatus_PROCESSING)))
 	if cached == 0 {
 		var result bool = this.areEqualInternal(left, right)
-		this.eqCache.put(key, JSType_MatchStatus_valueOfBoolean(result))
+		this.eqCache.Put(key, JSType_MatchStatus_valueOfBoolean(result))
 		return result
 	}
 	if cached == JSType_MatchStatus_PROCESSING {
-		this.eqCache.put(key, JSType_MatchStatus_MATCH)
+		this.eqCache.Put(key, JSType_MatchStatus_MATCH)
 		return true
 	}
 	return cached.subtypeValue()
@@ -106,14 +106,14 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	if left.isUnionType() && right.isUnionType() {
 		return this.areUnionEqual(left.toMaybeUnionType(), right.toMaybeUnionType())
 	} else if left.isUnionType() {
-		var leftAlts ImmutableListOf[*JSType] = left.toMaybeUnionType().getAlternates()
+		var leftAlts *ImmutableList[*JSType] = left.toMaybeUnionType().getAlternates()
 		if leftAlts.size() == 1 {
-			return this.areEqualInternal(to_JSType(leftAlts.get(0)), right)
+			return this.areEqualInternal(leftAlts.get(0), right)
 		}
 	} else if right.isUnionType() {
-		var rightAlts ImmutableListOf[*JSType] = right.toMaybeUnionType().getAlternates()
+		var rightAlts *ImmutableList[*JSType] = right.toMaybeUnionType().getAlternates()
 		if rightAlts.size() == 1 {
-			return this.areEqualInternal(left, to_JSType(rightAlts.get(0)))
+			return this.areEqualInternal(left, rightAlts.get(0))
 		}
 	}
 	if left.isFunctionType() && right.isFunctionType() {
@@ -194,16 +194,16 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 }
 
 func (this *EqualityChecker) areUnionEqual(left *UnionType, right *UnionType) bool {
-	var leftAlternates ImmutableListOf[*JSType] = left.getAlternates()
-	var rightAlternates ImmutableListOf[*JSType] = right.getAlternates()
+	var leftAlternates *ImmutableList[*JSType] = left.getAlternates()
+	var rightAlternates *ImmutableList[*JSType] = right.getAlternates()
 	if (this.eqMethod == EqualityChecker_EqMethod_IDENTITY) && (leftAlternates.size() != rightAlternates.size()) {
 		return false
 	}
 outer_:
 	for i := int32(0); i < rightAlternates.size(); i++ {
-		var rightAlt *JSType = to_JSType(rightAlternates.get(i))
+		var rightAlt *JSType = rightAlternates.get(i)
 		for k := int32(0); k < leftAlternates.size(); k++ {
-			var leftAlt *JSType = to_JSType(leftAlternates.get(k))
+			var leftAlt *JSType = leftAlternates.get(k)
 			if this.areEqualCaching(leftAlt, rightAlt) {
 				continue outer_
 			}
@@ -261,8 +261,8 @@ func (this *EqualityChecker) areArrowParameterEqual(left *ArrowType, right *Arro
 		return false
 	}
 	for i := int32(0); i < left.getParameterList().size(); i++ {
-		var leftParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](left.getParameterList().get(i))
-		var rightParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](right.getParameterList().get(i))
+		var leftParam *FunctionType_Parameter = left.getParameterList().get(i)
+		var rightParam *FunctionType_Parameter = right.getParameterList().get(i)
 		var leftParamType *JSType = leftParam.getJSType()
 		var rightParamType *JSType = rightParam.getJSType()
 		if leftParamType != nil {
@@ -301,16 +301,16 @@ func (this *EqualityChecker) areRecordEqual(left *RecordType, right *RecordType)
 }
 
 func (this *EqualityChecker) areTypeMapEqual(left *TemplateTypeMap, right *TemplateTypeMap) bool {
-	var leftKeys ImmutableListOf[*TemplateType] = left.getTemplateKeys()
+	var leftKeys *ImmutableList[*TemplateType] = left.getTemplateKeys()
 	var leftValues []*JSType = left.getTemplateValues()
-	var rightKeys ImmutableListOf[*TemplateType] = right.getTemplateKeys()
+	var rightKeys *ImmutableList[*TemplateType] = right.getTemplateKeys()
 	var rightValues []*JSType = right.getTemplateValues()
 outer_:
 	for i := int32(0); i < leftKeys.size(); i++ {
-		var leftKey *TemplateType = cast_[*TemplateType](leftKeys.get(i))
+		var leftKey *TemplateType = leftKeys.get(i)
 	inner_:
 		for j := int32(0); j < rightKeys.size(); j++ {
-			var rightKey *TemplateType = cast_[*TemplateType](rightKeys.get(j))
+			var rightKey *TemplateType = rightKeys.get(j)
 			if !JSCompObjects_identical(obj_(leftKey), obj_(rightKey)) {
 				continue inner_
 			}

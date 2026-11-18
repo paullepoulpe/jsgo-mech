@@ -21,7 +21,7 @@ func new_ColorGraphNodeFactory(initialTypeIndex *TMap[*Color, *ColorGraphNode], 
 func ColorGraphNodeFactory_createFactory(colorRegistry *ColorRegistry) *ColorGraphNodeFactory {
 	var typeIndex *TMap[*Color, *ColorGraphNode] = newTMap_(tch_p_Color, tc_p_ColorGraphNode)
 	var unknownColorNode *ColorGraphNode = ColorGraphNode_create(StandardColors_UNKNOWN, 0)
-	typeIndex.put(StandardColors_UNKNOWN, unknownColorNode)
+	typeIndex.Put(StandardColors_UNKNOWN, unknownColorNode)
 	return new_ColorGraphNodeFactory(typeIndex, colorRegistry)
 }
 
@@ -30,20 +30,20 @@ func (this *ColorGraphNodeFactory) createNode(color *Color) *ColorGraphNode {
 	return cast_[*ColorGraphNode](Map_computeIfAbsent_f(this.typeIndex.asMap(), obj_(key), func(p0 any) any { return obj_(this.newColorGraphNode(cast_[*Color](p0))) }))
 }
 
-func (this *ColorGraphNodeFactory) getAllKnownTypes() ImmutableSetOf[*ColorGraphNode] {
-	return ImmutableSet_copyOf(this.typeIndex.asMap().values())
+func (this *ColorGraphNodeFactory) getAllKnownTypes() *ImmutableSet[*ColorGraphNode] {
+	return immutableSetCopyOf_(tc_p_ColorGraphNode, this.typeIndex.asMap().values())
 }
 
 func (this *ColorGraphNodeFactory) newColorGraphNode(key *Color) *ColorGraphNode {
-	var id int32 = this.typeIndex.size()
+	var id int32 = this.typeIndex.Len()
 	return ColorGraphNode_create(key, id)
 }
 
-func (this *ColorGraphNodeFactory) simplifyColors(types ImmutableSetOf[*Color]) ImmutableSetOf[*Color] {
-	var result ImmutableSet_BuilderOf[*Color] = ImmutableSet_builder()
-	for _, el := range immElems_(types) {
-		type_ := cast_[*Color](el)
-		result.add(obj_(this.simplifyColor(type_)))
+func (this *ColorGraphNodeFactory) simplifyColors(types *ImmutableSet[*Color]) *ImmutableSet[*Color] {
+	var result *ImmutableSet_Builder[*Color] = immutableSetBuilder_(tc_p_Color)
+	for _, el := range types.keys {
+		type_ := el
+		result.add(this.simplifyColor(type_))
 	}
 	return result.build()
 }
@@ -56,7 +56,7 @@ func (this *ColorGraphNodeFactory) simplifyColor(type_ *Color) *Color {
 		type_ = type_.subtractNullOrVoid()
 		return func() *Color {
 			if type_.isUnion() {
-				return Color_createUnion(tsetFrom_(tch_p_Color, this.simplifyColors(type_.getUnionElements()), true))
+				return Color_createUnion(this.simplifyColors(type_.getUnionElements()))
 			}
 			return this.simplifyColor(type_)
 		}()

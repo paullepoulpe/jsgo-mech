@@ -33,7 +33,7 @@ func TypePointers_isAxiomatic(x int32) bool {
 	return (x < TypePointers_AXIOMATIC_COLOR_COUNT)
 }
 
-var TypePointers_OFFSET_TO_AXIOMATIC_COLOR *ErasedImmutableList
+var TypePointers_OFFSET_TO_AXIOMATIC_COLOR *ImmutableList[*Color]
 var TypePointers_AXIOMATIC_COLOR_COUNT int32
 
 var TypePointers_clinit_done bool
@@ -43,7 +43,7 @@ func TypePointers_clinit() {
 		return
 	}
 	TypePointers_clinit_done = true
-	TypePointers_OFFSET_TO_AXIOMATIC_COLOR = ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(obj_(StandardColors_UNKNOWN), obj_(StandardColors_BOOLEAN), obj_(StandardColors_STRING), obj_(StandardColors_NUMBER), obj_(StandardColors_NULL_OR_VOID), obj_(StandardColors_SYMBOL), obj_(StandardColors_BIGINT), obj_(StandardColors_TOP_OBJECT), obj_(StandardColors_TOP_FUNCTION), obj_(StandardColors_GBIGINT))
+	TypePointers_OFFSET_TO_AXIOMATIC_COLOR = immutableListOf_(tc_p_Color, StandardColors_UNKNOWN, StandardColors_BOOLEAN, StandardColors_STRING, StandardColors_NUMBER, StandardColors_NULL_OR_VOID, StandardColors_SYMBOL, StandardColors_BIGINT, StandardColors_TOP_OBJECT, StandardColors_TOP_FUNCTION, StandardColors_GBIGINT)
 	TypePointers_AXIOMATIC_COLOR_COUNT = TypePointers_OFFSET_TO_AXIOMATIC_COLOR.size()
 
 }

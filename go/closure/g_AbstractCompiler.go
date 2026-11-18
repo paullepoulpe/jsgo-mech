@@ -101,7 +101,7 @@ func (this *AbstractCompiler) createDefaultExpressionDecomposer() *ExpressionDec
 	return this.self_.(*Compiler).createDefaultExpressionDecomposer_impl()
 }
 
-func (this *AbstractCompiler) createExpressionDecomposer(p0 Supplier, p1 *ErasedImmutableSet, p2 *Scope) *ExpressionDecomposer {
+func (this *AbstractCompiler) createExpressionDecomposer(p0 Supplier, p1 *ImmutableSet[string], p2 *Scope) *ExpressionDecomposer {
 	return this.self_.(*Compiler).createExpressionDecomposer_impl(p0, p1, p2)
 }
 
@@ -245,7 +245,7 @@ func (this *AbstractCompiler) parseTestCode(p0 string) Node {
 	return this.self_.(*Compiler).parseTestCode_impl(p0)
 }
 
-func (this *AbstractCompiler) parseTestCodeImmutableList(p0 *ErasedImmutableList) Node {
+func (this *AbstractCompiler) parseTestCodeImmutableList(p0 *ImmutableList[string]) Node {
 	return this.self_.(*Compiler).parseTestCodeImmutableList_impl(p0)
 }
 
@@ -405,7 +405,7 @@ func (this *AbstractCompiler) setDefineNames(p0 Collection) {
 	this.self_.(*Compiler).setDefineNames_impl(p0)
 }
 
-func (this *AbstractCompiler) getDefineNames() *ErasedImmutableSet {
+func (this *AbstractCompiler) getDefineNames() *ImmutableSet[string] {
 	return this.self_.(*Compiler).getDefineNames_impl()
 }
 
@@ -469,11 +469,11 @@ func (this *AbstractCompiler) getLastPassName() string {
 	return this.self_.(*Compiler).getLastPassName_impl()
 }
 
-func (this *AbstractCompiler) setExternProperties(p0 *ErasedImmutableSet) {
+func (this *AbstractCompiler) setExternProperties(p0 *ImmutableSet[string]) {
 	this.self_.(*Compiler).setExternProperties_impl(p0)
 }
 
-func (this *AbstractCompiler) getExternProperties() *ErasedImmutableSet {
+func (this *AbstractCompiler) getExternProperties() *ImmutableSet[string] {
 	return this.self_.(*Compiler).getExternProperties_impl()
 }
 

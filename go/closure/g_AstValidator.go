@@ -111,7 +111,7 @@ func (this *AstValidator) validateScriptFeatureSet(scriptNode Node) {
 	if !allowableFeatures.containsFeatureSet(scriptFeatures) {
 		if !scriptNode.isFromExterns() {
 			var differentFeatures *FeatureSet = scriptFeatures.without(allowableFeatures)
-			this.violation(("SCRIPT node contains these unallowable features:" + tostr_(differentFeatures.getFeatures())), this.currentScript)
+			this.violation(("SCRIPT node contains these unallowable features:" + tostr_(differentFeatures.getFeatures().asImm())), this.currentScript)
 		}
 	}
 }
@@ -308,16 +308,16 @@ func (this *AstValidator) validateExpression(n Node) {
 }
 
 func (this *AstValidator) validatePseudoExpression(n Node, allowedPseudoexpressions []Token_rhino) {
-	var allowedTokensSet ImmutableSetOf[Token_rhino] = ImmutableSet_copyOf_ObjectArr(arrmap_(allowedPseudoexpressions, func(v_ Token_rhino) any { return obj_(v_) }))
+	var allowedTokensSet *ImmutableSet[Token_rhino] = tsetFrom_(tc_Token_rhino, ImmutableSet_copyOf_ObjectArr(arrmap_(allowedPseudoexpressions, func(v_ Token_rhino) any { return obj_(v_) })), true)
 	switch n.ns_().token {
 	case tokOrd1_EMPTY:
-		if !allowedTokensSet.contains(obj_(Token_rhino_EMPTY)) {
+		if !allowedTokensSet.Has(Token_rhino_EMPTY) {
 			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", []any{n.box_()})))
 		}
 		this.validateProperties(n)
 		this.validateChildless(n)
 	case tokOrd1_ITER_SPREAD:
-		if !allowedTokensSet.contains(obj_(Token_rhino_ITER_SPREAD)) {
+		if !allowedTokensSet.Has(Token_rhino_ITER_SPREAD) {
 			panic(new_IllegalArgumentException_String(Strings_lenientFormat("Unexpected pseudoexpression %s", []any{n.box_()})))
 		}
 		this.validateProperties(n)

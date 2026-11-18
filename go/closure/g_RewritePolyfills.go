@@ -54,20 +54,20 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 		this.libraries = newTSet_(tc_string)
 		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, func(p0 any) { this.inject(cast_[*PolyfillUsageFinder_PolyfillUsage](p0)) })
 	}
-	var librariesToInject ImmutableListOf[string]
+	var librariesToInject *ImmutableList[string]
 	if this.injectPolyfillsNewerThan != 0 {
 		var polyfillsToInject []*PolyfillUsageFinder_Polyfill = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
-		var librariesToInjectBuilder ImmutableList_BuilderOf[string] = ImmutableList_builder()
+		var librariesToInjectBuilder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 		for _, p := range polyfillsToInject {
 			if p.library != "" {
-				librariesToInjectBuilder.add(strobj_(p.library))
+				librariesToInjectBuilder.add(p.library)
 			}
 		}
 		librariesToInject = librariesToInjectBuilder.build()
 	} else {
-		librariesToInject = ImmutableList_copyOf(Collection(this.libraries.asSet()))
+		librariesToInject = immutableListCopyOf_(tc_string, Collection(this.libraries.asSet()))
 	}
-	this.injectAll(icast_Iterable(obj_(librariesToInject)), (this.injectPolyfillsNewerThan != 0))
+	this.injectAll(icast_Iterable(obj_(librariesToInject.asImm())), (this.injectPolyfillsNewerThan != 0))
 }
 
 func (this *RewritePolyfills) injectAll(librariesToInject IterableOf[string], forceInjection bool) {
@@ -121,7 +121,7 @@ func (this *RewritePolyfills) inject(polyfillUsage *PolyfillUsageFinder_Polyfill
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(polyfillUsage.node(), RewritePolyfills_INSUFFICIENT_OUTPUT_VERSION_ERROR, []string{polyfillUsage.name(), outputFeatureSet.version()}))
 	}
 	if !outputFeatureSet.containsFeatureSet(FeatureSet_valueOf(polyfill.nativeVersion)) && polyfill.library != "" {
-		this.libraries.add(polyfill.library)
+		this.libraries.Add(polyfill.library)
 	}
 }
 

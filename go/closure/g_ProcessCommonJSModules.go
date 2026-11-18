@@ -51,7 +51,7 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 		var forceModuleDetection bool = (moduleType == CompilerInput_ModuleType_IMPORTED_SCRIPT)
 		var defaultExportIsConst bool = true
 		var isCommonJsModule bool = finder.isCommonJsModule()
-		var exports ImmutableList_BuilderOf[*ProcessCommonJSModules_ExportInfo] = ImmutableList_builder()
+		var exports *ImmutableList_Builder[*ProcessCommonJSModules_ExportInfo] = immutableListBuilder_(tc_p_ProcessCommonJSModules_ExportInfo)
 		if isCommonJsModule || forceModuleDetection {
 			if len(*finder.umdPatterns) != 0 {
 				var needsRetraverse bool = false
@@ -73,7 +73,7 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 		}
 		finder.reportModuleErrors()
 		this.compiler_.getModuleLoader().setErrorHandler(moduleLoaderErrorHandler)
-		NodeTraversal_traverse(this.compiler_, n, new_ProcessCommonJSModules_RewriteModule(this, (isCommonJsModule || forceModuleDetection), exports.build(), defaultExportIsConst))
+		NodeTraversal_traverse(this.compiler_, n, new_ProcessCommonJSModules_RewriteModule(this, (isCommonJsModule || forceModuleDetection), exports.buildErased(), defaultExportIsConst))
 	}
 	return false
 }
@@ -658,14 +658,14 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 			var newExport *ProcessCommonJSModules_ExportInfo = new_ProcessCommonJSModules_ExportInfo(IR_getprop_Node_String(export.node_.removeFirstChild(), prop.getString()), export.scope_)
 			export.node_.replaceWith(newExport.node_)
 			this.outer_.compiler_.reportChangeToEnclosingScope(newExport.node_)
-			exportsToReplace.put(export, newExport)
+			exportsToReplace.Put(export, newExport)
 		}
 	}
 	sliceRemoveAll_(tc_p_ProcessCommonJSModules_ExportInfo, &this.moduleExports, Collection(sliceView_(tc_p_ProcessCommonJSModules_ExportInfo, exportsToRemove)))
 	for oldExport := range exportsToReplace.Keys() {
 		var oldIndex int32 = sliceView_(tc_p_ProcessCommonJSModules_ExportInfo, this.moduleExports).indexOf(obj_(oldExport))
 		sliceRemoveAt_(&this.moduleExports, oldIndex)
-		sliceInsert_(&this.moduleExports, oldIndex, exportsToReplace.get(oldExport))
+		sliceInsert_(&this.moduleExports, oldIndex, exportsToReplace.Get(oldExport))
 	}
 	var directAssignments int32 = 0
 	for export := range sliceAll_(&this.moduleExports) {

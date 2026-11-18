@@ -4,25 +4,25 @@ package closure
 
 type AccessorSummary struct {
 	assumeAlwaysGetterAndSetter bool
-	accessors                   ImmutableMapOf[string, AccessorSummary_PropertyAccessKind]
+	accessors                   *ImmutableMap[string, AccessorSummary_PropertyAccessKind]
 }
 
-func (this *AccessorSummary) init_AccessorSummary(accessors ImmutableMapOf[string, AccessorSummary_PropertyAccessKind], assumeAlwaysGetterAndSetter bool) {
+func (this *AccessorSummary) init_AccessorSummary(accessors *ImmutableMap[string, AccessorSummary_PropertyAccessKind], assumeAlwaysGetterAndSetter bool) {
 	this.accessors = accessors
 	this.assumeAlwaysGetterAndSetter = assumeAlwaysGetterAndSetter
 }
 
-func new_AccessorSummary(accessors ImmutableMapOf[string, AccessorSummary_PropertyAccessKind], assumeAlwaysGetterAndSetter bool) *AccessorSummary {
+func new_AccessorSummary(accessors *ImmutableMap[string, AccessorSummary_PropertyAccessKind], assumeAlwaysGetterAndSetter bool) *AccessorSummary {
 	this := &AccessorSummary{}
 	this.init_AccessorSummary(accessors, assumeAlwaysGetterAndSetter)
 	return this
 }
 
 func AccessorSummary_create(accessors *TMap[string, AccessorSummary_PropertyAccessKind]) *AccessorSummary {
-	return new_AccessorSummary(ImmutableMap_copyOf(accessors.asMap()), false)
+	return new_AccessorSummary(immutableMapCopyOf_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, accessors.asMap()), false)
 }
 
-func (this *AccessorSummary) getAccessors() ImmutableMapOf[string, AccessorSummary_PropertyAccessKind] {
+func (this *AccessorSummary) getAccessors() *ImmutableMap[string, AccessorSummary_PropertyAccessKind] {
 	return this.accessors
 }
 
@@ -30,21 +30,21 @@ func (this *AccessorSummary) getKind(name string) AccessorSummary_PropertyAccess
 	if this.assumeAlwaysGetterAndSetter {
 		return AccessorSummary_PropertyAccessKind_GETTER_AND_SETTER
 	}
-	return cast_[AccessorSummary_PropertyAccessKind](Map_getOrDefault_s(this.accessors, name, obj_(AccessorSummary_PropertyAccessKind_NORMAL)))
+	return this.accessors.GetOr(name, AccessorSummary_PropertyAccessKind_NORMAL)
 }
 
 func AccessorSummary_createAssumingAlwaysGetterAndSetter() *AccessorSummary {
-	return new_AccessorSummary(ImmutableMap_of(), true)
+	return new_AccessorSummary(immutableMapOf_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, []string{}, []AccessorSummary_PropertyAccessKind{}), true)
 }
 
 func (this *AccessorSummary) toProto() *AccessorSummaryProto {
 	var builder *AccessorSummaryProto_Builder = AccessorSummaryProto_newBuilder().setAssumeAlwaysGetterAndSetter(this.assumeAlwaysGetterAndSetter)
 	if this.assumeAlwaysGetterAndSetter {
-		if !this.accessors.isEmpty() {
+		if !this.accessors.IsEmpty() {
 			panic(new_IllegalStateException_0())
 		}
 	} else {
-		for _, el := range immElems_(cast_[*ErasedImmutableSet](this.accessors.entrySet())) {
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](this.accessors.asImm().entrySet())) {
 			entry := icast_Map_Entry(el)
 			builder.addAccessors(cast_[*AccessorSummaryEntryProto](AccessorSummaryEntryProto_newBuilder().setName(str_(entry.getKey())).setKind(AccessorSummary_toProto(cast_[AccessorSummary_PropertyAccessKind](entry.getValue()))).build()))
 		}
@@ -72,11 +72,11 @@ func AccessorSummary_fromProto(proto *AccessorSummaryProto) *AccessorSummary {
 	if proto.getAssumeAlwaysGetterAndSetter() {
 		return AccessorSummary_createAssumingAlwaysGetterAndSetter()
 	}
-	var builder ImmutableMap_BuilderOf[string, AccessorSummary_PropertyAccessKind] = ImmutableMap_builder()
+	var builder *ImmutableMap_Builder[string, AccessorSummary_PropertyAccessKind] = immutableMapBuilder_(tc_string, tc_p_AccessorSummary_PropertyAccessKind)
 	for entry := range elemsAs_[*AccessorSummaryEntryProto](proto.getAccessorsList()) {
-		builder.put(strobj_(entry.getName()), obj_(AccessorSummary_fromProtoPropertyAccessKindProto(entry.getKind())))
+		builder.put(entry.getName(), AccessorSummary_fromProtoPropertyAccessKindProto(entry.getKind()))
 	}
-	return AccessorSummary_create(tmapFrom_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, builder.buildOrThrow(), true))
+	return AccessorSummary_create(builder.buildOrThrow())
 }
 
 func AccessorSummary_fromProtoPropertyAccessKindProto(kind PropertyAccessKindProto) AccessorSummary_PropertyAccessKind {

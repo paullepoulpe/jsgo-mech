@@ -18,7 +18,7 @@ func new_IdMappingUtil() *IdMappingUtil {
 func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *TMap[string, *TMap[string, string]]) string {
 	var sb strBuilder_
 	for replacementsKey, replacementsValue := range idGeneratorMaps.All() {
-		if !replacementsValue.isEmpty() {
+		if !replacementsValue.IsEmpty() {
 			sb.append_char('[').append(replacementsKey).append_char(']').append_char(IdMappingUtil_NEW_LINE).append_char(IdMappingUtil_NEW_LINE)
 			for replacement := range elemsBy_(replacementsValue.asMap().entrySet(), icast_Map_Entry) {
 				sb.append(str_(replacement.getKey())).append_char(':').append(str_(replacement.getValue())).append_char(IdMappingUtil_NEW_LINE)
@@ -29,8 +29,8 @@ func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *TMap[string, *T
 	return sb.toString()
 }
 
-func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) ImmutableMapOf[string, string] {
-	var mapBuilder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
+func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) *ImmutableMap[string, string] {
+	var mapBuilder *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(Io_utf8String(idMappings))
 	var inSection bool = false
 	for mr.next() {
@@ -42,7 +42,7 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 				inSection = true
 			}
 		} else if inSection {
-			mapBuilder.put(strobj_(mr.getKey().get()), strobj_(mr.getValue().get()))
+			mapBuilder.put(mr.getKey().get(), mr.getValue().get())
 		}
 	}
 	return mapBuilder.buildKeepingLast()

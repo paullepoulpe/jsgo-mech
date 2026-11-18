@@ -3,11 +3,11 @@
 package closure
 
 type FeatureSet struct {
-	features_ ImmutableSetOf[FeatureSet_Feature]
+	features_ *ImmutableSet[FeatureSet_Feature]
 }
 
 func (this *FeatureSet) init_FeatureSet(features EnumSetOf[FeatureSet_Feature]) {
-	this.features_ = ImmutableSet_copyOf(icast_Collection(obj_(features)))
+	this.features_ = immutableSetCopyOf_(tc_p_FeatureSet_Feature, icast_Collection(obj_(features)))
 }
 
 func new_FeatureSet(features EnumSetOf[FeatureSet_Feature]) *FeatureSet {
@@ -67,25 +67,25 @@ func (this *FeatureSet) versionForDebugging() string {
 }
 
 func (this *FeatureSet) without_2(featureToRemove FeatureSet_Feature, moreFeaturesToRemove []FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(tsetFrom_(tc_p_FeatureSet_Feature, this.features_, true), EnumSet_of_Enum_EnumArr(featureToRemove.enum_(), arrmap_(moreFeaturesToRemove, func(v_ FeatureSet_Feature) *Enum { return v_.enum_() }))))
+	return new_FeatureSet(FeatureSet_difference(this.features_, EnumSet_of_Enum_EnumArr(featureToRemove.enum_(), arrmap_(moreFeaturesToRemove, func(v_ FeatureSet_Feature) *Enum { return v_.enum_() }))))
 }
 
 func (this *FeatureSet) without(other *FeatureSet) *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(tsetFrom_(tc_p_FeatureSet_Feature, this.features_, true), icast_Set(obj_(other.features_))))
+	return new_FeatureSet(FeatureSet_difference(this.features_, icast_Set(obj_(other.features_.asImm()))))
 }
 
 func (this *FeatureSet) withoutTypes() *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(tsetFrom_(tc_p_FeatureSet_Feature, this.features_, true), icast_Set(obj_(FeatureSet_LangVersion_TYPESCRIPT.features()))))
+	return new_FeatureSet(FeatureSet_difference(this.features_, icast_Set(obj_(FeatureSet_LangVersion_TYPESCRIPT.features()))))
 }
 
 func (this *FeatureSet) union(other *FeatureSet) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(tsetFrom_(tc_p_FeatureSet_Feature, this.features_, true), icast_Set(obj_(other.features_))))
+	return new_FeatureSet(FeatureSet_union(this.features_, icast_Set(obj_(other.features_.asImm()))))
 }
 
 func (this *FeatureSet) containsAtLeastOneOf(other *FeatureSet) bool {
-	for _, el_1 := range immElems_(other.features_) {
-		var otherFeature FeatureSet_Feature = cast_[FeatureSet_Feature](el_1)
-		if this.features_.contains(obj_(otherFeature)) {
+	for _, el_1 := range other.features_.keys {
+		var otherFeature FeatureSet_Feature = el_1
+		if this.features_.Has(otherFeature) {
 			return true
 		}
 	}
@@ -93,11 +93,11 @@ func (this *FeatureSet) containsAtLeastOneOf(other *FeatureSet) bool {
 }
 
 func (this *FeatureSet) containsFeatureSet(other *FeatureSet) bool {
-	return this.features_.containsAll(icast_Collection(obj_(other.features_)))
+	return this.features_.asImm().containsAll(icast_Collection(obj_(other.features_.asImm())))
 }
 
 func (this *FeatureSet) contains(feature FeatureSet_Feature) bool {
-	return this.features_.containsAll(EnumSet_of(feature.enum_()))
+	return this.features_.asImm().containsAll(EnumSet_of(feature.enum_()))
 }
 
 func FeatureSet_emptyEnumSet() EnumSetOf[FeatureSet_Feature] {
@@ -106,7 +106,7 @@ func FeatureSet_emptyEnumSet() EnumSetOf[FeatureSet_Feature] {
 
 func FeatureSet_enumSetOf(set *TSet[FeatureSet_Feature]) EnumSetOf[FeatureSet_Feature] {
 	return func() *EnumSet {
-		if set.isEmpty() {
+		if set.IsEmpty() {
 			return FeatureSet_emptyEnumSet()
 		}
 		return EnumSet_copyOf(Collection(set.asSet()))
@@ -132,29 +132,29 @@ func FeatureSet_difference(features *TSet[FeatureSet_Feature], removedFeatures S
 }
 
 func (this *FeatureSet) with(feature FeatureSet_Feature) *FeatureSet {
-	if this.features_.contains(obj_(feature)) {
+	if this.features_.Has(feature) {
 		return this
 	}
-	return new_FeatureSet(FeatureSet_add(tsetFrom_(tc_p_FeatureSet_Feature, this.features_, true), feature))
+	return new_FeatureSet(FeatureSet_add(this.features_, feature))
 }
 
 func (this *FeatureSet) withFeatureVarargs(newFeatures []FeatureSet_Feature) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(tsetFrom_(tc_p_FeatureSet_Feature, this.features_, true), ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, func(v_ FeatureSet_Feature) any { return obj_(v_) }))))
+	return new_FeatureSet(FeatureSet_union(this.features_, ImmutableSet_copyOf_ObjectArr(arrmap_(newFeatures, func(v_ FeatureSet_Feature) any { return obj_(v_) }))))
 }
 
 func (this *FeatureSet) withSet(newFeatures SetOf[FeatureSet_Feature]) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(tsetFrom_(tc_p_FeatureSet_Feature, this.features_, true), newFeatures))
+	return new_FeatureSet(FeatureSet_union(this.features_, newFeatures))
 }
 
 func (this *FeatureSet) withFeatureSet(newFeatures *FeatureSet) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(tsetFrom_(tc_p_FeatureSet_Feature, this.features_, true), icast_Set(obj_(newFeatures.features_))))
+	return new_FeatureSet(FeatureSet_union(this.features_, icast_Set(obj_(newFeatures.features_.asImm()))))
 }
 
 func (this *FeatureSet) has(feature FeatureSet_Feature) bool {
-	return this.features_.contains(obj_(feature))
+	return this.features_.Has(feature)
 }
 
-func (this *FeatureSet) getFeatures() ImmutableSetOf[FeatureSet_Feature] {
+func (this *FeatureSet) getFeatures() *ImmutableSet[FeatureSet_Feature] {
 	return this.features_
 }
 
@@ -165,15 +165,15 @@ func (this *FeatureSet) equals(other any) bool {
 
 // equals_FeatureSet is equals of a FeatureSet (post-flip step eqtyped).
 func (this *FeatureSet) equals_FeatureSet(featureSet *FeatureSet) bool {
-	return ((featureSet != nil) && equalsBy_(featureSet.features_, obj_(this.features_), (ImmutableSetOf[FeatureSet_Feature]).equals))
+	return ((featureSet != nil) && tsetEq_(featureSet.features_, this.features_, false))
 }
 
 func (this *FeatureSet) hashCode() int32 {
-	return hashBy_(this.features_, (ImmutableSetOf[FeatureSet_Feature]).hashCode)
+	return tsetHash_(this.features_, false)
 }
 
 func (this *FeatureSet) toString() string {
-	return tostrNN_(this.features_)
+	return tostrNN_(this.features_.asImm())
 }
 
 func FeatureSet_valueOf(name string) *FeatureSet {

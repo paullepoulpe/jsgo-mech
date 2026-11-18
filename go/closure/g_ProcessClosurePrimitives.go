@@ -8,7 +8,7 @@ type ProcessClosurePrimitives struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_              *AbstractCompiler
 	knownClosureSubclasses map[string]struct{}
-	closureModules         ImmutableMapOf[string, *ModuleMetadataMap_ModuleMetadata]
+	closureModules         *ImmutableMap[string, *ModuleMetadataMap_ModuleMetadata]
 }
 
 func (this *ProcessClosurePrimitives) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -60,7 +60,7 @@ func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, paren
 			return
 		}
 		var name string = n.getFirstChild().getString()
-		var pn *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.closureModules, name))
+		var pn *ModuleMetadataMap_ModuleMetadata = this.closureModules.Get(name)
 		if (pn != nil) && pn.isGoogProvide() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, func() *DiagnosticType {
 				if n.isClass() {
@@ -93,7 +93,7 @@ func (this *ProcessClosurePrimitives) checkPossibleGoogProvideInit(namespace Opt
 	}
 	var metadata *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
 		if namespace.isPresent() {
-			return cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.closureModules, namespace.get()))
+			return this.closureModules.Get(namespace.get())
 		}
 		return nil
 	}()
@@ -357,7 +357,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 				compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_NON_STRING_PASSED_TO_SET_CSS_NAME_MAPPING_ERROR, []string{}))
 				return nil
 			}
-			cssNames.put(key.getString(), value.getString())
+			cssNames.Put(key.getString(), value.getString())
 		}
 	}
 	var styleStr string = "BY_PART"
@@ -393,7 +393,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 				continue
 			}
 			for aKey, aValue := range cssNames.All() {
-				var combined OptionalOf[string] = Optional_ofNullable[string](cssNames.get((sstr_(aKey) + "-" + sstr_(bKey))))
+				var combined OptionalOf[string] = Optional_ofNullable[string](cssNames.Get((sstr_(aKey) + "-" + sstr_(bKey))))
 				if combined.isPresent() && !(combined.get() == (sstr_(aValue) + "-" + sstr_(bValue))) {
 					errors = append(errors, ("map(" + sstr_(aKey) + "-" + sstr_(bKey) + ") != map(" + sstr_(aKey) + ")-map(" + sstr_(bKey) + ")"))
 				}
@@ -544,8 +544,8 @@ func new_ProcessClosurePrimitives_1(cap_cssNames *TMap[string, string], cap_styl
 }
 
 func (this *ProcessClosurePrimitives_1) get(value string) OptionalOf[string] {
-	if this.cap_cssNames.containsKey(value) {
-		return Optional_ofNullable[string](this.cap_cssNames.get(value))
+	if this.cap_cssNames.Has(value) {
+		return Optional_ofNullable[string](this.cap_cssNames.Get(value))
 	} else {
 		return Optional_of[string](value)
 	}

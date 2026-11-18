@@ -39,7 +39,7 @@ func TestTypedImmutables(t *testing.T) {
 
 	s := immutableSetOf_(timmStr_, "b", "a", "b")
 	guavaStr_(t, s.asSet(), "[b, a]")
-	if !s.contains("a") || s.contains("c") || s.size() != 2 {
+	if !s.Has("a") || s.Has("c") || s.Len() != 2 {
 		t.Error("set contents")
 	}
 	if immutableSetCopyOf_(timmStr_, Iterable(s.asImm())) != s || tsetFrom_(timmStr_, Collection(s.asImm()), true) != s {
@@ -58,7 +58,7 @@ func TestTypedImmutables(t *testing.T) {
 
 	m := immutableMapOf_(timmStr_, timmStr_, []string{"k", "j"}, []string{"v", "w"})
 	guavaStr_(t, m.asMap(), "{k=v, j=w}")
-	if m.get("j") != "w" || m.get("z") != nullstr_ {
+	if m.Get("j") != "w" || m.Get("z") != nullstr_ {
 		t.Error("map get")
 	}
 	if immutableMapCopyOf_(timmStr_, timmStr_, m.asMap()) != m {

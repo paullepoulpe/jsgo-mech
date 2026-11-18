@@ -3,7 +3,7 @@
 package closure
 
 type ReplacedStringsDecoder struct {
-	originalToNewNameMap ImmutableMapOf[string, string]
+	originalToNewNameMap *ImmutableMap[string, string]
 }
 
 func (this *ReplacedStringsDecoder) init_ReplacedStringsDecoder(variableMap *VariableMap) {
@@ -18,7 +18,7 @@ func new_ReplacedStringsDecoder(variableMap *VariableMap) *ReplacedStringsDecode
 
 func (this *ReplacedStringsDecoder) decode(encodedStr string) string {
 	var suppliedBits []string = ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN.split_String_int(encodedStr, -1)
-	var originalStr OptionalOf[string] = Optional_ofNullable[string](str_(Map_get_s(this.originalToNewNameMap, suppliedBits[0])))
+	var originalStr OptionalOf[string] = Optional_ofNullable[string](this.originalToNewNameMap.Get(suppliedBits[0]))
 	if originalStr.isEmpty() {
 		return encodedStr
 	}
@@ -55,6 +55,6 @@ func ReplacedStringsDecoder_clinit() {
 	}
 	ReplacedStringsDecoder_clinit_done = true
 	ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN = Pattern_compile(ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER)
-	ReplacedStringsDecoder_NULL_DECODER = new_ReplacedStringsDecoder(VariableMap_fromMap(tmapFrom_(tc_string, tc_string, ImmutableMap_of(), true)))
+	ReplacedStringsDecoder_NULL_DECODER = new_ReplacedStringsDecoder(VariableMap_fromMap(immutableMapOf_(tc_string, tc_string, []string{}, []string{})))
 
 }

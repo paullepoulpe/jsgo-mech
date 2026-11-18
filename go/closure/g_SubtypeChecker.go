@@ -125,11 +125,11 @@ func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType)
 	var cached JSType_MatchStatus = cast_[JSType_MatchStatus](Map_putIfAbsent(this.subtypeCache.asMap(), obj_(key), obj_(JSType_MatchStatus_PROCESSING)))
 	if cached == 0 {
 		var result bool = this.isSubtypeDispatching(subtype, supertype)
-		this.subtypeCache.put(key, JSType_MatchStatus_valueOfBoolean(result))
+		this.subtypeCache.Put(key, JSType_MatchStatus_valueOfBoolean(result))
 		return result
 	}
 	if cached == JSType_MatchStatus_PROCESSING {
-		this.subtypeCache.put(key, JSType_MatchStatus_MATCH)
+		this.subtypeCache.Put(key, JSType_MatchStatus_MATCH)
 		return true
 	}
 	return cached.subtypeValue()
@@ -370,8 +370,8 @@ func (this *SubtypeChecker) isArrowTypeSubtype(subtype *ArrowType, nonArrowSuper
 	if !this.isSubtypeCaching(subtype.getReturnType(), supertype.getReturnType()) {
 		return false
 	}
-	var subtypeParameters *immCursor_ = immCursorOf_(subtype.getParameterList())
-	var supertypeParameters *immCursor_ = immCursorOf_(supertype.getParameterList())
+	var subtypeParameters *immCursor_ = immCursorOf_(subtype.getParameterList().asImm())
+	var supertypeParameters *immCursor_ = immCursorOf_(supertype.getParameterList().asImm())
 	var subtypeParam *FunctionType_Parameter = func() *FunctionType_Parameter {
 		if subtypeParameters.hasNext() {
 			return cast_[*FunctionType_Parameter](subtypeParameters.next())
@@ -458,8 +458,8 @@ func (this *SubtypeChecker) isTypeMapSubmap(subtype *ObjectType, supertype *Obje
 	}
 	var submap *TemplateTypeMap = subtype.getTemplateTypeMap()
 	var supermap *TemplateTypeMap = supertype.getTemplateTypeMap()
-	for _, el_1 := range immElems_(supermap.getTemplateKeys()) {
-		var key *TemplateType = cast_[*TemplateType](el_1)
+	for _, el_1 := range supermap.getTemplateKeys().items {
+		var key *TemplateType = el_1
 		var keyCount int32 = submap.getTemplateKeyCountThisShouldAlwaysBeOneOrZeroButIsnt(key)
 		if keyCount == 0 {
 			if subtype.loosenTypecheckingDueToForwardReferencedSupertype() {
@@ -496,7 +496,7 @@ func (this *SubtypeChecker) meetVarianceConstraint(variance SubtypeChecker_Varia
 
 func SubtypeChecker_isBivariantType(type_ *JSType) bool {
 	var unwrapped *ObjectType = SubtypeChecker_getObjectTypeIfNative(type_)
-	return (((unwrapped != nil) && unwrapped.hasReferenceName()) && Collection_contains_s(SubtypeChecker_BIVARIANT_TYPES, unwrapped.getReferenceName().orElseThrow()))
+	return (((unwrapped != nil) && unwrapped.hasReferenceName()) && SubtypeChecker_BIVARIANT_TYPES.Has(unwrapped.getReferenceName().orElseThrow()))
 }
 
 func SubtypeChecker_getTemplateKeyIfCovariantType(type_ *JSType) *TemplateType {
@@ -571,7 +571,7 @@ func SubtypeChecker_getObjectTypeIfNative(type_ *JSType) *ObjectType {
 	}()
 }
 
-var SubtypeChecker_BIVARIANT_TYPES *ErasedImmutableSet
+var SubtypeChecker_BIVARIANT_TYPES *ImmutableSet[string]
 
 const SubtypeChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH int32 = 20
 
@@ -582,7 +582,7 @@ func SubtypeChecker_clinit() {
 		return
 	}
 	SubtypeChecker_clinit_done = true
-	SubtypeChecker_BIVARIANT_TYPES = ImmutableSet_of_Object_Object_Object(strobj_("Object"), strobj_("IArrayLike"), strobj_("Array"))
+	SubtypeChecker_BIVARIANT_TYPES = immutableSetOf_(tc_string, "Object", "IArrayLike", "Array")
 
 }
 

@@ -26,8 +26,8 @@ func Promises_getResolvedType(registry *JSTypeRegistry, type_ *JSType) *JSType {
 	}
 	if type_.isUnionType() {
 		var unionTypeBuilder *UnionType_Builder = UnionType_builder(registry)
-		for _, el := range immElems_(type_.toMaybeUnionType().getAlternates()) {
-			alternate := to_JSType(el)
+		for _, el := range type_.toMaybeUnionType().getAlternates().items {
+			alternate := el
 			unionTypeBuilder.addAlternate(Promises_getResolvedType(registry, alternate))
 		}
 		return unionTypeBuilder.build()
@@ -51,15 +51,15 @@ func Promises_createAsyncReturnableType(registry *JSTypeRegistry, maybeThenable 
 	var unknownType *JSType = registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	var iThenableType *ObjectType = registry.getNativeObjectType(JSTypeNative_I_THENABLE_TYPE)
 	var iThenableOfUnknownType *JSType = registry.createTemplatizedType(iThenableType, []*JSType{unknownType}).up_JSType()
-	var alternates ImmutableListOf[*JSType] = func() *ErasedImmutableList {
+	var alternates *ImmutableList[*JSType] = func() *ImmutableList[*JSType] {
 		if maybeThenable.isUnionType() {
 			return maybeThenable.toMaybeUnionType().getAlternates()
 		}
-		return ImmutableList_of_Object(maybeThenable.self())
+		return immutableListOf_(tc_p_JSType, maybeThenable)
 	}()
 	var asyncTemplateAlternatesBuilder []*JSType
-	for _, el := range immElems_(alternates) {
-		t := to_JSType(el)
+	for _, el := range alternates.items {
+		t := el
 		if t.isSubtypeOf(iThenableOfUnknownType) {
 			asyncTemplateAlternatesBuilder = immAdd_(tc_p_JSType, asyncTemplateAlternatesBuilder, Promises_getTemplateTypeOfThenable(registry, t))
 		}

@@ -267,13 +267,13 @@ func (this *GatherModuleMetadata_Finder) leaveModule() {
 	}
 	var module *ModuleMetadataMap_ModuleMetadata = this.outer_.currentModule.build()
 	if module.path() != nil {
-		this.outer_.modulesByPath.put(module.path().toString(), module)
+		this.outer_.modulesByPath.Put(module.path().toString(), module)
 	}
 	for namespace := range elemsBy_(obj_(module.googNamespaces()), str_) {
-		this.outer_.modulesByGoogNamespace.put(namespace, module)
+		this.outer_.modulesByGoogNamespace.Put(namespace, module)
 	}
 	if this.outer_.parentModule != nil {
-		this.outer_.parentModule.metadataBuilder.nestedModulesBuilder().add(obj_(module))
+		this.outer_.parentModule.metadataBuilder.nestedModulesBuilder().add(module)
 	}
 	this.outer_.currentModule = this.outer_.parentModule
 	this.outer_.parentModule = nil
@@ -473,7 +473,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		existingType = module.metadataBuilder.moduleType()
 		existingFileSource = t.getSourceName()
 	} else {
-		var existingModule *ModuleMetadataMap_ModuleMetadata = this.outer_.modulesByGoogNamespace.get(namespace)
+		var existingModule *ModuleMetadataMap_ModuleMetadata = this.outer_.modulesByGoogNamespace.Get(namespace)
 		if existingModule != nil {
 			existingType = existingModule.moduleType()
 			existingFileSource = Optional_of[string](existingModule.rootNode().getSourceFileName()).filterFn_(func(s string) bool {

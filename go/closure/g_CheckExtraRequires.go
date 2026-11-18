@@ -7,7 +7,7 @@ type CheckExtraRequires struct {
 	compiler_        *AbstractCompiler
 	requires         *TMap[string, Node]
 	usages           map[string]struct{}
-	requiresToRemove ImmutableSetOf[string]
+	requiresToRemove *ImmutableSet[string]
 }
 
 func (this *CheckExtraRequires) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -22,14 +22,14 @@ func (this *CheckExtraRequires) finit_CheckExtraRequires() {
 	this.usages = map[string]struct{}{}
 }
 
-func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove ImmutableSetOf[string]) {
+func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *ImmutableSet[string]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_CheckExtraRequires()
 	this.compiler_ = compiler
 	this.requiresToRemove = requiresToRemove
 }
 
-func new_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove ImmutableSetOf[string]) *CheckExtraRequires {
+func new_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *ImmutableSet[string]) *CheckExtraRequires {
 	this := &CheckExtraRequires{}
 	this.self_ = this
 	this.init_CheckExtraRequires(compiler, requiresToRemove)
@@ -89,21 +89,21 @@ func (this *CheckExtraRequires) visit_impl(t *NodeTraversal, n Node, parent Node
 
 func (this *CheckExtraRequires) reset() {
 	clear(this.usages)
-	this.requires.clear()
+	this.requires.Clear()
 }
 
 func (this *CheckExtraRequires) visitScriptNode() {
 	for entryKey, entryValue := range this.requires.All() {
 		var require string = entryKey
 		var call Node = entryValue
-		if !has_(this.usages, require) && ((this.requiresToRemove == nil) || Collection_contains_s(this.requiresToRemove, require)) {
+		if !has_(this.usages, require) && ((this.requiresToRemove == nil) || this.requiresToRemove.Has(require)) {
 			this.reportExtraRequireWarning(call, require)
 		}
 	}
 }
 
 func (this *CheckExtraRequires) reportExtraRequireWarning(call Node, require string) {
-	if Collection_contains_s(CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES, require) {
+	if CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES.Has(require) {
 		return
 	}
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(call)
@@ -114,7 +114,7 @@ func (this *CheckExtraRequires) reportExtraRequireWarning(call Node, require str
 }
 
 func (this *CheckExtraRequires) visitRequire(localName string, node Node) {
-	this.requires.putIfAbsent(localName, node)
+	this.requires.PutIfAbsent(localName, node)
 }
 
 func (this *CheckExtraRequires) visitImportNode(importNode Node) {
@@ -198,15 +198,15 @@ func (this *CheckExtraRequires) maybeAddJsDocUsages(n Node) {
 		return
 	}
 	for e := range elemsAs_[*JSTypeExpression](info.getTypeExpressions()) {
-		for _, el := range immElems_(e.getAllTypeNames()) {
-			typeName := str_(el)
+		for _, el := range e.getAllTypeNames().keys {
+			typeName := el
 			this.addUsagesOfAllPrefixes(QualifiedName_of(typeName))
 		}
 	}
 }
 
 var CheckExtraRequires_EXTRA_REQUIRE_WARNING *DiagnosticType
-var CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES *ErasedImmutableSet
+var CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES *ImmutableSet[string]
 var CheckExtraRequires_GOOG_MODULE_GET *QualifiedName
 
 var CheckExtraRequires_clinit_done bool
@@ -217,7 +217,7 @@ func CheckExtraRequires_clinit() {
 	}
 	CheckExtraRequires_clinit_done = true
 	CheckExtraRequires_EXTRA_REQUIRE_WARNING = DiagnosticType_disabled("JSC_EXTRA_REQUIRE_WARNING", "extra require: ''{0}'' is never referenced in this file")
-	CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES = ImmutableSet_of_Object_Object(strobj_("goog.testing.asserts"), strobj_("goog.testing.jsunit"))
+	CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES = immutableSetOf_(tc_string, "goog.testing.asserts", "goog.testing.jsunit")
 	CheckExtraRequires_GOOG_MODULE_GET = QualifiedName_of("goog.module.get")
 
 }

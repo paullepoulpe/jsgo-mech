@@ -39,7 +39,7 @@ type PerformanceTracker struct {
 	diff                           int32
 	gzDiff                         int32
 	currentPass                    []*PerformanceTracker_Stats
-	passSummary                    ImmutableMapOf[string, *PerformanceTracker_Stats]
+	passSummary                    *ImmutableMap[string, *PerformanceTracker_Stats]
 	astManifest                    *SimpleMultiset[Token_rhino]
 	log_                           []*PerformanceTracker_Stats
 	pruningAnalysisSummary         string
@@ -292,7 +292,7 @@ func (this *PerformanceTracker) getLoopRuns() int32 {
 	return this.loopRuns
 }
 
-func (this *PerformanceTracker) getStats() ImmutableMapOf[string, *PerformanceTracker_Stats] {
+func (this *PerformanceTracker) getStats() *ImmutableMap[string, *PerformanceTracker_Stats] {
 	this.calcTotalStats()
 	return this.passSummary
 }
@@ -303,7 +303,7 @@ func (this *PerformanceTracker) calcTotalStats() {
 	}
 	this.endTime = System_currentTimeMillis()
 	this.populatePassSummary()
-	for _, el := range immElems_(cast_[*ImmutableCollection](this.passSummary.values())) {
+	for _, el := range immElems_(cast_[*ImmutableCollection](this.passSummary.asImm().values())) {
 		stats := cast_[*PerformanceTracker_Stats](el)
 		this.passesRuntime = int32((int64(this.passesRuntime) + stats.runtime_))
 		this.maxMem = Math_max(this.maxMem, stats.allocMem)
@@ -345,7 +345,7 @@ func (this *PerformanceTracker) populatePassSummary() {
 		entry.diff += logStat.diff
 		entry.gzDiff += logStat.gzDiff
 	}
-	this.passSummary = ImmutableMap_copyOf(tmpPassSummary.asMap())
+	this.passSummary = immutableMapCopyOf_(tc_string, tc_p_PerformanceTracker_Stats, tmpPassSummary.asMap())
 }
 
 func (this *PerformanceTracker) populateAstManifest() {
@@ -405,7 +405,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 		return this.transitiveSummarySources
 	}()))), ("Type summary sources (post-pruning):   " + istr_(int64(this.transitiveSummarySources))), "", ("Dependency pruning analysis: " + sstr_(this.pruningAnalysisSummary))}))
 	output.println(JSCompStrings_lines([]string{"", "Summary:", "pass,runtime,allocMem,runs,changingRuns,astReduction,reduction,gzReduction"}))
-	var sortedPassSummary []Map_EntryOf[string, *PerformanceTracker_Stats] = sliceFrom_(tc_Map_EntryOf_string__p_PerformanceTracker_Stats_, Collection(this.passSummary.entrySet()))
+	var sortedPassSummary []Map_EntryOf[string, *PerformanceTracker_Stats] = sliceFrom_(tc_Map_EntryOf_string__p_PerformanceTracker_Stats_, Collection(this.passSummary.asImm().entrySet()))
 	List_sort(sliceView_(tc_Map_EntryOf_string__p_PerformanceTracker_Stats_, sortedPassSummary), Comparator_comparingLong_f(lambda_PerformanceTracker_outputTracerReport_1_))
 	for _, entry := range sortedPassSummary {
 		var key string = str_(entry.getKey())

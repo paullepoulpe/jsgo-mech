@@ -281,7 +281,7 @@ func (this *Es6RewriteClass) visitNonMethodMember(member Node, metadata *Es6Rewr
 	var jsDoc *JSDocInfo_Builder = JSDocInfo_builder()
 	jsDoc.recordNoCollapse()
 	builder.jsDocInfo(jsDoc.build())
-	membersToDeclare.put(memberName, builder.build())
+	membersToDeclare.Put(memberName, builder.build())
 }
 
 func (this *Es6RewriteClass) visitMethod(member Node, metadata *Es6RewriteClass_ClassDeclarationMetadata) {

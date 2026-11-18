@@ -27,10 +27,10 @@ type FunctionTypeBuilder struct {
 	isRecord                     bool
 	isAbstract_                  bool
 	isKnownAmbiguous             bool
-	parameters                   ImmutableListOf[*FunctionType_Parameter]
+	parameters                   *ImmutableList[*FunctionType_Parameter]
 	closurePrimitiveId           ClosurePrimitive
-	templateTypeNames            ImmutableListOf[*TemplateType]
-	constructorTemplateTypeNames ImmutableListOf[*TemplateType]
+	templateTypeNames            *ImmutableList[*TemplateType]
+	constructorTemplateTypeNames *ImmutableList[*TemplateType]
 	declarationScope             *TypedScope
 	templateScope                StaticTypedScope
 }
@@ -59,8 +59,8 @@ func (this *FunctionTypeBuilder) finit_FunctionTypeBuilder() {
 	this.isKnownAmbiguous = false
 	this.parameters = nil
 	this.closurePrimitiveId = 0
-	this.templateTypeNames = ImmutableList_of()
-	this.constructorTemplateTypeNames = ImmutableList_of()
+	this.templateTypeNames = immutableListOf_(tc_p_TemplateType)
+	this.constructorTemplateTypeNames = immutableListOf_(tc_p_TemplateType)
 	this.declarationScope = nil
 }
 
@@ -132,7 +132,7 @@ func (this *FunctionTypeBuilder) inferFromOverriddenFunction(oldType *FunctionTy
 		}
 	} else {
 		var paramBuilder *FunctionParamBuilder = new_FunctionParamBuilder_JSTypeRegistry(this.typeRegistry)
-		var oldParams *immCursor_ = immCursorOf_(oldType.getParameters())
+		var oldParams *immCursor_ = immCursorOf_(oldType.getParameters().asImm())
 		var warnedAboutArgList bool = false
 		var oldParamsListHitOptArgs bool = false
 		{
@@ -210,7 +210,7 @@ func (this *FunctionTypeBuilder) inferKind(info *JSDocInfo) *FunctionTypeBuilder
 }
 
 func (this *FunctionTypeBuilder) maybeUseNativeClassTemplateNames(info *JSDocInfo) bool {
-	var nativeKeys ImmutableListOf[*TemplateType] = this.typeRegistry.maybeGetTemplateTypesOfBuiltin(icast_StaticScope(obj_(this.declarationScope)), this.fnName)
+	var nativeKeys *ImmutableList[*TemplateType] = this.typeRegistry.maybeGetTemplateTypesOfBuiltin(icast_StaticScope(obj_(this.declarationScope)), this.fnName)
 	if (nativeKeys != nil) && (info.getTemplateTypeNames().size() == nativeKeys.size()) {
 		this.templateTypeNames = nativeKeys
 		return true
@@ -322,7 +322,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 	var oldParameters IteratorOf[*FunctionType_Parameter]
 	var oldParameterType *FunctionType_Parameter = nil
 	if this.parameters != nil {
-		oldParameters = this.parameters.iterator()
+		oldParameters = this.parameters.asImm().iterator()
 		oldParameterType = func() *FunctionType_Parameter {
 			if oldParameters.hasNext() {
 				return cast_[*FunctionType_Parameter](oldParameters.next())
@@ -373,7 +373,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 				}
 			}
 			if paramName.isPresent() {
-				allJsDocParams.remove(paramName.get())
+				allJsDocParams.Delete(paramName.get())
 			}
 			var parameterType *JSType = nil
 			if (info != nil) && info.hasParameterType(paramName) {
@@ -432,13 +432,13 @@ func (this *FunctionTypeBuilder) registerTemplates(templates IterableOf[*Templat
 
 func (this *FunctionTypeBuilder) inferConstructorParameters(argsParent Node, info *JSDocInfo) *FunctionTypeBuilder {
 	if info != nil {
-		this.setConstructorTemplateTypeNames(tlistImm_(tc_p_TemplateType, this.buildTemplateTypesFromJSDocInfo(info, true)), argsParent.getParent())
+		this.setConstructorTemplateTypeNames(this.buildTemplateTypesFromJSDocInfo(info, true), argsParent.getParent())
 	}
 	this.inferParameterTypes_2(argsParent, info)
 	return this
 }
 
-func (this *FunctionTypeBuilder) inferImplicitConstructorParameters(parameters ImmutableListOf[*FunctionType_Parameter]) *FunctionTypeBuilder {
+func (this *FunctionTypeBuilder) inferImplicitConstructorParameters(parameters *ImmutableList[*FunctionType_Parameter]) *FunctionTypeBuilder {
 	this.parameters = parameters
 	return this
 }
@@ -452,12 +452,12 @@ func (this *FunctionTypeBuilder) inferClosurePrimitive(info *JSDocInfo) *Functio
 
 func (this *FunctionTypeBuilder) setConstructorTemplateTypeNames(templates *TList[*TemplateType], ctor Node) {
 	if !templates.isEmpty() {
-		this.constructorTemplateTypeNames = ImmutableList_copyOf(Collection(templates.asList()))
-		this.templateTypeNames = func() *ErasedImmutableList {
+		this.constructorTemplateTypeNames = immutableListCopyOf_(tc_p_TemplateType, Collection(templates.asList()))
+		this.templateTypeNames = func() *ImmutableList[*TemplateType] {
 			if this.templateTypeNames.isEmpty() {
-				return ImmutableList_copyOf(Collection(templates.asList()))
+				return immutableListCopyOf_(tc_p_TemplateType, Collection(templates.asList()))
 			}
-			return ImmutableList_builder().addAll(icast_Iterable(obj_(this.templateTypeNames))).addAll(icast_Iterable(obj_(this.constructorTemplateTypeNames))).build()
+			return immutableListBuilder_(tc_p_TemplateType).addAllT(this.templateTypeNames).addAllT(this.constructorTemplateTypeNames).build()
 		}()
 		this.registerTemplates(Iterable(templates.asList()), ctor)
 	}
@@ -477,21 +477,21 @@ func (this *FunctionTypeBuilder) isVarArgsParameterByConvention(param Node) bool
 	return this.codingConvention.isVarArgsParameter(param)
 }
 
-func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo, allowTypeTransformations bool) ImmutableListOf[*TemplateType] {
-	var infoTypeKeys ImmutableMapOf[string, *JSTypeExpression] = info.getTemplateTypes()
-	var infoTypeTransformations ImmutableMapOf[string, Node] = info.getTypeTransformations()
-	if infoTypeKeys.isEmpty() && infoTypeTransformations.isEmpty() {
-		return ImmutableList_of()
+func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo, allowTypeTransformations bool) *ImmutableList[*TemplateType] {
+	var infoTypeKeys *ImmutableMap[string, *JSTypeExpression] = info.getTemplateTypes()
+	var infoTypeTransformations *ImmutableMap[string, Node] = info.getTypeTransformations()
+	if infoTypeKeys.IsEmpty() && infoTypeTransformations.IsEmpty() {
+		return immutableListOf_(tc_p_TemplateType)
 	}
 	var unboundedTemplates *TList[*TemplateType] = newTList_(tc_p_TemplateType)
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](infoTypeKeys.keySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](infoTypeKeys.asImm().keySet())) {
 		templateKey := str_(el)
 		unboundedTemplates.add(this.typeRegistry.createTemplateType(templateKey))
 	}
 	this.templateScope = this.typeRegistry.createScopeWithTemplates(this.templateScope, Iterable(unboundedTemplates.asList()))
-	var templates ImmutableList_BuilderOf[*TemplateType] = ImmutableList_builder()
+	var templates *ImmutableList_Builder[*TemplateType] = immutableListBuilder_(tc_p_TemplateType)
 	var templatesToBounds *TMap[*TemplateType, *JSType] = newTMap_(tch_p_TemplateType, tc_p_JSType)
-	for _, el2 := range immElems_(cast_[*ErasedImmutableSet](infoTypeKeys.entrySet())) {
+	for _, el2 := range immElems_(cast_[*ErasedImmutableSet](infoTypeKeys.asImm().entrySet())) {
 		entry := icast_Map_Entry(el2)
 		var expr *JSTypeExpression = cast_[*JSTypeExpression](entry.getValue())
 		var typeBound *JSType = this.typeRegistry.evaluateTypeExpression(cast_[*JSTypeExpression](entry.getValue()), this.templateScope)
@@ -500,28 +500,28 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		}
 		var template *TemplateType = this.typeRegistry.getType(StaticScope(this.templateScope), str_(entry.getKey())).toMaybeTemplateType()
 		if template != nil {
-			templatesToBounds.put(template, typeBound)
+			templatesToBounds.Put(template, typeBound)
 		} else {
-			templatesToBounds.put(this.typeRegistry.createTemplateType_2(str_(entry.getKey()), typeBound), typeBound)
+			templatesToBounds.Put(this.typeRegistry.createTemplateType_2(str_(entry.getKey()), typeBound), typeBound)
 		}
 	}
 	for entryKey, entryValue := range templatesToBounds.All() {
 		var template *TemplateType = entryKey
 		var bound *JSType = entryValue
 		template.setBound(bound)
-		templates.add(obj_(template))
+		templates.add(template)
 	}
-	for _, el3 := range immElems_(cast_[*ErasedImmutableSet](infoTypeTransformations.entrySet())) {
+	for _, el3 := range immElems_(cast_[*ErasedImmutableSet](infoTypeTransformations.asImm().entrySet())) {
 		entry := icast_Map_Entry(el3)
 		if allowTypeTransformations {
-			templates.add(obj_(this.typeRegistry.createTemplateTypeWithTransformation(str_(entry.getKey()), Node_of_(entry.getValue()))))
+			templates.add(this.typeRegistry.createTemplateTypeWithTransformation(str_(entry.getKey()), Node_of_(entry.getValue())))
 		} else {
 			this.reportWarning(FunctionTypeBuilder_TEMPLATE_TRANSFORMATION_ON_CLASS, []string{str_(entry.getKey())})
 		}
 	}
-	var builtTemplates ImmutableListOf[*TemplateType] = templates.build()
-	for _, el4 := range immElems_(builtTemplates) {
-		template := cast_[*TemplateType](el4)
+	var builtTemplates *ImmutableList[*TemplateType] = templates.build()
+	for _, el4 := range builtTemplates.items {
+		template := el4
 		if template.containsCycle() {
 			this.reportError(RhinoErrorReporter_CYCLIC_INHERITANCE_ERROR, []string{("Cycle detected in inheritance chain of type " + sstr_(template.getReferenceName().orElse("null")))})
 		}
@@ -531,19 +531,19 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 
 func (this *FunctionTypeBuilder) inferTemplateTypeName(info *JSDocInfo, ownerType *JSType) *FunctionTypeBuilder {
 	if (info != nil) && !this.maybeUseNativeClassTemplateNames(info) {
-		var templates ImmutableListOf[*TemplateType] = this.buildTemplateTypesFromJSDocInfo(info, !(this.isConstructor_ || this.isInterface_))
+		var templates *ImmutableList[*TemplateType] = this.buildTemplateTypesFromJSDocInfo(info, !(this.isConstructor_ || this.isInterface_))
 		if !templates.isEmpty() {
 			this.templateTypeNames = templates
 		}
 	}
-	var ownerTypeKeys ImmutableListOf[*TemplateType] = func() *ErasedImmutableList {
+	var ownerTypeKeys *ImmutableList[*TemplateType] = func() *ImmutableList[*TemplateType] {
 		if ownerType != nil {
 			return ownerType.getTemplateTypeMap().getTemplateKeys()
 		}
-		return ImmutableList_of()
+		return immutableListOf_(tc_p_TemplateType)
 	}()
 	if !this.templateTypeNames.isEmpty() || !ownerTypeKeys.isEmpty() {
-		this.registerTemplates(Iterables_concat(icast_Iterable(obj_(this.templateTypeNames)), icast_Iterable(obj_(ownerTypeKeys))), this.contents.getSourceNode())
+		this.registerTemplates(Iterables_concat(icast_Iterable(obj_(this.templateTypeNames.asImm())), icast_Iterable(obj_(ownerTypeKeys.asImm()))), this.contents.getSourceNode())
 	}
 	return this
 }
@@ -612,7 +612,7 @@ func (this *FunctionTypeBuilder) buildAndRegister() *FunctionType {
 	} else if this.isInterface_ {
 		fnType = this.getOrCreateInterface()
 	} else {
-		fnType = to_FunctionType(this.createDefaultBuilder().withParameters_1(slicePtrImm_(tc_p_FunctionType_Parameter, this.parameters)).withReturnType_2(this.returnType, this.returnTypeInferred).withTypeOfThis(this.thisType).withIsAbstract(this.isAbstract_).withClosurePrimitiveId(this.closurePrimitiveId).build().self())
+		fnType = to_FunctionType(this.createDefaultBuilder().withParameters_1(slicePtrImm_(tc_p_FunctionType_Parameter, this.parameters.asImm())).withReturnType_2(this.returnType, this.returnTypeInferred).withTypeOfThis(this.thisType).withIsAbstract(this.isAbstract_).withClosurePrimitiveId(this.closurePrimitiveId).build().self())
 		this.maybeSetBaseType(fnType)
 	}
 	if (this.implementedInterfaces != nil) && fnType.isConstructor() {
@@ -640,7 +640,7 @@ func (this *FunctionTypeBuilder) createDefaultBuilder() *FunctionType_Builder {
 }
 
 func (this *FunctionTypeBuilder) getOrCreateConstructor() *FunctionType {
-	var fnType *FunctionType = to_FunctionType(this.createDefaultBuilder().forConstructor().withParameters_1(slicePtrImm_(tc_p_FunctionType_Parameter, this.parameters)).withReturnType(this.returnType).withConstructorTemplateKeys(icast_Iterable(obj_(this.constructorTemplateTypeNames))).withIsAbstract(this.isAbstract_).build().self())
+	var fnType *FunctionType = to_FunctionType(this.createDefaultBuilder().forConstructor().withParameters_1(slicePtrImm_(tc_p_FunctionType_Parameter, this.parameters.asImm())).withReturnType(this.returnType).withConstructorTemplateKeys(icast_Iterable(obj_(this.constructorTemplateTypeNames.asImm()))).withIsAbstract(this.isAbstract_).build().self())
 	if this.makesStructs_ {
 		fnType.setStruct()
 	} else if this.makesDicts_ {
@@ -716,8 +716,8 @@ func FunctionTypeBuilder_hasMoreTagsToResolve(objectType *ObjectType) bool {
 	}
 	var ctor *FunctionType = objectType.getConstructor()
 	if ctor != nil {
-		for _, el_1 := range immElems_(ctor.getExtendedInterfaces()) {
-			var interfaceType *ObjectType = to_ObjectType(el_1)
+		for _, el_1 := range ctor.getExtendedInterfaces().items {
+			var interfaceType *ObjectType = el_1
 			if !interfaceType.isResolved() {
 				return true
 			}

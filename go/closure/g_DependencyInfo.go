@@ -7,27 +7,27 @@ import "strings"
 type DependencyInfo interface {
 	getName() string
 	getPathRelativeToClosureBase() string
-	getProvides() *ErasedImmutableList
-	getRequires() *ErasedImmutableList
-	getRequiredSymbols() *ErasedImmutableList
-	getTypeRequires() *ErasedImmutableList
-	getLoadFlags() *ErasedImmutableMap
+	getProvides() *ImmutableList[string]
+	getRequires() *ImmutableList[*DependencyInfo_Require]
+	getRequiredSymbols() *ImmutableList[string]
+	getTypeRequires() *ImmutableList[string]
+	getLoadFlags() *ImmutableMap[string, string]
 	isEs6Module() bool
 	isGoogModule() bool
 	getHasExternsAnnotation() bool
 	getHasNoCompileAnnotation() bool
 }
 
-func DependencyInfo_getRequiredSymbols_default(this DependencyInfo) ImmutableListOf[string] {
-	return DependencyInfo_Require_asSymbolList(icast_Iterable(obj_(this.getRequires())))
+func DependencyInfo_getRequiredSymbols_default(this DependencyInfo) *ImmutableList[string] {
+	return DependencyInfo_Require_asSymbolList(icast_Iterable(obj_(this.getRequires().asImm())))
 }
 
 func DependencyInfo_isEs6Module_default(this DependencyInfo) bool {
-	return ("es6" == str_(Map_get_s(this.getLoadFlags(), "module")))
+	return ("es6" == this.getLoadFlags().Get("module"))
 }
 
 func DependencyInfo_isGoogModule_default(this DependencyInfo) bool {
-	return ("goog" == str_(Map_get_s(this.getLoadFlags(), "module")))
+	return ("goog" == this.getLoadFlags().Get("module"))
 }
 
 type DependencyInfo_Require struct {
@@ -61,10 +61,10 @@ func (this *DependencyInfo_Require) toString() string {
 	return ("Require{symbol=" + sstr_(this.getSymbol_) + ", rawText=" + sstr_(this.getRawText_) + ", type=" + tostr_(this.getType_) + "}")
 }
 
-func DependencyInfo_Require_asSymbolList(requires IterableOf[*DependencyInfo_Require]) ImmutableListOf[string] {
-	var result ImmutableList_BuilderOf[string] = ImmutableList_builder()
+func DependencyInfo_Require_asSymbolList(requires IterableOf[*DependencyInfo_Require]) *ImmutableList[string] {
+	var result *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	for require := range elemsAs_[*DependencyInfo_Require](requires) {
-		result.add(strobj_(require.getSymbol()))
+		result.add(require.getSymbol())
 	}
 	return result.build()
 }
@@ -303,13 +303,13 @@ func new_DependencyInfo_Util() *DependencyInfo_Util {
 
 func DependencyInfo_Util_writeAddDependency(out *strBuilder_, info DependencyInfo) {
 	out.append_CharSequence_s("goog.addDependency('").append_CharSequence_s(info.getPathRelativeToClosureBase()).append_CharSequence_s("', ")
-	DependencyInfo_Util_writeJsArray(out, icast_Collection(obj_(info.getProvides())))
+	DependencyInfo_Util_writeJsArray(out, icast_Collection(obj_(info.getProvides().asImm())))
 	out.append_CharSequence_s(", ")
-	DependencyInfo_Util_writeJsArray(out, icast_Collection(obj_(DependencyInfo_Require_asSymbolList(icast_Iterable(obj_(info.getRequires()))))))
-	var loadFlags ImmutableMapOf[string, string] = info.getLoadFlags()
-	if !loadFlags.isEmpty() {
+	DependencyInfo_Util_writeJsArray(out, icast_Collection(obj_(DependencyInfo_Require_asSymbolList(icast_Iterable(obj_(info.getRequires().asImm()))).asImm())))
+	var loadFlags *ImmutableMap[string, string] = info.getLoadFlags()
+	if !loadFlags.IsEmpty() {
 		out.append_CharSequence_s(", ")
-		DependencyInfo_Util_writeJsObject(out, tmapFrom_(tc_string, tc_string, loadFlags, true))
+		DependencyInfo_Util_writeJsObject(out, loadFlags)
 	}
 	out.append_CharSequence_s(");\n")
 }

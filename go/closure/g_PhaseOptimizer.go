@@ -138,7 +138,7 @@ var PhaseOptimizer_logger *Logger
 
 const PhaseOptimizer_START_TIME int32 = 0
 
-var PhaseOptimizer_CODE_REMOVING_PASSES *ErasedImmutableList
+var PhaseOptimizer_CODE_REMOVING_PASSES *ImmutableList[string]
 
 const PhaseOptimizer_MAX_LOOPS int32 = 100
 const PhaseOptimizer_OPTIMIZE_LOOP_ERROR string = "Fixed point loop exceeded the maximum number of iterations."
@@ -151,7 +151,7 @@ func PhaseOptimizer_clinit() {
 	}
 	PhaseOptimizer_clinit_done = true
 	PhaseOptimizer_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.PhaseOptimizer").getName())
-	PhaseOptimizer_CODE_REMOVING_PASSES = ImmutableList_of_Object(strobj_(PassNames_PEEPHOLE_OPTIMIZATIONS))
+	PhaseOptimizer_CODE_REMOVING_PASSES = immutableListOf_(tc_string, PassNames_PEEPHOLE_OPTIMIZATIONS)
 
 }
 
@@ -437,7 +437,7 @@ func (this *PhaseOptimizer_Loop) isPopulated() bool {
 func (this *PhaseOptimizer_Loop) isCodeRemovalLoop() bool {
 	for i_1 := 0; i_1 < len(this.myPasses); i_1++ {
 		var pass *PhaseOptimizer_NamedPass = this.myPasses[i_1]
-		if Collection_contains_s(PhaseOptimizer_CODE_REMOVING_PASSES, pass.name_) {
+		if Collection_contains_s(PhaseOptimizer_CODE_REMOVING_PASSES.asImm(), pass.name_) {
 			return true
 		}
 	}

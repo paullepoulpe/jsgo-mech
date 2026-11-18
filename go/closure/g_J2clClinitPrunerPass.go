@@ -32,11 +32,11 @@ func (this *J2clClinitPrunerPass) process_2(externs Node, root Node) {
 	}
 	this.removeRedundantClinits(root, this.initialChangedScopeNodes)
 	this.pruneEmptyClinits(root, this.initialChangedScopeNodes)
-	if this.emptiedClinitMethods.isEmpty() {
+	if this.emptiedClinitMethods.IsEmpty() {
 		return
 	}
 	var clinitReferences *SimpleSetMultimap[any, Node] = this.collectClinitReferences(root)
-	for do_2 := true; do_2; do_2 = !this.emptiedClinitMethods.isEmpty() {
+	for do_2 := true; do_2; do_2 = !this.emptiedClinitMethods.IsEmpty() {
 		var newChangedScopes *TList[Node] = this.cleanEmptyClinitReferences(clinitReferences)
 		this.pruneEmptyClinits(root, newChangedScopes)
 	}
@@ -50,7 +50,7 @@ func (this *J2clClinitPrunerPass) removeRedundantClinits(root Node, changedScope
 }
 
 func (this *J2clClinitPrunerPass) pruneEmptyClinits(root Node, changedScopes *TList[Node]) {
-	this.emptiedClinitMethods.clear()
+	this.emptiedClinitMethods.Clear()
 	this.traverseScopeRootsWithFallback(root, changedScopes, new_J2clClinitPrunerPass_EmptyClinitPruner(this), false)
 	for clinitReplacementEntry := range elemsBy_(this.emptiedClinitMethods.asMap().entrySet(), icast_Map_Entry) {
 		clinitReplacementEntry.setValue(this.resolveReplacement(Node_of_(clinitReplacementEntry.getValue())).box_())
@@ -71,10 +71,10 @@ func (this *J2clClinitPrunerPass) resolveReplacement(node Node) Node {
 	}
 	var clinitName OptionalOf[string] = J2clClinitPrunerPass_getClinitMethodName(node)
 	return func() Node {
-		if clinitName.isPresent() && this.emptiedClinitMethods.containsKey(clinitName.get()) {
+		if clinitName.isPresent() && this.emptiedClinitMethods.Has(clinitName.get()) {
 			return this.resolveReplacement(func() Node {
 				if clinitName.isPresent() {
-					return this.emptiedClinitMethods.get(clinitName.get())
+					return this.emptiedClinitMethods.Get(clinitName.get())
 				}
 				return 0
 			}())
@@ -151,7 +151,7 @@ func J2clClinitPrunerPass_getQualifiedNameOfFunction(function Node) OptionalOf[s
 
 type J2clClinitPrunerPass_RedundantClinitPruner struct {
 	outer_                *J2clClinitPrunerPass
-	roots                 ImmutableSetOf[Node]
+	roots                 *ImmutableSet[Node]
 	stateStack            []*J2clClinitPrunerPass_HierarchicalSet[string]
 	clinitsCalledAtBranch *J2clClinitPrunerPass_HierarchicalSet[string]
 }
@@ -163,11 +163,11 @@ func (this *J2clClinitPrunerPass_RedundantClinitPruner) finit_J2clClinitPrunerPa
 
 func (this *J2clClinitPrunerPass_RedundantClinitPruner) init_J2clClinitPrunerPass_RedundantClinitPruner(roots IterableOf[Node]) {
 	this.finit_J2clClinitPrunerPass_RedundantClinitPruner()
-	this.roots = func() *ErasedImmutableSet {
+	this.roots = func() *ImmutableSet[Node] {
 		if roots == nil {
-			return ImmutableSet_of()
+			return immutableSetOf_(tc_Node)
 		}
-		return ImmutableSet_copyOf_Iterable(roots)
+		return immutableSetCopyOf_(tc_Node, roots)
 	}()
 }
 
@@ -179,7 +179,7 @@ func new_J2clClinitPrunerPass_RedundantClinitPruner(outer_ *J2clClinitPrunerPass
 }
 
 func (this *J2clClinitPrunerPass_RedundantClinitPruner) shouldTraverse(t *NodeTraversal, node Node, parent Node) bool {
-	if this.roots.contains(node.box_()) {
+	if this.roots.Has(node) {
 		this.clinitsCalledAtBranch = new_J2clClinitPrunerPass_HierarchicalSet[string](nil)
 		sliceClear_(&this.stateStack)
 	}
@@ -372,7 +372,7 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) trySubstituteEmptyFunction(f
 	} else {
 		return
 	}
-	this.outer_.emptiedClinitMethods.put(fnQualifiedName.get(), replaceReferencesWith)
+	this.outer_.emptiedClinitMethods.Put(fnQualifiedName.get(), replaceReferencesWith)
 	NodeUtil_deleteNode(firstExpr, this.outer_.compiler_)
 }
 

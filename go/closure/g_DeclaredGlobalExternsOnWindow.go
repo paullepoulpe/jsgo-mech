@@ -40,7 +40,7 @@ func (this *DeclaredGlobalExternsOnWindow) process_2(externs Node, root Node) {
 }
 
 func (this *DeclaredGlobalExternsOnWindow) addWindowProperties() {
-	if !this.nodes_.isEmpty() {
+	if !this.nodes_.IsEmpty() {
 		for node := range this.nodes_.All() {
 			DeclaredGlobalExternsOnWindow_addExtern(node, this.windowInExterns)
 			this.compiler_.reportChangeToEnclosingScope(node)
@@ -100,7 +100,7 @@ func DeclaredGlobalExternsOnWindow_addExtern(node Node, defineOnWindow bool) {
 
 func (this *DeclaredGlobalExternsOnWindow) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isFunction() {
-		this.nodes_.add(n.getFirstChild())
+		this.nodes_.Add(n.getFirstChild())
 	} else if n.isVar() {
 		{
 			var c Node = n.getFirstChild()
@@ -110,7 +110,7 @@ func (this *DeclaredGlobalExternsOnWindow) visit_impl(t *NodeTraversal, n Node, 
 					continue
 				}
 				if !(c.getString() == "location") {
-					this.nodes_.add(c)
+					this.nodes_.Add(c)
 				}
 			}
 		}

@@ -42,9 +42,9 @@ func (this *GatherRawExports) process_2(externs Node, root Node) {
 func (this *GatherRawExports) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if NodeUtil_isNormalOrOptChainGet(n) && GatherRawExports_isGlobalThisObject(t, n.getFirstChild()) {
 		if NodeUtil_isNormalOrOptChainGetProp(n) {
-			this.exportedVariables.add(n.getString())
+			this.exportedVariables.Add(n.getString())
 		} else if NodeUtil_isNormalOrOptChainGet(n) && n.getSecondChild().isStringLit() {
-			this.exportedVariables.add(n.getSecondChild().getString())
+			this.exportedVariables.Add(n.getSecondChild().getString())
 		}
 	}
 }

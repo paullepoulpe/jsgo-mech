@@ -23,13 +23,13 @@ func ReplaceMessagesConstants_isProtectedMessage(n Node) bool {
 	if !callee.isName() {
 		return false
 	}
-	return Collection_contains_s(ReplaceMessagesConstants_PROTECTED_FUNCTION_NAMES, callee.getString())
+	return ReplaceMessagesConstants_PROTECTED_FUNCTION_NAMES.Has(callee.getString())
 }
 
 const ReplaceMessagesConstants_DEFINE_MSG_CALLEE string = "__jscomp_define_msg__"
 const ReplaceMessagesConstants_FALLBACK_MSG_CALLEE string = "__jscomp_msg_fallback__"
 
-var ReplaceMessagesConstants_PROTECTED_FUNCTION_NAMES *ErasedImmutableSet
+var ReplaceMessagesConstants_PROTECTED_FUNCTION_NAMES *ImmutableSet[string]
 
 var ReplaceMessagesConstants_clinit_done bool
 
@@ -38,6 +38,6 @@ func ReplaceMessagesConstants_clinit() {
 		return
 	}
 	ReplaceMessagesConstants_clinit_done = true
-	ReplaceMessagesConstants_PROTECTED_FUNCTION_NAMES = ImmutableSet_of_Object_Object(strobj_(ReplaceMessagesConstants_DEFINE_MSG_CALLEE), strobj_(ReplaceMessagesConstants_FALLBACK_MSG_CALLEE))
+	ReplaceMessagesConstants_PROTECTED_FUNCTION_NAMES = immutableSetOf_(tc_string, ReplaceMessagesConstants_DEFINE_MSG_CALLEE, ReplaceMessagesConstants_FALLBACK_MSG_CALLEE)
 
 }

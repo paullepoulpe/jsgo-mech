@@ -57,11 +57,11 @@ func (this *ThreadSafeDelegatingErrorManager) getWarningCount() int32 {
 	return this.delegated.getWarningCount()
 }
 
-func (this *ThreadSafeDelegatingErrorManager) getErrors() ImmutableListOf[*JSError] {
+func (this *ThreadSafeDelegatingErrorManager) getErrors() *ImmutableList[*JSError] {
 	return this.delegated.getErrors()
 }
 
-func (this *ThreadSafeDelegatingErrorManager) getWarnings() ImmutableListOf[*JSError] {
+func (this *ThreadSafeDelegatingErrorManager) getWarnings() *ImmutableList[*JSError] {
 	return this.delegated.getWarnings()
 }
 

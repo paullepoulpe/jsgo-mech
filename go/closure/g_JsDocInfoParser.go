@@ -12,9 +12,9 @@ type JsDocInfoParser struct {
 	templateNode           Node
 	fileOverviewJSDocInfo  *JSDocInfo
 	state                  JsDocInfoParser_State
-	annotations_           ImmutableMapOf[string, Annotation_parsing]
-	suppressionNames_      ImmutableSetOf[string]
-	closurePrimitiveNames_ ImmutableSetOf[string]
+	annotations_           *ImmutableMap[string, Annotation_parsing]
+	suppressionNames_      *ImmutableSet[string]
+	closurePrimitiveNames_ *ImmutableSet[string]
 	preserveWhitespace     bool
 	onlyParseLicenseJsDoc  bool
 	licenseText            OptionalOf[string]
@@ -255,7 +255,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *[]
 	var lineno int32 = this.stream.getLineno()
 	var charno int32 = this.stream.getCharno()
 	var annotationName string = this.stream.getString()
-	var annotation Annotation_parsing = cast_[Annotation_parsing](Map_get_s(this.annotations_, annotationName))
+	var annotation Annotation_parsing = this.annotations_.Get(annotationName)
 	if this.onlyParseLicenseJsDoc && !((annotation == Annotation_parsing_LICENSE) || (annotation == Annotation_parsing_PRESERVE)) {
 		return this.next()
 	}
@@ -412,7 +412,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *[]
 				var typeNode Node = this.parseAndRecordTypeNode(token)
 				if (typeNode != 0) && typeNode.isStringLit() {
 					var typeName string = typeNode.getString()
-					if !Collection_contains_s(JsDocInfoParser_primitiveTypes, typeName) {
+					if !JsDocInfoParser_primitiveTypes.Has(typeName) {
 						typeNode = this.wrapNode(Token_rhino_BANG, typeNode)
 					}
 				}
@@ -1032,7 +1032,7 @@ func (this *JsDocInfoParser) parseSuppressTag(token JsDocToken) JsDocToken {
 			this.skipEOLs()
 			if this.match(JsDocToken_STRING) {
 				var name string = this.stream.getString()
-				if !Collection_contains_s(this.suppressionNames_, name) {
+				if !this.suppressionNames_.Has(name) {
 					this.addParserWarning_2(Msg_JSDOC_SUPPRESS_UNKNOWN, name)
 				}
 				Collection_add_s(suppressions, this.stream.getString())
@@ -1056,7 +1056,7 @@ func (this *JsDocInfoParser) parseSuppressTag(token JsDocToken) JsDocToken {
 		if this.jsdocBuilder.shouldParseDocumentation() && !this.lookAheadForAnnotation() {
 			var suppressDescriptionInfo *JsDocInfoParser_ExtractionInfo = this.extractMultilineTextualBlock(token)
 			var suppressDescription string = suppressDescriptionInfo.string_
-			this.jsdocBuilder.recordSuppressions_2(ImmutableSet_copyOf(Collection(suppressions)), suppressDescription)
+			this.jsdocBuilder.recordSuppressions_2(immutableSetCopyOf_(tc_string, Collection(suppressions)), suppressDescription)
 			token = suppressDescriptionInfo.token
 		} else {
 			token = this.eatUntilEOLIfNotAnnotation_1(this.next())
@@ -1092,7 +1092,7 @@ func (this *JsDocInfoParser) parseClosurePrimitiveTag(token JsDocToken) JsDocTok
 		return token
 	} else if this.match(JsDocToken_STRING) {
 		var name string = this.stream.getString()
-		if !Collection_contains_s(this.closurePrimitiveNames_, name) {
+		if !this.closurePrimitiveNames_.Has(name) {
 			this.addParserWarning_2(Msg_JSDOC_CLOSUREPRIMITIVE_INVALID, name)
 		} else if !this.jsdocBuilder.recordClosurePrimitiveId(name) {
 			this.addParserWarning(Msg_JSDOC_CLOSUREPRIMITIVE_EXTRA)
@@ -1116,7 +1116,7 @@ func (this *JsDocInfoParser) parseModifiesTag(token JsDocToken) JsDocToken {
 		for {
 			if this.match(JsDocToken_STRING) {
 				var name string = this.stream.getString()
-				if !Collection_contains_s(JsDocInfoParser_modifiesAnnotationKeywords, name) && !this.jsdocBuilder.hasParameter(Optional_of[string](name)) {
+				if !JsDocInfoParser_modifiesAnnotationKeywords.Has(name) && !this.jsdocBuilder.hasParameter(Optional_of[string](name)) {
 					this.addParserWarning_2(Msg_JSDOC_MODIFIES_UNKNOWN, name)
 				}
 				Collection_add_s(modifies, this.stream.getString())
@@ -1150,7 +1150,7 @@ func (this *JsDocInfoParser) parseIdGeneratorTag(token JsDocToken) JsDocToken {
 	if token == JsDocToken_LEFT_CURLY {
 		if this.match(JsDocToken_STRING) {
 			var name string = this.stream.getString()
-			if !Collection_contains_s(JsDocInfoParser_idGeneratorAnnotationKeywords, name) && !this.jsdocBuilder.hasParameter(Optional_of[string](name)) {
+			if !JsDocInfoParser_idGeneratorAnnotationKeywords.Has(name) && !this.jsdocBuilder.hasParameter(Optional_of[string](name)) {
 				this.addParserWarning_2(Msg_JSDOC_IDGEN_UNKNOWN, name)
 			}
 			idgenKind = name
@@ -2100,9 +2100,9 @@ const JsDocInfoParser_BAD_TYPE_WIKI_LINK string = " See https://github.com/googl
 const JsDocInfoParser_TSICKLE_MISSING_TYPE_PLACEHOLDER string = "JsDocInfoParser_TsickleMode_MissingSupertypePlaceholder"
 const JsDocInfoParser_TS_TYPE_PLACEHOLDER string = "JsDocInfoParser_tsType_PlaceHolder"
 
-var JsDocInfoParser_modifiesAnnotationKeywords *ErasedImmutableSet
-var JsDocInfoParser_idGeneratorAnnotationKeywords *ErasedImmutableSet
-var JsDocInfoParser_primitiveTypes *ErasedImmutableSet
+var JsDocInfoParser_modifiesAnnotationKeywords *ImmutableSet[string]
+var JsDocInfoParser_idGeneratorAnnotationKeywords *ImmutableSet[string]
+var JsDocInfoParser_primitiveTypes *ImmutableSet[string]
 var JsDocInfoParser_NO_UNREAD_TOKEN JsDocToken
 
 var JsDocInfoParser_clinit_done bool
@@ -2113,9 +2113,9 @@ func JsDocInfoParser_clinit() {
 	}
 	JsDocInfoParser_clinit_done = true
 	JsDocInfoParser_TEMPLATE_NAME_MATCHER = CharMatcher_javaLetterOrDigit().or(CharMatcher_anyOf(strobj_("_$")))
-	JsDocInfoParser_modifiesAnnotationKeywords = ImmutableSet_of_Object_Object(strobj_("this"), strobj_("arguments"))
-	JsDocInfoParser_idGeneratorAnnotationKeywords = ImmutableSet_of_Object_Object_Object_Object_Object(strobj_("unique"), strobj_("consistent"), strobj_("stable"), strobj_("mapped"), strobj_("xid"))
-	JsDocInfoParser_primitiveTypes = ImmutableSet_of_Object_Object_Object_Object(strobj_("number"), strobj_("string"), strobj_("boolean"), strobj_("symbol"))
+	JsDocInfoParser_modifiesAnnotationKeywords = immutableSetOf_(tc_string, "this", "arguments")
+	JsDocInfoParser_idGeneratorAnnotationKeywords = immutableSetOf_(tc_string, "unique", "consistent", "stable", "mapped", "xid")
+	JsDocInfoParser_primitiveTypes = immutableSetOf_(tc_string, "number", "string", "boolean", "symbol")
 	JsDocInfoParser_NO_UNREAD_TOKEN = 0
 
 }

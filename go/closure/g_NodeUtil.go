@@ -1017,7 +1017,7 @@ func NodeUtil_allArgsUnescapedLocal(callOrNew Node) bool {
 }
 
 func NodeUtil_canBeSideEffected_Node(n Node) bool {
-	return NodeUtil_canBeSideEffected_Node_Set_Scope(n, setImm_(tc_string, NodeUtil_KNOWN_CONSTANTS), nil)
+	return NodeUtil_canBeSideEffected_Node_Set_Scope(n, setImm_(tc_string, NodeUtil_KNOWN_CONSTANTS.asImm()), nil)
 }
 
 func NodeUtil_canBeSideEffected_Node_Set_Scope(n Node, knownConstants map[string]struct{}, scope *Scope) bool {
@@ -4182,13 +4182,13 @@ func NodeUtil_isCallToNode(n Node, targetMethod Node) bool {
 	return n.getFirstChild().matchesQualifiedNameNode(targetMethod)
 }
 
-func NodeUtil_collectExternVariableNames(compiler *AbstractCompiler, externs Node) ImmutableSetOf[string] {
+func NodeUtil_collectExternVariableNames(compiler *AbstractCompiler, externs Node) *ImmutableSet[string] {
 	var externsRefs *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler, ReferenceCollector_DO_NOTHING_BEHAVIOR, new_SyntacticScopeCreator_AbstractCompiler(compiler))
 	externsRefs.process(externs)
-	var externsNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+	var externsNames *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	for v := range elemsAs_[*Var](externsRefs.getAllSymbols()) {
 		if !v.isParam() {
-			externsNames.add(strobj_(v.getName()))
+			externsNames.add(v.getName())
 		}
 	}
 	return externsNames.build()
@@ -4237,7 +4237,7 @@ func NodeUtil_markFunctionsDeletedChangeTracker(node Node, changeTracker *Change
 func NodeUtil_getParentChangeScopeNodes(scopeNodes *TList[Node]) []Node {
 	var parentScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(scopeNodes.asList()), false)
 	for scopeNode := range scopeNodes.All() {
-		parentScopeNodes.add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
+		parentScopeNodes.Add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
 	}
 	return sliceFrom_(tc_Node, Collection(parentScopeNodes.asSet()))
 }
@@ -4248,8 +4248,8 @@ func NodeUtil_removeNestedChangeScopeNodes(scopeNodes []Node) *TList[Node] {
 		{
 			var ancestor Node = scopeNode.getParent()
 			for ; ancestor != 0; ancestor = ancestor.getParent() {
-				if ChangeTracker_isChangeScopeRoot(ancestor) && uniqueScopeNodes.contains(ancestor) {
-					uniqueScopeNodes.remove(scopeNode)
+				if ChangeTracker_isChangeScopeRoot(ancestor) && uniqueScopeNodes.Has(ancestor) {
+					uniqueScopeNodes.Delete(scopeNode)
 					break
 				}
 			}
@@ -4268,14 +4268,14 @@ func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableOf[Node] {
 	if invocation.hasOneChild() {
 		return ImmutableList_of()
 	}
-	var list ImmutableList_BuilderOf[Node] = ImmutableList_builder()
+	var list *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	{
 		var arg Node = invocation.getSecondChild()
 		for ; arg != 0; arg = arg.getNext() {
-			list.add(arg.box_())
+			list.add(arg)
 		}
 	}
-	return icast_Iterable(obj_(list.build()))
+	return icast_Iterable(obj_(list.buildErased()))
 }
 
 func NodeUtil_getInvocationArgsCount(invocation Node) int32 {
@@ -4415,8 +4415,8 @@ func NodeUtil_addFeaturesToScript(scriptNode Node, features *FeatureSet, compile
 	if !scriptNode.isScript() {
 		panic(new_IllegalStateException_String(tostr_(scriptNode)))
 	}
-	for _, el := range immElems_(features.getFeatures()) {
-		feature := cast_[FeatureSet_Feature](el)
+	for _, el := range features.getFeatures().keys {
+		feature := el
 		NodeUtil_addFeatureToScript(scriptNode, feature, compiler)
 	}
 }
@@ -4522,7 +4522,7 @@ var NodeUtil_GOOG_FORWARD_DECLARE *QualifiedName
 var NodeUtil_GOOG_REQUIRE_DYNAMIC *QualifiedName
 var NodeUtil_GOOG_WEAK_USAGE *QualifiedName
 var NodeUtil_GOOG_WEAK_USAGE_MANGLED *QualifiedName
-var NodeUtil_KNOWN_CONSTANTS *ErasedImmutableSet
+var NodeUtil_KNOWN_CONSTANTS *ImmutableSet[string]
 var NodeUtil_DEFINITE_CFG_ROOTS *ErasedImmutableSet
 var NodeUtil_IS_STATEMENT_PARENT *ErasedImmutableSet
 var NodeUtil_GLOBAL_OBJECT *QualifiedName
@@ -4551,7 +4551,7 @@ func NodeUtil_clinit() {
 	NodeUtil_GOOG_REQUIRE_DYNAMIC = QualifiedName_of("goog.requireDynamic")
 	NodeUtil_GOOG_WEAK_USAGE = QualifiedName_of("goog.weakUsage")
 	NodeUtil_GOOG_WEAK_USAGE_MANGLED = QualifiedName_of("goog$weakUsage")
-	NodeUtil_KNOWN_CONSTANTS = ImmutableSet_of_Object_Object_Object(strobj_("undefined"), strobj_("Infinity"), strobj_("NaN"))
+	NodeUtil_KNOWN_CONSTANTS = immutableSetOf_(tc_string, "undefined", "Infinity", "NaN")
 	NodeUtil_DEFINITE_CFG_ROOTS = Sets_immutableEnumSet(Token_rhino_FUNCTION.enum_(), []*Enum{Token_rhino_SCRIPT.enum_(), Token_rhino_MODULE_BODY.enum_(), Token_rhino_ROOT.enum_()})
 	NodeUtil_IS_STATEMENT_PARENT = Sets_immutableEnumSet(Token_rhino_SCRIPT.enum_(), []*Enum{Token_rhino_MODULE_BODY.enum_(), Token_rhino_BLOCK.enum_(), Token_rhino_LABEL.enum_(), Token_rhino_NAMESPACE_ELEMENTS.enum_(), Token_rhino_INTERFACE_MEMBERS.enum_()})
 	NodeUtil_GLOBAL_OBJECT = QualifiedName_of("$jscomp.global.Object")
@@ -4679,7 +4679,7 @@ func (this *NodeUtil_VarCollector) visit(n Node) {
 		NodeUtil_visitLhsNodesInNode(n, func(name_ any) {
 			var name Node = Node_of_(name_)
 			_ = name
-			this.vars.putIfAbsent(name.getString(), name)
+			this.vars.PutIfAbsent(name.getString(), name)
 		})
 	}
 }
@@ -4880,7 +4880,7 @@ type NodeUtil_AllVarsDeclaredInFunction struct {
 }
 
 func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *TMap[string, *Var], orderedVars *[]*Var) {
-	if allVarsInFn.isEmpty() != (len(*orderedVars) == 0) {
+	if allVarsInFn.IsEmpty() != (len(*orderedVars) == 0) {
 		panic(new_IllegalStateException_0())
 	}
 	this.allVarsInFn = allVarsInFn
@@ -5022,7 +5022,7 @@ func new_NodeUtil_2(cap_nameVarMap *TMap[string, *Var], cap_orderedVars *[]*Var,
 func (this *NodeUtil_2) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
 	for v := range elemsAs_[*Var](currentScope.getVarIterable()) {
-		this.cap_nameVarMap.put(v.getName(), v)
+		this.cap_nameVarMap.Put(v.getName(), v)
 		*this.cap_orderedVars = append(*this.cap_orderedVars, v)
 	}
 }

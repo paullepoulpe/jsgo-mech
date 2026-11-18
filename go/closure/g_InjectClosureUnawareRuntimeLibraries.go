@@ -28,18 +28,18 @@ func (this *InjectClosureUnawareRuntimeLibraries) process_2(externs Node, root N
 func (this *InjectClosureUnawareRuntimeLibraries) injectLibrariesIntoMainAst() {
 	var mainManager *RuntimeJsLibManager = this.mainCompiler.getRuntimeJsLibManager()
 	var shadowManager *RuntimeJsLibManager = this.shadowCompiler.getRuntimeJsLibManager()
-	for _, el := range immElems_(shadowManager.getInjectedLibraries()) {
-		runtimeLib := str_(el)
+	for _, el := range shadowManager.getInjectedLibraries().items {
+		runtimeLib := el
 		mainManager.ensureLibraryInjected(runtimeLib, false)
 	}
 }
 
 func (this *InjectClosureUnawareRuntimeLibraries) injectFieldsIntoCallSites() {
-	var fieldsByNameBuilder ImmutableMap_BuilderOf[string, RuntimeJsLibManager_ExternedField] = ImmutableMap_builder()
+	var fieldsByNameBuilder *ImmutableMap_Builder[string, RuntimeJsLibManager_ExternedField] = immutableMapBuilder_(tc_string, tc_RuntimeJsLibManager_ExternedField)
 	for _, field := range this.shadowCompiler.getRuntimeJsLibManager().getExternedFields() {
-		fieldsByNameBuilder.put(strobj_(field.qualifiedName()), field)
+		fieldsByNameBuilder.put(field.qualifiedName(), icast_RuntimeJsLibManager_ExternedField(field))
 	}
-	var fieldsByName ImmutableMapOf[string, RuntimeJsLibManager_ExternedField] = fieldsByNameBuilder.buildOrThrow()
+	var fieldsByName *ImmutableMap[string, RuntimeJsLibManager_ExternedField] = fieldsByNameBuilder.buildOrThrow()
 	for _, callSite := range this.closureUnawareCalls {
 		var toInject *TSet[RuntimeJsLibManager_ExternedField] = InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(callSite.closureUnawareFunction(), fieldsByName)
 		this.injectAll(callSite, toInject)
@@ -47,7 +47,7 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectFieldsIntoCallSites() {
 }
 
 func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite, toInject *TSet[RuntimeJsLibManager_ExternedField]) {
-	if toInject.isEmpty() {
+	if toInject.IsEmpty() {
 		return
 	}
 	var parameterParent Node = NodeUtil_getFunctionParameters(callSite.closureUnawareFunction())
@@ -65,15 +65,15 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClos
 	}
 }
 
-func InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(root Node, allKnownFields ImmutableMapOf[string, RuntimeJsLibManager_ExternedField]) *TSet[RuntimeJsLibManager_ExternedField] {
+func InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(root Node, allKnownFields *ImmutableMap[string, RuntimeJsLibManager_ExternedField]) *TSet[RuntimeJsLibManager_ExternedField] {
 	var seen *TSet[RuntimeJsLibManager_ExternedField] = newTSet_(tc_RuntimeJsLibManager_ExternedField)
 	var visitor NodeUtil_Visitor = &NodeUtil_Visitor_fn{func(n Node) {
 		if !n.isName() {
 			return
 		}
-		var field RuntimeJsLibManager_ExternedField = icast_RuntimeJsLibManager_ExternedField(Map_get_s(allKnownFields, n.getString()))
+		var field RuntimeJsLibManager_ExternedField = allKnownFields.Get(n.getString())
 		if field != nil {
-			seen.add(field)
+			seen.Add(field)
 		}
 	}}
 	NodeUtil_visitPreOrder_Node_Visitor(root, visitor)

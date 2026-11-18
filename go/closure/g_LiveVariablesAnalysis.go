@@ -208,7 +208,7 @@ func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 		panic(new_IllegalStateException_String(tostr_(node)))
 	}
 	var name string = node.getString()
-	var var_ *Var = this.allVarsInFn.get(name)
+	var var_ *Var = this.allVarsInFn.Get(name)
 	if var_ == nil {
 		return
 	}

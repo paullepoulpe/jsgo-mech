@@ -23,20 +23,20 @@ func ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_Str
 	ParserRunner_initResourceConfig()
 	var effectiveAnnotationNames *TSet[string]
 	if extraAnnotationNames == nil {
-		effectiveAnnotationNames = tsetFrom_(tc_string, ParserRunner_annotationNames, true)
+		effectiveAnnotationNames = ParserRunner_annotationNames
 	} else {
-		effectiveAnnotationNames = tsetFrom_(tc_string, icast_Collection(obj_(ParserRunner_annotationNames)), false)
-		effectiveAnnotationNames.addAllT(extraAnnotationNames)
+		effectiveAnnotationNames = tsetCopyT_(tc_string, ParserRunner_annotationNames)
+		effectiveAnnotationNames.AddAll(extraAnnotationNames)
 	}
-	return Config_builder().setExtraAnnotationNames(Iterable(effectiveAnnotationNames.asSet())).setJsDocParsingMode(jsdocParsingMode).setRunMode(runMode).setSuppressionNames(icast_Iterable(obj_(ParserRunner_suppressionNames))).setClosurePrimitiveNames(icast_Iterable(obj_(ParserRunner_closurePrimitiveNames))).setLanguageMode(languageMode).setParseInlineSourceMaps(parseInlineSourceMaps).setStrictMode(strictMode).build()
+	return Config_builder().setExtraAnnotationNames(Iterable(effectiveAnnotationNames.asSet())).setJsDocParsingMode(jsdocParsingMode).setRunMode(runMode).setSuppressionNames(icast_Iterable(obj_(ParserRunner_suppressionNames.asImm()))).setClosurePrimitiveNames(icast_Iterable(obj_(ParserRunner_closurePrimitiveNames.asImm()))).setLanguageMode(languageMode).setParseInlineSourceMaps(parseInlineSourceMaps).setStrictMode(strictMode).build()
 }
 
-func ParserRunner_getReservedVars() ImmutableSetOf[string] {
+func ParserRunner_getReservedVars() *ImmutableSet[string] {
 	ParserRunner_initResourceConfig()
 	return ParserRunner_reservedVars
 }
 
-func ParserRunner_getSuppressionNames() ImmutableSetOf[string] {
+func ParserRunner_getSuppressionNames() *ImmutableSet[string] {
 	ParserRunner_initResourceConfig()
 	return ParserRunner_suppressionNames
 }
@@ -51,8 +51,8 @@ func ParserRunner_initResourceConfig() {
 	ParserRunner_reservedVars = ParserRunner_extractList(ParserConfiguration_getString("compiler.reserved.vars"))
 }
 
-func ParserRunner_extractList(configProp string) ImmutableSetOf[string] {
-	return ImmutableSet_copyOf_Iterable(Splitter_on(',').trimResults().split_s(configProp))
+func ParserRunner_extractList(configProp string) *ImmutableSet[string] {
+	return immutableSetCopyOf_(tc_string, Splitter_on(',').trimResults().split_s(configProp))
 }
 
 func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config *Config, errorReporter ErrorReporter_rhino) (ret_1 *ParserRunner_ParseResult) {
@@ -74,7 +74,7 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 	var p *Parser = new_Parser(es6config, es6ErrorReporter.up_ErrorReporter_util(), file)
 	var tree *ProgramTree = p.parseProgram()
 	var root Node = 0
-	var comments *TList[*Comment] = tlistImm_(tc_p_Comment, ImmutableList_of())
+	var comments *TList[*Comment] = immutableListOf_(tc_p_Comment)
 	var topLevelStatementRanges []*SourceRange = []*SourceRange{}
 	var features *FeatureSet = p.getFeatures()
 	if (tree != nil) && (!es6ErrorReporter.hadError() || keepGoing) {
@@ -116,10 +116,10 @@ func ParserRunner_newParserConfig(config *Config) *Parser_Config {
 	return new_Parser_Config_Mode_boolean(parserConfigLanguageMode, isStrictMode)
 }
 
-var ParserRunner_annotationNames *ErasedImmutableSet
-var ParserRunner_suppressionNames *ErasedImmutableSet
-var ParserRunner_reservedVars *ErasedImmutableSet
-var ParserRunner_closurePrimitiveNames *ErasedImmutableSet
+var ParserRunner_annotationNames *ImmutableSet[string]
+var ParserRunner_suppressionNames *ImmutableSet[string]
+var ParserRunner_reservedVars *ImmutableSet[string]
+var ParserRunner_closurePrimitiveNames *ImmutableSet[string]
 
 var ParserRunner_clinit_done bool
 

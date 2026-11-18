@@ -55,7 +55,7 @@ func (this *FileInstrumentationData) putBranchNode(lineNumber int32, branchNumbe
 	if branchNumber <= 0 {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as branch number: %s", []any{branchNumber})))
 	}
-	this.branchNodes.put(FileInstrumentationData_BranchIndexPair_of((lineNumber-1), (branchNumber-1)), block)
+	this.branchNodes.Put(FileInstrumentationData_BranchIndexPair_of((lineNumber-1), (branchNumber-1)), block)
 }
 
 func (this *FileInstrumentationData) getBranchNode(lineNumber int32, branchNumber int32) Node {
@@ -65,7 +65,7 @@ func (this *FileInstrumentationData) getBranchNode(lineNumber int32, branchNumbe
 	if branchNumber <= 0 {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as branch number: %s", []any{branchNumber})))
 	}
-	return this.branchNodes.get(FileInstrumentationData_BranchIndexPair_of((lineNumber - 1), (branchNumber - 1)))
+	return this.branchNodes.Get(FileInstrumentationData_BranchIndexPair_of((lineNumber - 1), (branchNumber - 1)))
 }
 
 func FileInstrumentationData_getHexString(bitSet *BitSet) string {
@@ -103,16 +103,16 @@ func (this *FileInstrumentationData) setBranchPresent(lineNumber int32) {
 
 func (this *FileInstrumentationData) addBranches(lineNumber int32, numberOfBranches int32) {
 	var lineIdx int32 = (lineNumber - 1)
-	var currentValue any = this.branchesInLine.get(unbox_[int32](Integer_valueOf(lineIdx)))
+	var currentValue any = this.branchesInLine.Get(unbox_[int32](Integer_valueOf(lineIdx)))
 	if currentValue == nil {
-		this.branchesInLine.put(int32(lineIdx), any(int32(numberOfBranches)))
+		this.branchesInLine.Put(int32(lineIdx), any(int32(numberOfBranches)))
 	} else {
-		this.branchesInLine.put(int32(lineIdx), any(int32((unbox_[int32](currentValue) + numberOfBranches))))
+		this.branchesInLine.Put(int32(lineIdx), any(int32((unbox_[int32](currentValue) + numberOfBranches))))
 	}
 }
 
 func (this *FileInstrumentationData) getNumBranches(lineNumber int32) int32 {
-	var numBranches any = this.branchesInLine.get(int32((lineNumber - 1)))
+	var numBranches any = this.branchesInLine.Get(int32((lineNumber - 1)))
 	if numBranches == nil {
 		return 0
 	} else {

@@ -171,7 +171,7 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 }
 
 func (this *MaybeReachingVariableUse) addToUseIfLocal(name string, node Node, use *MaybeReachingVariableUse_ReachingUses) {
-	var var_ *Var = this.allVarsInFn.get(name)
+	var var_ *Var = this.allVarsInFn.Get(name)
 	if var_ == nil {
 		return
 	}
@@ -181,7 +181,7 @@ func (this *MaybeReachingVariableUse) addToUseIfLocal(name string, node Node, us
 }
 
 func (this *MaybeReachingVariableUse) removeFromUseIfLocal(name string, use *MaybeReachingVariableUse_ReachingUses) {
-	var var_ *Var = this.allVarsInFn.get(name)
+	var var_ *Var = this.allVarsInFn.Get(name)
 	if var_ == nil {
 		return
 	}
@@ -196,7 +196,7 @@ func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) Iterabl
 		panic(new_NullPointerException_0())
 	}
 	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(n)))
-	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(this.allVarsInFn.get(name))
+	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(this.allVarsInFn.Get(name))
 }
 
 type MaybeReachingVariableUse_ReachingUses struct {

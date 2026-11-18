@@ -20,8 +20,8 @@ func (this *ColorSerializer) init_ColorSerializer(serializationMode *Serializati
 	this.serializationMode = serializationMode
 	this.getStringPoolIndexFn = stringPoolIndexFn
 	this.propertyFilter = propertyFilter
-	for _, el := range immElems_(TypePointers_OFFSET_TO_AXIOMATIC_COLOR) {
-		color := cast_[*Color](el)
+	for _, el := range TypePointers_OFFSET_TO_AXIOMATIC_COLOR.items {
+		color := el
 		this.addColor(color)
 	}
 }
@@ -54,7 +54,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 	var typePoolBuilder *TypePool_Builder = TypePool_newBuilder()
 	for i := int32(TypePointers_untrimOffset(0)); i < int32(len(this.colorsInSerializedOrder)); i++ {
 		var color *Color = sliceAt_(this.colorsInSerializedOrder, i)
-		var typePointer any = this.colorIdToTypePointer.get(color.getId())
+		var typePointer any = this.colorIdToTypePointer.Get(color.getId())
 		typePoolBuilder.addType(this.generateTypeProto(color))
 		for supertype := range elemsAs_[*Color](icast_Set(getDisambiguationSupertypesFn(obj_(color)))) {
 			typePoolBuilder.addDisambiguationEdgesBuilder().setSubtype(unbox_[int32](typePointer)).setSupertype(this.addColor(supertype))
@@ -67,7 +67,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 		var debugInfoBuilder *TypePool_DebugInfo_Builder = typePoolBuilder.getDebugInfoBuilder()
 		var srcRefToTypePointerList *TMap[string, ArrayListOf[BoxedOf[int32]]] = newTMap_(tc_string, tc_ArrayListOf_BoxedOf_int32__)
 		for color := range sliceAll_(&this.colorsInSerializedOrder) {
-			var typePointer any = this.colorIdToTypePointer.get(color.getId())
+			var typePointer any = this.colorIdToTypePointer.Get(color.getId())
 			for srcRef := range elemsBy_(icast_Set(getMismatchSourceRefsFn(obj_(color))), str_) {
 				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.ComputeIfAbsent(srcRef, lambda_ColorSerializer_generateTypePool_1_)
 				typePointerList.add(typePointer)
@@ -90,18 +90,18 @@ func lambda_ColorSerializer_generateTypePool_1_(key_ string) ArrayListOf[BoxedOf
 func (this *ColorSerializer) generateTypeProto(color *Color) *TypeProto {
 	var typeProtoBuilder *TypeProto_Builder = TypeProto_newBuilder()
 	if color.isUnion() {
-		typeProtoBuilder.getUnionBuilder().addAllUnionMember(icast_Iterable(obj_(this.addColors(icast_Collection(obj_(color.getUnionElements()))))))
+		typeProtoBuilder.getUnionBuilder().addAllUnionMember(icast_Iterable(obj_(this.addColors(icast_Collection(obj_(color.getUnionElements().asImm()))))))
 	} else {
 		var objectTypeProtoBuilder *ObjectTypeProto_Builder = typeProtoBuilder.getObjectBuilder()
-		objectTypeProtoBuilder.setIsInvalidating(color.isInvalidating()).setUuid(color.getId().asByteString()).setPropertiesKeepOriginalName(color.getPropertiesKeepOriginalName()).addAllInstanceType(icast_Iterable(obj_(this.addColors(icast_Collection(obj_(color.getInstanceColors())))))).addAllPrototype(icast_Iterable(obj_(this.addColors(icast_Collection(obj_(color.getPrototypes())))))).setMarkedConstructor(color.isConstructor()).addAllOwnProperty(icast_Iterable(obj_(this.getOwnPropertyStringPoolOffsets(color)))).setClosureAssert(color.isClosureAssert())
+		objectTypeProtoBuilder.setIsInvalidating(color.isInvalidating()).setUuid(color.getId().asByteString()).setPropertiesKeepOriginalName(color.getPropertiesKeepOriginalName()).addAllInstanceType(icast_Iterable(obj_(this.addColors(icast_Collection(obj_(color.getInstanceColors().asImm())))))).addAllPrototype(icast_Iterable(obj_(this.addColors(icast_Collection(obj_(color.getPrototypes().asImm())))))).setMarkedConstructor(color.isConstructor()).addAllOwnProperty(icast_Iterable(obj_(this.getOwnPropertyStringPoolOffsets(color)))).setClosureAssert(color.isClosureAssert())
 	}
 	return cast_[*TypeProto](typeProtoBuilder.build())
 }
 
 func (this *ColorSerializer) getOwnPropertyStringPoolOffsets(color *Color) ImmutableListOf[BoxedOf[int32]] {
 	var builder ImmutableList_BuilderOf[BoxedOf[int32]] = ImmutableList_builder()
-	for _, el := range immElems_(color.getOwnProperties()) {
-		ownProperty := str_(el)
+	for _, el := range color.getOwnProperties().keys {
+		ownProperty := el
 		if this.propertyFilter(strobj_(ownProperty)) {
 			builder.add(this.getStringPoolIndexFn(strobj_(ownProperty)))
 		}

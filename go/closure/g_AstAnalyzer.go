@@ -50,7 +50,7 @@ func (this *AstAnalyzer) functionCallHasSideEffects(callNode Node) bool {
 	var callee Node = callNode.getFirstChild()
 	if callee.isName() {
 		var name string = callee.getString()
-		if this.assumeKnownBuiltinsArePure_ && Collection_contains_s(AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS, name) {
+		if this.assumeKnownBuiltinsArePure_ && AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS.Has(name) {
 			return false
 		}
 	} else if callee.isGetProp() || callee.isOptChainGetProp() {
@@ -76,19 +76,19 @@ func (this *AstAnalyzer) functionCallHasSideEffects(callNode Node) bool {
 			}
 		}
 		if !this.hasRegexpGlobalReferences_ && this.assumeKnownBuiltinsArePure_ {
-			if callee.getFirstChild().isRegExp() && Collection_contains_s(AstAnalyzer_REGEXP_METHODS, method) {
+			if callee.getFirstChild().isRegExp() && AstAnalyzer_REGEXP_METHODS.Has(method) {
 				return false
 			} else if this.isTypedAsString(callee.getFirstChild()) {
 				var param Node = callee.getNext()
 				if param != 0 {
 					if param.isStringLit() {
-						if Collection_contains_s(AstAnalyzer_STRING_REGEXP_METHODS, method) {
+						if AstAnalyzer_STRING_REGEXP_METHODS.Has(method) {
 							return false
 						}
 					} else if param.isRegExp() {
 						if "replace" == method {
 							return !param.getNext().isStringLit()
-						} else if Collection_contains_s(AstAnalyzer_STRING_REGEXP_METHODS, method) {
+						} else if AstAnalyzer_STRING_REGEXP_METHODS.Has(method) {
 							return false
 						}
 					}
@@ -234,7 +234,7 @@ func (this *AstAnalyzer) constructorCallHasSideEffects(newNode Node) bool {
 		return false
 	}
 	var nameNode Node = newNode.getFirstChild()
-	return ((!nameNode.isName() || !this.assumeKnownBuiltinsArePure_) || !Collection_contains_s(AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS, nameNode.getString()))
+	return ((!nameNode.isName() || !this.assumeKnownBuiltinsArePure_) || !AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS.Has(nameNode.getString()))
 }
 
 func (this *AstAnalyzer) nodeTypeMayHaveSideEffects(n Node) bool {
@@ -281,10 +281,10 @@ func (this *AstAnalyzer) getPropertyKind(name string) AccessorSummary_PropertyAc
 	}()
 }
 
-var AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS *ErasedImmutableSet
-var AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS *ErasedImmutableSet
-var AstAnalyzer_REGEXP_METHODS *ErasedImmutableSet
-var AstAnalyzer_STRING_REGEXP_METHODS *ErasedImmutableSet
+var AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS *ImmutableSet[string]
+var AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS *ImmutableSet[string]
+var AstAnalyzer_REGEXP_METHODS *ImmutableSet[string]
+var AstAnalyzer_STRING_REGEXP_METHODS *ImmutableSet[string]
 
 var AstAnalyzer_clinit_done bool
 
@@ -293,10 +293,10 @@ func AstAnalyzer_clinit() {
 		return
 	}
 	AstAnalyzer_clinit_done = true
-	AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("Array"), strobj_("Date"), strobj_("Error"), strobj_("Object"), strobj_("RegExp"), strobj_("XMLHttpRequest"), []any{})
-	AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("Object"), strobj_("Array"), strobj_("String"), strobj_("Number"), strobj_("BigInt"), strobj_("Boolean"), []any{strobj_("RegExp"), strobj_("Error"), strobj_("Symbol")})
-	AstAnalyzer_REGEXP_METHODS = ImmutableSet_of_Object_Object(strobj_("test"), strobj_("exec"))
-	AstAnalyzer_STRING_REGEXP_METHODS = ImmutableSet_of_Object_Object_Object_Object(strobj_("match"), strobj_("replace"), strobj_("search"), strobj_("split"))
+	AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS = immutableSetOf_(tc_string, "Array", "Date", "Error", "Object", "RegExp", "XMLHttpRequest")
+	AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS = immutableSetOf_(tc_string, "Object", "Array", "String", "Number", "BigInt", "Boolean", "RegExp", "Error", "Symbol")
+	AstAnalyzer_REGEXP_METHODS = immutableSetOf_(tc_string, "test", "exec")
+	AstAnalyzer_STRING_REGEXP_METHODS = immutableSetOf_(tc_string, "match", "replace", "search", "split")
 
 }
 

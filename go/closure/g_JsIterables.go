@@ -72,8 +72,8 @@ func JsIterables_maybeBoxIterableOrAsyncIterable(type_ *JSType, typeRegistry *JS
 func JsIterables_maybeBoxIterableAndPossiblyAsyncIterable(type_ *JSType, typeRegistry *JSTypeRegistry, includeAsyncIterable bool) *JsIterables_MaybeBoxedType {
 	var templatedTypes []*JSType = []*JSType{}
 	if type_.isUnionType() {
-		for _, el_1 := range immElems_(type_.toMaybeUnionType().getAlternates()) {
-			var alt *JSType = to_JSType(el_1)
+		for _, el_1 := range type_.toMaybeUnionType().getAlternates().items {
+			var alt *JSType = el_1
 			alt = func() *JSType {
 				if alt.isBoxableScalar() {
 					return alt.autoboxesTo()

@@ -53,7 +53,7 @@ func (this *CoverageInstrumentationPass) addProductionHeaderCode(script Node, ar
 }
 
 func (this *CoverageInstrumentationPass) checkIfArrayNameExternDeclared(externsNode Node, arrayName string) {
-	if !Collection_contains_s(NodeUtil_collectExternVariableNames(this.compiler_, externsNode), arrayName) {
+	if !NodeUtil_collectExternVariableNames(this.compiler_, externsNode).Has(arrayName) {
 		panic(new_AssertionError_Object(strobj_("The array name passed to --production_instrumentation_array_name was not declared as an extern. This will result in undefined behaviour")))
 	}
 }

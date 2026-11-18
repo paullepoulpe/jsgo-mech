@@ -45,13 +45,13 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*Sourc
 	if compiler.getErrors().isEmpty() {
 		extractCompilerPass.process_2(0, compiler.getRoot())
 	}
-	var errors ImmutableListOf[*JSError] = compiler.getErrors()
+	var errors *ImmutableList[*JSError] = compiler.getErrors()
 	if !errors.isEmpty() {
 		var msg strBuilder_
 		msg.append("JSCompiler errors\n")
 		var formatter MessageFormatter = new_LightweightMessageFormatter_SourceExcerptProvider(compiler)
-		for _, el := range immElems_(errors) {
-			e := cast_[*JSError](el)
+		for _, el := range errors.items {
+			e := el
 			msg.append(formatter.formatError(e))
 		}
 		panic(new_RuntimeException_String(msg.toString()))

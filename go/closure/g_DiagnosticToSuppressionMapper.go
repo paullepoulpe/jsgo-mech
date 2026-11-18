@@ -4,15 +4,15 @@ package closure
 
 type DiagnosticToSuppressionMapper struct {
 	validSuppressions *TSet[string]
-	diagnosticGroups  ImmutableMapOf[string, *DiagnosticGroup]
+	diagnosticGroups  *ImmutableMap[string, *DiagnosticGroup]
 }
 
-func (this *DiagnosticToSuppressionMapper) init_DiagnosticToSuppressionMapper(validSuppressions *TSet[string], diagnosticGroups ImmutableMapOf[string, *DiagnosticGroup]) {
+func (this *DiagnosticToSuppressionMapper) init_DiagnosticToSuppressionMapper(validSuppressions *TSet[string], diagnosticGroups *ImmutableMap[string, *DiagnosticGroup]) {
 	this.validSuppressions = validSuppressions
 	this.diagnosticGroups = diagnosticGroups
 }
 
-func new_DiagnosticToSuppressionMapper(validSuppressions *TSet[string], diagnosticGroups ImmutableMapOf[string, *DiagnosticGroup]) *DiagnosticToSuppressionMapper {
+func new_DiagnosticToSuppressionMapper(validSuppressions *TSet[string], diagnosticGroups *ImmutableMap[string, *DiagnosticGroup]) *DiagnosticToSuppressionMapper {
 	this := &DiagnosticToSuppressionMapper{}
 	this.init_DiagnosticToSuppressionMapper(validSuppressions, diagnosticGroups)
 	return this
@@ -32,15 +32,15 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 	delete(validSuppressions, "accessControls")
 	delete(validSuppressions, "missingSourcesWarnings")
 	var diagnosticToSuppression *TMap[*DiagnosticType, string] = newTMap_(tch_p_DiagnosticType, tc_string)
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.diagnosticGroups.entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.diagnosticGroups.asImm().entrySet())) {
 		entry := icast_Map_Entry(el)
 		var suppression string = str_(entry.getKey())
 		if !has_(validSuppressions, suppression) {
 			continue
 		}
 		var group *DiagnosticGroup = cast_[*DiagnosticGroup](entry.getValue())
-		for _, el2 := range immElems_(group.getTypes()) {
-			diagnosticType := cast_[*DiagnosticType](el2)
+		for _, el2 := range group.getTypes().keys {
+			diagnosticType := el2
 			Map_merge_f(diagnosticToSuppression.asMap(), obj_(diagnosticType), strobj_(suppression), func(p0 any, p1 any) any { return strobj_(this.preferMoreTargetedGroup(str_(p0), str_(p1))) })
 		}
 	}
@@ -52,10 +52,10 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 }
 
 func (this *DiagnosticToSuppressionMapper) preferMoreTargetedGroup(next string, current string) string {
-	var nextGroup *DiagnosticGroup = cast_[*DiagnosticGroup](Map_get_s(this.diagnosticGroups, next))
-	var currentGroup *DiagnosticGroup = cast_[*DiagnosticGroup](Map_get_s(this.diagnosticGroups, current))
+	var nextGroup *DiagnosticGroup = this.diagnosticGroups.Get(next)
+	var currentGroup *DiagnosticGroup = this.diagnosticGroups.Get(current)
 	return func() string {
-		if nextGroup.getTypes().size() < currentGroup.getTypes().size() {
+		if nextGroup.getTypes().Len() < currentGroup.getTypes().Len() {
 			return next
 		}
 		return current

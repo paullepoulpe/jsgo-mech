@@ -864,14 +864,14 @@ func new_MakeDeclaredNamesUnique_TargettedRenamer(delegate MakeDeclaredNamesUniq
 }
 
 func (this *MakeDeclaredNamesUnique_TargettedRenamer) addDeclaredName(name string, hoisted bool) {
-	if this.targets.contains(name) {
+	if this.targets.Has(name) {
 		this.delegate.addDeclaredName(name, hoisted)
 	}
 }
 
 func (this *MakeDeclaredNamesUnique_TargettedRenamer) getReplacementName(oldName string) OptionalOf[string] {
 	return func() OptionalOf[string] {
-		if this.targets.contains(oldName) {
+		if this.targets.Has(oldName) {
 			return this.delegate.getReplacementName(oldName)
 		}
 		return Optional_empty[string]()

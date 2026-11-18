@@ -5,7 +5,7 @@ package closure
 type ReplaceToggles struct {
 	compiler_      *AbstractCompiler
 	astFactory_    *AstFactory
-	ordinalMapping ImmutableMapOf[string, BoxedOf[int32]]
+	ordinalMapping *ImmutableMap[string, any]
 }
 
 func (this *ReplaceToggles) finit_ReplaceToggles() {
@@ -96,7 +96,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 					return
 				}
 				var key string = c.getString()
-				if mapping.containsKey(key) {
+				if mapping.Has(key) {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{("duplicate key: " + sstr_(key))}))
 					return
 				}
@@ -118,15 +118,15 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 				} else if (!child.isNumber() || (intValue < 0)) || (float64(intValue) != unbox_[float64](doubleValue)) {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{"value not a boolean or whole number literal"}))
 					return
-				} else if ordinals.contains(int32(intValue)) {
+				} else if ordinals.Has(int32(intValue)) {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{("duplicate ordinal: " + istr_(int64(intValue)))}))
 					return
 				}
-				mapping.put(key, any(int32(intValue)))
-				ordinals.add(int32(intValue))
+				mapping.Put(key, any(int32(intValue)))
+				ordinals.Add(int32(intValue))
 			}
 		}
-		this.outer_.ordinalMapping = ImmutableMap_copyOf(mapping.asMap())
+		this.outer_.ordinalMapping = immutableMapCopyOf_(tc_string, tc_any, mapping.asMap())
 		return
 	}
 	if !n.isCall() {
@@ -143,7 +143,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 	}
 	var ordinal any = func() any {
 		if this.outer_.ordinalMapping != nil {
-			return Map_get_s(this.outer_.ordinalMapping, arg.getString())
+			return this.outer_.ordinalMapping.Get(arg.getString())
 		}
 		return nil
 	}()

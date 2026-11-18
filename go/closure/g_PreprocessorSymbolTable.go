@@ -37,7 +37,7 @@ func (this *PreprocessorSymbolTable) getParentScope() StaticScope {
 }
 
 func (this *PreprocessorSymbolTable) getSlot(name string) StaticSlot {
-	return icast_StaticSlot(this.symbols.get(name).self())
+	return icast_StaticSlot(this.symbols.Get(name).self())
 }
 
 func (this *PreprocessorSymbolTable) getOwnSlot(name string) StaticSlot {
@@ -66,7 +66,7 @@ func (this *PreprocessorSymbolTable) addReference(node Node) {
 
 func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
 	this.symbols.ComputeIfAbsent(name, lambda_PreprocessorSymbolTable_addReference_2_1_)
-	this.refs.put_s(name, new_PreprocessorSymbolTable_Reference(this.symbols.get(name), node))
+	this.refs.put_s(name, new_PreprocessorSymbolTable_Reference(this.symbols.Get(name), node))
 }
 
 // lambda_PreprocessorSymbolTable_addReference_2_1_ is a lambda of PreprocessorSymbolTable_addReference_2 that captures nothing (post-flip step lambdas).

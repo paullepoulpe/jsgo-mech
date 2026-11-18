@@ -32,8 +32,8 @@ func (this *CanCastToVisitor) caseAllType(thatType *JSType) any {
 }
 
 func (this *CanCastToVisitor) canCastToUnion(thisType *JSType, unionType *UnionType) bool {
-	for _, el_1 := range immElems_(unionType.getAlternates()) {
-		var type_ *JSType = to_JSType(el_1)
+	for _, el_1 := range unionType.getAlternates().items {
+		var type_ *JSType = el_1
 		if unbox_[bool](thisType.visit_2(this, type_)) {
 			return true
 		}
@@ -93,8 +93,8 @@ func (this *CanCastToVisitor) caseFunctionType(thisType *FunctionType, thatType 
 
 func (this *CanCastToVisitor) caseUnionType(thisType *UnionType, thatType *JSType) any {
 	var visited bool = false
-	for _, el_1 := range immElems_(thisType.getAlternates()) {
-		var type_ *JSType = to_JSType(el_1)
+	for _, el_1 := range thisType.getAlternates().items {
+		var type_ *JSType = el_1
 		if type_.isVoidType() || type_.isNullType() {
 		} else {
 			visited = true

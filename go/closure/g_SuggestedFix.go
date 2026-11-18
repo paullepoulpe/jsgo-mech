@@ -8,14 +8,14 @@ type SuggestedFix struct {
 	matchedNodeInfo *SuggestedFix_MatchedNodeInfo
 	replacements    *SimpleSetMultimap[any, any]
 	description_    OptionalOf[string]
-	alternatives    ImmutableListOf[*SuggestedFix]
+	alternatives    *ImmutableList[*SuggestedFix]
 }
 
 func (this *SuggestedFix) init_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description OptionalOf[string], alternatives []*SuggestedFix) {
 	this.matchedNodeInfo = matchedNodeInfo
 	this.replacements = replacements
 	this.description_ = description
-	this.alternatives = ImmutableList_builder().add(any(this)).addAll(sliceView_(tc_p_SuggestedFix, alternatives)).build()
+	this.alternatives = immutableListBuilder_(tc_p_SuggestedFix).add(this).addAll(sliceView_(tc_p_SuggestedFix, alternatives)).build()
 }
 
 func new_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap[any, any], description OptionalOf[string], alternatives []*SuggestedFix) *SuggestedFix {
@@ -36,12 +36,12 @@ func (this *SuggestedFix) getDescription() OptionalOf[string] {
 	return this.description_
 }
 
-func (this *SuggestedFix) getAlternatives() ImmutableListOf[*SuggestedFix] {
+func (this *SuggestedFix) getAlternatives() *ImmutableList[*SuggestedFix] {
 	return this.alternatives
 }
 
 func (this *SuggestedFix) getNonDefaultAlternatives() []*SuggestedFix {
-	return sliceImm_(tc_p_SuggestedFix, cast_[*ErasedImmutableList](this.alternatives.subList(1, this.alternatives.size())))
+	return sliceImm_(tc_p_SuggestedFix, cast_[*ErasedImmutableList](this.alternatives.asImm().subList(1, this.alternatives.size())))
 }
 
 func (this *SuggestedFix) isNoOp() bool {
@@ -145,14 +145,14 @@ func SuggestedFix_ImportType_clinit() {
 type SuggestedFix_Builder struct {
 	matchedNodeInfo *SuggestedFix_MatchedNodeInfo
 	replacements    *SimpleSetMultimap[any, any]
-	alternatives    ImmutableList_BuilderOf[*SuggestedFix]
+	alternatives    *ImmutableList_Builder[*SuggestedFix]
 	description_    OptionalOf[string]
 }
 
 func (this *SuggestedFix_Builder) finit_SuggestedFix_Builder() {
 	this.matchedNodeInfo = nil
 	this.replacements = SimpleSetMultimap_create[any, any]()
-	this.alternatives = ImmutableList_builder()
+	this.alternatives = immutableListBuilder_(tc_p_SuggestedFix)
 	this.description_ = Optional_empty[string]()
 }
 
@@ -175,7 +175,7 @@ func (this *SuggestedFix_Builder) addAlternative(alternative *SuggestedFix) *Sug
 	if len(alternative.getNonDefaultAlternatives()) != 0 {
 		panic(new_IllegalStateException_String("Alternative SuggestedFix must have no alternatives of their own."))
 	}
-	this.alternatives.add(obj_(alternative))
+	this.alternatives.add(alternative)
 	return this
 }
 
@@ -676,7 +676,7 @@ func (this *SuggestedFix_Builder) setDescription(description string) *SuggestedF
 }
 
 func (this *SuggestedFix_Builder) build() *SuggestedFix {
-	return new_SuggestedFix(this.matchedNodeInfo, this.replacements.immutableCopy(), this.description_, sliceImm_(tc_p_SuggestedFix, this.alternatives.build()))
+	return new_SuggestedFix(this.matchedNodeInfo, this.replacements.immutableCopy(), this.description_, this.alternatives.build().items)
 }
 
 type SuggestedFix_MatchedNodeInfo struct {

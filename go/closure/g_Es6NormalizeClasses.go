@@ -1344,7 +1344,7 @@ func Es6NormalizeClasses_clinit() {
 	}
 	Es6NormalizeClasses_clinit_done = true
 	Es6NormalizeClasses_ILLEGAL_PRIVATE_MEMBER_ASSIGNMENT = DiagnosticType_error("JSC_ILLEGAL_PRIVATE_MEMBER_ASSIGNMENT", "Invalid assignment to private method ''#{0}''. Private methods cannot be reassigned.")
-	Es6NormalizeClasses_GENERIC_NAME_REPLACEMENTS = ImmutableMap_builder().put(strobj_("CLASS_DECL"), strobj_(Es6NormalizeClasses_CLASS_DECL_VAR)).put(strobj_("CLASS_EXTENDS"), strobj_(Es6NormalizeClasses_CLASS_EXTENDS_VAR)).put(strobj_("COMP_FIELD"), strobj_(Es6NormalizeClasses_COMP_FIELD_VAR)).put(strobj_("STATIC_INIT"), strobj_(Es6NormalizeClasses_STATIC_INIT_METHOD_NAME)).put(strobj_("STATIC_PRIVATE_MAP"), strobj_(Es6NormalizeClasses_STATIC_PRIVATE_MAP_VAR)).put(strobj_("PRIVATE_MAP"), strobj_(Es6NormalizeClasses_PRIVATE_MAP_VAR)).put(strobj_("PRIVATE_PROTO"), strobj_(Es6NormalizeClasses_PRIVATE_PROTO_VAR)).put(strobj_("PRIVATE"), strobj_(Es6NormalizeClasses_PRIVATE_VAR)).put(strobj_("TMP"), strobj_(Es6NormalizeClasses_TMP_VAR)).buildOrThrow()
+	Es6NormalizeClasses_GENERIC_NAME_REPLACEMENTS = immutableMapBuilder_(tc_string, tc_string).put("CLASS_DECL", Es6NormalizeClasses_CLASS_DECL_VAR).put("CLASS_EXTENDS", Es6NormalizeClasses_CLASS_EXTENDS_VAR).put("COMP_FIELD", Es6NormalizeClasses_COMP_FIELD_VAR).put("STATIC_INIT", Es6NormalizeClasses_STATIC_INIT_METHOD_NAME).put("STATIC_PRIVATE_MAP", Es6NormalizeClasses_STATIC_PRIVATE_MAP_VAR).put("PRIVATE_MAP", Es6NormalizeClasses_PRIVATE_MAP_VAR).put("PRIVATE_PROTO", Es6NormalizeClasses_PRIVATE_PROTO_VAR).put("PRIVATE", Es6NormalizeClasses_PRIVATE_VAR).put("TMP", Es6NormalizeClasses_TMP_VAR).buildOrThrowErased()
 
 }
 
@@ -1410,7 +1410,7 @@ type Es6NormalizeClasses_ClassRecord struct {
 	instanceMembers                      *[]Node
 	staticMembers                        *[]Node
 	computedPropsWithSideEffects         *[]Node
-	constructorVars                      ImmutableSetOf[*Var]
+	constructorVars                      *ImmutableSet[*Var]
 	superCalls                           []Node
 }
 
@@ -1430,7 +1430,7 @@ func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassReco
 	this.instanceMembers = &[]Node{}
 	this.staticMembers = &[]Node{}
 	this.computedPropsWithSideEffects = &[]Node{}
-	this.constructorVars = ImmutableSet_of()
+	this.constructorVars = immutableSetOf_(tch_p_Var)
 	this.superCalls = []Node{}
 }
 
@@ -1564,11 +1564,11 @@ func (this *Es6NormalizeClasses_ClassRecord) recordConstructorScope(s *Scope) {
 	if !s.isFunctionBlockScope() {
 		panic(new_IllegalArgumentException_String(tostr_(s)))
 	}
-	if !this.constructorVars.isEmpty() {
-		panic(new_IllegalStateException_String(tostr_(this.constructorVars)))
+	if !this.constructorVars.IsEmpty() {
+		panic(new_IllegalStateException_String(tostr_(this.constructorVars.asImm())))
 	}
 	var argsScope *Scope = cast_[*Scope](s.getParent().self())
-	this.constructorVars = ImmutableSet_builder().addAll(s.getAllSymbols()).addAll(argsScope.getAllSymbols()).build()
+	this.constructorVars = immutableSetBuilder_(tc_p_Var).addAll(s.getAllSymbols()).addAll(argsScope.getAllSymbols()).build()
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) createNewNameReferenceNode() Node {

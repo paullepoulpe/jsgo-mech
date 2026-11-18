@@ -4,8 +4,8 @@ package closure
 
 type TranspilationException struct {
 	RuntimeException
-	errorsField   ImmutableListOf[*JSError]
-	warningsField ImmutableListOf[*JSError]
+	errorsField   *ImmutableList[*JSError]
+	warningsField *ImmutableList[*JSError]
 }
 
 func (this *TranspilationException) up_RuntimeException() *RuntimeException {
@@ -26,11 +26,11 @@ func new_TranspilationException_Exception(cause *Exception) *TranspilationExcept
 	return this
 }
 
-func (this *TranspilationException) init_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(source SourceExcerptProvider, errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError]) {
+func (this *TranspilationException) init_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(source SourceExcerptProvider, errors *ImmutableList[*JSError], warnings *ImmutableList[*JSError]) {
 	this.init_TranspilationException_ImmutableList_ImmutableList_String_Exception(errors, warnings, TranspilationException_format(source, errors, warnings), nil)
 }
 
-func new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(source SourceExcerptProvider, errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError]) *TranspilationException {
+func new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(source SourceExcerptProvider, errors *ImmutableList[*JSError], warnings *ImmutableList[*JSError]) *TranspilationException {
 	this := &TranspilationException{}
 	this.self_ = this
 	this.init_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(source, errors, warnings)
@@ -48,28 +48,28 @@ func new_TranspilationException_TranspilationException_Exception(root *Transpila
 	return this
 }
 
-func (this *TranspilationException) init_TranspilationException_ImmutableList_ImmutableList_String_Exception(errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError], formatted string, cause *Exception) {
+func (this *TranspilationException) init_TranspilationException_ImmutableList_ImmutableList_String_Exception(errors *ImmutableList[*JSError], warnings *ImmutableList[*JSError], formatted string, cause *Exception) {
 	this.RuntimeException.init_RuntimeException_String_Throwable(formatted, cause.up_Throwable())
 	this.errorsField = errors
 	this.warningsField = warnings
 }
 
-func new_TranspilationException_ImmutableList_ImmutableList_String_Exception(errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError], formatted string, cause *Exception) *TranspilationException {
+func new_TranspilationException_ImmutableList_ImmutableList_String_Exception(errors *ImmutableList[*JSError], warnings *ImmutableList[*JSError], formatted string, cause *Exception) *TranspilationException {
 	this := &TranspilationException{}
 	this.self_ = this
 	this.init_TranspilationException_ImmutableList_ImmutableList_String_Exception(errors, warnings, formatted, cause)
 	return this
 }
 
-func (this *TranspilationException) errors() ImmutableListOf[*JSError] {
+func (this *TranspilationException) errors() *ImmutableList[*JSError] {
 	return this.errorsField
 }
 
-func (this *TranspilationException) warnings() ImmutableListOf[*JSError] {
+func (this *TranspilationException) warnings() *ImmutableList[*JSError] {
 	return this.warningsField
 }
 
-func TranspilationException_format(source SourceExcerptProvider, errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError]) string {
+func TranspilationException_format(source SourceExcerptProvider, errors *ImmutableList[*JSError], warnings *ImmutableList[*JSError]) string {
 	var sb *strBuilder_ = (&strBuilder_{}).append("Transpilation failed:\n")
 	var formatter MessageFormatter = func() MessageFormatter {
 		if source != nil {
@@ -77,12 +77,12 @@ func TranspilationException_format(source SourceExcerptProvider, errors Immutabl
 		}
 		return ErrorFormat_SOURCELESS.toFormatter(source, false)
 	}()
-	for _, el := range immElems_(errors) {
-		error_ := cast_[*JSError](el)
+	for _, el := range errors.items {
+		error_ := el
 		sb.append("\n").append(formatter.formatError(error_))
 	}
-	for _, el2 := range immElems_(warnings) {
-		warning := cast_[*JSError](el2)
+	for _, el2 := range warnings.items {
+		warning := el2
 		sb.append("\n").append(formatter.formatError(warning))
 	}
 	return sb.toString()

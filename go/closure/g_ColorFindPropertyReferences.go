@@ -90,23 +90,23 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 		if m.isStaticMember() {
 			return obj_(classType)
 		} else if m.isMemberFieldDef() {
-			var classInstanceType ImmutableSetOf[*Color] = classType.getInstanceColors()
+			var classInstanceType *ImmutableSet[*Color] = classType.getInstanceColors()
 			return func() any {
-				if classInstanceType.isEmpty() {
+				if classInstanceType.IsEmpty() {
 					return obj_(StandardColors_UNKNOWN)
 				}
-				return obj_(Color_createUnion(tsetFrom_(tch_p_Color, classInstanceType, true)))
+				return obj_(Color_createUnion(classInstanceType))
 			}()
 		} else {
 			if !((m.isMemberFunctionDef() || m.isGetterDef()) || m.isSetterDef()) {
 				panic(new_IllegalStateException_String(tostr_(m)))
 			}
-			var classPrototypeType ImmutableSetOf[*Color] = classType.getPrototypes()
+			var classPrototypeType *ImmutableSet[*Color] = classType.getPrototypes()
 			return func() any {
-				if classPrototypeType.isEmpty() {
+				if classPrototypeType.IsEmpty() {
 					return obj_(StandardColors_UNKNOWN)
 				}
-				return obj_(Color_createUnion(tsetFrom_(tch_p_Color, classPrototypeType, true)))
+				return obj_(Color_createUnion(classPrototypeType))
 			}()
 		}
 	})
@@ -115,7 +115,7 @@ func (this *ColorFindPropertyReferences) handleClass(t *NodeTraversal, classNode
 
 func (this *ColorFindPropertyReferences) handleFunction(fnNode Node) {
 	var fnType *Color = fnNode.getColor()
-	if (fnType != nil) && !fnType.getInstanceColors().isEmpty() {
+	if (fnType != nil) && !fnType.getInstanceColors().IsEmpty() {
 		this.colorGraphNodeFactory.createNode(fnType)
 	}
 }
@@ -184,9 +184,9 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 func (this *ColorFindPropertyReferences) registerPropertyUse(t *NodeTraversal, site Node, owner *Color) {
 	var prop *PropertyClustering = this.propIndex.ComputeIfAbsent(site.getString(), lambda_ColorFindPropertyReferences_registerPropertyUse_1_)
 	var flatOwner *ColorGraphNode = this.colorGraphNodeFactory.createNode(owner)
-	flatOwner.getAssociatedProps().put(prop, ColorGraphNode_PropAssociation_AST)
+	flatOwner.getAssociatedProps().Put(prop, ColorGraphNode_PropAssociation_AST)
 	prop.getClusters().add(obj_(flatOwner))
-	prop.getUseSites().put(site, flatOwner)
+	prop.getUseSites().Put(site, flatOwner)
 	if t.getCurrentScript().isFromExterns() || ((owner != nil) && owner.getPropertiesKeepOriginalName()) {
 		prop.registerOriginalNameType(flatOwner)
 	}

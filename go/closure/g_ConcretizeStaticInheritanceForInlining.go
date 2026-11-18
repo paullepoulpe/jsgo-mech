@@ -109,7 +109,7 @@ func (this *ConcretizeStaticInheritanceForInlining) isReferenceToClass(t *NodeTr
 }
 
 var ConcretizeStaticInheritanceForInlining_DUPLICATE_CLASS *DiagnosticType
-var ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES *ErasedImmutableSet
+var ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES *ImmutableSet[string]
 
 var ConcretizeStaticInheritanceForInlining_clinit_done bool
 
@@ -119,7 +119,7 @@ func ConcretizeStaticInheritanceForInlining_clinit() {
 	}
 	ConcretizeStaticInheritanceForInlining_clinit_done = true
 	ConcretizeStaticInheritanceForInlining_DUPLICATE_CLASS = DiagnosticType_error("DUPLICATE_CLASS", "Multiple classes cannot share the same name: {0}")
-	ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES = ImmutableSet_of_Object_Object(strobj_("prototype"), strobj_("getInstance"))
+	ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES = immutableSetOf_(tc_string, "prototype", "getInstance")
 
 }
 
@@ -146,7 +146,7 @@ func new_ConcretizeStaticInheritanceForInlining_JavascriptClass() *ConcretizeSta
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) addStaticMember(node Node) {
-	this.staticMembers.add(node)
+	this.staticMembers.Add(node)
 	this.staticMemberNames[node.getFirstChild().getString()] = struct{}{}
 }
 
@@ -245,7 +245,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitAssig
 	} else if n.getFirstChild().isGetProp() {
 		var getProp Node = n.getFirstChild()
 		var classNode Node = getProp.getFirstChild()
-		if this.outer_.isReferenceToClass(t, classNode) && !Collection_contains_s(ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES, getProp.getString()) {
+		if this.outer_.isReferenceToClass(t, classNode) && !ConcretizeStaticInheritanceForInlining_BANNED_PROP_NAMES.Has(getProp.getString()) {
 			this.outer_.classByAlias[classNode.getQualifiedName()].addStaticMember(n)
 			this.nodeOrder[n] = any(int32(int32(len(this.nodeOrder))))
 		}

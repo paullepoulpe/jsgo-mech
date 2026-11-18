@@ -56,11 +56,11 @@ func (this *ReplaceStrings) getResult() []*ReplaceStrings_Result {
 }
 
 func (this *ReplaceStrings) getStringMap() *VariableMap {
-	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
+	var map_ *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for result := range elemsAs_[*ReplaceStrings_Result](Iterables_filter_f(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)) {
-		map_.put(strobj_(result.replacement_), strobj_(result.original_))
+		map_.put(result.replacement_, result.original_)
 	}
-	return new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrow(), true))
+	return new_VariableMap(map_.buildOrThrow())
 }
 
 func (this *ReplaceStrings) process_2(externs Node, root Node) {
@@ -90,8 +90,8 @@ func (this *ReplaceStrings) findMatching(name string, callsiteSourceFileName str
 		config = this.functions[name]
 	}
 	if config != nil {
-		for _, el_1 := range immElems_(config.excludedFilenameSuffixes) {
-			var excludedSuffix string = str_(el_1)
+		for _, el_1 := range config.excludedFilenameSuffixes.keys {
+			var excludedSuffix string = el_1
 			if strings.HasSuffix(callsiteSourceFileName, excludedSuffix) {
 				return nil
 			}
@@ -160,18 +160,18 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 }
 
 func (this *ReplaceStrings) getReplacement(key string) string {
-	var result *ReplaceStrings_Result = this.results.get(key)
+	var result *ReplaceStrings_Result = this.results.Get(key)
 	if result != nil {
 		return result.replacement_
 	}
 	var replacement string = this.nameGenerator.generateNextName()
 	result = new_ReplaceStrings_Result(key, replacement)
-	this.results.put(key, result)
+	this.results.Put(key, result)
 	return replacement
 }
 
 func (this *ReplaceStrings) recordReplacement(key string) {
-	var result *ReplaceStrings_Result = this.results.get(key)
+	var result *ReplaceStrings_Result = this.results.Get(key)
 	if result == nil {
 		panic(new_IllegalStateException_0())
 	}
@@ -271,18 +271,18 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	if replacementParameters.isEmpty() {
 		panic(new_IllegalStateException_0())
 	}
-	return new_ReplaceStrings_Config(name, replacementParameters, func() *ErasedImmutableSet {
+	return new_ReplaceStrings_Config(name, replacementParameters, func() *ImmutableSet[string] {
 		if colon == -1 {
-			return ImmutableSet_of()
+			return immutableSetOf_(tc_string)
 		}
-		return ImmutableSet_copyOf_ObjectArr(arrmap_(ReplaceStrings_COMMA_PATTERN.split(function[colon+int32(len(ReplaceStrings_EXCLUSION_PREFIX)):]), func(v_ string) any { return strobj_(v_) }))
+		return tsetFrom_(tc_string, ImmutableSet_copyOf_ObjectArr(arrmap_(ReplaceStrings_COMMA_PATTERN.split(function[colon+int32(len(ReplaceStrings_EXCLUSION_PREFIX)):]), func(v_ string) any { return strobj_(v_) })), true)
 	}())
 }
 
 func ReplaceStrings_createNameGenerator() *DefaultNameGenerator {
 	var namePrefix string = ""
-	var reservedChars ImmutableSetOf[BoxedOf[uint16]] = ImmutableSet_of()
-	return new_DefaultNameGenerator_Set_String_Set(ImmutableSet_of(), namePrefix, reservedChars)
+	var reservedChars *ImmutableSet[uint16] = immutableSetOf_(tc_uint16)
+	return new_DefaultNameGenerator_Set_String_Set(ImmutableSet_of(), namePrefix, reservedChars.asImm())
 }
 
 var ReplaceStrings_COMMA_PATTERN *Pattern
@@ -320,20 +320,20 @@ func lambda_ReplaceStrings_clinit_1_(result_ any) bool {
 type ReplaceStrings_Config struct {
 	name_                    string
 	parameters               ListOf[BoxedOf[int32]]
-	excludedFilenameSuffixes ImmutableSetOf[string]
+	excludedFilenameSuffixes *ImmutableSet[string]
 }
 
 func (this *ReplaceStrings_Config) zero_ReplaceStrings_Config() {
 	this.name_ = nullstr_
 }
 
-func (this *ReplaceStrings_Config) init_ReplaceStrings_Config(name string, replacementParameters ListOf[BoxedOf[int32]], excludedFilenameSuffixes ImmutableSetOf[string]) {
+func (this *ReplaceStrings_Config) init_ReplaceStrings_Config(name string, replacementParameters ListOf[BoxedOf[int32]], excludedFilenameSuffixes *ImmutableSet[string]) {
 	this.name_ = name
 	this.parameters = replacementParameters
 	this.excludedFilenameSuffixes = excludedFilenameSuffixes
 }
 
-func new_ReplaceStrings_Config(name string, replacementParameters ListOf[BoxedOf[int32]], excludedFilenameSuffixes ImmutableSetOf[string]) *ReplaceStrings_Config {
+func new_ReplaceStrings_Config(name string, replacementParameters ListOf[BoxedOf[int32]], excludedFilenameSuffixes *ImmutableSet[string]) *ReplaceStrings_Config {
 	this := &ReplaceStrings_Config{}
 	this.zero_ReplaceStrings_Config()
 	this.init_ReplaceStrings_Config(name, replacementParameters, excludedFilenameSuffixes)

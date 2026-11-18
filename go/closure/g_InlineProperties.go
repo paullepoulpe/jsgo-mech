@@ -26,8 +26,8 @@ func new_InlineProperties(compiler *AbstractCompiler) *InlineProperties {
 }
 
 func (this *InlineProperties) invalidateExternProperties() {
-	for _, el := range immElems_(this.compiler_.getExternProperties()) {
-		name := str_(el)
+	for _, el := range this.compiler_.getExternProperties().keys {
+		name := el
 		this.props[name] = InlineProperties_INVALIDATED
 	}
 }
@@ -154,12 +154,12 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDef
 	if n.isStaticMember() {
 		c = this.outer_.getColor(classNode)
 	} else {
-		var possibleInstances ImmutableSetOf[*Color] = this.outer_.getColor(classNode).getInstanceColors()
+		var possibleInstances *ImmutableSet[*Color] = this.outer_.getColor(classNode).getInstanceColors()
 		c = func() *Color {
-			if possibleInstances.isEmpty() {
+			if possibleInstances.IsEmpty() {
 				return StandardColors_UNKNOWN
 			}
-			return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstances, true))
+			return Color_createUnion(possibleInstances)
 		}()
 	}
 	return this.maybeStoreCandidateValue(c, propName, value)
@@ -272,9 +272,9 @@ func (this *InlineProperties_ReplaceCandidates) isMatchingType(n Node, src *Colo
 
 func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Color, superCtor *Color) (ret_1 bool) {
 	defer func() {
-		this.hasInSupertypesListSeenSet.remove(subCtor)
+		this.hasInSupertypesListSeenSet.Delete(subCtor)
 	}()
-	if !this.hasInSupertypesListSeenSet.add(subCtor) {
+	if !this.hasInSupertypesListSeenSet.Add(subCtor) {
 		return false
 	}
 	if (subCtor == nil) || (superCtor == nil) {

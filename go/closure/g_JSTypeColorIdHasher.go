@@ -3,14 +3,14 @@
 package closure
 
 type JSTypeColorIdHasher struct {
-	standardColorObjectIds ImmutableMapOf[*ObjectType, *ColorId]
+	standardColorObjectIds *ImmutableMap[*ObjectType, *ColorId]
 }
 
 func (this *JSTypeColorIdHasher) init_JSTypeColorIdHasher(registry *JSTypeRegistry) {
-	var standardColorObjectIdsBuilder ImmutableMap_BuilderOf[*ObjectType, *ColorId] = ImmutableMap_builder()
+	var standardColorObjectIdsBuilder *ImmutableMap_Builder[*ObjectType, *ColorId] = immutableMapBuilder_(tc_p_ObjectType, tc_p_ColorId)
 	for _, el := range immElems_(cast_[*ErasedImmutableSet](JSTypeColorIdHasher_NATIVE_TYPE_TO_ID.entrySet())) {
 		e := icast_Map_Entry(el)
-		standardColorObjectIdsBuilder.put(registry.getNativeObjectType(cast_[JSTypeNative](e.getKey())).self(), e.getValue())
+		standardColorObjectIdsBuilder.put(registry.getNativeObjectType(cast_[JSTypeNative](e.getKey())), cast_[*ColorId](e.getValue()))
 	}
 	this.standardColorObjectIds = standardColorObjectIdsBuilder.buildOrThrow()
 }
@@ -25,7 +25,7 @@ func (this *JSTypeColorIdHasher) hashObjectType(type_ *ObjectType) *ColorId {
 	if !((((((type_ != nil) && !type_.isEnumElementType()) && !type_.isNoResolvedType()) && !type_.isTemplatizedType()) && !type_.isUnknownType()) && !type_.isTemplateType()) {
 		panic(new_IllegalStateException_String(objstr_(type_.self())))
 	}
-	var boxId *ColorId = cast_[*ColorId](this.standardColorObjectIds.get(type_.self()))
+	var boxId *ColorId = this.standardColorObjectIds.Get(type_)
 	if boxId != nil {
 		return boxId
 	}
@@ -92,7 +92,7 @@ func JSTypeColorIdHasher_clinit() {
 	}
 	JSTypeColorIdHasher_clinit_done = true
 	JSTypeColorIdHasher_FARM_64 = Hashing_farmHashFingerprint64()
-	JSTypeColorIdHasher_NATIVE_TYPE_TO_ID = ImmutableMap_builder().put(obj_(JSTypeNative_ARGUMENTS_TYPE), obj_(StandardColors_ARGUMENTS_ID)).put(obj_(JSTypeNative_ARRAY_TYPE), obj_(StandardColors_ARRAY_ID)).put(obj_(JSTypeNative_READONLY_ARRAY_TYPE), obj_(StandardColors_READONLY_ARRAY_ID)).put(obj_(JSTypeNative_ASYNC_ITERATOR_ITERABLE_TYPE), obj_(StandardColors_ASYNC_ITERATOR_ITERABLE_ID)).put(obj_(JSTypeNative_GENERATOR_TYPE), obj_(StandardColors_GENERATOR_ID)).put(obj_(JSTypeNative_I_TEMPLATE_ARRAY_TYPE), obj_(StandardColors_I_TEMPLATE_ARRAY_ID)).put(obj_(JSTypeNative_ITERATOR_TYPE), obj_(StandardColors_ITERATOR_ID)).put(obj_(JSTypeNative_PROMISE_TYPE), obj_(StandardColors_PROMISE_ID)).put(obj_(JSTypeNative_BIGINT_OBJECT_TYPE), obj_(StandardColors_BIGINT_OBJECT_ID)).put(obj_(JSTypeNative_BOOLEAN_OBJECT_TYPE), obj_(StandardColors_BOOLEAN_OBJECT_ID)).put(obj_(JSTypeNative_NUMBER_OBJECT_TYPE), obj_(StandardColors_NUMBER_OBJECT_ID)).put(obj_(JSTypeNative_STRING_OBJECT_TYPE), obj_(StandardColors_STRING_OBJECT_ID)).put(obj_(JSTypeNative_SYMBOL_OBJECT_TYPE), obj_(StandardColors_SYMBOL_OBJECT_ID)).buildOrThrow()
+	JSTypeColorIdHasher_NATIVE_TYPE_TO_ID = immutableMapBuilder_(tc_JSTypeNative, tc_p_ColorId).put(JSTypeNative_ARGUMENTS_TYPE, StandardColors_ARGUMENTS_ID).put(JSTypeNative_ARRAY_TYPE, StandardColors_ARRAY_ID).put(JSTypeNative_READONLY_ARRAY_TYPE, StandardColors_READONLY_ARRAY_ID).put(JSTypeNative_ASYNC_ITERATOR_ITERABLE_TYPE, StandardColors_ASYNC_ITERATOR_ITERABLE_ID).put(JSTypeNative_GENERATOR_TYPE, StandardColors_GENERATOR_ID).put(JSTypeNative_I_TEMPLATE_ARRAY_TYPE, StandardColors_I_TEMPLATE_ARRAY_ID).put(JSTypeNative_ITERATOR_TYPE, StandardColors_ITERATOR_ID).put(JSTypeNative_PROMISE_TYPE, StandardColors_PROMISE_ID).put(JSTypeNative_BIGINT_OBJECT_TYPE, StandardColors_BIGINT_OBJECT_ID).put(JSTypeNative_BOOLEAN_OBJECT_TYPE, StandardColors_BOOLEAN_OBJECT_ID).put(JSTypeNative_NUMBER_OBJECT_TYPE, StandardColors_NUMBER_OBJECT_ID).put(JSTypeNative_STRING_OBJECT_TYPE, StandardColors_STRING_OBJECT_ID).put(JSTypeNative_SYMBOL_OBJECT_TYPE, StandardColors_SYMBOL_OBJECT_ID).buildOrThrowErased()
 
 }
 

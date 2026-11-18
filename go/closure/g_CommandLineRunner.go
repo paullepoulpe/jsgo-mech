@@ -211,7 +211,7 @@ func (this *CommandLineRunner) readFlagInputs(processedArgs *[]string, flagInput
 	if sourceMapInputs.isErr() {
 		return Outcome_base_err[any](sourceMapInputs.error())
 	}
-	flagInputs.sourceMapInputs = sourceMapInputs.get()
+	flagInputs.sourceMapInputs = tmapFrom_(tc_string, tc_string, sourceMapInputs.get(), true)
 	flagInputs.parseInlineSourceMaps_ = unbox_[bool](this.flags.parseInlineSourceMaps_)
 	flagInputs.applyInputSourceMaps = this.flags.applyInputSourceMaps
 	return Outcome_base_ok_0()
@@ -232,7 +232,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	}
 	var mixedSources *TList[*AbstractCommandLineRunner_FlagEntry[any]] = flagInputs.mixedSources
 	var mappings *TList[SourceMap_LocationMapping] = flagInputs.mappings
-	var sourceMapInputs ImmutableMapOf[string, string] = flagInputs.sourceMapInputs
+	var sourceMapInputs *ImmutableMap[string, string] = flagInputs.sourceMapInputs
 	var parseInlineSourceMaps bool = flagInputs.parseInlineSourceMaps_
 	var applyInputSourceMaps bool = flagInputs.applyInputSourceMaps
 	if this.flags.processCommonJsModules {
@@ -297,7 +297,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	} else {
 		this.runCompiler = true
 		var config *AbstractCommandLineRunner_CommandLineConfig = this.getCommandLineConfig()
-		config.setPrintVersion(this.flags.version_).setPrintTree(this.flags.printTree).setPrintTreeJson(this.flags.printTreeJson).setPrintAst(this.flags.printAst).setJscompDevMode(this.flags.jscompDevMode).setLoggingLevel(this.flags.loggingLevel).setExterns(this.flags.externs).setMixedJsSources(mixedSources).setDefaultToStdin().setJsOutputFile(this.flags.jsOutputFile).setChunk(this.flags.chunk_).setVariableMapOutputFile(this.flags.variableMapOutputFile).setCreateNameMapFiles(this.flags.createNameMapFiles).setPropertyMapOutputFile(this.flags.propertyMapOutputFile).setExpectedDiagnostics(this.flags.expectedDiagnostics).setPropertyMapInputFile(this.flags.propertyMapInputFile).setVariableMapInputFile(this.flags.variableMapInputFile).setInstrumentationMappingFile(this.flags.instrumentationMappingOutputFile).setCodingConvention(conv).setSummaryDetailLevel(this.flags.summaryDetailLevel).setOutputWrapper(this.flags.outputWrapper.orElse(nullstr_)).setChunkWrapper(this.flags.chunkWrapper).setChunkOutputPathPrefix(this.flags.chunkOutputPathPrefix).setCreateSourceMap(this.flags.createSourceMap).setSourceMapFormat(this.flags.sourceMapFormat).setSourceMapLocationMappings(mappings).setSourceMapInputFiles(tmapFrom_(tc_string, tc_string, sourceMapInputs, true)).setParseInlineSourceMaps(parseInlineSourceMaps).setApplyInputSourceMaps(applyInputSourceMaps).setWarningGuards(this.flags.guardLevels).setDefine(this.flags.define).setBrowserFeaturesetYear(this.flags.browserFeaturesetYear).setCharset(this.flags.charset).setDependencyOptions(dependencyOptions).setOutputManifest(sliceOf_(tc_string, this.flags.outputManifest_)).setOutputBundle(tlistImm_(tc_string, sliceView_(tc_string, bundleFiles))).setSkipNormalOutputs(skipNormalOutputs).setOutputChunkDependencies(this.flags.outputChunkDependencies).setProcessCommonJSModules(this.flags.processCommonJsModules).setModuleRoots(this.flags.moduleRoot).setWarningsAllowlistFile(this.flags.warningsAllowlistFile).setHideWarningsFor(this.flags.hideWarningsFor).setAngularPass(this.flags.angularPass).setJsonStreamMode(this.flags.jsonStreamMode).setErrorFormat(this.flags.errorFormat)
+		config.setPrintVersion(this.flags.version_).setPrintTree(this.flags.printTree).setPrintTreeJson(this.flags.printTreeJson).setPrintAst(this.flags.printAst).setJscompDevMode(this.flags.jscompDevMode).setLoggingLevel(this.flags.loggingLevel).setExterns(this.flags.externs).setMixedJsSources(mixedSources).setDefaultToStdin().setJsOutputFile(this.flags.jsOutputFile).setChunk(this.flags.chunk_).setVariableMapOutputFile(this.flags.variableMapOutputFile).setCreateNameMapFiles(this.flags.createNameMapFiles).setPropertyMapOutputFile(this.flags.propertyMapOutputFile).setExpectedDiagnostics(this.flags.expectedDiagnostics).setPropertyMapInputFile(this.flags.propertyMapInputFile).setVariableMapInputFile(this.flags.variableMapInputFile).setInstrumentationMappingFile(this.flags.instrumentationMappingOutputFile).setCodingConvention(conv).setSummaryDetailLevel(this.flags.summaryDetailLevel).setOutputWrapper(this.flags.outputWrapper.orElse(nullstr_)).setChunkWrapper(this.flags.chunkWrapper).setChunkOutputPathPrefix(this.flags.chunkOutputPathPrefix).setCreateSourceMap(this.flags.createSourceMap).setSourceMapFormat(this.flags.sourceMapFormat).setSourceMapLocationMappings(mappings).setSourceMapInputFiles(sourceMapInputs).setParseInlineSourceMaps(parseInlineSourceMaps).setApplyInputSourceMaps(applyInputSourceMaps).setWarningGuards(this.flags.guardLevels).setDefine(this.flags.define).setBrowserFeaturesetYear(this.flags.browserFeaturesetYear).setCharset(this.flags.charset).setDependencyOptions(dependencyOptions).setOutputManifest(sliceOf_(tc_string, this.flags.outputManifest_)).setOutputBundle(tlistImm_(tc_string, sliceView_(tc_string, bundleFiles))).setSkipNormalOutputs(skipNormalOutputs).setOutputChunkDependencies(this.flags.outputChunkDependencies).setProcessCommonJSModules(this.flags.processCommonJsModules).setModuleRoots(this.flags.moduleRoot).setWarningsAllowlistFile(this.flags.warningsAllowlistFile).setHideWarningsFor(this.flags.hideWarningsFor).setAngularPass(this.flags.angularPass).setJsonStreamMode(this.flags.jsonStreamMode).setErrorFormat(this.flags.errorFormat)
 		var segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun = this.flags.segmentOfCompilationToRun
 		switch segmentOfCompilationToRun {
 		case CompilerOptions_SegmentOfCompilationToRun_CHECKS:
@@ -431,7 +431,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptio
 	options.setEmitUseStrict(this.flags.emitUseStrict)
 	options.setSourceMapIncludeSourcesContent(this.flags.sourceMapIncludeSourcesContent)
 	options.setModuleResolutionMode(this.flags.moduleResolutionMode)
-	options.setBrowserResolverPrefixReplacements(ImmutableMap_copyOf(this.flags.browserResolverPrefixReplacements))
+	options.setBrowserResolverPrefixReplacements(immutableMapCopyOf_(tc_string, tc_string, this.flags.browserResolverPrefixReplacements))
 	if this.flags.packageJsonEntryNames.isPresent() {
 		var packageJsonEntryNames []string = this.flags.getPackageJsonEntryNames()
 		options.setPackageJsonEntryNames(packageJsonEntryNames)
@@ -479,11 +479,11 @@ func (this *CommandLineRunner) getBundler() *Outcome_base[*ClosureBundler] {
 	if this.bundler != nil {
 		return Outcome_base_ok_Object[*ClosureBundler](this.bundler)
 	}
-	var moduleRoots ImmutableListOf[string]
+	var moduleRoots *ImmutableList[string]
 	if !this.flags.moduleRoot.isEmpty() {
-		moduleRoots = ImmutableList_copyOf(Collection(this.flags.moduleRoot))
+		moduleRoots = immutableListCopyOf_(tc_string, Collection(this.flags.moduleRoot))
 	} else {
-		moduleRoots = ImmutableList_of_Object(strobj_(ModuleLoader_DEFAULT_FILENAME_PREFIX))
+		moduleRoots = immutableListOf_(tc_string, ModuleLoader_DEFAULT_FILENAME_PREFIX)
 	}
 	var optionsOutcome *Outcome_base[*CompilerOptions] = this.createOptions()
 	if optionsOutcome.isErr() {
@@ -1744,17 +1744,17 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[*TList[*A
 }
 
 func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_base[*TList[SourceMap_LocationMapping]] {
-	var locationMappings ImmutableList_BuilderOf[SourceMap_LocationMapping] = ImmutableList_builder()
+	var locationMappings *ImmutableList_Builder[SourceMap_LocationMapping] = immutableListBuilder_(tc_SourceMap_LocationMapping)
 	var splitOutcome *Outcome_base[*ErasedImmutableMap] = this.splitPipeParts(Iterable(this.sourceMapLocationMapping), "--source_map_location_mapping")
 	if splitOutcome.isErr() {
 		return Outcome_base_err[*TList[SourceMap_LocationMapping]](splitOutcome.error())
 	}
-	var split ImmutableMapOf[string, string] = splitOutcome.get()
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](split.entrySet())) {
+	var split *ImmutableMap[string, string] = tmapFrom_(tc_string, tc_string, splitOutcome.get(), true)
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](split.asImm().entrySet())) {
 		mapping := icast_Map_Entry(el)
-		locationMappings.add(obj_(new_SourceMap_PrefixLocationMapping(str_(mapping.getKey()), str_(mapping.getValue()))))
+		locationMappings.add(new_SourceMap_PrefixLocationMapping(str_(mapping.getKey()), str_(mapping.getValue())))
 	}
-	return Outcome_base_ok_Object[*TList[SourceMap_LocationMapping]](tlistImm_(tc_SourceMap_LocationMapping, locationMappings.build()))
+	return Outcome_base_ok_Object[*TList[SourceMap_LocationMapping]](locationMappings.build())
 }
 
 func (this *CommandLineRunner_Flags) getSourceMapInputs() *Outcome_base[*ErasedImmutableMap] {
@@ -1762,7 +1762,7 @@ func (this *CommandLineRunner_Flags) getSourceMapInputs() *Outcome_base[*ErasedI
 }
 
 func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], flagName string) *Outcome_base[*ErasedImmutableMap] {
-	var result ImmutableMap_BuilderOf[string, string] = new_ImmutableMap_Builder()
+	var result *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	var splitter *Splitter = Splitter_on('|').limit(2)
 	it_1 := foreach_(input)
 	for it_1.next() {
@@ -1771,9 +1771,9 @@ func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], fl
 		if int32(len(parts)) != 2 {
 			return Outcome_base_err[*ErasedImmutableMap](new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for " + sstr_(flagName) + " (duplicate key): " + objstr_(input))).up_Throwable())
 		}
-		result.put(strobj_(sliceAt_(parts, 0)), strobj_(sliceAt_(parts, 1)))
+		result.put(sliceAt_(parts, 0), sliceAt_(parts, 1))
 	}
-	return Outcome_base_ok_Object[*ErasedImmutableMap](result.buildOrThrow())
+	return Outcome_base_ok_Object[*ErasedImmutableMap](result.buildOrThrowErased())
 }
 
 func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() []string {
@@ -1902,7 +1902,7 @@ func CommandLineRunner_FormattingOption_clinit() {
 type CommandLineRunner_FlagInputs struct {
 	mixedSources           *TList[*AbstractCommandLineRunner_FlagEntry[any]]
 	mappings               *TList[SourceMap_LocationMapping]
-	sourceMapInputs        ImmutableMapOf[string, string]
+	sourceMapInputs        *ImmutableMap[string, string]
 	parseInlineSourceMaps_ bool
 	applyInputSourceMaps   bool
 }

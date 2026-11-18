@@ -45,8 +45,8 @@ func (this *CheckNullabilityModifiers) process_2(externs Node, root Node) {
 func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
 	if info != nil {
-		setAddAllFrom_(tc_string, this.templateTypeNames, icast_Collection(obj_(info.getTemplateTypeNames())))
-		setAddAllFrom_(tc_string, this.templateTypeNames, Collection(info.getTypeTransformations().keySet()))
+		setAddAllFrom_(tc_string, this.templateTypeNames, icast_Collection(obj_(info.getTemplateTypeNames().asImm())))
+		setAddAllFrom_(tc_string, this.templateTypeNames, Collection(info.getTypeTransformations().asImm().keySet()))
 		if info.hasType() {
 			this.handleHasType(info.getType(), n)
 		}
@@ -70,9 +70,9 @@ func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, pare
 	}
 	if n.isScript() {
 		this.report(t)
-		this.redundantCandidates.clear()
-		this.missingCandidates.clear()
-		this.nullMissingCandidates.clear()
+		this.redundantCandidates.Clear()
+		this.missingCandidates.Clear()
+		this.nullMissingCandidates.Clear()
 		clear(this.templateTypeNames)
 		return
 	}
@@ -129,22 +129,22 @@ func (this *CheckNullabilityModifiers) visitTypeExpression_3(expr *JSTypeExpress
 		var isAppliedToRValue bool = ((node == root) || ((parent != 0) && (parent.ns_().token == tokOrd1_PIPE)))
 		if (((isReference && !hasBang) && !hasQmark) && !isNewOrThis) && !isTypeOfType {
 			if (isAppliedToRValue && (rValue != 0)) && rValue.isNull() {
-				this.nullMissingCandidates.add(node)
+				this.nullMissingCandidates.Add(node)
 			} else {
-				this.missingCandidates.add(node)
+				this.missingCandidates.Add(node)
 			}
 		} else if isPrimitiveOrLiteral && hasNonArtificialBang {
-			this.redundantCandidates.add(node)
+			this.redundantCandidates.Add(node)
 		}
 	}})
 }
 
 func CheckNullabilityModifiers_isPrimitiveType(node Node) bool {
-	return (node.isStringLit() && Collection_contains_s(CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES, node.getString()))
+	return (node.isStringLit() && CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES.Has(node.getString()))
 }
 
 func CheckNullabilityModifiers_isReferenceType(node Node) bool {
-	return (node.isStringLit() && !Collection_contains_s(CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES, node.getString()))
+	return (node.isStringLit() && !CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES.Has(node.getString()))
 }
 
 func CheckNullabilityModifiers_isFunctionLiteral(node Node) bool {
@@ -171,7 +171,7 @@ func CheckNullabilityModifiers_getReportedTypeName(node Node) string {
 var CheckNullabilityModifiers_MISSING_NULLABILITY_MODIFIER_JSDOC *DiagnosticType
 var CheckNullabilityModifiers_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC *DiagnosticType
 var CheckNullabilityModifiers_REDUNDANT_NULLABILITY_MODIFIER_JSDOC *DiagnosticType
-var CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES *ErasedImmutableSet
+var CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES *ImmutableSet[string]
 
 var CheckNullabilityModifiers_clinit_done bool
 
@@ -183,7 +183,7 @@ func CheckNullabilityModifiers_clinit() {
 	CheckNullabilityModifiers_MISSING_NULLABILITY_MODIFIER_JSDOC = DiagnosticType_disabled("JSC_MISSING_NULLABILITY_MODIFIER_JSDOC", "{0} is a reference type with no nullability modifier, which is disallowed by the style guide.\nPlease add a '!' to make it explicitly non-nullable, or a '?' to make it explicitly nullable.")
 	CheckNullabilityModifiers_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC = DiagnosticType_disabled("JSC_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC", "{0} is a reference type with no nullability modifier that is explicitly set to null.\nAdd a '?' to make it explicitly nullable.")
 	CheckNullabilityModifiers_REDUNDANT_NULLABILITY_MODIFIER_JSDOC = DiagnosticType_disabled("JSC_REDUNDANT_NULLABILITY_MODIFIER_JSDOC", "{0} is a non-reference type which is already non-nullable.\nPlease remove the redundant '!', which is disallowed by the style guide.")
-	CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("boolean"), strobj_("number"), strobj_("bigint"), strobj_("string"), strobj_("symbol"), strobj_("undefined"), []any{strobj_("void"), strobj_("null")})
+	CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES = immutableSetOf_(tc_string, "boolean", "number", "bigint", "string", "symbol", "undefined", "void", "null")
 
 }
 

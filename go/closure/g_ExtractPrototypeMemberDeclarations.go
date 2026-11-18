@@ -255,7 +255,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 			cur = Iterables_getLast(Iterable(sliceView_(tc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration, instance.declarations))).(*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration).node_
 			if instance.isFavorable() {
 				Map_computeIfAbsent_f(this.instancesByChunk.asMap(), obj_(t.getChunk()), lambda_ExtractPrototypeMemberDeclarations_GatherExtractionInfo_visit_impl_1_)
-				var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.get(t.getChunk())
+				var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.Get(t.getChunk())
 				instanceInfo.instances = append(instanceInfo.instances, instance)
 				instanceInfo.totalDelta += instance.delta
 			}
@@ -279,7 +279,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtra
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtractChunk(chunk *JSChunk) bool {
-	var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.get(chunk)
+	var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.Get(chunk)
 	if instanceInfo == nil {
 		return false
 	}

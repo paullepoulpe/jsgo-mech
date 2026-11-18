@@ -51,13 +51,13 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 	if len(*unionNode.getOutEdges()) == 0 {
 		panic(new_IllegalStateException_0())
 	}
-	var graphNodesBuilder ImmutableSet_BuilderOf[*ColorGraphNode] = ImmutableSet_builder()
-	for _, el := range immElems_(flatUnion.getColor().getUnionElements()) {
-		element := cast_[*Color](el)
-		graphNodesBuilder.add(obj_(this.nodeFactory.createNode(element)))
+	var graphNodesBuilder *ImmutableSet_Builder[*ColorGraphNode] = immutableSetBuilder_(tc_p_ColorGraphNode)
+	for _, el := range flatUnion.getColor().getUnionElements().keys {
+		element := el
+		graphNodesBuilder.add(this.nodeFactory.createNode(element))
 	}
-	var graphNodes ImmutableSetOf[*ColorGraphNode] = graphNodesBuilder.build()
-	for _, el2 := range immElems_(this.lcaFinder.findAll(icast_Set(obj_(graphNodes)))) {
+	var graphNodes *ImmutableSet[*ColorGraphNode] = graphNodesBuilder.build()
+	for _, el2 := range immElems_(this.lcaFinder.findAll(icast_Set(obj_(graphNodes.asImm())))) {
 		lca := cast_[*ColorGraphNode](el2)
 		nn_ := this.colorHoldsInstanceGraph.getNode(obj_(lca))
 		if nn_ == nil {
@@ -78,8 +78,8 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 	}
 	flatNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.colorHoldsInstanceGraph.createNode(obj_(node)))
 	if node.getColor().isUnion() {
-		for _, el := range immElems_(node.getColor().getUnionElements()) {
-			alt := cast_[*Color](el)
+		for _, el := range node.getColor().getUnionElements().keys {
+			alt := el
 			this.connectSourceToDest(flatNode, ColorGraphBuilder_EdgeReason_ALGEBRAIC, this.addInternal(alt))
 		}
 		return flatNode
@@ -93,12 +93,12 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 			this.connectSourceToDest(this.addInternal(supertype), ColorGraphBuilder_EdgeReason_CAN_HOLD, flatNode)
 		}
 	}
-	for _, el2 := range immElems_(color.getPrototypes()) {
-		prototype := cast_[*Color](el2)
+	for _, el2 := range color.getPrototypes().keys {
+		prototype := el2
 		this.addInternal(prototype)
 	}
-	for _, el3 := range immElems_(color.getInstanceColors()) {
-		instanceColor := cast_[*Color](el3)
+	for _, el3 := range color.getInstanceColors().keys {
+		instanceColor := el3
 		this.addInternal(instanceColor)
 	}
 	return flatNode

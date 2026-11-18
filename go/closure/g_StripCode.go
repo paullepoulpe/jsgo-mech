@@ -6,8 +6,8 @@ import "strings"
 
 type StripCode struct {
 	compiler_                      *AbstractCompiler
-	stripNameSuffixes              ImmutableSetOf[string]
-	stripNamePrefixes              ImmutableSetOf[string]
+	stripNameSuffixes              *ImmutableSet[string]
+	stripNamePrefixes              *ImmutableSet[string]
 	varsToRemove                   *LinkedIdentityHashSet[string]
 	stripTypesList                 []string
 	stripTypePrefixesList          []string
@@ -19,59 +19,59 @@ func (this *StripCode) finit_StripCode() {
 	this.varsToRemove = new_LinkedIdentityHashSet[string]()
 }
 
-func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes ImmutableSetOf[string], stripNameSuffixes ImmutableSetOf[string], stripNamePrefixes ImmutableSetOf[string], enableTweakStripping bool) {
+func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *ImmutableSet[string], stripNameSuffixes *ImmutableSet[string], stripNamePrefixes *ImmutableSet[string], enableTweakStripping bool) {
 	this.finit_StripCode()
 	this.compiler_ = compiler
-	var stripNameSuffixesBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	for _, el := range immElems_(stripNameSuffixes) {
-		s := str_(el)
+	var stripNameSuffixesBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
+	for _, el := range stripNameSuffixes.keys {
+		s := el
 		for _, form := range StripCode_toListWithCollapsedVersions(s) {
-			stripNameSuffixesBuilder.add(strobj_(form))
+			stripNameSuffixesBuilder.add(form)
 		}
 	}
 	this.stripNameSuffixes = stripNameSuffixesBuilder.build()
-	var stripNamePrefixesBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	for _, el2 := range immElems_(stripNamePrefixes) {
-		s := str_(el2)
+	var stripNamePrefixesBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
+	for _, el2 := range stripNamePrefixes.keys {
+		s := el2
 		for _, form := range StripCode_toListWithCollapsedVersions(s) {
-			stripNamePrefixesBuilder.add(strobj_(form))
+			stripNamePrefixesBuilder.add(form)
 		}
 	}
 	this.stripNamePrefixes = stripNamePrefixesBuilder.build()
-	var stripTypesToAdjust []string = sliceFrom_(tc_string, icast_Collection(obj_(stripTypes)))
+	var stripTypesToAdjust []string = sliceFrom_(tc_string, icast_Collection(obj_(stripTypes.asImm())))
 	if enableTweakStripping {
 		stripTypesToAdjust = append(stripTypesToAdjust, "goog.tweak")
 	}
-	var stripTypesAdjustedBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+	var stripTypesAdjustedBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	for _, s := range stripTypesToAdjust {
 		for _, form := range StripCode_toListWithCollapsedVersions(s) {
-			stripTypesAdjustedBuilder.add(strobj_(form))
+			stripTypesAdjustedBuilder.add(form)
 		}
 	}
-	var stripTypesAdjusted ImmutableSetOf[string] = stripTypesAdjustedBuilder.build()
-	this.stripTypesList = arrmap_(stripTypesAdjusted.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
+	var stripTypesAdjusted *ImmutableSet[string] = stripTypesAdjustedBuilder.build()
+	this.stripTypesList = arrmap_(stripTypesAdjusted.asImm().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripTypePrefixes []string = []string{}
-	for _, el3 := range immElems_(stripTypesAdjusted) {
-		s := str_(el3)
+	for _, el3 := range stripTypesAdjusted.keys {
+		s := el3
 		stripTypePrefixes = append(stripTypePrefixes, (sstr_(s) + "."))
 		stripTypePrefixes = append(stripTypePrefixes, (sstr_(s) + "$"))
 	}
 	this.stripTypePrefixesList = arrmap_(sliceView_(tc_string, stripTypePrefixes).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripNamePrefixesLowerCase []string = []string{}
-	for _, el4 := range immElems_(this.stripNamePrefixes) {
-		s := str_(el4)
+	for _, el4 := range this.stripNamePrefixes.keys {
+		s := el4
 		stripNamePrefixesLowerCase = append(stripNamePrefixesLowerCase, strings.ToLower(s))
 	}
 	this.stripNamePrefixesLowerCaseList = arrmap_(sliceView_(tc_string, stripNamePrefixesLowerCase).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 	var stripNameSuffixesLowerCase []string = []string{}
-	for _, el5 := range immElems_(this.stripNameSuffixes) {
-		s := str_(el5)
+	for _, el5 := range this.stripNameSuffixes.keys {
+		s := el5
 		stripNameSuffixesLowerCase = append(stripNameSuffixesLowerCase, strings.ToLower(s))
 	}
 	this.stripNameSuffixesLowerCaseList = arrmap_(sliceView_(tc_string, stripNameSuffixesLowerCase).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 }
 
-func new_StripCode(compiler *AbstractCompiler, stripTypes ImmutableSetOf[string], stripNameSuffixes ImmutableSetOf[string], stripNamePrefixes ImmutableSetOf[string], enableTweakStripping bool) *StripCode {
+func new_StripCode(compiler *AbstractCompiler, stripTypes *ImmutableSet[string], stripNameSuffixes *ImmutableSet[string], stripNamePrefixes *ImmutableSet[string], enableTweakStripping bool) *StripCode {
 	this := &StripCode{}
 	this.init_StripCode(compiler, stripTypes, stripNameSuffixes, stripNamePrefixes, enableTweakStripping)
 	return this
@@ -134,14 +134,14 @@ func new_StripCode_StripCodeConfigRecord(outer_ *StripCode) *StripCode_StripCode
 func (this *StripCode_StripCodeConfigRecord) get() any {
 	var builder strBuilder_
 	builder.append("=== stripNameSuffixes ===\n")
-	for _, el := range immElems_(this.outer_.stripNameSuffixes) {
-		stripNameSuffix := str_(el)
+	for _, el := range this.outer_.stripNameSuffixes.keys {
+		stripNameSuffix := el
 		builder.append(stripNameSuffix).append("\n")
 	}
 	builder.append("\n")
 	builder.append("=== stripNamePrefixes ===\n")
-	for _, el2 := range immElems_(this.outer_.stripNamePrefixes) {
-		stripNamePrefix := str_(el2)
+	for _, el2 := range this.outer_.stripNamePrefixes.keys {
+		stripNamePrefix := el2
 		builder.append(stripNamePrefix).append("\n")
 	}
 	builder.append("\n")
@@ -554,11 +554,11 @@ func (this *StripCode_Strip) actsOnStripType(t *NodeTraversal, callNode Node) bo
 }
 
 func (this *StripCode_Strip) isStripName(name string) bool {
-	if Collection_contains_s(this.outer_.stripNameSuffixes, name) {
+	if this.outer_.stripNameSuffixes.Has(name) {
 		this.logStripName(Optional_of[string](name), "matches a suffix")
 		return true
 	}
-	if Collection_contains_s(this.outer_.stripNamePrefixes, name) {
+	if this.outer_.stripNamePrefixes.Has(name) {
 		this.logStripName(Optional_of[string](name), "matches a prefix")
 		return true
 	}

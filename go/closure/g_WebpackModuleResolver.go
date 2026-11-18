@@ -4,7 +4,7 @@ package closure
 
 type WebpackModuleResolver struct {
 	NodeModuleResolver
-	modulesById ImmutableMapOf[string, string]
+	modulesById *ImmutableMap[string, string]
 }
 
 func (this *WebpackModuleResolver) up_NodeModuleResolver() *NodeModuleResolver {
@@ -23,7 +23,7 @@ func (this *WebpackModuleResolver) up_ModuleResolver() *ModuleResolver {
 
 func (this *WebpackModuleResolver) init_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.NodeModuleResolver.init_NodeModuleResolver(modulePaths, moduleRootPaths, nil, errorHandler, pathEscaper)
-	this.modulesById = ImmutableMap_copyOf(modulesById.asMap())
+	this.modulesById = immutableMapCopyOf_(tc_string, tc_string, modulesById.asMap())
 }
 
 func new_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *WebpackModuleResolver {
@@ -34,7 +34,7 @@ func new_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPat
 }
 
 func (this *WebpackModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename OptionalOf[string], lineno int32, colno int32) OptionalOf[string] {
-	var loadAddress OptionalOf[string] = Optional_ofNullable[string](str_(Map_get_s(this.modulesById, moduleAddress)))
+	var loadAddress OptionalOf[string] = Optional_ofNullable[string](this.modulesById.Get(moduleAddress))
 	if loadAddress.isEmpty() {
 		return this.NodeModuleResolver.resolveJsModule_impl(scriptAddress, moduleAddress, sourcename, lineno, colno)
 	}
@@ -42,7 +42,7 @@ func (this *WebpackModuleResolver) resolveJsModule_impl(scriptAddress string, mo
 }
 
 func (this *WebpackModuleResolver) resolveJsModuleSilently_impl(scriptAddress string, moduleAddress string) OptionalOf[string] {
-	var loadAddress OptionalOf[string] = Optional_ofNullable[string](str_(Map_get_s(this.modulesById, moduleAddress)))
+	var loadAddress OptionalOf[string] = Optional_ofNullable[string](this.modulesById.Get(moduleAddress))
 	if loadAddress.isEmpty() {
 		return this.NodeModuleResolver.resolveJsModuleSilently_impl(scriptAddress, moduleAddress)
 	}
@@ -70,7 +70,7 @@ func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[str
 		if ModuleLoader_isAmbiguousIdentifier(canonicalizedPath) {
 			canonicalizedPath = (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(canonicalizedPath))
 		}
-		normalizedPathsById.put(moduleEntryKey, canonicalizedPath)
+		normalizedPathsById.Put(moduleEntryKey, canonicalizedPath)
 	}
 	return new_WebpackModuleResolver(modulePaths, moduleRootPaths, normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
 }

@@ -10,7 +10,7 @@ type FindModuleDependencies struct {
 	supportsCommonJsModules bool
 	moduleType_             CompilerInput_ModuleType
 	dynamicImportScope      *Scope
-	inputPathByWebpackId    ImmutableMapOf[string, string]
+	inputPathByWebpackId    *ImmutableMap[string, string]
 }
 
 func (this *FindModuleDependencies) finit_FindModuleDependencies() {
@@ -18,7 +18,7 @@ func (this *FindModuleDependencies) finit_FindModuleDependencies() {
 	this.dynamicImportScope = nil
 }
 
-func (this *FindModuleDependencies) init_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId ImmutableMapOf[string, string]) {
+func (this *FindModuleDependencies) init_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId *ImmutableMap[string, string]) {
 	this.finit_FindModuleDependencies()
 	this.compiler_ = compiler
 	this.supportsEs6Modules = supportsEs6Modules
@@ -26,7 +26,7 @@ func (this *FindModuleDependencies) init_FindModuleDependencies(compiler *Abstra
 	this.inputPathByWebpackId = inputPathByWebpackId
 }
 
-func new_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId ImmutableMapOf[string, string]) *FindModuleDependencies {
+func new_FindModuleDependencies(compiler *AbstractCompiler, supportsEs6Modules bool, supportsCommonJsModules bool, inputPathByWebpackId *ImmutableMap[string, string]) *FindModuleDependencies {
 	this := &FindModuleDependencies{}
 	this.init_FindModuleDependencies(compiler, supportsEs6Modules, supportsCommonJsModules, inputPathByWebpackId)
 	return this
@@ -40,13 +40,13 @@ func (this *FindModuleDependencies) process(root Node) {
 		this.moduleType_ = CompilerInput_ModuleType_ES6
 	}
 	var input *CompilerInput = this.compiler_.getInput(root.getInputId())
-	if input.getRequires().contains(obj_(DependencyInfo_Require_BASE)) {
+	if input.getRequires().asImm().contains(obj_(DependencyInfo_Require_BASE)) {
 		input.addOrderedRequire(DependencyInfo_Require_BASE)
 	}
 	NodeTraversal_traverse(this.compiler_, root, this)
 	if this.moduleType_ == CompilerInput_ModuleType_ES6 {
 		this.convertToEs6Module(root, true)
-	} else if ((this.moduleType_ == CompilerInput_ModuleType_NONE) && (this.inputPathByWebpackId != nil)) && this.inputPathByWebpackId.containsValue(strobj_(input.getPath().toString())) {
+	} else if ((this.moduleType_ == CompilerInput_ModuleType_NONE) && (this.inputPathByWebpackId != nil)) && this.inputPathByWebpackId.asImm().containsValue(strobj_(input.getPath().toString())) {
 		this.moduleType_ = CompilerInput_ModuleType_IMPORTED_SCRIPT
 	}
 	input.addProvide(input.getPath().toModuleName())

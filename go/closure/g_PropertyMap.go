@@ -7,7 +7,7 @@ type PropertyMap struct {
 	properties               MapOf[string, *Property]
 	knownSymbols             *TMap[*KnownSymbolType, *Property]
 	cachedKeySet             ImmutableSortedSetOf[string]
-	cachedKnownSymbolsKeySet ImmutableSetOf[*KnownSymbolType]
+	cachedKnownSymbolsKeySet *ImmutableSet[*KnownSymbolType]
 	cachedKeySetCounter      int32
 }
 
@@ -75,7 +75,7 @@ func (this *PropertyMap) getSecondaryParentObjects() IterableOf[*ObjectType] {
 		return ImmutableList_of()
 	}
 	if (this.parentSource.getConstructor() != nil) && this.parentSource.getConstructor().isAbstract() {
-		return icast_Iterable(obj_(this.parentSource.getConstructor().getOwnImplementedInterfaces()))
+		return icast_Iterable(obj_(this.parentSource.getConstructor().getOwnImplementedInterfaces().asImm()))
 	}
 	return this.parentSource.getCtorExtendedInterfaces()
 }
@@ -125,7 +125,7 @@ func (this *PropertyMap) getOwnProperty(propertyName Property_Key) *Property {
 		case Property_KeyKind_SYMBOL:
 			return func() *Property {
 				if this.knownSymbols != nil {
-					return this.knownSymbols.get(propertyName.symbol())
+					return this.knownSymbols.Get(propertyName.symbol())
 				}
 				return nil
 			}()
@@ -175,13 +175,13 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 			knownSymbolsKeys.asSet().addAll(Collection(ancestor.getOwnKnownSymbols()))
 		}
 		this.cachedKeySet = ImmutableSortedSet_copyOfSorted(keys.asSet())
-		this.cachedKnownSymbolsKeySet = ImmutableSet_copyOf(Collection(knownSymbolsKeys.asSet()))
+		this.cachedKnownSymbolsKeySet = immutableSetCopyOf_(tch_p_KnownSymbolType, Collection(knownSymbolsKeys.asSet()))
 	}
-	return new_PropertyMap_AllKeys(this.cachedKeySet, tsetFrom_(tch_p_KnownSymbolType, this.cachedKnownSymbolsKeySet, true))
+	return new_PropertyMap_AllKeys(this.cachedKeySet, this.cachedKnownSymbolsKeySet)
 }
 
 func (this *PropertyMap) collectAllAncestors(ancestors *TSet[*PropertyMap]) {
-	if !ancestors.add(this) {
+	if !ancestors.Add(this) {
 		return
 	}
 	var primaryParent *PropertyMap = this.getPrimaryParent()
@@ -209,7 +209,7 @@ func (this *PropertyMap) putPropertyString(name string, newProp *Property) {
 func (this *PropertyMap) putPropertyKnownSymbolType(symbol *KnownSymbolType, newProp *Property) {
 	var oldProp *Property = func() *Property {
 		if this.knownSymbols != nil {
-			return this.knownSymbols.get(symbol)
+			return this.knownSymbols.Get(symbol)
 		}
 		return nil
 	}()
@@ -219,7 +219,7 @@ func (this *PropertyMap) putPropertyKnownSymbolType(symbol *KnownSymbolType, new
 	if this.knownSymbols == nil {
 		this.knownSymbols = newTMap_(tch_p_KnownSymbolType, tc_p_Property)
 	}
-	this.knownSymbols.put(symbol, newProp)
+	this.knownSymbols.Put(symbol, newProp)
 }
 
 func (this *PropertyMap) putProperty(name Property_Key, newProp *Property) {
@@ -261,7 +261,7 @@ func PropertyMap_clinit() {
 		return
 	}
 	PropertyMap_clinit_done = true
-	PropertyMap_EMPTY_MAP = new_PropertyMap_Map_Map(ImmutableMap_of(), tmapFrom_(tch_p_KnownSymbolType, tc_p_Property, ImmutableMap_of(), true))
+	PropertyMap_EMPTY_MAP = new_PropertyMap_Map_Map(ImmutableMap_of(), immutableMapOf_(tch_p_KnownSymbolType, tc_p_Property, []*KnownSymbolType{}, []*Property{}))
 
 }
 

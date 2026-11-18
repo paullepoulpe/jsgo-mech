@@ -30,8 +30,8 @@ func new_RewriteJsonToModule(compiler *AbstractCompiler) *RewriteJsonToModule {
 	return this
 }
 
-func (this *RewriteJsonToModule) getPackageJsonMainEntries() ImmutableMapOf[string, string] {
-	return ImmutableMap_copyOf(this.packageJsonMainEntries.asMap())
+func (this *RewriteJsonToModule) getPackageJsonMainEntries() *ImmutableMap[string, string] {
+	return immutableMapCopyOf_(tc_string, tc_string, this.packageJsonMainEntries.asMap())
 }
 
 func (this *RewriteJsonToModule) process_2(externs Node, root Node) {
@@ -90,7 +90,7 @@ func (this *RewriteJsonToModule) visitScript(t *NodeTraversal, n Node) {
 			if (entry != 0) && (entry.isStringLit() || entry.isObjectLit()) {
 				var dirName string = inputPath[:len(inputPath)-len("package.json")]
 				if entry.isStringLit() {
-					this.packageJsonMainEntries.put(inputPath, (sstr_(dirName) + sstr_(entry.getString())))
+					this.packageJsonMainEntries.Put(inputPath, (sstr_(dirName) + sstr_(entry.getString())))
 					break
 				} else if entry.isObjectLit() {
 					if entryName != "browser" {
@@ -122,7 +122,7 @@ func (this *RewriteJsonToModule) processBrowserFieldAdvancedUsage(dirName string
 				}
 				return ModuleLoader_JSC_BROWSER_SKIPLISTED_MARKER
 			}()
-			this.packageJsonMainEntries.put((sstr_(dirName) + sstr_(path)), replacement)
+			this.packageJsonMainEntries.Put((sstr_(dirName) + sstr_(path)), replacement)
 		}
 	}
 }

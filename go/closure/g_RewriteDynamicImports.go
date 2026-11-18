@@ -127,7 +127,7 @@ func (this *RewriteDynamicImports) replaceDynamicImportWithPromise(t *NodeTraver
 		var moduleNamespaceType *JSType
 		if (dynamicImport.getJSType() != nil) && dynamicImport.getJSType().isTemplatizedType() {
 			var templatizedType *TemplatizedType = cast_[*TemplatizedType](dynamicImport.getJSType().self())
-			moduleNamespaceType = to_JSType(templatizedType.getTemplateTypes().get(0))
+			moduleNamespaceType = templatizedType.getTemplateTypes().get(0)
 		} else {
 			moduleNamespaceType = registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		}
@@ -272,7 +272,7 @@ func (this *RewriteDynamicImports_AliasInjectingTraversal) shouldTraverse_impl(t
 	var registry *JSTypeRegistry = this.outer_.compiler_.getTypeRegistry()
 	var unknownType *JSType = registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	var promiseType *JSType = registry.getNativeType(JSTypeNative_PROMISE_TYPE)
-	var promiseTemplatizedType *TemplatizedType = registry.createTemplatizedTypeImmutableList(promiseType.toObjectType(), ImmutableList_of_Object(unknownType.self()))
+	var promiseTemplatizedType *TemplatizedType = registry.createTemplatizedTypeImmutableList(promiseType.toObjectType(), immutableListOf_(tc_p_JSType, unknownType))
 	var stringType *JSType = registry.getNativeType(JSTypeNative_STRING_TYPE)
 	var externsRoot Node = this.outer_.compiler_.getSynthesizedExternsInput().getAstRoot(this.outer_.compiler_)
 	if (this.outer_.alias_.get() == "import") || NodeUtil_isValidSimpleName(this.outer_.alias_.get()) {

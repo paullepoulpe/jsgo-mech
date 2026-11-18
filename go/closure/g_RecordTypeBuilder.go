@@ -32,7 +32,7 @@ func (this *RecordTypeBuilder) setSynthesized(synthesized bool) {
 
 func (this *RecordTypeBuilder) addProperty(name string, type_ *JSType, propertyNode Node) *RecordTypeBuilder {
 	this.isEmpty_ = false
-	this.properties.put(name, new_RecordTypeBuilder_RecordProperty(type_, propertyNode))
+	this.properties.Put(name, new_RecordTypeBuilder_RecordProperty(type_, propertyNode))
 	return this
 }
 

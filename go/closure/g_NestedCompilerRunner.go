@@ -56,17 +56,17 @@ func (this *NestedCompilerRunner) compile() {
 }
 
 func (this *NestedCompilerRunner) initializeCompiler() {
-	var externNames ImmutableSetOf[string] = NodeUtil_collectExternVariableNames(this.original_, this.original_.getRoot().getFirstChild())
-	this.shadowCompiler.addExportedNames(tsetFrom_(tc_string, externNames, true))
+	var externNames *ImmutableSet[string] = NodeUtil_collectExternVariableNames(this.original_, this.original_.getRoot().getFirstChild())
+	this.shadowCompiler.addExportedNames(externNames)
 	this.shadowCompiler.setExternProperties(this.original_.getExternProperties())
 	this.shadowCompiler.setDebugMessage("<shadow AST compilation>")
-	var chunks ImmutableListOf[*JSChunk] = this.createChunks()
-	this.shadowCompiler.initChunks(ImmutableList_of(), icast_List(obj_(chunks)), this.shadowOptions)
+	var chunks *ImmutableList[*JSChunk] = this.createChunks()
+	this.shadowCompiler.initChunks(ImmutableList_of(), icast_List(obj_(chunks.asImm())), this.shadowOptions)
 	this.shadowCompiler.setPassConfig(this.shadowPassConfig)
 	this.shadowCompiler.parseForCompilation()
 }
 
-func (this *NestedCompilerRunner) createChunks() ImmutableListOf[*JSChunk] {
+func (this *NestedCompilerRunner) createChunks() *ImmutableList[*JSChunk] {
 	this.baseChunk.addCompilerInput(new_CompilerInput_SourceFile(SourceFile_jscomp_fromCode_String_String_SourceKind("synthetic_base", "", StaticSourceFile_SourceKind_STRONG)))
 	var chunks ImmutableList_BuilderOf[*JSChunk] = ImmutableList_builder().add(obj_(this.baseChunk))
 	for input := range sliceAll_(&this.inputs) {
@@ -75,7 +75,7 @@ func (this *NestedCompilerRunner) createChunks() ImmutableListOf[*JSChunk] {
 		chunk.addDependency(this.baseChunk)
 		chunks.add(obj_(chunk))
 	}
-	return chunks.build()
+	return tlistImm_(tc_p_JSChunk, chunks.build())
 }
 
 func (this *NestedCompilerRunner) runCompilation() {
@@ -100,21 +100,21 @@ func (this *NestedCompilerRunner) runCompilation() {
 }
 
 func (this *NestedCompilerRunner) delegateDiagnosticsToOriginal() {
-	for _, el := range immElems_(this.shadowCompiler.getErrors()) {
-		error_ := cast_[*JSError](el)
+	for _, el := range this.shadowCompiler.getErrors().items {
+		error_ := el
 		this.original_.report(error_)
 	}
-	for _, el2 := range immElems_(this.shadowCompiler.getWarnings()) {
-		error_ := cast_[*JSError](el2)
+	for _, el2 := range this.shadowCompiler.getWarnings().items {
+		error_ := el2
 		this.original_.report(error_)
 	}
 }
 
 func (this *NestedCompilerRunner) checkInvariants() {
-	if ok_, a1_ := (this.baseChunk.getInputs().size() == 1), this.baseChunk.getInputs(); !ok_ {
+	if ok_, a1_ := (this.baseChunk.getInputs().size() == 1), this.baseChunk.getInputs().asImm(); !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected exactly 1 base chunk input, got %s", []any{obj_(a1_)})))
 	}
-	var baseInputNode Node = cast_[*CompilerInput](this.baseChunk.getInputs().get(0)).getAstRoot(this.shadowCompiler.up_AbstractCompiler())
+	var baseInputNode Node = this.baseChunk.getInputs().get(0).getAstRoot(this.shadowCompiler.up_AbstractCompiler())
 	if ok_, a1_ := !baseInputNode.hasChildren(), baseInputNode.toStringTree(); !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected synthetic base input chunk to have zero children, but found %s", []any{strobj_(a1_)})))
 	}

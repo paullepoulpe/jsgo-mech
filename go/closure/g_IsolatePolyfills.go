@@ -61,13 +61,13 @@ func IsolatePolyfills_createJSCompPolyfillsAccess() Node {
 }
 
 func (this *IsolatePolyfills) process_2(externs Node, root Node) {
-	var injectedPolyfills ImmutableSetOf[string] = this.findAllInjectedPolyfills()
+	var injectedPolyfills *ImmutableSet[string] = this.findAllInjectedPolyfills()
 	var polyfillUsages []*PolyfillUsageFinder_PolyfillUsage = []*PolyfillUsageFinder_PolyfillUsage{}
 	var shouldDisambiguateProperties bool = this.compiler_.getOptions().shouldDisambiguateProperties()
 	new_PolyfillUsageFinder(this.compiler_, this.polyfills, shouldDisambiguateProperties).traverseIncludingGuarded(root, func(p0 any) { polyfillUsages = append(polyfillUsages, cast_[*PolyfillUsageFinder_PolyfillUsage](p0)) })
 	var visitedNodes map[Node]struct{} = map[Node]struct{}{}
 	for usage := range sliceAll_(&polyfillUsages) {
-		if (has_(visitedNodes, usage.node()) || usage.polyfill().library == "") || !Collection_contains_s(injectedPolyfills, usage.polyfill().nativeSymbol) {
+		if (has_(visitedNodes, usage.node()) || usage.polyfill().library == "") || !injectedPolyfills.Has(usage.polyfill().nativeSymbol) {
 			continue
 		}
 		this.rewritePolyfill(usage)
@@ -76,8 +76,8 @@ func (this *IsolatePolyfills) process_2(externs Node, root Node) {
 	this.cleanUpJscompLookupPolyfilledValue()
 }
 
-func (this *IsolatePolyfills) findAllInjectedPolyfills() ImmutableSetOf[string] {
-	var actualPolyfills ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+func (this *IsolatePolyfills) findAllInjectedPolyfills() *ImmutableSet[string] {
+	var actualPolyfills *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	var lastInjectedNode Node = this.compiler_.getNodeForCodeInsertion(nil)
 	NodeTraversal_traverse(this.compiler_, lastInjectedNode, new_IsolatePolyfills_1(this, actualPolyfills))
 	return actualPolyfills.build()
@@ -103,7 +103,7 @@ func (this *IsolatePolyfills) rewritePolyfill(polyfillUsage *PolyfillUsageFinder
 	}
 	var polyfillAccess Node = polyfillUsage.node()
 	var parent Node = polyfillUsage.node().getParent()
-	if Collection_contains_s(IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES, polyfillAccess.getSourceFileName()) {
+	if IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES.Has(polyfillAccess.getSourceFileName()) {
 		return
 	}
 	if NodeUtil_isLValue(polyfillAccess) || (parent.isAssign() && polyfillAccess.isFirstChildOf(parent)) {
@@ -189,7 +189,7 @@ func (this *IsolatePolyfills) cleanUpJscompLookupPolyfilledValue() {
 
 const IsolatePolyfills_POLYFILL_TEMP string = "$jscomp$polyfillTmp"
 
-var IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES *ErasedImmutableSet
+var IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES *ImmutableSet[string]
 
 var IsolatePolyfills_clinit_done bool
 
@@ -198,14 +198,14 @@ func IsolatePolyfills_clinit() {
 		return
 	}
 	IsolatePolyfills_clinit_done = true
-	IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES = ImmutableSet_of_Object_Object_Object(strobj_((sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "util/global.js")), strobj_((sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "util/shouldpolyfill.js")), strobj_((sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "es6/util/construct.js")))
+	IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES = immutableSetOf_(tc_string, (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "util/global.js"), (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "util/shouldpolyfill.js"), (sstr_(AbstractCompiler_RUNTIME_LIB_DIR) + "es6/util/construct.js"))
 
 }
 
 type IsolatePolyfills_1 struct {
 	NodeTraversal_AbstractShallowCallback
 	outer_              *IsolatePolyfills
-	cap_actualPolyfills *ErasedImmutableSet_Builder
+	cap_actualPolyfills *ImmutableSet_Builder[string]
 }
 
 func (this *IsolatePolyfills_1) up_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback {
@@ -219,7 +219,7 @@ func (this *IsolatePolyfills_1) init_IsolatePolyfills_1() {
 	this.NodeTraversal_AbstractShallowCallback.init_NodeTraversal_AbstractShallowCallback()
 }
 
-func new_IsolatePolyfills_1(outer_ *IsolatePolyfills, cap_actualPolyfills *ErasedImmutableSet_Builder) *IsolatePolyfills_1 {
+func new_IsolatePolyfills_1(outer_ *IsolatePolyfills, cap_actualPolyfills *ImmutableSet_Builder[string]) *IsolatePolyfills_1 {
 	this := &IsolatePolyfills_1{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -231,7 +231,7 @@ func new_IsolatePolyfills_1(outer_ *IsolatePolyfills, cap_actualPolyfills *Erase
 func (this *IsolatePolyfills_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if this.outer_.isJSCompPolyfillCall(n) {
 		var polyfilledSymbol string = n.getSecondChild().getString()
-		this.cap_actualPolyfills.add(strobj_(polyfilledSymbol))
+		this.cap_actualPolyfills.add(polyfilledSymbol)
 	}
 }
 

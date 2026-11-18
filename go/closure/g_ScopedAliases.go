@@ -283,7 +283,7 @@ func (this *ScopedAliases_Builder) build() *ScopedAliases {
 		if this.moduleMetadataMap == nil {
 			return ImmutableSet_of()
 		}
-		return this.moduleMetadataMap.getModulesByGoogNamespace().keySet()
+		return this.moduleMetadataMap.getModulesByGoogNamespace().asImm().keySet()
 	}(), this.invalidModuleGetHandling)
 }
 
@@ -522,7 +522,7 @@ func (this *ScopedAliases_Traversal) exitScope(t *NodeTraversal) {
 		this.renameNamespaceShadows(t)
 		clear(this.injectedDecls)
 		clear(this.aliases_)
-		this.forbiddenLocals.clear()
+		this.forbiddenLocals.Clear()
 		this.hasNamespaceShadows = false
 	} else if this.inGoogScopeBody() {
 		this.findNamespaceShadows(t)
@@ -622,7 +622,7 @@ func (this *ScopedAliases_Traversal) recordAlias(aliasVar *Var) {
 	if this.outer_.invalidModuleGetHandling.shouldGiveUniqueName() && this.containsInvalidGoogModuleGet(initialValue) {
 		var name string = aliasVar.getName()
 		var fileName string = initialValue.getSourceFileName()
-		var metadata *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.outer_.moduleMetadataMap.getModulesByPath(), fileName))
+		var metadata *ModuleMetadataMap_ModuleMetadata = this.outer_.moduleMetadataMap.getModulesByPath().Get(fileName)
 		var suffix string = func() string {
 			if metadata != nil {
 				return metadata.path().toModuleName()
@@ -642,7 +642,7 @@ func (this *ScopedAliases_Traversal) recordAlias(aliasVar *Var) {
 	if rootIndex != -1 {
 		var qNameRoot string = qualifiedName[:rootIndex]
 		if !has_(this.aliases_, qNameRoot) {
-			this.forbiddenLocals.add(qNameRoot)
+			this.forbiddenLocals.Add(qNameRoot)
 		}
 	}
 }
@@ -671,7 +671,7 @@ func (this *ScopedAliases_Traversal) findNamespaceShadows(t *NodeTraversal) {
 	it_1 := foreach_(scope.getVarIterable())
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
-		if this.forbiddenLocals.contains(v.getName()) {
+		if this.forbiddenLocals.Has(v.getName()) {
 			this.hasNamespaceShadows = true
 			return
 		}
@@ -688,7 +688,7 @@ func (this *ScopedAliases_Traversal) renameNamespaceShadows(t *NodeTraversal) {
 			renamer.addDeclaredName(s, false)
 		}
 		var uniquifier *MakeDeclaredNamesUnique = MakeDeclaredNamesUnique_builder().withRenamer(renamer).build()
-		NodeTraversal_traverseScopeRoots(this.outer_.compiler_, tlistImm_(tc_Node, ImmutableList_of_Object(t.getScopeRoot().box_())), icast_NodeTraversal_Callback(obj_(uniquifier)), true)
+		NodeTraversal_traverseScopeRoots(this.outer_.compiler_, immutableListOf_(tc_Node, t.getScopeRoot()), icast_NodeTraversal_Callback(obj_(uniquifier)), true)
 	}
 }
 

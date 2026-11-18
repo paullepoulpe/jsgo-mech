@@ -37,8 +37,8 @@ func (this *JSChunk) getName() string {
 	return this.name_
 }
 
-func (this *JSChunk) getProvides() ImmutableListOf[string] {
-	return ImmutableList_of_Object(strobj_(this.name_))
+func (this *JSChunk) getProvides() *ImmutableList[string] {
+	return immutableListOf_(tc_string, this.name_)
 }
 
 func (this *JSChunk) getHasExternsAnnotation() bool {
@@ -49,23 +49,23 @@ func (this *JSChunk) getHasNoCompileAnnotation() bool {
 	return false
 }
 
-func (this *JSChunk) getRequires() ImmutableListOf[*DependencyInfo_Require] {
-	var builder ImmutableList_BuilderOf[*DependencyInfo_Require] = ImmutableList_builder()
+func (this *JSChunk) getRequires() *ImmutableList[*DependencyInfo_Require] {
+	var builder *ImmutableList_Builder[*DependencyInfo_Require] = immutableListBuilder_(tc_p_DependencyInfo_Require)
 	for _, chunk := range *this.deps {
-		builder.add(obj_(DependencyInfo_Require_compilerChunk(chunk.getName())))
+		builder.add(DependencyInfo_Require_compilerChunk(chunk.getName()))
 	}
 	return builder.build()
 }
 
-func (this *JSChunk) getTypeRequires() ImmutableListOf[string] {
-	return ImmutableList_of()
+func (this *JSChunk) getTypeRequires() *ImmutableList[string] {
+	return immutableListOf_(tc_string)
 }
 
 func (this *JSChunk) getPathRelativeToClosureBase() string {
 	panic(new_UnsupportedOperationException_0())
 }
 
-func (this *JSChunk) getLoadFlags() ImmutableMapOf[string, string] {
+func (this *JSChunk) getLoadFlags() *ImmutableMap[string, string] {
 	panic(new_UnsupportedOperationException_0())
 }
 
@@ -83,7 +83,7 @@ func (this *JSChunk) add(file *SourceFile_jscomp) {
 
 func (this *JSChunk) addCompilerInput(input *CompilerInput) {
 	var inputName string = input.getName()
-	var previous *CompilerInput = this.inputs.put(inputName, input)
+	var previous *CompilerInput = this.inputs.Put(inputName, input)
 	if ok_, a1_, a2_ := (previous == nil), inputName, this.getName(); !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("%s already exist in chunk %s", []any{strobj_(a1_), strobj_(a2_)})))
 	}
@@ -102,14 +102,14 @@ func (this *JSChunk) addDependency(dep *JSChunk) {
 
 func (this *JSChunk) remove(input *CompilerInput) {
 	input.setChunk(nil)
-	this.inputs.remove(input.getName())
+	this.inputs.Delete(input.getName())
 }
 
 func (this *JSChunk) removeAll() {
 	for input := range this.inputs.Values() {
 		input.setChunk(nil)
 	}
-	this.inputs.clear()
+	this.inputs.Clear()
 }
 
 func (this *JSChunk) getDependencies() []*JSChunk {
@@ -133,7 +133,7 @@ func (this *JSChunk) getAllDependencies() *TSet[*JSChunk] {
 		var chunk *JSChunk = stack.pop_()
 		var chunkDeps *[]*JSChunk = chunk.deps
 		for dep := range sliceAll_(chunkDeps) {
-			if allDeps.add(dep) {
+			if allDeps.Add(dep) {
 				stack.push_(dep)
 			}
 		}
@@ -143,20 +143,20 @@ func (this *JSChunk) getAllDependencies() *TSet[*JSChunk] {
 
 func (this *JSChunk) getThisAndAllDependencies() *TSet[*JSChunk] {
 	var deps *TSet[*JSChunk] = this.getAllDependencies()
-	deps.add(this)
+	deps.Add(this)
 	return deps
 }
 
 func (this *JSChunk) getInputCount() int32 {
-	return this.inputs.size()
+	return this.inputs.Len()
 }
 
 func (this *JSChunk) getFirst() *CompilerInput {
 	return this.inputs.FirstValue()
 }
 
-func (this *JSChunk) getInputs() ImmutableListOf[*CompilerInput] {
-	return ImmutableList_copyOf(this.inputs.asMap().values())
+func (this *JSChunk) getInputs() *ImmutableList[*CompilerInput] {
+	return immutableListCopyOf_(tc_p_CompilerInput, this.inputs.asMap().values())
 }
 
 func (this *JSChunk) getInputsIterable() IterableOf[*CompilerInput] {
@@ -164,11 +164,11 @@ func (this *JSChunk) getInputsIterable() IterableOf[*CompilerInput] {
 }
 
 func (this *JSChunk) getByName(name string) *CompilerInput {
-	return this.inputs.get(name)
+	return this.inputs.Get(name)
 }
 
 func (this *JSChunk) removeByName(name string) bool {
-	var value *CompilerInput = this.inputs.remove(name)
+	var value *CompilerInput = this.inputs.Delete(name)
 	return (value != nil)
 }
 
@@ -188,10 +188,10 @@ func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
 	for input := range this.inputs.Values() {
 		input.setCompiler(compiler)
 	}
-	var sortedList *[]*CompilerInput = new_SortedDependencies(icast_List(obj_(this.getInputs()))).getSortedList()
-	this.inputs.clear()
+	var sortedList *[]*CompilerInput = new_SortedDependencies(icast_List(obj_(this.getInputs().asImm()))).getSortedList()
+	this.inputs.Clear()
 	for input := range sliceAll_(sortedList) {
-		this.inputs.put(input.getName(), input)
+		this.inputs.Put(input.getName(), input)
 	}
 }
 
@@ -222,7 +222,7 @@ func (this *JSChunk) readObject(in *ObjectInputStream) {
 	this.inputs = newTMap_(tc_string, tc_p_CompilerInput)
 }
 
-func (this *JSChunk) getRequiredSymbols() *ErasedImmutableList {
+func (this *JSChunk) getRequiredSymbols() *ImmutableList[string] {
 	return DependencyInfo_getRequiredSymbols_default(this)
 }
 

@@ -29,7 +29,7 @@ func ModuleImportResolver_isGoogModuleDependencyCall(value Node) bool {
 		return false
 	}
 	var owner Node = callee.getFirstChild()
-	return (((owner.isName() && (owner.getString() == ModuleImportResolver_GOOG)) && Collection_contains_s(ModuleImportResolver_GOOG_DEPENDENCY_CALLS, callee.getString())) || ModuleImportResolver_GOOG_MODULE_GET.matches(callee))
+	return (((owner.isName() && (owner.getString() == ModuleImportResolver_GOOG)) && ModuleImportResolver_GOOG_DEPENDENCY_CALLS.Has(callee.getString())) || ModuleImportResolver_GOOG_MODULE_GET.matches(callee))
 }
 
 func (this *ModuleImportResolver) getClosureNamespaceTypeFromCall(googRequire Node) *ScopedName {
@@ -86,15 +86,15 @@ func (this *ModuleImportResolver) getGoogModuleScopeRoot(module *Module) Node {
 	return 0
 }
 
-func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *TypedScope, moduleInput *CompilerInput) ImmutableMapOf[Node, *ScopedName] {
+func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *TypedScope, moduleInput *CompilerInput) *ImmutableMap[Node, *ScopedName] {
 	if !module.metadata().isEs6Module() {
 		panic(new_IllegalArgumentException_String(tostr_(module)))
 	}
 	if !scope.isModuleScope() {
 		panic(new_IllegalArgumentException_String(tostr_(scope)))
 	}
-	var missingNames ImmutableMap_BuilderOf[Node, *ScopedName] = ImmutableMap_builder()
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](module.boundNames().entrySet())) {
+	var missingNames *ImmutableMap_Builder[Node, *ScopedName] = immutableMapBuilder_(tc_Node, tc_p_ScopedName)
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](module.boundNames().asImm().entrySet())) {
 		boundName := icast_Map_Entry(el)
 		var binding *Binding = cast_[*Binding](boundName.getValue())
 		var localName string = str_(boundName.getKey())
@@ -107,7 +107,7 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 			if ok_, a1_ := (binding.sourceNode().getString() == localName), binding.sourceNode(); !ok_ {
 				panic(new_IllegalStateException_String(tostr_(a1_)))
 			}
-			missingNames.put(binding.sourceNode().box_(), export.self())
+			missingNames.put(binding.sourceNode(), export)
 			continue
 		}
 		var originalVar *TypedVar = cast_[*TypedVar](modScope.getVar(export.getName()).self())
@@ -131,7 +131,7 @@ func (this *ModuleImportResolver) updateEsModuleNamespaceType(namespace *ObjectT
 	if !scope.isModuleScope() {
 		panic(new_IllegalArgumentException_String(tostr_(scope)))
 	}
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](module.namespace().entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](module.namespace().asImm().entrySet())) {
 		boundName := icast_Map_Entry(el)
 		var exportKey string = str_(boundName.getKey())
 		if namespace.isPropertyTypeDeclared(exportKey) {
@@ -248,7 +248,7 @@ func ModuleImportResolver_isGoogModuleBody(moduleBody Node) bool {
 
 const ModuleImportResolver_GOOG string = "goog"
 
-var ModuleImportResolver_GOOG_DEPENDENCY_CALLS *ErasedImmutableSet
+var ModuleImportResolver_GOOG_DEPENDENCY_CALLS *ImmutableSet[string]
 var ModuleImportResolver_GOOG_MODULE_GET *QualifiedName
 
 var ModuleImportResolver_clinit_done bool
@@ -258,7 +258,7 @@ func ModuleImportResolver_clinit() {
 		return
 	}
 	ModuleImportResolver_clinit_done = true
-	ModuleImportResolver_GOOG_DEPENDENCY_CALLS = ImmutableSet_of_Object_Object_Object_Object(strobj_("require"), strobj_("requireType"), strobj_("forwardDeclare"), strobj_("requireDynamic"))
+	ModuleImportResolver_GOOG_DEPENDENCY_CALLS = immutableSetOf_(tc_string, "require", "requireType", "forwardDeclare", "requireDynamic")
 	ModuleImportResolver_GOOG_MODULE_GET = QualifiedName_of("goog.module.get")
 
 }

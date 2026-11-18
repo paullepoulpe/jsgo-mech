@@ -7,7 +7,7 @@ type FixingErrorManager struct {
 	fixer           *ErrorToFixMapper
 	sureFixes       *TMap[*JSError, *SuggestedFix]
 	multiFixes      *SimpleListMultimap[*JSError, any]
-	unfixableErrors ImmutableSetOf[*DiagnosticType]
+	unfixableErrors *ImmutableSet[*DiagnosticType]
 }
 
 func (this *FixingErrorManager) up_BasicErrorManager() *BasicErrorManager {
@@ -30,7 +30,7 @@ func (this *FixingErrorManager) finit_FixingErrorManager() {
 }
 
 func (this *FixingErrorManager) init_FixingErrorManager_0() {
-	this.init_FixingErrorManager_ImmutableSet(ImmutableSet_of())
+	this.init_FixingErrorManager_ImmutableSet(immutableSetOf_(tch_p_DiagnosticType))
 }
 
 func new_FixingErrorManager_0() *FixingErrorManager {
@@ -40,13 +40,13 @@ func new_FixingErrorManager_0() *FixingErrorManager {
 	return this
 }
 
-func (this *FixingErrorManager) init_FixingErrorManager_ImmutableSet(unfixableErrors ImmutableSetOf[*DiagnosticType]) {
+func (this *FixingErrorManager) init_FixingErrorManager_ImmutableSet(unfixableErrors *ImmutableSet[*DiagnosticType]) {
 	this.BasicErrorManager.init_BasicErrorManager()
 	this.finit_FixingErrorManager()
 	this.unfixableErrors = unfixableErrors
 }
 
-func new_FixingErrorManager_ImmutableSet(unfixableErrors ImmutableSetOf[*DiagnosticType]) *FixingErrorManager {
+func new_FixingErrorManager_ImmutableSet(unfixableErrors *ImmutableSet[*DiagnosticType]) *FixingErrorManager {
 	this := &FixingErrorManager{}
 	this.self_ = this
 	this.init_FixingErrorManager_ImmutableSet(unfixableErrors)
@@ -59,12 +59,12 @@ func (this *FixingErrorManager) setCompiler(compiler *AbstractCompiler) {
 
 func (this *FixingErrorManager) report_2_impl(level CheckLevel, error_ *JSError) {
 	this.BasicErrorManager.report_2_impl(level, error_)
-	if !this.unfixableErrors.contains(obj_(error_.type_())) {
-		var fixes ImmutableListOf[*SuggestedFix] = this.fixer.getFixesForJsError(error_)
+	if !this.unfixableErrors.Has(error_.type_()) {
+		var fixes *ImmutableList[*SuggestedFix] = this.fixer.getFixesForJsError(error_)
 		if fixes.size() == 1 {
-			this.sureFixes.put(error_, cast_[*SuggestedFix](fixes.get(0)))
+			this.sureFixes.Put(error_, fixes.get(0))
 		} else {
-			this.multiFixes.putAll(error_, icast_Iterable(obj_(fixes)))
+			this.multiFixes.putAll(error_, icast_Iterable(obj_(fixes.asImm())))
 		}
 	}
 }
@@ -91,8 +91,8 @@ func (this *FixingErrorManager) containsFixableShorthandModuleWarning() bool {
 }
 
 func (this *FixingErrorManager) getFixesForJsError(error_ *JSError) ListOf[*SuggestedFix] {
-	if this.sureFixes.containsKey(error_) {
-		return ImmutableList_of_Object(obj_(this.sureFixes.get(error_)))
+	if this.sureFixes.Has(error_) {
+		return ImmutableList_of_Object(obj_(this.sureFixes.Get(error_)))
 	} else {
 		return this.multiFixes.get(obj_(error_))
 	}
@@ -101,23 +101,23 @@ func (this *FixingErrorManager) getFixesForJsError(error_ *JSError) ListOf[*Sugg
 func (this *FixingErrorManager) getFixes(fixTypes FixingErrorManager_FixTypes) CollectionOf[*SuggestedFix] {
 	var containsFixableShorthandModuleWarning bool = this.containsFixableShorthandModuleWarning()
 	var fixes CollectionOf[*SuggestedFix] = new_ArrayList_0()
-	for _, el := range immElems_(this.getErrors()) {
-		error_ := cast_[*JSError](el)
+	for _, el := range this.getErrors().items {
+		error_ := el
 		if containsFixableShorthandModuleWarning && error_.type_().equals_DiagnosticType(CheckExtraRequires_EXTRA_REQUIRE_WARNING) {
 		} else {
-			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.containsKey(error_) {
-				fixes.add(obj_(this.sureFixes.get(error_)))
+			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.Has(error_) {
+				fixes.add(obj_(this.sureFixes.Get(error_)))
 			} else if fixTypes == FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES {
 				fixes.addAll(Collection(this.getFixesForJsError(error_)))
 			}
 		}
 	}
-	for _, el2 := range immElems_(this.getWarnings()) {
-		warning := cast_[*JSError](el2)
+	for _, el2 := range this.getWarnings().items {
+		warning := el2
 		if warning.type_().equals_DiagnosticType(CheckExtraRequires_EXTRA_REQUIRE_WARNING) && containsFixableShorthandModuleWarning {
 		} else {
-			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.containsKey(warning) {
-				fixes.add(obj_(this.sureFixes.get(warning)))
+			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.Has(warning) {
+				fixes.add(obj_(this.sureFixes.Get(warning)))
 			} else if fixTypes == FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES {
 				fixes.addAll(Collection(this.getFixesForJsError(warning)))
 			}

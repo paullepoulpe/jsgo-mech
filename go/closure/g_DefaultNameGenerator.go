@@ -76,7 +76,7 @@ func (this *DefaultNameGenerator) buildPriorityLookupMap() {
 }
 
 func DefaultNameGenerator_isBadName(name string) bool {
-	return Collection_contains_s(DefaultNameGenerator_BAD_NAMES, name)
+	return DefaultNameGenerator_BAD_NAMES.Has(name)
 }
 
 func (this *DefaultNameGenerator) reset(reservedNames SetOf[string], prefix string, reservedCharacters SetOf[BoxedOf[uint16]]) {
@@ -198,7 +198,7 @@ func (this *DefaultNameGenerator) generateNextName() string {
 
 var DefaultNameGenerator_FIRST_CHAR []uint16
 var DefaultNameGenerator_NONFIRST_CHAR []uint16
-var DefaultNameGenerator_BAD_NAMES *ErasedImmutableSet
+var DefaultNameGenerator_BAD_NAMES *ImmutableSet[string]
 
 var DefaultNameGenerator_clinit_done bool
 
@@ -209,7 +209,7 @@ func DefaultNameGenerator_clinit() {
 	DefaultNameGenerator_clinit_done = true
 	DefaultNameGenerator_FIRST_CHAR = []uint16{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '$'}
 	DefaultNameGenerator_NONFIRST_CHAR = []uint16{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '$'}
-	DefaultNameGenerator_BAD_NAMES = ImmutableSet_of_Object_Object_Object_Object(strobj_("let"), strobj_("yield"), strobj_("await"), strobj_("eval"))
+	DefaultNameGenerator_BAD_NAMES = immutableSetOf_(tc_string, "let", "yield", "await", "eval")
 
 }
 

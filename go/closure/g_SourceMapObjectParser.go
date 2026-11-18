@@ -81,7 +81,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 	var extensions *TMap[string, any] = newTMap_(tc_string, tc_any)
 	for entry := range elemsBy_(sourceMapRoot.members().entrySet(), icast_Map_Entry) {
 		if strings.HasPrefix(str_(entry.getKey()), "x_") {
-			extensions.put(str_(entry.getKey()), entry.getValue())
+			extensions.Put(str_(entry.getKey()), entry.getValue())
 		}
 	}
 	builder.setExtensions(extensions)
@@ -184,7 +184,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 				if value.isErr() {
 					return Outcome_base_err[any](new_SourceMapParseException(value.errorMessage().orElse(nullstr_)).up_Throwable())
 				}
-				extensions.put(name, value.get())
+				extensions.Put(name, value.get())
 			} else {
 				var skipped *Outcome_base[any] = lexer.skipValue()
 				if skipped.isErr() {
@@ -213,7 +213,7 @@ func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_bas
 	if sections.kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err[*TList[*SourceMapSection]](SourceMapObjectParser_invalidMember("sections").up_Throwable())
 	}
-	var listBuilder ImmutableList_BuilderOf[*SourceMapSection] = ImmutableList_builder()
+	var listBuilder *ImmutableList_Builder[*SourceMapSection] = immutableListBuilder_(tc_p_SourceMapSection)
 	it_1 := foreach_(sections.elements())
 	for it_1.next() {
 		var each *SimpleJsonValue = cast_[*SimpleJsonValue](it_1.v)
@@ -221,9 +221,9 @@ func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_bas
 		if section.isErr() {
 			return Outcome_base_err[*TList[*SourceMapSection]](section.error())
 		}
-		listBuilder.add(obj_(section.get()))
+		listBuilder.add(section.get())
 	}
-	return Outcome_base_ok_Object[*TList[*SourceMapSection]](tlistImm_(tc_p_SourceMapSection, listBuilder.build()))
+	return Outcome_base_ok_Object[*TList[*SourceMapSection]](listBuilder.build())
 }
 
 func SourceMapObjectParser_buildSection(section *SimpleJsonValue) *Outcome_base[*SourceMapSection] {

@@ -7,7 +7,7 @@ import "strings"
 type J2clUtilGetDefineRewriterPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
-	defines   ImmutableSetOf[string]
+	defines   *ImmutableSet[string]
 }
 
 func (this *J2clUtilGetDefineRewriterPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -62,7 +62,7 @@ func (this *J2clUtilGetDefineRewriterPass) rewriteUtilGetDefine(t *NodeTraversal
 
 func (this *J2clUtilGetDefineRewriterPass) getDefineReplacement(firstExpr Node, secondExpr Node) Node {
 	var defineName string = firstExpr.getString()
-	if Collection_contains_s(this.defines, defineName) {
+	if this.defines.Has(defineName) {
 		var define Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, ProcessDefines_getGlobalDefineAlias(defineName))
 		var defineStringValue Node = NodeUtil_newCallNode(IR_name("String"), []Node{define})
 		return IR_comma(secondExpr, defineStringValue)
@@ -137,14 +137,14 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) visit_impl(t *Nod
 	if J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_isAddSystemPropertyFromGoogDefine(n) {
 		var defineName OptionalOf[string] = J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_getDefineNameParameter(n)
 		if defineName.isPresent() {
-			this.defineNameToAddSystemPropertyCall.put(defineName.get(), n)
+			this.defineNameToAddSystemPropertyCall.Put(defineName.get(), n)
 		} else {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, J2clUtilGetDefineRewriterPass_J2CL_ADD_SYSTEM_PROPERTY_CONSTANT_NAME, []string{}))
 		}
 	} else if J2clUtilGetDefineRewriterPass_isUtilGetDefineCall(n) {
 		var defineName OptionalOf[string] = J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_getDefineNameParameter(n)
 		if defineName.isPresent() {
-			this.defineNameToGetDefineCall.put(defineName.get(), n)
+			this.defineNameToGetDefineCall.Put(defineName.get(), n)
 		} else {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, J2clUtilGetDefineRewriterPass_J2CL_SYSTEM_GET_PROPERTY_CONSTANT_NAME, []string{}))
 		}
@@ -153,15 +153,15 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) visit_impl(t *Nod
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) validateRegisteredDefines() {
 	for entryKey, entryValue := range this.defineNameToAddSystemPropertyCall.All() {
-		if !Collection_contains_s(this.outer_.defines, entryKey) {
+		if !this.outer_.defines.Has(entryKey) {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(entryValue, J2clUtilGetDefineRewriterPass_J2CL_ADD_SYSTEM_PROPERTY_UNKNOWN_DEFINE, []string{entryKey}))
 		}
 	}
 	for entryKey2, entryValue2 := range this.defineNameToGetDefineCall.All() {
-		if !Collection_contains_s(this.outer_.defines, entryKey2) {
+		if !this.outer_.defines.Has(entryKey2) {
 			continue
 		}
-		if !this.defineNameToAddSystemPropertyCall.containsKey(entryKey2) {
+		if !this.defineNameToAddSystemPropertyCall.Has(entryKey2) {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(entryValue2, J2clUtilGetDefineRewriterPass_J2CL_SYSTEM_GET_PROPERTY_UNKNOWN_PROPERTY, []string{entryKey2}))
 		}
 	}

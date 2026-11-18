@@ -38,18 +38,18 @@ func (this *FunctionToBlockMutator) mutateInternal(fnName string, fnNode Node, c
 		this.makeLocalNamesUnique(newFnNode, isCallInLoop)
 		FunctionToBlockMutator_rewriteFunctionDeclarations(newFnNode.getLastChild())
 	}
-	var modifiedParameters ImmutableSetOf[string] = this.functionArgumentInjector_.findModifiedParameters(newFnNode)
-	var args ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(newFnNode, callNode, this.safeNameIdSupplier_)
-	var hasArgs bool = !args.isEmpty()
-	var allNamesToAlias ImmutableSetOf[string] = ImmutableSet_of()
+	var modifiedParameters *ImmutableSet[string] = this.functionArgumentInjector_.findModifiedParameters(newFnNode)
+	var args *ImmutableMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(newFnNode, callNode, this.safeNameIdSupplier_)
+	var hasArgs bool = !args.IsEmpty()
+	var allNamesToAlias *ImmutableSet[string] = immutableSetOf_(tc_string)
 	if hasArgs {
-		var temps ImmutableSetOf[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, newFnNode, args, modifiedParameters, this.compiler_.getCodingConvention())
-		allNamesToAlias = ImmutableSet_builder().addAll(icast_Iterable(obj_(modifiedParameters))).addAll(icast_Iterable(obj_(temps))).build()
+		var temps *ImmutableSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, newFnNode, args, modifiedParameters, this.compiler_.getCodingConvention())
+		allNamesToAlias = immutableSetBuilder_(tc_string).addAll(icast_Iterable(obj_(modifiedParameters.asImm()))).addAll(icast_Iterable(obj_(temps.asImm()))).build()
 	}
 	var newBlock Node = NodeUtil_getFunctionBody(newFnNode)
 	newBlock.detach()
 	if hasArgs {
-		var inlineResult Node = this.aliasAndInlineArguments(newBlock, args, setImm_(tc_string, allNamesToAlias))
+		var inlineResult Node = this.aliasAndInlineArguments(newBlock, args, setImm_(tc_string, allNamesToAlias.asImm()))
 		if newBlock != inlineResult {
 			panic(new_IllegalStateException_0())
 		}
@@ -169,7 +169,7 @@ func FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node_boolean(n 
 
 func (this *FunctionToBlockMutator) makeLocalNamesUnique(fnNode Node, isCallInLoop bool) {
 	var idSupplier SupplierOf[string] = this.compiler_.getUniqueNameIdSupplier()
-	NodeTraversal_traverseScopeRoots(this.compiler_, tlistImm_(tc_Node, ImmutableList_of_Object(fnNode.box_())), icast_NodeTraversal_Callback(obj_(MakeDeclaredNamesUnique_builder().withRenamer(new_MakeDeclaredNamesUnique_InlineRenamer(this.compiler_.getCodingConvention(), idSupplier, "inline_", isCallInLoop, true, nil)).withMarkChanges(false).build())), true)
+	NodeTraversal_traverseScopeRoots(this.compiler_, immutableListOf_(tc_Node, fnNode), icast_NodeTraversal_Callback(obj_(MakeDeclaredNamesUnique_builder().withRenamer(new_MakeDeclaredNamesUnique_InlineRenamer(this.compiler_.getCodingConvention(), idSupplier, "inline_", isCallInLoop, true, nil)).withMarkChanges(false).build())), true)
 	new_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(this.compiler_, new_FunctionToBlockMutator_LabelNameSupplier(idSupplier).get, false, false).process_2(0, fnNode)
 }
 
@@ -187,10 +187,10 @@ func (this *FunctionToBlockMutator) getUniqueThisName() string {
 	return ("JSCompiler_inline_this_" + sstr_(str_(this.safeNameIdSupplier_.get())))
 }
 
-func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias map[string]struct{}) Node {
+func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap *ImmutableMap[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias map[string]struct{}) Node {
 	if (namesToAlias == nil) || len(mapNN_(namesToAlias)) == 0 {
 		var replacements map[string]Node = map[string]Node{}
-		for _, el := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.entrySet())) {
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.asImm().entrySet())) {
 			entry := icast_Map_Entry(el)
 			replacements[str_(entry.getKey())] = entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg()
 		}
@@ -202,7 +202,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 	} else {
 		var paramReplacements map[string]Node = map[string]Node{}
 		var newAliasesToAdd []Node = []Node{}
-		for _, el2 := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.entrySet())) {
+		for _, el2 := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.asImm().entrySet())) {
 			entry := icast_Map_Entry(el2)
 			var name string = str_(entry.getKey())
 			var arg *FunctionArgumentInjector_ParamArgPair = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue())

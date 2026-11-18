@@ -56,8 +56,8 @@ func (this *RescopeGlobalSymbols) process_2(externs Node, root Node) {
 	var findCrossChunkNames *RescopeGlobalSymbols_FindCrossChunkNamesCallback = new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(this.compiler_, this.assumeCrossChunkNames, this.optimizeLocalAccess.shouldOptimize(), renameHelperBuilder)
 	var findNamesReferencingThis *RescopeGlobalSymbols_FindNamesReferencingThis = new_RescopeGlobalSymbols_FindNamesReferencingThis()
 	CombinedCompilerPass_traverse(this.compiler_, root, sliceOf_(tc_NodeTraversal_Callback, NodeTraversal_Callback(findCrossChunkNames), NodeTraversal_Callback(findNamesReferencingThis)))
-	var externNames ImmutableSetOf[string] = NodeUtil_collectExternVariableNames(this.compiler_, externs)
-	var symbolInfo *RescopeGlobalSymbolsInfo = new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(this.globalSymbolNamespace_, tsetFrom_(tc_string, externNames, true), findCrossChunkNames.crossChunkNames_, findCrossChunkNames.crossChunkNamesWithWriteFromOtherChunk_, findCrossChunkNames.crossChunkNamesUsedInNonDependentChunk_, findCrossChunkNames.globalNamesWithReadInDefiningChunk_, findCrossChunkNames.globalNamesWithInnerScopeWriteInDefiningChunk_, findCrossChunkNames.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, findNamesReferencingThis.maybeReferencesThis_)
+	var externNames *ImmutableSet[string] = NodeUtil_collectExternVariableNames(this.compiler_, externs)
+	var symbolInfo *RescopeGlobalSymbolsInfo = new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(this.globalSymbolNamespace_, externNames, findCrossChunkNames.crossChunkNames_, findCrossChunkNames.crossChunkNamesWithWriteFromOtherChunk_, findCrossChunkNames.crossChunkNamesUsedInNonDependentChunk_, findCrossChunkNames.globalNamesWithReadInDefiningChunk_, findCrossChunkNames.globalNamesWithInnerScopeWriteInDefiningChunk_, findCrossChunkNames.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, findNamesReferencingThis.maybeReferencesThis_)
 	var renameHelper *RescopeGlobalSymbolsRenameHelper = renameHelperBuilder.build(symbolInfo)
 	var rewriteScope *RescopeGlobalSymbolsRewriteCallback = new_RescopeGlobalSymbolsRewriteCallback(this.compiler_, this.optimizeLocalAccess, symbolInfo, renameHelper)
 	NodeTraversal_traverse(this.compiler_, root, rewriteScope)
@@ -164,7 +164,7 @@ func new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler *AbstractComp
 func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
 		var name string = n.getString()
-		if name == "" || (!this.trackLocalAccessSets && this.crossChunkNames_.contains(name)) {
+		if name == "" || (!this.trackLocalAccessSets && this.crossChunkNames_.Has(name)) {
 			return
 		}
 		this.renameHelperBuilder.recordExistingName(name)
@@ -174,33 +174,33 @@ func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit_impl(t *Node
 			return
 		}
 		if this.assumeCrossChunkNames || this.compiler_.getCodingConvention().isExported_2(name, false) {
-			this.crossChunkNames_.add(name)
+			this.crossChunkNames_.Add(name)
 		}
 		var input *CompilerInput = v.getInput()
 		if ((this.trackLocalAccessSets && !t.inGlobalScope()) && ((input == nil) || (input.getChunk() == t.getChunk()))) && NodeUtil_isLValueWrite(n) {
-			this.globalNamesWithInnerScopeWriteInDefiningChunk_.add(name)
+			this.globalNamesWithInnerScopeWriteInDefiningChunk_.Add(name)
 		}
 		if input == nil {
-			this.crossChunkNames_.add(name)
+			this.crossChunkNames_.Add(name)
 			return
 		}
 		var chunk *JSChunk = input.getChunk()
 		if chunk != t.getChunk() {
-			this.crossChunkNames_.add(name)
+			this.crossChunkNames_.Add(name)
 			if this.trackLocalAccessSets {
 				if NodeUtil_isLValueWrite(n) {
-					this.crossChunkNamesWithWriteFromOtherChunk_.add(name)
+					this.crossChunkNamesWithWriteFromOtherChunk_.Add(name)
 				}
 				if !this.compiler_.getChunkGraph().dependsOn(t.getChunk(), chunk) {
-					this.crossChunkNamesUsedInNonDependentChunk_.add(name)
+					this.crossChunkNamesUsedInNonDependentChunk_.Add(name)
 				}
 			}
 		} else if this.trackLocalAccessSets {
 			if RescopeGlobalSymbols_FindCrossChunkNamesCallback_isReadReference(n) {
-				this.globalNamesWithReadInDefiningChunk_.add(name)
+				this.globalNamesWithReadInDefiningChunk_.Add(name)
 			}
 			if NodeUtil_isLValueWrite(n) && !RescopeGlobalSymbols_FindCrossChunkNamesCallback_isWriteSafeForLocalAliasMirroring(n, parent) {
-				this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.add(name)
+				this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.Add(name)
 			}
 		}
 	}
@@ -281,7 +281,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit_impl(t *NodeTra
 		if (value == 0) && !NodeUtil_isLhsByDestructuring(n) {
 			return
 		}
-		if this.maybeReferencesThis_.contains(name) {
+		if this.maybeReferencesThis_.Has(name) {
 			return
 		}
 		var s *Scope = t.getScope()
@@ -290,7 +290,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit_impl(t *NodeTra
 			return
 		}
 		if ((value == 0) || !value.isFunction()) || NodeUtil_referencesOwnReceiver(value) {
-			this.maybeReferencesThis_.add(name)
+			this.maybeReferencesThis_.Add(name)
 		}
 	}
 }

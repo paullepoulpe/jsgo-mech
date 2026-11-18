@@ -6,7 +6,7 @@ import "strings"
 
 type NodeModuleResolver struct {
 	ModuleResolver
-	packageJsonMainEntries ImmutableMapOf[string, string]
+	packageJsonMainEntries *ImmutableMap[string, string]
 	nodeModulesFolders     ImmutableSortedSetOf[string]
 }
 
@@ -30,7 +30,7 @@ func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths ImmutableSet
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
 	this.nodeModulesFolders = NodeModuleResolver_buildNodeModulesFoldersRegistry(icast_Iterable(obj_(modulePaths)), icast_Iterable(obj_(moduleRootPaths)))
 	if packageJsonMainEntries == nil {
-		this.packageJsonMainEntries = ImmutableMap_of()
+		this.packageJsonMainEntries = immutableMapOf_(tc_string, tc_string, []string{}, []string{})
 	} else {
 		this.packageJsonMainEntries = this.buildPackageJsonMainEntries(packageJsonMainEntries)
 	}
@@ -78,20 +78,20 @@ var lambda_NodeModuleResolver_buildNodeModulesFoldersRegistry_1_ = &Comparator_f
 	return utf16Compare_(a, b)
 }}
 
-func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntries *TMap[string, string]) ImmutableMapOf[string, string] {
-	var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
+func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntries *TMap[string, string]) *ImmutableMap[string, string] {
+	var builder *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for packageJsonMainEntryKey, packageJsonMainEntryValue := range packageJsonMainEntries.All() {
 		var entryKey string = packageJsonMainEntryKey
 		if ModuleLoader_isAmbiguousIdentifier(entryKey) {
 			entryKey = (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(entryKey))
 		}
-		builder.put(strobj_(entryKey), strobj_(packageJsonMainEntryValue))
+		builder.put(entryKey, packageJsonMainEntryValue)
 	}
 	return builder.buildOrThrow()
 }
 
 func (this *NodeModuleResolver) getPackageJsonMainEntries_impl() map[string]string {
-	return mapImm_(tc_string, tc_string, this.packageJsonMainEntries)
+	return mapImm_(tc_string, tc_string, this.packageJsonMainEntries.asImm())
 }
 
 func (this *NodeModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename OptionalOf[string], lineno int32, colno int32) OptionalOf[string] {
@@ -120,8 +120,8 @@ func (this *NodeModuleResolver) resolveJsModuleFile(scriptAddress string, module
 	for _, extension := range NodeModuleResolver_FILE_EXTENSIONS_TO_SEARCH {
 		var moduleAddressCandidate string = (sstr_(moduleAddress) + sstr_(extension))
 		var canonicalizedCandidatePath string = this.canonicalizePath(scriptAddress, moduleAddressCandidate)
-		if Map_containsKey_s(this.packageJsonMainEntries, canonicalizedCandidatePath) {
-			moduleAddressCandidate = str_(Map_get_s(this.packageJsonMainEntries, canonicalizedCandidatePath))
+		if this.packageJsonMainEntries.Has(canonicalizedCandidatePath) {
+			moduleAddressCandidate = this.packageJsonMainEntries.Get(canonicalizedCandidatePath)
 			if ModuleLoader_JSC_BROWSER_SKIPLISTED_MARKER == moduleAddressCandidate {
 				return Optional_empty[string]()
 			}
@@ -151,8 +151,8 @@ func (this *NodeModuleResolver) resolveJsModuleNodeDirectory(scriptAddress strin
 		var loadAddress OptionalOf[string] = this.locate(scriptAddress, (sstr_(moduleAddress) + sstr_(NodeModuleResolver_FILES_TO_SEARCH[i])))
 		if loadAddress.isPresent() {
 			if NodeModuleResolver_FILES_TO_SEARCH[i] == (sstr_(ModuleLoader_MODULE_SLASH) + "package.json") {
-				if Map_containsKey_s(this.packageJsonMainEntries, loadAddress.get()) {
-					return this.resolveJsModuleFile(scriptAddress, str_(Map_get_s(this.packageJsonMainEntries, loadAddress.get())))
+				if this.packageJsonMainEntries.Has(loadAddress.get()) {
+					return this.resolveJsModuleFile(scriptAddress, this.packageJsonMainEntries.Get(loadAddress.get()))
 				}
 			} else {
 				return loadAddress

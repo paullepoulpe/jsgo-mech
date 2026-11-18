@@ -65,22 +65,22 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 			builder.addCodeAst(this.serializeScriptNode(script))
 		}
 	}
-	var sourceFiles *SourceFilePool = cast_[*SourceFilePool](SourceFilePool_newBuilder().addAllSourceFile(icast_Iterable(obj_(this.sourceFileProtos()))).build())
+	var sourceFiles *SourceFilePool = cast_[*SourceFilePool](SourceFilePool_newBuilder().addAllSourceFile(icast_Iterable(obj_(this.sourceFileProtos().asImm()))).build())
 	if this.compiler_.getExternProperties() != nil {
 		var externsSummary *ExternsSummary_Builder = ExternsSummary_newBuilder()
-		for _, el := range immElems_(this.compiler_.getExternProperties()) {
-			prop := str_(el)
+		for _, el := range this.compiler_.getExternProperties().keys {
+			prop := el
 			externsSummary.addPropNamePtr(this.stringPool.put(prop))
 		}
 		builder.setExternsSummary(externsSummary)
 	}
-	return cast_[*TypedAst](builder.addAllRuntimeLibraryToInject(icast_Iterable(obj_(this.serializationMode.runtimeLibraries()))).setTypePool(this.typeSerializer.generateTypePool()).setStringPool(this.stringPool.build().toProto()).setSourceFilePool(sourceFiles).build())
+	return cast_[*TypedAst](builder.addAllRuntimeLibraryToInject(icast_Iterable(obj_(this.serializationMode.runtimeLibraries().asImm()))).setTypePool(this.typeSerializer.generateTypePool()).setStringPool(this.stringPool.build().toProto()).setSourceFilePool(sourceFiles).build())
 }
 
-func (this *TypedAstSerializer) sourceFileProtos() ImmutableListOf[*SourceFileProto] {
-	var result ImmutableList_BuilderOf[*SourceFileProto] = ImmutableList_builder()
+func (this *TypedAstSerializer) sourceFileProtos() *ImmutableList[*SourceFileProto] {
+	var result *ImmutableList_Builder[*SourceFileProto] = immutableListBuilder_(tc_p_SourceFileProto)
 	for sourceFile := range this.sourceFilePointers.Keys() {
-		result.add(obj_(sourceFile.getProto()))
+		result.add(sourceFile.getProto())
 	}
 	return result.build()
 }
@@ -161,7 +161,7 @@ func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 	return unbox_[int32](Map_computeIfAbsent_f(this.sourceFilePointers.asMap(), obj_(sourceFile), func(f_ any) any {
 		var f *SourceFile_jscomp = cast_[*SourceFile_jscomp](f_)
 		_ = f
-		return any(int32((1 + this.sourceFilePointers.size())))
+		return any(int32((1 + this.sourceFilePointers.Len())))
 	}))
 }
 
@@ -511,13 +511,13 @@ func TypedAstSerializer_createJSTypeSerializer(compiler *AbstractCompiler, seria
 }
 
 func (this *TypedAstSerializer) createColorTypeSerializer(compiler *AbstractCompiler, serializationMode *SerializationOptions, stringPoolBuilder *StringPool_Builder) *TypedAstSerializer_ColorTypeSerializer {
-	var usedPropertyNames ImmutableSetOf[string] = TypedAstSerializer_collectUsedPropertyNames(compiler)
-	var colorSerializer *ColorSerializer = new_ColorSerializer(serializationMode, func(p0 any) any { return any(int32(stringPoolBuilder.put(str_(p0)))) }, func(p0 any) bool { return Collection_contains_s(usedPropertyNames, str_(p0)) })
+	var usedPropertyNames *ImmutableSet[string] = TypedAstSerializer_collectUsedPropertyNames(compiler)
+	var colorSerializer *ColorSerializer = new_ColorSerializer(serializationMode, func(p0 any) any { return any(int32(stringPoolBuilder.put(str_(p0)))) }, func(p0 any) bool { return usedPropertyNames.Has(str_(p0)) })
 	return new_TypedAstSerializer_ColorTypeSerializer(colorSerializer, compiler.getColorRegistry())
 }
 
-func TypedAstSerializer_collectUsedPropertyNames(compiler *AbstractCompiler) ImmutableSetOf[string] {
-	var propertyNamesBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+func TypedAstSerializer_collectUsedPropertyNames(compiler *AbstractCompiler) *ImmutableSet[string] {
+	var propertyNamesBuilder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	NodeTraversal_traverse(compiler, compiler.getRoot(), new_TypedAstSerializer_1(propertyNamesBuilder))
 	return propertyNamesBuilder.build()
 }
@@ -567,7 +567,7 @@ func new_TypedAstSerializer_JSTypeSerializer(typesToPointers *TMap[*JSType, any]
 func (this *TypedAstSerializer_JSTypeSerializer) addTypeForNode(node Node, astNodeBuilder *AstNode_Builder) {
 	var type_ *JSType = node.getJSType()
 	if type_ != nil {
-		nn_ := this.typesToPointers.get(type_)
+		nn_ := this.typesToPointers.Get(type_)
 		if nn_ == nil {
 			panic(new_NullPointerException_String(Strings_lenientFormat("cannot find pointer for %s", []any{type_.self()})))
 		}
@@ -612,14 +612,14 @@ func (this *TypedAstSerializer_ColorTypeSerializer) generateTypePool() *TypePool
 }
 
 type TypedAstSerializer_1 struct {
-	cap_propertyNamesBuilder *ErasedImmutableSet_Builder
+	cap_propertyNamesBuilder *ImmutableSet_Builder[string]
 }
 
 func (this *TypedAstSerializer_1) init_TypedAstSerializer_1() {
 
 }
 
-func new_TypedAstSerializer_1(cap_propertyNamesBuilder *ErasedImmutableSet_Builder) *TypedAstSerializer_1 {
+func new_TypedAstSerializer_1(cap_propertyNamesBuilder *ImmutableSet_Builder[string]) *TypedAstSerializer_1 {
 	this := &TypedAstSerializer_1{}
 	this.cap_propertyNamesBuilder = cap_propertyNamesBuilder
 	this.init_TypedAstSerializer_1()
@@ -633,10 +633,10 @@ func (this *TypedAstSerializer_1) shouldTraverse(t *NodeTraversal, n Node, paren
 func (this *TypedAstSerializer_1) visit(t *NodeTraversal, n Node, parent Node) {
 	switch n.ns_().token {
 	case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
-		this.cap_propertyNamesBuilder.add(strobj_(n.getString()))
+		this.cap_propertyNamesBuilder.add(n.getString())
 	case tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if !n.isQuotedStringKey() {
-			this.cap_propertyNamesBuilder.add(strobj_(n.getString()))
+			this.cap_propertyNamesBuilder.add(n.getString())
 		}
 	default:
 	}

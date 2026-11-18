@@ -155,11 +155,11 @@ func (this *InstanceObjectType) recursionUnsafeHashCode_impl() int32 {
 }
 
 func (this *InstanceObjectType) getCtorImplementedInterfaces_impl() Iterable {
-	return icast_Iterable(obj_(this.getConstructor().getImplementedInterfaces()))
+	return icast_Iterable(obj_(this.getConstructor().getImplementedInterfaces().asImm()))
 }
 
 func (this *InstanceObjectType) getCtorExtendedInterfaces_impl() Iterable {
-	return icast_Iterable(obj_(this.getConstructor().getExtendedInterfaces()))
+	return icast_Iterable(obj_(this.getConstructor().getExtendedInterfaces().asImm()))
 }
 
 func (this *InstanceObjectType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {

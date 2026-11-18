@@ -17,8 +17,8 @@ func new_PropertiesParser() *PropertiesParser {
 	return this
 }
 
-func PropertiesParser_parse(source string) ImmutableMapOf[string, string] {
-	var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
+func PropertiesParser_parse(source string) *ImmutableMap[string, string] {
+	var builder *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	var lines []string = PropertiesParser_LINE_BREAK_PATTERN.split(source)
 	for i := int32(0); i < int32(len(lines)); i++ {
 		var line string = lines[i]
@@ -48,7 +48,7 @@ func PropertiesParser_parse(source string) ImmutableMapOf[string, string] {
 				break
 			}
 		}
-		builder.put(strobj_(key), strobj_(data))
+		builder.put(key, data)
 	}
 	return builder.buildOrThrow()
 }

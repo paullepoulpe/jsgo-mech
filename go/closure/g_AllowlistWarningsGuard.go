@@ -6,7 +6,7 @@ import "strings"
 
 type AllowlistWarningsGuard struct {
 	WarningsGuard
-	allowlist ImmutableSetOf[string]
+	allowlist *ImmutableSet[string]
 }
 
 func (this *AllowlistWarningsGuard) up_WarningsGuard() *WarningsGuard {
@@ -17,7 +17,7 @@ func (this *AllowlistWarningsGuard) up_WarningsGuard() *WarningsGuard {
 }
 
 func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_0() {
-	this.init_AllowlistWarningsGuard_Set(tsetFrom_(tc_string, ImmutableSet_of(), true))
+	this.init_AllowlistWarningsGuard_Set(immutableSetOf_(tc_string))
 }
 
 func new_AllowlistWarningsGuard_0() *AllowlistWarningsGuard {
@@ -42,30 +42,30 @@ func new_AllowlistWarningsGuard_Set(allowlist *TSet[string]) *AllowlistWarningsG
 	return this
 }
 
-func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) ImmutableSetOf[string] {
+func AllowlistWarningsGuard_normalizeAllowlist(allowlist *TSet[string]) *ImmutableSet[string] {
 	var result *TSet[string] = newTSet_(tc_string)
 	for line := range allowlist.All() {
 		var trimmed string = strings.Trim(line, javaSpace_)
 		if trimmed == "" || (trimmed[0] == '#') {
 			continue
 		}
-		result.add(AllowlistWarningsGuard_LINE_NUMBER.matcher_s(trimmed).replaceFirst(":"))
+		result.Add(AllowlistWarningsGuard_LINE_NUMBER.matcher_s(trimmed).replaceFirst(":"))
 	}
-	return ImmutableSet_copyOf(Collection(result.asSet()))
+	return immutableSetCopyOf_(tc_string, Collection(result.asSet()))
 }
 
 func (this *AllowlistWarningsGuard) level_impl(error_ *JSError) CheckLevel {
 	if equalsId_(error_.defaultLevel(), CheckLevel_ERROR) {
 		return 0
 	}
-	if !this.allowlist.isEmpty() && this.containWarning(this.formatWarning(error_)) {
+	if !this.allowlist.IsEmpty() && this.containWarning(this.formatWarning(error_)) {
 		return CheckLevel_WARNING
 	}
 	return 0
 }
 
 func (this *AllowlistWarningsGuard) containWarning(formattedWarning string) bool {
-	return Collection_contains_s(this.allowlist, formattedWarning)
+	return this.allowlist.Has(formattedWarning)
 }
 
 func (this *AllowlistWarningsGuard) getPriority_impl() int32 {
@@ -188,7 +188,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) report_2(level CheckLevel, 
 	if equalsId_(error_.defaultLevel(), CheckLevel_ERROR) {
 		return
 	}
-	this.warnings_.add(error_)
+	this.warnings_.Add(error_)
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) writeAllowlist(out string) *Outcome_base[any] {
@@ -202,7 +202,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) writeAllowlist(out string) 
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output) {
 	out.append_CharSequence_s("# This is a list of legacy warnings that have yet to be fixed.\n")
-	if (this.productName.isPresent() && this.productName.get() != "") && !this.warnings_.isEmpty() {
+	if (this.productName.isPresent() && this.productName.get() != "") && !this.warnings_.IsEmpty() {
 		out.append_CharSequence_s(("# Please find some time and fix at least one of them and it will be the happiest day for " + sstr_(this.productName.get()) + ".\n"))
 	}
 	if this.generatorTarget.isPresent() && this.generatorTarget.get() != "" {

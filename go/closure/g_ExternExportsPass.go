@@ -12,8 +12,8 @@ type ExternExportsPass struct {
 	externsRoot                 Node
 	mappedPaths                 map[string]string
 	alreadyExportedPaths        map[string]struct{}
-	exportSymbolFunctionNames   ImmutableSetOf[string]
-	exportPropertyFunctionNames ImmutableSetOf[string]
+	exportSymbolFunctionNames   *ImmutableSet[string]
+	exportPropertyFunctionNames *ImmutableSet[string]
 }
 
 func (this *ExternExportsPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -41,22 +41,22 @@ func new_ExternExportsPass(compiler *AbstractCompiler) *ExternExportsPass {
 	return this
 }
 
-func ExternExportsPass_computePathPrefixes(path string) ImmutableListOf[string] {
+func ExternExportsPass_computePathPrefixes(path string) *ImmutableList[string] {
 	var pieces []string = sliceImm_(tc_string, ExternExportsPass_Q_NAME_SPLITTER.splitToList_s(path))
-	var pathPrefixes ImmutableList_BuilderOf[string] = ImmutableList_builder()
+	var pathPrefixes *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	var partial string = sliceAt_(pieces, 0)
-	pathPrefixes.add(strobj_(partial))
+	pathPrefixes.add(partial)
 	for i := int32(1); i < int32(len(pieces)); i++ {
 		partial = ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(partial), strobj_(sliceAt_(pieces, i)), []any{})
-		pathPrefixes.add(strobj_(partial))
+		pathPrefixes.add(partial)
 	}
 	return pathPrefixes.build()
 }
 
 func (this *ExternExportsPass) initExportMethods() {
 	var convention CodingConvention = this.compiler_.getCodingConvention()
-	this.exportSymbolFunctionNames = ImmutableSet_of_Object_Object(strobj_(convention.getExportSymbolFunction()), strobj_("google_exportSymbol"))
-	this.exportPropertyFunctionNames = ImmutableSet_of_Object_Object(strobj_(convention.getExportPropertyFunction()), strobj_("google_exportProperty"))
+	this.exportSymbolFunctionNames = immutableSetOf_(tc_string, convention.getExportSymbolFunction(), "google_exportSymbol")
+	this.exportPropertyFunctionNames = immutableSetOf_(tc_string, convention.getExportPropertyFunction(), "google_exportProperty")
 }
 
 func (this *ExternExportsPass) process_2(externs Node, root Node) {
@@ -153,12 +153,12 @@ func (this *ExternExportsPass) lookForPropertyExportCall(n Node) {
 	this.exports = append(this.exports, new_ExternExportsPass_PropertyExport(this, objectArg.getQualifiedName(), nameArg.getString(), valueArg).as_ExternExportsPass_Export())
 }
 
-func (this *ExternExportsPass) isCallToOneOf(n Node, functionQnames ImmutableSetOf[string]) bool {
+func (this *ExternExportsPass) isCallToOneOf(n Node, functionQnames *ImmutableSet[string]) bool {
 	if !n.isCall() {
 		return false
 	} else {
 		var callee Node = n.getFirstChild()
-		return (callee.isQualifiedName() && Collection_contains_s(functionQnames, callee.getQualifiedName()))
+		return (callee.isQualifiedName() && functionQnames.Has(callee.getQualifiedName()))
 	}
 }
 
@@ -261,9 +261,9 @@ func (this *ExternExportsPass_Export) generateExterns() {
 }
 
 func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport Node) {
-	var pathPrefixes ImmutableListOf[string] = ExternExportsPass_computePathPrefixes(path)
+	var pathPrefixes *ImmutableList[string] = ExternExportsPass_computePathPrefixes(path)
 	for i := int32(0); i < pathPrefixes.size(); i++ {
-		var pathPrefix string = str_(pathPrefixes.get(i))
+		var pathPrefix string = pathPrefixes.get(i)
 		var isCompletePathPrefix bool = (i == (pathPrefixes.size() - 1))
 		var skipPathPrefix bool = (strings.HasSuffix(pathPrefix, ".prototype") || (has_(this.outer_.alreadyExportedPaths, pathPrefix) && !isCompletePathPrefix))
 		if skipPathPrefix {
@@ -526,7 +526,7 @@ func new_ExternExportsPass_PropertyExport(outer_ *ExternExportsPass, exportPath 
 }
 
 func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
-	it_1 := foreach_(Lists_reverse(icast_List(obj_(ExternExportsPass_computePathPrefixes(this.exportPath)))))
+	it_1 := foreach_(Lists_reverse(icast_List(obj_(ExternExportsPass_computePathPrefixes(this.exportPath).asImm()))))
 	exportPathU16 := utf16Of_(this.exportPath)
 	for it_1.next() {
 		var currentPath string = str_(it_1.v)

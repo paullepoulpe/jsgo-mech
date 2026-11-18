@@ -76,7 +76,7 @@ func (this *AbstractPeepholeOptimization) beginTraversal_impl(compiler *Abstract
 }
 
 func (this *AbstractPeepholeOptimization) endTraversal() {
-	if ok_, a1_, a2_ := this.newFeatures.isEmpty(), this.newFeatures.asSet(), Object_getClass(this.self()).getName(); !ok_ {
+	if ok_, a1_, a2_ := this.newFeatures.IsEmpty(), this.newFeatures.asSet(), Object_getClass(this.self()).getName(); !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected getNewFeatures() to be empty in endTraversal() but found %s for %s", []any{a1_, strobj_(a2_)})))
 	}
 	this.compiler_ = nil
@@ -169,15 +169,15 @@ func (this *AbstractPeepholeOptimization) markNewScopesChanged(n Node) {
 }
 
 func (this *AbstractPeepholeOptimization) addFeatureToEnclosingScript(feature FeatureSet_Feature) {
-	this.newFeatures.add(feature)
+	this.newFeatures.Add(feature)
 }
 
-func (this *AbstractPeepholeOptimization) getNewFeatures() ImmutableSetOf[FeatureSet_Feature] {
-	return ImmutableSet_copyOf(this.newFeatures.asSet())
+func (this *AbstractPeepholeOptimization) getNewFeatures() *ImmutableSet[FeatureSet_Feature] {
+	return immutableSetCopyOf_(tc_p_FeatureSet_Feature, this.newFeatures.asSet())
 }
 
 func (this *AbstractPeepholeOptimization) clearNewFeatures() {
-	this.newFeatures.clear()
+	this.newFeatures.Clear()
 }
 
 func (this *AbstractPeepholeOptimization) optimizeSubtree(p0 Node) Node {

@@ -47,8 +47,8 @@ func (this *ProcessClosureProvidesAndRequires) getExportedVariableNames() *TSet[
 }
 
 func (this *ProcessClosureProvidesAndRequires) collectProvidedNames(externs Node, root Node) *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] {
-	if this.providedNames.isEmpty() {
-		this.providedNames.put(ProcessClosureProvidesAndRequires_GOOG, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(ProcessClosureProvidesAndRequires_GOOG).setNode(0).setChunk(nil).build())
+	if this.providedNames.IsEmpty() {
+		this.providedNames.Put(ProcessClosureProvidesAndRequires_GOOG, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(ProcessClosureProvidesAndRequires_GOOG).setNode(0).setChunk(nil).build())
 		NodeTraversal_traverseRoots(this.compiler_, new_ProcessClosureProvidesAndRequires_CollectDefinitions(this), externs, root)
 	}
 	return this.providedNames
@@ -80,9 +80,9 @@ func (this *ProcessClosureProvidesAndRequires) visitGoogMethodCall(t *NodeTraver
 			var argString string = arg.getString()
 			var dot int32 = int32(strings.IndexByte(argString, '.'))
 			if dot == -1 {
-				this.exportedVariables.add(argString)
+				this.exportedVariables.Add(argString)
 			} else {
-				this.exportedVariables.add(argString[:dot])
+				this.exportedVariables.Add(argString[:dot])
 			}
 		}
 	case "require", "requireType":
@@ -119,7 +119,7 @@ func (this *ProcessClosureProvidesAndRequires) processRequireCall(call Node, par
 
 func (this *ProcessClosureProvidesAndRequires) processLegacyModuleCall(namespace string, googModuleCall Node, chunk *JSChunk) {
 	this.registerAnyProvidedPrefixes(namespace, googModuleCall, chunk)
-	this.providedNames.put(namespace, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(namespace).setNode(googModuleCall).setChunk(chunk).setExplicit(true).setFromLegacyModule(true).build())
+	this.providedNames.Put(namespace, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(namespace).setNode(googModuleCall).setChunk(chunk).setExplicit(true).setFromLegacyModule(true).build())
 }
 
 func (this *ProcessClosureProvidesAndRequires) processProvideCall(t *NodeTraversal, call Node, parent Node) {
@@ -134,14 +134,14 @@ func (this *ProcessClosureProvidesAndRequires) processProvideCall(t *NodeTravers
 	var ns string = arg.getString()
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(call)
 	var isImplicitlyInitialized bool = ((info != nil) && info.isProvideAlreadyProvided())
-	if this.providedNames.containsKey(ns) {
-		var previouslyProvided *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(ns)
+	if this.providedNames.Has(ns) {
+		var previouslyProvided *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.Get(ns)
 		if !previouslyProvided.isExplicitlyProvided() {
 			previouslyProvided.addProvide(parent, t.getChunk(), true, this.chunkGraph)
 		}
 	} else {
 		this.registerAnyProvidedPrefixes(ns, parent, t.getChunk())
-		this.providedNames.put(ns, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(ns).setNode(parent).setChunk(t.getChunk()).setExplicit(true).setHasImplicitInitialization(isImplicitlyInitialized).build())
+		this.providedNames.Put(ns, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(ns).setNode(parent).setChunk(t.getChunk()).setExplicit(true).setHasImplicitInitialization(isImplicitlyInitialized).build())
 	}
 }
 
@@ -155,7 +155,7 @@ func (this *ProcessClosureProvidesAndRequires) handleStubDefinition(t *NodeTrave
 	if isValidTypedefStubDefinition || isExternStub {
 		if exprResult.getFirstChild().isQualifiedName() {
 			var name string = exprResult.getFirstChild().getQualifiedName()
-			var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(name)
+			var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.Get(name)
 			if pn != nil {
 				pn.addDefinition(exprResult, t.getChunk(), this.chunkGraph)
 			}
@@ -171,11 +171,11 @@ func (this *ProcessClosureProvidesAndRequires) checkNestedTypedefProvide(exprRes
 	if name == "" || !strings.Contains(name, ".") {
 		return
 	}
-	if !this.providedNames.containsKey(name) {
+	if !this.providedNames.Has(name) {
 		return
 	}
 	var parentName string = name[:strings.LastIndex(name, ".")]
-	var parent *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(parentName)
+	var parent *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.Get(parentName)
 	var parentDefinition Node = parent.getCandidateDefinition()
 	if ((parentDefinition == 0) || !equalsId_(parentDefinition.getStaticSourceFile(), exprResult.getStaticSourceFile())) || this.isTypedefStubDeclaration(parentDefinition) {
 		return
@@ -225,7 +225,7 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 	if name.isEmpty() {
 		return
 	}
-	var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(name.get())
+	var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.Get(name.get())
 	if pn != nil {
 		pn.addDefinition(parent, t.getChunk(), this.chunkGraph)
 	}
@@ -241,7 +241,7 @@ func (this *ProcessClosureProvidesAndRequires) processForwardDeclare(n Node, par
 			}
 			return parent.getParent()
 		}()
-		this.forwardDeclaresToRemove.add(toRemove)
+		this.forwardDeclaresToRemove.Add(toRemove)
 	}
 }
 
@@ -255,10 +255,10 @@ func (this *ProcessClosureProvidesAndRequires) registerAnyProvidedPrefixes(ns st
 	for pos != -1 {
 		var prefixNs string = ns[:pos]
 		pos = indexByteFrom_(ns, '.', (pos + 1))
-		if this.providedNames.containsKey(prefixNs) {
-			this.providedNames.get(prefixNs).addProvide(node, chunk, false, this.chunkGraph)
+		if this.providedNames.Has(prefixNs) {
+			this.providedNames.Get(prefixNs).addProvide(node, chunk, false, this.chunkGraph)
 		} else {
-			this.providedNames.put(prefixNs, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(prefixNs).setNode(node).setChunk(chunk).setExplicit(false).build())
+			this.providedNames.Put(prefixNs, new_ProcessClosureProvidesAndRequires_ProvidedNameBuilder(this).setNamespace(prefixNs).setNode(node).setChunk(chunk).setExplicit(false).build())
 		}
 	}
 }
@@ -582,7 +582,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 		if indexOfDot == -1 {
 			this.compiler_.getNodeForCodeInsertion(this.minimumChunk).addChildToBack(this.replacementNode)
 		} else {
-			var parentName *ProcessClosureProvidesAndRequires_ProvidedName = providedNames.get(namespace_U16.substring(0, indexOfDot))
+			var parentName *ProcessClosureProvidesAndRequires_ProvidedName = providedNames.Get(namespace_U16.substring(0, indexOfDot))
 			if parentName == nil {
 				panic(new_NullPointerException_0())
 			}

@@ -5,7 +5,7 @@ package closure
 type NoResolvedType struct {
 	ObjectType
 	referenceName OptionalOf[string]
-	templateTypes ImmutableListOf[*JSType]
+	templateTypes *ImmutableList[*JSType]
 }
 
 func (this *NoResolvedType) up_ObjectType() *ObjectType {
@@ -22,14 +22,14 @@ func (this *NoResolvedType) up_JSType() *JSType {
 	return &this.JSType
 }
 
-func (this *NoResolvedType) init_NoResolvedType(registry *JSTypeRegistry, referenceName string, templateTypes ImmutableListOf[*JSType]) {
+func (this *NoResolvedType) init_NoResolvedType(registry *JSTypeRegistry, referenceName string, templateTypes *ImmutableList[*JSType]) {
 	this.ObjectType.init_ObjectType_JSTypeRegistry(registry)
 	this.referenceName = Optional_of[string](referenceName)
 	this.templateTypes = templateTypes
 	this.eagerlyResolveToSelf()
 }
 
-func new_NoResolvedType(registry *JSTypeRegistry, referenceName string, templateTypes ImmutableListOf[*JSType]) *NoResolvedType {
+func new_NoResolvedType(registry *JSTypeRegistry, referenceName string, templateTypes *ImmutableList[*JSType]) *NoResolvedType {
 	this := &NoResolvedType{}
 	this.self_ = this
 	this.init_NoResolvedType(registry, referenceName, templateTypes)
@@ -44,7 +44,7 @@ func (this *NoResolvedType) getReferenceName_impl() OptionalOf[string] {
 	return this.referenceName
 }
 
-func (this *NoResolvedType) getTemplateTypes_impl() ImmutableListOf[*JSType] {
+func (this *NoResolvedType) getTemplateTypes_impl() *ImmutableList[*JSType] {
 	return this.templateTypes
 }
 
@@ -106,7 +106,7 @@ func (this *NoResolvedType) getReferenceName() OptionalOf[string] {
 }
 
 // getTemplateTypes: an object that is exactly a NoResolvedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
-func (this *NoResolvedType) getTemplateTypes() *ErasedImmutableList {
+func (this *NoResolvedType) getTemplateTypes() *ImmutableList[*JSType] {
 	if p, _ := this.self_.(*NoResolvedType); p == this {
 		return this.getTemplateTypes_impl()
 	}

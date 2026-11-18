@@ -77,7 +77,7 @@ func (this *ExtraRequireRemover) visit(t *NodeTraversal, n Node, parent Node) {
 
 func (this *ExtraRequireRemover) reset() {
 	clear(this.usages)
-	this.requires.clear()
+	this.requires.Clear()
 }
 
 func (this *ExtraRequireRemover) removeExtraRequiresInScript() {
@@ -136,10 +136,10 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 }
 
 func (this *ExtraRequireRemover) visitRequire(localName string, namespace string, node Node) {
-	if Collection_contains_s(ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES, namespace) {
+	if ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES.Has(namespace) {
 		return
 	}
-	this.requires.putIfAbsent(localName, node)
+	this.requires.PutIfAbsent(localName, node)
 }
 
 func (this *ExtraRequireRemover) visitGoogRequire(namespace string, googRequireCall Node, parent Node) {
@@ -195,8 +195,8 @@ func (this *ExtraRequireRemover) maybeAddJsDocUsages(n Node) {
 		return
 	}
 	for e := range elemsAs_[*JSTypeExpression](info.getTypeExpressions()) {
-		for _, el := range immElems_(e.getAllTypeNames()) {
-			typeName := str_(el)
+		for _, el := range e.getAllTypeNames().keys {
+			typeName := el
 			this.addUsagesOfAllPrefixes(QualifiedName_of(typeName))
 		}
 	}
@@ -210,7 +210,7 @@ func ExtraRequireRemover_isTsickleProtoCall(call Node) bool {
 	return (((moduleId != 0) && moduleId.isStringLit()) && strings.HasPrefix(moduleId.getString(), "proto."))
 }
 
-var ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES *ErasedImmutableSet
+var ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES *ImmutableSet[string]
 var ExtraRequireRemover_GOOG_REQUIRE *QualifiedName
 var ExtraRequireRemover_GOOG_REQUIRE_TYPE *QualifiedName
 var ExtraRequireRemover_GOOG_FORWARD_DECLARE *QualifiedName
@@ -223,7 +223,7 @@ func ExtraRequireRemover_clinit() {
 		return
 	}
 	ExtraRequireRemover_clinit_done = true
-	ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES = ImmutableSet_of_Object_Object_Object(strobj_("goog.testing.asserts"), strobj_("goog.testing.jsunit"), strobj_("goog.labs.testing.Environment"))
+	ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES = immutableSetOf_(tc_string, "goog.testing.asserts", "goog.testing.jsunit", "goog.labs.testing.Environment")
 	ExtraRequireRemover_GOOG_REQUIRE = QualifiedName_of("goog.require")
 	ExtraRequireRemover_GOOG_REQUIRE_TYPE = QualifiedName_of("goog.requireType")
 	ExtraRequireRemover_GOOG_FORWARD_DECLARE = QualifiedName_of("goog.forwardDeclare")

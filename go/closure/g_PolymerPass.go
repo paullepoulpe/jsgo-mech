@@ -5,7 +5,7 @@ package closure
 type PolymerPass struct {
 	NodeTraversal_ExternsSkippingCallback
 	compiler_                    *AbstractCompiler
-	tagNameMap                   ImmutableMapOf[string, string]
+	tagNameMap                   *ImmutableMap[string, string]
 	polymerElementExterns        Node
 	nativeExternsAdded           map[string]struct{}
 	polymerElementProps          []Node
@@ -134,7 +134,7 @@ func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition
 	baseExterns.getFirstChild().setString(polymerElementType)
 	var elementType OptionalOf[string] = func() OptionalOf[string] {
 		if def.nativeBaseElement.isPresent() {
-			return Optional_ofNullable[string](str_(Map_get_s(this.tagNameMap, def.nativeBaseElement.get())))
+			return Optional_ofNullable[string](this.tagNameMap.Get(def.nativeBaseElement.get()))
 		}
 		return Optional_empty[string]()
 	}()

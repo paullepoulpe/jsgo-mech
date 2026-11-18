@@ -38,7 +38,7 @@ func new_Parser(config *Parser_Config, errorReporter *ErrorReporter_util, source
 }
 
 func (this *Parser) getComments() *TList[*Comment] {
-	return tlistImm_(tc_p_Comment, this.commentRecorder.getComments())
+	return this.commentRecorder.getComments()
 }
 
 func (this *Parser) getFeatures() *FeatureSet {
@@ -609,17 +609,17 @@ func (this *Parser) parseParameter() *ParseTree {
 func (this *Parser) parseFormalParameterList() *FormalParameterListTree {
 	var listStart *SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_OPEN_PAREN)
-	var result ImmutableList_BuilderOf[*ParseTree] = ImmutableList_builder()
+	var result *ImmutableList_Builder[*ParseTree] = immutableListBuilder_(tc_p_ParseTree)
 	var trailingComma bool = false
-	var commaPositions ImmutableList_BuilderOf[*SourcePosition_util] = ImmutableList_builder()
+	var commaPositions *ImmutableList_Builder[*SourcePosition_util] = immutableListBuilder_(tc_p_SourcePosition_util)
 	for this.peekParameter() {
-		result.add(this.parseParameter().self())
+		result.add(this.parseParameter())
 		if !this.peek(TokenType_CLOSE_PAREN) {
 			var comma *Token_parser = this.eat(TokenType_COMMA)
 			if comma != nil {
-				commaPositions.add(obj_(comma.getStart()))
+				commaPositions.add(comma.getStart())
 			} else {
-				commaPositions.add(obj_(this.getTreeEndLocation()))
+				commaPositions.add(this.getTreeEndLocation())
 			}
 			if this.peek(TokenType_CLOSE_PAREN) {
 				if !this.config.atLeast8 {
@@ -639,7 +639,7 @@ func (this *Parser) parseSetterParameterList() *FormalParameterListTree {
 		this.reportErrorParseTree(parameterList.up_ParseTree(), "Setter must have exactly 1 parameter, found %d", []any{any(int32(parameterList.parameters.size()))})
 	}
 	if parameterList.parameters.size() >= 1 {
-		var parameter *ParseTree = to_ParseTree(parameterList.parameters.get(0))
+		var parameter *ParseTree = parameterList.parameters.get(0)
 		if parameter.isRestParameter() {
 			this.reportErrorParseTree(parameter, "Setter must not have a rest parameter", []any{})
 		}
@@ -1532,17 +1532,17 @@ func (this *Parser) parseCoverParenthesizedExpressionAndArrowParameterList() *Pa
 	if this.peek(TokenType_CLOSE_PAREN) {
 		this.eat(TokenType_CLOSE_PAREN)
 		if this.peek(TokenType_ARROW) {
-			return new_FormalParameterListTree(this.getTreeLocation(start), ImmutableList_of(), false, ImmutableList_of()).up_ParseTree()
+			return new_FormalParameterListTree(this.getTreeLocation(start), immutableListOf_(tc_p_ParseTree), false, immutableListOf_(tc_p_SourcePosition_util)).up_ParseTree()
 		} else {
 			this.reportError("invalid parenthesized expression", []any{})
 			return new_MissingPrimaryExpressionTree(this.getTreeLocation(start)).up_ParseTree()
 		}
 	}
 	if this.peek(TokenType_ELLIPSIS) {
-		var params ImmutableListOf[*ParseTree] = ImmutableList_of_Object(this.parseParameter().self())
+		var params *ImmutableList[*ParseTree] = immutableListOf_(tc_p_ParseTree, this.parseParameter())
 		this.eat(TokenType_CLOSE_PAREN)
 		if this.peek(TokenType_ARROW) {
-			return new_FormalParameterListTree(this.getTreeLocation(start), params, false, ImmutableList_of()).up_ParseTree()
+			return new_FormalParameterListTree(this.getTreeLocation(start), params, false, immutableListOf_(tc_p_SourcePosition_util)).up_ParseTree()
 		} else {
 			this.reportError("invalid parenthesized expression", []any{})
 			return new_MissingPrimaryExpressionTree(this.getTreeLocation(start)).up_ParseTree()
@@ -1684,7 +1684,7 @@ func (this *Parser) transformToArrowFormalParameters(leftOfArrow *ParseTree) *Fo
 	case ParseTreeType_FORMAL_PARAMETER_LIST:
 		arrowParameterList = leftOfArrow.asFormalParameterList()
 	case ParseTreeType_IDENTIFIER_EXPRESSION:
-		arrowParameterList = new_FormalParameterListTree(leftOfArrow.location_, ImmutableList_of_Object(leftOfArrow.self()), false, ImmutableList_of())
+		arrowParameterList = new_FormalParameterListTree(leftOfArrow.location_, immutableListOf_(tc_p_ParseTree, leftOfArrow), false, immutableListOf_(tc_p_SourcePosition_util))
 	case ParseTreeType_ARGUMENT_LIST, ParseTreeType_PAREN_EXPRESSION:
 		this.resetScanner(leftOfArrow)
 		arrowParameterList = this.parseFormalParameterList()
@@ -1720,7 +1720,7 @@ func (this *Parser) parseAsyncArrowFunction(expressionIn Parser_Expression) *Par
 		arrowParameterList = this.parseFormalParameterList()
 	} else {
 		var singleParameter *IdentifierExpressionTree = this.parseIdentifierExpression()
-		arrowParameterList = new_FormalParameterListTree(singleParameter.location_, ImmutableList_of_Object(obj_(singleParameter)), false, ImmutableList_of())
+		arrowParameterList = new_FormalParameterListTree(singleParameter.location_, immutableListOf_(tc_p_ParseTree, to_ParseTree(obj_(singleParameter))), false, immutableListOf_(tc_p_SourcePosition_util))
 	}
 	if this.peekImplicitSemiColon() {
 		this.reportError("No newline allowed before '=>'", []any{})
@@ -1744,7 +1744,7 @@ func (this *Parser) parseArrowFunctionBody(expressionIn Parser_Expression, funct
 }
 
 func Parser_newEmptyFormalParameterList(location *SourceRange) *FormalParameterListTree {
-	return new_FormalParameterListTree(location, ImmutableList_of(), false, ImmutableList_of())
+	return new_FormalParameterListTree(location, immutableListOf_(tc_p_ParseTree), false, immutableListOf_(tc_p_SourcePosition_util))
 }
 
 func (this *Parser) transformLeftHandSideExpression(tree *ParseTree) *ParseTree {
@@ -2283,16 +2283,16 @@ func (this *Parser) parseImportDotMeta() *ParseTree {
 
 func (this *Parser) parseArguments() *ArgumentListTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
-	var arguments ImmutableList_BuilderOf[*ParseTree] = ImmutableList_builder()
+	var arguments *ImmutableList_Builder[*ParseTree] = immutableListBuilder_(tc_p_ParseTree)
 	var trailingComma bool = false
-	var commaPositions ImmutableList_BuilderOf[*SourcePosition_util] = ImmutableList_builder()
+	var commaPositions *ImmutableList_Builder[*SourcePosition_util] = immutableListBuilder_(tc_p_SourcePosition_util)
 	this.eat(TokenType_OPEN_PAREN)
 	for this.peekAssignmentOrSpread() {
-		arguments.add(this.parseAssignmentOrSpread().self())
+		arguments.add(this.parseAssignmentOrSpread())
 		if !this.peek(TokenType_CLOSE_PAREN) {
 			var comma *Token_parser = this.eat(TokenType_COMMA)
 			if comma != nil {
-				commaPositions.add(obj_(comma.getStart()))
+				commaPositions.add(comma.getStart())
 			}
 			if this.peek(TokenType_CLOSE_PAREN) {
 				if !this.config.atLeast8 {
@@ -2878,12 +2878,12 @@ func Parser_Config_Mode_clinit() {
 
 type Parser_CommentRecorder struct {
 	outer_                 *Parser
-	comments               ImmutableList_BuilderOf[*Comment]
+	comments               *ImmutableList_Builder[*Comment]
 	lastCommentEndPosition *SourcePosition_util
 }
 
 func (this *Parser_CommentRecorder) finit_Parser_CommentRecorder() {
-	this.comments = ImmutableList_builder()
+	this.comments = immutableListBuilder_(tc_p_Comment)
 }
 
 func (this *Parser_CommentRecorder) init_Parser_CommentRecorder() {
@@ -2903,12 +2903,12 @@ func (this *Parser_CommentRecorder) recordComment(type_ Comment_Type, range_ *So
 		if strings.HasPrefix(value, Parser_SOURCE_MAPPING_URL_PREFIX) {
 			this.outer_.sourceMapURL = Optional_of[string](value[len(Parser_SOURCE_MAPPING_URL_PREFIX):])
 		}
-		this.comments.add(obj_(new_Comment(value, range_, type_)))
+		this.comments.add(new_Comment(value, range_, type_))
 		this.lastCommentEndPosition = range_.end_
 	}
 }
 
-func (this *Parser_CommentRecorder) getComments() ImmutableListOf[*Comment] {
+func (this *Parser_CommentRecorder) getComments() *ImmutableList[*Comment] {
 	return this.comments.build()
 }
 

@@ -20,7 +20,7 @@ func (this *DeadPropertyAssignmentElimination) process_2(externs Node, root Node
 	if (this.compiler_.getExternProperties() == nil) || (this.compiler_.getAccessorSummary() == nil) {
 		return
 	}
-	var skiplistedPropNames SetOf[string] = Sets_union(this.compiler_.getAccessorSummary().getAccessors().keySet(), icast_Set(obj_(this.compiler_.getExternProperties())))
+	var skiplistedPropNames SetOf[string] = Sets_union(this.compiler_.getAccessorSummary().getAccessors().asImm().keySet(), icast_Set(obj_(this.compiler_.getExternProperties().asImm())))
 	NodeTraversal_traverse(this.compiler_, this.compiler_.getJsRoot(), new_DeadPropertyAssignmentElimination_FunctionVisitor(skiplistedPropNames))
 }
 
@@ -134,12 +134,12 @@ func (this *DeadPropertyAssignmentElimination_Property) markLastWriteRead() {
 func (this *DeadPropertyAssignmentElimination_Property) markChildrenRead() {
 	var propertiesSet *TSet[*DeadPropertyAssignmentElimination_Property] = tsetFrom_(tc_p_DeadPropertyAssignmentElimination_Property, Collection(this.children_.asSet()), false)
 	var propertyQueue QueueOf[*DeadPropertyAssignmentElimination_Property] = new_ArrayDeque_Collection(Collection(propertiesSet.asSet()))
-	propertiesSet.add(this)
+	propertiesSet.Add(this)
 	for !propertyQueue.isEmpty() {
 		var childProperty *DeadPropertyAssignmentElimination_Property = cast_[*DeadPropertyAssignmentElimination_Property](propertyQueue.remove_0())
 		childProperty.markLastWriteRead()
 		for grandchildProperty := range childProperty.children_.All() {
-			if propertiesSet.add(grandchildProperty) {
+			if propertiesSet.Add(grandchildProperty) {
 				propertyQueue.add(obj_(grandchildProperty))
 			}
 		}
@@ -230,7 +230,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 	if propNode.isGetProp() {
 		var parentProperty *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(propNode.getFirstChild())
 		if parentProperty != nil {
-			parentProperty.children_.add(property)
+			parentProperty.children_.Add(property)
 		}
 	}
 	return property
@@ -342,7 +342,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 				for ; child != 0; child = child.getNext() {
 					if child.isStringKey() {
 						var propName string = child.getString()
-						var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.get(propName)
+						var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.Get(propName)
 						if property != nil {
 							property.markLastWriteRead()
 							property.markChildrenRead()

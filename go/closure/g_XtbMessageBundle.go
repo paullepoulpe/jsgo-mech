@@ -48,7 +48,7 @@ func XtbMessageBundle_createSAXParser() *SAXParser {
 }
 
 func (this *XtbMessageBundle) getMessage(id string) *JsMessage {
-	return this.messages.get(id)
+	return this.messages.Get(id)
 }
 
 func (this *XtbMessageBundle) idGenerator() JsMessage_IdGenerator {
@@ -174,7 +174,7 @@ func (this *XtbMessageBundle_Handler) endElement(uri string, localName string, q
 			this.msgBuilder.appendStringPart("")
 		}
 		var key OptionalOf[string] = this.msgBuilder.getKey()
-		this.outer_.messages.put(key.orElse(nullstr_), this.msgBuilder.build())
+		this.outer_.messages.Put(key.orElse(nullstr_), this.msgBuilder.build())
 		this.msgBuilder = nil
 	}
 }

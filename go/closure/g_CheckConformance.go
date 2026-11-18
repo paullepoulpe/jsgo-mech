@@ -17,7 +17,7 @@ func (this *CheckConformance) finit_CheckConformance() {
 }
 
 func (this *CheckConformance) init_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) {
-	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, ImmutableList_of(), 0)
+	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, immutableListOf_(tc_p_ConformanceConfig), 0)
 }
 
 func new_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) *CheckConformance {
@@ -26,13 +26,13 @@ func new_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) *CheckCon
 	return this
 }
 
-func (this *CheckConformance) init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) {
+func (this *CheckConformance) init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *ImmutableList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) {
 	this.finit_CheckConformance()
 	this.compiler_ = compiler
 	this.categories = this.initRules(compiler, configs, reportingMode)
 }
 
-func new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *CheckConformance {
+func new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *ImmutableList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *CheckConformance {
 	this := &CheckConformance{}
 	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, configs, reportingMode)
 	return this
@@ -69,7 +69,7 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 	}
 }
 
-func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) []*CheckConformance_Category {
+func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *ImmutableList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) []*CheckConformance_Category {
 	var builder *SimpleSetMultimap[CheckConformance_Precondition, CheckConformance_Rule] = SimpleSetMultimap_createInsertionOrdered[CheckConformance_Precondition, CheckConformance_Rule]()
 	var isLibraryLevelReportingMode bool = ((reportingMode != 0) && equalsId_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG))
 	if isLibraryLevelReportingMode {
@@ -77,14 +77,14 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 			return []*CheckConformance_Category{}
 		}
 	}
-	var mergedRequirements []*Requirement = this.mergeRequirements(compiler, sliceImm_(tc_p_ConformanceConfig, configs), isLibraryLevelReportingMode)
+	var mergedRequirements []*Requirement = this.mergeRequirements(compiler, immItems_(configs), isLibraryLevelReportingMode)
 	for _, requirement := range mergedRequirements {
 		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED
 		var rule CheckConformance_Rule = CheckConformance_initRule(compiler, requirement)
 		if rule != nil {
 			builder.put(rule.getPrecondition(), rule)
-			if isLibraryLevelReportingMode && this.mergedBehaviors.containsKey(requirement) {
-				behavior = this.mergedBehaviors.get(requirement)
+			if isLibraryLevelReportingMode && this.mergedBehaviors.Has(requirement) {
+				behavior = this.mergedBehaviors.Get(requirement)
 				if behavior == 0 {
 					panic(new_NullPointerException_String("The mergeBehaviors method inserted a null behavior in the mergedBehaviors map"))
 				}
@@ -99,13 +99,13 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 	return immBuilt_(result)
 }
 
-func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
+func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs *ImmutableList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
 	if !equalsId_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG) {
 		panic(new_IllegalStateException_0())
 	}
 	var baseRequirementBehaviors map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = map[string]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
-	for _, el := range immElems_(configs) {
-		config := cast_[*ConformanceConfig](el)
+	for _, el := range configs.items {
+		config := el
 		if !config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
 			continue
 		}
@@ -116,8 +116,8 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 			}
 		}
 	}
-	for _, el_5 := range immElems_(configs) {
-		var config *ConformanceConfig = cast_[*ConformanceConfig](el_5)
+	for _, el_5 := range configs.items {
+		var config *ConformanceConfig = el_5
 		if !config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
 			continue
 		}
@@ -156,9 +156,9 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 			var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 			if !requirement.hasExtends() {
 				if !isLibraryLevelConformanceReportingMode {
-					rootRequirements.put(builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)
+					rootRequirements.Put(builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)
 				} else {
-					rootRequirements.put(builder, cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](func() any {
+					rootRequirements.Put(builder, cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](func() any {
 						if hasBehavior {
 							return obj_(behavior)
 						}
@@ -180,20 +180,20 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 					continue
 				}
 				if config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
-					rootRequirements.put(extendableRequirement, config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior())
+					rootRequirements.Put(extendableRequirement, config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior())
 				}
 				CheckConformance_mergeExtendingRequirementIntoExtended(extendableRequirement, requirement)
 			}
 		}
 	}
-	var cleanedUpRootRequirements []*Requirement = make([]*Requirement, 0, rootRequirements.size())
+	var cleanedUpRootRequirements []*Requirement = make([]*Requirement, 0, rootRequirements.Len())
 	for entry := range elemsBy_(rootRequirements.asMap().entrySet(), icast_Map_Entry) {
 		var builder *Requirement_Builder = cast_[*Requirement_Builder](entry.getKey())
 		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](entry.getValue())
 		CheckConformance_removeDuplicates(builder)
 		var requirement *Requirement = cast_[*Requirement](builder.build())
 		if (isLibraryLevelConformanceReportingMode && (behavior != 0)) && (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED) {
-			this.mergedBehaviors.put(requirement, behavior)
+			this.mergedBehaviors.Put(requirement, behavior)
 		}
 		cleanedUpRootRequirements = append(cleanedUpRootRequirements, requirement)
 	}
@@ -234,8 +234,8 @@ func CheckConformance_validateExtendingRequirement(compiler *AbstractCompiler, e
 		return false
 	}
 	for field := range elemsAs_[*Descriptors_FieldDescriptor](extendingRequirement.getAllFields().keySet()) {
-		if !Collection_contains_s(CheckConformance_EXTENDABLE_FIELDS, field.getName()) {
-			CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, ("extending rules allow only " + tostr_(CheckConformance_EXTENDABLE_FIELDS)))
+		if !CheckConformance_EXTENDABLE_FIELDS.Has(field.getName()) {
+			CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, ("extending rules allow only " + tostr_(CheckConformance_EXTENDABLE_FIELDS.asImm())))
 		}
 	}
 	if (extendingRequirement.getValueCount() > 0) && !extendableRequirement.getAllowExtendingValue() {
@@ -245,18 +245,18 @@ func CheckConformance_validateExtendingRequirement(compiler *AbstractCompiler, e
 }
 
 func CheckConformance_removeDuplicates(requirement *Requirement_Builder) {
-	var list1 ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(requirement.getWhitelistList()))
-	requirement.clearWhitelist().addAllWhitelist(icast_Iterable(obj_(list1)))
-	var allowlist ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(requirement.getAllowlistList()))
-	requirement.clearAllowlist().addAllAllowlist(icast_Iterable(obj_(allowlist)))
-	var list2 ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(requirement.getWhitelistRegexpList()))
-	requirement.clearWhitelistRegexp().addAllWhitelistRegexp(icast_Iterable(obj_(list2)))
-	var allowlistRegexp ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(requirement.getAllowlistRegexpList()))
-	requirement.clearAllowlistRegexp().addAllAllowlistRegexp(icast_Iterable(obj_(allowlistRegexp)))
-	var list3 ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(requirement.getOnlyApplyToList()))
-	requirement.clearOnlyApplyTo().addAllOnlyApplyTo(icast_Iterable(obj_(list3)))
-	var list4 ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(requirement.getOnlyApplyToRegexpList()))
-	requirement.clearOnlyApplyToRegexp().addAllOnlyApplyToRegexp(icast_Iterable(obj_(list4)))
+	var list1 *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getWhitelistList()))
+	requirement.clearWhitelist().addAllWhitelist(icast_Iterable(obj_(list1.asImm())))
+	var allowlist *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getAllowlistList()))
+	requirement.clearAllowlist().addAllAllowlist(icast_Iterable(obj_(allowlist.asImm())))
+	var list2 *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getWhitelistRegexpList()))
+	requirement.clearWhitelistRegexp().addAllWhitelistRegexp(icast_Iterable(obj_(list2.asImm())))
+	var allowlistRegexp *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getAllowlistRegexpList()))
+	requirement.clearAllowlistRegexp().addAllAllowlistRegexp(icast_Iterable(obj_(allowlistRegexp.asImm())))
+	var list3 *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getOnlyApplyToList()))
+	requirement.clearOnlyApplyTo().addAllOnlyApplyTo(icast_Iterable(obj_(list3.asImm())))
+	var list4 *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getOnlyApplyToRegexpList()))
+	requirement.clearOnlyApplyToRegexp().addAllOnlyApplyToRegexp(icast_Iterable(obj_(list4.asImm())))
 }
 
 func CheckConformance_initRule(compiler *AbstractCompiler, requirement *Requirement) CheckConformance_Rule {
@@ -307,7 +307,7 @@ var CheckConformance_CONFORMANCE_ERROR *DiagnosticType
 var CheckConformance_CONFORMANCE_VIOLATION *DiagnosticType
 var CheckConformance_CONFORMANCE_POSSIBLE_VIOLATION *DiagnosticType
 var CheckConformance_INVALID_REQUIREMENT_SPEC *DiagnosticType
-var CheckConformance_EXTENDABLE_FIELDS *ErasedImmutableSet
+var CheckConformance_EXTENDABLE_FIELDS *ImmutableSet[string]
 
 var CheckConformance_clinit_done bool
 
@@ -320,7 +320,7 @@ func CheckConformance_clinit() {
 	CheckConformance_CONFORMANCE_VIOLATION = DiagnosticType_warning("JSC_CONFORMANCE_VIOLATION", "Violation: {0}{1}{2}")
 	CheckConformance_CONFORMANCE_POSSIBLE_VIOLATION = DiagnosticType_warning("JSC_CONFORMANCE_POSSIBLE_VIOLATION", "Possible violation: {0}{1}{2}")
 	CheckConformance_INVALID_REQUIREMENT_SPEC = DiagnosticType_error("JSC_INVALID_REQUIREMENT_SPEC", "Invalid requirement. Reason: {0}\nRequirement spec:\n{1}")
-	CheckConformance_EXTENDABLE_FIELDS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("config_file"), strobj_("error_message"), strobj_("extends"), strobj_("only_apply_to"), strobj_("only_apply_to_regexp"), strobj_("whitelist"), []any{strobj_("whitelist_regexp"), strobj_("allowlist"), strobj_("allowlist_regexp"), strobj_("value")})
+	CheckConformance_EXTENDABLE_FIELDS = immutableSetOf_(tc_string, "config_file", "error_message", "extends", "only_apply_to", "only_apply_to_regexp", "whitelist", "whitelist_regexp", "allowlist", "allowlist_regexp", "value")
 
 }
 

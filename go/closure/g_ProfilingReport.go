@@ -22,15 +22,15 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping *T
 	for _, report := range allInstrumentationReports {
 		profiles = append(profiles, ReportDecoder_decodeReport(instrumentationMapping, report))
 	}
-	var metricsBuilder ImmutableMap_BuilderOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = ImmutableMap_builder()
+	var metricsBuilder *ImmutableMap_Builder[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = immutableMapBuilder_(tc_p_InstrumentationPoint, tc_p_ProfilingReport_InstrumentationPointMetrics)
 	for point := range elemsAs_[*InstrumentationPoint](instrumentationMapping.asMap().values()) {
-		metricsBuilder.put(obj_(point), obj_(new_ProfilingReport_InstrumentationPointMetrics()))
+		metricsBuilder.put(point, new_ProfilingReport_InstrumentationPointMetrics())
 	}
-	var metrics *TMap[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = tmapFrom_(tch_p_InstrumentationPoint, tc_p_ProfilingReport_InstrumentationPointMetrics, metricsBuilder.buildOrThrow(), true)
+	var metrics *TMap[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = metricsBuilder.buildOrThrow()
 	for _, profile := range profiles {
 		for fileProfile := range elemsAs_[*FileProfile](profile.getFileProfileList()) {
 			for pointStats := range elemsAs_[*InstrumentationPointStats](fileProfile.getInstrumentationPointsStatsList()) {
-				var metric *ProfilingReport_InstrumentationPointMetrics = metrics.get(pointStats.getPoint())
+				var metric *ProfilingReport_InstrumentationPointMetrics = metrics.Get(pointStats.getPoint())
 				metric.totalTimesExecuted += pointStats.getTimesExecuted()
 				metric.numberOfReports++
 			}
@@ -39,9 +39,9 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping *T
 	var result []Map_EntryOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = sliceFrom_(tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_, Collection(metrics.asMap().entrySet()))
 	Collections_sort_List_Comparator(sliceView_(tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_, result), Comparator_thenComparingInt_f(Comparator_thenComparingInt_f(Comparator_thenComparingLong_f(Comparator_comparing(lambda_ProfilingReport_createTabSeparatedProfilingReport_1_), lambda_ProfilingReport_createTabSeparatedProfilingReport_2_), lambda_ProfilingReport_createTabSeparatedProfilingReport_3_), lambda_ProfilingReport_createTabSeparatedProfilingReport_4_))
 	var output []*TList[string] = []*TList[string]{}
-	output = append(output, tlistImm_(tc_string, ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred"))))
+	output = append(output, immutableListOf_(tc_string, "File", "Function name", "Line", "Type", "Total executed", "Reports occurred"))
 	for _, entry := range result {
-		output = append(output, tlistImm_(tc_string, ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(entry.getKey().(*InstrumentationPoint).getFileName()), strobj_(entry.getKey().(*InstrumentationPoint).getFunctionName()), strobj_(strconv.Itoa(int(entry.getKey().(*InstrumentationPoint).getLineNumber()))), strobj_(entry.getKey().(*InstrumentationPoint).getType().name()), strobj_(strconv.FormatInt(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).totalTimesExecuted, 10)), strobj_(strconv.Itoa(int(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).numberOfReports))))))
+		output = append(output, immutableListOf_(tc_string, entry.getKey().(*InstrumentationPoint).getFileName(), entry.getKey().(*InstrumentationPoint).getFunctionName(), strconv.Itoa(int(entry.getKey().(*InstrumentationPoint).getLineNumber())), entry.getKey().(*InstrumentationPoint).getType().name(), strconv.FormatInt(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).totalTimesExecuted, 10), strconv.Itoa(int(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).numberOfReports))))
 	}
 	var rows []string = []string{}
 	for _, row := range output {

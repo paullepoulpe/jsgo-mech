@@ -83,8 +83,8 @@ func (this *ObjectType) getTypeOfThis_impl() *JSType {
 	return nil
 }
 
-func (this *ObjectType) getTemplateTypes_impl() ImmutableListOf[*JSType] {
-	return ImmutableList_of()
+func (this *ObjectType) getTemplateTypes_impl() *ImmutableList[*JSType] {
+	return immutableListOf_(tc_p_JSType)
 }
 
 func (this *ObjectType) getJSDocInfo_impl() *JSDocInfo {
@@ -399,15 +399,15 @@ func (this *ObjectType) getOwnPropertyNames_impl() SetOf[string] {
 	return this.getPropertyMap().getOwnPropertyNames()
 }
 
-func (this *ObjectType) getOwnPropertyKeys() ImmutableSetOf[Property_Key] {
+func (this *ObjectType) getOwnPropertyKeys() *ImmutableSet[Property_Key] {
 	var ownPropertyNames SetOf[string] = this.getOwnPropertyNames()
 	var ownSymbols SetOf[*KnownSymbolType] = this.getOwnPropertyKnownSymbols()
-	var ownPropertyKeys ImmutableSet_BuilderOf[Property_Key] = ImmutableSet_builder()
+	var ownPropertyKeys *ImmutableSet_Builder[Property_Key] = immutableSetBuilder_(tc_Property_Key)
 	for propertyName := range elemsBy_(ownPropertyNames, str_) {
-		ownPropertyKeys.add(obj_(new_Property_StringKey(propertyName)))
+		ownPropertyKeys.add(new_Property_StringKey(propertyName))
 	}
 	for symbol := range elemsAs_[*KnownSymbolType](ownSymbols) {
-		ownPropertyKeys.add(obj_(new_Property_SymbolKey(symbol)))
+		ownPropertyKeys.add(new_Property_SymbolKey(symbol))
 	}
 	return ownPropertyKeys.build()
 }
@@ -581,12 +581,12 @@ func (this *ObjectType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType]
 }
 
 func (this *ObjectType) getPropertyTypeMap_impl() map[string]*JSType {
-	var propTypeMap ImmutableMap_BuilderOf[string, *JSType] = ImmutableMap_builder()
+	var propTypeMap *ImmutableMap_Builder[string, *JSType] = immutableMapBuilder_(tc_string, tc_p_JSType)
 	for _, el := range immElems_(this.getPropertyNames()) {
 		name := str_(el)
-		propTypeMap.put(strobj_(name), this.getPropertyType(name).self())
+		propTypeMap.put(name, this.getPropertyType(name))
 	}
-	return mapImm_(tc_string, tc_p_JSType, propTypeMap.buildOrThrow())
+	return mapImm_(tc_string, tc_p_JSType, propTypeMap.buildOrThrowErased())
 }
 
 func (this *ObjectType) getEnumeratedTypeOfEnumObject_impl() *JSType {
@@ -657,7 +657,7 @@ func (this *ObjectType) getCtorExtendedInterfaces() Iterable {
 	return this.self_.getCtorExtendedInterfaces_impl()
 }
 
-func (this *ObjectType) getTemplateTypes() *ErasedImmutableList {
+func (this *ObjectType) getTemplateTypes() *ImmutableList[*JSType] {
 	return this.self_.getTemplateTypes_impl()
 }
 

@@ -23,15 +23,15 @@ func (this *VariableMap) lookupNewName(sourceName string) OptionalOf[string] {
 }
 
 func (this *VariableMap) lookupSourceName(newName OptionalOf[string]) string {
-	return this.map__.inverse().get(newName.orElse(nullstr_))
+	return this.map__.inverse().Get(newName.orElse(nullstr_))
 }
 
-func (this *VariableMap) getOriginalNameToNewNameMap() ImmutableMapOf[string, string] {
-	return ImmutableSortedMap_copyOf(this.map__.asMap()).up_ImmutableMap()
+func (this *VariableMap) getOriginalNameToNewNameMap() *ImmutableMap[string, string] {
+	return tmapFrom_(tc_string, tc_string, ImmutableSortedMap_copyOf(this.map__.asMap()).up_ImmutableMap(), true)
 }
 
-func (this *VariableMap) getNewNameToOriginalNameMap() ImmutableMapOf[string, string] {
-	return ImmutableMap_copyOf(this.map__.inverse().asMap())
+func (this *VariableMap) getNewNameToOriginalNameMap() *ImmutableMap[string, string] {
+	return immutableMapCopyOf_(tc_string, tc_string, this.map__.inverse().asMap())
 }
 
 func (this *VariableMap) save(filename string) *Outcome_base[any] {
@@ -67,7 +67,7 @@ func VariableMap_fromBytes(bytes []int8) *Outcome_base[*VariableMap] {
 }
 
 func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base[*VariableMap] {
-	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
+	var map_ *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for _, line := range TextFiles_splitLines(Io_utf8String(bytes)) {
 		if line == "" {
 			continue
@@ -77,18 +77,18 @@ func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base[*VariableMap] {
 			return Outcome_base_err[*VariableMap](new_ParseException(("Bad line: " + sstr_(line)), 0).up_Throwable())
 		}
 		lineU16 := utf16Of_(line)
-		map_.put(strobj_(VariableMap_unescape(lineU16.substring(0, pos))), func() any {
+		map_.put(VariableMap_unescape(lineU16.substring(0, pos)), str_(func() any {
 			if pos == (lineU16.length() - 1) {
 				return strobj_("")
 			}
 			return strobj_(VariableMap_unescape(lineU16.substring_int((pos + 1))))
-		}())
+		}()))
 	}
-	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrow(), true)))
+	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(map_.buildOrThrow()))
 }
 
 func VariableMap_fromLines(string_ string) *Outcome_base[*VariableMap] {
-	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
+	var map_ *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	var startOfLine int32 = 0
 	string_U16 := utf16Of_(string_)
 	for startOfLine < string_U16.length() {
@@ -110,14 +110,14 @@ func VariableMap_fromLines(string_ string) *Outcome_base[*VariableMap] {
 			return Outcome_base_err[*VariableMap](new_ParseException(("Bad line: " + sstr_(line)), 0).up_Throwable())
 		}
 		lineU16 := utf16Of_(line)
-		map_.put(strobj_(VariableMap_unescape(lineU16.substring(0, pos))), func() any {
+		map_.put(VariableMap_unescape(lineU16.substring(0, pos)), str_(func() any {
 			if pos == (lineU16.length() - 1) {
 				return strobj_("")
 			}
 			return strobj_(VariableMap_unescape(lineU16.substring_int((pos + 1))))
-		}())
+		}()))
 	}
-	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrow(), true)))
+	return Outcome_base_ok_Object[*VariableMap](new_VariableMap(map_.buildOrThrow()))
 }
 
 func VariableMap_escape(value string) string {
@@ -167,8 +167,8 @@ func VariableMap_fromMap(map_ *TMap[string, string]) *VariableMap {
 	return new_VariableMap(map_)
 }
 
-func (this *VariableMap) toMap() ImmutableMapOf[string, string] {
-	return ImmutableMap_copyOf(this.map__.asMap())
+func (this *VariableMap) toMap() *ImmutableMap[string, string] {
+	return immutableMapCopyOf_(tc_string, tc_string, this.map__.asMap())
 }
 
 const VariableMap_SEPARATOR uint16 = ':'

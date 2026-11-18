@@ -39,15 +39,15 @@ func RuntimeJsLibManager_create(mode RuntimeJsLibManager_RuntimeLibraryMode, res
 }
 
 func (this *RuntimeJsLibManager) recordLibraryInjected(resourceName string) {
-	this.injectedLibs.add(resourceName)
+	this.injectedLibs.Add(resourceName)
 }
 
 func (this *RuntimeJsLibManager) hasInjectedLibrary(resourceName string) bool {
-	return this.injectedLibs.contains(resourceName)
+	return this.injectedLibs.Has(resourceName)
 }
 
-func (this *RuntimeJsLibManager) getInjectedLibraries() ImmutableListOf[string] {
-	return ImmutableList_copyOf(Collection(this.injectedLibs.asSet()))
+func (this *RuntimeJsLibManager) getInjectedLibraries() *ImmutableList[string] {
+	return immutableListCopyOf_(tc_string, Collection(this.injectedLibs.asSet()))
 }
 
 func (this *RuntimeJsLibManager) getExternedFields() []RuntimeJsLibManager_ExternedField {
@@ -75,7 +75,7 @@ func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibMana
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp, found %s", []any{strobj_(fieldName)})))
 	}
 	var propName string = sliceAt_(parts, 1)
-	var resource OptionalOf[string] = Optional_ofNullable[string](str_(Map_get_s(RuntimeJsLibManager_FieldsTable_INSTANCE, propName)))
+	var resource OptionalOf[string] = Optional_ofNullable[string](RuntimeJsLibManager_FieldsTable_INSTANCE.Get(propName))
 	if resource.isEmpty() {
 		panic(new_NullPointerException_String(("Cannot find definition of " + sstr_(fieldName))))
 	}
@@ -129,7 +129,7 @@ func (this *RuntimeJsLibManager) ensureLibraryInjected(resourceName string, forc
 		case RuntimeJsLibManager_RuntimeLibraryMode_INJECT:
 		}
 	}
-	if this.injectedLibs.contains(resourceName) {
+	if this.injectedLibs.Has(resourceName) {
 		return this.lastInjectedLibrary
 	}
 	this.recordLibraryInjected(resourceName)
@@ -282,9 +282,9 @@ func new_RuntimeJsLibManager_FieldsTable() *RuntimeJsLibManager_FieldsTable {
 	return this
 }
 
-func RuntimeJsLibManager_FieldsTable_loadFields() ImmutableMapOf[string, string] {
+func RuntimeJsLibManager_FieldsTable_loadFields() *ImmutableMap[string, string] {
 	var transpilationLibsTxt string = ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/transpilation_libs.txt"))
-	var allFields ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
+	var allFields *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt), str_) {
 		var tokens []string = sliceImm_(tc_string, Splitter_on(',').limit(2).splitToList_s(line))
 		if int32(len(tokens)) != 2 {
@@ -292,12 +292,12 @@ func RuntimeJsLibManager_FieldsTable_loadFields() ImmutableMapOf[string, string]
 		}
 		var fieldName string = sliceAt_(tokens, 0)
 		var resourcePath string = sliceAt_(tokens, 1)
-		allFields.put(strobj_(fieldName), strobj_(resourcePath))
+		allFields.put(fieldName, resourcePath)
 	}
 	return allFields.buildOrThrow()
 }
 
-var RuntimeJsLibManager_FieldsTable_INSTANCE *ErasedImmutableMap
+var RuntimeJsLibManager_FieldsTable_INSTANCE *ImmutableMap[string, string]
 
 var RuntimeJsLibManager_FieldsTable_clinit_done bool
 

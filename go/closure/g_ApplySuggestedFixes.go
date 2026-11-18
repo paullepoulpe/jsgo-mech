@@ -32,8 +32,8 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 		}
 		filenameToCodeMap[filename] = code.get()
 	}
-	var newCode ImmutableMapOf[string, string] = ApplySuggestedFixes_applySuggestedFixesToCode(fixes, filenameToCodeMap)
-	for _, el_5 := range immElems_(cast_[*ErasedImmutableSet](newCode.entrySet())) {
+	var newCode *ImmutableMap[string, string] = ApplySuggestedFixes_applySuggestedFixesToCode(fixes, filenameToCodeMap)
+	for _, el_5 := range immElems_(cast_[*ErasedImmutableSet](newCode.asImm().entrySet())) {
 		var entry Map_Entry = icast_Map_Entry(el_5)
 		var written *Outcome_base[any] = TextFiles_write(str_(entry.getKey()), Charsets_UTF_8, str_(entry.getValue()))
 		if written.isErr() {
@@ -53,7 +53,7 @@ func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf
 	}
 	var result []ImmutableMapOf[string, string]
 	for i := int32(0); i < alternativeCount; i++ {
-		result = immAdd_(tc_ImmutableMapOf_string__string_, result, ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap))
+		result = immAdd_(tc_ImmutableMapOf_string__string_, result, ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap).asImm())
 	}
 	return immBuilt_(result)
 }
@@ -69,21 +69,21 @@ func ApplySuggestedFixes_allHaveAlternativeCount(fixChoices IterableOf[*Suggeste
 	return true
 }
 
-func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], choiceIndex int32, fileNameToCodeMap map[string]string) ImmutableMapOf[string, string] {
-	var chosenFixesBuilder ImmutableList_BuilderOf[*SuggestedFix] = ImmutableList_builder()
+func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], choiceIndex int32, fileNameToCodeMap map[string]string) *ImmutableMap[string, string] {
+	var chosenFixesBuilder *ImmutableList_Builder[*SuggestedFix] = immutableListBuilder_(tc_p_SuggestedFix)
 	for choices := range elemsAs_[*SuggestedFix](fixChoices) {
 		chosenFixesBuilder.add(choices.getAlternatives().get(choiceIndex))
 	}
-	var chosenFixes ImmutableListOf[*SuggestedFix] = chosenFixesBuilder.build()
-	return ApplySuggestedFixes_applySuggestedFixesToCode(icast_Iterable(obj_(chosenFixes)), fileNameToCodeMap)
+	var chosenFixes *ImmutableList[*SuggestedFix] = chosenFixesBuilder.build()
+	return ApplySuggestedFixes_applySuggestedFixesToCode(icast_Iterable(obj_(chosenFixes.asImm())), fileNameToCodeMap)
 }
 
-func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFix], filenameToCodeMap map[string]string) ImmutableMapOf[string, string] {
+func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFix], filenameToCodeMap map[string]string) *ImmutableMap[string, string] {
 	var map_ *ApplySuggestedFixes_ReplacementMap = new_ApplySuggestedFixes_ReplacementMap()
 	for fix := range elemsAs_[*SuggestedFix](fixes) {
 		map_.putIfNoOverlap(fix)
 	}
-	var newCodeMap ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
+	var newCodeMap *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for entry := range elemsBy_(map_.entrySet(), icast_Map_Entry) {
 		var filename string = str_(entry.getKey())
 		if !has_(filenameToCodeMap, filename) {
@@ -91,7 +91,7 @@ func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFi
 		}
 		var replacements SetOf[*CodeReplacement] = icast_Set(entry.getValue())
 		var newCode string = ApplySuggestedFixes_applyCodeReplacements(Collection(replacements), mapStr_(filenameToCodeMap, filename))
-		newCodeMap.put(strobj_(filename), strobj_(newCode))
+		newCodeMap.put(filename, newCode)
 	}
 	return newCodeMap.buildOrThrow()
 }

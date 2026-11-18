@@ -7,7 +7,7 @@ import "strconv"
 type FunctionInjector struct {
 	compiler_                 *AbstractCompiler
 	allowDecomposition_       bool
-	knownConstantFunctions    ImmutableSetOf[string]
+	knownConstantFunctions    *ImmutableSet[string]
 	assumeStrictThis_         bool
 	safeNameIdSupplier_       SupplierOf[string]
 	throwawayNameSupplier     SupplierOf[string]
@@ -17,7 +17,7 @@ type FunctionInjector struct {
 }
 
 func (this *FunctionInjector) finit_FunctionInjector() {
-	this.knownConstantFunctions = ImmutableSet_of()
+	this.knownConstantFunctions = immutableSetOf_(tc_string)
 	this.throwawayNameSupplier = new_FunctionInjector_1(this)
 	this.referencesEvalCache = map[Node]BoxedOf[bool]{}
 	this.innerFunctionCache = map[Node]Node{}
@@ -64,7 +64,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 	return (!referencesArguments && !NodeUtil_has(block, blocksInjection, Predicates_alwaysTrue()))
 }
 
-func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector_Reference, fnNode Node, needAliases ImmutableSetOf[string], referencesThis bool, containsClosures bool) FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceToFunction(ref *FunctionInjector_Reference, fnNode Node, needAliases *ImmutableSet[string], referencesThis bool, containsClosures bool) FunctionInjector_CanInlineResult {
 	var callNode Node = ref.callNode_
 	if !this.isSupportedCallType(callNode, fnNode) {
 		return FunctionInjector_CanInlineResult_NO
@@ -145,9 +145,9 @@ func (this *FunctionInjector) internalInline(ref *FunctionInjector_Reference, fn
 func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference, fnNode Node) Node {
 	var callNode Node = ref.callNode_
 	var block Node = fnNode.getLastChild()
-	var paramToArgMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.safeNameIdSupplier_)
+	var paramToArgMap *ImmutableMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.safeNameIdSupplier_)
 	var paramReplacements map[string]Node = map[string]Node{}
-	for _, el := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.asImm().entrySet())) {
 		entry := icast_Map_Entry(el)
 		paramReplacements[str_(entry.getKey())] = entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg()
 	}
@@ -299,7 +299,7 @@ func FunctionInjector_isDirectCallNodeReplacementPossible(fnNode Node) bool {
 	return false
 }
 
-func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionInjector_Reference, fnNode Node, namesToAlias ImmutableSetOf[string]) FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *ImmutableSet[string]) FunctionInjector_CanInlineResult {
 	var callSiteType FunctionInjector_CallSiteType = this.classifyCallSite(ref)
 	if callSiteType == FunctionInjector_CallSiteType_UNSUPPORTED {
 		return FunctionInjector_CanInlineResult_NO
@@ -372,7 +372,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	return cached
 }
 
-func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias ImmutableSetOf[string]) bool {
+func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *FunctionInjector_Reference, calleeFn Node, namesToAlias *ImmutableSet[string]) bool {
 	var calleeContainsVars bool = NodeUtil_has(NodeUtil_getFunctionBody(calleeFn), new_NodeUtil_MatchDeclaration().apply, new_NodeUtil_MatchShallowStatement())
 	var forbidTemps bool = false
 	if !callRef.scope_.getClosestHoistScope().self().(*Scope).isGlobal() {
@@ -389,14 +389,14 @@ func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *Functi
 		return false
 	}
 	if forbidTemps {
-		var args ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(calleeFn, callRef.callNode_, this.safeNameIdSupplier_)
-		var hasArgs bool = !args.isEmpty()
+		var args *ImmutableMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(calleeFn, callRef.callNode_, this.safeNameIdSupplier_)
+		var hasArgs bool = !args.IsEmpty()
 		if hasArgs {
-			if !namesToAlias.isEmpty() {
+			if !namesToAlias.IsEmpty() {
 				return false
 			}
-			var allTemps ImmutableSetOf[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, calleeFn, args, namesToAlias, this.compiler_.getCodingConvention())
-			if !allTemps.isEmpty() {
+			var allTemps *ImmutableSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, calleeFn, args, namesToAlias, this.compiler_.getCodingConvention())
+			if !allTemps.IsEmpty() {
 				return false
 			}
 		}
@@ -404,7 +404,7 @@ func (this *FunctionInjector) callMeetsBlockInliningRequirements(callRef *Functi
 	return true
 }
 
-func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_Reference, fnNode Node, namesToAlias ImmutableSetOf[string]) FunctionInjector_CanInlineResult {
+func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_Reference, fnNode Node, namesToAlias *ImmutableSet[string]) FunctionInjector_CanInlineResult {
 	if !FunctionInjector_isDirectCallNodeReplacementPossible(fnNode) {
 		return FunctionInjector_CanInlineResult_NO
 	}
@@ -424,14 +424,14 @@ func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_R
 			}
 		}
 	}
-	var args ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.throwawayNameSupplier)
-	var hasArgs bool = !args.isEmpty()
+	var args *ImmutableMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.throwawayNameSupplier)
+	var hasArgs bool = !args.IsEmpty()
 	if hasArgs {
-		if !namesToAlias.isEmpty() {
+		if !namesToAlias.IsEmpty() {
 			return FunctionInjector_CanInlineResult_NO
 		}
-		var allTemps ImmutableSetOf[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, fnNode, args, namesToAlias, this.compiler_.getCodingConvention())
-		if !allTemps.isEmpty() {
+		var allTemps *ImmutableSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, fnNode, args, namesToAlias, this.compiler_.getCodingConvention())
+		if !allTemps.IsEmpty() {
 			return FunctionInjector_CanInlineResult_NO
 		}
 	}
@@ -535,8 +535,8 @@ func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias map[string]struc
 	}
 }
 
-func (this *FunctionInjector) setKnownConstantFunctions(knownConstantFunctions ImmutableSetOf[string]) {
-	if !this.knownConstantFunctions.isEmpty() {
+func (this *FunctionInjector) setKnownConstantFunctions(knownConstantFunctions *ImmutableSet[string]) {
+	if !this.knownConstantFunctions.IsEmpty() {
 		panic(new_IllegalStateException_0())
 	}
 	this.knownConstantFunctions = knownConstantFunctions

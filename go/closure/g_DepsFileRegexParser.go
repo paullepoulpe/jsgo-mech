@@ -99,7 +99,7 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 			if requiresOutcome.isErr() {
 				return Outcome_base_err[any](requiresOutcome.error())
 			}
-			var depInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(path, this.filePath).setProvides(Collection(provides.asList())).setRequires(icast_Collection(obj_(DepsFileRegexParser_requiresParsedFromDeps(requiresOutcome.get())))).setLoadFlags(loadFlags).build()))
+			var depInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(path, this.filePath).setProvides(Collection(provides.asList())).setRequires(icast_Collection(obj_(DepsFileRegexParser_requiresParsedFromDeps(requiresOutcome.get()).asImm()))).setLoadFlags(loadFlags).build()))
 			if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
 				DepsFileRegexParser_logger.fine(("Found dep: " + objstr_(depInfo)))
 			}
@@ -109,10 +109,10 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 	return Outcome_base_ok_Object(any(bool(((!this.shortcutMode || hasDependencies) || CharMatcher_whitespace().matchesAllOf_s(line)))))
 }
 
-func DepsFileRegexParser_requiresParsedFromDeps(symbols *TList[string]) ImmutableListOf[*DependencyInfo_Require] {
-	var result ImmutableList_BuilderOf[*DependencyInfo_Require] = ImmutableList_builder()
+func DepsFileRegexParser_requiresParsedFromDeps(symbols *TList[string]) *ImmutableList[*DependencyInfo_Require] {
+	var result *ImmutableList_Builder[*DependencyInfo_Require] = immutableListBuilder_(tc_p_DependencyInfo_Require)
 	for symbol := range elemsBy_(symbols.asList(), str_) {
-		result.add(obj_(DependencyInfo_Require_parsedFromDeps(symbol)))
+		result.add(DependencyInfo_Require_parsedFromDeps(symbol))
 	}
 	return result.build()
 }

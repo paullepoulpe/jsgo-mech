@@ -9,7 +9,7 @@ type SortingErrorManager struct {
 	promotedErrorCount    int32
 	warningCount          int32
 	typedPercent          float64
-	errorReportGenerators ImmutableSetOf[SortingErrorManager_ErrorReportGenerator]
+	errorReportGenerators *ImmutableSet[SortingErrorManager_ErrorReportGenerator]
 }
 
 // SortingErrorManager_I holds the methods the dispatchers of SortingErrorManager's hierarchy call on the most derived
@@ -51,7 +51,7 @@ func (this *SortingErrorManager) finit_SortingErrorManager() {
 
 func (this *SortingErrorManager) init_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) {
 	this.finit_SortingErrorManager()
-	this.errorReportGenerators = ImmutableSet_copyOf(Collection(errorReportGenerators.asSet()))
+	this.errorReportGenerators = immutableSetCopyOf_(tc_SortingErrorManager_ErrorReportGenerator, Collection(errorReportGenerators.asSet()))
 }
 
 func new_SortingErrorManager(errorReportGenerators *TSet[SortingErrorManager_ErrorReportGenerator]) *SortingErrorManager {
@@ -88,11 +88,11 @@ func (this *SortingErrorManager) getWarningCount() int32 {
 	return this.warningCount
 }
 
-func (this *SortingErrorManager) getErrors() ImmutableListOf[*JSError] {
+func (this *SortingErrorManager) getErrors() *ImmutableList[*JSError] {
 	return this.filterToListOf(CheckLevel_ERROR)
 }
 
-func (this *SortingErrorManager) getWarnings() ImmutableListOf[*JSError] {
+func (this *SortingErrorManager) getWarnings() *ImmutableList[*JSError] {
 	return this.filterToListOf(CheckLevel_WARNING)
 }
 
@@ -108,19 +108,19 @@ func (this *SortingErrorManager) getTypedPercent() float64 {
 	return this.typedPercent
 }
 
-func (this *SortingErrorManager) filterToListOf(level CheckLevel) ImmutableListOf[*JSError] {
-	var result ImmutableList_BuilderOf[*JSError] = ImmutableList_builder()
+func (this *SortingErrorManager) filterToListOf(level CheckLevel) *ImmutableList[*JSError] {
+	var result *ImmutableList_Builder[*JSError] = immutableListBuilder_(tc_p_JSError)
 	for e := range elemsAs_[*SortingErrorManager_ErrorWithLevel](obj_(this.messages)) {
 		if e.level_ == level {
-			result.add(obj_(e.error_))
+			result.add(e.error_)
 		}
 	}
 	return result.build()
 }
 
 func (this *SortingErrorManager) generateReport_impl() {
-	for _, el := range immElems_(this.errorReportGenerators) {
-		generator := icast_SortingErrorManager_ErrorReportGenerator(el)
+	for _, el := range this.errorReportGenerators.keys {
+		generator := el
 		generator.generateReport(this)
 	}
 }

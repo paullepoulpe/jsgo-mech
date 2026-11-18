@@ -37,10 +37,10 @@ func (this *ReplaceMessages) getMsgOptionsFromDefinition(definition JsMessageDef
 func (this *ReplaceMessages) createMsgPropertiesNode(message *JsMessage, msgOptions *ReplaceMessages_MsgOptions) Node {
 	var msgPropsBuilder *ReplaceMessages_QuotedKeyObjectLitBuilder = new_ReplaceMessages_QuotedKeyObjectLitBuilder(this)
 	msgPropsBuilder.addString("key", message.getKey())
-	if msgOptions.isIcuTemplate() && !message.canonicalPlaceholderNames().isEmpty() {
+	if msgOptions.isIcuTemplate() && !message.canonicalPlaceholderNames().IsEmpty() {
 		var namesArrayLit Node = this.astFactory_.createArraylit([]Node{})
-		for _, el := range immElems_(message.canonicalPlaceholderNames()) {
-			name := str_(el)
+		for _, el := range message.canonicalPlaceholderNames().keys {
+			name := el
 			namesArrayLit.addChildToBack(this.astFactory_.createString(name))
 		}
 		msgPropsBuilder.addNode("icu_placeholder_names", namesArrayLit)
@@ -72,7 +72,7 @@ func (this *ReplaceMessages) getReplacementCompletionPass() CompilerPass {
 	return new_ReplaceMessages_ReplacementCompletionPass(this)
 }
 
-func ReplaceMessages_extractPlaceholderValuesMapOrThrow(valuesObjLit Node) ImmutableMapOf[string, Node] {
+func ReplaceMessages_extractPlaceholderValuesMapOrThrow(valuesObjLit Node) *ImmutableMap[string, Node] {
 	var objectLiteralMap *Outcome_base[any] = JsMessageVisitor_extractObjectLiteralMap(valuesObjLit)
 	if objectLiteralMap.isErr() {
 		panic(new_IllegalStateException_Throwable(objectLiteralMap.error()))
@@ -91,13 +91,13 @@ func (this *ReplaceMessages) lookupMessage(callNode Node, bundle MessageBundle, 
 	}
 	var alternateMessage *JsMessage = bundle.getMessage(alternateId.get())
 	if alternateMessage != nil {
-		var jsCodePlaceholderNames ImmutableSetOf[string] = message.jsPlaceholderNames()
-		var alternateMsgPlaceholderNames ImmutableSetOf[string] = alternateMessage.jsPlaceholderNames()
-		if !objequalsBy_(jsCodePlaceholderNames, obj_(alternateMsgPlaceholderNames), (ImmutableSetOf[string]).equals) {
-			if jsCodePlaceholderNames.isEmpty() && ReplaceMessages_isStartOfIcuMessage(message.asIcuMessageString()) {
+		var jsCodePlaceholderNames *ImmutableSet[string] = message.jsPlaceholderNames()
+		var alternateMsgPlaceholderNames *ImmutableSet[string] = alternateMessage.jsPlaceholderNames()
+		if !tsetEq_(jsCodePlaceholderNames, alternateMsgPlaceholderNames, true) {
+			if jsCodePlaceholderNames.IsEmpty() && ReplaceMessages_isStartOfIcuMessage(message.asIcuMessageString()) {
 				return alternateMessage
 			} else {
-				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceMessages_INVALID_ALTERNATE_MESSAGE_PLACEHOLDERS, []string{alternateId.get(), tostr_(alternateMsgPlaceholderNames), message.getKey(), tostr_(jsCodePlaceholderNames)}))
+				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceMessages_INVALID_ALTERNATE_MESSAGE_PLACEHOLDERS, []string{alternateId.get(), tostr_(alternateMsgPlaceholderNames.asImm()), message.getKey(), tostr_(jsCodePlaceholderNames.asImm())}))
 				return nil
 			}
 		}
@@ -124,7 +124,7 @@ func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, 
 		return Outcome_base_err[Node](hookExpressionOutcome.error())
 	}
 	var hookExpression Node = hookExpressionOutcome.get()
-	if placeholderMap.isEmpty() {
+	if placeholderMap.IsEmpty() {
 		return Outcome_base_ok_Object[Node](hookExpression)
 	}
 	var function Node = this.astFactory_.createFunction("", paramList, IR_block_Node(IR_returnNode_Node(hookExpression)), type_)
@@ -246,10 +246,10 @@ func (this *ReplaceMessages) constructStringExprNode(message *JsMessage, placeho
 }
 
 func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, placeholderMap *TMap[string, Node], options *ReplaceMessages_MsgOptions, nodeToReplace Node) *Outcome_base[Node] {
-	if placeholderMap.isEmpty() {
+	if placeholderMap.IsEmpty() {
 		if options.isIcuTemplate() {
 			return Outcome_base_ok_Object[Node](this.createNodeForMsgString(options, message.asIcuMessageString()))
-		} else if message.jsPlaceholderNames().isEmpty() {
+		} else if message.jsPlaceholderNames().IsEmpty() {
 			return Outcome_base_ok_Object[Node](this.createNodeForMsgString(options, message.asJsMessageString()))
 		} else {
 			var icuMsgString string = message.asIcuMessageString()
@@ -260,7 +260,7 @@ func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, pla
 			}
 		}
 	}
-	return this.buildMessageNode(sliceImm_(tc_JsMessage_Part, message.getParts()), options, nodeToReplace, func(p0 string) Node { return placeholderMap.get(p0) }, false)
+	return this.buildMessageNode(immItems_(message.getParts()), options, nodeToReplace, func(p0 string) Node { return placeholderMap.Get(p0) }, false)
 }
 
 func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_MsgOptions, s string) Node {
@@ -520,10 +520,10 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addString(key string, val
 }
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node Node) *ReplaceMessages_QuotedKeyObjectLitBuilder {
-	if this.keyToValueNodeMap.containsKey(key) {
+	if this.keyToValueNodeMap.Has(key) {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("repeated key: %s", []any{strobj_(key)})))
 	}
-	this.keyToValueNodeMap.put(key, node)
+	this.keyToValueNodeMap.Put(key, node)
 	return this
 }
 
@@ -574,7 +574,7 @@ func (this *ReplaceMessages_ReplacementCompletionPass) visitMsgDefinition(protec
 		msgToUse = originalMsg
 	}
 	var msgOptions *ReplaceMessages_MsgOptions = protectedJsMessage.getMsgOptions()
-	var placeholderMap *TMap[string, Node] = tmapFrom_(tc_string, tc_Node, ReplaceMessages_extractPlaceholderValuesMapOrThrow(protectedJsMessage.substitutionsNode), true)
+	var placeholderMap *TMap[string, Node] = ReplaceMessages_extractPlaceholderValuesMapOrThrow(protectedJsMessage.substitutionsNode)
 	var finalMsgConstructionExpressionOutcome *Outcome_base[Node] = this.outer_.constructStringExprNode(msgToUse, placeholderMap, msgOptions, nodeToReplace)
 	if finalMsgConstructionExpressionOutcome.isErr() {
 		var e *JsMessageVisitor_MalformedException = cast_[*JsMessageVisitor_MalformedException](finalMsgConstructionExpressionOutcome.error().self())
@@ -653,17 +653,17 @@ type ReplaceMessages_FullReplacementMsgData struct {
 	message_             *JsMessage
 	messageNode_         Node
 	messageOptions_      *ReplaceMessages_MsgOptions
-	placeholderValueMap_ ImmutableMapOf[string, Node]
+	placeholderValueMap_ *ImmutableMap[string, Node]
 }
 
-func (this *ReplaceMessages_FullReplacementMsgData) init_ReplaceMessages_FullReplacementMsgData(message *JsMessage, messageNode Node, messageOptions *ReplaceMessages_MsgOptions, placeholderValueMap ImmutableMapOf[string, Node]) {
+func (this *ReplaceMessages_FullReplacementMsgData) init_ReplaceMessages_FullReplacementMsgData(message *JsMessage, messageNode Node, messageOptions *ReplaceMessages_MsgOptions, placeholderValueMap *ImmutableMap[string, Node]) {
 	this.message_ = message
 	this.messageNode_ = messageNode
 	this.messageOptions_ = messageOptions
 	this.placeholderValueMap_ = placeholderValueMap
 }
 
-func new_ReplaceMessages_FullReplacementMsgData(message *JsMessage, messageNode Node, messageOptions *ReplaceMessages_MsgOptions, placeholderValueMap ImmutableMapOf[string, Node]) *ReplaceMessages_FullReplacementMsgData {
+func new_ReplaceMessages_FullReplacementMsgData(message *JsMessage, messageNode Node, messageOptions *ReplaceMessages_MsgOptions, placeholderValueMap *ImmutableMap[string, Node]) *ReplaceMessages_FullReplacementMsgData {
 	this := &ReplaceMessages_FullReplacementMsgData{}
 	this.init_ReplaceMessages_FullReplacementMsgData(message, messageNode, messageOptions, placeholderValueMap)
 	return this
@@ -681,7 +681,7 @@ func (this *ReplaceMessages_FullReplacementMsgData) messageOptions() *ReplaceMes
 	return this.messageOptions_
 }
 
-func (this *ReplaceMessages_FullReplacementMsgData) placeholderValueMap() *ErasedImmutableMap {
+func (this *ReplaceMessages_FullReplacementMsgData) placeholderValueMap() *ImmutableMap[string, Node] {
 	return this.placeholderValueMap_
 }
 
@@ -690,7 +690,7 @@ func (this *ReplaceMessages_FullReplacementMsgData) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsBy_(this.message_, obj_(o.message_), (*JsMessage).equals) && this.messageNode_ == o.messageNode_ && objequalsBy_(this.messageOptions_, obj_(o.messageOptions_), (*ReplaceMessages_MsgOptions).equals) && objequalsBy_(this.placeholderValueMap_, obj_(o.placeholderValueMap_), (ImmutableMapOf[string, Node]).equals)
+	return true && objequalsBy_(this.message_, obj_(o.message_), (*JsMessage).equals) && this.messageNode_ == o.messageNode_ && objequalsBy_(this.messageOptions_, obj_(o.messageOptions_), (*ReplaceMessages_MsgOptions).equals) && tmapEq_(this.placeholderValueMap_, o.placeholderValueMap_, true)
 }
 
 func (this *ReplaceMessages_FullReplacementMsgData) hashCode() int32 {
@@ -698,12 +698,12 @@ func (this *ReplaceMessages_FullReplacementMsgData) hashCode() int32 {
 	h = h*31 + objhashBy_(this.message_, (*JsMessage).hashCode)
 	h = h*31 + objhashId_(this.messageNode_)
 	h = h*31 + objhashBy_(this.messageOptions_, (*ReplaceMessages_MsgOptions).hashCode)
-	h = h*31 + objhashBy_(this.placeholderValueMap_, (ImmutableMapOf[string, Node]).hashCode)
+	h = h*31 + tmapHash_(this.placeholderValueMap_, true)
 	return h
 }
 
 func (this *ReplaceMessages_FullReplacementMsgData) toString() string {
-	return "FullReplacementMsgData[" + "message=" + tostr_(this.message_) + ", messageNode=" + tostr_(this.messageNode_) + ", messageOptions=" + tostr_(this.messageOptions_) + ", placeholderValueMap=" + tostr_(this.placeholderValueMap_) + "]"
+	return "FullReplacementMsgData[" + "message=" + tostr_(this.message_) + ", messageNode=" + tostr_(this.messageNode_) + ", messageOptions=" + tostr_(this.messageOptions_) + ", placeholderValueMap=" + tostr_(this.placeholderValueMap_.asImm()) + "]"
 }
 
 type ReplaceMessages_FullReplacementPass struct {
@@ -754,7 +754,7 @@ func (this *ReplaceMessages_FullReplacementPass) processMessageFallback_impl(cal
 }
 
 func (this *ReplaceMessages_FullReplacementPass) processIcuTemplateDefinition_impl(definition IcuTemplateDefinition) {
-	this.processFullReplacement(new_ReplaceMessages_FullReplacementMsgData(definition.getMessage(), definition.getMessageNode(), ReplaceMessages_ICU_MSG_OPTIONS, ImmutableMap_of()))
+	this.processFullReplacement(new_ReplaceMessages_FullReplacementMsgData(definition.getMessage(), definition.getMessageNode(), ReplaceMessages_ICU_MSG_OPTIONS, immutableMapOf_(tc_string, tc_Node, []string{}, []Node{})))
 }
 
 func (this *ReplaceMessages_FullReplacementPass) processJsMessageDefinition_impl(definition JsMessageDefinition) {
@@ -765,7 +765,7 @@ func (this *ReplaceMessages_FullReplacementPass) processFullReplacement(fullRepl
 	var message *JsMessage = fullReplacementMsgData.message()
 	var msgNode Node = fullReplacementMsgData.messageNode()
 	var options *ReplaceMessages_MsgOptions = fullReplacementMsgData.messageOptions()
-	var placeholderValueMap ImmutableMapOf[string, Node] = fullReplacementMsgData.placeholderValueMap()
+	var placeholderValueMap *ImmutableMap[string, Node] = fullReplacementMsgData.placeholderValueMap()
 	var replacement *JsMessage = this.outer_.lookupMessage(msgNode, this.outer_.bundle, message)
 	if replacement == nil {
 		if this.outer_.strictReplacement {
@@ -776,7 +776,7 @@ func (this *ReplaceMessages_FullReplacementPass) processFullReplacement(fullRepl
 		}
 	}
 	var newValue Node
-	var newValueOutcome *Outcome_base[Node] = this.outer_.constructStringExprNode(replacement, tmapFrom_(tc_string, tc_Node, placeholderValueMap, true), options, msgNode)
+	var newValueOutcome *Outcome_base[Node] = this.outer_.constructStringExprNode(replacement, placeholderValueMap, options, msgNode)
 	if newValueOutcome.isErr() {
 		var e *JsMessageVisitor_MalformedException = cast_[*JsMessageVisitor_MalformedException](newValueOutcome.error().self())
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(e.getNode(), JsMessageVisitor_MESSAGE_TREE_MALFORMED, []string{e.getMessage()}))
@@ -945,7 +945,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 		}
 		var icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString = new_JsMessageVisitor_IcuMessageTemplateString(messageText.orElse(nullstr_))
 		var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(icuPlaceholderNames)
-		jsMessageBuilder.appendParts(tlistImm_(tc_JsMessage_Part, extractedIcuTemplateParts.extractedParts))
+		jsMessageBuilder.appendParts(extractedIcuTemplateParts.extractedParts)
 	} else {
 		var partsRes *Outcome_base[*TList[JsMessage_Part]] = JsMessageVisitor_parseJsMessageTextIntoParts(messageText.orElse(nullstr_))
 		if partsRes.isErr() {

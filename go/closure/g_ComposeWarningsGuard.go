@@ -105,8 +105,8 @@ func (this *ComposeWarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) Tri
 
 func (this *ComposeWarningsGuard) disables(group *DiagnosticGroup) bool {
 nextSingleton_:
-	for _, el_1 := range immElems_(group.getTypes()) {
-		var type_ *DiagnosticType = cast_[*DiagnosticType](el_1)
+	for _, el_1 := range group.getTypes().keys {
+		var type_ *DiagnosticType = el_1
 		var singleton *DiagnosticGroup = DiagnosticGroup_forType(type_)
 		it_2 := foreach_(obj_(this.guards))
 		for it_2.next() {

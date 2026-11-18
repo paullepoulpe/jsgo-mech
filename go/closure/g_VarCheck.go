@@ -143,7 +143,7 @@ func (this *VarCheck) handleUndeclaredVariableRef(t *NodeTraversal, n Node) {
 	}
 	if this.validityCheck {
 		panic(new_IllegalStateException_String(("Unexpected variable " + sstr_(varName))))
-	} else if !this.undefinedNamesFromExterns.contains(varName) {
+	} else if !this.undefinedNamesFromExterns.Has(varName) {
 		this.createSynthesizedExternVar(varName, true)
 	}
 }
@@ -155,11 +155,11 @@ func (this *VarCheck) enterScope(t *NodeTraversal) {
 func (this *VarCheck) exitScope(t *NodeTraversal) {
 	if !this.validityCheck && t.inGlobalScope() {
 		var scope *Scope = t.getScope()
-		for _, el := range immElems_(VarCheck_REQUIRED_SYMBOLS) {
-			requiredSymbol := str_(el)
+		for _, el := range VarCheck_REQUIRED_SYMBOLS.keys {
+			requiredSymbol := el
 			var var_ *Var = cast_[*Var](scope.getVar(requiredSymbol).self())
 			if var_ == nil {
-				this.undefinedNamesFromExterns.add(requiredSymbol)
+				this.undefinedNamesFromExterns.Add(requiredSymbol)
 			}
 		}
 	}
@@ -222,7 +222,7 @@ const VarCheck_ARGUMENTS string = "arguments"
 const VarCheck_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME string = "$jscomp_wrap_closure_unaware_code"
 
 var VarCheck_googForwardDeclare Node
-var VarCheck_REQUIRED_SYMBOLS *ErasedImmutableSet
+var VarCheck_REQUIRED_SYMBOLS *ImmutableSet[string]
 
 var VarCheck_clinit_done bool
 
@@ -241,7 +241,7 @@ func VarCheck_clinit() {
 	VarCheck_BLOCK_SCOPED_DECL_MULTIPLY_DECLARED_ERROR = DiagnosticType_error("JSC_BLOCK_SCOPED_DECL_MULTIPLY_DECLARED_ERROR", "Block-scoped variable {0} declared more than once. First occurrence: {1}")
 	VarCheck_VAR_ARGUMENTS_SHADOWED_ERROR = DiagnosticType_error("JSC_VAR_ARGUMENTS_SHADOWED_ERROR", "Shadowing \"arguments\" is not allowed")
 	VarCheck_googForwardDeclare = IR_getprop_Node_String(IR_name("goog"), "forwardDeclare")
-	VarCheck_REQUIRED_SYMBOLS = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("AggregateError"), strobj_("Array"), strobj_("Error"), strobj_("Float32Array"), strobj_("Function"), strobj_("Infinity"), []any{strobj_("Iterator"), strobj_("JSCOMPILER_PRESERVE"), strobj_("JSCompiler_renameProperty"), strobj_("Map"), strobj_("Math"), strobj_("NaN"), strobj_("Number"), strobj_("Object"), strobj_("Promise"), strobj_("RangeError"), strobj_("ReferenceError"), strobj_("Reflect"), strobj_("RegExp"), strobj_("Set"), strobj_("String"), strobj_("SuppressedError"), strobj_("Symbol"), strobj_("TypeError"), strobj_("WeakMap"), strobj_("global"), strobj_("globalThis"), strobj_("isNaN"), strobj_("parseFloat"), strobj_("parseInt"), strobj_("self"), strobj_("undefined"), strobj_("window")})
+	VarCheck_REQUIRED_SYMBOLS = immutableSetOf_(tc_string, "AggregateError", "Array", "Error", "Float32Array", "Function", "Infinity", "Iterator", "JSCOMPILER_PRESERVE", "JSCompiler_renameProperty", "Map", "Math", "NaN", "Number", "Object", "Promise", "RangeError", "ReferenceError", "Reflect", "RegExp", "Set", "String", "SuppressedError", "Symbol", "TypeError", "WeakMap", "global", "globalThis", "isNaN", "parseFloat", "parseInt", "self", "undefined", "window")
 
 }
 
@@ -284,7 +284,7 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 					return
 				}
 				t.report(n, VarCheck_UNDEFINED_EXTERN_VAR_ERROR, []string{n.getString()})
-				this.outer_.undefinedNamesFromExterns.add(n.getString())
+				this.outer_.undefinedNamesFromExterns.Add(n.getString())
 			}
 			return
 		case tokOrd1_ASSIGN:
@@ -305,7 +305,7 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 		var scope *Scope = t.getScope()
 		var var_ *Var = cast_[*Var](scope.getVar(n.getString()).self())
 		if var_ == nil {
-			this.outer_.undefinedNamesFromExterns.add(n.getString())
+			this.outer_.undefinedNamesFromExterns.Add(n.getString())
 		}
 	}
 }

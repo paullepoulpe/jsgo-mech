@@ -345,8 +345,8 @@ func (this *ProxyObjectType) getConstructor_impl() *FunctionType {
 	}()
 }
 
-func (this *ProxyObjectType) getTemplateTypes_impl() ImmutableListOf[*JSType] {
-	return func() *ErasedImmutableList {
+func (this *ProxyObjectType) getTemplateTypes_impl() *ImmutableList[*JSType] {
+	return func() *ImmutableList[*JSType] {
 		if this.referencedObjType == nil {
 			return nil
 		}
@@ -802,7 +802,7 @@ func (this *ProxyObjectType) getConstructor() *FunctionType {
 }
 
 // getTemplateTypes: an object that is exactly a ProxyObjectType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
-func (this *ProxyObjectType) getTemplateTypes() *ErasedImmutableList {
+func (this *ProxyObjectType) getTemplateTypes() *ImmutableList[*JSType] {
 	if p, _ := this.self_.(*ProxyObjectType); p == this {
 		return this.getTemplateTypes_impl()
 	}

@@ -73,17 +73,17 @@ func JSTypeExpression_baseName(name string) string {
 }
 
 func (this *JSTypeExpression) getAllTypeNodes() []Node {
-	var builder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-	JSTypeExpression_visitAllTypeNodes(this.root, func(p0 any) { builder.add(Node_of_(p0).box_()) })
-	return sliceImm_(tc_Node, builder.build())
+	var builder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
+	JSTypeExpression_visitAllTypeNodes(this.root, func(p0 any) { builder.add(Node_of_(p0)) })
+	return builder.build().items
 }
 
-func (this *JSTypeExpression) getAllTypeNames() ImmutableSetOf[string] {
-	var builder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+func (this *JSTypeExpression) getAllTypeNames() *ImmutableSet[string] {
+	var builder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	JSTypeExpression_visitAllTypeNodes(this.root, func(n_ any) {
 		var n Node = Node_of_(n_)
 		_ = n
-		builder.add(strobj_(n.getString()))
+		builder.add(n.getString())
 	})
 	return builder.build()
 }
@@ -164,13 +164,13 @@ func (this *JSTypeExpression) isExplicitUnknownTemplateBound() bool {
 	return ((JSCompObjects_identical(obj_(this.root.getToken()), obj_(Token_rhino_QMARK)) && !this.root.hasChildren()) && !(this.sourceName_ == JSTypeExpression_IMPLICIT_TEMPLATE_BOUND_SOURCE))
 }
 
-func (this *JSTypeExpression) getRecordPropertyNames() ImmutableSetOf[string] {
-	var builder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
+func (this *JSTypeExpression) getRecordPropertyNames() *ImmutableSet[string] {
+	var builder *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	JSTypeExpression_getRecordPropertyNamesRecursive(this.root, builder)
 	return builder.build()
 }
 
-func JSTypeExpression_getRecordPropertyNamesRecursive(n Node, names ImmutableSet_BuilderOf[string]) {
+func JSTypeExpression_getRecordPropertyNamesRecursive(n Node, names *ImmutableSet_Builder[string]) {
 	if n == 0 {
 		return
 	}
@@ -181,7 +181,7 @@ func JSTypeExpression_getRecordPropertyNamesRecursive(n Node, names ImmutableSet
 		}
 	}
 	if n.isStringKey() {
-		names.add(strobj_(n.getString()))
+		names.add(n.getString())
 	}
 }
 
