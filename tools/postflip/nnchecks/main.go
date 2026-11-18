@@ -35,7 +35,7 @@ func main() {
 	report := len(os.Args) > 2 && os.Args[1] == "-n"
 	rw.Load(os.Args[len(os.Args)-1])
 	left := map[string]int{}
-	done := 0
+	done, optionals := 0, 0
 	var at ast.Node
 	leave := func(why string) {
 		left[why]++
@@ -56,6 +56,14 @@ func main() {
 				return true
 			}
 			at = c
+			if why, ok := optional(c); ok {
+				if why != "" {
+					leave(why)
+				} else {
+					optionals++
+				}
+				return true
+			}
 			var fname string
 			switch fn := c.Fun.(type) {
 			case *ast.Ident:
@@ -168,11 +176,12 @@ func main() {
 	for _, k := range keys {
 		fmt.Fprintf(os.Stderr, "  left: %4d %s\n", left[k], k)
 	}
+	msg := fmt.Sprintf("nnchecks: %d typed checkNotNull calls become inline checks (%d of them hoisted); %d Optional.ofNullable tests", done+hoisted, hoisted, optionals)
 	if report {
-		fmt.Fprintf(os.Stderr, "nnchecks: %d typed checkNotNull calls become inline checks (%d of them hoisted)\n", done+hoisted, hoisted)
+		fmt.Fprintln(os.Stderr, msg)
 		return
 	}
-	fmt.Fprintf(os.Stderr, "nnchecks: %d typed checkNotNull calls become inline checks (%d of them hoisted); files changed: %d\n", done+hoisted, hoisted, rw.SaveChecked())
+	fmt.Fprintf(os.Stderr, "%s; files changed: %d\n", msg, rw.SaveChecked())
 }
 
 // simpleTarget: an assignment target whose evaluation does nothing (a variable or a field of a
