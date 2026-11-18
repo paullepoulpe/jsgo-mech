@@ -223,31 +223,55 @@ Where typed-full still trails pre-flip Java (pass time, tracer):
 | checkTypes | 1.61s | 2.17s | 0.74 |
 | coalesceVariableNames | 1.01s | 1.36s | 0.74 |
 
-## Planned: the post-flip round after the re-flip
+## Planned: what is left after the re-flip, checked against the hand port
 
-After the re-flip (the transpiled Go of the typed translator with the node store, the post-flip
-steps replayed by `replay-all.sh`), a round for the Java-isms the translator cannot remove
-because they need whole-program flow. Each is a tool, measured as every step is:
+What follows was checked against jsgo (the hand port of the same release), counting the same
+patterns in both trees: jsgo keeps comma-ok assertions and type switches for real downcasts (643),
+`Equals(any)` on 57 program classes (we have 127), `any` on about 100 true-Object declarations,
+a null-tolerant cast helper at two property bags (`node_cast`, JSDoc values: 107 calls) and
+`...any` format parameters (23). Where it has fewer than we do, it got there by the rules below.
 
-- **Type switches and comma-ok assertions.** An `instanceof` chain on one variable becomes a
-  type switch; an `instanceof` followed by a cast of the same value becomes one comma-ok
-  assertion; an `instanceof` inside `&&`/`||` has its assertion hoisted before the expression.
-  What stays: casts of values that may be null and are stored or passed on (Java lets null
-  through a cast, a Go assertion of a nil interface panics), with their count.
-- **Sealed unions for `Object` fields.** A field declared `Object` whose assigned values have a
-  finite set of static types becomes a sealed interface (an unexported marker method on each
-  case) or one typed field per case, and its `instanceof` reads become type switches or nil
-  tests (e.g. GlobalNamespace's `refsForNode`: null, a map or one Ref).
-- **Typed `Object`-keyed maps.** A map keyed by `Object` whose keys in practice have one or two
-  types becomes a typed map (or one keyed by a comparable struct for Java value equality); what
-  stays is a `map[any]V` with keys whose `==` is Java's `equals`, or the canonical-key wrapper.
-- **Fewer `equals(Object)`.** Every class's `equals`/`hashCode` reached only with values of its
-  own type gets a typed form (`eqtyped` does part of this), and the `equals(any)` method goes
-  where nothing calls it through `Object`; value classes whose equality is their fields become
-  comparable Go structs where nothing observes their identity. (The hand port keeps 67
-  `Equals(any)` methods and `HashCode()` in 41 files, so this would go further than it.)
-- `String.format` / log varargs stay `...any` (Go's own idiom, as `fmt.Sprintf`); the formats a
-  tool cannot turn into concatenation keep a Java-semantics formatter.
+Translator rules (j2go), before or with the re-flip:
+- **F-bounded base classes instantiated per subclass** (AbstractScope/AbstractVar bound to their
+  own subclass): methods whose signature mentions the concrete scope or var type live on each
+  subclass, as jsgo's abstract_scope.go does. About 250 call-site casts (getVar, getScope,
+  getParent).
+- **`visit` as a generic function with a type switch.** `JSType.visit(Visitor<T>)` returns `T`
+  through `Object visitUntyped(Visitor<?>)` (39 `Object` results, 76 call-site casts); every
+  override is one line, so a generic function `JSType_visit[T]` whose body switches on the class
+  replaces the double dispatch (jsgo: TemplateTypeReplacer.visitJSType).
+- **A single-implementation interface or abstract class is an alias of its class**
+  (`type AbstractCompiler = *Compiler`, the graph interfaces, PMap, UnionFind...; about 33
+  hierarchies): the casts and the dispatch stubs through the interface go.
+- **Typed lookups**: `Map.get(Object)` / `contains(Object)` with a typed collection take `K`
+  (an argument of a supertype of K is a comma-ok assertion first); 348 boxes, about 25 `Object`
+  parameters. No argument in the program has static type `Object`.
+- **Java varargs `Object...` are Go `...any`** with the elements passed bare (418 `[]any{...}`
+  literals today).
+- (Java prep) **`Outcome<T, E>`** with the error's type: 16 casts of `outcome.error()`.
+
+Post-flip tools, after the re-flip (they need whole-program flow):
+- **Record `equals`/`hashCode` that nothing calls are not kept** (jsgo keeps them for about 14
+  of the 66 records): a class's `equals(any)` is live only if a value of it reaches a hashing
+  collection, `objequals_`/`objhash_` or an `equals` call. About 100 methods and the 685
+  record boxes. Value classes whose equality is all their fields, each compared by Go `==`,
+  become comparable structs used as map keys (CachingTranspiler.Key, BranchIndexPair,
+  FeatureSet in jsgo); classes equal on some fields get a key projection (SortingErrorManager).
+  Typed-equality containers take `equals_K(K)`/`hashCode()` constraints, so `equals(any)` stays
+  only for classes that really meet `Object` (jsgo: 57).
+- **Type switches and comma-ok assertions**: an `instanceof` chain on one variable becomes a type
+  switch, an `instanceof` and a cast of the same value one comma-ok assertion, an assertion in
+  `&&`/`||` is hoisted. A nullable cast whose value is stored or passed becomes
+  `v, _ := x.(*T)` (or, where the ClassCastException must be kept, `if x != nil { v = x.(*T) }`);
+  the `cast_` helper stays only at the two property-bag reads (Node props, JSDoc values).
+- **Single-type `Object` flow retyped**, for fields, parameters, results and type arguments: one
+  type flowing in retypes the declaration (TypeEdgeJson.value, ClosureBundler.minifier, the
+  `<ColorGraphNode, Object>` graph, `Node.getFeatureSet`); two or three give one typed field per
+  case (Property.name); an open set stays `any` (ObjectPropListItem.objectValue,
+  JSDocInfo.propertyValues). Node.payload and jstypeOrColor are node-store columns already.
+  A sealed interface is not used: it costs the same assertion as `any`.
+- The one map keyed by `Object` (CodingConvention's assertion functions, keyed by a String or a
+  ClosurePrimitive) becomes one map per key type, as in jsgo.
 
 ## How steps are measured
 
