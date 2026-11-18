@@ -543,3 +543,47 @@ f6a421b0 patch 330-f6a421b0-rt.patch
 f7492025 run bash tools/postflip/colls/run.sh
 # 338. postflip step: second pass of the collections pipeline after the typed immutables (colls map, native on typed immutables, nilmaps)
 72b0f693 run bash tools/postflip/colls/run.sh
+
+# ---- The re-flip after the replay of postflip5 (REFLIP.md, "After the replay"): one typed collection family, the
+# collection steps on it, the hot-path manual patches re-made on the typed text. The tools are those of each
+# commit (the tip of reflip-trial has the toolfix.sh edits applied: c96df2bd).
+# (401: the tool commit c96df2bd also holds, by mistake, the removal of rt_jtlist.go, rt_jtmap.go, rt_jtset.go and
+# the renaming of rt_jtdeque.go that belong to the next commit; its tree does not build. The runtime patch of 402
+# is the runtime difference of both commits, applied after unify's run.)
+# 402. postflip step (re-flip): one typed collection family (unify + runtime)
+e69c634a run t unify && f
+e69c634a patch 402-e69c634a-rt.patch
+# 403. postflip step (re-flip): the collection steps on the unified typed collections
+8c9c3988 run bash tools/postflip/colls/run.sh
+# 404. postflip step (re-flip): ranges and iters on the unified typed collections
+3b887150 run t ranges && t ranges -loops && t ranges -index && t ranges -entries && t iters && f
+# 405. postflip (manual, re-flip): findModifiedParameters adds to one set (99c1ce0e re-made)
+67259c7a patch 405-67259c7a-manual.patch
+# 406. postflip (manual, re-flip): Var-keyed maps of RemoveUnusedCode and MustBeReachingVariableDef are varMap_ (8d8b945c, 3d4d3023 re-made)
+3da0ef84 patch 406-3da0ef84-manual.patch
+# 407. postflip (manual, re-flip): ReferenceCollector's map is a varMap_, its block stack a slice; a ReferenceCollection has room for four (3d0eda46, 46de9ec8, bdfed150 re-made)
+1dc40729 patch 407-1dc40729-manual.patch
+# 408. postflip (manual, re-flip): a graph node holds its two edge lists and their first edges; createNode and isConnectedInDirection without function objects (751c653e, 18181b92, a3cb96f9, ebd14889 re-made)
+42cfbc2c patch 408-42cfbc2c-manual.patch
+# 409. postflip (manual, re-flip): data-flow and CFG prioritization walk a node's edges instead of a list of its neighbours (eb573b66 re-made)
+dc3eb3ea patch 409-dc3eb3ea-manual.patch
+# 410. postflip (manual, re-flip): RemoveUnusedCode builds a not-removable reason only for a log that records it (8f32a538, eecb7a60 re-made)
+144a1e01 patch 410-144a1e01-manual.patch
+# 411. postflip (manual, re-flip): InlineVariables' memo cells are part of the var expert that owns them (cba93024 re-made)
+7c529de7 patch 411-7c529de7-manual.patch
+# 412. postflip (manual, re-flip): getAstAnalyzer hands out the last analyzer while what it is made of is unchanged (03415e92 re-made)
+a18a5929 patch 412-a18a5929-manual.patch
+# 413. postflip (manual, re-flip): NodeTraversal's scope stack is a native slice of typed entries, held in the traversal with its default scope creator (0788ad44, 76f5ebbd, 5de844d3 re-made)
+32758f01 patch 413-32758f01-manual.patch
+# 414. postflip (runtime, re-flip): TDeque.push writes into room at the head
+dbababe1 patch 414-dbababe1-rt.patch
+# 415. postflip (manual, re-flip): a scope's implicit variables are an array indexed by ordinal (3a99f7ab re-made)
+990c8909 patch 415-990c8909-manual.patch
+# 416. postflip (manual, re-flip): SerializeTypesToPointers looks a node's type up without a function object
+112242b3 patch 416-112242b3-manual.patch
+# 417. postflip step (re-flip): calls given a typed lambda adapter take the function
+ab26441f run t adapters && f
+# 418. postflip (manual, re-flip): the renaming inverter's variable sets are Go maps (35e845b7, 531be9bd re-made)
+43d498fa patch 418-43d498fa-manual.patch
+# 419. postflip (manual, re-flip): the data-flow node comparators call getPriority on the graph node directly (c81b9996 re-made)
+88f8ba50 patch 419-88f8ba50-manual.patch

@@ -147,3 +147,79 @@ apply and native does not see j2go's renamed JT* collections. So the re-flip is 
 until (1) one typed-collection runtime serves j2go and the post-flip tools, so native/tnames
 convert j2go's collections, and (2) the dropped hot-path manual patches are re-made on the new
 text or turned into tools.
+
+## After the replay: one collection family, the hot paths re-made (2026-11-18, second session)
+
+Goal: the re-flip at least as fast as postflip5's round 8. Everything below is appended to the
+replay as further steps (steps.txt 402-419, patches/4xx); the tools are those of each commit
+(the tip's tools have the toolfix.sh edits applied as a real tool commit, c96df2bd).
+
+**1. One typed collection family** (e69c634a, 8c9c3988, 3b887150). The cheaper of the two ways
+was a conversion step, not a change of j2go: the two families are the same design (the
+translator's was derived from post-flip step 3), so `tools/postflip/unify` rewrites what the
+generated code names (JTList/JTMap/JTSet/jtconv_, the makers, the JTMap/JTSet methods to the
+Go names tnames gave TMap/TSet, jtc_X/tce_X to the post-flip tc_X/tch_X, `byEquals` to hash and
+eq: 3,748 rewrites in 287 files, nothing left) and a runtime patch removes rt_jtlist.go,
+rt_jtmap.go and rt_jtset.go and gives the post-flip types the few things only the translator's
+family had (copies, putAllT, eachEntry and TEntry, iterator, TDeque on TList). rename.sh stays
+as the flip's preparation (the two families cannot be in one package under one name before
+this step); the step could move to just after post-flip step 5, which needs the whole replay
+re-run and was not done. Then `colls/run.sh` and ranges/iters see every typed collection:
+colls types 101 + 9 list, 82 map and 40 set declarations more, native makes 391 slices and
+149 + 143 Go maps, ranges rewrites 118 + 23 + 5 loops.
+
+Census, trial after replay | after unify | after the collection steps (postflip5 tip):
+typed TList/TMap/TSet constructors 15 (+818 of the J family) | 790 | 375 (339); for-each via
+iterator objects 405 | 453 | 133 (99); erased constructors 192 | 192 | 186 (194); Guava
+immutables 249 | 249 | 210 (218). Still the translator's own: 94 mentions of TDeque (head at
+index 0; the post-flip deque steps do not know it), 720 typed lambda adapters `&X_tfn_Y{`.
+
+A new tool for what funcparams/tnames did to the erased wrappers, `tools/postflip/adapters`
+(ab26441f): Optional[T].filter and (*TMap).computeIfAbsent given a typed adapter literal take
+the function (102 + 25 calls; 11 left, counted).
+
+**2. The dropped hot-path manual patches, re-made on the typed text** (highest allocation
+first; each commit names the original). Where the text around is the first flip's, the hunks
+of postflip5's tip were applied; in the generic classes j2go now writes they were written
+again in the same pattern.
+
+| re-made | original commits | what |
+|---|---|---|
+| 67259c7a | 99c1ce0e | findModifiedParameters adds to one set |
+| 3da0ef84 | 8d8b945c, 3d4d3023 | Var-keyed maps of RemoveUnusedCode and MustDef are varMap_ |
+| 1dc40729 | 3d0eda46, 46de9ec8, bdfed150 | ReferenceCollector: varMap_, block stack a slice, room for four |
+| 42cfbc2c | 751c653e, 18181b92, a3cb96f9, ebd14889 | graph node holds its edge lists; createNode, isConnectedInDirection |
+| dc3eb3ea | eb573b66 | data flow and CFG prioritization walk edges |
+| 144a1e01 | 8f32a538, eecb7a60 | RemoveUnusedCode reasons only for a log that records |
+| 7c529de7 | cba93024 | InlineVariables memo cells in their owner |
+| a18a5929 | 03415e92 | getAstAnalyzer hands out the last analyzer |
+| 32758f01 | 0788ad44, 76f5ebbd, 5de844d3 | NodeTraversal scope stack |
+| 990c8909 | 3a99f7ab | a scope's implicit variables by ordinal |
+| 43d498fa | 35e845b7, 531be9bd | the renaming inverter's variable sets |
+| 88f8ba50 | c81b9996 | data-flow node comparators call getPriority directly |
+| 112242b3 | (new) | SerializeTypesToPointers without a function object per node |
+| dbababe1 | (runtime, as 1646c20a) | TDeque.push writes into room at the head |
+
+Not re-made (24 of the 35 dropped are covered above, counting the commits named): 13c7e5ba
+(Compiler.inputsById), fbb901b4 (createEdge), 6073a778 and 010746fe (the data-flow work
+queue's seen set: LinkedIdentityHashMap entries, 1.5M objects on typed-full), 16e33273 (AST
+positions as a Go map of ints), the Node patches 1cdb1423/831fc72f/53dca890/4e065c50 (the node
+store replaces them), 7992da4a (done by j2go), 25c89a69/9bdc7957/08dc9ce1 (threads and
+executors: the trial still runs the compiler "thread" and the prebuild pools).
+
+**Allocations** (JSGO_MEMSTATS, objects / bytes):
+
+| | bundle | typed-full |
+|---|---|---|
+| trial after the replay (aa029acd) | 183.7M / 8.08 GB | 317.2M / 13.96 GB |
+| after unify | 204.8M / 9.00 GB | 329.2M / 14.47 GB |
+| after the collection steps, ranges | 202.9M / 8.83 GB | 326.6M / 14.25 GB |
+| + findModifiedParameters, varMap_ | 144.8M / 7.19 GB | |
+| + ReferenceCollector, graph, data flow | 113.2M / 6.91 GB | |
+| + RemoveUnusedCode, InlineVariables, AstAnalyzer, NodeTraversal | 97.3M / 6.66 GB | 218.2M / 12.71 GB |
+| + TDeque, adapters, implicit vars, SerializeTypes | 92.2M / 6.37 GB | 195.0M / 12.08 GB |
+| round 8 (72b0f693) | 88.9M / 6.08 GB | 186.0M / 11.54 GB |
+
+(unify alone costs objects: the post-flip views have no fast paths for erased callers, and
+the hot erased callers were the sites of the manual patches.)
+
