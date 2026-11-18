@@ -85,8 +85,8 @@ func LinkedDirectedGraph_create[N any, E any]() *LinkedDirectedGraph[N, E] {
 func (this *LinkedDirectedGraph[N, E]) connect_impl(srcValue N, edgeValue_ any, destValue N) {
 	var edgeValue E = junboxT_[E](edgeValue_)
 	_ = edgeValue
-	var src *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(srcValue))
-	var dest *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(destValue))
+	var src *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(srcValue)
+	var dest *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(destValue)
 	var edge *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] = func() *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] {
 		if this.useEdgeAnnotations {
 			return new_LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E](src, edgeValue, dest).up_LinkedDirectedGraph_LinkedDiGraphEdge()
@@ -98,8 +98,11 @@ func (this *LinkedDirectedGraph[N, E]) connect_impl(srcValue N, edgeValue_ any, 
 }
 
 func (this *LinkedDirectedGraph[N, E]) connectDiGraphNode(src DiGraph_DiGraphNode[N], edgeValue E, dest DiGraph_DiGraphNode[N]) {
-	var lSrc *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](src)
-	var lDest *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](dest)
+	this.connectNodes_(to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](src), edgeValue, to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](dest))
+}
+
+// connectNodes_ is connectDiGraphNode for two nodes of this graph's class.
+func (this *LinkedDirectedGraph[N, E]) connectNodes_(lSrc *LinkedDirectedGraph_LinkedDiGraphNode[N, E], edgeValue E, lDest *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) {
 	var edge *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] = func() *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] {
 		if this.useEdgeAnnotations {
 			return new_LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E](lSrc, edgeValue, lDest).up_LinkedDirectedGraph_LinkedDiGraphEdge()
@@ -124,8 +127,8 @@ func (this *LinkedDirectedGraph[N, E]) disconnect_impl(n1 N, n2 N) {
 }
 
 func (this *LinkedDirectedGraph[N, E]) disconnectInDirection_impl(srcValue N, destValue N) {
-	var src *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(srcValue))
-	var dest *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(destValue))
+	var src *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(srcValue)
+	var dest *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(destValue)
 	for edge := range elemsAs_[DiGraph_DiGraphEdge[N]](this.getEdgesInDirection(srcValue, destValue)) {
 		src.getOutEdges().remove_Object(edge)
 		dest.getInEdges().remove_Object(edge)
@@ -141,33 +144,48 @@ func (this *LinkedDirectedGraph[N, E]) getNode_impl(nodeValue N) GraphNode[N] {
 }
 
 func (this *LinkedDirectedGraph[N, E]) getInEdges_impl(nodeValue N) ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
-	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(nodeValue))
+	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(nodeValue)
 	return Collections_unmodifiableList(node.getInEdges())
 }
 
 func (this *LinkedDirectedGraph[N, E]) getOutEdges_impl(nodeValue N) ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
-	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(nodeValue))
+	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(nodeValue)
 	return Collections_unmodifiableList(node.getOutEdges())
 }
 
 func (this *LinkedDirectedGraph[N, E]) createNode_impl(nodeValue N) GraphNode[N] {
-	return cast_[GraphNode[N]](this.getOrCreateNode_(nodeValue))
+	return cast_[GraphNode[N]](this.getOrCreateNode_(nodeValue).self())
 }
 
 // getOrCreateNode_ is nodes.computeIfAbsent(nodeValue, new node) without the function object
 // (post-flip manual step: two allocations per call); the node made is never null.
-func (this *LinkedDirectedGraph[N, E]) getOrCreateNode_(nodeValue N) any {
+func (this *LinkedDirectedGraph[N, E]) getOrCreateNode_(nodeValue N) *LinkedDirectedGraph_LinkedDiGraphNode[N, E] {
 	key := boxT_(nodeValue)
 	if n := this.nodes_.get(key); n != nil {
-		return n
+		return to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](n)
 	}
-	var n any
+	var n *LinkedDirectedGraph_LinkedDiGraphNode[N, E]
 	if this.useNodeAnnotations {
-		n = obj_(new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E](nodeValue))
+		n = &new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E](nodeValue).LinkedDirectedGraph_LinkedDiGraphNode
 	} else {
-		n = new_LinkedDirectedGraph_LinkedDiGraphNode[N, E](nodeValue).self()
+		n = new_LinkedDirectedGraph_LinkedDiGraphNode[N, E](nodeValue)
 	}
-	this.nodes_.put(key, n)
+	this.nodes_.put(key, n.self())
+	return n
+}
+
+// node_ is getNode(value) as the node of this class that it is, and nodeOrFail_ getNodeOrFail(value)
+// (post-flip manual step: the graph's own lookups took the node as a GraphNode and cast it
+// back; no subclass overrides getNode).
+func (this *LinkedDirectedGraph[N, E]) node_(value N) *LinkedDirectedGraph_LinkedDiGraphNode[N, E] {
+	return to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.nodes_.get(boxT_(value)))
+}
+
+func (this *LinkedDirectedGraph[N, E]) nodeOrFail_(value N) *LinkedDirectedGraph_LinkedDiGraphNode[N, E] {
+	n := this.node_(value)
+	if n == nil {
+		panic(new_IllegalArgumentException_String((objstr_(boxT_(value)) + " does not exist in graph")))
+	}
 	return n
 }
 
@@ -191,8 +209,8 @@ func (this *LinkedDirectedGraph[N, E]) getEdges_impl() ListOf[*LinkedDirectedGra
 }
 
 func (this *LinkedDirectedGraph[N, E]) getFirstEdge_impl(n1 N, n2 N) Graph_GraphEdge[N] {
-	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(n1))
-	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(n2))
+	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(n1)
+	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(n2)
 	it_1 := foreach_(dNode1.getOutEdges())
 	for it_1.next() {
 		var outEdge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_1.v)
@@ -211,8 +229,8 @@ func (this *LinkedDirectedGraph[N, E]) getFirstEdge_impl(n1 N, n2 N) Graph_Graph
 }
 
 func (this *LinkedDirectedGraph[N, E]) getEdgesInDirection_impl(n1 N, n2 N) ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
-	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(n1))
-	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(n2))
+	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(n1)
+	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(n2)
 	var edges ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] = new_ArrayList_0()
 	for el_1 := range elems_(dNode1.getOutEdges()) {
 		var outEdge *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] = to_LinkedDirectedGraph_LinkedDiGraphEdge[N, E](el_1)
@@ -233,24 +251,26 @@ func (this *LinkedDirectedGraph[N, E]) isConnectedInDirection_3_impl(source N, e
 	// Predicates.equalTo(edgeValue) is Objects.equals(edgeValue, v); compared here without the
 	// predicate object (post-flip manual step: one allocation per call).
 	target := boxT_(edgeValue)
-	dNode1 := to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(source))
-	dNode2 := to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(dest))
-	return dNode1.isConnectedTo_(dNode2, func(v any) bool { return Objects_equals(target, v) })
+	dNode1 := this.nodeOrFail_(source)
+	dNode2 := this.nodeOrFail_(dest)
+	return dNode1.isConnectedTo_(dNode2, target)
 }
 
-// isConnectedTo_ is isConnectedInDirectionLinkedDiGraphNode with the edge filter as a function.
-func (source *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) isConnectedTo_(dest *LinkedDirectedGraph_LinkedDiGraphNode[N, E], match func(any) bool) bool {
+// isConnectedTo_ is isConnectedInDirectionLinkedDiGraphNode with the filter
+// Predicates.equalTo(target): an edge's two ends are compared as the nodes of this class
+// they are (the same objects), its value by Objects.equals(target, value).
+func (source *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) isConnectedTo_(dest *LinkedDirectedGraph_LinkedDiGraphNode[N, E], target any) bool {
 	if len(source.outEdges_.items) < len(dest.inEdges_.items) {
 		for _, x := range source.outEdges_.items {
-			outEdge := cast_[DiGraph_DiGraphEdge[N]](x)
-			if (outEdge.getDestination() == dest.self()) && match(outEdge.getValue()) {
+			outEdge := to_LinkedDirectedGraph_LinkedDiGraphEdge[N, E](x)
+			if (outEdge.destNode == dest) && Objects_equals(target, outEdge.getValue()) {
 				return true
 			}
 		}
 	} else {
 		for _, x := range dest.inEdges_.items {
-			inEdge := cast_[DiGraph_DiGraphEdge[N]](x)
-			if (inEdge.getSource() == source.self()) && match(inEdge.getValue()) {
+			inEdge := to_LinkedDirectedGraph_LinkedDiGraphEdge[N, E](x)
+			if (inEdge.sourceNode_ == source) && Objects_equals(target, inEdge.getValue()) {
 				return true
 			}
 		}
@@ -284,8 +304,8 @@ func (this *LinkedDirectedGraph[N, E]) isConnectedInDirectionLinkedDiGraphNode(s
 }
 
 func (this *LinkedDirectedGraph[N, E]) isConnectedInDirectionPredicate(n1 N, edgeMatcher Predicate_baseOf[E], n2 N) bool {
-	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(n1))
-	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(n2))
+	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(n1)
+	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(n2)
 	return this.isConnectedInDirectionLinkedDiGraphNode(dNode1, edgeMatcher, dNode2)
 }
 
@@ -356,7 +376,7 @@ func (this *LinkedDirectedGraph[N, E]) getNodeCount_impl() int32 {
 }
 
 func (this *LinkedDirectedGraph[N, E]) getNeighborNodes_impl(value N) ListOf[GraphNode[N]] {
-	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNode(value))
+	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.node_(value)
 	var result ListOf[GraphNode[N]] = new_ArrayList_int((node.getInEdges().size() + node.getOutEdges().size()))
 	for inEdge := range elemsAs_[DiGraph_DiGraphEdge[N]](node.getInEdges()) {
 		result.add(inEdge.getSource())
@@ -368,7 +388,7 @@ func (this *LinkedDirectedGraph[N, E]) getNeighborNodes_impl(value N) ListOf[Gra
 }
 
 func (this *LinkedDirectedGraph[N, E]) getNodeDegree_impl(value N) int32 {
-	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](this.getNodeOrFail(value))
+	var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = this.nodeOrFail_(value)
 	return (node.getInEdges().size() + node.getOutEdges().size())
 }
 
@@ -383,8 +403,12 @@ type LinkedDirectedGraph_LinkedDiGraphNode[N any, E any] struct {
 	inEdges_, outEdges_ ArrayList
 	inEdge1_, outEdge1_ [1]any
 	queuedIn_           any // the data-flow UniqueQueue the node is in, or nil (post-flip manual step)
-	value_              N
-	priority            int32
+	// The node itself (its most derived object) as a DiGraphNode, set when it is made: what an
+	// edge's getSource and getDestination return (post-flip manual step: in generic code the
+	// cast of self() to the interface is a lookup in the runtime's table at every call).
+	di_      DiGraph_DiGraphNode[N]
+	value_   N
+	priority int32
 }
 
 type LinkedDirectedGraph_LinkedDiGraphNode_vt_[N any, E any] interface {
@@ -404,9 +428,16 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) as_LinkedDirectedGraph_
 	return this
 }
 
+// The two classes of node a graph makes are tried first (post-flip manual step: the general
+// conversion is an interface lookup and a call).
 func to_LinkedDirectedGraph_LinkedDiGraphNode[N any, E any](v any) *LinkedDirectedGraph_LinkedDiGraphNode[N, E] {
-	if v == nil {
+	switch p := v.(type) {
+	case nil:
 		return nil
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E]:
+		return &p.LinkedDirectedGraph_LinkedDiGraphNode
+	case *LinkedDirectedGraph_LinkedDiGraphNode[N, E]:
+		return p
 	}
 	return v.(interface{ as_LinkedDirectedGraph_LinkedDiGraphNode_() any }).as_LinkedDirectedGraph_LinkedDiGraphNode_().(*LinkedDirectedGraph_LinkedDiGraphNode[N, E])
 }
@@ -436,6 +467,7 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) init_LinkedDirectedGrap
 func new_LinkedDirectedGraph_LinkedDiGraphNode[N any, E any](nodeValue N) *LinkedDirectedGraph_LinkedDiGraphNode[N, E] {
 	this := &LinkedDirectedGraph_LinkedDiGraphNode[N, E]{}
 	this.self_ = this
+	this.di_ = this
 	this.vt_LinkedDirectedGraph_LinkedDiGraphNode_ = this
 	this.zero_LinkedDirectedGraph_LinkedDiGraphNode()
 	this.init_LinkedDirectedGraph_LinkedDiGraphNode(nodeValue)
@@ -537,6 +569,7 @@ func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E]) init_LinkedDir
 func new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N any, E any](nodeValue N) *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E] {
 	this := &LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E]{}
 	this.self_ = this
+	this.di_ = this
 	this.vt_LinkedDirectedGraph_LinkedDiGraphNode_ = this
 	this.zero_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode()
 	this.init_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode(nodeValue)
@@ -567,6 +600,14 @@ type LinkedDirectedGraph_LinkedDiGraphEdge[N any, E any] struct {
 	value_                                    E
 }
 
+// diNode_ is the node as a DiGraphNode: cast_[DiGraph_DiGraphNode[N]](this.self()).
+func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) diNode_() DiGraph_DiGraphNode[N] {
+	if this == nil {
+		return nil
+	}
+	return this.di_
+}
+
 type LinkedDirectedGraph_LinkedDiGraphEdge_vt_[N any, E any] interface {
 	getAnnotationUntyped_impl() Annotation_graph
 	setAnnotation_impl(Annotation_graph)
@@ -583,9 +624,15 @@ func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) as_LinkedDirectedGraph_
 	return this
 }
 
+// The two classes of edge a graph makes are tried first (post-flip manual step, as for the nodes).
 func to_LinkedDirectedGraph_LinkedDiGraphEdge[N any, E any](v any) *LinkedDirectedGraph_LinkedDiGraphEdge[N, E] {
-	if v == nil {
+	switch p := v.(type) {
+	case nil:
 		return nil
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E]:
+		return &p.LinkedDirectedGraph_LinkedDiGraphEdge
+	case *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]:
+		return p
 	}
 	return v.(interface{ as_LinkedDirectedGraph_LinkedDiGraphEdge_() any }).as_LinkedDirectedGraph_LinkedDiGraphEdge_().(*LinkedDirectedGraph_LinkedDiGraphEdge[N, E])
 }
@@ -617,11 +664,11 @@ func new_LinkedDirectedGraph_LinkedDiGraphEdge[N any, E any](sourceNode *LinkedD
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) getSource() DiGraph_DiGraphNode[N] {
-	return cast_[DiGraph_DiGraphNode[N]](this.sourceNode_.self())
+	return this.sourceNode_.diNode_()
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) getDestination() DiGraph_DiGraphNode[N] {
-	return cast_[DiGraph_DiGraphNode[N]](this.destNode.self())
+	return this.destNode.diNode_()
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) getValue() any {

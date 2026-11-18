@@ -89,7 +89,7 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 			if node == cfg.getImplicitReturn() {
 				continue
 			}
-			var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(node)))
+			var state *DataFlowAnalysis_LinearFlowState[FlowScope] = cast_[*DataFlowAnalysis_LinearFlowState[FlowScope]](Annotatable_getAnnotation(Annotatable(node)))
 			cast_[*SimpleMultiset[any]](Map_computeIfAbsent(icast_Map(obj_(this.stepCountHistogram)), any(int32(state.getStepCount())), &Function_tfn_any_SimpleMultiset{func(k any) *SimpleMultiset[any] {
 				return SimpleMultiset_create[any]()
 			}})).add(obj_(node.getValue().getToken()))

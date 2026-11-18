@@ -569,9 +569,16 @@ func ControlFlowAnalysis_computeFallThrough(n Node) Node {
 }
 
 func (this *ControlFlowAnalysis) createEdge(fromNode Node, branch ControlFlowGraph_Branch, toNode Node) {
-	this.cfg.createNode(fromNode)
-	this.cfg.createNode(toNode)
-	this.cfg.connectIfNotFound(fromNode, obj_(branch), toNode)
+	// createNode twice, then connectIfNotFound (isConnected: an edge with this value in either
+	// direction; else connect), with each graph node looked up once (post-flip manual step: six
+	// lookups per edge before). The control-flow graph overrides none of these methods.
+	g := &this.cfg.LinkedDirectedGraph
+	from := g.getOrCreateNode_(fromNode)
+	to := g.getOrCreateNode_(toNode)
+	b := obj_(branch)
+	if !from.isConnectedTo_(to, b) && !to.isConnectedTo_(from, b) {
+		g.connectNodes_(from, branch, to)
+	}
 }
 
 func (this *ControlFlowAnalysis) connectToPossibleExceptionHandler(cfgNode Node, target Node) {
