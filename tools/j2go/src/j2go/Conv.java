@@ -122,4 +122,49 @@ final class Conv {
     if (r.startsWith("obj_(new_") && r.endsWith(")") && newCall(r.substring(5, r.length() - 1))) return r.substring(5, r.length() - 1);
     return r;
   }
+
+  // ------------------------------------------------------------------ message arguments of checks
+
+  static final boolean MSG = !off("MSG");
+
+  /** The checks with one message argument that have a variant taking a handle (rt_conv.go). */
+  static final Set<String> HANDLE_MSG = Set.of("Preconditions_checkState_boolean_Object", "Preconditions_checkArgument_boolean_Object",
+      "Preconditions_checkState_boolean_String_Object", "Preconditions_checkArgument_boolean_String_Object");
+
+  boolean isPreconditions(ExecutableElement e) {
+    return cx.ownerOf(e).getQualifiedName().contentEquals("com.google.common.base.Preconditions");
+  }
+
+  /**
+   * Rule "message arguments": an Object parameter after the first of Preconditions.checkState /
+   * checkArgument / checkNotNull is only formatted, and only when the check fails. A String or
+   * an object of a class is passed at its own type (Go converts it to the interface without a
+   * test or a call); the runtime makes it the object that the erased translation passed (null
+   * for the null string and for a nil pointer, the most derived object for a class with
+   * subclasses: canon_ in rt_conv.go) before it formats the message.
+   *
+   * @return the type to pass the argument at, or null when it is converted to Object as usual
+   */
+  TypeMirror msgArg(ExecutableElement e, int i, TypeMirror arg, TypeMirror target) {
+    if (!MSG || i < 1 || arg == null || cx.kind(cx.erase(target)) != Ctx.K.ANY || !isPreconditions(e)) return null;
+    TypeMirror at = cx.erase(arg);
+    Ctx.K k = cx.kind(at);
+    if (k == Ctx.K.STR) return at;
+    TypeElement te = k == Ctx.K.CLS ? Ctx.typeElement(at) : null;
+    if (te == null || cx.isHandle(te) || cx.isValueLib(te) || cx.isTypedColl(at) || !cx.goType(at).startsWith("*")) return null;
+    return at;
+  }
+
+  /**
+   * Rule "message arguments", handles: a handle (a Node) as the one message argument of a check
+   * stays a handle; the Go function (suffix _H, generic in the handle type) boxes it when the
+   * check fails.
+   *
+   * @return the handle type of the last argument when the function `name` has such a variant
+   */
+  TypeMirror handleMsg(ExecutableElement e, String name, int nparams, int nargs, TypeMirror last) {
+    if (!MSG || e.isVarArgs() || nparams < 2 || nargs != nparams || !HANDLE_MSG.contains(name) || last == null) return null;
+    TypeMirror lt = cx.erase(last);
+    return cx.kind(lt) == Ctx.K.CLS && cx.isHandle(Ctx.typeElement(lt)) ? lt : null;
+  }
 }

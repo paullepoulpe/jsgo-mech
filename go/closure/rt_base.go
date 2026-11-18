@@ -25,6 +25,7 @@ type Throwables struct{}
 // lenientToString_ is Guava's Strings.lenientToString: a toString that throws
 // is reported inside the text instead of propagating.
 func lenientToString_(v any) (s string) {
+	v = canon_(v) // a message argument may come at its own type (rt_conv.go)
 	if v == nil {
 		return "null"
 	}
@@ -121,7 +122,7 @@ func Preconditions_checkArgument(b bool) {
 
 func Preconditions_checkArgument_boolean_Object(b bool, msg any) {
 	if !b {
-		argFail_(objstr_(msg))
+		argFail_(objstr_(canon_(msg)))
 	}
 }
 
@@ -164,7 +165,7 @@ func Preconditions_checkNotNull(v any) any {
 
 func Preconditions_checkNotNull_Object_Object(v any, msg any) any {
 	if v == nil {
-		nullFail_(objstr_(msg))
+		nullFail_(objstr_(canon_(msg)))
 	}
 	return v
 }
@@ -191,7 +192,7 @@ func Preconditions_checkState(b bool) {
 
 func Preconditions_checkState_boolean_Object(b bool, msg any) {
 	if !b {
-		stateFail_(objstr_(msg))
+		stateFail_(objstr_(canon_(msg)))
 	}
 }
 

@@ -253,6 +253,17 @@ translation, for bisecting.
   converts it to the interface value that `strobj_("x")` / `obj_(new_Entry(k, v))` return for
   a value that is not null. Only arguments: there the parameter gives the expression its type.
 
+- *Message arguments* (`Conv.msgArg`, `Conv.handleMsg`, `J2GO_NOMSG`). An `Object` parameter
+  after the first of `Preconditions.checkState` / `checkArgument` / `checkNotNull` is only
+  formatted, and only when the check fails. A `String` or an object of a class is passed at
+  its own type: `Preconditions_checkState_boolean_String_Object(ok, "bad type %s", t)`. The
+  runtime makes it the object that the erased translation passed before it formats the
+  message (`canon_` in `rt_conv.go`: null for the null string and for a nil pointer, the most
+  derived object for a class with subclasses). A handle (a `Node`) as the one message
+  argument calls a variant generic in the handle type, which boxes it when the check fails:
+  `Preconditions_checkState_boolean_Object_H(n.isName(), n)`. Interfaces, primitives, typed
+  collections and value types are converted to `Object` as everywhere else.
+
 **Type arguments in declarations.** Library types stay erased; the declared type of a field,
 local or parameter whose Java type is a parameterized library type is written through a generic
 alias: `List<Reference>` becomes

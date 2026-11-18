@@ -965,6 +965,8 @@ abstract class ExprEmitter extends Base {
 
   /** Argument i of a call of e, for a parameter (or an element of the variable arguments) of type target. */
   String argAs(ExecutableElement e, int i, Arg a, TypeMirror target) {
+    TypeMirror own = cx.conv.msgArg(e, i, a.type, target);
+    if (own != null) return a.as(own);
     return cx.conv.bare(a.as(target), target);
   }
 
@@ -997,6 +999,13 @@ abstract class ExprEmitter extends Base {
       TypeMirror ret = cx.erase(cx.rtype(e));
       String name = cx.staticMethodName(e);
       if (!src) noteMethod("func " + name, e, params, ret, "static");
+      TypeMirror hm = src || args.isEmpty() ? null : cx.conv.handleMsg(e, name, params.size(), args.size(), args.get(args.size() - 1).type);
+      if (hm != null) {
+        // a handle as the message argument of a check (Conv.handleMsg)
+        params = new ArrayList<>(params);
+        params.set(params.size() - 1, hm);
+        name += "_H";
+      }
       TypeMirror nn = src || args.isEmpty() ? null : cx.conv.nonNull(e, args.get(0).type);
       if (nn != null) {
         // a typed non-null check (Conv.nonNull): a generic function of the argument's type

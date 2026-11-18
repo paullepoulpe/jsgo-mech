@@ -1,6 +1,8 @@
 package lang;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -155,10 +157,61 @@ public class Unboxed {
         + " " + Objects.equals("x", "x") + Objects.equals(new Dot(), "x") + " " + Objects.hash("a", new Dot(), 1);
   }
 
+  // ---- message arguments of checks, at their own type
+  static final class Tagged {
+    final String tag;
+
+    Tagged(String tag) {
+      this.tag = tag;
+    }
+
+    @Override
+    public String toString() {
+      evals++;
+      return "Tagged(" + tag + ")";
+    }
+  }
+
+  static class Named extends Box {
+    @Override
+    public String toString() {
+      return "named:" + name();
+    }
+  }
+
+  static final class Thrower {
+    @Override
+    public String toString() {
+      throw new IllegalStateException("no text");
+    }
+  }
+
+  static String messages() {
+    Tagged t = new Tagged("t"), noTag = null;
+    Box b = new Named(), noBox = null;
+    String str = "s", noStr = null;
+    Shape shape = new Named(), noShape = null;
+    evals = 0;
+    checkState(true, t);
+    checkArgument(true, "%s %s", t, b);
+    checkNotNull(str, "%s", t);
+    String ok = "" + evals;
+    Thrower thrower = new Thrower();
+    String thrown = caught(() -> checkState(false, "%s!", thrower));
+    return ok + " " + caught(() -> checkState(false, t)) + " " + caught(() -> checkState(false, noTag)) + " " + caught(() -> checkState(false, str))
+        + " " + caught(() -> checkState(false, noStr)) + " " + caught(() -> checkArgument(false, b)) + " " + caught(() -> checkArgument(false, noBox))
+        + " " + caught(() -> checkState(false, "%s|%s|%s", t, noBox, noStr)) + " " + caught(() -> checkArgument(false, "%s|%s", b, str))
+        + " " + caught(() -> checkArgument(false, "%s|%s|%s", noTag, b, "lit")) + " " + caught(() -> checkState(false, "%s and more", str, b, noTag, 4))
+        + " " + caught(() -> checkNotNull(noBox, "%s|%s", t, noStr)) + " " + caught(() -> checkNotNull(noStr, b))
+        + " " + caught(() -> checkState(false, shape)) + " " + caught(() -> checkState(false, "%s", noShape))
+        + " " + thrown.startsWith("IllegalStateException:<lang.Unboxed$Thrower@") + thrown.endsWith(" threw java.lang.IllegalStateException>!") + " " + evals;
+  }
+
   public static String run() {
     p(upcasts());
     p(nonNull());
     p(bare());
+    p(messages());
     return out.toString();
   }
 
