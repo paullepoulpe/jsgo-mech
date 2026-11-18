@@ -275,7 +275,8 @@ func SourceMapJsonLexer_isParsableHex4(s string, start int32) bool {
 }
 
 func SourceMapJsonLexer_unescape(s string, start int32, end int32) *Outcome_base[string] {
-	var sb *StringBuilder = new_StringBuilder_int((end - start))
+	var sb strBuilder_
+	sb.grow((end - start))
 	for i := int32(start); i < end; i++ {
 		var c uint16 = String_charAt(s, i)
 		if (c == '\\') && ((i + 1) < end) {
@@ -314,5 +315,5 @@ func SourceMapJsonLexer_unescape(s string, start int32, end int32) *Outcome_base
 			sb.append_char(c)
 		}
 	}
-	return Outcome_base_ok_Object[string](Object_toString(obj_(sb)))
+	return Outcome_base_ok_Object[string](sb.toString())
 }
