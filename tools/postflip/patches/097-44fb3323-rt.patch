@@ -1,0 +1,48 @@
+diff --git a/go/closure/rt_core.go b/go/closure/rt_core.go
+index 918d809e..84faa024 100644
+--- a/go/closure/rt_core.go
++++ b/go/closure/rt_core.go
+@@ -55,7 +55,8 @@ func strobj_(s string) any {
+ 
+ // isnull_ is `v == null` for a value of a type argument, as the erased code would see it once
+ // boxed: a String is null when it is nullstr_, a class pointer, handle or interface when it is
+-// nil (obj_ and box_ make those nil); arrays and numbers box to non-null objects.
++// nil (obj_ and box_ make those nil), an enum constant when it is 0; arrays and numbers box to
++// non-null objects.
+ func isnull_[T any](v T) bool {
+ 	if p, ok := any(&v).(*string); ok {
+ 		return *p == nullstr_
+@@ -68,7 +69,14 @@ func isnull_[T any](v T) bool {
+ 		return h.box_() == nil
+ 	}
+ 	r := reflect.ValueOf(x)
+-	return r.Kind() == reflect.Pointer && r.IsNil()
++	if r.Kind() == reflect.Pointer {
++		return r.IsNil()
++	}
++	// an enum that is an integer type: 0 is null
++	if e, ok := x.(enumConst_); ok {
++		return e.enum_() == nil
++	}
++	return false
+ }
+ 
+ // boxValue_ is a value of a type argument boxed as the erased code boxes it: the most derived
+diff --git a/go/closure/rt_object.go b/go/closure/rt_object.go
+index 15b39087..57cc92dc 100644
+--- a/go/closure/rt_object.go
++++ b/go/closure/rt_object.go
+@@ -100,7 +100,13 @@ var nextIdentityHash_ int32 = 0x1000
+ 
+ // identityHash_ is System.identityHashCode. Go's collector never moves objects, so for a
+ // pointer the address is a stable identity; other values get a number from a table.
++// An enum constant is identified by its Enum record.
+ func identityHash_(v any) int32 {
++	if e, ok := v.(enumConst_); ok {
++		// An enum constant, an object or an integer: the address of its Enum record, which is
++		// the object's own address when the constant is an object.
++		v = e.enum_()
++	}
+ 	if h, ok := v.(interface{ handle_() uint32 }); ok {
+ 		// An object of a handle class: its handle is its identity.
+ 		return handleHash_(h.handle_())

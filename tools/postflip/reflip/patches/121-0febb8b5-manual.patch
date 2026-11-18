@@ -1,0 +1,202 @@
+diff --git a/go/closure/g_SimpleListMultimap.go b/go/closure/g_SimpleListMultimap.go
+index 84848f04..c9b12570 100644
+--- a/go/closure/g_SimpleListMultimap.go
++++ b/go/closure/g_SimpleListMultimap.go
+@@ -48,6 +48,18 @@ func (this *SimpleListMultimap) put(key any, value any) *SimpleListMultimap {
+ 	return this
+ }
+ 
++// put_s is put for a string key that is not boxed (post-flip manual step).
++func (this *SimpleListMultimap) put_s(key string, value any) *SimpleListMultimap {
++	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
++	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
++	if values == nil {
++		values = icast_List(new_ArrayList_0().self())
++		Map_put_s(this.map__, key, any(values))
++	}
++	values.add(value)
++	return this
++}
++
+ func (this *SimpleListMultimap) putAll(key any, values IterableOf[any]) *SimpleListMultimap {
+ 	it_1 := foreach_(any(values))
+ 	for it_1.next() {
+@@ -57,6 +69,16 @@ func (this *SimpleListMultimap) putAll(key any, values IterableOf[any]) *SimpleL
+ 	return this
+ }
+ 
++// putAll_s is putAll for a string key that is not boxed (post-flip manual step).
++func (this *SimpleListMultimap) putAll_s(key string, values IterableOf[any]) *SimpleListMultimap {
++	it_1 := foreach_(any(values))
++	for it_1.next() {
++		var value any = it_1.v
++		this.put_s(key, value)
++	}
++	return this
++}
++
+ func (this *SimpleListMultimap) replaceValues(key any, values IterableOf[any]) {
+ 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+ 	var newValues *JTList[any] = jnewTList_(tc_Object)
+@@ -91,6 +113,11 @@ func (this *SimpleListMultimap) containsKey(key any) bool {
+ 	return this.map__.containsKey(key)
+ }
+ 
++// containsKey_s is containsKey for a string key that is not boxed (post-flip manual step).
++func (this *SimpleListMultimap) containsKey_s(key string) bool {
++	return Map_containsKey_s(this.map__, key)
++}
++
+ func (this *SimpleListMultimap) remove(key any, value any) bool {
+ 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+ 	var values ListOf[any] = icast_List(this.map__.get(key))
+diff --git a/go/closure/g_SimpleMultiset.go b/go/closure/g_SimpleMultiset.go
+index ef087f3d..a9a6ce78 100644
+--- a/go/closure/g_SimpleMultiset.go
++++ b/go/closure/g_SimpleMultiset.go
+@@ -67,6 +67,24 @@ func (this *SimpleMultiset) add_2(element any, occurrences int32) int32 {
+ 	return oldCount
+ }
+ 
++// add_s, add_2_s, setCount_s, count_s and contains_s are add, add_2, setCount, count and
++// contains for a string element that is not boxed (post-flip manual step).
++func (this *SimpleMultiset) add_s(element string) bool {
++	this.add_2_s(element, 1)
++	return true
++}
++
++func (this *SimpleMultiset) add_2_s(element string, occurrences int32) int32 {
++	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
++	Preconditions_checkArgument((occurrences >= 0))
++	var oldCount int32 = this.count_s(element)
++	if occurrences > 0 {
++		Map_put_s(this.counts, element, any(int32((oldCount + occurrences))))
++		this.totalCount += occurrences
++	}
++	return oldCount
++}
++
+ func (this *SimpleMultiset) addAll(elements IterableOf[any]) {
+ 	it_1 := foreach_(any(elements))
+ 	for it_1.next() {
+@@ -90,6 +108,21 @@ func (this *SimpleMultiset) setCount(element any, expectedOldCount int32, newCou
+ 	return true
+ }
+ 
++func (this *SimpleMultiset) setCount_s(element string, expectedOldCount int32, newCount int32) bool {
++	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
++	Preconditions_checkArgument(((expectedOldCount >= 0) && (newCount >= 0)))
++	if this.count_s(element) != expectedOldCount {
++		return false
++	}
++	if newCount == 0 {
++		Map_remove_s(this.counts, element)
++	} else {
++		Map_put_s(this.counts, element, any(int32(newCount)))
++	}
++	this.totalCount += (newCount - expectedOldCount)
++	return true
++}
++
+ func (this *SimpleMultiset) remove(element any) bool {
+ 	var oldCount int32 = this.count(element)
+ 	return ((oldCount > 0) && this.setCount(element, oldCount, (oldCount-1)))
+@@ -119,10 +152,22 @@ func (this *SimpleMultiset) count(element any) int32 {
+ 	}()
+ }
+ 
++func (this *SimpleMultiset) count_s(element string) int32 {
++	var count any = Map_get_s(this.counts, element)
++	if count == nil {
++		return 0
++	}
++	return unbox_[int32](count)
++}
++
+ func (this *SimpleMultiset) contains(element any) bool {
+ 	return this.counts.containsKey(element)
+ }
+ 
++func (this *SimpleMultiset) contains_s(element string) bool {
++	return Map_containsKey_s(this.counts, element)
++}
++
+ func (this *SimpleMultiset) elementSet() SetOf[any] {
+ 	return Collections_unmodifiableSet(this.counts.keySet())
+ }
+diff --git a/go/closure/g_SimpleSetMultimap.go b/go/closure/g_SimpleSetMultimap.go
+index e86b2ae6..9657ad3b 100644
+--- a/go/closure/g_SimpleSetMultimap.go
++++ b/go/closure/g_SimpleSetMultimap.go
+@@ -95,6 +95,30 @@ func (this *SimpleSetMultimap) put(key any, value any) bool {
+ 	return true
+ }
+ 
++// put_s is put for a string key that is not boxed (post-flip manual step). An
++// insertion-ordered multimap keeps the key in an entry too: it is boxed once, by put.
++func (this *SimpleSetMultimap) put_s(key string, value any) bool {
++	if this.entryOrder != nil {
++		k := strobj_(key)
++		return this.put(k, value)
++	}
++	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
++	var values SetOf[any] = icast_Set(Map_get_s(this.map__, key))
++	if values == nil {
++		values = func() Set {
++			if this.sorted {
++				return icast_Set(obj_(new_TreeSet()))
++			}
++			return icast_Set(obj_(new_LinkedHashSet()))
++		}()
++		values.add(value)
++		Map_put_s(this.map__, key, any(values))
++	} else if !values.add(value) {
++		return false
++	}
++	return true
++}
++
+ func (this *SimpleSetMultimap) putAll_2(key any, values IterableOf[any]) {
+ 	it_1 := foreach_(any(values))
+ 	for it_1.next() {
+@@ -129,6 +153,15 @@ func (this *SimpleSetMultimap) get(key any) SetOf[any] {
+ 	}()
+ }
+ 
++// get_s is get for a string key that is not boxed (post-flip manual step).
++func (this *SimpleSetMultimap) get_s(key string) SetOf[any] {
++	var values SetOf[any] = icast_Set(Map_get_s(this.map__, key))
++	if values == nil {
++		return icast_Set(obj_(ImmutableSet_of()))
++	}
++	return Collections_unmodifiableSet(values)
++}
++
+ func (this *SimpleSetMultimap) containsKey(key any) bool {
+ 	return this.map__.containsKey(key)
+ }
+@@ -159,6 +192,24 @@ func (this *SimpleSetMultimap) removeAll(key any) SetOf[any] {
+ 	return Collections_unmodifiableSet(values)
+ }
+ 
++// removeAll_s is removeAll for a string key that is not boxed (post-flip manual step).
++func (this *SimpleSetMultimap) removeAll_s(key string) SetOf[any] {
++	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
++	var values SetOf[any] = icast_Set(Map_remove_s(this.map__, key))
++	if values == nil {
++		return icast_Set(obj_(ImmutableSet_of()))
++	}
++	if this.entryOrder != nil {
++		k := strobj_(key)
++		it_1 := foreach_(any(values))
++		for it_1.next() {
++			var value any = it_1.v
++			this.entryOrder.remove(new_SimpleSetMultimap_Entry(k, value))
++		}
++	}
++	return Collections_unmodifiableSet(values)
++}
++
+ func (this *SimpleSetMultimap) clear() {
+ 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+ 	this.map__.clear()
