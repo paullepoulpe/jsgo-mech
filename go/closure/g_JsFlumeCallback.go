@@ -6,12 +6,12 @@ type JsFlumeCallback struct {
 	scanner            *Scanner_refactoring
 	includeFilePattern *Pattern
 	matches_           *TList[*Match]
-	fixes              *TList[*SuggestedFix]
+	fixes              *[]*SuggestedFix
 }
 
 func (this *JsFlumeCallback) finit_JsFlumeCallback() {
 	this.matches_ = newTList_(jtc_p_Match.t_())
-	this.fixes = newTList_(tc_p_SuggestedFix)
+	this.fixes = &[]*SuggestedFix{}
 }
 
 func (this *JsFlumeCallback) init_JsFlumeCallback(scanner *Scanner_refactoring, includeFilePattern *Pattern) {
@@ -30,7 +30,7 @@ func (this *JsFlumeCallback) getMatches() *TList[*Match] {
 	return this.matches_
 }
 
-func (this *JsFlumeCallback) getFixes() *TList[*SuggestedFix] {
+func (this *JsFlumeCallback) getFixes() *[]*SuggestedFix {
 	return this.fixes
 }
 
@@ -51,7 +51,7 @@ func (this *JsFlumeCallback) visit(t *NodeTraversal, n Node, parent Node) {
 	var metadata *NodeMetadata = NodeMetadata_fromTraversal(t)
 	if this.scanner.matches(n, metadata) {
 		var match *Match = new_Match(n, metadata)
-		this.fixes.asList().addAll(Collection(sliceView_(tc_p_SuggestedFix, this.scanner.processMatch(match))))
+		sliceAddAll_(tc_p_SuggestedFix, this.fixes, Collection(sliceView_(tc_p_SuggestedFix, this.scanner.processMatch(match))))
 		this.matches_.add(match)
 	}
 }

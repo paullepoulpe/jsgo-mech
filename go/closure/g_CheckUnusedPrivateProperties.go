@@ -5,13 +5,13 @@ package closure
 type CheckUnusedPrivateProperties struct {
 	compiler_                 *AbstractCompiler
 	used                      *JTSet[string]
-	candidates                *TList[Node]
+	candidates                *[]Node
 	constructorsAndInterfaces *JTSet[string]
 }
 
 func (this *CheckUnusedPrivateProperties) finit_CheckUnusedPrivateProperties() {
 	this.used = jnewTSet_(jtc_string)
-	this.candidates = newTList_(tc_Node)
+	this.candidates = &[]Node{}
 	this.constructorsAndInterfaces = jnewTSet_(jtc_string)
 }
 
@@ -31,9 +31,7 @@ func (this *CheckUnusedPrivateProperties) process_2(externs Node, root Node) {
 }
 
 func (this *CheckUnusedPrivateProperties) reportUnused(t *NodeTraversal) {
-	it_1 := this.candidates.each()
-	for it_1.next() {
-		var n Node = it_1.v
+	for n := range sliceAll_(this.candidates) {
 		var propName string = this.getPropName(n)
 		if !this.used.has(propName) {
 			t.report(n, CheckUnusedPrivateProperties_UNUSED_PRIVATE_PROPERTY, []string{propName})
@@ -54,7 +52,7 @@ func (this *CheckUnusedPrivateProperties) shouldTraverse(t *NodeTraversal, n Nod
 	if n.isScript() {
 		this.used.clear()
 		this.used.add("constructor")
-		this.candidates.clear()
+		sliceClear_(this.candidates)
 	}
 	return true
 }
@@ -69,12 +67,12 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 			this.used.add(propName)
 		} else {
 			if this.isCheckablePrivatePropDecl(n) {
-				this.candidates.add(n)
+				*this.candidates = append(*this.candidates, n)
 			}
 		}
 	case tokOrd1_MEMBER_FUNCTION_DEF:
 		if this.isCheckablePrivatePropDecl(n) {
-			this.candidates.add(n)
+			*this.candidates = append(*this.candidates, n)
 		}
 	case tokOrd1_OBJECTLIT:
 		{

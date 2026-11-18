@@ -156,7 +156,7 @@ func new_CrossChunkCodeMotion_GlobalSymbolCollector(outer_ *CrossChunkCodeMotion
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) collectGlobalSymbols(referenceCollector *CrossChunkReferenceCollector) CollectionOf[*CrossChunkCodeMotion_GlobalSymbol] {
-	for statement := range elemsAs_[*CrossChunkReferenceCollector_TopLevelStatement](referenceCollector.getTopLevelStatements()) {
+	for statement := range elemsAs_[*CrossChunkReferenceCollector_TopLevelStatement](referenceCollector.getTopLevelStatements().asList()) {
 		if statement.isDeclarationStatement() {
 			this.processDeclarationStatement(statement)
 		} else {
@@ -167,7 +167,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) collectGlobalSymbols(ref
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processImmovableStatement(statement *CrossChunkReferenceCollector_TopLevelStatement) {
-	for ref := range elemsAs_[*Reference](statement.getNonDeclarationReferences()) {
+	for ref := range elemsAs_[*Reference](statement.getNonDeclarationReferences().asList()) {
 		this.processImmovableReference(ref, statement.getChunk())
 	}
 }
@@ -194,7 +194,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatem
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatementContainedReferences(statement *CrossChunkReferenceCollector_TopLevelStatement, declaredSymbol *CrossChunkCodeMotion_GlobalSymbol, dsg *CrossChunkCodeMotion_DeclarationStatementGroup) {
-	for ref := range elemsAs_[*Reference](statement.getNonDeclarationReferences()) {
+	for ref := range elemsAs_[*Reference](statement.getNonDeclarationReferences().asList()) {
 		var refSymbol *CrossChunkCodeMotion_GlobalSymbol = this.getGlobalSymbol(cast_[*Var](ref.getSymbol()))
 		if equalsId_(refSymbol, declaredSymbol) {
 			continue
@@ -332,10 +332,8 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) moveDeclarationStatements() 
 		}
 	}
 	var chunksWithImmovableReferences *BitSet = new_BitSet_int(this.outer_.graph.getChunkCount())
-	var cyclesLatestFirst *TList[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] = this.getDsgCyclesLatestFirst()
-	it_3 := cyclesLatestFirst.each()
-	for it_3.next() {
-		var dsgCycle *CrossChunkCodeMotion_DeclarationStatementGroupCycle = it_3.v
+	var cyclesLatestFirst []*CrossChunkCodeMotion_DeclarationStatementGroupCycle = this.getDsgCyclesLatestFirst()
+	for _, dsgCycle := range cyclesLatestFirst {
 		it_5 := this.symbols.each()
 		for it_5.next() {
 			var symbol *CrossChunkCodeMotion_GlobalSymbol = it_5.v
@@ -350,8 +348,8 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) moveDeclarationStatements() 
 	}
 }
 
-func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgCyclesLatestFirst() *TList[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] {
-	var cyclesLatestFirst *TList[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] = newTList_(jtc_p_CrossChunkCodeMotion_DeclarationStatementGroupCycle.t_())
+func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgCyclesLatestFirst() []*CrossChunkCodeMotion_DeclarationStatementGroupCycle {
+	var cyclesLatestFirst []*CrossChunkCodeMotion_DeclarationStatementGroupCycle = []*CrossChunkCodeMotion_DeclarationStatementGroupCycle{}
 	var dsgsLatestFirst *TDeque[*CrossChunkCodeMotion_DeclarationStatementGroup] = this.getDsgsLatestFirst()
 	var cycle *CrossChunkCodeMotion_DeclarationStatementGroupCycle = nil
 	it_1 := dsgsLatestFirst.each()
@@ -359,7 +357,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgCyclesLatestFirst() *T
 		var dsg *CrossChunkCodeMotion_DeclarationStatementGroup = it_1.v
 		if (cycle == nil) || !equalsId_(cycle.currentChunk, dsg.currentChunk) {
 			cycle = new_CrossChunkCodeMotion_DeclarationStatementGroupCycle(this.outer_, dsg.currentChunk)
-			cyclesLatestFirst.add(cycle)
+			cyclesLatestFirst = append(cyclesLatestFirst, cycle)
 		}
 		cycle.dsgs.add(dsg)
 	}

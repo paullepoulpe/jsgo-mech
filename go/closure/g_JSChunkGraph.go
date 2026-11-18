@@ -6,7 +6,7 @@ type JSChunkGraph struct {
 	chunks                 []*JSChunk
 	selfPlusTransitiveDeps []*BitSet
 	subtreeSize            []int32
-	chunksByDepth          ListOf[ListOf[*JSChunk]]
+	chunksByDepth          *TList[ListOf[*JSChunk]]
 	dependencyMap          *LinkedIdentityHashMap[*JSChunk, Set]
 }
 
@@ -14,7 +14,7 @@ func (this *JSChunkGraph) finit_JSChunkGraph() {
 	this.dependencyMap = new_LinkedIdentityHashMap[*JSChunk, Set]()
 }
 
-func (this *JSChunkGraph) init_JSChunkGraph(chunks []*JSChunk, chunksByDepth ListOf[ListOf[*JSChunk]]) {
+func (this *JSChunkGraph) init_JSChunkGraph(chunks []*JSChunk, chunksByDepth *TList[ListOf[*JSChunk]]) {
 	this.finit_JSChunkGraph()
 	this.chunks = chunks
 	this.chunksByDepth = chunksByDepth
@@ -23,7 +23,7 @@ func (this *JSChunkGraph) init_JSChunkGraph(chunks []*JSChunk, chunksByDepth Lis
 	JSChunkGraph_moveMarkedWeakSources(this.getChunkByName(JSChunk_WEAK_CHUNK_NAME), this.getAllInputs())
 }
 
-func new_JSChunkGraph(chunks []*JSChunk, chunksByDepth ListOf[ListOf[*JSChunk]]) *JSChunkGraph {
+func new_JSChunkGraph(chunks []*JSChunk, chunksByDepth *TList[ListOf[*JSChunk]]) *JSChunkGraph {
 	this := &JSChunkGraph{}
 	this.init_JSChunkGraph(chunks, chunksByDepth)
 	return this
@@ -47,14 +47,14 @@ func JSChunkGraph_create(chunksInDepOrder ListOf[*JSChunk]) *Outcome_base[*JSChu
 		chunk.setIndex(chunkIndex)
 		chunks[chunkIndex] = chunk
 	}
-	var chunksByDepth *Outcome_base[List] = JSChunkGraph_initChunksByDepth(chunks)
+	var chunksByDepth *Outcome_base[*TList[ListOf[*JSChunk]]] = JSChunkGraph_initChunksByDepth(chunks)
 	if chunksByDepth.isErr() {
 		return Outcome_base_err[*JSChunkGraph](chunksByDepth.error())
 	}
 	return Outcome_base_ok_Object[*JSChunkGraph](new_JSChunkGraph(chunks, chunksByDepth.get()))
 }
 
-func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[List] {
+func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[*TList[ListOf[*JSChunk]]] {
 	var tmpChunksByDepth *TList[List] = newTList_(jtc_List.t_())
 	for chunkIndex := int32(0); chunkIndex < int32(len(chunks)); chunkIndex++ {
 		var chunk *JSChunk = chunks[chunkIndex]
@@ -65,7 +65,7 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[List] {
 		for _, dep := range chunk.getDependencies() {
 			var depDepth int32 = dep.getDepth()
 			if depDepth < 0 {
-				return Outcome_base_err[List](new_JSChunkGraph_ChunkDependenceException(("Chunks not in dependency order: " + sstr_(chunk.getName()) + " preceded " + sstr_(dep.getName())), chunk, dep).up_Throwable())
+				return Outcome_base_err[*TList[ListOf[*JSChunk]]](new_JSChunkGraph_ChunkDependenceException(("Chunks not in dependency order: " + sstr_(chunk.getName()) + " preceded " + sstr_(dep.getName())), chunk, dep).up_Throwable())
 			}
 			depth = Math_max(depth, (depDepth + 1))
 		}
@@ -75,7 +75,7 @@ func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[List] {
 		}
 		tmpChunksByDepth.get(depth).add(obj_(chunk))
 	}
-	return Outcome_base_ok_Object[List](tmpChunksByDepth.asList())
+	return Outcome_base_ok_Object[*TList[ListOf[*JSChunk]]](tmpChunksByDepth)
 }
 
 func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChunk] {
@@ -95,27 +95,27 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 		}
 	}
 	if hasWeakChunk {
-		var misplacedWeakFiles *TList[string] = newTList_(tc_string)
-		var misplacedStrongFiles *TList[string] = newTList_(tc_string)
+		var misplacedWeakFiles []string = []string{}
+		var misplacedStrongFiles []string = []string{}
 		for chunk := range elemsAs_[*JSChunk](chunksInDepOrder) {
 			var isWeakChunk bool = (chunk.getName() == JSChunk_WEAK_CHUNK_NAME)
 			for _, el := range immElems_(chunk.getInputs()) {
 				input := cast_[*CompilerInput](el)
 				if isWeakChunk && !input.getSourceFile().isWeak() {
-					misplacedStrongFiles.add(input.getSourceFile().getName())
+					misplacedStrongFiles = append(misplacedStrongFiles, input.getSourceFile().getName())
 				} else if !isWeakChunk && input.getSourceFile().isWeak() {
-					misplacedWeakFiles.add((sstr_(input.getSourceFile().getName()) + " (in chunk " + sstr_(chunk.getName()) + ")"))
+					misplacedWeakFiles = append(misplacedWeakFiles, (sstr_(input.getSourceFile().getName()) + " (in chunk " + sstr_(chunk.getName()) + ")"))
 				}
 			}
 		}
-		if !(misplacedStrongFiles.isEmpty() && misplacedWeakFiles.isEmpty()) {
+		if !(len(misplacedStrongFiles) == 0 && len(misplacedWeakFiles) == 0) {
 			var sb strBuilder_
 			sb.append("A weak chunk exists but some sources are misplaced.")
-			if !misplacedStrongFiles.isEmpty() {
-				sb.append("\nFound these strong sources in the weak chunk:\n  ").append(Joiner_on("\n  ").join(Iterable(misplacedStrongFiles.asList())))
+			if len(misplacedStrongFiles) != 0 {
+				sb.append("\nFound these strong sources in the weak chunk:\n  ").append(Joiner_on("\n  ").join(Iterable(sliceView_(tc_string, misplacedStrongFiles))))
 			}
-			if !misplacedWeakFiles.isEmpty() {
-				sb.append("\nFound these weak sources in other chunks:\n  ").append(Joiner_on("\n  ").join(Iterable(misplacedWeakFiles.asList())))
+			if len(misplacedWeakFiles) != 0 {
+				sb.append("\nFound these weak sources in other chunks:\n  ").append(Joiner_on("\n  ").join(Iterable(sliceView_(tc_string, misplacedWeakFiles))))
 			}
 			panic(new_IllegalStateException_String(sb.toString()))
 		}
@@ -197,7 +197,7 @@ func (this *JSChunkGraph) getChunkCount() int32 {
 }
 
 func (this *JSChunkGraph) getRootChunk() *JSChunk {
-	return cast_[*JSChunk](Iterables_getOnlyElement(icast_Iterable(this.chunksByDepth.get(0))))
+	return cast_[*JSChunk](Iterables_getOnlyElement(icast_Iterable(any(this.chunksByDepth.get(0)))))
 }
 
 func (this *JSChunkGraph) toJson() *SimpleJsonValue {
@@ -262,7 +262,7 @@ func (this *JSChunkGraph) getDeepestCommonDependency(m1 *JSChunk, m2 *JSChunk) *
 	var m1Depth int32 = m1.getDepth()
 	var m2Depth int32 = m2.getDepth()
 	for depth := int32((Math_min(m1Depth, m2Depth) - 1)); depth >= 0; depth-- {
-		var chunksAtDepth ListOf[*JSChunk] = icast_List(this.chunksByDepth.get(depth))
+		var chunksAtDepth ListOf[*JSChunk] = this.chunksByDepth.get(depth)
 		for i := int32((chunksAtDepth.size() - 1)); i >= 0; i-- {
 			var m *JSChunk = cast_[*JSChunk](chunksAtDepth.get(i))
 			if this.dependsOn(m1, m) && this.dependsOn(m2, m) {
@@ -379,7 +379,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 			transitiveClosure = newTList_(tc_p_CompilerInput)
 			var inputsNotYetReached *JTSet[*CompilerInput] = jtsetFrom_(jtc_p_CompilerInput, icast_Collection(obj_(originalInputs.asImm())))
 			for entryPoint := range elemsAs_[*CompilerInput](entryPointInputsPerChunk.get(obj_(chunk))) {
-				transitiveClosure.asList().addAll(Collection(this.getDepthFirstDependenciesOf(entryPoint, inputsNotYetReached, inputsByProvide).asList()))
+				transitiveClosure.asList().addAll(Collection(sliceView_(tc_p_CompilerInput, this.getDepthFirstDependenciesOf(entryPoint, inputsNotYetReached, inputsByProvide))))
 			}
 			for orderedInput := range transitiveClosure.All() {
 				if reachedInputs.add(orderedInput) {
@@ -432,8 +432,8 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	return Outcome_base_ok_Object[*JSChunkGraph_DependencyManagementResult](new_JSChunkGraph_DependencyManagementResult(immutableListCopyOf_(tc_p_CompilerInput, Collection(orderedInputs)), sorter, immutableSetCopyOf_(tc_p_CompilerInput, Collection(entryPointInputs))))
 }
 
-func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs *JTSet[*CompilerInput], inputsByProvide *JTMap[string, Set]) *TList[*CompilerInput] {
-	var orderedInputs *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)
+func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs *JTSet[*CompilerInput], inputsByProvide *JTMap[string, Set]) []*CompilerInput {
+	var orderedInputs []*CompilerInput = []*CompilerInput{}
 	if !unreachedInputs.del(rootInput) {
 		return orderedInputs
 	}
@@ -442,12 +442,12 @@ func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, 
 		if inputsByProvide.has(importedNamespace) {
 			for input := range elemsAs_[*CompilerInput](inputsByProvide.get(importedNamespace)) {
 				if unreachedInputs.has(input) {
-					orderedInputs.asList().addAll(Collection(this.getDepthFirstDependenciesOf(input, unreachedInputs, inputsByProvide).asList()))
+					sliceAddAll_(tc_p_CompilerInput, &orderedInputs, Collection(sliceView_(tc_p_CompilerInput, this.getDepthFirstDependenciesOf(input, unreachedInputs, inputsByProvide))))
 				}
 			}
 		}
 	}
-	orderedInputs.add(rootInput)
+	orderedInputs = append(orderedInputs, rootInput)
 	return orderedInputs
 }
 

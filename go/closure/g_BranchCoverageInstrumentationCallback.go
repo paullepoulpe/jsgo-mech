@@ -85,13 +85,13 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 			return nil
 		}(), this.getChildrenBlocks(node))
 	} else if NodeUtil_isLoopStructure(node) {
-		var blocks *TList[Node] = this.getChildrenBlocks(node)
+		var blocks []Node = this.getChildrenBlocks(node)
 		var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
 		for outEdge := range elemsAs_[DiGraph_DiGraphEdge[Node]](cfg.getOutEdges(node)) {
 			if cast_[ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
 				var destination Node = outEdge.getDestination().getValue()
 				if (destination != 0) && destination.isBlock() {
-					blocks.add(destination)
+					blocks = append(blocks, destination)
 				} else {
 					var exitBlock Node = IR_block_0()
 					if (destination != 0) && destination.getParent().isBlock() {
@@ -99,7 +99,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 					} else {
 						exitBlock.insertAfter(outEdge.getSource().getValue())
 					}
-					blocks.add(exitBlock)
+					blocks = append(blocks, exitBlock)
 				}
 			}
 		}
@@ -115,13 +115,13 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 	}
 }
 
-func (this *BranchCoverageInstrumentationCallback) getChildrenBlocks(node Node) *TList[Node] {
-	var blocks *TList[Node] = newTList_(tc_Node)
+func (this *BranchCoverageInstrumentationCallback) getChildrenBlocks(node Node) []Node {
+	var blocks []Node = []Node{}
 	{
 		var child Node = node.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			if child.isBlock() {
-				blocks.add(child)
+				blocks = append(blocks, child)
 			}
 		}
 	}
@@ -155,13 +155,11 @@ func (this *BranchCoverageInstrumentationCallback) newBranchInstrumentationNode(
 	return exprNode.srcrefTreeIfMissing(node)
 }
 
-func (this *BranchCoverageInstrumentationCallback) processBranchInfo(branchNode Node, data *FileInstrumentationData, blocks *TList[Node]) {
+func (this *BranchCoverageInstrumentationCallback) processBranchInfo(branchNode Node, data *FileInstrumentationData, blocks []Node) {
 	var lineNumber int32 = branchNode.getLineno()
 	data.setBranchPresent(lineNumber)
 	var numBranches int32 = 0
-	it_1 := blocks.each()
-	for it_1.next() {
-		var child Node = it_1.v
+	for _, child := range blocks {
 		data.putBranchNode(lineNumber, (numBranches + 1), child)
 		numBranches++
 	}
@@ -186,13 +184,13 @@ func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *Node
 		panic(new_NullPointerException_0())
 	}
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
-	var nodes *TList[Node] = newTList_(tc_Node)
-	nodes.add(this.newArrayDeclarationNode(traversal))
-	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesTaken")), "push"), []Node{IR_name(BranchCoverageInstrumentationCallback_createArrayName(traversal))})))
-	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchPresent")), "push"), []Node{IR_string(data.getBranchPresentAsHexString())})))
-	nodes.add(this.newBranchesInLineNode("JSCompiler_lcov_branchesInLine", data))
-	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesInLine")), "push"), []Node{IR_name("JSCompiler_lcov_branchesInLine")})))
-	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("fileNames")), "push"), []Node{IR_string(fileName.get())})))
+	var nodes []Node = []Node{}
+	nodes = append(nodes, this.newArrayDeclarationNode(traversal))
+	nodes = append(nodes, IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesTaken")), "push"), []Node{IR_name(BranchCoverageInstrumentationCallback_createArrayName(traversal))})))
+	nodes = append(nodes, IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchPresent")), "push"), []Node{IR_string(data.getBranchPresentAsHexString())})))
+	nodes = append(nodes, this.newBranchesInLineNode("JSCompiler_lcov_branchesInLine", data))
+	nodes = append(nodes, IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesInLine")), "push"), []Node{IR_name("JSCompiler_lcov_branchesInLine")})))
+	nodes = append(nodes, IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("fileNames")), "push"), []Node{IR_string(fileName.get())})))
 	return IR_blockList(nodes).srcrefTreeIfMissing(srcref)
 }
 
@@ -201,15 +199,15 @@ func (this *BranchCoverageInstrumentationCallback) newArrayDeclarationNode(trave
 }
 
 func (this *BranchCoverageInstrumentationCallback) newBranchesInLineNode(name string, data *FileInstrumentationData) Node {
-	var assignments *TList[Node] = newTList_(tc_Node)
-	assignments.add(IR_var_Node_Node(IR_name(name), IR_arraylit([]Node{})))
+	var assignments []Node = []Node{}
+	assignments = append(assignments, IR_var_Node_Node(IR_name(name), IR_arraylit([]Node{})))
 	var lineWithBranch int32 = 0
 	for lineIdx := int32(1); lineIdx <= data.maxBranchPresentLine(); lineIdx++ {
 		var numBranches any = any(int32(data.getNumBranches(lineIdx)))
 		if (numBranches != nil) && (unbox_[int32](numBranches) > 0) {
 			var assignment Node = IR_exprResult(IR_assign(IR_getelem(IR_name(name), IR_number(float64(lineWithBranch))), IR_number(unbox_[float64](numBranches))))
 			lineWithBranch++
-			assignments.add(assignment.srcrefTreeIfMissing(assignment))
+			assignments = append(assignments, assignment.srcrefTreeIfMissing(assignment))
 		}
 	}
 	return IR_blockList(assignments)

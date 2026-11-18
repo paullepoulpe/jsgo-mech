@@ -8,7 +8,7 @@ type LiveVariablesAnalysis struct {
 	jsScopeChild   *Scope
 	escaped        *JTSet[*Var]
 	scopeVariables *JTMap[string, any]
-	orderedVars    *TList[*Var]
+	orderedVars    *[]*Var
 	allVarsInFn    *JTMap[string, *Var]
 }
 
@@ -44,9 +44,7 @@ func new_LiveVariablesAnalysis(cfg *ControlFlowGraph[Node], jsScope *Scope, jsSc
 
 func (this *LiveVariablesAnalysis) addScopeVariables() {
 	var num int32 = 0
-	it_1 := this.orderedVars.each()
-	for it_1.next() {
-		var v *Var = it_1.v
+	for v := range sliceAll_(this.orderedVars) {
 		this.scopeVariables.put(v.getName(), any(int32(num)))
 		num++
 	}
@@ -60,7 +58,7 @@ func (this *LiveVariablesAnalysis) getAllVariables() *JTMap[string, *Var] {
 	return this.allVarsInFn
 }
 
-func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *TList[*Var] {
+func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *[]*Var {
 	return this.orderedVars
 }
 
@@ -73,11 +71,11 @@ func (this *LiveVariablesAnalysis) isForward_impl() bool {
 }
 
 func (this *LiveVariablesAnalysis) createEntryLattice_impl() *LiveVariablesAnalysis_LiveVariableLattice {
-	return new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(this.orderedVars.size()))
+	return new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(int32(len(*this.orderedVars))))
 }
 
 func (this *LiveVariablesAnalysis) createInitialEstimateLattice_impl() *LiveVariablesAnalysis_LiveVariableLattice {
-	return new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(this.orderedVars.size()))
+	return new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(int32(len(*this.orderedVars))))
 }
 
 func (this *LiveVariablesAnalysis) createFlowJoiner_impl() DataFlowAnalysis_FlowJoiner[*LiveVariablesAnalysis_LiveVariableLattice] {
@@ -256,7 +254,7 @@ type LiveVariablesAnalysis_LiveVariableJoinOp struct {
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableJoinOp) finit_LiveVariablesAnalysis_LiveVariableJoinOp() {
-	this.result = new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(this.outer_.orderedVars.size()))
+	this.result = new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(int32(len(*this.outer_.orderedVars))))
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableJoinOp) init_LiveVariablesAnalysis_LiveVariableJoinOp() {

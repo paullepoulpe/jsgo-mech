@@ -4,12 +4,12 @@ package closure
 
 type CollapseVariableDeclarations struct {
 	compiler_       *AbstractCompiler
-	collapses       *TList[*CollapseVariableDeclarations_Collapse]
+	collapses       *[]*CollapseVariableDeclarations_Collapse
 	nodesToCollapse *JTSet[Node]
 }
 
 func (this *CollapseVariableDeclarations) finit_CollapseVariableDeclarations() {
-	this.collapses = newTList_(jtc_p_CollapseVariableDeclarations_Collapse.t_())
+	this.collapses = &[]*CollapseVariableDeclarations_Collapse{}
 	this.nodesToCollapse = jnewTSet_(jtc_Node)
 }
 
@@ -28,18 +28,16 @@ func new_CollapseVariableDeclarations(compiler *AbstractCompiler) *CollapseVaria
 }
 
 func (this *CollapseVariableDeclarations) process_2(externs Node, root Node) {
-	this.collapses.clear()
+	sliceClear_(this.collapses)
 	this.nodesToCollapse.clear()
 	NodeTraversal_traverse(this.compiler_, root, new_CollapseVariableDeclarations_GatherCollapses(this))
-	if !this.collapses.isEmpty() {
+	if len(*this.collapses) != 0 {
 		this.applyCollapses()
 	}
 }
 
 func (this *CollapseVariableDeclarations) applyCollapses() {
-	it_1 := this.collapses.each()
-	for it_1.next() {
-		var collapse *CollapseVariableDeclarations_Collapse = it_1.v
+	for collapse := range sliceAll_(this.collapses) {
 		var var_ Node = collapse.startNode
 		this.compiler_.reportChangeToEnclosingScope(var_)
 		for (var_.getNext() != 0) && (var_.getNext().getToken() == var_.getToken()) {
@@ -108,7 +106,7 @@ func (this *CollapseVariableDeclarations_GatherCollapses) visit_impl(t *NodeTrav
 	}
 	if hasNodesToCollapse {
 		this.outer_.nodesToCollapse.add(varNode)
-		this.outer_.collapses.add(new_CollapseVariableDeclarations_Collapse(varNode))
+		*this.outer_.collapses = append(*this.outer_.collapses, new_CollapseVariableDeclarations_Collapse(varNode))
 	}
 }
 

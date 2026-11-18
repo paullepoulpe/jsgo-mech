@@ -338,7 +338,7 @@ func (this *TypedCodeGenerator) restrictByUndefined(type_ *JSType) *JSType {
 	var restricted *JSType = type_.restrictByNotNullOrUndefined()
 	if type_.isNullable() {
 		var nullType *JSType = this.registry.getNativeType(JSTypeNative_NULL_TYPE)
-		return this.registry.createUnionTypeList(ImmutableList_of_Object_Object(restricted.self(), nullType.self()))
+		return this.registry.createUnionTypeList(immutableListOf_(tc_p_JSType, restricted, nullType).items)
 	}
 	return func() *JSType {
 		if restricted.isEmptyType() {

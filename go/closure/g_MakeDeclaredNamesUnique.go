@@ -297,7 +297,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createUndeclaredVa
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo struct {
 	outer_                   *MakeDeclaredNamesUnique_ContextualRenameInverter
-	referenceNodes           *TList[Node]
+	referenceNodes           *[]Node
 	potentialShadowVariables *JTSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 	currentName              string
 	preferredName            string
@@ -309,7 +309,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) zero_
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo() {
-	this.referenceNodes = newTList_(tc_Node)
+	this.referenceNodes = &[]Node{}
 	this.potentialShadowVariables = jnewTSet_(tce_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo)
 }
 
@@ -352,9 +352,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attem
 	if newName == this.currentName {
 		return this.currentName
 	}
-	it_5 := this.referenceNodes.each()
-	for it_5.next() {
-		var referenceNode Node = it_5.v
+	for referenceNode := range sliceAll_(this.referenceNodes) {
 		referenceNode.setString(newName)
 		this.outer_.compiler_.reportChangeToEnclosingScope(referenceNode)
 		var parent Node = referenceNode.getParent()
@@ -404,7 +402,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInf
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo) addReferenceNode(nameNode Node) {
 	if this.renamingInfo != nil {
-		this.renamingInfo.referenceNodes.add(nameNode)
+		*this.renamingInfo.referenceNodes = append(*this.renamingInfo.referenceNodes, nameNode)
 	}
 }
 

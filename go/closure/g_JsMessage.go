@@ -989,13 +989,13 @@ const JsMessage_Hash_SEED64 int64 = 3141592653589793238
 const JsMessage_Hash_CONSTANT64 int64 = -2266404186210603134
 
 type JsMessage_IdGenerator interface {
-	generateId(Optional[string], List) string
+	generateId(Optional[string], *TList[JsMessage_Part]) string
 }
 
 type JsMessage_IdGenerator_fn struct {
 	f func(Optional[string], List) string
 }
 
-func (this *JsMessage_IdGenerator_fn) generateId(p0 Optional[string], p1 List) string {
-	return this.f(p0, p1)
+func (this *JsMessage_IdGenerator_fn) generateId(p0 Optional[string], p1 *TList[JsMessage_Part]) string {
+	return this.f(p0, p1.asList())
 }

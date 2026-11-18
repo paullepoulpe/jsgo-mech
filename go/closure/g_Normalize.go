@@ -242,7 +242,7 @@ func (this *Normalize_NormalizeStatements) splitExportDeclaration(n Node) {
 	if n.getBooleanProp(Node_EXPORT_DEFAULT) {
 		return
 	}
-	var destructuringLhsNodes *TList[Node] = newTList_(tc_Node)
+	var destructuringLhsNodes []Node = []Node{}
 	var c Node = n.getFirstChild()
 	if NodeUtil_isDeclaration(c) {
 		c.detach()
@@ -264,15 +264,13 @@ func (this *Normalize_NormalizeStatements) splitExportDeclaration(n Node) {
 					var newDeclaration Node = new_Node_Token_Node(c.getToken(), child).srcref(n)
 					newDeclaration.insertBefore(n)
 					if child.isDestructuringLhs() {
-						destructuringLhsNodes.add(child)
+						destructuringLhsNodes = append(destructuringLhsNodes, child)
 					}
 					child = next
 				}
 			}
 		}
-		it_2 := destructuringLhsNodes.each()
-		for it_2.next() {
-			var destructuringLhsNode Node = it_2.v
+		for _, destructuringLhsNode := range destructuringLhsNodes {
 			this.normalizeDestructuringLhs(destructuringLhsNode)
 		}
 		this.reportCodeChange("combined export and declaration", n.getParent())

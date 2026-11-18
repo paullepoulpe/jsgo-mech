@@ -146,17 +146,17 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 			}
 		}
 		var destructuringNodes *ImmutableList[Node] = destructuringNodesBuilder.build()
-		var sortedDestructures *TList[*CheckRequiresSorted_DestructuringBinding] = newTList_(tc_p_CheckRequiresSorted_DestructuringBinding)
+		var sortedDestructures []*CheckRequiresSorted_DestructuringBinding = []*CheckRequiresSorted_DestructuringBinding{}
 		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
 				for _, el2 := range i.destructures().items {
 					binding := el2
-					sortedDestructures.add(binding.canonicalizeShorthandProperties())
+					sortedDestructures = append(sortedDestructures, binding.canonicalizeShorthandProperties())
 				}
 			}
 		}
-		Collections_sort(sortedDestructures.asList())
-		var destructures *ImmutableList[*CheckRequiresSorted_DestructuringBinding] = immutableListCopyOf_(tc_p_CheckRequiresSorted_DestructuringBinding, new_LinkedHashSet_Collection(Collection(sortedDestructures.asList())))
+		Collections_sort(sliceView_(tc_p_CheckRequiresSorted_DestructuringBinding, sortedDestructures))
+		var destructures *ImmutableList[*CheckRequiresSorted_DestructuringBinding] = immutableListCopyOf_(tc_p_CheckRequiresSorted_DestructuringBinding, new_LinkedHashSet_Collection(Collection(sliceView_(tc_p_CheckRequiresSorted_DestructuringBinding, sortedDestructures))))
 		if !destructures.isEmpty() {
 			canonicalImports.add(CheckRequiresSorted_ImportStatement_of(destructuringNodes, strongestPrimitive, namespace, Optional_empty[string](), destructures))
 			hasDestructuring = true

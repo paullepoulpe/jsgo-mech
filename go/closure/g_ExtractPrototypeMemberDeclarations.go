@@ -49,9 +49,7 @@ func (this *ExtractPrototypeMemberDeclarations) maybeDoExtraction(info *ExtractP
 				continue
 			}
 		}
-		it_3 := entry.getValue().instances.each()
-		for it_3.next() {
-			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = it_3.v
+		for instance := range sliceAll_(entry.getValue().instances) {
 			this.extractInstance(instance, alias)
 		}
 	}
@@ -199,12 +197,12 @@ func ExtractPrototypeMemberDeclarations_Pattern_clinit() {
 }
 
 type ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo struct {
-	instances  *TList[*ExtractPrototypeMemberDeclarations_ExtractionInstance]
+	instances  *[]*ExtractPrototypeMemberDeclarations_ExtractionInstance
 	totalDelta int32
 }
 
 func (this *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo) finit_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo() {
-	this.instances = newTList_(jtc_p_ExtractPrototypeMemberDeclarations_ExtractionInstance.t_())
+	this.instances = &[]*ExtractPrototypeMemberDeclarations_ExtractionInstance{}
 	this.totalDelta = 0
 }
 
@@ -266,7 +264,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 					return new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo()
 				}})
 				var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.get(t.getChunk())
-				instanceInfo.instances.add(instance)
+				*instanceInfo.instances = append(*instanceInfo.instances, instance)
 				instanceInfo.totalDelta += instance.delta
 			}
 		}

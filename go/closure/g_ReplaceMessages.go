@@ -203,14 +203,12 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 }
 
 func (this *ReplaceMessages) buildMessageNode(msgParts []JsMessage_Part, options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderNodeProvider func(string) Node, isGenderedMsg bool) *Outcome_base[Node] {
-	var parts *TList[JsMessage_Part] = ReplaceMessages_mergeStringParts(msgParts)
-	if parts.isEmpty() {
+	var parts *[]JsMessage_Part = ReplaceMessages_mergeStringParts(msgParts)
+	if len(*parts) == 0 {
 		return Outcome_base_ok_Object[Node](this.astFactory_.createString(""))
 	}
 	var message Node = 0
-	it_1 := parts.each()
-	for it_1.next() {
-		var msgPart JsMessage_Part = it_1.v
+	for msgPart := range sliceAll_(parts) {
 		var partNode Node
 		if msgPart.isPlaceholder() {
 			var jsPlaceholderName string = msgPart.getJsPlaceholderName()
@@ -274,22 +272,22 @@ func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_Msg
 	return this.astFactory_.createString(s)
 }
 
-func ReplaceMessages_mergeStringParts(parts []JsMessage_Part) *TList[JsMessage_Part] {
-	var result *TList[JsMessage_Part] = newTList_(tc_JsMessage_Part)
+func ReplaceMessages_mergeStringParts(parts []JsMessage_Part) *[]JsMessage_Part {
+	var result *[]JsMessage_Part = &[]JsMessage_Part{}
 	for _, part := range parts {
 		if part.isPlaceholder() {
-			result.add(part)
+			*result = append(*result, part)
 		} else {
 			var lastPart JsMessage_Part = func() JsMessage_Part {
-				if result.isEmpty() {
+				if len(*result) == 0 {
 					return nil
 				}
-				return icast_JsMessage_Part(Iterables_getLast(Iterable(result.asList())))
+				return icast_JsMessage_Part(Iterables_getLast(Iterable(sliceViewP_(tc_JsMessage_Part, result))))
 			}()
 			if (lastPart == nil) || lastPart.isPlaceholder() {
-				result.add(part)
+				*result = append(*result, part)
 			} else {
-				result.set((result.size() - 1), JsMessage_StringPart_create((sstr_(lastPart.getString()) + sstr_(part.getString()))))
+				(*result)[(int32(len(*result)) - 1)] = JsMessage_StringPart_create((sstr_(lastPart.getString()) + sstr_(part.getString())))
 			}
 		}
 	}
@@ -967,7 +965,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 			return JsMessageVisitor_removeScopedAliasesPrefix(msgKey.get())
 		}()
 		if idGenerator != nil {
-			jsMessageBuilder.setId(Optional_of[string](idGenerator.generateId(Optional_of[string](meaningForIdGeneration), jsMessageBuilder.getParts().asList())))
+			jsMessageBuilder.setId(Optional_of[string](idGenerator.generateId(Optional_of[string](meaningForIdGeneration), jsMessageBuilder.getParts())))
 		} else {
 			jsMessageBuilder.setId(Optional_of[string](meaningForIdGeneration))
 		}

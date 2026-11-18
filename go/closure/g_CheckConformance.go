@@ -76,10 +76,8 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *Imm
 			return []*CheckConformance_Category{}
 		}
 	}
-	var mergedRequirements *TList[*Requirement] = this.mergeRequirements(compiler, immItems_(configs), isLibraryLevelReportingMode)
-	it_1 := mergedRequirements.each()
-	for it_1.next() {
-		var requirement *Requirement = it_1.v
+	var mergedRequirements []*Requirement = this.mergeRequirements(compiler, immItems_(configs), isLibraryLevelReportingMode)
+	for _, requirement := range mergedRequirements {
 		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED
 		var rule CheckConformance_Rule = CheckConformance_initRule(compiler, requirement)
 		if rule != nil {
@@ -141,7 +139,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 	return true
 }
 
-func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs []*ConformanceConfig, isLibraryLevelConformanceReportingMode bool) *TList[*Requirement] {
+func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs []*ConformanceConfig, isLibraryLevelConformanceReportingMode bool) []*Requirement {
 	var rootRequirements *JTMap[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = jnewTMap_(tce_p_Requirement_Builder, jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 	var extendable *JTMap[string, *Requirement_Builder] = jnewTMap_(jtc_string, jtc_p_Requirement_Builder)
 	for _, config := range configs {
@@ -187,7 +185,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 			}
 		}
 	}
-	var cleanedUpRootRequirements *TList[*Requirement] = newTListN_(jtc_p_Requirement.t_(), rootRequirements.size())
+	var cleanedUpRootRequirements []*Requirement = make([]*Requirement, 0, rootRequirements.size())
 	it_9 := rootRequirements.eachEntry()
 	for it_9.next() {
 		var entry *TEntry[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = it_9.entry()
@@ -198,7 +196,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 		if (isLibraryLevelConformanceReportingMode && (behavior != 0)) && (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED) {
 			this.mergedBehaviors.put(requirement, behavior)
 		}
-		cleanedUpRootRequirements.add(requirement)
+		cleanedUpRootRequirements = append(cleanedUpRootRequirements, requirement)
 	}
 	return cleanedUpRootRequirements
 }

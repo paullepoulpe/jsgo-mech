@@ -71,9 +71,9 @@ func (this *AliasStrings) visit(t *NodeTraversal, n Node, parent Node) {
 		}
 		var occurrence Node = n
 		var info *AliasStrings_StringInfo = this.getOrCreateStringInfo(str)
-		info.occurrences.add(occurrence)
+		*info.occurrences = append(*info.occurrences, occurrence)
 		var chunk *JSChunk = t.getChunk()
-		if info.occurrences.size() != 1 {
+		if int32(len(*info.occurrences)) != 1 {
 			if ((chunk != nil) && (info.chunkToContainDecl != nil)) && (chunk != info.chunkToContainDecl) {
 				chunk = this.chunkGraph.getDeepestCommonDependencyInclusive_2(chunk, info.chunkToContainDecl)
 			} else {
@@ -101,9 +101,7 @@ func (this *AliasStrings) replaceStringsWithAliases() {
 		var literal string = str_(entry.getKey())
 		var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](entry.getValue())
 		if this.shouldReplaceWithAlias(literal, info) {
-			it_3 := info.occurrences.each()
-			for it_3.next() {
-				var node Node = it_3.v
+			for node := range sliceAll_(info.occurrences) {
 				this.replaceStringWithAliasName(node, info.getVariableName(literal).get(), info)
 			}
 		}
@@ -118,7 +116,7 @@ func (this *AliasStrings) addAliasDeclarationNodes() {
 		}
 		var alias Optional[string] = info.getVariableName(str_(entry.getKey()))
 		var var_ Node = IR_var_Node_Node(IR_name(alias.get()), IR_string(str_(entry.getKey())))
-		var firstUse Node = info.occurrences.get(0)
+		var firstUse Node = sliceAt_(*info.occurrences, 0)
 		var_.srcrefTree(firstUse)
 		if info.siblingToInsertVarDeclBefore == 0 {
 			info.parentForNewVarDecl.addChildToFront(var_)
@@ -134,7 +132,7 @@ func (this *AliasStrings) shouldReplaceWithAlias(str string, info *AliasStrings_
 		return true
 	}
 	var sizeOfLiteral int32 = (2 + String_length(str))
-	var count int32 = info.occurrences.size()
+	var count int32 = int32(len(*info.occurrences))
 	var sizeOfStrings int32 = (count * sizeOfLiteral)
 	var sizeOfVariable int32 = 3
 	var sizeOfAliases int32 = (((6 + sizeOfVariable) + sizeOfLiteral) + (count * sizeOfVariable))
@@ -153,7 +151,7 @@ func (this *AliasStrings) outputStringUsage() {
 	sb.append("Strings used more than once:\n")
 	for stringInfoEntry := range elemsBy_(this.stringInfoMap.asMap().entrySet(), icast_Map_Entry) {
 		var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](stringInfoEntry.getValue())
-		var count int32 = info.occurrences.size()
+		var count int32 = int32(len(*info.occurrences))
 		if count > 1 {
 			sb.append_int(count)
 			sb.append(": ")
@@ -184,7 +182,7 @@ type AliasStrings_StringInfo struct {
 	outer_                       *AliasStrings
 	id                           int32
 	isAliased                    bool
-	occurrences                  *TList[Node]
+	occurrences                  *[]Node
 	chunkToContainDecl           *JSChunk
 	parentForNewVarDecl          Node
 	siblingToInsertVarDeclBefore Node
@@ -192,7 +190,7 @@ type AliasStrings_StringInfo struct {
 }
 
 func (this *AliasStrings_StringInfo) finit_AliasStrings_StringInfo() {
-	this.occurrences = newTList_(tc_Node)
+	this.occurrences = &[]Node{}
 	this.aliasName_ = Optional_empty[string]()
 }
 

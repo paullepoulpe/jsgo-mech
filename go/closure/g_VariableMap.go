@@ -68,9 +68,7 @@ func VariableMap_fromBytes(bytes []int8) *Outcome_base[*VariableMap] {
 
 func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base[*VariableMap] {
 	var map_ *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
-	it_1 := TextFiles_splitLines(Io_utf8String(bytes)).each()
-	for it_1.next() {
-		var line string = it_1.v
+	for line := range sliceAll_(TextFiles_splitLines(Io_utf8String(bytes))) {
 		if line == "" {
 			continue
 		}

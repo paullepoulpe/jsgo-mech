@@ -210,13 +210,13 @@ func (this *LinkedUndirectedGraph[N, E]) getName() string {
 	return "LinkedUndirectedGraph"
 }
 
-func (this *LinkedUndirectedGraph[N, E]) getGraphvizNodes() ListOf[GraphvizGraph_GraphvizNode] {
-	var nodeList *TList[GraphvizGraph_GraphvizNode] = newTListN_(jtc_GraphvizGraph_GraphvizNode.t_(), this.nodes_.size())
+func (this *LinkedUndirectedGraph[N, E]) getGraphvizNodes() []GraphvizGraph_GraphvizNode {
+	var nodeList []GraphvizGraph_GraphvizNode = make([]GraphvizGraph_GraphvizNode, 0, this.nodes_.size())
 	for el_1 := range elems_(this.nodes_.values()) {
 		var node *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E] = to_LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E](el_1)
-		nodeList.add(icast_GraphvizGraph_GraphvizNode(node.self()))
+		nodeList = append(nodeList, icast_GraphvizGraph_GraphvizNode(node.self()))
 	}
-	return nodeList.asList()
+	return nodeList
 }
 
 func (this *LinkedUndirectedGraph[N, E]) isDirected() bool {

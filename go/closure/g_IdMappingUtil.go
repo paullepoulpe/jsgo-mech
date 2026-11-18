@@ -83,7 +83,7 @@ func IdMappingUtil_parseSerializedIdMappings(idMappings string) map[string]*Simp
 const IdMappingUtil_NEW_LINE uint16 = '\n'
 
 type IdMappingUtil_MappingReader struct {
-	lines          *TList[string]
+	lines          *[]string
 	nextLine       int32
 	currentSection Optional[string]
 	currentKey     Optional[string]
@@ -114,10 +114,10 @@ func (this *IdMappingUtil_MappingReader) next() bool {
 	var line string
 	var lineU16 utf16_
 	for {
-		if this.nextLine == this.lines.size() {
+		if this.nextLine == int32(len(*this.lines)) {
 			break
 		}
-		line = this.lines.get(this.nextLine)
+		line = sliceAt_(*this.lines, this.nextLine)
 		lineU16 = utf16Of_(line)
 		this.nextLine++
 		this.lineIndex++

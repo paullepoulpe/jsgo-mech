@@ -336,14 +336,14 @@ func (this *ExternExportsPass_Export) createExternFunction(exportedFunction Node
 
 func (this *ExternExportsPass_Export) createExternsParamListFromOriginalFunction(exportedFunction Node) Node {
 	var originalParamList Node = NodeUtil_getFunctionParameters(exportedFunction)
-	var originalParamNames *TList[string] = newTList_(tc_string)
+	var originalParamNames *[]string = &[]string{}
 	{
 		var originalParam Node = originalParamList.getFirstChild()
 		for ; originalParam != 0; originalParam = originalParam.getNext() {
-			originalParamNames.add(this.getOriginalNameForParam(originalParam))
+			*originalParamNames = append(*originalParamNames, this.getOriginalNameForParam(originalParam))
 		}
 	}
-	return this.createExternsParamListFromOriginalParamList(originalParamNames.asList())
+	return this.createExternsParamListFromOriginalParamList(slicePtrView_(tc_string, originalParamNames))
 }
 
 func (this *ExternExportsPass_Export) createExternsParamListFromFunctionType(functionType *JSType) Node {

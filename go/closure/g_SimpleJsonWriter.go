@@ -4,7 +4,7 @@ package closure
 
 type SimpleJsonWriter struct {
 	out            *strBuilder_
-	stack          *TList[any]
+	stack          *[]any
 	indent_        string
 	htmlSafe       bool
 	serializeNulls bool
@@ -18,7 +18,7 @@ func (this *SimpleJsonWriter) zero_SimpleJsonWriter() {
 
 func (this *SimpleJsonWriter) finit_SimpleJsonWriter() {
 	this.out = &strBuilder_{}
-	this.stack = newTList_(jtc_Integer.t_())
+	this.stack = &[]any{}
 	this.indent_ = ""
 	this.htmlSafe = false
 	this.serializeNulls = true
@@ -28,7 +28,7 @@ func (this *SimpleJsonWriter) finit_SimpleJsonWriter() {
 
 func (this *SimpleJsonWriter) init_SimpleJsonWriter() {
 	this.finit_SimpleJsonWriter()
-	this.stack.add(any(int32(SimpleJsonWriter_DOCUMENT)))
+	*this.stack = append(*this.stack, any(int32(SimpleJsonWriter_DOCUMENT)))
 }
 
 func new_SimpleJsonWriter() *SimpleJsonWriter {
@@ -143,20 +143,20 @@ func (this *SimpleJsonWriter) toString() string {
 
 func (this *SimpleJsonWriter) open(empty int32, openBracket uint16) *SimpleJsonWriter {
 	this.beforeValue()
-	this.stack.add(any(int32(empty)))
+	*this.stack = append(*this.stack, any(int32(empty)))
 	this.out.append_char(openBracket)
 	return this
 }
 
 func (this *SimpleJsonWriter) close(empty int32, nonempty int32, closeBracket uint16) *SimpleJsonWriter {
-	var context int32 = unbox_[int32](this.stack.get((this.stack.size() - 1)))
+	var context int32 = unbox_[int32](sliceAt_(*this.stack, (int32(len(*this.stack)) - 1)))
 	if (context != nonempty) && (context != empty) {
 		panic(new_IllegalStateException_String("Nesting problem."))
 	}
 	if this.deferredName.isPresent() {
 		panic(new_IllegalStateException_String(("Dangling name: " + sstr_(this.deferredName.get()))))
 	}
-	this.stack.removeAt((this.stack.size() - 1))
+	sliceRemoveAt_(this.stack, (int32(len(*this.stack)) - 1))
 	if context == nonempty {
 		this.newline()
 	}
@@ -168,8 +168,8 @@ func (this *SimpleJsonWriter) beforeValue() {
 	if (this.sink != nil) && (this.out.length() >= SimpleJsonWriter_SINK_THRESHOLD) {
 		this.sink(strobj_(this.takeText()))
 	}
-	var top int32 = (this.stack.size() - 1)
-	var context int32 = unbox_[int32](this.stack.get(top))
+	var top int32 = (int32(len(*this.stack)) - 1)
+	var context int32 = unbox_[int32](sliceAt_(*this.stack, top))
 	if this.deferredName.isPresent() {
 		if context == SimpleJsonWriter_NONEMPTY_OBJECT {
 			this.out.append_char(',')
@@ -185,9 +185,9 @@ func (this *SimpleJsonWriter) beforeValue() {
 			}
 			return ": "
 		}())
-		this.stack.set(top, any(int32(SimpleJsonWriter_NONEMPTY_OBJECT)))
+		(*this.stack)[top] = any(int32(SimpleJsonWriter_NONEMPTY_OBJECT))
 	} else if context == SimpleJsonWriter_EMPTY_ARRAY {
-		this.stack.set(top, any(int32(SimpleJsonWriter_NONEMPTY_ARRAY)))
+		(*this.stack)[top] = any(int32(SimpleJsonWriter_NONEMPTY_ARRAY))
 		this.newline()
 	} else if context == SimpleJsonWriter_NONEMPTY_ARRAY {
 		this.out.append_char(',')
@@ -202,7 +202,7 @@ func (this *SimpleJsonWriter) newline() {
 		return
 	}
 	this.out.append_char('\n')
-	for i := int32(1); i < this.stack.size(); i++ {
+	for i := int32(1); i < int32(len(*this.stack)); i++ {
 		this.out.append(this.indent_)
 	}
 }

@@ -149,8 +149,8 @@ func CrossChunkReferenceCollector_isPotentiallyMoveableGetElem(maybeGetElem Node
 	return (name.isName() && (name.getString() == "Symbol"))
 }
 
-func (this *CrossChunkReferenceCollector) getTopLevelStatements() ListOf[*CrossChunkReferenceCollector_TopLevelStatement] {
-	return Collections_unmodifiableList(this.topLevelStatements.asList())
+func (this *CrossChunkReferenceCollector) getTopLevelStatements() *TList[*CrossChunkReferenceCollector_TopLevelStatement] {
+	return this.topLevelStatements
 }
 
 func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode Node) bool {
@@ -318,7 +318,7 @@ type CrossChunkReferenceCollector_TopLevelStatement struct {
 	originalOrder            int32
 	chunk_                   *JSChunk
 	statementNode            Node
-	nonDeclarationReferences ListOf[*Reference]
+	nonDeclarationReferences *TList[*Reference]
 	declaredNameReference    *Reference
 	declaredValueNode        Node
 }
@@ -327,7 +327,7 @@ func (this *CrossChunkReferenceCollector_TopLevelStatement) init_CrossChunkRefer
 	this.originalOrder = draft.originalOrder
 	this.chunk_ = draft.chunk_
 	this.statementNode = draft.statementNode
-	this.nonDeclarationReferences = Collections_unmodifiableList(draft.nonDeclarationReferences.asList())
+	this.nonDeclarationReferences = draft.nonDeclarationReferences
 	this.declaredNameReference = draft.declaredNameReference
 	this.declaredValueNode = draft.declaredValueNode
 }
@@ -351,8 +351,8 @@ func (this *CrossChunkReferenceCollector_TopLevelStatement) getStatementNode() N
 	return this.statementNode
 }
 
-func (this *CrossChunkReferenceCollector_TopLevelStatement) getNonDeclarationReferences() ListOf[*Reference] {
-	return Collections_unmodifiableList(this.nonDeclarationReferences)
+func (this *CrossChunkReferenceCollector_TopLevelStatement) getNonDeclarationReferences() *TList[*Reference] {
+	return this.nonDeclarationReferences
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatement) isDeclarationStatement() bool {

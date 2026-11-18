@@ -7,7 +7,7 @@ import "strings"
 type CheckSideEffects struct {
 	NodeTraversal_AbstractPostOrderCallback
 	report_                   bool
-	problemNodes              *TList[Node]
+	problemNodes              *[]Node
 	noSideEffectExterns       *JTSet[string]
 	compiler_                 *AbstractCompiler
 	protectSideEffectFreeCode bool
@@ -22,7 +22,7 @@ func (this *CheckSideEffects) up_NodeTraversal_AbstractPostOrderCallback() *Node
 }
 
 func (this *CheckSideEffects) finit_CheckSideEffects() {
-	this.problemNodes = newTList_(tc_Node)
+	this.problemNodes = &[]Node{}
 	this.noSideEffectExterns = jnewTSet_(jtc_string)
 	this.preserveFunctionInjected = false
 }
@@ -80,7 +80,7 @@ func (this *CheckSideEffects) visit_impl(t *NodeTraversal, n Node, parent Node) 
 				t.report(n, CheckSideEffects_USELESS_CODE_ERROR, []string{msg})
 			}
 			if !NodeUtil_isStatement(n) {
-				this.problemNodes.add(n)
+				*this.problemNodes = append(*this.problemNodes, n)
 			}
 		} else if n.isCall() && ((n.getFirstChild().isGetProp() || n.getFirstChild().isName()) || n.getFirstChild().isStringLit()) {
 			var qname string = n.getFirstChild().getQualifiedName()
@@ -94,7 +94,7 @@ func (this *CheckSideEffects) visit_impl(t *NodeTraversal, n Node, parent Node) 
 				}
 			}
 			if (qname != "" && this.noSideEffectExterns.has(qname)) && !isDefinedInSrc {
-				this.problemNodes.add(n)
+				*this.problemNodes = append(*this.problemNodes, n)
 				if this.report_ {
 					var msg string = ("The result of the extern function call '" + sstr_(qname) + "' is not being used.")
 					t.report(n, CheckSideEffects_USELESS_CODE_ERROR, []string{msg})
@@ -105,13 +105,11 @@ func (this *CheckSideEffects) visit_impl(t *NodeTraversal, n Node, parent Node) 
 }
 
 func (this *CheckSideEffects) protectSideEffects() {
-	if !this.problemNodes.isEmpty() {
+	if len(*this.problemNodes) != 0 {
 		if !this.preserveFunctionInjected {
 			CheckSideEffects_addExtern(this.compiler_)
 		}
-		it_1 := this.problemNodes.each()
-		for it_1.next() {
-			var n Node = it_1.v
+		for n := range sliceAll_(this.problemNodes) {
 			var name Node = IR_name(CheckSideEffects_PROTECTOR_FN).srcref(n)
 			name.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 			var replacement Node = IR_call(name, []Node{}).srcref(n)

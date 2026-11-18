@@ -74,10 +74,10 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		}
 		return DotFormatter_LINE
 	}()
-	var nodes ListOf[GraphvizGraph_GraphvizNode] = graph.getGraphvizNodes()
-	var nodeNames []string = newstrarr_(nodes.size())
+	var nodes []GraphvizGraph_GraphvizNode = graph.getGraphvizNodes()
+	var nodeNames []string = newstrarr_(int32(len(nodes)))
 	for i := int32(0); i < int32(len(nodeNames)); i++ {
-		var gNode GraphvizGraph_GraphvizNode = icast_GraphvizGraph_GraphvizNode(nodes.get(i))
+		var gNode GraphvizGraph_GraphvizNode = sliceAt_(nodes, i)
 		nodeNames[i] = (sstr_(gNode.getId()) + " [label=\"" + sstr_(gNode.getLabel()) + "\" color=\"" + sstr_(gNode.getColor()) + "\"]")
 	}
 	func() {

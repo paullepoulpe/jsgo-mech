@@ -204,7 +204,7 @@ func (this *JsMessageVisitor) buildJsMessage(input JsMessageVisitor_InputForBuil
 			if this.idGenerator_ == nil {
 				return meaningForIdGeneration
 			}
-			return Optional_of[string](this.idGenerator_.generateId(meaningForIdGeneration, icast_List(obj_(messageParts.asImm()))))
+			return Optional_of[string](this.idGenerator_.generateId(meaningForIdGeneration, tlistImm_(tc_JsMessage_Part, messageParts.asImm())))
 		}()
 	}
 	return new_JsMessage_Builder().appendParts(immItems_(messageParts)).setPlaceholderNameToExampleMap(input.getPlaceholderExampleMap()).setPlaceholderNameToOriginalCodeMap(input.getPlaceholderOriginalCodeMap()).setIsAnonymous(isAnonymous).setIsExternalMsg(isExternal).setKey(messageKeyFinal).setSourceName(input.getSourceName()).setDesc(input.getDescription()).setMeaning(input.getMeaning()).setAlternateId(input.getAlternateMessageId()).setId(messageId).build()

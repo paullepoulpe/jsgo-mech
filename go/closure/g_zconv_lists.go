@@ -33,3 +33,4 @@ var tc_p_WarningsGuard = &tconv_[*WarningsGuard]{box: func(v *WarningsGuard) any
 var tc_string = &tconv_[string]{box: func(v string) any { return strobj_(v) }, unbox: func(v any) string { return str_(v) }, null: nullstr_}
 var tc_p_RegExpTree = &tconv_[*RegExpTree]{box: func(v *RegExpTree) any { return v.self() }, unbox: func(v any) *RegExpTree { return to_RegExpTree(v) }}
 var tc_p_Comment = &tconv_[*Comment]{box: func(v *Comment) any { return obj_(v) }, unbox: func(v any) *Comment { return cast_[*Comment](v) }}
+var tc_DependencyInfo = &tconv_[DependencyInfo]{box: func(v DependencyInfo) any { return any(v) }, unbox: func(v any) DependencyInfo { return icast_DependencyInfo(v) }}

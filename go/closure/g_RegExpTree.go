@@ -2072,12 +2072,12 @@ func new_RegExpTree_Concatenation_RegExpTree_RegExpTree(a *RegExpTree, b *RegExp
 	return this
 }
 
-func (this *RegExpTree_Concatenation) init_RegExpTree_Concatenation_List(elements ListOf[*RegExpTree]) {
+func (this *RegExpTree_Concatenation) init_RegExpTree_Concatenation_List(elements *TList[*RegExpTree]) {
 	this.RegExpTree.init_RegExpTree()
-	this.elements_ = immutableListCopyOf_(tc_p_RegExpTree, Collection(elements))
+	this.elements_ = immutableListCopyOf_(tc_p_RegExpTree, Collection(elements.asList()))
 }
 
-func new_RegExpTree_Concatenation_List(elements ListOf[*RegExpTree]) *RegExpTree_Concatenation {
+func new_RegExpTree_Concatenation_List(elements *TList[*RegExpTree]) *RegExpTree_Concatenation {
 	this := &RegExpTree_Concatenation{}
 	this.self_ = this
 	this.init_RegExpTree_Concatenation_List(elements)
@@ -2097,7 +2097,7 @@ func (this *RegExpTree_Concatenation) simplify_impl(flags string) *RegExpTree {
 		case 1:
 			return s.simplified.get(0)
 		default:
-			return new_RegExpTree_Concatenation_List(s.simplified.asList()).up_RegExpTree()
+			return new_RegExpTree_Concatenation_List(s.simplified).up_RegExpTree()
 		}
 	}()
 }

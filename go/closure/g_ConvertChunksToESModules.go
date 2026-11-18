@@ -6,13 +6,13 @@ type ConvertChunksToESModules struct {
 	compiler_              *AbstractCompiler
 	crossChunkExports      *JTMap[*JSChunk, Set]
 	crossChunkImports      *JTMap[*JSChunk, Map]
-	dynamicImportCallbacks *TList[Node]
+	dynamicImportCallbacks *[]Node
 }
 
 func (this *ConvertChunksToESModules) finit_ConvertChunksToESModules() {
 	this.crossChunkExports = jnewTMap_(jtc_p_JSChunk, jtc_Set)
 	this.crossChunkImports = jnewTMap_(jtc_p_JSChunk, jtc_Map)
-	this.dynamicImportCallbacks = newTList_(tc_Node)
+	this.dynamicImportCallbacks = &[]Node{}
 }
 
 func (this *ConvertChunksToESModules) init_ConvertChunksToESModules(compiler *AbstractCompiler) {
@@ -113,7 +113,7 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 	it_1 := this.crossChunkImports.eachEntry()
 	for it_1.next() {
 		var chunkImportsEntry *TEntry[*JSChunk, Map] = it_1.entry()
-		var importStatements *TList[Node] = newTList_(tc_Node)
+		var importStatements []Node = []Node{}
 		var importingChunk *JSChunk = chunkImportsEntry.getKey()
 		var firstInput *CompilerInput = importingChunk.getFirst()
 		var moduleBody Node = firstInput.getAstRoot(this.compiler_).getFirstChild()
@@ -146,11 +146,9 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 			}
 			importStatement.addChildToFront(IR_empty())
 			importStatement.srcrefTree(moduleBody)
-			importStatements.insert(0, importStatement)
+			sliceInsert_(&importStatements, 0, importStatement)
 		}
-		it_7 := importStatements.each()
-		for it_7.next() {
-			var importStatement Node = it_7.v
+		for _, importStatement := range importStatements {
 			moduleBody.addChildToFront(importStatement)
 		}
 		this.compiler_.reportChangeToEnclosingScope(moduleBody)
@@ -178,9 +176,7 @@ func ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(compiler *
 
 func (this *ConvertChunksToESModules) rewriteDynamicImportCallbacks() {
 	var astFactory *AstFactory = this.compiler_.createAstFactory()
-	it_1 := this.dynamicImportCallbacks.each()
-	for it_1.next() {
-		var dynamicImportCallback Node = it_1.v
+	for dynamicImportCallback := range sliceAll_(this.dynamicImportCallbacks) {
 		if !dynamicImportCallback.isCall() {
 			panic(new_IllegalStateException_0())
 		}
@@ -225,7 +221,7 @@ func (this *ConvertChunksToESModules) visitCallAndTraverse(t *NodeTraversal, cal
 	}
 	var isValidModuleNamespace bool = this.visitName(t, moduleNamespace, ConvertChunksToESModules_ImportType_DYNAMIC)
 	if isValidModuleNamespace {
-		this.dynamicImportCallbacks.add(call)
+		*this.dynamicImportCallbacks = append(*this.dynamicImportCallbacks, call)
 	} else {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ConvertChunksToESModules_UNRECOGNIZED_DYNAMIC_IMPORT_CALLBACK, []string{" Unable to find valid namespace reference."}))
 	}

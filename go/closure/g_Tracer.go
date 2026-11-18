@@ -33,7 +33,7 @@ func (this *Tracer) init_Tracer_Optional_Optional(type_ Optional[string], commen
 	if !trace.isInitialized() {
 		return
 	}
-	if trace.events.size() >= Tracer_MAX_TRACE_SIZE {
+	if int32(len(*trace.events)) >= Tracer_MAX_TRACE_SIZE {
 		Tracer_logger.log(Level_WARNING, "Giant thread trace. Too many Tracers created. Clearing to avoid memory leak.", new_Throwable_String(trace.toString()))
 		trace.truncateEvents()
 	}
@@ -396,7 +396,7 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 
 type Tracer_ThreadTrace struct {
 	defaultSilenceThreshold      int32
-	events                       *TList[*Tracer_Event]
+	events                       *[]*Tracer_Event
 	outstandingEvents            *JTSet[*Tracer]
 	stats                        *JTMap[string, *Tracer_Stat]
 	isOutstandingEventsTruncated bool
@@ -406,7 +406,7 @@ type Tracer_ThreadTrace struct {
 }
 
 func (this *Tracer_ThreadTrace) finit_Tracer_ThreadTrace() {
-	this.events = newTList_(jtc_p_Tracer_Event.t_())
+	this.events = &[]*Tracer_Event{}
 	this.outstandingEvents = jnewTSet_(jtc_p_Tracer)
 	this.stats = jnewTMap_(jtc_string, jtc_p_Tracer_Stat)
 	this.isOutstandingEventsTruncated = false
@@ -434,7 +434,7 @@ func (this *Tracer_ThreadTrace) isInitialized() bool {
 }
 
 func (this *Tracer_ThreadTrace) startEvent(t *Tracer) {
-	this.events.add(new_Tracer_Event(true, t))
+	*this.events = append(*this.events, new_Tracer_Event(true, t))
 	var notAlreadyOutstanding bool = this.outstandingEvents.add(t)
 	if !notAlreadyOutstanding {
 		panic(new_IllegalStateException_0())
@@ -456,13 +456,13 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 	}
 	if elapsed < int64(silenceThreshold) {
 		var removed bool = false
-		for i := int32(0); i < this.events.size(); i++ {
-			var e *Tracer_Event = this.events.get(i)
+		for i := int32(0); i < int32(len(*this.events)); i++ {
+			var e *Tracer_Event = sliceAt_(*this.events, i)
 			if e.tracer == t {
 				if !e.isStart {
 					panic(new_IllegalStateException_0())
 				}
-				this.events.removeAt(i)
+				sliceRemoveAt_(this.events, i)
 				removed = true
 				break
 			}
@@ -471,7 +471,7 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 			panic(new_IllegalStateException_0())
 		}
 	} else {
-		this.events.add(new_Tracer_Event(false, t))
+		*this.events = append(*this.events, new_Tracer_Event(false, t))
 	}
 	if t.type__.isPresent() {
 		var stat *Tracer_Stat = this.stats.get(t.type__.get())
@@ -510,7 +510,7 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 }
 
 func (this *Tracer_ThreadTrace) isEmpty() bool {
-	return (this.events.isEmpty() && this.outstandingEvents.isEmpty())
+	return (len(*this.events) == 0 && this.outstandingEvents.isEmpty())
 }
 
 func (this *Tracer_ThreadTrace) truncateOutstandingEvents() {
@@ -520,7 +520,7 @@ func (this *Tracer_ThreadTrace) truncateOutstandingEvents() {
 
 func (this *Tracer_ThreadTrace) truncateEvents() {
 	this.isEventsTruncated = true
-	this.events.clear()
+	sliceClear_(this.events)
 }
 
 func (this *Tracer_ThreadTrace) toString() string {
@@ -533,9 +533,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 		}
 		return nil
 	}()
-	it_1 := this.events.each()
-	for it_1.next() {
-		var e *Tracer_Event = it_1.v
+	for e := range sliceAll_(this.events) {
 		if (this.prettyPrint && !e.isStart) && !indent.isEmpty() {
 			indent.pop()
 		}
@@ -581,9 +579,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 func (this *Tracer_ThreadTrace) getMaxDigits() int32 {
 	var etime int64 = -1
 	var maxTime int64 = 0
-	it_1 := this.events.each()
-	for it_1.next() {
-		var e *Tracer_Event = it_1.v
+	for _, e := range *this.events {
 		if etime != -1 {
 			var time int64 = (e.eventTime() - etime)
 			maxTime = Math_max_long_long(maxTime, time)

@@ -12,7 +12,7 @@ type JSDocInfo struct {
 
 func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Property, any]) {
 	var keys int64 = 0
-	var values *TList[any] = newTList_(jtc_Object.t_())
+	var values []any = []any{}
 	for entry := range elemsBy_(props.entrySet(), icast_Map_Entry) {
 		var prop *JSDocInfo_Property = to_JSDocInfo_Property(entry.getKey())
 		var value any = entry.getValue()
@@ -21,7 +21,7 @@ func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Pro
 			if is_[[]any](value) || value == nil {
 				panic(new_IllegalStateException_0())
 			}
-			values.add(value)
+			values = append(values, value)
 		}
 	}
 	this.propertyBits = bits
@@ -794,16 +794,16 @@ func (this *JSDocInfo) getPropertyValueByIndex(index int32) any {
 	return this.propertyValues
 }
 
-func JSDocInfo_packPropertyValues(values *TList[any]) any {
+func JSDocInfo_packPropertyValues(values []any) any {
 	return func() any {
-		if values.isEmpty() {
+		if len(values) == 0 {
 			return nil
 		}
 		return func() any {
-			if values.size() == 1 {
-				return values.get(0)
+			if int32(len(values)) == 1 {
+				return sliceAt_(values, 0)
 			}
-			return any(values.asList().toArray_0())
+			return any(sliceView_(tc_any, values).toArray_0())
 		}()
 	}()
 }

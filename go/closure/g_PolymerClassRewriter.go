@@ -153,7 +153,7 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 	PolymerPassStaticUtils_switchDollarSignPropsToBrackets(objLit, this.compiler_)
 	PolymerPassStaticUtils_quoteListenerAndHostAttributeKeys(objLit, this.compiler_)
 	PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(objLit)
-	for prop := range elemsAs_[*PolymerPass_MemberDefinition](cls.props) {
+	for prop := range elemsAs_[*PolymerPass_MemberDefinition](cls.props.asList()) {
 		if prop.value_.isObjectLit() {
 			PolymerPassStaticUtils_switchDollarSignPropsToBrackets(prop.value_, this.compiler_)
 		}
@@ -234,7 +234,7 @@ func (this *PolymerClassRewriter) rewritePolymerClassDeclaration(clazz Node, tra
 		this.addTypesToFunctions(cls.descriptor, cls.target.getQualifiedName(), cls.defType)
 	}
 	PolymerPassStaticUtils_switchDollarSignPropsToBrackets(NodeUtil_getClassMembers(clazz), this.compiler_)
-	for prop := range elemsAs_[*PolymerPass_MemberDefinition](cls.props) {
+	for prop := range elemsAs_[*PolymerPass_MemberDefinition](cls.props.asList()) {
 		if prop.value_.isObjectLit() {
 			PolymerPassStaticUtils_switchDollarSignPropsToBrackets(prop.value_, this.compiler_)
 		}
@@ -339,7 +339,7 @@ func (this *PolymerClassRewriter) addTypesToFunctions(objLit Node, thisType stri
 func (this *PolymerClassRewriter) parseReadOnlyProperties(cls *PolymerClassDefinition, block Node) []*PolymerPass_MemberDefinition {
 	var qualifiedPath string = (sstr_(cls.target.getQualifiedName()) + ".prototype.")
 	var readOnlyProps []*PolymerPass_MemberDefinition
-	for prop := range elemsAs_[*PolymerPass_MemberDefinition](cls.props) {
+	for prop := range elemsAs_[*PolymerPass_MemberDefinition](cls.props.asList()) {
 		if prop.value_.isObjectLit() {
 			var readOnlyValue Node = NodeUtil_getFirstPropMatchingKey(prop.value_, "readOnly")
 			if (readOnlyValue != 0) && readOnlyValue.isTrue() {
@@ -451,8 +451,8 @@ func (this *PolymerClassRewriter) appendBehaviorPropertiesToBlock(cls *PolymerCl
 	}
 }
 
-func (this *PolymerClassRewriter) appendPropertiesToBlock(props ListOf[*PolymerPass_MemberDefinition], block Node, basePath string, isExternsBlock bool) {
-	for prop := range elemsAs_[*PolymerPass_MemberDefinition](props) {
+func (this *PolymerClassRewriter) appendPropertiesToBlock(props *TList[*PolymerPass_MemberDefinition], block Node, basePath string, isExternsBlock bool) {
+	for prop := range elemsAs_[*PolymerPass_MemberDefinition](props.asList()) {
 		var propertyNode Node = this.getPropertyNode(prop, basePath)
 		if propertyNode == 0 {
 			continue
@@ -646,9 +646,7 @@ func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefin
 			}
 		}
 	}
-	it_5 := cls.methods.each()
-	for it_5.next() {
-		var method *PolymerPass_MemberDefinition = it_5.v
+	for method := range sliceAll_(cls.methods) {
 		uniqueMethods.put(method.name_.getString(), method)
 	}
 	it_7 := uniqueMethods.eachValue()
@@ -705,7 +703,7 @@ func PolymerClassRewriter_varToAssign(var_ Node) Node {
 }
 
 func (this *PolymerClassRewriter) convertSimpleObserverStringsToReferences(cls *PolymerClassDefinition) {
-	for prop := range elemsAs_[*PolymerPass_MemberDefinition](cls.props) {
+	for prop := range elemsAs_[*PolymerPass_MemberDefinition](cls.props.asList()) {
 		if prop.value_.isObjectLit() {
 			var observer Node = NodeUtil_getFirstPropMatchingKey(prop.value_, "observer")
 			if (observer != 0) && observer.isStringLit() {
@@ -718,7 +716,7 @@ func (this *PolymerClassRewriter) convertSimpleObserverStringsToReferences(cls *
 }
 
 func (this *PolymerClassRewriter) validateComputedPropertiesReflectionCalls(cls *PolymerClassDefinition) {
-	for prop := range elemsAs_[*PolymerPass_MemberDefinition](cls.props) {
+	for prop := range elemsAs_[*PolymerPass_MemberDefinition](cls.props.asList()) {
 		if prop.value_.isObjectLit() {
 			var computed Node = NodeUtil_getFirstPropMatchingKey(prop.value_, "computed")
 			if (computed != 0) && computed.isStringLit() {

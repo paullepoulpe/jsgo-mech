@@ -33,7 +33,7 @@ func (this *LintPassConfig) finit_LintPassConfig() {
 	this.earlyLintChecks = PassFactory_builder().setName("earlyLintChecks").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return new_CombinedCompilerPass(compiler, ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_ObjectArr(obj_(new_CheckConstPrivateProperties(compiler)), obj_(new_CheckConstantCaseNames(compiler)), obj_(new_CheckDuplicateCase(compiler)), obj_(new_CheckEmptyStatements(compiler)), obj_(new_CheckEnums(compiler)), obj_(new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove())), obj_(new_CheckGoogModuleTypeScriptName(compiler)), obj_(new_CheckJSDocStyle(compiler)), obj_(new_CheckJSDoc(compiler)), obj_(new_CheckMissingSemicolon(compiler)), obj_(new_CheckSuper(compiler)), obj_(new_CheckPrimitiveAsObject(compiler)), []any{obj_(new_ClosureCheckModule(compiler, compiler.getModuleMetadataMap())), obj_(new_CheckNullabilityModifiers(compiler)), obj_(new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT)), obj_(new_CheckSideEffects(compiler, true, false)), obj_(new_CheckTypeImportCodeReferences(compiler)), obj_(new_CheckUnusedLabels(compiler)), obj_(new_CheckUnusedPrivateProperties(compiler)), obj_(new_CheckUselessBlocks(compiler)), obj_(new_CheckVar(compiler))}))
+		return new_CombinedCompilerPass(compiler, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, new_CheckConstPrivateProperties(compiler), new_CheckConstantCaseNames(compiler), new_CheckDuplicateCase(compiler), new_CheckEmptyStatements(compiler), new_CheckEnums(compiler), new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove()), new_CheckGoogModuleTypeScriptName(compiler), new_CheckJSDocStyle(compiler), new_CheckJSDoc(compiler), new_CheckMissingSemicolon(compiler), new_CheckSuper(compiler), new_CheckPrimitiveAsObject(compiler), new_ClosureCheckModule(compiler, compiler.getModuleMetadataMap()), new_CheckNullabilityModifiers(compiler), new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT), new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT), new_CheckSideEffects(compiler, true, false), new_CheckTypeImportCodeReferences(compiler), new_CheckUnusedLabels(compiler), new_CheckUnusedPrivateProperties(compiler), new_CheckUselessBlocks(compiler), new_CheckVar(compiler)).items)
 	}}).build()
 	this.variableReferenceCheck = PassFactory_builder().setName("variableReferenceCheck").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
 		return new_VariableReferenceCheck(to_AbstractCompiler(p0))
@@ -41,7 +41,7 @@ func (this *LintPassConfig) finit_LintPassConfig() {
 	this.lateLintChecks = PassFactory_builder().setName("lateLintChecks").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return new_CombinedCompilerPass(compiler, ImmutableList_of_Object_Object(obj_(new_CheckInterfaces(compiler)), obj_(new_CheckPrototypeProperties(compiler))))
+		return new_CombinedCompilerPass(compiler, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, new_CheckInterfaces(compiler), new_CheckPrototypeProperties(compiler)).items)
 	}}).build()
 }
 

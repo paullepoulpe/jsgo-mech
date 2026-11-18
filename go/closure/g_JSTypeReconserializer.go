@@ -170,7 +170,7 @@ func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType
 		return new_JSTypeReconserializer_SeenTypeRecord(id, pointer)
 	}})
 	this.typeToRecordCache.put(jstype, record)
-	record.jstypes.add(jstype)
+	*record.jstypes = append(*record.jstypes, jstype)
 	return record
 }
 
@@ -179,12 +179,12 @@ func (this *JSTypeReconserializer) reconcileUnionTypes(seen *JSTypeReconserializ
 }
 
 func JSTypeReconserializer_sortedPointersOf(records CollectionOf[*JSTypeReconserializer_SeenTypeRecord]) ImmutableListOf[BoxedOf[int32]] {
-	var result *TList[any] = newTList_(jtc_Integer.t_())
+	var result []any = []any{}
 	for r := range elemsAs_[*JSTypeReconserializer_SeenTypeRecord](records) {
-		result.add(any(int32(r.pointer)))
+		result = append(result, any(int32(r.pointer)))
 	}
-	Collections_sort(result.asList())
-	return ImmutableList_copyOf(Collection(result.asList()))
+	Collections_sort(sliceView_(tc_any, result))
+	return ImmutableList_copyOf(Collection(sliceView_(tc_any, result)))
 }
 
 func (this *JSTypeReconserializer) serializeInvolvedTypes(types CollectionOf[*JSType]) ImmutableListOf[BoxedOf[int32]] {
@@ -195,9 +195,9 @@ func (this *JSTypeReconserializer) serializeInvolvedTypes(types CollectionOf[*JS
 		}
 		distinctPointers.add(any(int32(this.serializeType(t))))
 	}
-	var result *TList[any] = tlistFrom_(jtc_Integer.t_(), Collection(distinctPointers.asSet()))
-	Collections_sort(result.asList())
-	return ImmutableList_copyOf(Collection(result.asList()))
+	var result []any = sliceFrom_(jtc_Integer.t_(), Collection(distinctPointers.asSet()))
+	Collections_sort(sliceView_(tc_any, result))
+	return ImmutableList_copyOf(Collection(sliceView_(tc_any, result)))
 }
 
 func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconserializer_SeenTypeRecord) *TypeProto {
@@ -208,9 +208,7 @@ func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconseriali
 	var isConstructor bool = false
 	var isInvalidating bool = false
 	var propertiesKeepOriginalName bool = false
-	it_1 := seen.jstypes.each()
-	for it_1.next() {
-		var type_ *JSType = it_1.v
+	for type_ := range sliceAll_(seen.jstypes) {
 		var objType *ObjectType = type_.toMaybeObjectType()
 		if objType == nil {
 			nullFail_(objstr_(type_.self()))
@@ -442,12 +440,12 @@ func JSTypeReconserializer_State_clinit() {
 type JSTypeReconserializer_SeenTypeRecord struct {
 	colorId      *ColorId
 	pointer      int32
-	jstypes      *TList[*JSType]
+	jstypes      *[]*JSType
 	unionMembers *ImmutableSet[*JSTypeReconserializer_SeenTypeRecord]
 }
 
 func (this *JSTypeReconserializer_SeenTypeRecord) finit_JSTypeReconserializer_SeenTypeRecord() {
-	this.jstypes = newTList_(tc_p_JSType)
+	this.jstypes = &[]*JSType{}
 	this.unionMembers = nil
 }
 

@@ -7,7 +7,7 @@ type RescopeGlobalSymbolsRewriteCallback struct {
 	optimizeLocalAccess                     CompilerOptions_OptimizeLocalAccess
 	symbolInfo                              *RescopeGlobalSymbolsInfo
 	renameHelper                            *RescopeGlobalSymbolsRenameHelper
-	preDeclarations                         *TList[*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal]
+	preDeclarations                         *[]*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal
 	localAliasesForUnwrappedCrossChunkNames *JTMap[*JSChunk, Set]
 	chunksUsingCrossChunkSymbols            *JTMap[string, Set]
 	chunksUsingWrappedReassignableSymbols   *JTMap[string, Set]
@@ -15,7 +15,7 @@ type RescopeGlobalSymbolsRewriteCallback struct {
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) finit_RescopeGlobalSymbolsRewriteCallback() {
-	this.preDeclarations = newTList_(jtc_p_RescopeGlobalSymbolsRewriteCallback_ChunkGlobal.t_())
+	this.preDeclarations = &[]*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal{}
 	this.localAliasesForUnwrappedCrossChunkNames = jnewTMap_(jtc_p_JSChunk, jtc_Set)
 	this.chunksUsingCrossChunkSymbols = jnewTMap_(jtc_string, jtc_Set)
 	this.chunksUsingWrappedReassignableSymbols = jnewTMap_(jtc_string, jtc_Set)
@@ -178,7 +178,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) maybeAddPreDeclaration(t *NodeT
 	var name string = lhs.getString()
 	if this.globalVarStaysLocalInDefiningChunk(name, t) {
 		var localName string = this.renameHelper.getLocalNameInDefiningChunk(name, isGlobalDeclaration)
-		this.preDeclarations.add(new_RescopeGlobalSymbolsRewriteCallback_ChunkGlobal(t.getInput().getAstRoot(this.compiler_), IR_name(localName).srcref(lhs)))
+		*this.preDeclarations = append(*this.preDeclarations, new_RescopeGlobalSymbolsRewriteCallback_ChunkGlobal(t.getInput().getAstRoot(this.compiler_), IR_name(localName).srcref(lhs)))
 	}
 }
 
@@ -354,9 +354,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) addDeclarations() {
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) declareChunkGlobals() {
-	it_1 := this.preDeclarations.each()
-	for it_1.next() {
-		var global *RescopeGlobalSymbolsRewriteCallback_ChunkGlobal = it_1.v
+	for global := range sliceAll_(this.preDeclarations) {
 		if global.root.hasChildren() && global.root.getFirstChild().isVar() {
 			global.root.getFirstChild().addChildToBack(global.name_)
 		} else {

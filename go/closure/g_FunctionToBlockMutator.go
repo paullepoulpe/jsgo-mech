@@ -78,7 +78,7 @@ func FunctionToBlockMutator_rewriteFunctionDeclarations(n Node) Node {
 		}
 		return 0
 	}
-	var functionsToHoist *TList[Node] = newTList_(tc_Node)
+	var functionsToHoist []Node = []Node{}
 	{
 		var c Node = n.getFirstChild()
 		var next Node
@@ -86,13 +86,11 @@ func FunctionToBlockMutator_rewriteFunctionDeclarations(n Node) Node {
 			next = c.getNext()
 			var fnVar Node = FunctionToBlockMutator_rewriteFunctionDeclarations(c)
 			if fnVar != 0 {
-				functionsToHoist.insert(0, fnVar)
+				sliceInsert_(&functionsToHoist, 0, fnVar)
 			}
 		}
 	}
-	it_2 := functionsToHoist.each()
-	for it_2.next() {
-		var fnVar Node = it_2.v
+	for _, fnVar := range functionsToHoist {
 		if n.getFirstChild() != fnVar {
 			n.addChildToFront(fnVar.detach())
 		}
@@ -203,7 +201,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 		return result
 	} else {
 		var paramReplacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
-		var newAliasesToAdd *TList[Node] = newTList_(tc_Node)
+		var newAliasesToAdd []Node = []Node{}
 		for _, el2 := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.asImm().entrySet())) {
 			entry := icast_Map_Entry(el2)
 			var name string = str_(entry.getKey())
@@ -220,7 +218,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 					var newName string = this.getUniqueThisName()
 					var newValue Node = originalValue.cloneTree()
 					var newNode Node = NodeUtil_newVarNode(newName, newValue).srcrefTreeIfMissing(newValue)
-					newAliasesToAdd.insert(0, newNode)
+					sliceInsert_(&newAliasesToAdd, 0, newNode)
 					replacement = IR_name(newName).srcrefTree(newValue)
 				}
 				paramReplacements.put(FunctionArgumentInjector_THIS_MARKER, replacement)
@@ -229,16 +227,14 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 				var newValue Node = arg.arg().cloneTree()
 				newName.srcref(newValue)
 				var newNode Node = IR_var_Node_Node(newName, newValue).srcrefTreeIfMissing(newValue)
-				newAliasesToAdd.insert(0, newNode)
+				sliceInsert_(&newAliasesToAdd, 0, newNode)
 			}
 		}
 		var result Node = this.functionArgumentInjector_.inject(this.compiler_, fnTemplateRoot, 0, paramReplacements)
 		if result != fnTemplateRoot {
 			panic(new_IllegalStateException_0())
 		}
-		it_5 := newAliasesToAdd.each()
-		for it_5.next() {
-			var n Node = it_5.v
+		for _, n := range newAliasesToAdd {
 			fnTemplateRoot.addChildToFront(n)
 		}
 		return result

@@ -299,13 +299,13 @@ func (this *LinkedDirectedGraph[N, E]) getGraphvizEdges() ListOf[GraphvizGraph_G
 	return edgeList.asList()
 }
 
-func (this *LinkedDirectedGraph[N, E]) getGraphvizNodes() ListOf[GraphvizGraph_GraphvizNode] {
-	var nodeList *TList[GraphvizGraph_GraphvizNode] = newTListN_(jtc_GraphvizGraph_GraphvizNode.t_(), this.nodes_.size())
+func (this *LinkedDirectedGraph[N, E]) getGraphvizNodes() []GraphvizGraph_GraphvizNode {
+	var nodeList []GraphvizGraph_GraphvizNode = make([]GraphvizGraph_GraphvizNode, 0, this.nodes_.size())
 	for el_1 := range elems_(this.nodes_.values()) {
 		var node *LinkedDirectedGraph_LinkedDiGraphNode[N, E] = to_LinkedDirectedGraph_LinkedDiGraphNode[N, E](el_1)
-		nodeList.add(icast_GraphvizGraph_GraphvizNode(node.self()))
+		nodeList = append(nodeList, icast_GraphvizGraph_GraphvizNode(node.self()))
 	}
-	return nodeList.asList()
+	return nodeList
 }
 
 func (this *LinkedDirectedGraph[N, E]) getName() string {

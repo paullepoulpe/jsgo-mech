@@ -231,15 +231,15 @@ func (this *SimpleMultiset[E]) hashCode() int32 {
 }
 
 func (this *SimpleMultiset[E]) toString() string {
-	var parts *TList[string] = newTList_(tc_string)
+	var parts []string = []string{}
 	for e := range elemsBy_(this.counts.entrySet(), icast_Map_Entry) {
 		var element string = objstr_(e.getKey())
-		parts.add(func() string {
+		parts = append(parts, func() string {
 			if unbox_[int32](e.getValue()) == 1 {
 				return element
 			}
 			return (sstr_(element) + " x " + objstr_(e.getValue()))
 		}())
 	}
-	return Object_toString(parts.asList())
+	return Object_toString(sliceView_(tc_string, parts))
 }

@@ -20,8 +20,8 @@ type TypedScopeCreator struct {
 	escapedVarNames              *JTSet[*ScopedName]
 	assignedVarNames             *SimpleMultiset[*ScopedName]
 	unknownType                  *ObjectType
-	weakImports                  *TList[*TypedScopeCreator_WeakModuleImport]
-	unresolvedNodes              *TList[Node]
+	weakImports                  *[]*TypedScopeCreator_WeakModuleImport
+	unresolvedNodes              *[]Node
 	undeclaredNamesForClosure    *JTSet[Node]
 	providedNamesFromCall        *SimpleSetMultimap[Node, *ProcessClosureProvidesAndRequires_ProvidedName]
 	stage                        TypedScopeCreator_Stage
@@ -290,22 +290,18 @@ func TypedScopeCreator_declareNativeType(scope *TypedScope, name string, t *JSTy
 func (this *TypedScopeCreator) setDeferredType(node Node, type_ *JSType) {
 	node.setJSType(type_)
 	if !type_.isResolved() {
-		this.unresolvedNodes.add(node)
+		*this.unresolvedNodes = append(*this.unresolvedNodes, node)
 	}
 }
 
 func (this *TypedScopeCreator) resolveWeakImportsPreResolution() {
-	it_1 := this.weakImports.each()
-	for it_1.next() {
-		var weakImport *TypedScopeCreator_WeakModuleImport = it_1.v
+	for weakImport := range sliceAll_(this.weakImports) {
 		weakImport.resolve()
 	}
 }
 
 func (this *TypedScopeCreator) finishAndFreeze() {
-	it_1 := this.unresolvedNodes.each()
-	for it_1.next() {
-		var node Node = it_1.v
+	for node := range sliceAll_(this.unresolvedNodes) {
 		var resolved *JSType = node.getJSType().resolve(this.typeParsingErrorReporter)
 		node.setJSType(resolved)
 	}
@@ -324,8 +320,8 @@ func (this *TypedScopeCreator) clearCommonState() {
 	this.functionsWithNonEmptyReturns = jnewTSet_(jtc_Node)
 	this.escapedVarNames = jnewTSet_(tce_p_ScopedName)
 	this.assignedVarNames = SimpleMultiset_create[*ScopedName]()
-	this.weakImports = newTList_(jtc_p_TypedScopeCreator_WeakModuleImport.t_())
-	this.unresolvedNodes = newTList_(tc_Node)
+	this.weakImports = &[]*TypedScopeCreator_WeakModuleImport{}
+	this.unresolvedNodes = &[]Node{}
 	this.undeclaredNamesForClosure = jnewTSet_(jtc_Node)
 	this.providedNamesFromCall = SimpleSetMultimap_createInsertionOrdered[Node, *ProcessClosureProvidesAndRequires_ProvidedName]()
 }
@@ -668,7 +664,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) initializeModuleScope(module
 		var unresolvedImports *ImmutableMap[Node, *ScopedName] = this.outer_.moduleImportResolver.declareEsModuleImports(this.getModule(), this.currentScope, this.outer_.compiler_.getInput(NodeUtil_getInputId(moduleBody)))
 		for _, el := range immElems_(cast_[*ErasedImmutableSet](unresolvedImports.asImm().entrySet())) {
 			entry := icast_Map_Entry(el)
-			this.outer_.weakImports.add(new_TypedScopeCreator_WeakModuleImport(this.outer_, Node_of_(entry.getKey()), to_ScopedName(entry.getValue()), this.currentScope))
+			*this.outer_.weakImports = append(*this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, Node_of_(entry.getKey()), to_ScopedName(entry.getValue()), this.currentScope))
 		}
 	default:
 		panic(new_IllegalStateException_String(String_format("Unexpected module type %s in module %s", []any{obj_(moduleType), obj_(this.getModule())})))
@@ -1150,7 +1146,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineModuleImport(localName
 			return
 		}
 	}
-	this.outer_.weakImports.add(new_TypedScopeCreator_WeakModuleImport(this.outer_, localNameNode, exportedName, scopeToDeclareIn))
+	*this.outer_.weakImports = append(*this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, localNameNode, exportedName, scopeToDeclareIn))
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) shouldUseFunctionLiteralType(type_ *FunctionType, info *JSDocInfo, lValue Node) bool {
@@ -1269,9 +1265,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) isGoogModuleGetProperty(exte
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(extendsNode Node) *JSType {
 	var call Node = extendsNode
-	var properties *TList[string] = newTList_(tc_string)
+	var properties []string = []string{}
 	for !call.isCall() {
-		properties.insert(0, call.getString())
+		sliceInsert_(&properties, 0, call.getString())
 		call = call.getFirstChild()
 	}
 	var extendsCall *ScopedName = this.outer_.moduleImportResolver.getClosureNamespaceTypeFromCall(call)
@@ -1279,8 +1275,8 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(exte
 		return nil
 	}
 	var moduleScope *TypedScope = this.outer_.memoized.Get(extendsCall.getScopeRoot())
-	properties.insert(0, extendsCall.getName())
-	var superclassName *QualifiedName = QualifiedName_of(Joiner_on_char('.').join(Iterable(properties.asList())))
+	sliceInsert_(&properties, 0, extendsCall.getName())
+	var superclassName *QualifiedName = QualifiedName_of(Joiner_on_char('.').join(Iterable(sliceView_(tc_string, properties))))
 	return moduleScope.lookupQualifiedName(superclassName)
 }
 

@@ -58,12 +58,12 @@ type RenameLabels_ProcessLabels struct {
 	outer_         *RenameLabels
 	markChanges    bool
 	namespaceStack *TDeque[*RenameLabels_LabelNamespace]
-	names_         *TList[string]
+	names_         *[]string
 }
 
 func (this *RenameLabels_ProcessLabels) finit_RenameLabels_ProcessLabels() {
 	this.namespaceStack = newTDeque_(jtc_p_RenameLabels_LabelNamespace)
-	this.names_ = newTList_(tc_string)
+	this.names_ = &[]string{}
 }
 
 func (this *RenameLabels_ProcessLabels) init_RenameLabels_ProcessLabels(markChanges bool) {
@@ -101,8 +101,8 @@ func (this *RenameLabels_ProcessLabels) shouldTraverse(nodeTraversal *NodeTraver
 			panic(new_IllegalStateException_0())
 		}
 		current.renameMap.put(name, li)
-		if this.names_.size() < currentDepth {
-			this.names_.add(str_(this.outer_.nameSupplier()))
+		if int32(len(*this.names_)) < currentDepth {
+			*this.names_ = append(*this.names_, str_(this.outer_.nameSupplier()))
 		}
 	}
 	return true
@@ -169,7 +169,7 @@ func (this *RenameLabels_ProcessLabels) visitLabel(t *NodeTraversal, node Node) 
 }
 
 func (this *RenameLabels_ProcessLabels) getNameForId(id int32) string {
-	return this.names_.get((id - 1))
+	return sliceAt_(*this.names_, (id - 1))
 }
 
 func (this *RenameLabels_ProcessLabels) getLabelInfo(name string) *RenameLabels_LabelInfo {

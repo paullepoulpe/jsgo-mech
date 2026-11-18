@@ -340,21 +340,21 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	if cached != 0 {
 		return cached
 	}
-	var innerFns *TList[Node] = newTList_(tc_Node)
+	var innerFns []Node = []Node{}
 	NodeUtil_visitPreOrder_Node_Visitor(containerFn, &NodeUtil_Visitor_fn{func(n Node) {
 		if equalsId_(n, containerFn) {
 			return
 		}
 		if NodeUtil_isFunctionOrNonStaticClassFieldInitializer(n) {
-			innerFns.add(n)
+			innerFns = append(innerFns, n)
 		}
 	}})
 	cached = func() Node {
-		switch innerFns.size() {
+		switch int32(len(innerFns)) {
 		case 0:
 			return FunctionInjector_NO_FUNCTIONS
 		case 1:
-			return innerFns.get(0)
+			return sliceAt_(innerFns, 0)
 		default:
 			return FunctionInjector_MULTIPLE_FUNCTIONS
 		}

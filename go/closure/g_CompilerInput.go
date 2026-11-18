@@ -10,11 +10,11 @@ type CompilerInput struct {
 	sourceFile                 *SourceFile_jscomp
 	ast                        *CompilerInput_JsAst
 	dependencyInfo             DependencyInfo
-	extraRequires              *TList[*DependencyInfo_Require]
-	extraProvides              *TList[string]
+	extraRequires              *[]*DependencyInfo_Require
+	extraProvides              *[]string
 	orderedRequires            *TList[*DependencyInfo_Require]
 	dynamicRequires            *TList[string]
-	requireDynamicImports      *TList[string]
+	requireDynamicImports      *[]string
 	hasFullParseDependencyInfo bool
 	jsModuleType               CompilerInput_ModuleType
 	typedScope                 *TypedScope
@@ -24,11 +24,11 @@ type CompilerInput struct {
 
 func (this *CompilerInput) finit_CompilerInput() {
 	this.ast = new_CompilerInput_JsAst(this)
-	this.extraRequires = newTList_(tc_p_DependencyInfo_Require)
-	this.extraProvides = newTList_(tc_string)
+	this.extraRequires = &[]*DependencyInfo_Require{}
+	this.extraProvides = &[]string{}
 	this.orderedRequires = newTList_(tc_p_DependencyInfo_Require)
 	this.dynamicRequires = newTList_(tc_string)
-	this.requireDynamicImports = newTList_(tc_string)
+	this.requireDynamicImports = &[]string{}
 	this.hasFullParseDependencyInfo = false
 	this.jsModuleType = CompilerInput_ModuleType_NONE
 }
@@ -155,7 +155,7 @@ func (this *CompilerInput) getKnownRequires() ImmutableCollectionOf[*DependencyI
 			return icast_Iterable(obj_(this.dependencyInfo.getRequires().asImm()))
 		}
 		return ImmutableList_of()
-	}(), Iterable(this.extraRequires.asList())).up_ImmutableCollection()
+	}(), Iterable(slicePtrView_(tc_p_DependencyInfo_Require, this.extraRequires))).up_ImmutableCollection()
 }
 
 func (this *CompilerInput) getKnownRequiredSymbols() *ImmutableList[string] {
@@ -180,11 +180,11 @@ func (this *CompilerInput) getKnownProvides() ImmutableCollectionOf[string] {
 			return icast_Iterable(obj_(this.dependencyInfo.getProvides().asImm()))
 		}
 		return ImmutableList_of()
-	}(), Iterable(this.extraProvides.asList())).up_ImmutableCollection()
+	}(), Iterable(slicePtrView_(tc_string, this.extraProvides))).up_ImmutableCollection()
 }
 
 func (this *CompilerInput) addProvide(provide string) {
-	this.extraProvides.add(provide)
+	*this.extraProvides = append(*this.extraProvides, provide)
 }
 
 func (this *CompilerInput) addOrderedRequire(require *DependencyInfo_Require) bool {
@@ -208,12 +208,12 @@ func (this *CompilerInput) addDynamicRequire(require string) bool {
 }
 
 func (this *CompilerInput) getRequireDynamicImports() []string {
-	return immCopyOf_(tc_string, Collection(this.requireDynamicImports.asList()))
+	return immCopyOf_(tc_string, Collection(sliceViewP_(tc_string, this.requireDynamicImports)))
 }
 
 func (this *CompilerInput) addRequireDynamicImports(require string) {
-	if !Collection_contains_s(this.requireDynamicImports.asList(), require) {
-		this.requireDynamicImports.add(require)
+	if !Collection_contains_s(sliceViewP_(tc_string, this.requireDynamicImports), require) {
+		*this.requireDynamicImports = append(*this.requireDynamicImports, require)
 	}
 }
 
@@ -230,17 +230,17 @@ func (this *CompilerInput) setJsModuleType(moduleType CompilerInput_ModuleType) 
 }
 
 func (this *CompilerInput) addRequire(require *DependencyInfo_Require) {
-	this.extraRequires.add(require)
+	*this.extraRequires = append(*this.extraRequires, require)
 }
 
 func (this *CompilerInput) getDependencyInfo() DependencyInfo {
 	if this.dependencyInfo == nil {
 		this.dependencyInfo = this.generateDependencyInfo()
 	}
-	if !this.extraRequires.isEmpty() || !this.extraProvides.isEmpty() {
-		this.dependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(this.getName(), Optional_of[string](this.getName())).setProvides(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getProvides().asImm())), Iterable(this.extraProvides.asList()))))).setRequires(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getRequires().asImm())), Iterable(this.extraRequires.asList()))))).setTypeRequires(icast_Collection(obj_(this.dependencyInfo.getTypeRequires().asImm()))).setLoadFlags(icast_Map(obj_(this.dependencyInfo.getLoadFlags().asImm()))).setHasExternsAnnotation(this.dependencyInfo.getHasExternsAnnotation()).setHasNoCompileAnnotation(this.dependencyInfo.getHasNoCompileAnnotation()).build()))
-		this.extraRequires.clear()
-		this.extraProvides.clear()
+	if len(*this.extraRequires) != 0 || len(*this.extraProvides) != 0 {
+		this.dependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(this.getName(), Optional_of[string](this.getName())).setProvides(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getProvides().asImm())), Iterable(slicePtrView_(tc_string, this.extraProvides)))))).setRequires(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getRequires().asImm())), Iterable(slicePtrView_(tc_p_DependencyInfo_Require, this.extraRequires)))))).setTypeRequires(icast_Collection(obj_(this.dependencyInfo.getTypeRequires().asImm()))).setLoadFlags(icast_Map(obj_(this.dependencyInfo.getLoadFlags().asImm()))).setHasExternsAnnotation(this.dependencyInfo.getHasExternsAnnotation()).setHasNoCompileAnnotation(this.dependencyInfo.getHasNoCompileAnnotation()).build()))
+		sliceClear_(this.extraRequires)
+		sliceClear_(this.extraProvides)
 	}
 	return this.dependencyInfo
 }
