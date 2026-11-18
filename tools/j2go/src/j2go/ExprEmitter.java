@@ -955,7 +955,7 @@ abstract class ExprEmitter extends Base {
 
   List<TypeMirror> ownParams(ExecutableElement e) {
     List<TypeMirror> out = new ArrayList<>();
-    for (VariableElement p : e.getParameters()) out.add(cx.erase(p.asType()));
+    for (VariableElement p : e.getParameters()) out.add(cx.erase(cx.vtype(p)));
     return out;
   }
 
@@ -979,7 +979,7 @@ abstract class ExprEmitter extends Base {
     if (isStatic) {
       touch(owner);
       List<TypeMirror> params = ownParams(e);
-      TypeMirror ret = cx.erase(e.getReturnType());
+      TypeMirror ret = cx.erase(cx.rtype(e));
       String name = cx.staticMethodName(e);
       if (!src) noteMethod("func " + name, e, params, ret, "static");
       if ((src || cx.isValueLib(owner)) && !cx.keptOf(e.getTypeParameters()).isEmpty()) {
@@ -1034,7 +1034,7 @@ abstract class ExprEmitter extends Base {
     if (src && owner.getKind().isInterface() && e.getModifiers().contains(Modifier.PRIVATE)) {
       List<TypeMirror> params = ownParams(e);
       String al = argList(e, params, args);
-      return new CallResult(cx.staticMethodName(e) + "(" + cx.coerce(recv.code, recv.type, owner.asType()) + (al.isEmpty() ? "" : ", " + al) + ")", cx.erase(e.getReturnType()));
+      return new CallResult(cx.staticMethodName(e) + "(" + cx.coerce(recv.code, recv.type, owner.asType()) + (al.isEmpty() ? "" : ", " + al) + ")", cx.erase(cx.rtype(e)));
     }
     Ctx.K ok = cx.kind(owner.asType());
     ExecutableElement re = cx.root(e);
@@ -1187,7 +1187,7 @@ abstract class ExprEmitter extends Base {
     if (!(el instanceof ExecutableElement e)) throw unsupported(t, "unresolved call " + sel);
     List<Arg> as = args(t.getArguments());
     curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
-    retOverride = e.getModifiers().contains(Modifier.STATIC) ? cx.refinedTrees.get(t) : null;
+    retOverride = e.getModifiers().contains(Modifier.STATIC) && !cx.isTList(cx.refinedTrees.get(t)) ? cx.refinedTrees.get(t) : null;
     if (sel instanceof MemberSelectTree ms) {
       ExpressionTree q = ms.getExpression();
       if (e.getModifiers().contains(Modifier.STATIC)) return special(e, null, as);
@@ -1209,7 +1209,7 @@ abstract class ExprEmitter extends Base {
       // the receiver's code first: a call in it sets curInst for itself
       String rcode = expr(q);
       curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
-      retOverride = e.getModifiers().contains(Modifier.STATIC) ? cx.refinedTrees.get(t) : null;
+      retOverride = e.getModifiers().contains(Modifier.STATIC) && !cx.isTList(cx.refinedTrees.get(t)) ? cx.refinedTrees.get(t) : null;
       return special(e, new Recv(rcode, qt), as);
     }
     return special(e, null, as);
@@ -1274,7 +1274,7 @@ abstract class ExprEmitter extends Base {
     } else if (cx.typedDecl(ty)) {
       // new C<X>(...): new_C[X], its parameters at those type arguments
       params = new ArrayList<>();
-      for (VariableElement pe : ctor.getParameters()) params.add(cx.erase(cx.atSite(pe.asType(), te, ty)));
+      for (VariableElement pe : ctor.getParameters()) params.add(cx.erase(cx.atSite(cx.vtype(pe), te, ty)));
       name += cx.typeArgsOf(ty);
     }
     String al = argList(ctor, params, args(t.getArguments()));

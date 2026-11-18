@@ -175,6 +175,7 @@ final class Ctx {
         public native void insert(int i, T v);
         public native T removeAt(int i);
         public native void clear();
+        public native java.util.Iterator<T> iterator();
       }
       """;
   TypeElement tlist;
@@ -225,7 +226,7 @@ final class Ctx {
     boolean int0 = np > 0 && m.getParameters().get(0).asType().getKind() == TypeKind.INT;
     String tn;
     switch (n + "/" + np) {
-      case "size/0", "isEmpty/0", "clear/0", "set/2": tn = n; break;
+      case "size/0", "isEmpty/0", "clear/0", "set/2", "iterator/0": tn = n; break;
       case "get/1": tn = int0 ? n : null; break;
       case "add/1": tn = n; break;
       case "add/2": tn = "insert"; break;
@@ -1107,12 +1108,12 @@ final class Ctx {
   List<TypeMirror> groupParams(ExecutableElement m) {
     ExecutableElement r = root(m);
     List<TypeMirror> out = new ArrayList<>();
-    for (VariableElement p : r.getParameters()) out.add(erase(p.asType()));
+    for (VariableElement p : r.getParameters()) out.add(erase(vtype(p)));
     return out;
   }
 
   TypeMirror groupReturn(ExecutableElement m) {
-    return erase(root(m).getReturnType());
+    return erase(rtype(root(m)));
   }
 
   /**
@@ -1129,7 +1130,7 @@ final class Ctx {
     if (!groupAt(m, site)) return groupParams(m);
     ExecutableElement r = root(m);
     List<TypeMirror> out = new ArrayList<>();
-    for (VariableElement p : r.getParameters()) out.add(erase(atSite(p.asType(), ownerOf(r), site)));
+    for (VariableElement p : r.getParameters()) out.add(erase(atSite(vtype(p), ownerOf(r), site)));
     return out;
   }
 
@@ -1137,7 +1138,7 @@ final class Ctx {
   TypeMirror groupReturn(ExecutableElement m, TypeMirror site) {
     if (!groupAt(m, site)) return groupReturn(m);
     ExecutableElement r = root(m);
-    return erase(atSite(r.getReturnType(), ownerOf(r), site));
+    return erase(atSite(rtype(r), ownerOf(r), site));
   }
 
   /** The supertype of site (or site itself) whose class is target, with site's type arguments substituted; null if none. */
@@ -1674,6 +1675,15 @@ final class Ctx {
    * array: every cast of it is an empty array of the instantiation).
    */
   final Map<Element, String> sharedStatics = new HashMap<>();
+
+  /** The results of methods that return a typed list (rule "typed collections"). */
+  final Map<ExecutableElement, TypeMirror> typedResults = new HashMap<>();
+
+  /** The result type of method m: the typed list it returns, or its declared type. */
+  TypeMirror rtype(ExecutableElement m) {
+    TypeMirror r = typedResults.get(m);
+    return r != null ? r : m.getReturnType();
+  }
 
   /** The type of variable e: its refined type, or its declared type. */
   TypeMirror vtype(Element e) {

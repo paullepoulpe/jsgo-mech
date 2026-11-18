@@ -107,6 +107,46 @@ of any two instantiations. Java gives an Optional no identity a program may use 
 value-based class), and the translator refuses `==` between two Optionals. `J2GO_ERASED=1`
 keeps this representation (the runtime has no other).
 
+**Typed collections.** A declaration of type `List<X>` or `ArrayList<X>` holds a typed list,
+`*TList[X]` (`rt_tlist.go`: a slice of X values, not of boxes), when the translator can see that
+it only ever holds lists the program makes for it (`Colls`; `J2GO_COLLS=1` reports every
+declaration and why it stays erased, `J2GO_COLLS=2` each one). The decision is made declaration
+by declaration: a field, a local variable, and the parameters and the result of a method whose
+signature is its own (a constructor, a static or private method, an instance method that
+overrides nothing and that nothing overrides; not one named by a method reference). A
+declaration is typed when
+
+- X has one Go type and no type arguments (a String, a class, an interface, a handle);
+- every value that enters it is `new ArrayList<>()`, `new ArrayList<>(n)`,
+  `new ArrayList<>(collection)`, `null`, or the value of another typed declaration of the same
+  element type (an argument enters the parameter, a returned expression the result);
+- every use is one the typed list or its view serves: a `List` method, a for-each loop, `==`,
+  a string concatenation, or a place of type `List`, `Collection`, `Iterable`, `Object` or a
+  type variable. A place that wants the class `ArrayList` must be a typed declaration itself;
+  `subList`, `listIterator` and `getClass` keep the declaration erased.
+
+`list.get(i)`, `add`, `set`, `remove(int)`, `size`, `isEmpty`, `clear` and the for-each loop
+(`it := list.each()`) work on the X values; any other method, and every place that is not a
+typed declaration (a wildcard or raw type, `Object`, a library parameter, a method of a group
+of overriding methods), sees the list as Java's `List` through `list.asList()`. That is the
+list's one erased view, made on first use, which boxes and casts as the erased code did: the
+Java object stays one object wherever it goes (`==`, changes made on either side), `null` is
+`nil` on both sides, and a typed declaration never holds a list that erased code made, so no
+conversion from the erased form exists. Inside the translator a typed declaration, and each
+expression that reads it, has the type `TList<X>` of a class that exists for it alone
+(`Ctx.TLIST_STUB`: the typed methods), and `Ctx.coerce` turns that type into any other
+through the view. The element conversions are generated per element type (`tc_string`,
+`tc_p_JSType` in `g_0casts.go`) with the conversions the erased code makes for that type.
+
+Two differences from the JVM are accepted. An element of the wrong type that unchecked code
+puts into a typed list through its view fails there with the `ClassCastException` that Java
+throws at the first typed read (or never, if the element is never read at its type). And the
+view is not the Go type `*ArrayList`: its `getClass()` is `java.util.ArrayList`, but
+`x instanceof ArrayList` or a cast to `ArrayList` of a view that reached erased code would
+fail (the program has neither; a declaration of type `ArrayList` that a typed list reaches is
+typed too, or the list stays erased).
+`J2GO_ERASED=1` skips the rule.
+
 **Type arguments in declarations.** Library types stay erased; the declared type of a field,
 local or parameter whose Java type is a parameterized library type is written through a generic
 alias: `List<Reference>` becomes

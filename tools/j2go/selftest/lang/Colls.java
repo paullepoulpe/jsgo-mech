@@ -223,10 +223,108 @@ public class Colls {
     p(ints);
   }
 
+  // ---- parameters and results: constructors, static and private methods, methods nothing overrides
+  static class Bag {
+    private final List<Base> items;
+    private final ArrayList<String> tags;
+
+    Bag(List<Base> items, ArrayList<String> tags) {
+      this.items = items;
+      this.tags = tags;
+    }
+
+    List<Base> items() {
+      return items;
+    }
+
+    ArrayList<String> tags() {
+      return tags;
+    }
+
+    // overridden below: its signature stays erased
+    List<String> labels() {
+      List<String> l = new ArrayList<>();
+      l.add("bag");
+      return l;
+    }
+
+    private Base last(List<Base> from) {
+      return from.isEmpty() ? null : from.get(from.size() - 1);
+    }
+
+    Base lastItem() {
+      return last(items);
+    }
+  }
+
+  static class LabelledBag extends Bag {
+    LabelledBag() {
+      super(new ArrayList<>(), null);
+    }
+
+    @Override
+    List<String> labels() {
+      return Collections.singletonList("labelled");
+    }
+  }
+
+  static List<Base> make(int n) {
+    List<Base> l = new ArrayList<>(n);
+    for (int i = 0; i < n; i++) {
+      l.add(i % 2 == 0 ? new Base(i) : new Derived(i));
+    }
+    return l;
+  }
+
+  static List<Base> makeOrNull(boolean flag) {
+    if (flag) {
+      return null;
+    }
+    return make(1);
+  }
+
+  static int total(List<Base> l) {
+    int t = 0;
+    for (Base b : l) {
+      t += b.id;
+    }
+    return t;
+  }
+
+  static List<String> upper(List<String> in) {
+    List<String> out = new ArrayList<>();
+    for (String s : in) {
+      out.add(s + s);
+    }
+    return out;
+  }
+
+  static void methods() {
+    List<Base> made = make(4);
+    ArrayList<String> tags = new ArrayList<>();
+    tags.add("t1");
+    Bag bag = new Bag(made, tags);
+    bag.items().add(new Base(10));
+    bag.tags().add("t2");
+    p(made + " " + tags + " " + (bag.items() == made) + " " + (bag.tags() == tags) + " " + total(bag.items()) + " " + bag.lastItem() + " " + bag.labels());
+    Bag labelled = new LabelledBag();
+    p(labelled.labels() + " " + labelled.items() + " " + labelled.lastItem() + " " + (labelled.tags() == null) + " " + count(labelled.items()));
+    p((makeOrNull(true) == null) + " " + makeOrNull(false) + " " + fail(() -> total(makeOrNull(true))));
+    // named by a method reference: called at the erased signature
+    java.util.function.Function<List<String>, List<String>> f = Colls::upper;
+    List<String> words = new ArrayList<>();
+    words.add("a");
+    words.add("b");
+    p(f.apply(words) + " " + upper(words) + " " + upper(Collections.singletonList("z")));
+    Object o = make(2);
+    p(o + " " + (o instanceof List) + " " + ((List<?>) o).size() + " " + o.getClass().getSimpleName().isEmpty());
+  }
+
   public static String run() {
     new Colls().fields();
     locals(true);
     locals(false);
+    methods();
     return out.toString();
   }
 

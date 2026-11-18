@@ -421,14 +421,14 @@ final class Emitter extends StmtEmitter {
       String name = Ctx.safe(v.getName().toString());
       mc.names.put(pe, name);
       mc.reads.add(pe);
-      TypeMirror declared = cx.erase(pe.asType());
+      TypeMirror declared = cx.erase(cx.vtype(pe));
       TypeMirror group = groupTypes == null ? declared : groupTypes.get(i);
       if (i > 0) {
         d.append(", ");
         nm.append(", ");
       }
       if (cx.goType(declared).equals(cx.goType(group))) {
-        d.append(name).append(" ").append(cx.declType(pe.asType()));
+        d.append(name).append(" ").append(cx.declType(cx.vtype(pe)));
         nm.append(name);
       } else {
         d.append(name).append("_ ").append(cx.goType(group));
@@ -620,20 +620,20 @@ final class Emitter extends StmtEmitter {
     TypeMirror ret;
     Params p;
     if (isStatic) {
-      ret = cx.erase(e.getReturnType());
+      ret = cx.erase(cx.rtype(e));
       p = params(mt.getParameters(), null);
       String mtps = cx.typeParamsDecl(e.getTypeParameters());
       head = "func " + cx.staticMethodName(e) + mtps + "(" + p.decl + ")";
     } else if (iface) {
       boolean priv = e.getModifiers().contains(Modifier.PRIVATE);
-      ret = priv ? cx.erase(e.getReturnType()) : cx.groupReturn(e, te.asType());
+      ret = priv ? cx.erase(cx.rtype(e)) : cx.groupReturn(e, te.asType());
       p = params(mt.getParameters(), priv ? null : cx.groupParams(e, te.asType()));
       String fn = priv ? cx.staticMethodName(e) : n + "_" + cx.methodName(e) + "_default";
       // a generic function of the interface's type parameters for a typed interface
       head = "func " + fn + tparams(te) + "(" + join("this " + cx.goType(te.asType()), p.decl) + ")";
     } else if (cx.genFns.contains(e)) {
       // a generic instance method: a generic function taking the receiver first
-      ret = cx.erase(e.getReturnType());
+      ret = cx.erase(cx.rtype(e));
       p = params(mt.getParameters(), null);
       head = "func " + cx.genFnName(e) + cx.genFnTparamsDecl(e) + "(" + join("this " + cx.ref(te), p.decl) + ")";
     } else {
@@ -651,8 +651,8 @@ final class Emitter extends StmtEmitter {
     }
     String own = cx.initGuards && isStatic && cx.hasClinit(te) ? n + "_clinit()\n" : "";
     // The method's own return type where it is the same Go type: its type arguments are the precise ones.
-    TypeMirror own_ = cx.erase(e.getReturnType());
-    String rs = !mc.isVoid && cx.goType(own_).equals(cx.goType(ret)) ? " " + cx.declType(e.getReturnType()) : retSuffix(ret);
+    TypeMirror own_ = cx.erase(cx.rtype(e));
+    String rs = !mc.isVoid && cx.goType(own_).equals(cx.goType(ret)) ? " " + cx.declType(cx.rtype(e)) : retSuffix(ret);
     file.append(head).append(rs).append(" {\n").append(indent(own + guards() + finish(b.toString()), "\t")).append("\n}\n\n");
     mc = null;
   }

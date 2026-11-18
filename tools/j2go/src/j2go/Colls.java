@@ -33,15 +33,17 @@ final class Colls {
   final Trees trees;
 
   static final class Slot {
-    VariableElement v;
+    Element v;  // a field, a local variable, a parameter; or a method, for its result
     TypeMirror elem;
     String why;
-    boolean made;  // some `new ArrayList` enters it
+    boolean made;  // a list enters it (a new ArrayList, or the value of another candidate)
     final List<Tree> uses = new ArrayList<>();
     final List<Slot> taints = new ArrayList<>();  // erased if this one is
   }
 
   final Map<Element, Slot> slots = new LinkedHashMap<>();
+  /** Methods whose parameters and result can be candidates: nothing overrides them, they override nothing. */
+  final Set<ExecutableElement> closed = new HashSet<>();
 
   Colls(Ctx cx, Trees trees) {
     this.cx = cx;
@@ -60,20 +62,79 @@ final class Colls {
     return t;
   }
 
+  Slot candidate(Element e, TypeMirror type) {
+    TypeMirror elem = cx.tlistElem(type);
+    if (elem == null) return null;
+    Slot s = new Slot();
+    s.v = e;
+    s.elem = elem;
+    slots.put(e, s);
+    return s;
+  }
+
+  /**
+   * Whether the parameters and the result of method m can be candidates: a constructor, a static
+   * or a private method of the program with a body and no type parameters (its signature is its
+   * own: it is in no group of overriding methods, and only calls that name it reach it).
+   */
+  boolean closedMethod(ExecutableElement m, MethodTree t) {
+    if (t.getBody() == null || !m.getTypeParameters().isEmpty()) return false;
+    TypeElement owner = (TypeElement) m.getEnclosingElement();
+    if (owner.getKind() == ElementKind.RECORD || owner.getKind() == ElementKind.ANNOTATION_TYPE) return false;
+    if (m.getKind() == ElementKind.CONSTRUCTOR) return owner.getNestingKind() != NestingKind.ANONYMOUS;
+    if (m.getKind() != ElementKind.METHOD) return false;
+    if (m.getSimpleName().contentEquals("main")) return false;
+    if (m.getModifiers().contains(Modifier.STATIC) || m.getModifiers().contains(Modifier.PRIVATE)) return true;
+    // an instance method of a class that overrides nothing and that nothing overrides
+    if ("1".equals(System.getenv("J2GO_COLLS_NOINSTANCE")) || owner.getKind().isInterface()) return false;
+    if (overridden == null) {
+      overridden = new HashSet<>();
+      for (TypeElement te : cx.source) {
+        for (Element e : te.getEnclosedElements()) {
+          if (e instanceof ExecutableElement x && cx.isInstanceMethod(x) && cx.root(x) != x) {
+            // every method x overrides
+            for (TypeElement st : cx.allSupertypes(te)) {
+              for (Element c : st.getEnclosedElements()) {
+                if (c instanceof ExecutableElement y && y != x && y.getSimpleName().equals(x.getSimpleName()) && cx.elems.overrides(x, y, te)) overridden.add(y);
+              }
+            }
+          }
+        }
+      }
+    }
+    return cx.root(m) == m && !overridden.contains(m);
+  }
+
+  Set<ExecutableElement> overridden;
+  int openResults, openParams;
+
   /** Pass 1: the declarations that could be typed. */
   void candidates(CompilationUnitTree cu) {
     new TreePathScanner<Void, Void>() {
       @Override
+      public Void visitMethod(MethodTree t, Void v) {
+        Element e = trees.getElement(getCurrentPath());
+        if (e instanceof ExecutableElement m && closedMethod(m, t) && !"1".equals(System.getenv("J2GO_COLLS_NOMETHODS"))) {
+          closed.add(m);
+          candidate(m, m.getReturnType());
+        } else if (e instanceof ExecutableElement m) {
+          // not candidates: the signature belongs to a group of overriding methods (or to a lambda's interface)
+          if (cx.tlistElem(m.getReturnType()) != null) openResults++;
+          for (VariableElement p : m.getParameters()) if (cx.tlistElem(p.asType()) != null) openParams++;
+        }
+        return super.visitMethod(t, v);
+      }
+
+      @Override
       public Void visitVariable(VariableTree t, Void v) {
         Element e = trees.getElement(getCurrentPath());
-        if (e instanceof VariableElement ve && (e.getKind() == ElementKind.FIELD || e.getKind() == ElementKind.LOCAL_VARIABLE)) {
-          TypeMirror elem = cx.tlistElem(ve.asType());
-          if (elem != null) {
-            Slot s = new Slot();
-            s.v = ve;
-            s.elem = elem;
-            slots.put(ve, s);
-            Tree parent = getCurrentPath().getParentPath().getLeaf();
+        Tree parent = getCurrentPath().getParentPath().getLeaf();
+        boolean param = e != null && e.getKind() == ElementKind.PARAMETER && parent instanceof MethodTree mt && mt.getParameters().contains(t)
+            && closed.contains(e.getEnclosingElement())
+            && !(((ExecutableElement) e.getEnclosingElement()).isVarArgs() && mt.getParameters().indexOf(t) == mt.getParameters().size() - 1);
+        if (e instanceof VariableElement ve && (e.getKind() == ElementKind.FIELD || e.getKind() == ElementKind.LOCAL_VARIABLE || param)) {
+          Slot s = candidate(ve, ve.asType());
+          if (s != null) {
             if (parent instanceof EnhancedForLoopTree) poison(s, "the variable of a for-each loop");
             if (e.getKind() == ElementKind.FIELD) {
               TypeElement owner = (TypeElement) e.getEnclosingElement();
@@ -110,8 +171,19 @@ final class Colls {
 
       Slot slotOf(ExpressionTree t, TreePath parent) {
         t = strip(t);
+        if (t instanceof MethodInvocationTree mi) return slots.get(elemOf(new TreePath(new TreePath(parent, t), mi.getMethodSelect())));
         if (!(t instanceof IdentifierTree) && !(t instanceof MemberSelectTree)) return null;
-        return slots.get(elemOf(new TreePath(parent, t)));
+        Element e = elemOf(new TreePath(parent, t));
+        return e instanceof VariableElement ? slots.get(e) : null;
+      }
+
+      /** The method (not a lambda) whose body the current tree is in, or null. */
+      ExecutableElement enclosingMethod(TreePath p) {
+        for (TreePath q = p; q != null; q = q.getParentPath()) {
+          if (q.getLeaf() instanceof LambdaExpressionTree || q.getLeaf() instanceof ClassTree) return null;
+          if (q.getLeaf() instanceof MethodTree) return elemOf(q) instanceof ExecutableElement ex ? ex : null;
+        }
+        return null;
       }
 
       /** A value enters s. */
@@ -145,13 +217,20 @@ final class Colls {
             Slot from = slotOf(x, parent);
             if (from != null && cx.types.isSameType(from.elem, s.elem)) {
               from.taints.add(s);
+              s.made = true;
               return;
             }
             poison(s, "assigned a variable that is not typed");
             return;
           }
           case METHOD_INVOCATION: {
-            Element m = elemOf(new TreePath(parent, x));
+            Slot from = slotOf(x, parent);
+            if (from != null && cx.types.isSameType(from.elem, s.elem)) {
+              from.taints.add(s);
+              s.made = true;
+              return;
+            }
+            Element m = elemOf(new TreePath(new TreePath(parent, x), ((MethodInvocationTree) x).getMethodSelect()));
             poison(s, "assigned the result of " + (m == null ? "a call" : m.getEnclosingElement().getSimpleName() + "." + m.getSimpleName()));
             return;
           }
@@ -171,6 +250,27 @@ final class Colls {
         poison(s, "reaches a place of type " + (te == null ? String.valueOf(target) : te.getSimpleName().toString()));
       }
 
+      /** The candidate parameter that argument child of call parent goes to, or null. */
+      Slot argSlot(Tree parent, Tree child, TreePath pp) {
+        if (!(parent instanceof MethodInvocationTree) && !(parent instanceof NewClassTree)) return null;
+        List<? extends ExpressionTree> args = parent instanceof MethodInvocationTree mi ? mi.getArguments() : ((NewClassTree) parent).getArguments();
+        int idx = args.indexOf(child);
+        Element c = parent instanceof MethodInvocationTree mi ? elemOf(new TreePath(pp, mi.getMethodSelect())) : elemOf(pp);
+        if (idx < 0 || !(c instanceof ExecutableElement ex) || idx >= ex.getParameters().size()) return null;
+        return slots.get(ex.getParameters().get(idx));
+      }
+
+      /** The arguments of a call enter the candidate parameters. */
+      void call(Element c, List<? extends ExpressionTree> args) {
+        if (!(c instanceof ExecutableElement ex)) return;
+        for (int i = 0; i < ex.getParameters().size(); i++) {
+          Slot ps = slots.get(ex.getParameters().get(i));
+          if (ps == null) continue;
+          if (i >= args.size()) poison(ps, "a call without its argument");
+          else inflow(ps, args.get(i), getCurrentPath());
+        }
+      }
+
       void use(Slot s) {
         TreePath path = getCurrentPath();
         Tree child = path.getLeaf();
@@ -187,7 +287,9 @@ final class Colls {
           // a branch of a conditional expression: the conditional's own type decides, unless it
           // is what enters a candidate
           boolean intoSlot = parent instanceof VariableTree vt && vt.getInitializer() == child && slots.containsKey(elemOf(pp))
-              || parent instanceof AssignmentTree a && a.getExpression() == child && slotOf(a.getVariable(), pp) != null;
+              || parent instanceof AssignmentTree a && a.getExpression() == child && slotOf(a.getVariable(), pp) != null
+              || parent instanceof ReturnTree && enclosingMethod(pp) != null && slots.containsKey(enclosingMethod(pp))
+              || argSlot(parent, child, pp) != null;
           if (!intoSlot) {
             escape(s, typeOf(child), null);
             return;
@@ -219,18 +321,9 @@ final class Colls {
           return;
         }
         if (parent instanceof ReturnTree) {
-          for (TreePath q = pp; q != null; q = q.getParentPath()) {
-            if (q.getLeaf() instanceof LambdaExpressionTree) break;
-            if (q.getLeaf() instanceof MethodTree) {
-              Element me = elemOf(q);
-              if (me instanceof ExecutableElement ex) {
-                escape(s, ex.getReturnType(), null);
-                return;
-              }
-              break;
-            }
-          }
-          poison(s, "returned from a lambda");
+          ExecutableElement ex = enclosingMethod(pp);
+          if (ex != null) escape(s, ex.getReturnType(), slots.get(ex));
+          else poison(s, "returned from a lambda");
           return;
         }
         if (parent instanceof MethodInvocationTree || parent instanceof NewClassTree) {
@@ -246,7 +339,7 @@ final class Colls {
             poison(s, "a variable argument of " + ex.getSimpleName());
             return;
           }
-          escape(s, ex.getParameters().get(idx).asType(), null);
+          escape(s, ex.getParameters().get(idx).asType(), slots.get(ex.getParameters().get(idx)));
           return;
         }
         if (parent instanceof BinaryTree b) {
@@ -256,6 +349,7 @@ final class Colls {
           escape(s, typeOf(tc), null);
           return;
         }
+        if (parent instanceof ExpressionStatementTree) return;  // a call whose result is not used
         poison(s, "used in " + parent.getKind());
       }
 
@@ -275,7 +369,8 @@ final class Colls {
 
       @Override
       public Void visitIdentifier(IdentifierTree t, Void v) {
-        Slot s = slots.get(elemOf(getCurrentPath()));
+        Element e = elemOf(getCurrentPath());
+        Slot s = e instanceof VariableElement ? slots.get(e) : null;
         if (s != null) use(s);
         return super.visitIdentifier(t, v);
       }
@@ -287,6 +382,55 @@ final class Colls {
         if (s != null) use(s);
         return super.visitMemberSelect(t, v);
       }
+
+      @Override
+      public Void visitMethodInvocation(MethodInvocationTree t, Void v) {
+        Element c = elemOf(new TreePath(getCurrentPath(), t.getMethodSelect()));
+        call(c, t.getArguments());
+        Slot rs = c instanceof ExecutableElement ? slots.get(c) : null;
+        if (rs != null) use(rs);
+        return super.visitMethodInvocation(t, v);
+      }
+
+      @Override
+      public Void visitNewClass(NewClassTree t, Void v) {
+        Element c = elemOf(getCurrentPath());
+        if (t.getClassBody() != null) {
+          // an anonymous class passes its arguments on to the constructor of its superclass
+          TypeMirror tm = typeOf(t);
+          TypeElement te = tm == null ? null : Ctx.typeElement(cx.types.erasure(tm));
+          TypeElement sup = te == null ? null : cx.superclass(te);
+          if (sup != null && !t.getArguments().isEmpty()) {
+            for (Element m : sup.getEnclosedElements()) {
+              if (m.getKind() != ElementKind.CONSTRUCTOR) continue;
+              for (VariableElement p : ((ExecutableElement) m).getParameters()) {
+                if (slots.get(p) != null) poison(slots.get(p), "a constructor that an anonymous class calls");
+              }
+            }
+          }
+        } else {
+          call(c, t.getArguments());
+        }
+        return super.visitNewClass(t, v);
+      }
+
+      @Override
+      public Void visitReturn(ReturnTree t, Void v) {
+        ExecutableElement ex = t.getExpression() == null ? null : enclosingMethod(getCurrentPath());
+        Slot rs = ex == null ? null : slots.get(ex);
+        if (rs != null) inflow(rs, t.getExpression(), getCurrentPath());
+        return super.visitReturn(t, v);
+      }
+
+      @Override
+      public Void visitMemberReference(MemberReferenceTree t, Void v) {
+        // a method named by a method reference is called at the erased signature
+        if (elemOf(getCurrentPath()) instanceof ExecutableElement ex) {
+          if (slots.get(ex) != null) poison(slots.get(ex), "named by a method reference");
+          for (VariableElement p : ex.getParameters()) if (slots.get(p) != null) poison(slots.get(p), "of a method named by a method reference");
+        }
+        return super.visitMemberReference(t, v);
+      }
     }.scan(cu, null);
   }
 
@@ -294,7 +438,7 @@ final class Colls {
   void decide() {
     ArrayDeque<Slot> work = new ArrayDeque<>();
     for (Slot s : slots.values()) {
-      if (s.why == null && !s.made) s.why = "no new ArrayList enters it";
+      if (s.why == null && !s.made) s.why = "no list enters it";
     }
     for (Slot s : slots.values()) if (s.why != null) work.add(s);
     while (!work.isEmpty()) {
@@ -306,7 +450,7 @@ final class Colls {
         }
       }
     }
-    int typed = 0, fields = 0;
+    int typed = 0, fields = 0, params = 0, results = 0;
     Map<String, Integer> whys = new TreeMap<>(), elems = new TreeMap<>();
     boolean report = System.getenv("J2GO_COLLS") != null;
     for (Slot s : slots.values()) {
@@ -317,13 +461,21 @@ final class Colls {
       }
       typed++;
       if (s.v.getKind() == ElementKind.FIELD) fields++;
+      if (s.v.getKind() == ElementKind.PARAMETER) params++;
       elems.merge(s.elem.toString(), 1, Integer::sum);
       TypeMirror t = cx.tlistOf(s.elem);
-      cx.refinedVars.put(s.v, t);
+      if (s.v instanceof ExecutableElement m) {
+        results++;
+        cx.typedResults.put(m, t);
+      } else {
+        cx.refinedVars.put(s.v, t);
+      }
       for (Tree u : s.uses) cx.refinedTrees.put(u, t);
     }
-    System.err.println("typed collections: " + typed + " of " + slots.size() + " List/ArrayList declarations are typed lists (" + fields + " fields, " + (typed - fields) + " locals)");
+    System.err.println("typed collections: " + typed + " of " + slots.size() + " List/ArrayList declarations are typed lists (" + fields + " fields, "
+        + (typed - fields - params - results) + " locals, " + params + " parameters, " + results + " results)");
     if (report) {
+      System.err.println("colls: not candidates: " + openParams + " parameters and " + openResults + " results of methods in groups of overriding methods");
       List<Map.Entry<String, Integer>> l = new ArrayList<>(whys.entrySet());
       l.sort((a, b) -> b.getValue() - a.getValue());
       for (var e : l) System.err.println("colls: erased: " + e.getValue() + " " + e.getKey());

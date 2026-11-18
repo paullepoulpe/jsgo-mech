@@ -79,7 +79,7 @@ func readJson_(decoder *json.Decoder, depth int) *SimpleJsonValue {
 			if t == '{' {
 				value.members().put(any(name), any(item))
 			} else {
-				value.elements().add(any(item))
+				asList_(value.elements()).add(any(item))
 			}
 		}
 		decoder.Token() // the closing bracket

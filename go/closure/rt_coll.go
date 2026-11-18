@@ -57,9 +57,16 @@ type each_ struct {
 	v    any      // the current element
 	src  *[]any   // the collection is one of: a slice (the list's own, read anew at each step),
 	t    *htable_ // a hash table (keys, values or entries according to mode),
+	at   listAt_  // the erased view of a typed list (rt_tlist.go), read by position,
 	it   Iterator // or something with an iterator
 	i    int
 	mode int8
+}
+
+// listAt_ is a list that a for-each cursor reads by position, as it reads an ArrayList's slice.
+type listAt_ interface {
+	len_() int
+	at_(i int) any
 }
 
 func foreach_(c any) each_ {
@@ -80,6 +87,8 @@ func foreach_(c any) each_ {
 		return each_{t: x.t(), mode: hvals_}
 	case *mapEntries_:
 		return each_{t: x.t(), mode: hentries_}
+	case listAt_:
+		return each_{at: x}
 	case nil:
 		panic(new_NullPointerException_0().self())
 	}
@@ -115,6 +124,14 @@ func (e *each_) more() bool {
 				}
 				return true
 			}
+		}
+		return false
+	}
+	if l := e.at; l != nil {
+		if e.i < l.len_() {
+			e.v = l.at_(e.i)
+			e.i++
+			return true
 		}
 		return false
 	}

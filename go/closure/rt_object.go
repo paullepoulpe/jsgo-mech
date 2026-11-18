@@ -14,6 +14,9 @@ import (
 
 // goTypeName_ is the Go type name of an object's class ("Node" for *Node).
 func goTypeName_(v any) string {
+	if n, ok := v.(interface{ goName_() string }); ok {
+		return n.goName_() // an object that stands for one of another Go type (the view of a typed list)
+	}
 	t := reflect.TypeOf(v)
 	for t.Kind() == reflect.Pointer {
 		t = t.Elem()

@@ -1,5 +1,7 @@
 package closure
 
+import "sync/atomic"
+
 // Typed lists (j2go rule "typed collections"): an ArrayList<T> that the translator finds typable
 // is a *TList[T], a slice of T. Its elements are Java's values of type T themselves (a string, a
 // class pointer, a handle), not boxes.
@@ -20,7 +22,7 @@ type tconv_[T any] struct {
 type TList[T any] struct {
 	items []T
 	c     *tconv_[T]
-	view  *tlistView_[T]
+	view  atomic.Pointer[tlistView_[T]]
 }
 
 func newTList_[T any](c *tconv_[T]) *TList[T] { return &TList[T]{c: c} }
@@ -122,16 +124,39 @@ func (e *sliceEach_[T]) next() bool {
 // here, where the loop asked for its iterator.
 func (l *TList[T]) each() sliceEach_[T] { return sliceEach_[T]{src: &l.items} }
 
+// iterator is the list's Iterator (of boxed elements, with remove), as its view's.
+func (l *TList[T]) iterator() Iterator {
+	if l == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return &tlistIter_[T]{l: l}
+}
+
 // asList is the list as an erased List (nil for null): one view per list, its identity for
 // erased code.
 func (l *TList[T]) asList() List {
 	if l == nil {
 		return nil
 	}
-	if l.view == nil {
-		l.view = &tlistView_[T]{l: l}
+	v := l.view.Load()
+	if v == nil {
+		// one view, also when two threads ask for the first time
+		l.view.CompareAndSwap(nil, &tlistView_[T]{l: l})
+		v = l.view.Load()
 	}
-	return l.view
+	return v
+}
+
+// asList_ is a list of the translated program as an erased List, whether the translator made
+// its declaration a typed list or not (for handwritten runtime code that calls generated code).
+func asList_(l any) List {
+	switch x := l.(type) {
+	case List:
+		return x
+	case interface{ asList() List }:
+		return x.asList()
+	}
+	return nil
 }
 
 // tlistView_ is a TList seen as an erased List.
@@ -146,6 +171,13 @@ func (v *tlistView_[T]) boxed() []any {
 	}
 	return out
 }
+
+// len_ and at_ are for the cursor of a for-each loop in erased code (foreach_).
+func (v *tlistView_[T]) len_() int     { return len(v.l.items) }
+func (v *tlistView_[T]) at_(i int) any { return v.l.c.box(v.l.items[i]) }
+
+// goName_ makes getClass() of the view java.util.ArrayList, the class of the Java object.
+func (v *tlistView_[T]) goName_() string { return "ArrayList" }
 
 func (v *tlistView_[T]) self() any                     { return v }
 func (v *tlistView_[T]) size() int32                   { return v.l.size() }
