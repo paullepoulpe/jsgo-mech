@@ -605,3 +605,9 @@ a97d418c patch 423-a97d418c-manual.patch
 938295dd patch 427-938295dd-rt.patch
 # 428. postflip (manual, re-flip): HamtPMap hashes a key without boxing it
 65fbff8a patch 428-65fbff8a-manual.patch
+# 429. postflip (runtime, re-flip): a scope's variables can be looked up by the string id of a name
+b6e39a43 patch 429-b6e39a43-rt.patch
+# 430. postflip (manual, re-flip): AbstractScope.getVarById_, getVar for the name a node holds
+84bcaeda patch 430-84bcaeda-manual.patch
+# 431. postflip step (re-flip): comparisons and scope lookups by the id of a node's string
+26118a47 run t strids && f
