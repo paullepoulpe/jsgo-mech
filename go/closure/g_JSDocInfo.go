@@ -1581,17 +1581,7 @@ func JSDocInfo_Bit_clinit() {
 
 }
 
-type JSDocInfo_TypeTransform interface {
-	apply(*JSTypeExpression) *JSTypeExpression
-}
-
-type JSDocInfo_TypeTransform_fn struct {
-	f func(*JSTypeExpression) *JSTypeExpression
-}
-
-func (this *JSDocInfo_TypeTransform_fn) apply(p0 *JSTypeExpression) *JSTypeExpression {
-	return this.f(p0)
-}
+type JSDocInfo_TypeTransform = *funcObj_[func(*JSTypeExpression) *JSTypeExpression]
 
 type JSDocInfo_Visibility uint8
 

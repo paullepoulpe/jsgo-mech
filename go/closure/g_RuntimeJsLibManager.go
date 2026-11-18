@@ -269,17 +269,7 @@ func RuntimeJsLibManager_RuntimeLibraryMode_clinit() {
 
 }
 
-type RuntimeJsLibManager_ResourceProvider interface {
-	parse(string, string) Node
-}
-
-type RuntimeJsLibManager_ResourceProvider_fn struct {
-	f func(string, string) Node
-}
-
-func (this *RuntimeJsLibManager_ResourceProvider_fn) parse(p0 string, p1 string) Node {
-	return this.f(p0, p1)
-}
+type RuntimeJsLibManager_ResourceProvider = *funcObj_[func(string, string) Node]
 
 type RuntimeJsLibManager_FieldsTable struct {
 }

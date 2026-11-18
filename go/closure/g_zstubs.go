@@ -388,9 +388,7 @@ type BlockingQueue interface {
 	Queue
 }
 
-type BooleanSupplier interface {
-	getAsBoolean() bool
-}
+type BooleanSupplier = *funcObj_[func() bool]
 
 type ByteOutput struct {
 }
@@ -2803,14 +2801,6 @@ func (this *IntUnaryOperator_fn) applyAsInt(p0 int32) int32 {
 	return this.f(p0)
 }
 
-type BooleanSupplier_fn struct {
-	f func() bool
-}
-
-func (this *BooleanSupplier_fn) getAsBoolean() bool {
-	return this.f()
-}
-
 type BiConsumer_tfn_ColorPool_ShardView_TypeProto struct {
 	f func(*ColorPool_ShardView, *TypeProto)
 }
@@ -3408,7 +3398,7 @@ type Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator struct {
 }
 
 func (this *Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator) apply(p0 any) any {
-	return this.f(cast_[*CompilerInput](p0))
+	return obj_(this.f(cast_[*CompilerInput](p0)))
 }
 
 type Function_tfn_CompilerOptions_PassFactory_PreconditionResult struct {
