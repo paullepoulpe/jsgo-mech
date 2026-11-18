@@ -3485,7 +3485,12 @@ func (this Node_RecursionMode) enum_() *Enum {
 
 func (this Node_RecursionMode) name() string { return this.enum_().name_ }
 
-func (this Node_RecursionMode) ordinal() int32 { return this.enum_().ordinal_ }
+func (this Node_RecursionMode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this Node_RecursionMode) toString() string { return this.enum_().name_ }
 
@@ -3556,7 +3561,12 @@ func (this Node_TypeComparison) enum_() *Enum {
 
 func (this Node_TypeComparison) name() string { return this.enum_().name_ }
 
-func (this Node_TypeComparison) ordinal() int32 { return this.enum_().ordinal_ }
+func (this Node_TypeComparison) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this Node_TypeComparison) toString() string { return this.enum_().name_ }
 
@@ -3618,7 +3628,12 @@ func (this Node_JsDocComparison) enum_() *Enum {
 
 func (this Node_JsDocComparison) name() string { return this.enum_().name_ }
 
-func (this Node_JsDocComparison) ordinal() int32 { return this.enum_().ordinal_ }
+func (this Node_JsDocComparison) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this Node_JsDocComparison) toString() string { return this.enum_().name_ }
 
@@ -3683,7 +3698,10 @@ func (this Node_SideEffectComparison) name() string {
 }
 
 func (this Node_SideEffectComparison) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this Node_SideEffectComparison) toString() string {

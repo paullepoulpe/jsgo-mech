@@ -129,7 +129,10 @@ func (this FixedPointGraphTraversal_TraversalDirection) name() string {
 }
 
 func (this FixedPointGraphTraversal_TraversalDirection) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this FixedPointGraphTraversal_TraversalDirection) toString() string {

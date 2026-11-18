@@ -597,7 +597,10 @@ func (this SubtypeChecker_PropertyOptionality) name() string {
 }
 
 func (this SubtypeChecker_PropertyOptionality) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this SubtypeChecker_PropertyOptionality) toString() string {
@@ -669,7 +672,10 @@ func (this SubtypeChecker_Variance) enum_() *Enum {
 func (this SubtypeChecker_Variance) name() string { return this.enum_().name_ }
 
 func (this SubtypeChecker_Variance) ordinal() int32 {
-	return this.enum_().ordinal_
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
 }
 
 func (this SubtypeChecker_Variance) toString() string {

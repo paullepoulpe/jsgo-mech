@@ -136,7 +136,12 @@ func (this Config_StrictMode) enum_() *Enum {
 
 func (this Config_StrictMode) name() string { return this.enum_().name_ }
 
-func (this Config_StrictMode) ordinal() int32 { return this.enum_().ordinal_ }
+func (this Config_StrictMode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this Config_StrictMode) toString() string { return this.enum_().name_ }
 
@@ -215,7 +220,12 @@ func (this Config_LanguageMode) enum_() *Enum {
 
 func (this Config_LanguageMode) name() string { return this.enum_().name_ }
 
-func (this Config_LanguageMode) ordinal() int32 { return this.enum_().ordinal_ }
+func (this Config_LanguageMode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this Config_LanguageMode) toString() string { return this.enum_().name_ }
 
@@ -330,7 +340,12 @@ func (this Config_JsDocParsing) enum_() *Enum {
 
 func (this Config_JsDocParsing) name() string { return this.enum_().name_ }
 
-func (this Config_JsDocParsing) ordinal() int32 { return this.enum_().ordinal_ }
+func (this Config_JsDocParsing) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this Config_JsDocParsing) toString() string { return this.enum_().name_ }
 
@@ -403,7 +418,12 @@ func (this Config_RunMode) enum_() *Enum {
 
 func (this Config_RunMode) name() string { return this.enum_().name_ }
 
-func (this Config_RunMode) ordinal() int32 { return this.enum_().ordinal_ }
+func (this Config_RunMode) ordinal() int32 {
+	if this == 0 {
+		return this.enum_().ordinal_ // null: dereferences nil, as a null enum object did
+	}
+	return int32(this) - 1 // constants are ordinal+1
+}
 
 func (this Config_RunMode) toString() string { return this.enum_().name_ }
 
