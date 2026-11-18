@@ -122,12 +122,17 @@ parameters and the result of a method whose signature is its own (a constructor,
 private method, an instance method that overrides nothing and that nothing overrides; not one
 named by a method reference). A declaration is typed when
 
-- X has one Go type and no type arguments (a String, a class, an interface, a handle); for a
-  set, and for the key of a map, X is a type whose Go `==` is Java's `equals`: a String, an
-  enum, or a class of the program (a handle class too) that inherits `equals` and `hashCode`
-  from Object, as all its subclasses do (`Ctx.goEquals`). The value type of a map may also be a
-  library type with type arguments (`Map<String, List<Node>>` is a `*TMap[string, List]`: the
-  value is the erased `List`, as it is everywhere else);
+- each type argument is a type that a typed collection holds (`Ctx.typedArg`): a String, a
+  class, an interface or a handle without type arguments; a boxed primitive or `Object`, held
+  as the box it is in erased code (`List<Integer>` is a `*TList[any]`, `Map<String, Integer>` a
+  `*TMap[string, any]`); or a library type with type arguments, held at its erasure
+  (`Map<String, List<Node>>` is a `*TMap[string, List]`, `List<List<String>>` a `*TList[List]`:
+  the element is the erased `List`, as it is everywhere else). The elements of a set and the
+  keys of a map are compared, so their type must be one whose Go `==` is Java's `equals`: a
+  String, an enum, a class of the program (a handle class too) that inherits `equals` and
+  `hashCode` from Object, as all its subclasses do (`Ctx.goEquals`), or a boxed primitive that
+  is not a floating-point number (two boxes of equal values of one type are `==` as Go
+  interfaces; `Set<Character>` is a `*TSet[any]`);
 - every value that enters it is a new collection of its kind (`new ArrayList<>()`,
   `new ArrayList<>(n)`, `new ArrayList<>(collection)`; `new LinkedHashSet<>(..)`, the only set
   the program makes; `new ArrayDeque<>(..)`; `new LinkedHashMap<>()`, `(n)`, `(map)`, the only

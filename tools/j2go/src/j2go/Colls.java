@@ -16,10 +16,12 @@ import javax.lang.model.type.*;
  * typed map (`for (Map.Entry<K, V> e : m.entrySet())`) is a *TEntry[K, V].
  *
  * A declaration is typed when
- * - X is a type that has one Go type and no type arguments (a String, a class, an interface, a
- *   handle); for a set and for the key of a map, one whose Go == is Java's equals
- *   (Ctx.goEquals); the value type of a map may be a library type with type arguments, which
- *   is erased wherever it is (Ctx.typedValue);
+ * - each type argument is a type a typed collection holds (Ctx.typedArg): a String, a class, an
+ *   interface or a handle without type arguments; a boxed primitive or Object (the box, `any`);
+ *   a library type with type arguments (at its erasure). The elements of a set and the keys of
+ *   a map are compared, so their type is one whose Go == is Java's equals: a String, an enum, a
+ *   class of the program without equals of its own (Ctx.goEquals), a boxed primitive that is
+ *   not a floating-point number;
  * - every value that enters it is a new collection of its kind (`new ArrayList<>()`,
  *   `new ArrayList<>(n)`, `new ArrayList<>(collection)`; `new LinkedHashSet<>(..)`), null, or
  *   the value of another typed declaration (so the declaration never holds a collection that
@@ -110,23 +112,21 @@ final class Colls {
     for (int i = 0; i < as.size(); i++) {
       TypeMirror a = as.get(i);
       String what = map ? (i == 0 ? "key" : "value") : "element";
+      boolean compared = k.name.equals("set") || map && i == 0;
+      if (cx.typedArg(a, compared) != null) continue;
       if (a.getKind() == TypeKind.WILDCARD) return "a wildcard " + what;
       if (a.getKind() == TypeKind.TYPEVAR) return "a type variable as " + what;
       if (a.getKind() == TypeKind.ARRAY) return "an array as " + what;
       if (a.getKind() != TypeKind.DECLARED) return what + " " + a.getKind();
       TypeElement ae = Ctx.typeElement(a);
       Ctx.K kd = cx.kind(a);
-      if (kd != Ctx.K.STR && kd != Ctx.K.CLS && kd != Ctx.K.IFACE) return what + " " + ae.getSimpleName() + " (any in Go: Object or a boxed primitive)";
+      if (kd != Ctx.K.STR && kd != Ctx.K.CLS && kd != Ctx.K.IFACE) return what + " " + ae.getSimpleName();
       if (cx.isValueLib(ae)) return what + " " + ae.getSimpleName() + " (a value)";
-      if (map && i == 1) {
-        if (cx.typedValue(a) == null) return "a value type with type arguments that is a class of the program";
-        continue;
-      }
-      if (!((DeclaredType) a).getTypeArguments().isEmpty() || !ae.getTypeParameters().isEmpty()) return "an " + what + " type with type arguments";
       if (cx.isSource(ae) && (ae.getNestingKind() == NestingKind.LOCAL || ae.getNestingKind() == NestingKind.ANONYMOUS)) return "a local class as " + what;
-      if ((k.name.equals("set") || map) && !cx.goEquals(ae)) {
-        return what + (cx.isSource(ae) ? (ae.getKind().isInterface() ? " an interface" : " a class with its own equals") : " a library class (" + ae.getSimpleName() + ")");
+      if (!((DeclaredType) a).getTypeArguments().isEmpty() || !ae.getTypeParameters().isEmpty()) {
+        return what + (compared ? " (compared)" : "") + " a type with type arguments" + (cx.isSource(ae) ? " that is a class of the program" : "");
       }
+      return what + (cx.isSource(ae) ? (ae.getKind().isInterface() ? " an interface" : " a class with its own equals") : " a library class (" + ae.getSimpleName() + ")");
     }
     return "?";
   }

@@ -482,9 +482,70 @@ public class Colls {
   private final Map<String, Base> byName = new LinkedHashMap<>();
   private final LinkedHashMap<Color, String> byColor = new LinkedHashMap<>();
   private final Map<String, List<String>> lists = new LinkedHashMap<>();
-  // stay erased: Derived has its own equals; an Integer is not a class of the program
+  // stays erased: Derived has its own equals
   private final Map<Base, String> keyedByEquals = new LinkedHashMap<>();
+  // boxed primitives and Object: the boxes, compared as Java compares them
   private final Map<Integer, String> byNumber = new LinkedHashMap<>();
+  private final Map<String, Integer> counts = new LinkedHashMap<>();
+  private final Set<Character> chars = new LinkedHashSet<>();
+  private final List<Long> longs = new ArrayList<>();
+  private final List<Object> things = new ArrayList<>();
+  private final List<List<String>> nested = new ArrayList<>();
+
+  void boxes() {
+    for (String w : new String[] {"a", "b", "a", "c", "a"}) {
+      Integer n = counts.get(w);
+      counts.put(w, n == null ? 1 : n + 1);
+    }
+    int total = 0;
+    for (int n : counts.values()) {
+      total += n;
+    }
+    for (Map.Entry<String, Integer> e : counts.entrySet()) {
+      e.setValue(e.getValue() * 10);
+    }
+    p(counts + " " + total + " " + counts.get("a") + " " + counts.get("zz") + " " + counts.getOrDefault("zz", -1) + " " + (counts.get("b") + counts.get("c")) + " "
+        + counts.containsValue(10) + " " + counts.containsValue(10L));
+    byNumber.put(1000, "k");
+    byNumber.put(Integer.valueOf(1000), "K");
+    byNumber.put(null, "none");
+    Object asLong = 1000L;
+    p(byNumber + " " + byNumber.get(1000) + " " + byNumber.get(asLong) + " " + byNumber.containsKey(1000) + " " + byNumber.containsKey(7) + " " + byNumber.get(null) + " "
+        + byNumber.remove(1000) + " " + byNumber.size());
+    for (char c : "hello".toCharArray()) {
+      chars.add(c);
+    }
+    Object ch = 'l';
+    Object notCh = "l";
+    p(chars + " " + chars.contains('h') + " " + chars.contains('z') + " " + chars.contains(ch) + " " + chars.contains(notCh) + " " + chars.remove('h') + " " + chars.size());
+    longs.add(5L);
+    longs.add(1L << 40);
+    longs.add(null);
+    long sum = 0;
+    for (Long l : longs) {
+      if (l != null) {
+        sum += l;
+      }
+    }
+    p(longs + " " + sum + " " + longs.get(0) + " " + longs.contains(5L) + " " + longs.contains(5) + " " + longs.indexOf(null) + " " + longs.remove(0) + " " + longs.size()
+        + " " + fail(() -> p(longs.get(1) + 1)));
+    things.add("s");
+    things.add(3);
+    things.add(things.size());
+    things.add(null);
+    things.add(new Base(4));
+    p(things + " " + things.contains(3) + " " + things.indexOf(2) + " " + (things.get(0) instanceof String) + " " + things.get(4));
+    List<String> inner = new ArrayList<>();
+    inner.add("in");
+    nested.add(inner);
+    nested.add(new ArrayList<>());
+    nested.get(1).add("second");
+    inner.add("more");
+    for (List<String> l : nested) {
+      l.add("!");
+    }
+    p(nested + " " + (nested.get(0) == inner) + " " + nested.get(1).size() + " " + nested.contains(inner));
+  }
 
   static Map<Plain, String> named(Plain... ps) {
     Map<Plain, String> m = new LinkedHashMap<>();
@@ -637,6 +698,7 @@ public class Colls {
     new Colls().sets();
     new Colls().deques();
     new Colls().maps();
+    new Colls().boxes();
     return out.toString();
   }
 

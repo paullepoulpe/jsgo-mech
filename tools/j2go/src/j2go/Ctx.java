@@ -331,42 +331,47 @@ final class Ctx {
     if (d.getTypeArguments().size() != (map ? 2 : 1)) return null;
     List<TypeMirror> out = new ArrayList<>();
     for (int i = 0; i < d.getTypeArguments().size(); i++) {
-      TypeMirror a = d.getTypeArguments().get(i);
-      if (map && i == 1) {
-        // The values of a map are compared by nobody: besides the element types, a library
-        // type with type arguments (a List<Node>: the erased List, as every such value is).
-        a = typedValue(a);
-        if (a == null) return null;
-        out.add(a);
-        continue;
-      }
-      if (a.getKind() != TypeKind.DECLARED || !((DeclaredType) a).getTypeArguments().isEmpty()) return null;
-      TypeElement ae = typeElement(a);
-      if (!ae.getTypeParameters().isEmpty()) return null;  // a raw type
-      K k = kind(a);
-      if (k != K.STR && k != K.CLS && k != K.IFACE) return null;
-      if (isSource(ae) && (ae.getNestingKind() == NestingKind.LOCAL || ae.getNestingKind() == NestingKind.ANONYMOUS)) return null;
-      if (isValueLib(ae)) return null;
-      if ((ck.name.equals("set") || map) && !goEquals(ae)) return null;
+      // the elements of a set and the keys of a map are compared
+      TypeMirror a = typedArg(d.getTypeArguments().get(i), ck.name.equals("set") || map && i == 0);
+      if (a == null) return null;
       out.add(a);
     }
     return out;
   }
 
-  /** The type a typed map holds values of declared type a at, or null if it cannot hold them. */
-  TypeMirror typedValue(TypeMirror a) {
+  /**
+   * The type at which a typed collection holds elements (keys, values) of declared type a, or
+   * null if it cannot hold them:
+   * - a String, a class or an interface without type arguments, at that type;
+   * - a boxed primitive or Object, at that type (`any` in Go: the box, as in erased code);
+   * - a library type with type arguments (a List<Node>), at its erasure: the erased List, as
+   *   such a value is everywhere.
+   * An element that the collection compares (compared) is of a type whose Go == is Java's
+   * equals: a String, an enum, a class of the program without equals of its own (goEquals), or
+   * a boxed primitive that is not a floating-point number (the boxes of two equal values of
+   * one type are == as Go interfaces).
+   */
+  TypeMirror typedArg(TypeMirror a, boolean compared) {
     if (a.getKind() != TypeKind.DECLARED) return null;
     TypeElement ae = typeElement(a);
+    boolean simple = !"1".equals(System.getenv("J2GO_COLLS_SIMPLE"));
+    if (ae.getQualifiedName().contentEquals("java.lang.Object")) return compared || !simple ? null : a;
+    TypeMirror prim = unboxed(a);
+    if (prim != null) {
+      if (!simple || compared && (prim.getKind() == TypeKind.DOUBLE || prim.getKind() == TypeKind.FLOAT)) return null;
+      return a;
+    }
     K k = kind(a);
     if (k != K.STR && k != K.CLS && k != K.IFACE) return null;
     if (isSource(ae) && (ae.getNestingKind() == NestingKind.LOCAL || ae.getNestingKind() == NestingKind.ANONYMOUS)) return null;
     if (isValueLib(ae)) return null;
     if (!((DeclaredType) a).getTypeArguments().isEmpty() || !ae.getTypeParameters().isEmpty()) {
       // type arguments: only of a library type, which is erased whatever they are
-      if (isSource(ae) || typedClasses.contains(ae) || "1".equals(System.getenv("J2GO_COLLS_NOGENVALUES"))) return null;
+      if (compared || !simple || isSource(ae) || typedClasses.contains(ae)) return null;
       if (!goType(a).equals(goType(types.erasure(a)))) return null;
       return types.erasure(a);
     }
+    if (compared && !goEquals(ae)) return null;
     return a;
   }
 
@@ -445,8 +450,7 @@ final class Ctx {
     } else if (ck.name.equals("map")) {
       // get, containsKey and remove take an Object: typed when the argument is a key by its static type
       TypeMirror key = ((DeclaredType) recv).getTypeArguments().get(0);
-      boolean keyArg = args != null && args.size() >= 1 && args.get(0) != null
-          && (args.get(0).getKind() == TypeKind.NULL || types.isSubtype(types.erasure(args.get(0)), types.erasure(key)));
+      boolean keyArg = args != null && args.size() >= 1 && isElement(args.get(0), key);
       switch (n + "/" + np) {
         case "size/0", "isEmpty/0", "clear/0", "put/2", "putIfAbsent/2": tn = n; break;
         case "get/1": tn = keyArg ? "get" : null; break;
@@ -464,8 +468,7 @@ final class Ctx {
     } else {
       // contains and remove take an Object: typed when the argument is an element by its static type
       TypeMirror elem = ((DeclaredType) recv).getTypeArguments().get(0);
-      boolean elemArg = args != null && args.size() == 1 && args.get(0) != null
-          && (args.get(0).getKind() == TypeKind.NULL || types.isSubtype(types.erasure(args.get(0)), types.erasure(elem)));
+      boolean elemArg = args != null && args.size() == 1 && isElement(args.get(0), elem);
       switch (n + "/" + np) {
         case "size/0", "isEmpty/0", "clear/0", "iterator/0", "add/1": tn = n; break;
         case "contains/1": tn = elemArg ? "has" : null; break;
@@ -480,13 +483,22 @@ final class Ctx {
     return null;
   }
 
+  /** Whether an argument of static type arg is an element of type elem: null, a subtype, or the primitive of the box. */
+  boolean isElement(TypeMirror arg, TypeMirror elem) {
+    if (arg == null) return false;
+    if (arg.getKind() == TypeKind.NULL) return true;
+    if (arg.getKind().isPrimitive()) return types.isSameType(types.boxedClass((PrimitiveType) arg).asType(), elem);
+    return types.isSubtype(types.erasure(arg), types.erasure(elem));
+  }
+
   /** The element conversions of typed collections: name -> declaration (g_0casts.go). */
   final TreeMap<String, String> tconvs = new TreeMap<>();
 
   /** The name of the conversion of element type elem (tc_string, tc_p_JSType), declared on first use. */
   String tconv(TypeMirror elem) {
     String g = goType(elem);
-    String name = "tc_" + g.replace("*", "p_").replaceAll("[^A-Za-z0-9_]", "_");
+    // a type that is `any` in Go (Object, a boxed primitive) has the conversion of its Java type
+    String name = "tc_" + (kind(elem) == K.ANY ? className(typeElement(elem)) : g.replace("*", "p_").replaceAll("[^A-Za-z0-9_]", "_"));
     if (!tconvs.containsKey(name)) {
       TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
       tconvs.put(name, "");
