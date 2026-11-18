@@ -613,3 +613,7 @@ b6e39a43 patch 429-b6e39a43-rt.patch
 26118a47 run t strids && f
 # 432. postflip step (re-flip): casts to an instantiated generic interface outside generic code call named cast functions
 28eb1868 run t icasts && f
+# 433. postflip (runtime, re-flip): unboxedPred_, unboxedCons_, an erased function given where a typed one of a handle is taken
+2bd6d6b2 patch 433-2bd6d6b2-rt.patch
+# 434. postflip step (re-flip): parameters always given the method of a typed lambda adapter take the typed function
+8571bed2 run t tfnargs && f
