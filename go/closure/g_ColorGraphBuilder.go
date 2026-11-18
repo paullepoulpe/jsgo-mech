@@ -37,9 +37,9 @@ func (this *ColorGraphBuilder) addAll(flats CollectionOf[*ColorGraphNode]) {
 }
 
 func (this *ColorGraphBuilder) build() *LinkedDirectedGraph[*ColorGraphNode, any] {
-	Iterable_forEach(Iterable(this.colorHoldsInstanceGraph.getNodes()), &Consumer_fn{func(p0 any) {
+	Iterable_forEach_f(Iterable(this.colorHoldsInstanceGraph.getNodes()), func(p0 any) {
 		this.connectUnionWithAncestors(to_LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any](p0))
-	}})
+	})
 	var temp *LinkedDirectedGraph[*ColorGraphNode, any] = this.colorHoldsInstanceGraph
 	this.colorHoldsInstanceGraph = nil
 	return temp
