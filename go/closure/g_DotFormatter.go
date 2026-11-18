@@ -134,7 +134,7 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 		var outEdges ListOf[DiGraph_DiGraphEdge[Node]] = this.cfg.getOutEdges(parent)
 		var edgeList []string = newstrarr_(outEdges.size())
 		for i := int32(0); i < int32(len(edgeList)); i++ {
-			var edge DiGraph_DiGraphEdge[Node] = cast_[DiGraph_DiGraphEdge[Node]](outEdges.get(i))
+			var edge DiGraph_DiGraphEdge[Node] = icast_DiGraph_DiGraphEdge_Node(outEdges.get(i))
 			var succ DiGraph_DiGraphNode[Node] = edge.getDestination()
 			var toNode Optional[string] = Optional_empty[string]()
 			if succ == this.cfg.getImplicitReturn() {

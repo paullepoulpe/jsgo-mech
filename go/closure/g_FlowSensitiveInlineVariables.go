@@ -322,7 +322,7 @@ func new_FlowSensitiveInlineVariables_GatherCandidates(outer_ *FlowSensitiveInli
 }
 
 func (this *FlowSensitiveInlineVariables_GatherCandidates) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	var graphNode DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](this.outer_.cfg.getNode(n))
+	var graphNode DiGraph_DiGraphNode[Node] = icast_DiGraph_DiGraphNode_Node(this.outer_.cfg.getNode(n))
 	if graphNode == nil {
 		return
 	}
@@ -408,7 +408,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 		return false
 	}
 	if NodeUtil_isStatementBlock(this.getDefCfgNode().getParent()) && (this.getDefCfgNode().getNext() != this.useCfgNode) {
-		var pathCheck *CheckPathsBetweenNodes[Node, ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean[Node, ControlFlowGraph_Branch](this.outer_.cfg.up_DiGraph(), cast_[DiGraph_DiGraphNode[Node]](this.outer_.cfg.getNode(this.getDefCfgNode())), cast_[DiGraph_DiGraphNode[Node]](this.outer_.cfg.getNode(this.useCfgNode)), icast_Predicate_base(obj_(this.outer_.sideEffectPredicate)), Predicates_alwaysTrue(), false)
+		var pathCheck *CheckPathsBetweenNodes[Node, ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean[Node, ControlFlowGraph_Branch](this.outer_.cfg.up_DiGraph(), icast_DiGraph_DiGraphNode_Node(this.outer_.cfg.getNode(this.getDefCfgNode())), icast_DiGraph_DiGraphNode_Node(this.outer_.cfg.getNode(this.useCfgNode)), icast_Predicate_base(obj_(this.outer_.sideEffectPredicate)), Predicates_alwaysTrue(), false)
 		if pathCheck.somePathsSatisfyPredicate() {
 			return false
 		}

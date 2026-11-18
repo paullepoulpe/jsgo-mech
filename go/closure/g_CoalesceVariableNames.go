@@ -93,7 +93,7 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 	this.liveness.analyze()
 	this.liveAnalyses.push(this.liveness)
 	var interferenceGraph *UndiGraph[*Var, any] = this.computeVariableNamesInterferenceGraph(cfg, this.liveness.getEscapedLocals())
-	var coloring *GraphColoring[*Var, any] = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[*Var, any](cast_[AdjacencyGraph[*Var]](interferenceGraph.self()), this.coloringTieBreaker).up_GraphColoring()
+	var coloring *GraphColoring[*Var, any] = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[*Var, any](icast_AdjacencyGraph_Var(interferenceGraph.self()), this.coloringTieBreaker).up_GraphColoring()
 	coloring.color()
 	*this.colorings = append(*this.colorings, coloring)
 }
@@ -198,7 +198,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 		interferenceGraph.createNode(v)
 		interferenceGraphNodes.set(vIndex)
 	}
-	for cfgNode := range elemsAs_[DiGraph_DiGraphNode[Node]](cfg.getNodes()) {
+	for cfgNode := range elemsBy_(cfg.getNodes(), icast_DiGraph_DiGraphNode_Node) {
 		if cfg.isImplicitReturn(cfgNode) {
 			continue
 		}
@@ -338,7 +338,7 @@ func (this *CoalesceVariableNames) isUninitializedLetNameInLoopBodyAndLive(nameN
 	}
 	var letNode Node = nameNode.getParent()
 	var cfg *ControlFlowGraph[Node] = this.liveness.getCfg()
-	var cfgNode DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](cfg.getNode(letNode))
+	var cfgNode DiGraph_DiGraphNode[Node] = icast_DiGraph_DiGraphNode_Node(cfg.getNode(letNode))
 	if cfgNode == nil {
 		panic(new_NullPointerException_0())
 	}

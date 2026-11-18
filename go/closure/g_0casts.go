@@ -1593,3 +1593,52 @@ var tch_p_SubtypeChecker_CacheKey = &tconv_[*SubtypeChecker_CacheKey]{
 	hash:  func(v *SubtypeChecker_CacheKey) int32 { return objhash_(obj_(v)) },
 	eq:    func(a, b *SubtypeChecker_CacheKey) bool { return objequals_(obj_(a), obj_(b)) },
 }
+
+func icast_AdjacencyGraph_Var(v any) AdjacencyGraph[*Var] {
+	if v == nil {
+		return nil
+	}
+	return v.(AdjacencyGraph[*Var])
+}
+
+func icast_DiGraph_DiGraphEdge_ColorGraphNode(v any) DiGraph_DiGraphEdge[*ColorGraphNode] {
+	if v == nil {
+		return nil
+	}
+	return v.(DiGraph_DiGraphEdge[*ColorGraphNode])
+}
+
+func icast_DiGraph_DiGraphEdge_Node(v any) DiGraph_DiGraphEdge[Node] {
+	if v == nil {
+		return nil
+	}
+	return v.(DiGraph_DiGraphEdge[Node])
+}
+
+func icast_DiGraph_DiGraphNode_ColorGraphNode(v any) DiGraph_DiGraphNode[*ColorGraphNode] {
+	if v == nil {
+		return nil
+	}
+	return v.(DiGraph_DiGraphNode[*ColorGraphNode])
+}
+
+func icast_DiGraph_DiGraphNode_Node(v any) DiGraph_DiGraphNode[Node] {
+	if v == nil {
+		return nil
+	}
+	return v.(DiGraph_DiGraphNode[Node])
+}
+
+func icast_DiGraph_DiGraphNode_PureFunctionIdentifier_AmbiguatedFunctionSummary(v any) DiGraph_DiGraphNode[*PureFunctionIdentifier_AmbiguatedFunctionSummary] {
+	if v == nil {
+		return nil
+	}
+	return v.(DiGraph_DiGraphNode[*PureFunctionIdentifier_AmbiguatedFunctionSummary])
+}
+
+func icast_PMap_Node_Node(v any) PMap[Node, Node] {
+	if v == nil {
+		return nil
+	}
+	return v.(PMap[Node, Node])
+}

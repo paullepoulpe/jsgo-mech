@@ -941,7 +941,7 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) finit_PureFunction
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) init_PureFunctionIdentifier_AmbiguatedFunctionSummary(graph *DiGraph[*PureFunctionIdentifier_AmbiguatedFunctionSummary], name string) {
 	this.finit_PureFunctionIdentifier_AmbiguatedFunctionSummary()
 	this.name_ = name
-	this.graphNode = cast_[DiGraph_DiGraphNode[*PureFunctionIdentifier_AmbiguatedFunctionSummary]](graph.createNode(this))
+	this.graphNode = icast_DiGraph_DiGraphNode_PureFunctionIdentifier_AmbiguatedFunctionSummary(graph.createNode(this))
 }
 
 func new_PureFunctionIdentifier_AmbiguatedFunctionSummary(graph *DiGraph[*PureFunctionIdentifier_AmbiguatedFunctionSummary], name string) *PureFunctionIdentifier_AmbiguatedFunctionSummary {

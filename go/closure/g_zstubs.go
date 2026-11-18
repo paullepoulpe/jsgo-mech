@@ -2954,7 +2954,7 @@ type BiPredicate_tfn_PMap_Node_Node__PMap_Node_Node_ struct {
 }
 
 func (this *BiPredicate_tfn_PMap_Node_Node__PMap_Node_Node_) test(p0 any, p1 any) bool {
-	return this.f(cast_[PMap[Node, Node]](p0), cast_[PMap[Node, Node]](p1))
+	return this.f(icast_PMap_Node_Node(p0), icast_PMap_Node_Node(p1))
 }
 
 type Callable_tfn_DependencyInfo struct {
@@ -3822,7 +3822,7 @@ type Predicate_base_tfn_DiGraph_DiGraphEdge_Node_ struct {
 }
 
 func (this *Predicate_base_tfn_DiGraph_DiGraphEdge_Node_) apply(p0 any) bool {
-	return this.f(cast_[DiGraph_DiGraphEdge[Node]](p0))
+	return this.f(icast_DiGraph_DiGraphEdge_Node(p0))
 }
 
 func (this *Predicate_base_tfn_DiGraph_DiGraphEdge_Node_) test(p0 any) bool {
@@ -4154,7 +4154,7 @@ type ToIntFunction_tfn_DiGraph_DiGraphNode_Node_ struct {
 }
 
 func (this *ToIntFunction_tfn_DiGraph_DiGraphNode_Node_) applyAsInt(p0 any) int32 {
-	return this.f(cast_[DiGraph_DiGraphNode[Node]](p0))
+	return this.f(icast_DiGraph_DiGraphNode_Node(p0))
 }
 
 type ToIntFunction_tfn_DisambiguateProperties_TypeNodeJson struct {
