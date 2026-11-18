@@ -62,16 +62,16 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visit(t *NodeTraversal, n Node,
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTraversal, declaration Node) {
-	var allLhsNodes ArrayListOf[Node] = new_ArrayList_0()
-	NodeUtil_visitLhsNodesInNode(declaration, &Consumer_tfn_Node{func(p0 Node) { allLhsNodes.add(p0.box_()) }})
+	var allLhsNodes *TList[Node] = newTList_(tc_Node)
+	NodeUtil_visitLhsNodesInNode(declaration, &Consumer_tfn_Node{func(p0 Node) { allLhsNodes.add(p0) }})
 	if allLhsNodes.isEmpty() {
 		return
 	}
 	var hasImportantName bool = false
-	var isGlobalDeclaration bool = cast_[*Var](t.getScope().getVar(Node_of_(allLhsNodes.get(0)).getString()).self()).isGlobal()
-	it_1 := foreach_(allLhsNodes.self())
+	var isGlobalDeclaration bool = cast_[*Var](t.getScope().getVar(allLhsNodes.get(0).getString()).self()).isGlobal()
+	it_1 := allLhsNodes.each()
 	for it_1.next() {
-		var lhs Node = Node_of_(it_1.v)
+		var lhs Node = it_1.v
 		Preconditions_checkState_boolean_String_Object_H(lhs.isName(), "Unexpected lhs node %s, expected NAME", lhs)
 		if (isGlobalDeclaration && this.isCrossChunkName(lhs.getString())) || this.isExternVar(lhs.getString(), t) {
 			hasImportantName = true
@@ -79,7 +79,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTra
 		}
 	}
 	if hasImportantName {
-		this.rewriteNameDeclaration(t, declaration, icast_List(allLhsNodes.self()), isGlobalDeclaration)
+		this.rewriteNameDeclaration(t, declaration, allLhsNodes, isGlobalDeclaration)
 	}
 }
 
@@ -100,7 +100,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) globalVarStaysLocalInDefiningCh
 	return (!this.symbolInfo.crossChunkNamesWithWriteFromOtherChunk().contains(name) && this.symbolInfo.globalNamesWithReadInDefiningChunk().contains(name))
 }
 
-func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeTraversal, declaration Node, allLhsNodes ListOf[Node], isGlobalDeclaration bool) {
+func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeTraversal, declaration Node, allLhsNodes *TList[Node], isGlobalDeclaration bool) {
 	if this.optimizeLocalAccess.shouldPreserveLocalVarDeclarations() && !NodeUtil_isAnyFor(declaration.getParent()) {
 		var changed bool = false
 		if (isGlobalDeclaration && !declaration.isVar()) && this.containsNonLocalOrInitializedVars(t, declaration, isGlobalDeclaration) {
@@ -142,9 +142,9 @@ func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeT
 		return
 	}
 	if !this.optimizeLocalAccess.shouldOptimize() || this.containsNonLocalOrInitializedVars(t, declaration, isGlobalDeclaration) {
-		it_2 := foreach_(any(allLhsNodes))
+		it_2 := allLhsNodes.each()
 		for it_2.next() {
-			var lhs Node = Node_of_(it_2.v)
+			var lhs Node = it_2.v
 			this.maybeAddPreDeclaration(t, lhs, isGlobalDeclaration)
 		}
 	}
