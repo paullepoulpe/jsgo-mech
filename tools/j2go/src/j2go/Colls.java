@@ -118,11 +118,11 @@ final class Colls {
   String whyNot(Ctx.CollKind k, TypeMirror t) {
     List<? extends TypeMirror> as = ((DeclaredType) t).getTypeArguments();
     if (as.isEmpty()) return "a raw type";
-    boolean map = k.name.equals("map");
+    boolean map = k.pair();
     for (int i = 0; i < as.size(); i++) {
       TypeMirror a = as.get(i);
       String what = map ? (i == 0 ? "key" : "value") : "element";
-      boolean compared = k.name.equals("set") || map && i == 0;
+      boolean compared = k.compares() && i == 0;
       if (cx.typedArg(a, compared) != null) continue;
       if (a.getKind() == TypeKind.WILDCARD) return "a wildcard " + what;
       if (a.getKind() == TypeKind.TYPEVAR) return "a type variable as " + what;
@@ -149,8 +149,10 @@ final class Colls {
   boolean closedMethod(ExecutableElement m, MethodTree t) {
     if (t.getBody() == null || !m.getTypeParameters().isEmpty()) return false;
     TypeElement owner = (TypeElement) m.getEnclosingElement();
-    if (owner.getKind() == ElementKind.RECORD || owner.getKind() == ElementKind.ANNOTATION_TYPE) return false;
-    if (m.getKind() == ElementKind.CONSTRUCTOR) return owner.getNestingKind() != NestingKind.ANONYMOUS;
+    if (owner.getKind() == ElementKind.ANNOTATION_TYPE) return false;
+    // the canonical constructor of a record is part of its components (recordComponent); its
+    // other constructors keep the erased signature
+    if (m.getKind() == ElementKind.CONSTRUCTOR) return owner.getKind() != ElementKind.RECORD && owner.getNestingKind() != NestingKind.ANONYMOUS;
     if (m.getKind() != ElementKind.METHOD) return false;
     if (m.getSimpleName().contentEquals("main")) return false;
     if (m.getModifiers().contains(Modifier.STATIC) || m.getModifiers().contains(Modifier.PRIVATE)) return true;
@@ -299,6 +301,40 @@ final class Colls {
     return s;
   }
 
+  /**
+   * A component of a record is one declaration: its field, the parameter of the canonical
+   * constructor that sets it, and the accessor that javac makes for it (where the record
+   * declares none, and the accessor implements no method of an interface).
+   */
+  void recordComponent(TypeElement rec, VariableElement field, Slot s) {
+    List<? extends RecordComponentElement> rcs = rec.getRecordComponents();
+    s.all = new ArrayList<>(List.of(field));
+    ExecutableElement canon = null;
+    for (Element e : rec.getEnclosedElements()) {
+      if (e.getKind() != ElementKind.CONSTRUCTOR || ((ExecutableElement) e).getParameters().size() != rcs.size()) continue;
+      boolean same = true;
+      for (int i = 0; i < rcs.size(); i++) {
+        VariableElement p = ((ExecutableElement) e).getParameters().get(i);
+        same &= p.getSimpleName().equals(rcs.get(i).getSimpleName()) && cx.types.isSameType(p.asType(), rcs.get(i).asType());
+      }
+      if (same) canon = (ExecutableElement) e;
+    }
+    for (int i = 0; i < rcs.size(); i++) {
+      if (!rcs.get(i).getSimpleName().equals(field.getSimpleName())) continue;
+      if (canon == null || canon.isVarArgs() && i == rcs.size() - 1) {
+        poison(s, "a record component without a parameter of the canonical constructor");
+        return;
+      }
+      s.all.add(canon.getParameters().get(i));
+      slots.put(canon.getParameters().get(i), s);
+      ExecutableElement acc = rcs.get(i).getAccessor();
+      if (acc != null && trees.getTree(acc) == null && cx.root(acc) == acc) {
+        s.all.add(acc);
+        slots.put(acc, s);
+      }
+    }
+  }
+
   /** Pass 1: the declarations that could be typed. */
   void candidates(CompilationUnitTree cu) {
     new TreePathScanner<Void, Void>() {
@@ -342,7 +378,7 @@ final class Colls {
             if (parent instanceof EnhancedForLoopTree) poison(s, "the variable of a for-each loop");
             if (e.getKind() == ElementKind.FIELD) {
               TypeElement owner = (TypeElement) e.getEnclosingElement();
-              if (owner.getKind() == ElementKind.RECORD) poison(s, "a record component");
+              if (owner.getKind() == ElementKind.RECORD && !e.getModifiers().contains(Modifier.STATIC)) recordComponent(owner, ve, s);
               else if (cx.isHandle(owner)) poison(s, "a field of a handle class");
               else if (!e.getAnnotationMirrors().isEmpty()) poison(s, "an annotated field (read by a library)");
               else if ("locals".equals(System.getenv("J2GO_COLLS_ONLY"))) poison(s, "a field");
@@ -390,9 +426,26 @@ final class Colls {
         return null;
       }
 
+      /**
+       * Whether x is an expression of the static type of Guava's immutable class of s's kind,
+       * with s's type arguments (an ImmutableList<X> for a list of X): its value enters a typed
+       * declaration whether erased code made it or not (Ctx.coerce: the typed collection of the
+       * erased object, t<kind>Imm_), so it erases nothing and nothing erases it.
+       */
+      boolean immutable(Slot s, ExpressionTree x) {
+        if (s.kind.immClass == null || x.getKind() == Tree.Kind.NULL_LITERAL || x.getKind() == Tree.Kind.CONDITIONAL_EXPRESSION) return false;
+        TypeMirror t = typeOf(x);
+        if (t == null || t.getKind() != TypeKind.DECLARED || !Ctx.typeElement(t).getQualifiedName().contentEquals(s.kind.immClass)) return false;
+        return sameArgs(cx.typedArgs(s.kind, t), s.args);
+      }
+
       /** A value enters s. */
       void inflow(Slot s, ExpressionTree x, TreePath parent) {
         x = strip(x);
+        if (immutable(s, x)) {
+          s.made = true;
+          return;
+        }
         switch (x.getKind()) {
           case NULL_LITERAL:
             return;
@@ -434,6 +487,11 @@ final class Colls {
               return;
             }
             Element m = elemOf(new TreePath(new TreePath(parent, x), ((MethodInvocationTree) x).getMethodSelect()));
+            if (s.kind.factory(m) != null && sameArgs(cx.typedArgs(s.kind, typeOf(x)), s.args)) {
+              // ImmutableList.builder(): a new builder
+              s.made = true;
+              return;
+            }
             if (Ctx.isUnmodifiable(m, (MethodInvocationTree) x)) {
               // the runtime's Collections.unmodifiableList is its argument: what enters is the argument
               inflow(s, ((MethodInvocationTree) x).getArguments().get(0), new TreePath(parent, x));
@@ -491,7 +549,11 @@ final class Colls {
       }
 
       void use(Slot s) {
-        TreePath path = getCurrentPath();
+        use(s, getCurrentPath());
+      }
+
+      /** The value of s is used by the expression at path (the name that reads it, or a call on a builder that returns the builder). */
+      void use(Slot s, TreePath path) {
         Tree child = path.getLeaf();
         s.uses.add(child);
         if (s.open) {
@@ -532,7 +594,18 @@ final class Colls {
             poison(s, "used as " + parent);
             return;
           }
+          if (s.kind.view == null) {
+            // a builder has no erased view: only its typed methods; one that returns the builder
+            // (add, put) is the builder again where its result is used
+            ExecutableElement tm = cx.typedMethod(cx.typedOf(s.kind, s.args), me, null);
+            if (tm == null) poison(s, "method " + cx.ownerOf(me).getSimpleName() + "." + me.getSimpleName());
+            else if (cx.typedColl(tm.getReturnType()) == s.kind) use(s, pp.getParentPath());
+            return;
+          }
           TypeElement ro = cx.ownerOf(cx.root(me));
+          // a method that javac finds in Guava's immutable class is called on the twin, which
+          // is the Java class
+          if (s.kind.immType(cx.ownerOf(me))) return;
           if (!s.kind.viewTypes.contains(ro.getQualifiedName().toString()) || NOT_ON_VIEW.contains(me.getSimpleName().toString())) {
             poison(s, "method " + ro.getSimpleName() + "." + me.getSimpleName());
           }

@@ -106,16 +106,19 @@ const (
 
 type ImmutableCollection struct {
 	kind   int8
+	hashed bool
+	total  int32      // multiset: size
+	hash_  int32      // plain set: the hash code, once computed (Guava computes it at construction)
 	items  []any      // list: the elements; otherwise the distinct elements in iteration order
 	idx    *htable_   // set, multiset: element -> position in items (built on demand)
 	counts []int32    // multiset: occurrences of items[i]
-	total  int32      // multiset: size
 	cmp    Comparator // sorted set (nil: natural ordering)
 	list_  *ImmutableCollection
 	all_   []any // multiset: the elements with repetition
-	hash_  int32 // plain set: the hash code, once computed (Guava computes it at construction)
-	hashed bool
 	byOrd  []any // immutable enum set: the element with ordinal i at i (nil where absent)
+	// typed_ is the typed list or set (*TList[T], *TSet[K]: rt_timm.go) that typed code sees
+	// this collection as, once it has reached a typed declaration: the same Java object.
+	typed_ any
 }
 
 type ImmutableList = ImmutableCollection
@@ -141,7 +144,12 @@ func immSet_(items []any) *ImmutableSet {
 	if len(items) == 0 {
 		return emptyImmSet_
 	}
-	checkNoNulls_(items)
+	// Guava's ImmutableSet checks its elements with checkNotNull: no message
+	for _, v := range items {
+		if v == nil {
+			panic(new_NullPointerException_0().self())
+		}
+	}
 	// The index's own key slice is the element slice (an immutable set never has removed entries).
 	t := &htable_{keys: make([]any, 0, len(items))}
 	for _, v := range items {
@@ -626,15 +634,22 @@ func ImmutableSortedSet_naturalOrder() *ImmutableSortedSet_Builder {
 func ImmutableSortedSet_orderedBy(p0 Comparator) *ImmutableSortedSet_Builder {
 	return &ImmutableCollection_Builder{kind: icSorted_, cmp: p0}
 }
+
+// add throws the NullPointerException of Guava's checkNotNull for null: no message.
 func (this *ImmutableCollection_Builder) add(p0 any) *ImmutableCollection_Builder {
 	if p0 == nil {
-		throwNPE_("at index " + istr_(int64(len(this.items))))
+		panic(new_NullPointerException_0().self())
 	}
 	this.items = append(this.items, p0)
 	return this
 }
 
+// add_ObjectArr is add(E...): the builder of a list checks the elements first, naming the
+// position of a null in them.
 func (this *ImmutableCollection_Builder) add_ObjectArr(p0 []any) *ImmutableCollection_Builder {
+	if this.kind == icList_ {
+		checkNoNulls_(p0)
+	}
 	for _, v := range p0 {
 		this.add(v)
 	}

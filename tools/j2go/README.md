@@ -198,6 +198,48 @@ names type parameters has a generic function with the conversions of the class
 (`tc_p_DiGraph_DiGraphNode_N__E_[N, E]()`); both are one object per instantiation (`single_`). The runtime's erased code reads a view without an iterator object (`foreach_`,
 `stepper_`) and looks a String up in it without a box (`contains_s`, `get_s`...).
 
+Guava's immutable collections are typed collections too. A declaration of type
+`ImmutableList<X>` / `ImmutableSet<X>` / `ImmutableMap<K, V>` is one of the list, set or map
+kind, and holds the same Go type, `*TList[X]` / `*TSet[X]` / `*TMap[K, V]`, with its `twin` set
+(`rt_timm.go`): a collection that never changes (every change throws
+`UnsupportedOperationException`, as Guava's do). So a `List<X>` declaration that holds an
+`ArrayList` on one path and `ImmutableList.of()` on another is one typed list, as it is one
+`List` in Java. Erased code sees an immutable typed collection as its twin, the runtime's
+`ImmutableList` / `ImmutableSet` / `ImmutableMap` with the same elements, boxed and made the
+first time erased code needs it (`asImm()`, which `asList()` / `asSet()` / `asMap()` return for
+an immutable collection; a place of type `ImmutableList` or `ImmutableCollection`, and a
+method that javac finds in those classes, `reverse()`, `asList()`, `subList`, gets the twin
+directly). The other way, an expression of the static type `ImmutableList<X>` enters a typed
+declaration whatever made its value: a typed declaration gives the typed list itself, and for
+an erased one (the result of a library method, of a method whose result is not typed, a cast)
+`tlistImm_(tc, x)` / `tsetImm_` / `tmapImm_` gives the typed collection of that object, made
+once and remembered by the erased object (`typed_`). A Java object is thus one typed object
+and one erased object, each found from the other: `==` and "`copyOf` of an immutable collection
+is the collection" hold on both sides, and because the contents never change the two cannot
+be told apart. Such an expression therefore erases nothing and nothing erases it (no
+"exchanges values" between an `ImmutableList` declaration and its sources). Where the typed
+declaration is the target, `ImmutableList.of(a, b)` is the typed factory
+(`immutableListOf_[X](tc, a, b)`, `immutableSetOf_`, `immutableMapOf2_(kc, vc, k1, v1, k2, v2)`;
+`tlistEmptyImm_(tc)` for `of()`: one empty collection per element type, whose twin is the
+runtime's one empty collection) and `ImmutableList.copyOf(c)` is `immutableListCopyOfT_` of a
+typed collection of the same type (an immutable one is itself), `immutableListCopyOfArr_` of an
+array, or `immutableListCopyOf_` of an erased collection. Guava's semantics are the runtime's
+(`rt_guava.go`): insertion order, `NullPointerException` for null elements, keys and values
+with Guava's messages, `IllegalArgumentException` for a key given twice. An
+`ImmutableSortedSet` / `ImmutableSortedMap` with a comparator of its own that reaches a
+declaration of type `ImmutableSet` / `ImmutableMap` is refused at run time (a typed set finds
+its elements by `equals`, not by the comparator; the program has none).
+
+Their builders are typed as well: a declaration of type `ImmutableList.Builder<X>` /
+`ImmutableSet.Builder<X>` / `ImmutableMap.Builder<K, V>` holds a `*TListBuilder[X]` /
+`*TSetBuilder[X]` / `*TMapBuilder[K, V]` (the elements as they are; `build()` is the typed
+immutable collection) when every value that enters it is a new builder
+(`ImmutableList.builder()`, `builderWithExpectedSize(n)`, `new ImmutableList.Builder<>()`) or
+that of another typed builder declaration, and every use is `add`, `addAll`, `put`, `putAll`
+(whose result is the builder again), `build`, `buildOrThrow` or `buildKeepingLast`, or a
+place that is a typed builder declaration: a builder has no erased view.
+`J2GO_COLLS_NOIMM=1` and `J2GO_COLLS_NOBUILDERS=1` are the rules without them.
+
 Two differences from the JVM are accepted. An element of the wrong type that unchecked code
 puts into a typed collection through its view fails there with the `ClassCastException` that
 Java throws at the first typed read (or never, if the element is never read at its type). And

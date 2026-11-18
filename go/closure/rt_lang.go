@@ -62,6 +62,9 @@ func catch_(r any) any {
 			return new_ArithmeticException_String("/ by zero").self()
 		}
 		return new_RuntimeException_String("go runtime: " + msg).self()
+	case frozen_:
+		// a change to an immutable typed collection (rt_timm.go)
+		return new_UnsupportedOperationException_0().self()
 	case error:
 		return new_RuntimeException_String(e.Error()).self()
 	case string:

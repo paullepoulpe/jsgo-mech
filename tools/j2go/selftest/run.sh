@@ -6,8 +6,9 @@ set -euo pipefail
 cd "$(dirname "$0")/../../.."
 t=.cache/j2go-selftest
 rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
-javac -nowarn -d "$t/java" tools/j2go/selftest/lang/*.java
-for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java" lang.$c; done >"$t/expected.txt"
+# lang/Imm.java uses Guava (typed immutable collections).
+javac -nowarn -cp .cache/build/stock-libs.jar -d "$t/java" tools/j2go/selftest/lang/*.java
+for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
 # The test class is translated together with the whole tree, so that the runtime it needs is all there.
 cp go/go.mod "$t/go/" && cp go/closure/rt_*.go "$t/go/closure/" && rm -f "$t"/go/closure/*_test.go
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
@@ -28,7 +29,7 @@ EOF
 cat >"$t/go/closure/rt_selftest.go" <<'EOF'
 package closure
 
-func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() }
+func SelfTest() string { return Lang_run() + Lang2_run() + Handles_run() + Generics_run() + Generics2_run() + Generics3_run() + Colls_run() + Imm_run() }
 EOF
 (cd "$t/go" && gofmt -w closure/g_*.go && go build -o ../t ./cmd/t)
 "$t/t" >"$t/actual.txt" || true

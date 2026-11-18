@@ -818,7 +818,7 @@ final class Emitter extends StmtEmitter {
       if (acc != null && cx.trees.getTree(acc) == null) {
         VariableElement f = fields.get(fields.size() - 1);
         file.append("func (this *").append(n).append(") ").append(cx.implName(acc, te)).append("() ").append(cx.goType(cx.groupReturn(acc)))
-            .append(" {\n\treturn ").append(cx.coerce("this." + cx.fieldName(f), f.asType(), cx.groupReturn(acc))).append("\n}\n\n");
+            .append(" {\n\treturn ").append(cx.coerce("this." + cx.fieldName(f), cx.vtype(f), cx.groupReturn(acc))).append("\n}\n\n");
       }
     }
     boolean hasEquals = false, hasHash = false, hasToString = false;
@@ -834,16 +834,16 @@ final class Emitter extends StmtEmitter {
       StringBuilder b = new StringBuilder("\to, ok := p0.(*" + n + ")\n\tif !ok || o == nil {\n\t\treturn false\n\t}\n\treturn true");
       for (VariableElement f : fields) {
         String fn = cx.fieldName(f);
-        Ctx.K k = cx.kind(f.asType());
+        Ctx.K k = cx.kind(cx.vtype(f));
         if (k == Ctx.K.PRIM || k == Ctx.K.STR) b.append(" && this.").append(fn).append(" == o.").append(fn);
-        else b.append(" && Objects_equals(").append(cx.coerce("this." + fn, f.asType(), objectType())).append(", ").append(cx.coerce("o." + fn, f.asType(), objectType())).append(")");
+        else b.append(" && Objects_equals(").append(cx.coerce("this." + fn, cx.vtype(f), objectType())).append(", ").append(cx.coerce("o." + fn, cx.vtype(f), objectType())).append(")");
       }
       file.append("func (this *").append(n).append(") equals(p0 any) bool {\n").append(b).append("\n}\n\n");
     }
     if (!hasHash) {
       StringBuilder b = new StringBuilder("\tvar h int32\n");
       for (VariableElement f : fields) {
-        b.append("\th = h*31 + Objects_hashCode(").append(cx.coerce("this." + cx.fieldName(f), f.asType(), objectType())).append(")\n");
+        b.append("\th = h*31 + Objects_hashCode(").append(cx.coerce("this." + cx.fieldName(f), cx.vtype(f), objectType())).append(")\n");
       }
       file.append("func (this *").append(n).append(") hashCode() int32 {\n").append(b).append("\treturn h\n}\n\n");
     }
@@ -851,7 +851,7 @@ final class Emitter extends StmtEmitter {
       StringBuilder b = new StringBuilder("\treturn " + quote(te.getSimpleName() + "["));
       boolean first = true;
       for (VariableElement f : fields) {
-        b.append(" + ").append(quote((first ? "" : ", ") + f.getSimpleName() + "=")).append(" + objstr_(").append(cx.coerce("this." + cx.fieldName(f), f.asType(), objectType())).append(")");
+        b.append(" + ").append(quote((first ? "" : ", ") + f.getSimpleName() + "=")).append(" + objstr_(").append(cx.coerce("this." + cx.fieldName(f), cx.vtype(f), objectType())).append(")");
         first = false;
       }
       file.append("func (this *").append(n).append(") toString() string {\n").append(b).append(" + \"]\"\n}\n\n");
