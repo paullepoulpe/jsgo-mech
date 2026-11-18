@@ -1425,7 +1425,7 @@ func (this *AbstractCommandLineRunner) createJsonFile(options *CompilerOptions, 
 	if options.shouldGatherSourceMapInfo() {
 		var sourcemap *StringBuilder = new_StringBuilder()
 		this.compiler_.getSourceMap().appendTo(StringBuilder_as_Appendable(sourcemap), jsonOutput.getPath())
-		jsonOutput.setSourceMap(tostrNN_(sourcemap))
+		jsonOutput.setSourceMap(sourcemap.toString())
 	}
 	return jsonOutput
 }
@@ -1556,14 +1556,14 @@ func (this *AbstractCommandLineRunner) createJsonFileFromChunk(chunk *JSChunk) *
 	if writeChunkOutputOutcome.isErr() {
 		return Outcome_base_err[*AbstractCommandLineRunner_JsonFileSpec](writeChunkOutputOutcome.error())
 	}
-	var jsonFile *AbstractCommandLineRunner_JsonFileSpec = new_AbstractCommandLineRunner_JsonFileSpec_String_String(tostrNN_(output), filename)
+	var jsonFile *AbstractCommandLineRunner_JsonFileSpec = new_AbstractCommandLineRunner_JsonFileSpec_String_String(output.toString(), filename)
 	var chunkSourceMap *StringBuilder = new_StringBuilder()
 	var chunkOutputFileName *Outcome_base[string] = this.getChunkOutputFileName(chunk)
 	if chunkOutputFileName.isErr() {
 		return Outcome_base_err[*AbstractCommandLineRunner_JsonFileSpec](chunkOutputFileName.error())
 	}
 	this.compiler_.getSourceMap().appendTo(StringBuilder_as_Appendable(chunkSourceMap), Optional_ofNullable[string](chunkOutputFileName.get()))
-	jsonFile.setSourceMap(tostrNN_(chunkSourceMap))
+	jsonFile.setSourceMap(chunkSourceMap.toString())
 	return Outcome_base_ok_Object[*AbstractCommandLineRunner_JsonFileSpec](jsonFile)
 }
 

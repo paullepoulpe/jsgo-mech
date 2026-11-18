@@ -139,10 +139,10 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 		replacementString = this.getReplacement(key.orElse(nullstr_))
 		replacement = IR_string(replacementString)
 	case tokOrd1_TEMPLATELIT, tokOrd1_ADD, tokOrd1_NAME:
-		var keyBuilder *StringBuilder = new_StringBuilder()
+		var keyBuilder strBuilder_
 		var keyNode Node = IR_string("")
-		replacement = this.buildReplacement(t, expr, keyNode, keyBuilder)
-		key = Optional_of[string](tostrNN_(keyBuilder))
+		replacement = this.buildReplacement(t, expr, keyNode, &keyBuilder)
+		key = Optional_of[string](keyBuilder.toString())
 		if key.get() == this.placeholderToken {
 			return expr
 		}
@@ -180,7 +180,7 @@ func (this *ReplaceStrings) recordReplacement(key string) {
 	result.didReplacement = true
 }
 
-func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix Node, keyBuilder *StringBuilder) Node {
+func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix Node, keyBuilder *strBuilder_) Node {
 	switch expr.getToken() {
 	case Token_rhino_ADD:
 		var left Node = expr.getFirstChild()
@@ -211,10 +211,10 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 			var initialValue Node = var_.getInitialValue()
 			if initialValue != 0 {
 				var newKeyNode Node = IR_string("")
-				var newKeyBuilder *StringBuilder = new_StringBuilder()
-				var replacement Node = this.buildReplacement(t, initialValue, newKeyNode, newKeyBuilder)
+				var newKeyBuilder strBuilder_
+				var replacement Node = this.buildReplacement(t, initialValue, newKeyNode, &newKeyBuilder)
 				if replacement == newKeyNode {
-					keyBuilder.append_CharSequence(obj_(newKeyBuilder))
+					keyBuilder.append_CharSequence(obj_(&newKeyBuilder))
 					return prefix
 				}
 			}

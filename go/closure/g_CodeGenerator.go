@@ -1789,7 +1789,7 @@ func (this *CodeGenerator) strEscape(s string, doublequoteEscape string, singleq
 			}
 		}
 	}
-	return tostrNN_(sb)
+	return sb.toString()
 }
 
 func (this *CodeGenerator) appendEscapedEq(sb *StringBuilder, isRegexp bool) {
@@ -1867,7 +1867,7 @@ func (this *CodeGenerator) escapeUnrecognizedCharacters(s string) string {
 			escapeStart = start
 		}
 	}
-	return tostrNN_(sb)
+	return sb.toString()
 }
 
 func CodeGenerator_identifierEscape(s string) string {
@@ -1882,7 +1882,7 @@ func CodeGenerator_identifierEscape(s string) string {
 			Util_appendHexJavaScriptRepresentation(sb, c)
 		}
 	}
-	return tostrNN_(sb)
+	return sb.toString()
 }
 
 func CodeGenerator_getNonEmptyChildCount(n Node, maxCount int32) int32 {

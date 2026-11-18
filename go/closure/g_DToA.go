@@ -160,7 +160,7 @@ func DToA_pow5mult(b *BigInteger, k int32) *BigInteger {
 	return b.multiply(BigInteger_valueOf(5).pow(k))
 }
 
-func DToA_roundOff(buf *StringBuilder) bool {
+func DToA_roundOff(buf *strBuilder_) bool {
 	var i int32 = buf.length()
 	for i != 0 {
 		i--
@@ -175,7 +175,7 @@ func DToA_roundOff(buf *StringBuilder) bool {
 	return true
 }
 
-func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool, buf *StringBuilder) int32 {
+func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool, buf *strBuilder_) int32 {
 	var b2 int32
 	var b5 int32
 	var i int32
@@ -773,7 +773,7 @@ func DToA_JS_dtoa(d float64, mode int32, biasUp bool, ndigits int32, sign []bool
 	return (k + 1)
 }
 
-func DToA_stripTrailingZeroes(buf *StringBuilder) {
+func DToA_stripTrailingZeroes(buf *strBuilder_) {
 	var bl int32 = buf.length()
 	for {
 		var prevBl int32 = bl
@@ -785,7 +785,7 @@ func DToA_stripTrailingZeroes(buf *StringBuilder) {
 	buf.setLength((bl + 1))
 }
 
-func DToA_JS_dtostr(buffer *StringBuilder, mode int32, precision int32, d float64) {
+func DToA_JS_dtostr(buffer *strBuilder_, mode int32, precision int32, d float64) {
 	var decPt int32
 	var sign []bool = make([]bool, 1)
 	var nDigits int32
@@ -867,9 +867,9 @@ func DToA_numberToString(value float64) string {
 	if Double_isInfinite(value) {
 		return "Infinity"
 	}
-	var buffer *StringBuilder = new_StringBuilder()
-	DToA_JS_dtostr(buffer, DToA_DTOSTR_STANDARD, 0, value)
-	return tostrNN_(buffer)
+	var buffer strBuilder_
+	DToA_JS_dtostr(&buffer, DToA_DTOSTR_STANDARD, 0, value)
+	return buffer.toString()
 }
 
 const DToA_DTOSTR_STANDARD int32 = 0
