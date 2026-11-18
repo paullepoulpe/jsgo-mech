@@ -102,3 +102,21 @@ func ReplaceMessagesForChrome_clinit() {
 	ReplaceMessagesForChrome_DECLARE_ICU_TEMPLATE_NOT_SUPPORTED = DiagnosticType_error("JSC_DECLARE_ICU_TEMPLATE", "goog.i18n.messages.declareIcuTemplate() is not supported for Chrome i18n.")
 
 }
+
+// processIcuTemplateDefinition: an object that is exactly a ReplaceMessagesForChrome calls its processIcuTemplateDefinition_impl directly (post-flip); others dispatch.
+func (this *ReplaceMessagesForChrome) processIcuTemplateDefinition(p0 IcuTemplateDefinition) {
+	if this.self_ == any(this) {
+		this.processIcuTemplateDefinition_impl(p0)
+		return
+	}
+	this.self_.(interface{ processIcuTemplateDefinition_impl(IcuTemplateDefinition) }).processIcuTemplateDefinition_impl(p0)
+}
+
+// processJsMessageDefinition: an object that is exactly a ReplaceMessagesForChrome calls its processJsMessageDefinition_impl directly (post-flip); others dispatch.
+func (this *ReplaceMessagesForChrome) processJsMessageDefinition(p0 JsMessageDefinition) {
+	if this.self_ == any(this) {
+		this.processJsMessageDefinition_impl(p0)
+		return
+	}
+	this.self_.(interface{ processJsMessageDefinition_impl(JsMessageDefinition) }).processJsMessageDefinition_impl(p0)
+}

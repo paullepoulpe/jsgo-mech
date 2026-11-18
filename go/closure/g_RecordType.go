@@ -154,3 +154,45 @@ func RecordType_clinit() {
 	RecordType_TYPE_CLASS_FIELD = JSTypeClass_RECORD
 
 }
+
+// getTypeClass: an object that is exactly a RecordType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *RecordType) getTypeClass() *JSTypeClass {
+	if this.self_ == any(this) {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+}
+
+// getImplicitPrototype: an object that is exactly a RecordType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
+func (this *RecordType) getImplicitPrototype() *ObjectType {
+	if this.self_ == any(this) {
+		return this.getImplicitPrototype_impl()
+	}
+	return this.self_.(interface{ getImplicitPrototype_impl() *ObjectType }).getImplicitPrototype_impl()
+}
+
+// defineProperty: an object that is exactly a RecordType calls its defineProperty_impl directly (post-flip); others dispatch.
+func (this *RecordType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
+	if this.self_ == any(this) {
+		return this.defineProperty_impl(p0, p1, p2, p3)
+	}
+	return this.self_.(interface {
+		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
+	}).defineProperty_impl(p0, p1, p2, p3)
+}
+
+// toMaybeRecordType: an object that is exactly a RecordType calls its toMaybeRecordType_impl directly (post-flip); others dispatch.
+func (this *RecordType) toMaybeRecordType() *RecordType {
+	if this.self_ == any(this) {
+		return this.toMaybeRecordType_impl()
+	}
+	return this.self_.(interface{ toMaybeRecordType_impl() *RecordType }).toMaybeRecordType_impl()
+}
+
+// isStructuralType: an object that is exactly a RecordType calls its isStructuralType_impl directly (post-flip); others dispatch.
+func (this *RecordType) isStructuralType() bool {
+	if this.self_ == any(this) {
+		return this.isStructuralType_impl()
+	}
+	return this.self_.(interface{ isStructuralType_impl() bool }).isStructuralType_impl()
+}

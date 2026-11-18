@@ -48,3 +48,19 @@ func (this *CheckTypeSummaryWarningsGuard) inTypeSummary(error_ *JSError) bool {
 func (this *CheckTypeSummaryWarningsGuard) shouldDemoteIfTypeSummary(error_ *JSError) bool {
 	return !error_.type_().equals(obj_(ClosurePrimitiveErrors_DUPLICATE_NAMESPACE_AND_MODULE))
 }
+
+// level: an object that is exactly a CheckTypeSummaryWarningsGuard calls its level_impl directly (post-flip); others dispatch.
+func (this *CheckTypeSummaryWarningsGuard) level(p0 *JSError) *CheckLevel {
+	if this.self_ == any(this) {
+		return this.level_impl(p0)
+	}
+	return this.self_.(interface{ level_impl(*JSError) *CheckLevel }).level_impl(p0)
+}
+
+// getPriority: an object that is exactly a CheckTypeSummaryWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
+func (this *CheckTypeSummaryWarningsGuard) getPriority() int32 {
+	if this.self_ == any(this) {
+		return this.getPriority_impl()
+	}
+	return this.self_.(interface{ getPriority_impl() int32 }).getPriority_impl()
+}

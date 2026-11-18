@@ -72,3 +72,14 @@ func CheckTypeImportCodeReferences_clinit() {
 	CheckTypeImportCodeReferences_GOOG_REQUIRE_TYPE = IR_getprop_Node_String(IR_name("goog"), "requireType")
 
 }
+
+// visit: an object that is exactly a CheckTypeImportCodeReferences calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckTypeImportCodeReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

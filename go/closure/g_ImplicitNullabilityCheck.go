@@ -222,3 +222,14 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 	}()
 	this.cap_builder.add(ImplicitNullabilityCheck_Result_create(node, nullability))
 }
+
+// visit: an object that is exactly a ImplicitNullabilityCheck calls its visit_impl directly (post-flip); others dispatch.
+func (this *ImplicitNullabilityCheck) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

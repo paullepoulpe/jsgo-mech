@@ -754,3 +754,25 @@ func (this *Es6RewriteModules_RenameGlobalVars) maybeSetNewName(t *NodeTraversal
 		t.reportCodeChange()
 	}
 }
+
+// visit: an object that is exactly a Es6RewriteModules_RewriteRequiresForEs6Modules calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a Es6RewriteModules_RenameGlobalVars calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6RewriteModules_RenameGlobalVars) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

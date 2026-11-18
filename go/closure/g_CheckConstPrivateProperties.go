@@ -125,3 +125,14 @@ func CheckConstPrivateProperties_clinit() {
 	CheckConstPrivateProperties_MISSING_CONST_PROPERTY = DiagnosticType_disabled("JSC_MISSING_CONST_PROPERTY", "Private property {0} is never modified, use the @const annotation")
 
 }
+
+// visit: an object that is exactly a CheckConstPrivateProperties calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckConstPrivateProperties) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

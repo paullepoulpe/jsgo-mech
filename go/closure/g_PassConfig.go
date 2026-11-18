@@ -167,3 +167,43 @@ func (this *PassConfig_PassConfigDelegate) getFinalizations_impl() *PassListBuil
 func (this *PassConfig_PassConfigDelegate) getTranspileOnlyPasses_impl() *PassListBuilder {
 	return this.delegate.getTranspileOnlyPasses()
 }
+
+// getWhitespaceOnlyPasses: an object that is exactly a PassConfig_PassConfigDelegate calls its getWhitespaceOnlyPasses_impl directly (post-flip); others dispatch.
+func (this *PassConfig_PassConfigDelegate) getWhitespaceOnlyPasses() *PassListBuilder {
+	if this.self_ == any(this) {
+		return this.getWhitespaceOnlyPasses_impl()
+	}
+	return this.self_.(interface{ getWhitespaceOnlyPasses_impl() *PassListBuilder }).getWhitespaceOnlyPasses_impl()
+}
+
+// getChecks: an object that is exactly a PassConfig_PassConfigDelegate calls its getChecks_impl directly (post-flip); others dispatch.
+func (this *PassConfig_PassConfigDelegate) getChecks() *PassListBuilder {
+	if this.self_ == any(this) {
+		return this.getChecks_impl()
+	}
+	return this.self_.(interface{ getChecks_impl() *PassListBuilder }).getChecks_impl()
+}
+
+// getOptimizations: an object that is exactly a PassConfig_PassConfigDelegate calls its getOptimizations_impl directly (post-flip); others dispatch.
+func (this *PassConfig_PassConfigDelegate) getOptimizations() *PassListBuilder {
+	if this.self_ == any(this) {
+		return this.getOptimizations_impl()
+	}
+	return this.self_.(interface{ getOptimizations_impl() *PassListBuilder }).getOptimizations_impl()
+}
+
+// getFinalizations: an object that is exactly a PassConfig_PassConfigDelegate calls its getFinalizations_impl directly (post-flip); others dispatch.
+func (this *PassConfig_PassConfigDelegate) getFinalizations() *PassListBuilder {
+	if this.self_ == any(this) {
+		return this.getFinalizations_impl()
+	}
+	return this.self_.(interface{ getFinalizations_impl() *PassListBuilder }).getFinalizations_impl()
+}
+
+// getTranspileOnlyPasses: an object that is exactly a PassConfig_PassConfigDelegate calls its getTranspileOnlyPasses_impl directly (post-flip); others dispatch.
+func (this *PassConfig_PassConfigDelegate) getTranspileOnlyPasses() *PassListBuilder {
+	if this.self_ == any(this) {
+		return this.getTranspileOnlyPasses_impl()
+	}
+	return this.self_.(interface{ getTranspileOnlyPasses_impl() *PassListBuilder }).getTranspileOnlyPasses_impl()
+}

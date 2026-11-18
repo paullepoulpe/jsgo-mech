@@ -87,3 +87,37 @@ func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition 
 func (this *Scope) makeImplicitVar_impl(var_ *AbstractScope_ImplicitVar) *AbstractVar {
 	return new_Var(var_.nameField, 0, this, -1, nil, 0).up_AbstractVar()
 }
+
+// untyped: an object that is exactly a Scope calls its untyped_impl directly (post-flip); others dispatch.
+func (this *Scope) untyped() *Scope {
+	if this.self_ == any(this) {
+		return this.untyped_impl()
+	}
+	return this.self_.(interface{ untyped_impl() *Scope }).untyped_impl()
+}
+
+// getDepth: an object that is exactly a Scope calls its getDepth_impl directly (post-flip); others dispatch.
+func (this *Scope) getDepth() int32 {
+	if this.self_ == any(this) {
+		return this.getDepth_impl()
+	}
+	return this.self_.(interface{ getDepth_impl() int32 }).getDepth_impl()
+}
+
+// getParent: an object that is exactly a Scope calls its getParent_impl directly (post-flip); others dispatch.
+func (this *Scope) getParent() *AbstractScope {
+	if this.self_ == any(this) {
+		return this.getParent_impl()
+	}
+	return this.self_.(interface{ getParent_impl() *AbstractScope }).getParent_impl()
+}
+
+// makeImplicitVar: an object that is exactly a Scope calls its makeImplicitVar_impl directly (post-flip); others dispatch.
+func (this *Scope) makeImplicitVar(p0 *AbstractScope_ImplicitVar) *AbstractVar {
+	if this.self_ == any(this) {
+		return this.makeImplicitVar_impl(p0)
+	}
+	return this.self_.(interface {
+		makeImplicitVar_impl(*AbstractScope_ImplicitVar) *AbstractVar
+	}).makeImplicitVar_impl(p0)
+}

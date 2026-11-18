@@ -1223,3 +1223,69 @@ func FunctionInjector_CallSiteType_6_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.FunctionInjector.CallSiteType>", enumValues_(FunctionInjector_CallSiteType_6_values_))
 
 }
+
+// prepare: an object that is exactly a FunctionInjector_CallSiteType_1 calls its prepare_impl directly (post-flip); others dispatch.
+func (this *FunctionInjector_CallSiteType_1) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
+	if this.self_ == any(this) {
+		this.prepare_impl(p0, p1)
+		return
+	}
+	this.self_.(interface {
+		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
+	}).prepare_impl(p0, p1)
+}
+
+// prepare: an object that is exactly a FunctionInjector_CallSiteType_2 calls its prepare_impl directly (post-flip); others dispatch.
+func (this *FunctionInjector_CallSiteType_2) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
+	if this.self_ == any(this) {
+		this.prepare_impl(p0, p1)
+		return
+	}
+	this.self_.(interface {
+		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
+	}).prepare_impl(p0, p1)
+}
+
+// prepare: an object that is exactly a FunctionInjector_CallSiteType_3 calls its prepare_impl directly (post-flip); others dispatch.
+func (this *FunctionInjector_CallSiteType_3) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
+	if this.self_ == any(this) {
+		this.prepare_impl(p0, p1)
+		return
+	}
+	this.self_.(interface {
+		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
+	}).prepare_impl(p0, p1)
+}
+
+// prepare: an object that is exactly a FunctionInjector_CallSiteType_4 calls its prepare_impl directly (post-flip); others dispatch.
+func (this *FunctionInjector_CallSiteType_4) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
+	if this.self_ == any(this) {
+		this.prepare_impl(p0, p1)
+		return
+	}
+	this.self_.(interface {
+		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
+	}).prepare_impl(p0, p1)
+}
+
+// prepare: an object that is exactly a FunctionInjector_CallSiteType_5 calls its prepare_impl directly (post-flip); others dispatch.
+func (this *FunctionInjector_CallSiteType_5) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
+	if this.self_ == any(this) {
+		this.prepare_impl(p0, p1)
+		return
+	}
+	this.self_.(interface {
+		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
+	}).prepare_impl(p0, p1)
+}
+
+// prepare: an object that is exactly a FunctionInjector_CallSiteType_6 calls its prepare_impl directly (post-flip); others dispatch.
+func (this *FunctionInjector_CallSiteType_6) prepare(p0 *FunctionInjector, p1 *FunctionInjector_Reference) {
+	if this.self_ == any(this) {
+		this.prepare_impl(p0, p1)
+		return
+	}
+	this.self_.(interface {
+		prepare_impl(*FunctionInjector, *FunctionInjector_Reference)
+	}).prepare_impl(p0, p1)
+}

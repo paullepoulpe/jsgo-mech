@@ -121,3 +121,14 @@ func Es6ForOfConverter_clinit() {
 	Es6ForOfConverter_transpiledFeatures = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_FOR_OF)
 
 }
+
+// visit: an object that is exactly a Es6ForOfConverter calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6ForOfConverter) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

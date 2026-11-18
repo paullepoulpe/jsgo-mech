@@ -272,3 +272,14 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) isBefore(e
 	var laterPosition any = this.nodeOrder.get(later)
 	return (((earlierPosition != nil) && (laterPosition != nil)) && (unbox_[int32](earlierPosition) < unbox_[int32](laterPosition)))
 }
+
+// visit: an object that is exactly a ConcretizeStaticInheritanceForInlining_FindStaticMembers calls its visit_impl directly (post-flip); others dispatch.
+func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
