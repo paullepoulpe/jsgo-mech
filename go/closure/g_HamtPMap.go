@@ -275,7 +275,7 @@ func HamtPMap_reconcile[K comparable, V comparable](t1 *HamtPMap[K, V], t2 *Hamt
 		return t1
 	} else if t1 == nil {
 		var newValue V = joiner.merge(t2.key_, jnull_[V](), t2.value_)
-		var newChildren []*HamtPMap[K, V] = arrmap_(Arrays_copyOf_ObjectArr_int(arrmap_(t2.children_, func(v_ *HamtPMap[K, V]) any { return obj_(v_) }), int32(len(t2.children_))), func(v_ any) *HamtPMap[K, V] { return cast_[*HamtPMap[K, V]](v_) })
+		var newChildren []*HamtPMap[K, V] = arrcopyOf_(t2.children_, int32(len(t2.children_)))
 		for i := int32(0); i < int32(len(newChildren)); i++ {
 			newChildren[i] = HamtPMap_reconcile[K, V](nil, newChildren[i], joiner)
 		}
@@ -287,7 +287,7 @@ func HamtPMap_reconcile[K comparable, V comparable](t1 *HamtPMap[K, V], t2 *Hamt
 		}()
 	} else if t2 == nil {
 		var newValue V = joiner.merge(t1.key_, t1.value_, jnull_[V]())
-		var newChildren []*HamtPMap[K, V] = arrmap_(Arrays_copyOf_ObjectArr_int(arrmap_(t1.children_, func(v_ *HamtPMap[K, V]) any { return obj_(v_) }), int32(len(t1.children_))), func(v_ any) *HamtPMap[K, V] { return cast_[*HamtPMap[K, V]](v_) })
+		var newChildren []*HamtPMap[K, V] = arrcopyOf_(t1.children_, int32(len(t1.children_)))
 		for i := int32(0); i < int32(len(newChildren)); i++ {
 			newChildren[i] = HamtPMap_reconcile[K, V](newChildren[i], nil, joiner)
 		}
@@ -542,7 +542,7 @@ func HamtPMap_insertChild[K comparable, V comparable](children []*HamtPMap[K, V]
 }
 
 func HamtPMap_replaceChild[K comparable, V comparable](children []*HamtPMap[K, V], index int32, child *HamtPMap[K, V]) []*HamtPMap[K, V] {
-	var newChildren []*HamtPMap[K, V] = arrmap_(Arrays_copyOf_ObjectArr_int(arrmap_(children, func(v_ *HamtPMap[K, V]) any { return obj_(v_) }), int32(len(children))), func(v_ any) *HamtPMap[K, V] { return cast_[*HamtPMap[K, V]](v_) })
+	var newChildren []*HamtPMap[K, V] = arrcopyOf_(children, int32(len(children)))
 	newChildren[index] = child
 	return newChildren
 }
