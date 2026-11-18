@@ -17,7 +17,7 @@ fi
 #    instance of a generic type, has no such spelling: no known boxing, the site stays.
 if [[ -f $rwgo ]] && ! grep -q 'ReflipGeneric_' $rwgo; then
   inst=true; grep -q 'TypeArgs().Len() > 0' $rwgo && inst=false
-  perl -0pi -e 's/(func ConvFor\(t types\.Type\) Conv \{\n)/$1\tif ReflipGeneric_(t, '$inst') {\n\t\treturn Conv{}\n\t}\n/' $rwgo
+  perl -0pi -e 's/(func ConvFor\(t types\.Type\) Conv \{\n)/$1\tif ReflipGeneric_(t, '$inst') {\n\t\treturn Conv{IsUnbox: func(string) bool { return false }}\n\t}\n/' $rwgo
   cat >> $rwgo <<'G'
 
 // ReflipGeneric_ reports whether t mentions a type parameter or (inst) an instance of a generic
@@ -73,8 +73,8 @@ fi
 cg=tools/postflip/colls/main.go
 if [[ -f $cg ]] && ! grep -q 'reflip:' $cg; then
   perl -0pi -e '
-    s/(\t\t\treturn value\{kind: vSlot, k: resultKey\(groupOf\(f\), 0\)\})/\t\t\tif f.Origin() != f { \/\/ reflip: generic instance\n\t\t\t\treturn value{kind: vForeign, why: "result of a method of a generic type"}\n\t\t\t}\n$1/;
-    s/(\treturn paramKey\(groupOf\(f\), i\), true)/\tif f.Origin() != f { \/\/ reflip: generic instance\n\t\tpoison(paramKey(groupOf(f), i), "argument of a method of a generic type")\n\t}\n$1/;
+    s/(\t\t\treturn value\{kind: vSlot, k: resultKey\(groupOf\(f\), 0\)\})/\t\t\tif f.Origin() != f { \/\/ reflip: generic instance\n\t\t\t\tpoison(resultKey(groupOf(f.Origin()), 0), "result of a method of a generic type")\n\t\t\t\treturn value{kind: vForeign, why: "result of a method of a generic type"}\n\t\t\t}\n$1/;
+    s/(\treturn paramKey\(groupOf\(f\), i\), true)/\tif f.Origin() != f { \/\/ reflip: generic instance\n\t\tpoison(paramKey(groupOf(f), i), "argument of a method of a generic type")\n\t\tpoison(paramKey(groupOf(f.Origin()), i), "argument of a method of a generic type")\n\t}\n$1/;
     s/(func slotOfVar\(v \*types\.Var\) int \{\n\tk := varKey\(v\)\n)/$1\tif v.Origin() != v || rw.ReflipGeneric_(v.Type(), false) { \/\/ reflip: generic instance\n\t\tpoison(k, "variable of a type parameter\x27s type")\n\t}\n/;
   ' $cg
   [[ $(grep -c 'reflip:' $cg) == 3 ]] || { echo "toolfix: colls: anchors not found" >&2; exit 1; }
@@ -83,9 +83,37 @@ fi
 ng=tools/postflip/native/main.go
 if [[ -f $ng ]] && ! grep -q 'reflip:' $ng; then
   perl -0pi -e '
-    s/(\t\t\treturn value\{kind: vSlot, n: resultNode\(groupOf\(f\), 0\)\})/\t\t\tif f.Origin() != f { \/\/ reflip: generic instance\n\t\t\t\treturn value{kind: vForeign, why: "result of a method of a generic type"}\n\t\t\t}\n$1/;
-    s/(\treturn paramNode\(groupOf\(f\), i\), true)/\tif f.Origin() != f { \/\/ reflip: generic instance\n\t\tpoison(paramNode(groupOf(f), i), "argument of a method of a generic type")\n\t}\n$1/;
+    s/(\t\t\treturn value\{kind: vSlot, n: resultNode\(groupOf\(f\), 0\)\})/\t\t\tif f.Origin() != f { \/\/ reflip: generic instance\n\t\t\t\tpoison(resultNode(groupOf(f.Origin()), 0), "result of a method of a generic type")\n\t\t\t\treturn value{kind: vForeign, why: "result of a method of a generic type"}\n\t\t\t}\n$1/;
+    s/(\treturn paramNode\(groupOf\(f\), i\), true)/\tif f.Origin() != f { \/\/ reflip: generic instance\n\t\tpoison(paramNode(groupOf(f), i), "argument of a method of a generic type")\n\t\tpoison(paramNode(groupOf(f.Origin()), i), "argument of a method of a generic type")\n\t}\n$1/;
     s/(func varNode\(v \*types\.Var\) \*node \{\n\tn := get\(fmt\.Sprintf\("v\|%d", v\.Pos\(\)\)\)\n)/$1\tif v.Origin() != v || rw.ReflipGeneric_(v.Type(), false) { \/\/ reflip: generic instance\n\t\tpoison(n, "variable of a type parameter\x27s type")\n\t}\n/;
   ' $ng
   [[ $(grep -c 'reflip:' $ng) == 3 ]] || { echo "toolfix: native: anchors not found" >&2; exit 1; }
+fi
+# 5. funcparams: an object passed where a func is now wanted becomes its method value, o.m. The
+#    erased code never passed a literal &T{...} there that was not a lambda wrapper F_fn (those
+#    are unwrapped); j2go's typed adapters (&Consumer_tfn_Node{func...}) are such literals, and
+#    &T{...}.m is not Go: (&T{...}).m.
+fg=tools/postflip/funcparams/main.go
+if [[ -f $fg ]] && grep -q 'return rw.Render(o) + "." + m' $fg && ! grep -q 'reflipRecv_' $fg; then
+  perl -pi -e 's/return rw\.RenderChildren\(o\) \+ "\." \+ m/return reflipRecv_(o, rw.RenderChildren(o)) + "." + m/; s/return rw\.Render\(o\) \+ "\." \+ m/return reflipRecv_(o, rw.Render(o)) + "." + m/' $fg
+  cat >> $fg <<'G'
+
+// reflipRecv_ parenthesizes the text s of receiver o where a selector would not bind to it.
+func reflipRecv_(o ast.Expr, s string) string {
+	if _, ok := o.(*ast.UnaryExpr); ok {
+		return "(" + s + ")"
+	}
+	return s
+}
+G
+fi
+# 6. colls: `x := conv(el)` (a short declaration of a collection variable) is what native's range
+#    loops over immElems_ leave where the element is erased. The flow pass takes the type of the
+#    assigned place from go/types' expression types, which have no entry for a defining
+#    identifier, so the value "left for a place that is no collection" and the variable's class
+#    could be typed with the declaration unchanged. First flip: the same loops ranged over
+#    typed slices (their variables are "elements of a Go slice", poisoned). Now a short
+#    declaration joins the class of the slot it is given, and anything else poisons its class.
+if [[ -f $cg ]] && ! grep -q 'reflip6' $cg; then
+  perl -0pi -e 's/(\t\t\tcase \*ast\.AssignStmt:\n\t\t\t\tif len\(x\.Lhs\) != len\(x\.Rhs\) \{\n\t\t\t\t\treturn true\n\t\t\t\t\}\n\t\t\t\tfor i, r := range x\.Rhs \{\n)(\t\t\t\t\tif other\(r\) && isList\(typeOf\(x\.Lhs\[i\]\)\) \{)/$1\t\t\t\t\tif dv := varOf(x.Lhs[i]); x.Tok == token.DEFINE \&\& dv != nil \&\& isList(dv.Type()) \&\& !other(r) { \/\/ reflip6\n\t\t\t\t\t\tif rv := valueOf(r); rv.kind == vSlot {\n\t\t\t\t\t\t\tunion(slotOfVar(dv), rv.k)\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tpoison(slotOfVar(dv), "short declaration from a value that is no slot")\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n$2/' $cg
 fi
