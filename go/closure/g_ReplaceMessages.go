@@ -309,12 +309,12 @@ func ReplaceMessages_isStartOfIcuMessage(part string) bool {
 	if !strings.HasPrefix(part, "{") {
 		return false
 	}
-	var commaIndex int32 = String_indexOf_int_int(part, 44, 1)
+	var commaIndex int32 = indexByteFrom_(part, ',', 1)
 	if commaIndex <= 1 {
 		return false
 	}
-	var nextBracketIndex int32 = String_indexOf_int_int(part, 123, 1)
-	return (((nextBracketIndex == -1) || (nextBracketIndex > commaIndex)) && (String_startsWith_String_int(part, "plural,", (commaIndex+1)) || String_startsWith_String_int(part, "select,", (commaIndex+1))))
+	var nextBracketIndex int32 = indexByteFrom_(part, '{', 1)
+	return (((nextBracketIndex == -1) || (nextBracketIndex > commaIndex)) && (hasPrefixAt_(part, "plural,", (commaIndex+1)) || hasPrefixAt_(part, "select,", (commaIndex+1))))
 }
 
 var ReplaceMessages_BUNDLE_DOES_NOT_HAVE_THE_MESSAGE *DiagnosticType

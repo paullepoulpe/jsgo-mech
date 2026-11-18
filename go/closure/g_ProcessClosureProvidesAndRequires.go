@@ -84,11 +84,11 @@ func (this *ProcessClosureProvidesAndRequires) visitGoogMethodCall(t *NodeTraver
 		var arg Node = n.getSecondChild()
 		if arg.isStringLit() {
 			var argString string = arg.getString()
-			var dot int32 = String_indexOf(argString, 46)
+			var dot int32 = int32(strings.IndexByte(argString, '.'))
 			if dot == -1 {
 				this.exportedVariables.add(argString)
 			} else {
-				this.exportedVariables.add(String_substring(argString, 0, dot))
+				this.exportedVariables.add(argString[:dot])
 			}
 		}
 	case "require", "requireType":
@@ -180,7 +180,7 @@ func (this *ProcessClosureProvidesAndRequires) checkNestedTypedefProvide(exprRes
 	if !this.providedNames.containsKey(name) {
 		return
 	}
-	var parentName string = String_substring(name, 0, String_lastIndexOf_String(name, "."))
+	var parentName string = cutBytes_(name, 0, int32(strings.LastIndex(name, ".")))
 	var parent *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(parentName)
 	var parentDefinition Node = parent.getCandidateDefinition()
 	if ((parentDefinition == 0) || !equalsId_(parentDefinition.getStaticSourceFile(), exprResult.getStaticSourceFile())) || this.isTypedefStubDeclaration(parentDefinition) {
@@ -256,10 +256,10 @@ func (this *ProcessClosureProvidesAndRequires) verifyOnlyArgumentIsString(call N
 }
 
 func (this *ProcessClosureProvidesAndRequires) registerAnyProvidedPrefixes(ns string, node Node, chunk *JSChunk) {
-	var pos int32 = String_indexOf(ns, 46)
+	var pos int32 = int32(strings.IndexByte(ns, '.'))
 	for pos != -1 {
-		var prefixNs string = String_substring(ns, 0, pos)
-		pos = String_indexOf_int_int(ns, 46, (pos + 1))
+		var prefixNs string = ns[:pos]
+		pos = indexByteFrom_(ns, '.', (pos + 1))
 		if this.providedNames.containsKey(prefixNs) {
 			this.providedNames.get(prefixNs).addProvide(node, chunk, false, this.chunkGraph)
 		} else {

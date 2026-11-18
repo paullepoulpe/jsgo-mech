@@ -379,9 +379,9 @@ func (this *CheckClosureImports_Checker) checkShortName(t *NodeTraversal, shortN
 	if (shortName == lastSegment) || lastSegment == "" {
 		return
 	}
-	if Ascii_isUpperCase(String_charAt(shortName, 0)) != Ascii_isUpperCase(String_charAt(lastSegment, 0)) {
+	if Ascii_isUpperCase(uint16(byteAt_(shortName, 0))) != Ascii_isUpperCase(uint16(byteAt_(lastSegment, 0))) {
 		var newStartChar uint16 = func() uint16 {
-			if Ascii_isUpperCase(String_charAt(shortName, 0)) {
+			if Ascii_isUpperCase(uint16(byteAt_(shortName, 0))) {
 				return Ascii_toLowerCase_char(String_charAt(shortName, 0))
 			}
 			return Ascii_toUpperCase_char(String_charAt(shortName, 0))
