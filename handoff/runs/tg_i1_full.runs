@@ -1,0 +1,6 @@
+  typed-full erased wall=86.91 cpu=103.27 round=0 load=2.64
+  typed-full prev wall=83.85 cpu=98.08 round=0 load=2.98
+  typed-full this wall=85.19 cpu=98.51 round=0 load=2.64
+  typed-full this wall=86.07 cpu=99.92 round=1 load=2.48
+  typed-full prev wall=86.07 cpu=100.10 round=1 load=3.06
+  typed-full erased wall=86.99 cpu=104.47 round=1 load=3.39

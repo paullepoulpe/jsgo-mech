@@ -1,0 +1,12 @@
+  bundle erased wall=38.56 cpu=45.09 round=0 load=3.75
+  bundle g2 wall=39.97 cpu=45.67 round=0 load=3.49
+  bundle g3 wall=41.10 cpu=46.35 round=0 load=3.68
+  bundle java wall=34.53 cpu=62.56 round=0 load=4.96
+  bundle java wall=31.23 cpu=62.87 round=1 load=5.00
+  bundle g3 wall=41.19 cpu=46.17 round=1 load=4.42
+  bundle g2 wall=40.79 cpu=45.77 round=1 load=4.02
+  bundle erased wall=39.90 cpu=45.72 round=1 load=3.31
+  bundle erased wall=38.86 cpu=44.55 round=2 load=3.43
+  bundle g2 wall=39.58 cpu=45.03 round=2 load=3.41
+  bundle g3 wall=41.41 cpu=45.30 round=2 load=4.22
+  bundle java wall=30.31 cpu=61.24 round=2 load=4.18

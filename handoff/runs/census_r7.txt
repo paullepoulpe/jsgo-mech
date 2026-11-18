@@ -1,0 +1,30 @@
+     228 in   91 files  Java collections (erased): constructors
+     431 in  189 files  Java collections: typed TList/TMap/TSet constructors
+     748 in  222 files  Guava immutable collections / builders
+     106 in   49 files  native Go slices made
+       0 in    0 files  native Go maps made
+     101 in   53 files  for-each via iterator objects (foreach_/each)
+     102 in   39 files  explicit Iterator use (.iterator()/hasNext)
+       0 in    0 files  streams (Stream/Collectors)
+       0 in    0 files  dynamic dispatch through self_ (this.self_.(interface{...}))
+       1 in    1 files  anonymous interface assertions .(interface{
+     959 in  209 files  interface casts icast_X(
+    2018 in  300 files  class casts to_X( / cast_[T](
+      72 in   29 files  instanceof is_X(
+    5175 in  424 files  boxing to any: obj_( / strobj_( / .box_() / any(
+     704 in  213 files  unboxing from any: str_( / unboxing casts
+     201 in   75 files  lambda objects &X_fn{func
+      85 in   26 files  Optional
+      62 in   25 files  try/catch emulation: recover() / catch_ (Java try/catch)
+    3517 in  449 files  throw as panic( (the Go idiom for an unchecked exception)
+      88 in   46 files  defer
+      48 in   21 files  Java equals/hashCode protocol
+     973 in  130 files  String_* UTF-16 helpers (charAt, substring, indexOf...)
+      24 in    8 files  StringBuilder
+       0 in    0 files  enum objects: structs embedding Enum
+       0 in    0 files  enum objects: calls on object enums (.Enum.x())
+       3 in    3 files  Preconditions_ checks
+      13 in    2 files  threads/executors/synchronized emulation
+       5 in    2 files  reflect
+       1 in    1 files  unsafe
+    1852                 fields/params declared any (approx)

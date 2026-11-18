@@ -1,0 +1,12 @@
+  typed-full erased wall=79.51 cpu=97.92 round=0 load=2.14
+  typed-full g2 wall=77.40 cpu=95.94 round=0 load=1.47
+  typed-full g3 wall=79.63 cpu=99.73 round=0 load=1.33
+  typed-full java wall=53.11 cpu=126.94 round=0 load=1.84
+  typed-full java wall=53.19 cpu=126.50 round=1 load=1.80
+  typed-full g3 wall=79.94 cpu=98.01 round=1 load=2.55
+  typed-full g2 wall=82.82 cpu=97.54 round=1 load=3.26
+  typed-full erased wall=83.68 cpu=100.19 round=1 load=2.79
+  typed-full erased wall=78.52 cpu=96.85 round=2 load=1.96
+  typed-full g2 wall=78.03 cpu=97.06 round=2 load=1.92
+  typed-full g3 wall=78.47 cpu=98.36 round=2 load=1.75
+  typed-full java wall=53.09 cpu=123.18 round=2 load=2.42

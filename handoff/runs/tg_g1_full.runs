@@ -1,0 +1,6 @@
+  typed-full g1erased wall=80.48 cpu=98.48 round=0 load=1.43
+  typed-full g1prev wall=77.75 cpu=93.73 round=0 load=1.16
+  typed-full g1x wall=78.14 cpu=93.71 round=0 load=1.45
+  typed-full g1x wall=75.59 cpu=90.77 round=1 load=1.24
+  typed-full g1prev wall=75.16 cpu=89.66 round=1 load=1.19
+  typed-full g1erased wall=76.21 cpu=93.41 round=1 load=1.29

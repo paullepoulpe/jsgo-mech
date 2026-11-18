@@ -1,0 +1,49 @@
+bundle nsbase mallocs=197.87M bytes=10.180G gcs=59 gc_cpu=7.17s wall=38.62 cpu=45.88 maxrss=717M
+bundle ns1o mallocs=197.85M bytes=10.096G gcs=72 gc_cpu=5.53s wall=37.92 cpu=43.94 maxrss=586M
+bundle ns2o mallocs=197.85M bytes=10.067G gcs=76 gc_cpu=5.93s wall=38.26 cpu=44.82 maxrss=575M
+bundle ns5 mallocs=196.49M bytes=10.024G gcs=72 gc_cpu=3.29s wall=39.87 cpu=43.85 maxrss=564M
+bundle ns4o mallocs=196.49M bytes=10.034G gcs=70 gc_cpu=3.31s wall=38.49 cpu=42.16 maxrss=588M
+bundle ns3o mallocs=196.49M bytes=10.044G gcs=66 gc_cpu=3.47s wall=38.56 cpu=42.04 maxrss=584M
+typed-full nsbase mallocs=392.03M bytes=18.454G gcs=61 gc_cpu=23.44s wall=79.56 cpu=98.26 maxrss=1508M
+typed-full ns1o mallocs=392.35M bytes=18.350G gcs=71 gc_cpu=22.36s wall=76.36 cpu=96.28 maxrss=1280M
+typed-full ns2o mallocs=392.36M bytes=18.328G gcs=71 gc_cpu=25.13s wall=81.88 cpu=99.48 maxrss=1227M
+typed-full ns5 mallocs=390.60M bytes=18.278G gcs=69 gc_cpu=25.82s wall=82.45 cpu=96.79 maxrss=1231M
+typed-full ns4o mallocs=390.59M bytes=18.291G gcs=67 gc_cpu=18.30s wall=80.36 cpu=96.86 maxrss=1245M
+typed-full ns3o mallocs=390.61M bytes=18.308G gcs=64 gc_cpu=24.34s wall=81.69 cpu=93.94 maxrss=1302M
+  bundle nsbase wall=39.76 cpu=45.24 round=0 load=3.21
+  bundle ns1o wall=39.97 cpu=43.30 round=0 load=3.42
+  bundle ns2o wall=39.86 cpu=43.52 round=0 load=4.35
+  bundle ns5 wall=42.87 cpu=44.18 round=0 load=4.73
+  bundle ns4o wall=42.20 cpu=43.70 round=0 load=4.75
+  bundle nsjava wall=38.61 cpu=74.97 round=0 load=6.03
+  bundle nsjava wall=31.24 cpu=65.51 round=1 load=5.81
+  bundle ns4o wall=39.52 cpu=42.42 round=1 load=4.34
+  bundle ns5 wall=40.08 cpu=43.55 round=1 load=2.96
+  bundle ns2o wall=41.05 cpu=45.75 round=1 load=2.87
+  bundle ns1o wall=38.77 cpu=44.20 round=1 load=2.63
+  bundle nsbase wall=37.78 cpu=45.13 round=1 load=2.06
+  bundle nsbase wall=42.61 cpu=46.27 round=2 load=3.72
+  bundle ns1o wall=44.86 cpu=45.43 round=2 load=6.01
+  bundle ns2o wall=42.68 cpu=44.63 round=2 load=6.22
+  bundle ns5 wall=39.13 cpu=41.39 round=2 load=4.68
+  bundle ns4o wall=38.94 cpu=41.26 round=2 load=3.45
+  bundle nsjava wall=27.75 cpu=59.32 round=2 load=3.37
+  typed-full nsbase wall=82.79 cpu=97.83 round=0 load=3.12
+  typed-full ns1o wall=83.51 cpu=97.23 round=0 load=3.64
+  typed-full ns2o wall=85.73 cpu=103.52 round=0 load=2.54
+  typed-full ns5 wall=79.18 cpu=93.18 round=0 load=2.77
+  typed-full ns4o wall=83.61 cpu=95.27 round=0 load=3.25
+  typed-full nsjava wall=57.79 cpu=118.59 round=0 load=4.46
+  typed-full nsjava wall=62.87 cpu=117.62 round=1 load=5.37
+  typed-full ns4o wall=79.49 cpu=95.39 round=1 load=2.45
+  typed-full ns5 wall=76.80 cpu=93.97 round=1 load=1.44
+  typed-full ns2o wall=79.33 cpu=96.73 round=1 load=2.24
+  typed-full ns1o wall=80.12 cpu=93.68 round=1 load=3.20
+  typed-full nsbase wall=79.58 cpu=95.28 round=1 load=3.47
+  typed-full nsbase wall=83.00 cpu=96.02 round=2 load=3.63
+  typed-full ns1o wall=76.74 cpu=93.02 round=2 load=2.73
+  typed-full ns2o wall=80.04 cpu=96.40 round=2 load=2.58
+  typed-full ns5 wall=78.78 cpu=91.41 round=2 load=3.17
+  typed-full ns4o wall=82.94 cpu=94.66 round=2 load=3.63
+  typed-full nsjava wall=53.09 cpu=115.60 round=2 load=3.71
+done

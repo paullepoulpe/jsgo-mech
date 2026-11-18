@@ -1,0 +1,8 @@
+compile: writing output: write $WORK/b061/_pkg_.a: no space left on device
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	0.190s
+jsgomech/closure: /root/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.3.linux-amd64/pkg/tool/linux_amd64/compile: signal: killed
+
+real	4m34.669s
+user	5m56.692s
+sys	0m48.893s

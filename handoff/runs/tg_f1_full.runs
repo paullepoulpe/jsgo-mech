@@ -1,0 +1,6 @@
+  typed-full f1erased wall=79.48 cpu=97.63 round=0 load=1.01
+  typed-full f1prev wall=77.87 cpu=93.34 round=0 load=1.00
+  typed-full f1x wall=78.67 cpu=93.98 round=0 load=1.00
+  typed-full f1x wall=79.26 cpu=94.16 round=1 load=1.38
+  typed-full f1prev wall=78.03 cpu=93.27 round=1 load=1.35
+  typed-full f1erased wall=79.68 cpu=97.58 round=1 load=1.53

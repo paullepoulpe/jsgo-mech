@@ -1,0 +1,16 @@
+  typed-full java wall=51.15 cpu=120.48 round=0 load=2.05
+  typed-full final wall=51.37 cpu=61.68 round=0 load=1.45
+  typed-full final wall=50.27 cpu=60.80 round=1 load=1.33
+  typed-full java wall=48.81 cpu=112.10 round=1 load=1.94
+  typed-full java wall=49.27 cpu=114.49 round=2 load=1.98
+  typed-full final wall=48.45 cpu=58.56 round=2 load=1.42
+  typed-full final wall=48.99 cpu=59.11 round=3 load=1.83
+  typed-full java wall=49.06 cpu=114.90 round=3 load=1.95
+  typed-full java wall=48.73 cpu=116.81 round=4 load=2.26
+  typed-full final wall=49.50 cpu=59.98 round=4 load=1.80
+  typed-full final wall=49.66 cpu=59.50 round=5 load=1.34
+  typed-full java wall=48.83 cpu=113.65 round=5 load=1.99
+  typed-full java wall=49.28 cpu=114.89 round=6 load=2.10
+  typed-full final wall=49.42 cpu=59.82 round=6 load=1.52
+  typed-full final wall=49.66 cpu=59.41 round=7 load=1.47
+  typed-full java wall=48.79 cpu=110.98 round=7 load=1.92

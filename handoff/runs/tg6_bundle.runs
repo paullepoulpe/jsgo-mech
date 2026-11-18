@@ -1,0 +1,12 @@
+  bundle tgE1 wall=38.58 cpu=45.51 round=0 load=4.13
+  bundle tg51 wall=39.05 cpu=45.33 round=0 load=3.24
+  bundle tg61 wall=38.79 cpu=45.10 round=0 load=2.68
+  bundle tg61 wall=38.39 cpu=44.11 round=1 load=2.71
+  bundle tg51 wall=39.72 cpu=45.07 round=1 load=2.70
+  bundle tgE1 wall=43.19 cpu=44.73 round=1 load=5.79
+  bundle tgE1 wall=44.49 cpu=45.10 round=2 load=6.73
+  bundle tg51 wall=43.75 cpu=46.95 round=2 load=6.54
+  bundle tg61 wall=41.07 cpu=44.18 round=2 load=7.01
+  bundle tg61 wall=40.42 cpu=44.79 round=3 load=5.68
+  bundle tg51 wall=38.31 cpu=44.92 round=3 load=4.11
+  bundle tgE1 wall=39.91 cpu=47.57 round=3 load=2.74

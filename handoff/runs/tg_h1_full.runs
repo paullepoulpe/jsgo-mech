@@ -1,0 +1,8 @@
+  typed-full java wall=49.16 cpu=118.99 round=0 load=2.21
+  typed-full erased wall=69.88 cpu=88.03 round=0 load=1.60
+  typed-full prev wall=68.87 cpu=84.32 round=0 load=1.43
+  typed-full this wall=70.30 cpu=86.12 round=0 load=1.42
+  typed-full this wall=72.87 cpu=88.82 round=1 load=1.24
+  typed-full prev wall=70.19 cpu=85.70 round=1 load=1.31
+  typed-full erased wall=68.82 cpu=86.67 round=1 load=1.20
+  typed-full java wall=47.19 cpu=109.25 round=1 load=1.79

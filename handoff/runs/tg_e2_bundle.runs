@@ -1,0 +1,9 @@
+  bundle e2erased wall=40.06 cpu=46.64 round=0 load=1.33
+  bundle e2prev wall=40.75 cpu=47.28 round=0 load=1.41
+  bundle e2x wall=40.97 cpu=46.97 round=0 load=1.21
+  bundle e2x wall=44.65 cpu=50.99 round=1 load=1.10
+  bundle e2prev wall=41.04 cpu=47.35 round=1 load=1.26
+  bundle e2erased wall=41.60 cpu=48.11 round=1 load=1.12
+  bundle e2erased wall=40.48 cpu=47.12 round=2 load=1.06
+  bundle e2prev wall=40.92 cpu=46.84 round=2 load=1.23
+  bundle e2x wall=40.44 cpu=46.75 round=2 load=1.12

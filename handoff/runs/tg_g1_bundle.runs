@@ -1,0 +1,9 @@
+  bundle g1erased wall=40.50 cpu=47.15 round=0 load=1.30
+  bundle g1prev wall=40.29 cpu=46.45 round=0 load=1.15
+  bundle g1x wall=39.85 cpu=45.85 round=0 load=1.08
+  bundle g1x wall=38.76 cpu=44.53 round=1 load=1.04
+  bundle g1prev wall=39.71 cpu=45.90 round=1 load=1.18
+  bundle g1erased wall=41.25 cpu=48.08 round=1 load=1.09
+  bundle g1erased wall=41.95 cpu=48.54 round=2 load=1.34
+  bundle g1prev wall=40.30 cpu=46.26 round=2 load=1.33
+  bundle g1x wall=39.66 cpu=45.61 round=2 load=1.49

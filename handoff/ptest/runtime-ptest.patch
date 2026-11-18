@@ -1,0 +1,256 @@
+diff --git a/go/closure/rt_base.go b/go/closure/rt_base.go
+index 00e8e207..52cfd7ba 100644
+--- a/go/closure/rt_base.go
++++ b/go/closure/rt_base.go
+@@ -25,6 +25,7 @@ type Throwables struct{}
+ // lenientToString_ is Guava's Strings.lenientToString: a toString that throws
+ // is reported inside the text instead of propagating.
+ func lenientToString_(v any) (s string) {
++	v = canon_(v)
+ 	if v == nil {
+ 		return "null"
+ 	}
+@@ -121,7 +122,7 @@ func Preconditions_checkArgument(b bool) {
+ 
+ func Preconditions_checkArgument_boolean_Object(b bool, msg any) {
+ 	if !b {
+-		argFail_(objstr_(msg))
++		argFail_(objstr_(canon_(msg)))
+ 	}
+ }
+ 
+@@ -164,7 +165,7 @@ func Preconditions_checkNotNull(v any) any {
+ 
+ func Preconditions_checkNotNull_Object_Object(v any, msg any) any {
+ 	if v == nil {
+-		nullFail_(objstr_(msg))
++		nullFail_(objstr_(canon_(msg)))
+ 	}
+ 	return v
+ }
+@@ -191,7 +192,7 @@ func Preconditions_checkState(b bool) {
+ 
+ func Preconditions_checkState_boolean_Object(b bool, msg any) {
+ 	if !b {
+-		stateFail_(objstr_(msg))
++		stateFail_(objstr_(canon_(msg)))
+ 	}
+ }
+ 
+diff --git a/go/closure/rt_ptest.go b/go/closure/rt_ptest.go
+new file mode 100644
+index 00000000..3b4739a5
+--- /dev/null
++++ b/go/closure/rt_ptest.go
+@@ -0,0 +1,149 @@
++package closure
++
++import "reflect"
++
++// ptest P2 (runtime): <T> T checkNotNull(T ...) and requireNonNull(T ...) at the argument's own
++// type. _T is for a pointer, an interface or a handle (null is the zero value), _Str for a String.
++
++func Preconditions_checkNotNull_T[T comparable](v T) T {
++	var z T
++	if v == z {
++		panic(new_NullPointerException_0().self())
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Str(v string) string {
++	if v == nullstr_ {
++		panic(new_NullPointerException_0().self())
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Object_Object_T[T comparable](v T, msg any) T {
++	var z T
++	if v == z {
++		nullFail_(objstr_(canon_(msg)))
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Object_Object_Str(v string, msg any) string {
++	if v == nullstr_ {
++		nullFail_(objstr_(canon_(msg)))
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Object_String_Object_T[T comparable](v T, t string, p1 any) T {
++	var z T
++	if v == z {
++		nullFail_(Strings_lenientFormat(t, []any{p1}))
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Object_String_Object_Str(v string, t string, p1 any) string {
++	if v == nullstr_ {
++		nullFail_(Strings_lenientFormat(t, []any{p1}))
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Object_String_Object_Object_T[T comparable](v T, t string, p1 any, p2 any) T {
++	var z T
++	if v == z {
++		nullFail_(Strings_lenientFormat(t, []any{p1, p2}))
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Object_String_Object_Object_Str(v string, t string, p1 any, p2 any) string {
++	if v == nullstr_ {
++		nullFail_(Strings_lenientFormat(t, []any{p1, p2}))
++	}
++	return v
++}
++
++func Objects_requireNonNull_T[T comparable](v T, msg string) T {
++	var z T
++	if v == z {
++		panic(new_NullPointerException_String(msg).self())
++	}
++	return v
++}
++
++func Objects_requireNonNull_Str(v string, msg string) string {
++	if v == nullstr_ {
++		panic(new_NullPointerException_String(msg).self())
++	}
++	return v
++}
++
++func Objects_requireNonNull_Object_T[T comparable](v T) T {
++	var z T
++	if v == z {
++		panic(new_NullPointerException_0().self())
++	}
++	return v
++}
++
++func Objects_requireNonNull_Object_Str(v string) string {
++	if v == nullstr_ {
++		panic(new_NullPointerException_0().self())
++	}
++	return v
++}
++
++// ptest P4 (runtime): canon_ is the canonical object of a message argument that the translated
++// code passed at its own type: null for the null string and for a nil pointer, the most derived
++// object for a pointer to a class with subclasses. It runs only when a check fails.
++func canon_(v any) any {
++	switch x := v.(type) {
++	case nil:
++		return nil
++	case string:
++		return strobj_(x)
++	case interface{ self() any }:
++		if rv := reflect.ValueOf(v); rv.Kind() == reflect.Pointer && rv.IsNil() {
++			return nil
++		}
++		return x.self()
++	}
++	if rv := reflect.ValueOf(v); rv.Kind() == reflect.Pointer && rv.IsNil() {
++		return nil
++	}
++	return v
++}
++
++// ptest P4 (runtime): the message argument of a check is a handle (a Node): it is boxed only
++// when the check fails.
++
++type handle_ interface {
++	comparable
++	box_() any
++}
++
++func Preconditions_checkState_boolean_Object_H[M handle_](b bool, msg M) {
++	if !b {
++		stateFail_(objstr_(msg.box_()))
++	}
++}
++
++func Preconditions_checkArgument_boolean_Object_H[M handle_](b bool, msg M) {
++	if !b {
++		argFail_(objstr_(msg.box_()))
++	}
++}
++
++func Preconditions_checkState_boolean_String_Object_H[M handle_](b bool, t string, p1 M) {
++	if !b {
++		stateFail_(Strings_lenientFormat(t, []any{p1.box_()}))
++	}
++}
++
++func Preconditions_checkArgument_boolean_String_Object_H[M handle_](b bool, t string, p1 M) {
++	if !b {
++		argFail_(Strings_lenientFormat(t, []any{p1.box_()}))
++	}
++}
+diff --git a/go/closure/rt_ptest_test.go b/go/closure/rt_ptest_test.go
+new file mode 100644
+index 00000000..678e03e5
+--- /dev/null
++++ b/go/closure/rt_ptest_test.go
+@@ -0,0 +1,56 @@
++package closure
++
++import "testing"
++
++func msgOf_(f func()) (s string) {
++	defer func() {
++		r := recover()
++		s = to_Throwable(r).getMessage()
++	}()
++	f()
++	return
++}
++
++func TestPTestCanon(t *testing.T) {
++	var jt *JSType
++	var il *ImmutableList
++	var n Node
++	for i, v := range []any{jt, il, nullstr_, n.box_(), nil} {
++		if canon_(v) != nil {
++			t.Errorf("case %d: canon_ is not nil", i)
++		}
++	}
++	if canon_("x") != any("x") {
++		t.Errorf("string")
++	}
++	l := ImmutableList_of()
++	if canon_(l) != any(l) {
++		t.Errorf("pointer")
++	}
++}
++
++func TestPTestMessages(t *testing.T) {
++	var jt *JSType
++	var n Node
++	l := ImmutableList_of()
++	cases := []struct{ got, want string }{
++		{msgOf_(func() { Preconditions_checkState_boolean_Object(false, jt) }), msgOf_(func() { Preconditions_checkState_boolean_Object(false, obj_(jt)) })},
++		{msgOf_(func() { Preconditions_checkState_boolean_Object(false, nullstr_) }), msgOf_(func() { Preconditions_checkState_boolean_Object(false, strobj_(nullstr_)) })},
++		{msgOf_(func() { Preconditions_checkState_boolean_Object(false, "m") }), "m"},
++		{msgOf_(func() { Preconditions_checkState_boolean_String_Object(false, "a %s b", jt) }), "a null b"},
++		{msgOf_(func() { Preconditions_checkArgument_boolean_String_Object_Object(false, "%s %s", nullstr_, l) }), msgOf_(func() { Preconditions_checkArgument_boolean_String_Object_Object(false, "%s %s", nil, obj_(l)) })},
++		{msgOf_(func() { Preconditions_checkState_boolean_Object_H(false, n) }), msgOf_(func() { Preconditions_checkState_boolean_Object(false, n.box_()) })},
++		{msgOf_(func() { Preconditions_checkArgument_boolean_String_Object_H(false, "n=%s", n) }), "n=null"},
++		{msgOf_(func() { Preconditions_checkNotNull_T(jt) }), msgOf_(func() { Preconditions_checkNotNull(obj_(jt)) })},
++		{msgOf_(func() { Preconditions_checkNotNull_Str(nullstr_) }), msgOf_(func() { Preconditions_checkNotNull(strobj_(nullstr_)) })},
++		{msgOf_(func() { Preconditions_checkNotNull_Object_Object_T(n, "gone") }), "gone"},
++	}
++	for i, c := range cases {
++		if c.got != c.want {
++			t.Errorf("case %d: %q, want %q", i, c.got, c.want)
++		}
++	}
++	if Preconditions_checkNotNull_T(l) != l || Preconditions_checkNotNull_Str("") != "" {
++		t.Errorf("identity")
++	}
++}

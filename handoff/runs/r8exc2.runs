@@ -1,0 +1,8 @@
+  typed-full r8base wall=57.59 cpu=62.60 round=0 load=5.50
+  typed-full r8new wall=58.56 cpu=60.71 round=0 load=8.18
+  typed-full r8new wall=54.67 cpu=60.77 round=1 load=6.47
+  typed-full r8base wall=53.82 cpu=60.85 round=1 load=5.08
+  typed-full r8base wall=54.80 cpu=62.61 round=2 load=4.58
+  typed-full r8new wall=54.98 cpu=63.28 round=2 load=4.18
+  typed-full r8base wall=51.49 cpu=59.48 round=0 load=4.27
+  typed-full r8new wall=48.69 cpu=58.50 round=0 load=3.32

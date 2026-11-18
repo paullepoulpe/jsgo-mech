@@ -1,0 +1,21 @@
+## Context (read first)
+jsgo-mech is the PLAN for migrating Closure Compiler from Java to Go mechanically, with strong provenance. Java is translated by j2go into Go (go/closure/g_*.go, generated) plus a handwritten runtime (go/closure/rt_*.go); then post-flip steps (tools/postflip/<tool>, go/types-based rewrites using the rw engine in tools/postflip/rw: rw.Load, rw.Rewrite, rw.Render/RenderChildren, rw.SaveChecked) turn Java-isms into idiomatic Go. Read POSTFLIP.md and JAVAISMS.md in your worktree; look at 2-3 existing tools (e.g. tools/postflip/nnchecks, tostr, colls, native) for the house style: a doc comment stating the rule and why Java's behaviour is kept, a -n dry-run mode, counted "left:" reasons for every site not converted, deterministic, idempotent (a rerun on its own output changes nothing).
+
+Rules (non-negotiable):
+- Every change is one of: a post-flip TOOL run over the whole package (bulk), at most a handful of manual edits in the same pattern as the tool (own commit, "postflip (manual): ..."), or handwritten runtime (rt_*.go, own commit "postflip (runtime): ..."). Never hand-tune generated g_*.go files beyond that.
+- Commits: tool commits ("postflip tool: ...") separate from the step commit ("postflip step: ...") that records the exact command and the tool's output counts, including the left reasons. End each commit message with:
+  Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+  Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ
+- Java behaviour must be kept exactly, including null, identity, evaluation order and which exception is thrown on failure paths. Output must stay byte-identical.
+- No PGO (there must be no default.pgo anywhere), no GOGC/GOMAXPROCS tuning.
+- Gate after each step: `flock $S/gate.lock bash tools/prune/verify.sh` from your worktree root; it must print a runtime-tests `ok` line and `checks: MATCH`, `bundle: MATCH`, `downlevel: MATCH`, `advanced: MATCH`. Check the runtime test count did not drop (tools/prune may drop failing tests: compare the number of Test functions run before/after).
+- Performance: no regression. Per step: measure the new binary against the previous one (or the branch's base), interleaved with fb.py (ABBA rounds, under $S/gate.lock), and report CPU time as the primary number (it moves ~1.5% under load where wall moves ~8%) plus wall time and load; pre-flip Java is NOT needed per step. Per milestone (a merged round, a re-flip, or when asked): wall time interleaved against pre-flip Java (java=/home/user/jsgo-mech/.cache/build/candidate.sh in the same fb.py run) on an idle host, Java/Go ratios. Build `cd go && go build -o $S/proto/m_<yourlabel> ./cmd/mech`; base binary is $S/proto/m_fx (the branch point) unless told otherwise. Use unique fb labels. Allocations: env JSGO_MEMSTATS=1 prints objects/bytes allocated.
+- Disk is limited: `find /root/.cache/go-build -type f -mmin +180 -delete (never younger: Go refreshes a cache file's mtime only once an hour, so deleting younger files breaks builds in progress)` when it gets tight; delete your own $S/proto/m_* binaries you no longer need (keep m_fx, m_end, m_nopgo, m_r7).
+- Census: `cd go/closure && python3 $S/census.py` (rows per Java-ism). Report before/after for your rows.
+- The original hand-ported jsgo is at /home/user/jsgo: study how it solved your Java-isms (git log/grep there) and say whether the fix is best as a Java prep step, a j2go change or a post-flip step; implement it as a post-flip step here.
+- Push your branch (git push -u origin <branch>) after each gated step. Do not touch other branches. Work only in your worktree.
+- Be tenacious: the goal is that EVERY site of your rows is converted by a post-flip step, or left with a counted, concrete reason (why Java's behaviour could not be kept). "Could be done in j2go" is not a reason to leave a site.
+
+S=/tmp/claude-0/-home-user/a720bb77-2dda-5adf-9c58-a03e59d56cc8/scratchpad
+
+Final report (concise): commits in order (tool/runtime/step), commands to re-run each step on a merged tree and their order constraints, census before/after for your rows, left reasons with counts, gate result, allocations and timing vs m_fx, and anything that interacts with other steps.

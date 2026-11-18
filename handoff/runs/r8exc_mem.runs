@@ -1,0 +1,4 @@
+  typed-full base wall=51.50 cpu=62.21 round=0 load=1.34
+  typed-full new wall=54.42 cpu=63.52 round=0 load=2.99
+  bundle base wall=25.68 cpu=29.76 round=0 load=1.44
+  bundle new wall=25.93 cpu=29.64 round=0 load=1.87

@@ -1,0 +1,8 @@
+  bundle this wall=41.05 cpu=46.36 round=0 load=2.86
+  bundle prev wall=42.67 cpu=48.05 round=0 load=2.84
+  bundle prev wall=42.69 cpu=47.98 round=1 load=3.46
+  bundle this wall=40.76 cpu=45.76 round=1 load=3.38
+  bundle this wall=43.26 cpu=48.93 round=2 load=3.19
+  bundle prev wall=43.72 cpu=48.95 round=2 load=2.63
+  bundle prev wall=37.08 cpu=43.90 round=3 load=1.91
+  bundle this wall=36.43 cpu=42.87 round=3 load=1.50

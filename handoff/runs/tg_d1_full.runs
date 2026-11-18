@@ -1,0 +1,6 @@
+  typed-full d1erased wall=81.84 cpu=97.95 round=0 load=1.04
+  typed-full d1prev wall=79.39 cpu=94.86 round=0 load=1.14
+  typed-full d1x wall=79.19 cpu=95.03 round=0 load=1.22
+  typed-full d1x wall=83.02 cpu=94.81 round=1 load=3.15
+  typed-full d1prev wall=82.08 cpu=96.27 round=1 load=2.69
+  typed-full d1erased wall=87.33 cpu=100.81 round=1 load=3.15

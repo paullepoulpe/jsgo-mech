@@ -1,0 +1,6 @@
+  typed-full c2erased wall=90.80 cpu=104.49 round=0 load=3.74
+  typed-full c2prev wall=90.53 cpu=103.79 round=0 load=4.02
+  typed-full c2 wall=91.67 cpu=104.48 round=0 load=3.78
+  typed-full c2 wall=91.06 cpu=104.15 round=1 load=3.29
+  typed-full c2prev wall=89.60 cpu=102.73 round=1 load=3.80
+  typed-full c2erased wall=87.99 cpu=103.54 round=1 load=2.76

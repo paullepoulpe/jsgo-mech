@@ -1,0 +1,1254 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42659 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+colls: erased list com.google.debugging.sourcemap.SourceMapConsumerV3.getOriginalNames(): assigned the result of Arrays.asList
+colls: erased map getReverseMapping(java.lang.String,int,int).sourceLineToCollectionMap: assigned the result of Map.get
+colls: erased map createReverseMapping().lineToCollectionMap: assigned the result of Map.computeIfAbsent
+colls: erased list com.google.debugging.sourcemap.SourceMapObject.sections: exchanges values with <init>.sections, which is erased
+colls: erased list SourceMapObject(int,int,java.util.Optional<java.lang.String>,java.util.Optional<java.lang.String>,java.util.Optional<java.lang.String>,java.lang.String[],java.lang.String[],java.lang.String[],java.util.List<com.google.debugging.sourcemap.SourceMapSection>,java.util.Map<java.lang.String,java.lang.Object>).sections: exchanges values with Builder.sections, which is erased
+colls: erased list com.google.debugging.sourcemap.SourceMapObject.getSections(): exchanges values with SourceMapObject.sections, which is erased
+colls: erased list com.google.debugging.sourcemap.SourceMapObject.Builder.sections: exchanges values with setSections.sections, which is erased
+colls: erased list setSections(java.util.List<com.google.debugging.sourcemap.SourceMapSection>).sections: assigned the result of Outcome.get
+colls: erased map com.google.javascript.jscomp.AbstractCommandLineRunner.parsedChunkWrappers: assigned the result of Outcome.get
+colls: erased entry setRunOptions(com.google.javascript.jscomp.CompilerOptions).files: exchanges values with CommandLineConfig.sourceMapInputFiles, which is erased
+colls: erased list createInputs(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry<com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType>>,boolean,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsChunkSpec>).files: exchanges values with createSourceInputs.files, which is erased
+colls: erased list createInputsList(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry<com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType>>,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsonFileSpec>,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsChunkSpec>).files: exchanges values with createSourceInputs.files, which is erased
+colls: erased list createInputsList(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry<com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType>>,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsonFileSpec>,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsChunkSpec>).jsonFiles: exchanges values with createSourceInputs.jsonFiles, which is erased
+colls: erased list createInputs(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry<com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType>>,java.util.@org.jspecify.annotations.Nullable List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsonFileSpec>,boolean,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsChunkSpec>).files: exchanges values with createInputsList.files, which is erased
+colls: erased list createInputs(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry<com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType>>,java.util.@org.jspecify.annotations.Nullable List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsonFileSpec>,boolean,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsChunkSpec>).jsonFiles: exchanges values with createInputsList.jsonFiles, which is erased
+colls: erased list createInputs(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry<com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType>>,java.util.@org.jspecify.annotations.Nullable List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsonFileSpec>,boolean,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsChunkSpec>).newFiles: assigned the result of Outcome.get
+colls: erased list deduplicateIjsFiles(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry<com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType>>,java.util.List<java.lang.String>,boolean).files: exchanges values with createSourceInputs.files, which is erased
+colls: erased list deduplicateIjsFiles(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry<com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType>>,java.util.List<java.lang.String>,boolean).moduleRoots: exchanges values with createSourceInputs.moduleRoots, which is erased
+colls: erased list getModuleRootRelativeName(java.lang.String,java.util.List<java.lang.String>).moduleRoots: exchanges values with deduplicateIjsFiles.moduleRoots, which is erased
+colls: erased list createSourceInputs(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsChunkSpec>,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry<com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType>>,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsonFileSpec>,java.util.List<java.lang.String>).files: assigned the result of ImmutableList.of
+colls: erased list createSourceInputs(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsChunkSpec>,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry<com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType>>,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsonFileSpec>,java.util.List<java.lang.String>).jsonFiles: exchanges values with doRun.jsonFiles, which is erased
+colls: erased list createSourceInputs(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsChunkSpec>,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry<com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType>>,java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsonFileSpec>,java.util.List<java.lang.String>).moduleRoots: exchanges values with CommandLineConfig.moduleRoots, which is erased
+colls: erased list createJsChunks(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsChunkSpec>,java.util.List<com.google.javascript.jscomp.CompilerInput>).inputs: method List.subList
+colls: erased list createJsChunks(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.JsChunkSpec>,java.util.List<com.google.javascript.jscomp.CompilerInput>).chunkFiles: assigned the result of List.subList
+colls: erased list doRun().externs: assigned the result of Outcome.get
+colls: erased list doRun().chunks: assigned the result of Supplier.get
+colls: erased list doRun().jsonFiles: assigned the result of Outcome.get
+colls: erased list doRun().sources: assigned the result of Outcome.get
+colls: erased list initWithTypedAstFilesystem(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.SourceFile>,com.google.javascript.jscomp.CompilerOptions,java.lang.String).externs: exchanges values with doRun.externs, which is erased
+colls: erased list initWithTypedAstFilesystem(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.SourceFile>,com.google.javascript.jscomp.CompilerOptions,java.lang.String).sources: exchanges values with doRun.sources, which is erased
+colls: erased list initChunksWithTypedAstFilesystem(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.JSChunk>,com.google.javascript.jscomp.CompilerOptions,java.lang.String).externs: exchanges values with doRun.externs, which is erased
+colls: erased list initChunksWithTypedAstFilesystem(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.JSChunk>,com.google.javascript.jscomp.CompilerOptions,java.lang.String).chunks: exchanges values with doRun.chunks, which is erased
+colls: erased list processResults(com.google.javascript.jscomp.Result,java.util.List<com.google.javascript.jscomp.JSChunk>,B).chunks: exchanges values with doRun.chunks, which is erased
+colls: erased list outputManifestOrBundle(java.util.List<java.lang.String>,boolean).outputFiles: exchanges values with CommandLineConfig.outputManifests, which is erased
+colls: erased list setExterns(java.util.List<java.lang.String>).externs: exchanges values with Flags.externs, which is erased
+colls: erased list setMixedJsSources(java.util.List<com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry<com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType>>).mixedJsSources: exchanges values with initConfigFromFlags.mixedSources, which is erased
+colls: erased list setChunk(java.util.List<java.lang.String>).chunk: exchanges values with Flags.chunk, which is erased
+colls: erased map com.google.javascript.jscomp.AbstractCommandLineRunner.CommandLineConfig.sourceMapInputFiles: exchanges values with setSourceMapInputFiles.sourceMapInputFiles, which is erased
+colls: erased map setSourceMapInputFiles(java.util.Map<java.lang.String,java.lang.String>).sourceMapInputFiles: assigned a variable that is not typed
+colls: erased list setExpectedDiagnostics(java.util.List<java.lang.String>).expectedDiagnostics: exchanges values with Flags.expectedDiagnostics, which is erased
+colls: erased list setChunkWrapper(java.util.List<java.lang.String>).chunkWrapper: exchanges values with Flags.chunkWrapper, which is erased
+colls: erased list setSourceMapLocationMappings(java.util.List<com.google.javascript.jscomp.SourceMap.LocationMapping>).locationMappings: exchanges values with initConfigFromFlags.mappings, which is erased
+colls: erased list setDefine(java.util.List<java.lang.String>).define: exchanges values with Flags.define, which is erased
+colls: erased list com.google.javascript.jscomp.AbstractCommandLineRunner.CommandLineConfig.outputManifests: assigned the result of ImmutableList.of
+colls: erased list setOutputManifest(java.util.List<java.lang.String>).outputManifests: assigned the result of ImmutableList.of
+colls: erased list com.google.javascript.jscomp.AbstractCommandLineRunner.CommandLineConfig.outputBundles: assigned the result of ImmutableList.of
+colls: erased list setOutputBundle(java.util.List<java.lang.String>).outputBundles: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.AbstractCommandLineRunner.CommandLineConfig.manifestMaps: assigned the result of ImmutableList.of
+colls: erased list com.google.javascript.jscomp.AbstractCommandLineRunner.CommandLineConfig.moduleRoots: assigned the result of ImmutableList.of
+colls: erased list setModuleRoots(java.util.List<java.lang.String>).jsModuleRoots: exchanges values with Flags.moduleRoot, which is erased
+colls: erased list com.google.javascript.jscomp.AbstractCommandLineRunner.CommandLineConfig.hideWarningsFor: assigned the result of ImmutableList.of
+colls: erased list setHideWarningsFor(java.util.List<java.lang.String>).hideWarningsFor: exchanges values with Flags.hideWarningsFor, which is erased
+colls: erased set addExportedNames(java.util.Set<java.lang.String>).exportedNames: assigned a variable that is not typed
+colls: erased set addExportedNames(java.util.Set<java.lang.String>).exportedNames: assigned a variable that is not typed
+colls: erased set setCssNames(java.util.Set<java.lang.String>).cssNames: assigned the result of Builder.build
+colls: erased set setCssNames(java.util.Set<java.lang.String>).cssNames: assigned the result of Builder.build
+colls: erased list addComments(java.lang.String,java.util.List<com.google.javascript.jscomp.parsing.parser.trees.Comment>).comments: exchanges values with ParseResult.comments, which is erased
+colls: erased list addComments(java.lang.String,java.util.List<com.google.javascript.jscomp.parsing.parser.trees.Comment>).comments: exchanges values with ParseResult.comments, which is erased
+colls: erased list com.google.javascript.jscomp.Compiler.getComments(java.util.Optional<java.lang.String>): assigned the result of Map.get
+colls: erased list com.google.javascript.jscomp.Compiler.getComments(java.util.Optional<java.lang.String>): assigned the result of Map.get
+colls: erased list com.google.javascript.jscomp.Compiler.getDebugLogFilterList(): assigned the result of Splitter.splitToList
+colls: erased list com.google.javascript.jscomp.Compiler.getDebugLogFilterList(): assigned the result of Splitter.splitToList
+colls: erased map com.google.javascript.jscomp.AbstractScope.vars: assigned the result of ImmutableMap.of
+colls: erased map com.google.javascript.jscomp.AbstractScope.implicitVars: assigned the result of ImmutableMap.of
+colls: erased map create(java.util.Map<java.lang.String,com.google.javascript.jscomp.AccessorSummary.PropertyAccessKind>).accessors: assigned the result of Builder.buildOrThrow
+colls: erased entry toProto().entry: not a loop over the entries of a typed map
+colls: erased entry replaceStringsWithAliases().entry: not a loop over the entries of a typed map
+colls: erased entry addAliasDeclarationNodes().entry: not a loop over the entries of a typed map
+colls: erased entry outputStringUsage().stringInfoEntry: not a loop over the entries of a typed map
+colls: erased set AllowlistWarningsGuard(java.util.Set<java.lang.String>).allowlist: assigned the result of ImmutableSet.of
+colls: erased set normalizeAllowlist(java.util.Set<java.lang.String>).allowlist: exchanges values with <init>.allowlist, which is erased
+colls: erased list formatWarning(com.google.javascript.jscomp.JSError,boolean).lines: assigned the result of Splitter.splitToList
+colls: erased list createQNameUsingJSTypeInfo(com.google.javascript.jscomp.TypedScope,java.lang.String).nameParts: assigned the result of Splitter.splitToList
+colls: erased list createQNameUsingJSTypeInfo(com.google.javascript.jscomp.TypedScope,java.lang.String).otherParts: assigned the result of List.subList
+colls: erased list createQName(com.google.javascript.rhino.StaticScope,com.google.javascript.jscomp.js.RuntimeJsLibManager.JsLibField).parts: assigned the result of Splitter.splitToList
+colls: erased list createQNameWithUnknownTypeJsLibField(com.google.javascript.jscomp.js.RuntimeJsLibManager.JsLibField).parts: assigned the result of Splitter.splitToList
+colls: erased list com.google.javascript.jscomp.ByPathWarningsGuard.paths: exchanges values with <init>.paths, which is erased
+colls: erased list ByPathWarningsGuard(java.util.List<java.lang.String>,boolean,com.google.javascript.jscomp.CheckLevel).paths: exchanges values with forPath.paths, which is erased
+colls: erased list forPath(java.util.List<java.lang.String>,com.google.javascript.jscomp.CheckLevel).paths: assigned a variable that is not typed
+colls: erased list exceptPath(java.util.List<java.lang.String>,com.google.javascript.jscomp.CheckLevel).paths: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.ChangeTracker.getChangedScopeNodesForPass(java.lang.String): exchanges values with getChangedScopeNodesForPass.changedScopeNodes, which is erased
+colls: erased list getChangedScopeNodesForPass(java.lang.String).changedScopeNodes: assigned the result of Timeline.getSince
+colls: erased deque com.google.javascript.jscomp.CheckAccessControls.currentClassStack: assigned a new LinkedList
+colls: erased entry initRules(com.google.javascript.jscomp.AbstractCompiler,com.google.common.collect.ImmutableList<com.google.javascript.jscomp.ConformanceConfig>,com.google.javascript.jscomp.CompilerOptions.ConformanceReportingMode).e: not a loop over the entries of a typed map
+colls: erased list mergeRequirements(com.google.javascript.jscomp.AbstractCompiler,java.util.List<com.google.javascript.jscomp.ConformanceConfig>,boolean).configs: assigned a variable that is not typed
+colls: erased set containsOnlySuppressionFor(com.google.javascript.rhino.JSDocInfo,java.lang.String).suppressions: exchanges values with JSDocInfo.getSuppressions, which is erased
+colls: erased set hasAcceptableRequire(com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata,com.google.javascript.rhino.QualifiedName,com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata,com.google.javascript.jscomp.CheckMissingRequires.Strength).acceptableRequires: assigned the result of SimpleMultiset.elementSet
+colls: erased list com.google.javascript.jscomp.CodingConventions.DefaultCodingConvention.identifyTypeDeclarationCall(com.google.javascript.rhino.Node): assigned the result of ImmutableList.of
+colls: erased list com.google.javascript.jscomp.CodingConventions.DefaultCodingConvention.identifyTypeDeclarationCall(com.google.javascript.rhino.Node): assigned the result of ImmutableList.of
+colls: erased list com.google.javascript.jscomp.CodingConventions.DefaultCodingConvention.identifyTypeDeclarationCall(com.google.javascript.rhino.Node): assigned the result of ImmutableList.of
+colls: erased list com.google.javascript.jscomp.CodingConventions.DefaultCodingConvention.identifyTypeDeclarationCall(com.google.javascript.rhino.Node): assigned the result of ImmutableList.of
+colls: erased set hasInlinableName(java.util.Set<com.google.javascript.jscomp.Var>).exportedNames: assigned the result of Map.keySet
+colls: erased map map(java.util.function.Supplier<java.util.@org.jspecify.annotations.Nullable Map<java.lang.String,java.lang.String>>,java.util.function.Consumer<java.util.Map<java.lang.String,java.lang.String>>).map: assigned the result of Supplier.get
+colls: erased list <T>addValue(java.util.function.Supplier<java.util.@org.jspecify.annotations.Nullable List<T>>,java.util.function.Consumer<java.util.List<T>>,T).list: assigned the result of Supplier.get
+colls: erased set visit(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node,com.google.javascript.rhino.Node).allMergedNames: assigned a new TreeSet
+colls: erased list adjustEndPosition(java.util.List<java.lang.Integer>,com.google.debugging.sourcemap.FilePosition).lineLengths: assigned a variable that is not typed
+colls: erased list CombinedCompilerPass(com.google.javascript.jscomp.AbstractCompiler,java.util.List<com.google.javascript.jscomp.NodeTraversal.Callback>).callbacks: assigned the result of ImmutableList.of
+colls: erased list traverse(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.rhino.Node,java.util.List<com.google.javascript.jscomp.NodeTraversal.Callback>).callbacks: assigned the result of ImmutableList.of
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.externs: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.js: an annotated field (read by a library)
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.unusedJsZip: assigned the result of Flags.addMultiFlagValue
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.chunk: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.chunkWrapper: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.sourceMapLocationMapping: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.sourceMapInputs: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.jscompError: an annotated field (read by a library)
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.jscompWarning: an annotated field (read by a library)
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.jscompOff: an annotated field (read by a library)
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.define: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.formatting: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.moduleRoot: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.flagFiles: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.hideWarningsFor: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.extraAnnotationName: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.conformanceConfigs: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.forceInjectLibraries: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.entryPoint: assigned a variable that is not typed
+colls: erased map com.google.javascript.jscomp.CommandLineRunner.Flags.browserResolverPrefixReplacements: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.expectedDiagnostics: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.arguments: assigned a variable that is not typed
+colls: erased entry printUsage(com.google.javascript.jscomp.base.Output).entry: not a loop over the entries of a typed map
+colls: erased entry getSourceMapLocationMappings().mapping: not a loop over the entries of a typed map
+colls: erased list splitPipeParts(java.lang.Iterable<java.lang.String>,java.lang.String).parts: assigned the result of Splitter.splitToList
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.Flags.getPackageJsonEntryNames(): assigned the result of Splitter.splitToList
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.FlagInputs.mixedSources: assigned the result of Outcome.get
+colls: erased list com.google.javascript.jscomp.CommandLineRunner.FlagInputs.mappings: assigned the result of Outcome.get
+colls: erased list initConfigFromFlags(java.lang.String[],com.google.javascript.jscomp.base.Output,com.google.javascript.jscomp.base.Output).mixedSources: exchanges values with FlagInputs.mixedSources, which is erased
+colls: erased list initConfigFromFlags(java.lang.String[],com.google.javascript.jscomp.base.Output,com.google.javascript.jscomp.base.Output).mappings: exchanges values with FlagInputs.mappings, which is erased
+colls: erased list createOptions().packageJsonEntryNames: exchanges values with Flags.getPackageJsonEntryNames, which is erased
+colls: erased list createExterns(com.google.javascript.jscomp.CompilerOptions).externs: assigned the result of Outcome.get
+colls: erased list createExterns(com.google.javascript.jscomp.CompilerOptions).builtinExterns: assigned the result of Outcome.get
+colls: erased list loadConformanceConfigs(java.util.List<java.lang.String>).configPaths: exchanges values with Flags.conformanceConfigs, which is erased
+colls: erased map findJsFiles(java.util.Collection<java.lang.String>,boolean).allJsInputs: assigned a new TreeMap
+colls: erased map matchPaths(java.lang.String,java.util.Map<java.lang.String,java.lang.String>,java.util.Set<java.lang.String>).allJsInputs: exchanges values with findJsFiles.allJsInputs, which is erased
+colls: erased list matchPaths(java.lang.String,java.util.Map<java.lang.String,java.lang.String>,java.util.Set<java.lang.String>).patternParts: assigned the result of Splitter.splitToList
+colls: erased list com.google.javascript.jscomp.Compiler.externs: used in MEMBER_REFERENCE
+colls: erased map com.google.javascript.jscomp.Compiler.inputsById: assigned a new ConcurrentHashMap
+colls: erased map com.google.javascript.jscomp.Compiler.scriptNodeByFilename: assigned a new ConcurrentHashMap
+colls: erased map com.google.javascript.jscomp.Compiler.commentsPerFile: assigned a new ConcurrentHashMap
+colls: erased set com.google.javascript.jscomp.Compiler.forwardDeclaredTypes: assigned a new 
+colls: erased list initWithTypedAstFilesystem(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.SourceFile>,com.google.javascript.jscomp.CompilerOptions,byte[]).externs: exchanges values with initWithTypedAstFilesystem.externs, which is erased
+colls: erased list initWithTypedAstFilesystem(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.SourceFile>,com.google.javascript.jscomp.CompilerOptions,byte[]).sources: exchanges values with initWithTypedAstFilesystem.sources, which is erased
+colls: erased list initChunksWithTypedAstFilesystem(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.JSChunk>,com.google.javascript.jscomp.CompilerOptions,byte[]).externs: exchanges values with initChunksWithTypedAstFilesystem.externs, which is erased
+colls: erased list initChunksWithTypedAstFilesystem(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.JSChunk>,com.google.javascript.jscomp.CompilerOptions,byte[]).chunks: exchanges values with initChunksWithTypedAstFilesystem.chunks, which is erased
+colls: erased entry initRuntimeLibraryTypedAsts(com.google.common.base.Optional<com.google.javascript.jscomp.serialization.ColorPool.Builder>).library: not a loop over the entries of a typed map
+colls: erased list init(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.SourceFile>,com.google.javascript.jscomp.CompilerOptions).externs: assigned the result of ImmutableList.of
+colls: erased list init(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.SourceFile>,com.google.javascript.jscomp.CompilerOptions).sources: assigned the result of ImmutableList.copyOf
+colls: erased list initChunks(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.JSChunk>,com.google.javascript.jscomp.CompilerOptions).externs: assigned the result of ImmutableList.of
+colls: erased list initChunks(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.JSChunk>,com.google.javascript.jscomp.CompilerOptions).chunks: assigned a variable that is not typed
+colls: erased list checkFirstChunk(java.util.List<com.google.javascript.jscomp.JSChunk>).chunks: exchanges values with initChunks.chunks, which is erased
+colls: erased list compile(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.SourceFile>,com.google.javascript.jscomp.CompilerOptions).externs: assigned the result of ImmutableList.of
+colls: erased list compile(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.SourceFile>,com.google.javascript.jscomp.CompilerOptions).inputs: assigned the result of ImmutableList.of
+colls: erased list createOrReopenLog(java.lang.Class<?>,java.lang.String,java.lang.String...).filters: exchanges values with Compiler.getDebugLogFilterList, which is erased
+colls: erased list getCurrentJsSource().fileNameRegexList: exchanges values with CompilerOptions.getFilesToPrintAfterEachPassRegexList, which is erased
+colls: erased list getCurrentJsSource().chunkNameRegexList: exchanges values with CompilerOptions.getChunksToPrintAfterEachPassRegexList, which is erased
+colls: erased map com.google.javascript.jscomp.Compiler.processJsonInputs(java.lang.Iterable<com.google.javascript.jscomp.CompilerInput>): assigned the result of RewriteJsonToModule.getPackageJsonMainEntries
+colls: erased set toSource(com.google.javascript.jscomp.CodePrinter.LicenseTracker,com.google.javascript.jscomp.JSChunk).chunkExterns: assigned the result of SimpleSetMultimap.get
+colls: erased list performTranspilationAndOptimizations(com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun).optimizationPassesToRunInCurrentSegment: exchanges values with Compiler.getOptimizationPassesToRunInCurrentSegment, which is erased
+colls: erased list com.google.javascript.jscomp.Compiler.getOptimizationPassesToRunInCurrentSegment(com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun,java.util.List<com.google.javascript.jscomp.PassFactory>): assigned a SWITCH_EXPRESSION
+colls: erased list getOptimizationPassesToRunInCurrentSegment(com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun,java.util.List<com.google.javascript.jscomp.PassFactory>).allOptimizationPassesToRun: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.Compiler.passListUntil(java.util.List<com.google.javascript.jscomp.PassFactory>,java.lang.String): used in CASE
+colls: erased list passListUntil(java.util.List<com.google.javascript.jscomp.PassFactory>,java.lang.String).passes: exchanges values with getOptimizationPassesToRunInCurrentSegment.allOptimizationPassesToRun, which is erased
+colls: erased list com.google.javascript.jscomp.Compiler.passListAfter(java.util.List<com.google.javascript.jscomp.PassFactory>,java.lang.String): used in CASE
+colls: erased list passListAfter(java.util.List<com.google.javascript.jscomp.PassFactory>,java.lang.String).passes: exchanges values with getOptimizationPassesToRunInCurrentSegment.allOptimizationPassesToRun, which is erased
+colls: erased set com.google.javascript.jscomp.Compiler.cssNames: exchanges values with setCssNames.cssNames, which is erased
+colls: erased map com.google.javascript.jscomp.Compiler.getInputsById(): exchanges values with Compiler.inputsById, which is erased
+colls: erased list com.google.javascript.jscomp.Compiler.getExternsInOrder(): exchanges values with Compiler.externs, which is erased
+colls: erased list com.google.javascript.jscomp.Compiler.getInputsForTesting(): assigned the result of ImmutableList.copyOf
+colls: erased list com.google.javascript.jscomp.Compiler.getExternsForTesting(): exchanges values with Compiler.externs, which is erased
+colls: erased entry toVariableMapEntries(com.google.javascript.jscomp.VariableMap).entry: not a loop over the entries of a typed map
+colls: erased list fromProtoList(java.util.List<com.google.javascript.jscomp.FeatureProto>).protos: assigned the result of JSCompilerStateProto.getAllowableFeaturesList
+colls: erased list fromVariableMapEntries(java.util.List<com.google.javascript.jscomp.VariableMapEntryProto>).entries: assigned the result of JSCompilerStateProto.getStringMapList
+colls: erased map com.google.javascript.jscomp.CompilerInput.DepsFinder.loadFlags: assigned a new TreeMap
+colls: erased list com.google.javascript.jscomp.CompilerOptions.filesToPrintAfterEachPassRegexList: assigned the result of ImmutableList.of
+colls: erased list com.google.javascript.jscomp.CompilerOptions.chunksToPrintAfterEachPassRegexList: assigned the result of ImmutableList.of
+colls: erased list com.google.javascript.jscomp.CompilerOptions.qnameUsesToPrintAfterEachPassList: assigned the result of ImmutableList.of
+colls: erased list setFilesToPrintAfterEachPassRegexList(java.util.List<java.lang.String>).filePathRegexList: exchanges values with CompilerOptions.getFilesToPrintAfterEachPassRegexList, which is erased
+colls: erased list setChunksToPrintAfterEachPassRegexList(java.util.List<java.lang.String>).chunkPathRegexList: exchanges values with CompilerOptions.getChunksToPrintAfterEachPassRegexList, which is erased
+colls: erased list setQnameUsesToPrintAfterEachPassList(java.util.List<java.lang.String>).qnameRegexList: exchanges values with CompilerOptions.getQnameUsesToPrintAfterEachPassList, which is erased
+colls: erased list com.google.javascript.jscomp.CompilerOptions.getFilesToPrintAfterEachPassRegexList(): exchanges values with CompilerOptions.filesToPrintAfterEachPassRegexList, which is erased
+colls: erased list com.google.javascript.jscomp.CompilerOptions.getChunksToPrintAfterEachPassRegexList(): exchanges values with CompilerOptions.chunksToPrintAfterEachPassRegexList, which is erased
+colls: erased list com.google.javascript.jscomp.CompilerOptions.getQnameUsesToPrintAfterEachPassList(): exchanges values with CompilerOptions.qnameUsesToPrintAfterEachPassList, which is erased
+colls: erased list com.google.javascript.jscomp.CompilerOptions.packageJsonEntryNames: assigned the result of ImmutableList.of
+colls: erased map com.google.javascript.jscomp.CompilerOptions.getIdGenerators(): assigned a variable that is not typed
+colls: erased list setSourceMapLocationMappings(java.util.List<? extends com.google.javascript.jscomp.SourceMap.LocationMapping>).sourceMapLocationMappings: assigned a variable that is not typed
+colls: erased list setModuleRoots(java.util.List<java.lang.String>).moduleRoots: assigned the result of ImmutableList.of
+colls: erased list setConformanceConfigs(java.util.List<com.google.javascript.jscomp.ConformanceConfig>).configs: assigned the result of CommandLineRunner.loadConformanceConfigs
+colls: erased list com.google.javascript.jscomp.CompilerOptions.getPackageJsonEntryNames(): exchanges values with CompilerOptions.packageJsonEntryNames, which is erased
+colls: erased list setPackageJsonEntryNames(java.util.List<java.lang.String>).names: exchanges values with createOptions.packageJsonEntryNames, which is erased
+colls: erased list ComposeWarningsGuard(java.util.List<com.google.javascript.jscomp.WarningsGuard>).guards: assigned the result of Builder.build
+colls: erased list buildPattern(java.util.List<java.lang.String>).reqPatterns: assigned the result of RequirementScopeEntry.getRegexpList
+colls: erased list create(java.util.List<java.lang.String>,java.util.List<java.lang.String>).prefixes: assigned the result of ImmutableList.of
+colls: erased list create(java.util.List<java.lang.String>,java.util.List<java.lang.String>).regexps: assigned the result of ImmutableList.of
+colls: erased list initAbstractTypeRestrictionRule(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.jscomp.Requirement).allowlistedTypeNames: assigned the result of Requirement.getValueList
+colls: erased list union(java.util.List<java.lang.String>).typeNames: exchanges values with initAbstractTypeRestrictionRule.allowlistedTypeNames, which is erased
+colls: erased list com.google.javascript.jscomp.ConformanceRules.BannedDependency.paths: assigned the result of Requirement.getValueList
+colls: erased list initBannedDependencyRegex(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.jscomp.Requirement).pathRegexpList: assigned the result of Requirement.getValueList
+colls: erased set checkConformance(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node).checkTypes: assigned the result of SimpleSetMultimap.get
+colls: erased list getPropertyFromDeclarationName(java.lang.String).parts: assigned the result of Splitter.splitToList
+colls: erased list getClassFromDeclarationName(java.lang.String).parts: assigned the result of Splitter.splitToList
+colls: erased list initBannedModsRegex(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.jscomp.Requirement).bannedModsRegexList: assigned the result of Requirement.getValueList
+colls: erased list initBanCreateDom(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.jscomp.Requirement).tagAttr: assigned the result of Splitter.splitToList
+colls: erased list prioritizeFromEntryNode(com.google.javascript.jscomp.graph.DiGraph.DiGraphNode<com.google.javascript.rhino.Node,com.google.javascript.jscomp.ControlFlowGraph.Branch>).successors: assigned the result of LinkedDirectedGraph.getDirectedSuccNodesDiGraphNode
+colls: erased map addExportStatements().importsByChunk: assigned the result of Map.get
+colls: erased entry addImportStatements().importsByChunk: not a loop over the entries of a typed map
+colls: erased map visitScript(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node).namesToImportByChunk: assigned the result of Map.computeIfAbsent
+colls: erased set visitName(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node,com.google.javascript.jscomp.ConvertChunksToESModules.ImportType).namesToExport: assigned the result of Map.computeIfAbsent
+colls: erased map visitName(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node,com.google.javascript.jscomp.ConvertChunksToESModules.ImportType).namesToImportByChunk: assigned the result of Map.computeIfAbsent
+colls: erased set visitName(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node,com.google.javascript.jscomp.ConvertChunksToESModules.ImportType).importsForChunk: assigned the result of Map.computeIfAbsent
+colls: erased list analyze().nextNodes: assigned the result of LinkedDirectedGraph.getDirectedSuccNodesDiGraphNode
+colls: erased list joinInputs(com.google.javascript.jscomp.graph.DiGraph.DiGraphNode<N,com.google.javascript.jscomp.ControlFlowGraph.Branch>).inEdges: assigned the result of DiGraphNode.getInEdges
+colls: erased deque com.google.javascript.jscomp.DataFlowAnalysis.UniqueQueue.queue: assigned a new PriorityQueue
+colls: erased set process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node).skiplistedPropNames: assigned the result of Sets.union
+colls: erased set com.google.javascript.jscomp.DeadPropertyAssignmentElimination.FunctionVisitor.skiplistedPropNames: exchanges values with <init>.skiplistedPropNames, which is erased
+colls: erased set FunctionVisitor(java.util.Set<java.lang.String>).skiplistedPropNames: exchanges values with process.skiplistedPropNames, which is erased
+colls: erased set com.google.javascript.jscomp.DeadPropertyAssignmentElimination.FindCandidateAssignmentTraversal.skiplistedPropNames: exchanges values with <init>.skiplistedPropNames, which is erased
+colls: erased set FindCandidateAssignmentTraversal(java.util.Set<java.lang.String>).skiplistedPropNames: exchanges values with FunctionVisitor.skiplistedPropNames, which is erased
+colls: erased map com.google.javascript.jscomp.DefaultNameGenerator.priorityLookupMap: assigned the result of Maps.newLinkedHashMapWithExpectedSize
+colls: erased set com.google.javascript.jscomp.DefaultNameGenerator.reservedNames: exchanges values with reset.reservedNames, which is erased
+colls: erased set DefaultNameGenerator().reservedNames: assigned the result of Sets.newLinkedHashSetWithExpectedSize
+colls: erased set DefaultNameGenerator(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>).reservedNames: assigned the result of ImmutableSet.copyOf
+colls: erased set DefaultNameGenerator(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>).reservedCharacters: assigned the result of ImmutableSet.of
+colls: erased set DefaultNameGenerator(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>).reservedNames: assigned the result of Builder.build
+colls: erased set DefaultNameGenerator(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>).reservedFirstCharacters: exchanges values with <init>.reservedCharacters, which is erased
+colls: erased set DefaultNameGenerator(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>).reservedNonFirstCharacters: exchanges values with <init>.reservedCharacters, which is erased
+colls: erased set DefaultNameGenerator(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>,java.util.Map<java.lang.Character,com.google.javascript.jscomp.DefaultNameGenerator.CharPriority>).reservedFirstCharacters: exchanges values with clone.reservedCharacters, which is erased
+colls: erased set DefaultNameGenerator(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>,java.util.Map<java.lang.Character,com.google.javascript.jscomp.DefaultNameGenerator.CharPriority>).reservedNonFirstCharacters: exchanges values with clone.reservedCharacters, which is erased
+colls: erased map DefaultNameGenerator(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>,java.util.Map<java.lang.Character,com.google.javascript.jscomp.DefaultNameGenerator.CharPriority>).priorityLookupMap: exchanges values with DefaultNameGenerator.priorityLookupMap, which is erased
+colls: erased entry DefaultNameGenerator(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>,java.util.Map<java.lang.Character,com.google.javascript.jscomp.DefaultNameGenerator.CharPriority>).entry: exchanges values with <init>.priorityLookupMap, which is erased
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>).reservedNames: assigned the result of ImmutableSet.of
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>).reservedNames: assigned the result of ImmutableSet.of
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>).reservedNames: assigned the result of ImmutableSet.of
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>).reservedCharacters: assigned the result of ImmutableSet.of
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>).reservedCharacters: assigned the result of ImmutableSet.of
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>).reservedCharacters: assigned the result of ImmutableSet.of
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>).reservedNames: exchanges values with <init>.reservedNames, which is erased
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>).reservedNames: exchanges values with <init>.reservedNames, which is erased
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>).reservedNames: exchanges values with <init>.reservedNames, which is erased
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>).reservedFirstCharacters: exchanges values with reset.reservedCharacters, which is erased
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>).reservedFirstCharacters: exchanges values with reset.reservedCharacters, which is erased
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>).reservedFirstCharacters: exchanges values with reset.reservedCharacters, which is erased
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>).reservedNonFirstCharacters: exchanges values with reset.reservedCharacters, which is erased
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>).reservedNonFirstCharacters: exchanges values with reset.reservedCharacters, which is erased
+colls: erased set reset(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>).reservedNonFirstCharacters: exchanges values with reset.reservedCharacters, which is erased
+colls: erased set clone(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>).reservedCharacters: exchanges values with RenameVars.reservedCharacters, which is erased
+colls: erased set clone(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>).reservedCharacters: exchanges values with RenameVars.reservedCharacters, which is erased
+colls: erased set clone(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>).reservedCharacters: exchanges values with RenameVars.reservedCharacters, which is erased
+colls: erased set reserveCharacters(char[],java.util.Set<java.lang.Character>).reservedCharacterSet: exchanges values with reset.reservedFirstCharacters, which is erased
+colls: erased list combineChecks(com.google.javascript.jscomp.AbstractCompiler,java.util.List<com.google.javascript.jscomp.NodeTraversal.Callback>).callbacks: assigned the result of ImmutableList.of
+colls: erased set runVariableRenaming(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.jscomp.VariableMap,com.google.javascript.rhino.Node,com.google.javascript.rhino.Node).reservedChars: assigned the result of ImmutableSet.of
+colls: erased list DefaultPassConfig(com.google.javascript.jscomp.CompilerOptions).changedScopeNodes: exchanges values with ChangeTracker.getChangedScopeNodesForPass, which is erased
+colls: erased entry process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).referenceGroup: not a loop over the entries of a typed map
+colls: erased list processReferenceList(java.lang.String,java.util.List<com.google.javascript.rhino.Node>).sites: assigned the result of Entry.getValue
+colls: erased set com.google.javascript.jscomp.DiagnosticToSuppressionMapper.validSuppressions: exchanges values with <init>.validSuppressions, which is erased
+colls: erased set DiagnosticToSuppressionMapper(java.util.Set<java.lang.String>,com.google.common.collect.ImmutableMap<java.lang.String,com.google.javascript.jscomp.DiagnosticGroup>).validSuppressions: assigned the result of ParserRunner.getSuppressionNames
+colls: erased entry createSuppressionMap().entry: not a loop over the entries of a typed map
+colls: erased entry printAsJson(com.google.common.collect.ImmutableSortedMap<java.lang.String,java.lang.String>).entry: not a loop over the entries of a typed map
+colls: erased entry printAsMarkdown(com.google.common.collect.ImmutableSortedMap<java.lang.String,java.lang.String>).e: not a loop over the entries of a typed map
+colls: erased list traverseNodes(com.google.javascript.rhino.Node).outEdges: assigned the result of LinkedDirectedGraph.getOutEdges
+colls: erased set createWrapperFunctions().objects: assigned the result of SimpleSetMultimap.get
+colls: erased map visitNonMethodMember(com.google.javascript.rhino.Node,com.google.javascript.jscomp.Es6RewriteClass.ClassDeclarationMetadata).membersToDeclare: exchanges values with ClassDeclarationMetadata.classMembersToDeclare, which is erased
+colls: erased map com.google.javascript.jscomp.Es6RewriteClass.ClassDeclarationMetadata.classMembersToDeclareField: assigned the result of Objects.requireNonNull
+colls: erased map com.google.javascript.jscomp.Es6RewriteClass.ClassDeclarationMetadata.classMembersToDeclare(): exchanges values with ClassDeclarationMetadata.classMembersToDeclareField, which is erased
+colls: erased entry createExportsObject(java.lang.String,com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node,com.google.javascript.jscomp.AstFactory.Type).entry: not a loop over the entries of a typed map
+colls: erased list inlineAliasedTypes(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node).split: assigned the result of Splitter.splitToList
+colls: erased list fixTypeNode(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node).splitted: assigned the result of Splitter.splitToList
+colls: erased map com.google.javascript.jscomp.Es6RewriteModulesToCommonJsModules.Rewriter.exportedNameToLocalQName: assigned a new TreeMap
+colls: erased entry addExportDef().entry: exchanges values with Rewriter.exportedNameToLocalQName, which is erased
+colls: erased list createExternsParamListFromFunctionType(com.google.javascript.rhino.jstype.JSType).emptyParamNames: assigned the result of Collections.nCopies
+colls: erased list createExternsParamListFromOriginalParamList(java.util.List<java.lang.String>).originalParamNames: exchanges values with createExternsParamListFromFunctionType.emptyParamNames, which is erased
+colls: erased list computePathPrefixes(java.lang.String).pieces: assigned the result of Splitter.splitToList
+colls: erased set process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node).sorted: assigned a new TreeSet
+colls: erased entry gatherCallArgumentsNeedingTemps(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.rhino.Node,com.google.common.collect.ImmutableMap<java.lang.String,com.google.javascript.jscomp.FunctionArgumentInjector.ParamArgPair>,com.google.common.collect.ImmutableSet<java.lang.String>,com.google.javascript.jscomp.CodingConvention).entry: not a loop over the entries of a typed map
+colls: erased entry inlineReturnValue(com.google.javascript.jscomp.FunctionInjector.Reference,com.google.javascript.rhino.Node).entry: not a loop over the entries of a typed map
+colls: erased set inliningLowersCost(com.google.javascript.jscomp.JSChunk,com.google.javascript.rhino.Node,java.util.Collection<? extends com.google.javascript.jscomp.FunctionInjector.Reference>,java.util.Set<java.lang.String>,boolean,boolean).namesToAlias: assigned the result of FunctionState.getNamesToAlias
+colls: erased set inlineCostDelta(com.google.javascript.rhino.Node,java.util.Set<java.lang.String>,com.google.javascript.jscomp.FunctionInjector.InliningMode).namesToAlias: exchanges values with inliningLowersCost.namesToAlias, which is erased
+colls: erased list ReductionGatherer(java.util.List<com.google.javascript.jscomp.FunctionRewriter.Reducer>,com.google.javascript.jscomp.base.SimpleSetMultimap<com.google.javascript.jscomp.FunctionRewriter.Reducer,com.google.javascript.jscomp.FunctionRewriter.Reduction>).reducers: assigned a variable that is not typed
+colls: erased set aliasAndInlineArguments(com.google.javascript.rhino.Node,com.google.common.collect.ImmutableMap<java.lang.String,com.google.javascript.jscomp.FunctionArgumentInjector.ParamArgPair>,java.util.Set<java.lang.String>).namesToAlias: assigned a variable that is not typed
+colls: erased entry aliasAndInlineArguments(com.google.javascript.rhino.Node,com.google.common.collect.ImmutableMap<java.lang.String,com.google.javascript.jscomp.FunctionArgumentInjector.ParamArgPair>,java.util.Set<java.lang.String>).entry: not a loop over the entries of a typed map
+colls: erased entry aliasAndInlineArguments(com.google.javascript.rhino.Node,com.google.common.collect.ImmutableMap<java.lang.String,com.google.javascript.jscomp.FunctionArgumentInjector.ParamArgPair>,java.util.Set<java.lang.String>).entry: not a loop over the entries of a typed map
+colls: erased list setConstructorTemplateTypeNames(java.util.List<com.google.javascript.rhino.jstype.TemplateType>,com.google.javascript.rhino.@org.jspecify.annotations.Nullable Node).templates: assigned the result of FunctionTypeBuilder.buildTemplateTypesFromJSDocInfo
+colls: erased entry buildTemplateTypesFromJSDocInfo(com.google.javascript.rhino.JSDocInfo,boolean).entry: not a loop over the entries of a typed map
+colls: erased entry buildTemplateTypesFromJSDocInfo(com.google.javascript.rhino.JSDocInfo,boolean).entry: not a loop over the entries of a typed map
+colls: erased map com.google.javascript.jscomp.GlobalNamespace.Name.castRefsForNodeMap(): assigned a TYPE_CAST
+colls: erased map updateRefNode(com.google.javascript.jscomp.GlobalNamespace.Ref,com.google.javascript.rhino.@org.jspecify.annotations.Nullable Node).refsForNodeMap: exchanges values with Name.castRefsForNodeMap, which is erased
+colls: erased list generateId(java.util.Optional<java.lang.String>,java.util.List<com.google.javascript.jscomp.JsMessage.Part>).messageParts: assigned a variable that is not typed
+colls: erased list generateId(java.util.Optional<java.lang.String>,java.util.List<com.google.javascript.jscomp.JsMessage.Part>).messageParts: assigned a variable that is not typed
+colls: erased entry generateSerializedIdMappings(java.util.Map<java.lang.String,java.util.Map<java.lang.String,java.lang.String>>).replacement: not a loop over the entries of a typed map
+colls: erased map com.google.javascript.jscomp.IdMappingUtil.parseSerializedIdMappings(java.lang.String): assigned the result of ImmutableMap.of
+colls: erased list com.google.javascript.jscomp.InjectClosureUnawareRuntimeLibraries.closureUnawareCalls: exchanges values with <init>.closureUnawareCalls, which is erased
+colls: erased list InjectClosureUnawareRuntimeLibraries(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.jscomp.AbstractCompiler,java.util.List<com.google.javascript.jscomp.InjectClosureUnawareRuntimeLibraries.ClosureUnawareCallSite>).closureUnawareCalls: assigned the result of Builder.build
+colls: erased set flattenReferencesToCollapsibleDescendantNames(com.google.javascript.jscomp.GlobalNamespace.Name,java.lang.String,java.util.Set<com.google.javascript.jscomp.GlobalNamespace.Name>).escaped: assigned a variable that is not typed
+colls: erased set collapseDeclarationOfNameAndDescendants(com.google.javascript.jscomp.GlobalNamespace.Name,java.lang.String,java.util.Set<com.google.javascript.jscomp.GlobalNamespace.Name>).escaped: assigned a variable that is not typed
+colls: erased set updateFunctionStateForInlining(com.google.javascript.jscomp.InlineFunctions.Function,com.google.javascript.jscomp.JSChunk,com.google.javascript.jscomp.InlineFunctions.FunctionState).namesToAlias: assigned the result of FunctionArgumentInjector.findModifiedParameters
+colls: erased set com.google.javascript.jscomp.InlineFunctions.FunctionState.namesToAlias: exchanges values with setNamesToAlias.names, which is erased
+colls: erased map com.google.javascript.jscomp.InlineFunctions.FunctionState.getReferencesInternal(): assigned the result of ImmutableMap.of
+colls: erased set setNamesToAlias(java.util.Set<java.lang.String>).names: exchanges values with updateFunctionStateForInlining.namesToAlias, which is erased
+colls: erased list replaceAssignmentExpression(com.google.javascript.jscomp.Var,com.google.javascript.jscomp.Reference,java.util.Map<java.lang.String,java.lang.String>).nodes: assigned the result of Lists.reverse
+colls: erased set visit(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,java.lang.String).definitions: assigned the result of SimpleSetMultimap.get
+colls: erased set allDefinitionsEquivalent(java.util.Set<com.google.javascript.rhino.Node>).definitions: exchanges values with visit.definitions, which is erased
+colls: erased set anyDefinitionsNotInlineable(java.util.Set<com.google.javascript.rhino.Node>).definitions: exchanges values with visit.definitions, which is erased
+colls: erased list process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node).polyfillUsages: used in MEMBER_REFERENCE
+colls: erased list com.google.javascript.jscomp.J2clClinitPrunerPass.initialChangedScopeNodes: exchanges values with <init>.initialChangedScopeNodes, which is erased
+colls: erased list J2clClinitPrunerPass(com.google.javascript.jscomp.AbstractCompiler,java.util.List<com.google.javascript.rhino.Node>).initialChangedScopeNodes: exchanges values with <init>.changedScopeNodes, which is erased
+colls: erased list removeRedundantClinits(com.google.javascript.rhino.Node,java.util.@org.jspecify.annotations.Nullable List<com.google.javascript.rhino.Node>).changedScopeNodes: exchanges values with J2clClinitPrunerPass.initialChangedScopeNodes, which is erased
+colls: erased list pruneEmptyClinits(com.google.javascript.rhino.Node,java.util.@org.jspecify.annotations.Nullable List<com.google.javascript.rhino.Node>).changedScopes: exchanges values with J2clClinitPrunerPass.initialChangedScopeNodes, which is erased
+colls: erased list traverseScopeRootsWithFallback(com.google.javascript.rhino.Node,java.util.@org.jspecify.annotations.Nullable List<com.google.javascript.rhino.Node>,com.google.javascript.jscomp.NodeTraversal.Callback,boolean).scopeRoots: exchanges values with removeRedundantClinits.changedScopeNodes, which is erased
+colls: erased list getNonNestedParentScopeNodes(java.util.List<com.google.javascript.rhino.Node>).changedScopeNodes: exchanges values with removeRedundantClinits.changedScopeNodes, which is erased
+colls: erased set com.google.javascript.jscomp.J2clPass.InlineSpec.fnNamesToInline: a record component
+colls: erased set com.google.javascript.jscomp.JSChunk.getAllDependencies(): named by a method reference
+colls: erased set com.google.javascript.jscomp.JSChunk.getThisAndAllDependencies(): exchanges values with getThisAndAllDependencies.deps, which is erased
+colls: erased set getThisAndAllDependencies().deps: exchanges values with JSChunk.getAllDependencies, which is erased
+colls: erased list sortInputsByDeps(com.google.javascript.jscomp.AbstractCompiler).sortedList: assigned the result of SortedDependencies.getSortedList
+colls: erased list com.google.javascript.jscomp.JSChunkGraph.chunksByDepth: exchanges values with <init>.chunksByDepth, which is erased
+colls: erased list create(java.util.List<com.google.javascript.jscomp.JSChunk>).chunksInDepOrder: assigned the result of Arrays.asList
+colls: erased list JSChunkGraph(com.google.javascript.jscomp.JSChunk[],java.util.List<java.util.List<com.google.javascript.jscomp.JSChunk>>).chunksByDepth: assigned the result of Outcome.get
+colls: erased list com.google.javascript.jscomp.JSChunkGraph.makeWeakChunk(java.util.List<com.google.javascript.jscomp.JSChunk>): exchanges values with makeWeakChunk.chunksInDepOrder, which is erased
+colls: erased list makeWeakChunk(java.util.List<com.google.javascript.jscomp.JSChunk>).chunksInDepOrder: exchanges values with create.chunksInDepOrder, which is erased
+colls: erased list getDeepestCommonDependency(com.google.javascript.jscomp.JSChunk,com.google.javascript.jscomp.JSChunk).chunksAtDepth: assigned the result of List.get
+colls: erased list com.google.javascript.jscomp.JSChunkGraph.getTransitiveDepsDeepestFirst(com.google.javascript.jscomp.JSChunk): assigned the result of Ordering.sortedCopy
+colls: erased set com.google.javascript.jscomp.JSChunkGraph.getTransitiveDeps(com.google.javascript.jscomp.JSChunk): assigned the result of LinkedIdentityHashMap.computeIfAbsent
+colls: erased set manageDependencies(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.jscomp.DependencyOptions).entryPointInputs: assigned the result of Outcome.get
+colls: erased list manageDependencies(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.jscomp.DependencyOptions).orderedInputs: assigned a variable that is not typed
+colls: erased list manageDependencies(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.jscomp.DependencyOptions).transitiveClosure: assigned the result of SortedDependencies.getStrongDependenciesOf
+colls: erased entry print(com.google.javascript.rhino.JSDocInfo).e: not a loop over the entries of a typed map
+colls: erased list appendParts(java.util.List<com.google.javascript.jscomp.JsMessage.Part>).parts: assigned a variable that is not typed
+colls: erased map setPlaceholderNameToExampleMap(java.util.Map<java.lang.String,java.lang.String>).map: assigned the result of InputForBuildJsMsg.getPlaceholderExampleMap
+colls: erased map setPlaceholderNameToOriginalCodeMap(java.util.Map<java.lang.String,java.lang.String>).map: assigned the result of InputForBuildJsMsg.getPlaceholderOriginalCodeMap
+colls: erased list com.google.javascript.jscomp.JsMessageVisitor.FUNCTIONS_USED_IN_MESSAGE_EXTRACTION: assigned the result of ImmutableList.of
+colls: erased set extractParts(java.util.Set<java.lang.String>).placholderNamesToExtract: assigned the result of IcuTemplateOptions.getPlaceholderNames
+colls: erased set checkForUnknownPlaceholders(java.util.Set<java.lang.String>).knownPlaceholders: assigned a variable that is not typed
+colls: erased set checkForUnknownPlaceholders(java.util.Set<java.lang.String>).knownPlaceholders: assigned a variable that is not typed
+colls: erased set checkForUnknownPlaceholders(java.util.Set<java.lang.String>).knownPlaceholders: assigned a variable that is not typed
+colls: erased set checkForUnknownPlaceholders(java.util.Set<java.lang.String>).knownPlaceholders: assigned a variable that is not typed
+colls: erased set checkForUnexpectedKeys(java.util.Set<java.lang.String>,java.util.function.Function<java.lang.String,java.lang.String>).expectedKeys: assigned a variable that is not typed
+colls: erased set checkForUnexpectedKeys(java.util.Set<java.lang.String>,java.util.function.Function<java.lang.String,java.lang.String>).expectedKeys: assigned a variable that is not typed
+colls: erased set checkForRequiredKeys(java.util.Set<java.lang.String>,java.util.function.Function<java.lang.String,com.google.javascript.jscomp.JsMessageVisitor.MalformedException>).requiredKeys: assigned a variable that is not typed
+colls: erased set checkForRequiredKeys(java.util.Set<java.lang.String>,java.util.function.Function<java.lang.String,com.google.javascript.jscomp.JsMessageVisitor.MalformedException>).requiredKeys: assigned a variable that is not typed
+colls: erased map com.google.javascript.jscomp.JsMessageVisitor.ObjectLiteralMapImpl.stringToStringKeyMap: exchanges values with <init>.stringToStringKeyMap, which is erased
+colls: erased map ObjectLiteralMapImpl(java.util.Map<java.lang.String,com.google.javascript.rhino.Node>).stringToStringKeyMap: assigned the result of ImmutableMap.of
+colls: erased entry extractAsValueMap().entry: exchanges values with ObjectLiteralMapImpl.stringToStringKeyMap, which is erased
+colls: erased entry extractAsStringToStringMap().entry: exchanges values with ObjectLiteralMapImpl.stringToStringKeyMap, which is erased
+colls: erased list writeMemoryMetrics(com.google.javascript.jscomp.base.Output,boolean,boolean).mpBeans: assigned the result of ManagementFactory.getMemoryPoolMXBeans
+colls: erased list writeMemoryMetrics(com.google.javascript.jscomp.base.Output,boolean,boolean).mpBeans: assigned the result of ManagementFactory.getMemoryPoolMXBeans
+colls: erased list writeGarbageCollectionStats(com.google.javascript.jscomp.base.Output,boolean,boolean).gcBeans: assigned the result of ManagementFactory.getGarbageCollectorMXBeans
+colls: erased list visitObjectWithComputedProperty(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node).props: assigned the result of Lists.reverse
+colls: erased map getLoadFlags().loadFlagsBuilder: assigned a new TreeMap
+colls: erased list padMultipleLines(int,java.lang.String,java.lang.StringBuilder,com.google.javascript.rhino.Node).lines: assigned the result of Splitter.splitToList
+colls: erased list com.google.javascript.jscomp.LinterMain.files: assigned a variable that is not typed
+colls: erased list flowThrough(com.google.javascript.rhino.Node,com.google.javascript.jscomp.LiveVariablesAnalysis.LiveVariableLattice).edgeList: assigned the result of LinkedDirectedGraph.getOutEdges
+colls: erased deque pushVariableInfo(com.google.javascript.jscomp.MakeDeclaredNamesUnique.ContextualRenameInverter.VariableInfo).variableInfoStack: exchanges values with VariableInfoStackMap.getVariableInfoStack, which is erased
+colls: erased deque com.google.javascript.jscomp.MakeDeclaredNamesUnique.ContextualRenameInverter.VariableInfoStackMap.getVariableInfoStack(java.lang.String): assigned the result of Map.computeIfAbsent
+colls: erased deque getOrCreateCurrentVariableInfo(java.lang.String).variableInfoStack: exchanges values with VariableInfoStackMap.getVariableInfoStack, which is erased
+colls: erased deque popVariableInfo(java.lang.String).variableInfos: assigned the result of Map.get
+colls: erased list hasExceptionHandler(com.google.javascript.rhino.Node).branchEdges: assigned the result of LinkedDirectedGraph.getOutEdges
+colls: erased entry declareEsModuleImports(com.google.javascript.jscomp.modules.Module,com.google.javascript.jscomp.TypedScope,com.google.javascript.jscomp.CompilerInput).boundName: not a loop over the entries of a typed map
+colls: erased entry updateEsModuleNamespaceType(com.google.javascript.rhino.jstype.ObjectType,com.google.javascript.jscomp.modules.Module,com.google.javascript.jscomp.TypedScope).boundName: not a loop over the entries of a typed map
+colls: erased list getGlobalNameForJsDoc(com.google.javascript.jscomp.modules.ModuleMap,com.google.javascript.jscomp.modules.Binding,java.util.List<java.lang.String>).propertyChain: assigned the result of List.subList
+colls: erased list traverseScopeRoots(com.google.javascript.jscomp.AbstractCompiler,java.util.List<com.google.javascript.rhino.Node>,com.google.javascript.jscomp.NodeTraversal.Callback,boolean).scopeNodes: assigned the result of ImmutableList.of
+colls: erased set canBeSideEffected(com.google.javascript.rhino.Node,java.util.Set<java.lang.String>,com.google.javascript.jscomp.@org.jspecify.annotations.Nullable Scope).knownConstants: assigned a variable that is not typed
+colls: erased list isValidQualifiedName(com.google.javascript.jscomp.parsing.parser.FeatureSet,java.lang.String).parts: assigned the result of Splitter.splitToList
+colls: erased list getParentChangeScopeNodes(java.util.List<com.google.javascript.rhino.Node>).scopeNodes: exchanges values with getNonNestedParentScopeNodes.changedScopeNodes, which is erased
+colls: erased list addReference(java.util.LinkedHashMap<java.lang.String,java.util.ArrayList<com.google.javascript.rhino.Node>>,java.lang.String,com.google.javascript.rhino.Node).refs: assigned the result of HashMap.computeIfAbsent
+colls: erased list getFunctionNodes(java.util.List<com.google.javascript.rhino.Node>).definitionSites: exchanges values with processReferenceList.sites, which is erased
+colls: erased set com.google.javascript.jscomp.OptimizeCalls.safeSet(java.util.@org.jspecify.annotations.Nullable Set<java.lang.String>): assigned the result of ImmutableSet.copyOf
+colls: erased set safeSet(java.util.@org.jspecify.annotations.Nullable Set<java.lang.String>).set: assigned the result of AbstractCompiler.getExternProperties
+colls: erased set com.google.javascript.jscomp.OptimizeCalls.ReferenceMapBuildingCallback.externProps: exchanges values with OptimizeCalls.safeSet, which is erased
+colls: erased entry process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).entry: not a loop over the entries of a typed map
+colls: erased list addConstructorsToBeRemoved(java.lang.String,java.util.ArrayList<com.google.javascript.rhino.Node>).refs: assigned the result of Entry.getValue
+colls: erased entry process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).entry: not a loop over the entries of a typed map
+colls: erased list process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).refs: assigned the result of Entry.getValue
+colls: erased entry process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).entry: not a loop over the entries of a typed map
+colls: erased list process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).refs: assigned the result of Entry.getValue
+colls: erased list process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).refs: the variable of a for-each loop
+colls: erased list process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).refs: the variable of a for-each loop
+colls: erased list process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).refs: the variable of a for-each loop
+colls: erased list tryEliminateUnusedArgs(java.util.ArrayList<com.google.javascript.rhino.Node>).refs: exchanges values with process.refs, which is erased
+colls: erased list analyzeCandidateName(java.lang.String,java.util.ArrayList<com.google.javascript.rhino.Node>).refs: exchanges values with process.refs, which is erased
+colls: erased list analyzeCandidateProperty(java.lang.String,java.util.ArrayList<com.google.javascript.rhino.Node>).refs: exchanges values with process.refs, which is erased
+colls: erased list analyzeCandidate(java.lang.String,java.lang.String,java.util.ArrayList<com.google.javascript.rhino.Node>).refs: exchanges values with analyzeCandidateName.refs, which is erased
+colls: erased list tryEliminateOptionalArgs(java.util.ArrayList<com.google.javascript.rhino.Node>).refs: exchanges values with process.refs, which is erased
+colls: erased list tryEliminateConstantArgs(java.util.ArrayList<com.google.javascript.rhino.Node>).refs: exchanges values with process.refs, which is erased
+colls: erased list findFixedArguments(java.util.ArrayList<com.google.javascript.rhino.Node>).refs: exchanges values with tryEliminateConstantArgs.refs, which is erased
+colls: erased entry process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).entry: not a loop over the entries of a typed map
+colls: erased list process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).refs: assigned the result of Entry.getValue
+colls: erased entry process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).entry: not a loop over the entries of a typed map
+colls: erased list process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).refs: assigned the result of Entry.getValue
+colls: erased list process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).refs: the variable of a for-each loop
+colls: erased list isCandidate(java.lang.String,java.util.List<com.google.javascript.rhino.Node>).refs: exchanges values with process.refs, which is erased
+colls: erased list PeepholeOptimizationsPass(com.google.javascript.jscomp.AbstractCompiler,java.lang.String,java.util.List<com.google.javascript.jscomp.AbstractPeepholeOptimization>).optimizations: assigned the result of Builder.build
+colls: erased list process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node).changedScopeNodes: exchanges values with ChangeTracker.getChangedScopeNodesForPass, which is erased
+colls: erased list tryFoldKnownMathMethods(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node).args: assigned the result of ImmutableList.of
+colls: erased entry outputTracerReport(com.google.javascript.jscomp.base.Output).entry: not a loop over the entries of a typed map
+colls: erased entry outputTracerReport(com.google.javascript.jscomp.base.Output).e: not a loop over the entries of a typed map
+colls: erased list consume(java.util.List<com.google.javascript.jscomp.PassFactory>).factories: assigned the result of PassListBuilder.build
+colls: erased list fromTable(java.lang.String).tokens: assigned the result of Splitter.splitToList
+colls: erased list visitGetPropChain(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node).methodPolyfills: assigned the result of SimpleListMultimap.get
+colls: erased list com.google.javascript.jscomp.PolymerBehaviorExtractor.BehaviorDefinition.props: exchanges values with <init>.props, which is erased
+colls: erased list com.google.javascript.jscomp.PolymerBehaviorExtractor.BehaviorDefinition.functionsToCopy: exchanges values with <init>.functionsToCopy, which is erased
+colls: erased list com.google.javascript.jscomp.PolymerBehaviorExtractor.BehaviorDefinition.nonPropertyMembersToCopy: exchanges values with <init>.nonPropertyMembersToCopy, which is erased
+colls: erased list BehaviorDefinition(java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>,java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>,java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>,boolean,com.google.javascript.jscomp.parsing.parser.FeatureSet,com.google.javascript.rhino.Node).props: assigned the result of PolymerPassStaticUtils.extractProperties
+colls: erased list BehaviorDefinition(java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>,java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>,java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>,boolean,com.google.javascript.jscomp.parsing.parser.FeatureSet,com.google.javascript.rhino.Node).functionsToCopy: assigned the result of PolymerBehaviorExtractor.getBehaviorFunctionsToCopy
+colls: erased list BehaviorDefinition(java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>,java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>,java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>,boolean,com.google.javascript.jscomp.parsing.parser.FeatureSet,com.google.javascript.rhino.Node).nonPropertyMembersToCopy: assigned the result of PolymerBehaviorExtractor.getNonPropertyMembersToCopy
+colls: erased list com.google.javascript.jscomp.PolymerClassDefinition.props: exchanges values with <init>.props, which is erased
+colls: erased list PolymerClassDefinition(com.google.javascript.jscomp.PolymerClassDefinition.DefinitionType,com.google.javascript.rhino.Node,com.google.javascript.rhino.Node,boolean,com.google.javascript.rhino.Node,com.google.javascript.rhino.JSDocInfo,com.google.javascript.jscomp.PolymerPass.MemberDefinition,java.util.Optional<java.lang.String>,java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>,java.util.@org.jspecify.annotations.Nullable Map<com.google.javascript.jscomp.PolymerPass.MemberDefinition,com.google.javascript.jscomp.PolymerBehaviorExtractor.BehaviorDefinition>,java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>,com.google.common.collect.@org.jspecify.annotations.Nullable ImmutableList<com.google.javascript.jscomp.PolymerBehaviorExtractor.BehaviorDefinition>,com.google.javascript.jscomp.parsing.parser.@org.jspecify.annotations.Nullable FeatureSet,com.google.javascript.jscomp.CompilerInput).props: assigned a variable that is not typed
+colls: erased list overwriteMembersIfPresent(java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>,java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>).newMembers: assigned the result of PolymerPassStaticUtils.extractProperties
+colls: erased list appendPropertiesToBlock(java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>,com.google.javascript.rhino.Node,java.lang.String,boolean).props: exchanges values with PolymerClassDefinition.props, which is erased
+colls: erased list createExportsAndExterns(com.google.javascript.jscomp.PolymerClassDefinition,java.util.List<com.google.javascript.jscomp.PolymerPass.MemberDefinition>).readOnlyProps: assigned a variable that is not typed
+colls: erased list processForwardDeclare(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node).typeDeclarations: exchanges values with DefaultCodingConvention.identifyTypeDeclarationCall, which is erased
+colls: erased list com.google.javascript.jscomp.ProcessCommonJSModules.FindImportsAndExports.getModuleExports(): assigned the result of ImmutableList.copyOf
+colls: erased list com.google.javascript.jscomp.ProcessCommonJSModules.FindImportsAndExports.getExports(): assigned the result of ImmutableList.copyOf
+colls: erased map putReplacements(java.util.Map<java.lang.String,com.google.javascript.rhino.Node>).replacementValues: assigned the result of CompilerOptions.getDefineReplacements
+colls: erased set overrideDefines().unusedReplacements: assigned the result of Sets.difference
+colls: erased entry calculateBottlenecks().entry: not a loop over the entries of a typed map
+colls: erased entry populateDatastructuresForAnalysisTraversal(com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).entry: not a loop over the entries of a typed map
+colls: erased entry populateDatastructuresForAnalysisTraversal(com.google.javascript.jscomp.OptimizeCalls.ReferenceMap).entry: not a loop over the entries of a typed map
+colls: erased list populateFunctionDefinitions(java.lang.String,java.util.List<com.google.javascript.rhino.Node>).references: of a method named by a method reference
+colls: erased set RandomNameGenerator(java.util.Set<java.lang.String>,java.lang.String,java.util.Set<java.lang.Character>,java.util.Random).reservedCharacters: exchanges values with clone.reservedCharacters, which is erased
+colls: erased set shuffleAndCopyAlphabet(java.util.Set<java.lang.Character>,java.util.Random).input: assigned a variable that is not typed
+colls: erased set com.google.javascript.jscomp.RenameProperties.reservedFirstCharacters: exchanges values with <init>.reservedFirstCharacters, which is erased
+colls: erased set com.google.javascript.jscomp.RenameProperties.reservedNonFirstCharacters: exchanges values with <init>.reservedNonFirstCharacters, which is erased
+colls: erased set RenameProperties(com.google.javascript.jscomp.AbstractCompiler,boolean,com.google.javascript.jscomp.VariableMap,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>,com.google.javascript.jscomp.NameGenerator).reservedFirstCharacters: assigned the result of CompilerOptions.getPropertyReservedNamingFirstChars
+colls: erased set RenameProperties(com.google.javascript.jscomp.AbstractCompiler,boolean,com.google.javascript.jscomp.VariableMap,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>,com.google.javascript.jscomp.NameGenerator).reservedNonFirstCharacters: assigned the result of CompilerOptions.getPropertyReservedNamingNonFirstChars
+colls: erased set RenameProperties(com.google.javascript.jscomp.AbstractCompiler,boolean,com.google.javascript.jscomp.VariableMap,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>,com.google.javascript.jscomp.NameGenerator,java.util.function.Predicate<com.google.javascript.rhino.Node>).reservedFirstCharacters: exchanges values with <init>.reservedFirstCharacters, which is erased
+colls: erased set RenameProperties(com.google.javascript.jscomp.AbstractCompiler,boolean,com.google.javascript.jscomp.VariableMap,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>,com.google.javascript.jscomp.NameGenerator,java.util.function.Predicate<com.google.javascript.rhino.Node>).reservedNonFirstCharacters: exchanges values with <init>.reservedNonFirstCharacters, which is erased
+colls: erased set process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node).reservedNames: assigned the result of Sets.newLinkedHashSetWithExpectedSize
+colls: erased set process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node).propsByFreq: assigned a new TreeSet
+colls: erased set reusePropertyNames(java.util.Set<java.lang.String>,java.util.Collection<com.google.javascript.jscomp.RenameProperties.Property>).reservedNames: exchanges values with process.reservedNames, which is erased
+colls: erased set generateNames(java.util.Set<com.google.javascript.jscomp.RenameProperties.Property>,java.util.Set<java.lang.String>).props: exchanges values with process.propsByFreq, which is erased
+colls: erased set generateNames(java.util.Set<com.google.javascript.jscomp.RenameProperties.Property>,java.util.Set<java.lang.String>).reservedNames: exchanges values with process.reservedNames, which is erased
+colls: erased set com.google.javascript.jscomp.RenameVars.reservedCharacters: exchanges values with <init>.reservedCharacters, which is erased
+colls: erased set RenameVars(com.google.javascript.jscomp.AbstractCompiler,java.util.Optional<java.lang.String>,boolean,boolean,boolean,com.google.javascript.jscomp.VariableMap,java.util.Set<java.lang.Character>,java.util.@org.jspecify.annotations.Nullable Set<java.lang.String>,com.google.javascript.jscomp.NameGenerator).reservedCharacters: exchanges values with runVariableRenaming.reservedChars, which is erased
+colls: erased set com.google.javascript.jscomp.ReplaceCssNames.skiplist: exchanges values with <init>.skiplist, which is erased
+colls: erased set ReplaceCssNames(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.jscomp.@org.jspecify.annotations.Nullable CssRenamingMap,com.google.javascript.jscomp.ReplaceCssNames.CssNameCollector,java.util.@org.jspecify.annotations.Nullable Set<java.lang.String>).skiplist: assigned the result of CompilerOptions.getCssRenamingSkiplist
+colls: erased map com.google.javascript.jscomp.ReplaceIdGenerators.previousMap: exchanges values with <init>.previousMap, which is erased
+colls: erased map ReplaceIdGenerators(com.google.javascript.jscomp.AbstractCompiler,boolean,java.util.Map<java.lang.String,com.google.javascript.jscomp.RenamingMap>,boolean,java.lang.String,com.google.javascript.jscomp.Xid.HashFunction).idGens: exchanges values with CompilerOptions.getIdGenerators, which is erased
+colls: erased map ReplaceIdGenerators(com.google.javascript.jscomp.AbstractCompiler,boolean,java.util.Map<java.lang.String,com.google.javascript.jscomp.RenamingMap>,boolean,java.lang.String,com.google.javascript.jscomp.Xid.HashFunction).previousMap: exchanges values with IdMappingUtil.parseSerializedIdMappings, which is erased
+colls: erased entry ReplaceIdGenerators(com.google.javascript.jscomp.AbstractCompiler,boolean,java.util.Map<java.lang.String,com.google.javascript.jscomp.RenamingMap>,boolean,java.lang.String,com.google.javascript.jscomp.Xid.HashFunction).gen: exchanges values with <init>.idGens, which is erased
+colls: erased map com.google.javascript.jscomp.ReplaceIdGenerators.ObfuscatedNameSupplier.previousMappings: assigned the result of SimpleBiMap.inverse
+colls: erased map getObfuscatedName(com.google.javascript.rhino.Node,java.util.Optional<java.lang.String>,com.google.javascript.jscomp.ReplaceIdGenerators.NameSupplier,java.lang.String).idGeneratorMap: assigned the result of Map.get
+colls: erased map getObfuscatedName(com.google.javascript.rhino.Node,java.util.Optional<java.lang.String>,com.google.javascript.jscomp.ReplaceIdGenerators.NameSupplier,java.lang.String).entry: assigned the result of Map.get
+colls: erased map visitMsgDefinition(com.google.javascript.jscomp.ReplaceMessages.ProtectedJsMessage).placeholderMap: assigned the result of ReplaceMessages.extractPlaceholderValuesMapOrThrow
+colls: erased map createNodeForGenderedMsgString(com.google.javascript.jscomp.JsMessage,java.util.Map<java.lang.String,com.google.javascript.rhino.Node>,com.google.javascript.jscomp.ReplaceMessages.MsgOptions,com.google.javascript.rhino.Node).placeholderMap: exchanges values with constructStringExprNode.placeholderMap, which is erased
+colls: erased list buildMessageNode(java.util.List<com.google.javascript.jscomp.JsMessage.Part>,com.google.javascript.jscomp.ReplaceMessages.MsgOptions,com.google.javascript.rhino.Node,com.google.javascript.jscomp.ReplaceMessages.PlaceholderNodeProvider,boolean).msgParts: assigned the result of JsMessage.getGenderedMessageParts
+colls: erased map constructStringExprNode(com.google.javascript.jscomp.JsMessage,java.util.Map<java.lang.String,com.google.javascript.rhino.Node>,com.google.javascript.jscomp.ReplaceMessages.MsgOptions,com.google.javascript.rhino.Node).placeholderMap: assigned a variable that is not typed
+colls: erased map constructNonGenderedMsgNode(com.google.javascript.jscomp.JsMessage,java.util.Map<java.lang.String,com.google.javascript.rhino.Node>,com.google.javascript.jscomp.ReplaceMessages.MsgOptions,com.google.javascript.rhino.Node).placeholderMap: used in MEMBER_REFERENCE
+colls: erased list mergeStringParts(java.util.List<com.google.javascript.jscomp.JsMessage.Part>).parts: exchanges values with buildMessageNode.msgParts, which is erased
+colls: erased list getNewValueNode(com.google.javascript.jscomp.JsMessage,com.google.javascript.jscomp.JsMessageDefinition).placeholderNames: assigned the result of Ordering.sortedCopy
+colls: erased list ReplaceStrings(com.google.javascript.jscomp.AbstractCompiler,java.lang.String,java.util.List<java.lang.String>).functionsToInspect: assigned the result of CompilerOptions.getReplaceStringsFunctionDescriptions
+colls: erased list com.google.javascript.jscomp.ReplaceStrings.getResult(): assigned the result of ImmutableList.copyOf
+colls: erased list parseConfigurationList(java.util.List<java.lang.String>).functionsToInspect: exchanges values with <init>.functionsToInspect, which is erased
+colls: erased list parseConfiguration(java.lang.String).parts: assigned the result of Splitter.splitToList
+colls: erased list visitNameDeclaration(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node).allLhsNodes: used in MEMBER_REFERENCE
+colls: erased list rewriteNameDeclaration(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node,java.util.List<com.google.javascript.rhino.Node>,boolean).allLhsNodes: exchanges values with visitNameDeclaration.allLhsNodes, which is erased
+colls: erased set declareLocalAliasesAndWrappers().chunksRequiringWrapper: assigned the result of Map.getOrDefault
+colls: erased set declareLocalAliasesAndWrappersForChunk(com.google.javascript.jscomp.JSChunk,java.util.Map<java.lang.String,com.google.javascript.jscomp.JSChunk>,java.lang.String).wrappedReassignableLocalAliases: assigned the result of ImmutableSet.of
+colls: erased set declareLocalAliasesAndWrappersForChunk(com.google.javascript.jscomp.JSChunk,java.util.Map<java.lang.String,com.google.javascript.jscomp.JSChunk>,java.lang.String).usingChunks: assigned the result of Map.get
+colls: erased set canDeleteFromGlobalNamespace(com.google.javascript.jscomp.JSChunk,java.lang.String).usingChunks: assigned the result of Map.get
+colls: erased set com.google.javascript.jscomp.Result.cssNames: exchanges values with <init>.cssNames, which is erased
+colls: erased set Result(com.google.common.collect.ImmutableList<com.google.javascript.jscomp.JSError>,com.google.common.collect.ImmutableList<com.google.javascript.jscomp.JSError>,com.google.javascript.jscomp.VariableMap,com.google.javascript.jscomp.VariableMap,com.google.javascript.jscomp.VariableMap,com.google.javascript.jscomp.@org.jspecify.annotations.Nullable VariableMap,com.google.javascript.jscomp.@org.jspecify.annotations.Nullable VariableMap,com.google.javascript.jscomp.@org.jspecify.annotations.Nullable SourceMap,java.util.Optional<java.lang.String>,java.util.@org.jspecify.annotations.Nullable Set<java.lang.String>,java.util.Optional<java.lang.String>,boolean).cssNames: exchanges values with Compiler.cssNames, which is erased
+colls: erased entry process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node).entry: not a loop over the entries of a typed map
+colls: erased list process(com.google.javascript.rhino.Node,com.google.javascript.rhino.Node).fnNodes: assigned the result of Lists.reverse
+colls: erased entry changeModules().m: not a loop over the entries of a typed map
+colls: erased entry changeModules().m: not a loop over the entries of a typed map
+colls: erased list visitScript(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node).possibleMainEntries: exchanges values with CompilerOptions.getPackageJsonEntryNames, which is erased
+colls: erased entry mapError(java.lang.String).entry: not a loop over the entries of a typed map
+colls: erased set com.google.javascript.jscomp.ScopedAliases.closureNamespaces: exchanges values with <init>.closureNamespaces, which is erased
+colls: erased set ScopedAliases(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.jscomp.@org.jspecify.annotations.Nullable PreprocessorSymbolTable,java.util.Set<java.lang.String>,com.google.javascript.jscomp.ScopedAliases.InvalidModuleGetHandling).closureNamespaces: assigned the result of ImmutableSet.of
+colls: erased set SortingErrorManager(java.util.Set<com.google.javascript.jscomp.SortingErrorManager.ErrorReportGenerator>).errorReportGenerators: assigned the result of ImmutableSet.of
+colls: erased list com.google.javascript.jscomp.SourceMap.prefixMappings: assigned the result of ImmutableList.of
+colls: erased list setPrefixMappings(java.util.List<? extends com.google.javascript.jscomp.SourceMap.LocationMapping>).sourceMapLocationMappings: assigned the result of CompilerOptions.getSourceMapLocationMappings
+colls: erased map SuppressDocWarningsGuard(com.google.javascript.jscomp.AbstractCompiler,java.util.Map<java.lang.String,com.google.javascript.jscomp.DiagnosticGroup>).suppressors: assigned the result of DiagnosticGroups.getRegisteredGroups
+colls: erased map createSuppressors(java.util.Map<java.lang.String,com.google.javascript.jscomp.DiagnosticGroup>).suppressors: exchanges values with <init>.suppressors, which is erased
+colls: erased list com.google.javascript.jscomp.SymbolTable.getAllSymbolsSorted(): assigned the result of Ordering.sortedCopy
+colls: erased list com.google.javascript.jscomp.SymbolTable.getAllSymbolsForType(com.google.javascript.rhino.jstype.JSType): assigned the result of ImmutableList.of
+colls: erased list com.google.javascript.jscomp.Timeline.getSince(java.lang.String): read at another instantiation of its type variables
+colls: erased list com.google.javascript.jscomp.Tracer.extraTracingStatistics: assigned a new CopyOnWriteArrayList
+colls: erased map com.google.javascript.jscomp.Tracer.getTypeToCountMap(): exchanges values with AtomicTracerStatMap.getMap, which is erased
+colls: erased map com.google.javascript.jscomp.Tracer.getTypeToSilentMap(): exchanges values with AtomicTracerStatMap.getMap, which is erased
+colls: erased map com.google.javascript.jscomp.Tracer.getTypeToTimeMap(): exchanges values with AtomicTracerStatMap.getMap, which is erased
+colls: erased map com.google.javascript.jscomp.Tracer.AtomicTracerStatMap.getMap(): assigned a variable that is not typed
+colls: erased entry inferAllScopes(com.google.javascript.rhino.Node).e: not a loop over the entries of a typed map
+colls: erased set mismatchJSType(com.google.javascript.rhino.Node,java.lang.String,com.google.javascript.rhino.jstype.JSType,com.google.javascript.rhino.jstype.JSType).missing: assigned a new TreeSet
+colls: erased set mismatchJSType(com.google.javascript.rhino.Node,java.lang.String,com.google.javascript.rhino.jstype.JSType,com.google.javascript.rhino.jstype.JSType).mismatch: assigned a new TreeSet
+colls: erased set registerMismatchAndReport(com.google.javascript.rhino.Node,com.google.javascript.jscomp.DiagnosticType,java.lang.String,com.google.javascript.rhino.jstype.JSType,com.google.javascript.rhino.jstype.JSType,java.util.@org.jspecify.annotations.Nullable Set<java.lang.String>,java.util.@org.jspecify.annotations.Nullable Set<java.lang.String>).missing: exchanges values with mismatchJSType.missing, which is erased
+colls: erased set registerMismatchAndReport(com.google.javascript.rhino.Node,com.google.javascript.jscomp.DiagnosticType,java.lang.String,com.google.javascript.rhino.jstype.JSType,com.google.javascript.rhino.jstype.JSType,java.util.@org.jspecify.annotations.Nullable Set<java.lang.String>,java.util.@org.jspecify.annotations.Nullable Set<java.lang.String>).mismatch: exchanges values with mismatchJSType.mismatch, which is erased
+colls: erased set formatFoundRequired(java.lang.String,com.google.javascript.rhino.jstype.JSType,com.google.javascript.rhino.jstype.JSType,java.util.Set<java.lang.String>,java.util.Set<java.lang.String>).missing: exchanges values with registerMismatchAndReport.missing, which is erased
+colls: erased set formatFoundRequired(java.lang.String,com.google.javascript.rhino.jstype.JSType,com.google.javascript.rhino.jstype.JSType,java.util.Set<java.lang.String>,java.util.Set<java.lang.String>).mismatch: exchanges values with registerMismatchAndReport.mismatch, which is erased
+colls: erased set appendClassAnnotations(java.lang.StringBuilder,com.google.javascript.rhino.jstype.FunctionType).interfaces: assigned a new TreeSet
+colls: erased set appendInterfaceAnnotations(java.lang.StringBuilder,com.google.javascript.rhino.jstype.FunctionType).interfaces: assigned a new TreeSet
+colls: erased list getParameterJSDocType(java.util.List<com.google.javascript.rhino.jstype.FunctionType.Parameter>,int,int,int).parameters: assigned a variable that is not typed
+colls: erased set com.google.javascript.jscomp.TypedScope.reservedNames: assigned the result of ImmutableSet.of
+colls: erased map com.google.javascript.jscomp.TypedScopeCreator.memoized: used in MEMBER_REFERENCE
+colls: erased entry initializeModuleScope(com.google.javascript.rhino.Node).entry: not a loop over the entries of a typed map
+colls: erased entry toProto().entry: not a loop over the entries of a typed map
+colls: erased list fromProto(java.util.List<com.google.javascript.jscomp.UniqueIdProto>).protos: assigned the result of JSCompilerStateProto.getUniqueIdSupplierList
+colls: erased map VariableMap(java.util.Map<java.lang.String,java.lang.String>).map: assigned the result of Builder.buildOrThrow
+colls: erased entry toBytes().entry: not a loop over the entries of a typed map
+colls: erased map fromMap(java.util.Map<java.lang.String,java.lang.String>).map: assigned the result of ImmutableMap.of
+colls: erased list put(K,V).values: assigned the result of LinkedHashMap.get
+colls: erased list com.google.javascript.jscomp.base.SimpleListMultimap.get(java.lang.@org.jspecify.annotations.Nullable Object): assigned the result of ImmutableList.of
+colls: erased list get(java.lang.@org.jspecify.annotations.Nullable Object).values: assigned the result of LinkedHashMap.get
+colls: erased list remove(java.lang.@org.jspecify.annotations.Nullable Object,java.lang.@org.jspecify.annotations.Nullable Object).values: assigned the result of LinkedHashMap.get
+colls: erased list com.google.javascript.jscomp.base.SimpleListMultimap.removeAll(java.lang.@org.jspecify.annotations.Nullable Object): assigned the result of ImmutableList.of
+colls: erased list removeAll(java.lang.@org.jspecify.annotations.Nullable Object).values: assigned the result of HashMap.remove
+colls: erased list size().values: the variable of a for-each loop
+colls: erased set createUnion(java.util.Set<com.google.javascript.jscomp.colors.Color>).elements: assigned the result of ImmutableSet.of
+colls: erased set union(java.util.Set<com.google.javascript.jscomp.colors.ColorId>).ids: assigned the result of Builder.build
+colls: erased set com.google.javascript.jscomp.colors.ColorRegistry.getDisambiguationSupertypes(com.google.javascript.jscomp.colors.Color): assigned the result of SimpleSetMultimap.get
+colls: erased entry BrowserWithTransformedPrefixesModuleResolver(com.google.common.collect.ImmutableSet<java.lang.String>,com.google.common.collect.ImmutableList<java.lang.String>,com.google.javascript.jscomp.ErrorHandler,com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper,com.google.common.collect.ImmutableMap<java.lang.String,java.lang.String>).entry: not a loop over the entries of a typed map
+colls: erased map com.google.javascript.jscomp.deps.ClosureBundler.sourceMapCache: exchanges values with <init>.sourceMapCache, which is erased
+colls: erased map ClosureBundler(com.google.javascript.jscomp.transpile.Transpiler,com.google.javascript.jscomp.transpile.Transpiler,com.google.javascript.jscomp.deps.ClosureBundler.EvalMode,java.util.Optional<java.lang.String>,java.lang.String,java.lang.Object,java.util.Map<java.lang.String,java.lang.String>,boolean).sourceMapCache: assigned a new ConcurrentHashMap
+colls: erased map writeJsObject(java.lang.Appendable,java.util.Map<java.lang.String,java.lang.String>).map: assigned a variable that is not typed
+colls: erased entry writeJsObject(java.lang.Appendable,java.util.Map<java.lang.String,java.lang.String>).entry: exchanges values with writeJsObject.map, which is erased
+colls: erased list parseLine(java.lang.String).provides: assigned the result of Outcome.get
+colls: erased map parseLine(java.lang.String).loadFlags: assigned the result of Outcome.get
+colls: erased list requiresParsedFromDeps(java.util.List<java.lang.String>).symbols: assigned the result of Outcome.get
+colls: erased map computeDependencyCalls().depsFiles: assigned the result of Outcome.get
+colls: erased map computeDependencyCalls().jsFiles: assigned the result of Outcome.get
+colls: erased map cleanUpDuplicatedFiles(java.util.Map<java.lang.String,com.google.javascript.jscomp.deps.DependencyInfo>,java.util.Map<java.lang.String,com.google.javascript.jscomp.deps.DependencyInfo>).depsFiles: exchanges values with computeDependencyCalls.depsFiles, which is erased
+colls: erased map cleanUpDuplicatedFiles(java.util.Map<java.lang.String,com.google.javascript.jscomp.deps.DependencyInfo>,java.util.Map<java.lang.String,com.google.javascript.jscomp.deps.DependencyInfo>).jsFiles: exchanges values with computeDependencyCalls.jsFiles, which is erased
+colls: erased map removeMungedSymbols(java.util.Map<java.lang.String,com.google.javascript.jscomp.deps.DependencyInfo>,java.util.Map<java.lang.String,com.google.javascript.jscomp.deps.DependencyInfo>).depFiles: exchanges values with computeDependencyCalls.depsFiles, which is erased
+colls: erased map removeMungedSymbols(java.util.Map<java.lang.String,com.google.javascript.jscomp.deps.DependencyInfo>,java.util.Map<java.lang.String,com.google.javascript.jscomp.deps.DependencyInfo>).jsFiles: exchanges values with computeDependencyCalls.jsFiles, which is erased
+colls: erased list parseDepsFiles().depInfos: assigned the result of Outcome.get
+colls: erased list parseDepsFiles().srcInfos: assigned the result of Outcome.get
+colls: erased set parseSources(java.util.Set<java.lang.String>).preparsedFiles: assigned the result of Map.keySet
+colls: erased map writeDepsContent(java.util.Map<java.lang.String,com.google.javascript.jscomp.deps.DependencyInfo>,java.util.Map<java.lang.String,com.google.javascript.jscomp.deps.DependencyInfo>,java.lang.StringBuilder).depsFiles: exchanges values with computeDependencyCalls.depsFiles, which is erased
+colls: erased map writeDepsContent(java.util.Map<java.lang.String,com.google.javascript.jscomp.deps.DependencyInfo>,java.util.Map<java.lang.String,com.google.javascript.jscomp.deps.DependencyInfo>,java.lang.StringBuilder).jsFiles: exchanges values with computeDependencyCalls.jsFiles, which is erased
+colls: erased map com.google.javascript.jscomp.deps.ModuleLoader.getPackageJsonMainEntries(): exchanges values with ModuleResolver.getPackageJsonMainEntries, which is erased
+colls: erased map com.google.javascript.jscomp.deps.ModuleResolver.getPackageJsonMainEntries(): assigned the result of ImmutableMap.of
+colls: erased map com.google.javascript.jscomp.deps.ModuleResolver.getPackageJsonMainEntries(): assigned the result of ImmutableMap.of
+colls: erased map com.google.javascript.jscomp.deps.NodeModuleResolver.Factory.packageJsonMainEntries: exchanges values with <init>.packageJsonMainEntries, which is erased
+colls: erased map Factory(java.util.@org.jspecify.annotations.Nullable Map<java.lang.String,java.lang.String>).packageJsonMainEntries: exchanges values with Compiler.processJsonInputs, which is erased
+colls: erased map NodeModuleResolver(com.google.common.collect.ImmutableSet<java.lang.String>,com.google.common.collect.ImmutableList<java.lang.String>,java.util.Map<java.lang.String,java.lang.String>,com.google.javascript.jscomp.ErrorHandler,com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper).packageJsonMainEntries: exchanges values with Factory.packageJsonMainEntries, which is erased
+colls: erased map buildPackageJsonMainEntries(java.util.Map<java.lang.String,java.lang.String>).packageJsonMainEntries: exchanges values with <init>.packageJsonMainEntries, which is erased
+colls: erased entry buildPackageJsonMainEntries(java.util.Map<java.lang.String,java.lang.String>).packageJsonMainEntry: exchanges values with buildPackageJsonMainEntries.packageJsonMainEntries, which is erased
+colls: erased map setLoadFlags(java.util.Map<java.lang.String,java.lang.String>).loadFlags: assigned the result of DependencyInfo.getLoadFlags
+colls: erased list SortedDependencies(java.util.List<InputT>).userOrderedInputs: assigned the result of JSChunk.getInputs
+colls: erased list getStrongDependenciesOf(java.util.List<InputT>,boolean).rootInputs: assigned a variable that is not typed
+colls: erased list getSortedStrongDependenciesOf(java.util.List<InputT>).roots: exchanges values with getSortedWeakDependenciesOf.rootInputs, which is erased
+colls: erased list getSortedWeakDependenciesOf(java.util.List<InputT>).rootInputs: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.deps.SortedDependencies.getSortedList(): read at another instantiation of its type variables
+colls: erased map com.google.javascript.jscomp.deps.WebpackModuleResolver.Factory.lookupMap: exchanges values with <init>.lookupMap, which is erased
+colls: erased map Factory(java.util.Map<java.lang.String,java.lang.String>).lookupMap: assigned a variable that is not typed
+colls: erased entry create(com.google.common.collect.ImmutableSet<java.lang.String>,com.google.common.collect.ImmutableList<java.lang.String>,com.google.javascript.jscomp.ErrorHandler,com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper).moduleEntry: exchanges values with Factory.lookupMap, which is erased
+colls: erased set com.google.javascript.jscomp.disambiguate.AmbiguateProperties.reservedFirstCharacters: exchanges values with <init>.reservedFirstCharacters, which is erased
+colls: erased set com.google.javascript.jscomp.disambiguate.AmbiguateProperties.reservedNonFirstCharacters: exchanges values with <init>.reservedNonFirstCharacters, which is erased
+colls: erased set AmbiguateProperties(com.google.javascript.jscomp.AbstractCompiler,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>,java.util.Set<java.lang.String>).reservedFirstCharacters: assigned the result of CompilerOptions.getPropertyReservedNamingFirstChars
+colls: erased set AmbiguateProperties(com.google.javascript.jscomp.AbstractCompiler,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>,java.util.Set<java.lang.String>).reservedNonFirstCharacters: assigned the result of CompilerOptions.getPropertyReservedNamingNonFirstChars
+colls: erased set AmbiguateProperties(com.google.javascript.jscomp.AbstractCompiler,java.util.Set<java.lang.Character>,java.util.Set<java.lang.Character>,java.util.Set<java.lang.String>).externProperties: assigned the result of AbstractCompiler.getExternProperties
+colls: erased set addInternalColorGraphNode(com.google.javascript.jscomp.disambiguate.ColorGraphNode).supertypes: exchanges values with ColorRegistry.getDisambiguationSupertypes, which is erased
+colls: erased list <N>computeSubtreeSizes(N,com.google.javascript.jscomp.base.SimpleListMultimap<N,N>,java.util.Map<N,java.lang.Integer>).nodeChildren: assigned the result of SimpleListMultimap.get
+colls: erased set computeFixedPointSet(com.google.javascript.jscomp.graph.DiGraph<N,E>,java.util.Set<N>).workSet: method SequencedCollection.getFirst
+colls: erased set visitNode(com.google.javascript.jscomp.graph.DiGraph.DiGraphNode<N,E>,java.util.LinkedHashSet<com.google.javascript.jscomp.graph.DiGraph.DiGraphNode<N,E>>).workSet: exchanges values with computeFixedPointSet.workSet, which is erased
+colls: erased list getEdges(N,N).forwardEdges: assigned the result of LinkedDirectedGraph.getEdgesInDirection
+colls: erased list getEdges(N,N).backwardEdges: assigned the result of LinkedDirectedGraph.getEdgesInDirection
+colls: erased list isConnectedInDirectionLinkedDiGraphNode(com.google.javascript.jscomp.graph.LinkedDirectedGraph.LinkedDiGraphNode<N,E>,com.google.common.base.Predicate<E>,com.google.javascript.jscomp.graph.LinkedDirectedGraph.LinkedDiGraphNode<N,E>).outEdges: assigned the result of LinkedDiGraphNode.getOutEdges
+colls: erased list isConnectedInDirectionLinkedDiGraphNode(com.google.javascript.jscomp.graph.LinkedDirectedGraph.LinkedDiGraphNode<N,E>,com.google.common.base.Predicate<E>,com.google.javascript.jscomp.graph.LinkedDirectedGraph.LinkedDiGraphNode<N,E>).inEdges: assigned the result of LinkedDiGraphNode.getInEdges
+colls: erased list com.google.javascript.jscomp.graph.LinkedUndirectedGraph.LinkedUndirectedGraphNode.neighborList(): read at another instantiation of its type variables
+colls: erased list paintAncestors(com.google.javascript.jscomp.graph.DiGraph.DiGraphNode<N,E>,com.google.javascript.jscomp.graph.LowestCommonAncestorFinder.Color).parentEdges: assigned the result of DiGraphNode.getInEdges
+colls: erased list breakDownDestructure(com.google.javascript.jscomp.AbstractCompiler).lhsNodes: used in MEMBER_REFERENCE
+colls: erased set toJsonArray(java.util.Set<java.lang.String>).strings: assigned the result of Map.keySet
+colls: erased map createTabSeparatedProfilingReport(java.util.Map<java.lang.String,com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint>,com.google.common.collect.ImmutableList<java.util.Map<java.lang.String,java.lang.Long>>).instrumentationMapping: assigned the result of Outcome.get
+colls: erased map createTabSeparatedProfilingReport(java.util.Map<java.lang.String,com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint>,com.google.common.collect.ImmutableList<java.util.Map<java.lang.String,java.lang.Long>>).report: the variable of a for-each loop
+colls: erased map createTabSeparatedProfilingReport(java.util.Map<java.lang.String,com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint>,com.google.common.collect.ImmutableList<java.util.Map<java.lang.String,java.lang.Long>>).metrics: assigned the result of Builder.buildOrThrow
+colls: erased entry createTabSeparatedProfilingReport(java.util.Map<java.lang.String,com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint>,com.google.common.collect.ImmutableList<java.util.Map<java.lang.String,java.lang.Long>>).entry: not a loop over the entries of a typed map
+colls: erased list createTabSeparatedProfilingReport(java.util.Map<java.lang.String,com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint>,com.google.common.collect.ImmutableList<java.util.Map<java.lang.String,java.lang.Long>>).row: the variable of a for-each loop
+colls: erased list parseMapping(java.lang.String).linesOfFile: assigned the result of Splitter.splitToList
+colls: erased list parseMapping(java.lang.String).localFileNames: assigned the result of Outcome.get
+colls: erased list parseMapping(java.lang.String).functionNames: assigned the result of Outcome.get
+colls: erased map decodeReport(java.util.Map<java.lang.String,com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint>,java.util.Map<java.lang.String,java.lang.Long>).mapping: exchanges values with createTabSeparatedProfilingReport.instrumentationMapping, which is erased
+colls: erased map decodeReport(java.util.Map<java.lang.String,com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint>,java.util.Map<java.lang.String,java.lang.Long>).frequencies: exchanges values with createTabSeparatedProfilingReport.report, which is erased
+colls: erased entry decodeReport(java.util.Map<java.lang.String,com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint>,java.util.Map<java.lang.String,java.lang.Long>).entry: exchanges values with decodeReport.mapping, which is erased
+colls: erased list loadFields().tokens: assigned the result of Splitter.splitToList
+colls: erased list createField(java.lang.String).parts: assigned the result of Splitter.splitToList
+colls: erased list injectLibraryDependencies(com.google.javascript.rhino.Node,boolean).words: assigned the result of Splitter.splitToList
+colls: erased set checkOrder(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node,com.google.javascript.jscomp.lint.CheckEs6ModuleFileStructure.OrderedStatement).outOfOrder: assigned the result of TreeSet.tailSet
+colls: erased list checkParams(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node,com.google.javascript.rhino.JSDocInfo).paramsFromJsDoc: assigned the result of ImmutableList.of
+colls: erased set checkNoMutations().mutatedExports: assigned the result of Sets.intersection
+colls: erased map mayBeAccidentalDefaultExport(java.lang.String,java.util.Map<java.lang.String,com.google.javascript.jscomp.modules.Binding>).exports: assigned a variable that is not typed
+colls: erased list visit(com.google.javascript.jscomp.NodeTraversal,com.google.javascript.rhino.Node,com.google.javascript.rhino.Node).exports: assigned the result of SimpleListMultimap.get
+colls: erased set getExportedNames(com.google.javascript.jscomp.modules.ModuleRequestResolver,java.util.Set<com.google.javascript.jscomp.modules.UnresolvedModule>).exportedNames: assigned a new TreeSet
+colls: erased map ModuleMetadataMap(java.util.Map<java.lang.String,com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata>,java.util.Map<java.lang.String,com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata>).modulesByPath: assigned the result of ImmutableMap.of
+colls: erased map ModuleMetadataMap(java.util.Map<java.lang.String,com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata>,java.util.Map<java.lang.String,com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata>).modulesByGoogNamespace: assigned the result of ImmutableMap.of
+colls: erased list processFunctionCall(com.google.javascript.jscomp.parsing.parser.trees.CallExpressionTree).zones: exchanges values with TransformDispatcher.getEndOfArgCommentZones, which is erased
+colls: erased list com.google.javascript.jscomp.parsing.IRFactory.TransformDispatcher.getEndOfArgCommentZones(com.google.common.collect.ImmutableList<com.google.javascript.jscomp.parsing.parser.trees.ParseTree>,com.google.common.collect.ImmutableList<com.google.javascript.jscomp.parsing.parser.util.SourcePosition>,com.google.javascript.jscomp.parsing.parser.util.SourcePosition): assigned the result of Builder.build
+colls: erased list processFormalParameterList(com.google.javascript.jscomp.parsing.parser.trees.FormalParameterListTree).zones: exchanges values with TransformDispatcher.getEndOfArgCommentZones, which is erased
+colls: erased set validatePrivatePropertyUsage(java.util.Set<java.lang.String>,com.google.javascript.rhino.Node).privatePropNames: exchanges values with TransformDispatcher.getPrivatePropsAndValidateUniqueness, which is erased
+colls: erased set validatePrivatePropertyUsage(java.util.Set<java.lang.String>,com.google.javascript.rhino.Node).innerClassPrivatePropNames: exchanges values with TransformDispatcher.getPrivatePropsAndValidateUniqueness, which is erased
+colls: erased set com.google.javascript.jscomp.parsing.IRFactory.TransformDispatcher.getPrivatePropsAndValidateUniqueness(com.google.javascript.rhino.Node): exchanges values with getPrivatePropsAndValidateUniqueness.privatePropNames, which is erased
+colls: erased set getPrivatePropsAndValidateUniqueness(com.google.javascript.rhino.Node).privateGetterNames: assigned a new TreeSet
+colls: erased set getPrivatePropsAndValidateUniqueness(com.google.javascript.rhino.Node).privateSetterNames: assigned a new TreeSet
+colls: erased set getPrivatePropsAndValidateUniqueness(com.google.javascript.rhino.Node).privateStaticGetterNames: assigned a new TreeSet
+colls: erased set getPrivatePropsAndValidateUniqueness(com.google.javascript.rhino.Node).privateStaticSetterNames: assigned a new TreeSet
+colls: erased set getPrivatePropsAndValidateUniqueness(com.google.javascript.rhino.Node).privateFieldAndMethodNames: assigned a new TreeSet
+colls: erased set getPrivatePropsAndValidateUniqueness(com.google.javascript.rhino.Node).privatePropNames: assigned a new TreeSet
+colls: erased set createConfig(com.google.javascript.jscomp.parsing.Config.LanguageMode,com.google.javascript.jscomp.parsing.Config.JsDocParsing,com.google.javascript.jscomp.parsing.Config.RunMode,java.util.Set<java.lang.String>,boolean,com.google.javascript.jscomp.parsing.Config.StrictMode).extraAnnotationNames: assigned the result of CompilerOptions.getExtraAnnotationNames
+colls: erased set createConfig(com.google.javascript.jscomp.parsing.Config.LanguageMode,com.google.javascript.jscomp.parsing.Config.JsDocParsing,com.google.javascript.jscomp.parsing.Config.RunMode,java.util.Set<java.lang.String>,boolean,com.google.javascript.jscomp.parsing.Config.StrictMode).effectiveAnnotationNames: assigned a variable that is not typed
+colls: erased list parse(com.google.javascript.rhino.StaticSourceFile,java.lang.String,com.google.javascript.jscomp.parsing.Config,com.google.javascript.rhino.ErrorReporter).comments: assigned the result of ImmutableList.of
+colls: erased list com.google.javascript.jscomp.parsing.ParserRunner.ParseResult.comments: exchanges values with <init>.comments, which is erased
+colls: erased list ParseResult(com.google.javascript.rhino.Node,java.util.List<com.google.javascript.jscomp.parsing.parser.trees.Comment>,com.google.common.collect.ImmutableList<com.google.javascript.jscomp.parsing.parser.util.SourceRange>,com.google.javascript.jscomp.parsing.parser.FeatureSet,java.util.Optional<java.lang.String>).comments: exchanges values with parse.comments, which is erased
+colls: erased set enumSetOf(java.util.Set<com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature>).set: exchanges values with add.features, which is erased
+colls: erased set add(java.util.Set<com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature>,com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature).features: assigned a variable that is not typed
+colls: erased set union(java.util.Set<com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature>,java.util.Set<com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature>).features: assigned a variable that is not typed
+colls: erased set union(java.util.Set<com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature>,java.util.Set<com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature>).newFeatures: assigned a variable that is not typed
+colls: erased set difference(java.util.Set<com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature>,java.util.Set<com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature>).features: assigned a variable that is not typed
+colls: erased set difference(java.util.Set<com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature>,java.util.Set<com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature>).removedFeatures: assigned the result of EnumSet.of
+colls: erased set withSet(java.util.Set<com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature>).newFeatures: assigned a variable that is not typed
+colls: erased list com.google.javascript.jscomp.parsing.parser.Parser.getComments(): assigned the result of CommentRecorder.getComments
+colls: erased list Alternation(java.util.List<? extends com.google.javascript.jscomp.regex.RegExpTree>).alternatives: assigned the result of Builder.build
+colls: erased list simplify(java.lang.String).alternatives: method List.subList
+colls: erased list simplify(java.lang.String).charAlternatives: assigned the result of List.subList
+colls: erased entry decompose(com.google.javascript.jscomp.regex.CharRanges,boolean).namedGroup: not a loop over the entries of a typed map
+colls: erased map lookupOrReconcileColor(com.google.javascript.jscomp.colors.ColorId).viewToProto: assigned the result of SimpleTable.row
+colls: erased map reconcileObjectProtos(com.google.javascript.jscomp.colors.ColorId,java.util.Map<com.google.javascript.jscomp.serialization.ColorPool.ShardView,com.google.javascript.jscomp.serialization.TypeProto>).viewToProto: exchanges values with lookupOrReconcileColor.viewToProto, which is erased
+colls: erased entry reconcileObjectProtos(com.google.javascript.jscomp.colors.ColorId,java.util.Map<com.google.javascript.jscomp.serialization.ColorPool.ShardView,com.google.javascript.jscomp.serialization.TypeProto>).entry: exchanges values with reconcileObjectProtos.viewToProto, which is erased
+colls: erased list reconcileObjectProtos(com.google.javascript.jscomp.colors.ColorId,java.util.Map<com.google.javascript.jscomp.serialization.ColorPool.ShardView,com.google.javascript.jscomp.serialization.TypeProto>).instanceTypeIds: assigned the result of ObjectTypeProto.getInstanceTypeList
+colls: erased list reconcileObjectProtos(com.google.javascript.jscomp.colors.ColorId,java.util.Map<com.google.javascript.jscomp.serialization.ColorPool.ShardView,com.google.javascript.jscomp.serialization.TypeProto>).prototypeIds: assigned the result of ObjectTypeProto.getPrototypeList
+colls: erased map reconcileUnionProtos(com.google.javascript.jscomp.colors.ColorId,java.util.Map<com.google.javascript.jscomp.serialization.ColorPool.ShardView,com.google.javascript.jscomp.serialization.TypeProto>).viewToProto: exchanges values with lookupOrReconcileColor.viewToProto, which is erased
+colls: erased list reconcileUnionProtos(com.google.javascript.jscomp.colors.ColorId,java.util.Map<com.google.javascript.jscomp.serialization.ColorPool.ShardView,com.google.javascript.jscomp.serialization.TypeProto>).unionMemberList: assigned the result of UnionTypeProto.getUnionMemberList
+colls: erased list createUnionColorId(com.google.javascript.jscomp.serialization.TypeProto,com.google.javascript.jscomp.colors.ColorId[]).unionMemberList: assigned the result of UnionTypeProto.getUnionMemberList
+colls: erased list generateTypePool(java.util.function.Function<com.google.javascript.jscomp.colors.Color,java.util.Set<com.google.javascript.jscomp.colors.Color>>,java.util.function.@org.jspecify.annotations.Nullable Function<com.google.javascript.jscomp.colors.Color,java.util.Set<java.lang.String>>).typePointerList: assigned the result of HashMap.computeIfAbsent
+colls: erased entry JSTypeColorIdHasher(com.google.javascript.rhino.jstype.JSTypeRegistry).e: not a loop over the entries of a typed map
+colls: erased set com.google.javascript.jscomp.serialization.SerializeTypesToPointers.propertiesReferencedInAst: exchanges values with <init>.propertiesReferencedInAst, which is erased
+colls: erased set SerializeTypesToPointers(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.jscomp.serialization.JSTypeReconserializer,java.util.LinkedHashSet<java.lang.String>).propertiesReferencedInAst: exchanges values with create.propertiesReferencedInAst, which is erased
+colls: erased set create(com.google.javascript.jscomp.AbstractCompiler,com.google.javascript.jscomp.serialization.StringPool.Builder,com.google.javascript.jscomp.serialization.SerializationOptions).propertiesReferencedInAst: used in MEMBER_REFERENCE
+colls: erased map logSerializationDebugInfo(com.google.javascript.jscomp.serialization.JSTypeReconserializer,com.google.javascript.jscomp.serialization.TypePool).allSerializedTypes: assigned the result of SimpleListMultimap.asMap
+colls: erased map com.google.javascript.jscomp.serialization.SerializeTypesToPointers.StreamObjectUuidsJson.allSerializedTypes: exchanges values with <init>.allSerializedTypes, which is erased
+colls: erased map StreamObjectUuidsJson(java.util.Map<java.lang.String,java.util.List<com.google.javascript.rhino.jstype.JSType>>).allSerializedTypes: exchanges values with logSerializationDebugInfo.allSerializedTypes, which is erased
+colls: erased entry writeJson(com.google.javascript.jscomp.base.SimpleJsonWriter).entry: exchanges values with StreamObjectUuidsJson.allSerializedTypes, which is erased
+colls: erased list fromProto(com.google.javascript.jscomp.serialization.StringPoolProto).stringsList: assigned the result of StringPoolProto.getStringsList
+colls: erased list toFileShard(com.google.javascript.jscomp.serialization.TypedAst).protos: assigned the result of SourceFilePool.getSourceFileList
+colls: erased entry applySuggestedFixesToFiles(java.lang.Iterable<com.google.javascript.refactoring.SuggestedFix>).entry: not a loop over the entries of a typed map
+colls: erased entry applySuggestedFixesToCode(java.lang.Iterable<com.google.javascript.refactoring.SuggestedFix>,java.util.Map<java.lang.String,java.lang.String>).entry: not a loop over the entries of a typed map
+colls: erased set applySuggestedFixesToCode(java.lang.Iterable<com.google.javascript.refactoring.SuggestedFix>,java.util.Map<java.lang.String,java.lang.String>).replacements: assigned the result of Entry.getValue
+colls: erased list com.google.javascript.refactoring.FixingErrorManager.getFixesForJsError(com.google.javascript.jscomp.JSError): assigned the result of ImmutableList.of
+colls: erased list RefactoringDriver(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.SourceFile>,com.google.javascript.jscomp.CompilerOptions).inputs: assigned the result of Builder.build
+colls: erased list RefactoringDriver(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.SourceFile>,com.google.javascript.jscomp.CompilerOptions).externs: assigned the result of Builder.build
+colls: erased list createCompiler(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.SourceFile>,com.google.javascript.jscomp.CompilerOptions).inputs: exchanges values with <init>.inputs, which is erased
+colls: erased list createCompiler(java.util.List<com.google.javascript.jscomp.SourceFile>,java.util.List<com.google.javascript.jscomp.SourceFile>,com.google.javascript.jscomp.CompilerOptions).externs: exchanges values with <init>.externs, which is erased
+colls: erased list com.google.javascript.refactoring.Scanner.processAllMatches(java.util.Collection<com.google.javascript.refactoring.Match>): assigned the result of ImmutableList.of
+colls: erased entry toString().entry: not a loop over the entries of a typed map
+colls: erased list com.google.javascript.rhino.JSDocInfo.TypeListProperty.getUnmodifiable(com.google.javascript.rhino.JSDocInfo): assigned the result of ImmutableList.of
+colls: erased list getUnmodifiable(com.google.javascript.rhino.JSDocInfo).value: assigned the result of Property.get
+colls: erased list clone(java.util.ArrayList<com.google.javascript.rhino.JSTypeExpression>,com.google.javascript.rhino.JSDocInfo.TypeTransform).out: reaches a place of type ArrayList
+colls: erased map clone(java.util.LinkedHashMap<java.lang.String,com.google.javascript.rhino.JSTypeExpression>,com.google.javascript.rhino.JSDocInfo.TypeTransform).out: reaches a place of type LinkedHashMap
+colls: erased entry clone(java.util.LinkedHashMap<java.lang.String,com.google.javascript.rhino.JSTypeExpression>,com.google.javascript.rhino.JSDocInfo.TypeTransform).entry: exchanges values with clone.out, which is erased
+colls: erased set equalValues(java.util.LinkedHashMap<java.lang.String,com.google.javascript.rhino.JSTypeExpression>,java.util.LinkedHashMap<java.lang.String,com.google.javascript.rhino.JSTypeExpression>).leftKeys: assigned the result of LinkedHashMap.keySet
+colls: erased set equalValues(java.util.LinkedHashMap<java.lang.String,com.google.javascript.rhino.JSTypeExpression>,java.util.LinkedHashMap<java.lang.String,com.google.javascript.rhino.JSTypeExpression>).rightKeys: assigned the result of LinkedHashMap.keySet
+colls: erased entry equalValues(java.util.LinkedHashMap<java.lang.String,com.google.javascript.rhino.Node>,java.util.LinkedHashMap<java.lang.String,com.google.javascript.rhino.Node>).entry: not a loop over the entries of a typed map
+colls: erased map getParameterType(java.util.Optional<java.lang.String>).params: assigned the result of Property.get
+colls: erased map hasParameter(java.lang.String).params: assigned the result of Property.get
+colls: erased set com.google.javascript.rhino.JSDocInfo.getParameterNames(): assigned the result of ImmutableSet.copyOf
+colls: erased map getParameterNames().params: assigned the result of Property.get
+colls: erased map getParameterNameAt(int).params: assigned the result of Property.get
+colls: erased map getParameterCount().params: assigned the result of Property.get
+colls: erased list com.google.javascript.rhino.JSDocInfo.getThrowsAnnotations(): assigned the result of ImmutableList.of
+colls: erased list getThrowsAnnotations().annotations: assigned the result of Property.get
+colls: erased list getTsTypes().types: assigned the result of Property.get
+colls: erased list com.google.javascript.rhino.JSDocInfo.getImplementedInterfaces(): exchanges values with TypeListProperty.getUnmodifiable, which is erased
+colls: erased list com.google.javascript.rhino.JSDocInfo.getExtendedInterfaces(): exchanges values with TypeListProperty.getUnmodifiable, which is erased
+colls: erased set com.google.javascript.rhino.JSDocInfo.getSuppressions(): assigned the result of ImmutableSet.of
+colls: erased set getSuppressions().nameSet: the variable of a for-each loop
+colls: erased set com.google.javascript.rhino.JSDocInfo.getModifies(): assigned a variable that is not typed
+colls: erased map hasDescriptionForParameter(java.lang.String).params: assigned the result of Property.get
+colls: erased map getDescriptionForParameter(java.lang.String).params: assigned the result of Property.get
+colls: erased list com.google.javascript.rhino.JSDocInfo.getAuthors(): assigned the result of Property.get
+colls: erased list com.google.javascript.rhino.JSDocInfo.getReferences(): assigned the result of Property.get
+colls: erased list getMarkers().markers: assigned the result of Property.get
+colls: erased map getTemplateTypeNames().map: assigned the result of Property.get
+colls: erased map getTemplateTypes().map: assigned the result of Property.get
+colls: erased map getTypeTransformations().map: assigned the result of Property.get
+colls: erased set hasSideEffectsArgumentsAnnotation().modifies: exchanges values with JSDocInfo.getModifies, which is erased
+colls: erased list addMarker().markers: assigned the result of Builder.getProp
+colls: erased map recordTemplateTypeName(java.lang.String,com.google.javascript.rhino.@org.jspecify.annotations.Nullable JSTypeExpression).transformations: assigned the result of Builder.getProp
+colls: erased map recordTypeTransformation(java.lang.String,com.google.javascript.rhino.Node).names: assigned the result of Builder.getProp
+colls: erased list recordThrowsAnnotation(java.lang.String).throwsAnnotations: assigned the result of Builder.getPropWithDefault
+colls: erased set recordSuppressions(java.util.Set<java.lang.String>).suppressions: assigned the result of ImmutableSet.of
+colls: erased set recordModifies(java.util.Set<java.lang.String>).modifies: assigned a variable that is not typed
+colls: erased map hasParameter(java.util.Optional<java.lang.String>).params: assigned the result of Builder.getProp
+colls: erased list containsEquivalent(java.util.ArrayList<com.google.javascript.rhino.JSTypeExpression>,com.google.javascript.rhino.JSTypeExpression).list: exchanges values with addUnique.list, which is erased
+colls: erased list addUnique(com.google.javascript.rhino.JSDocInfo.Property<java.util.ArrayList<com.google.javascript.rhino.JSTypeExpression>>,com.google.javascript.rhino.JSTypeExpression).list: assigned the result of Builder.getPropWithDefault
+colls: erased set internSet(java.util.Set<java.lang.String>).strings: assigned a variable that is not typed
+colls: erased list ArrowType(com.google.javascript.rhino.jstype.JSTypeRegistry,java.util.@org.jspecify.annotations.Nullable List<com.google.javascript.rhino.jstype.FunctionType.Parameter>,com.google.javascript.rhino.jstype.@org.jspecify.annotations.Nullable JSType,boolean).parameters: exchanges values with Builder.parameters, which is erased
+colls: erased set areRecordEqual(com.google.javascript.rhino.jstype.RecordType,com.google.javascript.rhino.jstype.RecordType).leftKeys: exchanges values with ObjectType.getOwnPropertyNames, which is erased
+colls: erased set areRecordEqual(com.google.javascript.rhino.jstype.RecordType,com.google.javascript.rhino.jstype.RecordType).rightKeys: exchanges values with ObjectType.getOwnPropertyNames, which is erased
+colls: erased set com.google.javascript.rhino.jstype.ObjectType.getOwnPropertyNames(): assigned the result of Builder.build
+colls: erased set com.google.javascript.rhino.jstype.ObjectType.getOwnPropertyNames(): assigned the result of Builder.build
+colls: erased list setImplementedInterfaces(java.util.List<com.google.javascript.rhino.jstype.ObjectType>).implementedInterfaces: assigned the result of ImmutableList.of
+colls: erased list setExtendedInterfaces(java.util.List<com.google.javascript.rhino.jstype.ObjectType>).extendedInterfaces: assigned the result of ImmutableList.of
+colls: erased map com.google.javascript.rhino.jstype.FunctionType.getPropertyTypeMap(): assigned the result of Builder.buildOrThrow
+colls: erased map com.google.javascript.rhino.jstype.FunctionType.getPropertyTypeMap(): assigned the result of Builder.buildOrThrow
+colls: erased set updatePropertyTypeMap(com.google.javascript.rhino.jstype.FunctionType,java.util.Map<java.lang.String,com.google.javascript.rhino.jstype.JSType>,java.util.LinkedHashSet<com.google.javascript.rhino.jstype.FunctionType>).propNames: exchanges values with ObjectType.getOwnPropertyNames, which is erased
+colls: erased list acceptsArguments(java.util.List<? extends com.google.javascript.rhino.jstype.JSType>).argumentTypes: assigned the result of Builder.build
+colls: erased list com.google.javascript.rhino.jstype.FunctionType.Builder.parameters: assigned the result of ImmutableList.of
+colls: erased list withParameters(java.util.List<com.google.javascript.rhino.jstype.FunctionType.Parameter>).parameters: assigned a variable that is not typed
+colls: erased set com.google.javascript.rhino.jstype.JSTypeRegistry.forwardDeclaredTypes: exchanges values with <init>.forwardDeclaredTypes, which is erased
+colls: erased set JSTypeRegistry(com.google.javascript.rhino.ErrorReporter,java.util.Set<java.lang.String>).forwardDeclaredTypes: assigned the result of ImmutableSet.of
+colls: erased list resolveViaPropertyGivenSlot(com.google.javascript.rhino.jstype.JSType,com.google.javascript.rhino.@org.jspecify.annotations.Nullable Node,java.util.List<java.lang.String>).componentNames: assigned the result of ImmutableList.reverse
+colls: erased list createUnionTypeList(java.util.List<? extends com.google.javascript.rhino.jstype.JSType>).variants: assigned a variable that is not typed
+colls: erased list createFunctionTypeList(com.google.javascript.rhino.jstype.JSType,java.util.List<com.google.javascript.rhino.jstype.FunctionType.Parameter>).parameters: assigned the result of JSTypeRegistry.createOptionalParameters
+colls: erased list createNativeFunctionType(com.google.javascript.rhino.jstype.JSType,java.util.List<com.google.javascript.rhino.jstype.FunctionType.Parameter>).parameters: assigned the result of JSTypeRegistry.createParametersWithVarArgs
+colls: erased set buildRecordTypeFromObject(com.google.javascript.rhino.jstype.ObjectType).propNames: exchanges values with ObjectType.getOwnPropertyNames, which is erased
+colls: erased map createRecordType(java.util.Map<java.lang.String,? extends com.google.javascript.rhino.jstype.JSType>).props: assigned a variable that is not typed
+colls: erased map createRecordType(java.util.Map<java.lang.String,? extends com.google.javascript.rhino.jstype.JSType>).propMap: assigned a TYPE_CAST
+colls: erased entry createRecordType(java.util.Map<java.lang.String,? extends com.google.javascript.rhino.jstype.JSType>).e: exchanges values with createRecordType.propMap, which is erased
+colls: erased map createTemplatizedTypeMap(com.google.javascript.rhino.jstype.ObjectType,java.util.Map<com.google.javascript.rhino.jstype.TemplateType,com.google.javascript.rhino.jstype.JSType>).templatizedTypes: assigned a variable that is not typed
+colls: erased list parseTemplateArgs(com.google.javascript.rhino.jstype.JSType,com.google.javascript.rhino.Node,java.util.Optional<java.lang.String>,com.google.javascript.rhino.jstype.StaticTypedScope).templateArgs: method List.subList
+colls: erased set com.google.javascript.rhino.jstype.ObjectType.getOwnPropertyKnownSymbols(): exchanges values with PropertyMap.getOwnKnownSymbols, which is erased
+colls: erased set getOwnPropertyKeys().ownPropertyNames: exchanges values with ObjectType.getOwnPropertyNames, which is erased
+colls: erased set getOwnPropertyKeys().ownSymbols: exchanges values with ObjectType.getOwnPropertyKnownSymbols, which is erased
+colls: erased map com.google.javascript.rhino.jstype.PropertyMap.properties: exchanges values with <init>.underlyingMap, which is erased
+colls: erased map com.google.javascript.rhino.jstype.PropertyMap.knownSymbols: exchanges values with <init>.underlyingknownSymbols, which is erased
+colls: erased map PropertyMap(java.util.Map<java.lang.String,com.google.javascript.rhino.jstype.Property>,java.util.Map<com.google.javascript.rhino.jstype.KnownSymbolType,com.google.javascript.rhino.jstype.Property>).underlyingMap: assigned the result of ImmutableMap.of
+colls: erased map PropertyMap(java.util.Map<java.lang.String,com.google.javascript.rhino.jstype.Property>,java.util.Map<com.google.javascript.rhino.jstype.KnownSymbolType,com.google.javascript.rhino.jstype.Property>).underlyingknownSymbols: assigned the result of ImmutableMap.of
+colls: erased set com.google.javascript.rhino.jstype.PropertyMap.getOwnPropertyNames(): assigned the result of Map.keySet
+colls: erased set com.google.javascript.rhino.jstype.PropertyMap.getOwnKnownSymbols(): assigned the result of Map.keySet
+colls: erased set com.google.javascript.rhino.jstype.PropertyMap.AllKeys.knownSymbolKeys: a record component
+colls: erased set appendTo(com.google.javascript.rhino.jstype.TypeStringBuilder).properties: assigned a new TreeSet
+colls: erased map RecordType(com.google.javascript.rhino.jstype.JSTypeRegistry,java.util.Map<java.lang.String,com.google.javascript.rhino.jstype.RecordTypeBuilder.RecordProperty>,boolean).properties: assigned the result of Builder.buildOrThrow
+colls: erased set copyWithoutKeys(java.util.Set<com.google.javascript.rhino.jstype.TemplateType>).removals: assigned a variable that is not typed
+colls: erased set com.google.javascript.rhino.jstype.TemplateTypeReplacer.seenTypes: assigned the result of Sets.newIdentityHashSet
+colls: erased list addAlternates(java.util.List<? extends com.google.javascript.rhino.jstype.JSType>).list: assigned the result of JSTypeIterations.mapTypesImmutableList
+typed collections: 99 of 105 deque declarations are typed (61 fields, 29 locals, 5 parameters, 4 results)
+typed collections: 47 of 112 entry declarations are typed (0 fields, 47 locals, 0 parameters, 0 results)
+typed collections: 560 of 910 list declarations are typed (155 fields, 251 locals, 92 parameters, 62 results)
+typed collections: 389 of 506 map declarations are typed (185 fields, 106 locals, 70 parameters, 28 results)
+typed collections: 351 of 536 set declarations are typed (143 fields, 107 locals, 81 parameters, 20 results)
+colls: no typed collection for the type: 1 deque: element a type with type arguments that is a class of the program
+colls: no typed collection for the type: 1 list: a local class as element
+colls: no typed collection for the type: 4 list: a wildcard element
+colls: no typed collection for the type: 2 list: an array as element
+colls: no typed collection for the type: 26 map: a type variable as key
+colls: no typed collection for the type: 1 map: a wildcard key
+colls: no typed collection for the type: 1 map: key (compared) a type with type arguments
+colls: no typed collection for the type: 1 map: value Optional (a value)
+colls: no typed collection for the type: 1 map: value a type with type arguments that is a class of the program
+colls: no typed collection for the type: 24 set: a type variable as element
+colls: no typed collection for the type: 2 set: element (compared) a type with type arguments
+colls: not candidates: 34 parameters and 46 results of methods whose signature is not their own
+colls: not candidates: 5 a method with type parameters
+colls: not candidates: 17 a method without a body, of a record, or main
+colls: not candidates: 58 the methods of the group do not all have the same typed collection type there
+colls: not a candidate: 5 a method with type parameters
+colls: not a candidate: 17 a method without a body, of a record, or main
+colls: not a candidate: 58 the methods of the group do not all have the same typed collection type there
+colls: erased: 104 list: exchanges values with an erased declaration
+colls: erased: 71 set: exchanges values with an erased declaration
+colls: erased: 51 entry: not a loop over the entries of a typed map
+colls: erased: 41 list: assigned the result of ImmutableList.of
+colls: erased: 37 list: assigned a variable that is not typed
+colls: erased: 37 map: exchanges values with an erased declaration
+colls: erased: 25 set: assigned a variable that is not typed
+colls: erased: 23 list: assigned the result of Splitter.splitToList
+colls: erased: 17 set: assigned the result of ImmutableSet.of
+colls: erased: 16 list: assigned the result of Outcome.get
+colls: erased: 15 set: assigned a new TreeSet
+colls: erased: 14 entry: exchanges values with an erased declaration
+colls: erased: 12 map: assigned the result of ImmutableMap.of
+colls: erased: 10 map: assigned a variable that is not typed
+colls: erased: 10 map: assigned the result of Property.get
+colls: erased: 8 list: assigned the result of Builder.build
+colls: erased: 6 list: assigned the result of Entry.getValue
+colls: erased: 6 list: assigned the result of Property.get
+colls: erased: 6 list: the variable of a for-each loop
+colls: erased: 6 map: assigned the result of Builder.buildOrThrow
+colls: erased: 6 set: assigned the result of Builder.build
+colls: erased: 5 list: assigned the result of ImmutableList.copyOf
+colls: erased: 5 map: assigned the result of Outcome.get
+colls: erased: 5 set: assigned the result of Map.keySet
+colls: erased: 5 set: assigned the result of SimpleSetMultimap.get
+colls: erased: 4 list: an annotated field (read by a library)
+colls: erased: 4 list: assigned the result of List.subList
+colls: erased: 4 list: assigned the result of Requirement.getValueList
+colls: erased: 4 list: used in MEMBER_REFERENCE
+colls: erased: 4 map: assigned a new ConcurrentHashMap
+colls: erased: 4 map: assigned a new TreeMap
+colls: erased: 4 map: assigned the result of Map.get
+colls: erased: 3 list: assigned the result of LinkedDirectedGraph.getOutEdges
+colls: erased: 3 list: assigned the result of LinkedHashMap.get
+colls: erased: 3 list: assigned the result of Lists.reverse
+colls: erased: 3 list: assigned the result of Ordering.sortedCopy
+colls: erased: 3 list: assigned the result of SimpleListMultimap.get
+colls: erased: 3 list: method List.subList
+colls: erased: 3 list: read at another instantiation of its type variables
+colls: erased: 3 map: assigned the result of Builder.getProp
+colls: erased: 3 map: assigned the result of Map.computeIfAbsent
+colls: erased: 3 set: assigned the result of ImmutableSet.copyOf
+colls: erased: 2 deque: exchanges values with an erased declaration
+colls: erased: 2 list: assigned the result of Arrays.asList
+colls: erased: 2 list: assigned the result of Builder.getPropWithDefault
+colls: erased: 2 list: assigned the result of DiGraphNode.getInEdges
+colls: erased: 2 list: assigned the result of HashMap.computeIfAbsent
+colls: erased: 2 list: assigned the result of LinkedDirectedGraph.getDirectedSuccNodesDiGraphNode
+colls: erased: 2 list: assigned the result of LinkedDirectedGraph.getEdgesInDirection
+colls: erased: 2 list: assigned the result of ManagementFactory.getMemoryPoolMXBeans
+colls: erased: 2 list: assigned the result of Map.get
+colls: erased: 2 list: assigned the result of PolymerPassStaticUtils.extractProperties
+colls: erased: 2 list: assigned the result of Supplier.get
+colls: erased: 2 list: assigned the result of UnionTypeProto.getUnionMemberList
+colls: erased: 2 list: used in CASE
+colls: erased: 2 map: assigned a TYPE_CAST
+colls: erased: 2 map: used in MEMBER_REFERENCE
+colls: erased: 2 set: a record component
+colls: erased: 2 set: assigned the result of AbstractCompiler.getExternProperties
+colls: erased: 2 set: assigned the result of CompilerOptions.getPropertyReservedNamingFirstChars
+colls: erased: 2 set: assigned the result of CompilerOptions.getPropertyReservedNamingNonFirstChars
+colls: erased: 2 set: assigned the result of LinkedHashMap.keySet
+colls: erased: 2 set: assigned the result of Map.computeIfAbsent
+colls: erased: 2 set: assigned the result of Map.get
+colls: erased: 2 set: assigned the result of Sets.newLinkedHashSetWithExpectedSize
+colls: erased: 1 deque: assigned a new LinkedList
+colls: erased: 1 deque: assigned a new PriorityQueue
+colls: erased: 1 deque: assigned the result of Map.computeIfAbsent
+colls: erased: 1 deque: assigned the result of Map.get
+colls: erased: 1 list: assigned a SWITCH_EXPRESSION
+colls: erased: 1 list: assigned a new CopyOnWriteArrayList
+colls: erased: 1 list: assigned the result of Builder.getProp
+colls: erased: 1 list: assigned the result of Collections.nCopies
+colls: erased: 1 list: assigned the result of CommandLineRunner.loadConformanceConfigs
+colls: erased: 1 list: assigned the result of CommentRecorder.getComments
+colls: erased: 1 list: assigned the result of CompilerOptions.getReplaceStringsFunctionDescriptions
+colls: erased: 1 list: assigned the result of CompilerOptions.getSourceMapLocationMappings
+colls: erased: 1 list: assigned the result of Flags.addMultiFlagValue
+colls: erased: 1 list: assigned the result of FunctionTypeBuilder.buildTemplateTypesFromJSDocInfo
+colls: erased: 1 list: assigned the result of HashMap.remove
+colls: erased: 1 list: assigned the result of ImmutableList.reverse
+colls: erased: 1 list: assigned the result of JSChunk.getInputs
+colls: erased: 1 list: assigned the result of JSCompilerStateProto.getAllowableFeaturesList
+colls: erased: 1 list: assigned the result of JSCompilerStateProto.getStringMapList
+colls: erased: 1 list: assigned the result of JSCompilerStateProto.getUniqueIdSupplierList
+colls: erased: 1 list: assigned the result of JSTypeIterations.mapTypesImmutableList
+colls: erased: 1 list: assigned the result of JSTypeRegistry.createOptionalParameters
+colls: erased: 1 list: assigned the result of JSTypeRegistry.createParametersWithVarArgs
+colls: erased: 1 list: assigned the result of JsMessage.getGenderedMessageParts
+colls: erased: 1 list: assigned the result of LinkedDiGraphNode.getInEdges
+colls: erased: 1 list: assigned the result of LinkedDiGraphNode.getOutEdges
+colls: erased: 1 list: assigned the result of List.get
+colls: erased: 1 list: assigned the result of ManagementFactory.getGarbageCollectorMXBeans
+colls: erased: 1 list: assigned the result of ObjectTypeProto.getInstanceTypeList
+colls: erased: 1 list: assigned the result of ObjectTypeProto.getPrototypeList
+colls: erased: 1 list: assigned the result of PassListBuilder.build
+colls: erased: 1 list: assigned the result of PolymerBehaviorExtractor.getBehaviorFunctionsToCopy
+colls: erased: 1 list: assigned the result of PolymerBehaviorExtractor.getNonPropertyMembersToCopy
+colls: erased: 1 list: assigned the result of RequirementScopeEntry.getRegexpList
+colls: erased: 1 list: assigned the result of SortedDependencies.getSortedList
+colls: erased: 1 list: assigned the result of SortedDependencies.getStrongDependenciesOf
+colls: erased: 1 list: assigned the result of SourceFilePool.getSourceFileList
+colls: erased: 1 list: assigned the result of StringPoolProto.getStringsList
+colls: erased: 1 list: assigned the result of Timeline.getSince
+colls: erased: 1 list: of a method named by a method reference
+colls: erased: 1 list: reaches a place of type ArrayList
+colls: erased: 1 map: assigned the result of CompilerOptions.getDefineReplacements
+colls: erased: 1 map: assigned the result of DependencyInfo.getLoadFlags
+colls: erased: 1 map: assigned the result of DiagnosticGroups.getRegisteredGroups
+colls: erased: 1 map: assigned the result of InputForBuildJsMsg.getPlaceholderExampleMap
+colls: erased: 1 map: assigned the result of InputForBuildJsMsg.getPlaceholderOriginalCodeMap
+colls: erased: 1 map: assigned the result of Maps.newLinkedHashMapWithExpectedSize
+colls: erased: 1 map: assigned the result of Objects.requireNonNull
+colls: erased: 1 map: assigned the result of ReplaceMessages.extractPlaceholderValuesMapOrThrow
+colls: erased: 1 map: assigned the result of RewriteJsonToModule.getPackageJsonMainEntries
+colls: erased: 1 map: assigned the result of SimpleBiMap.inverse
+colls: erased: 1 map: assigned the result of SimpleListMultimap.asMap
+colls: erased: 1 map: assigned the result of SimpleTable.row
+colls: erased: 1 map: assigned the result of Supplier.get
+colls: erased: 1 map: reaches a place of type LinkedHashMap
+colls: erased: 1 map: the variable of a for-each loop
+colls: erased: 1 set: assigned a new 
+colls: erased: 1 set: assigned the result of CompilerOptions.getCssRenamingSkiplist
+colls: erased: 1 set: assigned the result of CompilerOptions.getExtraAnnotationNames
+colls: erased: 1 set: assigned the result of Entry.getValue
+colls: erased: 1 set: assigned the result of EnumSet.of
+colls: erased: 1 set: assigned the result of FunctionArgumentInjector.findModifiedParameters
+colls: erased: 1 set: assigned the result of FunctionState.getNamesToAlias
+colls: erased: 1 set: assigned the result of IcuTemplateOptions.getPlaceholderNames
+colls: erased: 1 set: assigned the result of LinkedIdentityHashMap.computeIfAbsent
+colls: erased: 1 set: assigned the result of Map.getOrDefault
+colls: erased: 1 set: assigned the result of Outcome.get
+colls: erased: 1 set: assigned the result of ParserRunner.getSuppressionNames
+colls: erased: 1 set: assigned the result of Sets.difference
+colls: erased: 1 set: assigned the result of Sets.intersection
+colls: erased: 1 set: assigned the result of Sets.newIdentityHashSet
+colls: erased: 1 set: assigned the result of Sets.union
+colls: erased: 1 set: assigned the result of SimpleMultiset.elementSet
+colls: erased: 1 set: assigned the result of TreeSet.tailSet
+colls: erased: 1 set: method SequencedCollection.getFirst
+colls: erased: 1 set: named by a method reference
+colls: erased: 1 set: the variable of a for-each loop
+colls: erased: 1 set: used in MEMBER_REFERENCE
+colls: typed element: 191 set of [java.lang.String]
+colls: typed element: 126 list of [com.google.javascript.rhino.Node]
+colls: typed element: 122 list of [java.lang.String]
+colls: typed element: 40 map of [java.lang.String, com.google.javascript.rhino.Node]
+colls: typed element: 38 map of [java.lang.String, java.lang.String]
+colls: typed element: 35 set of [com.google.javascript.rhino.Node]
+colls: typed element: 20 deque of [com.google.javascript.rhino.Node]
+colls: typed element: 20 set of [com.google.javascript.jscomp.Var]
+colls: typed element: 17 map of [java.lang.String, com.google.javascript.jscomp.Var]
+colls: typed element: 16 map of [java.lang.String, java.lang.Object]
+colls: typed element: 16 set of [com.google.javascript.jscomp.GlobalNamespace.AstChange]
+colls: typed element: 13 map of [java.lang.String, java.lang.Integer]
+colls: typed element: 13 set of [com.google.javascript.jscomp.modules.UnresolvedModule]
+colls: typed element: 12 list of [com.google.javascript.jscomp.SourceFile]
+colls: typed element: 11 entry of [java.lang.String, com.google.javascript.rhino.Node]
+colls: typed element: 10 list of [com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry]
+colls: typed element: 10 list of [com.google.javascript.jscomp.PolymerPass.MemberDefinition]
+colls: typed element: 10 map of [com.google.javascript.rhino.Node, java.lang.String]
+colls: typed element: 10 map of [java.lang.String, com.google.javascript.jscomp.modules.Binding]
+colls: typed element: 10 map of [java.lang.String, com.google.javascript.rhino.jstype.JSType]
+colls: typed element: 9 list of [com.google.javascript.jscomp.Reference]
+colls: typed element: 9 list of [com.google.javascript.rhino.jstype.JSType]
+colls: typed element: 9 list of [java.lang.Integer]
+colls: typed element: 8 list of [com.google.javascript.jscomp.OptimizeParameters.Parameter]
+colls: typed element: 8 list of [com.google.javascript.jscomp.parsing.FeatureCollector.FeatureContext]
+colls: typed element: 8 map of [com.google.javascript.rhino.jstype.TemplateType, com.google.javascript.rhino.jstype.JSType]
+colls: typed element: 8 map of [java.lang.String, com.google.javascript.jscomp.deps.DependencyInfo]
+colls: typed element: 8 set of [com.google.javascript.jscomp.modules.ExportTrace]
+colls: typed element: 7 deque of [com.google.javascript.jscomp.CrossChunkCodeMotion.DeclarationStatementGroup]
+colls: typed element: 7 map of [java.lang.String, com.google.javascript.jscomp.CompilerInput]
+colls: typed element: 7 map of [java.lang.String, com.google.javascript.jscomp.J2clPropertyInlinerPass.StaticFieldGetterSetterInliner.J2clProperty]
+colls: typed element: 7 map of [java.lang.String, com.google.javascript.jscomp.disambiguate.PropertyClustering]
+colls: typed element: 6 deque of [com.google.javascript.jscomp.CrossChunkReferenceCollector.TopLevelStatement]
+colls: typed element: 6 list of [com.google.javascript.jscomp.AbstractCommandLineRunner.JsChunkSpec]
+colls: typed element: 6 list of [com.google.javascript.jscomp.Var]
+colls: typed element: 6 list of [com.google.javascript.jscomp.graph.GraphvizGraph.GraphvizEdge]
+colls: typed element: 6 list of [com.google.javascript.jscomp.graph.GraphvizGraph.GraphvizNode]
+colls: typed element: 6 list of [com.google.javascript.rhino.jstype.ObjectType]
+colls: typed element: 6 map of [java.lang.String, com.google.javascript.jscomp.JSChunk]
+colls: typed element: 6 set of [com.google.javascript.jscomp.CompilerInput]
+colls: typed element: 5 deque of [com.google.javascript.jscomp.ClosureRewriteModule.ScriptDescription]
+colls: typed element: 5 list of [com.google.javascript.jscomp.CompilerInput]
+colls: typed element: 5 list of [com.google.javascript.jscomp.JSChunk]
+colls: typed element: 5 list of [com.google.javascript.jscomp.JsMessage.Part]
+colls: typed element: 5 list of [com.google.javascript.jscomp.SourceMap.Mapping]
+colls: typed element: 5 list of [com.google.javascript.jscomp.deps.DependencyInfo.Require]
+colls: typed element: 5 list of [com.google.javascript.jscomp.graph.LinkedDirectedGraph.LinkedDiGraphEdge<N,E>]
+colls: typed element: 5 list of [com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats]
+colls: typed element: 5 list of [com.google.javascript.refactoring.SuggestedFix]
+colls: typed element: 5 list of [com.google.javascript.rhino.jstype.FunctionType]
+colls: typed element: 5 map of [com.google.javascript.jscomp.PolymerPass.MemberDefinition, com.google.javascript.jscomp.PolymerBehaviorExtractor.BehaviorDefinition]
+colls: typed element: 5 map of [com.google.javascript.rhino.jstype.Property.Key, com.google.javascript.rhino.jstype.ObjectType]
+colls: typed element: 5 map of [java.lang.String, com.google.javascript.jscomp.ProcessClosureProvidesAndRequires.ProvidedName]
+colls: typed element: 5 map of [java.lang.String, com.google.javascript.jscomp.ProcessTweaks.TweakInfo]
+colls: typed element: 5 map of [java.lang.String, com.google.javascript.jscomp.instrumentation.FileInstrumentationData]
+colls: typed element: 5 map of [java.lang.String, java.util.Set]
+colls: typed element: 5 set of [com.google.javascript.jscomp.colors.Color]
+colls: typed element: 5 set of [com.google.javascript.rhino.jstype.ObjectType]
+colls: typed element: 5 set of [java.lang.Character]
+colls: typed element: 5 set of [java.lang.Integer]
+colls: typed element: 4 deque of [com.google.javascript.jscomp.CrossChunkCodeMotion.GlobalSymbol]
+colls: typed element: 4 deque of [com.google.javascript.jscomp.graph.Graph.GraphAnnotationState]
+colls: typed element: 4 entry of [java.lang.String, com.google.javascript.jscomp.base.SimpleJsonValue]
+colls: typed element: 4 list of [com.google.javascript.jscomp.GlobalNamespace.Name]
+colls: typed element: 4 list of [com.google.javascript.jscomp.ScopedAliases.AliasUsage]
+colls: typed element: 4 list of [com.google.javascript.jscomp.graph.GraphNode<N,E>]
+colls: typed element: 4 list of [com.google.javascript.jscomp.lint.CheckRequiresSorted.ImportStatement]
+colls: typed element: 4 list of [com.google.javascript.jscomp.modules.Export]
+colls: typed element: 4 list of [com.google.javascript.rhino.jstype.FunctionType.Parameter]
+colls: typed element: 4 list of [java.lang.Object]
+colls: typed element: 4 list of [java.util.Map.Entry]
+colls: typed element: 4 map of [com.google.javascript.jscomp.colors.ColorId, com.google.javascript.jscomp.colors.Color]
+colls: typed element: 4 map of [java.lang.String, com.google.javascript.jscomp.InlineFunctions.FunctionState]
+colls: typed element: 4 map of [java.lang.String, com.google.javascript.jscomp.SourceFile]
+colls: typed element: 4 map of [java.lang.String, java.util.ArrayList]
+colls: typed element: 4 map of [java.lang.String, java.util.Map]
+colls: typed element: 4 set of [com.google.javascript.jscomp.js.RuntimeJsLibManager.ExternedField]
+colls: typed element: 3 deque of [com.google.javascript.jscomp.Es6RewriteGenerators.SingleGeneratorFunctionTranspiler.TranspilationContext.Case]
+colls: typed element: 3 deque of [java.lang.String]
+colls: typed element: 3 entry of [java.lang.String, java.lang.String]
+colls: typed element: 3 list of [com.google.javascript.jscomp.AbstractPeepholeTranspilation]
+colls: typed element: 3 list of [com.google.javascript.jscomp.CrossChunkCodeMotion.DeclarationStatementGroupCycle]
+colls: typed element: 3 list of [com.google.javascript.jscomp.GlobalNamespace.Ref]
+colls: typed element: 3 list of [com.google.javascript.jscomp.J2clPass.InlineSpec]
+colls: typed element: 3 list of [com.google.javascript.jscomp.NodeTraversal.Callback]
+colls: typed element: 3 list of [com.google.javascript.jscomp.PassFactory]
+colls: typed element: 3 list of [com.google.javascript.jscomp.ProcessCommonJSModules.ExportInfo]
+colls: typed element: 3 list of [com.google.javascript.jscomp.ReplaceCssNames.GetCssNameInstance]
+colls: typed element: 3 list of [com.google.javascript.jscomp.Requirement]
+colls: typed element: 3 list of [com.google.javascript.jscomp.SymbolTable.Symbol]
+colls: typed element: 3 list of [com.google.javascript.jscomp.deps.DependencyInfo]
+colls: typed element: 3 list of [com.google.javascript.jscomp.disambiguate.AmbiguateProperties.PropertyGraphNode]
+colls: typed element: 3 list of [com.google.javascript.jscomp.parsing.JsDocInfoParser.ExtendedTypeInfo]
+colls: typed element: 3 list of [com.google.javascript.jscomp.serialization.ScriptNodeDeserializer]
+colls: typed element: 3 map of [com.google.javascript.jscomp.JSChunk, java.util.Set]
+colls: typed element: 3 map of [com.google.javascript.jscomp.WarningsGuard, java.lang.Integer]
+colls: typed element: 3 map of [com.google.javascript.jscomp.colors.Color, com.google.javascript.jscomp.disambiguate.ColorGraphNode]
+colls: typed element: 3 map of [java.lang.String, com.google.javascript.jscomp.AnalyzePrototypeProperties.NameInfo]
+colls: typed element: 3 map of [java.lang.String, com.google.javascript.jscomp.Es6RewriteClass.ClassProperty]
+colls: typed element: 3 map of [java.lang.String, com.google.javascript.jscomp.GlobalNamespace.Name]
+colls: typed element: 3 set of [com.google.javascript.jscomp.PhaseOptimizer.NamedPass]
+colls: typed element: 2 deque of [InputT]
+colls: typed element: 2 deque of [com.google.javascript.jscomp.AnalyzePrototypeProperties.Symbol]
+colls: typed element: 2 deque of [com.google.javascript.jscomp.BasicBlock]
+colls: typed element: 2 deque of [com.google.javascript.jscomp.CrossChunkCodeMotion.GlobalSymbolCycle]
+colls: typed element: 2 deque of [com.google.javascript.jscomp.GlobalNamespace.Name]
+colls: typed element: 2 deque of [com.google.javascript.rhino.jstype.JSType]
+colls: typed element: 2 entry of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.MustBeReachingVariableDef.Definition]
+colls: typed element: 2 entry of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.disambiguate.ColorGraphNode]
+colls: typed element: 2 entry of [com.google.javascript.rhino.jstype.TemplateType, com.google.javascript.rhino.jstype.JSType]
+colls: typed element: 2 entry of [java.lang.String, java.lang.Integer]
+colls: typed element: 2 entry of [java.lang.String, java.lang.Object]
+colls: typed element: 2 list of [InputT]
+colls: typed element: 2 list of [com.google.common.util.concurrent.ListenableFuture]
+colls: typed element: 2 list of [com.google.debugging.sourcemap.SourceMapSection]
+colls: typed element: 2 list of [com.google.javascript.jscomp.AbstractCommandLineRunner.JsonFileSpec]
+colls: typed element: 2 list of [com.google.javascript.jscomp.AbstractPeepholeOptimization]
+colls: typed element: 2 list of [com.google.javascript.jscomp.CmdLineParser.Option]
+colls: typed element: 2 list of [com.google.javascript.jscomp.CrossChunkReferenceCollector.TopLevelStatement]
+colls: typed element: 2 list of [com.google.javascript.jscomp.ProcessCommonJSModules.UmdPattern]
+colls: typed element: 2 list of [com.google.javascript.jscomp.RemoveUnusedCode.Continuation]
+colls: typed element: 2 list of [com.google.javascript.jscomp.SortingErrorManager.ErrorReportGenerator]
+colls: typed element: 2 list of [com.google.javascript.jscomp.UniqueIdProto]
+colls: typed element: 2 list of [com.google.javascript.jscomp.VariableMapEntryProto]
+colls: typed element: 2 list of [com.google.javascript.jscomp.base.SimpleJsonValue]
+colls: typed element: 2 list of [com.google.javascript.jscomp.deps.DependencyFile]
+colls: typed element: 2 list of [com.google.javascript.jscomp.graph.LinkedDirectedGraph.LinkedDiGraphNode<N,E>]
+colls: typed element: 2 list of [com.google.javascript.jscomp.graph.UndiGraph.UndiGraphEdge<N,E>]
+colls: typed element: 2 list of [com.google.javascript.jscomp.instrumentation.reporter.proto.ReportProfile]
+colls: typed element: 2 list of [com.google.javascript.jscomp.regex.RegExpTree]
+colls: typed element: 2 list of [com.google.javascript.refactoring.Match]
+colls: typed element: 2 list of [java.util.ArrayList]
+colls: typed element: 2 list of [java.util.List]
+colls: typed element: 2 map of [com.google.javascript.jscomp.JSChunk, com.google.javascript.rhino.Node]
+colls: typed element: 2 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.MustBeReachingVariableDef.Definition]
+colls: typed element: 2 map of [com.google.javascript.jscomp.disambiguate.PropertyClustering, com.google.javascript.jscomp.disambiguate.ColorGraphNode.PropAssociation]
+colls: typed element: 2 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.disambiguate.ColorGraphNode]
+colls: typed element: 2 map of [com.google.javascript.rhino.Node, com.google.javascript.rhino.Node]
+colls: typed element: 2 map of [com.google.javascript.rhino.Node, java.lang.Boolean]
+colls: typed element: 2 map of [com.google.javascript.rhino.Node, java.lang.Integer]
+colls: typed element: 2 map of [java.lang.String, InputT]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.DiagnosticGroup]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.Requirement.Builder]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.SymbolTable.SymbolScope]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.SymbolTable.Symbol]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.base.SimpleBiMap]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.base.SimpleJsonValue]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.modules.Module]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.modules.ResolveExportResult]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.modules.UnresolvedModule]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.rhino.JSDocInfo]
+colls: typed element: 2 set of [com.google.javascript.jscomp.CrossChunkCodeMotion.GlobalSymbol]
+colls: typed element: 2 set of [com.google.javascript.jscomp.DeadPropertyAssignmentElimination.Property]
+colls: typed element: 2 set of [com.google.javascript.jscomp.GlobalNamespace.Name]
+colls: typed element: 2 set of [com.google.javascript.jscomp.JSChunk]
+colls: typed element: 2 set of [com.google.javascript.jscomp.MakeDeclaredNamesUnique.ContextualRenameInverter.VariableInfo]
+colls: typed element: 2 set of [com.google.javascript.jscomp.colors.ColorId]
+colls: typed element: 2 set of [com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature]
+colls: typed element: 2 set of [com.google.javascript.rhino.jstype.FunctionType]
+colls: typed element: 2 set of [com.google.javascript.rhino.jstype.JSType]
+colls: typed element: 2 set of [com.google.javascript.rhino.jstype.PropertyMap]
+colls: typed element: 1 deque of [com.google.debugging.sourcemap.SourceMapGeneratorV3.Mapping]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.AnalyzePrototypeProperties.NameContext]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.CheckSuper.Context]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.CrossChunkCodeMotion.InstanceofReference]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.DeadAssignmentsElimination.BailoutInformation]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.DeadPropertyAssignmentElimination.PropertyWrite]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.DeadPropertyAssignmentElimination.Property]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.Es6ConvertSuperConstructorCalls.ConstructorData]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.Es6NormalizeClasses.ClassRecord]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.Es6RewriteDestructuring.PatternNestingLevel]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.Es6RewriteGenerators.SingleGeneratorFunctionTranspiler.TranspilationContext.CatchCase]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.GuardedCallback.Context]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.J2clClinitPrunerPass.HierarchicalSet<java.lang.String>]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.JSChunk]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.LiveVariablesAnalysis]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.MakeDeclaredNamesUnique.ContextualRenameInverter.ScopeContext]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.MakeDeclaredNamesUnique.Renamer]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.OptionalChainRewriter]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.PerformanceTracker.Stats]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.PureFunctionIdentifier.FunctionBodyAnalyzer.FunctionStackEntry]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.RemoveUnusedCode.Continuation]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.RenameLabels.LabelNamespace]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.RewriteAsyncFunctions.LexicalContext]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.RewriteAsyncIteration.LexicalContext]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.SourceFile]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.SourceMap.Mapping]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.ThisAndArgumentsReferenceUpdater.ThisAndArgumentsContext]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.TypeInference.OptChainInfo]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.colors.ColorId]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.graph.DiGraph.DiGraphNode<N,E>]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.graph.GraphColoring<com.google.javascript.jscomp.Var,java.lang.Void>]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.parsing.parser.Parser.FunctionFlavor]
+colls: typed element: 1 deque of [com.google.javascript.rhino.HamtPMap<K,V>]
+colls: typed element: 1 deque of [java.lang.Boolean]
+colls: typed element: 1 deque of [java.lang.Object]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.DiagnosticType, java.lang.String]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.JSChunk, com.google.javascript.jscomp.ExtractPrototypeMemberDeclarations.ExtractionInstanceInfo]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.JSChunk, java.util.Map]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.JSChunk, java.util.Set]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.JsMessage.GrammaticalGenderCase, java.util.List]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.PolymerPass.MemberDefinition, com.google.javascript.jscomp.PolymerBehaviorExtractor.BehaviorDefinition]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.Requirement.Builder, com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.RemoveUnusedCode.VarInfo]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.disambiguate.PropertyClustering, com.google.javascript.jscomp.disambiguate.ColorGraphNode.PropAssociation]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint, java.lang.Long]
+colls: typed element: 1 entry of [com.google.javascript.rhino.Node, com.google.javascript.rhino.Node]
+colls: typed element: 1 entry of [com.google.javascript.rhino.Node, java.lang.String]
+colls: typed element: 1 entry of [com.google.javascript.rhino.jstype.Property.Key, com.google.javascript.rhino.jstype.ObjectType]
+colls: typed element: 1 entry of [java.lang.String, com.google.javascript.jscomp.InlineFunctions.FunctionState]
+colls: typed element: 1 entry of [java.lang.String, com.google.javascript.jscomp.Tracer.Stat]
+colls: typed element: 1 entry of [java.lang.String, com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint]
+colls: typed element: 1 entry of [java.lang.String, java.util.ArrayList]
+colls: typed element: 1 entry of [java.lang.String, java.util.List]
+colls: typed element: 1 entry of [java.lang.String, java.util.Map]
+colls: typed element: 1 list of [N]
+colls: typed element: 1 list of [T]
+colls: typed element: 1 list of [com.google.common.collect.ImmutableList]
+colls: typed element: 1 list of [com.google.debugging.sourcemap.SourceMapGeneratorV3.Mapping]
+colls: typed element: 1 list of [com.google.javascript.jscomp.AnalyzePrototypeProperties.NameInfo]
+colls: typed element: 1 list of [com.google.javascript.jscomp.AngularPass.NodeContext]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ClosureCodeRemoval.RemovableAssignment]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ClosureRewriteModule.UnrecognizedRequire]
+colls: typed element: 1 list of [com.google.javascript.jscomp.CodeChangeHandler]
+colls: typed element: 1 list of [com.google.javascript.jscomp.CollapseVariableDeclarations.Collapse]
+colls: typed element: 1 list of [com.google.javascript.jscomp.CompilerPass]
+colls: typed element: 1 list of [com.google.javascript.jscomp.CreateSyntheticBlocks.Marker]
+colls: typed element: 1 list of [com.google.javascript.jscomp.Es6NormalizeClasses.ClassRecord.PrivateMember]
+colls: typed element: 1 list of [com.google.javascript.jscomp.Es6RewriteGenerators.SingleGeneratorFunctionTranspiler.TranspilationContext.Case]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ExternExportsPass.Export]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ExtractPrototypeMemberDeclarations.ExtractionInstance]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ExtractPrototypeMemberDeclarations.PrototypeMemberDeclaration]
+colls: typed element: 1 list of [com.google.javascript.jscomp.JSError]
+colls: typed element: 1 list of [com.google.javascript.jscomp.JsMessage]
+colls: typed element: 1 list of [com.google.javascript.jscomp.OptionalChainRewriter]
+colls: typed element: 1 list of [com.google.javascript.jscomp.PerformanceTracker.Stats]
+colls: typed element: 1 list of [com.google.javascript.jscomp.PhaseOptimizer.NamedPass]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ProcessTweaks.TweakFunctionCall]
+colls: typed element: 1 list of [com.google.javascript.jscomp.RemoveUnusedCode.Removable]
+colls: typed element: 1 list of [com.google.javascript.jscomp.RenameVars.Assignment]
+colls: typed element: 1 list of [com.google.javascript.jscomp.RescopeGlobalSymbolsRewriteCallback.ChunkGlobal]
+colls: typed element: 1 list of [com.google.javascript.jscomp.Scope]
+colls: typed element: 1 list of [com.google.javascript.jscomp.Tracer.Event]
+colls: typed element: 1 list of [com.google.javascript.jscomp.TypeMismatch]
+colls: typed element: 1 list of [com.google.javascript.jscomp.TypedScopeCreator.WeakModuleImport]
+colls: typed element: 1 list of [com.google.javascript.jscomp.TypedVar]
+colls: typed element: 1 list of [com.google.javascript.jscomp.base.LinkedIdentityHashMap.Entry<K,V>]
+colls: typed element: 1 list of [com.google.javascript.jscomp.colors.Color]
+colls: typed element: 1 list of [com.google.javascript.jscomp.deps.BrowserWithTransformedPrefixesModuleResolver.PrefixReplacement]
+colls: typed element: 1 list of [com.google.javascript.jscomp.disambiguate.DisambiguateProperties.TypeNodeJson]
+colls: typed element: 1 list of [com.google.javascript.jscomp.graph.Graph.GraphEdge<N,E>]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ijs.PotentialDeclaration]
+colls: typed element: 1 list of [com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile]
+colls: typed element: 1 list of [com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint.Type]
+colls: typed element: 1 list of [com.google.javascript.jscomp.lint.CheckRequiresSorted.DestructuringBinding]
+colls: typed element: 1 list of [com.google.javascript.jscomp.parsing.parser.Token]
+colls: typed element: 1 list of [com.google.javascript.jscomp.parsing.parser.trees.Comment]
+colls: typed element: 1 list of [com.google.javascript.rhino.jstype.NamedType.PropertyContinuation]
+colls: typed element: 1 list of [com.google.javascript.rhino.jstype.TemplateType]
+colls: typed element: 1 list of [com.google.re2j.Pattern]
+colls: typed element: 1 list of [java.lang.Character]
+colls: typed element: 1 map of [com.google.javascript.jscomp.CheckConformance.Rule, com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+colls: typed element: 1 map of [com.google.javascript.jscomp.DiagnosticType, com.google.javascript.jscomp.DiagnosticGroup]
+colls: typed element: 1 map of [com.google.javascript.jscomp.DiagnosticType, java.lang.String]
+colls: typed element: 1 map of [com.google.javascript.jscomp.JSChunk, com.google.javascript.jscomp.ExtractPrototypeMemberDeclarations.ExtractionInstanceInfo]
+colls: typed element: 1 map of [com.google.javascript.jscomp.JSChunk, java.util.Map]
+colls: typed element: 1 map of [com.google.javascript.jscomp.JSError, com.google.javascript.refactoring.SuggestedFix]
+colls: typed element: 1 map of [com.google.javascript.jscomp.JsMessage.GrammaticalGenderCase, java.util.List]
+colls: typed element: 1 map of [com.google.javascript.jscomp.PhaseOptimizer.NamedPass, java.lang.Integer]
+colls: typed element: 1 map of [com.google.javascript.jscomp.ProcessCommonJSModules.ExportInfo, com.google.javascript.jscomp.ProcessCommonJSModules.ExportInfo]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Requirement, com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Requirement.Builder, com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+colls: typed element: 1 map of [com.google.javascript.jscomp.SourceFile, java.lang.Integer]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Timeline.Time, com.google.javascript.jscomp.Timeline.Event]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.ClosureRewriteModule.ExportDefinition]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.CrossChunkCodeMotion.GlobalSymbol]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.InlineVariables.InlineVarAnalysis]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.JsMessage]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.ReferenceCollection]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.RemoveUnusedCode.VarInfo]
+colls: typed element: 1 map of [com.google.javascript.jscomp.colors.ColorId, com.google.javascript.jscomp.serialization.JSTypeReconserializer.SeenTypeRecord]
+colls: typed element: 1 map of [com.google.javascript.jscomp.colors.ColorId, java.lang.Integer]
+colls: typed element: 1 map of [com.google.javascript.jscomp.disambiguate.ColorGraphNode, java.lang.Integer]
+colls: typed element: 1 map of [com.google.javascript.jscomp.graph.DiGraph.DiGraphNode<N,E>, com.google.javascript.jscomp.graph.LowestCommonAncestorFinder.Color]
+colls: typed element: 1 map of [com.google.javascript.jscomp.instrumentation.FileInstrumentationData.BranchIndexPair, com.google.javascript.rhino.Node]
+colls: typed element: 1 map of [com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint, com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats.Presence]
+colls: typed element: 1 map of [com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint, java.lang.Long]
+colls: typed element: 1 map of [com.google.javascript.jscomp.modules.Module, com.google.javascript.jscomp.modules.Module]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.Es6RewriteBlockScopedDeclaration.LoopClosureTransformer.LoopObject]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.GlobalNamespace.Ref]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.InlineFunctions.Reference]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.InstrumentAsyncContext.FunctionContext]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.SymbolTable.Reference]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.SymbolTable.SymbolScope]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.refactoring.ScriptMetadata]
+colls: typed element: 1 map of [com.google.javascript.rhino.jstype.EqualityChecker.CacheKey, com.google.javascript.rhino.jstype.JSType.MatchStatus]
+colls: typed element: 1 map of [com.google.javascript.rhino.jstype.SubtypeChecker.CacheKey, com.google.javascript.rhino.jstype.JSType.MatchStatus]
+colls: typed element: 1 map of [java.lang.Integer, com.google.javascript.jscomp.base.SimpleMultiset]
+colls: typed element: 1 map of [java.lang.Integer, java.lang.Integer]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.AbstractVar]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.AccessorSummary.PropertyAccessKind]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ClosureExportTypeClassifier.NameInfo]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ClosureRewriteModule.AliasName]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ClosureRewriteModule.ScriptDescription]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.CompilerInput.ModuleType]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ConcretizeStaticInheritanceForInlining.JavascriptClass]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.DeadPropertyAssignmentElimination.Property]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.Es6NormalizeClasses.ClassRecord.PrivateMember]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.Es6RewriteGenerators.SingleGeneratorFunctionTranspiler.TranspilationContext.LabelCases]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.InlineProperties.PropertyInfo]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.J2clPass.ClassStaticFunctionsInliner.InlinableFunction]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.JsMessageVisitor.MessageLocation]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.JsMessage]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ModuleRenaming.GlobalizedModuleName]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.PerformanceTracker.Stats]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.PolymerBehaviorExtractor.ResolveBehaviorNameResult]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.PolymerPass.MemberDefinition]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ProcessDefines.Define]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ProcessTweaks.TweakFunction]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.PureFunctionIdentifier.AmbiguatedFunctionSummary]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.RenameLabels.LabelInfo]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.RenameProperties.Property]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.RenameVars.Assignment]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.RenamingMap]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ReplaceIdGenerators.NameSupplier]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ReplaceStrings.Config]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ReplaceStrings.Result]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.RewriteAsyncFunctions.SuperPropertyWrapperInfo]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.RewriteCallerCodeLocation.FunctionVarAndParamPosition]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.Tracer.Stat]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.base.ZipArchive.Opened]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.disambiguate.AmbiguateProperties.Property]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.js.RuntimeJsLibManager.InternalField]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.modules.ClosureRequireProcessor.Require]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.modules.Export]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.modules.Import]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.rhino.jstype.JSTypeRegistry.ClosureNamespace]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.rhino.jstype.RecordTypeBuilder.RecordProperty]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.rhino.jstype.SimpleSlot]
+colls: typed element: 1 map of [java.lang.String, java.lang.Boolean]
+colls: typed element: 1 map of [java.lang.String, java.lang.Long]
+colls: typed element: 1 map of [java.lang.String, java.util.Deque]
+colls: typed element: 1 map of [java.lang.String, java.util.List]
+colls: typed element: 1 map of [java.lang.String, java.util.function.Supplier]
+colls: typed element: 1 set of [com.google.javascript.jscomp.BasicBlock]
+colls: typed element: 1 set of [com.google.javascript.jscomp.CmdLineParser.Option]
+colls: typed element: 1 set of [com.google.javascript.jscomp.Es6RewriteModulesToCommonJsModules.ModuleRequest]
+colls: typed element: 1 set of [com.google.javascript.jscomp.FlowSensitiveInlineVariables.Candidate]
+colls: typed element: 1 set of [com.google.javascript.jscomp.JSError]
+colls: typed element: 1 set of [com.google.javascript.jscomp.ScopedName]
+colls: typed element: 1 set of [com.google.javascript.jscomp.SymbolTable.SymbolScope]
+colls: typed element: 1 set of [com.google.javascript.jscomp.Tracer]
+colls: typed element: 1 set of [com.google.javascript.jscomp.TypedScope]
+colls: typed element: 1 set of [com.google.javascript.jscomp.base.SimpleSetMultimap.Entry]
+colls: typed element: 1 set of [com.google.javascript.jscomp.parsing.parser.trees.Comment]
+colls: typed element: 1 set of [com.google.javascript.jscomp.regex.CharRanges]
+colls: typed element: 1 set of [com.google.javascript.jscomp.serialization.JSTypeReconserializer.SeenTypeRecord]
+colls: typed element: 1 set of [com.google.javascript.rhino.JSDocInfo]
+colls: typed element: 1 set of [com.google.javascript.rhino.jstype.KnownSymbolType]
+stubs: types=168 methods=22 funcs=0
+units=808 classes=2009 externals=1137 unsupported=0

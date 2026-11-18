@@ -1,0 +1,614 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42659 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42659 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+shared static com.google.javascript.rhino.HamtPMap.EMPTY_CHILDREN: array
+shared static com.google.javascript.rhino.HamtPMap.EMPTY: single
+refined local varScope: com.google.javascript.jscomp.AbstractScope<?,?> -> com.google.javascript.jscomp.AbstractScope<com.google.javascript.jscomp.Scope,com.google.javascript.jscomp.Var>
+refined local firstEvent: com.google.javascript.jscomp.Timeline.Event<?> -> com.google.javascript.jscomp.Timeline.Event<com.google.javascript.jscomp.Timeline.Time>
+refined local node: com.google.javascript.jscomp.graph.DiGraph.DiGraphNode<com.google.javascript.rhino.Node,?> -> com.google.javascript.jscomp.graph.DiGraph.DiGraphNode<com.google.javascript.rhino.Node,com.google.javascript.jscomp.ControlFlowGraph.Branch>
+refined local edge: com.google.javascript.jscomp.graph.DiGraph.DiGraphEdge<?,E> -> com.google.javascript.jscomp.graph.DiGraph.DiGraphEdge<N,E>
+refined local child: com.google.javascript.rhino.HamtPMap<?,?> -> com.google.javascript.rhino.HamtPMap<K,V>
+generic class com.google.javascript.jscomp.AbstractCommandLineRunner: ERASED; A erased: bounded by a class or a library interface (stands for its bound); B erased: bounded by a class or a library interface (stands for its bound)
+generic class com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry: ERASED; T erased: a wildcard (AbstractCommandLineRunner.java:3587)
+generic class com.google.javascript.jscomp.AbstractScope: ERASED; S erased: bounded by a class or a library interface; V erased: bounded by a class or a library interface
+generic class com.google.javascript.jscomp.AbstractVar: ERASED; S erased: bounded by a class or a library interface; V erased: bounded by a class or a library interface
+generic class com.google.javascript.jscomp.ControlFlowGraph: TYPED [N]
+generic class com.google.javascript.jscomp.DataFlowAnalysis: TYPED [N, L]
+generic interface com.google.javascript.jscomp.DataFlowAnalysis.FlowJoiner: TYPED [L]
+generic interface com.google.javascript.jscomp.DataFlowAnalysis.FlowBrancher: TYPED [L]
+generic class com.google.javascript.jscomp.DataFlowAnalysis.LinearFlowState: ERASED; L erased: a wildcard (TypeInferencePass.java:163)
+generic class com.google.javascript.jscomp.DataFlowAnalysis.UniqueQueue: TYPED [T]
+generic class com.google.javascript.jscomp.GuardedCallback: TYPED [T]
+generic interface com.google.javascript.jscomp.IndexProvider: ERASED; T erased: a wildcard (AbstractCompiler.java:338)
+generic class com.google.javascript.jscomp.InlineVariables.InitiallyUnknown: TYPED [T]
+generic class com.google.javascript.jscomp.J2clClinitPrunerPass.HierarchicalSet: TYPED [T]
+generic class com.google.javascript.jscomp.Timeline: TYPED [T]
+generic class com.google.javascript.jscomp.Timeline.Event: ERASED; T erased: a wildcard (Timeline.java:34)
+generic class com.google.javascript.jscomp.base.LinkedIdentityHashMap: TYPED [K, V]
+generic class com.google.javascript.jscomp.base.LinkedIdentityHashMap.Entry: TYPED [K, V]
+generic class com.google.javascript.jscomp.base.LinkedIdentityHashSet: TYPED [E]
+generic class com.google.javascript.jscomp.base.Outcome: TYPED [T]
+generic class com.google.javascript.jscomp.base.SimpleBiMap: ERASED; K erased: a wildcard (LogsGson.java:71); V erased: a wildcard (LogsGson.java:71)
+generic class com.google.javascript.jscomp.base.SimpleListMultimap: ERASED; K erased: a wildcard (SimpleListMultimap.java:173); V erased: a wildcard (SimpleListMultimap.java:173)
+generic class com.google.javascript.jscomp.base.SimpleMultiset: ERASED; E erased: a wildcard (SimpleMultiset.java:198)
+generic class com.google.javascript.jscomp.base.SimpleSetMultimap: holds an inner class
+generic class com.google.javascript.jscomp.base.SimpleSetMultimap.Entry: a record or annotation
+generic class com.google.javascript.jscomp.base.SimpleTable: TYPED [R, C, V]
+generic class com.google.javascript.jscomp.bundle.Source.Lazy: ERASED; T erased: used raw (Source.java:126)
+generic interface com.google.javascript.jscomp.colors.ColorId.ByteAt: TYPED [T]
+generic class com.google.javascript.jscomp.deps.SortedDependencies: TYPED [InputT]
+generic interface com.google.javascript.jscomp.graph.AdjacencyGraph: TYPED [N]; E erased: fed by the erased type variable E of com.google.javascript.jscomp.graph.Graph
+generic class com.google.javascript.jscomp.graph.CheckPathsBetweenNodes: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.DiGraph: TYPED [N]; E erased: a wildcard (DominatorTree.java:65)
+generic interface com.google.javascript.jscomp.graph.DiGraph.DiGraphNode: TYPED [N]; E erased: a wildcard (DominatorTree.java:101)
+generic interface com.google.javascript.jscomp.graph.DiGraph.DiGraphEdge: TYPED [N]; E erased: fed by the erased type variable E of com.google.javascript.jscomp.graph.DiGraph
+generic class com.google.javascript.jscomp.graph.DominatorTree: TYPED [N]
+generic class com.google.javascript.jscomp.graph.FixedPointGraphTraversal: TYPED [N, E]
+generic interface com.google.javascript.jscomp.graph.FixedPointGraphTraversal.EdgeCallback: TYPED [NodeT, EdgeT]
+generic class com.google.javascript.jscomp.graph.Graph: TYPED [N]; E erased: fed by the erased type variable E of com.google.javascript.jscomp.graph.DiGraph
+generic interface com.google.javascript.jscomp.graph.Graph.GraphEdge: TYPED [N]; E erased: fed by the erased type variable E of com.google.javascript.jscomp.graph.DiGraph.DiGraphEdge
+generic class com.google.javascript.jscomp.graph.Graph.SimpleSubGraph: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.GraphColoring: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.GraphColoring.GreedyGraphColoring: TYPED [N, E]
+generic interface com.google.javascript.jscomp.graph.GraphNode: TYPED [N]; E erased: fed by the erased type variable E of com.google.javascript.jscomp.graph.DiGraph.DiGraphNode
+generic class com.google.javascript.jscomp.graph.GraphReachability: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.GraphReachability.EdgeTuple: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.LinkedDirectedGraph: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.LinkedDirectedGraph.LinkedDiGraphNode: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.LinkedDirectedGraph.AnnotatedLinkedDiGraphNode: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.LinkedDirectedGraph.LinkedDiGraphEdge: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.LinkedDirectedGraph.AnnotatedLinkedDiGraphEdge: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.LinkedUndirectedGraph: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.LinkedUndirectedGraph.LinkedUndirectedGraphNode: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.LinkedUndirectedGraph.AnnotatedLinkedUndirectedGraphNode: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.LinkedUndirectedGraph.LinkedUndirectedGraphEdge: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.LinkedUndirectedGraph.AnnotatedLinkedUndirectedGraphEdge: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.LowestCommonAncestorFinder: TYPED [N, E]
+generic interface com.google.javascript.jscomp.graph.LowestCommonAncestorFinder.Factory: TYPED [N, E]
+generic class com.google.javascript.jscomp.graph.StandardUnionFind: TYPED [E]
+generic class com.google.javascript.jscomp.graph.StandardUnionFind.Node: TYPED [E]
+generic interface com.google.javascript.jscomp.graph.SubGraph: TYPED [N]; E erased: fed by the erased type variable E of com.google.javascript.jscomp.graph.AdjacencyGraph
+generic class com.google.javascript.jscomp.graph.UndiGraph: TYPED [N, E]
+generic interface com.google.javascript.jscomp.graph.UndiGraph.UndiGraphNode: TYPED [N, E]
+generic interface com.google.javascript.jscomp.graph.UndiGraph.UndiGraphEdge: TYPED [N, E]
+generic interface com.google.javascript.jscomp.graph.UnionFind: TYPED [E]
+generic class com.google.javascript.rhino.HamtPMap: TYPED [K, V]
+generic class com.google.javascript.rhino.HamtPMap.Iter: TYPED [K, V, O]
+generic class com.google.javascript.rhino.JSDocInfo.Property: ERASED; T erased: a wildcard (JSDocInfo.java:82)
+generic class com.google.javascript.rhino.JSDocInfo.ComparableSourcePosition: TYPED [T]
+generic interface com.google.javascript.rhino.PMap: TYPED [K, V]
+generic interface com.google.javascript.rhino.PMap.Reconciler: TYPED [K, V]
+generic class com.google.javascript.rhino.SourcePosition: ERASED; T erased: a wildcard (SourcePosition.java:139)
+generic interface com.google.javascript.rhino.StaticSymbolTable: TYPED [S, R]
+generic class com.google.javascript.rhino.jstype.PrototypeObjectType.Builder: ERASED; T erased: bounded by a class or a library interface
+generic interface com.google.javascript.rhino.jstype.RelationshipVisitor: ERASED; T erased: a wildcard (AllType.java:102)
+generic class com.google.javascript.rhino.jstype.SimpleReference: TYPED [T]
+generic interface com.google.javascript.rhino.jstype.Visitor: ERASED; T erased: a wildcard (AllType.java:97)
+generic class com.google.javascript.rhino.jstype.Visitor.WithDefaultCase: TYPED [T]
+typed collections: 99 of 105 deque declarations are typed (61 fields, 29 locals, 5 parameters, 4 results)
+typed collections: 47 of 110 entry declarations are typed (0 fields, 47 locals, 0 parameters, 0 results)
+typed collections: 559 of 895 list declarations are typed (155 fields, 251 locals, 91 parameters, 62 results)
+typed collections: 389 of 505 map declarations are typed (185 fields, 106 locals, 70 parameters, 28 results)
+typed collections: 349 of 534 set declarations are typed (143 fields, 107 locals, 80 parameters, 19 results)
+colls: no typed collection for the type: 1 deque: element a type with type arguments that is a class of the program
+colls: no typed collection for the type: 1 list: a local class as element
+colls: no typed collection for the type: 19 list: a wildcard element
+colls: no typed collection for the type: 2 list: an array as element
+colls: no typed collection for the type: 26 map: a type variable as key
+colls: no typed collection for the type: 1 map: a wildcard key
+colls: no typed collection for the type: 1 map: a wildcard value
+colls: no typed collection for the type: 1 map: key (compared) a type with type arguments
+colls: no typed collection for the type: 1 map: value Optional (a value)
+colls: no typed collection for the type: 1 map: value a type with type arguments that is a class of the program
+colls: no typed collection for the type: 24 set: a type variable as element
+colls: no typed collection for the type: 2 set: a wildcard element
+colls: no typed collection for the type: 2 set: element (compared) a type with type arguments
+colls: not candidates: 34 parameters and 32 results of methods whose signature is not their own
+colls: not candidates: 5 a method with type parameters
+colls: not candidates: 17 a method without a body, of a record, or main
+colls: not candidates: 44 the methods of the group do not all have the same typed collection type there
+colls: erased: 104 list: exchanges values with an erased declaration
+colls: erased: 71 set: exchanges values with an erased declaration
+colls: erased: 49 entry: not a loop over the entries of a typed map
+colls: erased: 40 list: assigned the result of ImmutableList.of
+colls: erased: 37 map: exchanges values with an erased declaration
+colls: erased: 35 list: assigned a variable that is not typed
+colls: erased: 25 set: assigned a variable that is not typed
+colls: erased: 23 list: assigned the result of Splitter.splitToList
+colls: erased: 17 set: assigned the result of ImmutableSet.of
+colls: erased: 16 list: assigned the result of Outcome.get
+colls: erased: 15 set: assigned a new TreeSet
+colls: erased: 14 entry: exchanges values with an erased declaration
+colls: erased: 12 map: assigned the result of ImmutableMap.of
+colls: erased: 10 map: assigned the result of Property.get
+colls: erased: 9 map: assigned a variable that is not typed
+colls: erased: 6 list: assigned the result of Builder.build
+colls: erased: 6 list: assigned the result of Entry.getValue
+colls: erased: 6 list: assigned the result of Property.get
+colls: erased: 6 list: the variable of a for-each loop
+colls: erased: 6 map: assigned the result of Builder.buildOrThrow
+colls: erased: 6 set: assigned the result of Builder.build
+colls: erased: 5 list: assigned the result of ImmutableList.copyOf
+colls: erased: 5 map: assigned the result of Outcome.get
+colls: erased: 5 set: assigned the result of Map.keySet
+colls: erased: 5 set: assigned the result of SimpleSetMultimap.get
+colls: erased: 4 list: an annotated field (read by a library)
+colls: erased: 4 list: assigned the result of List.subList
+colls: erased: 4 list: assigned the result of Requirement.getValueList
+colls: erased: 4 list: used in MEMBER_REFERENCE
+colls: erased: 4 map: assigned a new ConcurrentHashMap
+colls: erased: 4 map: assigned a new TreeMap
+colls: erased: 4 map: assigned the result of Map.get
+colls: erased: 3 list: assigned the result of LinkedHashMap.get
+colls: erased: 3 list: assigned the result of Lists.reverse
+colls: erased: 3 list: assigned the result of Ordering.sortedCopy
+colls: erased: 3 list: assigned the result of SimpleListMultimap.get
+colls: erased: 3 list: method List.subList
+colls: erased: 3 list: read at another instantiation of its type variables
+colls: erased: 3 map: assigned the result of Builder.getProp
+colls: erased: 3 map: assigned the result of Map.computeIfAbsent
+colls: erased: 3 set: assigned the result of ImmutableSet.copyOf
+colls: erased: 2 deque: exchanges values with an erased declaration
+colls: erased: 2 list: assigned the result of Arrays.asList
+colls: erased: 2 list: assigned the result of Builder.getPropWithDefault
+colls: erased: 2 list: assigned the result of HashMap.computeIfAbsent
+colls: erased: 2 list: assigned the result of LinkedDirectedGraph.getEdgesInDirection
+colls: erased: 2 list: assigned the result of ManagementFactory.getMemoryPoolMXBeans
+colls: erased: 2 list: assigned the result of Map.get
+colls: erased: 2 list: assigned the result of PolymerPassStaticUtils.extractProperties
+colls: erased: 2 list: assigned the result of Supplier.get
+colls: erased: 2 list: assigned the result of UnionTypeProto.getUnionMemberList
+colls: erased: 2 list: used in CASE
+colls: erased: 2 map: assigned a TYPE_CAST
+colls: erased: 2 map: used in MEMBER_REFERENCE
+colls: erased: 2 set: a record component
+colls: erased: 2 set: assigned the result of AbstractCompiler.getExternProperties
+colls: erased: 2 set: assigned the result of CompilerOptions.getPropertyReservedNamingFirstChars
+colls: erased: 2 set: assigned the result of CompilerOptions.getPropertyReservedNamingNonFirstChars
+colls: erased: 2 set: assigned the result of LinkedHashMap.keySet
+colls: erased: 2 set: assigned the result of Map.computeIfAbsent
+colls: erased: 2 set: assigned the result of Map.get
+colls: erased: 2 set: assigned the result of Sets.newLinkedHashSetWithExpectedSize
+colls: erased: 1 deque: assigned a new LinkedList
+colls: erased: 1 deque: assigned a new PriorityQueue
+colls: erased: 1 deque: assigned the result of Map.computeIfAbsent
+colls: erased: 1 deque: assigned the result of Map.get
+colls: erased: 1 list: assigned a SWITCH_EXPRESSION
+colls: erased: 1 list: assigned a new CopyOnWriteArrayList
+colls: erased: 1 list: assigned the result of Builder.getProp
+colls: erased: 1 list: assigned the result of Collections.nCopies
+colls: erased: 1 list: assigned the result of CommandLineRunner.loadConformanceConfigs
+colls: erased: 1 list: assigned the result of CommentRecorder.getComments
+colls: erased: 1 list: assigned the result of CompilerOptions.getReplaceStringsFunctionDescriptions
+colls: erased: 1 list: assigned the result of Flags.addMultiFlagValue
+colls: erased: 1 list: assigned the result of FunctionTypeBuilder.buildTemplateTypesFromJSDocInfo
+colls: erased: 1 list: assigned the result of HashMap.remove
+colls: erased: 1 list: assigned the result of ImmutableList.reverse
+colls: erased: 1 list: assigned the result of JSChunk.getInputs
+colls: erased: 1 list: assigned the result of JSCompilerStateProto.getAllowableFeaturesList
+colls: erased: 1 list: assigned the result of JSCompilerStateProto.getStringMapList
+colls: erased: 1 list: assigned the result of JSCompilerStateProto.getUniqueIdSupplierList
+colls: erased: 1 list: assigned the result of JSTypeRegistry.createOptionalParameters
+colls: erased: 1 list: assigned the result of JSTypeRegistry.createParametersWithVarArgs
+colls: erased: 1 list: assigned the result of JsMessage.getGenderedMessageParts
+colls: erased: 1 list: assigned the result of LinkedDiGraphNode.getInEdges
+colls: erased: 1 list: assigned the result of LinkedDiGraphNode.getOutEdges
+colls: erased: 1 list: assigned the result of List.get
+colls: erased: 1 list: assigned the result of ManagementFactory.getGarbageCollectorMXBeans
+colls: erased: 1 list: assigned the result of ObjectTypeProto.getInstanceTypeList
+colls: erased: 1 list: assigned the result of ObjectTypeProto.getPrototypeList
+colls: erased: 1 list: assigned the result of PassListBuilder.build
+colls: erased: 1 list: assigned the result of PolymerBehaviorExtractor.getBehaviorFunctionsToCopy
+colls: erased: 1 list: assigned the result of PolymerBehaviorExtractor.getNonPropertyMembersToCopy
+colls: erased: 1 list: assigned the result of RequirementScopeEntry.getRegexpList
+colls: erased: 1 list: assigned the result of SortedDependencies.getSortedList
+colls: erased: 1 list: assigned the result of SortedDependencies.getStrongDependenciesOf
+colls: erased: 1 list: assigned the result of SourceFilePool.getSourceFileList
+colls: erased: 1 list: assigned the result of StringPoolProto.getStringsList
+colls: erased: 1 list: assigned the result of Timeline.getSince
+colls: erased: 1 list: of a method named by a method reference
+colls: erased: 1 list: reaches a place of type ArrayList
+colls: erased: 1 map: assigned the result of CompilerOptions.getDefineReplacements
+colls: erased: 1 map: assigned the result of DependencyInfo.getLoadFlags
+colls: erased: 1 map: assigned the result of DiagnosticGroups.getRegisteredGroups
+colls: erased: 1 map: assigned the result of InputForBuildJsMsg.getPlaceholderExampleMap
+colls: erased: 1 map: assigned the result of InputForBuildJsMsg.getPlaceholderOriginalCodeMap
+colls: erased: 1 map: assigned the result of Maps.newLinkedHashMapWithExpectedSize
+colls: erased: 1 map: assigned the result of Objects.requireNonNull
+colls: erased: 1 map: assigned the result of ReplaceMessages.extractPlaceholderValuesMapOrThrow
+colls: erased: 1 map: assigned the result of RewriteJsonToModule.getPackageJsonMainEntries
+colls: erased: 1 map: assigned the result of SimpleBiMap.inverse
+colls: erased: 1 map: assigned the result of SimpleListMultimap.asMap
+colls: erased: 1 map: assigned the result of SimpleTable.row
+colls: erased: 1 map: assigned the result of Supplier.get
+colls: erased: 1 map: reaches a place of type LinkedHashMap
+colls: erased: 1 map: the variable of a for-each loop
+colls: erased: 1 set: assigned a new 
+colls: erased: 1 set: assigned the result of CompilerOptions.getCssRenamingSkiplist
+colls: erased: 1 set: assigned the result of CompilerOptions.getExtraAnnotationNames
+colls: erased: 1 set: assigned the result of Entry.getValue
+colls: erased: 1 set: assigned the result of EnumSet.of
+colls: erased: 1 set: assigned the result of FunctionArgumentInjector.findModifiedParameters
+colls: erased: 1 set: assigned the result of FunctionState.getNamesToAlias
+colls: erased: 1 set: assigned the result of IcuTemplateOptions.getPlaceholderNames
+colls: erased: 1 set: assigned the result of LinkedIdentityHashMap.computeIfAbsent
+colls: erased: 1 set: assigned the result of Map.getOrDefault
+colls: erased: 1 set: assigned the result of Outcome.get
+colls: erased: 1 set: assigned the result of ParserRunner.getSuppressionNames
+colls: erased: 1 set: assigned the result of Sets.difference
+colls: erased: 1 set: assigned the result of Sets.intersection
+colls: erased: 1 set: assigned the result of Sets.newIdentityHashSet
+colls: erased: 1 set: assigned the result of Sets.union
+colls: erased: 1 set: assigned the result of SimpleMultiset.elementSet
+colls: erased: 1 set: assigned the result of TreeSet.tailSet
+colls: erased: 1 set: method SequencedCollection.getFirst
+colls: erased: 1 set: named by a method reference
+colls: erased: 1 set: the variable of a for-each loop
+colls: erased: 1 set: used in MEMBER_REFERENCE
+colls: typed element: 191 set of [java.lang.String]
+colls: typed element: 126 list of [com.google.javascript.rhino.Node]
+colls: typed element: 122 list of [java.lang.String]
+colls: typed element: 40 map of [java.lang.String, com.google.javascript.rhino.Node]
+colls: typed element: 38 map of [java.lang.String, java.lang.String]
+colls: typed element: 35 set of [com.google.javascript.rhino.Node]
+colls: typed element: 20 deque of [com.google.javascript.rhino.Node]
+colls: typed element: 18 set of [com.google.javascript.jscomp.Var]
+colls: typed element: 17 map of [java.lang.String, com.google.javascript.jscomp.Var]
+colls: typed element: 16 map of [java.lang.String, java.lang.Object]
+colls: typed element: 16 set of [com.google.javascript.jscomp.GlobalNamespace.AstChange]
+colls: typed element: 13 map of [java.lang.String, java.lang.Integer]
+colls: typed element: 13 set of [com.google.javascript.jscomp.modules.UnresolvedModule]
+colls: typed element: 12 list of [com.google.javascript.jscomp.SourceFile]
+colls: typed element: 11 entry of [java.lang.String, com.google.javascript.rhino.Node]
+colls: typed element: 10 list of [com.google.javascript.jscomp.AbstractCommandLineRunner.FlagEntry]
+colls: typed element: 10 list of [com.google.javascript.jscomp.PolymerPass.MemberDefinition]
+colls: typed element: 10 map of [com.google.javascript.rhino.Node, java.lang.String]
+colls: typed element: 10 map of [java.lang.String, com.google.javascript.jscomp.modules.Binding]
+colls: typed element: 10 map of [java.lang.String, com.google.javascript.rhino.jstype.JSType]
+colls: typed element: 9 list of [com.google.javascript.jscomp.Reference]
+colls: typed element: 9 list of [com.google.javascript.rhino.jstype.JSType]
+colls: typed element: 9 list of [java.lang.Integer]
+colls: typed element: 8 list of [com.google.javascript.jscomp.OptimizeParameters.Parameter]
+colls: typed element: 8 list of [com.google.javascript.jscomp.parsing.FeatureCollector.FeatureContext]
+colls: typed element: 8 map of [com.google.javascript.rhino.jstype.TemplateType, com.google.javascript.rhino.jstype.JSType]
+colls: typed element: 8 map of [java.lang.String, com.google.javascript.jscomp.deps.DependencyInfo]
+colls: typed element: 8 set of [com.google.javascript.jscomp.modules.ExportTrace]
+colls: typed element: 7 deque of [com.google.javascript.jscomp.CrossChunkCodeMotion.DeclarationStatementGroup]
+colls: typed element: 7 map of [java.lang.String, com.google.javascript.jscomp.CompilerInput]
+colls: typed element: 7 map of [java.lang.String, com.google.javascript.jscomp.J2clPropertyInlinerPass.StaticFieldGetterSetterInliner.J2clProperty]
+colls: typed element: 7 map of [java.lang.String, com.google.javascript.jscomp.disambiguate.PropertyClustering]
+colls: typed element: 6 deque of [com.google.javascript.jscomp.CrossChunkReferenceCollector.TopLevelStatement]
+colls: typed element: 6 list of [com.google.javascript.jscomp.AbstractCommandLineRunner.JsChunkSpec]
+colls: typed element: 6 list of [com.google.javascript.jscomp.Var]
+colls: typed element: 6 list of [com.google.javascript.jscomp.graph.GraphvizGraph.GraphvizEdge]
+colls: typed element: 6 list of [com.google.javascript.jscomp.graph.GraphvizGraph.GraphvizNode]
+colls: typed element: 6 list of [com.google.javascript.rhino.jstype.ObjectType]
+colls: typed element: 6 map of [java.lang.String, com.google.javascript.jscomp.JSChunk]
+colls: typed element: 6 set of [com.google.javascript.jscomp.CompilerInput]
+colls: typed element: 5 deque of [com.google.javascript.jscomp.ClosureRewriteModule.ScriptDescription]
+colls: typed element: 5 list of [com.google.javascript.jscomp.CompilerInput]
+colls: typed element: 5 list of [com.google.javascript.jscomp.JSChunk]
+colls: typed element: 5 list of [com.google.javascript.jscomp.JsMessage.Part]
+colls: typed element: 5 list of [com.google.javascript.jscomp.SourceMap.Mapping]
+colls: typed element: 5 list of [com.google.javascript.jscomp.deps.DependencyInfo.Require]
+colls: typed element: 5 list of [com.google.javascript.jscomp.graph.LinkedDirectedGraph.LinkedDiGraphEdge<N,E>]
+colls: typed element: 5 list of [com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats]
+colls: typed element: 5 list of [com.google.javascript.refactoring.SuggestedFix]
+colls: typed element: 5 list of [com.google.javascript.rhino.jstype.FunctionType]
+colls: typed element: 5 map of [com.google.javascript.jscomp.PolymerPass.MemberDefinition, com.google.javascript.jscomp.PolymerBehaviorExtractor.BehaviorDefinition]
+colls: typed element: 5 map of [com.google.javascript.rhino.jstype.Property.Key, com.google.javascript.rhino.jstype.ObjectType]
+colls: typed element: 5 map of [java.lang.String, com.google.javascript.jscomp.ProcessClosureProvidesAndRequires.ProvidedName]
+colls: typed element: 5 map of [java.lang.String, com.google.javascript.jscomp.ProcessTweaks.TweakInfo]
+colls: typed element: 5 map of [java.lang.String, com.google.javascript.jscomp.instrumentation.FileInstrumentationData]
+colls: typed element: 5 map of [java.lang.String, java.util.Set]
+colls: typed element: 5 set of [com.google.javascript.jscomp.colors.Color]
+colls: typed element: 5 set of [com.google.javascript.rhino.jstype.ObjectType]
+colls: typed element: 5 set of [java.lang.Character]
+colls: typed element: 5 set of [java.lang.Integer]
+colls: typed element: 4 deque of [com.google.javascript.jscomp.CrossChunkCodeMotion.GlobalSymbol]
+colls: typed element: 4 deque of [com.google.javascript.jscomp.graph.Graph.GraphAnnotationState]
+colls: typed element: 4 entry of [java.lang.String, com.google.javascript.jscomp.base.SimpleJsonValue]
+colls: typed element: 4 list of [com.google.javascript.jscomp.GlobalNamespace.Name]
+colls: typed element: 4 list of [com.google.javascript.jscomp.ScopedAliases.AliasUsage]
+colls: typed element: 4 list of [com.google.javascript.jscomp.graph.GraphNode<N,E>]
+colls: typed element: 4 list of [com.google.javascript.jscomp.lint.CheckRequiresSorted.ImportStatement]
+colls: typed element: 4 list of [com.google.javascript.jscomp.modules.Export]
+colls: typed element: 4 list of [com.google.javascript.rhino.jstype.FunctionType.Parameter]
+colls: typed element: 4 list of [java.lang.Object]
+colls: typed element: 4 list of [java.util.Map.Entry]
+colls: typed element: 4 map of [com.google.javascript.jscomp.colors.ColorId, com.google.javascript.jscomp.colors.Color]
+colls: typed element: 4 map of [java.lang.String, com.google.javascript.jscomp.InlineFunctions.FunctionState]
+colls: typed element: 4 map of [java.lang.String, com.google.javascript.jscomp.SourceFile]
+colls: typed element: 4 map of [java.lang.String, java.util.ArrayList]
+colls: typed element: 4 map of [java.lang.String, java.util.Map]
+colls: typed element: 4 set of [com.google.javascript.jscomp.js.RuntimeJsLibManager.ExternedField]
+colls: typed element: 3 deque of [com.google.javascript.jscomp.Es6RewriteGenerators.SingleGeneratorFunctionTranspiler.TranspilationContext.Case]
+colls: typed element: 3 deque of [java.lang.String]
+colls: typed element: 3 entry of [java.lang.String, java.lang.String]
+colls: typed element: 3 list of [com.google.javascript.jscomp.AbstractPeepholeTranspilation]
+colls: typed element: 3 list of [com.google.javascript.jscomp.CrossChunkCodeMotion.DeclarationStatementGroupCycle]
+colls: typed element: 3 list of [com.google.javascript.jscomp.GlobalNamespace.Ref]
+colls: typed element: 3 list of [com.google.javascript.jscomp.J2clPass.InlineSpec]
+colls: typed element: 3 list of [com.google.javascript.jscomp.NodeTraversal.Callback]
+colls: typed element: 3 list of [com.google.javascript.jscomp.PassFactory]
+colls: typed element: 3 list of [com.google.javascript.jscomp.ProcessCommonJSModules.ExportInfo]
+colls: typed element: 3 list of [com.google.javascript.jscomp.ReplaceCssNames.GetCssNameInstance]
+colls: typed element: 3 list of [com.google.javascript.jscomp.Requirement]
+colls: typed element: 3 list of [com.google.javascript.jscomp.SymbolTable.Symbol]
+colls: typed element: 3 list of [com.google.javascript.jscomp.deps.DependencyInfo]
+colls: typed element: 3 list of [com.google.javascript.jscomp.disambiguate.AmbiguateProperties.PropertyGraphNode]
+colls: typed element: 3 list of [com.google.javascript.jscomp.parsing.JsDocInfoParser.ExtendedTypeInfo]
+colls: typed element: 3 list of [com.google.javascript.jscomp.serialization.ScriptNodeDeserializer]
+colls: typed element: 3 map of [com.google.javascript.jscomp.JSChunk, java.util.Set]
+colls: typed element: 3 map of [com.google.javascript.jscomp.WarningsGuard, java.lang.Integer]
+colls: typed element: 3 map of [com.google.javascript.jscomp.colors.Color, com.google.javascript.jscomp.disambiguate.ColorGraphNode]
+colls: typed element: 3 map of [java.lang.String, com.google.javascript.jscomp.AnalyzePrototypeProperties.NameInfo]
+colls: typed element: 3 map of [java.lang.String, com.google.javascript.jscomp.Es6RewriteClass.ClassProperty]
+colls: typed element: 3 map of [java.lang.String, com.google.javascript.jscomp.GlobalNamespace.Name]
+colls: typed element: 3 set of [com.google.javascript.jscomp.PhaseOptimizer.NamedPass]
+colls: typed element: 2 deque of [InputT]
+colls: typed element: 2 deque of [com.google.javascript.jscomp.AnalyzePrototypeProperties.Symbol]
+colls: typed element: 2 deque of [com.google.javascript.jscomp.BasicBlock]
+colls: typed element: 2 deque of [com.google.javascript.jscomp.CrossChunkCodeMotion.GlobalSymbolCycle]
+colls: typed element: 2 deque of [com.google.javascript.jscomp.GlobalNamespace.Name]
+colls: typed element: 2 deque of [com.google.javascript.rhino.jstype.JSType]
+colls: typed element: 2 entry of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.MustBeReachingVariableDef.Definition]
+colls: typed element: 2 entry of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.disambiguate.ColorGraphNode]
+colls: typed element: 2 entry of [com.google.javascript.rhino.jstype.TemplateType, com.google.javascript.rhino.jstype.JSType]
+colls: typed element: 2 entry of [java.lang.String, java.lang.Integer]
+colls: typed element: 2 entry of [java.lang.String, java.lang.Object]
+colls: typed element: 2 list of [InputT]
+colls: typed element: 2 list of [com.google.common.util.concurrent.ListenableFuture]
+colls: typed element: 2 list of [com.google.debugging.sourcemap.SourceMapSection]
+colls: typed element: 2 list of [com.google.javascript.jscomp.AbstractCommandLineRunner.JsonFileSpec]
+colls: typed element: 2 list of [com.google.javascript.jscomp.AbstractPeepholeOptimization]
+colls: typed element: 2 list of [com.google.javascript.jscomp.CmdLineParser.Option]
+colls: typed element: 2 list of [com.google.javascript.jscomp.CrossChunkReferenceCollector.TopLevelStatement]
+colls: typed element: 2 list of [com.google.javascript.jscomp.ProcessCommonJSModules.UmdPattern]
+colls: typed element: 2 list of [com.google.javascript.jscomp.RemoveUnusedCode.Continuation]
+colls: typed element: 2 list of [com.google.javascript.jscomp.SortingErrorManager.ErrorReportGenerator]
+colls: typed element: 2 list of [com.google.javascript.jscomp.UniqueIdProto]
+colls: typed element: 2 list of [com.google.javascript.jscomp.VariableMapEntryProto]
+colls: typed element: 2 list of [com.google.javascript.jscomp.base.SimpleJsonValue]
+colls: typed element: 2 list of [com.google.javascript.jscomp.deps.DependencyFile]
+colls: typed element: 2 list of [com.google.javascript.jscomp.graph.LinkedDirectedGraph.LinkedDiGraphNode<N,E>]
+colls: typed element: 2 list of [com.google.javascript.jscomp.graph.UndiGraph.UndiGraphEdge<N,E>]
+colls: typed element: 2 list of [com.google.javascript.jscomp.instrumentation.reporter.proto.ReportProfile]
+colls: typed element: 2 list of [com.google.javascript.refactoring.Match]
+colls: typed element: 2 list of [java.util.ArrayList]
+colls: typed element: 2 list of [java.util.List]
+colls: typed element: 2 map of [com.google.javascript.jscomp.JSChunk, com.google.javascript.rhino.Node]
+colls: typed element: 2 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.MustBeReachingVariableDef.Definition]
+colls: typed element: 2 map of [com.google.javascript.jscomp.disambiguate.PropertyClustering, com.google.javascript.jscomp.disambiguate.ColorGraphNode.PropAssociation]
+colls: typed element: 2 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.disambiguate.ColorGraphNode]
+colls: typed element: 2 map of [com.google.javascript.rhino.Node, com.google.javascript.rhino.Node]
+colls: typed element: 2 map of [com.google.javascript.rhino.Node, java.lang.Boolean]
+colls: typed element: 2 map of [com.google.javascript.rhino.Node, java.lang.Integer]
+colls: typed element: 2 map of [java.lang.String, InputT]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.DiagnosticGroup]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.Requirement.Builder]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.SymbolTable.SymbolScope]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.SymbolTable.Symbol]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.base.SimpleBiMap]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.base.SimpleJsonValue]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.modules.Module]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.modules.ResolveExportResult]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.jscomp.modules.UnresolvedModule]
+colls: typed element: 2 map of [java.lang.String, com.google.javascript.rhino.JSDocInfo]
+colls: typed element: 2 set of [com.google.javascript.jscomp.CrossChunkCodeMotion.GlobalSymbol]
+colls: typed element: 2 set of [com.google.javascript.jscomp.DeadPropertyAssignmentElimination.Property]
+colls: typed element: 2 set of [com.google.javascript.jscomp.GlobalNamespace.Name]
+colls: typed element: 2 set of [com.google.javascript.jscomp.JSChunk]
+colls: typed element: 2 set of [com.google.javascript.jscomp.MakeDeclaredNamesUnique.ContextualRenameInverter.VariableInfo]
+colls: typed element: 2 set of [com.google.javascript.jscomp.colors.ColorId]
+colls: typed element: 2 set of [com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature]
+colls: typed element: 2 set of [com.google.javascript.rhino.jstype.FunctionType]
+colls: typed element: 2 set of [com.google.javascript.rhino.jstype.JSType]
+colls: typed element: 2 set of [com.google.javascript.rhino.jstype.PropertyMap]
+colls: typed element: 1 deque of [com.google.debugging.sourcemap.SourceMapGeneratorV3.Mapping]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.AnalyzePrototypeProperties.NameContext]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.CheckSuper.Context]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.CrossChunkCodeMotion.InstanceofReference]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.DeadAssignmentsElimination.BailoutInformation]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.DeadPropertyAssignmentElimination.PropertyWrite]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.DeadPropertyAssignmentElimination.Property]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.Es6ConvertSuperConstructorCalls.ConstructorData]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.Es6NormalizeClasses.ClassRecord]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.Es6RewriteDestructuring.PatternNestingLevel]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.Es6RewriteGenerators.SingleGeneratorFunctionTranspiler.TranspilationContext.CatchCase]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.GuardedCallback.Context]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.J2clClinitPrunerPass.HierarchicalSet<java.lang.String>]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.JSChunk]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.LiveVariablesAnalysis]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.MakeDeclaredNamesUnique.ContextualRenameInverter.ScopeContext]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.MakeDeclaredNamesUnique.Renamer]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.OptionalChainRewriter]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.PerformanceTracker.Stats]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.PureFunctionIdentifier.FunctionBodyAnalyzer.FunctionStackEntry]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.RemoveUnusedCode.Continuation]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.RenameLabels.LabelNamespace]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.RewriteAsyncFunctions.LexicalContext]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.RewriteAsyncIteration.LexicalContext]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.SourceFile]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.SourceMap.Mapping]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.ThisAndArgumentsReferenceUpdater.ThisAndArgumentsContext]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.TypeInference.OptChainInfo]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.colors.ColorId]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.graph.DiGraph.DiGraphNode<N,E>]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.graph.GraphColoring<com.google.javascript.jscomp.Var,java.lang.Void>]
+colls: typed element: 1 deque of [com.google.javascript.jscomp.parsing.parser.Parser.FunctionFlavor]
+colls: typed element: 1 deque of [com.google.javascript.rhino.HamtPMap<K,V>]
+colls: typed element: 1 deque of [java.lang.Boolean]
+colls: typed element: 1 deque of [java.lang.Object]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.DiagnosticType, java.lang.String]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.JSChunk, com.google.javascript.jscomp.ExtractPrototypeMemberDeclarations.ExtractionInstanceInfo]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.JSChunk, java.util.Map]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.JSChunk, java.util.Set]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.JsMessage.GrammaticalGenderCase, java.util.List]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.PolymerPass.MemberDefinition, com.google.javascript.jscomp.PolymerBehaviorExtractor.BehaviorDefinition]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.Requirement.Builder, com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.RemoveUnusedCode.VarInfo]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.disambiguate.PropertyClustering, com.google.javascript.jscomp.disambiguate.ColorGraphNode.PropAssociation]
+colls: typed element: 1 entry of [com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint, java.lang.Long]
+colls: typed element: 1 entry of [com.google.javascript.rhino.Node, com.google.javascript.rhino.Node]
+colls: typed element: 1 entry of [com.google.javascript.rhino.Node, java.lang.String]
+colls: typed element: 1 entry of [com.google.javascript.rhino.jstype.Property.Key, com.google.javascript.rhino.jstype.ObjectType]
+colls: typed element: 1 entry of [java.lang.String, com.google.javascript.jscomp.InlineFunctions.FunctionState]
+colls: typed element: 1 entry of [java.lang.String, com.google.javascript.jscomp.Tracer.Stat]
+colls: typed element: 1 entry of [java.lang.String, com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint]
+colls: typed element: 1 entry of [java.lang.String, java.util.ArrayList]
+colls: typed element: 1 entry of [java.lang.String, java.util.List]
+colls: typed element: 1 entry of [java.lang.String, java.util.Map]
+colls: typed element: 1 list of [N]
+colls: typed element: 1 list of [T]
+colls: typed element: 1 list of [com.google.common.collect.ImmutableList]
+colls: typed element: 1 list of [com.google.debugging.sourcemap.SourceMapGeneratorV3.Mapping]
+colls: typed element: 1 list of [com.google.javascript.jscomp.AnalyzePrototypeProperties.NameInfo]
+colls: typed element: 1 list of [com.google.javascript.jscomp.AngularPass.NodeContext]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ClosureCodeRemoval.RemovableAssignment]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ClosureRewriteModule.UnrecognizedRequire]
+colls: typed element: 1 list of [com.google.javascript.jscomp.CodeChangeHandler]
+colls: typed element: 1 list of [com.google.javascript.jscomp.CollapseVariableDeclarations.Collapse]
+colls: typed element: 1 list of [com.google.javascript.jscomp.CompilerPass]
+colls: typed element: 1 list of [com.google.javascript.jscomp.CreateSyntheticBlocks.Marker]
+colls: typed element: 1 list of [com.google.javascript.jscomp.Es6NormalizeClasses.ClassRecord.PrivateMember]
+colls: typed element: 1 list of [com.google.javascript.jscomp.Es6RewriteGenerators.SingleGeneratorFunctionTranspiler.TranspilationContext.Case]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ExternExportsPass.Export]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ExtractPrototypeMemberDeclarations.ExtractionInstance]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ExtractPrototypeMemberDeclarations.PrototypeMemberDeclaration]
+colls: typed element: 1 list of [com.google.javascript.jscomp.JSError]
+colls: typed element: 1 list of [com.google.javascript.jscomp.JsMessage]
+colls: typed element: 1 list of [com.google.javascript.jscomp.OptionalChainRewriter]
+colls: typed element: 1 list of [com.google.javascript.jscomp.PerformanceTracker.Stats]
+colls: typed element: 1 list of [com.google.javascript.jscomp.PhaseOptimizer.NamedPass]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ProcessTweaks.TweakFunctionCall]
+colls: typed element: 1 list of [com.google.javascript.jscomp.RemoveUnusedCode.Removable]
+colls: typed element: 1 list of [com.google.javascript.jscomp.RenameVars.Assignment]
+colls: typed element: 1 list of [com.google.javascript.jscomp.RescopeGlobalSymbolsRewriteCallback.ChunkGlobal]
+colls: typed element: 1 list of [com.google.javascript.jscomp.Scope]
+colls: typed element: 1 list of [com.google.javascript.jscomp.Tracer.Event]
+colls: typed element: 1 list of [com.google.javascript.jscomp.TypeMismatch]
+colls: typed element: 1 list of [com.google.javascript.jscomp.TypedScopeCreator.WeakModuleImport]
+colls: typed element: 1 list of [com.google.javascript.jscomp.TypedVar]
+colls: typed element: 1 list of [com.google.javascript.jscomp.base.LinkedIdentityHashMap.Entry<K,V>]
+colls: typed element: 1 list of [com.google.javascript.jscomp.colors.Color]
+colls: typed element: 1 list of [com.google.javascript.jscomp.deps.BrowserWithTransformedPrefixesModuleResolver.PrefixReplacement]
+colls: typed element: 1 list of [com.google.javascript.jscomp.disambiguate.DisambiguateProperties.TypeNodeJson]
+colls: typed element: 1 list of [com.google.javascript.jscomp.graph.Graph.GraphEdge<N,E>]
+colls: typed element: 1 list of [com.google.javascript.jscomp.ijs.PotentialDeclaration]
+colls: typed element: 1 list of [com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile]
+colls: typed element: 1 list of [com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint.Type]
+colls: typed element: 1 list of [com.google.javascript.jscomp.lint.CheckRequiresSorted.DestructuringBinding]
+colls: typed element: 1 list of [com.google.javascript.jscomp.parsing.parser.Token]
+colls: typed element: 1 list of [com.google.javascript.jscomp.parsing.parser.trees.Comment]
+colls: typed element: 1 list of [com.google.javascript.jscomp.regex.RegExpTree]
+colls: typed element: 1 list of [com.google.javascript.rhino.jstype.NamedType.PropertyContinuation]
+colls: typed element: 1 list of [com.google.javascript.rhino.jstype.TemplateType]
+colls: typed element: 1 list of [com.google.re2j.Pattern]
+colls: typed element: 1 list of [java.lang.Character]
+colls: typed element: 1 map of [com.google.javascript.jscomp.CheckConformance.Rule, com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+colls: typed element: 1 map of [com.google.javascript.jscomp.DiagnosticType, com.google.javascript.jscomp.DiagnosticGroup]
+colls: typed element: 1 map of [com.google.javascript.jscomp.DiagnosticType, java.lang.String]
+colls: typed element: 1 map of [com.google.javascript.jscomp.JSChunk, com.google.javascript.jscomp.ExtractPrototypeMemberDeclarations.ExtractionInstanceInfo]
+colls: typed element: 1 map of [com.google.javascript.jscomp.JSChunk, java.util.Map]
+colls: typed element: 1 map of [com.google.javascript.jscomp.JSError, com.google.javascript.refactoring.SuggestedFix]
+colls: typed element: 1 map of [com.google.javascript.jscomp.JsMessage.GrammaticalGenderCase, java.util.List]
+colls: typed element: 1 map of [com.google.javascript.jscomp.PhaseOptimizer.NamedPass, java.lang.Integer]
+colls: typed element: 1 map of [com.google.javascript.jscomp.ProcessCommonJSModules.ExportInfo, com.google.javascript.jscomp.ProcessCommonJSModules.ExportInfo]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Requirement, com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Requirement.Builder, com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+colls: typed element: 1 map of [com.google.javascript.jscomp.SourceFile, java.lang.Integer]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Timeline.Time, com.google.javascript.jscomp.Timeline.Event]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.ClosureRewriteModule.ExportDefinition]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.CrossChunkCodeMotion.GlobalSymbol]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.InlineVariables.InlineVarAnalysis]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.JsMessage]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.ReferenceCollection]
+colls: typed element: 1 map of [com.google.javascript.jscomp.Var, com.google.javascript.jscomp.RemoveUnusedCode.VarInfo]
+colls: typed element: 1 map of [com.google.javascript.jscomp.colors.ColorId, com.google.javascript.jscomp.serialization.JSTypeReconserializer.SeenTypeRecord]
+colls: typed element: 1 map of [com.google.javascript.jscomp.colors.ColorId, java.lang.Integer]
+colls: typed element: 1 map of [com.google.javascript.jscomp.disambiguate.ColorGraphNode, java.lang.Integer]
+colls: typed element: 1 map of [com.google.javascript.jscomp.graph.DiGraph.DiGraphNode<N,E>, com.google.javascript.jscomp.graph.LowestCommonAncestorFinder.Color]
+colls: typed element: 1 map of [com.google.javascript.jscomp.instrumentation.FileInstrumentationData.BranchIndexPair, com.google.javascript.rhino.Node]
+colls: typed element: 1 map of [com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint, com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats.Presence]
+colls: typed element: 1 map of [com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint, java.lang.Long]
+colls: typed element: 1 map of [com.google.javascript.jscomp.modules.Module, com.google.javascript.jscomp.modules.Module]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.Es6RewriteBlockScopedDeclaration.LoopClosureTransformer.LoopObject]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.GlobalNamespace.Ref]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.InlineFunctions.Reference]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.InstrumentAsyncContext.FunctionContext]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.SymbolTable.Reference]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.jscomp.SymbolTable.SymbolScope]
+colls: typed element: 1 map of [com.google.javascript.rhino.Node, com.google.javascript.refactoring.ScriptMetadata]
+colls: typed element: 1 map of [com.google.javascript.rhino.jstype.EqualityChecker.CacheKey, com.google.javascript.rhino.jstype.JSType.MatchStatus]
+colls: typed element: 1 map of [com.google.javascript.rhino.jstype.SubtypeChecker.CacheKey, com.google.javascript.rhino.jstype.JSType.MatchStatus]
+colls: typed element: 1 map of [java.lang.Integer, com.google.javascript.jscomp.base.SimpleMultiset]
+colls: typed element: 1 map of [java.lang.Integer, java.lang.Integer]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.AbstractVar]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.AccessorSummary.PropertyAccessKind]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ClosureExportTypeClassifier.NameInfo]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ClosureRewriteModule.AliasName]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ClosureRewriteModule.ScriptDescription]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.CompilerInput.ModuleType]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ConcretizeStaticInheritanceForInlining.JavascriptClass]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.DeadPropertyAssignmentElimination.Property]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.Es6NormalizeClasses.ClassRecord.PrivateMember]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.Es6RewriteGenerators.SingleGeneratorFunctionTranspiler.TranspilationContext.LabelCases]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.InlineProperties.PropertyInfo]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.J2clPass.ClassStaticFunctionsInliner.InlinableFunction]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.JsMessageVisitor.MessageLocation]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.JsMessage]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ModuleRenaming.GlobalizedModuleName]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.PerformanceTracker.Stats]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.PolymerBehaviorExtractor.ResolveBehaviorNameResult]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.PolymerPass.MemberDefinition]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ProcessDefines.Define]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ProcessTweaks.TweakFunction]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.PureFunctionIdentifier.AmbiguatedFunctionSummary]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.RenameLabels.LabelInfo]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.RenameProperties.Property]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.RenameVars.Assignment]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.RenamingMap]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ReplaceIdGenerators.NameSupplier]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ReplaceStrings.Config]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.ReplaceStrings.Result]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.RewriteAsyncFunctions.SuperPropertyWrapperInfo]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.RewriteCallerCodeLocation.FunctionVarAndParamPosition]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.Tracer.Stat]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.base.ZipArchive.Opened]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.disambiguate.AmbiguateProperties.Property]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.js.RuntimeJsLibManager.InternalField]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.modules.ClosureRequireProcessor.Require]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.modules.Export]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.jscomp.modules.Import]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.rhino.jstype.JSTypeRegistry.ClosureNamespace]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.rhino.jstype.RecordTypeBuilder.RecordProperty]
+colls: typed element: 1 map of [java.lang.String, com.google.javascript.rhino.jstype.SimpleSlot]
+colls: typed element: 1 map of [java.lang.String, java.lang.Boolean]
+colls: typed element: 1 map of [java.lang.String, java.lang.Long]
+colls: typed element: 1 map of [java.lang.String, java.util.Deque]
+colls: typed element: 1 map of [java.lang.String, java.util.List]
+colls: typed element: 1 map of [java.lang.String, java.util.function.Supplier]
+colls: typed element: 1 set of [com.google.javascript.jscomp.BasicBlock]
+colls: typed element: 1 set of [com.google.javascript.jscomp.CmdLineParser.Option]
+colls: typed element: 1 set of [com.google.javascript.jscomp.Es6RewriteModulesToCommonJsModules.ModuleRequest]
+colls: typed element: 1 set of [com.google.javascript.jscomp.FlowSensitiveInlineVariables.Candidate]
+colls: typed element: 1 set of [com.google.javascript.jscomp.JSError]
+colls: typed element: 1 set of [com.google.javascript.jscomp.ScopedName]
+colls: typed element: 1 set of [com.google.javascript.jscomp.SymbolTable.SymbolScope]
+colls: typed element: 1 set of [com.google.javascript.jscomp.Tracer]
+colls: typed element: 1 set of [com.google.javascript.jscomp.TypedScope]
+colls: typed element: 1 set of [com.google.javascript.jscomp.base.SimpleSetMultimap.Entry]
+colls: typed element: 1 set of [com.google.javascript.jscomp.parsing.parser.trees.Comment]
+colls: typed element: 1 set of [com.google.javascript.jscomp.regex.CharRanges]
+colls: typed element: 1 set of [com.google.javascript.jscomp.serialization.JSTypeReconserializer.SeenTypeRecord]
+colls: typed element: 1 set of [com.google.javascript.rhino.JSDocInfo]
+colls: typed element: 1 set of [com.google.javascript.rhino.jstype.KnownSymbolType]
+stubs: types=168 methods=22 funcs=0
+units=808 classes=2009 externals=1137 unsupported=0
+
+real	0m21.471s
+user	0m42.638s
+sys	0m1.535s

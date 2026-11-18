@@ -1,0 +1,12 @@
+  bundle java wall=29.29 cpu=67.54 round=0 load=1.99
+  bundle m8 wall=25.07 cpu=28.46 round=0 load=1.83
+  bundle r7 wall=26.45 cpu=30.36 round=0 load=1.50
+  bundle r7 wall=27.56 cpu=31.58 round=1 load=1.33
+  bundle m8 wall=28.04 cpu=30.57 round=1 load=2.16
+  bundle java wall=37.65 cpu=75.64 round=1 load=4.10
+  bundle java wall=32.99 cpu=69.57 round=2 load=3.76
+  bundle m8 wall=25.89 cpu=29.18 round=2 load=3.45
+  bundle r7 wall=26.85 cpu=30.04 round=2 load=3.64
+  bundle r7 wall=27.68 cpu=29.95 round=3 load=3.40
+  bundle m8 wall=35.14 cpu=37.29 round=3 load=4.01
+  bundle java wall=33.90 cpu=74.03 round=3 load=4.60

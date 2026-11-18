@@ -1,0 +1,8 @@
+  bundle java wall=27.29 cpu=62.61 round=0 load=2.18
+  bundle go wall=24.32 cpu=28.29 round=0 load=1.85
+  bundle go wall=24.67 cpu=28.44 round=1 load=1.61
+  bundle java wall=26.77 cpu=62.71 round=1 load=1.82
+  bundle java wall=27.63 cpu=64.41 round=2 load=2.14
+  bundle go wall=23.68 cpu=27.54 round=2 load=1.75
+  bundle go wall=24.51 cpu=28.36 round=3 load=1.49
+  bundle java wall=29.30 cpu=69.61 round=3 load=1.89

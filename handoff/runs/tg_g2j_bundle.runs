@@ -1,0 +1,8 @@
+  bundle java wall=26.67 cpu=61.69 round=0 load=1.69
+  bundle erased wall=36.09 cpu=43.08 round=0 load=1.90
+  bundle prev wall=35.98 cpu=42.64 round=0 load=1.78
+  bundle this wall=34.61 cpu=41.33 round=0 load=1.58
+  bundle this wall=36.19 cpu=42.95 round=1 load=1.32
+  bundle prev wall=36.73 cpu=43.41 round=1 load=1.18
+  bundle erased wall=37.78 cpu=45.37 round=1 load=1.09
+  bundle java wall=26.36 cpu=64.17 round=1 load=1.57

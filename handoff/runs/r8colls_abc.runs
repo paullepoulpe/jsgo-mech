@@ -1,0 +1,9 @@
+  typed-full base wall=51.98 cpu=60.20 round=0 load=3.82
+  typed-full s2 wall=57.18 cpu=62.06 round=0 load=4.61
+  typed-full s3 wall=54.28 cpu=63.38 round=0 load=3.53
+  typed-full s3 wall=49.58 cpu=60.71 round=1 load=2.41
+  typed-full s2 wall=51.34 cpu=61.21 round=1 load=2.42
+  typed-full base wall=53.31 cpu=61.58 round=1 load=3.07
+  typed-full base wall=53.56 cpu=60.33 round=2 load=3.85
+  typed-full s2 wall=51.75 cpu=59.51 round=2 load=4.24
+  typed-full s3 wall=52.54 cpu=58.88 round=2 load=4.04

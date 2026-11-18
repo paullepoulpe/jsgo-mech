@@ -1,0 +1,583 @@
+diff --git a/go/closure/rt_base.go b/go/closure/rt_base.go
+index 00e8e207..52cfd7ba 100644
+--- a/go/closure/rt_base.go
++++ b/go/closure/rt_base.go
+@@ -25,6 +25,7 @@ type Throwables struct{}
+ // lenientToString_ is Guava's Strings.lenientToString: a toString that throws
+ // is reported inside the text instead of propagating.
+ func lenientToString_(v any) (s string) {
++	v = canon_(v)
+ 	if v == nil {
+ 		return "null"
+ 	}
+@@ -121,7 +122,7 @@ func Preconditions_checkArgument(b bool) {
+ 
+ func Preconditions_checkArgument_boolean_Object(b bool, msg any) {
+ 	if !b {
+-		argFail_(objstr_(msg))
++		argFail_(objstr_(canon_(msg)))
+ 	}
+ }
+ 
+@@ -164,7 +165,7 @@ func Preconditions_checkNotNull(v any) any {
+ 
+ func Preconditions_checkNotNull_Object_Object(v any, msg any) any {
+ 	if v == nil {
+-		nullFail_(objstr_(msg))
++		nullFail_(objstr_(canon_(msg)))
+ 	}
+ 	return v
+ }
+@@ -191,7 +192,7 @@ func Preconditions_checkState(b bool) {
+ 
+ func Preconditions_checkState_boolean_Object(b bool, msg any) {
+ 	if !b {
+-		stateFail_(objstr_(msg))
++		stateFail_(objstr_(canon_(msg)))
+ 	}
+ }
+ 
+diff --git a/go/closure/rt_ptest.go b/go/closure/rt_ptest.go
+new file mode 100644
+index 00000000..3b4739a5
+--- /dev/null
++++ b/go/closure/rt_ptest.go
+@@ -0,0 +1,149 @@
++package closure
++
++import "reflect"
++
++// ptest P2 (runtime): <T> T checkNotNull(T ...) and requireNonNull(T ...) at the argument's own
++// type. _T is for a pointer, an interface or a handle (null is the zero value), _Str for a String.
++
++func Preconditions_checkNotNull_T[T comparable](v T) T {
++	var z T
++	if v == z {
++		panic(new_NullPointerException_0().self())
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Str(v string) string {
++	if v == nullstr_ {
++		panic(new_NullPointerException_0().self())
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Object_Object_T[T comparable](v T, msg any) T {
++	var z T
++	if v == z {
++		nullFail_(objstr_(canon_(msg)))
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Object_Object_Str(v string, msg any) string {
++	if v == nullstr_ {
++		nullFail_(objstr_(canon_(msg)))
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Object_String_Object_T[T comparable](v T, t string, p1 any) T {
++	var z T
++	if v == z {
++		nullFail_(Strings_lenientFormat(t, []any{p1}))
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Object_String_Object_Str(v string, t string, p1 any) string {
++	if v == nullstr_ {
++		nullFail_(Strings_lenientFormat(t, []any{p1}))
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Object_String_Object_Object_T[T comparable](v T, t string, p1 any, p2 any) T {
++	var z T
++	if v == z {
++		nullFail_(Strings_lenientFormat(t, []any{p1, p2}))
++	}
++	return v
++}
++
++func Preconditions_checkNotNull_Object_String_Object_Object_Str(v string, t string, p1 any, p2 any) string {
++	if v == nullstr_ {
++		nullFail_(Strings_lenientFormat(t, []any{p1, p2}))
++	}
++	return v
++}
++
++func Objects_requireNonNull_T[T comparable](v T, msg string) T {
++	var z T
++	if v == z {
++		panic(new_NullPointerException_String(msg).self())
++	}
++	return v
++}
++
++func Objects_requireNonNull_Str(v string, msg string) string {
++	if v == nullstr_ {
++		panic(new_NullPointerException_String(msg).self())
++	}
++	return v
++}
++
++func Objects_requireNonNull_Object_T[T comparable](v T) T {
++	var z T
++	if v == z {
++		panic(new_NullPointerException_0().self())
++	}
++	return v
++}
++
++func Objects_requireNonNull_Object_Str(v string) string {
++	if v == nullstr_ {
++		panic(new_NullPointerException_0().self())
++	}
++	return v
++}
++
++// ptest P4 (runtime): canon_ is the canonical object of a message argument that the translated
++// code passed at its own type: null for the null string and for a nil pointer, the most derived
++// object for a pointer to a class with subclasses. It runs only when a check fails.
++func canon_(v any) any {
++	switch x := v.(type) {
++	case nil:
++		return nil
++	case string:
++		return strobj_(x)
++	case interface{ self() any }:
++		if rv := reflect.ValueOf(v); rv.Kind() == reflect.Pointer && rv.IsNil() {
++			return nil
++		}
++		return x.self()
++	}
++	if rv := reflect.ValueOf(v); rv.Kind() == reflect.Pointer && rv.IsNil() {
++		return nil
++	}
++	return v
++}
++
++// ptest P4 (runtime): the message argument of a check is a handle (a Node): it is boxed only
++// when the check fails.
++
++type handle_ interface {
++	comparable
++	box_() any
++}
++
++func Preconditions_checkState_boolean_Object_H[M handle_](b bool, msg M) {
++	if !b {
++		stateFail_(objstr_(msg.box_()))
++	}
++}
++
++func Preconditions_checkArgument_boolean_Object_H[M handle_](b bool, msg M) {
++	if !b {
++		argFail_(objstr_(msg.box_()))
++	}
++}
++
++func Preconditions_checkState_boolean_String_Object_H[M handle_](b bool, t string, p1 M) {
++	if !b {
++		stateFail_(Strings_lenientFormat(t, []any{p1.box_()}))
++	}
++}
++
++func Preconditions_checkArgument_boolean_String_Object_H[M handle_](b bool, t string, p1 M) {
++	if !b {
++		argFail_(Strings_lenientFormat(t, []any{p1.box_()}))
++	}
++}
+diff --git a/go/closure/rt_ptest_test.go b/go/closure/rt_ptest_test.go
+new file mode 100644
+index 00000000..678e03e5
+--- /dev/null
++++ b/go/closure/rt_ptest_test.go
+@@ -0,0 +1,56 @@
++package closure
++
++import "testing"
++
++func msgOf_(f func()) (s string) {
++	defer func() {
++		r := recover()
++		s = to_Throwable(r).getMessage()
++	}()
++	f()
++	return
++}
++
++func TestPTestCanon(t *testing.T) {
++	var jt *JSType
++	var il *ImmutableList
++	var n Node
++	for i, v := range []any{jt, il, nullstr_, n.box_(), nil} {
++		if canon_(v) != nil {
++			t.Errorf("case %d: canon_ is not nil", i)
++		}
++	}
++	if canon_("x") != any("x") {
++		t.Errorf("string")
++	}
++	l := ImmutableList_of()
++	if canon_(l) != any(l) {
++		t.Errorf("pointer")
++	}
++}
++
++func TestPTestMessages(t *testing.T) {
++	var jt *JSType
++	var n Node
++	l := ImmutableList_of()
++	cases := []struct{ got, want string }{
++		{msgOf_(func() { Preconditions_checkState_boolean_Object(false, jt) }), msgOf_(func() { Preconditions_checkState_boolean_Object(false, obj_(jt)) })},
++		{msgOf_(func() { Preconditions_checkState_boolean_Object(false, nullstr_) }), msgOf_(func() { Preconditions_checkState_boolean_Object(false, strobj_(nullstr_)) })},
++		{msgOf_(func() { Preconditions_checkState_boolean_Object(false, "m") }), "m"},
++		{msgOf_(func() { Preconditions_checkState_boolean_String_Object(false, "a %s b", jt) }), "a null b"},
++		{msgOf_(func() { Preconditions_checkArgument_boolean_String_Object_Object(false, "%s %s", nullstr_, l) }), msgOf_(func() { Preconditions_checkArgument_boolean_String_Object_Object(false, "%s %s", nil, obj_(l)) })},
++		{msgOf_(func() { Preconditions_checkState_boolean_Object_H(false, n) }), msgOf_(func() { Preconditions_checkState_boolean_Object(false, n.box_()) })},
++		{msgOf_(func() { Preconditions_checkArgument_boolean_String_Object_H(false, "n=%s", n) }), "n=null"},
++		{msgOf_(func() { Preconditions_checkNotNull_T(jt) }), msgOf_(func() { Preconditions_checkNotNull(obj_(jt)) })},
++		{msgOf_(func() { Preconditions_checkNotNull_Str(nullstr_) }), msgOf_(func() { Preconditions_checkNotNull(strobj_(nullstr_)) })},
++		{msgOf_(func() { Preconditions_checkNotNull_Object_Object_T(n, "gone") }), "gone"},
++	}
++	for i, c := range cases {
++		if c.got != c.want {
++			t.Errorf("case %d: %q, want %q", i, c.got, c.want)
++		}
++	}
++	if Preconditions_checkNotNull_T(l) != l || Preconditions_checkNotNull_Str("") != "" {
++		t.Errorf("identity")
++	}
++}
+diff --git a/tools/j2go/src/j2go/Ctx.java b/tools/j2go/src/j2go/Ctx.java
+index 36df81e6..266d61f0 100644
+--- a/tools/j2go/src/j2go/Ctx.java
++++ b/tools/j2go/src/j2go/Ctx.java
+@@ -1295,11 +1295,73 @@ final class Ctx {
+     });
+   }
+ 
++  static final Set<String> PT = new HashSet<>(Arrays.asList(System.getenv().getOrDefault("J2GO_PT", "").split(",")));
++  final TreeMap<String, String> upcasts = new TreeMap<>();
++  static final Map<String, String> ptAliases = new HashMap<>();
++  static String ptAlias(String n) {
++    for (int i = 0; i < 8 && ptAliases.containsKey(n); i++) n = ptAliases.get(n);
++    return n;
++  }
++  static final Set<String> PTNO = new HashSet<>(Arrays.asList(System.getenv().getOrDefault("J2GO_PT_NO", "").split(",")));
++  /** Whether code is one call of a constructor function (new_C(...)): never nil. */
++  static boolean ptNewCall(String code) {
++    if (!code.startsWith("new_")) return false;
++    int i = code.indexOf('('), d = 0;
++    if (i < 0 || !code.substring(0, i).matches("\\w+")) return false;
++    boolean str = false; char q = 0;
++    for (int k = i; k < code.length(); k++) {
++      char ch = code.charAt(k);
++      if (str) { if (ch == '\\' && q != '`') k++; else if (ch == q) str = false; continue; }
++      if (ch == '"' || ch == '`' || ch == '\'') { str = true; q = ch; continue; }
++      if (ch == '(') d++;
++      if (ch == ')' && --d == 0) return k == code.length() - 1;
++    }
++    return false;
++  }
++
+   /** Go interface types that some conversion casts to: each gets a function icast_I. */
+   final TreeSet<String> icasts = new TreeSet<>();
+ 
+   /** Go code converting {@code code}, an expression of Java type {@code from}, to Java type {@code to}. */
++  // ---- ptest instrumentation (report-only, J2GO_PTEST=<file>)
++  static final java.io.PrintWriter ptlog = ptOpen();
++  static java.io.PrintWriter ptOpen() {
++    String f = System.getenv("J2GO_PTEST");
++    if (f == null) return null;
++    try { return new java.io.PrintWriter(new java.io.FileWriter(f)); } catch (java.io.IOException e) { throw new RuntimeException(e); }
++  }
++  String ptPos = "?";
++  javax.lang.model.element.ExecutableElement ptCallee, ptResultOf;
++  int ptParam = -1;
++  Object ptArgTree;
++  String ptNote = "";
++  int ptDepth;
++  static final java.util.regex.Pattern PT_BOX = java.util.regex.Pattern.compile("\\bobj_\\(|\\bstrobj_\\(|\\.box_\\(\\)|\\bany\\(|\\bboxT_\\(");
++  static final java.util.regex.Pattern PT_CAST = java.util.regex.Pattern.compile("\\bto_[A-Z]\\w*|\\bcast_\\[|\\b\\w+_of_\\(");
++  static final java.util.regex.Pattern PT_ICAST = java.util.regex.Pattern.compile("\\bicast_\\w+\\(");
++  static final java.util.regex.Pattern PT_UNBOX = java.util.regex.Pattern.compile("\\bstr_\\(|\\bunbox_\\[|\\bunboxT_\\[|\\bopt\\w*Of_");
++  static int ptCount(java.util.regex.Pattern p, String s) { int n = 0; var m = p.matcher(s); while (m.find()) n++; return n; }
+   String coerce(String code, TypeMirror from, TypeMirror to) {
++    if (ptlog == null) return coerce0(code, from, to);
++    ptDepth++;
++    String r;
++    try { r = coerce0(code, from, to); } finally { ptDepth--; }
++    if (ptDepth == 0 && !r.equals(code)) {
++      int b = ptCount(PT_BOX, r) - ptCount(PT_BOX, code), c = ptCount(PT_CAST, r) - ptCount(PT_CAST, code), ic = ptCount(PT_ICAST, r) - ptCount(PT_ICAST, code), u = ptCount(PT_UNBOX, r) - ptCount(PT_UNBOX, code);
++      if (b > 0 || c > 0 || ic > 0 || u > 0) {
++        String frame = StackWalker.getInstance().walk(st -> st.skip(1).filter(f -> !f.getMethodName().equals("coerce") && !f.getMethodName().equals("coerce0") && !f.getMethodName().equals("as")).limit(3).map(f -> f.getMethodName() + ":" + f.getLineNumber()).collect(java.util.stream.Collectors.joining("<")));
++        String ctx = "";
++        if (ptCallee != null) ctx = "arg " + ownerOf(ptCallee).getQualifiedName() + "." + ptCallee.getSimpleName() + "#" + ptParam + " : " + (ptParam >= 0 && ptParam < ptCallee.getParameters().size() ? ptCallee.getParameters().get(ptParam).asType() : "?") + (isSource(ownerOf(ptCallee)) ? " [src]" : " [lib]");
++        ctx += "\t";
++        if (ptResultOf != null) ctx += "result " + ownerOf(ptResultOf).getQualifiedName() + "." + ptResultOf.getSimpleName() + " : " + ptResultOf.getReturnType() + (isSource(ownerOf(ptResultOf)) ? " [src]" : " [lib]");
++        String head = r.length() > 60 ? r.substring(0, 60) : r;
++        ptlog.println(b + "\t" + c + "\t" + ic + "\t" + u + "\t" + kind(erase(from)) + "\t" + kind(erase(to)) + "\t" + from + "\t" + to + "\t" + ptPos + "\t" + frame + "\t" + ctx + "\t" + ptNote + "\t" + head.replace('\n', ' ').replace('\t', ' '));
++      }
++    }
++    return r;
++  }
++
++  String coerce0(String code, TypeMirror from, TypeMirror to) {
+     from = erase(from);
+     to = erase(to);
+     K kf = kind(from), kt = kind(to);
+@@ -1352,6 +1414,17 @@ final class Ctx {
+             TypeElement fe = typeElement(from);
+             DeclaredType view = typedDecl(to) && fe != null && isSource(fe) && isLeaf(fe) && !isHandle(fe) ? superView(from, typeElement(to)) : null;
+             if (view != null && goType(view).equals(gt) && implementsInGo(fe, typeElement(to))) return "func() " + gt + " { if v := " + code + "; v != nil { return v }; return nil }()";
++            // ptest P1: a class without subclasses becomes an interface that it implements (a
++            // static upcast in Java) as Go converts it: no box, no type assertion. null stays the
++            // nil interface: `this` and a new object are never null, another value goes through
++            // a generated function C_as_I that tests it.
++            if (PT.contains("upcast") && fe != null && isLeaf(fe) && !isHandle(fe) && !typedDecl(to) && !gf.contains("[") && gf.startsWith("*")
++                && types.isSubtype(from, to) && (isSource(fe) ? implementsInGo(fe, typeElement(to)) : PT.contains("upcastlib") && !isSource(typeElement(to)) && !PTNO.contains(gf.substring(1) + "_as_" + gt))) {
++              if (code.equals("this") || ptNewCall(code)) return gt + "(" + code + ")";
++              String fn = gf.substring(1) + "_as_" + gt;
++              upcasts.put(fn, "func " + fn + "(v " + gf + ") " + gt + " {\n\tif v == nil {\n\t\treturn nil\n\t}\n\treturn v\n}\n");
++              return fn + "(" + code + ")";
++            }
+             return cast + "(" + canon(code, from) + ")";
+           }
+           case IFACE:
+@@ -1369,6 +1442,9 @@ final class Ctx {
+           case CLS: {
+             TypeElement tf = typeElement(from);
+             if (isSubclass(tf, tt)) return code + ".up_" + className(tt) + "()";
++            // ptest P5: two library classes that the runtime declares as one Go type (type
++            // ImmutableList = ImmutableCollection): the conversion is the value itself.
++            if (PT.contains("alias") && gf.startsWith("*") && gt.startsWith("*") && ptAlias(gf.substring(1)).equals(ptAlias(gt.substring(1)))) return code;
+             src = canon(code, from);
+             break;
+           }
+diff --git a/tools/j2go/src/j2go/ExprEmitter.java b/tools/j2go/src/j2go/ExprEmitter.java
+index f1f1c1ec..204d3dd1 100644
+--- a/tools/j2go/src/j2go/ExprEmitter.java
++++ b/tools/j2go/src/j2go/ExprEmitter.java
+@@ -183,8 +183,22 @@ abstract class ExprEmitter extends Base {
+ 
+   // ------------------------------------------------------------ entry points
+ 
++  void ptAt(Tree t) {
++    if (Ctx.ptlog == null) return;
++    long pos = cx.trees.getSourcePositions().getStartPosition(cu, t);
++    if (pos >= 0) cx.ptPos = cu.getSourceFile().getName().replaceAll(".*/src/", "") + ":" + cu.getLineMap().getLineNumber(pos);
++  }
++
+   String exprAs(ExpressionTree t, TypeMirror target) {
++    var svC = cx.ptCallee; var svR = cx.ptResultOf; int svP = cx.ptParam;
++    if (t != cx.ptArgTree) cx.ptCallee = null;
++    cx.ptResultOf = null;
++    try { return exprAs0(t, target); } finally { cx.ptCallee = svC; cx.ptResultOf = svR; cx.ptParam = svP; }
++  }
++
++  String exprAs0(ExpressionTree t, TypeMirror target) {
+     TypeMirror from = typeOf(t);
++    ptAt(t);
+     target = cx.erase(target);
+     if (cx.isTypedColl(target)) {
+       String made = newTyped(strip(t), target);
+@@ -228,6 +242,8 @@ abstract class ExprEmitter extends Base {
+         if (ef.getKind() == TypeKind.ARRAY && target.getKind() != TypeKind.ARRAY) {
+           return cx.coerce(cx.coerce(r.code, r.type, ef), ef, target);
+         }
++        ptAt(t);
++        cx.ptResultOf = (ExecutableElement) elemOf(mi.getMethodSelect());
+         return cx.coerce(r.code, r.type, target);
+       }
+     }
+@@ -290,7 +306,10 @@ abstract class ExprEmitter extends Base {
+       case METHOD_INVOCATION: {
+         MethodInvocationTree mi = (MethodInvocationTree) t;
+         CallResult r = invocation(mi);
+-        return cx.coerce(r.code, r.type, typeOf(t));
++        ptAt(t);
++        var svC = cx.ptCallee; var svR = cx.ptResultOf;
++        cx.ptResultOf = (ExecutableElement) elemOf(mi.getMethodSelect());
++        try { return cx.coerce(r.code, r.type, typeOf(t)); } finally { cx.ptCallee = svC; cx.ptResultOf = svR; }
+       }
+       case NEW_CLASS:
+         return newClass((NewClassTree) t);
+@@ -949,20 +968,54 @@ abstract class ExprEmitter extends Base {
+       }
+     }
+     int fixed = pack ? n - 1 : n;
+-    for (int i = 0; i < fixed && i < args.size(); i++) out.add(args.get(i).as(params.get(i)));
++    var svC = cx.ptCallee; var svR = cx.ptResultOf; int svP = cx.ptParam;
++    for (int i = 0; i < fixed && i < args.size(); i++) { cx.ptCallee = e; cx.ptResultOf = null; cx.ptParam = i; cx.ptArgTree = args.get(i).tree; out.add(ptMsgArg(e, i, args.get(i), params.get(i))); }
+     if (pack) {
+       TypeMirror arr = params.get(n - 1);
+       TypeMirror comp = ((ArrayType) arr).getComponentType();
+       StringBuilder sb = new StringBuilder(cx.goType(arr) + "{");
+       for (int i = fixed; i < args.size(); i++) {
+         if (i > fixed) sb.append(", ");
+-        sb.append(args.get(i).as(comp));
++        cx.ptCallee = e; cx.ptResultOf = null; cx.ptParam = n - 1; cx.ptArgTree = args.get(i).tree;
++        sb.append(ptMsgArg(e, i, args.get(i), comp));
+       }
+       out.add(sb.append("}").toString());
+     }
++    cx.ptCallee = svC; cx.ptResultOf = svR; cx.ptParam = svP;
+     return String.join(", ", out);
+   }
+ 
++  static final Set<String> PT_H = Set.of("Preconditions_checkState_boolean_Object", "Preconditions_checkArgument_boolean_Object", "Preconditions_checkState_boolean_String_Object", "Preconditions_checkArgument_boolean_String_Object");
++
++  boolean ptIdentity(ExecutableElement e) {
++    String o = cx.ownerOf(e).getQualifiedName().toString(), n = e.getSimpleName().toString();
++    if (!(o.equals("com.google.common.base.Preconditions") && n.equals("checkNotNull") || o.equals("java.util.Objects") && n.equals("requireNonNull"))) return false;
++    return e.getReturnType().getKind() == TypeKind.TYPEVAR && e.getParameters().get(0).asType().getKind() == TypeKind.TYPEVAR;
++  }
++
++  /**
++   * ptest P4: a message argument of Preconditions.checkState / checkArgument / checkNotNull (an
++   * Object the method only formats when the check fails) is passed at its own type; the runtime
++   * makes it the canonical object (null for a nil pointer or the null string) when it formats.
++   */
++  String ptMsgArg(ExecutableElement e, int i, Arg a, TypeMirror target) {
++    if (Ctx.PT.contains("msg") && i >= 1 && cx.kind(cx.erase(target)) == Ctx.K.ANY && cx.ownerOf(e).getQualifiedName().contentEquals("com.google.common.base.Preconditions")) {
++      TypeMirror at = a.type == null ? null : cx.erase(a.type);
++      Ctx.K k = at == null ? Ctx.K.NULL : cx.kind(at);
++      TypeElement te = k == Ctx.K.CLS ? Ctx.typeElement(at) : null;
++      if (k == Ctx.K.STR || k == Ctx.K.CLS && te != null && !cx.isHandle(te) && !cx.isValueLib(te) && !cx.isTypedColl(at)) return a.as(at);
++    }
++    return ptBare(a.as(target), target);
++  }
++
++  /** ptest P3: an argument for an Object parameter that is never null is passed as it is. */
++  String ptBare(String r, TypeMirror target) {
++    if (!Ctx.PT.contains("lit") || cx.kind(cx.erase(target)) != Ctx.K.ANY) return r;
++    if (r.startsWith("strobj_(\"") && r.endsWith("\")") && r.substring(8, r.length() - 1).matches("\"([^\"\\\\]|\\\\.)*\"")) return r.substring(8, r.length() - 1);
++    if (r.startsWith("obj_(new_") && r.endsWith(")") && Ctx.ptNewCall(r.substring(5, r.length() - 1))) return r.substring(5, r.length() - 1);
++    return r;
++  }
++
+   List<TypeMirror> ownParams(ExecutableElement e) {
+     List<TypeMirror> out = new ArrayList<>();
+     for (VariableElement p : e.getParameters()) out.add(cx.erase(cx.vtype(p)));
+@@ -992,6 +1045,28 @@ abstract class ExprEmitter extends Base {
+       TypeMirror ret = cx.erase(cx.rtype(e));
+       String name = cx.staticMethodName(e);
+       if (!src) noteMethod("func " + name, e, params, ret, "static");
++      if (!src && Ctx.PT.contains("msg") && !e.isVarArgs() && params.size() >= 2 && args.size() == params.size() && PT_H.contains(name)) {
++        // ptest P4: a handle as the one message argument of a check stays a handle (boxed by
++        // the runtime when the check fails).
++        int last = params.size() - 1;
++        TypeMirror lt = args.get(last).type == null ? null : cx.erase(args.get(last).type);
++        if (lt != null && cx.kind(lt) == Ctx.K.CLS && cx.isHandle(Ctx.typeElement(lt))) {
++          params = new ArrayList<>(params);
++          params.set(last, lt);
++          name += "_H";
++        }
++      }
++      if (!src && Ctx.PT.contains("nn") && !args.isEmpty() && ptIdentity(e)) {
++        // ptest P2: <T> T checkNotNull(T, ...) / requireNonNull(T, ...) returns its argument: the
++        // call is a Go generic function of the argument's static type (no box, no cast back).
++        TypeMirror at = cx.erase(args.get(0).type);
++        Ctx.K k = at == null ? Ctx.K.NULL : cx.kind(at);
++        if ((k == Ctx.K.CLS || k == Ctx.K.IFACE || k == Ctx.K.STR) && !cx.isTypedColl(at) && !cx.isValueLibType(at)) {
++          List<TypeMirror> p2 = new ArrayList<>(params);
++          p2.set(0, at);
++          return new CallResult(name + (k == Ctx.K.STR ? "_Str" : "_T") + "(" + argList(e, p2, args) + ")", at);
++        }
++      }
+       if ((src || cx.isValueLib(owner)) && !cx.keptOf(e.getTypeParameters()).isEmpty()) {
+         // A generic function: instantiated with javac's inferred type arguments (kept ones).
+         ExecutableType inst = curInst;
+diff --git a/tools/j2go/src/j2go/Main.java b/tools/j2go/src/j2go/Main.java
+index 7322bae3..d218c50f 100644
+--- a/tools/j2go/src/j2go/Main.java
++++ b/tools/j2go/src/j2go/Main.java
+@@ -6,6 +6,7 @@ import java.io.*;
+ import java.nio.file.*;
+ import java.util.*;
+ import javax.lang.model.element.*;
++import javax.lang.model.type.*;
+ import javax.tools.*;
+ 
+ /**
+@@ -286,8 +287,58 @@ public final class Main {
+       for (CompilationUnitTree cu : units) colls.flows(cu);
+       colls.decide();
+     }
++    if (Ctx.PT.contains("alias")) {
++      // the runtime's aliases of one Go type for several library classes
++      try (var fs = Files.list(out)) {
++        for (Path f : (Iterable<Path>) fs::iterator) {
++          String fn = f.getFileName().toString();
++          if (!fn.startsWith("rt_") || !fn.endsWith(".go")) continue;
++          for (String l : Files.readAllLines(f)) {
++            var m = java.util.regex.Pattern.compile("^type (\\w+) = (\\w+)$").matcher(l);
++            if (m.matches()) Ctx.ptAliases.put(m.group(1), m.group(2));
++          }
++        }
++      }
++    }
+     cx.assignClassNames();
+     cx.analyzeMethods();
++    if (System.getenv("J2GO_PTEST_DECLS") != null) {
++      // ptest (report-only): every declaration of the program whose Go type is `any`, with its Java type.
++      try (var pw = new PrintWriter(new java.io.FileWriter(System.getenv("J2GO_PTEST_DECLS")))) {
++        for (CompilationUnitTree cu : units) {
++          new TreePathScanner<Void, Void>() {
++            String at(Tree t) {
++              long pos = trees.getSourcePositions().getStartPosition(cu, t);
++              return cu.getSourceFile().getName().replaceAll(".*/src/", "") + ":" + (pos < 0 ? -1 : cu.getLineMap().getLineNumber(pos));
++            }
++            @Override public Void visitVariable(VariableTree v, Void x) {
++              Element e = trees.getElement(getCurrentPath());
++              if (e != null) {
++                try {
++                  TypeMirror jt = e.asType(), vt = cx.vtype(e);
++                  String g = cx.goType(cx.erase(vt));
++                  String d = cx.declType(vt);
++                  if (g.equals("any") || d.contains("any") || d.contains("BoxedOf")) pw.println(e.getKind() + "\t" + g + "\t" + d + "\t" + jt + "\t" + at(v) + "\t" + e.getEnclosingElement() + "." + e);
++                } catch (RuntimeException ex) { pw.println("ERR\t" + ex + "\t\t" + e.asType() + "\t" + at(v) + "\t" + e); }
++              }
++              return super.visitVariable(v, x);
++            }
++            @Override public Void visitMethod(MethodTree m, Void x) {
++              Element e = trees.getElement(getCurrentPath());
++              if (e instanceof ExecutableElement me && me.getReturnType().getKind() != TypeKind.VOID) {
++                try {
++                  TypeMirror rt = cx.rtype(me);
++                  String g = cx.goType(cx.erase(rt));
++                  String d = cx.declType(rt);
++                  if (g.equals("any") || d.contains("any") || d.contains("BoxedOf")) pw.println("RESULT\t" + g + "\t" + d + "\t" + me.getReturnType() + "\t" + at(m) + "\t" + e.getEnclosingElement() + "." + e);
++                } catch (RuntimeException ex) { pw.println("ERR\t" + ex + "\t\t" + me.getReturnType() + "\t" + at(m) + "\t" + e); }
++              }
++              return super.visitMethod(m, x);
++            }
++          }.scan(cu, null);
++        }
++      }
++    }
+     Files.createDirectories(out);
+     try (var old = Files.list(out)) {
+       for (Path p : (Iterable<Path>) old::iterator) {
+@@ -313,6 +364,7 @@ public final class Main {
+       if (Files.exists(f)) f = out.resolve(name + "_" + pkg.substring(pkg.lastIndexOf('.') + 1) + ".go");
+       Files.writeString(f, "// Code generated by j2go from " + pkg.replace('.', '/') + "/" + new File(cu.getSourceFile().getName()).getName() + ". DO NOT EDIT.\n\n" + code);
+     }
++    if (Ctx.ptlog != null) Ctx.ptlog.close();
+     // Static initialization, in the order the Java program was observed to initialize classes.
+     List<String> order = new ArrayList<>();
+     Map<String, String> byOwner = new HashMap<>();
+@@ -342,6 +394,7 @@ public final class Main {
+       cb.append("\nfunc icast_").append(gt).append("(v any) ").append(gt).append(" {\n\tif v == nil {\n\t\treturn nil\n\t}\n\treturn v.(")
+           .append(gt).append(")\n}\n");
+     }
++    for (String d : cx.upcasts.values()) cb.append("\n").append(d);
+     for (String d : cx.tconvs.values()) cb.append("\n").append(d);
+     Files.writeString(out.resolve("g_0casts.go"), cb.toString());
+     // Java names of the Go types, for getClass().

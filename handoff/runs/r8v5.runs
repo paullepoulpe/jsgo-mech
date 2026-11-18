@@ -1,0 +1,12 @@
+  typed-full base wall=49.04 cpu=58.53 round=0 load=3.06
+  typed-full new wall=51.27 cpu=58.21 round=0 load=4.39
+  typed-full new wall=49.70 cpu=57.79 round=1 load=3.72
+  typed-full base wall=49.17 cpu=58.30 round=1 load=2.72
+  typed-full base wall=48.98 cpu=59.86 round=2 load=1.75
+  typed-full new wall=47.47 cpu=58.66 round=2 load=1.57
+  typed-full new wall=45.86 cpu=56.05 round=3 load=1.43
+  typed-full base wall=47.18 cpu=56.97 round=3 load=1.99
+  typed-full base wall=48.45 cpu=56.82 round=4 load=2.74
+  typed-full new wall=47.91 cpu=56.61 round=4 load=3.08
+  typed-full new wall=48.71 cpu=56.78 round=5 load=3.69
+  typed-full base wall=49.69 cpu=58.31 round=5 load=2.99

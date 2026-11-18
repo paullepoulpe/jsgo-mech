@@ -1,0 +1,6 @@
+  typed-full b1erased wall=101.39 cpu=104.51 round=0 load=9.56
+  typed-full b1prev wall=98.31 cpu=101.75 round=0 load=10.50
+  typed-full b1 wall=88.38 cpu=99.84 round=0 load=5.49
+  typed-full b1 wall=88.33 cpu=99.47 round=1 load=4.46
+  typed-full b1prev wall=88.35 cpu=100.38 round=1 load=4.22
+  typed-full b1erased wall=88.70 cpu=102.00 round=1 load=3.84

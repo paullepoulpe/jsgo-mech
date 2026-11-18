@@ -1,0 +1,9 @@
+  bundle erased wall=44.36 cpu=50.92 round=0 load=2.30
+  bundle prev wall=44.26 cpu=50.35 round=0 load=2.14
+  bundle this wall=42.81 cpu=49.45 round=0 load=2.52
+  bundle this wall=43.79 cpu=49.66 round=1 load=2.74
+  bundle prev wall=40.43 cpu=47.18 round=1 load=2.14
+  bundle erased wall=39.83 cpu=47.14 round=1 load=1.70
+  bundle erased wall=41.23 cpu=47.02 round=2 load=1.80
+  bundle prev wall=39.27 cpu=43.96 round=2 load=2.19
+  bundle this wall=41.05 cpu=45.62 round=2 load=2.43

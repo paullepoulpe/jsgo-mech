@@ -1,0 +1,16 @@
+  bundle java wall=25.52 cpu=59.84 round=0 load=2.02
+  bundle final wall=23.17 cpu=26.82 round=0 load=1.67
+  bundle final wall=23.36 cpu=26.91 round=1 load=1.44
+  bundle java wall=25.91 cpu=60.81 round=1 load=1.53
+  bundle java wall=27.65 cpu=67.12 round=2 load=1.96
+  bundle final wall=24.32 cpu=28.25 round=2 load=1.63
+  bundle final wall=23.72 cpu=27.44 round=3 load=1.42
+  bundle java wall=27.05 cpu=62.85 round=3 load=1.87
+  bundle java wall=27.28 cpu=65.46 round=4 load=2.22
+  bundle final wall=23.78 cpu=27.62 round=4 load=1.80
+  bundle final wall=23.87 cpu=27.77 round=5 load=1.80
+  bundle java wall=26.97 cpu=64.22 round=5 load=1.93
+  bundle java wall=25.70 cpu=61.21 round=6 load=2.36
+  bundle final wall=23.93 cpu=27.67 round=6 load=2.10
+  bundle final wall=24.00 cpu=27.79 round=7 load=1.79
+  bundle java wall=25.97 cpu=62.01 round=7 load=2.07
