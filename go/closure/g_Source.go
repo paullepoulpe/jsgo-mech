@@ -85,11 +85,11 @@ func (this *Source) sourceMappingUrl() string {
 	return this.sourceMappingUrl_
 }
 
-func (this *Source) runtimes() *ImmutableSet {
+func (this *Source) runtimes() *ErasedImmutableSet {
 	return this.runtimes_
 }
 
-func (this *Source) loadFlags() *ImmutableMap {
+func (this *Source) loadFlags() *ErasedImmutableMap {
 	return this.loadFlags_
 }
 

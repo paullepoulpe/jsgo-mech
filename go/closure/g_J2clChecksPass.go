@@ -29,7 +29,7 @@ func new_J2clChecksPass(compiler *AbstractCompiler) *J2clChecksPass {
 }
 
 func (this *J2clChecksPass) visit_impl(unused *NodeTraversal, n Node, parent Node) {
-	for _, el := range immElems_(cast_[*ImmutableSet](J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.keySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS.keySet())) {
 		typeName := str_(el)
 		this.checkReferenceEquality(n, typeName, str_(Map_get_s(J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS, typeName)))
 	}
@@ -82,7 +82,7 @@ func (this *J2clChecksPass) process_2(externs Node, root Node) {
 }
 
 var J2clChecksPass_J2CL_REFERENCE_EQUALITY *DiagnosticType
-var J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS *ImmutableMap
+var J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS *ErasedImmutableMap
 
 var J2clChecksPass_clinit_done bool
 

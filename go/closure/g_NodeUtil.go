@@ -4522,9 +4522,9 @@ var NodeUtil_GOOG_FORWARD_DECLARE *QualifiedName
 var NodeUtil_GOOG_REQUIRE_DYNAMIC *QualifiedName
 var NodeUtil_GOOG_WEAK_USAGE *QualifiedName
 var NodeUtil_GOOG_WEAK_USAGE_MANGLED *QualifiedName
-var NodeUtil_KNOWN_CONSTANTS *ImmutableSet
-var NodeUtil_DEFINITE_CFG_ROOTS *ImmutableSet
-var NodeUtil_IS_STATEMENT_PARENT *ImmutableSet
+var NodeUtil_KNOWN_CONSTANTS *ErasedImmutableSet
+var NodeUtil_DEFINITE_CFG_ROOTS *ErasedImmutableSet
+var NodeUtil_IS_STATEMENT_PARENT *ErasedImmutableSet
 var NodeUtil_GLOBAL_OBJECT *QualifiedName
 var NodeUtil_GLOBAL_OBJECT_MANGLED *QualifiedName
 var NodeUtil_MATCH_NOT_FUNCTION Predicate_base

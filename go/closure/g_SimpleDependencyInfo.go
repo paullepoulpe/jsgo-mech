@@ -56,7 +56,7 @@ func SimpleDependencyInfo_builder(srcPathRelativeToClosure string, pathOfDefinin
 	return new_SimpleDependencyInfo_Builder().setName(pathOfDefiningFile).setPathRelativeToClosureBase(srcPathRelativeToClosure).setProvides(ImmutableList_of()).setRequires(ImmutableList_of()).setTypeRequires(ImmutableList_of()).setLoadFlags(ImmutableMap_of()).setHasExternsAnnotation(false).setHasNoCompileAnnotation(false)
 }
 
-func (this *SimpleDependencyInfo) getRequiredSymbols() *ImmutableList {
+func (this *SimpleDependencyInfo) getRequiredSymbols() *ErasedImmutableList {
 	return DependencyInfo_getRequiredSymbols_default(this)
 }
 
@@ -76,19 +76,19 @@ func (this *SimpleDependencyInfo) getPathRelativeToClosureBase() string {
 	return this.getPathRelativeToClosureBase_
 }
 
-func (this *SimpleDependencyInfo) getProvides() *ImmutableList {
+func (this *SimpleDependencyInfo) getProvides() *ErasedImmutableList {
 	return this.getProvides_
 }
 
-func (this *SimpleDependencyInfo) getRequires() *ImmutableList {
+func (this *SimpleDependencyInfo) getRequires() *ErasedImmutableList {
 	return this.getRequires_
 }
 
-func (this *SimpleDependencyInfo) getTypeRequires() *ImmutableList {
+func (this *SimpleDependencyInfo) getTypeRequires() *ErasedImmutableList {
 	return this.getTypeRequires_
 }
 
-func (this *SimpleDependencyInfo) getLoadFlags() *ImmutableMap {
+func (this *SimpleDependencyInfo) getLoadFlags() *ErasedImmutableMap {
 	return this.getLoadFlags_
 }
 
@@ -263,7 +263,7 @@ func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
 	return new_SimpleDependencyInfo(this.name_.get(), this.pathRelativeToClosureBase.get(), this.provides, this.requires, this.typeRequires, this.loadFlags_, this.hasExternsAnnotation, this.hasNoCompileAnnotation)
 }
 
-var SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS *ImmutableMap
+var SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS *ErasedImmutableMap
 
 var SimpleDependencyInfo_Builder_clinit_done bool
 

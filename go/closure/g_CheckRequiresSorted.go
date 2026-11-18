@@ -589,7 +589,7 @@ func (this *CheckRequiresSorted_ImportStatement) compareTo(other_ any) int32 {
 	return utf16Compare_(this.formatWithoutDoc(), other.formatWithoutDoc())
 }
 
-func (this *CheckRequiresSorted_ImportStatement) nodes() *ImmutableList {
+func (this *CheckRequiresSorted_ImportStatement) nodes() *ErasedImmutableList {
 	return this.nodes_
 }
 
@@ -605,7 +605,7 @@ func (this *CheckRequiresSorted_ImportStatement) alias() OptionalOf[string] {
 	return this.alias_
 }
 
-func (this *CheckRequiresSorted_ImportStatement) destructures() *ImmutableList {
+func (this *CheckRequiresSorted_ImportStatement) destructures() *ErasedImmutableList {
 	return this.destructures_
 }
 

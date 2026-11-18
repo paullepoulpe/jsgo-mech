@@ -207,7 +207,7 @@ func (this *CommandLineRunner) readFlagInputs(processedArgs *[]string, flagInput
 		return Outcome_base_err[any](mappings.error())
 	}
 	flagInputs.mappings = mappings.get()
-	var sourceMapInputs *Outcome_base[*ImmutableMap] = this.flags.getSourceMapInputs()
+	var sourceMapInputs *Outcome_base[*ErasedImmutableMap] = this.flags.getSourceMapInputs()
 	if sourceMapInputs.isErr() {
 		return Outcome_base_err[any](sourceMapInputs.error())
 	}
@@ -1745,23 +1745,23 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[*TList[*A
 
 func (this *CommandLineRunner_Flags) getSourceMapLocationMappings() *Outcome_base[*TList[SourceMap_LocationMapping]] {
 	var locationMappings ImmutableList_BuilderOf[SourceMap_LocationMapping] = ImmutableList_builder()
-	var splitOutcome *Outcome_base[*ImmutableMap] = this.splitPipeParts(Iterable(this.sourceMapLocationMapping), "--source_map_location_mapping")
+	var splitOutcome *Outcome_base[*ErasedImmutableMap] = this.splitPipeParts(Iterable(this.sourceMapLocationMapping), "--source_map_location_mapping")
 	if splitOutcome.isErr() {
 		return Outcome_base_err[*TList[SourceMap_LocationMapping]](splitOutcome.error())
 	}
 	var split ImmutableMapOf[string, string] = splitOutcome.get()
-	for _, el := range immElems_(cast_[*ImmutableSet](split.entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](split.entrySet())) {
 		mapping := icast_Map_Entry(el)
 		locationMappings.add(obj_(new_SourceMap_PrefixLocationMapping(str_(mapping.getKey()), str_(mapping.getValue()))))
 	}
 	return Outcome_base_ok_Object[*TList[SourceMap_LocationMapping]](tlistImm_(tc_SourceMap_LocationMapping, locationMappings.build()))
 }
 
-func (this *CommandLineRunner_Flags) getSourceMapInputs() *Outcome_base[*ImmutableMap] {
+func (this *CommandLineRunner_Flags) getSourceMapInputs() *Outcome_base[*ErasedImmutableMap] {
 	return this.splitPipeParts(Iterable(this.sourceMapInputs), "--source_map_input")
 }
 
-func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], flagName string) *Outcome_base[*ImmutableMap] {
+func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], flagName string) *Outcome_base[*ErasedImmutableMap] {
 	var result ImmutableMap_BuilderOf[string, string] = new_ImmutableMap_Builder()
 	var splitter *Splitter = Splitter_on('|').limit(2)
 	it_1 := foreach_(input)
@@ -1769,11 +1769,11 @@ func (this *CommandLineRunner_Flags) splitPipeParts(input IterableOf[string], fl
 		var inputSourceMap string = str_(it_1.v)
 		var parts []string = sliceImm_(tc_string, splitter.splitToList_s(inputSourceMap))
 		if int32(len(parts)) != 2 {
-			return Outcome_base_err[*ImmutableMap](new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for " + sstr_(flagName) + " (duplicate key): " + objstr_(input))).up_Throwable())
+			return Outcome_base_err[*ErasedImmutableMap](new_CmdLineException_CmdLineParser_String(this.parser, ("Bad value for " + sstr_(flagName) + " (duplicate key): " + objstr_(input))).up_Throwable())
 		}
 		result.put(strobj_(sliceAt_(parts, 0)), strobj_(sliceAt_(parts, 1)))
 	}
-	return Outcome_base_ok_Object[*ImmutableMap](result.buildOrThrow())
+	return Outcome_base_ok_Object[*ErasedImmutableMap](result.buildOrThrow())
 }
 
 func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() []string {

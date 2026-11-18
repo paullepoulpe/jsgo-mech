@@ -206,7 +206,7 @@ func (this *CheckExtraRequires) maybeAddJsDocUsages(n Node) {
 }
 
 var CheckExtraRequires_EXTRA_REQUIRE_WARNING *DiagnosticType
-var CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES *ImmutableSet
+var CheckExtraRequires_DEFAULT_EXTRA_NAMESPACES *ErasedImmutableSet
 var CheckExtraRequires_GOOG_MODULE_GET *QualifiedName
 
 var CheckExtraRequires_clinit_done bool

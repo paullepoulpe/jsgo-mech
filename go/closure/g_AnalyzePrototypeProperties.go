@@ -100,7 +100,7 @@ func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ An
 
 var AnalyzePrototypeProperties_PROPERTY AnalyzePrototypeProperties_SymbolType
 var AnalyzePrototypeProperties_VAR AnalyzePrototypeProperties_SymbolType
-var AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES *ImmutableSet
+var AnalyzePrototypeProperties_IMPLICITLY_USED_PROPERTIES *ErasedImmutableSet
 
 var AnalyzePrototypeProperties_clinit_done bool
 

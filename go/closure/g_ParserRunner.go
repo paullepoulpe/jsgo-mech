@@ -116,10 +116,10 @@ func ParserRunner_newParserConfig(config *Config) *Parser_Config {
 	return new_Parser_Config_Mode_boolean(parserConfigLanguageMode, isStrictMode)
 }
 
-var ParserRunner_annotationNames *ImmutableSet
-var ParserRunner_suppressionNames *ImmutableSet
-var ParserRunner_reservedVars *ImmutableSet
-var ParserRunner_closurePrimitiveNames *ImmutableSet
+var ParserRunner_annotationNames *ErasedImmutableSet
+var ParserRunner_suppressionNames *ErasedImmutableSet
+var ParserRunner_reservedVars *ErasedImmutableSet
+var ParserRunner_closurePrimitiveNames *ErasedImmutableSet
 
 var ParserRunner_clinit_done bool
 

@@ -75,7 +75,7 @@ func (this *CheckArrayWithGoogObject) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, this)
 }
 
-var CheckArrayWithGoogObject_GOOG_OBJECT_METHODS *ImmutableSet
+var CheckArrayWithGoogObject_GOOG_OBJECT_METHODS *ErasedImmutableSet
 var CheckArrayWithGoogObject_ARRAY_PASSED_TO_GOOG_OBJECT *DiagnosticType
 
 var CheckArrayWithGoogObject_clinit_done bool

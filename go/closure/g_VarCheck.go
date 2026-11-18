@@ -222,7 +222,7 @@ const VarCheck_ARGUMENTS string = "arguments"
 const VarCheck_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME string = "$jscomp_wrap_closure_unaware_code"
 
 var VarCheck_googForwardDeclare Node
-var VarCheck_REQUIRED_SYMBOLS *ImmutableSet
+var VarCheck_REQUIRED_SYMBOLS *ErasedImmutableSet
 
 var VarCheck_clinit_done bool
 

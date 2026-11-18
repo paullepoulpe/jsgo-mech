@@ -1211,7 +1211,7 @@ func (this *Compiler) getResult() *Result {
 }
 
 func (this *Compiler) getErrors() ImmutableListOf[*JSError] {
-	return func() *ImmutableList {
+	return func() *ErasedImmutableList {
 		if this.errorManager == nil {
 			return ImmutableList_of()
 		}
@@ -1220,7 +1220,7 @@ func (this *Compiler) getErrors() ImmutableListOf[*JSError] {
 }
 
 func (this *Compiler) getWarnings() ImmutableListOf[*JSError] {
-	return func() *ImmutableList {
+	return func() *ErasedImmutableList {
 		if this.errorManager == nil {
 			return ImmutableList_of()
 		}
@@ -2883,7 +2883,7 @@ func Compiler_toProto(stage AbstractCompiler_LifeCycleStage) LifeCycleStageProto
 func Compiler_toVariableMapEntries(map_ *VariableMap) *TList[*VariableMapEntryProto] {
 	var entries *TList[*VariableMapEntryProto] = newTList_(tc_p_VariableMapEntryProto)
 	if map_ != nil {
-		for _, el := range immElems_(cast_[*ImmutableSet](map_.getOriginalNameToNewNameMap().entrySet())) {
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](map_.getOriginalNameToNewNameMap().entrySet())) {
 			entry := icast_Map_Entry(el)
 			entries.add(cast_[*VariableMapEntryProto](VariableMapEntryProto_newBuilder().setOriginalName(str_(entry.getKey())).setNewName(str_(entry.getValue())).build()))
 		}
@@ -3890,7 +3890,7 @@ func (this *Compiler) createDefaultExpressionDecomposer() *ExpressionDecomposer 
 }
 
 // createExpressionDecomposer: an object that is exactly a Compiler calls its createExpressionDecomposer_impl directly (post-flip); others dispatch.
-func (this *Compiler) createExpressionDecomposer(p0 Supplier, p1 *ImmutableSet, p2 *Scope) *ExpressionDecomposer {
+func (this *Compiler) createExpressionDecomposer(p0 Supplier, p1 *ErasedImmutableSet, p2 *Scope) *ExpressionDecomposer {
 	if p, _ := this.self_.(*Compiler); p == this {
 		return this.createExpressionDecomposer_impl(p0, p1, p2)
 	}
@@ -4187,7 +4187,7 @@ func (this *Compiler) parseTestCode(p0 string) Node {
 }
 
 // parseTestCodeImmutableList: an object that is exactly a Compiler calls its parseTestCodeImmutableList_impl directly (post-flip); others dispatch.
-func (this *Compiler) parseTestCodeImmutableList(p0 *ImmutableList) Node {
+func (this *Compiler) parseTestCodeImmutableList(p0 *ErasedImmutableList) Node {
 	if p, _ := this.self_.(*Compiler); p == this {
 		return this.parseTestCodeImmutableList_impl(p0)
 	}
@@ -4525,7 +4525,7 @@ func (this *Compiler) setDefineNames(p0 Collection) {
 }
 
 // getDefineNames: an object that is exactly a Compiler calls its getDefineNames_impl directly (post-flip); others dispatch.
-func (this *Compiler) getDefineNames() *ImmutableSet {
+func (this *Compiler) getDefineNames() *ErasedImmutableSet {
 	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getDefineNames_impl()
 	}
@@ -4658,7 +4658,7 @@ func (this *Compiler) getLastPassName() string {
 }
 
 // setExternProperties: an object that is exactly a Compiler calls its setExternProperties_impl directly (post-flip); others dispatch.
-func (this *Compiler) setExternProperties(p0 *ImmutableSet) {
+func (this *Compiler) setExternProperties(p0 *ErasedImmutableSet) {
 	if p, _ := this.self_.(*Compiler); p == this {
 		this.setExternProperties_impl(p0)
 		return
@@ -4667,7 +4667,7 @@ func (this *Compiler) setExternProperties(p0 *ImmutableSet) {
 }
 
 // getExternProperties: an object that is exactly a Compiler calls its getExternProperties_impl directly (post-flip); others dispatch.
-func (this *Compiler) getExternProperties() *ImmutableSet {
+func (this *Compiler) getExternProperties() *ErasedImmutableSet {
 	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getExternProperties_impl()
 	}

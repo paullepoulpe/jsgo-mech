@@ -141,7 +141,7 @@ func (this *DependencyOptions) mode() DependencyOptions_DependencyMode {
 	return this.mode_
 }
 
-func (this *DependencyOptions) entryPoints() *ImmutableList {
+func (this *DependencyOptions) entryPoints() *ErasedImmutableList {
 	return this.entryPoints_
 }
 

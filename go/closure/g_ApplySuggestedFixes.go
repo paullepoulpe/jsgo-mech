@@ -33,7 +33,7 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 		filenameToCodeMap[filename] = code.get()
 	}
 	var newCode ImmutableMapOf[string, string] = ApplySuggestedFixes_applySuggestedFixesToCode(fixes, filenameToCodeMap)
-	for _, el_5 := range immElems_(cast_[*ImmutableSet](newCode.entrySet())) {
+	for _, el_5 := range immElems_(cast_[*ErasedImmutableSet](newCode.entrySet())) {
 		var entry Map_Entry = icast_Map_Entry(el_5)
 		var written *Outcome_base[any] = TextFiles_write(str_(entry.getKey()), Charsets_UTF_8, str_(entry.getValue()))
 		if written.isErr() {

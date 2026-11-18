@@ -69,7 +69,7 @@ const ClosurePrimitive_ASSERTS_MATCHES_RETURN ClosurePrimitive = 2
 const ClosurePrimitive_ASSERTS_TRUTHY ClosurePrimitive = 3
 
 var ClosurePrimitive_values_ []ClosurePrimitive
-var ClosurePrimitive_ID_TO_ENUM *ImmutableMap
+var ClosurePrimitive_ID_TO_ENUM *ErasedImmutableMap
 
 var ClosurePrimitive_clinit_done bool
 

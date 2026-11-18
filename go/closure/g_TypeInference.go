@@ -1975,7 +1975,7 @@ var TypeInference_REASSIGN_CLASS_PROTOTYPE *DiagnosticType
 
 const TypeInference_GOOG_REQUIREDYNAMIC_NAME string = "goog.requireDynamic"
 
-var TypeInference_TOKENS_ALLOWING_NULL_TYPES *ImmutableSet
+var TypeInference_TOKENS_ALLOWING_NULL_TYPES *ErasedImmutableSet
 
 var TypeInference_clinit_done bool
 

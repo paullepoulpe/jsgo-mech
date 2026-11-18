@@ -1961,7 +1961,7 @@ func TypeCheck_maybeReferencedType(type_ *JSType) *JSType {
 
 func TypeCheck_flattenUnion(maybeUnion *JSType) ImmutableListOf[*JSType] {
 	var union *UnionType = maybeUnion.toMaybeUnionType()
-	return func() *ImmutableList {
+	return func() *ErasedImmutableList {
 		if union == nil {
 			return ImmutableList_of_Object(maybeUnion.self())
 		}

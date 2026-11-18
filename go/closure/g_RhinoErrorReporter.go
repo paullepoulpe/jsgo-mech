@@ -50,7 +50,7 @@ func (this *RhinoErrorReporter) errorAtLine(message string, sourceName OptionalO
 }
 
 func RhinoErrorReporter_mapError(message string) *DiagnosticType {
-	for _, el_1 := range immElems_(cast_[*ImmutableSet](RhinoErrorReporter_typeMap.entrySet())) {
+	for _, el_1 := range immElems_(cast_[*ErasedImmutableSet](RhinoErrorReporter_typeMap.entrySet())) {
 		var entry Map_Entry = icast_Map_Entry(el_1)
 		if entry.getKey().(*Pattern).matcher_s(message).matches() {
 			return cast_[*DiagnosticType](entry.getValue())
@@ -98,7 +98,7 @@ var RhinoErrorReporter_UNSUPPORTED_BOUNDED_GENERIC_TYPES *DiagnosticType
 var RhinoErrorReporter_BOUNDED_GENERIC_TYPE_ERROR *DiagnosticType
 var RhinoErrorReporter_CLOSURE_UNAWARE_ANNOTATION_PRESENT *DiagnosticType
 var RhinoErrorReporter_PLACE_HOLDER *Pattern
-var RhinoErrorReporter_typeMap *ImmutableMap
+var RhinoErrorReporter_typeMap *ErasedImmutableMap
 
 var RhinoErrorReporter_clinit_done bool
 

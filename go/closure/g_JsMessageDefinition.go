@@ -7,7 +7,7 @@ type JsMessageDefinition interface {
 	getMessageNode() Node
 	getTemplateTextNode() Node
 	getPlaceholderValuesNode() Node
-	getPlaceholderValueMap() *ImmutableMap
+	getPlaceholderValueMap() *ErasedImmutableMap
 	shouldEscapeLessThan() bool
 	shouldUnescapeHtmlEntities() bool
 }

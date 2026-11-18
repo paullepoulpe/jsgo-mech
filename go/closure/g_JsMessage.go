@@ -75,11 +75,11 @@ func (this *JsMessage) getGenderedMessageParts(genderCase JsMessage_GrammaticalG
 	if this.getGenderedMessagesMap().isEmpty() {
 		panic(new_UnsupportedOperationException_String("Message does not contain grammatical gendered variants."))
 	}
-	return sliceImm_(tc_JsMessage_Part, cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase))))
+	return sliceImm_(tc_JsMessage_Part, cast_[*ErasedImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase))))
 }
 
 func (this *JsMessage) getGenderedMessageVariants() []JsMessage_GrammaticalGenderCase {
-	return sliceImm_(tc_p_JsMessage_GrammaticalGenderCase, this.getGenderedMessagesMap().keySet().(*ImmutableSet).asList())
+	return sliceImm_(tc_p_JsMessage_GrammaticalGenderCase, this.getGenderedMessagesMap().keySet().(*ErasedImmutableSet).asList())
 }
 
 func (this *JsMessage) asJsMessageString() string {
@@ -103,7 +103,7 @@ func (this *JsMessage) asJsMessageString_1(genderCase JsMessage_GrammaticalGende
 		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + tostr_(genderCase))))
 	}
 	var sb strBuilder_
-	for _, el := range immElems_(cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))) {
+	for _, el := range immElems_(cast_[*ErasedImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))) {
 		p := icast_JsMessage_Part(el)
 		if p.isPlaceholder() {
 			sb.append(JsMessage_PH_JS_PREFIX).append(p.getJsPlaceholderName()).append(JsMessage_PH_JS_SUFFIX)
@@ -135,7 +135,7 @@ func (this *JsMessage) asIcuMessageString_1(genderCase JsMessage_GrammaticalGend
 		panic(new_IllegalArgumentException_String(("No message for grammtical gender case: " + tostr_(genderCase))))
 	}
 	var sb strBuilder_
-	for _, el := range immElems_(cast_[*ImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))) {
+	for _, el := range immElems_(cast_[*ErasedImmutableList](this.getGenderedMessagesMap().get(obj_(genderCase)))) {
 		p := icast_JsMessage_Part(el)
 		if p.isPlaceholder() {
 			sb.append_char('{').append(p.getCanonicalPlaceholderName()).append_char('}')
@@ -156,7 +156,7 @@ func (this *JsMessage) isEmpty() bool {
 		}
 	} else {
 		for _, el_3 := range immElems_(cast_[*ImmutableCollection](this.getGenderedMessagesMap().values())) {
-			var parts *ImmutableList = cast_[*ImmutableList](el_3)
+			var parts *ErasedImmutableList = cast_[*ErasedImmutableList](el_3)
 			for _, el_5 := range immElems_(parts) {
 				var part JsMessage_Part = icast_JsMessage_Part(el_5)
 				if part.isPlaceholder() || (len(part.getString()) != 0) {
@@ -223,11 +223,11 @@ func (this *JsMessage) getId() string {
 	return this.getId_
 }
 
-func (this *JsMessage) getParts() *ImmutableList {
+func (this *JsMessage) getParts() *ErasedImmutableList {
 	return this.getParts_
 }
 
-func (this *JsMessage) getGenderedMessagesMap() *ImmutableMap {
+func (this *JsMessage) getGenderedMessagesMap() *ErasedImmutableMap {
 	return this.getGenderedMessagesMap_
 }
 
@@ -243,19 +243,19 @@ func (this *JsMessage) getMeaning() OptionalOf[string] {
 	return this.getMeaning_
 }
 
-func (this *JsMessage) getPlaceholderNameToExampleMap() *ImmutableMap {
+func (this *JsMessage) getPlaceholderNameToExampleMap() *ErasedImmutableMap {
 	return this.getPlaceholderNameToExampleMap_
 }
 
-func (this *JsMessage) getPlaceholderNameToOriginalCodeMap() *ImmutableMap {
+func (this *JsMessage) getPlaceholderNameToOriginalCodeMap() *ErasedImmutableMap {
 	return this.getPlaceholderNameToOriginalCodeMap_
 }
 
-func (this *JsMessage) jsPlaceholderNames() *ImmutableSet {
+func (this *JsMessage) jsPlaceholderNames() *ErasedImmutableSet {
 	return this.jsPlaceholderNames_
 }
 
-func (this *JsMessage) canonicalPlaceholderNames() *ImmutableSet {
+func (this *JsMessage) canonicalPlaceholderNames() *ErasedImmutableSet {
 	return this.canonicalPlaceholderNames_
 }
 

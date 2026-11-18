@@ -189,7 +189,7 @@ func (this *IsolatePolyfills) cleanUpJscompLookupPolyfilledValue() {
 
 const IsolatePolyfills_POLYFILL_TEMP string = "$jscomp$polyfillTmp"
 
-var IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES *ImmutableSet
+var IsolatePolyfills_FILES_ALLOWED_UNQUALIFIED_POLYFILL_ACCESSES *ErasedImmutableSet
 
 var IsolatePolyfills_clinit_done bool
 
@@ -205,7 +205,7 @@ func IsolatePolyfills_clinit() {
 type IsolatePolyfills_1 struct {
 	NodeTraversal_AbstractShallowCallback
 	outer_              *IsolatePolyfills
-	cap_actualPolyfills *ImmutableSet_Builder
+	cap_actualPolyfills *ErasedImmutableSet_Builder
 }
 
 func (this *IsolatePolyfills_1) up_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback {
@@ -219,7 +219,7 @@ func (this *IsolatePolyfills_1) init_IsolatePolyfills_1() {
 	this.NodeTraversal_AbstractShallowCallback.init_NodeTraversal_AbstractShallowCallback()
 }
 
-func new_IsolatePolyfills_1(outer_ *IsolatePolyfills, cap_actualPolyfills *ImmutableSet_Builder) *IsolatePolyfills_1 {
+func new_IsolatePolyfills_1(outer_ *IsolatePolyfills, cap_actualPolyfills *ErasedImmutableSet_Builder) *IsolatePolyfills_1 {
 	this := &IsolatePolyfills_1{}
 	this.self_ = this
 	this.outer_ = outer_

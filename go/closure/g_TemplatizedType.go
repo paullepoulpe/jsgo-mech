@@ -254,7 +254,7 @@ func (this *TemplatizedType) toMaybeTemplatizedType() *TemplatizedType {
 }
 
 // getTemplateTypes: an object that is exactly a TemplatizedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
-func (this *TemplatizedType) getTemplateTypes() *ImmutableList {
+func (this *TemplatizedType) getTemplateTypes() *ErasedImmutableList {
 	if p, _ := this.self_.(*TemplatizedType); p == this {
 		return this.getTemplateTypes_impl()
 	}

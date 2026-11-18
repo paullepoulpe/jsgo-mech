@@ -520,8 +520,8 @@ NEXT_DELIMITER_:
 }
 
 var PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD int32
-var PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS *ImmutableSet
-var PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS *ImmutableSet
+var PeepholeSubstituteAlternateSyntax_BUILTIN_EXTERNS *ErasedImmutableSet
+var PeepholeSubstituteAlternateSyntax_STANDARD_OBJECT_CONSTRUCTORS *ErasedImmutableSet
 
 var PeepholeSubstituteAlternateSyntax_clinit_done bool
 

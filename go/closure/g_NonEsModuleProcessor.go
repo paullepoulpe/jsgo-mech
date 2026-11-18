@@ -132,7 +132,7 @@ func (this *NonEsModuleProcessor_NonEsModule) metadata() *ModuleMetadataMap_Modu
 }
 
 // getExportedNames: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its getExportedNames_impl directly (post-flip); others dispatch.
-func (this *NonEsModuleProcessor_NonEsModule) getExportedNames(p0 ModuleRequestResolver) *ImmutableSet {
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames(p0 ModuleRequestResolver) *ErasedImmutableSet {
 	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.getExportedNames_impl(p0)
 	}
@@ -140,7 +140,7 @@ func (this *NonEsModuleProcessor_NonEsModule) getExportedNames(p0 ModuleRequestR
 }
 
 // getExportedNames_2: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its getExportedNames_2_impl directly (post-flip); others dispatch.
-func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ImmutableSet {
+func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ErasedImmutableSet {
 	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.getExportedNames_2_impl(p0, p1)
 	}

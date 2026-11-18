@@ -57,7 +57,7 @@ func (this *ImplicitNullabilityCheck) visit_impl(t *NodeTraversal, n Node, p Nod
 
 var ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC *DiagnosticType
 var ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC *DiagnosticType
-var ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES *ImmutableSet
+var ImplicitNullabilityCheck_NULLABILITY_OMITTED_TYPES *ErasedImmutableSet
 
 var ImplicitNullabilityCheck_clinit_done bool
 
@@ -180,14 +180,14 @@ func (this *ImplicitNullabilityCheck_Result) getNode() Node {
 
 type ImplicitNullabilityCheck_1 struct {
 	cap_t       *NodeTraversal
-	cap_builder *ImmutableList_Builder
+	cap_builder *ErasedImmutableList_Builder
 }
 
 func (this *ImplicitNullabilityCheck_1) init_ImplicitNullabilityCheck_1() {
 
 }
 
-func new_ImplicitNullabilityCheck_1(cap_t *NodeTraversal, cap_builder *ImmutableList_Builder) *ImplicitNullabilityCheck_1 {
+func new_ImplicitNullabilityCheck_1(cap_t *NodeTraversal, cap_builder *ErasedImmutableList_Builder) *ImplicitNullabilityCheck_1 {
 	this := &ImplicitNullabilityCheck_1{}
 	this.cap_t = cap_t
 	this.cap_builder = cap_builder

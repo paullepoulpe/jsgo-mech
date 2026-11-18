@@ -513,7 +513,7 @@ func (this *ProcessDefines) verifyOfType(methodName Node, arg Node, desiredType 
 	return true
 }
 
-var ProcessDefines_KNOWN_DEFINES *ImmutableSet
+var ProcessDefines_KNOWN_DEFINES *ErasedImmutableSet
 var ProcessDefines_GOOG_DEFINE Node
 var ProcessDefines_UNKNOWN_DEFINE_WARNING *DiagnosticType
 var ProcessDefines_INVALID_DEFINE_NAME_ERROR *DiagnosticType

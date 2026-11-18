@@ -29,7 +29,7 @@ func ReplaceMessagesConstants_isProtectedMessage(n Node) bool {
 const ReplaceMessagesConstants_DEFINE_MSG_CALLEE string = "__jscomp_define_msg__"
 const ReplaceMessagesConstants_FALLBACK_MSG_CALLEE string = "__jscomp_msg_fallback__"
 
-var ReplaceMessagesConstants_PROTECTED_FUNCTION_NAMES *ImmutableSet
+var ReplaceMessagesConstants_PROTECTED_FUNCTION_NAMES *ErasedImmutableSet
 
 var ReplaceMessagesConstants_clinit_done bool
 

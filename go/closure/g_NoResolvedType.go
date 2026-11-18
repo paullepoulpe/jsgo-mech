@@ -106,7 +106,7 @@ func (this *NoResolvedType) getReferenceName() OptionalOf[string] {
 }
 
 // getTemplateTypes: an object that is exactly a NoResolvedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
-func (this *NoResolvedType) getTemplateTypes() *ImmutableList {
+func (this *NoResolvedType) getTemplateTypes() *ErasedImmutableList {
 	if p, _ := this.self_.(*NoResolvedType); p == this {
 		return this.getTemplateTypes_impl()
 	}

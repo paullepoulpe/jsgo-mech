@@ -297,7 +297,7 @@ func RuntimeJsLibManager_FieldsTable_loadFields() ImmutableMapOf[string, string]
 	return allFields.buildOrThrow()
 }
 
-var RuntimeJsLibManager_FieldsTable_INSTANCE *ImmutableMap
+var RuntimeJsLibManager_FieldsTable_INSTANCE *ErasedImmutableMap
 
 var RuntimeJsLibManager_FieldsTable_clinit_done bool
 

@@ -1334,7 +1334,7 @@ const Es6NormalizeClasses_PRIVATE_VAR string = "$jscomp$priv$"
 const Es6NormalizeClasses_TMP_VAR string = "$jscomp$tmp$"
 
 var Es6NormalizeClasses_ILLEGAL_PRIVATE_MEMBER_ASSIGNMENT *DiagnosticType
-var Es6NormalizeClasses_GENERIC_NAME_REPLACEMENTS *ImmutableMap
+var Es6NormalizeClasses_GENERIC_NAME_REPLACEMENTS *ErasedImmutableMap
 
 var Es6NormalizeClasses_clinit_done bool
 

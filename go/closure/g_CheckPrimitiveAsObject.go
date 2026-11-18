@@ -69,7 +69,7 @@ func (this *CheckPrimitiveAsObject) checkForPrimitiveObjectConstructor(t *NodeTr
 
 var CheckPrimitiveAsObject_NEW_PRIMITIVE_OBJECT *DiagnosticType
 var CheckPrimitiveAsObject_PRIMITIVE_OBJECT_DECLARATION *DiagnosticType
-var CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS *ImmutableSet
+var CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS *ErasedImmutableSet
 
 var CheckPrimitiveAsObject_clinit_done bool
 

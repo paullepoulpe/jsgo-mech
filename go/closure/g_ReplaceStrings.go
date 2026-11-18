@@ -271,7 +271,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	if replacementParameters.isEmpty() {
 		panic(new_IllegalStateException_0())
 	}
-	return new_ReplaceStrings_Config(name, replacementParameters, func() *ImmutableSet {
+	return new_ReplaceStrings_Config(name, replacementParameters, func() *ErasedImmutableSet {
 		if colon == -1 {
 			return ImmutableSet_of()
 		}

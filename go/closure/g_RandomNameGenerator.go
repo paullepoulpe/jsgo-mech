@@ -76,7 +76,7 @@ func (this *RandomNameGenerator) clone(reservedNames SetOf[string], prefix strin
 }
 
 func RandomNameGenerator_asSet(chars []uint16) ImmutableSetOf[BoxedOf[uint16]] {
-	return func() *ImmutableSet {
+	return func() *ErasedImmutableSet {
 		if chars == nil {
 			return ImmutableSet_of()
 		}
@@ -169,8 +169,8 @@ func (this *RandomNameGenerator) generateNextName() string {
 	}
 }
 
-var RandomNameGenerator_FIRST_CHAR *ImmutableSet
-var RandomNameGenerator_NONFIRST_CHAR *ImmutableSet
+var RandomNameGenerator_FIRST_CHAR *ErasedImmutableSet
+var RandomNameGenerator_NONFIRST_CHAR *ErasedImmutableSet
 
 const RandomNameGenerator_NUM_SHUFFLES int32 = 16
 

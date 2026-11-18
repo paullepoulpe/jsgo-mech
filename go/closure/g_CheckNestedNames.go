@@ -84,7 +84,7 @@ func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) Ch
 }
 
 var CheckNestedNames_NESTED_NAME_IN_GOOG_MODULE *DiagnosticType
-var CheckNestedNames_NESTED_KIND_TO_REPORT *ImmutableMap
+var CheckNestedNames_NESTED_KIND_TO_REPORT *ErasedImmutableMap
 
 var CheckNestedNames_clinit_done bool
 

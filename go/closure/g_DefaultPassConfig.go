@@ -1755,7 +1755,7 @@ func (this *DefaultPassConfig_3) process_2(externs Node, jsRoot Node) {
 	}()
 	var pass *ReplaceCssNames = new_ReplaceCssNames(this.cap_compiler, this.outer_.options_.getCssRenamingMap(), func(cssName string) {
 		cssNames.ifPresent_f(func(builder_ any) {
-			var builder *ImmutableSet_Builder = cast_[*ImmutableSet_Builder](builder_)
+			var builder *ErasedImmutableSet_Builder = cast_[*ErasedImmutableSet_Builder](builder_)
 			_ = builder
 			builder.add(strobj_(cssName))
 		})

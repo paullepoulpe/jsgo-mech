@@ -35,12 +35,12 @@ func new_RewriteGoogJsImports(compiler *AbstractCompiler, mode RewriteGoogJsImpo
 func (this *RewriteGoogJsImports) changeModules() {
 	var resolvedModules ImmutableMap_BuilderOf[string, *Module] = ImmutableMap_builder()
 	var closureModules ImmutableMap_BuilderOf[string, *Module] = ImmutableMap_builder()
-	for _, el := range immElems_(cast_[*ImmutableSet](this.moduleMap.getModulesByPath().entrySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.moduleMap.getModulesByPath().entrySet())) {
 		m := icast_Map_Entry(el)
 		var newModule *Module = cast_[*Module](Map_getOrDefault(this.moduleReplacements.asMap(), m.getValue(), m.getValue()))
 		resolvedModules.put(m.getKey(), obj_(newModule))
 	}
-	for _, el2 := range immElems_(cast_[*ImmutableSet](this.moduleMap.getModulesByClosureNamespace().entrySet())) {
+	for _, el2 := range immElems_(cast_[*ErasedImmutableSet](this.moduleMap.getModulesByClosureNamespace().entrySet())) {
 		m := icast_Map_Entry(el2)
 		var newModule *Module = cast_[*Module](Map_getOrDefault(this.moduleReplacements.asMap(), m.getValue(), m.getValue()))
 		closureModules.put(m.getKey(), obj_(newModule))

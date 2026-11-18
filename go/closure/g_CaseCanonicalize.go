@@ -90,8 +90,8 @@ func CaseCanonicalize_reduceToMinimum(ranges *CharRanges) *CharRanges {
 
 var CaseCanonicalize_CASE_SENSITIVE *CharRanges
 var CaseCanonicalize_UCASE_ASCII_LETTERS *CharRanges
-var CaseCanonicalize_DELTA_SETS *ImmutableList
-var CaseCanonicalize_CANON_DELTA_SETS *ImmutableList
+var CaseCanonicalize_DELTA_SETS *ErasedImmutableList
+var CaseCanonicalize_CANON_DELTA_SETS *ErasedImmutableList
 
 var CaseCanonicalize_clinit_done bool
 

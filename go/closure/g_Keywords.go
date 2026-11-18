@@ -186,8 +186,8 @@ const Keywords_TRUE Keywords = 44
 const Keywords_FALSE Keywords = 45
 
 var Keywords_values_ []Keywords
-var Keywords_KEYWORDS_BY_NAME *ImmutableMap
-var Keywords_KEYWORDS_BY_TYPE *ImmutableMap
+var Keywords_KEYWORDS_BY_NAME *ErasedImmutableMap
+var Keywords_KEYWORDS_BY_TYPE *ErasedImmutableMap
 
 var Keywords_clinit_done bool
 

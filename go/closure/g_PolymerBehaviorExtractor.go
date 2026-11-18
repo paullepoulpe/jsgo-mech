@@ -358,7 +358,7 @@ func PolymerBehaviorExtractor_getNonPropertyMembersToCopy(behaviorObjLit Node) [
 	return immBuilt_(membersToCopy)
 }
 
-var PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY *ImmutableSet
+var PolymerBehaviorExtractor_BEHAVIOR_NAMES_NOT_TO_COPY *ErasedImmutableSet
 
 const PolymerBehaviorExtractor_GOOG_MODULE_EXPORTS string = "exports"
 

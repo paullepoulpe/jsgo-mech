@@ -1446,8 +1446,8 @@ const IRFactory_UNEXPECTED_NEW_DOT_TARGET string = "new.target must be inside a 
 const IRFactory_NEW_DOT_TARGET_IN_CLASS_FIELD_OR_STATIC_BLOCK string = "new.target is not supported in class field initializers or static blocks"
 const IRFactory_UNDEFINED_LABEL string = "undefined label \"%s\""
 
-var IRFactory_ES5_RESERVED_KEYWORDS *ImmutableSet
-var IRFactory_ES5_STRICT_RESERVED_KEYWORDS *ImmutableSet
+var IRFactory_ES5_RESERVED_KEYWORDS *ErasedImmutableSet
+var IRFactory_ES5_STRICT_RESERVED_KEYWORDS *ErasedImmutableSet
 var IRFactory_COMMENT_START_POSITION_COMPARATOR Comparator
 
 const IRFactory_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME string = "$jscomp_wrap_closure_unaware_code"

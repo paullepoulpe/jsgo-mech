@@ -256,7 +256,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) metadata() *ModuleMeta
 }
 
 // getExportedNames: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its getExportedNames_impl directly (post-flip); others dispatch.
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames(p0 ModuleRequestResolver) *ImmutableSet {
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames(p0 ModuleRequestResolver) *ErasedImmutableSet {
 	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
 		return this.getExportedNames_impl(p0)
 	}
@@ -264,7 +264,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames(p0 Mo
 }
 
 // getExportedNames_2: an object that is exactly a ModuleMapCreator_ModuleRequestResolverImpl_1 calls its getExportedNames_2_impl directly (post-flip); others dispatch.
-func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ImmutableSet {
+func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2(p0 ModuleRequestResolver, p1 map[*UnresolvedModule]struct{}) *ErasedImmutableSet {
 	if p, _ := this.self_.(*ModuleMapCreator_ModuleRequestResolverImpl_1); p == this {
 		return this.getExportedNames_2_impl(p0, p1)
 	}

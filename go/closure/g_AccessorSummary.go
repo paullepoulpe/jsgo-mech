@@ -44,7 +44,7 @@ func (this *AccessorSummary) toProto() *AccessorSummaryProto {
 			panic(new_IllegalStateException_0())
 		}
 	} else {
-		for _, el := range immElems_(cast_[*ImmutableSet](this.accessors.entrySet())) {
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](this.accessors.entrySet())) {
 			entry := icast_Map_Entry(el)
 			builder.addAccessors(cast_[*AccessorSummaryEntryProto](AccessorSummaryEntryProto_newBuilder().setName(str_(entry.getKey())).setKind(AccessorSummary_toProto(cast_[AccessorSummary_PropertyAccessKind](entry.getValue()))).build()))
 		}

@@ -190,7 +190,7 @@ func (this *FunctionToBlockMutator) getUniqueThisName() string {
 func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias map[string]struct{}) Node {
 	if (namesToAlias == nil) || len(mapNN_(namesToAlias)) == 0 {
 		var replacements map[string]Node = map[string]Node{}
-		for _, el := range immElems_(cast_[*ImmutableSet](paramToArgMap.entrySet())) {
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.entrySet())) {
 			entry := icast_Map_Entry(el)
 			replacements[str_(entry.getKey())] = entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg()
 		}
@@ -202,7 +202,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 	} else {
 		var paramReplacements map[string]Node = map[string]Node{}
 		var newAliasesToAdd []Node = []Node{}
-		for _, el2 := range immElems_(cast_[*ImmutableSet](paramToArgMap.entrySet())) {
+		for _, el2 := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.entrySet())) {
 			entry := icast_Map_Entry(el2)
 			var name string = str_(entry.getKey())
 			var arg *FunctionArgumentInjector_ParamArgPair = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue())

@@ -294,7 +294,7 @@ func AbstractVar_strongerOf(left StaticSourceFile_SourceKind, right StaticSource
 	return StaticSourceFile_SourceKind_WEAK
 }
 
-var AbstractVar_DECLARATION_TYPES *ImmutableSet
+var AbstractVar_DECLARATION_TYPES *ErasedImmutableSet
 
 var AbstractVar_clinit_done bool
 

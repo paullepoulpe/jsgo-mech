@@ -681,7 +681,7 @@ func (this *ReplaceMessages_FullReplacementMsgData) messageOptions() *ReplaceMes
 	return this.messageOptions_
 }
 
-func (this *ReplaceMessages_FullReplacementMsgData) placeholderValueMap() *ImmutableMap {
+func (this *ReplaceMessages_FullReplacementMsgData) placeholderValueMap() *ErasedImmutableMap {
 	return this.placeholderValueMap_
 }
 

@@ -612,14 +612,14 @@ func (this *TypedAstSerializer_ColorTypeSerializer) generateTypePool() *TypePool
 }
 
 type TypedAstSerializer_1 struct {
-	cap_propertyNamesBuilder *ImmutableSet_Builder
+	cap_propertyNamesBuilder *ErasedImmutableSet_Builder
 }
 
 func (this *TypedAstSerializer_1) init_TypedAstSerializer_1() {
 
 }
 
-func new_TypedAstSerializer_1(cap_propertyNamesBuilder *ImmutableSet_Builder) *TypedAstSerializer_1 {
+func new_TypedAstSerializer_1(cap_propertyNamesBuilder *ErasedImmutableSet_Builder) *TypedAstSerializer_1 {
 	this := &TypedAstSerializer_1{}
 	this.cap_propertyNamesBuilder = cap_propertyNamesBuilder
 	this.init_TypedAstSerializer_1()

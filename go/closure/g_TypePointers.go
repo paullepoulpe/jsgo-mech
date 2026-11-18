@@ -33,7 +33,7 @@ func TypePointers_isAxiomatic(x int32) bool {
 	return (x < TypePointers_AXIOMATIC_COLOR_COUNT)
 }
 
-var TypePointers_OFFSET_TO_AXIOMATIC_COLOR *ImmutableList
+var TypePointers_OFFSET_TO_AXIOMATIC_COLOR *ErasedImmutableList
 var TypePointers_AXIOMATIC_COLOR_COUNT int32
 
 var TypePointers_clinit_done bool

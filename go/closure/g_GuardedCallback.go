@@ -105,7 +105,7 @@ func (this *GuardedCallback) visitGuarded(p0 *NodeTraversal, p1 Node, p2 Node) {
 	this.self_.(*PolyfillUsageFinder_Traverser).visitGuarded_impl(p0, p1, p2)
 }
 
-var GuardedCallback_CAN_HAVE_GUARDS *ImmutableSet
+var GuardedCallback_CAN_HAVE_GUARDS *ErasedImmutableSet
 
 var GuardedCallback_clinit_done bool
 

@@ -67,39 +67,39 @@ func (this *RescopeGlobalSymbolsInfo) globalSymbolNamespace() string {
 	return this.globalSymbolNamespace_
 }
 
-func (this *RescopeGlobalSymbolsInfo) externNames() *ImmutableSet {
+func (this *RescopeGlobalSymbolsInfo) externNames() *ErasedImmutableSet {
 	return this.externNames_
 }
 
-func (this *RescopeGlobalSymbolsInfo) crossChunkNames() *ImmutableSet {
+func (this *RescopeGlobalSymbolsInfo) crossChunkNames() *ErasedImmutableSet {
 	return this.crossChunkNames_
 }
 
-func (this *RescopeGlobalSymbolsInfo) crossChunkNamesWithWriteFromOtherChunk() *ImmutableSet {
+func (this *RescopeGlobalSymbolsInfo) crossChunkNamesWithWriteFromOtherChunk() *ErasedImmutableSet {
 	return this.crossChunkNamesWithWriteFromOtherChunk_
 }
 
-func (this *RescopeGlobalSymbolsInfo) crossChunkNamesUsedInNonDependentChunk() *ImmutableSet {
+func (this *RescopeGlobalSymbolsInfo) crossChunkNamesUsedInNonDependentChunk() *ErasedImmutableSet {
 	return this.crossChunkNamesUsedInNonDependentChunk_
 }
 
-func (this *RescopeGlobalSymbolsInfo) globalNamesWithReadInDefiningChunk() *ImmutableSet {
+func (this *RescopeGlobalSymbolsInfo) globalNamesWithReadInDefiningChunk() *ErasedImmutableSet {
 	return this.globalNamesWithReadInDefiningChunk_
 }
 
-func (this *RescopeGlobalSymbolsInfo) globalNamesWithInnerScopeWriteInDefiningChunk() *ImmutableSet {
+func (this *RescopeGlobalSymbolsInfo) globalNamesWithInnerScopeWriteInDefiningChunk() *ErasedImmutableSet {
 	return this.globalNamesWithInnerScopeWriteInDefiningChunk_
 }
 
-func (this *RescopeGlobalSymbolsInfo) globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk() *ImmutableSet {
+func (this *RescopeGlobalSymbolsInfo) globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk() *ErasedImmutableSet {
 	return this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_
 }
 
-func (this *RescopeGlobalSymbolsInfo) maybeReferencesThis() *ImmutableSet {
+func (this *RescopeGlobalSymbolsInfo) maybeReferencesThis() *ErasedImmutableSet {
 	return this.maybeReferencesThis_
 }
 
-func (this *RescopeGlobalSymbolsInfo) wrappedCrossChunkNames() *ImmutableSet {
+func (this *RescopeGlobalSymbolsInfo) wrappedCrossChunkNames() *ErasedImmutableSet {
 	return this.wrappedCrossChunkNames_
 }
 

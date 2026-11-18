@@ -206,7 +206,7 @@ func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 		}
 		var numKeys int32 = result.getTemplateParamCount()
 		if numKeys < resolvedTypeArgs.size() {
-			resolvedTypeArgs = cast_[*ImmutableList](resolvedTypeArgs.subList(0, numKeys))
+			resolvedTypeArgs = cast_[*ErasedImmutableList](resolvedTypeArgs.subList(0, numKeys))
 		}
 		result = this.registry.createTemplatizedTypeImmutableList(resultAsObject, resolvedTypeArgs).up_JSType()
 		this.setReferencedType(result.resolve(reporter))
@@ -571,7 +571,7 @@ func (this *NamedType) getTypeClass() JSTypeClass {
 }
 
 // getTemplateTypes: an object that is exactly a NamedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
-func (this *NamedType) getTemplateTypes() *ImmutableList {
+func (this *NamedType) getTemplateTypes() *ErasedImmutableList {
 	if p, _ := this.self_.(*NamedType); p == this {
 		return this.getTemplateTypes_impl()
 	}

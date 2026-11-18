@@ -1420,7 +1420,7 @@ func (this *ClosureRewriteModule_ExportDefinition) getLocalName() OptionalOf[str
 	}()
 }
 
-var ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS *ImmutableSet
+var ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS *ErasedImmutableSet
 
 var ClosureRewriteModule_ExportDefinition_clinit_done bool
 

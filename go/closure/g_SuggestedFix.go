@@ -41,7 +41,7 @@ func (this *SuggestedFix) getAlternatives() ImmutableListOf[*SuggestedFix] {
 }
 
 func (this *SuggestedFix) getNonDefaultAlternatives() []*SuggestedFix {
-	return sliceImm_(tc_p_SuggestedFix, cast_[*ImmutableList](this.alternatives.subList(1, this.alternatives.size())))
+	return sliceImm_(tc_p_SuggestedFix, cast_[*ErasedImmutableList](this.alternatives.subList(1, this.alternatives.size())))
 }
 
 func (this *SuggestedFix) isNoOp() bool {

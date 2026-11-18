@@ -453,7 +453,7 @@ func (this *FunctionTypeBuilder) inferClosurePrimitive(info *JSDocInfo) *Functio
 func (this *FunctionTypeBuilder) setConstructorTemplateTypeNames(templates *TList[*TemplateType], ctor Node) {
 	if !templates.isEmpty() {
 		this.constructorTemplateTypeNames = ImmutableList_copyOf(Collection(templates.asList()))
-		this.templateTypeNames = func() *ImmutableList {
+		this.templateTypeNames = func() *ErasedImmutableList {
 			if this.templateTypeNames.isEmpty() {
 				return ImmutableList_copyOf(Collection(templates.asList()))
 			}
@@ -484,14 +484,14 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		return ImmutableList_of()
 	}
 	var unboundedTemplates *TList[*TemplateType] = newTList_(tc_p_TemplateType)
-	for _, el := range immElems_(cast_[*ImmutableSet](infoTypeKeys.keySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](infoTypeKeys.keySet())) {
 		templateKey := str_(el)
 		unboundedTemplates.add(this.typeRegistry.createTemplateType(templateKey))
 	}
 	this.templateScope = this.typeRegistry.createScopeWithTemplates(this.templateScope, Iterable(unboundedTemplates.asList()))
 	var templates ImmutableList_BuilderOf[*TemplateType] = ImmutableList_builder()
 	var templatesToBounds *TMap[*TemplateType, *JSType] = newTMap_(tch_p_TemplateType, tc_p_JSType)
-	for _, el2 := range immElems_(cast_[*ImmutableSet](infoTypeKeys.entrySet())) {
+	for _, el2 := range immElems_(cast_[*ErasedImmutableSet](infoTypeKeys.entrySet())) {
 		entry := icast_Map_Entry(el2)
 		var expr *JSTypeExpression = cast_[*JSTypeExpression](entry.getValue())
 		var typeBound *JSType = this.typeRegistry.evaluateTypeExpression(cast_[*JSTypeExpression](entry.getValue()), this.templateScope)
@@ -511,7 +511,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		template.setBound(bound)
 		templates.add(obj_(template))
 	}
-	for _, el3 := range immElems_(cast_[*ImmutableSet](infoTypeTransformations.entrySet())) {
+	for _, el3 := range immElems_(cast_[*ErasedImmutableSet](infoTypeTransformations.entrySet())) {
 		entry := icast_Map_Entry(el3)
 		if allowTypeTransformations {
 			templates.add(obj_(this.typeRegistry.createTemplateTypeWithTransformation(str_(entry.getKey()), Node_of_(entry.getValue()))))
@@ -536,7 +536,7 @@ func (this *FunctionTypeBuilder) inferTemplateTypeName(info *JSDocInfo, ownerTyp
 			this.templateTypeNames = templates
 		}
 	}
-	var ownerTypeKeys ImmutableListOf[*TemplateType] = func() *ImmutableList {
+	var ownerTypeKeys ImmutableListOf[*TemplateType] = func() *ErasedImmutableList {
 		if ownerType != nil {
 			return ownerType.getTemplateTypeMap().getTemplateKeys()
 		}

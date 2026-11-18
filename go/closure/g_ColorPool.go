@@ -221,7 +221,7 @@ func (this *ColorPool_Builder) build() *ColorPool {
 			this.idToProto.put(id, shard, shard.typePool.getType(i))
 		}
 	})
-	for _, el := range immElems_(cast_[*ImmutableSet](StandardColors_AXIOMATIC_COLORS.keySet())) {
+	for _, el := range immElems_(cast_[*ErasedImmutableSet](StandardColors_AXIOMATIC_COLORS.keySet())) {
 		id := cast_[*ColorId](el)
 		MalformedTypedAstException_checkWellFormed_boolean_String_Object(!this.idToProto.containsRow(obj_(id)), "Found serialized definiton for axiomatic color", obj_(id))
 	}

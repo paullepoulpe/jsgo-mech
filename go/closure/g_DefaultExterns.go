@@ -37,8 +37,8 @@ func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *TMa
 	return out
 }
 
-var DefaultExterns_BUILTIN_LANG_EXTERNS *ImmutableList
-var DefaultExterns_BROWSER_EXTERN_DEP_ORDER *ImmutableList
+var DefaultExterns_BUILTIN_LANG_EXTERNS *ErasedImmutableList
+var DefaultExterns_BROWSER_EXTERN_DEP_ORDER *ErasedImmutableList
 
 var DefaultExterns_clinit_done bool
 

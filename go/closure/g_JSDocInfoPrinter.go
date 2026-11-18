@@ -184,7 +184,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	var typeTransformations ImmutableMapOf[string, Node] = info.getTypeTransformations()
 	if !typeTransformations.isEmpty() {
 		multiline = true
-		for _, el := range immElems_(cast_[*ImmutableSet](typeTransformations.entrySet())) {
+		for _, el := range immElems_(cast_[*ErasedImmutableSet](typeTransformations.entrySet())) {
 			e := icast_Map_Entry(el)
 			var name string = str_(e.getKey())
 			var tranformationDefinition string = new_CodePrinter_Builder(Node_of_(e.getValue())).build()
@@ -218,9 +218,9 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	var suppressions ImmutableMapOf[ImmutableSetOf[string], string] = info.getSuppressionsAndTheirDescription()
 	if !suppressions.isEmpty() {
-		for _, el2 := range immElems_(cast_[*ImmutableSet](suppressions.entrySet())) {
+		for _, el2 := range immElems_(cast_[*ErasedImmutableSet](suppressions.entrySet())) {
 			suppression := icast_Map_Entry(el2)
-			var warnings []string = arrmap_(cast_[*ImmutableSet](suppression.getKey()).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
+			var warnings []string = arrmap_(cast_[*ErasedImmutableSet](suppression.getKey()).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 			func() {
 				arr_15 := warnings
 				tmp_16 := arrmap_(arr_15, func(v_ string) any { return strobj_(v_) })

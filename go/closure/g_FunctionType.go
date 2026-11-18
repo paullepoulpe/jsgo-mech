@@ -855,7 +855,7 @@ func (this *FunctionType) resolveTypeListHelper(list ImmutableListOf[*ObjectType
 		resolvedList.add(resolved.self())
 		changed = bor_(changed, !JSCompObjects_identical(resolved.self(), type_.self()))
 	}
-	return func() *ImmutableList {
+	return func() *ErasedImmutableList {
 		if changed {
 			return resolvedList.build()
 		}
@@ -987,7 +987,7 @@ func (this *FunctionType) getConstructorOnlyTemplateParameters() ImmutableListOf
 	}
 	var map_ *TemplateTypeMap = this.getTemplateTypeMap()
 	var ctorOnlyKeyCount int32 = (this.getTemplateParamCount() - this.getInstanceType().getTemplateParamCount())
-	return cast_[*ImmutableList](map_.getTemplateKeys().subList((map_.size() - ctorOnlyKeyCount), map_.size()))
+	return cast_[*ErasedImmutableList](map_.getTemplateKeys().subList((map_.size() - ctorOnlyKeyCount), map_.size()))
 }
 
 func (this *FunctionType) isAmbiguousConstructor() bool {

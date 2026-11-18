@@ -302,7 +302,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) es6ImportSpecifiers() *SimpleMulti
 	return this.es6ImportSpecifiers_
 }
 
-func (this *ModuleMetadataMap_ModuleMetadata) nestedModules() *ImmutableList {
+func (this *ModuleMetadataMap_ModuleMetadata) nestedModules() *ErasedImmutableList {
 	return this.nestedModules_
 }
 

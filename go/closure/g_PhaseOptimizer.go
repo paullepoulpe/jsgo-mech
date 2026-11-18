@@ -138,7 +138,7 @@ var PhaseOptimizer_logger *Logger
 
 const PhaseOptimizer_START_TIME int32 = 0
 
-var PhaseOptimizer_CODE_REMOVING_PASSES *ImmutableList
+var PhaseOptimizer_CODE_REMOVING_PASSES *ErasedImmutableList
 
 const PhaseOptimizer_MAX_LOOPS int32 = 100
 const PhaseOptimizer_OPTIMIZE_LOOP_ERROR string = "Fixed point loop exceeded the maximum number of iterations."

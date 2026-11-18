@@ -281,10 +281,10 @@ func (this *AstAnalyzer) getPropertyKind(name string) AccessorSummary_PropertyAc
 	}()
 }
 
-var AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS *ImmutableSet
-var AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS *ImmutableSet
-var AstAnalyzer_REGEXP_METHODS *ImmutableSet
-var AstAnalyzer_STRING_REGEXP_METHODS *ImmutableSet
+var AstAnalyzer_CONSTRUCTORS_WITHOUT_SIDE_EFFECTS *ErasedImmutableSet
+var AstAnalyzer_BUILTIN_FUNCTIONS_WITHOUT_SIDEEFFECTS *ErasedImmutableSet
+var AstAnalyzer_REGEXP_METHODS *ErasedImmutableSet
+var AstAnalyzer_STRING_REGEXP_METHODS *ErasedImmutableSet
 
 var AstAnalyzer_clinit_done bool
 
