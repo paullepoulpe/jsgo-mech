@@ -19,3 +19,8 @@ done
 perl -pi -e "$expr" go/closure/*.go
 for f in tlist tmap tset tdeque timm tsorted; do git mv go/closure/rt_$f.go go/closure/rt_j$f.go; done
 gofmt -w go/closure/*.go
+# Second trial: the field typed_ of the erased immutable types (rt_guava.go, rt_guava_map.go:
+# the typed twin the translator's typed immutables keep there) is jtyped_; the post-flip
+# runtime patch 011-6909e22a gives the same types a field of that name (its typed copy).
+perl -pi -e 's/\btyped_\b/jtyped_/g' go/closure/*.go
+gofmt -w go/closure/*.go

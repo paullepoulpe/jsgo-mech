@@ -116,9 +116,9 @@ type ImmutableCollection struct {
 	list_  *ImmutableCollection
 	all_   []any // multiset: the elements with repetition
 	byOrd  []any // immutable enum set: the element with ordinal i at i (nil where absent)
-	// typed_ is the typed list or set (*JTList[T], *JTSet[K]: rt_timm.go) that typed code sees
+	// jtyped_ is the typed list or set (*JTList[T], *JTSet[K]: rt_timm.go) that typed code sees
 	// this collection as, once it has reached a typed declaration: the same Java object.
-	typed_ any
+	jtyped_ any
 }
 
 type ImmutableList = ImmutableCollection

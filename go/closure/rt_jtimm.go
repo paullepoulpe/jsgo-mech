@@ -12,7 +12,7 @@ import "sync"
 // ImmutableSet / ImmutableMap (rt_guava.go, rt_guava_map.go) with the same elements, boxed:
 // asImm(), which asList() / asSet() / asMap() also return for an immutable collection. The
 // twin is made the first time erased code needs it (the contents never change, so the copy
-// cannot be told from the collection), and it knows its typed collection (typed_). An
+// cannot be told from the collection), and it knows its typed collection (jtyped_). An
 // immutable collection that erased code made enters a typed declaration through jtlistImm_ /
 // tsetImm_ / tmapImm_, which make the typed collection of its twin once. Either way a Java
 // object is one typed object and one erased object, each found from the other, so == and
@@ -54,7 +54,7 @@ func jboxAll_[T any](c *jtconv_[T], s []T) []any {
 
 // immAlt_ holds the typed collections of an erased immutable collection that typed code sees
 // at a second Go type (unchecked code: the same list as a List<Object> and a List<String>);
-// the first is in typed_.
+// the first is in jtyped_.
 var immAlt_ = struct {
 	mu sync.Mutex
 	m  map[any][]any
@@ -124,7 +124,7 @@ func jtlistImm_[T any](c *jtconv_[T], ic *ImmutableCollection) *JTList[T] {
 	if ic == nil {
 		return nil
 	}
-	if l, ok := ic.typed_.(*JTList[T]); ok {
+	if l, ok := ic.jtyped_.(*JTList[T]); ok {
 		return l
 	}
 	return tlistImmNew_(c, ic)
@@ -146,11 +146,11 @@ func tlistImmNew_[T any](c *jtconv_[T], ic *ImmutableCollection) *JTList[T] {
 		l.view.l = l
 		return l
 	}
-	if ic.typed_ != nil {
+	if ic.jtyped_ != nil {
 		return immAltGet_(any(ic), mk)
 	}
 	l := mk()
-	ic.typed_ = l
+	ic.jtyped_ = l
 	return l
 }
 
@@ -162,7 +162,7 @@ func (l *JTList[T]) asImm() *ImmutableCollection {
 	}
 	if l.twin == immPending_ {
 		t := &ImmutableCollection{kind: icList_, items: jboxAll_(l.c, l.items)}
-		t.typed_ = l
+		t.jtyped_ = l
 		l.twin = t
 	} else if l.twin == nil || l.twin == unmodMark_ {
 		classCastImm_("java.util.ArrayList", "com.google.common.collect.ImmutableList")
@@ -231,7 +231,7 @@ func tsetImm_[K comparable](c *jtconv_[K], ic *ImmutableCollection) *JTSet[K] {
 	if ic == nil {
 		return nil
 	}
-	if s, ok := ic.typed_.(*JTSet[K]); ok {
+	if s, ok := ic.jtyped_.(*JTSet[K]); ok {
 		return s
 	}
 	return tsetImmNew_(c, ic)
@@ -263,11 +263,11 @@ func tsetImmNew_[K comparable](c *jtconv_[K], ic *ImmutableCollection) *JTSet[K]
 		s.twin = ic
 		return s
 	}
-	if ic.typed_ != nil {
+	if ic.jtyped_ != nil {
 		return immAltGet_(any(ic), mk)
 	}
 	s := mk()
-	ic.typed_ = s
+	ic.jtyped_ = s
 	return s
 }
 
@@ -293,7 +293,7 @@ func (s *JTSet[K]) asImm() *ImmutableCollection {
 	if s.twin == immPending_ {
 		// the twin's index is built on its first lookup (ImmutableCollection.find_)
 		t := &ImmutableCollection{kind: icSet_, items: jboxAll_(s.c, s.keys)}
-		t.typed_ = s
+		t.jtyped_ = s
 		s.twin = t
 	} else if s.twin == nil || s.twin == sortedMark_ {
 		classCastImm_("java.util."+s.view.goName_(), "com.google.common.collect.ImmutableSet")
@@ -393,7 +393,7 @@ func tmapImm_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *Immutable
 	if im == nil {
 		return nil
 	}
-	if m, ok := im.typed_.(*JTMap[K, V]); ok {
+	if m, ok := im.jtyped_.(*JTMap[K, V]); ok {
 		return m
 	}
 	return tmapImmNew_(kc, vc, im)
@@ -417,11 +417,11 @@ func tmapImmNew_[K comparable, V any](kc *jtconv_[K], vc *jtconv_[V], im *Immuta
 		m.imm = &timmMap_{twin: im}
 		return m
 	}
-	if im.typed_ != nil {
+	if im.jtyped_ != nil {
 		return immAltGet_(any(im), mk)
 	}
 	m := mk()
-	im.typed_ = m
+	im.jtyped_ = m
 	return m
 }
 
@@ -437,7 +437,7 @@ func (m *JTMap[K, V]) asImm() *ImmutableMap {
 	if x.twin == nil {
 		// the twin's index is built on its first lookup (ImmutableMap.index_)
 		t := &ImmutableMap{kind: imMap_, keys: jboxAll_(m.kc, m.keys), vals: jboxAll_(m.vc, m.vals)}
-		t.typed_ = m
+		t.jtyped_ = m
 		if s, ok := x.keys.(*JTSet[K]); ok {
 			// its key set is the one that typed code has
 			t.keySet_ = s.asImm()
@@ -663,7 +663,7 @@ func (b *TListBuilder[T]) addAll(from Iterable) *TListBuilder[T] {
 		}
 		return b
 	case *ImmutableCollection:
-		if l, ok := x.typed_.(*JTList[T]); ok {
+		if l, ok := x.jtyped_.(*JTList[T]); ok {
 			b.items = append(b.items, l.items...)
 			return b
 		}
@@ -720,7 +720,7 @@ func (b *TSetBuilder[K]) addAll(from Iterable) *TSetBuilder[K] {
 		}
 		return b
 	case *ImmutableCollection:
-		switch t := x.typed_.(type) {
+		switch t := x.jtyped_.(type) {
 		case *JTSet[K]:
 			b.items = append(b.items, t.keys...)
 			return b
@@ -777,7 +777,7 @@ func (b *TMapBuilder[K, V]) putAll(from Map) *TMapBuilder[K, V] {
 	case *jtmapView_[K, V]:
 		t = x.m
 	case *ImmutableMap:
-		t, _ = x.typed_.(*JTMap[K, V])
+		t, _ = x.jtyped_.(*JTMap[K, V])
 	}
 	if t != nil {
 		keys, vals := t.liveKV()
