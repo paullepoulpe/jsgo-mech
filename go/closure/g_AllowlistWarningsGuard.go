@@ -217,14 +217,14 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 		var warning *JSError = it_1.v
 		warningsByType.put(obj_(warning.type_()), strobj_(this.outer_.formatWarning_2(warning, true)))
 	}
-	it_3 := foreach_(any(warningsByType.keySet()))
+	it_3 := foreach_(warningsByType.keySet())
 	for it_3.next() {
 		var type_ *DiagnosticType = cast_[*DiagnosticType](it_3.v)
 		if DiagnosticGroups_DEPRECATED.matchesDiagnosticType(type_) {
 			continue
 		}
 		cast_[*Output](cast_[*Output](cast_[*Output](out.append_CharSequence("\n# Warning ")).append_CharSequence(strobj_(type_.key_))).append_CharSequence(": ")).println(str_(first_(AllowlistWarningsGuard_LINE_SPLITTER.split_s(type_.formatField))))
-		it_5 := foreach_(any(warningsByType.get(obj_(type_))))
+		it_5 := foreach_(warningsByType.get(obj_(type_)))
 		for it_5.next() {
 			var warning string = str_(it_5.v)
 			out.println(warning)

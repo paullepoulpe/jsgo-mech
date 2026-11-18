@@ -1230,7 +1230,7 @@ func (this *GlobalNamespace_Name) getParent() *GlobalNamespace_Name {
 
 func (this *GlobalNamespace_Name) getDeepestCommonAncestorChunk(chunkGraph *JSChunkGraph) *JSChunk {
 	var commonAncestor *JSChunk = cast_[*GlobalNamespace_Ref](this.getDeclaration()).getChunk()
-	it_1 := foreach_(any(this.getRefs()))
+	it_1 := foreach_(this.getRefs())
 	for it_1.next() {
 		var r *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
 		var rChunk *JSChunk = r.getChunk()
@@ -1422,7 +1422,7 @@ func (this *GlobalNamespace_Name) removeRef(ref *GlobalNamespace_Ref) {
 func (this *GlobalNamespace_Name) removeRefAndUpdateState(ref *GlobalNamespace_Ref) {
 	if ref == this.declaration_ {
 		this.declaration_ = nil
-		it_1 := foreach_(any(this.getRefs()))
+		it_1 := foreach_(this.getRefs())
 		for it_1.next() {
 			var maybeNewDecl *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
 			if maybeNewDecl.type__ == GlobalNamespace_Ref_Type_SET_FROM_GLOBAL {
@@ -1597,7 +1597,7 @@ func (this *GlobalNamespace_Name) calculateInlinability() GlobalNamespace_Inlina
 		}
 		return cast_[*GlobalNamespace_Ref](this.getDeclaration()).getChunk()
 	}()
-	it_1 := foreach_(any(this.getRefs()))
+	it_1 := foreach_(this.getRefs())
 L_2:
 	for it_1.next() {
 		var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)

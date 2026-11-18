@@ -21,7 +21,7 @@ func new_PrintStreamErrorReportGenerator(formatter MessageFormatter, stream *Out
 }
 
 func (this *PrintStreamErrorReportGenerator) generateReport(manager *SortingErrorManager) {
-	it_1 := foreach_(any(manager.getSortedDiagnostics()))
+	it_1 := foreach_(manager.getSortedDiagnostics())
 	for it_1.next() {
 		var e *SortingErrorManager_ErrorWithLevel = cast_[*SortingErrorManager_ErrorWithLevel](it_1.v)
 		this.println(e.level_, e.error_)

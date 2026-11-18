@@ -67,7 +67,7 @@ func (this *PruningAnalysis) calculateBottlenecks() *JTMap[string, any] {
 func (this *PruningAnalysis) buildGraph() *DiGraph[string] {
 	var graph *DiGraph[string] = LinkedDirectedGraph_create[string, string]().up_DiGraph()
 	graph.createNode(PruningAnalysis_VIRTUAL_ROOT)
-	it_1 := foreach_(any(this.sorter_.getSortedList()))
+	it_1 := foreach_(this.sorter_.getSortedList())
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
 		graph.createNode(input.getName())
@@ -77,7 +77,7 @@ func (this *PruningAnalysis) buildGraph() *DiGraph[string] {
 		var input *CompilerInput = it_3.v
 		graph.connect(PruningAnalysis_VIRTUAL_ROOT, nil, input.getName())
 	}
-	it_5 := foreach_(any(this.sorter_.getSortedList()))
+	it_5 := foreach_(this.sorter_.getSortedList())
 	for it_5.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_5.v)
 		var name string = input.getName()
@@ -136,7 +136,7 @@ func (this *PruningAnalysis_Result) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && objequalsDyn_(this.entryPointDependencyCount_.asMap(), any(o.entryPointDependencyCount_.asMap())) && objequalsDyn_(this.bottleneckBlame_.asMap(), any(o.bottleneckBlame_.asMap()))
+	return true && objequalsDyn_(this.entryPointDependencyCount_.asMap(), o.entryPointDependencyCount_.asMap()) && objequalsDyn_(this.bottleneckBlame_.asMap(), o.bottleneckBlame_.asMap())
 }
 
 func (this *PruningAnalysis_Result) hashCode() int32 {

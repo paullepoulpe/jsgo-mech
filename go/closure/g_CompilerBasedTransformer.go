@@ -213,7 +213,7 @@ func (this *CompilerBasedTransformer_CompileResult) init_CompilerBasedTransforme
 	if nn_ == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	this.errors_ = jtlistImm_(jtc_p_JSError, cast_[*ImmutableList](any(nn_)))
+	this.errors_ = jtlistImm_(jtc_p_JSError, cast_[*ImmutableList](nn_))
 	this.transformed_ = transformed
 	this.sourceMap_ = sourceMap
 }

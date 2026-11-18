@@ -40,7 +40,7 @@ func (this *GatherModuleMetadata) process_2(externs Node, root Node) {
 }
 
 func GatherModuleMetadata_isValidModuleId(id string) bool {
-	it_1 := foreach_(any(GatherModuleMetadata_DOT_SPLITTER.split_s(id)))
+	it_1 := foreach_(GatherModuleMetadata_DOT_SPLITTER.split_s(id))
 	for it_1.next() {
 		var segment string = str_(it_1.v)
 		if segment == "" {
@@ -397,7 +397,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 				var callParent Node = n.getParent()
 				var lhs Node = callParent.getFirstChild()
 				if callParent.isDestructuringLhs() {
-					it_2 := foreach_(any(lhs.children()))
+					it_2 := foreach_(lhs.children())
 					for it_2.next() {
 						var key Node = Node_of_(it_2.v)
 						if key.isStringKey() {

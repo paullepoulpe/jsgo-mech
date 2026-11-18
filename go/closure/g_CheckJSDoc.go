@@ -46,7 +46,7 @@ func (this *CheckJSDoc) checkJsDocInBlockComments(fileName Optional[string]) {
 	if !this.compiler_.getOptions().preservesDetailedSourceInfo() {
 		return
 	}
-	it_1 := foreach_(any(this.compiler_.getComments(fileName)))
+	it_1 := foreach_(this.compiler_.getComments(fileName))
 	for it_1.next() {
 		var comment *Comment = cast_[*Comment](it_1.v)
 		if comment.type__ == Comment_Type_BLOCK {
@@ -496,7 +496,7 @@ func (this *CheckJSDoc) validateJsDocTypeNames(info *JSDocInfo) {
 	if info == nil {
 		return
 	}
-	it_1 := foreach_(any(info.getTypeNodes()))
+	it_1 := foreach_(info.getTypeNodes())
 	for it_1.next() {
 		var typeNode Node = Node_of_(it_1.v)
 		NodeUtil_visitPreOrder_Node_Visitor(typeNode, CheckJSDoc_CheckJsdocTypes_as_NodeUtil_Visitor(this.checkJsDocTypesVisitor))

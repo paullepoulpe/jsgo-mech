@@ -57,7 +57,7 @@ func ClosureRewriteModule_getBinaryModuleNamespace(namespaceId string) string {
 
 func (this *ClosureRewriteModule) rewriteJsdoc(info *JSDocInfo, scope *Scope) {
 	var replacer *ClosureRewriteModule_ReplaceJsDocRefs = new_ClosureRewriteModule_ReplaceJsDocRefs(this, scope)
-	it_1 := foreach_(any(info.getTypeNodes()))
+	it_1 := foreach_(info.getTypeNodes())
 	for it_1.next() {
 		var typeNode Node = Node_of_(it_1.v)
 		NodeUtil_visitPreOrder_Node_Visitor(typeNode, ClosureRewriteModule_ReplaceJsDocRefs_as_NodeUtil_Visitor(replacer))
@@ -882,7 +882,7 @@ func ClosureRewriteModule_markConstAndCopyJsDoc(from Node, target Node) {
 
 func (this *ClosureRewriteModule) recordExportToInline(exportDefinition *ClosureRewriteModule_ExportDefinition) {
 	if ok_, a1_, a2_ := exportDefinition.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()), exportDefinition, this.currentScript.exportsToInline.asMap().keySet(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("exportDefinition: %s\n\nexportsToInline keys: %s", []any{a1_, any(a2_)})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("exportDefinition: %s\n\nexportsToInline keys: %s", []any{a1_, a2_})).self())
 	}
 	if ok_, a1_ := (this.currentScript.exportsToInline.put(exportDefinition.nameDecl, exportDefinition) == nil), exportDefinition.nameDecl; !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Already found a mapping for inlining export: %s", []any{a1_})).self())

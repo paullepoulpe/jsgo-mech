@@ -238,7 +238,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 	if (info != nil) && (info.getImplementedInterfaceCount() > 0) {
 		if this.isConstructor_ {
 			this.implementedInterfaces = jnewTList_(jtc_p_ObjectType)
-			it_1 := foreach_(any(info.getImplementedInterfaces()))
+			it_1 := foreach_(info.getImplementedInterfaces())
 			for it_1.next() {
 				var t *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
 				var maybeInterType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
@@ -255,7 +255,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 	if this.isInterface_ {
 		this.extendedInterfaces = jnewTList_(jtc_p_ObjectType)
 		if info != nil {
-			it_3 := foreach_(any(info.getExtendedInterfaces()))
+			it_3 := foreach_(info.getExtendedInterfaces())
 			for it_3.next() {
 				var t *JSTypeExpression = cast_[*JSTypeExpression](it_3.v)
 				var maybeInterfaceType *JSType = t.evaluate(this.templateScope, this.typeRegistry)

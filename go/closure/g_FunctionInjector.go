@@ -432,7 +432,7 @@ func (this *FunctionInjector) inliningLowersCost(fnChunk *JSChunk, fnNode Node, 
 	var referencesUsingBlockInlining int32 = 0
 	var checkChunks bool = (isRemovable && (fnChunk != nil))
 	var chunkGraph *JSChunkGraph = this.compiler_.getChunkGraph()
-	it_1 := foreach_(any(refs))
+	it_1 := foreach_(refs)
 	for it_1.next() {
 		var ref *FunctionInjector_Reference = to_FunctionInjector_Reference(it_1.v)
 		if ref.mode_ == FunctionInjector_InliningMode_BLOCK {

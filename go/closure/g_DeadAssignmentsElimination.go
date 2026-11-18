@@ -99,7 +99,7 @@ func (this *DeadAssignmentsElimination) isRemovableAssign(n Node) bool {
 
 func (this *DeadAssignmentsElimination) tryRemoveDeadAssignments(t *NodeTraversal, cfg *ControlFlowGraph[Node], allVarsInFn *JTMap[string, *Var]) {
 	var nodes IterableOf[DiGraph_DiGraphNode[Node]] = Iterable(cfg.getNodes())
-	it_1 := foreach_(any(nodes))
+	it_1 := foreach_(nodes)
 L_2:
 	for it_1.next() {
 		var cfgNode DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](it_1.v)

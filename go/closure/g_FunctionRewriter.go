@@ -33,13 +33,13 @@ func (this *FunctionRewriter) process_2(externs Node, root Node) {
 		}
 		var helperCodeCost int32 = InlineCostEstimator_getCost_Node(helperCode)
 		var savings int32 = 0
-		it_3 := foreach_(any(reductions))
+		it_3 := foreach_(reductions)
 		for it_3.next() {
 			var reduction *FunctionRewriter_Reduction = cast_[*FunctionRewriter_Reduction](it_3.v)
 			savings += reduction.estimateSavings()
 		}
 		if savings > (helperCodeCost + FunctionRewriter_SAVINGS_THRESHOLD) {
-			it_5 := foreach_(any(reductions))
+			it_5 := foreach_(reductions)
 			for it_5.next() {
 				var reduction *FunctionRewriter_Reduction = cast_[*FunctionRewriter_Reduction](it_5.v)
 				reduction.apply()

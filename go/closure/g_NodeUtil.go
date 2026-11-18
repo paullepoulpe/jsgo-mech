@@ -2613,7 +2613,7 @@ func NodeUtil_redeclareVarsInsideBranch(branch Node) {
 		return
 	}
 	var parent Node = NodeUtil_getAddingRoot(branch)
-	it_1 := foreach_(any(vars))
+	it_1 := foreach_(vars)
 	for it_1.next() {
 		var nameNode Node = Node_of_(it_1.v)
 		var var_ Node = IR_var_Node(IR_name(nameNode.getString()).srcref(nameNode)).srcref(nameNode)
@@ -4094,7 +4094,7 @@ func NodeUtil_collectExternVariableNames(compiler *AbstractCompiler, externs Nod
 	var externsRefs *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler, ReferenceCollector_DO_NOTHING_BEHAVIOR, ScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler)))
 	externsRefs.process(externs)
 	var externsNames *TSetBuilder[string] = newTSetBuilder_(jtc_string)
-	it_1 := foreach_(any(externsRefs.getAllSymbols()))
+	it_1 := foreach_(externsRefs.getAllSymbols())
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
 		if !v.isParam() {
@@ -4146,7 +4146,7 @@ func NodeUtil_markFunctionsDeletedChangeTracker(node Node, changeTracker *Change
 
 func NodeUtil_getParentChangeScopeNodes(scopeNodes ListOf[Node]) *JTList[Node] {
 	var parentScopeNodes *JTSet[Node] = jtsetFrom_(jtc_Node, Collection(scopeNodes))
-	it_1 := foreach_(any(scopeNodes))
+	it_1 := foreach_(scopeNodes)
 	for it_1.next() {
 		var scopeNode Node = Node_of_(it_1.v)
 		parentScopeNodes.add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
@@ -4879,7 +4879,7 @@ func new_NodeUtil_1(cap_nameVars *JTSet[string]) *NodeUtil_1 {
 func (this *NodeUtil_1) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
 	if currentScope.isModuleScope() {
-		it_1 := foreach_(any(currentScope.getVarIterable()))
+		it_1 := foreach_(currentScope.getVarIterable())
 		for it_1.next() {
 			var v *Var = cast_[*Var](it_1.v)
 			this.cap_nameVars.add(v.getName())
@@ -4920,7 +4920,7 @@ func new_NodeUtil_2(cap_nameVarMap *JTMap[string, *Var], cap_orderedVars *JTList
 
 func (this *NodeUtil_2) enterScope(t *NodeTraversal) {
 	var currentScope *Scope = t.getScope()
-	it_1 := foreach_(any(currentScope.getVarIterable()))
+	it_1 := foreach_(currentScope.getVarIterable())
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
 		this.cap_nameVarMap.put(v.getName(), v)

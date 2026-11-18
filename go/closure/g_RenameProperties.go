@@ -97,7 +97,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		var parent Node = nodeEntry.getValue()
 		var firstArg Node = nodeEntry.getKey().getSecondChild()
 		var sb strBuilder_
-		it_5 := foreach_(any(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString())))
+		it_5 := foreach_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()))
 		for it_5.next() {
 			var oldName string = str_(it_5.v)
 			var p *RenameProperties_Property = this.propertyMap.get(oldName)
@@ -138,7 +138,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 }
 
 func (this *RenameProperties) reusePropertyNames(reservedNames SetOf[string], allProps CollectionOf[*RenameProperties_Property]) {
-	it_1 := foreach_(any(allProps))
+	it_1 := foreach_(allProps)
 	for it_1.next() {
 		var prop *RenameProperties_Property = cast_[*RenameProperties_Property](it_1.v)
 		var prevName Optional[string] = this.prevUsedPropertyMap.lookupNewName(prop.oldName)
@@ -244,7 +244,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 			this.countCallCandidates(t, n)
 			var stringArgument Node = n.getSecondChild()
 			if !this.outer_.propertyRenameEligibilityFilter(n.box_()) {
-				it_2 := foreach_(any(RenameProperties_DOT_SPLITTER.split_s(stringArgument.getString())))
+				it_2 := foreach_(RenameProperties_DOT_SPLITTER.split_s(stringArgument.getString()))
 				for it_2.next() {
 					var name string = str_(it_2.v)
 					this.outer_.filteredOutNames.add(name)
@@ -305,7 +305,7 @@ func (this *RenameProperties_ProcessProperties) countCallCandidates(t *NodeTrave
 		t.report(callNode, RenameProperties_BAD_CALL, []string{fnName})
 		return
 	}
-	it_1 := foreach_(any(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString())))
+	it_1 := foreach_(RenameProperties_DOT_SPLITTER.split_s(firstArg.getString()))
 	for it_1.next() {
 		var name string = str_(it_1.v)
 		if !TokenStream_isJSIdentifier(name) {

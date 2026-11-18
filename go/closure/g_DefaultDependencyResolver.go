@@ -37,7 +37,7 @@ func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[st
 		var depsFile *DependencyFile = it_1.v
 		depsFile.ensureUpToDate()
 	}
-	it_3 := foreach_(any(symbols))
+	it_3 := foreach_(symbols)
 	for it_3.next() {
 		var symbol string = str_(it_3.v)
 		this.addDependency(symbol, seen, list)

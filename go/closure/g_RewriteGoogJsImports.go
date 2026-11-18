@@ -127,7 +127,7 @@ func (this *RewriteGoogJsImports) findGoogJsScriptNode(root Node) Node {
 }
 
 func RewriteGoogJsImports_allFromGoog(bindings CollectionOf[*Binding], googJsPath *ModuleLoader_ModulePath) bool {
-	it_1 := foreach_(any(bindings))
+	it_1 := foreach_(bindings)
 	for it_1.next() {
 		var b *Binding = cast_[*Binding](it_1.v)
 		if b.originatingExport().modulePath() != googJsPath {

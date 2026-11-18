@@ -59,7 +59,7 @@ func (this *MaybeReachingVariableUse) flowThrough_impl(n Node, input *MaybeReach
 
 func (this *MaybeReachingVariableUse) hasExceptionHandler(cfgNode Node) bool {
 	var branchEdges ListOf[DiGraph_DiGraphEdge[Node]] = this.getCfg().getOutEdges(cfgNode)
-	it_1 := foreach_(any(branchEdges))
+	it_1 := foreach_(branchEdges)
 	for it_1.next() {
 		var edge DiGraph_DiGraphEdge[Node] = cast_[DiGraph_DiGraphEdge[Node]](it_1.v)
 		if cast_[ControlFlowGraph_Branch](edge.getValue()) == ControlFlowGraph_Branch_ON_EX {

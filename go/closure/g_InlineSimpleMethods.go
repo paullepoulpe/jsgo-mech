@@ -79,7 +79,7 @@ func InlineSimpleMethods_isEmptyMethod(fn Node) bool {
 
 func (this *InlineSimpleMethods) allDefinitionsEquivalent(definitions SetOf[Node]) bool {
 	var first Node = 0
-	it_1 := foreach_(any(definitions))
+	it_1 := foreach_(definitions)
 	for it_1.next() {
 		var n Node = Node_of_(it_1.v)
 		if first == 0 {
@@ -92,7 +92,7 @@ func (this *InlineSimpleMethods) allDefinitionsEquivalent(definitions SetOf[Node
 }
 
 func (this *InlineSimpleMethods) anyDefinitionsNotInlineable(definitions SetOf[Node]) bool {
-	it_1 := foreach_(any(definitions))
+	it_1 := foreach_(definitions)
 	for it_1.next() {
 		var n Node = Node_of_(it_1.v)
 		if n.isAsyncFunction() || n.isGeneratorFunction() {

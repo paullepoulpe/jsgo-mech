@@ -195,7 +195,7 @@ func InlineAndCollapseProperties_isUnsafelyReassigned(name *GlobalNamespace_Name
 		return false
 	}
 	var foundOriginalDefinition bool = false
-	it_1 := foreach_(any(name.getRefs()))
+	it_1 := foreach_(name.getRefs())
 	for it_1.next() {
 		var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
 		if !ref.isSet() {
@@ -438,7 +438,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAllSubcl
 	}
 	var subclassNameObj *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](namespace.getOwnSlot(subclassName))
 	if (subclassNameObj != nil) && (subclassNameObj.subclassingGetCount() > 0) {
-		it_1 := foreach_(any(subclassNameObj.getRefs()))
+		it_1 := foreach_(subclassNameObj.getRefs())
 		for it_1.next() {
 			var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
 			if ref.isSubclassingGet() {
@@ -1028,7 +1028,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() *J
 			continue
 		}
 		var initialized bool = (cast_[*GlobalNamespace_Ref](name.getDeclaration()) != nil)
-		it_7 := foreach_(any(name.getRefs()))
+		it_7 := foreach_(name.getRefs())
 		for it_7.next() {
 			var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_7.v)
 			if ref.isDeleteProp() {
@@ -1140,7 +1140,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesTo(
 		}
 		return 0
 	}(), alias)
-	it_1 := foreach_(any(n.getRefs()))
+	it_1 := foreach_(n.getRefs())
 	for it_1.next() {
 		var r *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
 		if r == cast_[*GlobalNamespace_Ref](n.getDeclaration()) {
@@ -1169,7 +1169,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenPrefixes(alia
 	if ((decl != nil) && (decl.getNode() != 0)) && decl.getNode().isGetProp() {
 		this.flattenNameRefAtDepth(alias, decl.getNode(), depth, originalName, isConstantName)
 	}
-	it_1 := foreach_(any(n.getRefs()))
+	it_1 := foreach_(n.getRefs())
 	for it_1.next() {
 		var r *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
 		if r == decl {

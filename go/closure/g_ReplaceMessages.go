@@ -94,7 +94,7 @@ func (this *ReplaceMessages) lookupMessage(callNode Node, bundle MessageBundle, 
 	if alternateMessage != nil {
 		var jsCodePlaceholderNames *JTSet[string] = message.jsPlaceholderNames()
 		var alternateMsgPlaceholderNames *JTSet[string] = alternateMessage.jsPlaceholderNames()
-		if !objequalsDyn_(jsCodePlaceholderNames.asSet(), any(alternateMsgPlaceholderNames.asSet())) {
+		if !objequalsDyn_(jsCodePlaceholderNames.asSet(), alternateMsgPlaceholderNames.asSet()) {
 			if jsCodePlaceholderNames.isEmpty() && ReplaceMessages_isStartOfIcuMessage(message.asIcuMessageString()) {
 				return alternateMessage
 			} else {
@@ -693,7 +693,7 @@ func (this *ReplaceMessages_FullReplacementMsgData) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.message_, o.message_) && this.messageNode_ == o.messageNode_ && equals_(this.messageOptions_, o.messageOptions_) && objequalsDyn_(this.placeholderValueMap_.asMap(), any(o.placeholderValueMap_.asMap()))
+	return true && equals_(this.message_, o.message_) && this.messageNode_ == o.messageNode_ && equals_(this.messageOptions_, o.messageOptions_) && objequalsDyn_(this.placeholderValueMap_.asMap(), o.placeholderValueMap_.asMap())
 }
 
 func (this *ReplaceMessages_FullReplacementMsgData) hashCode() int32 {
@@ -914,7 +914,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 				if !valueNode.isArrayLit() {
 					panic(new_IllegalStateException_String(objstr_("icu_placeholder_names must be an array")).self())
 				}
-				it_2 := foreach_(any(valueNode.children()))
+				it_2 := foreach_(valueNode.children())
 				for it_2.next() {
 					var valueNodeChild Node = Node_of_(it_2.v)
 					icuPlaceholderNames.add(valueNodeChild.getString())

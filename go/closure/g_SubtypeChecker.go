@@ -242,7 +242,7 @@ func (this *SubtypeChecker) isObjectSubtypeHelper(subtype *ObjectType, supertype
 	var subtypeCtor *FunctionType = subtype.getConstructor()
 	var supertypeCtor *FunctionType = supertype.getConstructor()
 	if (subtypeCtor != nil) && subtypeCtor.isInterface() {
-		it_1 := foreach_(any(subtype.getCtorExtendedInterfaces()))
+		it_1 := foreach_(subtype.getCtorExtendedInterfaces())
 		for it_1.next() {
 			var subtypeInterface *ObjectType = to_ObjectType(it_1.v)
 			if this.isSubtypeCaching(subtypeInterface.up_JSType(), supertype.up_JSType()) {
@@ -250,7 +250,7 @@ func (this *SubtypeChecker) isObjectSubtypeHelper(subtype *ObjectType, supertype
 			}
 		}
 	} else if (supertypeCtor != nil) && supertypeCtor.isInterface() {
-		it_3 := foreach_(any(subtype.getCtorImplementedInterfaces()))
+		it_3 := foreach_(subtype.getCtorImplementedInterfaces())
 		for it_3.next() {
 			var subtypeInterface *ObjectType = to_ObjectType(it_3.v)
 			if this.isSubtypeCaching(subtypeInterface.up_JSType(), supertype.up_JSType()) {
@@ -274,7 +274,7 @@ func (this *SubtypeChecker) isStructuralSubtypeHelper(subtype *ObjectType, super
 		}
 		return ImmutableSortedSet_as_Iterable(keys.stringKeys())
 	}()
-	it_1 := foreach_(any(props))
+	it_1 := foreach_(props)
 	for it_1.next() {
 		var property string = str_(it_1.v)
 		if !this.checkPropertyPresence(Property_Key(new_Property_StringKey(property)), subtype, supertype, optionality) {
@@ -287,7 +287,7 @@ func (this *SubtypeChecker) isStructuralSubtypeHelper(subtype *ObjectType, super
 		}
 		return Iterable(keys.knownSymbolKeys().asSet())
 	}()
-	it_3 := foreach_(any(knownSymbols))
+	it_3 := foreach_(knownSymbols)
 	for it_3.next() {
 		var knownSymbolType *KnownSymbolType = cast_[*KnownSymbolType](it_3.v)
 		var knownSymbolTypeKey Property_Key = Property_Key(new_Property_SymbolKey(knownSymbolType))

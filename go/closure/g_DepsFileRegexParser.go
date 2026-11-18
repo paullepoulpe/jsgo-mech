@@ -109,7 +109,7 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 
 func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) *JTList[*DependencyInfo_Require] {
 	var result *TListBuilder[*DependencyInfo_Require] = newTListBuilder_(jtc_p_DependencyInfo_Require)
-	it_1 := foreach_(any(symbols))
+	it_1 := foreach_(symbols)
 	for it_1.next() {
 		var symbol string = str_(it_1.v)
 		result.add(DependencyInfo_Require_parsedFromDeps(symbol))

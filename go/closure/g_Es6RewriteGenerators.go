@@ -853,7 +853,7 @@ func new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationCon
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) optimizeCaseIds() {
 	if ok_, a1_ := !this.allCases.isEmpty(), this.allCases.asList(); !ok_ {
-		panic(new_IllegalStateException_String(objstr_(any(a1_))).self())
+		panic(new_IllegalStateException_String(objstr_(a1_)).self())
 	}
 	it_1 := this.allCases.each()
 	for it_1.next() {

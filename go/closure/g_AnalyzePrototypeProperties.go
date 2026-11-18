@@ -51,7 +51,7 @@ func (this *AnalyzePrototypeProperties) init_AnalyzePrototypeProperties(compiler
 		if chunkGraph == nil {
 			this.symbolGraph.connect(this.externNode, nil, nameInfo)
 		} else {
-			it_3 := foreach_(any(chunkGraph.getAllChunks()))
+			it_3 := foreach_(chunkGraph.getAllChunks())
 			for it_3.next() {
 				var chunk *JSChunk = cast_[*JSChunk](it_3.v)
 				this.symbolGraph.connect(this.externNode, obj_(chunk), nameInfo)

@@ -335,7 +335,7 @@ func (this *RenameVars_ProcessVars) enterScope(t *NodeTraversal) {
 		return
 	}
 	var scope *Scope = t.getScope()
-	it_1 := foreach_(any(scope.getVarIterable()))
+	it_1 := foreach_(scope.getVarIterable())
 	for it_1.next() {
 		var current *Var = cast_[*Var](it_1.v)
 		if current.isBleedingFunction() {

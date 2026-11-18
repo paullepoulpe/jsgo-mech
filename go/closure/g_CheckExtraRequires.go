@@ -199,7 +199,7 @@ func (this *CheckExtraRequires) maybeAddJsDocUsages(n Node) {
 	if info == nil {
 		return
 	}
-	it_1 := foreach_(any(info.getTypeExpressions()))
+	it_1 := foreach_(info.getTypeExpressions())
 	for it_1.next() {
 		var e *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
 		it_3 := e.getAllTypeNames().each()

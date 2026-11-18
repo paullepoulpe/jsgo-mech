@@ -333,7 +333,7 @@ func (this *InlineFunctions) decomposeExpressions() {
 	for it_1.next() {
 		var functionState *InlineFunctions_FunctionState = it_1.v
 		if functionState.canInline() {
-			it_3 := foreach_(any(functionState.getReferences()))
+			it_3 := foreach_(functionState.getReferences())
 			for it_3.next() {
 				var ref *InlineFunctions_Reference = cast_[*InlineFunctions_Reference](it_3.v)
 				if ref.requiresDecomposition {
@@ -366,7 +366,7 @@ func (this *InlineFunctions) removeInlinedFunctions() {
 }
 
 func (this *InlineFunctions) verifyAllReferencesInlined(name string, functionState *InlineFunctions_FunctionState) {
-	it_1 := foreach_(any(functionState.getReferences()))
+	it_1 := foreach_(functionState.getReferences())
 	for it_1.next() {
 		var ref *InlineFunctions_Reference = cast_[*InlineFunctions_Reference](it_1.v)
 		if !ref.inlined {

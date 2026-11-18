@@ -293,7 +293,7 @@ func (this *TemplateAstMatcher) isUnresolvedType(type_ *JSType) bool {
 		return true
 	}
 	if type_.isUnionType() {
-		it_1 := foreach_(any(type_.getUnionMembers()))
+		it_1 := foreach_(type_.getUnionMembers())
 		for it_1.next() {
 			var alternate *JSType = to_JSType(it_1.v)
 			if this.isUnresolvedType(alternate) {

@@ -287,7 +287,7 @@ func (this *InlineProperties_ReplaceCandidates) hasInSupertypesList(subCtor *Col
 			ret_1 = true
 			return 1
 		}
-		it_2 := foreach_(any(this.outer_.registry.getDisambiguationSupertypes(subCtor)))
+		it_2 := foreach_(this.outer_.registry.getDisambiguationSupertypes(subCtor))
 		for it_2.next() {
 			var immediateSupertype *Color = cast_[*Color](it_2.v)
 			if !immediateSupertype.isUnion() && this.hasInSupertypesList(immediateSupertype, superCtor) {

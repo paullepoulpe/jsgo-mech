@@ -306,10 +306,10 @@ func (this *TypedScopeCreator) finishAndFreeze() {
 		var resolved *JSType = node.getJSType().resolve(this.typeParsingErrorReporter)
 		node.setJSType(resolved)
 	}
-	it_3 := foreach_(any(this.getAllMemoizedScopes()))
+	it_3 := foreach_(this.getAllMemoizedScopes())
 	for it_3.next() {
 		var scope *TypedScope = cast_[*TypedScope](it_3.v)
-		it_5 := foreach_(any(scope.getVarIterable()))
+		it_5 := foreach_(scope.getVarIterable())
 		for it_5.next() {
 			var var_ *TypedVar = cast_[*TypedVar](it_5.v)
 			var_.resolveType(this.typeParsingErrorReporter)
@@ -1449,7 +1449,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findOverriddenProperty(owner
 	if (propType != nil) && !propType.isUnknownType() {
 		result = propType
 	} else {
-		it_1 := foreach_(any(ownerType.getCtorImplementedInterfaces()))
+		it_1 := foreach_(ownerType.getCtorImplementedInterfaces())
 		for it_1.next() {
 			var iface *ObjectType = to_ObjectType(it_1.v)
 			propType = iface.getPropertyType(propName)
@@ -2226,7 +2226,7 @@ func (this *TypedScopeCreator_NormalScopeBuilder) visitPostorder_impl(t *NodeTra
 	case tokOrd1_EXPR_RESULT:
 		var names CollectionOf[*ProcessClosureProvidesAndRequires_ProvidedName] = Collection(this.outer_.providedNamesFromCall.get(n.box_()))
 		if names != nil {
-			it_2 := foreach_(any(names))
+			it_2 := foreach_(names)
 			for it_2.next() {
 				var name *ProcessClosureProvidesAndRequires_ProvidedName = cast_[*ProcessClosureProvidesAndRequires_ProvidedName](it_2.v)
 				this.declareProvidedNs(n, name)
@@ -2623,7 +2623,7 @@ func new_TypedScopeCreator_FirstOrderFunctionAnalyzer(outer_ *TypedScopeCreator)
 func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) enterScope_impl(t *NodeTraversal) {
 	var scope *Scope = t.getScope()
 	var root Node = scope.getRootNode()
-	it_1 := foreach_(any(scope.getVarIterable()))
+	it_1 := foreach_(scope.getVarIterable())
 	for it_1.next() {
 		var symbol *Var = cast_[*Var](it_1.v)
 		this.outer_.reservedNamesForScope.put(root.box_(), strobj_(symbol.getName()))

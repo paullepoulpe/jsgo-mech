@@ -43,7 +43,7 @@ func DominatorTree_compute[N comparable](graph *DiGraph[N], entry N) *DominatorT
 			}
 			var nodeIdx int32 = unbox_[int32](postOrderIndex.get(node))
 			var newIdomIdx int32 = -1
-			it_4 := foreach_(any(graph.getDirectedPredNodes(node)))
+			it_4 := foreach_(graph.getDirectedPredNodes(node))
 			for it_4.next() {
 				var pred DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](it_4.v)
 				var predValue N = pred.getValue()
@@ -54,7 +54,7 @@ func DominatorTree_compute[N comparable](graph *DiGraph[N], entry N) *DominatorT
 				}
 			}
 			if newIdomIdx != -1 {
-				it_6 := foreach_(any(graph.getDirectedPredNodes(node)))
+				it_6 := foreach_(graph.getDirectedPredNodes(node))
 				for it_6.next() {
 					var pred DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](it_6.v)
 					var predValue N = pred.getValue()
@@ -102,7 +102,7 @@ func DominatorTree_intersect(idomIndexes []int32, i int32, j int32) int32 {
 
 func DominatorTree_buildPostOrder[N comparable](graph *DiGraph[N], node N, postOrder ListOf[N], visited MapOf[N, BoxedOf[bool]]) {
 	visited.put(boxT_(node), any(bool(true)))
-	it_1 := foreach_(any(graph.getDirectedSuccNodes(node)))
+	it_1 := foreach_(graph.getDirectedSuccNodes(node))
 	for it_1.next() {
 		var succ DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](it_1.v)
 		var succValue N = succ.getValue()
@@ -117,7 +117,7 @@ func DominatorTree_computeSubtreeSizes[N comparable](node N, children *SimpleLis
 	var size int32 = 1
 	var nodeChildren ListOf[N] = children.get(boxT_(node))
 	if nodeChildren != nil {
-		it_1 := foreach_(any(nodeChildren))
+		it_1 := foreach_(nodeChildren)
 		for it_1.next() {
 			var child N = junboxT_[N](it_1.v)
 			size += DominatorTree_computeSubtreeSizes[N](child, children, sizes)

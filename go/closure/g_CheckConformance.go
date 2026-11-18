@@ -89,7 +89,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *JTL
 		}
 	}
 	var result *TListBuilder[*CheckConformance_Category] = newTListBuilder_(jtc_p_CheckConformance_Category)
-	it_3 := foreach_(any(builder.asMap().entrySet()))
+	it_3 := foreach_(builder.asMap().entrySet())
 	for it_3.next() {
 		var e Map_Entry = icast_Map_Entry(it_3.v)
 		result.add(new_CheckConformance_Category(icast_CheckConformance_Precondition(e.getKey()), jimmutableListCopyOf_(jtc_CheckConformance_Rule, icast_Collection(e.getValue()))))
@@ -109,7 +109,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 			continue
 		}
 		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
-		it_3 := foreach_(any(config.getRequirementList()))
+		it_3 := foreach_(config.getRequirementList())
 		for it_3.next() {
 			var requirement *Requirement = cast_[*Requirement](it_3.v)
 			if requirement.hasRuleId() {
@@ -123,7 +123,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 		if !config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
 			continue
 		}
-		it_7 := foreach_(any(config.getRequirementList()))
+		it_7 := foreach_(config.getRequirementList())
 		for it_7.next() {
 			var requirement *Requirement = cast_[*Requirement](it_7.v)
 			if requirement.hasExtends() {
@@ -148,7 +148,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 	it_1 := configs.each()
 	for it_1.next() {
 		var config *ConformanceConfig = it_1.v
-		it_3 := foreach_(any(config.getRequirementList()))
+		it_3 := foreach_(config.getRequirementList())
 		for it_3.next() {
 			var requirement *Requirement = cast_[*Requirement](it_3.v)
 			var builder *Requirement_Builder = cast_[*Requirement_Builder](requirement.toBuilder())
@@ -181,7 +181,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 	it_5 := configs.each()
 	for it_5.next() {
 		var config *ConformanceConfig = it_5.v
-		it_7 := foreach_(any(config.getRequirementList()))
+		it_7 := foreach_(config.getRequirementList())
 		for it_7.next() {
 			var requirement *Requirement = cast_[*Requirement](it_7.v)
 			if requirement.hasExtends() {
@@ -245,7 +245,7 @@ func CheckConformance_validateExtendingRequirement(compiler *AbstractCompiler, e
 		CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, ("no extendable requirement with rule_id: " + sstr_(extendingRequirement.getExtends())))
 		return false
 	}
-	it_1 := foreach_(any(extendingRequirement.getAllFields().keySet()))
+	it_1 := foreach_(extendingRequirement.getAllFields().keySet())
 	for it_1.next() {
 		var field *Descriptors_FieldDescriptor = cast_[*Descriptors_FieldDescriptor](it_1.v)
 		if !CheckConformance_EXTENDABLE_FIELDS.contains(field.getName()) {

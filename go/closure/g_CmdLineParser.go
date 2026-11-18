@@ -602,7 +602,7 @@ func (this *CmdLineParser_Option) printDefaultValue() Optional[string] {
 	if (values != nil) && !values.isEmpty() {
 		var buf strBuilder_
 		if values.size() > 1 {
-			it_1 := foreach_(any(values))
+			it_1 := foreach_(values)
 			for it_1.next() {
 				var v any = it_1.v
 				buf.append_char(func() uint16 {

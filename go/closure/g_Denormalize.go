@@ -33,7 +33,7 @@ func (this *Denormalize) afterExitScope(t *NodeTraversal, referenceMap Reference
 	var scopeRoot Node = t.getScopeRoot()
 	if scopeRoot.isBlock() && scopeRoot.getParent().isFunction() {
 		var changed bool = false
-		it_1 := foreach_(any(t.getScope().getVarIterable()))
+		it_1 := foreach_(t.getScope().getVarIterable())
 		for it_1.next() {
 			var v *Var = cast_[*Var](it_1.v)
 			var references *ReferenceCollection = referenceMap.getReferences_Var(v)

@@ -108,7 +108,7 @@ func (this *Source) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.path_ == o.path_ && this.sourceMap_ == o.sourceMap_ && this.sourceUrl_ == o.sourceUrl_ && this.sourceMappingUrl_ == o.sourceMappingUrl_ && objequalsDyn_(this.runtimes_.asSet(), any(o.runtimes_.asSet())) && objequalsDyn_(this.loadFlags_.asMap(), any(o.loadFlags_.asMap())) && this.estimatedSize_ == o.estimatedSize_ && objequalsBy_(this.codeSupplier_, o.codeSupplier_.self(), (*Source_Lazy).equals) && objequalsBy_(this.originalCodeSupplier_, o.originalCodeSupplier_.self(), (*Source_Lazy).equals)
+	return true && this.path_ == o.path_ && this.sourceMap_ == o.sourceMap_ && this.sourceUrl_ == o.sourceUrl_ && this.sourceMappingUrl_ == o.sourceMappingUrl_ && objequalsDyn_(this.runtimes_.asSet(), o.runtimes_.asSet()) && objequalsDyn_(this.loadFlags_.asMap(), o.loadFlags_.asMap()) && this.estimatedSize_ == o.estimatedSize_ && objequalsBy_(this.codeSupplier_, o.codeSupplier_.self(), (*Source_Lazy).equals) && objequalsBy_(this.originalCodeSupplier_, o.originalCodeSupplier_.self(), (*Source_Lazy).equals)
 }
 
 func (this *Source) hashCode() int32 {

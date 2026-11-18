@@ -35,7 +35,7 @@ func (this *CrossChunkMethodMotion) process_2(externRoot Node, root Node) {
 
 func (this *CrossChunkMethodMotion) moveMethods(allNameInfo CollectionOf[*AnalyzePrototypeProperties_NameInfo]) {
 	var hasStubDeclaration bool = this.idGenerator_.hasGeneratedAnyIds()
-	it_1 := foreach_(any(allNameInfo))
+	it_1 := foreach_(allNameInfo)
 	for it_1.next() {
 		var nameInfo *AnalyzePrototypeProperties_NameInfo = cast_[*AnalyzePrototypeProperties_NameInfo](it_1.v)
 		if !nameInfo.isReferenced() {

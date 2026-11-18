@@ -350,7 +350,7 @@ func (this *ExternExportsPass_Export) createExternsParamListFromFunctionType(fun
 func (this *ExternExportsPass_Export) createExternsParamListFromOriginalParamList(originalParamNames ListOf[string]) Node {
 	var paramList Node = IR_paramList([]Node{})
 	var nameGenerator NameGenerator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(ImmutableSet_as_Set(ImmutableSet_copyOf(Collection(originalParamNames))), "", jtsetEmptyImm_(tc_Character)))
-	it_1 := foreach_(any(originalParamNames))
+	it_1 := foreach_(originalParamNames)
 	for it_1.next() {
 		var originalParamName string = str_(it_1.v)
 		var externParamName string = func() string {
@@ -521,7 +521,7 @@ func new_ExternExportsPass_PropertyExport(outer_ *ExternExportsPass, exportPath 
 }
 
 func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
-	it_1 := foreach_(any(Lists_reverse(ExternExportsPass_computePathPrefixes(this.exportPath).asList())))
+	it_1 := foreach_(Lists_reverse(ExternExportsPass_computePathPrefixes(this.exportPath).asList()))
 	for it_1.next() {
 		var currentPath string = str_(it_1.v)
 		if len(currentPath) == 0 {
