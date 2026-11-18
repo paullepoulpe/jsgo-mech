@@ -11,13 +11,13 @@ type SourceFile_parser struct {
 func (this *SourceFile_parser) zero_SourceFile_parser() {
 	this.name_ = nullstr_
 	this.contents = nullstr_
-	this.contentsU16 = utf16Of_(this.contents)
+	this.contentsU16 = utf16Kept_(this.contents)
 }
 
 func (this *SourceFile_parser) init_SourceFile_parser(name string, contents string) {
 	this.name_ = name
 	this.contents = contents
-	this.contentsU16 = utf16Of_(this.contents)
+	this.contentsU16 = utf16Kept_(this.contents)
 }
 
 func new_SourceFile_parser(name string, contents string) *SourceFile_parser {

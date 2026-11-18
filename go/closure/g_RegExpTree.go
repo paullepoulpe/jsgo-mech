@@ -697,13 +697,13 @@ func (this *RegExpTree_Text) up_RegExpTree() *RegExpTree {
 
 func (this *RegExpTree_Text) zero_RegExpTree_Text() {
 	this.text = nullstr_
-	this.textU16 = utf16Of_(this.text)
+	this.textU16 = utf16Kept_(this.text)
 }
 
 func (this *RegExpTree_Text) init_RegExpTree_Text(text string) {
 	this.RegExpTree_RegExpTreeAtom.init_RegExpTree_RegExpTreeAtom()
 	this.text = text
-	this.textU16 = utf16Of_(this.text)
+	this.textU16 = utf16Kept_(this.text)
 }
 
 func new_RegExpTree_Text(text string) *RegExpTree_Text {
@@ -1878,14 +1878,14 @@ type RegExpTree_DecomposedCharset struct {
 
 func (this *RegExpTree_DecomposedCharset) zero_RegExpTree_DecomposedCharset() {
 	this.namedGroups_ = nullstr_
-	this.namedGroups_U16 = utf16Of_(this.namedGroups_)
+	this.namedGroups_U16 = utf16Kept_(this.namedGroups_)
 }
 
 func (this *RegExpTree_DecomposedCharset) init_RegExpTree_DecomposedCharset(inverted bool, ranges *CharRanges, namedGroups string) {
 	this.inverted_ = inverted
 	this.ranges_ = ranges
 	this.namedGroups_ = namedGroups
-	this.namedGroups_U16 = utf16Of_(this.namedGroups_)
+	this.namedGroups_U16 = utf16Kept_(this.namedGroups_)
 }
 
 func new_RegExpTree_DecomposedCharset(inverted bool, ranges *CharRanges, namedGroups string) *RegExpTree_DecomposedCharset {
@@ -2240,7 +2240,7 @@ func (this *RegExpTree_1Parser) init_RegExpTree_1Parser() {
 func new_RegExpTree_1Parser(cap_pattern string, cap_flags string) *RegExpTree_1Parser {
 	this := &RegExpTree_1Parser{}
 	this.cap_pattern = cap_pattern
-	this.cap_patternU16 = utf16Of_(this.cap_pattern)
+	this.cap_patternU16 = utf16Kept_(this.cap_pattern)
 	this.cap_flags = cap_flags
 	this.init_RegExpTree_1Parser()
 	return this
