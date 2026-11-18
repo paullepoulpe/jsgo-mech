@@ -171,17 +171,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) reset_impl() {
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) reportInvalidDestructuringRequire(requested *UnresolvedModule, importRecord *Import) {
 	var additionalInfo string = ""
-	var unresolvedGoogModule *ClosureModuleProcessor_UnresolvedGoogModule
-	_ = unresolvedGoogModule
-	if func() bool {
-		v_ := requested.self()
-		p, ok := v_.(*ClosureModuleProcessor_UnresolvedGoogModule)
-		if !ok {
-			return false
-		}
-		unresolvedGoogModule = p
-		return true
-	}() {
+	if unresolvedGoogModule, ok := requested.self().(*ClosureModuleProcessor_UnresolvedGoogModule); ok {
 		var exports *ImmutableMap[string, *Binding] = unresolvedGoogModule.namespace_
 		if exports.Has(Export_NAMESPACE) {
 			additionalInfo = Strings_lenientFormat("\nThe goog.module \"%s\" cannot be destructured as it contains a default export, not named exports. See %s.", []any{strobj_(importRecord.moduleRequest()), strobj_("https://github.com/google/closure-library/wiki/goog.module%3A-an-ES6-module-like-alternative-to-goog.provide#destructuring-imports")})

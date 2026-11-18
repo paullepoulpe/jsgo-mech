@@ -28,17 +28,7 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 		for genKey, genValue := range idGens.All() {
 			var name string = genKey
 			var map_ RenamingMap = genValue
-			var renamingToken RenamingToken
-			_ = renamingToken
-			if func() bool {
-				v_ := any(map_)
-				p, ok := v_.(RenamingToken)
-				if !ok {
-					return false
-				}
-				renamingToken = p
-				return true
-			}() {
+			if renamingToken, ok := any(map_).(RenamingToken); ok {
 				switch renamingToken {
 				case RenamingToken_DISABLE:
 					this.nameGenerators[name] = nil

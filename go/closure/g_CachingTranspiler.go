@@ -65,17 +65,8 @@ func new_CachingTranspiler_Key(path string, code string) *CachingTranspiler_Key 
 }
 
 func (this *CachingTranspiler_Key) equals(other any) bool {
-	var key *CachingTranspiler_Key
-	_ = key
-	return ((func() bool {
-		v_ := other
-		p, ok := v_.(*CachingTranspiler_Key)
-		if !ok {
-			return false
-		}
-		key = p
-		return true
-	}() && (key.path_ == this.path_)) && (key.code_ == this.code_))
+	key, ok := other.(*CachingTranspiler_Key)
+	return ((ok && (key.path_ == this.path_)) && (key.code_ == this.code_))
 }
 
 func (this *CachingTranspiler_Key) hashCode() int32 {

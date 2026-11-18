@@ -281,17 +281,8 @@ func (this *MaybeReachingVariableUse_ReachingUses) join(other *MaybeReachingVari
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) equals(other any) bool {
-	var reachingUses *MaybeReachingVariableUse_ReachingUses
-	_ = reachingUses
-	return (func() bool {
-		v_ := other
-		p, ok := v_.(*MaybeReachingVariableUse_ReachingUses)
-		if !ok {
-			return false
-		}
-		reachingUses = p
-		return true
-	}() && reachingUses.mayUsePMap.equivalent(this.mayUsePMap, &BiPredicate_tfn_PMap_Node_Node__PMap_Node_Node_{func(p0 PMap[Node, Node], p1 PMap[Node, Node]) bool {
+	reachingUses, ok := other.(*MaybeReachingVariableUse_ReachingUses)
+	return (ok && reachingUses.mayUsePMap.equivalent(this.mayUsePMap, &BiPredicate_tfn_PMap_Node_Node__PMap_Node_Node_{func(p0 PMap[Node, Node], p1 PMap[Node, Node]) bool {
 		return MaybeReachingVariableUse_ReachingUses_equalMaps(p0, p1)
 	}}))
 }
