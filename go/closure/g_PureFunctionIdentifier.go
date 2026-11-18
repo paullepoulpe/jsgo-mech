@@ -205,7 +205,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) []*Pu
 			}
 			var summariesForFunction CollectionOf[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = Collection(this.summariesForAllNamesOfFunctionByNode.get(callee.box_()))
 			if summariesForFunction.isEmpty() {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Function missed during analysis: %s", []any{callee.box_()})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Function missed during analysis: %s", callee.box_())))
 			}
 			results = immAddAll_(tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary, results, Iterable(summariesForFunction))
 		} else {
@@ -665,7 +665,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) exitScope(t *NodeTraver
 	}
 	for sideEffectInfo := range elemsAs_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](this.outer_.summariesForAllNamesOfFunctionByNode.get(functionEntry.root.box_())) {
 		if v_, a1_ := sideEffectInfo, functionEntry.root; v_ == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat("%s has no side effect info.", []any{a1_.box_()})))
+			panic(new_NullPointerException_String(Strings_lenientFormat("%s has no side effect info.", a1_.box_())))
 		}
 		if sideEffectInfo.mutatesGlobalState() {
 			continue

@@ -39,7 +39,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 		var root N = junboxT_[N](el_1)
 		var rootNode DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](this.graph.getNode(root))
 		if v_, a1_ := rootNode, boxT_(root); v_ == nil {
-			panic(new_NullPointerException_String(Strings_lenientFormat("Root not present in graph: %s", []any{a1_})))
+			panic(new_NullPointerException_String(Strings_lenientFormat("Root not present in graph: %s", a1_)))
 		}
 		var color *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(bitForRoot)
 		Map_merge(icast_Map(obj_(this.searchColoring)), rootNode, obj_(color), &BiFunction_tfn_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color_LowestCommonAncestorFinder_Color{func(p0 *LowestCommonAncestorFinder_Color, p1 *LowestCommonAncestorFinder_Color) *LowestCommonAncestorFinder_Color {

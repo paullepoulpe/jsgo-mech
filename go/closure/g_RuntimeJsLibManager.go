@@ -69,10 +69,10 @@ func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibMana
 	}
 	var parts []string = sliceImm_(tc_string, Splitter_on('.').splitToList_s(fieldName))
 	if int32(len(parts)) < 2 {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp., found %s", []any{strobj_(fieldName)})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp., found %s", strobj_(fieldName))))
 	}
 	if sliceAt_(parts, 0) != "$jscomp" {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp, found %s", []any{strobj_(fieldName)})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp, found %s", strobj_(fieldName))))
 	}
 	var propName string = sliceAt_(parts, 1)
 	var resource Optional[string] = Optional_ofNullable[string](RuntimeJsLibManager_FieldsTable_INSTANCE.Get(propName))
@@ -356,7 +356,7 @@ func (this *RuntimeJsLibManager_InternalField) assertInjected() RuntimeJsLibMana
 	case RuntimeJsLibManager_RuntimeLibraryMode_NO_OP, RuntimeJsLibManager_RuntimeLibraryMode_RECORD_ONLY:
 	case RuntimeJsLibManager_RuntimeLibraryMode_RECORD_AND_VALIDATE_FIELDS, RuntimeJsLibManager_RuntimeLibraryMode_INJECT, RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES:
 		if !this.injected {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Field %s is not injected", []any{strobj_(this.uncompiledNameField)})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Field %s is not injected", strobj_(this.uncompiledNameField))))
 		}
 	}
 	return this
@@ -367,7 +367,7 @@ func (this *RuntimeJsLibManager_InternalField) matches(node Node) bool {
 }
 
 func (this *RuntimeJsLibManager_InternalField) toString() string {
-	return Strings_lenientFormat("Field<%s, %s>", []any{strobj_(this.uncompiledNameField), strobj_(this.resourceNameField)})
+	return Strings_lenientFormat("Field<%s, %s>", strobj_(this.uncompiledNameField), strobj_(this.resourceNameField))
 }
 
 func (this *RuntimeJsLibManager_InternalField) qualifiedName() string {

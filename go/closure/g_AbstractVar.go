@@ -250,7 +250,7 @@ func (this *AbstractVar) declarationType() Token_rhino {
 		}
 	}
 	if !this.isImplicit() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("The nameNode for %s must be a descendant of one of: %s", []any{this.self(), obj_(AbstractVar_DECLARATION_TYPES)})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("The nameNode for %s must be a descendant of one of: %s", this.self(), obj_(AbstractVar_DECLARATION_TYPES))))
 	}
 	return 0
 }

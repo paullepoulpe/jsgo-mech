@@ -193,7 +193,7 @@ func (this *Es6RewriteDestructuring) rewriteVarDestructuringDeclaration(destruct
 	var var_ Node = destructuringLhs.getParent()
 	NodeUtil_visitLhsNodesInNode(destructuringLhs, (&Consumer_tfn_Node{func(name Node) {
 		if !name.isName() {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", []any{name.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("lhs in destructuring declaration should be a simple name. (%s)", name.box_())))
 		}
 		var newName Node = IR_name(name.getString()).srcref(name)
 		if name.getBooleanProp(Node_IS_CONSTANT_NAME) {
@@ -204,7 +204,7 @@ func (this *Es6RewriteDestructuring) rewriteVarDestructuringDeclaration(destruct
 	}}).accept)
 	var destructuringPattern Node = destructuringLhs.removeFirstChild()
 	if ok_, a1_ := destructuringPattern.isDestructuringPattern(), destructuringPattern.toStringTree(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected destructuring pattern but got %s", []any{strobj_(a1_)})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected destructuring pattern but got %s", strobj_(a1_))))
 	}
 	var rhs Node = destructuringLhs.removeFirstChild()
 	var assign Node = this.astFactory_.createAssign(destructuringPattern, rhs)
@@ -520,7 +520,7 @@ func (this *Es6RewriteDestructuring) validateNoAwaitOrYieldInNestedAssignmentPat
 		return (n.isAwait() || n.isYield())
 	}}).apply, NodeUtil_MATCH_NOT_FUNCTION) != 0)
 	if hasAwaitOrYieldInLhs {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot transpile yet: destructuring assignment referencing await or yield in lhs, in nested sub-expression: %s", []any{pattern.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot transpile yet: destructuring assignment referencing await or yield in lhs, in nested sub-expression: %s", pattern.box_())))
 	}
 }
 

@@ -50,7 +50,7 @@ func baseCatch_(r any) any {
 	return catch_(r)
 }
 
-func Strings_lenientFormat(template string, args []any) string {
+func Strings_lenientFormat(template string, args ...any) string {
 	template = sstr_(template)
 	strs := make([]string, 0, len(args))
 	if args == nil {
@@ -127,31 +127,31 @@ func Preconditions_checkArgument_boolean_Object(b bool, msg any) {
 
 func Preconditions_checkArgument_boolean_String_Object(b bool, t string, p1 any) {
 	if !b {
-		argFail_(Strings_lenientFormat(t, []any{p1}))
+		argFail_(Strings_lenientFormat(t, p1))
 	}
 }
 
 func Preconditions_checkArgument_boolean_String_Object_Object(b bool, t string, p1 any, p2 any) {
 	if !b {
-		argFail_(Strings_lenientFormat(t, []any{p1, p2}))
+		argFail_(Strings_lenientFormat(t, p1, p2))
 	}
 }
 
 func Preconditions_checkArgument_boolean_String_Object_Object_Object(b bool, t string, p1 any, p2 any, p3 any) {
 	if !b {
-		argFail_(Strings_lenientFormat(t, []any{p1, p2, p3}))
+		argFail_(Strings_lenientFormat(t, p1, p2, p3))
 	}
 }
 
 func Preconditions_checkArgument_boolean_String_int(b bool, t string, p1 int32) {
 	if !b {
-		argFail_(Strings_lenientFormat(t, []any{p1}))
+		argFail_(Strings_lenientFormat(t, p1))
 	}
 }
 
 func Preconditions_checkArgument_boolean_String_int_int(b bool, t string, p1 int32, p2 int32) {
 	if !b {
-		argFail_(Strings_lenientFormat(t, []any{p1, p2}))
+		argFail_(Strings_lenientFormat(t, p1, p2))
 	}
 }
 
@@ -171,14 +171,14 @@ func Preconditions_checkNotNull_Object_Object(v any, msg any) any {
 
 func Preconditions_checkNotNull_Object_String_Object(v any, t string, p1 any) any {
 	if v == nil {
-		nullFail_(Strings_lenientFormat(t, []any{p1}))
+		nullFail_(Strings_lenientFormat(t, p1))
 	}
 	return v
 }
 
 func Preconditions_checkNotNull_Object_String_Object_Object(v any, t string, p1 any, p2 any) any {
 	if v == nil {
-		nullFail_(Strings_lenientFormat(t, []any{p1, p2}))
+		nullFail_(Strings_lenientFormat(t, p1, p2))
 	}
 	return v
 }
@@ -209,7 +209,7 @@ func Preconditions_checkNotNullT_Object[T comparable](v T, msg any) T {
 func Preconditions_checkNotNullT_String_Object[T comparable](v T, t string, p1 any) T {
 	var zero T
 	if v == zero {
-		nullFail_(Strings_lenientFormat(t, []any{p1}))
+		nullFail_(Strings_lenientFormat(t, p1))
 	}
 	return v
 }
@@ -219,7 +219,7 @@ func Preconditions_checkNotNullT_String_Object[T comparable](v T, t string, p1 a
 func Preconditions_checkNotNullT_String_Object_Object[T comparable](v T, t string, p1 any, p2 any) T {
 	var zero T
 	if v == zero {
-		nullFail_(Strings_lenientFormat(t, []any{p1, p2}))
+		nullFail_(Strings_lenientFormat(t, p1, p2))
 	}
 	return v
 }
@@ -238,55 +238,55 @@ func Preconditions_checkState_boolean_Object(b bool, msg any) {
 
 func Preconditions_checkState_boolean_String_Object(b bool, t string, p1 any) {
 	if !b {
-		stateFail_(Strings_lenientFormat(t, []any{p1}))
+		stateFail_(Strings_lenientFormat(t, p1))
 	}
 }
 
-func Preconditions_checkState_boolean_String_ObjectArr(b bool, t string, args []any) {
+func Preconditions_checkState_boolean_String_ObjectArr(b bool, t string, args ...any) {
 	if !b {
-		stateFail_(Strings_lenientFormat(t, args))
+		stateFail_(Strings_lenientFormat(t, args...))
 	}
 }
 
 func Preconditions_checkState_boolean_String_Object_Object(b bool, t string, p1 any, p2 any) {
 	if !b {
-		stateFail_(Strings_lenientFormat(t, []any{p1, p2}))
+		stateFail_(Strings_lenientFormat(t, p1, p2))
 	}
 }
 
 func Preconditions_checkState_boolean_String_Object_Object_Object(b bool, t string, p1 any, p2 any, p3 any) {
 	if !b {
-		stateFail_(Strings_lenientFormat(t, []any{p1, p2, p3}))
+		stateFail_(Strings_lenientFormat(t, p1, p2, p3))
 	}
 }
 
 func Preconditions_checkState_boolean_String_Object_Object_Object_Object(b bool, t string, p1 any, p2 any, p3 any, p4 any) {
 	if !b {
-		stateFail_(Strings_lenientFormat(t, []any{p1, p2, p3, p4}))
+		stateFail_(Strings_lenientFormat(t, p1, p2, p3, p4))
 	}
 }
 
 func Preconditions_checkState_boolean_String_Object_int(b bool, t string, p1 any, p2 int32) {
 	if !b {
-		stateFail_(Strings_lenientFormat(t, []any{p1, p2}))
+		stateFail_(Strings_lenientFormat(t, p1, p2))
 	}
 }
 
 func Preconditions_checkState_boolean_String_int(b bool, t string, p1 int32) {
 	if !b {
-		stateFail_(Strings_lenientFormat(t, []any{p1}))
+		stateFail_(Strings_lenientFormat(t, p1))
 	}
 }
 
 func Preconditions_checkState_boolean_String_int_Object(b bool, t string, p1 int32, p2 any) {
 	if !b {
-		stateFail_(Strings_lenientFormat(t, []any{p1, p2}))
+		stateFail_(Strings_lenientFormat(t, p1, p2))
 	}
 }
 
 func Preconditions_checkState_boolean_String_int_int(b bool, t string, p1 int32, p2 int32) {
 	if !b {
-		stateFail_(Strings_lenientFormat(t, []any{p1, p2}))
+		stateFail_(Strings_lenientFormat(t, p1, p2))
 	}
 }
 

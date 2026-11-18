@@ -57,11 +57,11 @@ func (this *Es6RewriteClass) visitClass(t *NodeTraversal, classNode Node, parent
 	}
 	if metadata.hasSuperClass() {
 		if ok_, a1_ := metadata.superClassNameNode().isQualifiedName(), metadata.superClassNameNode(); !ok_ {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected Es6NormalizeClasses to make all extends clauses into qualified  names, found %s", []any{a1_.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected Es6NormalizeClasses to make all extends clauses into qualified  names, found %s", a1_.box_())))
 		}
 	}
 	if ok_, a1_ := NodeUtil_isStatement(metadata.insertionPoint().getNode()), metadata.insertionPoint().getNode(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("insertion point must be a statement: %s", []any{a1_.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("insertion point must be a statement: %s", a1_.box_())))
 	}
 	var constructor Node = 0
 	var classMembers Node = classNode.getLastChild()
@@ -82,10 +82,10 @@ func (this *Es6RewriteClass) visitClass(t *NodeTraversal, classNode Node, parent
 			} else if member.isEmpty() {
 			} else {
 				if !member.isMemberFunctionDef() && !member.isComputedProp() {
-					panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected class member: (%s)", []any{member.box_()})))
+					panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected class member: (%s)", member.box_())))
 				}
 				if member.getBooleanProp(Node_COMPUTED_PROP_VARIABLE) {
-					panic(new_IllegalStateException_String(Strings_lenientFormat("Member variables should have been transpiled earlier: (%s)", []any{member.box_()})))
+					panic(new_IllegalStateException_String(Strings_lenientFormat("Member variables should have been transpiled earlier: (%s)", member.box_())))
 				}
 				this.visitMethod(member, metadata)
 			}

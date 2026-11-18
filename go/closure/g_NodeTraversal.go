@@ -253,7 +253,7 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 		}
 	default:
 		if !s.isGlobal() && !s.isModuleScope() {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected global or module scope. Got: (%s)", []any{s.self()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected global or module scope. Got: (%s)", s.self())))
 		}
 		this.traverseWithScope(n, s)
 	}

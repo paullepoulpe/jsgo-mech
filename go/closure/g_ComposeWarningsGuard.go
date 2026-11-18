@@ -82,7 +82,7 @@ func (this *ComposeWarningsGuard) mustRunChecks_impl(group *DiagnosticGroup) Tri
 	var enable bool = this.enables(group)
 	var disable bool = this.disables(group)
 	if enable && disable {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("%s applied to %s", []any{obj_(this), obj_(group)})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s applied to %s", obj_(this), obj_(group))))
 	}
 	if enable {
 		return Tri_TRUE

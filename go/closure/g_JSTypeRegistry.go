@@ -912,7 +912,7 @@ func (this *JSTypeRegistry) declareTypeForExactScope(scope StaticScope, name str
 
 func (this *JSTypeRegistry) overwriteDeclaredType(scope StaticScope, name string, type_ *JSType) {
 	if !this.isDeclaredForScope(scope, name) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("missing name %s", []any{strobj_(name)})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("missing name %s", strobj_(name))))
 	}
 	this.register(scope, type_, name)
 }
@@ -1057,7 +1057,7 @@ func (this *JSTypeRegistry) getType_5(scope StaticTypedScope, jsTypeName string,
 		type_ = thisType.getTemplateTypeMap().getLastTemplateTypeKeyByName(jsTypeName).up_JSType()
 		if type_ != nil {
 			if !type_.isTemplateType() {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("expected:%s", []any{type_.self()})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("expected:%s", type_.self())))
 			}
 			return type_
 		}

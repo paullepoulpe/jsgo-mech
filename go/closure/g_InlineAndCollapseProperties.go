@@ -46,7 +46,7 @@ func InlineAndCollapseProperties_builder(compiler *AbstractCompiler) *InlineAndC
 
 func (this *InlineAndCollapseProperties) process_2(externs Node, root Node) {
 	if this.testAggressiveInliningOnly_ && this.propertyCollapseLevel != CompilerOptions_PropertyCollapseLevel_ALL {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("testAggressiveInlining is invalid for: %s", []any{obj_(this.propertyCollapseLevel)})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("testAggressiveInlining is invalid for: %s", obj_(this.propertyCollapseLevel))))
 	}
 	defer func() {
 		this.decisionsLog = nil
@@ -507,7 +507,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliasIfPo
 		var aliasVarName string = aliasLhsNode.getString()
 		var aliasVar *Var = cast_[*Var](alias.scope_.getVar(aliasVarName).self())
 		if aliasVar == nil {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected variable to be defined in scope (%s)", []any{strobj_(aliasVarName)})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected variable to be defined in scope (%s)", strobj_(aliasVarName))))
 		}
 		var collector *ReferenceCollector = new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(this.outer_.compiler_, ReferenceCollector_DO_NOTHING_BEHAVIOR, new_SyntacticScopeCreator_AbstractCompiler(this.outer_.compiler_), Predicates_equalTo(obj_(aliasVar)))
 		var aliasScope *Scope = cast_[*Scope](aliasVar.getScope())
@@ -723,7 +723,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasPro
 		return
 	}
 	if ok_, a1_, a2_ := !value.matchesQualifiedName(name.getFullName()), value, name.getFullName(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("%s should not match name %s", []any{a1_.box_(), strobj_(a2_)})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s should not match name %s", a1_.box_(), strobj_(a2_))))
 	}
 	for prop := range sliceAll_(name.props) {
 		this.rewriteNestedAliasReference(value, depth, newNodes, prop)
@@ -737,7 +737,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteNestedAl
 		var target Node = ref.getNode()
 		if target.isStringKey() && target.getParent().isDestructuringPattern() {
 			if !target.getGrandparent().isAssign() && !target.getGrandparent().isDestructuringLhs() {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Did not expect GlobalNamespace to create Ref for key in nested object pattern %s", []any{target.box_()})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Did not expect GlobalNamespace to create Ref for key in nested object pattern %s", target.box_())))
 			}
 			continue
 		}
@@ -1176,7 +1176,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenNameRefAtDept
 
 func (this *InlineAndCollapseProperties_CollapseProperties) flattenNameRef(alias string, n Node, parent Node, originalName string, isConstantName bool) {
 	if ok_, a1_, a2_ := n.isGetProp(), n.getToken(), n; !ok_ {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected GETPROP, found %s. Node: %s", []any{obj_(a1_), a2_.box_()})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected GETPROP, found %s. Node: %s", obj_(a1_), a2_.box_())))
 	}
 	var ref Node = NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, alias, n, Optional_of[string](originalName)).copyTypeFrom(n)
 	NodeUtil_copyNameAnnotations(n, ref)
@@ -1296,7 +1296,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) moveDeclarationIntoH
 	var varNode Node = newNode.getParent()
 	var initializer Node = newNode.getFirstChild()
 	if !varNode.isVar() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected declaration %s", []any{varNode.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected declaration %s", varNode.box_())))
 	}
 	var newRoot Node = commonAncestor.getInputs().get(0).(*CompilerInput).getAstRoot(this.outer_.compiler_)
 	if initializer == 0 {

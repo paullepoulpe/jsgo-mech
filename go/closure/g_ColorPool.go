@@ -353,7 +353,7 @@ func (this *ColorPool_Builder) reconcileUnionProtos(id *ColorId, viewToProto Map
 	}})
 	var result *Color = Color_createUnion(union)
 	if !id.equals_ColorId(result.getId()) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("%s == %s", []any{obj_(id), obj_(result)})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s == %s", obj_(id), obj_(result))))
 	}
 	return result
 }

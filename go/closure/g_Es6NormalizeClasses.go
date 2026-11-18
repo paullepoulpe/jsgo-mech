@@ -300,7 +300,7 @@ func (this *Es6NormalizeClasses) visit(t *NodeTraversal, n Node, parent Node) {
 	case tokOrd1_CLASS:
 		var currClassRecord *Es6NormalizeClasses_ClassRecord = this.classStack.pop()
 		if currClassRecord.classNode != n {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("unexpected node: %s", []any{n.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("unexpected node: %s", n.box_())))
 		}
 		if currClassRecord.normalizedNames.shouldExtractExtends_ {
 			if !this.canExtractExtendsSimply(n) {
@@ -318,11 +318,11 @@ func (this *Es6NormalizeClasses) visit(t *NodeTraversal, n Node, parent Node) {
 		}
 		var classNameNode Node = NodeUtil_getNameNode(n)
 		if classNameNode == 0 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Class missing a name: %s", []any{n.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Class missing a name: %s", n.box_())))
 		}
 		var classInsertionPoint Node = this.getStatementDeclaringClass(n, classNameNode)
 		if classInsertionPoint == 0 {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Class was not extracted: %s", []any{n.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Class was not extracted: %s", n.box_())))
 		}
 		if currClassRecord.bindingIdentifier.isPresent() && (parent.isName() || parent.isAssign()) {
 			n.getFirstChild().replaceWith(IR_empty().srcref(n.getFirstChild()))
@@ -868,7 +868,7 @@ func (this *Es6NormalizeClasses) createDefaultValueHook(paramName Node, defaultV
 
 func (this *Es6NormalizeClasses) addTemporaryInsertionPoint(ctorBlock Node, classRecord *Es6NormalizeClasses_ClassRecord) Node {
 	if ok_, a1_ := (int32(len(*classRecord.superCalls)) <= 1), classRecord.classNode; !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("classes with public fields must have only one super() call at the constructor root: %s", []any{a1_.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("classes with public fields must have only one super() call at the constructor root: %s", a1_.box_())))
 	}
 	var tempNode Node = IR_empty()
 	if int32(len(*classRecord.superCalls)) == 1 {
@@ -900,7 +900,7 @@ func (this *Es6NormalizeClasses) ensureSuperCallIsOwnStatement(superCall Node) N
 		return parent
 	}
 	if this.expressionDecomposer.canExposeExpression(superCall) == ExpressionDecomposer_DecompositionType_UNDECOMPOSABLE {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot decompose super() call in a class with class fields. Move super() call to the root of the constructor. %s", []any{superCall.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot decompose super() call in a class with class fields. Move super() call to the root of the constructor. %s", superCall.box_())))
 	}
 	this.expressionDecomposer.maybeExposeExpression(superCall)
 	this.expressionDecomposer.moveExpression(superCall)
@@ -1207,7 +1207,7 @@ func (this *Es6NormalizeClasses) visitThisAndSuper(t *NodeTraversal, n Node) {
 	var classNode Node = rootNode.getGrandparent()
 	var classRecord *Es6NormalizeClasses_ClassRecord = this.classStack.peek()
 	if ok_, a1_, a2_ := (classRecord.classNode == classNode), classRecord.classNode, classNode; !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("wrong class node: %s != %s", []any{a1_.box_(), a2_.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("wrong class node: %s != %s", a1_.box_(), a2_.box_())))
 	}
 	var newNameNode Node = 0
 	if forceRewriteStaticThis {

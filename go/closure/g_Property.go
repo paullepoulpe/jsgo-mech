@@ -21,7 +21,7 @@ func (this *Property) init_Property(name any, type_ *JSType, inferred bool, prop
 	}
 	this.name_ = name
 	if type_ == nil {
-		nullFail_(Strings_lenientFormat("Null type specified for %s", []any{name}))
+		nullFail_(Strings_lenientFormat("Null type specified for %s", name))
 	}
 	this.type__ = type_
 	this.inferred = inferred
@@ -48,7 +48,7 @@ func Property_createFromKey(name Property_Key, type_ *JSType, inferred bool, pro
 		panic(new_NullPointerException_0())
 	}()
 	if type_ == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("Null type specified for %s", []any{name})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("Null type specified for %s", name)))
 	}
 	return new_Property(nameObject, type_, inferred, propertyNode)
 }
@@ -117,7 +117,7 @@ func (this *Property) isFromExterns() bool {
 
 func (this *Property) setType(type_ *JSType) {
 	if type_ == nil {
-		nullFail_(Strings_lenientFormat("Null type specified for property %s", []any{this.name_}))
+		nullFail_(Strings_lenientFormat("Null type specified for property %s", this.name_))
 	}
 	this.type__ = type_
 }
@@ -143,7 +143,7 @@ func (this *Property) getScope() StaticScope {
 }
 
 func (this *Property) hashCode() int32 {
-	return Objects_hash([]any{this.name_, this.type__.self()})
+	return Objects_hash(this.name_, this.type__.self())
 }
 
 const Property_serialVersionUID int64 = 1

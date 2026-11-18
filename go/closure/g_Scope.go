@@ -80,7 +80,7 @@ func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition 
 		panic(new_IllegalArgumentException_0())
 	}
 	if !this.isGlobal() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot declare implicit goog namespace in local scope %s", []any{obj_(this)})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot declare implicit goog namespace in local scope %s", obj_(this))))
 	}
 	var var_ *Var = cast_[*Var](this.getOwnSlot(name))
 	if var_ == nil {

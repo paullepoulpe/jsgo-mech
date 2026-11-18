@@ -56,7 +56,7 @@ func (this *Parser) parseProgram() (ret_1 *ProgramTree) {
 			if p, ok := ex_.(Error_as); ok {
 				var e *Error = p.as_Error()
 				if strings.Contains(Object_toString(e.self()), "java.lang.StackOverflowError") {
-					this.reportError("Too deep recursion while parsing", []any{})
+					this.reportError("Too deep recursion while parsing")
 					ret_1 = nil
 					return
 				}
@@ -114,7 +114,7 @@ func (this *Parser) parseImportDeclaration() *ParseTree {
 		}
 	} else if Keywords_isKeyword(this.peekType()) {
 		var keyword *Token_parser = this.nextToken()
-		this.reportError_3(keyword, "cannot use keyword '%s' here.", []any{keyword.self()})
+		this.reportError_3(keyword, "cannot use keyword '%s' here.", keyword.self())
 	}
 	if parseExplicitNames {
 		if this.peek(TokenType_STAR) {
@@ -207,7 +207,7 @@ func (this *Parser) parseExportDeclaration() *ParseTree {
 		for _, tree := range exportSpecifierList {
 			var importedName *IdentifierToken = tree.asExportSpecifier().importedName
 			if importedName.isKeyword() {
-				this.reportError_3(importedName.up_Token_parser(), "cannot use keyword '%s' here.", []any{obj_(importedName)})
+				this.reportError_3(importedName.up_Token_parser(), "cannot use keyword '%s' here.", obj_(importedName))
 			}
 		}
 	}
@@ -623,7 +623,7 @@ func (this *Parser) parseFormalParameterList() *FormalParameterListTree {
 			}
 			if this.peek(TokenType_CLOSE_PAREN) {
 				if !this.config.atLeast8 {
-					this.reportError_3(comma, "Invalid trailing comma in formal parameter list", []any{})
+					this.reportError_3(comma, "Invalid trailing comma in formal parameter list")
 				}
 				trailingComma = true
 			}
@@ -636,12 +636,12 @@ func (this *Parser) parseFormalParameterList() *FormalParameterListTree {
 func (this *Parser) parseSetterParameterList() *FormalParameterListTree {
 	var parameterList *FormalParameterListTree = this.parseFormalParameterList()
 	if parameterList.parameters.size() != 1 {
-		this.reportErrorParseTree(parameterList.up_ParseTree(), "Setter must have exactly 1 parameter, found %d", []any{any(int32(parameterList.parameters.size()))})
+		this.reportErrorParseTree(parameterList.up_ParseTree(), "Setter must have exactly 1 parameter, found %d", any(int32(parameterList.parameters.size())))
 	}
 	if parameterList.parameters.size() >= 1 {
 		var parameter *ParseTree = parameterList.parameters.get(0)
 		if parameter.isRestParameter() {
-			this.reportErrorParseTree(parameter, "Setter must not have a rest parameter", []any{})
+			this.reportErrorParseTree(parameter, "Setter must not have a rest parameter")
 		}
 	}
 	return parameterList
@@ -769,7 +769,7 @@ func (this *Parser) parseVariableDeclarationList_1(expressionIn Parser_Expressio
 	case TokenType_CONST, TokenType_LET, TokenType_VAR:
 		this.eat(token)
 	default:
-		this.reportError_3(this.peekToken(), "expected declaration", []any{})
+		this.reportError_3(this.peekToken(), "expected declaration")
 		return nil
 	}
 	var declarations []*VariableDeclarationTree
@@ -867,34 +867,34 @@ func (this *Parser) parseForStatement() *ParseTree {
 		var variables *VariableDeclarationListTree = this.parseVariableDeclarationListNoIn()
 		if this.peek(TokenType_IN) {
 			if awaited {
-				this.reportError("for-await-of is the only allowed asynchronous iteration", []any{})
+				this.reportError("for-await-of is the only allowed asynchronous iteration")
 			}
 			if int32(len(variables.declarations)) > 1 {
-				this.reportError("for-in statement may not have more than one variable declaration", []any{})
+				this.reportError("for-in statement may not have more than one variable declaration")
 			}
 			var declaration *VariableDeclarationTree = sliceAt_(variables.declarations, 0)
 			if declaration.initializer != nil {
 				if this.config.atLeast6 {
-					this.reportError("for-in statement may not have initializer", []any{})
+					this.reportError("for-in statement may not have initializer")
 				} else {
-					this.errorReporter.reportWarning_3(declaration.location_.start_, "for-in statement should not have initializer", []any{})
+					this.errorReporter.reportWarning_3(declaration.location_.start_, "for-in statement should not have initializer")
 				}
 			}
 			return this.parseForInStatement(start, variables.up_ParseTree())
 		} else if this.peekPredefinedString(PredefinedName_OF) {
 			if int32(len(variables.declarations)) > 1 {
 				if awaited {
-					this.reportError("for-await-of statement may not have more than one variable declaration", []any{})
+					this.reportError("for-await-of statement may not have more than one variable declaration")
 				} else {
-					this.reportError("for-of statement may not have more than one variable declaration", []any{})
+					this.reportError("for-of statement may not have more than one variable declaration")
 				}
 			}
 			var declaration *VariableDeclarationTree = sliceAt_(variables.declarations, 0)
 			if declaration.initializer != nil {
 				if awaited {
-					this.reportError("for-await-of statement may not have initializer", []any{})
+					this.reportError("for-await-of statement may not have initializer")
 				} else {
-					this.reportError("for-of statement may not have initializer", []any{})
+					this.reportError("for-of statement may not have initializer")
 				}
 			}
 			if awaited {
@@ -914,7 +914,7 @@ func (this *Parser) parseForStatement() *ParseTree {
 	if (this.peek(TokenType_IN) || this.peek(TokenType_EQUAL)) || this.peekPredefinedString(PredefinedName_OF) {
 		initializer = this.transformLeftHandSideExpression(initializer)
 		if !initializer.isValidAssignmentTarget() {
-			this.reportError("invalid assignment target", []any{})
+			this.reportError("invalid assignment target")
 		}
 	}
 	if this.peek(TokenType_IN) || this.peekPredefinedString(PredefinedName_OF) {
@@ -959,9 +959,9 @@ func (this *Parser) checkVanillaForInitializers(variables *VariableDeclarationLi
 
 func (this *Parser) maybeReportNoInitializer(token TokenType, lvalue *ParseTree) {
 	if token == TokenType_CONST {
-		this.reportError("const variables must have an initializer", []any{})
+		this.reportError("const variables must have an initializer")
 	} else if lvalue.isPattern() {
-		this.reportError("destructuring must have an initializer", []any{})
+		this.reportError("destructuring must have an initializer")
 	}
 }
 
@@ -1076,7 +1076,7 @@ func (this *Parser) parseCaseClauses() []*ParseTree {
 			result = immAddObj_(tc_p_ParseTree, result, obj_(new_CaseClauseTree(this.getTreeLocation(start), expression, statements)))
 		case TokenType_DEFAULT:
 			if foundDefaultClause {
-				this.reportError("Switch statements may have at most one default clause", []any{})
+				this.reportError("Switch statements may have at most one default clause")
 			} else {
 				foundDefaultClause = true
 			}
@@ -1109,7 +1109,7 @@ func (this *Parser) parseThrowStatement() *ParseTree {
 	this.eat(TokenType_THROW)
 	var value *ParseTree = nil
 	if this.peekImplicitSemiColon() {
-		this.reportError("semicolon/newline not allowed after 'throw'", []any{})
+		this.reportError("semicolon/newline not allowed after 'throw'")
 	} else {
 		value = this.parseExpression()
 	}
@@ -1130,7 +1130,7 @@ func (this *Parser) parseTryStatement() *ParseTree {
 		finallyBlock = this.parseFinallyBlock().up_ParseTree()
 	}
 	if (catchBlock == nil) && (finallyBlock == nil) {
-		this.reportError("'catch' or 'finally' expected.", []any{})
+		this.reportError("'catch' or 'finally' expected.")
 	}
 	return new_TryStatementTree(this.getTreeLocation(start), body, catchBlock, finallyBlock).up_ParseTree()
 }
@@ -1203,7 +1203,7 @@ func (this *Parser) parseSuperExpression() *SuperExpressionTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_SUPER)
 	if this.peek(TokenType_QUESTION_DOT) {
-		this.reportError("Optional chaining is forbidden in super?.", []any{})
+		this.reportError("Optional chaining is forbidden in super?.")
 	}
 	return new_SuperExpressionTree(this.getTreeLocation(start))
 }
@@ -1218,7 +1218,7 @@ func (this *Parser) parseDynamicImportExpression() *DynamicImportTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	this.eat(TokenType_IMPORT)
 	if this.peek(TokenType_QUESTION_DOT) {
-		this.reportError("Optional chaining is forbidden in import?.", []any{})
+		this.reportError("Optional chaining is forbidden in import?.")
 	}
 	this.eat(TokenType_OPEN_PAREN)
 	var argument *ParseTree = this.parseAssignmentExpression()
@@ -1257,7 +1257,7 @@ func (this *Parser) parseTemplateLiteral(operand *ParseTree) *TemplateLiteralExp
 	}()
 	var token *Token_parser = this.nextToken()
 	if _, ok := token.self().(*TemplateLiteralToken); !ok {
-		this.reportError_3(token, "Unexpected template literal token %s.", []any{strobj_(token.type__.toString())})
+		this.reportError_3(token, "Unexpected template literal token %s.", strobj_(token.type__.toString()))
 	}
 	var isTaggedTemplate bool = (operand != nil)
 	var templateToken *TemplateLiteralToken = cast_[*TemplateLiteralToken](token.self())
@@ -1349,7 +1349,7 @@ func (this *Parser) maybeReportTrailingComma(commaToken *Token_parser) {
 	if commaToken != nil {
 		this.recordFeatureUsed(FeatureSet_Feature_TRAILING_COMMA)
 		if this.config.warnTrailingCommas {
-			this.errorReporter.reportWarning_3(commaToken.location_.start_, "Trailing comma is not legal in an ECMA-262 object initializer", []any{})
+			this.errorReporter.reportWarning_3(commaToken.location_.start_, "Trailing comma is not legal in an ECMA-262 object initializer")
 		}
 	}
 }
@@ -1509,7 +1509,7 @@ func (this *Parser) parseObjectLiteralPropertyNameAssignment() *ParseTree {
 		if name.type__ != TokenType_IDENTIFIER {
 			this.reportExpectedError(this.peekToken(), obj_(TokenType_COLON))
 		} else if name.asIdentifier().isKeyword() {
-			this.reportError_3(name, "Cannot use keyword in short object literal", []any{})
+			this.reportError_3(name, "Cannot use keyword in short object literal")
 		} else if this.peek(TokenType_EQUAL) {
 			var idTree *IdentifierExpressionTree = new_IdentifierExpressionTree(this.getTreeLocation(start), cast_[*IdentifierToken](name.self()))
 			this.eat(TokenType_EQUAL)
@@ -1534,7 +1534,7 @@ func (this *Parser) parseCoverParenthesizedExpressionAndArrowParameterList() *Pa
 		if this.peek(TokenType_ARROW) {
 			return new_FormalParameterListTree(this.getTreeLocation(start), immutableListOf_(tc_p_ParseTree), false, immutableListOf_(tc_p_SourcePosition_util)).up_ParseTree()
 		} else {
-			this.reportError("invalid parenthesized expression", []any{})
+			this.reportError("invalid parenthesized expression")
 			return new_MissingPrimaryExpressionTree(this.getTreeLocation(start)).up_ParseTree()
 		}
 	}
@@ -1544,7 +1544,7 @@ func (this *Parser) parseCoverParenthesizedExpressionAndArrowParameterList() *Pa
 		if this.peek(TokenType_ARROW) {
 			return new_FormalParameterListTree(this.getTreeLocation(start), params, false, immutableListOf_(tc_p_SourcePosition_util)).up_ParseTree()
 		} else {
-			this.reportError("invalid parenthesized expression", []any{})
+			this.reportError("invalid parenthesized expression")
 			return new_MissingPrimaryExpressionTree(this.getTreeLocation(start)).up_ParseTree()
 		}
 	}
@@ -1565,7 +1565,7 @@ func (this *Parser) parseCoverParenthesizedExpressionAndArrowParameterList() *Pa
 func (this *Parser) parseMissingPrimaryExpression() *ParseTree {
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	this.nextToken()
-	this.reportError("primary expression expected", []any{})
+	this.reportError("primary expression expected")
 	return new_MissingPrimaryExpressionTree(this.getTreeLocation(start)).up_ParseTree()
 }
 
@@ -1629,13 +1629,13 @@ func (this *Parser) parseAssignment(expressionIn Parser_Expression) *ParseTree {
 	if this.peekAssignmentOperator() {
 		if !this.peek(TokenType_EQUAL) {
 			if !left.isValidNonVanillaAssignmentTarget() {
-				this.reportError("invalid assignment target", []any{})
+				this.reportError("invalid assignment target")
 				return new_MissingPrimaryExpressionTree(this.getTreeLocation(this.getTreeStartLocation())).up_ParseTree()
 			}
 		}
 		left = this.transformLeftHandSideExpression(left)
 		if !left.isValidAssignmentTarget() {
-			this.reportError("invalid assignment target", []any{})
+			this.reportError("invalid assignment target")
 			return new_MissingPrimaryExpressionTree(this.getTreeLocation(this.getTreeStartLocation())).up_ParseTree()
 		}
 		var operator *Token_parser = this.nextToken()
@@ -1670,7 +1670,7 @@ func (this *Parser) completeAssignmentExpressionParseAtArrow_2(leftOfArrow *Pars
 func (this *Parser) completeArrowFunctionParseAtArrow(leftOfArrow *ParseTree, expressionIn Parser_Expression) *ParseTree {
 	var arrowFormalParameters *FormalParameterListTree = this.transformToArrowFormalParameters(leftOfArrow)
 	if this.peekImplicitSemiColon() {
-		this.reportError("No newline allowed before '=>'", []any{})
+		this.reportError("No newline allowed before '=>'")
 	}
 	this.eat(TokenType_ARROW)
 	var arrowFunctionBody *ParseTree = this.parseArrowFunctionBody(expressionIn, Parser_FunctionFlavor_NORMAL)
@@ -1689,7 +1689,7 @@ func (this *Parser) transformToArrowFormalParameters(leftOfArrow *ParseTree) *Fo
 		this.resetScanner(leftOfArrow)
 		arrowParameterList = this.parseFormalParameterList()
 	default:
-		this.reportErrorParseTree(leftOfArrow, "invalid arrow function parameters", []any{})
+		this.reportErrorParseTree(leftOfArrow, "invalid arrow function parameters")
 		arrowParameterList = Parser_newEmptyFormalParameterList(leftOfArrow.location_)
 	}
 	return arrowParameterList
@@ -1703,7 +1703,7 @@ func (this *Parser) completeAssignmentExpressionParseAtArrow(callExpression *Cal
 		this.resetScannerAfter(operand)
 		result = operand
 	} else {
-		this.reportError("'=>' unexpected", []any{})
+		this.reportError("'=>' unexpected")
 		result = callExpression.up_ParseTree()
 	}
 	return result
@@ -1713,7 +1713,7 @@ func (this *Parser) parseAsyncArrowFunction(expressionIn Parser_Expression) *Par
 	var start *SourcePosition_util = this.getTreeStartLocation()
 	this.eatPredefinedString(Parser_ASYNC)
 	if this.peekImplicitSemiColon() {
-		this.reportError("No newline allowed between `async` and arrow function parameter list", []any{})
+		this.reportError("No newline allowed between `async` and arrow function parameter list")
 	}
 	var arrowParameterList *FormalParameterListTree = nil
 	if this.peek(TokenType_OPEN_PAREN) {
@@ -1723,7 +1723,7 @@ func (this *Parser) parseAsyncArrowFunction(expressionIn Parser_Expression) *Par
 		arrowParameterList = new_FormalParameterListTree(singleParameter.location_, immutableListOf_(tc_p_ParseTree, to_ParseTree(obj_(singleParameter))), false, immutableListOf_(tc_p_SourcePosition_util))
 	}
 	if this.peekImplicitSemiColon() {
-		this.reportError("No newline allowed before '=>'", []any{})
+		this.reportError("No newline allowed before '=>'")
 	}
 	this.eat(TokenType_ARROW)
 	var arrowFunctionBody *ParseTree = this.parseArrowFunctionBody(expressionIn, Parser_FunctionFlavor_ASYNCHRONOUS)
@@ -1802,7 +1802,7 @@ func (this *Parser) parseYield(expressionIn Parser_Expression) *ParseTree {
 		if this.peekAssignmentExpression() {
 			expression = this.parseAssignment(expressionIn)
 		} else if isYieldAll {
-			this.reportError("yield* requires an expression", []any{})
+			this.reportError("yield* requires an expression")
 		}
 	}
 	return new_YieldExpressionTree(this.getTreeLocation(start), isYieldAll, expression).up_ParseTree()
@@ -1828,7 +1828,7 @@ func (this *Parser) parseShortCircuit(expressionIn Parser_Expression) *ParseTree
 		if left.type__ == ParseTreeType_BINARY_OPERATOR {
 			var binaryTree *BinaryOperatorTree = left.asBinaryOperator()
 			if (binaryTree.operator.type__ == TokenType_AND) || (binaryTree.operator.type__ == TokenType_OR) {
-				this.reportError("Logical OR and logical AND require parentheses when used with '??'", []any{})
+				this.reportError("Logical OR and logical AND require parentheses when used with '??'")
 			}
 		}
 		return this.parseNullishCoalesce(expressionIn, left, start)
@@ -1844,7 +1844,7 @@ func (this *Parser) parseNullishCoalesce(expressionIn Parser_Expression, left *P
 		left = new_BinaryOperatorTree(this.getTreeLocation(start), left, operator, right).up_ParseTree()
 	}
 	if this.peek(TokenType_AND) || this.peek(TokenType_OR) {
-		this.reportError("Logical OR and logical AND require parentheses when used with '??'", []any{})
+		this.reportError("Logical OR and logical AND require parentheses when used with '??'")
 	}
 	return left
 }
@@ -2021,9 +2021,9 @@ func (this *Parser) parseExponentiationExpression() *ParseTree {
 	var left *ParseTree = this.parseUnaryExpression()
 	if this.peek(TokenType_STAR_STAR) {
 		if left.type__ == ParseTreeType_UNARY_EXPRESSION {
-			this.reportError("Unary operator '%s' requires parentheses before '**'", []any{left.asUnaryExpression().operator.self()})
+			this.reportError("Unary operator '%s' requires parentheses before '**'", left.asUnaryExpression().operator.self())
 		} else if left.type__ == ParseTreeType_AWAIT_EXPRESSION {
-			this.reportError("Unary operator 'await' requires parentheses before '**'", []any{})
+			this.reportError("Unary operator 'await' requires parentheses before '**'")
 		}
 		var operator *Token_parser = this.nextToken()
 		var right *ParseTree = this.parseExponentiationExpression()
@@ -2151,13 +2151,13 @@ func (this *Parser) maybeParseOptionalExpression(operand *ParseTree) *ParseTree 
 			this.eat(TokenType_CLOSE_SQUARE)
 			operand = new_OptionalMemberLookupExpressionTree(this.getTreeLocation(start), operand, member, true).up_ParseTree()
 		case TokenType_NO_SUBSTITUTION_TEMPLATE, TokenType_TEMPLATE_HEAD:
-			this.reportError("template literal cannot be used within optional chaining", []any{})
+			this.reportError("template literal cannot be used within optional chaining")
 		default:
 			if this.peekIdOrKeyword() {
 				var id *IdentifierToken = this.eatIdOrKeywordAsId()
 				operand = new_OptionalMemberExpressionTree(this.getTreeLocation(start), operand, id, true).up_ParseTree()
 			} else {
-				this.reportError("syntax error: %s not allowed in optional chain", []any{obj_(this.peekType())})
+				this.reportError("syntax error: %s not allowed in optional chain", obj_(this.peekType()))
 			}
 		}
 		operand = this.parseRemainingOptionalChainSegment(operand)
@@ -2169,7 +2169,7 @@ func (this *Parser) parseRemainingOptionalChainSegment(optionalExpression *Parse
 	var start *SourcePosition_util = optionalExpression.location_.start_
 	for this.peekOptionalChainSuffix() {
 		if (this.peekType() == TokenType_NO_SUBSTITUTION_TEMPLATE) || (this.peekType() == TokenType_TEMPLATE_HEAD) {
-			this.reportError("template literal cannot be used within optional chaining", []any{})
+			this.reportError("template literal cannot be used within optional chaining")
 			break
 		}
 		switch this.peekType() {
@@ -2241,11 +2241,11 @@ func (this *Parser) parseNewExpression() *ParseTree {
 		var start *SourcePosition_util = this.getTreeStartLocation()
 		this.eat(TokenType_NEW)
 		if this.peek(TokenType_QUESTION_DOT) {
-			this.reportError("Optional chaining is forbidden in `new?.target` contexts.", []any{})
+			this.reportError("Optional chaining is forbidden in `new?.target` contexts.")
 		}
 		var operand *ParseTree = this.parseNewExpression()
 		if this.peek(TokenType_QUESTION_DOT) {
-			this.reportError("Optional chaining is forbidden in construction contexts.", []any{})
+			this.reportError("Optional chaining is forbidden in construction contexts.")
 		}
 		var arguments *ArgumentListTree = nil
 		if this.peek(TokenType_OPEN_PAREN) {
@@ -2286,7 +2286,7 @@ func (this *Parser) parseArguments() *ArgumentListTree {
 			}
 			if this.peek(TokenType_CLOSE_PAREN) {
 				if !this.config.atLeast8 {
-					this.reportError_3(comma, "Invalid trailing comma in arguments list", []any{})
+					this.reportError_3(comma, "Invalid trailing comma in arguments list")
 				}
 				trailingComma = true
 			}
@@ -2334,7 +2334,7 @@ func (this *Parser) parseIterRest(patternKind Parser_PatternKind) *ParseTree {
 func (this *Parser) parseRestAssignmentTarget(patternKind Parser_PatternKind) *ParseTree {
 	var patternAssignmentTarget *ParseTree = this.parsePatternAssignmentTargetNoDefault(patternKind)
 	if this.peek(TokenType_EQUAL) {
-		this.reportError("A default value cannot be specified after '...'", []any{})
+		this.reportError("A default value cannot be specified after '...'")
 	}
 	return patternAssignmentTarget
 }
@@ -2407,7 +2407,7 @@ func (this *Parser) parseObjectPatternField(kind Parser_PatternKind) *ParseTree 
 		var idToken *IdentifierToken = this.eatIdOrKeywordAsId()
 		if !this.peek(TokenType_COLON) {
 			if idToken.isKeyword() {
-				this.reportError("cannot use keyword '%s' here.", []any{obj_(idToken)})
+				this.reportError("cannot use keyword '%s' here.", obj_(idToken))
 			}
 			if this.peek(TokenType_EQUAL) {
 				var idTree *IdentifierExpressionTree = new_IdentifierExpressionTree(this.getTreeLocation(start), idToken)
@@ -2445,10 +2445,10 @@ func (this *Parser) parsePatternAssignmentTargetNoDefault(kind Parser_PatternKin
 	} else {
 		assignmentTarget = this.parseLeftHandSideExpression()
 		if !assignmentTarget.isValidAssignmentTarget() {
-			this.reportError("invalid assignment target", []any{})
+			this.reportError("invalid assignment target")
 		}
 		if (kind == Parser_PatternKind_INITIALIZER) && (assignmentTarget.type__ != ParseTreeType_IDENTIFIER_EXPRESSION) {
-			this.reportError("Only an identifier or destructuring pattern is allowed here.", []any{})
+			this.reportError("Only an identifier or destructuring pattern is allowed here.")
 		}
 	}
 	return assignmentTarget
@@ -2462,7 +2462,7 @@ func (this *Parser) eatPossiblyImplicitSemiColon() {
 	if this.peekImplicitSemiColon() {
 		return
 	}
-	this.reportError("Semi-colon expected", []any{})
+	this.reportError("Semi-colon expected")
 }
 
 func (this *Parser) peekImplicitSemiColon() bool {
@@ -2579,7 +2579,7 @@ func (this *Parser) eat(expectedTokenType TokenType) *Token_parser {
 }
 
 func (this *Parser) reportExpectedError(token *Token_parser, expected any) {
-	this.reportError_3(token, "'%s' expected", []any{expected})
+	this.reportError_3(token, "'%s' expected", expected)
 }
 
 func (this *Parser) getTreeStartLocation() *SourcePosition_util {
@@ -2636,28 +2636,28 @@ func (this *Parser) peekToken_1(index int32) *Token_parser {
 	return this.scanner.peekToken_1(index)
 }
 
-func (this *Parser) reportError_3(token *Token_parser, message string, arguments []any) {
+func (this *Parser) reportError_3(token *Token_parser, message string, arguments ...any) {
 	if token == nil {
-		this.reportError(message, arguments)
+		this.reportError(message, arguments...)
 	} else {
-		this.errorReporter.reportError_3(token.getStart(), message, arguments)
+		this.errorReporter.reportError_3(token.getStart(), message, arguments...)
 	}
 }
 
-func (this *Parser) reportErrorParseTree(parseTree *ParseTree, message string, arguments []any) {
+func (this *Parser) reportErrorParseTree(parseTree *ParseTree, message string, arguments ...any) {
 	if parseTree == nil {
-		this.reportError(message, arguments)
+		this.reportError(message, arguments...)
 	} else {
-		this.errorReporter.reportError_3(parseTree.location_.start_, message, arguments)
+		this.errorReporter.reportError_3(parseTree.location_.start_, message, arguments...)
 	}
 }
 
-func (this *Parser) reportError(message string, arguments []any) {
-	this.errorReporter.reportError_3(this.scanner.getPosition(), message, arguments)
+func (this *Parser) reportError(message string, arguments ...any) {
+	this.errorReporter.reportError_3(this.scanner.getPosition(), message, arguments...)
 }
 
-func (this *Parser) reportErrorSourcePosition(position *SourcePosition_util, message string, arguments []any) {
-	this.errorReporter.reportError_3(position, message, arguments)
+func (this *Parser) reportErrorSourcePosition(position *SourcePosition_util, message string, arguments ...any) {
+	this.errorReporter.reportError_3(position, message, arguments...)
 }
 
 func (this *Parser) reportTemplateErrorIfPresent(templateToken *TemplateLiteralToken) {
@@ -2666,10 +2666,10 @@ func (this *Parser) reportTemplateErrorIfPresent(templateToken *TemplateLiteralT
 	}
 	switch templateToken.errorLevel {
 	case TemplateLiteralToken_ErrorLevel_WARNING:
-		this.errorReporter.reportWarning_3(templateToken.errorPosition, "%s", []any{strobj_(templateToken.errorMessage_)})
+		this.errorReporter.reportWarning_3(templateToken.errorPosition, "%s", strobj_(templateToken.errorMessage_))
 		return
 	case TemplateLiteralToken_ErrorLevel_ERROR:
-		this.reportErrorSourcePosition(templateToken.errorPosition, "%s", []any{strobj_(templateToken.errorMessage_)})
+		this.reportErrorSourcePosition(templateToken.errorPosition, "%s", strobj_(templateToken.errorMessage_))
 		return
 	}
 	panic(new_AssertionError_0())

@@ -520,7 +520,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) updateMinimumChunk(n
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoogProvidesAndRequires bool, providedNames *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]) {
 	if this.isFromLegacyModule() {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot rewrite provides without having rewritten goog.modules, found %s", []any{this.firstNode.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot rewrite provides without having rewritten goog.modules, found %s", this.firstNode.box_())))
 	}
 	if this.firstNode == 0 {
 		this.replacementNode = this.candidateDefinition

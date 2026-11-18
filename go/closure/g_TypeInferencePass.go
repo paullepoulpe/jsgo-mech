@@ -71,10 +71,10 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 				for _, e := range entries {
 					totals[0] += (unbox_[int32](stepCount) * unbox_[int32](e.getValue()))
 					totals[1] += unbox_[int32](e.getValue())
-					histogram.log_2("%s %s %s", []any{stepCount, e.getKey(), e.getValue()})
+					histogram.log_2("%s %s %s", stepCount, e.getKey(), e.getValue())
 				}
 			}
-			histogram.log_2("%s TOTAL %s", []any{any(int32(totals[0])), any(int32(totals[1]))})
+			histogram.log_2("%s TOTAL %s", any(int32(totals[0])), any(int32(totals[1])))
 		}()
 	}
 	return this.topScope

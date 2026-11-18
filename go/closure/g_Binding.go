@@ -38,7 +38,7 @@ func Binding_from_Export_Node(boundExport *Export, sourceNode Node) *Binding {
 
 func Binding_from_ModuleMetadata_Node_String_CreatedBy(metadata *ModuleMetadataMap_ModuleMetadata, sourceNode Node, closureNamespace string, createdBy Binding_CreatedBy) *Binding {
 	if !createdBy.isClosureImport() {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected goog.require(Type) or goog.forwardDeclare, got %s", []any{obj_(createdBy)})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected goog.require(Type) or goog.forwardDeclare, got %s", obj_(createdBy))))
 	}
 	return new_Binding(metadata, sourceNode, nil, true, Optional_of[string](closureNamespace), createdBy)
 }

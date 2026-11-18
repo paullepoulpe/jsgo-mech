@@ -347,7 +347,7 @@ func (this *PrototypeObjectType) matchRecordTypeConstraint(constraintObj *Object
 
 func (this *PrototypeObjectType) recursionUnsafeHashCode_impl() int32 {
 	if this.isStructuralType() {
-		return Objects_hash([]any{this.className.box_(), obj_(this.properties)})
+		return Objects_hash(this.className.box_(), obj_(this.properties))
 	} else {
 		return System_identityHashCode(this.self())
 	}

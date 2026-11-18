@@ -53,7 +53,7 @@ func ModuleRenaming_getNameRootType(qname string, globalTypedScope *TypedScope) 
 	var root string = NodeUtil_getRootOfQualifiedNameString(qname)
 	nn_ := globalTypedScope.getVar(root)
 	if nn_ == nil {
-		panic(new_NullPointerException_String(Strings_lenientFormat("missing var for %s", []any{strobj_(root)})))
+		panic(new_NullPointerException_String(Strings_lenientFormat("missing var for %s", strobj_(root))))
 	}
 	return nn_.self().(*TypedVar).getType()
 }

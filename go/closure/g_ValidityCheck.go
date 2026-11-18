@@ -147,11 +147,11 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 			}
 			if expectedConst {
 				if expectedConst != isConst {
-					panic(new_IllegalStateException_String(Strings_lenientFormat("The name %s is not annotated as constant.", []any{strobj_(name)})))
+					panic(new_IllegalStateException_String(Strings_lenientFormat("The name %s is not annotated as constant.", strobj_(name))))
 				}
 			} else {
 				if expectedConst != isConst {
-					panic(new_IllegalStateException_String(Strings_lenientFormat("The name %s should not be annotated as constant.", []any{strobj_(name)})))
+					panic(new_IllegalStateException_String(Strings_lenientFormat("The name %s should not be annotated as constant.", strobj_(name))))
 				}
 			}
 		}

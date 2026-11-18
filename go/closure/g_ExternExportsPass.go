@@ -47,7 +47,7 @@ func ExternExportsPass_computePathPrefixes(path string) *ImmutableList[string] {
 	var partial string = sliceAt_(pieces, 0)
 	pathPrefixes.add(partial)
 	for i := int32(1); i < int32(len(pieces)); i++ {
-		partial = ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(partial), strobj_(sliceAt_(pieces, i)), []any{})
+		partial = ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(partial), strobj_(sliceAt_(pieces, i)), []any{}...)
 		pathPrefixes.add(partial)
 	}
 	return pathPrefixes.build()
@@ -535,9 +535,9 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 			continue
 		}
 		mappedPath = Optional_of[string]((sstr_(mappedPath.get()) + sstr_(exportPathU16.substring_int(String_length(currentPath)))))
-		return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(mappedPath.get()), strobj_(this.symbolName), []any{})
+		return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(mappedPath.get()), strobj_(this.symbolName), []any{}...)
 	}
-	return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(this.exportPath), strobj_(this.symbolName), []any{})
+	return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(this.exportPath), strobj_(this.symbolName), []any{}...)
 }
 
 // visit: an object that is exactly a ExternExportsPass calls its visit_impl directly (post-flip); others dispatch.

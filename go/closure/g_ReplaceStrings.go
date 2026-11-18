@@ -264,7 +264,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 			*replacementParameters = append(*replacementParameters, any(int32(paramCount)))
 		} else {
 			if param != "" {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("Unknown marker (%s)", []any{strobj_(param)})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("Unknown marker (%s)", strobj_(param))))
 			}
 		}
 	}

@@ -225,7 +225,7 @@ func (this *AstAnalyzer) checkAssignmentForChangeState(assignOp Node, checkForNe
 
 func (this *AstAnalyzer) constructorCallHasSideEffects(newNode Node) bool {
 	if ok_, a1_ := newNode.isNew(), newNode.getToken(); !ok_ {
-		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected NEW node, got %s", []any{obj_(a1_)})))
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected NEW node, got %s", obj_(a1_))))
 	}
 	if newNode.isNoSideEffectsCall() {
 		return false

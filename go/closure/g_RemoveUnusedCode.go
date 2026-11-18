@@ -1213,7 +1213,7 @@ func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
 			}
 		} else {
 			if !(toRemove.isParamList() || (toRemove.getParent().isParamList() && (toRemove.isDefaultValue() || toRemove.isRest()))) {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("unremoved code: %s", []any{toRemove.box_()})))
+				panic(new_IllegalStateException_String(Strings_lenientFormat("unremoved code: %s", toRemove.box_())))
 			}
 		}
 	}
@@ -2581,10 +2581,10 @@ func (this *RemoveUnusedCode_Assign) init_RemoveUnusedCode_Assign(builder *Remov
 	}
 	if kind == RemoveUnusedCode_Kind_VARIABLE {
 		if propertyNode != 0 {
-			panic(new_IllegalArgumentException_String(Strings_lenientFormat("got property node for simple variable assignment: %s", []any{propertyNode.box_()})))
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("got property node for simple variable assignment: %s", propertyNode.box_())))
 		}
 		if varInfo == nil {
-			panic(new_IllegalArgumentException_String(Strings_lenientFormat("missing VarInfo for variable assignment: %s", []any{propertyNode.box_()})))
+			panic(new_IllegalArgumentException_String(Strings_lenientFormat("missing VarInfo for variable assignment: %s", propertyNode.box_())))
 		}
 	} else {
 		if propertyNode == 0 {
@@ -2592,7 +2592,7 @@ func (this *RemoveUnusedCode_Assign) init_RemoveUnusedCode_Assign(builder *Remov
 		}
 		if kind == RemoveUnusedCode_Kind_NAMED_PROPERTY {
 			if !propertyNode.isGetProp() {
-				panic(new_IllegalArgumentException_String(Strings_lenientFormat("property name is not a GETPROP: %s", []any{propertyNode.box_()})))
+				panic(new_IllegalArgumentException_String(Strings_lenientFormat("property name is not a GETPROP: %s", propertyNode.box_())))
 			}
 		}
 	}

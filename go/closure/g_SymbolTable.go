@@ -468,11 +468,11 @@ func (this *SymbolTable) addSymbol(name string, type_ *JSType, inferred bool, sc
 	var symbol *SymbolTable_Symbol = new_SymbolTable_Symbol(name, type_, inferred, scope)
 	var replacedSymbol *SymbolTable_Symbol = this.symbols.put(declNode, name, symbol)
 	if replacedSymbol != nil {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in global index. Type %s", []any{strobj_(name), type_.self()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in global index. Type %s", strobj_(name), type_.self())))
 	}
 	replacedSymbol = scope.ownSymbols.Put(name, symbol)
 	if replacedSymbol != nil {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in its scope. Type %s", []any{strobj_(name), type_.self()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in its scope. Type %s", strobj_(name), type_.self())))
 	}
 	return symbol
 }

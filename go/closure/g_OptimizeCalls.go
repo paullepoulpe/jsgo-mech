@@ -313,7 +313,7 @@ func OptimizeCalls_ReferenceMap_isNewTarget(n Node) bool {
 func OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n Node) Node {
 	var maybeCall Node = n.getParent()
 	if !n.isFirstChildOf(maybeCall) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", []any{maybeCall.box_(), n.box_()})))
+		panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", maybeCall.box_(), n.box_())))
 	}
 	if NodeUtil_isCallOrNew(maybeCall) {
 		return maybeCall
@@ -327,7 +327,7 @@ func OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(n Node) Node {
 			panic(new_IllegalStateException_String(tostr_(maybeCall)))
 		}
 		if !child.isFirstChildOf(maybeCall) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", []any{maybeCall.box_(), child.box_()})))
+			panic(new_IllegalStateException_String(Strings_lenientFormat("%s\n\n%s", maybeCall.box_(), child.box_())))
 		}
 		return maybeCall
 	}
