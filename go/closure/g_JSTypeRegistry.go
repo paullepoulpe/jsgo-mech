@@ -3,7 +3,7 @@
 package closure
 
 type JSTypeRegistry struct {
-	subtypeCheckerFree_ []*SubtypeChecker // checkers whose check is done (post-flip manual step)
+	subtypeCheckerFree_             []*SubtypeChecker // checkers whose check is done (post-flip manual step)
 	iObjectIndexTemplateKey         *TemplateType
 	iObjectElementTemplateKey       *TemplateType
 	iterableValueTemplate           *TemplateType
