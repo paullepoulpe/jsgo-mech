@@ -6,8 +6,37 @@ com.google.javascript.rhino.Node
 # String slots: "Class::field string-slot" names a field of a handle class, declared Object, that
 # often holds a String. The translation keeps a second slot of Go type string for it, so that
 # storing a String and testing `field instanceof String s` touch no interface value
-# (tools/j2go/README.md, "Handle classes").
-com.google.javascript.rhino.Node::payload string-slot
+# (tools/j2go/README.md, "Handle classes"). Node::payload was one; as a string-id field (below) it
+# keeps its string slot inside a value code.
+#
+# String ids: "Class::field string-id" names a field of a handle class declared String, or declared
+# Object and holding Strings, numbers and other objects. It is stored as a uint32: a String field as an
+# id into the process-wide table of interned strings, an Object field as a value code (a String's id, a
+# number inline or in a table, another object in a table), so that the record holding it has no Go
+# pointer (go/closure/rt_ids.go).
+com.google.javascript.rhino.Node::payload string-id
+com.google.javascript.rhino.Node::originalName string-id
+#
+# Handle tables: "Class::field handle-table [Flag]" names a field of a handle class declared Object whose
+# values repeat across objects. It is stored as a uint32 handle into a table holding each distinct value
+# once; bit 0 says whether the value is an instance of Flag, so that `field instanceof Flag` reads no
+# table (go/closure/rt_ids.go).
+com.google.javascript.rhino.Node::jstypeOrColor handle-table com.google.javascript.rhino.jstype.JSType
+#
+# Runtime fields: "Class::field runtime GoType" names a field of a handle class whose storage the
+# handwritten runtime defines: the record holds a GoType, which must hold no Go pointer, and reads,
+# writes, null tests and copies of the field call runtime methods that convert to and from the Java
+# value. "Class::method runtime" names a method the runtime defines instead of the translation (all
+# overloads of that name), so that the code using the field most can work on GoType directly
+# (tools/j2go/README.md, "Handle classes"). Node's property list is 16 bytes of bits and handles
+# (go/closure/rt_node_props.go).
+com.google.javascript.rhino.Node::propListHead runtime Node_props_
+com.google.javascript.rhino.Node::getProp runtime
+com.google.javascript.rhino.Node::getIntProp runtime
+com.google.javascript.rhino.Node::getBooleanProp runtime
+com.google.javascript.rhino.Node::putProp runtime
+com.google.javascript.rhino.Node::putIntProp runtime
+com.google.javascript.rhino.Node::removeProp runtime
 #
 # Cold fields: "Class::field cold" names a pointer-free field of a handle class that traversals do
 # not read. It goes to a second pointer-free record, so that the record a traversal reads stays
@@ -15,3 +44,10 @@ com.google.javascript.rhino.Node::payload string-slot
 com.google.javascript.rhino.Node::previous cold
 com.google.javascript.rhino.Node::linenoCharno cold
 com.google.javascript.rhino.Node::length cold
+com.google.javascript.rhino.Node::originalName cold
+com.google.javascript.rhino.Node::jstypeOrColor cold
+com.google.javascript.rhino.Node::propListHead cold
+#
+# Columns: "Class::field column" names a pointer-free field of a handle class kept in an array of its
+# own instead of a record (most reads of Node.payload are of its String, and a column keeps them dense).
+com.google.javascript.rhino.Node::payload column

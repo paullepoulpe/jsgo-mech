@@ -223,7 +223,8 @@ nothing in the translator knows a class by name. `JSGO_HANDLE_STATS=1` makes the
 Go program print, at exit, how many objects of each handle class exist and how
 often each field is set. `go/closure/rt_handles.go` is the handwritten part.
 
-A line `Class::field string-slot` in `handles.txt` (today `Node::payload`) names
+A line `Class::field string-slot` in `handles.txt` (`Node::payload` until it became a
+string-id field, below) names
 a field of a handle class that is declared `Object` and often holds a `String`.
 Its record gets a second slot `field_s_ string` (the null-string sentinel when
 the field holds no String): assigning an expression of static type `String`
@@ -236,12 +237,60 @@ such a field are of its String, and a column keeps them dense instead of
 spreading them over the larger `C_ps_` records. The Java keeps one field, so
 the object does not grow on the JVM (a 57th byte in `Node` costs Java 4%).
 
+A line `Class::field string-id` (today `Node::payload` and `Node::originalName`) stores a
+field as a `uint32` instead of a Go string or interface, so that the record holding it has no
+Go pointer (`go/closure/rt_ids.go`). A field declared `String` holds an id into one
+process-wide table of interned strings: `strid_(s)` interns (a hash lookup per store),
+`strid_str_(id)` reads (one more load); id 0 is the null string and id 1 the empty one, so a
+zeroed record reads as Java's default. A field declared `Object` that holds Strings and other
+values holds a value code: a String's id, an integral number inline (29 bits), any other number
+as an index into a table of doubles, any other object as an index into a table of objects (a
+new entry per store, so identity is kept). Reads, tests, casts and copies are those of a
+string-slot field, on the code: `field instanceof String` and `field instanceof Double` read
+no table, storing a `double` needs no box, `field == null` is `code == 0`, and a copy from the
+same field of another object copies the code (for a `String` field, the id).
+
+A line `Class::field handle-table [Flag]` (today `Node::jstypeOrColor`, flag `JSType`) stores
+a field declared `Object` whose values repeat across objects as a `uint32` handle into a table
+that holds each distinct value once (`htab_set_`, `rt_ids.go`; a value is found again by its
+interface words, so by identity). Bit 0 of the handle says whether the value is an instance
+of the flag type, so `field instanceof Flag` is a bit test; any other read is a table load.
+The table must not keep a value alive longer than the fields holding it would (the `JSType`s
+that a second type-check replaces are garbage in Java): an entry counts the fields holding
+its handle (`htab_set_` and, for a copy from the same field of another object, `htab_copy_`)
+and is freed when the count returns to zero. An object of a handle class is never freed, so
+what its fields hold stays, as it does for every other field of such an object.
+
+A line `Class::field runtime GoType` (today `Node::propListHead`, `Node_props_`) gives a field
+a storage the handwritten runtime defines: the record holds a `GoType`, which must hold no Go
+pointer; a read of the field is `x.f_get_()`, a write `x.f_set_(v)`, `x.f == null` is
+`x.f_isnull_()`, a copy from the same field of another object `x.f_copy_(y)`, and `x.f_p_()`
+is the slot itself; all but the last are runtime methods that convert between `GoType` and
+the Java value. A line `Class::method runtime` names a method (all overloads of that name)
+that the runtime defines in place of the translation, with the Go name and signature the
+translation would give it, so that the code using the field most can work on `GoType`
+directly. For `Node` these are `getProp`, `getIntProp`, `getBooleanProp`, `putProp`,
+`putIntProp` and `removeProp` (`go/closure/rt_node_props.go`); every other method that reads
+the property list (debug strings, validation, serialization, equivalence) is translated and
+reads the list Java would hold, which `propListHead_get_` builds from the bits.
+
 A line `Class::field cold` names a pointer-free field of a handle class that
-traversals do not read (today `Node::previous`, `linenoCharno`, `length`). Cold
-fields, and the handle's own value that `box_` points at, go to a third record
+traversals do not read (today `Node::previous`, `linenoCharno`, `length`,
+`originalName`, `jstypeOrColor` and `propListHead`). Cold
+fields, and the handle's own value that `box_` points at, go to a second record
 `C_cs_`, so that `C_ns_`, the record a traversal reads for every node, stays
 small: `Node_ns_` is 16 bytes (next, first, parent, token), four nodes to a
-cache line. Only the layout changes; reads and writes of the field are the same.
+cache line. A line `Class::field column` (today `Node::payload`) keeps a pointer-free
+field in an array of its own, one element per object, instead of a record: most reads of
+`Node.payload` are of its String, and a column of 4-byte codes keeps them dense. Only the
+layout changes; reads and writes of the field are the same. A class whose fields are all
+pointer-free has no `C_ps_` record.
+
+Every per-object array of a handle class (its records and columns) is registered with its
+element type in `handleColumns_` (`rt_handles.go`). `Node`'s are a 16-byte `Node_ns_`, a
+40-byte `Node_cs_` and the 4-byte `payload` column: 60 bytes per node and no Go pointer, which
+`TestNodeColumnsHoldNoPointers` (`rt_handles_test.go`) asserts by reflection over the
+registered types, so that a later rule cannot bring a pointer back unnoticed.
 
 **Constructors.** `new_C(args)` allocates, `init_C(args)` runs the constructor
 body (calling the superclass's `init_`), `finit_C()` runs field initializers.
