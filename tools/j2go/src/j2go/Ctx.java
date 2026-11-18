@@ -302,8 +302,8 @@ final class Ctx {
         public native int size();
         public native boolean isEmpty();
         public native boolean add(T v);
-        public native boolean has(T v);
-        public native boolean del(T v);
+        public native boolean contains(T v);
+        public native boolean remove(T v);
         public native void clear();
         public native java.util.Iterator<T> iterator();
       }
@@ -329,12 +329,12 @@ final class Ctx {
         public native int size();
         public native boolean isEmpty();
         public native V get(K k);
-        public native boolean has(K k);
-        public native V getOr(K k, V def);
+        public native boolean containsKey(K k);
+        public native V getOrDefault(K k, V def);
         public native V put(K k, V v);
         public native V putIfAbsent(K k, V v);
         public native V computeIfAbsent(K k, java.util.function.Function<? super K, ? extends V> f);
-        public native V del(K k);
+        public native V remove(K k);
         public native void clear();
       }
       """,
@@ -751,9 +751,9 @@ final class Ctx {
       switch (n + "/" + np) {
         case "size/0", "isEmpty/0", "clear/0", "put/2", "putIfAbsent/2": tn = n; break;
         case "get/1": tn = keyArg ? "get" : null; break;
-        case "containsKey/1": tn = keyArg ? "has" : null; break;
-        case "remove/1": tn = keyArg ? "del" : null; break;
-        case "getOrDefault/2": tn = keyArg ? "getOr" : null; break;
+        case "containsKey/1": tn = keyArg ? n : null; break;
+        case "remove/1": tn = keyArg ? n : null; break;
+        case "getOrDefault/2": tn = keyArg ? n : null; break;
         case "computeIfAbsent/2": tn = keyArg ? n : null; break;
         default: break;
       }
@@ -768,8 +768,8 @@ final class Ctx {
       boolean elemArg = args != null && args.size() == 1 && isElement(args.get(0), elem);
       switch (n + "/" + np) {
         case "size/0", "isEmpty/0", "clear/0", "iterator/0", "add/1": tn = n; break;
-        case "contains/1": tn = elemArg ? "has" : null; break;
-        case "remove/1": tn = elemArg ? "del" : null; break;
+        case "contains/1": tn = elemArg ? n : null; break;
+        case "remove/1": tn = elemArg ? n : null; break;
         default: break;
       }
     }

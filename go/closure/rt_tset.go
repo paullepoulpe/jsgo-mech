@@ -84,7 +84,7 @@ func (s *TSet[K]) size() int32   { return s.live }
 func (s *TSet[K]) isEmpty() bool { return s.live == 0 }
 
 // has is contains.
-func (s *TSet[K]) has(k K) bool { return s.find(k) >= 0 }
+func (s *TSet[K]) contains(k K) bool { return s.find(k) >= 0 }
 
 func (s *TSet[K]) add(k K) bool {
 	if s.twin != nil && s.twin != sortedMark_ {
@@ -159,7 +159,7 @@ func (s *TSet[K]) compact() {
 }
 
 // del is remove(Object).
-func (s *TSet[K]) del(k K) bool {
+func (s *TSet[K]) remove(k K) bool {
 	if s.twin != nil && s.twin != sortedMark_ {
 		panic(frozen_{})
 	}
@@ -322,7 +322,7 @@ func (v *tsetView_[K]) contains(x any) bool {
 
 func (v *tsetView_[K]) remove_Object(x any) bool {
 	k, ok := v.key(x)
-	return ok && v.s.del(k)
+	return ok && v.s.remove(k)
 }
 
 // strs is the set as a set of strings, if it is one (a String is looked up without its box).
@@ -349,7 +349,7 @@ func (v *tsetView_[K]) add_s(k string) bool {
 
 func (v *tsetView_[K]) remove_s(k string) bool {
 	if s := v.strs(); s != nil {
-		return s.del(k)
+		return s.remove(k)
 	}
 	return v.remove_Object(strobj_(k))
 }

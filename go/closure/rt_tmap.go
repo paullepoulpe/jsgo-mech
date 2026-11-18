@@ -88,7 +88,7 @@ func (m *TMap[K, V]) size() int32   { return m.live }
 func (m *TMap[K, V]) isEmpty() bool { return m.live == 0 }
 
 // has is containsKey.
-func (m *TMap[K, V]) has(k K) bool { return m.find(k) >= 0 }
+func (m *TMap[K, V]) containsKey(k K) bool { return m.find(k) >= 0 }
 
 // get is the value of key k, or null.
 func (m *TMap[K, V]) get(k K) V {
@@ -99,7 +99,7 @@ func (m *TMap[K, V]) get(k K) V {
 }
 
 // getOr is getOrDefault.
-func (m *TMap[K, V]) getOr(k K, def V) V {
+func (m *TMap[K, V]) getOrDefault(k K, def V) V {
 	if i := m.find(k); i >= 0 {
 		return m.vals[i]
 	}
@@ -212,7 +212,7 @@ func (m *TMap[K, V]) computeIfAbsent(k K, f Function) V {
 }
 
 // del is remove(key): the value the key had, or null.
-func (m *TMap[K, V]) del(k K) V {
+func (m *TMap[K, V]) remove(k K) V {
 	if m.imm != nil && m.imm != sortedMapMark_ {
 		panic(frozen_{})
 	}
@@ -545,7 +545,7 @@ func (v *tmapView_[K, V]) putAll(o Map) {
 
 func (v *tmapView_[K, V]) remove(x any) any {
 	if k, ok := v.key(x); ok {
-		return v.m.vc.box(v.m.del(k))
+		return v.m.vc.box(v.m.remove(k))
 	}
 	return nil
 }
@@ -578,7 +578,7 @@ func (v *tmapView_[K, V]) put_s(s string, x any) any {
 
 func (v *tmapView_[K, V]) remove_s(s string) any {
 	if k, ok := any(s).(K); ok {
-		return v.m.vc.box(v.m.del(k))
+		return v.m.vc.box(v.m.remove(k))
 	}
 	return v.remove(strobj_(s))
 }

@@ -143,7 +143,7 @@ func (v *tsortedSetView_[K]) goName_() string { return "TreeSet" }
 // contains and remove compare x with the elements: an object of another class throws
 // ClassCastException there, as the comparison of a TreeSet does.
 func (v *tsortedSetView_[K]) contains(x any) bool      { return v.s.find(v.s.c.unbox(x)) >= 0 }
-func (v *tsortedSetView_[K]) remove_Object(x any) bool { return v.s.del(v.s.c.unbox(x)) }
+func (v *tsortedSetView_[K]) remove_Object(x any) bool { return v.s.remove(v.s.c.unbox(x)) }
 func (v *tsortedSetView_[K]) equals(o any) bool        { return setEquals_(v, o) }
 func (v *tsortedSetView_[K]) hashCode() int32          { return setHash_(v) }
 func (v *tsortedSetView_[K]) toString() string         { return collToString_(v) }
@@ -288,7 +288,7 @@ func (v *tsortedMapView_[K, V]) get(x any) any {
 	return nil
 }
 func (v *tsortedMapView_[K, V]) containsKey(x any) bool { return v.m.find(v.m.kc.unbox(x)) >= 0 }
-func (v *tsortedMapView_[K, V]) remove(x any) any       { return v.m.vc.box(v.m.del(v.m.kc.unbox(x))) }
+func (v *tsortedMapView_[K, V]) remove(x any) any       { return v.m.vc.box(v.m.remove(v.m.kc.unbox(x))) }
 func (v *tsortedMapView_[K, V]) equals(o any) bool      { return mapEquals_(v, o) }
 func (v *tsortedMapView_[K, V]) hashCode() int32        { return mapHash_(v) }
 func (v *tsortedMapView_[K, V]) toString() string       { return mapToString_(v) }

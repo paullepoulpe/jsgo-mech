@@ -171,10 +171,10 @@ implements keeps the erased signature. A declaration is typed when
   erased.
 
 `list.get(i)`, `add`, `set`, `remove(int)`, `size`, `isEmpty`, `clear`, `iterator`, a set's
-`add`, `contains` and `remove` of an X (`s.has(x)`, `s.del(x)`), a deque's `push`, `pop`,
+`add`, `contains` and `remove` of an X (`s.contains(x)`, `s.remove(x)`), a deque's `push`, `pop`,
 `poll`, `peek`, `peekLast`, `add` (and `addFirst`, `removeFirst`...), a map's `get`, `put`,
 `containsKey`, `remove`, `getOrDefault`, `putIfAbsent` and `computeIfAbsent` with a key that is
-a K (`m.has(k)`, `m.del(k)`, `m.getOr(k, v)`), and the for-each loop (`it := list.each()`) work
+a K (`m.containsKey(k)`, `m.remove(k)`, `m.getOrDefault(k, v)`), and the for-each loop (`it := list.each()`) work
 on the X values. A for-each loop over `m.keySet()`, `m.values()` or `m.entrySet()` of a typed
 map reads the map itself (`it := m.eachKey()`, `m.eachValue()`, `m.eachEntry()`); the variable
 of the loop over the entries is a `*TEntry[K, V]` (`getKey`, `getValue`, `setValue` on the K
