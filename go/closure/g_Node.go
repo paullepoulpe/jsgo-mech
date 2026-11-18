@@ -314,7 +314,7 @@ func Node_newString_String(str string) Node {
 
 func Node_newString_Token_String(token Token_rhino, str string) Node {
 	var n Node = new_Node_Token(token)
-	n.payload_sets_(RhinoStringPool_addOrGet(str))
+	n.payload_sets_(nodeStr_(str))
 	return n
 }
 
@@ -1100,7 +1100,18 @@ func (this Node) setString(str string) {
 	if !this.payload_iss_() {
 		panic(this.payloadKindMismatch("string"))
 	}
-	this.payload_sets_(RhinoStringPool_addOrGet(str))
+	this.payload_sets_(nodeStr_(str))
+}
+
+// nodeStr_ is RhinoStringPool.addOrGet(s) for a string that goes into a node's record
+// (post-flip manual step): the record holds the id of the string in the table of interned
+// strings, which keeps one instance of equal strings as the pool does, so looking s up in the
+// pool first was a second hash of it. A null string throws what the pool throws.
+func nodeStr_(s string) string {
+	if s == nullstr_ {
+		return RhinoStringPool_addOrGet(s)
+	}
+	return s
 }
 
 func (this Node) setStringFromStringPool(stringPool *RhinoStringPool_LazyInternedStringList, offset int32) {
@@ -1387,7 +1398,7 @@ func (this Node) setOriginalName(s string) {
 		if s == "" {
 			return ""
 		}
-		return RhinoStringPool_addOrGet(s)
+		return nodeStr_(s)
 	}())
 }
 
