@@ -453,6 +453,22 @@ func (m *TMap[K, V]) ComputeIfAbsent(k K, f func(K) V) V {
 	return v
 }
 
+// ComputeIfAbsentObj is ComputeIfAbsent with a function whose result is an Object (a typed
+// lambda adapter X_tfn_K_any held it; tools/postflip/adapters): f(k) is unboxed as
+// computeIfAbsent unboxes what the adapter returns, and stored unless it is null.
+func (m *TMap[K, V]) ComputeIfAbsentObj(k K, f func(K) any) V {
+	if i := m.find(k); i >= 0 && !m.vc.isNull(m.vals[i]) {
+		return m.vals[i]
+	}
+	r := f(k)
+	if r == nil {
+		return m.vc.null
+	}
+	v := m.vc.unbox(r)
+	m.Put(k, v)
+	return v
+}
+
 // each is the cursor of a for-each loop over the entries (keys, values) of the map.
 func (m *TMap[K, V]) each() tmapEach_[K, V] { return tmapEach_[K, V]{m: m, i: m.first()} }
 
