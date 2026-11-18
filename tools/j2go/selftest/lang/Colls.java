@@ -776,6 +776,135 @@ public class Colls {
     sb2.append(o == null ? "-" : o instanceof Boolean ? ((Boolean) o ? "t" : "f") : o.toString());
   }
 
+  // ---- elements of a type variable and of a generic class of the program
+  static final class Cell<T> {
+    final T value;
+    final int n;
+
+    Cell(T value, int n) {
+      this.value = value;
+      this.n = n;
+    }
+
+    @Override
+    public String toString() {
+      return value + "#" + n;
+    }
+  }
+
+  static class Stack<T> {
+    private final List<T> items = new ArrayList<>();
+    private final Deque<T> pending = new ArrayDeque<>();
+    private final Map<String, T> named = new LinkedHashMap<>();
+    private final List<Cell<T>> cells = new ArrayList<>();
+    private final Set<Cell<T>> seenCells = new LinkedHashSet<>();
+    // read at another instantiation (Stack<String>.shared below): stays erased
+    final List<T> shared = new ArrayList<>();
+
+    void push(T t) {
+      items.add(t);
+      if (t != null) {
+        pending.addLast(t);
+      }
+      named.put("n" + items.size(), t);
+      Cell<T> c = new Cell<>(t, items.size());
+      cells.add(c);
+      seenCells.add(c);
+      seenCells.add(c);
+      shared.add(t);
+    }
+
+    T top() {
+      return items.isEmpty() ? null : items.get(items.size() - 1);
+    }
+
+    T pop() {
+      T t = items.remove(items.size() - 1);
+      cells.remove(cells.size() - 1);
+      return t;
+    }
+
+    private List<T> reversed() {
+      List<T> r = new ArrayList<>();
+      for (int i = items.size() - 1; i >= 0; i--) {
+        r.add(items.get(i));
+      }
+      return r;
+    }
+
+    private static int count(List<String> l) {
+      return l.size();
+    }
+
+    String show() {
+      StringBuilder sb = new StringBuilder();
+      for (T t : reversed()) {
+        sb.append(t).append(t == null ? "!" : "").append(',');
+      }
+      for (Cell<T> c : cells) {
+        sb.append(c.n).append(seenCells.contains(c) ? "+" : "-");
+      }
+      T first = pending.peekFirst();
+      Object o = items;
+      Collection<T> coll = pending;
+      return sb + " " + items + " " + pending + " " + named + " " + cells + " " + first + " " + named.get("n2") + " " + named.get("x") + " " + items.contains(first) + " "
+          + items.indexOf(top()) + " " + o.equals(reversed()) + " " + coll.size() + " " + (o == items) + " " + seenCells.size();
+    }
+
+    List<T> copy() {
+      return new ArrayList<>(items);
+    }
+  }
+
+  static final class Words extends Stack<String> {
+    String joined() {
+      // the superclass's result at this class's instantiation
+      List<String> c = copy();
+      c.add("end");
+      return String.join("|", c) + " " + shared.size();
+    }
+  }
+
+  static String generic() {
+    Stack<String> s = new Stack<>();
+    s.push("a");
+    s.push(null);
+    s.push("c");
+    String r = s.show() + " " + s.pop() + " " + s.top() + " " + s.show();
+    List<String> sh = s.shared;
+    sh.add("z");
+    r += " " + sh + " " + s.shared.size();
+    Stack<Base> b = new Stack<>();
+    b.push(new Derived(1));
+    b.push(new Base(2));
+    Base top = b.top();
+    r += "\n" + b.show() + " " + top.name() + " " + b.copy();
+    Stack<Integer> n = new Stack<>();
+    n.push(3);
+    n.push(4);
+    int sum = n.pop() + n.top();
+    r += "\n" + n.show() + " " + sum;
+    // a typed list as the result of a lambda: the view where the interface returns a List or a T
+    List<String> made = new ArrayList<>();
+    made.add("m");
+    Supplier<List<String>> sup = () -> made;
+    Supplier<Object> osup = () -> {
+      made.add("n");
+      return made;
+    };
+    r += "\n" + (sup.get() == made) + " " + osup.get() + " " + sup.get().size() + " " + (osup.get() == sup.get());
+    // Collections.unmodifiableList of a typed list enters a typed declaration
+    List<String> un = Collections.unmodifiableList(made);
+    Map<String, Base> unm = Collections.unmodifiableMap(new LinkedHashMap<>());
+    made.add("o");
+    r += " " + un.size() + un.get(2) + un + unm.size() + unm.get("q");
+    Words w = new Words();
+    w.push("x");
+    w.push("y");
+    r += "\n" + w.joined() + " " + w.show();
+    return r;
+  }
+
   public static String run() {
     new Colls().fields();
     locals(true);
@@ -786,6 +915,7 @@ public class Colls {
     new Colls().maps();
     new Colls().boxes();
     new Colls().byEquals();
+    p(generic());
     return out.toString();
   }
 

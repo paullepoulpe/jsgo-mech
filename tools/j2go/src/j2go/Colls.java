@@ -18,7 +18,10 @@ import javax.lang.model.type.*;
  * A declaration is typed when
  * - each type argument is a type a typed collection holds (Ctx.typedArg): a String, a class, an
  *   interface or a handle without type arguments; a boxed primitive or Object (the box, `any`);
- *   a library type with type arguments (at its erasure). The elements of a set and the keys of
+ *   a library type with type arguments (at its erasure); a generic class of the program (at
+ *   its Go type); a type variable (the Go type parameter, or what it is erased to). A
+ *   declaration whose type arguments name a Go type parameter is typed only if every expression
+ *   that reads it has the declaration's own type arguments (Slot.open). The elements of a set and the keys of
  *   a map are compared: with Go's == where that is Java's equals (a String, an enum, a class of
  *   the program without equals of its own: Ctx.goEquals; a boxed primitive that is not a
  *   floating-point number), else by hashCode and equals as java.util.HashMap does
@@ -31,7 +34,8 @@ import javax.lang.model.type.*;
  *   did: a call of a List / Set method (not subList, listIterator, getClass: the view is not
  *   the Java class there), a for-each loop, ==, a string concatenation, or a place of a type
  *   the view has (a variable, parameter, result or cast of type List / Set, Collection,
- *   Iterable, Object or a type variable) -- not a place that wants the class (ArrayList,
+ *   Iterable, Object or a type variable; the result of a lambda is a place of the type its
+ *   interface's method returns there) -- not a place that wants the class (ArrayList,
  *   LinkedHashSet) itself, unless that place is a typed declaration too.
  * Parameters and results are those of methods whose signature is their own (closedMethod).
  *
@@ -49,6 +53,7 @@ final class Colls {
     Element v;  // a field, a local variable, a parameter; or a method, for its result
     List<TypeMirror> args;  // the element type; the key and value types of a map
     String why;
+    boolean open;  // a type argument names a type variable that is a Go type parameter
     boolean made;  // a list enters it (a new ArrayList, or the value of another candidate)
     final List<Tree> uses = new ArrayList<>();
     final List<Slot> taints = new ArrayList<>();  // erased if this one is
@@ -98,6 +103,7 @@ final class Colls {
     s.kind = kind;
     s.v = e;
     s.args = args;
+    for (TypeMirror a : args) s.open |= cx.open(a);
     slots.put(e, s);
     return s;
   }
@@ -294,6 +300,11 @@ final class Colls {
               return;
             }
             Element m = elemOf(new TreePath(new TreePath(parent, x), ((MethodInvocationTree) x).getMethodSelect()));
+            if (Ctx.isUnmodifiable(m, (MethodInvocationTree) x)) {
+              // the runtime's Collections.unmodifiableList is its argument: what enters is the argument
+              inflow(s, ((MethodInvocationTree) x).getArguments().get(0), new TreePath(parent, x));
+              return;
+            }
             poison(s, "assigned the result of " + (m == null ? "a call" : m.getEnclosingElement().getSimpleName() + "." + m.getSimpleName()));
             return;
           }
@@ -311,6 +322,17 @@ final class Colls {
           return;
         }
         poison(s, "reaches a place of type " + (te == null ? String.valueOf(target) : te.getSimpleName().toString()));
+      }
+
+      /** The type that the lambda at path p returns: the result of its interface's method at the lambda's type; null if unknown. */
+      TypeMirror lambdaResult(TreePath p) {
+        try {
+          TypeMirror lt = trees.getTypeMirror(p);
+          ExecutableElement m = lt == null || lt.getKind() != TypeKind.DECLARED ? null : cx.functionalMethod(Ctx.typeElement(lt));
+          return m == null ? null : ((ExecutableType) cx.types.asMemberOf((DeclaredType) lt, m)).getReturnType();
+        } catch (RuntimeException ex) {
+          return null;
+        }
       }
 
       /** The candidate parameter that argument child of call parent goes to, or null. */
@@ -338,6 +360,17 @@ final class Colls {
         TreePath path = getCurrentPath();
         Tree child = path.getLeaf();
         s.uses.add(child);
+        if (s.open) {
+          // type arguments that name type variables: the typed collection has the declaration's
+          // type only where the expression has it too (not c.items of a C<String>)
+          TypeMirror ut = null;
+          try {
+            ut = trees.getTypeMirror(path);
+          } catch (RuntimeException ex) {
+            // no type: not the declaration's
+          }
+          if (ut == null || ut.getKind() != TypeKind.DECLARED || !sameArgs(cx.typedArgs(s.kind, ut), s.args)) poison(s, "read at another instantiation of its type variables");
+        }
         TreePath pp = path.getParentPath();
         boolean viaCond = false;
         while (pp.getLeaf() instanceof ParenthesizedTree || pp.getLeaf() instanceof ConditionalExpressionTree c && c.getCondition() != child) {
@@ -384,8 +417,22 @@ final class Colls {
         }
         if (parent instanceof ReturnTree) {
           ExecutableElement ex = enclosingMethod(pp);
-          if (ex != null) escape(s, ex.getReturnType(), slots.get(ex));
-          else poison(s, "returned from a lambda");
+          if (ex != null) {
+            escape(s, ex.getReturnType(), slots.get(ex));
+            return;
+          }
+          // the result of a lambda: a place of the type its interface's method returns there
+          for (TreePath q = pp; q != null && !(q.getLeaf() instanceof ClassTree) && !(q.getLeaf() instanceof MethodTree); q = q.getParentPath()) {
+            if (q.getLeaf() instanceof LambdaExpressionTree) {
+              escape(s, lambdaResult(q), null);
+              return;
+            }
+          }
+          poison(s, "returned from an initializer");
+          return;
+        }
+        if (parent instanceof LambdaExpressionTree l && l.getBody() == child) {
+          escape(s, lambdaResult(pp), null);
           return;
         }
         if (parent instanceof MethodInvocationTree || parent instanceof NewClassTree) {
@@ -519,8 +566,11 @@ final class Colls {
   /** Decides, and gives the typed declarations and the expressions that read them their type. */
   void decide() {
     ArrayDeque<Slot> work = new ArrayDeque<>();
+    // A declaration that no collection enters (only null does: a parameter of a method that
+    // the program does not call, or calls with null) is typed like any other; an entry is one
+    // only in a loop over a typed map.
     for (Slot s : slots.values()) {
-      if (s.why == null && !s.made) s.why = "no collection enters it";
+      if (s.why == null && !s.made && (s.kind == cx.entryKind || "1".equals(System.getenv("J2GO_COLLS_NOUNMADE")))) s.why = "no collection enters it";
     }
     for (Slot s : slots.values()) if (s.why != null) work.add(s);
     while (!work.isEmpty()) {

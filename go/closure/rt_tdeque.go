@@ -1,7 +1,5 @@
 package closure
 
-import "sync/atomic"
-
 // Typed deques (j2go rule "typed collections"): an ArrayDeque<T> that the translator finds
 // typable is a *TDeque[T]: a typed list whose first item is the deque's head, as the erased
 // ArrayDeque in rt_coll.go is an ArrayList whose first item is its head. Erased code sees it
@@ -9,13 +7,16 @@ import "sync/atomic"
 
 type TDeque[T any] struct {
 	TList[T]
-	dview atomic.Pointer[tdequeView_[T]]
+	dview tdequeView_[T] // the deque as erased code sees it (asDeque): part of the deque
 }
 
 // newTDeque_ is new ArrayDeque<>().
 func newTDeque_[T any](c *tconv_[T]) *TDeque[T] {
 	d := &TDeque[T]{}
 	d.c = c
+	d.view.l = &d.TList
+	d.dview.l = &d.TList
+	d.dview.d = d
 	return d
 }
 
@@ -85,14 +86,7 @@ func (d *TDeque[T]) asDeque() Deque {
 	if d == nil {
 		return nil
 	}
-	v := d.dview.Load()
-	if v == nil {
-		nv := &tdequeView_[T]{d: d}
-		nv.l = &d.TList
-		d.dview.CompareAndSwap(nil, nv)
-		v = d.dview.Load()
-	}
-	return v
+	return &d.dview
 }
 
 // tdequeView_ is a TDeque seen as an erased Deque: the list view of its items, and the

@@ -1,7 +1,5 @@
 package closure
 
-import "sync/atomic"
-
 // Typed lists (j2go rule "typed collections"): an ArrayList<T> that the translator finds typable
 // is a *TList[T], a slice of T. Its elements are Java's values of type T themselves (a string, a
 // class pointer, a handle), not boxes.
@@ -26,14 +24,20 @@ type tconv_[T any] struct {
 type TList[T any] struct {
 	items []T
 	c     *tconv_[T]
-	view  atomic.Pointer[tlistView_[T]]
+	view  tlistView_[T] // the list as erased code sees it (asList): part of the list, so one object
 }
 
-func newTList_[T any](c *tconv_[T]) *TList[T] { return &TList[T]{c: c} }
+func newTList_[T any](c *tconv_[T]) *TList[T] {
+	l := &TList[T]{c: c}
+	l.view.l = l
+	return l
+}
 
 // newTListN_ is new ArrayList<>(n).
 func newTListN_[T any](c *tconv_[T], n int32) *TList[T] {
-	return &TList[T]{c: c, items: make([]T, 0, n)}
+	l := &TList[T]{c: c, items: make([]T, 0, n)}
+	l.view.l = l
+	return l
 }
 
 // tlistFrom_ is new ArrayList<>(from).
@@ -43,12 +47,16 @@ func tlistFrom_[T any](c *tconv_[T], from Collection) *TList[T] {
 	for i, x := range src {
 		items[i] = c.unbox(x)
 	}
-	return &TList[T]{c: c, items: items}
+	l := &TList[T]{c: c, items: items}
+	l.view.l = l
+	return l
 }
 
 // tlistCopy_ is new ArrayList<>(from) of another typed list of the same element type.
 func tlistCopy_[T any](c *tconv_[T], from *TList[T]) *TList[T] {
-	return &TList[T]{c: c, items: append([]T(nil), from.items...)}
+	l := &TList[T]{c: c, items: append([]T(nil), from.items...)}
+	l.view.l = l
+	return l
 }
 
 func (l *TList[T]) size() int32   { return int32(len(l.items)) }
@@ -136,19 +144,14 @@ func (l *TList[T]) iterator() Iterator {
 	return &tlistIter_[T]{l: l}
 }
 
-// asList is the list as an erased List (nil for null): one view per list, its identity for
-// erased code.
+// asList is the list as an erased List (nil for null): the list's one view, its identity for
+// erased code. The view is a field of the list (set when the list is made), so that a list
+// which erased code sees is still one object.
 func (l *TList[T]) asList() List {
 	if l == nil {
 		return nil
 	}
-	v := l.view.Load()
-	if v == nil {
-		// one view, also when two threads ask for the first time
-		l.view.CompareAndSwap(nil, &tlistView_[T]{l: l})
-		v = l.view.Load()
-	}
-	return v
+	return &l.view
 }
 
 // asList_ is a list of the translated program as an erased List, whether the translator made
@@ -330,3 +333,24 @@ func (it *tlistIter_[T]) remove() {
 	it.i--
 	it.l.removeAt(int32(it.i))
 }
+
+// tcT_ is the conversion of an element type that is a Go type parameter (a List<T> in a generic
+// class): a value of that type meets Object as a value of a type parameter does (boxT_,
+// unboxT_). One object per instantiation, made on first use. (An instantiation of a generic
+// class that names type parameters, a List<DiGraphNode<N, E>>, has a generated generic function
+// with the conversions of the class: g_0casts.go.)
+func tcT_[T any]() *tconv_[T] {
+	return single_(&tcT_single_, func() *tconv_[T] {
+		return &tconv_[T]{box: boxT_[T], unbox: unboxT_[T], null: null_[T]()}
+	})
+}
+
+// tceT_ is tcT_ for the elements of a set or the keys of a map that are compared by equals and
+// hashCode.
+func tceT_[T any]() *tconv_[T] {
+	return single_(&tceT_single_, func() *tconv_[T] {
+		return &tconv_[T]{box: boxT_[T], unbox: unboxT_[T], null: null_[T](), byEquals: true}
+	})
+}
+
+var tcT_single_, tceT_single_ singles_

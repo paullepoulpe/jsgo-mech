@@ -1,7 +1,5 @@
 package closure
 
-import "sync/atomic"
-
 // Typed maps (j2go rule "typed collections"): a LinkedHashMap<K, V> that the translator finds
 // typable is a *TMap[K, V]: its keys and values in insertion order, as K and V values, not
 // boxes. K is a type whose Go == is Java's equals for the map (a String, a handle, an enum, a
@@ -20,23 +18,25 @@ type TMap[K comparable, V any] struct {
 	live int32
 	kc   *tconv_[K]
 	vc   *tconv_[V]
-	eq   *teq_ // of keys compared by equals and hashCode (kc.byEquals); else nil
-	view atomic.Pointer[tmapView_[K, V]]
+	eq   *teq_           // of keys compared by equals and hashCode (kc.byEquals); else nil
+	view tmapView_[K, V] // the map as erased code sees it (asMap): part of the map
 }
 
 // newTMap_ is new LinkedHashMap<>().
 func newTMap_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *TMap[K, V] {
-	return &TMap[K, V]{kc: kc, vc: vc}
+	m := &TMap[K, V]{kc: kc, vc: vc}
+	m.view.m = m
+	return m
 }
 
 // newTMapN_ is new LinkedHashMap<>(n): the capacity is not used.
 func newTMapN_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], n int32) *TMap[K, V] {
-	return &TMap[K, V]{kc: kc, vc: vc}
+	return newTMap_(kc, vc)
 }
 
 // tmapFrom_ is new LinkedHashMap<>(from).
 func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map) *TMap[K, V] {
-	m := &TMap[K, V]{kc: kc, vc: vc}
+	m := newTMap_(kc, vc)
 	if from == nil {
 		panic(new_NullPointerException_0().self())
 	}
@@ -46,7 +46,7 @@ func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map) *TMa
 
 // tmapCopy_ is new LinkedHashMap<>(from) of another typed map of the same types.
 func tmapCopy_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from *TMap[K, V]) *TMap[K, V] {
-	m := &TMap[K, V]{kc: kc, vc: vc}
+	m := newTMap_(kc, vc)
 	m.putAllT(from)
 	return m
 }
@@ -400,14 +400,7 @@ func (m *TMap[K, V]) asMap() Map {
 	if m == nil {
 		return nil
 	}
-	v := m.view.Load()
-	if v == nil {
-		nv := &tmapView_[K, V]{m: m}
-		nv.ks.m, nv.vs.m, nv.es.m = m, m, m
-		m.view.CompareAndSwap(nil, nv)
-		v = m.view.Load()
-	}
-	return v
+	return &m.view
 }
 
 // erasedMap_ is a map of the translated program as an erased Map, whether the translator made
@@ -425,10 +418,7 @@ func erasedMap_(m any) Map {
 // tmapView_ is a TMap seen as an erased Map. Its key set, values and entry set are parts of
 // it: making one allocates nothing, as for the erased map.
 type tmapView_[K comparable, V any] struct {
-	m  *TMap[K, V]
-	ks tmapKeySet_[K, V]
-	vs tmapValues_[K, V]
-	es tmapEntrySet_[K, V]
+	m *TMap[K, V]
 }
 
 // key is x as a key of the map, if it can be one (a lookup of an object of another class finds
@@ -542,9 +532,9 @@ func (v *tmapView_[K, V]) remove_s(s string) any {
 	return v.remove(strobj_(s))
 }
 
-func (v *tmapView_[K, V]) keySet() Set        { return &v.ks }
-func (v *tmapView_[K, V]) values() Collection { return &v.vs }
-func (v *tmapView_[K, V]) entrySet() Set      { return &v.es }
+func (v *tmapView_[K, V]) keySet() Set        { return (*tmapKeySet_[K, V])(v) }
+func (v *tmapView_[K, V]) values() Collection { return (*tmapValues_[K, V])(v) }
+func (v *tmapView_[K, V]) entrySet() Set      { return (*tmapEntrySet_[K, V])(v) }
 func (v *tmapView_[K, V]) equals(o any) bool  { return mapEquals_(v, o) }
 func (v *tmapView_[K, V]) hashCode() int32    { return mapHash_(v) }
 func (v *tmapView_[K, V]) toString() string   { return mapToString_(v) }

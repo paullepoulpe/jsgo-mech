@@ -1,7 +1,5 @@
 package closure
 
-import "sync/atomic"
-
 // Typed sets (j2go rule "typed collections"): a LinkedHashSet<K> that the translator finds
 // typable is a *TSet[K]: its elements in insertion order, as K values, not boxes. K is a type whose Go == is
 // Java's equals for the set: a String, a handle, an enum, a class without equals of its own.
@@ -16,19 +14,23 @@ type TSet[K comparable] struct {
 	idx  map[K]int32 // the position of each element; nil while the set is small
 	live int32
 	c    *tconv_[K]
-	eq   *teq_ // of elements compared by equals and hashCode (c.byEquals); else nil
-	view atomic.Pointer[tsetView_[K]]
+	eq   *teq_        // of elements compared by equals and hashCode (c.byEquals); else nil
+	view tsetView_[K] // the set as erased code sees it (asSet): part of the set
 }
 
 // newTSet_ is new LinkedHashSet<>().
-func newTSet_[K comparable](c *tconv_[K]) *TSet[K] { return &TSet[K]{c: c} }
+func newTSet_[K comparable](c *tconv_[K]) *TSet[K] {
+	s := &TSet[K]{c: c}
+	s.view.s = s
+	return s
+}
 
 // newTSetN_ is new LinkedHashSet<>(n): the capacity is not used.
-func newTSetN_[K comparable](c *tconv_[K], n int32) *TSet[K] { return &TSet[K]{c: c} }
+func newTSetN_[K comparable](c *tconv_[K], n int32) *TSet[K] { return newTSet_(c) }
 
 // tsetFrom_ is new LinkedHashSet<>(from).
 func tsetFrom_[K comparable](c *tconv_[K], from Collection) *TSet[K] {
-	s := &TSet[K]{c: c}
+	s := newTSet_(c)
 	for _, x := range toSlice_(from) {
 		s.add(c.unbox(x))
 	}
@@ -37,7 +39,7 @@ func tsetFrom_[K comparable](c *tconv_[K], from Collection) *TSet[K] {
 
 // tsetCopy_ is new LinkedHashSet<>(from) of another typed set of the same element type.
 func tsetCopy_[K comparable](c *tconv_[K], from *TSet[K]) *TSet[K] {
-	s := &TSet[K]{c: c}
+	s := newTSet_(c)
 	for i, k := range from.keys {
 		if !from.dead(i) {
 			s.add(k)
@@ -213,18 +215,13 @@ func (s *TSet[K]) iterator() Iterator {
 	return &tsetIter_[K]{s: s, last: -1}
 }
 
-// asSet is the set as an erased Set (nil for null): one view per set, its identity for erased
-// code.
+// asSet is the set as an erased Set (nil for null): the set's one view, its identity for erased
+// code, a field of the set (as TList.asList).
 func (s *TSet[K]) asSet() Set {
 	if s == nil {
 		return nil
 	}
-	v := s.view.Load()
-	if v == nil {
-		s.view.CompareAndSwap(nil, &tsetView_[K]{s: s})
-		v = s.view.Load()
-	}
-	return v
+	return &s.view
 }
 
 // asSet_ is a set of the translated program as an erased Set, whether the translator made its

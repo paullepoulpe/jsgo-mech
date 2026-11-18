@@ -345,7 +345,11 @@ final class Ctx {
    * - a String, a class or an interface without type arguments, at that type;
    * - a boxed primitive or Object, at that type (`any` in Go: the box, as in erased code);
    * - a library type with type arguments (a List<Node>), at its erasure: the erased List, as
-   *   such a value is everywhere.
+   *   such a value is everywhere;
+   * - a generic class of the program, at the Go type it has (an instantiation of a Go generic
+   *   type, or its erasure), unless a type argument is a wildcard;
+   * - a type variable: itself where it is a Go type parameter (not compared: its constraint is
+   *   `any`), else what it is erased to.
    * An element that the collection compares (compared: the elements of a set, the keys of a
    * map) has no type arguments and is not Object or a floating-point box. Where Go's == is
    * Java's equals for its type (a String, an enum, a class of the program without equals of
@@ -354,9 +358,17 @@ final class Ctx {
    * compares as java.util.HashMap does, by hashCode and equals (byEquals).
    */
   TypeMirror typedArg(TypeMirror a, boolean compared) {
+    boolean simple = !"1".equals(System.getenv("J2GO_COLLS_SIMPLE"));
+    boolean generic = simple && !"1".equals(System.getenv("J2GO_COLLS_NOGENERIC"));
+    if (a.getKind() == TypeKind.TYPEVAR && generic) {
+      // a Go type parameter: its constraint is `any`, which a compared type cannot have
+      if (typedVar(a)) return compared ? null : a;
+      // an erased type variable: what it is erased to (its bound)
+      TypeMirror e = erase(a);
+      return e.getKind() == TypeKind.DECLARED ? typedArg(e, compared) : null;
+    }
     if (a.getKind() != TypeKind.DECLARED) return null;
     TypeElement ae = typeElement(a);
-    boolean simple = !"1".equals(System.getenv("J2GO_COLLS_SIMPLE"));
     if (ae.getQualifiedName().contentEquals("java.lang.Object")) return compared || !simple ? null : a;
     TypeMirror prim = unboxed(a);
     if (prim != null) {
@@ -368,8 +380,15 @@ final class Ctx {
     if (isSource(ae) && (ae.getNestingKind() == NestingKind.LOCAL || ae.getNestingKind() == NestingKind.ANONYMOUS)) return null;
     if (isValueLib(ae)) return null;
     if (!((DeclaredType) a).getTypeArguments().isEmpty() || !ae.getTypeParameters().isEmpty()) {
-      // type arguments: only of a library type, which is erased whatever they are
-      if (compared || !simple || isSource(ae) || typedClasses.contains(ae)) return null;
+      if (!simple || typedClasses.contains(ae) && !isSource(ae)) return null;
+      if (isSource(ae)) {
+        // a generic class of the program: the Go type it has (an instantiation of a Go generic
+        // type, or its erasure), unless a type argument is a wildcard
+        if (!generic || hasWildcard(a)) return null;
+        return typedDecl(erase(a)) ? a : types.erasure(a);
+      }
+      // a library type: erased whatever its type arguments are
+      if (compared) return null;
       if (!goType(a).equals(goType(types.erasure(a)))) return null;
       return types.erasure(a);
     }
@@ -385,6 +404,47 @@ final class Ctx {
   boolean byEquals(TypeMirror a) {
     if (unboxed(a) != null) return false;
     return !goEquals(typeElement(a));
+  }
+
+  private boolean hasWildcard(TypeMirror t) {
+    if (t.getKind() == TypeKind.WILDCARD) return true;
+    if (t.getKind() == TypeKind.ARRAY) return hasWildcard(((ArrayType) t).getComponentType());
+    if (t.getKind() != TypeKind.DECLARED) return false;
+    for (TypeMirror x : ((DeclaredType) t).getTypeArguments()) if (hasWildcard(x)) return true;
+    return false;
+  }
+
+  /**
+   * Whether call t of method m is Collections.unmodifiableList / Set / Map: the runtime's is its
+   * argument itself (rt_coll.go), so a typed collection passes through it as it is.
+   */
+  static boolean isUnmodifiable(Element m, com.sun.source.tree.MethodInvocationTree t) {
+    if (!(m instanceof ExecutableElement me) || t.getArguments().size() != 1) return false;
+    String n = me.getSimpleName().toString();
+    return (n.equals("unmodifiableList") || n.equals("unmodifiableSet") || n.equals("unmodifiableMap"))
+        && ((TypeElement) me.getEnclosingElement()).getQualifiedName().contentEquals("java.util.Collections");
+  }
+
+  /** The type variables that are Go type parameters among those that t names, in order. */
+  void tvarsOf(TypeMirror t, Set<TypeParameterElement> out) {
+    if (t == null) return;
+    if (t.getKind() == TypeKind.TYPEVAR) {
+      if (typedVar(t)) out.add((TypeParameterElement) ((TypeVariable) t).asElement());
+    } else if (t.getKind() == TypeKind.ARRAY) {
+      tvarsOf(((ArrayType) t).getComponentType(), out);
+    } else if (t.getKind() == TypeKind.DECLARED) {
+      for (TypeMirror x : ((DeclaredType) t).getTypeArguments()) tvarsOf(x, out);
+    }
+  }
+
+  /** Whether the Go type of t names a Go type parameter (a type variable that is kept). */
+  boolean open(TypeMirror t) {
+    if (t == null) return false;
+    if (t.getKind() == TypeKind.TYPEVAR) return typedVar(t);
+    if (t.getKind() == TypeKind.ARRAY) return open(((ArrayType) t).getComponentType());
+    if (t.getKind() != TypeKind.DECLARED) return false;
+    for (TypeMirror x : ((DeclaredType) t).getTypeArguments()) if (open(x)) return true;
+    return false;
   }
 
   private final Map<TypeElement, Boolean> goEqualsCache = new HashMap<>();
@@ -517,6 +577,32 @@ final class Ctx {
    */
   String tconv(TypeMirror elem, boolean eq) {
     String g = goType(elem);
+    // a type that names a Go type parameter: the conversions of a value of a type parameter
+    // (boxT_, unboxT_), one object per instantiation (rt_tlist.go)
+    if (kind(elem) == K.TVAR) return (eq ? "tceT_[" : "tcT_[") + g + "]()";
+    if (open(elem)) {
+      // an instantiation of a generic class of the program that names type parameters: a generic
+      // function with the conversions the erased code makes for the class, one object per
+      // instantiation (single_)
+      LinkedHashSet<TypeParameterElement> tps = new LinkedHashSet<>();
+      tvarsOf(elem, tps);
+      String decl = "", use = "";
+      for (TypeParameterElement tp : tps) {
+        decl += (decl.isEmpty() ? "" : ", ") + tvName(tp) + " " + constraint(tp);
+        use += (use.isEmpty() ? "" : ", ") + tvName(tp);
+      }
+      String fn = (eq ? "tce_" : "tc_") + g.replace("*", "p_").replaceAll("[^A-Za-z0-9_]", "_");
+      if (!tconvs.containsKey(fn)) {
+        TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
+        tconvs.put(fn, "");
+        // a null pointer is null (its self() would be called through the superclass it embeds)
+        String guard = g.startsWith("*") ? "if v == nil {\n\t\t\t\t\treturn nil\n\t\t\t\t}\n\t\t\t\t" : "";
+        tconvs.put(fn, "var " + fn + "_single_ singles_\n\nfunc " + fn + "[" + decl + "]() *tconv_[" + g + "] {\n\treturn single_(&" + fn + "_single_, func() *tconv_[" + g + "] {\n\t\treturn &tconv_["
+            + g + "]{\n\t\t\tbox: func(v " + g + ") any {\n\t\t\t\t" + guard + "return " + coerce("v", elem, object) + "\n\t\t\t},\n\t\t\tunbox: func(v any) " + g + " { return "
+            + coerce("v", object, elem) + " },\n" + (eq ? "\t\t\tbyEquals: true,\n" : "") + "\t\t}\n\t})\n}\n");
+      }
+      return fn + "[" + use + "]()";
+    }
     // a type that is `any` in Go (Object, a boxed primitive) has the conversion of its Java type
     String name = (eq ? "tce_" : "tc_") + (kind(elem) == K.ANY ? className(typeElement(elem)) : g.replace("*", "p_").replaceAll("[^A-Za-z0-9_]", "_"));
     if (!tconvs.containsKey(name)) {

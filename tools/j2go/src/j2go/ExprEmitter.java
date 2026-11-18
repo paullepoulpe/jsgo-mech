@@ -189,6 +189,7 @@ abstract class ExprEmitter extends Base {
     if (cx.isTypedColl(target)) {
       String made = newTyped(strip(t), target);
       if (made != null) return made;
+      if (strip(t) instanceof MethodInvocationTree mi && Ctx.isUnmodifiable(elemOf(mi.getMethodSelect()), mi)) return exprAs(mi.getArguments().get(0), target);
     }
     Ctx.K kt = cx.kind(target);
     if (kt == Ctx.K.PRIM && target.getKind() != TypeKind.BOOLEAN && isNumericLiteral(t)) {

@@ -127,24 +127,37 @@ named by a method reference). A declaration is typed when
   as the box it is in erased code (`List<Integer>` is a `*TList[any]`, `Map<String, Integer>` a
   `*TMap[string, any]`); or a library type with type arguments, held at its erasure
   (`Map<String, List<Node>>` is a `*TMap[string, List]`, `List<List<String>>` a `*TList[List]`:
-  the element is the erased `List`, as it is everywhere else). The elements of a set and the
-  keys of a map are compared: their type has no type arguments and is not `Object`, `Float`
-  or `Double`. Where Go's `==` is Java's `equals` for the type, the collection compares with
+  the element is the erased `List`, as it is everywhere else); a generic class of the program,
+  at the Go type it has (`List<DiGraphNode<N, E>>` in `DiGraph<N, E>` is a
+  `*TList[DiGraph_DiGraphNode[N, E]]`; no wildcard among its type arguments); or a type
+  variable: the Go type parameter where it is one (`List<T>` in a `Stack<T>` that is a Go
+  generic type is a `*TList[T]`), else what it is erased to (its bound). The elements of a set
+  and the keys of a map are compared: their type is not a type variable that is a Go type
+  parameter (its constraint is `any`, and a typed set needs `comparable`), not a library type
+  with type arguments, and not `Object`, `Float` or `Double`. Where Go's `==` is Java's `equals` for the type, the collection compares with
   `==` (a Go map from element to position once it is not small): a String, an enum, a class of
   the program (a handle class too) that inherits `equals` and `hashCode` from Object, as all
   its subclasses do (`Ctx.goEquals`), and a boxed primitive (two boxes of equal values of one
   type are `==` as Go interfaces; `Set<Character>` is a `*TSet[any]`). For any other class or
   interface (one with its own `equals`, a library class) the collection finds an element as
   `java.util.HashMap` does, by the hash code it had when it was added, then by identity or
-  `equals` (`Ctx.byEquals`; the conversion `tce_p_JSType` says so; `teq_` in `rt_tset.go`);
+  `equals` (`Ctx.byEquals`; the conversion `tce_p_JSType` says so; `teq_` in `rt_tset.go`).
+  A declaration whose type arguments name a Go type parameter is typed only if every
+  expression that reads it has the declaration's own type arguments: inside the generic class
+  `items` is a `List<T>`, but `c.items` of a `Stack<String>`, or `items` in a subclass
+  `Words extends Stack<String>`, is a `List<String>`, and such a use keeps it erased;
 - every value that enters it is a new collection of its kind (`new ArrayList<>()`,
   `new ArrayList<>(n)`, `new ArrayList<>(collection)`; `new LinkedHashSet<>(..)`, the only set
   the program makes; `new ArrayDeque<>(..)`; `new LinkedHashMap<>()`, `(n)`, `(map)`, the only
   hash map the program makes), `null`, or the value of another typed declaration of the same
-  kind and type arguments (an argument enters the parameter, a returned expression the result);
+  kind and type arguments (an argument enters the parameter, a returned expression the result;
+  `Collections.unmodifiableList(x)` / `Set` / `Map` is `x`, as the runtime's is). A declaration
+  that nothing but `null` enters (a parameter of a method the program never calls, or calls
+  with `null`) is typed too;
 - every use is one the typed collection or its view serves: a `List` / `Set` / `Deque` / `Map`
   method, a for-each loop, `==`, a string concatenation, or a place of type `List` / `Set` /
-  `Deque` / `Queue` / `Map`, `Collection`, `Iterable`, `Object` or a type variable. A place
+  `Deque` / `Queue` / `Map`, `Collection`, `Iterable`, `Object` or a type variable (the result
+  of a lambda is a place of the type that its interface's method returns for the lambda). A place
   that wants the class (`ArrayList`, `LinkedHashSet`, `ArrayDeque`, `LinkedHashMap`) must be a
   typed declaration itself; `subList`, `listIterator` and `getClass` keep the declaration
   erased.
@@ -161,8 +174,9 @@ and V values; an entry that goes anywhere else goes as Java's `Map.Entry` throug
 `e.asEntry()`). Any other method, and every place that is not a typed declaration (a wildcard
 or raw type, `Object`, a library parameter, a method of a group of overriding methods), sees
 the collection as Java's `List` / `Set` / `Deque` / `Map` through `list.asList()` /
-`set.asSet()` / `deque.asDeque()` / `m.asMap()`. That is the collection's one erased view, made
-on first use, which boxes and casts as the erased code did: the Java object stays one object
+`set.asSet()` / `deque.asDeque()` / `m.asMap()`. That is the collection's one erased view, a
+field of the collection itself (so a collection that erased code sees is still one object, as
+the Java collection is), which boxes and casts as the erased code did: the Java object stays one object
 wherever it goes (`==`, changes made on either side), `null` is `nil` on both sides, and a
 typed declaration never holds a collection that erased code made, so no conversion from the
 erased form exists. Inside the translator a typed declaration, and each expression that reads
@@ -170,7 +184,10 @@ it, has the type `TList<X>` / `TSet<X>` / `TDeque<X>` / `TMap<K, V>` / `TEntry<K
 class that exists for it alone (`Ctx.STUBS`: the typed methods), and `Ctx.coerce` turns that
 type into any other through the view. The element conversions are generated per element type
 (`tc_string`, `tc_p_JSType` in `g_0casts.go`) with the conversions the erased code makes for
-that type. The runtime's erased code reads a view without an iterator object (`foreach_`,
+that type; an element type that is a Go type parameter has the conversions of a value of a
+type parameter (`tcT_[T]()`: `boxT_`, `unboxT_`), and an instantiation of a generic class that
+names type parameters has a generic function with the conversions of the class
+(`tc_p_DiGraph_DiGraphNode_N__E_[N, E]()`); both are one object per instantiation (`single_`). The runtime's erased code reads a view without an iterator object (`foreach_`,
 `stepper_`) and looks a String up in it without a box (`contains_s`, `get_s`...).
 
 Two differences from the JVM are accepted. An element of the wrong type that unchecked code
