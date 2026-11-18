@@ -5,13 +5,13 @@ package closure
 type CheckConstantCaseNames struct {
 	compiler_             *AbstractCompiler
 	convention            CodingConvention
-	invalidNamesPerModule *JTMap[string, Node]
-	reassignedNames       *JTSet[string]
+	invalidNamesPerModule *TMap[string, Node]
+	reassignedNames       *TSet[string]
 }
 
 func (this *CheckConstantCaseNames) finit_CheckConstantCaseNames() {
-	this.invalidNamesPerModule = jnewTMap_(jtc_string, jtc_Node)
-	this.reassignedNames = jnewTSet_(jtc_string)
+	this.invalidNamesPerModule = newTMap_(jtc_string.t_(), tc_Node)
+	this.reassignedNames = newTSet_(jtc_string.t_())
 }
 
 func (this *CheckConstantCaseNames) init_CheckConstantCaseNames(compiler *AbstractCompiler) {
@@ -53,11 +53,11 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 		}
 		NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(name Node) {
 			if this.convention.isConstant(name.getString()) {
-				this.invalidNamesPerModule.put(name.getString(), name)
+				this.invalidNamesPerModule.Put(name.getString(), name)
 			}
 		}}).accept)
 	case tokOrd1_NAME:
-		if !this.invalidNamesPerModule.has(n.getString()) {
+		if !this.invalidNamesPerModule.Has(n.getString()) {
 			return
 		}
 		if !NodeUtil_isLValue(n) {
@@ -65,7 +65,7 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 		}
 		var v *Var = cast_[*Var](t.getScope().getVar(n.getString()).self())
 		if v.getScopeRoot().isModuleBody() {
-			this.reassignedNames.add(n.getString())
+			this.reassignedNames.Add(n.getString())
 		}
 	default:
 	}
@@ -76,14 +76,14 @@ func (this *CheckConstantCaseNames) reportWarningsAndClear() {
 	for it_1.next() {
 		var nameNode Node = it_1.v
 		var name string = nameNode.getString()
-		if this.reassignedNames.has(name) {
+		if this.reassignedNames.Has(name) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nameNode, CheckConstantCaseNames_REASSIGNED_CONSTANT_CASE_NAME, []string{name}))
 		} else {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nameNode, CheckConstantCaseNames_MISSING_CONST_PROPERTY, []string{name}))
 		}
 	}
-	this.invalidNamesPerModule = jnewTMap_(jtc_string, jtc_Node)
-	this.reassignedNames = jnewTSet_(jtc_string)
+	this.invalidNamesPerModule = newTMap_(jtc_string.t_(), tc_Node)
+	this.reassignedNames = newTSet_(jtc_string.t_())
 }
 
 var CheckConstantCaseNames_MISSING_CONST_PROPERTY *DiagnosticType

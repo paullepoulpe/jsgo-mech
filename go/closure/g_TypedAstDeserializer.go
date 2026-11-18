@@ -7,8 +7,8 @@ type TypedAstDeserializer struct {
 	syntheticExterns              *SourceFile_jscomp
 	colorPoolBuilder              Optional_baseOf[*ColorPool_Builder]
 	requiredInputFiles            Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]]
-	filePoolBuilder               *JTMap[string, *SourceFile_jscomp]
-	canonicalFilePool             *JTMap[string, *SourceFile_jscomp]
+	filePoolBuilder               *TMap[string, *SourceFile_jscomp]
+	canonicalFilePool             *TMap[string, *SourceFile_jscomp]
 	typedAstFilesystem            ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]]
 	externProperties              *ImmutableSet_Builder[string]
 	runtimeLibraries_             *ImmutableSet_Builder[string]
@@ -16,8 +16,8 @@ type TypedAstDeserializer struct {
 }
 
 func (this *TypedAstDeserializer) finit_TypedAstDeserializer() {
-	this.filePoolBuilder = jnewTMap_(jtc_string, jtc_p_SourceFile_jscomp)
-	this.canonicalFilePool = jnewTMap_(jtc_string, jtc_p_SourceFile_jscomp)
+	this.filePoolBuilder = newTMap_(jtc_string.t_(), tc_p_SourceFile_jscomp)
+	this.canonicalFilePool = newTMap_(jtc_string.t_(), tc_p_SourceFile_jscomp)
 	this.typedAstFilesystem = new_ConcurrentHashMap()
 	this.externProperties = immutableSetBuilder_(tc_string)
 	this.runtimeLibraries_ = immutableSetBuilder_(tc_string)
@@ -117,24 +117,24 @@ func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, c
 }
 
 func (this *TypedAstDeserializer) addToFilePool(filename string, file *SourceFile_jscomp) {
-	this.filePoolBuilder.put(filename, file)
+	this.filePoolBuilder.Put(filename, file)
 	var canonicalPath string = SourceFile_jscomp_canonicalizePathForMatching(filename)
 	if !(canonicalPath == filename) {
-		this.canonicalFilePool.putIfAbsent(canonicalPath, file)
+		this.canonicalFilePool.PutIfAbsent(canonicalPath, file)
 	}
 }
 
 func (this *TypedAstDeserializer) findExistingFile(filename string) *SourceFile_jscomp {
-	var exact *SourceFile_jscomp = this.filePoolBuilder.get(filename)
+	var exact *SourceFile_jscomp = this.filePoolBuilder.Get(filename)
 	if exact != nil {
 		return exact
 	}
 	var canonicalPath string = SourceFile_jscomp_canonicalizePathForMatching(filename)
-	var canonical *SourceFile_jscomp = this.canonicalFilePool.get(canonicalPath)
+	var canonical *SourceFile_jscomp = this.canonicalFilePool.Get(canonicalPath)
 	if canonical != nil {
 		return canonical
 	}
-	return this.filePoolBuilder.get(canonicalPath)
+	return this.filePoolBuilder.Get(canonicalPath)
 }
 
 func (this *TypedAstDeserializer) toFileShard(typedAstProto *TypedAst) []*SourceFile_jscomp {

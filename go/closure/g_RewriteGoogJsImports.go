@@ -9,11 +9,11 @@ type RewriteGoogJsImports struct {
 	moduleMap          *ModuleMap
 	compiler_          *AbstractCompiler
 	googModule         *Module
-	moduleReplacements *JTMap[*Module, *Module]
+	moduleReplacements *TMap[*Module, *Module]
 }
 
 func (this *RewriteGoogJsImports) finit_RewriteGoogJsImports() {
-	this.moduleReplacements = jnewTMap_(tce_p_Module, jtc_p_Module)
+	this.moduleReplacements = newTMap_(tce_p_Module.t_(), tc_p_Module)
 }
 
 func (this *RewriteGoogJsImports) init_RewriteGoogJsImports(compiler *AbstractCompiler, mode RewriteGoogJsImports_Mode, moduleMap *ModuleMap) {
@@ -37,16 +37,16 @@ func (this *RewriteGoogJsImports) changeModules() {
 	var closureModules *ImmutableMap_Builder[string, *Module] = immutableMapBuilder_(tc_string, tc_p_Module)
 	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.moduleMap.getModulesByPath().asImm().entrySet())) {
 		m := icast_Map_Entry(el)
-		var newModule *Module = this.moduleReplacements.getOr(cast_[*Module](m.getValue()), cast_[*Module](m.getValue()))
+		var newModule *Module = this.moduleReplacements.GetOr(cast_[*Module](m.getValue()), cast_[*Module](m.getValue()))
 		resolvedModules.put(str_(m.getKey()), newModule)
 	}
 	for _, el2 := range immElems_(cast_[*ErasedImmutableSet](this.moduleMap.getModulesByClosureNamespace().asImm().entrySet())) {
 		m := icast_Map_Entry(el2)
-		var newModule *Module = this.moduleReplacements.getOr(cast_[*Module](m.getValue()), cast_[*Module](m.getValue()))
+		var newModule *Module = this.moduleReplacements.GetOr(cast_[*Module](m.getValue()), cast_[*Module](m.getValue()))
 		closureModules.put(str_(m.getKey()), newModule)
 	}
 	this.compiler_.setModuleMap(new_ModuleMap(resolvedModules.buildOrThrow(), closureModules.buildOrThrow()))
-	this.moduleReplacements.clear()
+	this.moduleReplacements.Clear()
 }
 
 func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
@@ -289,17 +289,17 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) init_RewriteGoogJsImports_Re
 	this.globalizeAllReferences = globalizeAllReferences
 	NodeTraversal_traverse(this.outer_.compiler_, script, this)
 	if googImportNode.getSecondChild().isImportStar() {
-		var newBindings *JTMap[string, *Binding] = jtmapFrom_(jtc_string, jtc_p_Binding, icast_Map(obj_(module.boundNames().asImm())))
-		newBindings.del("goog")
+		var newBindings *TMap[string, *Binding] = tmapFromMap_(jtc_string.t_(), tc_p_Binding, icast_Map(obj_(module.boundNames().asImm())))
+		newBindings.Delete("goog")
 		if this.hasBadExport {
 			googImportNode.getSecondChild().setOriginalName("goog")
 			googImportNode.getSecondChild().setString("$goog")
-			newBindings.put("$goog", module.boundNames().Get("goog"))
+			newBindings.Put("$goog", module.boundNames().Get("goog"))
 		} else {
 			googImportNode.getSecondChild().replaceWith(IR_empty())
 		}
 		var newModule *Module = module.toBuilder().boundNames(immutableMapCopyOf_(tc_string, tc_p_Binding, newBindings.asMap())).build()
-		this.outer_.moduleReplacements.put(module, newModule)
+		this.outer_.moduleReplacements.Put(module, newModule)
 		this.outer_.compiler_.reportChangeToEnclosingScope(googImportNode)
 	}
 }

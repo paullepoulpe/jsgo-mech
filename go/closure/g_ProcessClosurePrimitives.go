@@ -7,7 +7,7 @@ import "strings"
 type ProcessClosurePrimitives struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_              *AbstractCompiler
-	knownClosureSubclasses *JTSet[string]
+	knownClosureSubclasses *TSet[string]
 	closureModules         *ImmutableMap[string, *ModuleMetadataMap_ModuleMetadata]
 }
 
@@ -19,7 +19,7 @@ func (this *ProcessClosurePrimitives) up_NodeTraversal_AbstractPostOrderCallback
 }
 
 func (this *ProcessClosurePrimitives) finit_ProcessClosurePrimitives() {
-	this.knownClosureSubclasses = jnewTSet_(jtc_string)
+	this.knownClosureSubclasses = newTSet_(jtc_string.t_())
 }
 
 func (this *ProcessClosurePrimitives) init_ProcessClosurePrimitives(compiler *AbstractCompiler) {
@@ -184,7 +184,7 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 	var baseContainer string = callTarget.getFirstChild().getQualifiedName()
 	var enclosingFnNameNode Node = ProcessClosurePrimitives_getEnclosingDeclNameNode(n)
 	if (enclosingFnNameNode == 0) || !enclosingFnNameNode.isUnscopedQualifiedName() {
-		if this.knownClosureSubclasses.has(baseContainer) {
+		if this.knownClosureSubclasses.Has(baseContainer) {
 			this.reportBadBaseMethodUse(n, Optional_of[string](baseContainer).filter(&Predicate_tfn_string{func(s string) bool {
 				return s != ""
 			}}), "Could not find enclosing method.")
@@ -218,7 +218,7 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 
 func (this *ProcessClosurePrimitives) rewriteBaseCallInConstructor(enclosingQname string, baseContainer Optional[string], n Node, enclosingFnNameNode Node) {
 	if !Object_equals(Optional_of[string](enclosingQname).box_(), baseContainer.box_()) {
-		if baseContainer.isPresent() && this.knownClosureSubclasses.has(baseContainer.get()) {
+		if baseContainer.isPresent() && this.knownClosureSubclasses.Has(baseContainer.get()) {
 			this.reportBadBaseMethodUse(n, baseContainer, ("Must be used within " + sstr_(baseContainer.orElse("null")) + " methods"))
 		}
 		return
@@ -250,7 +250,7 @@ func (this *ProcessClosurePrimitives) rewriteBaseCallInConstructor(enclosingQnam
 }
 
 func (this *ProcessClosurePrimitives) rewriteBaseCallInMethod(enclosingQname Optional[string], baseContainer Optional[string], n Node, enclosingFnNameNode Node) {
-	if !(baseContainer.isPresent() && this.knownClosureSubclasses.has(baseContainer.get())) {
+	if !(baseContainer.isPresent() && this.knownClosureSubclasses.Has(baseContainer.get())) {
 		this.reportPossibleBadBaseMethodUse(n, baseContainer, ("base used outside a known Closure subclass, in: " + sstr_(baseContainer.orElse("null")) + "\nIf " + sstr_(baseContainer.orElse("null")) + " is actually a Closure subclass, the compiler is unable to statically determine this. This can happen when calling .base off of some import or other alias of the original Closure subclass, such as from a goog.require in another file. Instead of using .base, rewrite this call as ParentClass.prototype.method.call(this)"))
 		return
 	}
@@ -302,7 +302,7 @@ func (this *ProcessClosurePrimitives) processInheritsCall(n Node) {
 		var subClass Node = n.getSecondChild()
 		var superClass Node = subClass.getNext()
 		if subClass.isUnscopedQualifiedName() && superClass.isUnscopedQualifiedName() {
-			this.knownClosureSubclasses.add(subClass.getQualifiedName())
+			this.knownClosureSubclasses.Add(subClass.getQualifiedName())
 		}
 	}
 }
@@ -343,7 +343,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	if !ProcessClosurePrimitives_verifySetCssNameMapping(compiler, left, arg) {
 		return nil
 	}
-	var cssNames *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
+	var cssNames *TMap[string, string] = newTMap_(jtc_string.t_(), tc_string)
 	{
 		var key Node = arg.getFirstChild()
 		for ; key != 0; key = key.getNext() {
@@ -352,7 +352,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 				compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_NON_STRING_PASSED_TO_SET_CSS_NAME_MAPPING_ERROR, []string{}))
 				return nil
 			}
-			cssNames.put(key.getString(), value.getString())
+			cssNames.Put(key.getString(), value.getString())
 		}
 	}
 	var styleStr string = "BY_PART"
@@ -388,14 +388,14 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 		it_5 := cssNames.eachEntry()
 		var getKeyU16 utf16_
 		for it_5.next() {
-			var b *TEntry[string, string] = it_5.entry()
+			var b *TEntryP[string, string] = it_5.entry()
 			if getKeyU16.of(b.getKey()).length() > 10 {
 				continue
 			}
 			it_7 := cssNames.eachEntry()
 			for it_7.next() {
-				var a *TEntry[string, string] = it_7.entry()
-				var combined Optional[string] = Optional_ofNullable[string](cssNames.get((sstr_(a.getKey()) + "-" + sstr_(b.getKey()))))
+				var a *TEntryP[string, string] = it_7.entry()
+				var combined Optional[string] = Optional_ofNullable[string](cssNames.Get((sstr_(a.getKey()) + "-" + sstr_(b.getKey()))))
 				if combined.isPresent() && !(combined.get() == (sstr_(a.getValue()) + "-" + sstr_(b.getValue()))) {
 					errors = append(errors, ("map(" + sstr_(a.getKey()) + "-" + sstr_(b.getKey()) + ") != map(" + sstr_(a.getKey()) + ")-map(" + sstr_(b.getKey()) + ")"))
 				}
@@ -529,7 +529,7 @@ func ProcessClosurePrimitives_clinit() {
 }
 
 type ProcessClosurePrimitives_1 struct {
-	cap_cssNames *JTMap[string, string]
+	cap_cssNames *TMap[string, string]
 	cap_style    CssRenamingMap_Style
 }
 
@@ -537,7 +537,7 @@ func (this *ProcessClosurePrimitives_1) init_ProcessClosurePrimitives_1() {
 
 }
 
-func new_ProcessClosurePrimitives_1(cap_cssNames *JTMap[string, string], cap_style CssRenamingMap_Style) *ProcessClosurePrimitives_1 {
+func new_ProcessClosurePrimitives_1(cap_cssNames *TMap[string, string], cap_style CssRenamingMap_Style) *ProcessClosurePrimitives_1 {
 	this := &ProcessClosurePrimitives_1{}
 	this.cap_cssNames = cap_cssNames
 	this.cap_style = cap_style
@@ -546,8 +546,8 @@ func new_ProcessClosurePrimitives_1(cap_cssNames *JTMap[string, string], cap_sty
 }
 
 func (this *ProcessClosurePrimitives_1) get(value string) Optional[string] {
-	if this.cap_cssNames.has(value) {
-		return Optional_ofNullable[string](this.cap_cssNames.get(value))
+	if this.cap_cssNames.Has(value) {
+		return Optional_ofNullable[string](this.cap_cssNames.Get(value))
 	} else {
 		return Optional_of[string](value)
 	}

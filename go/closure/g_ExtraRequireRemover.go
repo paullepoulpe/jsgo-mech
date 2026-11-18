@@ -6,13 +6,13 @@ import "strings"
 
 type ExtraRequireRemover struct {
 	compiler_ *AbstractCompiler
-	requires  *JTMap[string, Node]
-	usages    *JTSet[string]
+	requires  *TMap[string, Node]
+	usages    *TSet[string]
 }
 
 func (this *ExtraRequireRemover) finit_ExtraRequireRemover() {
-	this.requires = jnewTMap_(jtc_string, jtc_Node)
-	this.usages = jnewTSet_(jtc_string)
+	this.requires = newTMap_(jtc_string.t_(), tc_Node)
+	this.usages = newTSet_(jtc_string.t_())
 }
 
 func (this *ExtraRequireRemover) init_ExtraRequireRemover(compiler *AbstractCompiler) {
@@ -76,14 +76,14 @@ func (this *ExtraRequireRemover) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *ExtraRequireRemover) reset() {
-	this.usages.clear()
-	this.requires.clear()
+	this.usages.Clear()
+	this.requires.Clear()
 }
 
 func (this *ExtraRequireRemover) removeExtraRequiresInScript() {
 	it_1 := this.requires.eachEntry()
 	for it_1.next() {
-		var entry *TEntry[string, Node] = it_1.entry()
+		var entry *TEntryP[string, Node] = it_1.entry()
 		var require string = entry.getKey()
 		var call Node = entry.getValue()
 		this.removeExtraRequire(call, require)
@@ -91,7 +91,7 @@ func (this *ExtraRequireRemover) removeExtraRequiresInScript() {
 }
 
 func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
-	if this.usages.has(require) {
+	if this.usages.Has(require) {
 		return
 	}
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(call)
@@ -140,7 +140,7 @@ func (this *ExtraRequireRemover) visitRequire(localName string, namespace string
 	if ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES.Has(namespace) {
 		return
 	}
-	this.requires.putIfAbsent(localName, node)
+	this.requires.PutIfAbsent(localName, node)
 }
 
 func (this *ExtraRequireRemover) visitGoogRequire(namespace string, googRequireCall Node, parent Node) {
@@ -171,15 +171,15 @@ func (this *ExtraRequireRemover) visitCallNode(call Node, parent Node) {
 	}
 	var callee Node = call.getFirstChild()
 	if ExtraRequireRemover_GOOG_MODULE_GET.matches(callee) && call.getSecondChild().isStringLit() {
-		this.usages.add(call.getSecondChild().getString())
+		this.usages.Add(call.getSecondChild().getString())
 	}
 }
 
 func (this *ExtraRequireRemover) addUsagesOfAllPrefixes(qualifiedName *QualifiedName) {
-	this.usages.add(qualifiedName.join().orElse(nullstr_))
+	this.usages.Add(qualifiedName.join().orElse(nullstr_))
 	for !qualifiedName.isSimple() {
 		qualifiedName = qualifiedName.getOwner()
-		this.usages.add(qualifiedName.join().orElse(nullstr_))
+		this.usages.Add(qualifiedName.join().orElse(nullstr_))
 	}
 }
 

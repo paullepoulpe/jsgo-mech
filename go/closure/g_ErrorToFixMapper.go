@@ -6,11 +6,11 @@ import "strings"
 
 type ErrorToFixMapper struct {
 	compiler_             *AbstractCompiler
-	metadataForEachScript *JTMap[Node, *ScriptMetadata]
+	metadataForEachScript *TMap[Node, *ScriptMetadata]
 }
 
 func (this *ErrorToFixMapper) finit_ErrorToFixMapper() {
-	this.metadataForEachScript = jnewTMap_(jtc_Node, jtc_p_ScriptMetadata)
+	this.metadataForEachScript = newTMap_(jtc_Node.t_(), jtc_p_ScriptMetadata.t_())
 }
 
 func (this *ErrorToFixMapper) init_ErrorToFixMapper(compiler *AbstractCompiler) {

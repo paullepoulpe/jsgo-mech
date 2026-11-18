@@ -78,12 +78,12 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 		return Outcome_base_err[*SourceMapObject](names.error())
 	}
 	builder.setNames(names.get())
-	var extensions *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Object)
+	var extensions *TMap[string, any] = newTMap_(jtc_string.t_(), jtc_Object.t_())
 	it_1 := sourceMapRoot.members().eachEntry()
 	for it_1.next() {
-		var entry *TEntry[string, *SimpleJsonValue] = it_1.entry()
+		var entry *TEntryP[string, *SimpleJsonValue] = it_1.entry()
 		if strings.HasPrefix(entry.getKey(), "x_") {
-			extensions.put(entry.getKey(), obj_(entry.getValue()))
+			extensions.Put(entry.getKey(), obj_(entry.getValue()))
 		}
 	}
 	builder.setExtensions(Collections_unmodifiableMap(extensions.asMap()))
@@ -106,7 +106,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 	if begun.isErr() {
 		return Outcome_base_err[any](begun.error())
 	}
-	var extensions *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Object)
+	var extensions *TMap[string, any] = newTMap_(jtc_string.t_(), jtc_Object.t_())
 	for lexer.hasNext() {
 		var nameOutcome *Outcome_base[string] = lexer.nextName()
 		if nameOutcome.isErr() {
@@ -186,7 +186,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 				if value.isErr() {
 					return Outcome_base_err[any](new_SourceMapParseException(value.errorMessage().orElse(nullstr_)).up_Throwable())
 				}
-				extensions.put(name, obj_(value.get()))
+				extensions.Put(name, obj_(value.get()))
 			} else {
 				var skipped *Outcome_base[any] = lexer.skipValue()
 				if skipped.isErr() {

@@ -1027,7 +1027,7 @@ func (this *JsDocInfoParser) parseSuppressTag(token JsDocToken) JsDocToken {
 		this.addParserWarning(Msg_JSDOC_SUPPRESS)
 		return token
 	} else {
-		var suppressions *JTSet[string] = jnewTSet_(jtc_string)
+		var suppressions *TSet[string] = newTSet_(jtc_string.t_())
 		for {
 			this.skipEOLs()
 			if this.match(JsDocToken_STRING) {
@@ -1035,7 +1035,7 @@ func (this *JsDocInfoParser) parseSuppressTag(token JsDocToken) JsDocToken {
 				if !this.suppressionNames_.Has(name) {
 					this.addParserWarning_2(Msg_JSDOC_SUPPRESS_UNKNOWN, name)
 				}
-				suppressions.add(this.stream.getString())
+				suppressions.Add(this.stream.getString())
 				token = this.next()
 			} else {
 				this.addParserWarning(Msg_JSDOC_SUPPRESS)
@@ -1112,14 +1112,14 @@ func (this *JsDocInfoParser) parseClosurePrimitiveTag(token JsDocToken) JsDocTok
 
 func (this *JsDocInfoParser) parseModifiesTag(token JsDocToken) JsDocToken {
 	if token == JsDocToken_LEFT_CURLY {
-		var modifies *JTSet[string] = jnewTSet_(jtc_string)
+		var modifies *TSet[string] = newTSet_(jtc_string.t_())
 		for {
 			if this.match(JsDocToken_STRING) {
 				var name string = this.stream.getString()
 				if !JsDocInfoParser_modifiesAnnotationKeywords.Has(name) && !this.jsdocBuilder.hasParameter(Optional_of[string](name)) {
 					this.addParserWarning_2(Msg_JSDOC_MODIFIES_UNKNOWN, name)
 				}
-				modifies.add(this.stream.getString())
+				modifies.Add(this.stream.getString())
 				token = this.next()
 			} else {
 				this.addParserWarning(Msg_JSDOC_MODIFIES)
@@ -1847,7 +1847,7 @@ func (this *JsDocInfoParser) parseRecordType(token JsDocToken) Node {
 
 func (this *JsDocInfoParser) parseFieldTypeList(token JsDocToken) Node {
 	var fieldTypeList Node = this.newNode(Token_rhino_LB)
-	var names *JTSet[string] = jnewTSet_(jtc_string)
+	var names *TSet[string] = newTSet_(jtc_string.t_())
 	for do_2 := true; do_2; do_2 = true {
 		var fieldType Node = this.parseFieldType(token)
 		if fieldType == 0 {
@@ -1859,7 +1859,7 @@ func (this *JsDocInfoParser) parseFieldTypeList(token JsDocToken) Node {
 			}
 			return fieldType.getFirstChild().getString()
 		}()
-		if names.add(name) {
+		if names.Add(name) {
 			fieldTypeList.addChildToBack(fieldType)
 		} else {
 			this.addTypeWarning_2(Msg_JSDOC_TYPE_RECORD_DUPLICATE, name)

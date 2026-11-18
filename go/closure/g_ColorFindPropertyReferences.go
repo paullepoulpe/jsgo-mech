@@ -4,7 +4,7 @@ package closure
 
 type ColorFindPropertyReferences struct {
 	NodeTraversal_AbstractPostOrderCallback
-	propIndex             *JTMap[string, *PropertyClustering]
+	propIndex             *TMap[string, *PropertyClustering]
 	colorGraphNodeFactory *ColorGraphNodeFactory
 	isPropertyReflector   func(Node) bool
 }
@@ -17,7 +17,7 @@ func (this *ColorFindPropertyReferences) up_NodeTraversal_AbstractPostOrderCallb
 }
 
 func (this *ColorFindPropertyReferences) finit_ColorFindPropertyReferences() {
-	this.propIndex = jnewTMap_(jtc_string, jtc_p_PropertyClustering)
+	this.propIndex = newTMap_(jtc_string.t_(), jtc_p_PropertyClustering.t_())
 }
 
 func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector func(Node) bool) {
@@ -34,8 +34,8 @@ func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactor
 	return this
 }
 
-func (this *ColorFindPropertyReferences) getPropertyIndex() *JTMap[string, *PropertyClustering] {
-	var tmp *JTMap[string, *PropertyClustering] = this.propIndex
+func (this *ColorFindPropertyReferences) getPropertyIndex() *TMap[string, *PropertyClustering] {
+	var tmp *TMap[string, *PropertyClustering] = this.propIndex
 	this.propIndex = nil
 	return tmp
 }
@@ -176,9 +176,9 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 func (this *ColorFindPropertyReferences) registerPropertyUse(t *NodeTraversal, site Node, owner *Color) {
 	var prop *PropertyClustering = this.propIndex.computeIfAbsent(site.getString(), &Function_tfn_string_PropertyClustering{func(p0 string) *PropertyClustering { return new_PropertyClustering(p0) }})
 	var flatOwner *ColorGraphNode = this.colorGraphNodeFactory.createNode(owner)
-	flatOwner.getAssociatedProps().put(prop, ColorGraphNode_PropAssociation_AST)
+	flatOwner.getAssociatedProps().Put(prop, ColorGraphNode_PropAssociation_AST)
 	prop.getClusters().add(flatOwner)
-	prop.getUseSites().put(site, flatOwner)
+	prop.getUseSites().Put(site, flatOwner)
 	if t.getCurrentScript().isFromExterns() || ((owner != nil) && owner.getPropertiesKeepOriginalName()) {
 		prop.registerOriginalNameType(flatOwner)
 	}

@@ -5,7 +5,7 @@ package closure
 type BranchCoverageInstrumentationCallback struct {
 	NodeTraversal_AbstractCfgCallback
 	compiler_           *AbstractCompiler
-	instrumentationData *JTMap[string, *FileInstrumentationData]
+	instrumentationData *TMap[string, *FileInstrumentationData]
 }
 
 func (this *BranchCoverageInstrumentationCallback) up_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback {
@@ -15,13 +15,13 @@ func (this *BranchCoverageInstrumentationCallback) up_NodeTraversal_AbstractCfgC
 	return &this.NodeTraversal_AbstractCfgCallback
 }
 
-func (this *BranchCoverageInstrumentationCallback) init_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *JTMap[string, *FileInstrumentationData]) {
+func (this *BranchCoverageInstrumentationCallback) init_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *TMap[string, *FileInstrumentationData]) {
 	this.NodeTraversal_AbstractCfgCallback.init_NodeTraversal_AbstractCfgCallback()
 	this.compiler_ = compiler
 	this.instrumentationData = instrumentationData
 }
 
-func new_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *JTMap[string, *FileInstrumentationData]) *BranchCoverageInstrumentationCallback {
+func new_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *TMap[string, *FileInstrumentationData]) *BranchCoverageInstrumentationCallback {
 	this := &BranchCoverageInstrumentationCallback{}
 	this.self_ = this
 	this.init_BranchCoverageInstrumentationCallback(compiler, instrumentationData)
@@ -40,7 +40,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 	if node.isScript() {
 		if func() *FileInstrumentationData {
 			if fileName.isPresent() {
-				return this.instrumentationData.get(fileName.get())
+				return this.instrumentationData.Get(fileName.get())
 			}
 			return nil
 		}() != nil {
@@ -54,7 +54,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 			this.compiler_.reportChangeToEnclosingScope(node)
 			this.instrumentBranchCoverage(traversal, func() *FileInstrumentationData {
 				if fileName.isPresent() {
-					return this.instrumentationData.get(fileName.get())
+					return this.instrumentationData.Get(fileName.get())
 				}
 				return nil
 			}())
@@ -80,7 +80,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		}})
 		this.processBranchInfo(node, func() *FileInstrumentationData {
 			if fileName.isPresent() {
-				return this.instrumentationData.get(fileName.get())
+				return this.instrumentationData.Get(fileName.get())
 			}
 			return nil
 		}(), this.getChildrenBlocks(node))
@@ -108,7 +108,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		}})
 		this.processBranchInfo(node, func() *FileInstrumentationData {
 			if fileName.isPresent() {
-				return this.instrumentationData.get(fileName.get())
+				return this.instrumentationData.Get(fileName.get())
 			}
 			return nil
 		}(), blocks)
@@ -176,7 +176,7 @@ func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *Node
 	var fileName Optional[string] = traversal.getSourceName()
 	var data *FileInstrumentationData = func() *FileInstrumentationData {
 		if fileName.isPresent() {
-			return this.instrumentationData.get(fileName.get())
+			return this.instrumentationData.Get(fileName.get())
 		}
 		return nil
 	}()

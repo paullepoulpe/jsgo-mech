@@ -8,9 +8,9 @@ type ReplaceStrings struct {
 	NodeTraversal_AbstractPostOrderCallback
 	placeholderToken string
 	compiler_        *AbstractCompiler
-	functions        *JTMap[string, *ReplaceStrings_Config]
+	functions        *TMap[string, *ReplaceStrings_Config]
 	nameGenerator    *DefaultNameGenerator
-	results          *JTMap[string, *ReplaceStrings_Result]
+	results          *TMap[string, *ReplaceStrings_Result]
 }
 
 func (this *ReplaceStrings) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -25,8 +25,8 @@ func (this *ReplaceStrings) zero_ReplaceStrings() {
 }
 
 func (this *ReplaceStrings) finit_ReplaceStrings() {
-	this.functions = jnewTMap_(jtc_string, jtc_p_ReplaceStrings_Config)
-	this.results = jnewTMap_(jtc_string, jtc_p_ReplaceStrings_Result)
+	this.functions = newTMap_(jtc_string.t_(), jtc_p_ReplaceStrings_Config.t_())
+	this.results = newTMap_(jtc_string.t_(), tc_p_ReplaceStrings_Result)
 }
 
 func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect []string) {
@@ -84,10 +84,10 @@ func (this *ReplaceStrings) visit_impl(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *ReplaceStrings) findMatching(name string, callsiteSourceFileName string) *ReplaceStrings_Config {
-	var config *ReplaceStrings_Config = this.functions.get(name)
+	var config *ReplaceStrings_Config = this.functions.Get(name)
 	if config == nil {
 		name = strings.ReplaceAll(name, "$", ".")
-		config = this.functions.get(name)
+		config = this.functions.Get(name)
 	}
 	if config != nil {
 		for _, el_1 := range config.excludedFilenameSuffixes.keys {
@@ -160,18 +160,18 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 }
 
 func (this *ReplaceStrings) getReplacement(key string) string {
-	var result *ReplaceStrings_Result = this.results.get(key)
+	var result *ReplaceStrings_Result = this.results.Get(key)
 	if result != nil {
 		return result.replacement_
 	}
 	var replacement string = this.nameGenerator.generateNextName()
 	result = new_ReplaceStrings_Result(key, replacement)
-	this.results.put(key, result)
+	this.results.Put(key, result)
 	return replacement
 }
 
 func (this *ReplaceStrings) recordReplacement(key string) {
-	var result *ReplaceStrings_Result = this.results.get(key)
+	var result *ReplaceStrings_Result = this.results.Get(key)
 	if result == nil {
 		panic(new_IllegalStateException_0())
 	}
@@ -229,7 +229,7 @@ func (this *ReplaceStrings) parseConfigurationList(functionsToInspect []string) 
 	for _, function := range functionsToInspect {
 		var config *ReplaceStrings_Config = this.parseConfiguration(function)
 		if config != nil {
-			this.functions.put(config.name_, config)
+			this.functions.Put(config.name_, config)
 		}
 	}
 }

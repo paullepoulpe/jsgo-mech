@@ -13,7 +13,7 @@ type TypeInference struct {
 	assertionFunctionLookup *CodingConvention_AssertionFunctionLookup
 	moduleImportResolver    *ModuleImportResolver
 	optChainArrayDeque      *TDeque[*TypeInference_OptChainInfo]
-	inferredUnboundVars     *JTSet[*TypedScope]
+	inferredUnboundVars     *TSet[*TypedScope]
 	unknownType             *ObjectType
 	numberAdditionSupertype *JSType
 }
@@ -27,7 +27,7 @@ func (this *TypeInference) up_DataFlowAnalysis() *DataFlowAnalysis[Node, FlowSco
 
 func (this *TypeInference) finit_TypeInference() {
 	this.optChainArrayDeque = newTDeque_(jtc_p_TypeInference_OptChainInfo)
-	this.inferredUnboundVars = jnewTSet_(jtc_p_TypedScope)
+	this.inferredUnboundVars = newTSet_(jtc_p_TypedScope.t_())
 }
 
 func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *ControlFlowGraph[Node], reverseInterpreter ReverseAbstractInterpreter, syntacticScope *TypedScope, scopeCreator *TypedScopeCreator, assertionFunctionLookup *CodingConvention_AssertionFunctionLookup) {
@@ -74,7 +74,7 @@ func new_TypeInference(compiler *AbstractCompiler, cfg *ControlFlowGraph[Node], 
 
 func (this *TypeInference) inferDeclarativelyUnboundVarsWithoutTypes(flow FlowScope) FlowScope {
 	var scope *TypedScope = cast_[*TypedScope](flow.getDeclarationScope())
-	if !this.inferredUnboundVars.add(scope) {
+	if !this.inferredUnboundVars.Add(scope) {
 		return flow
 	}
 	for var_ := range elemsAs_[*TypedVar](scope.getDeclarativelyUnboundVarsWithoutTypes()) {
@@ -1434,21 +1434,21 @@ func (this *TypeInference) matchFunction(expectedType *FunctionType, currentType
 	return currentType
 }
 
-func (this *TypeInference) buildTypeVariables(inferredTypes *JTMap[*TemplateType, *JSType]) *JTMap[string, *JSType] {
-	var typeVars *JTMap[string, *JSType] = jnewTMap_(jtc_string, jtc_p_JSType)
+func (this *TypeInference) buildTypeVariables(inferredTypes *TMap[*TemplateType, *JSType]) *TMap[string, *JSType] {
+	var typeVars *TMap[string, *JSType] = newTMap_(jtc_string.t_(), tc_p_JSType)
 	it_1 := inferredTypes.eachEntry()
 	for it_1.next() {
-		var e *TEntry[*TemplateType, *JSType] = it_1.entry()
+		var e *TEntryP[*TemplateType, *JSType] = it_1.entry()
 		if !e.getKey().isTypeTransformation() {
-			typeVars.put(e.getKey().getReferenceName().orElseThrow(), e.getValue())
+			typeVars.Put(e.getKey().getReferenceName().orElseThrow(), e.getValue())
 		}
 	}
 	return typeVars
 }
 
-func (this *TypeInference) evaluateTypeTransformations(templateTypes *ImmutableList[*TemplateType], inferredTypes *JTMap[*TemplateType, *JSType], scope FlowScope) *JTMap[*TemplateType, *JSType] {
-	var typeVars *JTMap[string, *JSType] = nil
-	var result *JTMap[*TemplateType, *JSType] = nil
+func (this *TypeInference) evaluateTypeTransformations(templateTypes *ImmutableList[*TemplateType], inferredTypes *TMap[*TemplateType, *JSType], scope FlowScope) *TMap[*TemplateType, *JSType] {
+	var typeVars *TMap[string, *JSType] = nil
+	var result *TMap[*TemplateType, *JSType] = nil
 	var ttlObj *TypeTransformation = nil
 	for _, el := range templateTypes.items {
 		type_ := el
@@ -1456,11 +1456,11 @@ func (this *TypeInference) evaluateTypeTransformations(templateTypes *ImmutableL
 			if ttlObj == nil {
 				ttlObj = new_TypeTransformation(this.compiler_, scope.getDeclarationScope())
 				typeVars = this.buildTypeVariables(inferredTypes)
-				result = jnewTMap_(tce_p_TemplateType, jtc_p_JSType)
+				result = newTMap_(tce_p_TemplateType.t_(), tc_p_JSType)
 			}
 			var transformedType *JSType = ttlObj.eval(type_.getTypeTransformation(), immutableMapCopyOf_(tc_string, tc_p_JSType, typeVars.asMap()))
-			result.put(type_, transformedType)
-			typeVars.put(type_.getReferenceName().orElse(nullstr_), transformedType)
+			result.Put(type_, transformedType)
+			typeVars.Put(type_.getReferenceName().orElse(nullstr_), transformedType)
 		}
 	}
 	return result
@@ -1472,10 +1472,10 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 		return false
 	}
 	var bindings *ImmutableMap[*TemplateType, *JSType] = new_InvocationTemplateTypeMatcher(this.registry, fnType, scope.getTypeOfThis(), n).match()
-	var inferred *JTMap[*TemplateType, *JSType] = jnewTMap_(tce_p_TemplateType, jtc_p_JSType)
+	var inferred *TMap[*TemplateType, *JSType] = newTMap_(tce_p_TemplateType.t_(), tc_p_JSType)
 	for _, el := range keys.items {
 		key := el
-		inferred.put(key, to_JSType(Map_getOrDefault(icast_Map(obj_(bindings.asImm())), obj_(key), this.unknownType.self())))
+		inferred.Put(key, to_JSType(Map_getOrDefault(icast_Map(obj_(bindings.asImm())), obj_(key), this.unknownType.self())))
 	}
 	Map_replaceAll(inferred.asMap(), &BiFunction_tfn_TemplateType_any_any{func(k *TemplateType, v_ any) any {
 		var v *JSType = to_JSType(v_)
@@ -1487,7 +1487,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 			return k.getBound().self()
 		}()
 	}})
-	var typeTransformations *JTMap[*TemplateType, *JSType] = this.evaluateTypeTransformations(keys, inferred, scope)
+	var typeTransformations *TMap[*TemplateType, *JSType] = this.evaluateTypeTransformations(keys, inferred, scope)
 	if typeTransformations != nil {
 		inferred.asMap().putAll(typeTransformations.asMap())
 	}

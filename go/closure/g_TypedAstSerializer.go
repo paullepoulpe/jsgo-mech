@@ -9,14 +9,14 @@ type TypedAstSerializer struct {
 	previousLine       int32
 	previousColumn     int32
 	subtreeSourceFiles *TDeque[*SourceFile_jscomp]
-	sourceFilePointers *JTMap[*SourceFile_jscomp, any]
+	sourceFilePointers *TMap[*SourceFile_jscomp, any]
 	typeSerializer     TypedAstSerializer_TypeSerializer
 }
 
 func (this *TypedAstSerializer) finit_TypedAstSerializer() {
 	this.stringPool = StringPool_builder()
 	this.subtreeSourceFiles = newTDeque_(jtc_p_SourceFile_jscomp)
-	this.sourceFilePointers = jnewTMap_(jtc_p_SourceFile_jscomp, jtc_Integer)
+	this.sourceFilePointers = newTMap_(jtc_p_SourceFile_jscomp.t_(), jtc_Integer.t_())
 	this.typeSerializer = nil
 }
 
@@ -160,7 +160,7 @@ func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 	}
 	this.subtreeSourceFiles.add(sourceFile)
 	return unbox_[int32](this.sourceFilePointers.computeIfAbsent(sourceFile, &Function_tfn_SourceFile_jscomp_any{func(f *SourceFile_jscomp) any {
-		return any(int32((1 + this.sourceFilePointers.size())))
+		return any(int32((1 + this.sourceFilePointers.Len())))
 	}}))
 }
 

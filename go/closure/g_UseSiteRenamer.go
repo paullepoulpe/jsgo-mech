@@ -35,7 +35,7 @@ func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) UseSiteRenamer_
 	this.renamingIndex.putAll_2(prop.getName(), Iterable(clusterNames.asImm().values()))
 	it_1 := prop.getUseSites().eachEntry()
 	for it_1.next() {
-		var usage *TEntry[Node, *ColorGraphNode] = it_1.entry()
+		var usage *TEntryP[Node, *ColorGraphNode] = it_1.entry()
 		var site Node = usage.getKey()
 		var flatRep *ColorGraphNode = prop.getClusters().find(usage.getValue())
 		var newName string = clusterNames.Get(flatRep)

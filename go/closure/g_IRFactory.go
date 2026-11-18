@@ -12,8 +12,8 @@ type IRFactory struct {
 	errorReporter              ErrorReporter_rhino
 	transformDispatcher        *IRFactory_TransformDispatcher
 	reservedKeywords           *ImmutableSet[string]
-	parsedComments             *JTSet[*Comment]
-	licenseBuilder             *JTSet[string]
+	parsedComments             *TSet[*Comment]
+	licenseBuilder             *TSet[string]
 	firstFileoverview          *JSDocInfo
 	templateNode               Node
 	defaultTemplateNode        Node
@@ -28,8 +28,8 @@ type IRFactory struct {
 }
 
 func (this *IRFactory) finit_IRFactory() {
-	this.parsedComments = jnewTSet_(jtc_p_Comment)
-	this.licenseBuilder = jnewTSet_(jtc_string)
+	this.parsedComments = newTSet_(jtc_p_Comment.t_())
+	this.licenseBuilder = newTSet_(jtc_string.t_())
 	this.firstFileoverview = nil
 	this.currentFileIsExterns = false
 	this.features_ = FeatureSet_BARE_MINIMUM
@@ -99,7 +99,7 @@ func IRFactory_transformTree(tree *ProgramTree, sourceFile StaticSourceFile, con
 	if tree.sourceComments != nil {
 		for _, el := range tree.sourceComments.items {
 			comment := el
-			if ((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !irFactory.parsedComments.has(comment) {
+			if ((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !irFactory.parsedComments.Has(comment) {
 				var useLicensesOnlyConfig bool = irFactory.withinClosureUnawareCodeRange(comment.location_.start_.line_, comment.location_.start_.column_)
 				irFactory.handlePossibleFileOverviewJsDoc_2(comment, useLicensesOnlyConfig)
 			}
@@ -371,13 +371,13 @@ func (this *IRFactory) validateParameters(n Node) {
 	if !n.isParamList() {
 		return
 	}
-	var seenNames *JTSet[string] = jnewTSet_(jtc_string)
+	var seenNames *TSet[string] = newTSet_(jtc_string.t_())
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
 			ParsingUtil_getParamOrPatternNames(c, (&Consumer_tfn_Node{func(param Node) {
 				var paramName string = param.getString()
-				if !seenNames.add(paramName) {
+				if !seenNames.Add(paramName) {
 					this.errorReporter.warning(("Duplicate parameter name \"" + sstr_(paramName) + "\""), this.sourceName_, param.getLineno(), param.getCharno())
 				}
 			}}).accept)
@@ -398,7 +398,7 @@ func (this *IRFactory) setFileOverviewJsDoc(irNode Node) {
 		}
 		return this.firstFileoverview.toBuilder()
 	}()
-	if !this.licenseBuilder.isEmpty() {
+	if !this.licenseBuilder.IsEmpty() {
 		fileoverview.recordLicense(String_join_s("", Iterable(this.licenseBuilder.asSet())))
 	}
 	irNode.setJSDocInfo(fileoverview.build_1(false))
@@ -422,7 +422,7 @@ func (this *IRFactory) transformBlock(node *ParseTree) Node {
 
 func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoParser) bool {
 	if jsDocParser.getLicenseText().isPresent() {
-		this.licenseBuilder.add(jsDocParser.getLicenseText().get())
+		this.licenseBuilder.Add(jsDocParser.getLicenseText().get())
 	}
 	var newFileoverview *JSDocInfo = jsDocParser.getFileOverviewJSDocInfo()
 	if JSCompObjects_identical(obj_(newFileoverview), obj_(this.firstFileoverview)) {
@@ -453,7 +453,7 @@ func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoPar
 
 func (this *IRFactory) handlePossibleFileOverviewJsDoc_2(comment *Comment, useLicensesOnlyConfig bool) {
 	var jsDocParser *JsDocInfoParser = this.createJsDocInfoParser_2(comment, useLicensesOnlyConfig)
-	this.parsedComments.add(comment)
+	this.parsedComments.Add(comment)
 	this.handlePossibleFileOverviewJsDoc(jsDocParser)
 }
 
@@ -475,7 +475,7 @@ func (this *IRFactory) parseJSDocInfoFrom(comment *Comment) *JSDocInfo {
 		return nil
 	}
 	var jsDocParser *JsDocInfoParser = this.createJsDocInfoParser(comment)
-	this.parsedComments.add(comment)
+	this.parsedComments.Add(comment)
 	if this.handlePossibleFileOverviewJsDoc(jsDocParser) {
 		return nil
 	}
@@ -550,7 +550,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 		result.append(currentComment.value_)
 		lastComment = currentComment
 		if commentFromJsdocTracker {
-			this.parsedComments.add(currentComment)
+			this.parsedComments.Add(currentComment)
 			this.jsdocTracker.advance()
 		} else {
 			this.nonJsdocTracker.advance()

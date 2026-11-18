@@ -169,11 +169,11 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrapperInfo) createWrapperFunctio
 
 type RewriteAsyncFunctions_SuperPropertyWrappers struct {
 	outer_                *RewriteAsyncFunctions
-	propertyNameToTypeMap *JTMap[string, *RewriteAsyncFunctions_SuperPropertyWrapperInfo]
+	propertyNameToTypeMap *TMap[string, *RewriteAsyncFunctions_SuperPropertyWrapperInfo]
 }
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) finit_RewriteAsyncFunctions_SuperPropertyWrappers() {
-	this.propertyNameToTypeMap = jnewTMap_(jtc_string, jtc_p_RewriteAsyncFunctions_SuperPropertyWrapperInfo)
+	this.propertyNameToTypeMap = newTMap_(jtc_string.t_(), jtc_p_RewriteAsyncFunctions_SuperPropertyWrapperInfo.t_())
 }
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) init_RewriteAsyncFunctions_SuperPropertyWrappers() {
@@ -198,15 +198,15 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropert
 	var propertyName string = superDotPropertyNode.getString()
 	var propertyType *Color = superDotPropertyNode.getColor()
 	var superPropertyWrapperInfo *RewriteAsyncFunctions_SuperPropertyWrapperInfo
-	if this.propertyNameToTypeMap.has(propertyName) {
-		superPropertyWrapperInfo = this.propertyNameToTypeMap.get(propertyName)
+	if this.propertyNameToTypeMap.Has(propertyName) {
+		superPropertyWrapperInfo = this.propertyNameToTypeMap.Get(propertyName)
 		var existingColor *Color = superPropertyWrapperInfo.getPropertyType()
 		if !objequalsBy_(existingColor, obj_(propertyType), (*Color).equals) {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Previous reference type: %s differs from current reference type: %s", []any{obj_(existingColor), obj_(propertyType)})))
 		}
 	} else {
 		superPropertyWrapperInfo = this.createNewInfo(superDotPropertyNode)
-		this.propertyNameToTypeMap.put(propertyName, superPropertyWrapperInfo)
+		this.propertyNameToTypeMap.Put(propertyName, superPropertyWrapperInfo)
 	}
 	return superPropertyWrapperInfo
 }

@@ -8,9 +8,9 @@ type JsMessageVisitor struct {
 	NodeTraversal_AbstractPostOrderCallback
 	idGenerator_    JsMessage_IdGenerator
 	compiler_       *AbstractCompiler
-	messageNames    *JTMap[string, *JsMessageVisitor_MessageLocation]
-	unnamedMessages *JTMap[*Var, *JsMessage]
-	googMsgNodes    *JTSet[Node]
+	messageNames    *TMap[string, *JsMessageVisitor_MessageLocation]
+	unnamedMessages *TMap[*Var, *JsMessage]
+	googMsgNodes    *TSet[Node]
 }
 
 func (this *JsMessageVisitor) as_JsMessageVisitor() *JsMessageVisitor { return this }
@@ -30,9 +30,9 @@ func (this *JsMessageVisitor) up_NodeTraversal_AbstractPostOrderCallback() *Node
 }
 
 func (this *JsMessageVisitor) finit_JsMessageVisitor() {
-	this.messageNames = jnewTMap_(jtc_string, jtc_p_JsMessageVisitor_MessageLocation)
-	this.unnamedMessages = jnewTMap_(tce_p_Var, jtc_p_JsMessage)
-	this.googMsgNodes = jnewTSet_(jtc_Node)
+	this.messageNames = newTMap_(jtc_string.t_(), jtc_p_JsMessageVisitor_MessageLocation.t_())
+	this.unnamedMessages = newTMap_(tce_p_Var.t_(), jtc_p_JsMessage.t_())
+	this.googMsgNodes = newTSet_(jtc_Node.t_())
 }
 
 func (this *JsMessageVisitor) init_JsMessageVisitor(compiler *AbstractCompiler, idGenerator JsMessage_IdGenerator) {
@@ -117,7 +117,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		return
 	}
 	if msgNodeIsACall {
-		this.googMsgNodes.del(msgNode)
+		this.googMsgNodes.Delete(msgNode)
 	} else {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, JsMessageVisitor_MESSAGE_NOT_INITIALIZED_CORRECTLY, []string{}))
 		return
@@ -255,7 +255,7 @@ func (this *JsMessageVisitor) collectGetMsgCall(traversal *NodeTraversal, call N
 	}
 	var callee Node = call.getFirstChild()
 	if callee.matchesQualifiedName(JsMessageVisitor_MSG_FUNCTION_QNAME) || this.isDeclareIcuTemplateCallee(callee) {
-		this.googMsgNodes.add(call)
+		this.googMsgNodes.Add(call)
 	} else if callee.matchesQualifiedName(JsMessageVisitor_MSG_FALLBACK_FUNCTION_NAME) {
 		this.visitFallbackFunctionCall(traversal, call)
 	}
@@ -263,13 +263,13 @@ func (this *JsMessageVisitor) collectGetMsgCall(traversal *NodeTraversal, call N
 
 func (this *JsMessageVisitor) trackNormalMessage(message *JsMessage, msgName string, msgNode Node) {
 	var location *JsMessageVisitor_MessageLocation = new_JsMessageVisitor_MessageLocation(message, msgNode)
-	this.messageNames.put(msgName, location)
+	this.messageNames.Put(msgName, location)
 }
 
 func (this *JsMessageVisitor) trackUnnamedMessage(t *NodeTraversal, message *JsMessage, msgNameInScope string) {
 	var var_ *Var = cast_[*Var](t.getScope().getVar(msgNameInScope).self())
 	if var_ != nil {
-		this.unnamedMessages.put(var_, message)
+		this.unnamedMessages.Put(var_, message)
 	}
 }
 
@@ -295,13 +295,13 @@ func JsMessageVisitor_isLegalMessageVarAlias(msgNode Node) bool {
 func (this *JsMessageVisitor) getTrackedUnnamedMessage(t *NodeTraversal, msgNameInScope string) *JsMessage {
 	var var_ *Var = cast_[*Var](t.getScope().getVar(msgNameInScope).self())
 	if var_ != nil {
-		return this.unnamedMessages.get(var_)
+		return this.unnamedMessages.Get(var_)
 	}
 	return nil
 }
 
 func (this *JsMessageVisitor) getTrackedNormalMessage(msgName string) *JsMessage {
-	var location *JsMessageVisitor_MessageLocation = this.messageNames.get(msgName)
+	var location *JsMessageVisitor_MessageLocation = this.messageNames.Get(msgName)
 	return func() *JsMessage {
 		if location == nil {
 			return nil
@@ -311,8 +311,8 @@ func (this *JsMessageVisitor) getTrackedNormalMessage(msgName string) *JsMessage
 }
 
 func (this *JsMessageVisitor) checkIfMessageDuplicated(msgName string, msgNode Node) {
-	if this.messageNames.has(msgName) {
-		var location *JsMessageVisitor_MessageLocation = this.messageNames.get(msgName)
+	if this.messageNames.Has(msgName) {
+		var location *JsMessageVisitor_MessageLocation = this.messageNames.Get(msgName)
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(msgNode, JsMessageVisitor_MESSAGE_DUPLICATE_KEY, []string{msgName, location.messageNode_.getSourceFileName(), Integer_toString(location.messageNode_.getLineno())}))
 	}
 }
@@ -620,7 +620,7 @@ func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base[JsMessa
 	if !objLit.isObjectLit() {
 		return Outcome_base_err[JsMessageVisitor_ObjectLiteralMap](new_JsMessageVisitor_MalformedException("object literal expected", objLit).up_Throwable())
 	}
-	var stringToStringKeyMap *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
+	var stringToStringKeyMap *TMap[string, Node] = newTMap_(jtc_string.t_(), tc_Node)
 	{
 		var stringKey Node = objLit.getFirstChild()
 		for ; stringKey != 0; stringKey = stringKey.getNext() {
@@ -628,10 +628,10 @@ func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base[JsMessa
 				return Outcome_base_err[JsMessageVisitor_ObjectLiteralMap](new_JsMessageVisitor_MalformedException("string key expected", stringKey).up_Throwable())
 			}
 			var key string = stringKey.getString()
-			if stringToStringKeyMap.has(key) {
+			if stringToStringKeyMap.Has(key) {
 				return Outcome_base_err[JsMessageVisitor_ObjectLiteralMap](new_JsMessageVisitor_MalformedException(("duplicate string key: " + sstr_(key)), stringKey).up_Throwable())
 			}
-			stringToStringKeyMap.put(stringKey.getString(), stringKey)
+			stringToStringKeyMap.Put(stringKey.getString(), stringKey)
 		}
 	}
 	return Outcome_base_ok_Object[JsMessageVisitor_ObjectLiteralMap](JsMessageVisitor_ObjectLiteralMap(new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap.asMap())))

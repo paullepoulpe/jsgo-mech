@@ -90,10 +90,10 @@ func (this *StrictModeCheck) checkDelete(t *NodeTraversal, n Node) {
 }
 
 func (this *StrictModeCheck) checkObjectLiteralOrClass(n Node) {
-	var getters *JTSet[string] = jnewTSet_(jtc_string)
-	var setters *JTSet[string] = jnewTSet_(jtc_string)
-	var staticGetters *JTSet[string] = jnewTSet_(jtc_string)
-	var staticSetters *JTSet[string] = jnewTSet_(jtc_string)
+	var getters *TSet[string] = newTSet_(jtc_string.t_())
+	var setters *TSet[string] = newTSet_(jtc_string.t_())
+	var staticGetters *TSet[string] = newTSet_(jtc_string.t_())
+	var staticSetters *TSet[string] = newTSet_(jtc_string.t_())
 	{
 		var key Node = n.getLastChild()
 		for ; key != 0; key = key.getPrevious() {
@@ -102,24 +102,24 @@ func (this *StrictModeCheck) checkObjectLiteralOrClass(n Node) {
 			}
 			var keyName string = key.getString()
 			if !key.isSetterDef() {
-				var set *JTSet[string] = func() *JTSet[string] {
+				var set *TSet[string] = func() *TSet[string] {
 					if key.isStaticMember() {
 						return staticGetters
 					}
 					return getters
 				}()
-				if !set.add(keyName) {
+				if !set.Add(keyName) {
 					this.report(key, StrictModeCheck_DUPLICATE_MEMBER, []string{keyName})
 				}
 			}
 			if !key.isGetterDef() {
-				var set *JTSet[string] = func() *JTSet[string] {
+				var set *TSet[string] = func() *TSet[string] {
 					if key.isStaticMember() {
 						return staticSetters
 					}
 					return setters
 				}()
-				if !set.add(keyName) {
+				if !set.Add(keyName) {
 					this.report(key, StrictModeCheck_DUPLICATE_MEMBER, []string{keyName})
 				}
 			}

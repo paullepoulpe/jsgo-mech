@@ -640,7 +640,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 	}
 	sliceRemoveAll_(tc_p_ProcessCommonJSModules_ExportInfo, this.exports, Collection(sliceView_(tc_p_ProcessCommonJSModules_ExportInfo, exportsToRemove)))
 	sliceClear_(&exportsToRemove)
-	var exportsToReplace *JTMap[*ProcessCommonJSModules_ExportInfo, *ProcessCommonJSModules_ExportInfo] = jnewTMap_(jtc_p_ProcessCommonJSModules_ExportInfo, jtc_p_ProcessCommonJSModules_ExportInfo)
+	var exportsToReplace *TMap[*ProcessCommonJSModules_ExportInfo, *ProcessCommonJSModules_ExportInfo] = newTMap_(jtc_p_ProcessCommonJSModules_ExportInfo.t_(), tc_p_ProcessCommonJSModules_ExportInfo)
 	for export := range sliceAll_(this.moduleExports) {
 		if NodeUtil_getEnclosingScript(export.node_) == 0 {
 			exportsToRemove = append(exportsToRemove, export)
@@ -649,7 +649,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 			var newExport *ProcessCommonJSModules_ExportInfo = new_ProcessCommonJSModules_ExportInfo(IR_getprop_Node_String(export.node_.removeFirstChild(), prop.getString()), export.scope_)
 			export.node_.replaceWith(newExport.node_)
 			this.outer_.compiler_.reportChangeToEnclosingScope(newExport.node_)
-			exportsToReplace.put(export, newExport)
+			exportsToReplace.Put(export, newExport)
 		}
 	}
 	sliceRemoveAll_(tc_p_ProcessCommonJSModules_ExportInfo, this.moduleExports, Collection(sliceView_(tc_p_ProcessCommonJSModules_ExportInfo, exportsToRemove)))
@@ -658,7 +658,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 		var oldExport *ProcessCommonJSModules_ExportInfo = it_7.v
 		var oldIndex int32 = sliceViewP_(tc_p_ProcessCommonJSModules_ExportInfo, this.moduleExports).indexOf(obj_(oldExport))
 		sliceRemoveAt_(this.moduleExports, oldIndex)
-		sliceInsert_(this.moduleExports, oldIndex, exportsToReplace.get(oldExport))
+		sliceInsert_(this.moduleExports, oldIndex, exportsToReplace.Get(oldExport))
 	}
 	var directAssignments int32 = 0
 	for export := range sliceAll_(this.moduleExports) {

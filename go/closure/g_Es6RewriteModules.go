@@ -9,8 +9,8 @@ type Es6RewriteModules struct {
 	astFactory_             *AstFactory
 	unknownType             *JSType
 	preprocessorSymbolTable *PreprocessorSymbolTable
-	namesToInlineByAlias    *JTMap[string, *ModuleRenaming_GlobalizedModuleName]
-	typedefs                *JTSet[string]
+	namesToInlineByAlias    *TMap[string, *ModuleRenaming_GlobalizedModuleName]
+	typedefs                *TSet[string]
 	moduleMetadataMap       *ModuleMetadataMap
 	moduleMap               *ModuleMap
 	globalTypedScope        *TypedScope
@@ -70,8 +70,8 @@ func (this *Es6RewriteModules) process_2(externs Node, root Node) {
 }
 
 func (this *Es6RewriteModules) clearPerFileState() {
-	this.typedefs = jnewTSet_(jtc_string)
-	this.namesToInlineByAlias = jnewTMap_(jtc_string, jtc_p_ModuleRenaming_GlobalizedModuleName)
+	this.typedefs = newTSet_(jtc_string.t_())
+	this.namesToInlineByAlias = newTMap_(jtc_string.t_(), jtc_p_ModuleRenaming_GlobalizedModuleName.t_())
 }
 
 func (this *Es6RewriteModules) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
@@ -195,7 +195,7 @@ func (this *Es6RewriteModules) visitExport(t *NodeTraversal, export Node, parent
 func (this *Es6RewriteModules) visitExportNameDeclaration(declaration Node) {
 	if (declaration.getJSDocInfo() != nil) && declaration.getJSDocInfo().hasTypedefType() {
 		NodeUtil_visitLhsNodesInNode(declaration, (&Consumer_tfn_Node{func(lhs Node) {
-			this.typedefs.add(lhs.getString())
+			this.typedefs.Add(lhs.getString())
 		}}).accept)
 	}
 }
@@ -261,7 +261,7 @@ func (this *Es6RewriteModules) createExportsObject(moduleName string, t *NodeTra
 		var boundVariableName string = boundVariableQualifiedName.getRoot()
 		var getProp Node = this.astFactory_.createGetPropWithoutColor(this.astFactory_.createName(moduleName, moduleObjectType), exportedName)
 		getProp.putBooleanProp(Node_MODULE_EXPORT, true)
-		if this.typedefs.has(exportedName) {
+		if this.typedefs.Has(exportedName) {
 			var builder *JSDocInfo_Builder = JSDocInfo_builder().parseDocumentation()
 			var typeExpr *JSTypeExpression = new_JSTypeExpression(this.astFactory_.createString(exportedName).srcref(nodeForSourceInfo), script.getSourceFileName())
 			builder.recordTypedef(typeExpr)
@@ -319,10 +319,10 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 				this.inlineAliasedTypes(t, typeNode)
 			}
 		}
-		if n.isName() && this.namesToInlineByAlias.has(n.getString()) {
+		if n.isName() && this.namesToInlineByAlias.Has(n.getString()) {
 			var v *Var = cast_[*Var](t.getScope().getVar(n.getString()).self())
 			if (v == nil) || (v.getNameNode() != n) {
-				var replacementName *ModuleRenaming_GlobalizedModuleName = this.namesToInlineByAlias.get(n.getString())
+				var replacementName *ModuleRenaming_GlobalizedModuleName = this.namesToInlineByAlias.Get(n.getString())
 				var replacement Node = replacementName.toQname(this.astFactory_).srcrefTree(n)
 				n.replaceWith(replacement)
 			}
@@ -335,7 +335,7 @@ func (this *Es6RewriteModules) inlineAliasedTypes(t *NodeTraversal, typeNode Nod
 		var name string = typeNode.getString()
 		var split []string = sliceImm_(tc_string, Es6RewriteModules_DOT_SPLITTER.limit(2).splitToList_s(name))
 		if cast_[*Var](t.getScope().getVar(sliceAt_(split, 0)).self()) == nil {
-			var replacement *ModuleRenaming_GlobalizedModuleName = this.namesToInlineByAlias.get(sliceAt_(split, 0))
+			var replacement *ModuleRenaming_GlobalizedModuleName = this.namesToInlineByAlias.Get(sliceAt_(split, 0))
 			if replacement != nil {
 				var rest string = ""
 				if int32(len(split)) == 2 {
@@ -408,12 +408,12 @@ func (this *Es6RewriteModules) visitRequireOrGet(t *NodeTraversal, requireCall N
 							panic(new_IllegalStateException_String(tostr_(child)))
 						}
 						var rep *ModuleRenaming_GlobalizedModuleName = this.getGlobalNameAndType(m, Optional_of[string](namespace), isFromFallbackMetadata).getprop(child.getString())
-						this.namesToInlineByAlias.put(child.getFirstChild().getString(), rep)
+						this.namesToInlineByAlias.Put(child.getFirstChild().getString(), rep)
 					}
 				}
 			} else if parent.isName() {
 				var alias *ModuleRenaming_GlobalizedModuleName = this.getGlobalNameAndType(m, Optional_of[string](namespace), isFromFallbackMetadata)
-				this.namesToInlineByAlias.put(parent.getString(), alias)
+				this.namesToInlineByAlias.Put(parent.getString(), alias)
 				toDetach = parent.getParent()
 			} else {
 				if !parent.isExprResult() {

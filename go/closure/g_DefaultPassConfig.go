@@ -1572,9 +1572,9 @@ func (this *DefaultPassConfig) createProcessDefines(mode ProcessDefines_Mode) *P
 
 func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, prevVariableMap *VariableMap, externs Node, root Node) *VariableMap {
 	var reservedChars SetOf[BoxedOf[uint16]] = ImmutableSet_of()
-	var reservedNames *JTSet[string] = jnewTSet_(jtc_string)
+	var reservedNames *TSet[string] = newTSet_(jtc_string.t_())
 	if this.options_.getRenamePrefixNamespace().isPresent() {
-		reservedNames.add(this.options_.getRenamePrefixNamespace().get())
+		reservedNames.Add(this.options_.getRenamePrefixNamespace().get())
 	}
 	reservedNames.asSet().addAll(Collection(compiler.getExportedNames()))
 	reservedNames.asSet().addAll(icast_Collection(obj_(ParserRunner_getReservedVars().asImm())))
@@ -1603,13 +1603,13 @@ func DefaultPassConfig_runInSerial(passes CollectionOf[CompilerPass]) CompilerPa
 	return new_DefaultPassConfig_13(passes)
 }
 
-func DefaultPassConfig_getAdditionalReplacements(options *CompilerOptions) *JTMap[string, Node] {
-	var additionalReplacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
+func DefaultPassConfig_getAdditionalReplacements(options *CompilerOptions) *TMap[string, Node] {
+	var additionalReplacements *TMap[string, Node] = newTMap_(jtc_string.t_(), tc_Node)
 	if options.shouldMarkAsCompiled() || options.getClosurePass() {
-		additionalReplacements.put(DefaultPassConfig_COMPILED_CONSTANT_NAME, IR_trueNode())
+		additionalReplacements.Put(DefaultPassConfig_COMPILED_CONSTANT_NAME, IR_trueNode())
 	}
 	if (options.getClosurePass() && options.getLocale().isPresent()) && !options.doLateLocalization() {
-		additionalReplacements.put(DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(options.getLocale().get()))
+		additionalReplacements.Put(DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(options.getLocale().get()))
 	}
 	return additionalReplacements
 }

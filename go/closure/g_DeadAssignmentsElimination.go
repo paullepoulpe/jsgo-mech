@@ -93,7 +93,7 @@ func (this *DeadAssignmentsElimination) eliminateDeadAssignments(t *NodeTraversa
 	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, scopeCreator, functionScope)
 	this.liveness = new_LiveVariablesAnalysis(cfg, functionScope, blockScope, this.compiler_, scopeCreator, allVarsDeclaredInFunction)
 	this.liveness.analyze()
-	var allVarsInFn *JTMap[string, *Var] = this.liveness.getAllVariables()
+	var allVarsInFn *TMap[string, *Var] = this.liveness.getAllVariables()
 	this.tryRemoveDeadAssignments(t, cfg, allVarsInFn)
 }
 
@@ -101,7 +101,7 @@ func (this *DeadAssignmentsElimination) isRemovableAssign(n Node) bool {
 	return (((NodeUtil_isAssignmentOp(n) && n.getFirstChild().isName()) || n.isInc()) || n.isDec())
 }
 
-func (this *DeadAssignmentsElimination) tryRemoveDeadAssignments(t *NodeTraversal, cfg *ControlFlowGraph[Node], allVarsInFn *JTMap[string, *Var]) {
+func (this *DeadAssignmentsElimination) tryRemoveDeadAssignments(t *NodeTraversal, cfg *ControlFlowGraph[Node], allVarsInFn *TMap[string, *Var]) {
 	var nodes IterableOf[DiGraph_DiGraphNode[Node]] = Iterable(cfg.getNodes())
 L_2:
 	for cfgNode := range elemsAs_[DiGraph_DiGraphNode[Node]](nodes) {
@@ -130,11 +130,11 @@ L_2:
 	}
 }
 
-func (this *DeadAssignmentsElimination) tryRemoveAssignment(t *NodeTraversal, n Node, state *DataFlowAnalysis_LinearFlowState[any], allVarsInFn *JTMap[string, *Var]) {
+func (this *DeadAssignmentsElimination) tryRemoveAssignment(t *NodeTraversal, n Node, state *DataFlowAnalysis_LinearFlowState[any], allVarsInFn *TMap[string, *Var]) {
 	this.tryRemoveAssignment_5(t, n, n, state, allVarsInFn)
 }
 
-func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, n Node, exprRoot Node, state *DataFlowAnalysis_LinearFlowState[any], allVarsInFn *JTMap[string, *Var]) {
+func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, n Node, exprRoot Node, state *DataFlowAnalysis_LinearFlowState[any], allVarsInFn *TMap[string, *Var]) {
 	var parent Node = n.getParent()
 	var isDeclarationNode bool = NodeUtil_isNameDeclaration(parent)
 	if ((NodeUtil_isAssignmentOp(n) || n.isInc()) || n.isDec()) || isDeclarationNode {
@@ -166,10 +166,10 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, 
 		if !scope.isFunctionBlockScope() && !scope.isBlockScope() {
 			panic(new_IllegalStateException_0())
 		}
-		if !allVarsInFn.has(name) {
+		if !allVarsInFn.Has(name) {
 			return
 		}
-		var var_ *Var = allVarsInFn.get(name)
+		var var_ *Var = allVarsInFn.Get(name)
 		if this.liveness.getEscapedLocals().contains(obj_(var_)) {
 			return
 		}

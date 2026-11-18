@@ -81,7 +81,7 @@ type ValidityCheck_VerifyConstants struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_             *AbstractCompiler
 	checkUserDeclarations bool
-	constantMap           *JTMap[string, any]
+	constantMap           *TMap[string, any]
 }
 
 func (this *ValidityCheck_VerifyConstants) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -92,7 +92,7 @@ func (this *ValidityCheck_VerifyConstants) up_NodeTraversal_AbstractPostOrderCal
 }
 
 func (this *ValidityCheck_VerifyConstants) finit_ValidityCheck_VerifyConstants() {
-	this.constantMap = jnewTMap_(jtc_string, jtc_Boolean)
+	this.constantMap = newTMap_(jtc_string.t_(), jtc_Boolean.t_())
 }
 
 func (this *ValidityCheck_VerifyConstants) init_ValidityCheck_VerifyConstants(compiler *AbstractCompiler, checkUserDeclarations bool) {
@@ -155,9 +155,9 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 				}
 			}
 		}
-		var value any = this.constantMap.get(name)
+		var value any = this.constantMap.Get(name)
 		if value == nil {
-			this.constantMap.put(name, any(bool(isConst)))
+			this.constantMap.Put(name, any(bool(isConst)))
 		} else if Boolean_booleanValue(value) != isConst {
 			panic(new_IllegalStateException_String(("The name " + sstr_(name) + " is not consistently annotated as constant. Current constness: " + boolstr_(isConst) + ", previous constness: " + boolstr_(Boolean_booleanValue(value)) + "\n\nAt node: " + tostr_(n))))
 		}

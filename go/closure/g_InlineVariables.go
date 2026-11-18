@@ -247,12 +247,12 @@ func (this *InlineVariables_InlineVarAnalysis) getAliasedVar() *Var {
 
 type InlineVariables_InliningBehavior struct {
 	outer_                            *InlineVariables
-	currentScopeHandledVarAnalysesMap *JTMap[*Var, *InlineVariables_InlineVarAnalysis]
+	currentScopeHandledVarAnalysesMap *TMap[*Var, *InlineVariables_InlineVarAnalysis]
 	varToAliasRetryHandlersMap        *SimpleSetMultimap[*Var, *InlineVariables_InliningBehavior_AliasInlineRetryHandler]
 }
 
 func (this *InlineVariables_InliningBehavior) finit_InlineVariables_InliningBehavior() {
-	this.currentScopeHandledVarAnalysesMap = jnewTMap_(tce_p_Var, jtc_p_InlineVariables_InlineVarAnalysis)
+	this.currentScopeHandledVarAnalysesMap = newTMap_(tce_p_Var.t_(), jtc_p_InlineVariables_InlineVarAnalysis.t_())
 	this.varToAliasRetryHandlersMap = SimpleSetMultimap_createInsertionOrdered[*Var, *InlineVariables_InliningBehavior_AliasInlineRetryHandler]()
 }
 
@@ -272,7 +272,7 @@ func (this *InlineVariables_InliningBehavior) afterExitScope(t *NodeTraversal, r
 }
 
 func (this *InlineVariables_InliningBehavior) doInlinesForScope(t *NodeTraversal, referenceMap ReferenceMap) {
-	this.currentScopeHandledVarAnalysesMap.clear()
+	this.currentScopeHandledVarAnalysesMap.Clear()
 	var mayBeAParameterModifiedViaArguments bool = this.varsInThisScopeMayBeModifiedUsingArguments(t.getScope(), referenceMap)
 	for v := range elemsAs_[*Var](t.getScope().getVarIterable()) {
 		var referenceInfo *ReferenceCollection = referenceMap.getReferences_Var(v)
@@ -281,7 +281,7 @@ func (this *InlineVariables_InliningBehavior) doInlinesForScope(t *NodeTraversal
 		if analysis.shouldWaitForAliasedVar() {
 			var retryHandler *InlineVariables_InliningBehavior_AliasInlineRetryHandler = new_InlineVariables_InliningBehavior_AliasInlineRetryHandler(this, v, expert)
 			var aliasedVar *Var = analysis.getAliasedVar()
-			var aliasedVarAnalysis *InlineVariables_InlineVarAnalysis = this.currentScopeHandledVarAnalysesMap.get(aliasedVar)
+			var aliasedVarAnalysis *InlineVariables_InlineVarAnalysis = this.currentScopeHandledVarAnalysesMap.Get(aliasedVar)
 			if aliasedVarAnalysis != nil {
 				retryHandler.handleAliasedVarCompletion(aliasedVar, aliasedVarAnalysis)
 			} else {
@@ -291,7 +291,7 @@ func (this *InlineVariables_InliningBehavior) doInlinesForScope(t *NodeTraversal
 			if analysis.shouldInline() {
 				analysis.performInline()
 			}
-			this.currentScopeHandledVarAnalysesMap.put(v, analysis)
+			this.currentScopeHandledVarAnalysesMap.Put(v, analysis)
 			this.retryAliases(v, analysis)
 		}
 	}
@@ -566,7 +566,7 @@ func (this *InlineVariables_InliningBehavior_AliasInlineRetryHandler) handleAlia
 	if newAnalysis.shouldInline() {
 		newAnalysis.performInline()
 	}
-	this.outer_.currentScopeHandledVarAnalysesMap.put(this.v, newAnalysis)
+	this.outer_.currentScopeHandledVarAnalysesMap.Put(this.v, newAnalysis)
 	this.outer_.retryAliases(this.v, newAnalysis)
 }
 

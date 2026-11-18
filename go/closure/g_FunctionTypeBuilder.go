@@ -334,11 +334,11 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 	}
 	var builder *FunctionParamBuilder = new_FunctionParamBuilder_JSTypeRegistry(this.typeRegistry)
 	var warnedAboutArgList bool = false
-	var allJsDocParams *JTSet[string] = func() *JTSet[string] {
+	var allJsDocParams *TSet[string] = func() *TSet[string] {
 		if info == nil {
-			return jnewTSet_(jtc_string)
+			return newTSet_(jtc_string.t_())
 		}
-		return jtsetFrom_(jtc_string, Collection(info.getParameterNames().asSet()))
+		return tsetFrom_(jtc_string.t_(), Collection(info.getParameterNames().asSet()), false)
 	}()
 	var isVarArgs bool = false
 	var paramIndex int32 = 0
@@ -373,7 +373,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 				}
 			}
 			if paramName.isPresent() {
-				allJsDocParams.del(paramName.get())
+				allJsDocParams.Delete(paramName.get())
 			}
 			var parameterType *JSType = nil
 			if (info != nil) && info.hasParameterType(paramName) {
@@ -492,7 +492,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 	}
 	this.templateScope = this.typeRegistry.createScopeWithTemplates(this.templateScope, Iterable(unboundedTemplates.asList()))
 	var templates *ImmutableList_Builder[*TemplateType] = immutableListBuilder_(tc_p_TemplateType)
-	var templatesToBounds *JTMap[*TemplateType, *JSType] = jnewTMap_(tce_p_TemplateType, jtc_p_JSType)
+	var templatesToBounds *TMap[*TemplateType, *JSType] = newTMap_(tce_p_TemplateType.t_(), tc_p_JSType)
 	for _, el2 := range immElems_(cast_[*ErasedImmutableSet](infoTypeKeys.asImm().entrySet())) {
 		entry := icast_Map_Entry(el2)
 		var expr *JSTypeExpression = cast_[*JSTypeExpression](entry.getValue())
@@ -502,14 +502,14 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 		}
 		var template *TemplateType = this.typeRegistry.getType(StaticScope(this.templateScope), str_(entry.getKey())).toMaybeTemplateType()
 		if template != nil {
-			templatesToBounds.put(template, typeBound)
+			templatesToBounds.Put(template, typeBound)
 		} else {
-			templatesToBounds.put(this.typeRegistry.createTemplateType_2(str_(entry.getKey()), typeBound), typeBound)
+			templatesToBounds.Put(this.typeRegistry.createTemplateType_2(str_(entry.getKey()), typeBound), typeBound)
 		}
 	}
 	it_5 := templatesToBounds.eachEntry()
 	for it_5.next() {
-		var entry *TEntry[*TemplateType, *JSType] = it_5.entry()
+		var entry *TEntryP[*TemplateType, *JSType] = it_5.entry()
 		var template *TemplateType = entry.getKey()
 		var bound *JSType = entry.getValue()
 		template.setBound(bound)

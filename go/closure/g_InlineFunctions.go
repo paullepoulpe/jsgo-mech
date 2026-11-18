@@ -5,8 +5,8 @@ package closure
 import "strconv"
 
 type InlineFunctions struct {
-	fns                         *JTMap[string, *InlineFunctions_FunctionState]
-	anonFns                     *JTMap[Node, string]
+	fns                         *TMap[string, *InlineFunctions_FunctionState]
+	anonFns                     *TMap[Node, string]
 	compiler_                   *AbstractCompiler
 	injector                    *FunctionInjector
 	functionArgumentInjector_   *FunctionArgumentInjector
@@ -16,8 +16,8 @@ type InlineFunctions struct {
 }
 
 func (this *InlineFunctions) finit_InlineFunctions() {
-	this.fns = jnewTMap_(jtc_string, jtc_p_InlineFunctions_FunctionState)
-	this.anonFns = jnewTMap_(jtc_Node, jtc_string)
+	this.fns = newTMap_(jtc_string.t_(), jtc_p_InlineFunctions_FunctionState.t_())
+	this.anonFns = newTMap_(jtc_Node.t_(), tc_string)
 }
 
 func (this *InlineFunctions) init_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier SupplierOf[string], reach CompilerOptions_Reach, assumeStrictThis bool, maxSizeAfterInlining int32) {
@@ -56,18 +56,18 @@ func (this *InlineFunctions) process_2(externs Node, root Node) {
 		panic(new_IllegalStateException_0())
 	}
 	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_FindCandidateFunctions(this))
-	if this.fns.isEmpty() {
+	if this.fns.IsEmpty() {
 		return
 	}
 	NodeTraversal_traverse(this.compiler_, root, new_InlineFunctions_FindCandidatesReferences(this, this.fns, this.anonFns))
 	this.trimCandidatesNotMeetingMinimumRequirements()
-	if this.fns.isEmpty() {
+	if this.fns.IsEmpty() {
 		return
 	}
 	var fnNames *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(this.fns.asMap().keySet()))
 	this.injector.setKnownConstantFunctions(fnNames)
 	this.trimCandidatesUsingOnCost()
-	if this.fns.isEmpty() {
+	if this.fns.IsEmpty() {
 		return
 	}
 	this.resolveInlineConflicts()
@@ -292,12 +292,12 @@ func (this *InlineFunctions) resolveInlineConflictsForFunction(functionState *In
 		return
 	}
 	var fnNode Node = functionState.getFn().getFunctionNode()
-	var names *JTSet[string] = this.findCalledFunctions(fnNode)
-	if !names.isEmpty() {
+	var names *TSet[string] = this.findCalledFunctions(fnNode)
+	if !names.IsEmpty() {
 		it_1 := names.each()
 		for it_1.next() {
 			var name string = it_1.v
-			var fsCalled *InlineFunctions_FunctionState = this.fns.get(name)
+			var fsCalled *InlineFunctions_FunctionState = this.fns.Get(name)
 			if (fsCalled != nil) && fsCalled.canRemove() {
 				fsCalled.setRemove(false, this.compiler_, InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO)
 				if (!this.minimizeCost(fsCalled) && !fsCalled.requireInlining()) && !fsCalled.encourageInlining() {
@@ -309,18 +309,18 @@ func (this *InlineFunctions) resolveInlineConflictsForFunction(functionState *In
 	}
 }
 
-func (this *InlineFunctions) findCalledFunctions(node Node) *JTSet[string] {
-	var changed *JTSet[string] = jnewTSet_(jtc_string)
+func (this *InlineFunctions) findCalledFunctions(node Node) *TSet[string] {
+	var changed *TSet[string] = newTSet_(jtc_string.t_())
 	InlineFunctions_findCalledFunctions(NodeUtil_getFunctionBody(node), changed)
 	return changed
 }
 
-func InlineFunctions_findCalledFunctions(node Node, changed *JTSet[string]) {
+func InlineFunctions_findCalledFunctions(node Node, changed *TSet[string]) {
 	if changed == nil {
 		panic(new_IllegalArgumentException_0())
 	}
 	if node.isName() && InlineFunctions_isCandidateUsage(node) {
-		changed.add(node.getString())
+		changed.Add(node.getString())
 	}
 	{
 		var c Node = node.getFirstChild()
@@ -347,7 +347,7 @@ func (this *InlineFunctions) decomposeExpressions() {
 func (this *InlineFunctions) removeInlinedFunctions() {
 	it_1 := this.fns.eachEntry()
 	for it_1.next() {
-		var entry *TEntry[string, *InlineFunctions_FunctionState] = it_1.entry()
+		var entry *TEntryP[string, *InlineFunctions_FunctionState] = it_1.entry()
 		var name string = entry.getKey()
 		var functionState *InlineFunctions_FunctionState = entry.getValue()
 		if functionState.canRemove() {
@@ -511,7 +511,7 @@ func (this *InlineFunctions_FindCandidateFunctions) findFunctionExpressions(t *N
 			var fn InlineFunctions_Function = new_InlineFunctions_FunctionExpression(fnNode, this.callsSeen)
 			this.callsSeen++
 			this.outer_.maybeAddFunction(fn, t.getChunk())
-			this.outer_.anonFns.put(fnNode, fn.getName())
+			this.outer_.anonFns.Put(fnNode, fn.getName())
 		}
 	default:
 	}
@@ -532,8 +532,8 @@ func (this *InlineFunctions_CallVisitorCallback_fn) visitCallSite(p0 *NodeTraver
 type InlineFunctions_CallVisitor struct {
 	NodeTraversal_AbstractPostOrderCallback
 	callback        func(*NodeTraversal, Node, *InlineFunctions_FunctionState)
-	functionMap     *JTMap[string, *InlineFunctions_FunctionState]
-	anonFunctionMap *JTMap[Node, string]
+	functionMap     *TMap[string, *InlineFunctions_FunctionState]
+	anonFunctionMap *TMap[Node, string]
 }
 
 func (this *InlineFunctions_CallVisitor) as_InlineFunctions_CallVisitor() *InlineFunctions_CallVisitor {
@@ -554,14 +554,14 @@ func (this *InlineFunctions_CallVisitor) up_NodeTraversal_AbstractPostOrderCallb
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *InlineFunctions_CallVisitor) init_InlineFunctions_CallVisitor(fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string], callback func(*NodeTraversal, Node, *InlineFunctions_FunctionState)) {
+func (this *InlineFunctions_CallVisitor) init_InlineFunctions_CallVisitor(fns *TMap[string, *InlineFunctions_FunctionState], anonFns *TMap[Node, string], callback func(*NodeTraversal, Node, *InlineFunctions_FunctionState)) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.functionMap = fns
 	this.anonFunctionMap = anonFns
 	this.callback = callback
 }
 
-func new_InlineFunctions_CallVisitor(fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string], callback func(*NodeTraversal, Node, *InlineFunctions_FunctionState)) *InlineFunctions_CallVisitor {
+func new_InlineFunctions_CallVisitor(fns *TMap[string, *InlineFunctions_FunctionState], anonFns *TMap[Node, string], callback func(*NodeTraversal, Node, *InlineFunctions_FunctionState)) *InlineFunctions_CallVisitor {
 	this := &InlineFunctions_CallVisitor{}
 	this.self_ = this
 	this.init_InlineFunctions_CallVisitor(fns, anonFns, callback)
@@ -576,7 +576,7 @@ func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, pa
 		if child.isName() {
 			name = Optional_of[string](child.getString())
 		} else if child.isFunction() {
-			name = Optional_ofNullable[string](this.anonFunctionMap.get(child))
+			name = Optional_ofNullable[string](this.anonFunctionMap.Get(child))
 		} else if NodeUtil_isFunctionObjectCall(n) {
 			if !NodeUtil_isNormalOrOptChainGet(child) {
 				panic(new_IllegalStateException_0())
@@ -585,11 +585,11 @@ func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, pa
 			if fnIdentifyingNode.isName() {
 				name = Optional_of[string](fnIdentifyingNode.getString())
 			} else if fnIdentifyingNode.isFunction() {
-				name = Optional_ofNullable[string](this.anonFunctionMap.get(fnIdentifyingNode))
+				name = Optional_ofNullable[string](this.anonFunctionMap.Get(fnIdentifyingNode))
 			}
 		}
 		if name.isPresent() {
-			var functionState *InlineFunctions_FunctionState = this.functionMap.get(name.get())
+			var functionState *InlineFunctions_FunctionState = this.functionMap.Get(name.get())
 			if functionState != nil {
 				this.callback(t, n, functionState)
 			}
@@ -617,12 +617,12 @@ func (this *InlineFunctions_FindCandidatesReferences) up_NodeTraversal_AbstractP
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *InlineFunctions_FindCandidatesReferences) init_InlineFunctions_FindCandidatesReferences(fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string]) {
+func (this *InlineFunctions_FindCandidatesReferences) init_InlineFunctions_FindCandidatesReferences(fns *TMap[string, *InlineFunctions_FunctionState], anonFns *TMap[Node, string]) {
 	this.InlineFunctions_CallVisitor.init_InlineFunctions_CallVisitor(fns, anonFns, nil)
 	this.callback = this.visitCallSite
 }
 
-func new_InlineFunctions_FindCandidatesReferences(outer_ *InlineFunctions, fns *JTMap[string, *InlineFunctions_FunctionState], anonFns *JTMap[Node, string]) *InlineFunctions_FindCandidatesReferences {
+func new_InlineFunctions_FindCandidatesReferences(outer_ *InlineFunctions, fns *TMap[string, *InlineFunctions_FunctionState], anonFns *TMap[Node, string]) *InlineFunctions_FindCandidatesReferences {
 	this := &InlineFunctions_FindCandidatesReferences{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -683,7 +683,7 @@ func (this *InlineFunctions_FindCandidatesReferences) checkNameUsage(n Node, par
 		return
 	}
 	var name string = n.getString()
-	var functionState *InlineFunctions_FunctionState = this.outer_.fns.get(name)
+	var functionState *InlineFunctions_FunctionState = this.outer_.fns.Get(name)
 	if functionState == nil {
 		return
 	}
@@ -741,7 +741,7 @@ type InlineFunctions_FunctionState struct {
 	inlineDirectlyField                       bool
 	referencesThis                            bool
 	hasInnerClosuresField                     bool
-	references                                *JTMap[Node, *InlineFunctions_Reference]
+	references                                *TMap[Node, *InlineFunctions_Reference]
 	chunk_                                    *JSChunk
 	namesToAlias                              *TSet[string]
 	hasRequireInliningAnnotation              bool
@@ -913,7 +913,7 @@ func (this *InlineFunctions_FunctionState) inlineDirectly(directReplacement bool
 }
 
 func (this *InlineFunctions_FunctionState) hasReferences() bool {
-	return ((this.references != nil) && !this.references.isEmpty())
+	return ((this.references != nil) && !this.references.IsEmpty())
 }
 
 func (this *InlineFunctions_FunctionState) getReferencesInternal() MapOf[Node, *InlineFunctions_Reference] {
@@ -925,9 +925,9 @@ func (this *InlineFunctions_FunctionState) getReferencesInternal() MapOf[Node, *
 
 func (this *InlineFunctions_FunctionState) addReference(ref *InlineFunctions_Reference) {
 	if this.references == nil {
-		this.references = jnewTMap_(jtc_Node, jtc_p_InlineFunctions_Reference)
+		this.references = newTMap_(jtc_Node.t_(), jtc_p_InlineFunctions_Reference.t_())
 	}
-	this.references.put(ref.callNode_, ref)
+	this.references.Put(ref.callNode_, ref)
 }
 
 func (this *InlineFunctions_FunctionState) getReferences() CollectionOf[*InlineFunctions_Reference] {

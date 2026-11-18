@@ -15,8 +15,8 @@ type AnalyzePrototypeProperties struct {
 	globalNode             *AnalyzePrototypeProperties_NameInfo
 	externNode             *AnalyzePrototypeProperties_NameInfo
 	anonymousNode          *AnalyzePrototypeProperties_NameInfo
-	propertyNameInfo       *JTMap[string, *AnalyzePrototypeProperties_NameInfo]
-	varNameInfo            *JTMap[string, *AnalyzePrototypeProperties_NameInfo]
+	propertyNameInfo       *TMap[string, *AnalyzePrototypeProperties_NameInfo]
+	varNameInfo            *TMap[string, *AnalyzePrototypeProperties_NameInfo]
 }
 
 func (this *AnalyzePrototypeProperties) finit_AnalyzePrototypeProperties() {
@@ -24,8 +24,8 @@ func (this *AnalyzePrototypeProperties) finit_AnalyzePrototypeProperties() {
 	this.globalNode = new_AnalyzePrototypeProperties_NameInfo(this, "[global]")
 	this.externNode = new_AnalyzePrototypeProperties_NameInfo(this, "[extern]")
 	this.anonymousNode = new_AnalyzePrototypeProperties_NameInfo(this, "[anonymous]")
-	this.propertyNameInfo = jnewTMap_(jtc_string, jtc_p_AnalyzePrototypeProperties_NameInfo)
-	this.varNameInfo = jnewTMap_(jtc_string, jtc_p_AnalyzePrototypeProperties_NameInfo)
+	this.propertyNameInfo = newTMap_(jtc_string.t_(), jtc_p_AnalyzePrototypeProperties_NameInfo.t_())
+	this.varNameInfo = newTMap_(jtc_string.t_(), jtc_p_AnalyzePrototypeProperties_NameInfo.t_())
 }
 
 func (this *AnalyzePrototypeProperties) init_AnalyzePrototypeProperties(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, canModifyExterns bool, anchorUnusedVars bool, rootScopeUsesAreGlobal bool) {
@@ -87,17 +87,17 @@ func (this *AnalyzePrototypeProperties) getAllNameInfo() CollectionOf[*AnalyzePr
 }
 
 func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ AnalyzePrototypeProperties_SymbolType) *AnalyzePrototypeProperties_NameInfo {
-	var map_ *JTMap[string, *AnalyzePrototypeProperties_NameInfo] = func() *JTMap[string, *AnalyzePrototypeProperties_NameInfo] {
+	var map_ *TMap[string, *AnalyzePrototypeProperties_NameInfo] = func() *TMap[string, *AnalyzePrototypeProperties_NameInfo] {
 		if type_ == AnalyzePrototypeProperties_PROPERTY {
 			return this.propertyNameInfo
 		}
 		return this.varNameInfo
 	}()
-	if map_.has(name) {
-		return map_.get(name)
+	if map_.Has(name) {
+		return map_.Get(name)
 	} else {
 		var nameInfo *AnalyzePrototypeProperties_NameInfo = new_AnalyzePrototypeProperties_NameInfo(this, name)
-		map_.put(name, nameInfo)
+		map_.Put(name, nameInfo)
 		this.symbolGraph.createNode(nameInfo)
 		return nameInfo
 	}

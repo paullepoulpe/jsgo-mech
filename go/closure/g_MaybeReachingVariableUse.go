@@ -4,8 +4,8 @@ package closure
 
 type MaybeReachingVariableUse struct {
 	DataFlowAnalysis[Node, *MaybeReachingVariableUse_ReachingUses]
-	escaped     *JTSet[*Var]
-	allVarsInFn *JTMap[string, *Var]
+	escaped     *TSet[*Var]
+	allVarsInFn *TMap[string, *Var]
 }
 
 func (this *MaybeReachingVariableUse) up_DataFlowAnalysis() *DataFlowAnalysis[Node, *MaybeReachingVariableUse_ReachingUses] {
@@ -15,13 +15,13 @@ func (this *MaybeReachingVariableUse) up_DataFlowAnalysis() *DataFlowAnalysis[No
 	return &this.DataFlowAnalysis
 }
 
-func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *ControlFlowGraph[Node], escaped *JTSet[*Var], allVarsInFn *JTMap[string, *Var]) {
+func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *ControlFlowGraph[Node], escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.escaped = escaped
 	this.allVarsInFn = allVarsInFn
 }
 
-func new_MaybeReachingVariableUse(cfg *ControlFlowGraph[Node], escaped *JTSet[*Var], allVarsInFn *JTMap[string, *Var]) *MaybeReachingVariableUse {
+func new_MaybeReachingVariableUse(cfg *ControlFlowGraph[Node], escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) *MaybeReachingVariableUse {
 	this := &MaybeReachingVariableUse{}
 	this.self_ = this
 	this.vt_DataFlowAnalysis_ = this
@@ -174,21 +174,21 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 }
 
 func (this *MaybeReachingVariableUse) addToUseIfLocal(name string, node Node, use *MaybeReachingVariableUse_ReachingUses) {
-	var var_ *Var = this.allVarsInFn.get(name)
+	var var_ *Var = this.allVarsInFn.Get(name)
 	if var_ == nil {
 		return
 	}
-	if !this.escaped.has(var_) {
+	if !this.escaped.Has(var_) {
 		use.put(var_, node)
 	}
 }
 
 func (this *MaybeReachingVariableUse) removeFromUseIfLocal(name string, use *MaybeReachingVariableUse_ReachingUses) {
-	var var_ *Var = this.allVarsInFn.get(name)
+	var var_ *Var = this.allVarsInFn.Get(name)
 	if var_ == nil {
 		return
 	}
-	if !this.escaped.has(var_) {
+	if !this.escaped.Has(var_) {
 		use.removeAll(var_)
 	}
 }
@@ -199,7 +199,7 @@ func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) Iterabl
 		panic(new_NullPointerException_0())
 	}
 	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(n)))
-	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(this.allVarsInFn.get(name))
+	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(this.allVarsInFn.Get(name))
 }
 
 type MaybeReachingVariableUse_ReachingUses struct {

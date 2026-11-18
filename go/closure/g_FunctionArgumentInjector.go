@@ -16,13 +16,13 @@ func new_FunctionArgumentInjector(astAnalyzer *AstAnalyzer) *FunctionArgumentInj
 	return this
 }
 
-func (this *FunctionArgumentInjector) inject(compiler *AbstractCompiler, node Node, parent Node, replacements *JTMap[string, Node]) Node {
+func (this *FunctionArgumentInjector) inject(compiler *AbstractCompiler, node Node, parent Node, replacements *TMap[string, Node]) Node {
 	return this.inject_5(compiler, node, parent, replacements, true)
 }
 
-func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node Node, parent Node, replacements *JTMap[string, Node], replaceThis bool) Node {
+func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node Node, parent Node, replacements *TMap[string, Node], replaceThis bool) Node {
 	if node.isName() {
-		var replacementTemplate Node = replacements.get(node.getString())
+		var replacementTemplate Node = replacements.Get(node.getString())
 		if replacementTemplate != 0 {
 			if (parent.isFunction() || parent.isVar()) || parent.isCatch() {
 				panic(new_IllegalStateException_String(tostr_(parent)))
@@ -32,7 +32,7 @@ func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node 
 			return replacement
 		}
 	} else if replaceThis && node.isThis() {
-		var replacementTemplate Node = replacements.get(FunctionArgumentInjector_THIS_MARKER)
+		var replacementTemplate Node = replacements.Get(FunctionArgumentInjector_THIS_MARKER)
 		if replacementTemplate == 0 {
 			panic(new_NullPointerException_0())
 		}
@@ -40,7 +40,7 @@ func (this *FunctionArgumentInjector) inject_5(compiler *AbstractCompiler, node 
 			var replacement Node = replacementTemplate.cloneTree()
 			node.replaceWith(replacement)
 			if compiler.getAstAnalyzer().mayHaveSideEffects(replacementTemplate) {
-				replacements.del(FunctionArgumentInjector_THIS_MARKER)
+				replacements.Delete(FunctionArgumentInjector_THIS_MARKER)
 			}
 			return replacement
 		}
@@ -142,14 +142,14 @@ func (this *FunctionArgumentInjector) findModifiedParameters(fnNode Node) *Immut
 	return immutableSetCopyOf_(tc_string, Collection(FunctionArgumentInjector_findModifiedParameters(fnNode.getLastChild(), names, false).asSet()))
 }
 
-func FunctionArgumentInjector_findModifiedParameters(n Node, names *ImmutableSet[string], inInnerClosure bool) *JTSet[string] {
-	var unsafe *JTSet[string] = jnewTSet_(jtc_string)
+func FunctionArgumentInjector_findModifiedParameters(n Node, names *ImmutableSet[string], inInnerClosure bool) *TSet[string] {
+	var unsafe *TSet[string] = newTSet_(jtc_string.t_())
 	if NodeUtil_isFunctionOrNonStaticClassFieldInitializer(n) {
 		inInnerClosure = true
 	}
 	if n.isName() {
 		if names.Has(n.getString()) && (inInnerClosure || FunctionArgumentInjector_canNameValueChange(n)) {
-			unsafe.add(n.getString())
+			unsafe.Add(n.getString())
 		}
 	}
 	{
@@ -179,7 +179,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 	if argMap.IsEmpty() {
 		return modifiedParameters
 	}
-	var namesNeedingTemps *JTSet[string] = jtsetFrom_(jtc_string, icast_Collection(obj_(modifiedParameters.asImm())))
+	var namesNeedingTemps *TSet[string] = tsetFrom_(jtc_string.t_(), icast_Collection(obj_(modifiedParameters.asImm())), false)
 	var block Node = fnNode.getLastChild()
 	var requiresTempsUpToThisParameterName string = ""
 	var argCount int32 = argMap.Len()
@@ -193,7 +193,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 		entry := icast_Map_Entry(el)
 		var parameterName string = str_(entry.getKey())
 		var cArg Node = entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg()
-		if namesNeedingTemps.has(parameterName) {
+		if namesNeedingTemps.Has(parameterName) {
 			requiresTempsUpToThisParameterName = parameterName
 			continue
 		}
@@ -234,10 +234,10 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 				continue
 			}
 			if parameterName == requiresTempsUpToThisParameterName {
-				namesNeedingTemps.add(parameterName)
+				namesNeedingTemps.Add(parameterName)
 				break
 			} else {
-				namesNeedingTemps.add(parameterName)
+				namesNeedingTemps.Add(parameterName)
 			}
 		}
 	}
@@ -272,23 +272,23 @@ func (this *FunctionArgumentInjector) mayHaveConditionalCode(n Node) bool {
 }
 
 func (this *FunctionArgumentInjector) findParametersReferencedAfterSideEffect(parameters *ImmutableSet[string], root Node) *FunctionArgumentInjector_SetContainer {
-	var locals *JTSet[string] = jtsetFrom_(jtc_string, icast_Collection(obj_(parameters.asImm())))
+	var locals *TSet[string] = tsetFrom_(jtc_string.t_(), icast_Collection(obj_(parameters.asImm())), false)
 	FunctionArgumentInjector_gatherLocalNames(root, locals)
 	var collector *FunctionArgumentInjector_ReferencedAfterSideEffect = new_FunctionArgumentInjector_ReferencedAfterSideEffect(this, parameters, immutableSetCopyOf_(tc_string, Collection(locals.asSet())))
 	NodeUtil_visitPostOrder_Node_Visitor_Predicate(root, collector.visit, collector)
 	return new_FunctionArgumentInjector_SetContainer(collector.getParametersReferencedAfterSideEffect(), collector.getParametersWithNamesReferencedBeforeParameter())
 }
 
-func FunctionArgumentInjector_gatherLocalNames(n Node, names *JTSet[string]) {
+func FunctionArgumentInjector_gatherLocalNames(n Node, names *TSet[string]) {
 	if n.isFunction() {
 		if NodeUtil_isFunctionDeclaration(n) {
-			names.add(n.getFirstChild().getString())
+			names.Add(n.getFirstChild().getString())
 		}
 		return
 	} else if n.isName() {
 		switch n.getParent().ns_().token {
 		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_CATCH:
-			names.add(n.getString())
+			names.Add(n.getString())
 		default:
 		}
 	}
@@ -382,17 +382,17 @@ type FunctionArgumentInjector_ReferencedAfterSideEffect struct {
 	parameters                                    *ImmutableSet[string]
 	locals                                        *ImmutableSet[string]
 	sideEffectSeen                                bool
-	parametersReferenced                          *JTSet[string]
+	parametersReferenced                          *TSet[string]
 	nameNodeHasBeenSeen                           bool
-	parametersWithNamesReferencedBeforeParameter_ *JTSet[string]
+	parametersWithNamesReferencedBeforeParameter_ *TSet[string]
 	loopsEntered                                  int32
 }
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) finit_FunctionArgumentInjector_ReferencedAfterSideEffect() {
 	this.sideEffectSeen = false
-	this.parametersReferenced = jnewTSet_(jtc_string)
+	this.parametersReferenced = newTSet_(jtc_string.t_())
 	this.nameNodeHasBeenSeen = false
-	this.parametersWithNamesReferencedBeforeParameter_ = jnewTSet_(jtc_string)
+	this.parametersWithNamesReferencedBeforeParameter_ = newTSet_(jtc_string.t_())
 	this.loopsEntered = 0
 }
 
@@ -423,7 +423,7 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) apply(node_ any)
 	if NodeUtil_isLoopStructure(node) {
 		this.loopsEntered++
 	}
-	return !(this.sideEffectSeen && (this.parameters.Len() == this.parametersReferenced.size()))
+	return !(this.sideEffectSeen && (this.parameters.Len() == this.parametersReferenced.Len()))
 }
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) inLoop() bool {
@@ -434,14 +434,14 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) visit(n Node) {
 	if n.isName() {
 		var name string = n.getString()
 		if this.parameters.Has(name) && this.nameNodeHasBeenSeen {
-			this.parametersWithNamesReferencedBeforeParameter_.add(name)
+			this.parametersWithNamesReferencedBeforeParameter_.Add(name)
 		}
 		this.nameNodeHasBeenSeen = true
 	}
 	if NodeUtil_isLoopStructure(n) {
 		this.loopsEntered--
 		if !this.inLoop() && !this.sideEffectSeen {
-			this.parametersReferenced.clear()
+			this.parametersReferenced.Clear()
 		}
 	}
 	if !this.sideEffectSeen {
@@ -453,10 +453,10 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) visit(n Node) {
 		if n.isName() {
 			var name string = n.getString()
 			if this.parameters.Has(name) {
-				this.parametersReferenced.add(name)
+				this.parametersReferenced.Add(name)
 			}
 		} else if n.isThis() {
-			this.parametersReferenced.add(FunctionArgumentInjector_THIS_MARKER)
+			this.parametersReferenced.Add(FunctionArgumentInjector_THIS_MARKER)
 		}
 	}
 }

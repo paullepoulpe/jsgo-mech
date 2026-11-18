@@ -41,13 +41,13 @@ func (this *PruningAnalysis) calculateTotalBlame() *ImmutableMap[string, any] {
 func (this *PruningAnalysis) calculateBottlenecks() *ImmutableMap[string, any] {
 	var graph *DiGraph[string] = this.buildGraph()
 	var dominatorTree *DominatorTree[string] = DominatorTree_compute[string](graph, PruningAnalysis_VIRTUAL_ROOT)
-	var bottleneckBlame *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Integer)
+	var bottleneckBlame *TMap[string, any] = newTMap_(jtc_string.t_(), jtc_Integer.t_())
 	for _, el := range immElems_(cast_[*ErasedImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())) {
 		entry := icast_Map_Entry(el)
 		var node string = str_(entry.getKey())
 		var retainedCount int32 = unbox_[int32](entry.getValue())
 		if !(node == PruningAnalysis_VIRTUAL_ROOT) && (retainedCount > 1) {
-			bottleneckBlame.put(node, any(int32(retainedCount)))
+			bottleneckBlame.Put(node, any(int32(retainedCount)))
 		}
 	}
 	var sortedBlame *TList[Map_Entry] = tlistFrom_(jtc_Map_Entry.t_(), Collection(bottleneckBlame.asMap().entrySet()))
@@ -74,10 +74,10 @@ func (this *PruningAnalysis) buildGraph() *DiGraph[string] {
 	}
 	for input := range elemsAs_[*CompilerInput](this.sorter_.getSortedList()) {
 		var name string = input.getName()
-		var depSymbols *JTSet[string] = jnewTSet_(jtc_string)
+		var depSymbols *TSet[string] = newTSet_(jtc_string.t_())
 		for _, el2 := range input.getRequires().items {
 			req := el2
-			depSymbols.add(req.getSymbol())
+			depSymbols.Add(req.getSymbol())
 		}
 		depSymbols.asSet().addAll(icast_Collection(obj_(input.getTypeRequires().asImm())))
 		it_9 := depSymbols.each()

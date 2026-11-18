@@ -5,8 +5,8 @@ package closure
 type CheckExtraRequires struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_        *AbstractCompiler
-	requires         *JTMap[string, Node]
-	usages           *JTSet[string]
+	requires         *TMap[string, Node]
+	usages           *TSet[string]
 	requiresToRemove *ImmutableSet[string]
 }
 
@@ -18,8 +18,8 @@ func (this *CheckExtraRequires) up_NodeTraversal_AbstractPostOrderCallback() *No
 }
 
 func (this *CheckExtraRequires) finit_CheckExtraRequires() {
-	this.requires = jnewTMap_(jtc_string, jtc_Node)
-	this.usages = jnewTSet_(jtc_string)
+	this.requires = newTMap_(jtc_string.t_(), tc_Node)
+	this.usages = newTSet_(jtc_string.t_())
 }
 
 func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove *ImmutableSet[string]) {
@@ -88,17 +88,17 @@ func (this *CheckExtraRequires) visit_impl(t *NodeTraversal, n Node, parent Node
 }
 
 func (this *CheckExtraRequires) reset() {
-	this.usages.clear()
-	this.requires.clear()
+	this.usages.Clear()
+	this.requires.Clear()
 }
 
 func (this *CheckExtraRequires) visitScriptNode() {
 	it_1 := this.requires.eachEntry()
 	for it_1.next() {
-		var entry *TEntry[string, Node] = it_1.entry()
+		var entry *TEntryP[string, Node] = it_1.entry()
 		var require string = entry.getKey()
 		var call Node = entry.getValue()
-		if !this.usages.has(require) && ((this.requiresToRemove == nil) || this.requiresToRemove.Has(require)) {
+		if !this.usages.Has(require) && ((this.requiresToRemove == nil) || this.requiresToRemove.Has(require)) {
 			this.reportExtraRequireWarning(call, require)
 		}
 	}
@@ -116,7 +116,7 @@ func (this *CheckExtraRequires) reportExtraRequireWarning(call Node, require str
 }
 
 func (this *CheckExtraRequires) visitRequire(localName string, node Node) {
-	this.requires.putIfAbsent(localName, node)
+	this.requires.PutIfAbsent(localName, node)
 }
 
 func (this *CheckExtraRequires) visitImportNode(importNode Node) {
@@ -175,15 +175,15 @@ func (this *CheckExtraRequires) visitCallNode(call Node, parent Node) {
 	}
 	var callee Node = call.getFirstChild()
 	if CheckExtraRequires_GOOG_MODULE_GET.matches(callee) && call.getSecondChild().isStringLit() {
-		this.usages.add(call.getSecondChild().getString())
+		this.usages.Add(call.getSecondChild().getString())
 	}
 }
 
 func (this *CheckExtraRequires) addUsagesOfAllPrefixes(qualifiedName *QualifiedName) {
-	this.usages.add(qualifiedName.join().orElse(nullstr_))
+	this.usages.Add(qualifiedName.join().orElse(nullstr_))
 	for !qualifiedName.isSimple() {
 		qualifiedName = qualifiedName.getOwner()
-		this.usages.add(qualifiedName.join().orElse(nullstr_))
+		this.usages.Add(qualifiedName.join().orElse(nullstr_))
 	}
 }
 

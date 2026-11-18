@@ -59,13 +59,13 @@ func (this *ChangeVerifier) verifyScopeChangesHaveBeenRecorded(passName string, 
 		}
 		return (sstr_(passName) + ": ")
 	}()
-	var snapshotScopeNodes *JTSet[Node] = jnewTSet_(jtc_Node)
+	var snapshotScopeNodes *TSet[Node] = newTSet_(jtc_Node.t_())
 	NodeUtil_visitPreOrder_Node_Visitor(this.clonesByCurrent.get(root.box_()), new_ChangeVerifier_1(this, snapshotScopeNodes))
 	NodeUtil_visitPreOrder_Node_Visitor(root, new_ChangeVerifier_2(this, snapshotScopeNodes, passNameMsg))
 	this.verifyDeletedScopeNodes(passNameMsg, snapshotScopeNodes)
 }
 
-func (this *ChangeVerifier) verifyDeletedScopeNodes(passNameMsg string, deletedScopeNodes *JTSet[Node]) {
+func (this *ChangeVerifier) verifyDeletedScopeNodes(passNameMsg string, deletedScopeNodes *TSet[Node]) {
 	it_1 := deletedScopeNodes.each()
 	for it_1.next() {
 		var snapshotScopeNode Node = it_1.v
@@ -260,14 +260,14 @@ func (this *ChangeVerifier_EqualsResult) toString() string {
 
 type ChangeVerifier_1 struct {
 	outer_                 *ChangeVerifier
-	cap_snapshotScopeNodes *JTSet[Node]
+	cap_snapshotScopeNodes *TSet[Node]
 }
 
 func (this *ChangeVerifier_1) init_ChangeVerifier_1() {
 
 }
 
-func new_ChangeVerifier_1(outer_ *ChangeVerifier, cap_snapshotScopeNodes *JTSet[Node]) *ChangeVerifier_1 {
+func new_ChangeVerifier_1(outer_ *ChangeVerifier, cap_snapshotScopeNodes *TSet[Node]) *ChangeVerifier_1 {
 	this := &ChangeVerifier_1{}
 	this.outer_ = outer_
 	this.cap_snapshotScopeNodes = cap_snapshotScopeNodes
@@ -277,13 +277,13 @@ func new_ChangeVerifier_1(outer_ *ChangeVerifier, cap_snapshotScopeNodes *JTSet[
 
 func (this *ChangeVerifier_1) visit(oldNode Node) {
 	if ChangeTracker_isChangeScopeRoot(oldNode) {
-		this.cap_snapshotScopeNodes.add(oldNode)
+		this.cap_snapshotScopeNodes.Add(oldNode)
 	}
 }
 
 type ChangeVerifier_2 struct {
 	outer_                 *ChangeVerifier
-	cap_snapshotScopeNodes *JTSet[Node]
+	cap_snapshotScopeNodes *TSet[Node]
 	cap_passNameMsg        string
 }
 
@@ -291,7 +291,7 @@ func (this *ChangeVerifier_2) init_ChangeVerifier_2() {
 
 }
 
-func new_ChangeVerifier_2(outer_ *ChangeVerifier, cap_snapshotScopeNodes *JTSet[Node], cap_passNameMsg string) *ChangeVerifier_2 {
+func new_ChangeVerifier_2(outer_ *ChangeVerifier, cap_snapshotScopeNodes *TSet[Node], cap_passNameMsg string) *ChangeVerifier_2 {
 	this := &ChangeVerifier_2{}
 	this.outer_ = outer_
 	this.cap_snapshotScopeNodes = cap_snapshotScopeNodes
@@ -305,7 +305,7 @@ func (this *ChangeVerifier_2) visit(n Node) {
 		this.outer_.verifyRoot(n)
 	} else if ChangeTracker_isChangeScopeRoot(n) {
 		var clone Node = this.outer_.clonesByCurrent.get(n.box_())
-		this.cap_snapshotScopeNodes.del(clone)
+		this.cap_snapshotScopeNodes.Delete(clone)
 		this.outer_.verifyNode(this.cap_passNameMsg, n)
 		if clone == 0 {
 			this.outer_.verifyNewNode(this.cap_passNameMsg, n)

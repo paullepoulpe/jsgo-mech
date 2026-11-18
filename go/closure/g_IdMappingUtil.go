@@ -15,11 +15,11 @@ func new_IdMappingUtil() *IdMappingUtil {
 	return this
 }
 
-func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *JTMap[string, Map]) string {
+func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *TMap[string, Map]) string {
 	var sb strBuilder_
 	it_1 := idGeneratorMaps.eachEntry()
 	for it_1.next() {
-		var replacements *TEntry[string, Map] = it_1.entry()
+		var replacements *TEntryP[string, Map] = it_1.entry()
 		if !replacements.getValue().isEmpty() {
 			sb.append_char('[').append(replacements.getKey()).append_char(']').append_char(IdMappingUtil_NEW_LINE).append_char(IdMappingUtil_NEW_LINE)
 			for replacement := range elemsBy_(replacements.getValue().entrySet(), icast_Map_Entry) {
@@ -54,11 +54,11 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) map[string]*
 	var resultMap map[string]*SimpleBiMap[string, string] = map[string]*SimpleBiMap[string, string]{}
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(idMappings)
 	var currentSectionMap *SimpleBiMap[string, string] = nil
-	var sectionNames *JTSet[string] = jnewTSet_(jtc_string)
+	var sectionNames *TSet[string] = newTSet_(jtc_string.t_())
 	for mr.next() {
 		if mr.isSection() {
 			var sectionName Optional[string] = mr.getSection()
-			if !sectionNames.add(sectionName.orElse(nullstr_)) {
+			if !sectionNames.Add(sectionName.orElse(nullstr_)) {
 				panic(new_IllegalArgumentException_String(("Cannot parse id map: Duplicate section " + sstr_(sectionName.orElse("null")) + "\n lineIndex: " + istr_(int64(int32(mr.getLineIndex()))))))
 			}
 			currentSectionMap = SimpleBiMap_create[string, string]()

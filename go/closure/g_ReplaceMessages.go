@@ -113,11 +113,11 @@ func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, 
 	var paramList Node = this.astFactory_.createParamList([]string{})
 	var type_ AstFactory_Type = AstFactory_type_Node(nodeToReplace)
 	var uniqueId string = this.compiler_.getUniqueIdSupplier().getUniqueId(this.compiler_.getInput(NodeUtil_getInputId(nodeToReplace)))
-	var placeholderMapIds *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
+	var placeholderMapIds *TMap[string, string] = newTMap_(jtc_string.t_(), tc_string)
 	for placeholderName := range placeholderMap.Keys() {
 		var placeholderId string = (sstr_(placeholderName) + sstr_(uniqueId))
 		paramList.addChildToBack(this.astFactory_.createName(placeholderId, type_))
-		placeholderMapIds.put(placeholderName, placeholderId)
+		placeholderMapIds.Put(placeholderName, placeholderId)
 	}
 	var hookExpressionOutcome *Outcome_base[Node] = this.createHookExpressionForGenderedMsg(type_, message, options, nodeToReplace, placeholderMapIds)
 	if hookExpressionOutcome.isErr() {
@@ -161,12 +161,12 @@ func (this *ReplaceMessages) createConditionForGrammaticalGender(type_ AstFactor
 	}
 }
 
-func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory_Type, msg *JsMessage, options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderMapIds *JTMap[string, string]) *Outcome_base[Node] {
+func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory_Type, msg *JsMessage, options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderMapIds *TMap[string, string]) *Outcome_base[Node] {
 	var hookHead Node = IR_hook(IR_name(""), IR_string(""), IR_string(""))
 	hookHead.setColor(nodeToReplace.getColor())
 	var placeholderHook Node = hookHead
 	var placeholderNodeProvider func(string) Node = func(placeholderName string) Node {
-		var placeholderId Optional[string] = Optional_ofNullable[string](placeholderMapIds.get(placeholderName))
+		var placeholderId Optional[string] = Optional_ofNullable[string](placeholderMapIds.Get(placeholderName))
 		return func() Node {
 			if placeholderId.isPresent() {
 				return this.astFactory_.createName(placeholderId.get(), AstFactory_type_Node(nodeToReplace))
@@ -496,11 +496,11 @@ func (this *ReplaceMessages_MsgProtectionPass) processMessageFallback_impl(callN
 
 type ReplaceMessages_QuotedKeyObjectLitBuilder struct {
 	outer_            *ReplaceMessages
-	keyToValueNodeMap *JTMap[string, Node]
+	keyToValueNodeMap *TMap[string, Node]
 }
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) finit_ReplaceMessages_QuotedKeyObjectLitBuilder() {
-	this.keyToValueNodeMap = jnewTMap_(jtc_string, jtc_Node)
+	this.keyToValueNodeMap = newTMap_(jtc_string.t_(), tc_Node)
 }
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) init_ReplaceMessages_QuotedKeyObjectLitBuilder() {
@@ -519,10 +519,10 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addString(key string, val
 }
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node Node) *ReplaceMessages_QuotedKeyObjectLitBuilder {
-	if this.keyToValueNodeMap.has(key) {
+	if this.keyToValueNodeMap.Has(key) {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("repeated key: %s", []any{strobj_(key)})))
 	}
-	this.keyToValueNodeMap.put(key, node)
+	this.keyToValueNodeMap.Put(key, node)
 	return this
 }
 
@@ -530,7 +530,7 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) build() Node {
 	var result Node = this.outer_.astFactory_.createObjectLit([]Node{})
 	it_1 := this.keyToValueNodeMap.eachEntry()
 	for it_1.next() {
-		var entry *TEntry[string, Node] = it_1.entry()
+		var entry *TEntryP[string, Node] = it_1.entry()
 		result.addChildToBack(this.outer_.astFactory_.createQuotedStringKey(entry.getKey(), entry.getValue()))
 	}
 	return result
@@ -538,11 +538,11 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) build() Node {
 
 type ReplaceMessages_ReplacementCompletionPass struct {
 	outer_            *ReplaceMessages
-	translatedMsgKeys *JTSet[string]
+	translatedMsgKeys *TSet[string]
 }
 
 func (this *ReplaceMessages_ReplacementCompletionPass) finit_ReplaceMessages_ReplacementCompletionPass() {
-	this.translatedMsgKeys = jnewTSet_(jtc_string)
+	this.translatedMsgKeys = newTSet_(jtc_string.t_())
 }
 
 func (this *ReplaceMessages_ReplacementCompletionPass) init_ReplaceMessages_ReplacementCompletionPass() {
@@ -567,7 +567,7 @@ func (this *ReplaceMessages_ReplacementCompletionPass) visitMsgDefinition(protec
 	var msgToUse *JsMessage
 	if translatedMsg != nil {
 		msgToUse = translatedMsg
-		this.translatedMsgKeys.add(originalMsg.getKey())
+		this.translatedMsgKeys.Add(originalMsg.getKey())
 	} else {
 		if this.outer_.strictReplacement {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nodeToReplace, ReplaceMessages_BUNDLE_DOES_NOT_HAVE_THE_MESSAGE, []string{originalMsg.getId()}))
@@ -590,9 +590,9 @@ func (this *ReplaceMessages_ReplacementCompletionPass) visitMsgDefinition(protec
 
 func (this *ReplaceMessages_ReplacementCompletionPass) visitMsgFallback(protectedMsgFallback *ReplaceMessages_ProtectedMsgFallback) {
 	var valueNodeToUse Node
-	if this.translatedMsgKeys.has(protectedMsgFallback.firstMsgKey) {
+	if this.translatedMsgKeys.Has(protectedMsgFallback.firstMsgKey) {
 		valueNodeToUse = protectedMsgFallback.firstMsgValue
-	} else if this.translatedMsgKeys.has(protectedMsgFallback.secondMsgKey) {
+	} else if this.translatedMsgKeys.Has(protectedMsgFallback.secondMsgKey) {
 		valueNodeToUse = protectedMsgFallback.secondMsgValue
 	} else {
 		valueNodeToUse = protectedMsgFallback.firstMsgValue
@@ -893,7 +893,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 	}
 	var msgKey Optional[string] = Optional_empty[string]()
 	var meaning Optional[string] = Optional_empty[string]()
-	var icuPlaceholderNames *JTSet[string] = jnewTSet_(jtc_string)
+	var icuPlaceholderNames *TSet[string] = newTSet_(jtc_string.t_())
 	var messageText Optional[string] = Optional_empty[string]()
 	var messageTextNode Node = 0
 	{
@@ -909,7 +909,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 					panic(new_IllegalStateException_String("icu_placeholder_names must be an array"))
 				}
 				for valueNodeChild := range elemsBy_(valueNode.children(), Node_of_) {
-					icuPlaceholderNames.add(valueNodeChild.getString())
+					icuPlaceholderNames.Add(valueNodeChild.getString())
 				}
 				continue
 			}
@@ -940,7 +940,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 			}
 		}
 	}
-	if !icuPlaceholderNames.isEmpty() {
+	if !icuPlaceholderNames.IsEmpty() {
 		if !isIcuTemplate {
 			panic(new_IllegalStateException_String("Found icu_placeholder_names for a message that is not an ICU template."))
 		}

@@ -4,7 +4,7 @@ package closure
 
 type CoverageInstrumentationPass struct {
 	compiler_                          *AbstractCompiler
-	instrumentationData                *JTMap[string, *FileInstrumentationData]
+	instrumentationData                *TMap[string, *FileInstrumentationData]
 	reach                              CoverageInstrumentationPass_CoverageReach
 	instrumentOption                   CompilerOptions_InstrumentOption
 	productionInstrumentationArrayName string
@@ -19,7 +19,7 @@ func (this *CoverageInstrumentationPass) init_CoverageInstrumentationPass_Abstra
 	this.reach = reach
 	this.instrumentOption = instrumentOption
 	this.productionInstrumentationArrayName = productionInstrumentationArrayName
-	this.instrumentationData = jnewTMap_(jtc_string, jtc_p_FileInstrumentationData)
+	this.instrumentationData = newTMap_(jtc_string.t_(), jtc_p_FileInstrumentationData.t_())
 }
 
 func new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler *AbstractCompiler, reach CoverageInstrumentationPass_CoverageReach, instrumentOption CompilerOptions_InstrumentOption, productionInstrumentationArrayName string) *CoverageInstrumentationPass {

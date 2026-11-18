@@ -90,12 +90,12 @@ func (this *JsFileRegexParser) parseReader(filePath string, closureRelativePath 
 	if this.moduleType_ == JsFileRegexParser_ModuleType_ES6_MODULE {
 		this.provides.add(this.file.toModuleName())
 	}
-	var loadFlags *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
+	var loadFlags *TMap[string, string] = newTMap_(jtc_string.t_(), tc_string)
 	switch this.moduleType_ {
 	case JsFileRegexParser_ModuleType_GOOG_MODULE:
-		loadFlags.put("module", "goog")
+		loadFlags.Put("module", "goog")
 	case JsFileRegexParser_ModuleType_ES6_MODULE:
-		loadFlags.put("module", "es6")
+		loadFlags.Put("module", "es6")
 	default:
 	}
 	var dependencyInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(closureRelativePath, Optional_of[string](filePath)).setProvides(Collection(this.provides.asList())).setRequires(Collection(this.requires.asList())).setTypeRequires(Collection(this.typeRequires.asList())).setLoadFlags(loadFlags.asMap()).setHasExternsAnnotation(this.hasExternsAnnotation).setHasNoCompileAnnotation(this.hasNoCompileAnnotation).build()))

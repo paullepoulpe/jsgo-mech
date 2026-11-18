@@ -37,12 +37,12 @@ func new_TemplateTypeReplacer(registry *JSTypeRegistry, bindings *TemplateTypeMa
 	return this
 }
 
-func TemplateTypeReplacer_forInference(registry *JSTypeRegistry, bindings *JTMap[*TemplateType, *JSType]) *TemplateTypeReplacer {
+func TemplateTypeReplacer_forInference(registry *JSTypeRegistry, bindings *TMap[*TemplateType, *JSType]) *TemplateTypeReplacer {
 	var keys *ImmutableList[*TemplateType] = immutableListCopyOf_(tc_p_TemplateType, Collection(bindings.asMap().keySet()))
 	var values []*JSType
 	for _, el := range keys.items {
 		key := el
-		var value *JSType = bindings.get(key)
+		var value *JSType = bindings.Get(key)
 		values = immAddObj_(tc_p_JSType, values, func() any {
 			if value != nil {
 				return value.self()

@@ -19,15 +19,15 @@ func (this *ClusterPropagator) traverseEdge(src *ColorGraphNode, unused any, des
 	if src.getColor() == StandardColors_TOP_OBJECT {
 		return false
 	}
-	var startDestPropCount int32 = dest.getAssociatedProps().size()
+	var startDestPropCount int32 = dest.getAssociatedProps().Len()
 	it_1 := src.getAssociatedProps().eachKey()
 	for it_1.next() {
 		var prop *PropertyClustering = it_1.v
 		if prop.isInvalidated() {
 			continue
 		}
-		dest.getAssociatedProps().putIfAbsent(prop, ColorGraphNode_PropAssociation_SUPERTYPE)
+		dest.getAssociatedProps().PutIfAbsent(prop, ColorGraphNode_PropAssociation_SUPERTYPE)
 		prop.getClusters().union(src, dest)
 	}
-	return (startDestPropCount < dest.getAssociatedProps().size())
+	return (startDestPropCount < dest.getAssociatedProps().Len())
 }

@@ -30,14 +30,14 @@ func new_JSTypeExpression(root Node, sourceName string) *JSTypeExpression {
 	return this
 }
 
-func (this *JSTypeExpression) replaceNamesWithUnknownType(names *JTSet[string]) *JSTypeExpression {
+func (this *JSTypeExpression) replaceNamesWithUnknownType(names *TSet[string]) *JSTypeExpression {
 	var oldExprRoot Node = this.root.cloneTree()
 	var newExprRoot Node = JSTypeExpression_replaceNames(oldExprRoot, names)
 	var newTypeExpression *JSTypeExpression = new_JSTypeExpression(newExprRoot, this.sourceName_)
 	return newTypeExpression
 }
 
-func JSTypeExpression_replaceNames(n Node, names *JTSet[string]) Node {
+func JSTypeExpression_replaceNames(n Node, names *TSet[string]) Node {
 	if n == 0 {
 		return 0
 	}
@@ -49,7 +49,7 @@ func JSTypeExpression_replaceNames(n Node, names *JTSet[string]) Node {
 			child = next
 		}
 	}
-	if n.isStringLit() && names.has(JSTypeExpression_baseName(n.getString())) {
+	if n.isStringLit() && names.Has(JSTypeExpression_baseName(n.getString())) {
 		var qMark Node = new_Node_Token(Token_rhino_QMARK)
 		if n.hasChildren() && !n.getFirstChild().isBlock() {
 			qMark.addChildrenToBack(n.removeChildren())

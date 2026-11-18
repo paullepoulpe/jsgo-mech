@@ -5,15 +5,15 @@ package closure
 import "strings"
 
 type FileInfo struct {
-	providedNamespaces    *JTSet[string]
-	requiredLocalNames    *JTSet[string]
+	providedNamespaces    *TSet[string]
+	requiredLocalNames    *TSet[string]
 	declarations          *SimpleListMultimap[string, *PotentialDeclaration]
 	isFromTypeScriptField bool
 }
 
 func (this *FileInfo) finit_FileInfo() {
-	this.providedNamespaces = jnewTSet_(jtc_string)
-	this.requiredLocalNames = jnewTSet_(jtc_string)
+	this.providedNamespaces = newTSet_(jtc_string.t_())
+	this.requiredLocalNames = newTSet_(jtc_string.t_())
 	this.declarations = SimpleListMultimap_create[string, *PotentialDeclaration]()
 }
 
@@ -65,7 +65,7 @@ func (this *FileInfo) recordDeclaration(decl *PotentialDeclaration) {
 }
 
 func (this *FileInfo) recordImport(localName string) {
-	this.requiredLocalNames.add(localName)
+	this.requiredLocalNames.Add(localName)
 }
 
 func (this *FileInfo) isNameDeclared(fullyQualifiedName string) bool {
@@ -103,5 +103,5 @@ func (this *FileInfo) isStrictPrefixDeclared(fullyQualifiedName string) bool {
 }
 
 func (this *FileInfo) markProvided(providedName string) {
-	this.providedNamespaces.add(providedName)
+	this.providedNamespaces.Add(providedName)
 }

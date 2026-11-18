@@ -73,12 +73,12 @@ func StringPool_clinit() {
 
 type StringPool_Builder struct {
 	maxLength int32
-	pool      *JTMap[string, any]
+	pool      *TMap[string, any]
 }
 
 func (this *StringPool_Builder) finit_StringPool_Builder() {
 	this.maxLength = 0
-	this.pool = jnewTMap_(jtc_string, jtc_Integer)
+	this.pool = newTMap_(jtc_string.t_(), jtc_Integer.t_())
 }
 
 func (this *StringPool_Builder) init_StringPool_Builder() {
@@ -98,7 +98,7 @@ func (this *StringPool_Builder) put(string_ string) int32 {
 		this.maxLength = string_U16.length()
 	}
 	return unbox_[int32](this.pool.computeIfAbsent(string_, &Function_tfn_string_any{func(unused string) any {
-		return any(int32(this.pool.size()))
+		return any(int32(this.pool.Len()))
 	}}))
 }
 

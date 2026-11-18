@@ -11,7 +11,7 @@ type PhaseOptimizer struct {
 	validityCheck                          *PassFactory
 	printAstHashcodes                      bool
 	currentPass                            *PhaseOptimizer_NamedPass
-	lastRuns                               *JTMap[*PhaseOptimizer_NamedPass, any]
+	lastRuns                               *TMap[*PhaseOptimizer_NamedPass, any]
 	lastChange                             int32
 	jsRoot                                 Node
 	useSizeHeuristicToStopOptimizationLoop bool
@@ -129,7 +129,7 @@ func (this *PhaseOptimizer) hasScopeChanged(n Node) bool {
 	if !this.inLoop_ {
 		return true
 	}
-	var timeOfLastRun int32 = unbox_[int32](this.lastRuns.get(this.currentPass))
+	var timeOfLastRun int32 = unbox_[int32](this.lastRuns.Get(this.currentPass))
 	return ((timeOfLastRun == PhaseOptimizer_START_TIME) || (n.getChangeTime() > timeOfLastRun))
 }
 
@@ -309,7 +309,7 @@ func (this *PhaseOptimizer_ScopedChangeHandler) hasCodeChangedSinceLastCall() bo
 type PhaseOptimizer_Loop struct {
 	outer_                          *PhaseOptimizer
 	myPasses                        *[]*PhaseOptimizer_NamedPass
-	myNames                         *JTSet[string]
+	myNames                         *TSet[string]
 	scopeHandler                    *PhaseOptimizer_ScopedChangeHandler
 	isCodeRemovalLoopField          bool
 	howmanyIterationsUnderThreshold int32
@@ -317,7 +317,7 @@ type PhaseOptimizer_Loop struct {
 
 func (this *PhaseOptimizer_Loop) finit_PhaseOptimizer_Loop() {
 	this.myPasses = &[]*PhaseOptimizer_NamedPass{}
-	this.myNames = jnewTSet_(jtc_string)
+	this.myNames = newTSet_(jtc_string.t_())
 	this.isCodeRemovalLoopField = false
 	this.howmanyIterationsUnderThreshold = 0
 }
@@ -335,10 +335,10 @@ func new_PhaseOptimizer_Loop(outer_ *PhaseOptimizer) *PhaseOptimizer_Loop {
 
 func (this *PhaseOptimizer_Loop) addLoopedPass(factory *PassFactory) {
 	var name string = factory.getName()
-	if this.myNames.has(name) {
+	if this.myNames.Has(name) {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Already a pass with name '%s' in this loop", []any{strobj_(name)})))
 	}
-	this.myNames.add(name)
+	this.myNames.Add(name)
 	*this.myPasses = append(*this.myPasses, new_PhaseOptimizer_NamedPass(this.outer_, factory))
 }
 
@@ -350,13 +350,13 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 	this.isCodeRemovalLoopField = this.isCodeRemovalLoop()
 	this.scopeHandler = new_PhaseOptimizer_ScopedChangeHandler(this.outer_)
 	this.outer_.changeTracker.addChangeHandler(icast_CodeChangeHandler(obj_(this.scopeHandler)))
-	this.outer_.lastRuns = jnewTMap_(jtc_p_PhaseOptimizer_NamedPass, jtc_Integer)
+	this.outer_.lastRuns = newTMap_(jtc_p_PhaseOptimizer_NamedPass.t_(), jtc_Integer.t_())
 	for pass := range sliceAll_(this.myPasses) {
-		this.outer_.lastRuns.put(pass, any(int32(PhaseOptimizer_START_TIME)))
+		this.outer_.lastRuns.Put(pass, any(int32(PhaseOptimizer_START_TIME)))
 	}
-	var madeChanges *JTSet[*PhaseOptimizer_NamedPass] = jnewTSet_(jtc_p_PhaseOptimizer_NamedPass)
-	var runInPrevIter *JTSet[*PhaseOptimizer_NamedPass] = jnewTSet_(jtc_p_PhaseOptimizer_NamedPass)
-	var didNotMakeChanges *JTSet[*PhaseOptimizer_NamedPass] = jnewTSet_(jtc_p_PhaseOptimizer_NamedPass)
+	var madeChanges *TSet[*PhaseOptimizer_NamedPass] = newTSet_(jtc_p_PhaseOptimizer_NamedPass.t_())
+	var runInPrevIter *TSet[*PhaseOptimizer_NamedPass] = newTSet_(jtc_p_PhaseOptimizer_NamedPass.t_())
+	var didNotMakeChanges *TSet[*PhaseOptimizer_NamedPass] = newTSet_(jtc_p_PhaseOptimizer_NamedPass.t_())
 	var state PhaseOptimizer_State = PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER
 	var lastIterMadeChanges bool
 	var count int32 = 1
@@ -376,24 +376,24 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 		count++
 		lastIterMadeChanges = false
 		for pass := range sliceAll_(this.myPasses) {
-			if (((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !runInPrevIter.has(pass)) && !didNotMakeChanges.has(pass)) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && madeChanges.has(pass)) {
+			if (((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !runInPrevIter.Has(pass)) && !didNotMakeChanges.Has(pass)) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && madeChanges.Has(pass)) {
 				this.outer_.changeTracker.incrementChangeStamp()
 				this.outer_.currentPass = pass
 				pass.process_2(externs, root)
-				runInPrevIter.add(pass)
-				this.outer_.lastRuns.put(pass, any(int32(this.outer_.changeTracker.getChangeStamp())))
+				runInPrevIter.Add(pass)
+				this.outer_.lastRuns.Put(pass, any(int32(this.outer_.changeTracker.getChangeStamp())))
 				if this.outer_.hasHaltingErrors() {
 					return
 				} else if this.scopeHandler.hasCodeChangedSinceLastCall() {
-					madeChanges.add(pass)
-					didNotMakeChanges.clear()
+					madeChanges.Add(pass)
+					didNotMakeChanges.Clear()
 					lastIterMadeChanges = true
 				} else {
-					madeChanges.del(pass)
-					didNotMakeChanges.add(pass)
+					madeChanges.Delete(pass)
+					didNotMakeChanges.Add(pass)
 				}
 			} else {
-				runInPrevIter.del(pass)
+				runInPrevIter.Delete(pass)
 			}
 		}
 		previousAstSize = astSize

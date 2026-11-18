@@ -16,11 +16,11 @@ func new_ApplySuggestedFixes() *ApplySuggestedFixes {
 }
 
 func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedFix]) *Outcome_base[any] {
-	var filenames *JTSet[string] = jnewTSet_(jtc_string)
+	var filenames *TSet[string] = newTSet_(jtc_string.t_())
 	for fix := range elemsAs_[*SuggestedFix](fixes) {
 		filenames.asSet().addAll(Collection(fix.getReplacements().keySet()))
 	}
-	var filenameToCodeMap *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
+	var filenameToCodeMap *TMap[string, string] = newTMap_(jtc_string.t_(), tc_string)
 	it_3 := filenames.each()
 	for it_3.next() {
 		var filename string = it_3.v
@@ -28,7 +28,7 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 		if code.isErr() {
 			return Outcome_base_err[any](code.error())
 		}
-		filenameToCodeMap.put(filename, code.get())
+		filenameToCodeMap.Put(filename, code.get())
 	}
 	var newCode *ImmutableMap[string, string] = ApplySuggestedFixes_applySuggestedFixesToCode(fixes, filenameToCodeMap.asMap())
 	for _, el_5 := range immElems_(cast_[*ErasedImmutableSet](newCode.asImm().entrySet())) {

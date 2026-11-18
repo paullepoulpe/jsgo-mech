@@ -91,14 +91,14 @@ func (this *J2clPass_InlineSpec) toString() string {
 
 type J2clPass_ClassStaticFunctionsInliner struct {
 	outer_                     *J2clPass
-	fnsToInlineByQualifiedName *JTMap[string, *J2clPass_ClassStaticFunctionsInliner_InlinableFunction]
+	fnsToInlineByQualifiedName *TMap[string, *J2clPass_ClassStaticFunctionsInliner_InlinableFunction]
 	injector                   *FunctionInjector
 	root                       Node
 	inlineSpecs                *[]*J2clPass_InlineSpec
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner) finit_J2clPass_ClassStaticFunctionsInliner() {
-	this.fnsToInlineByQualifiedName = jnewTMap_(jtc_string, jtc_p_J2clPass_ClassStaticFunctionsInliner_InlinableFunction)
+	this.fnsToInlineByQualifiedName = newTMap_(jtc_string.t_(), jtc_p_J2clPass_ClassStaticFunctionsInliner_InlinableFunction.t_())
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner) init_J2clPass_ClassStaticFunctionsInliner(root Node, inlineSpecs *[]*J2clPass_InlineSpec) {
@@ -239,7 +239,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 				panic(new_AssertionError_0())
 			}
 		}()
-		var previousValue *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = this.outer_.fnsToInlineByQualifiedName.put(qualifiedFnName.orElse(nullstr_), inlinableFunction)
+		var previousValue *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = this.outer_.fnsToInlineByQualifiedName.Put(qualifiedFnName.orElse(nullstr_), inlinableFunction)
 		if previousValue != nil {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("expected each function to match at most one InliningSpec, but found:\n%s\n%s", []any{obj_(previousValue), obj_(inlinableFunction)})))
 		}
@@ -279,7 +279,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_StaticCallInliner) visit_impl(t
 		return
 	}
 	var qualifiedFnName string = qualifiedNameNode.getQualifiedName()
-	var fn *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = this.outer_.fnsToInlineByQualifiedName.get(qualifiedFnName)
+	var fn *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = this.outer_.fnsToInlineByQualifiedName.Get(qualifiedFnName)
 	if fn == nil {
 		return
 	}

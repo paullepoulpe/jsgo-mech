@@ -86,8 +86,8 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{"multiple initialized copies"}))
 			return
 		}
-		var mapping *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Integer)
-		var ordinals *JTSet[any] = jnewTSet_(jtc_Integer)
+		var mapping *TMap[string, any] = newTMap_(jtc_string.t_(), jtc_Integer.t_())
+		var ordinals *TSet[any] = newTSet_(jtc_Integer.t_())
 		{
 			var c Node = rhs.getFirstChild()
 			for ; c != 0; c = c.getNext() {
@@ -96,7 +96,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 					return
 				}
 				var key string = c.getString()
-				if mapping.has(key) {
+				if mapping.Has(key) {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{("duplicate key: " + sstr_(key))}))
 					return
 				}
@@ -118,12 +118,12 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 				} else if (!child.isNumber() || (intValue < 0)) || (float64(intValue) != unbox_[float64](doubleValue)) {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{"value not a boolean or whole number literal"}))
 					return
-				} else if ordinals.has(any(int32(intValue))) {
+				} else if ordinals.Has(any(int32(intValue))) {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{("duplicate ordinal: " + istr_(int64(intValue)))}))
 					return
 				}
-				mapping.put(key, any(int32(intValue)))
-				ordinals.add(any(int32(intValue)))
+				mapping.Put(key, any(int32(intValue)))
+				ordinals.Add(any(int32(intValue)))
 			}
 		}
 		this.outer_.ordinalMapping = immutableMapCopyOf_(tc_string, tc_any, mapping.asMap())

@@ -5,10 +5,10 @@ package closure
 type CheckNullabilityModifiers struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_             *AbstractCompiler
-	redundantCandidates   *JTSet[Node]
-	missingCandidates     *JTSet[Node]
-	nullMissingCandidates *JTSet[Node]
-	templateTypeNames     *JTSet[string]
+	redundantCandidates   *TSet[Node]
+	missingCandidates     *TSet[Node]
+	nullMissingCandidates *TSet[Node]
+	templateTypeNames     *TSet[string]
 }
 
 func (this *CheckNullabilityModifiers) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -19,10 +19,10 @@ func (this *CheckNullabilityModifiers) up_NodeTraversal_AbstractPostOrderCallbac
 }
 
 func (this *CheckNullabilityModifiers) finit_CheckNullabilityModifiers() {
-	this.redundantCandidates = jnewTSet_(jtc_Node)
-	this.missingCandidates = jnewTSet_(jtc_Node)
-	this.nullMissingCandidates = jnewTSet_(jtc_Node)
-	this.templateTypeNames = jnewTSet_(jtc_string)
+	this.redundantCandidates = newTSet_(jtc_Node.t_())
+	this.missingCandidates = newTSet_(jtc_Node.t_())
+	this.nullMissingCandidates = newTSet_(jtc_Node.t_())
+	this.templateTypeNames = newTSet_(jtc_string.t_())
 }
 
 func (this *CheckNullabilityModifiers) init_CheckNullabilityModifiers(compiler *AbstractCompiler) {
@@ -70,10 +70,10 @@ func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, pare
 	}
 	if n.isScript() {
 		this.report(t)
-		this.redundantCandidates.clear()
-		this.missingCandidates.clear()
-		this.nullMissingCandidates.clear()
-		this.templateTypeNames.clear()
+		this.redundantCandidates.Clear()
+		this.missingCandidates.Clear()
+		this.nullMissingCandidates.Clear()
+		this.templateTypeNames.Clear()
 		return
 	}
 }
@@ -114,7 +114,7 @@ func (this *CheckNullabilityModifiers) report(t *NodeTraversal) {
 }
 
 func (this *CheckNullabilityModifiers) shouldReport(n Node) bool {
-	return (!n.isStringLit() || !this.templateTypeNames.has(n.getString()))
+	return (!n.isStringLit() || !this.templateTypeNames.Has(n.getString()))
 }
 
 func (this *CheckNullabilityModifiers) visitTypeExpression(expr *JSTypeExpression, hasArtificialTopLevelBang bool) {
@@ -135,12 +135,12 @@ func (this *CheckNullabilityModifiers) visitTypeExpression_3(expr *JSTypeExpress
 		var isAppliedToRValue bool = ((node == root) || ((parent != 0) && (parent.ns_().token == tokOrd1_PIPE)))
 		if (((isReference && !hasBang) && !hasQmark) && !isNewOrThis) && !isTypeOfType {
 			if (isAppliedToRValue && (rValue != 0)) && rValue.isNull() {
-				this.nullMissingCandidates.add(node)
+				this.nullMissingCandidates.Add(node)
 			} else {
-				this.missingCandidates.add(node)
+				this.missingCandidates.Add(node)
 			}
 		} else if isPrimitiveOrLiteral && hasNonArtificialBang {
-			this.redundantCandidates.add(node)
+			this.redundantCandidates.Add(node)
 		}
 	}})
 }

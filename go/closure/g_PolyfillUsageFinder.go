@@ -9,11 +9,11 @@ type PolyfillUsageFinder struct {
 	polyfills                  *PolyfillUsageFinder_Polyfills
 	disambiguateProperties_    bool
 	registry                   *ColorRegistry
-	hasInSupertypesListSeenSet *JTSet[*Color]
+	hasInSupertypesListSeenSet *TSet[*Color]
 }
 
 func (this *PolyfillUsageFinder) finit_PolyfillUsageFinder() {
-	this.hasInSupertypesListSeenSet = jnewTSet_(tce_p_Color)
+	this.hasInSupertypesListSeenSet = newTSet_(tce_p_Color.t_())
 }
 
 func (this *PolyfillUsageFinder) init_PolyfillUsageFinder(compiler *AbstractCompiler, polyfills *PolyfillUsageFinder_Polyfills, disambiguateProperties bool) {
@@ -154,11 +154,11 @@ func (this *PolyfillUsageFinder) isDisjointFromIterator(receiver *Color) bool {
 }
 
 func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *Color) (ret_1 bool) {
-	if !this.hasInSupertypesListSeenSet.add(subCtor) {
+	if !this.hasInSupertypesListSeenSet.Add(subCtor) {
 		return false
 	}
 	defer func() {
-		this.hasInSupertypesListSeenSet.del(subCtor)
+		this.hasInSupertypesListSeenSet.Delete(subCtor)
 	}()
 	if subCtor.equals_Color(superCtor) {
 		return true

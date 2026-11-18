@@ -6,13 +6,13 @@ type RecordTypeBuilder struct {
 	isEmpty_   bool
 	isDeclared bool
 	registry   *JSTypeRegistry
-	properties *JTMap[string, *RecordTypeBuilder_RecordProperty]
+	properties *TMap[string, *RecordTypeBuilder_RecordProperty]
 }
 
 func (this *RecordTypeBuilder) finit_RecordTypeBuilder() {
 	this.isEmpty_ = true
 	this.isDeclared = true
-	this.properties = jnewTMap_(jtc_string, jtc_p_RecordTypeBuilder_RecordProperty)
+	this.properties = newTMap_(jtc_string.t_(), tc_p_RecordTypeBuilder_RecordProperty)
 }
 
 func (this *RecordTypeBuilder) init_RecordTypeBuilder(registry *JSTypeRegistry) {
@@ -32,7 +32,7 @@ func (this *RecordTypeBuilder) setSynthesized(synthesized bool) {
 
 func (this *RecordTypeBuilder) addProperty(name string, type_ *JSType, propertyNode Node) *RecordTypeBuilder {
 	this.isEmpty_ = false
-	this.properties.put(name, new_RecordTypeBuilder_RecordProperty(type_, propertyNode))
+	this.properties.Put(name, new_RecordTypeBuilder_RecordProperty(type_, propertyNode))
 	return this
 }
 

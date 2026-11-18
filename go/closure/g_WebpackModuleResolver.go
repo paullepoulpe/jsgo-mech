@@ -21,12 +21,12 @@ func (this *WebpackModuleResolver) up_ModuleResolver() *ModuleResolver {
 	return &this.ModuleResolver
 }
 
-func (this *WebpackModuleResolver) init_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById *JTMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
+func (this *WebpackModuleResolver) init_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.NodeModuleResolver.init_NodeModuleResolver(modulePaths, moduleRootPaths, nil, errorHandler, pathEscaper)
 	this.modulesById = immutableMapCopyOf_(tc_string, tc_string, modulesById.asMap())
 }
 
-func new_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById *JTMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *WebpackModuleResolver {
+func new_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *WebpackModuleResolver {
 	this := &WebpackModuleResolver{}
 	this.self_ = this
 	this.init_WebpackModuleResolver(modulePaths, moduleRootPaths, modulesById, errorHandler, pathEscaper)
@@ -64,13 +64,13 @@ func new_WebpackModuleResolver_Factory(lookupMap *TMap[string, string]) *Webpack
 }
 
 func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
-	var normalizedPathsById *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
+	var normalizedPathsById *TMap[string, string] = newTMap_(jtc_string.t_(), tc_string)
 	for moduleEntryKey, moduleEntryValue := range this.lookupMap.All() {
 		var canonicalizedPath string = ModuleLoader_normalize(pathEscaper.escape(moduleEntryValue), icast_Iterable(obj_(moduleRootPaths)))
 		if ModuleLoader_isAmbiguousIdentifier(canonicalizedPath) {
 			canonicalizedPath = (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(canonicalizedPath))
 		}
-		normalizedPathsById.put(moduleEntryKey, canonicalizedPath)
+		normalizedPathsById.Put(moduleEntryKey, canonicalizedPath)
 	}
 	return new_WebpackModuleResolver(modulePaths, moduleRootPaths, normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
 }

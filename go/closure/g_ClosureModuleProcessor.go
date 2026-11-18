@@ -111,19 +111,19 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_5_impl(mo
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier Optional[string]) *Module {
 	if this.resolved_ == nil {
-		var boundNames *JTMap[string, *Binding] = tmapCopy_(jtc_string, jtc_p_Binding, this.getAllResolvedImports(moduleRequestResolver))
+		var boundNames *TMap[string, *Binding] = tmapCopyT_(jtc_string.t_(), tc_p_Binding, this.getAllResolvedImports(moduleRequestResolver))
 		this.resolved_ = Module_builder().path(this.path_).metadata(this.metadataField).namespace(this.namespace_).boundNames(immutableMapCopyOf_(tc_string, tc_p_Binding, boundNames.asMap())).localNameToLocalExport(immutableMapOf_(tc_string, tc_p_Export, []string{}, []*Export{})).closureNamespace(Optional_ofNullable[string](str_(Iterables_getOnlyElement(icast_Iterable(obj_(this.metadataField.googNamespaces())))))).build()
 	}
 	return this.resolved_
 }
 
-func (this *ClosureModuleProcessor_UnresolvedGoogModule) getAllResolvedImports(moduleRequestResolver ModuleRequestResolver) *JTMap[string, *Binding] {
-	var imports *JTMap[string, *Binding] = jnewTMap_(jtc_string, jtc_p_Binding)
+func (this *ClosureModuleProcessor_UnresolvedGoogModule) getAllResolvedImports(moduleRequestResolver ModuleRequestResolver) *TMap[string, *Binding] {
+	var imports *TMap[string, *Binding] = newTMap_(jtc_string.t_(), tc_p_Binding)
 	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.requiresByLocalName.asImm().keySet())) {
 		name := str_(el)
 		var b *ResolveExportResult = this.resolveImport(moduleRequestResolver, name)
 		if b.resolved() {
-			imports.put(name, b.getBinding())
+			imports.Put(name, b.getBinding())
 		}
 	}
 	return imports
@@ -197,8 +197,8 @@ type ClosureModuleProcessor_ModuleProcessingCallback struct {
 	NodeTraversal_AbstractPreOrderCallback
 	metadata_             *ModuleMetadataMap_ModuleMetadata
 	closureNamespace_     string
-	namespace_            *JTMap[string, *Binding]
-	requiresByLocalName   *JTMap[string, *ClosureRequireProcessor_Require]
+	namespace_            *TMap[string, *Binding]
+	requiresByLocalName   *TMap[string, *ClosureRequireProcessor_Require]
 	seenExportsAssignment bool
 }
 
@@ -216,8 +216,8 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) zero_ClosureModuleP
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) init_ClosureModuleProcessor_ModuleProcessingCallback(metadata *ModuleMetadataMap_ModuleMetadata) {
 	this.NodeTraversal_AbstractPreOrderCallback.init_NodeTraversal_AbstractPreOrderCallback()
 	this.metadata_ = metadata
-	this.namespace_ = jnewTMap_(jtc_string, jtc_p_Binding)
-	this.requiresByLocalName = jnewTMap_(jtc_string, jtc_p_ClosureRequireProcessor_Require)
+	this.namespace_ = newTMap_(jtc_string.t_(), tc_p_Binding)
+	this.requiresByLocalName = newTMap_(jtc_string.t_(), tc_p_ClosureRequireProcessor_Require)
 	this.closureNamespace_ = str_(Iterables_getOnlyElement(icast_Iterable(obj_(metadata.googNamespaces()))))
 	this.seenExportsAssignment = false
 }
@@ -278,7 +278,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeExpo
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) markExportsAssignmentInNamespace(exportsNode Node) {
-	this.namespace_.put(Export_NAMESPACE, Binding_from_Export_Node(Export_builder().exportName(Optional_of[string](Export_NAMESPACE)).exportNode(exportsNode).moduleMetadata(this.metadata_).closureNamespace(Optional_of[string](this.closureNamespace_)).modulePath(this.metadata_.path()).build(), exportsNode))
+	this.namespace_.Put(Export_NAMESPACE, Binding_from_Export_Node(Export_builder().exportName(Optional_of[string](Export_NAMESPACE)).exportNode(exportsNode).moduleMetadata(this.metadata_).closureNamespace(Optional_of[string](this.closureNamespace_)).modulePath(this.metadata_.path()).build(), exportsNode))
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) initializeNamedExportsLiteral(objectLit Node) {
@@ -293,15 +293,15 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) initializeNamedExpo
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) addPropertyExport(exportedId string, propNode Node) {
 	if this.seenExportsAssignment {
 		return
-	} else if this.namespace_.has(exportedId) {
+	} else if this.namespace_.Has(exportedId) {
 		return
 	}
-	this.namespace_.put(exportedId, Binding_from_Export_Node(Export_builder().exportName(Optional_of[string](exportedId)).exportNode(propNode).moduleMetadata(this.metadata_).closureNamespace(Optional_of[string](this.closureNamespace_)).modulePath(this.metadata_.path()).build(), propNode))
+	this.namespace_.Put(exportedId, Binding_from_Export_Node(Export_builder().exportName(Optional_of[string](exportedId)).exportNode(propNode).moduleMetadata(this.metadata_).closureNamespace(Optional_of[string](this.closureNamespace_)).modulePath(this.metadata_.path()).build(), propNode))
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeRequire(nameDeclaration Node) {
 	for _, require := range ClosureRequireProcessor_getAllRequires(nameDeclaration) {
-		this.requiresByLocalName.putIfAbsent(require.localName(), require)
+		this.requiresByLocalName.PutIfAbsent(require.localName(), require)
 	}
 }
 

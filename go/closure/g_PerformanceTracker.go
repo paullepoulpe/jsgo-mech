@@ -329,7 +329,7 @@ func (this *PerformanceTracker) calcTotalStats() {
 }
 
 func (this *PerformanceTracker) populatePassSummary() {
-	var tmpPassSummary *JTMap[string, *PerformanceTracker_Stats] = jnewTMap_(jtc_string, jtc_p_PerformanceTracker_Stats)
+	var tmpPassSummary *TMap[string, *PerformanceTracker_Stats] = newTMap_(jtc_string.t_(), tc_p_PerformanceTracker_Stats)
 	for logStat := range sliceAll_(this.log_) {
 		var passName string = logStat.pass
 		var entry *PerformanceTracker_Stats = tmpPassSummary.computeIfAbsent(passName, &Function_tfn_string_PerformanceTracker_Stats{func(k string) *PerformanceTracker_Stats {

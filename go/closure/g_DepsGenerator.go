@@ -60,7 +60,7 @@ func (this *DepsGenerator) computeDependencyCalls() *Outcome_base[string] {
 }
 
 func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo]) {
-	var depsPathsCopy *JTSet[string] = jtsetFrom_(jtc_string, Collection(depsFiles.keySet()))
+	var depsPathsCopy *TSet[string] = tsetFrom_(jtc_string.t_(), Collection(depsFiles.keySet()), false)
 	it_1 := depsPathsCopy.each()
 	for it_1.next() {
 		var path string = it_1.v
@@ -73,9 +73,9 @@ func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapOf[string, Depend
 	}
 }
 
-func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo]) *JTMap[string, DependencyInfo] {
-	var newJsFiles *JTMap[string, DependencyInfo] = jnewTMap_(jtc_string, jtc_DependencyInfo)
-	var providesMap *JTMap[string, DependencyInfo] = jnewTMap_(jtc_string, jtc_DependencyInfo)
+func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo]) *TMap[string, DependencyInfo] {
+	var newJsFiles *TMap[string, DependencyInfo] = newTMap_(jtc_string.t_(), tc_DependencyInfo)
+	var providesMap *TMap[string, DependencyInfo] = newTMap_(jtc_string.t_(), tc_DependencyInfo)
 	this.addToProvideMap(Iterable(depFiles.values()), providesMap, true)
 	this.addToProvideMap(Iterable(jsFiles.values()), providesMap, false)
 	for dependencyInfo := range elemsBy_(jsFiles.values(), icast_DependencyInfo) {
@@ -83,7 +83,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 		for _, el := range dependencyInfo.getRequires().items {
 			require := el
 			if require.getType() == DependencyInfo_Require_Type_ES6_IMPORT {
-				var provider DependencyInfo = providesMap.get(require.getSymbol())
+				var provider DependencyInfo = providesMap.Get(require.getSymbol())
 				if provider == nil {
 					this.reportMissingFile(dependencyInfo, require.getRawText())
 				} else {
@@ -105,20 +105,20 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 			}
 			provides = builder.build()
 		}
-		newJsFiles.put(dependencyInfo.getPathRelativeToClosureBase(), icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides.asImm()))).setRequires(Collection(newRequires.asList())).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags().asImm()))).build())))
+		newJsFiles.Put(dependencyInfo.getPathRelativeToClosureBase(), icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides.asImm()))).setRequires(Collection(newRequires.asList())).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags().asImm()))).build())))
 	}
 	return newJsFiles
 }
 
 func (this *DepsGenerator) validateDependencies(preparsedFileDependencies IterableOf[DependencyInfo], parsedFileDependencies IterableOf[DependencyInfo]) {
-	var providesMap *JTMap[string, DependencyInfo] = jnewTMap_(jtc_string, jtc_DependencyInfo)
+	var providesMap *TMap[string, DependencyInfo] = newTMap_(jtc_string.t_(), tc_DependencyInfo)
 	this.addToProvideMap(preparsedFileDependencies, providesMap, true)
 	this.addToProvideMap(parsedFileDependencies, providesMap, false)
 	for depInfo := range elemsBy_(parsedFileDependencies, icast_DependencyInfo) {
 		for _, el := range depInfo.getRequires().items {
 			require := el
 			var namespace string = require.getSymbol()
-			var provider DependencyInfo = providesMap.get(namespace)
+			var provider DependencyInfo = providesMap.Get(namespace)
 			if provider == nil {
 				this.reportUndefinedNamespace(namespace, depInfo)
 			} else if provider == depInfo {
@@ -169,7 +169,7 @@ func (this *DepsGenerator) reportNoDepsInDepsFile(filePath string) {
 	this.errorManager.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of[string](filePath), -1, -1, DepsGenerator_NO_DEPS_WARNING, []string{}))
 }
 
-func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], providesMap *JTMap[string, DependencyInfo], isFromDepsFile bool) {
+func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], providesMap *TMap[string, DependencyInfo], isFromDepsFile bool) {
 	for depInfo := range elemsBy_(depInfos, icast_DependencyInfo) {
 		var provides []string = sliceFrom_(tc_string, icast_Collection(obj_(depInfo.getProvides().asImm())))
 		if isFromDepsFile {
@@ -181,7 +181,7 @@ func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], 
 		}
 		provides = append(provides, depInfo.getPathRelativeToClosureBase())
 		for _, provide := range provides {
-			var prevValue DependencyInfo = providesMap.put(provide, depInfo)
+			var prevValue DependencyInfo = providesMap.Put(provide, depInfo)
 			if prevValue != nil {
 				this.reportDuplicateProvide(provide, prevValue, depInfo)
 			}
@@ -201,7 +201,7 @@ func (this *DepsGenerator) shouldSkipDepsFile(file *SourceFile_jscomp) bool {
 
 func (this *DepsGenerator) parseDepsFiles() *Outcome_base[Map] {
 	var depsParser *DepsFileRegexParser = this.createDepsFileParser()
-	var depsFiles *JTMap[string, DependencyInfo] = jnewTMap_(jtc_string, jtc_DependencyInfo)
+	var depsFiles *TMap[string, DependencyInfo] = newTMap_(jtc_string.t_(), tc_DependencyInfo)
 	it_1 := foreach_(this.deps)
 	for it_1.next() {
 		var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
@@ -215,7 +215,7 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base[Map] {
 				this.reportNoDepsInDepsFile(file.getName())
 			} else {
 				for info := range elemsBy_(depInfos.asList(), icast_DependencyInfo) {
-					depsFiles.put(info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
+					depsFiles.Put(info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
 				}
 			}
 		}
@@ -230,7 +230,7 @@ func (this *DepsGenerator) parseDepsFiles() *Outcome_base[Map] {
 			}
 			var srcInfos *TList[DependencyInfo] = srcInfosRes.get()
 			for info := range elemsBy_(srcInfos.asList(), icast_DependencyInfo) {
-				depsFiles.put(info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
+				depsFiles.Put(info.getPathRelativeToClosureBase(), this.removeRelativePathProvide(info))
 			}
 		}
 	}
@@ -265,7 +265,7 @@ func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *TList[strin
 }
 
 func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_base[Map] {
-	var parsedFiles *JTMap[string, DependencyInfo] = jnewTMap_(jtc_string, jtc_DependencyInfo)
+	var parsedFiles *TMap[string, DependencyInfo] = newTMap_(jtc_string.t_(), tc_DependencyInfo)
 	var jsParser *JsFileRegexParser = new_JsFileRegexParser(this.errorManager).setModuleLoader(this.loader)
 	var compiler *Compiler = new_Compiler_0()
 	compiler.init(ImmutableList_of(), ImmutableList_of(), new_CompilerOptions())
@@ -287,7 +287,7 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 				continue
 			}
 			file.clearCachedSource()
-			parsedFiles.put(closureRelativePath, depInfo)
+			parsedFiles.Put(closureRelativePath, depInfo)
 		}
 	}
 	return Outcome_base_ok_Object[Map](parsedFiles.asMap())

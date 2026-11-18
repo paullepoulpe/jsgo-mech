@@ -3,25 +3,25 @@
 package closure
 
 type ColorGraphNodeFactory struct {
-	typeIndex *JTMap[*Color, *ColorGraphNode]
+	typeIndex *TMap[*Color, *ColorGraphNode]
 	registry  *ColorRegistry
 }
 
-func (this *ColorGraphNodeFactory) init_ColorGraphNodeFactory(initialTypeIndex *JTMap[*Color, *ColorGraphNode], registry *ColorRegistry) {
+func (this *ColorGraphNodeFactory) init_ColorGraphNodeFactory(initialTypeIndex *TMap[*Color, *ColorGraphNode], registry *ColorRegistry) {
 	this.typeIndex = initialTypeIndex
 	this.registry = registry
 }
 
-func new_ColorGraphNodeFactory(initialTypeIndex *JTMap[*Color, *ColorGraphNode], registry *ColorRegistry) *ColorGraphNodeFactory {
+func new_ColorGraphNodeFactory(initialTypeIndex *TMap[*Color, *ColorGraphNode], registry *ColorRegistry) *ColorGraphNodeFactory {
 	this := &ColorGraphNodeFactory{}
 	this.init_ColorGraphNodeFactory(initialTypeIndex, registry)
 	return this
 }
 
 func ColorGraphNodeFactory_createFactory(colorRegistry *ColorRegistry) *ColorGraphNodeFactory {
-	var typeIndex *JTMap[*Color, *ColorGraphNode] = jnewTMap_(tce_p_Color, jtc_p_ColorGraphNode)
+	var typeIndex *TMap[*Color, *ColorGraphNode] = newTMap_(tce_p_Color.t_(), tc_p_ColorGraphNode)
 	var unknownColorNode *ColorGraphNode = ColorGraphNode_create(StandardColors_UNKNOWN, 0)
-	typeIndex.put(StandardColors_UNKNOWN, unknownColorNode)
+	typeIndex.Put(StandardColors_UNKNOWN, unknownColorNode)
 	return new_ColorGraphNodeFactory(typeIndex, colorRegistry)
 }
 
@@ -35,7 +35,7 @@ func (this *ColorGraphNodeFactory) getAllKnownTypes() *ImmutableSet[*ColorGraphN
 }
 
 func (this *ColorGraphNodeFactory) newColorGraphNode(key *Color) *ColorGraphNode {
-	var id int32 = this.typeIndex.size()
+	var id int32 = this.typeIndex.Len()
 	return ColorGraphNode_create(key, id)
 }
 

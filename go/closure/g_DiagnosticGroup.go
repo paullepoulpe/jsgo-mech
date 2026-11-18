@@ -46,7 +46,7 @@ func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name Optional[
 
 func DiagnosticGroup_forType(type_ *DiagnosticType) *DiagnosticGroup {
 	DiagnosticGroup_singletons.computeIfAbsent(type_, &Function_tfn_DiagnosticType_DiagnosticGroup{func(p0 *DiagnosticType) *DiagnosticGroup { return DiagnosticGroup_createFromType(p0) }})
-	return DiagnosticGroup_singletons.get(type_)
+	return DiagnosticGroup_singletons.Get(type_)
 }
 
 func (this *DiagnosticGroup) matches(error_ *JSError) bool {
@@ -76,7 +76,7 @@ func (this *DiagnosticGroup) toString() string {
 
 const DiagnosticGroup_serialVersionUID int64 = 1
 
-var DiagnosticGroup_singletons *JTMap[*DiagnosticType, *DiagnosticGroup]
+var DiagnosticGroup_singletons *TMap[*DiagnosticType, *DiagnosticGroup]
 
 var DiagnosticGroup_clinit_done bool
 
@@ -85,6 +85,6 @@ func DiagnosticGroup_clinit() {
 		return
 	}
 	DiagnosticGroup_clinit_done = true
-	DiagnosticGroup_singletons = jnewTMap_(tce_p_DiagnosticType, jtc_p_DiagnosticGroup)
+	DiagnosticGroup_singletons = newTMap_(tce_p_DiagnosticType.t_(), tc_p_DiagnosticGroup)
 
 }
