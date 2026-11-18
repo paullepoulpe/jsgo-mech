@@ -38,7 +38,9 @@ func (this *GraphColoring[N, E]) init_GraphColoring(graph AdjacencyGraph[N]) {
 }
 
 func (this *GraphColoring[N, E]) getPartitionSuperNode(node N) N {
-	Preconditions_checkNotNull_Object_Object(any(this.colorToNodeMap), "No coloring founded. color() should be called first.")
+	if this.colorToNodeMap == nil {
+		nullFail_(objstr_("No coloring founded. color() should be called first."))
+	}
 	var color *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(node))))
 	var headNode N = this.colorToNodeMap[color.value_]
 	if jisnull_(headNode) {
@@ -50,7 +52,9 @@ func (this *GraphColoring[N, E]) getPartitionSuperNode(node N) N {
 }
 
 func (this *GraphColoring[N, E]) haveSameColor(first N, second N) bool {
-	Preconditions_checkNotNull_Object_Object(any(this.colorToNodeMap), "No coloring founded. color() should be called first.")
+	if this.colorToNodeMap == nil {
+		nullFail_(objstr_("No coloring founded. color() should be called first."))
+	}
 	var colorFirst *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(first))))
 	var colorSecond *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(second))))
 	Preconditions_checkNotNull_T(colorFirst)
