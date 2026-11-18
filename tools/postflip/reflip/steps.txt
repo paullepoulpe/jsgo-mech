@@ -621,3 +621,5 @@ b6e39a43 patch 429-b6e39a43-rt.patch
 4e0d485a patch 435-4e0d485a-manual.patch
 # 436. postflip (manual, re-flip): a string stored in a node is interned once, by the node store
 3798ad00 patch 436-3798ad00-manual.patch
+# 437. postflip step (re-flip): tfnargs re-run, parameters that pass the function on take the typed function too
+fec23265 run t tfnargs && f
