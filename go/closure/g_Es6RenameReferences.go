@@ -54,7 +54,5 @@ func (this *Es6RenameReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

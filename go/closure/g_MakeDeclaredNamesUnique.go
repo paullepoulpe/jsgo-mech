@@ -554,12 +554,18 @@ type MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo interface {
 }
 
 type MakeDeclaredNamesUnique_ContextualRenamer struct {
-	self_        any
+	self_        MakeDeclaredNamesUnique_ContextualRenamer_I
 	scopeRoot    Node
 	nameUsage    *SimpleMultiset
 	declarations MapOf[string, Optional[string]]
 	global       bool
 	hoistRenamer MakeDeclaredNamesUnique_Renamer
+}
+
+// MakeDeclaredNamesUnique_ContextualRenamer_I holds the methods the dispatchers of MakeDeclaredNamesUnique_ContextualRenamer's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type MakeDeclaredNamesUnique_ContextualRenamer_I interface {
+	createForChildScope_impl(Node, bool) MakeDeclaredNamesUnique_Renamer
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) as_MakeDeclaredNamesUnique_ContextualRenamer() *MakeDeclaredNamesUnique_ContextualRenamer {
@@ -692,9 +698,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) getHoistRenamer() MakeDec
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) createForChildScope(p0 Node, p1 bool) MakeDeclaredNamesUnique_Renamer {
-	return this.self_.(interface {
-		createForChildScope_impl(Node, bool) MakeDeclaredNamesUnique_Renamer
-	}).createForChildScope_impl(p0, p1)
+	return this.self_.createForChildScope_impl(p0, p1)
 }
 
 const MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR string = "$jscomp$"
@@ -861,7 +865,7 @@ func (this *MakeDeclaredNamesUnique) enterScope(p0 *NodeTraversal) {
 		this.enterScope_impl(p0)
 		return
 	}
-	this.self_.(interface{ enterScope_impl(*NodeTraversal) }).enterScope_impl(p0)
+	this.self_.enterScope_impl(p0)
 }
 
 // exitScope: an object that is exactly a MakeDeclaredNamesUnique calls its exitScope_impl directly (post-flip); others dispatch.
@@ -870,7 +874,7 @@ func (this *MakeDeclaredNamesUnique) exitScope(p0 *NodeTraversal) {
 		this.exitScope_impl(p0)
 		return
 	}
-	this.self_.(interface{ exitScope_impl(*NodeTraversal) }).exitScope_impl(p0)
+	this.self_.exitScope_impl(p0)
 }
 
 // visit: an object that is exactly a MakeDeclaredNamesUnique calls its visit_impl directly (post-flip); others dispatch.
@@ -879,9 +883,7 @@ func (this *MakeDeclaredNamesUnique) visit(p0 *NodeTraversal, p1 Node, p2 Node) 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // createForChildScope: an object that is exactly a MakeDeclaredNamesUnique_BoilerplateRenamer calls its createForChildScope_impl directly (post-flip); others dispatch.
@@ -889,7 +891,5 @@ func (this *MakeDeclaredNamesUnique_BoilerplateRenamer) createForChildScope(p0 N
 	if this.self_ == any(this) {
 		return this.createForChildScope_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		createForChildScope_impl(Node, bool) MakeDeclaredNamesUnique_Renamer
-	}).createForChildScope_impl(p0, p1)
+	return this.self_.createForChildScope_impl(p0, p1)
 }

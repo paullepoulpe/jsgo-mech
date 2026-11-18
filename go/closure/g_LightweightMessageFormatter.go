@@ -339,7 +339,7 @@ func (this *LightweightMessageFormatter) formatError(p0 *JSError) string {
 	if this.self_ == any(this) {
 		return this.formatError_impl(p0)
 	}
-	return this.self_.(interface{ formatError_impl(*JSError) string }).formatError_impl(p0)
+	return this.self_.formatError_impl(p0)
 }
 
 // formatWarning: an object that is exactly a LightweightMessageFormatter calls its formatWarning_impl directly (post-flip); others dispatch.
@@ -347,5 +347,5 @@ func (this *LightweightMessageFormatter) formatWarning(p0 *JSError) string {
 	if this.self_ == any(this) {
 		return this.formatWarning_impl(p0)
 	}
-	return this.self_.(interface{ formatWarning_impl(*JSError) string }).formatWarning_impl(p0)
+	return this.self_.formatWarning_impl(p0)
 }

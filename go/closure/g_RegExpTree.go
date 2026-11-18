@@ -3,7 +3,21 @@
 package closure
 
 type RegExpTree struct {
-	self_ any
+	self_ RegExpTree_I
+}
+
+// RegExpTree_I holds the methods the dispatchers of RegExpTree's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type RegExpTree_I interface {
+	appendDebugInfo_impl(*StringBuilder)
+	appendSourceCode_impl(*StringBuilder)
+	children_impl() *JTList[*RegExpTree]
+	containsAnchor_impl() bool
+	equals_impl(any) bool
+	hashCode_impl() int32
+	isCaseSensitive_impl() bool
+	numCapturingGroups_impl() int32
+	simplify_impl(string) *RegExpTree
 }
 
 func (this *RegExpTree) as_RegExpTree() *RegExpTree { return this }
@@ -143,39 +157,39 @@ func RegExpTree_escapeCharOnto(ch uint16, sb *StringBuilder) {
 }
 
 func (this *RegExpTree) isCaseSensitive() bool {
-	return this.self_.(interface{ isCaseSensitive_impl() bool }).isCaseSensitive_impl()
+	return this.self_.isCaseSensitive_impl()
 }
 
 func (this *RegExpTree) containsAnchor() bool {
-	return this.self_.(interface{ containsAnchor_impl() bool }).containsAnchor_impl()
+	return this.self_.containsAnchor_impl()
 }
 
 func (this *RegExpTree) numCapturingGroups() int32 {
-	return this.self_.(interface{ numCapturingGroups_impl() int32 }).numCapturingGroups_impl()
+	return this.self_.numCapturingGroups_impl()
 }
 
 func (this *RegExpTree) children() *JTList[*RegExpTree] {
-	return this.self_.(interface{ children_impl() *JTList[*RegExpTree] }).children_impl()
+	return this.self_.children_impl()
 }
 
 func (this *RegExpTree) simplify(p0 string) *RegExpTree {
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 func (this *RegExpTree) appendSourceCode(p0 *StringBuilder) {
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 func (this *RegExpTree) appendDebugInfo(p0 *StringBuilder) {
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 func (this *RegExpTree) equals(p0 any) bool {
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 func (this *RegExpTree) hashCode() int32 {
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 var RegExpTree_NEVER_MATCHES *RegExpTree
@@ -2843,7 +2857,7 @@ func (this *RegExpTree_RegExpTreeAtom) isCaseSensitive() bool {
 	if this.self_ == any(this) {
 		return this.isCaseSensitive_impl()
 	}
-	return this.self_.(interface{ isCaseSensitive_impl() bool }).isCaseSensitive_impl()
+	return this.self_.isCaseSensitive_impl()
 }
 
 // containsAnchor: an object that is exactly a RegExpTree_RegExpTreeAtom calls its containsAnchor_impl directly (post-flip); others dispatch.
@@ -2851,7 +2865,7 @@ func (this *RegExpTree_RegExpTreeAtom) containsAnchor() bool {
 	if this.self_ == any(this) {
 		return this.containsAnchor_impl()
 	}
-	return this.self_.(interface{ containsAnchor_impl() bool }).containsAnchor_impl()
+	return this.self_.containsAnchor_impl()
 }
 
 // numCapturingGroups: an object that is exactly a RegExpTree_RegExpTreeAtom calls its numCapturingGroups_impl directly (post-flip); others dispatch.
@@ -2859,7 +2873,7 @@ func (this *RegExpTree_RegExpTreeAtom) numCapturingGroups() int32 {
 	if this.self_ == any(this) {
 		return this.numCapturingGroups_impl()
 	}
-	return this.self_.(interface{ numCapturingGroups_impl() int32 }).numCapturingGroups_impl()
+	return this.self_.numCapturingGroups_impl()
 }
 
 // children: an object that is exactly a RegExpTree_RegExpTreeAtom calls its children_impl directly (post-flip); others dispatch.
@@ -2867,7 +2881,7 @@ func (this *RegExpTree_RegExpTreeAtom) children() *JTList[*RegExpTree] {
 	if this.self_ == any(this) {
 		return this.children_impl()
 	}
-	return this.self_.(interface{ children_impl() *JTList[*RegExpTree] }).children_impl()
+	return this.self_.children_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_Empty calls its simplify_impl directly (post-flip); others dispatch.
@@ -2875,7 +2889,7 @@ func (this *RegExpTree_Empty) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_Empty calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -2884,7 +2898,7 @@ func (this *RegExpTree_Empty) appendSourceCode(p0 *StringBuilder) {
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_Empty calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -2893,7 +2907,7 @@ func (this *RegExpTree_Empty) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_Empty calls its equals_impl directly (post-flip); others dispatch.
@@ -2901,7 +2915,7 @@ func (this *RegExpTree_Empty) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_Empty calls its hashCode_impl directly (post-flip); others dispatch.
@@ -2909,7 +2923,7 @@ func (this *RegExpTree_Empty) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_Anchor calls its simplify_impl directly (post-flip); others dispatch.
@@ -2917,7 +2931,7 @@ func (this *RegExpTree_Anchor) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // containsAnchor: an object that is exactly a RegExpTree_Anchor calls its containsAnchor_impl directly (post-flip); others dispatch.
@@ -2925,7 +2939,7 @@ func (this *RegExpTree_Anchor) containsAnchor() bool {
 	if this.self_ == any(this) {
 		return this.containsAnchor_impl()
 	}
-	return this.self_.(interface{ containsAnchor_impl() bool }).containsAnchor_impl()
+	return this.self_.containsAnchor_impl()
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_Anchor calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -2934,7 +2948,7 @@ func (this *RegExpTree_Anchor) appendSourceCode(p0 *StringBuilder) {
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_Anchor calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -2943,7 +2957,7 @@ func (this *RegExpTree_Anchor) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_Anchor calls its equals_impl directly (post-flip); others dispatch.
@@ -2951,7 +2965,7 @@ func (this *RegExpTree_Anchor) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_Anchor calls its hashCode_impl directly (post-flip); others dispatch.
@@ -2959,7 +2973,7 @@ func (this *RegExpTree_Anchor) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_WordBoundary calls its simplify_impl directly (post-flip); others dispatch.
@@ -2967,7 +2981,7 @@ func (this *RegExpTree_WordBoundary) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_WordBoundary calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -2976,7 +2990,7 @@ func (this *RegExpTree_WordBoundary) appendSourceCode(p0 *StringBuilder) {
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_WordBoundary calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -2985,7 +2999,7 @@ func (this *RegExpTree_WordBoundary) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_WordBoundary calls its equals_impl directly (post-flip); others dispatch.
@@ -2993,7 +3007,7 @@ func (this *RegExpTree_WordBoundary) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_WordBoundary calls its hashCode_impl directly (post-flip); others dispatch.
@@ -3001,7 +3015,7 @@ func (this *RegExpTree_WordBoundary) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_BackReference calls its simplify_impl directly (post-flip); others dispatch.
@@ -3009,7 +3023,7 @@ func (this *RegExpTree_BackReference) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_BackReference calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -3018,7 +3032,7 @@ func (this *RegExpTree_BackReference) appendSourceCode(p0 *StringBuilder) {
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_BackReference calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -3027,7 +3041,7 @@ func (this *RegExpTree_BackReference) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_BackReference calls its equals_impl directly (post-flip); others dispatch.
@@ -3035,7 +3049,7 @@ func (this *RegExpTree_BackReference) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_BackReference calls its hashCode_impl directly (post-flip); others dispatch.
@@ -3043,7 +3057,7 @@ func (this *RegExpTree_BackReference) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_NamedBackReference calls its simplify_impl directly (post-flip); others dispatch.
@@ -3051,7 +3065,7 @@ func (this *RegExpTree_NamedBackReference) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_NamedBackReference calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -3060,7 +3074,7 @@ func (this *RegExpTree_NamedBackReference) appendSourceCode(p0 *StringBuilder) {
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_NamedBackReference calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -3069,7 +3083,7 @@ func (this *RegExpTree_NamedBackReference) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_NamedBackReference calls its equals_impl directly (post-flip); others dispatch.
@@ -3077,7 +3091,7 @@ func (this *RegExpTree_NamedBackReference) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_NamedBackReference calls its hashCode_impl directly (post-flip); others dispatch.
@@ -3085,7 +3099,7 @@ func (this *RegExpTree_NamedBackReference) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_Text calls its simplify_impl directly (post-flip); others dispatch.
@@ -3093,7 +3107,7 @@ func (this *RegExpTree_Text) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // isCaseSensitive: an object that is exactly a RegExpTree_Text calls its isCaseSensitive_impl directly (post-flip); others dispatch.
@@ -3101,7 +3115,7 @@ func (this *RegExpTree_Text) isCaseSensitive() bool {
 	if this.self_ == any(this) {
 		return this.isCaseSensitive_impl()
 	}
-	return this.self_.(interface{ isCaseSensitive_impl() bool }).isCaseSensitive_impl()
+	return this.self_.isCaseSensitive_impl()
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_Text calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -3110,7 +3124,7 @@ func (this *RegExpTree_Text) appendSourceCode(p0 *StringBuilder) {
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_Text calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -3119,7 +3133,7 @@ func (this *RegExpTree_Text) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_Text calls its equals_impl directly (post-flip); others dispatch.
@@ -3127,7 +3141,7 @@ func (this *RegExpTree_Text) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_Text calls its hashCode_impl directly (post-flip); others dispatch.
@@ -3135,7 +3149,7 @@ func (this *RegExpTree_Text) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_Repetition calls its simplify_impl directly (post-flip); others dispatch.
@@ -3143,7 +3157,7 @@ func (this *RegExpTree_Repetition) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // isCaseSensitive: an object that is exactly a RegExpTree_Repetition calls its isCaseSensitive_impl directly (post-flip); others dispatch.
@@ -3151,7 +3165,7 @@ func (this *RegExpTree_Repetition) isCaseSensitive() bool {
 	if this.self_ == any(this) {
 		return this.isCaseSensitive_impl()
 	}
-	return this.self_.(interface{ isCaseSensitive_impl() bool }).isCaseSensitive_impl()
+	return this.self_.isCaseSensitive_impl()
 }
 
 // containsAnchor: an object that is exactly a RegExpTree_Repetition calls its containsAnchor_impl directly (post-flip); others dispatch.
@@ -3159,7 +3173,7 @@ func (this *RegExpTree_Repetition) containsAnchor() bool {
 	if this.self_ == any(this) {
 		return this.containsAnchor_impl()
 	}
-	return this.self_.(interface{ containsAnchor_impl() bool }).containsAnchor_impl()
+	return this.self_.containsAnchor_impl()
 }
 
 // numCapturingGroups: an object that is exactly a RegExpTree_Repetition calls its numCapturingGroups_impl directly (post-flip); others dispatch.
@@ -3167,7 +3181,7 @@ func (this *RegExpTree_Repetition) numCapturingGroups() int32 {
 	if this.self_ == any(this) {
 		return this.numCapturingGroups_impl()
 	}
-	return this.self_.(interface{ numCapturingGroups_impl() int32 }).numCapturingGroups_impl()
+	return this.self_.numCapturingGroups_impl()
 }
 
 // children: an object that is exactly a RegExpTree_Repetition calls its children_impl directly (post-flip); others dispatch.
@@ -3175,7 +3189,7 @@ func (this *RegExpTree_Repetition) children() *JTList[*RegExpTree] {
 	if this.self_ == any(this) {
 		return this.children_impl()
 	}
-	return this.self_.(interface{ children_impl() *JTList[*RegExpTree] }).children_impl()
+	return this.self_.children_impl()
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_Repetition calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -3184,7 +3198,7 @@ func (this *RegExpTree_Repetition) appendSourceCode(p0 *StringBuilder) {
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_Repetition calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -3193,7 +3207,7 @@ func (this *RegExpTree_Repetition) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_Repetition calls its equals_impl directly (post-flip); others dispatch.
@@ -3201,7 +3215,7 @@ func (this *RegExpTree_Repetition) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_Repetition calls its hashCode_impl directly (post-flip); others dispatch.
@@ -3209,7 +3223,7 @@ func (this *RegExpTree_Repetition) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_Alternation calls its simplify_impl directly (post-flip); others dispatch.
@@ -3217,7 +3231,7 @@ func (this *RegExpTree_Alternation) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // isCaseSensitive: an object that is exactly a RegExpTree_Alternation calls its isCaseSensitive_impl directly (post-flip); others dispatch.
@@ -3225,7 +3239,7 @@ func (this *RegExpTree_Alternation) isCaseSensitive() bool {
 	if this.self_ == any(this) {
 		return this.isCaseSensitive_impl()
 	}
-	return this.self_.(interface{ isCaseSensitive_impl() bool }).isCaseSensitive_impl()
+	return this.self_.isCaseSensitive_impl()
 }
 
 // containsAnchor: an object that is exactly a RegExpTree_Alternation calls its containsAnchor_impl directly (post-flip); others dispatch.
@@ -3233,7 +3247,7 @@ func (this *RegExpTree_Alternation) containsAnchor() bool {
 	if this.self_ == any(this) {
 		return this.containsAnchor_impl()
 	}
-	return this.self_.(interface{ containsAnchor_impl() bool }).containsAnchor_impl()
+	return this.self_.containsAnchor_impl()
 }
 
 // numCapturingGroups: an object that is exactly a RegExpTree_Alternation calls its numCapturingGroups_impl directly (post-flip); others dispatch.
@@ -3241,7 +3255,7 @@ func (this *RegExpTree_Alternation) numCapturingGroups() int32 {
 	if this.self_ == any(this) {
 		return this.numCapturingGroups_impl()
 	}
-	return this.self_.(interface{ numCapturingGroups_impl() int32 }).numCapturingGroups_impl()
+	return this.self_.numCapturingGroups_impl()
 }
 
 // children: an object that is exactly a RegExpTree_Alternation calls its children_impl directly (post-flip); others dispatch.
@@ -3249,7 +3263,7 @@ func (this *RegExpTree_Alternation) children() *JTList[*RegExpTree] {
 	if this.self_ == any(this) {
 		return this.children_impl()
 	}
-	return this.self_.(interface{ children_impl() *JTList[*RegExpTree] }).children_impl()
+	return this.self_.children_impl()
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_Alternation calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -3258,7 +3272,7 @@ func (this *RegExpTree_Alternation) appendSourceCode(p0 *StringBuilder) {
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_Alternation calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -3267,7 +3281,7 @@ func (this *RegExpTree_Alternation) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_Alternation calls its equals_impl directly (post-flip); others dispatch.
@@ -3275,7 +3289,7 @@ func (this *RegExpTree_Alternation) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_Alternation calls its hashCode_impl directly (post-flip); others dispatch.
@@ -3283,7 +3297,7 @@ func (this *RegExpTree_Alternation) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_LookaheadAssertion calls its simplify_impl directly (post-flip); others dispatch.
@@ -3291,7 +3305,7 @@ func (this *RegExpTree_LookaheadAssertion) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // isCaseSensitive: an object that is exactly a RegExpTree_LookaheadAssertion calls its isCaseSensitive_impl directly (post-flip); others dispatch.
@@ -3299,7 +3313,7 @@ func (this *RegExpTree_LookaheadAssertion) isCaseSensitive() bool {
 	if this.self_ == any(this) {
 		return this.isCaseSensitive_impl()
 	}
-	return this.self_.(interface{ isCaseSensitive_impl() bool }).isCaseSensitive_impl()
+	return this.self_.isCaseSensitive_impl()
 }
 
 // containsAnchor: an object that is exactly a RegExpTree_LookaheadAssertion calls its containsAnchor_impl directly (post-flip); others dispatch.
@@ -3307,7 +3321,7 @@ func (this *RegExpTree_LookaheadAssertion) containsAnchor() bool {
 	if this.self_ == any(this) {
 		return this.containsAnchor_impl()
 	}
-	return this.self_.(interface{ containsAnchor_impl() bool }).containsAnchor_impl()
+	return this.self_.containsAnchor_impl()
 }
 
 // numCapturingGroups: an object that is exactly a RegExpTree_LookaheadAssertion calls its numCapturingGroups_impl directly (post-flip); others dispatch.
@@ -3315,7 +3329,7 @@ func (this *RegExpTree_LookaheadAssertion) numCapturingGroups() int32 {
 	if this.self_ == any(this) {
 		return this.numCapturingGroups_impl()
 	}
-	return this.self_.(interface{ numCapturingGroups_impl() int32 }).numCapturingGroups_impl()
+	return this.self_.numCapturingGroups_impl()
 }
 
 // children: an object that is exactly a RegExpTree_LookaheadAssertion calls its children_impl directly (post-flip); others dispatch.
@@ -3323,7 +3337,7 @@ func (this *RegExpTree_LookaheadAssertion) children() *JTList[*RegExpTree] {
 	if this.self_ == any(this) {
 		return this.children_impl()
 	}
-	return this.self_.(interface{ children_impl() *JTList[*RegExpTree] }).children_impl()
+	return this.self_.children_impl()
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_LookaheadAssertion calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -3332,7 +3346,7 @@ func (this *RegExpTree_LookaheadAssertion) appendSourceCode(p0 *StringBuilder) {
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_LookaheadAssertion calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -3341,7 +3355,7 @@ func (this *RegExpTree_LookaheadAssertion) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_LookaheadAssertion calls its equals_impl directly (post-flip); others dispatch.
@@ -3349,7 +3363,7 @@ func (this *RegExpTree_LookaheadAssertion) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_LookaheadAssertion calls its hashCode_impl directly (post-flip); others dispatch.
@@ -3357,7 +3371,7 @@ func (this *RegExpTree_LookaheadAssertion) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_LookbehindAssertion calls its simplify_impl directly (post-flip); others dispatch.
@@ -3365,7 +3379,7 @@ func (this *RegExpTree_LookbehindAssertion) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // isCaseSensitive: an object that is exactly a RegExpTree_LookbehindAssertion calls its isCaseSensitive_impl directly (post-flip); others dispatch.
@@ -3373,7 +3387,7 @@ func (this *RegExpTree_LookbehindAssertion) isCaseSensitive() bool {
 	if this.self_ == any(this) {
 		return this.isCaseSensitive_impl()
 	}
-	return this.self_.(interface{ isCaseSensitive_impl() bool }).isCaseSensitive_impl()
+	return this.self_.isCaseSensitive_impl()
 }
 
 // containsAnchor: an object that is exactly a RegExpTree_LookbehindAssertion calls its containsAnchor_impl directly (post-flip); others dispatch.
@@ -3381,7 +3395,7 @@ func (this *RegExpTree_LookbehindAssertion) containsAnchor() bool {
 	if this.self_ == any(this) {
 		return this.containsAnchor_impl()
 	}
-	return this.self_.(interface{ containsAnchor_impl() bool }).containsAnchor_impl()
+	return this.self_.containsAnchor_impl()
 }
 
 // numCapturingGroups: an object that is exactly a RegExpTree_LookbehindAssertion calls its numCapturingGroups_impl directly (post-flip); others dispatch.
@@ -3389,7 +3403,7 @@ func (this *RegExpTree_LookbehindAssertion) numCapturingGroups() int32 {
 	if this.self_ == any(this) {
 		return this.numCapturingGroups_impl()
 	}
-	return this.self_.(interface{ numCapturingGroups_impl() int32 }).numCapturingGroups_impl()
+	return this.self_.numCapturingGroups_impl()
 }
 
 // children: an object that is exactly a RegExpTree_LookbehindAssertion calls its children_impl directly (post-flip); others dispatch.
@@ -3397,7 +3411,7 @@ func (this *RegExpTree_LookbehindAssertion) children() *JTList[*RegExpTree] {
 	if this.self_ == any(this) {
 		return this.children_impl()
 	}
-	return this.self_.(interface{ children_impl() *JTList[*RegExpTree] }).children_impl()
+	return this.self_.children_impl()
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_LookbehindAssertion calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -3406,7 +3420,7 @@ func (this *RegExpTree_LookbehindAssertion) appendSourceCode(p0 *StringBuilder) 
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_LookbehindAssertion calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -3415,7 +3429,7 @@ func (this *RegExpTree_LookbehindAssertion) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_LookbehindAssertion calls its equals_impl directly (post-flip); others dispatch.
@@ -3423,7 +3437,7 @@ func (this *RegExpTree_LookbehindAssertion) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_LookbehindAssertion calls its hashCode_impl directly (post-flip); others dispatch.
@@ -3431,7 +3445,7 @@ func (this *RegExpTree_LookbehindAssertion) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_CapturingGroup calls its simplify_impl directly (post-flip); others dispatch.
@@ -3439,7 +3453,7 @@ func (this *RegExpTree_CapturingGroup) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // isCaseSensitive: an object that is exactly a RegExpTree_CapturingGroup calls its isCaseSensitive_impl directly (post-flip); others dispatch.
@@ -3447,7 +3461,7 @@ func (this *RegExpTree_CapturingGroup) isCaseSensitive() bool {
 	if this.self_ == any(this) {
 		return this.isCaseSensitive_impl()
 	}
-	return this.self_.(interface{ isCaseSensitive_impl() bool }).isCaseSensitive_impl()
+	return this.self_.isCaseSensitive_impl()
 }
 
 // containsAnchor: an object that is exactly a RegExpTree_CapturingGroup calls its containsAnchor_impl directly (post-flip); others dispatch.
@@ -3455,7 +3469,7 @@ func (this *RegExpTree_CapturingGroup) containsAnchor() bool {
 	if this.self_ == any(this) {
 		return this.containsAnchor_impl()
 	}
-	return this.self_.(interface{ containsAnchor_impl() bool }).containsAnchor_impl()
+	return this.self_.containsAnchor_impl()
 }
 
 // numCapturingGroups: an object that is exactly a RegExpTree_CapturingGroup calls its numCapturingGroups_impl directly (post-flip); others dispatch.
@@ -3463,7 +3477,7 @@ func (this *RegExpTree_CapturingGroup) numCapturingGroups() int32 {
 	if this.self_ == any(this) {
 		return this.numCapturingGroups_impl()
 	}
-	return this.self_.(interface{ numCapturingGroups_impl() int32 }).numCapturingGroups_impl()
+	return this.self_.numCapturingGroups_impl()
 }
 
 // children: an object that is exactly a RegExpTree_CapturingGroup calls its children_impl directly (post-flip); others dispatch.
@@ -3471,7 +3485,7 @@ func (this *RegExpTree_CapturingGroup) children() *JTList[*RegExpTree] {
 	if this.self_ == any(this) {
 		return this.children_impl()
 	}
-	return this.self_.(interface{ children_impl() *JTList[*RegExpTree] }).children_impl()
+	return this.self_.children_impl()
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_CapturingGroup calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -3480,7 +3494,7 @@ func (this *RegExpTree_CapturingGroup) appendSourceCode(p0 *StringBuilder) {
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_CapturingGroup calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -3489,7 +3503,7 @@ func (this *RegExpTree_CapturingGroup) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_CapturingGroup calls its equals_impl directly (post-flip); others dispatch.
@@ -3497,7 +3511,7 @@ func (this *RegExpTree_CapturingGroup) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_CapturingGroup calls its hashCode_impl directly (post-flip); others dispatch.
@@ -3505,7 +3519,7 @@ func (this *RegExpTree_CapturingGroup) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_NamedCaptureGroup calls its simplify_impl directly (post-flip); others dispatch.
@@ -3513,7 +3527,7 @@ func (this *RegExpTree_NamedCaptureGroup) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // isCaseSensitive: an object that is exactly a RegExpTree_NamedCaptureGroup calls its isCaseSensitive_impl directly (post-flip); others dispatch.
@@ -3521,7 +3535,7 @@ func (this *RegExpTree_NamedCaptureGroup) isCaseSensitive() bool {
 	if this.self_ == any(this) {
 		return this.isCaseSensitive_impl()
 	}
-	return this.self_.(interface{ isCaseSensitive_impl() bool }).isCaseSensitive_impl()
+	return this.self_.isCaseSensitive_impl()
 }
 
 // containsAnchor: an object that is exactly a RegExpTree_NamedCaptureGroup calls its containsAnchor_impl directly (post-flip); others dispatch.
@@ -3529,7 +3543,7 @@ func (this *RegExpTree_NamedCaptureGroup) containsAnchor() bool {
 	if this.self_ == any(this) {
 		return this.containsAnchor_impl()
 	}
-	return this.self_.(interface{ containsAnchor_impl() bool }).containsAnchor_impl()
+	return this.self_.containsAnchor_impl()
 }
 
 // numCapturingGroups: an object that is exactly a RegExpTree_NamedCaptureGroup calls its numCapturingGroups_impl directly (post-flip); others dispatch.
@@ -3537,7 +3551,7 @@ func (this *RegExpTree_NamedCaptureGroup) numCapturingGroups() int32 {
 	if this.self_ == any(this) {
 		return this.numCapturingGroups_impl()
 	}
-	return this.self_.(interface{ numCapturingGroups_impl() int32 }).numCapturingGroups_impl()
+	return this.self_.numCapturingGroups_impl()
 }
 
 // children: an object that is exactly a RegExpTree_NamedCaptureGroup calls its children_impl directly (post-flip); others dispatch.
@@ -3545,7 +3559,7 @@ func (this *RegExpTree_NamedCaptureGroup) children() *JTList[*RegExpTree] {
 	if this.self_ == any(this) {
 		return this.children_impl()
 	}
-	return this.self_.(interface{ children_impl() *JTList[*RegExpTree] }).children_impl()
+	return this.self_.children_impl()
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_NamedCaptureGroup calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -3554,7 +3568,7 @@ func (this *RegExpTree_NamedCaptureGroup) appendSourceCode(p0 *StringBuilder) {
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_NamedCaptureGroup calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -3563,7 +3577,7 @@ func (this *RegExpTree_NamedCaptureGroup) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_NamedCaptureGroup calls its equals_impl directly (post-flip); others dispatch.
@@ -3571,7 +3585,7 @@ func (this *RegExpTree_NamedCaptureGroup) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_NamedCaptureGroup calls its hashCode_impl directly (post-flip); others dispatch.
@@ -3579,7 +3593,7 @@ func (this *RegExpTree_NamedCaptureGroup) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_UnicodePropertyEscape calls its simplify_impl directly (post-flip); others dispatch.
@@ -3587,7 +3601,7 @@ func (this *RegExpTree_UnicodePropertyEscape) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_UnicodePropertyEscape calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -3596,7 +3610,7 @@ func (this *RegExpTree_UnicodePropertyEscape) appendSourceCode(p0 *StringBuilder
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_UnicodePropertyEscape calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -3605,7 +3619,7 @@ func (this *RegExpTree_UnicodePropertyEscape) appendDebugInfo(p0 *StringBuilder)
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_UnicodePropertyEscape calls its equals_impl directly (post-flip); others dispatch.
@@ -3613,7 +3627,7 @@ func (this *RegExpTree_UnicodePropertyEscape) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_UnicodePropertyEscape calls its hashCode_impl directly (post-flip); others dispatch.
@@ -3621,7 +3635,7 @@ func (this *RegExpTree_UnicodePropertyEscape) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_Charset calls its simplify_impl directly (post-flip); others dispatch.
@@ -3629,7 +3643,7 @@ func (this *RegExpTree_Charset) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // isCaseSensitive: an object that is exactly a RegExpTree_Charset calls its isCaseSensitive_impl directly (post-flip); others dispatch.
@@ -3637,7 +3651,7 @@ func (this *RegExpTree_Charset) isCaseSensitive() bool {
 	if this.self_ == any(this) {
 		return this.isCaseSensitive_impl()
 	}
-	return this.self_.(interface{ isCaseSensitive_impl() bool }).isCaseSensitive_impl()
+	return this.self_.isCaseSensitive_impl()
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_Charset calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -3646,7 +3660,7 @@ func (this *RegExpTree_Charset) appendSourceCode(p0 *StringBuilder) {
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_Charset calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -3655,7 +3669,7 @@ func (this *RegExpTree_Charset) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_Charset calls its equals_impl directly (post-flip); others dispatch.
@@ -3663,7 +3677,7 @@ func (this *RegExpTree_Charset) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_Charset calls its hashCode_impl directly (post-flip); others dispatch.
@@ -3671,7 +3685,7 @@ func (this *RegExpTree_Charset) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }
 
 // simplify: an object that is exactly a RegExpTree_Concatenation calls its simplify_impl directly (post-flip); others dispatch.
@@ -3679,7 +3693,7 @@ func (this *RegExpTree_Concatenation) simplify(p0 string) *RegExpTree {
 	if this.self_ == any(this) {
 		return this.simplify_impl(p0)
 	}
-	return this.self_.(interface{ simplify_impl(string) *RegExpTree }).simplify_impl(p0)
+	return this.self_.simplify_impl(p0)
 }
 
 // isCaseSensitive: an object that is exactly a RegExpTree_Concatenation calls its isCaseSensitive_impl directly (post-flip); others dispatch.
@@ -3687,7 +3701,7 @@ func (this *RegExpTree_Concatenation) isCaseSensitive() bool {
 	if this.self_ == any(this) {
 		return this.isCaseSensitive_impl()
 	}
-	return this.self_.(interface{ isCaseSensitive_impl() bool }).isCaseSensitive_impl()
+	return this.self_.isCaseSensitive_impl()
 }
 
 // containsAnchor: an object that is exactly a RegExpTree_Concatenation calls its containsAnchor_impl directly (post-flip); others dispatch.
@@ -3695,7 +3709,7 @@ func (this *RegExpTree_Concatenation) containsAnchor() bool {
 	if this.self_ == any(this) {
 		return this.containsAnchor_impl()
 	}
-	return this.self_.(interface{ containsAnchor_impl() bool }).containsAnchor_impl()
+	return this.self_.containsAnchor_impl()
 }
 
 // numCapturingGroups: an object that is exactly a RegExpTree_Concatenation calls its numCapturingGroups_impl directly (post-flip); others dispatch.
@@ -3703,7 +3717,7 @@ func (this *RegExpTree_Concatenation) numCapturingGroups() int32 {
 	if this.self_ == any(this) {
 		return this.numCapturingGroups_impl()
 	}
-	return this.self_.(interface{ numCapturingGroups_impl() int32 }).numCapturingGroups_impl()
+	return this.self_.numCapturingGroups_impl()
 }
 
 // children: an object that is exactly a RegExpTree_Concatenation calls its children_impl directly (post-flip); others dispatch.
@@ -3711,7 +3725,7 @@ func (this *RegExpTree_Concatenation) children() *JTList[*RegExpTree] {
 	if this.self_ == any(this) {
 		return this.children_impl()
 	}
-	return this.self_.(interface{ children_impl() *JTList[*RegExpTree] }).children_impl()
+	return this.self_.children_impl()
 }
 
 // appendSourceCode: an object that is exactly a RegExpTree_Concatenation calls its appendSourceCode_impl directly (post-flip); others dispatch.
@@ -3720,7 +3734,7 @@ func (this *RegExpTree_Concatenation) appendSourceCode(p0 *StringBuilder) {
 		this.appendSourceCode_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendSourceCode_impl(*StringBuilder) }).appendSourceCode_impl(p0)
+	this.self_.appendSourceCode_impl(p0)
 }
 
 // appendDebugInfo: an object that is exactly a RegExpTree_Concatenation calls its appendDebugInfo_impl directly (post-flip); others dispatch.
@@ -3729,7 +3743,7 @@ func (this *RegExpTree_Concatenation) appendDebugInfo(p0 *StringBuilder) {
 		this.appendDebugInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ appendDebugInfo_impl(*StringBuilder) }).appendDebugInfo_impl(p0)
+	this.self_.appendDebugInfo_impl(p0)
 }
 
 // equals: an object that is exactly a RegExpTree_Concatenation calls its equals_impl directly (post-flip); others dispatch.
@@ -3737,7 +3751,7 @@ func (this *RegExpTree_Concatenation) equals(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.equals_impl(p0)
 	}
-	return this.self_.(interface{ equals_impl(any) bool }).equals_impl(p0)
+	return this.self_.equals_impl(p0)
 }
 
 // hashCode: an object that is exactly a RegExpTree_Concatenation calls its hashCode_impl directly (post-flip); others dispatch.
@@ -3745,5 +3759,5 @@ func (this *RegExpTree_Concatenation) hashCode() int32 {
 	if this.self_ == any(this) {
 		return this.hashCode_impl()
 	}
-	return this.self_.(interface{ hashCode_impl() int32 }).hashCode_impl()
+	return this.self_.hashCode_impl()
 }

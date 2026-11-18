@@ -2131,7 +2131,7 @@ func (this *SymbolTable_Symbol) getDeclaration() StaticRef {
 	if this.self_ == any(this) {
 		return this.getDeclaration_impl()
 	}
-	return this.self_.(interface{ getDeclaration_impl() StaticRef }).getDeclaration_impl()
+	return this.self_.getDeclaration_impl()
 }
 
 // getJSDocInfo: an object that is exactly a SymbolTable_Symbol calls its getJSDocInfo_impl directly (post-flip); others dispatch.
@@ -2139,7 +2139,7 @@ func (this *SymbolTable_Symbol) getJSDocInfo() *JSDocInfo {
 	if this.self_ == any(this) {
 		return this.getJSDocInfo_impl()
 	}
-	return this.self_.(interface{ getJSDocInfo_impl() *JSDocInfo }).getJSDocInfo_impl()
+	return this.self_.getJSDocInfo_impl()
 }
 
 // visit: an object that is exactly a SymbolTable_PropertyRefCollector calls its visit_impl directly (post-flip); others dispatch.
@@ -2148,9 +2148,7 @@ func (this *SymbolTable_PropertyRefCollector) visit(p0 *NodeTraversal, p1 Node, 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // enterScope: an object that is exactly a SymbolTable_ThisRefCollector calls its enterScope_impl directly (post-flip); others dispatch.
@@ -2159,7 +2157,7 @@ func (this *SymbolTable_ThisRefCollector) enterScope(p0 *NodeTraversal) {
 		this.enterScope_impl(p0)
 		return
 	}
-	this.self_.(interface{ enterScope_impl(*NodeTraversal) }).enterScope_impl(p0)
+	this.self_.enterScope_impl(p0)
 }
 
 // exitScope: an object that is exactly a SymbolTable_ThisRefCollector calls its exitScope_impl directly (post-flip); others dispatch.
@@ -2168,7 +2166,7 @@ func (this *SymbolTable_ThisRefCollector) exitScope(p0 *NodeTraversal) {
 		this.exitScope_impl(p0)
 		return
 	}
-	this.self_.(interface{ exitScope_impl(*NodeTraversal) }).exitScope_impl(p0)
+	this.self_.exitScope_impl(p0)
 }
 
 // visit: an object that is exactly a SymbolTable_ThisRefCollector calls its visit_impl directly (post-flip); others dispatch.
@@ -2177,9 +2175,7 @@ func (this *SymbolTable_ThisRefCollector) visit(p0 *NodeTraversal, p1 Node, p2 N
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a SymbolTable_JSDocInfoCollector calls its visit_impl directly (post-flip); others dispatch.
@@ -2188,9 +2184,7 @@ func (this *SymbolTable_JSDocInfoCollector) visit(p0 *NodeTraversal, p1 Node, p2
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a SymbolTable_VisibilityCollector calls its visit_impl directly (post-flip); others dispatch.
@@ -2199,9 +2193,7 @@ func (this *SymbolTable_VisibilityCollector) visit(p0 *NodeTraversal, p1 Node, p
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // enterScope: an object that is exactly a SymbolTable_1 calls its enterScope_impl directly (post-flip); others dispatch.
@@ -2210,7 +2202,7 @@ func (this *SymbolTable_1) enterScope(p0 *NodeTraversal) {
 		this.enterScope_impl(p0)
 		return
 	}
-	this.self_.(interface{ enterScope_impl(*NodeTraversal) }).enterScope_impl(p0)
+	this.self_.enterScope_impl(p0)
 }
 
 // visit: an object that is exactly a SymbolTable_1 calls its visit_impl directly (post-flip); others dispatch.
@@ -2219,9 +2211,7 @@ func (this *SymbolTable_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a SymbolTable_2 calls its visit_impl directly (post-flip); others dispatch.
@@ -2230,9 +2220,7 @@ func (this *SymbolTable_2) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a SymbolTable_3 calls its visit_impl directly (post-flip); others dispatch.
@@ -2241,9 +2229,7 @@ func (this *SymbolTable_3) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a SymbolTable_4 calls its visit_impl directly (post-flip); others dispatch.
@@ -2252,7 +2238,5 @@ func (this *SymbolTable_4) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

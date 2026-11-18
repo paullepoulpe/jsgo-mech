@@ -1806,9 +1806,7 @@ func (this *CommandLineRunner) checkChunkName(p0 string) *Outcome_base[any] {
 	if this.self_ == any(this) {
 		return this.checkChunkName_impl(p0)
 	}
-	return this.self_.(interface {
-		checkChunkName_impl(string) *Outcome_base[any]
-	}).checkChunkName_impl(p0)
+	return this.self_.checkChunkName_impl(p0)
 }
 
 // createOptions: an object that is exactly a CommandLineRunner calls its createOptions_impl directly (post-flip); others dispatch.
@@ -1848,7 +1846,5 @@ func (this *CommandLineRunner) createExterns(p0 *CompilerOptions) *Outcome_base[
 	if this.self_ == any(this) {
 		return this.createExterns_impl(p0)
 	}
-	return this.self_.(interface {
-		createExterns_impl(*CompilerOptions) *Outcome_base[List]
-	}).createExterns_impl(p0)
+	return this.self_.createExterns_impl(p0)
 }
