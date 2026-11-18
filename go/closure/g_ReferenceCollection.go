@@ -7,7 +7,9 @@ type ReferenceCollection struct {
 }
 
 func (this *ReferenceCollection) finit_ReferenceCollection() {
-	this.references = newTList_(tc_p_Reference)
+	// Room for four references from the start: most variables have a few, and the list grew
+	// 1, 2, 4 before (post-flip manual step; the capacity is not observable).
+	this.references = newTListN_(tc_p_Reference, 4)
 }
 
 func (this *ReferenceCollection) init_ReferenceCollection() {
