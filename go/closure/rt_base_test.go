@@ -142,7 +142,7 @@ func TestBaseMatcher(t *testing.T) {
 	}
 }
 
-// TestStringUnits checks stringUnits_ against String_length and String_charAt, on short and long
+// TestStringUnits checks stringUnits_ and stringUnitsFrom_ against String_length and String_charAt, on short and long
 // strings with surrogate pairs, lone surrogates and bytes that are not UTF-8, and asciiCharAt_
 // against String_charAt.
 func TestStringUnits(t *testing.T) {
@@ -175,6 +175,22 @@ func TestStringUnits(t *testing.T) {
 		for i := range stringUnits_(s) { // stopping early
 			if i == 2 {
 				break
+			}
+		}
+		// stringUnitsFrom_ from every start, a low surrogate half and the end included
+		for from := int32(0); from <= next+1; from++ {
+			k := from
+			for i, c := range stringUnitsFrom_(s, from) {
+				if i != k || c != String_charAt(s, i) {
+					t.Fatalf("%q from %d: unit %d is %#x, charAt %#x", s, from, i, c, String_charAt(s, i))
+				}
+				k++
+			}
+			if k != max(from, next) {
+				t.Fatalf("%q from %d: stopped at %d of %d units", s, from, k, next)
+			}
+			if from == 20 && next > 40 {
+				from = next - 3 // a long string: its end
 			}
 		}
 	}
