@@ -3,14 +3,14 @@
 package closure
 
 type InvalidatingTypes struct {
-	typeToLocation *SimpleSetMultimap
+	typeToLocation *SimpleSetMultimap[any, Node]
 }
 
-func (this *InvalidatingTypes) init_InvalidatingTypes(typeToLocation *SimpleSetMultimap) {
+func (this *InvalidatingTypes) init_InvalidatingTypes(typeToLocation *SimpleSetMultimap[any, Node]) {
 	this.typeToLocation = typeToLocation
 }
 
-func new_InvalidatingTypes(typeToLocation *SimpleSetMultimap) *InvalidatingTypes {
+func new_InvalidatingTypes(typeToLocation *SimpleSetMultimap[any, Node]) *InvalidatingTypes {
 	this := &InvalidatingTypes{}
 	this.init_InvalidatingTypes(typeToLocation)
 	return this
@@ -43,7 +43,7 @@ func (this *InvalidatingTypes) isInvalidating(type_ *JSType) bool {
 	return (this.typeToLocation.containsKey(objType.self()) || InvalidatingTypes_isAmbiguousOrStructuralType(objType))
 }
 
-func (this *InvalidatingTypes) getMismatchLocations() *SimpleSetMultimap {
+func (this *InvalidatingTypes) getMismatchLocations() *SimpleSetMultimap[any, Node] {
 	return this.typeToLocation
 }
 
@@ -82,11 +82,11 @@ func InvalidatingTypes_clinit() {
 
 type InvalidatingTypes_Builder struct {
 	registry       *JSTypeRegistry
-	typeToLocation *SimpleSetMultimap
+	typeToLocation *SimpleSetMultimap[any, Node]
 }
 
 func (this *InvalidatingTypes_Builder) finit_InvalidatingTypes_Builder() {
-	this.typeToLocation = SimpleSetMultimap_create()
+	this.typeToLocation = SimpleSetMultimap_create[any, Node]()
 }
 
 func (this *InvalidatingTypes_Builder) init_InvalidatingTypes_Builder(registry *JSTypeRegistry) {
@@ -104,7 +104,7 @@ func (this *InvalidatingTypes_Builder) build() *InvalidatingTypes {
 	it_1 := InvalidatingTypes_ALWAYS_INVALIDATING_TYPES.each()
 	for it_1.next() {
 		var t JSTypeNative = it_1.v
-		this.typeToLocation.put(this.registry.getNativeType(t).self(), InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION.box_())
+		this.typeToLocation.put(this.registry.getNativeType(t).self(), InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION)
 	}
 	return new_InvalidatingTypes(this.typeToLocation.immutableCopy())
 }
@@ -153,5 +153,5 @@ func (this *InvalidatingTypes_Builder) recordTypeWithReason(type_ *ObjectType, l
 	if InvalidatingTypes_isAmbiguousOrStructuralType(type_) {
 		return
 	}
-	this.typeToLocation.put(type_.self(), location.box_())
+	this.typeToLocation.put(type_.self(), location)
 }

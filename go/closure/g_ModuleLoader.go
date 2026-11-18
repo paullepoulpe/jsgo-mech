@@ -91,7 +91,7 @@ func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *JTSe
 		}())
 	}
 	List_sort(sortedModulePaths.asList(), ModuleLoader_BEST_MATCH_PATH_ORDERING)
-	var dupeModulePaths *SimpleMultiset = SimpleMultiset_copyOf(Iterable(sortedModulePaths.asList()))
+	var dupeModulePaths *SimpleMultiset[any] = SimpleMultiset_copyOf[any](Iterable(sortedModulePaths.asList()))
 	if dupeModulePaths.size() != dupeModulePaths.elementSet().size() {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Duplicate module paths after resolving: %s", []any{dupeModulePaths})).self())
 	}

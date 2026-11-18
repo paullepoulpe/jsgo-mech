@@ -4,12 +4,12 @@ package closure
 
 type CheckNoMutatedEs6Exports struct {
 	compiler_          *AbstractCompiler
-	mutatedNames       *SimpleSetMultimap
+	mutatedNames       *SimpleSetMultimap[any, Node]
 	exportedLocalNames *JTSet[string]
 }
 
 func (this *CheckNoMutatedEs6Exports) finit_CheckNoMutatedEs6Exports() {
-	this.mutatedNames = SimpleSetMultimap_create()
+	this.mutatedNames = SimpleSetMultimap_create[any, Node]()
 	this.exportedLocalNames = jnewTSet_(jtc_string)
 }
 
@@ -101,7 +101,7 @@ func (this *CheckNoMutatedEs6Exports) visitName(t *NodeTraversal, name Node) {
 	if NodeUtil_isLValue(name) && !cast_[*Scope](scope.getClosestHoistScope().self()).isModuleScope() {
 		var var_ *Var = cast_[*Var](scope.getVar(name.getString()).self())
 		if (var_ != nil) && cast_[*Scope](var_.getScope()).isModuleScope() {
-			this.mutatedNames.put_s(name.getString(), name.box_())
+			this.mutatedNames.put_s(name.getString(), name)
 		}
 	}
 }

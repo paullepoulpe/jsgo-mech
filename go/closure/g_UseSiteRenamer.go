@@ -4,11 +4,11 @@ package closure
 
 type UseSiteRenamer struct {
 	mutationCb    ConsumerOf[Node]
-	renamingIndex *SimpleSetMultimap
+	renamingIndex *SimpleSetMultimap[string, string]
 }
 
 func (this *UseSiteRenamer) finit_UseSiteRenamer() {
-	this.renamingIndex = SimpleSetMultimap_create()
+	this.renamingIndex = SimpleSetMultimap_create[string, string]()
 }
 
 func (this *UseSiteRenamer) init_UseSiteRenamer(mutationCb ConsumerOf[Node]) {
@@ -24,15 +24,15 @@ func new_UseSiteRenamer(mutationCb ConsumerOf[Node]) *UseSiteRenamer {
 
 func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) UseSiteRenamer_RenameUsesResult {
 	if prop.isInvalidated() {
-		this.renamingIndex.put_s(prop.getName(), strobj_(UseSiteRenamer_INVALIDATED_NAME_VALUE))
+		this.renamingIndex.put_s(prop.getName(), UseSiteRenamer_INVALIDATED_NAME_VALUE)
 		return UseSiteRenamer_RenameUsesResult_INVALIDATED
 	}
 	var clusterNames *JTMap[*ColorGraphNode, string] = UseSiteRenamer_createAllClusterNames(prop)
 	if clusterNames.size() <= 1 {
-		this.renamingIndex.put_s(prop.getName(), strobj_(prop.getName()))
+		this.renamingIndex.put_s(prop.getName(), prop.getName())
 		return UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER
 	}
-	this.renamingIndex.putAll_2(strobj_(prop.getName()), Iterable(clusterNames.asImm().values()))
+	this.renamingIndex.putAll_2(prop.getName(), Iterable(clusterNames.asImm().values()))
 	it_1 := prop.getUseSites().eachEntry()
 	for it_1.next() {
 		var usage *TEntry[Node, *ColorGraphNode] = it_1.entry()
@@ -47,7 +47,7 @@ func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) UseSiteRenamer_
 	return UseSiteRenamer_RenameUsesResult_DISAMBIGUATED
 }
 
-func (this *UseSiteRenamer) getRenamingIndex() *SimpleSetMultimap {
+func (this *UseSiteRenamer) getRenamingIndex() *SimpleSetMultimap[string, string] {
 	return this.renamingIndex.immutableCopy()
 }
 

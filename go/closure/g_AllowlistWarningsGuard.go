@@ -213,11 +213,11 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 	if this.headerNote.isPresent() {
 		out.append_CharSequence(strobj_(("#" + sstr_(Joiner_on("\n# ").join(Splitter_on('\n').split_s(this.headerNote.get()))) + "\n")))
 	}
-	var warningsByType *SimpleSetMultimap = SimpleSetMultimap_createSorted()
+	var warningsByType *SimpleSetMultimap[*DiagnosticType, string] = SimpleSetMultimap_createSorted[*DiagnosticType, string]()
 	it_1 := this.warnings_.each()
 	for it_1.next() {
 		var warning *JSError = it_1.v
-		warningsByType.put(obj_(warning.type_()), strobj_(this.outer_.formatWarning_2(warning, true)))
+		warningsByType.put(warning.type_(), this.outer_.formatWarning_2(warning, true))
 	}
 	for type_ := range elemsAs_[*DiagnosticType](warningsByType.keySet()) {
 		if DiagnosticGroups_DEPRECATED.matchesDiagnosticType(type_) {

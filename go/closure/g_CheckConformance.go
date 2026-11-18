@@ -66,7 +66,7 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *JTList[*CheckConformance_Category] {
-	var builder *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
+	var builder *SimpleSetMultimap[CheckConformance_Precondition, CheckConformance_Rule] = SimpleSetMultimap_createInsertionOrdered[CheckConformance_Precondition, CheckConformance_Rule]()
 	var isLibraryLevelReportingMode bool = ((reportingMode != 0) && equalsId_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG))
 	if isLibraryLevelReportingMode {
 		if !CheckConformance_validateBehaviorSettingOfConfigs(compiler, configs, reportingMode) {

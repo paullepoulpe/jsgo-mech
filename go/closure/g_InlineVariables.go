@@ -248,12 +248,12 @@ func (this *InlineVariables_InlineVarAnalysis) getAliasedVar() *Var {
 type InlineVariables_InliningBehavior struct {
 	outer_                            *InlineVariables
 	currentScopeHandledVarAnalysesMap *JTMap[*Var, *InlineVariables_InlineVarAnalysis]
-	varToAliasRetryHandlersMap        *SimpleSetMultimap
+	varToAliasRetryHandlersMap        *SimpleSetMultimap[*Var, *InlineVariables_InliningBehavior_AliasInlineRetryHandler]
 }
 
 func (this *InlineVariables_InliningBehavior) finit_InlineVariables_InliningBehavior() {
 	this.currentScopeHandledVarAnalysesMap = jnewTMap_(tce_p_Var, jtc_p_InlineVariables_InlineVarAnalysis)
-	this.varToAliasRetryHandlersMap = SimpleSetMultimap_createInsertionOrdered()
+	this.varToAliasRetryHandlersMap = SimpleSetMultimap_createInsertionOrdered[*Var, *InlineVariables_InliningBehavior_AliasInlineRetryHandler]()
 }
 
 func (this *InlineVariables_InliningBehavior) init_InlineVariables_InliningBehavior() {
@@ -285,7 +285,7 @@ func (this *InlineVariables_InliningBehavior) doInlinesForScope(t *NodeTraversal
 			if aliasedVarAnalysis != nil {
 				retryHandler.handleAliasedVarCompletion(aliasedVar, aliasedVarAnalysis)
 			} else {
-				this.varToAliasRetryHandlersMap.put(obj_(aliasedVar), obj_(retryHandler))
+				this.varToAliasRetryHandlersMap.put(aliasedVar, retryHandler)
 			}
 		} else {
 			if analysis.shouldInline() {

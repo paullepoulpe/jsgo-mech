@@ -1528,7 +1528,7 @@ func SimpleDependencyInfo_as_DependencyInfo_(v *SimpleDependencyInfo) Dependency
 	return v
 }
 
-func SimpleMultiset_as_Iterable(v *SimpleMultiset) Iterable {
+func SimpleMultiset_as_Iterable(v *SimpleMultiset[any]) Iterable {
 	if v == nil {
 		return nil
 	}
@@ -1924,10 +1924,10 @@ func tc_UndiGraph_UndiGraphEdge_N__E_[N comparable, E comparable]() *jtconv_[Und
 	})
 }
 
-var jtc_p_AbstractCommandLineRunner_FlagEntry = &jtconv_[*AbstractCommandLineRunner_FlagEntry]{
-	box: func(v *AbstractCommandLineRunner_FlagEntry) any { return obj_(v) },
-	unbox: func(v any) *AbstractCommandLineRunner_FlagEntry {
-		return cast_[*AbstractCommandLineRunner_FlagEntry](v)
+var jtc_p_AbstractCommandLineRunner_FlagEntry = &jtconv_[*AbstractCommandLineRunner_FlagEntry[any]]{
+	box: func(v *AbstractCommandLineRunner_FlagEntry[any]) any { return obj_(v) },
+	unbox: func(v any) *AbstractCommandLineRunner_FlagEntry[any] {
+		return cast_[*AbstractCommandLineRunner_FlagEntry[any]](v)
 	},
 }
 
@@ -3129,9 +3129,9 @@ var jtc_p_ScriptNodeDeserializer = &jtconv_[*ScriptNodeDeserializer]{
 	unbox: func(v any) *ScriptNodeDeserializer { return cast_[*ScriptNodeDeserializer](v) },
 }
 
-var jtc_p_SimpleBiMap = &jtconv_[*SimpleBiMap]{
-	box:   func(v *SimpleBiMap) any { return obj_(v) },
-	unbox: func(v any) *SimpleBiMap { return cast_[*SimpleBiMap](v) },
+var jtc_p_SimpleBiMap = &jtconv_[*SimpleBiMap[string, string]]{
+	box:   func(v *SimpleBiMap[string, string]) any { return obj_(v) },
+	unbox: func(v any) *SimpleBiMap[string, string] { return cast_[*SimpleBiMap[string, string]](v) },
 }
 
 var tc_p_SimpleJsonValue = &jtconv_[*SimpleJsonValue]{
@@ -3139,9 +3139,9 @@ var tc_p_SimpleJsonValue = &jtconv_[*SimpleJsonValue]{
 	unbox: func(v any) *SimpleJsonValue { return cast_[*SimpleJsonValue](v) },
 }
 
-var tc_p_SimpleMultiset = &jtconv_[*SimpleMultiset]{
-	box:   func(v *SimpleMultiset) any { return obj_(v) },
-	unbox: func(v any) *SimpleMultiset { return cast_[*SimpleMultiset](v) },
+var tc_p_SimpleMultiset = &jtconv_[*SimpleMultiset[any]]{
+	box:   func(v *SimpleMultiset[any]) any { return obj_(v) },
+	unbox: func(v any) *SimpleMultiset[any] { return cast_[*SimpleMultiset[any]](v) },
 }
 
 var jtc_p_SimpleSlot = &jtconv_[*SimpleSlot]{
@@ -3242,9 +3242,9 @@ var jtc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = &jtconv_[*T
 	},
 }
 
-var tc_p_Timeline_Event = &jtconv_[*Timeline_Event]{
-	box:   func(v *Timeline_Event) any { return obj_(v) },
-	unbox: func(v any) *Timeline_Event { return cast_[*Timeline_Event](v) },
+var tc_p_Timeline_Event = &jtconv_[*Timeline_Event[any]]{
+	box:   func(v *Timeline_Event[any]) any { return obj_(v) },
+	unbox: func(v any) *Timeline_Event[any] { return cast_[*Timeline_Event[any]](v) },
 }
 
 var tc_p_TokenType = &jtconv_[TokenType]{
@@ -3549,9 +3549,9 @@ var tce_p_ScopedName = &jtconv_[*ScopedName]{
 	byEquals: true,
 }
 
-var tce_p_SimpleSetMultimap_Entry = &jtconv_[*SimpleSetMultimap_Entry]{
-	box:      func(v *SimpleSetMultimap_Entry) any { return obj_(v) },
-	unbox:    func(v any) *SimpleSetMultimap_Entry { return cast_[*SimpleSetMultimap_Entry](v) },
+var tce_p_SimpleSetMultimap_Entry = &jtconv_[*SimpleSetMultimap_Entry[any, any]]{
+	box:      func(v *SimpleSetMultimap_Entry[any, any]) any { return obj_(v) },
+	unbox:    func(v any) *SimpleSetMultimap_Entry[any, any] { return cast_[*SimpleSetMultimap_Entry[any, any]](v) },
 	byEquals: true,
 }
 
@@ -4020,7 +4020,7 @@ func init() {
 		(CustomPassExecutionTime)(0),
 		(*DToA)(nil),
 		(*DataFlowAnalysis_1)(nil),
-		(*DataFlowAnalysis_LinearFlowState)(nil),
+		(*DataFlowAnalysis_LinearFlowState[any])(nil),
 		(*DeadAssignmentsElimination)(nil),
 		(*DeadAssignmentsElimination_BailoutInformation)(nil),
 		(DeadAssignmentsElimination_VariableLiveness)(0),
@@ -4979,13 +4979,13 @@ func init() {
 		(*SetAccessorTree)(nil),
 		(*ShowByPathWarningsGuard)(nil),
 		(ShowByPathWarningsGuard_ShowType)(0),
-		(*SimpleBiMap)(nil),
+		(*SimpleBiMap[string, string])(nil),
 		(*SimpleDependencyInfo_Builder)(nil),
 		(*SimpleJsonValue)(nil),
 		(SimpleJsonValue_Kind)(0),
 		(*SimpleJsonWriter)(nil),
 		(*SimpleRegion)(nil),
-		(*SimpleSetMultimap_InsertionOrderedValuesIterator)(nil),
+		(*SimpleSetMultimap_InsertionOrderedValuesIterator[any, any])(nil),
 		(*SimpleSourceFile)(nil),
 		(*SortingErrorManager)(nil),
 		(*SortingErrorManager_LeveledJSErrorComparator)(nil),
@@ -5083,7 +5083,7 @@ func init() {
 		(*ThisExpressionTree)(nil),
 		(*ThreadSafeDelegatingErrorManager)(nil),
 		(*ThrowStatementTree)(nil),
-		(*Timeline_Event)(nil),
+		(*Timeline_Event[any])(nil),
 		(*TokenStream)(nil),
 		(TokenType)(0),
 		(*TokenUtil)(nil),
