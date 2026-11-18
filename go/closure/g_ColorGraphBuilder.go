@@ -135,19 +135,19 @@ func (this ColorGraphBuilder_EdgeReason) enum_() *Enum {
 }
 
 func (this ColorGraphBuilder_EdgeReason) name() string {
-	return ColorGraphBuilder_EdgeReason_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ColorGraphBuilder_EdgeReason) ordinal() int32 {
-	return ColorGraphBuilder_EdgeReason_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this ColorGraphBuilder_EdgeReason) toString() string {
-	return ColorGraphBuilder_EdgeReason_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ColorGraphBuilder_EdgeReason) compareTo(o any) int32 {
-	return ColorGraphBuilder_EdgeReason_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this ColorGraphBuilder_EdgeReason) self() any {

@@ -19,14 +19,14 @@ func (this BooleanLiteralSet) enum_() *Enum {
 	return &BooleanLiteralSet_enum_[this-1]
 }
 
-func (this BooleanLiteralSet) name() string { return BooleanLiteralSet_enum_[this-1].name_ }
+func (this BooleanLiteralSet) name() string { return this.enum_().name_ }
 
-func (this BooleanLiteralSet) ordinal() int32 { return BooleanLiteralSet_enum_[this-1].ordinal_ }
+func (this BooleanLiteralSet) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this BooleanLiteralSet) toString() string { return BooleanLiteralSet_enum_[this-1].name_ }
+func (this BooleanLiteralSet) toString() string { return this.enum_().name_ }
 
 func (this BooleanLiteralSet) compareTo(o any) int32 {
-	return BooleanLiteralSet_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this BooleanLiteralSet) self() any {

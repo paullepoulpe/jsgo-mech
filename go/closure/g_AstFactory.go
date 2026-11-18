@@ -1224,14 +1224,14 @@ func (this AstFactory_TypeMode) enum_() *Enum {
 	return &AstFactory_TypeMode_enum_[this-1]
 }
 
-func (this AstFactory_TypeMode) name() string { return AstFactory_TypeMode_enum_[this-1].name_ }
+func (this AstFactory_TypeMode) name() string { return this.enum_().name_ }
 
-func (this AstFactory_TypeMode) ordinal() int32 { return AstFactory_TypeMode_enum_[this-1].ordinal_ }
+func (this AstFactory_TypeMode) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this AstFactory_TypeMode) toString() string { return AstFactory_TypeMode_enum_[this-1].name_ }
+func (this AstFactory_TypeMode) toString() string { return this.enum_().name_ }
 
 func (this AstFactory_TypeMode) compareTo(o any) int32 {
-	return AstFactory_TypeMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this AstFactory_TypeMode) self() any {

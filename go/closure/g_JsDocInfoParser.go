@@ -2135,16 +2135,16 @@ func (this JsDocInfoParser_State) enum_() *Enum {
 	return &JsDocInfoParser_State_enum_[this-1]
 }
 
-func (this JsDocInfoParser_State) name() string { return JsDocInfoParser_State_enum_[this-1].name_ }
+func (this JsDocInfoParser_State) name() string { return this.enum_().name_ }
 
 func (this JsDocInfoParser_State) ordinal() int32 {
-	return JsDocInfoParser_State_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
-func (this JsDocInfoParser_State) toString() string { return JsDocInfoParser_State_enum_[this-1].name_ }
+func (this JsDocInfoParser_State) toString() string { return this.enum_().name_ }
 
 func (this JsDocInfoParser_State) compareTo(o any) int32 {
-	return JsDocInfoParser_State_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this JsDocInfoParser_State) self() any {
@@ -2201,19 +2201,19 @@ func (this JsDocInfoParser_JsDocSourceKind) enum_() *Enum {
 }
 
 func (this JsDocInfoParser_JsDocSourceKind) name() string {
-	return JsDocInfoParser_JsDocSourceKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this JsDocInfoParser_JsDocSourceKind) ordinal() int32 {
-	return JsDocInfoParser_JsDocSourceKind_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this JsDocInfoParser_JsDocSourceKind) toString() string {
-	return JsDocInfoParser_JsDocSourceKind_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this JsDocInfoParser_JsDocSourceKind) compareTo(o any) int32 {
-	return JsDocInfoParser_JsDocSourceKind_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this JsDocInfoParser_JsDocSourceKind) self() any {
@@ -2309,19 +2309,19 @@ func (this JsDocInfoParser_WhitespaceOption) enum_() *Enum {
 }
 
 func (this JsDocInfoParser_WhitespaceOption) name() string {
-	return JsDocInfoParser_WhitespaceOption_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this JsDocInfoParser_WhitespaceOption) ordinal() int32 {
-	return JsDocInfoParser_WhitespaceOption_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this JsDocInfoParser_WhitespaceOption) toString() string {
-	return JsDocInfoParser_WhitespaceOption_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this JsDocInfoParser_WhitespaceOption) compareTo(o any) int32 {
-	return JsDocInfoParser_WhitespaceOption_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this JsDocInfoParser_WhitespaceOption) self() any {

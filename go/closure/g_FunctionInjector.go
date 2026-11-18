@@ -602,19 +602,19 @@ func (this FunctionInjector_InliningMode) enum_() *Enum {
 }
 
 func (this FunctionInjector_InliningMode) name() string {
-	return FunctionInjector_InliningMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this FunctionInjector_InliningMode) ordinal() int32 {
-	return FunctionInjector_InliningMode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this FunctionInjector_InliningMode) toString() string {
-	return FunctionInjector_InliningMode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this FunctionInjector_InliningMode) compareTo(o any) int32 {
-	return FunctionInjector_InliningMode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this FunctionInjector_InliningMode) self() any {
@@ -821,19 +821,19 @@ func (this FunctionInjector_CanInlineResult) enum_() *Enum {
 }
 
 func (this FunctionInjector_CanInlineResult) name() string {
-	return FunctionInjector_CanInlineResult_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this FunctionInjector_CanInlineResult) ordinal() int32 {
-	return FunctionInjector_CanInlineResult_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this FunctionInjector_CanInlineResult) toString() string {
-	return FunctionInjector_CanInlineResult_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this FunctionInjector_CanInlineResult) compareTo(o any) int32 {
-	return FunctionInjector_CanInlineResult_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this FunctionInjector_CanInlineResult) self() any {

@@ -246,19 +246,19 @@ func (this TypedAstDeserializer_Mode) enum_() *Enum {
 }
 
 func (this TypedAstDeserializer_Mode) name() string {
-	return TypedAstDeserializer_Mode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TypedAstDeserializer_Mode) ordinal() int32 {
-	return TypedAstDeserializer_Mode_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this TypedAstDeserializer_Mode) toString() string {
-	return TypedAstDeserializer_Mode_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this TypedAstDeserializer_Mode) compareTo(o any) int32 {
-	return TypedAstDeserializer_Mode_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this TypedAstDeserializer_Mode) self() any {

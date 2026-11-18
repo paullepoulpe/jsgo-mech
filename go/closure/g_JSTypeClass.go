@@ -40,13 +40,13 @@ func (this JSTypeClass) enum_() *Enum {
 	return &JSTypeClass_enum_[this-1]
 }
 
-func (this JSTypeClass) name() string { return JSTypeClass_enum_[this-1].name_ }
+func (this JSTypeClass) name() string { return this.enum_().name_ }
 
-func (this JSTypeClass) ordinal() int32 { return JSTypeClass_enum_[this-1].ordinal_ }
+func (this JSTypeClass) ordinal() int32 { return this.enum_().ordinal_ }
 
-func (this JSTypeClass) toString() string { return JSTypeClass_enum_[this-1].name_ }
+func (this JSTypeClass) toString() string { return this.enum_().name_ }
 
-func (this JSTypeClass) compareTo(o any) int32 { return JSTypeClass_enum_[this-1].compareTo(o) }
+func (this JSTypeClass) compareTo(o any) int32 { return this.enum_().compareTo(o) }
 
 func (this JSTypeClass) self() any {
 	if this == 0 {

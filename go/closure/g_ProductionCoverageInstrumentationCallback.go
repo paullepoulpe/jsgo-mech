@@ -165,19 +165,19 @@ func (this ProductionCoverageInstrumentationCallback_Type) enum_() *Enum {
 }
 
 func (this ProductionCoverageInstrumentationCallback_Type) name() string {
-	return ProductionCoverageInstrumentationCallback_Type_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ProductionCoverageInstrumentationCallback_Type) ordinal() int32 {
-	return ProductionCoverageInstrumentationCallback_Type_enum_[this-1].ordinal_
+	return this.enum_().ordinal_
 }
 
 func (this ProductionCoverageInstrumentationCallback_Type) toString() string {
-	return ProductionCoverageInstrumentationCallback_Type_enum_[this-1].name_
+	return this.enum_().name_
 }
 
 func (this ProductionCoverageInstrumentationCallback_Type) compareTo(o any) int32 {
-	return ProductionCoverageInstrumentationCallback_Type_enum_[this-1].compareTo(o)
+	return this.enum_().compareTo(o)
 }
 
 func (this ProductionCoverageInstrumentationCallback_Type) self() any {
