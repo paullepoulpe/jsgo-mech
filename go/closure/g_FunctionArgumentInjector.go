@@ -144,6 +144,13 @@ func (this *FunctionArgumentInjector) findModifiedParameters(fnNode Node) *Immut
 
 func FunctionArgumentInjector_findModifiedParameters(n Node, names *ImmutableSet[string], inInnerClosure bool) *TSet[string] {
 	var unsafe *TSet[string] = newTSet_(tc_string)
+	FunctionArgumentInjector_findModifiedParametersInto_(n, names, inInnerClosure, unsafe)
+	return unsafe
+}
+
+// FunctionArgumentInjector_findModifiedParametersInto_ adds the names to one set, in the
+// pre-order in which the Java version merged one new set per node into its parent's.
+func FunctionArgumentInjector_findModifiedParametersInto_(n Node, names *ImmutableSet[string], inInnerClosure bool, unsafe *TSet[string]) {
 	if NodeUtil_isFunctionOrNonStaticClassFieldInitializer(n) {
 		inInnerClosure = true
 	}
@@ -152,13 +159,9 @@ func FunctionArgumentInjector_findModifiedParameters(n Node, names *ImmutableSet
 			unsafe.Add(n.getString())
 		}
 	}
-	{
-		var c Node = n.getFirstChild()
-		for ; c != 0; c = c.getNext() {
-			unsafe.asSet().addAll(Collection(FunctionArgumentInjector_findModifiedParameters(c, names, inInnerClosure).asSet()))
-		}
+	for c := n.getFirstChild(); c != 0; c = c.getNext() {
+		FunctionArgumentInjector_findModifiedParametersInto_(c, names, inInnerClosure, unsafe)
 	}
-	return unsafe
 }
 
 func FunctionArgumentInjector_canNameValueChange(n Node) bool {
