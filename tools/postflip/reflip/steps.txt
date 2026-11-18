@@ -595,3 +595,9 @@ b4d1cfd0 patch 421-b4d1cfd0-manual.patch
 e964d92f patch 422-e964d92f-manual.patch
 # 423. postflip (manual, re-flip): Compiler.inputsById keyed by the id's string (13c7e5ba re-made)
 a97d418c patch 423-a97d418c-manual.patch
+# 424. postflip (runtime, re-flip): TMap.ComputeIfAbsentObj, computeIfAbsent with a typed function whose result is an Object
+0aa1c57d patch 424-0aa1c57d-rt.patch
+# 425. postflip step (re-flip): TMap.computeIfAbsent given a typed lambda whose result is an Object takes the function
+97b8d1bf run t adapters && f
+# 426. postflip (runtime, re-flip): no allocation sampling unless a heap profile is asked for
+95b92033 patch 426-95b92033-rt.patch
