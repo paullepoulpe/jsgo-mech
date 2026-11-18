@@ -576,13 +576,13 @@ type InlineVariables_InliningBehavior_StandardVarExpert struct {
 	declaration_                        *Reference
 	isDeclaredOrInferredConstant        bool
 	mayBeAParameterModifiedViaArguments bool
-	isNeverAssignedField                *InlineVariables_InitiallyUnknown[any]
-	isWellDefinedField                  *InlineVariables_InitiallyUnknown[any]
-	isAssignedOnceInLifetimeField       *InlineVariables_InitiallyUnknown[any]
-	isReferencedWeaklyField             *InlineVariables_InitiallyUnknown[any]
-	isWellDefinedAssignedOnceField      *InlineVariables_InitiallyUnknown[any]
-	initializationReference             *InlineVariables_InitiallyUnknown[*Reference]
-	allReferencesAreValidField          *InlineVariables_InitiallyUnknown[any]
+	isNeverAssignedField                InlineVariables_InitiallyUnknown[any]        // a value: part of its owner (post-flip manual step)
+	isWellDefinedField                  InlineVariables_InitiallyUnknown[any]        // a value: part of its owner (post-flip manual step)
+	isAssignedOnceInLifetimeField       InlineVariables_InitiallyUnknown[any]        // a value: part of its owner (post-flip manual step)
+	isReferencedWeaklyField             InlineVariables_InitiallyUnknown[any]        // a value: part of its owner (post-flip manual step)
+	isWellDefinedAssignedOnceField      InlineVariables_InitiallyUnknown[any]        // a value: part of its owner (post-flip manual step)
+	initializationReference             InlineVariables_InitiallyUnknown[*Reference] // a value: part of its owner (post-flip manual step)
+	allReferencesAreValidField          InlineVariables_InitiallyUnknown[any]        // a value: part of its owner (post-flip manual step)
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) up_InlineVariables_VarExpert() *InlineVariables_VarExpert {
@@ -593,13 +593,20 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) up_InlineVariabl
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) finit_InlineVariables_InliningBehavior_StandardVarExpert() {
-	this.isNeverAssignedField = new_InlineVariables_InitiallyUnknown[any]()
-	this.isWellDefinedField = new_InlineVariables_InitiallyUnknown[any]()
-	this.isAssignedOnceInLifetimeField = new_InlineVariables_InitiallyUnknown[any]()
-	this.isReferencedWeaklyField = new_InlineVariables_InitiallyUnknown[any]()
-	this.isWellDefinedAssignedOnceField = new_InlineVariables_InitiallyUnknown[any]()
-	this.initializationReference = new_InlineVariables_InitiallyUnknown[*Reference]()
-	this.allReferencesAreValidField = new_InlineVariables_InitiallyUnknown[any]()
+	this.isNeverAssignedField.zero_InlineVariables_InitiallyUnknown()
+	this.isNeverAssignedField.init_InlineVariables_InitiallyUnknown()
+	this.isWellDefinedField.zero_InlineVariables_InitiallyUnknown()
+	this.isWellDefinedField.init_InlineVariables_InitiallyUnknown()
+	this.isAssignedOnceInLifetimeField.zero_InlineVariables_InitiallyUnknown()
+	this.isAssignedOnceInLifetimeField.init_InlineVariables_InitiallyUnknown()
+	this.isReferencedWeaklyField.zero_InlineVariables_InitiallyUnknown()
+	this.isReferencedWeaklyField.init_InlineVariables_InitiallyUnknown()
+	this.isWellDefinedAssignedOnceField.zero_InlineVariables_InitiallyUnknown()
+	this.isWellDefinedAssignedOnceField.init_InlineVariables_InitiallyUnknown()
+	this.initializationReference.zero_InlineVariables_InitiallyUnknown()
+	this.initializationReference.init_InlineVariables_InitiallyUnknown()
+	this.allReferencesAreValidField.zero_InlineVariables_InitiallyUnknown()
+	this.allReferencesAreValidField.init_InlineVariables_InitiallyUnknown()
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert) init_InlineVariables_InliningBehavior_StandardVarExpert(initData *InlineVariables_InliningBehavior_VarExpertInitData) {
@@ -802,13 +809,15 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) reanalyzeAfterAl
 type InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnalysis struct {
 	outer_                *InlineVariables_InliningBehavior_StandardVarExpert
 	value_                Node
-	isImmutableValueField *InlineVariables_InitiallyUnknown[any]
-	aliasedVar            *InlineVariables_InitiallyUnknown[*Var]
+	isImmutableValueField InlineVariables_InitiallyUnknown[any]  // a value: part of its owner (post-flip manual step)
+	aliasedVar            InlineVariables_InitiallyUnknown[*Var] // a value: part of its owner (post-flip manual step)
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnalysis) finit_InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnalysis() {
-	this.isImmutableValueField = new_InlineVariables_InitiallyUnknown[any]()
-	this.aliasedVar = new_InlineVariables_InitiallyUnknown[*Var]()
+	this.isImmutableValueField.zero_InlineVariables_InitiallyUnknown()
+	this.isImmutableValueField.init_InlineVariables_InitiallyUnknown()
+	this.aliasedVar.zero_InlineVariables_InitiallyUnknown()
+	this.aliasedVar.init_InlineVariables_InitiallyUnknown()
 }
 
 func (this *InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnalysis) init_InlineVariables_InliningBehavior_StandardVarExpert_InitialValueAnalysis(value Node) {
