@@ -275,7 +275,6 @@ func (this *Es6ConvertSuperConstructorCalls) isNodeKnownToOnlyReturnUndefined(no
 	} else {
 		return false
 	}
-	panic("unreachable")
 }
 
 func (this *Es6ConvertSuperConstructorCalls) createNewSuperCall(superClassQNameNode Node, superCall Node, thisType AstFactory_Type, resultType AstFactory_Type) Node {
@@ -319,7 +318,6 @@ func (this *Es6ConvertSuperConstructorCalls) createNewSuperCall(superClassQNameN
 		}
 		return newSuperCall
 	}
-	panic("unreachable")
 }
 
 func (this *Es6ConvertSuperConstructorCalls) createJSCompConstructorCall(superClassQNameNode Node, superCall Node, thisType AstFactory_Type) Node {
@@ -387,7 +385,6 @@ func (this *Es6ConvertSuperConstructorCalls) isNativeErrorClass(t *NodeTraversal
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -399,7 +396,6 @@ func (this *Es6ConvertSuperConstructorCalls) isKnownNativeClass(t *NodeTraversal
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -460,7 +456,6 @@ func (this *Es6ConvertSuperConstructorCalls) getSuperClassNameNodeIfIsInheritsSt
 	} else {
 		return 0
 	}
-	panic("unreachable")
 }
 
 func (this *Es6ConvertSuperConstructorCalls) setGlobalNamespace(globalNamespace *GlobalNamespace) {
@@ -538,7 +533,6 @@ func (this *Es6ConvertSuperConstructorCalls_1) shouldTraverse(nodeTraversal *Nod
 	} else {
 		return true
 	}
-	panic("unreachable")
 }
 
 func (this *Es6ConvertSuperConstructorCalls_1) visit(t *NodeTraversal, n Node, parent Node) {

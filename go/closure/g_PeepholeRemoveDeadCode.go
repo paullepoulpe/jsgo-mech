@@ -72,7 +72,6 @@ func (this *PeepholeRemoveDeadCode) optimizeSubtree_impl(subtree Node) Node {
 		default:
 			return subtree
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -268,7 +267,6 @@ func (this *PeepholeRemoveDeadCode) trySimplifyUnusedResult(expression Node) Nod
 		this.deleteNode(expression)
 		return sideEffects
 	}
-	panic("unreachable")
 }
 
 func (this *PeepholeRemoveDeadCode) trySimplifyUnusedResultInternal(tree Node, sideEffectRoots *TDeque[Node]) bool {
@@ -374,7 +372,6 @@ func PeepholeRemoveDeadCode_hasFixedPointParent(expr Node) bool {
 		default:
 			return NodeUtil_isStatement(expr.getParent())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -417,7 +414,6 @@ func (this *PeepholeRemoveDeadCode) tryRemoveSwitch(n Node) Node {
 	} else {
 		return n
 	}
-	panic("unreachable")
 }
 
 func (this *PeepholeRemoveDeadCode) tryOptimizeSwitch(n Node) Node {
@@ -633,7 +629,6 @@ func PeepholeRemoveDeadCode_isExit(n Node) bool {
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -875,7 +870,6 @@ func (this *PeepholeRemoveDeadCode) getSimpleAssignmentName(n Node) Node {
 	} else {
 		return n.getFirstChild()
 	}
-	panic("unreachable")
 }
 
 func (this *PeepholeRemoveDeadCode) getSimpleAssignmentValue(n Node) Node {
@@ -917,7 +911,6 @@ func (this *PeepholeRemoveDeadCode) getConditionalStatementCondition(n Node) Nod
 		}
 		return n.getFirstFirstChild()
 	}
-	panic("unreachable")
 }
 
 func (this *PeepholeRemoveDeadCode) tryFoldIf(n Node) Node {
@@ -1021,7 +1014,6 @@ func (this *PeepholeRemoveDeadCode) tryFoldIf(n Node) Node {
 		this.markFunctionsDeleted(n)
 		return branchToKeep
 	}
-	panic("unreachable")
 }
 
 func (this *PeepholeRemoveDeadCode) tryFoldHook(n Node) Node {

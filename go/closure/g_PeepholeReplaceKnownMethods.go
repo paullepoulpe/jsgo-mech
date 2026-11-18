@@ -92,7 +92,6 @@ func (this *PeepholeReplaceKnownMethods) tryFoldKnownArrayMethods(subtree Node, 
 		default:
 			return subtree
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -396,7 +395,6 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringTrim(subtree Node, stringN
 		default:
 			return Optional_empty[string]()
 		}
-		panic("unreachable")
 	}()
 	if result.isEmpty() {
 		return subtree

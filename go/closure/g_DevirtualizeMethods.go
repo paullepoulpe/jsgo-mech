@@ -102,7 +102,6 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 		default:
 			return false
 		}
-		panic("unreachable")
 	}()
 }
 

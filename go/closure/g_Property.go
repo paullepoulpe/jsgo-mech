@@ -64,7 +64,6 @@ func (this *Property) getName() string {
 				panic(new_AssertionError_0().self())
 			}
 		}
-		panic("unreachable")
 	}()
 }
 

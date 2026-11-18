@@ -119,7 +119,6 @@ func (this *NamedType) defineProperty_impl(propertyName Property_Key, type_ *JST
 	} else {
 		return this.ProxyObjectType.defineProperty_impl(propertyName, type_, inferred, propertyNode)
 	}
-	panic("unreachable")
 }
 
 func (this *NamedType) finishPropertyContinuations() {
@@ -339,7 +338,6 @@ func (this *NamedType) setValidator_impl(validator Predicate_baseOf[*JSType]) bo
 		this.validator = validator
 		return true
 	}
-	panic("unreachable")
 }
 
 func (this *NamedType) warning(reporter ErrorReporter_rhino, message string) {

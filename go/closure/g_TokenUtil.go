@@ -21,7 +21,6 @@ func TokenUtil_isJSSpace(c int32) bool {
 	} else {
 		return ((c == 160) || (Character_getType_char(uint16(c)) == int32(int8(12))))
 	}
-	panic("unreachable")
 }
 
 func TokenUtil_isJSFormatChar(c int32) bool {
@@ -47,6 +46,5 @@ func TokenUtil_isStrWhiteSpaceChar(c int32) Tri {
 				return Tri_FALSE
 			}()
 		}
-		panic("unreachable")
 	}()
 }

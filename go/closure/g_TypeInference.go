@@ -158,7 +158,6 @@ func (this *TypeInference) updateDestructuringParameter(pattern Node, inferredTy
 			scope = this.updateScopeForAssignment(scope, lvalue, type_, TypeInference_AssignmentType_ASSIGN)
 		}
 		return scope
-		panic("unreachable")
 	})
 	return entryFlowScope
 }
@@ -595,7 +594,6 @@ func (this *TypeInference) traverseCatch(catchNode Node, scope FlowScope) FlowSc
 		}
 		return scope
 	}
-	panic("unreachable")
 }
 
 func (this *TypeInference) traverseAssign(n Node, scope FlowScope) FlowScope {
@@ -612,7 +610,6 @@ func (this *TypeInference) traverseAssign(n Node, scope FlowScope) FlowScope {
 		n.setJSType(valueType)
 		return this.updateScopeForAssignment(scope, target, valueType, TypeInference_AssignmentType_ASSIGN)
 	}
-	panic("unreachable")
 }
 
 func (this *TypeInference) traverseAssignOp(n Node, scope FlowScope) FlowScope {
@@ -824,7 +821,6 @@ func (this *TypeInference) traverseDestructuringPattern(pattern Node, scope Flow
 			return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		}()
 		return this.updateScopeForAssignment(flowScope, targetNode, targetType, assignmentType)
-		panic("unreachable")
 	})
 }
 
@@ -1037,7 +1033,6 @@ func (this *TypeInference) traverseClassMemberRhs(member Node, scope FlowScope) 
 		default:
 			panic(new_AssertionError_0().self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1057,7 +1052,6 @@ func TypeInference_getRhsOfField(fieldNode Node) Node {
 		default:
 			panic(new_AssertionError_0().self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1670,7 +1664,6 @@ func (this *TypeInference) setOptChainNodeTypeAfterChildrenTraversed(n Node, sco
 		default:
 			panic(new_IllegalStateException_String("Illegal token inside finishTraversingOptChain").self())
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1711,7 +1704,6 @@ func (this *TypeInference) traverseOptChain(n Node, scope FlowScope) FlowScope {
 	} else {
 		return executedScope
 	}
-	panic("unreachable")
 }
 
 func (this *TypeInference) updateTypeWhenEndOfOptChain(optChain Node, startNode Node, currentChain *TypeInference_OptChainInfo, executedScope FlowScope) FlowScope {
@@ -1729,7 +1721,6 @@ func (this *TypeInference) updateTypeWhenEndOfOptChain(optChain Node, startNode 
 		var unexecutedScope FlowScope = this.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(startNode, currentChain.unconditionalScope, Outcome_rhino_NULLISH)
 		return this.join(executedScope, unexecutedScope)
 	}
-	panic("unreachable")
 }
 
 func TypeInference_inferPropertyTypesToMatchConstraint(type_ *JSType, constraint *JSType) {
@@ -1789,7 +1780,6 @@ func (this *TypeInference) getPropertyType(objType *JSType, propName string, n N
 	} else {
 		return propertyType
 	}
-	panic("unreachable")
 }
 
 func (this *TypeInference) traverseOr(n Node, scope FlowScope) *TypeInference_BooleanOutcomePair {
@@ -1855,7 +1845,6 @@ func (this *TypeInference) traverseWithinShortCircuitingBinOp(n Node, scope Flow
 			scope = this.traverse(n, scope)
 			return this.newBooleanOutcomePair(n.getJSType(), scope)
 		}
-		panic("unreachable")
 	}()
 }
 
@@ -1949,7 +1938,6 @@ func (this *TypeInference) getJSType(n Node) *JSType {
 	} else {
 		return jsType
 	}
-	panic("unreachable")
 }
 
 func (this *TypeInference) getNativeType(typeId JSTypeNative) *JSType {
@@ -2199,7 +2187,6 @@ func (this *TypeInference_BooleanOutcomePair) getOutcomeFlowScope(nodeType Token
 	} else {
 		return this.getJoinedFlowScope()
 	}
-	panic("unreachable")
 }
 
 type TypeInference_1 struct {
@@ -2267,5 +2254,4 @@ func (this *TypeInference_1) branchFlow(branch ControlFlowGraph_Branch) FlowScop
 	default:
 		return this.cap_output
 	}
-	panic("unreachable")
 }

@@ -165,7 +165,6 @@ func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType
 	var record *JSTypeReconserializer_SeenTypeRecord = this.seenTypeRecords.computeIfAbsent(id, &Function_tfn_ColorId_JSTypeReconserializer_SeenTypeRecord{func(unused *ColorId) *JSTypeReconserializer_SeenTypeRecord {
 		var pointer int32 = this.seenTypeRecords.size()
 		return new_JSTypeReconserializer_SeenTypeRecord(id, pointer)
-		panic("unreachable")
 	}})
 	this.typeToRecordCache.put(jstype, record)
 	record.jstypes.add(jstype)

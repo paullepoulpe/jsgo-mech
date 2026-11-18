@@ -152,7 +152,6 @@ func (this *DataFlowAnalysis[N, L]) flow(node DiGraph_DiGraphNode[N]) bool {
 		state.setIn(boxT_(this.flowThrough(node.getValue(), junboxT_[L](state.getOut()))))
 		return !equalsTT_(inBefore, junboxT_[L](state.getIn()))
 	}
-	panic("unreachable")
 }
 
 func (this *DataFlowAnalysis[N, L]) joinInputs(node DiGraph_DiGraphNode[N]) {
@@ -203,7 +202,6 @@ func (this *DataFlowAnalysis[N, L]) getInputFromEdge(edge DiGraph_DiGraphEdge[N]
 		var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(node)))
 		return junboxT_[L](state.getIn())
 	}
-	panic("unreachable")
 }
 
 func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped *JTSet[*Var], compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsInFn *JTMap[string, *Var]) {
