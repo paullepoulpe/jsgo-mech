@@ -48,11 +48,33 @@ func (this *SimpleListMultimap) put(key any, value any) *SimpleListMultimap {
 	return this
 }
 
+// put_s is put for a string key that is not boxed (post-flip manual step).
+func (this *SimpleListMultimap) put_s(key string, value any) *SimpleListMultimap {
+	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
+	var values ListOf[any] = icast_List(Map_get_s(this.map__, key))
+	if values == nil {
+		values = icast_List(new_ArrayList_0().self())
+		Map_put_s(this.map__, key, any(values))
+	}
+	values.add(value)
+	return this
+}
+
 func (this *SimpleListMultimap) putAll(key any, values IterableOf[any]) *SimpleListMultimap {
 	it_1 := foreach_(any(values))
 	for it_1.next() {
 		var value any = it_1.v
 		this.put(key, value)
+	}
+	return this
+}
+
+// putAll_s is putAll for a string key that is not boxed (post-flip manual step).
+func (this *SimpleListMultimap) putAll_s(key string, values IterableOf[any]) *SimpleListMultimap {
+	it_1 := foreach_(any(values))
+	for it_1.next() {
+		var value any = it_1.v
+		this.put_s(key, value)
 	}
 	return this
 }
@@ -89,6 +111,11 @@ func (this *SimpleListMultimap) get_s(key string) ListOf[any] {
 
 func (this *SimpleListMultimap) containsKey(key any) bool {
 	return this.map__.containsKey(key)
+}
+
+// containsKey_s is containsKey for a string key that is not boxed (post-flip manual step).
+func (this *SimpleListMultimap) containsKey_s(key string) bool {
+	return Map_containsKey_s(this.map__, key)
 }
 
 func (this *SimpleListMultimap) remove(key any, value any) bool {
