@@ -3,6 +3,7 @@
 package closure
 
 type JSTypeRegistry struct {
+	subtypeCheckerFree_ []*SubtypeChecker // checkers whose check is done (post-flip manual step)
 	iObjectIndexTemplateKey         *TemplateType
 	iObjectElementTemplateKey       *TemplateType
 	iterableValueTemplate           *TemplateType
@@ -1717,4 +1718,17 @@ func (this *JSTypeRegistry_ClosureNamespace) hashCode() int32 {
 	h = h*31 + hashH_(this.definitionNode_)
 	h = h*31 + Objects_hashCode(this.type__.self())
 	return h
+}
+
+// subtypeChecker_ is new SubtypeChecker(this): a checker from the free list, reset to the state
+// the constructor gives it, or a new one. A check started during another check takes its own.
+func (this *JSTypeRegistry) subtypeChecker_() *SubtypeChecker {
+	if n := len(this.subtypeCheckerFree_); n > 0 {
+		c := this.subtypeCheckerFree_[n-1]
+		this.subtypeCheckerFree_ = this.subtypeCheckerFree_[:n-1]
+		*c = SubtypeChecker{}
+		c.init_SubtypeChecker(this)
+		return c
+	}
+	return new_SubtypeChecker(this)
 }

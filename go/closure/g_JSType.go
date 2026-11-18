@@ -865,7 +865,7 @@ func (this *JSType) restrictByNotNull_impl() *JSType {
 }
 
 func (this *JSType) isSubtypeWithoutStructuralTyping(supertype *JSType) bool {
-	return new_SubtypeChecker(this.registry).setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(false).setSubtypingMode(JSType_SubtypingMode_NORMAL).check()
+	return this.registry.subtypeChecker_().setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(false).setSubtypingMode(JSType_SubtypingMode_NORMAL).checkAndRelease_()
 }
 
 func (this *JSType) isSubtype(supertype *JSType) bool {
@@ -877,11 +877,11 @@ func (this *JSType) isSubtype_2(supertype *JSType, mode *JSType_SubtypingMode) b
 }
 
 func (this *JSType) isSubtypeOf(supertype *JSType) bool {
-	return new_SubtypeChecker(this.registry).setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(JSType_SubtypingMode_NORMAL).check()
+	return this.registry.subtypeChecker_().setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(JSType_SubtypingMode_NORMAL).checkAndRelease_()
 }
 
 func (this *JSType) isSubtypeOf_2(supertype *JSType, mode *JSType_SubtypingMode) bool {
-	return new_SubtypeChecker(this.registry).setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(mode).check()
+	return this.registry.subtypeChecker_().setSubtype(this).setSupertype(supertype).setUsingStructuralSubtyping(true).setSubtypingMode(mode).checkAndRelease_()
 }
 
 func (this *JSType) visit(visitor Visitor) any {
