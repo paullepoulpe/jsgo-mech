@@ -380,8 +380,8 @@ func new_ConvertToTypedInterface_SimplifyDeclarations(compiler *AbstractCompiler
 
 func ConvertToTypedInterface_SimplifyDeclarations_countDots(name string) int32 {
 	var count int32 = 0
-	for i := int32(0); i < String_length(name); i++ {
-		if String_charAt(name, i) == '.' {
+	for _, u_ := range stringUnits_(name) {
+		if u_ == '.' {
 			count++
 		}
 	}

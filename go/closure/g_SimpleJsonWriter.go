@@ -209,8 +209,7 @@ func (this *SimpleJsonWriter) newline() {
 
 func (this *SimpleJsonWriter) string(value string) {
 	this.out.append_char('"')
-	for i := int32(0); i < String_length(value); i++ {
-		var c uint16 = String_charAt(value, i)
+	for _, c := range stringUnits_(value) {
 		switch c {
 		case '"':
 			this.out.append("\\\"")
@@ -231,7 +230,7 @@ func (this *SimpleJsonWriter) string(value string) {
 			if (((int32(c) < 32) || (c == 0x2028)) || (c == 0x2029)) || (html && this.htmlSafe) {
 				this.out.append("\\u")
 				for shift := int32(12); shift >= 0; shift -= 4 {
-					this.out.append_char(String_charAt(SimpleJsonWriter_HEX_DIGITS, ((int32(c) >> (uint32(shift) & 31)) & 15)))
+					this.out.append_char(asciiCharAt_(SimpleJsonWriter_HEX_DIGITS, ((int32(c) >> (uint32(shift) & 31)) & 15)))
 				}
 			} else {
 				this.out.append_char(c)
