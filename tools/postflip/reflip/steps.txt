@@ -611,3 +611,5 @@ b6e39a43 patch 429-b6e39a43-rt.patch
 84bcaeda patch 430-84bcaeda-manual.patch
 # 431. postflip step (re-flip): comparisons and scope lookups by the id of a node's string
 26118a47 run t strids && f
+# 432. postflip step (re-flip): casts to an instantiated generic interface outside generic code call named cast functions
+28eb1868 run t icasts && f
