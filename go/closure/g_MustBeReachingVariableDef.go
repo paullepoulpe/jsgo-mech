@@ -341,7 +341,7 @@ type MustBeReachingVariableDef_MustDef struct {
 }
 
 func (this *MustBeReachingVariableDef_MustDef) finit_MustBeReachingVariableDef_MustDef() {
-	this.reachingDef = jnewTMap_(tce_p_Var, tc_p_MustBeReachingVariableDef_Definition)
+	this.reachingDef = jnewTMap_(tce_p_Var, jtc_p_MustBeReachingVariableDef_Definition)
 }
 
 func (this *MustBeReachingVariableDef_MustDef) init_MustBeReachingVariableDef_MustDef_0() {

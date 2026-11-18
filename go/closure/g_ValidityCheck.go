@@ -92,7 +92,7 @@ func (this *ValidityCheck_VerifyConstants) up_NodeTraversal_AbstractPostOrderCal
 }
 
 func (this *ValidityCheck_VerifyConstants) finit_ValidityCheck_VerifyConstants() {
-	this.constantMap = jnewTMap_(jtc_string, tc_Boolean)
+	this.constantMap = jnewTMap_(jtc_string, jtc_Boolean)
 }
 
 func (this *ValidityCheck_VerifyConstants) init_ValidityCheck_VerifyConstants(compiler *AbstractCompiler, checkUserDeclarations bool) {

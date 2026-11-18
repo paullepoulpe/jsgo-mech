@@ -55,7 +55,7 @@ func (this *RescopeGlobalSymbols) process_2(externs Node, root Node) {
 	var renameHelperBuilder *RescopeGlobalSymbolsRenameHelper_HelperBuilder = new_RescopeGlobalSymbolsRenameHelper_HelperBuilder(this.compiler_, this.globalSymbolNamespace_, this.optimizeLocalAccess)
 	var findCrossChunkNames *RescopeGlobalSymbols_FindCrossChunkNamesCallback = new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(this.compiler_, this.assumeCrossChunkNames, this.optimizeLocalAccess.shouldOptimize(), renameHelperBuilder)
 	var findNamesReferencingThis *RescopeGlobalSymbols_FindNamesReferencingThis = new_RescopeGlobalSymbols_FindNamesReferencingThis()
-	CombinedCompilerPass_traverse(this.compiler_, root, jimmutableListOf_[NodeTraversal_Callback](jtc_NodeTraversal_Callback, RescopeGlobalSymbols_FindCrossChunkNamesCallback_as_NodeTraversal_Callback(findCrossChunkNames), RescopeGlobalSymbols_FindNamesReferencingThis_as_NodeTraversal_Callback(findNamesReferencingThis)))
+	CombinedCompilerPass_traverse(this.compiler_, root, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, RescopeGlobalSymbols_FindCrossChunkNamesCallback_as_NodeTraversal_Callback(findCrossChunkNames), RescopeGlobalSymbols_FindNamesReferencingThis_as_NodeTraversal_Callback(findNamesReferencingThis)))
 	var externNames *JTSet[string] = NodeUtil_collectExternVariableNames(this.compiler_, externs)
 	var symbolInfo *RescopeGlobalSymbolsInfo = new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(this.globalSymbolNamespace_, externNames.asSet(), findCrossChunkNames.crossChunkNames_.asSet(), findCrossChunkNames.crossChunkNamesWithWriteFromOtherChunk_.asSet(), findCrossChunkNames.crossChunkNamesUsedInNonDependentChunk_.asSet(), findCrossChunkNames.globalNamesWithReadInDefiningChunk_.asSet(), findCrossChunkNames.globalNamesWithInnerScopeWriteInDefiningChunk_.asSet(), findCrossChunkNames.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.asSet(), findNamesReferencingThis.maybeReferencesThis_.asSet())
 	var renameHelper *RescopeGlobalSymbolsRenameHelper = renameHelperBuilder.build(symbolInfo)
@@ -329,7 +329,7 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit_impl(t *NodeTrav
 		return
 	}
 	if NodeUtil_isAnyFor(parent) && (parent.getFirstChild() == n) {
-		var commas *JTList[Node] = jnewTList_(jtc_Node)
+		var commas *TList[Node] = newTList_(tc_Node)
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
@@ -388,7 +388,7 @@ func RescopeGlobalSymbols_RemoveGlobalVarCallback_hasOnlyNameOrDestructuringChil
 	return n.hasChildren()
 }
 
-func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) joinOnComma(commas *JTList[Node], source Node) Node {
+func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) joinOnComma(commas *TList[Node], source Node) Node {
 	var comma Node = commas.get(0)
 	for i := int32(1); i < commas.size(); i++ {
 		var nextComma Node = IR_comma(comma, commas.get(i))

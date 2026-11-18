@@ -371,7 +371,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliases(n
 }
 
 func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineAliasesForName(name *GlobalNamespace_Name, namespace *GlobalNamespace) {
-	var refs *JTList[*GlobalNamespace_Ref] = jtlistFrom_(jtc_p_GlobalNamespace_Ref, name.getRefs())
+	var refs *TList[*GlobalNamespace_Ref] = tlistFrom_(tc_p_GlobalNamespace_Ref, name.getRefs())
 	it_1 := refs.each()
 	for it_1.next() {
 		var ref *GlobalNamespace_Ref = it_1.v
@@ -674,7 +674,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineGlobalAli
 
 func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasReferences(aliasingName *GlobalNamespace_Name, aliasingRef *GlobalNamespace_Ref, aliasInlinability GlobalNamespace_Inlinability) *JTSet[GlobalNamespace_AstChange] {
 	var newNodes *JTSet[GlobalNamespace_AstChange] = jnewTSet_(tce_GlobalNamespace_AstChange)
-	var refs *JTList[*GlobalNamespace_Ref] = jtlistFrom_(jtc_p_GlobalNamespace_Ref, aliasingName.getRefs())
+	var refs *TList[*GlobalNamespace_Ref] = tlistFrom_(tc_p_GlobalNamespace_Ref, aliasingName.getRefs())
 	var initializationChunk *JSChunk = func() *JSChunk {
 		if aliasingName.getInitialization() != nil {
 			return aliasingName.getInitialization().getChunk()
@@ -733,7 +733,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasPro
 
 func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteNestedAliasReference(value Node, depth int32, newNodes *JTSet[GlobalNamespace_AstChange], prop *GlobalNamespace_Name) {
 	this.rewriteAliasProps(prop, value, (depth + 1), newNodes)
-	var refs *JTList[*GlobalNamespace_Ref] = jtlistFrom_(jtc_p_GlobalNamespace_Ref, prop.getRefs())
+	var refs *TList[*GlobalNamespace_Ref] = tlistFrom_(tc_p_GlobalNamespace_Ref, prop.getRefs())
 	it_1 := refs.each()
 	for it_1.next() {
 		var ref *GlobalNamespace_Ref = it_1.v
@@ -922,7 +922,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) process_2(externs No
 		NodeTraversal_traverse(this.outer_.compiler_, root, NodeTraversal_Callback(new_InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImportedModules(this, this.outer_.haveModulesBeenRewritten, this.outer_.moduleResolutionMode)))
 	}
 	this.nameMap = Preconditions_checkNotNull_Object_Object_T(this.outer_.namespace_, "namespace was not initialized").getNameIndex()
-	var globalNames *JTList[*GlobalNamespace_Name] = this.outer_.namespace_.getNameForest()
+	var globalNames *TList[*GlobalNamespace_Name] = this.outer_.namespace_.getNameForest()
 	var escaped *JTSet[*GlobalNamespace_Name] = this.checkNamespaces()
 	it_1 := globalNames.each()
 	for it_1.next() {

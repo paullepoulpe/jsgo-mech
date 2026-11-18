@@ -312,7 +312,7 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.methods = methods
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
-	var suffixList *JTList[string] = jnewTList_(jtc_string)
+	var suffixList *TList[string] = newTList_(tc_string)
 	it_1 := statics.eachKey()
 	for it_1.next() {
 		var arg string = it_1.v
@@ -332,7 +332,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	var statics *TMapBuilder[string, *PolyfillUsageFinder_Polyfill] = newTMapBuilder_(jtc_string, jtc_p_PolyfillUsageFinder_Polyfill)
 	var byNativeVersion *SimpleListMultimap[any, *PolyfillUsageFinder_Polyfill] = SimpleListMultimap_create[any, *PolyfillUsageFinder_Polyfill]()
 	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(table), str_) {
-		var tokens *JTList[string] = splitToListT_(jtc_string, Splitter_on(' ').omitEmptyStrings(), strobj_(strings.Trim(line, javaSpace_)))
+		var tokens *TList[string] = splitToListTP_(tc_string, Splitter_on(' ').omitEmptyStrings(), strobj_(strings.Trim(line, javaSpace_)))
 		if (tokens.size() == 1) && tokens.get(0) == "" {
 			continue
 		} else if tokens.size() < 3 {
@@ -363,9 +363,9 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	return new_PolyfillUsageFinder_Polyfills(methods.immutableCopy(), statics.buildOrThrow(), byNativeVersion.immutableCopy())
 }
 
-func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode CompilerOptions_LanguageMode) *JTList[*PolyfillUsageFinder_Polyfill] {
+func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode CompilerOptions_LanguageMode) *TList[*PolyfillUsageFinder_Polyfill] {
 	var featureSet *FeatureSet = languageMode.toFeatureSet()
-	var result *TListBuilder[*PolyfillUsageFinder_Polyfill] = newTListBuilder_(jtc_p_PolyfillUsageFinder_Polyfill)
+	var result *ImmutableList_Builder[*PolyfillUsageFinder_Polyfill] = immutableListBuilder_(tc_p_PolyfillUsageFinder_Polyfill)
 	for nativeVersionStr := range elemsBy_(this.byNativeVersion.keySet(), str_) {
 		var polyfillNativeFeatureSet *FeatureSet = PolyfillUsageFinder_getPolyfillSupportedFeatureSet(nativeVersionStr)
 		if !featureSet.containsFeatureSet(polyfillNativeFeatureSet) {

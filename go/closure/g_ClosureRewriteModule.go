@@ -15,9 +15,9 @@ type ClosureRewriteModule struct {
 	currentScript                     *ClosureRewriteModule_ScriptDescription
 	rewriteState                      *ClosureRewriteModule_GlobalRewriteState
 	legacyScriptNamespacesAndPrefixes *JTSet[string]
-	unrecognizedRequires              *JTList[*ClosureRewriteModule_UnrecognizedRequire]
-	googModuleGetCalls                *JTList[Node]
-	googRequireDynamicCalls           *JTList[Node]
+	unrecognizedRequires              *TList[*ClosureRewriteModule_UnrecognizedRequire]
+	googModuleGetCalls                *TList[Node]
+	googRequireDynamicCalls           *TList[Node]
 	globalTypedScope                  *TypedScope
 }
 
@@ -28,9 +28,9 @@ func (this *ClosureRewriteModule) finit_ClosureRewriteModule() {
 	this.currentScript = nil
 	this.rewriteState = new_ClosureRewriteModule_GlobalRewriteState()
 	this.legacyScriptNamespacesAndPrefixes = jnewTSet_(jtc_string)
-	this.unrecognizedRequires = jnewTList_(tc_p_ClosureRewriteModule_UnrecognizedRequire)
-	this.googModuleGetCalls = jnewTList_(jtc_Node)
-	this.googRequireDynamicCalls = jnewTList_(jtc_Node)
+	this.unrecognizedRequires = newTList_(tc_p_ClosureRewriteModule_UnrecognizedRequire)
+	this.googModuleGetCalls = newTList_(tc_Node)
+	this.googRequireDynamicCalls = newTList_(tc_Node)
 }
 
 func (this *ClosureRewriteModule) init_ClosureRewriteModule(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope) {
@@ -106,7 +106,7 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 }
 
 func (this *ClosureRewriteModule) declareSyntheticExterns() {
-	var varsBuilder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
+	var varsBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	it_1 := this.syntheticExterns.eachValue()
 	for it_1.next() {
 		var lhs Node = it_1.v
@@ -114,7 +114,7 @@ func (this *ClosureRewriteModule) declareSyntheticExterns() {
 			varsBuilder.add(IR_var_Node(this.astFactory_.createNameWithUnknownType(lhs.getString())).srcrefTree(lhs))
 		}
 	}
-	var vars *JTList[Node] = varsBuilder.build()
+	var vars *TList[Node] = varsBuilder.build()
 	if vars.isEmpty() {
 		return
 	}
@@ -1427,7 +1427,7 @@ func ClosureRewriteModule_ExportDefinition_clinit() {
 		return
 	}
 	ClosureRewriteModule_ExportDefinition_clinit_done = true
-	ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_CONST.enum_(), Token_rhino_LET.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_()}))
+	ClosureRewriteModule_ExportDefinition_INLINABLE_NAME_PARENTS = tsetImm_(jtc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_CONST.enum_(), Token_rhino_LET.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_()}))
 
 }
 
@@ -1477,7 +1477,7 @@ func (this *ClosureRewriteModule_ScriptDescription) finit_ClosureRewriteModule_S
 	this.namespaceId = Optional_empty[string]()
 	this.topLevelNames = jnewTSet_(jtc_string)
 	this.childScripts = newTDeque_(jtc_p_ClosureRewriteModule_ScriptDescription)
-	this.namesToInlineByAlias = jnewTMap_(jtc_string, tc_p_ClosureRewriteModule_AliasName)
+	this.namesToInlineByAlias = jnewTMap_(jtc_string, jtc_p_ClosureRewriteModule_AliasName)
 	this.defaultExportLocalName = Optional_empty[string]()
 	this.namedExports = jnewTSet_(jtc_string)
 	this.exportsToInline = jnewTMap_(tce_p_Var, jtc_p_ClosureRewriteModule_ExportDefinition)

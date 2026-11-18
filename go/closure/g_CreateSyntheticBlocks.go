@@ -8,7 +8,7 @@ type CreateSyntheticBlocks struct {
 	startMarkerName string
 	endMarkerName   string
 	markerStack     *TDeque[Node]
-	validMarkers    *JTList[*CreateSyntheticBlocks_Marker]
+	validMarkers    *TList[*CreateSyntheticBlocks_Marker]
 }
 
 func (this *CreateSyntheticBlocks) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -25,7 +25,7 @@ func (this *CreateSyntheticBlocks) zero_CreateSyntheticBlocks() {
 
 func (this *CreateSyntheticBlocks) finit_CreateSyntheticBlocks() {
 	this.markerStack = newTDeque_(jtc_Node)
-	this.validMarkers = jnewTList_(tc_p_CreateSyntheticBlocks_Marker)
+	this.validMarkers = newTList_(tc_p_CreateSyntheticBlocks_Marker)
 }
 
 func (this *CreateSyntheticBlocks) init_CreateSyntheticBlocks(compiler *AbstractCompiler, startMarkerName string, endMarkerName string) {

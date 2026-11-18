@@ -10,7 +10,7 @@ type ProcessClosureProvidesAndRequires struct {
 	providedNames                   *JTMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]
 	exportedVariables               *JTSet[string]
 	preserveGoogProvidesAndRequires bool
-	requiresToBeRemoved             *JTList[Node]
+	requiresToBeRemoved             *TList[Node]
 	hasRewritingOccurred            bool
 	forwardDeclaresToRemove         *JTSet[Node]
 	astFactory_                     *AstFactory
@@ -19,7 +19,7 @@ type ProcessClosureProvidesAndRequires struct {
 func (this *ProcessClosureProvidesAndRequires) finit_ProcessClosureProvidesAndRequires() {
 	this.providedNames = jnewTMap_(jtc_string, jtc_p_ProcessClosureProvidesAndRequires_ProvidedName)
 	this.exportedVariables = jnewTSet_(jtc_string)
-	this.requiresToBeRemoved = jnewTList_(jtc_Node)
+	this.requiresToBeRemoved = newTList_(tc_Node)
 	this.hasRewritingOccurred = false
 	this.forwardDeclaresToRemove = jnewTSet_(jtc_Node)
 }
@@ -238,7 +238,7 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 
 func (this *ProcessClosureProvidesAndRequires) processForwardDeclare(n Node, parent Node) {
 	var convention CodingConvention = this.compiler_.getCodingConvention()
-	var typeDeclarations *JTList[string] = convention.identifyTypeDeclarationCall(n)
+	var typeDeclarations *TList[string] = convention.identifyTypeDeclarationCall(n)
 	if (!this.preserveGoogProvidesAndRequires && (typeDeclarations != nil)) && (typeDeclarations.size() == 1) {
 		var toRemove Node = func() Node {
 			if parent.isExprResult() {

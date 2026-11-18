@@ -21,9 +21,9 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) zero_BrowserWithTransf
 	this.expectedPrefixes = nullstr_
 }
 
-func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransformedPrefixesModuleResolver(modulePaths *JTSet[string], moduleRootPaths *JTList[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements *JTMap[string, string]) {
+func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransformedPrefixesModuleResolver(modulePaths *JTSet[string], moduleRootPaths *TList[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements *JTMap[string, string]) {
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
-	var sortedReplacements *JTList[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement] = jnewTList_(jtc_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement)
+	var sortedReplacements *TList[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement] = newTList_(tc_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement)
 	it_1 := prefixReplacements.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, string] = it_1.entry()
@@ -33,7 +33,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 		return String_length(r.prefix())
 	}})), &Function_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_string{func(p0 *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) string { return p0.prefix() }}))
 	this.prefixReplacements = jimmutableSetCopyOf_(tce_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement, Collection(sortedReplacements.asList()))
-	var sortedPrefixes *JTList[string] = jnewTList_(jtc_string)
+	var sortedPrefixes *TList[string] = newTList_(tc_string)
 	it_3 := this.prefixReplacements.each()
 	for it_3.next() {
 		var replacement *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = it_3.v
@@ -43,7 +43,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 	this.expectedPrefixes = JString_join_s(", ", Iterable(sortedPrefixes.asList()))
 }
 
-func new_BrowserWithTransformedPrefixesModuleResolver(modulePaths *JTSet[string], moduleRootPaths *JTList[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements *JTMap[string, string]) *BrowserWithTransformedPrefixesModuleResolver {
+func new_BrowserWithTransformedPrefixesModuleResolver(modulePaths *JTSet[string], moduleRootPaths *TList[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper, prefixReplacements *JTMap[string, string]) *BrowserWithTransformedPrefixesModuleResolver {
 	this := &BrowserWithTransformedPrefixesModuleResolver{}
 	this.self_ = this
 	this.zero_BrowserWithTransformedPrefixesModuleResolver()
@@ -134,7 +134,7 @@ func new_BrowserWithTransformedPrefixesModuleResolver_Factory(prefixReplacements
 }
 
 func (this *BrowserWithTransformedPrefixesModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *ModuleResolver {
-	return new_BrowserWithTransformedPrefixesModuleResolver(tsetImm_(jtc_string, modulePaths), jtlistImm_(jtc_string, moduleRootPaths), errorHandler, pathEscaper, this.prefixReplacements).up_ModuleResolver()
+	return new_BrowserWithTransformedPrefixesModuleResolver(tsetImm_(jtc_string, modulePaths), tlistImm_(tc_string, moduleRootPaths), errorHandler, pathEscaper, this.prefixReplacements).up_ModuleResolver()
 }
 
 type BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement struct {

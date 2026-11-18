@@ -30,7 +30,7 @@ func (this *JsMessageVisitor) up_NodeTraversal_AbstractPostOrderCallback() *Node
 }
 
 func (this *JsMessageVisitor) finit_JsMessageVisitor() {
-	this.messageNames = jnewTMap_(jtc_string, tc_p_JsMessageVisitor_MessageLocation)
+	this.messageNames = jnewTMap_(jtc_string, jtc_p_JsMessageVisitor_MessageLocation)
 	this.unnamedMessages = jnewTMap_(tce_p_Var, jtc_p_JsMessage)
 	this.googMsgNodes = jnewTSet_(jtc_Node)
 }
@@ -172,7 +172,7 @@ func (this *JsMessageVisitor) isDeclareIcuTemplateCallee(calleeNode Node) bool {
 }
 
 func (this *JsMessageVisitor) buildJsMessage(input JsMessageVisitor_InputForBuildJsMsg) *JsMessage {
-	var messageParts *JTList[JsMessage_Part] = input.getMessageParts()
+	var messageParts *TList[JsMessage_Part] = input.getMessageParts()
 	var messageKeyFromLhs string = input.getMessageKeyFromLhs()
 	var externalMessageId Optional[string] = JsMessageVisitor_getExternalMessageId(messageKeyFromLhs)
 	var isAnonymous bool
@@ -649,7 +649,7 @@ func JsMessageVisitor_parseJsMessageTextIntoParts(originalMsgText string) *Outco
 
 func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outcome_base[JsMessageVisitor_GoogGetMsgParsedText] {
 	var msgText string = originalMsgText
-	var partsBuilder *TListBuilder[JsMessage_Part] = newTListBuilder_(jtc_JsMessage_Part)
+	var partsBuilder *ImmutableList_Builder[JsMessage_Part] = immutableListBuilder_(tc_JsMessage_Part)
 	var placeholderNamesBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	for {
 		var phBegin int32 = int32(strings.Index(msgText, JsMessage_PH_JS_PREFIX))
@@ -679,7 +679,7 @@ func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outco
 		}
 	}
 	var placeholderNames *JTSet[string] = placeholderNamesBuilder.build()
-	var parts *JTList[JsMessage_Part] = partsBuilder.build()
+	var parts *TList[JsMessage_Part] = partsBuilder.build()
 	var parsedText JsMessageVisitor_GoogGetMsgParsedText = JsMessageVisitor_GoogGetMsgParsedText(new_JsMessageVisitor_7(originalMsgText, placeholderNames, parts))
 	return Outcome_base_ok_Object[JsMessageVisitor_GoogGetMsgParsedText](parsedText)
 }
@@ -774,7 +774,7 @@ const JsMessageVisitor_ICU_MSG_FUNCTION_NAME string = "declareIcuTemplate"
 const JsMessageVisitor_ICU_MSG_FUNCTION_QNAME string = "goog.i18n.messages.declareIcuTemplate"
 const JsMessageVisitor_MSG_FALLBACK_FUNCTION_NAME string = "goog.getMsgWithFallback"
 
-var JsMessageVisitor_FUNCTIONS_USED_IN_MESSAGE_EXTRACTION *JTList[string]
+var JsMessageVisitor_FUNCTIONS_USED_IN_MESSAGE_EXTRACTION *TList[string]
 
 const JsMessageVisitor_MSG_EXTERNAL_PREFIX string = "MSG_EXTERNAL_"
 
@@ -803,7 +803,7 @@ func JsMessageVisitor_clinit() {
 		return
 	}
 	JsMessageVisitor_clinit_done = true
-	JsMessageVisitor_FUNCTIONS_USED_IN_MESSAGE_EXTRACTION = jimmutableListOf_[string](jtc_string, JsMessageVisitor_MSG_FUNCTION_NAME, JsMessageVisitor_ICU_MSG_FUNCTION_NAME)
+	JsMessageVisitor_FUNCTIONS_USED_IN_MESSAGE_EXTRACTION = immutableListOf_[string](tc_string, JsMessageVisitor_MSG_FUNCTION_NAME, JsMessageVisitor_ICU_MSG_FUNCTION_NAME)
 	JsMessageVisitor_MESSAGE_HAS_NO_DESCRIPTION = DiagnosticType_warning("JSC_MSG_HAS_NO_DESCRIPTION", "Message {0} has no description. Add @desc JsDoc tag.")
 	JsMessageVisitor_MESSAGE_HAS_NO_TEXT = DiagnosticType_warning("JSC_MSG_HAS_NO_TEXT", "Message value of {0} is just an empty string. Empty messages are forbidden.")
 	JsMessageVisitor_MESSAGE_TREE_MALFORMED = DiagnosticType_error("JSC_MSG_TREE_MALFORMED", "Message parse tree malformed. {0}")
@@ -825,7 +825,7 @@ type JsMessageVisitor_InputForBuildJsMsg interface {
 	getMessageKeyFromLhs() string
 	getSourceName() string
 	getMessageText() string
-	getMessageParts() *JTList[JsMessage_Part]
+	getMessageParts() *TList[JsMessage_Part]
 	getPlaceholderExampleMap() *JTMap[string, string]
 	getPlaceholderOriginalCodeMap() *JTMap[string, string]
 	getDescription() Optional[string]
@@ -854,7 +854,7 @@ func new_JsMessageVisitor_IcuMessageTemplateString(template string) *JsMessageVi
 
 func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNamesToExtract *JTSet[string]) *JsMessageVisitor_ExtractedIcuTemplateParts {
 	var extractedPlaceholderNames *TSetBuilder[string] = newTSetBuilder_(jtc_string)
-	var partsBuilder *TListBuilder[JsMessage_Part] = newTListBuilder_(jtc_JsMessage_Part)
+	var partsBuilder *ImmutableList_Builder[JsMessage_Part] = immutableListBuilder_(tc_JsMessage_Part)
 	var matcher *Matcher_re2j = JsMessageVisitor_ICU_PLACEHOLDER_RE.matcher_s(this.template)
 	var remainingTemplateStartIndex int32 = 0
 	templateU16 := utf16Of_(this.template)
@@ -877,15 +877,15 @@ func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNa
 
 type JsMessageVisitor_ExtractedIcuTemplateParts struct {
 	extractedPlaceholderNames *JTSet[string]
-	extractedParts            *JTList[JsMessage_Part]
+	extractedParts            *TList[JsMessage_Part]
 }
 
-func (this *JsMessageVisitor_ExtractedIcuTemplateParts) init_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames *JTSet[string], extractedParts *JTList[JsMessage_Part]) {
+func (this *JsMessageVisitor_ExtractedIcuTemplateParts) init_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames *JTSet[string], extractedParts *TList[JsMessage_Part]) {
 	this.extractedPlaceholderNames = extractedPlaceholderNames
 	this.extractedParts = extractedParts
 }
 
-func new_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames *JTSet[string], extractedParts *JTList[JsMessage_Part]) *JsMessageVisitor_ExtractedIcuTemplateParts {
+func new_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames *JTSet[string], extractedParts *TList[JsMessage_Part]) *JsMessageVisitor_ExtractedIcuTemplateParts {
 	this := &JsMessageVisitor_ExtractedIcuTemplateParts{}
 	this.init_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames, extractedParts)
 	return this
@@ -1010,7 +1010,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(required
 type JsMessageVisitor_GoogGetMsgParsedText interface {
 	getText() string
 	getPlaceholderNames() *JTSet[string]
-	getParts() *JTList[JsMessage_Part]
+	getParts() *TList[JsMessage_Part]
 }
 
 type JsMessageVisitor_MalformedException struct {
@@ -1100,7 +1100,7 @@ func (this *JsMessageVisitor_1) getMessageText() string {
 	return this.cap_googGetMsgParsedText.getText()
 }
 
-func (this *JsMessageVisitor_1) getMessageParts() *JTList[JsMessage_Part] {
+func (this *JsMessageVisitor_1) getMessageParts() *TList[JsMessage_Part] {
 	return this.cap_googGetMsgParsedText.getParts()
 }
 
@@ -1216,7 +1216,7 @@ func (this *JsMessageVisitor_3) getMessageText() string {
 	return this.cap_icuMessageTemplateString.template
 }
 
-func (this *JsMessageVisitor_3) getMessageParts() *JTList[JsMessage_Part] {
+func (this *JsMessageVisitor_3) getMessageParts() *TList[JsMessage_Part] {
 	return this.cap_extractedIcuTemplateParts.extractedParts
 }
 
@@ -1398,14 +1398,14 @@ func (this *JsMessageVisitor_6) checkForUnknownPlaceholders(knownPlaceholders *J
 type JsMessageVisitor_7 struct {
 	cap_originalMsgText  string
 	cap_placeholderNames *JTSet[string]
-	cap_parts            *JTList[JsMessage_Part]
+	cap_parts            *TList[JsMessage_Part]
 }
 
 func (this *JsMessageVisitor_7) init_JsMessageVisitor_7() {
 
 }
 
-func new_JsMessageVisitor_7(cap_originalMsgText string, cap_placeholderNames *JTSet[string], cap_parts *JTList[JsMessage_Part]) *JsMessageVisitor_7 {
+func new_JsMessageVisitor_7(cap_originalMsgText string, cap_placeholderNames *JTSet[string], cap_parts *TList[JsMessage_Part]) *JsMessageVisitor_7 {
 	this := &JsMessageVisitor_7{}
 	this.cap_originalMsgText = cap_originalMsgText
 	this.cap_placeholderNames = cap_placeholderNames
@@ -1422,7 +1422,7 @@ func (this *JsMessageVisitor_7) getPlaceholderNames() *JTSet[string] {
 	return this.cap_placeholderNames
 }
 
-func (this *JsMessageVisitor_7) getParts() *JTList[JsMessage_Part] {
+func (this *JsMessageVisitor_7) getParts() *TList[JsMessage_Part] {
 	return this.cap_parts
 }
 

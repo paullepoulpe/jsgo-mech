@@ -198,8 +198,8 @@ func (this *SimpleMultiset[E]) isEmpty() bool {
 	return (this.totalCount == 0)
 }
 
-func (this *SimpleMultiset[E]) asList() *JTList[any] {
-	var list *TListBuilder[any] = newTListBuilder_(tc_Object)
+func (this *SimpleMultiset[E]) asList() *TList[any] {
+	var list *ImmutableList_Builder[any] = immutableListBuilder_(tc_Object)
 	for e := range elemsBy_(this.counts.entrySet(), icast_Map_Entry) {
 		for i := int32(0); i < unbox_[int32](e.getValue()); i++ {
 			list.add(e.getKey())
@@ -231,7 +231,7 @@ func (this *SimpleMultiset[E]) hashCode() int32 {
 }
 
 func (this *SimpleMultiset[E]) toString() string {
-	var parts *JTList[string] = jnewTList_(jtc_string)
+	var parts *TList[string] = newTList_(tc_string)
 	for e := range elemsBy_(this.counts.entrySet(), icast_Map_Entry) {
 		var element string = objstr_(e.getKey())
 		parts.add(func() string {

@@ -168,20 +168,20 @@ func PolymerPassStaticUtils_addExportAndNoCollapseToKey(keyNode Node) {
 	keyNode.setJSDocInfo(newDocs.build())
 }
 
-func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerClassDefinition_DefinitionType, compiler *AbstractCompiler, constructor Node) *JTList[*PolymerPass_MemberDefinition] {
+func PolymerPassStaticUtils_extractProperties(descriptor Node, defType PolymerClassDefinition_DefinitionType, compiler *AbstractCompiler, constructor Node) *TList[*PolymerPass_MemberDefinition] {
 	var properties Node = descriptor
 	if defType == PolymerClassDefinition_DefinitionType_ObjectLiteral {
 		properties = NodeUtil_getFirstPropMatchingKey(descriptor, "properties")
 	}
 	if properties == 0 {
-		return jtlistEmptyImm_(jtc_p_PolymerPass_MemberDefinition)
+		return tlistEmptyImm_(tc_p_PolymerPass_MemberDefinition)
 	}
 	var constructorPropertyJsDoc *JTMap[string, *JSDocInfo] = jnewTMap_(jtc_string, jtc_p_JSDocInfo)
 	if constructor != 0 {
 		PolymerPassStaticUtils_collectConstructorPropertyJsDoc(constructor, constructorPropertyJsDoc)
 	}
 	var enclosingModule Node = NodeUtil_getEnclosingModuleIfPresent(descriptor)
-	var members *TListBuilder[*PolymerPass_MemberDefinition] = newTListBuilder_(jtc_p_PolymerPass_MemberDefinition)
+	var members *ImmutableList_Builder[*PolymerPass_MemberDefinition] = immutableListBuilder_(tc_p_PolymerPass_MemberDefinition)
 	{
 		var keyNode Node = properties.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {

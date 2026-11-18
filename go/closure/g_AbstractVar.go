@@ -303,7 +303,7 @@ func AbstractVar_clinit() {
 		return
 	}
 	AbstractVar_clinit_done = true
-	AbstractVar_DECLARATION_TYPES = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_LET.enum_(), Token_rhino_CONST.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_(), Token_rhino_CATCH.enum_(), Token_rhino_IMPORT.enum_(), Token_rhino_PARAM_LIST.enum_()}))
+	AbstractVar_DECLARATION_TYPES = tsetImm_(jtc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_LET.enum_(), Token_rhino_CONST.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_(), Token_rhino_CATCH.enum_(), Token_rhino_IMPORT.enum_(), Token_rhino_PARAM_LIST.enum_()}))
 
 }
 

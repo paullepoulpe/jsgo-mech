@@ -195,7 +195,7 @@ func EsModuleProcessor_clinit() {
 
 type EsModuleProcessor_FindMutableExports struct {
 	NodeTraversal_AbstractPostOrderCallback
-	exports            *JTList[*Export]
+	exports            *TList[*Export]
 	exportsByLocalName *SimpleListMultimap[any, *Export]
 }
 
@@ -206,7 +206,7 @@ func (this *EsModuleProcessor_FindMutableExports) up_NodeTraversal_AbstractPostO
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *EsModuleProcessor_FindMutableExports) init_EsModuleProcessor_FindMutableExports(exports *JTList[*Export]) {
+func (this *EsModuleProcessor_FindMutableExports) init_EsModuleProcessor_FindMutableExports(exports *TList[*Export]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.exports = exports
 	this.exportsByLocalName = SimpleListMultimap_create[any, *Export]()
@@ -217,7 +217,7 @@ func (this *EsModuleProcessor_FindMutableExports) init_EsModuleProcessor_FindMut
 	}
 }
 
-func new_EsModuleProcessor_FindMutableExports(exports *JTList[*Export]) *EsModuleProcessor_FindMutableExports {
+func new_EsModuleProcessor_FindMutableExports(exports *TList[*Export]) *EsModuleProcessor_FindMutableExports {
 	this := &EsModuleProcessor_FindMutableExports{}
 	this.self_ = this
 	this.init_EsModuleProcessor_FindMutableExports(exports)
@@ -254,7 +254,7 @@ type EsModuleProcessor_UnresolvedModuleBuilder struct {
 	path_              *ModuleLoader_ModulePath
 	root               Node
 	importsByLocalName *JTMap[string, *Import]
-	exports            *JTList[*Export]
+	exports            *TList[*Export]
 	exportedNames      *JTSet[string]
 }
 
@@ -262,7 +262,7 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) init_EsModuleProcessor_Un
 	this.path_ = path
 	this.root = root
 	this.importsByLocalName = jnewTMap_(jtc_string, jtc_p_Import)
-	this.exports = jnewTList_(jtc_p_Export)
+	this.exports = newTList_(tc_p_Export)
 	this.exportedNames = jnewTSet_(jtc_string)
 }
 
@@ -292,9 +292,9 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) add(e *Export) bool {
 }
 
 func (this *EsModuleProcessor_UnresolvedModuleBuilder) build() *UnresolvedModule {
-	var localExports *JTList[*Export] = jnewTList_(jtc_p_Export)
-	var indirectExportsBuilder *TListBuilder[*Export] = newTListBuilder_(jtc_p_Export)
-	var starExportsBuilder *TListBuilder[*Export] = newTListBuilder_(jtc_p_Export)
+	var localExports *TList[*Export] = newTList_(tc_p_Export)
+	var indirectExportsBuilder *ImmutableList_Builder[*Export] = immutableListBuilder_(tc_p_Export)
+	var starExportsBuilder *ImmutableList_Builder[*Export] = immutableListBuilder_(tc_p_Export)
 	it_1 := this.exports.each()
 	for it_1.next() {
 		var ee *Export = it_1.v
@@ -311,7 +311,7 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) build() *UnresolvedModule
 		}
 	}
 	NodeTraversal_traverse(this.outer_.compiler_, this.root, NodeTraversal_Callback(new_EsModuleProcessor_FindMutableExports(localExports)))
-	return new_EsModuleProcessor_UnresolvedEsModule(this.outer_, this.outer_.metadata_, this.path_, immutableMapCopyOfT_(jtc_string, jtc_p_Import, this.importsByLocalName), immutableListCopyOfT_(jtc_p_Export, localExports), indirectExportsBuilder.build(), starExportsBuilder.build()).up_UnresolvedModule()
+	return new_EsModuleProcessor_UnresolvedEsModule(this.outer_, this.outer_.metadata_, this.path_, immutableMapCopyOfT_(jtc_string, jtc_p_Import, this.importsByLocalName), immutableListCopyOfTP_(tc_p_Export, localExports), indirectExportsBuilder.build(), starExportsBuilder.build()).up_UnresolvedModule()
 }
 
 type EsModuleProcessor_UnresolvedEsModule struct {
@@ -320,9 +320,9 @@ type EsModuleProcessor_UnresolvedEsModule struct {
 	metadataField      *ModuleMetadataMap_ModuleMetadata
 	path_              *ModuleLoader_ModulePath
 	importsByLocalName *JTMap[string, *Import]
-	localExports       *JTList[*Export]
-	indirectExports    *JTList[*Export]
-	starExports        *JTList[*Export]
+	localExports       *TList[*Export]
+	indirectExports    *TList[*Export]
+	starExports        *TList[*Export]
 	exportedNames      *JTSet[string]
 	resolvedImports    *JTMap[string, *ResolveExportResult]
 	resolvedExports    *JTMap[string, *ResolveExportResult]
@@ -336,7 +336,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) up_UnresolvedModule() *Unresol
 	return &this.UnresolvedModule
 }
 
-func (this *EsModuleProcessor_UnresolvedEsModule) init_EsModuleProcessor_UnresolvedEsModule(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, importsByLocalName *JTMap[string, *Import], localExports *JTList[*Export], indirectExports *JTList[*Export], starExports *JTList[*Export]) {
+func (this *EsModuleProcessor_UnresolvedEsModule) init_EsModuleProcessor_UnresolvedEsModule(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, importsByLocalName *JTMap[string, *Import], localExports *TList[*Export], indirectExports *TList[*Export], starExports *TList[*Export]) {
 	this.UnresolvedModule.init_UnresolvedModule()
 	this.metadataField = metadata
 	this.path_ = path
@@ -345,12 +345,12 @@ func (this *EsModuleProcessor_UnresolvedEsModule) init_EsModuleProcessor_Unresol
 	this.indirectExports = indirectExports
 	this.starExports = starExports
 	this.exportedNames = nil
-	this.resolvedImports = jnewTMap_(jtc_string, tc_p_ResolveExportResult)
-	this.resolvedExports = jnewTMap_(jtc_string, tc_p_ResolveExportResult)
+	this.resolvedImports = jnewTMap_(jtc_string, jtc_p_ResolveExportResult)
+	this.resolvedExports = jnewTMap_(jtc_string, jtc_p_ResolveExportResult)
 	this.resolved_ = nil
 }
 
-func new_EsModuleProcessor_UnresolvedEsModule(outer_ *EsModuleProcessor, metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, importsByLocalName *JTMap[string, *Import], localExports *JTList[*Export], indirectExports *JTList[*Export], starExports *JTList[*Export]) *EsModuleProcessor_UnresolvedEsModule {
+func new_EsModuleProcessor_UnresolvedEsModule(outer_ *EsModuleProcessor, metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, importsByLocalName *JTMap[string, *Import], localExports *TList[*Export], indirectExports *TList[*Export], starExports *TList[*Export]) *EsModuleProcessor_UnresolvedEsModule {
 	this := &EsModuleProcessor_UnresolvedEsModule{}
 	this.self_ = this
 	this.outer_ = outer_

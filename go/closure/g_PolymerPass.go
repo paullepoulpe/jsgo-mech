@@ -8,7 +8,7 @@ type PolymerPass struct {
 	tagNameMap                   *JTMap[string, string]
 	polymerElementExterns        Node
 	nativeExternsAdded           *JTSet[string]
-	polymerElementProps          *JTList[Node]
+	polymerElementProps          *TList[Node]
 	globalNames                  *GlobalNamespace
 	behaviorExtractor            *PolymerBehaviorExtractor
 	warnedPolymer1ExternsMissing bool

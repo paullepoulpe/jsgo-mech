@@ -163,7 +163,7 @@ func (this *Compiler) init_Compiler_Output(outStream *Output) {
 	this.finit_Compiler()
 	this.changeTracker.addChangeHandler(RecentChange_as_CodeChangeHandler(this.changeTracker.getRecentChange()))
 	this.outStream = outStream
-	this.moduleTypesByName = jnewTMap_(jtc_string, tc_p_CompilerInput_ModuleType)
+	this.moduleTypesByName = jnewTMap_(jtc_string, jtc_p_CompilerInput_ModuleType)
 }
 
 func new_Compiler_Output(outStream *Output) *Compiler {
@@ -318,7 +318,7 @@ func (this *Compiler) logToFile(logFileName string, logStringSupplier SupplierOf
 }
 
 func (this *Compiler) initWarningsGuard(warningsGuard *WarningsGuard) {
-	var guards *TListBuilder[*WarningsGuard] = newTListBuilder_(jtc_p_WarningsGuard)
+	var guards *ImmutableList_Builder[*WarningsGuard] = immutableListBuilder_(tc_p_WarningsGuard)
 	guards.add(new_J2clSuppressWarningsGuard().up_WarningsGuard()).add(new_ClosureUnawareCodeWarningsGuard().up_WarningsGuard()).add(new_SuppressDocWarningsGuard(this.up_AbstractCompiler(), DiagnosticGroups_getRegisteredGroups()).up_WarningsGuard()).add(warningsGuard)
 	this.warningsGuard = new_ComposeWarningsGuard(guards.build()).up_WarningsGuard()
 }
@@ -423,13 +423,13 @@ func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional
 		panic(new_IllegalArgumentException_String("Cannot read from TypedAST input stream"))
 	}
 	var astData *TypedAstDeserializer_DeserializedAst = TypedAstDeserializer_deserializeRuntimeLibraries(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, colorPoolBuilder, typedAsts.get(), this.getOptions().getResolveSourceMapAnnotations(), this.getOptions().getParseInlineSourceMaps())
-	var runtimeLibraryTypedAsts *JTMap[string, Supplier] = jnewTMap_(jtc_string, tc_Supplier)
+	var runtimeLibraryTypedAsts *JTMap[string, Supplier] = jnewTMap_(jtc_string, jtc_Supplier)
 	for library := range elemsBy_(astData.getFilesystem().entrySet(), icast_Map_Entry) {
 		runtimeLibraryTypedAsts.computeIfAbsent(library.getKey().(*SourceFile_jscomp).getName(), &Function_tfn_string_Supplier{func(f string) Supplier {
 			return icast_Supplier(library.getValue())
 		}})
 	}
-	this.runtimeLibraryTypedAsts = immutableMapCopyOfT_(jtc_string, tc_Supplier, runtimeLibraryTypedAsts)
+	this.runtimeLibraryTypedAsts = immutableMapCopyOfT_(jtc_string, jtc_Supplier, runtimeLibraryTypedAsts)
 }
 
 func (this *Compiler) init(externs ListOf[*SourceFile_jscomp], sources ListOf[*SourceFile_jscomp], options *CompilerOptions) {
@@ -437,7 +437,7 @@ func (this *Compiler) init(externs ListOf[*SourceFile_jscomp], sources ListOf[*S
 	for source := range elemsAs_[*SourceFile_jscomp](sources) {
 		chunk.addCompilerInput(new_CompilerInput_SourceFile_boolean(source, false))
 	}
-	var chunks *JTList[*JSChunk] = jnewTListN_(jtc_p_JSChunk, 1)
+	var chunks *TList[*JSChunk] = newTListN_(tc_p_JSChunk, 1)
 	chunks.add(chunk)
 	this.initChunks(externs, chunks.asList(), options)
 	this.addFilesToSourceMap(Iterable(sources))
@@ -548,10 +548,10 @@ func (this *Compiler) initAST() {
 }
 
 func (this *Compiler) compileSourceFile(extern *SourceFile_jscomp, input *SourceFile_jscomp, options *CompilerOptions) *Result {
-	return this.compile(jimmutableListOf_[*SourceFile_jscomp](jtc_p_SourceFile_jscomp, extern), jimmutableListOf_[*SourceFile_jscomp](jtc_p_SourceFile_jscomp, input), options)
+	return this.compile(immutableListOf_[*SourceFile_jscomp](tc_p_SourceFile_jscomp, extern), immutableListOf_[*SourceFile_jscomp](tc_p_SourceFile_jscomp, input), options)
 }
 
-func (this *Compiler) compile(externs *JTList[*SourceFile_jscomp], inputs *JTList[*SourceFile_jscomp], options *CompilerOptions) *Result {
+func (this *Compiler) compile(externs *TList[*SourceFile_jscomp], inputs *TList[*SourceFile_jscomp], options *CompilerOptions) *Result {
 	if this.jsRoot != 0 {
 		panic(new_IllegalStateException_0())
 	}
@@ -587,7 +587,7 @@ func (this *Compiler) generateReport() {
 	this.stopTracer(t, "generateReport")
 }
 
-func (this *Compiler) compileChunks(externs *JTList[*SourceFile_jscomp], chunks *JTList[*JSChunk], options *CompilerOptions) *Result {
+func (this *Compiler) compileChunks(externs *TList[*SourceFile_jscomp], chunks *TList[*JSChunk], options *CompilerOptions) *Result {
 	if this.jsRoot != 0 {
 		panic(new_IllegalStateException_0())
 	}
@@ -904,7 +904,7 @@ func (this *Compiler) runValidityCheck() {
 }
 
 func (this *Compiler) runCustomPasses(executionTime CustomPassExecutionTime) {
-	var customPasses *JTList[CompilerPass] = this.options_.getCustomPassesAt(executionTime)
+	var customPasses *TList[CompilerPass] = this.options_.getCustomPassesAt(executionTime)
 	var t *Tracer = this.newTracer("runCustomPasses")
 	defer func() {
 		this.stopTracer(t, "runCustomPasses")
@@ -974,11 +974,11 @@ func (this *Compiler) isDebugLoggingEnabled_impl() bool {
 	return this.getOptions().getDebugLogDirectory().isPresent()
 }
 
-func (this *Compiler) getDebugLogFilterList_impl() *JTList[string] {
+func (this *Compiler) getDebugLogFilterList_impl() *TList[string] {
 	if this.getOptions().getDebugLogFilter().isEmpty() {
-		return jnewTList_(jtc_string)
+		return newTList_(tc_string)
 	}
-	return splitToListT_(jtc_string, Splitter_on(',').omitEmptyStrings(), strobj_(this.getOptions().getDebugLogFilter().get()))
+	return splitToListTP_(tc_string, Splitter_on(',').omitEmptyStrings(), strobj_(this.getOptions().getDebugLogFilter().get()))
 }
 
 func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart string, restNameParts []string) *LogFile {
@@ -988,7 +988,7 @@ func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart s
 	var dir Optional[string] = this.getOptions().getDebugLogDirectory()
 	var relativeParts string = FilePaths_join(firstNamePart, restNameParts)
 	var file string = FilePaths_resolve(FilePaths_resolve(dir.get(), owner.getSimpleName()), relativeParts)
-	var filters *JTList[string] = this.getDebugLogFilterList()
+	var filters *TList[string] = this.getDebugLogFilterList()
 	if filters.isEmpty() {
 		return LogFile_createOrReopen(file)
 	}
@@ -1045,8 +1045,8 @@ func (this *Compiler) maybePrintSourceAfterEachPass(passName string) {
 
 func (this *Compiler) getCurrentJsSource() string {
 	this.resetAndIntitializeSourceMap()
-	var fileNameRegexList *JTList[string] = this.options_.getFilesToPrintAfterEachPassRegexList()
-	var chunkNameRegexList *JTList[string] = this.options_.getChunksToPrintAfterEachPassRegexList()
+	var fileNameRegexList *TList[string] = this.options_.getFilesToPrintAfterEachPassRegexList()
+	var chunkNameRegexList *TList[string] = this.options_.getChunksToPrintAfterEachPassRegexList()
 	var qnameSet *JTSet[string] = jtsetFrom_(jtc_string, Collection(this.options_.getQnameUsesToPrintAfterEachPassList().asList()))
 	var builder strBuilder_
 	if (fileNameRegexList.isEmpty() && chunkNameRegexList.isEmpty()) && qnameSet.isEmpty() {
@@ -1082,7 +1082,7 @@ func (this *Compiler) getCurrentJsSource() string {
 		if chunks == nil {
 			panic(new_NullPointerException_0())
 		}
-		var unmatchedChunkNames *JTList[string] = jnewTList_(jtc_string)
+		var unmatchedChunkNames *TList[string] = newTList_(tc_string)
 		var lt *Compiler_ChunkGraphAwareLicenseTracker = new_Compiler_ChunkGraphAwareLicenseTracker(this.up_AbstractCompiler())
 		for jsChunk := range elemsAs_[*JSChunk](chunks) {
 			var chunkName string = jsChunk.getName()
@@ -1109,7 +1109,7 @@ func (this *Compiler) getCurrentJsSource() string {
 	}
 	if !qnameSet.isEmpty() {
 		var originalToNewQNameMap *SimpleSetMultimap[any, string] = SimpleSetMultimap_createInsertionOrdered[any, string]()
-		var statements *JTList[Node] = this.getTopLevelStatements(this.jsRoot)
+		var statements *TList[Node] = this.getTopLevelStatements(this.jsRoot)
 		builder.append("//\n")
 		builder.append("// closure-compiler: Printing all of the top-level statements\n")
 		builder.append("// that contain references to these qualified names.\n")
@@ -1153,8 +1153,8 @@ func (this *Compiler) getCurrentJsSource() string {
 	return builder.toString()
 }
 
-func (this *Compiler) getTopLevelStatements(root Node) *JTList[Node] {
-	var result *JTList[Node] = jnewTList_(jtc_Node)
+func (this *Compiler) getTopLevelStatements(root Node) *TList[Node] {
+	var result *TList[Node] = newTList_(tc_Node)
 	NodeTraversal_traverse(this.up_AbstractCompiler(), root, NodeTraversal_Callback(new_Compiler_2(this, result)))
 	return result
 }
@@ -1187,19 +1187,19 @@ func (this *Compiler) getResult() *Result {
 	return new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(this.getErrors(), this.getWarnings(), this.variableMap, this.propertyMap, nil, this.stringMap, this.instrumentationMapping, this.sourceMap_, this.externExports, this.cssNames, this.idGeneratorMap, this.transpiledFiles)
 }
 
-func (this *Compiler) getErrors() *JTList[*JSError] {
-	return func() *JTList[*JSError] {
+func (this *Compiler) getErrors() *TList[*JSError] {
+	return func() *TList[*JSError] {
 		if this.errorManager == nil {
-			return jtlistEmptyImm_(jtc_p_JSError)
+			return tlistEmptyImm_(tc_p_JSError)
 		}
 		return this.errorManager.getErrors()
 	}()
 }
 
-func (this *Compiler) getWarnings() *JTList[*JSError] {
-	return func() *JTList[*JSError] {
+func (this *Compiler) getWarnings() *TList[*JSError] {
+	return func() *TList[*JSError] {
 		if this.errorManager == nil {
-			return jtlistEmptyImm_(jtc_p_JSError)
+			return tlistEmptyImm_(tc_p_JSError)
 		}
 		return this.errorManager.getWarnings()
 	}()
@@ -1594,7 +1594,7 @@ func (this *Compiler) orderInputsWithLargeStack() {
 
 func (this *Compiler) orderInputs() {
 	this.maybeDoThreadedParsing()
-	var originalInputs *JTList[*CompilerInput] = jimmutableListCopyOf_(jtc_p_CompilerInput, this.chunkGraph.getAllInputs())
+	var originalInputs *TList[*CompilerInput] = immutableListCopyOf_(tc_p_CompilerInput, this.chunkGraph.getAllInputs())
 	if this.tracker != nil {
 		this.tracker.recordPrePruningInputCount(Iterable(originalInputs.asList()), this.externs.asList())
 	}
@@ -1625,7 +1625,7 @@ func (this *Compiler) orderInputs() {
 
 func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, supportCommonJSModules bool) {
 	this.maybeDoThreadedParsing()
-	var entryPoints *JTList[*CompilerInput] = jnewTList_(jtc_p_CompilerInput)
+	var entryPoints *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)
 	var inputsByProvide *JTMap[string, *CompilerInput] = jnewTMap_(jtc_string, jtc_p_CompilerInput)
 	var inputsByIdentifier *JTMap[string, *CompilerInput] = jnewTMap_(jtc_string, jtc_p_CompilerInput)
 	for input := range elemsAs_[*CompilerInput](this.chunkGraph.getAllInputs()) {
@@ -1691,7 +1691,7 @@ func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByMo
 	}
 }
 
-func (this *Compiler) hoistExterns(originalInputs *JTList[*CompilerInput]) {
+func (this *Compiler) hoistExterns(originalInputs *TList[*CompilerInput]) {
 	var staleInputs bool = false
 	it_1 := originalInputs.each()
 	for it_1.next() {
@@ -1731,7 +1731,7 @@ func (this *Compiler) markClosureUnawareCode() {
 	}
 }
 
-func (this *Compiler) markExterns(originalInputs *JTList[*CompilerInput]) {
+func (this *Compiler) markExterns(originalInputs *TList[*CompilerInput]) {
 	it_1 := originalInputs.each()
 	for it_1.next() {
 		var input *CompilerInput = it_1.v
@@ -1787,7 +1787,7 @@ func (this *Compiler) processJsonInputs(inputsToProcess IterableOf[*CompilerInpu
 }
 
 func (this *Compiler) parsePotentialModules(inputsToProcess IterableOf[*CompilerInput]) {
-	var filteredInputs *JTList[*CompilerInput] = jnewTList_(jtc_p_CompilerInput)
+	var filteredInputs *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)
 	for input := range elemsAs_[*CompilerInput](inputsToProcess) {
 		if (!this.options_.getDependencyOptions().shouldPrune() || !JsFileRegexParser_isSupported()) || input.isEs6Module() {
 			filteredInputs.add(input)
@@ -1829,10 +1829,10 @@ func (this *Compiler) parseTestCode_impl(js string) Node {
 	return this.parseCodeHelper(SourceFile_jscomp_fromCode_String_String("testcode", js))
 }
 
-func (this *Compiler) parseTestCodeImmutableList_impl(code *JTList[string]) Node {
+func (this *Compiler) parseTestCodeImmutableList_impl(code *TList[string]) Node {
 	this.initCompilerOptionsIfTesting()
 	this.initBasedOnOptions()
-	var sources *JTList[*SourceFile_jscomp] = jnewTList_(jtc_p_SourceFile_jscomp)
+	var sources *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 	for index := int32(0); index < code.size(); index++ {
 		sources.add(SourceFile_jscomp_fromCode_String_String(("testcode" + istr_(int64(index))), code.get(index)))
 	}
@@ -1847,7 +1847,7 @@ func (this *Compiler) parseCodeHelper(src *SourceFile_jscomp) Node {
 	return Preconditions_checkNotNull_T(root)
 }
 
-func (this *Compiler) parseCodeHelperList(srcs *JTList[*SourceFile_jscomp]) Node {
+func (this *Compiler) parseCodeHelperList(srcs *TList[*SourceFile_jscomp]) Node {
 	var root Node = IR_root([]Node{})
 	it_1 := srcs.each()
 	for it_1.next() {
@@ -1898,7 +1898,7 @@ func (this *Compiler) toSourceJSChunk(chunk *JSChunk) string {
 
 func (this *Compiler) toSource_2(licenseTracker CodePrinter_LicenseTracker, chunk *JSChunk) string {
 	return str_(this.runInCompilerThread((&Callable_tfn_string{func() string {
-		var inputs *JTList[*CompilerInput] = jtlistImm_(jtc_p_CompilerInput, chunk.getInputs())
+		var inputs *TList[*CompilerInput] = tlistImm_(tc_p_CompilerInput, chunk.getInputs())
 		var chunkExterns SetOf[*CompilerInput] = func() Set {
 			if this.options_.shouldPrintExterns() {
 				return this.hoistedExternsByChunk.get(obj_(chunk))
@@ -2033,7 +2033,7 @@ func Compiler_getLicenseForFile(compiler *AbstractCompiler, fileName Optional[st
 
 func (this *Compiler) toSourceArray(licenseTracker CodePrinter_LicenseTracker, chunk *JSChunk) []string {
 	return cast_[[]string](this.runInCompilerThread((&Callable_tfn_s_string{func() []string {
-		var inputs *JTList[*CompilerInput] = jtlistImm_(jtc_p_CompilerInput, chunk.getInputs())
+		var inputs *TList[*CompilerInput] = tlistImm_(tc_p_CompilerInput, chunk.getInputs())
 		var numInputs int32 = inputs.size()
 		if numInputs == 0 {
 			return newstrarr_(0)
@@ -2057,7 +2057,7 @@ func (this *Compiler) performTranspilationAndOptimizations(segmentOfCompilationT
 	if !this.options_.shouldOptimize() {
 		panic(new_IllegalStateException_0())
 	}
-	var allOptimizationPassesToRun *JTList[*PassFactory] = this.getPassConfig().getOptimizations().build()
+	var allOptimizationPassesToRun *TList[*PassFactory] = this.getPassConfig().getOptimizations().build()
 	if allOptimizationPassesToRun.isEmpty() {
 		return
 	}
@@ -2070,7 +2070,7 @@ func (this *Compiler) performTranspilationAndOptimizations(segmentOfCompilationT
 }
 
 func (this *Compiler) performFinalizations() {
-	var finalizations *JTList[*PassFactory] = this.getPassConfig().getFinalizations().build()
+	var finalizations *TList[*PassFactory] = this.getPassConfig().getFinalizations().build()
 	if finalizations.isEmpty() {
 		return
 	}
@@ -2104,7 +2104,7 @@ func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompil
 }
 
 func (this *Compiler) passListUntil(passes ListOf[*PassFactory], passName string) ListOf[*PassFactory] {
-	var passList *JTList[*PassFactory] = jnewTList_(jtc_p_PassFactory)
+	var passList *TList[*PassFactory] = newTList_(tc_p_PassFactory)
 	it_1 := foreach_(passes)
 	for it_1.next() {
 		var pass *PassFactory = cast_[*PassFactory](it_1.v)
@@ -2117,7 +2117,7 @@ func (this *Compiler) passListUntil(passes ListOf[*PassFactory], passName string
 }
 
 func (this *Compiler) passListAfter(passes ListOf[*PassFactory], passName string) ListOf[*PassFactory] {
-	var passList *JTList[*PassFactory] = jnewTList_(jtc_p_PassFactory)
+	var passList *TList[*PassFactory] = newTList_(tc_p_PassFactory)
 	for pass := range elemsAs_[*PassFactory](passes) {
 		if pass.getName() == passName {
 			passList.clear()
@@ -2469,7 +2469,7 @@ func (this *Compiler) getNodeForCodeInsertion_impl(chunk *JSChunk) Node {
 		var firstInput *CompilerInput = cast_[*CompilerInput](Iterables_getFirst(allInputs, nil))
 		return Compiler_checkNotModule(firstInput.getAstRoot(this.up_AbstractCompiler()), "Cannot insert code into a module", []any{})
 	}
-	var chunkInputs *JTList[*CompilerInput] = jtlistImm_(jtc_p_CompilerInput, chunk.getInputs())
+	var chunkInputs *TList[*CompilerInput] = tlistImm_(tc_p_CompilerInput, chunk.getInputs())
 	if !chunkInputs.isEmpty() {
 		return Compiler_checkNotModule(chunkInputs.get(0).getAstRoot(this.up_AbstractCompiler()), "Cannot insert code into a module", []any{})
 	}
@@ -2597,10 +2597,10 @@ func (this *Compiler) getExternsInOrder() *TList[*CompilerInput] {
 	return this.externs
 }
 
-func (this *Compiler) getInputsForTesting() *JTList[*CompilerInput] {
-	return func() *JTList[*CompilerInput] {
+func (this *Compiler) getInputsForTesting() *TList[*CompilerInput] {
+	return func() *TList[*CompilerInput] {
 		if this.chunkGraph != nil {
-			return jimmutableListCopyOf_(jtc_p_CompilerInput, this.chunkGraph.getAllInputs())
+			return immutableListCopyOf_(tc_p_CompilerInput, this.chunkGraph.getAllInputs())
 		}
 		return nil
 	}()
@@ -2764,7 +2764,7 @@ func (this *Compiler) getNodeForRuntimeCodeInsertion() Node {
 	return this.getSynthesizedTypeSummaryInput().getAstRoot(this.up_AbstractCompiler())
 }
 
-func (this *Compiler) addComments_impl(filename string, comments *JTList[*Comment]) {
+func (this *Compiler) addComments_impl(filename string, comments *TList[*Comment]) {
 	if !this.getOptions().preservesDetailedSourceInfo() {
 		panic(new_UnsupportedOperationException_String("addComments may only be called in IDE mode."))
 	}
@@ -2842,8 +2842,8 @@ func Compiler_toProto(stage AbstractCompiler_LifeCycleStage) LifeCycleStageProto
 	}()
 }
 
-func Compiler_toVariableMapEntries(map_ *VariableMap) *JTList[*VariableMapEntryProto] {
-	var entries *JTList[*VariableMapEntryProto] = jnewTList_(jtc_p_VariableMapEntryProto)
+func Compiler_toVariableMapEntries(map_ *VariableMap) *TList[*VariableMapEntryProto] {
+	var entries *TList[*VariableMapEntryProto] = newTList_(tc_p_VariableMapEntryProto)
 	if map_ != nil {
 		for _, el := range immElems_(cast_[*ErasedImmutableSet](map_.getOriginalNameToNewNameMap().asImm().entrySet())) {
 			entry := icast_Map_Entry(el)
@@ -2904,7 +2904,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 	}
 	builder.setTypeCheckingHasRun(this.typeCheckingHasRun).setHasRegExpGlobalReferences(this.hasRegExpGlobalReferencesField).setLifeCycleStage(Compiler_toProto(this.getLifeCycleStage())).setMergedPrecompiledLibraries(this.options_.getMergedPrecompiledLibraries())
 	var chunkList []*JSChunk = this.chunkGraph.getIntegralChunkArrayForSerialization()
-	var chunkNameMap *JTMap[string, any] = jnewTMap_(jtc_string, tc_Integer)
+	var chunkNameMap *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Integer)
 	for i := int32(0); i < int32(len(chunkList)); i++ {
 		chunkNameMap.put(chunkList[i].getName(), any(int32(i)))
 	}
@@ -3021,7 +3021,7 @@ func (this *Compiler) saveState() []int8 {
 		this.stopTracer(tracer, "serializeCompilerState")
 		tracer = this.newTracer("serializeTypedAst")
 		var typedAstList ListOf[[]int8] = new_ArrayList_0()
-		SerializeTypedAstPass_createFromConsumer(this.up_AbstractCompiler(), (&Consumer_tfn_s_int8{func(p0 []int8) { typedAstList.add(any(p0)) }}).accept, SerializationOptions_builder().setRuntimeLibraries(jtlistEmptyImm_(jtc_string)).setIncludeDebugInfo(this.getOptions().shouldSerializeExtraDebugInfo()).build()).process_2(this.externsRoot, this.jsRoot)
+		SerializeTypedAstPass_createFromConsumer(this.up_AbstractCompiler(), (&Consumer_tfn_s_int8{func(p0 []int8) { typedAstList.add(any(p0)) }}).accept, SerializationOptions_builder().setRuntimeLibraries(tlistEmptyImm_(tc_string)).setIncludeDebugInfo(this.getOptions().shouldSerializeExtraDebugInfo()).build()).process_2(this.externsRoot, this.jsRoot)
 		this.stopTracer(tracer, "serializeTypedAst")
 		var typedAsts []int8 = cast_[[]int8](Iterables_getOnlyElement(Iterable(typedAstList)))
 		var stateSize int32 = stateProto.getSerializedSize()
@@ -3095,7 +3095,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 	}
 	var deserializedAst *TypedAstDeserializer_DeserializedAst = TypedAstDeserializer_deserializeFullAst(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, allInputFiles.build(), typedAsts, stateProto.getTypeCheckingHasRun(), this.getOptions().getResolveSourceMapAnnotations(), this.getOptions().getParseInlineSourceMaps())
 	this.restoreFromState(stateProto)
-	var chunks *JTList[*JSChunk] = jnewTList_(jtc_p_JSChunk)
+	var chunks *TList[*JSChunk] = newTList_(tc_p_JSChunk)
 	for chunkProto := range elemsAs_[*ChunkProto](stateProto.getChunksList()) {
 		var chunk *JSChunk = new_JSChunk(chunkProto.getName())
 		chunks.add(chunk)
@@ -3194,8 +3194,8 @@ func Compiler_resolveSibling(fromPath string, toPath string) string {
 	if strings.HasPrefix(toPath, "/") {
 		return toPath
 	}
-	var fromPathParts *JTList[string] = jtlistFrom_(jtc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(fromPath), func(v_ string) any { return strobj_(v_) }))))
-	var toPathParts *JTList[string] = jtlistFrom_(jtc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(toPath), func(v_ string) any { return strobj_(v_) }))))
+	var fromPathParts *TList[string] = tlistFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(fromPath), func(v_ string) any { return strobj_(v_) }))))
+	var toPathParts *TList[string] = tlistFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(toPath), func(v_ string) any { return strobj_(v_) }))))
 	if !fromPathParts.isEmpty() {
 		fromPathParts.removeAt((fromPathParts.size() - 1))
 	}
@@ -3227,7 +3227,7 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 		}
 		var allChunks IterableOf[*JSChunk] = this.getChunks()
 		if allChunks != nil {
-			var sourceFiles *JTList[*SourceFile_jscomp] = jnewTList_(jtc_p_SourceFile_jscomp)
+			var sourceFiles *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 			for chunk := range elemsAs_[*JSChunk](allChunks) {
 				for _, el2 := range immElems_(chunk.getInputs()) {
 					input := cast_[*CompilerInput](el2)
@@ -3498,7 +3498,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) zero_Compiler_ChunkGraphAwar
 }
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) finit_Compiler_ChunkGraphAwareLicenseTracker() {
-	this.licensesFromChunks = jnewTMap_(jtc_p_JSChunk, tc_Set)
+	this.licensesFromChunks = jnewTMap_(jtc_p_JSChunk, jtc_Set)
 	this.haveInitializedCurrentChunkLicenses = false
 	this.currentChunkLicencesInTDeps = jnewTSet_(jtc_string)
 	this.lastSeenFile = ""
@@ -3698,7 +3698,7 @@ func (this *Compiler_1) size() int32 {
 type Compiler_2 struct {
 	NodeTraversal_AbstractPreOrderCallback
 	outer_     *Compiler
-	cap_result *JTList[Node]
+	cap_result *TList[Node]
 }
 
 func (this *Compiler_2) up_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {
@@ -3712,7 +3712,7 @@ func (this *Compiler_2) init_Compiler_2() {
 	this.NodeTraversal_AbstractPreOrderCallback.init_NodeTraversal_AbstractPreOrderCallback()
 }
 
-func new_Compiler_2(outer_ *Compiler, cap_result *JTList[Node]) *Compiler_2 {
+func new_Compiler_2(outer_ *Compiler, cap_result *TList[Node]) *Compiler_2 {
 	this := &Compiler_2{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -3857,7 +3857,7 @@ func (this *Compiler) isDebugLoggingEnabled() bool {
 }
 
 // getDebugLogFilterList: an object that is exactly a Compiler calls its getDebugLogFilterList_impl directly (post-flip); others dispatch.
-func (this *Compiler) getDebugLogFilterList() *JTList[string] {
+func (this *Compiler) getDebugLogFilterList() *TList[string] {
 	if p, _ := this.self_.(*Compiler); p == this {
 		return this.getDebugLogFilterList_impl()
 	}
@@ -4138,7 +4138,7 @@ func (this *Compiler) parseTestCode(p0 string) Node {
 }
 
 // parseTestCodeImmutableList: an object that is exactly a Compiler calls its parseTestCodeImmutableList_impl directly (post-flip); others dispatch.
-func (this *Compiler) parseTestCodeImmutableList(p0 *JTList[string]) Node {
+func (this *Compiler) parseTestCodeImmutableList(p0 *TList[string]) Node {
 	if p, _ := this.self_.(*Compiler); p == this {
 		return this.parseTestCodeImmutableList_impl(p0)
 	}
@@ -4643,7 +4643,7 @@ func (this *Compiler) setAccessorSummary(p0 *AccessorSummary) {
 }
 
 // addComments: an object that is exactly a Compiler calls its addComments_impl directly (post-flip); others dispatch.
-func (this *Compiler) addComments(p0 string, p1 *JTList[*Comment]) {
+func (this *Compiler) addComments(p0 string, p1 *TList[*Comment]) {
 	if p, _ := this.self_.(*Compiler); p == this {
 		this.addComments_impl(p0, p1)
 		return

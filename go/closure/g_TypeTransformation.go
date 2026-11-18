@@ -129,11 +129,11 @@ func (this *TypeTransformation) getCallParamCount(n Node) int32 {
 	return (n.getChildCount() - 1)
 }
 
-func (this *TypeTransformation) getCallParams(n Node) *JTList[Node] {
+func (this *TypeTransformation) getCallParams(n Node) *TList[Node] {
 	if !n.isCall() {
 		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected a call node, found %s", n)
 	}
-	var builder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
+	var builder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	for i := int32(0); i < this.getCallParamCount(n); i++ {
 		builder.add(this.getCallArgument(n, i))
 	}
@@ -254,7 +254,7 @@ func (this *TypeTransformation) evalTypeName(ttlAst Node) *JSType {
 }
 
 func (this *TypeTransformation) evalTemplatizedType(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var params *JTList[Node] = this.getCallParams(ttlAst)
+	var params *TList[Node] = this.getCallParams(ttlAst)
 	var firstParam *JSType = this.evalInternal(params.get(0), nameResolver)
 	if !firstParam.isRawTypeOfTemplatizedType() {
 		this.reportWarning(ttlAst, TypeTransformation_BASETYPE_INVALID, []string{firstParam.toString()})
@@ -286,7 +286,7 @@ func (this *TypeTransformation) evalTypeVar(ttlAst Node, nameResolver *TypeTrans
 }
 
 func (this *TypeTransformation) evalUnionType(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var params *JTList[Node] = this.getCallParams(ttlAst)
+	var params *TList[Node] = this.getCallParams(ttlAst)
 	var paramCount int32 = params.size()
 	var basicTypes []*JSType = make([]*JSType, paramCount)
 	for i := int32(0); i < paramCount; i++ {
@@ -296,7 +296,7 @@ func (this *TypeTransformation) evalUnionType(ttlAst Node, nameResolver *TypeTra
 }
 
 func (this *TypeTransformation) evalTypeParams(ttlAst Node, nameResolver *TypeTransformation_NameResolver) []*JSType {
-	var params *JTList[Node] = this.getCallParams(ttlAst)
+	var params *TList[Node] = this.getCallParams(ttlAst)
 	var paramCount int32 = params.size()
 	var result []*JSType = make([]*JSType, paramCount)
 	for i := int32(0); i < paramCount; i++ {
@@ -317,7 +317,7 @@ func (this *TypeTransformation) evalString(ttlAst Node, nameResolver *TypeTransf
 }
 
 func (this *TypeTransformation) evalStringParams(ttlAst Node, nameResolver *TypeTransformation_NameResolver) []string {
-	var params *JTList[Node] = this.getCallParams(ttlAst)
+	var params *TList[Node] = this.getCallParams(ttlAst)
 	var paramCount int32 = params.size()
 	var result []string = newstrarr_(paramCount)
 	for i := int32(0); i < paramCount; i++ {
@@ -418,7 +418,7 @@ func (this *TypeTransformation) evalBoolean(ttlAst Node, nameResolver *TypeTrans
 }
 
 func (this *TypeTransformation) evalConditional(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var params *JTList[Node] = this.getCallParams(ttlAst)
+	var params *TList[Node] = this.getCallParams(ttlAst)
 	if this.evalBoolean(params.get(0), nameResolver) {
 		return this.evalInternal(params.get(1), nameResolver)
 	} else {
@@ -427,7 +427,7 @@ func (this *TypeTransformation) evalConditional(ttlAst Node, nameResolver *TypeT
 }
 
 func (this *TypeTransformation) evalMapunion(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var params *JTList[Node] = this.getCallParams(ttlAst)
+	var params *TList[Node] = this.getCallParams(ttlAst)
 	var unionParam Node = params.get(0)
 	var mapFunction Node = params.get(1)
 	var paramName string = this.getFunctionParameter(mapFunction, 0)
@@ -441,7 +441,7 @@ func (this *TypeTransformation) evalMapunion(ttlAst Node, nameResolver *TypeTran
 		var newNameResolver *TypeTransformation_NameResolver = new_TypeTransformation_NameResolver(tmapImm_(jtc_string, jtc_p_JSType, this.addNewEntry(nameResolver.typeVars.asImm(), paramName, unionType.self()).asImm()), nameResolver.nameVars)
 		return this.evalInternal(mapFunctionBody, newNameResolver)
 	}
-	var unionElms *JTList[*JSType] = jimmutableListCopyOf_(jtc_p_JSType, unionType.getUnionMembers())
+	var unionElms *TList[*JSType] = immutableListCopyOf_(tc_p_JSType, unionType.getUnionMembers())
 	var unionSize int32 = unionElms.size()
 	var newUnionElms []*JSType = make([]*JSType, unionSize)
 	var i int32 = 0
@@ -456,7 +456,7 @@ func (this *TypeTransformation) evalMapunion(ttlAst Node, nameResolver *TypeTran
 }
 
 func (this *TypeTransformation) evalRawTypeOf(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var params *JTList[Node] = this.getCallParams(ttlAst)
+	var params *TList[Node] = this.getCallParams(ttlAst)
 	var type_ *JSType = this.evalInternal(params.get(0), nameResolver)
 	if !type_.isTemplatizedType() {
 		this.reportWarning(ttlAst, TypeTransformation_TEMPTYPE_INVALID, []string{"rawTypeOf", type_.toString()})
@@ -466,14 +466,14 @@ func (this *TypeTransformation) evalRawTypeOf(ttlAst Node, nameResolver *TypeTra
 }
 
 func (this *TypeTransformation) evalTemplateTypeOf(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var params *JTList[Node] = this.getCallParams(ttlAst)
+	var params *TList[Node] = this.getCallParams(ttlAst)
 	var type_ *JSType = this.evalInternal(params.get(0), nameResolver)
 	if !type_.isTemplatizedType() {
 		this.reportWarning(ttlAst, TypeTransformation_TEMPTYPE_INVALID, []string{"templateTypeOf", type_.toString()})
 		return this.getUnknownType()
 	}
 	var index int32 = f2i_[int32](float64(params.get(1).getDouble()))
-	var templateTypes *JTList[*JSType] = type_.toMaybeObjectType().getTemplateTypes()
+	var templateTypes *TList[*JSType] = type_.toMaybeObjectType().getTemplateTypes()
 	if index >= templateTypes.size() {
 		this.reportWarning(ttlAst, TypeTransformation_INDEX_OUTOFBOUNDS, []string{Integer_toString(templateTypes.size()), Integer_toString(index)})
 		return this.getUnknownType()
@@ -515,7 +515,7 @@ func (this *TypeTransformation) evalRecordParam(ttlAst Node, nameResolver *TypeT
 
 func (this *TypeTransformation) evalRecordType(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
 	var paramCount int32 = this.getCallParamCount(ttlAst)
-	var recTypesBuilder *TListBuilder[*ObjectType] = newTListBuilder_(jtc_p_ObjectType)
+	var recTypesBuilder *ImmutableList_Builder[*ObjectType] = immutableListBuilder_(tc_p_ObjectType)
 	for i := int32(0); i < paramCount; i++ {
 		var type_ *JSType = this.evalRecordParam(this.getCallArgument(ttlAst, i), nameResolver)
 		var objType *ObjectType = type_.toMaybeObjectType()
@@ -536,10 +536,10 @@ func (this *TypeTransformation) putNewPropInPropertyMap(props *JTMap[string, *JS
 		props.put(newPropName, newPropValue)
 		return
 	}
-	props.put(newPropName, this.joinRecordTypes(jimmutableListOf_[*ObjectType](jtc_p_ObjectType, to_ObjectType(props.get(newPropName).self()), to_ObjectType(newPropValue.self()))))
+	props.put(newPropName, this.joinRecordTypes(immutableListOf_[*ObjectType](tc_p_ObjectType, to_ObjectType(props.get(newPropName).self()), to_ObjectType(newPropValue.self()))))
 }
 
-func (this *TypeTransformation) joinRecordTypes(recTypes *JTList[*ObjectType]) *JSType {
+func (this *TypeTransformation) joinRecordTypes(recTypes *TList[*ObjectType]) *JSType {
 	var props *JTMap[string, *JSType] = jnewTMap_(jtc_string, jtc_p_JSType)
 	it_1 := recTypes.each()
 	for it_1.next() {

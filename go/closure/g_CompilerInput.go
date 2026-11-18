@@ -10,11 +10,11 @@ type CompilerInput struct {
 	sourceFile                 *SourceFile_jscomp
 	ast                        *CompilerInput_JsAst
 	dependencyInfo             DependencyInfo_
-	extraRequires              *JTList[*DependencyInfo_Require]
-	extraProvides              *JTList[string]
-	orderedRequires            *JTList[*DependencyInfo_Require]
-	dynamicRequires            *JTList[string]
-	requireDynamicImports      *JTList[string]
+	extraRequires              *TList[*DependencyInfo_Require]
+	extraProvides              *TList[string]
+	orderedRequires            *TList[*DependencyInfo_Require]
+	dynamicRequires            *TList[string]
+	requireDynamicImports      *TList[string]
 	hasFullParseDependencyInfo bool
 	jsModuleType               CompilerInput_ModuleType
 	typedScope                 *TypedScope
@@ -24,11 +24,11 @@ type CompilerInput struct {
 
 func (this *CompilerInput) finit_CompilerInput() {
 	this.ast = new_CompilerInput_JsAst(this)
-	this.extraRequires = jnewTList_(jtc_p_DependencyInfo_Require)
-	this.extraProvides = jnewTList_(jtc_string)
-	this.orderedRequires = jnewTList_(jtc_p_DependencyInfo_Require)
-	this.dynamicRequires = jnewTList_(jtc_string)
-	this.requireDynamicImports = jnewTList_(jtc_string)
+	this.extraRequires = newTList_(tc_p_DependencyInfo_Require)
+	this.extraProvides = newTList_(tc_string)
+	this.orderedRequires = newTList_(tc_p_DependencyInfo_Require)
+	this.dynamicRequires = newTList_(tc_string)
+	this.requireDynamicImports = newTList_(tc_string)
 	this.hasFullParseDependencyInfo = false
 	this.jsModuleType = CompilerInput_ModuleType_NONE
 }
@@ -147,7 +147,7 @@ func (this *CompilerInput) getKnownRequires() ImmutableCollectionOf[*DependencyI
 	}(), Iterable(this.extraRequires.asList())).up_ImmutableCollection()
 }
 
-func (this *CompilerInput) getKnownRequiredSymbols() *JTList[string] {
+func (this *CompilerInput) getKnownRequiredSymbols() *TList[string] {
 	return DependencyInfo_Require_asSymbolList(ImmutableCollection_as_Iterable(this.getKnownRequires()))
 }
 
@@ -184,8 +184,8 @@ func (this *CompilerInput) addOrderedRequire(require *DependencyInfo_Require) bo
 	return false
 }
 
-func (this *CompilerInput) getDynamicRequires() *JTList[string] {
-	return immutableListCopyOfT_(jtc_string, this.dynamicRequires)
+func (this *CompilerInput) getDynamicRequires() *TList[string] {
+	return immutableListCopyOfTP_(tc_string, this.dynamicRequires)
 }
 
 func (this *CompilerInput) addDynamicRequire(require string) bool {
@@ -196,8 +196,8 @@ func (this *CompilerInput) addDynamicRequire(require string) bool {
 	return false
 }
 
-func (this *CompilerInput) getRequireDynamicImports() *JTList[string] {
-	return immutableListCopyOfT_(jtc_string, this.requireDynamicImports)
+func (this *CompilerInput) getRequireDynamicImports() *TList[string] {
+	return immutableListCopyOfTP_(tc_string, this.requireDynamicImports)
 }
 
 func (this *CompilerInput) addRequireDynamicImports(require string) {
@@ -330,17 +330,17 @@ const CompilerInput_serialVersionUID int64 = 2
 
 type CompilerInput_DepsFinder struct {
 	loadFlags_   *JTMap[string, string]
-	provides     *JTList[string]
-	requires     *JTList[*DependencyInfo_Require]
-	typeRequires *JTList[string]
+	provides     *TList[string]
+	requires     *TList[*DependencyInfo_Require]
+	typeRequires *TList[string]
 	modulePath_  *ModuleLoader_ModulePath
 }
 
 func (this *CompilerInput_DepsFinder) finit_CompilerInput_DepsFinder() {
 	this.loadFlags_ = newTSortedMap_(jtc_string, jtc_string)
-	this.provides = jnewTList_(jtc_string)
-	this.requires = jnewTList_(jtc_p_DependencyInfo_Require)
-	this.typeRequires = jnewTList_(jtc_string)
+	this.provides = newTList_(tc_string)
+	this.requires = newTList_(tc_p_DependencyInfo_Require)
+	this.typeRequires = newTList_(tc_string)
 }
 
 func (this *CompilerInput_DepsFinder) init_CompilerInput_DepsFinder(modulePath *ModuleLoader_ModulePath) {

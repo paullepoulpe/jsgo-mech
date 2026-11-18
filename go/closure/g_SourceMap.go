@@ -6,13 +6,13 @@ import "strings"
 
 type SourceMap struct {
 	generator                SourceMapGenerator
-	prefixMappings           *JTList[SourceMap_LocationMapping]
+	prefixMappings           *TList[SourceMap_LocationMapping]
 	sourceLocationFixupCache *JTMap[string, string]
 	mapping                  func(Optional[string], int32, int32) *Mapping_OriginalMapping
 }
 
 func (this *SourceMap) finit_SourceMap() {
-	this.prefixMappings = jtlistEmptyImm_(jtc_SourceMap_LocationMapping)
+	this.prefixMappings = tlistEmptyImm_(tc_SourceMap_LocationMapping)
 	this.sourceLocationFixupCache = jnewTMap_(jtc_string, jtc_string)
 }
 
@@ -131,7 +131,7 @@ func (this *SourceMap) validate(validate bool) {
 	this.generator.validate(validate)
 }
 
-func (this *SourceMap) setPrefixMappings(sourceMapLocationMappings *JTList[SourceMap_LocationMapping]) {
+func (this *SourceMap) setPrefixMappings(sourceMapLocationMappings *TList[SourceMap_LocationMapping]) {
 	this.prefixMappings = sourceMapLocationMappings
 }
 

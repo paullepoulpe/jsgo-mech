@@ -3,12 +3,12 @@
 package closure
 
 type RequireAliasGenerator struct {
-	parts      *JTList[string]
+	parts      *TList[string]
 	capitalize bool
 }
 
 func (this *RequireAliasGenerator) init_RequireAliasGenerator(namespace string) {
-	this.parts = jtlistImm_(jtc_string, ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split_s(namespace)).reverse())
+	this.parts = tlistImm_(tc_string, ImmutableList_copyOf_Iterable(RequireAliasGenerator_DOT_SPLITTER.split_s(namespace)).reverse())
 	this.capitalize = Ascii_isUpperCase(String_charAt(this.parts.get(0), 0))
 }
 

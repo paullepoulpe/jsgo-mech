@@ -88,11 +88,11 @@ func (this *SortingErrorManager) getWarningCount() int32 {
 	return this.warningCount
 }
 
-func (this *SortingErrorManager) getErrors() *JTList[*JSError] {
+func (this *SortingErrorManager) getErrors() *TList[*JSError] {
 	return this.filterToListOf(CheckLevel_ERROR)
 }
 
-func (this *SortingErrorManager) getWarnings() *JTList[*JSError] {
+func (this *SortingErrorManager) getWarnings() *TList[*JSError] {
 	return this.filterToListOf(CheckLevel_WARNING)
 }
 
@@ -108,8 +108,8 @@ func (this *SortingErrorManager) getTypedPercent() float64 {
 	return this.typedPercent
 }
 
-func (this *SortingErrorManager) filterToListOf(level CheckLevel) *JTList[*JSError] {
-	var result *TListBuilder[*JSError] = newTListBuilder_(jtc_p_JSError)
+func (this *SortingErrorManager) filterToListOf(level CheckLevel) *TList[*JSError] {
+	var result *ImmutableList_Builder[*JSError] = immutableListBuilder_(tc_p_JSError)
 	it_1 := this.messages.each()
 	for it_1.next() {
 		var e *SortingErrorManager_ErrorWithLevel = it_1.v

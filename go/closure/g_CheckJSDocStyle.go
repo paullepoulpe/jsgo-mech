@@ -157,11 +157,11 @@ func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc 
 	if (jsDoc != nil) && (jsDoc.getType() != nil) {
 		return
 	}
-	var paramsFromJsDoc *JTList[string] = func() *JTList[string] {
+	var paramsFromJsDoc *TList[string] = func() *TList[string] {
 		if jsDoc == nil {
-			return jtlistEmptyImm_(jtc_string)
+			return tlistEmptyImm_(tc_string)
 		}
-		return jimmutableListCopyOf_(jtc_string, Collection(jsDoc.getParameterNames().asSet()))
+		return immutableListCopyOf_(tc_string, Collection(jsDoc.getParameterNames().asSet()))
 	}()
 	if paramsFromJsDoc.isEmpty() {
 		this.checkInlineParams(t, function, jsDoc)

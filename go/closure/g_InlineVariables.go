@@ -402,7 +402,7 @@ func (this *InlineVariables_InliningBehavior) inline(decl *Reference, init_ *Ref
 	}
 }
 
-func (this *InlineVariables_InliningBehavior) inlineWellDefinedVariable(v *Var, value Node, refSet *JTList[*Reference]) {
+func (this *InlineVariables_InliningBehavior) inlineWellDefinedVariable(v *Var, value Node, refSet *TList[*Reference]) {
 	it_1 := refSet.each()
 	for it_1.next() {
 		var r *Reference = it_1.v

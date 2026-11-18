@@ -100,7 +100,7 @@ func (this *RewriteGoogJsImports) findGoogJsScriptNode(root Node) Node {
 	{
 		var script Node = root.getFirstChild()
 		for ; script != 0; script = script.getNext() {
-			var provides *JTList[string] = jtlistImm_(jtc_string, this.compiler_.getInput(script.getInputId()).getProvides())
+			var provides *TList[string] = tlistImm_(tc_string, this.compiler_.getInput(script.getInputId()).getProvides())
 			if Collection_contains_s(provides.asImm(), RewriteGoogJsImports_EXPECTED_BASE_PROVIDE) {
 				expectedGoogPath = this.compiler_.getInput(script.getInputId()).getPath().resolveModuleAsPath("./goog.js")
 				break

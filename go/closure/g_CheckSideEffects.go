@@ -7,7 +7,7 @@ import "strings"
 type CheckSideEffects struct {
 	NodeTraversal_AbstractPostOrderCallback
 	report_                   bool
-	problemNodes              *JTList[Node]
+	problemNodes              *TList[Node]
 	noSideEffectExterns       *JTSet[string]
 	compiler_                 *AbstractCompiler
 	protectSideEffectFreeCode bool
@@ -22,7 +22,7 @@ func (this *CheckSideEffects) up_NodeTraversal_AbstractPostOrderCallback() *Node
 }
 
 func (this *CheckSideEffects) finit_CheckSideEffects() {
-	this.problemNodes = jnewTList_(jtc_Node)
+	this.problemNodes = newTList_(tc_Node)
 	this.noSideEffectExterns = jnewTSet_(jtc_string)
 	this.preserveFunctionInjected = false
 }

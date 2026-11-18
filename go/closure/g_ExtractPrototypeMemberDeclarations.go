@@ -199,12 +199,12 @@ func ExtractPrototypeMemberDeclarations_Pattern_clinit() {
 }
 
 type ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo struct {
-	instances  *JTList[*ExtractPrototypeMemberDeclarations_ExtractionInstance]
+	instances  *TList[*ExtractPrototypeMemberDeclarations_ExtractionInstance]
 	totalDelta int32
 }
 
 func (this *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo) finit_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo() {
-	this.instances = jnewTList_(jtc_p_ExtractPrototypeMemberDeclarations_ExtractionInstance)
+	this.instances = newTList_(tc_p_ExtractPrototypeMemberDeclarations_ExtractionInstance)
 	this.totalDelta = 0
 }
 
@@ -293,13 +293,13 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtra
 
 type ExtractPrototypeMemberDeclarations_ExtractionInstance struct {
 	outer_       *ExtractPrototypeMemberDeclarations
-	declarations *JTList[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration]
+	declarations *TList[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration]
 	delta        int32
 	parent       Node
 }
 
 func (this *ExtractPrototypeMemberDeclarations_ExtractionInstance) finit_ExtractPrototypeMemberDeclarations_ExtractionInstance() {
-	this.declarations = jnewTList_(jtc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration)
+	this.declarations = newTList_(tc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration)
 	this.delta = 0
 }
 

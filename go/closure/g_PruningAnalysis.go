@@ -29,7 +29,7 @@ func (this *PruningAnalysis) analyze() *PruningAnalysis_Result {
 }
 
 func (this *PruningAnalysis) calculateTotalBlame() *JTMap[string, any] {
-	var reachabilityPerEntryPoint *TMapBuilder[string, any] = newTMapBuilder_(jtc_string, tc_Integer)
+	var reachabilityPerEntryPoint *TMapBuilder[string, any] = newTMapBuilder_(jtc_string, jtc_Integer)
 	it_1 := this.entryPoints_.each()
 	for it_1.next() {
 		var provider *CompilerInput = it_1.v
@@ -42,7 +42,7 @@ func (this *PruningAnalysis) calculateTotalBlame() *JTMap[string, any] {
 func (this *PruningAnalysis) calculateBottlenecks() *JTMap[string, any] {
 	var graph *DiGraph[string] = this.buildGraph()
 	var dominatorTree *DominatorTree[string] = DominatorTree_compute[string](graph, PruningAnalysis_VIRTUAL_ROOT)
-	var bottleneckBlame *JTMap[string, any] = jnewTMap_(jtc_string, tc_Integer)
+	var bottleneckBlame *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Integer)
 	for _, el := range immElems_(cast_[*ErasedImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())) {
 		entry := icast_Map_Entry(el)
 		var node string = str_(entry.getKey())
@@ -51,11 +51,11 @@ func (this *PruningAnalysis) calculateBottlenecks() *JTMap[string, any] {
 			bottleneckBlame.put(node, any(int32(retainedCount)))
 		}
 	}
-	var sortedBlame *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(bottleneckBlame.asMap().entrySet()))
+	var sortedBlame *TList[Map_Entry] = tlistFrom_(tc_Map_Entry, Collection(bottleneckBlame.asMap().entrySet()))
 	List_sort(sortedBlame.asList(), Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_Map_Entry{func(entry Map_Entry) int32 {
 		return unbox_[int32](entry.getValue())
 	}})))
-	var result *TMapBuilder[string, any] = newTMapBuilder_(jtc_string, tc_Integer)
+	var result *TMapBuilder[string, any] = newTMapBuilder_(jtc_string, jtc_Integer)
 	for i := int32(0); (i < sortedBlame.size()) && (i < PruningAnalysis_BOTTLENECK_THRESHOLD); i++ {
 		var entry Map_EntryOf[string, BoxedOf[int32]] = sortedBlame.get(i)
 		result.put(str_(entry.getKey()), entry.getValue())

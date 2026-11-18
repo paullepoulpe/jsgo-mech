@@ -71,7 +71,7 @@ func (this *InlineObjectLiterals_InliningBehavior) isVarInlineForbidden(var_ *Va
 	return ((((var_.isGlobal() || var_.isExtern()) || this.outer_.compiler_.getCodingConvention().isExported_2(var_.getName(), true)) || this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(var_.getNameNode())) || this.staleVars.contains(var_))
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *JTList[*Reference]) bool {
+func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *TList[*Reference]) bool {
 	var ret bool = false
 	var validProperties *JTSet[string] = jnewTSet_(jtc_string)
 	it_1 := refs.each()

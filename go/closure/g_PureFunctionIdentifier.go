@@ -9,7 +9,7 @@ type PureFunctionIdentifier struct {
 	summariesByName                      *JTMap[string, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
 	summariesForAllNamesOfFunctionByNode *SimpleListMultimap[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
 	artificiallyPureLiteralsForDebugging *JTSet[Node]
-	allFunctionCalls                     *JTList[Node]
+	allFunctionCalls                     *TList[Node]
 	reverseCallGraph                     *LinkedDirectedGraph[*PureFunctionIdentifier_AmbiguatedFunctionSummary, *PureFunctionIdentifier_SideEffectPropagation]
 	unknownFunctionSummary               *PureFunctionIdentifier_AmbiguatedFunctionSummary
 	assumeGettersArePure_                bool
@@ -20,7 +20,7 @@ func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
 	this.summariesByName = jnewTMap_(jtc_string, jtc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary)
 	this.summariesForAllNamesOfFunctionByNode = SimpleListMultimap_create[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]()
 	this.artificiallyPureLiteralsForDebugging = jnewTSet_(jtc_Node)
-	this.allFunctionCalls = jnewTList_(jtc_Node)
+	this.allFunctionCalls = newTList_(tc_Node)
 	this.reverseCallGraph = LinkedDirectedGraph_createWithoutAnnotations[*PureFunctionIdentifier_AmbiguatedFunctionSummary, *PureFunctionIdentifier_SideEffectPropagation]()
 	this.unknownFunctionSummary = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<unknown>").setMutatesGlobalStateAndAllOtherFlags(0)
 	this.hasProcessed = false
@@ -70,9 +70,9 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 			if summary.name_ == ".constructor" {
 				continue
 			}
-			var sortedReasons *JTList[Node] = jtlistFrom_(jtc_Node, Collection(summary.impureFunctionReasonsForDebugging.asSet()))
+			var sortedReasons *TList[Node] = tlistFrom_(tc_Node, Collection(summary.impureFunctionReasonsForDebugging.asSet()))
 			List_sort(sortedReasons.asList(), PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR)
-			var formattedReasons *JTList[string] = jnewTList_(jtc_string)
+			var formattedReasons *TList[string] = newTList_(tc_string)
 			it_5 := sortedReasons.each()
 			for it_5.next() {
 				var reason Node = it_5.v
@@ -88,18 +88,18 @@ func PureFunctionIdentifier_formatSourceLocation(node Node) string {
 	return (sstr_(node.getSourceFileName()) + ":" + istr_(int64(int32(node.getLineno()))) + ":" + istr_(int64(int32(node.getCharno()))))
 }
 
-func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAnalyzer) *JTList[Node] {
-	var callables *JTList[Node] = jnewTList_(jtc_Node)
+func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAnalyzer) *TList[Node] {
+	var callables *TList[Node] = newTList_(tc_Node)
 	var allLegal bool = PureFunctionIdentifier_collectCallableLeavesInternal(expr, callables, astAnalyzer)
-	return func() *JTList[Node] {
+	return func() *TList[Node] {
 		if allLegal {
-			return immutableListCopyOfT_(jtc_Node, callables)
+			return immutableListCopyOfTP_(tc_Node, callables)
 		}
 		return nil
 	}()
 }
 
-func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *JTList[Node], astAnalyzer *AstAnalyzer) bool {
+func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *TList[Node], astAnalyzer *AstAnalyzer) bool {
 	switch expr.ns_().token {
 	case tokOrd1_FUNCTION, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_NAME:
 		results.add(expr)
@@ -164,35 +164,35 @@ func PureFunctionIdentifier_isDefinitelyRValue(rvalue Node) bool {
 	}()
 }
 
-func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *CodingConvention_Cache) *JTList[Node] {
+func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *CodingConvention_Cache) *TList[Node] {
 	Preconditions_checkNotNull_T(cacheCall)
 	var builder ImmutableList_BuilderOf[Node] = ImmutableList_builder().addAll(Iterable(PureFunctionIdentifier_collectCallableLeaves(cacheCall.valueFn, this.astAnalyzer).asList()))
 	if cacheCall.keyFn != 0 {
 		builder.addAll(Iterable(PureFunctionIdentifier_collectCallableLeaves(cacheCall.keyFn, this.astAnalyzer).asList()))
 	}
-	return jtlistImm_(jtc_Node, builder.build())
+	return tlistImm_(tc_Node, builder.build())
 }
 
-func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *JTList[*PureFunctionIdentifier_AmbiguatedFunctionSummary] {
+func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) *TList[*PureFunctionIdentifier_AmbiguatedFunctionSummary] {
 	if !NodeUtil_isInvocation(invocation) {
 		Preconditions_checkArgument_boolean_Object_H(false, invocation)
 	}
 	var cacheCall *CodingConvention_Cache = this.compiler_.getCodingConvention().describeCachingCall(invocation)
-	var callees *JTList[Node]
+	var callees *TList[Node]
 	if cacheCall != nil {
 		callees = this.getGoogCacheCallableExpression(cacheCall)
 	} else if PureFunctionIdentifier_isInvocationViaCallOrApply(invocation) {
-		callees = jimmutableListOf_[Node](jtc_Node, invocation.getFirstFirstChild())
+		callees = immutableListOf_[Node](tc_Node, invocation.getFirstFirstChild())
 	} else {
 		callees = PureFunctionIdentifier_collectCallableLeaves(invocation.getFirstChild(), this.astAnalyzer)
 	}
 	if callees == nil {
-		return jimmutableListOf_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](jtc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary, this.unknownFunctionSummary)
+		return immutableListOf_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary, this.unknownFunctionSummary)
 	}
 	if callees.isEmpty() {
 		panic(new_IllegalStateException_String(objstr_("Unexpected empty callees for valid result")))
 	}
-	var results *TListBuilder[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = newTListBuilder_(jtc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary)
+	var results *ImmutableList_Builder[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = immutableListBuilder_(tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary)
 	it_1 := callees.each()
 	for it_1.next() {
 		var callee Node = it_1.v
@@ -242,7 +242,7 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, references ListOf[Node]) {
 	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = Preconditions_checkNotNull_T(this.summariesByName.get(name))
 	var invalid bool = false
-	var rvaluesAssignedToName *JTList[*ErasedImmutableList] = jnewTList_(tc_p_ImmutableList)
+	var rvaluesAssignedToName *TList[*ErasedImmutableList] = newTList_(tc_p_ImmutableList)
 	for reference := range elemsBy_(references, Node_of_) {
 		if !PureFunctionIdentifier_isDefinitelyRValue(reference) {
 			var rvalue Node = NodeUtil_getRValueOfLValue(reference)
@@ -250,7 +250,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 				invalid = true
 				break
 			} else {
-				var callables *JTList[Node] = PureFunctionIdentifier_collectCallableLeaves(rvalue, this.astAnalyzer)
+				var callables *TList[Node] = PureFunctionIdentifier_collectCallableLeaves(rvalue, this.astAnalyzer)
 				if callables == nil {
 					invalid = true
 					break
@@ -307,7 +307,7 @@ func (this *PureFunctionIdentifier) markPureFunctionCalls() {
 	it_1 := this.allFunctionCalls.each()
 	for it_1.next() {
 		var callNode Node = it_1.v
-		var calleeSummaries *JTList[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = this.getSummariesForCallee(callNode)
+		var calleeSummaries *TList[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = this.getSummariesForCallee(callNode)
 		var flags *Node_SideEffectFlags = new_Node_SideEffectFlags_0()
 		if calleeSummaries.isEmpty() {
 			flags.setAllFlags()
@@ -727,7 +727,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitCall(callerInfo *P
 	if invocation.isNew() && !this.outer_.astAnalyzer.constructorCallHasSideEffects(invocation) {
 		return
 	}
-	var calleeSummaries *JTList[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = this.outer_.getSummariesForCallee(invocation)
+	var calleeSummaries *TList[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = this.outer_.getSummariesForCallee(invocation)
 	if calleeSummaries.isEmpty() {
 		callerInfo.setMutatesGlobalStateAndAllOtherFlags(0)
 		return
@@ -1036,7 +1036,7 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) toString() string 
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) sideEffectsToString() string {
-	var status *JTList[string] = jnewTList_(jtc_string)
+	var status *TList[string] = newTList_(tc_string)
 	if this.mutatesThis() {
 		status.add("this")
 	}

@@ -69,7 +69,7 @@ func (this *Es6RewriteModules) process_2(externs Node, root Node) {
 
 func (this *Es6RewriteModules) clearPerFileState() {
 	this.typedefs = jnewTSet_(jtc_string)
-	this.namesToInlineByAlias = jnewTMap_(jtc_string, tc_p_ModuleRenaming_GlobalizedModuleName)
+	this.namesToInlineByAlias = jnewTMap_(jtc_string, jtc_p_ModuleRenaming_GlobalizedModuleName)
 }
 
 func (this *Es6RewriteModules) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
@@ -332,7 +332,7 @@ func (this *Es6RewriteModules) rewriteRequires(script Node) {
 func (this *Es6RewriteModules) inlineAliasedTypes(t *NodeTraversal, typeNode Node) {
 	if typeNode.isStringLit() {
 		var name string = typeNode.getString()
-		var split *JTList[string] = splitToListT_(jtc_string, Es6RewriteModules_DOT_SPLITTER.limit(2), strobj_(name))
+		var split *TList[string] = splitToListTP_(tc_string, Es6RewriteModules_DOT_SPLITTER.limit(2), strobj_(name))
 		if cast_[*Var](t.getScope().getVar(split.get(0)).self()) == nil {
 			var replacement *ModuleRenaming_GlobalizedModuleName = this.namesToInlineByAlias.get(split.get(0))
 			if replacement != nil {

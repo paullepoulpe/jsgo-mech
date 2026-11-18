@@ -60,7 +60,7 @@ func (this *FixingErrorManager) setCompiler(compiler *AbstractCompiler) {
 func (this *FixingErrorManager) report_2_impl(level CheckLevel, error_ *JSError) {
 	this.BasicErrorManager.report_2_impl(level, error_)
 	if !this.unfixableErrors.contains(error_.type_()) {
-		var fixes *JTList[*SuggestedFix] = this.fixer.getFixesForJsError(error_)
+		var fixes *TList[*SuggestedFix] = this.fixer.getFixesForJsError(error_)
 		if fixes.size() == 1 {
 			this.sureFixes.put(error_, fixes.get(0))
 		} else {

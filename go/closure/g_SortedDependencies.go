@@ -8,8 +8,8 @@ type SortedDependencies[InputT interface {
 	DependencyInfo_
 	comparable
 }] struct {
-	userOrderedInputs             *JTList[InputT]
-	importOrderedInputs           *JTList[InputT]
+	userOrderedInputs             *TList[InputT]
+	importOrderedInputs           *TList[InputT]
 	completedInputs               *JTSet[InputT]
 	nonExportingInputs            *JTMap[string, InputT]
 	exportingInputBySymbolName    *JTMap[string, InputT]
@@ -19,8 +19,8 @@ type SortedDependencies[InputT interface {
 func (this *SortedDependencies[InputT]) isa_SortedDependencies_() {}
 
 func (this *SortedDependencies[InputT]) finit_SortedDependencies() {
-	this.userOrderedInputs = jnewTList_(tcT_[InputT]())
-	this.importOrderedInputs = jnewTList_(tcT_[InputT]())
+	this.userOrderedInputs = newTList_(tcT_[InputT]().t_())
+	this.importOrderedInputs = newTList_(tcT_[InputT]().t_())
 	this.completedInputs = jnewTSet_(tceT_[InputT]())
 	this.nonExportingInputs = jnewTMap_(jtc_string, tcT_[InputT]())
 	this.exportingInputBySymbolName = jnewTMap_(jtc_string, tcT_[InputT]())
@@ -57,7 +57,7 @@ func (this *SortedDependencies[InputT]) getStrongDependenciesOf(rootInputs ListO
 			}
 		}
 	}
-	var builder *TListBuilder[InputT] = newTListBuilder_(tcT_[InputT]())
+	var builder *ImmutableList_Builder[InputT] = immutableListBuilder_(tcT_[InputT]().t_())
 	for el_4 := range elems_(func() List {
 		if sorted {
 			return this.importOrderedInputs.asList()
@@ -84,8 +84,8 @@ func (this *SortedDependencies[InputT]) getInputsWithoutProvides() ImmutableList
 	return ImmutableList_copyOf(this.nonExportingInputs.asMap().values())
 }
 
-func (this *SortedDependencies[InputT]) getSortedStrongDependenciesOf(roots ListOf[InputT]) *JTList[InputT] {
-	return jtlistImm_(tcT_[InputT](), this.getStrongDependenciesOf(roots, true))
+func (this *SortedDependencies[InputT]) getSortedStrongDependenciesOf(roots ListOf[InputT]) *TList[InputT] {
+	return tlistImm_(tcT_[InputT]().t_(), this.getStrongDependenciesOf(roots, true))
 }
 
 func (this *SortedDependencies[InputT]) getSortedWeakDependenciesOf(rootInputs ListOf[InputT]) ImmutableListOf[InputT] {
@@ -111,7 +111,7 @@ func (this *SortedDependencies[InputT]) getSortedWeakDependenciesOf(rootInputs L
 			}
 		}
 	}
-	var builder *TListBuilder[InputT] = newTListBuilder_(tcT_[InputT]())
+	var builder *ImmutableList_Builder[InputT] = immutableListBuilder_(tcT_[InputT]().t_())
 	it_4 := this.importOrderedInputs.each()
 	for it_4.next() {
 		var input InputT = it_4.v
@@ -149,7 +149,7 @@ func (this *SortedDependencies[InputT]) processInputs() {
 	it_1 := this.userOrderedInputs.each()
 	for it_1.next() {
 		var userOrderedInput InputT = it_1.v
-		var provides *JTList[string] = jtlistImm_(jtc_string, userOrderedInput.getProvides())
+		var provides *TList[string] = tlistImm_(tc_string, userOrderedInput.getProvides())
 		var firstProvide Optional[string] = Optional_ofNullable[string](str_(Iterables_getFirst(Iterable(provides.asList()), nil)))
 		if firstProvide.isEmpty() || (((provides.size() == 1) && strings.HasPrefix(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
 			this.nonExportingInputs.put(ModuleNames_fileToModuleName(userOrderedInput.getName()), userOrderedInput)

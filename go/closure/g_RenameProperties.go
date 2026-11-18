@@ -6,8 +6,8 @@ type RenameProperties struct {
 	compiler_                       *AbstractCompiler
 	generatePseudoNames             bool
 	prevUsedPropertyMap             *VariableMap
-	toRemove                        *JTList[Node]
-	stringNodesToRename             *JTList[Node]
+	toRemove                        *TList[Node]
+	stringNodesToRename             *TList[Node]
 	callNodeToParentMap             *JTMap[Node, Node]
 	reservedFirstCharacters         *JTSet[any]
 	reservedNonFirstCharacters      *JTSet[any]
@@ -20,8 +20,8 @@ type RenameProperties struct {
 }
 
 func (this *RenameProperties) finit_RenameProperties() {
-	this.toRemove = jnewTList_(jtc_Node)
-	this.stringNodesToRename = jnewTList_(jtc_Node)
+	this.toRemove = newTList_(tc_Node)
+	this.stringNodesToRename = newTList_(tc_Node)
 	this.callNodeToParentMap = jnewTMap_(jtc_Node, jtc_Node)
 	this.propertyMap = jnewTMap_(jtc_string, jtc_p_RenameProperties_Property)
 	this.externedNames = jtsetFrom_(jtc_string, Collection(Arrays_asList([]any{"prototype"})))

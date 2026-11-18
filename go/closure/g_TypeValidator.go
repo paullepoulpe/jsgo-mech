@@ -757,7 +757,7 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseNamedType_impl(
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseUnionType_impl(type_ *UnionType) any {
-	var alternates *JTList[*JSType] = type_.getAlternates()
+	var alternates *TList[*JSType] = type_.getAlternates()
 	var alternateCount int32 = alternates.size()
 	for i := int32(0); i < alternateCount; i++ {
 		var alternative *JSType = alternates.get(i)
@@ -769,7 +769,7 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseUnionType_impl(
 }
 
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplatizedType_impl(type_ *TemplatizedType) any {
-	var referencedTemplates *JTList[*TemplateType] = type_.getReferencedType().getTemplateTypeMap().getTemplateKeys()
+	var referencedTemplates *TList[*TemplateType] = type_.getReferencedType().getTemplateTypeMap().getTemplateKeys()
 	for i := int32(0); i < type_.getTemplateTypes().size(); i++ {
 		var assignedType *JSType = type_.getTemplateTypes().get(i)
 		if i < referencedTemplates.size() {

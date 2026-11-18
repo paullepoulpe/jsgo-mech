@@ -84,7 +84,7 @@ func (this *RewriteJsonToModule) visitScript(t *NodeTraversal, n Node) {
 	n.addChildToFront(IR_exprResult(IR_call(IR_getprop_Node_String(IR_name("goog"), "provide"), []Node{IR_string(moduleName)})).srcrefTreeIfMissing(n))
 	var inputPath string = t.getInput().getSourceFile().getName()
 	if strings.HasSuffix(inputPath, "/package.json") && jsonObject.isObjectLit() {
-		var possibleMainEntries *JTList[string] = this.compiler_.getOptions().getPackageJsonEntryNames()
+		var possibleMainEntries *TList[string] = this.compiler_.getOptions().getPackageJsonEntryNames()
 		it_1 := possibleMainEntries.each()
 		for it_1.next() {
 			var entryName string = it_1.v

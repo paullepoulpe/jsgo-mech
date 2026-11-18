@@ -17,8 +17,8 @@ func new_ProfilingReport() *ProfilingReport {
 	return this
 }
 
-func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapOf[string, *InstrumentationPoint], allInstrumentationReports *JTList[Map]) string {
-	var profiles *JTList[*ReportProfile] = jnewTList_(tc_p_ReportProfile)
+func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapOf[string, *InstrumentationPoint], allInstrumentationReports *TList[Map]) string {
+	var profiles *TList[*ReportProfile] = newTList_(tc_p_ReportProfile)
 	it_1 := allInstrumentationReports.each()
 	for it_1.next() {
 		var report Map = it_1.v
@@ -40,7 +40,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 			}
 		}
 	}
-	var result *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(metrics.asMap().entrySet()))
+	var result *TList[Map_Entry] = tlistFrom_(tc_Map_Entry, Collection(metrics.asMap().entrySet()))
 	Collections_sort_List_Comparator(result.asList(), Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(&Function_tfn_Map_Entry_string{func(point Map_Entry) string {
 		return point.getKey().(*InstrumentationPoint).getFileName()
 	}}), &ToLongFunction_tfn_Map_Entry{func(point Map_Entry) int64 {
@@ -50,14 +50,14 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	}}), &ToIntFunction_tfn_Map_Entry{func(point Map_Entry) int32 {
 		return point.getKey().(*InstrumentationPoint).getType().getNumber()
 	}}))
-	var output *JTList[List] = jnewTList_(tc_List)
+	var output *TList[List] = newTList_(tc_List)
 	output.add(ImmutableList_as_List(ImmutableList_of_Object_Object_Object_Object_Object_Object("File", "Function name", "Line", "Type", "Total executed", "Reports occurred")))
 	it_11 := result.each()
 	for it_11.next() {
 		var entry Map_Entry = it_11.v
 		output.add(ImmutableList_as_List(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(entry.getKey().(*InstrumentationPoint).getFileName()), strobj_(entry.getKey().(*InstrumentationPoint).getFunctionName()), strobj_(strconv.Itoa(int(entry.getKey().(*InstrumentationPoint).getLineNumber()))), strobj_(entry.getKey().(*InstrumentationPoint).getType().name()), strobj_(strconv.FormatInt(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).totalTimesExecuted, 10)), strobj_(strconv.Itoa(int(entry.getValue().(*ProfilingReport_InstrumentationPointMetrics).numberOfReports))))))
 	}
-	var rows *JTList[string] = jnewTList_(jtc_string)
+	var rows *TList[string] = newTList_(tc_string)
 	it_13 := output.each()
 	for it_13.next() {
 		var row List = it_13.v

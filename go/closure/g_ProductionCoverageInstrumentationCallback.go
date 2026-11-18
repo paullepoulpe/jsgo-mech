@@ -232,9 +232,9 @@ type ProductionCoverageInstrumentationCallback_ParameterMapping struct {
 func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) init_ProductionCoverageInstrumentationCallback_ParameterMapping() {
 	this.nextUniqueIdentifier = 0
 	this.paramValueEncodings = jnewTMap_(jtc_string, jtc_string)
-	this.fileNameToIndex = jnewTMap_(jtc_string, tc_Integer)
-	this.functionNameToIndex = jnewTMap_(jtc_string, tc_Integer)
-	this.typeToIndex = jnewTMap_(jtc_string, tc_Integer)
+	this.fileNameToIndex = jnewTMap_(jtc_string, jtc_Integer)
+	this.functionNameToIndex = jnewTMap_(jtc_string, jtc_Integer)
+	this.typeToIndex = jnewTMap_(jtc_string, jtc_Integer)
 }
 
 func new_ProductionCoverageInstrumentationCallback_ParameterMapping() *ProductionCoverageInstrumentationCallback_ParameterMapping {

@@ -216,25 +216,25 @@ func ConformanceRules_ConformanceLevel_clinit() {
 }
 
 type ConformanceRules_AllowList struct {
-	prefixes       *JTList[string]
+	prefixes       *TList[string]
 	regexp         *Pattern
 	allowlistEntry *RequirementScopeEntry
 }
 
-func (this *ConformanceRules_AllowList) init_ConformanceRules_AllowList(prefixes *JTList[string], regexp *Pattern, allowlistEntry *RequirementScopeEntry) {
+func (this *ConformanceRules_AllowList) init_ConformanceRules_AllowList(prefixes *TList[string], regexp *Pattern, allowlistEntry *RequirementScopeEntry) {
 	this.prefixes = prefixes
 	this.regexp = regexp
 	this.allowlistEntry = allowlistEntry
 }
 
-func new_ConformanceRules_AllowList(prefixes *JTList[string], regexp *Pattern, allowlistEntry *RequirementScopeEntry) *ConformanceRules_AllowList {
+func new_ConformanceRules_AllowList(prefixes *TList[string], regexp *Pattern, allowlistEntry *RequirementScopeEntry) *ConformanceRules_AllowList {
 	this := &ConformanceRules_AllowList{}
 	this.init_ConformanceRules_AllowList(prefixes, regexp, allowlistEntry)
 	return this
 }
 
 func ConformanceRules_AllowList_create(prefixes ListOf[string], regexps ListOf[string]) *Outcome_base[*ConformanceRules_AllowList] {
-	var prefixesCopy *JTList[string] = jimmutableListCopyOf_(jtc_string, Collection(prefixes))
+	var prefixesCopy *TList[string] = immutableListCopyOf_(tc_string, Collection(prefixes))
 	var regexp *Outcome_base[*Pattern] = ConformanceRules_buildPattern(regexps)
 	if regexp.isErr() {
 		return Outcome_base_err[*ConformanceRules_AllowList](regexp.error())
@@ -243,7 +243,7 @@ func ConformanceRules_AllowList_create(prefixes ListOf[string], regexps ListOf[s
 }
 
 func ConformanceRules_AllowList_createFromEntry(allowlistEntry *RequirementScopeEntry) *Outcome_base[*ConformanceRules_AllowList] {
-	var prefixesCopy *JTList[string] = jimmutableListCopyOf_(jtc_string, Collection(allowlistEntry.getPrefixList()))
+	var prefixesCopy *TList[string] = immutableListCopyOf_(tc_string, Collection(allowlistEntry.getPrefixList()))
 	var regexp *Outcome_base[*Pattern] = ConformanceRules_buildPattern(allowlistEntry.getRegexpList())
 	if regexp.isErr() {
 		return Outcome_base_err[*ConformanceRules_AllowList](regexp.error())
@@ -280,7 +280,7 @@ type ConformanceRules_AbstractRule struct {
 	compiler_                 *AbstractCompiler
 	message_                  string
 	severity                  Requirement_Severity
-	allowlists                *JTList[*ConformanceRules_AllowList]
+	allowlists                *TList[*ConformanceRules_AllowList]
 	onlyApplyTo               *ConformanceRules_AllowList
 	reportLooseTypeViolations bool
 	typeMatchingStrategy      TypeMatchingStrategy
@@ -329,7 +329,7 @@ func (this *ConformanceRules_AbstractRule) initAbstractRule(compiler *AbstractCo
 	} else {
 		this.severity = requirement.getSeverity()
 	}
-	var allowlistsBuilder *TListBuilder[*ConformanceRules_AllowList] = newTListBuilder_(jtc_p_ConformanceRules_AllowList)
+	var allowlistsBuilder *ImmutableList_Builder[*ConformanceRules_AllowList] = immutableListBuilder_(tc_p_ConformanceRules_AllowList)
 	it_1 := foreach_(requirement.getWhitelistEntryList())
 	for it_1.next() {
 		var entry *RequirementScopeEntry = cast_[*RequirementScopeEntry](it_1.v)
@@ -620,7 +620,7 @@ func ConformanceRules_AbstractTypeRestrictionRule_isBottom(n Node) bool {
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) union(typeNames ListOf[string]) *JSType {
 	var registry *JSTypeRegistry = this.compiler_.getTypeRegistry()
-	var types *JTList[*JSType] = jnewTList_(jtc_p_JSType)
+	var types *TList[*JSType] = newTList_(tc_p_JSType)
 	for typeName := range elemsBy_(typeNames, str_) {
 		var type_ *JSType = registry.getGlobalType(typeName)
 		if type_ == nil {
@@ -846,7 +846,7 @@ func (this *ConformanceRules_BannedDependencyRegex) checkConformance_impl(t *Nod
 type ConformanceRules_BannedName struct {
 	ConformanceRules_AbstractRule
 	requirementType Requirement_Type
-	qualifiedNames  *JTList[Node]
+	qualifiedNames  *TList[Node]
 	shortNames      *JTSet[string]
 }
 
@@ -891,7 +891,7 @@ func (this *ConformanceRules_BannedName) initBannedName(compiler *AbstractCompil
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	this.requirementType = requirement.getType()
-	var qualifiedBuilder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
+	var qualifiedBuilder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	var shortBuilder *TSetBuilder[string] = newTSetBuilder_(jtc_string)
 	for name := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
 		var qualifiedName Node = NodeUtil_newQName_AbstractCompiler_String(compiler, name)
@@ -1319,7 +1319,7 @@ func (this *ConformanceRules_BannedStringRegex) initBannedStringRegex(compiler *
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	var builder *TListBuilder[string] = newTListBuilder_(jtc_string)
+	var builder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
@@ -1328,7 +1328,7 @@ func (this *ConformanceRules_BannedStringRegex) initBannedStringRegex(compiler *
 		}
 		builder.add(value)
 	}
-	var values *JTList[string] = builder.build()
+	var values *TList[string] = builder.build()
 	if values.isEmpty() {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
@@ -1429,7 +1429,7 @@ func ConformanceRules_ConformanceUtil_validateParameterList(compiler *AbstractCo
 	if isCallInvocation && (arg != 0) {
 		arg = arg.getNext()
 	}
-	var argumentTypes *TListBuilder[*JSType] = newTListBuilder_(jtc_p_JSType)
+	var argumentTypes *ImmutableList_Builder[*JSType] = immutableListBuilder_(tc_p_JSType)
 	for ; arg != 0; arg = arg.getNext() {
 		var argType *JSType = arg.getJSType()
 		if argType == nil {
@@ -1441,7 +1441,7 @@ func ConformanceRules_ConformanceUtil_validateParameterList(compiler *AbstractCo
 }
 
 func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName string) Optional[string] {
-	var parts *JTList[string] = splitToListT_(jtc_string, ConformanceRules_ON_PROTOTYPE, strobj_(specName))
+	var parts *TList[string] = splitToListTP_(tc_string, ConformanceRules_ON_PROTOTYPE, strobj_(specName))
 	if parts.size() != 1 && parts.size() != 2 {
 		panic(new_IllegalStateException_0())
 	}
@@ -1453,7 +1453,7 @@ func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName st
 
 func ConformanceRules_ConformanceUtil_getClassFromDeclarationName(specName string) Optional[string] {
 	var tmp string = specName
-	var parts *JTList[string] = splitToListT_(jtc_string, ConformanceRules_ON_PROTOTYPE, strobj_(tmp))
+	var parts *TList[string] = splitToListTP_(tc_string, ConformanceRules_ON_PROTOTYPE, strobj_(tmp))
 	if parts.size() != 1 && parts.size() != 2 {
 		panic(new_IllegalStateException_0())
 	}
@@ -1558,7 +1558,7 @@ func ConformanceRules_ConformanceUtil_isEventHandlerAttrName(attr string) bool {
 
 type ConformanceRules_RestrictedNameCall struct {
 	ConformanceRules_AbstractRule
-	restrictions *JTList[*ConformanceRules_RestrictedNameCall_Restriction]
+	restrictions *TList[*ConformanceRules_RestrictedNameCall_Restriction]
 }
 
 func (this *ConformanceRules_RestrictedNameCall) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -1601,7 +1601,7 @@ func (this *ConformanceRules_RestrictedNameCall) initRestrictedNameCall(compiler
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	var builder *TListBuilder[*ConformanceRules_RestrictedNameCall_Restriction] = newTListBuilder_(jtc_p_ConformanceRules_RestrictedNameCall_Restriction)
+	var builder *ImmutableList_Builder[*ConformanceRules_RestrictedNameCall_Restriction] = immutableListBuilder_(tc_p_ConformanceRules_RestrictedNameCall_Restriction)
 	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
@@ -1668,7 +1668,7 @@ func new_ConformanceRules_RestrictedNameCall_Restriction(name Node, restrictedCa
 
 type ConformanceRules_RestrictedMethodCall struct {
 	ConformanceRules_AbstractRule
-	restrictions *JTList[*ConformanceRules_RestrictedMethodCall_Restriction]
+	restrictions *TList[*ConformanceRules_RestrictedMethodCall_Restriction]
 }
 
 func (this *ConformanceRules_RestrictedMethodCall) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -1712,7 +1712,7 @@ func (this *ConformanceRules_RestrictedMethodCall) initRestrictedMethodCall(comp
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
-	var builder *TListBuilder[*ConformanceRules_RestrictedMethodCall_Restriction] = newTListBuilder_(jtc_p_ConformanceRules_RestrictedMethodCall_Restriction)
+	var builder *ImmutableList_Builder[*ConformanceRules_RestrictedMethodCall_Restriction] = immutableListBuilder_(tc_p_ConformanceRules_RestrictedMethodCall_Restriction)
 	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
@@ -1816,7 +1816,7 @@ func new_ConformanceRules_RestrictedMethodCall_Restriction(type_ *JSType, proper
 
 type ConformanceRules_RestrictedPropertyWrite struct {
 	ConformanceRules_AbstractRule
-	restrictions *JTList[*ConformanceRules_RestrictedPropertyWrite_Restriction]
+	restrictions *TList[*ConformanceRules_RestrictedPropertyWrite_Restriction]
 }
 
 func (this *ConformanceRules_RestrictedPropertyWrite) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -1860,7 +1860,7 @@ func (this *ConformanceRules_RestrictedPropertyWrite) initRestrictedPropertyWrit
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
-	var builder *TListBuilder[*ConformanceRules_RestrictedPropertyWrite_Restriction] = newTListBuilder_(jtc_p_ConformanceRules_RestrictedPropertyWrite_Restriction)
+	var builder *ImmutableList_Builder[*ConformanceRules_RestrictedPropertyWrite_Restriction] = immutableListBuilder_(tc_p_ConformanceRules_RestrictedPropertyWrite_Restriction)
 	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
@@ -1945,7 +1945,7 @@ func new_ConformanceRules_RestrictedPropertyWrite_Restriction(type_ *JSType, pro
 
 type ConformanceRules_BannedCodePattern struct {
 	ConformanceRules_AbstractRule
-	restrictions *JTList[*TemplateAstMatcher]
+	restrictions *TList[*TemplateAstMatcher]
 }
 
 func (this *ConformanceRules_BannedCodePattern) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -1988,7 +1988,7 @@ func (this *ConformanceRules_BannedCodePattern) initBannedCodePattern(compiler *
 	if requirement.getValueCount() == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	var builder *TListBuilder[*TemplateAstMatcher] = newTListBuilder_(jtc_p_TemplateAstMatcher)
+	var builder *ImmutableList_Builder[*TemplateAstMatcher] = immutableListBuilder_(tc_p_TemplateAstMatcher)
 	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
@@ -2809,15 +2809,15 @@ func ConformanceRules_BanUnresolvedType_getNonConformingPart(type_ *JSType) Opti
 		return Optional_empty[string]()
 	}
 	if type_.isUnionType() {
-		var nonConformingParts *JTList[string] = nil
+		var nonConformingParts *TList[string] = nil
 		for part := range elemsBy_(type_.getUnionMembers(), to_JSType) {
 			var nonConformingPart Optional[string] = ConformanceRules_BanUnresolvedType_getNonConformingPart(part)
 			if nonConformingPart.isPresent() {
-				nonConformingParts = func() *JTList[string] {
+				nonConformingParts = func() *TList[string] {
 					if nonConformingParts != nil {
 						return nonConformingParts
 					}
-					return jnewTList_(jtc_string)
+					return newTList_(tc_string)
 				}()
 				nonConformingParts.add(nonConformingPart.get())
 			}
@@ -3259,7 +3259,7 @@ func (this *ConformanceRules_BanCreateDom) initBanCreateDom(compiler *AbstractCo
 	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
-		var tagAttr *JTList[string] = splitToListT_(jtc_string, ConformanceRules_ON_DOT, strobj_(value))
+		var tagAttr *TList[string] = splitToListTP_(tc_string, ConformanceRules_ON_DOT, strobj_(value))
 		if ((tagAttr.size() != 2) || tagAttr.get(0) == "") || tagAttr.get(1) == "" {
 			return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("Values must be in the format tagname.attribute.").up_Throwable())
 		}
@@ -3697,7 +3697,7 @@ func ConformanceRules_BanElementSetAttribute_clinit() {
 
 type ConformanceRules_BanSettingAttributes struct {
 	ConformanceRules_AbstractRule
-	restrictions *JTList[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction]
+	restrictions *TList[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction]
 }
 
 func (this *ConformanceRules_BanSettingAttributes) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -3741,7 +3741,7 @@ func (this *ConformanceRules_BanSettingAttributes) initBanSettingAttributes(comp
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
 	var registry *JSTypeRegistry = compiler.getTypeRegistry()
-	var builder *TListBuilder[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction] = newTListBuilder_(jtc_p_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction)
+	var builder *ImmutableList_Builder[*ConformanceRules_BanSettingAttributes_AttributeSettingRestriction] = immutableListBuilder_(tc_p_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction)
 	it_1 := foreach_(ProtocolStringList(requirement.getValueList()))
 	for it_1.next() {
 		var value string = str_(it_1.v)
@@ -3830,7 +3830,7 @@ func new_ConformanceRules_BanSettingAttributes_AttributeSettingRestriction(type_
 
 type ConformanceRules_BanExecCommand struct {
 	ConformanceRules_AbstractRule
-	bannedAttrs *JTList[string]
+	bannedAttrs *TList[string]
 }
 
 func (this *ConformanceRules_BanExecCommand) up_ConformanceRules_AbstractRule() *ConformanceRules_AbstractRule {
@@ -3870,7 +3870,7 @@ func (this *ConformanceRules_BanExecCommand) initBanExecCommand(compiler *Abstra
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	var bannedAttrsBuilder *TListBuilder[string] = newTListBuilder_(jtc_string)
+	var bannedAttrsBuilder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	for v := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
 		bannedAttrsBuilder.add(strings.ToLower(v))
 	}

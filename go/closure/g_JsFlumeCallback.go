@@ -5,13 +5,13 @@ package closure
 type JsFlumeCallback struct {
 	scanner            *Scanner_refactoring
 	includeFilePattern *Pattern
-	matches_           *JTList[*Match]
-	fixes              *JTList[*SuggestedFix]
+	matches_           *TList[*Match]
+	fixes              *TList[*SuggestedFix]
 }
 
 func (this *JsFlumeCallback) finit_JsFlumeCallback() {
-	this.matches_ = jnewTList_(jtc_p_Match)
-	this.fixes = jnewTList_(jtc_p_SuggestedFix)
+	this.matches_ = newTList_(tc_p_Match)
+	this.fixes = newTList_(tc_p_SuggestedFix)
 }
 
 func (this *JsFlumeCallback) init_JsFlumeCallback(scanner *Scanner_refactoring, includeFilePattern *Pattern) {
@@ -26,11 +26,11 @@ func new_JsFlumeCallback(scanner *Scanner_refactoring, includeFilePattern *Patte
 	return this
 }
 
-func (this *JsFlumeCallback) getMatches() *JTList[*Match] {
+func (this *JsFlumeCallback) getMatches() *TList[*Match] {
 	return this.matches_
 }
 
-func (this *JsFlumeCallback) getFixes() *JTList[*SuggestedFix] {
+func (this *JsFlumeCallback) getFixes() *TList[*SuggestedFix] {
 	return this.fixes
 }
 

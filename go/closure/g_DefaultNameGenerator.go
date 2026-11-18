@@ -18,7 +18,7 @@ func (this *DefaultNameGenerator) zero_DefaultNameGenerator() {
 func (this *DefaultNameGenerator) init_DefaultNameGenerator_0() {
 	this.buildPriorityLookupMap()
 	var reservedNames SetOf[string] = LinkedHashSet_as_Set(Sets_newLinkedHashSetWithExpectedSize(0))
-	this.reset(reservedNames, "", jtsetEmptyImm_(tc_Character))
+	this.reset(reservedNames, "", jtsetEmptyImm_(jtc_Character))
 }
 
 func new_DefaultNameGenerator_0() *DefaultNameGenerator {
@@ -129,7 +129,7 @@ func (this *DefaultNameGenerator) reserveCharacters(chars []uint16, reservedChar
 		}
 		return result
 	}
-	var charSet *JTSet[any] = jtsetFrom_(tc_Character, Collection(Chars_asList(chars)))
+	var charSet *JTSet[any] = jtsetFrom_(jtc_Character, Collection(Chars_asList(chars)))
 	charSet.asSet().removeAll(Collection(reservedCharacterSet.asSet()))
 	var result []*DefaultNameGenerator_CharPriority = make([]*DefaultNameGenerator_CharPriority, charSet.size())
 	var index int32 = 0

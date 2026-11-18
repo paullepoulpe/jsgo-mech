@@ -231,13 +231,13 @@ type Graph_GraphEdge[N comparable] interface {
 
 type Graph_SimpleSubGraph[N comparable, E comparable] struct {
 	graph  *Graph[N]
-	nodes_ *JTList[GraphNode[N]]
+	nodes_ *TList[GraphNode[N]]
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) isa_Graph_SimpleSubGraph_() {}
 
 func (this *Graph_SimpleSubGraph[N, E]) finit_Graph_SimpleSubGraph() {
-	this.nodes_ = jnewTList_(tc_GraphNode_N_[N, E]())
+	this.nodes_ = newTList_(tc_GraphNode_N_[N, E]().t_())
 }
 
 func (this *Graph_SimpleSubGraph[N, E]) init_Graph_SimpleSubGraph(graph *Graph[N]) {

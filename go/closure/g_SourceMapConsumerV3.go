@@ -18,7 +18,7 @@ func (this *SourceMapConsumerV3) finit_SourceMapConsumerV3() {
 	this.file = Optional_empty[string]()
 	this.mappings = nil
 	this.sourceRoot = Optional_empty[string]()
-	this.extensions = jnewTMap_(jtc_string, tc_Object)
+	this.extensions = jnewTMap_(jtc_string, jtc_Object)
 }
 
 func (this *SourceMapConsumerV3) init_SourceMapConsumerV3() {
@@ -231,7 +231,7 @@ func (this *SourceMapConsumerV3) getOriginalMappingForEntry(index int32, precisi
 }
 
 func (this *SourceMapConsumerV3) createReverseMapping() {
-	this.reverseSourceMapping = jnewTMap_(jtc_string, tc_Map)
+	this.reverseSourceMapping = jnewTMap_(jtc_string, jtc_Map)
 	for targetLine := int32(0); targetLine < this.mappings.getParsedLineCount(); targetLine++ {
 		var start int32 = this.mappings.getLineStart(targetLine)
 		var end int32 = this.mappings.getLineStart((targetLine + 1))

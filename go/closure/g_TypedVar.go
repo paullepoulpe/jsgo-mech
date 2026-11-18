@@ -107,6 +107,6 @@ func TypedVar_clinit() {
 		return
 	}
 	TypedVar_clinit_done = true
-	TypedVar_NAME_NODE_TYPES = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_NAME.enum_(), []*Enum{Token_rhino_THIS.enum_(), Token_rhino_IMPORT_STAR.enum_(), Token_rhino_EXPR_RESULT.enum_(), Token_rhino_EXPORT.enum_(), Token_rhino_GETPROP.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_STRING_KEY.enum_(), Token_rhino_SETTER_DEF.enum_(), Token_rhino_GETTER_DEF.enum_(), Token_rhino_MEMBER_FUNCTION_DEF.enum_(), Token_rhino_MODULE_BODY.enum_()}))
+	TypedVar_NAME_NODE_TYPES = tsetImm_(jtc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_NAME.enum_(), []*Enum{Token_rhino_THIS.enum_(), Token_rhino_IMPORT_STAR.enum_(), Token_rhino_EXPR_RESULT.enum_(), Token_rhino_EXPORT.enum_(), Token_rhino_GETPROP.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_STRING_KEY.enum_(), Token_rhino_SETTER_DEF.enum_(), Token_rhino_GETTER_DEF.enum_(), Token_rhino_MEMBER_FUNCTION_DEF.enum_(), Token_rhino_MODULE_BODY.enum_()}))
 
 }

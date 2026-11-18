@@ -61,7 +61,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		this.registerOwnDeclaredProperties(colorGraphNode, propIndex)
 	}
 	this.logForDiagnostics("graph", &Supplier_base_fn{func() any {
-		var result *JTList[*DisambiguateProperties_TypeNodeJson] = jnewTList_(jtc_p_DisambiguateProperties_TypeNodeJson)
+		var result *TList[*DisambiguateProperties_TypeNodeJson] = newTList_(tc_p_DisambiguateProperties_TypeNodeJson)
 		for n := range elemsAs_[DiGraph_DiGraphNode[*ColorGraphNode]](graph.getNodes()) {
 			result.add(new_DisambiguateProperties_TypeNodeJson(n))
 		}
@@ -120,7 +120,7 @@ func DisambiguateProperties_buildRenamingIndex(props *JTMap[string, *PropertyClu
 }
 
 func DisambiguateProperties_invalidateWellKnownProperties(propIndex *JTMap[string, *PropertyClustering]) {
-	var names *JTList[string] = jimmutableListOf_[string](jtc_string, "prototype", "constructor", "then")
+	var names *TList[string] = immutableListOf_[string](tc_string, "prototype", "constructor", "then")
 	it_1 := names.each()
 	for it_1.next() {
 		var name string = it_1.v
@@ -403,7 +403,7 @@ func new_DisambiguateProperties_TypeNodeJson(n DiGraph_DiGraphNode[*ColorGraphNo
 }
 
 func (this *DisambiguateProperties_TypeNodeJson) toLogsGson() any {
-	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
+	var json *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Object)
 	json.put("index", any(int32(this.index_)))
 	json.put("invalidating", any(bool(this.invalidating)))
 	json.put("colorId", strobj_(this.colorId))
@@ -438,7 +438,7 @@ func (this *DisambiguateProperties_TypeEdgeJson) compareTo(x_ any) int32 {
 }
 
 func (this *DisambiguateProperties_TypeEdgeJson) toLogsGson() any {
-	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
+	var json *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Object)
 	json.put("dest", any(int32(this.dest)))
 	json.put("value", this.value_)
 	return json.asMap()

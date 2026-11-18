@@ -651,7 +651,7 @@ type ProcessDefines_Builder struct {
 	recognizeClosureDefines bool
 	enableZonesDefineName   Optional[string]
 	zoneInputPattern        *Pattern
-	unknownDefinesToIgnore  *JTList[string]
+	unknownDefinesToIgnore  *TList[string]
 }
 
 func (this *ProcessDefines_Builder) finit_ProcessDefines_Builder() {
@@ -659,7 +659,7 @@ func (this *ProcessDefines_Builder) finit_ProcessDefines_Builder() {
 	this.recognizeClosureDefines = true
 	this.enableZonesDefineName = Optional_empty[string]()
 	this.zoneInputPattern = nil
-	this.unknownDefinesToIgnore = jtlistEmptyImm_(jtc_string)
+	this.unknownDefinesToIgnore = tlistEmptyImm_(tc_string)
 }
 
 func (this *ProcessDefines_Builder) init_ProcessDefines_Builder(compiler *AbstractCompiler) {
@@ -688,7 +688,7 @@ func (this *ProcessDefines_Builder) injectNamespace(namespaceSupplier func() any
 	return this
 }
 
-func (this *ProcessDefines_Builder) setUnknownDefinesToIgnore(unknownDefinesToIgnore *JTList[string]) *ProcessDefines_Builder {
+func (this *ProcessDefines_Builder) setUnknownDefinesToIgnore(unknownDefinesToIgnore *TList[string]) *ProcessDefines_Builder {
 	this.unknownDefinesToIgnore = unknownDefinesToIgnore
 	return this
 }

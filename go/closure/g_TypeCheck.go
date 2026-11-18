@@ -1401,9 +1401,9 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 			properties.asMap().putAll(currentProperties.asMap())
 		}
 	}
-	var loopPath *JTList[*FunctionType] = functionType.checkExtendsLoop()
+	var loopPath *TList[*FunctionType] = functionType.checkExtendsLoop()
 	if loopPath != nil {
-		var displayNames *JTList[string] = jnewTList_(jtc_string)
+		var displayNames *TList[string] = newTList_(tc_string)
 		it_5 := loopPath.each()
 		for it_5.next() {
 			var loopType *FunctionType = it_5.v
@@ -1940,7 +1940,7 @@ func (this *TypeCheck) checkNotReadonlyPropertyAssignment(lhs Node) {
 		return
 	}
 	var roArray *JSType = this.getNativeType(JSTypeNative_READONLY_ARRAY_TYPE)
-	var alternates *JTList[*JSType] = TypeCheck_flattenUnion(lhsType)
+	var alternates *TList[*JSType] = TypeCheck_flattenUnion(lhsType)
 	for i := int32(0); i < alternates.size(); i++ {
 		var type_ *JSType = alternates.get(i)
 		if roArray.equals_JSType(type_) || roArray.equals_JSType(TypeCheck_maybeReferencedType(type_)) {
@@ -1960,11 +1960,11 @@ func TypeCheck_maybeReferencedType(type_ *JSType) *JSType {
 	}()
 }
 
-func TypeCheck_flattenUnion(maybeUnion *JSType) *JTList[*JSType] {
+func TypeCheck_flattenUnion(maybeUnion *JSType) *TList[*JSType] {
 	var union *UnionType = maybeUnion.toMaybeUnionType()
-	return func() *JTList[*JSType] {
+	return func() *TList[*JSType] {
 		if union == nil {
-			return jimmutableListOf_[*JSType](jtc_p_JSType, maybeUnion)
+			return immutableListOf_[*JSType](tc_p_JSType, maybeUnion)
 		}
 		return union.getAlternates()
 	}()

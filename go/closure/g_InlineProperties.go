@@ -9,7 +9,7 @@ type InlineProperties struct {
 }
 
 func (this *InlineProperties) finit_InlineProperties() {
-	this.props = jnewTMap_(jtc_string, tc_p_InlineProperties_PropertyInfo)
+	this.props = jnewTMap_(jtc_string, jtc_p_InlineProperties_PropertyInfo)
 }
 
 func (this *InlineProperties) init_InlineProperties(compiler *AbstractCompiler) {

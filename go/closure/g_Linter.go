@@ -29,7 +29,7 @@ func (this *Linter) lint_2(path string, compiler *Compiler) {
 	compiler.setPassConfig(new_LintPassConfig(this.options_).up_PassConfig())
 	compiler.disableThreads()
 	var externs *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String("<Linter externs>", "")
-	compiler.compile(jimmutableListOf_[*SourceFile_jscomp](jtc_p_SourceFile_jscomp, externs), jimmutableListOf_[*SourceFile_jscomp](jtc_p_SourceFile_jscomp, file), this.options_)
+	compiler.compile(immutableListOf_[*SourceFile_jscomp](tc_p_SourceFile_jscomp, externs), immutableListOf_[*SourceFile_jscomp](tc_p_SourceFile_jscomp, file), this.options_)
 }
 
 func (this *Linter) fixRepeatedly(filename string) *Outcome_base[any] {

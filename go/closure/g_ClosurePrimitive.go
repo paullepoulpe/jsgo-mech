@@ -80,6 +80,6 @@ func ClosurePrimitive_clinit() {
 	ClosurePrimitive_clinit_done = true
 	ClosurePrimitive_values_ = []ClosurePrimitive{ClosurePrimitive_ASSERTS_FAIL, ClosurePrimitive_ASSERTS_MATCHES_RETURN, ClosurePrimitive_ASSERTS_TRUTHY}
 	registerEnum_("com.google.javascript.rhino.ClosurePrimitive", enumValues_(ClosurePrimitive_values_))
-	ClosurePrimitive_ID_TO_ENUM = immutableMapOf3_[string, ClosurePrimitive](jtc_string, tc_p_ClosurePrimitive, "asserts.fail", ClosurePrimitive_ASSERTS_FAIL, "asserts.truthy", ClosurePrimitive_ASSERTS_TRUTHY, "asserts.matchesReturn", ClosurePrimitive_ASSERTS_MATCHES_RETURN)
+	ClosurePrimitive_ID_TO_ENUM = immutableMapOf3_[string, ClosurePrimitive](jtc_string, jtc_p_ClosurePrimitive, "asserts.fail", ClosurePrimitive_ASSERTS_FAIL, "asserts.truthy", ClosurePrimitive_ASSERTS_TRUTHY, "asserts.matchesReturn", ClosurePrimitive_ASSERTS_MATCHES_RETURN)
 
 }

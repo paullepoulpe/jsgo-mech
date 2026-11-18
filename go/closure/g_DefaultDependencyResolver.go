@@ -3,16 +3,16 @@
 package closure
 
 type DefaultDependencyResolver struct {
-	depsFiles      *JTList[*DependencyFile]
+	depsFiles      *TList[*DependencyFile]
 	strictRequires bool
 }
 
-func (this *DefaultDependencyResolver) init_DefaultDependencyResolver(depsFiles *JTList[*DependencyFile], strictRequires bool) {
+func (this *DefaultDependencyResolver) init_DefaultDependencyResolver(depsFiles *TList[*DependencyFile], strictRequires bool) {
 	this.depsFiles = depsFiles
 	this.strictRequires = strictRequires
 }
 
-func new_DefaultDependencyResolver(depsFiles *JTList[*DependencyFile], strictRequires bool) *DefaultDependencyResolver {
+func new_DefaultDependencyResolver(depsFiles *TList[*DependencyFile], strictRequires bool) *DefaultDependencyResolver {
 	this := &DefaultDependencyResolver{}
 	this.init_DefaultDependencyResolver(depsFiles, strictRequires)
 	return this
@@ -31,7 +31,7 @@ func (this *DefaultDependencyResolver) getDependencies_3(code string, seen *JTSe
 }
 
 func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[string], seen *JTSet[string]) Collection {
-	var list *JTList[string] = jnewTList_(jtc_string)
+	var list *TList[string] = newTList_(tc_string)
 	it_1 := this.depsFiles.each()
 	for it_1.next() {
 		var depsFile *DependencyFile = it_1.v
@@ -43,7 +43,7 @@ func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[st
 	return Collection(list.asList())
 }
 
-func (this *DefaultDependencyResolver) addDependency(symbol string, seen *JTSet[string], list *JTList[string]) {
+func (this *DefaultDependencyResolver) addDependency(symbol string, seen *JTSet[string], list *TList[string]) {
 	var dependency DependencyInfo_ = this.getDependencyInfo(symbol)
 	if dependency == nil {
 		if this.strictRequires {
@@ -63,7 +63,7 @@ func DefaultDependencyResolver_parseRequires(code string, addClosureBase bool) C
 	var errorManager ErrorManager = ErrorManager(new_LoggerErrorManager_Logger(DefaultDependencyResolver_logger))
 	var parser *JsFileRegexParser = new_JsFileRegexParser(errorManager)
 	var deps DependencyInfo_ = parser.parseFile("<unknown path>", "<unknown path>", code)
-	var requires *JTList[string] = jnewTList_(jtc_string)
+	var requires *TList[string] = newTList_(tc_string)
 	if addClosureBase {
 		requires.add(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE)
 	}

@@ -289,14 +289,14 @@ func Keywords_clinit() {
 	Keywords_values_ = []Keywords{Keywords_BREAK, Keywords_CASE, Keywords_CATCH, Keywords_CONTINUE, Keywords_DEBUGGER, Keywords_DEFAULT, Keywords_DELETE, Keywords_DO, Keywords_ELSE, Keywords_FINALLY, Keywords_FOR, Keywords_FUNCTION, Keywords_IF, Keywords_IN, Keywords_INSTANCEOF, Keywords_NEW, Keywords_RETURN, Keywords_SWITCH, Keywords_THIS, Keywords_THROW, Keywords_TRY, Keywords_TYPEOF, Keywords_VAR, Keywords_VOID, Keywords_WHILE, Keywords_WITH, Keywords_CLASS, Keywords_CONST, Keywords_ENUM, Keywords_EXPORT, Keywords_EXTENDS, Keywords_IMPORT, Keywords_SUPER, Keywords_IMPLEMENTS, Keywords_INTERFACE, Keywords_LET, Keywords_PACKAGE, Keywords_PRIVATE, Keywords_PROTECTED, Keywords_PUBLIC, Keywords_STATIC, Keywords_YIELD, Keywords_NULL, Keywords_TRUE, Keywords_FALSE}
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.Keywords", enumValues_(Keywords_values_))
 	{
-		var keywordsByName *TMapBuilder[string, Keywords] = newTMapBuilder_(jtc_string, tc_p_Keywords)
+		var keywordsByName *TMapBuilder[string, Keywords] = newTMapBuilder_(jtc_string, jtc_p_Keywords)
 		var keywordsByType EnumMapOf[TokenType, Keywords] = new_EnumMap(classOf_("com.google.javascript.jscomp.parsing.parser.TokenType"))
 		for kw := range elemsAs_[Keywords](obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.parsing.parser.Keywords")))) {
 			keywordsByName.put(Keywords_value__[kw-1], kw)
 			keywordsByType.put(obj_(Keywords_type___[kw-1]), obj_(kw))
 		}
 		Keywords_KEYWORDS_BY_NAME = keywordsByName.buildOrThrow()
-		Keywords_KEYWORDS_BY_TYPE = tmapImm_(tc_p_TokenType, tc_p_Keywords, Maps_immutableEnumMap(EnumMap_as_Map(keywordsByType)))
+		Keywords_KEYWORDS_BY_TYPE = tmapImm_(jtc_p_TokenType, jtc_p_Keywords, Maps_immutableEnumMap(EnumMap_as_Map(keywordsByType)))
 	}
 
 }

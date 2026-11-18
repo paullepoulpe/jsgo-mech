@@ -1422,7 +1422,7 @@ func (this *TypeInference) buildTypeVariables(inferredTypes *JTMap[*TemplateType
 	return typeVars
 }
 
-func (this *TypeInference) evaluateTypeTransformations(templateTypes *JTList[*TemplateType], inferredTypes *JTMap[*TemplateType, *JSType], scope FlowScope) *JTMap[*TemplateType, *JSType] {
+func (this *TypeInference) evaluateTypeTransformations(templateTypes *TList[*TemplateType], inferredTypes *JTMap[*TemplateType, *JSType], scope FlowScope) *JTMap[*TemplateType, *JSType] {
 	var typeVars *JTMap[string, *JSType] = nil
 	var result *JTMap[*TemplateType, *JSType] = nil
 	var ttlObj *TypeTransformation = nil
@@ -1444,7 +1444,7 @@ func (this *TypeInference) evaluateTypeTransformations(templateTypes *JTList[*Te
 }
 
 func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionType, scope FlowScope) bool {
-	var keys *JTList[*TemplateType] = fnType.getTemplateTypeMap().getTemplateKeys()
+	var keys *TList[*TemplateType] = fnType.getTemplateTypeMap().getTemplateKeys()
 	if keys.isEmpty() {
 		return false
 	}
@@ -1955,7 +1955,7 @@ func TypeInference_clinit() {
 	}
 	TypeInference_clinit_done = true
 	TypeInference_REASSIGN_CLASS_PROTOTYPE = DiagnosticType_error("JSC_REASSIGN_CLASS_PROTOTYPE", "Reassigning a class prototype is not allowed")
-	TypeInference_TOKENS_ALLOWING_NULL_TYPES = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_NAME.enum_(), []*Enum{Token_rhino_CALL.enum_(), Token_rhino_NEW.enum_()}))
+	TypeInference_TOKENS_ALLOWING_NULL_TYPES = tsetImm_(jtc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_NAME.enum_(), []*Enum{Token_rhino_CALL.enum_(), Token_rhino_NEW.enum_()}))
 
 }
 

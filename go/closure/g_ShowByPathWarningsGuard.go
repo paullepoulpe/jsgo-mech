@@ -33,7 +33,7 @@ func (this *ShowByPathWarningsGuard) init_ShowByPathWarningsGuard_StringArr_Show
 	if showType == 0 {
 		panic(new_IllegalArgumentException_0())
 	}
-	var pathList *JTList[string] = jimmutableListCopyOfArr_(jtc_string, paths)
+	var pathList *TList[string] = immutableListCopyOfArr_(tc_string, paths)
 	if showType == ShowByPathWarningsGuard_ShowType_INCLUDE {
 		this.warningsGuard = ByPathWarningsGuard_exceptPath(pathList, CheckLevel_OFF)
 	} else {

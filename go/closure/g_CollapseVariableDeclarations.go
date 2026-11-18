@@ -4,12 +4,12 @@ package closure
 
 type CollapseVariableDeclarations struct {
 	compiler_       *AbstractCompiler
-	collapses       *JTList[*CollapseVariableDeclarations_Collapse]
+	collapses       *TList[*CollapseVariableDeclarations_Collapse]
 	nodesToCollapse *JTSet[Node]
 }
 
 func (this *CollapseVariableDeclarations) finit_CollapseVariableDeclarations() {
-	this.collapses = jnewTList_(tc_p_CollapseVariableDeclarations_Collapse)
+	this.collapses = newTList_(tc_p_CollapseVariableDeclarations_Collapse)
 	this.nodesToCollapse = jnewTSet_(jtc_Node)
 }
 
