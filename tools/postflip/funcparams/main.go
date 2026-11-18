@@ -1159,9 +1159,9 @@ func convert(report bool) {
 			m := methodValue(o, ms)
 			rw.Rewrite[a] = func() string {
 				if o == a { // already unboxed by an earlier step: render it, not its own rewrite
-					return rw.RenderChildren(o) + "." + m
+					return reflipRecv_(o, rw.RenderChildren(o)) + "." + m
 				}
-				return rw.Render(o) + "." + m
+				return reflipRecv_(o, rw.Render(o)) + "." + m
 			}
 		case "iife":
 			cl := iife(a, ms)
@@ -1487,4 +1487,12 @@ func stored(p *param) *param {
 		p.why = "never given a value"
 	}
 	return p
+}
+
+// reflipRecv_ parenthesizes the text s of receiver o where a selector would not bind to it.
+func reflipRecv_(o ast.Expr, s string) string {
+	if _, ok := o.(*ast.UnaryExpr); ok {
+		return "(" + s + ")"
+	}
+	return s
 }
