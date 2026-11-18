@@ -19,12 +19,20 @@ type tconv_[T any] struct {
 	// byEquals: a set or a map compares elements of this type by equals and hashCode (through
 	// their boxes), not by Go's == (a class with its own equals, an interface, a library class).
 	byEquals bool
+	// the empty immutable list, set and map of this element type (as a map's value type, or
+	// else its key type): one object each, as Guava's (rt_timm.go)
+	emptyL, emptyS, emptyM any
 }
 
 type TList[T any] struct {
 	items []T
 	c     *tconv_[T]
 	view  tlistView_[T] // the list as erased code sees it (asList): part of the list, so one object
+	// twin: nil for a list that can change (an ArrayList). An immutable list (Guava's
+	// ImmutableList, rt_timm.go) has here the ImmutableList that erased code sees it as, or
+	// immPending_ until erased code first needs it; every change of such a list throws
+	// UnsupportedOperationException.
+	twin *ImmutableCollection
 }
 
 func newTList_[T any](c *tconv_[T]) *TList[T] {
@@ -70,18 +78,27 @@ func (l *TList[T]) get(i int32) T {
 }
 
 func (l *TList[T]) set(i int32, v T) T {
+	if l.twin != nil {
+		panic(frozen_{})
+	}
 	old := l.items[i]
 	l.items[i] = v
 	return old
 }
 
 func (l *TList[T]) add(v T) bool {
+	if l.twin != nil {
+		panic(frozen_{})
+	}
 	l.items = append(l.items, v)
 	return true
 }
 
 // insert is add(int, T).
 func (l *TList[T]) insert(i int32, v T) {
+	if l.twin != nil {
+		panic(frozen_{})
+	}
 	if i < 0 || int(i) > len(l.items) {
 		panic(new_IndexOutOfBoundsException_String("Index: " + istr_(int64(i)) + ", Size: " + istr_(int64(len(l.items)))).self())
 	}
@@ -91,10 +108,18 @@ func (l *TList[T]) insert(i int32, v T) {
 	l.items[i] = v
 }
 
-func (l *TList[T]) clear() { l.items = l.items[:0] }
+func (l *TList[T]) clear() {
+	if l.twin != nil {
+		panic(frozen_{})
+	}
+	l.items = l.items[:0]
+}
 
 // removeAt is remove(int).
 func (l *TList[T]) removeAt(i int32) T {
+	if l.twin != nil {
+		panic(frozen_{})
+	}
 	old := l.get(i)
 	var z T
 	if i == 0 {
@@ -111,6 +136,9 @@ func (l *TList[T]) removeAt(i int32) T {
 
 // addAllT is addAll of another typed list of the same element type.
 func (l *TList[T]) addAllT(o *TList[T]) bool {
+	if l.twin != nil {
+		panic(frozen_{})
+	}
 	l.items = append(l.items, o.items...)
 	return len(o.items) > 0
 }
@@ -146,10 +174,10 @@ func (l *TList[T]) iterator() Iterator {
 
 // asList is the list as an erased List (nil for null): the list's one view, its identity for
 // erased code. The view is a field of the list (set when the list is made), so that a list
-// which erased code sees is still one object.
+// which erased code sees is still one object. An immutable list is seen as its ImmutableList.
 func (l *TList[T]) asList() List {
-	if l == nil {
-		return nil
+	if l == nil || l.twin != nil {
+		return l.asImmList()
 	}
 	return &l.view
 }

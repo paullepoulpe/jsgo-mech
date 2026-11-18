@@ -314,10 +314,14 @@ public class Unboxed {
     };
     for (Mixed o : others) eq.append(a.equals(o) ? 'T' : 'F').append(o.equals(a) ? 'T' : 'F');
     Pair pair = new Pair(new Valued("ab"), null);
+    List<String> typedList = new ArrayList<>(), noTypedList = null;
+    typedList.add("t");
+    Set<Plain> typedSet = new java.util.LinkedHashSet<>();
+    typedSet.add(p);
     return a.equals(same) + " " + (a.hashCode() == same.hashCode()) + " " + nulls.equals(nulls2) + " " + (nulls.hashCode() == nulls2.hashCode()) + " " + eq
         + " " + a.equals(null) + a.equals("x") + " " + pair + " " + pair.hashCode() + " " + pair.equals(new Pair(new Valued("ab"), null)) + pair.equals(new Pair(null, null))
         + " " + new Pair(null, new Valued("abc")).hashCode() + " " + nulls + " " + a
-        + " | " + p + noPlain + shape + noShape + box + noBox + tone + noTone + Tone.LOW + pair.left() + pair.right() + new Plain(7) + named.me() + a.list() + nulls.list() + a.any() + a.str() + nulls.str();
+        + " | " + p + noPlain + shape + noShape + box + noBox + tone + noTone + Tone.LOW + pair.left() + pair.right() + new Plain(7) + named.me() + a.list() + nulls.list() + a.any() + a.str() + nulls.str() + typedList + noTypedList + typedSet;
   }
 
   // ---- a String for a CharSequence parameter

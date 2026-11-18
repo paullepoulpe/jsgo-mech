@@ -169,6 +169,32 @@ final class Ctx {
    * for-each loop over its entries.
    */
   static final Map<String, String> STUBS = Map.of(
+      "TListBuilder", """
+      package j2go.rt;
+      public final class TListBuilder<T> {
+        public native TListBuilder<T> add(T v);
+        public native TListBuilder<T> addAll(java.lang.Iterable<? extends T> c);
+        public native TList<T> build();
+      }
+      """,
+      "TSetBuilder", """
+      package j2go.rt;
+      public final class TSetBuilder<T> {
+        public native TSetBuilder<T> add(T v);
+        public native TSetBuilder<T> addAll(java.lang.Iterable<? extends T> c);
+        public native TSet<T> build();
+      }
+      """,
+      "TMapBuilder", """
+      package j2go.rt;
+      public final class TMapBuilder<K, V> {
+        public native TMapBuilder<K, V> put(K k, V v);
+        public native TMapBuilder<K, V> putAll(java.util.Map<? extends K, ? extends V> m);
+        public native TMap<K, V> build();
+        public native TMap<K, V> buildOrThrow();
+        public native TMap<K, V> buildKeepingLast();
+      }
+      """,
       "TList", """
       package j2go.rt;
       public final class TList<T> {
@@ -236,7 +262,11 @@ final class Ctx {
 
   /** One kind of typed collection. */
   static final class CollKind {
-    final String name;  // list, set, deque, map, entry
+    final String name;  // list, set, deque, map, entry; listBuilder, setBuilder, mapBuilder
+    /** Of a builder (Guava's ImmutableList.Builder): the kind of collection it builds; else null. A builder has no erased view. */
+    CollKind builds;
+    /** Of a builder: the static methods that make one (their qualified names), each with the suffix of its runtime function. */
+    Map<String, String> factories = Map.of();
     TypeElement stub;  // TList, TSet
     final String view, viewType;  // asList, java.util.List
     /** The type of the argument of `new C<>(from)`: a Collection, or a Map for a map. */
@@ -247,14 +277,44 @@ final class Ctx {
     final Map<String, String> made;
     /** The types of the places that its erased view serves. */
     final Set<String> viewTypes;
+    /**
+     * Guava's immutable class of the kind (ImmutableList for a list), or null: a declaration of
+     * that type is one of the kind too, holding the typed collection with its `twin` set
+     * (rt_timm.go), and an expression of that static type enters a typed declaration through
+     * t<kind>Imm_ (the typed collection of the erased object, made once).
+     */
+    String immClass;
+    /** The classes that an immutable typed collection is seen as through asImm() (immClass and its superclasses). */
+    Set<String> immTypes = Set.of();
 
     CollKind(String name, String view, String viewType, Set<String> declared, Map<String, String> made, Set<String> viewTypes) {
       this.name = name;
       this.view = view;
       this.viewType = viewType;
-      this.declared = declared;
+      this.declared = new HashSet<>(declared);
       this.made = made;
-      this.viewTypes = viewTypes;
+      this.viewTypes = new HashSet<>(viewTypes);
+    }
+
+    /** Whether the kind has two type arguments (a key and a value). */
+    boolean pair() {
+      return name.startsWith("map") || name.equals("entry");
+    }
+
+    /** Whether the kind compares its (first) type argument: the elements of a set, the keys of a map. */
+    boolean compares() {
+      return name.startsWith("set") || name.startsWith("map");
+    }
+
+    /** The suffix of the runtime function of the factory method m of a builder kind ("" or "N"), or null. */
+    String factory(Element m) {
+      if (!(m instanceof ExecutableElement me) || !me.getModifiers().contains(Modifier.STATIC)) return null;
+      return factories.get(((TypeElement) me.getEnclosingElement()).getQualifiedName() + "." + me.getSimpleName());
+    }
+
+    /** Whether te is a class that an immutable collection of this kind is seen as through asImm(). */
+    boolean immType(TypeElement te) {
+      return te != null && immTypes.contains(te.getQualifiedName().toString());
     }
   }
 
@@ -284,7 +344,25 @@ final class Ctx {
     map.stub = elems.getTypeElement("j2go.rt.TMap");
     entry.stub = elems.getTypeElement("j2go.rt.TEntry");
     boolean nomaps = "1".equals(System.getenv("J2GO_COLLS_NOMAPS"));
-    for (CollKind k : List.of(list, set, deque, map, entry)) {
+    List<CollKind> kinds = new ArrayList<>(List.of(list, set, deque, map, entry));
+    if (!"1".equals(System.getenv("J2GO_COLLS_NOIMM"))) {
+      String g = "com.google.common.collect.";
+      for (CollKind k : List.of(list, set, map)) {
+        String cap = Character.toUpperCase(k.name.charAt(0)) + k.name.substring(1);
+        k.immClass = g + "Immutable" + cap;
+        k.immTypes = k == map ? Set.of(k.immClass) : Set.of(k.immClass, g + "ImmutableCollection");
+        k.declared.add(k.immClass);
+        k.viewTypes.addAll(k.immTypes);
+        if ("1".equals(System.getenv("J2GO_COLLS_NOBUILDERS"))) continue;
+        // its builder: typed where every use is add, addAll, put, putAll or a build (Colls)
+        CollKind b = new CollKind(k.name + "Builder", null, null, Set.of(k.immClass + ".Builder"), Map.of(k.immClass + ".Builder", cap + "Builder"), Set.of());
+        b.builds = k;
+        b.factories = Map.of(k.immClass + ".builder", "", k.immClass + ".builderWithExpectedSize", "N");
+        b.stub = elems.getTypeElement("j2go.rt.T" + cap + "Builder");
+        kinds.add(b);
+      }
+    }
+    for (CollKind k : kinds) {
       if (k.stub == null) continue;
       if (k == set && "1".equals(System.getenv("J2GO_COLLS_NOSETS"))) continue;
       if (k == deque && "1".equals(System.getenv("J2GO_COLLS_NODEQUES"))) continue;
@@ -327,12 +405,11 @@ final class Ctx {
   List<TypeMirror> typedArgs(CollKind ck, TypeMirror t) {
     if (ck == null || t.getKind() != TypeKind.DECLARED) return null;
     DeclaredType d = (DeclaredType) t;
-    boolean map = ck.name.equals("map") || ck.name.equals("entry");
-    if (d.getTypeArguments().size() != (map ? 2 : 1)) return null;
+    if (d.getTypeArguments().size() != (ck.pair() ? 2 : 1)) return null;
     List<TypeMirror> out = new ArrayList<>();
     for (int i = 0; i < d.getTypeArguments().size(); i++) {
       // the elements of a set and the keys of a map are compared
-      TypeMirror a = typedArg(d.getTypeArguments().get(i), ck.name.equals("set") || map && i == 0);
+      TypeMirror a = typedArg(d.getTypeArguments().get(i), ck.compares() && i == 0);
       if (a == null) return null;
       out.add(a);
     }
@@ -506,7 +583,20 @@ final class Ctx {
     int np = m.getParameters().size();
     boolean int0 = np > 0 && m.getParameters().get(0).asType().getKind() == TypeKind.INT;
     String tn = null;
-    if (ck.name.equals("list")) {
+    if (ck.builds != null) {
+      // a builder: the methods that take the elements, and the builds
+      TypeMirror p0 = np == 1 ? types.erasure(m.getParameters().get(0).asType()) : null;
+      String p0n = p0 != null && p0.getKind() == TypeKind.DECLARED ? typeElement(p0).getQualifiedName().toString() : "";
+      switch (n + "/" + np) {
+        case "add/1": tn = m.isVarArgs() || ck.pair() ? null : n; break;
+        case "addAll/1": tn = p0n.equals("java.lang.Iterable") && !ck.pair() ? n : null; break;
+        case "put/2": tn = ck.pair() ? n : null; break;
+        case "putAll/1": tn = p0n.equals("java.util.Map") && ck.pair() ? n : null; break;
+        case "build/0": tn = n; break;
+        case "buildOrThrow/0", "buildKeepingLast/0": tn = ck.pair() ? n : null; break;
+        default: break;
+      }
+    } else if (ck.name.equals("list")) {
       switch (n + "/" + np) {
         case "size/0", "isEmpty/0", "clear/0", "set/2", "iterator/0", "add/1": tn = n; break;
         case "get/1": tn = int0 ? n : null; break;
@@ -567,6 +657,18 @@ final class Ctx {
     if (arg.getKind() == TypeKind.NULL) return true;
     if (arg.getKind().isPrimitive()) return types.isSameType(types.boxedClass((PrimitiveType) arg).asType(), elem);
     return types.isSubtype(types.erasure(arg), types.erasure(elem));
+  }
+
+  /** The conversions of the type arguments of typed collection type t, as the arguments of a runtime function: "tc_string, tc_p_Node". */
+  String tconvsOf(TypeMirror t) {
+    String tc = "";
+    CollKind ck = typedColl(t);
+    for (TypeMirror a : ((DeclaredType) t).getTypeArguments()) {
+      // the elements of a set and the keys of a map are compared
+      boolean compared = tc.isEmpty() && ck.compares();
+      tc += (tc.isEmpty() ? "" : ", ") + tconv(a, compared && byEquals(a));
+    }
+    return tc;
   }
 
   /** The element conversions of typed collections: name -> declaration (g_0casts.go). */
@@ -1323,9 +1425,19 @@ final class Ctx {
     // becomes one.
     if (isTypedColl(from)) {
       if (isTypedColl(to)) throw new IllegalStateException("typed collections of two types: " + gf + " to " + gt);
+      // a place of Guava's immutable class: the immutable collection's erased twin (rt_timm.go)
+      if (to.getKind() == TypeKind.DECLARED && typedColl(from).immType(typeElement(to))) return code + ".asImm()";
+      if (typedColl(from).view == null) throw new IllegalStateException("a typed builder (" + gf + ") reaches a place of type " + gt);
       return coerce(code + "." + typedColl(from).view + "()", typedView(from), to);
     }
-    if (isTypedColl(to)) throw new IllegalStateException("a value of type " + from + " cannot become the typed collection " + gt);
+    if (isTypedColl(to)) {
+      // An immutable collection that erased code made (an expression of the static type
+      // ImmutableList: Colls.inflow) enters as the typed collection of that object.
+      CollKind ck = typedColl(to);
+      if (ck.immClass == null) throw new IllegalStateException("a value of type " + from + " cannot become the typed collection " + gt);
+      TypeMirror ic = types.erasure(elems.getTypeElement(ck.immClass).asType());
+      return "t" + ck.name + "Imm_(" + tconvsOf(to) + ", " + coerce(code, from, ic) + ")";
+    }
     // A value library class: between two instantiations the content is converted; from an
     // object it is unboxed (nil is null, the zero value).
     if (isValueLibType(to)) {

@@ -245,17 +245,12 @@ abstract class ExprEmitter extends Base {
    * for any other expression.
    */
   String newTyped(ExpressionTree t, TypeMirror target) {
+    if (t instanceof MethodInvocationTree mi) return immutableOf(mi, target);
     if (!(t instanceof NewClassTree n) || n.getClassBody() != null) return null;
     TypeElement made = Ctx.typeElement(cx.erase(typeOf(t)));
     String fn = made == null ? null : cx.typedColl(target).made.get(made.getQualifiedName().toString());
     if (fn == null) return null;
-    String tc = "";
-    String kn = cx.typedColl(target).name;
-    for (TypeMirror a : ((DeclaredType) target).getTypeArguments()) {
-      // the elements of a set and the keys of a map are compared
-      boolean compared = tc.isEmpty() && (kn.equals("set") || kn.equals("map"));
-      tc += (tc.isEmpty() ? "" : ", ") + cx.tconv(a, compared && cx.byEquals(a));
-    }
+    String tc = cx.tconvsOf(target);
     List<? extends ExpressionTree> as = n.getArguments();
     if (as.isEmpty()) return "newT" + fn + "_(" + tc + ")";
     ExpressionTree a = as.get(0);
@@ -264,6 +259,59 @@ abstract class ExprEmitter extends Base {
     if (at.getKind() == TypeKind.INT) return "newT" + fn + "N_(" + tc + ", " + exprAs(a, at) + ")";
     if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return lower + "Copy_(" + tc + ", " + expr(a) + ")";
     return lower + "From_(" + tc + ", " + exprAs(a, cx.elems.getTypeElement(cx.typedColl(target).fromType).asType()) + ")";
+  }
+
+  /**
+   * `ImmutableList.of(a, b)`, `ImmutableSet.of(..)` or `ImmutableMap.of(k, v, ..)` where a typed
+   * collection is wanted: the runtime's typed factory (rt_timm.go), which takes the elements as
+   * they are; null for any other call (its result enters through Ctx.coerce).
+   */
+  String immutableOf(MethodInvocationTree mi, TypeMirror target) {
+    Ctx.CollKind ck = cx.typedColl(target);
+    if (!(elemOf(mi.getMethodSelect()) instanceof ExecutableElement m)) return null;
+    List<? extends ExpressionTree> as = mi.getArguments();
+    String tc = cx.tconvsOf(target);
+    if (ck.factory(m) != null) {
+      // ImmutableList.builder(), builderWithExpectedSize(n): a typed builder
+      String fn = "newT" + ck.made.values().iterator().next() + ck.factory(m) + "_(" + tc;
+      for (ExpressionTree a : as) fn += ", " + exprAs(a, typeOf(a));
+      return fn + ")";
+    }
+    if (ck.name.equals("set") && m.getSimpleName().contentEquals("keySet") && as.isEmpty() && mi.getMethodSelect() instanceof MemberSelectTree ms) {
+      // keySet() of an immutable typed map (javac finds the method in ImmutableMap): its typed key set
+      TypeMirror rt = typeOf(ms.getExpression());
+      Ctx.CollKind rk = rt == null ? null : cx.typedColl(cx.erase(rt));
+      if (rk != null && rk.immType(cx.ownerOf(m)) && cx.goType(((DeclaredType) cx.erase(rt)).getTypeArguments().get(0)).equals(cx.goType(((DeclaredType) target).getTypeArguments().get(0)))) {
+        return atomOrParen(expr(ms.getExpression())) + ".keySetImm()";
+      }
+    }
+    if (ck.immClass == null || !m.getModifiers().contains(Modifier.STATIC)) return null;
+    // a call that passes an array for the variable arguments goes through the erased factory
+    if (m.isVarArgs() && as.size() == m.getParameters().size() && cx.erase(typeOf(as.get(as.size() - 1))).getKind() != TypeKind.DECLARED) return null;
+    if (!((TypeElement) m.getEnclosingElement()).getQualifiedName().contentEquals(ck.immClass)) return null;
+    String cap = Character.toUpperCase(ck.name.charAt(0)) + ck.name.substring(1);
+    List<? extends TypeMirror> tas = ((DeclaredType) target).getTypeArguments();
+    if (m.getSimpleName().contentEquals("copyOf") && as.size() == 1) {
+      // copyOf: of a typed collection of the same type (an immutable one is itself), of an
+      // array of the elements, or of a collection as erased code sees it
+      TypeMirror at = typeOf(as.get(0)), pt = cx.erase(m.getParameters().get(0).asType());
+      if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return "immutable" + cap + "CopyOfT_(" + tc + ", " + expr(as.get(0)) + ")";
+      if (pt.getKind() == TypeKind.ARRAY) {
+        TypeMirror et = cx.erase(at);
+        if (!ck.name.equals("list") || et.getKind() != TypeKind.ARRAY || !cx.goType(((ArrayType) et).getComponentType()).equals(cx.goType(tas.get(0)))) return null;
+        return "immutableListCopyOfArr_(" + tc + ", " + exprAs(as.get(0), et) + ")";
+      }
+      String pn = pt.getKind() == TypeKind.DECLARED ? Ctx.typeElement(pt).getQualifiedName().toString() : "";
+      if (!pn.equals("java.util.Collection") && !pn.equals("java.lang.Iterable") && !pn.equals("java.util.Map")) return null;
+      return "immutable" + cap + "CopyOf_(" + tc + ", " + exprAs(as.get(0), pt) + ")";
+    }
+    if (!m.getSimpleName().contentEquals("of")) return null;
+    if (as.isEmpty()) return "t" + ck.name + "EmptyImm_(" + tc + ")";
+    boolean map = ck.name.equals("map");
+    if (map && as.size() > 10) return null;
+    StringBuilder sb = new StringBuilder("immutable" + cap + "Of" + (map ? as.size() / 2 : "") + "_[" + cx.goType(tas.get(0)) + (map ? ", " + cx.goType(tas.get(1)) : "") + "](" + tc);
+    for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), tas.get(map ? i % 2 : 0)));
+    return sb.append(")").toString();
   }
 
   String cond(ExpressionTree t) {
@@ -1086,7 +1134,8 @@ abstract class ExprEmitter extends Base {
         owner = cx.ownerOf(tm);
         src = false;
       } else {
-        TypeMirror view = cx.typedView(recv.type);
+        // a method of Guava's immutable class (reverse(), asList()) is called on the twin
+        TypeMirror view = cx.typedColl(recv.type).immType(owner) ? cx.types.erasure(owner.asType()) : cx.typedView(recv.type);
         recv = new Recv(cx.coerce(recv.code, recv.type, view), view);
       }
     }

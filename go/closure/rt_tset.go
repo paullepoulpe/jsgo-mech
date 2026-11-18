@@ -16,6 +16,9 @@ type TSet[K comparable] struct {
 	c    *tconv_[K]
 	eq   *teq_        // of elements compared by equals and hashCode (c.byEquals); else nil
 	view tsetView_[K] // the set as erased code sees it (asSet): part of the set
+	// twin: nil for a set that can change; an immutable set (Guava's ImmutableSet, rt_timm.go)
+	// has here the ImmutableSet that erased code sees it as, or immPending_ (see TList.twin).
+	twin *ImmutableCollection
 }
 
 // newTSet_ is new LinkedHashSet<>().
@@ -76,6 +79,14 @@ func (s *TSet[K]) isEmpty() bool { return s.live == 0 }
 func (s *TSet[K]) has(k K) bool { return s.find(k) >= 0 }
 
 func (s *TSet[K]) add(k K) bool {
+	if s.twin != nil {
+		panic(frozen_{})
+	}
+	return s.add0(k)
+}
+
+// add0 is add for a set that can change, or that is being made.
+func (s *TSet[K]) add0(k K) bool {
 	var h int32
 	if s.c.byEquals {
 		h = objhash_(s.c.box(k))
@@ -138,6 +149,9 @@ func (s *TSet[K]) compact() {
 
 // del is remove(Object).
 func (s *TSet[K]) del(k K) bool {
+	if s.twin != nil {
+		panic(frozen_{})
+	}
 	i := s.find(k)
 	if i < 0 {
 		return false
@@ -160,6 +174,9 @@ func (s *TSet[K]) delAt(i int) {
 }
 
 func (s *TSet[K]) clear() {
+	if s.twin != nil {
+		panic(frozen_{})
+	}
 	clear(s.keys)
 	s.keys = s.keys[:0]
 	s.gone = nil
@@ -170,6 +187,9 @@ func (s *TSet[K]) clear() {
 
 // addAllT is addAll of another typed set of the same element type.
 func (s *TSet[K]) addAllT(o *TSet[K]) bool {
+	if s.twin != nil {
+		panic(frozen_{})
+	}
 	changed := false
 	for i, k := range o.keys {
 		if !o.dead(i) && s.add(k) {
@@ -218,8 +238,8 @@ func (s *TSet[K]) iterator() Iterator {
 // asSet is the set as an erased Set (nil for null): the set's one view, its identity for erased
 // code, a field of the set (as TList.asList).
 func (s *TSet[K]) asSet() Set {
-	if s == nil {
-		return nil
+	if s == nil || s.twin != nil {
+		return s.asImmSet()
 	}
 	return &s.view
 }

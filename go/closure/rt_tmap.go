@@ -20,6 +20,10 @@ type TMap[K comparable, V any] struct {
 	vc   *tconv_[V]
 	eq   *teq_           // of keys compared by equals and hashCode (kc.byEquals); else nil
 	view tmapView_[K, V] // the map as erased code sees it (asMap): part of the map
+	// imm: nil for a map that can change; an immutable map (Guava's ImmutableMap, rt_timm.go)
+	// has here what it has beside its mappings: the ImmutableMap that erased code sees it as
+	// and its typed key set, each once it is needed (immPendingMap_ until then).
+	imm *timmMap_
 }
 
 // newTMap_ is new LinkedHashMap<>().
@@ -106,6 +110,9 @@ func (m *TMap[K, V]) locate(k K) (i int32, h int32) {
 
 // put returns the value that key k had, or null.
 func (m *TMap[K, V]) put(k K, v V) V {
+	if m.imm != nil {
+		panic(frozen_{})
+	}
 	i, h := m.locate(k)
 	if i >= 0 {
 		old := m.vals[i]
@@ -153,6 +160,9 @@ func (m *TMap[K, V]) isNull(v V) bool { return any(v) == any(m.vc.null) }
 
 // putIfAbsent maps k to v unless k has a value that is not null, which it returns.
 func (m *TMap[K, V]) putIfAbsent(k K, v V) V {
+	if m.imm != nil {
+		panic(frozen_{})
+	}
 	i, h := m.locate(k)
 	if i >= 0 {
 		old := m.vals[i]
@@ -168,6 +178,9 @@ func (m *TMap[K, V]) putIfAbsent(k K, v V) V {
 // computeIfAbsent returns the value of key k if it has one that is not null; else the value f
 // makes for the key, which becomes the key's value unless it is null.
 func (m *TMap[K, V]) computeIfAbsent(k K, f Function) V {
+	if m.imm != nil {
+		panic(frozen_{})
+	}
 	if i := m.find(k); i >= 0 && !m.isNull(m.vals[i]) {
 		return m.vals[i]
 	}
@@ -180,6 +193,9 @@ func (m *TMap[K, V]) computeIfAbsent(k K, f Function) V {
 
 // del is remove(key): the value the key had, or null.
 func (m *TMap[K, V]) del(k K) V {
+	if m.imm != nil {
+		panic(frozen_{})
+	}
 	i := m.find(k)
 	if i < 0 {
 		return m.vc.null
@@ -228,6 +244,9 @@ func (m *TMap[K, V]) compact() {
 }
 
 func (m *TMap[K, V]) clear() {
+	if m.imm != nil {
+		panic(frozen_{})
+	}
 	clear(m.keys)
 	clear(m.vals)
 	m.keys, m.vals = m.keys[:0], m.vals[:0]
@@ -239,6 +258,9 @@ func (m *TMap[K, V]) clear() {
 
 // putAllT is putAll of another typed map of the same types.
 func (m *TMap[K, V]) putAllT(o *TMap[K, V]) {
+	if m.imm != nil {
+		panic(frozen_{})
+	}
 	for i, k := range o.keys {
 		if !o.dead(i) {
 			m.put(k, o.vals[i])
@@ -357,6 +379,9 @@ func (e *TEntry[K, V]) getValue() V {
 }
 
 func (e *TEntry[K, V]) setValue(v V) V {
+	if e.m.imm != nil {
+		panic(frozen_{})
+	}
 	old := e.getValue()
 	e.v = v
 	if i := e.pos(); i >= 0 {
@@ -397,8 +422,8 @@ func (v *tentryView_[K, V]) toString() string {
 // asMap is the map as an erased Map (nil for null): one view per map, its identity for erased
 // code.
 func (m *TMap[K, V]) asMap() Map {
-	if m == nil {
-		return nil
+	if m == nil || m.imm != nil {
+		return m.asImmMap()
 	}
 	return &m.view
 }
