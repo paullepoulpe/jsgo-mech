@@ -225,10 +225,7 @@ runtime's one empty collection) and `ImmutableList.copyOf(c)` is `immutableListC
 typed collection of the same type (an immutable one is itself), `immutableListCopyOfArr_` of an
 array, or `immutableListCopyOf_` of an erased collection. Guava's semantics are the runtime's
 (`rt_guava.go`): insertion order, `NullPointerException` for null elements, keys and values
-with Guava's messages, `IllegalArgumentException` for a key given twice. An
-`ImmutableSortedSet` / `ImmutableSortedMap` with a comparator of its own that reaches a
-declaration of type `ImmutableSet` / `ImmutableMap` is refused at run time (a typed set finds
-its elements by `equals`, not by the comparator; the program has none).
+with Guava's messages, `IllegalArgumentException` for a key given twice.
 
 Their builders are typed as well: a declaration of type `ImmutableList.Builder<X>` /
 `ImmutableSet.Builder<X>` / `ImmutableMap.Builder<K, V>` holds a `*TListBuilder[X]` /
@@ -239,6 +236,23 @@ that of another typed builder declaration, and every use is `add`, `addAll`, `pu
 (whose result is the builder again), `build`, `buildOrThrow` or `buildKeepingLast`, or a
 place that is a typed builder declaration: a builder has no erased view.
 `J2GO_COLLS_NOIMM=1` and `J2GO_COLLS_NOBUILDERS=1` are the rules without them.
+
+Sorted collections are the same Go types in a sorted mode (`rt_tsorted.go`). A declaration
+of type `TreeSet<X>` / `SortedSet<X>` / `NavigableSet<X>` is one of the set kind, one of type
+`TreeMap<K, V>` / `SortedMap<K, V>` / `NavigableMap<K, V>` one of the map kind, and
+`new TreeSet<>()`, `new TreeSet<>(comparator)`, `new TreeSet<>(collection)` (and the same of
+`TreeMap`) make the typed set or map with its keys kept in the order of the comparator, or
+their natural ordering, and found by binary search with it, as the runtime's erased `TreeSet`
+finds its elements (`newTSortedSet_(tc)`, `newTSortedSetC_(tc, cmp)`, `tsortedSetFrom_`). So a
+`Set<X>` that holds a `TreeSet` on one path and a `LinkedHashSet` on another is one `*TSet[X]`.
+Natural ordering compares two Strings as they are; every other comparison is made on the
+boxes (the comparator is erased code). Erased code sees a sorted collection through its
+sorted view (the view of the hash mode with `tailSet` and `descendingSet`, and the class name
+`TreeSet`), which a place of type `SortedSet` / `NavigableSet` gets through `asSorted()`; a
+place of the class `TreeSet` itself must be a typed declaration. An `ImmutableSortedSet` /
+`ImmutableSortedMap` that reaches a declaration of type `ImmutableSet` / `ImmutableMap` is the
+typed collection in its sorted mode with its comparator. `J2GO_COLLS_NOSORTED=1` is the rule
+without them.
 
 Two differences from the JVM are accepted. An element of the wrong type that unchecked code
 puts into a typed collection through its view fails there with the `ClassCastException` that

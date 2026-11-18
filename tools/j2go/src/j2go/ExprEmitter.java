@@ -257,6 +257,11 @@ abstract class ExprEmitter extends Base {
     TypeMirror at = typeOf(a);
     String lower = "t" + Character.toLowerCase(fn.charAt(0)) + fn.substring(1);
     if (at.getKind() == TypeKind.INT) return "newT" + fn + "N_(" + tc + ", " + exprAs(a, at) + ")";
+    if (elemOf(n) instanceof ExecutableElement ctor && ctor.getParameters().size() == 1 && cx.erase(ctor.getParameters().get(0).asType()) instanceof DeclaredType pt
+        && Ctx.typeElement(pt).getQualifiedName().contentEquals("java.util.Comparator")) {
+      // new TreeSet<>(comparator)
+      return "newT" + fn + "C_(" + tc + ", " + exprAs(a, pt) + ")";
+    }
     if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return lower + "Copy_(" + tc + ", " + expr(a) + ")";
     return lower + "From_(" + tc + ", " + exprAs(a, cx.elems.getTypeElement(cx.typedColl(target).fromType).asType()) + ")";
   }
@@ -1077,8 +1082,15 @@ abstract class ExprEmitter extends Base {
         owner = cx.ownerOf(tm);
         src = false;
       } else {
-        // a method of Guava's immutable class (reverse(), asList()) is called on the twin
-        TypeMirror view = cx.typedColl(recv.type).immType(owner) ? cx.types.erasure(owner.asType()) : cx.typedView(recv.type);
+        Ctx.CollKind rk = cx.typedColl(recv.type);
+        if (owner.getQualifiedName().contentEquals(String.valueOf(rk.sortedClass))) {
+          // a method that javac finds in TreeSet / TreeMap: the method of the interface it implements
+          e = cx.root(e);
+          owner = cx.ownerOf(e);
+        }
+        // a method of Guava's immutable class (reverse(), asList()) is called on the twin, one
+        // of SortedSet / NavigableSet (tailSet) on the sorted view
+        TypeMirror view = rk.immType(owner) || rk.sortedType(owner) ? cx.types.erasure(owner.asType()) : cx.typedView(recv.type);
         recv = new Recv(cx.coerce(recv.code, recv.type, view), view);
       }
     }

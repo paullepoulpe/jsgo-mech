@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -12,6 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.Supplier;
 
 /**
@@ -1068,7 +1073,105 @@ public class Colls {
     new Colls().byEquals();
     p(generic());
     p(groups());
+    new Colls().sorted(true);
+    new Colls().sorted(false);
     return out.toString();
+  }
+
+  // ---- sorted sets and maps (TreeSet, TreeMap): the typed set and map in their sorted mode
+
+  static final Comparator<Base> BY_ID_DESC = (x, y) -> y.id - x.id;
+
+  Set<String> sortedWords = new TreeSet<>();
+  final TreeSet<Base> ranked = new TreeSet<>(BY_ID_DESC);
+  Map<String, Integer> tally = new TreeMap<>();
+
+  static Set<String> pick(boolean sorted) {
+    Set<String> s = sorted ? new TreeSet<>() : new LinkedHashSet<>();
+    s.add("pear");
+    s.add("apple");
+    s.add("fig");
+    s.add("apple");
+    return s;
+  }
+
+  static String join(SortedSet<String> s) {
+    StringBuilder sb = new StringBuilder();
+    for (String x : s) sb.append(x).append('|');
+    return sb.toString();
+  }
+
+  void sorted(boolean flag) {
+    for (String w : new String[] {"delta", "alpha", "charlie", "bravo", "alpha"}) sortedWords.add(w);
+    p("words " + sortedWords + " " + sortedWords.size() + " " + sortedWords.contains("bravo") + " " + sortedWords.contains("zulu") + " " + sortedWords.remove("charlie") + " " + sortedWords.remove("charlie") + " " + sortedWords);
+    sortedWords.add("charlie");
+    sortedWords.add("aardvark");
+    StringBuilder sb = new StringBuilder();
+    for (String w : sortedWords) sb.append(w.charAt(0));
+    Object ow = sortedWords;
+    p(sb + " " + ow + " " + ((Set<?>) ow).contains("delta") + " " + (ow == sortedWords) + " " + ow.equals(new LinkedHashSet<>(sortedWords)) + " " + (ow.hashCode() == new LinkedHashSet<>(sortedWords).hashCode()));
+    Set<String> e = pick(flag);
+    p("pick " + e + " " + e.contains("fig") + " " + e.size());
+
+    // many elements, removals, and elements added again
+    Set<String> many = new TreeSet<>();
+    for (int i = 0; i < 40; i++) many.add("k" + (i * 7 % 40 < 10 ? "0" : "") + (i * 7 % 40));
+    for (int i = 0; i < 40; i += 2) many.remove("k" + (i < 10 ? "0" : "") + i);
+    for (int i = 0; i < 40; i += 8) many.add("k" + (i < 10 ? "0" : "") + i);
+    Iterator<String> it = many.iterator();
+    while (it.hasNext()) {
+      if (it.next().endsWith("3")) it.remove();
+    }
+    p("many " + many.size() + " " + many + " " + many.contains("k08") + " " + many.contains("k10") + " " + many.contains("k13"));
+    many.clear();
+    many.add("z");
+    many.add("y");
+    p("cleared " + many);
+
+    // a comparator, tailSet, descendingSet
+    for (int id : new int[] {5, 9, 2, 7, 9}) ranked.add(id == 7 ? new Derived(id) : new Base(id));
+    Base seven = null;
+    for (Base b : ranked) {
+      if (b.id == 7) seven = b;
+    }
+    p("ranked " + ranked + " " + ranked.size() + " " + ranked.contains(new Base(2)) + " " + ranked.tailSet(seven, true) + " " + ranked.tailSet(seven, false) + " " + ranked.descendingSet() + " " + ranked.remove(new Base(9)) + " " + ranked);
+    SortedSet<String> copy = new TreeSet<>(sortedWords);
+    copy.add("m");
+    List<String> src = new ArrayList<>();
+    src.add("q");
+    src.add("c");
+    SortedSet<String> fromList = new TreeSet<>(src);
+    p(join(copy) + " " + join(fromList) + " " + sortedWords.size());
+
+    // maps
+    tally.put("pear", 3);
+    tally.put("apple", 1);
+    tally.put("fig", 2);
+    tally.put("apple", tally.get("apple") + 10);
+    sb = new StringBuilder();
+    for (Map.Entry<String, Integer> en : tally.entrySet()) sb.append(en.getKey()).append('=').append(en.getValue()).append(' ');
+    for (String k : tally.keySet()) sb.append(k.charAt(0));
+    for (int v : tally.values()) sb.append(v);
+    Object oc = tally;
+    p("tally " + tally + " " + sb + " " + tally.containsKey("fig") + " " + tally.get("kiwi") + " " + tally.remove("fig") + " " + tally.size() + " " + oc + " " + ((Map<?, ?>) oc).get("pear") + " " + oc.equals(new LinkedHashMap<>(tally)));
+    tally.put("fig", 20);
+    tally.putIfAbsent("date", 4);
+    tally.computeIfAbsent("cherry", k -> k.length());
+    Map<String, Integer> either = flag ? new TreeMap<>() : new LinkedHashMap<>();
+    either.put("b", 2);
+    either.put("a", 1);
+    SortedMap<Base, String> byBase = new TreeMap<>(BY_ID_DESC);
+    byBase.put(new Base(1), "one");
+    byBase.put(new Base(3), "three");
+    byBase.put(new Base(2), "two");
+    byBase.put(new Base(3), "THREE");
+    Map<String, Integer> sortedCopy = new TreeMap<>(either);
+    sortedCopy.put("0", 0);
+    p(tally + " " + either + " " + byBase + " " + byBase.get(new Base(2)) + " " + sortedCopy + " " + sortedCopy.keySet());
+    for (int i = 0; i < 30; i++) tally.put("n" + (i * 11 % 30), i);
+    for (int i = 0; i < 30; i += 3) tally.remove("n" + i);
+    tally.put("n3", -3);
+    p(tally.size() + " " + tally);
   }
 
   public static void main(String[] args) {

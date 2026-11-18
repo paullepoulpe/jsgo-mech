@@ -236,15 +236,21 @@ func tsetImmNew_[K comparable](c *tconv_[K], ic *ImmutableCollection) *TSet[K] {
 	if ic == emptyImmSet_ {
 		return tsetEmptyImm_(c)
 	}
-	if ic.kind == icSorted_ && ic.cmp != nil {
-		// A typed set finds an element by equals; a sorted set with a comparator of its own
-		// finds it by the comparator.
-		panic("j2go: an ImmutableSortedSet with a comparator in a typed set declaration")
-	}
 	mk := func() *TSet[K] {
 		s := newTSet_(c)
-		for _, x := range ic.elems_() {
-			s.add0(c.unbox(x))
+		if ic.kind == icSorted_ {
+			// an ImmutableSortedSet: a sorted typed set with its comparator, the elements as
+			// they are ordered
+			s.eq = &teq_{sorted: true, cmp: ic.cmp}
+			s.keys = make([]K, len(ic.items))
+			for i, x := range ic.items {
+				s.keys[i] = c.unbox(x)
+			}
+			s.live = int32(len(s.keys))
+		} else {
+			for _, x := range ic.elems_() {
+				s.add0(c.unbox(x))
+			}
 		}
 		s.twin = ic
 		return s
@@ -281,19 +287,23 @@ func (s *TSet[K]) asImm() *ImmutableCollection {
 		t := &ImmutableCollection{kind: icSet_, items: boxAll_(s.c, s.keys)}
 		t.typed_ = s
 		s.twin = t
-	} else if s.twin == nil {
-		classCastImm_("java.util.LinkedHashSet", "com.google.common.collect.ImmutableSet")
+	} else if s.twin == nil || s.twin == sortedMark_ {
+		classCastImm_("java.util."+s.view.goName_(), "com.google.common.collect.ImmutableSet")
 	}
 	return s.twin
 }
 
-// asImmSet is asSet() of null or of an immutable set.
+// asOtherSet is asSet() of null (nil), of an immutable set (its twin) or of a sorted set (its
+// sorted view).
 // (not inlined, so that asSet is: its common case is the view)
 //
 //go:noinline
-func (s *TSet[K]) asImmSet() Set {
+func (s *TSet[K]) asOtherSet() Set {
 	if s == nil {
 		return nil
+	}
+	if s.twin == sortedMark_ {
+		return s.sortedView()
 	}
 	return s.asImm()
 }
@@ -385,12 +395,12 @@ func tmapImmNew_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], im *Immutabl
 	if im == emptyImmMap_ {
 		return tmapEmptyImm_(kc, vc)
 	}
-	if im.kind == imSorted_ && im.cmp != nil {
-		// as for a sorted set: the keys of a typed map are found by equals
-		panic("j2go: an ImmutableSortedMap with a comparator in a typed map declaration")
-	}
 	mk := func() *TMap[K, V] {
 		m := newTMap_(kc, vc)
+		if im.kind == imSorted_ {
+			// an ImmutableSortedMap: a sorted typed map with its comparator
+			m.eq = &teq_{sorted: true, cmp: im.cmp}
+		}
 		for i, x := range im.keys {
 			k := kc.unbox(x)
 			_, h := m.locate(k)
@@ -412,8 +422,8 @@ func (m *TMap[K, V]) asImm() *ImmutableMap {
 	if m == nil {
 		return nil
 	}
-	if m.imm == nil {
-		classCastImm_("java.util.LinkedHashMap", "com.google.common.collect.ImmutableMap")
+	if m.imm == nil || m.imm == sortedMapMark_ {
+		classCastImm_("java.util."+m.view.goName_(), "com.google.common.collect.ImmutableMap")
 	}
 	x := m.info()
 	if x.twin == nil {
@@ -440,8 +450,8 @@ func (m *TMap[K, V]) info() *timmMap_ {
 // keySetImm is keySet() of an immutable map (an ImmutableSet<K>) for a typed declaration: one
 // typed set, the same object as the key set that erased code gets from the map's twin.
 func (m *TMap[K, V]) keySetImm() *TSet[K] {
-	if m.imm == nil {
-		classCastImm_("java.util.LinkedHashMap", "com.google.common.collect.ImmutableMap")
+	if m.imm == nil || m.imm == sortedMapMark_ {
+		classCastImm_("java.util."+m.view.goName_(), "com.google.common.collect.ImmutableMap")
 	}
 	x := m.info()
 	if s, ok := x.keys.(*TSet[K]); ok {
@@ -462,13 +472,17 @@ func (m *TMap[K, V]) keySetImm() *TSet[K] {
 	return s
 }
 
-// asImmMap is asMap() of null or of an immutable map.
+// asOtherMap is asMap() of null (nil), of an immutable map (its twin) or of a sorted map (its
+// sorted view).
 // (not inlined, so that asMap is: its common case is the view)
 //
 //go:noinline
-func (m *TMap[K, V]) asImmMap() Map {
+func (m *TMap[K, V]) asOtherMap() Map {
 	if m == nil {
 		return nil
+	}
+	if m.imm == sortedMapMark_ {
+		return m.sortedView()
 	}
 	return m.asImm()
 }
@@ -521,7 +535,7 @@ func immutableListCopyOf_[T any](c *tconv_[T], from Iterable) *TList[T] {
 
 // immutableSetCopyOfT_ is ImmutableSet.copyOf(s) of a typed set of the same element type.
 func immutableSetCopyOfT_[K comparable](c *tconv_[K], s *TSet[K]) *TSet[K] {
-	if s.twin != nil {
+	if s.twin != nil && s.twin != sortedMark_ && (s.eq == nil || !s.eq.sorted) {
 		return s
 	}
 	return immutableSetOf_(c, s.liveKeys()...)
@@ -568,7 +582,7 @@ func (m *TMap[K, V]) liveKV() ([]K, []V) {
 
 // immutableMapCopyOfT_ is ImmutableMap.copyOf(m) of a typed map of the same types.
 func immutableMapCopyOfT_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m *TMap[K, V]) *TMap[K, V] {
-	if m.imm != nil {
+	if m.imm != nil && m.imm != sortedMapMark_ && (m.eq == nil || !m.eq.sorted) {
 		return m
 	}
 	keys, vals := m.liveKV()

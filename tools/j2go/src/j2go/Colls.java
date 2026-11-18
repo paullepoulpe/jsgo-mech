@@ -461,7 +461,14 @@ final class Colls {
             TypeMirror made = typeOf(x);
             TypeElement me = made == null ? null : Ctx.typeElement(cx.types.erasure(made));
             if (n.getClassBody() == null && me != null && s.kind.made.containsKey(me.getQualifiedName().toString()) && n.getArguments().size() <= 1) {
-              if (sameArgs(cx.typedArgs(s.kind, made), s.args)) {
+              // the constructors that the runtime has: (), (int), (Collection) or (Map), (Comparator)
+              boolean ctor = true;
+              if (n.getArguments().size() == 1 && elemOf(new TreePath(parent, x)) instanceof ExecutableElement ce && ce.getParameters().size() == 1) {
+                TypeMirror pt = cx.types.erasure(ce.getParameters().get(0).asType());
+                String pn = pt.getKind() == TypeKind.DECLARED ? Ctx.typeElement(pt).getQualifiedName().toString() : "";
+                ctor = pt.getKind() == TypeKind.INT || pn.equals(s.kind.fromType) || pn.equals("java.util.Comparator");
+              }
+              if (ctor && sameArgs(cx.typedArgs(s.kind, made), s.args)) {
                 s.made = true;
                 return;
               }

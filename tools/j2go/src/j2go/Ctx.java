@@ -286,14 +286,27 @@ final class Ctx {
     String immClass;
     /** The classes that an immutable typed collection is seen as through asImm() (immClass and its superclasses). */
     Set<String> immTypes = Set.of();
+    /**
+     * The sorted class of the kind (TreeSet for a set), or null: `new TreeSet<>(..)` makes the
+     * typed collection in its sorted mode (rt_tsorted.go), and a declaration of that type is one
+     * of the kind.
+     */
+    String sortedClass;
+    /** The interfaces that a sorted typed collection is seen as through asSorted() (SortedSet, NavigableSet). */
+    Set<String> sortedTypes = Set.of();
 
     CollKind(String name, String view, String viewType, Set<String> declared, Map<String, String> made, Set<String> viewTypes) {
       this.name = name;
       this.view = view;
       this.viewType = viewType;
       this.declared = new HashSet<>(declared);
-      this.made = made;
+      this.made = new HashMap<>(made);
       this.viewTypes = new HashSet<>(viewTypes);
+    }
+
+    /** Whether te is an interface that a sorted collection of this kind is seen as through asSorted(). */
+    boolean sortedType(TypeElement te) {
+      return te != null && sortedTypes.contains(te.getQualifiedName().toString());
     }
 
     /** Whether the kind has two type arguments (a key and a value). */
@@ -345,6 +358,18 @@ final class Ctx {
     entry.stub = elems.getTypeElement("j2go.rt.TEntry");
     boolean nomaps = "1".equals(System.getenv("J2GO_COLLS_NOMAPS"));
     List<CollKind> kinds = new ArrayList<>(List.of(list, set, deque, map, entry));
+    if (!"1".equals(System.getenv("J2GO_COLLS_NOSORTED"))) {
+      for (CollKind k : List.of(set, map)) {
+        String cap = k == set ? "Set" : "Map";
+        k.sortedClass = "java.util.Tree" + cap;
+        k.sortedTypes = Set.of("java.util.Sorted" + cap, "java.util.Navigable" + cap);
+        k.declared.add(k.sortedClass);
+        k.declared.addAll(k.sortedTypes);
+        k.made.put(k.sortedClass, "Sorted" + cap);
+        k.viewTypes.addAll(k.sortedTypes);
+        if (k == set) k.viewTypes.add("java.util.SequencedSet");
+      }
+    }
     if (!"1".equals(System.getenv("J2GO_COLLS_NOIMM"))) {
       String g = "com.google.common.collect.";
       for (CollKind k : List.of(list, set, map)) {
@@ -1424,6 +1449,8 @@ final class Ctx {
       if (isTypedColl(to)) throw new IllegalStateException("typed collections of two types: " + gf + " to " + gt);
       // a place of Guava's immutable class: the immutable collection's erased twin (rt_timm.go)
       if (to.getKind() == TypeKind.DECLARED && typedColl(from).immType(typeElement(to))) return code + ".asImm()";
+      // a place of type SortedSet / NavigableSet: the sorted collection's erased view
+      if (to.getKind() == TypeKind.DECLARED && typedColl(from).sortedType(typeElement(to))) return code + ".asSorted()";
       if (typedColl(from).view == null) throw new IllegalStateException("a typed builder (" + gf + ") reaches a place of type " + gt);
       return coerce(code + "." + typedColl(from).view + "()", typedView(from), to);
     }
