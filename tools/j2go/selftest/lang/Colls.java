@@ -6,8 +6,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -476,6 +478,157 @@ public class Colls {
     p(fail(() -> none.peek()));
   }
 
+  // ---- maps: LinkedHashMaps with keys that are Strings, enums and classes without equals
+  private final Map<String, Base> byName = new LinkedHashMap<>();
+  private final LinkedHashMap<Color, String> byColor = new LinkedHashMap<>();
+  private final Map<String, List<String>> lists = new LinkedHashMap<>();
+  // stay erased: Derived has its own equals; an Integer is not a class of the program
+  private final Map<Base, String> keyedByEquals = new LinkedHashMap<>();
+  private final Map<Integer, String> byNumber = new LinkedHashMap<>();
+
+  static Map<Plain, String> named(Plain... ps) {
+    Map<Plain, String> m = new LinkedHashMap<>();
+    for (Plain p : ps) {
+      m.put(p, p == null ? "none" : p.name);
+    }
+    return m;
+  }
+
+  // stays erased: named by a method reference
+  static Map<String, Base> single() {
+    Map<String, Base> m = new LinkedHashMap<>();
+    m.put("single", new Derived(2));
+    return m;
+  }
+
+  static String describe(Map<String, Base> m) {
+    StringBuilder sb = new StringBuilder();
+    for (String k : m.keySet()) {
+      sb.append(k).append(',');
+    }
+    for (Base b : m.values()) {
+      sb.append(b).append(',');
+    }
+    for (Map.Entry<String, Base> e : m.entrySet()) {
+      sb.append(e.getKey()).append('=').append(e.getValue()).append(';');
+    }
+    return sb.toString();
+  }
+
+  static int entries(Map<?, ?> m) {
+    int n = 0;
+    for (Map.Entry<?, ?> e : m.entrySet()) {
+      if (e.getValue() != null) {
+        n++;
+      }
+    }
+    return n;
+  }
+
+  void maps() {
+    Base one = new Base(1);
+    Derived two = new Derived(2);
+    p(byName.put("one", one) + " " + byName.put("two", two) + " " + byName.put("one", one) + " " + byName.put(null, null) + " " + byName.put("none", null) + " " + byName.size()
+        + " " + byName);
+    p(byName.get("one") + " " + (byName.get("two") == two) + " " + byName.get("zz") + " " + byName.get(null) + " " + byName.containsKey(null) + " " + byName.containsKey("none")
+        + " " + byName.containsKey("zz") + " " + byName.getOrDefault("zz", one) + " " + byName.getOrDefault("none", one) + " " + byName.isEmpty());
+    Object key = "two";
+    Object other = 42;
+    p(byName.get(key) + " " + byName.get(other) + " " + byName.containsKey(key) + " " + byName.containsKey(other) + " " + byName.remove(other) + " " + byName.containsValue(two)
+        + " " + byName.containsValue(null) + " " + byName.containsValue("two"));
+    p(byName.putIfAbsent("none", two) + " " + byName.putIfAbsent("none", one) + " " + byName.putIfAbsent("three", new Base(3)) + " " + byName.putIfAbsent("three", one) + " "
+        + byName.remove(null) + " " + byName.remove(null) + " " + byName.remove("zz") + " " + byName);
+    p(describe(byName) + " " + entries(byName) + " " + count(byName.keySet()) + " " + count(byName.values()));
+    for (Map.Entry<String, Base> e : byName.entrySet()) {
+      if (e.getKey().equals("none")) {
+        p(e.setValue(new Base(9)) + " " + e.getValue() + " " + e);
+      }
+      Object eo = e;
+      if (e.getKey().equals("one")) {
+        p(eo + " " + eo.equals(e) + " " + (eo.hashCode() == (e.getKey().hashCode() ^ e.getValue().hashCode())) + " " + ((Map.Entry<?, ?>) eo).getKey());
+      }
+    }
+    p(byName);
+    for (int i = 0; i < 40; i++) {
+      byName.put("k" + i, new Base(i));
+    }
+    for (int i = 0; i < 40; i += 2) {
+      byName.remove("k" + i);
+    }
+    byName.put("z", null);
+    p(describe(byName) + " " + byName.size() + " " + byName.containsKey("k1") + " " + byName.containsKey("k2") + " " + byName.get("k39"));
+    for (Iterator<Map.Entry<String, Base>> it = byName.entrySet().iterator(); it.hasNext(); ) {
+      if (it.next().getKey().startsWith("k")) {
+        it.remove();
+      }
+    }
+    p(byName.keySet().remove("z") + " " + byName.keySet().remove("z") + " " + byName.values().remove(one) + " " + byName.keySet().contains("two") + " " + byName.keySet()
+        + " " + byName.values() + " " + byName.entrySet());
+    Map<String, Base> copy = new LinkedHashMap<>(byName);
+    copy.put("extra", one);
+    Supplier<Map<String, Base>> erased = Colls::single;
+    Map<String, Base> fromErased = new LinkedHashMap<>(erased.get());
+    fromErased.putAll(copy);
+    p(byName + " " + copy + " " + fromErased + " " + byName.equals(copy) + " " + copy.keySet().containsAll(byName.keySet()) + " " + (byName.hashCode() == copy.hashCode()));
+    copy.remove("extra");
+    p(byName.equals(copy) + " " + copy.equals(byName) + " " + (byName.hashCode() == copy.hashCode()) + " " + byName.keySet().equals(copy.keySet()));
+    Object o = byName;
+    Map<String, Base> viaObject = (Map<String, Base>) o;
+    viaObject.put("viaObject", one);
+    p(byName.containsKey("viaObject") + " " + (viaObject == byName) + " " + o.equals(byName) + " " + (asObject(byName) == same(byName)) + " " + byName.size() + " "
+        + asObject(byName).getClass().getName());
+    p(byName.computeIfAbsent("computed", k -> new Base(k.length())) + " " + byName.computeIfAbsent("computed", k -> one) + " " + byName.get("computed"));
+    byName.clear();
+    p(byName + " " + byName.isEmpty() + " " + byName.put("again", one) + " " + byName);
+    byColor.put(Color.BLUE, "blue");
+    byColor.put(Color.RED, "red");
+    byColor.put(Color.BLUE, "navy");
+    p(byColor + " " + byColor.get(Color.RED) + " " + byColor.get(Color.GREEN) + " " + byColor.containsKey(Color.BLUE) + " " + byColor.remove(Color.BLUE) + " " + byColor);
+    for (Map.Entry<Color, String> e : byColor.entrySet()) {
+      p(e.getKey().ordinal() + e.getValue());
+    }
+    lists.computeIfAbsent("a", k -> new ArrayList<>()).add("x");
+    lists.computeIfAbsent("a", k -> new ArrayList<>()).add("y");
+    List<String> made = new ArrayList<>();
+    made.add("m");
+    lists.put("b", made);
+    made.add("n");
+    p(lists + " " + lists.get("a").size() + " " + (lists.get("b") == made) + " " + lists.get("c"));
+    for (List<String> l : lists.values()) {
+      l.add("!");
+    }
+    p(lists + " " + made);
+    Plain x = new Plain("x");
+    Plain y = new Plain("y");
+    Map<Plain, String> ps = named(x, y, x, null);
+    p(ps + " " + ps.size() + " " + ps.get(x) + " " + ps.get(new Plain("x")) + " " + ps.get(null) + " " + ps.remove(y) + " " + ps);
+    Derived d = new Derived(1);
+    keyedByEquals.put(d, "d");
+    keyedByEquals.put(new Derived(1), "d2");
+    keyedByEquals.put(new Base(1), "b");
+    p(keyedByEquals.size() + " " + keyedByEquals.get(new Derived(1)) + " " + keyedByEquals.get(new Base(1)));
+    byNumber.put(3, "three");
+    byNumber.put(3, "drei");
+    p(byNumber + " " + byNumber.get(3));
+    Map<String, String> strings = new LinkedHashMap<>();
+    p(strings.put("a", "1") + " " + strings.put("a", "2") + " " + strings.get("a") + " " + strings.get("b") + " " + strings.getOrDefault("b", "dflt") + " " + strings.remove("b")
+        + " " + strings.remove("a") + " " + strings);
+    Map<String, Base> none = null;
+    p(none == null);
+    p(fail(() -> none.get("a")));
+    p(fail(() -> none.put("a", null)));
+    p(fail(() -> {
+      for (String s : none.keySet()) {
+        p(s);
+      }
+    }));
+    p(fail(() -> {
+      for (Map.Entry<String, Base> e : none.entrySet()) {
+        p(e);
+      }
+    }));
+  }
+
   public static String run() {
     new Colls().fields();
     locals(true);
@@ -483,6 +636,7 @@ public class Colls {
     methods();
     new Colls().sets();
     new Colls().deques();
+    new Colls().maps();
     return out.toString();
   }
 

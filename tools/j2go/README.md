@@ -108,57 +108,69 @@ value-based class), and the translator refuses `==` between two Optionals. `J2GO
 keeps this representation (the runtime has no other).
 
 **Typed collections.** A declaration of type `List<X>` / `ArrayList<X>` holds a typed list,
-`*TList[X]` (`rt_tlist.go`: a slice of X values, not of boxes), and one of type `Set<X>` /
+`*TList[X]` (`rt_tlist.go`: a slice of X values, not of boxes), one of type `Set<X>` /
 `HashSet<X>` / `LinkedHashSet<X>` a typed set, `*TSet[X]` (`rt_tset.go`: the X values in
 insertion order, a Go map from element to position once the set is not small), one of type
 `Deque<X>` / `ArrayDeque<X>` / `Queue<X>` a typed deque, `*TDeque[X]` (`rt_tdeque.go`: a typed
-list whose first item is the head, as the erased ArrayDeque is an ArrayList), when the
-translator can see that it only ever holds collections the program makes for it (`Colls`;
-`J2GO_COLLS=1` reports the counts and why declarations stay erased, `J2GO_COLLS=2` each one).
-The decision is made declaration by declaration: a field, a local variable, and the parameters
-and the result of a method whose signature is its own (a constructor, a static or private
-method, an instance method that overrides nothing and that nothing overrides; not one named by
-a method reference). A declaration is typed when
+list whose first item is the head, as the erased ArrayDeque is an ArrayList), and one of type
+`Map<K, V>` / `HashMap<K, V>` / `LinkedHashMap<K, V>` a typed map, `*TMap[K, V]` (`rt_tmap.go`:
+the keys and the values in insertion order, a Go map from key to position once the map is not
+small), when the translator can see that it only ever holds collections the program makes for
+it (`Colls`; `J2GO_COLLS=1` reports the counts and why declarations stay erased, `J2GO_COLLS=2`
+each one). The decision is made declaration by declaration: a field, a local variable, and the
+parameters and the result of a method whose signature is its own (a constructor, a static or
+private method, an instance method that overrides nothing and that nothing overrides; not one
+named by a method reference). A declaration is typed when
 
 - X has one Go type and no type arguments (a String, a class, an interface, a handle); for a
-  set, X is a type whose Go `==` is Java's `equals`: a String, an enum, or a class of the
-  program (a handle class too) that inherits `equals` and `hashCode` from Object, as all its
-  subclasses do (`Ctx.goEquals`);
+  set, and for the key of a map, X is a type whose Go `==` is Java's `equals`: a String, an
+  enum, or a class of the program (a handle class too) that inherits `equals` and `hashCode`
+  from Object, as all its subclasses do (`Ctx.goEquals`). The value type of a map may also be a
+  library type with type arguments (`Map<String, List<Node>>` is a `*TMap[string, List]`: the
+  value is the erased `List`, as it is everywhere else);
 - every value that enters it is a new collection of its kind (`new ArrayList<>()`,
   `new ArrayList<>(n)`, `new ArrayList<>(collection)`; `new LinkedHashSet<>(..)`, the only set
-  the program makes; `new ArrayDeque<>(..)`), `null`, or the value of another typed
-  declaration of the same kind and element
-  type (an argument enters the parameter, a returned expression the result);
-- every use is one the typed collection or its view serves: a `List` / `Set` / `Deque` method,
-  a for-each loop, `==`, a string concatenation, or a place of type `List` / `Set` / `Deque` /
-  `Queue`, `Collection`, `Iterable`, `Object` or a type variable. A place that wants the class
-  (`ArrayList`, `LinkedHashSet`, `ArrayDeque`) must be a typed declaration itself; `subList`,
-  `listIterator` and `getClass` keep the declaration erased.
+  the program makes; `new ArrayDeque<>(..)`; `new LinkedHashMap<>()`, `(n)`, `(map)`, the only
+  hash map the program makes), `null`, or the value of another typed declaration of the same
+  kind and type arguments (an argument enters the parameter, a returned expression the result);
+- every use is one the typed collection or its view serves: a `List` / `Set` / `Deque` / `Map`
+  method, a for-each loop, `==`, a string concatenation, or a place of type `List` / `Set` /
+  `Deque` / `Queue` / `Map`, `Collection`, `Iterable`, `Object` or a type variable. A place
+  that wants the class (`ArrayList`, `LinkedHashSet`, `ArrayDeque`, `LinkedHashMap`) must be a
+  typed declaration itself; `subList`, `listIterator` and `getClass` keep the declaration
+  erased.
 
 `list.get(i)`, `add`, `set`, `remove(int)`, `size`, `isEmpty`, `clear`, `iterator`, a set's
 `add`, `contains` and `remove` of an X (`s.has(x)`, `s.del(x)`), a deque's `push`, `pop`,
-`poll`, `peek`, `peekLast`, `add` (and `addFirst`, `removeFirst`...) and the for-each loop
-(`it := list.each()`) work on the X values; any other method, and every place that is not a
-typed declaration (a wildcard or raw type, `Object`, a library parameter, a method of a group
-of overriding methods), sees the collection as Java's `List` / `Set` / `Deque` through
-`list.asList()` / `set.asSet()` / `deque.asDeque()`. That is the collection's one erased view, made on first use, which boxes and
-casts as the erased code did: the Java object stays one object wherever it goes (`==`, changes
-made on either side), `null` is `nil` on both sides, and a typed declaration never holds a
-collection that erased code made, so no conversion from the erased form exists. Inside the
-translator a typed declaration, and each expression that reads it, has the type `TList<X>` /
-`TSet<X>` / `TDeque<X>` of a class that exists for it alone (`Ctx.STUBS`: the typed methods), and
-`Ctx.coerce` turns that type into any other through the view. The element conversions are
-generated per element type (`tc_string`, `tc_p_JSType` in `g_0casts.go`) with the conversions
-the erased code makes for that type. The runtime's erased code reads a view without an
-iterator object (`foreach_`, `stepper_`) and looks a String up in it without a box.
+`poll`, `peek`, `peekLast`, `add` (and `addFirst`, `removeFirst`...), a map's `get`, `put`,
+`containsKey`, `remove`, `getOrDefault`, `putIfAbsent` and `computeIfAbsent` with a key that is
+a K (`m.has(k)`, `m.del(k)`, `m.getOr(k, v)`), and the for-each loop (`it := list.each()`) work
+on the X values. A for-each loop over `m.keySet()`, `m.values()` or `m.entrySet()` of a typed
+map reads the map itself (`it := m.eachKey()`, `m.eachValue()`, `m.eachEntry()`); the variable
+of the loop over the entries is a `*TEntry[K, V]` (`getKey`, `getValue`, `setValue` on the K
+and V values; an entry that goes anywhere else goes as Java's `Map.Entry` through
+`e.asEntry()`). Any other method, and every place that is not a typed declaration (a wildcard
+or raw type, `Object`, a library parameter, a method of a group of overriding methods), sees
+the collection as Java's `List` / `Set` / `Deque` / `Map` through `list.asList()` /
+`set.asSet()` / `deque.asDeque()` / `m.asMap()`. That is the collection's one erased view, made
+on first use, which boxes and casts as the erased code did: the Java object stays one object
+wherever it goes (`==`, changes made on either side), `null` is `nil` on both sides, and a
+typed declaration never holds a collection that erased code made, so no conversion from the
+erased form exists. Inside the translator a typed declaration, and each expression that reads
+it, has the type `TList<X>` / `TSet<X>` / `TDeque<X>` / `TMap<K, V>` / `TEntry<K, V>` of a
+class that exists for it alone (`Ctx.STUBS`: the typed methods), and `Ctx.coerce` turns that
+type into any other through the view. The element conversions are generated per element type
+(`tc_string`, `tc_p_JSType` in `g_0casts.go`) with the conversions the erased code makes for
+that type. The runtime's erased code reads a view without an iterator object (`foreach_`,
+`stepper_`) and looks a String up in it without a box (`contains_s`, `get_s`...).
 
 Two differences from the JVM are accepted. An element of the wrong type that unchecked code
 puts into a typed collection through its view fails there with the `ClassCastException` that
 Java throws at the first typed read (or never, if the element is never read at its type). And
-the view is not the Go type `*ArrayList` / `*LinkedHashSet` / `*ArrayDeque`: its `getClass()` is the Java
-class, but `x instanceof ArrayList` or a cast to `ArrayList` of a view that reached erased
-code would fail (the program has neither; a declaration of the class type that a typed
-collection reaches is typed too, or the collection stays erased).
+the view is not the Go type `*ArrayList` / `*LinkedHashSet` / `*ArrayDeque` / `*LinkedHashMap`:
+its `getClass()` is the Java class, but `x instanceof ArrayList` or a cast to `ArrayList` of a
+view that reached erased code would fail (the program has neither; a declaration of the class
+type that a typed collection reaches is typed too, or the collection stays erased).
 `J2GO_ERASED=1` skips the rule.
 
 **Type arguments in declarations.** Library types stay erased; the declared type of a field,

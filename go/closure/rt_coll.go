@@ -1603,6 +1603,9 @@ func Map_get_s(m any, k string) any {
 		if im, ok := m.(*ImmutableMap); ok && im != nil {
 			return im.get_s(k)
 		}
+		if x, ok := m.(interface{ get_s(string) any }); ok {
+			return x.get_s(k) // the erased view of a typed map (rt_tmap.go)
+		}
 	}
 	return asMap_(m).get(strobj_(k))
 }
@@ -1615,6 +1618,9 @@ func Map_containsKey_s(m any, k string) bool {
 		if im, ok := m.(*ImmutableMap); ok && im != nil {
 			return im.containsKey_s(k)
 		}
+		if x, ok := m.(interface{ containsKey_s(string) bool }); ok {
+			return x.containsKey_s(k)
+		}
 	}
 	return asMap_(m).containsKey(strobj_(k))
 }
@@ -1624,6 +1630,9 @@ func Map_put_s(m any, k string, v any) any {
 		old, _ := h.t.putStr(k, v)
 		return old
 	}
+	if x, ok := m.(interface{ put_s(string, any) any }); ok && k != nullstr_ {
+		return x.put_s(k, v)
+	}
 	return asMap_(m).put(strobj_(k), v)
 }
 
@@ -1631,6 +1640,9 @@ func Map_remove_s(m any, k string) any {
 	if h := hashMapOf_(m); h != nil && k != nullstr_ {
 		old, _ := h.t.removeStr(k)
 		return old
+	}
+	if x, ok := m.(interface{ remove_s(string) any }); ok && k != nullstr_ {
+		return x.remove_s(k)
 	}
 	return asMap_(m).remove(strobj_(k))
 }

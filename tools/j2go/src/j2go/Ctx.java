@@ -159,12 +159,14 @@ final class Ctx {
    * Typed collections (rule "typed collections", Colls): a declaration (a field, a local
    * variable, a parameter or the result of a method) of a collection type that only ever holds
    * collections the program makes for it (`new ArrayList<>(..)`, null, or the value of another
-   * such declaration) holds the runtime's typed collection (*TList[X], *TSet[X], *TDeque[X];
-   * rt_tlist.go, rt_tset.go, rt_tdeque.go), whose elements are X values, not boxes. The
-   * translator sees such a declaration, and the expressions that read it, at the type TList<X>
-   * / TSet<X> / TDeque<X> of a class that exists for it alone (STUBS: the typed methods of the
-   * runtime's type); every other site that the collection reaches sees it as Java's List / Set
-   * / Deque through its one erased view (asList(), asSet(), asDeque()).
+   * such declaration) holds the runtime's typed collection (*TList[X], *TSet[X], *TDeque[X],
+   * *TMap[K, V]; rt_tlist.go, rt_tset.go, rt_tdeque.go, rt_tmap.go), whose elements are X
+   * values, not boxes. The translator sees such a declaration, and the expressions that read
+   * it, at the type TList<X> / TSet<X> / TDeque<X> / TMap<K, V> of a class that exists for it
+   * alone (STUBS: the typed methods of the runtime's type); every other site that the
+   * collection reaches sees it as Java's List / Set / Deque / Map through its one erased view
+   * (asList(), asSet(), asDeque(), asMap()). TEntry<K, V> is the entry of a typed map in a
+   * for-each loop over its entries.
    */
   static final Map<String, String> STUBS = Map.of(
       "TList", """
@@ -207,13 +209,38 @@ final class Ctx {
         public native void clear();
         public native java.util.Iterator<T> iterator();
       }
+      """,
+      "TMap", """
+      package j2go.rt;
+      public final class TMap<K, V> {
+        public native int size();
+        public native boolean isEmpty();
+        public native V get(K k);
+        public native boolean has(K k);
+        public native V getOr(K k, V def);
+        public native V put(K k, V v);
+        public native V putIfAbsent(K k, V v);
+        public native V computeIfAbsent(K k, java.util.function.Function<? super K, ? extends V> f);
+        public native V del(K k);
+        public native void clear();
+      }
+      """,
+      "TEntry", """
+      package j2go.rt;
+      public final class TEntry<K, V> {
+        public native K getKey();
+        public native V getValue();
+        public native V setValue(V v);
+      }
       """);
 
   /** One kind of typed collection. */
   static final class CollKind {
-    final String name;  // list, set
+    final String name;  // list, set, deque, map, entry
     TypeElement stub;  // TList, TSet
     final String view, viewType;  // asList, java.util.List
+    /** The type of the argument of `new C<>(from)`: a Collection, or a Map for a map. */
+    String fromType = "java.util.Collection";
     /** The types of the declarations that can hold one. */
     final Set<String> declared;
     /** The classes whose `new` makes one, each with the name its runtime functions carry (newT<x>_, t<x>From_, t<x>Copy_). */
@@ -232,6 +259,8 @@ final class Ctx {
   }
 
   final List<CollKind> collKinds = new ArrayList<>();
+  /** The kind of the entries of typed maps (TEntry), or null. */
+  CollKind entryKind;
 
   void registerTypedColls() {
     CollKind list = new CollKind("list", "asList", "java.util.List", Set.of("java.util.List", "java.util.ArrayList"),
@@ -243,13 +272,24 @@ final class Ctx {
     CollKind deque = new CollKind("deque", "asDeque", "java.util.Deque", Set.of("java.util.Deque", "java.util.ArrayDeque", "java.util.Queue"),
         Map.of("java.util.ArrayDeque", "Deque"),
         Set.of("java.util.Deque", "java.util.Queue", "java.util.Collection", "java.lang.Iterable", "java.util.SequencedCollection", "java.lang.Object"));
+    CollKind map = new CollKind("map", "asMap", "java.util.Map", Set.of("java.util.Map", "java.util.HashMap", "java.util.LinkedHashMap"),
+        Map.of("java.util.LinkedHashMap", "Map"),
+        Set.of("java.util.Map", "java.util.SequencedMap", "java.lang.Object"));
+    map.fromType = "java.util.Map";
+    // the entry of a typed map: the variable of a for-each loop over map.entrySet() (Colls)
+    CollKind entry = new CollKind("entry", "asEntry", "java.util.Map.Entry", Set.of(), Map.of(), Set.of("java.util.Map.Entry", "java.lang.Object"));
     list.stub = elems.getTypeElement("j2go.rt.TList");
     set.stub = elems.getTypeElement("j2go.rt.TSet");
     deque.stub = elems.getTypeElement("j2go.rt.TDeque");
-    for (CollKind k : List.of(list, set, deque)) {
+    map.stub = elems.getTypeElement("j2go.rt.TMap");
+    entry.stub = elems.getTypeElement("j2go.rt.TEntry");
+    boolean nomaps = "1".equals(System.getenv("J2GO_COLLS_NOMAPS"));
+    for (CollKind k : List.of(list, set, deque, map, entry)) {
       if (k.stub == null) continue;
       if (k == set && "1".equals(System.getenv("J2GO_COLLS_NOSETS"))) continue;
       if (k == deque && "1".equals(System.getenv("J2GO_COLLS_NODEQUES"))) continue;
+      if ((k == map || k == entry) && nomaps) continue;
+      if (k == entry) entryKind = k;
       collKinds.add(k);
       typedClasses.add(k.stub);
       keptVars.addAll(k.stub.getTypeParameters());
@@ -276,21 +316,57 @@ final class Ctx {
     return null;
   }
 
-  /** The element type of a collection type that a typed collection of its kind can hold, or null. */
-  TypeMirror typedElem(TypeMirror t) {
-    CollKind ck = collKindOf(t);
-    if (ck == null) return null;
+  /**
+   * The type arguments of the typed collection that a declaration of collection type t can
+   * hold (the element type; the key and value types of a map), or null if it can hold none.
+   */
+  List<TypeMirror> typedArgs(TypeMirror t) {
+    return typedArgs(collKindOf(t), t);
+  }
+
+  List<TypeMirror> typedArgs(CollKind ck, TypeMirror t) {
+    if (ck == null || t.getKind() != TypeKind.DECLARED) return null;
     DeclaredType d = (DeclaredType) t;
-    if (d.getTypeArguments().size() != 1) return null;
-    TypeMirror a = d.getTypeArguments().get(0);
-    if (a.getKind() != TypeKind.DECLARED || !((DeclaredType) a).getTypeArguments().isEmpty()) return null;
+    boolean map = ck.name.equals("map") || ck.name.equals("entry");
+    if (d.getTypeArguments().size() != (map ? 2 : 1)) return null;
+    List<TypeMirror> out = new ArrayList<>();
+    for (int i = 0; i < d.getTypeArguments().size(); i++) {
+      TypeMirror a = d.getTypeArguments().get(i);
+      if (map && i == 1) {
+        // The values of a map are compared by nobody: besides the element types, a library
+        // type with type arguments (a List<Node>: the erased List, as every such value is).
+        a = typedValue(a);
+        if (a == null) return null;
+        out.add(a);
+        continue;
+      }
+      if (a.getKind() != TypeKind.DECLARED || !((DeclaredType) a).getTypeArguments().isEmpty()) return null;
+      TypeElement ae = typeElement(a);
+      if (!ae.getTypeParameters().isEmpty()) return null;  // a raw type
+      K k = kind(a);
+      if (k != K.STR && k != K.CLS && k != K.IFACE) return null;
+      if (isSource(ae) && (ae.getNestingKind() == NestingKind.LOCAL || ae.getNestingKind() == NestingKind.ANONYMOUS)) return null;
+      if (isValueLib(ae)) return null;
+      if ((ck.name.equals("set") || map) && !goEquals(ae)) return null;
+      out.add(a);
+    }
+    return out;
+  }
+
+  /** The type a typed map holds values of declared type a at, or null if it cannot hold them. */
+  TypeMirror typedValue(TypeMirror a) {
+    if (a.getKind() != TypeKind.DECLARED) return null;
     TypeElement ae = typeElement(a);
-    if (!ae.getTypeParameters().isEmpty()) return null;  // a raw type
     K k = kind(a);
     if (k != K.STR && k != K.CLS && k != K.IFACE) return null;
     if (isSource(ae) && (ae.getNestingKind() == NestingKind.LOCAL || ae.getNestingKind() == NestingKind.ANONYMOUS)) return null;
     if (isValueLib(ae)) return null;
-    if (ck.name.equals("set") && !goEquals(ae)) return null;
+    if (!((DeclaredType) a).getTypeArguments().isEmpty() || !ae.getTypeParameters().isEmpty()) {
+      // type arguments: only of a library type, which is erased whatever they are
+      if (isSource(ae) || typedClasses.contains(ae) || "1".equals(System.getenv("J2GO_COLLS_NOGENVALUES"))) return null;
+      if (!goType(a).equals(goType(types.erasure(a)))) return null;
+      return types.erasure(a);
+    }
     return a;
   }
 
@@ -327,14 +403,14 @@ final class Ctx {
     return false;
   }
 
-  /** The typed collection type of kind k with elements elem: TList<elem>. */
-  TypeMirror typedOf(CollKind k, TypeMirror elem) {
-    return types.getDeclaredType(k.stub, elem);
+  /** The typed collection type of kind k with type arguments args: TList<elem>, TMap<key, value>. */
+  TypeMirror typedOf(CollKind k, List<TypeMirror> args) {
+    return types.getDeclaredType(k.stub, args.toArray(new TypeMirror[0]));
   }
 
   /** The type the erased view of typed collection type t has: List<X> for a TList<X>. */
   TypeMirror typedView(TypeMirror t) {
-    return types.getDeclaredType(elems.getTypeElement(typedColl(t).viewType), ((DeclaredType) t).getTypeArguments().get(0));
+    return types.getDeclaredType(elems.getTypeElement(typedColl(t).viewType), ((DeclaredType) t).getTypeArguments().toArray(new TypeMirror[0]));
   }
 
   /**
@@ -364,6 +440,25 @@ final class Ctx {
         case "removeFirst/0", "remove/0": tn = "pop"; break;
         case "pollFirst/0": tn = "poll"; break;
         case "peekFirst/0": tn = "peek"; break;
+        default: break;
+      }
+    } else if (ck.name.equals("map")) {
+      // get, containsKey and remove take an Object: typed when the argument is a key by its static type
+      TypeMirror key = ((DeclaredType) recv).getTypeArguments().get(0);
+      boolean keyArg = args != null && args.size() >= 1 && args.get(0) != null
+          && (args.get(0).getKind() == TypeKind.NULL || types.isSubtype(types.erasure(args.get(0)), types.erasure(key)));
+      switch (n + "/" + np) {
+        case "size/0", "isEmpty/0", "clear/0", "put/2", "putIfAbsent/2": tn = n; break;
+        case "get/1": tn = keyArg ? "get" : null; break;
+        case "containsKey/1": tn = keyArg ? "has" : null; break;
+        case "remove/1": tn = keyArg ? "del" : null; break;
+        case "getOrDefault/2": tn = keyArg ? "getOr" : null; break;
+        case "computeIfAbsent/2": tn = keyArg ? n : null; break;
+        default: break;
+      }
+    } else if (ck.name.equals("entry")) {
+      switch (n + "/" + np) {
+        case "getKey/0", "getValue/0", "setValue/1": tn = n; break;
         default: break;
       }
     } else {

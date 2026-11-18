@@ -248,7 +248,8 @@ abstract class ExprEmitter extends Base {
     TypeElement made = Ctx.typeElement(cx.erase(typeOf(t)));
     String fn = made == null ? null : cx.typedColl(target).made.get(made.getQualifiedName().toString());
     if (fn == null) return null;
-    String tc = cx.tconv(((DeclaredType) target).getTypeArguments().get(0));
+    String tc = "";
+    for (TypeMirror a : ((DeclaredType) target).getTypeArguments()) tc += (tc.isEmpty() ? "" : ", ") + cx.tconv(a);
     List<? extends ExpressionTree> as = n.getArguments();
     if (as.isEmpty()) return "newT" + fn + "_(" + tc + ")";
     ExpressionTree a = as.get(0);
@@ -256,7 +257,7 @@ abstract class ExprEmitter extends Base {
     String lower = "t" + Character.toLowerCase(fn.charAt(0)) + fn.substring(1);
     if (at.getKind() == TypeKind.INT) return "newT" + fn + "N_(" + tc + ", " + exprAs(a, at) + ")";
     if (cx.isTypedColl(at) && cx.goType(at).equals(cx.goType(target))) return lower + "Copy_(" + tc + ", " + expr(a) + ")";
-    return lower + "From_(" + tc + ", " + exprAs(a, cx.elems.getTypeElement("java.util.Collection").asType()) + ")";
+    return lower + "From_(" + tc + ", " + exprAs(a, cx.elems.getTypeElement(cx.typedColl(target).fromType).asType()) + ")";
   }
 
   String cond(ExpressionTree t) {

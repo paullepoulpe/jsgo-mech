@@ -457,6 +457,18 @@ abstract class StmtEmitter extends ExprEmitter {
         head = "for _, " + tmp + " := range " + src + " ";
         bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(tmp, comp, vt) + "\n";
       }
+    } else if (typedMapLoop(ex, vt) != null) {
+      // The keys, the values or the entries of a typed map: the cursor reads them as they are.
+      String[] ml = typedMapLoop(ex, vt);
+      MemberSelectTree ms = (MemberSelectTree) ((MethodInvocationTree) strip(ex)).getMethodSelect();
+      DeclaredType mt = (DeclaredType) cx.erase(typeOf(ms.getExpression()));
+      String it = fresh("it");
+      String src = atomOrParen(expr(ms.getExpression()));
+      lab = enter("loop");
+      cursor = it + " := " + src + "." + ml[0] + "()\n";
+      head = "for " + it + ".next() ";
+      if (ml[1] == null) bind = "var " + name + " " + cx.goType(vt) + " = " + it + ".entry()\n";
+      else bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(it + ".v", mt.getTypeArguments().get(Integer.parseInt(ml[1])), vt) + "\n";
     } else if (cx.isTypedColl(et)) {
       // A typed collection: the cursor reads its elements as they are, unboxed.
       TypeMirror comp = ((DeclaredType) et).getTypeArguments().get(0);
@@ -755,5 +767,24 @@ abstract class StmtEmitter extends ExprEmitter {
       if (all) return cx.erase(c.asType());
     }
     return cx.elems.getTypeElement("java.lang.Throwable").asType();
+  }
+
+  /**
+   * A for-each loop over `m.keySet()`, `m.values()` or `m.entrySet()` of a typed map m (rule
+   * "typed collections"): the cursor method of the map and the index of the type argument it
+   * reads (null for the entries, which need a typed loop variable); null for any other loop.
+   */
+  String[] typedMapLoop(ExpressionTree ex, TypeMirror vt) {
+    if (!(strip(ex) instanceof MethodInvocationTree mi) || !mi.getArguments().isEmpty() || !(mi.getMethodSelect() instanceof MemberSelectTree ms)) return null;
+    TypeMirror rt = typeOf(ms.getExpression());
+    if (rt == null) return null;
+    Ctx.CollKind ck = cx.typedColl(cx.erase(rt));
+    if (ck == null || !ck.name.equals("map")) return null;
+    switch (ms.getIdentifier().toString()) {
+      case "keySet": return new String[] {"eachKey", "0"};
+      case "values": return new String[] {"eachValue", "1"};
+      case "entrySet": return cx.typedColl(vt) == cx.entryKind && cx.entryKind != null ? new String[] {"eachEntry", null} : null;
+      default: return null;
+    }
   }
 }

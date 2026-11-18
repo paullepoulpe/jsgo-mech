@@ -11,11 +11,15 @@ import javax.lang.model.type.*;
  * parameters and method results of a collection type hold the runtime's typed collection
  * instead of the erased one: a *TList[X] (rt_tlist.go) for List<X> / ArrayList<X>, a *TSet[X]
  * (rt_tset.go) for Set<X> / HashSet<X> / LinkedHashSet<X>, a *TDeque[X] (rt_tdeque.go) for
- * Deque<X> / ArrayDeque<X> / Queue<X> (Ctx.collKinds).
+ * Deque<X> / ArrayDeque<X> / Queue<X>, a *TMap[K, V] (rt_tmap.go) for Map<K, V> / HashMap<K, V>
+ * / LinkedHashMap<K, V> (Ctx.collKinds). The variable of a for-each loop over the entries of a
+ * typed map (`for (Map.Entry<K, V> e : m.entrySet())`) is a *TEntry[K, V].
  *
  * A declaration is typed when
  * - X is a type that has one Go type and no type arguments (a String, a class, an interface, a
- *   handle); for a set, one whose Go == is Java's equals (Ctx.goEquals);
+ *   handle); for a set and for the key of a map, one whose Go == is Java's equals
+ *   (Ctx.goEquals); the value type of a map may be a library type with type arguments, which
+ *   is erased wherever it is (Ctx.typedValue);
  * - every value that enters it is a new collection of its kind (`new ArrayList<>()`,
  *   `new ArrayList<>(n)`, `new ArrayList<>(collection)`; `new LinkedHashSet<>(..)`), null, or
  *   the value of another typed declaration (so the declaration never holds a collection that
@@ -40,7 +44,7 @@ final class Colls {
   static final class Slot {
     Ctx.CollKind kind;
     Element v;  // a field, a local variable, a parameter; or a method, for its result
-    TypeMirror elem;
+    List<TypeMirror> args;  // the element type; the key and value types of a map
     String why;
     boolean made;  // a list enters it (a new ArrayList, or the value of another candidate)
     final List<Tree> uses = new ArrayList<>();
@@ -59,7 +63,13 @@ final class Colls {
   static final Set<String> NOT_ON_VIEW = Set.of("subList", "listIterator", "getClass", "wait", "notify", "notifyAll", "reversed", "spliterator");
 
   boolean same(Slot a, Slot b) {
-    return a.kind == b.kind && cx.types.isSameType(a.elem, b.elem);
+    return a.kind == b.kind && sameArgs(a.args, b.args);
+  }
+
+  boolean sameArgs(List<TypeMirror> a, List<TypeMirror> b) {
+    if (a == null || b == null || a.size() != b.size()) return false;
+    for (int i = 0; i < a.size(); i++) if (!cx.types.isSameType(a.get(i), b.get(i))) return false;
+    return true;
   }
 
   void poison(Slot s, String why) {
@@ -72,14 +82,53 @@ final class Colls {
   }
 
   Slot candidate(Element e, TypeMirror type) {
-    TypeMirror elem = cx.typedElem(type);
-    if (elem == null) return null;
+    return candidate(e, type, cx.collKindOf(type));
+  }
+
+  Slot candidate(Element e, TypeMirror type, Ctx.CollKind kind) {
+    List<TypeMirror> args = cx.typedArgs(kind, type);
+    if (args == null) {
+      if (kind != null && kind != cx.entryKind) untypable.merge(kind.name + ": " + whyNot(kind, type), 1, Integer::sum);
+      return null;
+    }
     Slot s = new Slot();
-    s.kind = cx.collKindOf(type);
+    s.kind = kind;
     s.v = e;
-    s.elem = elem;
+    s.args = args;
     slots.put(e, s);
     return s;
+  }
+
+  /** Declarations of a collection type whose type arguments no typed collection has, by reason (the report). */
+  final Map<String, Integer> untypable = new TreeMap<>();
+
+  /** Why no typed collection of kind k has the type arguments of type t (for the report). */
+  String whyNot(Ctx.CollKind k, TypeMirror t) {
+    List<? extends TypeMirror> as = ((DeclaredType) t).getTypeArguments();
+    if (as.isEmpty()) return "a raw type";
+    boolean map = k.name.equals("map");
+    for (int i = 0; i < as.size(); i++) {
+      TypeMirror a = as.get(i);
+      String what = map ? (i == 0 ? "key" : "value") : "element";
+      if (a.getKind() == TypeKind.WILDCARD) return "a wildcard " + what;
+      if (a.getKind() == TypeKind.TYPEVAR) return "a type variable as " + what;
+      if (a.getKind() == TypeKind.ARRAY) return "an array as " + what;
+      if (a.getKind() != TypeKind.DECLARED) return what + " " + a.getKind();
+      TypeElement ae = Ctx.typeElement(a);
+      Ctx.K kd = cx.kind(a);
+      if (kd != Ctx.K.STR && kd != Ctx.K.CLS && kd != Ctx.K.IFACE) return what + " " + ae.getSimpleName() + " (any in Go: Object or a boxed primitive)";
+      if (cx.isValueLib(ae)) return what + " " + ae.getSimpleName() + " (a value)";
+      if (map && i == 1) {
+        if (cx.typedValue(a) == null) return "a value type with type arguments that is a class of the program";
+        continue;
+      }
+      if (!((DeclaredType) a).getTypeArguments().isEmpty() || !ae.getTypeParameters().isEmpty()) return "an " + what + " type with type arguments";
+      if (cx.isSource(ae) && (ae.getNestingKind() == NestingKind.LOCAL || ae.getNestingKind() == NestingKind.ANONYMOUS)) return "a local class as " + what;
+      if ((k.name.equals("set") || map) && !cx.goEquals(ae)) {
+        return what + (cx.isSource(ae) ? (ae.getKind().isInterface() ? " an interface" : " a class with its own equals") : " a library class (" + ae.getSimpleName() + ")");
+      }
+    }
+    return "?";
   }
 
   /**
@@ -129,8 +178,8 @@ final class Colls {
           candidate(m, m.getReturnType());
         } else if (e instanceof ExecutableElement m) {
           // not candidates: the signature belongs to a group of overriding methods (or to a lambda's interface)
-          if (cx.typedElem(m.getReturnType()) != null) openResults++;
-          for (VariableElement p : m.getParameters()) if (cx.typedElem(p.asType()) != null) openParams++;
+          if (cx.typedArgs(m.getReturnType()) != null) openResults++;
+          for (VariableElement p : m.getParameters()) if (cx.typedArgs(p.asType()) != null) openParams++;
         }
         return super.visitMethod(t, v);
       }
@@ -142,7 +191,11 @@ final class Colls {
         boolean param = e != null && e.getKind() == ElementKind.PARAMETER && parent instanceof MethodTree mt && mt.getParameters().contains(t)
             && closed.contains(e.getEnclosingElement())
             && !(((ExecutableElement) e.getEnclosingElement()).isVarArgs() && mt.getParameters().indexOf(t) == mt.getParameters().size() - 1);
-        if (e instanceof VariableElement ve && (e.getKind() == ElementKind.FIELD || e.getKind() == ElementKind.LOCAL_VARIABLE || param)) {
+        if (e instanceof VariableElement ve && e.getKind() == ElementKind.LOCAL_VARIABLE && parent instanceof EnhancedForLoopTree && cx.entryKind != null
+            && ve.asType().getKind() == TypeKind.DECLARED && Ctx.typeElement(ve.asType()).getQualifiedName().contentEquals("java.util.Map.Entry")) {
+          // the entry of a map: typed if the loop is over the entries of a typed map (flows)
+          candidate(ve, ve.asType(), cx.entryKind);
+        } else if (e instanceof VariableElement ve && (e.getKind() == ElementKind.FIELD || e.getKind() == ElementKind.LOCAL_VARIABLE || param)) {
           Slot s = candidate(ve, ve.asType());
           if (s != null) {
             if (parent instanceof EnhancedForLoopTree) poison(s, "the variable of a for-each loop");
@@ -214,8 +267,7 @@ final class Colls {
             TypeMirror made = typeOf(x);
             TypeElement me = made == null ? null : Ctx.typeElement(cx.types.erasure(made));
             if (n.getClassBody() == null && me != null && s.kind.made.containsKey(me.getQualifiedName().toString()) && n.getArguments().size() <= 1) {
-              TypeMirror elem = cx.typedElem(made);
-              if (elem != null && cx.types.isSameType(elem, s.elem)) {
+              if (sameArgs(cx.typedArgs(s.kind, made), s.args)) {
                 s.made = true;
                 return;
               }
@@ -370,6 +422,26 @@ final class Colls {
       }
 
       @Override
+      public Void visitEnhancedForLoop(EnhancedForLoopTree t, Void v) {
+        // the entries of a typed map enter the variable of a loop over map.entrySet()
+        Slot s = slots.get(elemOf(new TreePath(getCurrentPath(), t.getVariable())));
+        if (s != null && s.kind == cx.entryKind) {
+          Slot from = null;
+          if (strip(t.getExpression()) instanceof MethodInvocationTree mi && mi.getArguments().isEmpty()
+              && mi.getMethodSelect() instanceof MemberSelectTree ms && ms.getIdentifier().contentEquals("entrySet")) {
+            from = slotOf(ms.getExpression(), new TreePath(new TreePath(getCurrentPath(), mi), ms));
+          }
+          if (from != null && from.kind.name.equals("map") && sameArgs(from.args, s.args)) {
+            from.taints.add(s);
+            s.made = true;
+          } else {
+            poison(s, "not a loop over the entries of a typed map");
+          }
+        }
+        return super.visitEnhancedForLoop(t, v);
+      }
+
+      @Override
       public Void visitAssignment(AssignmentTree t, Void v) {
         Slot s = slotOf(t.getVariable(), getCurrentPath());
         if (s != null) inflow(s, t.getExpression(), getCurrentPath());
@@ -472,8 +544,8 @@ final class Colls {
       }
       n[1]++;
       n[s.v.getKind() == ElementKind.FIELD ? 2 : s.v.getKind() == ElementKind.PARAMETER ? 4 : s.v instanceof ExecutableElement ? 5 : 3]++;
-      elems.merge(s.kind.name + " of " + s.elem, 1, Integer::sum);
-      TypeMirror t = cx.typedOf(s.kind, s.elem);
+      elems.merge(s.kind.name + " of " + s.args, 1, Integer::sum);
+      TypeMirror t = cx.typedOf(s.kind, s.args);
       if (s.v instanceof ExecutableElement m) cx.typedResults.put(m, t);
       else cx.refinedVars.put(s.v, t);
       for (Tree u : s.uses) cx.refinedTrees.put(u, t);
@@ -484,6 +556,7 @@ final class Colls {
           + n[4] + " parameters, " + n[5] + " results)");
     }
     if (report) {
+      for (var e : untypable.entrySet()) System.err.println("colls: no typed collection for the type: " + e.getValue() + " " + e.getKey());
       System.err.println("colls: not candidates: " + openParams + " parameters and " + openResults + " results of methods in groups of overriding methods");
       List<Map.Entry<String, Integer>> l = new ArrayList<>(whys.entrySet());
       l.sort((a, b) -> b.getValue() - a.getValue());

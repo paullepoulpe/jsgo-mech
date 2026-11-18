@@ -77,7 +77,7 @@ func readJson_(decoder *json.Decoder, depth int) *SimpleJsonValue {
 				return nil
 			}
 			if t == '{' {
-				value.members().put(any(name), any(item))
+				erasedMap_(value.members()).put(any(name), any(item))
 			} else {
 				asList_(value.elements()).add(any(item))
 			}
