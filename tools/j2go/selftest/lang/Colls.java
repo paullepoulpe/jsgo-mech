@@ -1073,9 +1073,89 @@ public class Colls {
     new Colls().byEquals();
     p(generic());
     p(groups());
+    p(typeVariableKeys());
     new Colls().sorted(true);
     new Colls().sorted(false);
     return out.toString();
+  }
+
+  // ---- sets and maps of a type variable: compared with == or by equals, as the instantiation is
+
+  static final class Graph<N> {
+    private final Map<N, List<N>> edges = new LinkedHashMap<>();
+    private final Set<N> marked = new LinkedHashSet<>();
+    private final Map<N, Integer> rank = new LinkedHashMap<>();
+
+    void connect(N from, N to) {
+      List<N> out = edges.get(from);
+      if (out == null) {
+        out = new ArrayList<>();
+        edges.put(from, out);
+      }
+      out.add(to);
+      rank.put(to, rank.getOrDefault(to, 0) + 1);
+    }
+
+    boolean mark(N n) {
+      return marked.add(n);
+    }
+
+    boolean isMarked(N n) {
+      return marked.contains(n);
+    }
+
+    Set<N> reachable(N start) {
+      Set<N> seen = new LinkedHashSet<>();
+      Deque<N> work = new ArrayDeque<>();
+      work.add(start);
+      while (!work.isEmpty()) {
+        N n = work.poll();
+        if (!seen.add(n)) continue;
+        List<N> out = edges.get(n);
+        if (out != null) {
+          for (N m : out) work.add(m);
+        }
+      }
+      return seen;
+    }
+
+    String show() {
+      StringBuilder sb = new StringBuilder();
+      for (Map.Entry<N, List<N>> e : edges.entrySet()) sb.append(e.getKey()).append("->").append(e.getValue()).append(' ');
+      for (N n : marked) sb.append(n).append(',');
+      return sb + " " + rank + " " + edges.containsKey(null) + " " + marked.size();
+    }
+  }
+
+  static String typeVariableKeys() {
+    Graph<String> gs = new Graph<>();
+    gs.connect("a", "b");
+    gs.connect("b", "c");
+    gs.connect("a", "c");
+    gs.connect("c", "a");
+    gs.connect("x", new String(new char[] {'a'}));
+    String r = gs.show() + " " + gs.reachable("x") + " " + gs.mark("a") + gs.mark("a") + gs.isMarked("a") + gs.isMarked("q") + gs.mark(null) + gs.isMarked(null);
+    // a class compared by identity
+    Graph<Base> gb = new Graph<>();
+    Base b1 = new Base(1);
+    Base b2 = new Derived(2);
+    gb.connect(b1, b2);
+    gb.connect(b2, b1);
+    gb.connect(b2, new Base(1));
+    r += "\n" + gb.show() + " " + gb.reachable(b1) + " " + gb.mark(b1) + gb.mark(b1) + gb.mark(new Base(1)) + gb.isMarked(b2);
+    // a class compared by equals (many share a hash code)
+    Graph<Pair> gp = new Graph<>();
+    for (int i = 0; i < 12; i++) gp.connect(new Pair(i % 3, i), new Pair(i % 3, (i + 1) % 12));
+    gp.connect(new Pair(0, 0), new Pair(7, 7));
+    r += "\n" + gp.show() + " " + gp.reachable(new Pair(0, 0)) + " " + gp.mark(new Pair(1, 1)) + gp.mark(new Pair(1, 1)) + gp.isMarked(new Pair(1, 1)) + gp.isMarked(new Pair(1, 2));
+    // an interface, boxes
+    Graph<Shape> gi = new Graph<>();
+    gi.connect(b1, b2);
+    gi.connect(b2, b1);
+    Graph<Integer> gn = new Graph<>();
+    for (int i = 0; i < 20; i++) gn.connect(i % 5, 1000 + i % 7);
+    r += "\n" + gi.show() + " " + gi.reachable(b2) + " " + gn.show() + " " + gn.reachable(3) + " " + gn.mark(1000) + gn.mark(1000) + gn.isMarked(1000) + gn.isMarked(7);
+    return r;
   }
 
   // ---- sorted sets and maps (TreeSet, TreeMap): the typed set and map in their sorted mode

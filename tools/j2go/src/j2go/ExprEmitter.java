@@ -1185,7 +1185,7 @@ abstract class ExprEmitter extends Base {
     } else {
       Ctx.K rk = cx.kind(recv.type);
       String rc = recv.code;
-      boolean boxedTvar = rk == Ctx.K.TVAR && cx.constraint((TypeParameterElement) ((TypeVariable) cx.erase(recv.type)).asElement()).equals("any");
+      boolean boxedTvar = rk == Ctx.K.TVAR && cx.bound((TypeParameterElement) ((TypeVariable) cx.erase(recv.type)).asElement()) == null;
       if (rk == Ctx.K.ANY || rk == Ctx.K.STR || rk == Ctx.K.ARR || rk == Ctx.K.PRIM || boxedTvar) {
         rc = cx.coerce(rc, recv.type, owner.asType());
       } else if (rk == Ctx.K.CLS && owner.getKind().isInterface() && !cx.sub(recv.type, owner.asType())) {

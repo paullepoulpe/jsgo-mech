@@ -99,7 +99,10 @@ final class Colls {
   Slot candidate(Element e, TypeMirror type, Ctx.CollKind kind) {
     List<TypeMirror> args = cx.typedArgs(kind, type);
     if (args == null) {
-      if (kind != null && kind != cx.entryKind) untypable.merge(kind.name + ": " + whyNot(kind, type), 1, Integer::sum);
+      if (kind != null && kind != cx.entryKind) {
+        untypable.merge(kind.name + ": " + whyNot(kind, type), 1, Integer::sum);
+        if ("2".equals(System.getenv("J2GO_COLLS"))) System.err.println("colls: no typed " + kind.name + " for " + e.getEnclosingElement() + "." + e + " of type " + type + ": " + whyNot(kind, type));
+      }
       return null;
     }
     Slot s = new Slot();
