@@ -949,18 +949,23 @@ abstract class ExprEmitter extends Base {
       }
     }
     int fixed = pack ? n - 1 : n;
-    for (int i = 0; i < fixed && i < args.size(); i++) out.add(args.get(i).as(params.get(i)));
+    for (int i = 0; i < fixed && i < args.size(); i++) out.add(argAs(e, i, args.get(i), params.get(i)));
     if (pack) {
       TypeMirror arr = params.get(n - 1);
       TypeMirror comp = ((ArrayType) arr).getComponentType();
       StringBuilder sb = new StringBuilder(cx.goType(arr) + "{");
       for (int i = fixed; i < args.size(); i++) {
         if (i > fixed) sb.append(", ");
-        sb.append(args.get(i).as(comp));
+        sb.append(argAs(e, i, args.get(i), comp));
       }
       out.add(sb.append("}").toString());
     }
     return String.join(", ", out);
+  }
+
+  /** Argument i of a call of e, for a parameter (or an element of the variable arguments) of type target. */
+  String argAs(ExecutableElement e, int i, Arg a, TypeMirror target) {
+    return cx.conv.bare(a.as(target), target);
   }
 
   List<TypeMirror> ownParams(ExecutableElement e) {

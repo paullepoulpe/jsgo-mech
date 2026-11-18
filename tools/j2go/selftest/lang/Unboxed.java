@@ -137,9 +137,28 @@ public class Unboxed {
         + " " + caught(() -> checkNotNull(counted(noBox))) + " " + evals;
   }
 
+  // ---- bare arguments: a literal or a new object for an Object parameter
+  static String describe(Object a, Object... more) {
+    StringBuilder sb = new StringBuilder(a instanceof String ? "S" : a instanceof Dot ? "D" : a instanceof Box ? "B" : "?").append(a instanceof Dot ? "dot" : a);
+    for (Object m : more) sb.append(m instanceof String ? "+S" : m == null ? "+null" : "+O").append(m instanceof Dot ? "dot" : m);
+    return sb.toString();
+  }
+
+  static String bare() {
+    List<Object> l = new ArrayList<>();
+    l.add("lit");
+    l.add(new Dot());
+    l.add("quote\"d \\ (paren");
+    Object sameLit = "lit";
+    return describe("a") + " " + describe("b", "c", new Dot(), null, "d)") + " " + describe(new Dot(), new Crate().name()) + " " + describe(new Crate().name())
+        + " " + l.contains("lit") + l.contains(new Dot()) + l.indexOf("quote\"d \\ (paren") + " " + l.get(0).equals("lit") + (l.get(0) == sameLit) + " " + new Dot().equals(new Dot())
+        + " " + Objects.equals("x", "x") + Objects.equals(new Dot(), "x") + " " + Objects.hash("a", new Dot(), 1);
+  }
+
   public static String run() {
     p(upcasts());
     p(nonNull());
+    p(bare());
     return out.toString();
   }
 

@@ -104,4 +104,22 @@ final class Conv {
   String nonNullSuffix(TypeMirror at) {
     return cx.kind(at) == Ctx.K.STR ? "_Str" : "_T";
   }
+
+  // ------------------------------------------------------------------ arguments that are never null
+
+  static final boolean BARE = !off("BARE");
+
+  /**
+   * Rule "bare arguments": an argument for an Object parameter that cannot be null, a string
+   * literal or a new object of a class without subclasses, is passed as it is. Go converts it
+   * to the interface value that strobj_ / obj_ return for a value that is not null.
+   *
+   * @param r the argument converted to Object (the code Ctx.coerce gave)
+   */
+  String bare(String r, TypeMirror target) {
+    if (!BARE || cx.kind(cx.erase(target)) != Ctx.K.ANY) return r;
+    if (r.startsWith("strobj_(\"") && r.endsWith("\")") && r.substring(8, r.length() - 1).matches("\"([^\"\\\\]|\\\\.)*\"")) return r.substring(8, r.length() - 1);
+    if (r.startsWith("obj_(new_") && r.endsWith(")") && newCall(r.substring(5, r.length() - 1))) return r.substring(5, r.length() - 1);
+    return r;
+  }
 }

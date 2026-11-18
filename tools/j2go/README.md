@@ -247,6 +247,12 @@ translation, for bisecting.
   string). Arguments that are typed collections or value types (`Optional`) and boxed
   primitives keep the function taking an object.
 
+- *Bare arguments* (`Conv.bare`, `J2GO_NOBARE`). An argument for an `Object` parameter (or an
+  element of `Object...`) that cannot be null, a string literal or a new object of a class
+  without subclasses, is passed as it is: `sb.append("x")`, `list.add(new_Entry(k, v))`. Go
+  converts it to the interface value that `strobj_("x")` / `obj_(new_Entry(k, v))` return for
+  a value that is not null. Only arguments: there the parameter gives the expression its type.
+
 **Type arguments in declarations.** Library types stay erased; the declared type of a field,
 local or parameter whose Java type is a parameterized library type is written through a generic
 alias: `List<Reference>` becomes
