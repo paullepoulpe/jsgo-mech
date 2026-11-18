@@ -543,3 +543,21 @@ f6a421b0 patch 330-f6a421b0-rt.patch
 f7492025 run bash tools/postflip/colls/run.sh
 # 338. postflip step: second pass of the collections pipeline after the typed immutables (colls map, native on typed immutables, nilmaps)
 72b0f693 run bash tools/postflip/colls/run.sh
+
+# ---- after the replay (branch reflip-r9-bridge): the translator's typed collections join the
+# post-flip family (tool jfam), and the collection pipeline runs on them. These commits are of
+# this branch; their tools are the tools of each commit (with the toolfix commit e49096f1).
+# B1. postflip (runtime): a translator conversion as a post-flip one (jtconv_.t_), and iterator() of a typed list
+10fa2127 patch reflip-10fa2127-rt.patch
+# B2. postflip step: jfam -kind list, 525 mentions of the translator's typed list are the post-flip TList
+a902d9b9 run t jfam -kind list
+# B3. postflip step: jfam -kind convs, 49 translator conversions named tc_X are jtc_X
+8279826e run t jfam -kind convs
+# B4. postflip step: the collection pipeline re-run after jfam
+c30c014f run bash tools/postflip/colls/run.sh
+# B5. postflip (runtime): the bridge for typed sets and maps (rt_jbridge.go), t_() with hash and eq, and its test
+609476c1 patch reflip-609476c1-rt.patch
+# B6. postflip step: jfam -kind keyed, the translator's typed sets, maps and entries are the post-flip ones
+11fa83da run t jfam -kind keyed
+# B7. postflip step: the collection pipeline re-run after jfam -kind keyed
+ec208429 run bash tools/postflip/colls/run.sh
