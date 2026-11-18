@@ -191,7 +191,7 @@ final class Emitter extends StmtEmitter {
     ClassCtx c = cc();
     if (c.hasOuter) sb.append("\touter_ ").append(cx.ref(cx.enclosingClass(te))).append("\n");
     for (VariableElement cap : c.captures) {
-      sb.append("\tcap_").append(Ctx.safe(cap.getSimpleName().toString())).append(" ").append(cx.goType(cap.asType())).append("\n");
+      sb.append("\tcap_").append(Ctx.safe(cap.getSimpleName().toString())).append(" ").append(cx.goType(cx.vtype(cap))).append("\n");
     }
     List<VariableTree> enumConsts = new ArrayList<>();
     List<Tree> instanceInits = new ArrayList<>();
@@ -202,7 +202,7 @@ final class Emitter extends StmtEmitter {
         if (fe.getKind() == ElementKind.ENUM_CONSTANT) {
           enumConsts.add(v);
         } else if (!fe.getModifiers().contains(Modifier.STATIC)) {
-          if (!handle) sb.append("\t").append(cx.fieldName((VariableElement) fe)).append(" ").append(cx.declType(fe.asType())).append("\n");
+          if (!handle) sb.append("\t").append(cx.fieldName((VariableElement) fe)).append(" ").append(cx.declType(cx.vtype(fe))).append("\n");
           if (v.getInitializer() != null) instanceInits.add(v);
         }
       } else if (m instanceof BlockTree b && !b.isStatic()) {
@@ -393,7 +393,7 @@ final class Emitter extends StmtEmitter {
     for (Tree t : inits) {
       if (t instanceof VariableTree v) {
         VariableElement f = (VariableElement) elemOf(v);
-        TypeMirror ft = cx.erase(f.asType());
+        TypeMirror ft = cx.erase(cx.vtype(f));
         ExpressionTree init = v.getInitializer();
         String val = init instanceof NewArrayTree na && na.getType() == null ? newArray(na, (ArrayType) ft) : exprAs(init, ft);
         b.append(withPre(cx.fieldSet("this", f, val))).append("\n");
@@ -464,7 +464,7 @@ final class Emitter extends StmtEmitter {
     for (VariableElement cap : c.captures) {
       String cn = "cap_" + Ctx.safe(cap.getSimpleName().toString());
       if (d.length() > 0) d.append(", ");
-      d.append(cn).append(" ").append(cx.goType(cap.asType()));
+      d.append(cn).append(" ").append(cx.goType(cx.vtype(cap)));
       set.append("this.").append(cn).append(" = ").append(cn).append("\n");
     }
     return new String[] {d.toString(), set.toString()};
@@ -934,7 +934,7 @@ final class Emitter extends StmtEmitter {
         if (fe == null || fe.getKind() == ElementKind.ENUM_CONSTANT || !fe.getModifiers().contains(Modifier.STATIC)) continue;
         VariableElement f = (VariableElement) fe;
         String fn = cx.fieldName(f);
-        TypeMirror ft = cx.erase(f.asType());
+        TypeMirror ft = cx.erase(cx.vtype(f));
         Object cv = f.getConstantValue();
         String lit = cv == null ? null : constLiteral(cv, ft);
         if (lit != null) {

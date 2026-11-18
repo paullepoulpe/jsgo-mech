@@ -186,6 +186,10 @@ abstract class ExprEmitter extends Base {
   String exprAs(ExpressionTree t, TypeMirror target) {
     TypeMirror from = typeOf(t);
     target = cx.erase(target);
+    if (cx.isTList(target)) {
+      String made = newTList(strip(t), target);
+      if (made != null) return made;
+    }
     Ctx.K kt = cx.kind(target);
     if (kt == Ctx.K.PRIM && target.getKind() != TypeKind.BOOLEAN && isNumericLiteral(t)) {
       TypeMirror ft = cx.unboxed(from);
@@ -232,6 +236,24 @@ abstract class ExprEmitter extends Base {
       return conditional(c, target);
     }
     return cx.coerce(expr(t), from, target);
+  }
+
+  /**
+   * `new ArrayList<>(..)` where a typed list is wanted (rule "typed collections"): the runtime's
+   * typed list with the conversion of its element type; null for any other expression.
+   */
+  String newTList(ExpressionTree t, TypeMirror target) {
+    if (!(t instanceof NewClassTree n) || n.getClassBody() != null) return null;
+    TypeElement made = Ctx.typeElement(cx.erase(typeOf(t)));
+    if (made == null || !made.getQualifiedName().contentEquals("java.util.ArrayList")) return null;
+    String tc = cx.tconv(((DeclaredType) target).getTypeArguments().get(0));
+    List<? extends ExpressionTree> as = n.getArguments();
+    if (as.isEmpty()) return "newTList_(" + tc + ")";
+    ExpressionTree a = as.get(0);
+    TypeMirror at = typeOf(a);
+    if (at.getKind() == TypeKind.INT) return "newTListN_(" + tc + ", " + exprAs(a, at) + ")";
+    if (cx.isTList(at) && cx.goType(at).equals(cx.goType(target))) return "tlistCopy_(" + tc + ", " + expr(a) + ")";
+    return "tlistFrom_(" + tc + ", " + exprAs(a, cx.elems.getTypeElement("java.util.Collection").asType()) + ")";
   }
 
   String cond(ExpressionTree t) {
@@ -411,7 +433,7 @@ abstract class ExprEmitter extends Base {
     switch (e.getKind()) {
       case FIELD, ENUM_CONSTANT: {
         VariableElement f = (VariableElement) e;
-        if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(staticField(f), f.asType(), typeOf(t));
+        if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(staticField(f), cx.vtype(f), typeOf(t));
         Recv r = implicitRecv(cx.ownerOf(f));
         noteField(f);
         return cx.coerce(cx.fieldGet(r.code, f), memberType(r.type, f), typeOf(t));
@@ -446,7 +468,7 @@ abstract class ExprEmitter extends Base {
     switch (e.getKind()) {
       case FIELD, ENUM_CONSTANT: {
         VariableElement f = (VariableElement) e;
-        if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(staticField(f), f.asType(), typeOf(t));
+        if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(staticField(f), cx.vtype(f), typeOf(t));
         noteField(f);
         String recv;
         if (q instanceof IdentifierTree id && id.getName().contentEquals("super")) {
@@ -464,9 +486,9 @@ abstract class ExprEmitter extends Base {
   /** The type of field f read through a value of type recv: a field of a typed class at the receiver's type arguments. */
   TypeMirror memberType(TypeMirror recv, VariableElement f) {
     if (recv != null && !f.getModifiers().contains(Modifier.STATIC) && cx.typedClasses.contains(cx.ownerOf(f))) {
-      return cx.atSite(f.asType(), cx.ownerOf(f), recv);
+      return cx.atSite(cx.vtype(f), cx.ownerOf(f), recv);
     }
-    return f.asType();
+    return cx.vtype(f);
   }
 
   /** The instantiated type of the method invocation being translated (javac's, after inference), or null. */
@@ -513,7 +535,7 @@ abstract class ExprEmitter extends Base {
         return lv;
       }
       VariableElement f = (VariableElement) e;
-      lv.type = cx.erase(f.asType());
+      lv.type = cx.erase(cx.vtype(f));
       if (f.getModifiers().contains(Modifier.STATIC)) lv.code = staticField(f);
       else {
         Recv r = implicitRecv(cx.ownerOf(f));
@@ -987,6 +1009,18 @@ abstract class ExprEmitter extends Base {
       return new CallResult(name + "(" + argList(e, params, args) + ")", ret);
     }
     if (recv == null) recv = implicitRecv(owner);
+    if (cx.isTList(recv.type) && !superCall) {
+      // A typed list: its typed method, or the List method on its erased view.
+      ExecutableElement tm = cx.tlistMethod(e);
+      if (tm != null) {
+        e = tm;
+        owner = cx.tlist;
+        src = false;
+      } else {
+        TypeMirror view = cx.tlistView(recv.type);
+        recv = new Recv(cx.coerce(recv.code, recv.type, view), view);
+      }
+    }
     if (superCall && owner.getQualifiedName().contentEquals("java.lang.Object")) {
       // super.hashCode() / equals / toString reaching Object: the identity-based defaults.
       String self = cx.coerce(recv.code, recv.type, objectType());

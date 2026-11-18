@@ -457,6 +457,14 @@ abstract class StmtEmitter extends ExprEmitter {
         head = "for _, " + tmp + " := range " + src + " ";
         bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(tmp, comp, vt) + "\n";
       }
+    } else if (cx.isTList(et)) {
+      // A typed list: the cursor reads its items as they are, unboxed.
+      TypeMirror comp = ((DeclaredType) et).getTypeArguments().get(0);
+      String it = fresh("it");
+      lab = enter("loop");
+      cursor = it + " := " + atomOrParen(expr(ex)) + ".each()\n";
+      head = "for " + it + ".next() ";
+      bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(it + ".v", comp, vt) + "\n";
     } else {
       TypeMirror iterable = cx.elems.getTypeElement("java.lang.Iterable").asType();
       String it = fresh("it");

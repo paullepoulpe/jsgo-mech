@@ -153,6 +153,108 @@ final class Ctx {
     }
   }
 
+  // ---------------------------------------------------------------- typed collections
+
+  /**
+   * Typed collections (rule "typed collections", Colls): a declaration (a field, a local
+   * variable) of type List<X> or ArrayList<X> that only ever holds lists the program makes
+   * there (`new ArrayList<>(..)`, null, or the value of another such declaration) holds a
+   * *TList[X] (rt_tlist.go), whose elements are X values, not boxes. The translator sees such a
+   * declaration, and the expressions that read it, at the type TList<X> of a class that exists
+   * for it alone (TLIST_STUB: the typed methods of the runtime's TList); every other site
+   * that the list reaches sees it as Java's List through its one erased view (asList()).
+   */
+  static final String TLIST_STUB = """
+      package j2go.rt;
+      public final class TList<T> {
+        public native int size();
+        public native boolean isEmpty();
+        public native T get(int i);
+        public native T set(int i, T v);
+        public native boolean add(T v);
+        public native void insert(int i, T v);
+        public native T removeAt(int i);
+        public native void clear();
+      }
+      """;
+  TypeElement tlist;
+
+  void registerTypedColls() {
+    tlist = elems.getTypeElement("j2go.rt.TList");
+    if (tlist == null) return;
+    typedClasses.add(tlist);
+    keptVars.addAll(tlist.getTypeParameters());
+  }
+
+  boolean isTList(TypeMirror t) {
+    return tlist != null && t != null && t.getKind() == TypeKind.DECLARED && tlist.equals(typeElement(t));
+  }
+
+  /** The element type of a List/ArrayList type that a typed list can hold, or null. */
+  TypeMirror tlistElem(TypeMirror t) {
+    if (t == null || t.getKind() != TypeKind.DECLARED) return null;
+    DeclaredType d = (DeclaredType) t;
+    String qn = typeElement(d).getQualifiedName().toString();
+    if (!qn.equals("java.util.List") && !qn.equals("java.util.ArrayList")) return null;
+    if (d.getTypeArguments().size() != 1) return null;
+    TypeMirror a = d.getTypeArguments().get(0);
+    if (a.getKind() != TypeKind.DECLARED || !((DeclaredType) a).getTypeArguments().isEmpty()) return null;
+    TypeElement ae = typeElement(a);
+    if (!ae.getTypeParameters().isEmpty()) return null;  // a raw type
+    K k = kind(a);
+    if (k != K.STR && k != K.CLS && k != K.IFACE) return null;
+    if (isSource(ae) && (ae.getNestingKind() == NestingKind.LOCAL || ae.getNestingKind() == NestingKind.ANONYMOUS)) return null;
+    if (isValueLib(ae)) return null;
+    return a;
+  }
+
+  /** TList<elem>. */
+  TypeMirror tlistOf(TypeMirror elem) {
+    return types.getDeclaredType(tlist, elem);
+  }
+
+  /** List<X> for a TList<X>: the type its erased view has. */
+  TypeMirror tlistView(TypeMirror t) {
+    return types.getDeclaredType(elems.getTypeElement("java.util.List"), ((DeclaredType) t).getTypeArguments().get(0));
+  }
+
+  /** The typed method of TList that implements method m of List/ArrayList (by name and arity), or null. */
+  ExecutableElement tlistMethod(ExecutableElement m) {
+    String n = m.getSimpleName().toString();
+    int np = m.getParameters().size();
+    boolean int0 = np > 0 && m.getParameters().get(0).asType().getKind() == TypeKind.INT;
+    String tn;
+    switch (n + "/" + np) {
+      case "size/0", "isEmpty/0", "clear/0", "set/2": tn = n; break;
+      case "get/1": tn = int0 ? n : null; break;
+      case "add/1": tn = n; break;
+      case "add/2": tn = "insert"; break;
+      case "remove/1": tn = int0 ? "removeAt" : null; break;
+      default: tn = null;
+    }
+    if (tn == null) return null;
+    for (Element e : tlist.getEnclosedElements()) {
+      if (e instanceof ExecutableElement t && t.getSimpleName().contentEquals(tn)) return t;
+    }
+    return null;
+  }
+
+  /** The element conversions of typed collections: name -> declaration (g_0casts.go). */
+  final TreeMap<String, String> tconvs = new TreeMap<>();
+
+  /** The name of the conversion of element type elem (tc_string, tc_p_JSType), declared on first use. */
+  String tconv(TypeMirror elem) {
+    String g = goType(elem);
+    String name = "tc_" + g.replace("*", "p_").replaceAll("[^A-Za-z0-9_]", "_");
+    if (!tconvs.containsKey(name)) {
+      TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
+      tconvs.put(name, "");
+      tconvs.put(name, "var " + name + " = &tconv_[" + g + "]{\n\tbox:   func(v " + g + ") any { return " + coerce("v", elem, object)
+          + " },\n\tunbox: func(v any) " + g + " { return " + coerce("v", object, elem) + " },\n}\n");
+    }
+    return name;
+  }
+
   /** A parameterized type of a typed class. */
   boolean typedDecl(TypeMirror t) {
     return t != null && t.getKind() == TypeKind.DECLARED && typedClasses.contains(typeElement(t)) && !((DeclaredType) t).getTypeArguments().isEmpty();
@@ -754,7 +856,7 @@ final class Ctx {
     List<? extends TypeMirror> args = ((DeclaredType) t).getTypeArguments();
     TypeElement te = typeElement(erase(t));
     K k = kind(erase(t));
-    if (args.isEmpty() || te == null || isSource(te) || isValueLib(te) || (k != K.CLS && k != K.IFACE)) return g;
+    if (args.isEmpty() || te == null || isSource(te) || isValueLib(te) || te.equals(tlist) || (k != K.CLS && k != K.IFACE)) return g;
     String alias = className(te) + "Of";
     StringBuilder ps = new StringBuilder(), as = new StringBuilder();
     for (int i = 0; i < args.size(); i++) {
@@ -847,6 +949,13 @@ final class Ctx {
     String gf = goType(from), gt = goType(to);
     if (gf.equals(gt)) return code;
     TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
+    // A typed list meets every other type as Java's List, through its erased view (the one
+    // object that erased code sees); nothing but a typed list of the same type becomes one.
+    if (isTList(from)) {
+      if (isTList(to)) throw new IllegalStateException("typed lists of two types: " + gf + " to " + gt);
+      return coerce(code + ".asList()", tlistView(from), to);
+    }
+    if (isTList(to)) throw new IllegalStateException("a value of type " + from + " cannot become the typed list " + gt);
     // A value library class: between two instantiations the content is converted; from an
     // object it is unboxed (nil is null, the zero value).
     if (isValueLibType(to)) {
