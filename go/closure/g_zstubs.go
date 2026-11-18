@@ -211,21 +211,6 @@ type ArithmeticException_as interface {
 
 func (this *ArithmeticException) as_ArithmeticException() *ArithmeticException { return this }
 
-func to_ArithmeticException(v any) *ArithmeticException {
-	switch p := v.(type) {
-	case *ArithmeticException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(ArithmeticException_as).as_ArithmeticException()
-}
-
-func is_ArithmeticException(v any) bool {
-	_, ok := v.(*ArithmeticException)
-	return ok
-}
-
 func (this *ArithmeticException) self() any {
 	if this == nil {
 		return nil
@@ -662,11 +647,6 @@ func to_Enum(v any) *Enum {
 	return v.(enumConst_).enum_()
 }
 
-func is_Enum(v any) bool {
-	_, ok := v.(enumConst_)
-	return ok
-}
-
 func (this *Enum) self() any {
 	if this == nil {
 		return nil
@@ -689,18 +669,6 @@ type Error_as interface {
 }
 
 func (this *Error) as_Error() *Error { return this }
-
-func to_Error(v any) *Error {
-	switch p := v.(type) {
-	case *Error:
-		return p
-	case *AssertionError:
-		return p.as_Error()
-	case nil:
-		return nil
-	}
-	return v.(Error_as).as_Error()
-}
 
 func is_Error(v any) bool {
 	_, ok := v.(Error_as)
@@ -1004,13 +972,6 @@ type IOException_as interface {
 
 func (this *IOException) as_IOException() *IOException { return this }
 
-func to_IOException(v any) *IOException {
-	if v == nil {
-		return nil
-	}
-	return v.(IOException_as).as_IOException()
-}
-
 func is_IOException(v any) bool {
 	_, ok := v.(IOException_as)
 	return ok
@@ -1171,11 +1132,6 @@ func to_IllegalStateException(v any) *IllegalStateException {
 		return nil
 	}
 	return v.(IllegalStateException_as).as_IllegalStateException()
-}
-
-func is_IllegalStateException(v any) bool {
-	_, ok := v.(*IllegalStateException)
-	return ok
 }
 
 func (this *IllegalStateException) self() any {
@@ -1926,21 +1882,6 @@ type PatternSyntaxException_as interface {
 
 func (this *PatternSyntaxException) as_PatternSyntaxException() *PatternSyntaxException { return this }
 
-func to_PatternSyntaxException(v any) *PatternSyntaxException {
-	switch p := v.(type) {
-	case *PatternSyntaxException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(PatternSyntaxException_as).as_PatternSyntaxException()
-}
-
-func is_PatternSyntaxException(v any) bool {
-	_, ok := v.(*PatternSyntaxException)
-	return ok
-}
-
 func (this *PatternSyntaxException) self() any {
 	if this == nil {
 		return nil
@@ -2392,11 +2333,6 @@ func to_Throwable(v any) *Throwable {
 	return v.(Throwable_as).as_Throwable()
 }
 
-func is_Throwable(v any) bool {
-	_, ok := v.(Throwable_as)
-	return ok
-}
-
 func (this *Throwable) self() any {
 	if this == nil {
 		return nil
@@ -2502,21 +2438,6 @@ type TypedAst_ListOrBuilder interface {
 // (post-flip).
 type UncheckedExecutionException_as interface {
 	as_UncheckedExecutionException() *UncheckedExecutionException
-}
-
-func to_UncheckedExecutionException(v any) *UncheckedExecutionException {
-	switch p := v.(type) {
-	case *UncheckedExecutionException:
-		return p
-	case nil:
-		return nil
-	}
-	return v.(UncheckedExecutionException_as).as_UncheckedExecutionException()
-}
-
-func is_UncheckedExecutionException(v any) bool {
-	_, ok := v.(*UncheckedExecutionException)
-	return ok
 }
 
 func (this *UncheckedExecutionException) init_UncheckedExecutionException_0() {
