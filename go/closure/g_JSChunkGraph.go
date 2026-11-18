@@ -363,7 +363,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 			}
 		}
 	}
-	var absoluteOrder *ImmutableList[*CompilerInput] = tlistImm_(tc_p_CompilerInput, sorter.getStrongDependenciesOf(icast_List(obj_(originalInputs.asImm())), dependencyOptions.shouldSort()))
+	var absoluteOrder *ImmutableList[*CompilerInput] = tlistImm_(tc_p_CompilerInput, sliceView_(tc_any, sorter.getStrongDependenciesOf(icast_List(obj_(originalInputs.asImm())), dependencyOptions.shouldSort())))
 	var entryPointInputsPerChunk *SimpleListMultimap[*JSChunk, *CompilerInput] = SimpleListMultimap_create[*JSChunk, *CompilerInput]()
 	for input := range elemsAs_[*CompilerInput](entryPointInputs.asSet()) {
 		var chunk *JSChunk = input.getChunk()
@@ -391,7 +391,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 				}
 			}
 		} else {
-			transitiveClosure = tlistImm_(tc_p_CompilerInput, sorter.getStrongDependenciesOf(entryPointInputsPerChunk.get(obj_(chunk)), dependencyOptions.shouldSort()))
+			transitiveClosure = tlistImm_(tc_p_CompilerInput, sliceView_(tc_any, sorter.getStrongDependenciesOf(entryPointInputsPerChunk.get(obj_(chunk)), dependencyOptions.shouldSort())))
 		}
 		for input := range transitiveClosure.All() {
 			if (dependencyOptions.shouldPrune() && input.getSourceFile().isWeak()) && !entryPointInputs.Has(input) {
@@ -414,8 +414,8 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		panic(new_NullPointerException_0())
 	}
 	if dependencyOptions.shouldPrune() {
-		var weakInputs *ImmutableList[*CompilerInput] = tlistImm_(tc_p_CompilerInput, sorter.getSortedWeakDependenciesOf(orderedInputs))
-		for _, el6 := range weakInputs.items {
+		var weakInputs []*CompilerInput = sliceImm_(tc_p_CompilerInput, sorter.getSortedWeakDependenciesOf(orderedInputs))
+		for _, el6 := range weakInputs {
 			i := el6
 			if i.getChunk() != nil {
 				panic(new_IllegalStateException_0())

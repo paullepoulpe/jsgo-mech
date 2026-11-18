@@ -21,8 +21,8 @@ type AbstractCommandLineRunner struct {
 	exitCodeReceiver            Function_baseOf[BoxedOf[int32], any]
 	rootRelativePathsMap        map[string]string
 	parsedChunkWrappers         *TMap[string, string]
-	parsedChunkOutputFiles      *ImmutableMap[string, string]
-	parsedChunkConformanceFiles *ImmutableMap[string, string]
+	parsedChunkOutputFiles      map[string]string
+	parsedChunkConformanceFiles map[string]string
 	filesToStreamOut            []*AbstractCommandLineRunner_JsonFileSpec
 }
 
@@ -746,9 +746,9 @@ func (this *AbstractCommandLineRunner) getChunkOutputFileName(m *JSChunk) *Outco
 		if parsedChunkOutputFilesOutcome.isErr() {
 			return Outcome_base_err[string](parsedChunkOutputFilesOutcome.error())
 		}
-		this.parsedChunkOutputFiles = tmapFrom_(tc_string, tc_string, parsedChunkOutputFilesOutcome.get(), true)
+		this.parsedChunkOutputFiles = mapImm_(tc_string, tc_string, parsedChunkOutputFilesOutcome.get())
 	}
-	var outputFile OptionalOf[string] = Optional_ofNullable[string](this.parsedChunkOutputFiles.Get(m.getName()))
+	var outputFile OptionalOf[string] = Optional_ofNullable[string](mapStr_(this.parsedChunkOutputFiles, m.getName()))
 	if outputFile.isPresent() {
 		return Outcome_base_ok_Object[string]((sstr_(this.config.chunkOutputPathPrefix) + sstr_(outputFile.get())))
 	}
@@ -761,9 +761,9 @@ func (this *AbstractCommandLineRunner) getChunkConformanceFileName(m *JSChunk) *
 		if parsedChunkConformanceFilesOutcome.isErr() {
 			return Outcome_base_err[any](parsedChunkConformanceFilesOutcome.error())
 		}
-		this.parsedChunkConformanceFiles = tmapFrom_(tc_string, tc_string, parsedChunkConformanceFilesOutcome.get(), true)
+		this.parsedChunkConformanceFiles = mapImm_(tc_string, tc_string, parsedChunkConformanceFilesOutcome.get())
 	}
-	return Outcome_base_ok_Object(strobj_(this.parsedChunkConformanceFiles.Get(m.getName())))
+	return Outcome_base_ok_Object(strobj_(mapStr_(this.parsedChunkConformanceFiles, m.getName())))
 }
 
 func (this *AbstractCommandLineRunner) writeChunkOutput(fileName string, out Appendable, lt CodePrinter_LicenseTracker, m *JSChunk) *Outcome_base[any] {

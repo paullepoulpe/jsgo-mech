@@ -143,3 +143,4 @@ var tc_CollectionOf_p_Mapping_OriginalMapping_ = &tconv_[CollectionOf[*Mapping_O
 var tcv_p_TMap_int32__CollectionOf_p_Mapping_OriginalMapping__ = tmapConv_[int32, CollectionOf[*Mapping_OriginalMapping]]()
 var tcv_p_TMap_p_JSChunk__SetOf_string__ = tmapConv_[*JSChunk, SetOf[string]]()
 var tcv_p_TMap_string__string_ = tmapConv_[string, string]()
+var tcv_p_TMap_string__any_ = tmapConv_[string, any]()

@@ -32,7 +32,7 @@ func (this *PruningAnalysis) calculateTotalBlame() *ImmutableMap[string, any] {
 	var reachabilityPerEntryPoint ImmutableMap_BuilderOf[string, BoxedOf[int32]] = ImmutableMap_builder()
 	for _, el := range this.entryPoints_.keys {
 		provider := el
-		var transitiveClosure *ImmutableSet[*CompilerInput] = immutableSetBuilder_(tc_p_CompilerInput).addAll(icast_Iterable(obj_(this.sorter_.getStrongDependenciesOf(ImmutableList_of_Object(obj_(provider)), false)))).addAll(icast_Iterable(obj_(this.sorter_.getSortedWeakDependenciesOf(ImmutableList_of_Object(obj_(provider)))))).build()
+		var transitiveClosure *ImmutableSet[*CompilerInput] = immutableSetBuilder_(tc_p_CompilerInput).addAll(sliceView_(tc_any, this.sorter_.getStrongDependenciesOf(ImmutableList_of_Object(obj_(provider)), false))).addAll(icast_Iterable(obj_(this.sorter_.getSortedWeakDependenciesOf(ImmutableList_of_Object(obj_(provider)))))).build()
 		reachabilityPerEntryPoint.put(strobj_(provider.getName()), any(int32(transitiveClosure.Len())))
 	}
 	return tmapFrom_(tc_string, tc_any, reachabilityPerEntryPoint.buildOrThrow(), true)

@@ -1853,12 +1853,12 @@ func (this *Compiler) parseTestCode_impl(js string) Node {
 	return this.parseCodeHelper(SourceFile_jscomp_fromCode_String_String("testcode", js))
 }
 
-func (this *Compiler) parseTestCodeImmutableList_impl(code *ImmutableList[string]) Node {
+func (this *Compiler) parseTestCodeImmutableList_impl(code []string) Node {
 	this.initCompilerOptionsIfTesting()
 	this.initBasedOnOptions()
 	var sources []*SourceFile_jscomp = []*SourceFile_jscomp{}
-	for index := int32(0); index < code.size(); index++ {
-		sources = append(sources, SourceFile_jscomp_fromCode_String_String(("testcode"+istr_(int64(index))), code.get(index)))
+	for index := int32(0); index < int32(len(code)); index++ {
+		sources = append(sources, SourceFile_jscomp_fromCode_String_String(("testcode"+istr_(int64(index))), sliceAt_(code, index)))
 	}
 	return this.parseCodeHelperList(sources)
 }
@@ -4187,7 +4187,7 @@ func (this *Compiler) parseTestCode(p0 string) Node {
 }
 
 // parseTestCodeImmutableList: an object that is exactly a Compiler calls its parseTestCodeImmutableList_impl directly (post-flip); others dispatch.
-func (this *Compiler) parseTestCodeImmutableList(p0 *ImmutableList[string]) Node {
+func (this *Compiler) parseTestCodeImmutableList(p0 []string) Node {
 	if p, _ := this.self_.(*Compiler); p == this {
 		return this.parseTestCodeImmutableList_impl(p0)
 	}

@@ -55,8 +55,8 @@ func (this *Config) toString() string {
 	return ("Config{languageMode=" + tostr_(this.languageMode_) + ", strictMode=" + tostr_(this.strictMode_) + ", jsDocParsingMode=" + tostr_(this.jsDocParsingMode_) + ", runMode=" + tostr_(this.runMode_) + ", annotations=" + tostr_(this.annotations_.asImm()) + ", suppressionNames=" + tostr_(this.suppressionNames_.asImm()) + ", closurePrimitiveNames=" + tostr_(this.closurePrimitiveNames_.asImm()) + ", parseInlineSourceMaps=" + boolstr_(this.parseInlineSourceMaps_) + "}")
 }
 
-func (this *Config) annotationNames() *ImmutableSet[string] {
-	return tsetFrom_(tc_string, cast_[*ErasedImmutableSet](this.annotations().asImm().keySet()), true)
+func (this *Config) annotationNames() map[string]struct{} {
+	return setImm_(tc_string, cast_[*ErasedImmutableSet](this.annotations().asImm().keySet()))
 }
 
 func (this *Config) toBuilder() *Config_Builder {
