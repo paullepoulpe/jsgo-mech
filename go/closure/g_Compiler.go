@@ -64,7 +64,7 @@ type Compiler struct {
 	syntheticExternsInput          *CompilerInput
 	syntheticTypeSummaryFile       *SourceFile_jscomp
 	syntheticTypeSummaryInput      *CompilerInput
-	indexProvidersByType           *TMap[ClassOf[any], IndexProvider]
+	indexProvidersByType           map[ClassOf[any]]IndexProvider
 	crossChunkIdGenerator          *IdGenerator
 	cssNames                       *JTSet[string]
 	variableMap                    *VariableMap
@@ -129,7 +129,7 @@ func (this *Compiler) finit_Compiler() {
 	this.preferRegexParserField = false
 	this.SYNTHETIC_EXTERNS_FILE = SourceFile_jscomp_fromCode_String_String_SourceKind((sstr_(Compiler_SYNTHETIC_FILE_NAME_PREFIX) + "externs] "), "", StaticSourceFile_SourceKind_EXTERN)
 	this.syntheticTypeSummaryFile = SourceFile_jscomp_fromCode_String_String_SourceKind((sstr_(Compiler_SYNTHETIC_FILE_NAME_PREFIX) + "typeSummary] "), "", StaticSourceFile_SourceKind_EXTERN)
-	this.indexProvidersByType = newTMap_(tc_ClassOf_any_, tc_IndexProvider)
+	this.indexProvidersByType = map[ClassOf[any]]IndexProvider{}
 	this.crossChunkIdGenerator = new_IdGenerator()
 	this.cssNames = nil
 	this.variableMap = nil
@@ -2169,13 +2169,13 @@ func (this *Compiler) getChangeTracker_impl() *ChangeTracker {
 
 func (this *Compiler) addIndexProvider_impl(indexProvider IndexProvider) {
 	var type_ ClassOf[any] = indexProvider.getType()
-	if this.indexProvidersByType.put(type_, indexProvider) != nil {
+	if mapPut_(tc_IndexProvider, this.indexProvidersByType, type_, indexProvider) != nil {
 		panic(new_IllegalStateException_String(("A provider is already registered for index of type " + sstr_(type_.getSimpleName()))).self())
 	}
 }
 
 func (this *Compiler) getIndexUntyped_impl(key ClassOf[any]) any {
-	var indexProvider IndexProvider = this.indexProvidersByType.get(key)
+	var indexProvider IndexProvider = this.indexProvidersByType[key]
 	if indexProvider == nil {
 		return nil
 	}
