@@ -118,3 +118,22 @@ fi
 if [[ -f $cg ]] && ! grep -q 'reflip6' $cg; then
   perl -0pi -e 's/(\t\t\tcase \*ast\.AssignStmt:\n\t\t\t\tif len\(x\.Lhs\) != len\(x\.Rhs\) \{\n\t\t\t\t\treturn true\n\t\t\t\t\}\n\t\t\t\tfor i, r := range x\.Rhs \{\n)(\t\t\t\t\tif other\(r\) && isList\(typeOf\(x\.Lhs\[i\]\)\) \{)/$1\t\t\t\t\tif dv := varOf(x.Lhs[i]); x.Tok == token.DEFINE \&\& dv != nil \&\& isList(dv.Type()) \&\& !other(r) { \/\/ reflip6\n\t\t\t\t\t\tpoison(slotOfVar(dv), "variable of a short declaration")\n\t\t\t\t\t}\n$2/' $cg
 fi
+# 7. (second trial) precond: the typed translator writes checkNotNull as a Go generic function of
+#    the argument's static type (Preconditions_checkNotNull_..._T, _Str: rule P2) and passes
+#    message arguments at their own type (P4). The tool's rewrite `if v == nil { check(nil, ...) }`
+#    is for the erased forms (v an interface): on these it compares a handle or a string with nil
+#    and leaves T without an argument to infer it from. Such calls are left, counted.
+pc=tools/postflip/precond/main.go
+if [[ -f $pc ]] && ! grep -q 'reflip7' $pc; then
+  perl -0pi -e 's/(\t\t\tnotNull := strings\.HasPrefix\(id\.Name, "Preconditions_checkNotNull"\)\n)/\t\t\tif strings.HasSuffix(id.Name, "_T") || strings.HasSuffix(id.Name, "_Str") { \/\/ reflip7\n\t\t\t\tcount["generic checkNotNull of the typed translator, left"]++\n\t\t\t\treturn true\n\t\t\t}\n$1/' $pc
+  grep -q 'reflip7' $pc || { echo "toolfix: precond: the checkNotNull line was not found" >&2; exit 1; }
+fi
+# 9. (second trial) colls: `var x Map = it.v`, the element of a for-each cursor over one of the
+#    translator's typed collections (a *JTList[Map]: its elements are erased collections). The
+#    flow pass follows values of the collection kinds through variables, fields, calls and
+#    containers it knows; a cursor's element field is none of them, so the variable's class could
+#    be typed with the cursor still yielding the erased type. The variable is a slot that stays
+#    erased.
+if [[ -f $cg ]] && ! grep -q 'reflip9' $cg && grep -q '"strings"' $cg; then
+  perl -0pi -e 's/(\t\t\t\tfor i, r := range x\.Values \{\n)(\t\t\t\t\tif v, ok := rw\.Info\.Defs\[x\.Names\[i\]\]\.\(\*types\.Var\); ok && other\(r\) && isList\(v\.Type\(\)\) \{)/$1\t\t\t\t\tif v, ok := rw.Info.Defs[x.Names[i]].(*types.Var); ok \&\& isList(v.Type()) { \/\/ reflip9\n\t\t\t\t\t\tif se, ok := r.(*ast.SelectorExpr); ok \&\& se.Sel.Name == "v" \&\& strings.Contains(types.TypeString(rw.Info.TypeOf(se.X), nil), "Each_") {\n\t\t\t\t\t\t\tpoison(slotOfVar(v), "element of a cursor over a typed collection of the translator")\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n$2/' $cg
+fi

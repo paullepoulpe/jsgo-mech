@@ -1,5 +1,5 @@
 diff --git a/go/closure/g_SimpleListMultimap.go b/go/closure/g_SimpleListMultimap.go
-index d574e391..37222e58 100644
+index 84848f04..c9b12570 100644
 --- a/go/closure/g_SimpleListMultimap.go
 +++ b/go/closure/g_SimpleListMultimap.go
 @@ -48,6 +48,18 @@ func (this *SimpleListMultimap) put(key any, value any) *SimpleListMultimap {
@@ -36,8 +36,8 @@ index d574e391..37222e58 100644
 +}
 +
  func (this *SimpleListMultimap) replaceValues(key any, values IterableOf[any]) {
- 	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
- 	var newValues ListOf[any] = icast_List(new_ArrayList_0().self())
+ 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
+ 	var newValues *JTList[any] = jnewTList_(tc_Object)
 @@ -91,6 +113,11 @@ func (this *SimpleListMultimap) containsKey(key any) bool {
  	return this.map__.containsKey(key)
  }
@@ -48,10 +48,10 @@ index d574e391..37222e58 100644
 +}
 +
  func (this *SimpleListMultimap) remove(key any, value any) bool {
- 	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
+ 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
  	var values ListOf[any] = icast_List(this.map__.get(key))
 diff --git a/go/closure/g_SimpleMultiset.go b/go/closure/g_SimpleMultiset.go
-index be0935f3..9bc3c1f6 100644
+index ef087f3d..a9a6ce78 100644
 --- a/go/closure/g_SimpleMultiset.go
 +++ b/go/closure/g_SimpleMultiset.go
 @@ -67,6 +67,24 @@ func (this *SimpleMultiset) add_2(element any, occurrences int32) int32 {
@@ -125,7 +125,7 @@ index be0935f3..9bc3c1f6 100644
  	return Collections_unmodifiableSet(this.counts.keySet())
  }
 diff --git a/go/closure/g_SimpleSetMultimap.go b/go/closure/g_SimpleSetMultimap.go
-index 83634b40..2ad34341 100644
+index e86b2ae6..9657ad3b 100644
 --- a/go/closure/g_SimpleSetMultimap.go
 +++ b/go/closure/g_SimpleSetMultimap.go
 @@ -95,6 +95,30 @@ func (this *SimpleSetMultimap) put(key any, value any) bool {
@@ -198,5 +198,5 @@ index 83634b40..2ad34341 100644
 +}
 +
  func (this *SimpleSetMultimap) clear() {
- 	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
+ 	Preconditions_checkState_boolean_Object(!this.frozen, "immutable")
  	this.map__.clear()
