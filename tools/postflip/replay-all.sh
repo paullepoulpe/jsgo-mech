@@ -4,7 +4,7 @@
 # applying the handwritten runtime and the manual edits as patches. Nothing else touches go/.
 #
 #   tools/postflip/replay-all.sh [-w DIR] [-base COMMIT] [-to COMMIT] [-noverify] [-trim] [-list]
-#                                [-steps FILE] [-overlay DIR]
+#                                [-steps FILE] [-overlay DIR] [-toolfix SCRIPT] [-check CMD]
 #
 #   -w DIR       the replay worktree (default ../<repo>-replay-w); made with `git worktree add`
 #                at the base commit when it does not exist. A rerun resumes after the last
@@ -19,6 +19,10 @@
 #                steps dropped as no-ops, tools of an adapted commit).
 #   -overlay DIR a directory of patches that replace the patches of the same name in patches/
 #                (a manual or runtime patch regenerated for the re-flip's text).
+#   -toolfix SCRIPT  a script run at the worktree root after each step's tools are checked out
+#                and before they run (a re-flip's fixes to the tools of every step). Idempotent.
+#   -check CMD   a command run at the worktree root after each commit's lines (a type check of
+#                go/closure, say); the replay stops when it fails.
 #   -trim        after each step, delete the files over 8 MB from $GOCACHE (the steps that
 #                build go/closure leave about 300 MB each). Only with a GOCACHE of your own.
 #
@@ -54,6 +58,8 @@ to=
 verify=1
 trim=0
 overlay=
+toolfix=
+check=
 while [[ $# -gt 0 ]]; do
   case $1 in
     -w) W=$2; shift 2 ;;
@@ -63,6 +69,8 @@ while [[ $# -gt 0 ]]; do
     -trim) trim=1; shift ;;
     -steps) steps=$(realpath "$2"); shift 2 ;;
     -overlay) overlay=$(realpath "$2"); shift 2 ;;
+    -toolfix) toolfix=$(realpath "$2"); shift 2 ;;
+    -check) check=$2; shift 2 ;;
     -list)
       awk '!/^#/ && NF {
              if ($2 == "run") run[$1] = 1
@@ -71,7 +79,7 @@ while [[ $# -gt 0 ]]; do
            END { for (k in c) n++; for (k in run) r++
                  printf "commits replayed: %d; with tool runs: %d; runtime patches: %d; manual patches: %d; residue patches: %d\n", n, r, rt, man, res }' "$steps"
       exit 0 ;;
-    *) echo "usage: $0 [-w DIR] [-base COMMIT] [-to COMMIT] [-noverify] [-trim] [-list] [-steps FILE] [-overlay DIR]" >&2; exit 2 ;;
+    *) echo "usage: $0 [-w DIR] [-base COMMIT] [-to COMMIT] [-noverify] [-trim] [-list] [-steps FILE] [-overlay DIR] [-toolfix SCRIPT] [-check CMD]" >&2; exit 2 ;;
   esac
 done
 
@@ -116,6 +124,9 @@ settools() { # tools/postflip as of commit $1
 
 finish() { # $1: the original commit whose lines are done
   local c=$1
+  if [[ -n $check ]] && ! bash -c "$check" >> "$log" 2>&1; then
+    echo "CHECK FAILED after $c ($(git log -1 --format=%s "$c")): $check (log: $log)" >&2; tail -8 "$log" >&2; exit 1
+  fi
   git add -A -f go tools/postflip
   if [[ $verify == 1 ]] && ! git diff --cached --quiet "$c" -- go; then
     echo "MISMATCH after replaying $c ($(git log -1 --format=%s "$c")):" >&2
@@ -151,6 +162,7 @@ while read -r c action arg; do
       if ! git apply --whitespace=nowarn "$pf"; then echo "FAILED at $c: patch $pf" >&2; exit 1; fi ;;
     run)
       settools "$toolsof"
+      if [[ -n $toolfix ]]; then bash "$toolfix" >> "$log" 2>&1 || { echo "FAILED at $c: toolfix" >&2; tail -5 "$log" >&2; exit 1; }; fi
       echo "=== $c: $arg" >> "$log"
       if ! bash -c "$prelude$arg" >> "$log" 2>&1; then
         echo "FAILED at $c: $arg (log: $log)" >&2; tail -20 "$log" >&2; exit 1
