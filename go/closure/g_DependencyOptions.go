@@ -10,7 +10,7 @@ type DependencyOptions struct {
 func (this *DependencyOptions) init_DependencyOptions(mode DependencyOptions_DependencyMode, entryPoints *JTList[*ModuleIdentifier]) {
 	Objects_requireNonNull_T(mode, "mode")
 	if entryPoints.asList() == nil {
-		panic(new_NullPointerException_String("entryPoints").self())
+		panic(new_NullPointerException_String("entryPoints"))
 	}
 	this.mode_ = mode
 	this.entryPoints_ = entryPoints
@@ -64,7 +64,7 @@ func DependencyOptions_pruneAllowNoEntryPoints(entryPoints IterableOf[*ModuleIde
 
 func DependencyOptions_pruneForEntryPoints(entryPoints IterableOf[*ModuleIdentifier]) *DependencyOptions {
 	if Iterables_isEmpty(entryPoints) {
-		panic(new_IllegalStateException_String(objstr_("DependencyMode.PRUNE requires at least one entry point")).self())
+		panic(new_IllegalStateException_String(objstr_("DependencyMode.PRUNE requires at least one entry point")))
 	}
 	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE, jimmutableListCopyOf_(jtc_p_ModuleIdentifier, entryPoints))
 }

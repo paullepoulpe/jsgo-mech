@@ -262,7 +262,7 @@ func (this *MustBeReachingVariableDef) computeDependence(def *MustBeReachingVari
 
 func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBeReachingVariableDef_Definition {
 	if !this.getCfg().hasNode(useNode) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var n GraphNode[Node] = this.getCfg().getNode(useNode)
 	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(n)))

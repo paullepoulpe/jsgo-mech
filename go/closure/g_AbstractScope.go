@@ -64,11 +64,11 @@ func (this *AbstractScope) toString() string {
 }
 
 func (this *AbstractScope) untyped_impl() *Scope {
-	panic(new_IllegalStateException_String("untyped() called, but not an untyped scope.").self())
+	panic(new_IllegalStateException_String("untyped() called, but not an untyped scope."))
 }
 
 func (this *AbstractScope) typed_impl() *TypedScope {
-	panic(new_IllegalStateException_String("typed() called, but not a typed scope.").self())
+	panic(new_IllegalStateException_String("typed() called, but not a typed scope."))
 }
 
 func (this *AbstractScope) contains(other *AbstractScope) bool {
@@ -100,10 +100,10 @@ func (this *AbstractScope) getParentScope() StaticScope {
 
 func (this *AbstractScope) undeclare(var_ *AbstractVar) {
 	if to_AbstractScope(var_.getScope()) != this {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !to_AbstractVar(Map_get_s(this.vars, var_.getName())).equals_ScopedName(var_.up_ScopedName()) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.undeclareInteral(var_)
 }
@@ -303,7 +303,7 @@ func (this *AbstractScope) getClosestContainerScope() *AbstractScope {
 	if scope.isFunctionBlockScope() {
 		scope = scope.getParent()
 		if scope.isBlockScope() {
-			panic(new_IllegalStateException_String(objstr_(scope)).self())
+			panic(new_IllegalStateException_String(objstr_(scope)))
 		}
 	}
 	return scope
@@ -343,7 +343,7 @@ func (this *AbstractScope) getCommonParent(other *AbstractScope) *AbstractScope 
 		}
 	}
 	if left == nil || left != right {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return left
 }

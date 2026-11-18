@@ -73,7 +73,7 @@ func (this *CreateSyntheticBlocks) rewriteFunctionDeclaration(n Node) {
 
 func (this *CreateSyntheticBlocks) rewriteFunctionDeclarationsInBlock(block Node) {
 	if !block.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var next Node = 0
 	{
@@ -102,7 +102,7 @@ func (this *CreateSyntheticBlocks) addBlocks(marker *CreateSyntheticBlocks_Marke
 		Preconditions_checkState_boolean_Object_H(false, a1_)
 	}
 	if !innerBlock.getParent().isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.compiler_.reportChangeToEnclosingScope(outerBlock)
 }

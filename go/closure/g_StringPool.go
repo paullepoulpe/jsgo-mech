@@ -11,7 +11,7 @@ func (this *StringPool) init_StringPool(maxLength int32, pool *JTList[string]) {
 	this.maxLength = maxLength
 	this.pool = new_RhinoStringPool_LazyInternedStringList(pool)
 	if pool.get(0) != "" {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 }
 

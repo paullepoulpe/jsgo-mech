@@ -149,18 +149,18 @@ func (this *RewriteGoogJsImports) process_2(externs Node, root Node) {
 			this.googModule = this.moduleMap.getModule(googJsPath)
 			Preconditions_checkNotNull_T(this.googModule)
 			if !RewriteGoogJsImports_allFromGoog(this.googModule.boundNames().asImm().values(), googJsPath) {
-				panic(new_IllegalStateException_String(objstr_("goog.js should never import anything")).self())
+				panic(new_IllegalStateException_String(objstr_("goog.js should never import anything")))
 			}
 			if this.googModule.namespace().containsKey("default") {
-				panic(new_IllegalStateException_String(objstr_("goog.js should never have a default export.")).self())
+				panic(new_IllegalStateException_String(objstr_("goog.js should never have a default export.")))
 			}
 			if !RewriteGoogJsImports_allFromGoog(this.googModule.namespace().asImm().values(), googJsPath) {
-				panic(new_IllegalStateException_String(objstr_("goog.js should never export from anything.")).self())
+				panic(new_IllegalStateException_String(objstr_("goog.js should never export from anything.")))
 			}
 		}
 	} else {
 		if this.mode_ != RewriteGoogJsImports_Mode_LINT_ONLY {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 	{

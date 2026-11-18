@@ -187,7 +187,7 @@ func (this *Denormalize) getAssignOpFromOp(n Node) Token_rhino {
 		case tokOrd1_COALESCE:
 			return Token_rhino_ASSIGN_COALESCE
 		default:
-			panic(new_IllegalStateException_String(("Unexpected operator: " + tostrH_(n))).self())
+			panic(new_IllegalStateException_String(("Unexpected operator: " + tostrH_(n))))
 		}
 	}()
 }

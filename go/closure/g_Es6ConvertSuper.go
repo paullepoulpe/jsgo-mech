@@ -45,7 +45,7 @@ func (this *Es6ConvertSuper) isInterface(classNode Node) bool {
 
 func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 	if !node.isSuper() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var exprRoot Node = node
 	if exprRoot.getParent().isGetElem() || exprRoot.getParent().isGetProp() {
@@ -78,7 +78,7 @@ func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, TranspilationUtil_CANNOT_CONVERT_YET, []string{"Only calls to super or to a method of super are supported."}))
 		}
 	} else if parent.isNew() {
-		panic(new_IllegalStateException_String("This should never happen. Did Es6SuperCheck fail to run?").self())
+		panic(new_IllegalStateException_String("This should never happen. Did Es6SuperCheck fail to run?"))
 	} else {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, TranspilationUtil_CANNOT_CONVERT_YET, []string{"Only calls to super or to a method of super are supported."}))
 	}
@@ -105,7 +105,7 @@ func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMem
 		}
 		return
 	} else {
-		panic(new_IllegalStateException_String("This should never happen. Did Es6SuperCheck fail to run?").self())
+		panic(new_IllegalStateException_String("This should never happen. Did Es6SuperCheck fail to run?"))
 	}
 }
 
@@ -118,7 +118,7 @@ func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, encl
 	}
 	var grandparent Node = parent.getParent()
 	if !grandparent.isCall() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var clazz Node = NodeUtil_getEnclosingClass(node)
 	var superName Node = clazz.getSecondChild()

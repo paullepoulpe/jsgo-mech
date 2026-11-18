@@ -20,7 +20,7 @@ func new_GoogleJsMessageIdGenerator(projectId Optional[string]) *GoogleJsMessage
 
 func (this *GoogleJsMessageIdGenerator) generateId(meaning Optional[string], messageParts *JTList[JsMessage_Part]) string {
 	if !meaning.isPresent() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var sb strBuilder_
 	it_1 := messageParts.each()

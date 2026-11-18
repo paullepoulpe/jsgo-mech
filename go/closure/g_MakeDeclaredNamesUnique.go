@@ -49,7 +49,7 @@ func (this *MakeDeclaredNamesUnique) enterScope_impl(t *NodeTraversal) {
 	var renamer MakeDeclaredNamesUnique_Renamer
 	if this.renamerStack.isEmpty() {
 		if declarationRoot.isFunction() && is_MakeDeclaredNamesUnique_ContextualRenamer(this.rootRenamer) {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		renamer = this.rootRenamer
 	} else {
@@ -83,7 +83,7 @@ func (this *MakeDeclaredNamesUnique) visitNameOrImportStar(t *NodeTraversal, n N
 		return
 	}
 	if this.assertOnChange_ {
-		panic(new_IllegalStateException_String(("Unexpected renaming in MakeDeclaredNamesUnique. new name: " + sstr_(newName.get()) + " for " + tostrH_(n))).self())
+		panic(new_IllegalStateException_String(("Unexpected renaming in MakeDeclaredNamesUnique. new name: " + sstr_(newName.get()) + " for " + tostrH_(n))))
 	}
 	var renamer MakeDeclaredNamesUnique_Renamer = this.renamerStack.peek()
 	if renamer.stripConstIfReplaced() {
@@ -262,7 +262,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 		var variableName string = declaredVariableInfo.getName()
 		var oldStackTop MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = this.variablesStackedByName.popVariableInfo(variableName)
 		if oldStackTop != obj_(declaredVariableInfo) {
-			panic(new_IllegalStateException_String(Strings_lenientFormat("Declared variable \"%s\" was not the top of the name stack", []any{variableName})).self())
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Declared variable \"%s\" was not the top of the name stack", []any{variableName})))
 		}
 		declaredVariableInfo.tryToInvertName()
 	}
@@ -730,7 +730,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) init_MakeDeclaredNamesUnique_
 	this.convention = convention
 	this.uniqueIdSupplier = uniqueIdSupplier
 	if idPrefix == "" {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.idPrefix = idPrefix
 	this.removeConstness = removeConstness
@@ -750,7 +750,7 @@ func new_MakeDeclaredNamesUnique_InlineRenamer(convention CodingConvention, uniq
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) addDeclaredName(name string, hoisted bool) {
 	if name == MakeDeclaredNamesUnique_ARGUMENTS {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if hoisted && (this.hoistRenamer != any(this)) {
 		this.hoistRenamer.addDeclaredName(name, hoisted)

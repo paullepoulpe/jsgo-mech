@@ -76,7 +76,7 @@ func (this *ReplaceMessages) getReplacementCompletionPass() CompilerPass {
 func ReplaceMessages_extractPlaceholderValuesMapOrThrow(valuesObjLit Node) *JTMap[string, Node] {
 	var objectLiteralMap *Outcome_base[JsMessageVisitor_ObjectLiteralMap] = JsMessageVisitor_extractObjectLiteralMap(valuesObjLit)
 	if objectLiteralMap.isErr() {
-		panic(new_IllegalStateException_Throwable(objectLiteralMap.error()).self())
+		panic(new_IllegalStateException_Throwable(objectLiteralMap.error()))
 	}
 	return objectLiteralMap.get().extractAsValueMap()
 }
@@ -522,7 +522,7 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addString(key string, val
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node Node) *ReplaceMessages_QuotedKeyObjectLitBuilder {
 	if this.keyToValueNodeMap.containsKey(key) {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("repeated key: %s", []any{key})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("repeated key: %s", []any{key})))
 	}
 	this.keyToValueNodeMap.put(key, node)
 	return this
@@ -912,7 +912,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 			var valueNode Node = strKey.getOnlyChild()
 			if key == "icu_placeholder_names" {
 				if !valueNode.isArrayLit() {
-					panic(new_IllegalStateException_String(objstr_("icu_placeholder_names must be an array")).self())
+					panic(new_IllegalStateException_String(objstr_("icu_placeholder_names must be an array")))
 				}
 				for valueNodeChild := range elemsBy_(valueNode.children(), Node_of_) {
 					icuPlaceholderNames.add(valueNodeChild.getString())
@@ -942,13 +942,13 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 			case "unescapeHtmlEntities":
 				unescapeHtmlEntitiesOption = true
 			default:
-				panic(new_IllegalStateException_String(("unknown protected message key: " + tostrH_(strKey))).self())
+				panic(new_IllegalStateException_String(("unknown protected message key: " + tostrH_(strKey))))
 			}
 		}
 	}
 	if !icuPlaceholderNames.isEmpty() {
 		if !isIcuTemplate {
-			panic(new_IllegalStateException_String(objstr_("Found icu_placeholder_names for a message that is not an ICU template.")).self())
+			panic(new_IllegalStateException_String(objstr_("Found icu_placeholder_names for a message that is not an ICU template.")))
 		}
 		var icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString = new_JsMessageVisitor_IcuMessageTemplateString(messageText.orElse(nullstr_))
 		var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(icuPlaceholderNames)
@@ -956,7 +956,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 	} else {
 		var partsRes *Outcome_base[*ImmutableList] = JsMessageVisitor_parseJsMessageTextIntoParts(messageText.orElse(nullstr_))
 		if partsRes.isErr() {
-			panic(new_IllegalStateException_String((sstr_(messageTextNode.getLocation()) + ": Placeholder incorrectly formatted: >" + sstr_(messageText.orElse("null")) + "<")).self())
+			panic(new_IllegalStateException_String((sstr_(messageTextNode.getLocation()) + ": Placeholder incorrectly formatted: >" + sstr_(messageText.orElse("null")) + "<")))
 		}
 		jsMessageBuilder.appendParts(jtlistImm_(jtc_JsMessage_Part, partsRes.get()))
 	}

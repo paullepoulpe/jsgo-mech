@@ -144,7 +144,7 @@ func (this *RenameVars) recordPseudoName(n Node) {
 
 func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename *JTSet[*RenameVars_Assignment]) {
 	if this.prevUsedRenameMap.getNewNameToOriginalNameMap().asMap() == nil {
-		panic(new_NullPointerException_0().self())
+		panic(new_NullPointerException_0())
 	}
 	it_1 := varsToRename.each()
 	for it_1.next() {
@@ -224,7 +224,7 @@ func (this *RenameVars) getLocalVarIndex(v *Var) int32 {
 	var num int32 = v.getIndex()
 	var s *Scope = cast_[*Scope](cast_[*Scope](v.getScope()).getParent().self())
 	if s == nil {
-		panic(new_IllegalArgumentException_String("Var is not local").self())
+		panic(new_IllegalArgumentException_String("Var is not local"))
 	}
 	var isBleedingIntoScope bool = ((cast_[*Scope](s.getParent().self()) != nil) && this.localBleedingFunctions.contains(v))
 	for cast_[*Scope](s.getParent().self()) != nil {
@@ -301,7 +301,7 @@ func new_RenameVars_Assignment(outer_ *RenameVars, name string) *RenameVars_Assi
 
 func (this *RenameVars_Assignment) setNewName(newName string) {
 	if !this.newName.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	this.newName = Optional_of[string](newName)
 }

@@ -152,7 +152,7 @@ func (this *ColorFindPropertyReferences) handleObjectDefineProperties(t *NodeTra
 
 func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal, n Node, memberOwnerFn func(any) any) {
 	if !((n.isObjectLit() || n.isObjectPattern()) || n.isClassMembers()) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	{
 		var child Node = n.getFirstChild()
@@ -167,7 +167,7 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 				}
 				this.registerPropertyUse(t, child, cast_[*Color](memberOwnerFn(child.box_())))
 			default:
-				panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(n.getToken()) + ": " + sstr_(child.toStringTree()))).self())
+				panic(new_IllegalStateException_String(("Unexpected child of " + jtostr_(n.getToken()) + ": " + sstr_(child.toStringTree()))))
 			}
 		}
 	}

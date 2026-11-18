@@ -51,7 +51,7 @@ func (this *CheckSuspiciousCode) checkMissingSemicolon(t *NodeTraversal, n Node)
 
 func CheckSuspiciousCode_reportIfWasEmpty(t *NodeTraversal, block Node) {
 	if !block.isBlock() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !block.hasChildren() && block.isAddedBlock() {
 		t.getCompiler().report(JSError_make_Node_DiagnosticType_StringArr(block, CheckSuspiciousCode_SUSPICIOUS_SEMICOLON, []string{}))

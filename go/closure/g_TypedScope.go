@@ -77,7 +77,7 @@ func (this *TypedScope) typed_impl() *TypedScope {
 
 func (this *TypedScope) validateCompletelyBuilt() {
 	if ok_, a1_, a2_ := this.reservedNames.isEmpty(), this, this.reservedNames.asSet(); !ok_ {
-		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", []any{a1_, a2_})).self())
+		panic(new_IllegalStateException_String(Strings_lenientFormat("Expected %s to have no reserved names, found: %s. This probably indicates a bug in TypedScopeCreator where it is failing to declare a variable.", []any{a1_, a2_})))
 	}
 	this.reservedNames = jtsetEmptyImm_(jtc_string)
 }
@@ -125,7 +125,7 @@ func (this *TypedScope) getTypeOfThis() *JSType {
 
 func (this *TypedScope) declare(name string, nameNode Node, type_ *JSType, input *CompilerInput, inferred bool) *TypedVar {
 	if name == "" {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !this.reservedNames.isEmpty() {
 		this.reservedNames.remove(name)
@@ -176,9 +176,9 @@ func (this *TypedScope) getImplicitVarType(var_ AbstractScope_ImplicitVar) *JSTy
 			return receiverType.getImplicitPrototype().up_JSType()
 		}
 	case AbstractScope_ImplicitVar_EXPORTS:
-		panic(new_AssertionError_Object("TypedScopes should not contain an implicit 'exports'").self())
+		panic(new_AssertionError_Object("TypedScopes should not contain an implicit 'exports'"))
 	}
-	panic(new_AssertionError_0().self())
+	panic(new_AssertionError_0())
 }
 
 func (this *TypedScope) getDeclarativelyUnboundVarsWithoutTypes() IterableOf[*TypedVar] {

@@ -50,7 +50,7 @@ func (this *ConvertToTypedInterface) process_2(externs Node, root Node) {
 
 func (this *ConvertToTypedInterface) processFile(scriptNode Node) {
 	if !scriptNode.isScript() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var sourceFileName string = scriptNode.getSourceFileName()
 	if AbstractCompiler_isFillFileName(sourceFileName) {
@@ -152,7 +152,7 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) shouldTraverse(t *Nod
 		case tokOrd1_CALL:
 			var callee Node = expr.getFirstChild()
 			if ConvertToTypedInterface_RemoveNonDeclarations_GOOG_SCOPE.matches(callee) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if ConvertToTypedInterface_CALLS_TO_PRESERVE.contains(callee.getQualifiedName()) {
 				return true
@@ -234,7 +234,7 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) shouldTraverse(t *Nod
 		return true
 	default:
 		if ok_, a1_ := !NodeUtil_isStatement(n), n.getToken(); !ok_ {
-			panic(new_IllegalStateException_String(objstr_(a1_)).self())
+			panic(new_IllegalStateException_String(objstr_(a1_)))
 		}
 		return true
 	}
@@ -252,7 +252,7 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) visit(t *NodeTraversa
 	case tokOrd1_SWITCH:
 		if n.hasParent() {
 			if ok_, a1_ := n.hasOneChild(), n.toStringTree(); !ok_ {
-				panic(new_IllegalStateException_String(Strings_lenientFormat("malfrmed sWITCH %s", []any{a1_})).self())
+				panic(new_IllegalStateException_String(Strings_lenientFormat("malfrmed sWITCH %s", []any{a1_})))
 			}
 			var children Node = n.getFirstChild().removeChildren()
 			parent.addChildrenAfter(children, n)
@@ -273,7 +273,7 @@ func (this *ConvertToTypedInterface_RemoveNonDeclarations) visit(t *NodeTraversa
 
 func ConvertToTypedInterface_RemoveNonDeclarations_splitNameDeclarationsAndRemoveDestructuring(n Node, t *NodeTraversal) {
 	if !NodeUtil_isNameDeclaration(n) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var sharedJsdoc *JSDocInfo = n.getJSDocInfo()
 	var isExport bool = n.getParent().isExport()
@@ -441,7 +441,7 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) processDeclaration(nam
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) processClass(n Node) {
 	if !ConvertToTypedInterface_SimplifyDeclarations_isClass(n) {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	{
 		var member Node = n.getLastChild().getFirstChild()
@@ -459,7 +459,7 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) processClass(n Node) {
 				}
 				this.processFunction(member.getSecondChild())
 			default:
-				panic(new_AssertionError_Object(strobj_((jtostr_(member.getToken()) + " should not be handled by processClass"))).self())
+				panic(new_AssertionError_Object(strobj_((jtostr_(member.getToken()) + " should not be handled by processClass"))))
 			}
 			member = next
 		}
@@ -468,14 +468,14 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) processClass(n Node) {
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) processFunction(n Node) {
 	if !n.isFunction() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	this.processFunctionParameters(n.getSecondChild())
 }
 
 func (this *ConvertToTypedInterface_SimplifyDeclarations) processFunctionParameters(paramList Node) {
 	if !paramList.isParamList() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	{
 		var arg Node = paramList.getFirstChild()

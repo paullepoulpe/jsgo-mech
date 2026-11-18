@@ -19,7 +19,7 @@ func new_DevirtualizeMethods(compiler *AbstractCompiler) *DevirtualizeMethods {
 
 func (this *DevirtualizeMethods) process_3(externs Node, root Node, refMap *OptimizeCalls_ReferenceMap) {
 	if this.refMap != nil {
-		panic(new_IllegalStateException_String(objstr_("`process` should only be called once.")).self())
+		panic(new_IllegalStateException_String(objstr_("`process` should only be called once.")))
 	}
 	this.refMap = refMap
 	for referenceGroup := range elemsBy_(refMap.getPropReferences(), icast_Map_Entry) {
@@ -167,7 +167,7 @@ func (this *DevirtualizeMethods) isEligibleDefinitionSite(name string, definitio
 	switch definitionSite.ns_().token {
 	case tokOrd1_GETPROP, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_STRING_KEY, tokOrd1_MEMBER_FIELD_DEF:
 	default:
-		panic(new_IllegalArgumentException_String(definitionSite.toString()).self())
+		panic(new_IllegalArgumentException_String(definitionSite.toString()))
 	}
 	var codingConvention CodingConvention = this.compiler_.getCodingConvention()
 	if codingConvention.isExported_2(name, false) {
@@ -278,7 +278,7 @@ func (this *DevirtualizeMethods) rewriteDefinition(definitionSite Node, newMetho
 		nameSource = definitionSite
 		subtreeToRemove = definitionSite
 	default:
-		panic(new_IllegalArgumentException_String(definitionSite.toString()).self())
+		panic(new_IllegalArgumentException_String(definitionSite.toString()))
 	}
 	var statement Node = NodeUtil_getEnclosingStatement(definitionSite)
 	var newNameNode Node = IR_name(newMethodName).srcrefIfMissing(nameSource)

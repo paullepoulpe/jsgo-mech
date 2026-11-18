@@ -82,7 +82,7 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *JTLis
 		var grandparent Node = ref.getGrandparent()
 		if NodeUtil_isNormalOrOptChainGetProp(parent) {
 			if parent.getFirstChild() != name {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			if NodeUtil_isInvocationTarget(parent) {
 				return false
@@ -121,7 +121,7 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs *JTLis
 					return false
 				case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_STRING_KEY:
 				default:
-					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))).self())
+					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))))
 				}
 				validProperties.add(child.getString())
 				var childVal Node = child.getFirstChild()
@@ -329,7 +329,7 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 			}
 			var var_ string = getprop.getString()
 			if !varmap.containsKey(var_) {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var replacement Node = IR_name(varmap.get(var_))
 			replacement.srcrefIfMissing(getprop)

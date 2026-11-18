@@ -363,7 +363,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 				paramName = Optional_of[string](paramLhs.getString())
 			} else {
 				if !paramLhs.isDestructuringPattern() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				if info != nil {
 					paramName = info.getParameterNameAt(paramIndex)
@@ -607,7 +607,7 @@ func (this *FunctionTypeBuilder) buildAndRegister() *FunctionType {
 		Preconditions_checkNotNull_T(this.returnType)
 	}
 	if this.parameters == nil {
-		panic(new_IllegalStateException_String("All Function types must have params and a return type").self())
+		panic(new_IllegalStateException_String("All Function types must have params and a return type"))
 	}
 	var fnType *FunctionType
 	if this.isConstructor_ {
@@ -715,7 +715,7 @@ func FunctionTypeBuilder_isFunctionTypeDeclaration(info *JSDocInfo) bool {
 
 func FunctionTypeBuilder_hasMoreTagsToResolve(objectType *ObjectType) bool {
 	if !objectType.isUnknownType() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	var ctor *FunctionType = objectType.getConstructor()
 	if ctor != nil {

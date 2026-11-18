@@ -139,7 +139,7 @@ func OptimizeReturns_isCandidateFunction(n Node) bool {
 
 func (this *OptimizeReturns) rewriteReturns(fnNode Node) {
 	if !fnNode.isFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var body Node = fnNode.getLastChild()
 	NodeUtil_visitPostOrder_Node_Visitor_Predicate(body, NodeUtil_Visitor(new_OptimizeReturns_1(this, body)), new_NodeUtil_MatchShallowStatement())

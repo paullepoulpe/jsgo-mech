@@ -545,7 +545,7 @@ func new_SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope(delegate
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) withSyntacticScope(scope StaticTypedScope) FlowScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) inferSlotType(symbol string, type_ *JSType) FlowScope {
@@ -576,7 +576,7 @@ func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getR
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getParentScope() StaticScope {
-	panic(new_UnsupportedOperationException_0().self())
+	panic(new_UnsupportedOperationException_0())
 }
 
 func (this *SemanticReverseAbstractInterpreter_RefinementTrackingFlowScope) getSlot(name string) StaticSlot {

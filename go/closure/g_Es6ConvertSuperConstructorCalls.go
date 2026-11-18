@@ -255,7 +255,7 @@ func (this *Es6ConvertSuperConstructorCalls) isKnownToReturnOnlyUndefined(functi
 	} else if declaration.isObjectLit() && declaredVarOrProp.hasOneChild() {
 		declaredValue = Preconditions_checkNotNull_T(declaredVarOrProp.getFirstChild())
 	} else {
-		panic(new_IllegalStateException_String(("Unexpected declaration format:\n" + sstr_(declaration.toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unexpected declaration format:\n" + sstr_(declaration.toStringTree()))))
 	}
 	return this.isNodeKnownToOnlyReturnUndefined(declaredValue)
 }

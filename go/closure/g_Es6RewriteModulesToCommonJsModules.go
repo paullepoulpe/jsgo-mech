@@ -176,7 +176,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visit_impl(t *NodeTrave
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) getVarNameOfImportNode(importDecl Node) string {
 	if !importDecl.isImport() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if importDecl.getSecondChild().isImportStar() {
 		return importDecl.getSecondChild().getString()
@@ -200,7 +200,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) getNameOfImportedValue(
 		return moduleName
 	} else {
 		if !nameNode.getParent().isImport() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		return (sstr_(moduleName) + ".default")
 	}
@@ -208,7 +208,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) getNameOfImportedValue(
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeGetNameOfImportedValue(s *Scope, nameNode Node) Optional[string] {
 	if !nameNode.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var var_ *Var = cast_[*Var](s.getVar(nameNode.getString()).self())
 	if (((var_ != nil) && (var_.getNameNode() != 0)) && NodeUtil_isImportedName(var_.getNameNode())) && (nameNode != var_.getNameNode()) {
@@ -219,7 +219,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeGetNameOfImportedV
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeRenameImportedValue(t *NodeTraversal, n Node) {
 	if !n.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var parent Node = n.getParent()
 	if ((parent.isExport() || parent.isExportSpec()) || parent.isImport()) || parent.isImportSpec() {
@@ -234,11 +234,11 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeRenameImportedValu
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitScript(t *NodeTraversal, script Node) {
 	if this.script_ != script {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var moduleNode Node = script.getFirstChild()
 	if !moduleNode.isModuleBody() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	moduleNode.detach()
 	script.addChildrenToFront(moduleNode.removeChildren())
@@ -368,7 +368,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportSpecs(t *Nod
 			if (var_ != nil) && NodeUtil_isImportedName(var_.getNameNode()) {
 				localName = this.maybeGetNameOfImportedValue(t.getScope(), exportSpec.getFirstChild())
 				if !localName.isPresent() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 			}
 			this.exportedNameToLocalQName.put(exportSpec.getLastChild().getString(), new_Es6RewriteModulesToCommonJsModules_LocalQName(localName.orElse(nullstr_), exportSpec))
@@ -384,7 +384,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportNameDeclarat
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addExportedName(lhs Node) {
 	if !lhs.isName() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var name string = lhs.getString()
 	this.exportedNameToLocalQName.put(name, new_Es6RewriteModulesToCommonJsModules_LocalQName(name, lhs))
@@ -396,7 +396,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDeclaration(
 		this.visitExportNameDeclaration(declaration)
 	} else {
 		if !declaration.isFunction() && !declaration.isClass() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var name string = declaration.getFirstChild().getString()
 		this.exportedNameToLocalQName.put(name, new_Es6RewriteModulesToCommonJsModules_LocalQName(name, export))

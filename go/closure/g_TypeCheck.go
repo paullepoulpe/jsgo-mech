@@ -75,10 +75,10 @@ func (this *TypeCheck) process_2(externsRoot Node, jsRoot Node) {
 	Preconditions_checkNotNull_T(this.topScope)
 	var externsAndJs Node = jsRoot.getParent()
 	if externsAndJs == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if externsRoot != 0 && !externsAndJs.hasChild(externsRoot) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	_ = func() (code_ int) {
 		var debugTypeLogger *TypeCheck_DebugTypeLogger = new_TypeCheck_DebugTypeLogger(this)
@@ -94,10 +94,10 @@ func (this *TypeCheck) process_2(externsRoot Node, jsRoot Node) {
 
 func (this *TypeCheck) processForTesting(externsRoot Node, jsRoot Node) *TypedScope {
 	if this.scopeCreator != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if this.topScope != nil {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !((externsRoot == 0) || externsRoot.isRoot()) {
 		Preconditions_checkArgument_boolean_Object_H(false, externsRoot)
@@ -109,7 +109,7 @@ func (this *TypeCheck) processForTesting(externsRoot Node, jsRoot Node) *TypedSc
 		Preconditions_checkState_boolean_Object_H(false, a1_)
 	}
 	if externsRoot != 0 && externsRoot.getNext() != jsRoot {
-		panic(new_IllegalStateException_String(objstr_("externs root must be the preceding sibling of the js root")).self())
+		panic(new_IllegalStateException_String(objstr_("externs root must be the preceding sibling of the js root")))
 	}
 	this.scopeCreator = new_TypedScopeCreator_AbstractCompiler(this.compiler_)
 	this.topScope = new_TypeInferencePass(this.compiler_, this.reverseInterpreter, this.scopeCreator).inferAllScopes(jsRoot.getParent())
@@ -464,7 +464,7 @@ func (this *TypeCheck) checkSpread(spreadNode Node) {
 	case tokOrd1_ARRAYLIT, tokOrd1_CALL, tokOrd1_OPTCHAIN_CALL, tokOrd1_NEW:
 		this.validator.expectAutoboxesToIterable(target, targetType, "Spread operator only applies to Iterable types")
 	default:
-		panic(new_IllegalStateException_String(("Unexpected parent of SPREAD: " + sstr_(spreadNode.getParent().toStringTree()))).self())
+		panic(new_IllegalStateException_String(("Unexpected parent of SPREAD: " + sstr_(spreadNode.getParent().toStringTree()))))
 	}
 }
 
@@ -816,7 +816,7 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 			continue
 		}
 		if !implementedInterface.isInstanceType() {
-			panic(new_IllegalStateException_String(objstr_(implementedInterface)).self())
+			panic(new_IllegalStateException_String(objstr_(implementedInterface)))
 		}
 		var propSlot *Property_OwnedProperty = implementedInterface.findClosestDefinition(propertyName)
 		var interfaceHasProperty bool = (propSlot != nil)
@@ -832,7 +832,7 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 
 func TypeCheck_isDeclaredLocally(ctorType *FunctionType, propertyName Property_Key) bool {
 	if !ctorType.isConstructor() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return (ctorType.getPrototype().hasOwnPropertyKey(propertyName) || ctorType.getInstanceType().hasOwnPropertyKey(propertyName))
 }
@@ -872,10 +872,10 @@ func (this *TypeCheck) checkAbstractMethodInConcreteClass(n Node, ctorType *Func
 
 func TypeCheck_hasUnknownOrEmptySupertype(ctor *FunctionType) bool {
 	if !ctor.isConstructor() && !ctor.isInterface() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if ctor.isUnknownType() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	for {
 		var maybeSuperInstanceType *ObjectType = ctor.getPrototype().getImplicitPrototype()
@@ -890,7 +890,7 @@ func TypeCheck_hasUnknownOrEmptySupertype(ctor *FunctionType) bool {
 			return false
 		}
 		if !ctor.isConstructor() && !ctor.isInterface() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 	}
 }
@@ -1326,7 +1326,7 @@ func (this *TypeCheck) visitClass(n Node) {
 	} else if functionType.isInterface() {
 		this.checkInterface(n, functionType)
 	} else {
-		panic(new_IllegalStateException_String(("CLASS node's type must be either constructor or interface: " + objstr_(functionType.self()))).self())
+		panic(new_IllegalStateException_String(("CLASS node's type must be either constructor or interface: " + objstr_(functionType.self()))))
 	}
 }
 
@@ -1420,7 +1420,7 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 
 func (this *TypeCheck) getBestFunctionName(n Node) string {
 	if !n.isClass() && !n.isFunction() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var name Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
 	return func() string {
@@ -1770,7 +1770,7 @@ func (this *TypeCheck) ensureTyped_2(n Node, type_ JSTypeNative) {
 
 func (this *TypeCheck) ensureTypedJSType(n Node, type_ *JSType) {
 	if !((!n.isFunction() || type_.isFunctionType()) || type_.isUnknownType()) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if n.getJSType() == nil {
 		n.setJSType(type_)

@@ -278,7 +278,7 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 				initializer = this.createExternFunctionForEs6Class(valueToExport)
 			} else {
 				if !valueToExport.isObjectLit() {
-					panic(new_IllegalStateException_0().self())
+					panic(new_IllegalStateException_0())
 				}
 				initializer = this.createExternObjectLit(valueToExport)
 			}
@@ -314,7 +314,7 @@ func (this *ExternExportsPass_Export) appendPathDefinition(path string, initiali
 			pathDefinition.getFirstChild().setJSDocInfo(jsdoc)
 		} else {
 			if !pathDefinition.isVar() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			pathDefinition.setJSDocInfo(jsdoc)
 		}
@@ -523,7 +523,7 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 	for it_1.next() {
 		var currentPath string = str_(it_1.v)
 		if len(currentPath) == 0 {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		var mappedPath Optional[string] = Optional_ofNullable[string](this.outer_.mappedPaths.get(currentPath))
 		if mappedPath.isEmpty() {

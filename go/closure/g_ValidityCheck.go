@@ -60,7 +60,7 @@ func (this *ValidityCheck) checkExternProperties(externs Node) {
 	new_GatherExternProperties(this.compiler_, GatherExternProperties_Mode_CHECK).process_2(externs, 0)
 	if !equalsBy_(this.compiler_.getExternProperties().asImm(), externProperties.asSet(), (*ImmutableCollection).equals) {
 		this.compiler_.report(JSError_make_DiagnosticType_StringArr(ValidityCheck_EXTERN_PROPERTIES_CHANGED, []string{Object_toString(externProperties.asSet()), Object_toString(this.compiler_.getExternProperties().asSet())}))
-		panic(new_IllegalStateException_String(("Validity Check failed: Extern properties changed from:\n" + objstr_(externProperties.asSet()) + "\nto:\n" + objstr_(this.compiler_.getExternProperties().asSet()))).self())
+		panic(new_IllegalStateException_String(("Validity Check failed: Extern properties changed from:\n" + objstr_(externProperties.asSet()) + "\nto:\n" + objstr_(this.compiler_.getExternProperties().asSet()))))
 	}
 }
 
@@ -112,10 +112,10 @@ func new_ValidityCheck_VerifyConstants(compiler *AbstractCompiler, checkUserDecl
 func (this *ValidityCheck_VerifyConstants) process_2(externs Node, root Node) {
 	var externsAndJs Node = root.getParent()
 	if externsAndJs == 0 {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !externsAndJs.hasChild(externs) {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(this), externs, root)
 }
@@ -147,11 +147,11 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 			}
 			if expectedConst {
 				if expectedConst != isConst {
-					panic(new_IllegalStateException_String(Strings_lenientFormat("The name %s is not annotated as constant.", []any{name})).self())
+					panic(new_IllegalStateException_String(Strings_lenientFormat("The name %s is not annotated as constant.", []any{name})))
 				}
 			} else {
 				if expectedConst != isConst {
-					panic(new_IllegalStateException_String(Strings_lenientFormat("The name %s should not be annotated as constant.", []any{name})).self())
+					panic(new_IllegalStateException_String(Strings_lenientFormat("The name %s should not be annotated as constant.", []any{name})))
 				}
 			}
 		}
@@ -159,7 +159,7 @@ func (this *ValidityCheck_VerifyConstants) visit_impl(t *NodeTraversal, n Node, 
 		if value == nil {
 			this.constantMap.put(name, any(bool(isConst)))
 		} else if Boolean_booleanValue(value) != isConst {
-			panic(new_IllegalStateException_String(("The name " + sstr_(name) + " is not consistently annotated as constant. Current constness: " + boolstr_(isConst) + ", previous constness: " + boolstr_(Boolean_booleanValue(value)) + "\n\nAt node: " + tostrH_(n))).self())
+			panic(new_IllegalStateException_String(("The name " + sstr_(name) + " is not consistently annotated as constant. Current constness: " + boolstr_(isConst) + ", previous constness: " + boolstr_(Boolean_booleanValue(value)) + "\n\nAt node: " + tostrH_(n))))
 		}
 	}
 }

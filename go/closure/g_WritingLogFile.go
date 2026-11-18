@@ -33,7 +33,7 @@ func WritingLogFile_create(file string) *LogFile {
 	}
 	var writer *Outcome_base[*Output] = Output_open(file, Charsets_UTF_8, true)
 	if writer.isErr() {
-		panic(new_RuntimeException_Throwable(writer.error()).self())
+		panic(new_RuntimeException_Throwable(writer.error()))
 	}
 	return new_WritingLogFile(writer.get()).up_LogFile()
 }
@@ -77,7 +77,7 @@ func (this *WritingLogFile) logJson_impl(producer LogFile_StreamedJsonProducer) 
 		return 0
 	}()
 	if closed.isErr() {
-		panic(new_AssertionError_Object(closed.error().self()).self())
+		panic(new_AssertionError_Object(closed.error().self()))
 	}
 	return this.up_LogFile()
 }
@@ -90,7 +90,7 @@ func (this *WritingLogFile) logInternal(value string) *LogFile {
 func (this *WritingLogFile) close_impl() {
 	var closed *Outcome_base[any] = this.writer.close()
 	if closed.isErr() {
-		panic(new_RuntimeException_Throwable(closed.error()).self())
+		panic(new_RuntimeException_Throwable(closed.error()))
 	}
 }
 

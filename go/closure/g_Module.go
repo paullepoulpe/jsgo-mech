@@ -14,13 +14,13 @@ type Module struct {
 func (this *Module) init_Module(metadata *ModuleMetadataMap_ModuleMetadata, path *ModuleLoader_ModulePath, namespace *JTMap[string, *Binding], boundNames *JTMap[string, *Binding], localNameToLocalExport *JTMap[string, *Export], closureNamespace Optional[string]) {
 	Objects_requireNonNull_T(metadata, "metadata")
 	if namespace.asMap() == nil {
-		panic(new_NullPointerException_String("namespace").self())
+		panic(new_NullPointerException_String("namespace"))
 	}
 	if boundNames.asMap() == nil {
-		panic(new_NullPointerException_String("boundNames").self())
+		panic(new_NullPointerException_String("boundNames"))
 	}
 	if localNameToLocalExport.asMap() == nil {
-		panic(new_NullPointerException_String("localNameToLocalExport").self())
+		panic(new_NullPointerException_String("localNameToLocalExport"))
 	}
 	this.metadata_ = metadata
 	this.path_ = path
@@ -132,7 +132,7 @@ func new_Module_Builder_Module(source *Module) *Module_Builder {
 
 func (this *Module_Builder) metadata(value *ModuleMetadataMap_ModuleMetadata) *Module_Builder {
 	if value == nil {
-		panic(new_NullPointerException_String("Null metadata").self())
+		panic(new_NullPointerException_String("Null metadata"))
 	}
 	this.metadataField = value
 	return this
@@ -145,7 +145,7 @@ func (this *Module_Builder) path(value *ModuleLoader_ModulePath) *Module_Builder
 
 func (this *Module_Builder) namespace(value *JTMap[string, *Binding]) *Module_Builder {
 	if value == nil {
-		panic(new_NullPointerException_String("Null namespace").self())
+		panic(new_NullPointerException_String("Null namespace"))
 	}
 	this.namespaceField = value
 	return this
@@ -153,7 +153,7 @@ func (this *Module_Builder) namespace(value *JTMap[string, *Binding]) *Module_Bu
 
 func (this *Module_Builder) boundNames(value *JTMap[string, *Binding]) *Module_Builder {
 	if value == nil {
-		panic(new_NullPointerException_String("Null boundNames").self())
+		panic(new_NullPointerException_String("Null boundNames"))
 	}
 	this.boundNamesField = value
 	return this
@@ -161,7 +161,7 @@ func (this *Module_Builder) boundNames(value *JTMap[string, *Binding]) *Module_B
 
 func (this *Module_Builder) localNameToLocalExport(value *JTMap[string, *Export]) *Module_Builder {
 	if value == nil {
-		panic(new_NullPointerException_String("Null localNameToLocalExport").self())
+		panic(new_NullPointerException_String("Null localNameToLocalExport"))
 	}
 	this.localNameToLocalExportField = value
 	return this
@@ -187,7 +187,7 @@ func (this *Module_Builder) build() *Module {
 		if this.localNameToLocalExportField == nil {
 			missing.append(" localNameToLocalExport")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
 	return new_Module(this.metadataField, this.pathField, this.namespaceField, this.boundNamesField, this.localNameToLocalExportField, this.closureNamespaceField)
 }

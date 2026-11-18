@@ -33,7 +33,7 @@ func (this *DeadAssignmentsElimination) process_2(externs Node, root Node) {
 	Preconditions_checkNotNull_T(externs)
 	Preconditions_checkNotNull_T(root)
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 }
@@ -64,10 +64,10 @@ func (this *DeadAssignmentsElimination) exitScopeWithCfg_impl(t *NodeTraversal) 
 
 func (this *DeadAssignmentsElimination) eliminateDeadAssignments(t *NodeTraversal) {
 	if !t.inFunctionBlockScope() {
-		panic(new_IllegalArgumentException_0().self())
+		panic(new_IllegalArgumentException_0())
 	}
 	if this.functionStack.isEmpty() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	if !this.compiler_.hasScopeChanged(t.getScopeRoot().getParent()) {
 		return
@@ -160,7 +160,7 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, 
 		var name string = lhs.getString()
 		var scope *Scope = t.getScope()
 		if !scope.isFunctionBlockScope() && !scope.isBlockScope() {
-			panic(new_IllegalStateException_0().self())
+			panic(new_IllegalStateException_0())
 		}
 		if !allVarsInFn.containsKey(name) {
 			return
@@ -205,7 +205,7 @@ func (this *DeadAssignmentsElimination) tryRemoveAssignment_5(t *NodeTraversal, 
 			IR_exprResult(rhs).insertAfter(parent)
 			rhs.getParent().srcref(rhs)
 		} else {
-			panic(new_IllegalStateException_String("Unknown statement").self())
+			panic(new_IllegalStateException_String("Unknown statement"))
 		}
 		this.compiler_.reportChangeToEnclosingScope(parent)
 		return

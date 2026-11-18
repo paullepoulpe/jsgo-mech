@@ -31,7 +31,7 @@ func SerializeTypedAstPass_createFromPath(compiler *AbstractCompiler, outputPath
 	var toPath func(any) = (&Consumer_tfn_TypedAst{func(ast *TypedAst) {
 		var written *Outcome_base[any] = Io_writeBytes(outputPath, Io_gzip(cast_[*TypedAst_List](TypedAst_List_newBuilder().addTypedAsts(ast).build()).toByteArray()))
 		if written.isErr() {
-			panic(new_IllegalArgumentException_String_Throwable("Cannot create TypedAst output file", written.error()).self())
+			panic(new_IllegalArgumentException_String_Throwable("Cannot create TypedAst output file", written.error()))
 		}
 	}}).accept
 	return new_SerializeTypedAstPass(compiler, toPath, serializationOptions)

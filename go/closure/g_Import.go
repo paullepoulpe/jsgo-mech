@@ -133,7 +133,7 @@ func (this *Import_Builder) modulePath(value *ModuleLoader_ModulePath) *Import_B
 
 func (this *Import_Builder) importNode(value Node) *Import_Builder {
 	if value == 0 {
-		panic(new_NullPointerException_String("Null importNode").self())
+		panic(new_NullPointerException_String("Null importNode"))
 	}
 	this.importNodeField = value
 	return this
@@ -141,7 +141,7 @@ func (this *Import_Builder) importNode(value Node) *Import_Builder {
 
 func (this *Import_Builder) nameNode(value Node) *Import_Builder {
 	if value == 0 {
-		panic(new_NullPointerException_String("Null nameNode").self())
+		panic(new_NullPointerException_String("Null nameNode"))
 	}
 	this.nameNodeField = value
 	return this
@@ -165,7 +165,7 @@ func (this *Import_Builder) build() *Import {
 		if this.nameNodeField == 0 {
 			missing.append(" nameNode")
 		}
-		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))).self())
+		panic(new_IllegalStateException_String(("Missing required properties:" + jtostr_(missing))))
 	}
 	return new_Import(this.moduleRequestField.get(), this.importNameField.get(), this.localNameField.get(), this.modulePathField, this.importNodeField, this.nameNodeField)
 }

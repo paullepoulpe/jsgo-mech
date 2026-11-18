@@ -49,7 +49,7 @@ func (this *Es6RenameTypeReferences) renameTypeNodeRecursive(t *NodeTraversal, n
 
 func (this *Es6RenameTypeReferences) renameTypeReference(t *NodeTraversal, n Node) {
 	if !n.isStringLit() {
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	var fullName string = n.getString()
 	var rootName string

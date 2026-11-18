@@ -39,7 +39,7 @@ func (this *PeepholeCollectPropertyAssignments) optimizeSubtree_impl(subtree Nod
 				continue
 			}
 			if !child.hasOneChild() {
-				panic(new_IllegalStateException_0().self())
+				panic(new_IllegalStateException_0())
 			}
 			var name Node = PeepholeCollectPropertyAssignments_getName(child)
 			if !name.isName() {
@@ -74,7 +74,7 @@ func PeepholeCollectPropertyAssignments_getName(n Node) Node {
 	} else if NodeUtil_isExprAssign(n) {
 		return n.getFirstFirstChild()
 	}
-	panic(new_IllegalStateException_0().self())
+	panic(new_IllegalStateException_0())
 }
 
 func PeepholeCollectPropertyAssignments_getValue(n Node) Node {
@@ -83,7 +83,7 @@ func PeepholeCollectPropertyAssignments_getValue(n Node) Node {
 	} else if NodeUtil_isExprAssign(n) {
 		return n.getFirstChild().getLastChild()
 	}
-	panic(new_IllegalStateException_0().self())
+	panic(new_IllegalStateException_0())
 }
 
 func PeepholeCollectPropertyAssignments_isInterestingValue(n Node) bool {
@@ -131,7 +131,7 @@ func (this *PeepholeCollectPropertyAssignments) collectProperty(propertyCandidat
 			return false
 		}
 	default:
-		panic(new_IllegalStateException_0().self())
+		panic(new_IllegalStateException_0())
 	}
 	return true
 }
