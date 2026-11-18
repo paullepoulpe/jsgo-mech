@@ -16,6 +16,7 @@ type AbstractScope_I interface {
 	getParent_impl() *AbstractScope
 	getTopmostScopeOfEventualDeclaration_impl(string) StaticScope
 	getVar_impl(string) *AbstractVar
+	getVarById_impl(uint32) *AbstractVar
 	hasOwnImplicitSlot_impl(AbstractScope_ImplicitVar) bool
 	makeImplicitVar_impl(AbstractScope_ImplicitVar) *AbstractVar
 	typed_impl() *TypedScope
@@ -125,7 +126,14 @@ func (this *AbstractScope) declareInternal(name string, var_ *AbstractVar) {
 	if this.vars == nil {
 		this.vars = newScopeVars_()
 	}
-	this.vars.put(name, var_)
+	// vars.put(name, var_), with the id of the name for the lookups by id (post-flip manual
+	// step, tools/postflip/strids). A typed scope is not looked up by id (getVarById_impl) and
+	// declares qualified names, which no node holds.
+	if _, typed := this.self_.(*TypedScope); typed {
+		this.vars.put(name, var_)
+	} else {
+		this.vars.putId(name, nameId_(name, var_.getNode()), var_)
+	}
 }
 
 func (this *AbstractScope) clearVarsInternal() {
@@ -192,6 +200,32 @@ func (this *AbstractScope) getVar_impl(name string) *AbstractVar {
 		var scope *AbstractScope = this.thisScope()
 		for ; scope != nil; scope = scope.getParent() {
 			if var_ := scope.vars.lookup(name, &h); var_ != nil {
+				return var_
+			}
+			if imp != 0 {
+				if var_ := scope.getOwnImplicitSlot(imp); var_ != nil {
+					return var_
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// getVarById_ is getVar(name) for the name with string id `id`, the name of a node
+// (post-flip manual step, tools/postflip/strids): dispatches as getVar does.
+func (this *AbstractScope) getVarById_(id uint32) *AbstractVar {
+	return this.self_.getVarById_impl(id)
+}
+
+// getVarById_impl is getVar_impl with the scopes' tables read by the name's id: no bytes are
+// hashed or compared.
+func (this *AbstractScope) getVarById_impl(id uint32) *AbstractVar {
+	imp := AbstractScope_ImplicitVar_ofId_(id)
+	{
+		var scope *AbstractScope = this.thisScope()
+		for ; scope != nil; scope = scope.getParent() {
+			if var_ := scope.vars.lookupId(id); var_ != nil {
 				return var_
 			}
 			if imp != 0 {

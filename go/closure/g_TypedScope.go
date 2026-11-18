@@ -189,6 +189,12 @@ func (this *TypedScope) isDeclarativelyUnboundVarWithoutType(var_ *TypedVar) boo
 	return ((((var_.getParentNode() != 0) && (var_.getType() == nil)) && var_.getParentNode().isVar()) && !var_.isExtern())
 }
 
+// getVarById_impl: a typed scope looks the name up as a string, as getVar does (qualified
+// names; post-flip manual step).
+func (this *TypedScope) getVarById_impl(id uint32) *AbstractVar {
+	return this.getVar_impl(strid_str_(id))
+}
+
 func (this *TypedScope) getVar_impl(name string) *AbstractVar {
 	var ownSlot *TypedVar = cast_[*TypedVar](this.getOwnSlot(name))
 	if ownSlot != nil {
