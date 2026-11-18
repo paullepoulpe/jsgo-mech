@@ -10,7 +10,8 @@ import javax.lang.model.type.*;
  * Rule "typed collections": decides, declaration by declaration, which fields, local variables,
  * parameters and method results of a collection type hold the runtime's typed collection
  * instead of the erased one: a *TList[X] (rt_tlist.go) for List<X> / ArrayList<X>, a *TSet[X]
- * (rt_tset.go) for Set<X> / HashSet<X> / LinkedHashSet<X> (Ctx.collKinds).
+ * (rt_tset.go) for Set<X> / HashSet<X> / LinkedHashSet<X>, a *TDeque[X] (rt_tdeque.go) for
+ * Deque<X> / ArrayDeque<X> / Queue<X> (Ctx.collKinds).
  *
  * A declaration is typed when
  * - X is a type that has one Go type and no type arguments (a String, a class, an interface, a
@@ -446,7 +447,7 @@ final class Colls {
   void decide() {
     ArrayDeque<Slot> work = new ArrayDeque<>();
     for (Slot s : slots.values()) {
-      if (s.why == null && !s.made) s.why = "no list enters it";
+      if (s.why == null && !s.made) s.why = "no collection enters it";
     }
     for (Slot s : slots.values()) if (s.why != null) work.add(s);
     while (!work.isEmpty()) {

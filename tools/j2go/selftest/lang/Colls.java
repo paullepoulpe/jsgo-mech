@@ -1,11 +1,14 @@
 package lang;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -420,12 +423,66 @@ public class Colls {
     p(ints);
   }
 
+  // ---- deques: ArrayDeques used as stacks and as queues
+  private final Deque<Base> stack = new ArrayDeque<>();
+  private final Queue<String> queue = new ArrayDeque<>();
+
+  static int drain(Deque<String> d, StringBuilder into) {
+    int n = 0;
+    while (!d.isEmpty()) {
+      into.append(d.pop()).append(' ');
+      n++;
+    }
+    return n;
+  }
+
+  void deques() {
+    p(stack.peek() + " " + stack.poll() + " " + stack.isEmpty() + " " + fail(() -> stack.pop()) + " " + fail(() -> stack.removeFirst()) + " " + fail(() -> stack.getFirst()));
+    Derived d = new Derived(5);
+    stack.push(new Base(1));
+    stack.push(d);
+    stack.addLast(new Base(3));
+    stack.addFirst(new Base(0));
+    p(stack + " " + stack.size() + " " + stack.peek() + " " + stack.peekFirst() + " " + stack.peekLast() + " " + stack.getFirst() + " " + stack.getLast()
+        + " " + stack.contains(new Derived(5)) + " " + count(stack));
+    p(stack.pop() + " " + (stack.pop() == d) + " " + stack.removeLast() + " " + stack.pollFirst() + " " + stack.poll() + " " + stack);
+    queue.add("a");
+    queue.add("b");
+    queue.add("c");
+    p(queue.peek() + " " + queue.remove() + " " + queue.poll() + " " + queue.size() + " " + queue + " " + queue.contains("c") + " " + queue.contains("a"));
+    queue.clear();
+    p(queue.poll() + " " + queue.peek() + " " + queue.isEmpty() + " " + fail(() -> queue.remove()));
+    Deque<String> words = new ArrayDeque<>();
+    words.push("x");
+    words.push("y");
+    words.add("z");
+    Deque<String> copy = new ArrayDeque<>(words);
+    Deque<String> fromList = new ArrayDeque<>(Collections.nCopies(2, "n"));
+    StringBuilder sb = new StringBuilder();
+    for (String w : words) {
+      sb.append(w);
+    }
+    for (Iterator<String> it = words.descendingIterator(); it.hasNext(); ) {
+      sb.append(it.next());
+    }
+    Object o = words;
+    Deque<String> viaObject = (Deque<String>) o;
+    viaObject.push("viaObject");
+    p(sb + " " + words + " " + copy + " " + fromList + " " + (viaObject == words) + " " + words.peek() + " " + (asObject(words) == same(words)));
+    p(drain(copy, sb) + " " + sb + " " + copy.isEmpty() + " " + copy.peekLast());
+    Deque<String> none = null;
+    p(none == null);
+    p(fail(() -> none.push("a")));
+    p(fail(() -> none.peek()));
+  }
+
   public static String run() {
     new Colls().fields();
     locals(true);
     locals(false);
     methods();
     new Colls().sets();
+    new Colls().deques();
     return out.toString();
   }
 

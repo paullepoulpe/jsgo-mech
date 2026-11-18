@@ -17,6 +17,7 @@ import "sync/atomic"
 type tconv_[T any] struct {
 	box   func(T) any
 	unbox func(any) T
+	null  T // Java's null as a T (the null string for a String, else the zero value)
 }
 
 type TList[T any] struct {

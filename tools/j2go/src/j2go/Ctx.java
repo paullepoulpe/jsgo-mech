@@ -159,12 +159,12 @@ final class Ctx {
    * Typed collections (rule "typed collections", Colls): a declaration (a field, a local
    * variable, a parameter or the result of a method) of a collection type that only ever holds
    * collections the program makes for it (`new ArrayList<>(..)`, null, or the value of another
-   * such declaration) holds the runtime's typed collection (*TList[X], *TSet[X]; rt_tlist.go,
-   * rt_tset.go), whose elements are X values, not boxes. The translator sees such a declaration,
-   * and the expressions that read it, at the type TList<X> / TSet<X> of a class that exists for
-   * it alone (STUBS: the typed methods of the runtime's type); every other site that the
-   * collection reaches sees it as Java's List / Set through its one erased view (asList(),
-   * asSet()).
+   * such declaration) holds the runtime's typed collection (*TList[X], *TSet[X], *TDeque[X];
+   * rt_tlist.go, rt_tset.go, rt_tdeque.go), whose elements are X values, not boxes. The
+   * translator sees such a declaration, and the expressions that read it, at the type TList<X>
+   * / TSet<X> / TDeque<X> of a class that exists for it alone (STUBS: the typed methods of the
+   * runtime's type); every other site that the collection reaches sees it as Java's List / Set
+   * / Deque through its one erased view (asList(), asSet(), asDeque()).
    */
   static final Map<String, String> STUBS = Map.of(
       "TList", """
@@ -189,6 +189,21 @@ final class Ctx {
         public native boolean add(T v);
         public native boolean has(T v);
         public native boolean del(T v);
+        public native void clear();
+        public native java.util.Iterator<T> iterator();
+      }
+      """,
+      "TDeque", """
+      package j2go.rt;
+      public final class TDeque<T> {
+        public native int size();
+        public native boolean isEmpty();
+        public native boolean add(T v);
+        public native void push(T v);
+        public native T pop();
+        public native T poll();
+        public native T peek();
+        public native T peekLast();
         public native void clear();
         public native java.util.Iterator<T> iterator();
       }
@@ -225,11 +240,16 @@ final class Ctx {
     CollKind set = new CollKind("set", "asSet", "java.util.Set", Set.of("java.util.Set", "java.util.HashSet", "java.util.LinkedHashSet"),
         Map.of("java.util.LinkedHashSet", "Set"),
         Set.of("java.util.Set", "java.util.Collection", "java.lang.Iterable", "java.lang.Object"));
+    CollKind deque = new CollKind("deque", "asDeque", "java.util.Deque", Set.of("java.util.Deque", "java.util.ArrayDeque", "java.util.Queue"),
+        Map.of("java.util.ArrayDeque", "Deque"),
+        Set.of("java.util.Deque", "java.util.Queue", "java.util.Collection", "java.lang.Iterable", "java.util.SequencedCollection", "java.lang.Object"));
     list.stub = elems.getTypeElement("j2go.rt.TList");
     set.stub = elems.getTypeElement("j2go.rt.TSet");
-    for (CollKind k : List.of(list, set)) {
+    deque.stub = elems.getTypeElement("j2go.rt.TDeque");
+    for (CollKind k : List.of(list, set, deque)) {
       if (k.stub == null) continue;
       if (k == set && "1".equals(System.getenv("J2GO_COLLS_NOSETS"))) continue;
+      if (k == deque && "1".equals(System.getenv("J2GO_COLLS_NODEQUES"))) continue;
       collKinds.add(k);
       typedClasses.add(k.stub);
       keptVars.addAll(k.stub.getTypeParameters());
@@ -335,6 +355,17 @@ final class Ctx {
         case "remove/1": tn = int0 ? "removeAt" : null; break;
         default: break;
       }
+    } else if (ck.name.equals("deque")) {
+      // the head is the first item, as in the erased ArrayDeque (rt_coll.go)
+      switch (n + "/" + np) {
+        case "size/0", "isEmpty/0", "clear/0", "iterator/0", "add/1", "push/1", "pop/0", "poll/0", "peek/0", "peekLast/0": tn = n; break;
+        case "addLast/1": tn = "add"; break;
+        case "addFirst/1": tn = "push"; break;
+        case "removeFirst/0", "remove/0": tn = "pop"; break;
+        case "pollFirst/0": tn = "poll"; break;
+        case "peekFirst/0": tn = "peek"; break;
+        default: break;
+      }
     } else {
       // contains and remove take an Object: typed when the argument is an element by its static type
       TypeMirror elem = ((DeclaredType) recv).getTypeArguments().get(0);
@@ -365,7 +396,8 @@ final class Ctx {
       TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
       tconvs.put(name, "");
       tconvs.put(name, "var " + name + " = &tconv_[" + g + "]{\n\tbox:   func(v " + g + ") any { return " + coerce("v", elem, object)
-          + " },\n\tunbox: func(v any) " + g + " { return " + coerce("v", object, elem) + " },\n}\n");
+          + " },\n\tunbox: func(v any) " + g + " { return " + coerce("v", object, elem) + " },\n"
+          + (kind(elem) == K.STR ? "\tnull:  nullstr_,\n" : "") + "}\n");
     }
     return name;
   }
