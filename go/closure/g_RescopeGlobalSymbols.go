@@ -329,7 +329,7 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit_impl(t *NodeTrav
 		return
 	}
 	if NodeUtil_isAnyFor(parent) && (parent.getFirstChild() == n) {
-		var commas *JTList[Node] = jnewTList_(jtc_Node)
+		var commas *TList[Node] = newTList_(tc_Node)
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
@@ -388,7 +388,7 @@ func RescopeGlobalSymbols_RemoveGlobalVarCallback_hasOnlyNameOrDestructuringChil
 	return n.hasChildren()
 }
 
-func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) joinOnComma(commas *JTList[Node], source Node) Node {
+func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) joinOnComma(commas *TList[Node], source Node) Node {
 	var comma Node = commas.get(0)
 	for i := int32(1); i < commas.size(); i++ {
 		var nextComma Node = IR_comma(comma, commas.get(i))

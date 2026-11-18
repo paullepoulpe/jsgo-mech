@@ -4,7 +4,7 @@ package closure
 
 type CheckProvidesSorted struct {
 	mode_            CheckProvidesSorted_Mode
-	originalProvides *JTList[string]
+	originalProvides *TList[string]
 	firstNode        Node
 	lastNode         Node
 	finished         bool
@@ -13,7 +13,7 @@ type CheckProvidesSorted struct {
 }
 
 func (this *CheckProvidesSorted) finit_CheckProvidesSorted() {
-	this.originalProvides = jnewTList_(jtc_string)
+	this.originalProvides = newTList_(tc_string)
 	this.firstNode = 0
 	this.lastNode = 0
 	this.finished = false
@@ -87,7 +87,7 @@ func CheckProvidesSorted_formatProvide(namespace string) string {
 }
 
 func (this *CheckProvidesSorted) checkCanonical(t *NodeTraversal) {
-	var sortedProvides *JTList[string] = tlistCopy_(jtc_string, this.originalProvides)
+	var sortedProvides *TList[string] = tlistCopyT_(tc_string, this.originalProvides)
 	Collections_sort(sortedProvides.asList())
 	var canonicalProvides *ImmutableList[string] = immutableListCopyOf_(tc_string, new_LinkedHashSet_Collection(Collection(sortedProvides.asList())))
 	if !equalsVia_(this.originalProvides.asList(), obj_(canonicalProvides.asImm())) {

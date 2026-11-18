@@ -5,12 +5,12 @@ package closure
 type RewriteGlobalDeclarationsForTryCatchWrapping struct {
 	compiler_ *AbstractCompiler
 	functions *SimpleListMultimap[*JSChunk, Node]
-	classes   *JTList[Node]
+	classes   *TList[Node]
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) finit_RewriteGlobalDeclarationsForTryCatchWrapping() {
 	this.functions = SimpleListMultimap_create[*JSChunk, Node]()
-	this.classes = jnewTList_(jtc_Node)
+	this.classes = newTList_(tc_Node)
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) init_RewriteGlobalDeclarationsForTryCatchWrapping(compiler *AbstractCompiler) {

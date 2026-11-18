@@ -782,7 +782,7 @@ func (this *PeepholeRemoveDeadCode) redeclareIfBlockScopedVar(decl Node, parent 
 	if !NodeUtil_isBlockScopedDeclaration(decl) {
 		return
 	}
-	var blockScopedVars *JTList[Node] = jnewTList_(jtc_Node)
+	var blockScopedVars *TList[Node] = newTList_(tc_Node)
 	if decl.isClass() {
 		blockScopedVars.add(decl.getFirstChild())
 	} else {

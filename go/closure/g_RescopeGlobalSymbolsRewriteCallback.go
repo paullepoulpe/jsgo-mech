@@ -7,7 +7,7 @@ type RescopeGlobalSymbolsRewriteCallback struct {
 	optimizeLocalAccess                     CompilerOptions_OptimizeLocalAccess
 	symbolInfo                              *RescopeGlobalSymbolsInfo
 	renameHelper                            *RescopeGlobalSymbolsRenameHelper
-	preDeclarations                         *JTList[*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal]
+	preDeclarations                         *TList[*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal]
 	localAliasesForUnwrappedCrossChunkNames *JTMap[*JSChunk, Set]
 	chunksUsingCrossChunkSymbols            *JTMap[string, Set]
 	chunksUsingWrappedReassignableSymbols   *JTMap[string, Set]
@@ -15,7 +15,7 @@ type RescopeGlobalSymbolsRewriteCallback struct {
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) finit_RescopeGlobalSymbolsRewriteCallback() {
-	this.preDeclarations = jnewTList_(tc_p_RescopeGlobalSymbolsRewriteCallback_ChunkGlobal)
+	this.preDeclarations = newTList_(tc_p_RescopeGlobalSymbolsRewriteCallback_ChunkGlobal.t_())
 	this.localAliasesForUnwrappedCrossChunkNames = jnewTMap_(jtc_p_JSChunk, tc_Set)
 	this.chunksUsingCrossChunkSymbols = jnewTMap_(jtc_string, tc_Set)
 	this.chunksUsingWrappedReassignableSymbols = jnewTMap_(jtc_string, tc_Set)
@@ -461,8 +461,8 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 	}
 	var allLocalAliases IterableOf[string] = Iterables_concat(Iterable(this.localAliasesForUnwrappedCrossChunkNames.getOr(chunk, ImmutableSet_of())), Iterable(wrappedReassignableLocalAliases.asSet()))
 	if !Iterables_isEmpty(allLocalAliases) {
-		var aliasesToKeep *JTList[string] = jnewTList_(jtc_string)
-		var aliasesToDelete *JTList[string] = jnewTList_(jtc_string)
+		var aliasesToKeep *TList[string] = newTList_(tc_string)
+		var aliasesToDelete *TList[string] = newTList_(tc_string)
 		for name := range elemsBy_(allLocalAliases, str_) {
 			if this.optimizeLocalAccess.shouldDeleteGlobalsOnLastAccess() && this.canDeleteFromGlobalNamespace(chunk, name) {
 				aliasesToDelete.add(name)

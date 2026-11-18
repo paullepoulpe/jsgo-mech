@@ -203,7 +203,7 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 }
 
 func (this *ReplaceMessages) buildMessageNode(msgParts []JsMessage_Part, options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderNodeProvider func(string) Node, isGenderedMsg bool) *Outcome_base[Node] {
-	var parts *JTList[JsMessage_Part] = ReplaceMessages_mergeStringParts(msgParts)
+	var parts *TList[JsMessage_Part] = ReplaceMessages_mergeStringParts(msgParts)
 	if parts.isEmpty() {
 		return Outcome_base_ok_Object[Node](this.astFactory_.createString(""))
 	}
@@ -274,8 +274,8 @@ func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_Msg
 	return this.astFactory_.createString(s)
 }
 
-func ReplaceMessages_mergeStringParts(parts []JsMessage_Part) *JTList[JsMessage_Part] {
-	var result *JTList[JsMessage_Part] = jnewTList_(jtc_JsMessage_Part)
+func ReplaceMessages_mergeStringParts(parts []JsMessage_Part) *TList[JsMessage_Part] {
+	var result *TList[JsMessage_Part] = newTList_(tc_JsMessage_Part)
 	for _, part := range parts {
 		if part.isPlaceholder() {
 			result.add(part)

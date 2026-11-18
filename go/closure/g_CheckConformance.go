@@ -76,7 +76,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *Imm
 			return []*CheckConformance_Category{}
 		}
 	}
-	var mergedRequirements *JTList[*Requirement] = this.mergeRequirements(compiler, immItems_(configs), isLibraryLevelReportingMode)
+	var mergedRequirements *TList[*Requirement] = this.mergeRequirements(compiler, immItems_(configs), isLibraryLevelReportingMode)
 	it_1 := mergedRequirements.each()
 	for it_1.next() {
 		var requirement *Requirement = it_1.v
@@ -141,7 +141,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 	return true
 }
 
-func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs []*ConformanceConfig, isLibraryLevelConformanceReportingMode bool) *JTList[*Requirement] {
+func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs []*ConformanceConfig, isLibraryLevelConformanceReportingMode bool) *TList[*Requirement] {
 	var rootRequirements *JTMap[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = jnewTMap_(tce_p_Requirement_Builder, jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 	var extendable *JTMap[string, *Requirement_Builder] = jnewTMap_(jtc_string, jtc_p_Requirement_Builder)
 	for _, config := range configs {
@@ -187,7 +187,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 			}
 		}
 	}
-	var cleanedUpRootRequirements *JTList[*Requirement] = jnewTListN_(jtc_p_Requirement, rootRequirements.size())
+	var cleanedUpRootRequirements *TList[*Requirement] = newTListN_(jtc_p_Requirement.t_(), rootRequirements.size())
 	it_9 := rootRequirements.eachEntry()
 	for it_9.next() {
 		var entry *TEntry[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = it_9.entry()

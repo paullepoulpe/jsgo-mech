@@ -6,7 +6,7 @@ import "strings"
 
 type ExternExportsPass struct {
 	NodeTraversal_AbstractPostOrderCallback
-	exports                     *JTList[*ExternExportsPass_Export]
+	exports                     *TList[*ExternExportsPass_Export]
 	definitionMap               *JTMap[string, Node]
 	compiler_                   *AbstractCompiler
 	externsRoot                 Node
@@ -25,7 +25,7 @@ func (this *ExternExportsPass) up_NodeTraversal_AbstractPostOrderCallback() *Nod
 
 func (this *ExternExportsPass) init_ExternExportsPass(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
-	this.exports = jnewTList_(jtc_p_ExternExportsPass_Export)
+	this.exports = newTList_(jtc_p_ExternExportsPass_Export.t_())
 	this.compiler_ = compiler
 	this.definitionMap = jnewTMap_(jtc_string, jtc_Node)
 	this.externsRoot = IR_script_0()
@@ -336,7 +336,7 @@ func (this *ExternExportsPass_Export) createExternFunction(exportedFunction Node
 
 func (this *ExternExportsPass_Export) createExternsParamListFromOriginalFunction(exportedFunction Node) Node {
 	var originalParamList Node = NodeUtil_getFunctionParameters(exportedFunction)
-	var originalParamNames *JTList[string] = jnewTList_(jtc_string)
+	var originalParamNames *TList[string] = newTList_(tc_string)
 	{
 		var originalParam Node = originalParamList.getFirstChild()
 		for ; originalParam != 0; originalParam = originalParam.getNext() {

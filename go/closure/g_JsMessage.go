@@ -579,7 +579,7 @@ type JsMessage_Builder struct {
 	isExternal_                      bool
 	id                               Optional[string]
 	alternateId                      Optional[string]
-	parts                            *JTList[JsMessage_Part]
+	parts                            *TList[JsMessage_Part]
 	genderedMessageMap               *JTMap[JsMessage_GrammaticalGenderCase, List]
 	jsPlaceholderNames_              *JTSet[string]
 	canonicalPlaceholderNames_       *JTSet[string]
@@ -596,7 +596,7 @@ func (this *JsMessage_Builder) finit_JsMessage_Builder() {
 	this.isExternal_ = false
 	this.id = Optional_empty[string]()
 	this.alternateId = Optional_empty[string]()
-	this.parts = jnewTList_(jtc_JsMessage_Part)
+	this.parts = newTList_(tc_JsMessage_Part)
 	this.genderedMessageMap = jnewTMap_(jtc_p_JsMessage_GrammaticalGenderCase, tc_List)
 	this.jsPlaceholderNames_ = jnewTSet_(jtc_string)
 	this.canonicalPlaceholderNames_ = jnewTSet_(jtc_string)
@@ -746,7 +746,7 @@ func (this *JsMessage_Builder) hasGenderedVariants() bool {
 	return !this.genderedMessageMap.isEmpty()
 }
 
-func (this *JsMessage_Builder) getParts() *JTList[JsMessage_Part] {
+func (this *JsMessage_Builder) getParts() *TList[JsMessage_Part] {
 	return this.parts
 }
 

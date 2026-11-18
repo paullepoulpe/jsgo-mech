@@ -14,14 +14,14 @@ type NodeTraversal struct {
 	currentFunction                                Node
 	currentScript                                  Node
 	currentChangeScope                             Node
-	scopes                                         *JTList[any]
+	scopes                                         *TList[any]
 	sourceName_                                    Optional[string]
 	inputId                                        *InputId
 	compilerInput                                  *CompilerInput
 }
 
 func (this *NodeTraversal) finit_NodeTraversal() {
-	this.scopes = jnewTList_(tc_Object)
+	this.scopes = newTList_(tc_Object.t_())
 	this.sourceName_ = Optional_empty[string]()
 }
 

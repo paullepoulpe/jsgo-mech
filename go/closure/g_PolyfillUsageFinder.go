@@ -309,7 +309,7 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.methods = methods
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
-	var suffixList *JTList[string] = jnewTList_(jtc_string)
+	var suffixList *TList[string] = newTList_(tc_string)
 	for _, el := range immElems_(cast_[*ErasedImmutableSet](statics.asImm().keySet())) {
 		arg := str_(el)
 		suffixList.add(arg[strings.LastIndexByte(arg, '.')+1:])

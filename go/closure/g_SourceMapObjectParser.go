@@ -318,7 +318,7 @@ func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_b
 		lexer.pos += 4
 		return Outcome_base_ok_Object[[]string](nil)
 	}
-	var list *JTList[string] = jnewTList_(jtc_string)
+	var list *TList[string] = newTList_(tc_string)
 	var begun *Outcome_base[any] = lexer.beginArray()
 	if begun.isErr() {
 		return Outcome_base_err[[]string](begun.error())

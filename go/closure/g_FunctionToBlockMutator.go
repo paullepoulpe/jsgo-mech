@@ -78,7 +78,7 @@ func FunctionToBlockMutator_rewriteFunctionDeclarations(n Node) Node {
 		}
 		return 0
 	}
-	var functionsToHoist *JTList[Node] = jnewTList_(jtc_Node)
+	var functionsToHoist *TList[Node] = newTList_(tc_Node)
 	{
 		var c Node = n.getFirstChild()
 		var next Node
@@ -203,7 +203,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 		return result
 	} else {
 		var paramReplacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
-		var newAliasesToAdd *JTList[Node] = jnewTList_(jtc_Node)
+		var newAliasesToAdd *TList[Node] = newTList_(tc_Node)
 		for _, el2 := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.asImm().entrySet())) {
 			entry := icast_Map_Entry(el2)
 			var name string = str_(entry.getKey())

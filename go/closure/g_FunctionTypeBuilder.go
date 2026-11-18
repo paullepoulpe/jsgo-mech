@@ -14,8 +14,8 @@ type FunctionTypeBuilder struct {
 	syntacticFnName              string
 	returnType                   *JSType
 	returnTypeInferred           bool
-	implementedInterfaces        *JTList[*ObjectType]
-	extendedInterfaces           *JTList[*ObjectType]
+	implementedInterfaces        *TList[*ObjectType]
+	extendedInterfaces           *TList[*ObjectType]
 	baseType                     *ObjectType
 	thisType                     *JSType
 	isClass_                     bool
@@ -239,7 +239,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 	}
 	if (info != nil) && (info.getImplementedInterfaceCount() > 0) {
 		if this.isConstructor_ {
-			this.implementedInterfaces = jnewTList_(jtc_p_ObjectType)
+			this.implementedInterfaces = newTList_(tc_p_ObjectType)
 			for t := range elemsAs_[*JSTypeExpression](info.getImplementedInterfaces()) {
 				var maybeInterType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
 				if maybeInterType.setValidator(icast_Predicate_base(obj_(this.createImplementedTypeValidator()))) {
@@ -253,7 +253,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 		}
 	}
 	if this.isInterface_ {
-		this.extendedInterfaces = jnewTList_(jtc_p_ObjectType)
+		this.extendedInterfaces = newTList_(tc_p_ObjectType)
 		if info != nil {
 			for t := range elemsAs_[*JSTypeExpression](info.getExtendedInterfaces()) {
 				var maybeInterfaceType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
@@ -485,7 +485,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 	if infoTypeKeys.IsEmpty() && infoTypeTransformations.IsEmpty() {
 		return immutableListOf_(tc_p_TemplateType)
 	}
-	var unboundedTemplates *JTList[*TemplateType] = jnewTList_(jtc_p_TemplateType)
+	var unboundedTemplates *TList[*TemplateType] = newTList_(tc_p_TemplateType)
 	for _, el := range immElems_(cast_[*ErasedImmutableSet](infoTypeKeys.asImm().keySet())) {
 		templateKey := str_(el)
 		unboundedTemplates.add(this.typeRegistry.createTemplateType(templateKey))

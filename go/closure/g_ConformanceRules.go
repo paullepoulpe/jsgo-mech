@@ -616,7 +616,7 @@ func ConformanceRules_AbstractTypeRestrictionRule_isBottom(n Node) bool {
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) union(typeNames ListOf[string]) *JSType {
 	var registry *JSTypeRegistry = this.compiler_.getTypeRegistry()
-	var types *JTList[*JSType] = jnewTList_(jtc_p_JSType)
+	var types *TList[*JSType] = newTList_(tc_p_JSType)
 	for typeName := range elemsBy_(typeNames, str_) {
 		var type_ *JSType = registry.getGlobalType(typeName)
 		if type_ == nil {
@@ -2803,15 +2803,15 @@ func ConformanceRules_BanUnresolvedType_getNonConformingPart(type_ *JSType) Opti
 		return Optional_empty[string]()
 	}
 	if type_.isUnionType() {
-		var nonConformingParts *JTList[string] = nil
+		var nonConformingParts *TList[string] = nil
 		for part := range elemsBy_(type_.getUnionMembers(), to_JSType) {
 			var nonConformingPart Optional[string] = ConformanceRules_BanUnresolvedType_getNonConformingPart(part)
 			if nonConformingPart.isPresent() {
-				nonConformingParts = func() *JTList[string] {
+				nonConformingParts = func() *TList[string] {
 					if nonConformingParts != nil {
 						return nonConformingParts
 					}
-					return jnewTList_(jtc_string)
+					return newTList_(tc_string)
 				}()
 				nonConformingParts.add(nonConformingPart.get())
 			}

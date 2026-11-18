@@ -9,9 +9,9 @@ type JsFileRegexParser struct {
 	googMatcher               *Matcher_re2j
 	es6Matcher                *Matcher_re2j
 	googMatcherBuffer         string
-	provides                  *JTList[string]
-	requires                  *JTList[*DependencyInfo_Require]
-	typeRequires              *JTList[string]
+	provides                  *TList[string]
+	requires                  *TList[*DependencyInfo_Require]
+	typeRequires              *TList[string]
 	fileHasProvidesOrRequires bool
 	hasExternsAnnotation      bool
 	hasNoCompileAnnotation    bool
@@ -73,9 +73,9 @@ func (this *JsFileRegexParser) parseFile(filePath string, closureRelativePath st
 }
 
 func (this *JsFileRegexParser) parseReader(filePath string, closureRelativePath string, fileContents string) DependencyInfo {
-	this.provides = jnewTList_(jtc_string)
-	this.requires = jnewTList_(jtc_p_DependencyInfo_Require)
-	this.typeRequires = jnewTList_(jtc_string)
+	this.provides = newTList_(tc_string)
+	this.requires = newTList_(tc_p_DependencyInfo_Require)
+	this.typeRequires = newTList_(tc_string)
 	this.fileHasProvidesOrRequires = false
 	this.hasExternsAnnotation = false
 	this.hasNoCompileAnnotation = false

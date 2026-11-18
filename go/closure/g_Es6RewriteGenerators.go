@@ -347,7 +347,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileUnm
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileLabel(n Node) {
-	var labelNames *JTList[Node] = jnewTList_(jtc_Node)
+	var labelNames *TList[Node] = newTList_(tc_Node)
 	for n.isLabel() {
 		labelNames.add(n.removeFirstChild())
 		n = n.removeFirstChild()
@@ -813,8 +813,8 @@ type Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext
 	catchCases              *TDeque[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase]
 	finallyCases            *TDeque[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
 	catchNames              *JTSet[string]
-	allCases                *JTList[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
-	switchBreaks            *JTList[Node]
+	allCases                *TList[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
+	switchBreaks            *TList[Node]
 	programEndCase          *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
 	caseIdCounter           int32
 	currentCase             *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
@@ -830,8 +830,8 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	this.catchCases = newTDeque_(jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase)
 	this.finallyCases = newTDeque_(jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
 	this.catchNames = jnewTSet_(jtc_string)
-	this.allCases = jnewTList_(jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
-	this.switchBreaks = jnewTList_(jtc_Node)
+	this.allCases = newTList_(jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case.t_())
+	this.switchBreaks = newTList_(tc_Node)
 	this.nestedFinallyBlockCount = 0
 }
 
@@ -1099,7 +1099,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) yieldValue(expression Node, jumpToSection *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, sourceNode Node) {
-	var args *JTList[Node] = jnewTList_(jtc_Node)
+	var args *TList[Node] = newTList_(tc_Node)
 	args.add(func() Node {
 		if expression == 0 {
 			return this.outer_.outer_.astFactory_.createUndefinedValue().srcrefTree(sourceNode)
@@ -1189,7 +1189,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) enterTryBlock(catchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, finallyCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, sourceNode Node) {
 	this.addCatchFinallyCases(catchCase, finallyCase)
 	var methodName string
-	var args *JTList[Node] = jnewTList_(jtc_Node)
+	var args *TList[Node] = newTList_(tc_Node)
 	if catchCase == nil {
 		methodName = "setFinallyBlock"
 		args.add(finallyCase.getNumber(sourceNode))
@@ -1205,7 +1205,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) leaveTryBlock(catchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, endCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, sourceNode Node) {
 	this.removeCatchFinallyCases(catchCase, nil)
-	var args *JTList[Node] = jnewTList_(jtc_Node)
+	var args *TList[Node] = newTList_(tc_Node)
 	args.add(endCase.getNumber(sourceNode))
 	var nextCatchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = this.getNextCatchCase()
 	if nextCatchCase != nil {
@@ -1223,7 +1223,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	if this.catchNames.add(exceptionName.getString()) {
 		this.outer_.hoistVarNode(IR_var_Node(exceptionName.cloneNode()).srcref(exceptionName))
 	}
-	var args *JTList[Node] = jnewTList_(jtc_Node)
+	var args *TList[Node] = newTList_(tc_Node)
 	if nextCatchCase != nil {
 		args.add(nextCatchCase.getNumber(exceptionName))
 	}
@@ -1243,7 +1243,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	this.removeCatchFinallyCases(catchCase, finallyCase)
 	var nextCatchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = this.getNextCatchCase()
 	var nextFinallyCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = this.getNextFinallyCase()
-	var args *JTList[Node] = jnewTList_(jtc_Node)
+	var args *TList[Node] = newTList_(tc_Node)
 	if this.nestedFinallyBlockCount == 0 {
 		if (nextCatchCase != nil) || (nextFinallyCase != nil) {
 			args.add(func() Node {
@@ -1276,7 +1276,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) leaveFinallyBlock(endCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, sourceNode Node) {
-	var args *JTList[Node] = jnewTList_(jtc_Node)
+	var args *TList[Node] = newTList_(tc_Node)
 	args.add(endCase.getNumber(sourceNode))
 	this.nestedFinallyBlockCount--
 	if this.nestedFinallyBlockCount != 0 {
@@ -1291,7 +1291,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	this.currentCase = caseSection
 }
 
-func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) pushLabels(labelNames *JTList[Node], breakCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, continueCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) {
+func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) pushLabels(labelNames *TList[Node], breakCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case, continueCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) {
 	it_1 := labelNames.each()
 	for it_1.next() {
 		var labelName Node = it_1.v
@@ -1302,7 +1302,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	}
 }
 
-func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) popLabels(labelNames *JTList[Node]) {
+func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) popLabels(labelNames *TList[Node]) {
 	it_1 := labelNames.each()
 	for it_1.next() {
 		var labelName Node = it_1.v
@@ -1335,14 +1335,14 @@ type Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext
 	outer_         *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext
 	id             int32
 	caseBlock      Node
-	references     *JTList[Node]
+	references     *TList[Node]
 	jumpToField    *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
 	embedInto      Node
 	mayFallThrough bool
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) finit_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case() {
-	this.references = jnewTList_(jtc_Node)
+	this.references = newTList_(tc_Node)
 	this.mayFallThrough = true
 }
 
@@ -1556,7 +1556,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler) extractAssignmentsToCommaExpression(varDeclaration Node) Node {
-	var assignments *JTList[Node] = jnewTList_(jtc_Node)
+	var assignments *TList[Node] = newTList_(tc_Node)
 	{
 		var varName Node = varDeclaration.getFirstChild()
 		for ; varName != 0; varName = varName.getNext() {

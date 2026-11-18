@@ -63,12 +63,12 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 			defer closeResource_(histogram.self())
 			histogram.logString("step_count token population")
 			var totals []int32 = []int32{0, 0}
-			var stepCounts *JTList[any] = jtlistFrom_(tc_Integer, Collection(this.stepCountHistogram.keySet()))
+			var stepCounts *TList[any] = tlistFrom_(tc_Integer.t_(), Collection(this.stepCountHistogram.keySet()))
 			List_sort(stepCounts.asList(), Comparator_reversed(Comparator_naturalOrder()))
 			it_5 := stepCounts.each()
 			for it_5.next() {
 				var stepCount any = it_5.v
-				var entries *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(this.stepCountHistogram.get(stepCount).(*SimpleMultiset[any]).entrySet()))
+				var entries *TList[Map_Entry] = tlistFrom_(tc_Map_Entry.t_(), Collection(this.stepCountHistogram.get(stepCount).(*SimpleMultiset[any]).entrySet()))
 				List_sort(entries.asList(), Comparator_comparingInt(&ToIntFunction_tfn_Map_Entry{func(p0 Map_Entry) int32 { return unbox_[int32](p0.getValue()) }}))
 				it_7 := entries.each()
 				for it_7.next() {

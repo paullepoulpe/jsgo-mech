@@ -184,7 +184,7 @@ type AliasStrings_StringInfo struct {
 	outer_                       *AliasStrings
 	id                           int32
 	isAliased                    bool
-	occurrences                  *JTList[Node]
+	occurrences                  *TList[Node]
 	chunkToContainDecl           *JSChunk
 	parentForNewVarDecl          Node
 	siblingToInsertVarDeclBefore Node
@@ -192,7 +192,7 @@ type AliasStrings_StringInfo struct {
 }
 
 func (this *AliasStrings_StringInfo) finit_AliasStrings_StringInfo() {
-	this.occurrences = jnewTList_(jtc_Node)
+	this.occurrences = newTList_(tc_Node)
 	this.aliasName_ = Optional_empty[string]()
 }
 

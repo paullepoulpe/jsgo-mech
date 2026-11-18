@@ -195,7 +195,7 @@ func EsModuleProcessor_clinit() {
 
 type EsModuleProcessor_FindMutableExports struct {
 	NodeTraversal_AbstractPostOrderCallback
-	exports            *JTList[*Export]
+	exports            *TList[*Export]
 	exportsByLocalName *SimpleListMultimap[any, *Export]
 }
 
@@ -206,7 +206,7 @@ func (this *EsModuleProcessor_FindMutableExports) up_NodeTraversal_AbstractPostO
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *EsModuleProcessor_FindMutableExports) init_EsModuleProcessor_FindMutableExports(exports *JTList[*Export]) {
+func (this *EsModuleProcessor_FindMutableExports) init_EsModuleProcessor_FindMutableExports(exports *TList[*Export]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.exports = exports
 	this.exportsByLocalName = SimpleListMultimap_create[any, *Export]()
@@ -217,7 +217,7 @@ func (this *EsModuleProcessor_FindMutableExports) init_EsModuleProcessor_FindMut
 	}
 }
 
-func new_EsModuleProcessor_FindMutableExports(exports *JTList[*Export]) *EsModuleProcessor_FindMutableExports {
+func new_EsModuleProcessor_FindMutableExports(exports *TList[*Export]) *EsModuleProcessor_FindMutableExports {
 	this := &EsModuleProcessor_FindMutableExports{}
 	this.self_ = this
 	this.init_EsModuleProcessor_FindMutableExports(exports)
@@ -254,7 +254,7 @@ type EsModuleProcessor_UnresolvedModuleBuilder struct {
 	path_              *ModuleLoader_ModulePath
 	root               Node
 	importsByLocalName *JTMap[string, *Import]
-	exports            *JTList[*Export]
+	exports            *TList[*Export]
 	exportedNames      *JTSet[string]
 }
 
@@ -262,7 +262,7 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) init_EsModuleProcessor_Un
 	this.path_ = path
 	this.root = root
 	this.importsByLocalName = jnewTMap_(jtc_string, jtc_p_Import)
-	this.exports = jnewTList_(jtc_p_Export)
+	this.exports = newTList_(tc_p_Export)
 	this.exportedNames = jnewTSet_(jtc_string)
 }
 
@@ -292,7 +292,7 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) add(e *Export) bool {
 }
 
 func (this *EsModuleProcessor_UnresolvedModuleBuilder) build() *UnresolvedModule {
-	var localExports *JTList[*Export] = jnewTList_(jtc_p_Export)
+	var localExports *TList[*Export] = newTList_(tc_p_Export)
 	var indirectExportsBuilder []*Export
 	var starExportsBuilder []*Export
 	it_1 := this.exports.each()

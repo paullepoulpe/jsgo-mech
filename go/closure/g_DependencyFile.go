@@ -49,7 +49,7 @@ func (this *DependencyFile) loadGraph() {
 	DependencyFile_logger.info("Loading dependency graph")
 	var errorManager ErrorManager = new_LoggerErrorManager_Logger(DependencyFile_logger)
 	var parser *DepsFileRegexParser = new_DepsFileRegexParser_ErrorManager(errorManager)
-	var depInfos *JTList[DependencyInfo] = parser.parseFile_2(this.getName(), this.getContent())
+	var depInfos *TList[DependencyInfo] = parser.parseFile_2(this.getName(), this.getContent())
 	if !parser.didParseSucceed() {
 		panic(new_ServiceException(("Problem parsing " + sstr_(this.getName()) + ". See logs for details.")))
 	}
@@ -65,7 +65,7 @@ func (this *DependencyFile) loadGraph() {
 			this.dependencies.put(provide, depInfo)
 		}
 	}
-	var provides *JTList[string] = jnewTList_(jtc_string)
+	var provides *TList[string] = newTList_(tc_string)
 	provides.add(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE)
 	this.dependencies.put(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE, icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(DefaultDependencyResolver_CLOSURE_BASE, Optional_of[string](DefaultDependencyResolver_CLOSURE_BASE)).setProvides(Collection(provides.asList())).build())))
 	errorManager.generateReport()

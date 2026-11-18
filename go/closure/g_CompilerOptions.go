@@ -171,7 +171,7 @@ type CompilerOptions struct {
 	lineLengthThreshold                          int32
 	useOriginalNamesInOutput                     bool
 	externExportsPath                            Optional[string]
-	extraReportGenerators                        *JTList[SortingErrorManager_ErrorReportGenerator]
+	extraReportGenerators                        *TList[SortingErrorManager_ErrorReportGenerator]
 	sourceMapOutputPath                          Optional[string]
 	shouldAlwaysGatherSourceMapInfo_             bool
 	sourceMapDetailLevel                         SourceMap_DetailLevel
@@ -272,7 +272,7 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.lineLengthThreshold = CompilerOptions_DEFAULT_LINE_LENGTH_THRESHOLD
 	this.useOriginalNamesInOutput = false
 	this.externExportsPath = Optional_empty[string]()
-	this.extraReportGenerators = jnewTList_(jtc_SortingErrorManager_ErrorReportGenerator)
+	this.extraReportGenerators = newTList_(tc_SortingErrorManager_ErrorReportGenerator)
 	this.sourceMapOutputPath = Optional_empty[string]()
 	this.shouldAlwaysGatherSourceMapInfo_ = false
 	this.sourceMapDetailLevel = SourceMap_DetailLevel_ALL
@@ -675,7 +675,7 @@ func (this *CompilerOptions) setTracerOutput(out Optional[string]) {
 	this.tracerOutput = out
 }
 
-func (this *CompilerOptions) getExtraReportGenerators() *JTList[SortingErrorManager_ErrorReportGenerator] {
+func (this *CompilerOptions) getExtraReportGenerators() *TList[SortingErrorManager_ErrorReportGenerator] {
 	return this.extraReportGenerators
 }
 
@@ -3639,8 +3639,8 @@ func (this CompilerOptions_LanguageMode) isDefaultStrict() bool {
 	}()
 }
 
-func CompilerOptions_LanguageMode_validCommandLineNames() *JTList[string] {
-	var names *JTList[string] = jnewTList_(jtc_string)
+func CompilerOptions_LanguageMode_validCommandLineNames() *TList[string] {
+	var names *TList[string] = newTList_(tc_string)
 	for mode := range elemsAs_[CompilerOptions_LanguageMode](obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.CompilerOptions.LanguageMode")))) {
 		if mode != CompilerOptions_LanguageMode_UNSUPPORTED {
 			names.add(mode.name())

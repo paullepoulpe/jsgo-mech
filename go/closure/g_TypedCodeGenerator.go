@@ -206,7 +206,7 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 func (this *TypedCodeGenerator) appendTemplateAnnotations(sb *strBuilder_, typeParams CollectionOf[*JSType]) {
 	if !typeParams.isEmpty() {
 		sb.append(" * @template ")
-		var formattedTypeParams *JTList[string] = jnewTList_(jtc_string)
+		var formattedTypeParams *TList[string] = newTList_(tc_string)
 		for typeParam := range elemsBy_(typeParams, to_JSType) {
 			formattedTypeParams.add(this.formatTypeVar(typeParam))
 		}

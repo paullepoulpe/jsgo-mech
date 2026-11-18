@@ -2762,11 +2762,11 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 type RegExpTree_Concatenation_1Simplifier struct {
 	outer_     *RegExpTree_Concatenation
 	cap_flags  string
-	simplified *JTList[*RegExpTree]
+	simplified *TList[*RegExpTree]
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) finit_RegExpTree_Concatenation_1Simplifier() {
-	this.simplified = jnewTList_(jtc_p_RegExpTree)
+	this.simplified = newTList_(tc_p_RegExpTree)
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) init_RegExpTree_Concatenation_1Simplifier() {

@@ -249,7 +249,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var name string = function[:first]
 	var params string = cutBytes_(function, (first + 1), last)
 	var paramCount int32 = 0
-	var replacementParameters *JTList[any] = jnewTList_(tc_Integer)
+	var replacementParameters *TList[any] = newTList_(tc_Integer.t_())
 	var parts []string = sliceImm_(tc_string, Splitter_on(',').splitToList_s(params))
 	for _, param := range parts {
 		paramCount++
@@ -315,7 +315,7 @@ func ReplaceStrings_clinit() {
 
 type ReplaceStrings_Config struct {
 	name_                    string
-	parameters               *JTList[any]
+	parameters               *TList[any]
 	excludedFilenameSuffixes *ImmutableSet[string]
 }
 
@@ -323,13 +323,13 @@ func (this *ReplaceStrings_Config) zero_ReplaceStrings_Config() {
 	this.name_ = nullstr_
 }
 
-func (this *ReplaceStrings_Config) init_ReplaceStrings_Config(name string, replacementParameters *JTList[any], excludedFilenameSuffixes *ImmutableSet[string]) {
+func (this *ReplaceStrings_Config) init_ReplaceStrings_Config(name string, replacementParameters *TList[any], excludedFilenameSuffixes *ImmutableSet[string]) {
 	this.name_ = name
 	this.parameters = replacementParameters
 	this.excludedFilenameSuffixes = excludedFilenameSuffixes
 }
 
-func new_ReplaceStrings_Config(name string, replacementParameters *JTList[any], excludedFilenameSuffixes *ImmutableSet[string]) *ReplaceStrings_Config {
+func new_ReplaceStrings_Config(name string, replacementParameters *TList[any], excludedFilenameSuffixes *ImmutableSet[string]) *ReplaceStrings_Config {
 	this := &ReplaceStrings_Config{}
 	this.zero_ReplaceStrings_Config()
 	this.init_ReplaceStrings_Config(name, replacementParameters, excludedFilenameSuffixes)

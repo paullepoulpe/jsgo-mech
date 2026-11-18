@@ -340,7 +340,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	if cached != 0 {
 		return cached
 	}
-	var innerFns *JTList[Node] = jnewTList_(jtc_Node)
+	var innerFns *TList[Node] = newTList_(tc_Node)
 	NodeUtil_visitPreOrder_Node_Visitor(containerFn, &NodeUtil_Visitor_fn{func(n Node) {
 		if equalsId_(n, containerFn) {
 			return

@@ -314,11 +314,11 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 
 type VarCheck_RedeclarationCheckHandler struct {
 	outer_       *VarCheck
-	dupDeclNodes *JTList[Node]
+	dupDeclNodes *TList[Node]
 }
 
 func (this *VarCheck_RedeclarationCheckHandler) finit_VarCheck_RedeclarationCheckHandler() {
-	this.dupDeclNodes = jnewTList_(jtc_Node)
+	this.dupDeclNodes = newTList_(tc_Node)
 }
 
 func (this *VarCheck_RedeclarationCheckHandler) init_VarCheck_RedeclarationCheckHandler() {

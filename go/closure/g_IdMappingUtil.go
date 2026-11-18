@@ -83,7 +83,7 @@ func IdMappingUtil_parseSerializedIdMappings(idMappings string) map[string]*Simp
 const IdMappingUtil_NEW_LINE uint16 = '\n'
 
 type IdMappingUtil_MappingReader struct {
-	lines          *JTList[string]
+	lines          *TList[string]
 	nextLine       int32
 	currentSection Optional[string]
 	currentKey     Optional[string]

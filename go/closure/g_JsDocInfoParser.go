@@ -188,7 +188,7 @@ func (this *JsDocInfoParser) parse() bool {
 			this.jsdocBuilder.recordBlockDescription("")
 		}
 	}
-	return this.parseHelperLoop(token, jnewTList_(jtc_p_JsDocInfoParser_ExtendedTypeInfo))
+	return this.parseHelperLoop(token, newTList_(jtc_p_JsDocInfoParser_ExtendedTypeInfo.t_()))
 }
 
 func (this *JsDocInfoParser) parseImportantComment() {
@@ -205,7 +205,7 @@ func (this *JsDocInfoParser) parseImportantComment() {
 	}
 }
 
-func (this *JsDocInfoParser) parseHelperLoop(token JsDocToken, extendedTypes *JTList[*JsDocInfoParser_ExtendedTypeInfo]) bool {
+func (this *JsDocInfoParser) parseHelperLoop(token JsDocToken, extendedTypes *TList[*JsDocInfoParser_ExtendedTypeInfo]) bool {
 	for {
 		switch token {
 		case JsDocToken_ANNOTATION:
@@ -250,7 +250,7 @@ func (this *JsDocInfoParser) parseHelperLoop(token JsDocToken, extendedTypes *JT
 	}
 }
 
-func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JTList[*JsDocInfoParser_ExtendedTypeInfo]) JsDocToken {
+func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *TList[*JsDocInfoParser_ExtendedTypeInfo]) JsDocToken {
 	var type_ *JSTypeExpression
 	var lineno int32 = this.stream.getLineno()
 	var charno int32 = this.stream.getCharno()
@@ -769,7 +769,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JT
 					boundTypeExpression = this.createJSTypeExpression(boundTypeNode)
 				}
 			}
-			var templateNames *JTList[string] = jnewTList_(jtc_string)
+			var templateNames *TList[string] = newTList_(tc_string)
 			if !this.match(JsDocToken_COLON) {
 				for do_3 := true; do_3; do_3 = this.eatIfMatch(JsDocToken_COMMA) {
 					var nameNode Node = this.parseNameExpression(this.next())
@@ -999,7 +999,7 @@ func (this *JsDocInfoParser) recordDescription(token JsDocToken) JsDocToken {
 	return token
 }
 
-func (this *JsDocInfoParser) checkExtendedTypes(extendedTypes *JTList[*JsDocInfoParser_ExtendedTypeInfo]) {
+func (this *JsDocInfoParser) checkExtendedTypes(extendedTypes *TList[*JsDocInfoParser_ExtendedTypeInfo]) {
 	if extendedTypes.size() > 1 {
 		var isInterface bool = this.jsdocBuilder.isInterfaceRecorded()
 		var isFromTsickle bool = equalsId_(this.jsDocSourceKind, JsDocInfoParser_JsDocSourceKind_TSICKLE)

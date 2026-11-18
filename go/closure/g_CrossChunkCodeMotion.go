@@ -332,7 +332,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) moveDeclarationStatements() 
 		}
 	}
 	var chunksWithImmovableReferences *BitSet = new_BitSet_int(this.outer_.graph.getChunkCount())
-	var cyclesLatestFirst *JTList[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] = this.getDsgCyclesLatestFirst()
+	var cyclesLatestFirst *TList[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] = this.getDsgCyclesLatestFirst()
 	it_3 := cyclesLatestFirst.each()
 	for it_3.next() {
 		var dsgCycle *CrossChunkCodeMotion_DeclarationStatementGroupCycle = it_3.v
@@ -350,8 +350,8 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) moveDeclarationStatements() 
 	}
 }
 
-func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgCyclesLatestFirst() *JTList[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] {
-	var cyclesLatestFirst *JTList[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] = jnewTList_(jtc_p_CrossChunkCodeMotion_DeclarationStatementGroupCycle)
+func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgCyclesLatestFirst() *TList[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] {
+	var cyclesLatestFirst *TList[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] = newTList_(jtc_p_CrossChunkCodeMotion_DeclarationStatementGroupCycle.t_())
 	var dsgsLatestFirst *TDeque[*CrossChunkCodeMotion_DeclarationStatementGroup] = this.getDsgsLatestFirst()
 	var cycle *CrossChunkCodeMotion_DeclarationStatementGroupCycle = nil
 	it_1 := dsgsLatestFirst.each()

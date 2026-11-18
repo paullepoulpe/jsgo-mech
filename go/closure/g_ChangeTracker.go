@@ -6,14 +6,14 @@ type ChangeTracker struct {
 	changeStamp        int32
 	changeTimeline     *Timeline[Node]
 	recentChange       *RecentChange
-	codeChangeHandlers *JTList[CodeChangeHandler]
+	codeChangeHandlers *TList[CodeChangeHandler]
 }
 
 func (this *ChangeTracker) finit_ChangeTracker() {
 	this.changeStamp = 1
 	this.changeTimeline = new_Timeline[Node]()
 	this.recentChange = new_RecentChange()
-	this.codeChangeHandlers = jnewTList_(jtc_CodeChangeHandler)
+	this.codeChangeHandlers = newTList_(jtc_CodeChangeHandler.t_())
 }
 
 func (this *ChangeTracker) init_ChangeTracker() {

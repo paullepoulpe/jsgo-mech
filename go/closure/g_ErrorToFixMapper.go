@@ -104,7 +104,7 @@ func (this *ErrorToFixMapper) getFixForRedeclaration(error_ *JSError) *Suggested
 	if parent.hasOneChild() {
 		return fix.replace(parent, assign, this.compiler_).build()
 	}
-	var childrenOfAddedVarStatement *JTList[Node] = jnewTList_(jtc_Node)
+	var childrenOfAddedVarStatement *TList[Node] = newTList_(tc_Node)
 	{
 		var n Node = parent.getFirstChild()
 		for ; n != 0; n = n.getNext() {

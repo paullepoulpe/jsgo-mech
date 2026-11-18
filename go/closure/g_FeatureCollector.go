@@ -25,12 +25,12 @@ func (this *FeatureCollector) allFeatures() *FeatureSet {
 }
 
 func (this *FeatureCollector) visitScript(script Node) {
-	var emptyContext *JTList[FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
+	var emptyContext *TList[FeatureCollector_FeatureContext] = newTList_(jtc_p_FeatureCollector_FeatureContext.t_())
 	emptyContext.add(FeatureCollector_FeatureContext_NONE)
 	this.visitRecursive(emptyContext, script)
 }
 
-func (this *FeatureCollector) visitRecursive(contextStack *JTList[FeatureCollector_FeatureContext], node Node) {
+func (this *FeatureCollector) visitRecursive(contextStack *TList[FeatureCollector_FeatureContext], node Node) {
 	var newContext FeatureCollector_FeatureContext = this.visitSingleNode(contextStack.asList(), node)
 	contextStack.add(newContext)
 	{

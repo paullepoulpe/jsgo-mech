@@ -8,7 +8,7 @@ type LiveVariablesAnalysis struct {
 	jsScopeChild   *Scope
 	escaped        *JTSet[*Var]
 	scopeVariables *JTMap[string, any]
-	orderedVars    *JTList[*Var]
+	orderedVars    *TList[*Var]
 	allVarsInFn    *JTMap[string, *Var]
 }
 
@@ -60,7 +60,7 @@ func (this *LiveVariablesAnalysis) getAllVariables() *JTMap[string, *Var] {
 	return this.allVarsInFn
 }
 
-func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *JTList[*Var] {
+func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *TList[*Var] {
 	return this.orderedVars
 }
 

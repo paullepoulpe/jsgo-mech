@@ -60,7 +60,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		this.registerOwnDeclaredProperties(colorGraphNode, propIndex)
 	}
 	this.logForDiagnostics("graph", &Supplier_base_fn{func() any {
-		var result *JTList[*DisambiguateProperties_TypeNodeJson] = jnewTList_(jtc_p_DisambiguateProperties_TypeNodeJson)
+		var result *TList[*DisambiguateProperties_TypeNodeJson] = newTList_(jtc_p_DisambiguateProperties_TypeNodeJson.t_())
 		for n := range elemsAs_[DiGraph_DiGraphNode[*ColorGraphNode]](graph.getNodes()) {
 			result.add(new_DisambiguateProperties_TypeNodeJson(n))
 		}

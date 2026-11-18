@@ -808,7 +808,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		}
 		return NodeUtil_getStringValue(right)
 	}()
-	var arrayFoldedChildren *JTList[Node] = jnewTList_(jtc_Node)
+	var arrayFoldedChildren *TList[Node] = newTList_(tc_Node)
 	var sb *strBuilder_ = nil
 	var foldedSize int32 = 0
 	var prev Node = 0
@@ -1123,7 +1123,7 @@ func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator O
 	if separator.isEmpty() {
 		return []string{stringValue}
 	}
-	var splitStrings *JTList[string] = jnewTList_(jtc_string)
+	var splitStrings *TList[string] = newTList_(tc_string)
 	if separator.get() == "" {
 		for i, u_ := range stringUnits_(stringValue) {
 			if !(i < limit) {

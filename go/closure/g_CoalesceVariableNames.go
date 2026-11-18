@@ -356,13 +356,13 @@ type CoalesceVariableNames_LiveRangeChecker struct {
 	root             Node
 	state            *DataFlowAnalysis_LinearFlowState[any]
 	orderedVariables []*Var
-	isAssignToList   *JTList[any]
-	isReadFromList   *JTList[any]
+	isAssignToList   *TList[any]
+	isReadFromList   *TList[any]
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_LiveRangeChecker() {
-	this.isAssignToList = jnewTList_(tc_Integer)
-	this.isReadFromList = jnewTList_(tc_Integer)
+	this.isAssignToList = newTList_(tc_Integer.t_())
+	this.isReadFromList = newTList_(tc_Integer.t_())
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[any]) {

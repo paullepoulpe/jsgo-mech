@@ -156,7 +156,7 @@ func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) addStaticMem
 type ConcretizeStaticInheritanceForInlining_FindStaticMembers struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_        *ConcretizeStaticInheritanceForInlining
-	inheritsCalls *JTList[Node]
+	inheritsCalls *TList[Node]
 	nodeOrder     *JTMap[Node, any]
 }
 
@@ -168,7 +168,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) up_NodeTra
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) finit_ConcretizeStaticInheritanceForInlining_FindStaticMembers() {
-	this.inheritsCalls = jnewTList_(jtc_Node)
+	this.inheritsCalls = newTList_(tc_Node)
 	this.nodeOrder = jnewTMap_(jtc_Node, tc_Integer)
 }
 

@@ -31,7 +31,7 @@ func (this *DefaultDependencyResolver) getDependencies_3(code string, seen *TSet
 }
 
 func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[string], seen *TSet[string]) Collection {
-	var list *JTList[string] = jnewTList_(jtc_string)
+	var list *TList[string] = newTList_(tc_string)
 	for _, depsFile := range this.depsFiles {
 		depsFile.ensureUpToDate()
 	}
@@ -41,7 +41,7 @@ func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[st
 	return Collection(list.asList())
 }
 
-func (this *DefaultDependencyResolver) addDependency(symbol string, seen *TSet[string], list *JTList[string]) {
+func (this *DefaultDependencyResolver) addDependency(symbol string, seen *TSet[string], list *TList[string]) {
 	var dependency DependencyInfo = this.getDependencyInfo(symbol)
 	if dependency == nil {
 		if this.strictRequires {
@@ -61,7 +61,7 @@ func DefaultDependencyResolver_parseRequires(code string, addClosureBase bool) C
 	var errorManager ErrorManager = new_LoggerErrorManager_Logger(DefaultDependencyResolver_logger)
 	var parser *JsFileRegexParser = new_JsFileRegexParser(errorManager)
 	var deps DependencyInfo = parser.parseFile("<unknown path>", "<unknown path>", code)
-	var requires *JTList[string] = jnewTList_(jtc_string)
+	var requires *TList[string] = newTList_(tc_string)
 	if addClosureBase {
 		requires.add(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE)
 	}

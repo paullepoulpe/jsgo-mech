@@ -50,7 +50,7 @@ func (this *PruningAnalysis) calculateBottlenecks() *ImmutableMap[string, any] {
 			bottleneckBlame.put(node, any(int32(retainedCount)))
 		}
 	}
-	var sortedBlame *JTList[Map_Entry] = jtlistFrom_(tc_Map_Entry, Collection(bottleneckBlame.asMap().entrySet()))
+	var sortedBlame *TList[Map_Entry] = tlistFrom_(tc_Map_Entry.t_(), Collection(bottleneckBlame.asMap().entrySet()))
 	List_sort(sortedBlame.asList(), Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_Map_Entry{func(entry Map_Entry) int32 {
 		return unbox_[int32](entry.getValue())
 	}})))

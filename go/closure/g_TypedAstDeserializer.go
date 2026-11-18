@@ -12,7 +12,7 @@ type TypedAstDeserializer struct {
 	typedAstFilesystem            ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]]
 	externProperties              *ImmutableSet_Builder[string]
 	runtimeLibraries_             *ImmutableSet_Builder[string]
-	syntheticExternsDeserializers *JTList[*ScriptNodeDeserializer]
+	syntheticExternsDeserializers *TList[*ScriptNodeDeserializer]
 }
 
 func (this *TypedAstDeserializer) finit_TypedAstDeserializer() {
@@ -21,7 +21,7 @@ func (this *TypedAstDeserializer) finit_TypedAstDeserializer() {
 	this.typedAstFilesystem = new_ConcurrentHashMap()
 	this.externProperties = immutableSetBuilder_(tc_string)
 	this.runtimeLibraries_ = immutableSetBuilder_(tc_string)
-	this.syntheticExternsDeserializers = jnewTList_(jtc_p_ScriptNodeDeserializer)
+	this.syntheticExternsDeserializers = newTList_(jtc_p_ScriptNodeDeserializer.t_())
 }
 
 func (this *TypedAstDeserializer) init_TypedAstDeserializer(syntheticExterns *SourceFile_jscomp, existingColorPool Optional_baseOf[*ColorPool_Builder], requiredInputFiles Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]], mode TypedAstDeserializer_Mode, includeTypeInformation bool) {
@@ -294,15 +294,15 @@ func TypedAstDeserializer_Mode_clinit() {
 
 type TypedAstDeserializer_SyntheticExternsDeserializer struct {
 	syntheticExterns              *SourceFile_jscomp
-	syntheticExternsDeserializers *JTList[*ScriptNodeDeserializer]
+	syntheticExternsDeserializers *TList[*ScriptNodeDeserializer]
 }
 
-func (this *TypedAstDeserializer_SyntheticExternsDeserializer) init_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *SourceFile_jscomp, syntheticExternsDeserializers *JTList[*ScriptNodeDeserializer]) {
+func (this *TypedAstDeserializer_SyntheticExternsDeserializer) init_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *SourceFile_jscomp, syntheticExternsDeserializers *TList[*ScriptNodeDeserializer]) {
 	this.syntheticExterns = syntheticExterns
 	this.syntheticExternsDeserializers = syntheticExternsDeserializers
 }
 
-func new_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *SourceFile_jscomp, syntheticExternsDeserializers *JTList[*ScriptNodeDeserializer]) *TypedAstDeserializer_SyntheticExternsDeserializer {
+func new_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *SourceFile_jscomp, syntheticExternsDeserializers *TList[*ScriptNodeDeserializer]) *TypedAstDeserializer_SyntheticExternsDeserializer {
 	this := &TypedAstDeserializer_SyntheticExternsDeserializer{}
 	this.init_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns, syntheticExternsDeserializers)
 	return this

@@ -15,9 +15,9 @@ type ClosureRewriteModule struct {
 	currentScript                     *ClosureRewriteModule_ScriptDescription
 	rewriteState                      *ClosureRewriteModule_GlobalRewriteState
 	legacyScriptNamespacesAndPrefixes *JTSet[string]
-	unrecognizedRequires              *JTList[*ClosureRewriteModule_UnrecognizedRequire]
-	googModuleGetCalls                *JTList[Node]
-	googRequireDynamicCalls           *JTList[Node]
+	unrecognizedRequires              *TList[*ClosureRewriteModule_UnrecognizedRequire]
+	googModuleGetCalls                *TList[Node]
+	googRequireDynamicCalls           *TList[Node]
 	globalTypedScope                  *TypedScope
 }
 
@@ -28,9 +28,9 @@ func (this *ClosureRewriteModule) finit_ClosureRewriteModule() {
 	this.currentScript = nil
 	this.rewriteState = new_ClosureRewriteModule_GlobalRewriteState()
 	this.legacyScriptNamespacesAndPrefixes = jnewTSet_(jtc_string)
-	this.unrecognizedRequires = jnewTList_(tc_p_ClosureRewriteModule_UnrecognizedRequire)
-	this.googModuleGetCalls = jnewTList_(jtc_Node)
-	this.googRequireDynamicCalls = jnewTList_(jtc_Node)
+	this.unrecognizedRequires = newTList_(tc_p_ClosureRewriteModule_UnrecognizedRequire.t_())
+	this.googModuleGetCalls = newTList_(tc_Node)
+	this.googRequireDynamicCalls = newTList_(tc_Node)
 }
 
 func (this *ClosureRewriteModule) init_ClosureRewriteModule(compiler *AbstractCompiler, preprocessorSymbolTable *PreprocessorSymbolTable, globalTypedScope *TypedScope) {

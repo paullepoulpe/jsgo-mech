@@ -62,7 +62,7 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*Sourc
 type JsMessageExtractor_ExtractMessagesVisitor struct {
 	JsMessageVisitor
 	outer_   *JsMessageExtractor
-	messages *JTList[*JsMessage]
+	messages *TList[*JsMessage]
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) up_JsMessageVisitor() *JsMessageVisitor {
@@ -80,7 +80,7 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) up_NodeTraversal_Abstract
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) finit_JsMessageExtractor_ExtractMessagesVisitor() {
-	this.messages = jnewTList_(jtc_p_JsMessage)
+	this.messages = newTList_(jtc_p_JsMessage.t_())
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) init_JsMessageExtractor_ExtractMessagesVisitor(compiler *AbstractCompiler) {

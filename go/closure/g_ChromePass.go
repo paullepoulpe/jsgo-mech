@@ -109,7 +109,7 @@ func ChromePass_setJsDocWithType(target Node, type_ Node) {
 }
 
 func (this *ChromePass) createAndInsertObjectsForQualifiedName(scriptChild Node, namespace string) {
-	var objectsForQualifiedName *JTList[Node] = this.createObjectsForQualifiedName(namespace)
+	var objectsForQualifiedName *TList[Node] = this.createObjectsForQualifiedName(namespace)
 	it_1 := objectsForQualifiedName.each()
 	for it_1.next() {
 		var n Node = it_1.v
@@ -169,8 +169,8 @@ func ChromePass_objectLitToMap(objectLit Node) *JTMap[string, string] {
 	return res
 }
 
-func (this *ChromePass) createObjectsForQualifiedName(namespace string) *JTList[Node] {
-	var objects *JTList[Node] = jnewTList_(jtc_Node)
+func (this *ChromePass) createObjectsForQualifiedName(namespace string) *TList[Node] {
+	var objects *TList[Node] = newTList_(tc_Node)
 	var parts []string = ChromePass_DOT_PATTERN.split(namespace)
 	this.createObjectIfNew(objects, parts[0], true)
 	if int32(len(parts)) >= 2 {
@@ -183,7 +183,7 @@ func (this *ChromePass) createObjectsForQualifiedName(namespace string) *JTList[
 	return objects
 }
 
-func (this *ChromePass) createObjectIfNew(objects *JTList[Node], name string, needVar bool) {
+func (this *ChromePass) createObjectIfNew(objects *TList[Node], name string, needVar bool) {
 	if this.createdObjects.has(name) {
 		return
 	}

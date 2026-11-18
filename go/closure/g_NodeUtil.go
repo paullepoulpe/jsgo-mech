@@ -2997,7 +2997,7 @@ func NodeUtil_getObjectDefinedPropertiesKeys(definePropertiesCall Node) Iterable
 	if !NodeUtil_isObjectDefinePropertiesDefinition(definePropertiesCall) {
 		panic(new_IllegalArgumentException_0())
 	}
-	var properties *JTList[Node] = jnewTList_(jtc_Node)
+	var properties *TList[Node] = newTList_(tc_Node)
 	var objectLiteral Node = definePropertiesCall.getLastChild()
 	{
 		var key Node = objectLiteral.getFirstChild()
@@ -4172,15 +4172,15 @@ func NodeUtil_markFunctionsDeletedChangeTracker(node Node, changeTracker *Change
 	}
 }
 
-func NodeUtil_getParentChangeScopeNodes(scopeNodes ListOf[Node]) *JTList[Node] {
+func NodeUtil_getParentChangeScopeNodes(scopeNodes ListOf[Node]) *TList[Node] {
 	var parentScopeNodes *JTSet[Node] = jtsetFrom_(jtc_Node, Collection(scopeNodes))
 	for scopeNode := range elemsBy_(scopeNodes, Node_of_) {
 		parentScopeNodes.add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
 	}
-	return jtlistFrom_(jtc_Node, Collection(parentScopeNodes.asSet()))
+	return tlistFrom_(tc_Node, Collection(parentScopeNodes.asSet()))
 }
 
-func NodeUtil_removeNestedChangeScopeNodes(scopeNodes *JTList[Node]) *JTList[Node] {
+func NodeUtil_removeNestedChangeScopeNodes(scopeNodes *TList[Node]) *TList[Node] {
 	var uniqueScopeNodes *JTSet[Node] = jtsetFrom_(jtc_Node, Collection(scopeNodes.asList()))
 	it_1 := scopeNodes.each()
 	for it_1.next() {
@@ -4195,7 +4195,7 @@ func NodeUtil_removeNestedChangeScopeNodes(scopeNodes *JTList[Node]) *JTList[Nod
 			}
 		}
 	}
-	return jtlistFrom_(jtc_Node, Collection(uniqueScopeNodes.asSet()))
+	return tlistFrom_(tc_Node, Collection(uniqueScopeNodes.asSet()))
 }
 
 func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableOf[Node] {
@@ -4245,7 +4245,7 @@ func NodeUtil_getAllVarsDeclaredInFunction(compiler *AbstractCompiler, scopeCrea
 		panic(new_IllegalStateException_String(tostr_(scope)))
 	}
 	var nameVarMap *JTMap[string, *Var] = jnewTMap_(jtc_string, jtc_p_Var)
-	var orderedVars *JTList[*Var] = jnewTList_(jtc_p_Var)
+	var orderedVars *TList[*Var] = newTList_(tc_p_Var)
 	var finder NodeTraversal_ScopedCallback = new_NodeUtil_2(nameVarMap, orderedVars, scope)
 	NodeTraversal_builder().setCompiler(compiler).setCallback(NodeTraversal_Callback(finder)).setScopeCreator(scopeCreator).traverseAtScope(scope.up_AbstractScope())
 	return new_NodeUtil_AllVarsDeclaredInFunction(nameVarMap, orderedVars)
@@ -4804,10 +4804,10 @@ func (this *NodeUtil_TemplateArgsIterable) iterator() IteratorOf[Node] {
 
 type NodeUtil_AllVarsDeclaredInFunction struct {
 	allVarsInFn *JTMap[string, *Var]
-	orderedVars *JTList[*Var]
+	orderedVars *TList[*Var]
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *JTMap[string, *Var], orderedVars *JTList[*Var]) {
+func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *JTMap[string, *Var], orderedVars *TList[*Var]) {
 	if allVarsInFn.isEmpty() != orderedVars.isEmpty() {
 		panic(new_IllegalStateException_0())
 	}
@@ -4815,7 +4815,7 @@ func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInF
 	this.orderedVars = orderedVars
 }
 
-func new_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *JTMap[string, *Var], orderedVars *JTList[*Var]) *NodeUtil_AllVarsDeclaredInFunction {
+func new_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *JTMap[string, *Var], orderedVars *TList[*Var]) *NodeUtil_AllVarsDeclaredInFunction {
 	this := &NodeUtil_AllVarsDeclaredInFunction{}
 	this.init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn, orderedVars)
 	return this
@@ -4825,7 +4825,7 @@ func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariables() *JTMap[string,
 	return this.allVarsInFn
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariablesInOrder() *JTList[*Var] {
+func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariablesInOrder() *TList[*Var] {
 	return this.orderedVars
 }
 
@@ -4930,7 +4930,7 @@ func (this *NodeUtil_1) visit(t *NodeTraversal, n Node, parent Node) {
 
 type NodeUtil_2 struct {
 	cap_nameVarMap  *JTMap[string, *Var]
-	cap_orderedVars *JTList[*Var]
+	cap_orderedVars *TList[*Var]
 	cap_scope       *Scope
 }
 
@@ -4938,7 +4938,7 @@ func (this *NodeUtil_2) init_NodeUtil_2() {
 
 }
 
-func new_NodeUtil_2(cap_nameVarMap *JTMap[string, *Var], cap_orderedVars *JTList[*Var], cap_scope *Scope) *NodeUtil_2 {
+func new_NodeUtil_2(cap_nameVarMap *JTMap[string, *Var], cap_orderedVars *TList[*Var], cap_scope *Scope) *NodeUtil_2 {
 	this := &NodeUtil_2{}
 	this.cap_nameVarMap = cap_nameVarMap
 	this.cap_orderedVars = cap_orderedVars

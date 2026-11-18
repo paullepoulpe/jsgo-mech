@@ -380,7 +380,7 @@ func (this *InlineFunctions) verifyAllReferencesInlined(name string, functionSta
 }
 
 func InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options *CompilerOptions) *InlineFunctions_ShouldRequireInlining {
-	var problems *JTList[string] = jnewTList_(jtc_string)
+	var problems *TList[string] = newTList_(tc_string)
 	if !options.shouldOptimize() {
 		problems.add("non-optimized code")
 	}

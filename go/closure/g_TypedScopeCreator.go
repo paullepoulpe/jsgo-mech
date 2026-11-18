@@ -20,8 +20,8 @@ type TypedScopeCreator struct {
 	escapedVarNames              *JTSet[*ScopedName]
 	assignedVarNames             *SimpleMultiset[*ScopedName]
 	unknownType                  *ObjectType
-	weakImports                  *JTList[*TypedScopeCreator_WeakModuleImport]
-	unresolvedNodes              *JTList[Node]
+	weakImports                  *TList[*TypedScopeCreator_WeakModuleImport]
+	unresolvedNodes              *TList[Node]
 	undeclaredNamesForClosure    *JTSet[Node]
 	providedNamesFromCall        *SimpleSetMultimap[Node, *ProcessClosureProvidesAndRequires_ProvidedName]
 	stage                        TypedScopeCreator_Stage
@@ -81,7 +81,7 @@ func (this *TypedScopeCreator) getScope(var_ *TypedVar) StaticScope {
 }
 
 func (this *TypedScopeCreator) getAllSymbols() IterableOf[*TypedVar] {
-	var vars *JTList[*TypedVar] = jnewTList_(jtc_p_TypedVar)
+	var vars *TList[*TypedVar] = newTList_(jtc_p_TypedVar.t_())
 	for s := range this.memoized.Values() {
 		Iterables_addAll(Collection(vars.asList()), s.getAllSymbols())
 	}
@@ -324,8 +324,8 @@ func (this *TypedScopeCreator) clearCommonState() {
 	this.functionsWithNonEmptyReturns = jnewTSet_(jtc_Node)
 	this.escapedVarNames = jnewTSet_(tce_p_ScopedName)
 	this.assignedVarNames = SimpleMultiset_create[*ScopedName]()
-	this.weakImports = jnewTList_(tc_p_TypedScopeCreator_WeakModuleImport)
-	this.unresolvedNodes = jnewTList_(jtc_Node)
+	this.weakImports = newTList_(tc_p_TypedScopeCreator_WeakModuleImport.t_())
+	this.unresolvedNodes = newTList_(tc_Node)
 	this.undeclaredNamesForClosure = jnewTSet_(jtc_Node)
 	this.providedNamesFromCall = SimpleSetMultimap_createInsertionOrdered[Node, *ProcessClosureProvidesAndRequires_ProvidedName]()
 }
@@ -1269,7 +1269,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) isGoogModuleGetProperty(exte
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(extendsNode Node) *JSType {
 	var call Node = extendsNode
-	var properties *JTList[string] = jnewTList_(jtc_string)
+	var properties *TList[string] = newTList_(tc_string)
 	for !call.isCall() {
 		properties.insert(0, call.getString())
 		call = call.getFirstChild()

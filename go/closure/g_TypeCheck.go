@@ -1408,9 +1408,9 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 			properties.asMap().putAll(currentProperties.asMap())
 		}
 	}
-	var loopPath *JTList[*FunctionType] = functionType.checkExtendsLoop()
+	var loopPath *TList[*FunctionType] = functionType.checkExtendsLoop()
 	if loopPath != nil {
-		var displayNames *JTList[string] = jnewTList_(jtc_string)
+		var displayNames *TList[string] = newTList_(tc_string)
 		it_5 := loopPath.each()
 		for it_5.next() {
 			var loopType *FunctionType = it_5.v

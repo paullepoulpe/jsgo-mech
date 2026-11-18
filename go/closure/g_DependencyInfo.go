@@ -315,7 +315,7 @@ func DependencyInfo_Util_writeAddDependency(out *strBuilder_, info DependencyInf
 }
 
 func DependencyInfo_Util_writeJsObject(out *strBuilder_, map_ *TMap[string, string]) {
-	var entries *JTList[string] = jnewTList_(jtc_string)
+	var entries *TList[string] = newTList_(tc_string)
 	for entryKey, entryValue := range map_.All() {
 		var key string = strings.ReplaceAll(entryKey, "'", "\\'")
 		var value string = strings.ReplaceAll(entryValue, "'", "\\'")

@@ -15,7 +15,7 @@ type PolymerClassDefinition struct {
 	nativeBaseElement Optional[string]
 	props             ListOf[*PolymerPass_MemberDefinition]
 	behaviorProps     *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]
-	methods           *JTList[*PolymerPass_MemberDefinition]
+	methods           *TList[*PolymerPass_MemberDefinition]
 	behaviors         []*PolymerBehaviorExtractor_BehaviorDefinition
 	features_         *FeatureSet
 	interfaceName     Optional[string]
@@ -25,7 +25,7 @@ func (this *PolymerClassDefinition) finit_PolymerClassDefinition() {
 	this.interfaceName = Optional_empty[string]()
 }
 
-func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props ListOf[*PolymerPass_MemberDefinition], behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *JTList[*PolymerPass_MemberDefinition], behaviors []*PolymerBehaviorExtractor_BehaviorDefinition, features *FeatureSet, input *CompilerInput) {
+func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props ListOf[*PolymerPass_MemberDefinition], behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *TList[*PolymerPass_MemberDefinition], behaviors []*PolymerBehaviorExtractor_BehaviorDefinition, features *FeatureSet, input *CompilerInput) {
 	this.finit_PolymerClassDefinition()
 	this.defType = defType
 	this.definition = definition
@@ -45,7 +45,7 @@ func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType PolymerC
 	this.input = input
 }
 
-func new_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props ListOf[*PolymerPass_MemberDefinition], behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *JTList[*PolymerPass_MemberDefinition], behaviors []*PolymerBehaviorExtractor_BehaviorDefinition, features *FeatureSet, input *CompilerInput) *PolymerClassDefinition {
+func new_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement Optional[string], props ListOf[*PolymerPass_MemberDefinition], behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *TList[*PolymerPass_MemberDefinition], behaviors []*PolymerBehaviorExtractor_BehaviorDefinition, features *FeatureSet, input *CompilerInput) *PolymerClassDefinition {
 	this := &PolymerClassDefinition{}
 	this.init_PolymerClassDefinition(defType, definition, target, hasGeneratedLhs, descriptor, classInfo, constructor, nativeBaseElement, props, behaviorProps, methods, behaviors, features, input)
 	return this
@@ -109,7 +109,7 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 	}()
 	var behaviorArray Node = NodeUtil_getFirstPropMatchingKey(descriptor, "behaviors")
 	var behaviors []*PolymerBehaviorExtractor_BehaviorDefinition = behaviorExtractor.extractBehaviors(behaviorArray, moduleMetadata)
-	var properties *JTList[*PolymerPass_MemberDefinition] = jnewTList_(jtc_p_PolymerPass_MemberDefinition)
+	var properties *TList[*PolymerPass_MemberDefinition] = newTList_(tc_p_PolymerPass_MemberDefinition)
 	var behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition] = jnewTMap_(jtc_p_PolymerPass_MemberDefinition, jtc_p_PolymerBehaviorExtractor_BehaviorDefinition)
 	for _, behavior := range behaviors {
 		for _, prop := range behavior.props {
@@ -126,7 +126,7 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 			newFeatures = newFeatures.union(sliceAt_(behaviors, i).features_)
 		}
 	}
-	var methods *JTList[*PolymerPass_MemberDefinition] = jnewTList_(jtc_p_PolymerPass_MemberDefinition)
+	var methods *TList[*PolymerPass_MemberDefinition] = newTList_(tc_p_PolymerPass_MemberDefinition)
 	{
 		var keyNode Node = descriptor.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -201,7 +201,7 @@ func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *Abstr
 	var classInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(classNode)
 	var constructor Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(classNode)
 	var properties *ImmutableList[*PolymerPass_MemberDefinition] = PolymerPassStaticUtils_extractProperties(propertiesDescriptor, PolymerClassDefinition_DefinitionType_ES6Class, compiler, constructor)
-	var methods *JTList[*PolymerPass_MemberDefinition] = PolymerClassDefinition_extractClassMethods(classNode, enclosingModule)
+	var methods *TList[*PolymerPass_MemberDefinition] = PolymerClassDefinition_extractClassMethods(classNode, enclosingModule)
 	var ctorInfo *JSDocInfo = nil
 	if constructor != 0 {
 		ctorInfo = NodeUtil_getBestJSDocInfo(constructor)
@@ -211,8 +211,8 @@ func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *Abstr
 	return new_PolymerClassDefinition(PolymerClassDefinition_DefinitionType_ES6Class, classNode, target, false, propertiesDescriptor, classInfo, new_PolymerPass_MemberDefinition(ctorInfo, 0, constructor, enclosingModule), Optional_empty[string](), icast_List(obj_(properties.asImm())), nil, methods, nil, nil, input)
 }
 
-func PolymerClassDefinition_extractClassMethods(classNode Node, enclosingModule Node) *JTList[*PolymerPass_MemberDefinition] {
-	var methods *JTList[*PolymerPass_MemberDefinition] = jnewTList_(jtc_p_PolymerPass_MemberDefinition)
+func PolymerClassDefinition_extractClassMethods(classNode Node, enclosingModule Node) *TList[*PolymerPass_MemberDefinition] {
+	var methods *TList[*PolymerPass_MemberDefinition] = newTList_(tc_p_PolymerPass_MemberDefinition)
 	{
 		var keyNode Node = NodeUtil_getClassMembers(classNode).getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -232,7 +232,7 @@ func PolymerClassDefinition_isFunctionField(field Node) bool {
 	return ((value != 0) && value.isFunction())
 }
 
-func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor Node, enclosingModule Node, methods *JTList[*PolymerPass_MemberDefinition]) {
+func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor Node, enclosingModule Node, methods *TList[*PolymerPass_MemberDefinition]) {
 	var body Node = NodeUtil_getFunctionBody(constructor.getFirstChild())
 	{
 		var stmt Node = body.getFirstChild()
@@ -250,7 +250,7 @@ func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor No
 	}
 }
 
-func PolymerClassDefinition_overwriteMembersIfPresent(list *JTList[*PolymerPass_MemberDefinition], newMembers []*PolymerPass_MemberDefinition) {
+func PolymerClassDefinition_overwriteMembersIfPresent(list *TList[*PolymerPass_MemberDefinition], newMembers []*PolymerPass_MemberDefinition) {
 	for _, newMember := range newMembers {
 		it_3 := list.each()
 		for it_3.next() {
@@ -279,7 +279,7 @@ func PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps *JTMap[*P
 	}
 }
 
-func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], polymerElementProps *JTList[*PolymerPass_MemberDefinition]) {
+func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behaviorProps *JTMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], polymerElementProps *TList[*PolymerPass_MemberDefinition]) {
 	if behaviorProps == nil {
 		return
 	}

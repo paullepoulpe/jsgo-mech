@@ -16,7 +16,7 @@ type RemoveUnusedCode struct {
 	pinnedPropertyNames                            *JTSet[string]
 	removablesForPropertyNames                     *SimpleSetMultimap[any, *RemoveUnusedCode_Removable]
 	canonicalUnremovableVarInfo                    RemoveUnusedCode_VarInfo
-	allFunctionParamScopes                         *JTList[*Scope]
+	allFunctionParamScopes                         *TList[*Scope]
 	polyfills                                      *SimpleSetMultimap[any, *RemoveUnusedCode_PolyfillInfo]
 	guardedUsages                                  *JTSet[Node]
 	polyfillsFromTable                             *PolyfillUsageFinder_Polyfills
@@ -37,7 +37,7 @@ func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.varInfoMap = jnewTMap_(tce_p_Var, tc_RemoveUnusedCode_VarInfo)
 	this.pinnedPropertyNames = jtsetFrom_(jtc_string, icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES.asImm())))
 	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_Removable]()
-	this.allFunctionParamScopes = jnewTList_(tc_p_Scope)
+	this.allFunctionParamScopes = newTList_(tc_p_Scope.t_())
 	this.polyfills = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_PolyfillInfo]()
 	this.guardedUsages = jnewTSet_(jtc_Node)
 }
@@ -1480,7 +1480,7 @@ func (this *RemoveUnusedCode_Continuation) apply() {
 type RemoveUnusedCode_Removable struct {
 	self_                                RemoveUnusedCode_Removable_I
 	outer_                               *RemoveUnusedCode
-	continuations                        *JTList[*RemoveUnusedCode_Continuation]
+	continuations                        *TList[*RemoveUnusedCode_Continuation]
 	propertyName_                        Optional[string]
 	targetNode                           Node
 	isPrototypeDotPropertyReferenceField bool
@@ -1674,14 +1674,14 @@ func (this *RemoveUnusedCode_Removable) isPrototypeProperty() bool {
 
 type RemoveUnusedCode_RemovableBuilder struct {
 	outer_                           *RemoveUnusedCode
-	continuations                    *JTList[*RemoveUnusedCode_Continuation]
+	continuations                    *TList[*RemoveUnusedCode_Continuation]
 	propertyName_                    Optional[string]
 	isPrototypeDotPropertyReference_ bool
 	isThisDotPropertyReference_      bool
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) finit_RemoveUnusedCode_RemovableBuilder() {
-	this.continuations = jnewTList_(jtc_p_RemoveUnusedCode_Continuation)
+	this.continuations = newTList_(jtc_p_RemoveUnusedCode_Continuation.t_())
 	this.propertyName_ = Optional_empty[string]()
 	this.isPrototypeDotPropertyReference_ = false
 	this.isThisDotPropertyReference_ = false
@@ -2829,7 +2829,7 @@ func (this *RemoveUnusedCode_CanonicalUnremovableVarInfo) removeAllRemovables() 
 type RemoveUnusedCode_RealVarInfo struct {
 	outer_                              *RemoveUnusedCode
 	varName_                            string
-	removables                          *JTList[*RemoveUnusedCode_Removable]
+	removables                          *TList[*RemoveUnusedCode_Removable]
 	isEntirelyRemovable                 bool
 	hasNonLocalOrNonLiteralValue        bool
 	hasFunctionOrClassLiteralValueField bool
@@ -2841,7 +2841,7 @@ func (this *RemoveUnusedCode_RealVarInfo) zero_RemoveUnusedCode_RealVarInfo() {
 }
 
 func (this *RemoveUnusedCode_RealVarInfo) finit_RemoveUnusedCode_RealVarInfo() {
-	this.removables = jnewTList_(tc_p_RemoveUnusedCode_Removable)
+	this.removables = newTList_(tc_p_RemoveUnusedCode_Removable.t_())
 	this.isEntirelyRemovable = true
 	this.hasNonLocalOrNonLiteralValue = false
 	this.hasFunctionOrClassLiteralValueField = false

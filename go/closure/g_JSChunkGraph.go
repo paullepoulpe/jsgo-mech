@@ -55,7 +55,7 @@ func JSChunkGraph_create(chunksInDepOrder ListOf[*JSChunk]) *Outcome_base[*JSChu
 }
 
 func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[List] {
-	var tmpChunksByDepth *JTList[List] = jnewTList_(tc_List)
+	var tmpChunksByDepth *TList[List] = newTList_(tc_List.t_())
 	for chunkIndex := int32(0); chunkIndex < int32(len(chunks)); chunkIndex++ {
 		var chunk *JSChunk = chunks[chunkIndex]
 		if chunk.getDepth() != -1 {
@@ -95,8 +95,8 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 		}
 	}
 	if hasWeakChunk {
-		var misplacedWeakFiles *JTList[string] = jnewTList_(jtc_string)
-		var misplacedStrongFiles *JTList[string] = jnewTList_(jtc_string)
+		var misplacedWeakFiles *TList[string] = newTList_(tc_string)
+		var misplacedStrongFiles *TList[string] = newTList_(tc_string)
 		for chunk := range elemsAs_[*JSChunk](chunksInDepOrder) {
 			var isWeakChunk bool = (chunk.getName() == JSChunk_WEAK_CHUNK_NAME)
 			for _, el := range immElems_(chunk.getInputs()) {
@@ -432,8 +432,8 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	return Outcome_base_ok_Object[*JSChunkGraph_DependencyManagementResult](new_JSChunkGraph_DependencyManagementResult(immutableListCopyOf_(tc_p_CompilerInput, Collection(orderedInputs)), sorter, immutableSetCopyOf_(tc_p_CompilerInput, Collection(entryPointInputs))))
 }
 
-func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs *JTSet[*CompilerInput], inputsByProvide *JTMap[string, Set]) *JTList[*CompilerInput] {
-	var orderedInputs *JTList[*CompilerInput] = jnewTList_(jtc_p_CompilerInput)
+func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs *JTSet[*CompilerInput], inputsByProvide *JTMap[string, Set]) *TList[*CompilerInput] {
+	var orderedInputs *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)
 	if !unreachedInputs.del(rootInput) {
 		return orderedInputs
 	}

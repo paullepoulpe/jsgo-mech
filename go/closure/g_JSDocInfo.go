@@ -12,7 +12,7 @@ type JSDocInfo struct {
 
 func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Property, any]) {
 	var keys int64 = 0
-	var values *JTList[any] = jnewTList_(tc_Object)
+	var values *TList[any] = newTList_(tc_Object.t_())
 	for entry := range elemsBy_(props.entrySet(), icast_Map_Entry) {
 		var prop *JSDocInfo_Property = to_JSDocInfo_Property(entry.getKey())
 		var value any = entry.getValue()
@@ -733,7 +733,7 @@ func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
 }
 
 func (this *JSDocInfo) getTypeNodes() CollectionOf[Node] {
-	var nodes *JTList[Node] = jnewTList_(jtc_Node)
+	var nodes *TList[Node] = newTList_(tc_Node)
 	for type_ := range elemsAs_[*JSTypeExpression](this.getTypeExpressions()) {
 		nodes.add(type_.getRoot())
 	}
@@ -794,7 +794,7 @@ func (this *JSDocInfo) getPropertyValueByIndex(index int32) any {
 	return this.propertyValues
 }
 
-func JSDocInfo_packPropertyValues(values *JTList[any]) any {
+func JSDocInfo_packPropertyValues(values *TList[any]) any {
 	return func() any {
 		if values.isEmpty() {
 			return nil

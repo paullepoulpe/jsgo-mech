@@ -8,7 +8,7 @@ import (
 )
 
 type SourceMapGeneratorV3 struct {
-	mappings             *JTList[*SourceMapGeneratorV3_Mapping]
+	mappings             *TList[*SourceMapGeneratorV3_Mapping]
 	sourceFileMap        *JTMap[string, any]
 	sourceFileContentMap *JTMap[string, string]
 	originalNameMap      *JTMap[string, any]
@@ -22,7 +22,7 @@ type SourceMapGeneratorV3 struct {
 }
 
 func (this *SourceMapGeneratorV3) finit_SourceMapGeneratorV3() {
-	this.mappings = jnewTList_(jtc_p_SourceMapGeneratorV3_Mapping)
+	this.mappings = newTList_(jtc_p_SourceMapGeneratorV3_Mapping.t_())
 	this.sourceFileMap = jnewTMap_(jtc_string, tc_Integer)
 	this.sourceFileContentMap = jnewTMap_(jtc_string, jtc_string)
 	this.originalNameMap = jnewTMap_(jtc_string, tc_Integer)
@@ -239,7 +239,7 @@ func (this *SourceMapGeneratorV3) addSourceNameMap(out Appendable) {
 func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 	var found bool = false
 	var size int32 = this.sourceFileMap.size()
-	var contents *JTList[string] = jnewTListN_(jtc_string, size)
+	var contents *TList[string] = newTListN_(tc_string, size)
 	contents.asList().addAll(Collection(Collections_nCopies(size, strobj_(""))))
 	it_1 := this.sourceFileMap.eachEntry()
 	for it_1.next() {

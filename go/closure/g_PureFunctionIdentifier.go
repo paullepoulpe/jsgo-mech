@@ -9,7 +9,7 @@ type PureFunctionIdentifier struct {
 	summariesByName                      *JTMap[string, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
 	summariesForAllNamesOfFunctionByNode *SimpleListMultimap[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
 	artificiallyPureLiteralsForDebugging *JTSet[Node]
-	allFunctionCalls                     *JTList[Node]
+	allFunctionCalls                     *TList[Node]
 	reverseCallGraph                     *LinkedDirectedGraph[*PureFunctionIdentifier_AmbiguatedFunctionSummary, *PureFunctionIdentifier_SideEffectPropagation]
 	unknownFunctionSummary               *PureFunctionIdentifier_AmbiguatedFunctionSummary
 	assumeGettersArePure_                bool
@@ -20,7 +20,7 @@ func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
 	this.summariesByName = jnewTMap_(jtc_string, jtc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary)
 	this.summariesForAllNamesOfFunctionByNode = SimpleListMultimap_create[Node, *PureFunctionIdentifier_AmbiguatedFunctionSummary]()
 	this.artificiallyPureLiteralsForDebugging = jnewTSet_(jtc_Node)
-	this.allFunctionCalls = jnewTList_(jtc_Node)
+	this.allFunctionCalls = newTList_(tc_Node)
 	this.reverseCallGraph = LinkedDirectedGraph_createWithoutAnnotations[*PureFunctionIdentifier_AmbiguatedFunctionSummary, *PureFunctionIdentifier_SideEffectPropagation]()
 	this.unknownFunctionSummary = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<unknown>").setMutatesGlobalStateAndAllOtherFlags(0)
 	this.hasProcessed = false
@@ -73,9 +73,9 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 			if summary.name_ == ".constructor" {
 				continue
 			}
-			var sortedReasons *JTList[Node] = jtlistFrom_(jtc_Node, Collection(summary.impureFunctionReasonsForDebugging.asSet()))
+			var sortedReasons *TList[Node] = tlistFrom_(tc_Node, Collection(summary.impureFunctionReasonsForDebugging.asSet()))
 			List_sort(sortedReasons.asList(), PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR)
-			var formattedReasons *JTList[string] = jnewTList_(jtc_string)
+			var formattedReasons *TList[string] = newTList_(tc_string)
 			it_5 := sortedReasons.each()
 			for it_5.next() {
 				var reason Node = it_5.v
@@ -92,7 +92,7 @@ func PureFunctionIdentifier_formatSourceLocation(node Node) string {
 }
 
 func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAnalyzer) *ImmutableList[Node] {
-	var callables *JTList[Node] = jnewTList_(jtc_Node)
+	var callables *TList[Node] = newTList_(tc_Node)
 	var allLegal bool = PureFunctionIdentifier_collectCallableLeavesInternal(expr, callables, astAnalyzer)
 	return func() *ImmutableList[Node] {
 		if allLegal {
@@ -102,7 +102,7 @@ func PureFunctionIdentifier_collectCallableLeaves(expr Node, astAnalyzer *AstAna
 	}()
 }
 
-func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *JTList[Node], astAnalyzer *AstAnalyzer) bool {
+func PureFunctionIdentifier_collectCallableLeavesInternal(expr Node, results *TList[Node], astAnalyzer *AstAnalyzer) bool {
 	switch expr.ns_().token {
 	case tokOrd1_FUNCTION, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_NAME:
 		results.add(expr)
@@ -252,7 +252,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 		panic(new_NullPointerException_0())
 	}
 	var invalid bool = false
-	var rvaluesAssignedToName *JTList[*ErasedImmutableList] = jnewTList_(tc_p_ImmutableList)
+	var rvaluesAssignedToName *TList[*ErasedImmutableList] = newTList_(tc_p_ImmutableList.t_())
 	for reference := range elemsBy_(references, Node_of_) {
 		if !PureFunctionIdentifier_isDefinitelyRValue(reference) {
 			var rvalue Node = NodeUtil_getRValueOfLValue(reference)
@@ -1048,7 +1048,7 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) toString() string 
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) sideEffectsToString() string {
-	var status *JTList[string] = jnewTList_(jtc_string)
+	var status *TList[string] = newTList_(tc_string)
 	if this.mutatesThis() {
 		status.add("this")
 	}

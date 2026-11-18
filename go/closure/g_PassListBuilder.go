@@ -4,11 +4,11 @@ package closure
 
 type PassListBuilder struct {
 	options_ *CompilerOptions
-	passes   *JTList[*PassFactory]
+	passes   *TList[*PassFactory]
 }
 
 func (this *PassListBuilder) finit_PassListBuilder() {
-	this.passes = jnewTList_(jtc_p_PassFactory)
+	this.passes = newTList_(tc_p_PassFactory)
 }
 
 func (this *PassListBuilder) init_PassListBuilder(options *CompilerOptions) {

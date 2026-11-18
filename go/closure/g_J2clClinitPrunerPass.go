@@ -37,14 +37,14 @@ func (this *J2clClinitPrunerPass) process_2(externs Node, root Node) {
 	}
 	var clinitReferences *SimpleSetMultimap[any, Node] = this.collectClinitReferences(root)
 	for do_2 := true; do_2; do_2 = !this.emptiedClinitMethods.isEmpty() {
-		var newChangedScopes *JTList[Node] = this.cleanEmptyClinitReferences(clinitReferences)
+		var newChangedScopes *TList[Node] = this.cleanEmptyClinitReferences(clinitReferences)
 		this.pruneEmptyClinits(root, newChangedScopes.asList())
 	}
 	new_PureFunctionIdentifier_Driver(this.compiler_).process_2(externs, root)
 }
 
 func (this *J2clClinitPrunerPass) removeRedundantClinits(root Node, changedScopeNodes ListOf[Node]) {
-	var changedRoots *JTList[Node] = J2clClinitPrunerPass_getNonNestedParentScopeNodes(changedScopeNodes)
+	var changedRoots *TList[Node] = J2clClinitPrunerPass_getNonNestedParentScopeNodes(changedScopeNodes)
 	this.traverseScopeRootsWithFallback(root, changedRoots.asList(), new_J2clClinitPrunerPass_RedundantClinitPruner(this, Iterable(changedRoots.asList())), true)
 	this.traverseScopeRootsWithFallback(root, changedScopeNodes, new_J2clClinitPrunerPass_LookAheadRedundantClinitPruner(this), false)
 }
@@ -91,8 +91,8 @@ func (this *J2clClinitPrunerPass) collectClinitReferences(root Node) *SimpleSetM
 	return clinitReferences
 }
 
-func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *SimpleSetMultimap[any, Node]) *JTList[Node] {
-	var newChangedScopes *JTList[Node] = jnewTList_(jtc_Node)
+func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *SimpleSetMultimap[any, Node]) *TList[Node] {
+	var newChangedScopes *TList[Node] = newTList_(tc_Node)
 	it_1 := this.emptiedClinitMethods.eachEntry()
 	for it_1.next() {
 		var clinitReplacementEntry *TEntry[string, Node] = it_1.entry()
@@ -115,8 +115,8 @@ func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *S
 	return newChangedScopes
 }
 
-func J2clClinitPrunerPass_getNonNestedParentScopeNodes(changedScopeNodes ListOf[Node]) *JTList[Node] {
-	return func() *JTList[Node] {
+func J2clClinitPrunerPass_getNonNestedParentScopeNodes(changedScopeNodes ListOf[Node]) *TList[Node] {
+	return func() *TList[Node] {
 		if changedScopeNodes == nil {
 			return nil
 		}

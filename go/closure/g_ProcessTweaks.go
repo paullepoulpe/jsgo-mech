@@ -372,7 +372,7 @@ func new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc Proce
 type ProcessTweaks_TweakInfo struct {
 	outer_           *ProcessTweaks
 	tweakId          string
-	functionCalls    *JTList[*ProcessTweaks_TweakFunctionCall]
+	functionCalls    *TList[*ProcessTweaks_TweakFunctionCall]
 	registerCall     *ProcessTweaks_TweakFunctionCall
 	defaultValueNode Node
 }
@@ -383,7 +383,7 @@ func (this *ProcessTweaks_TweakInfo) zero_ProcessTweaks_TweakInfo() {
 
 func (this *ProcessTweaks_TweakInfo) init_ProcessTweaks_TweakInfo(tweakId string) {
 	this.tweakId = tweakId
-	this.functionCalls = jnewTList_(tc_p_ProcessTweaks_TweakFunctionCall)
+	this.functionCalls = newTList_(tc_p_ProcessTweaks_TweakFunctionCall.t_())
 }
 
 func new_ProcessTweaks_TweakInfo(outer_ *ProcessTweaks, tweakId string) *ProcessTweaks_TweakInfo {

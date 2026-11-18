@@ -28,7 +28,7 @@ func (this *VariableReferenceCheck) process_2(externs Node, root Node) {
 	new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, new_VariableReferenceCheck_ReferenceCheckingBehavior(this), new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)).process_2(externs, root)
 }
 
-func (this *VariableReferenceCheck) lookForHoistedFunction(references *JTList[*Reference]) *Reference {
+func (this *VariableReferenceCheck) lookForHoistedFunction(references *TList[*Reference]) *Reference {
 	it_1 := references.each()
 	for it_1.next() {
 		var reference *Reference = it_1.v
@@ -247,7 +247,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(
 	NodeTraversal_traverse(this.outer_.compiler_, param.getParentNode().getSecondChild(), new_VariableReferenceCheck_ReferenceCheckingBehavior_1(this, varsInFunctionBody, scope))
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references *JTList[*Reference]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references *TList[*Reference]) {
 	var maybeParam *Var = cast_[*Var](functionScope.getVar(v.getName()).self())
 	if ((maybeParam != nil) && maybeParam.isParam()) && (cast_[*Scope](maybeParam.getScope()) == functionScope) {
 		it_1 := references.each()
@@ -275,7 +275,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkGoogModuleExp
 	}
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, references *JTList[*Reference]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, references *TList[*Reference]) {
 	this.outer_.blocksWithDeclarations.clear()
 	var hasSeenDeclaration bool = false
 	var hasErrors bool = false

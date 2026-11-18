@@ -179,7 +179,7 @@ func (this *JSTypeReconserializer) reconcileUnionTypes(seen *JSTypeReconserializ
 }
 
 func JSTypeReconserializer_sortedPointersOf(records CollectionOf[*JSTypeReconserializer_SeenTypeRecord]) ImmutableListOf[BoxedOf[int32]] {
-	var result *JTList[any] = jnewTList_(tc_Integer)
+	var result *TList[any] = newTList_(tc_Integer.t_())
 	for r := range elemsAs_[*JSTypeReconserializer_SeenTypeRecord](records) {
 		result.add(any(int32(r.pointer)))
 	}
@@ -195,7 +195,7 @@ func (this *JSTypeReconserializer) serializeInvolvedTypes(types CollectionOf[*JS
 		}
 		distinctPointers.add(any(int32(this.serializeType(t))))
 	}
-	var result *JTList[any] = jtlistFrom_(tc_Integer, Collection(distinctPointers.asSet()))
+	var result *TList[any] = tlistFrom_(tc_Integer.t_(), Collection(distinctPointers.asSet()))
 	Collections_sort(result.asList())
 	return ImmutableList_copyOf(Collection(result.asList()))
 }
@@ -442,12 +442,12 @@ func JSTypeReconserializer_State_clinit() {
 type JSTypeReconserializer_SeenTypeRecord struct {
 	colorId      *ColorId
 	pointer      int32
-	jstypes      *JTList[*JSType]
+	jstypes      *TList[*JSType]
 	unionMembers *ImmutableSet[*JSTypeReconserializer_SeenTypeRecord]
 }
 
 func (this *JSTypeReconserializer_SeenTypeRecord) finit_JSTypeReconserializer_SeenTypeRecord() {
-	this.jstypes = jnewTList_(jtc_p_JSType)
+	this.jstypes = newTList_(tc_p_JSType)
 	this.unionMembers = nil
 }
 

@@ -1379,7 +1379,7 @@ func (this *Es6NormalizeClasses_ResolvedPrivateMember) toString() string {
 }
 
 type Es6NormalizeClasses_ClassRecord struct {
-	privateMembers                       *JTList[*Es6NormalizeClasses_ClassRecord_PrivateMember]
+	privateMembers                       *TList[*Es6NormalizeClasses_ClassRecord_PrivateMember]
 	privateMembersByName                 *JTMap[string, *Es6NormalizeClasses_ClassRecord_PrivateMember]
 	privateMapVarName                    Optional[string]
 	staticPrivateMapVarName              Optional[string]
@@ -1398,11 +1398,11 @@ type Es6NormalizeClasses_ClassRecord struct {
 	staticMembers                        *TDeque[Node]
 	computedPropsWithSideEffects         *TDeque[Node]
 	constructorVars                      *ImmutableSet[*Var]
-	superCalls                           *JTList[Node]
+	superCalls                           *TList[Node]
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassRecord() {
-	this.privateMembers = jnewTList_(tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
+	this.privateMembers = newTList_(tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember.t_())
 	this.privateMembersByName = jnewTMap_(jtc_string, tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
 	this.privateMapVarName = Optional_empty[string]()
 	this.staticPrivateMapVarName = Optional_empty[string]()
@@ -1418,7 +1418,7 @@ func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassReco
 	this.staticMembers = newTDeque_(jtc_Node)
 	this.computedPropsWithSideEffects = newTDeque_(jtc_Node)
 	this.constructorVars = immutableSetOf_(tch_p_Var)
-	this.superCalls = jnewTList_(jtc_Node)
+	this.superCalls = newTList_(tc_Node)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) init_Es6NormalizeClasses_ClassRecord(normalizedNames *Es6NormalizeClasses_NormalizedNames, bindingIdentifier Optional[Node], classNode Node) {
@@ -1652,7 +1652,7 @@ type Es6NormalizeClasses_ClassRecord_PrivateMember struct {
 	methodNode       Node
 	getterNode       Node
 	setterNode       Node
-	declarationNodes *JTList[Node]
+	declarationNodes *TList[Node]
 }
 
 func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) zero_Es6NormalizeClasses_ClassRecord_PrivateMember() {
@@ -1660,7 +1660,7 @@ func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) zero_Es6NormalizeClas
 }
 
 func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) finit_Es6NormalizeClasses_ClassRecord_PrivateMember() {
-	this.declarationNodes = jnewTList_(jtc_Node)
+	this.declarationNodes = newTList_(tc_Node)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord_PrivateMember) init_Es6NormalizeClasses_ClassRecord_PrivateMember(name string, kind Es6NormalizeClasses_ClassRecord_PrivateMemberKind, isStatic bool, initialNode Node) {

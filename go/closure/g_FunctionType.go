@@ -508,7 +508,7 @@ func (this *FunctionType) getBindReturnType(argsToBind int32) *FunctionType {
 		return to_FunctionType(builder.build().self())
 	}
 	var origParams *ImmutableList[*FunctionType_Parameter] = this.call.getParameterList()
-	var params *JTList[*FunctionType_Parameter] = jtlistFrom_(jtc_p_FunctionType_Parameter, icast_Collection(obj_(origParams.asImm())))
+	var params *TList[*FunctionType_Parameter] = tlistFrom_(tc_p_FunctionType_Parameter, icast_Collection(obj_(origParams.asImm())))
 	for i := int32(1); (i < argsToBind) && !params.isEmpty(); i++ {
 		if params.get(0).isVariadic() {
 			break
@@ -528,7 +528,7 @@ func (this *FunctionType) getCallOrBindSignature(isCall bool) *FunctionType {
 		return this.getBindReturnType(-1).up_JSType()
 	}()).withTemplateKeysImmutableList(this.getTemplateTypeMap().getTemplateKeys())
 	var origParams *ImmutableList[*FunctionType_Parameter] = this.getInternalArrowType().getParameterList()
-	var params *JTList[*FunctionType_Parameter] = jtlistFrom_(jtc_p_FunctionType_Parameter, icast_Collection(obj_(origParams.asImm())))
+	var params *TList[*FunctionType_Parameter] = tlistFrom_(tc_p_FunctionType_Parameter, icast_Collection(obj_(origParams.asImm())))
 	var thisType *FunctionType_Parameter = FunctionType_Parameter_create(this.registry.createOptionalNullableType(this.getTypeOfThis()), false, false)
 	params.insert(0, thisType)
 	if isBind {
@@ -920,11 +920,11 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *JTMap[
 	}
 }
 
-func (this *FunctionType) checkExtendsLoop() *JTList[*FunctionType] {
-	return this.checkExtendsLoop_2(jnewTSet_(tce_p_FunctionType), jnewTList_(jtc_p_FunctionType))
+func (this *FunctionType) checkExtendsLoop() *TList[*FunctionType] {
+	return this.checkExtendsLoop_2(jnewTSet_(tce_p_FunctionType), newTList_(jtc_p_FunctionType.t_()))
 }
 
-func (this *FunctionType) checkExtendsLoop_2(cache *JTSet[*FunctionType], path *JTList[*FunctionType]) *JTList[*FunctionType] {
+func (this *FunctionType) checkExtendsLoop_2(cache *JTSet[*FunctionType], path *TList[*FunctionType]) *TList[*FunctionType] {
 	var iterable *ImmutableList[*ObjectType] = this.getExtendedInterfaces()
 	if iterable != nil {
 		for _, el_1 := range iterable.items {
@@ -942,7 +942,7 @@ func (this *FunctionType) checkExtendsLoop_2(cache *JTSet[*FunctionType], path *
 			}
 			cache.add(superConstructor)
 			path.add(superConstructor)
-			var result *JTList[*FunctionType] = superConstructor.checkExtendsLoop_2(cache, path)
+			var result *TList[*FunctionType] = superConstructor.checkExtendsLoop_2(cache, path)
 			if result != nil {
 				return result
 			}

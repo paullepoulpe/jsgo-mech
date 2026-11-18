@@ -7,12 +7,12 @@ type ColorSerializer struct {
 	getStringPoolIndexFn    func(any) any
 	propertyFilter          func(any) bool
 	colorIdToTypePointer    *JTMap[*ColorId, any]
-	colorsInSerializedOrder *JTList[*Color]
+	colorsInSerializedOrder *TList[*Color]
 }
 
 func (this *ColorSerializer) finit_ColorSerializer() {
 	this.colorIdToTypePointer = jnewTMap_(tce_p_ColorId, tc_Integer)
-	this.colorsInSerializedOrder = jnewTList_(jtc_p_Color)
+	this.colorsInSerializedOrder = newTList_(tc_p_Color)
 }
 
 func (this *ColorSerializer) init_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn func(any) any, propertyFilter func(any) bool) {

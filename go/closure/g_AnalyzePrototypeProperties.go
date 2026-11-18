@@ -81,7 +81,7 @@ func (this *AnalyzePrototypeProperties) process_2(externRoot Node, root Node) {
 }
 
 func (this *AnalyzePrototypeProperties) getAllNameInfo() CollectionOf[*AnalyzePrototypeProperties_NameInfo] {
-	var result *JTList[*AnalyzePrototypeProperties_NameInfo] = jtlistFrom_(jtc_p_AnalyzePrototypeProperties_NameInfo, this.propertyNameInfo.asMap().values())
+	var result *TList[*AnalyzePrototypeProperties_NameInfo] = tlistFrom_(jtc_p_AnalyzePrototypeProperties_NameInfo.t_(), this.propertyNameInfo.asMap().values())
 	result.asList().addAll(this.varNameInfo.asMap().values())
 	return Collection(result.asList())
 }

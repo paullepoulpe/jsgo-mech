@@ -58,12 +58,12 @@ type RenameLabels_ProcessLabels struct {
 	outer_         *RenameLabels
 	markChanges    bool
 	namespaceStack *TDeque[*RenameLabels_LabelNamespace]
-	names_         *JTList[string]
+	names_         *TList[string]
 }
 
 func (this *RenameLabels_ProcessLabels) finit_RenameLabels_ProcessLabels() {
 	this.namespaceStack = newTDeque_(jtc_p_RenameLabels_LabelNamespace)
-	this.names_ = jnewTList_(jtc_string)
+	this.names_ = newTList_(tc_string)
 }
 
 func (this *RenameLabels_ProcessLabels) init_RenameLabels_ProcessLabels(markChanges bool) {

@@ -47,8 +47,8 @@ func CodePrinter_toSource(root Node, outputFormat CodePrinter_Format, options *C
 type CodePrinter_MappedCodePrinter struct {
 	CodeConsumer
 	mappings                    *TDeque[*SourceMap_Mapping]
-	allMappings                 *JTList[*SourceMap_Mapping]
-	completeMappings            *JTList[*SourceMap_Mapping]
+	allMappings                 *TList[*SourceMap_Mapping]
+	completeMappings            *TList[*SourceMap_Mapping]
 	firstCandidateMappingForCut int32
 	createSrcMap                bool
 	sourceMapDetailLevel        SourceMap_DetailLevel
@@ -104,15 +104,15 @@ func (this *CodePrinter_MappedCodePrinter) init_CodePrinter_MappedCodePrinter(li
 		}
 		return nil
 	}()
-	this.allMappings = func() *JTList[*SourceMap_Mapping] {
+	this.allMappings = func() *TList[*SourceMap_Mapping] {
 		if createSrcMap {
-			return jnewTList_(jtc_p_SourceMap_Mapping)
+			return newTList_(jtc_p_SourceMap_Mapping.t_())
 		}
 		return nil
 	}()
-	this.completeMappings = func() *JTList[*SourceMap_Mapping] {
+	this.completeMappings = func() *TList[*SourceMap_Mapping] {
 		if createSrcMap {
-			return jnewTList_(jtc_p_SourceMap_Mapping)
+			return newTList_(jtc_p_SourceMap_Mapping.t_())
 		}
 		return nil
 	}()
@@ -164,12 +164,12 @@ func (this *CodePrinter_MappedCodePrinter) endSourceMapping_impl(node Node) {
 	}
 }
 
-func (this *CodePrinter_MappedCodePrinter) getSourceMappings(code string) *JTList[*SourceMap_Mapping] {
+func (this *CodePrinter_MappedCodePrinter) getSourceMappings(code string) *TList[*SourceMap_Mapping] {
 	if !this.createSrcMap {
 		return nil
 	}
 	var lineLengths ImmutableListOf[BoxedOf[int32]] = CodePrinter_MappedCodePrinter_computeLineLengths(code)
-	var fixedMappings *JTList[*SourceMap_Mapping] = jnewTList_(jtc_p_SourceMap_Mapping)
+	var fixedMappings *TList[*SourceMap_Mapping] = newTList_(jtc_p_SourceMap_Mapping.t_())
 	it_1 := this.allMappings.each()
 	for it_1.next() {
 		var mapping *SourceMap_Mapping = it_1.v
@@ -769,7 +769,7 @@ func CodePrinter_Format_clinit() {
 
 type CodePrinter_SourceAndMappings struct {
 	source   string
-	mappings *JTList[*SourceMap_Mapping]
+	mappings *TList[*SourceMap_Mapping]
 }
 
 func (this *CodePrinter_SourceAndMappings) zero_CodePrinter_SourceAndMappings() {

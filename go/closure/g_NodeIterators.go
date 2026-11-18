@@ -87,8 +87,8 @@ func (this *NodeIterators_FunctionlessLocalScope) currentParent() Node {
 	}()
 }
 
-func (this *NodeIterators_FunctionlessLocalScope) currentAncestors() *JTList[Node] {
-	var list *JTList[Node] = jtlistFrom_(jtc_Node, Collection(this.ancestors.asDeque()))
+func (this *NodeIterators_FunctionlessLocalScope) currentAncestors() *TList[Node] {
+	var list *TList[Node] = tlistFrom_(tc_Node, Collection(this.ancestors.asDeque()))
 	Collections_reverse(list.asList())
 	return list
 }

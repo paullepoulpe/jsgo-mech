@@ -79,7 +79,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 	this.addToProvideMap(Iterable(depFiles.values()), providesMap, true)
 	this.addToProvideMap(Iterable(jsFiles.values()), providesMap, false)
 	for dependencyInfo := range elemsBy_(jsFiles.values(), icast_DependencyInfo) {
-		var newRequires *JTList[*DependencyInfo_Require] = jnewTList_(jtc_p_DependencyInfo_Require)
+		var newRequires *TList[*DependencyInfo_Require] = newTList_(tc_p_DependencyInfo_Require)
 		for _, el := range dependencyInfo.getRequires().items {
 			require := el
 			if require.getType() == DependencyInfo_Require_Type_ES6_IMPORT {
@@ -171,7 +171,7 @@ func (this *DepsGenerator) reportNoDepsInDepsFile(filePath string) {
 
 func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], providesMap *JTMap[string, DependencyInfo], isFromDepsFile bool) {
 	for depInfo := range elemsBy_(depInfos, icast_DependencyInfo) {
-		var provides *JTList[string] = jtlistFrom_(jtc_string, icast_Collection(obj_(depInfo.getProvides().asImm())))
+		var provides *TList[string] = tlistFrom_(tc_string, icast_Collection(obj_(depInfo.getProvides().asImm())))
 		if isFromDepsFile {
 			provides.add(this.loader.resolve(PathUtil_makeAbsolute_String_String(depInfo.getPathRelativeToClosureBase(), this.closurePathAbs)).toModuleName())
 		} else {
@@ -255,8 +255,8 @@ func (this *DepsGenerator) removeRelativePathProvide(info DependencyInfo) Depend
 	return icast_DependencyInfo(obj_(SimpleDependencyInfo_Builder_from(info).setProvides(Collection(DepsGenerator_providesWithoutRelativePath(info).asList())).build()))
 }
 
-func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *JTList[string] {
-	var result *JTList[string] = jnewTList_(jtc_string)
+func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *TList[string] {
+	var result *TList[string] = newTList_(tc_string)
 	for _, el := range info.getProvides().items {
 		p := el
 		if !(p == info.getPathRelativeToClosureBase()) {
@@ -320,20 +320,20 @@ func DepsGenerator_writeDepInfos(out *strBuilder_, depInfos CollectionOf[Depende
 	}
 }
 
-func DepsGenerator_createSourceFilesFromPaths(paths CollectionOf[string]) *JTList[*SourceFile_jscomp] {
-	var files *JTList[*SourceFile_jscomp] = jnewTList_(jtc_p_SourceFile_jscomp)
+func DepsGenerator_createSourceFilesFromPaths(paths CollectionOf[string]) *TList[*SourceFile_jscomp] {
+	var files *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 	for path := range elemsBy_(paths, str_) {
 		files.add(SourceFile_jscomp_fromFile_String(path))
 	}
 	return files
 }
 
-func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) *JTList[*SourceFile_jscomp] {
+func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) *TList[*SourceFile_jscomp] {
 	return DepsGenerator_createSourceFilesFromPaths(Collection(Arrays_asList(arrmap_(paths, func(v_ string) any { return strobj_(v_) }))))
 }
 
 func DepsGenerator_createSourceFilesFromZipPaths(paths CollectionOf[string]) *Outcome_base[List] {
-	var zipSourceFiles *JTList[*SourceFile_jscomp] = jnewTList_(jtc_p_SourceFile_jscomp)
+	var zipSourceFiles *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 	it_1 := foreach_(paths)
 	for it_1.next() {
 		var path string = str_(it_1.v)

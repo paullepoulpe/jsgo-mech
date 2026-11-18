@@ -6,7 +6,7 @@ type PhaseOptimizer struct {
 	compiler_                              *AbstractCompiler
 	changeTracker                          *ChangeTracker
 	tracker                                *PerformanceTracker
-	passes                                 *JTList[CompilerPass]
+	passes                                 *TList[CompilerPass]
 	inLoop_                                bool
 	validityCheck                          *PassFactory
 	printAstHashcodes                      bool
@@ -29,7 +29,7 @@ func (this *PhaseOptimizer) init_PhaseOptimizer(comp *AbstractCompiler, tracker 
 	this.jsRoot = comp.getJsRoot()
 	this.tracker = tracker
 	this.changeTracker = comp.getChangeTracker()
-	this.passes = jnewTList_(jtc_CompilerPass)
+	this.passes = newTList_(tc_CompilerPass)
 	this.inLoop_ = false
 	this.lastChange = PhaseOptimizer_START_TIME
 	this.useSizeHeuristicToStopOptimizationLoop = comp.getOptions().shouldUseSizeHeuristicToStopOptimizationLoop()
@@ -310,7 +310,7 @@ func (this *PhaseOptimizer_ScopedChangeHandler) hasCodeChangedSinceLastCall() bo
 
 type PhaseOptimizer_Loop struct {
 	outer_                          *PhaseOptimizer
-	myPasses                        *JTList[*PhaseOptimizer_NamedPass]
+	myPasses                        *TList[*PhaseOptimizer_NamedPass]
 	myNames                         *JTSet[string]
 	scopeHandler                    *PhaseOptimizer_ScopedChangeHandler
 	isCodeRemovalLoopField          bool
@@ -318,7 +318,7 @@ type PhaseOptimizer_Loop struct {
 }
 
 func (this *PhaseOptimizer_Loop) finit_PhaseOptimizer_Loop() {
-	this.myPasses = jnewTList_(jtc_p_PhaseOptimizer_NamedPass)
+	this.myPasses = newTList_(jtc_p_PhaseOptimizer_NamedPass.t_())
 	this.myNames = jnewTSet_(jtc_string)
 	this.isCodeRemovalLoopField = false
 	this.howmanyIterationsUnderThreshold = 0

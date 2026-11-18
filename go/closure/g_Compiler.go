@@ -437,7 +437,7 @@ func (this *Compiler) init(externs ListOf[*SourceFile_jscomp], sources ListOf[*S
 	for source := range elemsAs_[*SourceFile_jscomp](sources) {
 		chunk.addCompilerInput(new_CompilerInput_SourceFile_boolean(source, false))
 	}
-	var chunks *JTList[*JSChunk] = jnewTListN_(jtc_p_JSChunk, 1)
+	var chunks *TList[*JSChunk] = newTListN_(tc_p_JSChunk, 1)
 	chunks.add(chunk)
 	this.initChunks(externs, chunks.asList(), options)
 	this.addFilesToSourceMap(Iterable(sources))
@@ -1081,7 +1081,7 @@ func (this *Compiler) getCurrentJsSource() string {
 		if chunks == nil {
 			panic(new_NullPointerException_0())
 		}
-		var unmatchedChunkNames *JTList[string] = jnewTList_(jtc_string)
+		var unmatchedChunkNames *TList[string] = newTList_(tc_string)
 		var lt *Compiler_ChunkGraphAwareLicenseTracker = new_Compiler_ChunkGraphAwareLicenseTracker(this.up_AbstractCompiler())
 		for jsChunk := range elemsAs_[*JSChunk](chunks) {
 			var chunkName string = jsChunk.getName()
@@ -1106,7 +1106,7 @@ func (this *Compiler) getCurrentJsSource() string {
 	}
 	if !qnameSet.isEmpty() {
 		var originalToNewQNameMap *SimpleSetMultimap[any, string] = SimpleSetMultimap_createInsertionOrdered[any, string]()
-		var statements *JTList[Node] = this.getTopLevelStatements(this.jsRoot)
+		var statements *TList[Node] = this.getTopLevelStatements(this.jsRoot)
 		builder.append("//\n")
 		builder.append("// closure-compiler: Printing all of the top-level statements\n")
 		builder.append("// that contain references to these qualified names.\n")
@@ -1152,8 +1152,8 @@ func (this *Compiler) getCurrentJsSource() string {
 	return builder.toString()
 }
 
-func (this *Compiler) getTopLevelStatements(root Node) *JTList[Node] {
-	var result *JTList[Node] = jnewTList_(jtc_Node)
+func (this *Compiler) getTopLevelStatements(root Node) *TList[Node] {
+	var result *TList[Node] = newTList_(tc_Node)
 	NodeTraversal_traverse(this.up_AbstractCompiler(), root, new_Compiler_2(this, result))
 	return result
 }
@@ -1632,7 +1632,7 @@ func (this *Compiler) orderInputs() {
 
 func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, supportCommonJSModules bool) {
 	this.maybeDoThreadedParsing()
-	var entryPoints *JTList[*CompilerInput] = jnewTList_(jtc_p_CompilerInput)
+	var entryPoints *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)
 	var inputsByProvide *JTMap[string, *CompilerInput] = jnewTMap_(jtc_string, jtc_p_CompilerInput)
 	var inputsByIdentifier *JTMap[string, *CompilerInput] = jnewTMap_(jtc_string, jtc_p_CompilerInput)
 	for input := range elemsAs_[*CompilerInput](this.chunkGraph.getAllInputs()) {
@@ -1798,7 +1798,7 @@ func (this *Compiler) processJsonInputs(inputsToProcess IterableOf[*CompilerInpu
 }
 
 func (this *Compiler) parsePotentialModules(inputsToProcess IterableOf[*CompilerInput]) {
-	var filteredInputs *JTList[*CompilerInput] = jnewTList_(jtc_p_CompilerInput)
+	var filteredInputs *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)
 	for input := range elemsAs_[*CompilerInput](inputsToProcess) {
 		if (!this.options_.getDependencyOptions().shouldPrune() || !JsFileRegexParser_isSupported()) || input.isEs6Module() {
 			filteredInputs.add(input)
@@ -1843,7 +1843,7 @@ func (this *Compiler) parseTestCode_impl(js string) Node {
 func (this *Compiler) parseTestCodeImmutableList_impl(code []string) Node {
 	this.initCompilerOptionsIfTesting()
 	this.initBasedOnOptions()
-	var sources *JTList[*SourceFile_jscomp] = jnewTList_(jtc_p_SourceFile_jscomp)
+	var sources *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 	for index := int32(0); index < int32(len(code)); index++ {
 		sources.add(SourceFile_jscomp_fromCode_String_String(("testcode" + istr_(int64(index))), sliceAt_(code, index)))
 	}
@@ -1861,7 +1861,7 @@ func (this *Compiler) parseCodeHelper(src *SourceFile_jscomp) Node {
 	return root
 }
 
-func (this *Compiler) parseCodeHelperList(srcs *JTList[*SourceFile_jscomp]) Node {
+func (this *Compiler) parseCodeHelperList(srcs *TList[*SourceFile_jscomp]) Node {
 	var root Node = IR_root([]Node{})
 	it_1 := srcs.each()
 	for it_1.next() {
@@ -2116,7 +2116,7 @@ func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompil
 }
 
 func (this *Compiler) passListUntil(passes ListOf[*PassFactory], passName string) ListOf[*PassFactory] {
-	var passList *JTList[*PassFactory] = jnewTList_(jtc_p_PassFactory)
+	var passList *TList[*PassFactory] = newTList_(tc_p_PassFactory)
 	it_1 := foreach_(passes)
 	for it_1.next() {
 		var pass *PassFactory = cast_[*PassFactory](it_1.v)
@@ -2129,7 +2129,7 @@ func (this *Compiler) passListUntil(passes ListOf[*PassFactory], passName string
 }
 
 func (this *Compiler) passListAfter(passes ListOf[*PassFactory], passName string) ListOf[*PassFactory] {
-	var passList *JTList[*PassFactory] = jnewTList_(jtc_p_PassFactory)
+	var passList *TList[*PassFactory] = newTList_(tc_p_PassFactory)
 	for pass := range elemsAs_[*PassFactory](passes) {
 		if pass.getName() == passName {
 			passList.clear()
@@ -2877,8 +2877,8 @@ func Compiler_toProto(stage AbstractCompiler_LifeCycleStage) LifeCycleStageProto
 	}()
 }
 
-func Compiler_toVariableMapEntries(map_ *VariableMap) *JTList[*VariableMapEntryProto] {
-	var entries *JTList[*VariableMapEntryProto] = jnewTList_(jtc_p_VariableMapEntryProto)
+func Compiler_toVariableMapEntries(map_ *VariableMap) *TList[*VariableMapEntryProto] {
+	var entries *TList[*VariableMapEntryProto] = newTList_(jtc_p_VariableMapEntryProto.t_())
 	if map_ != nil {
 		for _, el := range immElems_(cast_[*ErasedImmutableSet](map_.getOriginalNameToNewNameMap().asImm().entrySet())) {
 			entry := icast_Map_Entry(el)
@@ -3129,7 +3129,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 	}
 	var deserializedAst *TypedAstDeserializer_DeserializedAst = TypedAstDeserializer_deserializeFullAst(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, allInputFiles.build(), typedAsts, stateProto.getTypeCheckingHasRun(), this.getOptions().getResolveSourceMapAnnotations(), this.getOptions().getParseInlineSourceMaps())
 	this.restoreFromState(stateProto)
-	var chunks *JTList[*JSChunk] = jnewTList_(jtc_p_JSChunk)
+	var chunks *TList[*JSChunk] = newTList_(tc_p_JSChunk)
 	for chunkProto := range elemsAs_[*ChunkProto](stateProto.getChunksList()) {
 		var chunk *JSChunk = new_JSChunk(chunkProto.getName())
 		chunks.add(chunk)
@@ -3230,8 +3230,8 @@ func Compiler_resolveSibling(fromPath string, toPath string) string {
 	if strings.HasPrefix(toPath, "/") {
 		return toPath
 	}
-	var fromPathParts *JTList[string] = jtlistFrom_(jtc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(fromPath), func(v_ string) any { return strobj_(v_) }))))
-	var toPathParts *JTList[string] = jtlistFrom_(jtc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(toPath), func(v_ string) any { return strobj_(v_) }))))
+	var fromPathParts *TList[string] = tlistFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(fromPath), func(v_ string) any { return strobj_(v_) }))))
+	var toPathParts *TList[string] = tlistFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(toPath), func(v_ string) any { return strobj_(v_) }))))
 	if !fromPathParts.isEmpty() {
 		fromPathParts.removeAt((fromPathParts.size() - 1))
 	}
@@ -3263,7 +3263,7 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 		}
 		var allChunks IterableOf[*JSChunk] = this.getChunks()
 		if allChunks != nil {
-			var sourceFiles *JTList[*SourceFile_jscomp] = jnewTList_(jtc_p_SourceFile_jscomp)
+			var sourceFiles *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 			for chunk := range elemsAs_[*JSChunk](allChunks) {
 				for _, el2 := range immElems_(chunk.getInputs()) {
 					input := cast_[*CompilerInput](el2)
@@ -3734,7 +3734,7 @@ func (this *Compiler_1) size() int32 {
 type Compiler_2 struct {
 	NodeTraversal_AbstractPreOrderCallback
 	outer_     *Compiler
-	cap_result *JTList[Node]
+	cap_result *TList[Node]
 }
 
 func (this *Compiler_2) up_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {
@@ -3748,7 +3748,7 @@ func (this *Compiler_2) init_Compiler_2() {
 	this.NodeTraversal_AbstractPreOrderCallback.init_NodeTraversal_AbstractPreOrderCallback()
 }
 
-func new_Compiler_2(outer_ *Compiler, cap_result *JTList[Node]) *Compiler_2 {
+func new_Compiler_2(outer_ *Compiler, cap_result *TList[Node]) *Compiler_2 {
 	this := &Compiler_2{}
 	this.self_ = this
 	this.outer_ = outer_

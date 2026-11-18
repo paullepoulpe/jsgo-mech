@@ -29,8 +29,8 @@ func (this *UniqueIdSupplier) getUniqueId(input *CompilerInput) string {
 	return (sstr_(fileHashString) + "$" + istr_(int64(id)))
 }
 
-func (this *UniqueIdSupplier) toProto() *JTList[*UniqueIdProto] {
-	var result *JTList[*UniqueIdProto] = jnewTList_(jtc_p_UniqueIdProto)
+func (this *UniqueIdSupplier) toProto() *TList[*UniqueIdProto] {
+	var result *TList[*UniqueIdProto] = newTList_(jtc_p_UniqueIdProto.t_())
 	for entry := range elemsBy_(this.counter.entrySet(), icast_Map_Entry) {
 		result.add(cast_[*UniqueIdProto](UniqueIdProto_newBuilder().setHash(unbox_[int32](entry.getKey())).setCounter(unbox_[int32](entry.getValue())).build()))
 	}

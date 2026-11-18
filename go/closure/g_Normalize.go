@@ -242,7 +242,7 @@ func (this *Normalize_NormalizeStatements) splitExportDeclaration(n Node) {
 	if n.getBooleanProp(Node_EXPORT_DEFAULT) {
 		return
 	}
-	var destructuringLhsNodes *JTList[Node] = jnewTList_(jtc_Node)
+	var destructuringLhsNodes *TList[Node] = newTList_(tc_Node)
 	var c Node = n.getFirstChild()
 	if NodeUtil_isDeclaration(c) {
 		c.detach()

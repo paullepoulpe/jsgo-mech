@@ -4,7 +4,7 @@ package closure
 
 type AmbiguateProperties struct {
 	compiler_                  *AbstractCompiler
-	stringNodesToRename        *JTList[Node]
+	stringNodesToRename        *TList[Node]
 	reservedFirstCharacters    SetOf[BoxedOf[uint16]]
 	reservedNonFirstCharacters SetOf[BoxedOf[uint16]]
 	propertyMap                *JTMap[string, *AmbiguateProperties_Property]
@@ -16,7 +16,7 @@ type AmbiguateProperties struct {
 }
 
 func (this *AmbiguateProperties) finit_AmbiguateProperties() {
-	this.stringNodesToRename = jnewTList_(jtc_Node)
+	this.stringNodesToRename = newTList_(tc_Node)
 	this.propertyMap = jnewTMap_(jtc_string, jtc_p_AmbiguateProperties_Property)
 	this.quotedNames = jnewTSet_(jtc_string)
 	this.renamingMap = nil
@@ -96,7 +96,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	var reservedNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder().addAll(icast_Iterable(obj_(this.externedNames.asImm()))).addAll(Iterable(this.quotedNames.asSet()))
 	var numRenamedPropertyNames int32 = 0
 	var numSkippedPropertyNames int32 = 0
-	var nodes *JTList[*AmbiguateProperties_PropertyGraphNode] = jnewTListN_(jtc_p_AmbiguateProperties_PropertyGraphNode, this.propertyMap.size())
+	var nodes *TList[*AmbiguateProperties_PropertyGraphNode] = newTListN_(jtc_p_AmbiguateProperties_PropertyGraphNode.t_(), this.propertyMap.size())
 	it_8 := this.propertyMap.eachValue()
 	for it_8.next() {
 		var prop *AmbiguateProperties_Property = it_8.v
@@ -188,14 +188,14 @@ func AmbiguateProperties_clinit() {
 }
 
 type AmbiguateProperties_PropertyGraph struct {
-	nodes_ *JTList[*AmbiguateProperties_PropertyGraphNode]
+	nodes_ *TList[*AmbiguateProperties_PropertyGraphNode]
 }
 
-func (this *AmbiguateProperties_PropertyGraph) init_AmbiguateProperties_PropertyGraph(nodes *JTList[*AmbiguateProperties_PropertyGraphNode]) {
+func (this *AmbiguateProperties_PropertyGraph) init_AmbiguateProperties_PropertyGraph(nodes *TList[*AmbiguateProperties_PropertyGraphNode]) {
 	this.nodes_ = nodes
 }
 
-func new_AmbiguateProperties_PropertyGraph(nodes *JTList[*AmbiguateProperties_PropertyGraphNode]) *AmbiguateProperties_PropertyGraph {
+func new_AmbiguateProperties_PropertyGraph(nodes *TList[*AmbiguateProperties_PropertyGraphNode]) *AmbiguateProperties_PropertyGraph {
 	this := &AmbiguateProperties_PropertyGraph{}
 	this.init_AmbiguateProperties_PropertyGraph(nodes)
 	return this

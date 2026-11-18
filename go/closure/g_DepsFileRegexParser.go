@@ -8,7 +8,7 @@ type DepsFileRegexParser struct {
 	JsFileLineParser
 	depMatcher     *Matcher_re2j
 	depArgsMatch   *Matcher_re2j
-	depInfos       *JTList[DependencyInfo]
+	depInfos       *TList[DependencyInfo]
 	pathTranslator Function_baseOf[string, string]
 }
 
@@ -56,8 +56,8 @@ func (this *DepsFileRegexParser) parseFile(filePath string) *Outcome_base[List] 
 	return Outcome_base_ok_Object[List](this.parseFile_2(filePath, fileContents.get()).asList())
 }
 
-func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) *JTList[DependencyInfo] {
-	this.depInfos = jnewTList_(jtc_DependencyInfo)
+func (this *DepsFileRegexParser) parseFile_2(filePath string, fileContents string) *TList[DependencyInfo] {
+	this.depInfos = newTList_(jtc_DependencyInfo.t_())
 	if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
 		DepsFileRegexParser_logger.fine(("Parsing Dep: " + sstr_(filePath)))
 	}

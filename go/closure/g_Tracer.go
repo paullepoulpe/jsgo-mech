@@ -396,7 +396,7 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 
 type Tracer_ThreadTrace struct {
 	defaultSilenceThreshold      int32
-	events                       *JTList[*Tracer_Event]
+	events                       *TList[*Tracer_Event]
 	outstandingEvents            *JTSet[*Tracer]
 	stats                        *JTMap[string, *Tracer_Stat]
 	isOutstandingEventsTruncated bool
@@ -406,7 +406,7 @@ type Tracer_ThreadTrace struct {
 }
 
 func (this *Tracer_ThreadTrace) finit_Tracer_ThreadTrace() {
-	this.events = jnewTList_(jtc_p_Tracer_Event)
+	this.events = newTList_(jtc_p_Tracer_Event.t_())
 	this.outstandingEvents = jnewTSet_(jtc_p_Tracer)
 	this.stats = jnewTMap_(jtc_string, jtc_p_Tracer_Stat)
 	this.isOutstandingEventsTruncated = false

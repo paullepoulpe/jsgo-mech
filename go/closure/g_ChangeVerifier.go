@@ -134,7 +134,7 @@ func (this *ChangeVerifier) getNameForNode(n Node) string {
 }
 
 func (this *ChangeVerifier) path(ancestor Node, child Node) string {
-	var childToAncestor *JTList[string] = jnewTList_(jtc_string)
+	var childToAncestor *TList[string] = newTList_(tc_string)
 	{
 		var current Node = child
 		for ; current != ancestor; current = current.getParent() {

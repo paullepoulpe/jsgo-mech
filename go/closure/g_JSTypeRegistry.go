@@ -882,8 +882,8 @@ func (this *JSTypeRegistry) getEachReferenceTypeWithProperty(propertyName string
 }
 
 func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) *ObjectType {
-	var stackA *JTList[*ObjectType] = JSTypeRegistry_getSuperStack(a)
-	var stackB *JTList[*ObjectType] = JSTypeRegistry_getSuperStack(b)
+	var stackA *TList[*ObjectType] = JSTypeRegistry_getSuperStack(a)
+	var stackB *TList[*ObjectType] = JSTypeRegistry_getSuperStack(b)
 	var result *ObjectType = this.getNativeObjectType(JSTypeNative_OBJECT_TYPE)
 	for !stackA.isEmpty() && !stackB.isEmpty() {
 		var currentA *ObjectType = stackA.removeAt((stackA.size() - 1))
@@ -897,8 +897,8 @@ func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) 
 	return result
 }
 
-func JSTypeRegistry_getSuperStack(a *ObjectType) *JTList[*ObjectType] {
-	var stack *JTList[*ObjectType] = jnewTListN_(jtc_p_ObjectType, 5)
+func JSTypeRegistry_getSuperStack(a *ObjectType) *TList[*ObjectType] {
+	var stack *TList[*ObjectType] = newTListN_(tc_p_ObjectType, 5)
 	{
 		var current *ObjectType = a
 		for ; current != nil; current = current.getImplicitPrototype() {
