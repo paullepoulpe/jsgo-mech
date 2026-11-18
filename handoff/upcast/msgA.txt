@@ -1,0 +1,79 @@
+j2go + runtime: typed collections, first slice: List/ArrayList fields and locals that hold only lists made for them are *TList[X]
+
+Rule "typed collections" (Colls; Ctx.coerce; rt_tlist.go). The decision is made declaration by
+declaration, as GenScan decides type parameter by type parameter. A field or a local variable
+of type List<X> / ArrayList<X> holds a typed list, *TList[X] (a slice of X values, not of
+boxes), when
+- X has one Go type and no type arguments (a String, a class, an interface, a handle);
+- every value that enters it is `new ArrayList<>()`, `new ArrayList<>(n)`,
+  `new ArrayList<>(collection)`, null, or the value of another typed declaration of the same
+  element type, so that it never holds a list that erased code made; and
+- every use is one the typed list or its erased view serves as the ArrayList did: a List
+  method (not subList, listIterator, getClass), a for-each loop, ==, a string concatenation,
+  or a place of type List, Collection, Iterable, Object or a type variable. A place of the
+  class type ArrayList must be a typed declaration too, or the list stays erased.
+Not typed: the variable of a for-each loop, a record component, a field of a handle class, an
+annotated field (args4j reads those).
+
+get, set, add, add(int, x), remove(int), size, isEmpty, clear and the for-each loop
+(`it := l.each()`) work on the X values. Every other site (a wildcard or raw type, Object, a
+parameter, a result, a library call, any other List method) sees the list as Java's List
+through l.asList(): the list's one erased view, made on first use, which boxes and casts with
+the conversions the erased code makes for X (tc_string, tc_p_JSType..., generated per element
+type in g_0casts.go from Ctx.coerce). Java's behaviour is kept:
+- one object: the view is the list's identity for erased code (==, changes made on either
+  side are the same list's);
+- null is nil on both sides (a nil *TList has the nil List as its view), and a call or a loop
+  on a null list throws NullPointerException where the erased code did;
+- the view implements List as ArrayList in rt_coll.go does (messages of
+  IndexOutOfBoundsException, equals/hashCode/toString, iterator with remove); a String is
+  looked up in it without boxing each element (contains_s).
+Nothing converts an erased list into a typed one: no conversion from the erased form exists
+(Ctx.coerce throws, so a hole in the analysis stops the translation instead of compiling).
+Accepted difference: an element of the wrong type that unchecked code puts into a typed list
+through its view fails there with the ClassCastException that Java throws at the first typed
+read (or never, if it is never read at its type).
+
+In the translator a typed declaration, and every expression that reads it, has the type
+TList<X> of a stub class compiled with the program (Ctx.TLIST_STUB: the typed methods), so
+the existing machinery of typed declarations types the calls, and Ctx.coerce is the one place
+that turns it into any other type (through the view). J2GO_COLLS=1 reports the counts and the
+reasons declarations stay erased, J2GO_COLLS=2 each declaration; J2GO_ERASED=1 skips the rule.
+
+In the program: 294 of 495 List/ArrayList fields and locals with such an X are typed (124
+fields, 170 locals), with 88 element types (Node, String, JSType, ...). Erased, by first
+reason: assigned the result of a call (107, of which Splitter.splitToList 20, ImmutableList.of
+12, Outcome.get 12), assigned a variable that is not typed (19), used in a lambda (17),
+reaches a place of type ArrayList (10), no new ArrayList enters it (7), the variable of a
+for-each loop (5), annotated (4), a method reference (4), subList (5).
+
+Selftest: lang/Colls.java (typed fields and locals of Strings, of a class with subclasses, of
+an interface; a static; null lists and null elements; identity, equals, hashCode, toString
+and changes across the erased boundary and back through Object; the failures; lists captured
+by a lambda and an anonymous class; declarations that stay erased).
+
+Census (census.py, raw j2go output), previous commit -> this: erased collection constructors
+1,143 -> 866, typed constructors 0 -> 277, boxing 12,731 -> 12,258, unboxing 1,077 -> 995,
+class casts 3,466 -> 3,428, interface casts 3,136 (not recorded before).
+Allocations (JSGO_MEMSTATS, one run each; previous commit -> this): typed-full 366.30M ->
+370.69M objects (+1.2%), 18.065G -> 17.635G bytes (-2.4%); bundle 193.42M -> 195.52M objects
+(+1.1%), 10.084G -> 9.971G bytes (-1.1%). The allocation profile of bundle (JSGO_MEM_PROFILE)
+shows where the objects come from: TList.add and newTList_ replace ArrayList.add and
+new_ArrayList_0 one for one, and the rest is the iterator of the view for erased for-each loops
+(1.16M) and the views themselves (1.06M, 0.6M of them where a typed field is filled from a
+constructor parameter). The next commit removes both (typed parameters and results; a cursor
+for the view).
+Time (fb.py, alternating rounds under the lock, no PGO; the machine was shared and very busy,
+load 3 to 11, so cpu seconds are the comparable figure; erased = J2GO_ERASED=1 output, prev =
+previous commit, this): bundle cpu, 4 rounds: erased 50.68/50.38/48.57/50.22, prev
+50.15/50.02/50.34/51.59, this 49.54/56.80/50.53/51.32 (medians 50.30, 50.25, 50.93); wall
+erased 47.0/50.2/47.2/51.8, prev 44.8/48.7/48.9/54.3, this 46.4/53.6/48.5/53.4. typed-full
+(stopped by the time limit after 5 of 9 runs): cpu erased 104.82, prev 105.60/104.26, this
+102.41/103.76; wall erased 110.3, prev 117.2/106.1, this 106.7/100.2. No difference beyond
+the noise of the busy machine; pre-flip Java was not run at this load (see the next commit).
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

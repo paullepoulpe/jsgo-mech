@@ -1,0 +1,65 @@
+j2go + runtime: typed lists in parameters and results of methods whose signature is their own; no view where the list is only passed on
+
+Rule "typed collections", second slice (Colls.closedMethod). The parameters and the result of a
+method are candidates like fields and locals when the method's signature is its own: a
+constructor, a static or a private method, or an instance method of a class that overrides
+nothing and that nothing overrides -- with a body, without type parameters, not named by a
+method reference (that calls it at the erased signature), not `main`, not a record's or an
+anonymous class's constructor; a constructor that an anonymous class calls through `super`
+keeps its parameters erased. An argument enters the parameter and a returned expression enters
+the result under the conditions of the first slice (a new ArrayList, null, the value of
+another typed declaration: now also a call of a method with a typed result); a call is a use
+of the result like a read of a variable. A typed list that reaches an erased parameter or
+result still goes through its view; one that reaches a typed parameter goes as it is, so
+`new Bag(items)` storing its parameter in a typed field makes no view any more.
+
+Translator: Ctx.rtype (the result type of a method, typed or declared) and Ctx.vtype for
+parameters, used by the declarations, by groupParams/groupReturn and by the calls of static
+methods and constructors. In the program: 472 of 784 List/ArrayList declarations are typed
+(137 fields, 214 locals, 68 parameters, 53 results); 15 parameters and 22 results of that
+kind belong to groups of overriding methods and are not candidates (too few to add the rule
+for groups). Erased, by first reason: exchanges values with an erased declaration 98,
+ImmutableList.of 31, Splitter.splitToList 21, used in a lambda 17, Outcome.get 14, assigned a
+variable that is not typed 13, nothing enters it 13, Collections.unmodifiableList 7, ...: what
+is left is mostly lists that a library makes (the immutable collections).
+
+Runtime (rt_tlist.go, rt_coll.go, rt_object.go, rt_json.go):
+- foreach_ reads the view of a typed list by position (listAt_), as it reads an ArrayList's
+  slice: an erased for-each loop over a view allocates no iterator;
+- TList.iterator() is the list's Iterator without making the view (NullPointerException for a
+  null list, as before);
+- the view is made once also when two threads ask for it at the same time (atomic.Pointer);
+- getClass() of a view is java.util.ArrayList (goName_);
+- asList_ lets handwritten runtime code call generated code whatever the translator decided
+  (rt_json.go fills SimpleJsonValue.elements(), now a *TList).
+
+README: the section "Typed collections". Selftest: lang/Colls.java (constructor, static,
+private and instance methods with typed parameters and results; an overridden method and a
+method named by a method reference that stay erased; a result that is null; getClass of a
+list that reached Object).
+
+Census (census.py, raw j2go output), previous commit -> this: erased collection constructors
+866 -> 845, typed constructors 277 -> 295, interface casts 3,136 -> 3,119, class casts 3,428 ->
+3,376, boxing 12,258 -> 12,165, unboxing 995 -> 940.
+Allocations (JSGO_MEMSTATS, one run each; before the typed collections (d335aebb) -> previous
+commit -> this): typed-full 366.30M -> 370.69M -> 367.88M objects, 18.065G -> 17.635G ->
+17.562G bytes (-2.8% since d335aebb); bundle 193.42M -> 195.52M -> 193.34M objects, 10.084G ->
+9.971G -> 9.936G bytes (-1.5%).
+Time (fb.py, alternating rounds under the lock, no PGO; the machine was shared and busy, load 4
+to 10, so cpu seconds are the comparable figure; erased = J2GO_ERASED=1 output, prev = previous
+commit, this): bundle cpu, 3 rounds: erased 51.52/49.65/50.43, prev 50.82/49.76/50.57, this
+50.52/50.37/50.77 (means 50.53, 50.38, 50.55); wall erased 50.6/48.5/49.8, prev 49.8/50.3/49.3,
+this 48.8/50.8/50.6. typed-full cpu, 2 rounds: erased 104.51/102.00, prev 101.75/100.38, this
+99.84/99.47 (means 103.26, 101.07, 99.66: -3.5% against erased); wall erased 101.4/88.7, prev
+98.3/88.4, this 88.4/88.3. Typed is no slower than erased on either task. Pre-flip Java
+(candidate.sh, one run each, same session): bundle wall 35.8 s cpu 68.2 s (load 4.6),
+typed-full wall 89.6 s cpu 130.3 s (load 7.1); Java/Go cpu 1.35 (bundle) and 1.31
+(typed-full); the walls were taken at different loads (Go bundle about 50 s at load 9, Go
+typed-full 88.3 s at load 4.5) and give no ratio worth quoting: on the quiet machine of the
+earlier commits Java's walls were 36.3 s and 55.4 s against Go's 37 to 38 s and 71 to 73 s.
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

@@ -1,0 +1,11 @@
+selftest: PASS
+removed 0 declarations in 0 rounds
+ok  	jsgomech/closure	0.220s
+checks: MATCH (952 inputs, exit 0, 0 output bytes, 4433 stderr bytes)
+bundle: MATCH (3 inputs, exit 0, 3094347 output bytes, 9544 stderr bytes)
+downlevel: MATCH (2094 inputs, exit 0, 2345059 output bytes, 4847 stderr bytes)
+advanced: MATCH (848 inputs, exit 0, 6809562 output bytes, 11082 stderr bytes)
+runtime lines: 17161  test lines: 3363
+tests: 18
+BUILT
+GATEDONE

@@ -1,0 +1,74 @@
+j2go: typed collections in the parameters and results of groups of overriding methods
+
+Rule "typed collections", ninth slice. Until now a parameter or a result could be a typed
+collection only in a method whose signature is its own (a constructor, a static or private
+method, an instance method that overrides nothing and that nothing overrides). Methods that
+override one another have one signature in Go (Ctx.groupParams / groupReturn read the root's
+declarations), so a parameter or the result of such methods is one declaration for the whole
+group (Colls.groupOf, groupSlot): what enters it in any method of the group enters it, every
+use in any of them is a use of it, and it is a typed collection in every method or in none
+(Slot.all: the root's signature, each method's own declaration, the dispatch stubs and the
+interface's method set follow from the same declarations).
+A group is every method connected by "overrides" in some class of the program, anonymous and
+local classes included; a method that a class inherits is connected to the interface method
+that it implements in that class (KeyHolder.keys() and Sized.keys() through SizedHolder
+extends KeyHolder implements Sized), since the Go struct must have the interface's method. A
+group can be typed when
+- all its methods are methods of the program (no library method: Iterable.iterator, a Guava
+  interface), without type parameters, not of a record, an annotation or a handle class;
+- the position has the same collection kind and type arguments in every method (not a type
+  argument that names a Go type parameter: the methods are in different generic scopes);
+- no lambda and no method reference implements the group's interface (their adapter has the
+  erased signature: "of a method that a lambda implements" keeps it erased).
+J2GO_COLLS_NOGROUPS=1 is the previous rule. J2GO_COLLS=1 now reports why a parameter or result
+is not a candidate.
+
+In the program (previous commit -> this): lists 549 of 875 -> 559 of 895 typed, sets 316 of
+478 -> 349 of 534, maps 389 of 501 -> 389 of 505; deques 99 of 105 and entry variables 47 of
+110 as before. Parameters 213 -> 246 typed, results 105 -> 113. Not candidates: 92 parameters
+and 54 results -> 34 and 32: the methods of the group do not all have the same typed
+collection type there 44 (a List<X> where another method has a Collection<X> or an
+ImmutableList<X>, a wildcard, a type variable), a method without a body, of a record,
+or main 17, a method with type parameters 5. What has no typed collection for its type
+arguments is unchanged (a type variable as the key of a map 26 or the element of a set 24,
+wildcards 23, ...). Erased by flow, by first reason: exchanges values with an erased
+declaration (lists 104, sets 71, maps 37, entries 14), entry not of a loop over a typed map
+49, ImmutableList.of 40, list assigned a variable that is not typed 35, set the same 25,
+Splitter.splitToList 23, ImmutableSet.of 17, Outcome.get 16 + 5, a new TreeSet 15,
+ImmutableMap.of 12, Property.get 10 + 6, map assigned a variable that is not typed 9,
+Builder.build 6 + 6, Builder.buildOrThrow 6, Entry.getValue 6, the variable of a for-each
+loop 6, ImmutableList.copyOf 5, ... (the newly typed parameters are candidates that the
+Guava immutables now keep erased: those are the next reasons to remove.)
+
+Selftest: lang/Colls.java (groups(): an interface Source with a result List<String>, two
+parameters (List<String>, Set<Base>) and a default method; an abstract class implementing it
+with an abstract method of its own (Map<String, Base> index(List<Base>)); two subclasses, one
+calling super; an anonymous class; calls through the interface, the abstract class and the
+classes; an interface implemented by an inherited method; an interface implemented by
+lambdas, which stays erased).
+
+Census (census.py, raw j2go output), previous commit -> this: erased collection constructors
+210 -> 202, typed constructors 808 -> 816, interface casts 2,441 -> 2,430, class casts 3,153
+-> 3,154, boxing 10,909 -> 10,894.
+Allocations (JSGO_MEMSTATS, one run each; previous commit -> this): typed-full 358.52M ->
+358.52M objects, 16.300G -> 16.299G bytes; bundle 183.03M -> 183.03M objects, 9.134G -> 9.135G
+bytes (the newly typed declarations are not on the paths of these two tasks).
+Time (fb.py, rounds alternating forward and backward under the lock, no PGO; erased =
+J2GO_ERASED=1 output, prev = previous commit, this; other agents were using the host: load
+average 1.5 to 3.5 during the runs). cpu seconds:
+  bundle, 3 rounds:       erased 50.92/47.14/47.02, prev 50.35/47.18/43.96, this 49.45/49.66/45.62
+  bundle, 4 more rounds:  prev 48.05/47.98/48.95/43.90, this 46.36/45.76/48.93/42.87
+  typed-full, 2 rounds:   erased 103.27/104.47, prev 98.08/100.10, this 98.51/99.92
+wall seconds: bundle erased 44.4/39.8/41.2, prev 44.3/40.4/39.3, this 42.8/43.8/41.1; then
+prev 42.7/42.7/43.7/37.1, this 41.1/40.8/43.3/36.4; typed-full erased 86.9/87.0, prev
+83.9/86.1, this 85.2/86.1.
+Means: bundle cpu over the 7 rounds prev 47.20, this 46.95 (-0.5%; the first 3 rounds alone
++2.3%, the next 4 -2.6%: the load); erased, 3 rounds, 48.36. typed-full cpu erased 103.87,
+prev 99.09, this 99.22 (+0.1%, 4.5% below erased). This commit and the previous one are level.
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH (the report of reasons was added after the gate; the generated Go files are byte for
+byte those of the gated run).
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

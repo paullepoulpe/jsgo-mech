@@ -1,0 +1,72 @@
+j2go + runtime: typed sets: Set/LinkedHashSet declarations of Strings, enums and classes without equals are *TSet[X]
+
+Rule "typed collections", third slice: the rule is now a table of kinds (Ctx.collKinds: the
+types of the declarations, the classes whose `new` makes one, the stub class with the typed
+methods, the view and the types the view serves), with lists and sets in it. A field, local
+variable, parameter or result of type Set<X> / HashSet<X> / LinkedHashSet<X> holds a typed set,
+*TSet[X] (rt_tset.go), under the conditions of the lists (every value that enters it is
+`new LinkedHashSet<>()`, `(n)`, `(collection)`, null or the value of another typed
+declaration; every use is one the set or its view serves), and when X is a type whose Go ==
+is Java's equals, so that the set finds an element exactly when Java's does (Ctx.goEquals): a
+String, an enum, or a class of the program (a handle class too) that inherits equals and
+hashCode from Object, as every subclass of it does. A class with its own equals (or with a
+subclass that has one), an interface and a library class keep the set erased.
+
+A *TSet[X] holds its elements as X values in insertion order -- the order of the erased
+LinkedHashSet, the only set the program makes (no `new HashSet` in the tree) -- and, like the
+erased table (htable_), searches a small set linearly and indexes a larger one (a Go map from
+element to position); a removed element leaves a dead position until an add compacts the set,
+so a cursor or an iterator keeps its place. add, contains and remove of an X (s.has(x),
+s.del(x); contains/remove of an Object of another static type go through the view), size,
+isEmpty, clear, iterator and the for-each loop work on the X values. Every other site sees
+the set as Java's Set through s.asSet(), its one erased view (identity; null is nil; a lookup
+of an object of another class finds nothing, as in Java; equals, hashCode and toString as
+the erased set computes them; getClass is java.util.LinkedHashSet).
+
+Runtime besides rt_tset.go: foreach_ reads a view by position through one interface for lists
+and sets (stepper_, replacing listAt_); Collection_add_s / Collection_remove_s reach a typed
+set of Strings without boxing the String (contains_s did already).
+Translator: Ctx.typedMethod takes the static types of the arguments (contains/remove are
+typed only for an argument that is an X); newTyped names the runtime functions from the kind
+(newTList_, newTSet_, tsetFrom_, tsetCopy_).
+
+In the program: 230 of 360 Set declarations with such an X are typed (120 fields, 77 locals, 19
+parameters, 14 results): 169 of String, 33 of Node, then enums and classes. Erased, by first
+reason: exchanges values with an erased declaration 34, assigned a variable that is not typed
+18, a new TreeSet 14, nothing enters it 10, ImmutableSet.of 7, ObjectType.getOwnPropertyNames
+5, ImmutableSet.copyOf 3, Map.keySet 3, ... Lists are unchanged (472 of 784).
+
+Selftest: lang/Colls.java (sets of Strings with null, of an enum, of a class without equals;
+a set of a class with equals and a set of Integers stay erased; add/contains/remove with
+elements and with Objects of another class, 40 elements with every second removed and one
+added (index and compaction), removal through an iterator, copies from a typed set and from an
+erased collection, equals and hashCode between sets, identity through Object, clear and reuse,
+a null set); lang/Handles.java already had a set of a handle class with its own equals, which
+must stay erased (it found the first version of goEquals wrong).
+
+Census (census.py, raw j2go output), previous commit -> this: erased collection constructors
+845 -> 652, typed constructors 295 -> 468, interface casts 3,119 -> 2,951, boxing 12,165 ->
+11,873, unboxing 940 -> 914, class casts 3,376 -> 3,380.
+Allocations (JSGO_MEMSTATS, one run each; previous commit -> this): typed-full 367.88M ->
+366.27M objects, 17.562G -> 17.423G bytes; bundle 193.34M -> 191.81M objects (-0.8%), 9.936G ->
+9.809G bytes (-1.3%). Since d335aebb (before the typed collections): typed-full 366.30M ->
+366.27M objects, 18.065G -> 17.423G bytes (-3.6%); bundle 193.42M -> 191.81M objects, 10.084G
+-> 9.809G bytes (-2.7%).
+Time (fb.py, alternating rounds under the lock, no PGO, shared machine at load 3 to 4; erased =
+J2GO_ERASED=1 output, prev = previous commit, this): bundle cpu, 3 rounds: erased
+52.52/50.82/49.90, prev 52.12/51.40/48.98, this 50.61/50.65/49.73 (means 51.08, 50.83, 50.33);
+wall erased 48.0/46.3/45.0, prev 48.1/47.0/44.7, this 47.1/46.0/44.9. typed-full cpu, 2
+rounds: erased 104.49/103.54, prev 103.79/102.73, this 104.48/104.15 (means 104.02, 103.26,
+104.32); wall erased 90.8/88.0, prev 90.5/89.6, this 91.7/91.1. On bundle the typed sets are
+the fastest of the three; on typed-full this commit is 1% above the previous one and level
+with erased in cpu, with two rounds on a shared machine whose runs differ by 1% among
+themselves. The next commit measured this one again as its "prev", in four rounds on a quieter
+machine: typed-full cpu 96.20/96.64/94.86/96.27 (mean 95.99) against erased 98.68/97.95/100.81
+(mean 99.15), so the typed sets are 3% below erased there too. Pre-flip Java as measured for
+the previous commit (bundle cpu 68.2 s, typed-full cpu 130.3 s): Java/Go cpu 1.35 and 1.25.
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

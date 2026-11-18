@@ -1,0 +1,41 @@
+bundle up2 objects=182.95M bytes=9.130G
+bundle up3 objects=182.95M bytes=9.130G
+bundle up4 objects=182.95M bytes=9.131G
+bundle up5 objects=182.95M bytes=9.130G
+bundle up6 objects=182.95M bytes=9.130G
+  bundle upE wall=46.01 cpu=47.09 round=0 load=6.45
+  bundle up2 wall=41.08 cpu=42.21 round=0 load=7.30
+  bundle up3 wall=43.03 cpu=45.10 round=0 load=7.04
+  bundle up4 wall=42.81 cpu=44.96 round=0 load=6.34
+  bundle up5 wall=43.51 cpu=45.32 round=0 load=6.12
+  bundle up6 wall=42.71 cpu=45.21 round=0 load=5.91
+  bundle up6 wall=41.98 cpu=42.62 round=1 load=7.19
+  bundle up5 wall=41.96 cpu=42.43 round=1 load=7.90
+  bundle up4 wall=39.96 cpu=42.05 round=1 load=7.41
+  bundle up3 wall=41.33 cpu=42.47 round=1 load=7.31
+  bundle up2 wall=43.32 cpu=43.73 round=1 load=7.37
+  bundle upE wall=46.27 cpu=46.25 round=1 load=8.76
+  bundle upE wall=51.64 cpu=47.19 round=2 load=10.28
+  bundle up2 wall=39.45 cpu=43.91 round=2 load=6.47
+  bundle up3 wall=39.09 cpu=43.59 round=2 load=5.11
+  bundle up4 wall=38.98 cpu=43.27 round=2 load=3.80
+  bundle up5 wall=37.19 cpu=41.50 round=2 load=3.58
+  bundle up6 wall=36.74 cpu=40.69 round=2 load=3.50
+typed-full up2 objects=358.51M bytes=16.299G
+typed-full up3 objects=358.52M bytes=16.299G
+typed-full up4 objects=358.52M bytes=16.300G
+typed-full up5 objects=358.52M bytes=16.300G
+typed-full up6 objects=358.51M bytes=16.300G
+  typed-full upE wall=79.28 cpu=99.07 round=0 load=1.56
+  typed-full up2 wall=77.35 cpu=94.58 round=0 load=1.17
+  typed-full up3 wall=72.53 cpu=88.43 round=0 load=1.08
+  typed-full up4 wall=71.10 cpu=87.12 round=0 load=1.28
+  typed-full up5 wall=77.96 cpu=95.91 round=0 load=1.15
+  typed-full up6 wall=75.10 cpu=91.66 round=0 load=1.80
+  typed-full up6 wall=77.33 cpu=93.71 round=1 load=1.58
+  typed-full up5 wall=77.04 cpu=92.50 round=1 load=2.36
+  typed-full up4 wall=73.67 cpu=88.62 round=1 load=2.62
+  typed-full up3 wall=76.26 cpu=87.36 round=1 load=3.78
+  typed-full up2 wall=80.32 cpu=89.04 round=1 load=5.22
+  typed-full upE wall=78.07 cpu=94.32 round=1 load=2.82
+DONE

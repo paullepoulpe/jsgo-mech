@@ -1,0 +1,98 @@
+j2go + runtime: typed maps: Map/LinkedHashMap declarations are *TMap[K, V]; loops over their keys, values and entries read the map itself
+
+Rule "typed collections", fifth slice: a kind with two type arguments (Colls.Slot.args,
+Ctx.typedArgs; a conversion per argument). A field, local variable, parameter or result of
+type Map<K, V> / HashMap<K, V> / LinkedHashMap<K, V> holds a typed map, *TMap[K, V]
+(rt_tmap.go), under the conditions of the other kinds: every value that enters it is
+`new LinkedHashMap<>()`, `(n)`, `(map)` (the only hash map the program makes: no
+`new HashMap` in the tree), null or the value of another typed declaration of the same K and
+V, and every use is one the map or its view serves. K is a type whose Go == is Java's equals,
+as for a set (a String, an enum, a class of the program without equals of its own:
+Ctx.goEquals). V is a type with one Go type; it may be a library type with type arguments
+(Ctx.typedValue): Map<String, List<Node>> is a *TMap[string, List], whose values are the
+erased List that such a value is everywhere else (a typed list that is put into the map goes
+in as its view, the one object).
+
+A *TMap[K, V] holds its keys and values as K and V values in insertion order (the erased
+LinkedHashMap's order) and, like the typed set, searches a small map linearly and indexes a
+larger one (a Go map from key to position); a removed mapping leaves a dead position until a
+put compacts the map, so a cursor or an iterator keeps its place. get, put, containsKey
+(m.has(k)), remove (m.del(k)), getOrDefault (m.getOr(k, v)), putIfAbsent and computeIfAbsent
+with a key that is a K by its static type, size, isEmpty and clear work on the K and V values;
+a missing key gives Java's null (the null String for a String). A for-each loop over
+m.keySet(), m.values() or m.entrySet() of a typed map reads the map itself, without the view:
+`it := m.eachKey()`, `m.eachValue()`, `m.eachEntry()`. The variable of the loop over the
+entries is a *TEntry[K, V] (a fifth kind, "entry": its candidates are the variables of loops
+over the entrySet() of a map candidate, typed when the map is): getKey, getValue and setValue
+on the K and V values, an object per iteration as in Java (it reads and writes the map's
+value while the mapping exists and keeps the last value after its removal, as the erased
+entry does); an entry that goes anywhere else goes as a Map.Entry through e.asEntry().
+Every other site sees the map as Java's Map through m.asMap(), its one erased view: identity;
+null is nil; a lookup with an object of another class finds nothing, as in Java; keySet(),
+values() and entrySet() are parts of the view (no allocation, as for the erased map), with
+iterators that remove; equals, hashCode and toString as the erased map computes them; getClass
+is java.util.LinkedHashMap.
+
+Runtime besides rt_tmap.go: Map_get_s / Map_containsKey_s / Map_put_s / Map_remove_s reach the
+view of a typed map of String keys without boxing the key; erasedMap_ lets handwritten runtime
+code call generated code whatever the translator decided (rt_json.go fills
+SimpleJsonValue.members(), now a *TMap[string, *SimpleJsonValue]).
+Translator: Ctx.typedArgs / typedOf / typedView take the list of type arguments; CollKind has
+the type of the argument of `new C<>(from)` (a Map for a map); StmtEmitter.typedMapLoop;
+J2GO_COLLS=1 also reports the declarations whose type arguments no typed collection has, by
+reason (Colls.whyNot); J2GO_COLLS_NOMAPS=1 skips maps and entries.
+
+In the program: 289 of 388 Map declarations with such K and V are typed (134 fields, 81
+locals, 50 parameters, 24 results) with 92 pairs of types: String -> Node 37, String -> String
+35, String -> Var 17, Node -> String 10, ...; 19 pairs have an erased library type as value.
+30 of 88 entry variables are typed (41 loop over an erased map or over something else, 17 over
+a map candidate that stays erased). Erased maps, by first reason: exchanges values with an
+erased declaration 29, Property.get 10, assigned a variable that is not typed 6,
+ImmutableMap.of 6, nothing enters it 6, Outcome.get 5, a new TreeMap 4, a new
+ConcurrentHashMap 3, Builder.buildOrThrow 3, Builder.getProp 3, Map.get 3, ... Lists (472 of
+784), sets (230 of 360) and deques (91 of 96) are unchanged.
+Not candidates, because no typed collection has the declaration's type arguments
+(J2GO_COLLS=1, new in this commit): maps: key a class with its own equals 38, a type variable
+as key 26, value Integer/Long/Boolean 31, value Object 16, key an interface 6, a value type
+that is a generic class of the program 6, key Integer/Character 6, a type variable as value 5,
+key a library class 5, ...; sets: element a class with its own equals 61, Character 26, a type
+variable 24, an interface 23, Integer 5, type arguments 5; lists: an element type with type
+arguments 51, a type variable 20, a wildcard 19, Integer 15, ...; and 61 parameters and 34
+results of methods in groups of overriding methods.
+
+Selftest: lang/Colls.java (maps of String -> class, enum -> String, String -> List<String>,
+class without equals -> String, String -> String; null keys and null values; get, containsKey
+and remove with keys and with Objects of another class; getOrDefault, putIfAbsent,
+computeIfAbsent; loops over keys, values and entries, setValue, an entry as an Object; 40
+mappings with every second removed and one added (index and compaction); removal through the
+entry set's iterator, the key set and the values; copies from a typed map and from an erased
+map; equals and hashCode between maps and key sets; identity and getClass through Object;
+clear and reuse; a null map; a map keyed by a class with equals and one keyed by Integers stay
+erased).
+
+Census (census.py, raw j2go output), previous commit -> this: erased collection constructors
+575 -> 387, typed constructors 468 -> 651, for-each via the erased cursor 1,435 -> 1,364,
+interface casts 2,834 -> 2,609, class casts 3,316 -> 3,176, boxing 11,656 -> 11,240, unboxing
+888 -> 794.
+Allocations (JSGO_MEMSTATS, one run each; previous commit -> this): typed-full 364.14M ->
+363.57M objects, 16.866G -> 16.678G bytes (-1.1%); bundle 190.24M -> 189.79M objects, 9.582G ->
+9.477G bytes (-1.1%). Since d335aebb (before the typed collections): typed-full 366.30M ->
+363.57M objects (-0.7%), 18.065G -> 16.678G bytes (-7.7%); bundle 193.42M -> 189.79M objects
+(-1.9%), 10.084G -> 9.477G bytes (-6.0%).
+Time (fb.py, alternating rounds under the lock, no PGO, machine at load 1; erased =
+J2GO_ERASED=1 output, prev = previous commit, this): bundle cpu, 5 rounds: erased
+46.64/48.11/47.12/47.11/48.39, prev 47.28/47.35/46.84/47.17/47.83, this
+46.97/50.99/46.75/45.88/46.79 (means 47.47, 47.29, 47.48; medians 47.12, 47.28, 46.79: one run
+of this commit is 4 s above its four others); wall erased 40.1/41.6/40.5/40.3/41.7, prev
+40.8/41.0/40.9/41.0/41.5, this 41.0/44.7/40.4/39.8/40.5. typed-full cpu, 2 rounds: erased
+98.03/98.13, prev 97.14/93.95, this 93.95/95.16 (means 98.08, 95.55, 94.56: typed is 3.6%
+below erased); wall erased 80.1/80.5, prev 80.2/78.3, this 78.8/79.4. Typed is no slower than
+erased on either task. Pre-flip Java as measured for the previous commit in the same session
+(bundle wall 36.0 s cpu 70.5 s, typed-full wall 65.4 s cpu 123.7 s): Java/Go cpu 1.51 (bundle,
+by the medians) and 1.31 (typed-full); Java/Go wall 0.89 and 0.83.
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

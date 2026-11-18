@@ -1,0 +1,41 @@
+postflip step: casts -named rerun, 19 cast helpers -instof left without callers go
+
+tools/postflip/casts -named ../../go/closure (7 files): 5 to_X, 11 is_X, 3 icast_I whose last
+calls the instanceof step bound to an asserted value are removed. No assertion changes.
+
+Census (g_*.go) for the group (castfold, Preconditions_checkNotNullT, casts -named, -instof),
+from postflip5:
+  anonymous interface assertions .(interface{     302 -> 0
+  class casts to_X( / cast_[T](                 3,163 -> 2,576
+  interface casts icast_X(                      2,310 -> 1,136
+  instanceof is_X(                                398 -> 79
+  boxing to any                                10,150 -> 8,832 (operands of the folded casts)
+
+Left, by reason (castfold -n and castfold -instof -n on this tree; one site is one call):
+class casts: 2,576 = 2,533 calls + 43 to_X helper declarations (the census counts them)
+  1,796 operand of type any, read from an erased slot, which no static type decides:
+          687 results of erased generic methods/functions or ones returning Object
+              (Outcome.get, Map.get, Map.Entry.getKey/getValue, List.get, Iterator.next...)
+          509 parameters of lambdas of erased functional interfaces (func(p0 any) any)
+          448 elements of erased collections in for-each loops (it.v)
+          123 parameters of type Object or an erased type parameter (equals, compare...)
+            9 caught exceptions (catch_); 20 locals, fields and []any elements of type any
+        These go with typed collections, generics and func types, whose steps type the slot.
+    426 downcasts of a class (Java narrowing casts, checked at run time)
+    310 downcasts of an interface value to a class (checked at run time)
+      1 upcast of a pointer that may be null (to_X keeps null; as_X would not)
+interface casts: 1,136 = 1,040 calls + 96 icast_I helper declarations
+    469 icast_I(obj_(p)) of a pointer that may be null (fields, parameters, method results):
+        a null p gives a nil I, while I(p) would be a non-nil I holding nil
+    439 operand of type any (erased slots, as above)
+     95 icast_I(p.self()) of a class with subclasses: the most derived object, whose type is
+        not static
+     35 casts between Java interfaces (checked at run time); 2 others (a class to an interface
+        it does not implement statically; a non-pointer operand)
+instanceof: 79 = 64 calls + 15 is_X helper declarations; the 64 are tests inside a larger
+  expression (&&, ||, a returned value): Go has no expression form of a type test.
+
+verify.sh: runtime tests ok; checks, bundle, downlevel, advanced: MATCH.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

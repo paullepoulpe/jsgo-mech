@@ -1,0 +1,77 @@
+j2go + runtime: typed sets and maps compared by equals and hashCode (Set<Var>, Map<Property.Key, X>, keys that are interfaces or library classes)
+
+Rule "typed collections", seventh slice: the elements of a set and the keys of a map may be
+of any class or interface without type arguments (not Object, Float or Double). Until now
+they had to be of a type whose Go == is Java's equals (a String, an enum, a class of the
+program without equals of its own, a boxed primitive); such a collection still compares with
+== through a Go map. For every other type (a class with its own equals or hashCode, in itself,
+a superclass or a subclass; an interface; a library class: Ctx.byEquals) the typed set or map
+finds an element exactly as java.util.HashMap does: by the hash code the element had when it
+was added, then by identity or equals(). The conversion of such a type says so (tce_p_Var:
+tconv_.byEquals), and the collection keeps the hash codes beside its keys (teq_, rt_tset.go:
+a scan of the hash codes while it is small, then chains of positions per hash code, as the
+erased table has). hashCode and equals are called on the boxes (objhash_, objequals_: null is
+a key with hash code 0), in the order and number HashMap calls them for a table without
+collisions of unequal hash codes: hashCode once per operation, equals only on a key of the
+same hash code that is not the same object. J2GO_COLLS_NOEQUALS=1 is the previous rule.
+
+Runtime, two changes that the measurements of this slice asked for (the first version of it
+allocated 0.6% more objects on typed-full and 1.9% more on bundle than the previous commit):
+- the erased view of a typed map made two objects for each entry that erased code asked for
+  (the TEntry and its view); the view now holds the entry it shows (tentryView_.own);
+- the slice of hash codes is made with the capacity the slice of keys starts with.
+
+In the program (previous commit -> this): sets 236 of 391 -> 299 of 475 typed, maps 325 of
+440 -> 367 of 488, entry variables 34 of 98 -> 43 of 110; lists 496 of 817 and deques 93 of
+98 as before. 26 element types are compared by equals: Var (19 constructors),
+GlobalNamespace.AstChange (8), Color, ColorId (6 each), ObjectType (4), TemplateType,
+Property.Key (3 each)... What still has no typed collection for its type arguments
+(J2GO_COLLS=1): lists: an element that is a generic class of the program 38, a type variable
+20, a wildcard 19, an array 2, a local class 1; maps: a type variable as key 26, a value that
+is a generic class of the program 8, a type variable as value 5, wildcards 2, a key with type
+arguments 2, an Optional value 1; sets: a type variable 24, an element with type arguments 5,
+a wildcard 2; deques: a generic class of the program 5, a type variable 3; and 89 parameters
+and 34 results of methods in groups of overriding methods are not candidates. Erased by flow,
+by first reason: exchanges values with an erased declaration (lists 97, sets 51, maps 39,
+entries 18), entry not of a loop over a typed map 49, ImmutableList.of 32, set assigned a
+variable that is not typed 26, Splitter.splitToList 21, list used in a lambda 17, Outcome.get
+15 + 5, a new TreeSet 15, nothing enters it (sets 14, lists 13, maps 7), list assigned a
+variable that is not typed 14, ImmutableSet.of 11, Property.get 10 + 6,
+Collections.unmodifiableList 7, ImmutableMap.of 7, ...
+
+Selftest: lang/Colls.java (byEquals(): a Set<Pair> and a Map<Pair, String> of a class whose
+hashCode makes many keys share a hash code, 30 keys (past the small table), contains / get /
+remove with equal objects that are not the same, with null, with an Object, with a String;
+null as an element and as a key; Iterator.remove and adding again; a copy, equals and
+hashCode of the sets; a Set<Shape> and a Map<Shape, Integer> of an interface whose classes
+compare by identity (Base) and by equals (Derived)).
+
+Census (census.py, raw j2go output), previous commit -> this: erased collection constructors
+326 -> 252, typed constructors 702 -> 775, for-each through iterator objects 1,357 -> 1,344,
+interface casts 2,560 -> 2,489, class casts 3,171 -> 3,154, boxing 11,175 -> 10,960, unboxing
+789 -> 788.
+Allocations (JSGO_MEMSTATS, one run each; previous commit -> this): typed-full 363.50M ->
+362.52M objects (-0.3%), 16.665G -> 16.436G bytes (-1.4%); bundle 189.69M -> 189.68M objects,
+9.473G -> 9.258G bytes (-2.3%).
+Time (fb.py, rounds alternating forward and backward under the lock, no PGO; java = the
+pre-flip Java (candidate.sh) run in the same rounds, erased = J2GO_ERASED=1 output, prev =
+previous commit, this). Rounds with Java interleaved, cpu seconds:
+  bundle (2 rounds):     java 61.69/64.17, erased 43.08/45.37, prev 42.64/43.41, this 41.33/42.95
+  typed-full (2 rounds): java 115.97/108.65, erased 89.78/88.82, prev 86.41/86.59, this 85.32/86.07
+wall seconds: bundle java 26.7/26.4, erased 36.1/37.8, prev 36.0/36.7, this 34.6/36.2;
+typed-full java 49.5/47.6, erased 71.3/70.4, prev 70.0/70.3, this 69.3/69.6.
+Means: bundle cpu java 62.93, erased 44.23, prev 43.03, this 42.14 (2.1% below prev, 4.7%
+below erased); typed-full cpu java 112.31, erased 89.30, prev 86.50, this 85.70 (0.9% below
+prev, 4.0% below erased). Java/Go: cpu 1.49 (bundle) and 1.31 (typed-full), wall 0.75 and
+0.70. Further rounds without Java (cpu): bundle, 3 rounds: erased 40.18/41.96/43.95, prev
+40.24/41.57/41.04, this 40.09/40.22/42.69; typed-full, 4 rounds of prev and this: prev
+86.46/85.06/85.60/86.10 (mean 85.81), this 85.80/86.74/86.24/84.20 (mean 85.75). The 0.8%
+that the previous commit's message reported against its predecessor does not show in these
+rounds: this commit and the previous one are level, both below erased. (The machine was
+restarted between the two sets of measurements; numbers of different messages do not compare.)
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

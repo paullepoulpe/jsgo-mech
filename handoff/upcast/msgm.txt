@@ -1,0 +1,12 @@
+WIP: merge origin/main-r8-typed 466f7df5 (typed Guava immutables) into main-r8-upcast (not gated)
+
+Conflicts: tools/j2go/selftest/run.sh (both added a selftest program: Imm and Unboxed, both
+kept) and Emitter.recordMembers (theirs: the record fields at cx.vtype(f); ours: the typed
+Object methods; resolved as ours with cx.vtype(f)). Selftest PASS on the merged tree (Imm and
+Unboxed, with a typed list and set concatenated), go vet of the merged output type-checks.
+Census of the merged output: interface casts 514, class casts 2,376, boxing 4,430, unboxing
+516, declarations of any 1,887. NOT gated: verify.sh was waiting for the gate lock when the
+session ended. Not measured.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

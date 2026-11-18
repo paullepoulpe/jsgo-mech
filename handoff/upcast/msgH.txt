@@ -1,0 +1,103 @@
+j2go + runtime: typed collections of type variables and of generic classes of the program; the erased view is part of the collection (no object per view)
+
+Rule "typed collections", eighth slice.
+
+1. Type arguments (Ctx.typedArg). A typed collection now also holds
+- a generic class of the program, at the Go type it has: List<LinkedDiGraphEdge<N, E>> in
+  LinkedDirectedGraph<N, E> is a *TList[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]],
+  Deque<HamtPMap<K, V>> a *TDeque[*HamtPMap[K, V]] (not with a wildcard type argument). As
+  the element of a set or the key of a map too (a pointer or an interface is comparable; by ==
+  or by equals as for any class);
+- a type variable: the Go type parameter where the variable is one (List<T> in a generic
+  class that is a Go generic type is a *TList[T]), else what it is erased to (its bound). Not
+  as a compared type where it is a Go type parameter: the parameter's constraint is `any`, and
+  TSet / TMap need `comparable` (and Object, which an erased type variable usually is, stays
+  out as a compared type as before).
+A declaration whose type arguments name a Go type parameter has that type only inside the
+generic declaration: `items` is a List<T> there, but `c.items` of a Stack<String>, or `items`
+in a subclass Words extends Stack<String>, is a List<String>. Such a declaration is typed
+only if every expression that reads it has the declaration's own type arguments (Slot.open:
+"read at another instantiation of its type variables" keeps it erased).
+Conversions: an element type that is a type parameter has the conversions of a value of a
+type parameter (tcT_[T](): boxT_, unboxT_; rt_tlist.go); an instantiation that names type
+parameters has a generated generic function with the conversions the erased code makes for
+the class (tc_p_LinkedDirectedGraph_LinkedDiGraphEdge_N__E_[N, E](), g_0casts.go: self() of a
+pointer that is not nil). Both are one object per instantiation (single_).
+
+2. Flow (Colls).
+- The result of a lambda is a place of the type that the method of the lambda's interface
+  returns for it (a Supplier<List<X>> returns a List: the view); it kept the list erased
+  ("used in LAMBDA_EXPRESSION", "returned from a lambda").
+- Collections.unmodifiableList(x) / unmodifiableSet / unmodifiableMap is x in the runtime
+  (rt_coll.go returns its argument), so what enters a declaration through it is x, and the
+  typed code is x.
+- A declaration that no collection enters -- only null does: a parameter of a method that the
+  program never calls or calls with null, a field that is never assigned -- is typed like any
+  other, and no longer keeps the declarations it is assigned to erased
+  (J2GO_COLLS_NOUNMADE=1: the previous rule). J2GO_COLLS_NOGENERIC=1 is the previous rule for
+  the type arguments.
+
+3. Runtime: the erased view of a typed list, set, deque or map is a field of the collection
+(TList.view, set when the collection is made), not an object made on first use. The first
+version of this slice made the edge lists of the graph nodes typed lists, which erased code
+reads (getInEdges() / getOutEdges() are methods of a group of overriding methods): each list
+then allocated a view, 4.2M objects more on bundle (189.68M -> 194.09M; +0.6% cpu). With the
+view in the collection a typed collection that erased code sees is one object, as the Java
+collection is: asList() is &l.view, without an atomic load. A TList, TSet and TMap have the
+size they had (the field replaces the pointer to the view; the map's keySet(), values() and
+entrySet() views are the map's view converted to their types); a TDeque is 8 bytes larger.
+
+In the program (previous commit -> this): lists 496 of 817 -> 549 of 875 typed, sets 299 of
+475 -> 316 of 478, deques 93 of 98 -> 99 of 105, maps 367 of 488 -> 389 of 501, entry
+variables 43 of 110 -> 47 of 110. What still has no typed collection for its type arguments
+(J2GO_COLLS=1): a type variable as the key of a map 26 and as the element of a set 24 (a Go
+type parameter is not comparable; an erased one is Object), a wildcard (lists 19, sets 2,
+maps 2), an array 2, a compared type with type arguments (library) 3, a local class 1, an
+Optional value 1, 2 others; 92 parameters and 54 results of methods in groups of overriding
+methods are not candidates (more than before: their types now have typed collections).
+Erased by flow, by first reason: exchanges values with an erased declaration (lists 100, sets
+52, maps 36, entries 14), entry not of a loop over a typed map 49, ImmutableList.of 36, list
+assigned a variable that is not typed 33, set the same 26, Splitter.splitToList 21,
+Outcome.get 16 + 5, a new TreeSet 15, ImmutableSet.of 11, ImmutableMap.of 10, Property.get
+10 + 6, map assigned a variable that is not typed 9, Builder.build 6, Entry.getValue 6, the
+variable of a for-each loop 6, ImmutableList.copyOf 5, ...
+
+Selftest: lang/Colls.java (generic(): a class Stack<T> with a List<T>, a Deque<T>, a
+Map<String, T>, a List<Cell<T>> and a Set<Cell<T>> of a generic class, a private method
+returning a List<T>, used as Stack<String> (null elements), Stack<Base>, Stack<Integer> and
+through a subclass Words extends Stack<String>; a field read as s.shared outside the class,
+which stays erased; the views as Object and Collection<T>; a typed list as the result of a
+Supplier<List<String>> and of a Supplier<Object>; Collections.unmodifiableList of a typed
+list and unmodifiableMap of a new map).
+
+Census (census.py, raw j2go output), previous commit -> this: erased collection constructors
+252 -> 210, typed constructors 775 -> 808, for-each through iterator objects 1,344 -> 1,340,
+interface casts 2,489 -> 2,441, class casts 3,154 -> 3,153, boxing 10,960 -> 10,909, unboxing
+788 -> 776.
+Allocations (JSGO_MEMSTATS, one run each; previous commit -> this): typed-full 362.52M ->
+358.52M objects (-1.1%), 16.436G -> 16.300G bytes (-0.8%); bundle 189.68M -> 183.03M objects
+(-3.5%), 9.258G -> 9.134G bytes (-1.3%).
+Time (fb.py, rounds alternating forward and backward under the lock, no PGO; erased =
+J2GO_ERASED=1 output, prev = previous commit, this; cpu seconds first, then wall, then the
+load average at the end of each run):
+  bundle, 2 rounds:     erased 45.75/47.46, prev 44.11/46.04, this 44.61/44.85
+                        wall erased 38.2/39.8, prev 37.6/38.8, this 37.9/37.9; load 1.3-1.5
+  typed-full, 2 rounds: erased 102.07/98.32, prev 93.85/92.69, this 93.13/90.96
+                        wall erased 80.5/78.7, prev 76.3/76.0, this 76.4/74.4; load 1.1-2.2
+Means: bundle cpu erased 46.61, prev 45.08, this 44.73 (0.8% below prev, 4.0% below erased);
+typed-full cpu erased 100.20, prev 93.27, this 92.05 (1.3% below prev, 8.1% below erased).
+(The pre-flip Java ran in the same rounds, first and last of each: bundle cpu 63.91/66.41,
+wall 27.1/27.9; typed-full cpu 130.12/118.98, wall 55.4/51.0; other agents were using the
+host, so these are not milestone numbers.)
+The version before the last change of this slice (the conversions of an instantiation through
+boxT_ instead of the generated function) measured, against the same prev: bundle cpu, 8
+rounds: prev mean 41.07, this 41.70 (+1.5%); typed-full, 4 rounds: prev 84.54, this 84.32. A
+cpu profile showed runtime.itabTable.find rising (boxT_ asserts each element that erased code
+reads to the interface with self(), which Go does not cache in generic code); the generated
+function calls self() on the pointer.
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

@@ -1,0 +1,54 @@
+j2go + runtime: message arguments of Preconditions checks are passed at their own type and made objects only when the check fails
+
+Rule "message arguments" (Conv.msgArg, Conv.handleMsg, ExprEmitter.argAs / call; runtime
+canon_ and the _H functions in rt_conv.go; J2GO_NOMSG=1 gives the previous translation). From
+the pressure test's prototype P4.
+
+An Object parameter after the first of Preconditions.checkState / checkArgument /
+checkNotNull is only formatted, and only when the check fails. The erased translation made
+every such argument an object first, on the path that does not fail:
+    Preconditions_checkState_boolean_String_Object(ok, "bad type %s", obj_(t))
+    Preconditions_checkState_boolean_Object(n.isName(), n.box_())
+Now a String or a pointer to a class is passed at its own type (Go converts it to the
+interface without a test or a call), and the runtime makes it the object that the erased
+translation passed before it formats the message: canon_ gives null for the null string and
+for a nil pointer, and the most derived object (self()) for a pointer to a class with
+subclasses; it is the identity on an object. lenientToString_ and the checks with one Object
+message call it. A handle (a Node) as the one message argument of checkState / checkArgument
+(with or without a template) calls a variant generic in the handle type, which boxes the
+handle when the check fails:
+    Preconditions_checkState_boolean_String_Object(ok, "bad type %s", t)
+    Preconditions_checkState_boolean_Object_H(n.isName(), n)
+Interfaces, primitives, typed collections and value types are converted as before.
+
+595 calls take a handle (checkState(b, Object) 361, checkArgument(b, Object) 140, with a
+template 67 + 27); 205 other arguments are passed at their type.
+
+Tests: rt_conv_test.go (TestConvCanon: nil pointers, the null string, a null handle, an
+object; TestConvMessages: the message of each kind of call equals the message of the boxed
+call, checkNotNull of each kind). Selftest: lang/Unboxed.java messages() (a class with and
+without subclasses, null of each, Strings, a toString that throws, more arguments than
+placeholders, the argument's toString not called when the check holds).
+
+Census (census.py, previous commit -> this): boxing 7,031 -> 6,231; the other rows unchanged.
+Allocations (JSGO_MEMSTATS, one run each; previous commit -> this): bundle 182.95M -> 182.95M
+objects, 9.130G -> 9.131G bytes; typed-full 358.52M -> 358.52M objects, 16.299G -> 16.300G
+bytes.
+Time (fb.py, rounds alternating forward and backward under the lock, no PGO; erased =
+J2GO_ERASED=1 output, prev = previous commit, this; measured in one run together with the
+neighbouring commits; other agents were using the host: load average 3.5 to 10.3 during bundle,
+1.1 to 5.2 during typed-full). cpu seconds:
+  bundle, 3 rounds: erased 47.09/46.25/47.19, prev 45.10/42.47/43.59, this 44.96/42.05/43.27
+  typed-full, 2 rounds: erased 99.07/94.32, prev 88.43/87.36, this 87.12/88.62
+wall seconds: bundle erased 46.0/46.3/51.6, prev 43.0/41.3/39.1, this 42.8/40.0/39.0; typed-
+full erased 79.3/78.1, prev 72.5/76.3, this 71.1/73.7.
+Means: bundle cpu erased 46.84, prev 43.72, this 43.43 (-0.7% against prev, -7.3% against
+erased); typed-full cpu erased 96.69, prev 87.90, this 87.87 (-0.0% against prev, -9.1% against
+erased).
+
+Gate: selftest PASS, runtime tests ok (18 tests: 16 and the 2 new ones), checks/bundle/
+downlevel/advanced MATCH. (The e2e inputs make no check fail; the failure path is covered by
+the unit tests and the selftest.)
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

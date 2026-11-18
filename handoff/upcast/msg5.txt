@@ -1,0 +1,33 @@
+j2go: library classes that the runtime declares as one Go type convert as the value itself
+
+Rule "one Go type" (Conv.sameGoType, Conv.loadAliases, Conv.upcast; J2GO_NOALIAS=1 gives the
+previous translation). From the pressure test's prototype P5, which was not gated there.
+
+The runtime declares several library classes as one Go type: type ImmutableList =
+ImmutableCollection, ImmutableSet, ImmutableSortedSet, the builders, ImmutableSortedMap =
+ImmutableMap, ... (18 aliases; the translator reads the alias declarations of rt_*.go in
+the output directory). A conversion between two of them asserted a type to itself, which
+cannot fail and keeps nil:
+    this.names = cast_[*ImmutableList](obj_(b.build()))   ->   this.names = b.build()
+For the same reason such a class becomes an interface by the static upcast although the
+declared result is not a subtype in Java (Builder.build() is declared *ImmutableCollection
+in the runtime; Java sees an ImmutableList, which is a List):
+    icast_List(obj_(b.build()))   ->   ImmutableCollection_as_List(b.build())
+
+Converted: 243 class conversions (ImmutableList 110, ImmutableSet 47, the builders 78,
+sorted sets and maps 8) and 20 conversions to List / Set. This rule becomes moot for the
+classes that the typed immutables of main-r8-typed replace; it applies to whatever aliases
+the runtime keeps.
+
+Selftest: lang/Unboxed.java oneGoType() (the result of a list and a set builder as the
+immutable class, as List / Set / Collection / Iterable / Object, null).
+
+Census (census.py, previous commit -> this): class casts 3,018 -> 2,775, boxing 6,231 ->
+5,968, interface casts 581 -> 561; unboxing 682, declarations of any 1,829 (unchanged).
+@@TIME@@
+
+Gate: selftest PASS, runtime tests ok (18 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

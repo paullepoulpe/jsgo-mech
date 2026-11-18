@@ -1,0 +1,49 @@
+j2go: typed collections for declarations with a wildcard `? extends X` (List<? extends JSType> is a *TList[*JSType])
+
+Rule "typed collections", tenth slice (Ctx.typedArg): a type argument `? extends X` is X. A
+declaration List<? extends X> reads X values, and only a collection made for a declaration
+with element type X enters it (the flow rule compares the type arguments: a List<Y> of a
+subclass Y is another typed list and keeps the declaration erased), so it holds a *TList[X].
+`?` and `? super X` have no typed collection. J2GO_COLLS_NOWILDCARDS=1 is the previous rule.
+
+In the program this removes the reason rather than many erased collections: of the 23
+declarations with a wildcard 18 are candidates now (5 left: `?` and `? super`), 3 of them
+typed (lists 559 of 895 -> 560 of 910, sets 349 of 534 -> 351 of 536; maps 389 of 506,
+deques 99 of 105, entry variables 47 of 112). The others are erased by flow, with these
+first reasons: the result of DiGraphNode.getInEdges / getOutEdges (declared List<? extends
+DiGraphEdge<N, E>> in the interface and List<LinkedDiGraphEdge<N, E>> in the class: the
+methods of that group do not have one type; not candidates is now 34 parameters and 46
+results, 58 of them for that reason), Builder.build, ImmutableList.of, a variable that is
+not typed. What has no typed collection for its type arguments: a type variable as the key
+of a map 26 or the element of a set 24, a wildcard `?` / `? super` 5, a compared library type
+with type arguments 3, an array 2, a local class 1, an Optional value 1, 2 others. Erased by
+flow, by first reason: exchanges values with an erased declaration (lists 104, sets 71, maps
+37, entries 14), entry not of a loop over a typed map 51, ImmutableList.of 41, list assigned
+a variable that is not typed 37, set the same 25, Splitter.splitToList 23, ImmutableSet.of
+17, Outcome.get 16 + 5, a new TreeSet 15, ImmutableMap.of 12, Property.get 10 + 6, map
+assigned a variable that is not typed 10, Builder.build 8 + 6, Builder.buildOrThrow 6,
+Entry.getValue 6, the variable of a for-each loop 6, ImmutableList.copyOf 5, ...
+
+Selftest: lang/Colls.java (wild(): a List<? extends Base> and a Set<? extends Shape>
+parameter, a local of the wildcard type, a loop, get, add(null), contains).
+
+Census (census.py): boxing 10,894 -> 10,892; the other rows as before.
+Allocations (JSGO_MEMSTATS, one run each; previous commit -> this): typed-full 358.52M ->
+358.53M objects, 16.299G bytes; bundle 183.03M objects, 9.135G -> 9.134G bytes (unchanged).
+Time (fb.py, rounds alternating forward and backward under the lock, no PGO; erased =
+J2GO_ERASED=1 output, prev = previous commit, this; the host was busy with other agents:
+load average 2.8 to 6.8 during the runs). cpu seconds:
+  bundle, 3 rounds:     erased 45.24/43.65/44.32, prev 43.72/42.74/42.83, this 42.00/42.70/42.00
+  typed-full, 4 rounds: prev 91.24/92.17/89.37/84.10, this 92.91/93.05/87.88/81.21;
+                        erased (first 2 rounds) 94.86/92.19
+wall seconds: bundle erased 42.6/37.0/39.0, prev 42.2/38.0/36.9, this 40.7/39.8/37.6;
+typed-full prev 78.0/80.1/79.2/72.5, this 80.2/81.2/82.7/69.8, erased 81.8/79.4.
+Means: bundle cpu erased 44.40, prev 43.10, this 42.23 (-2.0%); typed-full cpu prev 89.22,
+this 88.76 (-0.5%). Level with the previous commit (three cold declarations changed), below
+erased.
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

@@ -1,0 +1,105 @@
+j2go + runtime: typed Guava immutables and their builders (ImmutableList<X> is a *TList[X] that never changes; records; keySet of an immutable map)
+
+Rule "typed collections", eleventh slice.
+
+1. Kinds (Ctx.registerTypedColls). A declaration of type ImmutableList<X> / ImmutableSet<X> /
+ImmutableMap<K, V> is one of the list, set or map kind and holds the same Go type, *TList[X] /
+*TSet[X] / *TMap[K, V], with its `twin` set (rt_timm.go): a typed collection that never
+changes (every change is Java's UnsupportedOperationException: the panic value frozen_, which
+catch_ makes the exception, so that TList.add and set stay inlinable). A List<X> that holds an
+ArrayList on one path and ImmutableList.of() on another is therefore one typed list.
+- Erased code sees an immutable typed collection as its twin, the runtime's ImmutableList /
+  ImmutableSet / ImmutableMap with the same elements, boxed, made the first time erased code
+  needs it: asImm(), which asList() / asSet() / asMap() return for an immutable collection (a
+  place of type ImmutableList / ImmutableCollection and a method that javac finds in those
+  classes -- reverse(), asList(), subList -- get the twin directly).
+- An expression of the static type ImmutableList<X> enters a typed declaration whatever made
+  its value (Colls.inflow, immutable()): from an erased source Ctx.coerce emits tlistImm_(tc, x)
+  / tsetImm_ / tmapImm_, the typed collection of that erased object, made once and remembered
+  by it (ImmutableCollection.typed_). A Java object is one typed object and one erased object,
+  each found from the other, so == and "copyOf of an immutable collection is the collection"
+  hold on both sides; the contents never change, so the two cannot be told apart. Such an
+  expression erases nothing and nothing erases it.
+- Where the typed declaration is the target, ImmutableList.of(a, b) is the typed factory
+  (immutableListOf_[X](tc, a, b), immutableSetOf_, immutableMapOf1_..5_ with the arguments in
+  Java's order; t<kind>EmptyImm_ for of(): one empty collection per element type, its twin the
+  runtime's one empty collection), ImmutableList.copyOf(c) is immutableListCopyOfT_ of a typed
+  collection of the same type (an immutable one is itself), ...CopyOfArr_ of an array, or
+  ...CopyOf_ of an erased collection, and keySet() of an immutable typed map is its typed key
+  set (TMap.keySetImm: one object, the twin of the erased map's key set).
+- Builders: ImmutableList.Builder<X> / ImmutableSet.Builder<X> / ImmutableMap.Builder<K, V>
+  declarations are kinds of their own (*TListBuilder[X], *TSetBuilder[X], *TMapBuilder[K, V]:
+  the elements as they are, build() the typed immutable collection), typed when every value
+  that enters is a new builder (builder(), builderWithExpectedSize(n), new Builder<>()) or
+  that of another typed builder, and every use is add / addAll / put / putAll (whose result is
+  the builder again: Colls.use follows the chain), a build, or a typed builder declaration. A
+  builder has no erased view.
+- Records: a component is one declaration -- its field, the parameter of the canonical
+  constructor and the accessor javac makes (Colls.recordComponent) -- and can be typed like any
+  field; methods of records can be closed methods. (Record components were erased "a record
+  component": with the immutables they would have been 43 crossings.)
+J2GO_COLLS_NOIMM=1 and J2GO_COLLS_NOBUILDERS=1 are the rules without them.
+
+2. Runtime, measured against the real Guava (the selftest prints what the JVM prints): the
+erased ImmutableMap reports a key given twice as Guava does ("Multiple entries with same key:
+k=<later> and k=<earlier>", the last two entries of the last key met again: immDup_),
+buildKeepingLast keeps a key at its first position with its last value, ImmutableSet and the
+builders' add throw the NullPointerException of checkNotNull (no message) for null, and
+ImmutableList.Builder.add(E...) names the index in the array. rt_guava_test.go's two
+expectations of the earlier behaviour are corrected. ImmutableCollection has its small fields
+together, so that typed_ does not grow it (160 bytes as before).
+
+In the program (previous commit -> this): lists 560 of 910 -> 1130 of 1388 typed, sets 351 of
+536 -> 800 of 908, maps 389 of 506 -> 663 of 743, entry variables 47 of 112 -> 75 of 121;
+deques 99 of 105 as before; builders: lists 119 of 124, sets 41 of 43, maps 41 of 43. Fields
+544 -> 996 (and 10 builders), parameters 248 -> 579, results 114 -> 400. The reasons
+that named the immutables are gone (ImmutableList.of 41, ImmutableSet.of 17, ImmutableMap.of
+12, Builder.build 8 + 6, buildOrThrow 6, copyOf 5 + 3). Left, by first reason: exchanges
+values with an erased declaration (lists 83, sets 43, maps 24, entries 8), entry not of a loop
+over a typed map 38, Splitter.splitToList 23, list assigned a variable that is not typed 19,
+Outcome.get 15 + 5, a new TreeSet 15, Property.get 10 + 6, the variable of a for-each loop 8,
+set assigned a variable that is not typed 7, Entry.getValue 6, read at another instantiation
+6, a new TreeMap 5, Map.keySet 5, SimpleSetMultimap.get 5, ...; builders: assigned the result
+of Builder.add / addAll / put 5 (a chain that starts at ImmutableList.builder() is not a
+declaration), used in a method reference 3, 1 other. No typed collection for the type: a type
+variable as the key of a map 29 or the element of a set 26 (+2 set builders), a compared
+type with type arguments 7 + 3 + 1, key Object 3 + 1, wildcards 5, an array 3 + 1, 4 others.
+Not candidates: 70 parameters and 68 results (a method without a body, of a record
+constructor, or main 51; the methods of the group do not have one type 61; a method of a
+record, annotation or handle class in the group 16; type parameters 9; 1 other). 274
+conversions from erased immutables remain in the generated code (casts of collected streams,
+results of erased methods, builder chains that are not declarations).
+
+Selftest: lang/Imm.java (new; run.sh compiles and runs the selftest with Guava): lists, sets
+and maps -- of / copyOf / builders, order, duplicates, null (the exceptions and their
+messages), every change refused, an ArrayList and an ImmutableList in one List declaration,
+identity across the erased boundary in both directions, the empty collections, casts, a
+sorted set that erased code made, sets and maps compared by equals; builders passed to
+methods, returned, chained, reused after build(); records with typed components, a compact
+constructor, an explicit accessor and an accessor that implements an interface; keySet() of
+an immutable map on both sides.
+
+Census (census.py, raw j2go output), previous commit -> this: erased Guava immutable
+collections / builders 877 -> 196, erased collection constructors 202 -> 192, typed
+constructors 816 -> 1,020, for-each through iterator objects 1,340 -> 1,298, interface casts
+2,430 -> 1,977, class casts 3,154 -> 2,615, boxing 10,892 -> 9,061, unboxing 776 -> 611.
+Allocations (JSGO_MEMSTATS, one run each; previous commit -> this): typed-full 358.53M ->
+357.93M objects (-0.2%), 16.299G -> 16.131G bytes (-1.0%); bundle 183.03M -> 180.23M objects
+(-1.5%), 9.134G -> 8.955G bytes (-2.0%). (The first version of this slice, conversions and
+of() only, allocated more than the previous commit: typed-full 362.43M, bundle 184.46M; the
+builders, copyOf, the records and keySet() removed the copies it made at erased crossings.)
+Time (fb.py, rounds alternating forward and backward under the lock, no PGO; erased =
+J2GO_ERASED=1 output, prev = previous commit, this; other agents were using the host: load
+average 3.0 to 4.4 during the runs). cpu seconds:
+  bundle, 3 rounds:     erased 45.61/44.00/45.17, prev 43.84/43.80/40.80, this 43.49/43.24/40.60
+  typed-full, 2 rounds: erased 90.06/93.69, prev 87.00/88.45, this 88.35/87.52
+wall seconds: bundle erased 41.2/38.7/40.4, prev 40.1/39.3/36.2, this 39.3/38.8/37.3;
+typed-full erased 77.6/79.4, prev 76.9/76.7, this 76.1/76.3.
+Means: bundle cpu erased 44.93, prev 42.81, this 42.44 (-0.9%; 5.5% below erased); typed-full
+cpu erased 91.88, prev 87.73, this 87.94 (+0.2%: level; 4.3% below erased).
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

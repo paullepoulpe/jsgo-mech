@@ -1,0 +1,27 @@
+postflip step: view fields are made with utf16Kept_, a Scanner takes its SourceFile's view (strview rerun, 18 sites)
+
+Re-applied on the merged tree (postflip5); gated with its group (see the group's last commit). Tool output here:
+    2 not an operation of the view: String_valueOf_char
+    3 not an operation of the view: String_valueOf_charArr_int_int
+strview: 0 String_ calls converted (0 view fields, 0 views of variables and of fields in a function, 0 of results of calls, 0 of constants); 40 other String_ calls
+8 files changed
+
+From 067ee34e:
+
+(cd tools/postflip && go run ./strview ../../go/closure && gofmt -w ../../go/closure/g_*.go)
+
+strview: 17 view field assignments of the first version (utf16Of_) rewritten: 16 are
+x.fU16 = utf16Kept_(x.f), 1 takes the view of the assigned field (Scanner:
+this.contentsU16 = file.contentsU16); 1 view of a package constant rewritten
+(Charsets_WINDOWS_1252_HIGHU16 = utf16Kept_(...)); 0 String_ calls converted, its left
+reasons are those of the previous step; 8 files changed. A rerun changes nothing.
+On a tree that never had the first version, the one command of the previous step writes
+these forms directly (checked: the same files).
+
+Census: String_* 122 (unchanged).
+
+Gate: verify.sh: runtime tests ok (37 test functions, none dropped); checks, bundle,
+downlevel, advanced: MATCH.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

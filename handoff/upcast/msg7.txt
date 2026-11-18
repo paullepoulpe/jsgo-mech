@@ -1,0 +1,43 @@
+j2go + runtime: a String passed for a CharSequence parameter of a library method is not boxed (variants taking Go strings)
+
+Rule "String for CharSequence" (Conv.strSeq and the table Conv.STR_SEQ, ExprEmitter.call;
+runtime variants with the suffix _s in rt_conv.go, rt_base_regex.go, rt_base_text.go;
+J2GO_NOSTRSEQ=1 gives the previous translation, J2GO_STRSEQ=1 reports the calls left). Item 5
+of the pressure test's ranked list.
+
+CharSequence is any in Go, so a String passed for one was boxed, strobj_(s), and a string in
+an interface is an allocation (a literal is not). A call of a library method with a String
+for each of its CharSequence parameters now calls a variant that takes Go strings, where the
+runtime has one:
+    String_contains(name, strobj_(prefix))    ->  String_contains_s(name, prefix)
+    PATTERN.matcher(strobj_(line))            ->  PATTERN.matcher_s(line)
+    out.append_CharSequence(strobj_(code))    ->  Appendable_append_s(out, code)
+The variant does what the method does with the text of the sequence (the functions taking a
+sequence now call the variant with csString_ of it, or share the code); the null string is
+the NullPointerException that a null sequence gives (csStr_). Appendable.append(CharSequence)
+is a method that classes of the program implement too (Output), so
+its variant is a function taking the receiver first: a StringBuilder appends the string
+(null appends "null", as append(String) does), any other Appendable gets the boxed sequence.
+A method of the program that declares a CharSequence keeps the box: it tests the sequence
+for null, not for the null string.
+
+Converted: 370 calls (Appendable.append 104 + 7 with a range, String.contains 77,
+Pattern.matcher 64, String.replace 46, Splitter.splitToList 22, Splitter.split 18,
+String.join 14, Matcher.reset 10, CharMatcher.matchesAllOf 4, Pattern.matches 2,
+CharMatcher.anyOf 2); about half passed a literal, which was bare already. Left, 7 calls of
+methods without a variant, one each: Ascii.equalsIgnoreCase, CharMatcher.collapseFrom /
+lastIndexIn / trimFrom, Integer.parseInt(CharSequence, int, int, int), StringBuilder.repeat,
+TextFormat.merge.
+
+Selftest: lang/Unboxed.java strSeqs() (each variant with a String, a literal and a
+CharSequence variable; a StringBuilder and a program class as Appendable, null appended;
+the NullPointerException of each for the null string).
+
+Census (census.py, previous commit -> this): boxing 5,094 -> 4,899; the other rows unchanged.
+@@TIME@@
+
+Gate: selftest PASS, runtime tests ok (18 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

@@ -1,0 +1,37 @@
+prep(06b-field-method-name-clash): rename fields that share a name with a method
+
+A Go struct cannot have a field and a method of the same name, and with
+embedding a field named like a member of a supertype is ambiguous.
+
+Rule (found and applied by tools/prep/06_find_name_clashes/Scan.java, a
+javac-API scanner with attribution, run over java/src and java/test
+together): a field F of class C, static or not, is renamed when
+  * C declares a method named F, or
+  * a supertype of C has a method named F (any method of a supertype in the
+    sources; inherited methods of library supertypes, e.g. Enum.name()), or
+  * a subtype of C declares a method named F, or
+  * a supertype of C has a field named F.
+Outer classes do not count. Record components and enum constants are exempt.
+The method is never renamed. The one scheme: field `foo` -> `fooField`
+(a constant `FOO_BAR` -> `FOO_BAR_FIELD`). The rewriter renames the
+declaration and every identifier / member select that javac resolves to the
+field symbol; parameters, locals, strings and comments are untouched, and no
+line is re-wrapped.
+
+Counts: 208 fields at 982 sites in 98 files.
+  java/src (non-testing): 164 clash with a method (121 hand-written, 43 in
+    the builders that 06a inlined) + 12 that only hide a supertype field
+  java/src */testing/:    2 clash with a method
+  java/test:              25 clash with a method (7 of them in 06a
+    builders) + 5 that only hide a supertype field
+The scanner reports 0 afterwards.
+
+Non-enum Serializable classes whose serialized field names change
+(serialVersionUID left alone): BasicBlock, ByPathWarningsGuard,
+DiagnosticGroupWarningsGuard, DiagnosticType, TypedScope,
+TranspilationException, CheckTypeSummaryWarningsGuard, HamtPMap,
+NonJSDocComment.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ
+

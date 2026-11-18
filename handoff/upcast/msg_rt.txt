@@ -1,0 +1,17 @@
+postflip (runtime): Preconditions_checkNotNullT, checkNotNull typed by its argument
+
+Preconditions.checkNotNull(T ref) returns ref; erased, the generated code boxes the argument,
+checks it and casts the result back: cast_[*X](Preconditions_checkNotNull(obj_(x))). The four
+typed forms (no message, an Object message, a template with one or two arguments) take and
+return a value of a pointer or interface type T, which is Java null when it is the zero T, and
+fail as the erased forms do: the same NullPointerException (new_NullPointerException_0, or
+nullFail_ with the same message text, formatted only on failure). The castfold step calls them
+where the boxing keeps nil as nil (obj_, self(), an interface value); they are not for strings,
+whose null is nullstr_.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ
+
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

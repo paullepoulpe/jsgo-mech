@@ -1,0 +1,13 @@
+postflip step: castfold -assert, Java casts that cannot see null or are dereferenced at once are Go type assertions (re-run on the merged tree)
+
+cd tools/postflip && go run ./castfold -assert ../../go/closure, then gofmt, after the exceptions branch merge (862987cd). Tool output (last lines):
+      1 to: operand may be null and the value is stored or passed on: element of a []any or map of any
+      1 to: operand may be null and the value is stored or passed on: obj_ of a pointer that may be nil
+      1 to: to_X of an unexpected form
+castfold -assert: 111 files written
+
+Census (g_*.go): class casts 2,018 -> 1,727, interface casts 959 -> 896.
+Rule, reasons and the runtime change it needs: 87839313 (postflip5-r8-casts), whose step this re-applies.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

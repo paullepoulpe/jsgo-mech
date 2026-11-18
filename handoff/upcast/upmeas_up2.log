@@ -1,0 +1,20 @@
+bundle up1 objects=182.95M bytes=9.130G
+bundle up2 objects=182.95M bytes=9.130G
+typed-full up1 objects=358.52M bytes=16.299G
+typed-full up2 objects=358.53M bytes=16.300G
+  bundle upE wall=45.43 cpu=47.22 round=0 load=6.18
+  bundle up1 wall=43.02 cpu=44.80 round=0 load=7.25
+  bundle up2 wall=43.50 cpu=43.59 round=0 load=7.96
+  bundle up2 wall=39.15 cpu=41.19 round=1 load=6.51
+  bundle up1 wall=38.61 cpu=43.01 round=1 load=5.18
+  bundle upE wall=39.52 cpu=44.80 round=1 load=4.61
+  bundle upE wall=38.91 cpu=44.27 round=2 load=3.34
+  bundle up1 wall=38.93 cpu=43.56 round=2 load=2.97
+  bundle up2 wall=38.95 cpu=43.42 round=2 load=2.96
+  typed-full upE wall=88.27 cpu=95.14 round=0 load=5.79
+  typed-full up1 wall=86.53 cpu=92.03 round=0 load=7.29
+  typed-full up2 wall=92.12 cpu=94.73 round=0 load=7.93
+  typed-full up2 wall=78.74 cpu=89.21 round=1 load=5.03
+  typed-full up1 wall=75.05 cpu=90.86 round=1 load=2.26
+  typed-full upE wall=75.72 cpu=94.18 round=1 load=1.79
+DONE

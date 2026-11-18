@@ -1,0 +1,55 @@
+j2go: a class without subclasses becomes an interface it implements as Go converts it (static upcast; no box, no type assertion)
+
+Rule "static upcast" (Conv.upcast, new file Conv.java for the conversions that need no box;
+J2GO_NOUPCAST=1 gives the previous translation). From the pressure test's prototype P1.
+
+A conversion from a class to an interface that the class implements is not checked in Java.
+The erased translation boxed the value and asserted the interface: icast_I(obj_(v)). For a
+class without subclasses the pointer is the object itself (there is no most derived object to
+find), so the interface value that Go's conversion makes is the one the assertion made.
+null must stay the nil interface:
+  - `this` and a new object are never null: NodeTraversal_Callback(this), List(new_ArrayList_0())
+  - any other value goes through a generated function, one per pair of types in g_0casts.go:
+      func Compiler_as_SourceExcerptProvider(v *Compiler) SourceExcerptProvider {
+          if v == nil { return nil }
+          return v
+      }
+A class of the program must have every method of the Go interface (Ctx.implementsInGo); for
+a class of the runtime (*ArrayList, *ImmutableList, *ImmutableSet, the views of typed
+collections -> List / Set / Collection / Iterable / Map) the Go compiler checks the pair:
+179 functions, all compile. An interface that no conversion asserts any more has no icast_.
+
+Converted: 1,767 conversions (1,007 of program classes, 760 of runtime classes). Left as
+icast_I(...), 247 conversions of a class to an interface: a class with subclasses 132 (its
+value may be a part of a larger object: icast_I(v.self())); a program class whose Go type
+lacks a method of the Go interface 54 (a method implementing the methods of two interfaces
+is in one group only: TypedScope -> StaticTypedScope 17, the Predicate classes of NodeUtil);
+not a subtype statically 20 (an erased result: ImmutableCollection -> List / Set, of
+Builder.build); generic classes and interfaces of the program 41 (typed: cast_[I[X]] or the
+existing conversion in place). The other icast_ are casts of values that are Object
+(elements and results of erased collections).
+
+Selftest: new program lang/Unboxed.java (this, a new object, a null variable, a class with
+subclasses, identity through the interface, a default method, equals).
+
+Census (census.py, previous commit -> this): interface casts 2,430 -> 602, boxing 10,892 ->
+9,127, class casts 3,154, unboxing 776 (unchanged), declarations of any 1,894 -> 1,831.
+Allocations (JSGO_MEMSTATS, one run each): bundle 183.03M -> 182.95M objects, 9.134G ->
+9.131G bytes; typed-full 358.53M -> 358.52M objects, 16.300G -> 16.298G bytes (a pointer in
+an interface allocates nothing either way).
+Time (fb.py, rounds alternating forward and backward under the lock, no PGO; erased =
+J2GO_ERASED=1 output, prev = previous commit, this; the host was busy with other agents, load
+average 7.7 to 11.3 during bundle, 4.7 to 7.3 during typed-full). cpu seconds:
+  bundle, 3 rounds:     erased 46.42/49.76/46.53, prev 45.58/47.03/42.47, this 43.49/44.96/42.37
+  typed-full, 2 rounds: erased 100.67/91.60, prev 93.37/88.20, this 85.83/86.34
+wall seconds: bundle erased 50.1/52.3/47.5, prev 48.1/48.9/40.7, this 45.8/44.0/40.5;
+typed-full erased 92.0/83.8, prev 88.2/81.5, this 79.7/81.2.
+Means: bundle cpu erased 47.57, prev 45.03, this 43.61 (3.2% below prev, 8.3% below erased);
+typed-full cpu erased 96.13, prev 90.78, this 86.09 (5.2% below prev, 10.4% below erased). At
+this load the spread between rounds is about 5%, so: level or better.
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

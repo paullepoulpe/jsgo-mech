@@ -1,0 +1,46 @@
+j2go + runtime: the generated members of records and string concatenation use values at their static type (typed Object methods)
+
+Rule "typed Object methods" (Conv.typedEquals / typedHash / typedStr / objHelper /
+identityEquals, Emitter.recordMembers / valueStr, ExprEmitter.toStr / declaredAs; runtime
+equals_ / hash_ / tostr_ and the H variants, strhash_, boolhash_, longhash_, dblhash_ in
+rt_conv.go; J2GO_NOTYPEDOBJ=1 gives the previous translation). Items 4 and 6 of the pressure
+test's ranked list.
+
+The equals, hashCode and toString that the translator generates for a record, and string
+concatenation, apply Objects.equals, Objects.hashCode and String.valueOf to values whose
+static type is known; the erased translation converted each to Object first:
+    Objects_equals(obj_(this.owner_), obj_(o.owner_))     h = h*31 + Objects_hashCode(any(this.b_))
+    "..." + objstr_(obj_(options.getDependencyOptions()))
+Now:
+  - two values of an enum, or of a class of the program without subclasses that has no equals
+    but Object's, are compared with == (what Objects.equals does for them);
+  - otherwise a pointer to a class without subclasses or an interface goes to the generic
+    runtime functions equals_(a, b), hash_(v), tostr_(v) (null is the zero value of the
+    type), a handle to equalsH_ / hashH_ / tostrH_;
+  - in a record's hashCode a String is strhash_(s) (0 for null), an int is itself, the
+    other primitives are boolhash_ / longhash_ / dblhash_ (what Object_hashCode gives for
+    the boxed value; a float keeps the box); in its toString primitives and Strings are
+    converted as string concatenation converts them;
+  - "" + v is tostr_(v) when v has its type by declaration (a variable, a field or a method's
+    result of that erased type, a new object). A value that would be cast to its static type
+    first (the result of an erased generic, a conditional) is converted as an Object as
+    before: the conversion to a string does not cast.
+Kept through Object: a class with subclasses (objstr_(v.self()): the most derived object
+decides), typed collections (their view), value types, Object and type variables.
+
+In the output: tostr_ 241, tostrH_ 113, hash_ 94, hashH_ 29, equals_ 65, strhash_ 43,
+boolhash_ 34, and == in the equals of records for enums and classes with identity equality.
+
+Selftest: lang/Unboxed.java typedObjects() (a record with a component of each kind, equal
+and unequal in each component, null in each, the hash codes Java computes, toString;
+concatenation of a class with and without subclasses, an interface, an enum with a constant
+body, null of each, a result, a new object).
+
+Census (census.py, previous commit -> this): boxing 5,968 -> 5,094; the other rows unchanged.
+@@TIME@@
+
+Gate: selftest PASS, runtime tests ok (18 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

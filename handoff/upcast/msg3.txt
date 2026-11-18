@@ -1,0 +1,28 @@
+j2go: a string literal or a new object passed for an Object parameter is passed bare
+
+Rule "bare arguments" (Conv.bare, ExprEmitter.argAs; J2GO_NOBARE=1 gives the previous
+translation). From the pressure test's prototype P3.
+
+An argument for an Object parameter (or an element of Object...) that cannot be null needs
+no test for null: a string literal, or a new object of a class without subclasses (whose
+pointer is the object).
+    sb.append_Object(strobj_("x"))        ->  sb.append_Object("x")
+    list.add(obj_(new_Entry(k, v)))        ->  list.add(new_Entry(k, v))
+Go converts the value to the interface value that strobj_ / obj_ return for a value that is
+not null. Only arguments are changed: there the parameter's type any gives the expression
+its type (in `x := "a"` or as a receiver it would not). A constant string in an interface
+allocated nothing before either, so this changes how the code reads, not what runs.
+
+Selftest: lang/Unboxed.java bare() (literals with quotes, a backslash and a parenthesis,
+new objects, variable arguments, a null between them, collections, equals, Objects.hash).
+
+Census (census.py, previous commit -> this): boxing 8,672 -> 7,031; interface casts 581,
+class casts 3,018, unboxing 682, declarations of any 1,829 (unchanged).
+@@TIME@@
+The generated code after the Go compiler's inlining is the same; level.
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

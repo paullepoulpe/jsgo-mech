@@ -1,0 +1,54 @@
+j2go + runtime: typed deques: Deque/ArrayDeque/Queue declarations are *TDeque[X]
+
+Rule "typed collections", fourth slice: a third kind in the table (Ctx.collKinds). A field,
+local variable, parameter or result of type Deque<X> / ArrayDeque<X> / Queue<X> holds a typed
+deque, *TDeque[X] (rt_tdeque.go), under the conditions of the lists: every value that enters it
+is `new ArrayDeque<>()`, `(n)`, `(collection)`, null or the value of another typed declaration
+of the same kind and element type, and every use is one the deque or its view serves. X is any
+type with one Go type and no type arguments, as for a list (a deque compares nothing).
+
+A *TDeque[X] is a typed list whose first item is the head, as the erased ArrayDeque in
+rt_coll.go is an ArrayList whose first item is its head; it embeds TList[X]. push, pop, poll,
+peek, peekLast, add, size, isEmpty, clear, iterator and the for-each loop work on the X values
+(addFirst is push, addLast is add, removeFirst and remove() are pop, pollFirst is poll,
+peekFirst is peek; pop and removeFirst of an empty deque throw NoSuchElementException, poll and
+peek return null). Every other method (getFirst, getLast, removeLast, pollLast,
+descendingIterator, contains...) and every place that is not a typed declaration sees the deque
+as Java's Deque through d.asDeque(), its one erased view (identity; null is nil; getClass is
+java.util.ArrayDeque).
+
+In the program: 91 of 96 Deque/ArrayDeque/Queue declarations are typed (55 fields, 27 locals, 5
+parameters, 4 results). Erased: exchanges values with an erased declaration 2, a new LinkedList
+1, Map.computeIfAbsent 1, Map.get 1. Lists (472 of 784) and sets (230 of 360) are unchanged.
+
+Selftest: lang/Colls.java (a deque used as a stack and one used as a queue; the failures of an
+empty deque; push/addFirst/addLast/removeLast/pollFirst; copies from a typed deque and from an
+erased collection; iteration in both directions; identity through Object; a null deque).
+
+Census (census.py, raw j2go output), previous commit -> this: erased collection constructors
+652 -> 575 (the census row of typed constructors does not count newTDeque_: 468 as before),
+interface casts 2,951 -> 2,834, class casts 3,380 -> 3,316, boxing 11,873 -> 11,656, unboxing
+914 -> 888.
+Allocations (JSGO_MEMSTATS, one run each; previous commit -> this): typed-full 366.27M ->
+364.14M objects, 17.423G -> 16.866G bytes (-3.2%); bundle 191.81M -> 190.24M objects, 9.809G ->
+9.582G bytes (-2.3%). Since d335aebb (before the typed collections): typed-full 366.30M ->
+364.14M objects (-0.6%), 18.065G -> 16.866G bytes (-6.6%); bundle 193.42M -> 190.24M objects
+(-1.6%), 10.084G -> 9.582G bytes (-5.0%).
+Time (fb.py, alternating rounds under the lock, no PGO, shared machine at load 1 to 4; erased =
+J2GO_ERASED=1 output, prev = previous commit, this): bundle cpu, 3 rounds: erased
+48.93/48.25/47.86, prev 47.77/47.55/48.14, this 47.67/47.67/47.56 (means 48.35, 47.82, 47.63);
+wall erased 43.4/43.2/42.9, prev 43.1/44.3/43.1, this 42.7/43.1/42.9. typed-full cpu, two
+sessions (the first lost its last run to a restart of the container, the second is 2 full
+rounds): erased 98.68 | 97.95/100.81, prev 96.20/96.64 | 94.86/96.27, this 95.33/95.47 |
+95.03/94.81 (means 99.15, 95.99, 95.16: typed is 4.0% below erased); wall erased 84.5 |
+81.8/87.3, prev 83.0/79.7 | 79.4/82.1, this 78.5/78.7 | 79.2/83.0 (a translation ran beside
+the last round). Typed is no slower than erased on either task. Pre-flip Java (candidate.sh,
+one run each, same session): bundle wall 36.0 s cpu 70.5 s, typed-full wall 65.4 s cpu 123.7
+s; Java/Go cpu 1.48 (bundle) and 1.30 (typed-full), Java/Go wall 0.84 and 0.83 (Java spreads
+its cpu over more cores).
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

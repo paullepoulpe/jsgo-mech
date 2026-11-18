@@ -1,0 +1,48 @@
+j2go + runtime: checkNotNull / requireNonNull are Go generic functions of the argument's static type (no box, no cast back)
+
+Rule "typed non-null checks" (Conv.nonNull, ExprEmitter.call; runtime rt_conv.go;
+J2GO_NONONNULL=1 gives the previous translation). From the pressure test's prototype P2.
+
+<T> T checkNotNull(T, ...) of Guava's Preconditions and <T> T requireNonNull(T, ...) of
+java.util.Objects return their first argument. The erased translation boxed the argument and
+cast the result back:
+    this.compiler_ = cast_[*Compiler](Preconditions_checkNotNull(obj_(compiler)))
+Now the call is a Go generic function of the argument's static type, which tests the value
+against the null of that type and returns it:
+    this.compiler_ = Preconditions_checkNotNull_T(compiler)
+_T ([T comparable]) is for a class, an interface or a handle (null is nil, the zero value),
+_Str for a String (null is the null string; no call of the program passes a String today,
+the selftest does). The functions throw what the functions taking an
+object throw (NullPointerException without a message, or with the formatted message). The
+message arguments are converted as before.
+
+Converted: 559 calls (checkNotNull(T) 372, (T, Object) 69, (T, String, Object) 35,
+(T, String, Object, Object) 3, requireNonNull(T, String) 79, (T) 1). Left with the function
+taking an object, 25 calls: the argument is a typed collection, a value type (Optional), an
+Object or a value of a type variable.
+
+Selftest: lang/Unboxed.java nonNull() (a class with and without subclasses, an interface, a
+String, a literal; the result used at a supertype; each overload failing with its message;
+the argument evaluated once). run.sh compiles the selftest against the stock libraries.
+
+Census (census.py, previous commit -> this): boxing 9,127 -> 8,672, class casts 3,154 ->
+3,018, interface casts 602 -> 581, unboxing 776 -> 682, declarations of any 1,831 -> 1,829.
+Allocations (JSGO_MEMSTATS, one run each): bundle 182.95M objects, 9.130G bytes; typed-full
+358.52M -> 358.53M objects, 16.299G -> 16.300G bytes (unchanged: the box of a pointer
+allocated nothing).
+Time (fb.py, rounds alternating forward and backward under the lock, no PGO; erased =
+J2GO_ERASED=1 output, prev = previous commit, this; other agents were using the host, load
+average 3.0 to 8.0 during bundle, 1.8 to 7.9 during typed-full). cpu seconds:
+  bundle, 3 rounds:     erased 47.22/44.80/44.27, prev 44.80/43.01/43.56, this 43.59/41.19/43.42
+  typed-full, 2 rounds: erased 95.14/94.18, prev 92.03/90.86, this 94.73/89.21
+wall seconds: bundle erased 45.4/39.5/38.9, prev 43.0/38.6/38.9, this 43.5/39.1/39.0;
+typed-full erased 88.3/75.7, prev 86.5/75.0, this 92.1/78.7.
+Means: bundle cpu erased 45.43, prev 43.79, this 42.73 (2.4% below prev, 5.9% below erased);
+typed-full cpu erased 94.66, prev 91.44, this 91.97 (0.6% above prev, inside the spread
+between rounds; 2.8% below erased). Level with the previous commit.
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ

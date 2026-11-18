@@ -1,0 +1,74 @@
+j2go + runtime: typed collections of boxed primitives, of Object and of erased library types (List<Integer>, Map<String, Integer>, Set<Character>, List<List<String>>)
+
+Rule "typed collections", sixth slice: the types a typed collection holds (Ctx.typedArg, one
+function for every kind and type argument; it replaces typedElem's "one Go type and no type
+arguments"). Besides a String, a class, an interface or a handle without type arguments:
+- a boxed primitive (Integer, Long, Character, Boolean...) or Object, held as the box it is in
+  erased code: List<Integer> is a *TList[any], Map<String, Integer> a *TMap[string, any]. The
+  elements gain nothing by themselves (they were boxes and stay boxes), but the collection is
+  a typed declaration: its other type argument is unboxed, its loops read it in place, and it
+  no longer keeps the declarations it exchanges values with erased;
+- a library type with type arguments, held at its erasure, for the elements of lists and
+  deques as the previous commit did for the values of maps: List<List<String>> is a
+  *TList[List]. A generic class of the program stays excluded (it may be a Go generic type).
+The elements of a set and the keys of a map are compared, so for them the type must be one
+whose Go == is Java's equals: as before a String, an enum or a class of the program without
+equals of its own, and now a boxed primitive that is not a floating-point number (two boxes
+of equal values of one type are == as Go interfaces, and boxes of different types are not, as
+Integer.equals(Long) is false; the erased table compares them the same way). Float and Double
+stay out: 0.0 and -0.0 are different keys and NaN equals NaN in Java, not in Go. Object stays
+out as a compared type.
+contains / remove / get / containsKey with a primitive argument of the element's type are
+typed too (Ctx.isElement: `chars.contains('h')` is `chars.has(any(uint16('h')))`). The
+conversion of a type that is `any` in Go is named after the Java type (tc_Integer, tc_Object).
+
+Runtime: Lists.reverse and Lists.transform (rt_guava_util.go) call List.remove(int) through
+listRemoveAt_: the Go interface List has the methods that translated code calls on a List, and
+with this commit no erased code calls remove(int) any more.
+
+In the program (previous commit -> this): lists 472 of 784 -> 496 of 817 typed, sets 230 of
+360 -> 236 of 391, deques 91 of 96 -> 93 of 98, maps 289 of 388 -> 325 of 440, entry variables
+30 of 88 -> 34 of 98. Of the typed declarations 45 have a boxed primitive (Map<String,
+Integer> 13, List<Integer> 9, Set<Integer> 5...), 23 Object (Map<String, Object> 10), 38 an
+erased library type. What still has no typed collection for its type arguments (J2GO_COLLS=1):
+sets: element a class with its own equals 61, a type variable 24, an interface 23; maps: key a
+class with its own equals 38, a type variable as key 26, a value that is a generic class of
+the program 7, key an interface 6, key a library class 5, a type variable as value 5; lists:
+an element that is a generic class of the program 38, a type variable 20, a wildcard 19; and
+73 parameters and 34 results of methods in groups of overriding methods are not candidates.
+Erased by flow, by first reason: exchanges values with an erased declaration (lists 97, sets
+44, maps 38), ImmutableList.of 32, Splitter.splitToList 21, set assigned a variable that is not
+typed 23, list used in a lambda 17, Outcome.get 15, a new TreeSet 14, nothing enters it (sets
+14, lists 13, maps 7), Property.get 10 + 6, ImmutableSet.of 9, Collections.unmodifiableList 7,
+ImmutableMap.of 6, ...
+
+Selftest: lang/Colls.java (boxes(): a Map<String, Integer> of counts with arithmetic on its
+values and setValue through typed entries; a Map<Integer, String> with keys given as int,
+Integer, null and an equal Long that is not found; a Set<Character> with char arguments and
+Objects of another class; a List<Long> with null, remove(int), contains(5L) against
+contains(5), the NullPointerException of unboxing null; a List<Object>; a List<List<String>>
+whose inner lists are typed lists seen through their views).
+
+Census (census.py, raw j2go output), previous commit -> this: erased collection constructors
+387 -> 326, typed constructors 651 -> 702, interface casts 2,609 -> 2,560, class casts 3,176 ->
+3,171, boxing 11,240 -> 11,175, unboxing 794 -> 789.
+Allocations (JSGO_MEMSTATS, one run each; previous commit -> this): typed-full 363.57M ->
+363.50M objects, 16.678G -> 16.665G bytes; bundle 189.79M -> 189.69M objects, 9.477G -> 9.473G
+bytes (-0.1% each: as expected of boxes that stay boxes). Since d335aebb (before the typed
+collections): typed-full -0.8% objects, 18.065G -> 16.665G bytes (-7.7%); bundle -1.9%
+objects, 10.084G -> 9.473G bytes (-6.1%).
+Time (fb.py, alternating rounds under the lock, no PGO, machine at load 1; erased =
+J2GO_ERASED=1 output, prev = previous commit, this): bundle cpu, 3 rounds: erased
+46.56/47.61/47.82, prev 45.41/46.57/47.21, this 45.10/46.38/47.06 (means 47.33, 46.40, 46.18);
+wall erased 39.7/41.1/41.0, prev 39.3/40.2/40.6, this 39.1/40.2/40.3. typed-full cpu, 2
+rounds: erased 97.63/97.58, prev 93.34/93.27, this 93.98/94.16 (means 97.61, 93.31, 94.07:
+0.8% above the previous commit, 3.6% below erased); wall erased 79.5/79.7, prev 77.9/78.0,
+this 78.7/79.3. Typed is no slower than erased on either task. Pre-flip Java as measured
+earlier in the same session (bundle wall 36.0 s cpu 70.5 s, typed-full wall 65.4 s cpu 123.7
+s): Java/Go cpu 1.53 (bundle) and 1.32 (typed-full); Java/Go wall 0.90 and 0.83.
+
+Gate: selftest PASS, runtime tests ok (16 tests, none dropped), checks/bundle/downlevel/advanced
+MATCH.
+
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_0162Uc5JieSYhVmqiHv9WVbQ
