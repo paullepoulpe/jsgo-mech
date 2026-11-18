@@ -24,6 +24,24 @@ type jtconv_[T any] struct {
 	// the empty immutable list, set and map of this element type (as a map's value type, or
 	// else its key type): one object each, as Guava's (rt_timm.go)
 	emptyL, emptyS, emptyM any
+	// post: this conversion for the post-flip typed collections (t_), made on first use or
+	// set to the package's conversion of the same type (post-flip tool jfam -kind convs).
+	post *tconv_[T]
+}
+
+// t_ is the conversion as the post-flip typed collections take it (rt_tlist.go): the same box,
+// unbox and null; a conversion that compares by equals and hashCode (byEquals) gives the
+// post-flip one its hash and eq functions, the comparison through boxes that teqFind_ makes.
+// One per conversion, so that collections made with it share it as they shared c.
+func (c *jtconv_[T]) t_() *tconv_[T] {
+	if c.post == nil {
+		c.post = &tconv_[T]{box: c.box, unbox: c.unbox, null: c.null}
+		if c.byEquals {
+			c.post.hash = func(k T) int32 { return objhash_(c.box(k)) }
+			c.post.eq = func(a, b T) bool { return objequals_(c.box(a), c.box(b)) }
+		}
+	}
+	return c.post
 }
 
 type JTList[T any] struct {
