@@ -360,7 +360,7 @@ func (this *Es6RewriteModules) visitGoogModuleGet(t *NodeTraversal, getCall Node
 
 func (this *Es6RewriteModules) getFallbackMetadataForNamespace(namespace string) *ModuleMetadataMap_ModuleMetadata {
 	var builder *ModuleMetadataMap_ModuleMetadata_Builder = ModuleMetadataMap_ModuleMetadata_builder().moduleType_1(ModuleMetadataMap_ModuleType_GOOG_PROVIDE).usesClosure(true).isTestOnly(false)
-	builder.googNamespacesBuilder().add(strobj_(namespace))
+	builder.googNamespacesBuilder().add_s(namespace)
 	return builder.build()
 }
 
