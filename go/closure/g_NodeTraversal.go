@@ -184,14 +184,14 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 	var n Node = s.getRootNode()
 	this.initTraversal(n)
 	this.currentNode = n
-	var parentScopes *TList[*AbstractScope] = newTList_(tc_p_AbstractScope)
+	var parentScopes []*AbstractScope = []*AbstractScope{}
 	var temp *AbstractScope = s.getParent()
 	for temp != nil {
-		parentScopes.push_(temp)
+		parentScopes = append(parentScopes, temp)
 		temp = temp.getParent()
 	}
-	for !parentScopes.isEmpty() {
-		this.pushScope_2(parentScopes.pop_(), true)
+	for len(parentScopes) != 0 {
+		this.pushScope_2(slicePop_(tc_p_AbstractScope, &parentScopes), true)
 	}
 	switch n.ns_().token {
 	case tokOrd1_FUNCTION:
