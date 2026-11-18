@@ -587,3 +587,7 @@ ab26441f run t adapters && f
 43d498fa patch 418-43d498fa-manual.patch
 # 419. postflip (manual, re-flip): the data-flow node comparators call getPriority on the graph node directly (c81b9996 re-made)
 88f8ba50 patch 419-88f8ba50-manual.patch
+# 420. postflip (manual, re-flip): ControlFlowAnalysis keeps AST positions in a Go map of ints (16e33273 re-made)
+ae56a16d patch 420-ae56a16d-manual.patch
+# 421. postflip (manual, re-flip): a data-flow work queue marks the graph nodes it holds instead of keeping them in a set (6073a778, 010746fe re-made)
+b4d1cfd0 patch 421-b4d1cfd0-manual.patch
