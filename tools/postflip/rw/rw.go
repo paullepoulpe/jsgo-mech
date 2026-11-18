@@ -11,6 +11,7 @@ import (
 	"go/types"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -344,6 +345,170 @@ func AliasArgs(e ast.Expr, names ...string) []ast.Expr {
 		}
 	}
 	return nil
+}
+
+// ---- key equality
+
+// Key modes: how a typed map or set must compare keys of a type to compare them as Java does.
+const (
+	KeyNone = iota // no typed key (boxed primitives, value types without a handle)
+	KeyEq          // Go's == is Java's equals
+	KeyHash        // Java's hashCode/equals (the key conversion carries hash and eq)
+)
+
+var keyModes = map[types.Type]int{}
+
+// KeyMode reports how keys of type t compare: strings, handles and classes whose equals is
+// identity (none of their own, or `this.self() == o` with an identity hash code) by ==;
+// other classes with equals and hashCode, and interfaces some such class implements, by
+// hashCode/equals.
+func KeyMode(t types.Type) int {
+	t = types.Unalias(t)
+	if m, ok := keyModes[t]; ok {
+		return m
+	}
+	m := keyMode(t)
+	keyModes[t] = m
+	return m
+}
+
+func keyMode(t types.Type) int {
+	switch u := t.(type) {
+	case *types.Basic:
+		if u.Kind() == types.String {
+			return KeyEq
+		}
+	case *types.Named:
+		if it, ok := u.Underlying().(*types.Interface); ok {
+			if it.Empty() {
+				return KeyNone
+			}
+			// An interface: by == when no class implementing it has an equals of its own.
+			for _, n := range Pkg.Scope().Names() {
+				tn, ok := Pkg.Scope().Lookup(n).(*types.TypeName)
+				if !ok || tn.IsAlias() {
+					continue
+				}
+				nt, ok := tn.Type().(*types.Named)
+				if !ok || nt.TypeParams() != nil {
+					continue
+				}
+				if _, isIface := nt.Underlying().(*types.Interface); isIface {
+					continue
+				}
+				for _, c := range []types.Type{nt, types.NewPointer(nt)} {
+					if types.Implements(c, it) && !identityEquals(c) {
+						return KeyHash
+					}
+				}
+			}
+			return KeyEq
+		}
+		if HasMethod(u, "box_") {
+			return KeyEq
+		}
+	case *types.Pointer:
+		if _, ok := u.Elem().(*types.Named); ok {
+			if identityEquals(u) {
+				return KeyEq
+			}
+			return KeyHash
+		}
+	}
+	return KeyNone
+}
+
+var hashedIface *types.Interface
+
+// identityEquals reports whether a value of type t is equal in Java only to itself: it has no
+// equals/hashCode, or they are the generated identity ones.
+func identityEquals(t types.Type) bool {
+	if hashedIface == nil {
+		hashedIface = Pkg.Scope().Lookup("hashed_").Type().Underlying().(*types.Interface)
+	}
+	if !types.Implements(t, hashedIface) {
+		return true
+	}
+	return bodyIs(t, "equals", identityEq) && bodyIs(t, "hashCode", identityHashRx)
+}
+
+var (
+	identityEq     = regexp.MustCompile(`^return \(?this(\.self\(\))? == \w+\)?$`)
+	identityHashRx = regexp.MustCompile(`^return identityHash_\(this(\.self\(\))?\)$`)
+)
+
+var funcDecls map[*types.Func]*ast.FuncDecl
+
+// bodyIs reports whether method m of t is declared with a body of one statement matching rx.
+func bodyIs(t types.Type, m string, rx *regexp.Regexp) bool {
+	if funcDecls == nil {
+		funcDecls = map[*types.Func]*ast.FuncDecl{}
+		for _, f := range Files {
+			for _, d := range f.Decls {
+				if fd, ok := d.(*ast.FuncDecl); ok {
+					if o, ok := Info.Defs[fd.Name].(*types.Func); ok {
+						funcDecls[o] = fd
+					}
+				}
+			}
+		}
+	}
+	o, _, _ := types.LookupFieldOrMethod(t, true, Pkg, m)
+	f, ok := o.(*types.Func)
+	if !ok {
+		return false
+	}
+	fd := funcDecls[f]
+	if fd == nil || fd.Body == nil || len(fd.Body.List) != 1 {
+		return false
+	}
+	return rx.MatchString(Text(fd.Body.List[0]))
+}
+
+// objReaders are runtime functions that take an Object only to read it (compare, hash, print)
+// and keep no reference to it.
+var objReaders = map[string]bool{"Object_equals": true, "Objects_equals": true, "objequals_": true, "Object_hashCode": true,
+	"Objects_hashCode": true, "objhash_": true, "Object_toString": true, "objstr_": true, "String_valueOf_Object": true,
+	"LogsGson_toJson": true}
+
+// ReadOnlySink reports whether the Object that a collection is boxed into at top cannot reach a
+// cast back to the concrete runtime collection: it goes to a reader, to a Preconditions message
+// argument, to a string builder or toStringHelper, or is cast to a collection interface (which
+// is what a view passed as an erased collection is; only with ifaceOK).
+func ReadOnlySink(top ast.Expr, ifaceOK bool) bool {
+	c, ok := Up(top).(*ast.CallExpr)
+	if !ok {
+		return false
+	}
+	arg := -1
+	for i, a := range c.Args {
+		if Unparen(a) == top || a == top {
+			arg = i
+		}
+	}
+	if arg < 0 {
+		return false
+	}
+	n, _ := CallName(c)
+	switch {
+	case objReaders[n]:
+		return true
+	case strings.HasPrefix(n, "Preconditions_"):
+		_, stmt := Up(c).(*ast.ExprStmt)
+		return arg > 0 || stmt || !strings.HasPrefix(n, "Preconditions_checkNotNull")
+	case n == "icast_Collection" || n == "icast_Iterable" || n == "icast_SequencedCollection":
+		return ifaceOK
+	}
+	if sel, ok := c.Fun.(*ast.SelectorExpr); ok {
+		rt := types.TypeString(types.Unalias(Info.Types[sel.X].Type), nil)
+		switch {
+		case sel.Sel.Name == "append_Object" && strings.HasSuffix(rt, ".StringBuilder"):
+			return true
+		case sel.Sel.Name == "add" && strings.HasSuffix(rt, "ToStringHelper") && arg == 1:
+			return true
+		}
+	}
+	return false
 }
 
 // ReflipGeneric_ reports whether t mentions a type parameter or (inst) an instance of a generic
