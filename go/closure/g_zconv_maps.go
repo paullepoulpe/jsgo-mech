@@ -139,3 +139,7 @@ var tch_p_Var = &tconv_[*Var]{box: func(v *Var) any { return obj_(v) }, unbox: f
 var tc_p_Es6RewriteClass_ClassProperty = &tconv_[*Es6RewriteClass_ClassProperty]{box: func(v *Es6RewriteClass_ClassProperty) any { return obj_(v) }, unbox: func(v any) *Es6RewriteClass_ClassProperty { return cast_[*Es6RewriteClass_ClassProperty](v) }}
 var tc_p_InstrumentationPoint = &tconv_[*InstrumentationPoint]{box: func(v *InstrumentationPoint) any { return obj_(v) }, unbox: func(v any) *InstrumentationPoint { return cast_[*InstrumentationPoint](v) }}
 var tc_p_ZipArchive_Opened = &tconv_[*ZipArchive_Opened]{box: func(v *ZipArchive_Opened) any { return obj_(v) }, unbox: func(v any) *ZipArchive_Opened { return cast_[*ZipArchive_Opened](v) }}
+var tc_CollectionOf_p_Mapping_OriginalMapping_ = &tconv_[CollectionOf[*Mapping_OriginalMapping]]{box: func(v CollectionOf[*Mapping_OriginalMapping]) any { return any(v) }, unbox: func(v any) CollectionOf[*Mapping_OriginalMapping] { return icast_Collection(v) }}
+var tcv_p_TMap_int32__CollectionOf_p_Mapping_OriginalMapping__ = tmapConv_[int32, CollectionOf[*Mapping_OriginalMapping]]()
+var tcv_p_TMap_p_JSChunk__SetOf_string__ = tmapConv_[*JSChunk, SetOf[string]]()
+var tcv_p_TMap_string__string_ = tmapConv_[string, string]()

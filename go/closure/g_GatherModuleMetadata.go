@@ -195,12 +195,12 @@ func (this *GatherModuleMetadata_ModuleMetadataBuilder) build() *ModuleMetadataM
 type GatherModuleMetadata_Finder struct {
 	outer_            *GatherModuleMetadata
 	toggleModuleNames map[string]struct{}
-	toggleModules     *TSet[*Var]
+	toggleModules     map[varKey_]struct{}
 }
 
 func (this *GatherModuleMetadata_Finder) finit_GatherModuleMetadata_Finder() {
 	this.toggleModuleNames = map[string]struct{}{}
-	this.toggleModules = newTSet_(tch_p_Var)
+	this.toggleModules = map[varKey_]struct{}{}
 }
 
 func (this *GatherModuleMetadata_Finder) init_GatherModuleMetadata_Finder() {
@@ -267,10 +267,10 @@ func (this *GatherModuleMetadata_Finder) leaveModule() {
 	}
 	var module *ModuleMetadataMap_ModuleMetadata = this.outer_.currentModule.build()
 	if module.path() != nil {
-		this.outer_.modulesByPath.put(module.path().toString(), module)
+		this.outer_.modulesByPath.Put(module.path().toString(), module)
 	}
 	for namespace := range elemsBy_(obj_(module.googNamespaces()), str_) {
-		this.outer_.modulesByGoogNamespace.put(namespace, module)
+		this.outer_.modulesByGoogNamespace.Put(namespace, module)
 	}
 	if this.outer_.parentModule != nil {
 		this.outer_.parentModule.metadataBuilder.nestedModulesBuilder().add(obj_(module))
@@ -311,7 +311,7 @@ func (this *GatherModuleMetadata_Finder) visitName(t *NodeTraversal, n Node) {
 	var name string = n.getString()
 	if has_(this.toggleModuleNames, name) {
 		var nameVar *Var = cast_[*Var](t.getScope().getVar(name).self())
-		if this.toggleModules.contains(nameVar) {
+		if has_(this.toggleModules, vkey_(nameVar)) {
 			var parent Node = n.getParent()
 			if parent.isGetProp() {
 				this.addToggle(t, n, parent.getString())
@@ -411,7 +411,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 				} else if callParent.isName() {
 					var name string = callParent.getString()
 					var nameVar *Var = cast_[*Var](t.getScope().getVar(name).self())
-					this.toggleModules.add(nameVar)
+					this.toggleModules[vkey_(nameVar)] = struct{}{}
 					this.toggleModuleNames[name] = struct{}{}
 				} else if this.outer_.currentModule.metadataBuilder.moduleType() != ModuleMetadataMap_ModuleType_GOOG_PROVIDE {
 					t.report(n, GatherModuleMetadata_INVALID_TOGGLE_USAGE, []string{"import must be assigned"})
@@ -473,7 +473,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		existingType = module.metadataBuilder.moduleType()
 		existingFileSource = t.getSourceName()
 	} else {
-		var existingModule *ModuleMetadataMap_ModuleMetadata = this.outer_.modulesByGoogNamespace.get(namespace)
+		var existingModule *ModuleMetadataMap_ModuleMetadata = this.outer_.modulesByGoogNamespace.Get(namespace)
 		if existingModule != nil {
 			existingType = existingModule.moduleType()
 			existingFileSource = Optional_of[string](existingModule.rootNode().getSourceFileName()).filterFn_(func(s string) bool {

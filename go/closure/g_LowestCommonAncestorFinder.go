@@ -28,7 +28,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[any]) Immutabl
 	if roots.size() > 31 {
 		panic(new_IllegalArgumentException_String("Too many roots."))
 	}
-	if !this.searchColoring.isEmpty() {
+	if !this.searchColoring.IsEmpty() {
 		panic(new_IllegalStateException_0())
 	}
 	var allColor *LowestCommonAncestorFinder_Color = LowestCommonAncestorFinder_Color_create(((int32(1) << (uint32(roots.size()) & 31)) - 1))
@@ -62,7 +62,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[any]) Immutabl
 			results.add(node.getValue())
 		}
 	})
-	this.searchColoring.clear()
+	this.searchColoring.Clear()
 	sliceClear_(&this.searchQueue)
 	return results.build()
 }
@@ -79,8 +79,8 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 	this.searchQueue = append(this.searchQueue, root)
 	for len(this.searchQueue) != 0 {
 		var curr DiGraph_DiGraphNode = slicePopFirst_(tc_DiGraph_DiGraphNode, &this.searchQueue)
-		var parentEdges *TList[DiGraph_DiGraphEdge] = curr.getInEdges()
-		for parentEdge := range parentEdges.All() {
+		var parentEdges *[]DiGraph_DiGraphEdge = curr.getInEdges()
+		for parentEdge := range sliceAll_(parentEdges) {
 			var parent DiGraph_DiGraphNode = parentEdge.getSource()
 			if equalsId_(parent, root) {
 				continue
@@ -88,7 +88,7 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 			var oldColor *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](Map_getOrDefault(this.searchColoring.asMap(), parent, obj_(LowestCommonAncestorFinder_Color_BLANK)))
 			if !oldColor.contains(color) {
 				this.searchQueue = append(this.searchQueue, parent)
-				this.searchColoring.put(parent, oldColor.mix(color))
+				this.searchColoring.Put(parent, oldColor.mix(color))
 			}
 		}
 	}

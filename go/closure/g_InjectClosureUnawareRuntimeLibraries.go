@@ -47,7 +47,7 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectFieldsIntoCallSites() {
 }
 
 func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite, toInject *TSet[RuntimeJsLibManager_ExternedField]) {
-	if toInject.isEmpty() {
+	if toInject.IsEmpty() {
 		return
 	}
 	var parameterParent Node = NodeUtil_getFunctionParameters(callSite.closureUnawareFunction())
@@ -73,7 +73,7 @@ func InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(root Node, allKnow
 		}
 		var field RuntimeJsLibManager_ExternedField = icast_RuntimeJsLibManager_ExternedField(Map_get_s(allKnownFields, n.getString()))
 		if field != nil {
-			seen.add(field)
+			seen.Add(field)
 		}
 	}}
 	NodeUtil_visitPreOrder_Node_Visitor(root, visitor)

@@ -171,7 +171,7 @@ type CompilerOptions struct {
 	lineLengthThreshold                          int32
 	useOriginalNamesInOutput                     bool
 	externExportsPath                            OptionalOf[string]
-	extraReportGenerators                        *TList[SortingErrorManager_ErrorReportGenerator]
+	extraReportGenerators                        *[]SortingErrorManager_ErrorReportGenerator
 	sourceMapOutputPath                          OptionalOf[string]
 	shouldAlwaysGatherSourceMapInfo_             bool
 	sourceMapDetailLevel                         SourceMap_DetailLevel
@@ -272,7 +272,7 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.lineLengthThreshold = CompilerOptions_DEFAULT_LINE_LENGTH_THRESHOLD
 	this.useOriginalNamesInOutput = false
 	this.externExportsPath = Optional_empty[string]()
-	this.extraReportGenerators = newTList_(tc_SortingErrorManager_ErrorReportGenerator)
+	this.extraReportGenerators = &[]SortingErrorManager_ErrorReportGenerator{}
 	this.sourceMapOutputPath = Optional_empty[string]()
 	this.shouldAlwaysGatherSourceMapInfo_ = false
 	this.sourceMapDetailLevel = SourceMap_DetailLevel_ALL
@@ -675,12 +675,12 @@ func (this *CompilerOptions) setTracerOutput(out OptionalOf[string]) {
 	this.tracerOutput = out
 }
 
-func (this *CompilerOptions) getExtraReportGenerators() *TList[SortingErrorManager_ErrorReportGenerator] {
+func (this *CompilerOptions) getExtraReportGenerators() *[]SortingErrorManager_ErrorReportGenerator {
 	return this.extraReportGenerators
 }
 
 func (this *CompilerOptions) addReportGenerator(generator SortingErrorManager_ErrorReportGenerator) {
-	this.extraReportGenerators.add(generator)
+	*this.extraReportGenerators = append(*this.extraReportGenerators, generator)
 }
 
 func (this *CompilerOptions) setProtectHiddenSideEffects(enable bool) {
@@ -845,19 +845,19 @@ func (this *CompilerOptions) getDefineReplacements() ImmutableMapOf[string, Node
 }
 
 func (this *CompilerOptions) setDefineToBooleanLiteral(defineName string, value bool) {
-	this.defineReplacements.put(defineName, any(bool(value)))
+	this.defineReplacements.Put(defineName, any(bool(value)))
 }
 
 func (this *CompilerOptions) setDefineToStringLiteral(defineName string, value string) {
-	this.defineReplacements.put(defineName, strobj_(value))
+	this.defineReplacements.Put(defineName, strobj_(value))
 }
 
 func (this *CompilerOptions) setDefineToNumberLiteral(defineName string, value int32) {
-	this.defineReplacements.put(defineName, any(int32(value)))
+	this.defineReplacements.Put(defineName, any(int32(value)))
 }
 
 func (this *CompilerOptions) setDefineToDoubleLiteral(defineName string, value float64) {
-	this.defineReplacements.put(defineName, any(float64(value)))
+	this.defineReplacements.Put(defineName, any(float64(value)))
 }
 
 func (this *CompilerOptions) skipAllCompilerPasses() {
@@ -1924,7 +1924,7 @@ func (this *CompilerOptions) getCustomPassesAt(executionTime CustomPassExecution
 }
 
 func (this *CompilerOptions) setDefineReplacements(defineReplacements *TMap[string, any]) {
-	this.defineReplacements.clear()
+	this.defineReplacements.Clear()
 	this.defineReplacements.asMap().putAll(defineReplacements.asMap())
 }
 

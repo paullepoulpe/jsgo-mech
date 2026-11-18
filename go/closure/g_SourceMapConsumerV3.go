@@ -9,7 +9,7 @@ type SourceMapConsumerV3 struct {
 	file                 OptionalOf[string]
 	lineCount            int32
 	mappings             *SourceMapConsumerV3_Mappings
-	reverseSourceMapping map[string]MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]]
+	reverseSourceMapping map[string]*TMap[int32, CollectionOf[*Mapping_OriginalMapping]]
 	sourceRoot           OptionalOf[string]
 	extensions           *TMap[string, any]
 }
@@ -82,9 +82,9 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 		return Outcome_base_err[any](new_SourceMapParseException("Invalid map format").up_Throwable())
 	}
 	var generator *SourceMapGeneratorV3 = new_SourceMapGeneratorV3()
-	it_2 := foreach_(sourceMapObject.getSections())
+	it_2 := sourceMapObject.getSections().each()
 	for it_2.next() {
-		var section *SourceMapSection = cast_[*SourceMapSection](it_2.v)
+		var section *SourceMapSection = it_2.v
 		var mapSectionContents OptionalOf[string] = Optional_of[string](section.getSectionValue())
 		if section.getSectionType() == SourceMapSection_SectionType_URL {
 			mapSectionContents = sectionSupplier.getSourceMap(section.getSectionValue())
@@ -152,11 +152,11 @@ func (this *SourceMapConsumerV3) getReverseMapping(originalFile string, line int
 	if this.reverseSourceMapping == nil {
 		this.createReverseMapping()
 	}
-	var sourceLineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping[originalFile]
+	var sourceLineToCollectionMap *TMap[int32, CollectionOf[*Mapping_OriginalMapping]] = mapNN_(this.reverseSourceMapping)[originalFile]
 	if sourceLineToCollectionMap == nil {
 		return Collection(Collections_emptyList())
 	} else {
-		var mappings CollectionOf[*Mapping_OriginalMapping] = icast_Collection(sourceLineToCollectionMap.get(any(int32(line))))
+		var mappings CollectionOf[*Mapping_OriginalMapping] = sourceLineToCollectionMap.Get(int32(line))
 		if mappings == nil {
 			return Collection(Collections_emptyList())
 		} else {
@@ -220,7 +220,7 @@ func (this *SourceMapConsumerV3) getOriginalMappingForEntry(index int32, precisi
 }
 
 func (this *SourceMapConsumerV3) createReverseMapping() {
-	this.reverseSourceMapping = map[string]MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]]{}
+	this.reverseSourceMapping = map[string]*TMap[int32, CollectionOf[*Mapping_OriginalMapping]]{}
 	for targetLine := int32(0); targetLine < this.mappings.getParsedLineCount(); targetLine++ {
 		var start int32 = this.mappings.getLineStart(targetLine)
 		var end int32 = this.mappings.getLineStart((targetLine + 1))
@@ -229,11 +229,11 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 			var sourceLine int32 = this.mappings.getSourceLine(i)
 			if (sourceFileId != SourceMapConsumerV3_UNMAPPED) && (sourceLine != SourceMapConsumerV3_UNMAPPED) {
 				var originalFile string = this.sources[sourceFileId]
-				var lineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = mapComputeIfAbsent_f(tc_string, tc_MapOf_BoxedOf_int32___CollectionOf_p_Mapping_OriginalMapping__, this.reverseSourceMapping, originalFile, lambda_SourceMapConsumerV3_createReverseMapping_1_)
-				if !lineToCollectionMap.containsKey(any(int32(sourceLine))) {
-					lineToCollectionMap.put(any(int32(sourceLine)), new_ArrayList_int(1).self())
+				var lineToCollectionMap *TMap[int32, CollectionOf[*Mapping_OriginalMapping]] = mapComputeIfAbsent_f(tc_string, tcv_p_TMap_int32__CollectionOf_p_Mapping_OriginalMapping__, this.reverseSourceMapping, originalFile, lambda_SourceMapConsumerV3_createReverseMapping_1_)
+				if !lineToCollectionMap.Has(int32(sourceLine)) {
+					lineToCollectionMap.Put(int32(sourceLine), icast_Collection(new_ArrayList_int(1).self()))
 				}
-				var mappingsLine CollectionOf[*Mapping_OriginalMapping] = icast_Collection(lineToCollectionMap.get(any(int32(sourceLine))))
+				var mappingsLine CollectionOf[*Mapping_OriginalMapping] = lineToCollectionMap.Get(int32(sourceLine))
 				var builder *Mapping_OriginalMapping_Builder = Mapping_OriginalMapping_newBuilder().setLineNumber(targetLine).setColumnPosition(this.mappings.getGeneratedColumn(i))
 				mappingsLine.add(builder.build())
 			}
@@ -245,7 +245,7 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 func lambda_SourceMapConsumerV3_createReverseMapping_1_(k_ any) any {
 	var k string = str_(k_)
 	_ = k
-	return obj_(new_LinkedHashMap())
+	return any(newTMap_(tc_int32, tc_CollectionOf_p_Mapping_OriginalMapping_).asMap())
 }
 
 func (this *SourceMapConsumerV3) visitMappings(visitor func(string, string, *FilePosition, *FilePosition, *FilePosition)) {

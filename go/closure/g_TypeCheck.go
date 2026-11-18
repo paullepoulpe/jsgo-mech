@@ -1275,8 +1275,8 @@ func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName str
 	}
 	for _, el := range immElems_(currentPropertyNames) {
 		name := icast_Property_Key(el)
-		var oType *ObjectType = properties.get(name)
-		currentProperties.put(name, interfaceType)
+		var oType *ObjectType = properties.Get(name)
+		currentProperties.Put(name, interfaceType)
 		if oType != nil {
 			var thisPropType *JSType = interfaceType.getPropertyTypeKey(name)
 			var oPropType *JSType = oType.getPropertyTypeKey(name)
@@ -1365,7 +1365,7 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 				this.report(n, TypeCheck_BAD_IMPLEMENTED_TYPE, []string{this.getBestFunctionName(n)})
 			}
 			baseInterface = this.normalizeTemplatizedType(baseInterface)
-			if !alreadySeenInterfaces.add(baseInterface) {
+			if !alreadySeenInterfaces.Add(baseInterface) {
 				this.report(n, TypeCheck_SAME_INTERFACE_MULTIPLE_IMPLEMENTS, []string{baseInterface.toString()})
 			}
 		}
@@ -1403,19 +1403,19 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 		var currentProperties *TMap[Property_Key, *ObjectType] = newTMap_(tch_Property_Key, tc_p_ObjectType)
 		for _, el2 := range immElems_(functionType.getExtendedInterfaces()) {
 			interfaceType := to_ObjectType(el2)
-			currentProperties.clear()
+			currentProperties.Clear()
 			this.checkInterfaceConflictProperties(n, this.getBestFunctionName(n), properties, currentProperties, interfaceType)
 			properties.asMap().putAll(currentProperties.asMap())
 		}
 	}
-	var loopPath *TList[*FunctionType] = functionType.checkExtendsLoop()
+	var loopPath *[]*FunctionType = functionType.checkExtendsLoop()
 	if loopPath != nil {
 		var displayNames []string = []string{}
-		for loopType := range loopPath.All() {
+		for _, loopType := range *loopPath {
 			displayNames = append(displayNames, loopType.getDisplayName().orElse(nullstr_))
 		}
 		var strPath string = joinStrings_(displayNames, " -> ")
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{loopPath.get(0).getDisplayName().orElse("null"), strPath}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{sliceAt_(*loopPath, 0).getDisplayName().orElse("null"), strPath}))
 	}
 	this.validator.expectAllInterfaceProperties(n, functionType)
 }
@@ -1878,10 +1878,10 @@ func (this *TypeCheck) isObjectTypeWithNonStringifiableKey(type_ *JSType) bool {
 }
 
 func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyCheckedTypes *TSet[*JSType]) *JSType {
-	if alreadyCheckedTypes.contains(type_) {
+	if alreadyCheckedTypes.Has(type_) {
 		return nil
 	} else {
-		alreadyCheckedTypes.add(type_)
+		alreadyCheckedTypes.Add(type_)
 	}
 	if this.isObjectTypeWithNonStringifiableKey(type_) {
 		return type_

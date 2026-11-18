@@ -22,7 +22,7 @@ func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
 	this.priorityComparator = Comparator_comparingInt_f(func(digraphNode_ any) int32 {
 		var digraphNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(digraphNode_)
 		_ = digraphNode
-		pos, ok := this.astPosition[Node_of_(digraphNode.getValue())]
+		pos, ok := mapAt2_(this.astPosition, Node_of_(digraphNode.getValue()))
 		if !ok {
 			panic(new_NullPointerException_String(objstr_(digraphNode.getValue())))
 		}
@@ -98,7 +98,7 @@ func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNo
 		current.setPriority(this.priorityCounter)
 		// worklist.addAll(successors of current), from its out-edges in order, without the list
 		// and its view (post-flip manual step).
-		for _, e := range to_LinkedDirectedGraph_LinkedDiGraphNode(current).getOutEdges().items {
+		for _, e := range *to_LinkedDirectedGraph_LinkedDiGraphNode(current).getOutEdges() {
 			worklist.add(to_LinkedDirectedGraph_LinkedDiGraphEdge(e).getDestination())
 		}
 	}

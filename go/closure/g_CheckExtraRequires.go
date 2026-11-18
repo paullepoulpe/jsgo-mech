@@ -89,7 +89,7 @@ func (this *CheckExtraRequires) visit_impl(t *NodeTraversal, n Node, parent Node
 
 func (this *CheckExtraRequires) reset() {
 	clear(this.usages)
-	this.requires.clear()
+	this.requires.Clear()
 }
 
 func (this *CheckExtraRequires) visitScriptNode() {
@@ -114,7 +114,7 @@ func (this *CheckExtraRequires) reportExtraRequireWarning(call Node, require str
 }
 
 func (this *CheckExtraRequires) visitRequire(localName string, node Node) {
-	this.requires.putIfAbsent(localName, node)
+	this.requires.PutIfAbsent(localName, node)
 }
 
 func (this *CheckExtraRequires) visitImportNode(importNode Node) {

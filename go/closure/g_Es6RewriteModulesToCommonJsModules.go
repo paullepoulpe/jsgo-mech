@@ -248,7 +248,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitScript(t *NodeTrav
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addRequireCalls() {
-	if !this.importRequests.isEmpty() {
+	if !this.importRequests.IsEmpty() {
 		for importDecl := range this.imports.All() {
 			importDecl.detach()
 		}
@@ -309,8 +309,8 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitImport(path *Modul
 	if strings.Contains(importDecl.getLastChild().getString(), "://") {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(importDecl, TranspilationUtil_CANNOT_CONVERT, []string{"Module requests with protocols."}))
 	}
-	this.importRequests.add(Es6RewriteModulesToCommonJsModules_ModuleRequest_create(Es6RewriteModulesToCommonJsModules_normalizePath(path.resolveModuleAsPath(importDecl.getLastChild().getString()).toString()), this.getVarNameOfImportNode(importDecl)))
-	this.imports.add(importDecl)
+	this.importRequests.Add(Es6RewriteModulesToCommonJsModules_ModuleRequest_create(Es6RewriteModulesToCommonJsModules_normalizePath(path.resolveModuleAsPath(importDecl.getLastChild().getString()).toString()), this.getVarNameOfImportNode(importDecl)))
+	this.imports.Add(importDecl)
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *NodeTraversal, export Node) {

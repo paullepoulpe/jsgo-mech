@@ -4,7 +4,7 @@ package closure
 
 type VerifyingErrorManager struct {
 	ThreadSafeDelegatingErrorManager
-	unmatchedExpectations *TList[*Pattern]
+	unmatchedExpectations *[]*Pattern
 	formatter             *LightweightMessageFormatter
 }
 
@@ -15,16 +15,16 @@ func (this *VerifyingErrorManager) up_ThreadSafeDelegatingErrorManager() *Thread
 	return &this.ThreadSafeDelegatingErrorManager
 }
 
-func (this *VerifyingErrorManager) init_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *TList[string]) {
+func (this *VerifyingErrorManager) init_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *[]string) {
 	this.ThreadSafeDelegatingErrorManager.init_ThreadSafeDelegatingErrorManager(delegate)
 	this.formatter = LightweightMessageFormatter_withoutSource()
-	this.unmatchedExpectations = newTList_(tc_p_Pattern)
-	for exp := range expectedDiagnostics.All() {
-		this.unmatchedExpectations.add(Pattern_compile(exp))
+	this.unmatchedExpectations = &[]*Pattern{}
+	for _, exp := range *expectedDiagnostics {
+		*this.unmatchedExpectations = append(*this.unmatchedExpectations, Pattern_compile(exp))
 	}
 }
 
-func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *TList[string]) *VerifyingErrorManager {
+func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *[]string) *VerifyingErrorManager {
 	this := &VerifyingErrorManager{}
 	this.self_ = this
 	this.init_VerifyingErrorManager(delegate, expectedDiagnostics)
@@ -34,20 +34,20 @@ func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *TList
 func (this *VerifyingErrorManager) report_2_impl(level CheckLevel, error_ *JSError) {
 	var formattedError string = this.formatErrorForMatching(level, error_)
 	var matchedPattern *Pattern = nil
-	var iterator *tlistIter_[*Pattern] = this.unmatchedExpectations.cursor()
-	for iterator.hasNext() {
-		var p *Pattern = iterator.nextT()
+	iterator_s, iterator := this.unmatchedExpectations, sliceCursor_(this.unmatchedExpectations)
+	for iterator < len(*iterator_s) {
+		var p *Pattern = sliceNext_(*iterator_s, &iterator)
 		if p.matcher_s(formattedError).find() {
 			if matchedPattern == nil {
 				matchedPattern = p
-				iterator.remove()
+				sliceIterRemove_(iterator_s, &iterator)
 				continue
 			}
 			if tostrNN_(matchedPattern) == tostrNN_(p) {
 				continue
 			}
 			this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_AMBIGUOUS_EXPECTATION, []string{formattedError, tostrNN_(matchedPattern), tostrNN_(p)}))
-			iterator.remove()
+			sliceIterRemove_(iterator_s, &iterator)
 		}
 	}
 	if matchedPattern == nil {
@@ -61,10 +61,10 @@ func (this *VerifyingErrorManager) generateReport_impl() {
 }
 
 func (this *VerifyingErrorManager) reportMissingExpectations() {
-	for p := range this.unmatchedExpectations.All() {
+	for p := range sliceAll_(this.unmatchedExpectations) {
 		this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_EXPECTED_DIAGNOSTIC_NOT_FOUND, []string{tostrNN_(p)}))
 	}
-	this.unmatchedExpectations.clear()
+	sliceClear_(this.unmatchedExpectations)
 }
 
 func (this *VerifyingErrorManager) formatErrorForMatching(level CheckLevel, error_ *JSError) string {

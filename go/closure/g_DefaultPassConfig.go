@@ -1611,7 +1611,7 @@ func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, p
 	var reservedChars SetOf[BoxedOf[uint16]] = ImmutableSet_of()
 	var reservedNames *TSet[string] = newTSet_(tc_string)
 	if this.options_.getRenamePrefixNamespace().isPresent() {
-		reservedNames.add(this.options_.getRenamePrefixNamespace().get())
+		reservedNames.Add(this.options_.getRenamePrefixNamespace().get())
 	}
 	reservedNames.asSet().addAll(Collection(compiler.getExportedNames().asSet()))
 	reservedNames.asSet().addAll(icast_Collection(obj_(ParserRunner_getReservedVars())))
@@ -1639,10 +1639,10 @@ func DefaultPassConfig_runInSerial(passes CollectionOf[CompilerPass]) CompilerPa
 func DefaultPassConfig_getAdditionalReplacements(options *CompilerOptions) *TMap[string, Node] {
 	var additionalReplacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	if options.shouldMarkAsCompiled() || options.getClosurePass() {
-		additionalReplacements.put(DefaultPassConfig_COMPILED_CONSTANT_NAME, IR_trueNode())
+		additionalReplacements.Put(DefaultPassConfig_COMPILED_CONSTANT_NAME, IR_trueNode())
 	}
 	if (options.getClosurePass() && options.getLocale().isPresent()) && !options.doLateLocalization() {
-		additionalReplacements.put(DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(options.getLocale().get()))
+		additionalReplacements.Put(DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(options.getLocale().get()))
 	}
 	return additionalReplacements
 }

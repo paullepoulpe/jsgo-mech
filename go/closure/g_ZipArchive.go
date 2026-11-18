@@ -4,12 +4,12 @@ package closure
 
 type ZipArchive struct {
 	bytes      []int8
-	entryNames *TList[string]
+	entryNames *[]string
 	records    map[string]BoxedOf[int32]
 }
 
 func (this *ZipArchive) finit_ZipArchive() {
-	this.entryNames = newTList_(tc_string)
+	this.entryNames = &[]string{}
 	this.records = map[string]BoxedOf[int32]{}
 }
 
@@ -49,14 +49,14 @@ func ZipArchive_parse(bytes []int8) OptionalOf[*ZipArchive] {
 			return Optional_empty[*ZipArchive]()
 		}
 		var name string = Io_utf8String(ZipArchive_slice(bytes, (position + ZipArchive_RECORD_SIZE), nameLength))
-		archive.entryNames.add(name)
+		*archive.entryNames = append(*archive.entryNames, name)
 		archive.records[name] = any(int32(position))
 		position = next
 	}
 	return Optional_of[*ZipArchive](archive)
 }
 
-func (this *ZipArchive) names() *TList[string] {
+func (this *ZipArchive) names() *[]string {
 	return this.entryNames
 }
 
@@ -106,7 +106,7 @@ func ZipArchive_int32(bytes []int8, position int32) int32 {
 
 func ZipArchive_open(path string) *Outcome_base[*ZipArchive] {
 	var modified int64 = Io_lastModified(path)
-	var known *ZipArchive_Opened = ZipArchive_opened[path]
+	var known *ZipArchive_Opened = mapNN_(ZipArchive_opened)[path]
 	if (known != nil) && (known.modified == modified) {
 		return Outcome_base_ok_Object[*ZipArchive](known.archive)
 	}

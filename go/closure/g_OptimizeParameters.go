@@ -119,7 +119,7 @@ func (this *OptimizeParameters) analyzeCandidate(refKind string, key string, ref
 		this.decisionsLog.log_2("%s\t%s\tno definition found", []any{strobj_(refKind), strobj_(key)})
 		return analysisBuilder.setIsSafeToOptimize(false).build()
 	}
-	if !analysisBuilder.taggedTemplateLiterals.isEmpty() {
+	if len(*analysisBuilder.taggedTemplateLiterals) != 0 {
 		var functionNodes CollectionOf[Node] = OptimizeCalls_ReferenceMap_getFunctionNodes(definitions).values()
 		it_3 := foreach_(functionNodes)
 		for it_3.next() {
@@ -294,7 +294,7 @@ func (this *OptimizeParameters) tryEliminateOptionalArgs(refs ArrayListOf[Node])
 }
 
 func (this *OptimizeParameters) tryEliminateConstantArgs(refs ArrayListOf[Node]) {
-	var parameters *TList[*OptimizeParameters_Parameter] = this.findFixedArguments(refs)
+	var parameters *[]*OptimizeParameters_Parameter = this.findFixedArguments(refs)
 	if parameters == nil {
 		return
 	}
@@ -315,8 +315,8 @@ func (this *OptimizeParameters) tryEliminateConstantArgs(refs ArrayListOf[Node])
 	this.optimizeFunctionDefinition(parameters, fn)
 }
 
-func (this *OptimizeParameters) findFixedArguments(refs ArrayListOf[Node]) *TList[*OptimizeParameters_Parameter] {
-	var parameters *TList[*OptimizeParameters_Parameter] = newTList_(tc_p_OptimizeParameters_Parameter)
+func (this *OptimizeParameters) findFixedArguments(refs ArrayListOf[Node]) *[]*OptimizeParameters_Parameter {
+	var parameters *[]*OptimizeParameters_Parameter = &[]*OptimizeParameters_Parameter{}
 	var firstCall bool = true
 	var continueLooking bool = false
 	for n := range elemsBy_(refs.self(), Node_of_) {
@@ -337,7 +337,7 @@ func (this *OptimizeParameters) findFixedArguments(refs ArrayListOf[Node]) *TLis
 			}
 		}
 	}
-	return func() *TList[*OptimizeParameters_Parameter] {
+	return func() *[]*OptimizeParameters_Parameter {
 		if continueLooking {
 			return parameters
 		}
@@ -354,7 +354,7 @@ func OptimizeParameters_hasSpreadInFirstCallParam(n Node) bool {
 	return false
 }
 
-func OptimizeParameters_adjustForConstraints(fn Node, parameters *TList[*OptimizeParameters_Parameter]) bool {
+func OptimizeParameters_adjustForConstraints(fn Node, parameters *[]*OptimizeParameters_Parameter) bool {
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(fn)
 	if (info != nil) && info.isNoInline() {
 		return false
@@ -373,8 +373,8 @@ func OptimizeParameters_adjustForConstraints(fn Node, parameters *TList[*Optimiz
 	var seenUnmovableSideEffects bool = false
 	var seenUnmoveableSideEffected bool = false
 	var allRestValueRemovable bool = true
-	for i := int32((parameters.size() - 1)); i >= 0; i-- {
-		var current *OptimizeParameters_Parameter = parameters.get(i)
+	for i := int32((int32(len(*parameters)) - 1)); i >= 0; i-- {
+		var current *OptimizeParameters_Parameter = sliceAt_(*parameters, i)
 		if i <= lastNonRestFormal {
 			if formal.isDefaultValue() && current.mayBeUndefined {
 				current.shouldRemoveField = false
@@ -389,8 +389,8 @@ func OptimizeParameters_adjustForConstraints(fn Node, parameters *TList[*Optimiz
 				if !current.shouldRemoveField {
 					anyMovable = false
 					allRestValueRemovable = false
-					for j := int32((i + 1)); j < parameters.size(); j++ {
-						var p *OptimizeParameters_Parameter = parameters.get(j)
+					for j := int32((i + 1)); j < int32(len(*parameters)); j++ {
+						var p *OptimizeParameters_Parameter = sliceAt_(*parameters, j)
 						p.shouldRemoveField = false
 						if p.canBeSideEffectedField {
 							seenUnmoveableSideEffected = true
@@ -418,17 +418,17 @@ func OptimizeParameters_adjustForConstraints(fn Node, parameters *TList[*Optimiz
 	return anyMovable
 }
 
-func (this *OptimizeParameters) findFixedParameters(parameters *TList[*OptimizeParameters_Parameter], cur Node) bool {
+func (this *OptimizeParameters) findFixedParameters(parameters *[]*OptimizeParameters_Parameter, cur Node) bool {
 	var anyMovable bool = false
 	var index int32 = 0
 	for cur != 0 {
 		var p *OptimizeParameters_Parameter
-		if index >= parameters.size() {
+		if index >= int32(len(*parameters)) {
 			p = new_OptimizeParameters_Parameter(cur, false)
-			parameters.add(p)
+			*parameters = append(*parameters, p)
 			this.setParameterSideEffectInfo(p, cur)
 		} else {
-			p = parameters.get(index)
+			p = sliceAt_(*parameters, index)
 			if p.shouldRemove() {
 				var value Node = p.getArg()
 				if !cur.isEquivalentTo(value) {
@@ -446,19 +446,19 @@ func (this *OptimizeParameters) findFixedParameters(parameters *TList[*OptimizeP
 		cur = cur.getNext()
 		index++
 	}
-	for ; index < parameters.size(); index++ {
-		parameters.get(index).setShouldRemove(false)
+	for ; index < int32(len(*parameters)); index++ {
+		sliceAt_(*parameters, index).setShouldRemove(false)
 	}
 	return anyMovable
 }
 
-func (this *OptimizeParameters) buildInitialParameterList(parameters *TList[*OptimizeParameters_Parameter], cur Node) bool {
+func (this *OptimizeParameters) buildInitialParameterList(parameters *[]*OptimizeParameters_Parameter, cur Node) bool {
 	var anyMovable bool = false
 	for cur != 0 {
 		var movable bool = OptimizeParameters_isMovableValue(cur, this.globalScope)
 		var p *OptimizeParameters_Parameter = new_OptimizeParameters_Parameter(cur, movable)
 		this.setParameterSideEffectInfo(p, cur)
-		parameters.add(p)
+		*parameters = append(*parameters, p)
 		if movable {
 			anyMovable = true
 		}
@@ -506,29 +506,29 @@ func OptimizeParameters_isMovableValue(n Node, globalScope *Scope) bool {
 	return true
 }
 
-func (this *OptimizeParameters) optimizeFunctionDefinition(parameters *TList[*OptimizeParameters_Parameter], fn Node) {
+func (this *OptimizeParameters) optimizeFunctionDefinition(parameters *[]*OptimizeParameters_Parameter, fn Node) {
 	var paramList Node = NodeUtil_getFunctionParameters(fn)
 	var maybeRest Node = paramList.getLastChild()
-	var lastParameter int32 = (parameters.size() - 1)
+	var lastParameter int32 = (int32(len(*parameters)) - 1)
 	if (maybeRest != 0) && maybeRest.isRest() {
 		var restIndex int32 = (paramList.getChildCount() - 1)
-		if (parameters.size() < restIndex) || ((restIndex < parameters.size()) && parameters.get(restIndex).shouldRemove()) {
+		if (int32(len(*parameters)) < restIndex) || ((restIndex < int32(len(*parameters))) && sliceAt_(*parameters, restIndex).shouldRemove()) {
 			var value Node = IR_arraylit([]Node{}).srcref(maybeRest)
-			for i := int32(restIndex); i < parameters.size(); i++ {
-				var parameter *OptimizeParameters_Parameter = parameters.get(i)
+			for i := int32(restIndex); i < int32(len(*parameters)); i++ {
+				var parameter *OptimizeParameters_Parameter = sliceAt_(*parameters, i)
 				if !parameter.shouldRemove() {
 					panic(new_IllegalStateException_0())
 				}
-				value.addChildToBack(parameters.get(i).getArg())
+				value.addChildToBack(sliceAt_(*parameters, i).getArg())
 			}
 			maybeRest.detach()
 			var lhs Node = maybeRest.removeFirstChild()
 			this.addRestVariableToFunction(fn, lhs, value)
 		}
-		lastParameter = Math_min((parameters.size() - 1), (restIndex - 1))
+		lastParameter = Math_min((int32(len(*parameters)) - 1), (restIndex - 1))
 	}
 	for i := int32(lastParameter); i >= 0; i-- {
-		var parameter *OptimizeParameters_Parameter = parameters.get(i)
+		var parameter *OptimizeParameters_Parameter = sliceAt_(*parameters, i)
 		if parameter.shouldRemove() {
 			var formalParam Node = NodeUtil_getArgumentForFunction(fn, i)
 			if formalParam != 0 {
@@ -540,7 +540,7 @@ func (this *OptimizeParameters) optimizeFunctionDefinition(parameters *TList[*Op
 					formalParam = formalParam.removeFirstChild()
 				}
 			}
-			var value Node = parameters.get(i).getArg()
+			var value Node = sliceAt_(*parameters, i).getArg()
 			if formalParam != 0 {
 				this.addVariableDeclarationToFunction(fn, formalParam, value)
 			} else {
@@ -550,12 +550,12 @@ func (this *OptimizeParameters) optimizeFunctionDefinition(parameters *TList[*Op
 	}
 }
 
-func (this *OptimizeParameters) optimizeCallSite(parameters *TList[*OptimizeParameters_Parameter], target Node) {
+func (this *OptimizeParameters) optimizeCallSite(parameters *[]*OptimizeParameters_Parameter, target Node) {
 	var call Node = OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(target)
 	var callMayMutateArgs bool = call.mayMutateArguments()
 	var callMayMutateGlobalsOrThrow bool = call.mayMutateGlobalStateOrThrow()
-	for index := int32((parameters.size() - 1)); index >= 0; index-- {
-		var p *OptimizeParameters_Parameter = parameters.get(index)
+	for index := int32((int32(len(*parameters)) - 1)); index >= 0; index-- {
+		var p *OptimizeParameters_Parameter = sliceAt_(*parameters, index)
 		if p.shouldRemove() {
 			this.eliminateCallTargetArgAt(target, index)
 			if !callMayMutateGlobalsOrThrow && (p.hasSideEffects() || (callMayMutateArgs && !NodeUtil_isImmutableValue(p.getArg()))) {
@@ -895,7 +895,7 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) applyChanges() {
 
 type OptimizeParameters_CandidateAnalysis struct {
 	outer_                 *OptimizeParameters
-	taggedTemplateLiterals *TList[Node]
+	taggedTemplateLiterals *[]Node
 	isSafeToOptimizeField  bool
 }
 
@@ -912,28 +912,28 @@ func new_OptimizeParameters_CandidateAnalysis(outer_ *OptimizeParameters, builde
 }
 
 func (this *OptimizeParameters_CandidateAnalysis) shouldConvertTaggedTemplateLiterals() bool {
-	return (!this.taggedTemplateLiterals.isEmpty() && this.isSafeToOptimizeField)
+	return (len(*this.taggedTemplateLiterals) != 0 && this.isSafeToOptimizeField)
 }
 
 func (this *OptimizeParameters_CandidateAnalysis) convertTaggedTemplateLiterals() {
-	for taggedTemplateLiteral := range this.taggedTemplateLiterals.All() {
+	for taggedTemplateLiteral := range sliceAll_(this.taggedTemplateLiterals) {
 		this.outer_.convertTaggedTemplateLiteralToNormalCall(taggedTemplateLiteral)
 	}
-	this.taggedTemplateLiterals.clear()
+	sliceClear_(this.taggedTemplateLiterals)
 }
 
 func (this *OptimizeParameters_CandidateAnalysis) isSafeToOptimize() bool {
-	return (this.isSafeToOptimizeField && this.taggedTemplateLiterals.isEmpty())
+	return (this.isSafeToOptimizeField && len(*this.taggedTemplateLiterals) == 0)
 }
 
 type OptimizeParameters_CandidateAnalysisBuilder struct {
 	outer_                 *OptimizeParameters
-	taggedTemplateLiterals *TList[Node]
+	taggedTemplateLiterals *[]Node
 	isSafeToOptimize_      bool
 }
 
 func (this *OptimizeParameters_CandidateAnalysisBuilder) finit_OptimizeParameters_CandidateAnalysisBuilder() {
-	this.taggedTemplateLiterals = newTList_(tc_Node)
+	this.taggedTemplateLiterals = &[]Node{}
 	this.isSafeToOptimize_ = false
 }
 
@@ -954,7 +954,7 @@ func (this *OptimizeParameters_CandidateAnalysisBuilder) setIsSafeToOptimize(isS
 }
 
 func (this *OptimizeParameters_CandidateAnalysisBuilder) addTaggedTemplateLiteral(ttlNode Node) *OptimizeParameters_CandidateAnalysisBuilder {
-	this.taggedTemplateLiterals.add(ttlNode)
+	*this.taggedTemplateLiterals = append(*this.taggedTemplateLiterals, ttlNode)
 	return this
 }
 

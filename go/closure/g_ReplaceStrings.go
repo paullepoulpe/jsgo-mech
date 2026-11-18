@@ -160,18 +160,18 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 }
 
 func (this *ReplaceStrings) getReplacement(key string) string {
-	var result *ReplaceStrings_Result = this.results.get(key)
+	var result *ReplaceStrings_Result = this.results.Get(key)
 	if result != nil {
 		return result.replacement_
 	}
 	var replacement string = this.nameGenerator.generateNextName()
 	result = new_ReplaceStrings_Result(key, replacement)
-	this.results.put(key, result)
+	this.results.Put(key, result)
 	return replacement
 }
 
 func (this *ReplaceStrings) recordReplacement(key string) {
-	var result *ReplaceStrings_Result = this.results.get(key)
+	var result *ReplaceStrings_Result = this.results.Get(key)
 	if result == nil {
 		panic(new_IllegalStateException_0())
 	}

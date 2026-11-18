@@ -9,7 +9,7 @@ type JsMessageVisitor struct {
 	idGenerator_    JsMessage_IdGenerator
 	compiler_       *AbstractCompiler
 	messageNames    map[string]*JsMessageVisitor_MessageLocation
-	unnamedMessages *TMap[*Var, *JsMessage]
+	unnamedMessages map[varKey_]*JsMessage
 	googMsgNodes    *TSet[Node]
 }
 
@@ -31,7 +31,7 @@ func (this *JsMessageVisitor) up_NodeTraversal_AbstractPostOrderCallback() *Node
 
 func (this *JsMessageVisitor) finit_JsMessageVisitor() {
 	this.messageNames = map[string]*JsMessageVisitor_MessageLocation{}
-	this.unnamedMessages = newTMap_(tch_p_Var, tc_p_JsMessage)
+	this.unnamedMessages = map[varKey_]*JsMessage{}
 	this.googMsgNodes = newTSet_(tc_Node)
 }
 
@@ -115,7 +115,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		return
 	}
 	if msgNodeIsACall {
-		this.googMsgNodes.remove(msgNode)
+		this.googMsgNodes.Delete(msgNode)
 	} else {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, JsMessageVisitor_MESSAGE_NOT_INITIALIZED_CORRECTLY, []string{}))
 		return
@@ -205,7 +205,7 @@ func (this *JsMessageVisitor) buildJsMessage(input JsMessageVisitor_InputForBuil
 			return Optional_of[string](this.idGenerator_.generateId(meaningForIdGeneration, tlistImm_(tc_JsMessage_Part, messageParts)))
 		}()
 	}
-	return new_JsMessage_Builder().appendParts(icast_List(obj_(messageParts))).setPlaceholderNameToExampleMap(input.getPlaceholderExampleMap()).setPlaceholderNameToOriginalCodeMap(input.getPlaceholderOriginalCodeMap()).setIsAnonymous(isAnonymous).setIsExternalMsg(isExternal).setKey(messageKeyFinal).setSourceName(input.getSourceName()).setDesc(input.getDescription()).setMeaning(input.getMeaning()).setAlternateId(input.getAlternateMessageId()).setId(messageId).build()
+	return new_JsMessage_Builder().appendParts(tlistImm_(tc_JsMessage_Part, messageParts)).setPlaceholderNameToExampleMap(input.getPlaceholderExampleMap()).setPlaceholderNameToOriginalCodeMap(input.getPlaceholderOriginalCodeMap()).setIsAnonymous(isAnonymous).setIsExternalMsg(isExternal).setKey(messageKeyFinal).setSourceName(input.getSourceName()).setDesc(input.getDescription()).setMeaning(input.getMeaning()).setAlternateId(input.getAlternateMessageId()).setId(messageId).build()
 }
 
 func (this *JsMessageVisitor) trackMessage(traversal *NodeTraversal, possiblyObfuscatedMessageKey string, msgNode Node, extractedMessage *JsMessage) {
@@ -253,7 +253,7 @@ func (this *JsMessageVisitor) collectGetMsgCall(traversal *NodeTraversal, call N
 	}
 	var callee Node = call.getFirstChild()
 	if callee.matchesQualifiedName(JsMessageVisitor_MSG_FUNCTION_QNAME) || this.isDeclareIcuTemplateCallee(callee) {
-		this.googMsgNodes.add(call)
+		this.googMsgNodes.Add(call)
 	} else if callee.matchesQualifiedName(JsMessageVisitor_MSG_FALLBACK_FUNCTION_NAME) {
 		this.visitFallbackFunctionCall(traversal, call)
 	}
@@ -267,7 +267,7 @@ func (this *JsMessageVisitor) trackNormalMessage(message *JsMessage, msgName str
 func (this *JsMessageVisitor) trackUnnamedMessage(t *NodeTraversal, message *JsMessage, msgNameInScope string) {
 	var var_ *Var = cast_[*Var](t.getScope().getVar(msgNameInScope).self())
 	if var_ != nil {
-		this.unnamedMessages.put(var_, message)
+		this.unnamedMessages[vkey_(var_)] = message
 	}
 }
 
@@ -293,7 +293,7 @@ func JsMessageVisitor_isLegalMessageVarAlias(msgNode Node) bool {
 func (this *JsMessageVisitor) getTrackedUnnamedMessage(t *NodeTraversal, msgNameInScope string) *JsMessage {
 	var var_ *Var = cast_[*Var](t.getScope().getVar(msgNameInScope).self())
 	if var_ != nil {
-		return this.unnamedMessages.get(var_)
+		return this.unnamedMessages[vkey_(var_)]
 	}
 	return nil
 }
@@ -456,7 +456,7 @@ func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocIn
 		return Outcome_base_err[IcuTemplateDefinition](icuTemplateOptionsOutcome.error())
 	}
 	var icuTemplateOptions JsMessageVisitor_IcuTemplateOptions = icuTemplateOptionsOutcome.get()
-	var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(tsetFrom_(tc_string, icuTemplateOptions.getPlaceholderNames(), true))
+	var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(setImm_(tc_string, icuTemplateOptions.getPlaceholderNames()))
 	var unknownPlaceholdersChecked *Outcome_base[any] = icuTemplateOptions.checkForUnknownPlaceholders(setImm_(tc_string, extractedIcuTemplateParts.extractedPlaceholderNames))
 	if unknownPlaceholdersChecked.isErr() {
 		return Outcome_base_err[IcuTemplateDefinition](unknownPlaceholdersChecked.error())
@@ -643,22 +643,22 @@ func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base[any] {
 				return Outcome_base_err[any](new_JsMessageVisitor_MalformedException("string key expected", stringKey).up_Throwable())
 			}
 			var key string = stringKey.getString()
-			if stringToStringKeyMap.containsKey(key) {
+			if stringToStringKeyMap.Has(key) {
 				return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(("duplicate string key: " + sstr_(key)), stringKey).up_Throwable())
 			}
-			stringToStringKeyMap.put(stringKey.getString(), stringKey)
+			stringToStringKeyMap.Put(stringKey.getString(), stringKey)
 		}
 	}
 	return Outcome_base_ok_Object(obj_(new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap)))
 }
 
-func JsMessageVisitor_parseJsMessageTextIntoParts(originalMsgText string) *Outcome_base[List] {
+func JsMessageVisitor_parseJsMessageTextIntoParts(originalMsgText string) *Outcome_base[*TList[JsMessage_Part]] {
 	var googGetMsgParsedTextRes *Outcome_base[JsMessageVisitor_GoogGetMsgParsedText] = JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText)
 	if googGetMsgParsedTextRes.isErr() {
-		return Outcome_base_err[List](googGetMsgParsedTextRes.error())
+		return Outcome_base_err[*TList[JsMessage_Part]](googGetMsgParsedTextRes.error())
 	}
 	var googGetMsgParsedText JsMessageVisitor_GoogGetMsgParsedText = googGetMsgParsedTextRes.get()
-	return Outcome_base_ok_Object[List](icast_List(obj_(googGetMsgParsedText.getParts())))
+	return Outcome_base_ok_Object[*TList[JsMessage_Part]](tlistImm_(tc_JsMessage_Part, googGetMsgParsedText.getParts()))
 }
 
 func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outcome_base[JsMessageVisitor_GoogGetMsgParsedText] {
@@ -866,7 +866,7 @@ func new_JsMessageVisitor_IcuMessageTemplateString(template string) *JsMessageVi
 	return this
 }
 
-func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNamesToExtract *TSet[string]) *JsMessageVisitor_ExtractedIcuTemplateParts {
+func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNamesToExtract map[string]struct{}) *JsMessageVisitor_ExtractedIcuTemplateParts {
 	var extractedPlaceholderNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	var partsBuilder ImmutableList_BuilderOf[JsMessage_Part] = ImmutableList_builder()
 	var matcher *Matcher_re2j = JsMessageVisitor_ICU_PLACEHOLDER_RE.matcher_s(this.template)
@@ -874,7 +874,7 @@ func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNa
 	templateU16 := utf16Of_(this.template)
 	for matcher.find() {
 		var placeholderName string = matcher.group(1)
-		if placholderNamesToExtract.contains(placeholderName) {
+		if has_(placholderNamesToExtract, placeholderName) {
 			extractedPlaceholderNames.add(strobj_(placeholderName))
 			var nonPlaceholderPrefix string = templateU16.substring(remainingTemplateStartIndex, matcher.start())
 			remainingTemplateStartIndex = matcher.end()
@@ -955,7 +955,7 @@ func new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap *TMap[string
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) getValueNode(key string) Node {
-	var stringKeyNode Node = this.stringToStringKeyMap.get(key)
+	var stringKeyNode Node = this.stringToStringKeyMap.Get(key)
 	return func() Node {
 		if stringKeyNode == 0 {
 			return 0
@@ -965,7 +965,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) getValueNode(key string) Node
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) getBooleanValueOrFalse(key string) *Outcome_base[any] {
-	var stringKeyNode Node = this.stringToStringKeyMap.get(key)
+	var stringKeyNode Node = this.stringToStringKeyMap.Get(key)
 	return JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode)
 }
 
@@ -1005,7 +1005,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expect
 		}
 		var key string = l_1.keys[i_1]
 		if !has_(expectedKeys, key) {
-			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(str_(createErrorMessage(strobj_(key))), this.stringToStringKeyMap.get(key)).up_Throwable())
+			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(str_(createErrorMessage(strobj_(key))), this.stringToStringKeyMap.Get(key)).up_Throwable())
 		}
 	}
 	return Outcome_base_ok_0()
@@ -1017,7 +1017,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(required
 			continue
 		}
 		var requiredKey string = requiredKeys.keys[i_1]
-		if !this.stringToStringKeyMap.containsKey(requiredKey) {
+		if !this.stringToStringKeyMap.Has(requiredKey) {
 			return Outcome_base_err[any](to_Throwable(createException(strobj_(requiredKey))))
 		}
 	}

@@ -175,15 +175,15 @@ func new_OptimizeCalls_ReferenceMap() *OptimizeCalls_ReferenceMap {
 }
 
 func (this *OptimizeCalls_ReferenceMap) addReference(data *TMap[string, ArrayListOf[Node]], name string, n Node) {
-	var refs ArrayListOf[Node] = data.computeIfAbsent_f(name, lambda_OptimizeCalls_ReferenceMap_addReference_1_)
+	var refs ArrayListOf[Node] = data.ComputeIfAbsent(name, lambda_OptimizeCalls_ReferenceMap_addReference_1_)
 	refs.add(n.box_())
 }
 
 // lambda_OptimizeCalls_ReferenceMap_addReference_1_ is a lambda of OptimizeCalls_ReferenceMap_addReference that captures nothing (post-flip step lambdas).
-func lambda_OptimizeCalls_ReferenceMap_addReference_1_(k_ any) any {
-	var k string = str_(k_)
+func lambda_OptimizeCalls_ReferenceMap_addReference_1_(k_ string) ArrayListOf[Node] {
+	var k string = k_
 	_ = k
-	return new_ArrayList_0().self()
+	return new_ArrayList_0()
 }
 
 func (this *OptimizeCalls_ReferenceMap) addNameReference(name string, n Node) {

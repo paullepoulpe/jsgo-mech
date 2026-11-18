@@ -13,9 +13,9 @@ type PolymerClassDefinition struct {
 	descriptor        Node
 	constructor_      *PolymerPass_MemberDefinition
 	nativeBaseElement OptionalOf[string]
-	props             *TList[*PolymerPass_MemberDefinition]
+	props             *[]*PolymerPass_MemberDefinition
 	behaviorProps     *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]
-	methods           *TList[*PolymerPass_MemberDefinition]
+	methods           *[]*PolymerPass_MemberDefinition
 	behaviors         []*PolymerBehaviorExtractor_BehaviorDefinition
 	features_         *FeatureSet
 	interfaceName     OptionalOf[string]
@@ -25,7 +25,7 @@ func (this *PolymerClassDefinition) finit_PolymerClassDefinition() {
 	this.interfaceName = Optional_empty[string]()
 }
 
-func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement OptionalOf[string], props *TList[*PolymerPass_MemberDefinition], behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *TList[*PolymerPass_MemberDefinition], behaviors []*PolymerBehaviorExtractor_BehaviorDefinition, features *FeatureSet, input *CompilerInput) {
+func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement OptionalOf[string], props *[]*PolymerPass_MemberDefinition, behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *[]*PolymerPass_MemberDefinition, behaviors []*PolymerBehaviorExtractor_BehaviorDefinition, features *FeatureSet, input *CompilerInput) {
 	this.finit_PolymerClassDefinition()
 	this.defType = defType
 	this.definition = definition
@@ -45,7 +45,7 @@ func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType PolymerC
 	this.input = input
 }
 
-func new_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement OptionalOf[string], props *TList[*PolymerPass_MemberDefinition], behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *TList[*PolymerPass_MemberDefinition], behaviors []*PolymerBehaviorExtractor_BehaviorDefinition, features *FeatureSet, input *CompilerInput) *PolymerClassDefinition {
+func new_PolymerClassDefinition(defType PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement OptionalOf[string], props *[]*PolymerPass_MemberDefinition, behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *[]*PolymerPass_MemberDefinition, behaviors []*PolymerBehaviorExtractor_BehaviorDefinition, features *FeatureSet, input *CompilerInput) *PolymerClassDefinition {
 	this := &PolymerClassDefinition{}
 	this.init_PolymerClassDefinition(defType, definition, target, hasGeneratedLhs, descriptor, classInfo, constructor, nativeBaseElement, props, behaviorProps, methods, behaviors, features, input)
 	return this
@@ -109,11 +109,11 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 	}()
 	var behaviorArray Node = NodeUtil_getFirstPropMatchingKey(descriptor, "behaviors")
 	var behaviors []*PolymerBehaviorExtractor_BehaviorDefinition = behaviorExtractor.extractBehaviors(behaviorArray, moduleMetadata)
-	var properties *TList[*PolymerPass_MemberDefinition] = newTList_(tc_p_PolymerPass_MemberDefinition)
+	var properties *[]*PolymerPass_MemberDefinition = &[]*PolymerPass_MemberDefinition{}
 	var behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition] = newTMap_(tc_p_PolymerPass_MemberDefinition, tc_p_PolymerBehaviorExtractor_BehaviorDefinition)
 	for _, behavior := range behaviors {
 		for _, prop := range behavior.props {
-			behaviorProps.put(prop, behavior)
+			behaviorProps.Put(prop, behavior)
 		}
 	}
 	PolymerClassDefinition_overwriteMembersIfPresent(properties, PolymerPassStaticUtils_extractProperties(descriptor, PolymerClassDefinition_DefinitionType_ObjectLiteral, compiler, 0))
@@ -126,13 +126,13 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 			newFeatures = newFeatures.union(sliceAt_(behaviors, i).features_)
 		}
 	}
-	var methods *TList[*PolymerPass_MemberDefinition] = newTList_(tc_p_PolymerPass_MemberDefinition)
+	var methods *[]*PolymerPass_MemberDefinition = &[]*PolymerPass_MemberDefinition{}
 	{
 		var keyNode Node = descriptor.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var isFunctionDefinition bool = (keyNode.isMemberFunctionDef() || (keyNode.isStringKey() && keyNode.getFirstChild().isFunction()))
 			if isFunctionDefinition {
-				methods.add(new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule))
+				*methods = append(*methods, new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule))
 			}
 		}
 	}
@@ -201,23 +201,23 @@ func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *Abstr
 	var classInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(classNode)
 	var constructor Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(classNode)
 	var properties []*PolymerPass_MemberDefinition = PolymerPassStaticUtils_extractProperties(propertiesDescriptor, PolymerClassDefinition_DefinitionType_ES6Class, compiler, constructor)
-	var methods *TList[*PolymerPass_MemberDefinition] = PolymerClassDefinition_extractClassMethods(classNode, enclosingModule)
+	var methods *[]*PolymerPass_MemberDefinition = PolymerClassDefinition_extractClassMethods(classNode, enclosingModule)
 	var ctorInfo *JSDocInfo = nil
 	if constructor != 0 {
 		ctorInfo = NodeUtil_getBestJSDocInfo(constructor)
 		PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor, enclosingModule, methods)
 	}
 	var input *CompilerInput = compiler.getInput(NodeUtil_getEnclosingScript(classNode).getInputId())
-	return new_PolymerClassDefinition(PolymerClassDefinition_DefinitionType_ES6Class, classNode, target, false, propertiesDescriptor, classInfo, new_PolymerPass_MemberDefinition(ctorInfo, 0, constructor, enclosingModule), Optional_empty[string](), tlistImm_(tc_p_PolymerPass_MemberDefinition, sliceView_(tc_p_PolymerPass_MemberDefinition, properties)), nil, methods, nil, nil, input)
+	return new_PolymerClassDefinition(PolymerClassDefinition_DefinitionType_ES6Class, classNode, target, false, propertiesDescriptor, classInfo, new_PolymerPass_MemberDefinition(ctorInfo, 0, constructor, enclosingModule), Optional_empty[string](), slicePtrImm_(tc_p_PolymerPass_MemberDefinition, sliceView_(tc_p_PolymerPass_MemberDefinition, properties)), nil, methods, nil, nil, input)
 }
 
-func PolymerClassDefinition_extractClassMethods(classNode Node, enclosingModule Node) *TList[*PolymerPass_MemberDefinition] {
-	var methods *TList[*PolymerPass_MemberDefinition] = newTList_(tc_p_PolymerPass_MemberDefinition)
+func PolymerClassDefinition_extractClassMethods(classNode Node, enclosingModule Node) *[]*PolymerPass_MemberDefinition {
+	var methods *[]*PolymerPass_MemberDefinition = &[]*PolymerPass_MemberDefinition{}
 	{
 		var keyNode Node = NodeUtil_getClassMembers(classNode).getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			if keyNode.isMemberFunctionDef() || PolymerClassDefinition_isFunctionField(keyNode) {
-				methods.add(new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule))
+				*methods = append(*methods, new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule))
 			}
 		}
 	}
@@ -232,7 +232,7 @@ func PolymerClassDefinition_isFunctionField(field Node) bool {
 	return ((value != 0) && value.isFunction())
 }
 
-func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor Node, enclosingModule Node, methods *TList[*PolymerPass_MemberDefinition]) {
+func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor Node, enclosingModule Node, methods *[]*PolymerPass_MemberDefinition) {
 	var body Node = NodeUtil_getFunctionBody(constructor.getFirstChild())
 	{
 		var stmt Node = body.getFirstChild()
@@ -244,21 +244,21 @@ func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor No
 			var propName Node = assignment.getFirstChild()
 			var propValue Node = assignment.getLastChild()
 			if (propName.isGetProp() && propName.getFirstChild().isThis()) && propValue.isFunction() {
-				methods.add(new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(propName), propName, propValue, enclosingModule))
+				*methods = append(*methods, new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(propName), propName, propValue, enclosingModule))
 			}
 		}
 	}
 }
 
-func PolymerClassDefinition_overwriteMembersIfPresent(list *TList[*PolymerPass_MemberDefinition], newMembers []*PolymerPass_MemberDefinition) {
+func PolymerClassDefinition_overwriteMembersIfPresent(list *[]*PolymerPass_MemberDefinition, newMembers []*PolymerPass_MemberDefinition) {
 	for _, newMember := range newMembers {
-		for member := range list.All() {
+		for member := range sliceAll_(list) {
 			if member.name_.getString() == newMember.name_.getString() {
-				list.asList().remove_Object(obj_(member))
+				sliceRemoveObject_(tc_p_PolymerPass_MemberDefinition, list, obj_(member))
 				break
 			}
 		}
-		list.add(newMember)
+		*list = append(*list, newMember)
 	}
 }
 
@@ -277,12 +277,12 @@ func PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps *TMap[*Po
 	}
 }
 
-func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], polymerElementProps *TList[*PolymerPass_MemberDefinition]) {
+func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], polymerElementProps *[]*PolymerPass_MemberDefinition) {
 	if behaviorProps == nil {
 		return
 	}
 	var elementPropNames map[string]struct{} = map[string]struct{}{}
-	for x := range polymerElementProps.All() {
+	for x := range sliceAll_(polymerElementProps) {
 		elementPropNames[x.name_.getString()] = struct{}{}
 	}
 	var behaviorsItr IteratorOf[Map_EntryOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]] = behaviorProps.asMap().entrySet().iterator()

@@ -59,21 +59,21 @@ func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(t
 	if !Collection_contains_s(this.polyfills.suffixes, lastComponent) {
 		return nil
 	}
-	var components ArrayDequeOf[string] = new_ArrayDeque()
-	SequencedCollection_addFirst(components, strobj_(lastComponent))
+	var components *TList[string] = newTList_(tc_string)
+	components.push_(lastComponent)
 	var ownerNode Node
 	{
 		ownerNode = getPropNode.getFirstChild()
 		for ; ownerNode.isGetProp() || ownerNode.isOptChainGetProp(); ownerNode = ownerNode.getFirstChild() {
-			SequencedCollection_addFirst(components, strobj_(ownerNode.getString()))
+			components.push_(ownerNode.getString())
 		}
 	}
 	if !ownerNode.isName() {
 		return nil
 	}
 	var rootName string = ownerNode.getString()
-	SequencedCollection_addFirst(components, strobj_(rootName))
-	var fullName string = String_join_s(".", components)
+	components.push_(rootName)
+	var fullName string = String_join_s(".", tdequeView_(components, true))
 	var globalPrefix OptionalOf[string] = PolyfillUsageFinder_findGlobalPrefix(fullName)
 	if globalPrefix.isPresent() {
 		var polyfill *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](Map_get_s(this.polyfills.statics, String_substring_int(fullName, String_length(globalPrefix.get()))))
@@ -154,11 +154,11 @@ func (this *PolyfillUsageFinder) isDisjointFromIterator(receiver *Color) bool {
 }
 
 func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *Color) (ret_1 bool) {
-	if !this.hasInSupertypesListSeenSet.add(subCtor) {
+	if !this.hasInSupertypesListSeenSet.Add(subCtor) {
 		return false
 	}
 	defer func() {
-		this.hasInSupertypesListSeenSet.remove(subCtor)
+		this.hasInSupertypesListSeenSet.Delete(subCtor)
 	}()
 	if subCtor.equals_Color(superCtor) {
 		return true

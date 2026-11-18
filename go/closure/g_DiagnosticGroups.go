@@ -24,19 +24,19 @@ func DiagnosticGroups_registerUnsuppressibleGroup(types []*DiagnosticType) *Diag
 }
 
 func DiagnosticGroups_registerGroupDiagnosticGroup(name string, group *DiagnosticGroup) *DiagnosticGroup {
-	DiagnosticGroups_groupsByName.put(name, group)
+	DiagnosticGroups_groupsByName.Put(name, group)
 	return group
 }
 
 func DiagnosticGroups_registerGroup(name string, types []*DiagnosticType) *DiagnosticGroup {
 	var group *DiagnosticGroup = new_DiagnosticGroup_Optional_DiagnosticTypeArr(Optional_of[string](name), types)
-	DiagnosticGroups_groupsByName.put(name, group)
+	DiagnosticGroups_groupsByName.Put(name, group)
 	return group
 }
 
 func DiagnosticGroups_registerGroupDiagnosticGroupVarargs(name string, groups []*DiagnosticGroup) *DiagnosticGroup {
 	var group *DiagnosticGroup = DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(Optional_of[string](name), groups)
-	DiagnosticGroups_groupsByName.put(name, group)
+	DiagnosticGroups_groupsByName.Put(name, group)
 	return group
 }
 
@@ -45,7 +45,7 @@ func DiagnosticGroups_getRegisteredGroups() ImmutableMapOf[string, *DiagnosticGr
 }
 
 func DiagnosticGroups_forName(name string) *DiagnosticGroup {
-	return DiagnosticGroups_groupsByName.get(name)
+	return DiagnosticGroups_groupsByName.Get(name)
 }
 
 func (this *DiagnosticGroups) setWarningLevel(options *CompilerOptions, name string, level CheckLevel) {

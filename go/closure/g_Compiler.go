@@ -224,7 +224,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 			this.setErrorManager(new_LoggerErrorManager_MessageFormatter_Logger(this.createMessageFormatter(), Compiler_logger))
 		} else {
 			var builder ImmutableSet_BuilderOf[SortingErrorManager_ErrorReportGenerator] = ImmutableSet_builder()
-			builder.add(obj_(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel()))).addAll(Iterable(options.getExtraReportGenerators().asList()))
+			builder.add(obj_(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel()))).addAll(Iterable(sliceViewP_(tc_SortingErrorManager_ErrorReportGenerator, options.getExtraReportGenerators())))
 			this.setErrorManager(new_SortingErrorManager(tsetFrom_(tc_SortingErrorManager_ErrorReportGenerator, builder.build(), true)))
 		}
 	}
@@ -329,7 +329,7 @@ func (this *Compiler) logToFile(logFileName string, logStringSupplier func() any
 func (this *Compiler) initWarningsGuard(warningsGuard *WarningsGuard) {
 	var guards ImmutableList_BuilderOf[*WarningsGuard] = ImmutableList_builder()
 	guards.add(obj_(new_J2clSuppressWarningsGuard())).add(obj_(new_ClosureUnawareCodeWarningsGuard())).add(obj_(new_SuppressDocWarningsGuard(this.up_AbstractCompiler(), tmapFrom_(tc_string, tc_p_DiagnosticGroup, DiagnosticGroups_getRegisteredGroups(), true)))).add(warningsGuard.self())
-	this.warningsGuard = new_ComposeWarningsGuard(tlistImm_(tc_p_WarningsGuard, guards.build())).up_WarningsGuard()
+	this.warningsGuard = new_ComposeWarningsGuard(slicePtrImm_(tc_p_WarningsGuard, guards.build())).up_WarningsGuard()
 }
 
 func (this *Compiler) reconcileOptionsWithGuards() {
@@ -433,10 +433,10 @@ func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional
 	var astData *TypedAstDeserializer_DeserializedAst = TypedAstDeserializer_deserializeRuntimeLibraries(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, colorPoolBuilder, typedAsts.get(), this.getOptions().getResolveSourceMapAnnotations(), this.getOptions().getParseInlineSourceMaps())
 	var runtimeLibraryTypedAsts *TMap[string, SupplierOf[Node]] = newTMap_(tc_string, tc_SupplierOf_Node_)
 	for library := range elemsBy_(astData.getFilesystem().entrySet(), icast_Map_Entry) {
-		runtimeLibraryTypedAsts.computeIfAbsent_f(library.getKey().(*SourceFile_jscomp).getName(), func(f_ any) any {
-			var f string = str_(f_)
+		runtimeLibraryTypedAsts.ComputeIfAbsent(library.getKey().(*SourceFile_jscomp).getName(), func(f_ string) SupplierOf[Node] {
+			var f string = f_
 			_ = f
-			return library.getValue()
+			return icast_Supplier(library.getValue())
 		})
 	}
 	this.runtimeLibraryTypedAsts = ImmutableMap_copyOf(runtimeLibraryTypedAsts.asMap())
@@ -1069,7 +1069,7 @@ func (this *Compiler) getCurrentJsSource() string {
 	var chunkNameRegexList []string = this.options_.getChunksToPrintAfterEachPassRegexList()
 	var qnameSet *TSet[string] = tsetFrom_(tc_string, Collection(sliceView_(tc_string, this.options_.getQnameUsesToPrintAfterEachPassList())), false)
 	var builder strBuilder_
-	if (len(fileNameRegexList) == 0 && len(chunkNameRegexList) == 0) && qnameSet.isEmpty() {
+	if (len(fileNameRegexList) == 0 && len(chunkNameRegexList) == 0) && qnameSet.IsEmpty() {
 		return this.toSource()
 	}
 	if len(fileNameRegexList) != 0 {
@@ -1125,9 +1125,9 @@ func (this *Compiler) getCurrentJsSource() string {
 			}
 		}
 	}
-	if !qnameSet.isEmpty() {
+	if !qnameSet.IsEmpty() {
 		var originalToNewQNameMap *SimpleSetMultimap[any, string] = SimpleSetMultimap_createInsertionOrdered[any, string]()
-		var statements *TList[Node] = this.getTopLevelStatements(this.jsRoot)
+		var statements *[]Node = this.getTopLevelStatements(this.jsRoot)
 		builder.append("//\n")
 		builder.append("// closure-compiler: Printing all of the top-level statements\n")
 		builder.append("// that contain references to these qualified names.\n")
@@ -1139,7 +1139,7 @@ func (this *Compiler) getCurrentJsSource() string {
 			}
 		}
 		builder.append("//\n")
-		for statement := range statements.All() {
+		for statement := range sliceAll_(statements) {
 			if !NodeUtil_has(statement, func(n_ any) bool {
 				var n Node = Node_of_(n_)
 				_ = n
@@ -1150,11 +1150,11 @@ func (this *Compiler) getCurrentJsSource() string {
 					return false
 				}
 				var qname string = n.getQualifiedName()
-				if qnameSet.contains(qname) {
+				if qnameSet.Has(qname) {
 					return true
 				}
 				var originalQname string = n.getOriginalQualifiedName()
-				if originalQname != "" && qnameSet.contains(originalQname) {
+				if originalQname != "" && qnameSet.Has(originalQname) {
 					originalToNewQNameMap.put_s(originalQname, qname)
 					return true
 				} else {
@@ -1176,8 +1176,8 @@ var lambda_Compiler_getCurrentJsSource_1_ = &Predicate_base_fn{func(node_ any) b
 	return true
 }}
 
-func (this *Compiler) getTopLevelStatements(root Node) *TList[Node] {
-	var result *TList[Node] = newTList_(tc_Node)
+func (this *Compiler) getTopLevelStatements(root Node) *[]Node {
+	var result *[]Node = &[]Node{}
 	NodeTraversal_traverse(this.up_AbstractCompiler(), root, new_Compiler_2(this, result))
 	return result
 }
@@ -1529,8 +1529,8 @@ func (this *Compiler) parseInputs() (ret_1 Node) {
 		for input := range elemsAs_[*CompilerInput](this.chunkGraph.getAllInputs()) {
 			for _, el := range immElems_(input.getKnownRequiredSymbols()) {
 				require := str_(el)
-				if has_(inputModuleIdentifiers, require) && !inputsToRewrite.containsKey(require) {
-					inputsToRewrite.put(require, inputModuleIdentifiers[require])
+				if has_(inputModuleIdentifiers, require) && !inputsToRewrite.Has(require) {
+					inputsToRewrite.Put(require, inputModuleIdentifiers[require])
 				}
 			}
 		}
@@ -2928,7 +2928,7 @@ func Compiler_fromProto(stage LifeCycleStageProto) AbstractCompiler_LifeCycleSta
 func Compiler_fromVariableMapEntries(entries ListOf[*VariableMapEntryProto]) *VariableMap {
 	var map_ *TMap[string, string] = newTMap_(tc_string, tc_string)
 	for entry := range elemsAs_[*VariableMapEntryProto](entries) {
-		map_.put(entry.getOriginalName(), entry.getNewName())
+		map_.Put(entry.getOriginalName(), entry.getNewName())
 	}
 	return new_VariableMap(map_)
 }
@@ -3013,7 +3013,7 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 	this.getOptions().setMergedPrecompiledLibraries(compilerState.getMergedPrecompiledLibraries())
 	this.uniqueNameId = compilerState.getUniqueNameId()
 	this.uniqueIdSupplier = UniqueIdSupplier_fromProto(compilerState.getUniqueIdSupplierList())
-	this.exportedNames.clear()
+	this.exportedNames.Clear()
 	this.exportedNames.asSet().addAll(Collection(compilerState.getExportedNamesList()))
 	if compilerState.getHasCssNames() {
 		this.cssNames = tsetFrom_(tc_string, Collection(compilerState.getCssNamesList()), false)
@@ -3450,16 +3450,16 @@ func (this *Compiler_SeenSetLicenseTracker) trackLicensesForNode(node Node) {
 	if license.isEmpty() {
 		return
 	}
-	if this.globallyUniqueLicenses.contains(license.get()) {
+	if this.globallyUniqueLicenses.Has(license.get()) {
 		return
 	}
-	this.currentlySeenLicenses.add(license.get())
+	this.currentlySeenLicenses.Add(license.get())
 }
 
 func (this *Compiler_SeenSetLicenseTracker) emitLicenses() ImmutableSetOf[string] {
 	var rv ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(this.currentlySeenLicenses.asSet()))
-	this.globallyUniqueLicenses.addAllT(this.currentlySeenLicenses)
-	this.currentlySeenLicenses.clear()
+	this.globallyUniqueLicenses.AddAll(this.currentlySeenLicenses)
+	this.currentlySeenLicenses.Clear()
 	return rv
 }
 
@@ -3531,12 +3531,12 @@ func (this *Compiler_SingleBinaryLicenseTracker) shouldUseLicenseInfo_impl(node 
 
 type Compiler_ChunkGraphAwareLicenseTracker struct {
 	compiler_                           *AbstractCompiler
-	licensesFromChunks                  map[*JSChunk]SetOf[string]
+	licensesFromChunks                  map[*JSChunk]*TSet[string]
 	haveInitializedCurrentChunkLicenses bool
 	currentChunkLicencesInTDeps         map[string]struct{}
 	lastSeenFile                        string
 	licensesNewInCurrentFile            *TSet[string]
-	licensesNewInCurrentChunk           SetOf[string]
+	licensesNewInCurrentChunk           *TSet[string]
 	log_                                *LogFile
 	currentChunk                        *JSChunk
 }
@@ -3546,12 +3546,12 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) zero_Compiler_ChunkGraphAwar
 }
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) finit_Compiler_ChunkGraphAwareLicenseTracker() {
-	this.licensesFromChunks = map[*JSChunk]SetOf[string]{}
+	this.licensesFromChunks = map[*JSChunk]*TSet[string]{}
 	this.haveInitializedCurrentChunkLicenses = false
 	this.currentChunkLicencesInTDeps = map[string]struct{}{}
 	this.lastSeenFile = ""
 	this.licensesNewInCurrentFile = newTSet_(tc_string)
-	this.licensesNewInCurrentChunk = new_LinkedHashSet()
+	this.licensesNewInCurrentChunk = newTSet_(tc_string)
 	this.log_ = LogFile_createNoOp()
 }
 
@@ -3575,12 +3575,12 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) setCurrentChunkContext(chunk
 	this.log_.log_2("Initializing licenses from deps for chunk %s", []any{obj_(chunk)})
 	this.currentChunk = chunk
 	clear(this.currentChunkLicencesInTDeps)
-	this.licensesNewInCurrentFile.clear()
+	this.licensesNewInCurrentFile.Clear()
 	this.haveInitializedCurrentChunkLicenses = false
 	if has_(this.licensesFromChunks, chunk) {
 		panic(new_IllegalStateException_String("Visiting a chunk more than once is not allowed."))
 	}
-	this.licensesNewInCurrentChunk = new_LinkedHashSet()
+	this.licensesNewInCurrentChunk = newTSet_(tc_string)
 	this.licensesFromChunks[chunk] = this.licensesNewInCurrentChunk
 }
 
@@ -3603,7 +3603,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 			if !has_(this.licensesFromChunks, depChunk) {
 				panic(new_IllegalStateException_String("Chunk aware license analysis error - analysis out of order."))
 			}
-			setAddAllFrom_(tc_string, this.currentChunkLicencesInTDeps, Collection(this.licensesFromChunks[depChunk]))
+			setAddAllFrom_(tc_string, this.currentChunkLicencesInTDeps, Collection(this.licensesFromChunks[depChunk].asSet()))
 		}
 		this.haveInitializedCurrentChunkLicenses = true
 	}
@@ -3617,10 +3617,10 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 	if has_(this.currentChunkLicencesInTDeps, license.get()) {
 		return
 	}
-	if Collection_contains_s(this.licensesNewInCurrentChunk, license.get()) {
+	if this.licensesNewInCurrentChunk.Has(license.get()) {
 		return
 	}
-	var newlyAddedLicense bool = this.licensesNewInCurrentFile.add(license.get())
+	var newlyAddedLicense bool = this.licensesNewInCurrentFile.Add(license.get())
 	if !newlyAddedLicense {
 		this.log_.log_2("Chunk %s already depends on license\n==================\n%s\n==================\n\n", []any{obj_(this.currentChunk), strobj_(license.get())})
 	} else {
@@ -3630,8 +3630,8 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) emitLicenses() ImmutableSetOf[string] {
 	var licensesNewInFile ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(this.licensesNewInCurrentFile.asSet()))
-	this.licensesNewInCurrentChunk.addAll(icast_Collection(obj_(licensesNewInFile)))
-	this.licensesNewInCurrentFile.clear()
+	this.licensesNewInCurrentChunk.asSet().addAll(icast_Collection(obj_(licensesNewInFile)))
+	this.licensesNewInCurrentFile.Clear()
 	return licensesNewInFile
 }
 
@@ -3747,7 +3747,7 @@ func (this *Compiler_1) size() int32 {
 type Compiler_2 struct {
 	NodeTraversal_AbstractPreOrderCallback
 	outer_     *Compiler
-	cap_result *TList[Node]
+	cap_result *[]Node
 }
 
 func (this *Compiler_2) up_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {
@@ -3761,7 +3761,7 @@ func (this *Compiler_2) init_Compiler_2() {
 	this.NodeTraversal_AbstractPreOrderCallback.init_NodeTraversal_AbstractPreOrderCallback()
 }
 
-func new_Compiler_2(outer_ *Compiler, cap_result *TList[Node]) *Compiler_2 {
+func new_Compiler_2(outer_ *Compiler, cap_result *[]Node) *Compiler_2 {
 	this := &Compiler_2{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -3772,7 +3772,7 @@ func new_Compiler_2(outer_ *Compiler, cap_result *TList[Node]) *Compiler_2 {
 
 func (this *Compiler_2) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	if NodeUtil_isStatement(n) {
-		this.cap_result.add(n)
+		*this.cap_result = append(*this.cap_result, n)
 		return false
 	} else {
 		return true

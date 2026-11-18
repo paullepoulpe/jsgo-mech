@@ -116,7 +116,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 				t.report(n, FindExportableNodes_EXPORT_ANNOTATION_NOT_ALLOWED, []string{})
 				return
 			}
-			this.es6ClassExports.put(n, (sstr_(methodOwnerName.get()) + sstr_(func() string {
+			this.es6ClassExports.Put(n, (sstr_(methodOwnerName.get()) + sstr_(func() string {
 				if n.isStaticMember() {
 					return ""
 				}
@@ -137,7 +137,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			if context == 0 {
 				panic(new_NullPointerException_0())
 			}
-			this.exports.put(export.get(), context)
+			this.exports.Put(export.get(), context)
 		} else {
 			if context != 0 {
 				panic(new_IllegalStateException_0())
@@ -148,7 +148,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			if export.get() == "" {
 				panic(new_IllegalStateException_0())
 			}
-			this.localExports.add(export.get())
+			this.localExports.Add(export.get())
 		}
 	} else if !(n.isGetProp() && parent.isExprResult()) {
 		if !n.isFunction() || !NodeUtil_mayBeObjectLitKey(parent) {

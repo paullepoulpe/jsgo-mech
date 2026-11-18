@@ -274,9 +274,9 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 	var tempVarName string = this.getTempVariableName()
 	var tempVarType AstFactory_Type = AstFactory_type_Node(objectPattern)
 	var restTempVarName OptionalOf[string] = Optional_empty[string]()
-	var propsToDeleteForRest *TList[Node] = nil
+	var propsToDeleteForRest *[]Node = nil
 	if objectPattern.hasChildren() && objectPattern.getLastChild().isRest() {
-		propsToDeleteForRest = newTList_(tc_Node)
+		propsToDeleteForRest = &[]Node{}
 		restTempVarName = Optional_of[string](this.getTempVariableName())
 	} else if this.rewriteMode == Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST {
 		if !slicePeekTop_(tc_p_Es6RewriteDestructuring_PatternNestingLevel, this.patternNestingStack).hasNestedObjectRest {
@@ -320,7 +320,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 					newRHS = this.defaultValueHook(this.createTempVarNameNode(intermediateTempVarName, AstFactory_type_Node(getprop)), defaultValue)
 				}
 				if propsToDeleteForRest != nil {
-					propsToDeleteForRest.add(child)
+					*propsToDeleteForRest = append(*propsToDeleteForRest, child)
 				}
 			} else if child.isComputedProp() {
 				var hasDefault bool = child.getLastChild().isDefaultValue()
@@ -341,7 +341,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 					exprEvalDecl.srcrefTreeIfMissing(child)
 					exprEvalDecl.insertBefore(nodeToDetach)
 					propExpr = exprEvalTempVarModel.cloneNode()
-					propsToDeleteForRest.add(exprEvalTempVarModel.cloneNode())
+					*propsToDeleteForRest = append(*propsToDeleteForRest, exprEvalTempVarModel.cloneNode())
 				}
 				if hasDefault {
 					var getelem Node = this.astFactory_.createGetElem(this.createTempVarNameNode(tempVarName, tempVarType), propExpr)
@@ -399,17 +399,17 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 	t.reportCodeChange()
 }
 
-func (this *Es6RewriteDestructuring) objectPatternRestRHS(objectPattern Node, rest Node, restTempVarName string, statedProperties *TList[Node]) Node {
+func (this *Es6RewriteDestructuring) objectPatternRestRHS(objectPattern Node, rest Node, restTempVarName string, statedProperties *[]Node) Node {
 	if objectPattern.getLastChild() != rest {
 		panic(new_IllegalArgumentException_0())
 	}
 	var restTempVarModel Node = this.createTempVarNameNode(restTempVarName, AstFactory_type_Node(objectPattern))
 	var result Node = restTempVarModel.cloneNode()
-	if !statedProperties.isEmpty() {
-		var propItr *tlistIter_[Node] = statedProperties.cursor()
-		var comma Node = this.deletionNodeForRestProperty(restTempVarModel.cloneNode(), propItr.nextT())
-		for propItr.hasNext() {
-			comma = this.astFactory_.createComma(comma, this.deletionNodeForRestProperty(restTempVarModel.cloneNode(), propItr.nextT()))
+	if len(*statedProperties) != 0 {
+		var propItr int = sliceCursor_(statedProperties)
+		var comma Node = this.deletionNodeForRestProperty(restTempVarModel.cloneNode(), sliceNext_(*statedProperties, &propItr))
+		for propItr < len(*statedProperties) {
+			comma = this.astFactory_.createComma(comma, this.deletionNodeForRestProperty(restTempVarModel.cloneNode(), sliceNext_(*statedProperties, &propItr)))
 		}
 		result = this.astFactory_.createComma(comma, result)
 	}

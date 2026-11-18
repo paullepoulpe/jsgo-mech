@@ -124,7 +124,7 @@ func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, 
 		return Outcome_base_err[Node](hookExpressionOutcome.error())
 	}
 	var hookExpression Node = hookExpressionOutcome.get()
-	if placeholderMap.isEmpty() {
+	if placeholderMap.IsEmpty() {
 		return Outcome_base_ok_Object[Node](hookExpression)
 	}
 	var function Node = this.astFactory_.createFunction("", paramList, IR_block_Node(IR_returnNode_Node(hookExpression)), type_)
@@ -203,13 +203,13 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 }
 
 func (this *ReplaceMessages) buildMessageNode(msgParts []JsMessage_Part, options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderNodeProvider func(string) Node, isGenderedMsg bool) *Outcome_base[Node] {
-	var parts *TList[JsMessage_Part] = ReplaceMessages_mergeStringParts(msgParts)
-	if parts.isEmpty() {
+	var parts *[]JsMessage_Part = ReplaceMessages_mergeStringParts(msgParts)
+	if len(*parts) == 0 {
 		return Outcome_base_ok_Object[Node](this.astFactory_.createString(""))
 	}
 	var message Node = 0
-	for i_1 := 0; i_1 < len(parts.items); i_1++ {
-		var msgPart JsMessage_Part = parts.items[i_1]
+	for i_1 := 0; i_1 < len(*parts); i_1++ {
+		var msgPart JsMessage_Part = (*parts)[i_1]
 		var partNode Node
 		if msgPart.isPlaceholder() {
 			var jsPlaceholderName string = msgPart.getJsPlaceholderName()
@@ -246,7 +246,7 @@ func (this *ReplaceMessages) constructStringExprNode(message *JsMessage, placeho
 }
 
 func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, placeholderMap *TMap[string, Node], options *ReplaceMessages_MsgOptions, nodeToReplace Node) *Outcome_base[Node] {
-	if placeholderMap.isEmpty() {
+	if placeholderMap.IsEmpty() {
 		if options.isIcuTemplate() {
 			return Outcome_base_ok_Object[Node](this.createNodeForMsgString(options, message.asIcuMessageString()))
 		} else if message.jsPlaceholderNames().isEmpty() {
@@ -260,7 +260,7 @@ func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, pla
 			}
 		}
 	}
-	return this.buildMessageNode(sliceImm_(tc_JsMessage_Part, message.getParts()), options, nodeToReplace, func(p0 string) Node { return placeholderMap.get(p0) }, false)
+	return this.buildMessageNode(sliceImm_(tc_JsMessage_Part, message.getParts()), options, nodeToReplace, func(p0 string) Node { return placeholderMap.Get(p0) }, false)
 }
 
 func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_MsgOptions, s string) Node {
@@ -273,22 +273,22 @@ func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_Msg
 	return this.astFactory_.createString(s)
 }
 
-func ReplaceMessages_mergeStringParts(parts []JsMessage_Part) *TList[JsMessage_Part] {
-	var result *TList[JsMessage_Part] = newTList_(tc_JsMessage_Part)
+func ReplaceMessages_mergeStringParts(parts []JsMessage_Part) *[]JsMessage_Part {
+	var result *[]JsMessage_Part = &[]JsMessage_Part{}
 	for _, part := range parts {
 		if part.isPlaceholder() {
-			result.add(part)
+			*result = append(*result, part)
 		} else {
 			var lastPart JsMessage_Part = func() JsMessage_Part {
-				if result.isEmpty() {
+				if len(*result) == 0 {
 					return nil
 				}
-				return icast_JsMessage_Part(Iterables_getLast(Iterable(result.asList())))
+				return icast_JsMessage_Part(Iterables_getLast(Iterable(sliceViewP_(tc_JsMessage_Part, result))))
 			}()
 			if (lastPart == nil) || lastPart.isPlaceholder() {
-				result.add(part)
+				*result = append(*result, part)
 			} else {
-				result.set((result.size() - 1), JsMessage_StringPart_create((sstr_(lastPart.getString()) + sstr_(part.getString()))))
+				(*result)[(int32(len(*result)) - 1)] = JsMessage_StringPart_create((sstr_(lastPart.getString()) + sstr_(part.getString())))
 			}
 		}
 	}
@@ -520,10 +520,10 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addString(key string, val
 }
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node Node) *ReplaceMessages_QuotedKeyObjectLitBuilder {
-	if this.keyToValueNodeMap.containsKey(key) {
+	if this.keyToValueNodeMap.Has(key) {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("repeated key: %s", []any{strobj_(key)})))
 	}
-	this.keyToValueNodeMap.put(key, node)
+	this.keyToValueNodeMap.Put(key, node)
 	return this
 }
 
@@ -892,7 +892,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 	}
 	var msgKey OptionalOf[string] = Optional_empty[string]()
 	var meaning OptionalOf[string] = Optional_empty[string]()
-	var icuPlaceholderNames *TSet[string] = newTSet_(tc_string)
+	var icuPlaceholderNames map[string]struct{} = map[string]struct{}{}
 	var messageText OptionalOf[string] = Optional_empty[string]()
 	var messageTextNode Node = 0
 	{
@@ -908,7 +908,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 					panic(new_IllegalStateException_String("icu_placeholder_names must be an array"))
 				}
 				for valueNodeChild := range elemsBy_(valueNode.children(), Node_of_) {
-					icuPlaceholderNames.add(valueNodeChild.getString())
+					icuPlaceholderNames[valueNodeChild.getString()] = struct{}{}
 				}
 				continue
 			}
@@ -939,15 +939,15 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 			}
 		}
 	}
-	if !icuPlaceholderNames.isEmpty() {
+	if len(icuPlaceholderNames) != 0 {
 		if !isIcuTemplate {
 			panic(new_IllegalStateException_String("Found icu_placeholder_names for a message that is not an ICU template."))
 		}
 		var icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString = new_JsMessageVisitor_IcuMessageTemplateString(messageText.orElse(nullstr_))
 		var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(icuPlaceholderNames)
-		jsMessageBuilder.appendParts(icast_List(obj_(extractedIcuTemplateParts.extractedParts)))
+		jsMessageBuilder.appendParts(tlistImm_(tc_JsMessage_Part, extractedIcuTemplateParts.extractedParts))
 	} else {
-		var partsRes *Outcome_base[List] = JsMessageVisitor_parseJsMessageTextIntoParts(messageText.orElse(nullstr_))
+		var partsRes *Outcome_base[*TList[JsMessage_Part]] = JsMessageVisitor_parseJsMessageTextIntoParts(messageText.orElse(nullstr_))
 		if partsRes.isErr() {
 			panic(new_IllegalStateException_String((sstr_(messageTextNode.getLocation()) + ": Placeholder incorrectly formatted: >" + sstr_(messageText.orElse("null")) + "<")))
 		}

@@ -57,7 +57,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 	}
 	builder.setSourceRoot(Optional_ofNullable[string](sourceRoot.get()))
 	if sourceMapRoot.get("sections") != nil {
-		var sections *Outcome_base[List] = SourceMapObjectParser_buildSections(sourceMapRoot.get("sections"))
+		var sections *Outcome_base[*TList[*SourceMapSection]] = SourceMapObjectParser_buildSections(sourceMapRoot.get("sections"))
 		if sections.isErr() {
 			return Outcome_base_err[*SourceMapObject](sections.error())
 		}
@@ -81,7 +81,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 	var extensions *TMap[string, any] = newTMap_(tc_string, tc_any)
 	for entry := range elemsBy_(sourceMapRoot.members().entrySet(), icast_Map_Entry) {
 		if strings.HasPrefix(str_(entry.getKey()), "x_") {
-			extensions.put(str_(entry.getKey()), entry.getValue())
+			extensions.Put(str_(entry.getKey()), entry.getValue())
 		}
 	}
 	builder.setExtensions(extensions)
@@ -151,7 +151,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 			if sectionsArray.isErr() {
 				return Outcome_base_err[any](new_SourceMapParseException(sectionsArray.errorMessage().orElse(nullstr_)).up_Throwable())
 			}
-			var sections *Outcome_base[List] = SourceMapObjectParser_buildSections(cast_[*SimpleJsonValue](sectionsArray.get()))
+			var sections *Outcome_base[*TList[*SourceMapSection]] = SourceMapObjectParser_buildSections(cast_[*SimpleJsonValue](sectionsArray.get()))
 			if sections.isErr() {
 				return Outcome_base_err[any](sections.error())
 			}
@@ -184,7 +184,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 				if value.isErr() {
 					return Outcome_base_err[any](new_SourceMapParseException(value.errorMessage().orElse(nullstr_)).up_Throwable())
 				}
-				extensions.put(name, value.get())
+				extensions.Put(name, value.get())
 			} else {
 				var skipped *Outcome_base[any] = lexer.skipValue()
 				if skipped.isErr() {
@@ -209,9 +209,9 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 	return Outcome_base_ok_0()
 }
 
-func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_base[List] {
+func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_base[*TList[*SourceMapSection]] {
 	if sections.kind() != SimpleJsonValue_Kind_ARRAY {
-		return Outcome_base_err[List](SourceMapObjectParser_invalidMember("sections").up_Throwable())
+		return Outcome_base_err[*TList[*SourceMapSection]](SourceMapObjectParser_invalidMember("sections").up_Throwable())
 	}
 	var listBuilder ImmutableList_BuilderOf[*SourceMapSection] = ImmutableList_builder()
 	it_1 := foreach_(sections.elements())
@@ -219,11 +219,11 @@ func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_bas
 		var each *SimpleJsonValue = cast_[*SimpleJsonValue](it_1.v)
 		var section *Outcome_base[*SourceMapSection] = SourceMapObjectParser_buildSection(each)
 		if section.isErr() {
-			return Outcome_base_err[List](section.error())
+			return Outcome_base_err[*TList[*SourceMapSection]](section.error())
 		}
 		listBuilder.add(obj_(section.get()))
 	}
-	return Outcome_base_ok_Object[List](icast_List(obj_(listBuilder.build())))
+	return Outcome_base_ok_Object[*TList[*SourceMapSection]](tlistImm_(tc_p_SourceMapSection, listBuilder.build()))
 }
 
 func SourceMapObjectParser_buildSection(section *SimpleJsonValue) *Outcome_base[*SourceMapSection] {

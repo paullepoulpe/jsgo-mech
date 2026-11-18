@@ -12,7 +12,7 @@ type TypedAstDeserializer struct {
 	typedAstFilesystem            ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]]
 	externProperties              ImmutableSet_BuilderOf[string]
 	runtimeLibraries_             ImmutableSet_BuilderOf[string]
-	syntheticExternsDeserializers *TList[*ScriptNodeDeserializer]
+	syntheticExternsDeserializers *[]*ScriptNodeDeserializer
 }
 
 func (this *TypedAstDeserializer) finit_TypedAstDeserializer() {
@@ -21,7 +21,7 @@ func (this *TypedAstDeserializer) finit_TypedAstDeserializer() {
 	this.typedAstFilesystem = new_ConcurrentHashMap()
 	this.externProperties = ImmutableSet_builder()
 	this.runtimeLibraries_ = ImmutableSet_builder()
-	this.syntheticExternsDeserializers = newTList_(tc_p_ScriptNodeDeserializer)
+	this.syntheticExternsDeserializers = &[]*ScriptNodeDeserializer{}
 }
 
 func (this *TypedAstDeserializer) init_TypedAstDeserializer(syntheticExterns *SourceFile_jscomp, existingColorPool Optional_baseOf[*ColorPool_Builder], requiredInputFiles Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]], mode TypedAstDeserializer_Mode, includeTypeInformation bool) {
@@ -168,7 +168,7 @@ func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, file
 	}
 	var deserializer *ScriptNodeDeserializer = new_ScriptNodeDeserializer(lazyAst, stringShard, colorShard, fileShard)
 	if JSCompObjects_identical(obj_(this.syntheticExterns), obj_(file)) {
-		this.syntheticExternsDeserializers.add(deserializer)
+		*this.syntheticExternsDeserializers = append(*this.syntheticExternsDeserializers, deserializer)
 	} else {
 		Map_computeIfAbsent_f(Map(this.typedAstFilesystem), obj_(file), func(f_ any) any {
 			var f *SourceFile_jscomp = cast_[*SourceFile_jscomp](f_)
@@ -303,15 +303,15 @@ func TypedAstDeserializer_Mode_clinit() {
 
 type TypedAstDeserializer_SyntheticExternsDeserializer struct {
 	syntheticExterns              *SourceFile_jscomp
-	syntheticExternsDeserializers *TList[*ScriptNodeDeserializer]
+	syntheticExternsDeserializers *[]*ScriptNodeDeserializer
 }
 
-func (this *TypedAstDeserializer_SyntheticExternsDeserializer) init_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *SourceFile_jscomp, syntheticExternsDeserializers *TList[*ScriptNodeDeserializer]) {
+func (this *TypedAstDeserializer_SyntheticExternsDeserializer) init_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *SourceFile_jscomp, syntheticExternsDeserializers *[]*ScriptNodeDeserializer) {
 	this.syntheticExterns = syntheticExterns
 	this.syntheticExternsDeserializers = syntheticExternsDeserializers
 }
 
-func new_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *SourceFile_jscomp, syntheticExternsDeserializers *TList[*ScriptNodeDeserializer]) *TypedAstDeserializer_SyntheticExternsDeserializer {
+func new_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *SourceFile_jscomp, syntheticExternsDeserializers *[]*ScriptNodeDeserializer) *TypedAstDeserializer_SyntheticExternsDeserializer {
 	this := &TypedAstDeserializer_SyntheticExternsDeserializer{}
 	this.init_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns, syntheticExternsDeserializers)
 	return this
@@ -320,7 +320,7 @@ func new_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *Sou
 func (this *TypedAstDeserializer_SyntheticExternsDeserializer) deserialize() Node {
 	var script Node = IR_script_0()
 	script.setStaticSourceFile(icast_StaticSourceFile(obj_(this.syntheticExterns)))
-	for d := range this.syntheticExternsDeserializers.All() {
+	for d := range sliceAll_(this.syntheticExternsDeserializers) {
 		script.addChildrenToBack(d.deserializeNew().removeChildren())
 	}
 	return script

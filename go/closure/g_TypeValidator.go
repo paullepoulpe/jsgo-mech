@@ -531,8 +531,8 @@ func (this *TypeValidator) expectAbstractMethodsImplemented(n Node, ctorType *Fu
 		for _, el := range immElems_(currSuperCtor.getPrototype().getOwnPropertyKeys()) {
 			prop := icast_Property_Key(el)
 			var maybeAbstractMethod *FunctionType = superType.findPropertyTypeKey(prop).toMaybeFunctionType()
-			if ((maybeAbstractMethod != nil) && maybeAbstractMethod.isAbstract()) && !abstractMethodSuperTypeMap.containsKey(prop) {
-				abstractMethodSuperTypeMap.put(prop, superType)
+			if ((maybeAbstractMethod != nil) && maybeAbstractMethod.isAbstract()) && !abstractMethodSuperTypeMap.Has(prop) {
+				abstractMethodSuperTypeMap.Put(prop, superType)
 			}
 		}
 		currSuperCtor = currSuperCtor.getSuperClassConstructor()

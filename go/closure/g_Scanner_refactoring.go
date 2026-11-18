@@ -9,7 +9,7 @@ type Scanner_refactoring struct {
 // Scanner_refactoring_I holds the methods the dispatchers of Scanner_refactoring's hierarchy call on the most derived
 // object (self_); every class of the hierarchy implements them (post-flip).
 type Scanner_refactoring_I interface {
-	processMatch_impl(*Match) *TList[*SuggestedFix]
+	processMatch_impl(*Match) *[]*SuggestedFix
 }
 
 func (this *Scanner_refactoring) as_Scanner_refactoring() *Scanner_refactoring { return this }
@@ -25,18 +25,18 @@ func (this *Scanner_refactoring) init_Scanner_refactoring() {
 
 }
 
-func (this *Scanner_refactoring) processMatch_impl(match *Match) *TList[*SuggestedFix] {
-	return tlistImm_(tc_p_SuggestedFix, ImmutableList_of())
+func (this *Scanner_refactoring) processMatch_impl(match *Match) *[]*SuggestedFix {
+	return slicePtrImm_(tc_p_SuggestedFix, ImmutableList_of())
 }
 
-func (this *Scanner_refactoring) processAllMatches(matches CollectionOf[*Match]) *TList[*SuggestedFix] {
-	return tlistImm_(tc_p_SuggestedFix, ImmutableList_of())
+func (this *Scanner_refactoring) processAllMatches(matches CollectionOf[*Match]) *[]*SuggestedFix {
+	return slicePtrImm_(tc_p_SuggestedFix, ImmutableList_of())
 }
 
 func (this *Scanner_refactoring) matches(p0 Node, p1 *NodeMetadata) bool {
 	return this.self_.(*GoogBindToArrow).matches_impl(p0, p1)
 }
 
-func (this *Scanner_refactoring) processMatch(p0 *Match) *TList[*SuggestedFix] {
+func (this *Scanner_refactoring) processMatch(p0 *Match) *[]*SuggestedFix {
 	return this.self_.processMatch_impl(p0)
 }

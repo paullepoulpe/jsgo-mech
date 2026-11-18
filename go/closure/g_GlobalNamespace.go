@@ -14,7 +14,7 @@ type GlobalNamespace struct {
 	sourceKind                    GlobalNamespace_SourceKind
 	generated                     bool
 	decisionsLog                  *LogFile
-	globalNames                   *TList[*GlobalNamespace_Name]
+	globalNames                   *[]*GlobalNamespace_Name
 	nameMap                       *TMap[string, *GlobalNamespace_Name]
 	nameMapByModule               *SimpleTable[*ModuleMetadataMap_ModuleMetadata, any, *GlobalNamespace_Name]
 	shouldTraverseScript          func(any) bool
@@ -24,7 +24,7 @@ func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalRoot = IR_root([]Node{})
 	this.spreadSiblingCache = map[Node]BoxedOf[bool]{}
 	this.generated = false
-	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
+	this.globalNames = &[]*GlobalNamespace_Name{}
 	this.nameMap = newTMap_(tc_string, tc_p_GlobalNamespace_Name)
 	this.nameMapByModule = SimpleTable_create[*ModuleMetadataMap_ModuleMetadata, any, *GlobalNamespace_Name]()
 	this.shouldTraverseScript = lambda_GlobalNamespace_finit_GlobalNamespace_1_
@@ -92,7 +92,7 @@ func (this *GlobalNamespace) getRootNode_2(name string, s *Scope) Node {
 	name = GlobalNamespace_getTopVarName(name)
 	var v *Var = cast_[*Var](s.getVar(name).self())
 	if v == nil {
-		var providedName *GlobalNamespace_Name = this.nameMap.get(name)
+		var providedName *GlobalNamespace_Name = this.nameMap.Get(name)
 		return func() Node {
 			if (providedName != nil) && providedName.getBooleanProperty(GlobalNamespace_NameProp_IS_PROVIDED) {
 				return this.globalRoot
@@ -118,7 +118,7 @@ func (this *GlobalNamespace) getSlot(name string) StaticSlot {
 
 func (this *GlobalNamespace) getOwnSlot(name string) StaticSlot {
 	this.ensureGenerated()
-	return icast_StaticSlot(obj_(this.nameMap.get(name)))
+	return icast_StaticSlot(obj_(this.nameMap.Get(name)))
 }
 
 func (this *GlobalNamespace) getReferences_StaticSlot(slot_ StaticSlot) IterableOf[*GlobalNamespace_Ref] {
@@ -145,7 +145,7 @@ func (this *GlobalNamespace) ensureGenerated() {
 	}
 }
 
-func (this *GlobalNamespace) getNameForest() *TList[*GlobalNamespace_Name] {
+func (this *GlobalNamespace) getNameForest() *[]*GlobalNamespace_Name {
 	this.ensureGenerated()
 	return this.globalNames
 }
@@ -958,7 +958,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) isNestedAssign(parent Node) bo
 func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, metadata *ModuleMetadataMap_ModuleMetadata) *GlobalNamespace_Name {
 	var node *GlobalNamespace_Name = func() *GlobalNamespace_Name {
 		if metadata == nil {
-			return this.outer_.nameMap.get(name)
+			return this.outer_.nameMap.Get(name)
 		}
 		return this.outer_.nameMapByModule.get_s(obj_(metadata), name)
 	}()
@@ -969,15 +969,15 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, m
 			var parent *GlobalNamespace_Name = this.getOrCreateName(parentName, metadata)
 			node = parent.addProperty(name[i+1:], this.outer_.sourceKind)
 			if metadata == nil {
-				this.outer_.nameMap.put(name, node)
+				this.outer_.nameMap.Put(name, node)
 			} else {
 				this.outer_.nameMapByModule.put_s(metadata, name, node)
 			}
 		} else {
 			node = new_GlobalNamespace_Name(this.outer_, name, nil, this.outer_.sourceKind)
 			if metadata == nil {
-				this.outer_.globalNames.add(node)
-				this.outer_.nameMap.put(name, node)
+				*this.outer_.globalNames = append(*this.outer_.globalNames, node)
+				this.outer_.nameMap.Put(name, node)
 			} else {
 				this.outer_.nameMapByModule.put_s(metadata, name, node)
 			}
@@ -1318,7 +1318,7 @@ func (this *GlobalNamespace_Name) putRef(node Node, ref *GlobalNamespace_Ref) {
 	if _, ok := this.refsForNode.(*GlobalNamespace_Ref); ok {
 		var refsForNodeMap *TMap[Node, *GlobalNamespace_Ref] = newTMap_(tc_Node, tc_p_GlobalNamespace_Ref)
 		var existingRef *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](this.refsForNode)
-		refsForNodeMap.put(existingRef.node_, existingRef)
+		refsForNodeMap.Put(existingRef.node_, existingRef)
 		this.refsForNode = refsForNodeMap.asMap()
 	}
 	this.castRefsForNodeMap().put(node.box_(), obj_(ref))

@@ -38,11 +38,11 @@ func (this *DiGraph) disconnectInDirection(p0 any, p1 any) {
 	this.self_.disconnectInDirection_impl(p0, p1)
 }
 
-func (this *DiGraph) getInEdges(p0 any) *TList[DiGraph_DiGraphEdge] {
+func (this *DiGraph) getInEdges(p0 any) *[]DiGraph_DiGraphEdge {
 	return this.self_.getInEdges_impl(p0)
 }
 
-func (this *DiGraph) getOutEdges(p0 any) *TList[DiGraph_DiGraphEdge] {
+func (this *DiGraph) getOutEdges(p0 any) *[]DiGraph_DiGraphEdge {
 	return this.self_.getOutEdges_impl(p0)
 }
 
@@ -76,8 +76,8 @@ func (this *DiGraph) getDirectedSuccNodesDiGraphNode(p0 DiGraph_DiGraphNode) []D
 
 type DiGraph_DiGraphNode interface {
 	GraphNode
-	getOutEdges() *TList[DiGraph_DiGraphEdge]
-	getInEdges() *TList[DiGraph_DiGraphEdge]
+	getOutEdges() *[]DiGraph_DiGraphEdge
+	getInEdges() *[]DiGraph_DiGraphEdge
 	hasPriority() bool
 	getPriority() int32
 	setPriority(int32)

@@ -75,11 +75,11 @@ func (this *EqualityChecker) areEqualCaching(left *JSType, right *JSType) bool {
 	var cached JSType_MatchStatus = cast_[JSType_MatchStatus](Map_putIfAbsent(this.eqCache.asMap(), obj_(key), obj_(JSType_MatchStatus_PROCESSING)))
 	if cached == 0 {
 		var result bool = this.areEqualInternal(left, right)
-		this.eqCache.put(key, JSType_MatchStatus_valueOfBoolean(result))
+		this.eqCache.Put(key, JSType_MatchStatus_valueOfBoolean(result))
 		return result
 	}
 	if cached == JSType_MatchStatus_PROCESSING {
-		this.eqCache.put(key, JSType_MatchStatus_MATCH)
+		this.eqCache.Put(key, JSType_MatchStatus_MATCH)
 		return true
 	}
 	return cached.subtypeValue()

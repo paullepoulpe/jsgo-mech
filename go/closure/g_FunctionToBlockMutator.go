@@ -188,7 +188,7 @@ func (this *FunctionToBlockMutator) getUniqueThisName() string {
 }
 
 func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias map[string]struct{}) Node {
-	if (namesToAlias == nil) || len(namesToAlias) == 0 {
+	if (namesToAlias == nil) || len(mapNN_(namesToAlias)) == 0 {
 		var replacements map[string]Node = map[string]Node{}
 		for _, el := range immElems_(cast_[*ImmutableSet](paramToArgMap.entrySet())) {
 			entry := icast_Map_Entry(el)

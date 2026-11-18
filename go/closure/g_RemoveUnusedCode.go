@@ -1575,7 +1575,7 @@ func (this *RemoveUnusedCode_Continuation) apply() {
 type RemoveUnusedCode_Removable struct {
 	self_                                RemoveUnusedCode_Removable_I
 	outer_                               *RemoveUnusedCode
-	continuations                        *TList[*RemoveUnusedCode_Continuation]
+	continuations                        *[]*RemoveUnusedCode_Continuation
 	propertyName_                        OptionalOf[string]
 	targetNode                           Node
 	isPrototypeDotPropertyReferenceField bool
@@ -1654,10 +1654,10 @@ func (this *RemoveUnusedCode_Removable) remove(compiler *AbstractCompiler) {
 func (this *RemoveUnusedCode_Removable) applyContinuations() {
 	if !this.continuationsAreApplied {
 		this.continuationsAreApplied = true
-		for c := range this.continuations.All() {
+		for _, c := range *this.continuations {
 			this.outer_.worklist = append(this.outer_.worklist, c)
 		}
-		this.continuations.clear()
+		sliceClear_(this.continuations)
 	}
 }
 
@@ -1767,14 +1767,14 @@ func (this *RemoveUnusedCode_Removable) isPrototypeProperty() bool {
 
 type RemoveUnusedCode_RemovableBuilder struct {
 	outer_                           *RemoveUnusedCode
-	continuations                    *TList[*RemoveUnusedCode_Continuation]
+	continuations                    *[]*RemoveUnusedCode_Continuation
 	propertyName_                    OptionalOf[string]
 	isPrototypeDotPropertyReference_ bool
 	isThisDotPropertyReference_      bool
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) finit_RemoveUnusedCode_RemovableBuilder() {
-	this.continuations = newTList_(tc_p_RemoveUnusedCode_Continuation)
+	this.continuations = &[]*RemoveUnusedCode_Continuation{}
 	this.propertyName_ = Optional_empty[string]()
 	this.isPrototypeDotPropertyReference_ = false
 	this.isThisDotPropertyReference_ = false
@@ -1792,7 +1792,7 @@ func new_RemoveUnusedCode_RemovableBuilder(outer_ *RemoveUnusedCode) *RemoveUnus
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) addContinuation(continuation *RemoveUnusedCode_Continuation) *RemoveUnusedCode_RemovableBuilder {
-	this.continuations.add(continuation)
+	*this.continuations = append(*this.continuations, continuation)
 	return this
 }
 

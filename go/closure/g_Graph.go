@@ -4,8 +4,8 @@ package closure
 
 type Graph struct {
 	self_               Graph_I
-	nodeAnnotationStack *TList[*Graph_GraphAnnotationState]
-	edgeAnnotationStack *TList[*Graph_GraphAnnotationState]
+	nodeAnnotationStack *[]*Graph_GraphAnnotationState
+	edgeAnnotationStack *[]*Graph_GraphAnnotationState
 }
 
 // Graph_I holds the methods the dispatchers of Graph's hierarchy call on the most derived
@@ -15,7 +15,7 @@ type Graph_I interface {
 	createNode_impl(any) GraphNode
 	disconnect_impl(any, any)
 	getEdges_2_impl(any, any) []UndiGraph_UndiGraphEdge
-	getEdges_impl() *TList[Graph_GraphEdge]
+	getEdges_impl() *[]Graph_GraphEdge
 	getFirstEdge_impl(any, any) Graph_GraphEdge
 	getNeighborNodes_impl(any) []GraphNode
 	getNodeCount_impl() int32
@@ -31,9 +31,9 @@ type Graph_I interface {
 	getDirectedSuccNodesDiGraphNode_impl(DiGraph_DiGraphNode) []DiGraph_DiGraphNode
 	getDirectedSuccNodes_impl(any) []DiGraph_DiGraphNode
 	getEdgesInDirection_impl(any, any) []*LinkedDirectedGraph_LinkedDiGraphEdge
-	getInEdges_impl(any) *TList[DiGraph_DiGraphEdge]
+	getInEdges_impl(any) *[]DiGraph_DiGraphEdge
 	getOptionalNodeComparator_impl(bool) Comparator
-	getOutEdges_impl(any) *TList[DiGraph_DiGraphEdge]
+	getOutEdges_impl(any) *[]DiGraph_DiGraphEdge
 	isConnectedInDirection_3_impl(any, any, any) bool
 	isConnectedInDirection_impl(any, any) bool
 }
@@ -60,13 +60,13 @@ func (this *Graph) getDirectedSuccNodes_impl(any) []DiGraph_DiGraphNode {
 func (this *Graph) getEdgesInDirection_impl(any, any) []*LinkedDirectedGraph_LinkedDiGraphEdge {
 	panic("getEdgesInDirection_impl called on a " + goTypeName_(this.self_))
 }
-func (this *Graph) getInEdges_impl(any) *TList[DiGraph_DiGraphEdge] {
+func (this *Graph) getInEdges_impl(any) *[]DiGraph_DiGraphEdge {
 	panic("getInEdges_impl called on a " + goTypeName_(this.self_))
 }
 func (this *Graph) getOptionalNodeComparator_impl(bool) Comparator {
 	panic("getOptionalNodeComparator_impl called on a " + goTypeName_(this.self_))
 }
-func (this *Graph) getOutEdges_impl(any) *TList[DiGraph_DiGraphEdge] {
+func (this *Graph) getOutEdges_impl(any) *[]DiGraph_DiGraphEdge {
 	panic("getOutEdges_impl called on a " + goTypeName_(this.self_))
 }
 func (this *Graph) isConnectedInDirection_3_impl(any, any, any) bool {
@@ -118,14 +118,14 @@ func (this *Graph) clearNodeAnnotations() {
 }
 
 func (this *Graph) clearEdgeAnnotations() {
-	for e := range this.getEdges().All() {
+	for _, e := range *this.getEdges() {
 		e.setAnnotation(nil)
 	}
 }
 
 func (this *Graph) pushNodeAnnotations() {
 	if this.nodeAnnotationStack == nil {
-		this.nodeAnnotationStack = newTList_(tc_p_Graph_GraphAnnotationState)
+		this.nodeAnnotationStack = &[]*Graph_GraphAnnotationState{}
 	}
 	Graph_pushAnnotations(this.nodeAnnotationStack, this.getNodes())
 }
@@ -139,9 +139,9 @@ func (this *Graph) popNodeAnnotations() {
 
 func (this *Graph) pushEdgeAnnotations() {
 	if this.edgeAnnotationStack == nil {
-		this.edgeAnnotationStack = newTList_(tc_p_Graph_GraphAnnotationState)
+		this.edgeAnnotationStack = &[]*Graph_GraphAnnotationState{}
 	}
-	Graph_pushAnnotations(this.edgeAnnotationStack, Collection(this.getEdges().asList()))
+	Graph_pushAnnotations(this.edgeAnnotationStack, Collection(slicePtrView_(tc_Graph_GraphEdge, this.getEdges())))
 }
 
 func (this *Graph) popEdgeAnnotations() {
@@ -151,16 +151,16 @@ func (this *Graph) popEdgeAnnotations() {
 	Graph_popAnnotations(this.edgeAnnotationStack)
 }
 
-func Graph_pushAnnotations(stack *TList[*Graph_GraphAnnotationState], haveAnnotations CollectionOf[Annotatable]) {
-	stack.push_(new_Graph_GraphAnnotationState(haveAnnotations.size()))
+func Graph_pushAnnotations(stack *[]*Graph_GraphAnnotationState, haveAnnotations CollectionOf[Annotatable]) {
+	*stack = append(*stack, new_Graph_GraphAnnotationState(haveAnnotations.size()))
 	for h := range elemsBy_(haveAnnotations, icast_Annotatable) {
-		stack.peekTop_().add(obj_(new_Graph_AnnotationState(h, Annotatable_getAnnotation(h))))
+		slicePeekTop_(tc_p_Graph_GraphAnnotationState, *stack).add(obj_(new_Graph_AnnotationState(h, Annotatable_getAnnotation(h))))
 		h.setAnnotation(nil)
 	}
 }
 
-func Graph_popAnnotations(stack *TList[*Graph_GraphAnnotationState]) {
-	for as := range elemsAs_[*Graph_AnnotationState](obj_(stack.pop_())) {
+func Graph_popAnnotations(stack *[]*Graph_GraphAnnotationState) {
+	for as := range elemsAs_[*Graph_AnnotationState](obj_(slicePop_(tc_p_Graph_GraphAnnotationState, stack))) {
 		as.first.setAnnotation(as.second)
 	}
 }
@@ -177,7 +177,7 @@ func (this *Graph) getNode(p0 any) GraphNode {
 	return this.self_.getNode_impl(p0)
 }
 
-func (this *Graph) getEdges() *TList[Graph_GraphEdge] {
+func (this *Graph) getEdges() *[]Graph_GraphEdge {
 	return this.self_.getEdges_impl()
 }
 

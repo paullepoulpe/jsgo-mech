@@ -130,7 +130,7 @@ func (this *PhaseOptimizer) hasScopeChanged(n Node) bool {
 	if !this.inLoop_ {
 		return true
 	}
-	var timeOfLastRun int32 = unbox_[int32](this.lastRuns[this.currentPass])
+	var timeOfLastRun int32 = unbox_[int32](mapNN_(this.lastRuns)[this.currentPass])
 	return ((timeOfLastRun == PhaseOptimizer_START_TIME) || (n.getChangeTime() > timeOfLastRun))
 }
 

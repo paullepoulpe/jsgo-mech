@@ -207,12 +207,12 @@ func (this *JsFileLineParser) parseJsString(jsStringLiteral string) *Outcome_bas
 	}()))
 }
 
-func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[List] {
+func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[*TList[string]] {
 	var results *TList[string] = newTList_(tc_string)
 	var indexStart int32 = int32(strings.IndexByte(input, '['))
 	var indexEnd int32 = int32(strings.LastIndexByte(input, ']'))
 	if (indexStart == -1) || (indexEnd == -1) {
-		return Outcome_base_err[List](new_JsFileLineParser_ParseException("Syntax error when parsing JS array", true).up_Throwable())
+		return Outcome_base_err[*TList[string]](new_JsFileLineParser_ParseException("Syntax error when parsing JS array", true).up_Throwable())
 	}
 	var innerValues string = cutBytes_(input, (indexStart + 1), indexEnd)
 	innerValuesU16 := utf16Of_(innerValues)
@@ -220,7 +220,7 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[Lis
 		this.valueMatcher.reset_s(innerValues)
 		for {
 			if !this.valueMatcher.lookingAt() {
-				return Outcome_base_err[List](new_JsFileLineParser_ParseException("Syntax error in JS String literal", true).up_Throwable())
+				return Outcome_base_err[*TList[string]](new_JsFileLineParser_ParseException("Syntax error in JS String literal", true).up_Throwable())
 			}
 			results.add(str_(func() any {
 				if this.valueMatcher.group(1) != nullstr_ {
@@ -232,14 +232,14 @@ func (this *JsFileLineParser) parseJsStringArray(input string) *Outcome_base[Lis
 				break
 			}
 			if innerValuesU16.charAt(this.valueMatcher.end()) != ',' {
-				return Outcome_base_err[List](new_JsFileLineParser_ParseException("Missing comma in string array", true).up_Throwable())
+				return Outcome_base_err[*TList[string]](new_JsFileLineParser_ParseException("Missing comma in string array", true).up_Throwable())
 			}
 			innerValues = innerValuesU16.substring_int((this.valueMatcher.end() + 1))
 			innerValuesU16 = utf16Of_(innerValues)
 			this.valueMatcher.reset_s(innerValues)
 		}
 	}
-	return Outcome_base_ok_Object[List](results.asList())
+	return Outcome_base_ok_Object[*TList[string]](results)
 }
 
 func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] {
@@ -288,7 +288,7 @@ func (this *JsFileLineParser) parseJsStringMap(input string) *Outcome_base[Map] 
 			}
 			return this.valueMatcher.group(2)
 		}()
-		results.put(key, val)
+		results.Put(key, val)
 		if this.valueMatcher.end() != inputU16.length() {
 			checked = JsFileLineParser_check((inputU16.charAt(this.valueMatcher.end()) == ','), "Missing comma in JS object literal")
 			if checked.isErr() {

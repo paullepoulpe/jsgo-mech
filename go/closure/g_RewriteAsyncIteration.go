@@ -450,7 +450,7 @@ func (this *RewriteAsyncIteration) replaceSuper(ctx *RewriteAsyncIteration_Lexic
 	}
 	getPropReplacement.srcrefTree(parent)
 	parent.replaceWith(getPropReplacement)
-	ctx.thisSuperArgsContext.usedSuperProperties.add(parent)
+	ctx.thisSuperArgsContext.usedSuperProperties.Add(parent)
 	this.compiler_.reportChangeToChangeScope(ctx.function)
 }
 
@@ -482,7 +482,7 @@ func (this *RewriteAsyncIteration) prependTempVarDeclarations(ctx *RewriteAsyncI
 	}
 	prefixBlock.srcrefTreeIfMissing(block)
 	block.addChildrenToFront(prefixBlock.removeChildren())
-	if ((thisSuperArgsCtx.thisNodeToAdd != 0) || thisSuperArgsCtx.usedArguments) || !thisSuperArgsCtx.usedSuperProperties.isEmpty() {
+	if ((thisSuperArgsCtx.thisNodeToAdd != 0) || thisSuperArgsCtx.usedArguments) || !thisSuperArgsCtx.usedSuperProperties.IsEmpty() {
 		this.compiler_.reportChangeToChangeScope(function)
 		NodeUtil_addFeatureToScript(t.getCurrentScript(), FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
 	}

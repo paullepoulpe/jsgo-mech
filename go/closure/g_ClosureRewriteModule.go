@@ -879,7 +879,7 @@ func (this *ClosureRewriteModule) recordExportToInline(exportDefinition *Closure
 	if ok_, a1_, a2_ := exportDefinition.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()), exportDefinition, this.currentScript.exportsToInline.asMap().keySet(); !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("exportDefinition: %s\n\nexportsToInline keys: %s", []any{obj_(a1_), a2_})))
 	}
-	if ok_, a1_ := (this.currentScript.exportsToInline.put(exportDefinition.nameDecl, exportDefinition) == nil), exportDefinition.nameDecl; !ok_ {
+	if ok_, a1_ := (this.currentScript.exportsToInline.Put(exportDefinition.nameDecl, exportDefinition) == nil), exportDefinition.nameDecl; !ok_ {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Already found a mapping for inlining export: %s", []any{obj_(a1_)})))
 	}
 	var localName OptionalOf[string] = exportDefinition.getLocalName()
@@ -916,7 +916,7 @@ func (this *ClosureRewriteModule) reportUnrecognizedRequires() {
 		NodeUtil_visitLhsNodesInNode(enclosingStatement, func(lhs_ any) {
 			var lhs Node = Node_of_(lhs_)
 			_ = lhs
-			this.syntheticExterns.putIfAbsent(lhs.getString(), lhs)
+			this.syntheticExterns.PutIfAbsent(lhs.getString(), lhs)
 		})
 	}
 }

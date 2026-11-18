@@ -156,7 +156,7 @@ func FunctionArgumentInjector_findModifiedParametersInto_(n Node, names Immutabl
 	}
 	if n.isName() {
 		if Collection_contains_s(names, n.getString()) && (inInnerClosure || FunctionArgumentInjector_canNameValueChange(n)) {
-			unsafe.add(n.getString())
+			unsafe.Add(n.getString())
 		}
 	}
 	for c := n.getFirstChild(); c != 0; c = c.getNext() {
@@ -196,7 +196,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 		entry := icast_Map_Entry(el)
 		var parameterName string = str_(entry.getKey())
 		var cArg Node = entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg()
-		if namesNeedingTemps.contains(parameterName) {
+		if namesNeedingTemps.Has(parameterName) {
 			requiresTempsUpToThisParameterName = parameterName
 			continue
 		}
@@ -237,10 +237,10 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 				continue
 			}
 			if parameterName == requiresTempsUpToThisParameterName {
-				namesNeedingTemps.add(parameterName)
+				namesNeedingTemps.Add(parameterName)
 				break
 			} else {
-				namesNeedingTemps.add(parameterName)
+				namesNeedingTemps.Add(parameterName)
 			}
 		}
 	}
@@ -285,13 +285,13 @@ func (this *FunctionArgumentInjector) findParametersReferencedAfterSideEffect(pa
 func FunctionArgumentInjector_gatherLocalNames(n Node, names *TSet[string]) {
 	if n.isFunction() {
 		if NodeUtil_isFunctionDeclaration(n) {
-			names.add(n.getFirstChild().getString())
+			names.Add(n.getFirstChild().getString())
 		}
 		return
 	} else if n.isName() {
 		switch n.getParent().ns_().token {
 		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_CATCH:
-			names.add(n.getString())
+			names.Add(n.getString())
 		default:
 		}
 	}
@@ -426,7 +426,7 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) apply(node_ any)
 	if NodeUtil_isLoopStructure(node) {
 		this.loopsEntered++
 	}
-	return !(this.sideEffectSeen && (this.parameters.size() == this.parametersReferenced.size()))
+	return !(this.sideEffectSeen && (this.parameters.size() == this.parametersReferenced.Len()))
 }
 
 func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) inLoop() bool {
@@ -437,14 +437,14 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) visit(n Node) {
 	if n.isName() {
 		var name string = n.getString()
 		if Collection_contains_s(this.parameters, name) && this.nameNodeHasBeenSeen {
-			this.parametersWithNamesReferencedBeforeParameter_.add(name)
+			this.parametersWithNamesReferencedBeforeParameter_.Add(name)
 		}
 		this.nameNodeHasBeenSeen = true
 	}
 	if NodeUtil_isLoopStructure(n) {
 		this.loopsEntered--
 		if !this.inLoop() && !this.sideEffectSeen {
-			this.parametersReferenced.clear()
+			this.parametersReferenced.Clear()
 		}
 	}
 	if !this.sideEffectSeen {
@@ -456,10 +456,10 @@ func (this *FunctionArgumentInjector_ReferencedAfterSideEffect) visit(n Node) {
 		if n.isName() {
 			var name string = n.getString()
 			if Collection_contains_s(this.parameters, name) {
-				this.parametersReferenced.add(name)
+				this.parametersReferenced.Add(name)
 			}
 		} else if n.isThis() {
-			this.parametersReferenced.add(FunctionArgumentInjector_THIS_MARKER)
+			this.parametersReferenced.Add(FunctionArgumentInjector_THIS_MARKER)
 		}
 	}
 }

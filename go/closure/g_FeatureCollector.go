@@ -25,33 +25,33 @@ func (this *FeatureCollector) allFeatures() *FeatureSet {
 }
 
 func (this *FeatureCollector) visitScript(script Node) {
-	var emptyContext *TList[FeatureCollector_FeatureContext] = newTList_(tc_p_FeatureCollector_FeatureContext)
-	emptyContext.add(FeatureCollector_FeatureContext_NONE)
+	var emptyContext *[]FeatureCollector_FeatureContext = &[]FeatureCollector_FeatureContext{}
+	*emptyContext = append(*emptyContext, FeatureCollector_FeatureContext_NONE)
 	this.visitRecursive(emptyContext, script)
 }
 
-func (this *FeatureCollector) visitRecursive(contextStack *TList[FeatureCollector_FeatureContext], node Node) {
+func (this *FeatureCollector) visitRecursive(contextStack *[]FeatureCollector_FeatureContext, node Node) {
 	var newContext FeatureCollector_FeatureContext = this.visitSingleNode(contextStack, node)
-	contextStack.add(newContext)
+	*contextStack = append(*contextStack, newContext)
 	{
 		var child Node = node.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			this.visitRecursive(contextStack, child)
 		}
 	}
-	contextStack.removeAt((contextStack.size() - 1))
+	sliceRemoveAt_(contextStack, (int32(len(*contextStack)) - 1))
 }
 
-func (this *FeatureCollector) visitSingleNode(contextStack *TList[FeatureCollector_FeatureContext], node Node) FeatureCollector_FeatureContext {
-	if contextStack.size() < 1 {
+func (this *FeatureCollector) visitSingleNode(contextStack *[]FeatureCollector_FeatureContext, node Node) FeatureCollector_FeatureContext {
+	if int32(len(*contextStack)) < 1 {
 		panic(new_IllegalStateException_String("The provided feature context stack was empty. It must have at least one element."))
 	}
 	this.recordScriptFeatures(contextStack, node)
 	return FeatureCollector_contextFor(contextStack, node)
 }
 
-func (this *FeatureCollector) recordScriptFeatures(contextStack *TList[FeatureCollector_FeatureContext], node Node) {
-	var parentContext FeatureCollector_FeatureContext = cast_[FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack.asList())))
+func (this *FeatureCollector) recordScriptFeatures(contextStack *[]FeatureCollector_FeatureContext, node Node) {
+	var parentContext FeatureCollector_FeatureContext = cast_[FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(sliceViewP_(tc_p_FeatureCollector_FeatureContext, contextStack))))
 	switch node.ns_().token {
 	case tokOrd1_FUNCTION:
 		if node.isAsyncGeneratorFunction() {
@@ -191,8 +191,8 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack *TList[FeatureCo
 	}
 }
 
-func (this *FeatureCollector) maybeAddTopLevelAwait(contextStack *TList[FeatureCollector_FeatureContext]) {
-	if !contextStack.asList().contains(obj_(FeatureCollector_FeatureContext_FUNCTION)) {
+func (this *FeatureCollector) maybeAddTopLevelAwait(contextStack *[]FeatureCollector_FeatureContext) {
+	if !sliceViewP_(tc_p_FeatureCollector_FeatureContext, contextStack).contains(obj_(FeatureCollector_FeatureContext_FUNCTION)) {
 		this.addScriptFeature(FeatureSet_Feature_TOP_LEVEL_AWAIT)
 	}
 }
@@ -201,7 +201,7 @@ func (this *FeatureCollector) addScriptFeature(x FeatureSet_Feature) {
 	this.scriptFeatures = this.scriptFeatures.with(x)
 }
 
-func FeatureCollector_contextFor(contextStack *TList[FeatureCollector_FeatureContext], node Node) FeatureCollector_FeatureContext {
+func FeatureCollector_contextFor(contextStack *[]FeatureCollector_FeatureContext, node Node) FeatureCollector_FeatureContext {
 	return func() FeatureCollector_FeatureContext {
 		switch node.ns_().token {
 		case tokOrd1_PARAM_LIST:
@@ -214,7 +214,7 @@ func FeatureCollector_contextFor(contextStack *TList[FeatureCollector_FeatureCon
 			return FeatureCollector_FeatureContext_CATCH
 		case tokOrd1_BLOCK:
 			return func() FeatureCollector_FeatureContext {
-				if equalsId_(cast_[FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack.asList()))), FeatureCollector_FeatureContext_FUNCTION) {
+				if equalsId_(cast_[FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(sliceViewP_(tc_p_FeatureCollector_FeatureContext, contextStack)))), FeatureCollector_FeatureContext_FUNCTION) {
 					return FeatureCollector_FeatureContext_NONE
 				}
 				return FeatureCollector_FeatureContext_BLOCK_SCOPE

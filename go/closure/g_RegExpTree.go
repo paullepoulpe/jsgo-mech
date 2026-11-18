@@ -1749,17 +1749,17 @@ func (this *RegExpTree_Charset) simplify_impl(flags string) *RegExpTree {
 	var best *CharRanges = this.ranges_
 	if strings.Contains(flags, "i") {
 		var options *TSet[*CharRanges] = newTSet_(tch_p_CharRanges)
-		options.add(CaseCanonicalize_expandToAllMatched(this.ranges_))
-		options.add(CaseCanonicalize_reduceToMinimum(this.ranges_))
+		options.Add(CaseCanonicalize_expandToAllMatched(this.ranges_))
+		options.Add(CaseCanonicalize_reduceToMinimum(this.ranges_))
 		var lcaseLetters *CharRanges = this.ranges_.intersection(RegExpTree_LCASE_LETTERS)
 		var ucaseLetters *CharRanges = this.ranges_.intersection(RegExpTree_UCASE_LETTERS)
 		var lcaseLettersToUpper *CharRanges = lcaseLetters.shift(-32)
 		var ucaseLettersToLower *CharRanges = ucaseLetters.shift(32)
-		options.add(this.ranges_.union(ucaseLettersToLower))
-		options.add(this.ranges_.union(lcaseLettersToUpper))
-		options.add(this.ranges_.union(lcaseLettersToUpper).union(ucaseLettersToLower))
-		options.add(this.ranges_.union(ucaseLettersToLower).difference(ucaseLetters))
-		options.add(this.ranges_.union(lcaseLettersToUpper).difference(lcaseLetters))
+		options.Add(this.ranges_.union(ucaseLettersToLower))
+		options.Add(this.ranges_.union(lcaseLettersToUpper))
+		options.Add(this.ranges_.union(lcaseLettersToUpper).union(ucaseLettersToLower))
+		options.Add(this.ranges_.union(ucaseLettersToLower).difference(ucaseLetters))
+		options.Add(this.ranges_.union(lcaseLettersToUpper).difference(lcaseLetters))
 		var bestComplexity int32 = RegExpTree_Charset_complexityWordFolded(this.ranges_)
 		for option := range options.All() {
 			var complexity int32 = RegExpTree_Charset_complexityWordFolded(option)
@@ -2070,12 +2070,12 @@ func new_RegExpTree_Concatenation_RegExpTree_RegExpTree(a *RegExpTree, b *RegExp
 	return this
 }
 
-func (this *RegExpTree_Concatenation) init_RegExpTree_Concatenation_List(elements *TList[*RegExpTree]) {
+func (this *RegExpTree_Concatenation) init_RegExpTree_Concatenation_List(elements *[]*RegExpTree) {
 	this.RegExpTree.init_RegExpTree()
-	this.elements_ = ImmutableList_copyOf(Collection(elements.asList()))
+	this.elements_ = ImmutableList_copyOf(Collection(sliceViewP_(tc_p_RegExpTree, elements)))
 }
 
-func new_RegExpTree_Concatenation_List(elements *TList[*RegExpTree]) *RegExpTree_Concatenation {
+func new_RegExpTree_Concatenation_List(elements *[]*RegExpTree) *RegExpTree_Concatenation {
 	this := &RegExpTree_Concatenation{}
 	this.self_ = this
 	this.init_RegExpTree_Concatenation_List(elements)
@@ -2089,11 +2089,11 @@ func (this *RegExpTree_Concatenation) simplify_impl(flags string) *RegExpTree {
 		s.simplify(element.simplify(flags))
 	}
 	return func() *RegExpTree {
-		switch s.simplified.size() {
+		switch int32(len(*s.simplified)) {
 		case 0:
 			return RegExpTree_Empty_INSTANCE.up_RegExpTree()
 		case 1:
-			return s.simplified.get(0)
+			return sliceAt_(*s.simplified, 0)
 		default:
 			return new_RegExpTree_Concatenation_List(s.simplified).up_RegExpTree()
 		}
@@ -2760,11 +2760,11 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 type RegExpTree_Concatenation_1Simplifier struct {
 	outer_     *RegExpTree_Concatenation
 	cap_flags  string
-	simplified *TList[*RegExpTree]
+	simplified *[]*RegExpTree
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) finit_RegExpTree_Concatenation_1Simplifier() {
-	this.simplified = newTList_(tc_p_RegExpTree)
+	this.simplified = &[]*RegExpTree{}
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) init_RegExpTree_Concatenation_1Simplifier() {
@@ -2797,15 +2797,15 @@ func (this *RegExpTree_Concatenation_1Simplifier) simplify(t *RegExpTree) {
 		}
 	} else if _, ok2 := t.self().(*RegExpTree_Empty); ok2 {
 	} else {
-		var lastIndex int32 = (this.simplified.size() - 1)
+		var lastIndex int32 = (int32(len(*this.simplified)) - 1)
 		if lastIndex >= 0 {
-			var pairwise *RegExpTree = this.simplifyPairwise(this.simplified.get(lastIndex), t)
+			var pairwise *RegExpTree = this.simplifyPairwise(sliceAt_(*this.simplified, lastIndex), t)
 			if pairwise != nil {
-				this.simplified.set(lastIndex, pairwise)
+				(*this.simplified)[lastIndex] = pairwise
 				return
 			}
 		}
-		this.simplified.add(t)
+		*this.simplified = append(*this.simplified, t)
 	}
 }
 

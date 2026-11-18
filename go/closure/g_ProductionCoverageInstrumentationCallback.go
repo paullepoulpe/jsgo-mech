@@ -246,19 +246,19 @@ func new_ProductionCoverageInstrumentationCallback_ParameterMapping() *Productio
 }
 
 func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncodedParam(fileName string, functionName string, type_ ProductionCoverageInstrumentationCallback_Type, lineNo int32, colNo int32) string {
-	this.fileNameToIndex.putIfAbsent(fileName, any(int32(this.fileNameToIndex.size())))
-	this.functionNameToIndex.putIfAbsent(functionName, any(int32(this.functionNameToIndex.size())))
-	this.typeToIndex.putIfAbsent(type_.name(), any(int32(this.typeToIndex.size())))
+	this.fileNameToIndex.PutIfAbsent(fileName, any(int32(this.fileNameToIndex.Len())))
+	this.functionNameToIndex.PutIfAbsent(functionName, any(int32(this.functionNameToIndex.Len())))
+	this.typeToIndex.PutIfAbsent(type_.name(), any(int32(this.typeToIndex.Len())))
 	var sb *strBuilder_ = &strBuilder_{}
 	{
-		Base64VLQ_encode_sb(sb, unbox_[int32](this.fileNameToIndex.get(fileName)))
-		Base64VLQ_encode_sb(sb, unbox_[int32](this.functionNameToIndex.get(functionName)))
-		Base64VLQ_encode_sb(sb, unbox_[int32](this.typeToIndex.get(type_.name())))
+		Base64VLQ_encode_sb(sb, unbox_[int32](this.fileNameToIndex.Get(fileName)))
+		Base64VLQ_encode_sb(sb, unbox_[int32](this.functionNameToIndex.Get(functionName)))
+		Base64VLQ_encode_sb(sb, unbox_[int32](this.typeToIndex.Get(type_.name())))
 		Base64VLQ_encode_sb(sb, lineNo)
 		Base64VLQ_encode_sb(sb, colNo)
 	}
 	var encodedParam string = sb.toString()
-	if !this.paramValueEncodings.containsKey(encodedParam) {
+	if !this.paramValueEncodings.Has(encodedParam) {
 		var uniqueIdentifier int64 = this.generateUniqueIdentifier()
 		if uniqueIdentifier > int64(int32(2147483647)) {
 			panic(new_ArithmeticException_String("Unique Identifier exceeds value of Integer.MAX_VALUE, could not encode with Base 64 VLQ"))
@@ -267,9 +267,9 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 		{
 			Base64VLQ_encode_sb(sb, Math_toIntExact(uniqueIdentifier))
 		}
-		this.paramValueEncodings.put(encodedParam, sb.toString())
+		this.paramValueEncodings.Put(encodedParam, sb.toString())
 	}
-	return this.paramValueEncodings.get(encodedParam)
+	return this.paramValueEncodings.Get(encodedParam)
 }
 
 func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) generateUniqueIdentifier() int64 {
@@ -278,9 +278,9 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) generate
 }
 
 func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getParamMappingAsVariableMap() *VariableMap {
-	this.paramValueEncodings.put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.fileNameToIndex.asMap().keySet()), " FileNames")
-	this.paramValueEncodings.put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.functionNameToIndex.asMap().keySet()), " FunctionNames")
-	this.paramValueEncodings.put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.typeToIndex.asMap().keySet()), " Types")
+	this.paramValueEncodings.Put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.fileNameToIndex.asMap().keySet()), " FileNames")
+	this.paramValueEncodings.Put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.functionNameToIndex.asMap().keySet()), " FunctionNames")
+	this.paramValueEncodings.Put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.typeToIndex.asMap().keySet()), " Types")
 	var preInversedMap *VariableMap = new_VariableMap(this.paramValueEncodings)
 	var inversedMap ImmutableMapOf[string, string] = preInversedMap.getNewNameToOriginalNameMap()
 	return new_VariableMap(tmapFrom_(tc_string, tc_string, inversedMap, true))

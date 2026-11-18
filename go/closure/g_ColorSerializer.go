@@ -54,7 +54,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 	var typePoolBuilder *TypePool_Builder = TypePool_newBuilder()
 	for i := int32(TypePointers_untrimOffset(0)); i < int32(len(this.colorsInSerializedOrder)); i++ {
 		var color *Color = sliceAt_(this.colorsInSerializedOrder, i)
-		var typePointer any = this.colorIdToTypePointer.get(color.getId())
+		var typePointer any = this.colorIdToTypePointer.Get(color.getId())
 		typePoolBuilder.addType(this.generateTypeProto(color))
 		for supertype := range elemsAs_[*Color](icast_Set(getDisambiguationSupertypesFn(obj_(color)))) {
 			typePoolBuilder.addDisambiguationEdgesBuilder().setSubtype(unbox_[int32](typePointer)).setSupertype(this.addColor(supertype))
@@ -67,9 +67,9 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 		var debugInfoBuilder *TypePool_DebugInfo_Builder = typePoolBuilder.getDebugInfoBuilder()
 		var srcRefToTypePointerList *TMap[string, ArrayListOf[BoxedOf[int32]]] = newTMap_(tc_string, tc_ArrayListOf_BoxedOf_int32__)
 		for color := range sliceAll_(&this.colorsInSerializedOrder) {
-			var typePointer any = this.colorIdToTypePointer.get(color.getId())
+			var typePointer any = this.colorIdToTypePointer.Get(color.getId())
 			for srcRef := range elemsBy_(icast_Set(getMismatchSourceRefsFn(obj_(color))), str_) {
-				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent_f(srcRef, lambda_ColorSerializer_generateTypePool_1_)
+				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.ComputeIfAbsent(srcRef, lambda_ColorSerializer_generateTypePool_1_)
 				typePointerList.add(typePointer)
 			}
 		}
@@ -81,10 +81,10 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 }
 
 // lambda_ColorSerializer_generateTypePool_1_ is a lambda of ColorSerializer_generateTypePool that captures nothing (post-flip step lambdas).
-func lambda_ColorSerializer_generateTypePool_1_(key_ any) any {
-	var key string = str_(key_)
+func lambda_ColorSerializer_generateTypePool_1_(key_ string) ArrayListOf[BoxedOf[int32]] {
+	var key string = key_
 	_ = key
-	return new_ArrayList_0().self()
+	return new_ArrayList_0()
 }
 
 func (this *ColorSerializer) generateTypeProto(color *Color) *TypeProto {

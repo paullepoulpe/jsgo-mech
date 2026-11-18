@@ -70,7 +70,7 @@ func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[str
 		if ModuleLoader_isAmbiguousIdentifier(canonicalizedPath) {
 			canonicalizedPath = (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(canonicalizedPath))
 		}
-		normalizedPathsById.put(moduleEntryKey, canonicalizedPath)
+		normalizedPathsById.Put(moduleEntryKey, canonicalizedPath)
 	}
 	return new_WebpackModuleResolver(modulePaths, moduleRootPaths, normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
 }

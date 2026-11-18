@@ -4,7 +4,7 @@ package closure
 
 type MaybeReachingVariableUse struct {
 	DataFlowAnalysis
-	escaped     *TSet[*Var]
+	escaped     map[varKey_]struct{}
 	allVarsInFn *TMap[string, *Var]
 }
 
@@ -15,13 +15,13 @@ func (this *MaybeReachingVariableUse) up_DataFlowAnalysis() *DataFlowAnalysis {
 	return &this.DataFlowAnalysis
 }
 
-func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *ControlFlowGraph, escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) {
+func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *ControlFlowGraph, escaped map[varKey_]struct{}, allVarsInFn *TMap[string, *Var]) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.escaped = escaped
 	this.allVarsInFn = allVarsInFn
 }
 
-func new_MaybeReachingVariableUse(cfg *ControlFlowGraph, escaped *TSet[*Var], allVarsInFn *TMap[string, *Var]) *MaybeReachingVariableUse {
+func new_MaybeReachingVariableUse(cfg *ControlFlowGraph, escaped map[varKey_]struct{}, allVarsInFn *TMap[string, *Var]) *MaybeReachingVariableUse {
 	this := &MaybeReachingVariableUse{}
 	this.self_ = this
 	this.init_MaybeReachingVariableUse(cfg, escaped, allVarsInFn)
@@ -56,9 +56,9 @@ func (this *MaybeReachingVariableUse) flowThrough_impl(n_ any, input_ LatticeEle
 }
 
 func (this *MaybeReachingVariableUse) hasExceptionHandler(cfgNode Node) bool {
-	var branchEdges *TList[DiGraph_DiGraphEdge] = this.getCfg().getOutEdges(cfgNode.box_())
-	for i_1 := 0; i_1 < len(branchEdges.items); i_1++ {
-		var edge DiGraph_DiGraphEdge = branchEdges.items[i_1]
+	var branchEdges *[]DiGraph_DiGraphEdge = this.getCfg().getOutEdges(cfgNode.box_())
+	for i_1 := 0; i_1 < len(*branchEdges); i_1++ {
+		var edge DiGraph_DiGraphEdge = (*branchEdges)[i_1]
 		if cast_[ControlFlowGraph_Branch](edge.getValue()) == ControlFlowGraph_Branch_ON_EX {
 			return true
 		}
@@ -171,21 +171,21 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 }
 
 func (this *MaybeReachingVariableUse) addToUseIfLocal(name string, node Node, use *MaybeReachingVariableUse_ReachingUses) {
-	var var_ *Var = this.allVarsInFn.get(name)
+	var var_ *Var = this.allVarsInFn.Get(name)
 	if var_ == nil {
 		return
 	}
-	if !this.escaped.contains(var_) {
+	if !has_(this.escaped, vkey_(var_)) {
 		use.put(var_, node)
 	}
 }
 
 func (this *MaybeReachingVariableUse) removeFromUseIfLocal(name string, use *MaybeReachingVariableUse_ReachingUses) {
-	var var_ *Var = this.allVarsInFn.get(name)
+	var var_ *Var = this.allVarsInFn.Get(name)
 	if var_ == nil {
 		return
 	}
-	if !this.escaped.contains(var_) {
+	if !has_(this.escaped, vkey_(var_)) {
 		use.removeAll(var_)
 	}
 }
@@ -196,7 +196,7 @@ func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) Iterabl
 		panic(new_NullPointerException_0())
 	}
 	var state *DataFlowAnalysis_LinearFlowState[any] = cast_[*DataFlowAnalysis_LinearFlowState[any]](Annotatable_getAnnotation(Annotatable(n)))
-	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(this.allVarsInFn.get(name))
+	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(this.allVarsInFn.Get(name))
 }
 
 type MaybeReachingVariableUse_ReachingUses struct {

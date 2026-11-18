@@ -63,9 +63,9 @@ func (this *DependencyFile) loadGraph() {
 			this.dependencies[provide] = depInfo
 		}
 	}
-	var provides *TList[string] = newTList_(tc_string)
-	provides.add(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE)
-	this.dependencies[DefaultDependencyResolver_CLOSURE_BASE_PROVIDE] = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(DefaultDependencyResolver_CLOSURE_BASE, Optional_of[string](DefaultDependencyResolver_CLOSURE_BASE)).setProvides(Collection(provides.asList())).build()))
+	var provides *[]string = &[]string{}
+	*provides = append(*provides, DefaultDependencyResolver_CLOSURE_BASE_PROVIDE)
+	this.dependencies[DefaultDependencyResolver_CLOSURE_BASE_PROVIDE] = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(DefaultDependencyResolver_CLOSURE_BASE, Optional_of[string](DefaultDependencyResolver_CLOSURE_BASE)).setProvides(Collection(slicePtrView_(tc_string, provides))).build()))
 	errorManager.generateReport()
 	DependencyFile_logger.info("Dependencies loaded")
 }

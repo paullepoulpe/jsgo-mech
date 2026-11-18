@@ -125,7 +125,7 @@ func (this *PropertyMap) getOwnProperty(propertyName Property_Key) *Property {
 		case Property_KeyKind_SYMBOL:
 			return func() *Property {
 				if this.knownSymbols != nil {
-					return this.knownSymbols.get(propertyName.symbol())
+					return this.knownSymbols.Get(propertyName.symbol())
 				}
 				return nil
 			}()
@@ -181,7 +181,7 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 }
 
 func (this *PropertyMap) collectAllAncestors(ancestors *TSet[*PropertyMap]) {
-	if !ancestors.add(this) {
+	if !ancestors.Add(this) {
 		return
 	}
 	var primaryParent *PropertyMap = this.getPrimaryParent()
@@ -209,7 +209,7 @@ func (this *PropertyMap) putPropertyString(name string, newProp *Property) {
 func (this *PropertyMap) putPropertyKnownSymbolType(symbol *KnownSymbolType, newProp *Property) {
 	var oldProp *Property = func() *Property {
 		if this.knownSymbols != nil {
-			return this.knownSymbols.get(symbol)
+			return this.knownSymbols.Get(symbol)
 		}
 		return nil
 	}()
@@ -219,7 +219,7 @@ func (this *PropertyMap) putPropertyKnownSymbolType(symbol *KnownSymbolType, new
 	if this.knownSymbols == nil {
 		this.knownSymbols = newTMap_(tch_p_KnownSymbolType, tc_p_Property)
 	}
-	this.knownSymbols.put(symbol, newProp)
+	this.knownSymbols.Put(symbol, newProp)
 }
 
 func (this *PropertyMap) putProperty(name Property_Key, newProp *Property) {

@@ -46,9 +46,9 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph,
 	var maxIterations int64 = Math_max_long_long(((nodeCount * nodeCount) * nodeCount), 100)
 	var workSet *TSet[DiGraph_DiGraphNode] = newTSet_(tc_DiGraph_DiGraphNode)
 	for n := range elems_(entrySet) {
-		workSet.add(icast_DiGraph_DiGraphNode(graph.getNode(n)))
+		workSet.Add(icast_DiGraph_DiGraphNode(graph.getNode(n)))
 	}
-	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
+	for ; !workSet.IsEmpty() && (cycleCount < maxIterations); cycleCount++ {
 		this.visitNode(icast_DiGraph_DiGraphNode(SequencedCollection_getFirst(workSet.asSet())), workSet)
 	}
 	if cycleCount == maxIterations {
@@ -57,23 +57,23 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph,
 }
 
 func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode, workSet *TSet[DiGraph_DiGraphNode]) {
-	workSet.remove(node)
+	workSet.Delete(node)
 	switch this.traversalDirection {
 	case FixedPointGraphTraversal_TraversalDirection_OUTWARDS:
 		var sourceValue any = node.getValue()
-		for edge := range node.getOutEdges().All() {
+		for edge := range sliceAll_(node.getOutEdges()) {
 			var destValue any = edge.getDestination().getValue()
 			if this.callback(sourceValue, edge.getValue(), destValue) {
-				workSet.add(edge.getDestination())
+				workSet.Add(edge.getDestination())
 			}
 		}
 		return
 	case FixedPointGraphTraversal_TraversalDirection_INWARDS:
 		var revSourceValue any = node.getValue()
-		for edge := range node.getInEdges().All() {
+		for edge := range sliceAll_(node.getInEdges()) {
 			var revDestValue any = edge.getSource().getValue()
 			if this.callback(revSourceValue, edge.getValue(), revDestValue) {
-				workSet.add(edge.getSource())
+				workSet.Add(edge.getSource())
 			}
 		}
 		return

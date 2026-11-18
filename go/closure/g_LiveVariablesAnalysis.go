@@ -6,9 +6,9 @@ type LiveVariablesAnalysis struct {
 	DataFlowAnalysis
 	jsScope        *Scope
 	jsScopeChild   *Scope
-	escaped        *TSet[*Var]
+	escaped        map[varKey_]struct{}
 	scopeVariables map[string]BoxedOf[int32]
-	orderedVars    *TList[*Var]
+	orderedVars    *[]*Var
 	allVarsInFn    *TMap[string, *Var]
 }
 
@@ -26,7 +26,7 @@ func (this *LiveVariablesAnalysis) init_LiveVariablesAnalysis(cfg *ControlFlowGr
 	}
 	this.jsScope = jsScope
 	this.jsScopeChild = jsScopeChild
-	this.escaped = newTSet_(tch_p_Var)
+	this.escaped = map[varKey_]struct{}{}
 	this.scopeVariables = map[string]BoxedOf[int32]{}
 	this.orderedVars = allVarsDeclaredInFunction.getAllVariablesInOrder()
 	this.allVarsInFn = allVarsDeclaredInFunction.getAllVariables()
@@ -43,13 +43,13 @@ func new_LiveVariablesAnalysis(cfg *ControlFlowGraph, jsScope *Scope, jsScopeChi
 
 func (this *LiveVariablesAnalysis) addScopeVariables() {
 	var num int32 = 0
-	for v := range this.orderedVars.All() {
+	for _, v := range *this.orderedVars {
 		this.scopeVariables[v.getName()] = any(int32(num))
 		num++
 	}
 }
 
-func (this *LiveVariablesAnalysis) getEscapedLocals() *TSet[*Var] {
+func (this *LiveVariablesAnalysis) getEscapedLocals() map[varKey_]struct{} {
 	return this.escaped
 }
 
@@ -57,7 +57,7 @@ func (this *LiveVariablesAnalysis) getAllVariables() *TMap[string, *Var] {
 	return this.allVarsInFn
 }
 
-func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *TList[*Var] {
+func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *[]*Var {
 	return this.orderedVars
 }
 
@@ -70,11 +70,11 @@ func (this *LiveVariablesAnalysis) isForward_impl() bool {
 }
 
 func (this *LiveVariablesAnalysis) createEntryLattice_impl() LatticeElement {
-	return new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(this.orderedVars.size()))
+	return new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(int32(len(*this.orderedVars))))
 }
 
 func (this *LiveVariablesAnalysis) createInitialEstimateLattice_impl() LatticeElement {
-	return new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(this.orderedVars.size()))
+	return new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(int32(len(*this.orderedVars))))
 }
 
 func (this *LiveVariablesAnalysis) createFlowJoiner_impl() DataFlowAnalysis_FlowJoiner {
@@ -89,8 +89,8 @@ func (this *LiveVariablesAnalysis) flowThrough_impl(node_ any, input_ LatticeEle
 	var gen *BitSet = new_BitSet_int(input.liveSet.size())
 	var kill *BitSet = new_BitSet_int(input.liveSet.size())
 	var conditional bool = false
-	var edgeList *TList[DiGraph_DiGraphEdge] = this.getCfg().getOutEdges(node.box_())
-	for edge := range edgeList.All() {
+	var edgeList *[]DiGraph_DiGraphEdge = this.getCfg().getOutEdges(node.box_())
+	for _, edge := range *edgeList {
 		if equalsIdAny_(ControlFlowGraph_Branch_ON_EX, edge.getValue()) {
 			conditional = true
 		}
@@ -208,7 +208,7 @@ func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 		panic(new_IllegalStateException_String(tostr_(node)))
 	}
 	var name string = node.getString()
-	var var_ *Var = this.allVarsInFn.get(name)
+	var var_ *Var = this.allVarsInFn.Get(name)
 	if var_ == nil {
 		return
 	}
@@ -224,7 +224,7 @@ func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 	if !local {
 		return
 	}
-	if !this.escaped.contains(var_) {
+	if !has_(this.escaped, vkey_(var_)) {
 		set.set(this.getVarIndex(var_.getName()))
 	}
 }
@@ -242,7 +242,7 @@ func (this *LiveVariablesAnalysis) markAllParametersEscaped() {
 		var param Node = paramList.getFirstChild()
 		for ; param != 0; param = param.getNext() {
 			if param.isName() {
-				this.escaped.add(cast_[*Var](this.jsScope.getVar(param.getString()).self()))
+				this.escaped[vkey_(cast_[*Var](this.jsScope.getVar(param.getString()).self()))] = struct{}{}
 			}
 		}
 	}
@@ -256,7 +256,7 @@ type LiveVariablesAnalysis_LiveVariableJoinOp struct {
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableJoinOp) finit_LiveVariablesAnalysis_LiveVariableJoinOp() {
-	this.result = new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(this.outer_.orderedVars.size()))
+	this.result = new_LiveVariablesAnalysis_LiveVariableLattice(new_BitSet_int(int32(len(*this.outer_.orderedVars))))
 }
 
 func (this *LiveVariablesAnalysis_LiveVariableJoinOp) init_LiveVariablesAnalysis_LiveVariableJoinOp() {

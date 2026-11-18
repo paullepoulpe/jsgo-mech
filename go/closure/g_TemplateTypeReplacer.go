@@ -42,7 +42,7 @@ func TemplateTypeReplacer_forInference(registry *JSTypeRegistry, bindings *TMap[
 	var values []*JSType
 	for _, el := range immElems_(keys) {
 		key := cast_[*TemplateType](el)
-		var value *JSType = bindings.get(key)
+		var value *JSType = bindings.Get(key)
 		values = immAddObj_(tc_p_JSType, values, func() any {
 			if value != nil {
 				return value.self()
@@ -141,11 +141,11 @@ func (this *TemplateTypeReplacer) caseFunctionTypeUnguarded(type_ *FunctionType)
 		}
 	}
 	if changed {
-		return type_.toBuilder().withParameters_1(func() *TList[*FunctionType_Parameter] {
+		return type_.toBuilder().withParameters_1(func() *[]*FunctionType_Parameter {
 			if paramsChanged {
-				return tlistImm_(tc_p_FunctionType_Parameter, paramBuilder.build())
+				return slicePtrImm_(tc_p_FunctionType_Parameter, paramBuilder.build())
 			}
-			return tlistImm_(tc_p_FunctionType_Parameter, type_.getParameters())
+			return slicePtrImm_(tc_p_FunctionType_Parameter, type_.getParameters())
 		}()).withReturnType(afterReturn).withTypeOfThis(afterThis).withIsAbstract(false).build().up_JSType()
 	}
 	return type_.up_JSType()

@@ -8,12 +8,12 @@ type CheckConformance struct {
 	compiler_       *AbstractCompiler
 	categories      []*CheckConformance_Category
 	mergedBehaviors *TMap[*Requirement, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
-	ruleToBehavior  *TMap[CheckConformance_Rule, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+	ruleToBehavior  map[CheckConformance_Rule]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior
 }
 
 func (this *CheckConformance) finit_CheckConformance() {
 	this.mergedBehaviors = newTMap_(tch_p_Requirement, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
-	this.ruleToBehavior = newTMap_(tc_CheckConformance_Rule, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	this.ruleToBehavior = map[CheckConformance_Rule]ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
 }
 
 func (this *CheckConformance) init_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) {
@@ -58,7 +58,7 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 		if category.precondition.shouldCheck(n) {
 			for r := int32((int32(len(category.rules)) - 1)); r >= 0; r-- {
 				var rule CheckConformance_Rule = sliceAt_(category.rules, r)
-				nn_ := Map_getOrDefault(this.ruleToBehavior.asMap(), rule, obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))
+				nn_ := mapGetOrObj_(tc_CheckConformance_Rule, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, this.ruleToBehavior, rule, obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))
 				if nn_ == nil {
 					panic(new_NullPointerException_0())
 				}
@@ -83,13 +83,13 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 		var rule CheckConformance_Rule = CheckConformance_initRule(compiler, requirement)
 		if rule != nil {
 			builder.put(rule.getPrecondition(), rule)
-			if isLibraryLevelReportingMode && this.mergedBehaviors.containsKey(requirement) {
-				behavior = this.mergedBehaviors.get(requirement)
+			if isLibraryLevelReportingMode && this.mergedBehaviors.Has(requirement) {
+				behavior = this.mergedBehaviors.Get(requirement)
 				if behavior == 0 {
 					panic(new_NullPointerException_String("The mergeBehaviors method inserted a null behavior in the mergedBehaviors map"))
 				}
 			}
-			this.ruleToBehavior.put(rule, behavior)
+			this.ruleToBehavior[rule] = behavior
 		}
 	}
 	var result []*CheckConformance_Category
@@ -156,9 +156,9 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 			var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 			if !requirement.hasExtends() {
 				if !isLibraryLevelConformanceReportingMode {
-					rootRequirements.put(builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)
+					rootRequirements.Put(builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)
 				} else {
-					rootRequirements.put(builder, cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](func() any {
+					rootRequirements.Put(builder, cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](func() any {
 						if hasBehavior {
 							return obj_(behavior)
 						}
@@ -180,20 +180,20 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 					continue
 				}
 				if config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
-					rootRequirements.put(extendableRequirement, config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior())
+					rootRequirements.Put(extendableRequirement, config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior())
 				}
 				CheckConformance_mergeExtendingRequirementIntoExtended(extendableRequirement, requirement)
 			}
 		}
 	}
-	var cleanedUpRootRequirements []*Requirement = make([]*Requirement, 0, rootRequirements.size())
+	var cleanedUpRootRequirements []*Requirement = make([]*Requirement, 0, rootRequirements.Len())
 	for entry := range elemsBy_(rootRequirements.asMap().entrySet(), icast_Map_Entry) {
 		var builder *Requirement_Builder = cast_[*Requirement_Builder](entry.getKey())
 		var behavior ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](entry.getValue())
 		CheckConformance_removeDuplicates(builder)
 		var requirement *Requirement = cast_[*Requirement](builder.build())
 		if (isLibraryLevelConformanceReportingMode && (behavior != 0)) && (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED) {
-			this.mergedBehaviors.put(requirement, behavior)
+			this.mergedBehaviors.Put(requirement, behavior)
 		}
 		cleanedUpRootRequirements = append(cleanedUpRootRequirements, requirement)
 	}

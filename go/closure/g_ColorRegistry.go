@@ -85,7 +85,7 @@ func (this *ColorRegistry_Builder) setNativeColor(x *Color) *ColorRegistry_Build
 	if !ColorRegistry_REQUIRED_IDS.contains(obj_(x.getId())) {
 		panic(new_IllegalStateException_String(tostr_(x)))
 	}
-	this.nativeColors.put(x.getId(), x)
+	this.nativeColors.Put(x.getId(), x)
 	return this
 }
 

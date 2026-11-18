@@ -143,7 +143,7 @@ func (this *VarCheck) handleUndeclaredVariableRef(t *NodeTraversal, n Node) {
 	}
 	if this.validityCheck {
 		panic(new_IllegalStateException_String(("Unexpected variable " + sstr_(varName))))
-	} else if !this.undefinedNamesFromExterns.contains(varName) {
+	} else if !this.undefinedNamesFromExterns.Has(varName) {
 		this.createSynthesizedExternVar(varName, true)
 	}
 }
@@ -159,7 +159,7 @@ func (this *VarCheck) exitScope(t *NodeTraversal) {
 			requiredSymbol := str_(el)
 			var var_ *Var = cast_[*Var](scope.getVar(requiredSymbol).self())
 			if var_ == nil {
-				this.undefinedNamesFromExterns.add(requiredSymbol)
+				this.undefinedNamesFromExterns.Add(requiredSymbol)
 			}
 		}
 	}
@@ -284,7 +284,7 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 					return
 				}
 				t.report(n, VarCheck_UNDEFINED_EXTERN_VAR_ERROR, []string{n.getString()})
-				this.outer_.undefinedNamesFromExterns.add(n.getString())
+				this.outer_.undefinedNamesFromExterns.Add(n.getString())
 			}
 			return
 		case tokOrd1_ASSIGN:
@@ -305,7 +305,7 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 		var scope *Scope = t.getScope()
 		var var_ *Var = cast_[*Var](scope.getVar(n.getString()).self())
 		if var_ == nil {
-			this.outer_.undefinedNamesFromExterns.add(n.getString())
+			this.outer_.undefinedNamesFromExterns.Add(n.getString())
 		}
 	}
 }

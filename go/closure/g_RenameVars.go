@@ -16,7 +16,7 @@ type RenameVars struct {
 	prevUsedRenameMap              *VariableMap
 	prefix_                        string
 	assignmentCount                int32
-	localBleedingFunctions         *TSet[*Var]
+	localBleedingFunctions         map[varKey_]struct{}
 	localBleedingFunctionsPerScope *SimpleListMultimap[*AbstractScope, *Var]
 	assignments                    *TMap[string, *RenameVars_Assignment]
 	localRenamingOnly              bool
@@ -35,7 +35,7 @@ func (this *RenameVars) finit_RenameVars() {
 	this.originalNameByNode = map[Node]string{}
 	this.renameMap = newTMap_(tc_string, tc_string)
 	this.assignmentCount = 0
-	this.localBleedingFunctions = newTSet_(tch_p_Var)
+	this.localBleedingFunctions = map[varKey_]struct{}{}
 	this.localBleedingFunctionsPerScope = SimpleListMultimap_create[*AbstractScope, *Var]()
 	this.assignments = newTMap_(tc_string, tc_p_RenameVars_Assignment)
 }
@@ -114,7 +114,7 @@ func (this *RenameVars) setNameAndReport(n Node, newName OptionalOf[string]) {
 
 func (this *RenameVars) getNewGlobalName(n Node) OptionalOf[string] {
 	var oldName string = n.getString()
-	var a *RenameVars_Assignment = this.assignments.get(oldName)
+	var a *RenameVars_Assignment = this.assignments.Get(oldName)
 	if a.newName.isPresent() && !(a.newName.get() == oldName) {
 		if this.pseudoNameMap != nil {
 			return Optional_ofNullable[string](mapStr_(this.pseudoNameMap, n))
@@ -127,7 +127,7 @@ func (this *RenameVars) getNewGlobalName(n Node) OptionalOf[string] {
 
 func (this *RenameVars) getNewLocalName(n Node) OptionalOf[string] {
 	var oldTempName string = n.getString()
-	var a *RenameVars_Assignment = this.assignments.get(oldTempName)
+	var a *RenameVars_Assignment = this.assignments.Get(oldTempName)
 	if !(a.newName.get() == oldTempName) {
 		if this.pseudoNameMap != nil {
 			return Optional_ofNullable[string](mapStr_(this.pseudoNameMap, n))
@@ -202,7 +202,7 @@ func (this *RenameVars) assignNames(varsToRename SortedSetOf[*RenameVars_Assignm
 
 func (this *RenameVars) finalizeNameAssignment(a *RenameVars_Assignment, newName string) {
 	a.setNewName(newName)
-	this.renameMap.put(a.oldName, newName)
+	this.renameMap.Put(a.oldName, newName)
 }
 
 func (this *RenameVars) getVariableMap() *VariableMap {
@@ -219,7 +219,7 @@ func (this *RenameVars) getLocalVarIndex(v *Var) int32 {
 	if s == nil {
 		panic(new_IllegalArgumentException_String("Var is not local"))
 	}
-	var isBleedingIntoScope bool = ((cast_[*Scope](s.getParent().self()) != nil) && this.localBleedingFunctions.contains(v))
+	var isBleedingIntoScope bool = ((cast_[*Scope](s.getParent().self()) != nil) && has_(this.localBleedingFunctions, vkey_(v)))
 	for cast_[*Scope](s.getParent().self()) != nil {
 		if isBleedingIntoScope {
 			num += (this.localBleedingFunctionsPerScope.get(obj_(s)).indexOf(obj_(v)) + 1)
@@ -335,7 +335,7 @@ func (this *RenameVars_ProcessVars) enterScope(t *NodeTraversal) {
 	var scope *Scope = t.getScope()
 	for current := range elemsAs_[*Var](scope.getVarIterable()) {
 		if current.isBleedingFunction() {
-			this.outer_.localBleedingFunctions.add(current)
+			this.outer_.localBleedingFunctions[vkey_(current)] = struct{}{}
 			this.outer_.localBleedingFunctionsPerScope.put(scope.getParent(), current)
 		}
 	}
@@ -391,7 +391,7 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 }
 
 func (this *RenameVars_ProcessVars) incCount(name string) {
-	var s *RenameVars_Assignment = this.outer_.assignments.computeIfAbsent_f(name, func(p0 any) any { return obj_(new_RenameVars_Assignment(this.outer_, str_(p0))) })
+	var s *RenameVars_Assignment = this.outer_.assignments.ComputeIfAbsent(name, func(p0 string) *RenameVars_Assignment { return new_RenameVars_Assignment(this.outer_, p0) })
 	s.count_++
 }
 

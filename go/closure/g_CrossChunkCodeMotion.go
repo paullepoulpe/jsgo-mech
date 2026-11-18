@@ -57,7 +57,7 @@ func (this *CrossChunkCodeMotion) addInstanceofGuards(globalSymbols CollectionOf
 }
 
 func (this *CrossChunkCodeMotion) moveGlobalSymbols(globalSymbols CollectionOf[*CrossChunkCodeMotion_GlobalSymbol]) {
-	for globalSymbolCycle := range new_CrossChunkCodeMotion_OrderAndCombineGlobalSymbols(this, globalSymbols).orderAndCombine().All() {
+	for globalSymbolCycle := range sliceAll_(new_CrossChunkCodeMotion_OrderAndCombineGlobalSymbols(this, globalSymbols).orderAndCombine()) {
 		globalSymbolCycle.moveDeclarationStatements()
 	}
 }
@@ -131,12 +131,12 @@ func (this *CrossChunkCodeMotion) isInstanceofFor(expression Node, reference Nod
 
 type CrossChunkCodeMotion_GlobalSymbolCollector struct {
 	outer_             *CrossChunkCodeMotion
-	globalSymbolforVar *TMap[*Var, *CrossChunkCodeMotion_GlobalSymbol]
+	globalSymbolforVar map[varKey_]*CrossChunkCodeMotion_GlobalSymbol
 	symbolStack        DequeOf[*CrossChunkCodeMotion_GlobalSymbol]
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) finit_CrossChunkCodeMotion_GlobalSymbolCollector() {
-	this.globalSymbolforVar = newTMap_(tch_p_Var, tc_p_CrossChunkCodeMotion_GlobalSymbol)
+	this.globalSymbolforVar = map[varKey_]*CrossChunkCodeMotion_GlobalSymbol{}
 	this.symbolStack = new_ArrayDeque()
 }
 
@@ -152,7 +152,7 @@ func new_CrossChunkCodeMotion_GlobalSymbolCollector(outer_ *CrossChunkCodeMotion
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) collectGlobalSymbols(referenceCollector *CrossChunkReferenceCollector) CollectionOf[*CrossChunkCodeMotion_GlobalSymbol] {
-	for statement := range referenceCollector.getTopLevelStatements().All() {
+	for statement := range sliceAll_(referenceCollector.getTopLevelStatements()) {
 		if statement.isDeclarationStatement() {
 			this.processDeclarationStatement(statement)
 		} else {
@@ -163,7 +163,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) collectGlobalSymbols(ref
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processImmovableStatement(statement *CrossChunkReferenceCollector_TopLevelStatement) {
-	for ref := range statement.getNonDeclarationReferences().All() {
+	for ref := range sliceAll_(statement.getNonDeclarationReferences()) {
 		this.processImmovableReference(ref, statement.getChunk())
 	}
 }
@@ -190,7 +190,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatem
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatementContainedReferences(statement *CrossChunkReferenceCollector_TopLevelStatement, declaredSymbol *CrossChunkCodeMotion_GlobalSymbol, dsg *CrossChunkCodeMotion_DeclarationStatementGroup) {
-	for ref := range statement.getNonDeclarationReferences().All() {
+	for ref := range sliceAll_(statement.getNonDeclarationReferences()) {
 		var refSymbol *CrossChunkCodeMotion_GlobalSymbol = this.getGlobalSymbol(cast_[*Var](ref.getSymbol()))
 		if equalsId_(refSymbol, declaredSymbol) {
 			continue
@@ -211,10 +211,10 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatem
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) getGlobalSymbol(var_ *Var) *CrossChunkCodeMotion_GlobalSymbol {
-	var globalSymbol *CrossChunkCodeMotion_GlobalSymbol = this.globalSymbolforVar.get(var_)
+	var globalSymbol *CrossChunkCodeMotion_GlobalSymbol = this.globalSymbolforVar[vkey_(var_)]
 	if globalSymbol == nil {
 		globalSymbol = new_CrossChunkCodeMotion_GlobalSymbol(this.outer_, var_)
-		this.globalSymbolforVar.put(var_, globalSymbol)
+		this.globalSymbolforVar[vkey_(var_)] = globalSymbol
 		this.symbolStack.push(obj_(globalSymbol))
 	}
 	return globalSymbol
@@ -223,7 +223,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) getGlobalSymbol(var_ *Va
 type CrossChunkCodeMotion_GlobalSymbol struct {
 	outer_                                       *CrossChunkCodeMotion
 	var_                                         *Var
-	dsgStack                                     DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup]
+	dsgStack                                     *TList[*CrossChunkCodeMotion_DeclarationStatementGroup]
 	chunksWithImmovableReferences                *BitSet
 	referencingGlobalSymbols                     *TSet[*CrossChunkCodeMotion_GlobalSymbol]
 	instanceofReferencesToGuard                  []CrossChunkCodeMotion_InstanceofReference
@@ -233,7 +233,7 @@ type CrossChunkCodeMotion_GlobalSymbol struct {
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbol) finit_CrossChunkCodeMotion_GlobalSymbol() {
-	this.dsgStack = new_ArrayDeque()
+	this.dsgStack = newTList_(tc_p_CrossChunkCodeMotion_DeclarationStatementGroup)
 	this.chunksWithImmovableReferences = new_BitSet_int(this.outer_.graph.getChunkCount())
 	this.referencingGlobalSymbols = newTSet_(tc_p_CrossChunkCodeMotion_GlobalSymbol)
 	this.instanceofReferencesToGuard = []CrossChunkCodeMotion_InstanceofReference{}
@@ -264,30 +264,30 @@ func (this *CrossChunkCodeMotion_GlobalSymbol) addImmovableReference(chunk *JSCh
 
 func (this *CrossChunkCodeMotion_GlobalSymbol) addDeclarationStatement(statement *CrossChunkReferenceCollector_TopLevelStatement) *CrossChunkCodeMotion_DeclarationStatementGroup {
 	var chunk *JSChunk = statement.getChunk()
-	var lastDsg *CrossChunkCodeMotion_DeclarationStatementGroup = cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](this.dsgStack.peek())
+	var lastDsg *CrossChunkCodeMotion_DeclarationStatementGroup = this.dsgStack.peekTop_()
 	if lastDsg == nil {
 		lastDsg = new_CrossChunkCodeMotion_DeclarationStatementGroup(this, chunk)
-		this.dsgStack.push(obj_(lastDsg))
+		this.dsgStack.push_(lastDsg)
 	}
 	var statementDsg *CrossChunkCodeMotion_DeclarationStatementGroup
 	if equalsId_(chunk, lastDsg.currentChunk) {
 		statementDsg = lastDsg
 	} else {
 		statementDsg = new_CrossChunkCodeMotion_DeclarationStatementGroup(this, chunk)
-		this.dsgStack.push(obj_(statementDsg))
+		this.dsgStack.push_(statementDsg)
 	}
-	statementDsg.statementStack.push(obj_(statement))
+	statementDsg.statementStack.push_(statement)
 	return statementDsg
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbol) addReferringGlobalSymbol(declaredSymbol *CrossChunkCodeMotion_GlobalSymbol) {
-	this.referencingGlobalSymbols.add(declaredSymbol)
+	this.referencingGlobalSymbols.Add(declaredSymbol)
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbol) declarationsCoverChunk(chunk *JSChunk) bool {
-	it_1 := foreach_(this.dsgStack)
+	it_1 := this.dsgStack.eachRev()
 	for it_1.next() {
-		var dsg *CrossChunkCodeMotion_DeclarationStatementGroup = cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](it_1.v)
+		var dsg *CrossChunkCodeMotion_DeclarationStatementGroup = it_1.v
 		if equalsId_(chunk, dsg.currentChunk) || this.outer_.graph.dependsOn(chunk, dsg.currentChunk) {
 			return true
 		}
@@ -340,9 +340,9 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) moveDeclarationStatements() 
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgCyclesLatestFirst() []*CrossChunkCodeMotion_DeclarationStatementGroupCycle {
 	var cyclesLatestFirst []*CrossChunkCodeMotion_DeclarationStatementGroupCycle = []*CrossChunkCodeMotion_DeclarationStatementGroupCycle{}
-	var dsgsLatestFirst DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup] = this.getDsgsLatestFirst()
+	var dsgsLatestFirst *TList[*CrossChunkCodeMotion_DeclarationStatementGroup] = this.getDsgsLatestFirst()
 	var cycle *CrossChunkCodeMotion_DeclarationStatementGroupCycle = nil
-	for dsg := range elemsAs_[*CrossChunkCodeMotion_DeclarationStatementGroup](dsgsLatestFirst) {
+	for dsg := range elemsAs_[*CrossChunkCodeMotion_DeclarationStatementGroup](tdequeView_(dsgsLatestFirst, false)) {
 		if (cycle == nil) || !equalsId_(cycle.currentChunk, dsg.currentChunk) {
 			cycle = new_CrossChunkCodeMotion_DeclarationStatementGroupCycle(this.outer_, dsg.currentChunk)
 			cyclesLatestFirst = append(cyclesLatestFirst, cycle)
@@ -352,30 +352,30 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgCyclesLatestFirst() []
 	return cyclesLatestFirst
 }
 
-func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgsLatestFirst() DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup] {
-	var resultStack DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup] = new_ArrayDeque()
+func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgsLatestFirst() *TList[*CrossChunkCodeMotion_DeclarationStatementGroup] {
+	var resultStack *TList[*CrossChunkCodeMotion_DeclarationStatementGroup] = newTList_(tc_p_CrossChunkCodeMotion_DeclarationStatementGroup)
 	for symbol := range sliceAll_(&this.symbols) {
-		var stack1 DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup] = resultStack
-		var stack2 DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup] = new_ArrayDeque_Collection(Collection(symbol.dsgStack))
-		resultStack = new_ArrayDeque_int((stack1.size() + stack2.size()))
+		var stack1 *TList[*CrossChunkCodeMotion_DeclarationStatementGroup] = resultStack
+		var stack2 *TList[*CrossChunkCodeMotion_DeclarationStatementGroup] = tlistFromRev_(tc_p_CrossChunkCodeMotion_DeclarationStatementGroup, Collection(tdequeView_(symbol.dsgStack, true)))
+		resultStack = newTListN_(tc_p_CrossChunkCodeMotion_DeclarationStatementGroup, (stack1.size() + stack2.size()))
 		for {
 			if stack1.isEmpty() {
-				resultStack.addAll(Collection(stack2))
+				tdequeView_(resultStack, false).addAll(Collection(tdequeView_(stack2, true)))
 				break
 			} else if stack2.isEmpty() {
-				resultStack.addAll(Collection(stack1))
+				tdequeView_(resultStack, false).addAll(Collection(tdequeView_(stack1, false)))
 				break
 			} else {
-				var dsg1 *CrossChunkCodeMotion_DeclarationStatementGroup = cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](stack1.peek())
-				var dsg2 *CrossChunkCodeMotion_DeclarationStatementGroup = cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](stack2.peek())
+				var dsg1 *CrossChunkCodeMotion_DeclarationStatementGroup = stack1.peekFirst_()
+				var dsg2 *CrossChunkCodeMotion_DeclarationStatementGroup = stack2.peekTop_()
 				if dsg1.currentChunk.getIndex() > dsg2.currentChunk.getIndex() {
-					resultStack.add(stack1.pop())
-					if !stack1.isEmpty() && stack1.peek().(*CrossChunkCodeMotion_DeclarationStatementGroup).currentChunk.getIndex() > dsg1.currentChunk.getIndex() {
+					resultStack.push_(cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](obj_(stack1.popFirst_())))
+					if !stack1.isEmpty() && obj_(stack1.peekFirst_()).(*CrossChunkCodeMotion_DeclarationStatementGroup).currentChunk.getIndex() > dsg1.currentChunk.getIndex() {
 						panic(new_IllegalStateException_String("DSG stacks are out of order."))
 					}
 				} else {
-					resultStack.add(stack2.pop())
-					if !stack2.isEmpty() && stack2.peek().(*CrossChunkCodeMotion_DeclarationStatementGroup).currentChunk.getIndex() > dsg2.currentChunk.getIndex() {
+					resultStack.push_(cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](obj_(stack2.pop_())))
+					if !stack2.isEmpty() && obj_(stack2.peekTop_()).(*CrossChunkCodeMotion_DeclarationStatementGroup).currentChunk.getIndex() > dsg2.currentChunk.getIndex() {
 						panic(new_IllegalStateException_String("DSG stacks are out of order."))
 					}
 				}
@@ -389,12 +389,12 @@ type CrossChunkCodeMotion_DeclarationStatementGroup struct {
 	declaredGlobalSymbol    *CrossChunkCodeMotion_GlobalSymbol
 	referencedGlobalSymbols *TSet[*CrossChunkCodeMotion_GlobalSymbol]
 	currentChunk            *JSChunk
-	statementStack          DequeOf[*CrossChunkReferenceCollector_TopLevelStatement]
+	statementStack          *TList[*CrossChunkReferenceCollector_TopLevelStatement]
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) finit_CrossChunkCodeMotion_DeclarationStatementGroup() {
 	this.referencedGlobalSymbols = newTSet_(tc_p_CrossChunkCodeMotion_GlobalSymbol)
-	this.statementStack = new_ArrayDeque()
+	this.statementStack = newTList_(tc_p_CrossChunkReferenceCollector_TopLevelStatement)
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) init_CrossChunkCodeMotion_DeclarationStatementGroup(declaredGlobalSymbol *CrossChunkCodeMotion_GlobalSymbol, currentChunk *JSChunk) {
@@ -410,9 +410,9 @@ func new_CrossChunkCodeMotion_DeclarationStatementGroup(declaredGlobalSymbol *Cr
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) allStatementsCanMove() bool {
-	it_1 := foreach_(this.statementStack)
+	it_1 := this.statementStack.eachRev()
 	for it_1.next() {
-		var s *CrossChunkReferenceCollector_TopLevelStatement = cast_[*CrossChunkReferenceCollector_TopLevelStatement](it_1.v)
+		var s *CrossChunkReferenceCollector_TopLevelStatement = it_1.v
 		if !s.isMovableDeclaration() {
 			return false
 		}
@@ -421,7 +421,7 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroup) allStatementsCanMove
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) addReferenceToGlobalSymbol(refSymbol *CrossChunkCodeMotion_GlobalSymbol) {
-	this.referencedGlobalSymbols.add(refSymbol)
+	this.referencedGlobalSymbols.Add(refSymbol)
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) makeReferencesImmovable() {
@@ -439,7 +439,7 @@ type CrossChunkCodeMotion_OrderAndCombineGlobalSymbols struct {
 	inputSymbols             CollectionOf[*CrossChunkCodeMotion_GlobalSymbol]
 	componentContents        []*CrossChunkCodeMotion_GlobalSymbol
 	componentRoots           []*CrossChunkCodeMotion_GlobalSymbol
-	stronglyConnectedSymbols *TList[*CrossChunkCodeMotion_GlobalSymbolCycle]
+	stronglyConnectedSymbols *[]*CrossChunkCodeMotion_GlobalSymbolCycle
 	preorderCounter          int32
 }
 
@@ -452,7 +452,7 @@ func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) finit_CrossChunkC
 func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) init_CrossChunkCodeMotion_OrderAndCombineGlobalSymbols(dsgs CollectionOf[*CrossChunkCodeMotion_GlobalSymbol]) {
 	this.finit_CrossChunkCodeMotion_OrderAndCombineGlobalSymbols()
 	this.inputSymbols = dsgs
-	this.stronglyConnectedSymbols = newTListN_(tc_p_CrossChunkCodeMotion_GlobalSymbolCycle, dsgs.size())
+	this.stronglyConnectedSymbols = sliceRef_(make([]*CrossChunkCodeMotion_GlobalSymbolCycle, 0, dsgs.size()))
 }
 
 func new_CrossChunkCodeMotion_OrderAndCombineGlobalSymbols(outer_ *CrossChunkCodeMotion, dsgs CollectionOf[*CrossChunkCodeMotion_GlobalSymbol]) *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols {
@@ -462,7 +462,7 @@ func new_CrossChunkCodeMotion_OrderAndCombineGlobalSymbols(outer_ *CrossChunkCod
 	return this
 }
 
-func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) orderAndCombine() *TList[*CrossChunkCodeMotion_GlobalSymbolCycle] {
+func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) orderAndCombine() *[]*CrossChunkCodeMotion_GlobalSymbolCycle {
 	for globalSymbol := range elemsAs_[*CrossChunkCodeMotion_GlobalSymbol](this.inputSymbols) {
 		if globalSymbol.preorderNumber < 0 {
 			this.processGlobalSymbol(globalSymbol)
@@ -499,7 +499,7 @@ func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) processGlobalSymb
 			cycle.addSymbol(connectedSymbol)
 			connectedSymbol.hasBeenAssignedToAStronglyConnectedComponent = true
 		}
-		this.stronglyConnectedSymbols.push_(cycle)
+		*this.stronglyConnectedSymbols = append(*this.stronglyConnectedSymbols, cycle)
 	}
 }
 
@@ -550,8 +550,8 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getGlobalSymbol
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveStatementsToChunk(preferredChunk *JSChunk) {
 	var destParent Node = Node_of_(mapComputeIfAbsentObj_f(tc_p_JSChunk, tc_Node, this.outer_.chunkInsertionPointMap, obj_(preferredChunk), func(p0 any) any { return this.outer_.compiler_.getNodeForCodeInsertion(cast_[*JSChunk](p0)).box_() }))
-	var statementsLastFirst DequeOf[*CrossChunkReferenceCollector_TopLevelStatement] = this.getStatementsLastFirst()
-	for statement := range elemsAs_[*CrossChunkReferenceCollector_TopLevelStatement](statementsLastFirst) {
+	var statementsLastFirst *TList[*CrossChunkReferenceCollector_TopLevelStatement] = this.getStatementsLastFirst()
+	for statement := range elemsAs_[*CrossChunkReferenceCollector_TopLevelStatement](tdequeView_(statementsLastFirst, false)) {
 		var statementNode Node = statement.getStatementNode()
 		this.outer_.compiler_.reportChangeToEnclosingScope(statementNode)
 		var originalScript Node = NodeUtil_getEnclosingScript(statementNode)
@@ -562,30 +562,30 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveStatementsT
 	}
 }
 
-func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getStatementsLastFirst() DequeOf[*CrossChunkReferenceCollector_TopLevelStatement] {
-	var result DequeOf[*CrossChunkReferenceCollector_TopLevelStatement] = new_ArrayDeque()
+func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getStatementsLastFirst() *TList[*CrossChunkReferenceCollector_TopLevelStatement] {
+	var result *TList[*CrossChunkReferenceCollector_TopLevelStatement] = newTList_(tc_p_CrossChunkReferenceCollector_TopLevelStatement)
 	for dsg := range sliceAll_(&this.dsgs) {
-		var stack1 DequeOf[*CrossChunkReferenceCollector_TopLevelStatement] = new_ArrayDeque_Collection(Collection(dsg.statementStack))
-		var stack2 DequeOf[*CrossChunkReferenceCollector_TopLevelStatement] = result
-		result = new_ArrayDeque_int((stack1.size() + stack2.size()))
+		var stack1 *TList[*CrossChunkReferenceCollector_TopLevelStatement] = tlistFromRev_(tc_p_CrossChunkReferenceCollector_TopLevelStatement, Collection(tdequeView_(dsg.statementStack, true)))
+		var stack2 *TList[*CrossChunkReferenceCollector_TopLevelStatement] = result
+		result = newTListN_(tc_p_CrossChunkReferenceCollector_TopLevelStatement, (stack1.size() + stack2.size()))
 		for {
 			if stack1.isEmpty() {
-				result.addAll(Collection(stack2))
+				tdequeView_(result, false).addAll(Collection(tdequeView_(stack2, false)))
 				break
 			} else if stack2.isEmpty() {
-				result.addAll(Collection(stack1))
+				tdequeView_(result, false).addAll(Collection(tdequeView_(stack1, true)))
 				break
 			} else {
-				var s1 *CrossChunkReferenceCollector_TopLevelStatement = cast_[*CrossChunkReferenceCollector_TopLevelStatement](stack1.peek())
-				var s2 *CrossChunkReferenceCollector_TopLevelStatement = cast_[*CrossChunkReferenceCollector_TopLevelStatement](stack2.peek())
+				var s1 *CrossChunkReferenceCollector_TopLevelStatement = stack1.peekTop_()
+				var s2 *CrossChunkReferenceCollector_TopLevelStatement = stack2.peekFirst_()
 				if s1.getOriginalOrder() > s2.getOriginalOrder() {
-					result.add(stack1.pop())
-					if !stack1.isEmpty() && stack1.peek().(*CrossChunkReferenceCollector_TopLevelStatement).getOriginalOrder() >= s1.getOriginalOrder() {
+					result.push_(cast_[*CrossChunkReferenceCollector_TopLevelStatement](obj_(stack1.pop_())))
+					if !stack1.isEmpty() && obj_(stack1.peekTop_()).(*CrossChunkReferenceCollector_TopLevelStatement).getOriginalOrder() >= s1.getOriginalOrder() {
 						panic(new_IllegalStateException_String("Statements are recorded in the wrong order."))
 					}
 				} else {
-					result.add(stack2.pop())
-					if !stack2.isEmpty() && stack2.peek().(*CrossChunkReferenceCollector_TopLevelStatement).getOriginalOrder() >= s2.getOriginalOrder() {
+					result.push_(cast_[*CrossChunkReferenceCollector_TopLevelStatement](obj_(stack2.popFirst_())))
+					if !stack2.isEmpty() && obj_(stack2.peekFirst_()).(*CrossChunkReferenceCollector_TopLevelStatement).getOriginalOrder() >= s2.getOriginalOrder() {
 						panic(new_IllegalStateException_String("Statements are recorded in the wrong order."))
 					}
 				}

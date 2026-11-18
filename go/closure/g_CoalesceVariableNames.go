@@ -66,7 +66,7 @@ func (this *CoalesceVariableNames) process_2(externs Node, root Node) {
 func CoalesceVariableNames_shouldOptimizeScope(t *NodeTraversal) *NodeUtil_AllVarsDeclaredInFunction {
 	if t.getScopeRoot().isFunction() {
 		var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(t.getCompiler(), t.getScopeCreator(), t.getScope())
-		if LiveVariablesAnalysis_MAX_VARIABLES_TO_ANALYZE > allVarsDeclaredInFunction.getAllVariablesInOrder().size() {
+		if LiveVariablesAnalysis_MAX_VARIABLES_TO_ANALYZE > int32(len(*allVarsDeclaredInFunction.getAllVariablesInOrder())) {
 			return allVarsDeclaredInFunction
 		}
 	}
@@ -113,7 +113,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 	if (len(this.colorings) == 0 || !n.isName()) || parent.isFunction() {
 		return
 	}
-	var var_ *Var = this.liveness.getAllVariables().get(n.getString())
+	var var_ *Var = this.liveness.getAllVariables().Get(n.getString())
 	var vNode GraphNode = slicePeekTop_(tc_p_GraphColoring, this.colorings).getGraph().getNode(obj_(var_))
 	if vNode == nil {
 		return
@@ -128,7 +128,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 		this.updateDeclarationsPostCoalescing(n, coalescedVar, var_, parent)
 	} else {
 		var allMergedNames *TTreeSet[string] = newTTreeSet_(tc_string)
-		for iVar := range this.liveness.getAllVariablesInOrder().All() {
+		for iVar := range sliceAll_(this.liveness.getAllVariablesInOrder()) {
 			if (slicePeekTop_(tc_p_GraphColoring, this.colorings).getGraph().getNode(obj_(iVar)) != nil) && slicePeekTop_(tc_p_GraphColoring, this.colorings).haveSameColor(obj_(iVar), obj_(coalescedVar)) {
 				allMergedNames.add(iVar.getName())
 			}
@@ -167,9 +167,9 @@ func (this *CoalesceVariableNames) isNameInsideDestructuringAssignment(n Node) b
 	return false
 }
 
-func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *ControlFlowGraph, escaped *TSet[*Var]) *UndiGraph {
+func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *ControlFlowGraph, escaped map[varKey_]struct{}) *UndiGraph {
 	var interferenceGraph *UndiGraph = LinkedUndirectedGraph_create().up_UndiGraph()
-	var orderedVariables []*Var = arrmap_(this.liveness.getAllVariablesInOrder().asList().toArray(arrmap_(make([]*Var, 0), func(v_ *Var) any { return obj_(v_) })), func(v_ any) *Var { return cast_[*Var](v_) })
+	var orderedVariables []*Var = arrmap_(sliceViewP_(tc_p_Var, this.liveness.getAllVariablesInOrder()).toArray(arrmap_(make([]*Var, 0), func(v_ *Var) any { return obj_(v_) })), func(v_ any) *Var { return cast_[*Var](v_) })
 	var interferenceGraphNodes *BitSet = new_BitSet()
 	var interferenceBitSet []*BitSet = make([]*BitSet, int32(len(orderedVariables)))
 	func() {
@@ -183,7 +183,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 	var vIndex int32 = -1
 	for _, v := range orderedVariables {
 		vIndex++
-		if escaped.contains(v) {
+		if has_(escaped, vkey_(v)) {
 			continue
 		}
 		if v.getParentNode().isFunction() {

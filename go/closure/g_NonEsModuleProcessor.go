@@ -51,7 +51,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolveExport_impl(moduleRequestRe
 	panic(new_UnsupportedOperationException_0())
 }
 
-func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string], exportName OptionalOf[string], resolveSet *TSet[*ExportTrace], exportStarSet map[*UnresolvedModule]struct{}) *ResolveExportResult {
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string], exportName OptionalOf[string], resolveSet map[exportTraceKey_]struct{}, exportStarSet map[*UnresolvedModule]struct{}) *ResolveExportResult {
 	var namespace OptionalOf[string] = Optional_empty[string]()
 	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.get()) {
 		namespace = Optional_of[string](GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()))
@@ -99,7 +99,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolveExport(p0 ModuleRequestReso
 }
 
 // resolveExport_5: an object that is exactly a NonEsModuleProcessor_NonEsModule calls its resolveExport_5_impl directly (post-flip); others dispatch.
-func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5(p0 ModuleRequestResolver, p1 OptionalOf[string], p2 OptionalOf[string], p3 *TSet[*ExportTrace], p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
+func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5(p0 ModuleRequestResolver, p1 OptionalOf[string], p2 OptionalOf[string], p3 map[exportTraceKey_]struct{}, p4 map[*UnresolvedModule]struct{}) *ResolveExportResult {
 	if p, _ := this.self_.(*NonEsModuleProcessor_NonEsModule); p == this {
 		return this.resolveExport_5_impl(p0, p1, p2, p3, p4)
 	}

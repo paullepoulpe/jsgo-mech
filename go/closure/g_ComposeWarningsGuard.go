@@ -26,13 +26,13 @@ func (this *ComposeWarningsGuard) finit_ComposeWarningsGuard() {
 	this.guards = new_TreeSet_Comparator(this.guardComparator)
 }
 
-func (this *ComposeWarningsGuard) init_ComposeWarningsGuard(guards *TList[*WarningsGuard]) {
+func (this *ComposeWarningsGuard) init_ComposeWarningsGuard(guards *[]*WarningsGuard) {
 	this.WarningsGuard.init_WarningsGuard()
 	this.finit_ComposeWarningsGuard()
-	this.addGuards(Iterable(guards.asList()))
+	this.addGuards(Iterable(slicePtrView_(tc_p_WarningsGuard, guards)))
 }
 
-func new_ComposeWarningsGuard(guards *TList[*WarningsGuard]) *ComposeWarningsGuard {
+func new_ComposeWarningsGuard(guards *[]*WarningsGuard) *ComposeWarningsGuard {
 	this := &ComposeWarningsGuard{}
 	this.self_ = this
 	this.init_ComposeWarningsGuard(guards)
@@ -40,7 +40,7 @@ func new_ComposeWarningsGuard(guards *TList[*WarningsGuard]) *ComposeWarningsGua
 }
 
 func ComposeWarningsGuard_createFromGuards(guards []*WarningsGuard) *ComposeWarningsGuard {
-	return new_ComposeWarningsGuard(tlistImm_(tc_p_WarningsGuard, ImmutableList_copyOf_ObjectArr(arrmap_(guards, func(v_ *WarningsGuard) any { return v_.self() }))))
+	return new_ComposeWarningsGuard(slicePtrImm_(tc_p_WarningsGuard, ImmutableList_copyOf_ObjectArr(arrmap_(guards, func(v_ *WarningsGuard) any { return v_.self() }))))
 }
 
 func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {

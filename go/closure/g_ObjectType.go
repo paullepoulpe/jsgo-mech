@@ -580,13 +580,13 @@ func (this *ObjectType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType]
 	return ImmutableSet_of()
 }
 
-func (this *ObjectType) getPropertyTypeMap_impl() *TMap[string, *JSType] {
+func (this *ObjectType) getPropertyTypeMap_impl() map[string]*JSType {
 	var propTypeMap ImmutableMap_BuilderOf[string, *JSType] = ImmutableMap_builder()
 	for _, el := range immElems_(this.getPropertyNames()) {
 		name := str_(el)
 		propTypeMap.put(strobj_(name), this.getPropertyType(name).self())
 	}
-	return tmapFrom_(tc_string, tc_p_JSType, propTypeMap.buildOrThrow(), true)
+	return mapImm_(tc_string, tc_p_JSType, propTypeMap.buildOrThrow())
 }
 
 func (this *ObjectType) getEnumeratedTypeOfEnumObject_impl() *JSType {
@@ -645,7 +645,7 @@ func (this *ObjectType) hasCachedValues() bool {
 	return this.self_.hasCachedValues_impl()
 }
 
-func (this *ObjectType) getPropertyTypeMap() *TMap[string, *JSType] {
+func (this *ObjectType) getPropertyTypeMap() map[string]*JSType {
 	return this.self_.getPropertyTypeMap_impl()
 }
 

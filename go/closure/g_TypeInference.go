@@ -1435,7 +1435,7 @@ func (this *TypeInference) buildTypeVariables(inferredTypes *TMap[*TemplateType,
 	var typeVars *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
 	for eKey, eValue := range inferredTypes.All() {
 		if !eKey.isTypeTransformation() {
-			typeVars.put(eKey.getReferenceName().orElseThrow(), eValue)
+			typeVars.Put(eKey.getReferenceName().orElseThrow(), eValue)
 		}
 	}
 	return typeVars
@@ -1454,8 +1454,8 @@ func (this *TypeInference) evaluateTypeTransformations(templateTypes ImmutableLi
 				result = newTMap_(tch_p_TemplateType, tc_p_JSType)
 			}
 			var transformedType *JSType = ttlObj.eval(type_.getTypeTransformation(), ImmutableMap_copyOf(typeVars.asMap()))
-			result.put(type_, transformedType)
-			typeVars.put(type_.getReferenceName().orElse(nullstr_), transformedType)
+			result.Put(type_, transformedType)
+			typeVars.Put(type_.getReferenceName().orElse(nullstr_), transformedType)
 		}
 	}
 	return result
@@ -1470,7 +1470,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 	var inferred *TMap[*TemplateType, *JSType] = newTMap_(tch_p_TemplateType, tc_p_JSType)
 	for _, el := range immElems_(keys) {
 		key := cast_[*TemplateType](el)
-		inferred.put(key, to_JSType(Map_getOrDefault(icast_Map(obj_(bindings)), obj_(key), this.unknownType.self())))
+		inferred.Put(key, to_JSType(Map_getOrDefault(icast_Map(obj_(bindings)), obj_(key), this.unknownType.self())))
 	}
 	Map_replaceAll_f(inferred.asMap(), lambda_TypeInference_inferTemplatedTypesForCall_1_)
 	var typeTransformations *TMap[*TemplateType, *JSType] = this.evaluateTypeTransformations(keys, inferred, scope)

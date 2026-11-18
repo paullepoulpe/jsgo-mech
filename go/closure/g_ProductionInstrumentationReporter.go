@@ -75,7 +75,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 			if value.isErr() {
 				return Outcome_base_err[Map](value.error())
 			}
-			map_.put(str_(member.getKey()), value.get())
+			map_.Put(str_(member.getKey()), value.get())
 		}
 		return Outcome_base_ok_Object[Map](map_.asMap())
 	} else if document.kind() != SimpleJsonValue_Kind_ARRAY {
@@ -95,7 +95,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 		if value.isErr() {
 			return Outcome_base_err[Map](value.error())
 		}
-		var replaced any = map_.put(key.get(), value.get())
+		var replaced any = map_.Put(key.get(), value.get())
 		if replaced != nil {
 			return Outcome_base_err[Map](new_SimpleJsonException(("duplicate key: " + sstr_(key.get()))).up_Throwable())
 		}
@@ -126,7 +126,7 @@ func (this *ProductionInstrumentationReporter) createFile(fileName string, fileC
 
 func (this *ProductionInstrumentationReporter) doMain(args []string) *Outcome_base[any] {
 	this.parseCmdLineArguments(args)
-	var mapping *Outcome_base[Map] = ReportDecoder_parseMappingFromFile(this.instrumentationMappingLocation)
+	var mapping *Outcome_base[*TMap[string, *InstrumentationPoint]] = ReportDecoder_parseMappingFromFile(this.instrumentationMappingLocation)
 	if mapping.isErr() {
 		return Outcome_base_err[any](mapping.error())
 	}
