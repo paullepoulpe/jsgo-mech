@@ -34,10 +34,10 @@ type RemoveUnusedCode struct {
 
 func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.worklist = newTDeque_(jtc_p_RemoveUnusedCode_Continuation)
-	this.varInfoMap = jnewTMap_(tce_p_Var, tc_RemoveUnusedCode_VarInfo)
+	this.varInfoMap = jnewTMap_(tce_p_Var, jtc_RemoveUnusedCode_VarInfo)
 	this.pinnedPropertyNames = jtsetFrom_(jtc_string, icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES.asImm())))
 	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_Removable]()
-	this.allFunctionParamScopes = newTList_(tc_p_Scope.t_())
+	this.allFunctionParamScopes = newTList_(jtc_p_Scope.t_())
 	this.polyfills = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_PolyfillInfo]()
 	this.guardedUsages = jnewTSet_(jtc_Node)
 }
@@ -2841,7 +2841,7 @@ func (this *RemoveUnusedCode_RealVarInfo) zero_RemoveUnusedCode_RealVarInfo() {
 }
 
 func (this *RemoveUnusedCode_RealVarInfo) finit_RemoveUnusedCode_RealVarInfo() {
-	this.removables = newTList_(tc_p_RemoveUnusedCode_Removable.t_())
+	this.removables = newTList_(jtc_p_RemoveUnusedCode_Removable.t_())
 	this.isEntirelyRemovable = true
 	this.hasNonLocalOrNonLiteralValue = false
 	this.hasFunctionOrClassLiteralValueField = false

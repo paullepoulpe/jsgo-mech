@@ -9,7 +9,7 @@ type CollapseVariableDeclarations struct {
 }
 
 func (this *CollapseVariableDeclarations) finit_CollapseVariableDeclarations() {
-	this.collapses = newTList_(tc_p_CollapseVariableDeclarations_Collapse.t_())
+	this.collapses = newTList_(jtc_p_CollapseVariableDeclarations_Collapse.t_())
 	this.nodesToCollapse = jnewTSet_(jtc_Node)
 }
 

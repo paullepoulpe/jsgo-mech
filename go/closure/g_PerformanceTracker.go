@@ -405,7 +405,7 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 		return this.transitiveSummarySources
 	}()))), ("Type summary sources (post-pruning):   " + istr_(int64(this.transitiveSummarySources))), "", ("Dependency pruning analysis: " + sstr_(this.pruningAnalysisSummary))}))
 	output.println(JSCompStrings_lines([]string{"", "Summary:", "pass,runtime,allocMem,runs,changingRuns,astReduction,reduction,gzReduction"}))
-	var sortedPassSummary *TList[Map_Entry] = tlistFrom_(tc_Map_Entry.t_(), Collection(this.passSummary.asImm().entrySet()))
+	var sortedPassSummary *TList[Map_Entry] = tlistFrom_(jtc_Map_Entry.t_(), Collection(this.passSummary.asImm().entrySet()))
 	List_sort(sortedPassSummary.asList(), Comparator_comparingLong(&ToLongFunction_tfn_Map_Entry{func(e Map_Entry) int64 {
 		return e.getValue().(*PerformanceTracker_Stats).runtime_
 	}}))

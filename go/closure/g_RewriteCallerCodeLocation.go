@@ -13,7 +13,7 @@ type RewriteCallerCodeLocation struct {
 func (this *RewriteCallerCodeLocation) init_RewriteCallerCodeLocation(compiler *AbstractCompiler) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
-	this.callerLocationFunctionNames = jnewTMap_(jtc_string, tc_p_RewriteCallerCodeLocation_FunctionVarAndParamPosition)
+	this.callerLocationFunctionNames = jnewTMap_(jtc_string, jtc_p_RewriteCallerCodeLocation_FunctionVarAndParamPosition)
 }
 
 func new_RewriteCallerCodeLocation(compiler *AbstractCompiler) *RewriteCallerCodeLocation {

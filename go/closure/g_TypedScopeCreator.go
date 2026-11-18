@@ -324,7 +324,7 @@ func (this *TypedScopeCreator) clearCommonState() {
 	this.functionsWithNonEmptyReturns = jnewTSet_(jtc_Node)
 	this.escapedVarNames = jnewTSet_(tce_p_ScopedName)
 	this.assignedVarNames = SimpleMultiset_create[*ScopedName]()
-	this.weakImports = newTList_(tc_p_TypedScopeCreator_WeakModuleImport.t_())
+	this.weakImports = newTList_(jtc_p_TypedScopeCreator_WeakModuleImport.t_())
 	this.unresolvedNodes = newTList_(tc_Node)
 	this.undeclaredNamesForClosure = jnewTSet_(jtc_Node)
 	this.providedNamesFromCall = SimpleSetMultimap_createInsertionOrdered[Node, *ProcessClosureProvidesAndRequires_ProvidedName]()

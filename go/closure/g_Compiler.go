@@ -163,7 +163,7 @@ func (this *Compiler) init_Compiler_Output(outStream *Output) {
 	this.finit_Compiler()
 	this.changeTracker.addChangeHandler(icast_CodeChangeHandler(obj_(this.changeTracker.getRecentChange())))
 	this.outStream = outStream
-	this.moduleTypesByName = jnewTMap_(jtc_string, tc_p_CompilerInput_ModuleType)
+	this.moduleTypesByName = jnewTMap_(jtc_string, jtc_p_CompilerInput_ModuleType)
 }
 
 func new_Compiler_Output(outStream *Output) *Compiler {
@@ -423,7 +423,7 @@ func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional
 		panic(new_IllegalArgumentException_String("Cannot read from TypedAST input stream"))
 	}
 	var astData *TypedAstDeserializer_DeserializedAst = TypedAstDeserializer_deserializeRuntimeLibraries(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, colorPoolBuilder, typedAsts.get(), this.getOptions().getResolveSourceMapAnnotations(), this.getOptions().getParseInlineSourceMaps())
-	var runtimeLibraryTypedAsts *JTMap[string, Supplier] = jnewTMap_(jtc_string, tc_Supplier)
+	var runtimeLibraryTypedAsts *JTMap[string, Supplier] = jnewTMap_(jtc_string, jtc_Supplier)
 	for library := range elemsBy_(astData.getFilesystem().entrySet(), icast_Map_Entry) {
 		runtimeLibraryTypedAsts.computeIfAbsent(library.getKey().(*SourceFile_jscomp).getName(), &Function_tfn_string_Supplier{func(f string) Supplier {
 			return icast_Supplier(library.getValue())
@@ -2938,7 +2938,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 	}
 	builder.setTypeCheckingHasRun(this.typeCheckingHasRun).setHasRegExpGlobalReferences(this.hasRegExpGlobalReferencesField).setLifeCycleStage(Compiler_toProto(this.getLifeCycleStage())).setMergedPrecompiledLibraries(this.options_.getMergedPrecompiledLibraries())
 	var chunkList []*JSChunk = this.chunkGraph.getIntegralChunkArrayForSerialization()
-	var chunkNameMap *JTMap[string, any] = jnewTMap_(jtc_string, tc_Integer)
+	var chunkNameMap *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Integer)
 	for i := int32(0); i < int32(len(chunkList)); i++ {
 		chunkNameMap.put(chunkList[i].getName(), any(int32(i)))
 	}
@@ -3534,7 +3534,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) zero_Compiler_ChunkGraphAwar
 }
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) finit_Compiler_ChunkGraphAwareLicenseTracker() {
-	this.licensesFromChunks = jnewTMap_(jtc_p_JSChunk, tc_Set)
+	this.licensesFromChunks = jnewTMap_(jtc_p_JSChunk, jtc_Set)
 	this.haveInitializedCurrentChunkLicenses = false
 	this.currentChunkLicencesInTDeps = jnewTSet_(jtc_string)
 	this.lastSeenFile = ""

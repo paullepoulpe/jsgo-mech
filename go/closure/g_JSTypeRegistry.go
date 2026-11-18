@@ -49,7 +49,7 @@ type JSTypeRegistry struct {
 
 func (this *JSTypeRegistry) finit_JSTypeRegistry() {
 	this.scopedNameTable = SimpleTable_create[Node, string, *JSType]()
-	this.closureNamespaces = jnewTMap_(jtc_string, tc_p_JSTypeRegistry_ClosureNamespace)
+	this.closureNamespaces = jnewTMap_(jtc_string, jtc_p_JSTypeRegistry_ClosureNamespace)
 	this.nameTableGlobalRoot = new_Node_Token(Token_rhino_ROOT)
 	this.nonNullableTypeNames = SimpleSetMultimap_create[Node, string]()
 	this.nonRefTypesIndexedByProperty = SimpleSetMultimap_create[any, *JSType]()

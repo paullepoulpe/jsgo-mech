@@ -60,7 +60,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 	if typesAsStringList.isErr() {
 		return Outcome_base_err[Map](typesAsStringList.error())
 	}
-	var types *TList[InstrumentationPoint_Type] = newTList_(tc_p_InstrumentationPoint_Type.t_())
+	var types *TList[InstrumentationPoint_Type] = newTList_(jtc_p_InstrumentationPoint_Type.t_())
 	for typeAsString := range elemsBy_(typesAsStringList.get(), str_) {
 		types.add(InstrumentationPoint_Type_valueOf(typeAsString))
 	}
@@ -127,7 +127,7 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *Inst
 }
 
 func ReportDecoder_mergeProfiles(profiles []*ReportProfile) *ReportProfile {
-	var frequencies *JTMap[*InstrumentationPoint, any] = jnewTMap_(tce_p_InstrumentationPoint, tc_Long)
+	var frequencies *JTMap[*InstrumentationPoint, any] = jnewTMap_(tce_p_InstrumentationPoint, jtc_Long)
 	var presences *JTMap[*InstrumentationPoint, InstrumentationPointStats_Presence] = jnewTMap_(tce_p_InstrumentationPoint, jtc_p_InstrumentationPointStats_Presence)
 	for _, profile := range profiles {
 		for fileProfile := range elemsAs_[*FileProfile](profile.getFileProfileList()) {
@@ -167,7 +167,7 @@ func ReportDecoder_createReportProfile(instrumentationPoints *TList[*Instrumenta
 	}}), &ToIntFunction_tfn_InstrumentationPointStats{func(pointStats *InstrumentationPointStats) int32 {
 		return pointStats.getPoint().getLineNumber()
 	}}))
-	var pointsByFileName *JTMap[string, List] = jnewTMap_(jtc_string, tc_List)
+	var pointsByFileName *JTMap[string, List] = jnewTMap_(jtc_string, jtc_List)
 	it_1 := sortedPoints.each()
 	for it_1.next() {
 		var pointStats *InstrumentationPointStats = it_1.v

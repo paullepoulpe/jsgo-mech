@@ -632,7 +632,7 @@ func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineR
 	}
 	var chunkNames *TList[string] = newTListN_(tc_string, specs.size())
 	var chunksByName *JTMap[string, *JSChunk] = jnewTMap_(jtc_string, jtc_p_JSChunk)
-	var chunksFileCountMap *JTMap[string, any] = jnewTMap_(jtc_string, tc_Integer)
+	var chunksFileCountMap *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Integer)
 	var numJsFilesExpected int32 = 0
 	var minJsFilesRequired int32 = 0
 	it_1 := specs.each()

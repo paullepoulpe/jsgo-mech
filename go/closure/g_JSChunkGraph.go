@@ -55,7 +55,7 @@ func JSChunkGraph_create(chunksInDepOrder ListOf[*JSChunk]) *Outcome_base[*JSChu
 }
 
 func JSChunkGraph_initChunksByDepth(chunks []*JSChunk) *Outcome_base[List] {
-	var tmpChunksByDepth *TList[List] = newTList_(tc_List.t_())
+	var tmpChunksByDepth *TList[List] = newTList_(jtc_List.t_())
 	for chunkIndex := int32(0); chunkIndex < int32(len(chunks)); chunkIndex++ {
 		var chunk *JSChunk = chunks[chunkIndex]
 		if chunk.getDepth() != -1 {
@@ -326,7 +326,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		return Outcome_base_err[*JSChunkGraph_DependencyManagementResult](entryPointInputsRes.error())
 	}
 	var entryPointInputs SetOf[*CompilerInput] = entryPointInputsRes.get()
-	var inputsByProvide *JTMap[string, Set] = jnewTMap_(jtc_string, tc_Set)
+	var inputsByProvide *JTMap[string, Set] = jnewTMap_(jtc_string, jtc_Set)
 	for _, el := range originalInputs.items {
 		input := el
 		for _, el2 := range immElems_(input.getKnownProvides()) {

@@ -27,7 +27,7 @@ func (this *LiveVariablesAnalysis) init_LiveVariablesAnalysis(cfg *ControlFlowGr
 	this.jsScope = jsScope
 	this.jsScopeChild = jsScopeChild
 	this.escaped = jnewTSet_(tce_p_Var)
-	this.scopeVariables = jnewTMap_(jtc_string, tc_Integer)
+	this.scopeVariables = jnewTMap_(jtc_string, jtc_Integer)
 	this.orderedVars = allVarsDeclaredInFunction.getAllVariablesInOrder()
 	this.allVarsInFn = allVarsDeclaredInFunction.getAllVariables()
 	DataFlowAnalysis_computeEscaped(jsScope, this.escaped, compiler, scopeCreator, this.allVarsInFn)

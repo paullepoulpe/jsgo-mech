@@ -519,7 +519,7 @@ func (this *AmbiguateProperties_Property) addRelatedColor(color *Color) {
 		return
 	}
 	if this.relatedColorsSeeds == nil {
-		this.relatedColorsSeeds = jnewTMap_(jtc_p_ColorGraphNode, tc_Integer)
+		this.relatedColorsSeeds = jnewTMap_(jtc_p_ColorGraphNode, jtc_Integer)
 	}
 	var newColorGraphNode *ColorGraphNode = this.outer_.graphNodeFactory.createNode(color)
 	this.relatedColorsSeeds.put(newColorGraphNode, any(int32(0)))

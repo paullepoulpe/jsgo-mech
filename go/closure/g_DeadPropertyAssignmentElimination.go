@@ -106,7 +106,7 @@ func (this *DeadPropertyAssignmentElimination_Property) zero_DeadPropertyAssignm
 }
 
 func (this *DeadPropertyAssignmentElimination_Property) finit_DeadPropertyAssignmentElimination_Property() {
-	this.writes = newTDeque_(tc_p_DeadPropertyAssignmentElimination_PropertyWrite)
+	this.writes = newTDeque_(jtc_p_DeadPropertyAssignmentElimination_PropertyWrite)
 	this.children_ = jnewTSet_(jtc_p_DeadPropertyAssignmentElimination_Property)
 }
 

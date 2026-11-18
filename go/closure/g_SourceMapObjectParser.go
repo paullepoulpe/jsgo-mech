@@ -78,7 +78,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 		return Outcome_base_err[*SourceMapObject](names.error())
 	}
 	builder.setNames(names.get())
-	var extensions *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
+	var extensions *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Object)
 	it_1 := sourceMapRoot.members().eachEntry()
 	for it_1.next() {
 		var entry *TEntry[string, *SimpleJsonValue] = it_1.entry()
@@ -106,7 +106,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 	if begun.isErr() {
 		return Outcome_base_err[any](begun.error())
 	}
-	var extensions *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
+	var extensions *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Object)
 	for lexer.hasNext() {
 		var nameOutcome *Outcome_base[string] = lexer.nextName()
 		if nameOutcome.isErr() {

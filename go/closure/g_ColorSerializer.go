@@ -11,7 +11,7 @@ type ColorSerializer struct {
 }
 
 func (this *ColorSerializer) finit_ColorSerializer() {
-	this.colorIdToTypePointer = jnewTMap_(tce_p_ColorId, tc_Integer)
+	this.colorIdToTypePointer = jnewTMap_(tce_p_ColorId, jtc_Integer)
 	this.colorsInSerializedOrder = newTList_(tc_p_Color)
 }
 
@@ -63,7 +63,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 			panic(new_NullPointerException_0())
 		}
 		var debugInfoBuilder *TypePool_DebugInfo_Builder = typePoolBuilder.getDebugInfoBuilder()
-		var srcRefToTypePointerList *JTMap[string, *ArrayList] = jnewTMap_(jtc_string, tc_p_ArrayList)
+		var srcRefToTypePointerList *JTMap[string, *ArrayList] = jnewTMap_(jtc_string, jtc_p_ArrayList)
 		it_4 := this.colorsInSerializedOrder.each()
 		for it_4.next() {
 			var color *Color = it_4.v

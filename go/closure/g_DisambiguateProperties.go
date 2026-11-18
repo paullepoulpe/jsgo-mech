@@ -397,7 +397,7 @@ func new_DisambiguateProperties_TypeNodeJson(n DiGraph_DiGraphNode[*ColorGraphNo
 }
 
 func (this *DisambiguateProperties_TypeNodeJson) toLogsGson() any {
-	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
+	var json *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Object)
 	json.put("index", any(int32(this.index_)))
 	json.put("invalidating", any(bool(this.invalidating)))
 	json.put("colorId", strobj_(this.colorId))
@@ -432,7 +432,7 @@ func (this *DisambiguateProperties_TypeEdgeJson) compareTo(x_ any) int32 {
 }
 
 func (this *DisambiguateProperties_TypeEdgeJson) toLogsGson() any {
-	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
+	var json *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Object)
 	json.put("dest", any(int32(this.dest)))
 	json.put("value", this.value_)
 	return json.asMap()

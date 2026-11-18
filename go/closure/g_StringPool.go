@@ -78,7 +78,7 @@ type StringPool_Builder struct {
 
 func (this *StringPool_Builder) finit_StringPool_Builder() {
 	this.maxLength = 0
-	this.pool = jnewTMap_(jtc_string, tc_Integer)
+	this.pool = jnewTMap_(jtc_string, jtc_Integer)
 }
 
 func (this *StringPool_Builder) init_StringPool_Builder() {

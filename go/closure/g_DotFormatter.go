@@ -11,7 +11,7 @@ type DotFormatter struct {
 }
 
 func (this *DotFormatter) finit_DotFormatter() {
-	this.assignments = jnewTMap_(jtc_Node, tc_Integer)
+	this.assignments = jnewTMap_(jtc_Node, jtc_Integer)
 	this.keyCount = 0
 }
 

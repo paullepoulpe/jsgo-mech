@@ -16,7 +16,7 @@ type TypedAstSerializer struct {
 func (this *TypedAstSerializer) finit_TypedAstSerializer() {
 	this.stringPool = StringPool_builder()
 	this.subtreeSourceFiles = newTDeque_(jtc_p_SourceFile_jscomp)
-	this.sourceFilePointers = jnewTMap_(jtc_p_SourceFile_jscomp, tc_Integer)
+	this.sourceFilePointers = jnewTMap_(jtc_p_SourceFile_jscomp, jtc_Integer)
 	this.typeSerializer = nil
 }
 

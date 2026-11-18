@@ -597,7 +597,7 @@ func (this *JsMessage_Builder) finit_JsMessage_Builder() {
 	this.id = Optional_empty[string]()
 	this.alternateId = Optional_empty[string]()
 	this.parts = newTList_(tc_JsMessage_Part)
-	this.genderedMessageMap = jnewTMap_(jtc_p_JsMessage_GrammaticalGenderCase, tc_List)
+	this.genderedMessageMap = jnewTMap_(jtc_p_JsMessage_GrammaticalGenderCase, jtc_List)
 	this.jsPlaceholderNames_ = jnewTSet_(jtc_string)
 	this.canonicalPlaceholderNames_ = jnewTSet_(jtc_string)
 	this.placeholderNameToExampleMap = immutableMapOf_(tc_string, tc_string, []string{}, []string{})

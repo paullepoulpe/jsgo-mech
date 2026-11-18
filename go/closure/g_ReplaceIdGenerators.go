@@ -18,9 +18,9 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 	this.templateLiteralsAreTranspiled = templateLiteralsAreTranspiled
 	this.generatePseudoNames = generatePseudoNames
 	this.xidHashFunction = xidHashFunction
-	this.nameGenerators = jnewTMap_(jtc_string, tc_ReplaceIdGenerators_NameSupplier)
-	this.idGeneratorMaps = jnewTMap_(jtc_string, tc_Map)
-	this.consistNameMap = jnewTMap_(jtc_string, tc_Map)
+	this.nameGenerators = jnewTMap_(jtc_string, jtc_ReplaceIdGenerators_NameSupplier)
+	this.idGeneratorMaps = jnewTMap_(jtc_string, jtc_Map)
+	this.consistNameMap = jnewTMap_(jtc_string, jtc_Map)
 	var previousMap map[string]*SimpleBiMap[string, string] = IdMappingUtil_parseSerializedIdMappings(previousMapSerialized)
 	this.previousMap = previousMap
 	if idGens != nil {

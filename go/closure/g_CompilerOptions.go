@@ -381,7 +381,7 @@ func (this *CompilerOptions) init_CompilerOptions() {
 	this.stripNameSuffixes = immutableSetOf_(tc_string)
 	this.stripNamePrefixes = immutableSetOf_(tc_string)
 	this.customPasses = nil
-	this.defineReplacements = jnewTMap_(jtc_string, tc_Object)
+	this.defineReplacements = jnewTMap_(jtc_string, jtc_Object)
 	this.tweakProcessing = CompilerOptions_TweakProcessing_OFF
 	this.rewriteGlobalDeclarationsForTryCatchWrapping = false
 	this.checksOnly = false

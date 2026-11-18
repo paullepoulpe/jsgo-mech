@@ -18,7 +18,7 @@ func new_ProfilingReport() *ProfilingReport {
 }
 
 func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapOf[string, *InstrumentationPoint], allInstrumentationReports []MapOf[string, BoxedOf[int64]]) string {
-	var profiles *TList[*ReportProfile] = newTList_(tc_p_ReportProfile.t_())
+	var profiles *TList[*ReportProfile] = newTList_(jtc_p_ReportProfile.t_())
 	for _, el := range allInstrumentationReports {
 		report := el
 		profiles.add(ReportDecoder_decodeReport(instrumentationMapping, report))
@@ -39,7 +39,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 			}
 		}
 	}
-	var result *TList[Map_Entry] = tlistFrom_(tc_Map_Entry.t_(), Collection(metrics.asMap().entrySet()))
+	var result *TList[Map_Entry] = tlistFrom_(jtc_Map_Entry.t_(), Collection(metrics.asMap().entrySet()))
 	Collections_sort_List_Comparator(result.asList(), Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(&Function_tfn_Map_Entry_string{func(point Map_Entry) string {
 		return point.getKey().(*InstrumentationPoint).getFileName()
 	}}), &ToLongFunction_tfn_Map_Entry{func(point Map_Entry) int64 {
@@ -49,7 +49,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	}}), &ToIntFunction_tfn_Map_Entry{func(point Map_Entry) int32 {
 		return point.getKey().(*InstrumentationPoint).getType().getNumber()
 	}}))
-	var output *TList[List] = newTList_(tc_List.t_())
+	var output *TList[List] = newTList_(jtc_List.t_())
 	output.add(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred")))
 	it_11 := result.each()
 	for it_11.next() {

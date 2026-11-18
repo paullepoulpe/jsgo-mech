@@ -10,7 +10,7 @@ type ZipArchive struct {
 
 func (this *ZipArchive) finit_ZipArchive() {
 	this.entryNames = newTList_(tc_string)
-	this.records = jnewTMap_(jtc_string, tc_Integer)
+	this.records = jnewTMap_(jtc_string, jtc_Integer)
 }
 
 func (this *ZipArchive) init_ZipArchive(bytes []int8) {

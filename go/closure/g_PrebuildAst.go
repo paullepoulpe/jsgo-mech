@@ -22,7 +22,7 @@ func (this *PrebuildAst) prebuild(allInputs IterableOf[*CompilerInput]) {
 	var threadFactory ThreadFactory = lambda_PrebuildAst_prebuild_1_
 	var poolExecutor *ThreadPoolExecutor = new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(this.numParallelThreads, this.numParallelThreads, int64(int32(2147483647)), TimeUnit_SECONDS, new_LinkedBlockingQueue(), threadFactory)
 	var executorService ListeningExecutorService = MoreExecutors_listeningDecorator(poolExecutor)
-	var futureList *TList[ListenableFuture] = newTListN_(tc_ListenableFuture.t_(), Iterables_size(allInputs))
+	var futureList *TList[ListenableFuture] = newTListN_(jtc_ListenableFuture.t_(), Iterables_size(allInputs))
 	for input := range elemsAs_[*CompilerInput](allInputs) {
 		futureList.add(executorService.submit(&Callable_tfn_Node{func() Node {
 			return input.getAstRoot(this.compiler_)

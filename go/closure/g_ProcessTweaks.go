@@ -90,7 +90,7 @@ func ProcessTweaks_clinit() {
 	ProcessTweaks_TWEAK_WRONG_GETTER_TYPE_WARNING = DiagnosticType_warning("JSC_TWEAK_WRONG_GETTER_TYPE_WARNING", "tweak getter function {0} used for tweak registered using {1}")
 	ProcessTweaks_INVALID_TWEAK_ID_ERROR = DiagnosticType_error("JSC_INVALID_TWEAK_ID_ERROR", "tweak ID contains illegal characters. Only letters, numbers, _ and . are allowed")
 	{
-		ProcessTweaks_TWEAK_FUNCTIONS_MAP = jnewTMap_(jtc_string, tc_p_ProcessTweaks_TweakFunction)
+		ProcessTweaks_TWEAK_FUNCTIONS_MAP = jnewTMap_(jtc_string, jtc_p_ProcessTweaks_TweakFunction)
 		for func_ := range elemsAs_[ProcessTweaks_TweakFunction](obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.ProcessTweaks.TweakFunction")))) {
 			ProcessTweaks_TWEAK_FUNCTIONS_MAP.put(func_.getName(), func_)
 		}
@@ -383,7 +383,7 @@ func (this *ProcessTweaks_TweakInfo) zero_ProcessTweaks_TweakInfo() {
 
 func (this *ProcessTweaks_TweakInfo) init_ProcessTweaks_TweakInfo(tweakId string) {
 	this.tweakId = tweakId
-	this.functionCalls = newTList_(tc_p_ProcessTweaks_TweakFunctionCall.t_())
+	this.functionCalls = newTList_(jtc_p_ProcessTweaks_TweakFunctionCall.t_())
 }
 
 func new_ProcessTweaks_TweakInfo(outer_ *ProcessTweaks, tweakId string) *ProcessTweaks_TweakInfo {

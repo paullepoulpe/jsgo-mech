@@ -18,7 +18,7 @@ func (this *SimpleJsonWriter) zero_SimpleJsonWriter() {
 
 func (this *SimpleJsonWriter) finit_SimpleJsonWriter() {
 	this.out = &strBuilder_{}
-	this.stack = newTList_(tc_Integer.t_())
+	this.stack = newTList_(jtc_Integer.t_())
 	this.indent_ = ""
 	this.htmlSafe = false
 	this.serializeNulls = true

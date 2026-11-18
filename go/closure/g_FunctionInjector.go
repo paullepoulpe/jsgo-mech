@@ -19,7 +19,7 @@ type FunctionInjector struct {
 func (this *FunctionInjector) finit_FunctionInjector() {
 	this.knownConstantFunctions = immutableSetOf_(tc_string)
 	this.throwawayNameSupplier = new_FunctionInjector_1(this)
-	this.referencesEvalCache = jnewTMap_(jtc_Node, tc_Boolean)
+	this.referencesEvalCache = jnewTMap_(jtc_Node, jtc_Boolean)
 	this.innerFunctionCache = jnewTMap_(jtc_Node, jtc_Node)
 }
 

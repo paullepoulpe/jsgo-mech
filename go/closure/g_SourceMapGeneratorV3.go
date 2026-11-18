@@ -23,14 +23,14 @@ type SourceMapGeneratorV3 struct {
 
 func (this *SourceMapGeneratorV3) finit_SourceMapGeneratorV3() {
 	this.mappings = newTList_(jtc_p_SourceMapGeneratorV3_Mapping.t_())
-	this.sourceFileMap = jnewTMap_(jtc_string, tc_Integer)
+	this.sourceFileMap = jnewTMap_(jtc_string, jtc_Integer)
 	this.sourceFileContentMap = jnewTMap_(jtc_string, jtc_string)
-	this.originalNameMap = jnewTMap_(jtc_string, tc_Integer)
+	this.originalNameMap = jnewTMap_(jtc_string, jtc_Integer)
 	this.lastSourceFile = Optional_empty[string]()
 	this.lastSourceFileIndex = -1
 	this.offsetPosition = new_FilePosition(0, 0)
 	this.prefixPosition = new_FilePosition(0, 0)
-	this.extensions = jnewTMap_(jtc_string, tc_Object)
+	this.extensions = jnewTMap_(jtc_string, jtc_Object)
 	this.sourceRootPath = Optional_empty[string]()
 }
 

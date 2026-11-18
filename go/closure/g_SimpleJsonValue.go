@@ -14,8 +14,8 @@ func (this *SimpleJsonValue) zero_SimpleJsonValue() {
 }
 
 func (this *SimpleJsonValue) finit_SimpleJsonValue() {
-	this.items = newTList_(tc_p_SimpleJsonValue.t_())
-	this.named = jnewTMap_(jtc_string, tc_p_SimpleJsonValue)
+	this.items = newTList_(jtc_p_SimpleJsonValue.t_())
+	this.named = jnewTMap_(jtc_string, jtc_p_SimpleJsonValue)
 }
 
 func (this *SimpleJsonValue) init_SimpleJsonValue(tag SimpleJsonValue_Kind, text string) {

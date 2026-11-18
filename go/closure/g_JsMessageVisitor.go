@@ -30,7 +30,7 @@ func (this *JsMessageVisitor) up_NodeTraversal_AbstractPostOrderCallback() *Node
 }
 
 func (this *JsMessageVisitor) finit_JsMessageVisitor() {
-	this.messageNames = jnewTMap_(jtc_string, tc_p_JsMessageVisitor_MessageLocation)
+	this.messageNames = jnewTMap_(jtc_string, jtc_p_JsMessageVisitor_MessageLocation)
 	this.unnamedMessages = jnewTMap_(tce_p_Var, jtc_p_JsMessage)
 	this.googMsgNodes = jnewTSet_(jtc_Node)
 }

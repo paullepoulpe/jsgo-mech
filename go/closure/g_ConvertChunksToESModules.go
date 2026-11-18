@@ -10,8 +10,8 @@ type ConvertChunksToESModules struct {
 }
 
 func (this *ConvertChunksToESModules) finit_ConvertChunksToESModules() {
-	this.crossChunkExports = jnewTMap_(jtc_p_JSChunk, tc_Set)
-	this.crossChunkImports = jnewTMap_(jtc_p_JSChunk, tc_Map)
+	this.crossChunkExports = jnewTMap_(jtc_p_JSChunk, jtc_Set)
+	this.crossChunkImports = jnewTMap_(jtc_p_JSChunk, jtc_Map)
 	this.dynamicImportCallbacks = newTList_(tc_Node)
 }
 

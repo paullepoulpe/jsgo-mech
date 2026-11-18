@@ -730,7 +730,7 @@ func (this *AnalyzePrototypeProperties_NameInfo) zero_AnalyzePrototypeProperties
 
 func (this *AnalyzePrototypeProperties_NameInfo) finit_AnalyzePrototypeProperties_NameInfo() {
 	this.referenced = false
-	this.declarations = newTDeque_(tc_AnalyzePrototypeProperties_Symbol)
+	this.declarations = newTDeque_(jtc_AnalyzePrototypeProperties_Symbol)
 	this.deepestCommonChunkRef = nil
 	this.readClosureVariables = false
 	this.referencesSuperField = false

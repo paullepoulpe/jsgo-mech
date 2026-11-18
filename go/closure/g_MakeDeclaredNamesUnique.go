@@ -463,7 +463,7 @@ type MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap struc
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap() {
-	this.mapOfStacks = jnewTMap_(jtc_string, tc_Deque)
+	this.mapOfStacks = jnewTMap_(jtc_string, jtc_Deque)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) init_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap() {

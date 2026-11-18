@@ -21,7 +21,7 @@ type NodeTraversal struct {
 }
 
 func (this *NodeTraversal) finit_NodeTraversal() {
-	this.scopes = newTList_(tc_Object.t_())
+	this.scopes = newTList_(jtc_Object.t_())
 	this.sourceName_ = Optional_empty[string]()
 }
 
@@ -1143,7 +1143,7 @@ func (this *NodeTraversal_AbstractCfgCallback) self() any {
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) finit_NodeTraversal_AbstractCfgCallback() {
-	this.cfgs = newTDeque_(tc_Object)
+	this.cfgs = newTDeque_(jtc_Object)
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) init_NodeTraversal_AbstractCfgCallback() {

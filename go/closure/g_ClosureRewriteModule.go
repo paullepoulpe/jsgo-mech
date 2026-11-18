@@ -28,7 +28,7 @@ func (this *ClosureRewriteModule) finit_ClosureRewriteModule() {
 	this.currentScript = nil
 	this.rewriteState = new_ClosureRewriteModule_GlobalRewriteState()
 	this.legacyScriptNamespacesAndPrefixes = jnewTSet_(jtc_string)
-	this.unrecognizedRequires = newTList_(tc_p_ClosureRewriteModule_UnrecognizedRequire.t_())
+	this.unrecognizedRequires = newTList_(jtc_p_ClosureRewriteModule_UnrecognizedRequire.t_())
 	this.googModuleGetCalls = newTList_(tc_Node)
 	this.googRequireDynamicCalls = newTList_(tc_Node)
 }
@@ -1480,7 +1480,7 @@ func (this *ClosureRewriteModule_ScriptDescription) finit_ClosureRewriteModule_S
 	this.namespaceId = Optional_empty[string]()
 	this.topLevelNames = jnewTSet_(jtc_string)
 	this.childScripts = newTDeque_(jtc_p_ClosureRewriteModule_ScriptDescription)
-	this.namesToInlineByAlias = jnewTMap_(jtc_string, tc_p_ClosureRewriteModule_AliasName)
+	this.namesToInlineByAlias = jnewTMap_(jtc_string, jtc_p_ClosureRewriteModule_AliasName)
 	this.defaultExportLocalName = Optional_empty[string]()
 	this.namedExports = jnewTSet_(jtc_string)
 	this.exportsToInline = jnewTMap_(tce_p_Var, jtc_p_ClosureRewriteModule_ExportDefinition)

@@ -179,7 +179,7 @@ func (this *JSTypeReconserializer) reconcileUnionTypes(seen *JSTypeReconserializ
 }
 
 func JSTypeReconserializer_sortedPointersOf(records CollectionOf[*JSTypeReconserializer_SeenTypeRecord]) ImmutableListOf[BoxedOf[int32]] {
-	var result *TList[any] = newTList_(tc_Integer.t_())
+	var result *TList[any] = newTList_(jtc_Integer.t_())
 	for r := range elemsAs_[*JSTypeReconserializer_SeenTypeRecord](records) {
 		result.add(any(int32(r.pointer)))
 	}
@@ -188,22 +188,22 @@ func JSTypeReconserializer_sortedPointersOf(records CollectionOf[*JSTypeReconser
 }
 
 func (this *JSTypeReconserializer) serializeInvolvedTypes(types CollectionOf[*JSType]) ImmutableListOf[BoxedOf[int32]] {
-	var distinctPointers *JTSet[any] = jnewTSet_(tc_Integer)
+	var distinctPointers *JTSet[any] = jnewTSet_(jtc_Integer)
 	for t := range elemsBy_(types, to_JSType) {
 		if t.isUnionType() {
 			panic(new_IllegalStateException_String(objstr_(t.self())))
 		}
 		distinctPointers.add(any(int32(this.serializeType(t))))
 	}
-	var result *TList[any] = tlistFrom_(tc_Integer.t_(), Collection(distinctPointers.asSet()))
+	var result *TList[any] = tlistFrom_(jtc_Integer.t_(), Collection(distinctPointers.asSet()))
 	Collections_sort(result.asList())
 	return ImmutableList_copyOf(Collection(result.asList()))
 }
 
 func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconserializer_SeenTypeRecord) *TypeProto {
-	var instancePointers *JTSet[any] = jnewTSet_(tc_Integer)
-	var prototypePointers *JTSet[any] = jnewTSet_(tc_Integer)
-	var ownProperties *JTSet[any] = jnewTSet_(tc_Integer)
+	var instancePointers *JTSet[any] = jnewTSet_(jtc_Integer)
+	var prototypePointers *JTSet[any] = jnewTSet_(jtc_Integer)
+	var ownProperties *JTSet[any] = jnewTSet_(jtc_Integer)
 	var isClosureAssert bool = false
 	var isConstructor bool = false
 	var isInvalidating bool = false

@@ -86,8 +86,8 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{"multiple initialized copies"}))
 			return
 		}
-		var mapping *JTMap[string, any] = jnewTMap_(jtc_string, tc_Integer)
-		var ordinals *JTSet[any] = jnewTSet_(tc_Integer)
+		var mapping *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Integer)
+		var ordinals *JTSet[any] = jnewTSet_(jtc_Integer)
 		{
 			var c Node = rhs.getFirstChild()
 			for ; c != 0; c = c.getNext() {

@@ -25,7 +25,7 @@ func (this *CreateSyntheticBlocks) zero_CreateSyntheticBlocks() {
 
 func (this *CreateSyntheticBlocks) finit_CreateSyntheticBlocks() {
 	this.markerStack = newTDeque_(jtc_Node)
-	this.validMarkers = newTList_(tc_p_CreateSyntheticBlocks_Marker.t_())
+	this.validMarkers = newTList_(jtc_p_CreateSyntheticBlocks_Marker.t_())
 }
 
 func (this *CreateSyntheticBlocks) init_CreateSyntheticBlocks(compiler *AbstractCompiler, startMarkerName string, endMarkerName string) {

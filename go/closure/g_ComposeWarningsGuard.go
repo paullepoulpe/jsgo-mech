@@ -19,7 +19,7 @@ func (this *ComposeWarningsGuard) up_WarningsGuard() *WarningsGuard {
 }
 
 func (this *ComposeWarningsGuard) finit_ComposeWarningsGuard() {
-	this.orderOfAddition = jnewTMap_(jtc_p_WarningsGuard, tc_Integer)
+	this.orderOfAddition = jnewTMap_(jtc_p_WarningsGuard, jtc_Integer)
 	this.numberOfAdds = 0
 	this.guardComparator = new_ComposeWarningsGuard_GuardComparator(this.orderOfAddition)
 	this.demoteErrors = false

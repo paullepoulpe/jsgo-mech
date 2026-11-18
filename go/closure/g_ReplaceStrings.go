@@ -25,7 +25,7 @@ func (this *ReplaceStrings) zero_ReplaceStrings() {
 }
 
 func (this *ReplaceStrings) finit_ReplaceStrings() {
-	this.functions = jnewTMap_(jtc_string, tc_p_ReplaceStrings_Config)
+	this.functions = jnewTMap_(jtc_string, jtc_p_ReplaceStrings_Config)
 	this.results = jnewTMap_(jtc_string, jtc_p_ReplaceStrings_Result)
 }
 
@@ -249,7 +249,7 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var name string = function[:first]
 	var params string = cutBytes_(function, (first + 1), last)
 	var paramCount int32 = 0
-	var replacementParameters *TList[any] = newTList_(tc_Integer.t_())
+	var replacementParameters *TList[any] = newTList_(jtc_Integer.t_())
 	var parts []string = sliceImm_(tc_string, Splitter_on(',').splitToList_s(params))
 	for _, param := range parts {
 		paramCount++

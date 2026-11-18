@@ -12,7 +12,7 @@ type ClosureCodeRemoval struct {
 }
 
 func (this *ClosureCodeRemoval) finit_ClosureCodeRemoval() {
-	this.abstractMethodAssignmentNodes = newTList_(tc_p_ClosureCodeRemoval_RemovableAssignment.t_())
+	this.abstractMethodAssignmentNodes = newTList_(jtc_p_ClosureCodeRemoval_RemovableAssignment.t_())
 	this.abstractMemberFunctionNodes = newTList_(tc_Node)
 	this.assertionCalls = newTList_(tc_Node)
 }

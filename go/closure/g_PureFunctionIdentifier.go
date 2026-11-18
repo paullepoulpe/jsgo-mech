@@ -252,7 +252,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 		panic(new_NullPointerException_0())
 	}
 	var invalid bool = false
-	var rvaluesAssignedToName *TList[*ErasedImmutableList] = newTList_(tc_p_ImmutableList.t_())
+	var rvaluesAssignedToName *TList[*ErasedImmutableList] = newTList_(jtc_p_ImmutableList.t_())
 	for reference := range elemsBy_(references, Node_of_) {
 		if !PureFunctionIdentifier_isDefinitelyRValue(reference) {
 			var rvalue Node = NodeUtil_getRValueOfLValue(reference)

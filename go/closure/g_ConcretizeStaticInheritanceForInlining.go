@@ -11,7 +11,7 @@ type ConcretizeStaticInheritanceForInlining struct {
 
 func (this *ConcretizeStaticInheritanceForInlining) finit_ConcretizeStaticInheritanceForInlining() {
 	this.duplicateClassNames = jnewTSet_(jtc_string)
-	this.classByAlias = jnewTMap_(jtc_string, tc_p_ConcretizeStaticInheritanceForInlining_JavascriptClass)
+	this.classByAlias = jnewTMap_(jtc_string, jtc_p_ConcretizeStaticInheritanceForInlining_JavascriptClass)
 }
 
 func (this *ConcretizeStaticInheritanceForInlining) init_ConcretizeStaticInheritanceForInlining(compiler *AbstractCompiler) {
@@ -169,7 +169,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) up_NodeTra
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) finit_ConcretizeStaticInheritanceForInlining_FindStaticMembers() {
 	this.inheritsCalls = newTList_(tc_Node)
-	this.nodeOrder = jnewTMap_(jtc_Node, tc_Integer)
+	this.nodeOrder = jnewTMap_(jtc_Node, jtc_Integer)
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) init_ConcretizeStaticInheritanceForInlining_FindStaticMembers() {

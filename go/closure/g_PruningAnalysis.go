@@ -41,7 +41,7 @@ func (this *PruningAnalysis) calculateTotalBlame() *ImmutableMap[string, any] {
 func (this *PruningAnalysis) calculateBottlenecks() *ImmutableMap[string, any] {
 	var graph *DiGraph[string] = this.buildGraph()
 	var dominatorTree *DominatorTree[string] = DominatorTree_compute[string](graph, PruningAnalysis_VIRTUAL_ROOT)
-	var bottleneckBlame *JTMap[string, any] = jnewTMap_(jtc_string, tc_Integer)
+	var bottleneckBlame *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Integer)
 	for _, el := range immElems_(cast_[*ErasedImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())) {
 		entry := icast_Map_Entry(el)
 		var node string = str_(entry.getKey())
@@ -50,7 +50,7 @@ func (this *PruningAnalysis) calculateBottlenecks() *ImmutableMap[string, any] {
 			bottleneckBlame.put(node, any(int32(retainedCount)))
 		}
 	}
-	var sortedBlame *TList[Map_Entry] = tlistFrom_(tc_Map_Entry.t_(), Collection(bottleneckBlame.asMap().entrySet()))
+	var sortedBlame *TList[Map_Entry] = tlistFrom_(jtc_Map_Entry.t_(), Collection(bottleneckBlame.asMap().entrySet()))
 	List_sort(sortedBlame.asList(), Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_Map_Entry{func(entry Map_Entry) int32 {
 		return unbox_[int32](entry.getValue())
 	}})))

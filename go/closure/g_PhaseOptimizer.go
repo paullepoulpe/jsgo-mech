@@ -352,7 +352,7 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 	this.isCodeRemovalLoopField = this.isCodeRemovalLoop()
 	this.scopeHandler = new_PhaseOptimizer_ScopedChangeHandler(this.outer_)
 	this.outer_.changeTracker.addChangeHandler(icast_CodeChangeHandler(obj_(this.scopeHandler)))
-	this.outer_.lastRuns = jnewTMap_(jtc_p_PhaseOptimizer_NamedPass, tc_Integer)
+	this.outer_.lastRuns = jnewTMap_(jtc_p_PhaseOptimizer_NamedPass, jtc_Integer)
 	it_1 := this.myPasses.each()
 	for it_1.next() {
 		var pass *PhaseOptimizer_NamedPass = it_1.v

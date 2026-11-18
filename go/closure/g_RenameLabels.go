@@ -201,7 +201,7 @@ type RenameLabels_LabelNamespace struct {
 }
 
 func (this *RenameLabels_LabelNamespace) finit_RenameLabels_LabelNamespace() {
-	this.renameMap = jnewTMap_(jtc_string, tc_p_RenameLabels_LabelInfo)
+	this.renameMap = jnewTMap_(jtc_string, jtc_p_RenameLabels_LabelInfo)
 }
 
 func (this *RenameLabels_LabelNamespace) init_RenameLabels_LabelNamespace() {

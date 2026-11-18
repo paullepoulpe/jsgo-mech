@@ -345,8 +345,8 @@ func (this *EsModuleProcessor_UnresolvedEsModule) init_EsModuleProcessor_Unresol
 	this.indirectExports = indirectExports
 	this.starExports = starExports
 	this.exportedNames = nil
-	this.resolvedImports = jnewTMap_(jtc_string, tc_p_ResolveExportResult)
-	this.resolvedExports = jnewTMap_(jtc_string, tc_p_ResolveExportResult)
+	this.resolvedImports = jnewTMap_(jtc_string, jtc_p_ResolveExportResult)
+	this.resolvedExports = jnewTMap_(jtc_string, jtc_p_ResolveExportResult)
 	this.resolved_ = nil
 }
 

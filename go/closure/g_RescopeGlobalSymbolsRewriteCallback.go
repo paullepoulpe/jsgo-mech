@@ -15,11 +15,11 @@ type RescopeGlobalSymbolsRewriteCallback struct {
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) finit_RescopeGlobalSymbolsRewriteCallback() {
-	this.preDeclarations = newTList_(tc_p_RescopeGlobalSymbolsRewriteCallback_ChunkGlobal.t_())
-	this.localAliasesForUnwrappedCrossChunkNames = jnewTMap_(jtc_p_JSChunk, tc_Set)
-	this.chunksUsingCrossChunkSymbols = jnewTMap_(jtc_string, tc_Set)
-	this.chunksUsingWrappedReassignableSymbols = jnewTMap_(jtc_string, tc_Set)
-	this.chunksRequiringWrapperInitialization = jnewTMap_(jtc_string, tc_Set)
+	this.preDeclarations = newTList_(jtc_p_RescopeGlobalSymbolsRewriteCallback_ChunkGlobal.t_())
+	this.localAliasesForUnwrappedCrossChunkNames = jnewTMap_(jtc_p_JSChunk, jtc_Set)
+	this.chunksUsingCrossChunkSymbols = jnewTMap_(jtc_string, jtc_Set)
+	this.chunksUsingWrappedReassignableSymbols = jnewTMap_(jtc_string, jtc_Set)
+	this.chunksRequiringWrapperInitialization = jnewTMap_(jtc_string, jtc_Set)
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) init_RescopeGlobalSymbolsRewriteCallback(compiler *AbstractCompiler, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess, symbolInfo *RescopeGlobalSymbolsInfo, renameHelper *RescopeGlobalSymbolsRenameHelper) {

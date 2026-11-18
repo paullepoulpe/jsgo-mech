@@ -98,7 +98,7 @@ func (this *RandomNameGenerator) checkPrefix(prefix string) {
 }
 
 func RandomNameGenerator_shuffleAndCopyAlphabet(input SetOf[BoxedOf[uint16]], random *Random) string {
-	var shuffled *TList[any] = tlistFrom_(tc_Character.t_(), Collection(input))
+	var shuffled *TList[any] = tlistFrom_(jtc_Character.t_(), Collection(input))
 	Collections_shuffle(shuffled.asList(), random)
 	return new_String(Chars_toArray(Collection(shuffled.asList())))
 }

@@ -129,7 +129,7 @@ func (this *DefaultNameGenerator) reserveCharacters(chars []uint16, reservedChar
 		}
 		return result
 	}
-	var charSet *JTSet[any] = jtsetFrom_(tc_Character, Collection(Chars_asList(chars)))
+	var charSet *JTSet[any] = jtsetFrom_(jtc_Character, Collection(Chars_asList(chars)))
 	charSet.asSet().removeAll(Collection(reservedCharacterSet))
 	var result []*DefaultNameGenerator_CharPriority = make([]*DefaultNameGenerator_CharPriority, charSet.size())
 	var index int32 = 0

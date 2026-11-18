@@ -1402,8 +1402,8 @@ type Es6NormalizeClasses_ClassRecord struct {
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassRecord() {
-	this.privateMembers = newTList_(tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember.t_())
-	this.privateMembersByName = jnewTMap_(jtc_string, tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
+	this.privateMembers = newTList_(jtc_p_Es6NormalizeClasses_ClassRecord_PrivateMember.t_())
+	this.privateMembersByName = jnewTMap_(jtc_string, jtc_p_Es6NormalizeClasses_ClassRecord_PrivateMember)
 	this.privateMapVarName = Optional_empty[string]()
 	this.staticPrivateMapVarName = Optional_empty[string]()
 	this.hasInstancePrivateMembers = false

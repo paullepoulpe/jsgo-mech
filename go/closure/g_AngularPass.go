@@ -16,7 +16,7 @@ func (this *AngularPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTrave
 }
 
 func (this *AngularPass) finit_AngularPass() {
-	this.injectables = newTList_(tc_p_AngularPass_NodeContext.t_())
+	this.injectables = newTList_(jtc_p_AngularPass_NodeContext.t_())
 }
 
 func (this *AngularPass) init_AngularPass(compiler *AbstractCompiler) {

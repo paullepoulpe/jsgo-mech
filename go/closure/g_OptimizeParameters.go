@@ -38,7 +38,7 @@ func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *Optim
 	defer closeResource_(decisionsLog.self())
 	this.decisionsLog = decisionsLog
 	this.globalScope = refMap.getGlobalScope()
-	var toOptimize *TList[*ArrayList] = newTList_(tc_p_ArrayList.t_())
+	var toOptimize *TList[*ArrayList] = newTList_(jtc_p_ArrayList.t_())
 	for entry := range elemsBy_(refMap.getNameReferences(), icast_Map_Entry) {
 		var key string = str_(entry.getKey())
 		var refs ArrayListOf[Node] = to_ArrayList(entry.getValue())

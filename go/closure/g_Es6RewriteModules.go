@@ -71,7 +71,7 @@ func (this *Es6RewriteModules) process_2(externs Node, root Node) {
 
 func (this *Es6RewriteModules) clearPerFileState() {
 	this.typedefs = jnewTSet_(jtc_string)
-	this.namesToInlineByAlias = jnewTMap_(jtc_string, tc_p_ModuleRenaming_GlobalizedModuleName)
+	this.namesToInlineByAlias = jnewTMap_(jtc_string, jtc_p_ModuleRenaming_GlobalizedModuleName)
 }
 
 func (this *Es6RewriteModules) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {

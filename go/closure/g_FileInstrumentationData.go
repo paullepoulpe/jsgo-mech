@@ -21,7 +21,7 @@ func (this *FileInstrumentationData) init_FileInstrumentationData(fileName strin
 	this.arrayName = arrayName
 	this.instrumentedBits = new_BitSet()
 	this.branchPresent = new_BitSet()
-	this.branchesInLine = jnewTMap_(tc_Integer, tc_Integer)
+	this.branchesInLine = jnewTMap_(jtc_Integer, jtc_Integer)
 	this.branchNodes = jnewTMap_(tce_p_FileInstrumentationData_BranchIndexPair, jtc_Node)
 }
 

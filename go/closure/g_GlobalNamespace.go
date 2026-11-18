@@ -22,7 +22,7 @@ type GlobalNamespace struct {
 
 func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalRoot = IR_root([]Node{})
-	this.spreadSiblingCache = jnewTMap_(jtc_Node, tc_Boolean)
+	this.spreadSiblingCache = jnewTMap_(jtc_Node, jtc_Boolean)
 	this.generated = false
 	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
 	this.nameMap = jnewTMap_(jtc_string, jtc_p_GlobalNamespace_Name)

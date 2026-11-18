@@ -66,7 +66,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 		return Outcome_base_err[Map](parsed.error())
 	}
 	var document *SimpleJsonValue = parsed.get()
-	var map_ *JTMap[string, any] = jnewTMap_(jtc_string, tc_Long)
+	var map_ *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Long)
 	if document.kind() == SimpleJsonValue_Kind_OBJECT {
 		it_1 := document.members().eachEntry()
 		for it_1.next() {
