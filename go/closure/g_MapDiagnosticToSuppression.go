@@ -3,7 +3,7 @@
 package closure
 
 type MapDiagnosticToSuppression struct {
-	output *DiagnosticToSuppressionMapper_OutputFormat
+	output DiagnosticToSuppressionMapper_OutputFormat
 	help   bool
 }
 
@@ -32,9 +32,9 @@ func MapDiagnosticToSuppression_printHelp() {
 
 func (this *MapDiagnosticToSuppression) printSuppressions(args []string) {
 	var parser *CmdLineParser = new_CmdLineParser()
-	CmdLineParser_Option_enumValue[*DiagnosticToSuppressionMapper_OutputFormat](parser.option("--output").usage("Sets the desired output format.\nOptions: md, jsonDefault: json"), DiagnosticToSuppressionMapper_OutputFormat_values(), &Supplier_tfn_DiagnosticToSuppressionMapper_OutputFormat{func() *DiagnosticToSuppressionMapper_OutputFormat {
+	CmdLineParser_Option_enumValue[DiagnosticToSuppressionMapper_OutputFormat](parser.option("--output").usage("Sets the desired output format.\nOptions: md, jsonDefault: json"), DiagnosticToSuppressionMapper_OutputFormat_values(), &Supplier_tfn_DiagnosticToSuppressionMapper_OutputFormat{func() DiagnosticToSuppressionMapper_OutputFormat {
 		return this.output
-	}}, &Consumer_tfn_DiagnosticToSuppressionMapper_OutputFormat{func(v *DiagnosticToSuppressionMapper_OutputFormat) {
+	}}, &Consumer_tfn_DiagnosticToSuppressionMapper_OutputFormat{func(v DiagnosticToSuppressionMapper_OutputFormat) {
 		this.output = v
 	}})
 	parser.option("--help").usage("Usage").flag(func() any {

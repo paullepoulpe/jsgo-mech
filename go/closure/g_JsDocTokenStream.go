@@ -74,7 +74,7 @@ func new_JsDocTokenStream_String_int_int(sourceString string, lineno int32, init
 	return this
 }
 
-func (this *JsDocTokenStream) getJsDocToken() *JsDocToken {
+func (this *JsDocTokenStream) getJsDocToken() JsDocToken {
 	var c int32
 	this.stringBufferTop = 0
 	for {

@@ -153,7 +153,7 @@ func IR_constNode(lhs Node, value Node) Node {
 	return IR_declaration_Node_Node_Token(lhs, value, Token_rhino_CONST)
 }
 
-func IR_declaration_Node_Token(lhs Node, type_ *Token_rhino) Node {
+func IR_declaration_Node_Token(lhs Node, type_ Token_rhino) Node {
 	if !((lhs.isName() || lhs.isDestructuringPattern()) || lhs.isDestructuringLhs()) {
 		Preconditions_checkState_boolean_Object_H(false, lhs)
 	}
@@ -163,7 +163,7 @@ func IR_declaration_Node_Token(lhs Node, type_ *Token_rhino) Node {
 	return new_Node_Token_Node(type_, lhs)
 }
 
-func IR_declaration_Node_Node_Token(lhs Node, value Node, type_ *Token_rhino) Node {
+func IR_declaration_Node_Node_Token(lhs Node, value Node, type_ Token_rhino) Node {
 	if lhs.isName() {
 		Preconditions_checkState(!lhs.hasChildren())
 	} else {
@@ -792,7 +792,7 @@ func IR_newTarget() Node {
 	return new_Node_Token(Token_rhino_NEW_TARGET)
 }
 
-func IR_binaryOp(token *Token_rhino, expr1 Node, expr2 Node) Node {
+func IR_binaryOp(token Token_rhino, expr1 Node, expr2 Node) Node {
 	if !IR_mayBeExpression(expr1) {
 		Preconditions_checkState_boolean_Object_H(false, expr1)
 	}
@@ -802,7 +802,7 @@ func IR_binaryOp(token *Token_rhino, expr1 Node, expr2 Node) Node {
 	return new_Node_Token_Node_Node(token, expr1, expr2)
 }
 
-func IR_unaryOp(token *Token_rhino, expr Node) Node {
+func IR_unaryOp(token Token_rhino, expr Node) Node {
 	Preconditions_checkState(IR_mayBeExpression(expr))
 	return new_Node_Token_Node(token, expr)
 }

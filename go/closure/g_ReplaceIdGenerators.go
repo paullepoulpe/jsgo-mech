@@ -30,14 +30,14 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 			var gen *TEntry[string, RenamingMap] = it_1.entry()
 			var name string = gen.getKey()
 			var map_ RenamingMap = gen.getValue()
-			var renamingToken *RenamingToken
+			var renamingToken RenamingToken
 			_ = renamingToken
 			if func() bool {
 				v_ := any(map_)
-				if !is_[*RenamingToken](v_) {
+				if !is_[RenamingToken](v_) {
 					return false
 				}
-				renamingToken = cast_[*RenamingToken](v_)
+				renamingToken = cast_[RenamingToken](v_)
 				return true
 			}() {
 				switch renamingToken {
@@ -63,7 +63,7 @@ func new_ReplaceIdGenerators(compiler *AbstractCompiler, templateLiteralsAreTran
 	return this
 }
 
-func (this *ReplaceIdGenerators) createNameSupplier(renameStrategy *ReplaceIdGenerators_RenameStrategy, previousMappings *SimpleBiMap) ReplaceIdGenerators_NameSupplier {
+func (this *ReplaceIdGenerators) createNameSupplier(renameStrategy ReplaceIdGenerators_RenameStrategy, previousMappings *SimpleBiMap) ReplaceIdGenerators_NameSupplier {
 	previousMappings = func() *SimpleBiMap {
 		if previousMappings != nil {
 			return previousMappings
@@ -82,7 +82,7 @@ func (this *ReplaceIdGenerators) createNameSupplier(renameStrategy *ReplaceIdGen
 	panic("unreachable")
 }
 
-func ReplaceIdGenerators_createNameSupplierRenamingMap(renameStrategy *ReplaceIdGenerators_RenameStrategy, mappings RenamingMap) ReplaceIdGenerators_NameSupplier {
+func ReplaceIdGenerators_createNameSupplierRenamingMap(renameStrategy ReplaceIdGenerators_RenameStrategy, mappings RenamingMap) ReplaceIdGenerators_NameSupplier {
 	Preconditions_checkState((renameStrategy == ReplaceIdGenerators_RenameStrategy_MAPPED))
 	return ReplaceIdGenerators_NameSupplier(new_ReplaceIdGenerators_MappedNameSupplier(mappings))
 }
@@ -134,47 +134,67 @@ func ReplaceIdGenerators_clinit() {
 
 }
 
-type ReplaceIdGenerators_RenameStrategy struct {
-	Enum
+type ReplaceIdGenerators_RenameStrategy uint8
+
+// ReplaceIdGenerators_RenameStrategy_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var ReplaceIdGenerators_RenameStrategy_enum_ = [5]Enum{
+	{self_: ReplaceIdGenerators_RenameStrategy_CONSISTENT, name_: "CONSISTENT", ordinal_: 0},
+	{self_: ReplaceIdGenerators_RenameStrategy_INCONSISTENT, name_: "INCONSISTENT", ordinal_: 1},
+	{self_: ReplaceIdGenerators_RenameStrategy_MAPPED, name_: "MAPPED", ordinal_: 2},
+	{self_: ReplaceIdGenerators_RenameStrategy_STABLE, name_: "STABLE", ordinal_: 3},
+	{self_: ReplaceIdGenerators_RenameStrategy_XID, name_: "XID", ordinal_: 4},
 }
 
-func (this *ReplaceIdGenerators_RenameStrategy) up_Enum() *Enum {
-	if this == nil {
+func (this ReplaceIdGenerators_RenameStrategy) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &ReplaceIdGenerators_RenameStrategy_enum_[this-1]
 }
 
-func (this *ReplaceIdGenerators_RenameStrategy) init_ReplaceIdGenerators_RenameStrategy(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this ReplaceIdGenerators_RenameStrategy) name() string {
+	return ReplaceIdGenerators_RenameStrategy_enum_[this-1].name_
 }
 
-func new_ReplaceIdGenerators_RenameStrategy(name_ string, ordinal_ int32) *ReplaceIdGenerators_RenameStrategy {
-	this := &ReplaceIdGenerators_RenameStrategy{}
-	this.self_ = this
-	this.init_ReplaceIdGenerators_RenameStrategy(name_, ordinal_)
+func (this ReplaceIdGenerators_RenameStrategy) ordinal() int32 {
+	return ReplaceIdGenerators_RenameStrategy_enum_[this-1].ordinal_
+}
+
+func (this ReplaceIdGenerators_RenameStrategy) toString() string {
+	return ReplaceIdGenerators_RenameStrategy_enum_[this-1].name_
+}
+
+func (this ReplaceIdGenerators_RenameStrategy) compareTo(o any) int32 {
+	return ReplaceIdGenerators_RenameStrategy_enum_[this-1].compareTo(o)
+}
+
+func (this ReplaceIdGenerators_RenameStrategy) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func ReplaceIdGenerators_RenameStrategy_values() []*ReplaceIdGenerators_RenameStrategy {
-	return append([]*ReplaceIdGenerators_RenameStrategy(nil), ReplaceIdGenerators_RenameStrategy_values_...)
+func ReplaceIdGenerators_RenameStrategy_values() []ReplaceIdGenerators_RenameStrategy {
+	return append([]ReplaceIdGenerators_RenameStrategy(nil), ReplaceIdGenerators_RenameStrategy_values_...)
 }
 
-func ReplaceIdGenerators_RenameStrategy_valueOf(name string) *ReplaceIdGenerators_RenameStrategy {
+func ReplaceIdGenerators_RenameStrategy_valueOf(name string) ReplaceIdGenerators_RenameStrategy {
 	for _, v := range ReplaceIdGenerators_RenameStrategy_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("RenameStrategy", name))
 }
 
-var ReplaceIdGenerators_RenameStrategy_CONSISTENT *ReplaceIdGenerators_RenameStrategy
-var ReplaceIdGenerators_RenameStrategy_INCONSISTENT *ReplaceIdGenerators_RenameStrategy
-var ReplaceIdGenerators_RenameStrategy_MAPPED *ReplaceIdGenerators_RenameStrategy
-var ReplaceIdGenerators_RenameStrategy_STABLE *ReplaceIdGenerators_RenameStrategy
-var ReplaceIdGenerators_RenameStrategy_XID *ReplaceIdGenerators_RenameStrategy
-var ReplaceIdGenerators_RenameStrategy_values_ []*ReplaceIdGenerators_RenameStrategy
+const ReplaceIdGenerators_RenameStrategy_CONSISTENT ReplaceIdGenerators_RenameStrategy = 1
+const ReplaceIdGenerators_RenameStrategy_INCONSISTENT ReplaceIdGenerators_RenameStrategy = 2
+const ReplaceIdGenerators_RenameStrategy_MAPPED ReplaceIdGenerators_RenameStrategy = 3
+const ReplaceIdGenerators_RenameStrategy_STABLE ReplaceIdGenerators_RenameStrategy = 4
+const ReplaceIdGenerators_RenameStrategy_XID ReplaceIdGenerators_RenameStrategy = 5
+
+var ReplaceIdGenerators_RenameStrategy_values_ []ReplaceIdGenerators_RenameStrategy
 
 var ReplaceIdGenerators_RenameStrategy_clinit_done bool
 
@@ -183,34 +203,29 @@ func ReplaceIdGenerators_RenameStrategy_clinit() {
 		return
 	}
 	ReplaceIdGenerators_RenameStrategy_clinit_done = true
-	ReplaceIdGenerators_RenameStrategy_CONSISTENT = new_ReplaceIdGenerators_RenameStrategy("CONSISTENT", 0)
-	ReplaceIdGenerators_RenameStrategy_INCONSISTENT = new_ReplaceIdGenerators_RenameStrategy("INCONSISTENT", 1)
-	ReplaceIdGenerators_RenameStrategy_MAPPED = new_ReplaceIdGenerators_RenameStrategy("MAPPED", 2)
-	ReplaceIdGenerators_RenameStrategy_STABLE = new_ReplaceIdGenerators_RenameStrategy("STABLE", 3)
-	ReplaceIdGenerators_RenameStrategy_XID = new_ReplaceIdGenerators_RenameStrategy("XID", 4)
-	ReplaceIdGenerators_RenameStrategy_values_ = []*ReplaceIdGenerators_RenameStrategy{ReplaceIdGenerators_RenameStrategy_CONSISTENT, ReplaceIdGenerators_RenameStrategy_INCONSISTENT, ReplaceIdGenerators_RenameStrategy_MAPPED, ReplaceIdGenerators_RenameStrategy_STABLE, ReplaceIdGenerators_RenameStrategy_XID}
+	ReplaceIdGenerators_RenameStrategy_values_ = []ReplaceIdGenerators_RenameStrategy{ReplaceIdGenerators_RenameStrategy_CONSISTENT, ReplaceIdGenerators_RenameStrategy_INCONSISTENT, ReplaceIdGenerators_RenameStrategy_MAPPED, ReplaceIdGenerators_RenameStrategy_STABLE, ReplaceIdGenerators_RenameStrategy_XID}
 	registerEnum_("com.google.javascript.jscomp.ReplaceIdGenerators.RenameStrategy", enumValues_(ReplaceIdGenerators_RenameStrategy_values_))
 
 }
 
 type ReplaceIdGenerators_NameSupplier interface {
 	getName(string, string) Optional[string]
-	getRenameStrategy() *ReplaceIdGenerators_RenameStrategy
+	getRenameStrategy() ReplaceIdGenerators_RenameStrategy
 }
 
 type ReplaceIdGenerators_ObfuscatedNameSupplier struct {
 	generator        NameGenerator
 	previousMappings MapOf[string, string]
-	renameStrategy   *ReplaceIdGenerators_RenameStrategy
+	renameStrategy   ReplaceIdGenerators_RenameStrategy
 }
 
-func (this *ReplaceIdGenerators_ObfuscatedNameSupplier) init_ReplaceIdGenerators_ObfuscatedNameSupplier(renameStrategy *ReplaceIdGenerators_RenameStrategy, previousMappings *SimpleBiMap) {
+func (this *ReplaceIdGenerators_ObfuscatedNameSupplier) init_ReplaceIdGenerators_ObfuscatedNameSupplier(renameStrategy ReplaceIdGenerators_RenameStrategy, previousMappings *SimpleBiMap) {
 	this.previousMappings = previousMappings.inverse()
 	this.generator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(previousMappings.keySet(), "", jtsetEmptyImm_(tc_Character)))
 	this.renameStrategy = renameStrategy
 }
 
-func new_ReplaceIdGenerators_ObfuscatedNameSupplier(renameStrategy *ReplaceIdGenerators_RenameStrategy, previousMappings *SimpleBiMap) *ReplaceIdGenerators_ObfuscatedNameSupplier {
+func new_ReplaceIdGenerators_ObfuscatedNameSupplier(renameStrategy ReplaceIdGenerators_RenameStrategy, previousMappings *SimpleBiMap) *ReplaceIdGenerators_ObfuscatedNameSupplier {
 	this := &ReplaceIdGenerators_ObfuscatedNameSupplier{}
 	this.init_ReplaceIdGenerators_ObfuscatedNameSupplier(renameStrategy, previousMappings)
 	return this
@@ -224,25 +239,25 @@ func (this *ReplaceIdGenerators_ObfuscatedNameSupplier) getName(id string, name 
 	return newName
 }
 
-func (this *ReplaceIdGenerators_ObfuscatedNameSupplier) getRenameStrategy() *ReplaceIdGenerators_RenameStrategy {
+func (this *ReplaceIdGenerators_ObfuscatedNameSupplier) getRenameStrategy() ReplaceIdGenerators_RenameStrategy {
 	return this.renameStrategy
 }
 
 type ReplaceIdGenerators_PseudoNameSupplier struct {
 	counter        int32
-	renameStrategy *ReplaceIdGenerators_RenameStrategy
+	renameStrategy ReplaceIdGenerators_RenameStrategy
 }
 
 func (this *ReplaceIdGenerators_PseudoNameSupplier) finit_ReplaceIdGenerators_PseudoNameSupplier() {
 	this.counter = 0
 }
 
-func (this *ReplaceIdGenerators_PseudoNameSupplier) init_ReplaceIdGenerators_PseudoNameSupplier(renameStrategy *ReplaceIdGenerators_RenameStrategy) {
+func (this *ReplaceIdGenerators_PseudoNameSupplier) init_ReplaceIdGenerators_PseudoNameSupplier(renameStrategy ReplaceIdGenerators_RenameStrategy) {
 	this.finit_ReplaceIdGenerators_PseudoNameSupplier()
 	this.renameStrategy = renameStrategy
 }
 
-func new_ReplaceIdGenerators_PseudoNameSupplier(renameStrategy *ReplaceIdGenerators_RenameStrategy) *ReplaceIdGenerators_PseudoNameSupplier {
+func new_ReplaceIdGenerators_PseudoNameSupplier(renameStrategy ReplaceIdGenerators_RenameStrategy) *ReplaceIdGenerators_PseudoNameSupplier {
 	this := &ReplaceIdGenerators_PseudoNameSupplier{}
 	this.init_ReplaceIdGenerators_PseudoNameSupplier(renameStrategy)
 	return this
@@ -257,7 +272,7 @@ func (this *ReplaceIdGenerators_PseudoNameSupplier) getName(id string, name stri
 	return Optional_of[string]((sstr_(name) + "$0"))
 }
 
-func (this *ReplaceIdGenerators_PseudoNameSupplier) getRenameStrategy() *ReplaceIdGenerators_RenameStrategy {
+func (this *ReplaceIdGenerators_PseudoNameSupplier) getRenameStrategy() ReplaceIdGenerators_RenameStrategy {
 	return this.renameStrategy
 }
 
@@ -278,7 +293,7 @@ func (this *ReplaceIdGenerators_StableNameSupplier) getName(id string, name stri
 	return Optional_of[string](Base64_base64EncodeInt(String_hashCode(name)))
 }
 
-func (this *ReplaceIdGenerators_StableNameSupplier) getRenameStrategy() *ReplaceIdGenerators_RenameStrategy {
+func (this *ReplaceIdGenerators_StableNameSupplier) getRenameStrategy() ReplaceIdGenerators_RenameStrategy {
 	return ReplaceIdGenerators_RenameStrategy_STABLE
 }
 
@@ -305,7 +320,7 @@ func (this *ReplaceIdGenerators_XidNameSupplier) getName(id string, name string)
 	return Optional_of[string](this.xid.get(name))
 }
 
-func (this *ReplaceIdGenerators_XidNameSupplier) getRenameStrategy() *ReplaceIdGenerators_RenameStrategy {
+func (this *ReplaceIdGenerators_XidNameSupplier) getRenameStrategy() ReplaceIdGenerators_RenameStrategy {
 	return ReplaceIdGenerators_RenameStrategy_XID
 }
 
@@ -327,7 +342,7 @@ func (this *ReplaceIdGenerators_MappedNameSupplier) getName(id string, name stri
 	return this.map__.get(name)
 }
 
-func (this *ReplaceIdGenerators_MappedNameSupplier) getRenameStrategy() *ReplaceIdGenerators_RenameStrategy {
+func (this *ReplaceIdGenerators_MappedNameSupplier) getRenameStrategy() ReplaceIdGenerators_RenameStrategy {
 	return ReplaceIdGenerators_RenameStrategy_MAPPED
 }
 

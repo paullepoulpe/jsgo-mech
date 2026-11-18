@@ -5,7 +5,7 @@ package closure
 type StrictModeCheck struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_     *AbstractCompiler
-	defaultLevel_ *CheckLevel
+	defaultLevel_ CheckLevel
 }
 
 func (this *StrictModeCheck) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -15,13 +15,13 @@ func (this *StrictModeCheck) up_NodeTraversal_AbstractPostOrderCallback() *NodeT
 	return &this.NodeTraversal_AbstractPostOrderCallback
 }
 
-func (this *StrictModeCheck) init_StrictModeCheck(compiler *AbstractCompiler, defaultLevel *CheckLevel) {
+func (this *StrictModeCheck) init_StrictModeCheck(compiler *AbstractCompiler, defaultLevel CheckLevel) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.compiler_ = compiler
 	this.defaultLevel_ = defaultLevel
 }
 
-func new_StrictModeCheck(compiler *AbstractCompiler, defaultLevel *CheckLevel) *StrictModeCheck {
+func new_StrictModeCheck(compiler *AbstractCompiler, defaultLevel CheckLevel) *StrictModeCheck {
 	this := &StrictModeCheck{}
 	this.self_ = this
 	this.init_StrictModeCheck(compiler, defaultLevel)

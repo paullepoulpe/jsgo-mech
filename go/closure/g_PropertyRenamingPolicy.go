@@ -2,44 +2,59 @@
 
 package closure
 
-type PropertyRenamingPolicy struct {
-	Enum
+type PropertyRenamingPolicy uint8
+
+// PropertyRenamingPolicy_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var PropertyRenamingPolicy_enum_ = [2]Enum{
+	{self_: PropertyRenamingPolicy_OFF, name_: "OFF", ordinal_: 0},
+	{self_: PropertyRenamingPolicy_ALL_UNQUOTED, name_: "ALL_UNQUOTED", ordinal_: 1},
 }
 
-func (this *PropertyRenamingPolicy) up_Enum() *Enum {
-	if this == nil {
+func (this PropertyRenamingPolicy) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &PropertyRenamingPolicy_enum_[this-1]
 }
 
-func (this *PropertyRenamingPolicy) init_PropertyRenamingPolicy(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this PropertyRenamingPolicy) name() string { return PropertyRenamingPolicy_enum_[this-1].name_ }
+
+func (this PropertyRenamingPolicy) ordinal() int32 {
+	return PropertyRenamingPolicy_enum_[this-1].ordinal_
 }
 
-func new_PropertyRenamingPolicy(name_ string, ordinal_ int32) *PropertyRenamingPolicy {
-	this := &PropertyRenamingPolicy{}
-	this.self_ = this
-	this.init_PropertyRenamingPolicy(name_, ordinal_)
+func (this PropertyRenamingPolicy) toString() string {
+	return PropertyRenamingPolicy_enum_[this-1].name_
+}
+
+func (this PropertyRenamingPolicy) compareTo(o any) int32 {
+	return PropertyRenamingPolicy_enum_[this-1].compareTo(o)
+}
+
+func (this PropertyRenamingPolicy) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func PropertyRenamingPolicy_values() []*PropertyRenamingPolicy {
-	return append([]*PropertyRenamingPolicy(nil), PropertyRenamingPolicy_values_...)
+func PropertyRenamingPolicy_values() []PropertyRenamingPolicy {
+	return append([]PropertyRenamingPolicy(nil), PropertyRenamingPolicy_values_...)
 }
 
-func PropertyRenamingPolicy_valueOf(name string) *PropertyRenamingPolicy {
+func PropertyRenamingPolicy_valueOf(name string) PropertyRenamingPolicy {
 	for _, v := range PropertyRenamingPolicy_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("PropertyRenamingPolicy", name))
 }
 
-var PropertyRenamingPolicy_OFF *PropertyRenamingPolicy
-var PropertyRenamingPolicy_ALL_UNQUOTED *PropertyRenamingPolicy
-var PropertyRenamingPolicy_values_ []*PropertyRenamingPolicy
+const PropertyRenamingPolicy_OFF PropertyRenamingPolicy = 1
+const PropertyRenamingPolicy_ALL_UNQUOTED PropertyRenamingPolicy = 2
+
+var PropertyRenamingPolicy_values_ []PropertyRenamingPolicy
 
 var PropertyRenamingPolicy_clinit_done bool
 
@@ -48,9 +63,7 @@ func PropertyRenamingPolicy_clinit() {
 		return
 	}
 	PropertyRenamingPolicy_clinit_done = true
-	PropertyRenamingPolicy_OFF = new_PropertyRenamingPolicy("OFF", 0)
-	PropertyRenamingPolicy_ALL_UNQUOTED = new_PropertyRenamingPolicy("ALL_UNQUOTED", 1)
-	PropertyRenamingPolicy_values_ = []*PropertyRenamingPolicy{PropertyRenamingPolicy_OFF, PropertyRenamingPolicy_ALL_UNQUOTED}
+	PropertyRenamingPolicy_values_ = []PropertyRenamingPolicy{PropertyRenamingPolicy_OFF, PropertyRenamingPolicy_ALL_UNQUOTED}
 	registerEnum_("com.google.javascript.jscomp.PropertyRenamingPolicy", enumValues_(PropertyRenamingPolicy_values_))
 
 }

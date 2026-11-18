@@ -437,7 +437,7 @@ func (this *PeepholeRemoveDeadCode) tryOptimizeSwitch(n Node) Node {
 		}
 		if NodeUtil_isLiteralValue(cond, false) {
 			var caseLabel Node
-			var caseMatches *Tri = Tri_TRUE
+			var caseMatches Tri = Tri_TRUE
 			{
 				cur = switchBody.getFirstChild()
 				for ; cur != 0; cur = next {
@@ -813,7 +813,7 @@ func (this *PeepholeRemoveDeadCode) tryOptimizeConditionalAfterAssign(n Node) {
 	var rhsAssign Node = this.getSimpleAssignmentValue(n)
 	switch conditionalRoot.getToken() {
 	case Token_rhino_AND, Token_rhino_OR, Token_rhino_IF, Token_rhino_HOOK:
-		var value *Tri = NodeUtil_getBooleanValue(rhsAssign)
+		var value Tri = NodeUtil_getBooleanValue(rhsAssign)
 		if value != Tri_UNKNOWN {
 			var replacementConditionNode Node = NodeUtil_booleanNode(value.toBoolean(true))
 			condition.replaceWith(replacementConditionNode)
@@ -821,7 +821,7 @@ func (this *PeepholeRemoveDeadCode) tryOptimizeConditionalAfterAssign(n Node) {
 		}
 		return
 	case Token_rhino_COALESCE:
-		var valueType *NodeUtil_ValueType = NodeUtil_getKnownValueType(rhsAssign)
+		var valueType NodeUtil_ValueType = NodeUtil_getKnownValueType(rhsAssign)
 		switch valueType {
 		case NodeUtil_ValueType_NULL, NodeUtil_ValueType_VOID:
 			condition.replaceWith(NodeUtil_newUndefinedNode(condition))
@@ -900,7 +900,7 @@ func (this *PeepholeRemoveDeadCode) tryFoldIf(n Node) Node {
 	}
 	var parent Node = n.getParent()
 	Preconditions_checkNotNull_T(parent)
-	var type_ *Token_rhino = n.getToken()
+	var type_ Token_rhino = n.getToken()
 	var cond Node = n.getFirstChild()
 	var thenBody Node = cond.getNext()
 	var elseBody Node = thenBody.getNext()
@@ -933,7 +933,7 @@ func (this *PeepholeRemoveDeadCode) tryFoldIf(n Node) Node {
 			return 0
 		}
 	}
-	var condValue *Tri = NodeUtil_getBooleanValue(cond)
+	var condValue Tri = NodeUtil_getBooleanValue(cond)
 	if condValue == Tri_UNKNOWN {
 		return n
 	}
@@ -1005,7 +1005,7 @@ func (this *PeepholeRemoveDeadCode) tryFoldHook(n Node) Node {
 	var cond Node = n.getFirstChild()
 	var thenBody Node = cond.getNext()
 	var elseBody Node = thenBody.getNext()
-	var condValue *Tri = NodeUtil_getBooleanValue(cond)
+	var condValue Tri = NodeUtil_getBooleanValue(cond)
 	if condValue == Tri_UNKNOWN {
 		if !this.areNodesEqualForInlining(thenBody, elseBody) {
 			return n

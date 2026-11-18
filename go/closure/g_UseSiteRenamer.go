@@ -22,7 +22,7 @@ func new_UseSiteRenamer(mutationCb ConsumerOf[Node]) *UseSiteRenamer {
 	return this
 }
 
-func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) *UseSiteRenamer_RenameUsesResult {
+func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) UseSiteRenamer_RenameUsesResult {
 	if prop.isInvalidated() {
 		this.renamingIndex.put(strobj_(prop.getName()), strobj_(UseSiteRenamer_INVALIDATED_NAME_VALUE))
 		return UseSiteRenamer_RenameUsesResult_INVALIDATED
@@ -70,45 +70,63 @@ func UseSiteRenamer_createClusterName(prop *PropertyClustering, rep *ColorGraphN
 
 const UseSiteRenamer_INVALIDATED_NAME_VALUE string = "<INVALIDATED>"
 
-type UseSiteRenamer_RenameUsesResult struct {
-	Enum
+type UseSiteRenamer_RenameUsesResult uint8
+
+// UseSiteRenamer_RenameUsesResult_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var UseSiteRenamer_RenameUsesResult_enum_ = [3]Enum{
+	{self_: UseSiteRenamer_RenameUsesResult_INVALIDATED, name_: "INVALIDATED", ordinal_: 0},
+	{self_: UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER, name_: "ONLY_ONE_CLUSTER", ordinal_: 1},
+	{self_: UseSiteRenamer_RenameUsesResult_DISAMBIGUATED, name_: "DISAMBIGUATED", ordinal_: 2},
 }
 
-func (this *UseSiteRenamer_RenameUsesResult) up_Enum() *Enum {
-	if this == nil {
+func (this UseSiteRenamer_RenameUsesResult) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &UseSiteRenamer_RenameUsesResult_enum_[this-1]
 }
 
-func (this *UseSiteRenamer_RenameUsesResult) init_UseSiteRenamer_RenameUsesResult(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this UseSiteRenamer_RenameUsesResult) name() string {
+	return UseSiteRenamer_RenameUsesResult_enum_[this-1].name_
 }
 
-func new_UseSiteRenamer_RenameUsesResult(name_ string, ordinal_ int32) *UseSiteRenamer_RenameUsesResult {
-	this := &UseSiteRenamer_RenameUsesResult{}
-	this.self_ = this
-	this.init_UseSiteRenamer_RenameUsesResult(name_, ordinal_)
+func (this UseSiteRenamer_RenameUsesResult) ordinal() int32 {
+	return UseSiteRenamer_RenameUsesResult_enum_[this-1].ordinal_
+}
+
+func (this UseSiteRenamer_RenameUsesResult) toString() string {
+	return UseSiteRenamer_RenameUsesResult_enum_[this-1].name_
+}
+
+func (this UseSiteRenamer_RenameUsesResult) compareTo(o any) int32 {
+	return UseSiteRenamer_RenameUsesResult_enum_[this-1].compareTo(o)
+}
+
+func (this UseSiteRenamer_RenameUsesResult) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func UseSiteRenamer_RenameUsesResult_values() []*UseSiteRenamer_RenameUsesResult {
-	return append([]*UseSiteRenamer_RenameUsesResult(nil), UseSiteRenamer_RenameUsesResult_values_...)
+func UseSiteRenamer_RenameUsesResult_values() []UseSiteRenamer_RenameUsesResult {
+	return append([]UseSiteRenamer_RenameUsesResult(nil), UseSiteRenamer_RenameUsesResult_values_...)
 }
 
-func UseSiteRenamer_RenameUsesResult_valueOf(name string) *UseSiteRenamer_RenameUsesResult {
+func UseSiteRenamer_RenameUsesResult_valueOf(name string) UseSiteRenamer_RenameUsesResult {
 	for _, v := range UseSiteRenamer_RenameUsesResult_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("RenameUsesResult", name))
 }
 
-var UseSiteRenamer_RenameUsesResult_INVALIDATED *UseSiteRenamer_RenameUsesResult
-var UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER *UseSiteRenamer_RenameUsesResult
-var UseSiteRenamer_RenameUsesResult_DISAMBIGUATED *UseSiteRenamer_RenameUsesResult
-var UseSiteRenamer_RenameUsesResult_values_ []*UseSiteRenamer_RenameUsesResult
+const UseSiteRenamer_RenameUsesResult_INVALIDATED UseSiteRenamer_RenameUsesResult = 1
+const UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER UseSiteRenamer_RenameUsesResult = 2
+const UseSiteRenamer_RenameUsesResult_DISAMBIGUATED UseSiteRenamer_RenameUsesResult = 3
+
+var UseSiteRenamer_RenameUsesResult_values_ []UseSiteRenamer_RenameUsesResult
 
 var UseSiteRenamer_RenameUsesResult_clinit_done bool
 
@@ -117,10 +135,7 @@ func UseSiteRenamer_RenameUsesResult_clinit() {
 		return
 	}
 	UseSiteRenamer_RenameUsesResult_clinit_done = true
-	UseSiteRenamer_RenameUsesResult_INVALIDATED = new_UseSiteRenamer_RenameUsesResult("INVALIDATED", 0)
-	UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER = new_UseSiteRenamer_RenameUsesResult("ONLY_ONE_CLUSTER", 1)
-	UseSiteRenamer_RenameUsesResult_DISAMBIGUATED = new_UseSiteRenamer_RenameUsesResult("DISAMBIGUATED", 2)
-	UseSiteRenamer_RenameUsesResult_values_ = []*UseSiteRenamer_RenameUsesResult{UseSiteRenamer_RenameUsesResult_INVALIDATED, UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER, UseSiteRenamer_RenameUsesResult_DISAMBIGUATED}
+	UseSiteRenamer_RenameUsesResult_values_ = []UseSiteRenamer_RenameUsesResult{UseSiteRenamer_RenameUsesResult_INVALIDATED, UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER, UseSiteRenamer_RenameUsesResult_DISAMBIGUATED}
 	registerEnum_("com.google.javascript.jscomp.disambiguate.UseSiteRenamer.RenameUsesResult", enumValues_(UseSiteRenamer_RenameUsesResult_values_))
 
 }

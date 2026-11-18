@@ -86,8 +86,8 @@ func (this *Scope) declareImplicitGoogNamespaceIfAbsent(name string, definition 
 	return var_
 }
 
-func (this *Scope) makeImplicitVar_impl(var_ *AbstractScope_ImplicitVar) *AbstractVar {
-	return new_Var(var_.nameField, 0, this, -1, nil, 0).up_AbstractVar()
+func (this *Scope) makeImplicitVar_impl(var_ AbstractScope_ImplicitVar) *AbstractVar {
+	return new_Var(AbstractScope_ImplicitVar_nameField_[var_-1], 0, this, -1, nil, 0).up_AbstractVar()
 }
 
 // untyped: an object that is exactly a Scope calls its untyped_impl directly (post-flip); others dispatch.
@@ -115,7 +115,7 @@ func (this *Scope) getParent() *AbstractScope {
 }
 
 // makeImplicitVar: an object that is exactly a Scope calls its makeImplicitVar_impl directly (post-flip); others dispatch.
-func (this *Scope) makeImplicitVar(p0 *AbstractScope_ImplicitVar) *AbstractVar {
+func (this *Scope) makeImplicitVar(p0 AbstractScope_ImplicitVar) *AbstractVar {
 	if this.self_ == any(this) {
 		return this.makeImplicitVar_impl(p0)
 	}

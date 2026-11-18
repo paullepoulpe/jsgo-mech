@@ -35,7 +35,7 @@ func new_ClosureCodingConvention_CodingConvention(wrapped CodingConvention) *Clo
 	return this
 }
 
-func (this *ClosureCodingConvention) applySubclassRelationship_impl(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ *CodingConvention_SubclassType) {
+func (this *ClosureCodingConvention) applySubclassRelationship_impl(parent *NominalTypeBuilder, child *NominalTypeBuilder, type_ CodingConvention_SubclassType) {
 	this.CodingConventions_Proxy.applySubclassRelationship_impl(parent, child, type_)
 	if type_ == CodingConvention_SubclassType_INHERITS {
 		var childCtor *FunctionType = child.constructor()
@@ -51,8 +51,8 @@ func (this *ClosureCodingConvention) getClassesDefinedByCall_impl(callNode Node)
 		return relationship
 	}
 	var callName Node = callNode.getFirstChild()
-	var type_ *CodingConvention_SubclassType = ClosureCodingConvention_typeofClassDefiningName(callName)
-	if type_ != nil {
+	var type_ CodingConvention_SubclassType = ClosureCodingConvention_typeofClassDefiningName(callName)
+	if type_ != 0 {
 		if callNode.getChildCount() < 3 {
 			return nil
 		}
@@ -73,7 +73,7 @@ func (this *ClosureCodingConvention) getClassesDefinedByCall_impl(callNode Node)
 	return nil
 }
 
-func ClosureCodingConvention_typeofClassDefiningName(callName Node) *CodingConvention_SubclassType {
+func ClosureCodingConvention_typeofClassDefiningName(callName Node) CodingConvention_SubclassType {
 	var methodName Optional[string] = Optional_empty[string]()
 	if callName.isGetProp() {
 		methodName = Optional_of[string](callName.getString())
@@ -91,7 +91,7 @@ func ClosureCodingConvention_typeofClassDefiningName(callName Node) *CodingConve
 			return CodingConvention_SubclassType_MIXIN
 		}
 	}
-	return nil
+	return 0
 }
 
 func (this *ClosureCodingConvention) isSuperClassReference_impl(propertyName string) bool {
@@ -325,7 +325,7 @@ func ClosureCodingConvention_clinit() {
 }
 
 // applySubclassRelationship: an object that is exactly a ClosureCodingConvention calls its applySubclassRelationship_impl directly (post-flip); others dispatch.
-func (this *ClosureCodingConvention) applySubclassRelationship(p0 *NominalTypeBuilder, p1 *NominalTypeBuilder, p2 *CodingConvention_SubclassType) {
+func (this *ClosureCodingConvention) applySubclassRelationship(p0 *NominalTypeBuilder, p1 *NominalTypeBuilder, p2 CodingConvention_SubclassType) {
 	if this.self_ == any(this) {
 		this.applySubclassRelationship_impl(p0, p1, p2)
 		return

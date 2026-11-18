@@ -11,10 +11,10 @@ type Es6ConvertSuperConstructorCalls struct {
 	globalNamespace          *GlobalNamespace
 	transpilationNamespace   StaticScope
 	uniqueIdSupplier         *UniqueIdSupplier
-	es6SubclassTranspilation *CompilerOptions_Es6SubclassTranspilation
+	es6SubclassTranspilation CompilerOptions_Es6SubclassTranspilation
 }
 
-func (this *Es6ConvertSuperConstructorCalls) init_Es6ConvertSuperConstructorCalls(compiler *AbstractCompiler, es6SubclassTranspilation *CompilerOptions_Es6SubclassTranspilation) {
+func (this *Es6ConvertSuperConstructorCalls) init_Es6ConvertSuperConstructorCalls(compiler *AbstractCompiler, es6SubclassTranspilation CompilerOptions_Es6SubclassTranspilation) {
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.transpilationNamespace = compiler.getTranspilationNamespace()
@@ -26,7 +26,7 @@ func (this *Es6ConvertSuperConstructorCalls) init_Es6ConvertSuperConstructorCall
 	this.es6SubclassTranspilation = es6SubclassTranspilation
 }
 
-func new_Es6ConvertSuperConstructorCalls(compiler *AbstractCompiler, es6SubclassTranspilation *CompilerOptions_Es6SubclassTranspilation) *Es6ConvertSuperConstructorCalls {
+func new_Es6ConvertSuperConstructorCalls(compiler *AbstractCompiler, es6SubclassTranspilation CompilerOptions_Es6SubclassTranspilation) *Es6ConvertSuperConstructorCalls {
 	this := &Es6ConvertSuperConstructorCalls{}
 	this.init_Es6ConvertSuperConstructorCalls(compiler, es6SubclassTranspilation)
 	return this

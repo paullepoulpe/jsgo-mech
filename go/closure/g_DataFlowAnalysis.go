@@ -143,7 +143,7 @@ func (this *DataFlowAnalysis[N, L]) flow(node DiGraph_DiGraphNode[N]) bool {
 			for it_1.next() {
 				var outEdge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_1.v)
 				var outBranchBefore L = junboxT_[L](any(Annotatable_getAnnotation(Annotatable(outEdge))))
-				outEdge.setAnnotation(icast_Annotation_graph(boxT_(brancher.branchFlow(cast_[*ControlFlowGraph_Branch](outEdge.getValue())))))
+				outEdge.setAnnotation(icast_Annotation_graph(boxT_(brancher.branchFlow(cast_[ControlFlowGraph_Branch](outEdge.getValue())))))
 				if !changed {
 					changed = !jequalsT_(outBranchBefore, any(Annotatable_getAnnotation(Annotatable(outEdge))))
 				}
@@ -271,14 +271,14 @@ type DataFlowAnalysis_FlowJoiner[L comparable] interface {
 }
 
 type DataFlowAnalysis_FlowBrancher[L comparable] interface {
-	branchFlow(*ControlFlowGraph_Branch) L
+	branchFlow(ControlFlowGraph_Branch) L
 }
 
 type DataFlowAnalysis_FlowBrancher_fn[L comparable] struct {
-	f func(*ControlFlowGraph_Branch) L
+	f func(ControlFlowGraph_Branch) L
 }
 
-func (this *DataFlowAnalysis_FlowBrancher_fn[L]) branchFlow(p0 *ControlFlowGraph_Branch) L {
+func (this *DataFlowAnalysis_FlowBrancher_fn[L]) branchFlow(p0 ControlFlowGraph_Branch) L {
 	return this.f(p0)
 }
 

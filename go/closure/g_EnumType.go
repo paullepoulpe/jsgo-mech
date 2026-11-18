@@ -60,7 +60,7 @@ func EnumType_builder(registry *JSTypeRegistry) *EnumType_Builder {
 	return new_EnumType_Builder(registry)
 }
 
-func (this *EnumType) getTypeClass_impl() *JSTypeClass {
+func (this *EnumType) getTypeClass_impl() JSTypeClass {
 	return EnumType_TYPE_CLASS_FIELD
 }
 
@@ -89,12 +89,12 @@ func (this *EnumType) getEnumeratedTypeOfEnumObject_impl() *JSType {
 	return this.elementType.getPrimitiveType()
 }
 
-func (this *EnumType) testForEquality_impl(that *JSType) *Tri {
-	var result *Tri = this.PrototypeObjectType.testForEquality_impl(that)
-	if result != nil {
+func (this *EnumType) testForEquality_impl(that *JSType) Tri {
+	var result Tri = this.PrototypeObjectType.testForEquality_impl(that)
+	if result != 0 {
 		return result
 	}
-	return func() *Tri {
+	return func() Tri {
 		if this.equals(that.self()) {
 			return Tri_TRUE
 		}
@@ -152,7 +152,7 @@ func (this *EnumType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType
 	return this.PrototypeObjectType.resolveInternal_impl(reporter)
 }
 
-var EnumType_TYPE_CLASS_FIELD *JSTypeClass
+var EnumType_TYPE_CLASS_FIELD JSTypeClass
 
 var EnumType_clinit_done bool
 
@@ -228,7 +228,7 @@ func (this *EnumType_Builder) build_impl() *PrototypeObjectType {
 }
 
 // getTypeClass: an object that is exactly a EnumType calls its getTypeClass_impl directly (post-flip); others dispatch.
-func (this *EnumType) getTypeClass() *JSTypeClass {
+func (this *EnumType) getTypeClass() JSTypeClass {
 	if this.self_ == any(this) {
 		return this.getTypeClass_impl()
 	}
@@ -260,7 +260,7 @@ func (this *EnumType) getEnumeratedTypeOfEnumObject() *JSType {
 }
 
 // testForEquality: an object that is exactly a EnumType calls its testForEquality_impl directly (post-flip); others dispatch.
-func (this *EnumType) testForEquality(p0 *JSType) *Tri {
+func (this *EnumType) testForEquality(p0 *JSType) Tri {
 	if this.self_ == any(this) {
 		return this.testForEquality_impl(p0)
 	}

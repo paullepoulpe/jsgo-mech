@@ -128,7 +128,7 @@ func (this *GuardedCallback[T]) visitGuarded(p0 *NodeTraversal, p1 Node, p2 Node
 	this.vt_GuardedCallback_.visitGuarded_impl(p0, p1, p2)
 }
 
-var GuardedCallback_CAN_HAVE_GUARDS *JTSet[*Token_rhino]
+var GuardedCallback_CAN_HAVE_GUARDS *JTSet[Token_rhino]
 
 var GuardedCallback_clinit_done bool
 
@@ -137,7 +137,7 @@ func GuardedCallback_clinit() {
 		return
 	}
 	GuardedCallback_clinit_done = true
-	GuardedCallback_CAN_HAVE_GUARDS = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_AND.up_Enum(), []*Enum{Token_rhino_OR.up_Enum(), Token_rhino_COALESCE.up_Enum(), Token_rhino_HOOK.up_Enum(), Token_rhino_IF.up_Enum(), Token_rhino_BLOCK.up_Enum(), Token_rhino_SCRIPT.up_Enum(), Token_rhino_OPTCHAIN_CALL.up_Enum(), Token_rhino_OPTCHAIN_GETELEM.up_Enum(), Token_rhino_OPTCHAIN_GETPROP.up_Enum()}))
+	GuardedCallback_CAN_HAVE_GUARDS = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_AND.enum_(), []*Enum{Token_rhino_OR.enum_(), Token_rhino_COALESCE.enum_(), Token_rhino_HOOK.enum_(), Token_rhino_IF.enum_(), Token_rhino_BLOCK.enum_(), Token_rhino_SCRIPT.enum_(), Token_rhino_OPTCHAIN_CALL.enum_(), Token_rhino_OPTCHAIN_GETELEM.enum_(), Token_rhino_OPTCHAIN_GETPROP.enum_()}))
 
 }
 

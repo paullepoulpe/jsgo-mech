@@ -34,7 +34,7 @@ func new_PolyfillUsageFinder(compiler *AbstractCompiler, polyfills *PolyfillUsag
 }
 
 func PolyfillUsageFinder_getPolyfillSupportedFeatureSet(nativeVersionStr string) *FeatureSet {
-	return FeatureSet_browserFeatureSetValueOf(nativeVersionStr).without_2(FeatureSet_Feature_MODULES, []*FeatureSet_Feature{})
+	return FeatureSet_browserFeatureSetValueOf(nativeVersionStr).without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
 }
 
 func (this *PolyfillUsageFinder) traverseExcludingGuarded(root Node, polyfillConsumer ConsumerOf[*PolyfillUsageFinder_PolyfillUsage]) {
@@ -215,7 +215,7 @@ type PolyfillUsageFinder_Polyfill struct {
 	nativeVersion   string
 	polyfillVersion string
 	library         string
-	kind_           *PolyfillUsageFinder_Polyfill_Kind
+	kind_           PolyfillUsageFinder_Polyfill_Kind
 }
 
 func (this *PolyfillUsageFinder_Polyfill) zero_PolyfillUsageFinder_Polyfill() {
@@ -225,7 +225,7 @@ func (this *PolyfillUsageFinder_Polyfill) zero_PolyfillUsageFinder_Polyfill() {
 	this.library = nullstr_
 }
 
-func (this *PolyfillUsageFinder_Polyfill) init_PolyfillUsageFinder_Polyfill(nativeSymbol string, nativeVersion string, polyfillVersion string, library string, kind *PolyfillUsageFinder_Polyfill_Kind) {
+func (this *PolyfillUsageFinder_Polyfill) init_PolyfillUsageFinder_Polyfill(nativeSymbol string, nativeVersion string, polyfillVersion string, library string, kind PolyfillUsageFinder_Polyfill_Kind) {
 	this.nativeSymbol = nativeSymbol
 	this.nativeVersion = nativeVersion
 	this.polyfillVersion = polyfillVersion
@@ -233,51 +233,68 @@ func (this *PolyfillUsageFinder_Polyfill) init_PolyfillUsageFinder_Polyfill(nati
 	this.kind_ = kind
 }
 
-func new_PolyfillUsageFinder_Polyfill(nativeSymbol string, nativeVersion string, polyfillVersion string, library string, kind *PolyfillUsageFinder_Polyfill_Kind) *PolyfillUsageFinder_Polyfill {
+func new_PolyfillUsageFinder_Polyfill(nativeSymbol string, nativeVersion string, polyfillVersion string, library string, kind PolyfillUsageFinder_Polyfill_Kind) *PolyfillUsageFinder_Polyfill {
 	this := &PolyfillUsageFinder_Polyfill{}
 	this.zero_PolyfillUsageFinder_Polyfill()
 	this.init_PolyfillUsageFinder_Polyfill(nativeSymbol, nativeVersion, polyfillVersion, library, kind)
 	return this
 }
 
-type PolyfillUsageFinder_Polyfill_Kind struct {
-	Enum
+type PolyfillUsageFinder_Polyfill_Kind uint8
+
+// PolyfillUsageFinder_Polyfill_Kind_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var PolyfillUsageFinder_Polyfill_Kind_enum_ = [2]Enum{
+	{self_: PolyfillUsageFinder_Polyfill_Kind_STATIC, name_: "STATIC", ordinal_: 0},
+	{self_: PolyfillUsageFinder_Polyfill_Kind_METHOD, name_: "METHOD", ordinal_: 1},
 }
 
-func (this *PolyfillUsageFinder_Polyfill_Kind) up_Enum() *Enum {
-	if this == nil {
+func (this PolyfillUsageFinder_Polyfill_Kind) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &PolyfillUsageFinder_Polyfill_Kind_enum_[this-1]
 }
 
-func (this *PolyfillUsageFinder_Polyfill_Kind) init_PolyfillUsageFinder_Polyfill_Kind(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this PolyfillUsageFinder_Polyfill_Kind) name() string {
+	return PolyfillUsageFinder_Polyfill_Kind_enum_[this-1].name_
 }
 
-func new_PolyfillUsageFinder_Polyfill_Kind(name_ string, ordinal_ int32) *PolyfillUsageFinder_Polyfill_Kind {
-	this := &PolyfillUsageFinder_Polyfill_Kind{}
-	this.self_ = this
-	this.init_PolyfillUsageFinder_Polyfill_Kind(name_, ordinal_)
+func (this PolyfillUsageFinder_Polyfill_Kind) ordinal() int32 {
+	return PolyfillUsageFinder_Polyfill_Kind_enum_[this-1].ordinal_
+}
+
+func (this PolyfillUsageFinder_Polyfill_Kind) toString() string {
+	return PolyfillUsageFinder_Polyfill_Kind_enum_[this-1].name_
+}
+
+func (this PolyfillUsageFinder_Polyfill_Kind) compareTo(o any) int32 {
+	return PolyfillUsageFinder_Polyfill_Kind_enum_[this-1].compareTo(o)
+}
+
+func (this PolyfillUsageFinder_Polyfill_Kind) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func PolyfillUsageFinder_Polyfill_Kind_values() []*PolyfillUsageFinder_Polyfill_Kind {
-	return append([]*PolyfillUsageFinder_Polyfill_Kind(nil), PolyfillUsageFinder_Polyfill_Kind_values_...)
+func PolyfillUsageFinder_Polyfill_Kind_values() []PolyfillUsageFinder_Polyfill_Kind {
+	return append([]PolyfillUsageFinder_Polyfill_Kind(nil), PolyfillUsageFinder_Polyfill_Kind_values_...)
 }
 
-func PolyfillUsageFinder_Polyfill_Kind_valueOf(name string) *PolyfillUsageFinder_Polyfill_Kind {
+func PolyfillUsageFinder_Polyfill_Kind_valueOf(name string) PolyfillUsageFinder_Polyfill_Kind {
 	for _, v := range PolyfillUsageFinder_Polyfill_Kind_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Kind", name))
 }
 
-var PolyfillUsageFinder_Polyfill_Kind_STATIC *PolyfillUsageFinder_Polyfill_Kind
-var PolyfillUsageFinder_Polyfill_Kind_METHOD *PolyfillUsageFinder_Polyfill_Kind
-var PolyfillUsageFinder_Polyfill_Kind_values_ []*PolyfillUsageFinder_Polyfill_Kind
+const PolyfillUsageFinder_Polyfill_Kind_STATIC PolyfillUsageFinder_Polyfill_Kind = 1
+const PolyfillUsageFinder_Polyfill_Kind_METHOD PolyfillUsageFinder_Polyfill_Kind = 2
+
+var PolyfillUsageFinder_Polyfill_Kind_values_ []PolyfillUsageFinder_Polyfill_Kind
 
 var PolyfillUsageFinder_Polyfill_Kind_clinit_done bool
 
@@ -286,9 +303,7 @@ func PolyfillUsageFinder_Polyfill_Kind_clinit() {
 		return
 	}
 	PolyfillUsageFinder_Polyfill_Kind_clinit_done = true
-	PolyfillUsageFinder_Polyfill_Kind_STATIC = new_PolyfillUsageFinder_Polyfill_Kind("STATIC", 0)
-	PolyfillUsageFinder_Polyfill_Kind_METHOD = new_PolyfillUsageFinder_Polyfill_Kind("METHOD", 1)
-	PolyfillUsageFinder_Polyfill_Kind_values_ = []*PolyfillUsageFinder_Polyfill_Kind{PolyfillUsageFinder_Polyfill_Kind_STATIC, PolyfillUsageFinder_Polyfill_Kind_METHOD}
+	PolyfillUsageFinder_Polyfill_Kind_values_ = []PolyfillUsageFinder_Polyfill_Kind{PolyfillUsageFinder_Polyfill_Kind_STATIC, PolyfillUsageFinder_Polyfill_Kind_METHOD}
 	registerEnum_("com.google.javascript.jscomp.PolyfillUsageFinder.Polyfill.Kind", enumValues_(PolyfillUsageFinder_Polyfill_Kind_values_))
 
 }
@@ -341,7 +356,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 				return tokens.get(3)
 			}
 			return ""
-		}(), func() *PolyfillUsageFinder_Polyfill_Kind {
+		}(), func() PolyfillUsageFinder_Polyfill_Kind {
 			if isPrototypeMethod {
 				return PolyfillUsageFinder_Polyfill_Kind_METHOD
 			}
@@ -357,7 +372,7 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	return new_PolyfillUsageFinder_Polyfills(methods.immutableCopy(), statics.buildOrThrow(), byNativeVersion.immutableCopy())
 }
 
-func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode *CompilerOptions_LanguageMode) *JTList[*PolyfillUsageFinder_Polyfill] {
+func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode CompilerOptions_LanguageMode) *JTList[*PolyfillUsageFinder_Polyfill] {
 	var featureSet *FeatureSet = languageMode.toFeatureSet()
 	var result *TListBuilder[*PolyfillUsageFinder_Polyfill] = newTListBuilder_(jtc_p_PolyfillUsageFinder_Polyfill)
 	it_1 := foreach_(any(this.byNativeVersion.keySet()))
@@ -443,29 +458,46 @@ func (this *PolyfillUsageFinder_PolyfillUsage) toString() string {
 	return "PolyfillUsage[" + "polyfill=" + jtostr_(this.polyfill_) + ", node=" + tostrH_(this.node_) + ", name=" + sstr_(this.name_) + ", isExplicitGlobal=" + boolstr_(this.isExplicitGlobal_) + "]"
 }
 
-type PolyfillUsageFinder_Guard struct {
-	Enum
+type PolyfillUsageFinder_Guard uint8
+
+// PolyfillUsageFinder_Guard_enum_ is the java.lang.Enum record of each constant, by ordinal; a constant is ordinal + 1 and 0 is null.
+var PolyfillUsageFinder_Guard_enum_ = [3]Enum{
+	{self_: PolyfillUsageFinder_Guard_ONLY_GUARDED, name_: "ONLY_GUARDED", ordinal_: 0},
+	{self_: PolyfillUsageFinder_Guard_ONLY_UNGUARDED, name_: "ONLY_UNGUARDED", ordinal_: 1},
+	{self_: PolyfillUsageFinder_Guard_ALL, name_: "ALL", ordinal_: 2},
 }
 
-func (this *PolyfillUsageFinder_Guard) up_Enum() *Enum {
-	if this == nil {
+func (this PolyfillUsageFinder_Guard) enum_() *Enum {
+	if this == 0 {
 		return nil
 	}
-	return &this.Enum
+	return &PolyfillUsageFinder_Guard_enum_[this-1]
 }
 
-func (this *PolyfillUsageFinder_Guard) init_PolyfillUsageFinder_Guard(name_ string, ordinal_ int32) {
-	this.Enum.init_Enum(name_, ordinal_)
+func (this PolyfillUsageFinder_Guard) name() string {
+	return PolyfillUsageFinder_Guard_enum_[this-1].name_
 }
 
-func new_PolyfillUsageFinder_Guard(name_ string, ordinal_ int32) *PolyfillUsageFinder_Guard {
-	this := &PolyfillUsageFinder_Guard{}
-	this.self_ = this
-	this.init_PolyfillUsageFinder_Guard(name_, ordinal_)
+func (this PolyfillUsageFinder_Guard) ordinal() int32 {
+	return PolyfillUsageFinder_Guard_enum_[this-1].ordinal_
+}
+
+func (this PolyfillUsageFinder_Guard) toString() string {
+	return PolyfillUsageFinder_Guard_enum_[this-1].name_
+}
+
+func (this PolyfillUsageFinder_Guard) compareTo(o any) int32 {
+	return PolyfillUsageFinder_Guard_enum_[this-1].compareTo(o)
+}
+
+func (this PolyfillUsageFinder_Guard) self() any {
+	if this == 0 {
+		return nil
+	}
 	return this
 }
 
-func (this *PolyfillUsageFinder_Guard) shouldInclude(isGuarded bool) bool {
+func (this PolyfillUsageFinder_Guard) shouldInclude(isGuarded bool) bool {
 	return func() bool {
 		switch this {
 		case PolyfillUsageFinder_Guard_ALL:
@@ -479,23 +511,24 @@ func (this *PolyfillUsageFinder_Guard) shouldInclude(isGuarded bool) bool {
 	}()
 }
 
-func PolyfillUsageFinder_Guard_values() []*PolyfillUsageFinder_Guard {
-	return append([]*PolyfillUsageFinder_Guard(nil), PolyfillUsageFinder_Guard_values_...)
+func PolyfillUsageFinder_Guard_values() []PolyfillUsageFinder_Guard {
+	return append([]PolyfillUsageFinder_Guard(nil), PolyfillUsageFinder_Guard_values_...)
 }
 
-func PolyfillUsageFinder_Guard_valueOf(name string) *PolyfillUsageFinder_Guard {
+func PolyfillUsageFinder_Guard_valueOf(name string) PolyfillUsageFinder_Guard {
 	for _, v := range PolyfillUsageFinder_Guard_values_ {
-		if v.Enum.name() == name {
+		if v.name() == name {
 			return v
 		}
 	}
 	panic(enumValueOfFail_("Guard", name))
 }
 
-var PolyfillUsageFinder_Guard_ONLY_GUARDED *PolyfillUsageFinder_Guard
-var PolyfillUsageFinder_Guard_ONLY_UNGUARDED *PolyfillUsageFinder_Guard
-var PolyfillUsageFinder_Guard_ALL *PolyfillUsageFinder_Guard
-var PolyfillUsageFinder_Guard_values_ []*PolyfillUsageFinder_Guard
+const PolyfillUsageFinder_Guard_ONLY_GUARDED PolyfillUsageFinder_Guard = 1
+const PolyfillUsageFinder_Guard_ONLY_UNGUARDED PolyfillUsageFinder_Guard = 2
+const PolyfillUsageFinder_Guard_ALL PolyfillUsageFinder_Guard = 3
+
+var PolyfillUsageFinder_Guard_values_ []PolyfillUsageFinder_Guard
 
 var PolyfillUsageFinder_Guard_clinit_done bool
 
@@ -504,10 +537,7 @@ func PolyfillUsageFinder_Guard_clinit() {
 		return
 	}
 	PolyfillUsageFinder_Guard_clinit_done = true
-	PolyfillUsageFinder_Guard_ONLY_GUARDED = new_PolyfillUsageFinder_Guard("ONLY_GUARDED", 0)
-	PolyfillUsageFinder_Guard_ONLY_UNGUARDED = new_PolyfillUsageFinder_Guard("ONLY_UNGUARDED", 1)
-	PolyfillUsageFinder_Guard_ALL = new_PolyfillUsageFinder_Guard("ALL", 2)
-	PolyfillUsageFinder_Guard_values_ = []*PolyfillUsageFinder_Guard{PolyfillUsageFinder_Guard_ONLY_GUARDED, PolyfillUsageFinder_Guard_ONLY_UNGUARDED, PolyfillUsageFinder_Guard_ALL}
+	PolyfillUsageFinder_Guard_values_ = []PolyfillUsageFinder_Guard{PolyfillUsageFinder_Guard_ONLY_GUARDED, PolyfillUsageFinder_Guard_ONLY_UNGUARDED, PolyfillUsageFinder_Guard_ALL}
 	registerEnum_("com.google.javascript.jscomp.PolyfillUsageFinder.Guard", enumValues_(PolyfillUsageFinder_Guard_values_))
 
 }
@@ -516,7 +546,7 @@ type PolyfillUsageFinder_Traverser struct {
 	GuardedCallback[string]
 	outer_               *PolyfillUsageFinder
 	polyfillConsumer     ConsumerOf[*PolyfillUsageFinder_PolyfillUsage]
-	includeGuardedUsages *PolyfillUsageFinder_Guard
+	includeGuardedUsages PolyfillUsageFinder_Guard
 }
 
 func (this *PolyfillUsageFinder_Traverser) up_GuardedCallback() *GuardedCallback[string] {
@@ -526,13 +556,13 @@ func (this *PolyfillUsageFinder_Traverser) up_GuardedCallback() *GuardedCallback
 	return &this.GuardedCallback
 }
 
-func (this *PolyfillUsageFinder_Traverser) init_PolyfillUsageFinder_Traverser(compiler *AbstractCompiler, polyfillConsumer ConsumerOf[*PolyfillUsageFinder_PolyfillUsage], includeGuardedUsages *PolyfillUsageFinder_Guard) {
+func (this *PolyfillUsageFinder_Traverser) init_PolyfillUsageFinder_Traverser(compiler *AbstractCompiler, polyfillConsumer ConsumerOf[*PolyfillUsageFinder_PolyfillUsage], includeGuardedUsages PolyfillUsageFinder_Guard) {
 	this.GuardedCallback.init_GuardedCallback(compiler)
 	this.polyfillConsumer = polyfillConsumer
 	this.includeGuardedUsages = includeGuardedUsages
 }
 
-func new_PolyfillUsageFinder_Traverser(outer_ *PolyfillUsageFinder, compiler *AbstractCompiler, polyfillConsumer ConsumerOf[*PolyfillUsageFinder_PolyfillUsage], includeGuardedUsages *PolyfillUsageFinder_Guard) *PolyfillUsageFinder_Traverser {
+func new_PolyfillUsageFinder_Traverser(outer_ *PolyfillUsageFinder, compiler *AbstractCompiler, polyfillConsumer ConsumerOf[*PolyfillUsageFinder_PolyfillUsage], includeGuardedUsages PolyfillUsageFinder_Guard) *PolyfillUsageFinder_Traverser {
 	this := &PolyfillUsageFinder_Traverser{}
 	this.self_ = this
 	this.vt_GuardedCallback_ = this
