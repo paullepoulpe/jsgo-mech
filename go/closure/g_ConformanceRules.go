@@ -3112,7 +3112,7 @@ var lambda_ConformanceRules_BannedModsRegex_getPrecondition_impl_1_ = &CheckConf
 
 type ConformanceRules_BanCreateElement struct {
 	ConformanceRules_AbstractRule
-	bannedTags    *TSet[string]
+	bannedTags    map[string]struct{}
 	domHelperType *JSType
 	documentType  *JSType
 }
@@ -3154,11 +3154,11 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 	if superInited.isErr() {
 		return Outcome_base_err[any](superInited.error())
 	}
-	this.bannedTags = newTSet_(jtc_string.t_())
+	this.bannedTags = map[string]struct{}{}
 	for value := range elemsBy_(ProtocolStringList(requirement.getValueList()), str_) {
-		this.bannedTags.Add(Ascii_toLowerCase(value))
+		this.bannedTags[Ascii_toLowerCase(value)] = struct{}{}
 	}
-	if this.bannedTags.IsEmpty() {
+	if len(mapNN_(this.bannedTags)) == 0 {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("Specify one or more values.").up_Throwable())
 	}
 	this.domHelperType = compiler.getTypeRegistry().getGlobalType("goog.dom.DomHelper")
@@ -3169,7 +3169,7 @@ func (this *ConformanceRules_BanCreateElement) initBanCreateElement(compiler *Ab
 func (this *ConformanceRules_BanCreateElement) checkConformance_impl(t *NodeTraversal, n Node) *ConformanceRules_ConformanceResult {
 	if n.isCall() {
 		var tag Node = n.getSecondChild()
-		if ((tag != 0) && tag.isStringLit()) && this.bannedTags.Has(Ascii_toLowerCase(tag.getString())) {
+		if ((tag != 0) && tag.isStringLit()) && has_(this.bannedTags, Ascii_toLowerCase(tag.getString())) {
 			return this.checkCreateElement(n)
 		}
 	}

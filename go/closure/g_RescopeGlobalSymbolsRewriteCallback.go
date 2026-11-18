@@ -368,7 +368,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappers(
 	var chunkGraph *JSChunkGraph = this.compiler_.getChunkGraph()
 	var chunks IterableOf[*JSChunk] = chunkGraph.getAllChunks()
 	var defaultRootChunk *JSChunk = cast_[*JSChunk](first_(chunks))
-	var wrapperAssignmentChunks *TMap[string, *JSChunk] = newTMap_(jtc_string.t_(), tc_p_JSChunk)
+	var wrapperAssignmentChunks map[string]*JSChunk = map[string]*JSChunk{}
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() && !this.symbolInfo.wrappedCrossChunkNames().IsEmpty() {
 		for _, el := range this.symbolInfo.wrappedCrossChunkNames().keys {
 			name := el
@@ -379,7 +379,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappers(
 				}
 				return chunkGraph.getDeepestCommonDependencyInclusive(Collection(chunksRequiringWrapper))
 			}()
-			wrapperAssignmentChunks.Put(name, wrapperAssignmentChunk)
+			wrapperAssignmentChunks[name] = wrapperAssignmentChunk
 		}
 	}
 	var cleanupHelperName string = this.getCleanupHelperPropertyName()
@@ -429,7 +429,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareCleanupHelper(cleanupHel
 	this.compiler_.reportChangeToEnclosingScope(script)
 }
 
-func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersForChunk(chunk *JSChunk, wrapperAssignmentChunks *TMap[string, *JSChunk], cleanupHelperName string) bool {
+func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersForChunk(chunk *JSChunk, wrapperAssignmentChunks map[string]*JSChunk, cleanupHelperName string) bool {
 	var inputs ImmutableListOf[*CompilerInput] = chunk.getInputs()
 	if inputs.isEmpty() {
 		return false
@@ -443,7 +443,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 		wrappedReassignableLocalAliases = newTSet_(tc_string)
 		for _, el := range this.symbolInfo.wrappedCrossChunkNames().keys {
 			name := el
-			var assignmentChunk *JSChunk = wrapperAssignmentChunks.Get(name)
+			var assignmentChunk *JSChunk = wrapperAssignmentChunks[name]
 			var usingChunks SetOf[*JSChunk] = this.chunksUsingWrappedReassignableSymbols.Get(name)
 			if equalsId_(chunk, assignmentChunk) {
 				if (usingChunks != nil) && usingChunks.contains(obj_(chunk)) {

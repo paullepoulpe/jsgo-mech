@@ -57,7 +57,7 @@ func (this *NestedCompilerRunner) compile() {
 
 func (this *NestedCompilerRunner) initializeCompiler() {
 	var externNames *ImmutableSet[string] = NodeUtil_collectExternVariableNames(this.original_, this.original_.getRoot().getFirstChild())
-	this.shadowCompiler.addExportedNames(icast_Set(obj_(externNames.asImm())))
+	this.shadowCompiler.addExportedNames(tsetFrom_(tc_string, externNames.asImm(), true))
 	this.shadowCompiler.setExternProperties(this.original_.getExternProperties())
 	this.shadowCompiler.setDebugMessage("<shadow AST compilation>")
 	var chunks *ImmutableList[*JSChunk] = this.createChunks()

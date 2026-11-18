@@ -1609,13 +1609,13 @@ func (this *InlineAndCollapseProperties_CollapseProperties_FindDynamicallyImport
 
 type InlineAndCollapseProperties_InlineAliases struct {
 	outer_      *InlineAndCollapseProperties
-	aliases_    *TMap[string, string]
+	aliases_    map[string]string
 	namespace_  *GlobalNamespace
 	astFactory_ *AstFactory
 }
 
 func (this *InlineAndCollapseProperties_InlineAliases) finit_InlineAndCollapseProperties_InlineAliases() {
-	this.aliases_ = newTMap_(jtc_string.t_(), tc_string)
+	this.aliases_ = map[string]string{}
 }
 
 func (this *InlineAndCollapseProperties_InlineAliases) init_InlineAndCollapseProperties_InlineAliases() {
@@ -1681,7 +1681,7 @@ func (this *InlineAndCollapseProperties_InlineAliases_AliasesCollector) visitAli
 			var lhsName *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](this.outer_.namespace_.getOwnSlot(lhs.getQualifiedName()))
 			var rhsName *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](this.outer_.namespace_.getOwnSlot(rhs.getQualifiedName()))
 			if (((lhsName != nil) && lhsName.calculateInlinability().shouldInlineUsages()) && (rhsName != nil)) && rhsName.calculateInlinability().shouldInlineUsages() {
-				this.outer_.aliases_.Put(lhs.getQualifiedName(), rhs.getQualifiedName())
+				this.outer_.aliases_[lhs.getQualifiedName()] = rhs.getQualifiedName()
 			}
 		}
 	}
@@ -1721,7 +1721,7 @@ func new_InlineAndCollapseProperties_InlineAliases_AliasesInliner(outer_ *Inline
 func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	switch n.ns_().token {
 	case tokOrd1_NAME, tokOrd1_GETPROP:
-		if n.isQualifiedName() && this.outer_.aliases_.Has(n.getQualifiedName()) {
+		if n.isQualifiedName() && has_(this.outer_.aliases_, n.getQualifiedName()) {
 			if this.isLeftmostNameLocal(t, n) {
 				return
 			}
@@ -1754,13 +1754,13 @@ func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) isLeftmost
 
 func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) resolveAlias(name string, n Node) string {
 	var aliasPath *TSet[string] = newTSet_(jtc_string.t_())
-	for this.outer_.aliases_.Has(name) {
+	for has_(this.outer_.aliases_, name) {
 		if !aliasPath.Add(name) {
 			this.outer_.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, InlineAndCollapseProperties_ALIAS_CYCLE, []string{Object_toString(aliasPath.asSet()), name}))
-			this.outer_.aliases_.Delete(name)
+			delete(this.outer_.aliases_, name)
 			break
 		}
-		name = this.outer_.aliases_.Get(name)
+		name = mapStr_(this.outer_.aliases_, name)
 	}
 	return name
 }

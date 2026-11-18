@@ -159,7 +159,7 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDef
 			if possibleInstances.IsEmpty() {
 				return StandardColors_UNKNOWN
 			}
-			return Color_createUnion(icast_Set(obj_(possibleInstances.asImm())))
+			return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstances.asImm(), true))
 		}()
 	}
 	return this.maybeStoreCandidateValue(c, propName, value)

@@ -86,9 +86,9 @@ func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLi
 	if !behaviorObjLit.isObjectLit() {
 		panic(new_IllegalStateException_0())
 	}
-	var methodsToProtect *TSet[string] = newTSet_(jtc_string.t_())
-	methodsToProtect.asSet().addAll(Collection(PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit).asSet()))
-	methodsToProtect.asSet().addAll(Collection(PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit).asSet()))
+	var methodsToProtect map[string]struct{} = map[string]struct{}{}
+	setAddAllFrom_(tc_string, methodsToProtect, Collection(PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit).asSet()))
+	setAddAllFrom_(tc_string, methodsToProtect, Collection(PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit).asSet()))
 	{
 		var keyNode Node = behaviorObjLit.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -96,7 +96,7 @@ func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLi
 				continue
 			}
 			var keyName Optional[string] = NodeUtil_getObjectOrClassLitKeyName(keyNode)
-			if !(keyName.isPresent() && methodsToProtect.Has(keyName.get())) {
+			if !(keyName.isPresent() && has_(methodsToProtect, keyName.get())) {
 				continue
 			}
 			PolymerPassStaticUtils_addExportAndNoCollapseToKey(keyNode)

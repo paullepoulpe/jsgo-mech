@@ -6,8 +6,8 @@ type CheckConstPrivateProperties struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_                 *AbstractCompiler
 	candidates                *[]Node
-	modified                  *TSet[string]
-	constructorsAndInterfaces *TSet[string]
+	modified                  map[string]struct{}
+	constructorsAndInterfaces map[string]struct{}
 }
 
 func (this *CheckConstPrivateProperties) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -19,8 +19,8 @@ func (this *CheckConstPrivateProperties) up_NodeTraversal_AbstractPostOrderCallb
 
 func (this *CheckConstPrivateProperties) finit_CheckConstPrivateProperties() {
 	this.candidates = &[]Node{}
-	this.modified = newTSet_(jtc_string.t_())
-	this.constructorsAndInterfaces = newTSet_(jtc_string.t_())
+	this.modified = map[string]struct{}{}
+	this.constructorsAndInterfaces = map[string]struct{}{}
 }
 
 func (this *CheckConstPrivateProperties) init_CheckConstPrivateProperties(compiler *AbstractCompiler) {
@@ -43,12 +43,12 @@ func (this *CheckConstPrivateProperties) process_2(externs Node, root Node) {
 func (this *CheckConstPrivateProperties) reportMissingConst(t *NodeTraversal) {
 	for n := range sliceAll_(this.candidates) {
 		var propName string = n.getString()
-		if !this.modified.Has(propName) {
+		if !has_(this.modified, propName) {
 			t.report(n, CheckConstPrivateProperties_MISSING_CONST_PROPERTY, []string{propName})
 		}
 	}
 	sliceClear_(this.candidates)
-	this.modified.Clear()
+	clear(this.modified)
 }
 
 func (this *CheckConstPrivateProperties) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -67,7 +67,7 @@ func (this *CheckConstPrivateProperties) visit_impl(t *NodeTraversal, n Node, pa
 		if this.isCandidatePropertyDefinition(n) {
 			*this.candidates = append(*this.candidates, propNode)
 		} else if this.isModificationOp(n) {
-			this.modified.Add(propNode.getString())
+			this.modified[propNode.getString()] = struct{}{}
 		}
 	case tokOrd1_FUNCTION:
 		var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
@@ -83,7 +83,7 @@ func (this *CheckConstPrivateProperties) visit_impl(t *NodeTraversal, n Node, pa
 func (this *CheckConstPrivateProperties) recordConstructorOrInterface(n Node) {
 	var className Optional[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
 	if className.isPresent() {
-		this.constructorsAndInterfaces.Add(className.get())
+		this.constructorsAndInterfaces[className.get()] = struct{}{}
 	}
 }
 
@@ -92,7 +92,7 @@ func (this *CheckConstPrivateProperties) isCandidatePropertyDefinition(n Node) b
 		return false
 	}
 	var target Node = n.getFirstChild()
-	if !(target.isThis() || this.constructorsAndInterfaces.Has(target.getQualifiedName())) {
+	if !(target.isThis() || has_(this.constructorsAndInterfaces, target.getQualifiedName())) {
 		return false
 	}
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)

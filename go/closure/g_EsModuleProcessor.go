@@ -253,7 +253,7 @@ type EsModuleProcessor_UnresolvedModuleBuilder struct {
 	root               Node
 	importsByLocalName *TMap[string, *Import]
 	exports            *[]*Export
-	exportedNames      *TSet[string]
+	exportedNames      map[string]struct{}
 }
 
 func (this *EsModuleProcessor_UnresolvedModuleBuilder) init_EsModuleProcessor_UnresolvedModuleBuilder(path *ModuleLoader_ModulePath, root Node) {
@@ -261,7 +261,7 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) init_EsModuleProcessor_Un
 	this.root = root
 	this.importsByLocalName = newTMap_(jtc_string.t_(), tc_p_Import)
 	this.exports = &[]*Export{}
-	this.exportedNames = newTSet_(jtc_string.t_())
+	this.exportedNames = map[string]struct{}{}
 }
 
 func new_EsModuleProcessor_UnresolvedModuleBuilder(outer_ *EsModuleProcessor, path *ModuleLoader_ModulePath, root Node) *EsModuleProcessor_UnresolvedModuleBuilder {
@@ -280,11 +280,11 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) add(e *Export) bool {
 		*this.exports = append(*this.exports, e)
 		return true
 	} else {
-		if this.exportedNames.Has(e.exportName().get()) {
+		if has_(this.exportedNames, e.exportName().get()) {
 			return false
 		}
 		*this.exports = append(*this.exports, e)
-		this.exportedNames.Add(e.exportName().get())
+		this.exportedNames[e.exportName().get()] = struct{}{}
 		return true
 	}
 }

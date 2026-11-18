@@ -19,8 +19,8 @@ type AbstractCommandLineRunner struct {
 	inputsSupplierForTesting    func() any
 	chunksSupplierForTesting    func() any
 	exitCodeReceiver            Function_baseOf[BoxedOf[int32], any]
-	rootRelativePathsMap        *TMap[string, string]
-	parsedChunkWrappers         MapOf[string, string]
+	rootRelativePathsMap        map[string]string
+	parsedChunkWrappers         *TMap[string, string]
 	parsedChunkOutputFiles      map[string]string
 	parsedChunkConformanceFiles map[string]string
 	filesToStreamOut            *[]*AbstractCommandLineRunner_JsonFileSpec
@@ -245,21 +245,21 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 		options.setInputPropertyMap(propertyMap.get())
 	}
 	if !this.config.outputManifests.isEmpty() {
-		var uniqueNames *TSet[string] = newTSet_(jtc_string.t_())
+		var uniqueNames map[string]struct{} = map[string]struct{}{}
 		l_3 := this.config.outputManifests
 		for i_3 := 0; i_3 < len(l_3.items); i_3++ {
 			var filename string = l_3.items[i_3]
-			if !uniqueNames.Add(filename) {
+			if !setAdd_(uniqueNames, filename) {
 				return Outcome_base_err[any](new_FlagUsageException(("output_manifest flags specify duplicate file names: " + sstr_(filename))).up_Throwable())
 			}
 		}
 	}
 	if !this.config.outputBundles.isEmpty() {
-		var uniqueNames *TSet[string] = newTSet_(jtc_string.t_())
+		var uniqueNames map[string]struct{} = map[string]struct{}{}
 		l_5 := this.config.outputBundles
 		for i_5 := 0; i_5 < len(l_5.items); i_5++ {
 			var filename string = l_5.items[i_5]
-			if !uniqueNames.Add(filename) {
+			if !setAdd_(uniqueNames, filename) {
 				return Outcome_base_err[any](new_FlagUsageException(("output_bundle flags specify duplicate file names: " + sstr_(filename))).up_Throwable())
 			}
 		}
@@ -455,15 +455,15 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 					return Outcome_base_err[List](newFilesRes.error())
 				}
 				var newFiles *TList[*SourceFile_jscomp] = newFilesRes.get()
-				if this.rootRelativePathsMap.Has(filename) {
-					var rootFilename string = this.rootRelativePathsMap.Get(filename)
+				if has_(this.rootRelativePathsMap, filename) {
+					var rootFilename string = mapStr_(this.rootRelativePathsMap, filename)
 					for zipEntry := range elemsAs_[*SourceFile_jscomp](newFiles.asList()) {
 						var zipEntryName string = zipEntry.getName()
 						if !strings.Contains(zipEntryName, csStr_(filename)) {
 							panic(new_IllegalStateException_0())
 						}
 						var zipmap string = strings.ReplaceAll(zipEntryName, csStr_(filename), csStr_(rootFilename))
-						this.rootRelativePathsMap.Put(zipEntryName, zipmap)
+						this.rootRelativePathsMap[zipEntryName] = zipmap
 					}
 				}
 				inputs.asList().addAll(Collection(newFiles.asList()))
@@ -522,12 +522,12 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 
 func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *TList[*AbstractCommandLineRunner_FlagEntry[any]], moduleRoots ListOf[string], hasChunkSpecs bool) *Outcome_base[*ErasedImmutableList] {
 	var errors *ImmutableList_Builder[*JSError] = immutableListBuilder_(tc_p_JSError)
-	var relativeToAbsoluteName *TMap[string, string] = newTMap_(jtc_string.t_(), tc_string)
+	var relativeToAbsoluteName map[string]string = map[string]string{}
 	for file := range files.All() {
 		if (cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS) || (cast_[AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP) {
 			var absoluteName string = file.value_
 			var relativeName string = this.getModuleRootRelativeName(absoluteName, moduleRoots)
-			relativeToAbsoluteName.Put(relativeName, absoluteName)
+			relativeToAbsoluteName[relativeName] = absoluteName
 		}
 	}
 	var iterator *tlistIter_[*AbstractCommandLineRunner_FlagEntry[any]] = files.cursor()
@@ -545,8 +545,8 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files *TList[*Abstrac
 			var relativeName string = this.getModuleRootRelativeName(absoluteName, moduleRoots)
 			relativeNameU16 := utf16Of_(relativeName)
 			var relativeNonIjsName string = relativeNameU16.substring(0, (relativeNameU16.length() - int32(len(".i.js"))))
-			if relativeToAbsoluteName.Has(relativeNonIjsName) {
-				errors.add(JSError_make_DiagnosticType_StringArr(IjsErrors_CONFLICTING_IJS_FILE, []string{relativeToAbsoluteName.Get(relativeNonIjsName), absoluteName}))
+			if has_(relativeToAbsoluteName, relativeNonIjsName) {
+				errors.add(JSError_make_DiagnosticType_StringArr(IjsErrors_CONFLICTING_IJS_FILE, []string{mapStr_(relativeToAbsoluteName, relativeNonIjsName), absoluteName}))
 				iterator.remove()
 			}
 		}
@@ -628,7 +628,7 @@ func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineR
 	}
 	var chunkNames []string = make([]string, 0, specs.size())
 	var chunksByName *TMap[string, *JSChunk] = newTMap_(jtc_string.t_(), tc_p_JSChunk)
-	var chunksFileCountMap *TMap[string, any] = newTMap_(jtc_string.t_(), jtc_Integer.t_())
+	var chunksFileCountMap map[string]any = map[string]any{}
 	var numJsFilesExpected int32 = 0
 	var minJsFilesRequired int32 = 0
 	it_1 := specs.each()
@@ -654,7 +654,7 @@ func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineR
 			numJsFilesExpected += spec.numJsFiles
 		}
 		sliceInsert_(&chunkNames, 0, spec.name_)
-		chunksFileCountMap.Put(spec.name_, any(int32(spec.numJsFiles)))
+		chunksFileCountMap[spec.name_] = any(int32(spec.numJsFiles))
 		chunksByName.Put(spec.name_, chunk)
 	}
 	var totalNumJsFiles int32 = int32(len(inputs))
@@ -671,7 +671,7 @@ func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineR
 	var numJsFilesLeft int32 = totalNumJsFiles
 	var chunkIndex int32 = 0
 	for _, chunkName := range chunkNames {
-		var numJsFiles int32 = unbox_[int32](chunksFileCountMap.Get(chunkName))
+		var numJsFiles int32 = unbox_[int32](chunksFileCountMap[chunkName])
 		var chunk *JSChunk = chunksByName.Get(chunkName)
 		if (chunkIndex == (int32(len(chunkNames)) - 1)) && (numJsFiles == -1) {
 			numJsFiles = numJsFilesLeft
@@ -693,7 +693,7 @@ func (this *AbstractCommandLineRunner) checkChunkName_impl(name string) *Outcome
 	return Outcome_base_ok_0()
 }
 
-func AbstractCommandLineRunner_parseChunkWrappers(specs *[]string, chunks IterableOf[*JSChunk]) *Outcome_base[Map] {
+func AbstractCommandLineRunner_parseChunkWrappers(specs *[]string, chunks IterableOf[*JSChunk]) *Outcome_base[*TMap[string, string]] {
 	if specs == nil {
 		panic(new_IllegalStateException_0())
 	}
@@ -704,20 +704,20 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs *[]string, chunks Iterab
 	for spec := range sliceAll_(specs) {
 		var pos int32 = int32(strings.IndexByte(spec, ':'))
 		if pos == -1 {
-			return Outcome_base_err[Map](new_FlagUsageException(("Expected chunk wrapper to have <name>:<wrapper> format: " + sstr_(spec))).up_Throwable())
+			return Outcome_base_err[*TMap[string, string]](new_FlagUsageException(("Expected chunk wrapper to have <name>:<wrapper> format: " + sstr_(spec))).up_Throwable())
 		}
 		var name string = spec[:pos]
 		if !wrappers.Has(name) {
-			return Outcome_base_err[Map](new_FlagUsageException(("Unknown chunk: '" + sstr_(name) + "'")).up_Throwable())
+			return Outcome_base_err[*TMap[string, string]](new_FlagUsageException(("Unknown chunk: '" + sstr_(name) + "'")).up_Throwable())
 		}
 		var wrapper string = spec[pos+1:]
 		wrapper = strings.ReplaceAll(strings.ReplaceAll(wrapper, "%output%", "%s"), "%n%", "\n")
 		if !strings.Contains(wrapper, "%s") {
-			return Outcome_base_err[Map](new_FlagUsageException(("No %s placeholder in chunk wrapper: '" + sstr_(wrapper) + "'")).up_Throwable())
+			return Outcome_base_err[*TMap[string, string]](new_FlagUsageException(("No %s placeholder in chunk wrapper: '" + sstr_(wrapper) + "'")).up_Throwable())
 		}
 		wrappers.Put(name, wrapper)
 	}
-	return Outcome_base_ok_Object[Map](wrappers.asMap())
+	return Outcome_base_ok_Object[*TMap[string, string]](wrappers)
 }
 
 func AbstractCommandLineRunner_parseChunkOutputFiles(specs *[]string) *Outcome_base[*ErasedImmutableMap] {
@@ -765,7 +765,7 @@ func (this *AbstractCommandLineRunner) getChunkConformanceFileName(m *JSChunk) *
 
 func (this *AbstractCommandLineRunner) writeChunkOutput(fileName string, out Appendable, lt CodePrinter_LicenseTracker, m *JSChunk) *Outcome_base[any] {
 	if this.parsedChunkWrappers == nil {
-		var parsedChunkWrappersOutcome *Outcome_base[Map] = AbstractCommandLineRunner_parseChunkWrappers(this.config.chunkWrapper, icast_Iterable(obj_(ImmutableList_copyOf_Iterable(this.compiler_.getChunkGraph().getAllChunks()))))
+		var parsedChunkWrappersOutcome *Outcome_base[*TMap[string, string]] = AbstractCommandLineRunner_parseChunkWrappers(this.config.chunkWrapper, icast_Iterable(obj_(ImmutableList_copyOf_Iterable(this.compiler_.getChunkGraph().getAllChunks()))))
 		if parsedChunkWrappersOutcome.isErr() {
 			return Outcome_base_err[any](parsedChunkWrappersOutcome.error())
 		}
@@ -775,7 +775,7 @@ func (this *AbstractCommandLineRunner) writeChunkOutput(fileName string, out App
 		AbstractCommandLineRunner_maybeCreateDirsForPath(fileName)
 	}
 	var baseName string = FilePaths_fileName(fileName)
-	this.writeOutput_8(out, this.compiler_, lt, m, strings.ReplaceAll(str_(Map_get_s(this.parsedChunkWrappers, m.getName())), "%basename%", csStr_(baseName)), "%s", nil, fileName)
+	this.writeOutput_8(out, this.compiler_, lt, m, strings.ReplaceAll(this.parsedChunkWrappers.Get(m.getName()), "%basename%", csStr_(baseName)), "%s", nil, fileName)
 	return Outcome_base_ok_0()
 }
 
@@ -1441,7 +1441,7 @@ func (this *AbstractCommandLineRunner) outputJsonStream() *Outcome_base[any] {
 
 func (this *AbstractCommandLineRunner) outputChunkBinaryAndSourceMaps(chunkGraph *JSChunkGraph, options *CompilerOptions) *Outcome_base[*DiagnosticType] {
 	var chunks IterableOf[*JSChunk] = chunkGraph.getAllChunks()
-	var parsedChunkWrappersOutcome *Outcome_base[Map] = AbstractCommandLineRunner_parseChunkWrappers(this.config.chunkWrapper, chunks)
+	var parsedChunkWrappersOutcome *Outcome_base[*TMap[string, string]] = AbstractCommandLineRunner_parseChunkWrappers(this.config.chunkWrapper, chunks)
 	if parsedChunkWrappersOutcome.isErr() {
 		return Outcome_base_err[*DiagnosticType](parsedChunkWrappersOutcome.error())
 	}
@@ -2004,7 +2004,7 @@ func (this *AbstractCommandLineRunner) printManifestTo(chunk *JSChunk, out Appen
 		if AbstractCompiler_isFillFileName(name) {
 			continue
 		}
-		var rootRelativePath Optional[string] = Optional_ofNullable[string](this.rootRelativePathsMap.Get(name))
+		var rootRelativePath Optional[string] = Optional_ofNullable[string](mapStr_(this.rootRelativePathsMap, name))
 		var displayName string = rootRelativePath.orElse(name)
 		out.append_CharSequence_s(displayName)
 		out.append_CharSequence_s("\n")
@@ -2040,7 +2040,7 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 		if AbstractCompiler_isFillFileName(name) && code == "" {
 			continue
 		}
-		var rootRelativePath Optional[string] = Optional_ofNullable[string](this.rootRelativePathsMap.Get(name))
+		var rootRelativePath Optional[string] = Optional_ofNullable[string](mapStr_(this.rootRelativePathsMap, name))
 		var displayName string = func() string {
 			if rootRelativePath.isPresent() {
 				return rootRelativePath.get()
@@ -2059,8 +2059,8 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 	return Outcome_base_ok_0()
 }
 
-func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() *TMap[string, string] {
-	var rootRelativePathsMap *TMap[string, string] = newTMap_(jtc_string.t_(), tc_string)
+func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() map[string]string {
+	var rootRelativePathsMap map[string]string = map[string]string{}
 	for _, mapString := range this.config.manifestMaps {
 		var colonIndex int32 = int32(strings.IndexByte(mapString, ':'))
 		if colonIndex <= 0 {
@@ -2071,7 +2071,7 @@ func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() *TMap[str
 		if strings.Contains(rootRelativePath, ":") {
 			panic(new_IllegalStateException_0())
 		}
-		rootRelativePathsMap.Put(execPath, rootRelativePath)
+		rootRelativePathsMap[execPath] = rootRelativePath
 	}
 	return rootRelativePathsMap
 }

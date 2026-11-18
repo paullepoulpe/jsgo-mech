@@ -530,15 +530,15 @@ func (this *PolymerClassRewriter) getJSDocInfoBuilderForBehavior(behavior *Polym
 
 func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClassDefinition, block Node) {
 	var qualifiedPath string = (sstr_(cls.target.getQualifiedName()) + ".prototype.")
-	var nameToExprResult *TMap[string, Node] = newTMap_(jtc_string.t_(), tc_Node)
+	var nameToExprResult map[string]Node = map[string]Node{}
 	for _, behavior := range cls.behaviors {
 		for _, behaviorFunction := range behavior.functionsToCopy {
 			var fnName string = behaviorFunction.name_.getString()
 			if NodeUtil_getFirstPropMatchingKey(cls.descriptor, fnName) != 0 {
 				continue
 			}
-			if nameToExprResult.Has(fnName) {
-				nameToExprResult.Get(fnName).detach()
+			if has_(nameToExprResult, fnName) {
+				nameToExprResult[fnName].detach()
 			}
 			var fnValue Node = behaviorFunction.value_.cloneTree()
 			NodeUtil_markNewScopesChanged(fnValue, this.compiler_)
@@ -571,12 +571,12 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 			}
 			exprResult.getFirstChild().setJSDocInfo(info.build())
 			block.addChildToBack(exprResult)
-			nameToExprResult.Put(fnName, exprResult)
+			nameToExprResult[fnName] = exprResult
 		}
 		for _, behaviorProp := range behavior.nonPropertyMembersToCopy {
 			var propName string = behaviorProp.name_.getString()
-			if nameToExprResult.Has(propName) {
-				nameToExprResult.Get(propName).detach()
+			if has_(nameToExprResult, propName) {
+				nameToExprResult[propName].detach()
 			}
 			var exprResult Node = IR_exprResult(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, (sstr_(qualifiedPath) + sstr_(propName))))
 			exprResult.srcrefTree(behaviorProp.name_)
@@ -592,7 +592,7 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 			}
 			exprResult.getFirstChild().setJSDocInfo(info.build())
 			block.addChildToBack(exprResult)
-			nameToExprResult.Put(propName, exprResult)
+			nameToExprResult[propName] = exprResult
 		}
 	}
 }

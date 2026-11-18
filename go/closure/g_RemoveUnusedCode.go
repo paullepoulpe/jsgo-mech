@@ -13,12 +13,12 @@ type RemoveUnusedCode struct {
 	preserveFunctionExpressionNames_               bool
 	worklist                                       *TDeque[*RemoveUnusedCode_Continuation]
 	varInfoMap                                     *TMap[*Var, RemoveUnusedCode_VarInfo]
-	pinnedPropertyNames                            *TSet[string]
+	pinnedPropertyNames                            map[string]struct{}
 	removablesForPropertyNames                     *SimpleSetMultimap[any, *RemoveUnusedCode_Removable]
 	canonicalUnremovableVarInfo                    RemoveUnusedCode_VarInfo
 	allFunctionParamScopes                         *[]*Scope
 	polyfills                                      *SimpleSetMultimap[any, *RemoveUnusedCode_PolyfillInfo]
-	guardedUsages                                  *TSet[Node]
+	guardedUsages                                  map[Node]struct{}
 	polyfillsFromTable                             *PolyfillUsageFinder_Polyfills
 	polyfillUsageFinder                            *PolyfillUsageFinder
 	scopeCreator                                   *SyntacticScopeCreator
@@ -35,11 +35,11 @@ type RemoveUnusedCode struct {
 func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.worklist = newTDeque_(jtc_p_RemoveUnusedCode_Continuation)
 	this.varInfoMap = newTMap_(tce_p_Var.t_(), jtc_RemoveUnusedCode_VarInfo.t_())
-	this.pinnedPropertyNames = tsetFrom_(jtc_string.t_(), icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES.asImm())), false)
+	this.pinnedPropertyNames = setFrom_(jtc_string.t_(), icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES.asImm())))
 	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_Removable]()
 	this.allFunctionParamScopes = &[]*Scope{}
 	this.polyfills = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_PolyfillInfo]()
-	this.guardedUsages = newTSet_(jtc_Node.t_())
+	this.guardedUsages = map[Node]struct{}{}
 }
 
 func (this *RemoveUnusedCode) init_RemoveUnusedCode(builder *RemoveUnusedCode_Builder) {
@@ -72,7 +72,7 @@ func (this *RemoveUnusedCode) process_2(externs Node, root Node) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
 		panic(new_IllegalStateException_0())
 	}
-	this.pinnedPropertyNames.asSet().addAll(icast_Collection(obj_(this.compiler_.getExternProperties().asImm())))
+	setAddAllFrom_(tc_string, this.pinnedPropertyNames, icast_Collection(obj_(this.compiler_.getExternProperties().asImm())))
 	defer func() {
 		this.removalLog = nil
 		this.unremovableLog = nil
@@ -105,7 +105,7 @@ func (this *RemoveUnusedCode) traverseAndRemoveUnusedReferences(root Node) {
 }
 
 func (this *RemoveUnusedCode) storePolyfill(polyfillUsage *PolyfillUsageFinder_PolyfillUsage) {
-	this.guardedUsages.Add(polyfillUsage.node())
+	this.guardedUsages[polyfillUsage.node()] = struct{}{}
 }
 
 func (this *RemoveUnusedCode) removeIndependentlyRemovableProperties() {
@@ -940,7 +940,7 @@ func (this *RemoveUnusedCode) removeUnreferencedFunctionArgs(fparamScope *Scope)
 }
 
 func (this *RemoveUnusedCode) markPropertyNameAsPinned(propertyName string) {
-	if this.pinnedPropertyNames.Add(propertyName) {
+	if setAdd_(this.pinnedPropertyNames, propertyName) {
 		for removable := range elemsBy_(this.removablesForPropertyNames.removeAll_s(propertyName), to_RemoveUnusedCode_Removable) {
 			removable.applyContinuations()
 		}
@@ -950,7 +950,7 @@ func (this *RemoveUnusedCode) markPropertyNameAsPinned(propertyName string) {
 func (this *RemoveUnusedCode) considerForIndependentRemoval(removable *RemoveUnusedCode_Removable) {
 	if removable.isNamedProperty() {
 		var propertyName string = removable.getPropertyName()
-		if this.pinnedPropertyNames.Has(propertyName) || this.codingConvention.isExported_2(propertyName, false) {
+		if has_(this.pinnedPropertyNames, propertyName) || this.codingConvention.isExported_2(propertyName, false) {
 			removable.applyContinuations()
 		} else if this.isIndependentlyRemovable(removable) {
 			this.removablesForPropertyNames.put_s(propertyName, removable)
@@ -2979,7 +2979,7 @@ func (this *RemoveUnusedCode_PolyfillInfo) init_RemoveUnusedCode_PolyfillInfo(re
 }
 
 func (this *RemoveUnusedCode_PolyfillInfo) considerPossibleReference(n Node) {
-	if this.isRemovable_ && (this.removable.isPatch || !this.outer_.guardedUsages.Has(n)) {
+	if this.isRemovable_ && (this.removable.isPatch || !has_(this.outer_.guardedUsages, n)) {
 		this.considerPossibleReferenceInternal(n)
 		if !this.isRemovable_ {
 			this.removable.applyContinuations()

@@ -6,12 +6,12 @@ type CrossChunkCodeMotion struct {
 	cccmLog                                    *LogFile
 	compiler_                                  *AbstractCompiler
 	graph                                      *JSChunkGraph
-	chunkInsertionPointMap                     *TMap[*JSChunk, Node]
+	chunkInsertionPointMap                     map[*JSChunk]Node
 	parentChunkCanSeeSymbolsDeclaredInChildren bool
 }
 
 func (this *CrossChunkCodeMotion) finit_CrossChunkCodeMotion() {
-	this.chunkInsertionPointMap = newTMap_(jtc_p_JSChunk.t_(), tc_Node)
+	this.chunkInsertionPointMap = map[*JSChunk]Node{}
 }
 
 func (this *CrossChunkCodeMotion) init_CrossChunkCodeMotion(compiler *AbstractCompiler, graph *JSChunkGraph, parentChunkCanSeeSymbolsDeclaredInChildren bool) {
@@ -571,7 +571,7 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getGlobalSymbol
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveStatementsToChunk(preferredChunk *JSChunk) {
-	var destParent Node = this.outer_.chunkInsertionPointMap.computeIfAbsent(preferredChunk, &Function_tfn_JSChunk_Node{func(p0 *JSChunk) Node { return this.outer_.compiler_.getNodeForCodeInsertion(p0) }})
+	var destParent Node = mapComputeIfAbsent_(tc_p_JSChunk, tc_Node, this.outer_.chunkInsertionPointMap, preferredChunk, &Function_tfn_JSChunk_Node{func(p0 *JSChunk) Node { return this.outer_.compiler_.getNodeForCodeInsertion(p0) }})
 	var statementsLastFirst *TDeque[*CrossChunkReferenceCollector_TopLevelStatement] = this.getStatementsLastFirst()
 	it_1 := statementsLastFirst.each()
 	for it_1.next() {

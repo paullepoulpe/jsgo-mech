@@ -3,7 +3,7 @@
 package closure
 
 type DotFormatter struct {
-	assignments      *TMap[Node, any]
+	assignments      map[Node]any
 	keyCount         int32
 	builder          Appendable
 	cfg              *ControlFlowGraph[Node]
@@ -11,7 +11,7 @@ type DotFormatter struct {
 }
 
 func (this *DotFormatter) finit_DotFormatter() {
-	this.assignments = newTMap_(jtc_Node.t_(), jtc_Integer.t_())
+	this.assignments = map[Node]any{}
 	this.keyCount = 0
 }
 
@@ -161,11 +161,11 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 }
 
 func (this *DotFormatter) key(n Node) int32 {
-	var key any = this.assignments.Get(n)
+	var key any = this.assignments[n]
 	if key == nil {
 		key = any(int32(this.keyCount))
 		this.keyCount++
-		this.assignments.Put(n, key)
+		this.assignments[n] = key
 		this.builder.append_CharSequence_s(DotFormatter_INDENT)
 		this.builder.append_CharSequence_s(DotFormatter_formatNodeName(key))
 		this.builder.append_CharSequence_s(" [label=\"")

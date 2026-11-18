@@ -403,7 +403,7 @@ type PolymerBehaviorExtractor_BehaviorDefinition struct {
 	isGlobalDeclaration      bool
 	features_                *FeatureSet
 	behaviorModule           Node
-	lazyModuleLocalNames     *TSet[string]
+	lazyModuleLocalNames     map[string]struct{}
 }
 
 func (this *PolymerBehaviorExtractor_BehaviorDefinition) init_PolymerBehaviorExtractor_BehaviorDefinition(props []*PolymerPass_MemberDefinition, functionsToCopy []*PolymerPass_MemberDefinition, nonPropertyMembersToCopy []*PolymerPass_MemberDefinition, isGlobalDeclaration bool, features *FeatureSet, behaviorModule Node) {
@@ -421,14 +421,14 @@ func new_PolymerBehaviorExtractor_BehaviorDefinition(props []*PolymerPass_Member
 	return this
 }
 
-func (this *PolymerBehaviorExtractor_BehaviorDefinition) getModuleLocalNames(compiler *AbstractCompiler) *TSet[string] {
+func (this *PolymerBehaviorExtractor_BehaviorDefinition) getModuleLocalNames(compiler *AbstractCompiler) map[string]struct{} {
 	if this.lazyModuleLocalNames == nil {
 		this.lazyModuleLocalNames = this.accumulateModuleLocalVars(compiler)
 	}
 	return this.lazyModuleLocalNames
 }
 
-func (this *PolymerBehaviorExtractor_BehaviorDefinition) accumulateModuleLocalVars(compiler *AbstractCompiler) *TSet[string] {
+func (this *PolymerBehaviorExtractor_BehaviorDefinition) accumulateModuleLocalVars(compiler *AbstractCompiler) map[string]struct{} {
 	var scopeCreator *SyntacticScopeCreator = new_SyntacticScopeCreator_AbstractCompiler(compiler)
 	var globalScope *Scope = Scope_createGlobalScope(this.behaviorModule.getParent())
 	return NodeUtil_getAllVarNamesDeclaredInModule(this.behaviorModule, compiler, scopeCreator, globalScope)

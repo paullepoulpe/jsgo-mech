@@ -7,16 +7,16 @@ type AliasStrings struct {
 	chunkGraph                *JSChunkGraph
 	outputStringUsageField    bool
 	stringInfoMap             *TTreeMap[string, *AliasStrings_StringInfo]
-	usedHashedAliases         *TSet[string]
+	usedHashedAliases         map[string]struct{}
 	aliasStringsMode          CompilerOptions_AliasStringsMode
-	chunkVarParentMap         *TMap[*JSChunk, Node]
+	chunkVarParentMap         map[*JSChunk]Node
 	unitTestHashReductionMask int32
 }
 
 func (this *AliasStrings) finit_AliasStrings() {
 	this.stringInfoMap = newTTreeMap_(tc_string, tc_p_AliasStrings_StringInfo)
-	this.usedHashedAliases = newTSet_(jtc_string.t_())
-	this.chunkVarParentMap = newTMap_(jtc_p_JSChunk.t_(), tc_Node)
+	this.usedHashedAliases = map[string]struct{}{}
+	this.chunkVarParentMap = map[*JSChunk]Node{}
 	this.unitTestHashReductionMask = -1
 }
 
@@ -80,7 +80,7 @@ func (this *AliasStrings) visit(t *NodeTraversal, n Node, parent Node) {
 				return
 			}
 		}
-		var varParent Node = this.chunkVarParentMap.computeIfAbsent(chunk, &Function_tfn_JSChunk_Node{func(p0 *JSChunk) Node { return this.compiler_.getNodeForCodeInsertion(p0) }})
+		var varParent Node = mapComputeIfAbsent_(tc_p_JSChunk, tc_Node, this.chunkVarParentMap, chunk, &Function_tfn_JSChunk_Node{func(p0 *JSChunk) Node { return this.compiler_.getNodeForCodeInsertion(p0) }})
 		info.chunkToContainDecl = chunk
 		info.parentForNewVarDecl = varParent
 		info.siblingToInsertVarDeclBefore = varParent.getFirstChild()
@@ -245,7 +245,7 @@ func (this *AliasStrings_StringInfo) encodeStringAsIdentifier(prefix string, s s
 	sb.append_char('_')
 	sb.append(Integer_toHexString(hash))
 	var encoded string = sb.toString()
-	if !this.outer_.usedHashedAliases.Add(encoded) {
+	if !setAdd_(this.outer_.usedHashedAliases, encoded) {
 		encoded += sstr_(("_" + istr_(int64(this.id))))
 	}
 	return encoded

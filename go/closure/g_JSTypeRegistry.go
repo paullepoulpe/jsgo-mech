@@ -40,8 +40,8 @@ type JSTypeRegistry struct {
 	forwardDeclaredTypes            SetOf[string]
 	nonRefTypesIndexedByProperty    *SimpleSetMultimap[any, *JSType]
 	sentinelObjectLiteral           *JSType
-	propertiesOfSupertypesInUnions  *TSet[string]
-	droppedPropertiesOfUnions       *TSet[string]
+	propertiesOfSupertypesInUnions  map[string]struct{}
+	droppedPropertiesOfUnions       map[string]struct{}
 	eachRefTypeIndexedByProperty    *SimpleSetMultimap[any, *ObjectType]
 	emptyTemplateTypeMap            *TemplateTypeMap
 	resolver                        *JSTypeResolver
@@ -53,8 +53,8 @@ func (this *JSTypeRegistry) finit_JSTypeRegistry() {
 	this.nameTableGlobalRoot = new_Node_Token(Token_rhino_ROOT)
 	this.nonNullableTypeNames = SimpleSetMultimap_create[Node, string]()
 	this.nonRefTypesIndexedByProperty = SimpleSetMultimap_create[any, *JSType]()
-	this.propertiesOfSupertypesInUnions = newTSet_(jtc_string.t_())
-	this.droppedPropertiesOfUnions = newTSet_(jtc_string.t_())
+	this.propertiesOfSupertypesInUnions = map[string]struct{}{}
+	this.droppedPropertiesOfUnions = map[string]struct{}{}
 	this.eachRefTypeIndexedByProperty = SimpleSetMultimap_create[any, *ObjectType]()
 }
 
@@ -408,7 +408,7 @@ func (this *JSTypeRegistry) initializeBuiltInTypes() {
 	this.registerNativeType(JSTypeNative_I_THENABLE_FUNCTION_TYPE, ithenableFunctionType.up_JSType())
 	var ithenableType *ObjectType = ithenableFunctionType.getInstanceType()
 	this.registerNativeType(JSTypeNative_I_THENABLE_TYPE, ithenableType.up_JSType())
-	var thenableType *JSType = this.createRecordType(ImmutableMap_of_Object_Object(strobj_("then"), obj_(unknownType)))
+	var thenableType *JSType = this.createRecordType(immutableMapOf_(tc_string, tc_p_JSType, []string{"then"}, []*JSType{to_JSType(obj_(unknownType))}))
 	this.identifyNonNullableName(nil, "Thenable")
 	this.registerNativeType(JSTypeNative_THENABLE_TYPE, thenableType)
 	var promiseParameterType *JSType = this.createFunctionType(unknownType.up_JSType(), []*JSType{this.createFunctionTypeList(unknownType.up_JSType(), tlistImm_(tc_p_FunctionType_Parameter, this.createOptionalParameters([]*JSType{this.createUnionType([]*JSType{this.promiseTemplateKey.up_JSType(), this.createTemplatizedType(ithenableType, []*JSType{this.promiseTemplateKey.up_JSType()}).up_JSType(), thenableType, nullType.up_JSType()})}).asImm())).up_JSType(), this.createFunctionTypeList(unknownType.up_JSType(), tlistImm_(tc_p_FunctionType_Parameter, this.createOptionalParameters([]*JSType{allType.up_JSType()}).asImm())).up_JSType()}).up_JSType()
@@ -778,11 +778,11 @@ func (this *JSTypeRegistry) registerDroppedPropertiesInUnion(subtype *RecordType
 	for pname := range elemsBy_(subtype.getPropertyMap().getOwnPropertyNames(), str_) {
 		if !supertype.hasProperty(pname) {
 			foundDroppedProperty = true
-			this.droppedPropertiesOfUnions.Add(pname)
+			this.droppedPropertiesOfUnions[pname] = struct{}{}
 		}
 	}
 	if foundDroppedProperty {
-		this.propertiesOfSupertypesInUnions.asSet().addAll(Collection(supertype.getPropertyMap().getOwnPropertyNames()))
+		setAddAllFrom_(tc_string, this.propertiesOfSupertypesInUnions, Collection(supertype.getPropertyMap().getOwnPropertyNames()))
 	}
 }
 
@@ -860,12 +860,12 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 			var rec *RecordType = type_.toMaybeRecordType()
 			var mayBeInUnion bool = false
 			for pname := range elemsBy_(rec.getPropertyMap().getOwnPropertyNames(), str_) {
-				if this.propertiesOfSupertypesInUnions.Has(pname) {
+				if has_(this.propertiesOfSupertypesInUnions, pname) {
 					mayBeInUnion = true
 					break
 				}
 			}
-			if mayBeInUnion && this.droppedPropertiesOfUnions.Has(propertyName) {
+			if mayBeInUnion && has_(this.droppedPropertiesOfUnions, propertyName) {
 				return JSTypeRegistry_PropDefinitionKind_LOOSE
 			}
 		}
@@ -1210,13 +1210,13 @@ func (this *JSTypeRegistry) buildRecordTypeFromObject(objType *ObjectType) *JSTy
 	for propName := range elemsBy_(propNames, str_) {
 		props.put(propName, objType.getPropertyType(propName))
 	}
-	return this.createRecordType(icast_Map(obj_(props.buildOrThrowErased())))
+	return this.createRecordType(tmapFrom_(tc_string, tc_p_JSType, props.buildOrThrowErased(), true))
 }
 
-func (this *JSTypeRegistry) createRecordType(props MapOf[string, *JSType]) *JSType {
-	var propMap MapOf[string, *JSType] = props
+func (this *JSTypeRegistry) createRecordType(props *TMap[string, *JSType]) *JSType {
+	var propMap *TMap[string, *JSType] = props
 	var builder *RecordTypeBuilder = new_RecordTypeBuilder(this)
-	for e := range elemsBy_(propMap.entrySet(), icast_Map_Entry) {
+	for e := range elemsBy_(propMap.asMap().entrySet(), icast_Map_Entry) {
 		builder.addProperty(str_(e.getKey()), to_JSType(e.getValue()), 0)
 	}
 	return builder.build()

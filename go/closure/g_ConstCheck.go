@@ -5,7 +5,7 @@ package closure
 type ConstCheck struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_            *AbstractCompiler
-	initializedConstants *TSet[*Var]
+	initializedConstants map[varKey_]struct{}
 }
 
 func (this *ConstCheck) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -18,7 +18,7 @@ func (this *ConstCheck) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraver
 func (this *ConstCheck) init_ConstCheck(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.compiler_ = compiler
-	this.initializedConstants = newTSet_(tce_p_Var.t_())
+	this.initializedConstants = map[varKey_]struct{}{}
 }
 
 func new_ConstCheck(compiler *AbstractCompiler) *ConstCheck {
@@ -40,9 +40,9 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 			var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
 			if this.isConstant(var_, n) {
 				if n.isFromExterns() {
-					this.initializedConstants.Add(var_)
+					this.initializedConstants[vkey_(var_)] = struct{}{}
 				} else if n.hasChildren() {
-					if !this.initializedConstants.Add(var_) {
+					if !setAdd_(this.initializedConstants, vkey_(var_)) {
 						this.reportError(n, var_, name)
 					}
 				}
@@ -53,9 +53,9 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 		if lhs.isName() {
 			var name string = lhs.getString()
 			var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
-			if this.isConstant(var_, lhs) && !this.initializedConstants.Add(var_) {
+			if this.isConstant(var_, lhs) && !setAdd_(this.initializedConstants, vkey_(var_)) {
 				this.reportError(n, var_, name)
-			} else if ((var_ != nil) && var_.isGoogModuleExports()) && !this.initializedConstants.Add(var_) {
+			} else if ((var_ != nil) && var_.isGoogModuleExports()) && !setAdd_(this.initializedConstants, vkey_(var_)) {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ConstCheck_CONST_REASSIGNED_VALUE_ERROR, []string{"exports", n.getSourceFileName()}))
 			}
 		}

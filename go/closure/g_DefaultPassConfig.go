@@ -237,7 +237,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var pass *ProcessClosureProvidesAndRequires = new_ProcessClosureProvidesAndRequires(compiler, this.options_.shouldPreservesGoogProvidesAndRequires())
 		return &CompilerPass_fn{func(externs Node, root Node) {
 			pass.process_2(externs, root)
-			compiler.addExportedNames(pass.getExportedVariableNames().asSet())
+			compiler.addExportedNames(pass.getExportedVariableNames())
 		}}
 	}}).build()
 	this.angularPass = PassFactory_builder().setName(PassNames_ANGULAR_PASS).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return new_AngularPass(to_AbstractCompiler(p0)) }}).build()
@@ -1566,7 +1566,7 @@ func (this *DefaultPassConfig) createProcessDefines(mode ProcessDefines_Mode) *P
 	return PassFactory_builder().setName(("processDefines_" + sstr_(mode.name()))).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return icast_CompilerPass(obj_(new_ProcessDefines_Builder(compiler).putReplacements(DefaultPassConfig_getAdditionalReplacements(this.options_).asMap()).putReplacements(icast_Map(obj_(this.options_.getDefineReplacements().asImm()))).setMode(mode).setRecognizeClosureDefines(compiler.getOptions().getClosurePass()).setEnableZonesDefineName(this.options_.getEnableZonesDefineName()).setZoneInputPattern(this.options_.getZoneInputPattern()).setUnknownDefinesToIgnore(this.options_.getUnknownDefinesToIgnore()).build()))
+		return icast_CompilerPass(obj_(new_ProcessDefines_Builder(compiler).putReplacements(DefaultPassConfig_getAdditionalReplacements(this.options_)).putReplacements(tmapFrom_(tc_string, tc_Node, this.options_.getDefineReplacements().asImm(), true)).setMode(mode).setRecognizeClosureDefines(compiler.getOptions().getClosurePass()).setEnableZonesDefineName(this.options_.getEnableZonesDefineName()).setZoneInputPattern(this.options_.getZoneInputPattern()).setUnknownDefinesToIgnore(this.options_.getUnknownDefinesToIgnore()).build()))
 	}}).build()
 }
 
@@ -1576,7 +1576,7 @@ func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, p
 	if this.options_.getRenamePrefixNamespace().isPresent() {
 		reservedNames.Add(this.options_.getRenamePrefixNamespace().get())
 	}
-	reservedNames.asSet().addAll(Collection(compiler.getExportedNames()))
+	reservedNames.asSet().addAll(Collection(compiler.getExportedNames().asSet()))
 	reservedNames.asSet().addAll(icast_Collection(obj_(ParserRunner_getReservedVars().asImm())))
 	var rn *RenameVars = new_RenameVars(compiler, this.options_.getRenamePrefix(), (this.options_.getVariableRenaming() == VariableRenamingPolicy_LOCAL), this.options_.shouldGeneratePseudoNames(), this.options_.shouldPreferStableNames(), prevVariableMap, reservedChars, reservedNames, this.options_.getNameGenerator())
 	rn.process_2(externs, root)
@@ -1667,7 +1667,7 @@ func new_DefaultPassConfig_1(outer_ *DefaultPassConfig, cap_pass *GenerateExport
 
 func (this *DefaultPassConfig_1) process_2(externs Node, root Node) {
 	this.cap_pass.process_2(externs, root)
-	this.cap_compiler.addExportedNames(this.cap_pass.getExportedVariableNames().asSet())
+	this.cap_compiler.addExportedNames(this.cap_pass.getExportedVariableNames())
 }
 
 type DefaultPassConfig_2 struct {
@@ -1691,7 +1691,7 @@ func new_DefaultPassConfig_2(outer_ *DefaultPassConfig, cap_pass *GatherRawExpor
 
 func (this *DefaultPassConfig_2) process_2(externs Node, root Node) {
 	this.cap_pass.process_2(externs, root)
-	this.cap_compiler.addExportedNames(this.cap_pass.getExportedVariableNames().asSet())
+	this.cap_compiler.addExportedNames(this.cap_pass.getExportedVariableNames())
 }
 
 type DefaultPassConfig_3 struct {

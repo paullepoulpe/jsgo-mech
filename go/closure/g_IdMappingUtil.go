@@ -54,11 +54,11 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) map[string]*
 	var resultMap map[string]*SimpleBiMap[string, string] = map[string]*SimpleBiMap[string, string]{}
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(idMappings)
 	var currentSectionMap *SimpleBiMap[string, string] = nil
-	var sectionNames *TSet[string] = newTSet_(jtc_string.t_())
+	var sectionNames map[string]struct{} = map[string]struct{}{}
 	for mr.next() {
 		if mr.isSection() {
 			var sectionName Optional[string] = mr.getSection()
-			if !sectionNames.Add(sectionName.orElse(nullstr_)) {
+			if !setAdd_(sectionNames, sectionName.orElse(nullstr_)) {
 				panic(new_IllegalArgumentException_String(("Cannot parse id map: Duplicate section " + sstr_(sectionName.orElse("null")) + "\n lineIndex: " + istr_(int64(int32(mr.getLineIndex()))))))
 			}
 			currentSectionMap = SimpleBiMap_create[string, string]()

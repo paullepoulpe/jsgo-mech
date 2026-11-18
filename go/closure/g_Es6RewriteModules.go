@@ -10,7 +10,7 @@ type Es6RewriteModules struct {
 	unknownType             *JSType
 	preprocessorSymbolTable *PreprocessorSymbolTable
 	namesToInlineByAlias    *TMap[string, *ModuleRenaming_GlobalizedModuleName]
-	typedefs                *TSet[string]
+	typedefs                map[string]struct{}
 	moduleMetadataMap       *ModuleMetadataMap
 	moduleMap               *ModuleMap
 	globalTypedScope        *TypedScope
@@ -70,7 +70,7 @@ func (this *Es6RewriteModules) process_2(externs Node, root Node) {
 }
 
 func (this *Es6RewriteModules) clearPerFileState() {
-	this.typedefs = newTSet_(jtc_string.t_())
+	this.typedefs = map[string]struct{}{}
 	this.namesToInlineByAlias = newTMap_(jtc_string.t_(), jtc_p_ModuleRenaming_GlobalizedModuleName.t_())
 }
 
@@ -195,7 +195,7 @@ func (this *Es6RewriteModules) visitExport(t *NodeTraversal, export Node, parent
 func (this *Es6RewriteModules) visitExportNameDeclaration(declaration Node) {
 	if (declaration.getJSDocInfo() != nil) && declaration.getJSDocInfo().hasTypedefType() {
 		NodeUtil_visitLhsNodesInNode(declaration, (&Consumer_tfn_Node{func(lhs Node) {
-			this.typedefs.Add(lhs.getString())
+			this.typedefs[lhs.getString()] = struct{}{}
 		}}).accept)
 	}
 }
@@ -261,7 +261,7 @@ func (this *Es6RewriteModules) createExportsObject(moduleName string, t *NodeTra
 		var boundVariableName string = boundVariableQualifiedName.getRoot()
 		var getProp Node = this.astFactory_.createGetPropWithoutColor(this.astFactory_.createName(moduleName, moduleObjectType), exportedName)
 		getProp.putBooleanProp(Node_MODULE_EXPORT, true)
-		if this.typedefs.Has(exportedName) {
+		if has_(this.typedefs, exportedName) {
 			var builder *JSDocInfo_Builder = JSDocInfo_builder().parseDocumentation()
 			var typeExpr *JSTypeExpression = new_JSTypeExpression(this.astFactory_.createString(exportedName).srcref(nodeForSourceInfo), script.getSourceFileName())
 			builder.recordTypedef(typeExpr)

@@ -14,7 +14,7 @@ type ClosureRewriteModule struct {
 	scriptStack                       *TDeque[*ClosureRewriteModule_ScriptDescription]
 	currentScript                     *ClosureRewriteModule_ScriptDescription
 	rewriteState                      *ClosureRewriteModule_GlobalRewriteState
-	legacyScriptNamespacesAndPrefixes *TSet[string]
+	legacyScriptNamespacesAndPrefixes map[string]struct{}
 	unrecognizedRequires              *[]*ClosureRewriteModule_UnrecognizedRequire
 	googModuleGetCalls                *TList[Node]
 	googRequireDynamicCalls           *TList[Node]
@@ -27,7 +27,7 @@ func (this *ClosureRewriteModule) finit_ClosureRewriteModule() {
 	this.scriptStack = newTDeque_(jtc_p_ClosureRewriteModule_ScriptDescription)
 	this.currentScript = nil
 	this.rewriteState = new_ClosureRewriteModule_GlobalRewriteState()
-	this.legacyScriptNamespacesAndPrefixes = newTSet_(jtc_string.t_())
+	this.legacyScriptNamespacesAndPrefixes = map[string]struct{}{}
 	this.unrecognizedRequires = &[]*ClosureRewriteModule_UnrecognizedRequire{}
 	this.googModuleGetCalls = newTList_(tc_Node)
 	this.googRequireDynamicCalls = newTList_(tc_Node)
@@ -123,7 +123,7 @@ func (this *ClosureRewriteModule) declareSyntheticExterns() {
 }
 
 func (this *ClosureRewriteModule) isNameInGlobalScope(name string) bool {
-	return (this.legacyScriptNamespacesAndPrefixes.Has(name) || (cast_[*Var](this.globalScope.getVar(name).self()) != nil))
+	return (has_(this.legacyScriptNamespacesAndPrefixes, name) || (cast_[*Var](this.globalScope.getVar(name).self()) != nil))
 }
 
 func (this *ClosureRewriteModule) preprocessExportDeclaration(t *NodeTraversal, n Node) {
@@ -178,10 +178,10 @@ func (this *ClosureRewriteModule) recordGoogDeclareLegacyNamespace() {
 }
 
 func (this *ClosureRewriteModule) updateLegacyScriptNamespacesAndPrefixes(namespace string) {
-	this.legacyScriptNamespacesAndPrefixes.Add(namespace)
+	this.legacyScriptNamespacesAndPrefixes[namespace] = struct{}{}
 	for dot := int32(strings.LastIndexByte(namespace, '.')); dot != -1; dot = int32(strings.LastIndexByte(namespace, '.')) {
 		namespace = namespace[:dot]
-		this.legacyScriptNamespacesAndPrefixes.Add(namespace)
+		this.legacyScriptNamespacesAndPrefixes[namespace] = struct{}{}
 	}
 }
 
@@ -196,7 +196,7 @@ func (this *ClosureRewriteModule) recordGoogProvide(t *NodeTraversal, call Node)
 		t.report(namespaceIdNode, ClosureRewriteModule_INVALID_PROVIDE_CALL, []string{})
 	}
 	var scriptNode Node = NodeUtil_getEnclosingScript(call)
-	this.rewriteState.providedNamespaces.Add(namespaceId)
+	this.rewriteState.providedNamespaces[namespaceId] = struct{}{}
 	this.rewriteState.namespaceIdsByScriptNode.put(scriptNode, namespaceId)
 	this.updateLegacyScriptNamespacesAndPrefixes(namespaceId)
 }
@@ -210,7 +210,7 @@ func (this *ClosureRewriteModule) recordGoogRequire(t *NodeTraversal, call Node)
 	}
 	var namespaceId string = namespaceIdNode.getString()
 	var targetIsAModule bool = this.rewriteState.containsModule(namespaceId)
-	var targetIsALegacyScript bool = this.rewriteState.providedNamespaces.Has(namespaceId)
+	var targetIsALegacyScript bool = has_(this.rewriteState.providedNamespaces, namespaceId)
 	if (this.currentScript.isModule_ && !targetIsAModule) && !targetIsALegacyScript {
 		*this.unrecognizedRequires = append(*this.unrecognizedRequires, new_ClosureRewriteModule_UnrecognizedRequire(call, namespaceId))
 	}
@@ -284,13 +284,13 @@ func (this *ClosureRewriteModule) recordTopLevelClassOrFunctionName(classOrFunct
 	var nameNode Node = classOrFunctionNode.getFirstChild()
 	if nameNode.isName() && nameNode.getString() != "" {
 		var name string = nameNode.getString()
-		this.currentScript.topLevelNames.Add(name)
+		this.currentScript.topLevelNames[name] = struct{}{}
 	}
 }
 
 func (this *ClosureRewriteModule) recordTopLevelVarNames(varNode Node) {
 	NodeUtil_visitLhsNodesInNode(varNode, (&Consumer_tfn_Node{func(lhs Node) {
-		this.currentScript.topLevelNames.Add(lhs.getString())
+		this.currentScript.topLevelNames[lhs.getString()] = struct{}{}
 	}}).accept)
 }
 
@@ -435,7 +435,7 @@ func (this *ClosureRewriteModule) maybeWarnForInvalidDestructuring(t *NodeTraver
 		var key Node = objPattern.getFirstChild()
 		for ; key != 0; key = key.getNext() {
 			var exportName string = key.getString()
-			if !importedModule.namedExports.Has(exportName) {
+			if !has_(importedModule.namedExports, exportName) {
 				t.report(importNode, ClosureRewriteModule_ILLEGAL_DESTRUCTURING_NOT_EXPORTED, []string{exportName, importedNamespace})
 			}
 		}
@@ -608,7 +608,7 @@ func (this *ClosureRewriteModule) recordExportsPropertyAssignment(t *NodeTravers
 	}
 	if t.inModuleScope() {
 		var exportName string = getpropNode.getString()
-		this.currentScript.namedExports.Add(exportName)
+		this.currentScript.namedExports[exportName] = struct{}{}
 		var exportRhs Node = getpropNode.getNext()
 		var namedExport *ClosureRewriteModule_ExportDefinition = ClosureRewriteModule_ExportDefinition_newNamedExport(t, Optional_of[string](exportName), exportRhs)
 		if (!this.currentScript.declareLegacyNamespace && (this.currentScript.defaultExport == nil)) && namedExport.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()) {
@@ -646,7 +646,7 @@ func (this *ClosureRewriteModule) updateExportsPropertyAssignment(getpropNode No
 
 func (this *ClosureRewriteModule) maybeUpdateTopLevelName(t *NodeTraversal, nameNode Node) {
 	var name string = nameNode.getString()
-	if !this.currentScript.isModule_ || !this.currentScript.topLevelNames.Has(name) {
+	if !this.currentScript.isModule_ || !has_(this.currentScript.topLevelNames, name) {
 		return
 	}
 	var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
@@ -898,7 +898,7 @@ func (this *ClosureRewriteModule) reportUnrecognizedRequires() {
 		var namespaceId string = unrecognizedRequire.namespaceId
 		var requireNode Node = unrecognizedRequire.requireNode
 		var targetGoogModuleExists bool = this.rewriteState.containsModule(namespaceId)
-		var targetLegacyScriptExists bool = this.rewriteState.providedNamespaces.Has(namespaceId)
+		var targetLegacyScriptExists bool = has_(this.rewriteState.providedNamespaces, namespaceId)
 		if targetGoogModuleExists || targetLegacyScriptExists {
 			continue
 		}
@@ -1458,14 +1458,14 @@ type ClosureRewriteModule_ScriptDescription struct {
 	declareLegacyNamespace  bool
 	namespaceId             Optional[string]
 	contentsPrefix          string
-	topLevelNames           *TSet[string]
+	topLevelNames           map[string]struct{}
 	childScripts            *TDeque[*ClosureRewriteModule_ScriptDescription]
 	namesToInlineByAlias    *TMap[string, *ClosureRewriteModule_AliasName]
 	willCreateExportsObject bool
 	hasCreatedExportObject  bool
 	defaultExport           *ClosureRewriteModule_ExportDefinition
 	defaultExportLocalName  Optional[string]
-	namedExports            *TSet[string]
+	namedExports            map[string]struct{}
 	exportsToInline         *TMap[*Var, *ClosureRewriteModule_ExportDefinition]
 	rootNode_               Node
 }
@@ -1476,11 +1476,11 @@ func (this *ClosureRewriteModule_ScriptDescription) zero_ClosureRewriteModule_Sc
 
 func (this *ClosureRewriteModule_ScriptDescription) finit_ClosureRewriteModule_ScriptDescription() {
 	this.namespaceId = Optional_empty[string]()
-	this.topLevelNames = newTSet_(jtc_string.t_())
+	this.topLevelNames = map[string]struct{}{}
 	this.childScripts = newTDeque_(jtc_p_ClosureRewriteModule_ScriptDescription)
 	this.namesToInlineByAlias = newTMap_(jtc_string.t_(), jtc_p_ClosureRewriteModule_AliasName.t_())
 	this.defaultExportLocalName = Optional_empty[string]()
-	this.namedExports = newTSet_(jtc_string.t_())
+	this.namedExports = map[string]struct{}{}
 	this.exportsToInline = newTMap_(tce_p_Var.t_(), jtc_p_ClosureRewriteModule_ExportDefinition.t_())
 }
 
@@ -1764,7 +1764,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) visit(typeRefNode Node) {
 			return typeName[dot:]
 		}()
 		this.outer_.safeSetString(typeRefNode, (sstr_(aliasedNamespace) + sstr_(remainder)))
-	} else if this.outer_.currentScript.isModule_ && this.outer_.currentScript.topLevelNames.Has(rootOfType) {
+	} else if this.outer_.currentScript.isModule_ && has_(this.outer_.currentScript.topLevelNames, rootOfType) {
 		this.outer_.safeSetString(typeRefNode, (sstr_(this.outer_.currentScript.contentsPrefix) + sstr_(typeName)))
 	} else if this.outer_.currentScript.isModule_ && (rootOfType == "exports") {
 		var namespace Optional[string] = this.outer_.currentScript.getBinaryNamespace()
@@ -1786,7 +1786,7 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(
 	typeNameU16 := utf16Of_(typeName)
 	for {
 		var binaryNamespaceIfModule Optional[string] = this.outer_.rewriteState.getBinaryNamespace(prefixTypeName)
-		if this.outer_.legacyScriptNamespacesAndPrefixes.Has(prefixTypeName) && binaryNamespaceIfModule.isEmpty() {
+		if has_(this.outer_.legacyScriptNamespacesAndPrefixes, prefixTypeName) && binaryNamespaceIfModule.isEmpty() {
 			return
 		}
 		if binaryNamespaceIfModule.isPresent() {
@@ -1805,13 +1805,13 @@ func (this *ClosureRewriteModule_ReplaceJsDocRefs) rewriteIfClosureNamespaceRef(
 type ClosureRewriteModule_GlobalRewriteState struct {
 	scriptDescriptionsByGoogModuleNamespace *TMap[string, *ClosureRewriteModule_ScriptDescription]
 	namespaceIdsByScriptNode                *SimpleSetMultimap[Node, string]
-	providedNamespaces                      *TSet[string]
+	providedNamespaces                      map[string]struct{}
 }
 
 func (this *ClosureRewriteModule_GlobalRewriteState) finit_ClosureRewriteModule_GlobalRewriteState() {
 	this.scriptDescriptionsByGoogModuleNamespace = newTMap_(jtc_string.t_(), jtc_p_ClosureRewriteModule_ScriptDescription.t_())
 	this.namespaceIdsByScriptNode = SimpleSetMultimap_createInsertionOrdered[Node, string]()
-	this.providedNamespaces = newTSet_(jtc_string.t_())
+	this.providedNamespaces = map[string]struct{}{}
 }
 
 func (this *ClosureRewriteModule_GlobalRewriteState) init_ClosureRewriteModule_GlobalRewriteState() {
@@ -1856,7 +1856,7 @@ func (this *ClosureRewriteModule_GlobalRewriteState) getGoogModuleNamespaceType(
 }
 
 func (this *ClosureRewriteModule_GlobalRewriteState) getExportedNamespaceOrScript(namespaceId string) Optional[string] {
-	if this.providedNamespaces.Has(namespaceId) {
+	if has_(this.providedNamespaces, namespaceId) {
 		return Optional_of[string](namespaceId)
 	}
 	var script *ClosureRewriteModule_ScriptDescription = this.scriptDescriptionsByGoogModuleNamespace.Get(namespaceId)

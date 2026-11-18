@@ -26,7 +26,7 @@ func (this *Es6RewriteGenerators) init_Es6RewriteGenerators(compiler *AbstractCo
 	this.astFactory_ = compiler.createAstFactory()
 	this.namespace_ = compiler.getTranspilationNamespace()
 	if compiler.hasOptimizationColors() {
-		this.nullableStringType = Color_createUnion(ImmutableSet_of_Object_Object(obj_(StandardColors_NULL_OR_VOID), obj_(StandardColors_STRING)))
+		this.nullableStringType = Color_createUnion(immutableSetOf_(tch_p_Color, StandardColors_NULL_OR_VOID, StandardColors_STRING))
 	} else {
 		this.nullableStringType = nil
 	}
@@ -812,7 +812,7 @@ type Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext
 	continueCases           *TDeque[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
 	catchCases              *TDeque[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase]
 	finallyCases            *TDeque[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
-	catchNames              *TSet[string]
+	catchNames              map[string]struct{}
 	allCases                *TList[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
 	switchBreaks            *[]Node
 	programEndCase          *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
@@ -829,7 +829,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	this.continueCases = newTDeque_(jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
 	this.catchCases = newTDeque_(jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase)
 	this.finallyCases = newTDeque_(jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case)
-	this.catchNames = newTSet_(jtc_string.t_())
+	this.catchNames = map[string]struct{}{}
 	this.allCases = newTList_(jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case.t_())
 	this.switchBreaks = &[]Node{}
 	this.nestedFinallyBlockCount = 0
@@ -1214,7 +1214,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	}
 	this.addCatchFinallyCases(nil, finallyCase)
 	var nextCatchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = this.getNextCatchCase()
-	if this.catchNames.Add(exceptionName.getString()) {
+	if setAdd_(this.catchNames, exceptionName.getString()) {
 		this.outer_.hoistVarNode(IR_var_Node(exceptionName.cloneNode()).srcref(exceptionName))
 	}
 	var args []Node = []Node{}

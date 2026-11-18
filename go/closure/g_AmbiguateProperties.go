@@ -420,7 +420,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 		if possiblePrototypes.IsEmpty() {
 			return StandardColors_UNKNOWN
 		}
-		return Color_createUnion(icast_Set(obj_(possiblePrototypes.asImm())))
+		return Color_createUnion(tsetFrom_(tch_p_Color, possiblePrototypes.asImm(), true))
 	}()
 	{
 		var member Node = NodeUtil_getClassMembers(classNode).getFirstChild()
@@ -447,7 +447,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 					if possibleInstances.IsEmpty() {
 						return StandardColors_UNKNOWN
 					}
-					return Color_createUnion(icast_Set(obj_(possibleInstances.asImm())))
+					return Color_createUnion(tsetFrom_(tch_p_Color, possibleInstances.asImm(), true))
 				}()
 			} else {
 				if !((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()) {

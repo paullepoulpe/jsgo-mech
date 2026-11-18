@@ -17,15 +17,15 @@ func new_ReportDecoder() *ReportDecoder {
 	return this
 }
 
-func ReportDecoder_parseMappingFromFile(mappingFilePath string) *Outcome_base[Map] {
+func ReportDecoder_parseMappingFromFile(mappingFilePath string) *Outcome_base[*TMap[string, *InstrumentationPoint]] {
 	var fileContent *Outcome_base[string] = TextFiles_readStrict(mappingFilePath, Charsets_UTF_8)
 	if fileContent.isErr() {
-		return Outcome_base_err[Map](fileContent.error())
+		return Outcome_base_err[*TMap[string, *InstrumentationPoint]](fileContent.error())
 	}
 	return ReportDecoder_parseMapping(fileContent.get())
 }
 
-func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
+func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[*TMap[string, *InstrumentationPoint]] {
 	var mapping *TMap[string, *InstrumentationPoint] = newTMap_(jtc_string.t_(), tc_p_InstrumentationPoint)
 	var linesOfFile []string = sliceImm_(tc_string, Splitter_on('\n').omitEmptyStrings().splitToList_s(mappingFileContent))
 	if int32(len(linesOfFile)) < 3 {
@@ -48,17 +48,17 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 	var typesAsJsonArray string = typesLine[(int32(strings.Index(typesLine, ":")) + 1):]
 	var localFileNamesOutcome *Outcome_base[*TList[string]] = ReportDecoder_parseJsonStringList(fileNamesAsJsonArray)
 	if localFileNamesOutcome.isErr() {
-		return Outcome_base_err[Map](localFileNamesOutcome.error())
+		return Outcome_base_err[*TMap[string, *InstrumentationPoint]](localFileNamesOutcome.error())
 	}
 	var localFileNames *TList[string] = localFileNamesOutcome.get()
 	var functionNamesOutcome *Outcome_base[*TList[string]] = ReportDecoder_parseJsonStringList(functionNamesAsJsonArray)
 	if functionNamesOutcome.isErr() {
-		return Outcome_base_err[Map](functionNamesOutcome.error())
+		return Outcome_base_err[*TMap[string, *InstrumentationPoint]](functionNamesOutcome.error())
 	}
 	var functionNames *TList[string] = functionNamesOutcome.get()
 	var typesAsStringList *Outcome_base[*TList[string]] = ReportDecoder_parseJsonStringList(typesAsJsonArray)
 	if typesAsStringList.isErr() {
-		return Outcome_base_err[Map](typesAsStringList.error())
+		return Outcome_base_err[*TMap[string, *InstrumentationPoint]](typesAsStringList.error())
 	}
 	var types []InstrumentationPoint_Type = []InstrumentationPoint_Type{}
 	for typeAsString := range elemsBy_(typesAsStringList.get().asList(), str_) {
@@ -72,7 +72,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(localFileNames.get(Base64VLQ_decode(encodedDetailsAsCharIt))).setFunctionName(functionNames.get(Base64VLQ_decode(encodedDetailsAsCharIt))).setType(sliceAt_(types, Base64VLQ_decode(encodedDetailsAsCharIt))).setLineNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).setColumnNumber(Base64VLQ_decode(encodedDetailsAsCharIt)).build())
 		mapping.PutIfAbsent(id, temp)
 	}
-	return Outcome_base_ok_Object[Map](mapping.asMap())
+	return Outcome_base_ok_Object[*TMap[string, *InstrumentationPoint]](mapping)
 }
 
 func ReportDecoder_parseJsonStringList(json string) *Outcome_base[*TList[string]] {
@@ -100,9 +100,9 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base[*TList[string]
 	return Outcome_base_ok_Object[*TList[string]](list)
 }
 
-func ReportDecoder_decodeReport(mapping MapOf[string, *InstrumentationPoint], frequencies MapOf[string, BoxedOf[int64]]) *ReportProfile {
+func ReportDecoder_decodeReport(mapping *TMap[string, *InstrumentationPoint], frequencies MapOf[string, BoxedOf[int64]]) *ReportProfile {
 	var instrumentationPoints *TList[*InstrumentationPointStats] = newTList_(jtc_p_InstrumentationPointStats.t_())
-	for entry := range elemsBy_(mapping.entrySet(), icast_Map_Entry) {
+	for entry := range elemsBy_(mapping.asMap().entrySet(), icast_Map_Entry) {
 		instrumentationPoints.add(cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(unbox_[int64](Map_getOrDefault_s(frequencies, str_(entry.getKey()), any(int64(0))))).build()))
 	}
 	return ReportDecoder_createReportProfile(instrumentationPoints)
@@ -110,14 +110,14 @@ func ReportDecoder_decodeReport(mapping MapOf[string, *InstrumentationPoint], fr
 
 func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *InstrumentationPoint], fileContent string, instrumentationArrayName string) *ReportProfile {
 	var matcher *Matcher_re2j = Pattern_compile((sstr_(instrumentationArrayName) + "\\.push\\(['\"](" + sstr_(JavaRegex_DOT) + "*?)['\"]\\)")).matcher_s(fileContent)
-	var encodedPoints *TSet[string] = newTSet_(jtc_string.t_())
+	var encodedPoints map[string]struct{} = map[string]struct{}{}
 	for matcher.find() {
-		encodedPoints.Add(matcher.group(1))
+		encodedPoints[matcher.group(1)] = struct{}{}
 	}
 	var instrumentationPoints *TList[*InstrumentationPointStats] = newTList_(jtc_p_InstrumentationPointStats.t_())
 	for entryKey, entryValue := range mapping.All() {
 		instrumentationPoints.add(cast_[*InstrumentationPointStats](InstrumentationPointStats_newBuilder().setPoint(entryValue).setTimesExecuted(0).setPointPresence(func() InstrumentationPointStats_Presence {
-			if encodedPoints.Has(entryKey) {
+			if has_(encodedPoints, entryKey) {
 				return InstrumentationPointStats_Presence_PRESENT
 			}
 			return InstrumentationPointStats_Presence_STATICALLY_REMOVED

@@ -86,7 +86,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base[*SourceMapObject
 			extensions.Put(entry.getKey(), obj_(entry.getValue()))
 		}
 	}
-	builder.setExtensions(Collections_unmodifiableMap(extensions.asMap()))
+	builder.setExtensions(extensions)
 	return Outcome_base_ok_Object[*SourceMapObject](builder.build())
 }
 
@@ -207,7 +207,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 	if lexer.pos < lexer.length_ {
 		return Outcome_base_err[any](new_SourceMapParseException("Unexpected trailing characters").up_Throwable())
 	}
-	builder.setExtensions(Collections_unmodifiableMap(extensions.asMap()))
+	builder.setExtensions(extensions)
 	return Outcome_base_ok_0()
 }
 

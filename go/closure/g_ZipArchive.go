@@ -5,12 +5,12 @@ package closure
 type ZipArchive struct {
 	bytes      []int8
 	entryNames *[]string
-	records    *TMap[string, any]
+	records    map[string]any
 }
 
 func (this *ZipArchive) finit_ZipArchive() {
 	this.entryNames = &[]string{}
-	this.records = newTMap_(jtc_string.t_(), jtc_Integer.t_())
+	this.records = map[string]any{}
 }
 
 func (this *ZipArchive) init_ZipArchive(bytes []int8) {
@@ -50,7 +50,7 @@ func ZipArchive_parse(bytes []int8) Optional[*ZipArchive] {
 		}
 		var name string = Io_utf8String(ZipArchive_slice(bytes, (position + ZipArchive_RECORD_SIZE), nameLength))
 		*archive.entryNames = append(*archive.entryNames, name)
-		archive.records.Put(name, any(int32(position)))
+		archive.records[name] = any(int32(position))
 		position = next
 	}
 	return Optional_of[*ZipArchive](archive)
@@ -61,7 +61,7 @@ func (this *ZipArchive) names() *[]string {
 }
 
 func (this *ZipArchive) read(name string) Optional[[]int8] {
-	var record any = this.records.Get(name)
+	var record any = this.records[name]
 	if record == nil {
 		return Optional_empty[[]int8]()
 	}

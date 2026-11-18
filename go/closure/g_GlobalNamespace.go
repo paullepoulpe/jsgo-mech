@@ -10,7 +10,7 @@ type GlobalNamespace struct {
 	root                          Node
 	externsRoot                   Node
 	globalRoot                    Node
-	spreadSiblingCache            *TMap[Node, any]
+	spreadSiblingCache            map[Node]any
 	sourceKind                    GlobalNamespace_SourceKind
 	generated                     bool
 	decisionsLog                  *LogFile
@@ -22,7 +22,7 @@ type GlobalNamespace struct {
 
 func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalRoot = IR_root([]Node{})
-	this.spreadSiblingCache = newTMap_(jtc_Node.t_(), jtc_Boolean.t_())
+	this.spreadSiblingCache = map[Node]any{}
 	this.generated = false
 	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
 	this.nameMap = newTMap_(jtc_string.t_(), tc_p_GlobalNamespace_Name)
@@ -208,7 +208,7 @@ func (this *GlobalNamespace) declarationHasFollowingObjectSpreadSibling(declarat
 	if !declaration.getParent().isObjectLit() {
 		panic(new_IllegalStateException_String(tostr_(declaration)))
 	}
-	var cached any = this.spreadSiblingCache.Get(declaration)
+	var cached any = this.spreadSiblingCache[declaration]
 	if cached != nil {
 		return unbox_[bool](cached)
 	}
@@ -219,10 +219,10 @@ func (this *GlobalNamespace) declarationHasFollowingObjectSpreadSibling(declarat
 			if sibling.isSpread() {
 				toCache = true
 			}
-			this.spreadSiblingCache.Put(sibling, any(bool(toCache)))
+			this.spreadSiblingCache[sibling] = any(bool(toCache))
 		}
 	}
-	return unbox_[bool](this.spreadSiblingCache.Get(declaration))
+	return unbox_[bool](this.spreadSiblingCache[declaration])
 }
 
 func (this *GlobalNamespace) createNameForTesting(name string) *GlobalNamespace_Name {

@@ -451,7 +451,7 @@ func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocIn
 		return Outcome_base_err[IcuTemplateDefinition](icuTemplateOptionsOutcome.error())
 	}
 	var icuTemplateOptions JsMessageVisitor_IcuTemplateOptions = icuTemplateOptionsOutcome.get()
-	var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(icast_Set(obj_(icuTemplateOptions.getPlaceholderNames().asImm())))
+	var extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts = icuMessageTemplateString.extractParts(setImm_(tc_string, icuTemplateOptions.getPlaceholderNames().asImm()))
 	var unknownPlaceholdersChecked *Outcome_base[any] = icuTemplateOptions.checkForUnknownPlaceholders(setImm_(tc_string, extractedIcuTemplateParts.extractedPlaceholderNames.asImm()))
 	if unknownPlaceholdersChecked.isErr() {
 		return Outcome_base_err[IcuTemplateDefinition](unknownPlaceholdersChecked.error())
@@ -615,7 +615,7 @@ func JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode Node) *Outcome_
 
 func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base[JsMessageVisitor_ObjectLiteralMap] {
 	if objLit == 0 {
-		return Outcome_base_ok_Object[JsMessageVisitor_ObjectLiteralMap](JsMessageVisitor_ObjectLiteralMap(new_JsMessageVisitor_ObjectLiteralMapImpl(ImmutableMap_of())))
+		return Outcome_base_ok_Object[JsMessageVisitor_ObjectLiteralMap](JsMessageVisitor_ObjectLiteralMap(new_JsMessageVisitor_ObjectLiteralMapImpl(immutableMapOf_(tc_string, tc_Node, []string{}, []Node{}))))
 	}
 	if !objLit.isObjectLit() {
 		return Outcome_base_err[JsMessageVisitor_ObjectLiteralMap](new_JsMessageVisitor_MalformedException("object literal expected", objLit).up_Throwable())
@@ -634,7 +634,7 @@ func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base[JsMessa
 			stringToStringKeyMap.Put(stringKey.getString(), stringKey)
 		}
 	}
-	return Outcome_base_ok_Object[JsMessageVisitor_ObjectLiteralMap](JsMessageVisitor_ObjectLiteralMap(new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap.asMap())))
+	return Outcome_base_ok_Object[JsMessageVisitor_ObjectLiteralMap](JsMessageVisitor_ObjectLiteralMap(new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap)))
 }
 
 func JsMessageVisitor_parseJsMessageTextIntoParts(originalMsgText string) *Outcome_base[*ErasedImmutableList] {
@@ -851,7 +851,7 @@ func new_JsMessageVisitor_IcuMessageTemplateString(template string) *JsMessageVi
 	return this
 }
 
-func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNamesToExtract SetOf[string]) *JsMessageVisitor_ExtractedIcuTemplateParts {
+func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNamesToExtract map[string]struct{}) *JsMessageVisitor_ExtractedIcuTemplateParts {
 	var extractedPlaceholderNames *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 	var partsBuilder *ImmutableList_Builder[JsMessage_Part] = immutableListBuilder_(tc_JsMessage_Part)
 	var matcher *Matcher_re2j = JsMessageVisitor_ICU_PLACEHOLDER_RE.matcher_s(this.template)
@@ -859,7 +859,7 @@ func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNa
 	templateU16 := utf16Of_(this.template)
 	for matcher.find() {
 		var placeholderName string = matcher.group(1)
-		if Collection_contains_s(placholderNamesToExtract, placeholderName) {
+		if has_(placholderNamesToExtract, placeholderName) {
 			extractedPlaceholderNames.add(placeholderName)
 			var nonPlaceholderPrefix string = templateU16.substring(remainingTemplateStartIndex, matcher.start())
 			remainingTemplateStartIndex = matcher.end()
@@ -918,7 +918,7 @@ type JsMessageVisitor_ObjectLiteralMap interface {
 }
 
 type JsMessageVisitor_ObjectLiteralMapImpl struct {
-	stringToStringKeyMap MapOf[string, Node]
+	stringToStringKeyMap *TMap[string, Node]
 	valueMap             *ImmutableMap[string, Node]
 	stringMap            *ImmutableMap[string, string]
 }
@@ -928,19 +928,19 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) finit_JsMessageVisitor_Object
 	this.stringMap = nil
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) init_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap MapOf[string, Node]) {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) init_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap *TMap[string, Node]) {
 	this.finit_JsMessageVisitor_ObjectLiteralMapImpl()
 	this.stringToStringKeyMap = stringToStringKeyMap
 }
 
-func new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap MapOf[string, Node]) *JsMessageVisitor_ObjectLiteralMapImpl {
+func new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap *TMap[string, Node]) *JsMessageVisitor_ObjectLiteralMapImpl {
 	this := &JsMessageVisitor_ObjectLiteralMapImpl{}
 	this.init_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap)
 	return this
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) getValueNode(key string) Node {
-	var stringKeyNode Node = Node_of_(Map_get_s(this.stringToStringKeyMap, key))
+	var stringKeyNode Node = this.stringToStringKeyMap.Get(key)
 	return func() Node {
 		if stringKeyNode == 0 {
 			return 0
@@ -950,14 +950,14 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) getValueNode(key string) Node
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) getBooleanValueOrFalse(key string) *Outcome_base[any] {
-	var stringKeyNode Node = Node_of_(Map_get_s(this.stringToStringKeyMap, key))
+	var stringKeyNode Node = this.stringToStringKeyMap.Get(key)
 	return JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode)
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() *ImmutableMap[string, Node] {
 	if this.valueMap == nil {
 		var builder *ImmutableMap_Builder[string, Node] = immutableMapBuilder_(tc_string, tc_Node)
-		for entry := range elemsBy_(this.stringToStringKeyMap.entrySet(), icast_Map_Entry) {
+		for entry := range elemsBy_(this.stringToStringKeyMap.asMap().entrySet(), icast_Map_Entry) {
 			builder.put(str_(entry.getKey()), Node_of_(entry.getValue()).getOnlyChild())
 		}
 		this.valueMap = builder.buildOrThrow()
@@ -968,7 +968,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() *Immutabl
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() *Outcome_base[*ErasedImmutableMap] {
 	if this.stringMap == nil {
 		var builder *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
-		it_1 := foreach_(this.stringToStringKeyMap.entrySet())
+		it_1 := foreach_(this.stringToStringKeyMap.asMap().entrySet())
 		for it_1.next() {
 			var entry Map_Entry = icast_Map_Entry(it_1.v)
 			var value *Outcome_base[string] = JsMessageVisitor_extractStringFromStringExprNode(Node_of_(entry.getValue()).getOnlyChild())
@@ -983,11 +983,11 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() 
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys map[string]struct{}, createErrorMessage func(any) any) *Outcome_base[any] {
-	it_1 := foreach_(this.stringToStringKeyMap.keySet())
+	it_1 := this.stringToStringKeyMap.each()
 	for it_1.next() {
-		var key string = str_(it_1.v)
+		var key string = it_1.k
 		if !has_(expectedKeys, key) {
-			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(str_(createErrorMessage(strobj_(key))), Node_of_(Map_get_s(this.stringToStringKeyMap, key))).up_Throwable())
+			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(str_(createErrorMessage(strobj_(key))), this.stringToStringKeyMap.Get(key)).up_Throwable())
 		}
 	}
 	return Outcome_base_ok_0()
@@ -999,7 +999,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(required
 			continue
 		}
 		var requiredKey string = requiredKeys.keys[i_1]
-		if !Map_containsKey_s(this.stringToStringKeyMap, requiredKey) {
+		if !this.stringToStringKeyMap.Has(requiredKey) {
 			return Outcome_base_err[any](to_Throwable(createException(strobj_(requiredKey))))
 		}
 	}

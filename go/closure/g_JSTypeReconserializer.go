@@ -113,7 +113,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 		var altRecord *JSTypeReconserializer_SeenTypeRecord = it_3.v
 		alternateIds.add(altRecord.colorId)
 	}
-	var unionId *ColorId = ColorId_union(icast_Set(obj_(alternateIds.buildErased())))
+	var unionId *ColorId = ColorId_union(tsetFrom_(tch_p_ColorId, alternateIds.buildErased(), true))
 	var record *JSTypeReconserializer_SeenTypeRecord = this.getOrCreateRecord(unionId, type_.up_JSType())
 	if record.unionMembers == nil {
 		record.unionMembers = immutableSetCopyOf_(tc_p_JSTypeReconserializer_SeenTypeRecord, Collection(altRecords.asSet()))

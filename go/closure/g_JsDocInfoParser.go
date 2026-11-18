@@ -1847,7 +1847,7 @@ func (this *JsDocInfoParser) parseRecordType(token JsDocToken) Node {
 
 func (this *JsDocInfoParser) parseFieldTypeList(token JsDocToken) Node {
 	var fieldTypeList Node = this.newNode(Token_rhino_LB)
-	var names *TSet[string] = newTSet_(jtc_string.t_())
+	var names map[string]struct{} = map[string]struct{}{}
 	for do_2 := true; do_2; do_2 = true {
 		var fieldType Node = this.parseFieldType(token)
 		if fieldType == 0 {
@@ -1859,7 +1859,7 @@ func (this *JsDocInfoParser) parseFieldTypeList(token JsDocToken) Node {
 			}
 			return fieldType.getFirstChild().getString()
 		}()
-		if names.Add(name) {
+		if setAdd_(names, name) {
 			fieldTypeList.addChildToBack(fieldType)
 		} else {
 			this.addTypeWarning_2(Msg_JSDOC_TYPE_RECORD_DUPLICATE, name)

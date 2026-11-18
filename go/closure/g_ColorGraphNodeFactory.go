@@ -56,7 +56,7 @@ func (this *ColorGraphNodeFactory) simplifyColor(type_ *Color) *Color {
 		type_ = type_.subtractNullOrVoid()
 		return func() *Color {
 			if type_.isUnion() {
-				return Color_createUnion(icast_Set(obj_(this.simplifyColors(type_.getUnionElements()).asImm())))
+				return Color_createUnion(tsetFrom_(tch_p_Color, this.simplifyColors(type_.getUnionElements()).asImm(), true))
 			}
 			return this.simplifyColor(type_)
 		}()

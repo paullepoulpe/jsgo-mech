@@ -60,7 +60,7 @@ func (this *ReplaceStrings) getStringMap() *VariableMap {
 	for result := range elemsAs_[*ReplaceStrings_Result](Iterables_filter_f(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)) {
 		map_.put(result.replacement_, result.original_)
 	}
-	return new_VariableMap(icast_Map(obj_(map_.buildOrThrowErased())))
+	return new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrowErased(), true))
 }
 
 func (this *ReplaceStrings) process_2(externs Node, root Node) {

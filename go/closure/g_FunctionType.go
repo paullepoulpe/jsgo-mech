@@ -885,13 +885,13 @@ func (this *FunctionType) isAbstract() bool {
 	return this.isAbstractField
 }
 
-func (this *FunctionType) getPropertyTypeMap_impl() MapOf[string, *JSType] {
-	var propTypeMap *TMap[string, *JSType] = newTMap_(jtc_string.t_(), tc_p_JSType)
+func (this *FunctionType) getPropertyTypeMap_impl() map[string]*JSType {
+	var propTypeMap map[string]*JSType = map[string]*JSType{}
 	FunctionType_updatePropertyTypeMap(this, propTypeMap, newTSet_(tce_p_FunctionType.t_()))
-	return propTypeMap.asMap()
+	return propTypeMap
 }
 
-func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[string, *JSType], cache *TSet[*FunctionType]) {
+func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap map[string]*JSType, cache *TSet[*FunctionType]) {
 	if type_ == nil {
 		return
 	}
@@ -899,9 +899,9 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[s
 	if prototype != nil {
 		var propNames SetOf[string] = prototype.getOwnPropertyNames()
 		for name := range elemsBy_(propNames, str_) {
-			if !propTypeMap.Has(name) {
+			if !has_(propTypeMap, name) {
 				var propType *JSType = prototype.getPropertyType(name)
-				propTypeMap.Put(name, propType)
+				propTypeMap[name] = propType
 			}
 		}
 	}
@@ -1730,7 +1730,7 @@ func (this *FunctionType) isStructuralInterface() bool {
 }
 
 // getPropertyTypeMap: an object that is exactly a FunctionType calls its getPropertyTypeMap_impl directly (post-flip); others dispatch.
-func (this *FunctionType) getPropertyTypeMap() Map {
+func (this *FunctionType) getPropertyTypeMap() map[string]*JSType {
 	if p, _ := this.self_.(*FunctionType); p == this {
 		return this.getPropertyTypeMap_impl()
 	}

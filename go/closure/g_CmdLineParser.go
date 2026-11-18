@@ -163,7 +163,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 		return Outcome_base_err[any](expandedArgs.error())
 	}
 	var cmdLine *CmdLineParser_CmdLineImpl = new_CmdLineParser_CmdLineImpl(this, expandedArgs.get())
-	var present *TSet[*CmdLineParser_Option] = newTSet_(jtc_p_CmdLineParser_Option.t_())
+	var present map[*CmdLineParser_Option]struct{} = map[*CmdLineParser_Option]struct{}{}
 	for cmdLine.hasMore() {
 		var arg string = cmdLine.getCurrentToken()
 		if strings.HasPrefix(arg, "-") {
@@ -193,12 +193,12 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base[any] {
 			return Outcome_base_err[any](diff.error())
 		}
 		cmdLine.proceed(unbox_[int32](diff.get()))
-		present.Add(this.currentOption)
+		present[this.currentOption] = struct{}{}
 	}
 	it_2 := this.sortedOptions().each()
 	for it_2.next() {
 		var option *CmdLineParser_Option = it_2.v
-		if option.requiredField && !present.Has(option) {
+		if option.requiredField && !has_(present, option) {
 			return Outcome_base_err[any](new_CmdLineException_CmdLineParser_String(this, ("Option \"" + tostr_(option) + "\" is required")).up_Throwable())
 		}
 	}

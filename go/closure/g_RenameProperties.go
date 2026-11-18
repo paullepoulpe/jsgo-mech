@@ -16,7 +16,7 @@ type RenameProperties struct {
 	quotedNames                     *TSet[string]
 	nameGenerator                   NameGenerator
 	propertyRenameEligibilityFilter func(any) bool
-	filteredOutNames                *TSet[string]
+	filteredOutNames                map[string]struct{}
 }
 
 func (this *RenameProperties) finit_RenameProperties() {
@@ -26,7 +26,7 @@ func (this *RenameProperties) finit_RenameProperties() {
 	this.propertyMap = newTMap_(jtc_string.t_(), jtc_p_RenameProperties_Property.t_())
 	this.externedNames = tsetFrom_(jtc_string.t_(), Collection(Arrays_asList([]any{strobj_("prototype")})), false)
 	this.quotedNames = newTSet_(jtc_string.t_())
-	this.filteredOutNames = newTSet_(jtc_string.t_())
+	this.filteredOutNames = map[string]struct{}{}
 }
 
 func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], nameGenerator NameGenerator) {
@@ -75,7 +75,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 	this.generateNames(propsByFreq, reservedNames)
 	for n := range sliceAll_(this.stringNodesToRename) {
 		var oldName string = n.getString()
-		if this.filteredOutNames.Has(oldName) {
+		if has_(this.filteredOutNames, oldName) {
 			continue
 		}
 		var p *RenameProperties_Property = this.propertyMap.Get(oldName)
@@ -102,7 +102,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 				if oldName != p.oldName {
 					panic(new_IllegalStateException_0())
 				}
-				if this.filteredOutNames.Has(oldName) {
+				if has_(this.filteredOutNames, oldName) {
 					replacement = oldName
 				} else {
 					replacement = p.newName.get()
@@ -167,7 +167,7 @@ func (this *RenameProperties) getPropertyMap() *VariableMap {
 			map_.put(p.oldName, p.newName.get())
 		}
 	}
-	return new_VariableMap(icast_Map(obj_(map_.buildOrThrowErased())))
+	return new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrowErased(), true))
 }
 
 var RenameProperties_DOT_SPLITTER *Splitter
@@ -235,7 +235,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 			var stringArgument Node = n.getSecondChild()
 			if !this.outer_.propertyRenameEligibilityFilter(n.box_()) {
 				for name := range elemsBy_(RenameProperties_DOT_SPLITTER.split_s(stringArgument.getString()), str_) {
-					this.outer_.filteredOutNames.Add(name)
+					this.outer_.filteredOutNames[name] = struct{}{}
 				}
 			}
 		}
@@ -279,7 +279,7 @@ func (this *RenameProperties_ProcessProperties) maybeMarkCandidate(n Node) {
 	var name string = n.getString()
 	if !this.outer_.externedNames.Has(name) {
 		if !this.outer_.propertyRenameEligibilityFilter(n.box_()) {
-			this.outer_.filteredOutNames.Add(n.getString())
+			this.outer_.filteredOutNames[n.getString()] = struct{}{}
 		}
 		*this.outer_.stringNodesToRename = append(*this.outer_.stringNodesToRename, n)
 		this.countPropertyOccurrence(name)

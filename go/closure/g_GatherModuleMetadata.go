@@ -36,7 +36,7 @@ func new_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules
 func (this *GatherModuleMetadata) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, externs, new_GatherModuleMetadata_Finder(this))
 	NodeTraversal_traverse(this.compiler_, root, new_GatherModuleMetadata_Finder(this))
-	this.compiler_.setModuleMetadataMap(new_ModuleMetadataMap(this.modulesByPath.asMap(), this.modulesByGoogNamespace.asMap()))
+	this.compiler_.setModuleMetadataMap(new_ModuleMetadataMap(this.modulesByPath, this.modulesByGoogNamespace))
 }
 
 func GatherModuleMetadata_isValidModuleId(id string) bool {
@@ -194,13 +194,13 @@ func (this *GatherModuleMetadata_ModuleMetadataBuilder) build() *ModuleMetadataM
 
 type GatherModuleMetadata_Finder struct {
 	outer_            *GatherModuleMetadata
-	toggleModuleNames *TSet[string]
-	toggleModules     *TSet[*Var]
+	toggleModuleNames map[string]struct{}
+	toggleModules     map[varKey_]struct{}
 }
 
 func (this *GatherModuleMetadata_Finder) finit_GatherModuleMetadata_Finder() {
-	this.toggleModuleNames = newTSet_(jtc_string.t_())
-	this.toggleModules = newTSet_(tce_p_Var.t_())
+	this.toggleModuleNames = map[string]struct{}{}
+	this.toggleModules = map[varKey_]struct{}{}
 }
 
 func (this *GatherModuleMetadata_Finder) init_GatherModuleMetadata_Finder() {
@@ -309,9 +309,9 @@ func (this *GatherModuleMetadata_Finder) isFromGoogImport(goog *Var) bool {
 
 func (this *GatherModuleMetadata_Finder) visitName(t *NodeTraversal, n Node) {
 	var name string = n.getString()
-	if this.toggleModuleNames.Has(name) {
+	if has_(this.toggleModuleNames, name) {
 		var nameVar *Var = cast_[*Var](t.getScope().getVar(name).self())
-		if this.toggleModules.Has(nameVar) {
+		if has_(this.toggleModules, vkey_(nameVar)) {
 			var parent Node = n.getParent()
 			if parent.isGetProp() {
 				this.addToggle(t, n, parent.getString())
@@ -411,8 +411,8 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 				} else if callParent.isName() {
 					var name string = callParent.getString()
 					var nameVar *Var = cast_[*Var](t.getScope().getVar(name).self())
-					this.toggleModules.Add(nameVar)
-					this.toggleModuleNames.Add(name)
+					this.toggleModules[vkey_(nameVar)] = struct{}{}
+					this.toggleModuleNames[name] = struct{}{}
 				} else if this.outer_.currentModule.metadataBuilder.moduleType() != ModuleMetadataMap_ModuleType_GOOG_PROVIDE {
 					t.report(n, GatherModuleMetadata_INVALID_TOGGLE_USAGE, []string{"import must be assigned"})
 				}

@@ -11,7 +11,7 @@ type ReferenceCollector struct {
 	varFilter                               Predicate_baseOf[*Var]
 	collectHoistedFunctionsInReferenceOrder bool
 	callback                                *ReferenceCollector_CollectorCallback
-	collectedHoistedFunctions               *TSet[Node]
+	collectedHoistedFunctions               map[Node]struct{}
 	narrowScope_                            *Scope
 }
 
@@ -19,7 +19,7 @@ func (this *ReferenceCollector) finit_ReferenceCollector() {
 	this.referenceMap = newTMap_(tce_p_Var.t_(), jtc_p_ReferenceCollection.t_())
 	this.blockStack = newTDeque_(jtc_p_BasicBlock)
 	this.callback = new_ReferenceCollector_CollectorCallback(this)
-	this.collectedHoistedFunctions = newTSet_(jtc_Node.t_())
+	this.collectedHoistedFunctions = map[Node]struct{}{}
 }
 
 func (this *ReferenceCollector) init_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler *AbstractCompiler, behavior ReferenceCollector_Behavior, creator ScopeCreator) {
@@ -97,7 +97,7 @@ func (this *ReferenceCollector) getReferences_Var(v *Var) *ReferenceCollection {
 func (this *ReferenceCollector) maybeJumpToHoistedFunction(var_ *Var, t *NodeTraversal) {
 	var fnNode Node = var_.getParentNode()
 	var varScope *Scope = cast_[*Scope](var_.getScope())
-	if (((fnNode == 0) || !NodeUtil_isHoistedFunctionDeclaration(fnNode)) || ((this.narrowScope_ != nil) && (this.narrowScope_.getDepth() > varScope.getDepth()))) || this.collectedHoistedFunctions.Has(fnNode) {
+	if (((fnNode == 0) || !NodeUtil_isHoistedFunctionDeclaration(fnNode)) || ((this.narrowScope_ != nil) && (this.narrowScope_.getDepth() > varScope.getDepth()))) || has_(this.collectedHoistedFunctions, fnNode) {
 		return
 	}
 	var oldBlockStack *TDeque[*BasicBlock] = this.blockStack
@@ -189,7 +189,7 @@ func new_ReferenceCollector_CollectorCallback(outer_ *ReferenceCollector) *Refer
 
 func (this *ReferenceCollector_CollectorCallback) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	if this.outer_.collectHoistedFunctionsInReferenceOrder && NodeUtil_isHoistedFunctionDeclaration(n) {
-		if !this.outer_.collectedHoistedFunctions.Add(n) {
+		if !setAdd_(this.outer_.collectedHoistedFunctions, n) {
 			return false
 		}
 	}
