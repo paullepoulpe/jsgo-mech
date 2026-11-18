@@ -2420,12 +2420,12 @@ func (this *JSDocInfo_Builder) recordSuppressions_2(suppressions *JTSet[string],
 	var mapBuilder ImmutableMap_BuilderOf[ImmutableSetOf[string], string] = ImmutableMap_builder()
 	var current ImmutableMapOf[ImmutableSetOf[string], string] = cast_[*ImmutableMap](this.getProp(JSDocInfo_SUPPRESSIONS))
 	if current != nil {
-		if current.containsKey(any(suppressions.asSet())) {
+		if current.containsKey(suppressions.asSet()) {
 			return
 		}
 		mapBuilder.putAll(ImmutableMap_as_Map(current))
 	}
-	mapBuilder.put(any(JSDocInfo_internSet(suppressions).asSet()), strobj_(description))
+	mapBuilder.put(JSDocInfo_internSet(suppressions).asSet(), strobj_(description))
 	var suppressionsMap ImmutableMapOf[ImmutableSetOf[string], string] = mapBuilder.buildOrThrow()
 	this.setProp(JSDocInfo_SUPPRESSIONS, obj_(suppressionsMap))
 }
@@ -2439,7 +2439,7 @@ func (this *JSDocInfo_Builder) recordSuppression(suppression string) {
 }
 
 func (this *JSDocInfo_Builder) recordModifies(modifies *JTSet[string]) bool {
-	return (!this.hasAnySingletonSideEffectTags() && this.populateProp(JSDocInfo_MODIFIES, any(JSDocInfo_internSet(modifies).asSet())))
+	return (!this.hasAnySingletonSideEffectTags() && this.populateProp(JSDocInfo_MODIFIES, JSDocInfo_internSet(modifies).asSet()))
 }
 
 func (this *JSDocInfo_Builder) recordType(type_ *JSTypeExpression) bool {

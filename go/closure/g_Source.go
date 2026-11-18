@@ -44,7 +44,7 @@ func new_Source(path string, sourceMap string, sourceUrl string, sourceMappingUr
 }
 
 func (this *Source) toString() string {
-	return ("Source{path=" + sstr_(this.path_) + ", sourceMap=" + sstr_(this.sourceMap_) + ", sourceUrl=" + sstr_(this.sourceUrl_) + ", sourceMappingUrl=" + sstr_(this.sourceMappingUrl_) + ", runtimes=" + objstr_(any(this.runtimes_.asSet())) + ", loadFlags=" + objstr_(any(this.loadFlags_.asMap())) + ", estimatedSize=" + istr_(int64(this.estimatedSize_)) + ", codeSupplier=" + objstr_(this.codeSupplier_.self()) + ", originalCodeSupplier=" + objstr_(this.originalCodeSupplier_.self()) + "}")
+	return ("Source{path=" + sstr_(this.path_) + ", sourceMap=" + sstr_(this.sourceMap_) + ", sourceUrl=" + sstr_(this.sourceUrl_) + ", sourceMappingUrl=" + sstr_(this.sourceMappingUrl_) + ", runtimes=" + objstr_(this.runtimes_.asSet()) + ", loadFlags=" + objstr_(this.loadFlags_.asMap()) + ", estimatedSize=" + istr_(int64(this.estimatedSize_)) + ", codeSupplier=" + objstr_(this.codeSupplier_.self()) + ", originalCodeSupplier=" + objstr_(this.originalCodeSupplier_.self()) + "}")
 }
 
 func (this *Source) code() string {

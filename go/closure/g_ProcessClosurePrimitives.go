@@ -375,7 +375,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 			}
 		}
 		if !errors.isEmpty() {
-			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(any(errors.asList()))}))
+			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(errors.asList())}))
 		}
 	} else if style == CssRenamingMap_Style_BY_WHOLE {
 		var errors *JTList[string] = jnewTList_(jtc_string)
@@ -395,7 +395,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 			}
 		}
 		if !errors.isEmpty() {
-			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(any(errors.asList()))}))
+			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(errors.asList())}))
 		}
 	}
 	return CssRenamingMap(new_ProcessClosurePrimitives_1(cssNames, style))

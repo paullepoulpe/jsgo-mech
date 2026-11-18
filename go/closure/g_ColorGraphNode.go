@@ -59,7 +59,7 @@ func (this *ColorGraphNode) getSubtypeIndices() *BitSet {
 }
 
 func (this *ColorGraphNode) toString() string {
-	return tostrNN_(MoreObjects_toStringHelper(any(this)).add_String_int("index", this.index_).add("color.id", obj_(this.color_.getId())).add("color.ownProperties", any(this.color_.getOwnProperties().asSet())))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add_String_int("index", this.index_).add("color.id", obj_(this.color_.getId())).add("color.ownProperties", this.color_.getOwnProperties().asSet()))
 }
 
 type ColorGraphNode_PropAssociation uint8

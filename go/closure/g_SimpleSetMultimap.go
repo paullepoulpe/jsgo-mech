@@ -85,7 +85,7 @@ func (this *SimpleSetMultimap) put(key any, value any) bool {
 			return Set(new_LinkedHashSet())
 		}()
 		values.add(value)
-		this.map__.put(key, any(values))
+		this.map__.put(key, values)
 	} else if !values.add(value) {
 		return false
 	}
@@ -112,7 +112,7 @@ func (this *SimpleSetMultimap) put_s(key string, value any) bool {
 			return new_LinkedHashSet()
 		}()
 		values.add(value)
-		Map_put_s(this.map__, key, any(values))
+		Map_put_s(this.map__, key, values)
 	} else if !values.add(value) {
 		return false
 	}
@@ -263,7 +263,7 @@ func (this *SimpleSetMultimap) hashCode() int32 {
 }
 
 func (this *SimpleSetMultimap) toString() string {
-	return Object_toString(any(this.map__))
+	return Object_toString(this.map__)
 }
 
 type SimpleSetMultimap_Entry struct {

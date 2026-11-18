@@ -1299,7 +1299,7 @@ func (this *GlobalNamespace_Name) putRef(node Node, ref *GlobalNamespace_Ref) {
 		var refsForNodeMap *JTMap[Node, *GlobalNamespace_Ref] = jnewTMap_(jtc_Node, jtc_p_GlobalNamespace_Ref)
 		var existingRef *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](this.refsForNode)
 		refsForNodeMap.put(existingRef.node_, existingRef)
-		this.refsForNode = any(refsForNodeMap.asMap())
+		this.refsForNode = refsForNodeMap.asMap()
 	}
 	this.castRefsForNodeMap().put(node.box_(), obj_(ref))
 }

@@ -84,7 +84,7 @@ func (this *ControlFlowAnalysis) computeCfg(root Node) {
 
 func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNode[Node]) {
 	var worklist PriorityQueueOf[DiGraph_DiGraphNode[Node]] = new_PriorityQueue_int_Comparator(10, this.priorityComparator)
-	worklist.add(any(entry))
+	worklist.add(entry)
 	for !worklist.isEmpty() {
 		var current DiGraph_DiGraphNode[Node] = cast_[DiGraph_DiGraphNode[Node]](worklist.remove_0())
 		if current.hasPriority() {

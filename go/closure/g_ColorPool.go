@@ -281,7 +281,7 @@ func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {
 		var existing *Color = this.idToColor.putIfAbsent(id, ColorPool_PENDING_COLOR)
 		if existing != nil {
 			if JSCompObjects_identical(obj_(existing), obj_(ColorPool_PENDING_COLOR)) {
-				panic(obj_(new_MalformedTypedAstException_Object(strobj_(("Cyclic Color structure detected: " + objstr_(any(this.reconcilationDebugStackProtos().asList())))))))
+				panic(obj_(new_MalformedTypedAstException_Object(strobj_(("Cyclic Color structure detected: " + objstr_(this.reconcilationDebugStackProtos().asList()))))))
 			}
 			ret_1 = existing
 			return 1

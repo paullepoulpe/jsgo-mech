@@ -163,7 +163,7 @@ func TranspilationPasses_postTranspileCheckUnsupportedFeaturesRemoved(compiler *
 	}
 	if !outputFeatures.containsFeatureSet(currentFeatures) {
 		var diff *FeatureSet = currentFeatures.without(outputFeatures)
-		panic(new_IllegalStateException_String(("Unsupported feature(s) leaked to output code:" + objstr_(any(diff.getFeatures().asSet())))).self())
+		panic(new_IllegalStateException_String(("Unsupported feature(s) leaked to output code:" + objstr_(diff.getFeatures().asSet()))).self())
 	}
 }
 

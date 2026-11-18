@@ -509,7 +509,7 @@ func (this *CmdLineParser_Option) map_(get func() any, set func(any)) {
 		var map_ MapOf[string, string] = icast_Map(get())
 		if map_ == nil {
 			map_ = Map(new_LinkedHashMap())
-			set(any(map_))
+			set(map_)
 		}
 		var argumentOutcome *Outcome_base[string] = params.getParameter(0)
 		if argumentOutcome.isErr() {
@@ -567,7 +567,7 @@ func CmdLineParser_Option_addValue(get SupplierOf[ListOf[any]], set ConsumerOf[L
 	var list ListOf[any] = icast_List(get.get())
 	if list == nil {
 		list = new_ArrayList_0()
-		set.accept(any(list))
+		set.accept(list)
 	}
 	list.add(value)
 }

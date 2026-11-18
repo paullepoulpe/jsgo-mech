@@ -260,7 +260,7 @@ func (this *Graph_SimpleSubGraph[N, E]) isIndependentOf(value N) bool {
 	it_1 := this.nodes_.each()
 	for it_1.next() {
 		var n GraphNode[N] = it_1.v
-		if this.graph.getNeighborNodes(n.getValue()).contains(any(node)) {
+		if this.graph.getNeighborNodes(n.getValue()).contains(node) {
 			return false
 		}
 	}

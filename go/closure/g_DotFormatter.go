@@ -181,7 +181,7 @@ func (this *DotFormatter) key(n Node) int32 {
 			Appendable_append_s(this.builder, type_.toString())
 		}
 		if (this.printAnnotations && (this.cfg != nil)) && this.cfg.hasNode(n) {
-			var annotation any = any(Annotatable_getAnnotation(Annotatable(this.cfg.getNode(n))))
+			var annotation any = Annotatable_getAnnotation(Annotatable(this.cfg.getNode(n)))
 			if annotation != nil {
 				Appendable_append_s(this.builder, "\\n")
 				Appendable_append_s(this.builder, Object_toString(annotation))

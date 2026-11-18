@@ -113,7 +113,7 @@ func (this *AbstractScope) declareInternal(name string, var_ *AbstractVar) {
 		Preconditions_checkState_boolean_String_Object_H(false, "Illegal shadow: %s", a1_)
 	}
 	var emptySentinel *JTMap[string, *AbstractVar] = jtmapEmptyImm_(jtc_string, jtc_p_AbstractVar)
-	if any(this.vars) == any(emptySentinel.asMap()) {
+	if this.vars == emptySentinel.asMap() {
 		this.vars = LinkedHashMap_as_Map(Maps_newLinkedHashMapWithExpectedSize(1))
 	}
 	Map_put_s(this.vars, name, var_.self())
@@ -150,7 +150,7 @@ func (this *AbstractScope) getOwnImplicitSlot(name AbstractScope_ImplicitVar) *A
 		return nil
 	}
 	var emptySentinel *JTMap[AbstractScope_ImplicitVar, *AbstractVar] = jtmapEmptyImm_(tc_p_AbstractScope_ImplicitVar, jtc_p_AbstractVar)
-	if any(this.implicitVars) == any(emptySentinel.asMap()) {
+	if this.implicitVars == emptySentinel.asMap() {
 		this.implicitVars = Map(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar")))
 	}
 	return to_AbstractVar(Map_computeIfAbsent(this.implicitVars, obj_(name), &Function_tfn_AbstractScope_ImplicitVar_any{func(p0 AbstractScope_ImplicitVar) any { return this.makeImplicitVar(p0).self() }}))

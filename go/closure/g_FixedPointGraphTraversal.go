@@ -52,7 +52,7 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph[
 	it_1 := foreach_(any(entrySet))
 	for it_1.next() {
 		var n N = junboxT_[N](it_1.v)
-		workSet.add(any(graph.getNode(n)))
+		workSet.add(graph.getNode(n))
 	}
 	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
 		this.visitNode(cast_[DiGraph_DiGraphNode[N]](SequencedCollection_getFirst(LinkedHashSet_as_SequencedCollection(workSet))), workSet)
@@ -61,7 +61,7 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph[
 }
 
 func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N], workSet LinkedHashSetOf[DiGraph_DiGraphNode[N]]) {
-	workSet.remove_Object(any(node))
+	workSet.remove_Object(node)
 	switch this.traversalDirection {
 	case FixedPointGraphTraversal_TraversalDirection_OUTWARDS:
 		var sourceValue N = node.getValue()
@@ -70,7 +70,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 			var edge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_2.v)
 			var destValue N = edge.getDestination().getValue()
 			if this.callback.traverseEdge(sourceValue, junboxT_[E](edge.getValue()), destValue) {
-				workSet.add(any(edge.getDestination()))
+				workSet.add(edge.getDestination())
 			}
 		}
 		return
@@ -81,7 +81,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 			var edge DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_4.v)
 			var revDestValue N = edge.getSource().getValue()
 			if this.callback.traverseEdge(revSourceValue, junboxT_[E](edge.getValue()), revDestValue) {
-				workSet.add(any(edge.getSource()))
+				workSet.add(edge.getSource())
 			}
 		}
 		return

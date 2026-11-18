@@ -211,5 +211,5 @@ func (this *ReferenceCollection) firstReferenceIsAssigningDeclaration() bool {
 }
 
 func (this *ReferenceCollection) toString() string {
-	return tostrNN_(MoreObjects_toStringHelper(any(this)).add("initRef", obj_(this.getInitializingReference())).add("references", any(this.references.asList())).add_String_boolean("wellDefined", this.isWellDefined()).add_String_boolean("assignedOnce", this.isAssignedOnceInLifetime()))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add("initRef", obj_(this.getInitializingReference())).add("references", this.references.asList()).add_String_boolean("wellDefined", this.isWellDefined()).add_String_boolean("assignedOnce", this.isAssignedOnceInLifetime()))
 }

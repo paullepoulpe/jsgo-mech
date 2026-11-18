@@ -50,7 +50,7 @@ func TypedAstDeserializer_deserializeFullAst(compiler *AbstractCompiler, synthet
 		sourceFilesByNameBuilder.put(file.getName(), file)
 	}
 	var sourceFilesByName *JTMap[string, *SourceFile_jscomp] = sourceFilesByNameBuilder.buildOrThrow()
-	return TypedAstDeserializer_deserialize(compiler, syntheticExterns, Optional_base_of(any(requiredInputFiles.asSet())), sourceFilesByName, Optional_base_absent(), typedAstsStream, TypedAstDeserializer_Mode_FULL_AST, includeTypeInformation, resolveSourceMapAnnotations, parseInlineSourceMaps)
+	return TypedAstDeserializer_deserialize(compiler, syntheticExterns, Optional_base_of(requiredInputFiles.asSet()), sourceFilesByName, Optional_base_absent(), typedAstsStream, TypedAstDeserializer_Mode_FULL_AST, includeTypeInformation, resolveSourceMapAnnotations, parseInlineSourceMaps)
 }
 
 func TypedAstDeserializer_deserializeRuntimeLibraries(compiler *AbstractCompiler, syntheticExterns *SourceFile_jscomp, colorPool Optional_baseOf[*ColorPool_Builder], typedAstsStream []int8, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) *TypedAstDeserializer_DeserializedAst {
@@ -352,7 +352,7 @@ func new_TypedAstDeserializer_DeserializedAst(getFilesystem ConcurrentMapOf[*Sou
 }
 
 func (this *TypedAstDeserializer_DeserializedAst) toString() string {
-	return ("DeserializedAst{filesystem=" + jtostr_(this.getFilesystem_) + ", colorRegistry=" + jtostr_(this.getColorRegistry_) + ", externProperties=" + objstr_(any(this.getExternProperties_.asSet())) + ", runtimeLibraries=" + objstr_(any(this.getRuntimeLibraries_.asSet())) + "}")
+	return ("DeserializedAst{filesystem=" + jtostr_(this.getFilesystem_) + ", colorRegistry=" + jtostr_(this.getColorRegistry_) + ", externProperties=" + objstr_(this.getExternProperties_.asSet()) + ", runtimeLibraries=" + objstr_(this.getRuntimeLibraries_.asSet()) + "}")
 }
 
 func TypedAstDeserializer_DeserializedAst_create(filesystem ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]], colorRegistry Optional_baseOf[*ColorRegistry], externProperties *JTSet[string], runtimeLibraries *JTSet[string]) *TypedAstDeserializer_DeserializedAst {

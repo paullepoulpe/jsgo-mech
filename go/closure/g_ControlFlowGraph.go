@@ -114,7 +114,7 @@ func (this *ControlFlowGraph[N]) toString() string {
 	it_1 := this.getGraphvizEdges().each()
 	for it_1.next() {
 		var e GraphvizGraph_GraphvizEdge = it_1.v
-		s += sstr_((sstr_(Object_toString(any(e))) + "\n"))
+		s += sstr_((sstr_(Object_toString(e)) + "\n"))
 	}
 	return s
 }

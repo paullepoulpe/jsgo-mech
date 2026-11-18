@@ -231,5 +231,5 @@ func (this *SimpleMultiset) toString() string {
 			return (sstr_(element) + " x " + objstr_(e.getValue()))
 		}())
 	}
-	return Object_toString(any(parts.asList()))
+	return Object_toString(parts.asList())
 }

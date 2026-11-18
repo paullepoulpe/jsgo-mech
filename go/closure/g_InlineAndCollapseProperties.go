@@ -1755,7 +1755,7 @@ func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) resolveAli
 	var aliasPath *JTSet[string] = jnewTSet_(jtc_string)
 	for this.outer_.aliases_.containsKey(name) {
 		if !aliasPath.add(name) {
-			this.outer_.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, InlineAndCollapseProperties_ALIAS_CYCLE, []string{Object_toString(any(aliasPath.asSet())), name}))
+			this.outer_.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, InlineAndCollapseProperties_ALIAS_CYCLE, []string{Object_toString(aliasPath.asSet()), name}))
 			this.outer_.aliases_.remove(name)
 			break
 		}

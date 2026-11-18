@@ -89,5 +89,5 @@ func (this *SimpleTable[R, C, V]) isEmpty() bool {
 }
 
 func (this *SimpleTable[R, C, V]) toString() string {
-	return Object_toString(any(this.rows.asMap()))
+	return Object_toString(this.rows.asMap())
 }

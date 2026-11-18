@@ -96,7 +96,7 @@ func (this *ReplaceMessages) lookupMessage(callNode Node, bundle MessageBundle, 
 			if jsCodePlaceholderNames.isEmpty() && ReplaceMessages_isStartOfIcuMessage(message.asIcuMessageString()) {
 				return alternateMessage
 			} else {
-				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceMessages_INVALID_ALTERNATE_MESSAGE_PLACEHOLDERS, []string{alternateId.get(), String_valueOf_Object(any(alternateMsgPlaceholderNames.asSet())), message.getKey(), String_valueOf_Object(any(jsCodePlaceholderNames.asSet()))}))
+				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(callNode, ReplaceMessages_INVALID_ALTERNATE_MESSAGE_PLACEHOLDERS, []string{alternateId.get(), String_valueOf_Object(alternateMsgPlaceholderNames.asSet()), message.getKey(), String_valueOf_Object(jsCodePlaceholderNames.asSet())}))
 				return nil
 			}
 		}
@@ -708,7 +708,7 @@ func (this *ReplaceMessages_FullReplacementMsgData) hashCode() int32 {
 }
 
 func (this *ReplaceMessages_FullReplacementMsgData) toString() string {
-	return "FullReplacementMsgData[" + "message=" + jtostr_(this.message_) + ", messageNode=" + tostrH_(this.messageNode_) + ", messageOptions=" + jtostr_(this.messageOptions_) + ", placeholderValueMap=" + objstr_(any(this.placeholderValueMap_.asMap())) + "]"
+	return "FullReplacementMsgData[" + "message=" + jtostr_(this.message_) + ", messageNode=" + tostrH_(this.messageNode_) + ", messageOptions=" + jtostr_(this.messageOptions_) + ", placeholderValueMap=" + objstr_(this.placeholderValueMap_.asMap()) + "]"
 }
 
 type ReplaceMessages_FullReplacementPass struct {

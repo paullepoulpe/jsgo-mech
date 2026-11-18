@@ -2976,7 +2976,7 @@ type Callable_tfn_DependencyInfo_ struct {
 }
 
 func (this *Callable_tfn_DependencyInfo_) call() any {
-	return any(this.f())
+	return this.f()
 }
 
 type Callable_tfn_Node struct {
@@ -3312,7 +3312,7 @@ type Function_base_tfn_Map_Collection struct {
 }
 
 func (this *Function_base_tfn_Map_Collection) apply(p0 any) any {
-	return any(this.f(icast_Map(p0)))
+	return this.f(icast_Map(p0))
 }
 
 type Function_base_tfn_Source_Source struct {
@@ -3400,7 +3400,7 @@ type Function_tfn_Color_Set struct {
 }
 
 func (this *Function_tfn_Color_Set) apply(p0 any) any {
-	return any(this.f(cast_[*Color](p0)))
+	return this.f(cast_[*Color](p0))
 }
 
 type Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator struct {
@@ -3408,7 +3408,7 @@ type Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator struct {
 }
 
 func (this *Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator) apply(p0 any) any {
-	return any(this.f(cast_[*CompilerInput](p0)))
+	return this.f(cast_[*CompilerInput](p0))
 }
 
 type Function_tfn_CompilerOptions_PassFactory_PreconditionResult struct {
@@ -3472,7 +3472,7 @@ type Function_tfn_JSChunk_Map struct {
 }
 
 func (this *Function_tfn_JSChunk_Map) apply(p0 any) any {
-	return any(this.f(cast_[*JSChunk](p0)))
+	return this.f(cast_[*JSChunk](p0))
 }
 
 type Function_tfn_JSChunk_Node struct {
@@ -3488,7 +3488,7 @@ type Function_tfn_JSChunk_Set struct {
 }
 
 func (this *Function_tfn_JSChunk_Set) apply(p0 any) any {
-	return any(this.f(cast_[*JSChunk](p0)))
+	return this.f(cast_[*JSChunk](p0))
 }
 
 type Function_tfn_Map_Entry_string struct {
@@ -3576,7 +3576,7 @@ type Function_tfn_SourceFile_jscomp_Supplier struct {
 }
 
 func (this *Function_tfn_SourceFile_jscomp_Supplier) apply(p0 any) any {
-	return any(this.f(cast_[*SourceFile_jscomp](p0)))
+	return this.f(cast_[*SourceFile_jscomp](p0))
 }
 
 type Function_tfn_SourceFile_jscomp_any struct {
@@ -3624,7 +3624,7 @@ type Function_tfn_any_CompilerPass struct {
 }
 
 func (this *Function_tfn_any_CompilerPass) apply(p0 any) any {
-	return any(this.f(p0))
+	return this.f(p0)
 }
 
 type Function_tfn_any_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel struct {
@@ -3680,7 +3680,7 @@ type Function_tfn_string_Deque struct {
 }
 
 func (this *Function_tfn_string_Deque) apply(p0 any) any {
-	return any(this.f(str_(p0)))
+	return this.f(str_(p0))
 }
 
 type Function_tfn_string_FileInstrumentationData struct {
@@ -3712,7 +3712,7 @@ type Function_tfn_string_List struct {
 }
 
 func (this *Function_tfn_string_List) apply(p0 any) any {
-	return any(this.f(str_(p0)))
+	return this.f(str_(p0))
 }
 
 type Function_tfn_string_Map struct {
@@ -3720,7 +3720,7 @@ type Function_tfn_string_Map struct {
 }
 
 func (this *Function_tfn_string_Map) apply(p0 any) any {
-	return any(this.f(str_(p0)))
+	return this.f(str_(p0))
 }
 
 type Function_tfn_string_PerformanceTracker_Stats struct {
@@ -3776,7 +3776,7 @@ type Function_tfn_string_Set struct {
 }
 
 func (this *Function_tfn_string_Set) apply(p0 any) any {
-	return any(this.f(str_(p0)))
+	return this.f(str_(p0))
 }
 
 type Function_tfn_string_Supplier struct {
@@ -3784,7 +3784,7 @@ type Function_tfn_string_Supplier struct {
 }
 
 func (this *Function_tfn_string_Supplier) apply(p0 any) any {
-	return any(this.f(str_(p0)))
+	return this.f(str_(p0))
 }
 
 type Function_tfn_string_any struct {
@@ -3952,7 +3952,7 @@ type Supplier_base_tfn_AstFactory_Type struct {
 }
 
 func (this *Supplier_base_tfn_AstFactory_Type) get() any {
-	return any(this.f())
+	return this.f()
 }
 
 type Supplier_base_tfn_Color struct {
@@ -4096,7 +4096,7 @@ type Supplier_tfn_List struct {
 }
 
 func (this *Supplier_tfn_List) get() any {
-	return any(this.f())
+	return this.f()
 }
 
 type Supplier_tfn_Map struct {
@@ -4104,7 +4104,7 @@ type Supplier_tfn_Map struct {
 }
 
 func (this *Supplier_tfn_Map) get() any {
-	return any(this.f())
+	return this.f()
 }
 
 type Supplier_tfn_ModuleLoader_ResolutionMode struct {
