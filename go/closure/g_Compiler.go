@@ -2183,9 +2183,9 @@ func (this *Compiler) reportFunctionDeleted_impl(n Node) {
 	this.changeTracker.reportFunctionDeleted(n)
 }
 
-func (this *Compiler) reportDisambiguatePropertiesSummary_impl(summarySupplier func() any) {
+func (this *Compiler) reportDisambiguatePropertiesSummary_impl(summarySupplier func() string) {
 	if this.tracker != nil {
-		this.tracker.setDisambiguatePropertiesSummary(str_(summarySupplier()))
+		this.tracker.setDisambiguatePropertiesSummary(summarySupplier())
 	}
 }
 
@@ -4262,7 +4262,7 @@ func (this *Compiler) reportFunctionDeleted(p0 Node) {
 }
 
 // reportDisambiguatePropertiesSummary: an object that is exactly a Compiler calls its reportDisambiguatePropertiesSummary_impl directly (post-flip); others dispatch.
-func (this *Compiler) reportDisambiguatePropertiesSummary(p0 func() any) {
+func (this *Compiler) reportDisambiguatePropertiesSummary(p0 func() string) {
 	if p, _ := this.self_.(*Compiler); p == this {
 		this.reportDisambiguatePropertiesSummary_impl(p0)
 		return

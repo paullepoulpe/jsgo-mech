@@ -2895,8 +2895,8 @@ func NodeUtil_getVarsDeclaredInBranch(root Node) CollectionOf[Node] {
 	return collector.vars.asMap().values()
 }
 
-func NodeUtil_getLhsNodesHelper(n Node, consumer func(any)) {
-	nodeUtilLhsNodes_(n, func(x Node) { consumer(x.box_()) })
+func NodeUtil_getLhsNodesHelper(n Node, consumer func(Node)) {
+	nodeUtilLhsNodes_(n, func(x Node) { consumer(x) })
 }
 
 // nodeUtilLhsNodes_ is NodeUtil_getLhsNodesHelper with the consumer as a function value, which
@@ -2936,14 +2936,14 @@ func nodeUtilLhsNodes_(n Node, consumer func(Node)) {
 	}
 }
 
-func NodeUtil_visitLhsNodesInNode(assigningParent Node, consumer func(any)) {
+func NodeUtil_visitLhsNodesInNode(assigningParent Node, consumer func(Node)) {
 	if !(((((((NodeUtil_isNameDeclaration(assigningParent) || assigningParent.isParamList()) || NodeUtil_isAssignmentOp(assigningParent)) || assigningParent.isCatch()) || assigningParent.isDestructuringLhs()) || assigningParent.isDefaultValue()) || assigningParent.isImport()) || NodeUtil_isEnhancedFor(assigningParent)) {
 		panic(new_IllegalArgumentException_String(tostr_(assigningParent)))
 	}
 	NodeUtil_getLhsNodesHelper(assigningParent, consumer)
 }
 
-func NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern Node, consumer func(any)) {
+func NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern Node, consumer func(Node)) {
 	if !destructuringPattern.isDestructuringPattern() {
 		panic(new_IllegalArgumentException_String("Must be a destructuring pattern node."))
 	}
@@ -4604,9 +4604,9 @@ func new_NodeUtil_VarCollector() *NodeUtil_VarCollector {
 
 func (this *NodeUtil_VarCollector) visit(n Node) {
 	if n.isVar() {
-		NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(name Node) {
+		NodeUtil_visitLhsNodesInNode(n, func(name Node) {
 			this.vars.PutIfAbsent(name.getString(), name)
-		}}).accept)
+		})
 	}
 }
 

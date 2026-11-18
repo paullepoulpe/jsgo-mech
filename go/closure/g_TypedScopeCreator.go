@@ -928,10 +928,10 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) assertDefinitionNode(n Node,
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineCatch(n Node) {
 	this.assertDefinitionNode(n, Token_rhino_CATCH)
-	NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(catchName Node) {
+	NodeUtil_visitLhsNodesInNode(n, func(catchName Node) {
 		var type_ *JSType = this.getDeclaredType(catchName.getJSDocInfo(), catchName, 0, nil)
 		new_TypedScopeCreator_AbstractScopeBuilder_SlotDefiner(this).forDeclarationNode(catchName).forVariableName(Optional_of[string](catchName.getString())).inScope(this.currentScope).withType(type_).allowLaterTypeInference((type_ == nil)).defineSlot()
-	}}).accept)
+	})
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineAssignAsIfVarDeclaration(assignment Node) {

@@ -100,13 +100,13 @@ func (this *ProcessConstJsdocCallback) recordNameDeclaration(lhs Node, rhs Node)
 	}
 	var isImport bool = PotentialDeclaration_isImportRhs(rhs)
 	var isAlias bool = PotentialDeclaration_isAliasDeclaration(lhs, rhs)
-	NodeUtil_visitLhsNodesInNode(lhs.getParent(), (&Consumer_tfn_Node{func(name Node) {
+	NodeUtil_visitLhsNodesInNode(lhs.getParent(), func(name Node) {
 		if isAlias || isImport {
 			this.currentFile.recordAliasDeclaration(name)
 		} else {
 			this.currentFile.recordNameDeclaration(name)
 		}
-	}}).accept)
+	})
 }
 
 func (this *ProcessConstJsdocCallback) processDeclarationWithRhs(t *NodeTraversal, lhs Node) {

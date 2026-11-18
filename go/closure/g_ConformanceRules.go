@@ -2951,11 +2951,11 @@ func (this *ConformanceRules_BanGlobalVars) isAllowlisted(n Node) bool {
 	}
 	if NodeUtil_isNameDeclaration(n) {
 		var allowlisted []bool = []bool{true}
-		NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(name Node) {
+		NodeUtil_visitLhsNodesInNode(n, func(name Node) {
 			if !this.isAllowlistedName(name.getString()) {
 				allowlisted[0] = false
 			}
-		}}).accept)
+		})
 		return allowlisted[0]
 	}
 	return false
