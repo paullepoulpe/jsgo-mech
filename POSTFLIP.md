@@ -284,6 +284,38 @@ Java/Go. Pre-flip Java is not a stored number: even on an idle host its runs var
 across a day, more than a step is worth, and its CPU time (JIT and parallel GC threads, about
 twice Go's) is not the measure a user waits on.
 
+## googleapis-bench (18 Nov, on the VPS)
+
+jsgo's staged benchmark (`tools/bench/run_googleapis_bench.py` there: CHECKS, OPTIMIZATIONS,
+FINALIZATIONS with the state saved and restored between them; googleapis 6f8ddc39, 7,526
+chunks, 44,577 files, 488 MB) on the 8-core, 23 GB VPS: JDK 21.0.13 with `-Xmx20g` as the
+runner sets it, Go 1.27.3, no PGO, no GC setting (the runner sets none). The chunk files and
+both state files (decompressed) are byte-identical to pre-flip Java's in every run.
+
+Milestone, branch postflip5-r9-ga (b0699ec8), two rounds in alternating order, idle host:
+
+| | pre-flip Java | this branch | Java/Go |
+|---|---:|---:|---:|
+| total wall | 473.1s, 470.2s | 568.2s, 589.3s | 0.83, 0.80 |
+| CHECKS wall (CPU) | 223.7s, 218.4s (368.7s, 358.6s) | 288.4s, 312.5s (370.8s, 381.7s) | |
+| OPTIMIZATIONS wall (CPU) | 208.4s, 210.4s (422.2s, 389.8s) | 230.9s, 227.9s (273.8s, 270.6s) | |
+| FINALIZATIONS wall (CPU) | 40.9s, 41.4s | 49.0s, 48.9s | |
+| peak RSS | 13.7 GB | 21.3 GB (CHECKS) | |
+
+So the result of rounds 2-8 (Java/Go above 1 on typed-full and bundle) does not hold at this
+size. On the first 1,000 and 3,500 chunks of the same inputs (`handoff`-style harness gast.py,
+one round) Java/Go is 1.28 and 0.96: the ratio falls as the input grows.
+
+Where the time is (per-pass tracer, one run each): TypedAST serialization and deserialization
+86.7s against Java's 37.7s (the handwritten protobuf runtime; typed-full and bundle never run
+it), inferTypes 97.8s against 58.9s, checkTypes 26.5s against 15.2s; parseInputs is faster
+(50.8s against 56.4s). CHECKS peaks at 21 GB of the host's 23 GB, and its wall time varies
+with it (the same binary: 288s to 371s in one day) where its CPU time does not.
+
+Three runtime steps came from its profiles (ef603915, b1129850, b0699ec8: iterator removal in
+constant time, its test, subList boxing its range): total wall 628.8s (cac00d61, one run)
+-> 577.8s (one run, the same hour).
+
 ## Correction: PGO (13-17 Nov)
 
 `go/cmd/mech/default.pgo` was in the tree from 1fef152c (13 Nov) to c4aefc67 (17 Nov), and
