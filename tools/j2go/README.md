@@ -137,7 +137,9 @@ implements keeps the erased signature. A declaration is typed when
   at the Go type it has (`List<DiGraphNode<N, E>>` in `DiGraph<N, E>` is a
   `*TList[DiGraph_DiGraphNode[N, E]]`; no wildcard among its type arguments); or a type
   variable: the Go type parameter where it is one (`List<T>` in a `Stack<T>` that is a Go
-  generic type is a `*TList[T]`), else what it is erased to (its bound). The elements of a set
+  generic type is a `*TList[T]`), else what it is erased to (its bound); a wildcard
+  `? extends X` is X (`List<? extends JSType>` is a `*TList[*JSType]`: only a list made for a
+  declaration with element type X enters it). The elements of a set
   and the keys of a map are compared: their type is not a type variable that is a Go type
   parameter (its constraint is `any`, and a typed set needs `comparable`), not a library type
   with type arguments, and not `Object`, `Float` or `Double`. Where Go's `==` is Java's `equals` for the type, the collection compares with

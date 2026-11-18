@@ -993,6 +993,21 @@ public class Colls {
     List<String> list(List<String> from);
   }
 
+  // `? extends X`: the typed collection of X
+  private static String wild(List<? extends Base> in, Set<? extends Shape> shapes) {
+    List<? extends Base> local = in;
+    StringBuilder sb = new StringBuilder();
+    for (Base b : local) {
+      sb.append(b == null ? "null" : b.name()).append(',');
+    }
+    Base first = local.isEmpty() ? null : local.get(0);
+    local.add(null);
+    for (Shape s : shapes) {
+      sb.append(s.name()).append(';');
+    }
+    return sb + " " + first + " " + in.size() + " " + shapes.contains(first) + " " + local.contains(null);
+  }
+
   static String groups() {
     Source[] sources = {new FixedSource("a", "b"), new UpperSource("c"), new Source() {
       @Override
@@ -1034,6 +1049,9 @@ public class Colls {
     };
     Lister same = from -> from;
     List<String> reversed = rev.list(all);
+    Set<Shape> shapeSet = new LinkedHashSet<>();
+    shapeSet.add(bases.get(0));
+    sb.append(wild(bases, shapeSet)).append(' ').append(wild(new ArrayList<>(), shapeSet)).append(bases.size()).append(' ');
     return sb + " " + all + " " + idx + " " + idx.get("base5").id + " " + keys + new SizedHolder().keys().size() + " " + reversed + " " + (same.list(all) == all) + " "
         + reversed.size();
   }

@@ -367,6 +367,12 @@ final class Ctx {
       TypeMirror e = erase(a);
       return e.getKind() == TypeKind.DECLARED ? typedArg(e, compared) : null;
     }
+    if (a.getKind() == TypeKind.WILDCARD && generic && !"1".equals(System.getenv("J2GO_COLLS_NOWILDCARDS"))) {
+      // `? extends X`: the collection of X that the declaration reads (what enters it is a
+      // collection made for a declaration with the same element type, so it is one of X)
+      TypeMirror b = ((WildcardType) a).getExtendsBound();
+      return b == null ? null : typedArg(b, compared);
+    }
     if (a.getKind() != TypeKind.DECLARED) return null;
     TypeElement ae = typeElement(a);
     if (ae.getQualifiedName().contentEquals("java.lang.Object")) return compared || !simple ? null : a;
