@@ -248,7 +248,7 @@ func (this *EnumType) getImplicitPrototype() *ObjectType {
 	if this.self_ == any(this) {
 		return this.getImplicitPrototype_impl()
 	}
-	return this.self_.(interface{ getImplicitPrototype_impl() *ObjectType }).getImplicitPrototype_impl()
+	return this.self_.getImplicitPrototype_impl()
 }
 
 // getEnumeratedTypeOfEnumObject: an object that is exactly a EnumType calls its getEnumeratedTypeOfEnumObject_impl directly (post-flip); others dispatch.
@@ -256,7 +256,7 @@ func (this *EnumType) getEnumeratedTypeOfEnumObject() *JSType {
 	if this.self_ == any(this) {
 		return this.getEnumeratedTypeOfEnumObject_impl()
 	}
-	return this.self_.(interface{ getEnumeratedTypeOfEnumObject_impl() *JSType }).getEnumeratedTypeOfEnumObject_impl()
+	return this.self_.getEnumeratedTypeOfEnumObject_impl()
 }
 
 // testForEquality: an object that is exactly a EnumType calls its testForEquality_impl directly (post-flip); others dispatch.
@@ -305,7 +305,7 @@ func (this *EnumType) getConstructor() *FunctionType {
 	if this.self_ == any(this) {
 		return this.getConstructor_impl()
 	}
-	return this.self_.(interface{ getConstructor_impl() *FunctionType }).getConstructor_impl()
+	return this.self_.getConstructor_impl()
 }
 
 // matchesNumberContext: an object that is exactly a EnumType calls its matchesNumberContext_impl directly (post-flip); others dispatch.

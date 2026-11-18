@@ -1476,7 +1476,7 @@ func (this *FunctionType) getConstructor() *FunctionType {
 	if this.self_ == any(this) {
 		return this.getConstructor_impl()
 	}
-	return this.self_.(interface{ getConstructor_impl() *FunctionType }).getConstructor_impl()
+	return this.self_.getConstructor_impl()
 }
 
 // isInstanceType: an object that is exactly a FunctionType calls its isInstanceType_impl directly (post-flip); others dispatch.
@@ -1532,7 +1532,7 @@ func (this *FunctionType) getSlot(p0 Property_Key) *Property {
 	if this.self_ == any(this) {
 		return this.getSlot_impl(p0)
 	}
-	return this.self_.(interface{ getSlot_impl(Property_Key) *Property }).getSlot_impl(p0)
+	return this.self_.getSlot_impl(p0)
 }
 
 // getOwnPropertyNames: an object that is exactly a FunctionType calls its getOwnPropertyNames_impl directly (post-flip); others dispatch.
@@ -1540,7 +1540,7 @@ func (this *FunctionType) getOwnPropertyNames() Set {
 	if this.self_ == any(this) {
 		return this.getOwnPropertyNames_impl()
 	}
-	return this.self_.(interface{ getOwnPropertyNames_impl() Set }).getOwnPropertyNames_impl()
+	return this.self_.getOwnPropertyNames_impl()
 }
 
 // getPropertyTypeKey: an object that is exactly a FunctionType calls its getPropertyTypeKey_impl directly (post-flip); others dispatch.
@@ -1548,7 +1548,7 @@ func (this *FunctionType) getPropertyTypeKey(p0 Property_Key) *JSType {
 	if this.self_ == any(this) {
 		return this.getPropertyTypeKey_impl(p0)
 	}
-	return this.self_.(interface{ getPropertyTypeKey_impl(Property_Key) *JSType }).getPropertyTypeKey_impl(p0)
+	return this.self_.getPropertyTypeKey_impl(p0)
 }
 
 // defineProperty: an object that is exactly a FunctionType calls its defineProperty_impl directly (post-flip); others dispatch.
@@ -1556,9 +1556,7 @@ func (this *FunctionType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p
 	if this.self_ == any(this) {
 		return this.defineProperty_impl(p0, p1, p2, p3)
 	}
-	return this.self_.(interface {
-		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
-	}).defineProperty_impl(p0, p1, p2, p3)
+	return this.self_.defineProperty_impl(p0, p1, p2, p3)
 }
 
 // getSuperClassConstructor: an object that is exactly a FunctionType calls its getSuperClassConstructor_impl directly (post-flip); others dispatch.
@@ -1566,7 +1564,7 @@ func (this *FunctionType) getSuperClassConstructor() *FunctionType {
 	if this.self_ == any(this) {
 		return this.getSuperClassConstructor_impl()
 	}
-	return this.self_.(interface{ getSuperClassConstructor_impl() *FunctionType }).getSuperClassConstructor_impl()
+	return this.self_.getSuperClassConstructor_impl()
 }
 
 // recursionUnsafeHashCode: an object that is exactly a FunctionType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
@@ -1607,7 +1605,7 @@ func (this *FunctionType) getTypeOfThis() *JSType {
 	if this.self_ == any(this) {
 		return this.getTypeOfThis_impl()
 	}
-	return this.self_.(interface{ getTypeOfThis_impl() *JSType }).getTypeOfThis_impl()
+	return this.self_.getTypeOfThis_impl()
 }
 
 // clearCachedValues: an object that is exactly a FunctionType calls its clearCachedValues_impl directly (post-flip); others dispatch.
@@ -1616,7 +1614,7 @@ func (this *FunctionType) clearCachedValues() {
 		this.clearCachedValues_impl()
 		return
 	}
-	this.self_.(interface{ clearCachedValues_impl() }).clearCachedValues_impl()
+	this.self_.clearCachedValues_impl()
 }
 
 // hasCachedValues: an object that is exactly a FunctionType calls its hasCachedValues_impl directly (post-flip); others dispatch.
@@ -1624,7 +1622,7 @@ func (this *FunctionType) hasCachedValues() bool {
 	if this.self_ == any(this) {
 		return this.hasCachedValues_impl()
 	}
-	return this.self_.(interface{ hasCachedValues_impl() bool }).hasCachedValues_impl()
+	return this.self_.hasCachedValues_impl()
 }
 
 // resolveInternal: an object that is exactly a FunctionType calls its resolveInternal_impl directly (post-flip); others dispatch.
@@ -1656,9 +1654,7 @@ func (this *FunctionType) getPropertyTypeMap() *JTMap[string, *JSType] {
 	if this.self_ == any(this) {
 		return this.getPropertyTypeMap_impl()
 	}
-	return this.self_.(interface {
-		getPropertyTypeMap_impl() *JTMap[string, *JSType]
-	}).getPropertyTypeMap_impl()
+	return this.self_.getPropertyTypeMap_impl()
 }
 
 // build: an object that is exactly a FunctionType_Builder calls its build_impl directly (post-flip); others dispatch.
