@@ -1003,7 +1003,7 @@ func (this *JsDocInfoParser) recordDescription(token JsDocToken) JsDocToken {
 func (this *JsDocInfoParser) checkExtendedTypes(extendedTypes *JTList[*JsDocInfoParser_ExtendedTypeInfo]) {
 	if extendedTypes.size() > 1 {
 		var isInterface bool = this.jsdocBuilder.isInterfaceRecorded()
-		var isFromTsickle bool = Object_equals(obj_(this.jsDocSourceKind), obj_(JsDocInfoParser_JsDocSourceKind_TSICKLE))
+		var isFromTsickle bool = equalsId_(this.jsDocSourceKind, JsDocInfoParser_JsDocSourceKind_TSICKLE)
 		if !isInterface && isFromTsickle {
 			var result bool = this.jsdocBuilder.recordBaseType(this.createJSTypeExpression(this.wrapNode(Token_rhino_BANG, this.newStringNode(JsDocInfoParser_TSICKLE_MISSING_TYPE_PLACEHOLDER)).srcrefTree(extendedTypes.get(0).type__.getRoot())))
 			if !result {

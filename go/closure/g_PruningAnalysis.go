@@ -136,13 +136,13 @@ func (this *PruningAnalysis_Result) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(any(this.entryPointDependencyCount_.asMap()), any(o.entryPointDependencyCount_.asMap())) && Objects_equals(any(this.bottleneckBlame_.asMap()), any(o.bottleneckBlame_.asMap()))
+	return true && objequalsDyn_(this.entryPointDependencyCount_.asMap(), any(o.entryPointDependencyCount_.asMap())) && objequalsDyn_(this.bottleneckBlame_.asMap(), any(o.bottleneckBlame_.asMap()))
 }
 
 func (this *PruningAnalysis_Result) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(this.entryPointDependencyCount_.asMap()))
-	h = h*31 + Objects_hashCode(any(this.bottleneckBlame_.asMap()))
+	h = h*31 + objhashDyn_(this.entryPointDependencyCount_.asMap())
+	h = h*31 + objhashDyn_(this.bottleneckBlame_.asMap())
 	return h
 }
 

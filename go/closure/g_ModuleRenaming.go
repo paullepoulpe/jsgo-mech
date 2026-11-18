@@ -140,13 +140,13 @@ func (this *ModuleRenaming_GlobalizedModuleName) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.aliasName_ == o.aliasName_ && Objects_equals(this.rootNameType_.self(), o.rootNameType_.self())
+	return true && this.aliasName_ == o.aliasName_ && objequalsBy_(this.rootNameType_, o.rootNameType_.self(), (*JSType).equals)
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) hashCode() int32 {
 	var h int32
 	h = h*31 + objhashId_(this.aliasName_.self())
-	h = h*31 + Objects_hashCode(this.rootNameType_.self())
+	h = h*31 + objhashBy_(this.rootNameType_, (*JSType).hashCode)
 	return h
 }
 

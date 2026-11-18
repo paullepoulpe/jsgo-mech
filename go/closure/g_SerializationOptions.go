@@ -9,7 +9,9 @@ type SerializationOptions struct {
 }
 
 func (this *SerializationOptions) init_SerializationOptions(includeDebugInfo bool, runValidation bool, runtimeLibraries *JTList[string]) {
-	Objects_requireNonNull(any(runtimeLibraries.asList()), "runtimeLibraries")
+	if runtimeLibraries.asList() == nil {
+		panic(new_NullPointerException_String("runtimeLibraries").self())
+	}
 	this.includeDebugInfo_ = includeDebugInfo
 	this.runValidation_ = runValidation
 	this.runtimeLibraries_ = runtimeLibraries
@@ -42,14 +44,14 @@ func (this *SerializationOptions) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.includeDebugInfo_ == o.includeDebugInfo_ && this.runValidation_ == o.runValidation_ && Objects_equals(any(this.runtimeLibraries_.asList()), any(o.runtimeLibraries_.asList()))
+	return true && this.includeDebugInfo_ == o.includeDebugInfo_ && this.runValidation_ == o.runValidation_ && objequalsVia_(this.runtimeLibraries_.asList(), any(o.runtimeLibraries_.asList()))
 }
 
 func (this *SerializationOptions) hashCode() int32 {
 	var h int32
 	h = h*31 + boolhash_(this.includeDebugInfo_)
 	h = h*31 + boolhash_(this.runValidation_)
-	h = h*31 + Objects_hashCode(any(this.runtimeLibraries_.asList()))
+	h = h*31 + objhashVia_(this.runtimeLibraries_.asList())
 	return h
 }
 

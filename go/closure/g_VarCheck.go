@@ -94,7 +94,7 @@ func (this *VarCheck) checkName(t *NodeTraversal, n Node, parent Node) {
 		cast_[*Scope](scope.getGlobalScope().self()).declare(varName, n, this.compiler_.getSynthesizedExternsInput())
 		return
 	}
-	if (var_.isImplicitGoogNamespace() && Object_equals(obj_(var_.getImplicitGoogNamespaceStrength()), obj_(StaticSourceFile_SourceKind_WEAK))) && Object_equals(obj_(VarCheck_strengthOf(n)), obj_(StaticSourceFile_SourceKind_STRONG)) {
+	if (var_.isImplicitGoogNamespace() && equalsId_(var_.getImplicitGoogNamespaceStrength(), StaticSourceFile_SourceKind_WEAK)) && equalsId_(VarCheck_strengthOf(n), StaticSourceFile_SourceKind_STRONG) {
 		this.handleUndeclaredVariableRef(t, n)
 		return
 	}

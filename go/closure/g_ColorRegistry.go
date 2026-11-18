@@ -12,7 +12,7 @@ func (this *ColorRegistry) init_ColorRegistry(builder *ColorRegistry_Builder) {
 	this.nativeColors = immutableMapCopyOfT_(tce_p_ColorId, jtc_p_Color, builder.nativeColors)
 	this.colorToDisambiguationSupertypeGraph = builder.colorToDisambiguationSupertypeGraph.immutableCopy()
 	this.mismatchLocations = builder.mismatchLocations.immutableCopy()
-	if !Object_equals(obj_(cast_[*ImmutableSet](this.nativeColors.asImm().keySet())), any(ColorRegistry_REQUIRED_IDS.asSet())) {
+	if !equalsBy_(cast_[*ImmutableSet](this.nativeColors.asImm().keySet()), any(ColorRegistry_REQUIRED_IDS.asSet()), (*ImmutableSet).equals) {
 		panic(new_IllegalStateException_0().self())
 	}
 }

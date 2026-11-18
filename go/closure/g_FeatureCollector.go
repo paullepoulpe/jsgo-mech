@@ -66,21 +66,21 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack *JTList[FeatureC
 		if node.isGeneratorFunction() {
 			this.addScriptFeature(FeatureSet_Feature_GENERATORS)
 		}
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_BLOCK_SCOPE)) {
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_BLOCK_SCOPE) {
 			this.scriptFeatures = this.scriptFeatures.with(FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION)
 		}
 	case tokOrd1_PARAM_LIST, tokOrd1_CALL, tokOrd1_NEW:
 	case tokOrd1_STRING_KEY:
-		if node.isShorthandProperty() && Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_OBJECT_LITERAL)) {
+		if node.isShorthandProperty() && equalsId_(parentContext, FeatureCollector_FeatureContext_OBJECT_LITERAL) {
 			this.addScriptFeature(FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES)
 		}
 	case tokOrd1_DEFAULT_VALUE:
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_PARAM_LIST)) {
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_PARAM_LIST) {
 			this.addScriptFeature(FeatureSet_Feature_DEFAULT_PARAMETERS)
 		}
 	case tokOrd1_GETTER_DEF:
 		this.addScriptFeature(FeatureSet_Feature_GETTER)
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CLASS_MEMBERS)) {
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_CLASS_MEMBERS) {
 			this.addScriptFeature(FeatureSet_Feature_CLASS_GETTER_SETTER)
 		}
 		if node.isPrivateIdentifier() {
@@ -90,22 +90,22 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack *JTList[FeatureC
 		this.addScriptFeature(FeatureSet_Feature_REGEXP_SYNTAX)
 	case tokOrd1_SETTER_DEF:
 		this.addScriptFeature(FeatureSet_Feature_SETTER)
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CLASS_MEMBERS)) {
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_CLASS_MEMBERS) {
 			this.addScriptFeature(FeatureSet_Feature_CLASS_GETTER_SETTER)
 		}
 		if node.isPrivateIdentifier() {
 			this.addScriptFeature(FeatureSet_Feature_PRIVATE_ELEMENTS)
 		}
 	case tokOrd1_BLOCK:
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CLASS_MEMBERS)) {
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_CLASS_MEMBERS) {
 			this.addScriptFeature(FeatureSet_Feature_CLASS_STATIC_BLOCK)
 		}
 	case tokOrd1_EMPTY:
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CATCH)) {
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_CATCH) {
 			this.addScriptFeature(FeatureSet_Feature_OPTIONAL_CATCH_BINDING)
 		}
 	case tokOrd1_ITER_REST:
-		if Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_PARAM_LIST)) {
+		if equalsId_(parentContext, FeatureCollector_FeatureContext_PARAM_LIST) {
 			this.addScriptFeature(FeatureSet_Feature_REST_PARAMETERS)
 		} else {
 			this.addScriptFeature(FeatureSet_Feature_ARRAY_PATTERN_REST)
@@ -128,7 +128,7 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack *JTList[FeatureC
 		this.addScriptFeature(FeatureSet_Feature_COMPUTED_PROPERTIES)
 		var isGetter bool = node.getBooleanProp(Node_COMPUTED_PROP_GETTER)
 		var isSetter bool = node.getBooleanProp(Node_COMPUTED_PROP_SETTER)
-		var isClassMember bool = Object_equals(obj_(parentContext), obj_(FeatureCollector_FeatureContext_CLASS_MEMBERS))
+		var isClassMember bool = equalsId_(parentContext, FeatureCollector_FeatureContext_CLASS_MEMBERS)
 		if isGetter {
 			this.addScriptFeature(FeatureSet_Feature_GETTER)
 		} else if isSetter {
@@ -214,7 +214,7 @@ func FeatureCollector_contextFor(contextStack *JTList[FeatureCollector_FeatureCo
 			return FeatureCollector_FeatureContext_CATCH
 		case tokOrd1_BLOCK:
 			return func() FeatureCollector_FeatureContext {
-				if Object_equals(obj_(cast_[FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack.asList())))), obj_(FeatureCollector_FeatureContext_FUNCTION)) {
+				if equalsId_(cast_[FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack.asList()))), FeatureCollector_FeatureContext_FUNCTION) {
 					return FeatureCollector_FeatureContext_NONE
 				}
 				return FeatureCollector_FeatureContext_BLOCK_SCOPE

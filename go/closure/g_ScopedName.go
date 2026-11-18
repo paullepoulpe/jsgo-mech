@@ -72,7 +72,7 @@ func (this *ScopedName) hashCode() int32 {
 	var root Node = this.getScopeRoot()
 	var result int32 = 1
 	result = ((31 * result) + String_hashCode(name))
-	result = ((31 * result) + Object_hashCode(root.box_()))
+	result = ((31 * result) + hashId_(root))
 	return result
 }
 

@@ -16,7 +16,7 @@ func new_JsdocUtil() *JsdocUtil {
 }
 
 func JsdocUtil_isPrivate(jsdoc *JSDocInfo) bool {
-	return ((jsdoc != nil) && Object_equals(obj_(jsdoc.getVisibility()), obj_(JSDocInfo_Visibility_PRIVATE)))
+	return ((jsdoc != nil) && equalsId_(jsdoc.getVisibility(), JSDocInfo_Visibility_PRIVATE))
 }
 
 func JsdocUtil_getUnusableTypeJSDoc(oldJSDoc *JSDocInfo) *JSDocInfo {

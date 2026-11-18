@@ -174,7 +174,7 @@ func (this *FeatureSet) equals(other any) bool {
 }
 
 func (this *FeatureSet) hashCode() int32 {
-	return Object_hashCode(obj_(this.features_.asImm()))
+	return hashBy_(this.features_.asImm(), (*ImmutableCollection).hashCode)
 }
 
 func (this *FeatureSet) toString() string {

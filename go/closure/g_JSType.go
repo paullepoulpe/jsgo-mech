@@ -284,7 +284,7 @@ func (this *JSType) hasProperty(pname string) bool {
 }
 
 func (this *JSType) hasPropertyKey(pname Property_Key) bool {
-	return !Object_equals(obj_(this.getPropertyKind_2(pname, false)), obj_(JSType_HasPropertyKind_ABSENT))
+	return !equalsId_(this.getPropertyKind_2(pname, false), JSType_HasPropertyKind_ABSENT)
 }
 
 func (this *JSType) isNoType_impl() bool {
@@ -805,7 +805,7 @@ func (this *JSType) dereference() *ObjectType {
 }
 
 func (this *JSType) canTestForEqualityWith(that *JSType) bool {
-	return Object_equals(obj_(this.testForEquality(that)), obj_(Tri_UNKNOWN))
+	return equalsId_(this.testForEquality(that), Tri_UNKNOWN)
 }
 
 func (this *JSType) testForEquality_impl(that *JSType) Tri {

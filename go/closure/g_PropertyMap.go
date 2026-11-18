@@ -244,9 +244,9 @@ func (this *PropertyMap) values() IterableOf[*Property] {
 func (this *PropertyMap) hashCode() int32 {
 	return func() int32 {
 		if this.knownSymbols == nil {
-			return Objects_hashCode(any(this.properties.asMap().keySet()))
+			return objhashDyn_(this.properties.asMap().keySet())
 		}
-		return Objects_hash([]any{this.properties.asMap().keySet(), this.knownSymbols.asMap().keySet()})
+		return hashOf_(objhashDyn_(this.properties.asMap().keySet()), objhashDyn_(this.knownSymbols.asMap().keySet()))
 	}()
 }
 
@@ -300,13 +300,13 @@ func (this *PropertyMap_AllKeys) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.stringKeys_, o.stringKeys_) && Objects_equals(any(this.knownSymbolKeys_.asSet()), any(o.knownSymbolKeys_.asSet()))
+	return true && equals_(this.stringKeys_, o.stringKeys_) && objequalsDyn_(this.knownSymbolKeys_.asSet(), any(o.knownSymbolKeys_.asSet()))
 }
 
 func (this *PropertyMap_AllKeys) hashCode() int32 {
 	var h int32
 	h = h*31 + hash_(this.stringKeys_)
-	h = h*31 + Objects_hashCode(any(this.knownSymbolKeys_.asSet()))
+	h = h*31 + objhashDyn_(this.knownSymbolKeys_.asSet())
 	return h
 }
 

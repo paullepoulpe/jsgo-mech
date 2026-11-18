@@ -48,7 +48,7 @@ func (this *TemplateLiteralToken) toString_impl() string {
 }
 
 func (this *TemplateLiteralToken) hasError() bool {
-	return Object_equals(obj_(TemplateLiteralToken_ErrorLevel_ERROR), obj_(this.errorLevel))
+	return TemplateLiteralToken_ErrorLevel_ERROR == this.errorLevel
 }
 
 type TemplateLiteralToken_ErrorLevel uint8

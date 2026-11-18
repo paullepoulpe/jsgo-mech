@@ -80,7 +80,7 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 		case Token_rhino_HOOK:
 			var trueValue Tri = NodeUtil_getBooleanValue(n.getSecondChild())
 			var falseValue Tri = NodeUtil_getBooleanValue(n.getLastChild())
-			if Object_equals(obj_(trueValue), obj_(falseValue)) {
+			if equalsId_(trueValue, falseValue) {
 				return trueValue
 			} else {
 				return Tri_UNKNOWN
@@ -88,7 +88,7 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 		case Token_rhino_COALESCE, Token_rhino_ASSIGN_COALESCE:
 			var lhs Tri = NodeUtil_getBooleanValue(n.getFirstChild())
 			var rhs Tri = NodeUtil_getBooleanValue(n.getLastChild())
-			if Object_equals(obj_(lhs), obj_(Tri_TRUE)) || Object_equals(obj_(lhs), obj_(rhs)) {
+			if equalsId_(lhs, Tri_TRUE) || equalsId_(lhs, rhs) {
 				return lhs
 			} else {
 				return Tri_UNKNOWN

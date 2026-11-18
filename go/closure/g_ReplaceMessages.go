@@ -94,7 +94,7 @@ func (this *ReplaceMessages) lookupMessage(callNode Node, bundle MessageBundle, 
 	if alternateMessage != nil {
 		var jsCodePlaceholderNames *JTSet[string] = message.jsPlaceholderNames()
 		var alternateMsgPlaceholderNames *JTSet[string] = alternateMessage.jsPlaceholderNames()
-		if !Objects_equals(any(jsCodePlaceholderNames.asSet()), any(alternateMsgPlaceholderNames.asSet())) {
+		if !objequalsDyn_(jsCodePlaceholderNames.asSet(), any(alternateMsgPlaceholderNames.asSet())) {
 			if jsCodePlaceholderNames.isEmpty() && ReplaceMessages_isStartOfIcuMessage(message.asIcuMessageString()) {
 				return alternateMessage
 			} else {
@@ -185,7 +185,7 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 	it_1 := msg.getGenderedMessageVariants().each()
 	for it_1.next() {
 		var grammaticalGender JsMessage_GrammaticalGenderCase = it_1.v
-		if Object_equals(obj_(grammaticalGender), obj_(JsMessage_GrammaticalGenderCase_OTHER)) {
+		if equalsId_(grammaticalGender, JsMessage_GrammaticalGenderCase_OTHER) {
 			continue
 		}
 		var condition Node = this.createConditionForGrammaticalGender(type_, grammaticalGender, nodeToReplace)
@@ -697,7 +697,7 @@ func (this *ReplaceMessages_FullReplacementMsgData) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && equals_(this.message_, o.message_) && this.messageNode_ == o.messageNode_ && equals_(this.messageOptions_, o.messageOptions_) && Objects_equals(any(this.placeholderValueMap_.asMap()), any(o.placeholderValueMap_.asMap()))
+	return true && equals_(this.message_, o.message_) && this.messageNode_ == o.messageNode_ && equals_(this.messageOptions_, o.messageOptions_) && objequalsDyn_(this.placeholderValueMap_.asMap(), any(o.placeholderValueMap_.asMap()))
 }
 
 func (this *ReplaceMessages_FullReplacementMsgData) hashCode() int32 {
@@ -705,7 +705,7 @@ func (this *ReplaceMessages_FullReplacementMsgData) hashCode() int32 {
 	h = h*31 + hash_(this.message_)
 	h = h*31 + hashH_(this.messageNode_)
 	h = h*31 + hash_(this.messageOptions_)
-	h = h*31 + Objects_hashCode(any(this.placeholderValueMap_.asMap()))
+	h = h*31 + objhashDyn_(this.placeholderValueMap_.asMap())
 	return h
 }
 

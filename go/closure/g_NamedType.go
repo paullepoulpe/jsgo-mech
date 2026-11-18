@@ -55,7 +55,7 @@ func (this *NamedType) init_NamedType(builder *NamedType_Builder) {
 	if builder.templateTypes.asList() == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	if Object_equals(obj_(builder.resolutionKind), obj_(NamedType_ResolutionKind_TYPEOF)) {
+	if equalsId_(builder.resolutionKind, NamedType_ResolutionKind_TYPEOF) {
 		if !strings.HasPrefix(builder.referenceName, "typeof ") {
 			panic(new_IllegalStateException_0().self())
 		}
@@ -179,7 +179,7 @@ func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 		_ = t
 		return t.resolve(reporter).self()
 	}, sliceImm_(tc_p_JSType, this.templateTypes.asImm())))
-	if Object_equals(obj_(this.resolutionKind), obj_(NamedType_ResolutionKind_NONE)) {
+	if equalsId_(this.resolutionKind, NamedType_ResolutionKind_NONE) {
 		return this.ProxyObjectType.resolveInternal_impl(reporter)
 	}
 	if !this.getReferencedType().isUnknownType() {
@@ -226,7 +226,7 @@ func (this *NamedType) resolveViaRegistry(reporter ErrorReporter_rhino) bool {
 }
 
 func (this *NamedType) resolveTypeof(reporter ErrorReporter_rhino) bool {
-	if !Object_equals(obj_(this.resolutionKind), obj_(NamedType_ResolutionKind_TYPEOF)) {
+	if !equalsId_(this.resolutionKind, NamedType_ResolutionKind_TYPEOF) {
 		return false
 	}
 	var scopeName string = String_substring_int(this.reference, int32(len("typeof ")))

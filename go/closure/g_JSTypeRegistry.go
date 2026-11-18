@@ -1755,14 +1755,14 @@ func (this *JSTypeRegistry_ClosureNamespace) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.isLegacy_ == o.isLegacy_ && this.definitionNode_ == o.definitionNode_ && Objects_equals(this.type__.self(), o.type__.self())
+	return true && this.isLegacy_ == o.isLegacy_ && this.definitionNode_ == o.definitionNode_ && objequalsBy_(this.type__, o.type__.self(), (*JSType).equals)
 }
 
 func (this *JSTypeRegistry_ClosureNamespace) hashCode() int32 {
 	var h int32
 	h = h*31 + boolhash_(this.isLegacy_)
 	h = h*31 + hashH_(this.definitionNode_)
-	h = h*31 + Objects_hashCode(this.type__.self())
+	h = h*31 + objhashBy_(this.type__, (*JSType).hashCode)
 	return h
 }
 

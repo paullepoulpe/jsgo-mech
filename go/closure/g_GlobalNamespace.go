@@ -1125,7 +1125,7 @@ func (this *GlobalNamespace_Name) init_GlobalNamespace_Name(name string, parent 
 	this.parent = parent
 	this.setBooleanProperty(GlobalNamespace_NameProp_NOT_A_TYPE)
 	this.setBooleanProperty(GlobalNamespace_NameProp_OTHER_OBJECT)
-	if Object_equals(obj_(sourceKind), obj_(GlobalNamespace_SourceKind_EXTERN)) {
+	if equalsId_(sourceKind, GlobalNamespace_SourceKind_EXTERN) {
 		this.setBooleanProperty(GlobalNamespace_NameProp_IS_EXTERN)
 	}
 }
@@ -1335,7 +1335,7 @@ func (this *GlobalNamespace_Name) updateStateForAddedRef(ref *GlobalNamespace_Re
 			this.firstDeclarationJSDocInfo = this.getDocInfoForDeclaration(ref)
 		}
 		this.globalSets++
-		if Object_equals(obj_(ref.type__), obj_(GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL)) {
+		if equalsId_(ref.type__, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL) {
 			this.aliasingGets++
 			this.totalGets++
 		}
@@ -1350,7 +1350,7 @@ func (this *GlobalNamespace_Name) updateStateForAddedRef(ref *GlobalNamespace_Re
 		if (info != nil) && info.isNoCollapse() {
 			this.localSetsWithNoCollapse++
 		}
-		if Object_equals(obj_(ref.type__), obj_(GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL)) {
+		if equalsId_(ref.type__, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL) {
 			this.aliasingGets++
 			this.totalGets++
 		}
@@ -1454,7 +1454,7 @@ func (this *GlobalNamespace_Name) removeRefAndUpdateState(ref *GlobalNamespace_R
 		if (info != nil) && info.isNoCollapse() {
 			this.localSetsWithNoCollapse--
 		}
-		if Object_equals(obj_(ref.type__), obj_(GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL)) {
+		if equalsId_(ref.type__, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL) {
 			this.aliasingGets--
 			this.totalGets--
 		}

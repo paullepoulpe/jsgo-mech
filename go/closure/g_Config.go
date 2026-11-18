@@ -18,9 +18,15 @@ func (this *Config) init_Config(languageMode Config_LanguageMode, strictMode Con
 	Objects_requireNonNull_T(strictMode, "strictMode")
 	Objects_requireNonNull_T(jsDocParsingMode, "jsDocParsingMode")
 	Objects_requireNonNull_T(runMode, "runMode")
-	Objects_requireNonNull(any(annotations.asMap()), "annotations")
-	Objects_requireNonNull(any(suppressionNames.asSet()), "suppressionNames")
-	Objects_requireNonNull(any(closurePrimitiveNames.asSet()), "closurePrimitiveNames")
+	if annotations.asMap() == nil {
+		panic(new_NullPointerException_String("annotations").self())
+	}
+	if suppressionNames.asSet() == nil {
+		panic(new_NullPointerException_String("suppressionNames").self())
+	}
+	if closurePrimitiveNames.asSet() == nil {
+		panic(new_NullPointerException_String("closurePrimitiveNames").self())
+	}
 	this.languageMode_ = languageMode
 	this.strictMode_ = strictMode
 	this.jsDocParsingMode_ = jsDocParsingMode
@@ -103,7 +109,7 @@ func (this *Config) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.languageMode_ == o.languageMode_ && this.strictMode_ == o.strictMode_ && this.jsDocParsingMode_ == o.jsDocParsingMode_ && this.runMode_ == o.runMode_ && Objects_equals(any(this.annotations_.asMap()), any(o.annotations_.asMap())) && Objects_equals(any(this.suppressionNames_.asSet()), any(o.suppressionNames_.asSet())) && Objects_equals(any(this.closurePrimitiveNames_.asSet()), any(o.closurePrimitiveNames_.asSet())) && this.parseInlineSourceMaps_ == o.parseInlineSourceMaps_
+	return true && this.languageMode_ == o.languageMode_ && this.strictMode_ == o.strictMode_ && this.jsDocParsingMode_ == o.jsDocParsingMode_ && this.runMode_ == o.runMode_ && objequalsDyn_(this.annotations_.asMap(), any(o.annotations_.asMap())) && objequalsDyn_(this.suppressionNames_.asSet(), any(o.suppressionNames_.asSet())) && objequalsDyn_(this.closurePrimitiveNames_.asSet(), any(o.closurePrimitiveNames_.asSet())) && this.parseInlineSourceMaps_ == o.parseInlineSourceMaps_
 }
 
 func (this *Config) hashCode() int32 {
@@ -112,9 +118,9 @@ func (this *Config) hashCode() int32 {
 	h = h*31 + hash_(this.strictMode_)
 	h = h*31 + hash_(this.jsDocParsingMode_)
 	h = h*31 + hash_(this.runMode_)
-	h = h*31 + Objects_hashCode(any(this.annotations_.asMap()))
-	h = h*31 + Objects_hashCode(any(this.suppressionNames_.asSet()))
-	h = h*31 + Objects_hashCode(any(this.closurePrimitiveNames_.asSet()))
+	h = h*31 + objhashDyn_(this.annotations_.asMap())
+	h = h*31 + objhashDyn_(this.suppressionNames_.asSet())
+	h = h*31 + objhashDyn_(this.closurePrimitiveNames_.asSet())
 	h = h*31 + boolhash_(this.parseInlineSourceMaps_)
 	return h
 }
