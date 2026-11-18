@@ -214,7 +214,7 @@ func (this *RemoveUnusedCode) traverseNormalOrOptChainGetProp(getProp Node, scop
 	Preconditions_checkState_boolean_Object_H(NodeUtil_isNormalOrOptChainGetProp(getProp), getProp)
 	var objectNode Node = getProp.getFirstChild()
 	var propertyName string = getProp.getString()
-	if this.polyfills.containsKey(strobj_(propertyName)) {
+	if this.polyfills.containsKey_s(propertyName) {
 		it_1 := foreach_(any(this.polyfills.get(strobj_(propertyName))))
 		for it_1.next() {
 			var info *RemoveUnusedCode_PolyfillInfo = to_RemoveUnusedCode_PolyfillInfo(it_1.v)
@@ -307,7 +307,7 @@ func (this *RemoveUnusedCode) traverseCompoundAssign(compoundAssignNode Node, sc
 }
 
 func (this *RemoveUnusedCode) traverseNameNode(n Node, scope *Scope) RemoveUnusedCode_VarInfo {
-	if this.polyfills.containsKey(strobj_(n.getString())) {
+	if this.polyfills.containsKey_s(n.getString()) {
 		it_1 := foreach_(any(this.polyfills.get(strobj_(n.getString()))))
 		for it_1.next() {
 			var info *RemoveUnusedCode_PolyfillInfo = to_RemoveUnusedCode_PolyfillInfo(it_1.v)
