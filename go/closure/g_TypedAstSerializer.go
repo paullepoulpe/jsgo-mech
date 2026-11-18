@@ -504,7 +504,7 @@ func TypedAstSerializer_createJSTypeSerializer(compiler *AbstractCompiler, seria
 
 func (this *TypedAstSerializer) createColorTypeSerializer(compiler *AbstractCompiler, serializationMode *SerializationOptions, stringPoolBuilder *StringPool_Builder) *TypedAstSerializer_ColorTypeSerializer {
 	var usedPropertyNames ImmutableSetOf[string] = TypedAstSerializer_collectUsedPropertyNames(compiler).asImm()
-	var colorSerializer *ColorSerializer = new_ColorSerializer(serializationMode, &Function_tfn_string_any{func(p0 string) any { return any(int32(stringPoolBuilder.put(p0))) }}, &Predicate_tfn_string{func(p0 string) bool { return Collection_contains_s(usedPropertyNames, p0) }})
+	var colorSerializer *ColorSerializer = new_ColorSerializer(serializationMode, (&Function_tfn_string_any{func(p0 string) any { return any(int32(stringPoolBuilder.put(p0))) }}).apply, (&Predicate_tfn_string{func(p0 string) bool { return Collection_contains_s(usedPropertyNames, p0) }}).test)
 	return new_TypedAstSerializer_ColorTypeSerializer(colorSerializer, compiler.getColorRegistry())
 }
 
@@ -592,7 +592,7 @@ func (this *TypedAstSerializer_ColorTypeSerializer) addTypeForNode(node Node, as
 
 func (this *TypedAstSerializer_ColorTypeSerializer) generateTypePool() *TypePool {
 	var mismatchLocationsForDebugging *SimpleSetMultimap = this.colorRegistry.getMismatchLocationsForDebugging()
-	return this.colorSerializer.generateTypePool(&Function_tfn_Color_Set{func(p0 *Color) Set { return this.colorRegistry.getDisambiguationSupertypes(p0) }}, &Function_tfn_Color_Set{func(color *Color) Set {
+	return this.colorSerializer.generateTypePool((&Function_tfn_Color_Set{func(p0 *Color) Set { return this.colorRegistry.getDisambiguationSupertypes(p0) }}).apply, &Function_tfn_Color_Set{func(color *Color) Set {
 		return mismatchLocationsForDebugging.get(obj_(color.getId()))
 	}})
 }

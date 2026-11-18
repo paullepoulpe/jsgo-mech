@@ -5,7 +5,7 @@ package closure
 type RuntimeJsLibManager struct {
 	changeTracker        *ChangeTracker
 	mode_                RuntimeJsLibManager_RuntimeLibraryMode
-	resourceProvider     RuntimeJsLibManager_ResourceProvider
+	resourceProvider     func(string, string) Node
 	nodeForCodeInsertion SupplierOf[Node]
 	injectedLibs         *JTSet[string]
 	internedFields       *JTMap[string, *RuntimeJsLibManager_InternalField]
@@ -18,7 +18,7 @@ func (this *RuntimeJsLibManager) finit_RuntimeJsLibManager() {
 	this.lastInjectedLibrary = 0
 }
 
-func (this *RuntimeJsLibManager) init_RuntimeJsLibManager(changeTracker *ChangeTracker, mode RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider RuntimeJsLibManager_ResourceProvider, nodeForCodeInsertion SupplierOf[Node]) {
+func (this *RuntimeJsLibManager) init_RuntimeJsLibManager(changeTracker *ChangeTracker, mode RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider func(string, string) Node, nodeForCodeInsertion SupplierOf[Node]) {
 	this.finit_RuntimeJsLibManager()
 	this.mode_ = mode
 	this.changeTracker = changeTracker
@@ -26,13 +26,13 @@ func (this *RuntimeJsLibManager) init_RuntimeJsLibManager(changeTracker *ChangeT
 	this.nodeForCodeInsertion = nodeForCodeInsertion
 }
 
-func new_RuntimeJsLibManager(changeTracker *ChangeTracker, mode RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider RuntimeJsLibManager_ResourceProvider, nodeForCodeInsertion SupplierOf[Node]) *RuntimeJsLibManager {
+func new_RuntimeJsLibManager(changeTracker *ChangeTracker, mode RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider func(string, string) Node, nodeForCodeInsertion SupplierOf[Node]) *RuntimeJsLibManager {
 	this := &RuntimeJsLibManager{}
 	this.init_RuntimeJsLibManager(changeTracker, mode, resourceProvider, nodeForCodeInsertion)
 	return this
 }
 
-func RuntimeJsLibManager_create(mode RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider RuntimeJsLibManager_ResourceProvider, changeTracker *ChangeTracker, nodeForCodeInsertion SupplierOf[Node]) *RuntimeJsLibManager {
+func RuntimeJsLibManager_create(mode RuntimeJsLibManager_RuntimeLibraryMode, resourceProvider func(string, string) Node, changeTracker *ChangeTracker, nodeForCodeInsertion SupplierOf[Node]) *RuntimeJsLibManager {
 	return new_RuntimeJsLibManager(changeTracker, mode, resourceProvider, nodeForCodeInsertion)
 }
 
@@ -134,7 +134,7 @@ func (this *RuntimeJsLibManager) ensureLibraryInjected(resourceName string, forc
 	}
 	this.recordLibraryInjected(resourceName)
 	var path string = String_join_CharSequence_CharSequenceArr("", []any{strobj_(RuntimeJsLibManager_RUNTIME_LIB_DIR), strobj_(resourceName), ".js"})
-	var ast Node = this.resourceProvider.parse(resourceName, path)
+	var ast Node = this.resourceProvider(resourceName, path)
 	this.injectLibraryDependencies(ast, force)
 	return this.injectLibrary(ast)
 }

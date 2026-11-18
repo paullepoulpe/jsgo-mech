@@ -78,7 +78,7 @@ func (this *TranspileAndOptimizeClosureUnaware) createInjectRuntimeLibrariesPass
 	it_1 := foreach_(any(shadowAsts))
 	for it_1.next() {
 		var shadowAst *TranspileAndOptimizeClosureUnaware_ShadowAst = cast_[*TranspileAndOptimizeClosureUnaware_ShadowAst](it_1.v)
-		var closureUnawareFunction Node = NodeUtil_findPreorder(shadowAst.script(), &Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isFunction() }}, &Predicate_base_tfn_Node{func(childToVisit Node) bool {
+		var closureUnawareFunction Node = NodeUtil_findPreorder(shadowAst.script(), (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isFunction() }}).apply, &Predicate_base_tfn_Node{func(childToVisit Node) bool {
 			return true
 		}})
 		callSites.add(new_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite(shadowAst.callNode(), closureUnawareFunction))

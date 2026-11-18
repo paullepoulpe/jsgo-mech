@@ -37,15 +37,15 @@ func PolyfillUsageFinder_getPolyfillSupportedFeatureSet(nativeVersionStr string)
 	return FeatureSet_browserFeatureSetValueOf(nativeVersionStr).without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
 }
 
-func (this *PolyfillUsageFinder) traverseExcludingGuarded(root Node, polyfillConsumer ConsumerOf[*PolyfillUsageFinder_PolyfillUsage]) {
+func (this *PolyfillUsageFinder) traverseExcludingGuarded(root Node, polyfillConsumer func(any)) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_PolyfillUsageFinder_Traverser(this, this.compiler_, polyfillConsumer, PolyfillUsageFinder_Guard_ONLY_UNGUARDED)))
 }
 
-func (this *PolyfillUsageFinder) traverseIncludingGuarded(root Node, polyfillConsumer ConsumerOf[*PolyfillUsageFinder_PolyfillUsage]) {
+func (this *PolyfillUsageFinder) traverseIncludingGuarded(root Node, polyfillConsumer func(any)) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_PolyfillUsageFinder_Traverser(this, this.compiler_, polyfillConsumer, PolyfillUsageFinder_Guard_ALL)))
 }
 
-func (this *PolyfillUsageFinder) traverseOnlyGuarded(root Node, polyfillConsumer ConsumerOf[*PolyfillUsageFinder_PolyfillUsage]) {
+func (this *PolyfillUsageFinder) traverseOnlyGuarded(root Node, polyfillConsumer func(any)) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_PolyfillUsageFinder_Traverser(this, this.compiler_, polyfillConsumer, PolyfillUsageFinder_Guard_ONLY_GUARDED)))
 }
 
@@ -545,7 +545,7 @@ func PolyfillUsageFinder_Guard_clinit() {
 type PolyfillUsageFinder_Traverser struct {
 	GuardedCallback[string]
 	outer_               *PolyfillUsageFinder
-	polyfillConsumer     ConsumerOf[*PolyfillUsageFinder_PolyfillUsage]
+	polyfillConsumer     func(any)
 	includeGuardedUsages PolyfillUsageFinder_Guard
 }
 
@@ -556,13 +556,13 @@ func (this *PolyfillUsageFinder_Traverser) up_GuardedCallback() *GuardedCallback
 	return &this.GuardedCallback
 }
 
-func (this *PolyfillUsageFinder_Traverser) init_PolyfillUsageFinder_Traverser(compiler *AbstractCompiler, polyfillConsumer ConsumerOf[*PolyfillUsageFinder_PolyfillUsage], includeGuardedUsages PolyfillUsageFinder_Guard) {
+func (this *PolyfillUsageFinder_Traverser) init_PolyfillUsageFinder_Traverser(compiler *AbstractCompiler, polyfillConsumer func(any), includeGuardedUsages PolyfillUsageFinder_Guard) {
 	this.GuardedCallback.init_GuardedCallback(compiler)
 	this.polyfillConsumer = polyfillConsumer
 	this.includeGuardedUsages = includeGuardedUsages
 }
 
-func new_PolyfillUsageFinder_Traverser(outer_ *PolyfillUsageFinder, compiler *AbstractCompiler, polyfillConsumer ConsumerOf[*PolyfillUsageFinder_PolyfillUsage], includeGuardedUsages PolyfillUsageFinder_Guard) *PolyfillUsageFinder_Traverser {
+func new_PolyfillUsageFinder_Traverser(outer_ *PolyfillUsageFinder, compiler *AbstractCompiler, polyfillConsumer func(any), includeGuardedUsages PolyfillUsageFinder_Guard) *PolyfillUsageFinder_Traverser {
 	this := &PolyfillUsageFinder_Traverser{}
 	this.self_ = this
 	this.vt_GuardedCallback_ = this
@@ -588,7 +588,7 @@ func (this *PolyfillUsageFinder_Traverser) visitName(traversal *NodeTraversal, n
 		return
 	}
 	if this.outer_.isPolyfillVisibleInScope(traversal, name) && this.includeGuardedUsages.shouldInclude(this.isGuarded(name)) {
-		this.polyfillConsumer.accept(obj_(PolyfillUsageFinder_PolyfillUsage_createNonExplicit(polyfill, nameNode, name)))
+		this.polyfillConsumer(obj_(PolyfillUsageFinder_PolyfillUsage_createNonExplicit(polyfill, nameNode, name)))
 	}
 }
 
@@ -596,7 +596,7 @@ func (this *PolyfillUsageFinder_Traverser) visitGetPropChain(traversal *NodeTrav
 	var staticPolyfillUsage *PolyfillUsageFinder_PolyfillUsage = this.outer_.maybeCreateStaticPolyfillUsageForGetPropChain(traversal, getPropNode)
 	if staticPolyfillUsage != nil {
 		if this.includeGuardedUsages.shouldInclude(this.isGuarded(staticPolyfillUsage.name())) {
-			this.polyfillConsumer.accept(obj_(staticPolyfillUsage))
+			this.polyfillConsumer(obj_(staticPolyfillUsage))
 		}
 	} else {
 		var propertyName string = getPropNode.getString()
@@ -609,7 +609,7 @@ func (this *PolyfillUsageFinder_Traverser) visitGetPropChain(traversal *NodeTrav
 				if this.outer_.disambiguateProperties_ && this.outer_.isDisjointFromIterator_2(getPropNode, ownerName) {
 					continue
 				}
-				this.polyfillConsumer.accept(obj_(PolyfillUsageFinder_PolyfillUsage_createNonExplicit(polyfill, getPropNode, propertyName)))
+				this.polyfillConsumer(obj_(PolyfillUsageFinder_PolyfillUsage_createNonExplicit(polyfill, getPropNode, propertyName)))
 			}
 		}
 	}

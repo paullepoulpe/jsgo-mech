@@ -62,7 +62,7 @@ func (this *IsolatePolyfills) process_2(externs Node, root Node) {
 	var injectedPolyfills *JTSet[string] = this.findAllInjectedPolyfills()
 	var polyfillUsages []*PolyfillUsageFinder_PolyfillUsage = []*PolyfillUsageFinder_PolyfillUsage{}
 	var shouldDisambiguateProperties bool = this.compiler_.getOptions().shouldDisambiguateProperties()
-	new_PolyfillUsageFinder(this.compiler_, this.polyfills, shouldDisambiguateProperties).traverseIncludingGuarded(root, &Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { polyfillUsages = append(polyfillUsages, p0) }})
+	new_PolyfillUsageFinder(this.compiler_, this.polyfills, shouldDisambiguateProperties).traverseIncludingGuarded(root, (&Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { polyfillUsages = append(polyfillUsages, p0) }}).accept)
 	var visitedNodes *JTSet[Node] = jnewTSet_(jtc_Node)
 	it_1 := eachOf_(&polyfillUsages)
 	for it_1.next() {

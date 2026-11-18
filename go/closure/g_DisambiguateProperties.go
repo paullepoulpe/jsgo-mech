@@ -29,13 +29,13 @@ func new_DisambiguateProperties(compiler *AbstractCompiler, propertiesThatMustDi
 func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	Preconditions_checkArgument((externs.getParent() == root.getParent()))
 	var flattener *ColorGraphNodeFactory = ColorGraphNodeFactory_createFactory(this.registry)
-	var findRefs *ColorFindPropertyReferences = new_ColorFindPropertyReferences(flattener, func() *ColorFindPropertyReferences_IsPropertyReflector_fn {
+	var findRefs *ColorFindPropertyReferences = new_ColorFindPropertyReferences(flattener, func() func(Node) bool {
 		recv_1 := this.compiler_.getCodingConvention()
-		return &ColorFindPropertyReferences_IsPropertyReflector_fn{func(p0 Node) bool { return recv_1.isPropertyRenameFunction(p0) }}
+		return func(p0 Node) bool { return recv_1.isPropertyRenameFunction(p0) }
 	}())
-	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(flattener, &LowestCommonAncestorFinder_Factory_fn[*ColorGraphNode, any]{func(p0 *DiGraph[*ColorGraphNode]) *LowestCommonAncestorFinder[*ColorGraphNode, any] {
+	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(flattener, (&LowestCommonAncestorFinder_Factory_fn[*ColorGraphNode, any]{func(p0 *DiGraph[*ColorGraphNode]) *LowestCommonAncestorFinder[*ColorGraphNode, any] {
 		return new_LowestCommonAncestorFinder[*ColorGraphNode, any](p0)
-	}}, this.registry)
+	}}).create, this.registry)
 	var propagator *ClusterPropagator = new_ClusterPropagator()
 	var renamer *UseSiteRenamer = new_UseSiteRenamer(func() *Consumer_tfn_Node {
 		recv_2 := this.compiler_
@@ -88,7 +88,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 			this.compiler_.report(this.createInvalidationError(prop))
 		}
 	}
-	this.compiler_.reportDisambiguatePropertiesSummary(&Supplier_tfn_string{func() string { return trackerSummaryGenerator.buildSummaryString() }})
+	this.compiler_.reportDisambiguatePropertiesSummary((&Supplier_tfn_string{func() string { return trackerSummaryGenerator.buildSummaryString() }}).get)
 	this.logForDiagnostics("renaming_index", &Supplier_base_fn{func() any {
 		return obj_(DisambiguateProperties_buildRenamingIndex(propIndex, renamer))
 	}})

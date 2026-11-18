@@ -94,7 +94,7 @@ func (this *TemplateTypeReplacer) caseNoObjectType() any {
 }
 
 func (this *TemplateTypeReplacer) caseFunctionType(type_ *FunctionType) any {
-	return this.guardAgainstCycles(type_.up_JSType(), &Function_fn{func(p0 any) any { return this.caseFunctionTypeUnguarded(to_FunctionType(p0)).self() }}).self()
+	return this.guardAgainstCycles(type_.up_JSType(), func(p0 any) any { return this.caseFunctionTypeUnguarded(to_FunctionType(p0)).self() }).self()
 }
 
 func (this *TemplateTypeReplacer) caseFunctionTypeUnguarded(type_ *FunctionType) *JSType {
@@ -162,7 +162,7 @@ func (this *TemplateTypeReplacer) coerseToThisType(type_ *JSType) *JSType {
 }
 
 func (this *TemplateTypeReplacer) caseObjectType(objType *ObjectType) any {
-	return this.guardAgainstCycles(objType.up_JSType(), &Function_fn{func(p0 any) any { return this.caseObjectTypeUnguarded(to_ObjectType(p0)).self() }}).self()
+	return this.guardAgainstCycles(objType.up_JSType(), func(p0 any) any { return this.caseObjectTypeUnguarded(to_ObjectType(p0)).self() }).self()
 }
 
 func (this *TemplateTypeReplacer) caseObjectTypeUnguarded(objType *ObjectType) *JSType {
@@ -197,7 +197,7 @@ func (this *TemplateTypeReplacer) caseObjectTypeUnguarded(objType *ObjectType) *
 }
 
 func (this *TemplateTypeReplacer) caseTemplatizedType(type_ *TemplatizedType) any {
-	return this.guardAgainstCycles(type_.up_JSType(), &Function_tfn_TemplatizedType_any{func(p0 *TemplatizedType) any { return this.caseTemplatizedTypeUnguarded(p0).self() }}).self()
+	return this.guardAgainstCycles(type_.up_JSType(), (&Function_tfn_TemplatizedType_any{func(p0 *TemplatizedType) any { return this.caseTemplatizedTypeUnguarded(p0).self() }}).apply).self()
 }
 
 func (this *TemplateTypeReplacer) caseTemplatizedTypeUnguarded(type_ *TemplatizedType) *JSType {
@@ -252,7 +252,7 @@ func (this *TemplateTypeReplacer) caseVoidType() any {
 }
 
 func (this *TemplateTypeReplacer) caseUnionType(type_ *UnionType) any {
-	return this.guardAgainstCycles(type_.up_JSType(), &Function_tfn_UnionType_any{func(p0 *UnionType) any { return this.caseUnionTypeUnguarded(p0).self() }}).self()
+	return this.guardAgainstCycles(type_.up_JSType(), (&Function_tfn_UnionType_any{func(p0 *UnionType) any { return this.caseUnionTypeUnguarded(p0).self() }}).apply).self()
 }
 
 func (this *TemplateTypeReplacer) caseUnionTypeUnguarded(type_ *UnionType) *JSType {
@@ -321,7 +321,7 @@ func (this *TemplateTypeReplacer) caseNamedType(type_ *NamedType) any {
 }
 
 func (this *TemplateTypeReplacer) caseProxyObjectType(type_ *ProxyObjectType) any {
-	return this.guardAgainstCycles(type_.up_JSType(), &Function_fn{func(p0 any) any { return this.caseProxyObjectTypeUnguarded(to_ProxyObjectType(p0)).self() }}).self()
+	return this.guardAgainstCycles(type_.up_JSType(), func(p0 any) any { return this.caseProxyObjectTypeUnguarded(to_ProxyObjectType(p0)).self() }).self()
 }
 
 func (this *TemplateTypeReplacer) caseProxyObjectTypeUnguarded(type_ *ProxyObjectType) *JSType {
@@ -338,7 +338,7 @@ func (this *TemplateTypeReplacer) setKeyType(keyType *TemplateType, ownSubMapBou
 	this.ownSubMapBoundary = ownSubMapBoundary
 }
 
-func (this *TemplateTypeReplacer) guardAgainstCycles(type_ *JSType, mapper FunctionOf[any, *JSType]) *JSType {
+func (this *TemplateTypeReplacer) guardAgainstCycles(type_ *JSType, mapper func(any) any) *JSType {
 	this.initSeenTypes()
 	if !this.seenTypes.add(type_.self()) {
 		return type_
@@ -348,7 +348,7 @@ func (this *TemplateTypeReplacer) guardAgainstCycles(type_ *JSType, mapper Funct
 		defer func() {
 			this.seenTypes.remove_Object(type_.self())
 		}()
-		ret_1 = to_JSType(mapper.apply(type_.self()))
+		ret_1 = to_JSType(mapper(type_.self()))
 		return 1
 		return 0
 	}()

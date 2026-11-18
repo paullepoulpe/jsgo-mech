@@ -97,7 +97,7 @@ func (this *Denormalize) maybeCollapseIntoForStatements(n Node, parent Node) {
 			}
 		}
 	} else if nextSibling.isVanillaFor() && nextSibling.getFirstChild().isEmpty() {
-		if NodeUtil_has(n, &Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isIn() }}, Predicates_alwaysTrue()) {
+		if NodeUtil_has(n, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isIn() }}).apply, Predicates_alwaysTrue()) {
 			return
 		}
 		var forNode Node = nextSibling

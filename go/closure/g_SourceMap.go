@@ -6,7 +6,7 @@ type SourceMap struct {
 	generator                SourceMapGenerator
 	prefixMappings           *JTList[SourceMap_LocationMapping]
 	sourceLocationFixupCache *JTMap[string, string]
-	mapping                  SourceFileMapping
+	mapping                  func(Optional[string], int32, int32) *Mapping_OriginalMapping
 }
 
 func (this *SourceMap) finit_SourceMap() {
@@ -41,7 +41,7 @@ func (this *SourceMap) addMapping_3(node Node, outputStartPosition *FilePosition
 		return !String_isEmpty(s)
 	}})
 	if this.mapping != nil {
-		var sourceMapping *Mapping_OriginalMapping = this.mapping.getSourceMapping_Optional_int_int(sourceFileName, lineNo, charNo)
+		var sourceMapping *Mapping_OriginalMapping = this.mapping(sourceFileName, lineNo, charNo)
 		if sourceMapping == nil {
 		} else if equalsBy_(sourceMapping, obj_(Mapping_OriginalMapping_getDefaultInstance()), (*Mapping_OriginalMapping).equals) {
 			return
@@ -133,13 +133,13 @@ func (this *SourceMap) setPrefixMappings(sourceMapLocationMappings *JTList[Sourc
 	this.prefixMappings = sourceMapLocationMappings
 }
 
-func (this *SourceMap) setSourceFileMapping(mapping SourceFileMapping) {
+func (this *SourceMap) setSourceFileMapping(mapping func(Optional[string], int32, int32) *Mapping_OriginalMapping) {
 	this.mapping = mapping
 }
 
 type SourceMap_Format struct {
 	Enum
-	selfI_ SourceMap_Format_I
+	selfI_ func() *SourceMap
 }
 
 // SourceMap_Format_I holds the methods the dispatchers of enum SourceMap_Format call on its
@@ -186,7 +186,7 @@ func (this *SourceMap_Format) init_SourceMap_Format(name_ string, ordinal_ int32
 }
 
 func (this *SourceMap_Format) getInstance() *SourceMap {
-	return this.selfI_.getInstance_impl()
+	return this.selfI_()
 }
 
 func SourceMap_Format_values() []*SourceMap_Format {
@@ -222,7 +222,7 @@ func SourceMap_Format_clinit() {
 
 type SourceMap_DetailLevel struct {
 	Enum
-	selfI_ SourceMap_DetailLevel_I
+	selfI_ func(any) bool
 }
 
 // SourceMap_DetailLevel_I holds the methods the dispatchers of enum SourceMap_DetailLevel call on its
@@ -269,7 +269,7 @@ func (this *SourceMap_DetailLevel) init_SourceMap_DetailLevel(name_ string, ordi
 }
 
 func (this *SourceMap_DetailLevel) apply(p0 any) bool {
-	return this.selfI_.apply_impl(p0)
+	return this.selfI_(p0)
 }
 
 func (this *SourceMap_DetailLevel) test(p0 any) bool {
@@ -419,7 +419,7 @@ func (this *SourceMap_Format_1) init_SourceMap_Format_1(name_ string, ordinal_ i
 func new_SourceMap_Format_1(name_ string, ordinal_ int32) *SourceMap_Format_1 {
 	this := &SourceMap_Format_1{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.getInstance_impl
 	this.init_SourceMap_Format_1(name_, ordinal_)
 	return this
 }
@@ -480,7 +480,7 @@ func (this *SourceMap_Format_2) init_SourceMap_Format_2(name_ string, ordinal_ i
 func new_SourceMap_Format_2(name_ string, ordinal_ int32) *SourceMap_Format_2 {
 	this := &SourceMap_Format_2{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.getInstance_impl
 	this.init_SourceMap_Format_2(name_, ordinal_)
 	return this
 }
@@ -541,7 +541,7 @@ func (this *SourceMap_DetailLevel_1) init_SourceMap_DetailLevel_1(name_ string, 
 func new_SourceMap_DetailLevel_1(name_ string, ordinal_ int32) *SourceMap_DetailLevel_1 {
 	this := &SourceMap_DetailLevel_1{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.apply_impl
 	this.init_SourceMap_DetailLevel_1(name_, ordinal_)
 	return this
 }
@@ -604,7 +604,7 @@ func (this *SourceMap_DetailLevel_2) init_SourceMap_DetailLevel_2(name_ string, 
 func new_SourceMap_DetailLevel_2(name_ string, ordinal_ int32) *SourceMap_DetailLevel_2 {
 	this := &SourceMap_DetailLevel_2{}
 	this.self_ = this
-	this.selfI_ = this
+	this.selfI_ = this.apply_impl
 	this.init_SourceMap_DetailLevel_2(name_, ordinal_)
 	return this
 }
@@ -647,7 +647,7 @@ func (this *SourceMap_Format_1) getInstance() *SourceMap {
 	if this.self_ == any(this) {
 		return this.getInstance_impl()
 	}
-	return this.selfI_.getInstance_impl()
+	return this.selfI_()
 }
 
 // getInstance: an object that is exactly a SourceMap_Format_2 calls its getInstance_impl directly (post-flip); others dispatch.
@@ -655,7 +655,7 @@ func (this *SourceMap_Format_2) getInstance() *SourceMap {
 	if this.self_ == any(this) {
 		return this.getInstance_impl()
 	}
-	return this.selfI_.getInstance_impl()
+	return this.selfI_()
 }
 
 // apply: an object that is exactly a SourceMap_DetailLevel_1 calls its apply_impl directly (post-flip); others dispatch.
@@ -663,7 +663,7 @@ func (this *SourceMap_DetailLevel_1) apply(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.apply_impl(p0)
 	}
-	return this.selfI_.apply_impl(p0)
+	return this.selfI_(p0)
 }
 
 // apply: an object that is exactly a SourceMap_DetailLevel_2 calls its apply_impl directly (post-flip); others dispatch.
@@ -671,5 +671,5 @@ func (this *SourceMap_DetailLevel_2) apply(p0 any) bool {
 	if this.self_ == any(this) {
 		return this.apply_impl(p0)
 	}
-	return this.selfI_.apply_impl(p0)
+	return this.selfI_(p0)
 }

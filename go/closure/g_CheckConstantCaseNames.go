@@ -51,11 +51,11 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 		if (info != nil) && info.hasConstAnnotation() {
 			break
 		}
-		NodeUtil_visitLhsNodesInNode(n, &Consumer_tfn_Node{func(name Node) {
+		NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(name Node) {
 			if this.convention.isConstant(name.getString()) {
 				this.invalidNamesPerModule.put(name.getString(), name)
 			}
-		}})
+		}}).accept)
 	case tokOrd1_NAME:
 		if !this.invalidNamesPerModule.containsKey(n.getString()) {
 			return

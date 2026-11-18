@@ -127,7 +127,7 @@ func (this *SourceMapGeneratorV3) mergeMapSection(line int32, column int32, mapS
 	return Outcome_base_ok_0()
 }
 
-func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, mapSectionContents string, mergeAction SourceMapGeneratorV3_ExtensionMergeAction) *Outcome_base[any] {
+func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, mapSectionContents string, mergeAction func(string, any, any) any) *Outcome_base[any] {
 	this.setStartingPosition(line, column)
 	var section *SourceMapConsumerV3 = new_SourceMapConsumerV3()
 	var parsed *Outcome_base[any] = section.parse(mapSectionContents)
@@ -140,7 +140,7 @@ func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, ma
 		var entry *TEntry[string, any] = it_1.entry()
 		var extensionKey string = entry.getKey()
 		if this.extensions.containsKey(extensionKey) {
-			this.extensions.put(extensionKey, mergeAction.merge(extensionKey, this.extensions.get(extensionKey), entry.getValue()))
+			this.extensions.put(extensionKey, mergeAction(extensionKey, this.extensions.get(extensionKey), entry.getValue()))
 		} else {
 			this.extensions.put(extensionKey, entry.getValue())
 		}

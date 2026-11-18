@@ -392,7 +392,7 @@ func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles *JTSet[*So
 	this.maybeSetTracker()
 	this.setLifeCycleStage(AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC)
 	var deserializeTypes bool = options.requiresTypesForOptimization()
-	var astData *TypedAstDeserializer_DeserializedAst = cast_[*TypedAstDeserializer_DeserializedAst](this.runInCompilerThread(&Callable_tfn_TypedAstDeserializer_DeserializedAst{func() *TypedAstDeserializer_DeserializedAst {
+	var astData *TypedAstDeserializer_DeserializedAst = cast_[*TypedAstDeserializer_DeserializedAst](this.runInCompilerThread((&Callable_tfn_TypedAstDeserializer_DeserializedAst{func() *TypedAstDeserializer_DeserializedAst {
 		var tracer *Tracer = this.newTracer("deserializeTypedAst")
 		var ret_1 *TypedAstDeserializer_DeserializedAst
 		code_1 := func() (code_ int) {
@@ -407,7 +407,7 @@ func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles *JTSet[*So
 			return ret_1
 		}
 		panic("unreachable")
-	}}))
+	}}).call))
 	this.typedAstFilesystem = astData.getFilesystem()
 	this.externProperties = astData.getExternProperties()
 	this.colorRegistry = cast_[*ColorRegistry](astData.getColorRegistry().orNull())
@@ -418,11 +418,11 @@ func (this *Compiler) mergeAndDeserializeTypedAsts(requiredInputFiles *JTSet[*So
 		this.runtimeJsLibManager.ensureLibraryInjected(library, false)
 	}
 	this.getSynthesizedExternsInput()
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		this.parseForCompilationInternal()
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional_baseOf[*ColorPool_Builder]) {
@@ -487,7 +487,7 @@ func (this *Compiler) initChunks(externs ListOf[*SourceFile_jscomp], chunks List
 		chunkGraphLog.logString(DotFormatter_toDot_GraphvizGraph(icast_GraphvizGraph(this.chunkGraph.toGraphvizGraph().self())))
 		return 0
 	}()
-	this.runtimeJsLibManager = RuntimeJsLibManager_create(options.getRuntimeLibraryMode(), &RuntimeJsLibManager_ResourceProvider_fn{func(p0 string, p1 string) Node { return this.loadResourceContents(p0, p1) }}, this.changeTracker, func() Supplier {
+	this.runtimeJsLibManager = RuntimeJsLibManager_create(options.getRuntimeLibraryMode(), func(p0 string, p1 string) Node { return this.loadResourceContents(p0, p1) }, this.changeTracker, func() Supplier {
 		if options.getRuntimeLibraryMode() == RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
 			return &Supplier_tfn_Node{func() Node { return this.getSynthesizedExternsRoot() }}
 		}
@@ -505,7 +505,7 @@ func (this *Compiler) initBasedOnOptions() {
 		this.sourceMap_ = this.options_.getSourceMapFormat().getInstance()
 		this.sourceMap_.setPrefixMappings(this.options_.getSourceMapLocationMappings())
 		if this.options_.getApplyInputSourceMaps() {
-			this.sourceMap_.setSourceFileMapping(icast_SourceFileMapping(obj_(this)))
+			this.sourceMap_.setSourceFileMapping(this.getSourceMapping_Optional_int_int)
 			if this.options_.getSourceMapIncludeSourcesContent() {
 				it_1 := foreach_(obj_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(ConcurrentHashMap_as_Map(this.inputSourceMaps)).values())))
 				for it_1.next() {
@@ -643,11 +643,11 @@ func (this *Compiler) stage1Passes() {
 	Preconditions_checkState_boolean_Object((this.chunkGraph != nil), "No inputs. Did you call init() or initChunks()?")
 	Preconditions_checkState(!this.hasErrors())
 	Preconditions_checkState(!this.options_.getInstrumentForCoverageOnly())
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		this.performChecks()
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) stage2Passes(segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun) {
@@ -667,13 +667,13 @@ func (this *Compiler) stage2Passes(segmentOfCompilationToRun CompilerOptions_Seg
 			}
 		}
 	}
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		if this.options_.shouldOptimize() {
 			this.performTranspilationAndOptimizations(segmentOfCompilationToRun)
 		}
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) stage3Passes() {
@@ -682,13 +682,13 @@ func (this *Compiler) stage3Passes() {
 		Preconditions_checkState_boolean_String_Object(false, "Cannot run stage3Passes with errors present: %s", any(a1_))
 	}
 	Preconditions_checkState(!this.options_.getInstrumentForCoverageOnly())
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		if this.options_.shouldOptimize() {
 			this.performFinalizations()
 		}
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) disableThreads() {
@@ -699,7 +699,7 @@ func (this *Compiler) setTimeout(timeout int32) {
 	this.compilerExecutor.setTimeout(timeout)
 }
 
-func (this *Compiler) runInCompilerThread(callable CallableOf[any]) any {
+func (this *Compiler) runInCompilerThread(callable func() any) any {
 	return this.compilerExecutor.runInCompilerThread(callable, ((this.options_ != nil) && this.options_.getTracerMode().isOn()))
 }
 
@@ -715,11 +715,11 @@ func (this *Compiler) performChecks() {
 }
 
 func (this *Compiler) performPostCompilationTasks() {
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		this.performPostCompilationTasksInternal()
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) performPostCompilationTasksInternal() {
@@ -764,7 +764,7 @@ func (this *Compiler) performPostCompilationTasksInternal() {
 func (this *Compiler) instrumentForCoverage() {
 	Preconditions_checkState_boolean_Object((this.chunkGraph != nil), "No inputs. Did you call init() or initChunks()?")
 	Preconditions_checkState(!this.hasErrors())
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		Preconditions_checkState(this.options_.getInstrumentForCoverageOnly())
 		Preconditions_checkState(!this.hasErrors())
 		if this.options_.getInstrumentForCoverageOption() != CompilerOptions_InstrumentOption_NONE {
@@ -772,7 +772,7 @@ func (this *Compiler) instrumentForCoverage() {
 		}
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) instrumentForCoverageInternal(instrumentForCoverageOption CompilerOptions_InstrumentOption) {
@@ -783,11 +783,11 @@ func (this *Compiler) instrumentForCoverageInternal(instrumentForCoverageOption 
 
 func (this *Compiler) parseForCompilation() {
 	Preconditions_checkState_boolean_Object((this.typedAstFilesystem == nil), "Unnecessary if initWithTypedAstFilesystem was called")
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		this.parseForCompilationInternal()
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) parseForCompilationInternal() {
@@ -1141,7 +1141,7 @@ func (this *Compiler) getCurrentJsSource() string {
 		it_16 := statements.each()
 		for it_16.next() {
 			var statement Node = it_16.v
-			if !NodeUtil_has(statement, &Predicate_base_tfn_Node{func(n Node) bool {
+			if !NodeUtil_has(statement, (&Predicate_base_tfn_Node{func(n Node) bool {
 				Preconditions_checkNotNull_T(n)
 				if !n.isQualifiedName() {
 					return false
@@ -1158,7 +1158,7 @@ func (this *Compiler) getCurrentJsSource() string {
 					return false
 				}
 				panic("unreachable")
-			}}, &Predicate_base_tfn_Node{func(node Node) bool {
+			}}).apply, &Predicate_base_tfn_Node{func(node Node) bool {
 				return true
 			}}) {
 				continue
@@ -1437,9 +1437,9 @@ func (this *Compiler) getTypeMismatches_impl() IterableOf[*TypeMismatch] {
 func (this *Compiler) getTranspilationNamespace_impl() StaticScope {
 	if this.transpilationNamespace == nil {
 		var gn *GlobalNamespace = new_GlobalNamespace_AbstractCompiler_Node_Node(this.up_AbstractCompiler(), this.getExternsRoot(), this.getJsRoot())
-		gn.setShouldTraverseScriptPredicate(&Predicate_tfn_Node{func(script Node) bool {
+		gn.setShouldTraverseScriptPredicate((&Predicate_tfn_Node{func(script Node) bool {
 			return (script.isFromExterns() || script.isFirstChildOf(this.getJsRoot()))
-		}})
+		}}).test)
 		gn.getNameForest()
 		this.transpilationNamespace = GlobalNamespace_as_StaticScope(gn)
 	}
@@ -1604,7 +1604,7 @@ func (this *Compiler) setPreferRegexParser(preferRegexParser bool) {
 }
 
 func (this *Compiler) orderInputsWithLargeStack() {
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		var tracer *Tracer = this.newTracer("orderInputsWithLargeStack")
 		_ = func() (code_ int) {
 			defer func() {
@@ -1615,7 +1615,7 @@ func (this *Compiler) orderInputsWithLargeStack() {
 		}()
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) orderInputs() {
@@ -1903,7 +1903,7 @@ func (this *Compiler) getDefaultErrorReporter_impl() ErrorReporter_rhino {
 }
 
 func (this *Compiler) toSource_impl() string {
-	return str_(this.runInCompilerThread(&Callable_tfn_string{func() string {
+	return str_(this.runInCompilerThread((&Callable_tfn_string{func() string {
 		var tracer *Tracer = this.newTracer("toSource")
 		var ret_1 string
 		code_1 := func() (code_ int) {
@@ -1939,7 +1939,7 @@ func (this *Compiler) toSource_impl() string {
 			return ret_1
 		}
 		panic("unreachable")
-	}}))
+	}}).call))
 }
 
 func (this *Compiler) toSourceJSChunk(chunk *JSChunk) string {
@@ -1947,7 +1947,7 @@ func (this *Compiler) toSourceJSChunk(chunk *JSChunk) string {
 }
 
 func (this *Compiler) toSource_2(licenseTracker CodePrinter_LicenseTracker, chunk *JSChunk) string {
-	return str_(this.runInCompilerThread(&Callable_tfn_string{func() string {
+	return str_(this.runInCompilerThread((&Callable_tfn_string{func() string {
 		var inputs *JTList[*CompilerInput] = jtlistImm_(jtc_p_CompilerInput, chunk.getInputs())
 		var chunkExterns SetOf[*CompilerInput] = func() Set {
 			if this.options_.shouldPrintExterns() {
@@ -1983,11 +1983,11 @@ func (this *Compiler) toSource_2(licenseTracker CodePrinter_LicenseTracker, chun
 		}
 		return cb.toString()
 		panic("unreachable")
-	}}))
+	}}).call))
 }
 
 func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePrinter_LicenseTracker, inputSeqNum int32, root Node) {
-	this.runInCompilerThread(&Callable_fn{func() any {
+	this.runInCompilerThread(func() any {
 		if this.options_.shouldPrintInputDelimiter() {
 			if (cb.getLength() > 0) && !cb.endsWith("\n") {
 				cb.append("\n")
@@ -2036,7 +2036,7 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 		}
 		return nil
 		panic("unreachable")
-	}})
+	})
 }
 
 func (this *Compiler) toSource_1_impl(n Node) string {
@@ -2079,7 +2079,7 @@ func Compiler_getLicenseForFile(compiler *AbstractCompiler, fileName Optional[st
 }
 
 func (this *Compiler) toSourceArray(licenseTracker CodePrinter_LicenseTracker, chunk *JSChunk) []string {
-	return cast_[[]string](this.runInCompilerThread(&Callable_tfn_s_string{func() []string {
+	return cast_[[]string](this.runInCompilerThread((&Callable_tfn_s_string{func() []string {
 		var inputs *JTList[*CompilerInput] = jtlistImm_(jtc_p_CompilerInput, chunk.getInputs())
 		var numInputs int32 = inputs.size()
 		if numInputs == 0 {
@@ -2098,7 +2098,7 @@ func (this *Compiler) toSourceArray(licenseTracker CodePrinter_LicenseTracker, c
 		}
 		return sources
 		panic("unreachable")
-	}}))
+	}}).call))
 }
 
 func (this *Compiler) performTranspilationAndOptimizations(segmentOfCompilationToRun CompilerOptions_SegmentOfCompilationToRun) {
@@ -2219,9 +2219,9 @@ func (this *Compiler) reportFunctionDeleted_impl(n Node) {
 	this.changeTracker.reportFunctionDeleted(n)
 }
 
-func (this *Compiler) reportDisambiguatePropertiesSummary_impl(summarySupplier SupplierOf[string]) {
+func (this *Compiler) reportDisambiguatePropertiesSummary_impl(summarySupplier func() any) {
 	if this.tracker != nil {
-		this.tracker.setDisambiguatePropertiesSummary(str_(summarySupplier.get()))
+		this.tracker.setDisambiguatePropertiesSummary(str_(summarySupplier()))
 	}
 }
 
@@ -3066,13 +3066,13 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 }
 
 func (this *Compiler) saveState() []int8 {
-	return cast_[[]int8](this.runInCompilerThread(&Callable_tfn_s_int8{func() []int8 {
+	return cast_[[]int8](this.runInCompilerThread((&Callable_tfn_s_int8{func() []int8 {
 		var tracer *Tracer = this.newTracer("serializeCompilerState")
 		var stateProto *JSCompilerStateProto = cast_[*JSCompilerStateProto](this.getCompilerStateProtoBuilder().build())
 		this.stopTracer(tracer, "serializeCompilerState")
 		tracer = this.newTracer("serializeTypedAst")
 		var typedAstList ListOf[[]int8] = icast_List(new_ArrayList_0().self())
-		SerializeTypedAstPass_createFromConsumer(this.up_AbstractCompiler(), &Consumer_tfn_s_int8{func(p0 []int8) { typedAstList.add(any(p0)) }}, SerializationOptions_builder().setRuntimeLibraries(jtlistEmptyImm_(jtc_string)).setIncludeDebugInfo(this.getOptions().shouldSerializeExtraDebugInfo()).build()).process_2(this.externsRoot, this.jsRoot)
+		SerializeTypedAstPass_createFromConsumer(this.up_AbstractCompiler(), (&Consumer_tfn_s_int8{func(p0 []int8) { typedAstList.add(any(p0)) }}).accept, SerializationOptions_builder().setRuntimeLibraries(jtlistEmptyImm_(jtc_string)).setIncludeDebugInfo(this.getOptions().shouldSerializeExtraDebugInfo()).build()).process_2(this.externsRoot, this.jsRoot)
 		this.stopTracer(tracer, "serializeTypedAst")
 		var typedAsts []int8 = cast_[[]int8](Iterables_getOnlyElement(Iterable(typedAstList)))
 		var stateSize int32 = stateProto.getSerializedSize()
@@ -3088,13 +3088,13 @@ func (this *Compiler) saveState() []int8 {
 		}
 		return Io_gzip(uncompressed)
 		panic("unreachable")
-	}}))
+	}}).call))
 }
 
 func (this *Compiler) restoreState(state []int8) *Outcome_base[any] {
 	this.initWarningsGuard(this.options_.getWarningsGuard())
 	this.maybeSetTracker()
-	var restored *Outcome_base[any] = cast_[*Outcome_base[any]](this.runInCompilerThread(&Callable_tfn_Outcome_base_any_{func() *Outcome_base[any] {
+	var restored *Outcome_base[any] = cast_[*Outcome_base[any]](this.runInCompilerThread((&Callable_tfn_Outcome_base_any_{func() *Outcome_base[any] {
 		var tracer *Tracer = this.newTracer(PassNames_DESERIALIZE_COMPILER_STATE)
 		Compiler_logger.fine("Deserializing the CompilerState")
 		var ret_1 *Outcome_base[any]
@@ -3124,7 +3124,7 @@ func (this *Compiler) restoreState(state []int8) *Outcome_base[any] {
 			return ret_1
 		}
 		panic("unreachable")
-	}}))
+	}}).call))
 	if restored.isErr() {
 		return Outcome_base_err[any](restored.error())
 	}
@@ -4327,7 +4327,7 @@ func (this *Compiler) reportFunctionDeleted(p0 Node) {
 }
 
 // reportDisambiguatePropertiesSummary: an object that is exactly a Compiler calls its reportDisambiguatePropertiesSummary_impl directly (post-flip); others dispatch.
-func (this *Compiler) reportDisambiguatePropertiesSummary(p0 Supplier) {
+func (this *Compiler) reportDisambiguatePropertiesSummary(p0 func() any) {
 	if this.self_ == any(this) {
 		this.reportDisambiguatePropertiesSummary_impl(p0)
 		return

@@ -144,9 +144,9 @@ func (this *SyntacticScopeCreator_ScopeScanner) declareLHS(s *Scope, n Node) {
 	if n.hasOneChild() && n.getFirstChild().isName() {
 		this.declareVar(s, n.getFirstChild())
 	} else {
-		NodeUtil_visitLhsNodesInNode(n, &Consumer_tfn_Node{func(lhs Node) {
+		NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(lhs Node) {
 			this.declareVar(s, lhs)
-		}})
+		}}).accept)
 	}
 }
 

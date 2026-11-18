@@ -249,9 +249,9 @@ func (this *Normalize_NormalizeStatements) splitExportDeclaration(n Node) {
 			c.insertBefore(n)
 			this.addNameNodeToExportSpecs(exportSpecs, name)
 		} else {
-			NodeUtil_visitLhsNodesInNode(c, &Consumer_tfn_Node{func(name Node) {
+			NodeUtil_visitLhsNodesInNode(c, (&Consumer_tfn_Node{func(name Node) {
 				this.addNameNodeToExportSpecs(exportSpecs, name)
-			}})
+			}}).accept)
 			{
 				var child Node = c.getFirstChild()
 				for child != 0 {
@@ -333,7 +333,7 @@ func (this *Normalize_NormalizeStatements) isVarDestructuringDeclaration(n Node)
 func (this *Normalize_NormalizeStatements) rewriteVarDestructuringDeclaration(destructuringLhs Node) {
 	Preconditions_checkState_boolean_Object(!destructuringLhs.getGrandparent().isExport(), "Export destructuring declarations should be already handled in `splitExportDeclaration` during pre-order traversal.")
 	var var_ Node = destructuringLhs.getParent()
-	NodeUtil_visitLhsNodesInNode(destructuringLhs, &Consumer_tfn_Node{func(name Node) {
+	NodeUtil_visitLhsNodesInNode(destructuringLhs, (&Consumer_tfn_Node{func(name Node) {
 		if !name.isName() {
 			Preconditions_checkState_boolean_String_Object_H(false, "lhs in destructuring declaration should be a simple name. (%s)", name)
 		}
@@ -343,7 +343,7 @@ func (this *Normalize_NormalizeStatements) rewriteVarDestructuringDeclaration(de
 		}
 		var newVar Node = IR_var_Node(newName).srcref(name)
 		newVar.insertBefore(var_)
-	}})
+	}}).accept)
 	var destructuringPattern Node = destructuringLhs.removeFirstChild()
 	Preconditions_checkState_boolean_Object(destructuringPattern.isDestructuringPattern(), "Expected destructuring pattern.")
 	var rhs Node = destructuringLhs.removeFirstChild()
@@ -399,14 +399,14 @@ func (this *Normalize_NormalizeStatements) extractForInitializer(n Node, before 
 				if first.isVar() {
 					var lhs Node = first.getFirstChild()
 					if lhs.isDestructuringLhs() {
-						NodeUtil_visitLhsNodesInNode(lhs, &Consumer_tfn_Node{func(name Node) {
+						NodeUtil_visitLhsNodesInNode(lhs, (&Consumer_tfn_Node{func(name Node) {
 							if !name.isName() {
 								Preconditions_checkState_boolean_String_Object_H(false, "lhs in destructuring declaration should be a simple name. (%s)", name)
 							}
 							var newName Node = IR_name(name.getString()).srcref(name)
 							var newVar Node = IR_var_Node(newName).srcref(name)
 							newVar.insertBefore(insertBefore)
-						}})
+						}}).accept)
 						var destructuringPattern Node = lhs.removeFirstChild()
 						first.replaceWith(destructuringPattern)
 					} else {

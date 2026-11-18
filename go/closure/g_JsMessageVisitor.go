@@ -403,15 +403,15 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 	}
 	var placeholderObjectLiteralMap JsMessageVisitor_ObjectLiteralMap = placeholderObjectLiteralMapOutcome.get()
 	var placeholderNamesFromText *JTSet[string] = googGetMsgParsedText.getPlaceholderNames()
-	var requiredKeysChecked *Outcome_base[any] = placeholderObjectLiteralMap.checkForRequiredKeys(placeholderNamesFromText, &Function_tfn_string_JsMessageVisitor_MalformedException{func(placeholderName string) *JsMessageVisitor_MalformedException {
+	var requiredKeysChecked *Outcome_base[any] = placeholderObjectLiteralMap.checkForRequiredKeys(placeholderNamesFromText, (&Function_tfn_string_JsMessageVisitor_MalformedException{func(placeholderName string) *JsMessageVisitor_MalformedException {
 		return new_JsMessageVisitor_MalformedException(("Unrecognized message placeholder referenced: " + sstr_(placeholderName)), msgTextNode)
-	}})
+	}}).apply)
 	if requiredKeysChecked.isErr() {
 		return Outcome_base_err[JsMessageDefinition](requiredKeysChecked.error())
 	}
-	var unexpectedKeysChecked *Outcome_base[any] = placeholderObjectLiteralMap.checkForUnexpectedKeys(placeholderNamesFromText, &Function_tfn_string_string{func(placeholderName string) string {
+	var unexpectedKeysChecked *Outcome_base[any] = placeholderObjectLiteralMap.checkForUnexpectedKeys(placeholderNamesFromText, (&Function_tfn_string_string{func(placeholderName string) string {
 		return ("Unused message placeholder: " + sstr_(placeholderName))
-	}})
+	}}).apply)
 	if unexpectedKeysChecked.isErr() {
 		return Outcome_base_err[JsMessageDefinition](unexpectedKeysChecked.error())
 	}
@@ -489,9 +489,9 @@ func (this *JsMessageVisitor) extractJsMessageOptions(optionsBag Node) *Outcome_
 		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](objectLiteralMapOutcome.error())
 	}
 	var objectLiteralMap JsMessageVisitor_ObjectLiteralMap = objectLiteralMapOutcome.get()
-	var unexpectedKeysChecked *Outcome_base[any] = objectLiteralMap.checkForUnexpectedKeys(JsMessageVisitor_MESSAGE_OPTION_NAMES, &Function_tfn_string_string{func(optionName string) string {
+	var unexpectedKeysChecked *Outcome_base[any] = objectLiteralMap.checkForUnexpectedKeys(JsMessageVisitor_MESSAGE_OPTION_NAMES, (&Function_tfn_string_string{func(optionName string) string {
 		return ("Unknown option: " + sstr_(optionName))
-	}})
+	}}).apply)
 	if unexpectedKeysChecked.isErr() {
 		return Outcome_base_err[JsMessageVisitor_JsMessageOptions](unexpectedKeysChecked.error())
 	}
@@ -537,9 +537,9 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](objectLiteralMapOutcome.error())
 	}
 	var objectLiteralMap JsMessageVisitor_ObjectLiteralMap = objectLiteralMapOutcome.get()
-	var unexpectedKeysChecked *Outcome_base[any] = objectLiteralMap.checkForUnexpectedKeys(JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES, &Function_tfn_string_string{func(optionName string) string {
+	var unexpectedKeysChecked *Outcome_base[any] = objectLiteralMap.checkForUnexpectedKeys(JsMessageVisitor_ICU_TEMPLATE_OPTION_NAMES, (&Function_tfn_string_string{func(optionName string) string {
 		return ("Unknown option: " + sstr_(optionName))
-	}})
+	}}).apply)
 	if unexpectedKeysChecked.isErr() {
 		return Outcome_base_err[JsMessageVisitor_IcuTemplateOptions](unexpectedKeysChecked.error())
 	}
@@ -924,8 +924,8 @@ type JsMessageVisitor_ObjectLiteralMap interface {
 	extractAsValueMap() *JTMap[string, Node]
 	extractAsStringToStringMap() *Outcome_base[*ImmutableMap]
 	getValueNode(string) Node
-	checkForUnexpectedKeys(*JTSet[string], Function) *Outcome_base[any]
-	checkForRequiredKeys(*JTSet[string], Function) *Outcome_base[any]
+	checkForUnexpectedKeys(*JTSet[string], func(any) any) *Outcome_base[any]
+	checkForRequiredKeys(*JTSet[string], func(any) any) *Outcome_base[any]
 }
 
 type JsMessageVisitor_ObjectLiteralMapImpl struct {
@@ -995,23 +995,23 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() 
 	return Outcome_base_ok_Object[*ImmutableMap](this.stringMap.asImm())
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys *JTSet[string], createErrorMessage FunctionOf[string, string]) *Outcome_base[any] {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys *JTSet[string], createErrorMessage func(any) any) *Outcome_base[any] {
 	it_1 := this.stringToStringKeyMap.eachKey()
 	for it_1.next() {
 		var key string = it_1.v
 		if !expectedKeys.contains(key) {
-			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(str_(createErrorMessage.apply(strobj_(key))), this.stringToStringKeyMap.get(key)).up_Throwable())
+			return Outcome_base_err[any](new_JsMessageVisitor_MalformedException(str_(createErrorMessage(strobj_(key))), this.stringToStringKeyMap.get(key)).up_Throwable())
 		}
 	}
 	return Outcome_base_ok_0()
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(requiredKeys *JTSet[string], createException FunctionOf[string, *JsMessageVisitor_MalformedException]) *Outcome_base[any] {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(requiredKeys *JTSet[string], createException func(any) any) *Outcome_base[any] {
 	it_1 := requiredKeys.each()
 	for it_1.next() {
 		var requiredKey string = it_1.v
 		if !this.stringToStringKeyMap.containsKey(requiredKey) {
-			return Outcome_base_err[any](to_Throwable(createException.apply(strobj_(requiredKey))))
+			return Outcome_base_err[any](to_Throwable(createException(strobj_(requiredKey))))
 		}
 	}
 	return Outcome_base_ok_0()
@@ -1327,15 +1327,15 @@ func (this *JsMessageVisitor_5) getPlaceholderOriginalCodeMap() *JTMap[string, s
 }
 
 func (this *JsMessageVisitor_5) checkForUnknownPlaceholders(knownPlaceholders *JTSet[string]) *Outcome_base[any] {
-	var exampleChecked *Outcome_base[any] = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, &Function_tfn_string_string{func(unknownName string) string {
+	var exampleChecked *Outcome_base[any] = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, (&Function_tfn_string_string{func(unknownName string) string {
 		return ("Unknown placeholder: " + sstr_(unknownName))
-	}})
+	}}).apply)
 	if exampleChecked.isErr() {
 		return Outcome_base_err[any](exampleChecked.error())
 	}
-	return this.cap_originalCodeObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, &Function_tfn_string_string{func(unknownName string) string {
+	return this.cap_originalCodeObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, (&Function_tfn_string_string{func(unknownName string) string {
 		return ("Unknown placeholder: " + sstr_(unknownName))
-	}})
+	}}).apply)
 }
 
 type JsMessageVisitor_6 struct {
@@ -1394,15 +1394,15 @@ func (this *JsMessageVisitor_6) getPlaceholderNames() *JTSet[string] {
 }
 
 func (this *JsMessageVisitor_6) checkForUnknownPlaceholders(knownPlaceholders *JTSet[string]) *Outcome_base[any] {
-	var exampleChecked *Outcome_base[any] = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, &Function_tfn_string_string{func(unknownName string) string {
+	var exampleChecked *Outcome_base[any] = this.cap_exampleObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, (&Function_tfn_string_string{func(unknownName string) string {
 		return ("Unknown placeholder: " + sstr_(unknownName))
-	}})
+	}}).apply)
 	if exampleChecked.isErr() {
 		return Outcome_base_err[any](exampleChecked.error())
 	}
-	return this.cap_originalCodeObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, &Function_tfn_string_string{func(unknownName string) string {
+	return this.cap_originalCodeObjectLiteralMap.checkForUnexpectedKeys(knownPlaceholders, (&Function_tfn_string_string{func(unknownName string) string {
 		return ("Unknown placeholder: " + sstr_(unknownName))
-	}})
+	}}).apply)
 }
 
 type JsMessageVisitor_7 struct {
