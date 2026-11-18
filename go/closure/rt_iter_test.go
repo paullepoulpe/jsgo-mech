@@ -113,19 +113,19 @@ func TestRangeIteratorsMatchCursors(t *testing.T) {
 			rnd := rand.New(rand.NewSource(seed))
 			m := newTMap_(kc, kc)
 			for i := 0; i < 40; i++ {
-				m.Put(int32(rnd.Intn(60)), int32(i))
+				m.put(int32(rnd.Intn(60)), int32(i))
 			}
 			for i := 0; i < 10; i++ {
-				m.Delete(int32(rnd.Intn(60)))
+				m.remove(int32(rnd.Intn(60)))
 			}
 			return m, rnd
 		}
 		body := func(m *TMap[int32, int32], rnd *rand.Rand, k int32) {
 			switch rnd.Intn(4) {
 			case 0:
-				m.Delete(int32(rnd.Intn(60)))
+				m.remove(int32(rnd.Intn(60)))
 			case 1:
-				m.Put(int32(60+rnd.Intn(10)), k)
+				m.put(int32(60+rnd.Intn(10)), k)
 			}
 		}
 		var a, b, c, d []int32
@@ -141,7 +141,7 @@ func TestRangeIteratorsMatchCursors(t *testing.T) {
 		}
 		m3, r3 := build()
 		for k := range m3.Keys() {
-			c = append(c, k, m3.Get(k))
+			c = append(c, k, m3.get(k))
 			body(m3, r3, k)
 		}
 		m4, r4 := build()
@@ -169,31 +169,31 @@ func TestRangeIteratorsMatchCursors(t *testing.T) {
 		rnd := rand.New(rand.NewSource(seed))
 		for i := 0; i < 30; i++ {
 			k := int32(rnd.Intn(40))
-			s1.Add(k)
-			s2.Add(k)
+			s1.add(k)
+			s2.add(k)
 		}
 		for i := 0; i < 8; i++ {
 			k := int32(rnd.Intn(40))
-			s1.Delete(k)
-			s2.Delete(k)
+			s1.remove(k)
+			s2.remove(k)
 		}
 		var x, y []int32
 		for e := s1.each(); e.next(); {
 			x = append(x, e.v)
 			if e.v%3 == 0 {
-				s1.Delete(e.v + 1)
+				s1.remove(e.v + 1)
 			}
 		}
 		for k := range s2.All() {
 			y = append(y, k)
 			if k%3 == 0 {
-				s2.Delete(k + 1)
+				s2.remove(k + 1)
 			}
 		}
 		if !sameInts_(x, y) {
 			t.Errorf("seed %d: TSet each %v, All %v", seed, x, y)
 		}
-		if s2.Len() > 0 && s2.First() != s2.asSet().iterator().next().(int32) {
+		if s2.size() > 0 && s2.First() != s2.asSet().iterator().next().(int32) {
 			t.Errorf("seed %d: First disagrees with the view's iterator", seed)
 		}
 	}
@@ -278,9 +278,9 @@ func TestBoxedKVMatchesEntrySet(t *testing.T) {
 		m := newTMap_(kc, kc)
 		for i := 0; i < 60; i++ {
 			if rnd.Intn(3) == 0 {
-				m.Delete(int32(rnd.Intn(40)))
+				m.remove(int32(rnd.Intn(40)))
 			} else {
-				m.Put(int32(rnd.Intn(40)), int32(i))
+				m.put(int32(rnd.Intn(40)), int32(i))
 			}
 		}
 		var ks, vs []any
@@ -305,8 +305,8 @@ func TestTypedCursorsMatchViewIterators(t *testing.T) {
 	for i := int32(0); i < 30; i++ {
 		l1.add(i % 7)
 		l2.add(i % 7)
-		s1.Add(i * 3 % 41)
-		s2.Add(i * 3 % 41)
+		s1.add(i * 3 % 41)
+		s2.add(i * 3 % 41)
 	}
 	var a, b []any
 	for it, n := l1.asList().iterator(), 0; it.hasNext(); n++ {
