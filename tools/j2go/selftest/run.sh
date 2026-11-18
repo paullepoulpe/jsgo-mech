@@ -10,7 +10,7 @@ rm -rf "$t" && mkdir -p "$t/java" "$t/go/closure" "$t/go/cmd/t"
 javac -nowarn -cp .cache/build/stock-libs.jar -d "$t/java" tools/j2go/selftest/lang/*.java
 for c in Lang Lang2 Handles Generics Generics2 Generics3 Colls Imm Unboxed; do env -u JAVA_TOOL_OPTIONS java -Dstdout.encoding=UTF-8 -cp "$t/java:.cache/build/stock-libs.jar" lang.$c; done >"$t/expected.txt"
 # The test class is translated together with the whole tree, so that the runtime it needs is all there.
-cp go/go.mod "$t/go/" && cp go/closure/rt_*.go "$t/go/closure/" && rm -f "$t"/go/closure/*_test.go
+cp go/go.mod "$t/go/" && cp go/closure/rt_*.go tools/j2go/selftest/rt_*.go "$t/go/closure/" && rm -f "$t"/go/closure/*_test.go
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
 { cat .cache/j2go/files.txt; ls tools/j2go/selftest/lang/*.java; } >"$t/files.txt"
 # Instrumented output, so that static initialization happens on first use as in Java.

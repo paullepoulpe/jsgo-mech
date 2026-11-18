@@ -1061,11 +1061,14 @@ final class Ctx {
 
   /** True if field f of a handle class holds no Go pointer: it lives in the record the collector never scans. */
   boolean pointerFree(VariableElement f) {
-    return kind(f.asType()) == K.PRIM || isHandleType(f.asType()) || storedEnum(f.asType()) != null;
+    return kind(f.asType()) == K.PRIM || isHandleType(f.asType()) || storedEnum(f.asType()) != null || strId(f) || handleTable(f) != null
+        || runtimeField(f) != null;
   }
 
   /** Go type of the stored form of handle-class field f. */
   String storedType(VariableElement f) {
+    if (strId(f) || handleTable(f) != null) return "uint32";
+    if (runtimeField(f) != null) return runtimeField(f);
     TypeElement en = storedEnum(f.asType());
     if (en == null) return declType(f.asType());
     return enumConstants(en) < 256 ? "uint8" : "uint16";
@@ -1097,32 +1100,98 @@ final class Ctx {
     return coldFields.contains(f);
   }
 
-  /** The Go lvalue of the string slot of field f of recv: a column of its own. */
+  /**
+   * Fields of handle classes stored as a uint32 id instead of a Go string (handles.txt, "Class::field
+   * string-id"). A String field holds an id into the process-wide table of interned strings
+   * (rt_ids.go: strid_, strid_str_); an Object field that is also a string-slot field holds a value
+   * code (rt_ids.go: valcode_): a String as its id, a number inline or in a table of doubles, any
+   * other object in a table of objects.
+   */
+  final Set<VariableElement> strIds = new HashSet<>();
+
+  boolean strId(VariableElement f) {
+    return strIds.contains(f);
+  }
+
+  /** A string-id field declared Object: its string slot is part of a value code. */
+  boolean valCode(VariableElement f) {
+    return strId(f) && strSlot(f);
+  }
+
+  /**
+   * Fields of handle classes, declared Object, stored as a uint32 handle into a table that holds each
+   * distinct value once (handles.txt, "Class::field handle-table [Flag]"): the value of the field is
+   * table[code>>1]; bit 0 of the code says whether the value is an instance of Flag (the type named
+   * on the line, or none), so that `field instanceof Flag` needs no table read.
+   */
+  final Map<VariableElement, TypeMirror> handleTables = new HashMap<>();
+
+  /** The flag type of handle-table field f (java.lang.Object without one), or null if f is not one. */
+  TypeMirror handleTable(VariableElement f) {
+    return handleTables.get(f);
+  }
+
+  /**
+   * Fields of handle classes whose storage the handwritten runtime defines (handles.txt, "Class::field
+   * runtime GoType"): the record holds a value of GoType, which must be pointer-free; a read is
+   * recv.f_get_() and a write recv.f_set_(v), both runtime methods that convert between GoType and the
+   * field's Java value, `f == null` is recv.f_isnull_(), and a copy from the same field of another
+   * object is recv.f_copy_(other). Methods named "Class::method runtime" are not translated: the
+   * runtime defines them (with the Go names and signatures the translation would give them), so that
+   * the code that uses the field most can work on GoType directly.
+   */
+  final Map<VariableElement, String> runtimeFields = new HashMap<>();
+  /** Methods of handle classes the runtime defines (handles.txt, "Class::method runtime"), by class. */
+  final Map<TypeElement, Set<String>> runtimeMethods = new HashMap<>();
+
+  String runtimeField(VariableElement f) {
+    return runtimeFields.get(f);
+  }
+
+  boolean runtimeMethod(TypeElement te, ExecutableElement m) {
+    return runtimeMethods.getOrDefault(te, Set.of()).contains(m.getSimpleName().toString());
+  }
+
+  /**
+   * Pointer-free fields of handle classes kept in a column of their own (handles.txt, "Class::field
+   * column"): an array of the field's values per chunk instead of a slot in a record.
+   */
+  final Set<VariableElement> columns = new HashSet<>();
+
+  boolean column(VariableElement f) {
+    return columns.contains(f);
+  }
+
+  /** The Go rvalue of the string slot of field f of recv: a column of its own, or decoded from a value code. */
   String strSlotLoc(String recv, VariableElement f) {
+    if (valCode(f)) return recv + "." + fieldName(f) + "_s_()";
     return "(*" + recv + "." + fieldName(f) + "_s_())";
   }
 
   /** The storage location of instance field f of the object recv (a Go lvalue). */
   String fieldLoc(String recv, VariableElement f) {
     if (!isHandle(ownerOf(f))) return recv + "." + fieldName(f);
+    if (column(f)) return "(*" + recv + "." + fieldName(f) + "_c_())";
     return recv + (cold(f) ? ".cs_()." : pointerFree(f) ? ".ns_()." : ".ps_().") + fieldName(f);
   }
 
   /** Go expression reading instance field f of recv, at the Go type of f's Java type. */
   String fieldGet(String recv, VariableElement f) {
-    if (strSlot(f)) return recv + "." + fieldName(f) + "_get_()";
+    if (strSlot(f) || handleTable(f) != null || runtimeField(f) != null) return recv + "." + fieldName(f) + "_get_()";
     String loc = fieldLoc(recv, f);
+    if (strId(f)) return "strid_str_(" + loc + ")";
     TypeElement en = isHandle(ownerOf(f)) ? storedEnum(f.asType()) : null;
     return en == null ? loc : className(en) + "_byOrd1_[" + loc + "]";
   }
 
   /** Go statement storing value (of the Go type of f's Java type) into instance field f of recv. */
   String fieldSet(String recv, VariableElement f, String value) {
-    if (strSlot(f)) return recv + "." + fieldName(f) + "_set_(" + value + ")";
+    if (strSlot(f) || handleTable(f) != null || runtimeField(f) != null) return recv + "." + fieldName(f) + "_set_(" + value + ")";
     return fieldLoc(recv, f) + " = " + stored(f, value);
   }
 
   String stored(VariableElement f, String value) {
+    if (strId(f)) return "strid_(" + value + ")";
     TypeElement en = f.getModifiers().contains(Modifier.STATIC) || !isHandle(ownerOf(f)) ? null : storedEnum(f.asType());
     return en == null ? value : className(en) + "_ord1_(" + value + ")";
   }
@@ -1160,19 +1229,63 @@ final class Ctx {
         if (en != null) handleEnums.add(en);
       }
     }
+    // Storage kinds first, then cold (which needs to know whether a field is pointer-free).
+    slots.sort(Comparator.comparingInt((String l) -> l.matches(".*\\s(cold|column)\\s*") ? 1 : 0));
+    TypeMirror object = elems.getTypeElement("java.lang.Object").asType();
     for (String line : slots) {
-      java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\S+)::(\\w+)\\s+(string-slot|cold)").matcher(line);
+      java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\S+)::(\\w+)\\s+(string-slot|string-id|handle-table|cold|column|runtime)(?:\\s+(\\S+))?").matcher(line);
       TypeElement te = m.matches() ? elems.getTypeElement(m.group(1)) : null;
       VariableElement field = null;
       if (te != null && handles.contains(te)) {
         for (VariableElement f : instanceFields(te)) if (f.getSimpleName().contentEquals(m.group(2))) field = f;
+        if (field == null && m.group(3).equals("runtime") && m.group(4) == null) {
+          boolean found = false;
+          for (Element e : te.getEnclosedElements()) found |= e.getKind() == ElementKind.METHOD && e.getSimpleName().contentEquals(m.group(2));
+          if (found) runtimeMethods.computeIfAbsent(te, k -> new TreeSet<>()).add(m.group(2));
+          else handleErrors.add(line + ": no method " + m.group(2));
+          continue;
+        }
       }
-      if (field == null) handleErrors.add(line + ": not \"Class::field string-slot\" or \"Class::field cold\" naming a field of a handle class");
-      else if (m.group(3).equals("cold")) {
-        if (!pointerFree(field)) handleErrors.add(line + ": a cold field must be pointer-free");
-        else coldFields.add(field);
-      } else if (!types.isSameType(field.asType(), elems.getTypeElement("java.lang.Object").asType())) handleErrors.add(line + ": the field is not declared Object");
-      else strSlots.add(field);
+      if (field == null) {
+        handleErrors.add(line + ": not \"Class::field string-slot|string-id|handle-table [Flag]|cold|column|runtime GoType\" naming a field of a handle class");
+        continue;
+      }
+      boolean isObject = types.isSameType(field.asType(), object);
+      if (m.group(4) != null && !m.group(3).equals("handle-table") && !m.group(3).equals("runtime")) handleErrors.add(line + ": only handle-table and runtime take a type");
+      switch (m.group(3)) {
+        case "runtime" -> {
+          if (m.group(4) == null) handleErrors.add(line + ": a runtime field needs its Go type");
+          else runtimeFields.put(field, m.group(4));
+        }
+        case "cold" -> {
+          if (!pointerFree(field)) handleErrors.add(line + ": a cold field must be pointer-free");
+          else coldFields.add(field);
+        }
+        case "column" -> {
+          if (!pointerFree(field) || cold(field)) handleErrors.add(line + ": a column must be pointer-free and not cold");
+          else columns.add(field);
+        }
+        case "string-id" -> {
+          if (kind(field.asType()) == K.STR) strIds.add(field);
+          else if (isObject) {
+            strIds.add(field);
+            strSlots.add(field);
+          } else handleErrors.add(line + ": the field is not declared String or Object");
+        }
+        case "handle-table" -> {
+          TypeElement flag = m.group(4) == null ? null : elems.getTypeElement(m.group(4));
+          if (!isObject) handleErrors.add(line + ": the field is not declared Object");
+          else if (m.group(4) != null && flag == null) handleErrors.add(line + ": no type " + m.group(4));
+          else handleTables.put(field, flag == null ? object : types.erasure(flag.asType()));
+        }
+        default -> {
+          if (!isObject) handleErrors.add(line + ": the field is not declared Object");
+          else strSlots.add(field);
+        }
+      }
+    }
+    for (VariableElement f : strSlots) {
+      if (handleTables.containsKey(f)) handleErrors.add(f + ": both a string slot and a handle table");
     }
   }
 

@@ -830,6 +830,11 @@ abstract class ExprEmitter extends Base {
       ExpressionTree x = kl == Ctx.K.NULL ? r : l;
       Ctx.K kx = kl == Ctx.K.NULL ? kr : kl;
       if (kx == Ctx.K.NULL) return op.equals("==") ? "true" : "false";
+      Object[] rf = fieldRead(x, f -> cx.runtimeField(f) != null);
+      if (rf != null) return (op.equals("==") ? "" : "!") + rf[0] + "." + cx.fieldName((VariableElement) rf[1]) + "_isnull_()";
+      Object[] idf = fieldRead(x, f -> (cx.strId(f) && !cx.valCode(f)) || cx.valCode(f) || cx.handleTable(f) != null);
+      // Null is code 0 of a string id, value code or table handle.
+      if (idf != null) return "(" + cx.fieldLoc((String) idf[0], (VariableElement) idf[1]) + " " + op + " 0)";
       if (kx == Ctx.K.TVAR) return (op.equals("==") ? "" : "!") + "isnull_(" + expr(x) + ")";
       if (cx.isValueLibType(cx.erase(kl == Ctx.K.NULL ? tr : tl))) return (op.equals("==") ? "" : "!") + atomOrParen(expr(x)) + ".null_()";
       return "(" + expr(x) + " " + op + " " + cx.nil(kl == Ctx.K.NULL ? tr : tl) + ")";
@@ -898,27 +903,62 @@ abstract class ExprEmitter extends Base {
    * If t reads a string-slot field (Ctx.strSlots): the receiver's Go code and the field; else null.
    */
   Object[] strSlotRead(ExpressionTree t0) {
+    return fieldRead(t0, cx::strSlot);
+  }
+
+  /** If t reads an instance field f for which p holds: the receiver's Go code and f; else null. */
+  Object[] fieldRead(ExpressionTree t0, java.util.function.Predicate<VariableElement> p) {
     ExpressionTree t = strip(t0);
     Element e = (t instanceof IdentifierTree || t instanceof MemberSelectTree) ? elemOf(t) : null;
-    if (!(e instanceof VariableElement f) || e.getKind() != ElementKind.FIELD || !cx.strSlot(f)) return null;
+    if (!(e instanceof VariableElement f) || e.getKind() != ElementKind.FIELD || f.getModifiers().contains(Modifier.STATIC) || !p.test(f)) return null;
     if (t instanceof IdentifierTree) return new Object[] {implicitRecv(cx.ownerOf(f)).code, f};
     return new Object[] {expr(((MemberSelectTree) t).getExpression()), f};
   }
 
   String instanceOf(InstanceOfTree t) {
+    Object[] ht = fieldRead(t.getExpression(), f -> cx.handleTable(f) != null);
+    if (ht != null) {
+      VariableElement f = (VariableElement) ht[1];
+      TypeMirror target = t.getPattern() instanceof BindingPatternTree b0 ? cx.erase(elemOf(b0.getVariable()).asType())
+          : typeOf(t.getType()) != null ? typeOf(t.getType()) : cx.trees.getTypeMirror(cx.trees.getPath(cu, t.getType()));
+      if (cx.types.isSameType(cx.erase(target), cx.handleTable(f))) {
+        // The handle's bit 0 says whether the value is an instance of the flag type.
+        String test = "(" + cx.fieldLoc((String) ht[0], f) + "&1 != 0)";
+        if (t.getPattern() == null) return test;
+        Element ve = elemOf(((BindingPatternTree) t.getPattern()).getVariable());
+        String name = declareHoisted(ve);
+        return "func() bool { if !" + test + " { return false }; " + name + " = " + cx.coerce(ht[0] + "." + cx.fieldName(f) + "_get_()", objectType(), cx.erase(ve.asType()))
+            + "; return true }()";
+      }
+    }
     Object[] slot = strSlotRead(t.getExpression());
     if (slot != null) {
       // The String of a string-slot field is in the string slot, everything else in the other.
       TypeMirror target = t.getPattern() instanceof BindingPatternTree b0 ? cx.erase(elemOf(b0.getVariable()).asType())
           : typeOf(t.getType()) != null ? typeOf(t.getType()) : cx.trees.getTypeMirror(cx.trees.getPath(cu, t.getType()));
       VariableElement f = (VariableElement) slot[1];
+      String fn = slot[0] + "." + cx.fieldName(f);
       if (cx.kind(target) == Ctx.K.STR) {
         String loc = cx.strSlotLoc((String) slot[0], f);
+        if (cx.valCode(f)) {
+          // A value code says whether it is a String without reading the string table.
+          if (t.getPattern() == null) return fn + "_iss_()";
+          String name = declareHoisted(elemOf(((BindingPatternTree) t.getPattern()).getVariable()));
+          return "func() bool { if !" + fn + "_iss_() { return false }; " + name + " = " + loc + "; return true }()";
+        }
         if (t.getPattern() == null) return "(" + loc + " != nullstr_)";
         String name = declareHoisted(elemOf(((BindingPatternTree) t.getPattern()).getVariable()));
         return "func() bool { v_ := " + loc + "; if v_ == nullstr_ { return false }; " + name + " = v_; return true }()";
       }
-      String raw = cx.fieldLoc((String) slot[0], f);
+      if (cx.valCode(f) && cx.unboxed(target) != null && cx.unboxed(target).getKind() == TypeKind.DOUBLE) {
+        // A Double in a value code is a float64 inline or in the table of doubles: no box is made.
+        if (t.getPattern() == null) return fn + "_isd_()";
+        Element ve = elemOf(((BindingPatternTree) t.getPattern()).getVariable());
+        String name = declareHoisted(ve);
+        return "func() bool { if !" + fn + "_isd_() { return false }; " + name + " = " + cx.coerce(fn + "_d_()", cx.unboxed(target), cx.erase(ve.asType()))
+            + "; return true }()";
+      }
+      String raw = cx.valCode(f) ? fn + "_obj_()" : cx.fieldLoc((String) slot[0], f);
       if (t.getPattern() == null) return isCheck(raw, target);
       String name = declareHoisted(elemOf(((BindingPatternTree) t.getPattern()).getVariable()));
       return "func() bool { v_ := " + raw + "; if !" + isCheck("v_", target) + " { return false }; " + name + " = "
@@ -952,8 +992,14 @@ abstract class ExprEmitter extends Base {
     throw unsupported(t, "++/-- used as a value");
   }
 
+  /** A string-id or handle-table field is assigned only as a whole (stmtExpr). */
+  void storedWhole(Tree t, LValue lv) {
+    if (lv.field != null && (cx.strId(lv.field) || cx.handleTable(lv.field) != null || cx.runtimeField(lv.field) != null)) throw unsupported(t, "compound assignment to a string-id or handle-table field");
+  }
+
   String incDecStmt(UnaryTree t) {
     LValue lv = lvalue(t.getExpression());
+    storedWhole(t, lv);
     boolean inc = t.getKind() == Tree.Kind.POSTFIX_INCREMENT || t.getKind() == Tree.Kind.PREFIX_INCREMENT;
     Element e = elemOf(strip(t.getExpression()));
     if (e != null) mc.reads.add(e);
@@ -964,6 +1010,7 @@ abstract class ExprEmitter extends Base {
 
   String compoundStmt(CompoundAssignmentTree t) {
     LValue lv = lvalue(t.getVariable());
+    storedWhole(t, lv);
     Element le = elemOf(strip(t.getVariable()));
     if (le != null) mc.reads.add(le);
     Tree.Kind k = t.getKind();
@@ -1738,7 +1785,26 @@ abstract class ExprEmitter extends Base {
           if (from != null && from[1] == slot[1]) return fn + "_copy_(" + from[0] + ")";
           TypeMirror rt = typeOf(a.getExpression());
           if (rt != null && cx.kind(rt) == Ctx.K.STR) return fn + "_sets_(" + expr(a.getExpression()) + ")";
+          if (cx.valCode((VariableElement) slot[1]) && rt != null && rt.getKind() == TypeKind.DOUBLE) return fn + "_setd_(" + expr(a.getExpression()) + ")";
           return fn + "_set_(" + asAny(a.getExpression()) + ")";
+        }
+        Object[] rtf = fieldRead(a.getVariable(), f -> cx.runtimeField(f) != null);
+        if (rtf != null) {
+          VariableElement f = (VariableElement) rtf[1];
+          Object[] from = fieldRead(a.getExpression(), g -> g == f);
+          String fn = rtf[0] + "." + cx.fieldName(f);
+          if (from != null) return fn + "_copy_(" + from[0] + ")";
+          return fn + "_set_(" + exprAs(a.getExpression(), cx.erase(f.asType())) + ")";
+        }
+        Object[] idf = fieldRead(a.getVariable(), f -> cx.strId(f) || cx.handleTable(f) != null);
+        if (idf != null) {
+          // A string id or table handle: a copy from the same field of another object copies the id.
+          VariableElement f = (VariableElement) idf[1];
+          Object[] from = fieldRead(a.getExpression(), g -> g == f);
+          // (the table counts the fields holding a handle).
+          if (from != null && cx.handleTable(f) != null) return "htab_copy_(&" + cx.fieldLoc((String) idf[0], f) + ", " + cx.fieldLoc((String) from[0], f) + ")";
+          if (from != null) return cx.fieldLoc((String) idf[0], f) + " = " + cx.fieldLoc((String) from[0], f);
+          if (cx.handleTable(f) != null) return idf[0] + "." + cx.fieldName(f) + "_set_(" + asAny(a.getExpression()) + ")";
         }
         LValue lv = lvalue(a.getVariable());
         String val = exprAs(a.getExpression(), lv.type);
