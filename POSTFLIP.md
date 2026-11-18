@@ -331,12 +331,18 @@ checks/bundle/downlevel/advanced MATCH.
 All rows together, round 7 -> round 8: boxing 5,175 -> 3,072, class casts 2,018 -> 1,512,
 interface casts 959 -> 879, unboxing 704 -> 607.
 
-Measured (interleaved, no PGO, out.js/stdout/stderr byte-identical with pre-flip Java), against
-pre-flip Java and the round-7 binary in the same run: typed-full Java/Go 1.345 (round 7: 1.295),
-bundle 1.240 (1.229); round 8 is 3.7% faster than round 7 on typed-full and 0.9% on bundle. The
-host was loaded (1.1-6.0) by another agent's builds, which slows pre-flip Java (2-3 cores) more
-than Go, so the ratios against Java are overstated; on a quiet host round 7 measured 1.082 and
-1.117. A quiet re-measurement replaces this paragraph.
+Measured on an idle host (load 1.1-2.5), interleaved, no PGO, out.js/stdout/stderr
+byte-identical with pre-flip Java, against pre-flip Java and the round-7 binary (2d204c0f) in the
+same run:
+
+| task | pre-flip Java (median) | round 8 (median) | Java/Go | per round | round 7 in the same run |
+|---|---:|---:|---:|---|---:|
+| typed-full (6 rounds) | 51.55s | 48.94s | **1.053** | 1.034-1.192, all > 1 | 1.031 (50.00s) |
+| bundle (6 rounds) | 26.80s | 24.02s | **1.116** | 1.103-1.132, all > 1 | 1.079 (24.84s) |
+
+Round 8 is 2.1% faster than round 7 on typed-full and 3.3% on bundle. (A first run on a host
+loaded by another agent's builds gave 1.345 and 1.240: load slows pre-flip Java, which uses 2-3
+cores, more than Go, so only runs on an idle host are reported.)
 
 ## postflip5, round 7: Java-isms (merged at 2d204c0f)
 
