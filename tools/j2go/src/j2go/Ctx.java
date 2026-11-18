@@ -486,6 +486,21 @@ final class Ctx {
     }
   }
 
+  /**
+   * Library methods that make a list for their caller alone, each with the runtime function
+   * that makes the typed list instead (its arguments: the conversion, the receiver, the
+   * method's arguments) and the list's element type: Splitter.splitToList is splitToListT_.
+   */
+  static final Map<String, String[]> TYPED_MAKERS = Map.of(
+      "com.google.common.base.Splitter.splitToList", new String[] {"splitToListT_", "java.lang.String"});
+
+  /** The entry of TYPED_MAKERS for method m where it makes a collection for kind k with type arguments args; else null. */
+  String[] typedMaker(Element m, CollKind k, List<TypeMirror> args) {
+    if (!(m instanceof ExecutableElement me) || !k.name.equals("list") || args.size() != 1 || "1".equals(System.getenv("J2GO_COLLS_NOMAKERS"))) return null;
+    String[] tm = TYPED_MAKERS.get(((TypeElement) me.getEnclosingElement()).getQualifiedName() + "." + me.getSimpleName());
+    return tm != null && types.isSameType(args.get(0), elems.getTypeElement(tm[1]).asType()) ? tm : null;
+  }
+
   /** The kind of typed collection that type t (TList<X>, TSet<X>) is, or null. */
   CollKind typedColl(TypeMirror t) {
     if (t == null || t.getKind() != TypeKind.DECLARED) return null;

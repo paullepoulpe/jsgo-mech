@@ -282,6 +282,13 @@ abstract class ExprEmitter extends Base {
       for (ExpressionTree a : as) fn += ", " + exprAs(a, typeOf(a));
       return fn + ")";
     }
+    String[] maker = cx.typedMaker(m, ck, new ArrayList<>(((DeclaredType) target).getTypeArguments()));
+    if (maker != null && mi.getMethodSelect() instanceof MemberSelectTree ms && !m.getModifiers().contains(Modifier.STATIC)) {
+      // a library method that makes a list for its caller: the runtime's typed twin
+      StringBuilder sb = new StringBuilder(maker[0] + "(" + tc + ", " + exprAs(ms.getExpression(), cx.ownerOf(m).asType()));
+      for (int i = 0; i < as.size(); i++) sb.append(", ").append(exprAs(as.get(i), cx.erase(m.getParameters().get(i).asType())));
+      return sb.append(")").toString();
+    }
     if (ck.name.equals("set") && m.getSimpleName().contentEquals("keySet") && as.isEmpty() && mi.getMethodSelect() instanceof MemberSelectTree ms) {
       // keySet() of an immutable typed map (javac finds the method in ImmutableMap): its typed key set
       TypeMirror rt = typeOf(ms.getExpression());

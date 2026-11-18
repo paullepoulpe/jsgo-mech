@@ -28,6 +28,10 @@ import "sync"
 // immPending_ marks a typed immutable list or set whose twin is not made yet.
 var immPending_ = &ImmutableCollection{}
 
+// unmodMark_ marks a typed list that cannot be changed but is not an ImmutableList (see
+// TList.twin).
+var unmodMark_ = &ImmutableCollection{}
+
 // timmMap_ is what an immutable typed map has beside its mappings.
 type timmMap_ struct {
 	twin *ImmutableMap // the map as erased code sees it, once that is needed
@@ -160,19 +164,23 @@ func (l *TList[T]) asImm() *ImmutableCollection {
 		t := &ImmutableCollection{kind: icList_, items: boxAll_(l.c, l.items)}
 		t.typed_ = l
 		l.twin = t
-	} else if l.twin == nil {
+	} else if l.twin == nil || l.twin == unmodMark_ {
 		classCastImm_("java.util.ArrayList", "com.google.common.collect.ImmutableList")
 	}
 	return l.twin
 }
 
-// asImmList is asList() of null or of an immutable list.
+// asOtherList is asList() of null (nil), of an immutable list (its twin) or of a list that
+// cannot be changed (its view).
 // (not inlined, so that asList is: its common case is the view)
 //
 //go:noinline
-func (l *TList[T]) asImmList() List {
+func (l *TList[T]) asOtherList() List {
 	if l == nil {
 		return nil
+	}
+	if l.twin == unmodMark_ {
+		return &l.view
 	}
 	return l.asImm()
 }
@@ -493,7 +501,7 @@ func (m *TMap[K, V]) asOtherMap() Map {
 // an immutable list is itself; any other is copied (a null element throws
 // NullPointerException).
 func immutableListCopyOfT_[T any](c *tconv_[T], l *TList[T]) *TList[T] {
-	if l.twin != nil {
+	if l.twin != nil && l.twin != unmodMark_ {
 		return l
 	}
 	return immutableListCopyOfArr_(c, l.items)

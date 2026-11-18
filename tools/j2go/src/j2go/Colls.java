@@ -502,6 +502,11 @@ final class Colls {
               s.made = true;
               return;
             }
+            if (cx.typedMaker(m, s.kind, s.args) != null) {
+              // a library method that makes a list for its caller (Splitter.splitToList)
+              s.made = true;
+              return;
+            }
             if (Ctx.isUnmodifiable(m, (MethodInvocationTree) x)) {
               // the runtime's Collections.unmodifiableList is its argument: what enters is the argument
               inflow(s, ((MethodInvocationTree) x).getArguments().get(0), new TreePath(parent, x));
