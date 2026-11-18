@@ -56,9 +56,9 @@ func (this *PolymerClassRewriter) insertGeneratedDeclarationCodeToGlobalScope(en
 			if !PolymerClassRewriter_isIIFE(enclosingNode) {
 				panic(new_IllegalStateException_0())
 			}
-			var enclosingNodeForIIFE Node = NodeUtil_getEnclosingNode(enclosingNode.getParent(), (&Predicate_base_tfn_Node{func(node Node) bool {
+			var enclosingNodeForIIFE Node = NodeUtil_getEnclosingNode(enclosingNode.getParent(), func(node Node) bool {
 				return (node.isScript() || node.isModuleBody())
-			}}).apply)
+			})
 			if enclosingNodeForIIFE.isScript() {
 				enclosingNodeForIIFE.addChildToFront(declarationCode)
 				this.compiler_.reportChangeToChangeScope(NodeUtil_getEnclosingScript(enclosingNodeForIIFE))
@@ -182,9 +182,9 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 	var propsAndBehaviorCode Node = propsAndBehaviorBlock.removeChildren()
 	var parent Node = exprRoot.getParent()
 	if (!traversal.inGlobalScope() && cls.hasGeneratedLhs) && !cls.target.isGetProp() {
-		var enclosingNode Node = NodeUtil_getEnclosingNode(parent, (&Predicate_base_tfn_Node{func(node Node) bool {
+		var enclosingNode Node = NodeUtil_getEnclosingNode(parent, func(node Node) bool {
 			return (((node.isScript() || node.isModuleBody()) || PolymerClassRewriter_isIIFE(node)) || PolymerClassRewriter_isFunctionArgInGoogLoadModule(node))
-		}}).apply)
+		})
 		this.insertGeneratedDeclarationCodeToGlobalScope(enclosingNode, declarationCode)
 		if propsAndBehaviorCode != 0 {
 			this.insertGeneratedPropsAndBehaviorCode(enclosingNode, propsAndBehaviorCode)

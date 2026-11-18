@@ -1074,9 +1074,9 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesToC
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName_3(name *GlobalNamespace_Name, inlinability GlobalNamespace_Inlinability, message string) {
-	this.logDecisionForNameSupplier(name, (&Supplier_tfn_string{func() string {
+	this.logDecisionForNameSupplier(name, func() string {
 		return ("inlinability " + objstr_(obj_(inlinability)) + ": " + sstr_(message))
-	}}).get)
+	})
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName(name *GlobalNamespace_Name, message string) {
@@ -1085,9 +1085,9 @@ func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName(n
 	}})
 }
 
-func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForNameSupplier(name *GlobalNamespace_Name, messageSupplier func() any) {
+func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForNameSupplier(name *GlobalNamespace_Name, messageSupplier func() string) {
 	this.outer_.decisionsLog.log(&Supplier_tfn_string{func() string {
-		return (sstr_(name.getFullName()) + ": " + objstr_(messageSupplier()))
+		return (sstr_(name.getFullName()) + ": " + sstr_(messageSupplier()))
 	}})
 }
 
@@ -1194,9 +1194,9 @@ func (this *InlineAndCollapseProperties_CollapseProperties) collapseDeclarationO
 	var childNameInlinability GlobalNamespace_Inlinability = n.canCollapseOrInlineChildNames()
 	var canCollapseChildNames bool
 	if !childNameInlinability.canCollapse() {
-		this.logDecisionForNameSupplier(n, (&Supplier_tfn_string{func() string {
+		this.logDecisionForNameSupplier(n, func() string {
 			return ("child name inlinability: " + tostr_(childNameInlinability) + ": will not collapse child names")
-		}}).get)
+		})
 		canCollapseChildNames = false
 	} else if has_(escaped, n) {
 		this.logDecisionForName(n, "escapes: will not collapse child names")
@@ -1286,9 +1286,9 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDecl
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDeclarationAction(name *GlobalNamespace_Name, declarationNode Node, message string) {
-	this.logDecisionForNameSupplier(name, (&Supplier_tfn_string{func() string {
+	this.logDecisionForNameSupplier(name, func() string {
 		return (objstr_(declarationNode.box_()) + ": " + sstr_(message))
-	}}).get)
+	})
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) moveDeclarationIntoHigherChunk(decl *GlobalNamespace_Ref, commonAncestor *JSChunk) {

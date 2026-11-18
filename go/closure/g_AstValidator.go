@@ -2003,9 +2003,9 @@ func (this *AstValidator) validateFeature(feature FeatureSet_Feature, n Node) {
 }
 
 func (this *AstValidator) validateProperties(n Node) {
-	n.validateProperties((&Consumer_tfn_string{func(errorMessage string) {
+	n.validateProperties(func(errorMessage string) {
 		this.violation(errorMessage, n)
-	}}).accept)
+	})
 }
 
 func (this *AstValidator) validateRequiredInlinings(n Node) {

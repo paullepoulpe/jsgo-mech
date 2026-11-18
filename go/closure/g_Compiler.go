@@ -1132,7 +1132,7 @@ func (this *Compiler) getCurrentJsSource() string {
 		}
 		builder.append("//\n")
 		for statement := range sliceAll_(statements) {
-			if !NodeUtil_has(statement, (&Predicate_base_tfn_Node{func(n Node) bool {
+			if !NodeUtil_has(statement, func(n Node) bool {
 				if n == 0 {
 					panic(new_NullPointerException_0())
 				}
@@ -1150,7 +1150,7 @@ func (this *Compiler) getCurrentJsSource() string {
 				} else {
 					return false
 				}
-			}}).apply, &Predicate_base_tfn_Node{func(node Node) bool {
+			}, &Predicate_base_tfn_Node{func(node Node) bool {
 				return true
 			}}) {
 				continue

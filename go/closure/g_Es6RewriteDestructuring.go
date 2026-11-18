@@ -516,9 +516,9 @@ func (this *Es6RewriteDestructuring) wrapAssignOrDestructuringInCallToArrow(t *N
 }
 
 func (this *Es6RewriteDestructuring) validateNoAwaitOrYieldInNestedAssignmentPattern(pattern Node) {
-	var hasAwaitOrYieldInLhs bool = (NodeUtil_findPreorder(pattern, (&Predicate_base_tfn_Node{func(n Node) bool {
+	var hasAwaitOrYieldInLhs bool = (NodeUtil_findPreorder(pattern, func(n Node) bool {
 		return (n.isAwait() || n.isYield())
-	}}).apply, NodeUtil_MATCH_NOT_FUNCTION) != 0)
+	}, NodeUtil_MATCH_NOT_FUNCTION) != 0)
 	if hasAwaitOrYieldInLhs {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot transpile yet: destructuring assignment referencing await or yield in lhs, in nested sub-expression: %s", []any{pattern.box_()})))
 	}
@@ -562,9 +562,9 @@ func (this *Es6RewriteDestructuring) visitDestructuringPatternInVanillaForInnerV
 		}
 	case tokOrd1_LET:
 		{
-			ParsingUtil_getParamOrPatternNames(pattern, (&Consumer_tfn_Node{func(name Node) {
+			ParsingUtil_getParamOrPatternNames(pattern, func(name Node) {
 				name.cloneNode().insertBefore(destructuringLhs)
-			}}).accept)
+			})
 			var unusedVar Node = this.astFactory_.createNameWithUnknownType((sstr_(this.getTempVariableName()) + "$unused")).srcref(destructuringLhs)
 			destructuringLhs.replaceWith(unusedVar)
 			unusedVar.addChildToBack(destructuringLhs)

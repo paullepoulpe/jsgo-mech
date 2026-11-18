@@ -372,7 +372,7 @@ func (this *CmdLineParser_Option) stringList(get SupplierOf[ListOf[string]], set
 	}
 }
 
-func (this *CmdLineParser_Option) stringEach(add func(any)) {
+func (this *CmdLineParser_Option) stringEach(add func(string)) {
 	this.metaVariable = Optional_of[string]("VAL")
 	this.defaultValues = nil
 	this.handler = func(params CmdLineParser_Parameters) *Outcome_base[any] {
@@ -380,7 +380,7 @@ func (this *CmdLineParser_Option) stringEach(add func(any)) {
 		if value.isErr() {
 			return Outcome_base_err[any](value.error())
 		}
-		add(strobj_(value.get()))
+		add(value.get())
 		return Outcome_base_ok_Object[any](any(int32(1)))
 	}
 }

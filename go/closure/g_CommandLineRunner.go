@@ -995,12 +995,12 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}, &Consumer_tfn_List{func(v List) {
 		this.externs = v
 	}})
-	this.parser.option("--js").usage("The JavaScript filename. You may specify multiple. The flag name is optional, because args are interpreted as files by default. You may also use minimatch-style glob patterns. For example, use --js='**.js' --js='!**_test.js' to recursively include all js files that do not end in _test.js").stringEach((&Consumer_tfn_string{func(v string) {
+	this.parser.option("--js").usage("The JavaScript filename. You may specify multiple. The flag name is optional, because args are interpreted as files by default. You may also use minimatch-style glob patterns. For example, use --js='**.js' --js='!**_test.js' to recursively include all js files that do not end in _test.js").stringEach(func(v string) {
 		this.js = CommandLineRunner_Flags_addMultiFlagValue(this.js, Optional_of[string](v), obj_(AbstractCommandLineRunner_JsSourceType_JS), this.mixedJsSources)
-	}}).accept)
-	this.parser.option("--jszip").hidden_1(true).usage("The JavaScript zip filename. You may specify multiple.").stringEach((&Consumer_tfn_string{func(v string) {
+	})
+	this.parser.option("--jszip").hidden_1(true).usage("The JavaScript zip filename. You may specify multiple.").stringEach(func(v string) {
 		this.unusedJsZip = CommandLineRunner_Flags_addMultiFlagValue(this.unusedJsZip, Optional_of[string](v), obj_(AbstractCommandLineRunner_JsSourceType_JS_ZIP), this.mixedJsSources)
-	}}).accept)
+	})
 	this.parser.option("--js_output_file").usage("Primary output filename. If not specified, output is written to stdout").string((&Supplier_tfn_string{func() string {
 		return this.jsOutputFile
 	}}).get, (&Consumer_tfn_string{func(v string) {
@@ -1118,15 +1118,15 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.applyInputSourceMaps = unbox_[bool](v)
 	})
-	this.parser.option("--jscomp_error").usage("Make the named class of warnings an error. Must be one of the error group items. '*' adds all supported.").stringEach((&Consumer_tfn_string{func(v string) {
+	this.parser.option("--jscomp_error").usage("Make the named class of warnings an error. Must be one of the error group items. '*' adds all supported.").stringEach(func(v string) {
 		this.jscompError = CommandLineRunner_Flags_addMultiFlagValue(this.jscompError, Optional_of[string](v), obj_(CheckLevel_ERROR), this.guardLevels)
-	}}).accept)
-	this.parser.option("--jscomp_warning").usage("Make the named class of warnings a normal warning. Must be one of the error group items. '*' adds all supported.").stringEach((&Consumer_tfn_string{func(v string) {
+	})
+	this.parser.option("--jscomp_warning").usage("Make the named class of warnings a normal warning. Must be one of the error group items. '*' adds all supported.").stringEach(func(v string) {
 		this.jscompWarning = CommandLineRunner_Flags_addMultiFlagValue(this.jscompWarning, Optional_of[string](v), obj_(CheckLevel_WARNING), this.guardLevels)
-	}}).accept)
-	this.parser.option("--jscomp_off").usage("Turn off the named class of warnings. Must be one of the error group items. '*' adds all supported.").stringEach((&Consumer_tfn_string{func(v string) {
+	})
+	this.parser.option("--jscomp_off").usage("Turn off the named class of warnings. Must be one of the error group items. '*' adds all supported.").stringEach(func(v string) {
 		this.jscompOff = CommandLineRunner_Flags_addMultiFlagValue(this.jscompOff, Optional_of[string](v), obj_(CheckLevel_OFF), this.guardLevels)
-	}}).accept)
+	})
 	this.parser.option("--define").aliases([]string{"--D", "-D"}).usage("Override the value of a variable annotated @define. The format is <name>[=<val>], where <name> is the name of a @define variable and <val> is a boolean, number, or a single-quoted string that contains no single quotes. If [=<val>] is omitted, the variable is marked true").stringList(&Supplier_tfn_List{func() List {
 		return this.define
 	}}, &Consumer_tfn_List{func(v List) {
