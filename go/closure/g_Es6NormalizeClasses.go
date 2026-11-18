@@ -1174,7 +1174,7 @@ func (this *Es6NormalizeClasses) maybeUpdateClassSelfRef(t *NodeTraversal, nameN
 		if (bindingIdentifier.matchesNameNode(klass.normalizedNames.classNameNode_) || (nameNode == bindingIdentifier)) || !nameNode.matchesQualifiedNameNode(bindingIdentifier) {
 			continue
 		}
-		var var_ *Var = cast_[*Var](t.getScope().getVar(nameNode.getString()).self())
+		var var_ *Var = cast_[*Var](t.getScope().getVarById_(nameNode.getStringId_()).self())
 		if (var_ == nil) || (var_.getNameNode() != bindingIdentifier) {
 			continue
 		}

@@ -947,7 +947,7 @@ var lambda_ConformanceRules_BannedName_clinit_1_ = &CheckConformance_Preconditio
 		case tokOrd1_GETPROP:
 			return n.getFirstChild().isQualifiedName()
 		case tokOrd1_NAME:
-			return n.getString() != ""
+			return !n.getStringIs_(sidx_)
 		default:
 			return false
 		}
@@ -1628,7 +1628,7 @@ func (this *ConformanceRules_RestrictedNameCall) checkConformance_impl(t *NodeTr
 				if !ConformanceRules_ConformanceUtil_validateCall(this.compiler_, n.getParent(), r.restrictedCallType, false) {
 					return ConformanceRules_ConformanceResult_VIOLATION
 				}
-			} else if (n.isGetProp() && (n.getString() == "call")) && n.getFirstChild().matchesQualifiedNameNode(r.name_) {
+			} else if (n.isGetProp() && (n.getStringIs_(sid_call))) && n.getFirstChild().matchesQualifiedNameNode(r.name_) {
 				if !ConformanceRules_ConformanceUtil_validateCall(this.compiler_, n.getParent(), r.restrictedCallType, true) {
 					return ConformanceRules_ConformanceResult_VIOLATION
 				}
@@ -1749,7 +1749,7 @@ func (this *ConformanceRules_RestrictedMethodCall) checkConformance_impl(t *Node
 		var result *ConformanceRules_ConformanceResult = ConformanceRules_ConformanceResult_CONFORMANCE
 		if this.matchesProp(n, r) {
 			result = this.checkConformance_4(t, n, r, false)
-		} else if (n.getString() == "call") && this.matchesProp(n.getFirstChild(), r) {
+		} else if (n.getStringIs_(sid_call)) && this.matchesProp(n.getFirstChild(), r) {
 			result = this.checkConformance_4(t, n, r, true)
 		}
 		if result.level_ != ConformanceRules_ConformanceLevel_CONFORMANCE {
@@ -3365,7 +3365,7 @@ func (this *ConformanceRules_BanCreateDom) isCreateDomCall(n Node) bool {
 	if !target.isGetProp() {
 		return false
 	}
-	if !("createDom" == target.getString()) {
+	if !(target.getStringIs_(sid_createDom)) {
 		return false
 	}
 	var srcObj Node = target.getFirstChild()

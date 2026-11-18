@@ -258,7 +258,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 			if NodeUtil_JSC_PROPERTY_NAME_FN == name {
 				*this.outer_.toRemove = append(*this.outer_.toRemove, n)
 			}
-		} else if parent.isName() && (NodeUtil_JSC_PROPERTY_NAME_FN == parent.getString()) {
+		} else if parent.isName() && (parent.getStringIs_(sid_JSCompiler_renameProperty)) {
 			var varNode Node = parent.getParent()
 			if varNode.isVar() {
 				*this.outer_.toRemove = append(*this.outer_.toRemove, parent)

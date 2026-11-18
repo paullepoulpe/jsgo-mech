@@ -68,7 +68,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTra
 		return
 	}
 	var hasImportantName bool = false
-	var isGlobalDeclaration bool = t.getScope().getVar(sliceAt_(*allLhsNodes, 0).getString()).self().(*Var).isGlobal()
+	var isGlobalDeclaration bool = t.getScope().getVarById_(sliceAt_(*allLhsNodes, 0).getStringId_()).self().(*Var).isGlobal()
 	for lhs := range sliceAll_(allLhsNodes) {
 		if !lhs.isName() {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected lhs node %s, expected NAME", []any{lhs.box_()})))

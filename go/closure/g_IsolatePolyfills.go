@@ -172,7 +172,7 @@ func (this *IsolatePolyfills) createPolyfillMethodLookup(receiver Node, methodNa
 func (this *IsolatePolyfills) cleanUpJscompLookupPolyfilledValue() {
 	var syntheticExternsRoot Node = this.compiler_.getSynthesizedExternsInput().getAstRoot(this.compiler_)
 	var syntheticExternsScope *Scope = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScope(syntheticExternsRoot, nil)
-	var externVar *Var = cast_[*Var](syntheticExternsScope.getVar(this.jscompLookupMethod.getString()).self())
+	var externVar *Var = cast_[*Var](syntheticExternsScope.getVarById_(this.jscompLookupMethod.getStringId_()).self())
 	if externVar == nil {
 		panic(new_NullPointerException_String("Failed to find synthetic $jscomp$lookupPolyfilledValue extern"))
 	}
@@ -181,7 +181,7 @@ func (this *IsolatePolyfills) cleanUpJscompLookupPolyfilledValue() {
 		return
 	}
 	var syntheticCodeScope *Scope = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScope(this.compiler_.getNodeForCodeInsertion(nil), nil)
-	var syntheticVar *Var = cast_[*Var](syntheticCodeScope.getVar(this.jscompLookupMethod.getString()).self())
+	var syntheticVar *Var = cast_[*Var](syntheticCodeScope.getVarById_(this.jscompLookupMethod.getStringId_()).self())
 	if syntheticVar != nil {
 		NodeUtil_deleteNode(syntheticVar.getParentNode(), this.compiler_)
 	}

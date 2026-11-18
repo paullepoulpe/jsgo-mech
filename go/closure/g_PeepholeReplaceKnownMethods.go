@@ -795,10 +795,10 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		}
 	}
 	var arrayNode Node = callTarget.getFirstChild()
-	if !arrayNode.isArrayLit() || !(callTarget.getString() == "join") {
+	if !arrayNode.isArrayLit() || !(callTarget.getStringIs_(sid_join)) {
 		return n
 	}
-	if (right != 0) && (NodeUtil_isUndefined(right) || (right.isStringLit() && ("," == right.getString()))) {
+	if (right != 0) && (NodeUtil_isUndefined(right) || (right.isStringLit() && (right.getStringIs_(sidx_2c)))) {
 		right.detach()
 		this.reportChangeToEnclosingScope(n)
 	}
@@ -1271,7 +1271,7 @@ func PeepholeReplaceKnownMethods_createConcatFunctionCallForNode(n Node) *Peepho
 	if callTarget == 0 {
 		panic(new_NullPointerException_0())
 	}
-	if !callTarget.isGetProp() || !(callTarget.getString() == "concat") {
+	if !callTarget.isGetProp() || !(callTarget.getStringIs_(sid_concat)) {
 		return nil
 	}
 	var calleeNode Node = callTarget.getFirstChild()
@@ -1293,7 +1293,7 @@ func PeepholeReplaceKnownMethods_containsExactlyArray(n Node) bool {
 		return false
 	}
 	var callee Node = n.getFirstChild()
-	return ((callee.isGetProp() && (callee.getString() == "concat")) && PeepholeReplaceKnownMethods_containsExactlyArray(callee.getFirstChild()))
+	return ((callee.isGetProp() && (callee.getStringIs_(sid_concat))) && PeepholeReplaceKnownMethods_containsExactlyArray(callee.getFirstChild()))
 }
 
 const PeepholeReplaceKnownMethods_ECMA_WHITESPACE string = "[ \t\n-\r\\x{00A0}\\x{1680}\\x{2000}-\\x{200A}\\x{2028}\\x{2029}\\x{202F}\\x{205F}\\x{3000}\\x{FEFF}]+"

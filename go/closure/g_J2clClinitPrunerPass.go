@@ -265,7 +265,7 @@ func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) visit_impl(t *N
 	if (enclosingFunction == 0) || Object_equals(Optional_of[string](callOrNewNode.getFirstChild().getString()).box_(), NodeUtil_getNearestFunctionName(enclosingFunction).box_()) {
 		return
 	}
-	var var_ *Var = cast_[*Var](t.getScope().getVar(callOrNewNode.getFirstChild().getString()).self())
+	var var_ *Var = cast_[*Var](t.getScope().getVarById_(callOrNewNode.getFirstChild().getStringId_()).self())
 	if ((var_ == nil) || (var_.getInitialValue() == 0)) || !var_.getInitialValue().isFunction() {
 		return
 	}
@@ -291,7 +291,7 @@ func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) isParameter(t *
 	if !n.isName() {
 		return false
 	}
-	var var_ *Var = cast_[*Var](t.getScope().getVar(n.getString()).self())
+	var var_ *Var = cast_[*Var](t.getScope().getVarById_(n.getStringId_()).self())
 	return var_.getParentNode().isParamList()
 }
 

@@ -177,7 +177,7 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateGetpropDefini
 			return this.maybeStoreCandidateValue(this.outer_.getColor(src), propName, value)
 		}
 		return false
-	} else if (t.inGlobalHoistScope() && src.isGetProp()) && (src.getString() == "prototype") {
+	} else if (t.inGlobalHoistScope() && src.isGetProp()) && (src.getStringIs_(sid_prototype)) {
 		var instanceType *Color = this.outer_.getColor(src)
 		return this.maybeStoreCandidateValue(instanceType, propName, value)
 	} else if t.inGlobalHoistScope() {

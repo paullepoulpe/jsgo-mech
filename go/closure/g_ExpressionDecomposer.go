@@ -616,7 +616,7 @@ func (this *ExpressionDecomposer) isExpressionTreeUnsafe(tree Node, followingSid
 		var parent Node = tree.getParent()
 		if NodeUtil_isObjectCallMethod(parent, "call") || parent.getBooleanProp(Node_FREE_CALL) {
 			var callee Node = func() Node {
-				if tree.isGetProp() && (tree.getString() == "call") {
+				if tree.isGetProp() && (tree.getStringIs_(sid_call)) {
 					return tree.getFirstChild()
 				}
 				return tree

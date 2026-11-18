@@ -280,7 +280,7 @@ func (this *ClosureRewriteModule) recordGoogModuleGet(t *NodeTraversal, call Nod
 
 func (this *ClosureRewriteModule) recordTopLevelClassOrFunctionName(classOrFunctionNode Node) {
 	var nameNode Node = classOrFunctionNode.getFirstChild()
-	if nameNode.isName() && nameNode.getString() != "" {
+	if nameNode.isName() && !nameNode.getStringIs_(sidx_) {
 		var name string = nameNode.getString()
 		this.currentScript.topLevelNames[name] = struct{}{}
 	}
@@ -455,7 +455,7 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCall(call Node) {
 	if parent == 0 {
 		return
 	}
-	if !(parent.isAwait() || (parent.isGetProp() && (parent.getString() == "then"))) {
+	if !(parent.isAwait() || (parent.isGetProp() && (parent.getStringIs_(sid_then)))) {
 		panic(new_IllegalStateException_String("goog.requireDynamic() in only allowed in await/then expression"))
 	}
 	if parent.isAwait() {
@@ -601,7 +601,7 @@ func (this *ClosureRewriteModule) recordExportsPropertyAssignment(t *NodeTravers
 		panic(new_IllegalStateException_String(tostr_(parent)))
 	}
 	var exportsNameNode Node = getpropNode.getFirstChild()
-	if exportsNameNode.getString() != "exports" {
+	if !exportsNameNode.getStringIs_(sid_exports) {
 		panic(new_IllegalStateException_String(tostr_(exportsNameNode)))
 	}
 	if t.inModuleScope() {
@@ -625,7 +625,7 @@ func (this *ClosureRewriteModule) updateExportsPropertyAssignment(getpropNode No
 		panic(new_IllegalStateException_String(tostr_(parent)))
 	}
 	var exportsNameNode Node = getpropNode.getFirstChild()
-	if exportsNameNode.getString() != "exports" {
+	if !exportsNameNode.getStringIs_(sid_exports) {
 		panic(new_IllegalStateException_0())
 	}
 	var exportedNamespace Optional[string] = this.currentScript.getExportedNamespace()
@@ -707,7 +707,7 @@ func (this *ClosureRewriteModule) maybeUpdateExportDeclToNode(t *NodeTraversal, 
 	}
 	if value.isName() {
 		var currentScope *Scope = t.getScope()
-		var v *Var = cast_[*Var](t.getScope().getVar(value.getString()).self())
+		var v *Var = cast_[*Var](t.getScope().getVarById_(value.getStringId_()).self())
 		if v != nil {
 			var varScope *AbstractScope = to_AbstractScope(v.getScope())
 			if varScope.getDepth() == currentScope.getDepth() {
@@ -1374,7 +1374,7 @@ func ClosureRewriteModule_ExportDefinition_newNamedExport(t *NodeTraversal, name
 	newExport.exportName_ = name
 	newExport.rhs = rhs
 	if (rhs != 0) && (rhs.isName() || rhs.isStringKey()) {
-		newExport.nameDecl = cast_[*Var](t.getScope().getVar(rhs.getString()).self())
+		newExport.nameDecl = cast_[*Var](t.getScope().getVarById_(rhs.getStringId_()).self())
 	}
 	return newExport
 }
@@ -1399,7 +1399,7 @@ func (this *ClosureRewriteModule_ExportDefinition) hasInlinableName(exportedName
 		return true
 	}
 	var maybeGoog Node = method.getFirstChild()
-	if !maybeGoog.isName() || !(maybeGoog.getString() == "goog") {
+	if !maybeGoog.isName() || !(maybeGoog.getStringIs_(sid_goog)) {
 		return true
 	}
 	var name string = method.getString()

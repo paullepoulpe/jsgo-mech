@@ -257,14 +257,14 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) shouldTraverse_impl
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeExports(assignment Node) {
 	var lhs Node = assignment.getFirstChild()
 	var rhs Node = assignment.getSecondChild()
-	if lhs.isName() && (lhs.getString() == "exports") {
+	if lhs.isName() && (lhs.getStringIs_(sid_exports)) {
 		if NodeUtil_isNamedExportsLiteral(rhs) {
 			this.initializeNamedExportsLiteral(rhs)
 		} else {
 			this.seenExportsAssignment = true
 			this.markExportsAssignmentInNamespace(lhs)
 		}
-	} else if (lhs.isGetProp() && lhs.getFirstChild().isName()) && (lhs.getFirstChild().getString() == "exports") {
+	} else if (lhs.isGetProp() && lhs.getFirstChild().isName()) && (lhs.getFirstChild().getStringIs_(sid_exports)) {
 		var exportedId string = lhs.getString()
 		this.addPropertyExport(exportedId, lhs)
 	}
@@ -272,7 +272,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeExpo
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeExportsStub(qname Node) {
 	var owner Node = qname.getFirstChild()
-	if owner.isName() && (owner.getString() == "exports") {
+	if owner.isName() && (owner.getStringIs_(sid_exports)) {
 		this.addPropertyExport(qname.getString(), qname)
 	}
 }

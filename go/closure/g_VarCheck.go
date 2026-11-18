@@ -276,7 +276,7 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 		case tokOrd1_GETPROP:
 			if n == parent.getFirstChild() {
 				var scope *Scope = t.getScope()
-				var var_ *Var = cast_[*Var](scope.getVar(n.getString()).self())
+				var var_ *Var = cast_[*Var](scope.getVarById_(n.getStringId_()).self())
 				if var_ != nil {
 					return
 				}
@@ -303,7 +303,7 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 		}
 		t.report(n, VarCheck_NAME_REFERENCE_IN_EXTERNS_ERROR, []string{n.getString()})
 		var scope *Scope = t.getScope()
-		var var_ *Var = cast_[*Var](scope.getVar(n.getString()).self())
+		var var_ *Var = cast_[*Var](scope.getVarById_(n.getStringId_()).self())
 		if var_ == nil {
 			this.outer_.undefinedNamesFromExterns.Add(n.getString())
 		}

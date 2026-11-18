@@ -367,7 +367,7 @@ func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) isSam
 func ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_getPrototypeClassName(qName Node) Node {
 	var cur Node = qName
 	for cur.isGetProp() {
-		if cur.getString() == "prototype" {
+		if cur.getStringIs_(sid_prototype) {
 			return cur.getFirstChild()
 		} else {
 			cur = cur.getFirstChild()
@@ -384,7 +384,7 @@ func ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_isPrototypePr
 	if lvalue.isGetProp() {
 		var cur Node = lvalue.getFirstChild()
 		for cur.isGetProp() {
-			if cur.getString() == "prototype" {
+			if cur.getStringIs_(sid_prototype) {
 				return cur.isQualifiedName()
 			}
 			cur = cur.getFirstChild()

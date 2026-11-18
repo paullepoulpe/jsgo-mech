@@ -149,7 +149,7 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 				}
 				return cfgNode
 			}(), 0, output)
-		} else if "arguments" == n.getString() {
+		} else if n.getStringIs_(sid_arguments) {
 			this.escapeParameters(output)
 		}
 		return
@@ -167,7 +167,7 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 				return
 			} else if NodeUtil_isNormalGet(n.getFirstChild()) {
 				var obj Node = n.getFirstFirstChild()
-				if obj.isName() && ("arguments" == obj.getString()) {
+				if obj.isName() && (obj.getStringIs_(sid_arguments)) {
 					this.escapeParameters(output)
 				}
 			} else if n.getFirstChild().isDestructuringPattern() {

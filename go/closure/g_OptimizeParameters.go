@@ -485,10 +485,10 @@ func OptimizeParameters_isMovableValue(n Node, globalScope *Scope) bool {
 	case tokOrd1_FUNCTION:
 		return false
 	case tokOrd1_NAME:
-		if n.getString() == "arguments" {
+		if n.getStringIs_(sid_arguments) {
 			return false
 		} else {
-			var v *Var = cast_[*Var](globalScope.getVar(n.getString()).self())
+			var v *Var = cast_[*Var](globalScope.getVarById_(n.getStringId_()).self())
 			if v == nil {
 				return false
 			}

@@ -220,7 +220,7 @@ func PolymerPass_getTsickleClassPrototypeProp(stmt Node, classQualifiedName stri
 		return 0
 	}
 	var owner Node = expr.getFirstChild()
-	if !owner.isGetProp() || !(owner.getString() == "prototype") {
+	if !owner.isGetProp() || !(owner.getStringIs_(sid_prototype)) {
 		return 0
 	}
 	var classRef Node = owner.getFirstChild()

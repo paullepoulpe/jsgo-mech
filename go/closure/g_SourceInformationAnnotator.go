@@ -72,7 +72,7 @@ func SourceInformationAnnotator_setOriginalNameString(n Node, name string) {
 }
 
 func SourceInformationAnnotator_setOriginalName(n Node, name Node) {
-	if name.getString() != "" && n.getOriginalName() == "" {
+	if !name.getStringIs_(sidx_) && n.getOriginalName() == "" {
 		n.setOriginalNameFromName(name)
 	}
 }

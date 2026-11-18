@@ -577,7 +577,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) updateSideEffectsForNod
 			var value Node = node.getFirstChild()
 			if (value != 0) && !NodeUtil_evaluatesToLocalValue(value) {
 				var scope *Scope = traversal.getScope()
-				var var_ *Var = cast_[*Var](scope.getVar(node.getString()).self())
+				var var_ *Var = cast_[*Var](scope.getVarById_(node.getStringId_()).self())
 				SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).skiplistedVars[vkey_(var_)] = struct{}{}
 			}
 		}
@@ -701,7 +701,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 		} else {
 			var objectNode Node = lhs.getFirstChild()
 			if objectNode.isName() {
-				var var_ *Var = cast_[*Var](scope.getVar(objectNode.getString()).self())
+				var var_ *Var = cast_[*Var](scope.getVarById_(objectNode.getStringId_()).self())
 				if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
 					SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).taintedVars[vkey_(var_)] = struct{}{}
 				} else {
@@ -715,7 +715,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visitLhsNode(encloserSu
 		if !lhs.isName() {
 			panic(new_IllegalStateException_String(tostr_(lhs)))
 		}
-		var var_ *Var = cast_[*Var](scope.getVar(lhs.getString()).self())
+		var var_ *Var = cast_[*Var](scope.getVarById_(lhs.getStringId_()).self())
 		if PureFunctionIdentifier_FunctionBodyAnalyzer_isVarDeclaredInSameContainerScope(var_, scope) {
 			if !hasLocalRhs.test(lhs.box_()) {
 				SequencedCollection_getLast(SequencedCollection(this.functionScopeStack.asDeque())).(*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry).skiplistedVars[vkey_(var_)] = struct{}{}
@@ -833,7 +833,7 @@ func PureFunctionIdentifier_SideEffectPropagation_forInvocation(invocation Node,
 }
 
 func (this *PureFunctionIdentifier_SideEffectPropagation) holdsLocalValue(expr Node) bool {
-	return (NodeUtil_evaluatesToLocalValue(expr) || (expr.isName() && this.callerEntry.isLocalVar(cast_[*Var](this.callScope.getVar(expr.getString()).self()), this.callScope)))
+	return (NodeUtil_evaluatesToLocalValue(expr) || (expr.isName() && this.callerEntry.isLocalVar(cast_[*Var](this.callScope.getVarById_(expr.getStringId_()).self()), this.callScope)))
 }
 
 func (this *PureFunctionIdentifier_SideEffectPropagation) mutatedArgumentsAreLocal(mutatedParamMask int64) bool {

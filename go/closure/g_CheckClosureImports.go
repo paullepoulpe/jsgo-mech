@@ -273,7 +273,7 @@ func (this *CheckClosureImports_Checker) kindOfCall(callNode Node) CheckClosureI
 }
 
 func (this *CheckClosureImports_Checker) checkValidImportCodeReference(t *NodeTraversal, nameNode Node) {
-	var var_ *Var = cast_[*Var](t.getScope().getVar(nameNode.getString()).self())
+	var var_ *Var = cast_[*Var](t.getScope().getVarById_(nameNode.getStringId_()).self())
 	if (var_ == nil) || (var_.getNameNode() == nameNode) {
 		return
 	}

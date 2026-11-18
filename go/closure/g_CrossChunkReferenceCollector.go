@@ -146,7 +146,7 @@ func CrossChunkReferenceCollector_isPotentiallyMoveableGetElem(maybeGetElem Node
 		return false
 	}
 	var name Node = property.getFirstChild()
-	return (name.isName() && (name.getString() == "Symbol"))
+	return (name.isName() && (name.getStringIs_(sid_Symbol)))
 }
 
 func (this *CrossChunkReferenceCollector) getTopLevelStatements() *TList[*CrossChunkReferenceCollector_TopLevelStatement] {
@@ -200,7 +200,7 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 		if functionName == 0 {
 			panic(new_NullPointerException_0())
 		}
-		return (functionName.isName() && (functionName.getString() == CrossChunkMethodMotion_STUB_METHOD_NAME))
+		return (functionName.isName() && (functionName.getStringIs_(sid_JSCompiler_stubMethod)))
 	case Token_rhino_ARRAYLIT:
 		{
 			var child Node = valueNode.getFirstChild()
@@ -232,7 +232,7 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 		}
 		return true
 	case Token_rhino_NAME:
-		var v *Var = cast_[*Var](scope.getVar(valueNode.getString()).self())
+		var v *Var = cast_[*Var](scope.getVarById_(valueNode.getStringId_()).self())
 		if (v != nil) && v.isGlobal() {
 			var refCollection *ReferenceCollection = this.getReferences(v)
 			if ((refCollection != nil) && refCollection.isWellDefined()) && refCollection.isAssignedOnceInLifetime() {

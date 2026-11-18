@@ -845,7 +845,7 @@ func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) 
 		}
 		var left Node = n.getFirstChild()
 		var arg Node = n.getSecondChild()
-		if (!((left.isGetProp() && left.getFirstChild().isName()) && (left.getFirstChild().getString() == "goog")) || (arg == 0)) || !arg.isStringLit() {
+		if (!((left.isGetProp() && left.getFirstChild().isName()) && (left.getFirstChild().getStringIs_(sid_goog))) || (arg == 0)) || !arg.isStringLit() {
 			return false
 		}
 		return true
@@ -878,7 +878,7 @@ func (this *SymbolTable) isSymbolAQuotedObjectKey(symbol *SymbolTable_Symbol) bo
 
 func (this *SymbolTable) isSymbolDuplicatedExternOnWindow(symbol *SymbolTable_Symbol) bool {
 	var node Node = symbol.getDeclarationNode()
-	return (((!node.isIndexable() && node.isGetProp()) && node.getFirstChild().isName()) && (node.getFirstChild().getString() == "window"))
+	return (((!node.isIndexable() && node.isGetProp()) && node.getFirstChild().isName()) && (node.getFirstChild().getStringIs_(sid_window)))
 }
 
 func (this *SymbolTable) mergeExternSymbolsDuplicatedOnWindow() {
@@ -1764,7 +1764,7 @@ func (this *SymbolTable_VisibilityCollector) visitName(t *NodeTraversal, n Node)
 	if symbol.getVisibility() != 0 {
 		return
 	}
-	var var_ *Var = cast_[*Var](t.getScope().getVar(n.getString()).self())
+	var var_ *Var = cast_[*Var](t.getScope().getVarById_(n.getStringId_()).self())
 	if var_ == nil {
 		return
 	}

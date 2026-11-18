@@ -293,7 +293,7 @@ func (this *ReplaceCssNames_GatherCssNamesTraversal) createSassGeneratedCssTsExp
 		sassGeneratedCssTsValidationError = JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNEXPECTED_SASS_GENERATED_CSS_TS_ERROR, []string{})
 	}
 	var assignmentTarget Node = n.getFirstChild()
-	var isCssClosureClassesAssignment bool = ((n.isAssign() && assignmentTarget.isGetProp()) && (assignmentTarget.getString() == "classes"))
+	var isCssClosureClassesAssignment bool = ((n.isAssign() && assignmentTarget.isGetProp()) && (assignmentTarget.getStringIs_(sid_classes)))
 	var cssClosureClassesQualifiedName string = ""
 	if isCssClosureClassesAssignment {
 		cssClosureClassesQualifiedName = assignmentTarget.getQualifiedName()

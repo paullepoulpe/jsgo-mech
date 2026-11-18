@@ -82,7 +82,7 @@ func (this *PeepholeRemoveDeadCode) tryRemoveDefaultValue(defaultValue Node) Nod
 	var lValue Node = defaultValue.getFirstChild()
 	var val Node = defaultValue.getSecondChild()
 	var removeVal bool = false
-	if val.isName() && (val.getString() == "undefined") {
+	if val.isName() && (val.getStringIs_(sid_undefined)) {
 		removeVal = true
 	}
 	if val.isVoid() {
@@ -199,7 +199,7 @@ func (this *PeepholeRemoveDeadCode) tryFoldAssignment(subtree Node) Node {
 	}
 	var left Node = subtree.getFirstChild()
 	var right Node = subtree.getLastChild()
-	if (left.isName() && right.isName()) && (left.getString() == right.getString()) {
+	if (left.isName() && right.isName()) && (left.getStringId_() == right.getStringId_()) {
 		subtree.replaceWith(right.detach())
 		this.reportChangeToEnclosingScope(right)
 		return right

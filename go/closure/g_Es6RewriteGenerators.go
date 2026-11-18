@@ -252,7 +252,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpile() 
 		if !genFuncName.isName() {
 			panic(new_IllegalStateException_0())
 		}
-		if genFuncName.getString() == "" {
+		if genFuncName.getStringIs_(sidx_) {
 			genFuncName.setString(this.context.getScopedName(Es6RewriteGenerators_GENERATOR_FUNCTION))
 			if this.outer_.astFactory_.isAddingColors() {
 				genFuncName.setColor(generatorFunction.getColor())
@@ -1445,7 +1445,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 		this.visitThis(n)
 	} else if n.isReturn() {
 		this.visitReturn(n)
-	} else if n.isName() && (n.getString() == "arguments") {
+	} else if n.isName() && (n.getStringIs_(sid_arguments)) {
 		this.visitArguments(n)
 	} else if n.isVar() {
 		if parent.isVanillaFor() {

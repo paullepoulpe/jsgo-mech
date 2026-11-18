@@ -66,7 +66,7 @@ func (this *AstAnalyzer) functionCallHasSideEffects(callNode Node) bool {
 		if callNode.isOnlyModifiesThisCall() && NodeUtil_evaluatesToLocalValue(callee.getFirstChild()) {
 			return false
 		}
-		if ((this.assumeKnownBuiltinsArePure_ && callee.getFirstChild().isName()) && callee.isQualifiedName()) && (callee.getFirstChild().getString() == "Math") {
+		if ((this.assumeKnownBuiltinsArePure_ && callee.getFirstChild().isName()) && callee.isQualifiedName()) && (callee.getFirstChild().getStringIs_(sid_Math)) {
 			switch method {
 			case "abs", "acos", "acosh", "asin", "asinh", "atan", "atanh", "atan2", "cbrt", "ceil", "cos", "cosh", "exp", "expm1", "floor", "hypot", "log", "log10", "log1p", "log2", "max", "min", "pow", "round", "sign", "sin", "sinh", "sqrt", "tan", "tanh", "trunc":
 				return false

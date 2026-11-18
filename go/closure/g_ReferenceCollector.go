@@ -222,7 +222,7 @@ func (this *ReferenceCollector_CollectorCallback) exitScope(t *NodeTraversal) {
 func (this *ReferenceCollector_CollectorCallback) visit(t *NodeTraversal, n Node, parent Node) {
 	var addedReference *Reference = nil
 	if (n.isName() || n.isImportStar()) && !ReferenceCollector_isNonLocalModuleSpecifierName(n, parent) {
-		var v *Var = cast_[*Var](t.getScope().getVar(n.getString()).self())
+		var v *Var = cast_[*Var](t.getScope().getVarById_(n.getStringId_()).self())
 		if v != nil {
 			addedReference = this.outer_.addReference(v, n, t)
 			if this.outer_.collectHoistedFunctionsInReferenceOrder {

@@ -36,7 +36,7 @@ func (this *ConvertToDottedProperties) visit_impl(t *NodeTraversal, n Node, pare
 	case tokOrd1_COMPUTED_PROP, tokOrd1_COMPUTED_FIELD_DEF:
 		var leftElem Node = n.getFirstChild()
 		var rightElem Node = leftElem.getNext()
-		if ((leftElem.isStringLit() && NodeUtil_isValidPropertyName(FeatureSet_ES3, leftElem.getString())) && !(leftElem.getString() == "constructor")) && !(parent.isObjectLit() && (leftElem.getString() == "__proto__")) {
+		if ((leftElem.isStringLit() && NodeUtil_isValidPropertyName(FeatureSet_ES3, leftElem.getString())) && !(leftElem.getStringIs_(sid_constructor))) && !(parent.isObjectLit() && (leftElem.getStringIs_(sid___proto__))) {
 			leftElem.detach()
 			if rightElem != 0 {
 				rightElem.detach()

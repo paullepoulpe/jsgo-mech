@@ -391,7 +391,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) processMemberDef(t *No
 	var classNameNode Node = NodeUtil_getNameNode(n.getGrandparent())
 	var var_ *Var = func() *Var {
 		if (classNameNode != 0) && classNameNode.isName() {
-			return cast_[*Var](t.getScope().getVar(classNameNode.getString()).self())
+			return cast_[*Var](t.getScope().getVarById_(classNameNode.getStringId_()).self())
 		}
 		return nil
 	}()
@@ -401,7 +401,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) processMemberDef(t *No
 func (this *AnalyzePrototypeProperties_ProcessProperties) maybeGetVar(t *NodeTraversal, maybeName Node) *Var {
 	return func() *Var {
 		if maybeName.isName() {
-			return cast_[*Var](t.getScope().getVar(maybeName.getString()).self())
+			return cast_[*Var](t.getScope().getVarById_(maybeName.getStringId_()).self())
 		}
 		return nil
 	}()

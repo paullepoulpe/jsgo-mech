@@ -163,7 +163,7 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 		this.computeGenKill(n.getLastChild(), gen, kill, true)
 		return
 	case tokOrd1_NAME:
-		if n.getString() == "arguments" {
+		if n.getStringIs_(sid_arguments) {
 			this.markAllParametersEscaped()
 		} else if !NodeUtil_isLhsByDestructuring(n) {
 			this.addToSetIfLocal(n, gen)
@@ -240,7 +240,7 @@ func (this *LiveVariablesAnalysis) markAllParametersEscaped() {
 		var param Node = paramList.getFirstChild()
 		for ; param != 0; param = param.getNext() {
 			if param.isName() {
-				this.escaped[vkey_(cast_[*Var](this.jsScope.getVar(param.getString()).self()))] = struct{}{}
+				this.escaped[vkey_(cast_[*Var](this.jsScope.getVarById_(param.getStringId_()).self()))] = struct{}{}
 			}
 		}
 	}

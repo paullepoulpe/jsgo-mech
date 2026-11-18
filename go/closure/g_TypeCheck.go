@@ -154,7 +154,7 @@ func (this *TypeCheck) shouldTraverse(t *NodeTraversal, n Node, parent Node) boo
 		this.validator.setSubtypingMode(this.subtypingMode)
 	} else if n.isFunction() {
 		var outerScope *TypedScope = t.getTypedScope()
-		var var_ *TypedVar = cast_[*TypedVar](outerScope.getVar(n.getFirstChild().getString()).self())
+		var var_ *TypedVar = cast_[*TypedVar](outerScope.getVarById_(n.getFirstChild().getStringId_()).self())
 		if (((var_ != nil) && cast_[*TypedScope](var_.getScope()).hasSameContainerScope(outerScope.up_AbstractScope())) && !is_FunctionType(var_.getType().self())) && !TypeValidator_hasDuplicateDeclarationSuppression(this.compiler_, var_.getNameNode()) {
 			this.report(n, TypeCheck_FUNCTION_MASKS_VARIABLE, []string{var_.getName()})
 		}
@@ -567,7 +567,7 @@ func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, no
 		var pname string = lvalue.getString()
 		if object.isGetProp() {
 			var jsType *JSType = this.getJSType(object.getFirstChild())
-			if jsType.isInterface() && (object.getString() == "prototype") {
+			if jsType.isInterface() && (object.getStringIs_(sid_prototype)) {
 				this.visitInterfacePropertyAssignment(object, lvalue)
 			}
 		}
@@ -637,7 +637,7 @@ func (this *TypeCheck) checkPropCreation(lvalue Node) {
 }
 
 func (this *TypeCheck) checkPropertyInheritanceOnAssignment(assign Node, object Node, property Property_Key, info *JSDocInfo, propertyType *JSType) {
-	if object.isGetProp() && (object.getString() == "prototype") {
+	if object.isGetProp() && (object.getStringIs_(sid_prototype)) {
 		var preObject Node = object.getFirstChild()
 		var ctorType *FunctionType = this.getJSType(preObject).toMaybeFunctionType()
 		if (ctorType == nil) || !ctorType.hasInstanceType() {
@@ -953,7 +953,7 @@ func (this *TypeCheck) reportInvalidInterfaceMemberDeclaration(interfaceNode Nod
 
 func (this *TypeCheck) visitName(t *NodeTraversal, n Node, parent Node) bool {
 	var isFunctionName bool = (n.getParent().isFunction() && n.isFirstChildOf(parent))
-	if isFunctionName && n.getString() == "" {
+	if isFunctionName && n.getStringIs_(sidx_) {
 		return false
 	}
 	var reportIfMissingType bool = true
@@ -967,7 +967,7 @@ func (this *TypeCheck) visitName(t *NodeTraversal, n Node, parent Node) bool {
 	var type_ *JSType = n.getJSType()
 	if type_ == nil {
 		type_ = this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
-		var var_ *TypedVar = cast_[*TypedVar](t.getTypedScope().getVar(n.getString()).self())
+		var var_ *TypedVar = cast_[*TypedVar](t.getTypedScope().getVarById_(n.getStringId_()).self())
 		if var_ != nil {
 			nn_1 := var_.getType()
 			if nn_1 == nil {

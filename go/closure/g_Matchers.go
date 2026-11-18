@@ -585,7 +585,7 @@ func new_Matchers_17(cap_requireFunctionType bool) *Matchers_17 {
 
 func (this *Matchers_17) matches(node Node, metadata *NodeMetadata) bool {
 	var firstChild Node = node.getFirstChild()
-	if (node.isGetProp() && firstChild.isGetProp()) && ("prototype" == firstChild.getString()) {
+	if (node.isGetProp() && firstChild.isGetProp()) && (firstChild.getStringIs_(sid_prototype)) {
 		var fnJsType *JSType = Matchers_getJsTypeJSTypeNative(metadata, JSTypeNative_FUNCTION_FUNCTION_TYPE)
 		var jsType *JSType = node.getJSType()
 		if jsType == nil {
