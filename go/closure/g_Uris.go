@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type Uris struct {
 }
 
@@ -21,7 +23,7 @@ func Uris_isValid(uri string) bool {
 			if Character_isSpaceChar(c) || Character_isISOControl(c) {
 				return false
 			}
-		} else if !Uris_isAsciiLetterOrDigit(c) && (String_indexOf(Uris_LEGAL_PUNCTUATION, int32(c)) < 0) {
+		} else if !Uris_isAsciiLetterOrDigit(c) && (int32(strings.IndexRune(Uris_LEGAL_PUNCTUATION, rune(int32(c)))) < 0) {
 			return false
 		}
 		if (c == '%') && ((((i + 2) >= String_length(uri)) || !Uris_isHexDigit(String_charAt(uri, (i+1)))) || !Uris_isHexDigit(String_charAt(uri, (i+2)))) {
@@ -45,12 +47,12 @@ func Uris_path(uri string) string {
 	}()
 	if String_startsWith_String_int(uri, "//", start) {
 		start += 2
-		for (start < String_length(uri)) && (String_indexOf("/?#", int32(String_charAt(uri, start))) < 0) {
+		for (start < String_length(uri)) && (int32(strings.IndexRune("/?#", rune(int32(String_charAt(uri, start))))) < 0) {
 			start++
 		}
 	}
 	var end int32 = start
-	for (end < String_length(uri)) && (String_indexOf("?#", int32(String_charAt(uri, end))) < 0) {
+	for (end < String_length(uri)) && (int32(strings.IndexRune("?#", rune(int32(String_charAt(uri, end))))) < 0) {
 		end++
 	}
 	return String_substring(uri, start, end)
