@@ -37,7 +37,9 @@ import javax.lang.model.type.*;
  *   Iterable, Object or a type variable; the result of a lambda is a place of the type its
  *   interface's method returns there) -- not a place that wants the class (ArrayList,
  *   LinkedHashSet) itself, unless that place is a typed declaration too.
- * Parameters and results are those of methods whose signature is their own (closedMethod).
+ * Parameters and results are those of methods whose signature is their own (closedMethod), and
+ * those of a group of overriding methods of the program, which is one declaration: typed in
+ * every method of the group or in none (groupOf, groupSlot).
  *
  * Java's behaviour is kept: the collection is one object wherever it goes (asList() / asSet()
  * is its one view), null is nil, and the view implements List / Set as the erased class in
@@ -57,6 +59,7 @@ final class Colls {
     boolean made;  // a list enters it (a new ArrayList, or the value of another candidate)
     final List<Tree> uses = new ArrayList<>();
     final List<Slot> taints = new ArrayList<>();  // erased if this one is
+    List<Element> all;  // of a group of overriding methods: the declaration of each method (v is the first)
   }
 
   final Map<Element, Slot> slots = new LinkedHashMap<>();
@@ -174,6 +177,128 @@ final class Colls {
   Set<ExecutableElement> overridden;
   int openResults, openParams;
 
+  // ---- groups of overriding methods
+  //
+  // Methods that override one another have one signature in Go (the group's: Ctx.groupParams),
+  // so a parameter or the result of such a method is one declaration for the whole group: it is
+  // typed in every method of the group or in none. A group is every method connected by
+  // "overrides" in some class of the program (a method a class inherits and the interface
+  // method it implements there are connected too). It can be typed when all its methods are
+  // methods of the program without type parameters; no lambda or method reference implements
+  // it (flows); and the position has the same collection type in every method.
+
+  private final Map<ExecutableElement, ExecutableElement> groupParent = new HashMap<>();
+  private final Map<ExecutableElement, List<ExecutableElement>> groupMembers = new HashMap<>();
+  private final Map<ExecutableElement, String> groupClosed = new HashMap<>();  // representatives of groups that cannot be typed, and why
+  /** Parameters and results of a collection type that are not candidates, by reason (the report). */
+  final Map<String, Integer> notCandidates = new TreeMap<>();
+  private final Map<String, Slot> groupSlots = new HashMap<>();
+  private boolean groupsBuilt;
+
+  private ExecutableElement find(ExecutableElement m) {
+    ExecutableElement p = groupParent.get(m);
+    if (p == null || p == m) return m;
+    ExecutableElement r = find(p);
+    groupParent.put(m, r);
+    return r;
+  }
+
+  /** Connects the methods that override one another as members of te. */
+  void group(TypeElement te) {
+    Map<String, List<ExecutableElement>> byName = new HashMap<>();
+    List<TypeElement> in = new ArrayList<>(List.of(te));
+    in.addAll(cx.allSupertypes(te));
+    for (TypeElement st : in) {
+      for (Element e : st.getEnclosedElements()) {
+        if (e instanceof ExecutableElement m && Ctx.isInstanceMethod(m) && !m.getModifiers().contains(Modifier.PRIVATE)) {
+          byName.computeIfAbsent(m.getSimpleName() + "/" + m.getParameters().size(), k -> new ArrayList<>()).add(m);
+        }
+      }
+    }
+    for (List<ExecutableElement> ms : byName.values()) {
+      for (ExecutableElement x : ms) {
+        for (ExecutableElement y : ms) {
+          if (x != y && cx.elems.overrides(x, y, te)) groupParent.put(find(x), find(y));
+        }
+      }
+    }
+  }
+
+  void groups(CompilationUnitTree cu) {
+    new TreePathScanner<Void, Void>() {
+      @Override
+      public Void visitClass(ClassTree t, Void v) {
+        if (trees.getElement(getCurrentPath()) instanceof TypeElement te) group(te);
+        return super.visitClass(t, v);
+      }
+    }.scan(cu, null);
+  }
+
+  /** The methods of the group of m, or null if the group cannot be typed. */
+  List<ExecutableElement> groupOf(ExecutableElement m) {
+    if ("1".equals(System.getenv("J2GO_COLLS_NOGROUPS"))) return null;
+    if (!groupsBuilt) {
+      groupsBuilt = true;
+      for (ExecutableElement x : new ArrayList<>(groupParent.keySet())) groupMembers.computeIfAbsent(find(x), k -> new ArrayList<>()).add(x);
+      for (var e : groupMembers.entrySet()) {
+        if (!e.getValue().contains(e.getKey())) e.getValue().add(e.getKey());
+        for (ExecutableElement x : e.getValue()) {
+          TypeElement owner = (TypeElement) x.getEnclosingElement();
+          String why = !cx.isSource(owner) ? "a method of the group is a library method (" + owner.getSimpleName() + "." + x.getSimpleName() + ")"
+              : !x.getTypeParameters().isEmpty() ? "a method of the group has type parameters"
+              : owner.getKind() == ElementKind.RECORD || owner.getKind() == ElementKind.ANNOTATION_TYPE || cx.isHandle(owner) ? "a method of a record, an annotation or a handle class" : null;
+          if (why != null) groupClosed.putIfAbsent(e.getKey(), why);
+        }
+      }
+    }
+    ExecutableElement r = find(m);
+    if (groupClosed.containsKey(r)) return null;
+    List<ExecutableElement> ms = groupMembers.get(r);
+    return ms == null || !ms.contains(m) ? null : ms;
+  }
+
+  /** Why a position of method m, which is not closed, is not a candidate (for the report). */
+  String whyNoGroup(ExecutableElement m, List<ExecutableElement> g) {
+    if (g != null) return "the methods of the group do not all have the same typed collection type there";
+    if (m.getKind() != ElementKind.METHOD || !Ctx.isInstanceMethod(m) || m.getModifiers().contains(Modifier.PRIVATE)) {
+      return m.getTypeParameters().isEmpty() ? "a method without a body, of a record, or main" : "a method with type parameters";
+    }
+    String why = groupClosed.get(find(m));
+    return why != null ? why : !m.getTypeParameters().isEmpty() ? "a method with type parameters" : "a method of an interface that nothing implements";
+  }
+
+  /** The declaration that position idx (-1: the result) is in every method of group ms, or null. */
+  Slot groupSlot(List<ExecutableElement> ms, int idx) {
+    String key = System.identityHashCode(find(ms.get(0))) + "#" + idx;
+    if (groupSlots.containsKey(key)) return groupSlots.get(key);
+    Slot s = null;
+    List<Element> all = new ArrayList<>();
+    for (ExecutableElement x : ms) {
+      boolean varargs = x.isVarArgs() && idx == x.getParameters().size() - 1;
+      Element e = idx < 0 ? x : x.getParameters().get(idx);
+      TypeMirror t = idx < 0 ? x.getReturnType() : e.asType();
+      Ctx.CollKind k = varargs ? null : cx.collKindOf(t);
+      List<TypeMirror> args = k == null || k == cx.entryKind ? null : cx.typedArgs(k, t);
+      boolean open = false;
+      if (args != null) for (TypeMirror a : args) open |= cx.open(a);
+      if (args == null || open || s != null && (s.kind != k || !sameArgs(s.args, args))) {
+        s = null;
+        break;
+      }
+      if (s == null) {
+        s = new Slot();
+        s.kind = k;
+        s.v = e;
+        s.args = args;
+        s.all = all;
+      }
+      all.add(e);
+    }
+    groupSlots.put(key, s);
+    if (s != null) for (Element e : all) slots.put(e, s);
+    return s;
+  }
+
   /** Pass 1: the declarations that could be typed. */
   void candidates(CompilationUnitTree cu) {
     new TreePathScanner<Void, Void>() {
@@ -184,9 +309,18 @@ final class Colls {
           closed.add(m);
           candidate(m, m.getReturnType());
         } else if (e instanceof ExecutableElement m) {
-          // not candidates: the signature belongs to a group of overriding methods (or to a lambda's interface)
-          if (cx.typedArgs(m.getReturnType()) != null) openResults++;
-          for (VariableElement p : m.getParameters()) if (cx.typedArgs(p.asType()) != null) openParams++;
+          // the signature belongs to a group of overriding methods: one declaration per group
+          List<ExecutableElement> g = m.getKind() == ElementKind.METHOD && Ctx.isInstanceMethod(m) && !m.getModifiers().contains(Modifier.PRIVATE) ? groupOf(m) : null;
+          if (cx.typedArgs(m.getReturnType()) != null && (g == null || groupSlot(g, -1) == null)) {
+            openResults++;
+            notCandidates.merge(whyNoGroup(m, g), 1, Integer::sum);
+          }
+          for (int i = 0; i < m.getParameters().size(); i++) {
+            if (cx.typedArgs(m.getParameters().get(i).asType()) != null && (g == null || groupSlot(g, i) == null)) {
+              openParams++;
+              notCandidates.merge(whyNoGroup(m, g), 1, Integer::sum);
+            }
+          }
         }
         return super.visitMethod(t, v);
       }
@@ -202,7 +336,7 @@ final class Colls {
             && ve.asType().getKind() == TypeKind.DECLARED && Ctx.typeElement(ve.asType()).getQualifiedName().contentEquals("java.util.Map.Entry")) {
           // the entry of a map: typed if the loop is over the entries of a typed map (flows)
           candidate(ve, ve.asType(), cx.entryKind);
-        } else if (e instanceof VariableElement ve && (e.getKind() == ElementKind.FIELD || e.getKind() == ElementKind.LOCAL_VARIABLE || param)) {
+        } else if (e instanceof VariableElement ve && (e.getKind() == ElementKind.FIELD || e.getKind() == ElementKind.LOCAL_VARIABLE || param) && !slots.containsKey(ve)) {
           Slot s = candidate(ve, ve.asType());
           if (s != null) {
             if (parent instanceof EnhancedForLoopTree) poison(s, "the variable of a for-each loop");
@@ -551,8 +685,24 @@ final class Colls {
         return super.visitReturn(t, v);
       }
 
+      /** A lambda or a method reference implements the method of its interface: that group has the erased signature. */
+      void implemented(Tree t) {
+        TypeMirror ft = typeOf(t);
+        ExecutableElement m = ft == null || ft.getKind() != TypeKind.DECLARED ? null : cx.functionalMethod(Ctx.typeElement(ft));
+        if (m == null) return;
+        if (slots.get(m) != null) poison(slots.get(m), "of a method that a lambda implements");
+        for (VariableElement p : m.getParameters()) if (slots.get(p) != null) poison(slots.get(p), "of a method that a lambda implements");
+      }
+
+      @Override
+      public Void visitLambdaExpression(LambdaExpressionTree t, Void v) {
+        implemented(t);
+        return super.visitLambdaExpression(t, v);
+      }
+
       @Override
       public Void visitMemberReference(MemberReferenceTree t, Void v) {
+        implemented(t);
         // a method named by a method reference is called at the erased signature
         if (elemOf(getCurrentPath()) instanceof ExecutableElement ex) {
           if (slots.get(ex) != null) poison(slots.get(ex), "named by a method reference");
@@ -597,8 +747,10 @@ final class Colls {
       n[s.v.getKind() == ElementKind.FIELD ? 2 : s.v.getKind() == ElementKind.PARAMETER ? 4 : s.v instanceof ExecutableElement ? 5 : 3]++;
       elems.merge(s.kind.name + " of " + s.args, 1, Integer::sum);
       TypeMirror t = cx.typedOf(s.kind, s.args);
-      if (s.v instanceof ExecutableElement m) cx.typedResults.put(m, t);
-      else cx.refinedVars.put(s.v, t);
+      for (Element d : s.all != null ? s.all : List.of(s.v)) {
+        if (d instanceof ExecutableElement m) cx.typedResults.put(m, t);
+        else cx.refinedVars.put(d, t);
+      }
       for (Tree u : s.uses) cx.refinedTrees.put(u, t);
     }
     for (var e : counts.entrySet()) {
@@ -608,7 +760,9 @@ final class Colls {
     }
     if (report) {
       for (var e : untypable.entrySet()) System.err.println("colls: no typed collection for the type: " + e.getValue() + " " + e.getKey());
-      System.err.println("colls: not candidates: " + openParams + " parameters and " + openResults + " results of methods in groups of overriding methods");
+      System.err.println("colls: not candidates: " + openParams + " parameters and " + openResults + " results of methods whose signature is not their own");
+      for (var e : notCandidates.entrySet()) System.err.println("colls: not candidates: " + e.getValue() + " " + e.getKey().replaceAll(" \\(.*\\)", ""));
+      if ("2".equals(System.getenv("J2GO_COLLS"))) for (var e : notCandidates.entrySet()) System.err.println("colls: not a candidate: " + e.getValue() + " " + e.getKey());
       List<Map.Entry<String, Integer>> l = new ArrayList<>(whys.entrySet());
       l.sort((a, b) -> b.getValue() - a.getValue());
       for (var e : l) System.err.println("colls: erased: " + e.getValue() + " " + e.getKey());

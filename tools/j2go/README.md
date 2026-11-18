@@ -120,7 +120,13 @@ it (`Colls`; `J2GO_COLLS=1` reports the counts and why declarations stay erased,
 each one). The decision is made declaration by declaration: a field, a local variable, and the
 parameters and the result of a method whose signature is its own (a constructor, a static or
 private method, an instance method that overrides nothing and that nothing overrides; not one
-named by a method reference). A declaration is typed when
+named by a method reference). A parameter or the result of the methods of a group of
+overriding methods is one declaration (the methods have one signature in Go): it is typed in
+every method of the group or in none. Such a group is every method connected by "overrides"
+in some class of the program (a method that a class inherits is connected to the interface
+method it implements there), all of them methods of the program without type parameters,
+with the same collection type at that position; a group that a lambda or a method reference
+implements keeps the erased signature. A declaration is typed when
 
 - each type argument is a type that a typed collection holds (`Ctx.typedArg`): a String, a
   class, an interface or a handle without type arguments; a boxed primitive or `Object`, held

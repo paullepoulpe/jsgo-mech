@@ -281,6 +281,7 @@ public final class Main {
     cx.registerTypedColls();
     if (System.getenv("J2GO_ERASED") == null) {
       Colls colls = new Colls(cx, trees);
+      for (CompilationUnitTree cu : units) colls.groups(cu);
       for (CompilationUnitTree cu : units) colls.candidates(cu);
       for (CompilationUnitTree cu : units) colls.flows(cu);
       colls.decide();

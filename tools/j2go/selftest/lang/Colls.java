@@ -905,6 +905,139 @@ public class Colls {
     return r;
   }
 
+  // ---- parameters and results of methods in groups of overriding methods
+  interface Source {
+    List<String> names();
+
+    void fill(List<String> into, Set<Base> seen);
+
+    default List<String> twice() {
+      List<String> r = new ArrayList<>(names());
+      r.addAll(names());
+      return r;
+    }
+  }
+
+  abstract static class AbstractSource implements Source {
+    protected final List<String> mine = new ArrayList<>();
+
+    @Override
+    public List<String> names() {
+      return mine;
+    }
+
+    abstract Map<String, Base> index(List<Base> from);
+  }
+
+  static class FixedSource extends AbstractSource {
+    FixedSource(String... xs) {
+      for (String x : xs) {
+        mine.add(x);
+      }
+    }
+
+    @Override
+    public void fill(List<String> into, Set<Base> seen) {
+      into.addAll(mine);
+      seen.add(new Base(mine.size()));
+    }
+
+    @Override
+    Map<String, Base> index(List<Base> from) {
+      Map<String, Base> m = new LinkedHashMap<>();
+      for (Base b : from) {
+        m.put(b.name(), b);
+      }
+      return m;
+    }
+  }
+
+  static class UpperSource extends FixedSource {
+    UpperSource(String x) {
+      super(x);
+    }
+
+    @Override
+    public List<String> names() {
+      List<String> r = new ArrayList<>();
+      for (String n : super.names()) {
+        r.add(n + "!");
+      }
+      return r;
+    }
+
+    @Override
+    public void fill(List<String> into, Set<Base> seen) {
+      super.fill(into, seen);
+      into.add(null);
+    }
+  }
+
+  // implemented by a class that inherits the method from a class that does not know the interface
+  interface Sized {
+    Set<String> keys();
+  }
+
+  static class KeyHolder {
+    public Set<String> keys() {
+      Set<String> k = new LinkedHashSet<>();
+      k.add("k1");
+      return k;
+    }
+  }
+
+  static class SizedHolder extends KeyHolder implements Sized {}
+
+  // implemented by a lambda: the group keeps the erased signature
+  interface Lister {
+    List<String> list(List<String> from);
+  }
+
+  static String groups() {
+    Source[] sources = {new FixedSource("a", "b"), new UpperSource("c"), new Source() {
+      @Override
+      public List<String> names() {
+        List<String> l = new ArrayList<>();
+        l.add("anon");
+        return l;
+      }
+
+      @Override
+      public void fill(List<String> into, Set<Base> seen) {
+        into.add("filled");
+        seen.clear();
+      }
+    }};
+    StringBuilder sb = new StringBuilder();
+    List<String> all = new ArrayList<>();
+    Set<Base> seen = new LinkedHashSet<>();
+    for (Source s : sources) {
+      List<String> n = s.names();
+      n.add("+");
+      s.fill(all, seen);
+      sb.append(n).append(s.names().size()).append(s.twice()).append(seen).append(' ');
+    }
+    AbstractSource as = new FixedSource("q");
+    List<Base> bases = new ArrayList<>();
+    bases.add(new Derived(4));
+    bases.add(new Base(5));
+    Map<String, Base> idx = as.index(bases);
+    Sized sized = new SizedHolder();
+    Set<String> keys = sized.keys();
+    keys.add("k2");
+    Lister rev = from -> {
+      List<String> r = new ArrayList<>();
+      for (int i = from.size() - 1; i >= 0; i--) {
+        r.add(from.get(i));
+      }
+      return r;
+    };
+    Lister same = from -> from;
+    List<String> reversed = rev.list(all);
+    return sb + " " + all + " " + idx + " " + idx.get("base5").id + " " + keys + new SizedHolder().keys().size() + " " + reversed + " " + (same.list(all) == all) + " "
+        + reversed.size();
+  }
+
   public static String run() {
     new Colls().fields();
     locals(true);
@@ -916,6 +1049,7 @@ public class Colls {
     new Colls().boxes();
     new Colls().byEquals();
     p(generic());
+    p(groups());
     return out.toString();
   }
 
