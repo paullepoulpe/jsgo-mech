@@ -73,7 +73,7 @@ func (this *TemplateTypeMap) copyFilledWithValues(values *ImmutableList[*JSType]
 	if this.numUnfilledTemplateKeys() == 0 {
 		return this
 	}
-	var extendedValues *JTList[*JSType] = jnewTList_(jtc_p_JSType)
+	var extendedValues *TList[*JSType] = newTList_(tc_p_JSType)
 	extendedValues.asList().addAll(sliceView_(tc_p_JSType, this.templateValues))
 	extendedValues.asList().addAll(icast_Collection(obj_(values.asImm())))
 	this.padToSameLength(this.templateKeys, extendedValues)
@@ -102,7 +102,7 @@ func (this *TemplateTypeMap) copyWithExtension_3(keys *ImmutableList[*TemplateTy
 		return this
 	}
 	var extendedKeys *ImmutableList[*TemplateType] = immutableListBuilder_(tc_p_TemplateType).addAllT(this.templateKeys).addAllT(keys).build()
-	var extendedValues *JTList[*JSType] = jnewTList_(jtc_p_JSType)
+	var extendedValues *TList[*JSType] = newTList_(tc_p_JSType)
 	extendedValues.asList().addAll(sliceView_(tc_p_JSType, this.templateValues))
 	this.padToSameLength(this.templateKeys, extendedValues)
 	extendedValues.asList().addAll(sliceView_(tc_p_JSType, values))
@@ -270,7 +270,7 @@ func (this *TemplateTypeMap) toString() string {
 	return s
 }
 
-func (this *TemplateTypeMap) padToSameLength(keys *ImmutableList[*TemplateType], builder *JTList[*JSType]) {
+func (this *TemplateTypeMap) padToSameLength(keys *ImmutableList[*TemplateType], builder *TList[*JSType]) {
 	if builder.size() > keys.size() {
 		panic(new_IllegalArgumentException_0())
 	}

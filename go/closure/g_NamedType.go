@@ -13,7 +13,7 @@ type NamedType struct {
 	resolutionKind        NamedType_ResolutionKind
 	resolutionScope       StaticTypedScope
 	validator             Predicate_baseOf[*JSType]
-	propertyContinuations *JTList[*NamedType_PropertyContinuation]
+	propertyContinuations *TList[*NamedType_PropertyContinuation]
 	templateTypes         *ImmutableList[*JSType]
 	restrictByNull        bool
 }
@@ -114,7 +114,7 @@ func (this *NamedType) getTemplateTypes_impl() *ImmutableList[*JSType] {
 func (this *NamedType) defineProperty_impl(propertyName Property_Key, type_ *JSType, inferred bool, propertyNode Node) bool {
 	if !this.isResolved() {
 		if this.propertyContinuations == nil {
-			this.propertyContinuations = jnewTList_(jtc_p_NamedType_PropertyContinuation)
+			this.propertyContinuations = newTList_(tc_p_NamedType_PropertyContinuation)
 		}
 		this.propertyContinuations.add(new_NamedType_PropertyContinuation(propertyName, type_, inferred, propertyNode))
 		return true

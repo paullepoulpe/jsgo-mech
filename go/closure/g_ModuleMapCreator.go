@@ -7,8 +7,8 @@ type ModuleMapCreator struct {
 	esModuleProcessor                   *EsModuleProcessor
 	closureModuleProcessor              *ClosureModuleProcessor
 	nonEsModuleProcessor                *NonEsModuleProcessor
-	unresolvedModules                   *JTMap[string, *UnresolvedModule]
-	unresolvedModulesByClosureNamespace *JTMap[string, *UnresolvedModule]
+	unresolvedModules                   *TMap[string, *UnresolvedModule]
+	unresolvedModulesByClosureNamespace *TMap[string, *UnresolvedModule]
 	moduleMetadataMap                   *ModuleMetadataMap
 }
 
@@ -18,8 +18,8 @@ func (this *ModuleMapCreator) init_ModuleMapCreator(compiler *AbstractCompiler, 
 	this.esModuleProcessor = new_EsModuleProcessor(compiler)
 	this.closureModuleProcessor = new_ClosureModuleProcessor(compiler)
 	this.nonEsModuleProcessor = new_NonEsModuleProcessor()
-	this.unresolvedModules = jnewTMap_(jtc_string, jtc_p_UnresolvedModule)
-	this.unresolvedModulesByClosureNamespace = jnewTMap_(jtc_string, jtc_p_UnresolvedModule)
+	this.unresolvedModules = newTMap_(tc_string, tc_p_UnresolvedModule)
+	this.unresolvedModulesByClosureNamespace = newTMap_(tc_string, tc_p_UnresolvedModule)
 }
 
 func new_ModuleMapCreator(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap) *ModuleMapCreator {
@@ -29,8 +29,8 @@ func new_ModuleMapCreator(compiler *AbstractCompiler, moduleMetadataMap *ModuleM
 }
 
 func (this *ModuleMapCreator) create() *ModuleMap {
-	this.unresolvedModules.clear()
-	this.unresolvedModulesByClosureNamespace.clear()
+	this.unresolvedModules.Clear()
+	this.unresolvedModulesByClosureNamespace.Clear()
 	for _, el := range this.moduleMetadataMap.getAllModuleMetadata().keys {
 		moduleMetadata := el
 		this.process(moduleMetadata)
@@ -40,16 +40,16 @@ func (this *ModuleMapCreator) create() *ModuleMap {
 
 func (this *ModuleMapCreator) resolve() *ModuleMap {
 	var requestResolver ModuleRequestResolver = new_ModuleMapCreator_ModuleRequestResolverImpl(this)
-	var resolvedModules *JTMap[string, *Module] = jnewTMap_(jtc_string, jtc_p_Module)
-	var resolvedClosureModules *JTMap[string, *Module] = jnewTMap_(jtc_string, jtc_p_Module)
+	var resolvedModules *TMap[string, *Module] = newTMap_(tc_string, tc_p_Module)
+	var resolvedClosureModules *TMap[string, *Module] = newTMap_(tc_string, tc_p_Module)
 	for do_2 := true; do_2; do_2 = !resolvedModules.asMap().keySet().containsAll(Collection(this.unresolvedModules.asMap().keySet())) {
 		var toResolve *ImmutableSet[string] = tsetFrom_(tc_string, Sets_difference(this.unresolvedModules.asMap().keySet(), resolvedModules.asMap().keySet()).immutableCopy(), true)
 		for _, el := range toResolve.keys {
 			key := el
-			var resolved *Module = this.unresolvedModules.get(key).resolve(requestResolver)
-			resolvedModules.put(key, resolved)
+			var resolved *Module = this.unresolvedModules.Get(key).resolve(requestResolver)
+			resolvedModules.Put(key, resolved)
 			for namespace := range elemsBy_(obj_(resolved.metadata().googNamespaces()), str_) {
-				resolvedClosureModules.put(namespace, resolved)
+				resolvedClosureModules.Put(namespace, resolved)
 			}
 		}
 	}
@@ -57,11 +57,11 @@ func (this *ModuleMapCreator) resolve() *ModuleMap {
 		var toResolve *ImmutableSet[string] = tsetFrom_(tc_string, Sets_difference(this.unresolvedModulesByClosureNamespace.asMap().keySet(), resolvedClosureModules.asMap().keySet()).immutableCopy(), true)
 		for _, el2 := range toResolve.keys {
 			namespace := el2
-			resolvedClosureModules.put(namespace, this.unresolvedModulesByClosureNamespace.get(namespace).resolve(requestResolver))
+			resolvedClosureModules.Put(namespace, this.unresolvedModulesByClosureNamespace.Get(namespace).resolve(requestResolver))
 		}
 	}
-	this.unresolvedModules.clear()
-	this.unresolvedModulesByClosureNamespace.clear()
+	this.unresolvedModules.Clear()
+	this.unresolvedModulesByClosureNamespace.Clear()
 	return new_ModuleMap(immutableMapCopyOf_(tc_string, tc_p_Module, resolvedModules.asMap()), immutableMapCopyOf_(tc_string, tc_p_Module, resolvedClosureModules.asMap()))
 }
 
@@ -81,10 +81,10 @@ func (this *ModuleMapCreator) process(moduleMetadata *ModuleMetadataMap_ModuleMe
 	}
 	var module *UnresolvedModule = processor.process(moduleMetadata, moduleMetadata.path(), moduleMetadata.rootNode())
 	if moduleMetadata.path() != nil {
-		this.unresolvedModules.put(moduleMetadata.path().toModuleName(), module)
+		this.unresolvedModules.Put(moduleMetadata.path().toModuleName(), module)
 	}
 	for namespace := range elemsBy_(obj_(moduleMetadata.googNamespaces()), str_) {
-		this.unresolvedModulesByClosureNamespace.put(namespace, module)
+		this.unresolvedModulesByClosureNamespace.Put(namespace, module)
 	}
 }
 
@@ -156,13 +156,13 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve_3(moduleRequest 
 	}}), forLineInfo.getLineno(), forLineInfo.getCharno())
 	if requestedPath == nil {
 		requestedPath = modulePath.resolveModuleAsPath(moduleRequest)
-		if !this.outer_.unresolvedModules.has(requestedPath.toModuleName()) {
+		if !this.outer_.unresolvedModules.Has(requestedPath.toModuleName()) {
 			var module *UnresolvedModule = this.getFallbackForMissingNonClosureModule(requestedPath)
-			this.outer_.unresolvedModules.put(requestedPath.toModuleName(), module)
+			this.outer_.unresolvedModules.Put(requestedPath.toModuleName(), module)
 			return module
 		}
 	}
-	return this.outer_.unresolvedModules.get(requestedPath.toModuleName())
+	return this.outer_.unresolvedModules.Get(requestedPath.toModuleName())
 }
 
 type ModuleMapCreator_ModuleProcessor interface {

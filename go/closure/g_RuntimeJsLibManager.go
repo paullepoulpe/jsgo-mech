@@ -9,14 +9,14 @@ type RuntimeJsLibManager struct {
 	mode_                RuntimeJsLibManager_RuntimeLibraryMode
 	resourceProvider     func(string, string) Node
 	nodeForCodeInsertion SupplierOf[Node]
-	injectedLibs         *JTSet[string]
-	internedFields       *JTMap[string, *RuntimeJsLibManager_InternalField]
+	injectedLibs         *TSet[string]
+	internedFields       *TMap[string, *RuntimeJsLibManager_InternalField]
 	lastInjectedLibrary  Node
 }
 
 func (this *RuntimeJsLibManager) finit_RuntimeJsLibManager() {
-	this.injectedLibs = jnewTSet_(jtc_string)
-	this.internedFields = jnewTMap_(jtc_string, jtc_p_RuntimeJsLibManager_InternalField)
+	this.injectedLibs = newTSet_(tc_string)
+	this.internedFields = newTMap_(tc_string, tc_p_RuntimeJsLibManager_InternalField)
 	this.lastInjectedLibrary = 0
 }
 
@@ -39,11 +39,11 @@ func RuntimeJsLibManager_create(mode RuntimeJsLibManager_RuntimeLibraryMode, res
 }
 
 func (this *RuntimeJsLibManager) recordLibraryInjected(resourceName string) {
-	this.injectedLibs.add(resourceName)
+	this.injectedLibs.Add(resourceName)
 }
 
 func (this *RuntimeJsLibManager) hasInjectedLibrary(resourceName string) bool {
-	return this.injectedLibs.has(resourceName)
+	return this.injectedLibs.Has(resourceName)
 }
 
 func (this *RuntimeJsLibManager) getInjectedLibraries() *ImmutableList[string] {
@@ -55,7 +55,7 @@ func (this *RuntimeJsLibManager) getExternedFields() []RuntimeJsLibManager_Exter
 		return []RuntimeJsLibManager_ExternedField{}
 	}
 	var result []RuntimeJsLibManager_ExternedField
-	it_1 := this.internedFields.eachValue()
+	it_1 := this.internedFields.each()
 	for it_1.next() {
 		var field *RuntimeJsLibManager_InternalField = it_1.v
 		if field.isInjected() {
@@ -131,7 +131,7 @@ func (this *RuntimeJsLibManager) ensureLibraryInjected(resourceName string, forc
 		case RuntimeJsLibManager_RuntimeLibraryMode_INJECT:
 		}
 	}
-	if this.injectedLibs.has(resourceName) {
+	if this.injectedLibs.Has(resourceName) {
 		return this.lastInjectedLibrary
 	}
 	this.recordLibraryInjected(resourceName)

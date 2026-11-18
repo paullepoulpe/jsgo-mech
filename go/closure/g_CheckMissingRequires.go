@@ -4,7 +4,7 @@ package closure
 
 type CheckMissingRequires struct {
 	NodeTraversal_AbstractModuleCallback
-	templateParamNames    *JTSet[string]
+	templateParamNames    *TSet[string]
 	moduleByNamespace     *ImmutableMap[string, *ModuleMetadataMap_ModuleMetadata]
 	controlFlowScopeDepth int32
 }
@@ -17,7 +17,7 @@ func (this *CheckMissingRequires) up_NodeTraversal_AbstractModuleCallback() *Nod
 }
 
 func (this *CheckMissingRequires) finit_CheckMissingRequires() {
-	this.templateParamNames = jnewTSet_(jtc_string)
+	this.templateParamNames = newTSet_(tc_string)
 	this.controlFlowScopeDepth = 0
 }
 
@@ -79,7 +79,7 @@ func (this *CheckMissingRequires) visit_4_impl(t *NodeTraversal, n Node, current
 		this.controlFlowScopeDepth--
 	}
 	if (currentModule != nil) && (n == currentModule.rootNode()) {
-		this.templateParamNames.clear()
+		this.templateParamNames.Clear()
 	}
 }
 
@@ -219,7 +219,7 @@ func (this *CheckMissingRequires) isTypeScriptSource(n Node) bool {
 func (this *CheckMissingRequires) visitQualifiedName(t *NodeTraversal, n Node, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength CheckMissingRequires_Strength) {
 	var rootName string = qualifiedName.getRoot()
 	if qualifiedName.isSimple() {
-		if this.templateParamNames.has(rootName) {
+		if this.templateParamNames.Has(rootName) {
 			return
 		}
 	}

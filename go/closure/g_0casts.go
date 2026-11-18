@@ -590,462 +590,373 @@ func icast_Visitor(v any) Visitor {
 	return v.(Visitor)
 }
 
-var tc_AnalyzePrototypeProperties_Symbol = &jtconv_[AnalyzePrototypeProperties_Symbol]{
+var tc_AnalyzePrototypeProperties_Symbol = &tconv_[AnalyzePrototypeProperties_Symbol]{
 	box:   func(v AnalyzePrototypeProperties_Symbol) any { return v },
 	unbox: func(v any) AnalyzePrototypeProperties_Symbol { return icast_AnalyzePrototypeProperties_Symbol(v) },
 }
 
-var tc_Boolean = &jtconv_[any]{
+var tc_Boolean = &tconv_[any]{
 	box:   func(v any) any { return v },
 	unbox: func(v any) any { return v },
 }
 
-var tc_Character = &jtconv_[any]{
+var tc_Character = &tconv_[any]{
 	box:   func(v any) any { return v },
 	unbox: func(v any) any { return v },
 }
 
-var jtc_CodeChangeHandler = &jtconv_[CodeChangeHandler]{
+var tc_CodeChangeHandler = &tconv_[CodeChangeHandler]{
 	box:   func(v CodeChangeHandler) any { return v },
 	unbox: func(v any) CodeChangeHandler { return icast_CodeChangeHandler(v) },
 }
 
-var jtc_CompilerPass = &jtconv_[CompilerPass]{
-	box:   func(v CompilerPass) any { return v },
-	unbox: func(v any) CompilerPass { return icast_CompilerPass(v) },
-}
-
-var jtc_CrossChunkCodeMotion_InstanceofReference = &jtconv_[CrossChunkCodeMotion_InstanceofReference]{
+var tc_CrossChunkCodeMotion_InstanceofReference = &tconv_[CrossChunkCodeMotion_InstanceofReference]{
 	box: func(v CrossChunkCodeMotion_InstanceofReference) any { return v },
 	unbox: func(v any) CrossChunkCodeMotion_InstanceofReference {
 		return icast_CrossChunkCodeMotion_InstanceofReference(v)
 	},
 }
 
-var jtc_DependencyInfo = &jtconv_[DependencyInfo]{
+var tc_DependencyInfo = &tconv_[DependencyInfo]{
 	box:   func(v DependencyInfo) any { return v },
 	unbox: func(v any) DependencyInfo { return icast_DependencyInfo(v) },
 }
 
-var tc_Deque = &jtconv_[Deque]{
+var tc_Deque = &tconv_[Deque]{
 	box:   func(v Deque) any { return v },
 	unbox: func(v any) Deque { return icast_Deque(v) },
 }
 
-var jtc_GraphvizGraph_GraphvizEdge = &jtconv_[GraphvizGraph_GraphvizEdge]{
+var tc_GraphvizGraph_GraphvizEdge = &tconv_[GraphvizGraph_GraphvizEdge]{
 	box:   func(v GraphvizGraph_GraphvizEdge) any { return v },
 	unbox: func(v any) GraphvizGraph_GraphvizEdge { return icast_GraphvizGraph_GraphvizEdge(v) },
 }
 
-var jtc_GraphvizGraph_GraphvizNode = &jtconv_[GraphvizGraph_GraphvizNode]{
+var tc_GraphvizGraph_GraphvizNode = &tconv_[GraphvizGraph_GraphvizNode]{
 	box:   func(v GraphvizGraph_GraphvizNode) any { return v },
 	unbox: func(v any) GraphvizGraph_GraphvizNode { return icast_GraphvizGraph_GraphvizNode(v) },
 }
 
-var tc_Integer = &jtconv_[any]{
+var tc_Integer = &tconv_[any]{
 	box:   func(v any) any { return v },
 	unbox: func(v any) any { return v },
 }
 
-var jtc_JsMessage_Part = &jtconv_[JsMessage_Part]{
-	box:   func(v JsMessage_Part) any { return v },
-	unbox: func(v any) JsMessage_Part { return icast_JsMessage_Part(v) },
-}
-
-var tc_List = &jtconv_[List]{
+var tc_List = &tconv_[List]{
 	box:   func(v List) any { return v },
 	unbox: func(v any) List { return icast_List(v) },
 }
 
-var tc_ListenableFuture = &jtconv_[ListenableFuture]{
+var tc_ListenableFuture = &tconv_[ListenableFuture]{
 	box:   func(v ListenableFuture) any { return v },
 	unbox: func(v any) ListenableFuture { return icast_ListenableFuture(v) },
 }
 
-var tc_Long = &jtconv_[any]{
+var tc_Long = &tconv_[any]{
 	box:   func(v any) any { return v },
 	unbox: func(v any) any { return v },
 }
 
-var jtc_MakeDeclaredNamesUnique_Renamer = &jtconv_[MakeDeclaredNamesUnique_Renamer]{
+var tc_MakeDeclaredNamesUnique_Renamer = &tconv_[MakeDeclaredNamesUnique_Renamer]{
 	box:   func(v MakeDeclaredNamesUnique_Renamer) any { return v },
 	unbox: func(v any) MakeDeclaredNamesUnique_Renamer { return icast_MakeDeclaredNamesUnique_Renamer(v) },
 }
 
-var tc_Map = &jtconv_[Map]{
+var tc_Map = &tconv_[Map]{
 	box:   func(v Map) any { return v },
 	unbox: func(v any) Map { return icast_Map(v) },
 }
 
-var tc_Map_Entry = &jtconv_[Map_Entry]{
+var tc_Map_Entry = &tconv_[Map_Entry]{
 	box:   func(v Map_Entry) any { return v },
 	unbox: func(v any) Map_Entry { return icast_Map_Entry(v) },
 }
 
-var jtc_Node = &jtconv_[Node]{
-	box:   func(v Node) any { return v.box_() },
-	unbox: func(v any) Node { return Node_of_(v) },
-}
-
-var jtc_NodeTraversal_Callback = &jtconv_[NodeTraversal_Callback]{
-	box:   func(v NodeTraversal_Callback) any { return v },
-	unbox: func(v any) NodeTraversal_Callback { return icast_NodeTraversal_Callback(v) },
-}
-
-var tc_Object = &jtconv_[any]{
+var tc_Object = &tconv_[any]{
 	box:   func(v any) any { return v },
 	unbox: func(v any) any { return v },
 }
 
-var tc_RemoveUnusedCode_VarInfo = &jtconv_[RemoveUnusedCode_VarInfo]{
+var tc_RemoveUnusedCode_VarInfo = &tconv_[RemoveUnusedCode_VarInfo]{
 	box:   func(v RemoveUnusedCode_VarInfo) any { return v },
 	unbox: func(v any) RemoveUnusedCode_VarInfo { return icast_RemoveUnusedCode_VarInfo(v) },
 }
 
-var tc_ReplaceIdGenerators_NameSupplier = &jtconv_[ReplaceIdGenerators_NameSupplier]{
+var tc_ReplaceIdGenerators_NameSupplier = &tconv_[ReplaceIdGenerators_NameSupplier]{
 	box:   func(v ReplaceIdGenerators_NameSupplier) any { return v },
 	unbox: func(v any) ReplaceIdGenerators_NameSupplier { return icast_ReplaceIdGenerators_NameSupplier(v) },
 }
 
-var tc_Set = &jtconv_[Set]{
+var tc_Set = &tconv_[Set]{
 	box:   func(v Set) any { return v },
 	unbox: func(v any) Set { return icast_Set(v) },
 }
 
-var jtc_SortingErrorManager_ErrorReportGenerator = &jtconv_[SortingErrorManager_ErrorReportGenerator]{
-	box: func(v SortingErrorManager_ErrorReportGenerator) any { return v },
-	unbox: func(v any) SortingErrorManager_ErrorReportGenerator {
-		return icast_SortingErrorManager_ErrorReportGenerator(v)
-	},
-}
-
-var tc_Supplier = &jtconv_[Supplier]{
+var tc_Supplier = &tconv_[Supplier]{
 	box:   func(v Supplier) any { return v },
 	unbox: func(v any) Supplier { return icast_Supplier(v) },
 }
 
-var jtc_p_AbstractCommandLineRunner_JsChunkSpec = &jtconv_[*AbstractCommandLineRunner_JsChunkSpec]{
+var tc_p_AbstractCommandLineRunner_JsChunkSpec = &tconv_[*AbstractCommandLineRunner_JsChunkSpec]{
 	box: func(v *AbstractCommandLineRunner_JsChunkSpec) any { return obj_(v) },
 	unbox: func(v any) *AbstractCommandLineRunner_JsChunkSpec {
 		return cast_[*AbstractCommandLineRunner_JsChunkSpec](v)
 	},
 }
 
-var jtc_p_AbstractCommandLineRunner_JsonFileSpec = &jtconv_[*AbstractCommandLineRunner_JsonFileSpec]{
+var tc_p_AbstractCommandLineRunner_JsonFileSpec = &tconv_[*AbstractCommandLineRunner_JsonFileSpec]{
 	box: func(v *AbstractCommandLineRunner_JsonFileSpec) any { return obj_(v) },
 	unbox: func(v any) *AbstractCommandLineRunner_JsonFileSpec {
 		return cast_[*AbstractCommandLineRunner_JsonFileSpec](v)
 	},
 }
 
-var jtc_p_AbstractPeepholeOptimization = &jtconv_[*AbstractPeepholeOptimization]{
-	box:   func(v *AbstractPeepholeOptimization) any { return v.self() },
-	unbox: func(v any) *AbstractPeepholeOptimization { return to_AbstractPeepholeOptimization(v) },
-}
-
-var jtc_p_AbstractPeepholeTranspilation = &jtconv_[*AbstractPeepholeTranspilation]{
+var tc_p_AbstractPeepholeTranspilation = &tconv_[*AbstractPeepholeTranspilation]{
 	box:   func(v *AbstractPeepholeTranspilation) any { return v.self() },
 	unbox: func(v any) *AbstractPeepholeTranspilation { return to_AbstractPeepholeTranspilation(v) },
 }
 
-var jtc_p_AccessorSummary_PropertyAccessKind = &jtconv_[AccessorSummary_PropertyAccessKind]{
-	box:   func(v AccessorSummary_PropertyAccessKind) any { return obj_(v) },
-	unbox: func(v any) AccessorSummary_PropertyAccessKind { return cast_[AccessorSummary_PropertyAccessKind](v) },
-}
-
-var jtc_p_AmbiguateProperties_Property = &jtconv_[*AmbiguateProperties_Property]{
+var tc_p_AmbiguateProperties_Property = &tconv_[*AmbiguateProperties_Property]{
 	box:   func(v *AmbiguateProperties_Property) any { return obj_(v) },
 	unbox: func(v any) *AmbiguateProperties_Property { return cast_[*AmbiguateProperties_Property](v) },
 }
 
-var jtc_p_AmbiguateProperties_PropertyGraphNode = &jtconv_[*AmbiguateProperties_PropertyGraphNode]{
+var tc_p_AmbiguateProperties_PropertyGraphNode = &tconv_[*AmbiguateProperties_PropertyGraphNode]{
 	box: func(v *AmbiguateProperties_PropertyGraphNode) any { return obj_(v) },
 	unbox: func(v any) *AmbiguateProperties_PropertyGraphNode {
 		return cast_[*AmbiguateProperties_PropertyGraphNode](v)
 	},
 }
 
-var jtc_p_AnalyzePrototypeProperties_NameContext = &jtconv_[*AnalyzePrototypeProperties_NameContext]{
+var tc_p_AnalyzePrototypeProperties_NameContext = &tconv_[*AnalyzePrototypeProperties_NameContext]{
 	box: func(v *AnalyzePrototypeProperties_NameContext) any { return obj_(v) },
 	unbox: func(v any) *AnalyzePrototypeProperties_NameContext {
 		return cast_[*AnalyzePrototypeProperties_NameContext](v)
 	},
 }
 
-var jtc_p_AnalyzePrototypeProperties_NameInfo = &jtconv_[*AnalyzePrototypeProperties_NameInfo]{
+var tc_p_AnalyzePrototypeProperties_NameInfo = &tconv_[*AnalyzePrototypeProperties_NameInfo]{
 	box: func(v *AnalyzePrototypeProperties_NameInfo) any { return obj_(v) },
 	unbox: func(v any) *AnalyzePrototypeProperties_NameInfo {
 		return cast_[*AnalyzePrototypeProperties_NameInfo](v)
 	},
 }
 
-var tc_p_AngularPass_NodeContext = &jtconv_[*AngularPass_NodeContext]{
+var tc_p_AngularPass_NodeContext = &tconv_[*AngularPass_NodeContext]{
 	box:   func(v *AngularPass_NodeContext) any { return obj_(v) },
 	unbox: func(v any) *AngularPass_NodeContext { return cast_[*AngularPass_NodeContext](v) },
 }
 
-var tc_p_ArrayList = &jtconv_[*ArrayList]{
+var tc_p_ArrayList = &tconv_[*ArrayList]{
 	box:   func(v *ArrayList) any { return v.self() },
 	unbox: func(v any) *ArrayList { return to_ArrayList(v) },
 }
 
-var jtc_p_BasicBlock = &jtconv_[*BasicBlock]{
+var tc_p_BasicBlock = &tconv_[*BasicBlock]{
 	box:   func(v *BasicBlock) any { return obj_(v) },
 	unbox: func(v any) *BasicBlock { return cast_[*BasicBlock](v) },
 }
 
-var jtc_p_Binding = &jtconv_[*Binding]{
-	box:   func(v *Binding) any { return obj_(v) },
-	unbox: func(v any) *Binding { return cast_[*Binding](v) },
-}
-
-var jtc_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = &jtconv_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement]{
+var tc_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = &tconv_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement]{
 	box: func(v *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) any { return obj_(v) },
 	unbox: func(v any) *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement {
 		return cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](v)
 	},
 }
 
-var jtc_p_CheckRequiresSorted_DestructuringBinding = &jtconv_[*CheckRequiresSorted_DestructuringBinding]{
-	box: func(v *CheckRequiresSorted_DestructuringBinding) any { return obj_(v) },
-	unbox: func(v any) *CheckRequiresSorted_DestructuringBinding {
-		return cast_[*CheckRequiresSorted_DestructuringBinding](v)
-	},
-}
-
-var jtc_p_CheckRequiresSorted_ImportStatement = &jtconv_[*CheckRequiresSorted_ImportStatement]{
+var tc_p_CheckRequiresSorted_ImportStatement = &tconv_[*CheckRequiresSorted_ImportStatement]{
 	box: func(v *CheckRequiresSorted_ImportStatement) any { return obj_(v) },
 	unbox: func(v any) *CheckRequiresSorted_ImportStatement {
 		return cast_[*CheckRequiresSorted_ImportStatement](v)
 	},
 }
 
-var tc_p_CheckSuper_Context = &jtconv_[*CheckSuper_Context]{
+var tc_p_CheckSuper_Context = &tconv_[*CheckSuper_Context]{
 	box:   func(v *CheckSuper_Context) any { return v.self() },
 	unbox: func(v any) *CheckSuper_Context { return to_CheckSuper_Context(v) },
 }
 
-var tc_p_ClosureCodeRemoval_RemovableAssignment = &jtconv_[*ClosureCodeRemoval_RemovableAssignment]{
+var tc_p_ClosureCodeRemoval_RemovableAssignment = &tconv_[*ClosureCodeRemoval_RemovableAssignment]{
 	box: func(v *ClosureCodeRemoval_RemovableAssignment) any { return obj_(v) },
 	unbox: func(v any) *ClosureCodeRemoval_RemovableAssignment {
 		return cast_[*ClosureCodeRemoval_RemovableAssignment](v)
 	},
 }
 
-var jtc_p_ClosureExportTypeClassifier_NameInfo = &jtconv_[*ClosureExportTypeClassifier_NameInfo]{
+var tc_p_ClosureExportTypeClassifier_NameInfo = &tconv_[*ClosureExportTypeClassifier_NameInfo]{
 	box: func(v *ClosureExportTypeClassifier_NameInfo) any { return obj_(v) },
 	unbox: func(v any) *ClosureExportTypeClassifier_NameInfo {
 		return cast_[*ClosureExportTypeClassifier_NameInfo](v)
 	},
 }
 
-var jtc_p_ClosureRequireProcessor_Require = &jtconv_[*ClosureRequireProcessor_Require]{
-	box:   func(v *ClosureRequireProcessor_Require) any { return obj_(v) },
-	unbox: func(v any) *ClosureRequireProcessor_Require { return cast_[*ClosureRequireProcessor_Require](v) },
-}
-
-var tc_p_ClosureRewriteModule_AliasName = &jtconv_[*ClosureRewriteModule_AliasName]{
+var tc_p_ClosureRewriteModule_AliasName = &tconv_[*ClosureRewriteModule_AliasName]{
 	box:   func(v *ClosureRewriteModule_AliasName) any { return obj_(v) },
 	unbox: func(v any) *ClosureRewriteModule_AliasName { return cast_[*ClosureRewriteModule_AliasName](v) },
 }
 
-var jtc_p_ClosureRewriteModule_ExportDefinition = &jtconv_[*ClosureRewriteModule_ExportDefinition]{
+var tc_p_ClosureRewriteModule_ExportDefinition = &tconv_[*ClosureRewriteModule_ExportDefinition]{
 	box: func(v *ClosureRewriteModule_ExportDefinition) any { return obj_(v) },
 	unbox: func(v any) *ClosureRewriteModule_ExportDefinition {
 		return cast_[*ClosureRewriteModule_ExportDefinition](v)
 	},
 }
 
-var jtc_p_ClosureRewriteModule_ScriptDescription = &jtconv_[*ClosureRewriteModule_ScriptDescription]{
+var tc_p_ClosureRewriteModule_ScriptDescription = &tconv_[*ClosureRewriteModule_ScriptDescription]{
 	box: func(v *ClosureRewriteModule_ScriptDescription) any { return obj_(v) },
 	unbox: func(v any) *ClosureRewriteModule_ScriptDescription {
 		return cast_[*ClosureRewriteModule_ScriptDescription](v)
 	},
 }
 
-var tc_p_ClosureRewriteModule_UnrecognizedRequire = &jtconv_[*ClosureRewriteModule_UnrecognizedRequire]{
+var tc_p_ClosureRewriteModule_UnrecognizedRequire = &tconv_[*ClosureRewriteModule_UnrecognizedRequire]{
 	box: func(v *ClosureRewriteModule_UnrecognizedRequire) any { return obj_(v) },
 	unbox: func(v any) *ClosureRewriteModule_UnrecognizedRequire {
 		return cast_[*ClosureRewriteModule_UnrecognizedRequire](v)
 	},
 }
 
-var jtc_p_CmdLineParser_Option = &jtconv_[*CmdLineParser_Option]{
+var tc_p_CmdLineParser_Option = &tconv_[*CmdLineParser_Option]{
 	box:   func(v *CmdLineParser_Option) any { return obj_(v) },
 	unbox: func(v any) *CmdLineParser_Option { return cast_[*CmdLineParser_Option](v) },
 }
 
-var tc_p_CollapseVariableDeclarations_Collapse = &jtconv_[*CollapseVariableDeclarations_Collapse]{
+var tc_p_CollapseVariableDeclarations_Collapse = &tconv_[*CollapseVariableDeclarations_Collapse]{
 	box: func(v *CollapseVariableDeclarations_Collapse) any { return obj_(v) },
 	unbox: func(v any) *CollapseVariableDeclarations_Collapse {
 		return cast_[*CollapseVariableDeclarations_Collapse](v)
 	},
 }
 
-var jtc_p_Color = &jtconv_[*Color]{
-	box:   func(v *Color) any { return obj_(v) },
-	unbox: func(v any) *Color { return cast_[*Color](v) },
-}
-
-var jtc_p_ColorGraphNode = &jtconv_[*ColorGraphNode]{
-	box:   func(v *ColorGraphNode) any { return obj_(v) },
-	unbox: func(v any) *ColorGraphNode { return cast_[*ColorGraphNode](v) },
-}
-
-var jtc_p_ColorGraphNode_PropAssociation = &jtconv_[ColorGraphNode_PropAssociation]{
+var tc_p_ColorGraphNode_PropAssociation = &tconv_[ColorGraphNode_PropAssociation]{
 	box:   func(v ColorGraphNode_PropAssociation) any { return obj_(v) },
 	unbox: func(v any) ColorGraphNode_PropAssociation { return cast_[ColorGraphNode_PropAssociation](v) },
 }
 
-var jtc_p_ColorId = &jtconv_[*ColorId]{
-	box:   func(v *ColorId) any { return obj_(v) },
-	unbox: func(v any) *ColorId { return cast_[*ColorId](v) },
-}
-
-var jtc_p_Comment = &jtconv_[*Comment]{
-	box:   func(v *Comment) any { return obj_(v) },
-	unbox: func(v any) *Comment { return cast_[*Comment](v) },
-}
-
-var jtc_p_CompilerInput = &jtconv_[*CompilerInput]{
-	box:   func(v *CompilerInput) any { return obj_(v) },
-	unbox: func(v any) *CompilerInput { return cast_[*CompilerInput](v) },
-}
-
-var tc_p_CompilerInput_ModuleType = &jtconv_[CompilerInput_ModuleType]{
+var tc_p_CompilerInput_ModuleType = &tconv_[CompilerInput_ModuleType]{
 	box:   func(v CompilerInput_ModuleType) any { return obj_(v) },
 	unbox: func(v any) CompilerInput_ModuleType { return cast_[CompilerInput_ModuleType](v) },
 }
 
-var tc_p_ConcretizeStaticInheritanceForInlining_JavascriptClass = &jtconv_[*ConcretizeStaticInheritanceForInlining_JavascriptClass]{
+var tc_p_ConcretizeStaticInheritanceForInlining_JavascriptClass = &tconv_[*ConcretizeStaticInheritanceForInlining_JavascriptClass]{
 	box: func(v *ConcretizeStaticInheritanceForInlining_JavascriptClass) any { return obj_(v) },
 	unbox: func(v any) *ConcretizeStaticInheritanceForInlining_JavascriptClass {
 		return cast_[*ConcretizeStaticInheritanceForInlining_JavascriptClass](v)
 	},
 }
 
-var jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = &jtconv_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]{
+var tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = &tconv_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]{
 	box: func(v ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior) any { return obj_(v) },
 	unbox: func(v any) ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior {
 		return cast_[ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](v)
 	},
 }
 
-var tc_p_CreateSyntheticBlocks_Marker = &jtconv_[*CreateSyntheticBlocks_Marker]{
+var tc_p_CreateSyntheticBlocks_Marker = &tconv_[*CreateSyntheticBlocks_Marker]{
 	box:   func(v *CreateSyntheticBlocks_Marker) any { return obj_(v) },
 	unbox: func(v any) *CreateSyntheticBlocks_Marker { return cast_[*CreateSyntheticBlocks_Marker](v) },
 }
 
-var jtc_p_CrossChunkCodeMotion_DeclarationStatementGroup = &jtconv_[*CrossChunkCodeMotion_DeclarationStatementGroup]{
+var tc_p_CrossChunkCodeMotion_DeclarationStatementGroup = &tconv_[*CrossChunkCodeMotion_DeclarationStatementGroup]{
 	box: func(v *CrossChunkCodeMotion_DeclarationStatementGroup) any { return obj_(v) },
 	unbox: func(v any) *CrossChunkCodeMotion_DeclarationStatementGroup {
 		return cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](v)
 	},
 }
 
-var jtc_p_CrossChunkCodeMotion_DeclarationStatementGroupCycle = &jtconv_[*CrossChunkCodeMotion_DeclarationStatementGroupCycle]{
+var tc_p_CrossChunkCodeMotion_DeclarationStatementGroupCycle = &tconv_[*CrossChunkCodeMotion_DeclarationStatementGroupCycle]{
 	box: func(v *CrossChunkCodeMotion_DeclarationStatementGroupCycle) any { return obj_(v) },
 	unbox: func(v any) *CrossChunkCodeMotion_DeclarationStatementGroupCycle {
 		return cast_[*CrossChunkCodeMotion_DeclarationStatementGroupCycle](v)
 	},
 }
 
-var jtc_p_CrossChunkCodeMotion_GlobalSymbol = &jtconv_[*CrossChunkCodeMotion_GlobalSymbol]{
+var tc_p_CrossChunkCodeMotion_GlobalSymbol = &tconv_[*CrossChunkCodeMotion_GlobalSymbol]{
 	box:   func(v *CrossChunkCodeMotion_GlobalSymbol) any { return obj_(v) },
 	unbox: func(v any) *CrossChunkCodeMotion_GlobalSymbol { return cast_[*CrossChunkCodeMotion_GlobalSymbol](v) },
 }
 
-var jtc_p_CrossChunkCodeMotion_GlobalSymbolCycle = &jtconv_[*CrossChunkCodeMotion_GlobalSymbolCycle]{
+var tc_p_CrossChunkCodeMotion_GlobalSymbolCycle = &tconv_[*CrossChunkCodeMotion_GlobalSymbolCycle]{
 	box: func(v *CrossChunkCodeMotion_GlobalSymbolCycle) any { return obj_(v) },
 	unbox: func(v any) *CrossChunkCodeMotion_GlobalSymbolCycle {
 		return cast_[*CrossChunkCodeMotion_GlobalSymbolCycle](v)
 	},
 }
 
-var jtc_p_CrossChunkReferenceCollector_TopLevelStatement = &jtconv_[*CrossChunkReferenceCollector_TopLevelStatement]{
+var tc_p_CrossChunkReferenceCollector_TopLevelStatement = &tconv_[*CrossChunkReferenceCollector_TopLevelStatement]{
 	box: func(v *CrossChunkReferenceCollector_TopLevelStatement) any { return obj_(v) },
 	unbox: func(v any) *CrossChunkReferenceCollector_TopLevelStatement {
 		return cast_[*CrossChunkReferenceCollector_TopLevelStatement](v)
 	},
 }
 
-var jtc_p_DeadAssignmentsElimination_BailoutInformation = &jtconv_[*DeadAssignmentsElimination_BailoutInformation]{
+var tc_p_DeadAssignmentsElimination_BailoutInformation = &tconv_[*DeadAssignmentsElimination_BailoutInformation]{
 	box: func(v *DeadAssignmentsElimination_BailoutInformation) any { return obj_(v) },
 	unbox: func(v any) *DeadAssignmentsElimination_BailoutInformation {
 		return cast_[*DeadAssignmentsElimination_BailoutInformation](v)
 	},
 }
 
-var jtc_p_DeadPropertyAssignmentElimination_Property = &jtconv_[*DeadPropertyAssignmentElimination_Property]{
+var tc_p_DeadPropertyAssignmentElimination_Property = &tconv_[*DeadPropertyAssignmentElimination_Property]{
 	box: func(v *DeadPropertyAssignmentElimination_Property) any { return obj_(v) },
 	unbox: func(v any) *DeadPropertyAssignmentElimination_Property {
 		return cast_[*DeadPropertyAssignmentElimination_Property](v)
 	},
 }
 
-var tc_p_DeadPropertyAssignmentElimination_PropertyWrite = &jtconv_[*DeadPropertyAssignmentElimination_PropertyWrite]{
+var tc_p_DeadPropertyAssignmentElimination_PropertyWrite = &tconv_[*DeadPropertyAssignmentElimination_PropertyWrite]{
 	box: func(v *DeadPropertyAssignmentElimination_PropertyWrite) any { return obj_(v) },
 	unbox: func(v any) *DeadPropertyAssignmentElimination_PropertyWrite {
 		return cast_[*DeadPropertyAssignmentElimination_PropertyWrite](v)
 	},
 }
 
-var jtc_p_DependencyInfo_Require = &jtconv_[*DependencyInfo_Require]{
-	box:   func(v *DependencyInfo_Require) any { return obj_(v) },
-	unbox: func(v any) *DependencyInfo_Require { return cast_[*DependencyInfo_Require](v) },
-}
-
-var jtc_p_DiagnosticGroup = &jtconv_[*DiagnosticGroup]{
-	box:   func(v *DiagnosticGroup) any { return obj_(v) },
-	unbox: func(v any) *DiagnosticGroup { return cast_[*DiagnosticGroup](v) },
-}
-
-var jtc_p_DisambiguateProperties_TypeNodeJson = &jtconv_[*DisambiguateProperties_TypeNodeJson]{
+var tc_p_DisambiguateProperties_TypeNodeJson = &tconv_[*DisambiguateProperties_TypeNodeJson]{
 	box: func(v *DisambiguateProperties_TypeNodeJson) any { return obj_(v) },
 	unbox: func(v any) *DisambiguateProperties_TypeNodeJson {
 		return cast_[*DisambiguateProperties_TypeNodeJson](v)
 	},
 }
 
-var jtc_p_Es6ConvertSuperConstructorCalls_ConstructorData = &jtconv_[*Es6ConvertSuperConstructorCalls_ConstructorData]{
+var tc_p_Es6ConvertSuperConstructorCalls_ConstructorData = &tconv_[*Es6ConvertSuperConstructorCalls_ConstructorData]{
 	box: func(v *Es6ConvertSuperConstructorCalls_ConstructorData) any { return obj_(v) },
 	unbox: func(v any) *Es6ConvertSuperConstructorCalls_ConstructorData {
 		return cast_[*Es6ConvertSuperConstructorCalls_ConstructorData](v)
 	},
 }
 
-var jtc_p_Es6NormalizeClasses_ClassRecord = &jtconv_[*Es6NormalizeClasses_ClassRecord]{
+var tc_p_Es6NormalizeClasses_ClassRecord = &tconv_[*Es6NormalizeClasses_ClassRecord]{
 	box:   func(v *Es6NormalizeClasses_ClassRecord) any { return obj_(v) },
 	unbox: func(v any) *Es6NormalizeClasses_ClassRecord { return cast_[*Es6NormalizeClasses_ClassRecord](v) },
 }
 
-var tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember = &jtconv_[*Es6NormalizeClasses_ClassRecord_PrivateMember]{
+var tc_p_Es6NormalizeClasses_ClassRecord_PrivateMember = &tconv_[*Es6NormalizeClasses_ClassRecord_PrivateMember]{
 	box: func(v *Es6NormalizeClasses_ClassRecord_PrivateMember) any { return obj_(v) },
 	unbox: func(v any) *Es6NormalizeClasses_ClassRecord_PrivateMember {
 		return cast_[*Es6NormalizeClasses_ClassRecord_PrivateMember](v)
 	},
 }
 
-var jtc_p_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = &jtconv_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]{
+var tc_p_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = &tconv_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]{
 	box: func(v *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject) any { return obj_(v) },
 	unbox: func(v any) *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject {
 		return cast_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](v)
 	},
 }
 
-var jtc_p_Es6RewriteClass_ClassProperty = &jtconv_[*Es6RewriteClass_ClassProperty]{
+var tc_p_Es6RewriteClass_ClassProperty = &tconv_[*Es6RewriteClass_ClassProperty]{
 	box:   func(v *Es6RewriteClass_ClassProperty) any { return obj_(v) },
 	unbox: func(v any) *Es6RewriteClass_ClassProperty { return cast_[*Es6RewriteClass_ClassProperty](v) },
 }
 
-var jtc_p_Es6RewriteDestructuring_PatternNestingLevel = &jtconv_[*Es6RewriteDestructuring_PatternNestingLevel]{
+var tc_p_Es6RewriteDestructuring_PatternNestingLevel = &tconv_[*Es6RewriteDestructuring_PatternNestingLevel]{
 	box: func(v *Es6RewriteDestructuring_PatternNestingLevel) any { return obj_(v) },
 	unbox: func(v any) *Es6RewriteDestructuring_PatternNestingLevel {
 		return cast_[*Es6RewriteDestructuring_PatternNestingLevel](v)
 	},
 }
 
-var jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = &jtconv_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]{
+var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = &tconv_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]{
 	box: func(v *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case) any {
 		return obj_(v)
 	},
@@ -1054,7 +965,7 @@ var jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationCo
 	},
 }
 
-var jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase = &jtconv_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase]{
+var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase = &tconv_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase]{
 	box: func(v *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase) any {
 		return obj_(v)
 	},
@@ -1063,7 +974,7 @@ var jtc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationCo
 	},
 }
 
-var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases = &jtconv_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases]{
+var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases = &tconv_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases]{
 	box: func(v *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases) any {
 		return obj_(v)
 	},
@@ -1072,832 +983,613 @@ var tc_p_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationCon
 	},
 }
 
-var jtc_p_Export = &jtconv_[*Export]{
-	box:   func(v *Export) any { return obj_(v) },
-	unbox: func(v any) *Export { return cast_[*Export](v) },
-}
-
-var jtc_p_ExternExportsPass_Export = &jtconv_[*ExternExportsPass_Export]{
+var tc_p_ExternExportsPass_Export = &tconv_[*ExternExportsPass_Export]{
 	box:   func(v *ExternExportsPass_Export) any { return v.self() },
 	unbox: func(v any) *ExternExportsPass_Export { return to_ExternExportsPass_Export(v) },
 }
 
-var jtc_p_ExtractPrototypeMemberDeclarations_ExtractionInstance = &jtconv_[*ExtractPrototypeMemberDeclarations_ExtractionInstance]{
+var tc_p_ExtractPrototypeMemberDeclarations_ExtractionInstance = &tconv_[*ExtractPrototypeMemberDeclarations_ExtractionInstance]{
 	box: func(v *ExtractPrototypeMemberDeclarations_ExtractionInstance) any { return obj_(v) },
 	unbox: func(v any) *ExtractPrototypeMemberDeclarations_ExtractionInstance {
 		return cast_[*ExtractPrototypeMemberDeclarations_ExtractionInstance](v)
 	},
 }
 
-var jtc_p_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = &jtconv_[*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo]{
+var tc_p_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = &tconv_[*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo]{
 	box: func(v *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo) any { return obj_(v) },
 	unbox: func(v any) *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo {
 		return cast_[*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](v)
 	},
 }
 
-var jtc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = &jtconv_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration]{
+var tc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = &tconv_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration]{
 	box: func(v *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) any { return obj_(v) },
 	unbox: func(v any) *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration {
 		return cast_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](v)
 	},
 }
 
-var jtc_p_FeatureCollector_FeatureContext = &jtconv_[FeatureCollector_FeatureContext]{
+var tc_p_FeatureCollector_FeatureContext = &tconv_[FeatureCollector_FeatureContext]{
 	box:   func(v FeatureCollector_FeatureContext) any { return obj_(v) },
 	unbox: func(v any) FeatureCollector_FeatureContext { return cast_[FeatureCollector_FeatureContext](v) },
 }
 
-var jtc_p_FeatureSet_Feature = &jtconv_[FeatureSet_Feature]{
-	box:   func(v FeatureSet_Feature) any { return obj_(v) },
-	unbox: func(v any) FeatureSet_Feature { return cast_[FeatureSet_Feature](v) },
-}
-
-var jtc_p_FileInstrumentationData = &jtconv_[*FileInstrumentationData]{
+var tc_p_FileInstrumentationData = &tconv_[*FileInstrumentationData]{
 	box:   func(v *FileInstrumentationData) any { return obj_(v) },
 	unbox: func(v any) *FileInstrumentationData { return cast_[*FileInstrumentationData](v) },
 }
 
-var jtc_p_FileProfile = &jtconv_[*FileProfile]{
+var tc_p_FileProfile = &tconv_[*FileProfile]{
 	box:   func(v *FileProfile) any { return obj_(v) },
 	unbox: func(v any) *FileProfile { return cast_[*FileProfile](v) },
 }
 
-var jtc_p_FlowSensitiveInlineVariables_Candidate = &jtconv_[*FlowSensitiveInlineVariables_Candidate]{
+var tc_p_FlowSensitiveInlineVariables_Candidate = &tconv_[*FlowSensitiveInlineVariables_Candidate]{
 	box: func(v *FlowSensitiveInlineVariables_Candidate) any { return obj_(v) },
 	unbox: func(v any) *FlowSensitiveInlineVariables_Candidate {
 		return cast_[*FlowSensitiveInlineVariables_Candidate](v)
 	},
 }
 
-var jtc_p_FunctionType = &jtconv_[*FunctionType]{
+var tc_p_FunctionType = &tconv_[*FunctionType]{
 	box:   func(v *FunctionType) any { return v.self() },
 	unbox: func(v any) *FunctionType { return to_FunctionType(v) },
 }
 
-var jtc_p_FunctionType_Parameter = &jtconv_[*FunctionType_Parameter]{
-	box:   func(v *FunctionType_Parameter) any { return obj_(v) },
-	unbox: func(v any) *FunctionType_Parameter { return cast_[*FunctionType_Parameter](v) },
-}
-
-var jtc_p_GlobalNamespace_Name = &jtconv_[*GlobalNamespace_Name]{
-	box:   func(v *GlobalNamespace_Name) any { return obj_(v) },
-	unbox: func(v any) *GlobalNamespace_Name { return cast_[*GlobalNamespace_Name](v) },
-}
-
-var jtc_p_GlobalNamespace_Ref = &jtconv_[*GlobalNamespace_Ref]{
+var tc_p_GlobalNamespace_Ref = &tconv_[*GlobalNamespace_Ref]{
 	box:   func(v *GlobalNamespace_Ref) any { return obj_(v) },
 	unbox: func(v any) *GlobalNamespace_Ref { return cast_[*GlobalNamespace_Ref](v) },
 }
 
-var jtc_p_Graph_GraphAnnotationState = &jtconv_[*Graph_GraphAnnotationState]{
+var tc_p_Graph_GraphAnnotationState = &tconv_[*Graph_GraphAnnotationState]{
 	box:   func(v *Graph_GraphAnnotationState) any { return obj_(v) },
 	unbox: func(v any) *Graph_GraphAnnotationState { return cast_[*Graph_GraphAnnotationState](v) },
 }
 
-var jtc_p_GuardedCallback_Context = &jtconv_[*GuardedCallback_Context]{
+var tc_p_GuardedCallback_Context = &tconv_[*GuardedCallback_Context]{
 	box:   func(v *GuardedCallback_Context) any { return obj_(v) },
 	unbox: func(v any) *GuardedCallback_Context { return cast_[*GuardedCallback_Context](v) },
 }
 
-var tc_p_ImmutableList = &jtconv_[*ErasedImmutableList]{
+var tc_p_ImmutableList = &tconv_[*ErasedImmutableList]{
 	box:   func(v *ErasedImmutableList) any { return obj_(v) },
 	unbox: func(v any) *ErasedImmutableList { return cast_[*ErasedImmutableList](v) },
 }
 
-var jtc_p_Import = &jtconv_[*Import]{
-	box:   func(v *Import) any { return obj_(v) },
-	unbox: func(v any) *Import { return cast_[*Import](v) },
-}
-
-var jtc_p_InlineFunctions_FunctionState = &jtconv_[*InlineFunctions_FunctionState]{
+var tc_p_InlineFunctions_FunctionState = &tconv_[*InlineFunctions_FunctionState]{
 	box:   func(v *InlineFunctions_FunctionState) any { return obj_(v) },
 	unbox: func(v any) *InlineFunctions_FunctionState { return cast_[*InlineFunctions_FunctionState](v) },
 }
 
-var jtc_p_InlineFunctions_Reference = &jtconv_[*InlineFunctions_Reference]{
+var tc_p_InlineFunctions_Reference = &tconv_[*InlineFunctions_Reference]{
 	box:   func(v *InlineFunctions_Reference) any { return obj_(v) },
 	unbox: func(v any) *InlineFunctions_Reference { return cast_[*InlineFunctions_Reference](v) },
 }
 
-var tc_p_InlineProperties_PropertyInfo = &jtconv_[*InlineProperties_PropertyInfo]{
+var tc_p_InlineProperties_PropertyInfo = &tconv_[*InlineProperties_PropertyInfo]{
 	box:   func(v *InlineProperties_PropertyInfo) any { return obj_(v) },
 	unbox: func(v any) *InlineProperties_PropertyInfo { return cast_[*InlineProperties_PropertyInfo](v) },
 }
 
-var jtc_p_InlineVariables_InlineVarAnalysis = &jtconv_[*InlineVariables_InlineVarAnalysis]{
+var tc_p_InlineVariables_InlineVarAnalysis = &tconv_[*InlineVariables_InlineVarAnalysis]{
 	box:   func(v *InlineVariables_InlineVarAnalysis) any { return v.self() },
 	unbox: func(v any) *InlineVariables_InlineVarAnalysis { return to_InlineVariables_InlineVarAnalysis(v) },
 }
 
-var jtc_p_InstrumentAsyncContext_FunctionContext = &jtconv_[*InstrumentAsyncContext_FunctionContext]{
+var tc_p_InstrumentAsyncContext_FunctionContext = &tconv_[*InstrumentAsyncContext_FunctionContext]{
 	box: func(v *InstrumentAsyncContext_FunctionContext) any { return obj_(v) },
 	unbox: func(v any) *InstrumentAsyncContext_FunctionContext {
 		return cast_[*InstrumentAsyncContext_FunctionContext](v)
 	},
 }
 
-var jtc_p_InstrumentationPoint = &jtconv_[*InstrumentationPoint]{
-	box:   func(v *InstrumentationPoint) any { return obj_(v) },
-	unbox: func(v any) *InstrumentationPoint { return cast_[*InstrumentationPoint](v) },
-}
-
-var jtc_p_InstrumentationPointStats = &jtconv_[*InstrumentationPointStats]{
+var tc_p_InstrumentationPointStats = &tconv_[*InstrumentationPointStats]{
 	box:   func(v *InstrumentationPointStats) any { return obj_(v) },
 	unbox: func(v any) *InstrumentationPointStats { return cast_[*InstrumentationPointStats](v) },
 }
 
-var jtc_p_InstrumentationPointStats_Presence = &jtconv_[InstrumentationPointStats_Presence]{
+var tc_p_InstrumentationPointStats_Presence = &tconv_[InstrumentationPointStats_Presence]{
 	box:   func(v InstrumentationPointStats_Presence) any { return obj_(v) },
 	unbox: func(v any) InstrumentationPointStats_Presence { return cast_[InstrumentationPointStats_Presence](v) },
 }
 
-var tc_p_InstrumentationPoint_Type = &jtconv_[InstrumentationPoint_Type]{
+var tc_p_InstrumentationPoint_Type = &tconv_[InstrumentationPoint_Type]{
 	box:   func(v InstrumentationPoint_Type) any { return obj_(v) },
 	unbox: func(v any) InstrumentationPoint_Type { return cast_[InstrumentationPoint_Type](v) },
 }
 
-var jtc_p_J2clPass_ClassStaticFunctionsInliner_InlinableFunction = &jtconv_[*J2clPass_ClassStaticFunctionsInliner_InlinableFunction]{
+var tc_p_J2clPass_ClassStaticFunctionsInliner_InlinableFunction = &tconv_[*J2clPass_ClassStaticFunctionsInliner_InlinableFunction]{
 	box: func(v *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) any { return obj_(v) },
 	unbox: func(v any) *J2clPass_ClassStaticFunctionsInliner_InlinableFunction {
 		return cast_[*J2clPass_ClassStaticFunctionsInliner_InlinableFunction](v)
 	},
 }
 
-var jtc_p_J2clPass_InlineSpec = &jtconv_[*J2clPass_InlineSpec]{
-	box:   func(v *J2clPass_InlineSpec) any { return obj_(v) },
-	unbox: func(v any) *J2clPass_InlineSpec { return cast_[*J2clPass_InlineSpec](v) },
-}
-
-var jtc_p_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty = &jtconv_[*J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty]{
+var tc_p_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty = &tconv_[*J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty]{
 	box: func(v *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty) any { return v.self() },
 	unbox: func(v any) *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty {
 		return to_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clProperty(v)
 	},
 }
 
-var jtc_p_JSChunk = &jtconv_[*JSChunk]{
-	box:   func(v *JSChunk) any { return obj_(v) },
-	unbox: func(v any) *JSChunk { return cast_[*JSChunk](v) },
-}
-
-var jtc_p_JSDocInfo = &jtconv_[*JSDocInfo]{
+var tc_p_JSDocInfo = &tconv_[*JSDocInfo]{
 	box:   func(v *JSDocInfo) any { return obj_(v) },
 	unbox: func(v any) *JSDocInfo { return cast_[*JSDocInfo](v) },
 }
 
-var jtc_p_JSError = &jtconv_[*JSError]{
-	box:   func(v *JSError) any { return obj_(v) },
-	unbox: func(v any) *JSError { return cast_[*JSError](v) },
-}
-
-var jtc_p_JSType = &jtconv_[*JSType]{
-	box:   func(v *JSType) any { return v.self() },
-	unbox: func(v any) *JSType { return to_JSType(v) },
-}
-
-var jtc_p_JSTypeReconserializer_SeenTypeRecord = &jtconv_[*JSTypeReconserializer_SeenTypeRecord]{
-	box: func(v *JSTypeReconserializer_SeenTypeRecord) any { return obj_(v) },
-	unbox: func(v any) *JSTypeReconserializer_SeenTypeRecord {
-		return cast_[*JSTypeReconserializer_SeenTypeRecord](v)
-	},
-}
-
-var tc_p_JSTypeRegistry_ClosureNamespace = &jtconv_[*JSTypeRegistry_ClosureNamespace]{
+var tc_p_JSTypeRegistry_ClosureNamespace = &tconv_[*JSTypeRegistry_ClosureNamespace]{
 	box:   func(v *JSTypeRegistry_ClosureNamespace) any { return obj_(v) },
 	unbox: func(v any) *JSTypeRegistry_ClosureNamespace { return cast_[*JSTypeRegistry_ClosureNamespace](v) },
 }
 
-var jtc_p_JSType_MatchStatus = &jtconv_[JSType_MatchStatus]{
+var tc_p_JSType_MatchStatus = &tconv_[JSType_MatchStatus]{
 	box:   func(v JSType_MatchStatus) any { return obj_(v) },
 	unbox: func(v any) JSType_MatchStatus { return cast_[JSType_MatchStatus](v) },
 }
 
-var jtc_p_JsDocInfoParser_ExtendedTypeInfo = &jtconv_[*JsDocInfoParser_ExtendedTypeInfo]{
+var tc_p_JsDocInfoParser_ExtendedTypeInfo = &tconv_[*JsDocInfoParser_ExtendedTypeInfo]{
 	box:   func(v *JsDocInfoParser_ExtendedTypeInfo) any { return obj_(v) },
 	unbox: func(v any) *JsDocInfoParser_ExtendedTypeInfo { return cast_[*JsDocInfoParser_ExtendedTypeInfo](v) },
 }
 
-var jtc_p_JsMessage = &jtconv_[*JsMessage]{
+var tc_p_JsMessage = &tconv_[*JsMessage]{
 	box:   func(v *JsMessage) any { return obj_(v) },
 	unbox: func(v any) *JsMessage { return cast_[*JsMessage](v) },
 }
 
-var tc_p_JsMessageVisitor_MessageLocation = &jtconv_[*JsMessageVisitor_MessageLocation]{
+var tc_p_JsMessageVisitor_MessageLocation = &tconv_[*JsMessageVisitor_MessageLocation]{
 	box:   func(v *JsMessageVisitor_MessageLocation) any { return obj_(v) },
 	unbox: func(v any) *JsMessageVisitor_MessageLocation { return cast_[*JsMessageVisitor_MessageLocation](v) },
 }
 
-var jtc_p_JsMessage_GrammaticalGenderCase = &jtconv_[JsMessage_GrammaticalGenderCase]{
-	box:   func(v JsMessage_GrammaticalGenderCase) any { return obj_(v) },
-	unbox: func(v any) JsMessage_GrammaticalGenderCase { return cast_[JsMessage_GrammaticalGenderCase](v) },
-}
-
-var jtc_p_LiveVariablesAnalysis = &jtconv_[*LiveVariablesAnalysis]{
+var tc_p_LiveVariablesAnalysis = &tconv_[*LiveVariablesAnalysis]{
 	box:   func(v *LiveVariablesAnalysis) any { return obj_(v) },
 	unbox: func(v any) *LiveVariablesAnalysis { return cast_[*LiveVariablesAnalysis](v) },
 }
 
-var jtc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = &jtconv_[*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext]{
+var tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = &tconv_[*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext]{
 	box: func(v *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) any { return obj_(v) },
 	unbox: func(v any) *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext {
 		return cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext](v)
 	},
 }
 
-var jtc_p_Match = &jtconv_[*Match]{
+var tc_p_Match = &tconv_[*Match]{
 	box:   func(v *Match) any { return obj_(v) },
 	unbox: func(v any) *Match { return cast_[*Match](v) },
 }
 
-var jtc_p_Module = &jtconv_[*Module]{
-	box:   func(v *Module) any { return obj_(v) },
-	unbox: func(v any) *Module { return cast_[*Module](v) },
-}
-
-var jtc_p_ModuleMetadataMap_ModuleMetadata = &jtconv_[*ModuleMetadataMap_ModuleMetadata]{
-	box:   func(v *ModuleMetadataMap_ModuleMetadata) any { return obj_(v) },
-	unbox: func(v any) *ModuleMetadataMap_ModuleMetadata { return cast_[*ModuleMetadataMap_ModuleMetadata](v) },
-}
-
-var tc_p_ModuleRenaming_GlobalizedModuleName = &jtconv_[*ModuleRenaming_GlobalizedModuleName]{
+var tc_p_ModuleRenaming_GlobalizedModuleName = &tconv_[*ModuleRenaming_GlobalizedModuleName]{
 	box: func(v *ModuleRenaming_GlobalizedModuleName) any { return obj_(v) },
 	unbox: func(v any) *ModuleRenaming_GlobalizedModuleName {
 		return cast_[*ModuleRenaming_GlobalizedModuleName](v)
 	},
 }
 
-var tc_p_MustBeReachingVariableDef_Definition = &jtconv_[*MustBeReachingVariableDef_Definition]{
+var tc_p_MustBeReachingVariableDef_Definition = &tconv_[*MustBeReachingVariableDef_Definition]{
 	box: func(v *MustBeReachingVariableDef_Definition) any { return obj_(v) },
 	unbox: func(v any) *MustBeReachingVariableDef_Definition {
 		return cast_[*MustBeReachingVariableDef_Definition](v)
 	},
 }
 
-var jtc_p_NamedType_PropertyContinuation = &jtconv_[*NamedType_PropertyContinuation]{
+var tc_p_NamedType_PropertyContinuation = &tconv_[*NamedType_PropertyContinuation]{
 	box:   func(v *NamedType_PropertyContinuation) any { return obj_(v) },
 	unbox: func(v any) *NamedType_PropertyContinuation { return cast_[*NamedType_PropertyContinuation](v) },
 }
 
-var jtc_p_ObjectType = &jtconv_[*ObjectType]{
-	box:   func(v *ObjectType) any { return v.self() },
-	unbox: func(v any) *ObjectType { return to_ObjectType(v) },
-}
-
-var jtc_p_OptimizeParameters_Parameter = &jtconv_[*OptimizeParameters_Parameter]{
+var tc_p_OptimizeParameters_Parameter = &tconv_[*OptimizeParameters_Parameter]{
 	box:   func(v *OptimizeParameters_Parameter) any { return obj_(v) },
 	unbox: func(v any) *OptimizeParameters_Parameter { return cast_[*OptimizeParameters_Parameter](v) },
 }
 
-var jtc_p_OptionalChainRewriter = &jtconv_[*OptionalChainRewriter]{
+var tc_p_OptionalChainRewriter = &tconv_[*OptionalChainRewriter]{
 	box:   func(v *OptionalChainRewriter) any { return obj_(v) },
 	unbox: func(v any) *OptionalChainRewriter { return cast_[*OptionalChainRewriter](v) },
 }
 
-var jtc_p_Parser_FunctionFlavor = &jtconv_[Parser_FunctionFlavor]{
+var tc_p_Parser_FunctionFlavor = &tconv_[Parser_FunctionFlavor]{
 	box:   func(v Parser_FunctionFlavor) any { return obj_(v) },
 	unbox: func(v any) Parser_FunctionFlavor { return cast_[Parser_FunctionFlavor](v) },
 }
 
-var jtc_p_PassFactory = &jtconv_[*PassFactory]{
-	box:   func(v *PassFactory) any { return obj_(v) },
-	unbox: func(v any) *PassFactory { return cast_[*PassFactory](v) },
-}
-
-var jtc_p_Pattern = &jtconv_[*Pattern]{
-	box:   func(v *Pattern) any { return obj_(v) },
-	unbox: func(v any) *Pattern { return cast_[*Pattern](v) },
-}
-
-var jtc_p_PerformanceTracker_Stats = &jtconv_[*PerformanceTracker_Stats]{
-	box:   func(v *PerformanceTracker_Stats) any { return obj_(v) },
-	unbox: func(v any) *PerformanceTracker_Stats { return cast_[*PerformanceTracker_Stats](v) },
-}
-
-var jtc_p_PhaseOptimizer_NamedPass = &jtconv_[*PhaseOptimizer_NamedPass]{
+var tc_p_PhaseOptimizer_NamedPass = &tconv_[*PhaseOptimizer_NamedPass]{
 	box:   func(v *PhaseOptimizer_NamedPass) any { return obj_(v) },
 	unbox: func(v any) *PhaseOptimizer_NamedPass { return cast_[*PhaseOptimizer_NamedPass](v) },
 }
 
-var jtc_p_PolymerBehaviorExtractor_BehaviorDefinition = &jtconv_[*PolymerBehaviorExtractor_BehaviorDefinition]{
-	box: func(v *PolymerBehaviorExtractor_BehaviorDefinition) any { return obj_(v) },
-	unbox: func(v any) *PolymerBehaviorExtractor_BehaviorDefinition {
-		return cast_[*PolymerBehaviorExtractor_BehaviorDefinition](v)
-	},
-}
-
-var tc_p_PolymerBehaviorExtractor_ResolveBehaviorNameResult = &jtconv_[*PolymerBehaviorExtractor_ResolveBehaviorNameResult]{
+var tc_p_PolymerBehaviorExtractor_ResolveBehaviorNameResult = &tconv_[*PolymerBehaviorExtractor_ResolveBehaviorNameResult]{
 	box: func(v *PolymerBehaviorExtractor_ResolveBehaviorNameResult) any { return obj_(v) },
 	unbox: func(v any) *PolymerBehaviorExtractor_ResolveBehaviorNameResult {
 		return cast_[*PolymerBehaviorExtractor_ResolveBehaviorNameResult](v)
 	},
 }
 
-var jtc_p_PolymerPass_MemberDefinition = &jtconv_[*PolymerPass_MemberDefinition]{
-	box:   func(v *PolymerPass_MemberDefinition) any { return obj_(v) },
-	unbox: func(v any) *PolymerPass_MemberDefinition { return cast_[*PolymerPass_MemberDefinition](v) },
-}
-
-var jtc_p_PotentialDeclaration = &jtconv_[*PotentialDeclaration]{
+var tc_p_PotentialDeclaration = &tconv_[*PotentialDeclaration]{
 	box:   func(v *PotentialDeclaration) any { return v.self() },
 	unbox: func(v any) *PotentialDeclaration { return to_PotentialDeclaration(v) },
 }
 
-var jtc_p_ProcessClosureProvidesAndRequires_ProvidedName = &jtconv_[*ProcessClosureProvidesAndRequires_ProvidedName]{
+var tc_p_ProcessClosureProvidesAndRequires_ProvidedName = &tconv_[*ProcessClosureProvidesAndRequires_ProvidedName]{
 	box: func(v *ProcessClosureProvidesAndRequires_ProvidedName) any { return obj_(v) },
 	unbox: func(v any) *ProcessClosureProvidesAndRequires_ProvidedName {
 		return cast_[*ProcessClosureProvidesAndRequires_ProvidedName](v)
 	},
 }
 
-var jtc_p_ProcessCommonJSModules_ExportInfo = &jtconv_[*ProcessCommonJSModules_ExportInfo]{
-	box:   func(v *ProcessCommonJSModules_ExportInfo) any { return obj_(v) },
-	unbox: func(v any) *ProcessCommonJSModules_ExportInfo { return cast_[*ProcessCommonJSModules_ExportInfo](v) },
-}
-
-var jtc_p_ProcessCommonJSModules_UmdPattern = &jtconv_[*ProcessCommonJSModules_UmdPattern]{
+var tc_p_ProcessCommonJSModules_UmdPattern = &tconv_[*ProcessCommonJSModules_UmdPattern]{
 	box:   func(v *ProcessCommonJSModules_UmdPattern) any { return obj_(v) },
 	unbox: func(v any) *ProcessCommonJSModules_UmdPattern { return cast_[*ProcessCommonJSModules_UmdPattern](v) },
 }
 
-var jtc_p_ProcessDefines_Define = &jtconv_[*ProcessDefines_Define]{
+var tc_p_ProcessDefines_Define = &tconv_[*ProcessDefines_Define]{
 	box:   func(v *ProcessDefines_Define) any { return obj_(v) },
 	unbox: func(v any) *ProcessDefines_Define { return cast_[*ProcessDefines_Define](v) },
 }
 
-var tc_p_ProcessTweaks_TweakFunction = &jtconv_[ProcessTweaks_TweakFunction]{
+var tc_p_ProcessTweaks_TweakFunction = &tconv_[ProcessTweaks_TweakFunction]{
 	box:   func(v ProcessTweaks_TweakFunction) any { return obj_(v) },
 	unbox: func(v any) ProcessTweaks_TweakFunction { return cast_[ProcessTweaks_TweakFunction](v) },
 }
 
-var tc_p_ProcessTweaks_TweakFunctionCall = &jtconv_[*ProcessTweaks_TweakFunctionCall]{
+var tc_p_ProcessTweaks_TweakFunctionCall = &tconv_[*ProcessTweaks_TweakFunctionCall]{
 	box:   func(v *ProcessTweaks_TweakFunctionCall) any { return obj_(v) },
 	unbox: func(v any) *ProcessTweaks_TweakFunctionCall { return cast_[*ProcessTweaks_TweakFunctionCall](v) },
 }
 
-var jtc_p_ProcessTweaks_TweakInfo = &jtconv_[*ProcessTweaks_TweakInfo]{
+var tc_p_ProcessTweaks_TweakInfo = &tconv_[*ProcessTweaks_TweakInfo]{
 	box:   func(v *ProcessTweaks_TweakInfo) any { return obj_(v) },
 	unbox: func(v any) *ProcessTweaks_TweakInfo { return cast_[*ProcessTweaks_TweakInfo](v) },
 }
 
-var jtc_p_PropertyClustering = &jtconv_[*PropertyClustering]{
+var tc_p_PropertyClustering = &tconv_[*PropertyClustering]{
 	box:   func(v *PropertyClustering) any { return obj_(v) },
 	unbox: func(v any) *PropertyClustering { return cast_[*PropertyClustering](v) },
 }
 
-var jtc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary = &jtconv_[*PureFunctionIdentifier_AmbiguatedFunctionSummary]{
-	box: func(v *PureFunctionIdentifier_AmbiguatedFunctionSummary) any { return obj_(v) },
-	unbox: func(v any) *PureFunctionIdentifier_AmbiguatedFunctionSummary {
-		return cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](v)
-	},
-}
-
-var jtc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = &jtconv_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry]{
+var tc_p_PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = &tconv_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry]{
 	box: func(v *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry) any { return obj_(v) },
 	unbox: func(v any) *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry {
 		return cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](v)
 	},
 }
 
-var jtc_p_RecordTypeBuilder_RecordProperty = &jtconv_[*RecordTypeBuilder_RecordProperty]{
-	box:   func(v *RecordTypeBuilder_RecordProperty) any { return obj_(v) },
-	unbox: func(v any) *RecordTypeBuilder_RecordProperty { return cast_[*RecordTypeBuilder_RecordProperty](v) },
-}
-
-var jtc_p_Reference = &jtconv_[*Reference]{
+var tc_p_Reference = &tconv_[*Reference]{
 	box:   func(v *Reference) any { return obj_(v) },
 	unbox: func(v any) *Reference { return cast_[*Reference](v) },
 }
 
-var tc_p_ReferenceCollection = &jtconv_[*ReferenceCollection]{
+var tc_p_ReferenceCollection = &tconv_[*ReferenceCollection]{
 	box:   func(v *ReferenceCollection) any { return obj_(v) },
 	unbox: func(v any) *ReferenceCollection { return cast_[*ReferenceCollection](v) },
 }
 
-var jtc_p_RegExpTree = &jtconv_[*RegExpTree]{
-	box:   func(v *RegExpTree) any { return v.self() },
-	unbox: func(v any) *RegExpTree { return to_RegExpTree(v) },
-}
-
-var jtc_p_RemoveUnusedCode_Continuation = &jtconv_[*RemoveUnusedCode_Continuation]{
+var tc_p_RemoveUnusedCode_Continuation = &tconv_[*RemoveUnusedCode_Continuation]{
 	box:   func(v *RemoveUnusedCode_Continuation) any { return obj_(v) },
 	unbox: func(v any) *RemoveUnusedCode_Continuation { return cast_[*RemoveUnusedCode_Continuation](v) },
 }
 
-var tc_p_RemoveUnusedCode_Removable = &jtconv_[*RemoveUnusedCode_Removable]{
+var tc_p_RemoveUnusedCode_Removable = &tconv_[*RemoveUnusedCode_Removable]{
 	box:   func(v *RemoveUnusedCode_Removable) any { return v.self() },
 	unbox: func(v any) *RemoveUnusedCode_Removable { return to_RemoveUnusedCode_Removable(v) },
 }
 
-var tc_p_RenameLabels_LabelInfo = &jtconv_[*RenameLabels_LabelInfo]{
+var tc_p_RenameLabels_LabelInfo = &tconv_[*RenameLabels_LabelInfo]{
 	box:   func(v *RenameLabels_LabelInfo) any { return obj_(v) },
 	unbox: func(v any) *RenameLabels_LabelInfo { return cast_[*RenameLabels_LabelInfo](v) },
 }
 
-var jtc_p_RenameLabels_LabelNamespace = &jtconv_[*RenameLabels_LabelNamespace]{
+var tc_p_RenameLabels_LabelNamespace = &tconv_[*RenameLabels_LabelNamespace]{
 	box:   func(v *RenameLabels_LabelNamespace) any { return obj_(v) },
 	unbox: func(v any) *RenameLabels_LabelNamespace { return cast_[*RenameLabels_LabelNamespace](v) },
 }
 
-var jtc_p_RenameProperties_Property = &jtconv_[*RenameProperties_Property]{
+var tc_p_RenameProperties_Property = &tconv_[*RenameProperties_Property]{
 	box:   func(v *RenameProperties_Property) any { return obj_(v) },
 	unbox: func(v any) *RenameProperties_Property { return cast_[*RenameProperties_Property](v) },
 }
 
-var jtc_p_RenameVars_Assignment = &jtconv_[*RenameVars_Assignment]{
+var tc_p_RenameVars_Assignment = &tconv_[*RenameVars_Assignment]{
 	box:   func(v *RenameVars_Assignment) any { return obj_(v) },
 	unbox: func(v any) *RenameVars_Assignment { return cast_[*RenameVars_Assignment](v) },
 }
 
-var jtc_p_ReplaceCssNames_GetCssNameInstance = &jtconv_[*ReplaceCssNames_GetCssNameInstance]{
+var tc_p_ReplaceCssNames_GetCssNameInstance = &tconv_[*ReplaceCssNames_GetCssNameInstance]{
 	box:   func(v *ReplaceCssNames_GetCssNameInstance) any { return obj_(v) },
 	unbox: func(v any) *ReplaceCssNames_GetCssNameInstance { return cast_[*ReplaceCssNames_GetCssNameInstance](v) },
 }
 
-var tc_p_ReplaceStrings_Config = &jtconv_[*ReplaceStrings_Config]{
+var tc_p_ReplaceStrings_Config = &tconv_[*ReplaceStrings_Config]{
 	box:   func(v *ReplaceStrings_Config) any { return obj_(v) },
 	unbox: func(v any) *ReplaceStrings_Config { return cast_[*ReplaceStrings_Config](v) },
 }
 
-var jtc_p_ReplaceStrings_Result = &jtconv_[*ReplaceStrings_Result]{
-	box:   func(v *ReplaceStrings_Result) any { return obj_(v) },
-	unbox: func(v any) *ReplaceStrings_Result { return cast_[*ReplaceStrings_Result](v) },
-}
-
-var tc_p_ReportProfile = &jtconv_[*ReportProfile]{
+var tc_p_ReportProfile = &tconv_[*ReportProfile]{
 	box:   func(v *ReportProfile) any { return obj_(v) },
 	unbox: func(v any) *ReportProfile { return cast_[*ReportProfile](v) },
 }
 
-var jtc_p_Requirement = &jtconv_[*Requirement]{
+var tc_p_Requirement = &tconv_[*Requirement]{
 	box:   func(v *Requirement) any { return obj_(v) },
 	unbox: func(v any) *Requirement { return cast_[*Requirement](v) },
 }
 
-var jtc_p_Requirement_Builder = &jtconv_[*Requirement_Builder]{
+var tc_p_Requirement_Builder = &tconv_[*Requirement_Builder]{
 	box:   func(v *Requirement_Builder) any { return obj_(v) },
 	unbox: func(v any) *Requirement_Builder { return cast_[*Requirement_Builder](v) },
 }
 
-var tc_p_RescopeGlobalSymbolsRewriteCallback_ChunkGlobal = &jtconv_[*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal]{
+var tc_p_RescopeGlobalSymbolsRewriteCallback_ChunkGlobal = &tconv_[*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal]{
 	box: func(v *RescopeGlobalSymbolsRewriteCallback_ChunkGlobal) any { return obj_(v) },
 	unbox: func(v any) *RescopeGlobalSymbolsRewriteCallback_ChunkGlobal {
 		return cast_[*RescopeGlobalSymbolsRewriteCallback_ChunkGlobal](v)
 	},
 }
 
-var tc_p_ResolveExportResult = &jtconv_[*ResolveExportResult]{
+var tc_p_ResolveExportResult = &tconv_[*ResolveExportResult]{
 	box:   func(v *ResolveExportResult) any { return obj_(v) },
 	unbox: func(v any) *ResolveExportResult { return cast_[*ResolveExportResult](v) },
 }
 
-var jtc_p_RewriteAsyncFunctions_LexicalContext = &jtconv_[*RewriteAsyncFunctions_LexicalContext]{
+var tc_p_RewriteAsyncFunctions_LexicalContext = &tconv_[*RewriteAsyncFunctions_LexicalContext]{
 	box:   func(v *RewriteAsyncFunctions_LexicalContext) any { return v.self() },
 	unbox: func(v any) *RewriteAsyncFunctions_LexicalContext { return to_RewriteAsyncFunctions_LexicalContext(v) },
 }
 
-var jtc_p_RewriteAsyncFunctions_SuperPropertyWrapperInfo = &jtconv_[*RewriteAsyncFunctions_SuperPropertyWrapperInfo]{
+var tc_p_RewriteAsyncFunctions_SuperPropertyWrapperInfo = &tconv_[*RewriteAsyncFunctions_SuperPropertyWrapperInfo]{
 	box: func(v *RewriteAsyncFunctions_SuperPropertyWrapperInfo) any { return obj_(v) },
 	unbox: func(v any) *RewriteAsyncFunctions_SuperPropertyWrapperInfo {
 		return cast_[*RewriteAsyncFunctions_SuperPropertyWrapperInfo](v)
 	},
 }
 
-var jtc_p_RewriteAsyncIteration_LexicalContext = &jtconv_[*RewriteAsyncIteration_LexicalContext]{
+var tc_p_RewriteAsyncIteration_LexicalContext = &tconv_[*RewriteAsyncIteration_LexicalContext]{
 	box: func(v *RewriteAsyncIteration_LexicalContext) any { return obj_(v) },
 	unbox: func(v any) *RewriteAsyncIteration_LexicalContext {
 		return cast_[*RewriteAsyncIteration_LexicalContext](v)
 	},
 }
 
-var tc_p_RewriteCallerCodeLocation_FunctionVarAndParamPosition = &jtconv_[*RewriteCallerCodeLocation_FunctionVarAndParamPosition]{
+var tc_p_RewriteCallerCodeLocation_FunctionVarAndParamPosition = &tconv_[*RewriteCallerCodeLocation_FunctionVarAndParamPosition]{
 	box: func(v *RewriteCallerCodeLocation_FunctionVarAndParamPosition) any { return obj_(v) },
 	unbox: func(v any) *RewriteCallerCodeLocation_FunctionVarAndParamPosition {
 		return cast_[*RewriteCallerCodeLocation_FunctionVarAndParamPosition](v)
 	},
 }
 
-var jtc_p_RuntimeJsLibManager_InternalField = &jtconv_[*RuntimeJsLibManager_InternalField]{
+var tc_p_RuntimeJsLibManager_InternalField = &tconv_[*RuntimeJsLibManager_InternalField]{
 	box:   func(v *RuntimeJsLibManager_InternalField) any { return obj_(v) },
 	unbox: func(v any) *RuntimeJsLibManager_InternalField { return cast_[*RuntimeJsLibManager_InternalField](v) },
 }
 
-var tc_p_Scope = &jtconv_[*Scope]{
+var tc_p_Scope = &tconv_[*Scope]{
 	box:   func(v *Scope) any { return obj_(v) },
 	unbox: func(v any) *Scope { return cast_[*Scope](v) },
 }
 
-var jtc_p_ScopedAliases_AliasUsage = &jtconv_[*ScopedAliases_AliasUsage]{
+var tc_p_ScopedAliases_AliasUsage = &tconv_[*ScopedAliases_AliasUsage]{
 	box:   func(v *ScopedAliases_AliasUsage) any { return v.self() },
 	unbox: func(v any) *ScopedAliases_AliasUsage { return to_ScopedAliases_AliasUsage(v) },
 }
 
-var jtc_p_ScriptMetadata = &jtconv_[*ScriptMetadata]{
+var tc_p_ScriptMetadata = &tconv_[*ScriptMetadata]{
 	box:   func(v *ScriptMetadata) any { return obj_(v) },
 	unbox: func(v any) *ScriptMetadata { return cast_[*ScriptMetadata](v) },
 }
 
-var jtc_p_ScriptNodeDeserializer = &jtconv_[*ScriptNodeDeserializer]{
+var tc_p_ScriptNodeDeserializer = &tconv_[*ScriptNodeDeserializer]{
 	box:   func(v *ScriptNodeDeserializer) any { return obj_(v) },
 	unbox: func(v any) *ScriptNodeDeserializer { return cast_[*ScriptNodeDeserializer](v) },
 }
 
-var tc_p_SimpleJsonValue = &jtconv_[*SimpleJsonValue]{
+var tc_p_SimpleJsonValue = &tconv_[*SimpleJsonValue]{
 	box:   func(v *SimpleJsonValue) any { return obj_(v) },
 	unbox: func(v any) *SimpleJsonValue { return cast_[*SimpleJsonValue](v) },
 }
 
-var jtc_p_SimpleSlot = &jtconv_[*SimpleSlot]{
+var tc_p_SimpleSlot = &tconv_[*SimpleSlot]{
 	box:   func(v *SimpleSlot) any { return v.self() },
 	unbox: func(v any) *SimpleSlot { return to_SimpleSlot(v) },
 }
 
-var jtc_p_SourceFile_jscomp = &jtconv_[*SourceFile_jscomp]{
-	box:   func(v *SourceFile_jscomp) any { return obj_(v) },
-	unbox: func(v any) *SourceFile_jscomp { return cast_[*SourceFile_jscomp](v) },
-}
-
-var jtc_p_SourceMapGeneratorV3_Mapping = &jtconv_[*SourceMapGeneratorV3_Mapping]{
+var tc_p_SourceMapGeneratorV3_Mapping = &tconv_[*SourceMapGeneratorV3_Mapping]{
 	box:   func(v *SourceMapGeneratorV3_Mapping) any { return obj_(v) },
 	unbox: func(v any) *SourceMapGeneratorV3_Mapping { return cast_[*SourceMapGeneratorV3_Mapping](v) },
 }
 
-var jtc_p_SourceMap_Mapping = &jtconv_[*SourceMap_Mapping]{
+var tc_p_SourceMap_Mapping = &tconv_[*SourceMap_Mapping]{
 	box:   func(v *SourceMap_Mapping) any { return obj_(v) },
 	unbox: func(v any) *SourceMap_Mapping { return cast_[*SourceMap_Mapping](v) },
 }
 
-var jtc_p_SuggestedFix = &jtconv_[*SuggestedFix]{
-	box:   func(v *SuggestedFix) any { return obj_(v) },
-	unbox: func(v any) *SuggestedFix { return cast_[*SuggestedFix](v) },
-}
-
-var jtc_p_SymbolTable_Reference = &jtconv_[*SymbolTable_Reference]{
-	box:   func(v *SymbolTable_Reference) any { return obj_(v) },
-	unbox: func(v any) *SymbolTable_Reference { return cast_[*SymbolTable_Reference](v) },
-}
-
-var jtc_p_SymbolTable_Symbol = &jtconv_[*SymbolTable_Symbol]{
-	box:   func(v *SymbolTable_Symbol) any { return obj_(v) },
-	unbox: func(v any) *SymbolTable_Symbol { return cast_[*SymbolTable_Symbol](v) },
-}
-
-var jtc_p_SymbolTable_SymbolScope = &jtconv_[*SymbolTable_SymbolScope]{
+var tc_p_SymbolTable_SymbolScope = &tconv_[*SymbolTable_SymbolScope]{
 	box:   func(v *SymbolTable_SymbolScope) any { return obj_(v) },
 	unbox: func(v any) *SymbolTable_SymbolScope { return cast_[*SymbolTable_SymbolScope](v) },
 }
 
-var jtc_p_TemplateType = &jtconv_[*TemplateType]{
-	box:   func(v *TemplateType) any { return obj_(v) },
-	unbox: func(v any) *TemplateType { return cast_[*TemplateType](v) },
-}
-
-var jtc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = &jtconv_[*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext]{
+var tc_p_ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = &tconv_[*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext]{
 	box: func(v *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext) any { return obj_(v) },
 	unbox: func(v any) *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext {
 		return cast_[*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext](v)
 	},
 }
 
-var jtc_p_Token_parser = &jtconv_[*Token_parser]{
+var tc_p_Token_parser = &tconv_[*Token_parser]{
 	box:   func(v *Token_parser) any { return v.self() },
 	unbox: func(v any) *Token_parser { return to_Token_parser(v) },
 }
 
-var jtc_p_Tracer = &jtconv_[*Tracer]{
+var tc_p_Tracer = &tconv_[*Tracer]{
 	box:   func(v *Tracer) any { return obj_(v) },
 	unbox: func(v any) *Tracer { return cast_[*Tracer](v) },
 }
 
-var jtc_p_Tracer_Event = &jtconv_[*Tracer_Event]{
+var tc_p_Tracer_Event = &tconv_[*Tracer_Event]{
 	box:   func(v *Tracer_Event) any { return obj_(v) },
 	unbox: func(v any) *Tracer_Event { return cast_[*Tracer_Event](v) },
 }
 
-var jtc_p_Tracer_Stat = &jtconv_[*Tracer_Stat]{
+var tc_p_Tracer_Stat = &tconv_[*Tracer_Stat]{
 	box:   func(v *Tracer_Stat) any { return obj_(v) },
 	unbox: func(v any) *Tracer_Stat { return cast_[*Tracer_Stat](v) },
 }
 
-var jtc_p_TypeInference_OptChainInfo = &jtconv_[*TypeInference_OptChainInfo]{
+var tc_p_TypeInference_OptChainInfo = &tconv_[*TypeInference_OptChainInfo]{
 	box:   func(v *TypeInference_OptChainInfo) any { return obj_(v) },
 	unbox: func(v any) *TypeInference_OptChainInfo { return cast_[*TypeInference_OptChainInfo](v) },
 }
 
-var jtc_p_TypeMismatch = &jtconv_[*TypeMismatch]{
+var tc_p_TypeMismatch = &tconv_[*TypeMismatch]{
 	box:   func(v *TypeMismatch) any { return obj_(v) },
 	unbox: func(v any) *TypeMismatch { return cast_[*TypeMismatch](v) },
 }
 
-var jtc_p_TypedScope = &jtconv_[*TypedScope]{
-	box:   func(v *TypedScope) any { return obj_(v) },
-	unbox: func(v any) *TypedScope { return cast_[*TypedScope](v) },
-}
-
-var tc_p_TypedScopeCreator_WeakModuleImport = &jtconv_[*TypedScopeCreator_WeakModuleImport]{
+var tc_p_TypedScopeCreator_WeakModuleImport = &tconv_[*TypedScopeCreator_WeakModuleImport]{
 	box:   func(v *TypedScopeCreator_WeakModuleImport) any { return obj_(v) },
 	unbox: func(v any) *TypedScopeCreator_WeakModuleImport { return cast_[*TypedScopeCreator_WeakModuleImport](v) },
 }
 
-var jtc_p_TypedVar = &jtconv_[*TypedVar]{
+var tc_p_TypedVar = &tconv_[*TypedVar]{
 	box:   func(v *TypedVar) any { return obj_(v) },
 	unbox: func(v any) *TypedVar { return cast_[*TypedVar](v) },
 }
 
-var jtc_p_UniqueIdProto = &jtconv_[*UniqueIdProto]{
+var tc_p_UniqueIdProto = &tconv_[*UniqueIdProto]{
 	box:   func(v *UniqueIdProto) any { return obj_(v) },
 	unbox: func(v any) *UniqueIdProto { return cast_[*UniqueIdProto](v) },
 }
 
-var jtc_p_UnresolvedModule = &jtconv_[*UnresolvedModule]{
-	box:   func(v *UnresolvedModule) any { return v.self() },
-	unbox: func(v any) *UnresolvedModule { return to_UnresolvedModule(v) },
-}
-
-var jtc_p_Var = &jtconv_[*Var]{
-	box:   func(v *Var) any { return obj_(v) },
-	unbox: func(v any) *Var { return cast_[*Var](v) },
-}
-
-var jtc_p_VariableMapEntryProto = &jtconv_[*VariableMapEntryProto]{
+var tc_p_VariableMapEntryProto = &tconv_[*VariableMapEntryProto]{
 	box:   func(v *VariableMapEntryProto) any { return obj_(v) },
 	unbox: func(v any) *VariableMapEntryProto { return cast_[*VariableMapEntryProto](v) },
 }
 
-var jtc_p_WarningsGuard = &jtconv_[*WarningsGuard]{
-	box:   func(v *WarningsGuard) any { return v.self() },
-	unbox: func(v any) *WarningsGuard { return to_WarningsGuard(v) },
-}
-
-var jtc_p_ZipArchive_Opened = &jtconv_[*ZipArchive_Opened]{
+var tc_p_ZipArchive_Opened = &tconv_[*ZipArchive_Opened]{
 	box:   func(v *ZipArchive_Opened) any { return obj_(v) },
 	unbox: func(v any) *ZipArchive_Opened { return cast_[*ZipArchive_Opened](v) },
 }
 
-var jtc_string = &jtconv_[string]{
-	box:   func(v string) any { return strobj_(v) },
-	unbox: func(v any) string { return str_(v) },
-	null:  nullstr_,
+var tch_CheckConformance_Rule = &tconv_[CheckConformance_Rule]{
+	box:   func(v CheckConformance_Rule) any { return v },
+	unbox: func(v any) CheckConformance_Rule { return icast_CheckConformance_Rule(v) },
+	hash:  func(v CheckConformance_Rule) int32 { return objhash_(v) },
+	eq:    func(a, b CheckConformance_Rule) bool { return objequals_(a, b) },
 }
 
-var tce_CheckConformance_Rule = &jtconv_[CheckConformance_Rule]{
-	box:      func(v CheckConformance_Rule) any { return v },
-	unbox:    func(v any) CheckConformance_Rule { return icast_CheckConformance_Rule(v) },
-	byEquals: true,
+var tch_GlobalNamespace_AstChange = &tconv_[GlobalNamespace_AstChange]{
+	box:   func(v GlobalNamespace_AstChange) any { return v },
+	unbox: func(v any) GlobalNamespace_AstChange { return icast_GlobalNamespace_AstChange(v) },
+	hash:  func(v GlobalNamespace_AstChange) int32 { return objhash_(v) },
+	eq:    func(a, b GlobalNamespace_AstChange) bool { return objequals_(a, b) },
 }
 
-var tce_GlobalNamespace_AstChange = &jtconv_[GlobalNamespace_AstChange]{
-	box:      func(v GlobalNamespace_AstChange) any { return v },
-	unbox:    func(v any) GlobalNamespace_AstChange { return icast_GlobalNamespace_AstChange(v) },
-	byEquals: true,
-}
-
-var tce_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = &jtconv_[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]{
+var tch_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = &tconv_[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]{
 	box: func(v MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) any { return v },
 	unbox: func(v any) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
 		return icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(v)
 	},
-	byEquals: true,
+	hash: func(v MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) int32 { return objhash_(v) },
+	eq:   func(a, b MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) bool { return objequals_(a, b) },
 }
 
-var tce_Property_Key = &jtconv_[Property_Key]{
-	box:      func(v Property_Key) any { return v },
-	unbox:    func(v any) Property_Key { return icast_Property_Key(v) },
-	byEquals: true,
+var tch_RuntimeJsLibManager_ExternedField = &tconv_[RuntimeJsLibManager_ExternedField]{
+	box:   func(v RuntimeJsLibManager_ExternedField) any { return v },
+	unbox: func(v any) RuntimeJsLibManager_ExternedField { return icast_RuntimeJsLibManager_ExternedField(v) },
+	hash:  func(v RuntimeJsLibManager_ExternedField) int32 { return objhash_(v) },
+	eq:    func(a, b RuntimeJsLibManager_ExternedField) bool { return objequals_(a, b) },
 }
 
-var tce_RuntimeJsLibManager_ExternedField = &jtconv_[RuntimeJsLibManager_ExternedField]{
-	box:      func(v RuntimeJsLibManager_ExternedField) any { return v },
-	unbox:    func(v any) RuntimeJsLibManager_ExternedField { return icast_RuntimeJsLibManager_ExternedField(v) },
-	byEquals: true,
+var tch_p_CharRanges = &tconv_[*CharRanges]{
+	box:   func(v *CharRanges) any { return obj_(v) },
+	unbox: func(v any) *CharRanges { return cast_[*CharRanges](v) },
+	hash:  func(v *CharRanges) int32 { return objhash_(obj_(v)) },
+	eq:    func(a, b *CharRanges) bool { return objequals_(obj_(a), obj_(b)) },
 }
 
-var tce_p_CharRanges = &jtconv_[*CharRanges]{
-	box:      func(v *CharRanges) any { return obj_(v) },
-	unbox:    func(v any) *CharRanges { return cast_[*CharRanges](v) },
-	byEquals: true,
+var tch_p_EqualityChecker_CacheKey = &tconv_[*EqualityChecker_CacheKey]{
+	box:   func(v *EqualityChecker_CacheKey) any { return obj_(v) },
+	unbox: func(v any) *EqualityChecker_CacheKey { return cast_[*EqualityChecker_CacheKey](v) },
+	hash:  func(v *EqualityChecker_CacheKey) int32 { return objhash_(obj_(v)) },
+	eq:    func(a, b *EqualityChecker_CacheKey) bool { return objequals_(obj_(a), obj_(b)) },
 }
 
-var tce_p_Color = &jtconv_[*Color]{
-	box:      func(v *Color) any { return obj_(v) },
-	unbox:    func(v any) *Color { return cast_[*Color](v) },
-	byEquals: true,
-}
-
-var tce_p_ColorId = &jtconv_[*ColorId]{
-	box:      func(v *ColorId) any { return obj_(v) },
-	unbox:    func(v any) *ColorId { return cast_[*ColorId](v) },
-	byEquals: true,
-}
-
-var tce_p_DiagnosticType = &jtconv_[*DiagnosticType]{
-	box:      func(v *DiagnosticType) any { return obj_(v) },
-	unbox:    func(v any) *DiagnosticType { return cast_[*DiagnosticType](v) },
-	byEquals: true,
-}
-
-var tce_p_EqualityChecker_CacheKey = &jtconv_[*EqualityChecker_CacheKey]{
-	box:      func(v *EqualityChecker_CacheKey) any { return obj_(v) },
-	unbox:    func(v any) *EqualityChecker_CacheKey { return cast_[*EqualityChecker_CacheKey](v) },
-	byEquals: true,
-}
-
-var tce_p_Es6RewriteModulesToCommonJsModules_ModuleRequest = &jtconv_[*Es6RewriteModulesToCommonJsModules_ModuleRequest]{
+var tch_p_Es6RewriteModulesToCommonJsModules_ModuleRequest = &tconv_[*Es6RewriteModulesToCommonJsModules_ModuleRequest]{
 	box: func(v *Es6RewriteModulesToCommonJsModules_ModuleRequest) any { return obj_(v) },
 	unbox: func(v any) *Es6RewriteModulesToCommonJsModules_ModuleRequest {
 		return cast_[*Es6RewriteModulesToCommonJsModules_ModuleRequest](v)
 	},
-	byEquals: true,
+	hash: func(v *Es6RewriteModulesToCommonJsModules_ModuleRequest) int32 { return objhash_(obj_(v)) },
+	eq:   func(a, b *Es6RewriteModulesToCommonJsModules_ModuleRequest) bool { return objequals_(obj_(a), obj_(b)) },
 }
 
-var tce_p_FileInstrumentationData_BranchIndexPair = &jtconv_[*FileInstrumentationData_BranchIndexPair]{
+var tch_p_FileInstrumentationData_BranchIndexPair = &tconv_[*FileInstrumentationData_BranchIndexPair]{
 	box: func(v *FileInstrumentationData_BranchIndexPair) any { return obj_(v) },
 	unbox: func(v any) *FileInstrumentationData_BranchIndexPair {
 		return cast_[*FileInstrumentationData_BranchIndexPair](v)
 	},
-	byEquals: true,
+	hash: func(v *FileInstrumentationData_BranchIndexPair) int32 { return objhash_(obj_(v)) },
+	eq:   func(a, b *FileInstrumentationData_BranchIndexPair) bool { return objequals_(obj_(a), obj_(b)) },
 }
 
-var tce_p_FunctionType = &jtconv_[*FunctionType]{
-	box:      func(v *FunctionType) any { return v.self() },
-	unbox:    func(v any) *FunctionType { return to_FunctionType(v) },
-	byEquals: true,
+var tch_p_FunctionType = &tconv_[*FunctionType]{
+	box:   func(v *FunctionType) any { return v.self() },
+	unbox: func(v any) *FunctionType { return to_FunctionType(v) },
+	hash:  func(v *FunctionType) int32 { return objhash_(v.self()) },
+	eq:    func(a, b *FunctionType) bool { return objequals_(a.self(), b.self()) },
 }
 
-var tce_p_InstrumentationPoint = &jtconv_[*InstrumentationPoint]{
-	box:      func(v *InstrumentationPoint) any { return obj_(v) },
-	unbox:    func(v any) *InstrumentationPoint { return cast_[*InstrumentationPoint](v) },
-	byEquals: true,
+var tch_p_JSError = &tconv_[*JSError]{
+	box:   func(v *JSError) any { return obj_(v) },
+	unbox: func(v any) *JSError { return cast_[*JSError](v) },
+	hash:  func(v *JSError) int32 { return objhash_(obj_(v)) },
+	eq:    func(a, b *JSError) bool { return objequals_(obj_(a), obj_(b)) },
 }
 
-var tce_p_JSError = &jtconv_[*JSError]{
-	box:      func(v *JSError) any { return obj_(v) },
-	unbox:    func(v any) *JSError { return cast_[*JSError](v) },
-	byEquals: true,
+var tch_p_JSType = &tconv_[*JSType]{
+	box:   func(v *JSType) any { return v.self() },
+	unbox: func(v any) *JSType { return to_JSType(v) },
+	hash:  func(v *JSType) int32 { return objhash_(v.self()) },
+	eq:    func(a, b *JSType) bool { return objequals_(a.self(), b.self()) },
 }
 
-var tce_p_JSType = &jtconv_[*JSType]{
-	box:      func(v *JSType) any { return v.self() },
-	unbox:    func(v any) *JSType { return to_JSType(v) },
-	byEquals: true,
+var tch_p_Module = &tconv_[*Module]{
+	box:   func(v *Module) any { return obj_(v) },
+	unbox: func(v any) *Module { return cast_[*Module](v) },
+	hash:  func(v *Module) int32 { return objhash_(obj_(v)) },
+	eq:    func(a, b *Module) bool { return objequals_(obj_(a), obj_(b)) },
 }
 
-var tce_p_KnownSymbolType = &jtconv_[*KnownSymbolType]{
-	box:      func(v *KnownSymbolType) any { return obj_(v) },
-	unbox:    func(v any) *KnownSymbolType { return cast_[*KnownSymbolType](v) },
-	byEquals: true,
+var tch_p_PropertyMap = &tconv_[*PropertyMap]{
+	box:   func(v *PropertyMap) any { return obj_(v) },
+	unbox: func(v any) *PropertyMap { return cast_[*PropertyMap](v) },
+	hash:  func(v *PropertyMap) int32 { return objhash_(obj_(v)) },
+	eq:    func(a, b *PropertyMap) bool { return objequals_(obj_(a), obj_(b)) },
 }
 
-var tce_p_Module = &jtconv_[*Module]{
-	box:      func(v *Module) any { return obj_(v) },
-	unbox:    func(v any) *Module { return cast_[*Module](v) },
-	byEquals: true,
+var tch_p_Requirement = &tconv_[*Requirement]{
+	box:   func(v *Requirement) any { return obj_(v) },
+	unbox: func(v any) *Requirement { return cast_[*Requirement](v) },
+	hash:  func(v *Requirement) int32 { return objhash_(obj_(v)) },
+	eq:    func(a, b *Requirement) bool { return objequals_(obj_(a), obj_(b)) },
 }
 
-var tce_p_ObjectType = &jtconv_[*ObjectType]{
-	box:      func(v *ObjectType) any { return v.self() },
-	unbox:    func(v any) *ObjectType { return to_ObjectType(v) },
-	byEquals: true,
+var tch_p_Requirement_Builder = &tconv_[*Requirement_Builder]{
+	box:   func(v *Requirement_Builder) any { return obj_(v) },
+	unbox: func(v any) *Requirement_Builder { return cast_[*Requirement_Builder](v) },
+	hash:  func(v *Requirement_Builder) int32 { return objhash_(obj_(v)) },
+	eq:    func(a, b *Requirement_Builder) bool { return objequals_(obj_(a), obj_(b)) },
 }
 
-var tce_p_PropertyMap = &jtconv_[*PropertyMap]{
-	box:      func(v *PropertyMap) any { return obj_(v) },
-	unbox:    func(v any) *PropertyMap { return cast_[*PropertyMap](v) },
-	byEquals: true,
+var tch_p_ScopedName = &tconv_[*ScopedName]{
+	box:   func(v *ScopedName) any { return v.self() },
+	unbox: func(v any) *ScopedName { return to_ScopedName(v) },
+	hash:  func(v *ScopedName) int32 { return objhash_(v.self()) },
+	eq:    func(a, b *ScopedName) bool { return objequals_(a.self(), b.self()) },
 }
 
-var tce_p_Requirement = &jtconv_[*Requirement]{
-	box:      func(v *Requirement) any { return obj_(v) },
-	unbox:    func(v any) *Requirement { return cast_[*Requirement](v) },
-	byEquals: true,
-}
-
-var tce_p_Requirement_Builder = &jtconv_[*Requirement_Builder]{
-	box:      func(v *Requirement_Builder) any { return obj_(v) },
-	unbox:    func(v any) *Requirement_Builder { return cast_[*Requirement_Builder](v) },
-	byEquals: true,
-}
-
-var tce_p_ScopedName = &jtconv_[*ScopedName]{
-	box:      func(v *ScopedName) any { return v.self() },
-	unbox:    func(v any) *ScopedName { return to_ScopedName(v) },
-	byEquals: true,
-}
-
-var tce_p_SubtypeChecker_CacheKey = &jtconv_[*SubtypeChecker_CacheKey]{
-	box:      func(v *SubtypeChecker_CacheKey) any { return obj_(v) },
-	unbox:    func(v any) *SubtypeChecker_CacheKey { return cast_[*SubtypeChecker_CacheKey](v) },
-	byEquals: true,
-}
-
-var tce_p_TemplateType = &jtconv_[*TemplateType]{
-	box:      func(v *TemplateType) any { return obj_(v) },
-	unbox:    func(v any) *TemplateType { return cast_[*TemplateType](v) },
-	byEquals: true,
-}
-
-var tce_p_Var = &jtconv_[*Var]{
-	box:      func(v *Var) any { return obj_(v) },
-	unbox:    func(v any) *Var { return cast_[*Var](v) },
-	byEquals: true,
+var tch_p_SubtypeChecker_CacheKey = &tconv_[*SubtypeChecker_CacheKey]{
+	box:   func(v *SubtypeChecker_CacheKey) any { return obj_(v) },
+	unbox: func(v any) *SubtypeChecker_CacheKey { return cast_[*SubtypeChecker_CacheKey](v) },
+	hash:  func(v *SubtypeChecker_CacheKey) int32 { return objhash_(obj_(v)) },
+	eq:    func(a, b *SubtypeChecker_CacheKey) bool { return objequals_(obj_(a), obj_(b)) },
 }

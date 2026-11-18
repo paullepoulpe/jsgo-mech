@@ -42,7 +42,7 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *Im
 		}
 	}
 	this.stripNamePrefixes = stripNamePrefixesBuilder.build()
-	var stripTypesToAdjust *JTList[string] = jtlistFrom_(jtc_string, icast_Collection(obj_(stripTypes.asImm())))
+	var stripTypesToAdjust *TList[string] = tlistFrom_(tc_string, icast_Collection(obj_(stripTypes.asImm())))
 	if enableTweakStripping {
 		stripTypesToAdjust.add("goog.tweak")
 	}
@@ -58,20 +58,20 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *Im
 	}
 	var stripTypesAdjusted *ImmutableSet[string] = stripTypesAdjustedBuilder.build()
 	this.stripTypesList = arrmap_(stripTypesAdjusted.asImm().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
-	var stripTypePrefixes *JTList[string] = jnewTList_(jtc_string)
+	var stripTypePrefixes *TList[string] = newTList_(tc_string)
 	for _, el3 := range stripTypesAdjusted.keys {
 		s := el3
 		stripTypePrefixes.add((sstr_(s) + "."))
 		stripTypePrefixes.add((sstr_(s) + "$"))
 	}
 	this.stripTypePrefixesList = arrmap_(stripTypePrefixes.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
-	var stripNamePrefixesLowerCase *JTList[string] = jnewTList_(jtc_string)
+	var stripNamePrefixesLowerCase *TList[string] = newTList_(tc_string)
 	for _, el4 := range this.stripNamePrefixes.keys {
 		s := el4
 		stripNamePrefixesLowerCase.add(strings.ToLower(s))
 	}
 	this.stripNamePrefixesLowerCaseList = arrmap_(stripNamePrefixesLowerCase.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
-	var stripNameSuffixesLowerCase *JTList[string] = jnewTList_(jtc_string)
+	var stripNameSuffixesLowerCase *TList[string] = newTList_(tc_string)
 	for _, el5 := range this.stripNameSuffixes.keys {
 		s := el5
 		stripNameSuffixesLowerCase.add(strings.ToLower(s))
@@ -85,8 +85,8 @@ func new_StripCode(compiler *AbstractCompiler, stripTypes *ImmutableSet[string],
 	return this
 }
 
-func StripCode_toListWithCollapsedVersions(s string) *JTList[string] {
-	var possibleForms *JTList[string] = jnewTList_(jtc_string)
+func StripCode_toListWithCollapsedVersions(s string) *TList[string] {
+	var possibleForms *TList[string] = newTList_(tc_string)
 	possibleForms.add(s)
 	var chars []uint16 = String_toCharArray(s)
 	for i := int32(0); i < int32(len(chars)); i++ {

@@ -17,7 +17,7 @@ type Parser struct {
 
 func (this *Parser) finit_Parser() {
 	this.commentRecorder = new_Parser_CommentRecorder(this)
-	this.functionContextStack = newTDeque_(jtc_p_Parser_FunctionFlavor)
+	this.functionContextStack = newTDeque_(tc_p_Parser_FunctionFlavor)
 	this.features_ = FeatureSet_BARE_MINIMUM
 	this.sourceMapURL = Optional_empty[string]()
 }

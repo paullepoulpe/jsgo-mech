@@ -32,7 +32,7 @@ func new_JSDocInfoPrinter_boolean_boolean(useOriginalName bool, printDesc bool) 
 
 func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	var multiline bool = false
-	var parts *JTList[string] = jnewTList_(jtc_string)
+	var parts *TList[string] = newTList_(tc_string)
 	parts.add("/**")
 	if info.isExterns() {
 		parts.add("@externs")

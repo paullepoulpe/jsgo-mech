@@ -349,7 +349,7 @@ func (this *UnionType) getRestrictedUnion(type_ *JSType) *JSType {
 
 func (this *UnionType) appendTo_impl(sb *TypeStringBuilder) {
 	sb.append("(")
-	var names *JTList[string] = jnewTList_(jtc_string)
+	var names *TList[string] = newTList_(tc_string)
 	for _, el := range this.alternates.items {
 		alt := el
 		names.add(sb.cloneWithConfig().appendJSType(alt).build())
@@ -505,7 +505,7 @@ func UnionType_clinit() {
 type UnionType_Builder struct {
 	rebuildTarget                 *UnionType
 	registry                      *JSTypeRegistry
-	alternates                    *JTList[*JSType]
+	alternates                    *TList[*JSType]
 	finalAlternates               *ImmutableList[*JSType]
 	containsVoidType              bool
 	isAllType_                    bool
@@ -516,7 +516,7 @@ type UnionType_Builder struct {
 }
 
 func (this *UnionType_Builder) finit_UnionType_Builder() {
-	this.alternates = jnewTList_(jtc_p_JSType)
+	this.alternates = newTList_(tc_p_JSType)
 	this.finalAlternates = nil
 	this.containsVoidType = false
 	this.isAllType_ = false

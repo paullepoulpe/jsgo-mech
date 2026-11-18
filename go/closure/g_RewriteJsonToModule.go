@@ -6,7 +6,7 @@ import "strings"
 
 type RewriteJsonToModule struct {
 	NodeTraversal_AbstractPostOrderCallback
-	packageJsonMainEntries *JTMap[string, string]
+	packageJsonMainEntries *TMap[string, string]
 	compiler_              *AbstractCompiler
 }
 
@@ -20,7 +20,7 @@ func (this *RewriteJsonToModule) up_NodeTraversal_AbstractPostOrderCallback() *N
 func (this *RewriteJsonToModule) init_RewriteJsonToModule(compiler *AbstractCompiler) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.compiler_ = compiler
-	this.packageJsonMainEntries = jnewTMap_(jtc_string, jtc_string)
+	this.packageJsonMainEntries = newTMap_(tc_string, tc_string)
 }
 
 func new_RewriteJsonToModule(compiler *AbstractCompiler) *RewriteJsonToModule {
@@ -90,7 +90,7 @@ func (this *RewriteJsonToModule) visitScript(t *NodeTraversal, n Node) {
 			if (entry != 0) && (entry.isStringLit() || entry.isObjectLit()) {
 				var dirName string = inputPath[:len(inputPath)-len("package.json")]
 				if entry.isStringLit() {
-					this.packageJsonMainEntries.put(inputPath, (sstr_(dirName) + sstr_(entry.getString())))
+					this.packageJsonMainEntries.Put(inputPath, (sstr_(dirName) + sstr_(entry.getString())))
 					break
 				} else if entry.isObjectLit() {
 					if entryName != "browser" {
@@ -122,7 +122,7 @@ func (this *RewriteJsonToModule) processBrowserFieldAdvancedUsage(dirName string
 				}
 				return ModuleLoader_JSC_BROWSER_SKIPLISTED_MARKER
 			}()
-			this.packageJsonMainEntries.put((sstr_(dirName) + sstr_(path)), replacement)
+			this.packageJsonMainEntries.Put((sstr_(dirName) + sstr_(path)), replacement)
 		}
 	}
 }

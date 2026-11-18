@@ -9,7 +9,7 @@ type CheckUselessBlocks struct {
 
 func (this *CheckUselessBlocks) init_CheckUselessBlocks(compiler *AbstractCompiler) {
 	this.compiler_ = compiler
-	this.loneBlocks = newTDeque_(jtc_Node)
+	this.loneBlocks = newTDeque_(tc_Node)
 }
 
 func new_CheckUselessBlocks(compiler *AbstractCompiler) *CheckUselessBlocks {

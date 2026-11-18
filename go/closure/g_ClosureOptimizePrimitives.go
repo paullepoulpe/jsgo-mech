@@ -88,7 +88,7 @@ func (this *ClosureOptimizePrimitives) canOptimizeObjectCreateSet(firstParam Nod
 		return false
 	}
 	var curParam Node = firstParam
-	var keys *JTSet[string] = jnewTSet_(jtc_string)
+	var keys *TSet[string] = newTSet_(tc_string)
 	for curParam != 0 {
 		if !this.isOptimizableKey(curParam) {
 			return false
@@ -100,7 +100,7 @@ func (this *ClosureOptimizePrimitives) canOptimizeObjectCreateSet(firstParam Nod
 				}
 				return DToA_numberToString(curParam.getDouble())
 			}()
-			if !keys.add(key) {
+			if !keys.Add(key) {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(firstParam.getPrevious(), ClosureOptimizePrimitives_DUPLICATE_SET_MEMBER, []string{key}))
 				return false
 			}

@@ -231,7 +231,7 @@ func (this *SimpleMultiset[E]) hashCode() int32 {
 }
 
 func (this *SimpleMultiset[E]) toString() string {
-	var parts *JTList[string] = jnewTList_(jtc_string)
+	var parts *TList[string] = newTList_(tc_string)
 	for e := range elemsBy_(this.counts.entrySet(), icast_Map_Entry) {
 		var element string = objstr_(e.getKey())
 		parts.add(func() string {

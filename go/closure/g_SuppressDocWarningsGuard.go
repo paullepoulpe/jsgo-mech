@@ -29,9 +29,9 @@ func new_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *TMap[
 }
 
 func SuppressDocWarningsGuard_createSuppressors(suppressors *TMap[string, *DiagnosticGroup]) *ImmutableMap[string, *DiagnosticGroup] {
-	var builder *JTMap[string, *DiagnosticGroup] = jtmapFrom_(jtc_string, jtc_p_DiagnosticGroup, suppressors.asMap())
-	builder.put("missingProperties", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_MISSING_PROPERTIES, DiagnosticGroups_STRICT_MISSING_PROPERTIES}))
-	builder.put("checkTypes", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_CHECK_TYPES, DiagnosticGroups_STRICT_CHECK_TYPES}))
+	var builder *TMap[string, *DiagnosticGroup] = tmapFrom_(tc_string, tc_p_DiagnosticGroup, suppressors.asMap(), false)
+	builder.Put("missingProperties", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_MISSING_PROPERTIES, DiagnosticGroups_STRICT_MISSING_PROPERTIES}))
+	builder.Put("checkTypes", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_CHECK_TYPES, DiagnosticGroups_STRICT_CHECK_TYPES}))
 	return immutableMapCopyOf_(tc_string, tc_p_DiagnosticGroup, builder.asMap())
 }
 

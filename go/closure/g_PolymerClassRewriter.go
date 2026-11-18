@@ -351,9 +351,9 @@ func (this *PolymerClassRewriter) parseReadOnlyProperties(cls *PolymerClassDefin
 		}
 	}
 	if cls.behaviorProps != nil {
-		it_3 := cls.behaviorProps.eachKey()
+		it_3 := cls.behaviorProps.each()
 		for it_3.next() {
-			var prop *PolymerPass_MemberDefinition = it_3.v
+			var prop *PolymerPass_MemberDefinition = it_3.k
 			if prop.value_.isObjectLit() {
 				var readOnlyValue Node = NodeUtil_getFirstPropMatchingKey(prop.value_, "readOnly")
 				if (readOnlyValue != 0) && readOnlyValue.isTrue() {
@@ -530,15 +530,15 @@ func (this *PolymerClassRewriter) getJSDocInfoBuilderForBehavior(behavior *Polym
 
 func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClassDefinition, block Node) {
 	var qualifiedPath string = (sstr_(cls.target.getQualifiedName()) + ".prototype.")
-	var nameToExprResult *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
+	var nameToExprResult *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	for _, behavior := range cls.behaviors {
 		for _, behaviorFunction := range behavior.functionsToCopy {
 			var fnName string = behaviorFunction.name_.getString()
 			if NodeUtil_getFirstPropMatchingKey(cls.descriptor, fnName) != 0 {
 				continue
 			}
-			if nameToExprResult.has(fnName) {
-				nameToExprResult.get(fnName).detach()
+			if nameToExprResult.Has(fnName) {
+				nameToExprResult.Get(fnName).detach()
 			}
 			var fnValue Node = behaviorFunction.value_.cloneTree()
 			NodeUtil_markNewScopesChanged(fnValue, this.compiler_)
@@ -571,12 +571,12 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 			}
 			exprResult.getFirstChild().setJSDocInfo(info.build())
 			block.addChildToBack(exprResult)
-			nameToExprResult.put(fnName, exprResult)
+			nameToExprResult.Put(fnName, exprResult)
 		}
 		for _, behaviorProp := range behavior.nonPropertyMembersToCopy {
 			var propName string = behaviorProp.name_.getString()
-			if nameToExprResult.has(propName) {
-				nameToExprResult.get(propName).detach()
+			if nameToExprResult.Has(propName) {
+				nameToExprResult.Get(propName).detach()
 			}
 			var exprResult Node = IR_exprResult(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, (sstr_(qualifiedPath) + sstr_(propName))))
 			exprResult.srcrefTree(behaviorProp.name_)
@@ -592,7 +592,7 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 			}
 			exprResult.getFirstChild().setJSDocInfo(info.build())
 			block.addChildToBack(exprResult)
-			nameToExprResult.put(propName, exprResult)
+			nameToExprResult.Put(propName, exprResult)
 		}
 	}
 }
@@ -638,20 +638,20 @@ func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefin
 	var interfaceBasePath string = (sstr_(interfaceName.orElse("null")) + ".prototype.")
 	this.appendBehaviorPropertiesToBlock(cls, block, interfaceBasePath, true)
 	this.appendPropertiesToBlock(cls.props, block, interfaceBasePath, true)
-	var uniqueMethods *JTMap[string, *PolymerPass_MemberDefinition] = jnewTMap_(jtc_string, jtc_p_PolymerPass_MemberDefinition)
+	var uniqueMethods *TMap[string, *PolymerPass_MemberDefinition] = newTMap_(tc_string, tc_p_PolymerPass_MemberDefinition)
 	if cls.behaviors != nil {
 		for _, behavior := range cls.behaviors {
 			for _, method := range behavior.functionsToCopy {
-				uniqueMethods.put(method.name_.getString(), method)
+				uniqueMethods.Put(method.name_.getString(), method)
 			}
 		}
 	}
 	it_5 := cls.methods.each()
 	for it_5.next() {
 		var method *PolymerPass_MemberDefinition = it_5.v
-		uniqueMethods.put(method.name_.getString(), method)
+		uniqueMethods.Put(method.name_.getString(), method)
 	}
-	it_7 := uniqueMethods.eachValue()
+	it_7 := uniqueMethods.each()
 	for it_7.next() {
 		var method *PolymerPass_MemberDefinition = it_7.v
 		this.addMethodToObjectExternsUsingExportAnnotation(cls, method)

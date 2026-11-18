@@ -480,7 +480,7 @@ func (this *TypeTransformation) evalTemplateTypeOf(ttlAst Node, nameResolver *Ty
 }
 
 func (this *TypeTransformation) evalRecord(record Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var props *JTMap[string, *JSType] = jnewTMap_(jtc_string, jtc_p_JSType)
+	var props *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
 	{
 		var propNode Node = record.getFirstChild()
 		for ; propNode != 0; propNode = propNode.getNext() {
@@ -493,11 +493,11 @@ func (this *TypeTransformation) evalRecord(record Node, nameResolver *TypeTransf
 				var propValue Node = this.getComputedPropValue(propNode)
 				var resolvedName string = nameResolver.nameVars.Get(compPropName)
 				var resultingType *JSType = this.evalInternal(propValue, nameResolver)
-				props.put(resolvedName, resultingType)
+				props.Put(resolvedName, resultingType)
 			} else {
 				var propName string = propNode.getString()
 				var resultingType *JSType = this.evalInternal(propNode.getFirstChild(), nameResolver)
-				props.put(propName, resultingType)
+				props.Put(propName, resultingType)
 			}
 		}
 	}
@@ -529,16 +529,16 @@ func (this *TypeTransformation) evalRecordType(ttlAst Node, nameResolver *TypeTr
 	return this.joinRecordTypes(immBuilt_(recTypesBuilder))
 }
 
-func (this *TypeTransformation) putNewPropInPropertyMap(props *JTMap[string, *JSType], newPropName string, newPropValue *JSType) {
-	if (!props.has(newPropName) || !newPropValue.isRecordType()) || !props.get(newPropName).isRecordType() {
-		props.put(newPropName, newPropValue)
+func (this *TypeTransformation) putNewPropInPropertyMap(props *TMap[string, *JSType], newPropName string, newPropValue *JSType) {
+	if (!props.Has(newPropName) || !newPropValue.isRecordType()) || !props.Get(newPropName).isRecordType() {
+		props.Put(newPropName, newPropValue)
 		return
 	}
-	props.put(newPropName, this.joinRecordTypes(sliceOf_(tc_p_ObjectType, to_ObjectType(props.get(newPropName).self()), to_ObjectType(newPropValue.self()))))
+	props.Put(newPropName, this.joinRecordTypes(sliceOf_(tc_p_ObjectType, to_ObjectType(props.Get(newPropName).self()), to_ObjectType(newPropValue.self()))))
 }
 
 func (this *TypeTransformation) joinRecordTypes(recTypes []*ObjectType) *JSType {
-	var props *JTMap[string, *JSType] = jnewTMap_(jtc_string, jtc_p_JSType)
+	var props *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
 	for _, recType := range recTypes {
 		for newPropName := range elemsBy_(recType.getOwnPropertyNames(), str_) {
 			var newPropValue *JSType = recType.getPropertyType(newPropName)
@@ -571,7 +571,7 @@ func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTra
 		return this.getUnknownType()
 	}
 	var mapFnBody Node = NodeUtil_getFunctionBody(mapFunction)
-	var newProps *JTMap[string, *JSType] = jnewTMap_(jtc_string, jtc_p_JSType)
+	var newProps *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
 	it_1 := foreach_(objtype.getOwnPropertyNames())
 	for it_1.next() {
 		var propName string = str_(it_1.v)

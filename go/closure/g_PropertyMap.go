@@ -156,7 +156,7 @@ func (this *PropertyMap) getOwnKnownSymbols() SetOf[*KnownSymbolType] {
 }
 
 func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
-	var ancestors *JTSet[*PropertyMap] = jnewTSet_(tce_p_PropertyMap)
+	var ancestors *TSet[*PropertyMap] = newTSet_(tch_p_PropertyMap)
 	this.collectAllAncestors(ancestors)
 	var maxAncestorCounter int32 = 0
 	it_1 := ancestors.each()
@@ -168,7 +168,7 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 	}
 	if (maxAncestorCounter != this.cachedKeySetCounter) || (this.cachedKeySet == nil) {
 		var keys *TTreeSet[string] = newTTreeSet_(tc_string)
-		var knownSymbolsKeys *JTSet[*KnownSymbolType] = jnewTSet_(tce_p_KnownSymbolType)
+		var knownSymbolsKeys *TSet[*KnownSymbolType] = newTSet_(tch_p_KnownSymbolType)
 		it_3 := ancestors.each()
 		for it_3.next() {
 			var ancestor *PropertyMap = it_3.v
@@ -184,8 +184,8 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 	return new_PropertyMap_AllKeys(this.cachedKeySet, this.cachedKnownSymbolsKeySet)
 }
 
-func (this *PropertyMap) collectAllAncestors(ancestors *JTSet[*PropertyMap]) {
-	if !ancestors.add(this) {
+func (this *PropertyMap) collectAllAncestors(ancestors *TSet[*PropertyMap]) {
+	if !ancestors.Add(this) {
 		return
 	}
 	var primaryParent *PropertyMap = this.getPrimaryParent()

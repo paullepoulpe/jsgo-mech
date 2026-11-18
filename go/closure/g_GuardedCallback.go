@@ -40,7 +40,7 @@ func (this *GuardedCallback[T]) finit_GuardedCallback() {
 	this.registeredGuards = SimpleSetMultimap_create[Node, any]()
 	this.guarded = SimpleMultiset_create[any]()
 	this.installedGuards = SimpleListMultimap_create[Node, any]()
-	this.contextStack = newTDeque_(jtc_p_GuardedCallback_Context)
+	this.contextStack = newTDeque_(tc_p_GuardedCallback_Context)
 }
 
 func (this *GuardedCallback[T]) init_GuardedCallback(compiler *AbstractCompiler) {

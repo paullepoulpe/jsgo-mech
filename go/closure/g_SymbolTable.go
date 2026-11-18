@@ -6,8 +6,8 @@ import "strings"
 
 type SymbolTable struct {
 	symbols                *SimpleTable[Node, string, *SymbolTable_Symbol]
-	scopes                 *JTMap[Node, *SymbolTable_SymbolScope]
-	docInfos               *JTList[Node]
+	scopes                 *TMap[Node, *SymbolTable_SymbolScope]
+	docInfos               *TList[Node]
 	globalScope            *SymbolTable_SymbolScope
 	compiler_              *AbstractCompiler
 	registry               *JSTypeRegistry
@@ -20,8 +20,8 @@ type SymbolTable struct {
 
 func (this *SymbolTable) finit_SymbolTable() {
 	this.symbols = SimpleTable_create[Node, string, *SymbolTable_Symbol]()
-	this.scopes = jnewTMap_(jtc_Node, jtc_p_SymbolTable_SymbolScope)
-	this.docInfos = jnewTList_(jtc_Node)
+	this.scopes = newTMap_(tc_Node, tc_p_SymbolTable_SymbolScope)
+	this.docInfos = newTList_(tc_Node)
 	this.globalScope = nil
 	this.symbolThatDeclaresType = new_LinkedIdentityHashMap[*JSType, *SymbolTable_Symbol]()
 	this.sourceNameOrdering = Ordering_natural().nullsFirst()
@@ -76,8 +76,8 @@ func (this *SymbolTable) getEnclosingScope(n Node) *SymbolTable_SymbolScope {
 		current = current.getParent()
 	}
 	for ; current != 0; current = current.getParent() {
-		if this.scopes.has(current) {
-			return this.scopes.get(current)
+		if this.scopes.Has(current) {
+			return this.scopes.Get(current)
 		}
 	}
 	return nil
@@ -89,7 +89,7 @@ func (this *SymbolTable) getEnclosingFunctionScope(n Node) *SymbolTable_SymbolSc
 		current = current.getParent()
 	}
 	for ; current != 0; current = current.getParent() {
-		var scope *SymbolTable_SymbolScope = this.scopes.get(current)
+		var scope *SymbolTable_SymbolScope = this.scopes.Get(current)
 		if (scope != nil) && !scope.isBlockScope() {
 			return scope
 		}
@@ -117,7 +117,7 @@ func (this *SymbolTable) getScopeInFunction(sym *SymbolTable_Symbol) *SymbolTabl
 	if functionNode == 0 {
 		return nil
 	}
-	return this.scopes.get(functionNode)
+	return this.scopes.Get(functionNode)
 }
 
 func (this *SymbolTable) getSymbolForScope(scope *SymbolTable_SymbolScope) *SymbolTable_Symbol {
@@ -289,12 +289,12 @@ func (this *SymbolTable) toDebugStringTree() string {
 			this.toDebugStringTree_4(&builder, "", scope, childrenScopes)
 		}
 	}
-	var visitedScopes *JTSet[*SymbolTable_SymbolScope] = jtsetFrom_(jtc_p_SymbolTable_SymbolScope, this.getAllScopes())
+	var visitedScopes *TSet[*SymbolTable_SymbolScope] = tsetFrom_(tc_p_SymbolTable_SymbolScope, this.getAllScopes(), false)
 	for _, symbol := range this.getAllSymbols() {
-		if (symbol.propertyScope == nil) || visitedScopes.has(symbol.propertyScope) {
+		if (symbol.propertyScope == nil) || visitedScopes.Has(symbol.propertyScope) {
 			continue
 		}
-		visitedScopes.add(symbol.getPropertyScope())
+		visitedScopes.Add(symbol.getPropertyScope())
 		this.toDebugStringTree_4(&builder, "", symbol.propertyScope, childrenScopes)
 	}
 	return builder.toString()
@@ -304,10 +304,10 @@ func (this *SymbolTable) toDebugStringTree_4(builder *strBuilder_, prefix string
 	builder.append(prefix).append_Object(obj_(scope))
 	var childrenPrefix string = (sstr_(prefix) + "    ")
 	var printedSomething bool = false
-	if !scope.ownSymbols.isEmpty() {
+	if !scope.ownSymbols.IsEmpty() {
 		printedSomething = true
 		builder.append_char('\n').append(prefix).append("  Symbols:\n")
-		it_1 := scope.ownSymbols.eachValue()
+		it_1 := scope.ownSymbols.each()
 		for it_1.next() {
 			var symbol *SymbolTable_Symbol = it_1.v
 			this.toDebugString_4(builder, childrenPrefix, symbol, false)
@@ -426,7 +426,7 @@ func SymbolTable_addSymbolsFrom[S StaticSlot, R StaticRef](this *SymbolTable, ot
 func (this *SymbolTable) isAnySymbolDeclared(name string, declNode Node, scope *SymbolTable_SymbolScope) *SymbolTable_Symbol {
 	var sym *SymbolTable_Symbol = this.symbols.get(declNode.box_(), strobj_(name))
 	if sym == nil {
-		return scope.ownSymbols.get(name)
+		return scope.ownSymbols.Get(name)
 	}
 	return sym
 }
@@ -472,7 +472,7 @@ func (this *SymbolTable) addSymbol(name string, type_ *JSType, inferred bool, sc
 	if replacedSymbol != nil {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in global index. Type %s", []any{strobj_(name), type_.self()})))
 	}
-	replacedSymbol = scope.ownSymbols.put(name, symbol)
+	replacedSymbol = scope.ownSymbols.Put(name, symbol)
 	if replacedSymbol != nil {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Found duplicate symbol %s in its scope. Type %s", []any{strobj_(name), type_.self()})))
 	}
@@ -487,9 +487,9 @@ func (this *SymbolTable) declareSymbol(name string, type_ *JSType, inferred bool
 }
 
 func (this *SymbolTable) mergeSymbol(from *SymbolTable_Symbol, to *SymbolTable_Symbol) {
-	it_1 := from.references.eachKey()
+	it_1 := from.references.each()
 	for it_1.next() {
-		var nodeToMove Node = it_1.v
+		var nodeToMove Node = it_1.k
 		if !equalsId_(nodeToMove, from.getDeclarationNode()) {
 			to.defineReferenceAt(nodeToMove)
 		}
@@ -499,7 +499,7 @@ func (this *SymbolTable) mergeSymbol(from *SymbolTable_Symbol, to *SymbolTable_S
 
 func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 	var scope *SymbolTable_SymbolScope = this.getScope(s)
-	if !s.equals_SymbolTable_Symbol(scope.ownSymbols.del(s.getName())) {
+	if !s.equals_SymbolTable_Symbol(scope.ownSymbols.Delete(s.getName())) {
 		panic(new_IllegalStateException_String(("Symbol not found in scope " + tostr_(s))))
 	}
 	if !s.equals_SymbolTable_Symbol(this.symbols.remove(s.getDeclaration().(*SymbolTable_Reference).getNode().box_(), strobj_(s.getName()))) {
@@ -510,7 +510,7 @@ func (this *SymbolTable) removeSymbol(s *SymbolTable_Symbol) {
 			childSymbol := cast_[*SymbolTable_Symbol](el)
 			this.removeSymbol(childSymbol)
 		}
-		this.scopes.del(s.getDeclarationNode())
+		this.scopes.Delete(s.getDeclarationNode())
 	}
 }
 
@@ -570,8 +570,8 @@ func (this *SymbolTable) fillNamespaceReferences() {
 }
 
 func (this *SymbolTable) fillPropertyScopes() {
-	var types *JTList[*SymbolTable_Symbol] = jnewTList_(jtc_p_SymbolTable_Symbol)
-	var exports *JTList[*SymbolTable_Symbol] = jnewTList_(jtc_p_SymbolTable_Symbol)
+	var types *TList[*SymbolTable_Symbol] = newTList_(tc_p_SymbolTable_Symbol)
+	var exports *TList[*SymbolTable_Symbol] = newTList_(tc_p_SymbolTable_Symbol)
 	for _, sym := range this.getAllSymbols() {
 		if this.needsPropertyScope(sym) {
 			var name string = sym.getName()
@@ -712,7 +712,7 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 		return
 	}
 	if (s.getName() == "exports") && s.getDeclarationNode().isModuleBody() {
-		s.propertyScope = this.scopes.get(s.getDeclarationNode())
+		s.propertyScope = this.scopes.Get(s.getDeclarationNode())
 		return
 	}
 	var parentPropertyScope *SymbolTable_SymbolScope = this.maybeGetParentPropertyScope(type_)
@@ -746,7 +746,7 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 				newSym.setJSDocInfo(oldProp.getJSDocInfo())
 			}
 			newSym.setPropertyScope(oldProp.propertyScope)
-			it_3 := oldProp.references.eachValue()
+			it_3 := oldProp.references.each()
 			for it_3.next() {
 				var ref *SymbolTable_Reference = it_3.v
 				newSym.defineReferenceAt(ref.getNode())
@@ -789,7 +789,7 @@ func (this *SymbolTable) fillSuperReferences(externs Node, root Node) {
 	NodeTraversal_traverseRoots(this.compiler_, collectSuper, externs, root)
 }
 
-func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes *JTMap[string, *SymbolTable_SymbolScope]) {
+func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes *TMap[string, *SymbolTable_SymbolScope]) {
 	if this.compiler_.getOptions().shouldRewriteModules() {
 		return
 	}
@@ -802,7 +802,7 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 		}
 		return module.metadata().moduleType()
 	}()
-	var moduleScope *SymbolTable_SymbolScope = googModuleScopes.get(moduleName)
+	var moduleScope *SymbolTable_SymbolScope = googModuleScopes.Get(moduleName)
 	if n.isName() {
 		var declaration *SymbolTable_Symbol = this.getSymbolForTypeHelper(n.getJSType(), false)
 		if declaration != nil {
@@ -843,8 +843,8 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 }
 
 func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) {
-	var declaredNamespaces *JTMap[string, *SymbolTable_Symbol] = jnewTMap_(jtc_string, jtc_p_SymbolTable_Symbol)
-	var moduleScopes *JTMap[string, *SymbolTable_SymbolScope] = jnewTMap_(jtc_string, jtc_p_SymbolTable_SymbolScope)
+	var declaredNamespaces *TMap[string, *SymbolTable_Symbol] = newTMap_(tc_string, tc_p_SymbolTable_Symbol)
+	var moduleScopes *TMap[string, *SymbolTable_SymbolScope] = newTMap_(tc_string, tc_p_SymbolTable_SymbolScope)
 	var looksLikeGoogCall func(any) bool = (&Predicate_tfn_Node{func(n Node) bool {
 		if !n.isCall() {
 			return false
@@ -914,7 +914,7 @@ func (this *SymbolTable) removeGeneratedSymbols() {
 	for _, el := range immElems_(ImmutableList_copyOf_Iterable(this.symbols.values())) {
 		symbol := cast_[*SymbolTable_Symbol](el)
 		if this.isSymbolAQuotedObjectKey(symbol) {
-			var symbolAlreadyRemoved bool = !this.getScope(symbol).ownSymbols.has(symbol.getName())
+			var symbolAlreadyRemoved bool = !this.getScope(symbol).ownSymbols.Has(symbol.getName())
 			if !symbolAlreadyRemoved {
 				this.removeSymbol(symbol)
 			}
@@ -927,7 +927,7 @@ func (this *SymbolTable) removeGeneratedSymbols() {
 
 func (this *SymbolTable) createScopeFrom(otherScope StaticScope) *SymbolTable_SymbolScope {
 	var otherScopeRoot Node = otherScope.getRootNode()
-	var myScope *SymbolTable_SymbolScope = this.scopes.get(otherScopeRoot)
+	var myScope *SymbolTable_SymbolScope = this.scopes.Get(otherScopeRoot)
 	if myScope == nil {
 		var otherScopeParent StaticScope = otherScope.getParentScope()
 		if otherScopeParent == nil {
@@ -941,7 +941,7 @@ func (this *SymbolTable) createScopeFrom(otherScope StaticScope) *SymbolTable_Sy
 			}
 			return this.createScopeFrom(otherScopeParent)
 		}(), this.getTypeOfThis(otherScope), nil)
-		this.scopes.put(otherScopeRoot, myScope)
+		this.scopes.Put(otherScopeRoot, myScope)
 		if myScope.isGlobalScope() {
 			this.globalScope = myScope
 		}
@@ -1039,7 +1039,7 @@ func SymbolTable_clinit() {
 
 type SymbolTable_Symbol struct {
 	SimpleSlot
-	references    *JTMap[Node, *SymbolTable_Reference]
+	references    *TMap[Node, *SymbolTable_Reference]
 	scope_        *SymbolTable_SymbolScope
 	propertyScope *SymbolTable_SymbolScope
 	declaration_  *SymbolTable_Reference
@@ -1060,7 +1060,7 @@ func (this *SymbolTable_Symbol) zero_SymbolTable_Symbol() {
 }
 
 func (this *SymbolTable_Symbol) finit_SymbolTable_Symbol() {
-	this.references = jnewTMap_(jtc_Node, jtc_p_SymbolTable_Reference)
+	this.references = newTMap_(tc_Node, tc_p_SymbolTable_Reference)
 	this.propertyScope = nil
 	this.declaration_ = nil
 	this.docInfo = nil
@@ -1220,7 +1220,7 @@ type SymbolTable_SymbolScope struct {
 	rootNode_           Node
 	parent              *SymbolTable_SymbolScope
 	typeOfThis          *JSType
-	ownSymbols          *JTMap[string, *SymbolTable_Symbol]
+	ownSymbols          *TMap[string, *SymbolTable_Symbol]
 	scopeDepth          int32
 	indexInParent       int32
 	numberOfChildScopes int32
@@ -1228,7 +1228,7 @@ type SymbolTable_SymbolScope struct {
 }
 
 func (this *SymbolTable_SymbolScope) finit_SymbolTable_SymbolScope() {
-	this.ownSymbols = jnewTMap_(jtc_string, jtc_p_SymbolTable_Symbol)
+	this.ownSymbols = newTMap_(tc_string, tc_p_SymbolTable_Symbol)
 	this.numberOfChildScopes = 0
 }
 
@@ -1311,7 +1311,7 @@ func (this *SymbolTable_SymbolScope) getSlot(name string) *SymbolTable_Symbol {
 }
 
 func (this *SymbolTable_SymbolScope) getOwnSlot(name string) *SymbolTable_Symbol {
-	return this.ownSymbols.get(name)
+	return this.ownSymbols.Get(name)
 }
 
 func (this *SymbolTable_SymbolScope) getTypeOfThis() *JSType {
@@ -1531,7 +1531,7 @@ func (this *SymbolTable_PropertyRefCollector) visit_impl(t *NodeTraversal, n Nod
 type SymbolTable_ThisRefCollector struct {
 	NodeTraversal_AbstractScopedCallback
 	outer_    *SymbolTable
-	thisStack *JTList[*SymbolTable_Symbol]
+	thisStack *TList[*SymbolTable_Symbol]
 }
 
 func (this *SymbolTable_ThisRefCollector) up_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback {
@@ -1542,7 +1542,7 @@ func (this *SymbolTable_ThisRefCollector) up_NodeTraversal_AbstractScopedCallbac
 }
 
 func (this *SymbolTable_ThisRefCollector) finit_SymbolTable_ThisRefCollector() {
-	this.thisStack = jnewTList_(jtc_p_SymbolTable_Symbol)
+	this.thisStack = newTList_(tc_p_SymbolTable_Symbol)
 }
 
 func (this *SymbolTable_ThisRefCollector) init_SymbolTable_ThisRefCollector() {
@@ -1573,7 +1573,7 @@ func (this *SymbolTable_ThisRefCollector) enterScope_impl(t *NodeTraversal) {
 		this.thisStack.add(symbol)
 	} else if t.getScopeRoot().isFunction() {
 		var scopeRoot Node = t.getScopeRoot()
-		var scope *SymbolTable_SymbolScope = this.outer_.scopes.get(scopeRoot)
+		var scope *SymbolTable_SymbolScope = this.outer_.scopes.Get(scopeRoot)
 		if NodeUtil_getFunctionBody(scopeRoot).hasChildren() {
 			var scopeSymbol *SymbolTable_Symbol = this.outer_.getSymbolForScope(scope)
 			if scopeSymbol != nil {
@@ -1657,7 +1657,7 @@ func (this *SymbolTable_JSDocInfoCollector) visit_impl(t *NodeTraversal, n Node,
 	}
 	this.outer_.docInfos.add(n)
 	for typeAst := range elemsBy_(info.getTypeNodes(), Node_of_) {
-		var scope *SymbolTable_SymbolScope = this.outer_.scopes.get(t.getScopeRoot())
+		var scope *SymbolTable_SymbolScope = this.outer_.scopes.Get(t.getScopeRoot())
 		this.visitTypeNode(info.getTemplateTypes(), func() *SymbolTable_SymbolScope {
 			if scope == nil {
 				return this.outer_.globalScope
@@ -1997,8 +1997,8 @@ type SymbolTable_3 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                 *SymbolTable
 	cap_looksLikeGoogCall  func(any) bool
-	cap_declaredNamespaces *JTMap[string, *SymbolTable_Symbol]
-	cap_moduleScopes       *JTMap[string, *SymbolTable_SymbolScope]
+	cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol]
+	cap_moduleScopes       *TMap[string, *SymbolTable_SymbolScope]
 }
 
 func (this *SymbolTable_3) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -2012,7 +2012,7 @@ func (this *SymbolTable_3) init_SymbolTable_3() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_SymbolTable_3(outer_ *SymbolTable, cap_looksLikeGoogCall func(any) bool, cap_declaredNamespaces *JTMap[string, *SymbolTable_Symbol], cap_moduleScopes *JTMap[string, *SymbolTable_SymbolScope]) *SymbolTable_3 {
+func new_SymbolTable_3(outer_ *SymbolTable, cap_looksLikeGoogCall func(any) bool, cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol], cap_moduleScopes *TMap[string, *SymbolTable_SymbolScope]) *SymbolTable_3 {
 	this := &SymbolTable_3{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -2032,9 +2032,9 @@ func (this *SymbolTable_3) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	switch n.getFirstChild().getString() {
 	case "module", "provide":
 		var ns *SymbolTable_Symbol = this.outer_.declareSymbol(namespaceName, nil, false, this.outer_.getGlobalScope(), arg, nil)
-		this.cap_declaredNamespaces.put(namespaceName, ns)
+		this.cap_declaredNamespaces.Put(namespaceName, ns)
 		if n.getGrandparent().isModuleBody() {
-			this.cap_moduleScopes.put(arg.getString(), this.outer_.scopes.get(n.getGrandparent()))
+			this.cap_moduleScopes.Put(arg.getString(), this.outer_.scopes.Get(n.getGrandparent()))
 		}
 	default:
 	}
@@ -2044,8 +2044,8 @@ type SymbolTable_4 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                 *SymbolTable
 	cap_looksLikeGoogCall  func(any) bool
-	cap_moduleScopes       *JTMap[string, *SymbolTable_SymbolScope]
-	cap_declaredNamespaces *JTMap[string, *SymbolTable_Symbol]
+	cap_moduleScopes       *TMap[string, *SymbolTable_SymbolScope]
+	cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol]
 }
 
 func (this *SymbolTable_4) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -2059,7 +2059,7 @@ func (this *SymbolTable_4) init_SymbolTable_4() {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 }
 
-func new_SymbolTable_4(outer_ *SymbolTable, cap_looksLikeGoogCall func(any) bool, cap_moduleScopes *JTMap[string, *SymbolTable_SymbolScope], cap_declaredNamespaces *JTMap[string, *SymbolTable_Symbol]) *SymbolTable_4 {
+func new_SymbolTable_4(outer_ *SymbolTable, cap_looksLikeGoogCall func(any) bool, cap_moduleScopes *TMap[string, *SymbolTable_SymbolScope], cap_declaredNamespaces *TMap[string, *SymbolTable_Symbol]) *SymbolTable_4 {
 	this := &SymbolTable_4{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -2079,7 +2079,7 @@ func (this *SymbolTable_4) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	switch n.getFirstChild().getString() {
 	case "require", "requireType", "forwardDeclare":
 		this.outer_.addRefsInGoogRequireStatement(n.getParent(), this.cap_moduleScopes)
-		var symbol *SymbolTable_Symbol = this.cap_declaredNamespaces.get(namespaceName)
+		var symbol *SymbolTable_Symbol = this.cap_declaredNamespaces.Get(namespaceName)
 		if symbol != nil {
 			symbol.defineReferenceAt(arg)
 		}

@@ -7,16 +7,16 @@ type AliasStrings struct {
 	chunkGraph                *JSChunkGraph
 	outputStringUsageField    bool
 	stringInfoMap             *TTreeMap[string, *AliasStrings_StringInfo]
-	usedHashedAliases         *JTSet[string]
+	usedHashedAliases         *TSet[string]
 	aliasStringsMode          CompilerOptions_AliasStringsMode
-	chunkVarParentMap         *JTMap[*JSChunk, Node]
+	chunkVarParentMap         *TMap[*JSChunk, Node]
 	unitTestHashReductionMask int32
 }
 
 func (this *AliasStrings) finit_AliasStrings() {
 	this.stringInfoMap = newTTreeMap_(tc_string, tc_p_AliasStrings_StringInfo)
-	this.usedHashedAliases = jnewTSet_(jtc_string)
-	this.chunkVarParentMap = jnewTMap_(jtc_p_JSChunk, jtc_Node)
+	this.usedHashedAliases = newTSet_(tc_string)
+	this.chunkVarParentMap = newTMap_(tc_p_JSChunk, tc_Node)
 	this.unitTestHashReductionMask = -1
 }
 
@@ -184,7 +184,7 @@ type AliasStrings_StringInfo struct {
 	outer_                       *AliasStrings
 	id                           int32
 	isAliased                    bool
-	occurrences                  *JTList[Node]
+	occurrences                  *TList[Node]
 	chunkToContainDecl           *JSChunk
 	parentForNewVarDecl          Node
 	siblingToInsertVarDeclBefore Node
@@ -192,7 +192,7 @@ type AliasStrings_StringInfo struct {
 }
 
 func (this *AliasStrings_StringInfo) finit_AliasStrings_StringInfo() {
-	this.occurrences = jnewTList_(jtc_Node)
+	this.occurrences = newTList_(tc_Node)
 	this.aliasName_ = Optional_empty[string]()
 }
 
@@ -247,7 +247,7 @@ func (this *AliasStrings_StringInfo) encodeStringAsIdentifier(prefix string, s s
 	sb.append_char('_')
 	sb.append(Integer_toHexString(hash))
 	var encoded string = sb.toString()
-	if !this.outer_.usedHashedAliases.add(encoded) {
+	if !this.outer_.usedHashedAliases.Add(encoded) {
 		encoded += sstr_(("_" + istr_(int64(this.id))))
 	}
 	return encoded

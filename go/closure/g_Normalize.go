@@ -242,7 +242,7 @@ func (this *Normalize_NormalizeStatements) splitExportDeclaration(n Node) {
 	if n.getBooleanProp(Node_EXPORT_DEFAULT) {
 		return
 	}
-	var destructuringLhsNodes *JTList[Node] = jnewTList_(jtc_Node)
+	var destructuringLhsNodes *TList[Node] = newTList_(tc_Node)
 	var c Node = n.getFirstChild()
 	if NodeUtil_isDeclaration(c) {
 		c.detach()
@@ -525,11 +525,11 @@ func Normalize_NormalizeStatements_addToFront(parent Node, newChild Node, after 
 
 type Normalize_DuplicateDeclarationHandler struct {
 	outer_                    *Normalize
-	hasOkDuplicateDeclaration *JTSet[*Var]
+	hasOkDuplicateDeclaration *TSet[*Var]
 }
 
 func (this *Normalize_DuplicateDeclarationHandler) finit_Normalize_DuplicateDeclarationHandler() {
-	this.hasOkDuplicateDeclaration = jnewTSet_(tce_p_Var)
+	this.hasOkDuplicateDeclaration = newTSet_(tch_p_Var)
 }
 
 func (this *Normalize_DuplicateDeclarationHandler) init_Normalize_DuplicateDeclarationHandler() {
@@ -551,7 +551,7 @@ func (this *Normalize_DuplicateDeclarationHandler) onRedeclaration(s *Scope, nam
 	var v *Var = cast_[*Var](s.getVar(name).self())
 	if s.isGlobal() {
 		if v.isExtern() && !input.isExtern() {
-			if this.hasOkDuplicateDeclaration.add(v) {
+			if this.hasOkDuplicateDeclaration.Add(v) {
 				return
 			}
 		}

@@ -85,7 +85,7 @@ func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) ImmutableLis
 }
 
 func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo]) ImmutableSetOf[string] {
-	var sortedModulePaths *JTList[string] = jnewTList_(jtc_string)
+	var sortedModulePaths *TList[string] = newTList_(tc_string)
 	for input := range elemsBy_(inputs, icast_DependencyInfo) {
 		var p string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(input.getName()))))
 		var n string = ModuleLoader_normalize(p, icast_Iterable(obj_(this.moduleRootPaths)))

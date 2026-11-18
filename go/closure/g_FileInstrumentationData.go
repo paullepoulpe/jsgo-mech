@@ -7,8 +7,8 @@ type FileInstrumentationData struct {
 	arrayName        string
 	fileName         string
 	branchPresent    *BitSet
-	branchesInLine   *JTMap[any, any]
-	branchNodes      *JTMap[*FileInstrumentationData_BranchIndexPair, Node]
+	branchesInLine   *TMap[any, any]
+	branchNodes      *TMap[*FileInstrumentationData_BranchIndexPair, Node]
 }
 
 func (this *FileInstrumentationData) zero_FileInstrumentationData() {
@@ -21,8 +21,8 @@ func (this *FileInstrumentationData) init_FileInstrumentationData(fileName strin
 	this.arrayName = arrayName
 	this.instrumentedBits = new_BitSet()
 	this.branchPresent = new_BitSet()
-	this.branchesInLine = jnewTMap_(tc_Integer, tc_Integer)
-	this.branchNodes = jnewTMap_(tce_p_FileInstrumentationData_BranchIndexPair, jtc_Node)
+	this.branchesInLine = newTMap_(tc_Integer, tc_Integer)
+	this.branchNodes = newTMap_(tch_p_FileInstrumentationData_BranchIndexPair, tc_Node)
 }
 
 func new_FileInstrumentationData(fileName string, arrayName string) *FileInstrumentationData {
@@ -55,7 +55,7 @@ func (this *FileInstrumentationData) putBranchNode(lineNumber int32, branchNumbe
 	if branchNumber <= 0 {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as branch number: %s", []any{branchNumber})))
 	}
-	this.branchNodes.put(FileInstrumentationData_BranchIndexPair_of((lineNumber-1), (branchNumber-1)), block)
+	this.branchNodes.Put(FileInstrumentationData_BranchIndexPair_of((lineNumber-1), (branchNumber-1)), block)
 }
 
 func (this *FileInstrumentationData) getBranchNode(lineNumber int32, branchNumber int32) Node {
@@ -65,7 +65,7 @@ func (this *FileInstrumentationData) getBranchNode(lineNumber int32, branchNumbe
 	if branchNumber <= 0 {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected non-zero positive integer as branch number: %s", []any{branchNumber})))
 	}
-	return this.branchNodes.get(FileInstrumentationData_BranchIndexPair_of((lineNumber - 1), (branchNumber - 1)))
+	return this.branchNodes.Get(FileInstrumentationData_BranchIndexPair_of((lineNumber - 1), (branchNumber - 1)))
 }
 
 func FileInstrumentationData_getHexString(bitSet *BitSet) string {
@@ -103,16 +103,16 @@ func (this *FileInstrumentationData) setBranchPresent(lineNumber int32) {
 
 func (this *FileInstrumentationData) addBranches(lineNumber int32, numberOfBranches int32) {
 	var lineIdx int32 = (lineNumber - 1)
-	var currentValue any = this.branchesInLine.get(Integer_valueOf(lineIdx))
+	var currentValue any = this.branchesInLine.Get(Integer_valueOf(lineIdx))
 	if currentValue == nil {
-		this.branchesInLine.put(any(int32(lineIdx)), any(int32(numberOfBranches)))
+		this.branchesInLine.Put(any(int32(lineIdx)), any(int32(numberOfBranches)))
 	} else {
-		this.branchesInLine.put(any(int32(lineIdx)), any(int32((unbox_[int32](currentValue) + numberOfBranches))))
+		this.branchesInLine.Put(any(int32(lineIdx)), any(int32((unbox_[int32](currentValue) + numberOfBranches))))
 	}
 }
 
 func (this *FileInstrumentationData) getNumBranches(lineNumber int32) int32 {
-	var numBranches any = this.branchesInLine.get(any(int32((lineNumber - 1))))
+	var numBranches any = this.branchesInLine.Get(any(int32((lineNumber - 1))))
 	if numBranches == nil {
 		return 0
 	} else {

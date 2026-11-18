@@ -86,7 +86,7 @@ func (this *Graph[N]) clearEdgeAnnotations() {
 
 func (this *Graph[N]) pushNodeAnnotations() {
 	if this.nodeAnnotationStack == nil {
-		this.nodeAnnotationStack = newTDeque_(jtc_p_Graph_GraphAnnotationState)
+		this.nodeAnnotationStack = newTDeque_(tc_p_Graph_GraphAnnotationState)
 	}
 	Graph_pushAnnotations(this.nodeAnnotationStack, this.getNodes())
 }
@@ -100,7 +100,7 @@ func (this *Graph[N]) popNodeAnnotations() {
 
 func (this *Graph[N]) pushEdgeAnnotations() {
 	if this.edgeAnnotationStack == nil {
-		this.edgeAnnotationStack = newTDeque_(jtc_p_Graph_GraphAnnotationState)
+		this.edgeAnnotationStack = newTDeque_(tc_p_Graph_GraphAnnotationState)
 	}
 	Graph_pushAnnotations(this.edgeAnnotationStack, Collection(this.getEdges()))
 }

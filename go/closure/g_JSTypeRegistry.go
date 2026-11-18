@@ -34,14 +34,14 @@ type JSTypeRegistry struct {
 	reporter                        ErrorReporter_rhino
 	nativeTypes                     []*JSType
 	scopedNameTable                 *SimpleTable[Node, string, *JSType]
-	closureNamespaces               *JTMap[string, *JSTypeRegistry_ClosureNamespace]
+	closureNamespaces               *TMap[string, *JSTypeRegistry_ClosureNamespace]
 	nameTableGlobalRoot             Node
 	nonNullableTypeNames            *SimpleSetMultimap[Node, string]
 	forwardDeclaredTypes            SetOf[string]
 	nonRefTypesIndexedByProperty    *SimpleSetMultimap[any, *JSType]
 	sentinelObjectLiteral           *JSType
-	propertiesOfSupertypesInUnions  *JTSet[string]
-	droppedPropertiesOfUnions       *JTSet[string]
+	propertiesOfSupertypesInUnions  *TSet[string]
+	droppedPropertiesOfUnions       *TSet[string]
 	eachRefTypeIndexedByProperty    *SimpleSetMultimap[any, *ObjectType]
 	emptyTemplateTypeMap            *TemplateTypeMap
 	resolver                        *JSTypeResolver
@@ -49,12 +49,12 @@ type JSTypeRegistry struct {
 
 func (this *JSTypeRegistry) finit_JSTypeRegistry() {
 	this.scopedNameTable = SimpleTable_create[Node, string, *JSType]()
-	this.closureNamespaces = jnewTMap_(jtc_string, tc_p_JSTypeRegistry_ClosureNamespace)
+	this.closureNamespaces = newTMap_(tc_string, tc_p_JSTypeRegistry_ClosureNamespace)
 	this.nameTableGlobalRoot = new_Node_Token(Token_rhino_ROOT)
 	this.nonNullableTypeNames = SimpleSetMultimap_create[Node, string]()
 	this.nonRefTypesIndexedByProperty = SimpleSetMultimap_create[any, *JSType]()
-	this.propertiesOfSupertypesInUnions = jnewTSet_(jtc_string)
-	this.droppedPropertiesOfUnions = jnewTSet_(jtc_string)
+	this.propertiesOfSupertypesInUnions = newTSet_(tc_string)
+	this.droppedPropertiesOfUnions = newTSet_(tc_string)
 	this.eachRefTypeIndexedByProperty = SimpleSetMultimap_create[any, *ObjectType]()
 }
 
@@ -652,7 +652,7 @@ func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType
 	var prefix string = reference
 	var unusedComponents *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	for {
-		var namespace *JSTypeRegistry_ClosureNamespace = this.closureNamespaces.get(prefix)
+		var namespace *JSTypeRegistry_ClosureNamespace = this.closureNamespaces.Get(prefix)
 		if namespace != nil {
 			if namespace.isLegacy() {
 				return nil
@@ -778,7 +778,7 @@ func (this *JSTypeRegistry) registerDroppedPropertiesInUnion(subtype *RecordType
 	for pname := range elemsBy_(subtype.getPropertyMap().getOwnPropertyNames(), str_) {
 		if !supertype.hasProperty(pname) {
 			foundDroppedProperty = true
-			this.droppedPropertiesOfUnions.add(pname)
+			this.droppedPropertiesOfUnions.Add(pname)
 		}
 	}
 	if foundDroppedProperty {
@@ -860,12 +860,12 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 			var rec *RecordType = type_.toMaybeRecordType()
 			var mayBeInUnion bool = false
 			for pname := range elemsBy_(rec.getPropertyMap().getOwnPropertyNames(), str_) {
-				if this.propertiesOfSupertypesInUnions.has(pname) {
+				if this.propertiesOfSupertypesInUnions.Has(pname) {
 					mayBeInUnion = true
 					break
 				}
 			}
-			if mayBeInUnion && this.droppedPropertiesOfUnions.has(propertyName) {
+			if mayBeInUnion && this.droppedPropertiesOfUnions.Has(propertyName) {
 				return JSTypeRegistry_PropDefinitionKind_LOOSE
 			}
 		}
@@ -882,8 +882,8 @@ func (this *JSTypeRegistry) getEachReferenceTypeWithProperty(propertyName string
 }
 
 func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) *ObjectType {
-	var stackA *JTList[*ObjectType] = JSTypeRegistry_getSuperStack(a)
-	var stackB *JTList[*ObjectType] = JSTypeRegistry_getSuperStack(b)
+	var stackA *TList[*ObjectType] = JSTypeRegistry_getSuperStack(a)
+	var stackB *TList[*ObjectType] = JSTypeRegistry_getSuperStack(b)
 	var result *ObjectType = this.getNativeObjectType(JSTypeNative_OBJECT_TYPE)
 	for !stackA.isEmpty() && !stackB.isEmpty() {
 		var currentA *ObjectType = stackA.removeAt((stackA.size() - 1))
@@ -897,8 +897,8 @@ func (this *JSTypeRegistry) findCommonSuperObject(a *ObjectType, b *ObjectType) 
 	return result
 }
 
-func JSTypeRegistry_getSuperStack(a *ObjectType) *JTList[*ObjectType] {
-	var stack *JTList[*ObjectType] = jnewTListN_(jtc_p_ObjectType, 5)
+func JSTypeRegistry_getSuperStack(a *ObjectType) *TList[*ObjectType] {
+	var stack *TList[*ObjectType] = newTListN_(tc_p_ObjectType, 5)
 	{
 		var current *ObjectType = a
 		for ; current != nil; current = current.getImplicitPrototype() {
@@ -1570,11 +1570,11 @@ func (this *JSTypeRegistry) nativeRecord(name string, templateKeys []*TemplateTy
 }
 
 func (this *JSTypeRegistry) registerNonLegacyClosureNamespace(moduleName string, definitionNode Node, type_ *JSType) {
-	this.closureNamespaces.put(moduleName, JSTypeRegistry_ClosureNamespace_create(false, definitionNode, type_))
+	this.closureNamespaces.Put(moduleName, JSTypeRegistry_ClosureNamespace_create(false, definitionNode, type_))
 }
 
 func (this *JSTypeRegistry) registerLegacyClosureNamespace(moduleName string) {
-	this.closureNamespaces.put(moduleName, JSTypeRegistry_ClosureNamespace_create(true, 0, nil))
+	this.closureNamespaces.Put(moduleName, JSTypeRegistry_ClosureNamespace_create(true, 0, nil))
 }
 
 var JSTypeRegistry_DOT_SPLITTER *Splitter

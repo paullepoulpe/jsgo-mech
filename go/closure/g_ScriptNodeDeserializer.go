@@ -413,7 +413,7 @@ func (this *ScriptNodeDeserializer_Runner) run() (ret_1 Node) {
 	}()
 	var astStream *CodedInputStream = this.owner().scriptBytes.newCodedInput()
 	astStream.setRecursionLimit(int32(2147483647))
-	var contextStack *JTList[FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
+	var contextStack *TList[FeatureCollector_FeatureContext] = newTList_(tc_p_FeatureCollector_FeatureContext)
 	SequencedCollection_addLast(SequencedCollection(contextStack.asList()), obj_(FeatureCollector_FeatureContext_NONE))
 	var scriptNode Node = this.visit(AstNode_parseFrom(astStream, ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite()), contextStack, this.owner().createSourceInfoTemplate(this.owner().sourceFile))
 	scriptNode.setFeatureSet(this.featureCollector.allFeatures())
@@ -424,7 +424,7 @@ func (this *ScriptNodeDeserializer_Runner) owner() *ScriptNodeDeserializer {
 	return this.outer_
 }
 
-func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *JTList[FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
+func (this *ScriptNodeDeserializer_Runner) visit(astNode *AstNode, contextStack *TList[FeatureCollector_FeatureContext], sourceFileTemplate Node) Node {
 	if (sourceFileTemplate == 0) || (astNode.getSourceFile() != 0) {
 		sourceFileTemplate = this.owner().createSourceInfoTemplate(sliceAt_(this.owner().filePool, (astNode.getSourceFile() - 1)))
 	}

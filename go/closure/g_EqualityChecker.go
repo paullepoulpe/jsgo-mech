@@ -4,7 +4,7 @@ package closure
 
 type EqualityChecker struct {
 	eqMethod       EqualityChecker_EqMethod
-	eqCache        *JTMap[*EqualityChecker_CacheKey, JSType_MatchStatus]
+	eqCache        *TMap[*EqualityChecker_CacheKey, JSType_MatchStatus]
 	recursionDepth int32
 	hasRun         bool
 }
@@ -54,7 +54,7 @@ func (this *EqualityChecker) checkParameters(left *ArrowType, right *ArrowType) 
 func (this *EqualityChecker) areEqualCaching(left *JSType, right *JSType) bool {
 	if this.recursionDepth > EqualityChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH {
 		if this.eqCache == nil {
-			this.eqCache = jnewTMap_(tce_p_EqualityChecker_CacheKey, jtc_p_JSType_MatchStatus)
+			this.eqCache = newTMap_(tch_p_EqualityChecker_CacheKey, tc_p_JSType_MatchStatus)
 		}
 	}
 	if this.eqCache == nil {
@@ -72,14 +72,14 @@ func (this *EqualityChecker) areEqualCaching(left *JSType, right *JSType) bool {
 		}
 	}
 	var key *EqualityChecker_CacheKey = new_EqualityChecker_CacheKey(left, right)
-	var cached JSType_MatchStatus = this.eqCache.putIfAbsent(key, JSType_MatchStatus_PROCESSING)
+	var cached JSType_MatchStatus = this.eqCache.PutIfAbsent(key, JSType_MatchStatus_PROCESSING)
 	if cached == 0 {
 		var result bool = this.areEqualInternal(left, right)
-		this.eqCache.put(key, JSType_MatchStatus_valueOfBoolean(result))
+		this.eqCache.Put(key, JSType_MatchStatus_valueOfBoolean(result))
 		return result
 	}
 	if cached == JSType_MatchStatus_PROCESSING {
-		this.eqCache.put(key, JSType_MatchStatus_MATCH)
+		this.eqCache.Put(key, JSType_MatchStatus_MATCH)
 		return true
 	}
 	return cached.subtypeValue()

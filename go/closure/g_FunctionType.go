@@ -403,7 +403,7 @@ func (this *FunctionType) setPrototypeNoCheck(prototype *ObjectType, propertyNod
 }
 
 func (this *FunctionType) getAllImplementedInterfaces() IterableOf[*ObjectType] {
-	var interfaces *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
+	var interfaces *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
 	for _, el := range this.getImplementedInterfaces().items {
 		type_ := el
 		this.addRelatedInterfaces(type_, interfaces)
@@ -411,13 +411,13 @@ func (this *FunctionType) getAllImplementedInterfaces() IterableOf[*ObjectType] 
 	return Iterable(interfaces.asSet())
 }
 
-func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *JTSet[*ObjectType]) {
+func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *TSet[*ObjectType]) {
 	var constructor *FunctionType = instance.getConstructor()
 	if constructor != nil {
 		if !constructor.isInterface() {
 			return
 		}
-		if !set.add(instance) {
+		if !set.Add(instance) {
 			return
 		}
 		for interfaceType := range elemsBy_(instance.getCtorExtendedInterfaces(), to_ObjectType) {
@@ -427,7 +427,7 @@ func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *JTSet[
 }
 
 func (this *FunctionType) getAncestorInterfaces() CollectionOf[*ObjectType] {
-	var result *JTSet[*ObjectType] = jnewTSet_(tce_p_ObjectType)
+	var result *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
 	if this.isConstructor() {
 		result.asSet().addAll(icast_Collection(obj_(this.getImplementedInterfaces().asImm())))
 	} else {
@@ -508,7 +508,7 @@ func (this *FunctionType) getBindReturnType(argsToBind int32) *FunctionType {
 		return to_FunctionType(builder.build().self())
 	}
 	var origParams *ImmutableList[*FunctionType_Parameter] = this.call.getParameterList()
-	var params *JTList[*FunctionType_Parameter] = jtlistFrom_(jtc_p_FunctionType_Parameter, icast_Collection(obj_(origParams.asImm())))
+	var params *TList[*FunctionType_Parameter] = tlistFrom_(tc_p_FunctionType_Parameter, icast_Collection(obj_(origParams.asImm())))
 	for i := int32(1); (i < argsToBind) && !params.isEmpty(); i++ {
 		if params.get(0).isVariadic() {
 			break
@@ -528,7 +528,7 @@ func (this *FunctionType) getCallOrBindSignature(isCall bool) *FunctionType {
 		return this.getBindReturnType(-1).up_JSType()
 	}()).withTemplateKeysImmutableList(this.getTemplateTypeMap().getTemplateKeys())
 	var origParams *ImmutableList[*FunctionType_Parameter] = this.getInternalArrowType().getParameterList()
-	var params *JTList[*FunctionType_Parameter] = jtlistFrom_(jtc_p_FunctionType_Parameter, icast_Collection(obj_(origParams.asImm())))
+	var params *TList[*FunctionType_Parameter] = tlistFrom_(tc_p_FunctionType_Parameter, icast_Collection(obj_(origParams.asImm())))
 	var thisType *FunctionType_Parameter = FunctionType_Parameter_create(this.registry.createOptionalNullableType(this.getTypeOfThis()), false, false)
 	params.insert(0, thisType)
 	if isBind {
@@ -886,12 +886,12 @@ func (this *FunctionType) isAbstract() bool {
 }
 
 func (this *FunctionType) getPropertyTypeMap_impl() MapOf[string, *JSType] {
-	var propTypeMap *JTMap[string, *JSType] = jnewTMap_(jtc_string, jtc_p_JSType)
-	FunctionType_updatePropertyTypeMap(this, propTypeMap, jnewTSet_(tce_p_FunctionType))
+	var propTypeMap *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
+	FunctionType_updatePropertyTypeMap(this, propTypeMap, newTSet_(tch_p_FunctionType))
 	return propTypeMap.asMap()
 }
 
-func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *JTMap[string, *JSType], cache *JTSet[*FunctionType]) {
+func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[string, *JSType], cache *TSet[*FunctionType]) {
 	if type_ == nil {
 		return
 	}
@@ -899,9 +899,9 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *JTMap[
 	if prototype != nil {
 		var propNames SetOf[string] = prototype.getOwnPropertyNames()
 		for name := range elemsBy_(propNames, str_) {
-			if !propTypeMap.has(name) {
+			if !propTypeMap.Has(name) {
 				var propType *JSType = prototype.getPropertyType(name)
-				propTypeMap.put(name, propType)
+				propTypeMap.Put(name, propType)
 			}
 		}
 	}
@@ -910,21 +910,21 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *JTMap[
 		for _, el := range iterable.items {
 			interfaceType := el
 			var superConstructor *FunctionType = interfaceType.getConstructor()
-			if (superConstructor == nil) || cache.has(superConstructor) {
+			if (superConstructor == nil) || cache.Has(superConstructor) {
 				continue
 			}
-			cache.add(superConstructor)
+			cache.Add(superConstructor)
 			FunctionType_updatePropertyTypeMap(superConstructor, propTypeMap, cache)
-			cache.del(superConstructor)
+			cache.Delete(superConstructor)
 		}
 	}
 }
 
-func (this *FunctionType) checkExtendsLoop() *JTList[*FunctionType] {
-	return this.checkExtendsLoop_2(jnewTSet_(tce_p_FunctionType), jnewTList_(jtc_p_FunctionType))
+func (this *FunctionType) checkExtendsLoop() *TList[*FunctionType] {
+	return this.checkExtendsLoop_2(newTSet_(tch_p_FunctionType), newTList_(tc_p_FunctionType))
 }
 
-func (this *FunctionType) checkExtendsLoop_2(cache *JTSet[*FunctionType], path *JTList[*FunctionType]) *JTList[*FunctionType] {
+func (this *FunctionType) checkExtendsLoop_2(cache *TSet[*FunctionType], path *TList[*FunctionType]) *TList[*FunctionType] {
 	var iterable *ImmutableList[*ObjectType] = this.getExtendedInterfaces()
 	if iterable != nil {
 		for _, el_1 := range iterable.items {
@@ -933,20 +933,20 @@ func (this *FunctionType) checkExtendsLoop_2(cache *JTSet[*FunctionType], path *
 			if superConstructor == nil {
 				continue
 			}
-			if cache.has(superConstructor) {
+			if cache.Has(superConstructor) {
 				path.add(superConstructor)
 				for !JSCompObjects_identical(path.get(0).self(), superConstructor.self()) {
 					path.removeAt(0)
 				}
 				return path
 			}
-			cache.add(superConstructor)
+			cache.Add(superConstructor)
 			path.add(superConstructor)
-			var result *JTList[*FunctionType] = superConstructor.checkExtendsLoop_2(cache, path)
+			var result *TList[*FunctionType] = superConstructor.checkExtendsLoop_2(cache, path)
 			if result != nil {
 				return result
 			}
-			cache.del(superConstructor)
+			cache.Delete(superConstructor)
 			path.removeAt((path.size() - 1))
 		}
 	}

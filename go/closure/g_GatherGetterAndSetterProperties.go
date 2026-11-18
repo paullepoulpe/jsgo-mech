@@ -41,7 +41,7 @@ func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Nod
 
 type GatherGetterAndSetterProperties_GatherCallback struct {
 	NodeTraversal_AbstractPostOrderCallback
-	properties *JTMap[string, AccessorSummary_PropertyAccessKind]
+	properties *TMap[string, AccessorSummary_PropertyAccessKind]
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -52,7 +52,7 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) up_NodeTraversal_Abs
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) finit_GatherGetterAndSetterProperties_GatherCallback() {
-	this.properties = jnewTMap_(jtc_string, jtc_p_AccessorSummary_PropertyAccessKind)
+	this.properties = newTMap_(tc_string, tc_p_AccessorSummary_PropertyAccessKind)
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) init_GatherGetterAndSetterProperties_GatherCallback() {

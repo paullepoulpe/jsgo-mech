@@ -8,7 +8,7 @@ type SubtypeChecker struct {
 	registry                *JSTypeRegistry
 	isUsingStructuralTyping any
 	subtypingMode           JSType_SubtypingMode
-	subtypeCache            *JTMap[*SubtypeChecker_CacheKey, JSType_MatchStatus]
+	subtypeCache            *TMap[*SubtypeChecker_CacheKey, JSType_MatchStatus]
 	hasRun                  bool
 	recursionDepth          int32
 }
@@ -104,7 +104,7 @@ func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType)
 	}
 	if this.recursionDepth > SubtypeChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH {
 		if this.subtypeCache == nil {
-			this.subtypeCache = jnewTMap_(tce_p_SubtypeChecker_CacheKey, jtc_p_JSType_MatchStatus)
+			this.subtypeCache = newTMap_(tch_p_SubtypeChecker_CacheKey, tc_p_JSType_MatchStatus)
 		}
 	}
 	if this.subtypeCache == nil {
@@ -122,14 +122,14 @@ func (this *SubtypeChecker) isSubtypeCaching(subtype *JSType, supertype *JSType)
 		}
 	}
 	var key *SubtypeChecker_CacheKey = new_SubtypeChecker_CacheKey(subtype, supertype)
-	var cached JSType_MatchStatus = this.subtypeCache.putIfAbsent(key, JSType_MatchStatus_PROCESSING)
+	var cached JSType_MatchStatus = this.subtypeCache.PutIfAbsent(key, JSType_MatchStatus_PROCESSING)
 	if cached == 0 {
 		var result bool = this.isSubtypeDispatching(subtype, supertype)
-		this.subtypeCache.put(key, JSType_MatchStatus_valueOfBoolean(result))
+		this.subtypeCache.Put(key, JSType_MatchStatus_valueOfBoolean(result))
 		return result
 	}
 	if cached == JSType_MatchStatus_PROCESSING {
-		this.subtypeCache.put(key, JSType_MatchStatus_MATCH)
+		this.subtypeCache.Put(key, JSType_MatchStatus_MATCH)
 		return true
 	}
 	return cached.subtypeValue()

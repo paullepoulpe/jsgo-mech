@@ -58,12 +58,12 @@ type RenameLabels_ProcessLabels struct {
 	outer_         *RenameLabels
 	markChanges    bool
 	namespaceStack *TDeque[*RenameLabels_LabelNamespace]
-	names_         *JTList[string]
+	names_         *TList[string]
 }
 
 func (this *RenameLabels_ProcessLabels) finit_RenameLabels_ProcessLabels() {
-	this.namespaceStack = newTDeque_(jtc_p_RenameLabels_LabelNamespace)
-	this.names_ = jnewTList_(jtc_string)
+	this.namespaceStack = newTDeque_(tc_p_RenameLabels_LabelNamespace)
+	this.names_ = newTList_(tc_string)
 }
 
 func (this *RenameLabels_ProcessLabels) init_RenameLabels_ProcessLabels(markChanges bool) {
@@ -94,13 +94,13 @@ func (this *RenameLabels_ProcessLabels) exitScope(nodeTraversal *NodeTraversal) 
 func (this *RenameLabels_ProcessLabels) shouldTraverse(nodeTraversal *NodeTraversal, node Node, parent Node) bool {
 	if node.isLabel() {
 		var current *RenameLabels_LabelNamespace = this.namespaceStack.peek()
-		var currentDepth int32 = (current.renameMap.size() + 1)
+		var currentDepth int32 = (current.renameMap.Len() + 1)
 		var name string = node.getFirstChild().getString()
 		var li *RenameLabels_LabelInfo = new_RenameLabels_LabelInfo(currentDepth)
-		if current.renameMap.has(name) {
+		if current.renameMap.Has(name) {
 			panic(new_IllegalStateException_0())
 		}
-		current.renameMap.put(name, li)
+		current.renameMap.Put(name, li)
 		if this.names_.size() < currentDepth {
 			this.names_.add(str_(this.outer_.nameSupplier()))
 		}
@@ -165,7 +165,7 @@ func (this *RenameLabels_ProcessLabels) visitLabel(t *NodeTraversal, node Node) 
 			t.reportCodeChange()
 		}
 	}
-	this.namespaceStack.peek().renameMap.del(name)
+	this.namespaceStack.peek().renameMap.Delete(name)
 }
 
 func (this *RenameLabels_ProcessLabels) getNameForId(id int32) string {
@@ -173,7 +173,7 @@ func (this *RenameLabels_ProcessLabels) getNameForId(id int32) string {
 }
 
 func (this *RenameLabels_ProcessLabels) getLabelInfo(name string) *RenameLabels_LabelInfo {
-	return this.namespaceStack.peek().renameMap.get(name)
+	return this.namespaceStack.peek().renameMap.Get(name)
 }
 
 type RenameLabels_LabelInfo struct {
@@ -197,11 +197,11 @@ func new_RenameLabels_LabelInfo(id int32) *RenameLabels_LabelInfo {
 }
 
 type RenameLabels_LabelNamespace struct {
-	renameMap *JTMap[string, *RenameLabels_LabelInfo]
+	renameMap *TMap[string, *RenameLabels_LabelInfo]
 }
 
 func (this *RenameLabels_LabelNamespace) finit_RenameLabels_LabelNamespace() {
-	this.renameMap = jnewTMap_(jtc_string, tc_p_RenameLabels_LabelInfo)
+	this.renameMap = newTMap_(tc_string, tc_p_RenameLabels_LabelInfo)
 }
 
 func (this *RenameLabels_LabelNamespace) init_RenameLabels_LabelNamespace() {

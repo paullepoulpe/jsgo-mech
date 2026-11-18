@@ -9,9 +9,9 @@ type JsFileRegexParser struct {
 	googMatcher               *Matcher_re2j
 	es6Matcher                *Matcher_re2j
 	googMatcherBuffer         string
-	provides                  *JTList[string]
-	requires                  *JTList[*DependencyInfo_Require]
-	typeRequires              *JTList[string]
+	provides                  *TList[string]
+	requires                  *TList[*DependencyInfo_Require]
+	typeRequires              *TList[string]
 	fileHasProvidesOrRequires bool
 	hasExternsAnnotation      bool
 	hasNoCompileAnnotation    bool
@@ -73,9 +73,9 @@ func (this *JsFileRegexParser) parseFile(filePath string, closureRelativePath st
 }
 
 func (this *JsFileRegexParser) parseReader(filePath string, closureRelativePath string, fileContents string) DependencyInfo {
-	this.provides = jnewTList_(jtc_string)
-	this.requires = jnewTList_(jtc_p_DependencyInfo_Require)
-	this.typeRequires = jnewTList_(jtc_string)
+	this.provides = newTList_(tc_string)
+	this.requires = newTList_(tc_p_DependencyInfo_Require)
+	this.typeRequires = newTList_(tc_string)
 	this.fileHasProvidesOrRequires = false
 	this.hasExternsAnnotation = false
 	this.hasNoCompileAnnotation = false
@@ -90,12 +90,12 @@ func (this *JsFileRegexParser) parseReader(filePath string, closureRelativePath 
 	if this.moduleType_ == JsFileRegexParser_ModuleType_ES6_MODULE {
 		this.provides.add(this.file.toModuleName())
 	}
-	var loadFlags *JTMap[string, string] = jnewTMap_(jtc_string, jtc_string)
+	var loadFlags *TMap[string, string] = newTMap_(tc_string, tc_string)
 	switch this.moduleType_ {
 	case JsFileRegexParser_ModuleType_GOOG_MODULE:
-		loadFlags.put("module", "goog")
+		loadFlags.Put("module", "goog")
 	case JsFileRegexParser_ModuleType_ES6_MODULE:
-		loadFlags.put("module", "es6")
+		loadFlags.Put("module", "es6")
 	default:
 	}
 	var dependencyInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(closureRelativePath, Optional_of[string](filePath)).setProvides(Collection(this.provides.asList())).setRequires(Collection(this.requires.asList())).setTypeRequires(Collection(this.typeRequires.asList())).setLoadFlags(loadFlags.asMap()).setHasExternsAnnotation(this.hasExternsAnnotation).setHasNoCompileAnnotation(this.hasNoCompileAnnotation).build()))

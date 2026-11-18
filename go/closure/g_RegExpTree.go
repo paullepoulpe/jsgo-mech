@@ -1748,18 +1748,18 @@ func (this *RegExpTree_Charset) simplify_impl(flags string) *RegExpTree {
 	}
 	var best *CharRanges = this.ranges_
 	if strings.Contains(flags, "i") {
-		var options *JTSet[*CharRanges] = jnewTSet_(tce_p_CharRanges)
-		options.add(CaseCanonicalize_expandToAllMatched(this.ranges_))
-		options.add(CaseCanonicalize_reduceToMinimum(this.ranges_))
+		var options *TSet[*CharRanges] = newTSet_(tch_p_CharRanges)
+		options.Add(CaseCanonicalize_expandToAllMatched(this.ranges_))
+		options.Add(CaseCanonicalize_reduceToMinimum(this.ranges_))
 		var lcaseLetters *CharRanges = this.ranges_.intersection(RegExpTree_LCASE_LETTERS)
 		var ucaseLetters *CharRanges = this.ranges_.intersection(RegExpTree_UCASE_LETTERS)
 		var lcaseLettersToUpper *CharRanges = lcaseLetters.shift(-32)
 		var ucaseLettersToLower *CharRanges = ucaseLetters.shift(32)
-		options.add(this.ranges_.union(ucaseLettersToLower))
-		options.add(this.ranges_.union(lcaseLettersToUpper))
-		options.add(this.ranges_.union(lcaseLettersToUpper).union(ucaseLettersToLower))
-		options.add(this.ranges_.union(ucaseLettersToLower).difference(ucaseLetters))
-		options.add(this.ranges_.union(lcaseLettersToUpper).difference(lcaseLetters))
+		options.Add(this.ranges_.union(ucaseLettersToLower))
+		options.Add(this.ranges_.union(lcaseLettersToUpper))
+		options.Add(this.ranges_.union(lcaseLettersToUpper).union(ucaseLettersToLower))
+		options.Add(this.ranges_.union(ucaseLettersToLower).difference(ucaseLetters))
+		options.Add(this.ranges_.union(lcaseLettersToUpper).difference(lcaseLetters))
 		var bestComplexity int32 = RegExpTree_Charset_complexityWordFolded(this.ranges_)
 		it_1 := options.each()
 		for it_1.next() {
@@ -2213,13 +2213,13 @@ type RegExpTree_1Parser struct {
 	cap_flags                         string
 	pos                               int32
 	numCapturingGroups_               int32
-	capturingGroupNames               *JTSet[string]
+	capturingGroupNames               *TSet[string]
 	limit                             int32
 	lookForNamedCaptureBackreferences bool
 }
 
 func (this *RegExpTree_1Parser) finit_RegExpTree_1Parser() {
-	this.capturingGroupNames = jnewTSet_(jtc_string)
+	this.capturingGroupNames = newTSet_(tc_string)
 	this.limit = this.cap_patternU16.length()
 }
 
@@ -2241,7 +2241,7 @@ func (this *RegExpTree_1Parser) parseTopLevel() *RegExpTree {
 	this.numCapturingGroups_ = 0
 	this.lookForNamedCaptureBackreferences = false
 	var out *RegExpTree = this.parse()
-	if !this.capturingGroupNames.isEmpty() {
+	if !this.capturingGroupNames.IsEmpty() {
 		this.pos = 0
 		this.numCapturingGroups_ = 0
 		this.lookForNamedCaptureBackreferences = true
@@ -2355,7 +2355,7 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 				} else {
 					this.pos += 2
 					captureName = Optional_of[string](this.scanNamedGroupName())
-					this.capturingGroupNames.add(captureName.orElse(nullstr_))
+					this.capturingGroupNames.Add(captureName.orElse(nullstr_))
 					type_ = RegExpTree_ParentheticalType_NAMED_GROUPS
 				}
 			default:
@@ -2609,10 +2609,10 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 				return ch
 			}())).up_RegExpTree()
 		}
-	} else if (((this.lookForNamedCaptureBackreferences && (ch == 'k')) && ((this.pos + 1) < this.limit)) && (this.cap_patternU16.charAt((this.pos + 1)) == '<')) && !this.capturingGroupNames.isEmpty() {
+	} else if (((this.lookForNamedCaptureBackreferences && (ch == 'k')) && ((this.pos + 1) < this.limit)) && (this.cap_patternU16.charAt((this.pos + 1)) == '<')) && !this.capturingGroupNames.IsEmpty() {
 		this.pos += 2
 		var potentialName string = this.scanNamedGroupName()
-		if !this.capturingGroupNames.has(potentialName) {
+		if !this.capturingGroupNames.Has(potentialName) {
 			panic(new_IllegalArgumentException_String(("Invalid named capture referenced: " + sstr_(this.cap_patternU16.substring_int(start)))))
 		}
 		return new_RegExpTree_NamedBackReference(potentialName).up_RegExpTree()
@@ -2762,11 +2762,11 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 type RegExpTree_Concatenation_1Simplifier struct {
 	outer_     *RegExpTree_Concatenation
 	cap_flags  string
-	simplified *JTList[*RegExpTree]
+	simplified *TList[*RegExpTree]
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) finit_RegExpTree_Concatenation_1Simplifier() {
-	this.simplified = jnewTList_(jtc_p_RegExpTree)
+	this.simplified = newTList_(tc_p_RegExpTree)
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) init_RegExpTree_Concatenation_1Simplifier() {

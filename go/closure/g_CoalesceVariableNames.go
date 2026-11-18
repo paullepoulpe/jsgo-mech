@@ -37,7 +37,7 @@ func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *Abstract
 	}
 	this.compiler_ = compiler
 	this.colorings = &[]*GraphColoring[*Var, any]{}
-	this.liveAnalyses = newTDeque_(jtc_p_LiveVariablesAnalysis)
+	this.liveAnalyses = newTDeque_(tc_p_LiveVariablesAnalysis)
 	this.usePseudoNames = usePseudoNames
 	this.astFactory_ = compiler.createAstFactory()
 	this.scopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler).createScopeAbstractScope)
@@ -111,7 +111,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 	if (len(*this.colorings) == 0 || !n.isName()) || parent.isFunction() {
 		return
 	}
-	var var_ *Var = this.liveness.getAllVariables().get(n.getString())
+	var var_ *Var = this.liveness.getAllVariables().Get(n.getString())
 	var vNode GraphNode[*Var] = to_GraphColoring[*Var, any](slicePeekTop_(tc_p_GraphColoring_p_Var__any_, *this.colorings).self()).getGraph().getNode(var_)
 	if vNode == nil {
 		return
@@ -356,13 +356,13 @@ type CoalesceVariableNames_LiveRangeChecker struct {
 	root             Node
 	state            *DataFlowAnalysis_LinearFlowState[any]
 	orderedVariables []*Var
-	isAssignToList   *JTList[any]
-	isReadFromList   *JTList[any]
+	isAssignToList   *TList[any]
+	isReadFromList   *TList[any]
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_LiveRangeChecker() {
-	this.isAssignToList = jnewTList_(tc_Integer)
-	this.isReadFromList = jnewTList_(tc_Integer)
+	this.isAssignToList = newTList_(tc_Integer)
+	this.isReadFromList = newTList_(tc_Integer)
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[any]) {

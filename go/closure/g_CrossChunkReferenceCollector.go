@@ -3,7 +3,7 @@
 package closure
 
 type CrossChunkReferenceCollector struct {
-	topLevelStatements     *JTList[*CrossChunkReferenceCollector_TopLevelStatement]
+	topLevelStatements     *TList[*CrossChunkReferenceCollector_TopLevelStatement]
 	compiler_              *AbstractCompiler
 	referenceCollector     *ReferenceCollector
 	statementCounter       int32
@@ -11,7 +11,7 @@ type CrossChunkReferenceCollector struct {
 }
 
 func (this *CrossChunkReferenceCollector) finit_CrossChunkReferenceCollector() {
-	this.topLevelStatements = jnewTList_(jtc_p_CrossChunkReferenceCollector_TopLevelStatement)
+	this.topLevelStatements = newTList_(tc_p_CrossChunkReferenceCollector_TopLevelStatement)
 	this.statementCounter = 0
 	this.topLevelStatementDraft = nil
 }
@@ -378,14 +378,14 @@ type CrossChunkReferenceCollector_TopLevelStatementDraft struct {
 	originalOrder            int32
 	chunk_                   *JSChunk
 	statementNode            Node
-	nonDeclarationReferences *JTList[*Reference]
+	nonDeclarationReferences *TList[*Reference]
 	declaredValueNode        Node
 	declaredNameNode         Node
 	declaredNameReference    *Reference
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatementDraft) finit_CrossChunkReferenceCollector_TopLevelStatementDraft() {
-	this.nonDeclarationReferences = jnewTList_(jtc_p_Reference)
+	this.nonDeclarationReferences = newTList_(tc_p_Reference)
 	this.declaredValueNode = 0
 	this.declaredNameNode = 0
 	this.declaredNameReference = nil

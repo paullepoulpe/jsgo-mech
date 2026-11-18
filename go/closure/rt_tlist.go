@@ -92,6 +92,11 @@ func tlistFrom_[T any](c *tconv_[T], from Collection) *TList[T] {
 	return &TList[T]{c: c, items: unboxAll_(c, readSlice_(from))}
 }
 
+// tlistCopy_ is new ArrayList<>(from) of another typed list of the same element type (j2go).
+func tlistCopy_[T any](c *tconv_[T], from *TList[T]) *TList[T] {
+	return &TList[T]{c: c, items: append([]T(nil), from.items...)}
+}
+
 // tlistFromRev_ is new ArrayDeque(from) as a deque whose head is the end of the list (colls
 // -kind deque, a deque used at its head): from's elements in reverse order.
 func tlistFromRev_[T any](c *tconv_[T], from Collection) *TList[T] {
@@ -180,6 +185,24 @@ func (l *TList[T]) ensureCapacity(n int32) {}
 // each is the cursor of a for-each loop over the list (as each_ over an ArrayList: the
 // slice is read anew at every step).
 func (l *TList[T]) each() sliceEach_[T] { return sliceEach_[T]{src: &l.items} }
+
+// iterator is the list's Iterator (of boxed elements, with remove), as its view's (j2go).
+func (l *TList[T]) iterator() Iterator { return l.cursor() }
+
+// asList_ is a list of the translated program as an erased List, whether its declaration is a
+// typed list or not (for handwritten runtime code that calls generated code).
+func asList_(l any) List {
+	switch x := l.(type) {
+	case List:
+		return x
+	case interface{ asList() List }:
+		return x.asList()
+	}
+	return nil
+}
+
+// goName_ makes getClass() of the view java.util.ArrayList, the class of the Java object.
+func (v *tlistView_[T]) goName_() string { return "ArrayList" }
 
 // asList is the list as an erased List (nil for a nil list); an immutable list is its
 // ImmutableList (asImm).

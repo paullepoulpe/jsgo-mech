@@ -115,7 +115,7 @@ type CompilerOptions struct {
 	stripNameSuffixes                            *ImmutableSet[string]
 	stripNamePrefixes                            *ImmutableSet[string]
 	customPasses                                 *SimpleSetMultimap[any, any]
-	defineReplacements                           *JTMap[string, any]
+	defineReplacements                           *TMap[string, any]
 	tweakProcessing                              CompilerOptions_TweakProcessing
 	rewriteGlobalDeclarationsForTryCatchWrapping bool
 	checksOnly                                   bool
@@ -171,7 +171,7 @@ type CompilerOptions struct {
 	lineLengthThreshold                          int32
 	useOriginalNamesInOutput                     bool
 	externExportsPath                            Optional[string]
-	extraReportGenerators                        *JTList[SortingErrorManager_ErrorReportGenerator]
+	extraReportGenerators                        *TList[SortingErrorManager_ErrorReportGenerator]
 	sourceMapOutputPath                          Optional[string]
 	shouldAlwaysGatherSourceMapInfo_             bool
 	sourceMapDetailLevel                         SourceMap_DetailLevel
@@ -272,7 +272,7 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.lineLengthThreshold = CompilerOptions_DEFAULT_LINE_LENGTH_THRESHOLD
 	this.useOriginalNamesInOutput = false
 	this.externExportsPath = Optional_empty[string]()
-	this.extraReportGenerators = jnewTList_(jtc_SortingErrorManager_ErrorReportGenerator)
+	this.extraReportGenerators = newTList_(tc_SortingErrorManager_ErrorReportGenerator)
 	this.sourceMapOutputPath = Optional_empty[string]()
 	this.shouldAlwaysGatherSourceMapInfo_ = false
 	this.sourceMapDetailLevel = SourceMap_DetailLevel_ALL
@@ -381,7 +381,7 @@ func (this *CompilerOptions) init_CompilerOptions() {
 	this.stripNameSuffixes = immutableSetOf_(tc_string)
 	this.stripNamePrefixes = immutableSetOf_(tc_string)
 	this.customPasses = nil
-	this.defineReplacements = jnewTMap_(jtc_string, tc_Object)
+	this.defineReplacements = newTMap_(tc_string, tc_Object)
 	this.tweakProcessing = CompilerOptions_TweakProcessing_OFF
 	this.rewriteGlobalDeclarationsForTryCatchWrapping = false
 	this.checksOnly = false
@@ -675,7 +675,7 @@ func (this *CompilerOptions) setTracerOutput(out Optional[string]) {
 	this.tracerOutput = out
 }
 
-func (this *CompilerOptions) getExtraReportGenerators() *JTList[SortingErrorManager_ErrorReportGenerator] {
+func (this *CompilerOptions) getExtraReportGenerators() *TList[SortingErrorManager_ErrorReportGenerator] {
 	return this.extraReportGenerators
 }
 
@@ -847,19 +847,19 @@ func (this *CompilerOptions) getDefineReplacements() *ImmutableMap[string, Node]
 }
 
 func (this *CompilerOptions) setDefineToBooleanLiteral(defineName string, value bool) {
-	this.defineReplacements.put(defineName, any(bool(value)))
+	this.defineReplacements.Put(defineName, any(bool(value)))
 }
 
 func (this *CompilerOptions) setDefineToStringLiteral(defineName string, value string) {
-	this.defineReplacements.put(defineName, strobj_(value))
+	this.defineReplacements.Put(defineName, strobj_(value))
 }
 
 func (this *CompilerOptions) setDefineToNumberLiteral(defineName string, value int32) {
-	this.defineReplacements.put(defineName, any(int32(value)))
+	this.defineReplacements.Put(defineName, any(int32(value)))
 }
 
 func (this *CompilerOptions) setDefineToDoubleLiteral(defineName string, value float64) {
-	this.defineReplacements.put(defineName, any(float64(value)))
+	this.defineReplacements.Put(defineName, any(float64(value)))
 }
 
 func (this *CompilerOptions) skipAllCompilerPasses() {
@@ -1926,7 +1926,7 @@ func (this *CompilerOptions) getCustomPassesAt(executionTime CustomPassExecution
 }
 
 func (this *CompilerOptions) setDefineReplacements(defineReplacements *TMap[string, any]) {
-	this.defineReplacements.clear()
+	this.defineReplacements.Clear()
 	this.defineReplacements.asMap().putAll(defineReplacements.asMap())
 }
 
@@ -3639,8 +3639,8 @@ func (this CompilerOptions_LanguageMode) isDefaultStrict() bool {
 	}()
 }
 
-func CompilerOptions_LanguageMode_validCommandLineNames() *JTList[string] {
-	var names *JTList[string] = jnewTList_(jtc_string)
+func CompilerOptions_LanguageMode_validCommandLineNames() *TList[string] {
+	var names *TList[string] = newTList_(tc_string)
 	for mode := range elemsAs_[CompilerOptions_LanguageMode](obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.CompilerOptions.LanguageMode")))) {
 		if mode != CompilerOptions_LanguageMode_UNSUPPORTED {
 			names.add(mode.name())

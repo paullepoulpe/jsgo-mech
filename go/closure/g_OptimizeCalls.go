@@ -155,13 +155,13 @@ func (this *OptimizeCalls_Builder) build() *OptimizeCalls {
 
 type OptimizeCalls_ReferenceMap struct {
 	globalScope *Scope
-	names_      *JTMap[string, *ArrayList]
-	props       *JTMap[string, *ArrayList]
+	names_      *TMap[string, *ArrayList]
+	props       *TMap[string, *ArrayList]
 }
 
 func (this *OptimizeCalls_ReferenceMap) finit_OptimizeCalls_ReferenceMap() {
-	this.names_ = jnewTMap_(jtc_string, tc_p_ArrayList)
-	this.props = jnewTMap_(jtc_string, tc_p_ArrayList)
+	this.names_ = newTMap_(tc_string, tc_p_ArrayList)
+	this.props = newTMap_(tc_string, tc_p_ArrayList)
 }
 
 func (this *OptimizeCalls_ReferenceMap) init_OptimizeCalls_ReferenceMap() {
@@ -174,7 +174,7 @@ func new_OptimizeCalls_ReferenceMap() *OptimizeCalls_ReferenceMap {
 	return this
 }
 
-func (this *OptimizeCalls_ReferenceMap) addReference(data *JTMap[string, *ArrayList], name string, n Node) {
+func (this *OptimizeCalls_ReferenceMap) addReference(data *TMap[string, *ArrayList], name string, n Node) {
 	var refs ArrayListOf[Node] = data.computeIfAbsent(name, &Function_tfn_string_any{func(k string) any {
 		return new_ArrayList_0().self()
 	}})

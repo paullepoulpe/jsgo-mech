@@ -579,10 +579,10 @@ type JsMessage_Builder struct {
 	isExternal_                      bool
 	id                               Optional[string]
 	alternateId                      Optional[string]
-	parts                            *JTList[JsMessage_Part]
-	genderedMessageMap               *JTMap[JsMessage_GrammaticalGenderCase, List]
-	jsPlaceholderNames_              *JTSet[string]
-	canonicalPlaceholderNames_       *JTSet[string]
+	parts                            *TList[JsMessage_Part]
+	genderedMessageMap               *TMap[JsMessage_GrammaticalGenderCase, List]
+	jsPlaceholderNames_              *TSet[string]
+	canonicalPlaceholderNames_       *TSet[string]
 	placeholderNameToExampleMap      *ImmutableMap[string, string]
 	placeholderNameToOriginalCodeMap *ImmutableMap[string, string]
 	sourceName_                      Optional[string]
@@ -596,10 +596,10 @@ func (this *JsMessage_Builder) finit_JsMessage_Builder() {
 	this.isExternal_ = false
 	this.id = Optional_empty[string]()
 	this.alternateId = Optional_empty[string]()
-	this.parts = jnewTList_(jtc_JsMessage_Part)
-	this.genderedMessageMap = jnewTMap_(jtc_p_JsMessage_GrammaticalGenderCase, tc_List)
-	this.jsPlaceholderNames_ = jnewTSet_(jtc_string)
-	this.canonicalPlaceholderNames_ = jnewTSet_(jtc_string)
+	this.parts = newTList_(tc_JsMessage_Part)
+	this.genderedMessageMap = newTMap_(tc_p_JsMessage_GrammaticalGenderCase, tc_List)
+	this.jsPlaceholderNames_ = newTSet_(tc_string)
+	this.canonicalPlaceholderNames_ = newTSet_(tc_string)
 	this.placeholderNameToExampleMap = immutableMapOf_(tc_string, tc_string, []string{}, []string{})
 	this.placeholderNameToOriginalCodeMap = immutableMapOf_(tc_string, tc_string, []string{}, []string{})
 	this.sourceName_ = Optional_empty[string]()
@@ -635,8 +635,8 @@ func (this *JsMessage_Builder) appendPart(part JsMessage_Part) *JsMessage_Builde
 	}
 	this.parts.add(part)
 	if part.isPlaceholder() {
-		this.jsPlaceholderNames_.add(part.getJsPlaceholderName())
-		this.canonicalPlaceholderNames_.add(part.getCanonicalPlaceholderName())
+		this.jsPlaceholderNames_.Add(part.getJsPlaceholderName())
+		this.canonicalPlaceholderNames_.Add(part.getCanonicalPlaceholderName())
 	}
 	return this
 }
@@ -650,27 +650,27 @@ func (this *JsMessage_Builder) appendParts(parts []JsMessage_Part) *JsMessage_Bu
 
 func (this *JsMessage_Builder) appendJsPlaceholderReference(name string) *JsMessage_Builder {
 	this.parts.add(JsMessage_PlaceholderReference_createForJsName(name))
-	this.jsPlaceholderNames_.add(name)
+	this.jsPlaceholderNames_.Add(name)
 	return this
 }
 
 func (this *JsMessage_Builder) appendJsPlaceholderReference_2(genderCase JsMessage_GrammaticalGenderCase, name string) *JsMessage_Builder {
-	this.genderedMessageMap.get(genderCase).add(obj_(JsMessage_PlaceholderReference_createForJsName(name)))
-	this.jsPlaceholderNames_.add(name)
+	this.genderedMessageMap.Get(genderCase).add(obj_(JsMessage_PlaceholderReference_createForJsName(name)))
+	this.jsPlaceholderNames_.Add(name)
 	return this
 }
 
 func (this *JsMessage_Builder) appendCanonicalPlaceholderReference(name string) *JsMessage_Builder {
 	var placeholder *JsMessage_PlaceholderReference = JsMessage_PlaceholderReference_createForCanonicalName(name)
 	this.parts.add(placeholder)
-	this.jsPlaceholderNames_.add(placeholder.getJsPlaceholderName())
+	this.jsPlaceholderNames_.Add(placeholder.getJsPlaceholderName())
 	return this
 }
 
 func (this *JsMessage_Builder) appendCanonicalPlaceholderReference_2(genderCase JsMessage_GrammaticalGenderCase, name string) *JsMessage_Builder {
 	var placeholder *JsMessage_PlaceholderReference = JsMessage_PlaceholderReference_createForCanonicalName(name)
-	this.genderedMessageMap.get(genderCase).add(obj_(placeholder))
-	this.jsPlaceholderNames_.add(placeholder.getJsPlaceholderName())
+	this.genderedMessageMap.Get(genderCase).add(obj_(placeholder))
+	this.jsPlaceholderNames_.Add(placeholder.getJsPlaceholderName())
 	return this
 }
 
@@ -683,7 +683,7 @@ func (this *JsMessage_Builder) appendStringPart_2(genderCase JsMessage_Grammatic
 	if genderCase == 0 {
 		panic(new_NullPointerException_String("Grammatical gender case must not be null"))
 	}
-	this.genderedMessageMap.get(genderCase).add(obj_(JsMessage_StringPart_create(part)))
+	this.genderedMessageMap.Get(genderCase).add(obj_(JsMessage_StringPart_create(part)))
 	return this
 }
 
@@ -691,7 +691,7 @@ func (this *JsMessage_Builder) addGenderedMessageKey(part JsMessage_GrammaticalG
 	if part == 0 {
 		panic(new_NullPointerException_String("Gendered message key must not be null"))
 	}
-	this.genderedMessageMap.put(part, new_ArrayList_0())
+	this.genderedMessageMap.Put(part, new_ArrayList_0())
 	return this
 }
 
@@ -743,10 +743,10 @@ func (this *JsMessage_Builder) hasParts() bool {
 }
 
 func (this *JsMessage_Builder) hasGenderedVariants() bool {
-	return !this.genderedMessageMap.isEmpty()
+	return !this.genderedMessageMap.IsEmpty()
 }
 
-func (this *JsMessage_Builder) getParts() *JTList[JsMessage_Part] {
+func (this *JsMessage_Builder) getParts() *TList[JsMessage_Part] {
 	return this.parts
 }
 

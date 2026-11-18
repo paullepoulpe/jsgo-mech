@@ -163,7 +163,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.suspiciousCode = PassFactory_builder().setName("suspiciousCode").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var sharedCallbacks *JTList[NodeTraversal_Callback] = jnewTList_(jtc_NodeTraversal_Callback)
+		var sharedCallbacks *TList[NodeTraversal_Callback] = newTList_(tc_NodeTraversal_Callback)
 		if this.options_.getCheckSuspiciousCode() {
 			sharedCallbacks.add(new_CheckSuspiciousCode())
 			sharedCallbacks.add(new_CheckDuplicateCase(compiler))
@@ -306,7 +306,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
-		var peepholeOptimizations *JTList[*AbstractPeepholeOptimization] = jnewTList_(jtc_p_AbstractPeepholeOptimization)
+		var peepholeOptimizations *TList[*AbstractPeepholeOptimization] = newTList_(tc_p_AbstractPeepholeOptimization)
 		peepholeOptimizations.add(new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization())
 		if compiler.getOptions().getJ2clPass().shouldAddJ2clPasses() {
 			peepholeOptimizations.add(new_J2clEqualitySameRewriterPass(useTypesForOptimization).up_AbstractPeepholeOptimization())
@@ -410,7 +410,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.checkControlFlow = PassFactory_builder().setName("checkControlFlow").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var callbacks *JTList[NodeTraversal_Callback] = jnewTList_(jtc_NodeTraversal_Callback)
+		var callbacks *TList[NodeTraversal_Callback] = newTList_(tc_NodeTraversal_Callback)
 		if !this.options_.disables(DiagnosticGroups_CHECK_USELESS_CODE) {
 			callbacks.add(new_CheckUnreachableCode(compiler))
 		}
@@ -1537,7 +1537,7 @@ func DefaultPassConfig_createPeepholeOptimizationsPass(compiler *AbstractCompile
 	}
 	var late bool = false
 	var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
-	var optimizations *JTList[*AbstractPeepholeOptimization] = jnewTList_(jtc_p_AbstractPeepholeOptimization)
+	var optimizations *TList[*AbstractPeepholeOptimization] = newTList_(tc_p_AbstractPeepholeOptimization)
 	if expectAstIsNormalized {
 		optimizations.add(new_MinimizeExitPoints().up_AbstractPeepholeOptimization())
 	}
@@ -1572,9 +1572,9 @@ func (this *DefaultPassConfig) createProcessDefines(mode ProcessDefines_Mode) *P
 
 func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, prevVariableMap *VariableMap, externs Node, root Node) *VariableMap {
 	var reservedChars SetOf[BoxedOf[uint16]] = ImmutableSet_of()
-	var reservedNames *JTSet[string] = jnewTSet_(jtc_string)
+	var reservedNames *TSet[string] = newTSet_(tc_string)
 	if this.options_.getRenamePrefixNamespace().isPresent() {
-		reservedNames.add(this.options_.getRenamePrefixNamespace().get())
+		reservedNames.Add(this.options_.getRenamePrefixNamespace().get())
 	}
 	reservedNames.asSet().addAll(Collection(compiler.getExportedNames()))
 	reservedNames.asSet().addAll(icast_Collection(obj_(ParserRunner_getReservedVars().asImm())))
@@ -1603,13 +1603,13 @@ func DefaultPassConfig_runInSerial(passes CollectionOf[CompilerPass]) CompilerPa
 	return new_DefaultPassConfig_13(passes)
 }
 
-func DefaultPassConfig_getAdditionalReplacements(options *CompilerOptions) *JTMap[string, Node] {
-	var additionalReplacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
+func DefaultPassConfig_getAdditionalReplacements(options *CompilerOptions) *TMap[string, Node] {
+	var additionalReplacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	if options.shouldMarkAsCompiled() || options.getClosurePass() {
-		additionalReplacements.put(DefaultPassConfig_COMPILED_CONSTANT_NAME, IR_trueNode())
+		additionalReplacements.Put(DefaultPassConfig_COMPILED_CONSTANT_NAME, IR_trueNode())
 	}
 	if (options.getClosurePass() && options.getLocale().isPresent()) && !options.doLateLocalization() {
-		additionalReplacements.put(DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(options.getLocale().get()))
+		additionalReplacements.Put(DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(options.getLocale().get()))
 	}
 	return additionalReplacements
 }

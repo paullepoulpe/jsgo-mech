@@ -4,11 +4,11 @@ package closure
 
 type RemoveUnnecessarySyntheticExterns struct {
 	compiler_     *AbstractCompiler
-	nodesToDetach *JTSet[Node]
+	nodesToDetach *TSet[Node]
 }
 
 func (this *RemoveUnnecessarySyntheticExterns) finit_RemoveUnnecessarySyntheticExterns() {
-	this.nodesToDetach = jnewTSet_(jtc_Node)
+	this.nodesToDetach = newTSet_(tc_Node)
 }
 
 func (this *RemoveUnnecessarySyntheticExterns) init_RemoveUnnecessarySyntheticExterns(compiler *AbstractCompiler) {
@@ -26,7 +26,7 @@ func (this *RemoveUnnecessarySyntheticExterns) process_2(externs Node, root Node
 	var globalRoot Node = externs.getParent()
 	var scopeCreator *SyntacticScopeCreator = new_SyntacticScopeCreator_AbstractCompiler_RedeclarationHandler_boolean(this.compiler_, new_RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler(this), true)
 	scopeCreator.createScope(globalRoot, nil)
-	if this.nodesToDetach.isEmpty() {
+	if this.nodesToDetach.IsEmpty() {
 		return
 	}
 	it_1 := this.nodesToDetach.each()
@@ -62,9 +62,9 @@ func (this *RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler) onRedec
 	var origNode Node = origVar.getNode()
 	if isSynthetic {
 		if n.getParent().isSynthesizedUnfulfilledNameDeclaration() {
-			this.outer_.nodesToDetach.add(n.getParent())
+			this.outer_.nodesToDetach.Add(n.getParent())
 		}
 	} else if (origNode != 0) && origNode.getParent().isSynthesizedUnfulfilledNameDeclaration() {
-		this.outer_.nodesToDetach.add(origNode.getParent())
+		this.outer_.nodesToDetach.Add(origNode.getParent())
 	}
 }

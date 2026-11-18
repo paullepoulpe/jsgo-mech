@@ -188,7 +188,7 @@ func (this *JsDocInfoParser) parse() bool {
 			this.jsdocBuilder.recordBlockDescription("")
 		}
 	}
-	return this.parseHelperLoop(token, jnewTList_(jtc_p_JsDocInfoParser_ExtendedTypeInfo))
+	return this.parseHelperLoop(token, newTList_(tc_p_JsDocInfoParser_ExtendedTypeInfo))
 }
 
 func (this *JsDocInfoParser) parseImportantComment() {
@@ -205,7 +205,7 @@ func (this *JsDocInfoParser) parseImportantComment() {
 	}
 }
 
-func (this *JsDocInfoParser) parseHelperLoop(token JsDocToken, extendedTypes *JTList[*JsDocInfoParser_ExtendedTypeInfo]) bool {
+func (this *JsDocInfoParser) parseHelperLoop(token JsDocToken, extendedTypes *TList[*JsDocInfoParser_ExtendedTypeInfo]) bool {
 	for {
 		switch token {
 		case JsDocToken_ANNOTATION:
@@ -250,7 +250,7 @@ func (this *JsDocInfoParser) parseHelperLoop(token JsDocToken, extendedTypes *JT
 	}
 }
 
-func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JTList[*JsDocInfoParser_ExtendedTypeInfo]) JsDocToken {
+func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *TList[*JsDocInfoParser_ExtendedTypeInfo]) JsDocToken {
 	var type_ *JSTypeExpression
 	var lineno int32 = this.stream.getLineno()
 	var charno int32 = this.stream.getCharno()
@@ -769,7 +769,7 @@ func (this *JsDocInfoParser) parseAnnotation(token JsDocToken, extendedTypes *JT
 					boundTypeExpression = this.createJSTypeExpression(boundTypeNode)
 				}
 			}
-			var templateNames *JTList[string] = jnewTList_(jtc_string)
+			var templateNames *TList[string] = newTList_(tc_string)
 			if !this.match(JsDocToken_COLON) {
 				for do_3 := true; do_3; do_3 = this.eatIfMatch(JsDocToken_COMMA) {
 					var nameNode Node = this.parseNameExpression(this.next())
@@ -999,7 +999,7 @@ func (this *JsDocInfoParser) recordDescription(token JsDocToken) JsDocToken {
 	return token
 }
 
-func (this *JsDocInfoParser) checkExtendedTypes(extendedTypes *JTList[*JsDocInfoParser_ExtendedTypeInfo]) {
+func (this *JsDocInfoParser) checkExtendedTypes(extendedTypes *TList[*JsDocInfoParser_ExtendedTypeInfo]) {
 	if extendedTypes.size() > 1 {
 		var isInterface bool = this.jsdocBuilder.isInterfaceRecorded()
 		var isFromTsickle bool = equalsId_(this.jsDocSourceKind, JsDocInfoParser_JsDocSourceKind_TSICKLE)
@@ -1031,7 +1031,7 @@ func (this *JsDocInfoParser) parseSuppressTag(token JsDocToken) JsDocToken {
 		this.addParserWarning(Msg_JSDOC_SUPPRESS)
 		return token
 	} else {
-		var suppressions *JTSet[string] = jnewTSet_(jtc_string)
+		var suppressions *TSet[string] = newTSet_(tc_string)
 		for {
 			this.skipEOLs()
 			if this.match(JsDocToken_STRING) {
@@ -1039,7 +1039,7 @@ func (this *JsDocInfoParser) parseSuppressTag(token JsDocToken) JsDocToken {
 				if !this.suppressionNames_.Has(name) {
 					this.addParserWarning_2(Msg_JSDOC_SUPPRESS_UNKNOWN, name)
 				}
-				suppressions.add(this.stream.getString())
+				suppressions.Add(this.stream.getString())
 				token = this.next()
 			} else {
 				this.addParserWarning(Msg_JSDOC_SUPPRESS)
@@ -1116,14 +1116,14 @@ func (this *JsDocInfoParser) parseClosurePrimitiveTag(token JsDocToken) JsDocTok
 
 func (this *JsDocInfoParser) parseModifiesTag(token JsDocToken) JsDocToken {
 	if token == JsDocToken_LEFT_CURLY {
-		var modifies *JTSet[string] = jnewTSet_(jtc_string)
+		var modifies *TSet[string] = newTSet_(tc_string)
 		for {
 			if this.match(JsDocToken_STRING) {
 				var name string = this.stream.getString()
 				if !JsDocInfoParser_modifiesAnnotationKeywords.Has(name) && !this.jsdocBuilder.hasParameter(Optional_of[string](name)) {
 					this.addParserWarning_2(Msg_JSDOC_MODIFIES_UNKNOWN, name)
 				}
-				modifies.add(this.stream.getString())
+				modifies.Add(this.stream.getString())
 				token = this.next()
 			} else {
 				this.addParserWarning(Msg_JSDOC_MODIFIES)
@@ -1851,7 +1851,7 @@ func (this *JsDocInfoParser) parseRecordType(token JsDocToken) Node {
 
 func (this *JsDocInfoParser) parseFieldTypeList(token JsDocToken) Node {
 	var fieldTypeList Node = this.newNode(Token_rhino_LB)
-	var names *JTSet[string] = jnewTSet_(jtc_string)
+	var names *TSet[string] = newTSet_(tc_string)
 	for do_2 := true; do_2; do_2 = true {
 		var fieldType Node = this.parseFieldType(token)
 		if fieldType == 0 {
@@ -1863,7 +1863,7 @@ func (this *JsDocInfoParser) parseFieldTypeList(token JsDocToken) Node {
 			}
 			return fieldType.getFirstChild().getString()
 		}()
-		if names.add(name) {
+		if names.Add(name) {
 			fieldTypeList.addChildToBack(fieldType)
 		} else {
 			this.addTypeWarning_2(Msg_JSDOC_TYPE_RECORD_DUPLICATE, name)

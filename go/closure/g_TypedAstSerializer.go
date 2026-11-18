@@ -9,14 +9,14 @@ type TypedAstSerializer struct {
 	previousLine       int32
 	previousColumn     int32
 	subtreeSourceFiles *TDeque[*SourceFile_jscomp]
-	sourceFilePointers *JTMap[*SourceFile_jscomp, any]
+	sourceFilePointers *TMap[*SourceFile_jscomp, any]
 	typeSerializer     TypedAstSerializer_TypeSerializer
 }
 
 func (this *TypedAstSerializer) finit_TypedAstSerializer() {
 	this.stringPool = StringPool_builder()
-	this.subtreeSourceFiles = newTDeque_(jtc_p_SourceFile_jscomp)
-	this.sourceFilePointers = jnewTMap_(jtc_p_SourceFile_jscomp, tc_Integer)
+	this.subtreeSourceFiles = newTDeque_(tc_p_SourceFile_jscomp)
+	this.sourceFilePointers = newTMap_(tc_p_SourceFile_jscomp, tc_Integer)
 	this.typeSerializer = nil
 }
 
@@ -79,9 +79,9 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 
 func (this *TypedAstSerializer) sourceFileProtos() *ImmutableList[*SourceFileProto] {
 	var result *ImmutableList_Builder[*SourceFileProto] = immutableListBuilder_(tc_p_SourceFileProto)
-	it_1 := this.sourceFilePointers.eachKey()
+	it_1 := this.sourceFilePointers.each()
 	for it_1.next() {
-		var sourceFile *SourceFile_jscomp = it_1.v
+		var sourceFile *SourceFile_jscomp = it_1.k
 		result.add(sourceFile.getProto())
 	}
 	return result.build()
@@ -160,7 +160,7 @@ func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 	}
 	this.subtreeSourceFiles.add(sourceFile)
 	return unbox_[int32](this.sourceFilePointers.computeIfAbsent(sourceFile, &Function_tfn_SourceFile_jscomp_any{func(f *SourceFile_jscomp) any {
-		return any(int32((1 + this.sourceFilePointers.size())))
+		return any(int32((1 + this.sourceFilePointers.Len())))
 	}}))
 }
 

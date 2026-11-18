@@ -7,13 +7,13 @@ import "strings"
 type SourceMap struct {
 	generator                SourceMapGenerator
 	prefixMappings           []SourceMap_LocationMapping
-	sourceLocationFixupCache *JTMap[string, string]
+	sourceLocationFixupCache *TMap[string, string]
 	mapping                  func(Optional[string], int32, int32) *Mapping_OriginalMapping
 }
 
 func (this *SourceMap) finit_SourceMap() {
 	this.prefixMappings = []SourceMap_LocationMapping{}
-	this.sourceLocationFixupCache = jnewTMap_(jtc_string, jtc_string)
+	this.sourceLocationFixupCache = newTMap_(tc_string, tc_string)
 }
 
 func (this *SourceMap) init_SourceMap(generator SourceMapGenerator) {
@@ -88,7 +88,7 @@ func (this *SourceMap) fixupSourceLocation(sourceFile Optional[string]) Optional
 	}
 	var fixed Optional[string] = func() Optional[string] {
 		if sourceFile.isPresent() {
-			return Optional_ofNullable[string](this.sourceLocationFixupCache.get(sourceFile.get()))
+			return Optional_ofNullable[string](this.sourceLocationFixupCache.Get(sourceFile.get()))
 		}
 		return Optional_empty[string]()
 	}()
@@ -104,7 +104,7 @@ func (this *SourceMap) fixupSourceLocation(sourceFile Optional[string]) Optional
 	if fixed.isEmpty() {
 		fixed = sourceFile
 	}
-	this.sourceLocationFixupCache.put(sourceFile.orElse(nullstr_), fixed.orElse(nullstr_))
+	this.sourceLocationFixupCache.Put(sourceFile.orElse(nullstr_), fixed.orElse(nullstr_))
 	return fixed
 }
 
@@ -114,7 +114,7 @@ func (this *SourceMap) appendTo(out Appendable, name Optional[string]) {
 
 func (this *SourceMap) reset() {
 	this.generator.reset()
-	this.sourceLocationFixupCache.clear()
+	this.sourceLocationFixupCache.Clear()
 }
 
 func (this *SourceMap) setStartingPosition(offsetLine int32, offsetIndex int32) {

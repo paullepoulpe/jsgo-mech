@@ -28,14 +28,14 @@ func (this *DiagnosticToSuppressionMapper) printSuppressions(output DiagnosticTo
 }
 
 func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSortedMapOf[string, string] {
-	var validSuppressions *JTSet[string] = jtsetFrom_(jtc_string, Collection(this.validSuppressions.asSet()))
-	validSuppressions.del("accessControls")
-	validSuppressions.del("missingSourcesWarnings")
-	var diagnosticToSuppression *JTMap[*DiagnosticType, string] = jnewTMap_(tce_p_DiagnosticType, jtc_string)
+	var validSuppressions *TSet[string] = tsetFrom_(tc_string, Collection(this.validSuppressions.asSet()), false)
+	validSuppressions.Delete("accessControls")
+	validSuppressions.Delete("missingSourcesWarnings")
+	var diagnosticToSuppression *TMap[*DiagnosticType, string] = newTMap_(tch_p_DiagnosticType, tc_string)
 	for _, el := range immElems_(cast_[*ErasedImmutableSet](this.diagnosticGroups.asImm().entrySet())) {
 		entry := icast_Map_Entry(el)
 		var suppression string = str_(entry.getKey())
-		if !validSuppressions.has(suppression) {
+		if !validSuppressions.Has(suppression) {
 			continue
 		}
 		var group *DiagnosticGroup = cast_[*DiagnosticGroup](entry.getValue())

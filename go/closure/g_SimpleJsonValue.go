@@ -5,8 +5,8 @@ package closure
 type SimpleJsonValue struct {
 	tag   SimpleJsonValue_Kind
 	text  string
-	items *JTList[*SimpleJsonValue]
-	named *JTMap[string, *SimpleJsonValue]
+	items *TList[*SimpleJsonValue]
+	named *TMap[string, *SimpleJsonValue]
 }
 
 func (this *SimpleJsonValue) zero_SimpleJsonValue() {
@@ -14,8 +14,8 @@ func (this *SimpleJsonValue) zero_SimpleJsonValue() {
 }
 
 func (this *SimpleJsonValue) finit_SimpleJsonValue() {
-	this.items = jnewTList_(tc_p_SimpleJsonValue)
-	this.named = jnewTMap_(jtc_string, tc_p_SimpleJsonValue)
+	this.items = newTList_(tc_p_SimpleJsonValue)
+	this.named = newTMap_(tc_string, tc_p_SimpleJsonValue)
 }
 
 func (this *SimpleJsonValue) init_SimpleJsonValue(tag SimpleJsonValue_Kind, text string) {
@@ -64,16 +64,16 @@ func (this *SimpleJsonValue) kind() SimpleJsonValue_Kind {
 	return this.tag
 }
 
-func (this *SimpleJsonValue) members() *JTMap[string, *SimpleJsonValue] {
+func (this *SimpleJsonValue) members() *TMap[string, *SimpleJsonValue] {
 	return this.named
 }
 
-func (this *SimpleJsonValue) elements() *JTList[*SimpleJsonValue] {
+func (this *SimpleJsonValue) elements() *TList[*SimpleJsonValue] {
 	return this.items
 }
 
 func (this *SimpleJsonValue) get(name string) *SimpleJsonValue {
-	return this.named.get(name)
+	return this.named.Get(name)
 }
 
 func (this *SimpleJsonValue) asString() *Outcome_base[string] {

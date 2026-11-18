@@ -77,6 +77,39 @@ func newTMap_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *TMap[K, V] {
 	return &TMap[K, V]{kc: kc, vc: vc}
 }
 
+// newTMapN_ is new LinkedHashMap<>(n): the capacity is not used (j2go).
+func newTMapN_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], n int32) *TMap[K, V] {
+	return &TMap[K, V]{kc: kc, vc: vc}
+}
+
+// tmapCopy_ is new LinkedHashMap<>(from) of another typed map of the same types (j2go).
+func tmapCopy_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from *TMap[K, V]) *TMap[K, V] {
+	m := &TMap[K, V]{kc: kc, vc: vc}
+	m.putAllT(from)
+	return m
+}
+
+// putAllT is putAll of another typed map of the same types (j2go).
+func (m *TMap[K, V]) putAllT(o *TMap[K, V]) {
+	for i, k := range o.keys {
+		if !o.isDead(i) {
+			m.Put(k, o.vals[i])
+		}
+	}
+}
+
+// erasedMap_ is a map of the translated program as an erased Map, whether its declaration is a
+// typed map or not (for handwritten runtime code that calls generated code).
+func erasedMap_(m any) Map {
+	switch x := m.(type) {
+	case Map:
+		return x
+	case interface{ asMap() Map }:
+		return x.asMap()
+	}
+	return nil
+}
+
 // tmapFrom_ is new LinkedHashMap<>(from) (or an ImmutableMap, imm) as a typed map.
 func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map, imm bool) *TMap[K, V] {
 	if imm && isNil_(from) {
@@ -443,6 +476,96 @@ func (e *tmapEach_[K, V]) next() bool {
 	return false
 }
 
+// tmapEntries_ is the cursor of a for-each loop over the entries of a typed map as objects
+// (j2go: a loop whose entry variable is used as a Map.Entry).
+type tmapEntries_[K comparable, V any] struct {
+	m *TMap[K, V]
+	i int
+}
+
+// eachEntry is the cursor of a for-each loop over entrySet().
+func (m *TMap[K, V]) eachEntry() tmapEntries_[K, V] { return tmapEntries_[K, V]{m: m, i: m.first()} }
+
+func (e *tmapEntries_[K, V]) next() bool {
+	m := e.m
+	for e.i < len(m.keys) {
+		e.i++
+		if !m.isDead(e.i - 1) {
+			return true
+		}
+	}
+	return false
+}
+
+// entry is the entry the cursor is at: an object of its own, as each entry of the Java map is.
+func (e *tmapEntries_[K, V]) entry() *TEntry[K, V] {
+	i := e.i - 1
+	return &TEntry[K, V]{m: e.m, i: int32(i), k: e.m.keys[i], v: e.m.vals[i]}
+}
+
+// TEntry is an entry of a typed map (Map.Entry<K, V>) in a for-each loop over its entries. It
+// reads and writes the value of its mapping while the map has it; after the mapping's removal
+// it keeps the last value, as the entry of the erased map does.
+type TEntry[K comparable, V any] struct {
+	m *TMap[K, V]
+	i int32
+	k K
+	v V
+}
+
+// pos is the position of the entry's mapping in the map, or -1 if the map has it no more.
+func (e *TEntry[K, V]) pos() int32 {
+	m := e.m
+	if i := int(e.i); i < len(m.keys) && m.keys[i] == e.k && !m.isDead(i) {
+		return e.i
+	}
+	return m.find(e.k)
+}
+
+func (e *TEntry[K, V]) getKey() K { return e.k }
+
+func (e *TEntry[K, V]) getValue() V {
+	if i := e.pos(); i >= 0 {
+		e.v = e.m.vals[i]
+	}
+	return e.v
+}
+
+func (e *TEntry[K, V]) setValue(v V) V {
+	old := e.getValue()
+	e.v = v
+	if i := e.pos(); i >= 0 {
+		e.m.vals[i] = v
+	}
+	return old
+}
+
+// asEntry is the entry as an erased Map.Entry (nil for null).
+func (e *TEntry[K, V]) asEntry() Map_Entry {
+	if e == nil {
+		return nil
+	}
+	return &tentryView_[K, V]{e: e}
+}
+
+// tentryView_ is a TEntry seen as an erased Map.Entry.
+type tentryView_[K comparable, V any] struct{ e *TEntry[K, V] }
+
+func (v *tentryView_[K, V]) self() any     { return v }
+func (v *tentryView_[K, V]) getKey() any   { return v.e.m.kc.box(v.e.k) }
+func (v *tentryView_[K, V]) getValue() any { return v.e.m.vc.box(v.e.getValue()) }
+func (v *tentryView_[K, V]) setValue(x any) any {
+	return v.e.m.vc.box(v.e.setValue(v.e.m.vc.unbox(x)))
+}
+func (v *tentryView_[K, V]) equals(o any) bool {
+	x, ok := o.(Map_Entry)
+	return ok && x != nil && objequals_(v.getKey(), x.getKey()) && objequals_(v.getValue(), x.getValue())
+}
+func (v *tentryView_[K, V]) hashCode() int32 { return objhash_(v.getKey()) ^ objhash_(v.getValue()) }
+func (v *tentryView_[K, V]) toString() string {
+	return objstr_(v.getKey()) + "=" + objstr_(v.getValue())
+}
+
 // ---- sets
 
 type TSet[K comparable] struct {
@@ -453,6 +576,35 @@ var tunit_ = &tconv_[struct{}]{box: func(struct{}) any { return nil }, unbox: fu
 
 func newTSet_[K comparable](kc *tconv_[K]) *TSet[K] {
 	return &TSet[K]{TMap: TMap[K, struct{}]{kc: kc, vc: tunit_}}
+}
+
+// newTSetN_ is new LinkedHashSet<>(n): the capacity is not used (j2go).
+func newTSetN_[K comparable](kc *tconv_[K], n int32) *TSet[K] { return newTSet_(kc) }
+
+// tsetCopy_ is new LinkedHashSet<>(from) of another typed set of the same element type (j2go).
+func tsetCopy_[K comparable](kc *tconv_[K], from *TSet[K]) *TSet[K] {
+	s := newTSet_(kc)
+	for i, k := range from.keys {
+		if !from.isDead(i) {
+			s.Add(k)
+		}
+	}
+	return s
+}
+
+// iterator is the set's Iterator (of boxed elements, with remove), as its view's (j2go).
+func (s *TSet[K]) iterator() Iterator { return s.cursor() }
+
+// asSet_ is a set of the translated program as an erased Set, whether its declaration is a
+// typed set or not (for handwritten runtime code that calls generated code).
+func asSet_(s any) Set {
+	switch x := s.(type) {
+	case Set:
+		return x
+	case interface{ asSet() Set }:
+		return x.asSet()
+	}
+	return nil
 }
 
 // tsetFrom_ is new LinkedHashSet<>(from) (or an ImmutableSet, imm) as a typed set.
@@ -572,6 +724,11 @@ func (s *TSet[K]) asSet() Set {
 }
 
 type tmapView_[K comparable, V any] struct{ m *TMap[K, V] }
+
+// goName_ makes getClass() of the views java.util.LinkedHashMap and LinkedHashSet, the classes
+// of the Java objects.
+func (v *tmapView_[K, V]) goName_() string { return "LinkedHashMap" }
+func (v *tsetView_[K]) goName_() string    { return "LinkedHashSet" }
 
 // boxedKV_ is the keys and values of the map, boxed, in the order its entry set's iterator
 // gives them (from the first live position, skipping removed ones), without the iterator and

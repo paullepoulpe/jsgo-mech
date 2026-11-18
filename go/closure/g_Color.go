@@ -240,8 +240,8 @@ func (this *Color) subtractNullOrVoidUncached() *Color {
 	if !this.getUnionElements().Has(StandardColors_NULL_OR_VOID) {
 		return this
 	}
-	var elements *JTSet[*Color] = jtsetFrom_(tce_p_Color, icast_Collection(obj_(this.getUnionElements().asImm())))
-	elements.del(StandardColors_NULL_OR_VOID)
+	var elements *TSet[*Color] = tsetFrom_(tch_p_Color, icast_Collection(obj_(this.getUnionElements().asImm())), false)
+	elements.Delete(StandardColors_NULL_OR_VOID)
 	return Color_createUnion(elements.asSet())
 }
 

@@ -3,7 +3,7 @@
 package closure
 
 type ReferenceCollector struct {
-	referenceMap                            *JTMap[*Var, *ReferenceCollection]
+	referenceMap                            *TMap[*Var, *ReferenceCollection]
 	blockStack                              *TDeque[*BasicBlock]
 	behavior                                ReferenceCollector_Behavior
 	scopeCreator                            ScopeCreator
@@ -11,15 +11,15 @@ type ReferenceCollector struct {
 	varFilter                               Predicate_baseOf[*Var]
 	collectHoistedFunctionsInReferenceOrder bool
 	callback                                *ReferenceCollector_CollectorCallback
-	collectedHoistedFunctions               *JTSet[Node]
+	collectedHoistedFunctions               *TSet[Node]
 	narrowScope_                            *Scope
 }
 
 func (this *ReferenceCollector) finit_ReferenceCollector() {
-	this.referenceMap = jnewTMap_(tce_p_Var, tc_p_ReferenceCollection)
-	this.blockStack = newTDeque_(jtc_p_BasicBlock)
+	this.referenceMap = newTMap_(tch_p_Var, tc_p_ReferenceCollection)
+	this.blockStack = newTDeque_(tc_p_BasicBlock)
 	this.callback = new_ReferenceCollector_CollectorCallback(this)
-	this.collectedHoistedFunctions = jnewTSet_(jtc_Node)
+	this.collectedHoistedFunctions = newTSet_(tc_Node)
 }
 
 func (this *ReferenceCollector) init_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler *AbstractCompiler, behavior ReferenceCollector_Behavior, creator ScopeCreator) {
@@ -91,17 +91,17 @@ func (this *ReferenceCollector) getScope(var_ *Var) StaticScope {
 }
 
 func (this *ReferenceCollector) getReferences_Var(v *Var) *ReferenceCollection {
-	return this.referenceMap.get(v)
+	return this.referenceMap.Get(v)
 }
 
 func (this *ReferenceCollector) maybeJumpToHoistedFunction(var_ *Var, t *NodeTraversal) {
 	var fnNode Node = var_.getParentNode()
 	var varScope *Scope = cast_[*Scope](var_.getScope())
-	if (((fnNode == 0) || !NodeUtil_isHoistedFunctionDeclaration(fnNode)) || ((this.narrowScope_ != nil) && (this.narrowScope_.getDepth() > varScope.getDepth()))) || this.collectedHoistedFunctions.has(fnNode) {
+	if (((fnNode == 0) || !NodeUtil_isHoistedFunctionDeclaration(fnNode)) || ((this.narrowScope_ != nil) && (this.narrowScope_.getDepth() > varScope.getDepth()))) || this.collectedHoistedFunctions.Has(fnNode) {
 		return
 	}
 	var oldBlockStack *TDeque[*BasicBlock] = this.blockStack
-	this.blockStack = newTDeque_(jtc_p_BasicBlock)
+	this.blockStack = newTDeque_(tc_p_BasicBlock)
 	if varScope.isGlobal() {
 		this.blockStack.add(cast_[*BasicBlock](SequencedCollection_getFirst(SequencedCollection(oldBlockStack.asDeque()))))
 	} else {
@@ -189,7 +189,7 @@ func new_ReferenceCollector_CollectorCallback(outer_ *ReferenceCollector) *Refer
 
 func (this *ReferenceCollector_CollectorCallback) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	if this.outer_.collectHoistedFunctionsInReferenceOrder && NodeUtil_isHoistedFunctionDeclaration(n) {
-		if !this.outer_.collectedHoistedFunctions.add(n) {
+		if !this.outer_.collectedHoistedFunctions.Add(n) {
 			return false
 		}
 	}

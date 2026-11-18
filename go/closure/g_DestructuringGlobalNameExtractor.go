@@ -15,7 +15,7 @@ func new_DestructuringGlobalNameExtractor() *DestructuringGlobalNameExtractor {
 	return this
 }
 
-func DestructuringGlobalNameExtractor_reassignDestructringLvalue(stringKey Node, newName Node, newNodes *JTSet[GlobalNamespace_AstChange], ref *GlobalNamespace_Ref, compiler *AbstractCompiler) {
+func DestructuringGlobalNameExtractor_reassignDestructringLvalue(stringKey Node, newName Node, newNodes *TSet[GlobalNamespace_AstChange], ref *GlobalNamespace_Ref, compiler *AbstractCompiler) {
 	var pattern Node = stringKey.getParent()
 	var assignmentType Node = pattern.getParent()
 	if !assignmentType.isAssign() && !assignmentType.isDestructuringLhs() {
@@ -32,7 +32,7 @@ func DestructuringGlobalNameExtractor_reassignDestructringLvalue(stringKey Node,
 		return stringKey.getOnlyChild()
 	}()
 	if newNodes != nil {
-		newNodes.add(new_GlobalNamespace_RefBasedAstChange(ref, newName))
+		newNodes.Add(new_GlobalNamespace_RefBasedAstChange(ref, newName))
 	}
 	var rvalue Node = DestructuringGlobalNameExtractor_makeNewRvalueForDestructuringKey(stringKey, newName, newNodes, ref)
 	if (stringKey.getPrevious() == 0) && (stringKey.getNext() != 0) {
@@ -48,7 +48,7 @@ func DestructuringGlobalNameExtractor_reassignDestructringLvalue(stringKey Node,
 		} else {
 			newRvalue = originalRvalue.cloneTree()
 			if newNodes != nil {
-				newNodes.add(new_GlobalNamespace_RefBasedAstChange(ref, newRvalue))
+				newNodes.Add(new_GlobalNamespace_RefBasedAstChange(ref, newRvalue))
 			}
 		}
 		DestructuringGlobalNameExtractor_addAfter(lvalueToReassign, newPattern, newRvalue)
@@ -108,12 +108,12 @@ func DestructuringGlobalNameExtractor_replaceDestructuringAssignment(pattern Nod
 	}
 }
 
-func DestructuringGlobalNameExtractor_makeNewRvalueForDestructuringKey(stringKey Node, rvalue Node, newNodes *JTSet[GlobalNamespace_AstChange], ref *GlobalNamespace_Ref) Node {
+func DestructuringGlobalNameExtractor_makeNewRvalueForDestructuringKey(stringKey Node, rvalue Node, newNodes *TSet[GlobalNamespace_AstChange], ref *GlobalNamespace_Ref) Node {
 	if stringKey.getOnlyChild().isDefaultValue() {
 		var defaultValue Node = stringKey.getFirstChild().getSecondChild().detach()
 		var rvalueForSheq Node = rvalue.cloneTree()
 		if newNodes != nil {
-			newNodes.add(new_GlobalNamespace_RefBasedAstChange(ref, rvalueForSheq))
+			newNodes.Add(new_GlobalNamespace_RefBasedAstChange(ref, rvalueForSheq))
 		}
 		rvalue = IR_hook(IR_sheq(NodeUtil_newUndefinedNode(rvalue), rvalueForSheq), defaultValue, rvalue).srcrefTree(defaultValue)
 	}

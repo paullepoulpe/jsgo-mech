@@ -9,11 +9,11 @@ type PolyfillUsageFinder struct {
 	polyfills                  *PolyfillUsageFinder_Polyfills
 	disambiguateProperties_    bool
 	registry                   *ColorRegistry
-	hasInSupertypesListSeenSet *JTSet[*Color]
+	hasInSupertypesListSeenSet *TSet[*Color]
 }
 
 func (this *PolyfillUsageFinder) finit_PolyfillUsageFinder() {
-	this.hasInSupertypesListSeenSet = jnewTSet_(tce_p_Color)
+	this.hasInSupertypesListSeenSet = newTSet_(tch_p_Color)
 }
 
 func (this *PolyfillUsageFinder) init_PolyfillUsageFinder(compiler *AbstractCompiler, polyfills *PolyfillUsageFinder_Polyfills, disambiguateProperties bool) {
@@ -59,7 +59,7 @@ func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(t
 	if !this.polyfills.suffixes.Has(lastComponent) {
 		return nil
 	}
-	var components *TDeque[string] = newTDeque_(jtc_string)
+	var components *TDeque[string] = newTDeque_(tc_string)
 	components.push(lastComponent)
 	var ownerNode Node
 	{
@@ -154,11 +154,11 @@ func (this *PolyfillUsageFinder) isDisjointFromIterator(receiver *Color) bool {
 }
 
 func (this *PolyfillUsageFinder) hasInSupertypesList(subCtor *Color, superCtor *Color) (ret_1 bool) {
-	if !this.hasInSupertypesListSeenSet.add(subCtor) {
+	if !this.hasInSupertypesListSeenSet.Add(subCtor) {
 		return false
 	}
 	defer func() {
-		this.hasInSupertypesListSeenSet.del(subCtor)
+		this.hasInSupertypesListSeenSet.Delete(subCtor)
 	}()
 	if subCtor.equals_Color(superCtor) {
 		return true
@@ -309,7 +309,7 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.methods = methods
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
-	var suffixList *JTList[string] = jnewTList_(jtc_string)
+	var suffixList *TList[string] = newTList_(tc_string)
 	for _, el := range immElems_(cast_[*ErasedImmutableSet](statics.asImm().keySet())) {
 		arg := str_(el)
 		suffixList.add(arg[strings.LastIndexByte(arg, '.')+1:])

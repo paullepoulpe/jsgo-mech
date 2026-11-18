@@ -41,13 +41,13 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectFieldsIntoCallSites() {
 	}
 	var fieldsByName *ImmutableMap[string, RuntimeJsLibManager_ExternedField] = fieldsByNameBuilder.buildOrThrow()
 	for _, callSite := range this.closureUnawareCalls {
-		var toInject *JTSet[RuntimeJsLibManager_ExternedField] = InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(callSite.closureUnawareFunction(), fieldsByName)
+		var toInject *TSet[RuntimeJsLibManager_ExternedField] = InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(callSite.closureUnawareFunction(), fieldsByName)
 		this.injectAll(callSite, toInject)
 	}
 }
 
-func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite, toInject *JTSet[RuntimeJsLibManager_ExternedField]) {
-	if toInject.isEmpty() {
+func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite, toInject *TSet[RuntimeJsLibManager_ExternedField]) {
+	if toInject.IsEmpty() {
 		return
 	}
 	var parameterParent Node = NodeUtil_getFunctionParameters(callSite.closureUnawareFunction())
@@ -67,15 +67,15 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClos
 	}
 }
 
-func InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(root Node, allKnownFields *ImmutableMap[string, RuntimeJsLibManager_ExternedField]) *JTSet[RuntimeJsLibManager_ExternedField] {
-	var seen *JTSet[RuntimeJsLibManager_ExternedField] = jnewTSet_(tce_RuntimeJsLibManager_ExternedField)
+func InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(root Node, allKnownFields *ImmutableMap[string, RuntimeJsLibManager_ExternedField]) *TSet[RuntimeJsLibManager_ExternedField] {
+	var seen *TSet[RuntimeJsLibManager_ExternedField] = newTSet_(tch_RuntimeJsLibManager_ExternedField)
 	var visitor NodeUtil_Visitor = &NodeUtil_Visitor_fn{func(n Node) {
 		if !n.isName() {
 			return
 		}
 		var field RuntimeJsLibManager_ExternedField = allKnownFields.Get(n.getString())
 		if field != nil {
-			seen.add(field)
+			seen.Add(field)
 		}
 	}}
 	NodeUtil_visitPreOrder_Node_Visitor(root, visitor)

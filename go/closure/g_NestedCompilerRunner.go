@@ -4,7 +4,7 @@ package closure
 
 type NestedCompilerRunner struct {
 	shadowCompiler   *Compiler
-	inputs           *JTList[*CompilerInput]
+	inputs           *TList[*CompilerInput]
 	baseChunk        *JSChunk
 	original_        *AbstractCompiler
 	shadowOptions    *CompilerOptions
@@ -14,7 +14,7 @@ type NestedCompilerRunner struct {
 
 func (this *NestedCompilerRunner) finit_NestedCompilerRunner() {
 	this.shadowCompiler = new_Compiler_0()
-	this.inputs = jnewTList_(jtc_p_CompilerInput)
+	this.inputs = newTList_(tc_p_CompilerInput)
 	this.baseChunk = new_JSChunk("shadow_base")
 }
 

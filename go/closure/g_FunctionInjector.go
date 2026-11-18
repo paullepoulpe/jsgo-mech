@@ -12,15 +12,15 @@ type FunctionInjector struct {
 	safeNameIdSupplier_       SupplierOf[string]
 	throwawayNameSupplier     SupplierOf[string]
 	functionArgumentInjector_ *FunctionArgumentInjector
-	referencesEvalCache       *JTMap[Node, any]
-	innerFunctionCache        *JTMap[Node, Node]
+	referencesEvalCache       *TMap[Node, any]
+	innerFunctionCache        *TMap[Node, Node]
 }
 
 func (this *FunctionInjector) finit_FunctionInjector() {
 	this.knownConstantFunctions = immutableSetOf_(tc_string)
 	this.throwawayNameSupplier = new_FunctionInjector_1(this)
-	this.referencesEvalCache = jnewTMap_(jtc_Node, tc_Boolean)
-	this.innerFunctionCache = jnewTMap_(jtc_Node, jtc_Node)
+	this.referencesEvalCache = newTMap_(tc_Node, tc_Boolean)
+	this.innerFunctionCache = newTMap_(tc_Node, tc_Node)
 }
 
 func (this *FunctionInjector) init_FunctionInjector(builder *FunctionInjector_Builder) {
@@ -144,10 +144,10 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 	var callNode Node = ref.callNode_
 	var block Node = fnNode.getLastChild()
 	var paramToArgMap *ImmutableMap[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.safeNameIdSupplier_)
-	var paramReplacements *JTMap[string, Node] = jnewTMap_(jtc_string, jtc_Node)
+	var paramReplacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	for _, el := range immElems_(cast_[*ErasedImmutableSet](paramToArgMap.asImm().entrySet())) {
 		entry := icast_Map_Entry(el)
-		paramReplacements.put(str_(entry.getKey()), entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg())
+		paramReplacements.Put(str_(entry.getKey()), entry.getValue().(*FunctionArgumentInjector_ParamArgPair).arg())
 	}
 	var newExpression Node
 	if !block.hasChildren() {
@@ -319,7 +319,7 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 	if !fn.isFunction() {
 		panic(new_IllegalStateException_0())
 	}
-	var cached any = this.referencesEvalCache.get(fn)
+	var cached any = this.referencesEvalCache.Get(fn)
 	if cached != nil {
 		return unbox_[bool](cached)
 	}
@@ -328,7 +328,7 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 	}}).apply, &Predicate_base_tfn_Node{func(n Node) bool {
 		return (!n.isFunction() || equalsId_(n, fn))
 	}})
-	this.referencesEvalCache.put(fn, any(bool(result)))
+	this.referencesEvalCache.Put(fn, any(bool(result)))
 	return result
 }
 
@@ -336,11 +336,11 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	if !containerFn.isFunction() {
 		panic(new_IllegalStateException_0())
 	}
-	var cached Node = this.innerFunctionCache.get(containerFn)
+	var cached Node = this.innerFunctionCache.Get(containerFn)
 	if cached != 0 {
 		return cached
 	}
-	var innerFns *JTList[Node] = jnewTList_(jtc_Node)
+	var innerFns *TList[Node] = newTList_(tc_Node)
 	NodeUtil_visitPreOrder_Node_Visitor(containerFn, &NodeUtil_Visitor_fn{func(n Node) {
 		if equalsId_(n, containerFn) {
 			return
@@ -359,7 +359,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 			return FunctionInjector_MULTIPLE_FUNCTIONS
 		}
 	}()
-	this.innerFunctionCache.put(containerFn, cached)
+	this.innerFunctionCache.Put(containerFn, cached)
 	return cached
 }
 

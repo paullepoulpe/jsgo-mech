@@ -86,9 +86,9 @@ type JsFileFullParser_FileInfo struct {
 	testonly          bool
 	moduleType_       JsFileFullParser_FileInfo_ModuleType
 	isLegacyNamespace bool
-	importedModules   *JTSet[string]
-	dynamicRequires   *JTSet[string]
-	readToggles_      *JTSet[string]
+	importedModules   *TSet[string]
+	dynamicRequires   *TSet[string]
+	readToggles_      *TSet[string]
 	provides          *SimpleMultiset[any]
 	requires          *SimpleMultiset[any]
 	typeRequires      *SimpleMultiset[any]
@@ -102,9 +102,9 @@ func (this *JsFileFullParser_FileInfo) finit_JsFileFullParser_FileInfo() {
 	this.testonly = false
 	this.moduleType_ = JsFileFullParser_FileInfo_ModuleType_UNKNOWN
 	this.isLegacyNamespace = false
-	this.importedModules = jnewTSet_(jtc_string)
-	this.dynamicRequires = jnewTSet_(jtc_string)
-	this.readToggles_ = jnewTSet_(jtc_string)
+	this.importedModules = newTSet_(tc_string)
+	this.dynamicRequires = newTSet_(tc_string)
+	this.readToggles_ = newTSet_(tc_string)
 	this.provides = SimpleMultiset_createSorted[any]()
 	this.requires = SimpleMultiset_createSorted[any]()
 	this.typeRequires = SimpleMultiset_createSorted[any]()

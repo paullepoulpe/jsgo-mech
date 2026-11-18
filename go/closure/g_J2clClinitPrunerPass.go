@@ -5,13 +5,13 @@ package closure
 import "strings"
 
 type J2clClinitPrunerPass struct {
-	emptiedClinitMethods     *JTMap[string, Node]
+	emptiedClinitMethods     *TMap[string, Node]
 	compiler_                *AbstractCompiler
 	initialChangedScopeNodes ListOf[Node]
 }
 
 func (this *J2clClinitPrunerPass) finit_J2clClinitPrunerPass() {
-	this.emptiedClinitMethods = jnewTMap_(jtc_string, jtc_Node)
+	this.emptiedClinitMethods = newTMap_(tc_string, tc_Node)
 }
 
 func (this *J2clClinitPrunerPass) init_J2clClinitPrunerPass(compiler *AbstractCompiler, initialChangedScopeNodes ListOf[Node]) {
@@ -32,25 +32,25 @@ func (this *J2clClinitPrunerPass) process_2(externs Node, root Node) {
 	}
 	this.removeRedundantClinits(root, this.initialChangedScopeNodes)
 	this.pruneEmptyClinits(root, this.initialChangedScopeNodes)
-	if this.emptiedClinitMethods.isEmpty() {
+	if this.emptiedClinitMethods.IsEmpty() {
 		return
 	}
 	var clinitReferences *SimpleSetMultimap[any, Node] = this.collectClinitReferences(root)
-	for do_2 := true; do_2; do_2 = !this.emptiedClinitMethods.isEmpty() {
-		var newChangedScopes *JTList[Node] = this.cleanEmptyClinitReferences(clinitReferences)
+	for do_2 := true; do_2; do_2 = !this.emptiedClinitMethods.IsEmpty() {
+		var newChangedScopes *TList[Node] = this.cleanEmptyClinitReferences(clinitReferences)
 		this.pruneEmptyClinits(root, newChangedScopes.asList())
 	}
 	new_PureFunctionIdentifier_Driver(this.compiler_).process_2(externs, root)
 }
 
 func (this *J2clClinitPrunerPass) removeRedundantClinits(root Node, changedScopeNodes ListOf[Node]) {
-	var changedRoots *JTList[Node] = J2clClinitPrunerPass_getNonNestedParentScopeNodes(changedScopeNodes)
+	var changedRoots *TList[Node] = J2clClinitPrunerPass_getNonNestedParentScopeNodes(changedScopeNodes)
 	this.traverseScopeRootsWithFallback(root, changedRoots.asList(), new_J2clClinitPrunerPass_RedundantClinitPruner(this, Iterable(changedRoots.asList())), true)
 	this.traverseScopeRootsWithFallback(root, changedScopeNodes, new_J2clClinitPrunerPass_LookAheadRedundantClinitPruner(this), false)
 }
 
 func (this *J2clClinitPrunerPass) pruneEmptyClinits(root Node, changedScopes ListOf[Node]) {
-	this.emptiedClinitMethods.clear()
+	this.emptiedClinitMethods.Clear()
 	this.traverseScopeRootsWithFallback(root, changedScopes, new_J2clClinitPrunerPass_EmptyClinitPruner(this), false)
 	it_1 := this.emptiedClinitMethods.eachEntry()
 	for it_1.next() {
@@ -73,10 +73,10 @@ func (this *J2clClinitPrunerPass) resolveReplacement(node Node) Node {
 	}
 	var clinitName Optional[string] = J2clClinitPrunerPass_getClinitMethodName(node)
 	return func() Node {
-		if clinitName.isPresent() && this.emptiedClinitMethods.has(clinitName.get()) {
+		if clinitName.isPresent() && this.emptiedClinitMethods.Has(clinitName.get()) {
 			return this.resolveReplacement(func() Node {
 				if clinitName.isPresent() {
-					return this.emptiedClinitMethods.get(clinitName.get())
+					return this.emptiedClinitMethods.Get(clinitName.get())
 				}
 				return 0
 			}())
@@ -91,8 +91,8 @@ func (this *J2clClinitPrunerPass) collectClinitReferences(root Node) *SimpleSetM
 	return clinitReferences
 }
 
-func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *SimpleSetMultimap[any, Node]) *JTList[Node] {
-	var newChangedScopes *JTList[Node] = jnewTList_(jtc_Node)
+func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *SimpleSetMultimap[any, Node]) *TList[Node] {
+	var newChangedScopes *TList[Node] = newTList_(tc_Node)
 	it_1 := this.emptiedClinitMethods.eachEntry()
 	for it_1.next() {
 		var clinitReplacementEntry *TEntry[string, Node] = it_1.entry()
@@ -115,8 +115,8 @@ func (this *J2clClinitPrunerPass) cleanEmptyClinitReferences(clinitReferences *S
 	return newChangedScopes
 }
 
-func J2clClinitPrunerPass_getNonNestedParentScopeNodes(changedScopeNodes ListOf[Node]) *JTList[Node] {
-	return func() *JTList[Node] {
+func J2clClinitPrunerPass_getNonNestedParentScopeNodes(changedScopeNodes ListOf[Node]) *TList[Node] {
+	return func() *TList[Node] {
 		if changedScopeNodes == nil {
 			return nil
 		}
@@ -376,7 +376,7 @@ func (this *J2clClinitPrunerPass_EmptyClinitPruner) trySubstituteEmptyFunction(f
 	} else {
 		return
 	}
-	this.outer_.emptiedClinitMethods.put(fnQualifiedName.get(), replaceReferencesWith)
+	this.outer_.emptiedClinitMethods.Put(fnQualifiedName.get(), replaceReferencesWith)
 	NodeUtil_deleteNode(firstExpr, this.outer_.compiler_)
 }
 

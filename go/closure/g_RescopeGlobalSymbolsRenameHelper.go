@@ -35,20 +35,20 @@ func RescopeGlobalSymbolsRenameHelper_getDisambiguatedLocalName(name string) str
 	return (sstr_(name) + sstr_(RescopeGlobalSymbolsRenameHelper_DISAMBIGUATION_SUFFIX))
 }
 
-func RescopeGlobalSymbolsRenameHelper_collectUnwrappedLocalNamesInDefiningChunk(optimizeLocalAccess CompilerOptions_OptimizeLocalAccess, symbolInfo *RescopeGlobalSymbolsInfo, namesStartingWithUnderscore *JTSet[string]) *ImmutableMap[string, string] {
+func RescopeGlobalSymbolsRenameHelper_collectUnwrappedLocalNamesInDefiningChunk(optimizeLocalAccess CompilerOptions_OptimizeLocalAccess, symbolInfo *RescopeGlobalSymbolsInfo, namesStartingWithUnderscore *TSet[string]) *ImmutableMap[string, string] {
 	if !optimizeLocalAccess.shouldKeepLocalAliasForWrappedReassignables() {
 		return immutableMapOf_(tc_string, tc_string, []string{}, []string{})
 	}
-	var usedNames *JTSet[string] = tsetCopy_(jtc_string, namesStartingWithUnderscore)
+	var usedNames *TSet[string] = tsetCopy_(tc_string, namesStartingWithUnderscore)
 	var builder *ImmutableMap_Builder[string, string] = immutableMapBuilder_(tc_string, tc_string)
 	for _, el := range symbolInfo.wrappedCrossChunkNames().keys {
 		name := el
 		if (!symbolInfo.crossChunkNamesWithWriteFromOtherChunk().Has(name) && !symbolInfo.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk().Has(name)) && symbolInfo.globalNamesWithReadInDefiningChunk().Has(name) {
 			var unwrappedName string = (sstr_(RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) + sstr_(name))
-			for (usedNames.has(unwrappedName) || symbolInfo.externNames().Has(unwrappedName)) || (unwrappedName == symbolInfo.globalSymbolNamespace()) {
+			for (usedNames.Has(unwrappedName) || symbolInfo.externNames().Has(unwrappedName)) || (unwrappedName == symbolInfo.globalSymbolNamespace()) {
 				unwrappedName = (sstr_(RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) + sstr_(unwrappedName))
 			}
-			usedNames.add(unwrappedName)
+			usedNames.Add(unwrappedName)
 			builder.put(name, unwrappedName)
 		}
 	}
@@ -93,7 +93,7 @@ type RescopeGlobalSymbolsRenameHelper_HelperBuilder struct {
 	compiler_                   *AbstractCompiler
 	globalSymbolNamespace_      string
 	optimizeLocalAccess         CompilerOptions_OptimizeLocalAccess
-	namesStartingWithUnderscore *JTSet[string]
+	namesStartingWithUnderscore *TSet[string]
 }
 
 func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) zero_RescopeGlobalSymbolsRenameHelper_HelperBuilder() {
@@ -101,7 +101,7 @@ func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) zero_RescopeGlobalSy
 }
 
 func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) finit_RescopeGlobalSymbolsRenameHelper_HelperBuilder() {
-	this.namesStartingWithUnderscore = jnewTSet_(jtc_string)
+	this.namesStartingWithUnderscore = newTSet_(tc_string)
 }
 
 func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) init_RescopeGlobalSymbolsRenameHelper_HelperBuilder(compiler *AbstractCompiler, globalSymbolNamespace string, optimizeLocalAccess CompilerOptions_OptimizeLocalAccess) {
@@ -123,12 +123,12 @@ func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) recordExistingName(n
 		return
 	}
 	if strings.HasPrefix(name, RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) {
-		this.namesStartingWithUnderscore.add(name)
+		this.namesStartingWithUnderscore.Add(name)
 	}
 	if RescopeGlobalSymbolsRenameHelper_conflictsWithGlobalSymbolNamespace(name, this.globalSymbolNamespace_) {
 		var disambiguatedName string = RescopeGlobalSymbolsRenameHelper_getDisambiguatedLocalName(name)
 		if strings.HasPrefix(disambiguatedName, RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) {
-			this.namesStartingWithUnderscore.add(disambiguatedName)
+			this.namesStartingWithUnderscore.Add(disambiguatedName)
 		}
 	}
 }

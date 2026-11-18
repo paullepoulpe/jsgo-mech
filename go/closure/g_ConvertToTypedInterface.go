@@ -399,7 +399,7 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) removeDuplicateDeclara
 		if strings.HasPrefix(name, "this.") {
 			continue
 		}
-		var declList *JTList[*PotentialDeclaration] = jtlistFrom_(jtc_p_PotentialDeclaration, Collection(this.currentFile.getDeclarations().get_s(name)))
+		var declList *TList[*PotentialDeclaration] = tlistFrom_(tc_p_PotentialDeclaration, Collection(this.currentFile.getDeclarations().get_s(name)))
 		List_sort(declList.asList(), ConvertToTypedInterface_SimplifyDeclarations_DECLARATIONS_FIRST)
 		for declList.size() > 1 {
 			var decl *PotentialDeclaration = declList.removeAt(1)

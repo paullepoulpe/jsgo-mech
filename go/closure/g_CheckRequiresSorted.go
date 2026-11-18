@@ -5,7 +5,7 @@ package closure
 type CheckRequiresSorted struct {
 	mode_              CheckRequiresSorted_Mode
 	importsByNamespace *SimpleListMultimap[any, *CheckRequiresSorted_ImportStatement]
-	originalImports    *JTList[*CheckRequiresSorted_ImportStatement]
+	originalImports    *TList[*CheckRequiresSorted_ImportStatement]
 	firstNode          Node
 	lastNode           Node
 	finished           bool
@@ -15,7 +15,7 @@ type CheckRequiresSorted struct {
 
 func (this *CheckRequiresSorted) finit_CheckRequiresSorted() {
 	this.importsByNamespace = SimpleListMultimap_create[any, *CheckRequiresSorted_ImportStatement]()
-	this.originalImports = jnewTList_(jtc_p_CheckRequiresSorted_ImportStatement)
+	this.originalImports = newTList_(tc_p_CheckRequiresSorted_ImportStatement)
 	this.firstNode = 0
 	this.lastNode = 0
 	this.finished = false
@@ -112,7 +112,7 @@ func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportS
 }
 
 func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
-	var canonicalImports *JTList[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
+	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
 	if !equalsVia_(this.originalImports.asList(), canonicalImports.asList()) {
 		this.needsFixField = true
 		this.replacement_ = Optional_of[string](String_join_s("\n", Iterables_transform(Iterable(canonicalImports.asList()), &Function_base_tfn_CheckRequiresSorted_ImportStatement_string{func(p0 *CheckRequiresSorted_ImportStatement) string { return p0.format() }})))
@@ -122,8 +122,8 @@ func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 	}
 }
 
-func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap[any, *CheckRequiresSorted_ImportStatement]) *JTList[*CheckRequiresSorted_ImportStatement] {
-	var canonicalImports *JTList[*CheckRequiresSorted_ImportStatement] = jnewTList_(jtc_p_CheckRequiresSorted_ImportStatement)
+func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap[any, *CheckRequiresSorted_ImportStatement]) *TList[*CheckRequiresSorted_ImportStatement] {
+	var canonicalImports *TList[*CheckRequiresSorted_ImportStatement] = newTList_(tc_p_CheckRequiresSorted_ImportStatement)
 	for namespace := range elemsBy_(importsByNamespace.keySet(), str_) {
 		var allImports CollectionOf[*CheckRequiresSorted_ImportStatement] = Collection(importsByNamespace.get_s(namespace))
 		var strongestPrimitive CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_WEAKEST
@@ -146,7 +146,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 			}
 		}
 		var destructuringNodes *ImmutableList[Node] = destructuringNodesBuilder.build()
-		var sortedDestructures *JTList[*CheckRequiresSorted_DestructuringBinding] = jnewTList_(jtc_p_CheckRequiresSorted_DestructuringBinding)
+		var sortedDestructures *TList[*CheckRequiresSorted_DestructuringBinding] = newTList_(tc_p_CheckRequiresSorted_DestructuringBinding)
 		for i := range elemsAs_[*CheckRequiresSorted_ImportStatement](allImports) {
 			if i.isDestructuring() {
 				for _, el2 := range i.destructures().items {

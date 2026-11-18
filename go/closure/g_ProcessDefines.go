@@ -14,21 +14,21 @@ type ProcessDefines struct {
 	enableZonesDefineName               Optional[string]
 	zoneInputPattern                    *Pattern
 	unknownDefinesToIgnore              *ImmutableSet[string]
-	knownDefineJsdocs                   *JTSet[*JSDocInfo]
-	knownGoogDefineCalls                *JTSet[Node]
-	defineByDefineName                  *JTMap[string, *ProcessDefines_Define]
-	replacementValuesFromClosureDefines *JTMap[string, Node]
-	validDefineValueExpressions         *JTSet[Node]
+	knownDefineJsdocs                   *TSet[*JSDocInfo]
+	knownGoogDefineCalls                *TSet[Node]
+	defineByDefineName                  *TMap[string, *ProcessDefines_Define]
+	replacementValuesFromClosureDefines *TMap[string, Node]
+	validDefineValueExpressions         *TSet[Node]
 	hasZoneInput                        bool
 	namespace_                          *GlobalNamespace
 }
 
 func (this *ProcessDefines) finit_ProcessDefines() {
-	this.knownDefineJsdocs = jnewTSet_(jtc_p_JSDocInfo)
-	this.knownGoogDefineCalls = jnewTSet_(jtc_Node)
-	this.defineByDefineName = jnewTMap_(jtc_string, jtc_p_ProcessDefines_Define)
-	this.replacementValuesFromClosureDefines = jnewTMap_(jtc_string, jtc_Node)
-	this.validDefineValueExpressions = jnewTSet_(jtc_Node)
+	this.knownDefineJsdocs = newTSet_(tc_p_JSDocInfo)
+	this.knownGoogDefineCalls = newTSet_(tc_Node)
+	this.defineByDefineName = newTMap_(tc_string, tc_p_ProcessDefines_Define)
+	this.replacementValuesFromClosureDefines = newTMap_(tc_string, tc_Node)
+	this.validDefineValueExpressions = newTSet_(tc_Node)
 	this.hasZoneInput = false
 }
 
@@ -77,7 +77,7 @@ func (this *ProcessDefines) initNamespace(externs Node, root Node) {
 
 func (this *ProcessDefines) overrideDefines() {
 	if ProcessDefines_Mode_optimize_[this.mode_-1] {
-		it_1 := this.defineByDefineName.eachValue()
+		it_1 := this.defineByDefineName.each()
 		for it_1.next() {
 			var define *ProcessDefines_Define = it_1.v
 			if define.valueParent == 0 {
@@ -154,7 +154,7 @@ func (this *ProcessDefines) getReplacementForDefineName(defineName Optional[stri
 	}
 	var replacementFromClosureDefines Node = func() Node {
 		if defineName.isPresent() {
-			return this.replacementValuesFromClosureDefines.get(defineName.get())
+			return this.replacementValuesFromClosureDefines.Get(defineName.get())
 		}
 		return 0
 	}()
@@ -193,7 +193,7 @@ func (this *ProcessDefines) collectDefines(root Node) {
 		} else {
 			defineName = name.getFullName()
 		}
-		var existingDefine *ProcessDefines_Define = this.defineByDefineName.putIfAbsent(defineName, new_ProcessDefines_Define(defineName, name, declaration, valueParent, value))
+		var existingDefine *ProcessDefines_Define = this.defineByDefineName.PutIfAbsent(defineName, new_ProcessDefines_Define(defineName, name, declaration, valueParent, value))
 		if existingDefine != nil {
 			declaration = existingDefine.declaration_
 			totalSets += existingDefine.name_.getTotalSets()
@@ -224,7 +224,7 @@ func (this *ProcessDefines) selectDefineDeclaration(name *GlobalNamespace_Name) 
 		if (jsdoc == nil) || !jsdoc.isDefine() {
 			continue
 		}
-		this.knownDefineJsdocs.add(jsdoc)
+		this.knownDefineJsdocs.Add(jsdoc)
 		return ref
 	}
 	return nil
@@ -245,24 +245,24 @@ func ProcessDefines_getValueParentForDefine(declaration *GlobalNamespace_Ref) No
 }
 
 func (this *ProcessDefines) collectValidDefineValueExpressions() {
-	var namesToCheck *JTSet[*GlobalNamespace_Name] = jnewTSet_(jtc_p_GlobalNamespace_Name)
+	var namesToCheck *TSet[*GlobalNamespace_Name] = newTSet_(tc_p_GlobalNamespace_Name)
 	for name := range elemsAs_[*GlobalNamespace_Name](icast_Collection(this.namespace_.getAllSymbols())) {
 		if ProcessDefines_isGlobalConst(name) {
-			namesToCheck.add(name)
+			namesToCheck.Add(name)
 		}
 	}
-	it_3 := this.defineByDefineName.eachValue()
+	it_3 := this.defineByDefineName.each()
 	for it_3.next() {
 		var define *ProcessDefines_Define = it_3.v
-		namesToCheck.del(define.name_)
+		namesToCheck.Delete(define.name_)
 		for r := range elemsAs_[*GlobalNamespace_Ref](define.name_.getRefs()) {
 			if !r.isSet() {
-				this.validDefineValueExpressions.add(r.getNode())
+				this.validDefineValueExpressions.Add(r.getNode())
 			}
 		}
 	}
 	for {
-		var namesToCheckAgain *JTSet[*GlobalNamespace_Name] = jnewTSet_(jtc_p_GlobalNamespace_Name)
+		var namesToCheckAgain *TSet[*GlobalNamespace_Name] = newTSet_(tc_p_GlobalNamespace_Name)
 		it_8 := namesToCheck.each()
 		for it_8.next() {
 			var name *GlobalNamespace_Name = it_8.v
@@ -270,14 +270,14 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 			switch this.isValidDefineValue(declValue) {
 			case Tri_TRUE:
 				for ref := range elemsAs_[*GlobalNamespace_Ref](name.getRefs()) {
-					this.validDefineValueExpressions.add(ref.getNode())
+					this.validDefineValueExpressions.Add(ref.getNode())
 				}
 			case Tri_UNKNOWN:
-				namesToCheckAgain.add(name)
+				namesToCheckAgain.Add(name)
 			default:
 			}
 		}
-		if namesToCheckAgain.size() == namesToCheck.size() {
+		if namesToCheckAgain.Len() == namesToCheck.Len() {
 			break
 		} else {
 			namesToCheck = namesToCheckAgain
@@ -289,7 +289,7 @@ func (this *ProcessDefines) validateDefineDeclarations() {
 	if !ProcessDefines_Mode_check__[this.mode_-1] {
 		return
 	}
-	it_1 := this.defineByDefineName.eachValue()
+	it_1 := this.defineByDefineName.each()
 	for it_1.next() {
 		var define *ProcessDefines_Define = it_1.v
 		var declarationNode Node = define.declaration_.getNode()
@@ -312,10 +312,10 @@ func (this *ProcessDefines) reportInvalidDefineLocations(root Node) {
 	}
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(func(t *NodeTraversal, n Node, parent Node) {
 		var jsdoc *JSDocInfo = n.getJSDocInfo()
-		if ((jsdoc != nil) && jsdoc.isDefine()) && this.knownDefineJsdocs.add(jsdoc) {
+		if ((jsdoc != nil) && jsdoc.isDefine()) && this.knownDefineJsdocs.Add(jsdoc) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessDefines_INVALID_DEFINE_LOCATION, []string{}))
 		}
-		if this.isGoogDefineCall(n) && this.knownGoogDefineCalls.add(n) {
+		if this.isGoogDefineCall(n) && this.knownGoogDefineCalls.Add(n) {
 			this.verifyGoogDefine(n)
 		}
 		if (n.matchesName("CLOSURE_DEFINES") && (NodeUtil_isNameDeclaration(parent) || (parent.isGetElem() && parent.getParent().isAssign()))) && !NodeUtil_getEnclosingScopeRoot(n).isRoot() {
@@ -327,10 +327,10 @@ func (this *ProcessDefines) reportInvalidDefineLocations(root Node) {
 func (this *ProcessDefines) handleClosureDefinesValue(stringNode Node, valueNode Node, errorNode Node) {
 	if (stringNode.isStringKey() || stringNode.isStringLit()) && ProcessDefines_isValidClosureDefinesValue(valueNode) {
 		var key string = stringNode.getString()
-		if this.replacementValuesFromClosureDefines.has(key) {
-			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorNode, ProcessDefines_CLOSURE_DEFINES_MULTIPLE, []string{key, this.replacementValuesFromClosureDefines.get(key).getLocation()}))
+		if this.replacementValuesFromClosureDefines.Has(key) {
+			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorNode, ProcessDefines_CLOSURE_DEFINES_MULTIPLE, []string{key, this.replacementValuesFromClosureDefines.Get(key).getLocation()}))
 		}
-		this.replacementValuesFromClosureDefines.put(key, valueNode)
+		this.replacementValuesFromClosureDefines.Put(key, valueNode)
 	} else if ProcessDefines_Mode_check__[this.mode_-1] {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorNode, ProcessDefines_CLOSURE_DEFINES_ERROR, []string{}))
 	}
@@ -379,7 +379,7 @@ func (this *ProcessDefines) isValidDefineValue(val Node) Tri {
 	case tokOrd1_NAME, tokOrd1_GETPROP:
 		if val.isQualifiedName() {
 			return func() Tri {
-				if this.validDefineValueExpressions.has(val) {
+				if this.validDefineValueExpressions.Has(val) {
 					return Tri_TRUE
 				}
 				return Tri_UNKNOWN
@@ -455,7 +455,7 @@ func (this *ProcessDefines) isGoogDefineCall(node Node) bool {
 }
 
 func (this *ProcessDefines) verifyGoogDefine(callNode Node) bool {
-	this.knownGoogDefineCalls.add(callNode)
+	this.knownGoogDefineCalls.Add(callNode)
 	var parent Node = callNode.getParent()
 	var methodName Node = callNode.getFirstChild()
 	var args Node = callNode.getSecondChild()
@@ -645,7 +645,7 @@ func ProcessDefines_Mode_clinit() {
 
 type ProcessDefines_Builder struct {
 	compiler_               *AbstractCompiler
-	replacementValues       *JTMap[string, Node]
+	replacementValues       *TMap[string, Node]
 	mode_                   ProcessDefines_Mode
 	namespaceSupplier       func() any
 	recognizeClosureDefines bool
@@ -655,7 +655,7 @@ type ProcessDefines_Builder struct {
 }
 
 func (this *ProcessDefines_Builder) finit_ProcessDefines_Builder() {
-	this.replacementValues = jnewTMap_(jtc_string, jtc_Node)
+	this.replacementValues = newTMap_(tc_string, tc_Node)
 	this.recognizeClosureDefines = true
 	this.enableZonesDefineName = Optional_empty[string]()
 	this.zoneInputPattern = nil

@@ -861,7 +861,7 @@ func (this Node) setNodePropertySideEffectFlags(propSet int64, sideEffectFlags i
 
 func (this Node) getPropListDebugString() string {
 	var propListItem *Node_PropListItem = this.propListHead_get_()
-	var propListStrRepr *JTList[string] = jnewTList_(jtc_string)
+	var propListStrRepr *TList[string] = newTList_(tc_string)
 	for propListItem != nil {
 		propListStrRepr.add(Node_Prop_values()[propListItem.propType].name())
 		propListItem = propListItem.next_

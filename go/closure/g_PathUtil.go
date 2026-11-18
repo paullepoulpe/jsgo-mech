@@ -22,7 +22,7 @@ func PathUtil_collapseDots(path string) string {
 	if !strings.Contains(path, ".") {
 		return path
 	}
-	var dstFragments *JTList[string] = jnewTList_(jtc_string)
+	var dstFragments *TList[string] = newTList_(tc_string)
 	for fragment := range elemsBy_(Splitter_on('/').split_s(path), str_) {
 		if fragment == ".." {
 			if !dstFragments.isEmpty() {

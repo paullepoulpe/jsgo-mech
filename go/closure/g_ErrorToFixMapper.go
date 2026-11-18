@@ -6,11 +6,11 @@ import "strings"
 
 type ErrorToFixMapper struct {
 	compiler_             *AbstractCompiler
-	metadataForEachScript *JTMap[Node, *ScriptMetadata]
+	metadataForEachScript *TMap[Node, *ScriptMetadata]
 }
 
 func (this *ErrorToFixMapper) finit_ErrorToFixMapper() {
-	this.metadataForEachScript = jnewTMap_(jtc_Node, jtc_p_ScriptMetadata)
+	this.metadataForEachScript = newTMap_(tc_Node, tc_p_ScriptMetadata)
 }
 
 func (this *ErrorToFixMapper) init_ErrorToFixMapper(compiler *AbstractCompiler) {
@@ -104,7 +104,7 @@ func (this *ErrorToFixMapper) getFixForRedeclaration(error_ *JSError) *Suggested
 	if parent.hasOneChild() {
 		return fix.replace(parent, assign, this.compiler_).build()
 	}
-	var childrenOfAddedVarStatement *JTList[Node] = jnewTList_(jtc_Node)
+	var childrenOfAddedVarStatement *TList[Node] = newTList_(tc_Node)
 	{
 		var n Node = parent.getFirstChild()
 		for ; n != 0; n = n.getNext() {

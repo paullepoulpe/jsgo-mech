@@ -141,7 +141,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 
 func (this *ExpressionDecomposer) rewriteAllContainingOptionalChains(subExpression Node) {
 	var optChainRewriterBuilder *OptionalChainRewriter_Builder = OptionalChainRewriter_builder(this.compiler_).setTmpVarNameCreator(newFuncObj_(func() string { return this.getTempConstantValueName() })).setScope(this.scope_)
-	var rewriters *TDeque[*OptionalChainRewriter] = newTDeque_(jtc_p_OptionalChainRewriter)
+	var rewriters *TDeque[*OptionalChainRewriter] = newTDeque_(tc_p_OptionalChainRewriter)
 	{
 		var exprParent Node = subExpression.getParent()
 		for ; !NodeUtil_isStatement(exprParent); exprParent = exprParent.getParent() {

@@ -37,12 +37,12 @@ func new_TemplateTypeReplacer(registry *JSTypeRegistry, bindings *TemplateTypeMa
 	return this
 }
 
-func TemplateTypeReplacer_forInference(registry *JSTypeRegistry, bindings *JTMap[*TemplateType, *JSType]) *TemplateTypeReplacer {
+func TemplateTypeReplacer_forInference(registry *JSTypeRegistry, bindings *TMap[*TemplateType, *JSType]) *TemplateTypeReplacer {
 	var keys *ImmutableList[*TemplateType] = immutableListCopyOf_(tc_p_TemplateType, Collection(bindings.asMap().keySet()))
 	var values []*JSType
 	for _, el := range keys.items {
 		key := el
-		var value *JSType = bindings.get(key)
+		var value *JSType = bindings.Get(key)
 		values = immAddObj_(tc_p_JSType, values, func() any {
 			if value != nil {
 				return value.self()
@@ -253,7 +253,7 @@ func (this *TemplateTypeReplacer) caseUnionType(type_ *UnionType) any {
 
 func (this *TemplateTypeReplacer) caseUnionTypeUnguarded(type_ *UnionType) *JSType {
 	var changed bool = false
-	var results *JTList[*JSType] = jnewTList_(jtc_p_JSType)
+	var results *TList[*JSType] = newTList_(tc_p_JSType)
 	var alternates *ImmutableList[*JSType] = type_.getAlternates()
 	var alternateCount int32 = alternates.size()
 	for i := int32(0); i < alternateCount; i++ {

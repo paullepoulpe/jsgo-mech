@@ -20,14 +20,14 @@ func (this *TypedScope) up_AbstractScope() *AbstractScope {
 	return &this.AbstractScope
 }
 
-func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *JTSet[string], module *Module) {
+func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *TSet[string], module *Module) {
 	this.AbstractScope.init_AbstractScope(rootNode)
 	this.checkChildScope(parent.up_AbstractScope())
 	this.parent = parent
 	this.depth = (parent.depth + 1)
 	this.isBottomField = false
 	this.reservedNames = func() *TSet[string] {
-		if reservedNames.isEmpty() {
+		if reservedNames.IsEmpty() {
 			return immutableSetOf_(tc_string)
 		}
 		return tsetFrom_(tc_string, Collection(reservedNames.asSet()), false)
@@ -35,7 +35,7 @@ func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *Typed
 	this.module_ = module
 }
 
-func new_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *JTSet[string], module *Module) *TypedScope {
+func new_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *TSet[string], module *Module) *TypedScope {
 	this := &TypedScope{}
 	this.self_ = this
 	this.init_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, reservedNames, module)
@@ -60,7 +60,7 @@ func new_TypedScope_Node_boolean(rootNode Node, isBottom bool) *TypedScope {
 }
 
 func TypedScope_createFromParent(parent *TypedScope, rootNode Node) *TypedScope {
-	return new_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, jnewTSet_(jtc_string), nil)
+	return new_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, newTSet_(tc_string), nil)
 }
 
 func TypedScope_createGlobalScope(rootNode Node) *TypedScope {

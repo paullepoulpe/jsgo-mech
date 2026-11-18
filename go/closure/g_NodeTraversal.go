@@ -14,14 +14,14 @@ type NodeTraversal struct {
 	currentFunction                                Node
 	currentScript                                  Node
 	currentChangeScope                             Node
-	scopes                                         *JTList[any]
+	scopes                                         *TList[any]
 	sourceName_                                    Optional[string]
 	inputId                                        *InputId
 	compilerInput                                  *CompilerInput
 }
 
 func (this *NodeTraversal) finit_NodeTraversal() {
-	this.scopes = jnewTList_(tc_Object)
+	this.scopes = newTList_(tc_Object)
 	this.sourceName_ = Optional_empty[string]()
 }
 
@@ -872,7 +872,7 @@ func (this *NodeTraversal) initTraversal(traversalRoot Node) {
 }
 
 func (this *NodeTraversal) initScopeRoots(n Node) {
-	var queuedScopeRoots *TDeque[Node] = newTDeque_(jtc_Node)
+	var queuedScopeRoots *TDeque[Node] = newTDeque_(tc_Node)
 	for n != 0 {
 		if this.isScopeRoot(n) {
 			queuedScopeRoots.push(n)
