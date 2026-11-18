@@ -49,7 +49,7 @@ func (this *ColorSerializer) addColor(color *Color) int32 {
 	}}))
 }
 
-func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func(any) any, getMismatchSourceRefsFn FunctionOf[*Color, SetOf[string]]) *TypePool {
+func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func(any) any, getMismatchSourceRefsFn func(any) any) *TypePool {
 	var typePoolBuilder *TypePool_Builder = TypePool_newBuilder()
 	for i := int32(TypePointers_untrimOffset(0)); i < this.colorsInSerializedOrder.size(); i++ {
 		var color *Color = this.colorsInSerializedOrder.get(i)
@@ -69,7 +69,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 		for it_4.next() {
 			var color *Color = it_4.v
 			var typePointer any = this.colorIdToTypePointer.get(color.getId())
-			for srcRef := range elemsBy_(icast_Set(getMismatchSourceRefsFn.apply(obj_(color))), str_) {
+			for srcRef := range elemsBy_(icast_Set(getMismatchSourceRefsFn(obj_(color))), str_) {
 				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent(srcRef, &Function_tfn_string_any{func(key string) any {
 					return new_ArrayList_0().self()
 				}})
