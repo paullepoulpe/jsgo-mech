@@ -360,7 +360,7 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 		}
 		var classVar *Var = nil
 		if classVarName.isPresent() && NodeUtil_isValidSimpleName(classVarName.get()) {
-			classVar = Preconditions_checkNotNull_Object_Object_T(cast_[*Var](scope.getVar(classVarName.get()).self()), classVarName.get())
+			classVar = Preconditions_checkNotNull_Object_Object_T(cast_[*Var](scope.getVar(classVarName.get()).self()), strobj_(classVarName.get()))
 		}
 		if (classVar == nil) || !classVar.isGlobal() {
 			this.traverseChildren(callNode, scope)

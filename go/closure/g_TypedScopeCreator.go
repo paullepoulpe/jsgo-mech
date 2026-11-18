@@ -1303,7 +1303,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createFunctionTypeFromNodes(
 			ownerType = ObjectType_cast(this.currentScope.lookupQualifiedName(QualifiedName_of(ownerName.get())))
 		}
 		if ownerName.isPresent() && name.isPresent() {
-			Preconditions_checkState_boolean_String_Object_Object(String_startsWith(name.get(), ownerName.get()), "Expected \"%s\" to start with \"%s\"", name.get(), ownerName.get())
+			Preconditions_checkState_boolean_String_Object_Object(String_startsWith(name.get(), ownerName.get()), "Expected \"%s\" to start with \"%s\"", strobj_(name.get()), strobj_(ownerName.get()))
 			propName = Optional_of[string](String_substring_int(name.get(), (String_length(ownerName.get()) + 1)))
 		}
 	}
