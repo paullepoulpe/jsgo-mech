@@ -48,7 +48,8 @@ func (this *SortedDependencies[InputT]) getStrongDependenciesOf(rootInputs ListO
 	for !worklist.isEmpty() {
 		var input InputT = worklist.pop()
 		if includedInputs.add(input) {
-			for symbolName := range elemsBy_(obj_(input.getRequiredSymbols()), str_) {
+			for _, el := range immElems_(input.getRequiredSymbols()) {
+				symbolName := str_(el)
 				var importedSymbolName InputT = this.exportingInputBySymbolName.get(symbolName)
 				if !jisnull_(importedSymbolName) {
 					worklist.add(importedSymbolName)
@@ -153,14 +154,16 @@ func (this *SortedDependencies[InputT]) processInputs() {
 		if firstProvide.isEmpty() || (((provides.size() == 1) && strings.HasPrefix(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
 			this.nonExportingInputs.put(ModuleNames_fileToModuleName(userOrderedInput.getName()), userOrderedInput)
 		}
-		for providedSymbolName := range elemsBy_(obj_(userOrderedInput.getProvides()), str_) {
+		for _, el := range immElems_(userOrderedInput.getProvides()) {
+			providedSymbolName := str_(el)
 			this.exportingInputBySymbolName.put(providedSymbolName, userOrderedInput)
 		}
 	}
 	it_5 := this.userOrderedInputs.each()
 	for it_5.next() {
 		var userOrderedInput InputT = it_5.v
-		for symbolName := range elemsBy_(obj_(userOrderedInput.getRequiredSymbols()), str_) {
+		for _, el2 := range immElems_(userOrderedInput.getRequiredSymbols()) {
+			symbolName := str_(el2)
 			var importedInput InputT = this.exportingInputBySymbolName.get(symbolName)
 			if !jisnull_(importedInput) {
 				this.importedInputByImportingInput.put(boxT_(userOrderedInput), boxT_(importedInput))

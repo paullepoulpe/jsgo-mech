@@ -277,7 +277,8 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 		it_5 := rvaluesAssignedToName.each()
 		for it_5.next() {
 			var callables *ImmutableList = it_5.v
-			for rvalue := range elemsBy_(obj_(callables), Node_of_) {
+			for _, el := range immElems_(callables) {
+				rvalue := Node_of_(el)
 				if rvalue.isFunction() {
 					this.summariesForAllNamesOfFunctionByNode.put(rvalue.box_(), obj_(summaryForName))
 				} else if NodeUtil_isUndefined(rvalue) {
