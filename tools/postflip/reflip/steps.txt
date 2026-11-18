@@ -601,3 +601,7 @@ a97d418c patch 423-a97d418c-manual.patch
 97b8d1bf run t adapters && f
 # 426. postflip (runtime, re-flip): no allocation sampling unless a heap profile is asked for
 95b92033 patch 426-95b92033-rt.patch
+# 427. postflip (runtime, re-flip): objhashId_ and hashId_ of a Node hash the handle without boxing it
+938295dd patch 427-938295dd-rt.patch
+# 428. postflip (manual, re-flip): HamtPMap hashes a key without boxing it
+65fbff8a patch 428-65fbff8a-manual.patch
