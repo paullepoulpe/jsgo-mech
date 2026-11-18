@@ -117,6 +117,6 @@ func Collections_shuffle(l List, rnd *Random) {
 	}
 }
 
-func ImmutableList_sortedCopyOf_Iterable(elements Iterable) *ImmutableList {
+func ImmutableList_sortedCopyOf_Iterable(elements Iterable) *ErasedImmutableList {
 	return ImmutableList_sortedCopyOf(nil, elements)
 }
