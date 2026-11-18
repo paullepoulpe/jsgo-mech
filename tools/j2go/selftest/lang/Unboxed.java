@@ -181,6 +181,10 @@ public class Unboxed {
     public String toString() {
       return "named:" + name();
     }
+
+    Named me() {
+      return this;
+    }
   }
 
   static final class Thrower {
@@ -233,8 +237,88 @@ public class Unboxed {
         + " " + l.equals(asList) + (o instanceof List) + asList.get(1) + built("a", "b").size();
   }
 
+  // ---- typed Object methods: the generated members of a record, string concatenation
+  enum Tone {
+    LOW,
+    HIGH {
+      @Override
+      public String toString() {
+        return "high!";
+      }
+    }
+  }
+
+  static final class Plain {
+    final int n;
+
+    Plain(int n) {
+      this.n = n;
+    }
+
+    @Override
+    public String toString() {
+      return "plain" + n;
+    }
+  }
+
+  static final class Valued {
+    final String v;
+
+    Valued(String v) {
+      this.v = v;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof Valued other && other.v.equals(v);
+    }
+
+    @Override
+    public int hashCode() {
+      return v.length();
+    }
+
+    @Override
+    public String toString() {
+      return "valued:" + v;
+    }
+  }
+
+  record Mixed(Plain plain, Valued valued, Tone tone, Shape shape, Box box, List<String> list, Object any, String str, int i, long l, boolean b, double d, char c, short s) {}
+
+  record Pair(Valued left, Valued right) {}
+
+  static Mixed mixed(Plain p, String v, Tone t, Shape sh, Box bx, String str, int i) {
+    List<String> l = new ArrayList<>();
+    l.add("e" + i);
+    return new Mixed(p, v == null ? null : new Valued(v), t, sh, bx, i < 0 ? null : l, i == 0 ? null : (Object) Integer.valueOf(i), str, i, 1L << 40 | i, i > 1, i / 4.0, (char) ('a' + i), (short) -i);
+  }
+
+  static String typedObjects() {
+    Plain p = new Plain(1), noPlain = null;
+    Named named = new Named();
+    Shape shape = named, noShape = null;
+    Box box = named, noBox = null;
+    Tone tone = Tone.HIGH, noTone = null;
+    Mixed a = mixed(p, "v", Tone.LOW, shape, box, "s", 2), same = mixed(p, "v", Tone.LOW, shape, box, "s", 2);
+    Mixed nulls = mixed(null, null, null, null, null, null, -1), nulls2 = mixed(null, null, null, null, null, null, -1);
+    StringBuilder eq = new StringBuilder();
+    Mixed[] others = {
+      mixed(new Plain(1), "v", Tone.LOW, shape, box, "s", 2), mixed(p, "w", Tone.LOW, shape, box, "s", 2), mixed(p, "v", Tone.HIGH, shape, box, "s", 2),
+      mixed(p, "v", Tone.LOW, new Named(), box, "s", 2), mixed(p, "v", Tone.LOW, shape, new Named(), "s", 2), mixed(p, "v", Tone.LOW, shape, box, "t", 2),
+      mixed(p, "v", Tone.LOW, shape, box, "s", 3), mixed(p, null, Tone.LOW, shape, box, "s", 2), mixed(p, "v", Tone.LOW, shape, box, null, 2), nulls
+    };
+    for (Mixed o : others) eq.append(a.equals(o) ? 'T' : 'F').append(o.equals(a) ? 'T' : 'F');
+    Pair pair = new Pair(new Valued("ab"), null);
+    return a.equals(same) + " " + (a.hashCode() == same.hashCode()) + " " + nulls.equals(nulls2) + " " + (nulls.hashCode() == nulls2.hashCode()) + " " + eq
+        + " " + a.equals(null) + a.equals("x") + " " + pair + " " + pair.hashCode() + " " + pair.equals(new Pair(new Valued("ab"), null)) + pair.equals(new Pair(null, null))
+        + " " + new Pair(null, new Valued("abc")).hashCode() + " " + nulls + " " + a
+        + " | " + p + noPlain + shape + noShape + box + noBox + tone + noTone + Tone.LOW + pair.left() + pair.right() + new Plain(7) + named.me() + a.list() + nulls.list() + a.any() + a.str() + nulls.str();
+  }
+
   public static String run() {
     p(upcasts());
+    p(typedObjects());
     p(nonNull());
     p(bare());
     p(messages());

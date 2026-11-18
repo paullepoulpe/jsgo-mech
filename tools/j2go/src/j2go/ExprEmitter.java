@@ -641,8 +641,32 @@ abstract class ExprEmitter extends Base {
           case DOUBLE: return "dstr_(" + expr(t) + ")";
           default: return "istr_(int64(" + expr(t) + "))";
         }
+      default: {
+        // an object at its static type (Conv.typedStr), else through Object
+        String typed = cx.conv.typedStr("", ty) == null || !declaredAs(t, ty) ? null : cx.conv.typedStr(expr(t), ty);
+        return typed != null ? typed : "objstr_(" + asAny(t) + ")";
+      }
+    }
+  }
+
+  /**
+   * Whether the value of t has type ty by its declaration: a variable, a field or the result of
+   * a method declared with that (erased) type, a new object or `this`. Such an expression at
+   * its own type is the code that the conversion to Object boxes; any other one (a result or a
+   * field of a type variable's type, a conditional) is cast first when it is used at its type.
+   */
+  boolean declaredAs(ExpressionTree t, TypeMirror ty) {
+    switch (t.getKind()) {
+      case NEW_CLASS:
+        return true;
+      case IDENTIFIER, MEMBER_SELECT, METHOD_INVOCATION: {
+        Element e = elemOf(t.getKind() == Tree.Kind.METHOD_INVOCATION ? ((MethodInvocationTree) t).getMethodSelect() : t);
+        if (e instanceof ExecutableElement m) return cx.types.isSameType(cx.types.erasure(m.getReturnType()), cx.types.erasure(ty));
+        if (e instanceof VariableElement v) return cx.types.isSameType(cx.types.erasure(v.asType()), cx.types.erasure(ty));
+        return false;
+      }
       default:
-        return "objstr_(" + asAny(t) + ")";
+        return false;
     }
   }
 

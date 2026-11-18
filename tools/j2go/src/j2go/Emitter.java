@@ -835,7 +835,9 @@ final class Emitter extends StmtEmitter {
       for (VariableElement f : fields) {
         String fn = cx.fieldName(f);
         Ctx.K k = cx.kind(f.asType());
+        String typed = cx.conv.typedEquals("this." + fn, "o." + fn, f.asType());
         if (k == Ctx.K.PRIM || k == Ctx.K.STR) b.append(" && this.").append(fn).append(" == o.").append(fn);
+        else if (typed != null) b.append(" && ").append(typed);
         else b.append(" && Objects_equals(").append(cx.coerce("this." + fn, f.asType(), objectType())).append(", ").append(cx.coerce("o." + fn, f.asType(), objectType())).append(")");
       }
       file.append("func (this *").append(n).append(") equals(p0 any) bool {\n").append(b).append("\n}\n\n");
@@ -843,7 +845,9 @@ final class Emitter extends StmtEmitter {
     if (!hasHash) {
       StringBuilder b = new StringBuilder("\tvar h int32\n");
       for (VariableElement f : fields) {
-        b.append("\th = h*31 + Objects_hashCode(").append(cx.coerce("this." + cx.fieldName(f), f.asType(), objectType())).append(")\n");
+        String typed = cx.conv.typedHash("this." + cx.fieldName(f), f.asType());
+        if (typed != null) b.append("\th = h*31 + ").append(typed).append("\n");
+        else b.append("\th = h*31 + Objects_hashCode(").append(cx.coerce("this." + cx.fieldName(f), f.asType(), objectType())).append(")\n");
       }
       file.append("func (this *").append(n).append(") hashCode() int32 {\n").append(b).append("\treturn h\n}\n\n");
     }
@@ -851,10 +855,30 @@ final class Emitter extends StmtEmitter {
       StringBuilder b = new StringBuilder("\treturn " + quote(te.getSimpleName() + "["));
       boolean first = true;
       for (VariableElement f : fields) {
-        b.append(" + ").append(quote((first ? "" : ", ") + f.getSimpleName() + "=")).append(" + objstr_(").append(cx.coerce("this." + cx.fieldName(f), f.asType(), objectType())).append(")");
+        b.append(" + ").append(quote((first ? "" : ", ") + f.getSimpleName() + "=")).append(" + ").append(valueStr("this." + cx.fieldName(f), f.asType()));
         first = false;
       }
       file.append("func (this *").append(n).append(") toString() string {\n").append(b).append(" + \"]\"\n}\n\n");
+    }
+  }
+
+  /** String.valueOf of a value of type t, as string concatenation converts it. */
+  String valueStr(String v, TypeMirror t) {
+    TypeMirror et = cx.erase(t);
+    switch (cx.kind(et)) {
+      case STR: return "sstr_(" + v + ")";
+      case PRIM:
+        switch (et.getKind()) {
+          case CHAR: return "chrstr_(" + v + ")";
+          case BOOLEAN: return "boolstr_(" + v + ")";
+          case FLOAT: return "fstr_(" + v + ")";
+          case DOUBLE: return "dstr_(" + v + ")";
+          default: return "istr_(int64(" + v + "))";
+        }
+      default: {
+        String typed = cx.conv.typedStr(v, t);
+        return typed != null ? typed : "objstr_(" + cx.coerce(v, t, objectType()) + ")";
+      }
     }
   }
 

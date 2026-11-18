@@ -273,6 +273,34 @@ translation, for bisecting.
   result is not a subtype in Java (`Builder.build()` is declared `*ImmutableCollection` in
   the runtime; as a `List` it is `ImmutableCollection_as_List(b.build())`).
 
+- *Typed Object methods* (`Conv.typedEquals` / `typedHash` / `typedStr`, `J2GO_NOTYPEDOBJ`).
+  The members that the translator generates for a record, and string concatenation, apply
+  `Objects.equals`, `Objects.hashCode` and `String.valueOf` to values whose static type is
+  known. They are written at that type:
+
+  ```go
+  func (this *Property) equals(p0 any) bool {
+  	o, ok := p0.(*Property)
+  	if !ok || o == nil {
+  		return false
+  	}
+  	return true && this.name_ == o.name_ && this.kind_ == o.kind_ && equals_(this.owner_, o.owner_)
+  }
+  ```
+
+  Two values of an enum, or of a class of the program without subclasses that has no
+  `equals` but `Object`'s, are compared with `==` (what `Objects.equals` does for them).
+  Otherwise a pointer to a class without subclasses or an interface goes to the generic
+  runtime functions `equals_(a, b)`, `hash_(v)`, `tostr_(v)` (`rt_conv.go`; null is the zero
+  value), a handle to `equalsH_` / `hashH_` / `tostrH_`. In a record's `hashCode` a `String`
+  is `strhash_(s)` (0 for null), an `int` is itself, the other primitives are `boolhash_`,
+  `longhash_`, `dblhash_`; in `toString` they are converted as string concatenation converts
+  them. `"" + v` is `tostr_(v)` when `v` has its type by declaration (a variable, a field or
+  a method's result of that erased type, a new object); a value that would be cast to its
+  static type first (the result of an erased generic) is still converted as an Object, without
+  the cast. What keeps the conversion to Object: a class with subclasses (`objstr_(v.self())`:
+  the most derived object decides), typed collections (their view), value types.
+
 **Type arguments in declarations.** Library types stay erased; the declared type of a field,
 local or parameter whose Java type is a parameterized library type is written through a generic
 alias: `List<Reference>` becomes

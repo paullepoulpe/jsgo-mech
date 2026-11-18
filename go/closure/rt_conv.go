@@ -1,6 +1,9 @@
 package closure
 
-import "reflect"
+import (
+	"math"
+	"reflect"
+)
 
 // The runtime side of the translator's conversions that need no box (tools/j2go, Conv.java).
 
@@ -152,4 +155,46 @@ func Preconditions_checkArgument_boolean_String_Object_H[M handle_](b bool, t st
 	if !b {
 		argFail_(Strings_lenientFormat(t, []any{p1.box_()}))
 	}
+}
+
+// ---- Typed Object methods: Objects.equals, Objects.hashCode and String.valueOf of values
+// held at their static type (the members that the translator generates for a record, and string
+// concatenation). equals_, hash_ and tostr_ are for a pointer to a class without subclasses or
+// an interface, the H variants for a handle; null is the zero value.
+
+func equals_[T comparable](a, b T) bool { return objequals_(obj_(a), obj_(b)) }
+
+func hash_[T comparable](v T) int32 { return objhash_(obj_(v)) }
+
+func tostr_[T comparable](v T) string { return objstr_(obj_(v)) }
+
+func equalsH_[T handle_](a, b T) bool { return objequals_(a.box_(), b.box_()) }
+
+func hashH_[T handle_](v T) int32 { return objhash_(v.box_()) }
+
+func tostrH_[T handle_](v T) string { return objstr_(v.box_()) }
+
+// strhash_ is Objects.hashCode of a String: 0 for null.
+func strhash_(s string) int32 {
+	if s == nullstr_ {
+		return 0
+	}
+	return String_hashCode(s)
+}
+
+// boolhash_, longhash_ and dblhash_ are Boolean.hashCode, Long.hashCode and Double.hashCode
+// of a value (what Object_hashCode gives for the boxed value).
+
+func boolhash_(b bool) int32 {
+	if b {
+		return 1231
+	}
+	return 1237
+}
+
+func longhash_(v int64) int32 { return int32(v ^ int64(uint64(v)>>32)) }
+
+func dblhash_(v float64) int32 {
+	b := math.Float64bits(v)
+	return int32(b ^ (b >> 32))
 }

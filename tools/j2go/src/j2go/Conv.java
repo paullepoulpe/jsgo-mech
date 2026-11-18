@@ -213,4 +213,88 @@ final class Conv {
   boolean sameGoType(String gf, String gt) {
     return ALIAS && gf.startsWith("*") && gt.startsWith("*") && !gf.contains("[") && !gt.contains("[") && aliased(gf.substring(1)).equals(aliased(gt.substring(1)));
   }
+
+  // ------------------------------------------------------------------ typed Object methods
+
+  static final boolean TYPEDOBJ = !off("TYPEDOBJ");
+
+  /**
+   * The runtime helpers for equals / hashCode / toString of a value held at its static type:
+   * "" (equals_, hash_, tostr_: generic in a pointer to a class without subclasses or an
+   * interface, null is the zero value), "H" (the same for a handle), or null when the value
+   * has no such helper: a class with subclasses is its most derived object (v.self()), a typed
+   * collection its view, a value type its box, and an Object is one already.
+   */
+  String objHelper(TypeMirror t0) {
+    if (!TYPEDOBJ || t0 == null) return null;
+    TypeMirror t = cx.erase(t0);
+    if (cx.isTypedColl(t) || cx.isValueLibType(t)) return null;
+    switch (cx.kind(t)) {
+      case IFACE:
+        return "";
+      case CLS: {
+        TypeElement te = Ctx.typeElement(t);
+        if (cx.isValueLib(te)) return null;
+        if (cx.isHandle(te)) return "H";
+        if (cx.hasSelf(te) && !cx.isLeaf(te)) return null;
+        return cx.goType(t).startsWith("*") ? "" : null;
+      }
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Whether equals of every object of static type te is identity: an enum, or a class of the
+   * program without subclasses that neither declares nor inherits an equals(Object) other than
+   * Object's. Objects.equals(a, b) of two such values is a == b.
+   */
+  boolean identityEquals(TypeElement te) {
+    if (te == null || !cx.isSource(te)) return false;
+    if (te.getKind() == ElementKind.ENUM) return true;
+    if (te.getKind() != ElementKind.CLASS || !cx.isLeaf(te)) return false;
+    for (Element e : cx.elems.getAllMembers(te)) {
+      if (e instanceof ExecutableElement m && m.getSimpleName().contentEquals("equals") && m.getParameters().size() == 1
+          && !m.getModifiers().contains(Modifier.STATIC) && !cx.ownerOf(m).getQualifiedName().contentEquals("java.lang.Object")) return false;
+    }
+    return true;
+  }
+
+  /** Objects.equals(a, b) of two values of static type t without a box, or null (as before). */
+  String typedEquals(String a, String b, TypeMirror t) {
+    if (!TYPEDOBJ) return null;
+    TypeMirror et = cx.erase(t);
+    if (cx.kind(et) == Ctx.K.CLS && !cx.isTypedColl(et) && identityEquals(Ctx.typeElement(et))) return a + " == " + b;
+    String h = objHelper(t);
+    return h == null ? null : "equals" + h + "_(" + a + ", " + b + ")";
+  }
+
+  /** Objects.hashCode(v) (0 for null) of a value of static type t without a box, or null (as before). */
+  String typedHash(String v, TypeMirror t) {
+    if (!TYPEDOBJ) return null;
+    TypeMirror et = cx.erase(t);
+    switch (cx.kind(et)) {
+      case STR:
+        return "strhash_(" + v + ")";
+      case PRIM:
+        switch (et.getKind()) {
+          case BOOLEAN: return "boolhash_(" + v + ")";
+          case BYTE, SHORT, CHAR: return "int32(" + v + ")";
+          case INT: return v;
+          case LONG: return "longhash_(" + v + ")";
+          case DOUBLE: return "dblhash_(" + v + ")";
+          default: return null;
+        }
+      default: {
+        String h = objHelper(t);
+        return h == null ? null : "hash" + h + "_(" + v + ")";
+      }
+    }
+  }
+
+  /** String.valueOf(v) ("null" for null) of an object of static type t without a box, or null (as before). */
+  String typedStr(String v, TypeMirror t) {
+    String h = objHelper(t);
+    return h == null ? null : "tostr" + h + "_(" + v + ")";
+  }
 }
