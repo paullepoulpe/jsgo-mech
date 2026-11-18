@@ -491,3 +491,5 @@ f7492025 run bash tools/postflip/colls/run.sh
 ef603915 patch 345-ef603915-rt.patch
 # 346. postflip (runtime): test of removing through a typed set's iterator across the compactions it causes
 b1129850 patch 346-b1129850-rt.patch
+# 348. postflip (runtime): subList of a typed list's erased view boxes its range, not the whole list
+b0699ec8 patch 348-b0699ec8-rt.patch
