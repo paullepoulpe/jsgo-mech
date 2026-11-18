@@ -1,7 +1,10 @@
 package lang;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /** The conversions that need no box (j2go.Conv): the values must behave as the boxed ones did. */
 public class Unboxed {
@@ -98,8 +101,45 @@ public class Unboxed {
         + " " + (pick(d, false) == d) + " " + made.equals(d) + " " + (made == d) + " " + sized.size() + " " + (s instanceof Sized) + " " + take(b);
   }
 
+  // ---- typed non-null checks
+  static int evals;
+
+  static <T> T counted(T v) {
+    evals++;
+    return v;
+  }
+
+  static String caught(Runnable r) {
+    try {
+      r.run();
+      return "ok";
+    } catch (RuntimeException e) {
+      return e.getClass().getSimpleName() + ":" + e.getMessage();
+    }
+  }
+
+  static String nonNull() {
+    Dot d = new Dot(), none = null;
+    Box b = new Crate(), noBox = null;
+    Shape s = d, noShape = null;
+    String str = "s", noStr = null;
+    Shape viaCrate = checkNotNull(b);
+    Box sameBox = checkNotNull(b, "box");
+    Object o = Objects.requireNonNull(d);
+    checkNotNull(counted(str));
+    return (checkNotNull(d) == d) + " " + (sameBox == b) + " " + viaCrate.name() + " " + checkNotNull(s, "m %s", str).name() + " " + checkNotNull(str) + checkNotNull("lit", "x")
+        + " " + (o == d) + " " + Objects.requireNonNull(str, "msg").length() + " " + Objects.requireNonNull(b, "msg").name() + " " + evals
+        + " " + caught(() -> checkNotNull(none)) + " " + caught(() -> checkNotNull(noBox, "no box"))
+        + " " + caught(() -> checkNotNull(noShape, "no %s of %s", "shape", noStr)) + " " + caught(() -> checkNotNull(noStr))
+        + " " + caught(() -> checkNotNull(noStr, noBox)) + " " + caught(() -> checkNotNull(noStr, "%s|%s", d.name(), str))
+        + " " + caught(() -> Objects.requireNonNull(noStr)) + " " + caught(() -> Objects.requireNonNull(noStr, "why"))
+        + " " + caught(() -> Objects.requireNonNull(none)) + " " + caught(() -> Objects.requireNonNull(noShape, "shape"))
+        + " " + caught(() -> checkNotNull(counted(noBox))) + " " + evals;
+  }
+
   public static String run() {
     p(upcasts());
+    p(nonNull());
     return out.toString();
   }
 

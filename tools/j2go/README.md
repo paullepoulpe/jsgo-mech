@@ -237,6 +237,16 @@ translation, for bisecting.
   of two interfaces is in one group only), and values that are not statically subtypes (an
   erased result).
 
+- *Typed non-null checks* (`Conv.nonNull`, `J2GO_NONONNULL`). `<T> T checkNotNull(T, ...)` of
+  Guava's `Preconditions` and `<T> T requireNonNull(T, ...)` of `java.util.Objects` return
+  their first argument. The call is a Go generic function of the argument's static type
+  (`rt_conv.go`), which tests the value against the null of that type and returns it:
+  `this.compiler_ = Preconditions_checkNotNull_T(compiler)` where the erased translation was
+  `cast_[*Compiler](Preconditions_checkNotNull(obj_(compiler)))`. `_T` is for a class, an
+  interface or a handle (null is nil, the zero value), `_Str` for a `String` (null is the null
+  string). Arguments that are typed collections or value types (`Optional`) and boxed
+  primitives keep the function taking an object.
+
 **Type arguments in declarations.** Library types stay erased; the declared type of a field,
 local or parameter whose Java type is a parameterized library type is written through a generic
 alias: `List<Reference>` becomes

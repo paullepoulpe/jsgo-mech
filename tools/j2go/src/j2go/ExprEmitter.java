@@ -992,6 +992,13 @@ abstract class ExprEmitter extends Base {
       TypeMirror ret = cx.erase(cx.rtype(e));
       String name = cx.staticMethodName(e);
       if (!src) noteMethod("func " + name, e, params, ret, "static");
+      TypeMirror nn = src || args.isEmpty() ? null : cx.conv.nonNull(e, args.get(0).type);
+      if (nn != null) {
+        // a typed non-null check (Conv.nonNull): a generic function of the argument's type
+        List<TypeMirror> p2 = new ArrayList<>(params);
+        p2.set(0, nn);
+        return new CallResult(name + cx.conv.nonNullSuffix(nn) + "(" + argList(e, p2, args) + ")", nn);
+      }
       if ((src || cx.isValueLib(owner)) && !cx.keptOf(e.getTypeParameters()).isEmpty()) {
         // A generic function: instantiated with javac's inferred type arguments (kept ones).
         ExecutableType inst = curInst;

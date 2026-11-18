@@ -75,4 +75,33 @@ final class Conv {
     upcasts.put(fn, "func " + fn + "(v " + gf + ") " + gt + " {\n\tif v == nil {\n\t\treturn nil\n\t}\n\treturn v\n}\n");
     return fn + "(" + code + ")";
   }
+
+  // ------------------------------------------------------------------ non-null checks
+
+  static final boolean NONNULL = !off("NONNULL");
+
+  /**
+   * Rule "typed non-null checks": {@code <T> T checkNotNull(T, ...)} of Guava's Preconditions and
+   * {@code <T> T requireNonNull(T, ...)} of java.util.Objects return their first argument. The
+   * call is a Go generic function of the argument's static type, which tests the value against
+   * the null of that type (nil, or the null string) and returns it: no box and no cast back.
+   *
+   * @return the static type of the argument when the rule applies to a call of e (the type of
+   *     the parameter and of the result of the Go function), else null
+   */
+  TypeMirror nonNull(ExecutableElement e, TypeMirror arg) {
+    if (!NONNULL || arg == null) return null;
+    String o = cx.ownerOf(e).getQualifiedName().toString(), n = e.getSimpleName().toString();
+    if (!(o.equals("com.google.common.base.Preconditions") && n.equals("checkNotNull") || o.equals("java.util.Objects") && n.equals("requireNonNull"))) return null;
+    if (e.getReturnType().getKind() != TypeKind.TYPEVAR || e.getParameters().get(0).asType().getKind() != TypeKind.TYPEVAR) return null;
+    TypeMirror at = cx.erase(arg);
+    Ctx.K k = cx.kind(at);
+    if (k != Ctx.K.CLS && k != Ctx.K.IFACE && k != Ctx.K.STR || cx.isTypedColl(at) || cx.isValueLibType(at)) return null;
+    return at;
+  }
+
+  /** The suffix of the Go function of a typed non-null check: _Str tests for the null string, _T for nil. */
+  String nonNullSuffix(TypeMirror at) {
+    return cx.kind(at) == Ctx.K.STR ? "_Str" : "_T";
+  }
 }
