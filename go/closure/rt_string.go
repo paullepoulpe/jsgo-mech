@@ -602,11 +602,17 @@ func String_regionMatches(s string, ignoreCase bool, off int32, o string, ooff i
 }
 
 func String_join(sep any, it Iterable) string {
+	parts := joinParts_(it)
+	return strings.Join(parts, csString_(sep))
+}
+
+// joinParts_ is the texts of the elements that String.join joins.
+func joinParts_(it Iterable) []string {
 	var parts []string
 	for i := it.iterator(); i.hasNext(); {
 		parts = append(parts, objstr_(i.next()))
 	}
-	return strings.Join(parts, csString_(sep))
+	return parts
 }
 
 func String_join_CharSequence_CharSequenceArr(sep any, vs []any) string {

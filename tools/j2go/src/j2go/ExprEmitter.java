@@ -994,6 +994,12 @@ abstract class ExprEmitter extends Base {
     return cx.conv.bare(a.as(target), target);
   }
 
+  List<TypeMirror> argTypes(List<Arg> args) {
+    List<TypeMirror> out = new ArrayList<>();
+    for (Arg a : args) out.add(a.type == null ? null : cx.erase(a.type));
+    return out;
+  }
+
   List<TypeMirror> ownParams(ExecutableElement e) {
     List<TypeMirror> out = new ArrayList<>();
     for (VariableElement p : e.getParameters()) out.add(cx.erase(cx.vtype(p)));
@@ -1023,6 +1029,12 @@ abstract class ExprEmitter extends Base {
       TypeMirror ret = cx.erase(cx.rtype(e));
       String name = cx.staticMethodName(e);
       if (!src) noteMethod("func " + name, e, params, ret, "static");
+      if (!src) {
+        // a String for each CharSequence parameter: the variant taking strings (Conv.strSeq)
+        List<TypeMirror> sp = new ArrayList<>(params);
+        String sv = cx.conv.strSeq(name, e, sp, argTypes(args));
+        if (sv != null) return new CallResult(sv + "(" + argList(e, sp, args) + ")", ret);
+      }
       TypeMirror hm = src || args.isEmpty() ? null : cx.conv.handleMsg(e, name, params.size(), args.size(), args.get(args.size() - 1).type);
       if (hm != null) {
         // a handle as the message argument of a check (Conv.handleMsg)
@@ -1137,6 +1149,9 @@ abstract class ExprEmitter extends Base {
       TypeMirror ret = cx.erase(e.getReturnType());
       String name = cx.staticMethodName(e);
       String r = cx.coerce(recv.code, recv.type, owner.asType());
+      List<TypeMirror> sp = new ArrayList<>(params);
+      String sv = cx.conv.strSeq(name, e, sp, argTypes(args));
+      if (sv != null) return new CallResult(sv + "(" + r + ", " + argList(e, sp, args) + ")", ret);
       String al = argList(e, params, args);
       List<TypeMirror> full = new ArrayList<>();
       full.add(cx.erase(owner.asType()));
@@ -1151,6 +1166,12 @@ abstract class ExprEmitter extends Base {
     TypeMirror ret = cx.groupReturn(e, site);
     String name = cx.methodName(e);
     if (!src) noteMethod("method " + cx.className(cx.ownerOf(cx.root(e))) + "." + name, cx.root(e), params, ret, "method");
+    String strVariant = null;
+    if (!src && !superCall && recv != null) {
+      List<TypeMirror> sp = new ArrayList<>(params);
+      strVariant = cx.conv.strSeq(cx.className(cx.ownerOf(cx.root(e))) + "." + name, cx.root(e), sp, argTypes(args));
+      if (strVariant != null) params = sp;
+    }
     String target;
     if (superCall) {
       TypeElement sup = cx.superclass(cc().te);
@@ -1176,6 +1197,11 @@ abstract class ExprEmitter extends Base {
         rc = cx.coerce(rc, recv.type, owner.asType());
       }
       target = rc + "." + name;
+      if (strVariant != null) {
+        // the variant is a method of the class, or a function taking the receiver first
+        if (strVariant.contains("_") && Character.isUpperCase(strVariant.charAt(0))) return new CallResult(strVariant + "(" + rc + ", " + argList(e, params, args) + ")", ret);
+        target = rc + "." + strVariant;
+      }
     }
     return new CallResult(target + "(" + argList(e, params, args) + ")", ret);
   }

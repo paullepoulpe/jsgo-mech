@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
@@ -11,6 +13,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 
 /** The conversions that need no box (j2go.Conv): the values must behave as the boxed ones did. */
 public class Unboxed {
@@ -316,8 +320,70 @@ public class Unboxed {
         + " | " + p + noPlain + shape + noShape + box + noBox + tone + noTone + Tone.LOW + pair.left() + pair.right() + new Plain(7) + named.me() + a.list() + nulls.list() + a.any() + a.str() + nulls.str();
   }
 
+  // ---- a String for a CharSequence parameter
+  static final class Shout implements Appendable {
+    final StringBuilder sb = new StringBuilder();
+
+    @Override
+    public Appendable append(CharSequence s) {
+      sb.append(s == null ? "<null>" : "<" + s + ">");
+      return this;
+    }
+
+    @Override
+    public Appendable append(CharSequence s, int a, int b) {
+      sb.append(s, a, b);
+      return this;
+    }
+
+    @Override
+    public Appendable append(char c) {
+      sb.append(c);
+      return this;
+    }
+  }
+
+  static String appendTo(Appendable out, String a, String b) {
+    try {
+      out.append(a).append(b).append("lit").append(a, 1, 2);
+    } catch (java.io.IOException e) {
+      throw new RuntimeException(e);
+    }
+    return out instanceof Shout sh ? sh.sb.toString() : out.toString();
+  }
+
+  static String thrown(Runnable r) {
+    try {
+      r.run();
+      return "none";
+    } catch (RuntimeException e) {
+      return e.getClass().getSimpleName();
+    }
+  }
+
+  static String strSeqs() {
+    String s = "a-b-c", dash = "-", none = null;
+    CharSequence seq = dash;
+    Pattern p = Pattern.compile("b+");
+    Matcher m = p.matcher(s);
+    boolean found = m.find();
+    m.reset("xbbx");
+    List<String> parts = new ArrayList<>();
+    parts.add("p");
+    parts.add(null);
+    parts.add("q");
+    return s.contains(dash) + "" + s.contains(seq) + s.contains("z") + " " + s.replace(dash, "+") + s.replace("a", dash) + s.replace(seq, dash)
+        + " " + found + m.find() + m.group(0) + p.matcher(dash).find() + Pattern.matches("a.*", s)
+        + " " + Splitter.on('-').splitToList(s) + Splitter.on('-').split(s).iterator().next() + " " + CharMatcher.anyOf(dash).matchesAllOf("--") + CharMatcher.is('a').matchesAllOf(s)
+        + " " + String.join(dash, parts) + " " + appendTo(new StringBuilder(), s, none) + " " + appendTo(new Shout(), s, none) + " " + appendTo(new Shout(), "xyz", dash)
+        + " " + thrown(() -> s.contains(none)) + " " + thrown(() -> s.replace(none, dash)) + " " + thrown(() -> s.replace(dash, none)) + " " + thrown(() -> p.matcher(none))
+        + " " + thrown(() -> m.reset(none)) + " " + thrown(() -> Splitter.on('-').splitToList(none)) + " " + thrown(() -> String.join(none, parts))
+        + " " + thrown(() -> CharMatcher.anyOf(none)) + " " + thrown(() -> Pattern.matches("a", none));
+  }
+
   public static String run() {
     p(upcasts());
+    p(strSeqs());
     p(typedObjects());
     p(nonNull());
     p(bare());

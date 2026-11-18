@@ -344,6 +344,7 @@ public final class Main {
           .append(gt).append(")\n}\n");
     }
     for (String d : cx.conv.upcasts.values()) cb.append("\n").append(d);
+    cx.conv.strSeqReport();
     for (String d : cx.tconvs.values()) cb.append("\n").append(d);
     Files.writeString(out.resolve("g_0casts.go"), cb.toString());
     // Java names of the Go types, for getClass().

@@ -3,6 +3,7 @@ package closure
 import (
 	"math"
 	"reflect"
+	"strings"
 )
 
 // The runtime side of the translator's conversions that need no box (tools/j2go, Conv.java).
@@ -197,4 +198,56 @@ func longhash_(v int64) int32 { return int32(v ^ int64(uint64(v)>>32)) }
 func dblhash_(v float64) int32 {
 	b := math.Float64bits(v)
 	return int32(b ^ (b >> 32))
+}
+
+// ---- String for CharSequence: the variants (suffix _s) of library functions and methods that
+// declare a CharSequence, for a call that passes a String. They take the Go string, so the
+// translated code does not box it (a string in an interface is an allocation). Each does what
+// the function taking the sequence does with a string: csStr_ is csString_ for a String (null
+// is the NullPointerException that calling a method of the null sequence throws). The variants of
+// Pattern.matcher, Matcher.reset, CharMatcher.matchesAllOf and CharMatcher.anyOf are next to
+// the functions they vary.
+
+func csStr_(s string) string {
+	if s == nullstr_ {
+		panic(new_NullPointerException_0().self())
+	}
+	return s
+}
+
+func String_contains_s(s string, sub string) bool { return strings.Contains(s, csStr_(sub)) }
+
+func String_replace_s(s string, a string, b string) string {
+	return strings.ReplaceAll(s, csStr_(a), csStr_(b))
+}
+
+func String_join_s(sep string, it Iterable) string {
+	parts := joinParts_(it)
+	return strings.Join(parts, csStr_(sep))
+}
+
+func Pattern_matches_s(regex string, input string) bool {
+	return Pattern_compile(regex).matcher_s(input).matches()
+}
+
+func (this *Splitter) split_s(seq string) Iterable { return listOf_(this.splitAll_(csStr_(seq))) }
+
+func (this *Splitter) splitToList_s(seq string) List { return listOf_(this.splitAll_(csStr_(seq))) }
+
+// Appendable_append_s is Appendable.append(CharSequence) for a String: a StringBuilder appends
+// the string (null appends "null"); any other Appendable (a class of the program) gets the
+// sequence as an object.
+func Appendable_append_s(a Appendable, s string) Appendable {
+	if sb, ok := a.(*StringBuilder); ok {
+		return sb.append(s)
+	}
+	return a.append_CharSequence(strobj_(s))
+}
+
+// Appendable_append_s_int_int is Appendable.append(CharSequence, int, int) for a String.
+func Appendable_append_s_int_int(a Appendable, s string, start int32, end int32) Appendable {
+	if sb, ok := a.(*StringBuilder); ok {
+		return sb.append(String_substring(csStr_(s), start, end))
+	}
+	return a.append_CharSequence_int_int(strobj_(s), start, end)
 }

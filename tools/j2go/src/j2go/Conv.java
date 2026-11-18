@@ -297,4 +297,72 @@ final class Conv {
     String h = objHelper(t);
     return h == null ? null : "tostr" + h + "_(" + v + ")";
   }
+
+  // ------------------------------------------------------------------ String for CharSequence
+
+  static final boolean STRSEQ = !off("STRSEQ");
+  static final boolean STRSEQ_REPORT = System.getenv("J2GO_STRSEQ") != null;
+
+  /**
+   * The library functions and methods (by their Go names) that have a variant taking a Go string
+   * where Java declares a CharSequence (rt_conv.go): name -> the variant. A method of a class is
+   * "Class.method"; a variant without a dot for a method is a function taking the receiver first
+   * (the method of an interface that classes of the program implement too).
+   */
+  static final Map<String, String> STR_SEQ = Map.ofEntries(
+      Map.entry("String_contains", "String_contains_s"),
+      Map.entry("String_replace", "String_replace_s"),
+      Map.entry("Pattern_matches", "Pattern_matches_s"),
+      Map.entry("Pattern.matcher", "matcher_s"),
+      Map.entry("Matcher_re2j.reset", "reset_s"),
+      Map.entry("String_join", "String_join_s"),
+      Map.entry("CharMatcher_anyOf", "CharMatcher_anyOf_s"),
+      Map.entry("Appendable.append_CharSequence_int_int", "Appendable_append_s_int_int"),
+      Map.entry("CharMatcher.matchesAllOf", "matchesAllOf_s"),
+      Map.entry("Splitter.split", "split_s"),
+      Map.entry("Splitter.splitToList", "splitToList_s"),
+      Map.entry("Appendable.append_CharSequence", "Appendable_append_s"));
+
+  /** What J2GO_STRSEQ=1 reports: calls passing a String for a CharSequence that have no variant, by name. */
+  final TreeMap<String, Integer> strSeqLeft = new TreeMap<>();
+
+  boolean isCharSequence(TypeMirror t) {
+    TypeElement te = Ctx.typeElement(cx.erase(t));
+    return te != null && te.getQualifiedName().contentEquals("java.lang.CharSequence");
+  }
+
+  /**
+   * Rule "String for CharSequence": a call of a library method that declares CharSequence
+   * parameters, with a String for each of them, calls the variant of the method that takes Go
+   * strings (STR_SEQ), so that the string is not boxed (which allocates). The variant does what
+   * the method does with the string of the sequence: null (the null string) is the
+   * NullPointerException of the method, or the text "null" where Java appends that.
+   *
+   * @param name the Go name of the method ("Class.method") or function
+   * @param params the erased parameter types; those that are CharSequence become String
+   * @return the name of the variant (params is changed), or null when the call stays as it is
+   */
+  String strSeq(String name, ExecutableElement e, List<TypeMirror> params, List<TypeMirror> args) {
+    if (!STRSEQ || e.isVarArgs() || params.size() != args.size()) return null;
+    boolean any = false;
+    for (int i = 0; i < params.size(); i++) {
+      if (!isCharSequence(e.getParameters().get(i).asType())) continue;
+      if (args.get(i) == null || cx.kind(args.get(i)) != Ctx.K.STR) return null;
+      any = true;
+    }
+    if (!any) return null;
+    String v = STR_SEQ.get(name);
+    if (v == null) {
+      strSeqLeft.merge(name, 1, Integer::sum);
+      return null;
+    }
+    TypeMirror string = cx.elems.getTypeElement("java.lang.String").asType();
+    for (int i = 0; i < params.size(); i++) if (isCharSequence(e.getParameters().get(i).asType())) params.set(i, string);
+    return v;
+  }
+
+  void strSeqReport() {
+    if (!STRSEQ_REPORT) return;
+    for (var en : strSeqLeft.entrySet()) System.err.println("strseq: left " + en.getValue() + " " + en.getKey() + ": no variant taking a string");
+  }
 }

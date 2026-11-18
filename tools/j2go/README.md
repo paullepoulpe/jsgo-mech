@@ -301,6 +301,21 @@ translation, for bisecting.
   the cast. What keeps the conversion to Object: a class with subclasses (`objstr_(v.self())`:
   the most derived object decides), typed collections (their view), value types.
 
+- *String for CharSequence* (`Conv.strSeq`, `J2GO_NOSTRSEQ`; `J2GO_STRSEQ=1` reports the calls
+  left). `CharSequence` is `any` in Go, so a `String` passed for one is boxed, and a string in
+  an interface is an allocation. A call of a library method with a `String` for each of its
+  `CharSequence` parameters calls a variant that takes Go strings, where the runtime has one
+  (`Conv.STR_SEQ`; suffix `_s`, in `rt_conv.go` or next to the function it varies):
+  `String_contains_s(name, prefix)`, `String_replace_s`, `String_join_s`,
+  `pattern.matcher_s(line)`, `matcher.reset_s`, `Pattern_matches_s`, `splitter.split_s` /
+  `splitToList_s`, `charMatcher.matchesAllOf_s`, `CharMatcher_anyOf_s`. The variant does what
+  the method does with the text of the sequence; the null string is the
+  `NullPointerException` of a null sequence. `Appendable.append(CharSequence)` is a method
+  that classes of the program implement too, so its variant is a function taking the receiver
+  first: `Appendable_append_s(out, s)` appends the string to a `StringBuilder` (null appends
+  "null") and gives any other `Appendable` the boxed sequence. A method of the *program* that
+  declares a `CharSequence` keeps the box: it tests the sequence for null.
+
 **Type arguments in declarations.** Library types stay erased; the declared type of a field,
 local or parameter whose Java type is a parameterized library type is written through a generic
 alias: `List<Reference>` becomes

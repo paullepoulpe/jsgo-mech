@@ -59,8 +59,11 @@ func (this *CharMatcher) lastIndexIn(seq any) int32 {
 	return -1
 }
 
-func (this *CharMatcher) matchesAllOf(seq any) bool {
-	for _, c := range String_toCharArray(csString_(seq)) {
+func (this *CharMatcher) matchesAllOf(seq any) bool { return this.matchesAllOf_s(csString_(seq)) }
+
+// matchesAllOf_s is matchesAllOf for a String (rt_conv.go, "String for CharSequence").
+func (this *CharMatcher) matchesAllOf_s(seq string) bool {
+	for _, c := range String_toCharArray(csStr_(seq)) {
 		if !this.f(c) {
 			return false
 		}
@@ -94,8 +97,11 @@ func showChar_(c uint16) string {
 	return "\\u" + string([]byte{hex[c>>12], hex[(c>>8)&15], hex[(c>>4)&15], hex[c&15]})
 }
 
-func CharMatcher_anyOf(seq any) *CharMatcher {
-	u := String_toCharArray(csString_(seq))
+func CharMatcher_anyOf(seq any) *CharMatcher { return CharMatcher_anyOf_s(csString_(seq)) }
+
+// CharMatcher_anyOf_s is anyOf for a String (rt_conv.go, "String for CharSequence").
+func CharMatcher_anyOf_s(seq string) *CharMatcher {
+	u := String_toCharArray(csStr_(seq))
 	switch len(u) {
 	case 0:
 		return &CharMatcher{func(uint16) bool { return false }, "CharMatcher.none()"}
