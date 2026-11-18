@@ -536,8 +536,8 @@ func HamtPMap_deleteRoot[K comparable, V comparable](mask int32, children []*Ham
 func HamtPMap_insertChild[K comparable, V comparable](children []*HamtPMap[K, V], index int32, child *HamtPMap[K, V]) []*HamtPMap[K, V] {
 	var newChildren []*HamtPMap[K, V] = make([]*HamtPMap[K, V], (int32(len(children)) + 1))
 	newChildren[index] = child
-	System_arraycopy(any(children), 0, any(newChildren), 0, index)
-	System_arraycopy(any(children), index, any(newChildren), (index + 1), (int32(len(children)) - index))
+	arraycopy_(children, 0, newChildren, 0, index)
+	arraycopy_(children, index, newChildren, (index + 1), (int32(len(children)) - index))
 	return newChildren
 }
 
@@ -552,8 +552,8 @@ func HamtPMap_deleteChild[K comparable, V comparable](children []*HamtPMap[K, V]
 		return HamtPMap_emptyChildren[K, V]()
 	}
 	var newChildren []*HamtPMap[K, V] = make([]*HamtPMap[K, V], (int32(len(children)) - 1))
-	System_arraycopy(any(children), 0, any(newChildren), 0, index)
-	System_arraycopy(any(children), (index + 1), any(newChildren), index, ((int32(len(children)) - index) - 1))
+	arraycopy_(children, 0, newChildren, 0, index)
+	arraycopy_(children, (index + 1), newChildren, index, ((int32(len(children)) - index) - 1))
 	return newChildren
 }
 
