@@ -487,3 +487,7 @@ f6a421b0 patch 330-f6a421b0-rt.patch
 f7492025 run bash tools/postflip/colls/run.sh
 # 338. postflip step: second pass of the collections pipeline after the typed immutables (colls map, native on typed immutables, nilmaps)
 72b0f693 run bash tools/postflip/colls/run.sh
+# 345. postflip (runtime): removing through a typed map's iterator is constant time, as LinkedHashMap's is
+ef603915 patch 345-ef603915-rt.patch
+# 346. postflip (runtime): test of removing through a typed set's iterator across the compactions it causes
+b1129850 patch 346-b1129850-rt.patch
