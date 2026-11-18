@@ -748,6 +748,9 @@ func varOf(e ast.Expr) *types.Var {
 // slotOfVar is the slot of a variable, or 0 if the variable cannot change (runtime code).
 func slotOfVar(v *types.Var) int {
 	k := varKey(v)
+	if v.Origin() != v || rw.ReflipGeneric_(v.Type(), false) { // reflip: generic instance
+		poison(k, "variable of a type parameter's type")
+	}
 	if !generated(v.Pos()) {
 		poison(k, "variable of the runtime")
 	}
@@ -830,6 +833,10 @@ func valueOf(e ast.Expr) value {
 					return value{kind: vImm, from: x}
 				}
 				return value{kind: vForeign, why: "result of " + f.Name()}
+			}
+			if f.Origin() != f { // reflip: generic instance
+				poison(resultKey(groupOf(f.Origin()), 0), "result of a method of a generic type")
+				return value{kind: vForeign, why: "result of a method of a generic type"}
 			}
 			return value{kind: vSlot, k: resultKey(groupOf(f), 0)}
 		}
@@ -1044,6 +1051,10 @@ func paramIndexKey(c *ast.CallExpr, i int) (int, bool) {
 	}
 	if i >= sig.Params().Len() || !isList(sig.Params().At(i).Type()) || typeArgSlot(f, true, i) || K.imm != "" && genericParam(f, i) {
 		return 0, false
+	}
+	if f.Origin() != f { // reflip: generic instance
+		poison(paramKey(groupOf(f), i), "argument of a method of a generic type")
+		poison(paramKey(groupOf(f.Origin()), i), "argument of a method of a generic type")
 	}
 	return paramKey(groupOf(f), i), true
 }
@@ -1468,6 +1479,9 @@ func implicitConversions() {
 					return true
 				}
 				for i, r := range x.Rhs {
+					if dv := varOf(x.Lhs[i]); x.Tok == token.DEFINE && dv != nil && isList(dv.Type()) && !other(r) { // reflip6
+						poison(slotOfVar(dv), "variable of a short declaration")
+					}
 					if other(r) && isList(typeOf(x.Lhs[i])) {
 						// A variable, or an element of a container of the collections.
 						if lv := valueOf(x.Lhs[i]); lv.kind == vSlot {

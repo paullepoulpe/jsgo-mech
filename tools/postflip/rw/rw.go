@@ -139,6 +139,9 @@ type Conv struct {
 }
 
 func ConvFor(t types.Type) Conv {
+	if ReflipGeneric_(t, false) {
+		return Conv{IsUnbox: func(string) bool { return false }}
+	}
 	id := func(e string) string { return e }
 	switch u := types.Unalias(t).(type) {
 	case *types.Basic:
@@ -272,6 +275,19 @@ func Load(dir string) {
 			stack = append(stack, n)
 			return true
 		})
+	}
+	// reflip: origin objects (a use of a generic type's field or method names its declaration)
+	for id, o := range Info.Uses {
+		switch v := o.(type) {
+		case *types.Var:
+			if v.Origin() != v {
+				Info.Uses[id] = v.Origin()
+			}
+		case *types.Func:
+			if v.Origin() != v {
+				Info.Uses[id] = v.Origin()
+			}
+		}
 	}
 	for id, o := range Info.Uses {
 		UsesOf[o] = append(UsesOf[o], id)
@@ -579,4 +595,47 @@ func ReadOnlySink(top ast.Expr, ifaceOK bool) bool {
 		}
 	}
 	return false
+}
+
+// ReflipGeneric_ reports whether t mentions a type parameter or (inst) an instance of a generic
+// type.
+func ReflipGeneric_(t types.Type, inst bool) bool {
+	seen := map[types.Type]bool{}
+	var walk func(t types.Type) bool
+	walk = func(t types.Type) bool {
+		if t == nil || seen[t] {
+			return false
+		}
+		seen[t] = true
+		switch u := t.(type) {
+		case *types.TypeParam:
+			return true
+		case *types.Alias:
+			for i := 0; i < u.TypeArgs().Len(); i++ {
+				if walk(u.TypeArgs().At(i)) {
+					return true
+				}
+			}
+			return walk(types.Unalias(u))
+		case *types.Named:
+			if inst && u.TypeArgs().Len() > 0 {
+				return true
+			}
+			for i := 0; i < u.TypeArgs().Len(); i++ {
+				if walk(u.TypeArgs().At(i)) {
+					return true
+				}
+			}
+		case *types.Pointer:
+			return walk(u.Elem())
+		case *types.Slice:
+			return walk(u.Elem())
+		case *types.Array:
+			return walk(u.Elem())
+		case *types.Map:
+			return walk(u.Key()) || walk(u.Elem())
+		}
+		return false
+	}
+	return walk(t)
 }

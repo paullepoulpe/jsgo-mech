@@ -444,6 +444,9 @@ func generated(p token.Pos) bool {
 
 func varNode(v *types.Var) *node {
 	n := get(fmt.Sprintf("v|%d", v.Pos()))
+	if v.Origin() != v || rw.ReflipGeneric_(v.Type(), false) { // reflip: generic instance
+		poison(n, "variable of a type parameter's type")
+	}
 	if n.v == nil {
 		n.v = v
 		if !v.IsField() && v.Parent() != rw.Pkg.Scope() && v.Parent() != nil {
@@ -799,6 +802,10 @@ func valueOf(e ast.Expr) value {
 			if !generated(f.Pos()) {
 				return value{kind: vForeign, why: "result of the runtime's " + f.Name()}
 			}
+			if f.Origin() != f { // reflip: generic instance
+				poison(resultNode(groupOf(f.Origin()), 0), "result of a method of a generic type")
+				return value{kind: vForeign, why: "result of a method of a generic type"}
+			}
 			return value{kind: vSlot, n: resultNode(groupOf(f), 0)}
 		}
 		return value{kind: vForeign, why: "result of a call"}
@@ -941,6 +948,10 @@ func paramFor(c *ast.CallExpr, i int) (*node, bool) {
 	}
 	if i >= sig.Params().Len() || !isList(sig.Params().At(i).Type()) || typeArgSlot(f, true, i) {
 		return nil, false
+	}
+	if f.Origin() != f { // reflip: generic instance
+		poison(paramNode(groupOf(f), i), "argument of a method of a generic type")
+		poison(paramNode(groupOf(f.Origin()), i), "argument of a method of a generic type")
 	}
 	return paramNode(groupOf(f), i), true
 }
