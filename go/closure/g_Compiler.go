@@ -3736,7 +3736,7 @@ func (this *Compiler) getTypedAstDeserializer(p0 *SourceFile_jscomp) Supplier {
 }
 
 // initRuntimeLibraryTypedAsts: an object that is exactly a Compiler calls its initRuntimeLibraryTypedAsts_impl directly (post-flip); others dispatch.
-func (this *Compiler) initRuntimeLibraryTypedAsts(p0 *Optional_base) {
+func (this *Compiler) initRuntimeLibraryTypedAsts(p0 Optional_base) {
 	if p, _ := this.self_.(*Compiler); p == this {
 		this.initRuntimeLibraryTypedAsts_impl(p0)
 		return

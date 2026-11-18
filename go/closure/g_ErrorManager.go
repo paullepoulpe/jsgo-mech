@@ -13,7 +13,7 @@ type ErrorManager interface {
 	setTypedPercent(float64)
 	getTypedPercent() float64
 	hasHaltingErrors() bool
-	shouldReportConformanceViolation(*Requirement, *Optional_base, *JSError, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
+	shouldReportConformanceViolation(*Requirement, Optional_base, *JSError, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, bool) bool
 }
 
 func ErrorManager_hasHaltingErrors_default(this ErrorManager) bool {
