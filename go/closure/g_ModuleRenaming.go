@@ -100,7 +100,9 @@ func (this *ModuleRenaming_GlobalizedModuleName) toQname(astFactory *AstFactory)
 }
 
 func (this *ModuleRenaming_GlobalizedModuleName) getprop(property string) *ModuleRenaming_GlobalizedModuleName {
-	Preconditions_checkArgument((!String_isEmpty(property) && !JString_contains_s(property, ".")))
+	if String_isEmpty(property) || JString_contains_s(property, ".") {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	return ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(this.aliasName().getprop(property), this.rootNameType())
 }
 
@@ -109,7 +111,9 @@ func ModuleRenaming_GlobalizedModuleName_create_QualifiedName_JSType(aliasName *
 }
 
 func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedScope(moduleMetadata *ModuleMetadataMap_ModuleMetadata, googNamespace Optional[string], globalTypedScope *TypedScope) *ModuleRenaming_GlobalizedModuleName {
-	Preconditions_checkState((googNamespace.isEmpty() || moduleMetadata.googNamespaces().contains_s(googNamespace.get())))
+	if !googNamespace.isEmpty() && !moduleMetadata.googNamespaces().contains_s(googNamespace.get()) {
+		panic(new_IllegalStateException_0().self())
+	}
 	switch moduleMetadata.moduleType() {
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE:
 		var moduleBody Node = moduleMetadata.rootNode().getFirstChild()

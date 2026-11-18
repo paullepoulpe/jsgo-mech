@@ -83,7 +83,9 @@ func (this *PerformanceTracker) finit_PerformanceTracker() {
 
 func (this *PerformanceTracker) init_PerformanceTracker(externsRoot Node, jsRoot Node, mode CompilerOptions_TracerMode) {
 	this.finit_PerformanceTracker()
-	Preconditions_checkArgument_boolean_Object((mode != CompilerOptions_TracerMode_OFF), "PerformanceTracker can't work without tracer data.")
+	if mode == CompilerOptions_TracerMode_OFF {
+		panic(new_IllegalArgumentException_String(objstr_("PerformanceTracker can't work without tracer data.")).self())
+	}
 	this.startTime = System_currentTimeMillis()
 	this.externsRoot = externsRoot
 	this.jsRoot = jsRoot
@@ -133,7 +135,9 @@ func (this *PerformanceTracker) updateAfterDeserialize(jsRoot Node) {
 func (this *PerformanceTracker) recordPassStop(passName string, runtime int64) {
 	var allocMem int32 = this.getAllocatedMegabytes()
 	var logStats *PerformanceTracker_Stats = this.currentPass.pop()
-	Preconditions_checkState((passName == logStats.pass))
+	if passName != logStats.pass {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.log_.add(logStats)
 	logStats.runtime_ = runtime
 	logStats.allocMem = allocMem
@@ -309,9 +313,15 @@ func (this *PerformanceTracker) calcTotalStats() {
 		this.diff += stats.diff
 		this.gzDiff += stats.gzDiff
 	}
-	Preconditions_checkState((!this.tracksAstSize() || (this.initAstSize == (this.astDiff + this.astSize))))
-	Preconditions_checkState((!this.tracksSize() || (this.initCodeSize == (this.diff + this.codeSize))))
-	Preconditions_checkState((!this.tracksGzSize() || (this.initGzCodeSize == (this.gzDiff + this.gzCodeSize))))
+	if this.tracksAstSize() && this.initAstSize != (this.astDiff+this.astSize) {
+		panic(new_IllegalStateException_0().self())
+	}
+	if this.tracksSize() && this.initCodeSize != (this.diff+this.codeSize) {
+		panic(new_IllegalStateException_0().self())
+	}
+	if this.tracksGzSize() && this.initGzCodeSize != (this.gzDiff+this.gzCodeSize) {
+		panic(new_IllegalStateException_0().self())
+	}
 }
 
 func (this *PerformanceTracker) populatePassSummary() {

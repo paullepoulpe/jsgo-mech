@@ -51,7 +51,9 @@ func (this *PolymerClassRewriter) insertGeneratedDeclarationCodeToGlobalScope(en
 		}
 	case tokOrd1_CALL:
 		{
-			Preconditions_checkState(PolymerClassRewriter_isIIFE(enclosingNode))
+			if !PolymerClassRewriter_isIIFE(enclosingNode) {
+				panic(new_IllegalStateException_0().self())
+			}
 			var enclosingNodeForIIFE Node = NodeUtil_getEnclosingNode(enclosingNode.getParent(), (&Predicate_base_tfn_Node{func(node Node) bool {
 				return (node.isScript() || node.isModuleBody())
 			}}).apply)
@@ -59,7 +61,9 @@ func (this *PolymerClassRewriter) insertGeneratedDeclarationCodeToGlobalScope(en
 				enclosingNodeForIIFE.addChildToFront(declarationCode)
 				this.compiler_.reportChangeToChangeScope(NodeUtil_getEnclosingScript(enclosingNodeForIIFE))
 			} else {
-				Preconditions_checkState(enclosingNodeForIIFE.isModuleBody())
+				if !enclosingNodeForIIFE.isModuleBody() {
+					panic(new_IllegalStateException_0().self())
+				}
 				var insertionPoint Node = this.getNodeForInsertion(enclosingNodeForIIFE.getParent())
 				insertionPoint.addChildToFront(declarationCode)
 				this.compiler_.reportChangeToChangeScope(NodeUtil_getEnclosingScript(insertionPoint))
@@ -67,7 +71,9 @@ func (this *PolymerClassRewriter) insertGeneratedDeclarationCodeToGlobalScope(en
 		}
 	case tokOrd1_FUNCTION:
 		{
-			Preconditions_checkState(PolymerClassRewriter_isFunctionArgInGoogLoadModule(enclosingNode))
+			if !PolymerClassRewriter_isFunctionArgInGoogLoadModule(enclosingNode) {
+				panic(new_IllegalStateException_0().self())
+			}
 			var enclosingScript Node = NodeUtil_getEnclosingScript(enclosingNode)
 			var insertionPoint Node = this.getNodeForInsertion(enclosingScript)
 			insertionPoint.addChildToFront(declarationCode)
@@ -103,13 +109,17 @@ func (this *PolymerClassRewriter) insertGeneratedPropsAndBehaviorCode(enclosingN
 		this.compiler_.reportChangeToChangeScope(NodeUtil_getEnclosingScript(enclosingNode))
 	case tokOrd1_CALL:
 		{
-			Preconditions_checkState(PolymerClassRewriter_isIIFE(enclosingNode))
+			if !PolymerClassRewriter_isIIFE(enclosingNode) {
+				panic(new_IllegalStateException_0().self())
+			}
 			var functionNode Node = enclosingNode.getFirstChild()
 			var functionBlock Node = functionNode.getLastChild()
 			functionBlock.addChildrenToFront(statements)
 		}
 	case tokOrd1_FUNCTION:
-		Preconditions_checkState(PolymerClassRewriter_isFunctionArgInGoogLoadModule(enclosingNode))
+		if !PolymerClassRewriter_isFunctionArgInGoogLoadModule(enclosingNode) {
+			panic(new_IllegalStateException_0().self())
+		}
 		var functionBlock Node = enclosingNode.getLastChild()
 		var insertionPoint Node = PolymerClassRewriter_getInsertionPointForGoogModule(functionBlock)
 		if insertionPoint != 0 {
@@ -282,7 +292,9 @@ func PolymerClassRewriter_addReturnTypeIfMissing(cls *PolymerClassDefinition, ge
 
 func (this *PolymerClassRewriter) addPropertiesConfigObjectReflection(cls *PolymerClassDefinition, propertiesLiteral Node) {
 	Preconditions_checkNotNull_T(propertiesLiteral)
-	Preconditions_checkState(propertiesLiteral.isObjectLit())
+	if !propertiesLiteral.isObjectLit() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var parent Node = propertiesLiteral.getParent()
 	var objReflectCall Node = IR_call(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, "$jscomp.reflectObject"), []Node{cls.target.cloneTree(), propertiesLiteral.detach()}).srcrefTreeIfMissing(propertiesLiteral)
 	parent.addChildToFront(objReflectCall)
@@ -291,7 +303,9 @@ func (this *PolymerClassRewriter) addPropertiesConfigObjectReflection(cls *Polym
 }
 
 func (this *PolymerClassRewriter) addTypesToFunctions(objLit Node, thisType string, defType PolymerClassDefinition_DefinitionType) {
-	Preconditions_checkState(objLit.isObjectLit())
+	if !objLit.isObjectLit() {
+		panic(new_IllegalStateException_0().self())
+	}
 	{
 		var keyNode Node = objLit.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -766,7 +780,9 @@ func (this *PolymerClassRewriter) validateComplexObserverReflectionCalls(cls *Po
 }
 
 func (this *PolymerClassRewriter) validateReflectedString(methodSignature Node) {
-	Preconditions_checkArgument(methodSignature.isStringLit())
+	if !methodSignature.isStringLit() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var methodSignatureString string = String_trim(methodSignature.getString())
 	var openParenIndex int32 = String_indexOf(methodSignatureString, 40)
 	if (String_charAt(methodSignatureString, (String_length(methodSignatureString)-1)) != ')') || (openParenIndex < 1) {

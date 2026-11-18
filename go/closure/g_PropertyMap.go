@@ -253,7 +253,9 @@ func (this *PropertyMap) hashCode() int32 {
 func (this *PropertyMap) incrementCachedKeySetCounter() {
 	this.cachedKeySetCounter++
 	this.cachedKeySet = nil
-	Preconditions_checkState((this.cachedKeySetCounter >= 0))
+	if this.cachedKeySetCounter < 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 }
 
 var PropertyMap_EMPTY_MAP *PropertyMap

@@ -99,8 +99,12 @@ func (this *AbstractScope) getParentScope() StaticScope {
 }
 
 func (this *AbstractScope) undeclare(var_ *AbstractVar) {
-	Preconditions_checkState((to_AbstractScope(var_.getScope()) == this))
-	Preconditions_checkState(to_AbstractVar(Map_get_s(this.vars, var_.getName())).equals(var_.self()))
+	if to_AbstractScope(var_.getScope()) != this {
+		panic(new_IllegalStateException_0().self())
+	}
+	if !to_AbstractVar(Map_get_s(this.vars, var_.getName())).equals(var_.self()) {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.undeclareInteral(var_)
 }
 
@@ -301,7 +305,7 @@ func (this *AbstractScope) getClosestContainerScope() *AbstractScope {
 	if scope.isFunctionBlockScope() {
 		scope = scope.getParent()
 		if scope.isBlockScope() {
-			Preconditions_checkState_boolean_Object(false, scope)
+			panic(new_IllegalStateException_String(objstr_(scope)).self())
 		}
 	}
 	return scope
@@ -340,7 +344,9 @@ func (this *AbstractScope) getCommonParent(other *AbstractScope) *AbstractScope 
 			right = right.getParent()
 		}
 	}
-	Preconditions_checkState(((left != nil) && (left == right)))
+	if left == nil || left != right {
+		panic(new_IllegalStateException_0().self())
+	}
 	return left
 }
 

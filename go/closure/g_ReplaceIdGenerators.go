@@ -84,7 +84,9 @@ func (this *ReplaceIdGenerators) createNameSupplier(renameStrategy ReplaceIdGene
 }
 
 func ReplaceIdGenerators_createNameSupplierRenamingMap(renameStrategy ReplaceIdGenerators_RenameStrategy, mappings RenamingMap) ReplaceIdGenerators_NameSupplier {
-	Preconditions_checkState((renameStrategy == ReplaceIdGenerators_RenameStrategy_MAPPED))
+	if renameStrategy != ReplaceIdGenerators_RenameStrategy_MAPPED {
+		panic(new_IllegalStateException_0().self())
+	}
 	return ReplaceIdGenerators_NameSupplier(new_ReplaceIdGenerators_MappedNameSupplier(mappings))
 }
 
@@ -614,7 +616,9 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) findTtlVar(t *NodeTraversal, 
 	if !parent.isVar() || !parent.getParent().isScript() {
 		return 0
 	}
-	Preconditions_checkState_boolean_Object(ttlVarName.getParent().hasOneChild(), "The AST is normalized so there should only be one name per var")
+	if !ttlVarName.getParent().hasOneChild() {
+		panic(new_IllegalStateException_String(objstr_("The AST is normalized so there should only be one name per var")).self())
+	}
 	var callNode Node = ttlVarName.getFirstChild()
 	if !callNode.isCall() {
 		return 0

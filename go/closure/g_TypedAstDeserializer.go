@@ -58,7 +58,9 @@ func TypedAstDeserializer_deserializeRuntimeLibraries(compiler *AbstractCompiler
 }
 
 func TypedAstDeserializer_deserialize(compiler *AbstractCompiler, syntheticExterns *SourceFile_jscomp, requiredInputFiles Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]], scriptSourceFiles *JTMap[string, *SourceFile_jscomp], colorPool Optional_baseOf[*ColorPool_Builder], typedAstStream []int8, mode TypedAstDeserializer_Mode, includeTypeInformation bool, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) *TypedAstDeserializer_DeserializedAst {
-	Preconditions_checkArgument_boolean_Object((colorPool.isPresent() == (Object_equals(obj_(mode), obj_(TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY)) && includeTypeInformation)), "ColorPool.Builder required iff deserializing runtime libraries & including types")
+	if colorPool.isPresent() != (Object_equals(obj_(mode), obj_(TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY)) && includeTypeInformation) {
+		panic(new_IllegalArgumentException_String(objstr_("ColorPool.Builder required iff deserializing runtime libraries & including types")).self())
+	}
 	var deserializer *TypedAstDeserializer = new_TypedAstDeserializer(syntheticExterns, colorPool, requiredInputFiles, mode, includeTypeInformation)
 	deserializer.addToFilePool(syntheticExterns.getName(), syntheticExterns)
 	Map_forEach(scriptSourceFiles.asMap(), &BiConsumer_tfn_string_SourceFile_jscomp{func(p0 string, p1 *SourceFile_jscomp) { deserializer.addToFilePool(p0, p1) }})

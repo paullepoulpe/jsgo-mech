@@ -36,7 +36,9 @@ func SerializeTypesToPointers_create(compiler *AbstractCompiler, stringPoolBuild
 }
 
 func (this *SerializeTypesToPointers) gatherTypesOnAst(root Node) {
-	Preconditions_checkState_boolean_Object((this.typePool == nil), "Cannot call process() twice")
+	if this.typePool != nil {
+		panic(new_IllegalStateException_String(objstr_("Cannot call process() twice")).self())
+	}
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_SerializeTypesToPointers_PropertySearchCallback(this)))
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_SerializeTypesToPointers_TypeSearchCallback(this)))
 	it_1 := foreach_(any(this.compiler_.getTypeMismatches()))

@@ -70,10 +70,14 @@ func (this *PrototypeObjectType) init_PrototypeObjectType(builder *PrototypeObje
 		this.setImplicitPrototype(this.registry.getNativeObjectType(JSTypeNative_OBJECT_TYPE))
 	}
 	if this.anonymousType {
-		Preconditions_checkState(this.className.isEmpty())
+		if !this.className.isEmpty() {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 	Preconditions_checkNotNull_T(this.templateTypeMap)
-	Preconditions_checkState((this.templateTypeMap.size() >= this.templateParamCount))
+	if this.templateTypeMap.size() < this.templateParamCount {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.registry.getResolver().resolveIfClosed(this.up_JSType(), PrototypeObjectType_TYPE_CLASS)
 }
 
@@ -245,7 +249,9 @@ func (this *PrototypeObjectType) getImplicitPrototype_impl() *ObjectType {
 }
 
 func (this *PrototypeObjectType) setImplicitPrototype(implicitPrototype *ObjectType) {
-	Preconditions_checkState(!this.hasCachedValues())
+	if this.hasCachedValues() {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.implicitPrototypeFallback = implicitPrototype
 	if implicitPrototype != nil {
 		this.maybeLoosenTypecheckingDueToForwardReferencedSupertype(implicitPrototype.up_JSType())
@@ -276,7 +282,9 @@ func (this *PrototypeObjectType) isNativeObjectType_impl() bool {
 }
 
 func (this *PrototypeObjectType) setOwnerFunction_impl(type_ *FunctionType) {
-	Preconditions_checkState(((this.ownerFunction == nil) || (type_ == nil)))
+	if this.ownerFunction != nil && type_ != nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	this.ownerFunction = type_
 }
 

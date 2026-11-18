@@ -50,9 +50,13 @@ func (this *NamedType) init_NamedType(builder *NamedType_Builder) {
 	this.ProxyObjectType.init_ProxyObjectType_JSTypeRegistry_JSType(builder.registry, builder.referencedType)
 	this.finit_NamedType()
 	Preconditions_checkNotNull_T(builder.resolutionKind)
-	Preconditions_checkNotNull(any(builder.templateTypes.asList()))
+	if builder.templateTypes.asList() == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	if Object_equals(obj_(builder.resolutionKind), obj_(NamedType_ResolutionKind_TYPEOF)) {
-		Preconditions_checkState(String_startsWith(builder.referenceName, "typeof "))
+		if !String_startsWith(builder.referenceName, "typeof ") {
+			panic(new_IllegalStateException_0().self())
+		}
 	}
 	this.restrictByNull = builder.restrictByNull
 	this.resolutionScope = builder.scope_
@@ -74,7 +78,9 @@ func new_NamedType(builder *NamedType_Builder) *NamedType {
 }
 
 func NamedType_nominalHashCode(type_ *ObjectType) int32 {
-	Preconditions_checkState(type_.hasReferenceName())
+	if !type_.hasReferenceName() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var name string = type_.getReferenceName().orElseThrow()
 	return String_hashCode(name)
 }
@@ -174,7 +180,9 @@ func (this *NamedType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSTyp
 	if Object_equals(obj_(this.resolutionKind), obj_(NamedType_ResolutionKind_NONE)) {
 		return this.ProxyObjectType.resolveInternal_impl(reporter)
 	}
-	Preconditions_checkState_boolean_Object(this.getReferencedType().isUnknownType(), "NamedTypes given a referenced type pre-resolution should have ResolutionKind.NONE")
+	if !this.getReferencedType().isUnknownType() {
+		panic(new_IllegalStateException_String(objstr_("NamedTypes given a referenced type pre-resolution should have ResolutionKind.NONE")).self())
+	}
 	if this.resolutionScope == nil {
 		return this.up_JSType()
 	}
@@ -354,7 +362,9 @@ func NamedType_builder(registry *JSTypeRegistry, reference string) *NamedType_Bu
 }
 
 func (this *NamedType) toBuilder() *NamedType_Builder {
-	Preconditions_checkState_boolean_Object(!this.isResolved(), "Only call toBuilder on unresolved NamedTypes")
+	if this.isResolved() {
+		panic(new_IllegalStateException_String(objstr_("Only call toBuilder on unresolved NamedTypes")).self())
+	}
 	return new_NamedType_Builder(this.registry, this.reference).setScope(this.resolutionScope).setResolutionKind(this.resolutionKind).setErrorReportingLocation(this.sourceName_, this.lineno_, this.charno_).setTemplateTypes(this.templateTypes).setReferencedType(this.getReferencedType()).setRestrictByNull(this.restrictByNull)
 }
 

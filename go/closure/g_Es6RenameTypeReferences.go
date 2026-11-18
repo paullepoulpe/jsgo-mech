@@ -50,7 +50,9 @@ func (this *Es6RenameTypeReferences) renameTypeNodeRecursive(t *NodeTraversal, n
 }
 
 func (this *Es6RenameTypeReferences) renameTypeReference(t *NodeTraversal, n Node) {
-	Preconditions_checkState(n.isStringLit())
+	if !n.isStringLit() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var fullName string = n.getString()
 	var rootName string
 	var rest Optional[string]

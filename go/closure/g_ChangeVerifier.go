@@ -91,7 +91,9 @@ func (this *ChangeVerifier) verifyNewNode(passNameMsg string, n Node) {
 }
 
 func (this *ChangeVerifier) verifyRoot(root Node) {
-	Preconditions_checkState(root.isRoot())
+	if !root.isRoot() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if root.getChangeTime() != 0 {
 		panic(new_IllegalStateException_String("Root nodes should never be marked as changed.").self())
 	}

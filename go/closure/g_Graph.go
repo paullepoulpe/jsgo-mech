@@ -96,7 +96,9 @@ func (this *Graph[N]) pushNodeAnnotations() {
 }
 
 func (this *Graph[N]) popNodeAnnotations() {
-	Preconditions_checkNotNull_Object_Object(any(this.nodeAnnotationStack.asDeque()), "Popping node annotations without pushing.")
+	if this.nodeAnnotationStack.asDeque() == nil {
+		panic(new_NullPointerException_String(objstr_("Popping node annotations without pushing.")).self())
+	}
 	Graph_popAnnotations(this.nodeAnnotationStack)
 }
 
@@ -108,7 +110,9 @@ func (this *Graph[N]) pushEdgeAnnotations() {
 }
 
 func (this *Graph[N]) popEdgeAnnotations() {
-	Preconditions_checkNotNull_Object_Object(any(this.edgeAnnotationStack.asDeque()), "Popping edge annotations without pushing.")
+	if this.edgeAnnotationStack.asDeque() == nil {
+		panic(new_NullPointerException_String(objstr_("Popping edge annotations without pushing.")).self())
+	}
 	Graph_popAnnotations(this.edgeAnnotationStack)
 }
 

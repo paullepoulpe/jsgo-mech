@@ -25,14 +25,16 @@ func new_CheckSuper(compiler *AbstractCompiler) *CheckSuper {
 func (this *CheckSuper) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(this))
 	if ok_, a1_ := this.contextStack.isEmpty(), ImmutableList_of_Object(this.contextStack.asDeque()); !ok_ {
-		Preconditions_checkState_boolean_Object(false, a1_)
+		panic(new_IllegalStateException_String(objstr_(a1_)).self())
 	}
 }
 
 func (this *CheckSuper) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	switch n.ns_().token {
 	case tokOrd1_ROOT:
-		Preconditions_checkState(this.contextStack.isEmpty())
+		if !this.contextStack.isEmpty() {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.contextStack.push(new_CheckSuper_SuperNotAllowedContext(n).up_CheckSuper_Context())
 	case tokOrd1_FUNCTION:
 		{
@@ -93,7 +95,9 @@ func (this *CheckSuper) visit(t *NodeTraversal, n Node, parent Node) {
 	case tokOrd1_RETURN:
 		currentContext.visitReturn(t, n)
 	case tokOrd1_ROOT:
-		Preconditions_checkState((this.contextStack.size() == 1))
+		if this.contextStack.size() != 1 {
+			panic(new_IllegalStateException_0().self())
+		}
 	default:
 	}
 	if n == currentContext.getContextNode() {

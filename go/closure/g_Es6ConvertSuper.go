@@ -44,7 +44,9 @@ func (this *Es6ConvertSuper) isInterface(classNode Node) bool {
 }
 
 func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
-	Preconditions_checkState(node.isSuper())
+	if !node.isSuper() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var exprRoot Node = node
 	if exprRoot.getParent().isGetElem() || exprRoot.getParent().isGetProp() {
 		exprRoot = exprRoot.getParent()
@@ -116,7 +118,9 @@ func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, encl
 		Preconditions_checkState_boolean_Object_H(false, node)
 	}
 	var grandparent Node = parent.getParent()
-	Preconditions_checkState(grandparent.isCall())
+	if !grandparent.isCall() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var clazz Node = NodeUtil_getEnclosingClass(node)
 	var superName Node = clazz.getSecondChild()
 	if !superName.isQualifiedName() {

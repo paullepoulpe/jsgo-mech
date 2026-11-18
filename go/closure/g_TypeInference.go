@@ -34,11 +34,14 @@ func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *C
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.finit_TypeInference()
 	if ok_, a1_, a2_ := (syntacticScope.getRootNode() == cfg.getEntry().getValue()), cfg.getEntry(), syntacticScope.getRootNode(); !ok_ {
-		Preconditions_checkArgument_boolean_String_Object_Object(false, "Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", any(a1_), a2_.box_())
+		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Expected syntactic scope to be rooted at CFG root node of %s, but instead got syntactic scope root node of %s", []any{any(a1_), a2_.box_()})).self())
 	}
 	this.compiler_ = Preconditions_checkNotNull_T(compiler)
 	this.registry = Preconditions_checkNotNull_T(compiler.getTypeRegistry())
-	this.reverseInterpreter = Preconditions_checkNotNull_T(reverseInterpreter)
+	if reverseInterpreter == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.reverseInterpreter = reverseInterpreter
 	this.moduleImportResolver = new_ModuleImportResolver(compiler.getModuleMap(), scopeCreator.getNodeToScopeMapper(), this.registry)
 	this.containerScope = syntacticScope
 	this.scopeCreator = Preconditions_checkNotNull_T(scopeCreator)
@@ -655,7 +658,9 @@ func (this *TypeInference) updateScopeForAssignment(scope FlowScope, target Node
 
 func (this *TypeInference) updateScopeForAssignment_5(scope FlowScope, target Node, resultType *JSType, updateNode Node, type_ TypeInference_AssignmentType) FlowScope {
 	Preconditions_checkNotNull_T(resultType)
-	Preconditions_checkState(((updateNode == 0) || (updateNode == target)))
+	if updateNode != 0 && updateNode != target {
+		panic(new_IllegalStateException_0().self())
+	}
 	var targetType *JSType = target.getJSType()
 	var right Node = NodeUtil_getRValueOfLValue(target)
 	if TypeInference_isPossibleMixinApplication(target, right) {
@@ -1183,7 +1188,9 @@ func (this *TypeInference) traverseHook(n Node, scope FlowScope) FlowScope {
 }
 
 func (this *TypeInference) traverseNullishCoalesce(n Node, scope FlowScope) FlowScope {
-	Preconditions_checkArgument((n.isNullishCoalesce() || n.isAssignNullishCoalesce()))
+	if !n.isNullishCoalesce() && !n.isAssignNullishCoalesce() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var left Node = n.getFirstChild()
 	var right Node = n.getLastChild()
 	scope = this.traverse(left, scope)
@@ -1552,7 +1559,9 @@ func (this *TypeInference) traverseGetElem(n Node, originalScope FlowScope) Flow
 }
 
 func (this *TypeInference) setGetElemNodeTypeAfterChildrenTraversed(n Node, scopeAfterChildren FlowScope) FlowScope {
-	Preconditions_checkArgument((n.isGetElem() || n.isOptChainGetElem()))
+	if !n.isGetElem() && !n.isOptChainGetElem() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.inferGetElemType(n)
 	scopeAfterChildren = this.tightenTypeAfterDereference(n.getFirstChild(), scopeAfterChildren)
 	return scopeAfterChildren
@@ -1641,7 +1650,9 @@ func (this *TypeInference) traverseGetProp(n Node, scope FlowScope) FlowScope {
 }
 
 func (this *TypeInference) setGetPropNodeTypeAfterChildrenTraversed(n Node, scopeAfterChildren FlowScope) FlowScope {
-	Preconditions_checkArgument((n.isGetProp() || n.isOptChainGetProp()))
+	if !n.isGetProp() && !n.isOptChainGetProp() {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var objNode Node = n.getFirstChild()
 	n.setJSType(this.getPropertyType(objNode.getJSType(), n.getString(), n, scopeAfterChildren))
 	return this.tightenTypeAfterDereference(n.getFirstChild(), scopeAfterChildren)
@@ -1664,7 +1675,9 @@ func (this *TypeInference) setOptChainNodeTypeAfterChildrenTraversed(n Node, sco
 }
 
 func (this *TypeInference) traverseOptChain(n Node, scope FlowScope) FlowScope {
-	Preconditions_checkArgument(NodeUtil_isOptChainNode(n))
+	if !NodeUtil_isOptChainNode(n) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	if NodeUtil_isEndOfOptChainSegment(n) {
 		var startOfChain Node = NodeUtil_getStartOfOptChainSegment(n)
 		var optChainInfo *TypeInference_OptChainInfo = new_TypeInference_OptChainInfo(n, startOfChain)
@@ -1687,8 +1700,12 @@ func (this *TypeInference) traverseOptChain(n Node, scope FlowScope) FlowScope {
 	if NodeUtil_isEndOfOptChainSegment(n) {
 		var startOfChain Node = NodeUtil_getStartOfOptChainSegment(n)
 		var currentChain *TypeInference_OptChainInfo = this.optChainArrayDeque.pop()
-		Preconditions_checkState((currentChain.endOfChain == n))
-		Preconditions_checkState((currentChain.startOfChain == startOfChain))
+		if currentChain.endOfChain != n {
+			panic(new_IllegalStateException_0().self())
+		}
+		if currentChain.startOfChain != startOfChain {
+			panic(new_IllegalStateException_0().self())
+		}
 		var startNode Node = Preconditions_checkNotNull_T(startOfChain.getFirstChild())
 		return this.updateTypeWhenEndOfOptChain(n, startNode, currentChain, executedScope)
 	} else {
@@ -1794,7 +1811,9 @@ func (this *TypeInference) traverseShortCircuitingBinOpAssignment(n Node, scope 
 }
 
 func (this *TypeInference) traverseShortCircuitingBinOp(n Node, left Node, leftOutcome *TypeInference_BooleanOutcomePair) *TypeInference_BooleanOutcomePair {
-	Preconditions_checkArgument((((n.isAnd() || n.isOr()) || n.isAssignAnd()) || n.isAssignOr()))
+	if !(((n.isAnd() || n.isOr()) || n.isAssignAnd()) || n.isAssignOr()) {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	var nIsAnd bool = (n.isAnd() || n.isAssignAnd())
 	var right Node = n.getLastChild()
 	var leftType *JSType = left.getJSType()

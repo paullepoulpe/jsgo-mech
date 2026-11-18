@@ -28,7 +28,10 @@ func (this *NodeTraversal) finit_NodeTraversal() {
 func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
 	this.finit_NodeTraversal()
 	this.compiler_ = Preconditions_checkNotNull_T(builder.compiler_)
-	this.callback = Preconditions_checkNotNull_T(builder.callback)
+	if builder.callback == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.callback = builder.callback
 	var scopedCallback NodeTraversal_ScopedCallback
 	_ = scopedCallback
 	this.scopeCallback = func() NodeTraversal_ScopedCallback {
@@ -131,7 +134,9 @@ func (this *NodeTraversal) traverseRoots(externs Node, root Node) {
 		this.currentNode = scopeRoot
 		this.pushScope(scopeRoot)
 		this.traverseBranch(externs, scopeRoot)
-		Preconditions_checkState((root.getParent() == scopeRoot))
+		if root.getParent() != scopeRoot {
+			panic(new_IllegalStateException_0().self())
+		}
 		this.traverseBranch(root, scopeRoot)
 		this.popScope()
 		return 0
@@ -157,8 +162,8 @@ func (this *NodeTraversal) formatNodePosition(n Node) string {
 }
 
 func (this *NodeTraversal) traverseWithScope(root Node, s *AbstractScope) {
-	if !(s.isGlobal() || s.isModuleScope()) {
-		Preconditions_checkState_boolean_Object(false, s)
+	if !s.isGlobal() && !s.isModuleScope() {
+		panic(new_IllegalStateException_String(objstr_(s)).self())
 	}
 	_ = func() (code_ int) {
 		defer func() {
@@ -255,8 +260,8 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 			this.callback.visit(this, n, 0)
 		}
 	default:
-		if !(s.isGlobal() || s.isModuleScope()) {
-			Preconditions_checkState_boolean_String_Object(false, "Expected global or module scope. Got: (%s)", s)
+		if !s.isGlobal() && !s.isModuleScope() {
+			panic(new_IllegalStateException_String(Strings_lenientFormat("Expected global or module scope. Got: (%s)", []any{s})).self())
 		}
 		this.traverseWithScope(n, s)
 	}
@@ -655,7 +660,9 @@ func (this *NodeTraversal) getScopeRoot() Node {
 
 func (this *NodeTraversal) getScopeDepth() int32 {
 	var depth int32 = this.scopes.size()
-	Preconditions_checkState((depth > 0))
+	if depth <= 0 {
+		panic(new_IllegalStateException_0().self())
+	}
 	return (depth - 1)
 }
 
@@ -1151,7 +1158,9 @@ func (this *NodeTraversal_AbstractCfgCallback) init_NodeTraversal_AbstractCfgCal
 func (this *NodeTraversal_AbstractCfgCallback) getControlFlowGraph(compiler *AbstractCompiler) *ControlFlowGraph[Node] {
 	var result *ControlFlowGraph[Node]
 	var o any = this.cfgs.peek()
-	Preconditions_checkState((o != nil))
+	if o == nil {
+		panic(new_IllegalStateException_0().self())
+	}
 	var cfgRoot Node
 	_ = cfgRoot
 	if func() bool {

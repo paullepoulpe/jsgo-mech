@@ -41,7 +41,9 @@ func (this *ChainableReverseAbstractInterpreter) init_ChainableReverseAbstractIn
 }
 
 func (this *ChainableReverseAbstractInterpreter) append(lastLink *ChainableReverseAbstractInterpreter) *ChainableReverseAbstractInterpreter {
-	Preconditions_checkArgument((lastLink.nextLink == nil))
+	if lastLink.nextLink != nil {
+		panic(new_IllegalArgumentException_0().self())
+	}
 	this.nextLink = lastLink
 	lastLink.firstLink = this.firstLink
 	return lastLink
@@ -105,7 +107,9 @@ func (this *ChainableReverseAbstractInterpreter) declareNameInScope(scope FlowSc
 			return scope.inferSlotType(node.getString(), type_)
 		case tokOrd1_GETPROP:
 			var qualifiedName string = node.getQualifiedName()
-			Preconditions_checkState(!String_isEmpty(qualifiedName))
+			if String_isEmpty(qualifiedName) {
+				panic(new_IllegalStateException_0().self())
+			}
 			var origType *JSType = node.getJSType()
 			origType = func() *JSType {
 				if origType == nil {

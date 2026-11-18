@@ -27,7 +27,9 @@ func new_AllowlistWarningsGuard_0() *AllowlistWarningsGuard {
 
 func (this *AllowlistWarningsGuard) init_AllowlistWarningsGuard_Set(allowlist *JTSet[string]) {
 	this.WarningsGuard.init_WarningsGuard()
-	Preconditions_checkNotNull(any(allowlist.asSet()))
+	if allowlist.asSet() == nil {
+		panic(new_NullPointerException_0().self())
+	}
 	this.allowlist = AllowlistWarningsGuard_normalizeAllowlist(allowlist)
 }
 

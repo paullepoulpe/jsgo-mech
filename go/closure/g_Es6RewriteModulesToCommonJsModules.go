@@ -173,7 +173,9 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visit_impl(t *NodeTrave
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) getVarNameOfImportNode(importDecl Node) string {
-	Preconditions_checkState(importDecl.isImport())
+	if !importDecl.isImport() {
+		panic(new_IllegalStateException_0().self())
+	}
 	if importDecl.getSecondChild().isImportStar() {
 		return importDecl.getSecondChild().getString()
 	}
@@ -195,14 +197,18 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) getNameOfImportedValue(
 	} else if nameNode.isImportStar() {
 		return moduleName
 	} else {
-		Preconditions_checkState(nameNode.getParent().isImport())
+		if !nameNode.getParent().isImport() {
+			panic(new_IllegalStateException_0().self())
+		}
 		return (sstr_(moduleName) + ".default")
 	}
 	panic("unreachable")
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeGetNameOfImportedValue(s *Scope, nameNode Node) Optional[string] {
-	Preconditions_checkState(nameNode.isName())
+	if !nameNode.isName() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var var_ *Var = cast_[*Var](s.getVar(nameNode.getString()).self())
 	if (((var_ != nil) && (var_.getNameNode() != 0)) && NodeUtil_isImportedName(var_.getNameNode())) && (nameNode != var_.getNameNode()) {
 		return Optional_of[string](this.getNameOfImportedValue(var_.getNameNode()))
@@ -211,7 +217,9 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeGetNameOfImportedV
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeRenameImportedValue(t *NodeTraversal, n Node) {
-	Preconditions_checkState(n.isName())
+	if !n.isName() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var parent Node = n.getParent()
 	if ((parent.isExport() || parent.isExportSpec()) || parent.isImport()) || parent.isImportSpec() {
 		return
@@ -224,9 +232,13 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeRenameImportedValu
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitScript(t *NodeTraversal, script Node) {
-	Preconditions_checkState((this.script_ == script))
+	if this.script_ != script {
+		panic(new_IllegalStateException_0().self())
+	}
 	var moduleNode Node = script.getFirstChild()
-	Preconditions_checkState(moduleNode.isModuleBody())
+	if !moduleNode.isModuleBody() {
+		panic(new_IllegalStateException_0().self())
+	}
 	moduleNode.detach()
 	script.addChildrenToFront(moduleNode.removeChildren())
 	this.addRequireCalls()
@@ -354,7 +366,9 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportSpecs(t *Nod
 			var var_ *Var = cast_[*Var](t.getScope().getVar(localName.get()).self())
 			if (var_ != nil) && NodeUtil_isImportedName(var_.getNameNode()) {
 				localName = this.maybeGetNameOfImportedValue(t.getScope(), exportSpec.getFirstChild())
-				Preconditions_checkState(localName.isPresent())
+				if !localName.isPresent() {
+					panic(new_IllegalStateException_0().self())
+				}
 			}
 			this.exportedNameToLocalQName.put(exportSpec.getLastChild().getString(), new_Es6RewriteModulesToCommonJsModules_LocalQName(localName.orElse(nullstr_), exportSpec))
 		}
@@ -368,7 +382,9 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportNameDeclarat
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addExportedName(lhs Node) {
-	Preconditions_checkState(lhs.isName())
+	if !lhs.isName() {
+		panic(new_IllegalStateException_0().self())
+	}
 	var name string = lhs.getString()
 	this.exportedNameToLocalQName.put(name, new_Es6RewriteModulesToCommonJsModules_LocalQName(name, lhs))
 }
@@ -378,7 +394,9 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDeclaration(
 	if NodeUtil_isNameDeclaration(declaration) {
 		this.visitExportNameDeclaration(declaration)
 	} else {
-		Preconditions_checkState((declaration.isFunction() || declaration.isClass()))
+		if !declaration.isFunction() && !declaration.isClass() {
+			panic(new_IllegalStateException_0().self())
+		}
 		var name string = declaration.getFirstChild().getString()
 		this.exportedNameToLocalQName.put(name, new_Es6RewriteModulesToCommonJsModules_LocalQName(name, export))
 	}
