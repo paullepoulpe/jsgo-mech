@@ -1444,7 +1444,7 @@ func (this *Compiler) initializeModuleLoader() {
 		case ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES:
 			return ModuleLoader_ModuleResolverFactory(new_BrowserWithTransformedPrefixesModuleResolver_Factory(this.options_.getBrowserResolverPrefixReplacements()))
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	this.moduleLoader = ModuleLoader_builder().setModuleRoots(Iterable(this.options_.getModuleRoots().asList())).setInputs(this.chunkGraph.getAllInputs()).setFactory(moduleResolverFactory).setPathResolver(ModuleLoader_PathResolver_RELATIVE).setPathEscaper(this.options_.getPathEscaper()).build()
 }
@@ -2822,7 +2822,7 @@ func Compiler_toProto(stage AbstractCompiler_LifeCycleStage) LifeCycleStageProto
 		case AbstractCompiler_LifeCycleStage_NORMALIZED_OBFUSCATED:
 			return LifeCycleStageProto_LIFE_CYCLE_STAGE_NORMALIZED_OBFUSCATED
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 

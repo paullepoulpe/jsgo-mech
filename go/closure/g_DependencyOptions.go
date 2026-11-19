@@ -132,7 +132,7 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 		case DependencyOptions_DependencyMode_PRUNE:
 			return DependencyOptions_pruneForEntryPoints(Iterable(entryPointsBuilder.build().asList()))
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	return Outcome_base_ok_Object[*DependencyOptions](result)
 }

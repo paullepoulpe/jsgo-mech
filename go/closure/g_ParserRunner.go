@@ -110,7 +110,7 @@ func ParserRunner_newParserConfig(config *Config) *Parser_Config {
 		case Config_LanguageMode_ECMASCRIPT_2017, Config_LanguageMode_ECMASCRIPT_2018, Config_LanguageMode_ECMASCRIPT_2019, Config_LanguageMode_ECMASCRIPT_2020, Config_LanguageMode_ECMASCRIPT_2021, Config_LanguageMode_ECMASCRIPT_2022, Config_LanguageMode_ES_NEXT, Config_LanguageMode_UNSTABLE, Config_LanguageMode_UNSUPPORTED:
 			return Parser_Config_Mode_ES8_OR_GREATER
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	return new_Parser_Config_Mode_boolean(Preconditions_checkNotNull_T(parserConfigLanguageMode), isStrictMode)
 }

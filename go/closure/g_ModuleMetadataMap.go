@@ -230,7 +230,7 @@ func (this *ModuleMetadataMap_ModuleMetadata) isModule() bool {
 		case ModuleMetadataMap_ModuleType_COMMON_JS, ModuleMetadataMap_ModuleType_ES6_MODULE, ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 			return true
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 

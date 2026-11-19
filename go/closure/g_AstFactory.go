@@ -259,7 +259,7 @@ func (this *AstFactory) getTypeOfThisForEs6Class(functionNode Node) AstFactory_T
 		case AstFactory_TypeMode_NONE:
 			return AstFactory_noTypeInformation()
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 }
 
@@ -1036,7 +1036,7 @@ func (this *AstFactory) createJscompArrayFromIteratorCall(iterator Node, scope S
 		case AstFactory_TypeMode_NONE:
 			return AstFactory_noTypeInformation()
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	var call Node = this.createCall(makeIteratorName, resultType, []Node{iterator})
 	call.putBooleanProp(Node_FREE_CALL, true)
@@ -1058,7 +1058,7 @@ func (this *AstFactory) createJscompArrayFromIterableCall(iterable Node, scope S
 		case AstFactory_TypeMode_NONE:
 			return AstFactory_noTypeInformation()
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	var call Node = this.createCall(makeIterableName, resultType, []Node{iterable})
 	call.putBooleanProp(Node_FREE_CALL, true)
@@ -1120,7 +1120,7 @@ func (this *AstFactory) createJscompAsyncExecutePromiseGeneratorFunctionCall(sco
 		case AstFactory_TypeMode_NONE:
 			return AstFactory_typeJSType_JSType(this.unknownType)
 		}
-		panic("unreachable")
+		panic(new_NullPointerException_0())
 	}()
 	var call Node = this.createCall(jscompDotAsyncExecutePromiseGeneratorFunction, resultType, []Node{generatorFunction})
 	call.putBooleanProp(Node_FREE_CALL, true)
