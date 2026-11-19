@@ -9,6 +9,7 @@ package closure
 // that is all ASCII the two are equal, which is the fast path.
 
 import (
+	"encoding/binary"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -74,10 +75,16 @@ var indexCache_ [8]atomic.Pointer[u16index_]
 var indexNext_ atomic.Uint32
 
 func indexOf_(s string) *u16index_ {
+	// The scanner reads one source text character by character: the index found last is
+	// checked first.
+	if c := indexLast_.Load(); c != nil && len(c.s) == len(s) && unsafe.StringData(c.s) == unsafe.StringData(s) {
+		return c
+	}
 	for i := range indexCache_ {
 		// The same string, not an equal one: comparing contents would cost a pass over a
 		// megabyte-sized source text on every lookup.
 		if c := indexCache_[i].Load(); c != nil && len(c.s) == len(s) && unsafe.StringData(c.s) == unsafe.StringData(s) {
+			indexLast_.Store(c)
 			return c
 		}
 	}
@@ -104,8 +111,11 @@ func indexOf_(s string) *u16index_ {
 		c.n = n
 	}
 	indexCache_[indexNext_.Add(1)%uint32(len(indexCache_))].Store(c)
+	indexLast_.Store(c)
 	return c
 }
+
+var indexLast_ atomic.Pointer[u16index_]
 
 // locate_ finds the byte offset of UTF-16 unit i; low reports that i is the
 // low-surrogate half of the 4-byte character at that offset.
@@ -178,7 +188,13 @@ func asciiPrefix_(s string, n int) bool {
 	if n > len(s) {
 		return false
 	}
-	for i := 0; i < n; i++ {
+	i := 0
+	for ; i+8 <= n; i += 8 { // eight bytes at a time
+		if binary.LittleEndian.Uint64(unsafe.Slice(unsafe.StringData(s[i:]), 8))&0x8080808080808080 != 0 {
+			return false
+		}
+	}
+	for ; i < n; i++ {
 		if s[i] >= 0x80 {
 			return false
 		}
