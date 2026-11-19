@@ -251,7 +251,14 @@ func (this *PriorityQueue) order() Comparator {
 	return this.cmp
 }
 
+// siftUp and siftDown compare as the JDK's do, the same pairs in the same order. With an
+// int-key comparator (Comparator.comparingInt, reversed or not) they call its compare on the
+// concrete type, so it is inlined into the loop.
 func (this *PriorityQueue) siftUp(k int, x any) {
+	if c, ok := this.cmp.(*intKeyCmp_); ok {
+		siftUpInt_(c, this.items, k, x)
+		return
+	}
 	c, es := this.order(), this.items
 	for k > 0 {
 		parent := (k - 1) >> 1
@@ -265,8 +272,44 @@ func (this *PriorityQueue) siftUp(k int, x any) {
 	es[k] = x
 }
 
+func siftUpInt_(c *intKeyCmp_, es []any, k int, x any) {
+	for k > 0 {
+		parent := (k - 1) >> 1
+		e := es[parent]
+		if c.compare(x, e) >= 0 {
+			break
+		}
+		es[k] = e
+		k = parent
+	}
+	es[k] = x
+}
+
 func (this *PriorityQueue) siftDown(k int, x any) {
+	if c, ok := this.cmp.(*intKeyCmp_); ok {
+		siftDownInt_(c, this.items, k, x)
+		return
+	}
 	c, es := this.order(), this.items
+	n := len(es)
+	half := n >> 1
+	for k < half {
+		child := 2*k + 1
+		v := es[child]
+		if right := child + 1; right < n && c.compare(v, es[right]) > 0 {
+			child = right
+			v = es[child]
+		}
+		if c.compare(x, v) <= 0 {
+			break
+		}
+		es[k] = v
+		k = child
+	}
+	es[k] = x
+}
+
+func siftDownInt_(c *intKeyCmp_, es []any, k int, x any) {
 	n := len(es)
 	half := n >> 1
 	for k < half {
