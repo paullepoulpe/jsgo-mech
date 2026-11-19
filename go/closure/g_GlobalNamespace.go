@@ -1844,9 +1844,9 @@ func (this *GlobalNamespace_Name) logChildNamesDecision(inlinability GlobalNames
 
 func (this *GlobalNamespace_Name) logChildNamesDecisionSupplier(inlinability GlobalNamespace_Inlinability, reasonSupplier func() any) {
 	if (this.outer_.decisionsLog != nil) && this.outer_.decisionsLog.isLogging() {
-		this.outer_.decisionsLog.log(&Supplier_tfn_string{func() string {
+		this.outer_.decisionsLog.log(func() string {
 			return String_format("%s: children: %s: %s", strobj_(this.getFullName()), obj_(inlinability), reasonSupplier())
-		}})
+		})
 	}
 }
 

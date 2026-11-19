@@ -109,7 +109,7 @@ func (this *RemoveUnusedCode) storePolyfill(polyfillUsage *PolyfillUsageFinder_P
 
 func (this *RemoveUnusedCode) removeIndependentlyRemovableProperties() {
 	for propName := range elemsBy_(this.removablesForPropertyNames.keySet(), str_) {
-		this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forProperty(propName))
+		this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forProperty(propName).getT_)
 		for removable := range elemsBy_(this.removablesForPropertyNames.get_s(propName), to_RemoveUnusedCode_Removable) {
 			removable.remove(this.compiler_)
 		}
@@ -1052,7 +1052,7 @@ func (this *RemoveUnusedCode) markUnusedParameters(paramList Node, fparamScope *
 			if varInfo.isRemovable() {
 				param.setUnusedParameter(true)
 				this.compiler_.reportChangeToEnclosingScope(paramList)
-				this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forMarkingNamedArg(paramNameNode, paramList))
+				this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forMarkingNamedArg(paramNameNode, paramList).getT_)
 			}
 		}
 	}
@@ -1083,14 +1083,14 @@ func (this *RemoveUnusedCode) maybeRemoveUnusedTrailingParameters(argList Node, 
 				break
 			} else {
 				NodeUtil_deleteNode(lastArg, this.compiler_)
-				this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forDestructuringArg(argList))
+				this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forDestructuringArg(argList).getT_)
 				continue
 			}
 		}
 		var varInfo RemoveUnusedCode_VarInfo = this.getVarInfo(this.getVarForNameNode(argNode, fparamScope))
 		if varInfo.isRemovable() {
 			NodeUtil_deleteNode(lastArg, this.compiler_)
-			this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forNamedArg(argNode, argList))
+			this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forNamedArg(argNode, argList).getT_)
 		} else {
 			break
 		}
@@ -1150,14 +1150,14 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 	}
 	var isGlobal bool = var_.isGlobal()
 	if var_.isExtern() {
-		this.unremovableLog.log(&Supplier_tfn_string{func() string {
+		this.unremovableLog.log(func() string {
 			return (sstr_(var_.getName()) + ": extern")
-		}})
+		})
 		return this.canonicalUnremovableVarInfo
 	} else if this.codingConvention.isExported_2(var_.getName(), !isGlobal) {
-		this.unremovableLog.log(&Supplier_tfn_string{func() string {
+		this.unremovableLog.log(func() string {
 			return (sstr_(var_.getName()) + ": exported by convention")
-		}})
+		})
 		return this.canonicalUnremovableVarInfo
 	} else if var_.isArguments() {
 		return this.canonicalUnremovableVarInfo
@@ -1200,7 +1200,7 @@ func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
 		if !varInfo.isRemovable() {
 			continue
 		}
-		this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forVar(var_))
+		this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forVar(var_).getT_)
 		varInfo.removeAllRemovables()
 		var nameNode Node = var_.getNameNode()
 		var toRemove Node = nameNode.getParent()
@@ -1221,7 +1221,7 @@ func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
 	for iter.hasNext() {
 		var polyfill *RemoveUnusedCode_PolyfillInfo = to_RemoveUnusedCode_PolyfillInfo(iter.next())
 		if polyfill.isRemovable_ {
-			this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forPolyfill(polyfill))
+			this.removalLog.log(RemoveUnusedCode_RemovalLogRecord_forPolyfill(polyfill).getT_)
 			polyfill.removable.remove(this.compiler_)
 			Iterator_remove(iter)
 		}
