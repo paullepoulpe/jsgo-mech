@@ -82,7 +82,7 @@ func (this *CodeConsumer) continueProcessing_impl() bool {
 
 func (this *CodeConsumer) add(newcode string) {
 	this.maybeEndStatement()
-	if String_isEmpty(newcode) {
+	if newcode == "" {
 		return
 	}
 	var c uint16 = String_charAt(newcode, 0)
@@ -291,7 +291,7 @@ func (this *CodeConsumer) addNumber_impl(x float64, n Node) {
 
 func CodeConsumer_formatNumber(x float64) string {
 	if float64(f2i_[int64](float64(x))) != x {
-		return CodeConsumer_LEADING_ZERO_PATTERN.matcher_s(JString_replace_s(String_valueOf_double(x), ".0E", "E")).replaceFirst(".")
+		return CodeConsumer_LEADING_ZERO_PATTERN.matcher_s(JString_replace_s(Double_toString(x), ".0E", "E")).replaceFirst(".")
 	}
 	var value int64 = f2i_[int64](float64(x))
 	var mantissa int64 = value
@@ -310,7 +310,7 @@ func CodeConsumer_formatNumber(x float64) string {
 		return decValueString
 	}
 	var hexValueString string = Long_toHexString(value)
-	if (String_length(hexValueString) + 2) < String_length(decValueString) {
+	if (String_length(hexValueString) + 2) < int32(len(decValueString)) {
 		return ("0x" + sstr_(hexValueString))
 	} else {
 		return decValueString

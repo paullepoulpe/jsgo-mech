@@ -65,7 +65,7 @@ func (this *CollapseAnonymousFunctions) visit_impl(t *NodeTraversal, n Node, par
 
 func (this *CollapseAnonymousFunctions) isRecursiveFunction(function Node) bool {
 	var name Node = function.getFirstChild()
-	if String_isEmpty(name.getString()) {
+	if name.getString() == "" {
 		return false
 	}
 	var args Node = name.getNext()

@@ -484,7 +484,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 	if NodeUtil_has(this.def.getLastChild(), (&Predicate_base_tfn_Node{func(input Node) bool {
 		if input.isName() {
 			var name string = input.getString()
-			if !String_isEmpty(name) && !usageScope.hasSlot(name) {
+			if name != "" && !usageScope.hasSlot(name) {
 				return true
 			}
 		}

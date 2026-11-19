@@ -222,7 +222,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitFunct
 	var classInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 	if (classInfo != nil) && classInfo.isConstructor() {
 		var name string = NodeUtil_getName(n)
-		if String_isEmpty(name) {
+		if name == "" {
 			return
 		}
 		if this.outer_.classByAlias.containsKey(name) {
@@ -242,9 +242,9 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) setAlias(o
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitAssign(t *NodeTraversal, n Node) {
 	var existingClassQname string = n.getLastChild().getQualifiedName()
-	if !String_isEmpty(existingClassQname) && this.outer_.classByAlias.containsKey(existingClassQname) {
+	if existingClassQname != "" && this.outer_.classByAlias.containsKey(existingClassQname) {
 		var alias string = n.getFirstChild().getQualifiedName()
-		if !String_isEmpty(alias) {
+		if alias != "" {
 			this.setAlias(existingClassQname, alias)
 		}
 	} else if n.getFirstChild().isGetProp() {
@@ -263,9 +263,9 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visitVaria
 		return
 	}
 	var maybeOriginalName string = child.getFirstChild().getQualifiedName()
-	if !String_isEmpty(maybeOriginalName) && this.outer_.classByAlias.containsKey(maybeOriginalName) {
+	if maybeOriginalName != "" && this.outer_.classByAlias.containsKey(maybeOriginalName) {
 		var maybeAlias string = child.getQualifiedName()
-		if !String_isEmpty(maybeAlias) {
+		if maybeAlias != "" {
 			this.setAlias(maybeOriginalName, maybeAlias)
 		}
 	}

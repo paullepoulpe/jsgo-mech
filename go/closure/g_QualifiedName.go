@@ -341,7 +341,7 @@ func (this *QualifiedName_NodeQname) appendTo_impl(sb *StringBuilder, separator 
 
 func (this *QualifiedName_NodeQname) join_impl() Optional[string] {
 	return Optional_of[string](this.node_.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-		return !String_isEmpty(s)
+		return s != ""
 	}})
 }
 

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CommandLineRunner struct {
 	AbstractCommandLineRunner
 	flags       *CommandLineRunner_Flags
@@ -241,7 +243,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	if this.flags.outputWrapper.isEmpty() {
 		this.flags.outputWrapper = Optional_of[string]("")
 	}
-	if this.flags.outputWrapperFile.isPresent() && !String_isEmpty(this.flags.outputWrapperFile.get()) {
+	if this.flags.outputWrapperFile.isPresent() && this.flags.outputWrapperFile.get() != "" {
 		var outputWrapper *Outcome_base[string] = TextFiles_read(FilePaths_clean(this.flags.outputWrapperFile.get()), Charsets_UTF_8)
 		if outputWrapper.isErr() {
 			this.reportError("ERROR - invalid output_wrapper_file specified.")
@@ -249,10 +251,10 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 			this.flags.outputWrapper = Optional_ofNullable[string](outputWrapper.get())
 		}
 	}
-	if !String_isEmpty(this.flags.outputWrapper.get()) && !JString_contains_s(this.flags.outputWrapper.get(), CommandLineRunner_OUTPUT_MARKER_FIELD) {
+	if this.flags.outputWrapper.get() != "" && !JString_contains_s(this.flags.outputWrapper.get(), CommandLineRunner_OUTPUT_MARKER_FIELD) {
 		this.reportError(("ERROR - invalid output_wrapper specified. Missing '" + sstr_(CommandLineRunner_OUTPUT_MARKER_FIELD) + "'."))
 	}
-	if !String_isEmpty(this.flags.outputWrapper.get()) && (this.flags.isolationMode != CompilerOptions_IsolationMode_NONE) {
+	if this.flags.outputWrapper.get() != "" && (this.flags.isolationMode != CompilerOptions_IsolationMode_NONE) {
 		this.reportError("--output_wrapper and --isolation_mode may not be used together.")
 	}
 	if this.flags.isolationMode == CompilerOptions_IsolationMode_IIFE {
@@ -261,7 +263,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	var bundleFiles *JTList[string] = jtlistEmptyImm_(jtc_string)
 	var skipNormalOutputs bool = false
 	if this.flags.compilationLevelParsed == CompilationLevel_BUNDLE {
-		if String_isEmpty(this.flags.jsOutputFile) {
+		if this.flags.jsOutputFile == "" {
 			this.reportError("--compilation_level=BUNDLE cannot be used without a --js_output_file.")
 		} else {
 			bundleFiles = jimmutableListOf_[string](jtc_string, this.flags.jsOutputFile)
@@ -331,7 +333,7 @@ func (this *CommandLineRunner) checkChunkName_impl(name string) *Outcome_base[an
 
 func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptions] {
 	var options *CompilerOptions = new_CompilerOptions()
-	if !String_isEmpty(this.flags.languageIn) {
+	if this.flags.languageIn != "" {
 		var languageMode CompilerOptions_LanguageMode = CompilerOptions_LanguageMode_fromString(Optional_of[string](this.flags.languageIn))
 		if languageMode == CompilerOptions_LanguageMode_UNSUPPORTED {
 			return Outcome_base_err[*CompilerOptions](new_FlagUsageException("Cannot specify the unsupported set of features for language_in.").up_Throwable())
@@ -389,7 +391,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptio
 	options.setAngularPass(this.flags.angularPass)
 	options.setPolymerVersion(this.flags.polymerVersion)
 	options.setChromePass(this.flags.chromePass)
-	if !String_isEmpty(this.flags.j2clPassMode) {
+	if this.flags.j2clPassMode != "" {
 		var j2clPassMode CompilerOptions_J2clPassMode = 0
 		var j2clPassModeName string = Ascii_toUpperCase(this.flags.j2clPassMode)
 		for _, mode := range CompilerOptions_J2clPassMode_values() {
@@ -413,7 +415,7 @@ func (this *CommandLineRunner) createOptions_impl() *Outcome_base[*CompilerOptio
 	}
 	options.setRewritePolyfills((this.flags.rewritePolyfills && options.getLanguageIn().toFeatureSet().containsFeatureSet(FeatureSet_ES2015)))
 	options.setIsolatePolyfills(this.flags.isolatePolyfills)
-	if !String_isEmpty(this.flags.translationsFile) {
+	if this.flags.translationsFile != "" {
 		var xtb *Outcome_base[[]int8] = Io_readBytes(this.flags.translationsFile)
 		if xtb.isErr() {
 			panic(new_RuntimeException_String_Throwable("Reading XTB file", xtb.error()).self())
@@ -553,7 +555,7 @@ func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base[*C
 	}
 	var textProto string = text.get()
 	var builder *ConformanceConfig_Builder = ConformanceConfig_newBuilder()
-	if !String_isEmpty(textProto) && (int32(String_charAt(textProto, 0)) == CommandLineRunner_UTF8_BOM_CODE) {
+	if textProto != "" && (int32(String_charAt(textProto, 0)) == CommandLineRunner_UTF8_BOM_CODE) {
 		textProto = String_substring_int(textProto, 1)
 	}
 	_ = func() (code_ int) {
@@ -593,11 +595,11 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 	it_1 := foreach_(any(patterns))
 	for it_1.next() {
 		var pattern string = str_(it_1.v)
-		if !JString_contains_s(pattern, "*") && !String_startsWith(pattern, "!") {
+		if !JString_contains_s(pattern, "*") && !strings.HasPrefix(pattern, "!") {
 			if Io_isDirectory(pattern) {
 				var directory string = FilePaths_clean(pattern)
 				var matched *Outcome_base[any] = CommandLineRunner_matchPaths(func() string {
-					if String_endsWith(directory, FilePaths_SEPARATOR) {
+					if strings.HasSuffix(directory, FilePaths_SEPARATOR) {
 						return (sstr_(directory) + "**.js")
 					}
 					return (sstr_(directory) + sstr_(FilePaths_SEPARATOR) + "**.js")
@@ -1527,10 +1529,10 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 				return (!option.hidden() && (optionName == CommandLineRunner_LEADING_DASHES_PATTERN.matcher_s(option.name()).replaceFirst("")))
 			}}).test)
 			var rawOptionUsage string = tostrNN_(stringWriter)
-			var delimiterIndex int32 = String_indexOf_String(rawOptionUsage, " : ")
+			var delimiterIndex int32 = int32(strings.Index(rawOptionUsage, " : "))
 			if delimiterIndex > 0 {
-				outputStream.append(("\n**" + sstr_(String_trim(String_substring(rawOptionUsage, 0, delimiterIndex))) + "**  \n"))
-				var optionDescription string = String_trim(CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE.matcher_s(String_substring_int(rawOptionUsage, (delimiterIndex + 3))).replaceAll("\\\\$0"))
+				outputStream.append(("\n**" + sstr_(String_trim(rawOptionUsage[:delimiterIndex])) + "**  \n"))
+				var optionDescription string = String_trim(CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE.matcher_s(rawOptionUsage[delimiterIndex+3:]).replaceAll("\\\\$0"))
 				outputStream.append((sstr_(optionDescription) + "\n"))
 			} else {
 				outputStream.append(CommandLineRunner_Flags_MARKDOWN_CHARS_TO_ESCAPE.matcher_s(rawOptionUsage).replaceAll("\\\\$0"))
@@ -1582,9 +1584,9 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base[List] {
 	it_1 := this.mixedJsSources.each()
 	for it_1.next() {
 		var source *AbstractCommandLineRunner_FlagEntry = it_1.v
-		if String_endsWith(source.getValue(), ".zip") {
+		if strings.HasSuffix(source.getValue(), ".zip") {
 			mixedSources.add(source)
-		} else if String_startsWith(source.getValue(), "!") {
+		} else if strings.HasPrefix(source.getValue(), "!") {
 			var found *Outcome_base[List] = CommandLineRunner_findJsFiles_Collection(ImmutableList_as_Collection(ImmutableList_of_Object(strobj_(String_substring_int(source.getValue(), 1)))))
 			if found.isErr() {
 				return Outcome_base_err[List](found.error())
@@ -1664,7 +1666,7 @@ func (this *CommandLineRunner_Flags) getPackageJsonEntryNames() *JTList[string] 
 
 func CommandLineRunner_Flags_addMultiFlagValue(values *TList[string], value Optional[string], flag any, entries ListOf[*AbstractCommandLineRunner_FlagEntry]) *TList[string] {
 	var normalizedValue Optional[string] = value
-	if ((value.isPresent() && (String_length(value.get()) > 0)) && ((String_substring(value.get(), 0, 1) == "'") || (String_substring(value.get(), 0, 1) == "\""))) && (String_substring_int(value.get(), (String_length(value.get())-1)) == String_substring(value.get(), 0, 1)) {
+	if ((value.isPresent() && (len(value.get()) != 0)) && ((String_substring(value.get(), 0, 1) == "'") || (String_substring(value.get(), 0, 1) == "\""))) && (String_substring_int(value.get(), (String_length(value.get())-1)) == String_substring(value.get(), 0, 1)) {
 		normalizedValue = Optional_of[string](String_substring(value.get(), 1, (String_length(value.get()) - 1)))
 	}
 	if values == nil {

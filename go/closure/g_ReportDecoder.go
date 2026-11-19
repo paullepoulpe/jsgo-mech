@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type ReportDecoder struct {
 }
 
@@ -32,13 +34,13 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 	var fileNamesLine string = String_trim(linesOfFile.get(0))
 	var functionNamesLine string = String_trim(linesOfFile.get(1))
 	var typesLine string = String_trim(linesOfFile.get(2))
-	if !String_startsWith(fileNamesLine, "FileNames:") {
+	if !strings.HasPrefix(fileNamesLine, "FileNames:") {
 		panic(new_IllegalStateException_0().self())
 	}
-	if !String_startsWith(functionNamesLine, "FunctionNames:") {
+	if !strings.HasPrefix(functionNamesLine, "FunctionNames:") {
 		panic(new_IllegalStateException_0().self())
 	}
-	if !String_startsWith(typesLine, "Types:") {
+	if !strings.HasPrefix(typesLine, "Types:") {
 		panic(new_IllegalStateException_0().self())
 	}
 	var fileNamesAsJsonArray string = String_substring_int(fileNamesLine, (String_indexOf_String(fileNamesLine, ":") + 1))

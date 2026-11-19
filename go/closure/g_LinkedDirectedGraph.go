@@ -448,7 +448,7 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) getLabel_impl() string 
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) toString() string {
-	return String_valueOf_Object(boxT_(this.value_))
+	return objstr_(boxT_(this.value_))
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode[N, E]) getInEdges() ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge[N, E]] {
@@ -619,7 +619,7 @@ func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) getColor() string {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) getLabel() string {
-	return String_valueOf_Object(boxT_(this.value_))
+	return objstr_(boxT_(this.value_))
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]) getNode1Id() string {

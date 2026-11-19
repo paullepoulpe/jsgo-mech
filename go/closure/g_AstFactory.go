@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type AstFactory struct {
 	colorRegistry       *ColorRegistry
 	registry            *JSTypeRegistry
@@ -348,7 +350,7 @@ func (this *AstFactory) createName(name string, type_ AstFactory_Type) Node {
 	}
 	var result Node = IR_name(name)
 	this.setJSTypeOrColor(type_, result)
-	if this.lifeCycleStage.isNormalized() && String_startsWith(name, "$jscomp") {
+	if this.lifeCycleStage.isNormalized() && strings.HasPrefix(name, "$jscomp") {
 		result.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 	}
 	return result
@@ -471,7 +473,7 @@ func (this *AstFactory) createQName(scope StaticScope, field RuntimeJsLibManager
 	var qname string = field.assertInjected().qualifiedName()
 	var parts *JTList[string] = splitToListT_(jtc_string, AstFactory_DOT_SPLITTER, strobj_(qname))
 	var baseName string = Optional_ofNullable[string](str_(Iterables_getFirst(Iterable(parts.asList()), nil))).orElseThrow()
-	if !String_startsWith(baseName, "$jscomp") {
+	if !strings.HasPrefix(baseName, "$jscomp") {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{baseName})).self())
 	}
 	var baseNameNode Node = func() Node {
@@ -494,7 +496,7 @@ func (this *AstFactory) createQNameWithUnknownType(qname string) Node {
 func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibManager_JsLibField) Node {
 	var parts *JTList[string] = splitToListT_(jtc_string, AstFactory_DOT_SPLITTER, strobj_(field.assertInjected().qualifiedName()))
 	var baseName string = Optional_ofNullable[string](str_(Iterables_getFirst(Iterable(parts.asList()), nil))).orElseThrow()
-	if !String_startsWith(baseName, "$jscomp") {
+	if !strings.HasPrefix(baseName, "$jscomp") {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Unexpected Field name %s", []any{baseName})).self())
 	}
 	var baseNameNode Node = func() Node {
@@ -941,7 +943,7 @@ func (this *AstFactory) createZeroArgArrowFunctionForExpression(expression Node)
 }
 
 func (this *AstFactory) createMemberFunctionDef(name string, function Node) Node {
-	if !String_isEmpty(function.getFirstChild().getString()) {
+	if function.getFirstChild().getString() != "" {
 		Preconditions_checkArgument_boolean_Object_H(false, function)
 	}
 	var result Node = IR_memberFunctionDef(name, function)

@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type J2clConstantHoisterPass struct {
 	compiler_ *AbstractCompiler
 }
@@ -106,9 +108,9 @@ func J2clConstantHoisterPass_isClinitMethod(fnNode Node) bool {
 		return false
 	}
 	var fnName string = NodeUtil_getName(fnNode)
-	return (!String_isEmpty(fnName) && J2clConstantHoisterPass_isClinitMethodName(Optional_of[string](fnName)))
+	return (fnName != "" && J2clConstantHoisterPass_isClinitMethodName(Optional_of[string](fnName)))
 }
 
 func J2clConstantHoisterPass_isClinitMethodName(methodName Optional[string]) bool {
-	return (methodName.isPresent() && (String_endsWith(methodName.get(), "$$0clinit") || String_endsWith(methodName.get(), ".$clinit")))
+	return (methodName.isPresent() && (strings.HasSuffix(methodName.get(), "$$0clinit") || strings.HasSuffix(methodName.get(), ".$clinit")))
 }

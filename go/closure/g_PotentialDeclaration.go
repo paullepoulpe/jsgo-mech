@@ -245,7 +245,7 @@ func PotentialDeclaration_isAliasDeclaration(lhs Node, rhs Node) bool {
 func PotentialDeclaration_isQualifiedAliasExpression(n Node) bool {
 	switch n.ns_().token {
 	case tokOrd1_NAME:
-		return !String_isEmpty(n.getString())
+		return n.getString() != ""
 	case tokOrd1_THIS, tokOrd1_SUPER:
 		return true
 	case tokOrd1_GETPROP:

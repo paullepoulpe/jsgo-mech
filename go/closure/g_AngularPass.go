@@ -108,7 +108,7 @@ func (this *AngularPass) addNode(n Node) {
 			return
 		}
 		name = Optional_of[string](n.getFirstChild().getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}})
 		fn = n
 		for fn.isAssign() {
@@ -117,7 +117,7 @@ func (this *AngularPass) addNode(n Node) {
 		injectAfter = n.getParent()
 	case tokOrd1_FUNCTION:
 		name = Optional_of[string](NodeUtil_getName(n)).filter(&Predicate_tfn_string{func(s string) bool {
-			return !String_isEmpty(s)
+			return s != ""
 		}})
 		fn = n
 		injectAfter = n
@@ -141,7 +141,7 @@ func (this *AngularPass) addNode(n Node) {
 			name = Optional_of[string]((sstr_(NodeUtil_getName(classNode)) + sstr_(midPart) + sstr_(n.getString())))
 			if NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
 				name = Optional_of[string](NodeUtil_getName(classNode)).filter(&Predicate_tfn_string{func(s string) bool {
-					return !String_isEmpty(s)
+					return s != ""
 				}})
 			}
 			fn = n.getFirstChild()

@@ -803,7 +803,7 @@ func (this *AstValidator) validateBlock(n Node) {
 
 func (this *AstValidator) validateHasSourceName(n Node) {
 	var sourceName string = n.getSourceFileName()
-	if String_isEmpty(sourceName) {
+	if sourceName == "" {
 		this.violation("Missing 'source name' annotation.", n)
 	}
 }
@@ -831,13 +831,13 @@ func (this *AstValidator) validateLabelName(n Node) {
 }
 
 func (this *AstValidator) validateNonEmptyString(n Node) {
-	if this.validateNonNullString(n) && String_isEmpty(n.getString()) {
+	if this.validateNonNullString(n) && n.getString() == "" {
 		this.violation("Expected non-empty string.", n)
 	}
 }
 
 func (this *AstValidator) validateEmptyString(n Node) {
-	if this.validateNonNullString(n) && !String_isEmpty(n.getString()) {
+	if this.validateNonNullString(n) && n.getString() != "" {
 		this.violation("Expected empty string.", n)
 	}
 }
@@ -864,7 +864,7 @@ func (this *AstValidator) validateOptionalName(n Node) {
 	this.validateNonNullString(n)
 	this.validateProperties(n)
 	this.validateChildCount(n)
-	var isEmpty bool = String_isEmpty(n.getString())
+	var isEmpty bool = n.getString() == ""
 	if !isEmpty {
 		this.validateTypeInformation(n)
 	}
@@ -1676,7 +1676,7 @@ func (this *AstValidator) validateObjectLitGetKey(n Node) {
 	this.validateObjectLiteralKeyName(n)
 	var function Node = n.getFirstChild()
 	this.validateFunctionExpression(function)
-	if !String_isEmpty(function.getFirstChild().getString()) {
+	if function.getFirstChild().getString() != "" {
 		this.violation("Expected unnamed function expression.", n)
 	}
 	var functionParams Node = function.getSecondChild()
@@ -1693,7 +1693,7 @@ func (this *AstValidator) validateObjectLitSetKey(n Node) {
 	this.validateObjectLiteralKeyName(n)
 	var function Node = n.getFirstChild()
 	this.validateFunctionExpression(function)
-	if !String_isEmpty(function.getFirstChild().getString()) {
+	if function.getFirstChild().getString() != "" {
 		this.violation("Expected unnamed function expression.", n)
 	}
 	var functionParams Node = function.getSecondChild()
@@ -1780,7 +1780,7 @@ func (this *AstValidator) validateObjectLitComputedPropGetKey(n Node) {
 	this.validateChildCount(n)
 	var function Node = n.getLastChild()
 	this.validateFunctionExpression(function)
-	if !String_isEmpty(function.getFirstChild().getString()) {
+	if function.getFirstChild().getString() != "" {
 		this.violation("Expected unnamed function expression.", n)
 	}
 	var functionParams Node = function.getSecondChild()
@@ -1797,7 +1797,7 @@ func (this *AstValidator) validateObjectLitComputedPropSetKey(n Node) {
 	this.validateChildCount(n)
 	var function Node = n.getLastChild()
 	this.validateFunctionExpression(function)
-	if !String_isEmpty(function.getFirstChild().getString()) {
+	if function.getFirstChild().getString() != "" {
 		this.violation("Expected unnamed function expression.", n)
 	}
 	var functionParams Node = function.getSecondChild()

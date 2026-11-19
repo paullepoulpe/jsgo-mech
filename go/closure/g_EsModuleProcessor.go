@@ -59,7 +59,7 @@ func (this *EsModuleProcessor) visitExportDefault(t *NodeTraversal, export Node)
 	var name string = Export_DEFAULT_EXPORT_NAME
 	if child.isFunction() || child.isClass() {
 		var maybeName string = NodeUtil_getName(child)
-		if !String_isEmpty(maybeName) {
+		if maybeName != "" {
 			name = maybeName
 		}
 	}

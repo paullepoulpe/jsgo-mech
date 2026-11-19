@@ -2,6 +2,11 @@
 
 package closure
 
+import (
+	"strconv"
+	"strings"
+)
+
 type ClosureCheckModule struct {
 	NodeTraversal_AbstractModuleCallback
 	currentModuleInfo *ClosureCheckModule_ModuleInfo
@@ -119,7 +124,7 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 			if !parent.isGetProp() && n.isQualifiedName() {
 				var node Node = n
 				for this.checkImproperReferenceToImport(t, node, Optional_of[string](node.getQualifiedName()).filter(&Predicate_tfn_string{func(s string) bool {
-					return !String_isEmpty(s)
+					return s != ""
 				}}), func() Optional[string] {
 					if node.getParent().isGetProp() {
 						return Optional_of[string](node.getParent().getString())
@@ -218,7 +223,7 @@ func (this *ClosureCheckModule) checkModuleExport(t *NodeTraversal, n Node, pare
 	var previousDefinition Node = this.currentModuleInfo.exportNodesByName.get(lhs.getQualifiedName())
 	if previousDefinition != 0 {
 		var previousLine int32 = previousDefinition.getLineno()
-		t.report(n, ClosureCheckModule_EXPORT_REPEATED_ERROR, []string{String_valueOf(previousLine)})
+		t.report(n, ClosureCheckModule_EXPORT_REPEATED_ERROR, []string{strconv.Itoa(int(previousLine))})
 	}
 	var defaultExportNode Node = this.currentModuleInfo.exportNodesByName.get("exports")
 	if (defaultExportNode == 0) || lhs.matchesName("exports") {
@@ -298,11 +303,11 @@ func (this *ClosureCheckModule) checkShortGoogRequireCall(t *NodeTraversal, call
 
 func ClosureCheckModule_checkShortName(t *NodeTraversal, shortNameNode Node, namespace string) {
 	var nextQnamePart string = shortNameNode.getString()
-	if String_startsWith(namespace, "google3.") {
+	if strings.HasPrefix(namespace, "google3.") {
 		return
 	}
 	var lastSegment string = String_substring_int(namespace, (String_lastIndexOf(namespace, 46) + 1))
-	if (nextQnamePart == lastSegment) || String_isEmpty(lastSegment) {
+	if (nextQnamePart == lastSegment) || lastSegment == "" {
 		return
 	}
 	if Ascii_isUpperCase(String_charAt(nextQnamePart, 0)) != Ascii_isUpperCase(String_charAt(lastSegment, 0)) {
