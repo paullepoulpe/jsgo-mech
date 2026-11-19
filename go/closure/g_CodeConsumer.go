@@ -2,6 +2,8 @@
 
 package closure
 
+import "strings"
+
 type CodeConsumer struct {
 	self_               CodeConsumer_I
 	statementNeedsEnded bool
@@ -94,17 +96,17 @@ func (this *CodeConsumer) add(newcode string) {
 		this.maybeInsertSpace()
 	}
 	var startOfLine int32 = 0
-	var endOfLine int32 = String_indexOf(newcode, 10)
+	var endOfLine int32 = int32(strings.IndexByte(newcode, '\n'))
 	for endOfLine >= 0 {
 		if endOfLine > startOfLine {
-			this.append(String_substring(newcode, startOfLine, endOfLine))
+			this.append(cutBytes_(newcode, startOfLine, endOfLine))
 		}
 		this.startNewLine()
 		startOfLine = (endOfLine + 1)
-		endOfLine = String_indexOf_int_int(newcode, 10, startOfLine)
+		endOfLine = indexByteFrom_(newcode, '\n', startOfLine)
 	}
-	if String_length(newcode) > startOfLine {
-		this.append(String_substring_int(newcode, startOfLine))
+	if int32(len(newcode)) > startOfLine {
+		this.append(newcode[startOfLine:])
 	}
 }
 

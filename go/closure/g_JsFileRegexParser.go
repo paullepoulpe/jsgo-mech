@@ -148,7 +148,7 @@ func (this *JsFileRegexParser) applyGoogMatcher(line string) *Outcome_base[any] 
 			this.requires.add(DependencyInfo_Require_BASE)
 		}
 		var methodName string = this.googMatcher.group_String("func")
-		var firstChar uint16 = String_charAt(methodName, 0)
+		var firstChar uint16 = uint16(byteAt_(methodName, 0))
 		var isDeclareModuleNamespace bool = (firstChar == 'd')
 		var isModule bool = (!isDeclareModuleNamespace && (firstChar == 'm'))
 		var isProvide bool = (firstChar == 'p')

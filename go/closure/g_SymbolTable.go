@@ -660,11 +660,11 @@ nextSymbol_:
 		}
 		var dot int32 = -1
 		for {
-			dot = String_lastIndexOf(currentName, 46)
+			dot = int32(strings.LastIndexByte(currentName, '.'))
 			if dot == -1 {
 				break
 			}
-			currentName = String_substring(currentName, 0, dot)
+			currentName = currentName[:dot]
 			var owner *SymbolTable_Symbol = s.scope_.getQualifiedSlot(currentName)
 			if ((owner != nil) && (this.getType(any(owner).(StaticSlot)) != nil)) && ((this.getType(any(owner).(StaticSlot)).isNominalConstructorOrInterface() || this.getType(any(owner).(StaticSlot)).isFunctionPrototypeType()) || this.getType(any(owner).(StaticSlot)).isEnumType()) {
 				this.removeSymbol(s)

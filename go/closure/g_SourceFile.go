@@ -320,7 +320,7 @@ func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
 	var pos int32 = 0
 	var startLine int32 = Math_max(1, ((lineNumber - 3) + 1))
 	for n := int32(1); n < startLine; n++ {
-		var nextpos int32 = String_indexOf_int_int(js, 10, pos)
+		var nextpos int32 = indexByteFrom_(js, '\n', pos)
 		if nextpos == -1 {
 			break
 		}
@@ -337,7 +337,7 @@ func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
 		if !(n < SourceFile_jscomp_SOURCE_EXCERPT_REGION_LENGTH) {
 			break
 		}
-		end = String_indexOf_int_int(js, 10, end)
+		end = indexByteFrom_(js, '\n', end)
 		if end == -1 {
 			break
 		}
@@ -347,14 +347,14 @@ func (this *SourceFile_jscomp) getRegion(lineNumber int32) Region {
 		return nil
 	}
 	if end == -1 {
-		var last int32 = (String_length(js) - 1)
-		if String_charAt(js, last) == '\n' {
-			return Region(new_SimpleRegion(startLine, endLine, String_substring(js, pos, last)))
+		var last int32 = (int32(len(js)) - 1)
+		if byteAt_(js, last) == '\n' {
+			return Region(new_SimpleRegion(startLine, endLine, cutBytes_(js, pos, last)))
 		} else {
-			return Region(new_SimpleRegion(startLine, endLine, String_substring_int(js, pos)))
+			return Region(new_SimpleRegion(startLine, endLine, js[pos:]))
 		}
 	} else {
-		return Region(new_SimpleRegion(startLine, endLine, String_substring(js, pos, end)))
+		return Region(new_SimpleRegion(startLine, endLine, cutBytes_(js, pos, end)))
 	}
 }
 
@@ -422,21 +422,21 @@ func SourceFile_jscomp_stripConfigSegment(path string) string {
 	if strings.HasPrefix(path, "testlogs/") {
 		return path[9:]
 	}
-	var blazeOutIdx int32 = String_indexOf_String(path, "blaze-out/")
+	var blazeOutIdx int32 = int32(strings.Index(path, "blaze-out/"))
 	if blazeOutIdx == -1 {
-		blazeOutIdx = String_indexOf_String(path, "bazel-out/")
+		blazeOutIdx = int32(strings.Index(path, "bazel-out/"))
 	}
 	if blazeOutIdx != -1 {
-		var nextSlash int32 = String_indexOf_int_int(path, 47, (blazeOutIdx + 10))
+		var nextSlash int32 = indexByteFrom_(path, '/', (blazeOutIdx + 10))
 		if nextSlash != -1 {
-			if String_startsWith_String_int(path, "bin/", (nextSlash + 1)) {
-				return String_substring_int(path, (nextSlash + 5))
+			if hasPrefixAt_(path, "bin/", (nextSlash + 1)) {
+				return path[(nextSlash + 5):]
 			}
-			if String_startsWith_String_int(path, "genfiles/", (nextSlash + 1)) {
-				return String_substring_int(path, (nextSlash + 10))
+			if hasPrefixAt_(path, "genfiles/", (nextSlash + 1)) {
+				return path[(nextSlash + 10):]
 			}
-			if String_startsWith_String_int(path, "testlogs/", (nextSlash + 1)) {
-				return String_substring_int(path, (nextSlash + 10))
+			if hasPrefixAt_(path, "testlogs/", (nextSlash + 1)) {
+				return path[(nextSlash + 10):]
 			}
 		}
 	}

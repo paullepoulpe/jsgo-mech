@@ -1404,7 +1404,7 @@ func CodeGenerator_isSimpleNumber(s string) bool {
 			return false
 		}
 	}
-	return ((len_ == 1) || (String_charAt(s, 0) != '0'))
+	return ((len_ == 1) || (byteAt_(s, 0) != '0'))
 }
 
 func CodeGenerator_getSimpleNumber(s string) float64 {
