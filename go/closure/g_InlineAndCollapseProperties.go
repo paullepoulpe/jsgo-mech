@@ -1062,9 +1062,11 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenReferencesToC
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName_3(name *GlobalNamespace_Name, inlinability GlobalNamespace_Inlinability, message string) {
-	this.logDecisionForNameSupplier(name, (&Supplier_tfn_string{func() string {
-		return ("inlinability " + tostr_(inlinability) + ": " + sstr_(message))
-	}}).get)
+	this.logDecisionForNameSupplier(name, func() any {
+		return strobj_((func() string {
+			return ("inlinability " + tostr_(inlinability) + ": " + sstr_(message))
+		})())
+	})
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForName(name *GlobalNamespace_Name, message string) {
@@ -1182,9 +1184,11 @@ func (this *InlineAndCollapseProperties_CollapseProperties) collapseDeclarationO
 	var childNameInlinability GlobalNamespace_Inlinability = n.canCollapseOrInlineChildNames()
 	var canCollapseChildNames bool
 	if !childNameInlinability.canCollapse() {
-		this.logDecisionForNameSupplier(n, (&Supplier_tfn_string{func() string {
-			return ("child name inlinability: " + tostr_(childNameInlinability) + ": will not collapse child names")
-		}}).get)
+		this.logDecisionForNameSupplier(n, func() any {
+			return strobj_((func() string {
+				return ("child name inlinability: " + tostr_(childNameInlinability) + ": will not collapse child names")
+			})())
+		})
 		canCollapseChildNames = false
 	} else if escaped.Has(n) {
 		this.logDecisionForName(n, "escapes: will not collapse child names")
@@ -1274,9 +1278,11 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDecl
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) logDeclarationAction(name *GlobalNamespace_Name, declarationNode Node, message string) {
-	this.logDecisionForNameSupplier(name, (&Supplier_tfn_string{func() string {
-		return (tostr_(declarationNode) + ": " + sstr_(message))
-	}}).get)
+	this.logDecisionForNameSupplier(name, func() any {
+		return strobj_((func() string {
+			return (tostr_(declarationNode) + ": " + sstr_(message))
+		})())
+	})
 }
 
 func (this *InlineAndCollapseProperties_CollapseProperties) moveDeclarationIntoHigherChunk(decl *GlobalNamespace_Ref, commonAncestor *JSChunk) {

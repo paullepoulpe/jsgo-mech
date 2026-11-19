@@ -45,14 +45,16 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 	var block Node = NodeUtil_getFunctionBody(fnNode)
 	var fnRecursionName string = fnNode.getFirstChild().getString()
 	var referencesArguments bool = NodeUtil_isNameReferenced_Node_String_Predicate(block, "arguments", NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION)
-	var blocksInjection func(any) bool = (&Predicate_base_tfn_Node{func(n Node) bool {
-		if n.isName() {
-			return (((n.getString() == "eval") || (fnName != "" && (n.getString() == fnName))) || (fnRecursionName != "" && (n.getString() == fnRecursionName)))
-		} else if n.isSuper() || (n.ns_().token == tokOrd1_NEW_TARGET) {
-			return true
-		}
-		return false
-	}}).apply
+	var blocksInjection func(any) bool = func(p0 any) bool {
+		return (func(n Node) bool {
+			if n.isName() {
+				return (((n.getString() == "eval") || (fnName != "" && (n.getString() == fnName))) || (fnRecursionName != "" && (n.getString() == fnRecursionName)))
+			} else if n.isSuper() || (n.ns_().token == tokOrd1_NEW_TARGET) {
+				return true
+			}
+			return false
+		})(Node_of_(p0))
+	}
 	return (!referencesArguments && !NodeUtil_has(block, blocksInjection, Predicates_alwaysTrue()))
 }
 
@@ -318,9 +320,11 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 	if cached != nil {
 		return unbox_[bool](cached)
 	}
-	var result bool = NodeUtil_has(fn, (&Predicate_base_tfn_Node{func(n Node) bool {
-		return (n.isName() && (n.getString() == "eval"))
-	}}).apply, &Predicate_base_tfn_Node{func(n Node) bool {
+	var result bool = NodeUtil_has(fn, func(p0 any) bool {
+		return (func(n Node) bool {
+			return (n.isName() && (n.getString() == "eval"))
+		})(Node_of_(p0))
+	}, &Predicate_base_tfn_Node{func(n Node) bool {
 		return (!n.isFunction() || equalsId_(n, fn))
 	}})
 	this.referencesEvalCache[fn] = any(bool(result))

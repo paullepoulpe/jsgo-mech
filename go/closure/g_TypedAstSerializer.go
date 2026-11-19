@@ -510,7 +510,11 @@ func TypedAstSerializer_createJSTypeSerializer(compiler *AbstractCompiler, seria
 
 func (this *TypedAstSerializer) createColorTypeSerializer(compiler *AbstractCompiler, serializationMode *SerializationOptions, stringPoolBuilder *StringPool_Builder) *TypedAstSerializer_ColorTypeSerializer {
 	var usedPropertyNames map[string]struct{} = setImm_(tc_string, TypedAstSerializer_collectUsedPropertyNames(compiler).asImm())
-	var colorSerializer *ColorSerializer = new_ColorSerializer(serializationMode, (&Function_tfn_string_any{func(p0 string) any { return any(int32(stringPoolBuilder.put(p0))) }}).apply, (&Predicate_tfn_string{func(p0 string) bool { return has_(usedPropertyNames, p0) }}).test)
+	var colorSerializer *ColorSerializer = new_ColorSerializer(serializationMode, func(p0 any) any {
+		return (func(p0 string) any { return any(int32(stringPoolBuilder.put(p0))) })(str_(p0))
+	}, func(p0 any) bool {
+		return (func(p0 string) bool { return has_(usedPropertyNames, p0) })(str_(p0))
+	})
 	return new_TypedAstSerializer_ColorTypeSerializer(colorSerializer, compiler.getColorRegistry())
 }
 
@@ -602,9 +606,13 @@ func (this *TypedAstSerializer_ColorTypeSerializer) addTypeForNode(node Node, as
 
 func (this *TypedAstSerializer_ColorTypeSerializer) generateTypePool() *TypePool {
 	var mismatchLocationsForDebugging *SimpleSetMultimap[any, any] = this.colorRegistry.getMismatchLocationsForDebugging()
-	return this.colorSerializer.generateTypePool((&Function_tfn_Color_Set{func(p0 *Color) Set { return this.colorRegistry.getDisambiguationSupertypes(p0) }}).apply, (&Function_tfn_Color_Set{func(color *Color) Set {
-		return mismatchLocationsForDebugging.get(obj_(color.getId()))
-	}}).apply)
+	return this.colorSerializer.generateTypePool(func(p0 any) any {
+		return (func(p0 *Color) Set { return this.colorRegistry.getDisambiguationSupertypes(p0) })(cast_[*Color](p0))
+	}, func(p0 any) any {
+		return (func(color *Color) Set {
+			return mismatchLocationsForDebugging.get(obj_(color.getId()))
+		})(cast_[*Color](p0))
+	})
 }
 
 type TypedAstSerializer_1 struct {

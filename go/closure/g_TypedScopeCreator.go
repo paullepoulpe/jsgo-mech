@@ -935,10 +935,12 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) assertDefinitionNode(n Node,
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineCatch(n Node) {
 	this.assertDefinitionNode(n, Token_rhino_CATCH)
-	NodeUtil_visitLhsNodesInNode(n, (&Consumer_tfn_Node{func(catchName Node) {
-		var type_ *JSType = this.getDeclaredType(catchName.getJSDocInfo(), catchName, 0, nil)
-		new_TypedScopeCreator_AbstractScopeBuilder_SlotDefiner(this).forDeclarationNode(catchName).forVariableName(Optional_of[string](catchName.getString())).inScope(this.currentScope).withType(type_).allowLaterTypeInference((type_ == nil)).defineSlot()
-	}}).accept)
+	NodeUtil_visitLhsNodesInNode(n, func(p0 any) {
+		(func(catchName Node) {
+			var type_ *JSType = this.getDeclaredType(catchName.getJSDocInfo(), catchName, 0, nil)
+			new_TypedScopeCreator_AbstractScopeBuilder_SlotDefiner(this).forDeclarationNode(catchName).forVariableName(Optional_of[string](catchName.getString())).inScope(this.currentScope).withType(type_).allowLaterTypeInference((type_ == nil)).defineSlot()
+		})(Node_of_(p0))
+	})
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) defineAssignAsIfVarDeclaration(assignment Node) {
@@ -1001,14 +1003,16 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineVarChild(declarationIn
 			}
 			return
 		}
-		this.defineDestructuringPatternInVarDeclaration(pattern, scope, (&Supplier_base_tfn_TypedScopeCreator_RValueInfo{func() *TypedScopeCreator_RValueInfo {
-			return func() *TypedScopeCreator_RValueInfo {
-				if value != 0 {
-					return new_TypedScopeCreator_RValueInfo(this.getDeclaredRValueType(0, value), value.getQualifiedNameObject())
-				}
-				return new_TypedScopeCreator_RValueInfo(this.outer_.unknownType.up_JSType(), nil)
-			}()
-		}}).get)
+		this.defineDestructuringPatternInVarDeclaration(pattern, scope, func() any {
+			return obj_((func() *TypedScopeCreator_RValueInfo {
+				return func() *TypedScopeCreator_RValueInfo {
+					if value != 0 {
+						return new_TypedScopeCreator_RValueInfo(this.getDeclaredRValueType(0, value), value.getQualifiedNameObject())
+					}
+					return new_TypedScopeCreator_RValueInfo(this.outer_.unknownType.up_JSType(), nil)
+				}()
+			})())
+		})
 	}
 }
 
@@ -1039,9 +1043,11 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineDestructuringPatternIn
 	for target := range DestructuredTarget_createAllNonEmptyTargetsInPatternSupplier(this.outer_.typeRegistry, func() any {
 		return patternTypeSupplier().(*TypedScopeCreator_RValueInfo).type__.self()
 	}, pattern).All() {
-		var typeSupplier func() any = (&Supplier_base_tfn_TypedScopeCreator_RValueInfo{func() *TypedScopeCreator_RValueInfo {
-			return this.inferTypeForDestructuredTarget(target, patternTypeSupplier)
-		}}).get
+		var typeSupplier func() any = func() any {
+			return obj_((func() *TypedScopeCreator_RValueInfo {
+				return this.inferTypeForDestructuredTarget(target, patternTypeSupplier)
+			})())
+		}
 		if target.getNode().isDestructuringPattern() {
 			this.defineDestructuringPatternInVarDeclaration(target.getNode(), scope, typeSupplier)
 		} else {

@@ -27,9 +27,11 @@ func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
 	this.nameMap = newTMap_(tc_string, tc_p_GlobalNamespace_Name)
 	this.nameMapByModule = SimpleTable_create[*ModuleMetadataMap_ModuleMetadata, string, *GlobalNamespace_Name]()
-	this.shouldTraverseScript = (&Predicate_tfn_Node{func(n Node) bool {
-		return true
-	}}).test
+	this.shouldTraverseScript = func(p0 any) bool {
+		return (func(n Node) bool {
+			return true
+		})(Node_of_(p0))
+	}
 }
 
 func (this *GlobalNamespace) init_GlobalNamespace_AbstractCompiler_Node(compiler *AbstractCompiler, root Node) {
@@ -1806,19 +1808,25 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() GlobalNamespac
 		this.logChildNamesDecision(GlobalNamespace_Inlinability_DO_NOT_INLINE, "getter/setter")
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	} else if this.globalSets != 1 {
-		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, (&Supplier_tfn_string{func() string {
-			return ("set " + istr_(int64(int32(this.globalSets))) + " times globally")
-		}}).get)
+		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, func() any {
+			return strobj_((func() string {
+				return ("set " + istr_(int64(int32(this.globalSets))) + " times globally")
+			})())
+		})
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	} else if this.localSets != 0 {
-		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, (&Supplier_tfn_string{func() string {
-			return ("set " + istr_(int64(int32(this.localSets))) + " times locally")
-		}}).get)
+		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, func() any {
+			return strobj_((func() string {
+				return ("set " + istr_(int64(int32(this.localSets))) + " times locally")
+			})())
+		})
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	} else if this.deleteProps != 0 {
-		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, (&Supplier_tfn_string{func() string {
-			return ("properties are deleted " + istr_(int64(int32(this.deleteProps))) + " times")
-		}}).get)
+		this.logChildNamesDecisionSupplier(GlobalNamespace_Inlinability_DO_NOT_INLINE, func() any {
+			return strobj_((func() string {
+				return ("properties are deleted " + istr_(int64(int32(this.deleteProps))) + " times")
+			})())
+		})
 		return GlobalNamespace_Inlinability_DO_NOT_INLINE
 	}
 	if this.declaration_ == nil {
@@ -1851,9 +1859,11 @@ func (this *GlobalNamespace_Name) canCollapseOrInlineChildNames() GlobalNamespac
 	}
 	if this.aliasingGets > 0 {
 		var unsafeInlinability GlobalNamespace_Inlinability = this.getUnsafeInlinabilityBasedOnDeclaredType()
-		this.logChildNamesDecisionSupplier(unsafeInlinability, (&Supplier_tfn_string{func() string {
-			return (istr_(int64(int32(this.aliasingGets))) + " aliasing gets exist")
-		}}).get)
+		this.logChildNamesDecisionSupplier(unsafeInlinability, func() any {
+			return strobj_((func() string {
+				return (istr_(int64(int32(this.aliasingGets))) + " aliasing gets exist")
+			})())
+		})
 		return unsafeInlinability
 	}
 	if this.parent == nil {

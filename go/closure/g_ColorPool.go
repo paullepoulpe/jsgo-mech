@@ -213,12 +213,14 @@ func (this *ColorPool_Builder) build() *ColorPool {
 	if !this.idToProto.isEmpty() {
 		panic(new_IllegalStateException_String(objstr_("build has already been called")))
 	}
-	this.forEachShard((&Consumer_tfn_ColorPool_ShardView{func(shard *ColorPool_ShardView) {
-		for i := int32(0); i < shard.typePool.getTypeCount(); i++ {
-			var id *ColorId = shard.trimmedOffsetToId.get(i)
-			this.idToProto.put(id, shard, shard.typePool.getType(i))
-		}
-	}}).accept)
+	this.forEachShard(func(p0 any) {
+		(func(shard *ColorPool_ShardView) {
+			for i := int32(0); i < shard.typePool.getTypeCount(); i++ {
+				var id *ColorId = shard.trimmedOffsetToId.get(i)
+				this.idToProto.put(id, shard, shard.typePool.getType(i))
+			}
+		})(cast_[*ColorPool_ShardView](p0))
+	})
 	for id := range StandardColors_AXIOMATIC_COLORS.Keys() {
 		MalformedTypedAstException_checkWellFormed_boolean_String_Object(!this.idToProto.containsRow(obj_(id)), "Found serialized definiton for axiomatic color", obj_(id))
 	}
@@ -230,19 +232,25 @@ func (this *ColorPool_Builder) build() *ColorPool {
 			return Color_singleBuilder().setId(colorId).build()
 		}}))
 	}
-	this.forEachShard((&Consumer_tfn_ColorPool_ShardView{func(shard *ColorPool_ShardView) {
-		for edge := range elemsAs_[*SubtypingEdge](shard.typePool.getDisambiguationEdgesList()) {
-			this.registry.addDisambiguationEdge(this.idToColor.Get(shard.getId(ColorPool_validatePointer(edge.getSubtype(), shard))), this.idToColor.Get(shard.getId(ColorPool_validatePointer(edge.getSupertype(), shard))))
-		}
-	}}).accept)
+	this.forEachShard(func(p0 any) {
+		(func(shard *ColorPool_ShardView) {
+			for edge := range elemsAs_[*SubtypingEdge](shard.typePool.getDisambiguationEdgesList()) {
+				this.registry.addDisambiguationEdge(this.idToColor.Get(shard.getId(ColorPool_validatePointer(edge.getSubtype(), shard))), this.idToColor.Get(shard.getId(ColorPool_validatePointer(edge.getSupertype(), shard))))
+			}
+		})(cast_[*ColorPool_ShardView](p0))
+	})
 	var shardViewsForTesting *ImmutableList_Builder[*ColorPool_ShardView] = immutableListBuilder_(tc_p_ColorPool_ShardView)
 	if this.forTestingField {
-		this.forEachShard((&Consumer_tfn_ColorPool_ShardView{func(p0 *ColorPool_ShardView) { shardViewsForTesting.add(p0) }}).accept)
+		this.forEachShard(func(p0 any) {
+			(func(p0 *ColorPool_ShardView) { shardViewsForTesting.add(p0) })(cast_[*ColorPool_ShardView](p0))
+		})
 	}
 	var colorPool *ColorPool = new_ColorPool(this.idToColor, this.registry.build(), slicePtrImm_(tc_p_ColorPool_ShardView, shardViewsForTesting.buildErased()))
-	this.forEachShard((&Consumer_tfn_ColorPool_ShardView{func(shard *ColorPool_ShardView) {
-		shard.updateStateAfterColorPoolIsBuilt(colorPool)
-	}}).accept)
+	this.forEachShard(func(p0 any) {
+		(func(shard *ColorPool_ShardView) {
+			shard.updateStateAfterColorPoolIsBuilt(colorPool)
+		})(cast_[*ColorPool_ShardView](p0))
+	})
 	return colorPool
 }
 

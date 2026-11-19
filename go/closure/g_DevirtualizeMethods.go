@@ -195,7 +195,9 @@ func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction
 			}
 		}
 	}
-	if NodeUtil_has(definitionFunction, (&Predicate_base_tfn_Node{func(p0 Node) bool { return p0.isSuper() }}).apply, Predicates_alwaysTrue()) {
+	if NodeUtil_has(definitionFunction, func(p0 any) bool {
+		return (func(p0 Node) bool { return p0.isSuper() })(Node_of_(p0))
+	}, Predicates_alwaysTrue()) {
 		return false
 	}
 	if NodeUtil_doesFunctionReferenceOwnArgumentsObject(definitionFunction) {

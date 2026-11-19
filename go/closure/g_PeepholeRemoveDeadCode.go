@@ -786,11 +786,13 @@ func (this *PeepholeRemoveDeadCode) redeclareIfBlockScopedVar(decl Node, parent 
 	if decl.isClass() {
 		blockScopedVars = append(blockScopedVars, decl.getFirstChild())
 	} else {
-		NodeUtil_visitLhsNodesInNode(decl, (&Consumer_tfn_Node{func(n Node) {
-			if n.isName() {
-				blockScopedVars = append(blockScopedVars, n)
-			}
-		}}).accept)
+		NodeUtil_visitLhsNodesInNode(decl, func(p0 any) {
+			(func(n Node) {
+				if n.isName() {
+					blockScopedVars = append(blockScopedVars, n)
+				}
+			})(Node_of_(p0))
+		})
 	}
 	var addBefore Node = NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(parent)
 	for nameNode := range sliceAll_(&blockScopedVars) {
@@ -1201,13 +1203,17 @@ func (this *PeepholeRemoveDeadCode) isRemovableDestructuringTarget(destructrurin
 }
 
 func PeepholeRemoveDeadCode_hasUnnamedBreakOrContinue(n Node) bool {
-	return (NodeUtil_has(n, (&Predicate_base_tfn_Node{func(node Node) bool {
-		return (node.isBreak() && !node.hasChildren())
-	}}).apply, &Predicate_base_tfn_Node{func(node Node) bool {
+	return (NodeUtil_has(n, func(p0 any) bool {
+		return (func(node Node) bool {
+			return (node.isBreak() && !node.hasChildren())
+		})(Node_of_(p0))
+	}, &Predicate_base_tfn_Node{func(node Node) bool {
 		return ((!IR_mayBeExpression(node) && !NodeUtil_isLoopStructure(node)) && !node.isSwitch())
-	}}) || NodeUtil_has(n, (&Predicate_base_tfn_Node{func(node Node) bool {
-		return (node.isContinue() && !node.hasChildren())
-	}}).apply, &Predicate_base_tfn_Node{func(node Node) bool {
+	}}) || NodeUtil_has(n, func(p0 any) bool {
+		return (func(node Node) bool {
+			return (node.isContinue() && !node.hasChildren())
+		})(Node_of_(p0))
+	}, &Predicate_base_tfn_Node{func(node Node) bool {
 		return (!IR_mayBeExpression(node) && !NodeUtil_isLoopStructure(node))
 	}}))
 }

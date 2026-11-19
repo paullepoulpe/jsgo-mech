@@ -2351,7 +2351,9 @@ func (this *JSDocInfo_Builder) recordThrowsAnnotation(annotation string) bool {
 		return false
 	}
 	if !this.hasAnySingletonTypeTags() {
-		var throwsAnnotations ListOf[string] = icast_List(this.getPropWithDefault(JSDocInfo_THROWS_ANNOTATIONS, (&Supplier_tfn_List{func() List { return new_ArrayList_0() }}).get))
+		var throwsAnnotations ListOf[string] = icast_List(this.getPropWithDefault(JSDocInfo_THROWS_ANNOTATIONS, func() any {
+			return (func() List { return new_ArrayList_0() })()
+		}))
 		if this.shouldParseDocumentation() {
 			throwsAnnotations.add(strobj_(annotation))
 		} else if throwsAnnotations.isEmpty() {
@@ -2364,7 +2366,9 @@ func (this *JSDocInfo_Builder) recordThrowsAnnotation(annotation string) bool {
 func (this *JSDocInfo_Builder) recordAuthor(author string) bool {
 	this.populated = true
 	if this.shouldParseDocumentation() {
-		icast_List(this.getPropWithDefault(JSDocInfo_AUTHORS, (&Supplier_tfn_List{func() List { return new_ArrayList_0() }}).get)).add(strobj_(author))
+		icast_List(this.getPropWithDefault(JSDocInfo_AUTHORS, func() any {
+			return (func() List { return new_ArrayList_0() })()
+		})).add(strobj_(author))
 	}
 	return true
 }
@@ -2372,7 +2376,9 @@ func (this *JSDocInfo_Builder) recordAuthor(author string) bool {
 func (this *JSDocInfo_Builder) recordReference(reference string) bool {
 	this.populated = true
 	if this.shouldParseDocumentation() {
-		icast_List(this.getPropWithDefault(JSDocInfo_SEES, (&Supplier_tfn_List{func() List { return new_ArrayList_0() }}).get)).add(strobj_(reference))
+		icast_List(this.getPropWithDefault(JSDocInfo_SEES, func() any {
+			return (func() List { return new_ArrayList_0() })()
+		})).add(strobj_(reference))
 	}
 	return true
 }
@@ -2506,7 +2512,9 @@ func (this *JSDocInfo_Builder) recordDescription(description string) bool {
 
 func (this *JSDocInfo_Builder) recordTsType(tsType string) {
 	this.populated = true
-	icast_List(this.getPropWithDefault(JSDocInfo_TS_TYPES, (&Supplier_tfn_List{func() List { return new_ArrayList_0() }}).get)).add(strobj_(tsType))
+	icast_List(this.getPropWithDefault(JSDocInfo_TS_TYPES, func() any {
+		return (func() List { return new_ArrayList_0() })()
+	})).add(strobj_(tsType))
 }
 
 func (this *JSDocInfo_Builder) recordMeaning(meaning string) bool {
@@ -2896,7 +2904,9 @@ func (this *JSDocInfo_Builder) getPropWithDefault(prop *JSDocInfo_Property, supp
 }
 
 func (this *JSDocInfo_Builder) putPropEntry(prop *JSDocInfo_Property, key any, value any) bool {
-	return (Map_putIfAbsent(LinkedHashMap_as_Map(cast_[*LinkedHashMap](this.getPropWithDefault(prop, (&Supplier_tfn_LinkedHashMap{func() *LinkedHashMap { return new_LinkedHashMap() }}).get))), key, value) == nil)
+	return (Map_putIfAbsent(LinkedHashMap_as_Map(cast_[*LinkedHashMap](this.getPropWithDefault(prop, func() any {
+		return obj_((func() *LinkedHashMap { return new_LinkedHashMap() })())
+	}))), key, value) == nil)
 }
 
 func (this *JSDocInfo_Builder) populatePropEntry(prop *JSDocInfo_Property, key string, value any) bool {

@@ -52,7 +52,9 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 	}
 	if this.injectPolyfills {
 		this.libraries = newTSet_(tc_string)
-		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, (&Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.inject(p0) }}).accept)
+		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, func(p0 any) {
+			(func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.inject(p0) })(cast_[*PolyfillUsageFinder_PolyfillUsage](p0))
+		})
 	}
 	var librariesToInject *TList[string]
 	if this.injectPolyfillsNewerThan != 0 {

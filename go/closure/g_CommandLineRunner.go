@@ -985,57 +985,85 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}, &Consumer_tfn_CompilerOptions_DevMode{func(v CompilerOptions_DevMode) {
 		this.jscompDevMode = v
 	}})
-	this.parser.option("--logging_level").hidden_1(true).usage("The logging level (standard java.util.logging.Level values) for Compiler progress. Does not control errors or warnings for the JavaScript code under compilation").string((&Supplier_tfn_string{func() string {
-		return this.loggingLevel
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.loggingLevel = v
-	}}).accept)
+	this.parser.option("--logging_level").hidden_1(true).usage("The logging level (standard java.util.logging.Level values) for Compiler progress. Does not control errors or warnings for the JavaScript code under compilation").string(func() any {
+		return strobj_((func() string {
+			return this.loggingLevel
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.loggingLevel = v
+		})(str_(p0))
+	})
 	this.parser.option("--externs").usage("The file containing JavaScript externs. You may specify multiple").stringList(&Supplier_tfn_List{func() List {
 		return this.externs
 	}}, &Consumer_tfn_List{func(v List) {
 		this.externs = v
 	}})
-	this.parser.option("--js").usage("The JavaScript filename. You may specify multiple. The flag name is optional, because args are interpreted as files by default. You may also use minimatch-style glob patterns. For example, use --js='**.js' --js='!**_test.js' to recursively include all js files that do not end in _test.js").stringEach((&Consumer_tfn_string{func(v string) {
-		this.js = CommandLineRunner_Flags_addMultiFlagValue(this.js, Optional_of[string](v), obj_(AbstractCommandLineRunner_JsSourceType_JS), this.mixedJsSources)
-	}}).accept)
-	this.parser.option("--jszip").hidden_1(true).usage("The JavaScript zip filename. You may specify multiple.").stringEach((&Consumer_tfn_string{func(v string) {
-		this.unusedJsZip = CommandLineRunner_Flags_addMultiFlagValue(this.unusedJsZip, Optional_of[string](v), obj_(AbstractCommandLineRunner_JsSourceType_JS_ZIP), this.mixedJsSources)
-	}}).accept)
-	this.parser.option("--js_output_file").usage("Primary output filename. If not specified, output is written to stdout").string((&Supplier_tfn_string{func() string {
-		return this.jsOutputFile
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.jsOutputFile = v
-	}}).accept)
+	this.parser.option("--js").usage("The JavaScript filename. You may specify multiple. The flag name is optional, because args are interpreted as files by default. You may also use minimatch-style glob patterns. For example, use --js='**.js' --js='!**_test.js' to recursively include all js files that do not end in _test.js").stringEach(func(p0 any) {
+		(func(v string) {
+			this.js = CommandLineRunner_Flags_addMultiFlagValue(this.js, Optional_of[string](v), obj_(AbstractCommandLineRunner_JsSourceType_JS), this.mixedJsSources)
+		})(str_(p0))
+	})
+	this.parser.option("--jszip").hidden_1(true).usage("The JavaScript zip filename. You may specify multiple.").stringEach(func(p0 any) {
+		(func(v string) {
+			this.unusedJsZip = CommandLineRunner_Flags_addMultiFlagValue(this.unusedJsZip, Optional_of[string](v), obj_(AbstractCommandLineRunner_JsSourceType_JS_ZIP), this.mixedJsSources)
+		})(str_(p0))
+	})
+	this.parser.option("--js_output_file").usage("Primary output filename. If not specified, output is written to stdout").string(func() any {
+		return strobj_((func() string {
+			return this.jsOutputFile
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.jsOutputFile = v
+		})(str_(p0))
+	})
 	this.parser.option("--chunk").usage("A JavaScript chunk specification. The format is <name>:<num-js-files>[:[<dep>,...][:]]]. Chunk names must be unique. Each dep is the name of a chunk that this chunk depends on. Chunks must be listed in dependency order, and JS source files must be listed in the corresponding order. Where --chunk flags occur in relation to --js flags is unimportant. <num-js-files> may be set to 'auto' for the first chunk if it has no dependencies. Provide the value 'auto' to trigger chunk creation from CommonJS modules.").stringList(&Supplier_tfn_List{func() List {
 		return this.chunk_
 	}}, &Consumer_tfn_List{func(v List) {
 		this.chunk_ = v
 	}})
-	this.parser.option("--filename_to_save_to").hidden_1(true).usage("Filename to save state so that the compilation can be resumed later.").string((&Supplier_tfn_string{func() string {
-		return this.filenameToSaveTo.orElse(nullstr_)
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.filenameToSaveTo = Optional_of[string](v)
-	}}).accept)
-	this.parser.option("--filename_to_restore_from").hidden_1(true).usage("Filename where a compilation state was previously saved.").string((&Supplier_tfn_string{func() string {
-		return this.filenameToRestoreFrom.orElse(nullstr_)
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.filenameToRestoreFrom = Optional_of[string](v)
-	}}).accept)
+	this.parser.option("--filename_to_save_to").hidden_1(true).usage("Filename to save state so that the compilation can be resumed later.").string(func() any {
+		return strobj_((func() string {
+			return this.filenameToSaveTo.orElse(nullstr_)
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.filenameToSaveTo = Optional_of[string](v)
+		})(str_(p0))
+	})
+	this.parser.option("--filename_to_restore_from").hidden_1(true).usage("Filename where a compilation state was previously saved.").string(func() any {
+		return strobj_((func() string {
+			return this.filenameToRestoreFrom.orElse(nullstr_)
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.filenameToRestoreFrom = Optional_of[string](v)
+		})(str_(p0))
+	})
 	CmdLineParser_Option_enumValue[CompilerOptions_SegmentOfCompilationToRun](this.parser.option("--segment_of_compilation_to_run").hidden_1(true).usage("Which segment of the compilation to run."), CompilerOptions_SegmentOfCompilationToRun_values(), &Supplier_tfn_CompilerOptions_SegmentOfCompilationToRun{func() CompilerOptions_SegmentOfCompilationToRun {
 		return this.segmentOfCompilationToRun
 	}}, &Consumer_tfn_CompilerOptions_SegmentOfCompilationToRun{func(v CompilerOptions_SegmentOfCompilationToRun) {
 		this.segmentOfCompilationToRun = v
 	}})
-	this.parser.option("--variable_renaming_report").usage("File where the serialized version of the variable renaming map produced should be saved").string((&Supplier_tfn_string{func() string {
-		return this.variableMapOutputFile
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.variableMapOutputFile = v
-	}}).accept)
-	this.parser.option("--instrument_mapping_report").usage("File where the encoded parameters created by Production Instrumentation are mapped to their pre-encoded values. The %outname% placeholder will expand to the name of the output file that the source map corresponds to. Must be used in tandem with --instrument_for_coverage_option=PRODUCTION").string((&Supplier_tfn_string{func() string {
-		return this.instrumentationMappingOutputFile
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.instrumentationMappingOutputFile = v
-	}}).accept)
+	this.parser.option("--variable_renaming_report").usage("File where the serialized version of the variable renaming map produced should be saved").string(func() any {
+		return strobj_((func() string {
+			return this.variableMapOutputFile
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.variableMapOutputFile = v
+		})(str_(p0))
+	})
+	this.parser.option("--instrument_mapping_report").usage("File where the encoded parameters created by Production Instrumentation are mapped to their pre-encoded values. The %outname% placeholder will expand to the name of the output file that the source map corresponds to. Must be used in tandem with --instrument_for_coverage_option=PRODUCTION").string(func() any {
+		return strobj_((func() string {
+			return this.instrumentationMappingOutputFile
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.instrumentationMappingOutputFile = v
+		})(str_(p0))
+	})
 	this.parser.option("--create_renaming_reports").hidden_1(true).usage("If true, variable renaming and property renaming report files will be produced as {binary name}_vars_renaming_report.out and {binary name}_props_renaming_report.out. Note that this flag cannot be used in conjunction with either variable_renaming_report or property_renaming_report").bool(func() any {
 		return any(bool(this.createNameMapFiles))
 	}, func(v any) {
@@ -1046,11 +1074,15 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.sourceMapIncludeSourcesContent = unbox_[bool](v)
 	})
-	this.parser.option("--property_renaming_report").usage("File where the serialized version of the property renaming map produced should be saved").string((&Supplier_tfn_string{func() string {
-		return this.propertyMapOutputFile
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.propertyMapOutputFile = v
-	}}).accept)
+	this.parser.option("--property_renaming_report").usage("File where the serialized version of the property renaming map produced should be saved").string(func() any {
+		return strobj_((func() string {
+			return this.propertyMapOutputFile
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.propertyMapOutputFile = v
+		})(str_(p0))
+	})
 	this.parser.option("--third_party").usage("Check source validity but do not enforce Closure style rules and conventions").bool(func() any {
 		return any(bool(this.thirdParty))
 	}, func(v any) {
@@ -1066,31 +1098,47 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}, &Consumer_tfn_CompilerOptions_IsolationMode{func(v CompilerOptions_IsolationMode) {
 		this.isolationMode = v
 	}})
-	this.parser.option("--output_wrapper").usage("Interpolate output into this string at the place denoted by the marker token %output%. Use marker token %output|jsstring% to do js string escaping on the output. Consider using the --isolation_mode flag instead.").string((&Supplier_tfn_string{func() string {
-		return this.outputWrapper.orElse(nullstr_)
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.outputWrapper = Optional_of[string](v)
-	}}).accept)
-	this.parser.option("--output_wrapper_file").usage("Loads the specified file and passes the file contents to the --output_wrapper flag, replacing the value if it exists. This is useful if you want special characters like newline in the wrapper.").string((&Supplier_tfn_string{func() string {
-		return this.outputWrapperFile.orElse(nullstr_)
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.outputWrapperFile = Optional_of[string](v)
-	}}).accept)
+	this.parser.option("--output_wrapper").usage("Interpolate output into this string at the place denoted by the marker token %output%. Use marker token %output|jsstring% to do js string escaping on the output. Consider using the --isolation_mode flag instead.").string(func() any {
+		return strobj_((func() string {
+			return this.outputWrapper.orElse(nullstr_)
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.outputWrapper = Optional_of[string](v)
+		})(str_(p0))
+	})
+	this.parser.option("--output_wrapper_file").usage("Loads the specified file and passes the file contents to the --output_wrapper flag, replacing the value if it exists. This is useful if you want special characters like newline in the wrapper.").string(func() any {
+		return strobj_((func() string {
+			return this.outputWrapperFile.orElse(nullstr_)
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.outputWrapperFile = Optional_of[string](v)
+		})(str_(p0))
+	})
 	this.parser.option("--chunk_wrapper").usage("An output wrapper for a JavaScript chunk (optional). The format is <name>:<wrapper>. The chunk name must correspond with a chunk specified using --chunk. The wrapper must contain %s as the code placeholder. Alternately, %output% can be used in place of %s. %n% can be used to represent a newline. The %basename% placeholder can also be used to substitute the base name of the chunk output file.").stringList(&Supplier_tfn_List{func() List {
 		return this.chunkWrapper
 	}}, &Consumer_tfn_List{func(v List) {
 		this.chunkWrapper = v
 	}})
-	this.parser.option("--chunk_output_path_prefix").usage("Prefix for filenames of compiled JS chunks. <chunk-name>.js will be appended to this prefix. Directories will be created as needed. Use with --chunk").string((&Supplier_tfn_string{func() string {
-		return this.chunkOutputPathPrefix
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.chunkOutputPathPrefix = v
-	}}).accept)
-	this.parser.option("--create_source_map").usage("If specified, a source map file mapping the generated source files back to the original source file will be output to the specified path. The %outname% placeholder will expand to the name of the output file that the source map corresponds to.").string((&Supplier_tfn_string{func() string {
-		return this.createSourceMap
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.createSourceMap = v
-	}}).accept)
+	this.parser.option("--chunk_output_path_prefix").usage("Prefix for filenames of compiled JS chunks. <chunk-name>.js will be appended to this prefix. Directories will be created as needed. Use with --chunk").string(func() any {
+		return strobj_((func() string {
+			return this.chunkOutputPathPrefix
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.chunkOutputPathPrefix = v
+		})(str_(p0))
+	})
+	this.parser.option("--create_source_map").usage("If specified, a source map file mapping the generated source files back to the original source file will be output to the specified path. The %outname% placeholder will expand to the name of the output file that the source map corresponds to.").string(func() any {
+		return strobj_((func() string {
+			return this.createSourceMap
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.createSourceMap = v
+		})(str_(p0))
+	})
 	CmdLineParser_Option_enumValue[SourceMap_Format](this.parser.option("--source_map_format").hidden_1(true).usage("The source map format to produce. Options are V3 and DEFAULT, which are equivalent."), SourceMap_Format_values(), &Supplier_fn{func() any {
 		return this.sourceMapFormat.self()
 	}}, &Consumer_fn{func(v_ any) {
@@ -1118,30 +1166,44 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.applyInputSourceMaps = unbox_[bool](v)
 	})
-	this.parser.option("--jscomp_error").usage("Make the named class of warnings an error. Must be one of the error group items. '*' adds all supported.").stringEach((&Consumer_tfn_string{func(v string) {
-		this.jscompError = CommandLineRunner_Flags_addMultiFlagValue(this.jscompError, Optional_of[string](v), obj_(CheckLevel_ERROR), this.guardLevels)
-	}}).accept)
-	this.parser.option("--jscomp_warning").usage("Make the named class of warnings a normal warning. Must be one of the error group items. '*' adds all supported.").stringEach((&Consumer_tfn_string{func(v string) {
-		this.jscompWarning = CommandLineRunner_Flags_addMultiFlagValue(this.jscompWarning, Optional_of[string](v), obj_(CheckLevel_WARNING), this.guardLevels)
-	}}).accept)
-	this.parser.option("--jscomp_off").usage("Turn off the named class of warnings. Must be one of the error group items. '*' adds all supported.").stringEach((&Consumer_tfn_string{func(v string) {
-		this.jscompOff = CommandLineRunner_Flags_addMultiFlagValue(this.jscompOff, Optional_of[string](v), obj_(CheckLevel_OFF), this.guardLevels)
-	}}).accept)
+	this.parser.option("--jscomp_error").usage("Make the named class of warnings an error. Must be one of the error group items. '*' adds all supported.").stringEach(func(p0 any) {
+		(func(v string) {
+			this.jscompError = CommandLineRunner_Flags_addMultiFlagValue(this.jscompError, Optional_of[string](v), obj_(CheckLevel_ERROR), this.guardLevels)
+		})(str_(p0))
+	})
+	this.parser.option("--jscomp_warning").usage("Make the named class of warnings a normal warning. Must be one of the error group items. '*' adds all supported.").stringEach(func(p0 any) {
+		(func(v string) {
+			this.jscompWarning = CommandLineRunner_Flags_addMultiFlagValue(this.jscompWarning, Optional_of[string](v), obj_(CheckLevel_WARNING), this.guardLevels)
+		})(str_(p0))
+	})
+	this.parser.option("--jscomp_off").usage("Turn off the named class of warnings. Must be one of the error group items. '*' adds all supported.").stringEach(func(p0 any) {
+		(func(v string) {
+			this.jscompOff = CommandLineRunner_Flags_addMultiFlagValue(this.jscompOff, Optional_of[string](v), obj_(CheckLevel_OFF), this.guardLevels)
+		})(str_(p0))
+	})
 	this.parser.option("--define").aliases([]string{"--D", "-D"}).usage("Override the value of a variable annotated @define. The format is <name>[=<val>], where <name> is the name of a @define variable and <val> is a boolean, number, or a single-quoted string that contains no single quotes. If [=<val>] is omitted, the variable is marked true").stringList(&Supplier_tfn_List{func() List {
 		return this.define
 	}}, &Consumer_tfn_List{func(v List) {
 		this.define = v
 	}})
-	this.parser.option("--charset").usage("Input and output charset for all files. By default, we accept UTF-8 as input and output US_ASCII").string((&Supplier_tfn_string{func() string {
-		return this.charset
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.charset = v
-	}}).accept)
-	this.parser.option("--compilation_level").aliases([]string{"-O"}).usage("Specifies the compilation level to use. Options: BUNDLE, WHITESPACE_ONLY, SIMPLE (default), TRANSPILE_ONLY,ADVANCED").string((&Supplier_tfn_string{func() string {
-		return this.compilationLevel
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.compilationLevel = v
-	}}).accept)
+	this.parser.option("--charset").usage("Input and output charset for all files. By default, we accept UTF-8 as input and output US_ASCII").string(func() any {
+		return strobj_((func() string {
+			return this.charset
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.charset = v
+		})(str_(p0))
+	})
+	this.parser.option("--compilation_level").aliases([]string{"-O"}).usage("Specifies the compilation level to use. Options: BUNDLE, WHITESPACE_ONLY, SIMPLE (default), TRANSPILE_ONLY,ADVANCED").string(func() any {
+		return strobj_((func() string {
+			return this.compilationLevel
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.compilationLevel = v
+		})(str_(p0))
+	})
 	this.parser.option("--num_parallel_threads").hidden_1(true).usage("Use multiple threads to parallelize parts of the compilation.").integer(func() any {
 		return any(int32(this.numParallelThreads))
 	}, func(v any) {
@@ -1182,11 +1244,15 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.debug = unbox_[bool](v)
 	})
-	this.parser.option("--typed_ast_output_file").hidden_1(true).usage("Sets file to output in-progress typedAST format. DO NOT USE!").string((&Supplier_tfn_string{func() string {
-		return this.typedAstOutputFile.orElse(nullstr_)
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.typedAstOutputFile = Optional_of[string](v)
-	}}).accept)
+	this.parser.option("--typed_ast_output_file").hidden_1(true).usage("Sets file to output in-progress typedAST format. DO NOT USE!").string(func() any {
+		return strobj_((func() string {
+			return this.typedAstOutputFile.orElse(nullstr_)
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.typedAstOutputFile = Optional_of[string](v)
+		})(str_(p0))
+	})
 	this.parser.option("--generate_exports").usage("Generates export code for those marked with @export").bool(func() any {
 		return any(bool(this.generateExports))
 	}, func(v any) {
@@ -1232,61 +1298,93 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.chromePass = unbox_[bool](v)
 	})
-	this.parser.option("--j2cl_pass").hidden_1(true).usage("Rewrite J2CL output to be compiler-friendly if enabled (ON or AUTO). Options:OFF, ON, AUTO(default)").string((&Supplier_tfn_string{func() string {
-		return this.j2clPassMode
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.j2clPassMode = v
-	}}).accept)
+	this.parser.option("--j2cl_pass").hidden_1(true).usage("Rewrite J2CL output to be compiler-friendly if enabled (ON or AUTO). Options:OFF, ON, AUTO(default)").string(func() any {
+		return strobj_((func() string {
+			return this.j2clPassMode
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.j2clPassMode = v
+		})(str_(p0))
+	})
 	this.parser.option("--remove_j2cl_asserts").hidden_1(true).usage("Remove calls to J2CL assertions.").flag(func() any {
 		return any(bool(this.removeJ2cLAsserts))
 	}, func(v any) {
 		this.removeJ2cLAsserts = unbox_[bool](v)
 	})
-	this.parser.option("--output_manifest").usage("Prints out a list of all the files in the compilation. If --dependency_mode=PRUNE or PRUNE_LEGACY is specified, this will not include files that got dropped because they were not required. The %outname% placeholder expands to the JS output file. If you're using modularization, using %outname% will create a manifest for each module.").string((&Supplier_tfn_string{func() string {
-		return this.outputManifest_
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.outputManifest_ = v
-	}}).accept)
-	this.parser.option("--output_chunk_dependencies").usage("Prints out a JSON file of dependencies between chunks.").string((&Supplier_tfn_string{func() string {
-		return this.outputChunkDependencies
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.outputChunkDependencies = v
-	}}).accept)
-	this.parser.option("--language_in").usage("Sets the language spec to which input sources should conform. Options: ECMASCRIPT3, ECMASCRIPT5, ECMASCRIPT5_STRICT, ECMASCRIPT_2015, ECMASCRIPT_2016, ECMASCRIPT_2017, ECMASCRIPT_2018, ECMASCRIPT_2019, ECMASCRIPT_2020,ECMASCRIPT_2021, STABLE, ECMASCRIPT_NEXT (latest features supported),UNSTABLE (for testing only)").string((&Supplier_tfn_string{func() string {
-		return this.languageIn
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.languageIn = v
-	}}).accept)
-	this.parser.option("--language_out").usage("Sets the language spec to which output should conform. Options: ECMASCRIPT3, ECMASCRIPT5, ECMASCRIPT_2015, ECMASCRIPT_2016, ECMASCRIPT_2017, ECMASCRIPT_2018, ECMASCRIPT_2019, ECMASCRIPT_2020, ECMASCRIPT_2021, STABLE, ECMASCRIPT_NEXT (latest features supported)").string((&Supplier_tfn_string{func() string {
-		return this.languageOut
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.languageOut = v
-	}}).accept)
+	this.parser.option("--output_manifest").usage("Prints out a list of all the files in the compilation. If --dependency_mode=PRUNE or PRUNE_LEGACY is specified, this will not include files that got dropped because they were not required. The %outname% placeholder expands to the JS output file. If you're using modularization, using %outname% will create a manifest for each module.").string(func() any {
+		return strobj_((func() string {
+			return this.outputManifest_
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.outputManifest_ = v
+		})(str_(p0))
+	})
+	this.parser.option("--output_chunk_dependencies").usage("Prints out a JSON file of dependencies between chunks.").string(func() any {
+		return strobj_((func() string {
+			return this.outputChunkDependencies
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.outputChunkDependencies = v
+		})(str_(p0))
+	})
+	this.parser.option("--language_in").usage("Sets the language spec to which input sources should conform. Options: ECMASCRIPT3, ECMASCRIPT5, ECMASCRIPT5_STRICT, ECMASCRIPT_2015, ECMASCRIPT_2016, ECMASCRIPT_2017, ECMASCRIPT_2018, ECMASCRIPT_2019, ECMASCRIPT_2020,ECMASCRIPT_2021, STABLE, ECMASCRIPT_NEXT (latest features supported),UNSTABLE (for testing only)").string(func() any {
+		return strobj_((func() string {
+			return this.languageIn
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.languageIn = v
+		})(str_(p0))
+	})
+	this.parser.option("--language_out").usage("Sets the language spec to which output should conform. Options: ECMASCRIPT3, ECMASCRIPT5, ECMASCRIPT_2015, ECMASCRIPT_2016, ECMASCRIPT_2017, ECMASCRIPT_2018, ECMASCRIPT_2019, ECMASCRIPT_2020, ECMASCRIPT_2021, STABLE, ECMASCRIPT_NEXT (latest features supported)").string(func() any {
+		return strobj_((func() string {
+			return this.languageOut
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.languageOut = v
+		})(str_(p0))
+	})
 	this.parser.option("--version").usage("Prints the compiler version to stdout and exit.").bool(func() any {
 		return any(bool(this.version_))
 	}, func(v any) {
 		this.version_ = unbox_[bool](v)
 	})
-	this.parser.option("--translations_file").hidden_1(true).usage("Source of translated messages. Currently only supports XTB.").string((&Supplier_tfn_string{func() string {
-		return this.translationsFile
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.translationsFile = v
-	}}).accept)
-	this.parser.option("--translations_project").hidden_1(true).usage("Scopes all translations to the specified project.When specified, we will use different message ids so that messages in different projects can have different translations.").string((&Supplier_tfn_string{func() string {
-		return this.translationsProject.orElse(nullstr_)
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.translationsProject = Optional_of[string](v)
-	}}).accept)
+	this.parser.option("--translations_file").hidden_1(true).usage("Source of translated messages. Currently only supports XTB.").string(func() any {
+		return strobj_((func() string {
+			return this.translationsFile
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.translationsFile = v
+		})(str_(p0))
+	})
+	this.parser.option("--translations_project").hidden_1(true).usage("Scopes all translations to the specified project.When specified, we will use different message ids so that messages in different projects can have different translations.").string(func() any {
+		return strobj_((func() string {
+			return this.translationsProject.orElse(nullstr_)
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.translationsProject = Optional_of[string](v)
+		})(str_(p0))
+	})
 	this.parser.option("--flagfile").hidden_1(true).usage("A file (or files) containing additional command-line options.").stringList(&Supplier_tfn_List{func() List {
 		return this.flagFiles
 	}}, &Consumer_tfn_List{func(v List) {
 		this.flagFiles = v
 	}})
-	this.parser.option("--warnings_allowlist_file").aliases([]string{"--warnings_whitelist_file"}).usage("A file containing warnings to suppress. Each line should be of the form\n<file-name>:<line-number>?  <warning-description>").string((&Supplier_tfn_string{func() string {
-		return this.warningsAllowlistFile
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.warningsAllowlistFile = v
-	}}).accept)
+	this.parser.option("--warnings_allowlist_file").aliases([]string{"--warnings_whitelist_file"}).usage("A file containing warnings to suppress. Each line should be of the form\n<file-name>:<line-number>?  <warning-description>").string(func() any {
+		return strobj_((func() string {
+			return this.warningsAllowlistFile
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.warningsAllowlistFile = v
+		})(str_(p0))
+	})
 	this.parser.option("--hide_warnings_for").usage("If specified, files whose path contains this string will have their warnings hidden. You may specify multiple.").stringList(&Supplier_tfn_List{func() List {
 		return this.hideWarningsFor
 	}}, &Consumer_tfn_List{func(v List) {
@@ -1302,16 +1400,24 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}, &Consumer_tfn_CompilerOptions_TracerMode{func(v CompilerOptions_TracerMode) {
 		this.tracerMode = v
 	}})
-	this.parser.option("--rename_variable_prefix").usage("Specifies a prefix that will be prepended to all variables.").string((&Supplier_tfn_string{func() string {
-		return this.renamePrefix.orElse(nullstr_)
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.renamePrefix = Optional_of[string](v)
-	}}).accept)
-	this.parser.option("--rename_prefix_namespace").usage("Specifies the name of an object that will be used to store all non-extern globals").string((&Supplier_tfn_string{func() string {
-		return this.renamePrefixNamespace.orElse(nullstr_)
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.renamePrefixNamespace = Optional_of[string](v)
-	}}).accept)
+	this.parser.option("--rename_variable_prefix").usage("Specifies a prefix that will be prepended to all variables.").string(func() any {
+		return strobj_((func() string {
+			return this.renamePrefix.orElse(nullstr_)
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.renamePrefix = Optional_of[string](v)
+		})(str_(p0))
+	})
+	this.parser.option("--rename_prefix_namespace").usage("Specifies the name of an object that will be used to store all non-extern globals").string(func() any {
+		return strobj_((func() string {
+			return this.renamePrefixNamespace.orElse(nullstr_)
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.renamePrefixNamespace = Optional_of[string](v)
+		})(str_(p0))
+	})
 	this.parser.option("--conformance_configs").usage("A list of JS Conformance configurations in text protocol buffer format.").stringList(&Supplier_tfn_List{func() List {
 		return this.conformanceConfigs
 	}}, &Consumer_tfn_List{func(v List) {
@@ -1372,16 +1478,24 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}}, &Consumer_tfn_ModuleLoader_ResolutionMode{func(v ModuleLoader_ResolutionMode) {
 		this.moduleResolutionMode = v
 	}})
-	this.parser.option("--browser_resolver_prefix_replacements").usage("Prefixes to replace in ES6 import paths before resolving. module_resolution must be BROWSER_WITH_TRANSFORMED_PREFIXES to take effect.").map_((&Supplier_tfn_Map{func() Map {
-		return this.browserResolverPrefixReplacements
-	}}).get, (&Consumer_tfn_Map{func(v Map) {
-		this.browserResolverPrefixReplacements = v
-	}}).accept)
-	this.parser.option("--package_json_entry_names").usage("Ordered list of entries to look for in package.json files when processing modules with the NODE module resolution strategy (i.e. esnext:main,browser,main). Defaults to a list with the following entries: \"browser\", \"module\", \"main\".").string((&Supplier_tfn_string{func() string {
-		return this.packageJsonEntryNames.orElse(nullstr_)
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.packageJsonEntryNames = Optional_of[string](v)
-	}}).accept)
+	this.parser.option("--browser_resolver_prefix_replacements").usage("Prefixes to replace in ES6 import paths before resolving. module_resolution must be BROWSER_WITH_TRANSFORMED_PREFIXES to take effect.").map_(func() any {
+		return (func() Map {
+			return this.browserResolverPrefixReplacements
+		})()
+	}, func(p0 any) {
+		(func(v Map) {
+			this.browserResolverPrefixReplacements = v
+		})(icast_Map(p0))
+	})
+	this.parser.option("--package_json_entry_names").usage("Ordered list of entries to look for in package.json files when processing modules with the NODE module resolution strategy (i.e. esnext:main,browser,main). Defaults to a list with the following entries: \"browser\", \"module\", \"main\".").string(func() any {
+		return strobj_((func() string {
+			return this.packageJsonEntryNames.orElse(nullstr_)
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.packageJsonEntryNames = Optional_of[string](v)
+		})(str_(p0))
+	})
 	CmdLineParser_Option_enumValue[AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption](this.parser.option("--error_format").usage("Specifies format for error messages."), AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_values(), &Supplier_tfn_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption{func() AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption {
 		return this.errorFormat
 	}}, &Consumer_tfn_AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption{func(v AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption) {
@@ -1397,16 +1511,24 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.helpMarkdown = unbox_[bool](v)
 	})
-	this.parser.option("--instrument_for_coverage_option").usage("Enable code instrumentation to perform code coverage analysis. Options are:\n 1. NONE (default)\n 2. LINE - Instrument code by line.\n 3. BRANCH - Instrument code by branch.\n 4. PRODUCTION - Function Instrumentation on compiled JS code.\n").string((&Supplier_tfn_string{func() string {
-		return this.instrumentForCoverageOption
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.instrumentForCoverageOption = v
-	}}).accept)
-	this.parser.option("--production_instrumentation_array_name").usage("Name of the global array used by production instrumentation. The array name should be declared as an extern so it is not renamed by the compiler. A function that parses the global array should also be included. This flag is to be used in tandem with --instrument_code=PRODUCTION").string((&Supplier_tfn_string{func() string {
-		return this.productionInstrumentationArrayName
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.productionInstrumentationArrayName = v
-	}}).accept)
+	this.parser.option("--instrument_for_coverage_option").usage("Enable code instrumentation to perform code coverage analysis. Options are:\n 1. NONE (default)\n 2. LINE - Instrument code by line.\n 3. BRANCH - Instrument code by branch.\n 4. PRODUCTION - Function Instrumentation on compiled JS code.\n").string(func() any {
+		return strobj_((func() string {
+			return this.instrumentForCoverageOption
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.instrumentForCoverageOption = v
+		})(str_(p0))
+	})
+	this.parser.option("--production_instrumentation_array_name").usage("Name of the global array used by production instrumentation. The array name should be declared as an extern so it is not renamed by the compiler. A function that parses the global array should also be included. This flag is to be used in tandem with --instrument_code=PRODUCTION").string(func() any {
+		return strobj_((func() string {
+			return this.productionInstrumentationArrayName
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.productionInstrumentationArrayName = v
+		})(str_(p0))
+	})
 	CmdLineParser_Option_enumValue[CompilerOptions_ChunkOutputType](this.parser.option("--chunk_output_type").usage("Indicates what format the compiler should use for output chunks. GLOBAL_NAMESPACE is typically used in conjunction with --rename_prefix_namespace. ES_MODULES outputs chunks as proper modules with 'import' and 'export' statements."), CompilerOptions_ChunkOutputType_values(), &Supplier_tfn_CompilerOptions_ChunkOutputType{func() CompilerOptions_ChunkOutputType {
 		return this.chunkOutputType
 	}}, &Consumer_tfn_CompilerOptions_ChunkOutputType{func(v CompilerOptions_ChunkOutputType) {
@@ -1417,11 +1539,15 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.allowDynamicImport = unbox_[bool](v)
 	})
-	this.parser.option("--dynamic_import_alias").usage("Instructs the compiler to replace dynamic imports expressions with a function call using the specified name. Allows dynamic import expressions to be externally polyfilled when the output language level does not natively support them. An alias of 'import' is allowed.").string((&Supplier_tfn_string{func() string {
-		return this.dynamicImportAlias.orElse(nullstr_)
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.dynamicImportAlias = Optional_of[string](v)
-	}}).accept)
+	this.parser.option("--dynamic_import_alias").usage("Instructs the compiler to replace dynamic imports expressions with a function call using the specified name. Allows dynamic import expressions to be externally polyfilled when the output language level does not natively support them. An alias of 'import' is allowed.").string(func() any {
+		return strobj_((func() string {
+			return this.dynamicImportAlias.orElse(nullstr_)
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.dynamicImportAlias = Optional_of[string](v)
+		})(str_(p0))
+	})
 	this.parser.option("--assume_static_inheritance_is_not_used").usage("Assume that static (class-side) inheritance is not being used and that static methods will not be referenced via `this` or through subclasses. This enables optimizations that could break code that did those things.").bool(func() any {
 		return any(bool(this.assumeStaticInheritanceIsNotUsed))
 	}, func(v any) {
@@ -1432,16 +1558,24 @@ func (this *CommandLineRunner_Flags) init_CommandLineRunner_Flags() {
 	}, func(v any) {
 		this.assumeNoPrototypeMethodEnumeration = unbox_[bool](v)
 	})
-	this.parser.option("--variable_map_input_file").usage("File containing the serialized version of the variable renaming map produced by a previous compilation").string((&Supplier_tfn_string{func() string {
-		return this.variableMapInputFile
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.variableMapInputFile = v
-	}}).accept)
-	this.parser.option("--property_map_input_file").usage("File containing the serialized version of the property renaming map produced by a previous compilation").string((&Supplier_tfn_string{func() string {
-		return this.propertyMapInputFile
-	}}).get, (&Consumer_tfn_string{func(v string) {
-		this.propertyMapInputFile = v
-	}}).accept)
+	this.parser.option("--variable_map_input_file").usage("File containing the serialized version of the variable renaming map produced by a previous compilation").string(func() any {
+		return strobj_((func() string {
+			return this.variableMapInputFile
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.variableMapInputFile = v
+		})(str_(p0))
+	})
+	this.parser.option("--property_map_input_file").usage("File containing the serialized version of the property renaming map produced by a previous compilation").string(func() any {
+		return strobj_((func() string {
+			return this.propertyMapInputFile
+		})())
+	}, func(p0 any) {
+		(func(v string) {
+			this.propertyMapInputFile = v
+		})(str_(p0))
+	})
 	this.parser.option("--expected_diagnostics").usage("Expected diagnostics in the format [(line,col)]CODE:regex. CODE is the JSCompiler DiagnosticType key. regex matches the description.").stringList(&Supplier_tfn_List{func() List {
 		return this.expectedDiagnostics
 	}}, &Consumer_tfn_List{func(v List) {
@@ -1514,9 +1648,11 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 		outputStream.append(("# " + sstr_(categoryName) + "\n"))
 		for optionName := range elemsBy_(options, str_) {
 			var stringWriter strBuilder_
-			this.parser.printUsage(&stringWriter, (&Predicate_tfn_CmdLineParser_Option{func(option *CmdLineParser_Option) bool {
-				return (!option.hidden() && (optionName == CommandLineRunner_LEADING_DASHES_PATTERN.matcher_s(option.name()).replaceFirst("")))
-			}}).test)
+			this.parser.printUsage(&stringWriter, func(p0 any) bool {
+				return (func(option *CmdLineParser_Option) bool {
+					return (!option.hidden() && (optionName == CommandLineRunner_LEADING_DASHES_PATTERN.matcher_s(option.name()).replaceFirst("")))
+				})(cast_[*CmdLineParser_Option](p0))
+			})
 			var rawOptionUsage string = stringWriter.toString()
 			var delimiterIndex int32 = int32(strings.Index(rawOptionUsage, " : "))
 			if delimiterIndex > 0 {
@@ -1529,9 +1665,11 @@ func (this *CommandLineRunner_Flags) printCategoryUsage(categoryName string, opt
 		}
 	} else {
 		outputStream.append((sstr_(CommandLineRunner_Flags_BOLD_PREFIX) + sstr_(categoryName) + ":\n" + sstr_(CommandLineRunner_Flags_NORMAL_PREFIX)))
-		this.parser.printUsage(outputStream, (&Predicate_tfn_CmdLineParser_Option{func(option *CmdLineParser_Option) bool {
-			return (!option.hidden() && Collection_contains_s(options, CommandLineRunner_LEADING_DASHES_PATTERN.matcher_s(option.name()).replaceFirst("")))
-		}}).test)
+		this.parser.printUsage(outputStream, func(p0 any) bool {
+			return (func(option *CmdLineParser_Option) bool {
+				return (!option.hidden() && Collection_contains_s(options, CommandLineRunner_LEADING_DASHES_PATTERN.matcher_s(option.name()).replaceFirst("")))
+			})(cast_[*CmdLineParser_Option](p0))
+		})
 	}
 	if suffix.isPresent() {
 		this.printStringLineWrapped(suffix.get(), outputStream)

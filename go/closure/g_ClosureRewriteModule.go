@@ -293,9 +293,11 @@ func (this *ClosureRewriteModule) recordTopLevelClassOrFunctionName(classOrFunct
 }
 
 func (this *ClosureRewriteModule) recordTopLevelVarNames(varNode Node) {
-	NodeUtil_visitLhsNodesInNode(varNode, (&Consumer_tfn_Node{func(lhs Node) {
-		this.currentScript.topLevelNames[lhs.getString()] = struct{}{}
-	}}).accept)
+	NodeUtil_visitLhsNodesInNode(varNode, func(p0 any) {
+		(func(lhs Node) {
+			this.currentScript.topLevelNames[lhs.getString()] = struct{}{}
+		})(Node_of_(p0))
+	})
 }
 
 func (this *ClosureRewriteModule) maybeRecordExportDeclaration(t *NodeTraversal, n Node) {
@@ -917,9 +919,11 @@ func (this *ClosureRewriteModule) reportUnrecognizedRequires() {
 			continue
 		}
 		enclosingStatement.detach()
-		NodeUtil_visitLhsNodesInNode(enclosingStatement, (&Consumer_tfn_Node{func(lhs Node) {
-			this.syntheticExterns.PutIfAbsent(lhs.getString(), lhs)
-		}}).accept)
+		NodeUtil_visitLhsNodesInNode(enclosingStatement, func(p0 any) {
+			(func(lhs Node) {
+				this.syntheticExterns.PutIfAbsent(lhs.getString(), lhs)
+			})(Node_of_(p0))
+		})
 	}
 }
 

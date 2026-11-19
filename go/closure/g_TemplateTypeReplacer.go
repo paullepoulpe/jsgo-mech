@@ -193,7 +193,9 @@ func (this *TemplateTypeReplacer) caseObjectTypeUnguarded(objType *ObjectType) *
 }
 
 func (this *TemplateTypeReplacer) caseTemplatizedType(type_ *TemplatizedType) any {
-	return this.guardAgainstCycles(type_.up_JSType(), (&Function_tfn_TemplatizedType_any{func(p0 *TemplatizedType) any { return this.caseTemplatizedTypeUnguarded(p0).self() }}).apply).self()
+	return this.guardAgainstCycles(type_.up_JSType(), func(p0 any) any {
+		return (func(p0 *TemplatizedType) any { return this.caseTemplatizedTypeUnguarded(p0).self() })(cast_[*TemplatizedType](p0))
+	}).self()
 }
 
 func (this *TemplateTypeReplacer) caseTemplatizedTypeUnguarded(type_ *TemplatizedType) *JSType {
@@ -246,7 +248,9 @@ func (this *TemplateTypeReplacer) caseVoidType() any {
 }
 
 func (this *TemplateTypeReplacer) caseUnionType(type_ *UnionType) any {
-	return this.guardAgainstCycles(type_.up_JSType(), (&Function_tfn_UnionType_any{func(p0 *UnionType) any { return this.caseUnionTypeUnguarded(p0).self() }}).apply).self()
+	return this.guardAgainstCycles(type_.up_JSType(), func(p0 any) any {
+		return (func(p0 *UnionType) any { return this.caseUnionTypeUnguarded(p0).self() })(cast_[*UnionType](p0))
+	}).self()
 }
 
 func (this *TemplateTypeReplacer) caseUnionTypeUnguarded(type_ *UnionType) *JSType {

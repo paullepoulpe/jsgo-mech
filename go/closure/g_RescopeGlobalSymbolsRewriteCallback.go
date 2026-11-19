@@ -63,7 +63,9 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visit(t *NodeTraversal, n Node,
 
 func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTraversal, declaration Node) {
 	var allLhsNodes *[]Node = &[]Node{}
-	NodeUtil_visitLhsNodesInNode(declaration, (&Consumer_tfn_Node{func(p0 Node) { *allLhsNodes = append(*allLhsNodes, p0) }}).accept)
+	NodeUtil_visitLhsNodesInNode(declaration, func(p0 any) {
+		(func(p0 Node) { *allLhsNodes = append(*allLhsNodes, p0) })(Node_of_(p0))
+	})
 	if len(*allLhsNodes) == 0 {
 		return
 	}
@@ -127,9 +129,11 @@ func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeT
 						}
 					}
 				} else if child.isDestructuringLhs() {
-					NodeUtil_visitLhsNodesInNode(child, (&Consumer_tfn_Node{func(lhs Node) {
-						this.maybeAddPreDeclaration(t, lhs, isGlobalDeclaration)
-					}}).accept)
+					NodeUtil_visitLhsNodesInNode(child, func(p0 any) {
+						(func(lhs Node) {
+							this.maybeAddPreDeclaration(t, lhs, isGlobalDeclaration)
+						})(Node_of_(p0))
+					})
 					var assign Node = IR_assign(child.removeFirstChild(), child.removeFirstChild())
 					child.replaceWith(assign)
 					assign.setJSDocInfo(declaration.getJSDocInfo())

@@ -150,6 +150,62 @@ func main() {
 			return true
 		})
 	}
+	// A method value of an adapter literal, (&I_tfn_X{F}).m, where a Go function is wanted (the
+	// typed translator passes it to a parameter or stores it in a slot that is a func): it is the
+	// adapter's method m with this.f replaced by F, as a function literal. The adapter object is
+	// made only to take its method; a func value has no identity, so nothing can tell them apart.
+	mvals := 0
+	for _, f := range rw.Files {
+		if !generated(f.Pos()) {
+			continue
+		}
+		ast.Inspect(f, func(n ast.Node) bool {
+			sel, ok := n.(*ast.SelectorExpr)
+			if !ok {
+				return true
+			}
+			lit := adapterOf(sel.X)
+			if lit == nil {
+				return true
+			}
+			if c, ok := rw.Up(sel).(*ast.CallExpr); ok && rw.Unparen(c.Fun) == ast.Expr(sel) {
+				left["method value: the adapter's method is called at once"]++
+				return true
+			}
+			if _, ok := rw.Info.Types[sel].Type.(*types.Signature); !ok {
+				return true
+			}
+			var m *ast.FuncDecl
+			for _, d := range methods[adapterType(lit)] {
+				if d.Name.Name == sel.Sel.Name {
+					m = d
+				}
+			}
+			if m == nil || typeArgsOf(lit) {
+				left["method value: no such method, or the adapter is generic"]++
+				return true
+			}
+			body := rw.Text(m.Body)
+			if strings.Count(body, "this.f(") != 1 || strings.Count(body, "this") != 1 {
+				left["method value: the adapter method does more than convert and call"]++
+				return true
+			}
+			sigText := "func" + rw.Text(m.Type.Params)
+			if m.Type.Results != nil {
+				sigText += " " + rw.Text(m.Type.Results)
+			}
+			fnExpr := lit.Elts[0]
+			if kv, ok := fnExpr.(*ast.KeyValueExpr); ok {
+				fnExpr = kv.Value
+			}
+			rw.Rewrite[sel] = func() string {
+				return sigText + " " + strings.Replace(body, "this.f(", "("+rw.Render(fnExpr)+")(", 1)
+			}
+			mvals++
+			return true
+		})
+	}
+	fmt.Fprintf(os.Stderr, "tfn: %d method values of an adapter literal are function literals\n", mvals)
 	total := 0
 	for _, k := range sorted(done) {
 		total += done[k]

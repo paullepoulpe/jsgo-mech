@@ -10,11 +10,13 @@ type RewriteOptionalChainingOperator struct {
 func (this *RewriteOptionalChainingOperator) init_RewriteOptionalChainingOperator_AbstractCompiler(compiler *AbstractCompiler) {
 	this.compiler_ = compiler
 	var uniqueIdSupplier *UniqueIdSupplier = compiler.getUniqueIdSupplier()
-	this.getTmpVarNameCreatorForInput = (&Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator{func(input *CompilerInput) OptionalChainRewriter_TmpVarNameCreator {
-		return newFuncObj_(func() string {
-			return ("$jscomp$optchain$tmp" + sstr_(uniqueIdSupplier.getUniqueId(input)))
-		})
-	}}).apply
+	this.getTmpVarNameCreatorForInput = func(p0 any) any {
+		return obj_((func(input *CompilerInput) OptionalChainRewriter_TmpVarNameCreator {
+			return newFuncObj_(func() string {
+				return ("$jscomp$optchain$tmp" + sstr_(uniqueIdSupplier.getUniqueId(input)))
+			})
+		})(cast_[*CompilerInput](p0)))
+	}
 }
 
 func new_RewriteOptionalChainingOperator_AbstractCompiler(compiler *AbstractCompiler) *RewriteOptionalChainingOperator {
@@ -25,9 +27,11 @@ func new_RewriteOptionalChainingOperator_AbstractCompiler(compiler *AbstractComp
 
 func (this *RewriteOptionalChainingOperator) init_RewriteOptionalChainingOperator_AbstractCompiler_TmpVarNameCreator(compiler *AbstractCompiler, tmpVarNameCreator OptionalChainRewriter_TmpVarNameCreator) {
 	this.compiler_ = compiler
-	this.getTmpVarNameCreatorForInput = (&Function_tfn_CompilerInput_OptionalChainRewriter_TmpVarNameCreator{func(input *CompilerInput) OptionalChainRewriter_TmpVarNameCreator {
-		return tmpVarNameCreator
-	}}).apply
+	this.getTmpVarNameCreatorForInput = func(p0 any) any {
+		return obj_((func(input *CompilerInput) OptionalChainRewriter_TmpVarNameCreator {
+			return tmpVarNameCreator
+		})(cast_[*CompilerInput](p0)))
+	}
 }
 
 func new_RewriteOptionalChainingOperator_AbstractCompiler_TmpVarNameCreator(compiler *AbstractCompiler, tmpVarNameCreator OptionalChainRewriter_TmpVarNameCreator) *RewriteOptionalChainingOperator {
