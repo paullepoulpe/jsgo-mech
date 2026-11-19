@@ -501,3 +501,30 @@ Lambda objects left in g_*.go after it, counted with one pattern each: 51 erased
 without type arguments (&X_fn{func), 4 with (&X_fn[...]{func), 290 typed adapters
 (&X_tfn_Y{func and &X_tfn[...]{func). The "51 erased" given after C36 above counted only the
 first form.
+
+### The scope and variable casts: what the translator rule would have to be (19 Nov)
+
+292 of the casts left are cast_[*Var], cast_[*Scope], cast_[*TypedVar] and cast_[*TypedScope].
+They come from one Java shape: AbstractScope<S extends AbstractScope<S, V>, V extends
+AbstractVar<S, V>> and AbstractVar<S, V>, with Scope/Var and TypedScope/TypedVar as the two
+instantiations. j2go's rule (GenScan: "a class type parameter bounded by a class stays erased,
+it is its bound") makes S and V the base classes, so AbstractVar.getScope() returns the
+interface and each use in subclass code casts; javac puts a checkcast at the same places, so
+the running cost is Java's (to_AbstractVar and the like are about 0.2s of 28s CPU on bundle).
+
+How jsgo has it: no generic base. Var has a field `scope *Scope` and TypedVar its own; the
+shared part is an embedded varCommon. That is the base class written once per instantiation.
+
+Two ways to get there mechanically, neither a small rule:
+- j2go keeps S and V as Go type parameters with a method constraint, Scope embedding
+  AbstractScope[*Scope, *Var]. The base's calls on S and V values then go through Go's generic
+  dictionaries; the constraint is recursive (S's methods return S and V). Possible in Go, but
+  it changes how every method of the two base classes is called and its speed is not known.
+- j2go writes a class whose type parameters are bounded by classes once per instantiation
+  found in the program (AbstractScope_Scope, AbstractScope_TypedScope), with the parameters
+  replaced by the arguments: jsgo's result. It needs the base's other users (code that takes
+  an AbstractScope<?, ?>) to go through an interface of the common methods.
+Either is a translator change followed by a new flip and replay; it is the first of the larger
+items and is not started. A post-flip tool could only move the casts into accessor methods
+(Go has no covariant results: Var.getScope must return StaticScope for the interface), which
+would lower the count without removing a cast.
