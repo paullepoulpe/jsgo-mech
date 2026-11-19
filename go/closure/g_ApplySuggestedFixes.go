@@ -42,15 +42,15 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 	return Outcome_base_ok_0()
 }
 
-func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], fileNameToCodeMap *JTMap[string, string]) *JTList[*ImmutableMap] {
+func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], fileNameToCodeMap *JTMap[string, string]) *JTList[*ErasedImmutableMap] {
 	if Iterables_isEmpty(fixChoices) {
-		return jimmutableListOf_[*ImmutableMap](tc_p_ImmutableMap, ImmutableMap_of())
+		return jimmutableListOf_[*ErasedImmutableMap](tc_p_ImmutableMap, ImmutableMap_of())
 	}
 	var alternativeCount int32 = Iterables_getFirst(fixChoices, nil).(*SuggestedFix).getAlternatives().size()
 	if !ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount) {
 		panic(new_IllegalArgumentException_String(objstr_("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense")))
 	}
-	var result *TListBuilder[*ImmutableMap] = newTListBuilder_(tc_p_ImmutableMap)
+	var result *TListBuilder[*ErasedImmutableMap] = newTListBuilder_(tc_p_ImmutableMap)
 	for i := int32(0); i < alternativeCount; i++ {
 		result.add(ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap).asImm())
 	}
