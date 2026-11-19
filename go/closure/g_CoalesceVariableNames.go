@@ -7,12 +7,12 @@ type CoalesceVariableNames struct {
 	compiler_                *AbstractCompiler
 	scopeCreator             *MemoizedScopeCreator
 	colorings                *[]*GraphColoring[*Var, any]
-	liveAnalyses             *TDeque[*LiveVariablesAnalysis]
+	liveAnalyses             *[]*LiveVariablesAnalysis
 	usePseudoNames           bool
 	astFactory_              *AstFactory
 	liveness                 *LiveVariablesAnalysis
 	coloringTieBreaker       ComparatorOf[*Var]
-	shouldOptimizeScopeStack *TDeque[any]
+	shouldOptimizeScopeStack *[]any
 }
 
 func (this *CoalesceVariableNames) up_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback {
@@ -26,7 +26,7 @@ func (this *CoalesceVariableNames) finit_CoalesceVariableNames() {
 	this.coloringTieBreaker = Comparator_comparingInt(&ToIntFunction_tfn_Var{func(arg *Var) int32 {
 		return this.liveness.getVarIndex(arg.getName())
 	}})
-	this.shouldOptimizeScopeStack = newTDeque_(tc_Boolean)
+	this.shouldOptimizeScopeStack = &[]any{}
 }
 
 func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *AbstractCompiler, usePseudoNames bool) {
@@ -37,7 +37,7 @@ func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *Abstract
 	}
 	this.compiler_ = compiler
 	this.colorings = &[]*GraphColoring[*Var, any]{}
-	this.liveAnalyses = newTDeque_(tc_p_LiveVariablesAnalysis)
+	this.liveAnalyses = &[]*LiveVariablesAnalysis{}
 	this.usePseudoNames = usePseudoNames
 	this.astFactory_ = compiler.createAstFactory()
 	this.scopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(compiler).createScopeAbstractScope)
@@ -74,10 +74,10 @@ func CoalesceVariableNames_shouldOptimizeScope(t *NodeTraversal) *NodeUtil_AllVa
 func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = CoalesceVariableNames_shouldOptimizeScope(t)
 	if allVarsDeclaredInFunction == nil {
-		this.shouldOptimizeScopeStack.push(any(bool(false)))
+		*this.shouldOptimizeScopeStack = append(*this.shouldOptimizeScopeStack, any(bool(false)))
 		return
 	}
-	this.shouldOptimizeScopeStack.push(any(bool(true)))
+	*this.shouldOptimizeScopeStack = append(*this.shouldOptimizeScopeStack, any(bool(true)))
 	var scope *Scope = t.getScope()
 	if !scope.isFunctionScope() {
 		panic(new_IllegalStateException_String(tostr_(scope)))
@@ -91,7 +91,7 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 		}
 	}
 	this.liveness.analyze()
-	this.liveAnalyses.push(this.liveness)
+	*this.liveAnalyses = append(*this.liveAnalyses, this.liveness)
 	var interferenceGraph *UndiGraph[*Var, any] = this.computeVariableNamesInterferenceGraph(cfg, this.liveness.getEscapedLocals())
 	var coloring *GraphColoring[*Var, any] = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator[*Var, any](icast_AdjacencyGraph_Var(interferenceGraph.self()), this.coloringTieBreaker).up_GraphColoring()
 	coloring.color()
@@ -99,12 +99,12 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 }
 
 func (this *CoalesceVariableNames) exitScopeWithCfg_impl(t *NodeTraversal) {
-	if !unbox_[bool](this.shouldOptimizeScopeStack.pop()) {
+	if !unbox_[bool](slicePop_(tc_any, this.shouldOptimizeScopeStack)) {
 		return
 	}
 	slicePop_(tc_p_GraphColoring_p_Var__any_, this.colorings)
-	this.liveAnalyses.pop()
-	this.liveness = this.liveAnalyses.peek()
+	slicePop_(tc_p_LiveVariablesAnalysis, this.liveAnalyses)
+	this.liveness = slicePeekTop_(tc_p_LiveVariablesAnalysis, *this.liveAnalyses)
 }
 
 func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent Node) {

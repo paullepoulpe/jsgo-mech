@@ -7,7 +7,7 @@ type CreateSyntheticBlocks struct {
 	compiler_       *AbstractCompiler
 	startMarkerName string
 	endMarkerName   string
-	markerStack     *TDeque[Node]
+	markerStack     *[]Node
 	validMarkers    *[]*CreateSyntheticBlocks_Marker
 }
 
@@ -24,7 +24,7 @@ func (this *CreateSyntheticBlocks) zero_CreateSyntheticBlocks() {
 }
 
 func (this *CreateSyntheticBlocks) finit_CreateSyntheticBlocks() {
-	this.markerStack = newTDeque_(tc_Node)
+	this.markerStack = &[]Node{}
 	this.validMarkers = &[]*CreateSyntheticBlocks_Marker{}
 }
 
@@ -46,7 +46,7 @@ func new_CreateSyntheticBlocks(compiler *AbstractCompiler, startMarkerName strin
 
 func (this *CreateSyntheticBlocks) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, this)
-	it_1 := this.markerStack.each()
+	it_1 := eachRevOf_(this.markerStack)
 	for it_1.next() {
 		var node Node = it_1.v
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, CreateSyntheticBlocks_UNMATCHED_START_MARKER, []string{this.startMarkerName}))
@@ -129,7 +129,7 @@ func (this *CreateSyntheticBlocks) visit_impl(unused *NodeTraversal, n Node, par
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CreateSyntheticBlocks_INVALID_MARKER_USAGE, []string{this.startMarkerName}))
 			return
 		}
-		this.markerStack.push(parent)
+		*this.markerStack = append(*this.markerStack, parent)
 		return
 	}
 	if !(this.endMarkerName == callName) {
@@ -140,11 +140,11 @@ func (this *CreateSyntheticBlocks) visit_impl(unused *NodeTraversal, n Node, par
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CreateSyntheticBlocks_INVALID_MARKER_USAGE, []string{this.endMarkerName}))
 		return
 	}
-	if this.markerStack.isEmpty() {
+	if len(*this.markerStack) == 0 {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CreateSyntheticBlocks_UNMATCHED_END_MARKER, []string{this.startMarkerName, this.endMarkerName}))
 		return
 	}
-	var startMarkerNode Node = this.markerStack.pop()
+	var startMarkerNode Node = slicePop_(tc_Node, this.markerStack)
 	if endMarkerNode.getParent() != startMarkerNode.getParent() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CreateSyntheticBlocks_UNMATCHED_END_MARKER, []string{this.startMarkerName, this.endMarkerName}))
 		return

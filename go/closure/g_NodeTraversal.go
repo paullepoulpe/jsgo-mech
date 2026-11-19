@@ -859,14 +859,14 @@ func (this *NodeTraversal) initTraversal(traversalRoot Node) {
 }
 
 func (this *NodeTraversal) initScopeRoots(n Node) {
-	var queuedScopeRoots *TDeque[Node] = newTDeque_(tc_Node)
+	var queuedScopeRoots []Node = []Node{}
 	for n != 0 {
 		if this.isScopeRoot(n) {
-			queuedScopeRoots.push(n)
+			queuedScopeRoots = append(queuedScopeRoots, n)
 		}
 		n = n.getParent()
 	}
-	it_2 := queuedScopeRoots.each()
+	it_2 := eachRevOf_(&queuedScopeRoots)
 	for it_2.next() {
 		var queuedScopeRoot Node = it_2.v
 		this.pushScope(queuedScopeRoot)
@@ -1106,7 +1106,7 @@ func (this *NodeTraversal_AbstractScopedCallback) visit(p0 *NodeTraversal, p1 No
 
 type NodeTraversal_AbstractCfgCallback struct {
 	self_ NodeTraversal_AbstractCfgCallback_I
-	cfgs  *TDeque[any]
+	cfgs  *[]any
 }
 
 // NodeTraversal_AbstractCfgCallback_I holds the methods the dispatchers of NodeTraversal_AbstractCfgCallback's hierarchy call on the most derived
@@ -1130,7 +1130,7 @@ func (this *NodeTraversal_AbstractCfgCallback) self() any {
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) finit_NodeTraversal_AbstractCfgCallback() {
-	this.cfgs = newTDeque_(tc_Object)
+	this.cfgs = &[]any{}
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) init_NodeTraversal_AbstractCfgCallback() {
@@ -1139,7 +1139,7 @@ func (this *NodeTraversal_AbstractCfgCallback) init_NodeTraversal_AbstractCfgCal
 
 func (this *NodeTraversal_AbstractCfgCallback) getControlFlowGraph(compiler *AbstractCompiler) *ControlFlowGraph[Node] {
 	var result *ControlFlowGraph[Node]
-	var o any = this.cfgs.peek()
+	var o any = slicePeekTop_(tc_any, *this.cfgs)
 	if o == nil {
 		panic(new_IllegalStateException_0())
 	}
@@ -1154,8 +1154,8 @@ func (this *NodeTraversal_AbstractCfgCallback) getControlFlowGraph(compiler *Abs
 		return true
 	}() {
 		result = ControlFlowAnalysis_builder().setCompiler(compiler).setCfgRoot(cfgRoot).setIncludeEdgeAnnotations(true).computeCfg()
-		this.cfgs.pop()
-		this.cfgs.push(result.self())
+		slicePop_(tc_any, this.cfgs)
+		*this.cfgs = append(*this.cfgs, result.self())
 	} else {
 		result = to_ControlFlowGraph[Node](o)
 	}
@@ -1165,7 +1165,7 @@ func (this *NodeTraversal_AbstractCfgCallback) getControlFlowGraph(compiler *Abs
 func (this *NodeTraversal_AbstractCfgCallback) enterScope(t *NodeTraversal) {
 	var currentScopeRoot Node = t.getScopeRoot()
 	if NodeUtil_isValidCfgRoot(currentScopeRoot) {
-		this.cfgs.push(currentScopeRoot.box_())
+		*this.cfgs = append(*this.cfgs, currentScopeRoot.box_())
 	}
 	this.enterScopeWithCfg(t)
 }
@@ -1174,7 +1174,7 @@ func (this *NodeTraversal_AbstractCfgCallback) exitScope(t *NodeTraversal) {
 	this.exitScopeWithCfg(t)
 	var currentScopeRoot Node = t.getScopeRoot()
 	if NodeUtil_isValidCfgRoot(currentScopeRoot) {
-		this.cfgs.pop()
+		slicePop_(tc_any, this.cfgs)
 	}
 }
 

@@ -4,12 +4,12 @@ package closure
 
 type CheckUselessBlocks struct {
 	compiler_  *AbstractCompiler
-	loneBlocks *TDeque[Node]
+	loneBlocks *[]Node
 }
 
 func (this *CheckUselessBlocks) init_CheckUselessBlocks(compiler *AbstractCompiler) {
 	this.compiler_ = compiler
-	this.loneBlocks = newTDeque_(tc_Node)
+	this.loneBlocks = &[]Node{}
 }
 
 func new_CheckUselessBlocks(compiler *AbstractCompiler) *CheckUselessBlocks {
@@ -31,11 +31,11 @@ func (this *CheckUselessBlocks) isLoneBlock(n Node) bool {
 }
 
 func (this *CheckUselessBlocks) allowLoneBlock(parent Node) {
-	if this.loneBlocks.isEmpty() {
+	if len(*this.loneBlocks) == 0 {
 		return
 	}
-	if this.loneBlocks.peek() == parent {
-		this.loneBlocks.pop()
+	if slicePeekTop_(tc_Node, *this.loneBlocks) == parent {
+		slicePop_(tc_Node, this.loneBlocks)
 	}
 }
 
@@ -43,7 +43,7 @@ func (this *CheckUselessBlocks) shouldTraverse(t *NodeTraversal, n Node, parent 
 	switch n.ns_().token {
 	case tokOrd1_BLOCK:
 		if this.isLoneBlock(n) {
-			this.loneBlocks.push(n)
+			*this.loneBlocks = append(*this.loneBlocks, n)
 		}
 	case tokOrd1_LET, tokOrd1_CONST:
 		this.allowLoneBlock(parent)
@@ -61,8 +61,8 @@ func (this *CheckUselessBlocks) shouldTraverse(t *NodeTraversal, n Node, parent 
 }
 
 func (this *CheckUselessBlocks) visit(t *NodeTraversal, n Node, parent Node) {
-	if (n.isBlock() && !this.loneBlocks.isEmpty()) && (this.loneBlocks.peek() == n) {
-		this.loneBlocks.pop()
+	if (n.isBlock() && len(*this.loneBlocks) != 0) && (slicePeekTop_(tc_Node, *this.loneBlocks) == n) {
+		slicePop_(tc_Node, this.loneBlocks)
 		t.report(n, CheckUselessBlocks_USELESS_BLOCK, []string{})
 	}
 }

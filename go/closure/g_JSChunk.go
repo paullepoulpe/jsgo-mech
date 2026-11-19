@@ -5,7 +5,7 @@ package closure
 type JSChunk struct {
 	name_  string
 	inputs *TMap[string, *CompilerInput]
-	deps   *TList[*JSChunk]
+	deps   *[]*JSChunk
 	depth  int32
 	index_ int32
 }
@@ -16,7 +16,7 @@ func (this *JSChunk) zero_JSChunk() {
 
 func (this *JSChunk) finit_JSChunk() {
 	this.inputs = newTMap_(tc_string, tc_p_CompilerInput)
-	this.deps = newTList_(tc_p_JSChunk)
+	this.deps = &[]*JSChunk{}
 }
 
 func (this *JSChunk) init_JSChunk(name string) {
@@ -51,7 +51,7 @@ func (this *JSChunk) getHasNoCompileAnnotation() bool {
 
 func (this *JSChunk) getRequires() *ImmutableList[*DependencyInfo_Require] {
 	var builder *ImmutableList_Builder[*DependencyInfo_Require] = immutableListBuilder_(tc_p_DependencyInfo_Require)
-	for chunk := range this.deps.All() {
+	for chunk := range sliceAll_(this.deps) {
 		builder.add(DependencyInfo_Require_compilerChunk(chunk.getName()))
 	}
 	return builder.build()
@@ -97,7 +97,7 @@ func (this *JSChunk) addDependency(dep *JSChunk) {
 	if dep == this {
 		panic(new_IllegalStateException_String(Strings_lenientFormat("Cannot add dependency on self (%s)", any(this))))
 	}
-	this.deps.add(dep)
+	*this.deps = append(*this.deps, dep)
 }
 
 func (this *JSChunk) remove(input *CompilerInput) {
@@ -113,7 +113,7 @@ func (this *JSChunk) removeAll() {
 }
 
 func (this *JSChunk) getDependencies() []*JSChunk {
-	return immCopyOf_(tc_p_JSChunk, Collection(this.deps.asList()))
+	return immCopyOf_(tc_p_JSChunk, Collection(sliceViewP_(tc_p_JSChunk, this.deps)))
 }
 
 func (this *JSChunk) getSortedDependencyNames() []string {
@@ -127,14 +127,14 @@ func (this *JSChunk) getSortedDependencyNames() []string {
 
 func (this *JSChunk) getAllDependencies() SetOf[*JSChunk] {
 	var allDeps *TSet[*JSChunk] = newTSet_(tc_p_JSChunk)
-	allDeps.asSet().addAll(Collection(this.deps.asList()))
-	var stack *TDeque[*JSChunk] = tdequeFrom_(tc_p_JSChunk, Collection(this.deps.asList()))
+	allDeps.asSet().addAll(Collection(sliceViewP_(tc_p_JSChunk, this.deps)))
+	var stack *TList[*JSChunk] = tlistFromRev_(tc_p_JSChunk, Collection(sliceViewP_(tc_p_JSChunk, this.deps)))
 	for !stack.isEmpty() {
-		var chunk *JSChunk = stack.pop()
-		var chunkDeps *TList[*JSChunk] = chunk.deps
-		for dep := range chunkDeps.All() {
+		var chunk *JSChunk = stack.pop_()
+		var chunkDeps *[]*JSChunk = chunk.deps
+		for dep := range sliceAll_(chunkDeps) {
 			if allDeps.Add(dep) {
-				stack.push(dep)
+				stack.push_(dep)
 			}
 		}
 	}

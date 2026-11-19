@@ -11,7 +11,7 @@ type RemoveUnusedCode struct {
 	removeLocalVars_                               bool
 	removeGlobals_                                 bool
 	preserveFunctionExpressionNames_               bool
-	worklist                                       *TDeque[*RemoveUnusedCode_Continuation]
+	worklist                                       *[]*RemoveUnusedCode_Continuation
 	varInfoMap                                     varMap_[RemoveUnusedCode_VarInfo]
 	pinnedPropertyNames                            map[string]struct{}
 	removablesForPropertyNames                     *SimpleSetMultimap[any, *RemoveUnusedCode_Removable]
@@ -33,7 +33,7 @@ type RemoveUnusedCode struct {
 }
 
 func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
-	this.worklist = newTDeque_(tc_p_RemoveUnusedCode_Continuation)
+	this.worklist = &[]*RemoveUnusedCode_Continuation{}
 	this.pinnedPropertyNames = setFrom_(tc_string, icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES.asImm())))
 	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_Removable]()
 	this.allFunctionParamScopes = &[]*Scope{}
@@ -91,9 +91,9 @@ func (this *RemoveUnusedCode) traverseAndRemoveUnusedReferences(root Node) {
 		scope.declare(NodeUtil_JSC_PROPERTY_NAME_FN, 0, nil)
 	}
 	this.polyfillUsageFinder.traverseOnlyGuarded(root, (&Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.storePolyfill(p0) }}).accept)
-	this.worklist.add(new_RemoveUnusedCode_Continuation(this, root, scope))
-	for !this.worklist.isEmpty() {
-		var continuation *RemoveUnusedCode_Continuation = this.worklist.pop()
+	*this.worklist = append(*this.worklist, new_RemoveUnusedCode_Continuation(this, root, scope))
+	for len(*this.worklist) != 0 {
+		var continuation *RemoveUnusedCode_Continuation = slicePopFirst_(tc_p_RemoveUnusedCode_Continuation, this.worklist)
 		continuation.apply()
 	}
 	this.removeUnreferencedVarsAndPolyfills()
@@ -1615,7 +1615,7 @@ func (this *RemoveUnusedCode_Removable) applyContinuations() {
 	if !this.continuationsAreApplied {
 		this.continuationsAreApplied = true
 		for _, c := range *this.continuations {
-			this.outer_.worklist.add(c)
+			*this.outer_.worklist = append(*this.outer_.worklist, c)
 		}
 		sliceClear_(this.continuations)
 	}
