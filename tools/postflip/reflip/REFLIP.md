@@ -490,3 +490,14 @@ What holds up, and what does not:
   are a generic runtime over []any. OPEN.
 
 So of the rows left open, none has a reason that holds against jsgo; they are work to do.
+
+### C37 (84572dab): fniface, and the lambda objects left
+
+New tool tools/postflip/fniface: a function interface that only its lambda adapter implements
+becomes a Go function type (jsgo's form for the persistent map's joiner). 2 of 52 candidates on
+this tree (PMap_Reconciler, ColorId_ByteAt; 8 lambdas, 5 calls); the other 50 have implementing
+classes or a use the tool does not allow. Neutral in time on bundle, typed-full and the subset.
+Lambda objects left in g_*.go after it, counted with one pattern each: 51 erased adapters
+without type arguments (&X_fn{func), 4 with (&X_fn[...]{func), 290 typed adapters
+(&X_tfn_Y{func and &X_tfn[...]{func). The "51 erased" given after C36 above counted only the
+first form.
