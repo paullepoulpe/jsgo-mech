@@ -2842,7 +2842,7 @@ func (this *Compiler) getCompilerExecutor() *CompilerExecutor {
 	return this.compilerExecutor
 }
 
-func Compiler_toProtoFeature(feature FeatureSet_Feature) *FeatureProto {
+func Compiler_toProtoFeature(feature FeatureSet_Feature) FeatureProto {
 	var name string = ("FEATURE_" + sstr_(feature.name()))
 	for _, proto := range FeatureProto_values() {
 		if proto.name() == name {
@@ -2852,8 +2852,8 @@ func Compiler_toProtoFeature(feature FeatureSet_Feature) *FeatureProto {
 	return FeatureProto_FEATURE_UNKNOWN
 }
 
-func Compiler_toProto(stage AbstractCompiler_LifeCycleStage) *LifeCycleStageProto {
-	return func() *LifeCycleStageProto {
+func Compiler_toProto(stage AbstractCompiler_LifeCycleStage) LifeCycleStageProto {
+	return func() LifeCycleStageProto {
 		switch stage {
 		case AbstractCompiler_LifeCycleStage_RAW:
 			return LifeCycleStageProto_LIFE_CYCLE_STAGE_RAW
@@ -2880,11 +2880,11 @@ func Compiler_toVariableMapEntries(map_ *VariableMap) *JTList[*VariableMapEntryP
 	return entries
 }
 
-func Compiler_fromProtoList(protos ListOf[*FeatureProto]) *FeatureSet {
+func Compiler_fromProtoList(protos ListOf[FeatureProto]) *FeatureSet {
 	var features *JTSet[FeatureSet_Feature] = jnewTSet_(jtc_p_FeatureSet_Feature)
 	it_1 := foreach_(any(protos))
 	for it_1.next() {
-		var p *FeatureProto = cast_[*FeatureProto](it_1.v)
+		var p FeatureProto = cast_[FeatureProto](it_1.v)
 		if p != FeatureProto_FEATURE_UNKNOWN {
 			var name string = String_substring_int(p.name(), String_length("FEATURE_"))
 			for _, feature := range FeatureSet_Feature_values() {
@@ -2898,7 +2898,7 @@ func Compiler_fromProtoList(protos ListOf[*FeatureProto]) *FeatureSet {
 	return FeatureSet_BARE_MINIMUM.withSet(features.asSet())
 }
 
-func Compiler_fromProto(stage *LifeCycleStageProto) AbstractCompiler_LifeCycleStage {
+func Compiler_fromProto(stage LifeCycleStageProto) AbstractCompiler_LifeCycleStage {
 	return func() AbstractCompiler_LifeCycleStage {
 		switch stage {
 		case LifeCycleStageProto_LIFE_CYCLE_STAGE_RAW:
