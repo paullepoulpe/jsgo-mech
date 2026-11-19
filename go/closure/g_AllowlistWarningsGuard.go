@@ -221,7 +221,7 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 		if DiagnosticGroups_DEPRECATED.matchesDiagnosticType(type_) {
 			continue
 		}
-		out.append_CharSequence_rOutput("\n# Warning ").append_CharSequence_rOutput(strobj_(type_.key_)).append_CharSequence_rOutput(": ").println(str_(AllowlistWarningsGuard_LINE_SPLITTER.split_s(type_.formatField).iterator().next()))
+		out.append_CharSequence_rOutput("\n# Warning ").append_CharSequence_rOutput(strobj_(type_.key_)).append_CharSequence_rOutput(": ").println(str_(first_(AllowlistWarningsGuard_LINE_SPLITTER.split_s(type_.formatField))))
 		it_5 := foreach_(any(warningsByType.get(obj_(type_))))
 		for it_5.next() {
 			var warning string = str_(it_5.v)
