@@ -248,23 +248,11 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 	this.functionNameToIndex.PutIfAbsent(functionName, any(int32(this.functionNameToIndex.Len())))
 	this.typeToIndex.PutIfAbsent(type_.name(), any(int32(this.typeToIndex.Len())))
 	var sb *StringBuilder = new_StringBuilder()
-	func() {
-		defer func() {
-			if r_ := recover(); r_ != nil {
-				ex_ := catch_(r_)
-				if p, ok := ex_.(IOException_as); ok {
-					var e *IOException = p.as_IOException()
-					panic(new_AssertionError_Object(e.self()))
-				}
-				panic(r_)
-			}
-		}()
-		Base64VLQ_encode(StringBuilder_as_Appendable(sb), unbox_[int32](this.fileNameToIndex.Get(fileName)))
-		Base64VLQ_encode(StringBuilder_as_Appendable(sb), unbox_[int32](this.functionNameToIndex.Get(functionName)))
-		Base64VLQ_encode(StringBuilder_as_Appendable(sb), unbox_[int32](this.typeToIndex.Get(type_.name())))
-		Base64VLQ_encode(StringBuilder_as_Appendable(sb), lineNo)
-		Base64VLQ_encode(StringBuilder_as_Appendable(sb), colNo)
-	}()
+	Base64VLQ_encode(StringBuilder_as_Appendable(sb), unbox_[int32](this.fileNameToIndex.Get(fileName)))
+	Base64VLQ_encode(StringBuilder_as_Appendable(sb), unbox_[int32](this.functionNameToIndex.Get(functionName)))
+	Base64VLQ_encode(StringBuilder_as_Appendable(sb), unbox_[int32](this.typeToIndex.Get(type_.name())))
+	Base64VLQ_encode(StringBuilder_as_Appendable(sb), lineNo)
+	Base64VLQ_encode(StringBuilder_as_Appendable(sb), colNo)
 	var encodedParam string = sb.toString()
 	if !this.paramValueEncodings.Has(encodedParam) {
 		var uniqueIdentifier int64 = this.generateUniqueIdentifier()
