@@ -137,3 +137,14 @@ fi
 if [[ -f $cg ]] && ! grep -q 'reflip9' $cg && grep -q '"strings"' $cg; then
   perl -0pi -e 's/(\t\t\t\tfor i, r := range x\.Values \{\n)(\t\t\t\t\tif v, ok := rw\.Info\.Defs\[x\.Names\[i\]\]\.\(\*types\.Var\); ok && other\(r\) && isList\(v\.Type\(\)\) \{)/$1\t\t\t\t\tif v, ok := rw.Info.Defs[x.Names[i]].(*types.Var); ok \&\& isList(v.Type()) { \/\/ reflip9\n\t\t\t\t\t\tif se, ok := r.(*ast.SelectorExpr); ok \&\& se.Sel.Name == "v" \&\& strings.Contains(types.TypeString(rw.Info.TypeOf(se.X), nil), "Each_") {\n\t\t\t\t\t\t\tpoison(slotOfVar(v), "element of a cursor over a typed collection of the translator")\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n$2/' $cg
 fi
+# 10. (second trial) native: a result or parameter whose collection type mentions a type
+#    parameter (`[]InputT` of a method of SortedDependencies[InputT]), used inside the generic
+#    type itself: the method object there is its own origin, so fix 3 (instances) did not see it,
+#    and the uses that need the element's boxing (x.asList() -> sliceView_(tc, x)) have none to
+#    write. The declaration stays, as variables of such types already do.
+ng=tools/postflip/native/main.go
+if [[ -f $ng ]] && ! grep -q 'reflip10' $ng && grep -q 'reflip: generic instance' $ng; then
+  perl -0pi -e 's/(\t\t\tif f\.Origin\(\) != f \{ \/\/ reflip: generic instance\n\t\t\t\tpoison\(resultNode\(groupOf\(f\.Origin\(\)\), 0\), "result of a method of a generic type"\))/\t\t\tif rw.ReflipGeneric_(f.Type().(*types.Signature).Results().At(0).Type(), false) { \/\/ reflip10\n\t\t\t\tpoison(resultNode(groupOf(f), 0), "result of a type parameter\x27s type")\n\t\t\t\treturn value{kind: vForeign, why: "result of a type parameter\x27s type"}\n\t\t\t}\n$1/' $ng
+  perl -0pi -e 's/(\t\t\t\tflow\(resultNode\(g, i\), e, true\)\n)/\t\t\t\tif rw.ReflipGeneric_(resultType(x, i), false) { \/\/ reflip10\n\t\t\t\t\tpoison(resultNode(g, i), "result of a type parameter\x27s type")\n\t\t\t\t}\n$1/' $ng
+  perl -0pi -e 's/(\tif f\.Origin\(\) != f \{ \/\/ reflip: generic instance\n\t\tpoison\(paramNode\(groupOf\(f\), i\), "argument of a method of a generic type"\))/\tif rw.ReflipGeneric_(sig.Params().At(i).Type(), false) { \/\/ reflip10\n\t\tpoison(paramNode(groupOf(f), i), "parameter of a type parameter\x27s type")\n\t}\n$1/' $ng
+fi
