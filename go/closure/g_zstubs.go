@@ -403,10 +403,6 @@ func (this *CacheLoader) self() any {
 	return this.self_
 }
 
-type Callable interface {
-	call() any
-}
-
 type ChunkProtoOrBuilder interface {
 	MessageOrBuilder
 	getDependenciesList() List
@@ -856,13 +852,6 @@ func new_ExecutionException_String_Throwable(p0 string, p1 *Throwable) *Executio
 type Executor interface {
 }
 
-type ExecutorService interface {
-	Executor
-	AutoCloseable
-	shutdown()
-	submit(Callable) Future
-}
-
 type ExternsSummaryOrBuilder interface {
 	MessageOrBuilder
 	getPropNamePtrList() List
@@ -928,11 +917,6 @@ type Function interface {
 
 type Function_base interface {
 	Function
-}
-
-type Future interface {
-	get() any
-	get_long_TimeUnit(int64, TimeUnit) any
 }
 
 type GarbageCollectorMXBean interface {
@@ -1436,14 +1420,6 @@ type List interface {
 
 type ListIterator interface {
 	Iterator
-}
-
-type ListenableFuture interface {
-	Future
-}
-
-type ListeningExecutorService interface {
-	ExecutorService
 }
 
 type LoadingCache interface {
@@ -2302,20 +2278,6 @@ type TemplateStringValueOrBuilder interface {
 	getRawStringPointer() int32
 }
 
-func (this *Thread) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
-type ThreadFactory interface {
-	newThread(Runnable) *Thread
-}
-
-type Thread_UncaughtExceptionHandler interface {
-}
-
 // Throwable_as is implemented by Throwable and the classes that extend it: a cast to Throwable asserts to it
 // (post-flip).
 type Throwable_as interface {
@@ -2721,14 +2683,6 @@ func (this *IntFunction_fn) apply(p0 int32) any {
 	return this.f(p0)
 }
 
-type Callable_fn struct {
-	f func() any
-}
-
-func (this *Callable_fn) call() any {
-	return this.f()
-}
-
 type BiFunction_fn struct {
 	f func(any, any) any
 }
@@ -2782,14 +2736,6 @@ type ToLongFunction_fn struct {
 }
 
 func (this *ToLongFunction_fn) applyAsLong(p0 any) int64 {
-	return this.f(p0)
-}
-
-type ThreadFactory_fn struct {
-	f func(Runnable) *Thread
-}
-
-func (this *ThreadFactory_fn) newThread(p0 Runnable) *Thread {
 	return this.f(p0)
 }
 
