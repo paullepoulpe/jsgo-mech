@@ -617,3 +617,7 @@ e13ca66a run t jfam -kind eqkeys
 bad8c2e4 run t tostr && t anyconv -all && t exceptions && f
 # C19. postflip step: tchecks, typed precondition calls are inline checks
 dfc0c907 run t tchecks && f
+# C20. postflip (runtime): tconvKeyed_, varKeyHash_, varKeyEq_
+15cc74d8 patch reflip2-15cc74d8-rt.patch
+# C21. postflip step: jfam -kind valkeys
+4e3fede0 run t jfam -kind valkeys
