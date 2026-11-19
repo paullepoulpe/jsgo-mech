@@ -602,3 +602,7 @@ d6e0d286 patch reflip2-d6e0d286-rt.patch
 47348697 run t bulkops
 # C13. postflip step: jfam -kind cursors
 6e5c5802 run t jfam -kind cursors
+# C14. postflip (runtime): jtconv_.tEq_
+0b26bb56 patch reflip2-0b26bb56-rt.patch
+# C15. postflip step: jfam -kind eqkeys
+e13ca66a run t jfam -kind eqkeys

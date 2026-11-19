@@ -1,0 +1,32 @@
+diff --git a/go/closure/rt_jbridge.go b/go/closure/rt_jbridge.go
+index c0b2b178..c1b80065 100644
+--- a/go/closure/rt_jbridge.go
++++ b/go/closure/rt_jbridge.go
+@@ -263,3 +263,14 @@ func (l *TList[T]) forEachT(f func(T)) {
+ 		f(l.items[i])
+ 	}
+ }
++
++// tEq_ is the post-flip conversion of a translator conversion that compares by equals
++// (byEquals) for an element type whose equals is Go's == (post-flip tool jfam -kind eqkeys
++// decides it from the program's classes, as rw.KeyMode does for the post-flip tools): the same
++// box, unbox and null, no hash and eq functions. One per conversion.
++func (c *jtconv_[T]) tEq_() *tconv_[T] {
++	if c.postEq == nil {
++		c.postEq = &tconv_[T]{box: c.box, unbox: c.unbox, null: c.null}
++	}
++	return c.postEq
++}
+diff --git a/go/closure/rt_jtlist.go b/go/closure/rt_jtlist.go
+index 587c8340..aa36a9c3 100644
+--- a/go/closure/rt_jtlist.go
++++ b/go/closure/rt_jtlist.go
+@@ -27,6 +27,8 @@ type jtconv_[T any] struct {
+ 	// post: this conversion for the post-flip typed collections (t_), made on first use or
+ 	// set to the package's conversion of the same type (post-flip tool jfam -kind convs).
+ 	post *tconv_[T]
++	// postEq: the same without hash and eq, for keys whose equals is == (tEq_, rt_jbridge.go).
++	postEq *tconv_[T]
+ }
+ 
+ // t_ is the conversion as the post-flip typed collections take it (rt_tlist.go): the same box,
