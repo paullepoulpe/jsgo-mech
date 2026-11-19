@@ -257,17 +257,17 @@ func (this *MaybeReachingVariableUse_ReachingUses) put(v *Var, n Node) {
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) join(other *MaybeReachingVariableUse_ReachingUses) {
-	this.mayUsePMap = this.mayUsePMap.reconcile_PMap_Reconciler(other.mayUsePMap, &PMap_Reconciler_fn[*Var, PMap[Node, Node]]{func(var_ *Var, thisVal PMap[Node, Node], thatVal PMap[Node, Node]) PMap[Node, Node] {
+	this.mayUsePMap = this.mayUsePMap.reconcile_PMap_Reconciler(other.mayUsePMap, PMap_Reconciler[*Var, PMap[Node, Node]](func(var_ *Var, thisVal PMap[Node, Node], thatVal PMap[Node, Node]) PMap[Node, Node] {
 		if thisVal == nil {
 			return thatVal
 		}
 		if thatVal == nil {
 			return thisVal
 		}
-		return thisVal.reconcile_PMap_Reconciler(thatVal, &PMap_Reconciler_fn[Node, Node]{func(node Node, unused1 Node, unused2 Node) Node {
+		return thisVal.reconcile_PMap_Reconciler(thatVal, PMap_Reconciler[Node, Node](func(node Node, unused1 Node, unused2 Node) Node {
 			return node
-		}})
-	}})
+		}))
+	}))
 }
 
 func (this *MaybeReachingVariableUse_ReachingUses) equals(other any) bool {

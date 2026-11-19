@@ -649,3 +649,5 @@ d3a98058 run t exceptions && f
 dd7c9fa2 patch reflip2-dd7c9fa2-rt.patch
 # C35. postflip step: tnames re-run on the bridged tree (30 computeIfAbsent_f calls take a typed function)
 9cd99ed0 run t tnames && f
+# C36. postflip step: funcparams re-run on the bridged tree (tool change bee992e8: methods of generic types no interface asks for)
+c82e880d run t funcparams && f

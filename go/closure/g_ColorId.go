@@ -29,13 +29,13 @@ func ColorId_fromUnsignedByte(x int8) *ColorId {
 }
 
 func ColorId_fromBytesByteString(bytes *ByteString) *ColorId {
-	return ColorId_fromBytesAt[*ByteString](bytes, bytes.size(), &ColorId_ByteAt_fn[*ByteString]{func(p0 *ByteString, p1 int32) int8 { return p0.byteAt(p1) }})
+	return ColorId_fromBytesAt[*ByteString](bytes, bytes.size(), ColorId_ByteAt[*ByteString](func(p0 *ByteString, p1 int32) int8 { return p0.byteAt(p1) }))
 }
 
 func ColorId_fromBytes(bytes []int8) *ColorId {
-	return ColorId_fromBytesAt[[]int8](bytes, int32(len(bytes)), &ColorId_ByteAt_fn[[]int8]{func(s []int8, i int32) int8 {
+	return ColorId_fromBytesAt[[]int8](bytes, int32(len(bytes)), ColorId_ByteAt[[]int8](func(s []int8, i int32) int8 {
 		return s[i]
-	}})
+	}))
 }
 
 func ColorId_fromAscii(str string) *ColorId {
@@ -49,7 +49,7 @@ func ColorId_fromBytesAt[T any](source T, length int32, byteAt ColorId_ByteAt[T]
 	var rightAligned int64 = 0
 	for i := int32(0); i < length; i++ {
 		rightAligned = (rightAligned << 8)
-		rightAligned |= (int64(byteAt.get(source, i)) & 255)
+		rightAligned |= (int64(byteAt(source, i)) & 255)
 	}
 	return new_ColorId(rightAligned)
 }
@@ -122,24 +122,14 @@ func ColorId_clinit() {
 	}
 	ColorId_clinit_done = true
 	ColorId_FARM_64 = Hashing_farmHashFingerprint64()
-	ColorId_ASCII_AT = &ColorId_ByteAt_fn[string]{func(s string, i int32) int8 {
+	ColorId_ASCII_AT = ColorId_ByteAt[string](func(s string, i int32) int8 {
 		var c int32 = String_codePointAt(s, i)
 		if 0 > c || c >= 128 {
 			panic(new_IllegalStateException_String(istr_(int64(int32(c)))))
 		}
 		return int8(c)
-	}}
+	})
 
 }
 
-type ColorId_ByteAt[T any] interface {
-	get(T, int32) int8
-}
-
-type ColorId_ByteAt_fn[T any] struct {
-	f func(T, int32) int8
-}
-
-func (this *ColorId_ByteAt_fn[T]) get(p0 T, p1 int32) int8 {
-	return this.f(p0, p1)
-}
+type ColorId_ByteAt[T any] func(T, int32) int8

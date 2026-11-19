@@ -261,7 +261,7 @@ where a row says so; "sweep" below quotes its counted reasons.
 | StringBuilder | 3 | 79 | 4 | C26: sbuild with a tool fix for two forms this flip writes (jtostr_ as a read, StringBuilder_as_Appendable as an Appendable argument): 40 slots in 28 classes, 0 left. C27: round 8's step 303 by hand on the same two sites. The 4 left are no builders: the name-table entry and a comment (as in postflip5), and a message string in a catch around an append that postflip5's step 268 (exceptions re-run) removed |
 | enums as objects | 0 | 1 | 1 | enums: Node_Prop, which the runtime (node store) uses as an object |
 | Preconditions_ checks | 3 | 1,038 | 372 | j2go rules P2 and P4 (typed variants), then tchecks (dfc0c907): 665 statement calls are inline checks. Left (tchecks, counted): 235 checkNotNull used as an expression (its result is the value), 135 with a message argument that is not a constant, a variable or a field path (the template forms), 3 whose checked value is not a variable or a field path |
-| threads / executors | 13 | 56 | 14 | C23, C24, C25: round 8's executor edit and its same-thread-check edit rewritten for this flip, and the three stub-removal patches, which apply again after them. 14 against postflip5's 13 (the CompilerExecutor class itself, in both trees); the one more is this flip's cast-table entry for CompilerExecutor |
+| threads / executors | 13 | 56 | 14 | C23, C24, C25: round 8's executor edit and its same-thread-check edit rewritten for this flip, and the three stub-removal patches, which apply again after them. 14 against postflip5's 13 (the CompilerExecutor class itself, in both trees); the one more is this flip's cast-table entry for CompilerExecutor. Against jsgo: it kept upstream's PrebuildAst / PrebuildDependencyInfo parallel (goroutines under --num_parallel_threads); here, as in postflip5, they are loops and the flag has no effect. Not a difference at the benchmark's default of one thread, but a capability dropped: OPEN as a runtime item (executors on goroutines), not as a count |
 | reflect, unsafe | 5, 1 | 5, 2 | 5, 2 | name matches in generated code; the node store adds one unsafe use |
 | fields/params declared any | 1,877 | 1,640 | 1,715 | objslots: 5 left (receive from a slot that stays any). OPEN: the planned single-type Object flow retyping |
 
@@ -395,5 +395,98 @@ tree before C1, each step's patch or command with the tools of that step's commi
 carried forward, each intermediate go/ compared with the step's commit byte for byte
 (g_zconv_jfam*.go left out against the commits .gitignore kept it from, see steps.txt). Run on
 64826ba8: `CHAIN OK 34 steps, last tree builds`. Its first run stopped at C34 on a patch file
-left under an old hash; fixed in 64826ba8. This is the bridge only: the 191 replayed commits
-before C1 (reflip2-replayed) were checked by replay2.sh on 18 Nov and have not been re-run.
+left under an old hash; fixed in 64826ba8. The steps before C1 were re-run clean the same day: from main-r9-reflip2 (ecd91f11),
+`replay-all.sh -base 9e761336 -noverify -steps reflip/steps.txt -overlay reflip/patches -toolfix
+reflip/toolfix.sh -check "tc go/closure" -w <fresh worktree>` replayed 191 commits in 36 minutes
+and its end go/ is 079459be's (reflip2-replayed), byte for byte. So the second trial reproduces
+from its flip commit: 191 replayed commits, then C1 to C34 as a chain, C35 and C36 each checked
+on its parent. Lambda adapters after C36: 290 typed literals and 51 erased lambda objects in
+g_*.go.
+
+### C35, C36 and the standing after them (19 Nov)
+
+C35 (9cd99ed0, tool): tnames re-run, 30 computeIfAbsent_f calls take a typed function; neutral
+over 7 typed-full rounds, allocation unchanged. C36 (c82e880d, tool): funcparams, after a tool
+change for methods of generic types that no interface asks for: LinkedIdentityHashMap's
+computeIfAbsent and forEach take Go functions; neutral in time, subset CHECKS allocation 334.6M
+-> 324.7M objects.
+
+Subset (runs/c36_gs3500.runs, 2 alternating rounds, outputs identical): postflip5 99.4s, 100.3s;
+this tree 115.0s, 115.3s (120.9s, 119.8s before C23). By stage: CHECKS 50.09s against 58.50s,
+OPTIMIZATIONS 40.59s against 45.68s, FINALIZATIONS 9.19s against 10.99s. This tree is about 15%
+behind postflip5 on the subset (it was about 20%); pre-flip Java ran it in 94.2-95.2s. CHECKS
+allocation: postflip5 260.4M objects, this tree 324.7M (382.5M before C33).
+
+### The subset is 18% of the benchmark (correction, 19 Nov)
+
+Everywhere above, "the first 3,500 chunks" holds 7,886 of the 44,577 input files (18%), not
+about half. POSTFLIP.md on postflip5-r9-ga has the comparison with Java at 18%, 52% and 100% of
+the input and jsgo's own figures: the gap grows with size in the stages after CHECKS and in
+memory.
+
+This tree at 52% of the input (gasub/flags5447.txt: 5,447 chunks, 23,196 files; one run, alone
+on the host, chunks identical to Java's and postflip5's, sha 2043969e; runs/half_r2q1.runs),
+binary of C36:
+
+| | total wall | CHECKS wall / peak RSS | OPTIMIZATIONS | FINALIZATIONS |
+|---|---|---|---|---|
+| pre-flip Java | 248.6s | 117.2s / 8.0 GB | 109.3s / 7.6 GB | 22.1s / 2.8 GB |
+| postflip5-r9-ga | 285.5s | 147.8s / 11.2 GB | 114.7s / 8.5 GB | 23.0s / 1.5 GB |
+| this tree | 329.9s | 172.3s / 10.2 GB | 130.2s / 5.8 GB | 27.4s / 1.2 GB |
+
+In time this tree is 15.5% behind postflip5, as it is at 18% of the input (115.2s against
+99.9s): its distance to postflip5 does not grow with size. In memory it is below postflip5 in
+every stage, by a third in OPTIMIZATIONS (the node store's pointer-free records), though still
+above Java in CHECKS.
+
+## The open rows against jsgo's hand port (19 Nov)
+
+The goal asks that a Java-ism left in place has a counted reason that holds up against how jsgo
+handled it. The same syntactic counts on jsgo's Go (internal/, 710 non-test files, the port
+that was accepted) and on the two trees here (go/closure/g_*.go), by runs/jsgocmp.py:
+
+| count | jsgo (hand port) | postflip5 | second trial (C36) |
+|---|---:|---:|---:|
+| non-test Go lines | 402,963 | 260,187 | 263,465 |
+| type assertions x.(T), comma-ok or not | 559 | 2,340 | 2,141 |
+| cast helper calls to_X( / cast_[T]( / icast_X( (mech only) | 0 | 2,391 | 1,784 |
+| type switches | 78 | 22 | 17 |
+| instanceof helper calls is_X( (mech only) | 0 | 71 | 73 |
+| mentions of any / interface{} | 1,436 | 6,347 | 5,919 |
+| equals methods declared | 71 | 127 | 127 |
+| hashCode methods declared | 58 | 129 | 129 |
+| recover() | 58 | 26 | 26 |
+| defer statements | 295 | 82 | 82 |
+| panic( | 1,724 | 3,492 | 2,566 |
+| function-typed parameters in signatures | 204 | 186 | 134 |
+| go statements | 10 | 0 | 0 |
+| sync. uses | 89 | 0 | 0 |
+| strings.Builder / strBuilder_ | 279 | 262 | 256 |
+
+What holds up, and what does not:
+
+- try/catch and defer: this tree has fewer recover() and defer than jsgo. The row is closed and
+  the comparison supports leaving the 50 emulations.
+- StringBuilder: level with jsgo's strings.Builder count. Closed.
+- equals/hashCode: jsgo declares 71 equals and 58 hashCode methods, so the protocol itself is
+  kept there too; this tree declares 127 and 129. About half of the row has jsgo's handling as
+  its reason; the other half (classes jsgo compares with ==, and the calls through the generic
+  helpers boxT_/equalsT_) does not. OPEN.
+- class casts and instanceof: 559 assertions and 78 type switches in jsgo against 2,141
+  assertions plus 1,784 cast-helper calls and 73 instanceof helpers here. No reason holds for
+  a count four to seven times jsgo's. OPEN: the translator rules (scopes and variables per
+  subclass, visit as a generic function, single-implementation interfaces) and the type-switch
+  tool are the planned answer; measured on bundle, casts and assertions are about 0.4s of 28s
+  CPU, so this is a count to bring down, not the time gap.
+- any: 1,436 mentions in jsgo against 5,919 here (boxing, Object slots, erased collections left
+  by the bridge). No reason holds for four times jsgo's. OPEN (typed lookups, varargs, the
+  single-type Object slots, the 240 erased set/map mentions).
+- lambda objects: jsgo passes functions (its HamtPMap_Reconciler is a func type; 204
+  function-typed parameters). Here 290 typed adapters and 51 erased lambda objects remain,
+  the reconcile joiner among them. jsgo's handling is the opposite of leaving them. OPEN.
+- threads: jsgo has 10 go statements and 89 uses of sync (parallel prebuild among them); this
+  tree has none. A dropped capability, OPEN as a runtime item.
+- typed message code: jsgo uses protoc-gen-go messages (migration_plan.md 5.2); here messages
+  are a generic runtime over []any. OPEN.
+
+So of the rows left open, none has a reason that holds against jsgo; they are work to do.

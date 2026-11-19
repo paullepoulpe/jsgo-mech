@@ -228,13 +228,13 @@ func (this *HamtPMap[K, V]) reconcile_PMap_Reconciler_rHamtPMap(that PMap[K, V],
 			return cast_[*HamtPMap[K, V]](that)
 		}
 		return nil
-	}(), &PMap_Reconciler_fn[K, V]{func(k K, v1 V, v2 V) V {
-		nn_ := boxT_(joiner.merge(k, v1, v2))
+	}(), PMap_Reconciler[K, V](func(k K, v1 V, v2 V) V {
+		nn_ := boxT_(joiner(k, v1, v2))
 		if nn_ == nil {
 			panic(new_NullPointerException_0())
 		}
 		return junboxT_[V](nn_)
-	}})
+	}))
 	return func() *HamtPMap[K, V] {
 		if result != nil {
 			return result
@@ -247,7 +247,7 @@ func HamtPMap_reconcile[K comparable, V comparable](t1 *HamtPMap[K, V], t2 *Hamt
 	if t1 == t2 {
 		return t1
 	} else if t1 == nil {
-		var newValue V = joiner.merge(t2.key_, jnull_[V](), t2.value_)
+		var newValue V = joiner(t2.key_, jnull_[V](), t2.value_)
 		var newChildren []*HamtPMap[K, V] = arrcopyOf_(t2.children_, int32(len(t2.children_)))
 		for i := int32(0); i < int32(len(newChildren)); i++ {
 			newChildren[i] = HamtPMap_reconcile[K, V](nil, newChildren[i], joiner)
@@ -259,7 +259,7 @@ func HamtPMap_reconcile[K comparable, V comparable](t1 *HamtPMap[K, V], t2 *Hamt
 			return HamtPMap_deleteRoot[K, V](t2.mask, newChildren)
 		}()
 	} else if t2 == nil {
-		var newValue V = joiner.merge(t1.key_, t1.value_, jnull_[V]())
+		var newValue V = joiner(t1.key_, t1.value_, jnull_[V]())
 		var newChildren []*HamtPMap[K, V] = arrcopyOf_(t1.children_, int32(len(t1.children_)))
 		for i := int32(0); i < int32(len(newChildren)); i++ {
 			newChildren[i] = HamtPMap_reconcile[K, V](newChildren[i], nil, joiner)
@@ -292,7 +292,7 @@ func HamtPMap_reconcile[K comparable, V comparable](t1 *HamtPMap[K, V], t2 *Hamt
 		if Objects_equals(boxT_(t1.value_), boxT_(t2.value_)) {
 			return t1.value_
 		}
-		return joiner.merge(func() K {
+		return joiner(func() K {
 			if !jisnull_(t1.key_) {
 				return t1.key_
 			}

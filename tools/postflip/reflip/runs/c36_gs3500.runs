@@ -1,0 +1,16 @@
+  flags3500/CHECKS upf5 wall=50.13 cpu=62.85 round=0 load=1.54 rss=3697M exit=0
+  flags3500/OPTIMIZATIONS upf5 wall=40.15 cpu=47.92 round=0 load=1.40 rss=2895M exit=0
+  flags3500/FINALIZATIONS upf5 wall=9.16 cpu=11.35 round=0 load=1.48 rss=649M exit=0
+  flags3500 upf5 wall=99.43 cpu=122.12 round=0 load=1.48 sha=72b57cd286c9
+  flags3500/CHECKS uthis wall=58.22 cpu=74.45 round=0 load=1.69 rss=3347M exit=0
+  flags3500/OPTIMIZATIONS uthis wall=45.66 cpu=51.95 round=0 load=1.46 rss=2087M exit=0
+  flags3500/FINALIZATIONS uthis wall=11.13 cpu=13.36 round=0 load=1.47 rss=554M exit=0
+  flags3500 uthis wall=115.01 cpu=139.76 round=0 load=1.47 sha=72b57cd286c9
+  flags3500/CHECKS uthis wall=58.79 cpu=75.09 round=1 load=1.25 rss=3320M exit=0
+  flags3500/OPTIMIZATIONS uthis wall=45.70 cpu=52.07 round=1 load=1.20 rss=2076M exit=0
+  flags3500/FINALIZATIONS uthis wall=10.85 cpu=12.99 round=1 load=1.24 rss=572M exit=0
+  flags3500 uthis wall=115.33 cpu=140.15 round=1 load=1.24 sha=72b57cd286c9
+  flags3500/CHECKS upf5 wall=50.04 cpu=63.66 round=1 load=2.04 rss=3659M exit=0
+  flags3500/OPTIMIZATIONS upf5 wall=41.04 cpu=49.25 round=1 load=1.53 rss=2929M exit=0
+  flags3500/FINALIZATIONS upf5 wall=9.22 cpu=11.42 round=1 load=1.53 rss=618M exit=0
+  flags3500 upf5 wall=100.31 cpu=124.32 round=1 load=1.53 sha=72b57cd286c9

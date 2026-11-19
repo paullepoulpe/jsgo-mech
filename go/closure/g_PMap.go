@@ -13,14 +13,4 @@ type PMap[K comparable, V comparable] interface {
 	equivalent(PMap[K, V], BiPredicate) bool
 }
 
-type PMap_Reconciler[K comparable, V comparable] interface {
-	merge(K, V, V) V
-}
-
-type PMap_Reconciler_fn[K comparable, V comparable] struct {
-	f func(K, V, V) V
-}
-
-func (this *PMap_Reconciler_fn[K, V]) merge(p0 K, p1 V, p2 V) V {
-	return this.f(p0, p1, p2)
-}
+type PMap_Reconciler[K comparable, V comparable] func(K, V, V) V
