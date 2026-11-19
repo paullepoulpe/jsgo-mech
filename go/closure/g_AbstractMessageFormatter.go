@@ -50,7 +50,7 @@ func (this *AbstractMessageFormatter) getLevelName(level CheckLevel) string {
 		case CheckLevel_WARNING:
 			return this.maybeColorize("WARNING", AbstractMessageFormatter_Color_WARNING)
 		default:
-			return Object_toString(obj_(level))
+			return tostrNN_(level)
 		}
 		panic("unreachable")
 	}()

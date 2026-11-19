@@ -30,7 +30,7 @@ func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *JTMap[string, M
 			sb.append_char(IdMappingUtil_NEW_LINE)
 		}
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) *JTMap[string, string] {

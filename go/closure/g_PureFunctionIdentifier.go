@@ -1041,7 +1041,7 @@ func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) setCollectImpureDe
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper_Class(Object_getClass(any(this))).add("name", strobj_(this.name_)).add_String_int("graphNode", Object_hashCode(any(this.graphNode))).add("sideEffects", strobj_(this.sideEffectsToString()))))
+	return tostrNN_(MoreObjects_toStringHelper_Class(Object_getClass(any(this))).add("name", strobj_(this.name_)).add_String_int("graphNode", Object_hashCode(any(this.graphNode))).add("sideEffects", strobj_(this.sideEffectsToString())))
 }
 
 func (this *PureFunctionIdentifier_AmbiguatedFunctionSummary) sideEffectsToString() string {

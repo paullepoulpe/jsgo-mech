@@ -80,7 +80,7 @@ func (this *QualifiedName) join_impl() Optional[string] {
 func (this *QualifiedName) join_1(separator any) string {
 	var sb *StringBuilder = new_StringBuilder()
 	this.appendTo(sb, separator)
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this *QualifiedName) getprop(propertyName string) *QualifiedName {

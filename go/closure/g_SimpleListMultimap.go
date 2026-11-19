@@ -186,7 +186,7 @@ func (this *SimpleListMultimap) hashCode() int32 {
 }
 
 func (this *SimpleListMultimap) toString() string {
-	return Object_toString(obj_(this.map__))
+	return tostrNN_(this.map__)
 }
 
 type SimpleListMultimap_1 struct {

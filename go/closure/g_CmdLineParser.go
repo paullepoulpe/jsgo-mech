@@ -560,7 +560,7 @@ func CmdLineParser_Option_enumMetaVariable(values []*Enum) string {
 	}
 	rv.delete((rv.length() - 3), rv.length())
 	rv.append("]")
-	return Object_toString(obj_(rv))
+	return tostrNN_(rv)
 }
 
 func CmdLineParser_Option_addValue(get SupplierOf[ListOf[any]], set ConsumerOf[ListOf[any]], value any) {

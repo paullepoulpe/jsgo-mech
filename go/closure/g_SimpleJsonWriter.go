@@ -132,13 +132,13 @@ func (this *SimpleJsonWriter) setSink(sink func(any)) {
 }
 
 func (this *SimpleJsonWriter) takeText() string {
-	var text string = Object_toString(obj_(this.out))
+	var text string = tostrNN_(this.out)
 	this.out.setLength(0)
 	return text
 }
 
 func (this *SimpleJsonWriter) toString() string {
-	return Object_toString(obj_(this.out))
+	return tostrNN_(this.out)
 }
 
 func (this *SimpleJsonWriter) open(empty int32, openBracket uint16) *SimpleJsonWriter {

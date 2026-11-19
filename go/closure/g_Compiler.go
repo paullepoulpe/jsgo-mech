@@ -285,7 +285,7 @@ func (this *Compiler) printConfig() {
 		err.println("==== Inputs ====")
 		err.println(Compiler_toPrettyJson(this.chunkGraph.toJson()))
 		err.println("==== CompilerOptions ====")
-		err.println(String_valueOf_Object(obj_(this.options_)))
+		err.println(tostr_(this.options_))
 		err.println("==== WarningsGuard ====")
 		err.println(String_valueOf_Object(this.warningsGuard.self()))
 	}
@@ -3699,7 +3699,7 @@ func (this *Compiler_CodeBuilder) append(str string) *Compiler_CodeBuilder {
 }
 
 func (this *Compiler_CodeBuilder) toString() string {
-	return Object_toString(obj_(this.sb))
+	return tostrNN_(this.sb)
 }
 
 func (this *Compiler_CodeBuilder) getLength() int32 {

@@ -41,7 +41,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	if info.isExport() {
 		parts.add("@export")
 	} else if (info.getVisibility() != 0) && (info.getVisibility() != JSDocInfo_Visibility_INHERITED) {
-		parts.add(("@" + sstr_(Ascii_toLowerCase(Object_toString(obj_(info.getVisibility()))))))
+		parts.add(("@" + sstr_(Ascii_toLowerCase(tostrNN_(info.getVisibility())))))
 	}
 	if info.getAuthors() != nil {
 		multiline = true
@@ -307,7 +307,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		Joiner_on(" ").appendTo(sb, Iterable(parts.asList()))
 		sb.append(" */")
 	}
-	var s string = JSDocInfoPrinter_STAR_WITHOUT_SPACE_PATTERN.matcher_s(JString_replace_s(Object_toString(obj_(sb)), "\n", "\n *")).replaceAll("\n * $1")
+	var s string = JSDocInfoPrinter_STAR_WITHOUT_SPACE_PATTERN.matcher_s(JString_replace_s(tostrNN_(sb), "\n", "\n *")).replaceAll("\n * $1")
 	if multiline {
 		s += "\n */\n"
 	} else {
@@ -346,7 +346,7 @@ func (this *JSDocInfoPrinter) buildAnnotationWithTypeNode(annotation string, typ
 		sb.append(" ")
 		sb.append(description.get())
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this *JSDocInfoPrinter) buildParamType(info *JSDocInfo, name string) string {
@@ -368,7 +368,7 @@ func (this *JSDocInfoPrinter) buildParamType(info *JSDocInfo, name string) strin
 func (this *JSDocInfoPrinter) typeNode(typeNode Node) string {
 	var sb *StringBuilder = new_StringBuilder()
 	this.appendTypeNode(sb, typeNode)
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {

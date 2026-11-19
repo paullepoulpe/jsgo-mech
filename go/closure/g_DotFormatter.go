@@ -52,7 +52,7 @@ func DotFormatter_toDot_Node_ControlFlowGraph(n Node, inCFG *ControlFlowGraph[No
 	var builder *StringBuilder = new_StringBuilder()
 	var unused *DotFormatter = new_DotFormatter_Node_ControlFlowGraph_Appendable_boolean(n, inCFG, StringBuilder_as_Appendable(builder), false)
 	_ = unused
-	return Object_toString(obj_(builder))
+	return tostrNN_(builder)
 }
 
 func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
@@ -171,7 +171,7 @@ func (this *DotFormatter) key(n Node) int32 {
 		Appendable_append_s(this.builder, DotFormatter_INDENT)
 		Appendable_append_s(this.builder, DotFormatter_formatNodeName(key))
 		Appendable_append_s(this.builder, " [label=\"")
-		Appendable_append_s(this.builder, Object_toString(obj_(n.getToken())))
+		Appendable_append_s(this.builder, tostrNN_(n.getToken()))
 		if (((n.isName() || n.isStringLit()) || n.isGetProp()) || n.isImportStar()) || n.isStringKey() {
 			Appendable_append_s(this.builder, DotFormatter_getNodeLabel(n))
 		}

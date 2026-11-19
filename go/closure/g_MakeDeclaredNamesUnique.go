@@ -647,7 +647,7 @@ func new_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_R
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(this.self()).add("scopeRoot", this.scopeRoot.box_()).add("nameUsage", obj_(this.nameUsage)).add("declarations", any(this.declarations)).add_String_boolean("global", this.global)))
+	return tostrNN_(MoreObjects_toStringHelper(this.self()).add("scopeRoot", this.scopeRoot.box_()).add("nameUsage", obj_(this.nameUsage)).add("declarations", any(this.declarations)).add_String_boolean("global", this.global))
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) createForChildScope_impl(scopeRoot Node, hoistingTargetScope bool) MakeDeclaredNamesUnique_Renamer {

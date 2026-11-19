@@ -67,7 +67,7 @@ func Util_escapeString(s string) string {
 	}
 	region.appendUnescaped()
 	sb.append_char(quote)
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func Util_appendHexJavaScriptRepresentation(sb *StringBuilder, c uint16) {

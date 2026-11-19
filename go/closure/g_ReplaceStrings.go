@@ -140,7 +140,7 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 		var keyBuilder *StringBuilder = new_StringBuilder()
 		var keyNode Node = IR_string("")
 		replacement = this.buildReplacement(t, expr, keyNode, keyBuilder)
-		key = Optional_of[string](Object_toString(obj_(keyBuilder)))
+		key = Optional_of[string](tostrNN_(keyBuilder))
 		if key.get() == this.placeholderToken {
 			return expr
 		}

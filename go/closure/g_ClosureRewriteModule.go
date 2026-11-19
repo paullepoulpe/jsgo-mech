@@ -1330,12 +1330,12 @@ func new_ClosureRewriteModule_ExportDefinition() *ClosureRewriteModule_ExportDef
 }
 
 func (this *ClosureRewriteModule_ExportDefinition) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("exportName", func() any {
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add("exportName", func() any {
 		if this.exportName_.isPresent() {
 			return strobj_(this.exportName_.get())
 		}
 		return nil
-	}()).add("rhs", this.rhs.box_()).add("nameDecl", obj_(this.nameDecl)).omitNullValues()))
+	}()).add("rhs", this.rhs.box_()).add("nameDecl", obj_(this.nameDecl)).omitNullValues())
 }
 
 func ClosureRewriteModule_ExportDefinition_newDefaultExport(t *NodeTraversal, rhs Node) *ClosureRewriteModule_ExportDefinition {

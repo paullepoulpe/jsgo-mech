@@ -57,7 +57,7 @@ func (this *SuggestedFix) toString() string {
 		sb.append("Replacements for file: ").append(str_(entry.getKey())).append("\n")
 		Joiner_on("\n\n").appendTo(sb, icast_Iterable(entry.getValue()))
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func SuggestedFix_getStartPositionForNodeConsideringComments(node Node) int32 {

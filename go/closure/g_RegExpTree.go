@@ -58,7 +58,7 @@ func (this *RegExpTree) toString() string {
 		sb.append("(?:)")
 	}
 	sb.append_char('/')
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func RegExpTree_parseRegExp(pattern string, flags string) *RegExpTree {
@@ -1836,7 +1836,7 @@ func (this *RegExpTree_Charset) decompose_2(ranges *CharRanges, inverted bool) *
 			break
 		}
 	}
-	return new_RegExpTree_DecomposedCharset(inverted, ranges, Object_toString(obj_(namedGroups)))
+	return new_RegExpTree_DecomposedCharset(inverted, ranges, tostrNN_(namedGroups))
 }
 
 func (this *RegExpTree_Charset) decompose() *RegExpTree_DecomposedCharset {

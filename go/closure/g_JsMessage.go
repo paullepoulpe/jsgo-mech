@@ -120,7 +120,7 @@ func (this *JsMessage) asIcuMessageString() string {
 			sb.append(p.getString())
 		}
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this *JsMessage) asIcuMessageString_1(genderCase JsMessage_GrammaticalGenderCase) string {
@@ -137,7 +137,7 @@ func (this *JsMessage) asIcuMessageString_1(genderCase JsMessage_GrammaticalGend
 			sb.append(p.getString())
 		}
 	}
-	return Object_toString(obj_(sb))
+	return tostrNN_(sb)
 }
 
 func (this *JsMessage) isEmpty() bool {

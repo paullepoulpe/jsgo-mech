@@ -528,7 +528,7 @@ func SourceFile_jscomp_getSourceKindFromProto(protoSourceFile *SourceFileProto) 
 		case SourceFileProto_SourceKind_CODE:
 			return StaticSourceFile_SourceKind_STRONG
 		case SourceFileProto_SourceKind_NOT_SPECIFIED, SourceFileProto_SourceKind_UNRECOGNIZED:
-			panic(new_AssertionError_Object(strobj_(Object_toString(obj_(protoSourceFile.getSourceKind())))).self())
+			panic(new_AssertionError_Object(strobj_(tostrNN_(protoSourceFile.getSourceKind()))).self())
 		}
 		panic("unreachable")
 	}()
@@ -557,7 +557,7 @@ func SourceFile_jscomp_sourceKindToProto(sourceKind StaticSourceFile_SourceKind)
 		case StaticSourceFile_SourceKind_STRONG, StaticSourceFile_SourceKind_WEAK:
 			return SourceFileProto_SourceKind_CODE
 		case StaticSourceFile_SourceKind_NON_CODE:
-			panic(new_AssertionError_Object(strobj_(Object_toString(obj_(sourceKind)))).self())
+			panic(new_AssertionError_Object(strobj_(tostrNN_(sourceKind))).self())
 		}
 		panic("unreachable")
 	}()

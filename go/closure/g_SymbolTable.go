@@ -298,7 +298,7 @@ func (this *SymbolTable) toDebugStringTree() string {
 		visitedScopes.add(symbol.getPropertyScope())
 		this.toDebugStringTree_4(builder, "", symbol.propertyScope, childrenScopes)
 	}
-	return Object_toString(obj_(builder))
+	return tostrNN_(builder)
 }
 
 func (this *SymbolTable) toDebugStringTree_4(builder *StringBuilder, prefix string, scope *SymbolTable_SymbolScope, childrenScopes *SimpleListMultimap) {
@@ -336,7 +336,7 @@ func (this *SymbolTable) toDebugString() string {
 		var symbol *SymbolTable_Symbol = it_1.v
 		this.toDebugString_4(builder, "", symbol, true)
 	}
-	return Object_toString(obj_(builder))
+	return tostrNN_(builder)
 }
 
 func (this *SymbolTable) toDebugString_4(builder *StringBuilder, prefix string, symbol *SymbolTable_Symbol, printScope bool) {

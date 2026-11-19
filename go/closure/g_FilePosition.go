@@ -27,5 +27,5 @@ func (this *FilePosition) getColumn() int32 {
 }
 
 func (this *FilePosition) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add_String_int("line", this.line_).add_String_int("column", this.column_)))
+	return tostrNN_(MoreObjects_toStringHelper(any(this)).add_String_int("line", this.line_).add_String_int("column", this.column_))
 }
