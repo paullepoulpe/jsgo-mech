@@ -10,7 +10,6 @@ type Tracer struct {
 	comment            string
 	startTimeMs        int64
 	stopTimeMs         int64
-	startThread        *Thread
 }
 
 func (this *Tracer) zero_Tracer() {
@@ -21,13 +20,12 @@ func (this *Tracer) init_Tracer_Optional_Optional(type_ Optional[string], commen
 	this.type__ = type_
 	this.comment = comment.orElse("")
 	this.startTimeMs = Tracer_clock.currentTimeMillis()
-	this.startThread = Thread_currentThread()
 	if !Tracer_extraTracingStatistics.isEmpty() {
 		var size int32 = Tracer_extraTracingStatistics.size()
 		this.extraTracingValues = make([]int64, size)
 		var i int32 = 0
 		for tracingStatistic := range elemsBy_(Tracer_extraTracingStatistics, icast_Tracer_TracingStatistic) {
-			this.extraTracingValues[i] = tracingStatistic.start(this.startThread)
+			this.extraTracingValues[i] = tracingStatistic.start()
 			i++
 		}
 	}
@@ -116,9 +114,8 @@ func Tracer_clearTracingStatisticsTestingOnly() {
 }
 
 func (this *Tracer) stop_1(silenceThreshold int32) int64 {
-	if Thread_currentThread() != this.startThread {
-		panic(new_IllegalStateException_0())
-	}
+	// Java checks here that this is the thread the Tracer started on, which it kept in
+	// startThread: there is one thread (post-flip, manual edit).
 	var trace *Tracer_ThreadTrace = Tracer_getThreadTrace()
 	if !trace.isInitialized() {
 		return 0
@@ -126,7 +123,7 @@ func (this *Tracer) stop_1(silenceThreshold int32) int64 {
 	this.stopTimeMs = Tracer_clock.currentTimeMillis()
 	if this.extraTracingValues != nil {
 		for i := int32(0); i < int32(len(this.extraTracingValues)); i++ {
-			var value int64 = Tracer_extraTracingStatistics.get(i).(Tracer_TracingStatistic).stop(this.startThread)
+			var value int64 = Tracer_extraTracingStatistics.get(i).(Tracer_TracingStatistic).stop()
 			this.extraTracingValues[i] = (value - this.extraTracingValues[i])
 		}
 	}
@@ -595,8 +592,8 @@ func (this *Tracer_ThreadTrace) getMaxDigits() int32 {
 }
 
 type Tracer_TracingStatistic interface {
-	start(*Thread) int64
-	stop(*Thread) int64
+	start() int64 // Java passes the thread the Tracer started on: there is one (post-flip, manual edit)
+	stop() int64
 	enable() bool
 	getTracingStat() *Tracer_AtomicTracerStatMap
 	getUnits() string

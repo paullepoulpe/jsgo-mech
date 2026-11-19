@@ -3,14 +3,14 @@
 package closure
 
 type CompilerExecutor struct {
-	compilerThread *Thread
-	useThreads     bool
-	timeout        int32
-	debugMessage   Optional[string]
+	inCompilerThread bool // the callable is running (post-flip, manual edit: Java keeps the thread)
+	useThreads       bool
+	timeout          int32
+	debugMessage     Optional[string]
 }
 
 func (this *CompilerExecutor) finit_CompilerExecutor() {
-	this.compilerThread = nil
+	this.inCompilerThread = false
 	this.useThreads = true
 	this.timeout = 0
 	this.debugMessage = Optional_empty[string]()
@@ -42,22 +42,21 @@ func (this *CompilerExecutor) setDebugMessage(debugMessage string) {
 // Java hands it to a single-thread executor whose thread has a large stack, and waits for it;
 // the runtime's executors ran every task at once on the calling goroutine already (a goroutine
 // stack grows as needed), so the thread, the executor and the future only wrapped a direct
-// call. What the compiler thread did around the callable is kept as it was: the check that
-// the Compiler is not shared across threads; compilerThread set while the callable runs, so
-// that a nested call runs it directly; the thread trace when dumpTraceReport; and the
+// call. What the compiler thread did around the callable is kept as it was: inCompilerThread
+// set while the callable runs (Java's compilerThread), so that a nested call runs it
+// directly; the thread trace when dumpTraceReport; and the
 // exceptions: any Throwable the callable throws is caught and thrown after it, with the debug
 // message, as it is when unchecked, else wrapped in a RuntimeException. The timeout cannot
 // expire: the callable has returned before the result is asked for.
 func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTraceReport bool) any {
 	var result any = nil
 	var exception *Throwable
-	if this.compilerThread != nil && this.compilerThread != Thread_currentThread() {
-		panic(new_IllegalStateException_String(objstr_("Please do not share the Compiler across threads")))
-	}
-	if this.useThreads && (this.compilerThread == nil) {
+	// Java checks here that compilerThread is null or the current thread ("Please do not share
+	// the Compiler across threads"); there is one thread, so it is.
+	if this.useThreads && !this.inCompilerThread {
 		func() {
 			defer func() {
-				this.compilerThread = nil
+				this.inCompilerThread = false
 				if dumpTraceReport {
 					Tracer_logCurrentThreadTrace()
 				}
@@ -73,7 +72,7 @@ func (this *CompilerExecutor) runInCompilerThread(callable func() any, dumpTrace
 					panic(r_)
 				}
 			}()
-			this.compilerThread = Thread_currentThread()
+			this.inCompilerThread = true
 			if dumpTraceReport {
 				Tracer_initCurrentThreadTrace_0()
 			}
