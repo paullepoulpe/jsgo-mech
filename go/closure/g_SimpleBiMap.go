@@ -42,7 +42,9 @@ func (this *SimpleBiMap) put(key any, value any) any {
 	if hadKey && Objects_equals(oldValue, value) {
 		return oldValue
 	}
-	Preconditions_checkArgument_boolean_String_Object(!this.backward.containsKey(value), "value already present: %s", value)
+	if this.backward.containsKey(value) {
+		Preconditions_checkArgument_boolean_String_Object(false, "value already present: %s", value)
+	}
 	this.forward.put(key, value)
 	if hadKey {
 		this.backward.clear()

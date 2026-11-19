@@ -26,7 +26,9 @@ func ReportDecoder_parseMappingFromFile(mappingFilePath string) *Outcome_base[Ma
 func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base[Map] {
 	var mapping *JTMap[string, *InstrumentationPoint] = jnewTMap_(jtc_string, jtc_p_InstrumentationPoint)
 	var linesOfFile *JTList[string] = splitToListT_(jtc_string, Splitter_on('\n').omitEmptyStrings(), strobj_(mappingFileContent))
-	Preconditions_checkState_boolean_String_Object((linesOfFile.size() >= 3), "Malformed report %s", any(linesOfFile.asList()))
+	if ok_, a1_ := (linesOfFile.size() >= 3), linesOfFile.asList(); !ok_ {
+		Preconditions_checkState_boolean_String_Object(false, "Malformed report %s", any(a1_))
+	}
 	var fileNamesLine string = String_trim(linesOfFile.get(0))
 	var functionNamesLine string = String_trim(linesOfFile.get(1))
 	var typesLine string = String_trim(linesOfFile.get(2))

@@ -96,7 +96,9 @@ func (this *CreateSyntheticBlocks) addBlocks(marker *CreateSyntheticBlocks_Marke
 	outerBlock.addChildToBack(innerBlock)
 	outerBlock.addChildToBack(outerBlock.getNext().detach())
 	this.rewriteFunctionDeclarationsInBlock(innerBlock)
-	Preconditions_checkState_boolean_Object_H((outerBlock.getParent().isBlock() || outerBlock.getParent().isScript()), outerBlock.getParent())
+	if ok_, a1_ := (outerBlock.getParent().isBlock() || outerBlock.getParent().isScript()), outerBlock.getParent(); !ok_ {
+		Preconditions_checkState_boolean_Object_H(false, a1_)
+	}
 	Preconditions_checkState(innerBlock.getParent().isBlock())
 	this.compiler_.reportChangeToEnclosingScope(outerBlock)
 }

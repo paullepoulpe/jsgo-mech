@@ -115,7 +115,9 @@ func (this *MakeDeclaredNamesUnique) getReplacementName(oldName string) Optional
 }
 
 func (this *MakeDeclaredNamesUnique) findDeclaredNames(t *NodeTraversal, n Node) {
-	Preconditions_checkState_boolean_Object_H((NodeUtil_createsScope(n) || n.isScript()), n)
+	if !(NodeUtil_createsScope(n) || n.isScript()) {
+		Preconditions_checkState_boolean_Object_H(false, n)
+	}
 	it_1 := foreach_(any(t.getScope().getVarIterable()))
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
@@ -261,7 +263,9 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 		var declaredVariableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = it_3.v
 		var variableName string = declaredVariableInfo.getName()
 		var oldStackTop MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = this.variablesStackedByName.popVariableInfo(variableName)
-		Preconditions_checkState_boolean_String_Object((any(oldStackTop) == obj_(declaredVariableInfo)), "Declared variable \"%s\" was not the top of the name stack", variableName)
+		if !(any(oldStackTop) == obj_(declaredVariableInfo)) {
+			Preconditions_checkState_boolean_String_Object(false, "Declared variable \"%s\" was not the top of the name stack", variableName)
+		}
 		declaredVariableInfo.tryToInvertName()
 	}
 	if this.scopeContextStack.isEmpty() {
@@ -619,18 +623,26 @@ func new_MakeDeclaredNamesUnique_ContextualRenamer_0() *MakeDeclaredNamesUnique_
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) init_MakeDeclaredNamesUnique_ContextualRenamer_Node_SimpleMultiset_boolean_Renamer(scopeRoot Node, nameUsage *SimpleMultiset, hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) {
 	this.finit_MakeDeclaredNamesUnique_ContextualRenamer()
-	Preconditions_checkState_boolean_Object_H(NodeUtil_createsScope(scopeRoot), scopeRoot)
+	if !NodeUtil_createsScope(scopeRoot) {
+		Preconditions_checkState_boolean_Object_H(false, scopeRoot)
+	}
 	if scopeRoot.isFunction() {
-		Preconditions_checkState_boolean_Object_H(!hoistingTargetScope, scopeRoot)
+		if hoistingTargetScope {
+			Preconditions_checkState_boolean_Object_H(false, scopeRoot)
+		}
 	}
 	this.scopeRoot = scopeRoot
 	this.global = false
 	this.nameUsage = nameUsage
 	if hoistingTargetScope {
-		Preconditions_checkState_boolean_Object_H(!NodeUtil_createsBlockScope(scopeRoot), scopeRoot)
+		if NodeUtil_createsBlockScope(scopeRoot) {
+			Preconditions_checkState_boolean_Object_H(false, scopeRoot)
+		}
 		this.hoistRenamer = icast_MakeDeclaredNamesUnique_Renamer(this.self())
 	} else {
-		Preconditions_checkState_boolean_Object_H((NodeUtil_createsBlockScope(scopeRoot) || scopeRoot.isFunction()), scopeRoot)
+		if !(NodeUtil_createsBlockScope(scopeRoot) || scopeRoot.isFunction()) {
+			Preconditions_checkState_boolean_Object_H(false, scopeRoot)
+		}
 		this.hoistRenamer = parent.getHoistRenamer()
 	}
 }

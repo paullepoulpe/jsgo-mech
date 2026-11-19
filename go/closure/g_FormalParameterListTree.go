@@ -20,7 +20,9 @@ func (this *FormalParameterListTree) init_FormalParameterListTree(location *Sour
 	this.ParseTree.init_ParseTree(ParseTreeType_FORMAL_PARAMETER_LIST, location)
 	var numParams int32 = parameters.size()
 	var numCommas int32 = commaPositions.size()
-	Preconditions_checkArgument_boolean_String_Object_Object(((numCommas <= numParams) && (numCommas >= (numParams - 1))), "Unexpected # of comma and formal params.\nparams: %s\ncomma positions: %s", any(parameters.asList()), any(commaPositions.asList()))
+	if ok_, a1_, a2_ := ((numCommas <= numParams) && (numCommas >= (numParams - 1))), parameters.asList(), commaPositions.asList(); !ok_ {
+		Preconditions_checkArgument_boolean_String_Object_Object(false, "Unexpected # of comma and formal params.\nparams: %s\ncomma positions: %s", any(a1_), any(a2_))
+	}
 	this.parameters = parameters
 	this.hasTrailingComma_ = hasTrailingComma
 	this.commaPositions = commaPositions

@@ -81,7 +81,9 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 		{
 			var script Node = parent.getFirstChild()
 			for ; script != 0; script = script.getNext() {
-				Preconditions_checkState_boolean_Object_H(script.isScript(), script)
+				if !script.isScript() {
+					Preconditions_checkState_boolean_Object_H(false, script)
+				}
 				NodeTraversal_traverse(this.compiler_, script, NodeTraversal_Callback(new_ClosureRewriteModule_UnwrapGoogLoadModule(this)))
 				this.pushScript(new_ClosureRewriteModule_ScriptDescription())
 				this.currentScript.rootNode_ = script
@@ -330,7 +332,9 @@ func (this *ClosureRewriteModule) updateGoogModule(t *NodeTraversal, call Node) 
 		this.compiler_.reportChangeToEnclosingScope(call)
 	}
 	if !this.currentScript.willCreateExportsObject {
-		Preconditions_checkState_boolean_Object(!this.currentScript.hasCreatedExportObject, this.currentScript)
+		if this.currentScript.hasCreatedExportObject {
+			Preconditions_checkState_boolean_Object(false, this.currentScript)
+		}
 		this.exportTheEmptyBinaryNamespaceAt(NodeUtil_getEnclosingStatement(call), ClosureRewriteModule_AddAt_AFTER, t)
 	}
 	if !this.currentScript.declareLegacyNamespace && !this.preserveSugar {
@@ -369,7 +373,9 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 			{
 				var importSpec Node = lhs.getFirstFirstChild()
 				for ; importSpec != 0; importSpec = importSpec.getNext() {
-					Preconditions_checkState_boolean_Object_H(importSpec.hasChildren(), importSpec)
+					if !importSpec.hasChildren() {
+						Preconditions_checkState_boolean_Object_H(false, importSpec)
+					}
 					var importedProperty string = importSpec.getString()
 					var aliasNode Node = importSpec.getFirstChild()
 					var aliasName string = aliasNode.getString()
@@ -390,7 +396,9 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 				statementNode.detach()
 			}
 		} else if targetIsNonLegacyGoogModule {
-			Preconditions_checkState_boolean_String_Object_H(this.isTopLevel(t, statementNode, ClosureRewriteModule_ScopeType_EXEC_CONTEXT), "Unexpected non-top-level require at %s", call)
+			if !this.isTopLevel(t, statementNode, ClosureRewriteModule_ScopeType_EXEC_CONTEXT) {
+				Preconditions_checkState_boolean_String_Object_H(false, "Unexpected non-top-level require at %s", call)
+			}
 			if importHasAlias || !this.rewriteState.isLegacyModule(namespaceId) {
 				if !this.preserveSugar {
 					this.compiler_.reportChangeToEnclosingScope(statementNode)
@@ -406,7 +414,9 @@ func (this *ClosureRewriteModule) updateGoogRequire(t *NodeTraversal, call Node)
 }
 
 func (this *ClosureRewriteModule) maybeWarnForInvalidDestructuring(t *NodeTraversal, importNode Node, importedNamespace string) {
-	Preconditions_checkArgument_boolean_Object_H(importNode.getFirstChild().isDestructuringLhs(), importNode)
+	if !importNode.getFirstChild().isDestructuringLhs() {
+		Preconditions_checkArgument_boolean_Object_H(false, importNode)
+	}
 	var importedModule *ClosureRewriteModule_ScriptDescription = this.rewriteState.scriptDescriptionsByGoogModuleNamespace.get(importedNamespace)
 	if importedModule == nil {
 		return
@@ -461,7 +471,9 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInThen(call Node) 
 	var argNode Node = this.astFactory_.createString(this.namespaceIdToXid(namespaceId)).srcref(namespaceIdNode)
 	namespaceIdNode.replaceWith(argNode)
 	var calleeNode Node = call.getFirstChild()
-	Preconditions_checkState_boolean_Object_H(calleeNode.matchesQualifiedName(ClosureRewriteModule_GOOG_REQUIREDYNAMIC_NAME), calleeNode)
+	if !calleeNode.matchesQualifiedName(ClosureRewriteModule_GOOG_REQUIREDYNAMIC_NAME) {
+		Preconditions_checkState_boolean_Object_H(false, calleeNode)
+	}
 	calleeNode.setString(ClosureRewriteModule_IMPORT_HANDLER_NAME)
 	var exportedNamespaceNameNode Node = this.astFactory_.createNameStaticScope(icast_StaticScope(obj_(this.globalTypedScope)), exportedNamespace.get()).srcrefTree(call)
 	exportedNamespaceNameNode.setOriginalName(namespaceId)
@@ -475,7 +487,9 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInThen(call Node) 
 	objectPatternOrNameNode.detach()
 	paramListNode.removeChildren()
 	var languageIn *CompilerOptions_LanguageMode = this.compiler_.getOptions().getLanguageIn()
-	Preconditions_checkState_boolean_String_Object_Object(languageIn.toFeatureSet().contains(FeatureSet_Feature_CONST_DECLARATIONS), "'%s' does not contain '%s'", languageIn, FeatureSet_Feature_CONST_DECLARATIONS)
+	if !languageIn.toFeatureSet().contains(FeatureSet_Feature_CONST_DECLARATIONS) {
+		Preconditions_checkState_boolean_String_Object_Object(false, "'%s' does not contain '%s'", languageIn, FeatureSet_Feature_CONST_DECLARATIONS)
+	}
 	var enclosingScript Node = NodeUtil_getEnclosingScript(call)
 	NodeUtil_addFeatureToScript(enclosingScript, FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
 	var declarationNode Node
@@ -518,7 +532,9 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInAwait(call Node)
 	var argNode Node = this.astFactory_.createString(this.namespaceIdToXid(namespaceId)).srcref(namespaceIdNode)
 	namespaceIdNode.replaceWith(argNode)
 	var calleeNode Node = call.getFirstChild()
-	Preconditions_checkState_boolean_Object_H(calleeNode.matchesQualifiedName(ClosureRewriteModule_GOOG_REQUIREDYNAMIC_NAME), calleeNode)
+	if !calleeNode.matchesQualifiedName(ClosureRewriteModule_GOOG_REQUIREDYNAMIC_NAME) {
+		Preconditions_checkState_boolean_Object_H(false, calleeNode)
+	}
 	calleeNode.setString(ClosureRewriteModule_IMPORT_HANDLER_NAME)
 	existingAwait.replaceWith(exportedNamespaceNameNode)
 	var awaitStatement Node = this.astFactory_.exprResult(existingAwait).srcref(existingAwait)
@@ -562,9 +578,13 @@ func (this *ClosureRewriteModule) recordExportsPropertyAssignment(t *NodeTravers
 		return
 	}
 	var parent Node = getpropNode.getParent()
-	Preconditions_checkState_boolean_Object_H((parent.isAssign() || parent.isExprResult()), parent)
+	if !(parent.isAssign() || parent.isExprResult()) {
+		Preconditions_checkState_boolean_Object_H(false, parent)
+	}
 	var exportsNameNode Node = getpropNode.getFirstChild()
-	Preconditions_checkState_boolean_Object_H((exportsNameNode.getString() == "exports"), exportsNameNode)
+	if !(exportsNameNode.getString() == "exports") {
+		Preconditions_checkState_boolean_Object_H(false, exportsNameNode)
+	}
 	if t.inModuleScope() {
 		var exportName string = getpropNode.getString()
 		this.currentScript.namedExports.add(exportName)
@@ -582,7 +602,9 @@ func (this *ClosureRewriteModule) updateExportsPropertyAssignment(getpropNode No
 		return
 	}
 	var parent Node = getpropNode.getParent()
-	Preconditions_checkState_boolean_Object_H((parent.isAssign() || parent.isExprResult()), parent)
+	if !(parent.isAssign() || parent.isExprResult()) {
+		Preconditions_checkState_boolean_Object_H(false, parent)
+	}
 	var exportsNameNode Node = getpropNode.getFirstChild()
 	Preconditions_checkState((exportsNameNode.getString() == "exports"))
 	var exportedNamespace Optional[string] = this.currentScript.getExportedNamespace()
@@ -739,7 +761,9 @@ func (this *ClosureRewriteModule) maybeUpdateExportNameRef(t *NodeTraversal, n N
 }
 
 func (this *ClosureRewriteModule) updateModuleBody(moduleBody Node) {
-	Preconditions_checkArgument_boolean_Object_H((moduleBody.isModuleBody() && moduleBody.getParent().getBooleanProp(Node_GOOG_MODULE)), moduleBody)
+	if !(moduleBody.isModuleBody() && moduleBody.getParent().getBooleanProp(Node_GOOG_MODULE)) {
+		Preconditions_checkArgument_boolean_Object_H(false, moduleBody)
+	}
 	moduleBody.setToken(Token_rhino_BLOCK)
 	NodeUtil_tryMergeBlock(moduleBody, true)
 	it_1 := this.currentScript.exportsToInline.eachValue()
@@ -748,8 +772,12 @@ func (this *ClosureRewriteModule) updateModuleBody(moduleBody Node) {
 		var nameNode Node = export.nameDecl.getNameNode()
 		this.safeSetMaybeQualifiedString(nameNode, (sstr_(this.currentScript.getBinaryNamespace().orElse("null")) + sstr_(export.getExportPostfix())), false)
 	}
-	Preconditions_checkState_boolean_Object(this.currentScript.isModule_, this.currentScript)
-	Preconditions_checkState_boolean_Object((this.currentScript.declareLegacyNamespace || this.currentScript.hasCreatedExportObject), this.currentScript)
+	if !this.currentScript.isModule_ {
+		Preconditions_checkState_boolean_Object(false, this.currentScript)
+	}
+	if !(this.currentScript.declareLegacyNamespace || this.currentScript.hasCreatedExportObject) {
+		Preconditions_checkState_boolean_Object(false, this.currentScript)
+	}
 	this.popScript()
 }
 
@@ -790,7 +818,9 @@ func (this *ClosureRewriteModule) exportTheEmptyBinaryNamespaceAt(atNode Node, a
 }
 
 func ClosureRewriteModule_checkAndSetStrictModeDirective(t *NodeTraversal, n Node) {
-	Preconditions_checkState_boolean_Object_H(n.isScript(), n)
+	if !n.isScript() {
+		Preconditions_checkState_boolean_Object_H(false, n)
+	}
 	if n.isUseStrict() {
 		t.report(n, ClosureRewriteModule_USELESS_USE_STRICT_DIRECTIVE, []string{})
 	} else {
@@ -823,8 +853,12 @@ func ClosureRewriteModule_markConstAndCopyJsDoc(from Node, target Node) {
 }
 
 func (this *ClosureRewriteModule) recordExportToInline(exportDefinition *ClosureRewriteModule_ExportDefinition) {
-	Preconditions_checkState_boolean_String_Object_Object(exportDefinition.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()), "exportDefinition: %s\n\nexportsToInline keys: %s", exportDefinition, any(this.currentScript.exportsToInline.asMap().keySet()))
-	Preconditions_checkState_boolean_String_Object((this.currentScript.exportsToInline.put(exportDefinition.nameDecl, exportDefinition) == nil), "Already found a mapping for inlining export: %s", exportDefinition.nameDecl)
+	if ok_, a1_, a2_ := exportDefinition.hasInlinableName(this.currentScript.exportsToInline.asMap().keySet()), exportDefinition, this.currentScript.exportsToInline.asMap().keySet(); !ok_ {
+		Preconditions_checkState_boolean_String_Object_Object(false, "exportDefinition: %s\n\nexportsToInline keys: %s", a1_, any(a2_))
+	}
+	if ok_, a1_ := (this.currentScript.exportsToInline.put(exportDefinition.nameDecl, exportDefinition) == nil), exportDefinition.nameDecl; !ok_ {
+		Preconditions_checkState_boolean_String_Object(false, "Already found a mapping for inlining export: %s", a1_)
+	}
 	var localName Optional[string] = exportDefinition.getLocalName()
 	var fullExportedName string = (sstr_(this.currentScript.getBinaryNamespace().orElse("null")) + sstr_(exportDefinition.getExportPostfix()))
 	this.recordNameToInline(localName.orElseThrow(), fullExportedName, Optional_empty[string]())

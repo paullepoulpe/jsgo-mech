@@ -1505,7 +1505,9 @@ func (this *DefaultPassConfig) getReplaceProtectedMessagesPass() *PassFactory {
 }
 
 func DefaultPassConfig_createPeepholeOptimizationsPass(compiler *AbstractCompiler, passName string, expectAstIsNormalized bool) CompilerPass {
-	Preconditions_checkArgument_boolean_Object((expectAstIsNormalized == compiler.getLifeCycleStage().isNormalized()), compiler.getLifeCycleStage())
+	if ok_, a1_ := (expectAstIsNormalized == compiler.getLifeCycleStage().isNormalized()), compiler.getLifeCycleStage(); !ok_ {
+		Preconditions_checkArgument_boolean_Object(false, a1_)
+	}
 	var late bool = false
 	var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
 	var optimizations *JTList[*AbstractPeepholeOptimization] = jnewTList_(jtc_p_AbstractPeepholeOptimization)

@@ -146,7 +146,9 @@ func (this *InlineProperties_GatherCandidates) visit_impl(t *NodeTraversal, n No
 }
 
 func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDefinition(n Node) bool {
-	Preconditions_checkState_boolean_Object_H(n.isMemberFieldDef(), n)
+	if !n.isMemberFieldDef() {
+		Preconditions_checkState_boolean_Object_H(false, n)
+	}
 	var value Node = n.getFirstChild()
 	var propName string = n.getString()
 	var classNode Node = n.getGrandparent()
@@ -166,7 +168,9 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateClassFieldDef
 }
 
 func (this *InlineProperties_GatherCandidates) maybeRecordCandidateGetpropDefinition(t *NodeTraversal, n Node, parent Node) bool {
-	Preconditions_checkState_boolean_Object_H((n.isGetProp() && parent.isAssign()), n)
+	if !(n.isGetProp() && parent.isAssign()) {
+		Preconditions_checkState_boolean_Object_H(false, n)
+	}
 	var src Node = n.getFirstChild()
 	var propName string = n.getString()
 	var value Node = parent.getLastChild()

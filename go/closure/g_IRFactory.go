@@ -1934,7 +1934,9 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 }
 
 func (this *IRFactory_TransformDispatcher) annotateCalls(n Node) {
-	Preconditions_checkState_boolean_Object_H(((n.isCall() || n.isOptChainCall()) || n.isTaggedTemplateLit()), n)
+	if !((n.isCall() || n.isOptChainCall()) || n.isTaggedTemplateLit()) {
+		Preconditions_checkState_boolean_Object_H(false, n)
+	}
 	var callee Node = n.getFirstChild()
 	for callee.isCast() {
 		callee = callee.getFirstChild()
@@ -3035,7 +3037,9 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 				continue
 			}
 			var propName string = curNode.getString()
-			Preconditions_checkState_boolean_String_Object_Object((((curNode.isGetterDef() || curNode.isSetterDef()) || curNode.isMemberFieldDef()) || curNode.isMemberFunctionDef()), "Private property '%s' has an unsupported token type: %s", propName, curNode.getToken())
+			if ok_, a1_, a2_ := (((curNode.isGetterDef() || curNode.isSetterDef()) || curNode.isMemberFieldDef()) || curNode.isMemberFunctionDef()), propName, curNode.getToken(); !ok_ {
+				Preconditions_checkState_boolean_String_Object_Object(false, "Private property '%s' has an unsupported token type: %s", a1_, a2_)
+			}
 			var isStatic bool = curNode.isStaticMember()
 			var alreadyDeclared bool = privatePropNames.contains(propName)
 			switch curNode.ns_().token {

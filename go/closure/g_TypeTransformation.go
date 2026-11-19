@@ -102,27 +102,37 @@ func (this *TypeTransformation) addNewEntry(map_ ImmutableMapOf[string, any], na
 }
 
 func (this *TypeTransformation) getFunctionParameter(n Node, i int32) string {
-	Preconditions_checkArgument_boolean_String_Object_H(n.isFunction(), "Expected a function node, found %s", n)
+	if !n.isFunction() {
+		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected a function node, found %s", n)
+	}
 	return n.getSecondChild().getChildAtIndex(i).getString()
 }
 
 func (this *TypeTransformation) getCallName(n Node) string {
-	Preconditions_checkArgument_boolean_String_Object_H(n.isCall(), "Expected a call node, found %s", n)
+	if !n.isCall() {
+		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected a call node, found %s", n)
+	}
 	return n.getFirstChild().getString()
 }
 
 func (this *TypeTransformation) getCallArgument(n Node, i int32) Node {
-	Preconditions_checkArgument_boolean_String_Object_H(n.isCall(), "Expected a call node, found %s", n)
+	if !n.isCall() {
+		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected a call node, found %s", n)
+	}
 	return n.getChildAtIndex((i + 1))
 }
 
 func (this *TypeTransformation) getCallParamCount(n Node) int32 {
-	Preconditions_checkArgument_boolean_String_Object_H(n.isCall(), "Expected a call node, found %s", n)
+	if !n.isCall() {
+		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected a call node, found %s", n)
+	}
 	return (n.getChildCount() - 1)
 }
 
 func (this *TypeTransformation) getCallParams(n Node) *JTList[Node] {
-	Preconditions_checkArgument_boolean_String_Object_H(n.isCall(), "Expected a call node, found %s", n)
+	if !n.isCall() {
+		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected a call node, found %s", n)
+	}
 	var builder *TListBuilder[Node] = newTListBuilder_(jtc_Node)
 	for i := int32(0); i < this.getCallParamCount(n); i++ {
 		builder.add(this.getCallArgument(n, i))
@@ -131,12 +141,16 @@ func (this *TypeTransformation) getCallParams(n Node) *JTList[Node] {
 }
 
 func (this *TypeTransformation) getComputedPropValue(n Node) Node {
-	Preconditions_checkArgument_boolean_String_Object_H(n.isComputedProp(), "Expected a computed property node, found %s", n)
+	if !n.isComputedProp() {
+		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected a computed property node, found %s", n)
+	}
 	return n.getSecondChild()
 }
 
 func (this *TypeTransformation) getComputedPropName(n Node) string {
-	Preconditions_checkArgument_boolean_String_Object_H(n.isComputedProp(), "Expected a computed property node, found %s", n)
+	if !n.isComputedProp() {
+		Preconditions_checkArgument_boolean_String_Object_H(false, "Expected a computed property node, found %s", n)
+	}
 	return n.getFirstChild().getString()
 }
 

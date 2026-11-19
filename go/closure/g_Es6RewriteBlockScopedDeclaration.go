@@ -37,7 +37,9 @@ func new_Es6RewriteBlockScopedDeclaration(compiler *AbstractCompiler) *Es6Rewrit
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	Preconditions_checkState_boolean_Object_H(((parent == 0) || !parent.isForOf()), parent)
+	if !((parent == 0) || !parent.isForOf()) {
+		Preconditions_checkState_boolean_Object_H(false, parent)
+	}
 	if n.isLet() || n.isConst() {
 		this.letConsts.add(n)
 		{
@@ -128,7 +130,9 @@ func (this *Es6RewriteBlockScopedDeclaration) handleLetConstDeclarationListInFor
 	if lhs.isDestructuringLhs() {
 		Preconditions_checkState_boolean_Object(false, "Destructuring syntax is unsupported in ES6RewriteBlockScopedDeclarations pass")
 		NodeUtil_visitLhsNodesInNode(lhs, &Consumer_tfn_Node{func(name Node) {
-			Preconditions_checkState_boolean_String_Object_H(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name)
+			if !name.isName() {
+				Preconditions_checkState_boolean_String_Object_H(false, "lhs in destructuring declaration should be a simple name. (%s)", name)
+			}
 			var newName Node = IR_name(name.getString()).srcref(name)
 			var newVar Node = IR_var_Node(newName).srcref(name)
 			Es6RewriteBlockScopedDeclaration_extractInlineJSDoc(declarationList, name, newVar)
@@ -398,7 +402,9 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 		var call Node = this.outer_.astFactory_.createCall(iife, AstFactory_type_Node(functionOrObjectLit), objectNamesForCall)
 		call.putBooleanProp(Node_FREE_CALL, true)
 		var replacement Node
-		Preconditions_checkState_boolean_String_Object_H(!NodeUtil_isFunctionDeclaration(functionOrObjectLit), "block-scoped function declarations should not exist now: %s", functionOrObjectLit)
+		if NodeUtil_isFunctionDeclaration(functionOrObjectLit) {
+			Preconditions_checkState_boolean_String_Object_H(false, "block-scoped function declarations should not exist now: %s", functionOrObjectLit)
+		}
 		replacement = call.srcrefTreeIfMissing(functionOrObjectLit)
 		functionOrObjectLit.replaceWith(replacement)
 		wrapperFunctions.add(iife)
@@ -450,7 +456,9 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) changeLoopL
 		it_3 := foreach_(any(this.referenceMap.get(obj_(var_))))
 		for it_3.next() {
 			var reference Node = Node_of_(it_3.v)
-			Preconditions_checkState_boolean_Object_H(!loopNode.isForOf(), loopNode)
+			if loopNode.isForOf() {
+				Preconditions_checkState_boolean_Object_H(false, loopNode)
+			}
 			if loopNode.isForIn() && (loopNode.getFirstChild() == reference.getParent()) {
 				this.assignLoopVarToLoopObjectProperty(loopNode, loopObject, var_, newPropertyName, reference)
 			} else {
@@ -491,10 +499,16 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) replaceRefe
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) assignLoopVarToLoopObjectProperty(loopNode Node, loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject, var_ *Var, newPropertyName string, reference Node) {
-	Preconditions_checkState_boolean_Object_H((reference == var_.getNameNode()), reference)
+	if !(reference == var_.getNameNode()) {
+		Preconditions_checkState_boolean_Object_H(false, reference)
+	}
 	var referenceParent Node = reference.getParent()
-	Preconditions_checkState_boolean_Object_H(NodeUtil_isNameDeclaration(referenceParent), referenceParent)
-	Preconditions_checkState_boolean_Object_H(reference.isName(), reference)
+	if !NodeUtil_isNameDeclaration(referenceParent) {
+		Preconditions_checkState_boolean_Object_H(false, referenceParent)
+	}
+	if !reference.isName() {
+		Preconditions_checkState_boolean_Object_H(false, reference)
+	}
 	var loopVarReference Node = reference.cloneNode()
 	var forInPropAssignmentStatemnt Node = IR_exprResult(this.outer_.astFactory_.createAssign(this.createLoopVarReferenceReplacement(loopObject, reference, newPropertyName), loopVarReference)).srcrefTreeIfMissing(reference)
 	var loopUpdateStatement Node = loopNode.getLastChild().getFirstChild()
