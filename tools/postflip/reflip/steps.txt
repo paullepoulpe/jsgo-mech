@@ -627,3 +627,5 @@ dfc0c907 run t tchecks && f
 bde90b78 patch reflip2-bde90b78-manual.patch
 # C24. postflip (runtime, manual): the executor, future and thread stubs are removed (07885c84, 9bdc7957, 08dc9ce1 after C23, plus three references of this flip)
 55140646 patch reflip2-55140646-rt.patch
+# C25. postflip (manual): the compiler executor and Tracer keep no thread (5c53206a rewritten for this flip)
+77a8e1aa patch reflip2-77a8e1aa-manual.patch
