@@ -305,17 +305,17 @@ func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(reg
 	var numberLength int32 = int32(len(Integer_toString(region.getEndingLineNumber())))
 	var builder *StringBuilder = new_StringBuilder_int((String_length(code) * 2))
 	var start int32 = 0
-	var end int32 = String_indexOf_int_int(code, 10, start)
+	var end int32 = indexByteFrom_(code, '\n', start)
 	var lineNumber int32 = region.getBeginningLineNumber()
 	for start >= 0 {
 		var line string
 		if end < 0 {
-			line = String_substring_int(code, start)
+			line = code[start:]
 			if line == "" {
 				return Optional_of[string](builder.substring(0, (builder.length() - 1)))
 			}
 		} else {
-			line = String_substring(code, start, end)
+			line = cutBytes_(code, start, end)
 		}
 		builder.append("  ")
 		var spaces int32 = (numberLength - int32(len(Integer_toString(lineNumber))))
@@ -329,7 +329,7 @@ func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(reg
 			builder.append(line)
 			builder.append_char('\n')
 			start = (end + 1)
-			end = String_indexOf_int_int(code, 10, start)
+			end = indexByteFrom_(code, '\n', start)
 			lineNumber++
 		}
 	}
