@@ -37,7 +37,7 @@ func (this *LowestCommonAncestorFinder[N, E]) findAll(roots SetOf[N]) ImmutableS
 	var bitForRoot int32 = 1
 	for el_1 := range elems_(roots) {
 		var root N = junboxT_[N](el_1)
-		var rootNode DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](this.graph.getNode(root))
+		var rootNode DiGraph_DiGraphNode[N] = gcast_DiGraph_DiGraphNode_N[N, E](this.graph.getNode(root))
 		if v_, a1_ := rootNode, boxT_(root); v_ == nil {
 			panic(new_NullPointerException_String(Strings_lenientFormat("Root not present in graph: %s", a1_)))
 		}
@@ -70,9 +70,9 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 	}
 	SequencedCollection_addLast(icast_SequencedCollection(obj_(this.searchQueue)), root)
 	for !this.searchQueue.isEmpty() {
-		var curr DiGraph_DiGraphNode[N] = cast_[DiGraph_DiGraphNode[N]](SequencedCollection_removeFirst(icast_SequencedCollection(obj_(this.searchQueue))))
+		var curr DiGraph_DiGraphNode[N] = gcast_DiGraph_DiGraphNode_N[N, E](SequencedCollection_removeFirst(icast_SequencedCollection(obj_(this.searchQueue))))
 		var parentEdges ListOf[DiGraph_DiGraphEdge[N]] = curr.getInEdges()
-		for parentEdge := range elemsAs_[DiGraph_DiGraphEdge[N]](parentEdges) {
+		for parentEdge := range elemsBy_(parentEdges, gcast_DiGraph_DiGraphEdge_N[N, E]) {
 			var parent DiGraph_DiGraphNode[N] = parentEdge.getSource()
 			if equalsId_(parent, root) {
 				continue

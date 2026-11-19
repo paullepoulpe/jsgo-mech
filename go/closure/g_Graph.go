@@ -255,7 +255,7 @@ func (this *Graph_SimpleSubGraph[N, E]) isIndependentOf(value N) bool {
 	var node GraphNode[N] = this.graph.getNode(value)
 	it_1 := foreach_(this.nodes_)
 	for it_1.next() {
-		var n GraphNode[N] = cast_[GraphNode[N]](it_1.v)
+		var n GraphNode[N] = gcast_GraphNode_N[N, E](it_1.v)
 		if this.graph.getNeighborNodes(n.getValue()).contains(node) {
 			return false
 		}

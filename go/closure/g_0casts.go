@@ -1642,3 +1642,87 @@ func icast_PMap_Node_Node(v any) PMap[Node, Node] {
 	}
 	return v.(PMap[Node, Node])
 }
+
+// gcast_DiGraph_DiGraphEdge_N is cast_[DiGraph_DiGraphEdge[N]],
+// trying first the classes of its type parameters that implement it (post-flip step gcasts).
+func gcast_DiGraph_DiGraphEdge_N[N any, E any](v any) DiGraph_DiGraphEdge[N] {
+	switch p := v.(type) {
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E]:
+		return p
+	case *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]:
+		return p
+	}
+	return cast_[DiGraph_DiGraphEdge[N]](v)
+}
+
+// gcast_DiGraph_DiGraphNode_N is cast_[DiGraph_DiGraphNode[N]],
+// trying first the classes of its type parameters that implement it (post-flip step gcasts).
+func gcast_DiGraph_DiGraphNode_N[N any, E any](v any) DiGraph_DiGraphNode[N] {
+	switch p := v.(type) {
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E]:
+		return p
+	case *LinkedDirectedGraph_LinkedDiGraphNode[N, E]:
+		return p
+	}
+	return cast_[DiGraph_DiGraphNode[N]](v)
+}
+
+// gcast_GraphNode_N is cast_[GraphNode[N]],
+// trying first the classes of its type parameters that implement it (post-flip step gcasts).
+func gcast_GraphNode_N[N any, E any](v any) GraphNode[N] {
+	switch p := v.(type) {
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode[N, E]:
+		return p
+	case *LinkedDirectedGraph_LinkedDiGraphNode[N, E]:
+		return p
+	case *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N, E]:
+		return p
+	case *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]:
+		return p
+	}
+	return cast_[GraphNode[N]](v)
+}
+
+// gcast_Graph_GraphEdge_N is cast_[Graph_GraphEdge[N]],
+// trying first the classes of its type parameters that implement it (post-flip step gcasts).
+func gcast_Graph_GraphEdge_N[N any, E any](v any) Graph_GraphEdge[N] {
+	switch p := v.(type) {
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E]:
+		return p
+	case *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]:
+		return p
+	case *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N, E]:
+		return p
+	case *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]:
+		return p
+	}
+	return cast_[Graph_GraphEdge[N]](v)
+}
+
+// gcast_UndiGraph_UndiGraphEdge_N_E is cast_[UndiGraph_UndiGraphEdge[N, E]],
+// trying first the classes of its type parameters that implement it (post-flip step gcasts).
+func gcast_UndiGraph_UndiGraphEdge_N_E[N any, E any](v any) UndiGraph_UndiGraphEdge[N, E] {
+	switch p := v.(type) {
+	case *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge[N, E]:
+		return p
+	case *LinkedDirectedGraph_LinkedDiGraphEdge[N, E]:
+		return p
+	case *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge[N, E]:
+		return p
+	case *LinkedUndirectedGraph_LinkedUndirectedGraphEdge[N, E]:
+		return p
+	}
+	return cast_[UndiGraph_UndiGraphEdge[N, E]](v)
+}
+
+// gcast_UndiGraph_UndiGraphNode_N_E is cast_[UndiGraph_UndiGraphNode[N, E]],
+// trying first the classes of its type parameters that implement it (post-flip step gcasts).
+func gcast_UndiGraph_UndiGraphNode_N_E[N any, E any](v any) UndiGraph_UndiGraphNode[N, E] {
+	switch p := v.(type) {
+	case *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode[N, E]:
+		return p
+	case *LinkedUndirectedGraph_LinkedUndirectedGraphNode[N, E]:
+		return p
+	}
+	return cast_[UndiGraph_UndiGraphNode[N, E]](v)
+}

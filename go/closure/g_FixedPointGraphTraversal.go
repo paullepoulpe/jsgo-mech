@@ -30,7 +30,7 @@ func FixedPointGraphTraversal_newReverseTraversal[NodeT any, EdgeT any](callback
 
 func (this *FixedPointGraphTraversal[N, E]) computeFixedPoint(graph *DiGraph[N]) {
 	var nodes SetOf[N] = new_LinkedHashSet()
-	for node := range elemsAs_[DiGraph_DiGraphNode[N]](graph.getNodes()) {
+	for node := range elemsBy_(graph.getNodes(), gcast_DiGraph_DiGraphNode_N[N, E]) {
 		nodes.add(boxT_(node.getValue()))
 	}
 	this.computeFixedPointSet(graph, nodes)
@@ -52,7 +52,7 @@ func (this *FixedPointGraphTraversal[N, E]) computeFixedPointSet(graph *DiGraph[
 		workSet.add(graph.getNode(n))
 	}
 	for ; !workSet.isEmpty() && (cycleCount < maxIterations); cycleCount++ {
-		this.visitNode(cast_[DiGraph_DiGraphNode[N]](SequencedCollection_getFirst(workSet)), workSet)
+		this.visitNode(gcast_DiGraph_DiGraphNode_N[N, E](SequencedCollection_getFirst(workSet)), workSet)
 	}
 	if cycleCount == maxIterations {
 		panic(new_IllegalStateException_String(FixedPointGraphTraversal_NON_HALTING_ERROR_MSG))
@@ -64,7 +64,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 	switch this.traversalDirection {
 	case FixedPointGraphTraversal_TraversalDirection_OUTWARDS:
 		var sourceValue N = node.getValue()
-		for edge := range elemsAs_[DiGraph_DiGraphEdge[N]](node.getOutEdges()) {
+		for edge := range elemsBy_(node.getOutEdges(), gcast_DiGraph_DiGraphEdge_N[N, E]) {
 			var destValue N = edge.getDestination().getValue()
 			if this.callback.traverseEdge(sourceValue, junboxT_[E](edge.getValue()), destValue) {
 				workSet.add(edge.getDestination())
@@ -73,7 +73,7 @@ func (this *FixedPointGraphTraversal[N, E]) visitNode(node DiGraph_DiGraphNode[N
 		return
 	case FixedPointGraphTraversal_TraversalDirection_INWARDS:
 		var revSourceValue N = node.getValue()
-		for edge := range elemsAs_[DiGraph_DiGraphEdge[N]](node.getInEdges()) {
+		for edge := range elemsBy_(node.getInEdges(), gcast_DiGraph_DiGraphEdge_N[N, E]) {
 			var revDestValue N = edge.getSource().getValue()
 			if this.callback.traverseEdge(revSourceValue, junboxT_[E](edge.getValue()), revDestValue) {
 				workSet.add(edge.getSource())

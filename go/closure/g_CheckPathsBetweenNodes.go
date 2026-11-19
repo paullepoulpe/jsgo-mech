@@ -65,7 +65,7 @@ func (this *CheckPathsBetweenNodes[N, E]) tearDown() {
 
 func (this *CheckPathsBetweenNodes[N, E]) discoverBackEdges(u DiGraph_DiGraphNode[N]) {
 	u.setAnnotation(CheckPathsBetweenNodes_GRAY)
-	for e := range elemsAs_[DiGraph_DiGraphEdge[N]](u.getOutEdges()) {
+	for e := range elemsBy_(u.getOutEdges(), gcast_DiGraph_DiGraphEdge_N[N, E]) {
 		if this.ignoreEdge(e) {
 			continue
 		}
@@ -92,7 +92,7 @@ func (this *CheckPathsBetweenNodes[N, E]) checkAllPathsWithoutBackEdges(a DiGrap
 	}
 	it_1 := foreach_(a.getOutEdges())
 	for it_1.next() {
-		var e DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_1.v)
+		var e DiGraph_DiGraphEdge[N] = gcast_DiGraph_DiGraphEdge_N[N, E](it_1.v)
 		if Annotatable_getAnnotation(Annotatable(e)) == CheckPathsBetweenNodes_VISITED_EDGE {
 			continue
 		}
@@ -120,7 +120,7 @@ func (this *CheckPathsBetweenNodes[N, E]) checkSomePathsWithoutBackEdges(a DiGra
 	}
 	it_1 := foreach_(a.getOutEdges())
 	for it_1.next() {
-		var e DiGraph_DiGraphEdge[N] = cast_[DiGraph_DiGraphEdge[N]](it_1.v)
+		var e DiGraph_DiGraphEdge[N] = gcast_DiGraph_DiGraphEdge_N[N, E](it_1.v)
 		if Annotatable_getAnnotation(Annotatable(e)) == CheckPathsBetweenNodes_VISITED_EDGE {
 			continue
 		}

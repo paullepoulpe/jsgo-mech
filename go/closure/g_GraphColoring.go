@@ -168,7 +168,7 @@ func (this *GraphColoring_GreedyGraphColoring[N, E]) color_impl() int32 {
 		{
 			var i IteratorOf[GraphNode[N]] = worklist.iterator()
 			for i.hasNext() {
-				var node GraphNode[N] = cast_[GraphNode[N]](i.next())
+				var node GraphNode[N] = gcast_GraphNode_N[N, E](i.next())
 				if subgraph.isIndependentOf(node.getValue()) {
 					subgraph.addNode(node.getValue())
 					node.setAnnotation(color)
