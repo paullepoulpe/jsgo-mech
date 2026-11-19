@@ -272,9 +272,15 @@ func (this *ScopedAliases_Builder) build() *ScopedAliases {
 }
 
 type ScopedAliases_AliasUsage struct {
-	self_          any
+	self_          ScopedAliases_AliasUsage_I
 	aliasVar       *Var
 	aliasReference Node
+}
+
+// ScopedAliases_AliasUsage_I holds the methods the dispatchers of ScopedAliases_AliasUsage's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type ScopedAliases_AliasUsage_I interface {
+	applyAlias_impl(*AbstractCompiler)
 }
 
 func (this *ScopedAliases_AliasUsage) as_ScopedAliases_AliasUsage() *ScopedAliases_AliasUsage {
@@ -324,7 +330,7 @@ func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars *JTS
 }
 
 func (this *ScopedAliases_AliasUsage) applyAlias(p0 *AbstractCompiler) {
-	this.self_.(interface{ applyAlias_impl(*AbstractCompiler) }).applyAlias_impl(p0)
+	this.self_.applyAlias_impl(p0)
 }
 
 type ScopedAliases_AliasedNode struct {
@@ -822,7 +828,7 @@ func (this *ScopedAliases_AliasedNode) applyAlias(p0 *AbstractCompiler) {
 		this.applyAlias_impl(p0)
 		return
 	}
-	this.self_.(interface{ applyAlias_impl(*AbstractCompiler) }).applyAlias_impl(p0)
+	this.self_.applyAlias_impl(p0)
 }
 
 // applyAlias: an object that is exactly a ScopedAliases_AliasedTypeNode calls its applyAlias_impl directly (post-flip); others dispatch.
@@ -831,7 +837,7 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias(p0 *AbstractCompiler) {
 		this.applyAlias_impl(p0)
 		return
 	}
-	this.self_.(interface{ applyAlias_impl(*AbstractCompiler) }).applyAlias_impl(p0)
+	this.self_.applyAlias_impl(p0)
 }
 
 // visit: an object that is exactly a ScopedAliases_Traversal calls its visit_impl directly (post-flip); others dispatch.
@@ -840,9 +846,7 @@ func (this *ScopedAliases_Traversal) visit(p0 *NodeTraversal, p1 Node, p2 Node) 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // visit: an object that is exactly a ScopedAliases_Traversal_1 calls its visit_impl directly (post-flip); others dispatch.
@@ -851,7 +855,5 @@ func (this *ScopedAliases_Traversal_1) visit(p0 *NodeTraversal, p1 Node, p2 Node
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }

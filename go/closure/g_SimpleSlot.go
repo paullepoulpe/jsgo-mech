@@ -3,10 +3,17 @@
 package closure
 
 type SimpleSlot struct {
-	self_    any
+	self_    SimpleSlot_I
 	name_    string
 	type__   *JSType
 	inferred bool
+}
+
+// SimpleSlot_I holds the methods the dispatchers of SimpleSlot's hierarchy call on the most derived
+// object (self_); every class of the hierarchy implements them (post-flip).
+type SimpleSlot_I interface {
+	getDeclaration_impl() StaticRef
+	getJSDocInfo_impl() *JSDocInfo
 }
 
 func (this *SimpleSlot) as_SimpleSlot() *SimpleSlot { return this }
@@ -73,11 +80,11 @@ func (this *SimpleSlot) getScope() StaticScope {
 }
 
 func (this *SimpleSlot) getJSDocInfo() *JSDocInfo {
-	return this.self_.(interface{ getJSDocInfo_impl() *JSDocInfo }).getJSDocInfo_impl()
+	return this.self_.getJSDocInfo_impl()
 }
 
 func (this *SimpleSlot) getDeclaration() StaticRef {
-	return this.self_.(interface{ getDeclaration_impl() StaticRef }).getDeclaration_impl()
+	return this.self_.getDeclaration_impl()
 }
 
 const SimpleSlot_serialVersionUID int64 = 1

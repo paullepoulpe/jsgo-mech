@@ -563,9 +563,7 @@ func (this *Es6RewriteBlockScopedDeclaration) visit(p0 *NodeTraversal, p1 Node, 
 		this.visit_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		visit_impl(*NodeTraversal, Node, Node)
-	}).visit_impl(p0, p1, p2)
+	this.self_.visit_impl(p0, p1, p2)
 }
 
 // shouldTraverse: an object that is exactly a Es6RewriteBlockScopedDeclaration_LoopClosureTransformer calls its shouldTraverse_impl directly (post-flip); others dispatch.
@@ -573,7 +571,5 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 	if this.self_ == any(this) {
 		return this.shouldTraverse_impl(p0, p1, p2)
 	}
-	return this.self_.(interface {
-		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
-	}).shouldTraverse_impl(p0, p1, p2)
+	return this.self_.shouldTraverse_impl(p0, p1, p2)
 }
