@@ -275,73 +275,73 @@ func (this *TypeInference) createFlowBrancher_impl(source Node, output FlowScope
 
 func (this *TypeInference) traverse(n Node, scope FlowScope) FlowScope {
 	var isTypeable bool = true
-	switch n.getToken() {
-	case Token_rhino_ASSIGN:
+	switch n.ns_().token {
+	case tokOrd1_ASSIGN:
 		scope = this.traverseAssign(n, scope)
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		scope = this.traverseName(n, scope)
-	case Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_CALL, tokOrd1_OPTCHAIN_GETELEM:
 		scope = this.traverseOptChain(n, scope)
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		scope = this.traverseGetProp(n, scope)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		scope = this.traverseClass(n, scope)
-	case Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_OR:
+	case tokOrd1_ASSIGN_AND, tokOrd1_ASSIGN_OR:
 		scope = this.traverseShortCircuitingBinOpAssignment(n, scope)
-	case Token_rhino_AND:
+	case tokOrd1_AND:
 		scope = this.traverseAnd(n, scope).getJoinedFlowScope()
-	case Token_rhino_OR:
+	case tokOrd1_OR:
 		scope = this.traverseOr(n, scope).getJoinedFlowScope()
-	case Token_rhino_ASSIGN_COALESCE, Token_rhino_COALESCE:
+	case tokOrd1_ASSIGN_COALESCE, tokOrd1_COALESCE:
 		scope = this.traverseNullishCoalesce(n, scope)
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		scope = this.traverseHook(n, scope)
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		scope = this.traverseObjectLiteral(n, scope)
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		scope = this.traverseCall(n, scope)
-	case Token_rhino_NEW:
+	case tokOrd1_NEW:
 		scope = this.traverseNew(n, scope)
-	case Token_rhino_NEW_TARGET:
+	case tokOrd1_NEW_TARGET:
 		this.traverseNewTarget(n)
-	case Token_rhino_ASSIGN_ADD, Token_rhino_ADD:
+	case tokOrd1_ASSIGN_ADD, tokOrd1_ADD:
 		scope = this.traverseAdd(n, scope)
-	case Token_rhino_POS:
+	case tokOrd1_POS:
 		scope = this.traverseUnaryPlus(n, scope)
-	case Token_rhino_NEG, Token_rhino_BITNOT, Token_rhino_DEC, Token_rhino_INC:
+	case tokOrd1_NEG, tokOrd1_BITNOT, tokOrd1_DEC, tokOrd1_INC:
 		scope = this.traverseBigIntCompatibleUnaryOperator(n, scope)
-	case Token_rhino_ARRAYLIT:
+	case tokOrd1_ARRAYLIT:
 		scope = this.traverseArrayLiteral(n, scope)
-	case Token_rhino_THIS:
+	case tokOrd1_THIS:
 		n.setJSType(scope.getTypeOfThis())
-	case Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_EXPONENT:
+	case tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_EXPONENT:
 		scope = this.traverseAssignOp(n, scope)
-	case Token_rhino_ASSIGN_URSH:
+	case tokOrd1_ASSIGN_URSH:
 		scope = this.traverseAssignUnsignedRightShift(n, scope)
-	case Token_rhino_BITAND, Token_rhino_BITXOR, Token_rhino_BITOR, Token_rhino_LSH, Token_rhino_RSH, Token_rhino_SUB, Token_rhino_MUL, Token_rhino_DIV, Token_rhino_MOD, Token_rhino_EXPONENT:
+	case tokOrd1_BITAND, tokOrd1_BITXOR, tokOrd1_BITOR, tokOrd1_LSH, tokOrd1_RSH, tokOrd1_SUB, tokOrd1_MUL, tokOrd1_DIV, tokOrd1_MOD, tokOrd1_EXPONENT:
 		scope = this.traverseBigIntCompatibleBinaryOperator(n, scope)
-	case Token_rhino_URSH:
+	case tokOrd1_URSH:
 		scope = this.traverseUnsignedRightShift(n, scope)
-	case Token_rhino_COMMA:
+	case tokOrd1_COMMA:
 		scope = this.traverseChildren(n, scope)
 		n.setJSType(this.getJSType(n.getLastChild()))
-	case Token_rhino_TEMPLATELIT, Token_rhino_TYPEOF:
+	case tokOrd1_TEMPLATELIT, tokOrd1_TYPEOF:
 		scope = this.traverseChildren(n, scope)
 		n.setJSType(this.getNativeType(JSTypeNative_STRING_TYPE))
-	case Token_rhino_TEMPLATELIT_SUB, Token_rhino_THROW, Token_rhino_ITER_SPREAD, Token_rhino_OBJECT_SPREAD, Token_rhino_IMPORT, Token_rhino_IMPORT_SPECS, Token_rhino_IMPORT_STAR:
+	case tokOrd1_TEMPLATELIT_SUB, tokOrd1_THROW, tokOrd1_ITER_SPREAD, tokOrd1_OBJECT_SPREAD, tokOrd1_IMPORT, tokOrd1_IMPORT_SPECS, tokOrd1_IMPORT_STAR:
 		scope = this.traverseChildren(n, scope)
 		isTypeable = false
-	case Token_rhino_IMPORT_SPEC:
+	case tokOrd1_IMPORT_SPEC:
 		this.traverseImportSpec(scope, n)
 		isTypeable = false
-	case Token_rhino_TAGGED_TEMPLATELIT:
+	case tokOrd1_TAGGED_TEMPLATELIT:
 		scope = this.traverseTaggedTemplateLit(n, scope)
-	case Token_rhino_DELPROP, Token_rhino_LT, Token_rhino_LE, Token_rhino_GT, Token_rhino_GE, Token_rhino_NOT, Token_rhino_EQ, Token_rhino_NE, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_INSTANCEOF, Token_rhino_IN:
+	case tokOrd1_DELPROP, tokOrd1_LT, tokOrd1_LE, tokOrd1_GT, tokOrd1_GE, tokOrd1_NOT, tokOrd1_EQ, tokOrd1_NE, tokOrd1_SHEQ, tokOrd1_SHNE, tokOrd1_INSTANCEOF, tokOrd1_IN:
 		scope = this.traverseChildren(n, scope)
 		n.setJSType(this.getNativeType(JSTypeNative_BOOLEAN_TYPE))
-	case Token_rhino_GETELEM:
+	case tokOrd1_GETELEM:
 		scope = this.traverseGetElem(n, scope)
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		scope = this.traverseChildren(n, scope)
 		if n.getFirstChild().isGetProp() {
 			var getprop Node = n.getFirstChild()
@@ -351,26 +351,26 @@ func (this *TypeInference) traverse(n Node, scope FlowScope) FlowScope {
 			}
 		}
 		isTypeable = false
-	case Token_rhino_SWITCH:
+	case tokOrd1_SWITCH:
 		scope = this.traverse(n.getFirstChild(), scope)
 		isTypeable = false
-	case Token_rhino_RETURN:
+	case tokOrd1_RETURN:
 		scope = this.traverseReturn(n, scope)
 		isTypeable = false
-	case Token_rhino_YIELD:
+	case tokOrd1_YIELD:
 		if n.isYieldAll() {
 			scope = this.traverseYieldAll(n, scope)
 		} else {
 			scope = this.traverseChildren(n, scope)
 			n.setJSType(this.getNativeType(JSTypeNative_UNKNOWN_TYPE))
 		}
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		scope = this.traverseDeclaration(n, scope)
 		isTypeable = false
-	case Token_rhino_CATCH:
+	case tokOrd1_CATCH:
 		scope = this.traverseCatch(n, scope)
 		isTypeable = false
-	case Token_rhino_CAST:
+	case tokOrd1_CAST:
 		scope = this.traverseChildren(n, scope)
 		var info *JSDocInfo = n.getJSDocInfo()
 		Preconditions_checkNotNull_Object_Object_T(info, "CAST node should always have JSDocInfo")
@@ -379,14 +379,14 @@ func (this *TypeInference) traverse(n Node, scope FlowScope) FlowScope {
 		} else {
 			n.setJSType(this.unknownType.up_JSType())
 		}
-	case Token_rhino_SUPER:
+	case tokOrd1_SUPER:
 		this.traverseSuper(n, scope)
-	case Token_rhino_AWAIT:
+	case tokOrd1_AWAIT:
 		scope = this.traverseAwait(n, scope)
-	case Token_rhino_VOID:
+	case tokOrd1_VOID:
 		n.setJSType(this.getNativeType(JSTypeNative_VOID_TYPE))
 		scope = this.traverseChildren(n, scope)
-	case Token_rhino_EXPORT:
+	case tokOrd1_EXPORT:
 		scope = this.traverseChildren(n, scope)
 		if n.getBooleanProp(Node_EXPORT_DEFAULT) {
 			var defaultExport *TypedVar = TypeInference_getDeclaredVar(scope, Export_DEFAULT_EXPORT_NAME)
@@ -395,13 +395,13 @@ func (this *TypeInference) traverse(n Node, scope FlowScope) FlowScope {
 			}
 		}
 		isTypeable = false
-	case Token_rhino_IMPORT_META:
+	case tokOrd1_IMPORT_META:
 		n.setJSType(this.unknownType.up_JSType())
-	case Token_rhino_ROOT, Token_rhino_SCRIPT, Token_rhino_MODULE_BODY, Token_rhino_SWITCH_BODY, Token_rhino_FUNCTION, Token_rhino_PARAM_LIST, Token_rhino_BLOCK, Token_rhino_EMPTY, Token_rhino_IF, Token_rhino_WHILE, Token_rhino_DO, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_BREAK, Token_rhino_CONTINUE, Token_rhino_TRY, Token_rhino_CASE, Token_rhino_DEFAULT_CASE, Token_rhino_WITH, Token_rhino_DEBUGGER, Token_rhino_EXPORT_SPECS, Token_rhino_LABEL:
+	case tokOrd1_ROOT, tokOrd1_SCRIPT, tokOrd1_MODULE_BODY, tokOrd1_SWITCH_BODY, tokOrd1_FUNCTION, tokOrd1_PARAM_LIST, tokOrd1_BLOCK, tokOrd1_EMPTY, tokOrd1_IF, tokOrd1_WHILE, tokOrd1_DO, tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_BREAK, tokOrd1_CONTINUE, tokOrd1_TRY, tokOrd1_CASE, tokOrd1_DEFAULT_CASE, tokOrd1_WITH, tokOrd1_DEBUGGER, tokOrd1_EXPORT_SPECS, tokOrd1_LABEL:
 		isTypeable = false
-	case Token_rhino_DYNAMIC_IMPORT:
+	case tokOrd1_DYNAMIC_IMPORT:
 		this.traverseDynamicImport(n, scope)
-	case Token_rhino_TRUE, Token_rhino_FALSE, Token_rhino_STRINGLIT, Token_rhino_NUMBER, Token_rhino_BIGINT, Token_rhino_NULL, Token_rhino_REGEXP, Token_rhino_TEMPLATELIT_STRING:
+	case tokOrd1_TRUE, tokOrd1_FALSE, tokOrd1_STRINGLIT, tokOrd1_NUMBER, tokOrd1_BIGINT, tokOrd1_NULL, tokOrd1_REGEXP, tokOrd1_TEMPLATELIT_STRING:
 	default:
 		panic(new_IllegalStateException_String(("Type inference doesn't know to handle token " + jtostr_(n.getToken()))).self())
 	}
@@ -426,8 +426,8 @@ func (this *TypeInference) initializeEnhancedForScope(source Node, output FlowSc
 		item = item.getFirstChild()
 	}
 	var newType *JSType
-	switch source.getToken() {
-	case Token_rhino_FOR_IN:
+	switch source.ns_().token {
+	case tokOrd1_FOR_IN:
 		var iterKeyType *JSType = this.getNativeType(JSTypeNative_STRING_TYPE)
 		var objType *JSType = this.getJSType(obj).autobox()
 		var objIndexType *JSType = objType.getTemplateTypeMap().getResolvedTemplateType(this.registry.getObjectIndexKey())
@@ -438,9 +438,9 @@ func (this *TypeInference) initializeEnhancedForScope(source Node, output FlowSc
 			}
 		}
 		newType = iterKeyType
-	case Token_rhino_FOR_OF:
+	case tokOrd1_FOR_OF:
 		newType = JsIterables_maybeBoxIterableOrAsyncIterable(this.getJSType(obj), this.registry).orElse(this.unknownType.up_JSType())
-	case Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_AWAIT_OF:
 		var iterableType *JSType = JsIterables_maybeBoxIterableOrAsyncIterable(this.getJSType(obj), this.registry).orElse(this.unknownType.up_JSType())
 		newType = Promises_getResolvedType(this.registry, iterableType)
 	default:
@@ -490,8 +490,8 @@ func (this *TypeInference) traverseTaggedTemplateLit(tagTempLitNode Node, origin
 
 func (this *TypeInference) traverseSuper(superNode Node, currentScope FlowScope) {
 	var superNodeType *ObjectType = nil
-	switch superNode.getParent().getToken() {
-	case Token_rhino_CALL:
+	switch superNode.getParent().ns_().token {
+	case tokOrd1_CALL:
 		var scope *TypedScope = this.containerScope
 		for (scope != nil) && !NodeUtil_isNonArrowFunction(scope.getRootNode()) {
 			scope = scope.getParent_rTypedScope()
@@ -504,7 +504,7 @@ func (this *TypeInference) traverseSuper(superNode Node, currentScope FlowScope)
 		if (enclosingFunctionType != nil) && enclosingFunctionType.isConstructor() {
 			superNodeType = enclosingFunctionType.getSuperClassConstructor().up_ObjectType()
 		}
-	case Token_rhino_GETELEM, Token_rhino_GETPROP:
+	case tokOrd1_GETELEM, tokOrd1_GETPROP:
 		var currentSyntacticScope StaticTypedScope = currentScope.getDeclarationScope()
 		superNodeType = ObjectType_cast(currentSyntacticScope.getSlot_String_rStaticTypedSlot("super").getType())
 	default:
@@ -651,8 +651,8 @@ func (this *TypeInference) updateScopeForAssignment_5(scope FlowScope, target No
 	if TypeInference_isPossibleMixinApplication(target, right) {
 		TypeInference_addMissingInterfaceProperties(targetType)
 	}
-	switch target.getToken() {
-	case Token_rhino_NAME:
+	switch target.ns_().token {
+	case tokOrd1_NAME:
 		var varName string = target.getString()
 		var var_ *TypedVar = TypeInference_getDeclaredVar(scope, varName)
 		var varType *JSType = func() *JSType {
@@ -683,7 +683,7 @@ func (this *TypeInference) updateScopeForAssignment_5(scope FlowScope, target No
 		} else if isTypelessConstDecl {
 			var_.setType(resultType)
 		}
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		if target.isQualifiedName() {
 			var qualifiedName string = target.getQualifiedName()
 			var declaredSlotType bool = false
@@ -1001,8 +1001,8 @@ func (this *TypeInference) traverseClass(n Node, scope FlowScope) FlowScope {
 
 func (this *TypeInference) traverseClassMemberRhs(member Node, scope FlowScope) FlowScope {
 	return func() FlowScope {
-		switch member.getToken() {
-		case Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
+		switch member.ns_().token {
+		case tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF:
 			var rhs Node = TypeInference_getRhsOfField(member)
 			if rhs != 0 {
 				var computedFieldDefTypedScope *TypedScope = this.scopeCreator.createScope(member)
@@ -1013,7 +1013,7 @@ func (this *TypeInference) traverseClassMemberRhs(member Node, scope FlowScope) 
 				}
 			}
 			return scope
-		case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_COMPUTED_PROP, Token_rhino_BLOCK, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+		case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_COMPUTED_PROP, tokOrd1_BLOCK, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 			return scope
 		default:
 			panic(new_AssertionError_0().self())
@@ -1024,13 +1024,13 @@ func (this *TypeInference) traverseClassMemberRhs(member Node, scope FlowScope) 
 
 func TypeInference_getRhsOfField(fieldNode Node) Node {
 	return func() Node {
-		switch fieldNode.getToken() {
-		case Token_rhino_MEMBER_FIELD_DEF:
+		switch fieldNode.ns_().token {
+		case tokOrd1_MEMBER_FIELD_DEF:
 			if fieldNode.hasOneChild() {
 				return fieldNode.getFirstChild()
 			}
 			return 0
-		case Token_rhino_COMPUTED_FIELD_DEF:
+		case tokOrd1_COMPUTED_FIELD_DEF:
 			if fieldNode.hasTwoChildren() {
 				return fieldNode.getSecondChild()
 			}
@@ -1632,12 +1632,12 @@ func (this *TypeInference) setGetPropNodeTypeAfterChildrenTraversed(n Node, scop
 
 func (this *TypeInference) setOptChainNodeTypeAfterChildrenTraversed(n Node, scopeAfterChildren FlowScope) FlowScope {
 	return func() FlowScope {
-		switch n.getToken() {
-		case Token_rhino_OPTCHAIN_GETPROP:
+		switch n.ns_().token {
+		case tokOrd1_OPTCHAIN_GETPROP:
 			return this.setGetPropNodeTypeAfterChildrenTraversed(n, scopeAfterChildren)
-		case Token_rhino_OPTCHAIN_GETELEM:
+		case tokOrd1_OPTCHAIN_GETELEM:
 			return this.setGetElemNodeTypeAfterChildrenTraversed(n, scopeAfterChildren)
-		case Token_rhino_OPTCHAIN_CALL:
+		case tokOrd1_OPTCHAIN_CALL:
 			return this.setCallNodeTypeAfterChildrenTraversed(n, scopeAfterChildren)
 		default:
 			panic(new_IllegalStateException_String("Illegal token inside finishTraversingOptChain").self())
@@ -1810,10 +1810,10 @@ func (this *TypeInference) traverseShortCircuitingBinOp(n Node, left Node, leftO
 
 func (this *TypeInference) traverseWithinShortCircuitingBinOp(n Node, scope FlowScope) *TypeInference_BooleanOutcomePair {
 	return func() *TypeInference_BooleanOutcomePair {
-		switch n.getToken() {
-		case Token_rhino_AND:
+		switch n.ns_().token {
+		case tokOrd1_AND:
 			return this.traverseAnd(n, scope)
-		case Token_rhino_OR:
+		case tokOrd1_OR:
 			return this.traverseOr(n, scope)
 		default:
 			scope = this.traverse(n, scope)

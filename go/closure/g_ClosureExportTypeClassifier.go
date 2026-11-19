@@ -51,14 +51,14 @@ func ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot Node, callb
 }
 
 func (this *ClosureExportTypeClassifier) visitStatement(statement Node) {
-	switch statement.getToken() {
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	switch statement.ns_().token {
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		this.visitNameDeclaration(statement)
-	case Token_rhino_CLASS, Token_rhino_FUNCTION:
+	case tokOrd1_CLASS, tokOrd1_FUNCTION:
 		var name Node = statement.getFirstChild()
 		var info *ClosureExportTypeClassifier_NameInfo = this.getOrCreate(name.getString())
 		info.isNeverNamespace = true
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		this.maybeRecordLegacyNamedTsExport(statement)
 		this.visitExpression(statement.getFirstChild())
 	default:
@@ -104,10 +104,10 @@ func (this *ClosureExportTypeClassifier) visitDeclaredName(lhs Node) {
 }
 
 func (this *ClosureExportTypeClassifier) visitExpression(expr Node) {
-	switch expr.getToken() {
-	case Token_rhino_ASSIGN:
+	switch expr.ns_().token {
+	case tokOrd1_ASSIGN:
 		this.visitAssign(expr)
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		if (expr.getJSDocInfo() != nil) && expr.getFirstChild().isName() {
 			var variableName string = expr.getFirstChild().getString()
 			this.getOrCreate(variableName).propertyCount++
@@ -176,8 +176,8 @@ func (this *ClosureExportTypeClassifier) kindOfValue(value Node, jsdoc *JSDocInf
 		return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
 	}
 	return func() *ClosureExportTypeClassifier_Kind {
-		switch value.getToken() {
-		case Token_rhino_OBJECTLIT:
+		switch value.ns_().token {
+		case tokOrd1_OBJECTLIT:
 			{
 				var member Node = value.getFirstChild()
 				for ; member != 0; member = member.getNext() {
@@ -187,7 +187,7 @@ func (this *ClosureExportTypeClassifier) kindOfValue(value Node, jsdoc *JSDocInf
 				}
 			}
 			return ClosureExportTypeClassifier_Kind_EMPTY_OBJECT
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			if depth >= ClosureExportTypeClassifier_MAX_ALIAS_DEPTH {
 				return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
 			}
@@ -198,7 +198,7 @@ func (this *ClosureExportTypeClassifier) kindOfValue(value Node, jsdoc *JSDocInf
 				}
 				return this.kindOfName(aliased, (depth + 1))
 			}()
-		case Token_rhino_CAST:
+		case tokOrd1_CAST:
 			return this.kindOfValue(value.getFirstChild(), value.getJSDocInfo(), depth)
 		default:
 			return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
@@ -210,7 +210,7 @@ func (this *ClosureExportTypeClassifier) kindOfValue(value Node, jsdoc *JSDocInf
 func ClosureExportTypeClassifier_kindOfDeclaredType(type_ *JSTypeExpression) *ClosureExportTypeClassifier_Kind {
 	var root Node = type_.getRoot()
 	return func() *ClosureExportTypeClassifier_Kind {
-		if root.getToken() == Token_rhino_LC {
+		if root.ns_().token == tokOrd1_LC {
 			return ClosureExportTypeClassifier_Kind_NAMESPACE
 		}
 		return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE

@@ -128,14 +128,14 @@ func (this *OptimizeReturns) isClassMemberDefinition(n Node) bool {
 
 func OptimizeReturns_isCandidateFunction(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FUNCTION:
+		switch n.ns_().token {
+		case tokOrd1_FUNCTION:
 			return !NodeUtil_isNamedFunctionExpression(n)
-		case Token_rhino_COMMA, Token_rhino_CAST:
+		case tokOrd1_COMMA, tokOrd1_CAST:
 			return OptimizeReturns_isCandidateFunction(n.getLastChild())
-		case Token_rhino_HOOK:
+		case tokOrd1_HOOK:
 			return (OptimizeReturns_isCandidateFunction(n.getSecondChild()) && OptimizeReturns_isCandidateFunction(n.getLastChild()))
-		case Token_rhino_OR, Token_rhino_AND, Token_rhino_COALESCE:
+		case tokOrd1_OR, tokOrd1_AND, tokOrd1_COALESCE:
 			return (OptimizeReturns_isCandidateFunction(n.getFirstChild()) && OptimizeReturns_isCandidateFunction(n.getLastChild()))
 		default:
 			return false
@@ -152,8 +152,8 @@ func (this *OptimizeReturns) rewriteReturns(fnNode Node) {
 
 func (this *OptimizeReturns) isRemovableValue(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_TEMPLATELIT, Token_rhino_ARRAYLIT:
+		switch n.ns_().token {
+		case tokOrd1_TEMPLATELIT, tokOrd1_ARRAYLIT:
 			{
 				var child Node = n.getFirstChild()
 				for ; child != 0; child = child.getNext() {
@@ -163,9 +163,9 @@ func (this *OptimizeReturns) isRemovableValue(n Node) bool {
 				}
 			}
 			return true
-		case Token_rhino_REGEXP, Token_rhino_STRINGLIT, Token_rhino_NUMBER, Token_rhino_NULL, Token_rhino_TRUE, Token_rhino_FALSE, Token_rhino_TEMPLATELIT_STRING:
+		case tokOrd1_REGEXP, tokOrd1_STRINGLIT, tokOrd1_NUMBER, tokOrd1_NULL, tokOrd1_TRUE, tokOrd1_FALSE, tokOrd1_TEMPLATELIT_STRING:
 			return true
-		case Token_rhino_TEMPLATELIT_SUB, Token_rhino_CAST, Token_rhino_NOT, Token_rhino_VOID, Token_rhino_NEG:
+		case tokOrd1_TEMPLATELIT_SUB, tokOrd1_CAST, tokOrd1_NOT, tokOrd1_VOID, tokOrd1_NEG:
 			return this.isRemovableValue(n.getFirstChild())
 		default:
 			return false
