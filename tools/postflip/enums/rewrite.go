@@ -68,7 +68,7 @@ func rewrite(conv []*enumInfo) stats {
 			T := e.name
 			fmt.Fprintf(&b, "\nfunc (this %s) enum_() *Enum {\n\tif this == 0 {\n\t\treturn nil\n\t}\n\treturn &%s_enum_[this-1]\n}\n", T, T)
 			fmt.Fprintf(&b, "\nfunc (this %s) name() string { return this.enum_().name_ }\n", T)
-			fmt.Fprintf(&b, "\nfunc (this %s) ordinal() int32 { return this.enum_().ordinal_ }\n", T)
+			fmt.Fprintf(&b, "\nfunc (this %s) ordinal() int32 {\n\tif this == 0 {\n\t\treturn this.enum_().ordinal_ // null: dereferences nil, as a null enum object did\n\t}\n\treturn int32(this) - 1 // constants are ordinal+1\n}\n", T)
 			if !e.ownMethods["toString"] {
 				fmt.Fprintf(&b, "\nfunc (this %s) toString() string { return this.enum_().name_ }\n", T)
 			}
