@@ -173,7 +173,7 @@ func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType
 }
 
 func (this *JSTypeReconserializer) reconcileUnionTypes(seen *JSTypeReconserializer_SeenTypeRecord) *TypeProto {
-	return cast_[*TypeProto](TypeProto_newBuilder().setUnion(cast_[*UnionTypeProto](UnionTypeProto_newBuilder().addAllUnionMember(iup_Iterable(JSTypeReconserializer_sortedPointersOf(iup_Collection(seen.unionMembers.asImm())))).build())).build())
+	return TypeProto_newBuilder().setUnion(UnionTypeProto_newBuilder().addAllUnionMember(iup_Iterable(JSTypeReconserializer_sortedPointersOf(iup_Collection(seen.unionMembers.asImm())))).buildT_()).buildT_()
 }
 
 func JSTypeReconserializer_sortedPointersOf(records CollectionOf[*JSTypeReconserializer_SeenTypeRecord]) ImmutableListOf[BoxedOf[int32]] {
@@ -228,8 +228,8 @@ func (this *JSTypeReconserializer) reconcileObjectTypes(seen *JSTypeReconseriali
 		isInvalidating = bor_(isInvalidating, this.invalidatingTypes.isInvalidating(objType.up_JSType()))
 		propertiesKeepOriginalName = bor_(propertiesKeepOriginalName, objType.isEnumType())
 	}
-	var objectProto *ObjectTypeProto = cast_[*ObjectTypeProto](ObjectTypeProto_newBuilder().addAllInstanceType(Iterable(instancePointers.asSet())).addAllOwnProperty(Iterable(ownProperties.asSet())).addAllPrototype(Iterable(prototypePointers.asSet())).setClosureAssert(isClosureAssert).setIsInvalidating(isInvalidating).setMarkedConstructor(isConstructor).setPropertiesKeepOriginalName(propertiesKeepOriginalName).setUuid(seen.colorId.asByteString()).build())
-	return cast_[*TypeProto](TypeProto_newBuilder().setObject(objectProto).build())
+	var objectProto *ObjectTypeProto = ObjectTypeProto_newBuilder().addAllInstanceType(Iterable(instancePointers.asSet())).addAllOwnProperty(Iterable(ownProperties.asSet())).addAllPrototype(Iterable(prototypePointers.asSet())).setClosureAssert(isClosureAssert).setIsInvalidating(isInvalidating).setMarkedConstructor(isConstructor).setPropertiesKeepOriginalName(propertiesKeepOriginalName).setUuid(seen.colorId.asByteString()).buildT_()
+	return TypeProto_newBuilder().setObject(objectProto).buildT_()
 }
 
 func (this *JSTypeReconserializer) ownAncestorInterfacesOf(type_ *ObjectType) ImmutableListOf[BoxedOf[int32]] {
@@ -312,7 +312,7 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 	}
 	this.state = JSTypeReconserializer_State_FINISHED
 	this.checkValidLinearTime()
-	return cast_[*TypePool](builder.build())
+	return builder.buildT_()
 }
 
 func (this *JSTypeReconserializer) getColorIdToJSTypeMapForDebugging() *SimpleListMultimap[any, any] {
