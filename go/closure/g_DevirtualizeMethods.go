@@ -47,7 +47,7 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 		return
 	} else if !this.allEligibleDefinitionFunctions(functionsBySite.values()) {
 		return
-	} else if !this.allEligibleCallSites(icast_Collection(obj_(callSites.asImm())), canonicalDefinitionSite) {
+	} else if !this.allEligibleCallSites(iup_Collection(callSites.asImm()), canonicalDefinitionSite) {
 		return
 	} else if !this.allDefinitionsEquivalent(functionsBySite.values()) {
 		return

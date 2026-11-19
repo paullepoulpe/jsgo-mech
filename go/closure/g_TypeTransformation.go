@@ -98,7 +98,7 @@ func (this *TypeTransformation) reportWarning(n Node, msg *DiagnosticType, param
 }
 
 func (this *TypeTransformation) addNewEntry(map_ *ImmutableMap[string, any], name string, type_ any) *ImmutableMap[string, any] {
-	return tmapFrom_(tc_string, tc_any, new_ImmutableMap_Builder().putAll(icast_Map(obj_(map_.asImm()))).put(strobj_(name), type_).buildOrThrow(), true)
+	return tmapFrom_(tc_string, tc_any, new_ImmutableMap_Builder().putAll(iup_Map(map_.asImm())).put(strobj_(name), type_).buildOrThrow(), true)
 }
 
 func (this *TypeTransformation) getFunctionParameter(n Node, i int32) string {

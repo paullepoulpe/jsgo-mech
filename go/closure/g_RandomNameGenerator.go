@@ -65,8 +65,8 @@ func (this *RandomNameGenerator) reset_4(reservedNames SetOf[string], prefix str
 	this.prefix_ = prefix
 	this.prefix_U16 = utf16Kept_(this.prefix_)
 	this.nameCount = 0
-	this.firstChars = Sets_difference(icast_Set(obj_(RandomNameGenerator_FIRST_CHAR)), reservedFirstCharacters).immutableCopy()
-	this.nonFirstChars = Sets_difference(icast_Set(obj_(RandomNameGenerator_NONFIRST_CHAR)), reservedNonFirstCharacters).immutableCopy()
+	this.firstChars = Sets_difference(iup_Set(RandomNameGenerator_FIRST_CHAR), reservedFirstCharacters).immutableCopy()
+	this.nonFirstChars = Sets_difference(iup_Set(RandomNameGenerator_NONFIRST_CHAR), reservedNonFirstCharacters).immutableCopy()
 	this.checkPrefix(prefix)
 	this.shuffleAlphabets()
 }
@@ -87,11 +87,11 @@ func RandomNameGenerator_asSet(chars []uint16) ImmutableSetOf[BoxedOf[uint16]] {
 func (this *RandomNameGenerator) checkPrefix(prefix string) {
 	if len(prefix) != 0 {
 		if !this.firstChars.contains(any(uint16(String_charAt(prefix, 0)))) {
-			panic(new_IllegalArgumentException_String(("prefix must start with one of: " + sstr_(Joiner_on(", ").join(icast_Iterable(obj_(this.firstChars)))))))
+			panic(new_IllegalArgumentException_String(("prefix must start with one of: " + sstr_(Joiner_on(", ").join(iup_Iterable(this.firstChars))))))
 		}
 		for _, u_ := range stringUnitsFrom_(prefix, int32(1)) {
 			if !this.nonFirstChars.contains(any(uint16(u_))) {
-				panic(new_IllegalArgumentException_String(("prefix has invalid characters, must be one of: " + sstr_(Joiner_on(", ").join(icast_Iterable(obj_(this.nonFirstChars)))))))
+				panic(new_IllegalArgumentException_String(("prefix has invalid characters, must be one of: " + sstr_(Joiner_on(", ").join(iup_Iterable(this.nonFirstChars))))))
 			}
 		}
 	}
@@ -104,10 +104,10 @@ func RandomNameGenerator_shuffleAndCopyAlphabet(input SetOf[BoxedOf[uint16]], ra
 }
 
 func (this *RandomNameGenerator) shuffleAlphabets() {
-	this.shuffledFirst = RandomNameGenerator_shuffleAndCopyAlphabet(icast_Set(obj_(this.firstChars)), this.random)
+	this.shuffledFirst = RandomNameGenerator_shuffleAndCopyAlphabet(iup_Set(this.firstChars), this.random)
 	var builder []string
 	for i := int32(0); i < RandomNameGenerator_NUM_SHUFFLES; i++ {
-		builder = immAdd_(tc_string, builder, RandomNameGenerator_shuffleAndCopyAlphabet(icast_Set(obj_(this.nonFirstChars)), this.random))
+		builder = immAdd_(tc_string, builder, RandomNameGenerator_shuffleAndCopyAlphabet(iup_Set(this.nonFirstChars), this.random))
 	}
 	this.shuffledNonFirst = immBuilt_(builder)
 }

@@ -289,7 +289,7 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) init_RewriteGoogJsImports_Re
 	this.globalizeAllReferences = globalizeAllReferences
 	NodeTraversal_traverse(this.outer_.compiler_, script, this)
 	if googImportNode.getSecondChild().isImportStar() {
-		var newBindings *TMap[string, *Binding] = tmapFrom_(tc_string, tc_p_Binding, icast_Map(obj_(module.boundNames().asImm())), false)
+		var newBindings *TMap[string, *Binding] = tmapFrom_(tc_string, tc_p_Binding, iup_Map(module.boundNames().asImm()), false)
 		newBindings.Delete("goog")
 		if this.hasBadExport {
 			googImportNode.getSecondChild().setOriginalName("goog")

@@ -28,7 +28,7 @@ func (this *NodeModuleResolver) up_ModuleResolver() *ModuleResolver {
 
 func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
-	this.nodeModulesFolders = NodeModuleResolver_buildNodeModulesFoldersRegistry(icast_Iterable(obj_(modulePaths)), icast_Iterable(obj_(moduleRootPaths)))
+	this.nodeModulesFolders = NodeModuleResolver_buildNodeModulesFoldersRegistry(iup_Iterable(modulePaths), iup_Iterable(moduleRootPaths))
 	if packageJsonMainEntries == nil {
 		this.packageJsonMainEntries = immutableMapOf_(tc_string, tc_string, []string{}, []string{})
 	} else {

@@ -103,7 +103,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles *TMap[string, Dependency
 			}
 			provides = builder.build()
 		}
-		newJsFiles.Put(dependencyInfo.getPathRelativeToClosureBase(), icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(icast_Collection(obj_(provides.asImm()))).setRequires(Collection(newRequires.asList())).setLoadFlags(icast_Map(obj_(dependencyInfo.getLoadFlags().asImm()))).build())))
+		newJsFiles.Put(dependencyInfo.getPathRelativeToClosureBase(), iup_DependencyInfo(SimpleDependencyInfo_builder(dependencyInfo.getPathRelativeToClosureBase(), Optional_of[string](dependencyInfo.getName())).setProvides(iup_Collection(provides.asImm())).setRequires(Collection(newRequires.asList())).setLoadFlags(iup_Map(dependencyInfo.getLoadFlags().asImm())).build()))
 	}
 	return newJsFiles
 }
@@ -169,7 +169,7 @@ func (this *DepsGenerator) reportNoDepsInDepsFile(filePath string) {
 
 func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], providesMap map[string]DependencyInfo, isFromDepsFile bool) {
 	for depInfo := range elemsBy_(depInfos, icast_DependencyInfo) {
-		var provides []string = sliceFrom_(tc_string, icast_Collection(obj_(depInfo.getProvides().asImm())))
+		var provides []string = sliceFrom_(tc_string, iup_Collection(depInfo.getProvides().asImm()))
 		if isFromDepsFile {
 			provides = append(provides, this.loader.resolve(PathUtil_makeAbsolute_String_String(depInfo.getPathRelativeToClosureBase(), this.closurePathAbs)).toModuleName())
 		} else {
@@ -248,7 +248,7 @@ func DepsGenerator_parseDepsFile(depsParser *DepsFileRegexParser, file *SourceFi
 }
 
 func (this *DepsGenerator) removeRelativePathProvide(info DependencyInfo) DependencyInfo {
-	return icast_DependencyInfo(obj_(SimpleDependencyInfo_Builder_from(info).setProvides(Collection(DepsGenerator_providesWithoutRelativePath(info).asList())).build()))
+	return iup_DependencyInfo(SimpleDependencyInfo_Builder_from(info).setProvides(Collection(DepsGenerator_providesWithoutRelativePath(info).asList())).build())
 }
 
 func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *TList[string] {

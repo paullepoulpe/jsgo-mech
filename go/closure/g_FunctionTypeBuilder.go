@@ -74,7 +74,7 @@ func (this *FunctionTypeBuilder) init_FunctionTypeBuilder(fnName Optional[string
 	this.typeRegistry = compiler.getTypeRegistry()
 	this.errorRoot = errorRoot
 	this.compiler_ = compiler
-	this.templateScope = icast_StaticTypedScope(obj_(scope))
+	this.templateScope = iup_StaticTypedScope(scope)
 }
 
 func new_FunctionTypeBuilder(fnName Optional[string], compiler *AbstractCompiler, errorRoot Node, scope *TypedScope) *FunctionTypeBuilder {
@@ -210,7 +210,7 @@ func (this *FunctionTypeBuilder) inferKind(info *JSDocInfo) *FunctionTypeBuilder
 }
 
 func (this *FunctionTypeBuilder) maybeUseNativeClassTemplateNames(info *JSDocInfo) bool {
-	var nativeKeys *ImmutableList[*TemplateType] = this.typeRegistry.maybeGetTemplateTypesOfBuiltin(icast_StaticScope(obj_(this.declarationScope)), this.fnName)
+	var nativeKeys *ImmutableList[*TemplateType] = this.typeRegistry.maybeGetTemplateTypesOfBuiltin(iup_StaticScope(this.declarationScope), this.fnName)
 	if (nativeKeys != nil) && (info.getTemplateTypeNames().size() == nativeKeys.size()) {
 		this.templateTypeNames = nativeKeys
 		return true
@@ -225,7 +225,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 			if !FunctionTypeBuilder_areCompatibleExtendsTypes(infoBaseType.toMaybeObjectType(), classExtendsType) {
 				this.isKnownAmbiguous = true
 			}
-			if infoBaseType.setValidator(icast_Predicate_base(obj_(this.createExtendedTypeValidator()))) {
+			if infoBaseType.setValidator(iup_Predicate_base(this.createExtendedTypeValidator())) {
 				this.baseType = infoBaseType.toObjectType()
 			} else {
 				this.isKnownAmbiguous = true
@@ -242,7 +242,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 			this.implementedInterfaces = newTList_(tc_p_ObjectType)
 			for t := range elemsAs_[*JSTypeExpression](info.getImplementedInterfaces()) {
 				var maybeInterType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
-				if maybeInterType.setValidator(icast_Predicate_base(obj_(this.createImplementedTypeValidator()))) {
+				if maybeInterType.setValidator(iup_Predicate_base(this.createImplementedTypeValidator())) {
 					this.implementedInterfaces.add(to_ObjectType(maybeInterType.self()))
 				}
 			}
@@ -258,7 +258,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 			for t := range elemsAs_[*JSTypeExpression](info.getExtendedInterfaces()) {
 				var maybeInterfaceType *JSType = t.evaluate(this.templateScope, this.typeRegistry)
 				if maybeInterfaceType != nil {
-					var isValid bool = maybeInterfaceType.setValidator(icast_Predicate_base(obj_(this.createExtendedTypeValidator())))
+					var isValid bool = maybeInterfaceType.setValidator(iup_Predicate_base(this.createExtendedTypeValidator()))
 					if isValid && (maybeInterfaceType.toMaybeObjectType() != nil) {
 						this.extendedInterfaces.add(maybeInterfaceType.toMaybeObjectType())
 					}
@@ -268,7 +268,7 @@ func (this *FunctionTypeBuilder) inferInheritance(info *JSDocInfo, classExtendsT
 				}
 			}
 		}
-		if (classExtendsType != nil) && classExtendsType.setValidator(icast_Predicate_base(obj_(this.createExtendedTypeValidator()))) {
+		if (classExtendsType != nil) && classExtendsType.setValidator(iup_Predicate_base(this.createExtendedTypeValidator())) {
 			this.extendedInterfaces.add(classExtendsType)
 		}
 	}
@@ -545,7 +545,7 @@ func (this *FunctionTypeBuilder) inferTemplateTypeName(info *JSDocInfo, ownerTyp
 		return immutableListOf_(tc_p_TemplateType)
 	}()
 	if !this.templateTypeNames.isEmpty() || !ownerTypeKeys.isEmpty() {
-		this.registerTemplates(Iterables_concat(icast_Iterable(obj_(this.templateTypeNames.asImm())), icast_Iterable(obj_(ownerTypeKeys.asImm()))), this.contents.getSourceNode())
+		this.registerTemplates(Iterables_concat(iup_Iterable(this.templateTypeNames.asImm()), iup_Iterable(ownerTypeKeys.asImm())), this.contents.getSourceNode())
 	}
 	return this
 }
@@ -642,7 +642,7 @@ func (this *FunctionTypeBuilder) createDefaultBuilder() *FunctionType_Builder {
 }
 
 func (this *FunctionTypeBuilder) getOrCreateConstructor() *FunctionType {
-	var fnType *FunctionType = to_FunctionType(this.createDefaultBuilder().forConstructor().withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.parameters.asImm())).withReturnType(this.returnType).withConstructorTemplateKeys(icast_Iterable(obj_(this.constructorTemplateTypeNames.asImm()))).withIsAbstract(this.isAbstract_).build().self())
+	var fnType *FunctionType = to_FunctionType(this.createDefaultBuilder().forConstructor().withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.parameters.asImm())).withReturnType(this.returnType).withConstructorTemplateKeys(iup_Iterable(this.constructorTemplateTypeNames.asImm())).withIsAbstract(this.isAbstract_).build().self())
 	if this.makesStructs_ {
 		fnType.setStruct()
 	} else if this.makesDicts_ {
@@ -650,7 +650,7 @@ func (this *FunctionTypeBuilder) getOrCreateConstructor() *FunctionType {
 	} else if this.makesUnrestricted_ {
 		fnType.setExplicitUnrestricted()
 	}
-	var existingType *JSType = this.typeRegistry.getType(icast_StaticScope(obj_(this.declarationScope)), this.fnName)
+	var existingType *JSType = this.typeRegistry.getType(iup_StaticScope(this.declarationScope), this.fnName)
 	if existingType != nil {
 		var isInstanceObject bool = existingType.isInstanceType()
 		if isInstanceObject || (this.fnName == "Function") {
@@ -672,14 +672,14 @@ func (this *FunctionTypeBuilder) getOrCreateConstructor() *FunctionType {
 	}
 	this.maybeSetBaseType(fnType)
 	if this.syntacticFnName != "" && !strings.HasPrefix(this.syntacticFnName, "this.") {
-		this.typeRegistry.declareTypeForExactScope(icast_StaticScope(obj_(this.declarationScope)), this.syntacticFnName, fnType.getInstanceType().up_JSType())
+		this.typeRegistry.declareTypeForExactScope(iup_StaticScope(this.declarationScope), this.syntacticFnName, fnType.getInstanceType().up_JSType())
 	}
 	return fnType
 }
 
 func (this *FunctionTypeBuilder) getOrCreateInterface() *FunctionType {
 	var fnType *FunctionType = nil
-	var type_ *JSType = this.typeRegistry.getType(icast_StaticScope(obj_(this.declarationScope)), this.syntacticFnName)
+	var type_ *JSType = this.typeRegistry.getType(iup_StaticScope(this.declarationScope), this.syntacticFnName)
 	if (type_ != nil) && type_.isInstanceType() {
 		var ctor *FunctionType = type_.toMaybeObjectType().getConstructor()
 		if ctor.isInterface() {
@@ -693,7 +693,7 @@ func (this *FunctionTypeBuilder) getOrCreateInterface() *FunctionType {
 			fnType.setStruct()
 		}
 		if this.fnName != "" {
-			this.typeRegistry.declareTypeForExactScope(icast_StaticScope(obj_(this.declarationScope)), this.syntacticFnName, fnType.getInstanceType().up_JSType())
+			this.typeRegistry.declareTypeForExactScope(iup_StaticScope(this.declarationScope), this.syntacticFnName, fnType.getInstanceType().up_JSType())
 		}
 		this.maybeSetBaseType(fnType)
 	}
@@ -932,7 +932,7 @@ func new_FunctionTypeBuilder_UnknownFunctionContents() *FunctionTypeBuilder_Unkn
 }
 
 func FunctionTypeBuilder_UnknownFunctionContents_get() FunctionTypeBuilder_FunctionContents {
-	return icast_FunctionTypeBuilder_FunctionContents(obj_(FunctionTypeBuilder_UnknownFunctionContents_singleton))
+	return iup_FunctionTypeBuilder_FunctionContents(FunctionTypeBuilder_UnknownFunctionContents_singleton)
 }
 
 func (this *FunctionTypeBuilder_UnknownFunctionContents) getSourceNode() Node {

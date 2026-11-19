@@ -118,7 +118,7 @@ func (this *TemplateAstMatcher) prepTemplatePlaceholders(fn Node) {
 			if expression == nil {
 				panic(new_NullPointerException_String(Strings_lenientFormat("Missing JSDoc for parameter %s of template function %s", strobj_(name), strobj_(fnName))))
 			}
-			var type_ *JSType = this.typeRegistry.evaluateTypeExpression(expression, icast_StaticTypedScope(obj_(this.topScope)))
+			var type_ *JSType = this.typeRegistry.evaluateTypeExpression(expression, iup_StaticTypedScope(this.topScope))
 			if type_ == nil {
 				panic(new_NullPointerException_0())
 			}

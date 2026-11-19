@@ -75,7 +75,7 @@ func (this *TemplateTypeMap) copyFilledWithValues(values *ImmutableList[*JSType]
 	}
 	var extendedValues *[]*JSType = &[]*JSType{}
 	sliceAddAll_(tc_p_JSType, extendedValues, sliceView_(tc_p_JSType, this.templateValues))
-	sliceAddAll_(tc_p_JSType, extendedValues, icast_Collection(obj_(values.asImm())))
+	sliceAddAll_(tc_p_JSType, extendedValues, iup_Collection(values.asImm()))
 	this.padToSameLength(this.templateKeys, extendedValues)
 	return new_TemplateTypeMap(this.registry, this.templateKeys, immCopyOf_(tc_p_JSType, Collection(sliceViewP_(tc_p_JSType, extendedValues))), this.subMapStarts)
 }

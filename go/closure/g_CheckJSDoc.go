@@ -495,7 +495,7 @@ func (this *CheckJSDoc) validateJsDocTypeNames(info *JSDocInfo) {
 		return
 	}
 	for typeNode := range elemsBy_(info.getTypeNodes(), Node_of_) {
-		NodeUtil_visitPreOrder_Node_Visitor(typeNode, icast_NodeUtil_Visitor(obj_(this.checkJsDocTypesVisitor)))
+		NodeUtil_visitPreOrder_Node_Visitor(typeNode, iup_NodeUtil_Visitor(this.checkJsDocTypesVisitor))
 	}
 }
 

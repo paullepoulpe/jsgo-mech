@@ -40,7 +40,7 @@ func (this *ScriptNodeDeserializer) getSourceFile() *SourceFile_jscomp {
 
 func (this *ScriptNodeDeserializer) createSourceInfoTemplate(file *SourceFile_jscomp) Node {
 	var sourceInfoTemplate Node = new_Node_Token(Token_rhino_SCRIPT)
-	sourceInfoTemplate.setStaticSourceFile(icast_StaticSourceFile(obj_(file)))
+	sourceInfoTemplate.setStaticSourceFile(iup_StaticSourceFile(file))
 	return sourceInfoTemplate
 }
 

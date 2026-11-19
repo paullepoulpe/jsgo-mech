@@ -290,7 +290,7 @@ func (this *PrototypeObjectType) getOwnerFunction_impl() *FunctionType {
 func (this *PrototypeObjectType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
 	return func() Iterable {
 		if this.isFunctionPrototypeType() {
-			return icast_Iterable(obj_(this.getOwnerFunction().getImplementedInterfaces().asImm()))
+			return iup_Iterable(this.getOwnerFunction().getImplementedInterfaces().asImm())
 		}
 		return ImmutableList_of()
 	}()
@@ -299,7 +299,7 @@ func (this *PrototypeObjectType) getCtorImplementedInterfaces_impl() IterableOf[
 func (this *PrototypeObjectType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
 	return func() Iterable {
 		if this.isFunctionPrototypeType() {
-			return icast_Iterable(obj_(this.getOwnerFunction().getExtendedInterfaces().asImm()))
+			return iup_Iterable(this.getOwnerFunction().getExtendedInterfaces().asImm())
 		}
 		return ImmutableList_of()
 	}()

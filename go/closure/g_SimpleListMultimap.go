@@ -156,7 +156,7 @@ func (this *SimpleListMultimap[K, V]) values() CollectionOf[any] {
 }
 
 func (this *SimpleListMultimap[K, V]) asMap() MapOf[any, ListOf[any]] {
-	return Collections_unmodifiableMap(icast_Map(obj_(this.map__)))
+	return Collections_unmodifiableMap(iup_Map(this.map__))
 }
 
 func (this *SimpleListMultimap[K, V]) size() int32 {

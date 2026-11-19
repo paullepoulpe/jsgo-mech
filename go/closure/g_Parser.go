@@ -26,7 +26,7 @@ func (this *Parser) init_Parser(config *Parser_Config, errorReporter *ErrorRepor
 	this.finit_Parser()
 	this.config = config
 	this.errorReporter = errorReporter
-	this.scanner = new_Scanner_parser(errorReporter, icast_Scanner_CommentRecorder(obj_(this.commentRecorder)), source, 0)
+	this.scanner = new_Scanner_parser(errorReporter, iup_Scanner_CommentRecorder(this.commentRecorder), source, 0)
 	*this.functionContextStack = append(*this.functionContextStack, Parser_FunctionFlavor_NORMAL)
 	this.lastSourcePosition = this.scanner.getPosition()
 }
@@ -1720,7 +1720,7 @@ func (this *Parser) parseAsyncArrowFunction(expressionIn Parser_Expression) *Par
 		arrowParameterList = this.parseFormalParameterList()
 	} else {
 		var singleParameter *IdentifierExpressionTree = this.parseIdentifierExpression()
-		arrowParameterList = new_FormalParameterListTree(singleParameter.location_, immutableListOf_(tc_p_ParseTree, to_ParseTree(obj_(singleParameter))), false, immutableListOf_(tc_p_SourcePosition_util))
+		arrowParameterList = new_FormalParameterListTree(singleParameter.location_, immutableListOf_(tc_p_ParseTree, singleParameter.up_ParseTree()), false, immutableListOf_(tc_p_SourcePosition_util))
 	}
 	if this.peekImplicitSemiColon() {
 		this.reportError("No newline allowed before '=>'")

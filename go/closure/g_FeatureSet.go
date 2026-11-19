@@ -7,7 +7,7 @@ type FeatureSet struct {
 }
 
 func (this *FeatureSet) init_FeatureSet(features EnumSetOf[FeatureSet_Feature]) {
-	this.features_ = immutableSetCopyOf_(tc_p_FeatureSet_Feature, icast_Collection(obj_(features)))
+	this.features_ = immutableSetCopyOf_(tc_p_FeatureSet_Feature, iup_Collection(features))
 }
 
 func new_FeatureSet(features EnumSetOf[FeatureSet_Feature]) *FeatureSet {
@@ -71,15 +71,15 @@ func (this *FeatureSet) without_2(featureToRemove FeatureSet_Feature, moreFeatur
 }
 
 func (this *FeatureSet) without(other *FeatureSet) *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(this.features_, icast_Set(obj_(other.features_.asImm()))))
+	return new_FeatureSet(FeatureSet_difference(this.features_, iup_Set(other.features_.asImm())))
 }
 
 func (this *FeatureSet) withoutTypes() *FeatureSet {
-	return new_FeatureSet(FeatureSet_difference(this.features_, icast_Set(obj_(FeatureSet_LangVersion_TYPESCRIPT.features()))))
+	return new_FeatureSet(FeatureSet_difference(this.features_, iup_Set(FeatureSet_LangVersion_TYPESCRIPT.features())))
 }
 
 func (this *FeatureSet) union(other *FeatureSet) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(this.features_, icast_Set(obj_(other.features_.asImm()))))
+	return new_FeatureSet(FeatureSet_union(this.features_, iup_Set(other.features_.asImm())))
 }
 
 func (this *FeatureSet) containsAtLeastOneOf(other *FeatureSet) bool {
@@ -93,7 +93,7 @@ func (this *FeatureSet) containsAtLeastOneOf(other *FeatureSet) bool {
 }
 
 func (this *FeatureSet) containsFeatureSet(other *FeatureSet) bool {
-	return this.features_.asImm().containsAll(icast_Collection(obj_(other.features_.asImm())))
+	return this.features_.asImm().containsAll(iup_Collection(other.features_.asImm()))
 }
 
 func (this *FeatureSet) contains(feature FeatureSet_Feature) bool {
@@ -147,7 +147,7 @@ func (this *FeatureSet) withSet(newFeatures SetOf[FeatureSet_Feature]) *FeatureS
 }
 
 func (this *FeatureSet) withFeatureSet(newFeatures *FeatureSet) *FeatureSet {
-	return new_FeatureSet(FeatureSet_union(this.features_, icast_Set(obj_(newFeatures.features_.asImm()))))
+	return new_FeatureSet(FeatureSet_union(this.features_, iup_Set(newFeatures.features_.asImm())))
 }
 
 func (this *FeatureSet) has(feature FeatureSet_Feature) bool {
@@ -284,27 +284,27 @@ func FeatureSet_clinit() {
 	}
 	FeatureSet_clinit_done = true
 	FeatureSet_BARE_MINIMUM = new_FeatureSet(FeatureSet_emptyEnumSet())
-	FeatureSet_ES3 = FeatureSet_BARE_MINIMUM.withSet(icast_Set(obj_(FeatureSet_LangVersion_ES3.features())))
-	FeatureSet_ES5 = FeatureSet_ES3.withSet(icast_Set(obj_(FeatureSet_LangVersion_ES5.features())))
-	FeatureSet_ES2015_MODULES = FeatureSet_ES5.withSet(icast_Set(obj_(FeatureSet_LangVersion_ES2015.features())))
+	FeatureSet_ES3 = FeatureSet_BARE_MINIMUM.withSet(iup_Set(FeatureSet_LangVersion_ES3.features()))
+	FeatureSet_ES5 = FeatureSet_ES3.withSet(iup_Set(FeatureSet_LangVersion_ES5.features()))
+	FeatureSet_ES2015_MODULES = FeatureSet_ES5.withSet(iup_Set(FeatureSet_LangVersion_ES2015.features()))
 	FeatureSet_ES2015 = FeatureSet_ES2015_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2016_MODULES = FeatureSet_ES2015_MODULES.withSet(icast_Set(obj_(FeatureSet_LangVersion_ES2016.features())))
+	FeatureSet_ES2016_MODULES = FeatureSet_ES2015_MODULES.withSet(iup_Set(FeatureSet_LangVersion_ES2016.features()))
 	FeatureSet_ES2016 = FeatureSet_ES2016_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2017_MODULES = FeatureSet_ES2016_MODULES.withSet(icast_Set(obj_(FeatureSet_LangVersion_ES2017.features())))
+	FeatureSet_ES2017_MODULES = FeatureSet_ES2016_MODULES.withSet(iup_Set(FeatureSet_LangVersion_ES2017.features()))
 	FeatureSet_ES2017 = FeatureSet_ES2017_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2018_MODULES = FeatureSet_ES2017_MODULES.withSet(icast_Set(obj_(FeatureSet_LangVersion_ES2018.features())))
+	FeatureSet_ES2018_MODULES = FeatureSet_ES2017_MODULES.withSet(iup_Set(FeatureSet_LangVersion_ES2018.features()))
 	FeatureSet_ES2018 = FeatureSet_ES2018_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2019_MODULES = FeatureSet_ES2018_MODULES.withSet(icast_Set(obj_(FeatureSet_LangVersion_ES2019.features())))
+	FeatureSet_ES2019_MODULES = FeatureSet_ES2018_MODULES.withSet(iup_Set(FeatureSet_LangVersion_ES2019.features()))
 	FeatureSet_ES2019 = FeatureSet_ES2019_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2020_MODULES = FeatureSet_ES2019_MODULES.withSet(icast_Set(obj_(FeatureSet_LangVersion_ES2020.features())))
+	FeatureSet_ES2020_MODULES = FeatureSet_ES2019_MODULES.withSet(iup_Set(FeatureSet_LangVersion_ES2020.features()))
 	FeatureSet_ES2020 = FeatureSet_ES2020_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2021_MODULES = FeatureSet_ES2020_MODULES.withSet(icast_Set(obj_(FeatureSet_LangVersion_ES2021.features())))
+	FeatureSet_ES2021_MODULES = FeatureSet_ES2020_MODULES.withSet(iup_Set(FeatureSet_LangVersion_ES2021.features()))
 	FeatureSet_ES2021 = FeatureSet_ES2021_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES2022_MODULES = FeatureSet_ES2021_MODULES.withSet(icast_Set(obj_(FeatureSet_LangVersion_ES2022.features())))
+	FeatureSet_ES2022_MODULES = FeatureSet_ES2021_MODULES.withSet(iup_Set(FeatureSet_LangVersion_ES2022.features()))
 	FeatureSet_ES2022 = FeatureSet_ES2022_MODULES.without_2(FeatureSet_Feature_MODULES, []FeatureSet_Feature{})
-	FeatureSet_ES_NEXT = FeatureSet_ES2022_MODULES.withSet(icast_Set(obj_(FeatureSet_LangVersion_ES_NEXT.features())))
-	FeatureSet_ES_UNSTABLE = FeatureSet_ES_NEXT.withSet(icast_Set(obj_(FeatureSet_LangVersion_ES_UNSTABLE.features())))
-	FeatureSet_ES_UNSUPPORTED = FeatureSet_ES_UNSTABLE.withSet(icast_Set(obj_(FeatureSet_LangVersion_ES_UNSUPPORTED.features())))
+	FeatureSet_ES_NEXT = FeatureSet_ES2022_MODULES.withSet(iup_Set(FeatureSet_LangVersion_ES_NEXT.features()))
+	FeatureSet_ES_UNSTABLE = FeatureSet_ES_NEXT.withSet(iup_Set(FeatureSet_LangVersion_ES_UNSTABLE.features()))
+	FeatureSet_ES_UNSUPPORTED = FeatureSet_ES_UNSTABLE.withSet(iup_Set(FeatureSet_LangVersion_ES_UNSUPPORTED.features()))
 	FeatureSet_BROWSER_2019 = FeatureSet_ES2018_MODULES.without_2(FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD, []FeatureSet_Feature{FeatureSet_Feature_OBJECT_PATTERN_REST, FeatureSet_Feature_ASYNC_GENERATORS, FeatureSet_Feature_FOR_AWAIT_OF, FeatureSet_Feature_REGEXP_FLAG_S, FeatureSet_Feature_REGEXP_LOOKBEHIND, FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE})
 	FeatureSet_BROWSER_2020 = FeatureSet_ES2019_MODULES.without_2(FeatureSet_Feature_REGEXP_FLAG_S, []FeatureSet_Feature{FeatureSet_Feature_REGEXP_NAMED_GROUPS, FeatureSet_Feature_REGEXP_UNICODE_PROPERTY_ESCAPE, FeatureSet_Feature_REGEXP_LOOKBEHIND})
 	FeatureSet_BROWSER_2021 = FeatureSet_ES2020_MODULES.without_2(FeatureSet_Feature_REGEXP_LOOKBEHIND, []FeatureSet_Feature{})
@@ -313,7 +313,7 @@ func FeatureSet_clinit() {
 	FeatureSet_BROWSER_2024 = FeatureSet_ES2022_MODULES
 	FeatureSet_BROWSER_2025 = FeatureSet_ES2022_MODULES
 	FeatureSet_BROWSER_2026 = FeatureSet_ES2022_MODULES
-	FeatureSet_ALL = FeatureSet_ES_UNSUPPORTED.withSet(icast_Set(obj_(FeatureSet_LangVersion_TYPESCRIPT.features())))
+	FeatureSet_ALL = FeatureSet_ES_UNSUPPORTED.withSet(iup_Set(FeatureSet_LangVersion_TYPESCRIPT.features()))
 
 }
 

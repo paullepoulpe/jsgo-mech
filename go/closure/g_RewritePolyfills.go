@@ -67,7 +67,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 	} else {
 		librariesToInject = immutableListCopyOf_(tc_string, Collection(this.libraries.asSet()))
 	}
-	this.injectAll(icast_Iterable(obj_(librariesToInject.asImm())), (this.injectPolyfillsNewerThan != 0))
+	this.injectAll(iup_Iterable(librariesToInject.asImm()), (this.injectPolyfillsNewerThan != 0))
 }
 
 func (this *RewritePolyfills) injectAll(librariesToInject IterableOf[string], forceInjection bool) {

@@ -225,7 +225,7 @@ func ChromePass_clinit() {
 	}
 	ChromePass_clinit_done = true
 	ChromePass_DOT_PATTERN = Pattern_compile("\\.")
-	ChromePass_VIRTUAL_NODE = IR_empty().setStaticSourceFile(icast_StaticSourceFile(obj_(SourceFile_jscomp_fromCode_String_String_SourceKind(ChromePass_VIRTUAL_FILE, "", StaticSourceFile_SourceKind_EXTERN))))
+	ChromePass_VIRTUAL_NODE = IR_empty().setStaticSourceFile(iup_StaticSourceFile(SourceFile_jscomp_fromCode_String_String_SourceKind(ChromePass_VIRTUAL_FILE, "", StaticSourceFile_SourceKind_EXTERN)))
 	ChromePass_CR_PROPERTYKIND_JS = QualifiedName_of("cr.PropertyKind.JS")
 	ChromePass_CR_PROPERTYKIND_ATTR = QualifiedName_of("cr.PropertyKind.ATTR")
 	ChromePass_CR_PROPERTYKIND_BOOL_ATTR = QualifiedName_of("cr.PropertyKind.BOOL_ATTR")

@@ -182,7 +182,7 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 	if argMap.IsEmpty() {
 		return modifiedParameters
 	}
-	var namesNeedingTemps *TSet[string] = tsetFrom_(tc_string, icast_Collection(obj_(modifiedParameters.asImm())), false)
+	var namesNeedingTemps *TSet[string] = tsetFrom_(tc_string, iup_Collection(modifiedParameters.asImm()), false)
 	var block Node = fnNode.getLastChild()
 	var requiresTempsUpToThisParameterName string = ""
 	var argCount int32 = argMap.Len()
@@ -275,7 +275,7 @@ func (this *FunctionArgumentInjector) mayHaveConditionalCode(n Node) bool {
 }
 
 func (this *FunctionArgumentInjector) findParametersReferencedAfterSideEffect(parameters *ImmutableSet[string], root Node) *FunctionArgumentInjector_SetContainer {
-	var locals *TSet[string] = tsetFrom_(tc_string, icast_Collection(obj_(parameters.asImm())), false)
+	var locals *TSet[string] = tsetFrom_(tc_string, iup_Collection(parameters.asImm()), false)
 	FunctionArgumentInjector_gatherLocalNames(root, locals)
 	var collector *FunctionArgumentInjector_ReferencedAfterSideEffect = new_FunctionArgumentInjector_ReferencedAfterSideEffect(this, parameters, immutableSetCopyOf_(tc_string, Collection(locals.asSet())))
 	NodeUtil_visitPostOrder_Node_Visitor_Predicate(root, collector.visit, collector)

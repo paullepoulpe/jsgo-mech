@@ -25,8 +25,8 @@ func new_CheckClosureImports(compiler *AbstractCompiler, moduleMetadataMap *Modu
 }
 
 func (this *CheckClosureImports) process_2(externs Node, root Node) {
-	NodeTraversal_traverse(this.compiler_, externs, icast_NodeTraversal_Callback(obj_(this.checker)))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this.checker)))
+	NodeTraversal_traverse(this.compiler_, externs, iup_NodeTraversal_Callback(this.checker))
+	NodeTraversal_traverse(this.compiler_, root, iup_NodeTraversal_Callback(this.checker))
 }
 
 func (this *CheckClosureImports) verifyRequireOrder(namespace string, call Node, t *NodeTraversal, requiredModule *ModuleMetadataMap_ModuleMetadata) {

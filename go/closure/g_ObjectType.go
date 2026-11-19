@@ -350,7 +350,7 @@ func (this *ObjectType) getPropertyType(propertyName string) *JSType {
 }
 
 func (this *ObjectType) getPropertyTypeKey_impl(propertyName Property_Key) *JSType {
-	var slot StaticTypedSlot = icast_StaticTypedSlot(obj_(this.getSlot(propertyName)))
+	var slot StaticTypedSlot = iup_StaticTypedSlot(this.getSlot(propertyName))
 	return this.getPropertyTypeFromSlot(slot)
 }
 
@@ -417,7 +417,7 @@ func (this *ObjectType) isPropertyTypeInferred(propertyName string) bool {
 }
 
 func (this *ObjectType) isPropertyTypeInferredKey(propertyName Property_Key) bool {
-	var slot StaticTypedSlot = icast_StaticTypedSlot(obj_(this.getSlot(propertyName)))
+	var slot StaticTypedSlot = iup_StaticTypedSlot(this.getSlot(propertyName))
 	return func() bool {
 		if slot == nil {
 			return false
@@ -431,7 +431,7 @@ func (this *ObjectType) isPropertyTypeDeclared(propertyName string) bool {
 }
 
 func (this *ObjectType) isPropertyTypeDeclaredKey(propertyName Property_Key) bool {
-	var slot StaticTypedSlot = icast_StaticTypedSlot(obj_(this.getSlot(propertyName)))
+	var slot StaticTypedSlot = iup_StaticTypedSlot(this.getSlot(propertyName))
 	return func() bool {
 		if slot == nil {
 			return false

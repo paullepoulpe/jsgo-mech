@@ -120,7 +120,7 @@ func (this *ArrowType) hasTemplatedParameterType() bool {
 func (this *ArrowType) toString_impl() string {
 	var typeStringBuilder *TypeStringBuilder = new_TypeStringBuilder(false)
 	typeStringBuilder.append("(")
-	typeStringBuilder.appendAll(icast_Iterable(obj_(this.parameterList.asImm())), ",")
+	typeStringBuilder.appendAll(iup_Iterable(this.parameterList.asImm()), ",")
 	typeStringBuilder.append(") -> ")
 	typeStringBuilder.appendJSType(this.returnType)
 	return typeStringBuilder.build()

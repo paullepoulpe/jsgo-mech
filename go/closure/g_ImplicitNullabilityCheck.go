@@ -225,11 +225,11 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 		return
 	}
 	var registry *JSTypeRegistry = this.cap_t.getCompiler().getTypeRegistry()
-	var type_ *JSType = registry.getType(icast_StaticScope(obj_(this.cap_t.getScope())), typeName)
+	var type_ *JSType = registry.getType(iup_StaticScope(this.cap_t.getScope()), typeName)
 	if type_ == nil {
 		return
 	}
-	var isNonNullableName bool = (registry.isNonNullableName(icast_StaticScope(obj_(this.cap_t.getScope())), typeName) && !type_.isNullable())
+	var isNonNullableName bool = (registry.isNonNullableName(iup_StaticScope(this.cap_t.getScope()), typeName) && !type_.isNullable())
 	var nullability ImplicitNullabilityCheck_Nullability = func() ImplicitNullabilityCheck_Nullability {
 		if isNonNullableName {
 			return ImplicitNullabilityCheck_Nullability_NONNULL

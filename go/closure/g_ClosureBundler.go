@@ -29,7 +29,7 @@ func new_ClosureBundler_0() *ClosureBundler {
 }
 
 func (this *ClosureBundler) init_ClosureBundler_Transpiler(transpiler Transpiler_transpile) {
-	this.init_ClosureBundler_Transpiler_Transpiler(transpiler, icast_Transpiler_transpile(obj_(BaseTranspiler_LATEST_TRANSPILER)))
+	this.init_ClosureBundler_Transpiler_Transpiler(transpiler, iup_Transpiler_transpile(BaseTranspiler_LATEST_TRANSPILER))
 }
 
 func new_ClosureBundler_Transpiler(transpiler Transpiler_transpile) *ClosureBundler {

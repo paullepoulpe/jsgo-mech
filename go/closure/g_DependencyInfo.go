@@ -19,7 +19,7 @@ type DependencyInfo interface {
 }
 
 func DependencyInfo_getRequiredSymbols_default(this DependencyInfo) *ImmutableList[string] {
-	return DependencyInfo_Require_asSymbolList(icast_Iterable(obj_(this.getRequires().asImm())))
+	return DependencyInfo_Require_asSymbolList(iup_Iterable(this.getRequires().asImm()))
 }
 
 func DependencyInfo_isEs6Module_default(this DependencyInfo) bool {
@@ -303,9 +303,9 @@ func new_DependencyInfo_Util() *DependencyInfo_Util {
 
 func DependencyInfo_Util_writeAddDependency(out *strBuilder_, info DependencyInfo) {
 	out.append_CharSequence_s("goog.addDependency('").append_CharSequence_s(info.getPathRelativeToClosureBase()).append_CharSequence_s("', ")
-	DependencyInfo_Util_writeJsArray(out, icast_Collection(obj_(info.getProvides().asImm())))
+	DependencyInfo_Util_writeJsArray(out, iup_Collection(info.getProvides().asImm()))
 	out.append_CharSequence_s(", ")
-	DependencyInfo_Util_writeJsArray(out, icast_Collection(obj_(DependencyInfo_Require_asSymbolList(icast_Iterable(obj_(info.getRequires().asImm()))).asImm())))
+	DependencyInfo_Util_writeJsArray(out, iup_Collection(DependencyInfo_Require_asSymbolList(iup_Iterable(info.getRequires().asImm())).asImm()))
 	var loadFlags *ImmutableMap[string, string] = info.getLoadFlags()
 	if !loadFlags.IsEmpty() {
 		out.append_CharSequence_s(", ")

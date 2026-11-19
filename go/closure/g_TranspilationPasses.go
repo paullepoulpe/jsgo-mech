@@ -111,7 +111,7 @@ func TranspilationPasses_getEs6RewriteDestructuring(rewriteMode Es6RewriteDestru
 	return PassFactory_builder().setName("Es6RewriteDestructuring").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return icast_CompilerPass(obj_(new_Es6RewriteDestructuring_Builder(compiler).setDestructuringRewriteMode(rewriteMode).build()))
+		return iup_CompilerPass(new_Es6RewriteDestructuring_Builder(compiler).setDestructuringRewriteMode(rewriteMode).build())
 	}}).build()
 }
 

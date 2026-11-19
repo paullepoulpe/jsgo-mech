@@ -130,11 +130,11 @@ func (this *ComposeWarningsGuard) enables(group *DiagnosticGroup) bool {
 }
 
 func (this *ComposeWarningsGuard) getGuards() SortedSetOf[*WarningsGuard] {
-	return Collections_unmodifiableSortedSet(icast_SortedSet(obj_(this.guards)))
+	return Collections_unmodifiableSortedSet(iup_SortedSet(this.guards))
 }
 
 func (this *ComposeWarningsGuard) toString() string {
-	return Joiner_on(", ").join(icast_Iterable(obj_(this.guards)))
+	return Joiner_on(", ").join(iup_Iterable(this.guards))
 }
 
 const ComposeWarningsGuard_serialVersionUID int64 = 1

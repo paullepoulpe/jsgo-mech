@@ -170,9 +170,9 @@ func (this *PureFunctionIdentifier) getGoogCacheCallableExpression(cacheCall *Co
 	if cacheCall == nil {
 		panic(new_NullPointerException_0())
 	}
-	var builder ImmutableList_BuilderOf[Node] = ImmutableList_builder().addAll(icast_Iterable(obj_(PureFunctionIdentifier_collectCallableLeaves(cacheCall.valueFn, this.astAnalyzer).asImm())))
+	var builder ImmutableList_BuilderOf[Node] = ImmutableList_builder().addAll(iup_Iterable(PureFunctionIdentifier_collectCallableLeaves(cacheCall.valueFn, this.astAnalyzer).asImm()))
 	if cacheCall.keyFn != 0 {
-		builder.addAll(icast_Iterable(obj_(PureFunctionIdentifier_collectCallableLeaves(cacheCall.keyFn, this.astAnalyzer).asImm())))
+		builder.addAll(iup_Iterable(PureFunctionIdentifier_collectCallableLeaves(cacheCall.keyFn, this.astAnalyzer).asImm()))
 	}
 	return tlistImm_(tc_Node, builder.build())
 }

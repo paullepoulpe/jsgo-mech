@@ -45,8 +45,8 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 		}
 		var finder *ProcessCommonJSModules_FindImportsAndExports = new_ProcessCommonJSModules_FindImportsAndExports(this)
 		var moduleLoaderErrorHandler ErrorHandler = this.compiler_.getModuleLoader().getErrorHandler()
-		this.compiler_.getModuleLoader().setErrorHandler(icast_ErrorHandler(obj_(finder)))
-		NodeTraversal_traverse(this.compiler_, n, icast_NodeTraversal_Callback(obj_(finder)))
+		this.compiler_.getModuleLoader().setErrorHandler(iup_ErrorHandler(finder))
+		NodeTraversal_traverse(this.compiler_, n, iup_NodeTraversal_Callback(finder))
 		var moduleType CompilerInput_ModuleType = this.compiler_.getInput(n.getInputId()).getJsModuleType()
 		var forceModuleDetection bool = (moduleType == CompilerInput_ModuleType_IMPORTED_SCRIPT)
 		var defaultExportIsConst bool = true
@@ -63,8 +63,8 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 				}
 				if needsRetraverse {
 					finder = new_ProcessCommonJSModules_FindImportsAndExports(this)
-					this.compiler_.getModuleLoader().setErrorHandler(icast_ErrorHandler(obj_(finder)))
-					NodeTraversal_traverse(this.compiler_, n, icast_NodeTraversal_Callback(obj_(finder)))
+					this.compiler_.getModuleLoader().setErrorHandler(iup_ErrorHandler(finder))
+					NodeTraversal_traverse(this.compiler_, n, iup_NodeTraversal_Callback(finder))
 				}
 			}
 			defaultExportIsConst = finder.initializeModule()

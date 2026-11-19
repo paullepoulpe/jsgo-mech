@@ -40,7 +40,7 @@ func (this *PassConfig) getTranspileOnlyPasses_impl() *PassListBuilder {
 
 func (this *PassConfig) getPassGraph() GraphvizGraph {
 	var graph *LinkedDirectedGraph[string, string] = LinkedDirectedGraph_createWithoutAnnotations[string, string]()
-	var allPasses IterableOf[*PassFactory] = Iterables_concat(icast_Iterable(obj_(this.getChecks().build().asImm())), icast_Iterable(obj_(this.getOptimizations().build().asImm())))
+	var allPasses IterableOf[*PassFactory] = Iterables_concat(iup_Iterable(this.getChecks().build().asImm()), iup_Iterable(this.getOptimizations().build().asImm()))
 	var lastPass Optional[string] = Optional_empty[string]()
 	var loopStart Optional[string] = Optional_empty[string]()
 	for pass := range elemsAs_[*PassFactory](allPasses) {

@@ -42,7 +42,7 @@ func (this *LazyParsedDependencyInfo) getLoadFlags() *ImmutableMap[string, strin
 	if this.loadFlags_ == nil {
 		var loadFlagsBuilder *TTreeMap[string, string] = newTTreeMap_(tc_string, tc_string)
 		var hadSourceInMemory bool = this.ast.getSourceFile().hasSourceInMemory()
-		loadFlagsBuilder.asMap().putAll(icast_Map(obj_(this.delegate.getLoadFlags().asImm())))
+		loadFlagsBuilder.asMap().putAll(iup_Map(this.delegate.getLoadFlags().asImm()))
 		var features *FeatureSet = this.ast.getFeatures(this.compiler_)
 		if features.has(FeatureSet_Feature_MODULES) {
 			var previousModule Optional[string] = Optional_ofNullable[string](loadFlagsBuilder.get("module"))

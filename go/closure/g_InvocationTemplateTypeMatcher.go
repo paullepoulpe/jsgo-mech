@@ -55,9 +55,9 @@ func (this *InvocationTemplateTypeMatcher) match() *ImmutableMap[*TemplateType, 
 			return this.copyMatchedTypes()
 		}
 		this.matchTemplateTypesRecursive(calleeParameters.next().(*FunctionType_Parameter).getJSType(), this.registry.getNativeType(JSTypeNative_I_TEMPLATE_ARRAY_TYPE))
-		this.matchTemplateTypesFromNodes(Iterables_skip(icast_Iterable(obj_(this.calleeType.getParameters().asImm())), 1), NodeUtil_getInvocationArgsAsIterable(this.invocation))
+		this.matchTemplateTypesFromNodes(Iterables_skip(iup_Iterable(this.calleeType.getParameters().asImm()), 1), NodeUtil_getInvocationArgsAsIterable(this.invocation))
 	} else if this.invocation.hasMoreThanOneChild() {
-		this.matchTemplateTypesFromNodes(icast_Iterable(obj_(this.calleeType.getParameters().asImm())), NodeUtil_getInvocationArgsAsIterable(this.invocation))
+		this.matchTemplateTypesFromNodes(iup_Iterable(this.calleeType.getParameters().asImm()), NodeUtil_getInvocationArgsAsIterable(this.invocation))
 	}
 	return this.copyMatchedTypes()
 }

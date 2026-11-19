@@ -117,7 +117,7 @@ func (this *ModuleImportResolver) declareEsModuleImports(module *Module, scope *
 			var typedefType *JSType = originalVar.getNameNode().getTypedefTypeProp()
 			if typedefType != nil {
 				binding.sourceNode().setTypedefTypeProp(typedefType)
-				this.registry.declareType(icast_StaticScope(obj_(scope)), localName, typedefType)
+				this.registry.declareType(iup_StaticScope(scope), localName, typedefType)
 			}
 		}
 	}

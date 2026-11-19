@@ -46,11 +46,11 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 			panic(new_IllegalStateException_0())
 		}
 		this.topScope = cast_[*TypedScope](this.scopeCreator.createScopeAbstractScope(inferenceRoot, nil).self())
-		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_TypeInferencePass_FirstScopeBuildingCallback()).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
+		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_TypeInferencePass_FirstScopeBuildingCallback()).setScopeCreator(iup_ScopeCreator(this.scopeCreator)).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
 		this.scopeCreator.resolveWeakImportsPreResolution()
 	}()
 	this.scopeCreator.finishAndFreeze()
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_TypeInferencePass_SecondScopeBuildingCallback(this)).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_TypeInferencePass_SecondScopeBuildingCallback(this)).setScopeCreator(iup_ScopeCreator(this.scopeCreator)).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
 	var unknownType *JSType = this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	for var_ := range elemsAs_[*TypedVar](this.scopeCreator.getAllSymbols()) {
 		if var_.getType() == nil {
@@ -90,7 +90,7 @@ func (this *TypeInferencePass) inferScope(n Node, scope *TypedScope) {
 				continue
 			}
 			var state *DataFlowAnalysis_LinearFlowState[FlowScope] = cast_[*DataFlowAnalysis_LinearFlowState[FlowScope]](Annotatable_getAnnotation(Annotatable(node)))
-			cast_[*SimpleMultiset[any]](Map_computeIfAbsent(icast_Map(obj_(this.stepCountHistogram)), any(int32(state.getStepCount())), &Function_tfn_any_SimpleMultiset{func(k any) *SimpleMultiset[any] {
+			cast_[*SimpleMultiset[any]](Map_computeIfAbsent(iup_Map(this.stepCountHistogram), any(int32(state.getStepCount())), &Function_tfn_any_SimpleMultiset{func(k any) *SimpleMultiset[any] {
 				return SimpleMultiset_create[any]()
 			}})).add(obj_(node.getValue().getToken()))
 		}

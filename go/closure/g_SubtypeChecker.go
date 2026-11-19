@@ -285,7 +285,7 @@ func (this *SubtypeChecker) isStructuralSubtypeHelper(subtype *ObjectType, super
 		if supertype.isRecordType() {
 			return Iterable(supertype.getOwnPropertyNames())
 		}
-		return icast_Iterable(obj_(keys.stringKeys()))
+		return iup_Iterable(keys.stringKeys())
 	}()
 	it_1 := foreach_(props)
 	for it_1.next() {

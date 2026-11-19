@@ -69,15 +69,15 @@ func (this *ModuleMapCreator) process(moduleMetadata *ModuleMetadataMap_ModuleMe
 	var processor ModuleMapCreator_ModuleProcessor
 	switch moduleMetadata.moduleType() {
 	case ModuleMetadataMap_ModuleType_ES6_MODULE:
-		processor = icast_ModuleMapCreator_ModuleProcessor(obj_(this.esModuleProcessor))
+		processor = iup_ModuleMapCreator_ModuleProcessor(this.esModuleProcessor)
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 		if moduleMetadata.googNamespaces().size() == 1 {
-			processor = icast_ModuleMapCreator_ModuleProcessor(obj_(this.closureModuleProcessor))
+			processor = iup_ModuleMapCreator_ModuleProcessor(this.closureModuleProcessor)
 		} else {
-			processor = icast_ModuleMapCreator_ModuleProcessor(obj_(this.nonEsModuleProcessor))
+			processor = iup_ModuleMapCreator_ModuleProcessor(this.nonEsModuleProcessor)
 		}
 	default:
-		processor = icast_ModuleMapCreator_ModuleProcessor(obj_(this.nonEsModuleProcessor))
+		processor = iup_ModuleMapCreator_ModuleProcessor(this.nonEsModuleProcessor)
 	}
 	var module *UnresolvedModule = processor.process(moduleMetadata, moduleMetadata.path(), moduleMetadata.rootNode())
 	if moduleMetadata.path() != nil {

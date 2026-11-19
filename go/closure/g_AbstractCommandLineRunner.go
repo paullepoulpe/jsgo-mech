@@ -55,7 +55,7 @@ func (this *AbstractCommandLineRunner) finit_AbstractCommandLineRunner() {
 	this.externsSupplierForTesting = nil
 	this.inputsSupplierForTesting = nil
 	this.chunksSupplierForTesting = nil
-	this.exitCodeReceiver = icast_Function_base(obj_(AbstractCommandLineRunner_SystemExitCodeReceiver_INSTANCE))
+	this.exitCodeReceiver = iup_Function_base(AbstractCommandLineRunner_SystemExitCodeReceiver_INSTANCE)
 	this.rootRelativePathsMap = nil
 	this.parsedChunkWrappers = nil
 	this.parsedChunkOutputFiles = nil
@@ -272,10 +272,10 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 		if jsonWarnings.isErr() {
 			return Outcome_base_err[any](jsonWarnings.error())
 		}
-		options.addReportGenerator(new_JsonErrorReportGenerator(jsonWarnings.get(), icast_SourceExcerptProvider(obj_(this.compiler_))))
+		options.addReportGenerator(new_JsonErrorReportGenerator(jsonWarnings.get(), iup_SourceExcerptProvider(this.compiler_)))
 	}
 	if this.config.errorFormat == AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_JSON {
-		var errorGenerator *JsonErrorReportGenerator = new_JsonErrorReportGenerator(this.getErrorPrintStream(), icast_SourceExcerptProvider(obj_(this.compiler_)))
+		var errorGenerator *JsonErrorReportGenerator = new_JsonErrorReportGenerator(this.getErrorPrintStream(), iup_SourceExcerptProvider(this.compiler_))
 		this.compiler_.setErrorManager(new_SortingErrorManager(immutableSetOf_[SortingErrorManager_ErrorReportGenerator](tc_SortingErrorManager_ErrorReportGenerator, SortingErrorManager_ErrorReportGenerator(errorGenerator))))
 	}
 	if this.config.printTree || this.config.printTreeJson {
@@ -744,7 +744,7 @@ func (this *AbstractCommandLineRunner) getChunkConformanceFileName(m *JSChunk) *
 
 func (this *AbstractCommandLineRunner) writeChunkOutput(fileName string, out Appendable, lt CodePrinter_LicenseTracker, m *JSChunk) *Outcome_base[any] {
 	if this.parsedChunkWrappers == nil {
-		var parsedChunkWrappersOutcome *Outcome_base[*TMap[string, string]] = AbstractCommandLineRunner_parseChunkWrappers(this.config.chunkWrapper, icast_Iterable(obj_(ImmutableList_copyOf_Iterable(this.compiler_.getChunkGraph().getAllChunks()))))
+		var parsedChunkWrappersOutcome *Outcome_base[*TMap[string, string]] = AbstractCommandLineRunner_parseChunkWrappers(this.config.chunkWrapper, iup_Iterable(ImmutableList_copyOf_Iterable(this.compiler_.getChunkGraph().getAllChunks())))
 		if parsedChunkWrappersOutcome.isErr() {
 			return Outcome_base_err[any](parsedChunkWrappersOutcome.error())
 		}
@@ -824,9 +824,9 @@ func (this *AbstractCommandLineRunner) createDefaultOutput() *Outcome_base[Appen
 		if output.isErr() {
 			return Outcome_base_err[Appendable](output.error())
 		}
-		return Outcome_base_ok_Object[Appendable](icast_Appendable(obj_(output.get())))
+		return Outcome_base_ok_Object[Appendable](iup_Appendable(output.get()))
 	} else {
-		return Outcome_base_ok_Object[Appendable](icast_Appendable(obj_(this.streamToLegacyOutputWriter(this.defaultJsOutput))))
+		return Outcome_base_ok_Object[Appendable](iup_Appendable(this.streamToLegacyOutputWriter(this.defaultJsOutput)))
 	}
 }
 
@@ -915,7 +915,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base[any] {
 			}
 		}
 		if foundJsonInputSourceMap {
-			inputSourceMaps.putAll(icast_Map(obj_(options.getInputSourceMaps().asImm())))
+			inputSourceMaps.putAll(iup_Map(options.getInputSourceMaps().asImm()))
 			options.setInputSourceMaps(inputSourceMaps.buildOrThrow())
 		}
 		this.compiler_.initWebpackMap(inputPathByWebpackId.buildOrThrow())
@@ -1000,7 +1000,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base[any] {
 			}
 			var refresh bool = (((chunks != nil) && (this.config.restoredCompilationStage != -1)) && (this.config.saveAfterCompilationStage == -1))
 			if refresh {
-				chunks = icast_List(obj_(ImmutableList_copyOf_Iterable(this.compiler_.getChunks())))
+				chunks = iup_List(ImmutableList_copyOf_Iterable(this.compiler_.getChunks()))
 			}
 			return 0
 		}()
@@ -1010,7 +1010,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base[any] {
 		result = this.compiler_.getResult()
 	}
 	if createCommonJsModules {
-		chunks = icast_List(obj_(ImmutableList_copyOf_Iterable(this.compiler_.getChunks())))
+		chunks = iup_List(ImmutableList_copyOf_Iterable(this.compiler_.getChunks()))
 		it_11 := foreach_(chunks)
 		for it_11.next() {
 			var c *JSChunk = cast_[*JSChunk](it_11.v)
@@ -1466,13 +1466,13 @@ func (this *AbstractCommandLineRunner) outputChunkBinaryAndSourceMaps(chunkGraph
 					this.compiler_.resetAndIntitializeSourceMap()
 				}
 				mlicenseTracker.setCurrentChunkContext(m)
-				var writeChunkOutputOutcome *Outcome_base[any] = this.writeChunkOutput(chunkFilename, icast_Appendable(obj_(writer)), mlicenseTracker, m)
+				var writeChunkOutputOutcome *Outcome_base[any] = this.writeChunkOutput(chunkFilename, iup_Appendable(writer), mlicenseTracker, m)
 				if writeChunkOutputOutcome.isErr() {
 					ret_3 = Outcome_base_err[*DiagnosticType](writeChunkOutputOutcome.error())
 					return 1
 				}
 				if options.shouldGatherSourceMapInfo() {
-					this.compiler_.getSourceMap().appendTo(icast_Appendable(obj_(mapFileOut)), Optional_of[string](chunkFilename))
+					this.compiler_.getSourceMap().appendTo(iup_Appendable(mapFileOut), Optional_of[string](chunkFilename))
 				}
 				return 0
 			}()
@@ -1651,7 +1651,7 @@ func (this *AbstractCommandLineRunner) outputSourceMap(options *CompilerOptions,
 		defer func() {
 			outClosed = AbstractCommandLineRunner_closeOutput(out)
 		}()
-		this.compiler_.getSourceMap().appendTo(icast_Appendable(obj_(out)), Optional_of[string](associatedName))
+		this.compiler_.getSourceMap().appendTo(iup_Appendable(out), Optional_of[string](associatedName))
 	}()
 	if outClosed.isErr() {
 		return Outcome_base_err[any](outClosed.error())
@@ -1841,9 +1841,9 @@ func (this *AbstractCommandLineRunner) outputManifestOrBundle(outputFiles *TList
 						outClosed = AbstractCommandLineRunner_closeOutput(out)
 					}()
 					if isManifest {
-						this.printManifestTo(chunk, icast_Appendable(obj_(out)))
+						this.printManifestTo(chunk, iup_Appendable(out))
 					} else {
-						var printBundleToOutcome *Outcome_base[any] = this.printBundleTo(chunk, icast_Appendable(obj_(out)))
+						var printBundleToOutcome *Outcome_base[any] = this.printBundleTo(chunk, iup_Appendable(out))
 						if printBundleToOutcome.isErr() {
 							ret_5 = Outcome_base_err[any](printBundleToOutcome.error())
 							return 1
@@ -1877,16 +1877,16 @@ func (this *AbstractCommandLineRunner) outputManifestOrBundle(outputFiles *TList
 				if len(*this.config.chunk_) == 0 {
 					var chunk *JSChunk = this.compiler_.getChunkGraph().getChunkByName(JSChunk_STRONG_CHUNK_NAME)
 					if isManifest {
-						this.printManifestTo(chunk, icast_Appendable(obj_(out)))
+						this.printManifestTo(chunk, iup_Appendable(out))
 					} else {
-						var printBundleToOutcome2 *Outcome_base[any] = this.printBundleTo(chunk, icast_Appendable(obj_(out)))
+						var printBundleToOutcome2 *Outcome_base[any] = this.printBundleTo(chunk, iup_Appendable(out))
 						if printBundleToOutcome2.isErr() {
 							ret_6 = Outcome_base_err[any](printBundleToOutcome2.error())
 							return 1
 						}
 					}
 				} else {
-					var printChunkGraphManifestOrBundleToOutcome *Outcome_base[any] = this.printChunkGraphManifestOrBundleTo(this.compiler_.getChunkGraph(), icast_Appendable(obj_(out)), isManifest)
+					var printChunkGraphManifestOrBundleToOutcome *Outcome_base[any] = this.printChunkGraphManifestOrBundleTo(this.compiler_.getChunkGraph(), iup_Appendable(out), isManifest)
 					if printChunkGraphManifestOrBundleToOutcome.isErr() {
 						ret_6 = Outcome_base_err[any](printChunkGraphManifestOrBundleToOutcome.error())
 						return 1
@@ -1917,7 +1917,7 @@ func (this *AbstractCommandLineRunner) outputChunkGraphJson() *Outcome_base[any]
 			defer func() {
 				outClosed = AbstractCommandLineRunner_closeOutput(out)
 			}()
-			this.printChunkGraphJsonTo(icast_Appendable(obj_(out)))
+			this.printChunkGraphJsonTo(iup_Appendable(out))
 		}()
 		if outClosed.isErr() {
 			return Outcome_base_err[any](outClosed.error())
@@ -1980,7 +1980,7 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 	var inputs ImmutableListOf[*CompilerInput] = chunk.getInputs()
 	var options *CompilerOptions = this.compiler_.getOptions()
 	if options.getNumParallelThreads() > 1 {
-		new_PrebuildAst(this.compiler_.up_AbstractCompiler(), this.compiler_.getOptions().getNumParallelThreads()).prebuild(icast_Iterable(obj_(inputs)))
+		new_PrebuildAst(this.compiler_.up_AbstractCompiler(), this.compiler_.getOptions().getNumParallelThreads()).prebuild(iup_Iterable(inputs))
 	}
 	if options.getRuntimeLibraryMode() == RuntimeJsLibManager_RuntimeLibraryMode_INJECT {
 		for _, el_1 := range immElems_(inputs) {

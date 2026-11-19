@@ -546,7 +546,7 @@ func (this *SourceMapConsumerV3_MappingBuilder) entryComplete() bool {
 }
 
 func (this *SourceMapConsumerV3_MappingBuilder) nextValue() int32 {
-	return Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(this.content)))
+	return Base64VLQ_decode(iup_Base64VLQ_CharIterator(this.content))
 }
 
 const SourceMapConsumerV3_MappingBuilder_MAX_ENTRY_VALUES int32 = 5

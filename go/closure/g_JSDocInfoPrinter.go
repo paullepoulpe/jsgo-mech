@@ -168,7 +168,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	var templates *ImmutableMap[string, *JSTypeExpression] = info.getTemplateTypes()
 	if !templates.IsEmpty() {
 		multiline = true
-		Map_forEach(icast_Map(obj_(templates.asImm())), &BiConsumer_tfn_string_JSTypeExpression{func(name string, boundExpr *JSTypeExpression) {
+		Map_forEach(iup_Map(templates.asImm()), &BiConsumer_tfn_string_JSTypeExpression{func(name string, boundExpr *JSTypeExpression) {
 			var boundRoot Node = boundExpr.getRoot()
 			if (boundRoot.ns_().token == tokOrd1_QMARK) && !boundRoot.hasChildren() {
 				parts.add(("@template " + sstr_(name)))

@@ -51,7 +51,7 @@ func (this *ModuleLoader) getPackageJsonMainEntries() map[string]string {
 }
 
 func (this *ModuleLoader) resolve(path string) *ModuleLoader_ModulePath {
-	return new_ModuleLoader_ModulePath(this, ModuleLoader_normalize(this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(path)))), icast_Iterable(obj_(this.moduleRootPaths))))
+	return new_ModuleLoader_ModulePath(this, ModuleLoader_normalize(this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(path)))), iup_Iterable(this.moduleRootPaths)))
 }
 
 func ModuleLoader_isRelativeIdentifier(name string) bool {
@@ -88,7 +88,7 @@ func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo]) Immuta
 	var sortedModulePaths *[]string = &[]string{}
 	for input := range elemsBy_(inputs, icast_DependencyInfo) {
 		var p string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(input.getName()))))
-		var n string = ModuleLoader_normalize(p, icast_Iterable(obj_(this.moduleRootPaths)))
+		var n string = ModuleLoader_normalize(p, iup_Iterable(this.moduleRootPaths))
 		*sortedModulePaths = append(*sortedModulePaths, func() string {
 			if ModuleLoader_isAmbiguousIdentifier(n) {
 				return (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(n))

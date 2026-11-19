@@ -93,7 +93,7 @@ func (this *TypedScopeCreator) getNodeToScopeMapper() FunctionOf[Node, *TypedSco
 }
 
 func (this *TypedScopeCreator) getAllMemoizedScopes() CollectionOf[*TypedScope] {
-	return Collection(Lists_reverse(icast_List(obj_(ImmutableList_copyOf(this.memoized.asMap().values())))))
+	return Collection(Lists_reverse(iup_List(ImmutableList_copyOf(this.memoized.asMap().values()))))
 }
 
 func (this *TypedScopeCreator) createScope(n Node) *TypedScope {
@@ -343,7 +343,7 @@ func TypedScopeCreator_containingGoogModuleIdOf(scope *TypedScope) Optional[stri
 	if !metadata.isModule() {
 		panic(new_IllegalStateException_String(tostr_(metadata)))
 	}
-	return Optional_ofNullable[string](str_(Iterables_getFirst(icast_Iterable(obj_(metadata.googNamespaces())), nil)))
+	return Optional_ofNullable[string](str_(Iterables_getFirst(iup_Iterable(metadata.googNamespaces()), nil)))
 }
 
 func TypedScopeCreator_extractKnownSymbolKey(currentScope *TypedScope, key Node) *KnownSymbolType {
@@ -514,7 +514,7 @@ func (this *TypedScopeCreator_WeakModuleImport) resolve() {
 	if (requiredVar != nil) && (requiredVar.getNameNode().getTypedefTypeProp() != nil) {
 		var typedefType *JSType = requiredVar.getNameNode().getTypedefTypeProp()
 		this.moduleLocalNode.setTypedefTypeProp(typedefType)
-		this.outer_.typeRegistry.declareType(icast_StaticScope(obj_(this.localModuleScope)), this.moduleLocalNode.getString(), typedefType)
+		this.outer_.typeRegistry.declareType(iup_StaticScope(this.localModuleScope), this.moduleLocalNode.getString(), typedefType)
 	}
 }
 
@@ -588,11 +588,11 @@ func (this *TypedScopeCreator_IdentifyEnumsAndTypedefsAsNonNullable) identifyEnu
 		return
 	}
 	if (info != nil) && info.hasEnumParameterType() {
-		this.registry.identifyNonNullableName(icast_StaticScope(obj_(t.getScope())), nameNode.getQualifiedName())
+		this.registry.identifyNonNullableName(iup_StaticScope(t.getScope()), nameNode.getQualifiedName())
 	} else if (info != nil) && info.hasTypedefType() {
-		this.registry.identifyNonNullableName(icast_StaticScope(obj_(t.getScope())), nameNode.getQualifiedName())
-	} else if (((rvalue != 0) && rvalue.isQualifiedName()) && this.registry.isNonNullableName(icast_StaticScope(obj_(t.getScope())), rvalue.getQualifiedName())) && NodeUtil_isConstantDeclaration(info, nameNode) {
-		this.registry.identifyNonNullableName(icast_StaticScope(obj_(t.getScope())), nameNode.getQualifiedName())
+		this.registry.identifyNonNullableName(iup_StaticScope(t.getScope()), nameNode.getQualifiedName())
+	} else if (((rvalue != 0) && rvalue.isQualifiedName()) && this.registry.isNonNullableName(iup_StaticScope(t.getScope()), rvalue.getQualifiedName())) && NodeUtil_isConstantDeclaration(info, nameNode) {
+		this.registry.identifyNonNullableName(iup_StaticScope(t.getScope()), nameNode.getQualifiedName())
 	}
 }
 
@@ -888,9 +888,9 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredTypeInAnnotation(
 	var ownerTypeKeys *ImmutableList[*TemplateType] = this.findOwnerTypeKeys(node)
 	var templateScope StaticTypedScope = func() StaticTypedScope {
 		if !ownerTypeKeys.isEmpty() {
-			return this.outer_.typeRegistry.createScopeWithTemplates(icast_StaticTypedScope(obj_(this.currentScope)), icast_Iterable(obj_(ownerTypeKeys.asImm())))
+			return this.outer_.typeRegistry.createScopeWithTemplates(iup_StaticTypedScope(this.currentScope), iup_Iterable(ownerTypeKeys.asImm()))
 		}
-		return icast_StaticTypedScope(obj_(this.currentScope))
+		return iup_StaticTypedScope(this.currentScope)
 	}()
 	return info.getType().evaluate(templateScope, this.outer_.typeRegistry)
 }
@@ -1115,7 +1115,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineModuleImport(localName
 	if importedModuleObject == nil {
 		var fallbackType *JSType = func() *JSType {
 			if this.outer_.compiler_.getOptions().assumeForwardDeclaredForMissingTypes() {
-				return this.outer_.typeRegistry.createNamedType(icast_StaticTypedScope(obj_(this.currentScope)), localNameNode.getString(), Optional_of[string](localNameNode.getSourceFileName()).filterFn_(func(s string) bool {
+				return this.outer_.typeRegistry.createNamedType(iup_StaticTypedScope(this.currentScope), localNameNode.getString(), Optional_of[string](localNameNode.getSourceFileName()).filterFn_(func(s string) bool {
 					return s != ""
 				}), localNameNode.getLineno(), localNameNode.getCharno()).up_JSType()
 			}
@@ -1229,7 +1229,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findSuperClassFromNodes(exte
 				}()
 			}
 			if ctorType == nil {
-				return ObjectType_cast(this.outer_.typeRegistry.getType_5(icast_StaticTypedScope(obj_(this.currentScope)), superclass, Optional_of[string](extendsNode.getSourceFileName()).filterFn_(func(s string) bool {
+				return ObjectType_cast(this.outer_.typeRegistry.getType_5(iup_StaticTypedScope(this.currentScope), superclass, Optional_of[string](extendsNode.getSourceFileName()).filterFn_(func(s string) bool {
 					return s != ""
 				}), extendsNode.getLineno(), extendsNode.getCharno()))
 			}
@@ -1285,7 +1285,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createFunctionTypeFromNodes(
 			var aliasedType *FunctionType = var_.getType().toMaybeFunctionType()
 			if aliasedType.isConstructor() || aliasedType.isInterface() {
 				if name.isPresent() {
-					this.outer_.typeRegistry.declareType(icast_StaticScope(obj_(this.currentScope)), name.get(), aliasedType.getInstanceType().up_JSType())
+					this.outer_.typeRegistry.declareType(iup_StaticScope(this.currentScope), name.get(), aliasedType.getInstanceType().up_JSType())
 				}
 				this.checkFunctionAliasAnnotations(lvalueNode, aliasedType, info)
 				return aliasedType
@@ -1293,7 +1293,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createFunctionTypeFromNodes(
 		}
 	}
 	if (info != nil) && info.hasType() {
-		var type_ *JSType = info.getType().evaluate(icast_StaticTypedScope(obj_(this.currentScope)), this.outer_.typeRegistry)
+		var type_ *JSType = info.getType().evaluate(iup_StaticTypedScope(this.currentScope), this.outer_.typeRegistry)
 		type_ = type_.restrictByNotNullOrUndefined()
 		if type_.isFunctionType() {
 			var functionType *FunctionType = type_.toMaybeFunctionType()
@@ -1380,7 +1380,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createFunctionTypeFromNodes(
 		contents.recordNonEmptyReturn()
 	}
 	var bestTypeName Optional[string] = this.getBestTypeName(lvalueNode, name)
-	var builder *FunctionTypeBuilder = new_FunctionTypeBuilder(bestTypeName, this.outer_.compiler_, errorRoot, this.currentScope).setSyntacticFunctionName(name).setContents(icast_FunctionTypeBuilder_FunctionContents(obj_(contents))).setDeclarationScope(func() *TypedScope {
+	var builder *FunctionTypeBuilder = new_FunctionTypeBuilder(bestTypeName, this.outer_.compiler_, errorRoot, this.currentScope).setSyntacticFunctionName(name).setContents(iup_FunctionTypeBuilder_FunctionContents(contents)).setDeclarationScope(func() *TypedScope {
 		if lvalueNode != 0 {
 			return this.getLValueRootScope(lvalueNode)
 		}
@@ -1476,7 +1476,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createEnumTypeFromNodes(rVal
 		}
 	}
 	if enumType == nil {
-		enumType = cast_[*EnumType](cast_[*EnumType_Builder](EnumType_builder(this.outer_.typeRegistry).setName(this.getBestTypeName(lValue, name)).self()).setGoogModuleId(TypedScopeCreator_containingGoogModuleIdOf(this.currentScope).orElse("")).setSource(rValue).setElementType(info.getEnumParameterType().evaluate(icast_StaticTypedScope(obj_(this.currentScope)), this.outer_.typeRegistry)).build().self())
+		enumType = cast_[*EnumType](cast_[*EnumType_Builder](EnumType_builder(this.outer_.typeRegistry).setName(this.getBestTypeName(lValue, name)).self()).setGoogModuleId(TypedScopeCreator_containingGoogModuleIdOf(this.currentScope).orElse("")).setSource(rValue).setElementType(info.getEnumParameterType().evaluate(iup_StaticTypedScope(this.currentScope), this.outer_.typeRegistry)).build().self())
 		if (rValue != 0) && rValue.isObjectLit() {
 			var key Node = rValue.getFirstChild()
 			for key != 0 {
@@ -1492,7 +1492,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createEnumTypeFromNodes(rVal
 		}
 	}
 	if name.isPresent() {
-		this.outer_.typeRegistry.declareType(icast_StaticScope(obj_(this.currentScope)), name.get(), enumType.getElementsType().up_JSType())
+		this.outer_.typeRegistry.declareType(iup_StaticScope(this.currentScope), name.get(), enumType.getElementsType().up_JSType())
 	}
 	if (rValue == 0) || !(rValue.isObjectLit() || rValue.isQualifiedName()) {
 		this.outer_.report(JSError_make_Node_DiagnosticType_StringArr(func() Node {
@@ -1647,8 +1647,8 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) declareAliasTypeIfRvalueIsAl
 		if typedefType != nil {
 			actualLvalueNode.setTypedefTypeProp(typedefType)
 			if lValueName.isPresent() {
-				this.outer_.typeRegistry.identifyNonNullableName(icast_StaticScope(obj_(aliasDeclarationScope)), lValueName.get())
-				this.outer_.typeRegistry.declareType(icast_StaticScope(obj_(aliasDeclarationScope)), lValueName.get(), typedefType)
+				this.outer_.typeRegistry.identifyNonNullableName(iup_StaticScope(aliasDeclarationScope), lValueName.get())
+				this.outer_.typeRegistry.declareType(iup_StaticScope(aliasDeclarationScope), lValueName.get(), typedefType)
 			}
 			return
 		}
@@ -1658,12 +1658,12 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) declareAliasTypeIfRvalueIsAl
 	}
 	if ((rValueType != nil) && rValueType.isFunctionType()) && rValueType.toMaybeFunctionType().hasInstanceType() {
 		var functionType *FunctionType = rValueType.toMaybeFunctionType()
-		this.outer_.typeRegistry.declareType(icast_StaticScope(obj_(aliasDeclarationScope)), lValueName.get(), functionType.getInstanceType().up_JSType())
+		this.outer_.typeRegistry.declareType(iup_StaticScope(aliasDeclarationScope), lValueName.get(), functionType.getInstanceType().up_JSType())
 		return
 	}
 	if (rValueType != nil) && rValueType.isEnumType() {
-		this.outer_.typeRegistry.declareType(icast_StaticScope(obj_(aliasDeclarationScope)), lValueName.get(), rValueType.toMaybeEnumType().getElementsType().up_JSType())
-		this.outer_.typeRegistry.identifyNonNullableName(icast_StaticScope(obj_(aliasDeclarationScope)), lValueName.get())
+		this.outer_.typeRegistry.declareType(iup_StaticScope(aliasDeclarationScope), lValueName.get(), rValueType.toMaybeEnumType().getElementsType().up_JSType())
+		this.outer_.typeRegistry.identifyNonNullableName(iup_StaticScope(aliasDeclarationScope), lValueName.get())
 	}
 }
 
@@ -1699,7 +1699,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDefinitionNode(qname *Qua
 func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredRValueType(lValue Node, rValue Node) *JSType {
 	var rValueInfo *JSDocInfo = rValue.getJSDocInfo()
 	if (rValue.isCast() && (rValueInfo != nil)) && rValueInfo.hasType() {
-		return rValueInfo.getType().evaluate(icast_StaticTypedScope(obj_(this.currentScope)), this.outer_.typeRegistry)
+		return rValueInfo.getType().evaluate(iup_StaticTypedScope(this.currentScope), this.outer_.typeRegistry)
 	}
 	var type_ *JSType = rValue.getJSType()
 	if (type_ != nil) && !type_.isUnknownType() {
@@ -1764,7 +1764,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) checkForClassDefiningCalls(n
 	}
 	var singletonGetterClassName string = this.outer_.codingConvention.getSingletonGetterClassName(n)
 	if singletonGetterClassName != "" {
-		var objectType *ObjectType = ObjectType_cast(this.outer_.typeRegistry.getType(icast_StaticScope(obj_(this.currentScope)), singletonGetterClassName))
+		var objectType *ObjectType = ObjectType_cast(this.outer_.typeRegistry.getType(iup_StaticScope(this.currentScope), singletonGetterClassName))
 		if objectType != nil {
 			var functionType *FunctionType = objectType.getConstructor()
 			if functionType != nil {
@@ -1776,7 +1776,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) checkForClassDefiningCalls(n
 	var objectLiteralCast *CodingConvention_ObjectLiteralCast = this.outer_.codingConvention.getObjectLiteralCast(n)
 	if objectLiteralCast != nil {
 		if objectLiteralCast.diagnosticType == nil {
-			var type_ *ObjectType = ObjectType_cast(this.outer_.typeRegistry.getType(icast_StaticScope(obj_(this.currentScope)), objectLiteralCast.typeName.get()))
+			var type_ *ObjectType = ObjectType_cast(this.outer_.typeRegistry.getType(iup_StaticScope(this.currentScope), objectLiteralCast.typeName.get()))
 			if (type_ != nil) && (type_.getConstructor() != nil) {
 				this.outer_.setDeferredType(objectLiteralCast.objectNode, type_.up_JSType())
 				objectLiteralCast.objectNode.putBooleanProp(Node_REFLECTED_OBJECT, true)
@@ -1994,14 +1994,14 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) isValidTypedefDeclaration(ca
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) declareTypedefType(candidate Node, info *JSDocInfo) {
 	var typedef string = candidate.getQualifiedName()
-	this.outer_.typeRegistry.declareType(icast_StaticScope(obj_(this.currentScope)), typedef, this.outer_.unknownType.up_JSType())
-	var realType *JSType = info.getTypedefType().evaluate(icast_StaticTypedScope(obj_(this.currentScope)), this.outer_.typeRegistry)
+	this.outer_.typeRegistry.declareType(iup_StaticScope(this.currentScope), typedef, this.outer_.unknownType.up_JSType())
+	var realType *JSType = info.getTypedefType().evaluate(iup_StaticTypedScope(this.currentScope), this.outer_.typeRegistry)
 	if realType == nil {
 		this.outer_.report(JSError_make_Node_DiagnosticType_StringArr(candidate, TypedScopeCreator_MALFORMED_TYPEDEF, []string{typedef}))
 	} else {
 		candidate.setTypedefTypeProp(realType)
 	}
-	this.outer_.typeRegistry.overwriteDeclaredType(icast_StaticScope(obj_(this.currentScope)), typedef, realType)
+	this.outer_.typeRegistry.overwriteDeclaredType(iup_StaticScope(this.currentScope), typedef, realType)
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) declarePropertyIfNamespaceType(ownerType *ObjectType, ownerNode Node, propName Property_Key, valueType *JSType, declarationNode Node, jsdocInfo *JSDocInfo) {
@@ -2343,7 +2343,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBo
 		}
 	}
 	if info != nil {
-		templateNames.asSet().addAll(icast_Collection(obj_(info.getTemplateTypeNames().asImm())))
+		templateNames.asSet().addAll(iup_Collection(info.getTemplateTypeNames().asImm()))
 		templateNames.asSet().addAll(Collection(info.getTypeTransformations().asImm().keySet()))
 	}
 	if templateNames.IsEmpty() {
@@ -2418,7 +2418,7 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareDestructuringParamete
 			if (parameterType == nil) || parameterType.isUnknownType() {
 				var paramJSDoc *JSDocInfo = paramName.getJSDocInfo()
 				if (paramJSDoc != nil) && paramJSDoc.hasType() {
-					parameterType = this.outer_.typeRegistry.evaluateTypeExpression(paramJSDoc.getType(), icast_StaticTypedScope(obj_(this.currentScope)))
+					parameterType = this.outer_.typeRegistry.evaluateTypeExpression(paramJSDoc.getType(), iup_StaticTypedScope(this.currentScope))
 					isInferred = false
 				} else {
 					isInferred = true

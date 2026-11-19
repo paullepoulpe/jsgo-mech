@@ -101,7 +101,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 		if alt.unionMembers == nil {
 			altRecords.Add(alt)
 		} else {
-			altRecords.asSet().addAll(icast_Collection(obj_(alt.unionMembers.asImm())))
+			altRecords.asSet().addAll(iup_Collection(alt.unionMembers.asImm()))
 		}
 	}
 	if altRecords.Len() == 1 {
@@ -116,7 +116,7 @@ func (this *JSTypeReconserializer) recordUnionType(type_ *UnionType) *JSTypeReco
 	if record.unionMembers == nil {
 		record.unionMembers = immutableSetCopyOf_(tc_p_JSTypeReconserializer_SeenTypeRecord, Collection(altRecords.asSet()))
 	} else if this.serializationMode.runValidation() {
-		if ok_, a1_, a2_, a3_ := equalsDyn_(altRecords.asSet(), obj_(record.unionMembers.asImm())), unionId, JSTypeReconserializer_colorIdsOf(Collection(altRecords.asSet())).asImm(), JSTypeReconserializer_colorIdsOf(icast_Collection(obj_(record.unionMembers.asImm()))).asImm(); !ok_ {
+		if ok_, a1_, a2_, a3_ := equalsDyn_(altRecords.asSet(), obj_(record.unionMembers.asImm())), unionId, JSTypeReconserializer_colorIdsOf(Collection(altRecords.asSet())).asImm(), JSTypeReconserializer_colorIdsOf(iup_Collection(record.unionMembers.asImm())).asImm(); !ok_ {
 			panic(new_IllegalStateException_String(Strings_lenientFormat("Unions with same ID must have same members: %s => %s == %s", obj_(a1_), obj_(a2_), obj_(a3_))))
 		}
 	}
@@ -149,7 +149,7 @@ func (this *JSTypeReconserializer) recordObjectType(type_ *ObjectType) *JSTypeRe
 }
 
 func (this *JSTypeReconserializer) addSupertypeEdges(subtype *ObjectType, serializedSubtype any) {
-	this.disambiguateEdges.putAll_2(serializedSubtype, icast_Iterable(obj_(this.ownAncestorInterfacesOf(subtype))))
+	this.disambiguateEdges.putAll_2(serializedSubtype, iup_Iterable(this.ownAncestorInterfacesOf(subtype)))
 	if subtype.getImplicitPrototype() != nil {
 		var supertype any = any(int32(this.serializeType(subtype.getImplicitPrototype().up_JSType())))
 		this.disambiguateEdges.put(serializedSubtype, supertype)
@@ -173,7 +173,7 @@ func (this *JSTypeReconserializer) getOrCreateRecord(id *ColorId, jstype *JSType
 }
 
 func (this *JSTypeReconserializer) reconcileUnionTypes(seen *JSTypeReconserializer_SeenTypeRecord) *TypeProto {
-	return cast_[*TypeProto](TypeProto_newBuilder().setUnion(cast_[*UnionTypeProto](UnionTypeProto_newBuilder().addAllUnionMember(icast_Iterable(obj_(JSTypeReconserializer_sortedPointersOf(icast_Collection(obj_(seen.unionMembers.asImm())))))).build())).build())
+	return cast_[*TypeProto](TypeProto_newBuilder().setUnion(cast_[*UnionTypeProto](UnionTypeProto_newBuilder().addAllUnionMember(iup_Iterable(JSTypeReconserializer_sortedPointersOf(iup_Collection(seen.unionMembers.asImm())))).build())).build())
 }
 
 func JSTypeReconserializer_sortedPointersOf(records CollectionOf[*JSTypeReconserializer_SeenTypeRecord]) ImmutableListOf[BoxedOf[int32]] {
@@ -238,7 +238,7 @@ func (this *JSTypeReconserializer) ownAncestorInterfacesOf(type_ *ObjectType) Im
 		return ImmutableList_of()
 	}
 	var ancestors ImmutableList_BuilderOf[BoxedOf[int32]] = ImmutableList_builder()
-	for ancestor := range elemsBy_(Iterables_concat(icast_Iterable(obj_(ctorType.getExtendedInterfaces().asImm())), icast_Iterable(obj_(ctorType.getOwnImplementedInterfaces().asImm()))), to_JSType) {
+	for ancestor := range elemsBy_(Iterables_concat(iup_Iterable(ctorType.getExtendedInterfaces().asImm()), iup_Iterable(ctorType.getOwnImplementedInterfaces().asImm())), to_JSType) {
 		ancestors.add(any(int32(this.serializeType(ancestor))))
 	}
 	return ancestors.build()
@@ -254,7 +254,7 @@ func (this *JSTypeReconserializer) seedCachesWithAxiomaticTypes() {
 		var record *JSTypeReconserializer_SeenTypeRecord = new_JSTypeReconserializer_SeenTypeRecord(axiomatic.getId(), index)
 		this.seenTypeRecords.Put(axiomatic.getId(), record)
 	}
-	Map_forEach(icast_Map(obj_(JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP)), &BiConsumer_tfn_JSTypeNative_Color{func(jstypeNative JSTypeNative, axiomatic *Color) {
+	Map_forEach(iup_Map(JSTypeReconserializer_JSTYPE_NATIVE_TO_AXIOMATIC_COLOR_MAP), &BiConsumer_tfn_JSTypeNative_Color{func(jstypeNative JSTypeNative, axiomatic *Color) {
 		this.getOrCreateRecord(axiomatic.getId(), this.registry.getNativeType(jstypeNative))
 	}})
 	if this.seenTypeRecords.Len() != TypePointers_OFFSET_TO_AXIOMATIC_COLOR.size() {
@@ -287,7 +287,7 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 	if this.serializationMode.includeDebugInfo() {
 		var debugInfo *TypePool_DebugInfo_Builder = builder.getDebugInfoBuilder()
 		Map_forEach(this.invalidatingTypes.getMismatchLocations().inverse().asMap(), &BiConsumer_tfn_Node_Set{func(location Node, types Set) {
-			debugInfo.addMismatchBuilder().setSourceRef(location.getLocation()).addAllInvolvedColor(icast_Iterable(obj_(this.serializeInvolvedTypes(Collection(types)))))
+			debugInfo.addMismatchBuilder().setSourceRef(location.getLocation()).addAllInvolvedColor(iup_Iterable(this.serializeInvolvedTypes(Collection(types))))
 		}})
 	}
 	this.state = JSTypeReconserializer_State_GENERATING_POOL

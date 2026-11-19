@@ -38,7 +38,7 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes *Im
 		}
 	}
 	this.stripNamePrefixes = stripNamePrefixesBuilder.build()
-	var stripTypesToAdjust []string = sliceFrom_(tc_string, icast_Collection(obj_(stripTypes.asImm())))
+	var stripTypesToAdjust []string = sliceFrom_(tc_string, iup_Collection(stripTypes.asImm()))
 	if enableTweakStripping {
 		stripTypesToAdjust = append(stripTypesToAdjust, "goog.tweak")
 	}

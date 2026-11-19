@@ -106,7 +106,7 @@ func (this *GenerateExports) declareSyntheticExternsVar(name string, srcref Node
 	var syntheticInput *CompilerInput = this.compiler_.getSynthesizedExternsInput()
 	var syntheticVarRoot Node = syntheticInput.getAstRoot(this.compiler_)
 	var varDeclaration Node = IR_var_Node(IR_name(name)).srcrefTree(srcref)
-	varDeclaration.setStaticSourceFile(icast_StaticSourceFile(obj_(this.compiler_.getSynthesizedExternsInput().getSourceFile())))
+	varDeclaration.setStaticSourceFile(iup_StaticSourceFile(this.compiler_.getSynthesizedExternsInput().getSourceFile()))
 	syntheticVarRoot.addChildToBack(varDeclaration)
 	this.compiler_.reportChangeToEnclosingScope(varDeclaration)
 }

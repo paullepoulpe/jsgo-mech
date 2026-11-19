@@ -247,17 +247,17 @@ func CheckConformance_validateExtendingRequirement(compiler *AbstractCompiler, e
 
 func CheckConformance_removeDuplicates(requirement *Requirement_Builder) {
 	var list1 *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getWhitelistList()))
-	requirement.clearWhitelist().addAllWhitelist(icast_Iterable(obj_(list1.asImm())))
+	requirement.clearWhitelist().addAllWhitelist(iup_Iterable(list1.asImm()))
 	var allowlist *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getAllowlistList()))
-	requirement.clearAllowlist().addAllAllowlist(icast_Iterable(obj_(allowlist.asImm())))
+	requirement.clearAllowlist().addAllAllowlist(iup_Iterable(allowlist.asImm()))
 	var list2 *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getWhitelistRegexpList()))
-	requirement.clearWhitelistRegexp().addAllWhitelistRegexp(icast_Iterable(obj_(list2.asImm())))
+	requirement.clearWhitelistRegexp().addAllWhitelistRegexp(iup_Iterable(list2.asImm()))
 	var allowlistRegexp *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getAllowlistRegexpList()))
-	requirement.clearAllowlistRegexp().addAllAllowlistRegexp(icast_Iterable(obj_(allowlistRegexp.asImm())))
+	requirement.clearAllowlistRegexp().addAllAllowlistRegexp(iup_Iterable(allowlistRegexp.asImm()))
 	var list3 *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getOnlyApplyToList()))
-	requirement.clearOnlyApplyTo().addAllOnlyApplyTo(icast_Iterable(obj_(list3.asImm())))
+	requirement.clearOnlyApplyTo().addAllOnlyApplyTo(iup_Iterable(list3.asImm()))
 	var list4 *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(requirement.getOnlyApplyToRegexpList()))
-	requirement.clearOnlyApplyToRegexp().addAllOnlyApplyToRegexp(icast_Iterable(obj_(list4.asImm())))
+	requirement.clearOnlyApplyToRegexp().addAllOnlyApplyToRegexp(iup_Iterable(list4.asImm()))
 }
 
 func CheckConformance_initRule(compiler *AbstractCompiler, requirement *Requirement) CheckConformance_Rule {
@@ -301,7 +301,7 @@ func CheckConformance_initRule(compiler *AbstractCompiler, requirement *Requirem
 }
 
 func CheckConformance_reportInvalidRequirement(compiler *AbstractCompiler, requirement *Requirement, reason string) {
-	compiler.report(JSError_make_DiagnosticType_StringArr(CheckConformance_INVALID_REQUIREMENT_SPEC, []string{reason, TextFormat_printer().printToString(icast_MessageOrBuilder(obj_(requirement)))}))
+	compiler.report(JSError_make_DiagnosticType_StringArr(CheckConformance_INVALID_REQUIREMENT_SPEC, []string{reason, TextFormat_printer().printToString(iup_MessageOrBuilder(requirement))}))
 }
 
 var CheckConformance_CONFORMANCE_ERROR *DiagnosticType

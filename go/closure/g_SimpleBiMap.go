@@ -71,7 +71,7 @@ func (this *SimpleBiMap[K, V]) keySet() SetOf[any] {
 }
 
 func (this *SimpleBiMap[K, V]) asMap() MapOf[any, any] {
-	return Collections_unmodifiableMap(icast_Map(obj_(this.forward)))
+	return Collections_unmodifiableMap(iup_Map(this.forward))
 }
 
 func (this *SimpleBiMap[K, V]) inverse() *TMap[string, string] {

@@ -42,12 +42,12 @@ func (this *VarCheck) createScopeCreator() *SyntacticScopeCreator {
 		return new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)
 	} else {
 		this.dupHandler = new_VarCheck_RedeclarationCheckHandler(this)
-		return new_SyntacticScopeCreator_AbstractCompiler_RedeclarationHandler(this.compiler_, icast_SyntacticScopeCreator_RedeclarationHandler(obj_(this.dupHandler)))
+		return new_SyntacticScopeCreator_AbstractCompiler_RedeclarationHandler(this.compiler_, iup_SyntacticScopeCreator_RedeclarationHandler(this.dupHandler))
 	}
 }
 
 func (this *VarCheck) process_2(externs Node, root Node) {
-	var scopeCreator ScopeCreator = icast_ScopeCreator(obj_(this.createScopeCreator()))
+	var scopeCreator ScopeCreator = iup_ScopeCreator(this.createScopeCreator())
 	if !this.validityCheck {
 		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_VarCheck_NameRefInExternsCheck(this)).setScopeCreator(scopeCreator).traverse(externs)
 	}

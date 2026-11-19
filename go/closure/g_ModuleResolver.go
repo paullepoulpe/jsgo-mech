@@ -51,7 +51,7 @@ func (this *ModuleResolver) resolveModuleAsPath_impl(scriptAddress string, modul
 		var lastIndex int32 = int32(strings.LastIndex(ourPath, ModuleLoader_MODULE_SLASH))
 		path = ModuleNames_canonicalizePath((sstr_(ourPath[:(lastIndex+int32(len(ModuleLoader_MODULE_SLASH)))]) + sstr_(path)))
 	}
-	return ModuleLoader_normalize(path, icast_Iterable(obj_(this.moduleRootPaths)))
+	return ModuleLoader_normalize(path, iup_Iterable(this.moduleRootPaths))
 }
 
 func (this *ModuleResolver) locate(scriptAddress string, name string) Optional[string] {

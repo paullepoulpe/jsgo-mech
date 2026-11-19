@@ -24,7 +24,7 @@ func JsFileFullParser_parse(code string, filename string, reporter func(bool, st
 	compiler.init(ImmutableList_of(), ImmutableList_of_Object(obj_(source)), options)
 	var config *Config = ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(Config_LanguageMode_ES_NEXT, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_RunMode_STOP_AFTER_ERROR, immutableSetOf_(tc_string), true, Config_StrictMode_SLOPPY)
 	var info *JsFileFullParser_FileInfo = new_JsFileFullParser_FileInfo()
-	var parsed *ParserRunner_ParseResult = ParserRunner_parse(icast_StaticSourceFile(obj_(source)), code, config, errorReporter)
+	var parsed *ParserRunner_ParseResult = ParserRunner_parse(iup_StaticSourceFile(source), code, config, errorReporter)
 	if errorReporter.seenError {
 		return info
 	}
@@ -67,12 +67,12 @@ func JsFileFullParser_parse(code string, filename string, reporter func(bool, st
 func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, module *ModuleMetadataMap_ModuleMetadata) {
 	setAddAllFrom_(tc_string, info.importedModules, Collection(module.es6ImportSpecifiers().elementSet()))
 	if module.usesClosure() {
-		info.provides.addAll(icast_Iterable(obj_(module.googNamespaces())))
-		info.requires.addAll(icast_Iterable(obj_(module.stronglyRequiredGoogNamespaces())))
-		info.maybeRequires.addAll(icast_Iterable(obj_(module.maybeRequiredGoogNamespaces())))
+		info.provides.addAll(iup_Iterable(module.googNamespaces()))
+		info.requires.addAll(iup_Iterable(module.stronglyRequiredGoogNamespaces()))
+		info.maybeRequires.addAll(iup_Iterable(module.maybeRequiredGoogNamespaces()))
 		setAddAllFrom_(tc_string, info.dynamicRequires, Collection(module.dynamicallyRequiredGoogNamespaces().elementSet()))
 		setAddAllFrom_(tc_string, info.readToggles_, Collection(module.readToggles().elementSet()))
-		info.typeRequires.addAll(icast_Iterable(obj_(module.weaklyRequiredGoogNamespaces())))
+		info.typeRequires.addAll(iup_Iterable(module.weaklyRequiredGoogNamespaces()))
 		info.testonly = module.isTestOnly()
 	}
 	for _, el := range module.nestedModules().items {

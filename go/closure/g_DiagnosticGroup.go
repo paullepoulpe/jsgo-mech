@@ -39,7 +39,7 @@ func DiagnosticGroup_createFromGroups_DiagnosticGroupArr(groups []*DiagnosticGro
 func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name Optional[string], groups []*DiagnosticGroup) *DiagnosticGroup {
 	var set *ImmutableSet_Builder[*DiagnosticType] = immutableSetBuilder_(tc_p_DiagnosticType)
 	for _, group := range groups {
-		set.addAll(icast_Iterable(obj_(group.types.asImm())))
+		set.addAll(iup_Iterable(group.types.asImm()))
 	}
 	return new_DiagnosticGroup_Optional_DiagnosticTypeArr(name, arrmap_(set.buildErased().toArray(arrmap_(make([]*DiagnosticType, 0), func(v_ *DiagnosticType) any { return obj_(v_) })), func(v_ any) *DiagnosticType { return cast_[*DiagnosticType](v_) }))
 }

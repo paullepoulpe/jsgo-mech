@@ -208,7 +208,7 @@ func (this *TypeInference) flowThrough_impl(n Node, input FlowScope) FlowScope {
 	if (module != nil) && module.metadata().isEs6Module() {
 		this.moduleImportResolver.declareEsModuleImports(module, syntacticBlockScope, this.compiler_.getInput(NodeUtil_getInputId(n)))
 	}
-	var output FlowScope = input.withSyntacticScope(icast_StaticTypedScope(obj_(syntacticBlockScope)))
+	var output FlowScope = input.withSyntacticScope(iup_StaticTypedScope(syntacticBlockScope))
 	output = this.inferDeclarativelyUnboundVarsWithoutTypes(output)
 	output = this.traverse(n, output)
 	this.updateModuleScope(module, syntacticBlockScope)
@@ -1041,7 +1041,7 @@ func (this *TypeInference) traverseClassMemberRhs(member Node, scope FlowScope) 
 			var rhs Node = TypeInference_getRhsOfField(member)
 			if rhs != 0 {
 				var computedFieldDefTypedScope *TypedScope = this.scopeCreator.createScope(member)
-				var computedFieldDefFlowScope FlowScope = scope.withSyntacticScope(icast_StaticTypedScope(obj_(computedFieldDefTypedScope)))
+				var computedFieldDefFlowScope FlowScope = scope.withSyntacticScope(iup_StaticTypedScope(computedFieldDefTypedScope))
 				var rhsScope FlowScope = this.traverse(rhs, computedFieldDefFlowScope).withSyntacticScope(scope.getDeclarationScope())
 				if member.isStaticMember() {
 					return rhsScope
@@ -1475,7 +1475,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 	var inferred *TMap[*TemplateType, *JSType] = newTMap_(tch_p_TemplateType, tc_p_JSType)
 	for _, el := range keys.items {
 		key := el
-		inferred.Put(key, to_JSType(Map_getOrDefault(icast_Map(obj_(bindings.asImm())), obj_(key), this.unknownType.self())))
+		inferred.Put(key, to_JSType(Map_getOrDefault(iup_Map(bindings.asImm()), obj_(key), this.unknownType.self())))
 	}
 	Map_replaceAll(inferred.asMap(), &BiFunction_tfn_TemplateType_any_any{func(k *TemplateType, v_ any) any {
 		var v *JSType = to_JSType(v_)
@@ -1606,7 +1606,7 @@ func (this *TypeInference) dereferenceKnownSymbolProp(obj *JSType, indexSymbol *
 	var argumentTypes *UnionType_Builder = UnionType_builder(this.registry)
 	var alternates CollectionOf[*JSType] = func() Collection {
 		if obj.isUnionType() {
-			return icast_Collection(obj_(obj.toMaybeUnionType().getAlternates().asImm()))
+			return iup_Collection(obj.toMaybeUnionType().getAlternates().asImm())
 		}
 		return ImmutableList_of_Object(obj.self())
 	}()
@@ -1635,7 +1635,7 @@ func (this *TypeInference) dereferenceIndexSignature(obj *JSType) *JSType {
 	var argumentTypes *UnionType_Builder = UnionType_builder(this.registry)
 	var alternates CollectionOf[*JSType] = func() Collection {
 		if obj.isUnionType() {
-			return icast_Collection(obj_(obj.toMaybeUnionType().getAlternates().asImm()))
+			return iup_Collection(obj.toMaybeUnionType().getAlternates().asImm())
 		}
 		return ImmutableList_of_Object(obj.self())
 	}()

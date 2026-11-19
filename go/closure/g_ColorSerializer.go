@@ -85,10 +85,10 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn func
 func (this *ColorSerializer) generateTypeProto(color *Color) *TypeProto {
 	var typeProtoBuilder *TypeProto_Builder = TypeProto_newBuilder()
 	if color.isUnion() {
-		typeProtoBuilder.getUnionBuilder().addAllUnionMember(icast_Iterable(obj_(this.addColors(icast_Collection(obj_(color.getUnionElements().asImm()))))))
+		typeProtoBuilder.getUnionBuilder().addAllUnionMember(iup_Iterable(this.addColors(iup_Collection(color.getUnionElements().asImm()))))
 	} else {
 		var objectTypeProtoBuilder *ObjectTypeProto_Builder = typeProtoBuilder.getObjectBuilder()
-		objectTypeProtoBuilder.setIsInvalidating(color.isInvalidating()).setUuid(color.getId().asByteString()).setPropertiesKeepOriginalName(color.getPropertiesKeepOriginalName()).addAllInstanceType(icast_Iterable(obj_(this.addColors(icast_Collection(obj_(color.getInstanceColors().asImm())))))).addAllPrototype(icast_Iterable(obj_(this.addColors(icast_Collection(obj_(color.getPrototypes().asImm())))))).setMarkedConstructor(color.isConstructor()).addAllOwnProperty(icast_Iterable(obj_(this.getOwnPropertyStringPoolOffsets(color)))).setClosureAssert(color.isClosureAssert())
+		objectTypeProtoBuilder.setIsInvalidating(color.isInvalidating()).setUuid(color.getId().asByteString()).setPropertiesKeepOriginalName(color.getPropertiesKeepOriginalName()).addAllInstanceType(iup_Iterable(this.addColors(iup_Collection(color.getInstanceColors().asImm())))).addAllPrototype(iup_Iterable(this.addColors(iup_Collection(color.getPrototypes().asImm())))).setMarkedConstructor(color.isConstructor()).addAllOwnProperty(iup_Iterable(this.getOwnPropertyStringPoolOffsets(color))).setClosureAssert(color.isClosureAssert())
 	}
 	return cast_[*TypeProto](typeProtoBuilder.build())
 }

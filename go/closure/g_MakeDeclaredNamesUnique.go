@@ -230,7 +230,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) enterScope(t *Node
 	for var_ := range elemsAs_[*Var](scope.getVarIterable()) {
 		var variableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = this.createDeclaredVariableInfo(var_)
 		declaredVariablesBuilder = immAdd_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo, declaredVariablesBuilder, variableInfo)
-		this.variablesStackedByName.pushVariableInfo(icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(obj_(variableInfo)))
+		this.variablesStackedByName.pushVariableInfo(iup_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(variableInfo))
 	}
 	var parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = slicePeekTop_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext, *this.scopeContextStack)
 	*this.scopeContextStack = append(*this.scopeContextStack, new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope, immBuilt_(declaredVariablesBuilder), parent))

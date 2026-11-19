@@ -240,7 +240,7 @@ func (this *CrossChunkMethodMotion) tryToMoveMemberFunction(nameInfo *AnalyzePro
 		return
 	}
 	if this.chunkGraph.dependsOn(deepestCommonChunkRef, classMemberFunction.getChunk()) {
-		if CrossChunkMethodMotion_hasUnmovableRedeclaration(nameInfo, icast_AnalyzePrototypeProperties_Property(obj_(classMemberFunction))) {
+		if CrossChunkMethodMotion_hasUnmovableRedeclaration(nameInfo, iup_AnalyzePrototypeProperties_Property(classMemberFunction)) {
 			return
 		}
 		var destinationParent Node = this.compiler_.getNodeForCodeInsertion(deepestCommonChunkRef)

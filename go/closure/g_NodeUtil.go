@@ -4211,7 +4211,7 @@ func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableOf[Node] {
 			list.add(arg)
 		}
 	}
-	return icast_Iterable(obj_(list.buildErased()))
+	return iup_Iterable(list.buildErased())
 }
 
 func NodeUtil_getInvocationArgsCount(invocation Node) int32 {

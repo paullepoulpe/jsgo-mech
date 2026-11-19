@@ -320,7 +320,7 @@ func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableOf[*C
 
 func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, dependencyOptions *DependencyOptions) *Outcome_base[*JSChunkGraph_DependencyManagementResult] {
 	var originalInputs *ImmutableList[*CompilerInput] = immutableListCopyOf_(tc_p_CompilerInput, this.getAllInputs())
-	var sorter *SortedDependencies[*CompilerInput] = new_SortedDependencies[*CompilerInput](icast_List(obj_(originalInputs.asImm())))
+	var sorter *SortedDependencies[*CompilerInput] = new_SortedDependencies[*CompilerInput](iup_List(originalInputs.asImm()))
 	var entryPointInputsRes *Outcome_base[*TSet[*CompilerInput]] = this.createEntryPointInputs(compiler, dependencyOptions, this.getAllInputs(), sorter)
 	if entryPointInputsRes.isErr() {
 		return Outcome_base_err[*JSChunkGraph_DependencyManagementResult](entryPointInputsRes.error())
@@ -359,7 +359,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 			}
 		}
 	}
-	var absoluteOrder ImmutableListOf[*CompilerInput] = sorter.getStrongDependenciesOf(icast_List(obj_(originalInputs.asImm())), dependencyOptions.shouldSort())
+	var absoluteOrder ImmutableListOf[*CompilerInput] = sorter.getStrongDependenciesOf(iup_List(originalInputs.asImm()), dependencyOptions.shouldSort())
 	var entryPointInputsPerChunk *SimpleListMultimap[*JSChunk, *CompilerInput] = SimpleListMultimap_create[*JSChunk, *CompilerInput]()
 	for input := range elemsAs_[*CompilerInput](entryPointInputs.asSet()) {
 		var chunk *JSChunk = input.getChunk()
@@ -377,7 +377,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		var transitiveClosure *TList[*CompilerInput]
 		if dependencyOptions.shouldSort() && dependencyOptions.shouldPrune() {
 			transitiveClosure = newTList_(tc_p_CompilerInput)
-			var inputsNotYetReached map[*CompilerInput]struct{} = setFrom_(tc_p_CompilerInput, icast_Collection(obj_(originalInputs.asImm())))
+			var inputsNotYetReached map[*CompilerInput]struct{} = setFrom_(tc_p_CompilerInput, iup_Collection(originalInputs.asImm()))
 			for entryPoint := range elemsAs_[*CompilerInput](entryPointInputsPerChunk.get(obj_(chunk))) {
 				transitiveClosure.asList().addAll(Collection(sliceView_(tc_p_CompilerInput, this.getDepthFirstDependenciesOf(entryPoint, inputsNotYetReached, inputsByProvide))))
 			}
@@ -403,7 +403,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		}
 	}
 	if !(dependencyOptions.shouldSort() && dependencyOptions.shouldPrune()) || entryPointInputsPerChunk.isEmpty() {
-		orderedInputs = icast_List(obj_(absoluteOrder))
+		orderedInputs = iup_List(absoluteOrder)
 	}
 	var weakChunk *JSChunk = this.getChunkByName(JSChunk_WEAK_CHUNK_NAME)
 	if weakChunk == nil {
@@ -421,7 +421,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 			weakChunk.addCompilerInput(i)
 		}
 	} else {
-		JSChunkGraph_moveMarkedWeakSources(weakChunk, icast_Iterable(obj_(originalInputs.asImm())))
+		JSChunkGraph_moveMarkedWeakSources(weakChunk, iup_Iterable(originalInputs.asImm()))
 	}
 	for input := range elemsAs_[*CompilerInput](orderedInputs) {
 		var chunk *JSChunk = input.getChunk()

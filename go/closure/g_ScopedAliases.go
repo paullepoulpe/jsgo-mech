@@ -688,7 +688,7 @@ func (this *ScopedAliases_Traversal) renameNamespaceShadows(t *NodeTraversal) {
 			renamer.addDeclaredName(s, false)
 		}
 		var uniquifier *MakeDeclaredNamesUnique = MakeDeclaredNamesUnique_builder().withRenamer(renamer).build()
-		NodeTraversal_traverseScopeRoots(this.outer_.compiler_, ImmutableList_of_Object(t.getScopeRoot().box_()), icast_NodeTraversal_Callback(obj_(uniquifier)), true)
+		NodeTraversal_traverseScopeRoots(this.outer_.compiler_, ImmutableList_of_Object(t.getScopeRoot().box_()), iup_NodeTraversal_Callback(uniquifier), true)
 	}
 }
 

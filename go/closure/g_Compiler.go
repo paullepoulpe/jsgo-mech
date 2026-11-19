@@ -163,7 +163,7 @@ func new_Compiler_0() *Compiler {
 func (this *Compiler) init_Compiler_Output(outStream *Output) {
 	this.AbstractCompiler.init_AbstractCompiler()
 	this.finit_Compiler()
-	this.changeTracker.addChangeHandler(icast_CodeChangeHandler(obj_(this.changeTracker.getRecentChange())))
+	this.changeTracker.addChangeHandler(iup_CodeChangeHandler(this.changeTracker.getRecentChange()))
 	this.outStream = outStream
 	this.moduleTypesByName = map[string]CompilerInput_ModuleType{}
 }
@@ -485,14 +485,14 @@ func (this *Compiler) getRuntimeJsLibManager_impl() *RuntimeJsLibManager {
 }
 
 func (this *Compiler) initBasedOnOptions() {
-	this.inputSourceMaps.putAll(icast_Map(obj_(this.options_.getInputSourceMaps().asImm())))
+	this.inputSourceMaps.putAll(iup_Map(this.options_.getInputSourceMaps().asImm()))
 	if this.options_.shouldGatherSourceMapInfo() {
 		this.sourceMap_ = this.options_.getSourceMapFormat().getInstance()
 		this.sourceMap_.setPrefixMappings(immItems_(this.options_.getSourceMapLocationMappings()))
 		if this.options_.getApplyInputSourceMaps() {
 			this.sourceMap_.setSourceFileMapping(this.getSourceMapping_Optional_int_int)
 			if this.options_.getSourceMapIncludeSourcesContent() {
-				for _, el := range immElems_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(icast_Map(obj_(this.inputSourceMaps))).values())) {
+				for _, el := range immElems_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(iup_Map(this.inputSourceMaps)).values())) {
 					inputSourceMap := cast_[*SourceMapInput](el)
 					this.addSourceMapSourceFiles(inputSourceMap)
 				}
@@ -1342,7 +1342,7 @@ func (this *Compiler) getTypedScopeCreator_impl() ScopeCreator {
 		}
 		this.typedScopeCreator = new_TypedScopeCreator_AbstractCompiler(this.up_AbstractCompiler())
 	}
-	return icast_ScopeCreator(obj_(this.typedScopeCreator))
+	return iup_ScopeCreator(this.typedScopeCreator)
 }
 
 func (this *Compiler) clearTypedScopeCreator_impl() {
@@ -1475,7 +1475,7 @@ func (this *Compiler) initializeModuleLoader() {
 		}
 		panic(new_NullPointerException_0())
 	}()
-	this.moduleLoader = ModuleLoader_builder().setModuleRoots(icast_Iterable(obj_(this.options_.getModuleRoots().asImm()))).setInputs(this.chunkGraph.getAllInputs()).setFactory(moduleResolverFactory).setPathResolver(ModuleLoader_PathResolver_RELATIVE).setPathEscaper(this.options_.getPathEscaper()).build()
+	this.moduleLoader = ModuleLoader_builder().setModuleRoots(iup_Iterable(this.options_.getModuleRoots().asImm())).setInputs(this.chunkGraph.getAllInputs()).setFactory(moduleResolverFactory).setPathResolver(ModuleLoader_PathResolver_RELATIVE).setPathEscaper(this.options_.getPathEscaper()).build()
 }
 
 func (this *Compiler) parseInputs() (ret_1 Node) {
@@ -1567,7 +1567,7 @@ func (this *Compiler) parseInputs() (ret_1 Node) {
 				}
 				return SourceInformationAnnotator_createWithAnnotationChecks(input.getName())
 			}()
-			NodeTraversal_traverse(this.up_AbstractCompiler(), n, icast_NodeTraversal_Callback(obj_(sia)))
+			NodeTraversal_traverse(this.up_AbstractCompiler(), n, iup_NodeTraversal_Callback(sia))
 		}
 		if NodeUtil_isFromTypeSummary(n) {
 			input.setIsExtern()
@@ -1613,7 +1613,7 @@ func (this *Compiler) orderInputs() {
 	this.maybeDoThreadedParsing()
 	var originalInputs *ImmutableList[*CompilerInput] = immutableListCopyOf_(tc_p_CompilerInput, this.chunkGraph.getAllInputs())
 	if this.tracker != nil {
-		this.tracker.recordPrePruningInputCount(icast_Iterable(obj_(originalInputs.asImm())), this.externs.asList())
+		this.tracker.recordPrePruningInputCount(iup_Iterable(originalInputs.asImm()), this.externs.asList())
 	}
 	this.markExterns(originalInputs)
 	var staleInputs bool = false
@@ -1646,7 +1646,7 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 	var inputsByProvide map[string]*CompilerInput = map[string]*CompilerInput{}
 	var inputsByIdentifier map[string]*CompilerInput = map[string]*CompilerInput{}
 	for input := range elemsAs_[*CompilerInput](this.chunkGraph.getAllInputs()) {
-		var provides IterableOf[string] = Iterables_filter(icast_Iterable(obj_(input.getProvides().asImm())), &Predicate_base_tfn_string{func(p string) bool {
+		var provides IterableOf[string] = Iterables_filter(iup_Iterable(input.getProvides().asImm()), &Predicate_base_tfn_string{func(p string) bool {
 			return !strings.HasPrefix(p, "module$")
 		}})
 		if !this.options_.getDependencyOptions().shouldDropMoochers() && Iterables_isEmpty(provides) {
@@ -1693,7 +1693,7 @@ func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByMo
 		input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)
 	}
 	this.moduleTypesByName[input.getPath().toModuleName()] = input.getJsModuleType()
-	var allDeps IterableOf[string] = Iterables_concat_Iterable_Iterable_Iterable(icast_Iterable(obj_(input.getRequiredSymbols().asImm())), icast_Iterable(obj_(input.getDynamicRequires().asImm())), icast_Iterable(obj_(input.getTypeRequires().asImm())))
+	var allDeps IterableOf[string] = Iterables_concat_Iterable_Iterable_Iterable(iup_Iterable(input.getRequiredSymbols().asImm()), iup_Iterable(input.getDynamicRequires().asImm()), iup_Iterable(input.getTypeRequires().asImm()))
 	for requiredNamespace := range elemsBy_(allDeps, str_) {
 		var requiredInput *CompilerInput = nil
 		var requiredByModuleImport bool = false
@@ -2967,7 +2967,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 	for extern := range this.externs.All() {
 		builder.addExterns(extern.getInputId().getIdName())
 	}
-	builder.addAllInjectedLibraries(icast_Iterable(obj_(this.runtimeJsLibManager.getInjectedLibraries().asImm())))
+	builder.addAllInjectedLibraries(iup_Iterable(this.runtimeJsLibManager.getInjectedLibraries().asImm()))
 	var lastInjectedLibrary Node = this.runtimeJsLibManager.getLastInjectedLibrary()
 	builder.setLastInjectedLibraryIndexInFirstScript(func() int32 {
 		if ((lastInjectedLibrary != 0) && (this.jsRoot != 0)) && this.jsRoot.hasChildren() {
@@ -3253,7 +3253,7 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 	this.sourceMap_.reset()
 	if this.options_.getSourceMapIncludeSourcesContent() {
 		if this.options_.getApplyInputSourceMaps() {
-			for _, el := range immElems_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(icast_Map(obj_(this.inputSourceMaps))).values())) {
+			for _, el := range immElems_(cast_[*ImmutableCollection](ImmutableSortedMap_copyOf(iup_Map(this.inputSourceMaps)).values())) {
 				inputSourceMap := cast_[*SourceMapInput](el)
 				this.addSourceMapSourceFiles(inputSourceMap)
 			}
@@ -3293,7 +3293,7 @@ func (this *Compiler) maybeLogPruningAnalysis(result *JSChunkGraph_DependencyMan
 	if (this.tracker == nil) || !this.options_.getTracerMode().doPruningAnalysis() {
 		return
 	}
-	var analysis *PruningAnalysis = PruningAnalysis_create(result.sorter(), icast_Collection(obj_(result.entryPointInputs().asImm())))
+	var analysis *PruningAnalysis = PruningAnalysis_create(result.sorter(), iup_Collection(result.entryPointInputs().asImm()))
 	var pruningResult *PruningAnalysis_Result = analysis.analyze()
 	this.tracker.setPruningAnalysisSummary(("\nTransitive dependency count per entry point:\n" + tostr_(pruningResult.entryPointDependencyCount().asImm()) + "\n\nTop bottleneck dependencies:\n" + tostr_(pruningResult.bottleneckBlame().asImm())))
 }
@@ -3614,7 +3614,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) emitLicenses() *ImmutableSet[string] {
 	var licensesNewInFile *ImmutableSet[string] = immutableSetCopyOf_(tc_string, Collection(this.licensesNewInCurrentFile.asSet()))
-	this.licensesNewInCurrentChunk.asSet().addAll(icast_Collection(obj_(licensesNewInFile.asImm())))
+	this.licensesNewInCurrentChunk.asSet().addAll(iup_Collection(licensesNewInFile.asImm()))
 	this.licensesNewInCurrentFile.Clear()
 	return licensesNewInFile
 }

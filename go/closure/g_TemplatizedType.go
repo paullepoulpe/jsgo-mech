@@ -78,7 +78,7 @@ func (this *TemplatizedType) getCtorExtendedInterfaces_impl() IterableOf[*Object
 func (this *TemplatizedType) appendTo_impl(sb *TypeStringBuilder) {
 	this.ProxyObjectType.appendTo_impl(sb)
 	if !this.templateTypes.isEmpty() {
-		sb.append("<").appendAll(icast_Iterable(obj_(this.templateTypes.asImm())), ",").append(">")
+		sb.append("<").appendAll(iup_Iterable(this.templateTypes.asImm()), ",").append(">")
 	}
 }
 

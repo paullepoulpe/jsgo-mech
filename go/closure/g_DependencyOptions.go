@@ -126,11 +126,11 @@ func DependencyOptions_fromFlags(dependencyModeFlag DependencyOptions_Dependency
 		case DependencyOptions_DependencyMode_SORT_ONLY:
 			return DependencyOptions_sortOnly()
 		case DependencyOptions_DependencyMode_PRUNE_LEGACY:
-			return DependencyOptions_pruneLegacyForEntryPoints(icast_Iterable(obj_(entryPointsBuilder.buildErased())))
+			return DependencyOptions_pruneLegacyForEntryPoints(iup_Iterable(entryPointsBuilder.buildErased()))
 		case DependencyOptions_DependencyMode_PRUNE_ALLOW_NO_ENTRY_POINTS:
-			return DependencyOptions_pruneAllowNoEntryPoints(icast_Iterable(obj_(entryPointsBuilder.buildErased())))
+			return DependencyOptions_pruneAllowNoEntryPoints(iup_Iterable(entryPointsBuilder.buildErased()))
 		case DependencyOptions_DependencyMode_PRUNE:
-			return DependencyOptions_pruneForEntryPoints(icast_Iterable(obj_(entryPointsBuilder.buildErased())))
+			return DependencyOptions_pruneForEntryPoints(iup_Iterable(entryPointsBuilder.buildErased()))
 		}
 		panic(new_NullPointerException_0())
 	}()

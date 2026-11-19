@@ -99,7 +99,7 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base[any] 
 			if requiresOutcome.isErr() {
 				return Outcome_base_err[any](requiresOutcome.error())
 			}
-			var depInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(path, this.filePath).setProvides(Collection(provides.asList())).setRequires(icast_Collection(obj_(DepsFileRegexParser_requiresParsedFromDeps(requiresOutcome.get()).asImm()))).setLoadFlags(loadFlags).build()))
+			var depInfo DependencyInfo = iup_DependencyInfo(SimpleDependencyInfo_builder(path, this.filePath).setProvides(Collection(provides.asList())).setRequires(iup_Collection(DepsFileRegexParser_requiresParsedFromDeps(requiresOutcome.get()).asImm())).setLoadFlags(loadFlags).build())
 			if DepsFileRegexParser_logger.isLoggable(Level_FINE) {
 				DepsFileRegexParser_logger.fine(("Found dep: " + objstr_(depInfo)))
 			}

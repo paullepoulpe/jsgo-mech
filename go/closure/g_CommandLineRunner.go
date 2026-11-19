@@ -500,7 +500,7 @@ func (this *CommandLineRunner) prepForBundleAndAppendTo_impl(out Appendable, inp
 	if bundlerOutcome.isErr() {
 		return Outcome_base_err[any](bundlerOutcome.error())
 	}
-	bundlerOutcome.get().withPath(input.getName()).appendTo(out, icast_DependencyInfo(obj_(input)), content)
+	bundlerOutcome.get().withPath(input.getName()).appendTo(out, iup_DependencyInfo(input), content)
 	return Outcome_base_ok_0()
 }
 
@@ -566,7 +566,7 @@ func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base[*C
 				panic(r_)
 			}
 		}()
-		TextFormat_merge(strobj_(textProto), icast_Message_Builder(obj_(builder)))
+		TextFormat_merge(strobj_(textProto), iup_Message_Builder(builder))
 	}()
 	return Outcome_base_ok_Object[*ConformanceConfig](cast_[*ConformanceConfig](builder.build()))
 }

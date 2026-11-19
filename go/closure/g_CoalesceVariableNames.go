@@ -57,7 +57,7 @@ func (this *CoalesceVariableNames) process_2(externs Node, root Node) {
 	if root == 0 {
 		panic(new_NullPointerException_0())
 	}
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverse(root)
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).setScopeCreator(iup_ScopeCreator(this.scopeCreator)).traverse(root)
 	this.compiler_.setLifeCycleStage(AbstractCompiler_LifeCycleStage_RAW)
 }
 
@@ -83,7 +83,7 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 		panic(new_IllegalStateException_String(tostr_(scope)))
 	}
 	var cfg *ControlFlowGraph[Node] = this.getControlFlowGraph(this.compiler_)
-	this.liveness = new_LiveVariablesAnalysis(cfg, scope, nil, this.compiler_, icast_ScopeCreator(obj_(this.scopeCreator)), allVarsDeclaredInFunction)
+	this.liveness = new_LiveVariablesAnalysis(cfg, scope, nil, this.compiler_, iup_ScopeCreator(this.scopeCreator), allVarsDeclaredInFunction)
 	if FeatureSet_ES3.containsFeatureSet(this.compiler_.getOptions().getOutputFeatureSet()) {
 		var enclosingFunction Node = scope.getRootNode()
 		if NodeUtil_getFunctionParameters(enclosingFunction).hasTwoChildren() {

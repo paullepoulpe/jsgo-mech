@@ -83,7 +83,7 @@ func (this *SortedDependencies[InputT]) getSortedStrongDependenciesOf(roots List
 }
 
 func (this *SortedDependencies[InputT]) getSortedWeakDependenciesOf(rootInputs ListOf[InputT]) ImmutableListOf[InputT] {
-	var strongInputs SetOf[InputT] = new_LinkedHashSet_Collection(icast_Collection(obj_(this.getSortedStrongDependenciesOf(rootInputs))))
+	var strongInputs SetOf[InputT] = new_LinkedHashSet_Collection(iup_Collection(this.getSortedStrongDependenciesOf(rootInputs)))
 	var weakInputs SetOf[InputT] = new_LinkedHashSet()
 	var worklist DequeOf[InputT] = new_ArrayDeque_Collection(Collection(strongInputs))
 	for !worklist.isEmpty() {
@@ -91,9 +91,9 @@ func (this *SortedDependencies[InputT]) getSortedWeakDependenciesOf(rootInputs L
 		var isStrong bool = strongInputs.contains(boxT_(input))
 		var edges IterableOf[string] = func() Iterable {
 			if isStrong {
-				return icast_Iterable(obj_(input.getTypeRequires().asImm()))
+				return iup_Iterable(input.getTypeRequires().asImm())
 			}
-			return Iterables_concat(icast_Iterable(obj_(input.getRequiredSymbols().asImm())), icast_Iterable(obj_(input.getTypeRequires().asImm())))
+			return Iterables_concat(iup_Iterable(input.getRequiredSymbols().asImm()), iup_Iterable(input.getTypeRequires().asImm()))
 		}()
 		if !isStrong && !weakInputs.add(boxT_(input)) {
 			continue
@@ -142,7 +142,7 @@ func (this *SortedDependencies[InputT]) processInputs() {
 	for el_1 := range elems_(this.userOrderedInputs) {
 		var userOrderedInput InputT = junboxT_[InputT](el_1)
 		var provides *ImmutableList[string] = userOrderedInput.getProvides()
-		var firstProvide Optional[string] = Optional_ofNullable[string](str_(Iterables_getFirst(icast_Iterable(obj_(provides.asImm())), nil)))
+		var firstProvide Optional[string] = Optional_ofNullable[string](str_(Iterables_getFirst(iup_Iterable(provides.asImm()), nil)))
 		if firstProvide.isEmpty() || (((provides.size() == 1) && strings.HasPrefix(firstProvide.get(), "module$")) && !userOrderedInput.isEs6Module()) {
 			Map_put_s(this.nonExportingInputs.asMap(), ModuleNames_fileToModuleName(userOrderedInput.getName()), boxT_(userOrderedInput))
 		}

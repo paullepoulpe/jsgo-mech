@@ -88,7 +88,7 @@ func (this *RefactoringDriver_Builder) addExternsFromFileString(filename string)
 }
 
 func (this *RefactoringDriver_Builder) addExternsFromFile(externs IterableOf[string]) *RefactoringDriver_Builder {
-	this.externs.addAll(Iterable(Lists_transform(icast_List(obj_(ImmutableList_copyOf_Iterable(externs))), RefactoringDriver_Builder_TO_SOURCE_FILE_FN)))
+	this.externs.addAll(Iterable(Lists_transform(iup_List(ImmutableList_copyOf_Iterable(externs)), RefactoringDriver_Builder_TO_SOURCE_FILE_FN)))
 	return this
 }
 
@@ -108,7 +108,7 @@ func (this *RefactoringDriver_Builder) addInputsFromFileString(filename string) 
 }
 
 func (this *RefactoringDriver_Builder) addInputsFromFile(inputs IterableOf[string]) *RefactoringDriver_Builder {
-	this.inputs.addAll(Iterable(Lists_transform(icast_List(obj_(ImmutableList_copyOf_Iterable(inputs))), RefactoringDriver_Builder_TO_SOURCE_FILE_FN)))
+	this.inputs.addAll(Iterable(Lists_transform(iup_List(ImmutableList_copyOf_Iterable(inputs)), RefactoringDriver_Builder_TO_SOURCE_FILE_FN)))
 	return this
 }
 
@@ -135,7 +135,7 @@ func (this *RefactoringDriver_Builder) withCompilerOptions(compilerOptions *Comp
 }
 
 func (this *RefactoringDriver_Builder) build() *RefactoringDriver {
-	return new_RefactoringDriver(icast_List(obj_(this.inputs.buildErased())), icast_List(obj_(this.externs.buildErased())), this.compilerOptions)
+	return new_RefactoringDriver(iup_List(this.inputs.buildErased()), iup_List(this.externs.buildErased()), this.compilerOptions)
 }
 
 var RefactoringDriver_Builder_TO_SOURCE_FILE_FN Function_base

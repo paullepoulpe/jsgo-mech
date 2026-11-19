@@ -129,8 +129,8 @@ func (this *StandardUnionFind[E]) findAll(value E) SetOf[E] {
 	if ok_, a1_ := this.elmap.Has(value), boxT_(value); !ok_ {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Element does not exist: %s", a1_)))
 	}
-	var isSameRoot Predicate_baseOf[any] = icast_Predicate_base(obj_(new_StandardUnionFind_1[E](this, value)))
-	return icast_Set(obj_(new_StandardUnionFind_2[E](this, isSameRoot, value)))
+	var isSameRoot Predicate_baseOf[any] = iup_Predicate_base(new_StandardUnionFind_1[E](this, value))
+	return iup_Set(new_StandardUnionFind_2[E](this, isSameRoot, value))
 }
 
 type StandardUnionFind_Node[E any] struct {

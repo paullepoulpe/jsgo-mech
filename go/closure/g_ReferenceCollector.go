@@ -78,7 +78,7 @@ func (this *ReferenceCollector) processScope(scope *Scope) {
 }
 
 func (this *ReferenceCollector) createTraversalBuilder() *NodeTraversal_Builder {
-	return NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(this.callback))).setScopeCreator(this.scopeCreator).setObeyDestructuringAndDefaultValueExecutionOrder(true)
+	return NodeTraversal_builder().setCompiler(this.compiler_).setCallback(iup_NodeTraversal_Callback(this.callback)).setScopeCreator(this.scopeCreator).setObeyDestructuringAndDefaultValueExecutionOrder(true)
 }
 
 func (this *ReferenceCollector) getAllSymbols() IterableOf[*Var] {
@@ -216,7 +216,7 @@ func (this *ReferenceCollector_CollectorCallback) exitScope(t *NodeTraversal) {
 	if t.isHoistScope() {
 		this.outer_.popLastBlock(t.getScopeRoot())
 	}
-	this.outer_.behavior.afterExitScope(t, icast_ReferenceMap(obj_(this.outer_)))
+	this.outer_.behavior.afterExitScope(t, iup_ReferenceMap(this.outer_))
 }
 
 func (this *ReferenceCollector_CollectorCallback) visit(t *NodeTraversal, n Node, parent Node) {

@@ -27,7 +27,7 @@ func (this *PassListBuilder) build() *ImmutableList[*PassFactory] {
 }
 
 func (this *PassListBuilder) addAll(other *PassListBuilder) {
-	this.passes.asList().addAll(icast_Collection(obj_(other.build().asImm())))
+	this.passes.asList().addAll(iup_Collection(other.build().asImm()))
 }
 
 func (this *PassListBuilder) maybeAdd(factory *PassFactory) {

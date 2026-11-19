@@ -128,7 +128,7 @@ func (this *TypeCheck) check(node Node, externs bool) {
 		panic(new_NullPointerException_0())
 	}
 	this.inExterns_ = externs
-	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).setScopeCreator(icast_ScopeCreator(obj_(this.scopeCreator))).traverseWithScope(node, this.topScope.up_AbstractScope())
+	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(this).setScopeCreator(iup_ScopeCreator(this.scopeCreator)).traverseWithScope(node, this.topScope.up_AbstractScope())
 	if externs {
 		this.inferJSDocInfo.process_2(node, 0)
 	} else {
@@ -501,7 +501,7 @@ func (this *TypeCheck) checkGetterOrSetterType(child Node, classType *FunctionTy
 		if child.isGetterDef() {
 			return this.determineGetterType(methodType)
 		}
-		return Iterables_getOnlyElement(icast_Iterable(obj_(methodType.getParameters().asImm()))).(*FunctionType_Parameter).getJSType()
+		return Iterables_getOnlyElement(iup_Iterable(methodType.getParameters().asImm())).(*FunctionType_Parameter).getJSType()
 	}()
 	var officialPropertyType *JSType = func() *JSType {
 		if child.isStaticMember() {
@@ -1350,7 +1350,7 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 		}
 		var alreadySeenInterfaces *TSet[*JSType] = newTSet_(tch_p_JSType)
 		for _, el := range functionType.getOwnImplementedInterfaces().items {
-			baseInterface := to_JSType(el.self())
+			baseInterface := el.up_JSType()
 			var badImplementedType bool = false
 			var baseInterfaceObj *ObjectType = ObjectType_cast(baseInterface)
 			if baseInterfaceObj != nil {
@@ -1743,7 +1743,7 @@ func (this *TypeCheck) checkEnumAlias(t *NodeTraversal, declInfo *JSDocInfo, val
 	}
 	var valueEnumType *EnumType = valueType.toMaybeEnumType()
 	var valueEnumPrimitiveType *JSType = valueEnumType.getElementsType().getPrimitiveType()
-	this.validator.expectCanAssignTo(nodeToWarn, valueEnumPrimitiveType, declInfo.getEnumParameterType().evaluate(icast_StaticTypedScope(obj_(t.getTypedScope())), this.typeRegistry), "incompatible enum element types")
+	this.validator.expectCanAssignTo(nodeToWarn, valueEnumPrimitiveType, declInfo.getEnumParameterType().evaluate(iup_StaticTypedScope(t.getTypedScope()), this.typeRegistry), "incompatible enum element types")
 }
 
 func (this *TypeCheck) getJSType(n Node) *JSType {

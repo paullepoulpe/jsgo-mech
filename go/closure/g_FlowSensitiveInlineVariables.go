@@ -52,9 +52,9 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	this.cfg = ControlFlowAnalysis_builder().setCompiler(this.compiler_).setCfgRoot(functionScopeRoot).setIncludeEdgeAnnotations(true).computeCfg()
 	var escaped map[varKey_]struct{} = map[varKey_]struct{}{}
 	var scope *Scope = t.getScope()
-	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, icast_ScopeCreator(obj_(scopeCreator)), cast_[*Scope](scope.getParent().self()))
+	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, iup_ScopeCreator(scopeCreator), cast_[*Scope](scope.getParent().self()))
 	var allVarsInFn *TMap[string, *Var] = allVarsDeclaredInFunction.getAllVariables()
-	DataFlowAnalysis_computeEscaped(cast_[*Scope](scope.getParent().self()), escaped, this.compiler_, icast_ScopeCreator(obj_(scopeCreator)), allVarsInFn)
+	DataFlowAnalysis_computeEscaped(cast_[*Scope](scope.getParent().self()), escaped, this.compiler_, iup_ScopeCreator(scopeCreator), allVarsInFn)
 	this.reachingDef = new_MustBeReachingVariableDef(this.cfg, this.compiler_, escaped, allVarsInFn)
 	this.reachingDef.analyze()
 	this.candidates = newTSet_(tc_p_FlowSensitiveInlineVariables_Candidate)
@@ -328,7 +328,7 @@ func (this *FlowSensitiveInlineVariables_GatherCandidates) visit_impl(t *NodeTra
 	}
 	var cfgNode Node = n
 	this.gatherCb.setCfgNode(cfgNode)
-	NodeTraversal_traverse(this.outer_.compiler_, cfgNode, icast_NodeTraversal_Callback(obj_(this.gatherCb)))
+	NodeTraversal_traverse(this.outer_.compiler_, cfgNode, iup_NodeTraversal_Callback(this.gatherCb))
 }
 
 type FlowSensitiveInlineVariables_Candidate struct {
@@ -408,7 +408,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 		return false
 	}
 	if NodeUtil_isStatementBlock(this.getDefCfgNode().getParent()) && (this.getDefCfgNode().getNext() != this.useCfgNode) {
-		var pathCheck *CheckPathsBetweenNodes[Node, ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean[Node, ControlFlowGraph_Branch](this.outer_.cfg.up_DiGraph(), icast_DiGraph_DiGraphNode_Node(this.outer_.cfg.getNode(this.getDefCfgNode())), icast_DiGraph_DiGraphNode_Node(this.outer_.cfg.getNode(this.useCfgNode)), icast_Predicate_base(obj_(this.outer_.sideEffectPredicate)), Predicates_alwaysTrue(), false)
+		var pathCheck *CheckPathsBetweenNodes[Node, ControlFlowGraph_Branch] = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean[Node, ControlFlowGraph_Branch](this.outer_.cfg.up_DiGraph(), icast_DiGraph_DiGraphNode_Node(this.outer_.cfg.getNode(this.getDefCfgNode())), icast_DiGraph_DiGraphNode_Node(this.outer_.cfg.getNode(this.useCfgNode)), iup_Predicate_base(this.outer_.sideEffectPredicate), Predicates_alwaysTrue(), false)
 		if pathCheck.somePathsSatisfyPredicate() {
 			return false
 		}

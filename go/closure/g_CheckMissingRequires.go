@@ -105,7 +105,7 @@ func (this *CheckMissingRequires) visitNode(t *NodeTraversal, n Node, currentMod
 }
 
 func (this *CheckMissingRequires) visitJsDocInfo(t *NodeTraversal, currentModule *ModuleMetadataMap_ModuleMetadata, info *JSDocInfo) {
-	setAddAllFrom_(tc_string, this.templateParamNames, icast_Collection(obj_(info.getTemplateTypeNames().asImm())))
+	setAddAllFrom_(tc_string, this.templateParamNames, iup_Collection(info.getTemplateTypeNames().asImm()))
 	setAddAllFrom_(tc_string, this.templateParamNames, Collection(info.getTypeTransformations().asImm().keySet()))
 	if info.hasType() {
 		this.visitJsDocExpr(t, currentModule, info.getType(), CheckMissingRequires_Strength_WEAK_TYPE)

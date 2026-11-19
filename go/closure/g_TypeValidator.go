@@ -48,7 +48,7 @@ func TypeValidator_getInstanceOfCtor(t *JSType) *ObjectType {
 }
 
 func (this *TypeValidator) getMismatches() IterableOf[*TypeMismatch] {
-	return icast_Iterable(obj_(this.mismatches.getMismatches()))
+	return iup_Iterable(this.mismatches.getMismatches())
 }
 
 func (this *TypeValidator) setSubtypingMode(mode JSType_SubtypingMode) {

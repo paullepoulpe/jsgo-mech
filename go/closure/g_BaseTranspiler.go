@@ -116,7 +116,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 	}
 	var transpiled bool = result.transpiledFiles
 	if !result.errors_.isEmpty() {
-		panic(new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(icast_SourceExcerptProvider(obj_(compiler)), result.errors_, result.warnings_))
+		panic(new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(iup_SourceExcerptProvider(compiler), result.errors_, result.warnings_))
 	}
 	return new_BaseTranspiler_CompileResult(source, transpiled, func() string {
 		if transpiled {
@@ -157,7 +157,7 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setWarningLevel(DiagnosticGroups_NON_STANDARD_JSDOC, CheckLevel_OFF)
 	options.setEs6ModuleTranspilation(CompilerOptions_Es6ModuleTranspilation_TO_COMMON_JS_LIKE_MODULES)
 	options.setModuleResolutionMode(this.moduleResolution)
-	options.setModuleRoots(icast_List(obj_(this.moduleRoots.asImm())))
+	options.setModuleRoots(iup_List(this.moduleRoots.asImm()))
 	options.setBrowserResolverPrefixReplacements(this.prefixReplacements)
 	options.setWarningLevel(DiagnosticGroups_MODULE_LOAD, CheckLevel_OFF)
 	options.setPathEscaper(ModuleLoader_PathEscaper_CANONICALIZE_ONLY)

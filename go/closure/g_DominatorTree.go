@@ -127,7 +127,7 @@ func (this *DominatorTree[N]) getImmediateDominator(node N) N {
 }
 
 func (this *DominatorTree[N]) getDominatedSubtreeSize(node N) int32 {
-	return unbox_[int32](Map_getOrDefault(icast_Map(obj_(this.subtreeSizes)), boxT_(node), any(int32(0))))
+	return unbox_[int32](Map_getOrDefault(iup_Map(this.subtreeSizes), boxT_(node), any(int32(0))))
 }
 
 func (this *DominatorTree[N]) getAllSubtreeSizes() ImmutableMapOf[N, BoxedOf[int32]] {

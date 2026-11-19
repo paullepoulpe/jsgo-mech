@@ -62,7 +62,7 @@ func TypedAstDeserializer_deserialize(compiler *AbstractCompiler, syntheticExter
 	}
 	var deserializer *TypedAstDeserializer = new_TypedAstDeserializer(syntheticExterns, colorPool, requiredInputFiles, mode, includeTypeInformation)
 	deserializer.addToFilePool(syntheticExterns.getName(), syntheticExterns)
-	Map_forEach(icast_Map(obj_(scriptSourceFiles.asImm())), &BiConsumer_tfn_string_SourceFile_jscomp{func(p0 string, p1 *SourceFile_jscomp) { deserializer.addToFilePool(p0, p1) }})
+	Map_forEach(iup_Map(scriptSourceFiles.asImm()), &BiConsumer_tfn_string_SourceFile_jscomp{func(p0 string, p1 *SourceFile_jscomp) { deserializer.addToFilePool(p0, p1) }})
 	if !equalsId_(mode, TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY) {
 		compiler.initRuntimeLibraryTypedAsts(deserializer.colorPoolBuilder)
 	}
@@ -189,7 +189,7 @@ func TypedAstDeserializer_addInputSourceMap(deserializer *ScriptNodeDeserializer
 
 func TypedAstDeserializer_createStubWeakScriptNode(file *SourceFile_jscomp) SupplierOf[Node] {
 	return &Supplier_tfn_Node{func() Node {
-		var stubScript Node = IR_script_0().setStaticSourceFile(icast_StaticSourceFile(obj_(file)))
+		var stubScript Node = IR_script_0().setStaticSourceFile(iup_StaticSourceFile(file))
 		stubScript.setFeatureSet(FeatureSet_BARE_MINIMUM)
 		return stubScript
 	}}
@@ -213,7 +213,7 @@ func TypedAstDeserializer_deserializeTypedAsts(typedAstsStream []int8, deseriali
 		if (WireFormat_getTagFieldNumber(tag) != int32(1)) || (WireFormat_getTagWireType(tag) != int32(2)) {
 			panic(new_InvalidProtocolBufferException_String(("Unexpected field number " + istr_(int64(WireFormat_getTagFieldNumber(tag))) + " or wire type " + istr_(int64(WireFormat_getTagWireType(tag))))))
 		}
-		codedInput.readMessage(icast_MessageLite_Builder(obj_(typedAstBuilder)), ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite())
+		codedInput.readMessage(iup_MessageLite_Builder(typedAstBuilder), ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite())
 		var typedAst *TypedAst = cast_[*TypedAst](typedAstBuilder.build())
 		typedAstBuilder.clear()
 		codedInput.resetSizeCounter()
@@ -310,7 +310,7 @@ func new_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *Sou
 
 func (this *TypedAstDeserializer_SyntheticExternsDeserializer) deserialize() Node {
 	var script Node = IR_script_0()
-	script.setStaticSourceFile(icast_StaticSourceFile(obj_(this.syntheticExterns)))
+	script.setStaticSourceFile(iup_StaticSourceFile(this.syntheticExterns))
 	for d := range sliceAll_(this.syntheticExternsDeserializers) {
 		script.addChildrenToBack(d.deserializeNew().removeChildren())
 	}

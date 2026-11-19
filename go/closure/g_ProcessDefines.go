@@ -115,7 +115,7 @@ func (this *ProcessDefines) overrideDefines() {
 		}
 	}
 	if ProcessDefines_Mode_optimize_[this.mode_-1] {
-		var unusedReplacements SetOf[string] = Sets_difference(Sets_union(this.replacementValuesFromFlags.asImm().keySet(), this.replacementValuesFromClosureDefines.asMap().keySet()), Sets_union(Sets_union(icast_Set(obj_(ProcessDefines_KNOWN_DEFINES.asImm())), this.defineByDefineName.asMap().keySet()), icast_Set(obj_(this.unknownDefinesToIgnore.asImm()))))
+		var unusedReplacements SetOf[string] = Sets_difference(Sets_union(this.replacementValuesFromFlags.asImm().keySet(), this.replacementValuesFromClosureDefines.asMap().keySet()), Sets_union(Sets_union(iup_Set(ProcessDefines_KNOWN_DEFINES.asImm()), this.defineByDefineName.asMap().keySet()), iup_Set(this.unknownDefinesToIgnore.asImm())))
 		for unknownDefine := range elemsBy_(unusedReplacements, str_) {
 			this.compiler_.report(JSError_make_DiagnosticType_StringArr(ProcessDefines_UNKNOWN_DEFINE_WARNING, []string{unknownDefine}))
 		}
@@ -204,7 +204,7 @@ func (this *ProcessDefines) collectDefines(root Node) {
 			}
 		}
 	}
-	this.compiler_.setDefineNames(icast_Collection(obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(ProcessDefines_KNOWN_DEFINES.asImm()))).addAll(Iterable(this.defineByDefineName.asMap().keySet())).build())))
+	this.compiler_.setDefineNames(iup_Collection(ImmutableSet_builder().addAll(iup_Iterable(ProcessDefines_KNOWN_DEFINES.asImm())).addAll(Iterable(this.defineByDefineName.asMap().keySet())).build()))
 }
 
 func (this *ProcessDefines) selectDefineDeclaration(name *GlobalNamespace_Name) *GlobalNamespace_Ref {

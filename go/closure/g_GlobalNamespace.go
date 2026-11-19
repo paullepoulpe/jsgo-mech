@@ -113,7 +113,7 @@ func (this *GlobalNamespace) getSlot(name string) StaticSlot {
 
 func (this *GlobalNamespace) getOwnSlot(name string) StaticSlot {
 	this.ensureGenerated()
-	return icast_StaticSlot(obj_(this.nameMap.Get(name)))
+	return iup_StaticSlot(this.nameMap.Get(name))
 }
 
 func (this *GlobalNamespace) getReferences_StaticSlot(slot *GlobalNamespace_Name) IterableOf[*GlobalNamespace_Ref] {
@@ -1177,7 +1177,7 @@ func (this *GlobalNamespace_Name) usesHasOwnProperty() bool {
 }
 
 func (this *GlobalNamespace_Name) getDeclaration() StaticRef {
-	return icast_StaticRef(obj_(this.declaration_))
+	return iup_StaticRef(this.declaration_)
 }
 
 func (this *GlobalNamespace_Name) getInitialization() *GlobalNamespace_Ref {

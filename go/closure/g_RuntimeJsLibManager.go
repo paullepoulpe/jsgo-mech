@@ -93,7 +93,7 @@ func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibMana
 }
 
 func (this *RuntimeJsLibManager) getJsLibField(fieldName string) RuntimeJsLibManager_JsLibField {
-	return icast_RuntimeJsLibManager_JsLibField(obj_(this.getJsLibFieldInternal(fieldName)))
+	return iup_RuntimeJsLibManager_JsLibField(this.getJsLibFieldInternal(fieldName))
 }
 
 func (this *RuntimeJsLibManager) getJsLibFieldInternal(fieldName string) *RuntimeJsLibManager_InternalField {

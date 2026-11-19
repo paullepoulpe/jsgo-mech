@@ -595,7 +595,7 @@ func (this *JSDocInfo) getSuppressions() SetOf[string] {
 		nameSet := icast_Set(el)
 		names.asSet().addAll(Collection(nameSet))
 	}
-	return icast_Set(obj_(ImmutableSet_copyOf(Collection(names.asSet()))))
+	return iup_Set(ImmutableSet_copyOf(Collection(names.asSet())))
 }
 
 func (this *JSDocInfo) getSuppressionsAndTheirDescription() ImmutableMapOf[ImmutableSetOf[string], string] {
@@ -729,7 +729,7 @@ func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
 			}
 		}
 	}
-	return icast_Collection(obj_(builder.buildErased()))
+	return iup_Collection(builder.buildErased())
 }
 
 func (this *JSDocInfo) getTypeNodes() CollectionOf[Node] {
@@ -1216,7 +1216,7 @@ func new_JSDocInfo_TypeMapProperty(name string) *JSDocInfo_TypeMapProperty {
 func (this *JSDocInfo_TypeMapProperty) clone_impl(arg_ any, transform func(*JSTypeExpression) *JSTypeExpression) any {
 	var arg *LinkedHashMap = cast_[*LinkedHashMap](arg_)
 	_ = arg
-	var out LinkedHashMapOf[string, *JSTypeExpression] = new_LinkedHashMap_Map(icast_Map(obj_(arg)))
+	var out LinkedHashMapOf[string, *JSTypeExpression] = new_LinkedHashMap_Map(iup_Map(arg))
 	if transform != nil {
 		for entry := range elemsBy_(out.entrySet(), icast_Map_Entry) {
 			var elem *JSTypeExpression = cast_[*JSTypeExpression](entry.getValue())
@@ -1290,7 +1290,7 @@ func new_JSDocInfo_NodeMapProperty(name string) *JSDocInfo_NodeMapProperty {
 func (this *JSDocInfo_NodeMapProperty) clone_impl(arg_ any, transform func(*JSTypeExpression) *JSTypeExpression) any {
 	var arg *LinkedHashMap = cast_[*LinkedHashMap](arg_)
 	_ = arg
-	return obj_(new_LinkedHashMap_Map(icast_Map(obj_(arg))))
+	return obj_(new_LinkedHashMap_Map(iup_Map(arg)))
 }
 
 func (this *JSDocInfo_NodeMapProperty) equalValues_impl(left_ any, right_ any) bool {
@@ -2391,7 +2391,7 @@ func (this *JSDocInfo_Builder) recordSuppressions_2(suppressions *ImmutableSet[s
 		}
 		mapBuilder.putAll(any(current).(Map))
 	}
-	mapBuilder.put(obj_(JSDocInfo_internSet(icast_Set(obj_(suppressions.asImm()))).asImm()), strobj_(description))
+	mapBuilder.put(obj_(JSDocInfo_internSet(iup_Set(suppressions.asImm())).asImm()), strobj_(description))
 	var suppressionsMap ImmutableMapOf[ImmutableSetOf[string], string] = mapBuilder.buildOrThrow()
 	this.setProp(JSDocInfo_SUPPRESSIONS, obj_(suppressionsMap))
 }
@@ -2872,7 +2872,7 @@ func (this *JSDocInfo_Builder) getPropWithDefault(prop *JSDocInfo_Property, supp
 }
 
 func (this *JSDocInfo_Builder) putPropEntry(prop *JSDocInfo_Property, key any, value any) bool {
-	return (Map_putIfAbsent(icast_Map(obj_(cast_[*LinkedHashMap](this.getPropWithDefault(prop, (&Supplier_tfn_LinkedHashMap{func() *LinkedHashMap { return new_LinkedHashMap() }}).get)))), key, value) == nil)
+	return (Map_putIfAbsent(iup_Map(cast_[*LinkedHashMap](this.getPropWithDefault(prop, (&Supplier_tfn_LinkedHashMap{func() *LinkedHashMap { return new_LinkedHashMap() }}).get))), key, value) == nil)
 }
 
 func (this *JSDocInfo_Builder) populatePropEntry(prop *JSDocInfo_Property, key string, value any) bool {
@@ -2885,7 +2885,7 @@ func (this *JSDocInfo_Builder) populatePropEntry(prop *JSDocInfo_Property, key s
 
 func (this *JSDocInfo_Builder) populateProp(prop *JSDocInfo_Property, value any) bool {
 	this.populated = true
-	return (Map_putIfAbsent(icast_Map(obj_(this.props)), prop.self(), value) == nil)
+	return (Map_putIfAbsent(iup_Map(this.props), prop.self(), value) == nil)
 }
 
 func (this *JSDocInfo_Builder) checkBit(bit JSDocInfo_Bit) bool {

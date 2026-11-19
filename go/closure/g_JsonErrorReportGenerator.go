@@ -54,7 +54,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 			if (node != 0) && (regionLength > 0) {
 				jsonWriter.name("length").longValue(int64(message.error_.length()))
 			}
-			var sourceExcerpt Optional[string] = SourceExcerptProvider_SourceExcerpt_LINE.get(this.sourceExcerptProvider, sourceName, lineNumber, icast_SourceExcerptProvider_ExcerptFormatter(obj_(JsonErrorReportGenerator_excerptFormatter)))
+			var sourceExcerpt Optional[string] = SourceExcerptProvider_SourceExcerpt_LINE.get(this.sourceExcerptProvider, sourceName, lineNumber, iup_SourceExcerptProvider_ExcerptFormatter(JsonErrorReportGenerator_excerptFormatter))
 			if sourceExcerpt.isPresent() {
 				var b strBuilder_
 				b.append(sourceExcerpt.get())

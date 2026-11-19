@@ -75,7 +75,7 @@ func (this *PropertyMap) getSecondaryParentObjects() IterableOf[*ObjectType] {
 		return ImmutableList_of()
 	}
 	if (this.parentSource.getConstructor() != nil) && this.parentSource.getConstructor().isAbstract() {
-		return icast_Iterable(obj_(this.parentSource.getConstructor().getOwnImplementedInterfaces().asImm()))
+		return iup_Iterable(this.parentSource.getConstructor().getOwnImplementedInterfaces().asImm())
 	}
 	return this.parentSource.getCtorExtendedInterfaces()
 }

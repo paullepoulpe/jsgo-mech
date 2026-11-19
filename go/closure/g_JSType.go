@@ -1022,7 +1022,7 @@ func (this *JSType) isNullTypeOrVoidType() bool {
 func (this *JSType) getUnionMembers() IterableOf[*JSType] {
 	return func() Iterable {
 		if this.isUnionType() {
-			return icast_Iterable(obj_(this.toMaybeUnionType().getAlternates().asImm()))
+			return iup_Iterable(this.toMaybeUnionType().getAlternates().asImm())
 		}
 		return nil
 	}()

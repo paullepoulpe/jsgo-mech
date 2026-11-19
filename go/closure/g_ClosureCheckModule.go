@@ -49,7 +49,7 @@ func (this *ClosureCheckModule) enterModule_impl(currentModule *ModuleMetadataMa
 	if currentModule.googNamespaces().isEmpty() {
 		panic(new_IllegalStateException_0())
 	}
-	this.currentModuleInfo = new_ClosureCheckModule_ModuleInfo(str_(Iterables_getFirst(icast_Iterable(obj_(currentModule.googNamespaces())), strobj_(""))))
+	this.currentModuleInfo = new_ClosureCheckModule_ModuleInfo(str_(Iterables_getFirst(iup_Iterable(currentModule.googNamespaces()), strobj_(""))))
 }
 
 func (this *ClosureCheckModule) exitModule_impl(currentModule *ModuleMetadataMap_ModuleMetadata, moduleScopeRoot Node) {

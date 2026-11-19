@@ -59,7 +59,7 @@ func (this *ColorGraphBuilder) connectUnionWithAncestors(unionNode *LinkedDirect
 		graphNodesBuilder.add(this.nodeFactory.createNode(element))
 	}
 	var graphNodes *ImmutableSet[*ColorGraphNode] = graphNodesBuilder.build()
-	for _, el2 := range immElems_(this.lcaFinder.findAll(icast_Set(obj_(graphNodes.asImm())))) {
+	for _, el2 := range immElems_(this.lcaFinder.findAll(iup_Set(graphNodes.asImm()))) {
 		lca := cast_[*ColorGraphNode](el2)
 		this.connectSourceToDest(to_LinkedDirectedGraph_LinkedDiGraphNode[*ColorGraphNode, any](Preconditions_checkNotNull(this.colorHoldsInstanceGraph.getNode(lca))), ColorGraphBuilder_EdgeReason_ALGEBRAIC, unionNode)
 	}

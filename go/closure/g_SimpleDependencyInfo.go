@@ -162,7 +162,7 @@ func new_SimpleDependencyInfo_Builder() *SimpleDependencyInfo_Builder {
 }
 
 func SimpleDependencyInfo_Builder_from(copy_ DependencyInfo) *SimpleDependencyInfo_Builder {
-	return new_SimpleDependencyInfo_Builder().setName(Optional_of[string](copy_.getName())).setPathRelativeToClosureBase(copy_.getPathRelativeToClosureBase()).setProvides(icast_Collection(obj_(copy_.getProvides().asImm()))).setRequires(icast_Collection(obj_(copy_.getRequires().asImm()))).setTypeRequires(icast_Collection(obj_(copy_.getTypeRequires().asImm()))).setLoadFlags(icast_Map(obj_(copy_.getLoadFlags().asImm()))).setHasExternsAnnotation(copy_.getHasExternsAnnotation()).setHasNoCompileAnnotation(copy_.getHasNoCompileAnnotation())
+	return new_SimpleDependencyInfo_Builder().setName(Optional_of[string](copy_.getName())).setPathRelativeToClosureBase(copy_.getPathRelativeToClosureBase()).setProvides(iup_Collection(copy_.getProvides().asImm())).setRequires(iup_Collection(copy_.getRequires().asImm())).setTypeRequires(iup_Collection(copy_.getTypeRequires().asImm())).setLoadFlags(iup_Map(copy_.getLoadFlags().asImm())).setHasExternsAnnotation(copy_.getHasExternsAnnotation()).setHasNoCompileAnnotation(copy_.getHasNoCompileAnnotation())
 }
 
 func (this *SimpleDependencyInfo_Builder) setName(name Optional[string]) *SimpleDependencyInfo_Builder {
@@ -225,7 +225,7 @@ func (this *SimpleDependencyInfo_Builder) setHasNoCompileAnnotation(hasNoCompile
 func (this *SimpleDependencyInfo_Builder) setGoogModule(isModule bool) *SimpleDependencyInfo_Builder {
 	return this.setLoadFlags(func() Map {
 		if isModule {
-			return icast_Map(obj_(SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS.asImm()))
+			return iup_Map(SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS.asImm())
 		}
 		return ImmutableMap_of()
 	}())

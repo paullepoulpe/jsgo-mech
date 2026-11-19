@@ -97,7 +97,7 @@ func (this *SortingErrorManager) getWarnings() *ImmutableList[*JSError] {
 }
 
 func (this *SortingErrorManager) getSortedDiagnostics() IterableOf[*SortingErrorManager_ErrorWithLevel] {
-	return icast_Iterable(obj_(ImmutableList_copyOf(icast_Collection(obj_(this.messages)))))
+	return iup_Iterable(ImmutableList_copyOf(iup_Collection(this.messages)))
 }
 
 func (this *SortingErrorManager) setTypedPercent(typedPercent float64) {

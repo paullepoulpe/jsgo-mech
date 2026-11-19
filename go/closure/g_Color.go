@@ -200,13 +200,13 @@ func Color_createUnion(elements *TSet[*Color]) *Color {
 			newElements.add(element)
 			ids.add(element.getId())
 		}
-		instanceColors.addAll(icast_Iterable(obj_(element.getInstanceColors().asImm())))
+		instanceColors.addAll(iup_Iterable(element.getInstanceColors().asImm()))
 		isClosureAssert = band_(isClosureAssert, element.isClosureAssert())
 		isConstructor = band_(isConstructor, element.isConstructor())
 		isInvalidating = bor_(isInvalidating, element.isInvalidating())
-		ownProperties.addAll(icast_Iterable(obj_(element.getOwnProperties().asImm())))
+		ownProperties.addAll(iup_Iterable(element.getOwnProperties().asImm()))
 		propertiesKeepOriginalName = bor_(propertiesKeepOriginalName, element.getPropertiesKeepOriginalName())
-		prototypes.addAll(icast_Iterable(obj_(element.getPrototypes().asImm())))
+		prototypes.addAll(iup_Iterable(element.getPrototypes().asImm()))
 	}
 	return new_Color_Builder().setClosureAssert(isClosureAssert).setConstructor(isConstructor).setId(ColorId_union(tsetFrom_(tch_p_ColorId, ids.buildErased(), true))).setInstanceColors(instanceColors.build()).setInvalidating(isInvalidating).setOwnProperties(ownProperties.build()).setPropertiesKeepOriginalName(propertiesKeepOriginalName).setPrototypes(prototypes.build()).setUnionElements(newElements.build()).buildUnion()
 }
@@ -240,7 +240,7 @@ func (this *Color) subtractNullOrVoidUncached() *Color {
 	if !this.getUnionElements().Has(StandardColors_NULL_OR_VOID) {
 		return this
 	}
-	var elements *TSet[*Color] = tsetFrom_(tch_p_Color, icast_Collection(obj_(this.getUnionElements().asImm())), false)
+	var elements *TSet[*Color] = tsetFrom_(tch_p_Color, iup_Collection(this.getUnionElements().asImm()), false)
 	elements.Delete(StandardColors_NULL_OR_VOID)
 	return Color_createUnion(elements)
 }

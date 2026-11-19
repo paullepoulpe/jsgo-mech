@@ -129,7 +129,7 @@ func (this *TypedCodeGenerator) getFunctionAnnotation(fnNode Node) string {
 			}
 		}
 	}
-	this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters().asImm())))
+	this.appendTemplateAnnotations(&sb, iup_Collection(funType.getTypeParameters().asImm()))
 	sb.append(" */\n")
 	return sb.toString()
 }
@@ -148,9 +148,9 @@ func (this *TypedCodeGenerator) getMemberFunctionAnnotation(fnNode Node) string 
 	var paramNode Node = NodeUtil_getFunctionParameters(fnNode).getFirstChild()
 	this.appendFunctionParamAnnotations(&sb, funType, paramNode)
 	if NodeUtil_isEs6Constructor(fnNode) {
-		this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getConstructorOnlyTemplateParameters().asImm())))
+		this.appendTemplateAnnotations(&sb, iup_Collection(funType.getConstructorOnlyTemplateParameters().asImm()))
 	} else {
-		this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters().asImm())))
+		this.appendTemplateAnnotations(&sb, iup_Collection(funType.getTypeParameters().asImm()))
 		var retType *JSType = funType.getReturnType()
 		if (retType != nil) && !retType.isEmptyType() {
 			sb.append(" * ")
@@ -194,7 +194,7 @@ func (this *TypedCodeGenerator) getClassAnnotation(classType *JSType) string {
 		}
 		this.appendClassAnnotations(&sb, funType)
 	}
-	this.appendTemplateAnnotations(&sb, icast_Collection(obj_(funType.getTypeParameters().asImm())))
+	this.appendTemplateAnnotations(&sb, iup_Collection(funType.getTypeParameters().asImm()))
 	var jsdocContent string = sb.toString()
 	if jsdocContent == "" {
 		return jsdocContent

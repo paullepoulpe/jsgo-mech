@@ -76,7 +76,7 @@ func InvalidatingTypes_clinit() {
 	}
 	InvalidatingTypes_clinit_done = true
 	InvalidatingTypes_ALWAYS_INVALIDATING_TYPES = immutableListOf_(tc_JSTypeNative, JSTypeNative_FUNCTION_FUNCTION_TYPE, JSTypeNative_FUNCTION_TYPE, JSTypeNative_FUNCTION_PROTOTYPE, JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE, JSTypeNative_OBJECT_TYPE, JSTypeNative_OBJECT_PROTOTYPE, JSTypeNative_OBJECT_FUNCTION_TYPE)
-	InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION = IR_name("alwaysInvalidatingLocation").setStaticSourceFile(icast_StaticSourceFile(obj_(SourceFile_jscomp_fromCode_String_String("InvalidatingTypes_alwaysInvalidatingLocation", ""))))
+	InvalidatingTypes_ALWAYS_INVALIDATING_LOCATION = IR_name("alwaysInvalidatingLocation").setStaticSourceFile(iup_StaticSourceFile(SourceFile_jscomp_fromCode_String_String("InvalidatingTypes_alwaysInvalidatingLocation", "")))
 
 }
 

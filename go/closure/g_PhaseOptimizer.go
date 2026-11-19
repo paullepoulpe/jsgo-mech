@@ -54,14 +54,14 @@ func (this *PhaseOptimizer) consume(factories *TList[*PassFactory]) {
 			currentLoop.addLoopedPass(factory)
 		} else {
 			if currentLoop.isPopulated() {
-				*this.passes = append(*this.passes, icast_CompilerPass(obj_(currentLoop)))
+				*this.passes = append(*this.passes, iup_CompilerPass(currentLoop))
 				currentLoop = new_PhaseOptimizer_Loop(this)
 			}
 			this.addOneTimePass(factory)
 		}
 	}
 	if currentLoop.isPopulated() {
-		*this.passes = append(*this.passes, icast_CompilerPass(obj_(currentLoop)))
+		*this.passes = append(*this.passes, iup_CompilerPass(currentLoop))
 	}
 }
 
@@ -349,7 +349,7 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 	this.outer_.inLoop_ = true
 	this.isCodeRemovalLoopField = this.isCodeRemovalLoop()
 	this.scopeHandler = new_PhaseOptimizer_ScopedChangeHandler(this.outer_)
-	this.outer_.changeTracker.addChangeHandler(icast_CodeChangeHandler(obj_(this.scopeHandler)))
+	this.outer_.changeTracker.addChangeHandler(iup_CodeChangeHandler(this.scopeHandler))
 	this.outer_.lastRuns = map[*PhaseOptimizer_NamedPass]any{}
 	for pass := range sliceAll_(this.myPasses) {
 		this.outer_.lastRuns[pass] = any(int32(PhaseOptimizer_START_TIME))
@@ -364,7 +364,7 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 	var previousAstSize int32 = astSize
 	defer func() {
 		this.outer_.inLoop_ = false
-		this.outer_.changeTracker.removeChangeHandler(icast_CodeChangeHandler(obj_(this.scopeHandler)))
+		this.outer_.changeTracker.removeChangeHandler(iup_CodeChangeHandler(this.scopeHandler))
 	}()
 	for {
 		if (count > this.outer_.optimizationLoopMaxIterations) && this.isCodeRemovalLoopField {

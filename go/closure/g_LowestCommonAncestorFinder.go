@@ -68,9 +68,9 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 	if !this.searchQueue.isEmpty() {
 		panic(new_IllegalStateException_0())
 	}
-	SequencedCollection_addLast(icast_SequencedCollection(obj_(this.searchQueue)), root)
+	SequencedCollection_addLast(iup_SequencedCollection(this.searchQueue), root)
 	for !this.searchQueue.isEmpty() {
-		var curr DiGraph_DiGraphNode[N] = gcast_DiGraph_DiGraphNode_N[N, E](SequencedCollection_removeFirst(icast_SequencedCollection(obj_(this.searchQueue))))
+		var curr DiGraph_DiGraphNode[N] = gcast_DiGraph_DiGraphNode_N[N, E](SequencedCollection_removeFirst(iup_SequencedCollection(this.searchQueue)))
 		var parentEdges ListOf[DiGraph_DiGraphEdge[N]] = curr.getInEdges()
 		for parentEdge := range elemsBy_(parentEdges, gcast_DiGraph_DiGraphEdge_N[N, E]) {
 			var parent DiGraph_DiGraphNode[N] = parentEdge.getSource()
@@ -79,7 +79,7 @@ func (this *LowestCommonAncestorFinder[N, E]) paintAncestors(root DiGraph_DiGrap
 			}
 			var oldColor *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](Map_getOrDefault(this.searchColoring.asMap(), parent, obj_(LowestCommonAncestorFinder_Color_BLANK)))
 			if !oldColor.contains(color) {
-				SequencedCollection_addLast(icast_SequencedCollection(obj_(this.searchQueue)), parent)
+				SequencedCollection_addLast(iup_SequencedCollection(this.searchQueue), parent)
 				this.searchColoring.Put(parent, oldColor.mix(color))
 			}
 		}

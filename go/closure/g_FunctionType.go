@@ -289,7 +289,7 @@ func (this *FunctionType) getMaxArity() int32 {
 	if params.isEmpty() {
 		return 0
 	}
-	var lastParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](Iterables_getLast(icast_Iterable(obj_(params.asImm()))))
+	var lastParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](Iterables_getLast(iup_Iterable(params.asImm())))
 	if !lastParam.isVariadic() {
 		return params.size()
 	}
@@ -324,7 +324,7 @@ func (this *FunctionType) getOwnPropertyNames_impl() SetOf[string] {
 		var names *ImmutableSet_Builder[string] = immutableSetBuilder_(tc_string)
 		names.add("prototype")
 		names.addAll(Iterable(this.PrototypeObjectType.getOwnPropertyNames_impl()))
-		return icast_Set(obj_(names.buildErased()))
+		return iup_Set(names.buildErased())
 	}
 }
 
@@ -429,9 +429,9 @@ func (this *FunctionType) addRelatedInterfaces(instance *ObjectType, set *TSet[*
 func (this *FunctionType) getAncestorInterfaces() CollectionOf[*ObjectType] {
 	var result *TSet[*ObjectType] = newTSet_(tch_p_ObjectType)
 	if this.isConstructor() {
-		result.asSet().addAll(icast_Collection(obj_(this.getImplementedInterfaces().asImm())))
+		result.asSet().addAll(iup_Collection(this.getImplementedInterfaces().asImm()))
 	} else {
-		result.asSet().addAll(icast_Collection(obj_(this.getExtendedInterfaces().asImm())))
+		result.asSet().addAll(iup_Collection(this.getExtendedInterfaces().asImm()))
 	}
 	return Collection(result.asSet())
 }
@@ -508,7 +508,7 @@ func (this *FunctionType) getBindReturnType(argsToBind int32) *FunctionType {
 		return to_FunctionType(builder.build().self())
 	}
 	var origParams *ImmutableList[*FunctionType_Parameter] = this.call.getParameterList()
-	var params *TList[*FunctionType_Parameter] = tlistFrom_(tc_p_FunctionType_Parameter, icast_Collection(obj_(origParams.asImm())))
+	var params *TList[*FunctionType_Parameter] = tlistFrom_(tc_p_FunctionType_Parameter, iup_Collection(origParams.asImm()))
 	for i := int32(1); (i < argsToBind) && !params.isEmpty(); i++ {
 		if params.get(0).isVariadic() {
 			break
@@ -528,7 +528,7 @@ func (this *FunctionType) getCallOrBindSignature(isCall bool) *FunctionType {
 		return this.getBindReturnType(-1).up_JSType()
 	}()).withTemplateKeysImmutableList(this.getTemplateTypeMap().getTemplateKeys())
 	var origParams *ImmutableList[*FunctionType_Parameter] = this.getInternalArrowType().getParameterList()
-	var params *TList[*FunctionType_Parameter] = tlistFrom_(tc_p_FunctionType_Parameter, icast_Collection(obj_(origParams.asImm())))
+	var params *TList[*FunctionType_Parameter] = tlistFrom_(tc_p_FunctionType_Parameter, iup_Collection(origParams.asImm()))
 	var thisType *FunctionType_Parameter = FunctionType_Parameter_create(this.registry.createOptionalNullableType(this.getTypeOfThis()), false, false)
 	params.insert(0, thisType)
 	if isBind {
@@ -1026,7 +1026,7 @@ func FunctionType_builder(registry *JSTypeRegistry) *FunctionType_Builder {
 func (this *FunctionType) toBuilder() *FunctionType_Builder {
 	var builder *FunctionType_Builder = cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](FunctionType_builder(this.registry).setGoogModuleId(this.getGoogModuleId()).setName(this.getReferenceName()).self()).setNative(this.isNativeObjectType()).self()).setTemplateTypeMap(this.getTemplateTypeMap()).self()).withCanonicalRepresentation(this.getCanonicalRepresentation()).setIsKnownAmbiguous((this.constructorAmbiguity == FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR)).withClosurePrimitiveId(this.getClosurePrimitive()).withIsAbstract(this.isAbstract()).withKind(this.getKind()).withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.getParameters().asImm())).withReturnType_2(this.getReturnType(), this.isReturnTypeInferred()).withSourceNode(this.getSource()).withTypeOfThis(this.getTypeOfThis()).setTemplateParamCount(this.getTemplateParamCount()).self())
 	if this.isConstructor() {
-		builder.withConstructorTemplateKeys(icast_Iterable(obj_(this.getConstructorOnlyTemplateParameters().asImm())))
+		builder.withConstructorTemplateKeys(iup_Iterable(this.getConstructorOnlyTemplateParameters().asImm()))
 	}
 	return builder
 }

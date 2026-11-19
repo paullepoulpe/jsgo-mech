@@ -99,7 +99,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) resolveModuleAsPath_im
 			break
 		}
 	}
-	return ModuleLoader_normalize(transformedAddress, icast_Iterable(obj_(this.moduleRootPaths)))
+	return ModuleLoader_normalize(transformedAddress, iup_Iterable(this.moduleRootPaths))
 }
 
 var BrowserWithTransformedPrefixesModuleResolver_INVALID_AMBIGUOUS_PATH *DiagnosticType

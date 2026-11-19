@@ -117,7 +117,7 @@ func (this *ClosureRewriteModule) declareSyntheticExterns() {
 		return
 	}
 	var root Node = this.compiler_.getSynthesizedExternsInput().getAstRoot(this.compiler_)
-	Iterable_forEach(icast_Iterable(obj_(vars.asImm())), &Consumer_tfn_Node{func(p0 Node) { root.addChildToBack(p0) }})
+	Iterable_forEach(iup_Iterable(vars.asImm()), &Consumer_tfn_Node{func(p0 Node) { root.addChildToBack(p0) }})
 }
 
 func (this *ClosureRewriteModule) isNameInGlobalScope(name string) bool {
@@ -484,7 +484,7 @@ func (this *ClosureRewriteModule) updateGoogRequireDynamicCallInThen(call Node) 
 		panic(new_IllegalStateException_String(tostr_(calleeNode)))
 	}
 	calleeNode.setString(ClosureRewriteModule_IMPORT_HANDLER_NAME)
-	var exportedNamespaceNameNode Node = this.astFactory_.createNameStaticScope(icast_StaticScope(obj_(this.globalTypedScope)), exportedNamespace.get()).srcrefTree(call)
+	var exportedNamespaceNameNode Node = this.astFactory_.createNameStaticScope(iup_StaticScope(this.globalTypedScope), exportedNamespace.get()).srcrefTree(call)
 	exportedNamespaceNameNode.setOriginalName(namespaceId)
 	var functionNode Node = thenCallNode.getSecondChild()
 	if functionNode == 0 || !functionNode.isFunction() {

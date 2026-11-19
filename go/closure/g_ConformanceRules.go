@@ -1328,7 +1328,7 @@ func (this *ConformanceRules_BannedStringRegex) initBannedStringRegex(compiler *
 	if values.isEmpty() {
 		return Outcome_base_err[any](new_CheckConformance_InvalidRequirementSpec_String("missing value").up_Throwable())
 	}
-	var stringRegexOutcome *Outcome_base[*Pattern] = ConformanceRules_buildPattern(icast_List(obj_(values.asImm())))
+	var stringRegexOutcome *Outcome_base[*Pattern] = ConformanceRules_buildPattern(iup_List(values.asImm()))
 	if stringRegexOutcome.isErr() {
 		return Outcome_base_err[any](stringRegexOutcome.error())
 	}
@@ -3351,7 +3351,7 @@ func (this *ConformanceRules_BanCreateDom) getTagNames(tag Node) CollectionOf[st
 	}
 	var typeAsObj *ObjectType = type_.toMaybeObjectType()
 	if typeAsObj.getRawType().getDisplayName().get() == "goog.dom.TagName" {
-		var tagType *JSType = to_JSType(Iterables_getOnlyElement(icast_Iterable(obj_(typeAsObj.getTemplateTypes().asImm()))))
+		var tagType *JSType = to_JSType(Iterables_getOnlyElement(iup_Iterable(typeAsObj.getTemplateTypes().asImm())))
 		return Collection(ConformanceRules_BanCreateDom_ELEMENT_TAG_NAMES.get_s(tagType.getDisplayName().orElse(nullstr_)))
 	}
 	return nil
@@ -3401,7 +3401,7 @@ type ConformanceRules_SecuritySensitiveAttributes struct {
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_0() {
-	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(icast_Collection(obj_(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS.asImm())), (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
+	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(iup_Collection(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS.asImm()), (&Supplier_tfn_GlobalNamespace{func() *GlobalNamespace {
 		return nil
 	}}).get)
 }
@@ -3413,7 +3413,7 @@ func new_ConformanceRules_SecuritySensitiveAttributes_0() *ConformanceRules_Secu
 }
 
 func (this *ConformanceRules_SecuritySensitiveAttributes) init_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier func() any) {
-	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(icast_Collection(obj_(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS.asImm())), globalNamespaceSupplier)
+	this.init_ConformanceRules_SecuritySensitiveAttributes_Collection_Supplier(iup_Collection(ConformanceRules_SecuritySensitiveAttributes_ALL_BANNED_ATTRS.asImm()), globalNamespaceSupplier)
 }
 
 func new_ConformanceRules_SecuritySensitiveAttributes_Supplier(globalNamespaceSupplier func() any) *ConformanceRules_SecuritySensitiveAttributes {

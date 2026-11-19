@@ -45,7 +45,7 @@ func (this *CheckNullabilityModifiers) process_2(externs Node, root Node) {
 func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
 	if info != nil {
-		setAddAllFrom_(tc_string, this.templateTypeNames, icast_Collection(obj_(info.getTemplateTypeNames().asImm())))
+		setAddAllFrom_(tc_string, this.templateTypeNames, iup_Collection(info.getTemplateTypeNames().asImm()))
 		setAddAllFrom_(tc_string, this.templateTypeNames, Collection(info.getTypeTransformations().asImm().keySet()))
 		if info.hasType() {
 			this.handleHasType(info.getType(), n)

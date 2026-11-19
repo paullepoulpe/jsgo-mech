@@ -158,8 +158,8 @@ func JSDocSerializer_serializeIdGenerator(doc *JSDocInfo) JsdocTag {
 func JSDocSerializer_createPlaceholderType() *JSTypeExpression {
 	var name Node = IR_string(JSDocSerializer_PLACEHOLDER_TYPE_NAME)
 	var bang Node = new_Node_Token_Node(Token_rhino_BANG, name)
-	name.setStaticSourceFile(icast_StaticSourceFile(obj_(JSDocSerializer_SYNTHETIC_SOURCE)))
-	bang.setStaticSourceFile(icast_StaticSourceFile(obj_(JSDocSerializer_SYNTHETIC_SOURCE)))
+	name.setStaticSourceFile(iup_StaticSourceFile(JSDocSerializer_SYNTHETIC_SOURCE))
+	bang.setStaticSourceFile(iup_StaticSourceFile(JSDocSerializer_SYNTHETIC_SOURCE))
 	return new_JSTypeExpression(bang, JSDocSerializer_SYNTHETIC_SOURCE.getName())
 }
 
@@ -321,10 +321,10 @@ L_1:
 		}
 	}
 	if modifies != nil {
-		builder.recordModifies(icast_Set(obj_(modifies)))
+		builder.recordModifies(iup_Set(modifies))
 	}
 	if suppressions != nil {
-		builder.recordSuppressions(icast_Set(obj_(suppressions)))
+		builder.recordSuppressions(iup_Set(suppressions))
 	}
 	return builder.build()
 }

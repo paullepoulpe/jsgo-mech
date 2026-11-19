@@ -75,7 +75,7 @@ func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*S
 		chosenFixesBuilder.add(choices.getAlternatives().get(choiceIndex))
 	}
 	var chosenFixes *ImmutableList[*SuggestedFix] = chosenFixesBuilder.build()
-	return ApplySuggestedFixes_applySuggestedFixesToCode(icast_Iterable(obj_(chosenFixes.asImm())), fileNameToCodeMap)
+	return ApplySuggestedFixes_applySuggestedFixesToCode(iup_Iterable(chosenFixes.asImm()), fileNameToCodeMap)
 }
 
 func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFix], filenameToCodeMap map[string]string) *ImmutableMap[string, string] {
@@ -98,7 +98,7 @@ func ApplySuggestedFixes_applySuggestedFixesToCode(fixes IterableOf[*SuggestedFi
 
 func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionOf[*CodeReplacement], code string) string {
 	var sortedReplacements ImmutableSortedSetOf[*CodeReplacement] = ImmutableSortedSet_copyOf(replacements)
-	if ok_, a1_ := !ApplySuggestedFixes_containsOverlaps(sortedReplacements), ApplySuggestedFixes_DOUBLE_LINE_JOINER.join(icast_Iterable(obj_(sortedReplacements))); !ok_ {
+	if ok_, a1_ := !ApplySuggestedFixes_containsOverlaps(sortedReplacements), ApplySuggestedFixes_DOUBLE_LINE_JOINER.join(iup_Iterable(sortedReplacements)); !ok_ {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Found overlap between code replacements:\n%s", strobj_(a1_))))
 	}
 	var sb strBuilder_

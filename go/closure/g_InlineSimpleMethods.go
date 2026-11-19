@@ -18,7 +18,7 @@ func (this *InlineSimpleMethods) init_InlineSimpleMethods(compiler *AbstractComp
 	this.finit_InlineSimpleMethods()
 	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
-	setAddAllFrom_(tc_string, this.nonInlineableProperties, icast_Collection(obj_(compiler.getExternProperties().asImm())))
+	setAddAllFrom_(tc_string, this.nonInlineableProperties, iup_Collection(compiler.getExternProperties().asImm()))
 }
 
 func new_InlineSimpleMethods(compiler *AbstractCompiler) *InlineSimpleMethods {

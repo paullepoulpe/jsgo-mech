@@ -105,7 +105,7 @@ func new_PerformanceTracker(externsRoot Node, jsRoot Node, mode CompilerOptions_
 }
 
 func (this *PerformanceTracker) getCodeChangeHandler() CodeChangeHandler {
-	return icast_CodeChangeHandler(obj_(this.codeChange))
+	return iup_CodeChangeHandler(this.codeChange)
 }
 
 func (this *PerformanceTracker) recordPassStart(passName string, isOneTime bool) {

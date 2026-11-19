@@ -47,8 +47,8 @@ func (this *DefaultDependencyResolver) addDependency(symbol string, seen *TSet[s
 		if this.strictRequires {
 			panic(new_ServiceException(("Unknown require of " + sstr_(symbol))))
 		}
-	} else if !seen.asSet().containsAll(icast_Collection(obj_(dependency.getProvides().asImm()))) {
-		seen.asSet().addAll(icast_Collection(obj_(dependency.getProvides().asImm())))
+	} else if !seen.asSet().containsAll(iup_Collection(dependency.getProvides().asImm())) {
+		seen.asSet().addAll(iup_Collection(dependency.getProvides().asImm()))
 		for _, el := range dependency.getRequiredSymbols().items {
 			require := el
 			this.addDependency(require, seen, list)
@@ -65,7 +65,7 @@ func DefaultDependencyResolver_parseRequires(code string, addClosureBase bool) C
 	if addClosureBase {
 		requires.add(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE)
 	}
-	requires.asList().addAll(icast_Collection(obj_(deps.getRequiredSymbols().asImm())))
+	requires.asList().addAll(iup_Collection(deps.getRequiredSymbols().asImm()))
 	errorManager.generateReport()
 	return Collection(requires.asList())
 }

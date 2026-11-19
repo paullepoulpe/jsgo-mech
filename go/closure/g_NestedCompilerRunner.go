@@ -44,7 +44,7 @@ func (this *NestedCompilerRunner) addScript(shadowScript Node, uniqueShadowId st
 	var shadowInput *CompilerInput = CompilerInput_createFromInputId(shadowFile, new_InputId(uniqueShadowId))
 	shadowInput.initShadowAst(shadowScript)
 	shadowScript.setInputId(shadowInput.getInputId())
-	shadowScript.setStaticSourceFile(icast_StaticSourceFile(obj_(shadowFile)))
+	shadowScript.setStaticSourceFile(iup_StaticSourceFile(shadowFile))
 	*this.inputs = append(*this.inputs, shadowInput)
 	return this
 }
@@ -61,7 +61,7 @@ func (this *NestedCompilerRunner) initializeCompiler() {
 	this.shadowCompiler.setExternProperties(this.original_.getExternProperties())
 	this.shadowCompiler.setDebugMessage("<shadow AST compilation>")
 	var chunks *ImmutableList[*JSChunk] = this.createChunks()
-	this.shadowCompiler.initChunks(ImmutableList_of(), icast_List(obj_(chunks.asImm())), this.shadowOptions)
+	this.shadowCompiler.initChunks(ImmutableList_of(), iup_List(chunks.asImm()), this.shadowOptions)
 	this.shadowCompiler.setPassConfig(this.shadowPassConfig)
 	this.shadowCompiler.parseForCompilation()
 }

@@ -1737,7 +1737,7 @@ func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) visit_impl
 			if NodeUtil_isNameDeclOrSimpleAssignLhs(n, parent) {
 				return
 			}
-			var newNode Node = this.outer_.astFactory_.createQNameString(icast_StaticScope(obj_(this.outer_.namespace_)), this.resolveAlias(n.getQualifiedName(), n))
+			var newNode Node = this.outer_.astFactory_.createQNameString(iup_StaticScope(this.outer_.namespace_), this.resolveAlias(n.getQualifiedName(), n))
 			if this.isLeftmostNameLocal(t, newNode) {
 				return
 			}

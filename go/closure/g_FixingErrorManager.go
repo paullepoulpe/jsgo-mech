@@ -64,7 +64,7 @@ func (this *FixingErrorManager) report_2_impl(level CheckLevel, error_ *JSError)
 		if fixes.size() == 1 {
 			this.sureFixes.Put(error_, fixes.get(0))
 		} else {
-			this.multiFixes.putAll(error_, icast_Iterable(obj_(fixes.asImm())))
+			this.multiFixes.putAll(error_, iup_Iterable(fixes.asImm()))
 		}
 	}
 }

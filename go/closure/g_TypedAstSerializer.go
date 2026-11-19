@@ -40,7 +40,7 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 		panic(new_IllegalArgumentException_0())
 	}
 	if this.compiler_.hasOptimizationColors() {
-		this.typeSerializer = icast_TypedAstSerializer_TypeSerializer(obj_(this.createColorTypeSerializer(this.compiler_, this.serializationMode, this.stringPool)))
+		this.typeSerializer = iup_TypedAstSerializer_TypeSerializer(this.createColorTypeSerializer(this.compiler_, this.serializationMode, this.stringPool))
 	} else if this.compiler_.hasTypeCheckingRun() {
 		this.typeSerializer = TypedAstSerializer_createJSTypeSerializer(this.compiler_, this.serializationMode, this.stringPool)
 	} else {
@@ -65,7 +65,7 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 			builder.addCodeAst(this.serializeScriptNode(script))
 		}
 	}
-	var sourceFiles *SourceFilePool = cast_[*SourceFilePool](SourceFilePool_newBuilder().addAllSourceFile(icast_Iterable(obj_(this.sourceFileProtos().asImm()))).build())
+	var sourceFiles *SourceFilePool = cast_[*SourceFilePool](SourceFilePool_newBuilder().addAllSourceFile(iup_Iterable(this.sourceFileProtos().asImm())).build())
 	if this.compiler_.getExternProperties() != nil {
 		var externsSummary *ExternsSummary_Builder = ExternsSummary_newBuilder()
 		for _, el := range this.compiler_.getExternProperties().keys {
@@ -74,7 +74,7 @@ func (this *TypedAstSerializer) serializeRoots(externsRoot Node, jsRoot Node) *T
 		}
 		builder.setExternsSummary(externsSummary)
 	}
-	return cast_[*TypedAst](builder.addAllRuntimeLibraryToInject(icast_Iterable(obj_(this.serializationMode.runtimeLibraries().asImm()))).setTypePool(this.typeSerializer.generateTypePool()).setStringPool(this.stringPool.build().toProto()).setSourceFilePool(sourceFiles).build())
+	return cast_[*TypedAst](builder.addAllRuntimeLibraryToInject(iup_Iterable(this.serializationMode.runtimeLibraries().asImm())).setTypePool(this.typeSerializer.generateTypePool()).setStringPool(this.stringPool.build().toProto()).setSourceFilePool(sourceFiles).build())
 }
 
 func (this *TypedAstSerializer) sourceFileProtos() *ImmutableList[*SourceFileProto] {

@@ -28,7 +28,7 @@ func (this *Es6RewriteClass) process_2(externs Node, root Node) {
 	TranspilationPasses_processTranspile(this.compiler_, externs, Es6RewriteClass_features, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	TranspilationPasses_processTranspile(this.compiler_, root, Es6RewriteClass_features, []NodeTraversal_Callback{NodeTraversal_Callback(this)})
 	this.convertSuperConstructorCalls.setGlobalNamespace(new_GlobalNamespace_AbstractCompiler_Node_Node(this.compiler_, externs, root))
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this.convertSuperConstructorCalls)))
+	NodeTraversal_traverse(this.compiler_, root, iup_NodeTraversal_Callback(this.convertSuperConstructorCalls))
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, Es6RewriteClass_features)
 }
 

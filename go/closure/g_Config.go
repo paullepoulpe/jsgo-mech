@@ -69,7 +69,7 @@ func Config_builder() *Config_Builder {
 
 func Config_buildAnnotations(allowlist IterableOf[string]) *ImmutableMap[string, Annotation_parsing] {
 	var annotationsBuilder *ImmutableMap_Builder[string, Annotation_parsing] = immutableMapBuilder_(tc_string, tc_Annotation_parsing)
-	annotationsBuilder.putAll(icast_Map(obj_(Annotation_parsing_recognizedAnnotations)))
+	annotationsBuilder.putAll(iup_Map(Annotation_parsing_recognizedAnnotations))
 	for unrecognizedAnnotation := range elemsBy_(allowlist, str_) {
 		if unrecognizedAnnotation != "" && !Map_containsKey_s(Annotation_parsing_recognizedAnnotations, unrecognizedAnnotation) {
 			annotationsBuilder.put(unrecognizedAnnotation, Annotation_parsing_NOT_IMPLEMENTED)

@@ -44,7 +44,7 @@ func (this *FunctionToBlockMutator) mutateInternal(fnName string, fnNode Node, c
 	var allNamesToAlias *ImmutableSet[string] = immutableSetOf_(tc_string)
 	if hasArgs {
 		var temps *ImmutableSet[string] = this.functionArgumentInjector_.gatherCallArgumentsNeedingTemps(this.compiler_, newFnNode, args, modifiedParameters, this.compiler_.getCodingConvention())
-		allNamesToAlias = immutableSetBuilder_(tc_string).addAll(icast_Iterable(obj_(modifiedParameters.asImm()))).addAll(icast_Iterable(obj_(temps.asImm()))).build()
+		allNamesToAlias = immutableSetBuilder_(tc_string).addAll(iup_Iterable(modifiedParameters.asImm())).addAll(iup_Iterable(temps.asImm())).build()
 	}
 	var newBlock Node = NodeUtil_getFunctionBody(newFnNode)
 	newBlock.detach()
@@ -169,7 +169,7 @@ func FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node_boolean(n 
 
 func (this *FunctionToBlockMutator) makeLocalNamesUnique(fnNode Node, isCallInLoop bool) {
 	var idSupplier SupplierOf[string] = this.compiler_.getUniqueNameIdSupplier()
-	NodeTraversal_traverseScopeRoots(this.compiler_, ImmutableList_of_Object(fnNode.box_()), icast_NodeTraversal_Callback(obj_(MakeDeclaredNamesUnique_builder().withRenamer(new_MakeDeclaredNamesUnique_InlineRenamer(this.compiler_.getCodingConvention(), idSupplier, "inline_", isCallInLoop, true, nil)).withMarkChanges(false).build())), true)
+	NodeTraversal_traverseScopeRoots(this.compiler_, ImmutableList_of_Object(fnNode.box_()), iup_NodeTraversal_Callback(MakeDeclaredNamesUnique_builder().withRenamer(new_MakeDeclaredNamesUnique_InlineRenamer(this.compiler_.getCodingConvention(), idSupplier, "inline_", isCallInLoop, true, nil)).withMarkChanges(false).build()), true)
 	new_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(this.compiler_, new_FunctionToBlockMutator_LabelNameSupplier(idSupplier).get, false, false).process_2(0, fnNode)
 }
 

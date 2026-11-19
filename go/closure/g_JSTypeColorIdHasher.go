@@ -63,7 +63,7 @@ func (this *JSTypeColorIdHasher) putReferenceNameType(hasher Hasher, type_ *Obje
 
 func JSTypeColorIdHasher_sourceRefFor(type_ *ObjectType) JSType_WithSourceRef {
 	if type_.isEnumType() {
-		return icast_JSType_WithSourceRef(obj_(type_.toMaybeEnumType()))
+		return iup_JSType_WithSourceRef(type_.toMaybeEnumType())
 	} else if type_.isEnumElementType() {
 		panic(new_AssertionError_Object(type_.self()))
 	}

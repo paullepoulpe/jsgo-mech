@@ -20,7 +20,7 @@ func (this *DeadPropertyAssignmentElimination) process_2(externs Node, root Node
 	if (this.compiler_.getExternProperties() == nil) || (this.compiler_.getAccessorSummary() == nil) {
 		return
 	}
-	var skiplistedPropNames SetOf[string] = Sets_union(this.compiler_.getAccessorSummary().getAccessors().asImm().keySet(), icast_Set(obj_(this.compiler_.getExternProperties().asImm())))
+	var skiplistedPropNames SetOf[string] = Sets_union(this.compiler_.getAccessorSummary().getAccessors().asImm().keySet(), iup_Set(this.compiler_.getExternProperties().asImm()))
 	NodeTraversal_traverse(this.compiler_, this.compiler_.getJsRoot(), new_DeadPropertyAssignmentElimination_FunctionVisitor(skiplistedPropNames))
 }
 

@@ -145,7 +145,7 @@ func (this *SymbolTable) findSymbolForScope(scope *SymbolTable_SymbolScope) *Sym
 }
 
 func (this *SymbolTable) getAllSymbolsForTypeOf(sym *SymbolTable_Symbol) IterableOf[*SymbolTable_Symbol] {
-	return Iterable(this.getAllSymbolsForType(this.getType(icast_StaticSlot(obj_(sym)))).asList())
+	return Iterable(this.getAllSymbolsForType(this.getType(iup_StaticSlot(sym))).asList())
 }
 
 func (this *SymbolTable) getGlobalScope() *SymbolTable_SymbolScope {
@@ -194,7 +194,7 @@ func (this *SymbolTable) getSymbolForName(source Node, name Optional[string]) *S
 		return nil
 	}
 	if scope.isModuleScope() {
-		var moduleNameWithDot string = (sstr_(str_(Iterables_getFirst(icast_Iterable(obj_(obj_(this.compiler_.getModuleMetadataMap().getModulesByPath().Get(scope.getRootNode().getSourceFileName())).(*ModuleMetadataMap_ModuleMetadata).googNamespaces())), nil))) + ".")
+		var moduleNameWithDot string = (sstr_(str_(Iterables_getFirst(iup_Iterable(obj_(this.compiler_.getModuleMetadataMap().getModulesByPath().Get(scope.getRootNode().getSourceFileName())).(*ModuleMetadataMap_ModuleMetadata).googNamespaces()), nil))) + ".")
 		if strings.HasPrefix(name.get(), moduleNameWithDot) {
 			name = Optional_of[string](name.get()[len(moduleNameWithDot):])
 		}
@@ -516,7 +516,7 @@ func (this *SymbolTable) renameSymbol(scope *SymbolTable_SymbolScope, sym *Symbo
 	}
 	var existingSym *SymbolTable_Symbol = scope.getSlot(newName)
 	if existingSym == nil {
-		existingSym = this.declareSymbol(newName, this.getType(icast_StaticSlot(obj_(sym))), this.isTypeInferred(icast_StaticSlot(obj_(sym))), scope, sym.getDeclarationNode(), sym.getJSDocInfo())
+		existingSym = this.declareSymbol(newName, this.getType(iup_StaticSlot(sym)), this.isTypeInferred(iup_StaticSlot(sym)), scope, sym.getDeclarationNode(), sym.getJSDocInfo())
 	}
 	this.mergeSymbol(sym, existingSym)
 }
@@ -581,7 +581,7 @@ func (this *SymbolTable) fillPropertyScopes() {
 	Collections_sort_List_Comparator(types.asList(), icast_Comparator(this.getNaturalSymbolOrdering().reverse().self()))
 	var allTypes IterableOf[*SymbolTable_Symbol] = Iterables_concat(Iterable(types.asList()), Iterable(exports.asList()))
 	for s := range elemsAs_[*SymbolTable_Symbol](allTypes) {
-		var type_ *JSType = this.getType(icast_StaticSlot(obj_(s)))
+		var type_ *JSType = this.getType(iup_StaticSlot(s))
 		var symbolForType *SymbolTable_Symbol = this.getSymbolForTypeHelper(type_, false)
 		if ((type_.isNominalConstructorOrInterface() || type_.isFunctionPrototypeType()) || type_.isEnumType()) && !s.equals_SymbolTable_Symbol(symbolForType) {
 			continue
@@ -589,13 +589,13 @@ func (this *SymbolTable) fillPropertyScopes() {
 		this.symbolThatDeclaresType.put(type_, s)
 	}
 	for s := range elemsAs_[*SymbolTable_Symbol](allTypes) {
-		var type_ *JSType = this.getType(icast_StaticSlot(obj_(s)))
+		var type_ *JSType = this.getType(iup_StaticSlot(s))
 		if (type_ == nil) || s.equals_SymbolTable_Symbol(this.symbolThatDeclaresType.get(type_)) {
 			this.createPropertyScopeFor(s)
 		}
 	}
 	for s := range elemsAs_[*SymbolTable_Symbol](allTypes) {
-		var type_ *JSType = this.getType(icast_StaticSlot(obj_(s)))
+		var type_ *JSType = this.getType(iup_StaticSlot(s))
 		if (type_ != nil) && (this.symbolThatDeclaresType.get(type_) != nil) {
 			s.propertyScope = this.symbolThatDeclaresType.get(type_).getPropertyScope()
 		}
@@ -604,11 +604,11 @@ func (this *SymbolTable) fillPropertyScopes() {
 }
 
 func (this *SymbolTable) needsPropertyScope(sym *SymbolTable_Symbol) bool {
-	var jsType *JSType = this.getType(icast_StaticSlot(obj_(sym)))
+	var jsType *JSType = this.getType(iup_StaticSlot(sym))
 	if (jsType != nil) && jsType.isRecordType() {
 		return true
 	}
-	var type_ *ObjectType = ObjectType_cast(this.getType(icast_StaticSlot(obj_(sym))))
+	var type_ *ObjectType = ObjectType_cast(this.getType(iup_StaticSlot(sym)))
 	if type_ == nil {
 		return false
 	}
@@ -697,7 +697,7 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 	if s.propertyScope != nil {
 		return
 	}
-	var jsType *JSType = this.getType(icast_StaticSlot(obj_(s)))
+	var jsType *JSType = this.getType(iup_StaticSlot(s))
 	var type_ *ObjectType = func() *ObjectType {
 		if jsType == nil {
 			return nil
@@ -722,7 +722,7 @@ func (this *SymbolTable) createPropertyScopeFor(s *SymbolTable_Symbol) {
 		}
 	}
 	for propName := range elemsBy_(propNames, str_) {
-		var newProp StaticSlot = icast_StaticSlot(obj_(instanceType.getSlotString(propName)))
+		var newProp StaticSlot = iup_StaticSlot(instanceType.getSlotString(propName))
 		if newProp.getDeclaration() == nil {
 			continue
 		}
@@ -964,7 +964,7 @@ func (this *SymbolTable) getType(sym StaticSlot) *JSType {
 		if type_ != nil {
 			return type_
 		}
-		return sym.getJSDocInfo().getTypedefType().evaluate(icast_StaticTypedScope(obj_(this.compiler_.getTopScope())), this.registry)
+		return sym.getJSDocInfo().getTypedefType().evaluate(iup_StaticTypedScope(this.compiler_.getTopScope()), this.registry)
 	}
 	if staticTypedSlot, ok := any(sym).(StaticTypedSlot); ok {
 		return staticTypedSlot.getType()
@@ -1064,7 +1064,7 @@ func (this *SymbolTable_Symbol) hashCode() int32 {
 }
 
 func (this *SymbolTable_Symbol) getDeclaration_impl() StaticRef {
-	return icast_StaticRef(obj_(this.declaration_))
+	return iup_StaticRef(this.declaration_)
 }
 
 func (this *SymbolTable_Symbol) getFunctionType() *FunctionType {
@@ -1916,7 +1916,7 @@ func new_SymbolTable_1(outer_ *SymbolTable) *SymbolTable_1 {
 }
 
 func (this *SymbolTable_1) enterScope_impl(t *NodeTraversal) {
-	this.outer_.createScopeFrom(icast_StaticScope(obj_(t.getScope())))
+	this.outer_.createScopeFrom(iup_StaticScope(t.getScope()))
 }
 
 func (this *SymbolTable_1) visit_impl(t *NodeTraversal, n Node, p Node) {

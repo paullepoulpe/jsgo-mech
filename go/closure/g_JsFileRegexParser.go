@@ -98,7 +98,7 @@ func (this *JsFileRegexParser) parseReader(filePath string, closureRelativePath 
 		loadFlags.Put("module", "es6")
 	default:
 	}
-	var dependencyInfo DependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(closureRelativePath, Optional_of[string](filePath)).setProvides(Collection(this.provides.asList())).setRequires(Collection(this.requires.asList())).setTypeRequires(Collection(this.typeRequires.asList())).setLoadFlags(loadFlags.asMap()).setHasExternsAnnotation(this.hasExternsAnnotation).setHasNoCompileAnnotation(this.hasNoCompileAnnotation).build()))
+	var dependencyInfo DependencyInfo = iup_DependencyInfo(SimpleDependencyInfo_builder(closureRelativePath, Optional_of[string](filePath)).setProvides(Collection(this.provides.asList())).setRequires(Collection(this.requires.asList())).setTypeRequires(Collection(this.typeRequires.asList())).setLoadFlags(loadFlags.asMap()).setHasExternsAnnotation(this.hasExternsAnnotation).setHasNoCompileAnnotation(this.hasNoCompileAnnotation).build())
 	if JsFileRegexParser_logger.isLoggable(Level_FINE) {
 		JsFileRegexParser_logger.fine(("DepInfo: " + objstr_(dependencyInfo)))
 	}

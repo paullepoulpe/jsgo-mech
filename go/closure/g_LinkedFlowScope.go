@@ -134,7 +134,7 @@ func (this *LinkedFlowScope) getSlot(name string) StaticSlot {
 		if scope != nil {
 			return StaticSlot(scope.getSlot(name))
 		}
-		return icast_StaticSlot(obj_(var_))
+		return iup_StaticSlot(var_)
 	}()
 }
 
@@ -188,7 +188,7 @@ func (this *LinkedFlowScope) withSyntacticScope(scope StaticTypedScope) FlowScop
 }
 
 func (this *LinkedFlowScope) getDeclarationScope() StaticTypedScope {
-	return icast_StaticTypedScope(obj_(this.syntacticScope))
+	return iup_StaticTypedScope(this.syntacticScope)
 }
 
 func LinkedFlowScope_getCommonParentDeclarationScope(left *LinkedFlowScope, right *LinkedFlowScope) *TypedScope {
@@ -215,7 +215,7 @@ func LinkedFlowScope_equalScopes(left *LinkedFlowScope_OverlayScope, right *Link
 		return true
 	}
 	return left.slots.equivalent(right.slots, &BiPredicate_tfn_LinkedFlowScope_OverlaySlot_LinkedFlowScope_OverlaySlot{func(p0 *LinkedFlowScope_OverlaySlot, p1 *LinkedFlowScope_OverlaySlot) bool {
-		return LinkedFlowScope_equalSlots(icast_StaticTypedSlot(obj_(p0)), icast_StaticTypedSlot(obj_(p1)))
+		return LinkedFlowScope_equalSlots(iup_StaticTypedSlot(p0), iup_StaticTypedSlot(p1))
 	}})
 }
 
@@ -414,7 +414,7 @@ func (this *LinkedFlowScope_FlowScopeJoinOp) joinFlow(input FlowScope) {
 }
 
 func (this *LinkedFlowScope_FlowScopeJoinOp) finish() FlowScope {
-	return icast_FlowScope(obj_(this.result))
+	return iup_FlowScope(this.result)
 }
 
 type LinkedFlowScope_OverlayScope struct {

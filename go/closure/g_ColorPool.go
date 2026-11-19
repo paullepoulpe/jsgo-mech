@@ -166,7 +166,7 @@ func (this *ColorPool_Builder) finit_ColorPool_Builder() {
 
 func (this *ColorPool_Builder) init_ColorPool_Builder() {
 	this.finit_ColorPool_Builder()
-	this.idToColor.asMap().putAll(icast_Map(obj_(StandardColors_AXIOMATIC_COLORS)))
+	this.idToColor.asMap().putAll(iup_Map(StandardColors_AXIOMATIC_COLORS))
 }
 
 func new_ColorPool_Builder() *ColorPool_Builder {

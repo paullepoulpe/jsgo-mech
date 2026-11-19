@@ -174,7 +174,7 @@ func (this *CodePrinter_MappedCodePrinter) getSourceMappings(code string) *[]*So
 		var adjusted *SourceMap_Mapping = new_SourceMap_Mapping()
 		adjusted.node_ = mapping.node_
 		adjusted.start_ = mapping.start_
-		adjusted.end_ = CodePrinter_MappedCodePrinter_adjustEndPosition(icast_List(obj_(lineLengths)), mapping.end_)
+		adjusted.end_ = CodePrinter_MappedCodePrinter_adjustEndPosition(iup_List(lineLengths), mapping.end_)
 		*fixedMappings = append(*fixedMappings, adjusted)
 	}
 	return fixedMappings

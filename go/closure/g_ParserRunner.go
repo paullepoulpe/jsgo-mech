@@ -28,7 +28,7 @@ func ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_Str
 		effectiveAnnotationNames = tsetCopyT_(tc_string, ParserRunner_annotationNames)
 		effectiveAnnotationNames.AddAll(extraAnnotationNames)
 	}
-	return Config_builder().setExtraAnnotationNames(Iterable(effectiveAnnotationNames.asSet())).setJsDocParsingMode(jsdocParsingMode).setRunMode(runMode).setSuppressionNames(icast_Iterable(obj_(ParserRunner_suppressionNames.asImm()))).setClosurePrimitiveNames(icast_Iterable(obj_(ParserRunner_closurePrimitiveNames.asImm()))).setLanguageMode(languageMode).setParseInlineSourceMaps(parseInlineSourceMaps).setStrictMode(strictMode).build()
+	return Config_builder().setExtraAnnotationNames(Iterable(effectiveAnnotationNames.asSet())).setJsDocParsingMode(jsdocParsingMode).setRunMode(runMode).setSuppressionNames(iup_Iterable(ParserRunner_suppressionNames.asImm())).setClosurePrimitiveNames(iup_Iterable(ParserRunner_closurePrimitiveNames.asImm())).setLanguageMode(languageMode).setParseInlineSourceMaps(parseInlineSourceMaps).setStrictMode(strictMode).build()
 }
 
 func ParserRunner_getReservedVars() *ImmutableSet[string] {

@@ -34,7 +34,7 @@ type RemoveUnusedCode struct {
 
 func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.worklist = &[]*RemoveUnusedCode_Continuation{}
-	this.pinnedPropertyNames = setFrom_(tc_string, icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES.asImm())))
+	this.pinnedPropertyNames = setFrom_(tc_string, iup_Collection(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES.asImm()))
 	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_Removable]()
 	this.allFunctionParamScopes = &[]*Scope{}
 	this.polyfills = SimpleSetMultimap_createInsertionOrdered[any, *RemoveUnusedCode_PolyfillInfo]()
@@ -71,7 +71,7 @@ func (this *RemoveUnusedCode) process_2(externs Node, root Node) {
 	if !this.compiler_.getLifeCycleStage().isNormalized() {
 		panic(new_IllegalStateException_0())
 	}
-	setAddAllFrom_(tc_string, this.pinnedPropertyNames, icast_Collection(obj_(this.compiler_.getExternProperties().asImm())))
+	setAddAllFrom_(tc_string, this.pinnedPropertyNames, iup_Collection(this.compiler_.getExternProperties().asImm()))
 	defer func() {
 		this.removalLog = nil
 		this.unremovableLog = nil

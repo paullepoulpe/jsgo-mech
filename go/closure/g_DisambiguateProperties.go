@@ -47,7 +47,7 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 	var propIndex *TMap[string, *PropertyClustering] = findRefs.getPropertyIndex()
 	DisambiguateProperties_invalidateWellKnownProperties(propIndex)
 	this.logForDiagnosticsStreamedJsonProducer("prop_refs", new_DisambiguateProperties_1(this, propIndex).writeJson)
-	graphBuilder.addAll(icast_Collection(obj_(flattener.getAllKnownTypes().asImm())))
+	graphBuilder.addAll(iup_Collection(flattener.getAllKnownTypes().asImm()))
 	var graph *DiGraph[*ColorGraphNode] = graphBuilder.build().up_DiGraph()
 	for _, el := range flattener.getAllKnownTypes().keys {
 		colorGraphNode := el

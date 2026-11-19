@@ -36,7 +36,7 @@ func (this *JsMessageExtractor) extractMessages(inputs []*SourceFile_jscomp) Col
 
 func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*SourceFile_jscomp]) CollectionOf[*JsMessage] {
 	var compiler *Compiler = new_Compiler_0()
-	compiler.init(ImmutableList_of(), icast_List(obj_(ImmutableList_copyOf_Iterable(inputs))), this.options_)
+	compiler.init(ImmutableList_of(), iup_List(ImmutableList_copyOf_Iterable(inputs)), this.options_)
 	compiler.runInCompilerThread(func() any {
 		compiler.parseInputs()
 		return nil

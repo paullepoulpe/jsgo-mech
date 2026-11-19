@@ -60,7 +60,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(this.graphNodeFactory, (&LowestCommonAncestorFinder_Factory_fn[*ColorGraphNode, any]{func(p0 *DiGraph[*ColorGraphNode]) *LowestCommonAncestorFinder[*ColorGraphNode, any] {
 		return new_LowestCommonAncestorFinder[*ColorGraphNode, any](p0)
 	}}).create, this.colorRegistry)
-	graphBuilder.addAll(icast_Collection(obj_(this.graphNodeFactory.getAllKnownTypes().asImm())))
+	graphBuilder.addAll(iup_Collection(this.graphNodeFactory.getAllKnownTypes().asImm()))
 	var colorGraph *LinkedDirectedGraph[*ColorGraphNode, any] = graphBuilder.build()
 	func() {
 		var chunkGraphLog *LogFile = this.compiler_.createOrReopenLog(Object_getClass(any(this)), "color_graph.dot", []string{})
@@ -89,7 +89,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		}
 		prop.relatedColorsSeeds = nil
 	}
-	var reservedNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder().addAll(icast_Iterable(obj_(this.externedNames.asImm()))).addAll(Iterable(this.quotedNames.asSet()))
+	var reservedNames ImmutableSet_BuilderOf[string] = ImmutableSet_builder().addAll(iup_Iterable(this.externedNames.asImm())).addAll(Iterable(this.quotedNames.asSet()))
 	var numRenamedPropertyNames int32 = 0
 	var numSkippedPropertyNames int32 = 0
 	var nodes *TList[*AmbiguateProperties_PropertyGraphNode] = newTListN_(tc_p_AmbiguateProperties_PropertyGraphNode, this.propertyMap.Len())
@@ -112,13 +112,13 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		return nil
 	}(), AmbiguateProperties_FREQUENCY_COMPARATOR).up_GraphColoring()
 	var numNewPropertyNames int32 = coloring.color()
-	var nameGen NameGenerator = new_DefaultNameGenerator_Set_String_Set_Set(icast_Set(obj_(reservedNames.build())), "", this.reservedFirstCharacters, this.reservedNonFirstCharacters)
+	var nameGen NameGenerator = new_DefaultNameGenerator_Set_String_Set_Set(iup_Set(reservedNames.build()), "", this.reservedFirstCharacters, this.reservedNonFirstCharacters)
 	var colorMap []string = newstrarr_(numNewPropertyNames)
 	for i := int32(0); i < numNewPropertyNames; i++ {
 		colorMap[i] = nameGen.generateNextName()
 	}
 	for node := range elemsAs_[*AmbiguateProperties_PropertyGraphNode](icast_List(propertyGraph.getNodes())) {
-		node.getValue().newName = Optional_of[string](colorMap[Object_hashCode(Annotatable_getAnnotation(icast_Annotatable(obj_(node))))])
+		node.getValue().newName = Optional_of[string](colorMap[Object_hashCode(Annotatable_getAnnotation(iup_Annotatable(node)))])
 		if this.renamingMap != nil {
 			this.renamingMap.Put(node.getValue().oldName, node.getValue().newName.orElse(nullstr_))
 		}

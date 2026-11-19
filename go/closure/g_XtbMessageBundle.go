@@ -43,7 +43,7 @@ func XtbMessageBundle_createSAXParser() *SAXParser {
 	factory.setFeature("http://javax.xml.XMLConstants/feature/secure-processing", true)
 	var parser *SAXParser = factory.newSAXParser()
 	var xmlReader XMLReader = parser.getXMLReader()
-	xmlReader.setEntityResolver(icast_EntityResolver(obj_(XtbMessageBundle_NOOP_RESOLVER)))
+	xmlReader.setEntityResolver(iup_EntityResolver(XtbMessageBundle_NOOP_RESOLVER))
 	return parser
 }
 
