@@ -352,6 +352,53 @@ public class Unboxed {
     return v;
   }
 
+  // ---- identity functions: a static method that is `a == b` on two Objects is the comparison
+  @SuppressWarnings("ReferenceEquality")
+  static boolean identical(Object a, Object b) {
+    return a == b;
+  }
+
+  /** Not an identity function: the call stays a call. */
+  static boolean identicalOrNull(Object a, Object b) {
+    return a == b || a == null;
+  }
+
+  static boolean different(Object a, Object b) {
+    return a != b;
+  }
+
+  static String identity() {
+    Flat one = Flat.ONE, two = Flat.TWO, noFlat = null;
+    Ident i1 = new Ident(1), i2 = new Ident(1), noIdent = null;
+    Dot d1 = new Dot(), d2 = new Dot();
+    Shape s1 = d1, s2 = new Named(), noShape = null;
+    Box b1 = new Named(), b2 = new Crate(), noBox = null;
+    Named n1 = (Named) s2;
+    Object o = i1, od = d1;
+    String str = "str", other = "other", noStr = null;
+    int[] arr = {1, 2}, arr2 = {1, 2};
+    List<String> l1 = new ArrayList<>(), l2 = new ArrayList<>();
+    List<Object> erased = new java.util.LinkedList<>();
+    erased.add(one);
+    erased.add(i1);
+    List<Ident> idents = erasedAs(erased);
+    String same = identical(one, one) + "" + identical(one, two) + identical(noFlat, one) + identical(noFlat, noFlat) + identical(one, null) + identical(null, noFlat) + identical(null, null)
+        + " " + identical(i1, i1) + identical(i1, i2) + identical(i1, noIdent) + identical(noIdent, noIdent) + identical(i1, o) + identical(o, i1) + identical(o, o) + identical(o, od)
+        // equal by equals, not identical
+        + " " + identical(d1, d1) + identical(d1, d2) + identical(s1, d1) + identical(d1, s1) + identical(s1, s2) + identical(s1, noShape) + identical(noShape, noShape) + identical(od, s1)
+        // a class with subclasses, seen at two static types
+        + " " + identical(b1, b1) + identical(b1, b2) + identical(s2, n1) + identical(n1, s2) + identical((Box) n1, n1) + identical(n1, (Box) n1) + identical(b1, noBox) + identical(noBox, noShape)
+        + " " + identical(str, str) + identical(str, other) + identical(str, noStr) + identical(noStr, noStr) + identical(noStr, null) + identical(str, o)
+        + " " + identical(arr, arr) + identical(arr, arr2) + identical(l1, l1) + identical(l1, l2) + identical(l1, (Object) l1) + identical(l1, null)
+        // not what its static type says: never cast
+        + " " + identical(idents.get(0), i1) + identical(i1, idents.get(1)) + identical(idents.get(0), one)
+        + " " + identical(1, 1) + identical('c', 'c') + identical(true, false) + identical(str.length(), 3);
+    String others = identicalOrNull(i1, i1) + "" + identicalOrNull(i1, i2) + identicalOrNull(noIdent, i2) + different(i1, i2) + different(i1, i1) + different(str, noStr);
+    order = 0;
+    String evals = identical(step(1, i1), step(2, i2)) + "" + identical(step(3, s1), step(4, d1)) + identical(step(5, str), step(6, noStr)) + order;
+    return same + " | " + others + " | " + evals;
+  }
+
   static String objectCalls() {
     Flat one = Flat.ONE, two = Flat.TWO, noFlat = null;
     Tone low = Tone.LOW, high = Tone.HIGH, noTone = null;
@@ -532,6 +579,7 @@ public class Unboxed {
     p(strSeqs());
     p(typedObjects());
     p(objectCalls());
+    p(identity());
     p(implicitAny());
     p(nonNull());
     p(bare());

@@ -59,7 +59,7 @@ import org.jspecify.annotations.Nullable;
  * the time of the call: it does not follow a key that is removed and added again, and is a constant
  * empty set for a key that is absent.
  */
-public final class SimpleSetMultimap<K, V> implements Serializable {
+public final class SimpleSetMultimap<K, V> implements SimpleCollection, Serializable {
 
   private record Entry<K, V>(K key, V value) implements Serializable {}
 
@@ -152,23 +152,23 @@ public final class SimpleSetMultimap<K, V> implements Serializable {
     }
   }
 
-  public Set<V> get(@Nullable Object key) {
+  public Set<V> get(K key) {
     Set<V> values = map.get(key);
     return values == null ? ImmutableSet.of() : Collections.unmodifiableSet(values);
   }
 
-  public boolean containsKey(@Nullable Object key) {
+  public boolean containsKey(K key) {
     return map.containsKey(key);
   }
 
-  public boolean containsEntry(@Nullable Object key, @Nullable Object value) {
+  public boolean containsEntry(K key, V value) {
     Set<V> values = map.get(key);
     return values != null && values.contains(value);
   }
 
   /** Removes {@code key} and returns the values it had (empty if it was absent). */
   @CanIgnoreReturnValue
-  public Set<V> removeAll(@Nullable Object key) {
+  public Set<V> removeAll(K key) {
     checkState(!frozen, "immutable");
     Set<V> values = map.remove(key);
     if (values == null) {
@@ -176,7 +176,7 @@ public final class SimpleSetMultimap<K, V> implements Serializable {
     }
     if (entryOrder != null) {
       for (V value : values) {
-        entryOrder.remove(new Entry<Object, Object>(key, value));
+        entryOrder.remove(new Entry<>(key, value));
       }
     }
     return Collections.unmodifiableSet(values);
@@ -195,6 +195,32 @@ public final class SimpleSetMultimap<K, V> implements Serializable {
   }
 
   public Collection<V> values() {
+    final class InsertionOrderedValuesIterator implements Iterator<V> {
+      private final Iterator<Entry<K, V>> entries = entryOrder.iterator();
+      private @Nullable Entry<K, V> last = null;
+
+      @Override
+      public boolean hasNext() {
+        return entries.hasNext();
+      }
+
+      @Override
+      public V next() {
+        last = entries.next();
+        return last.value();
+      }
+
+      @Override
+      public void remove() {
+        checkState(!frozen, "immutable");
+        entries.remove();
+        Set<V> values = map.get(last.key());
+        values.remove(last.value());
+        if (values.isEmpty()) {
+          map.remove(last.key());
+        }
+      }
+    }
     return new AbstractCollection<V>() {
       @Override
       public Iterator<V> iterator() {
@@ -210,36 +236,14 @@ public final class SimpleSetMultimap<K, V> implements Serializable {
     };
   }
 
-  private final class InsertionOrderedValuesIterator implements Iterator<V> {
-    private final Iterator<Entry<K, V>> entries = entryOrder.iterator();
-    private @Nullable Entry<K, V> last = null;
-
-    @Override
-    public boolean hasNext() {
-      return entries.hasNext();
-    }
-
-    @Override
-    public V next() {
-      last = entries.next();
-      return last.value();
-    }
-
-    @Override
-    public void remove() {
-      checkState(!frozen, "immutable");
-      entries.remove();
-      Set<V> values = map.get(last.key());
-      values.remove(last.value());
-      if (values.isEmpty()) {
-        map.remove(last.key());
-      }
-    }
-  }
-
   /** Returns a live view; neither the map nor its sets may be modified. */
   public Map<K, Set<V>> asMap() {
     return Collections.unmodifiableMap(map);
+  }
+
+  @Override
+  public Map<?, ?> untypedMap() {
+    return asMap();
   }
 
   /** Returns the number of key-value pairs. */
@@ -257,7 +261,7 @@ public final class SimpleSetMultimap<K, V> implements Serializable {
 
   @Override
   public boolean equals(@Nullable Object o) {
-    return o instanceof SimpleSetMultimap<?, ?> that && map.equals(that.map);
+    return o instanceof SimpleSetMultimap && map.equals(((SimpleCollection) o).untypedMap());
   }
 
   @Override

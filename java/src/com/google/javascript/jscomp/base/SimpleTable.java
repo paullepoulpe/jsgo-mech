@@ -57,23 +57,23 @@ public final class SimpleTable<R, C, V> implements Serializable {
     return row.put(columnKey, value);
   }
 
-  public @Nullable V get(@Nullable Object rowKey, @Nullable Object columnKey) {
+  public @Nullable V get(R rowKey, C columnKey) {
     Map<C, V> row = rows.get(rowKey);
     return row == null ? null : row.get(columnKey);
   }
 
-  public boolean contains(@Nullable Object rowKey, @Nullable Object columnKey) {
+  public boolean contains(R rowKey, C columnKey) {
     Map<C, V> row = rows.get(rowKey);
     return row != null && row.containsKey(columnKey);
   }
 
-  public boolean containsRow(@Nullable Object rowKey) {
+  public boolean containsRow(R rowKey) {
     return rows.containsKey(rowKey);
   }
 
   /** Removes the cell with the given keys and returns the value it had, if any. */
   @CanIgnoreReturnValue
-  public @Nullable V remove(@Nullable Object rowKey, @Nullable Object columnKey) {
+  public @Nullable V remove(R rowKey, C columnKey) {
     Map<C, V> row = rows.get(rowKey);
     if (row == null) {
       return null;
@@ -85,7 +85,7 @@ public final class SimpleTable<R, C, V> implements Serializable {
     return value;
   }
 
-  public Map<C, V> row(@Nullable Object rowKey) {
+  public Map<C, V> row(R rowKey) {
     Map<C, V> row = rows.get(rowKey);
     return row == null ? ImmutableMap.of() : Collections.unmodifiableMap(row);
   }

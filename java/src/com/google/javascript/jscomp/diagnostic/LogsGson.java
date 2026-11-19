@@ -16,7 +16,9 @@
 
 package com.google.javascript.jscomp.diagnostic;
 
+import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.base.SimpleBiMap;
+import com.google.javascript.jscomp.base.SimpleCollection;
 import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.base.SimpleMultiset;
@@ -64,14 +66,12 @@ public final class LogsGson {
       out.nullValue();
     } else if (value instanceof Able able) {
       out.rawValue(Optional.of(toJson(able.toLogsGson())));
-    } else if (value instanceof SimpleListMultimap<?, ?> multimap) {
-      out.rawValue(Optional.of(toJson(multimap.asMap())));
-    } else if (value instanceof SimpleSetMultimap<?, ?> multimap) {
-      out.rawValue(Optional.of(toJson(multimap.asMap())));
-    } else if (value instanceof SimpleBiMap<?, ?> bimap) {
-      out.rawValue(Optional.of(toJson(bimap.asMap())));
-    } else if (value instanceof SimpleMultiset<?> multiset) {
-      out.rawValue(Optional.of(toJson(multiset.asList())));
+    } else if (value instanceof SimpleListMultimap
+        || value instanceof SimpleSetMultimap
+        || value instanceof SimpleBiMap) {
+      out.rawValue(Optional.of(toJson(((SimpleCollection) value).untypedMap())));
+    } else if (value instanceof SimpleMultiset) {
+      out.rawValue(Optional.of(toJson(ImmutableList.copyOf((Iterable<?>) value))));
     } else if (value instanceof Map<?, ?> map) {
       out.beginObject();
       for (Map.Entry<?, ?> entry : map.entrySet()) {

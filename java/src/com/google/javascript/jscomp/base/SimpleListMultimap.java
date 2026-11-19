@@ -47,7 +47,7 @@ import org.jspecify.annotations.Nullable;
  * the call: it does not follow a key that is removed and added again, and is a constant empty list
  * for a key that is absent.
  */
-public final class SimpleListMultimap<K, V> implements Serializable {
+public final class SimpleListMultimap<K, V> implements SimpleCollection, Serializable {
 
   private final LinkedHashMap<K, List<V>> map = new LinkedHashMap<>();
   private boolean frozen = false;
@@ -101,18 +101,18 @@ public final class SimpleListMultimap<K, V> implements Serializable {
     }
   }
 
-  public List<V> get(@Nullable Object key) {
+  public List<V> get(K key) {
     List<V> values = map.get(key);
     return values == null ? ImmutableList.of() : Collections.unmodifiableList(values);
   }
 
-  public boolean containsKey(@Nullable Object key) {
+  public boolean containsKey(K key) {
     return map.containsKey(key);
   }
 
   /** Removes the first occurrence of {@code value} from the values of {@code key}. */
   @CanIgnoreReturnValue
-  public boolean remove(@Nullable Object key, @Nullable Object value) {
+  public boolean remove(K key, V value) {
     checkState(!frozen, "immutable");
     List<V> values = map.get(key);
     if (values == null || !values.remove(value)) {
@@ -126,7 +126,7 @@ public final class SimpleListMultimap<K, V> implements Serializable {
 
   /** Removes {@code key} and returns the values it had (empty if it was absent). */
   @CanIgnoreReturnValue
-  public List<V> removeAll(@Nullable Object key) {
+  public List<V> removeAll(K key) {
     checkState(!frozen, "immutable");
     List<V> values = map.remove(key);
     return values == null ? ImmutableList.of() : Collections.unmodifiableList(values);
@@ -155,6 +155,11 @@ public final class SimpleListMultimap<K, V> implements Serializable {
     return Collections.unmodifiableMap(map);
   }
 
+  @Override
+  public Map<?, ?> untypedMap() {
+    return asMap();
+  }
+
   /** Returns the number of key-value pairs. */
   public int size() {
     int size = 0;
@@ -170,7 +175,7 @@ public final class SimpleListMultimap<K, V> implements Serializable {
 
   @Override
   public boolean equals(@Nullable Object o) {
-    return o instanceof SimpleListMultimap<?, ?> that && map.equals(that.map);
+    return o instanceof SimpleListMultimap && map.equals(((SimpleCollection) o).untypedMap());
   }
 
   @Override
