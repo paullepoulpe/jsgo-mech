@@ -539,7 +539,7 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveToPreferred
 			this.outer_.cccmLog.logString("start DSG Cycle move")
 			for globalSymbolName := range this.getGlobalSymbolNames().All() {
 				this.outer_.cccmLog.log(&Supplier_tfn_string{func() string {
-					return ("Moving DSG for " + sstr_(globalSymbolName) + " from chunk " + objstr_(obj_(this.currentChunk)) + " to chunk " + objstr_(obj_(preferredChunk)))
+					return ("Moving DSG for " + sstr_(globalSymbolName) + " from chunk " + tostr_(this.currentChunk) + " to chunk " + tostr_(preferredChunk))
 				}})
 			}
 		}
