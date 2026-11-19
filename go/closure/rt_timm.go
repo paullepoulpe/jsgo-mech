@@ -63,7 +63,7 @@ func boxAll_[T any](c *tconv_[T], s []T) []any {
 func tlistEmptyImm_[T any](c *tconv_[T]) *ImmutableList[T] {
 	if c.emptyL == nil {
 		l := &TList[T]{items: []T{}, c: c, imm: true}
-		l.view = &tlistView_[T]{l: l, twin: emptyImmList_}
+		l.view = tlistView_[T]{l: l, twin: emptyImmList_}
 		c.emptyL = l
 	}
 	return c.emptyL
@@ -119,10 +119,10 @@ func (l *TList[T]) asImm() *ErasedImmutableList {
 	if l == nil {
 		return nil
 	}
-	if l.view == nil {
-		l.view = &tlistView_[T]{l: l}
+	if l.view.l == nil {
+		l.view.l = l
 	}
-	v := l.view
+	v := &l.view
 	if v.twin == nil {
 		if len(l.items) == 0 {
 			v.twin = emptyImmList_
