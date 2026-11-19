@@ -333,6 +333,14 @@ wall 102.6s/100.8s/100.7s -> 101.5s/99.9s/99.5s, CHECKS allocation 16.02 GB -> 1
 and not kept: repeated fields starting with room for four elements (wall within noise, signs
 differ; objects -0.6%, bytes +1%).
 
+By stage, on the first 3,500 chunks (19 Nov, 2df6c21b against pre-flip Java, 3 alternating
+rounds, idle host, outputs identical): total wall 100.6-101.0s against Java's 94.2-95.2s
+(Java/Go 0.94). CHECKS 50.87s against 40.41s (0.79, behind in 3 of 3 rounds); OPTIMIZATIONS
+40.84s against 42.51s (1.04, ahead in 3 of 3); FINALIZATIONS 9.20s against 11.58s (1.26, ahead
+in 3 of 3). So the whole gap is the CHECKS stage: in its pass times (tracer, 18 Nov) inferTypes
+19.5s against 12.9s, serializeTypedAst 7.3s against 3.3s, parseInputs 8.2s against 6.0s,
+checkTypes 4.4s against 2.7s.
+
 ## Correction: PGO (13-17 Nov)
 
 `go/cmd/mech/default.pgo` was in the tree from 1fef152c (13 Nov) to c4aefc67 (17 Nov), and
