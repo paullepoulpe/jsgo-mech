@@ -1,0 +1,90 @@
+# The classes valobj turns into Go values, and what the tool cannot check cheaply, argued by
+# hand with the lines of go/closure it rests on (line numbers as of the commit before the step;
+# the Java classes are in com/google/javascript/jscomp/parsing/parser/util).
+#
+#   class C           C becomes a value. The tool checks its shape, immutability, identity-freedom
+#                     and the mechanical part of null-freedom (see main.go), and stops if one fails.
+#   field D.f         a field of type C in class D, argued here to be assigned by every constructor
+#                     of D before anything reads it. The tool checks that every write of it is
+#                     `this.f = x` in an init_/finit_ method of D (x is an expression of type *C,
+#                     which the tool shows is never nil).
+#   field+ D.f        the same, with writes outside D's constructors too (argued here).
+#   nullable D.f      a field of type C that may be null: it stays a pointer (to a private copy).
+#                     The tool checks it is only assigned a value, compared with nil, or
+#                     dereferenced on the spot. No zero value stands for null.
+#
+# A field of a listed class's type that is not listed here stops the tool.
+
+# SourcePosition: four final fields (source, offset, line, column) set by the constructor, a
+# toString; Java never compares two with == and never passes null for one. `source` is null in
+# three positions IRFactory makes as search bounds (g_IRFactory.go:1966, 1989, 2008), so the zero
+# value is not provably unused as a real position: null is NOT a zero value here, the one
+# nullable field below keeps a pointer.
+class SourcePosition_util
+
+# SourceRange: two final SourcePositions and a toString. 48 bytes as a value.
+class SourceRange
+
+# SourceRange.start_, end_: init_SourceRange (g_SourceRange.go:10-13) assigns both from its
+# parameters and is the first statement of new_SourceRange after the allocation (15-19), the only
+# allocation of the class.
+field SourceRange.start_
+field SourceRange.end_
+
+# Token.location: init_Token_parser (g_Token.go:39-42) assigns it from its parameter. It is run
+# by new_Token_parser (44-49: allocation, self_, the constructor) and as the first statement of
+# the constructors of the subclasses: init_LiteralToken (g_LiteralToken.go:50-51),
+# init_IdentifierToken (g_IdentifierToken.go:24-25), and through init_LiteralToken first in
+# init_TemplateLiteralToken (g_TemplateLiteralToken.go:31-32) and init_StringLiteralToken
+# (g_StringLiteralToken.go:29); their new_ functions run only self_ and zero_ (string fields set
+# to the null string) before the constructor.
+field Token_parser.location_
+
+# ParseTree.location: init_ParseTree (g_ParseTree.go:33-36) assigns it from its parameter; it is
+# run by new_ParseTree (38-43) and is the first statement of the one constructor of each of the
+# 80 classes that embed ParseTree (81 init_ methods in those files; the 81st is
+# FunctionDeclarationTree.Builder's, not a tree). Their new_ functions run only self_ and zero_
+# before the constructor.
+field ParseTree.location_
+
+# FunctionDeclarationTree.Builder.location: null until build(location) (g_FunctionDeclarationTree.go
+# :204-207) assigns it, the only write; the only read is the next thing build does:
+# new_FunctionDeclarationTree(this), whose constructor (25-26) hands builder.location_ to
+# init_ParseTree. The class has no other reader of the field (it is private in Java).
+field+ FunctionDeclarationTree_Builder.location_
+
+# Comment.location: init_Comment (g_Comment.go:15-19) assigns it; new_Comment (21-26) runs zero_
+# (a string field) and the constructor.
+field Comment.location_
+
+# Parser.lastSourcePosition: the last statement of init_Parser (g_Parser.go:25-32). Before it the
+# constructor makes the comment recorder (finit_Parser, line 19: the recorder keeps the parser
+# as outer_ and reads only outer_.sourceMapURL, line 2886) and the scanner (line 29, which gets
+# the recorder, not the parser). The field is read only by Parser's own methods (68, 2483, 2590
+# and the rvalues of 1768, 1777), which nothing can call before new_Parser returns the parser.
+# The later writes (1767, 1776, 2599, 2605, 2611) store a parameter or a token's / tree's
+# location end: values.
+field+ Parser.lastSourcePosition
+
+# The recorder's last comment end: null until the first comment (Java: `private SourcePosition
+# lastCommentEndPosition;`), tested at g_Parser.go:2883 (`== nil`, then `.offset`), assigned at
+# 2889. Kept as a pointer.
+nullable Parser_CommentRecorder.lastCommentEndPosition
+
+# NonJSDocComment.startPosition, endPosition: the first two statements of init_NonJSDocComment
+# (g_NonJSDocComment.go:13-15), run right after the allocation in new_NonJSDocComment (21-25).
+field NonJSDocComment.startPosition
+field NonJSDocComment.endPosition
+
+# TemplateLiteralToken.errorPosition: init_TemplateLiteralToken (g_TemplateLiteralToken.go:31-36)
+# assigns it after the superclass constructor (which stores type and location only) and two
+# field stores; new_TemplateLiteralToken (38-44) runs self_, zero_ and the constructor.
+field TemplateLiteralToken.errorPosition
+
+# Scanner.SkipTemplateCharactersResult.position: init_ (g_Scanner.go:1232-1236), right after the
+# allocation (1238-1242).
+field Scanner_SkipTemplateCharactersResult.position
+
+# ClassOrObjectElementInfo.start: the first statement of its constructor
+# (g_ClassOrObjectElementInfo.go:13-14), right after the allocation (19-23).
+field ClassOrObjectElementInfo.start_
