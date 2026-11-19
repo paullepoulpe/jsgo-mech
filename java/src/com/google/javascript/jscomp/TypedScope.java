@@ -346,7 +346,7 @@ public class TypedScope extends AbstractScope implements StaticTypedScope {
     }
   }
 
-  // Members pushed down from AbstractScope (prep 17), with its type parameters replaced.
+  // Members pushed down from AbstractScope (prep 18), with its type parameters replaced.
 
   private Map<String, TypedVar> vars = ImmutableMap.of();
 

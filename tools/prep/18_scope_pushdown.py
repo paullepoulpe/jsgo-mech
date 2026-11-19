@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prep step 17: push the type-parameter-dependent members of the scope and variable base
+"""Prep step 18: push the type-parameter-dependent members of the scope and variable base
 classes down into their two subclasses.
 
 AbstractScope<S extends AbstractScope<S, V>, V extends AbstractVar<S, V>> and AbstractVar<S, V>
@@ -266,7 +266,7 @@ def main():
                 s, n = re.subn(r'( +)super\(([^;]*)\);', fix, s)
                 assert n >= 1, (sub, 'super call')
             end = s.rindex('\n}')
-            block = '\n\n  // Members pushed down from ' + base + ' (prep 17), with its type parameters replaced.\n\n' + \
+            block = '\n\n  // Members pushed down from ' + base + ' (prep 18), with its type parameters replaced.\n\n' + \
                 re.sub(r'\n{3,}', '\n\n', '\n\n'.join(c.strip('\n') for c in copies))
             s = s[:end] + block + s[end:]
             mine = imports_of(s.split('\n'))

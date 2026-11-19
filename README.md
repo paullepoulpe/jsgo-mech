@@ -63,6 +63,7 @@ found or rewrote the sites, and the checkers that keep each rule true, are in
 | 14a-e | all I/O behind `jscomp.base.Io` (not in the plan) | 86 files; facade 600 lines |
 | 15a-b | JSON behind `jscomp.base.Json` (not in the plan) | 26 files; catches 91 -> 56 |
 | 17 | graph signatures without wildcards: `DiGraph<N, E>` with a method type variable for `DiGraph<N, ?>`, so that j2go keeps E of the graph classes (not in the plan) | 2 signatures, 1 file |
+| 18 | scope push-down: the members of `AbstractScope<S, V>` and `AbstractVar<S, V>` that depend on S or V move into `Scope`/`TypedScope` and `Var`/`TypedVar` with the types replaced, the bases keep abstract declarations; with j2go's rule "covariant overrides" subclass code no longer casts their results (not in the plan; committed as prep(17-scope-pushdown)) | 46 members, 13 files; casts to the four classes 380 -> 59 |
 
 Notes on individual steps:
 

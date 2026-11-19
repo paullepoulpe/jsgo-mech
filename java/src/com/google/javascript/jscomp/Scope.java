@@ -133,7 +133,7 @@ public final class Scope extends AbstractScope {
         /* implicitGoogNamespaceDefinition= */ null);
   }
 
-  // Members pushed down from AbstractScope (prep 17), with its type parameters replaced.
+  // Members pushed down from AbstractScope (prep 18), with its type parameters replaced.
 
   private Map<String, Var> vars = ImmutableMap.of();
 

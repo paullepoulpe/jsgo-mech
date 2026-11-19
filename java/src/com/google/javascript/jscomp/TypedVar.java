@@ -142,7 +142,7 @@ public class TypedVar extends AbstractVar
     return markedAssignedExactlyOnce;
   }
 
-  // Members pushed down from AbstractVar (prep 17), with its type parameters replaced.
+  // Members pushed down from AbstractVar (prep 18), with its type parameters replaced.
 
   private final TypedScope scope;
 
