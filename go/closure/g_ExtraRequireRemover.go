@@ -120,13 +120,13 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 		return
 	}
 	if ok_, a1_ := call.getParent().isStringKey(), call.getParent(); !ok_ {
-		stateFail_(objstr_(a1_.box_()))
+		stateFail_(tostr_(a1_))
 	}
 	var objectPattern Node = call.getGrandparent()
 	if objectPattern.hasOneChild() {
 		var nameDeclaration Node = objectPattern.getGrandparent()
 		if !NodeUtil_isNameDeclaration(nameDeclaration) {
-			stateFail_(objstr_(nameDeclaration.box_()))
+			stateFail_(tostr_(nameDeclaration))
 		}
 		this.compiler_.reportChangeToEnclosingScope(nameDeclaration.getParent())
 		nameDeclaration.detach()
@@ -185,7 +185,7 @@ func (this *ExtraRequireRemover) addUsagesOfAllPrefixes(qualifiedName *Qualified
 
 func (this *ExtraRequireRemover) visitQualifiedName(n Node) {
 	if !n.isQualifiedName() {
-		argFail_(objstr_(n.box_()))
+		argFail_(tostr_(n))
 	}
 	this.addUsagesOfAllPrefixes(n.getQualifiedNameObject())
 }

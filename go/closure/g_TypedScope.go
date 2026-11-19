@@ -442,7 +442,7 @@ func (this *TypedScope) checkChildScope(parent *TypedScope) {
 		panic(new_NullPointerException_0().self())
 	}
 	if !NodeUtil_createsScope(this.rootNode_) {
-		argFail_(objstr_(this.rootNode_.box_()))
+		argFail_(tostr_(this.rootNode_))
 	}
 	if !(this.rootNode_ != parent.getRootNode()) {
 		Preconditions_checkArgument_boolean_String_Object_H(false, "rootNode should not be the parent's root node: %s", this.rootNode_)

@@ -38,7 +38,7 @@ func new_Es6RewriteBlockScopedDeclaration(compiler *AbstractCompiler) *Es6Rewrit
 
 func (this *Es6RewriteBlockScopedDeclaration) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if !((parent == 0) || !parent.isForOf()) {
-		stateFail_(objstr_(parent.box_()))
+		stateFail_(tostr_(parent))
 	}
 	if n.isLet() || n.isConst() {
 		this.letConsts.Add(n)
@@ -443,7 +443,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) changeLoopL
 		var newPropertyName string = this.getLoopObjPropName(var_)
 		for reference := range elemsBy_(this.referenceMap.get(obj_(var_)), Node_of_) {
 			if loopNode.isForOf() {
-				stateFail_(objstr_(loopNode.box_()))
+				stateFail_(tostr_(loopNode))
 			}
 			if loopNode.isForIn() && (loopNode.getFirstChild() == reference.getParent()) {
 				this.assignLoopVarToLoopObjectProperty(loopNode, loopObject, var_, newPropertyName, reference)
@@ -486,14 +486,14 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) replaceRefe
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) assignLoopVarToLoopObjectProperty(loopNode Node, loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject, var_ *Var, newPropertyName string, reference Node) {
 	if !(reference == var_.getNameNode()) {
-		stateFail_(objstr_(reference.box_()))
+		stateFail_(tostr_(reference))
 	}
 	var referenceParent Node = reference.getParent()
 	if !NodeUtil_isNameDeclaration(referenceParent) {
-		stateFail_(objstr_(referenceParent.box_()))
+		stateFail_(tostr_(referenceParent))
 	}
 	if !reference.isName() {
-		stateFail_(objstr_(reference.box_()))
+		stateFail_(tostr_(reference))
 	}
 	var loopVarReference Node = reference.cloneNode()
 	var forInPropAssignmentStatemnt Node = IR_exprResult(this.outer_.astFactory_.createAssign(this.createLoopVarReferenceReplacement(loopObject, reference, newPropertyName), loopVarReference)).srcrefTreeIfMissing(reference)

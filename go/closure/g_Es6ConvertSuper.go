@@ -86,10 +86,10 @@ func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 
 func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMemberDef Node) {
 	if !parent.isCall() {
-		stateFail_(objstr_(parent.box_()))
+		stateFail_(tostr_(parent))
 	}
 	if !node.isSuper() {
-		stateFail_(objstr_(node.box_()))
+		stateFail_(tostr_(node))
 	}
 	var clazz Node = NodeUtil_getEnclosingClass(node)
 	var superName Node = clazz.getSecondChild()
@@ -111,10 +111,10 @@ func (this *Es6ConvertSuper) visitSuperCall(node Node, parent Node, enclosingMem
 
 func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, enclosingMemberDef Node) {
 	if !(parent.isGetProp() || parent.isGetElem()) {
-		stateFail_(objstr_(parent.box_()))
+		stateFail_(tostr_(parent))
 	}
 	if !node.isSuper() {
-		stateFail_(objstr_(node.box_()))
+		stateFail_(tostr_(node))
 	}
 	var grandparent Node = parent.getParent()
 	if !grandparent.isCall() {
@@ -154,10 +154,10 @@ func (this *Es6ConvertSuper) visitSuperPropertyCall(node Node, parent Node, encl
 
 func (this *Es6ConvertSuper) visitSuperPropertyAccess(node Node, parent Node, enclosingMemberDef Node) {
 	if !(parent.isGetProp() || parent.isGetElem()) {
-		stateFail_(objstr_(parent.box_()))
+		stateFail_(tostr_(parent))
 	}
 	if !node.isSuper() {
-		stateFail_(objstr_(node.box_()))
+		stateFail_(tostr_(node))
 	}
 	var grandparent Node = parent.getParent()
 	if NodeUtil_isLValue(parent) {

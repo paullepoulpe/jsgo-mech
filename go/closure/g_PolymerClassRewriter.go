@@ -139,7 +139,7 @@ func (this *PolymerClassRewriter) rewritePolymerCall(cls *PolymerClassDefinition
 		return callParent.getParent()
 	}()
 	if ok_, a1_ := NodeUtil_isStatementParent(exprRoot.getParent()), exprRoot.getParent(); !ok_ {
-		stateFail_(objstr_(a1_.box_()))
+		stateFail_(tostr_(a1_))
 	}
 	var objLit Node = Preconditions_checkNotNull_T(cls.descriptor)
 	var objLitDoc *JSDocInfo_Builder = JSDocInfo_builder().parseDocumentation()

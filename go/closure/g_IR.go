@@ -27,13 +27,13 @@ func IR_export(declaration Node) Node {
 
 func IR_importNode(name Node, importSpecs Node, moduleIdentifier Node) Node {
 	if !(name.isName() || name.isEmpty()) {
-		stateFail_(objstr_(name.box_()))
+		stateFail_(tostr_(name))
 	}
 	if !((importSpecs.isImportSpec() || importSpecs.isImportStar()) || importSpecs.isEmpty()) {
-		stateFail_(objstr_(importSpecs.box_()))
+		stateFail_(tostr_(importSpecs))
 	}
 	if !moduleIdentifier.isStringLit() {
-		stateFail_(objstr_(moduleIdentifier.box_()))
+		stateFail_(tostr_(moduleIdentifier))
 	}
 	return new_Node_Token_Node_Node_Node(Token_rhino_IMPORT, name, importSpecs, moduleIdentifier)
 }
@@ -177,7 +177,7 @@ func IR_constNode(lhs Node, value Node) Node {
 
 func IR_declaration_Node_Token(lhs Node, type_ Token_rhino) Node {
 	if !((lhs.isName() || lhs.isDestructuringPattern()) || lhs.isDestructuringLhs()) {
-		stateFail_(objstr_(lhs.box_()))
+		stateFail_(tostr_(lhs))
 	}
 	if lhs.isDestructuringPattern() {
 		lhs = new_Node_Token_Node(Token_rhino_DESTRUCTURING_LHS, lhs)
@@ -237,7 +237,7 @@ func IR_throwNode(expr Node) Node {
 
 func IR_exprResult(expr Node) Node {
 	if !IR_mayBeExpression(expr) {
-		stateFail_(objstr_(expr.box_()))
+		stateFail_(tostr_(expr))
 	}
 	return new_Node_Token_Node(Token_rhino_EXPR_RESULT, expr)
 }
@@ -435,7 +435,7 @@ func IR_call(target Node, args []Node) Node {
 	var call Node = new_Node_Token_Node(Token_rhino_CALL, target)
 	for _, arg := range args {
 		if !(IR_mayBeExpression(arg) || arg.isSpread()) {
-			stateFail_(objstr_(arg.box_()))
+			stateFail_(tostr_(arg))
 		}
 		call.addChildToBack(arg)
 	}
@@ -446,7 +446,7 @@ func IR_startOptChainCall(target Node, args []Node) Node {
 	var call Node = new_Node_Token_Node(Token_rhino_OPTCHAIN_CALL, target)
 	for _, arg := range args {
 		if !(IR_mayBeExpression(arg) || arg.isSpread()) {
-			stateFail_(objstr_(arg.box_()))
+			stateFail_(tostr_(arg))
 		}
 		call.addChildToBack(arg)
 	}
@@ -458,7 +458,7 @@ func IR_continueOptChainCall(target Node, args []Node) Node {
 	var call Node = new_Node_Token_Node(Token_rhino_OPTCHAIN_CALL, target)
 	for _, arg := range args {
 		if !(IR_mayBeExpression(arg) || arg.isSpread()) {
-			stateFail_(objstr_(arg.box_()))
+			stateFail_(tostr_(arg))
 		}
 		call.addChildToBack(arg)
 	}
@@ -470,7 +470,7 @@ func IR_newNode(target Node, args []Node) Node {
 	var newcall Node = new_Node_Token_Node(Token_rhino_NEW, target)
 	for _, arg := range args {
 		if !(IR_mayBeExpression(arg) || arg.isSpread()) {
-			stateFail_(objstr_(arg.box_()))
+			stateFail_(tostr_(arg))
 		}
 		newcall.addChildToBack(arg)
 	}
@@ -486,7 +486,7 @@ func IR_name(name string) Node {
 
 func IR_startOptChainGetprop(target Node, prop string) Node {
 	if !IR_mayBeExpression(target) {
-		stateFail_(objstr_(target.box_()))
+		stateFail_(tostr_(target))
 	}
 	var optChainGetProp Node = Node_newString_Token_String(Token_rhino_OPTCHAIN_GETPROP, prop)
 	optChainGetProp.addChildToBack(target)
@@ -496,7 +496,7 @@ func IR_startOptChainGetprop(target Node, prop string) Node {
 
 func IR_continueOptChainGetprop(target Node, prop string) Node {
 	if !IR_mayBeExpression(target) {
-		stateFail_(objstr_(target.box_()))
+		stateFail_(tostr_(target))
 	}
 	var optChainGetProp Node = Node_newString_Token_String(Token_rhino_OPTCHAIN_GETPROP, prop)
 	optChainGetProp.addChildToBack(target)
@@ -526,10 +526,10 @@ func IR_getprop_Node_String_StringArr(target Node, prop string, moreProps []stri
 
 func IR_startOptChainGetelem(target Node, elem Node) Node {
 	if !IR_mayBeExpression(target) {
-		stateFail_(objstr_(target.box_()))
+		stateFail_(tostr_(target))
 	}
 	if !IR_mayBeExpression(elem) {
-		stateFail_(objstr_(elem.box_()))
+		stateFail_(tostr_(elem))
 	}
 	var optChainGetElem Node = new_Node_Token_Node_Node(Token_rhino_OPTCHAIN_GETELEM, target, elem)
 	optChainGetElem.setIsOptionalChainStart(true)
@@ -538,10 +538,10 @@ func IR_startOptChainGetelem(target Node, elem Node) Node {
 
 func IR_continueOptChainGetelem(target Node, elem Node) Node {
 	if !IR_mayBeExpression(target) {
-		stateFail_(objstr_(target.box_()))
+		stateFail_(tostr_(target))
 	}
 	if !IR_mayBeExpression(elem) {
-		stateFail_(objstr_(elem.box_()))
+		stateFail_(tostr_(elem))
 	}
 	var optChainGetElem Node = new_Node_Token_Node_Node(Token_rhino_OPTCHAIN_GETELEM, target, elem)
 	optChainGetElem.setIsOptionalChainStart(false)
@@ -567,10 +567,10 @@ func IR_delprop(target Node) Node {
 
 func IR_assign(target Node, expr Node) Node {
 	if !target.isValidAssignmentTarget() {
-		stateFail_(objstr_(target.box_()))
+		stateFail_(tostr_(target))
 	}
 	if !IR_mayBeExpression(expr) {
-		stateFail_(objstr_(expr.box_()))
+		stateFail_(tostr_(expr))
 	}
 	return new_Node_Token_Node_Node(Token_rhino_ASSIGN, target, expr)
 }
@@ -731,10 +731,10 @@ func IR_arrayPattern(keys []Node) Node {
 
 func IR_computedProp(key Node, value Node) Node {
 	if !IR_mayBeExpression(key) {
-		stateFail_(objstr_(key.box_()))
+		stateFail_(tostr_(key))
 	}
 	if !IR_mayBeExpression(value) {
-		stateFail_(objstr_(value.box_()))
+		stateFail_(tostr_(value))
 	}
 	return new_Node_Token_Node_Node(Token_rhino_COMPUTED_PROP, key, value)
 }
@@ -761,7 +761,7 @@ func IR_arraylitIterable(exprs IterableOf[Node]) Node {
 	var arraylit Node = new_Node_Token(Token_rhino_ARRAYLIT)
 	for expr := range elemsBy_(exprs, Node_of_) {
 		if !(IR_mayBeExpressionOrEmpty(expr) || expr.isSpread()) {
-			stateFail_(objstr_(expr.box_()))
+			stateFail_(tostr_(expr))
 		}
 		arraylit.addChildToBack(expr)
 	}
@@ -824,14 +824,14 @@ func IR_templateLiteralSubstitution(child Node) Node {
 
 func IR_iterRest(target Node) Node {
 	if !target.isValidAssignmentTarget() {
-		stateFail_(objstr_(target.box_()))
+		stateFail_(tostr_(target))
 	}
 	return new_Node_Token_Node(Token_rhino_ITER_REST, target)
 }
 
 func IR_objectRest(target Node) Node {
 	if !target.isValidAssignmentTarget() {
-		stateFail_(objstr_(target.box_()))
+		stateFail_(tostr_(target))
 	}
 	return new_Node_Token_Node(Token_rhino_OBJECT_REST, target)
 }
@@ -940,10 +940,10 @@ func IR_newTarget() Node {
 
 func IR_binaryOp(token Token_rhino, expr1 Node, expr2 Node) Node {
 	if !IR_mayBeExpression(expr1) {
-		stateFail_(objstr_(expr1.box_()))
+		stateFail_(tostr_(expr1))
 	}
 	if !IR_mayBeExpression(expr2) {
-		stateFail_(objstr_(expr2.box_()))
+		stateFail_(tostr_(expr2))
 	}
 	return new_Node_Token_Node_Node(token, expr1, expr2)
 }

@@ -914,7 +914,7 @@ func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) Optional[string] 
 		var source Node = type_.toObjectType().getConstructor().getSource()
 		if source != 0 {
 			if !(source.isFunction() || source.isClass()) {
-				stateFail_(objstr_(source.box_()))
+				stateFail_(tostr_(source))
 			}
 			var readable string = source.getFirstChild().getOriginalName()
 			if readable != "" {
@@ -1417,7 +1417,7 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 
 func (this *JSTypeRegistry) addNullabilityBasedOnParseContext(n Node, type_ *JSType, scope StaticScope) *JSType {
 	if !(n.isName() || n.isStringLit()) {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	if type_ == nil {
 		panic(new_NullPointerException_0().self())

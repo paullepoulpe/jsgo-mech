@@ -80,7 +80,7 @@ func (this *ExpressionDecomposer) exposeExpression(expression Node) bool {
 		panic(new_NullPointerException_0().self())
 	}
 	if !NodeUtil_isStatement(expressionRoot) {
-		stateFail_(objstr_(expressionRoot.box_()))
+		stateFail_(tostr_(expressionRoot))
 	}
 	return this.exposeExpression_2(expressionRoot, expression)
 }
@@ -98,7 +98,7 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 	var expressionParent Node = expressionToExpose.getParent()
 	for expressionParent != expressionRoot {
 		if !(!ExpressionDecomposer_isConditionalOp(expressionParent) || expressionToExpose.isFirstChildOf(expressionParent)) {
-			stateFail_(objstr_(expressionParent.box_()))
+			stateFail_(tostr_(expressionParent))
 		}
 		if expressionParent.isAssign() {
 			if this.isSafeAssign(expressionParent, state.sideEffects) {
@@ -301,7 +301,7 @@ func (this *ExpressionDecomposer) isConstantNameNode(n Node) bool {
 
 func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint Node) Node {
 	if NodeUtil_isLogicalAssignmentOp(expr) {
-		stateFail_(objstr_(expr.box_()))
+		stateFail_(tostr_(expr))
 	}
 	var parent Node = expr.getParent()
 	var isLhsOfAssignOp bool = ((NodeUtil_isAssignmentOp(parent) && !parent.isAssign()) && expr.isFirstChildOf(parent))
@@ -326,7 +326,7 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 	var tempNameValue Node
 	if isLhsOfAssignOp {
 		if !(expr.isName() || NodeUtil_isNormalGet(expr)) {
-			stateFail_(objstr_(expr.box_()))
+			stateFail_(tostr_(expr))
 		}
 		var opNode Node = new_Node_Token(NodeUtil_getOpFromAssignmentOp(parent)).copyTypeFrom(parent).srcrefIfMissing(parent)
 		var rightOperand Node = parent.getLastChild()
@@ -370,11 +370,11 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 
 func (this *ExpressionDecomposer) rewriteCallExpression(call Node, state *ExpressionDecomposer_DecompositionState) {
 	if !call.isCall() {
-		argFail_(objstr_(call.box_()))
+		argFail_(tostr_(call))
 	}
 	var first Node = call.getFirstChild()
 	if !NodeUtil_isNormalGet(first) {
-		argFail_(objstr_(first.box_()))
+		argFail_(tostr_(first))
 	}
 	var fnCallType *JSType = nil
 	if this.astFactory_.isAddingTypes() {
@@ -395,7 +395,7 @@ func (this *ExpressionDecomposer) rewriteCallExpression(call Node, state *Expres
 	}
 	var getExprNode Node = getVarNode.getFirstFirstChild()
 	if !NodeUtil_isNormalGet(getExprNode) {
-		argFail_(objstr_(getExprNode.box_()))
+		argFail_(tostr_(getExprNode))
 	}
 	var origThisValue Node = getExprNode.getFirstChild()
 	var receiverNode Node
@@ -450,7 +450,7 @@ func ExpressionDecomposer_findInjectionPoint(subExpression Node) Node {
 		parent = injectionPoint.getParent()
 	}
 	if !NodeUtil_isStatementBlock(parent) {
-		stateFail_(objstr_(parent.box_()))
+		stateFail_(tostr_(parent))
 	}
 	return injectionPoint
 }

@@ -419,7 +419,7 @@ func CodePrinter_PrettyCodePrinter_getTryForCatch(n Node) Node {
 
 func (this *CodePrinter_PrettyCodePrinter) breakAfterBlockFor_impl(n Node, isStatementContext bool) bool {
 	if !n.isBlock() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	var parent Node = n.getParent()
 	var type_ Token_rhino = parent.getToken()

@@ -131,7 +131,7 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 					}
 				} else {
 					if !c.isDestructuringLhs() {
-						stateFail_(objstr_(c.box_()))
+						stateFail_(tostr_(c))
 					}
 					if !conditional {
 						NodeUtil_visitLhsNodesInNode(c, (&Consumer_tfn_Node{func(lhsNode Node) {
@@ -203,7 +203,7 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 
 func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 	if !node.isName() {
-		stateFail_(objstr_(node.box_()))
+		stateFail_(tostr_(node))
 	}
 	var name string = node.getString()
 	var var_ *Var = this.allVarsInFn.Get(name)

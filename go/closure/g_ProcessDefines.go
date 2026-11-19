@@ -105,7 +105,7 @@ func (this *ProcessDefines) overrideDefines() {
 						return define.valueParent.cloneNode()
 					}()
 					if !(defineLhs.isName() || defineLhs.isQualifiedName()) {
-						stateFail_(objstr_(defineLhs.box_()))
+						stateFail_(tostr_(defineLhs))
 					}
 					var globalDefineVar Node = IR_var_Node_Node(globalDefineName, defineLhs).srcrefTreeIfMissing(define.valueParent)
 					globalDefineVar.insertAfter(define.valueParent.getParent())
@@ -233,7 +233,7 @@ func ProcessDefines_getValueParentForDefine(declaration *GlobalNamespace_Ref) No
 	var declarationParent Node = declarationNode.getParent()
 	if declarationParent.isVar() || declarationParent.isConst() {
 		if !declarationNode.isName() {
-			stateFail_(objstr_(declarationNode.box_()))
+			stateFail_(tostr_(declarationNode))
 		}
 		return declarationNode
 	} else if declarationParent.isAssign() && declarationNode.isFirstChildOf(declarationParent) {

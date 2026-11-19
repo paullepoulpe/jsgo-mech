@@ -77,7 +77,7 @@ func (this *PeepholeRemoveDeadCode) optimizeSubtree_impl(subtree Node) Node {
 
 func (this *PeepholeRemoveDeadCode) tryRemoveDefaultValue(defaultValue Node) Node {
 	if !defaultValue.isDefaultValue() {
-		argFail_(objstr_(defaultValue.box_()))
+		argFail_(tostr_(defaultValue))
 	}
 	var lValue Node = defaultValue.getFirstChild()
 	var val Node = defaultValue.getSecondChild()
@@ -158,7 +158,7 @@ func PeepholeRemoveDeadCode_getOnlyInterestingChild(block Node) Node {
 
 func (this *PeepholeRemoveDeadCode) tryFoldTry(n Node) Node {
 	if !n.isTry() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	var body Node = n.getFirstChild()
 	var catchBlock Node = body.getNext()
@@ -283,14 +283,14 @@ func (this *PeepholeRemoveDeadCode) trySimplifyUnusedResultInternal(tree Node, s
 		var falseNode Node = this.trySimplifyUnusedResult(tree.getLastChild())
 		if (trueNode == 0) && (falseNode != 0) {
 			if !tree.hasTwoChildren() {
-				stateFail_(objstr_(tree.box_()))
+				stateFail_(tostr_(tree))
 			}
 			tree.setToken(Token_rhino_OR)
 			sideEffectRoots.add(tree)
 			return false
 		} else if (trueNode != 0) && (falseNode == 0) {
 			if !tree.hasTwoChildren() {
-				stateFail_(objstr_(tree.box_()))
+				stateFail_(tostr_(tree))
 			}
 			tree.setToken(Token_rhino_AND)
 			sideEffectRoots.add(tree)
@@ -357,7 +357,7 @@ func PeepholeRemoveDeadCode_asDetachedExpression(expr Node) Node {
 		expr.detach()
 	}
 	if !IR_mayBeExpression(expr) {
-		stateFail_(objstr_(expr.box_()))
+		stateFail_(tostr_(expr))
 	}
 	return expr
 }
@@ -418,7 +418,7 @@ func (this *PeepholeRemoveDeadCode) tryRemoveSwitch(n Node) Node {
 
 func (this *PeepholeRemoveDeadCode) tryOptimizeSwitch(n Node) Node {
 	if !n.isSwitch() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	var switchBody Node = n.getSecondChild()
 	var defaultCase Node = this.tryOptimizeDefaultCase(n)
@@ -499,7 +499,7 @@ func (this *PeepholeRemoveDeadCode) tryOptimizeSwitch(n Node) Node {
 
 func (this *PeepholeRemoveDeadCode) tryOptimizeDefaultCase(n Node) Node {
 	if !n.isSwitch() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	var switchBody Node = n.getSecondChild()
 	var lastNonRemovable Node = 0
@@ -634,10 +634,10 @@ func PeepholeRemoveDeadCode_isExit(n Node) bool {
 
 func PeepholeRemoveDeadCode_isUnconditionalBlockExit(n Node) bool {
 	if !n.isBlock() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	if n.getParent().isLabel() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	var lastStm Node = n.getLastChild()
 	if lastStm == 0 {
@@ -671,7 +671,7 @@ func PeepholeRemoveDeadCode_isUnconditionalBlockExit(n Node) bool {
 
 func PeepholeRemoveDeadCode_isSwitchExit(n Node) bool {
 	if !n.isSwitch() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	var hasDefaultCase bool = false
 	var switchBody Node = n.getSecondChild()
@@ -692,7 +692,7 @@ func PeepholeRemoveDeadCode_isSwitchExit(n Node) bool {
 
 func PeepholeRemoveDeadCode_isTryExit(n Node) bool {
 	if !n.isTry() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	if n.hasXChildren(3) {
 		if PeepholeRemoveDeadCode_isUnconditionalBlockExit(n.getLastChild()) {
@@ -913,7 +913,7 @@ func (this *PeepholeRemoveDeadCode) getConditionalStatementCondition(n Node) Nod
 
 func (this *PeepholeRemoveDeadCode) tryFoldIf(n Node) Node {
 	if !n.isIf() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	var parent Node = n.getParent()
 	if parent == 0 {
@@ -1018,7 +1018,7 @@ func (this *PeepholeRemoveDeadCode) tryFoldIf(n Node) Node {
 
 func (this *PeepholeRemoveDeadCode) tryFoldHook(n Node) Node {
 	if !n.isHook() {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 	var parent Node = n.getParent()
 	if parent == 0 {
@@ -1145,7 +1145,7 @@ func (this *PeepholeRemoveDeadCode) tryFoldEmptyDo(n Node) Node {
 
 func (this *PeepholeRemoveDeadCode) tryOptimizeObjectPattern(pattern Node) Node {
 	if !pattern.isObjectPattern() {
-		argFail_(objstr_(pattern.box_()))
+		argFail_(tostr_(pattern))
 	}
 	if pattern.hasChildren() && pattern.getLastChild().isRest() {
 		return pattern
@@ -1169,7 +1169,7 @@ func (this *PeepholeRemoveDeadCode) tryOptimizeObjectPattern(pattern Node) Node 
 
 func (this *PeepholeRemoveDeadCode) tryOptimizeArrayPattern(pattern Node) Node {
 	if !pattern.isArrayPattern() {
-		argFail_(objstr_(pattern.box_()))
+		argFail_(tostr_(pattern))
 	}
 	{
 		var lastChild Node = pattern.getLastChild()

@@ -435,7 +435,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) init_ProcessClosureP
 	this.astFactory_ = astFactory
 	var node Node = builder.node_
 	if !(((node == 0) || NodeUtil_isExprCall(node)) || (!builder.explicit && ((NodeUtil_isExprAssign(node) || NodeUtil_isNameDeclaration(node)) || (node.isExprResult() && node.getFirstChild().isQualifiedName())))) {
-		argFail_(objstr_(node.box_()))
+		argFail_(tostr_(node))
 	}
 	this.namespace_ = builder.namespace_
 	this.firstNode = builder.node_
@@ -458,7 +458,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) addProvide(node Node
 			panic(new_IllegalStateException_0())
 		}
 		if !node.isExprResult() {
-			argFail_(objstr_(node.box_()))
+			argFail_(tostr_(node))
 		}
 		this.explicitNode = node
 	}
@@ -555,10 +555,10 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) replace(preserveGoog
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) convertProvideAssignmentToVarDeclaration(assignNode Node, nameNode Node) {
 	if !assignNode.isAssign() {
-		argFail_(objstr_(assignNode.box_()))
+		argFail_(tostr_(assignNode))
 	}
 	if !nameNode.isName() {
-		argFail_(objstr_(nameNode.box_()))
+		argFail_(tostr_(nameNode))
 	}
 	var valueNode Node = nameNode.getNext()
 	nameNode.detach()
@@ -596,7 +596,7 @@ func (this *ProcessClosureProvidesAndRequires_ProvidedName) createNamespaceIniti
 
 func (this *ProcessClosureProvidesAndRequires_ProvidedName) createDeclarationNode(value Node) Node {
 	if !(value.isObjectLit() || value.isCast()) {
-		argFail_(objstr_(value.box_()))
+		argFail_(tostr_(value))
 	}
 	if !strings.Contains(this.namespace_, ".") {
 		return this.makeVarDeclNode(value)

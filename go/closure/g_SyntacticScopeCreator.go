@@ -198,7 +198,7 @@ func (this *SyntacticScopeCreator_ScopeScanner) scanVars(n Node, hoistScope *Sco
 		return
 	case tokOrd1_CATCH:
 		if !n.hasTwoChildren() {
-			stateFail_(objstr_(n.box_()))
+			stateFail_(tostr_(n))
 		}
 		if blockScope != nil {
 			this.declareLHS(blockScope, n)

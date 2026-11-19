@@ -212,7 +212,7 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 				continue
 			}
 			if !nameNode.isName() {
-				stateFail_(objstr_(nameNode.box_()))
+				stateFail_(tostr_(nameNode))
 			}
 			var name string = nameNode.getString()
 			var lastDollarSign int32 = int32(strings.LastIndexByte(name, '$'))
@@ -367,7 +367,7 @@ func (this *StripCode_Strip) maybeEliminateAssignmentByLvalueName(t *NodeTravers
 
 func (this *StripCode_Strip) maybeEliminateExpressionByName(n Node) {
 	if !n.isExprResult() {
-		argFail_(objstr_(n.box_()))
+		argFail_(tostr_(n))
 	}
 	var parent Node = n.getParent()
 	if parent == 0 {

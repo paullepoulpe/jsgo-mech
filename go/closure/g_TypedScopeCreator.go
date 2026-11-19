@@ -132,15 +132,15 @@ func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *Typed
 	var module *Module = ModuleImportResolver_getModuleFromScopeRoot(this.moduleMap, icast_CompilerInputProvider(this.compiler_.self()), root)
 	if typedParent == nil {
 		if !root.isRoot() {
-			stateFail_(objstr_(root.box_()))
+			stateFail_(tostr_(root))
 		}
 		var externsRoot Node = root.getFirstChild()
 		var jsRoot Node = root.getSecondChild()
 		if !externsRoot.isRoot() {
-			stateFail_(objstr_(externsRoot.box_()))
+			stateFail_(tostr_(externsRoot))
 		}
 		if !jsRoot.isRoot() {
-			stateFail_(objstr_(jsRoot.box_()))
+			stateFail_(tostr_(jsRoot))
 		}
 		var globalThis *JSType = this.typeRegistry.getNativeObjectType(JSTypeNative_GLOBAL_THIS).up_JSType()
 		root.setJSType(globalThis)
@@ -231,7 +231,7 @@ func (this *TypedScopeCreator) gatherAllProvides(root Node) {
 
 func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 	if !root.isRoot() {
-		argFail_(objstr_(root.box_()))
+		argFail_(tostr_(root))
 	}
 	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScopeAbstractScope_Node_AbstractScope)
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(NodeTraversal_Callback(new_TypedScopeCreator_FirstOrderFunctionAnalyzer(this))).setScopeCreator(MemoizedScopeCreator_as_ScopeCreator(scopeCreator)).traverseRoots(root.getFirstChild(), root.getLastChild())
@@ -475,7 +475,7 @@ type TypedScopeCreator_WeakModuleImport struct {
 
 func (this *TypedScopeCreator_WeakModuleImport) init_TypedScopeCreator_WeakModuleImport(moduleLocalNode Node, scopedImport *ScopedName, localModuleScope *TypedScope) {
 	if !(moduleLocalNode.isName() || moduleLocalNode.isImportStar()) {
-		stateFail_(objstr_(moduleLocalNode.box_()))
+		stateFail_(tostr_(moduleLocalNode))
 	}
 	this.moduleLocalNode = moduleLocalNode
 	this.scopedImport = scopedImport
@@ -717,7 +717,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) finishDeclaringGoogModule() 
 		rootNode.setJSType(exportsVar.getType())
 	} else {
 		if !rootNode.isBlock() {
-			stateFail_(objstr_(rootNode.box_()))
+			stateFail_(tostr_(rootNode))
 		}
 		var fn Node = rootNode.getParent()
 		var paramList Node = NodeUtil_getFunctionParameters(fn)
@@ -929,7 +929,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) assertDefinitionNode(n Node,
 		panic(new_IllegalStateException_0())
 	}
 	if !(n.getToken() == type_) {
-		stateFail_(objstr_(n.box_()))
+		stateFail_(tostr_(n))
 	}
 }
 
@@ -945,7 +945,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineAssignAsIfVarDeclarati
 	var info *JSDocInfo = assignment.getJSDocInfo()
 	var name Node = assignment.getFirstChild()
 	if !name.isName() {
-		argFail_(objstr_(name.box_()))
+		argFail_(tostr_(name))
 	}
 	var rvalue Node = assignment.getSecondChild()
 	this.defineName(name, rvalue, this.currentScope.getClosestHoistScope_rTypedScope(), info)
@@ -987,7 +987,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineVarChild(declarationIn
 		this.defineName(child, child.getFirstChild(), scope, declarationInfo)
 	} else {
 		if !child.isDestructuringLhs() {
-			stateFail_(objstr_(child.box_()))
+			stateFail_(tostr_(child))
 		}
 		var pattern Node = child.getFirstChild()
 		var value Node = child.getSecondChild()
@@ -1166,7 +1166,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) shouldUseFunctionLiteralType
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) createClassTypeFromNodes(clazz Node, name Optional[string], syntacticName Optional[string], info *JSDocInfo, lvalueNode Node) *FunctionType {
 	if !clazz.isClass() {
-		argFail_(objstr_(clazz.box_()))
+		argFail_(tostr_(clazz))
 	}
 	var builder *FunctionTypeBuilder = new_FunctionTypeBuilder(name, this.outer_.compiler_, clazz, this.currentScope).usingClassSyntax().setSyntacticFunctionName(syntacticName).setContents(FunctionTypeBuilder_FunctionContents(new_FunctionTypeBuilder_AstFunctionContents(clazz))).setDeclarationScope(func() *TypedScope {
 		if lvalueNode != 0 {
@@ -1552,7 +1552,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getLValueRootScope(n Node) *
 				return this.currentScope
 			case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 				if !nameParent.getParent().isParamList() {
-					stateFail_(objstr_(nameParent.box_()))
+					stateFail_(tostr_(nameParent))
 				}
 				return this.currentScope
 			default:
@@ -1798,7 +1798,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) checkForClassDefiningCalls(n
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) maybeDeclareGetElem(info *JSDocInfo, n Node, rhsValue Node) {
 	if !n.isGetElem() {
-		argFail_(objstr_(n.box_()))
+		argFail_(tostr_(n))
 	}
 	var ownerNode Node = n.getFirstChild()
 	var key Node = n.getSecondChild()
@@ -2586,7 +2586,7 @@ func (this *TypedScopeCreator_ClassScopeBuilder) determineOwnerTypeForClassMembe
 		return ownerType.getInstanceType()
 	} else {
 		if !((((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()) || member.isComputedProp()) || member.isComputedFieldDef()) {
-			stateFail_(objstr_(member.box_()))
+			stateFail_(tostr_(member))
 		}
 		return ownerType.getPrototype()
 	}

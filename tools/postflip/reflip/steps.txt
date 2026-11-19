@@ -637,3 +637,5 @@ d907dada run t sbuild && f
 d8b0f30c run t passfn && f
 # C29. postflip (manual): AbstractScope.vars is a scopeVars_ table; a variable lookup hashes the name once (a3f0161d and 6c2c7d00 rewritten for this flip)
 2283a089 patch reflip2-2283a089-manual.patch
+# C30. postflip step: exceptions re-run on the bridged tree (tool fix 9cddf058: panic(frozen_{}) is UnsupportedOperationException)
+d3a98058 run t exceptions && f

@@ -58,22 +58,22 @@ func (this *ManageClosureUnawareCode_UnwrapConcealedClosureUnawareCode) tryUnwra
 	}
 	var shadowScript Node = shadowAstRoot.getOnlyChild()
 	if !shadowScript.isScript() {
-		stateFail_(objstr_(shadowScript.box_()))
+		stateFail_(tostr_(shadowScript))
 	}
 	if !shadowScript.hasOneChild() {
-		stateFail_(objstr_(shadowScript.box_()))
+		stateFail_(tostr_(shadowScript))
 	}
 	var exprResult Node = shadowScript.getOnlyChild()
 	if !exprResult.isExprResult() {
-		stateFail_(objstr_(exprResult.box_()))
+		stateFail_(tostr_(exprResult))
 	}
 	var callNode Node = exprResult.getOnlyChild()
 	if !callNode.isCall() {
-		stateFail_(objstr_(callNode.box_()))
+		stateFail_(tostr_(callNode))
 	}
 	var originalCodeFunction Node = callNode.getLastChild()
 	if !originalCodeFunction.isFunction() {
-		stateFail_(objstr_(originalCodeFunction.box_()))
+		stateFail_(tostr_(originalCodeFunction))
 	}
 	originalCodeFunction.detach()
 	n.replaceWith(originalCodeFunction)

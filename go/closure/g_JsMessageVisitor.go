@@ -83,7 +83,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 			return
 		}
 		if !parent.isObjectLit() {
-			stateFail_(objstr_(parent.box_()))
+			stateFail_(tostr_(parent))
 		}
 		possiblyObfuscatedMessageKey = node.getString()
 		originalMessageKey = node.getOriginalName()

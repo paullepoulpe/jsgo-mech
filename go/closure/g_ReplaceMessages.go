@@ -438,7 +438,7 @@ func (this *ReplaceMessages_MsgProtectionPass) performMessageProtection(msgProte
 	var placeholdersNode Node = msgProtectionData.placeholderValuesNode()
 	var msgOptions *ReplaceMessages_MsgOptions = msgProtectionData.messageOptions()
 	if !callNode.isCall() {
-		stateFail_(objstr_(callNode.box_()))
+		stateFail_(tostr_(callNode))
 	}
 	var googGetMsg Node = callNode.getFirstChild()
 	var protectionFunctionName string = ReplaceMessagesConstants_DEFINE_MSG_CALLEE
@@ -448,13 +448,13 @@ func (this *ReplaceMessages_MsgProtectionPass) performMessageProtection(msgProte
 	newCallNode.setSideEffectFlagsInt(Node_SideEffectFlags_NO_SIDE_EFFECTS)
 	if placeholdersNode != 0 {
 		if !placeholdersNode.isObjectLit() {
-			stateFail_(objstr_(placeholdersNode.box_()))
+			stateFail_(tostr_(placeholdersNode))
 		}
 		{
 			var strKey Node = placeholdersNode.getFirstChild()
 			for ; strKey != 0; strKey = strKey.getNext() {
 				if !strKey.isStringKey() {
-					stateFail_(objstr_(strKey.box_()))
+					stateFail_(tostr_(strKey))
 				}
 				strKey.setQuotedStringKey()
 			}
@@ -873,7 +873,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 	var isIcuTemplate bool = false
 	var jsMessageBuilder *JsMessage_Builder = new_JsMessage_Builder()
 	if !propertiesNode.isObjectLit() {
-		stateFail_(objstr_(propertiesNode.box_()))
+		stateFail_(tostr_(propertiesNode))
 	}
 	var msgKey Optional[string] = Optional_empty[string]()
 	var meaning Optional[string] = Optional_empty[string]()
@@ -884,7 +884,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 		var strKey Node = propertiesNode.getFirstChild()
 		for ; strKey != 0; strKey = strKey.getNext() {
 			if !strKey.isStringKey() {
-				stateFail_(objstr_(strKey.box_()))
+				stateFail_(tostr_(strKey))
 			}
 			var key string = strKey.getString()
 			var valueNode Node = strKey.getOnlyChild()
@@ -898,7 +898,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 				continue
 			}
 			if !valueNode.isStringLit() {
-				stateFail_(objstr_(valueNode.box_()))
+				stateFail_(tostr_(valueNode))
 			}
 			var value string = valueNode.getString()
 			switch key {

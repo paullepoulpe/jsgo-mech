@@ -183,11 +183,11 @@ func new_RewriteAsyncFunctions_SuperPropertyWrappers(outer_ *RewriteAsyncFunctio
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropertyWrapperInfo(superDotPropertyNode Node) *RewriteAsyncFunctions_SuperPropertyWrapperInfo {
 	if !superDotPropertyNode.isGetProp() {
-		argFail_(objstr_(superDotPropertyNode.box_()))
+		argFail_(tostr_(superDotPropertyNode))
 	}
 	var superNode Node = superDotPropertyNode.getFirstChild()
 	if !superNode.isSuper() {
-		argFail_(objstr_(superNode.box_()))
+		argFail_(tostr_(superNode))
 	}
 	var propertyName string = superDotPropertyNode.getString()
 	var propertyType *Color = superDotPropertyNode.getColor()
@@ -207,7 +207,7 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropert
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) createNewInfo(firstSuperDotPropertyNode Node) *RewriteAsyncFunctions_SuperPropertyWrapperInfo {
 	if !firstSuperDotPropertyNode.isGetProp() {
-		argFail_(objstr_(firstSuperDotPropertyNode.box_()))
+		argFail_(tostr_(firstSuperDotPropertyNode))
 	}
 	var propertyName string = firstSuperDotPropertyNode.getString()
 	var wrapperFunctionName string = (sstr_(RewriteAsyncFunctions_ASYNC_SUPER_PROP_GETTER_PREFIX) + sstr_(this.outer_.compiler_.getUniqueIdSupplier().getUniqueId(this.outer_.compiler_.getInput(NodeUtil_getInputId(firstSuperDotPropertyNode)))) + "$" + sstr_(propertyName))
@@ -434,7 +434,7 @@ func (this *RewriteAsyncFunctions_FunctionContext) init_RewriteAsyncFunctions_Fu
 	this.RewriteAsyncFunctions_LexicalContext.init_RewriteAsyncFunctions_LexicalContext(contextRootNode, uniqueId)
 	this.finit_RewriteAsyncFunctions_FunctionContext()
 	if !contextRootNode.isFunction() {
-		stateFail_(objstr_(contextRootNode.box_()))
+		stateFail_(tostr_(contextRootNode))
 	}
 	if contextRootNode.isAsyncFunction() {
 		if contextRootNode.isArrowFunction() {

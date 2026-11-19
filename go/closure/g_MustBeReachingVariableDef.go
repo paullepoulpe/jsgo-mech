@@ -111,7 +111,7 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 						}(), c.getFirstChild(), output)
 					} else {
 						if !c.isDestructuringLhs() {
-							stateFail_(objstr_(c.box_()))
+							stateFail_(tostr_(c))
 						}
 						this.computeMustDef(c.getSecondChild(), cfgNode, output, conditional)
 						this.computeMustDef(c.getFirstChild(), cfgNode, output, conditional)
