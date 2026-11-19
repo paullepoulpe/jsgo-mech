@@ -60,7 +60,7 @@ func (this *ProcessClosureProvidesAndRequires) rewriteProvidesAndRequires(extern
 	}
 	this.hasRewritingOccurred = true
 	this.collectProvidedNames(externs, root)
-	it_1 := this.providedNames.eachValue()
+	it_1 := this.providedNames.each()
 	for it_1.next() {
 		var pn *ProcessClosureProvidesAndRequires_ProvidedName = it_1.v
 		pn.replace(this.preserveGoogProvidesAndRequires, this.providedNames)

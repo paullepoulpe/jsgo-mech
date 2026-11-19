@@ -659,9 +659,9 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 		}
 	}
 	this.moduleExports.asList().removeAll(Collection(sliceView_(tc_p_ProcessCommonJSModules_ExportInfo, exportsToRemove)))
-	it_7 := exportsToReplace.eachKey()
+	it_7 := exportsToReplace.each()
 	for it_7.next() {
-		var oldExport *ProcessCommonJSModules_ExportInfo = it_7.v
+		var oldExport *ProcessCommonJSModules_ExportInfo = it_7.k
 		var oldIndex int32 = this.moduleExports.asList().indexOf(obj_(oldExport))
 		this.moduleExports.removeAt(oldIndex)
 		this.moduleExports.insert(oldIndex, exportsToReplace.Get(oldExport))

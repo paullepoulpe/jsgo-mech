@@ -317,9 +317,9 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) transformLo
 		return
 	}
 	var wrapperFunctions *TSet[Node] = this.createWrapperFunctions()
-	it_1 := this.loopObjectMap.eachKey()
+	it_1 := this.loopObjectMap.each()
 	for it_1.next() {
-		var loopNode Node = it_1.v
+		var loopNode Node = it_1.k
 		var loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = this.loopObjectMap.Get(loopNode)
 		var objectLitNextIteration Node = this.outer_.astFactory_.createObjectLit([]Node{})
 		this.renameVarsToProperties(loopObject, objectLitNextIteration, loopNode)

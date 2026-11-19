@@ -322,9 +322,9 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
 	var suffixList *TList[string] = newTList_(tc_string)
-	it_1 := statics.eachKey()
+	it_1 := statics.each()
 	for it_1.next() {
-		var arg string = it_1.v
+		var arg string = it_1.k
 		suffixList.add(arg[strings.LastIndexByte(arg, '.')+1:])
 	}
 	this.suffixes = immutableSetCopyOf_(tc_string, Collection(suffixList.asList()))

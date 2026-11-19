@@ -72,7 +72,7 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 }
 
 func (this *CheckConstantCaseNames) reportWarningsAndClear() {
-	it_1 := this.invalidNamesPerModule.eachValue()
+	it_1 := this.invalidNamesPerModule.each()
 	for it_1.next() {
 		var nameNode Node = it_1.v
 		var name string = nameNode.getString()

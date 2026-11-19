@@ -20,9 +20,9 @@ func (this *ClusterPropagator) traverseEdge(src *ColorGraphNode, unused any, des
 		return false
 	}
 	var startDestPropCount int32 = dest.getAssociatedProps().Len()
-	it_1 := src.getAssociatedProps().eachKey()
+	it_1 := src.getAssociatedProps().each()
 	for it_1.next() {
-		var prop *PropertyClustering = it_1.v
+		var prop *PropertyClustering = it_1.k
 		if prop.isInvalidated() {
 			continue
 		}

@@ -106,7 +106,7 @@ func (this *JSChunk) remove(input *CompilerInput) {
 }
 
 func (this *JSChunk) removeAll() {
-	it_1 := this.inputs.eachValue()
+	it_1 := this.inputs.each()
 	for it_1.next() {
 		var input *CompilerInput = it_1.v
 		input.setChunk(nil)
@@ -191,7 +191,7 @@ func (this *JSChunk) toString() string {
 }
 
 func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
-	it_1 := this.inputs.eachValue()
+	it_1 := this.inputs.each()
 	for it_1.next() {
 		var input *CompilerInput = it_1.v
 		input.setCompiler(compiler)

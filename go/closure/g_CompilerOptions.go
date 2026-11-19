@@ -2732,9 +2732,9 @@ func (this CompilerOptions_BrowserFeaturesetYear) getYear() int32 {
 }
 
 func CompilerOptions_BrowserFeaturesetYear_minimumRequiredFor(feature FeatureSet_Feature) CompilerOptions_BrowserFeaturesetYear {
-	it_1 := CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.eachKey()
+	it_1 := CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.each()
 	for it_1.next() {
-		var year int32 = unbox_[int32](it_1.v)
+		var year int32 = unbox_[int32](it_1.k)
 		var yearObject CompilerOptions_BrowserFeaturesetYear = CompilerOptions_BrowserFeaturesetYear_YEAR_MAP.Get(any(int32(year)))
 		if yearObject.getFeatureSet().contains(feature) {
 			return yearObject

@@ -77,7 +77,7 @@ func (this *ProcessDefines) initNamespace(externs Node, root Node) {
 
 func (this *ProcessDefines) overrideDefines() {
 	if ProcessDefines_Mode_optimize_[this.mode_-1] {
-		it_1 := this.defineByDefineName.eachValue()
+		it_1 := this.defineByDefineName.each()
 		for it_1.next() {
 			var define *ProcessDefines_Define = it_1.v
 			if define.valueParent == 0 {
@@ -251,7 +251,7 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 			namesToCheck.Add(name)
 		}
 	}
-	it_3 := this.defineByDefineName.eachValue()
+	it_3 := this.defineByDefineName.each()
 	for it_3.next() {
 		var define *ProcessDefines_Define = it_3.v
 		namesToCheck.Delete(define.name_)
@@ -289,7 +289,7 @@ func (this *ProcessDefines) validateDefineDeclarations() {
 	if !ProcessDefines_Mode_check__[this.mode_-1] {
 		return
 	}
-	it_1 := this.defineByDefineName.eachValue()
+	it_1 := this.defineByDefineName.each()
 	for it_1.next() {
 		var define *ProcessDefines_Define = it_1.v
 		var declarationNode Node = define.declaration_.getNode()

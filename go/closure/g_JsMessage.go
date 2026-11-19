@@ -158,7 +158,7 @@ func (this *JsMessage) isEmpty() bool {
 			}
 		}
 	} else {
-		it_3 := this.getGenderedMessagesMap().eachValue()
+		it_3 := this.getGenderedMessagesMap().each()
 		for it_3.next() {
 			var parts *ErasedImmutableList = it_3.v
 			for _, el_5 := range immElems_(parts) {
