@@ -287,3 +287,29 @@ func tconvKeyed_[T any](c *tconv_[T], hash func(T) int32, eq func(a, b T) bool) 
 // The typed map never calls hash for a null key; eq is called with any two keys.
 func varKeyHash_(v *Var) int32 { _, h := keyOfVar_(v); return int32(h) }
 func varKeyEq_(a, b *Var) bool { return a == b || a != nil && b != nil && vkey_(a) == vkey_(b) }
+
+// step_ (stepper_, rt_coll.go): the erased for-each cursor reads the view of a post-flip typed
+// collection by position, without an iterator object, as it reads the runtime's own collections
+// and the translator's views: the element at or after position i (removed mappings skipped) and
+// the position to go on from, or a negative position at the end. The elements and their order
+// are those of the view's iterator.
+func (v *tlistView_[T]) step_(i int) (any, int) {
+	if i < len(v.l.items) {
+		return v.l.c.box(v.l.items[i]), i + 1
+	}
+	return nil, -1
+}
+
+func tmapStep_[K comparable, V any](m *TMap[K, V], i int, out func(m *TMap[K, V], i int32) any) (any, int) {
+	for ; i < len(m.keys); i++ {
+		if !m.isDead(i) {
+			return out(m, int32(i)), i + 1
+		}
+	}
+	return nil, -1
+}
+
+func (v *tsetView_[K]) step_(i int) (any, int)        { return tmapStep_(v.m, i, keyOut_[K, struct{}]) }
+func (v *tkeysView_[K, V]) step_(i int) (any, int)    { return tmapStep_(v.m, i, keyOut_[K, V]) }
+func (v *tvalsView_[K, V]) step_(i int) (any, int)    { return tmapStep_(v.m, i, valOut_[K, V]) }
+func (v *tentriesView_[K, V]) step_(i int) (any, int) { return tmapStep_(v.m, i, entryOut_[K, V]) }
