@@ -246,7 +246,7 @@ func (this *PropertyMap) hashCode() int32 {
 		if this.knownSymbols == nil {
 			return hash_(this.properties.asMap().keySet())
 		}
-		return Objects_hash([]any{this.properties.asMap().keySet(), this.knownSymbols.asMap().keySet()})
+		return hashOf_(objhashDyn_(this.properties.asMap().keySet()), objhashDyn_(this.knownSymbols.asMap().keySet()))
 	}()
 }
 
@@ -306,7 +306,7 @@ func (this *PropertyMap_AllKeys) equals(p0 any) bool {
 func (this *PropertyMap_AllKeys) hashCode() int32 {
 	var h int32
 	h = h*31 + hash_(this.stringKeys_)
-	h = h*31 + Objects_hashCode(this.knownSymbolKeys_.asSet())
+	h = h*31 + objhashDyn_(this.knownSymbolKeys_.asSet())
 	return h
 }
 
