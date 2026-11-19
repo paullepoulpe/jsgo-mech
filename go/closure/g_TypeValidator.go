@@ -361,8 +361,8 @@ func (this *TypeValidator) expectSuperType(n Node, superObject *ObjectType, subO
 	if (declaredSuper != nil) && declaredSuper.isTemplatizedType() {
 		declaredSuper = declaredSuper.toMaybeTemplatizedType().getReferencedType()
 	}
-	if ((declaredSuper != nil) && !is_[*UnknownType](superObject.self())) && !declaredSuper.equals(superObject.self()) {
-		if declaredSuper.equals(this.getNativeType(JSTypeNative_OBJECT_TYPE).self()) {
+	if ((declaredSuper != nil) && !is_[*UnknownType](superObject.self())) && !declaredSuper.equals_JSType(superObject.up_JSType()) {
+		if declaredSuper.equals_JSType(this.getNativeType(JSTypeNative_OBJECT_TYPE)) {
 			this.registerMismatchAndReport(superObject.up_JSType(), declaredSuper.up_JSType(), JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_MISSING_EXTENDS_TAG_WARNING, []string{subObject.toString()}))
 		} else {
 			this.mismatchJSType(n, "mismatch in declaration of superclass type", superObject.up_JSType(), declaredSuper.up_JSType())
@@ -385,7 +385,7 @@ func (this *TypeValidator) expectExtends(n Node, subCtor *FunctionType, astSuper
 		var registeredSuperCtor *FunctionType = subCtor.getSuperClassConstructor()
 		if registeredSuperCtor != nil {
 			var registeredSuperInstance *ObjectType = registeredSuperCtor.getInstanceType()
-			if !astSuperInstance.equals(registeredSuperInstance.self()) {
+			if !astSuperInstance.equals_JSType(registeredSuperInstance.up_JSType()) {
 				this.mismatchJSType(n, "mismatch in declaration of superclass type", astSuperInstance.up_JSType(), registeredSuperInstance.up_JSType())
 			}
 		}
@@ -434,7 +434,7 @@ func (this *TypeValidator) expectUndeclaredVariable(sourceName Optional[string],
 		} else {
 			var allowDupe bool = TypeValidator_hasDuplicateDeclarationSuppression(this.compiler_, var_.getNameNode())
 			if !allowDupe {
-				if !newType.equals(varType.self()) {
+				if !newType.equals_JSType(varType) {
 					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_DUP_VAR_DECLARATION_TYPE_MISMATCH, []string{variableName, newType.toString(), var_.getInputName(), strconv.Itoa(int(var_.getNameNode().getLineno())), varType.toString()}))
 				} else if !var_.getParentNode().isExprResult() {
 					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_DUP_VAR_DECLARATION, []string{variableName, var_.getInputName(), strconv.Itoa(int(var_.getNameNode().getLineno()))}))
@@ -483,7 +483,7 @@ func (this *TypeValidator) expectInterfaceProperty(n Node, instance *ObjectType,
 		}
 		this.registerMismatchAndReport(instance.up_JSType(), implementedInterface.up_JSType(), JSError_make_Node_DiagnosticType_StringArr(n, TypeValidator_INTERFACE_METHOD_NOT_IMPLEMENTED, []string{propName.humanReadableName(), implementedInterface.getReferenceName().orElse("null"), instance.toString()}))
 	} else {
-		var local bool = propSlot.getOwnerInstanceType().equals(instance.self())
+		var local bool = propSlot.getOwnerInstanceType().equals_JSType(instance.up_JSType())
 		if !local && instance.getConstructor().isInterface() {
 			return
 		}

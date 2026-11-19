@@ -1238,9 +1238,9 @@ func NodeUtil_mayBeString_Node_boolean(n Node, useType bool) bool {
 	if useType {
 		var color *Color = n.getColor()
 		if color != nil {
-			if color.equals(obj_(StandardColors_STRING)) {
+			if color.equals_Color(StandardColors_STRING) {
 				return true
-			} else if ((color.equals(obj_(StandardColors_NUMBER)) || color.equals(obj_(StandardColors_BIGINT))) || color.equals(obj_(StandardColors_BOOLEAN))) || color.equals(obj_(StandardColors_NULL_OR_VOID)) {
+			} else if ((color.equals_Color(StandardColors_NUMBER) || color.equals_Color(StandardColors_BIGINT)) || color.equals_Color(StandardColors_BOOLEAN)) || color.equals_Color(StandardColors_NULL_OR_VOID) {
 				return false
 			}
 		}
