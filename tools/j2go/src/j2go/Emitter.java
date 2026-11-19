@@ -293,6 +293,7 @@ final class Emitter extends StmtEmitter {
     }
     stubs(te);
     bridges(te);
+    covBridges(te);
     extBridges(te);
     guarded("args4j table of " + n, () -> args4jTable(te));
     if (te.getKind() == ElementKind.RECORD) recordMembers(te);
@@ -778,6 +779,25 @@ final class Emitter extends StmtEmitter {
         body = "panic(\"abstract method " + n + "." + name + "\")";
       }
       file.append(recv(te)).append(name).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t").append(body).append("\n}\n\n");
+    }
+  }
+
+  /**
+   * Rule "covariant overrides": for each method m of te that overrides f with a narrower result, the
+   * method of f's group at te, which calls m (its own group) and widens the result.
+   */
+  void covBridges(TypeElement te) {
+    List<ExecutableElement> ms = cx.covBridges.get(te);
+    if (ms == null) return;
+    for (ExecutableElement m : ms) {
+      ExecutableElement f = cx.covFrom.get(m);
+      List<TypeMirror> ps = cx.groupParams(f, te.asType()), mps = cx.groupParams(m, te.asType());
+      TypeMirror ret = cx.groupReturn(f, te.asType()), mret = cx.groupReturn(m, te.asType());
+      StringBuilder args = new StringBuilder();
+      for (int i = 0; i < ps.size(); i++) args.append(i > 0 ? ", " : "").append(cx.coerce("p" + i, ps.get(i), mps.get(i)));
+      String call = "this." + cx.methodName(m) + "(" + args + ")";
+      file.append(recv(te)).append(cx.implName(f, te)).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t")
+          .append(ret.getKind() == TypeKind.VOID ? call : "return " + cx.coerce(call, mret, ret)).append("\n}\n\n");
     }
   }
 

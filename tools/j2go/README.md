@@ -35,6 +35,17 @@ those conversions wherever the static type and the erased declaration differ,
 the way javac inserts `checkcast`. `Ctx.coerce` is the single place that knows
 how to convert between two Java types.
 
+**Covariant overrides.** Go has no covariant results. A method of a class that overrides one with
+a wider result type (both class or interface types, the overridden one not a type variable)
+starts a method group of its own, named after the overridden group and its result
+(`getScope` -> `getScope_rScope`), with its own signature; its class implements the overridden
+group with a bridge that calls it and widens the result, as javac's bridge method does
+(`Ctx.covariant`, `Emitter.covBridges`). A call that javac resolves to the override (the
+receiver's static type is its class or below) has the narrower result and no cast; a call
+through the wider type goes through the bridge. An interface that narrows a super-interface's
+method keeps one group. `J2GO_NO_COVARIANT=1` turns the rule off; `J2GO_COVARIANT=1` lists the
+overrides it applies to (70 in the tree).
+
 **Typed generics.** The program's own generic classes, interfaces and methods keep their type
 parameters where that is sound (`GenScan`; `J2GO_GENERICS=1` reports every declaration,
 `J2GO_ERASED=1` translates everything erased). A type parameter is kept when every mention of

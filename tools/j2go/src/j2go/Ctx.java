@@ -1798,10 +1798,41 @@ final class Ctx {
         && !m.getModifiers().contains(Modifier.PRIVATE)) {
       TypeElement owner = (TypeElement) m.getEnclosingElement();
       ExecutableElement found = findOverridden(m, owner, owner, new HashSet<>());
-      if (found != null) r = root(found);
+      if (found != null && covariant(m, found, owner)) {
+        // Rule "covariant overrides": m starts a group of its own, with its own (narrower) result;
+        // its class implements the overridden group with a bridge that calls it (Emitter.covBridges),
+        // as javac's bridge method does. A call that javac resolves to m (the receiver's static type
+        // is m's class or below) then has m's result type and needs no cast.
+        covFrom.put(m, found);
+        if (System.getenv("J2GO_COVARIANT") != null) System.err.println("covariant " + owner.getQualifiedName() + "." + m.getSimpleName() + ": " + types.erasure(found.getReturnType()) + " -> " + types.erasure(m.getReturnType()) + " (overrides " + ownerOf(found).getQualifiedName() + ")");
+      } else if (found != null) r = root(found);
     }
     rootCache.put(m, r);
     return r;
+  }
+
+  /** Covariant override -> the method it overrides (rule "covariant overrides"). */
+  final Map<ExecutableElement, ExecutableElement> covFrom = new LinkedHashMap<>();
+  /** Per class: its methods that are covariant overrides, each needing a bridge for the overridden group. */
+  final Map<TypeElement, List<ExecutableElement>> covBridges = new HashMap<>();
+  static final boolean NO_COVARIANT = System.getenv("J2GO_NO_COVARIANT") != null;
+
+  /**
+   * Whether m, declared by class owner, overrides found with a narrower result type: both results
+   * are class or interface types whose erasures differ (decided on javac's types alone, so that it
+   * does not depend on when it is asked) and the overridden result is not a type variable. Only
+   * for a method of a class of the program: an
+   * interface that narrows a super-interface's method keeps one group (every implementer would
+   * need the bridge).
+   */
+  boolean covariant(ExecutableElement m, ExecutableElement found, TypeElement owner) {
+    if (NO_COVARIANT || !isSource(owner) || owner.getKind().isInterface()) return false;
+    // An implementation of a generic method (Supplier<String>.get) is not a narrowing: its group's
+    // result is the type variable, which the rule "typed generics" keeps or erases.
+    if (found.getReturnType().getKind() == TypeKind.TYPEVAR) return false;
+    TypeMirror a = types.erasure(m.getReturnType()), b = types.erasure(found.getReturnType());
+    if (a.getKind() != TypeKind.DECLARED || b.getKind() != TypeKind.DECLARED) return false;
+    return !types.isSameType(a, b);
   }
 
   private ExecutableElement findOverridden(ExecutableElement m, TypeElement owner, TypeElement in, Set<TypeElement> seen) {
@@ -1952,6 +1983,15 @@ final class Ctx {
           noteExtRoot((ExecutableElement) e);
         }
       }
+      // A covariant override also implements the group it left, through a bridge.
+      for (Element e : te.getEnclosedElements()) {
+        if (!isInstanceMethod(e)) continue;
+        ExecutableElement m = (ExecutableElement) e, f = covFrom.get(m);
+        if (f != null && d.putIfAbsent(root(f), m) == null) {
+          covBridges.computeIfAbsent(te, k -> new ArrayList<>()).add(m);
+          noteExtRoot(f);
+        }
+      }
       declared.put(te, d);
     }
     // 2. Default-method bridges: the top-most class under each interface default method gets a bridge
@@ -2022,10 +2062,13 @@ final class Ctx {
         for (ExecutableElement r : set) conflicts.computeIfAbsent(r, k -> new LinkedHashSet<>()).addAll(set);
       }
     }
-    for (TypeElement te : source) {
-      for (ExecutableElement r : declared.get(te).keySet()) {
-        if (methodNames.containsKey(r)) continue;
-        methodNames.put(r, nameRoot(r, conflicts.get(r)));
+    // The groups of covariant overrides are named after the groups they left: those first.
+    for (int pass = 0; pass < 2; pass++) {
+      for (TypeElement te : source) {
+        for (ExecutableElement r : declared.get(te).keySet()) {
+          if (methodNames.containsKey(r) || (pass == 0) == covFrom.containsKey(r)) continue;
+          methodNames.put(r, nameRoot(r, conflicts.get(r)));
+        }
       }
     }
     instanceMethodNames.addAll(methodNames.values());
@@ -2118,6 +2161,10 @@ final class Ctx {
     String base = safeMember(r.getSimpleName().toString());
     TypeElement owner = ownerOf(r);
     if (!isSource(owner)) return externalMethodName(r);
+    if (covFrom.containsKey(r)) {
+      // A covariant override's own group: the overridden group's name and the narrower result.
+      return methodName(covFrom.get(r)) + "_r" + typeToken(types.erasure(r.getReturnType()));
+    }
     if (conflict == null) return base;
     boolean arityUnique = true;
     for (ExecutableElement o : conflict) {
