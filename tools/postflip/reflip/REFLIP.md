@@ -397,3 +397,17 @@ carried forward, each intermediate go/ compared with the step's commit byte for 
 64826ba8: `CHAIN OK 34 steps, last tree builds`. Its first run stopped at C34 on a patch file
 left under an old hash; fixed in 64826ba8. This is the bridge only: the 191 replayed commits
 before C1 (reflip2-replayed) were checked by replay2.sh on 18 Nov and have not been re-run.
+
+### C35, C36 and the standing after them (19 Nov)
+
+C35 (9cd99ed0, tool): tnames re-run, 30 computeIfAbsent_f calls take a typed function; neutral
+over 7 typed-full rounds, allocation unchanged. C36 (c82e880d, tool): funcparams, after a tool
+change for methods of generic types that no interface asks for: LinkedIdentityHashMap's
+computeIfAbsent and forEach take Go functions; neutral in time, subset CHECKS allocation 334.6M
+-> 324.7M objects.
+
+Subset (runs/c36_gs3500.runs, 2 alternating rounds, outputs identical): postflip5 99.4s, 100.3s;
+this tree 115.0s, 115.3s (120.9s, 119.8s before C23). By stage: CHECKS 50.09s against 58.50s,
+OPTIMIZATIONS 40.59s against 45.68s, FINALIZATIONS 9.19s against 10.99s. This tree is about 15%
+behind postflip5 on the subset (it was about 20%); pre-flip Java ran it in 94.2-95.2s. CHECKS
+allocation: postflip5 260.4M objects, this tree 324.7M (382.5M before C33).
