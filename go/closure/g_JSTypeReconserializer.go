@@ -283,9 +283,11 @@ func (this *JSTypeReconserializer) generateTypePool() *TypePool {
 	var builder *TypePool_Builder = TypePool_newBuilder()
 	if this.serializationMode.includeDebugInfo() {
 		var debugInfo *TypePool_DebugInfo_Builder = builder.getDebugInfoBuilder()
-		Map_forEach(this.invalidatingTypes.getMismatchLocations().inverse().asMap(), &BiConsumer_tfn_Node_Set{func(location Node, types Set) {
-			debugInfo.addMismatchBuilder().setSourceRef(location.getLocation()).addAllInvolvedColor(Iterable(this.serializeInvolvedTypes(Collection(types)).asList()))
-		}})
+		Map_forEach_f(this.invalidatingTypes.getMismatchLocations().inverse().asMap(), func(p0 any, p1 any) {
+			(func(location Node, types Set) {
+				debugInfo.addMismatchBuilder().setSourceRef(location.getLocation()).addAllInvolvedColor(Iterable(this.serializeInvolvedTypes(Collection(types)).asList()))
+			})(Node_of_(p0), icast_Set(p1))
+		})
 	}
 	this.state = JSTypeReconserializer_State_GENERATING_POOL
 	it_1 := this.seenTypeRecords.each()

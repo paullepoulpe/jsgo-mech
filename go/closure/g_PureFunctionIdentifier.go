@@ -233,7 +233,9 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 	for name := range elemsBy_(referencesByName.keySet(), str_) {
 		this.summariesByName[name] = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), name)
 	}
-	Map_forEach(referencesByName.asMap(), &BiConsumer_tfn_string_List{func(p0 string, p1 List) { this.populateFunctionDefinitions(p0, p1) }})
+	Map_forEach_f(referencesByName.asMap(), func(p0 any, p1 any) {
+		(func(p0 string, p1 List) { this.populateFunctionDefinitions(p0, p1) })(str_(p0), icast_List(p1))
+	})
 	this.summariesForAllNamesOfFunctionByNode.put(PureFunctionIdentifier_IMPLICIT_PURE_FN, PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<implicit pure class ctor"))
 }
 
@@ -415,7 +417,11 @@ func PureFunctionIdentifier_clinit() {
 	PureFunctionIdentifier_clinit_done = true
 	PureFunctionIdentifier_IMPLICIT_PURE_FN = IR_function(IR_name(""), IR_paramList([]Node{}), IR_block_0())
 	PureFunctionIdentifier_UNUSED_ARTIFICIAL_PURE_ANNOTATION = DiagnosticType_disabled("JSC_UNUSED_ARTIFICIAL_PURE_ANNOTATION", "Artificial @nosideeffects annotation cannot be enforced: found ambiguous definitions of {0}.\n\nSide-effectful definitions:\n  {1}")
-	PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR = Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_comparing(&Function_tfn_Node_string{func(p0 Node) string { return p0.getSourceFileName() }}), &ToIntFunction_tfn_Node{func(p0 Node) int32 { return p0.getLineno() }}), &ToIntFunction_tfn_Node{func(p0 Node) int32 { return p0.getCharno() }})
+	PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR = Comparator_thenComparingInt_f(Comparator_thenComparingInt_f(Comparator_comparing(&Function_tfn_Node_string{func(p0 Node) string { return p0.getSourceFileName() }}), func(p0 any) int32 {
+		return (func(p0 Node) int32 { return p0.getLineno() })(Node_of_(p0))
+	}), func(p0 any) int32 {
+		return (func(p0 Node) int32 { return p0.getCharno() })(Node_of_(p0))
+	})
 	PureFunctionIdentifier_RHS_IS_ALWAYS_LOCAL = &Predicate_tfn_Node{func(lhs Node) bool {
 		return true
 	}}

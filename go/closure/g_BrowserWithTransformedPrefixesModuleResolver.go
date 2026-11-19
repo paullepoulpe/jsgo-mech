@@ -29,9 +29,11 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 		var entry *TEntryP[string, string] = it_1.entry()
 		sortedReplacements.add(BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_of(entry.getKey(), entry.getValue()))
 	}
-	List_sort(sortedReplacements.asList(), Comparator_thenComparing(Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement{func(r *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) int32 {
-		return String_length(r.prefix())
-	}})), &Function_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_string{func(p0 *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) string { return p0.prefix() }}))
+	List_sort(sortedReplacements.asList(), Comparator_thenComparing(Comparator_reversed(Comparator_comparingInt_f(func(p0 any) int32 {
+		return (func(r *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) int32 {
+			return String_length(r.prefix())
+		})(cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](p0))
+	})), &Function_tfn_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_string{func(p0 *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) string { return p0.prefix() }}))
 	this.prefixReplacements = immutableSetCopyOf_(tce_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement.t_(), Collection(sortedReplacements.asList()))
 	var sortedPrefixes *TList[string] = newTList_(tc_string)
 	it_3 := this.prefixReplacements.each()

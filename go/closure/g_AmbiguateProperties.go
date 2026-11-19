@@ -144,9 +144,11 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		}
 	}
 	GatherGetterAndSetterProperties_update(this.compiler_, externs, root)
-	var summarySupplier SupplierOf[string] = Supplier(Suppliers_memoize(&Supplier_base_tfn_string{func() string {
-		return ("Collapsed " + istr_(int64(finalNumRenamedPropertyNames)) + " properties into " + istr_(int64(numNewPropertyNames)) + " and skipped renaming " + istr_(int64(finalNumSkippedPropertyNames)) + " properties.")
-	}}))
+	var summarySupplier SupplierOf[string] = Supplier(Suppliers_memoize_f(func() any {
+		return strobj_((func() string {
+			return ("Collapsed " + istr_(int64(finalNumRenamedPropertyNames)) + " properties into " + istr_(int64(numNewPropertyNames)) + " and skipped renaming " + istr_(int64(finalNumSkippedPropertyNames)) + " properties.")
+		})())
+	}))
 	if AmbiguateProperties_logger.isLoggable(Level_FINE) {
 		AmbiguateProperties_logger.fine(str_(summarySupplier.get()))
 	}

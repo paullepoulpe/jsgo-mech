@@ -33,7 +33,9 @@ func (this *ColorGraphBuilder) add(flat *ColorGraphNode) {
 }
 
 func (this *ColorGraphBuilder) addAll(flats CollectionOf[*ColorGraphNode]) {
-	Iterable_forEach(Iterable(flats), &Consumer_tfn_ColorGraphNode{func(p0 *ColorGraphNode) { this.add(p0) }})
+	Iterable_forEach_f(Iterable(flats), func(p0 any) {
+		(func(p0 *ColorGraphNode) { this.add(p0) })(cast_[*ColorGraphNode](p0))
+	})
 }
 
 func (this *ColorGraphBuilder) build() *LinkedDirectedGraph[*ColorGraphNode, any] {

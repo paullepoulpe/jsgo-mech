@@ -259,9 +259,11 @@ func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node,
 			return Map(new_LinkedHashMap())
 		}})
 		if importType == ConvertChunksToESModules_ImportType_STATIC {
-			var importsForChunk SetOf[string] = icast_Set(Map_computeIfAbsent(namesToImportByChunk, obj_(definingChunk), &Function_tfn_JSChunk_Set{func(k *JSChunk) Set {
-				return Set(new_LinkedHashSet())
-			}}))
+			var importsForChunk SetOf[string] = icast_Set(Map_computeIfAbsent_f(namesToImportByChunk, obj_(definingChunk), func(p0 any) any {
+				return (func(k *JSChunk) Set {
+					return Set(new_LinkedHashSet())
+				})(cast_[*JSChunk](p0))
+			}))
 			Collection_add_s(importsForChunk, name)
 		}
 	}
@@ -409,9 +411,11 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) visitScript(t *No
 		it_1 := chunkDependencies.each()
 		for it_1.next() {
 			var dependency *JSChunk = it_1.v
-			Map_computeIfAbsent(namesToImportByChunk, obj_(dependency), &Function_tfn_JSChunk_Set{func(k *JSChunk) Set {
-				return Set(new_LinkedHashSet())
-			}})
+			Map_computeIfAbsent_f(namesToImportByChunk, obj_(dependency), func(p0 any) any {
+				return (func(k *JSChunk) Set {
+					return Set(new_LinkedHashSet())
+				})(cast_[*JSChunk](p0))
+			})
 		}
 	}
 }

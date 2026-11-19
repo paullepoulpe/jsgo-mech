@@ -338,15 +338,19 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		var input *CompilerInput = it_1.v
 		for _, el := range immElems_(input.getKnownProvides()) {
 			provide := str_(el)
-			mapComputeIfAbsent_(tc_string, tc_Set, inputsByProvide, provide, &Function_tfn_string_Set{func(k string) Set {
-				return Set(new_LinkedHashSet())
-			}})
+			mapComputeIfAbsent_f(tc_string, tc_Set, inputsByProvide, provide, func(p0 any) any {
+				return (func(k string) Set {
+					return Set(new_LinkedHashSet())
+				})(str_(p0))
+			})
 			inputsByProvide[provide].add(obj_(input))
 		}
 		var chunkName string = input.getPath().toModuleName()
-		mapComputeIfAbsent_(tc_string, tc_Set, inputsByProvide, chunkName, &Function_tfn_string_Set{func(k string) Set {
-			return Set(new_LinkedHashSet())
-		}})
+		mapComputeIfAbsent_f(tc_string, tc_Set, inputsByProvide, chunkName, func(p0 any) any {
+			return (func(k string) Set {
+				return Set(new_LinkedHashSet())
+			})(str_(p0))
+		})
 		inputsByProvide[chunkName].add(obj_(input))
 	}
 	it_5 := originalInputs.each()

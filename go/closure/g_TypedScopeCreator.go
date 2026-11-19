@@ -749,9 +749,13 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) visit(t *NodeTraversal, n No
 		this.visitPostorder(t, n, parent)
 	}
 	if !isScopeRoot && this.deferredActions.containsKey(n.box_()) {
-		Iterable_forEach(Iterable(this.deferredActions.removeAll(n.box_())), &Consumer_tfn_Runnable{func(p0 Runnable) { p0.run() }})
+		Iterable_forEach_f(Iterable(this.deferredActions.removeAll(n.box_())), func(p0 any) {
+			(func(p0 Runnable) { p0.run() })(icast_Runnable(p0))
+		})
 	} else if isScopeRoot && !this.deferredActions.isEmpty() {
-		Iterable_forEach(Iterable(this.deferredActions.values()), &Consumer_tfn_Runnable{func(p0 Runnable) { p0.run() }})
+		Iterable_forEach_f(Iterable(this.deferredActions.values()), func(p0 any) {
+			(func(p0 Runnable) { p0.run() })(icast_Runnable(p0))
+		})
 	}
 }
 

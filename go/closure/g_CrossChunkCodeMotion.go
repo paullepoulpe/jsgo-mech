@@ -570,7 +570,9 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getGlobalSymbol
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveStatementsToChunk(preferredChunk *JSChunk) {
-	var destParent Node = mapComputeIfAbsent_(tc_p_JSChunk, tc_Node, this.outer_.chunkInsertionPointMap, preferredChunk, &Function_tfn_JSChunk_Node{func(p0 *JSChunk) Node { return this.outer_.compiler_.getNodeForCodeInsertion(p0) }})
+	var destParent Node = mapComputeIfAbsent_f(tc_p_JSChunk, tc_Node, this.outer_.chunkInsertionPointMap, preferredChunk, func(p0 any) any {
+		return (func(p0 *JSChunk) Node { return this.outer_.compiler_.getNodeForCodeInsertion(p0) })(cast_[*JSChunk](p0)).box_()
+	})
 	var statementsLastFirst *TDeque[*CrossChunkReferenceCollector_TopLevelStatement] = this.getStatementsLastFirst()
 	it_1 := statementsLastFirst.each()
 	for it_1.next() {

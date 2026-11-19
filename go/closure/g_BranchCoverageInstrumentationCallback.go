@@ -75,9 +75,11 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		if !hasDefaultBlock {
 			this.addDefaultBlock(node)
 		}
-		mapComputeIfAbsent_(tc_string, tc_p_FileInstrumentationData, this.instrumentationData, fileName.orElse(nullstr_), &Function_tfn_string_FileInstrumentationData{func(k string) *FileInstrumentationData {
-			return new_FileInstrumentationData(k, BranchCoverageInstrumentationCallback_createArrayName(traversal))
-		}})
+		mapComputeIfAbsent_f(tc_string, tc_p_FileInstrumentationData, this.instrumentationData, fileName.orElse(nullstr_), func(p0 any) any {
+			return obj_((func(k string) *FileInstrumentationData {
+				return new_FileInstrumentationData(k, BranchCoverageInstrumentationCallback_createArrayName(traversal))
+			})(str_(p0)))
+		})
 		this.processBranchInfo(node, func() *FileInstrumentationData {
 			if fileName.isPresent() {
 				return this.instrumentationData[fileName.get()]
@@ -103,9 +105,11 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 				}
 			}
 		}
-		mapComputeIfAbsent_(tc_string, tc_p_FileInstrumentationData, this.instrumentationData, fileName.orElse(nullstr_), &Function_tfn_string_FileInstrumentationData{func(k string) *FileInstrumentationData {
-			return new_FileInstrumentationData(k, BranchCoverageInstrumentationCallback_createArrayName(traversal))
-		}})
+		mapComputeIfAbsent_f(tc_string, tc_p_FileInstrumentationData, this.instrumentationData, fileName.orElse(nullstr_), func(p0 any) any {
+			return obj_((func(k string) *FileInstrumentationData {
+				return new_FileInstrumentationData(k, BranchCoverageInstrumentationCallback_createArrayName(traversal))
+			})(str_(p0)))
+		})
 		this.processBranchInfo(node, func() *FileInstrumentationData {
 			if fileName.isPresent() {
 				return this.instrumentationData[fileName.get()]
@@ -149,9 +153,11 @@ func (this *BranchCoverageInstrumentationCallback) newBranchInstrumentationNode(
 	var getElemNode Node = IR_getelem(IR_name(arrayName), IR_number(float64(idx)))
 	var exprNode Node = IR_exprResult(IR_assign(getElemNode, IR_trueNode()))
 	var fileName Optional[string] = traversal.getSourceName()
-	mapComputeIfAbsent_(tc_string, tc_p_FileInstrumentationData, this.instrumentationData, fileName.orElse(nullstr_), &Function_tfn_string_FileInstrumentationData{func(k string) *FileInstrumentationData {
-		return new_FileInstrumentationData(k, arrayName)
-	}})
+	mapComputeIfAbsent_f(tc_string, tc_p_FileInstrumentationData, this.instrumentationData, fileName.orElse(nullstr_), func(p0 any) any {
+		return obj_((func(k string) *FileInstrumentationData {
+			return new_FileInstrumentationData(k, arrayName)
+		})(str_(p0)))
+	})
 	return exprNode.srcrefTreeIfMissing(node)
 }
 

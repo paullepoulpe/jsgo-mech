@@ -52,9 +52,11 @@ func (this *PruningAnalysis) calculateBottlenecks() *TMap[string, any] {
 		}
 	}
 	var sortedBlame []Map_Entry = sliceFrom_(tc_Map_Entry, Collection(bottleneckBlame.asMap().entrySet()))
-	List_sort(sliceView_(tc_Map_Entry, sortedBlame), Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_Map_Entry{func(entry Map_Entry) int32 {
-		return unbox_[int32](entry.getValue())
-	}})))
+	List_sort(sliceView_(tc_Map_Entry, sortedBlame), Comparator_reversed(Comparator_comparingInt_f(func(p0 any) int32 {
+		return (func(entry Map_Entry) int32 {
+			return unbox_[int32](entry.getValue())
+		})(icast_Map_Entry(p0))
+	})))
 	var result *ImmutableMap_Builder[string, any] = immutableMapBuilder_(tc_string, tc_Integer)
 	for i := int32(0); (i < int32(len(sortedBlame))) && (i < PruningAnalysis_BOTTLENECK_THRESHOLD); i++ {
 		var entry Map_EntryOf[string, BoxedOf[int32]] = sliceAt_(sortedBlame, i)

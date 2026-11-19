@@ -43,7 +43,9 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSorte
 		it_3 := group.getTypes().each()
 		for it_3.next() {
 			var diagnosticType *DiagnosticType = it_3.v
-			Map_merge(diagnosticToSuppression.asMap(), obj_(diagnosticType), strobj_(suppression), &BiFunction_tfn_string_string_string{func(p0 string, p1 string) string { return this.preferMoreTargetedGroup(p0, p1) }})
+			Map_merge_f(diagnosticToSuppression.asMap(), obj_(diagnosticType), strobj_(suppression), func(p0 any, p1 any) any {
+				return strobj_((func(p0 string, p1 string) string { return this.preferMoreTargetedGroup(p0, p1) })(str_(p0), str_(p1)))
+			})
 		}
 	}
 	var result ImmutableSortedMap_BuilderOf[string, string] = ImmutableSortedMap_naturalOrder()

@@ -254,9 +254,11 @@ func RenameVars_clinit() {
 		return
 	}
 	RenameVars_clinit_done = true
-	RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR = Comparator_comparingInt(&ToIntFunction_tfn_RenameVars_Assignment{func(arg *RenameVars_Assignment) int32 {
-		return arg.orderOfOccurrence
-	}})
+	RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR = Comparator_comparingInt_f(func(p0 any) int32 {
+		return (func(arg *RenameVars_Assignment) int32 {
+			return arg.orderOfOccurrence
+		})(cast_[*RenameVars_Assignment](p0))
+	})
 
 }
 

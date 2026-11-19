@@ -17,13 +17,15 @@ type ControlFlowAnalysis struct {
 }
 
 func (this *ControlFlowAnalysis) finit_ControlFlowAnalysis() {
-	this.priorityComparator = Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_{func(digraphNode DiGraph_DiGraphNode[Node]) int32 {
-		nn_, nn1_ := this.astPosition.get(digraphNode.getValue()), digraphNode.getValue()
-		if nn_ == nil {
-			panic(new_NullPointerException_String(tostr_(nn1_)))
-		}
-		return unbox_[int32](nn_)
-	}})
+	this.priorityComparator = Comparator_comparingInt_f(func(p0 any) int32 {
+		return (func(digraphNode DiGraph_DiGraphNode[Node]) int32 {
+			nn_, nn1_ := this.astPosition.get(digraphNode.getValue()), digraphNode.getValue()
+			if nn_ == nil {
+				panic(new_NullPointerException_String(tostr_(nn1_)))
+			}
+			return unbox_[int32](nn_)
+		})(cast_[DiGraph_DiGraphNode[Node]](p0))
+	})
 	this.exceptionHandler = newTDeque_(jtc_Node)
 	this.finallyMap = SimpleSetMultimap_createInsertionOrdered[Node, Node]()
 }
@@ -808,8 +810,12 @@ func new_ControlFlowAnalysis_AstControlFlowGraph(entry Node, edgeAnnotations boo
 func (this *ControlFlowAnalysis_AstControlFlowGraph) getOptionalNodeComparator_impl(isForward bool) ComparatorOf[DiGraph_DiGraphNode[Node]] {
 	return func() Comparator {
 		if isForward {
-			return Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_{func(p0 DiGraph_DiGraphNode[Node]) int32 { return p0.getPriority() }})
+			return Comparator_comparingInt_f(func(p0 any) int32 {
+				return (func(p0 DiGraph_DiGraphNode[Node]) int32 { return p0.getPriority() })(cast_[DiGraph_DiGraphNode[Node]](p0))
+			})
 		}
-		return Comparator_reversed(Comparator_comparingInt(&ToIntFunction_tfn_DiGraph_DiGraphNode_Node_{func(p0 DiGraph_DiGraphNode[Node]) int32 { return p0.getPriority() }}))
+		return Comparator_reversed(Comparator_comparingInt_f(func(p0 any) int32 {
+			return (func(p0 DiGraph_DiGraphNode[Node]) int32 { return p0.getPriority() })(cast_[DiGraph_DiGraphNode[Node]](p0))
+		}))
 	}()
 }

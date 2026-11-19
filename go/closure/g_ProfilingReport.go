@@ -37,15 +37,21 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping *T
 		}
 	}
 	var result []Map_Entry = sliceFrom_(tc_Map_Entry, Collection(metrics.asMap().entrySet()))
-	Collections_sort_List_Comparator(sliceView_(tc_Map_Entry, result), Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(&Function_tfn_Map_Entry_string{func(point Map_Entry) string {
+	Collections_sort_List_Comparator(sliceView_(tc_Map_Entry, result), Comparator_thenComparingInt_f(Comparator_thenComparingInt_f(Comparator_thenComparingLong_f(Comparator_comparing(&Function_tfn_Map_Entry_string{func(point Map_Entry) string {
 		return point.getKey().(*InstrumentationPoint).getFileName()
-	}}), &ToLongFunction_tfn_Map_Entry{func(point Map_Entry) int64 {
-		return (-point.getValue().(*ProfilingReport_InstrumentationPointMetrics).totalTimesExecuted)
-	}}), &ToIntFunction_tfn_Map_Entry{func(point Map_Entry) int32 {
-		return point.getKey().(*InstrumentationPoint).getLineNumber()
-	}}), &ToIntFunction_tfn_Map_Entry{func(point Map_Entry) int32 {
-		return point.getKey().(*InstrumentationPoint).getType().getNumber()
-	}}))
+	}}), func(p0 any) int64 {
+		return (func(point Map_Entry) int64 {
+			return (-point.getValue().(*ProfilingReport_InstrumentationPointMetrics).totalTimesExecuted)
+		})(icast_Map_Entry(p0))
+	}), func(p0 any) int32 {
+		return (func(point Map_Entry) int32 {
+			return point.getKey().(*InstrumentationPoint).getLineNumber()
+		})(icast_Map_Entry(p0))
+	}), func(p0 any) int32 {
+		return (func(point Map_Entry) int32 {
+			return point.getKey().(*InstrumentationPoint).getType().getNumber()
+		})(icast_Map_Entry(p0))
+	}))
 	var output []List = []List{}
 	output = append(output, ImmutableList_as_List(ImmutableList_of_Object_Object_Object_Object_Object_Object("File", "Function name", "Line", "Type", "Total executed", "Reports occurred")))
 	for _, entry := range result {

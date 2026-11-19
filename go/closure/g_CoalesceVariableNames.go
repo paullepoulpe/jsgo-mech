@@ -23,9 +23,11 @@ func (this *CoalesceVariableNames) up_NodeTraversal_AbstractCfgCallback() *NodeT
 }
 
 func (this *CoalesceVariableNames) finit_CoalesceVariableNames() {
-	this.coloringTieBreaker = Comparator_comparingInt(&ToIntFunction_tfn_Var{func(arg *Var) int32 {
-		return this.liveness.getVarIndex(arg.getName())
-	}})
+	this.coloringTieBreaker = Comparator_comparingInt_f(func(p0 any) int32 {
+		return (func(arg *Var) int32 {
+			return this.liveness.getVarIndex(arg.getName())
+		})(cast_[*Var](p0))
+	})
 	this.shouldOptimizeScopeStack = newTDeque_(jtc_Boolean)
 }
 
@@ -169,9 +171,11 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 	func() {
 		arr_1 := interferenceBitSet
 		tmp_2 := arrmap_(arr_1, func(v_ *BitSet) any { return obj_(v_) })
-		Arrays_setAll(tmp_2, &IntFunction_tfn_BitSet{func(i int32) *BitSet {
-			return new_BitSet()
-		}})
+		Arrays_setAll_f(tmp_2, func(p0 int32) any {
+			return obj_((func(i int32) *BitSet {
+				return new_BitSet()
+			})(p0))
+		})
 		for i_ := range tmp_2 {
 			arr_1[i_] = cast_[*BitSet](tmp_2[i_])
 		}
