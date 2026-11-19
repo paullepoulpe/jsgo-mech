@@ -184,17 +184,7 @@ func (this *ColorFindPropertyReferences) registerPropertyUse(t *NodeTraversal, s
 	}
 }
 
-type ColorFindPropertyReferences_IsPropertyReflector interface {
-	test(Node) bool
-}
-
-type ColorFindPropertyReferences_IsPropertyReflector_fn struct {
-	f func(Node) bool
-}
-
-func (this *ColorFindPropertyReferences_IsPropertyReflector_fn) test(p0 Node) bool {
-	return this.f(p0)
-}
+type ColorFindPropertyReferences_IsPropertyReflector = *funcObj_[func(Node) bool]
 
 // visit: an object that is exactly a ColorFindPropertyReferences calls its visit_impl directly (post-flip); others dispatch.
 func (this *ColorFindPropertyReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
