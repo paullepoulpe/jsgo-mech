@@ -783,7 +783,7 @@ abstract class ExprEmitter extends Base {
       concatParts(t, parts);
       return "(" + String.join(" + ", parts) + ")";
     }
-    if (k == Tree.Kind.EQUAL_TO || k == Tree.Kind.NOT_EQUAL_TO) return equality(t);
+    if (k == Tree.Kind.EQUAL_TO || k == Tree.Kind.NOT_EQUAL_TO) return equality(t, t.getLeftOperand(), t.getRightOperand(), k == Tree.Kind.EQUAL_TO ? "==" : "!=");
     Object cv = constOf(t);
     if (cv != null) return cv instanceof Character c ? Integer.toString(c) : cv.toString();
     if (k == Tree.Kind.LEFT_SHIFT || k == Tree.Kind.RIGHT_SHIFT || k == Tree.Kind.UNSIGNED_RIGHT_SHIFT) {
@@ -841,10 +841,55 @@ abstract class ExprEmitter extends Base {
     return cx.fieldName(f);
   }
 
-  String equality(BinaryTree t) {
-    ExpressionTree l = t.getLeftOperand(), r = t.getRightOperand();
+  /**
+   * Rule "identity functions" (Conv.IDENT): a static method of the program that is Java's `==`
+   * on two Objects, `static boolean f(Object a, Object b) { return a == b; }`.
+   */
+  boolean identityFn(ExecutableElement e) {
+    return identityFns.computeIfAbsent(e, k -> {
+      if (!e.getModifiers().contains(Modifier.STATIC) || !e.getTypeParameters().isEmpty() || e.isVarArgs() || e.getParameters().size() != 2
+          || e.getReturnType().getKind() != TypeKind.BOOLEAN || !cx.isSource(cx.ownerOf(e))) return false;
+      for (VariableElement pe : e.getParameters()) if (!cx.types.isSameType(pe.asType(), objectType())) return false;
+      if (!(cx.trees.getTree(e) instanceof MethodTree mt) || mt.getBody() == null || mt.getBody().getStatements().size() != 1
+          || !(mt.getBody().getStatements().get(0) instanceof ReturnTree rt) || rt.getExpression() == null) return false;
+      if (!(strip(rt.getExpression()) instanceof BinaryTree b) || b.getKind() != Tree.Kind.EQUAL_TO) return false;
+      if (!(strip(b.getLeftOperand()) instanceof IdentifierTree x) || !(strip(b.getRightOperand()) instanceof IdentifierTree y)) return false;
+      List<String> names = List.of(x.getName().toString(), y.getName().toString());
+      String p0 = e.getParameters().get(0).getSimpleName().toString(), p1 = e.getParameters().get(1).getSimpleName().toString();
+      // the two parameters (a method has no other name in scope that hides one of them without a declaration in its body)
+      return !p0.equals(p1) && names.contains(p0) && names.contains(p1);
+    });
+  }
+
+  private final Map<ExecutableElement, Boolean> identityFns = new HashMap<>();
+
+  /**
+   * A call f(l, r) of an identity function as `l == r` is translated (equality): the operands
+   * stay at their static types where the comparison of two values of those types is the
+   * comparison of their boxes, and are boxed as the call boxed them where it is not (or where
+   * an operand does not have its static type by declaration). Null for
+   * operands that `==` would compare otherwise than the function does: a primitive (the
+   * function compares its box) and a value type (which has no identity; equality refuses it).
+   */
+  String identityCall(Tree at, ExpressionTree l, ExpressionTree r) {
     TypeMirror tl = typeOf(l), tr = typeOf(r);
-    String op = t.getKind() == Tree.Kind.EQUAL_TO ? "==" : "!=";
+    if (tl == null || tr == null) return null;
+    for (TypeMirror t : List.of(tl, tr)) {
+      Ctx.K k = cx.kind(t);
+      if (k == Ctx.K.PRIM || k != Ctx.K.NULL && cx.isValueLibType(cx.erase(t))) return null;
+    }
+    if (cx.sharedStatics.containsKey(elemOf(strip(l))) || cx.sharedStatics.containsKey(elemOf(strip(r)))) return null;
+    // An operand that does not have its type by declaration (the result of an erased generic)
+    // would be cast to it by `==`; the function takes Objects and never casts: the boxes are compared.
+    for (ExpressionTree x : List.of(l, r)) {
+      TypeMirror t = typeOf(x);
+      if (cx.kind(t) != Ctx.K.NULL && !declaredAs(strip(x), t)) return "(" + asAny(l) + " == " + asAny(r) + ")";
+    }
+    return equality(at, l, r, "==");
+  }
+
+  String equality(Tree t, ExpressionTree l, ExpressionTree r, String op) {
+    TypeMirror tl = typeOf(l), tr = typeOf(r);
     if ("single".equals(cx.sharedStatics.get(elemOf(strip(l))))) return "(" + sharedSingle(strip(l), tr) + " " + op + " " + expr(r) + ")";
     if ("single".equals(cx.sharedStatics.get(elemOf(strip(r))))) return "(" + expr(l) + " " + op + " " + sharedSingle(strip(r), tl) + ")";
     Ctx.K kl = cx.kind(tl), kr = cx.kind(tr);
@@ -1500,6 +1545,11 @@ abstract class ExprEmitter extends Base {
     Element el = elemOf(t);
     if (!(el instanceof ExecutableElement)) el = elemOf(sel);
     if (!(el instanceof ExecutableElement e)) throw unsupported(t, "unresolved call " + sel);
+    if (Conv.IDENT && t.getArguments().size() == 2 && identityFn(e)) {
+      // rule "identity functions": the call is the comparison
+      String eq = identityCall(t, t.getArguments().get(0), t.getArguments().get(1));
+      if (eq != null) return new CallResult(eq, prim(TypeKind.BOOLEAN));
+    }
     List<Arg> as = args(t.getArguments());
     curInst = typeOf(sel) instanceof ExecutableType et ? et : null;
     retOverride = e.getModifiers().contains(Modifier.STATIC) && !cx.isTypedColl(cx.refinedTrees.get(t)) ? cx.refinedTrees.get(t) : null;

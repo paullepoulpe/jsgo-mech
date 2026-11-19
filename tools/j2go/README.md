@@ -443,6 +443,20 @@ arguments by callee, parameter and kind (`boxes: arg 81 String.format [varargs] 
   `Object`: a receiver or value of a class with subclasses (`v.self()`), a typed collection
   (its view), a value type (`Optional`: `box_()`), and `Objects.hash(...)`.
 
+- *Identity functions* (`ExprEmitter.identityFn` / `identityCall`, `J2GO_NOIDENT`). A static
+  method of the program whose whole body is `return a == b` on its two `Object` parameters
+  (`JSCompObjects.identical`, which the compiler calls where a style check forbids `==`) is
+  Java's `==`, and a call of it is translated as that comparison of its two arguments:
+  `(joinedType == slotA.getType())` where the erased translation was
+  `JSCompObjects_identical(joinedType.self(), slotA.getType().self())`. `==` keeps two operands
+  of one Go type at that type (two pointers to a class, with or without subclasses, two
+  handles, two values of one interface, two Strings), widens a class to its superclass, and
+  compares the boxes of anything else, as the call did. What keeps the conversions to
+  `Object`: an operand that does not have its static type by declaration (the result of an
+  erased generic would be cast to it by `==`; the function never casts: `(asAny == asAny)`,
+  still without the call). What keeps the call: a primitive argument (the function compares
+  its box) and a value type (`Optional`).
+
 - *Implicit conversions* (`Conv.implicit`, `J2GO_NOIMPLICIT`). A primitive, an interface value
   or an array that becomes an `Object` is `any(int32(n))`, `any(scope)`, `any(arr)` in the
   erased translation: a Go conversion, with no test and no call. Where Go declares the place

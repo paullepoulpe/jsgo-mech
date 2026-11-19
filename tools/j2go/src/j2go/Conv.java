@@ -362,6 +362,14 @@ final class Conv {
    */
   static final boolean OBJCALL = !off("OBJCALL");
 
+  /**
+   * Rule "identity functions" (ExprEmitter.identityFn, identityCall): a call of a static method
+   * of the program whose body is `return a == b` on its two Object parameters is translated as
+   * the comparison `a == b` of its arguments, which keeps them at their static types where the
+   * call converted both to Object.
+   */
+  static final boolean IDENT = !off("IDENT");
+
   // ------------------------------------------------------------------ implicit conversions
 
   static final boolean IMPLICIT = !off("IMPLICIT");
