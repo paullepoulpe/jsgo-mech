@@ -675,7 +675,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) addDeclaredName(name stri
 					var newName Optional[string] = Optional_empty[string]()
 					if id != 0 {
 						newName = Optional_of[string](MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id))
-						for newName.isPresent() && this.nameUsage.contains(strobj_(newName.get())) {
+						for newName.isPresent() && this.nameUsage.contains_s(newName.get()) {
 							id = this.incrementNameCount(newName)
 							newName = Optional_of[string](MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id))
 						}
@@ -697,11 +697,11 @@ func MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name string, id int
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) reserveName(name Optional[string]) {
-	this.nameUsage.setCount(strobj_(name.orElse(nullstr_)), 0, 1)
+	this.nameUsage.setCount_s(name.orElse(nullstr_), 0, 1)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) incrementNameCount(name Optional[string]) int32 {
-	return this.nameUsage.add_2(strobj_(name.orElse(nullstr_)), 1)
+	return this.nameUsage.add_2_s(name.orElse(nullstr_), 1)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) stripConstIfReplaced() bool {

@@ -756,9 +756,9 @@ func (this *JSTypeRegistry) registerPropertyOnType(propertyName string, type_ *J
 		objType = to_ObjectType(v_)
 		return true
 	}() && objType.hasReferenceName() {
-		this.eachRefTypeIndexedByProperty.put(strobj_(propertyName), objType.self())
+		this.eachRefTypeIndexedByProperty.put_s(propertyName, objType.self())
 	} else {
-		this.nonRefTypesIndexedByProperty.put(strobj_(propertyName), type_.self())
+		this.nonRefTypesIndexedByProperty.put_s(propertyName, type_.self())
 	}
 }
 
@@ -787,10 +787,10 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 		}
 		var associatedTypes IterableOf[*JSType] = ImmutableList_as_Iterable(ImmutableList_of())
 		if this.nonRefTypesIndexedByProperty.containsKey(strobj_(propertyName)) {
-			associatedTypes = Iterable(this.nonRefTypesIndexedByProperty.get(strobj_(propertyName)))
+			associatedTypes = Iterable(this.nonRefTypesIndexedByProperty.get_s(propertyName))
 		}
 		if this.eachRefTypeIndexedByProperty.containsKey(strobj_(propertyName)) {
-			associatedTypes = Iterables_concat(associatedTypes, Iterable(this.eachRefTypeIndexedByProperty.get(strobj_(propertyName))))
+			associatedTypes = Iterables_concat(associatedTypes, Iterable(this.eachRefTypeIndexedByProperty.get_s(propertyName)))
 		}
 		it_3 := foreach_(associatedTypes)
 		for it_3.next() {
@@ -825,7 +825,7 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 
 func (this *JSTypeRegistry) getEachReferenceTypeWithProperty(propertyName string) IterableOf[*ObjectType] {
 	if this.eachRefTypeIndexedByProperty.containsKey(strobj_(propertyName)) {
-		return Iterable(this.eachRefTypeIndexedByProperty.get(strobj_(propertyName)))
+		return Iterable(this.eachRefTypeIndexedByProperty.get_s(propertyName))
 	} else {
 		return ImmutableList_as_Iterable(ImmutableList_of())
 	}
