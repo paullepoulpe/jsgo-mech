@@ -11,7 +11,7 @@ type DotFormatter struct {
 }
 
 func (this *DotFormatter) finit_DotFormatter() {
-	this.assignments = jnewTMap_(jtc_Node, tc_Integer)
+	this.assignments = jnewTMap_(jtc_Node, jtc_Integer)
 	this.keyCount = 0
 }
 
@@ -74,7 +74,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		}
 		return DotFormatter_LINE
 	}()
-	var nodes *JTList[GraphvizGraph_GraphvizNode] = graph.getGraphvizNodes()
+	var nodes *TList[GraphvizGraph_GraphvizNode] = graph.getGraphvizNodes()
 	var nodeNames []string = newstrarr_(nodes.size())
 	for i := int32(0); i < int32(len(nodeNames)); i++ {
 		var gNode GraphvizGraph_GraphvizNode = nodes.get(i)
@@ -93,7 +93,7 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		builder.append(nodeName)
 		builder.append(";\n")
 	}
-	var edges *JTList[GraphvizGraph_GraphvizEdge] = graph.getGraphvizEdges()
+	var edges *TList[GraphvizGraph_GraphvizEdge] = graph.getGraphvizEdges()
 	List_sort(edges.asList(), Comparator_thenComparing(Comparator_comparing(&Function_tfn_GraphvizGraph_GraphvizEdge_string{func(p0 GraphvizGraph_GraphvizEdge) string { return p0.getNode1Id() }}), &Function_tfn_GraphvizGraph_GraphvizEdge_string{func(p0 GraphvizGraph_GraphvizEdge) string { return p0.getNode2Id() }}))
 	it_5 := edges.each()
 	for it_5.next() {

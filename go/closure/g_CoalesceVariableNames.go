@@ -26,7 +26,7 @@ func (this *CoalesceVariableNames) finit_CoalesceVariableNames() {
 	this.coloringTieBreaker = Comparator_comparingInt(&ToIntFunction_tfn_Var{func(arg *Var) int32 {
 		return this.liveness.getVarIndex(arg.getName())
 	}})
-	this.shouldOptimizeScopeStack = newTDeque_(tc_Boolean)
+	this.shouldOptimizeScopeStack = newTDeque_(jtc_Boolean)
 }
 
 func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *AbstractCompiler, usePseudoNames bool) {
@@ -36,7 +36,7 @@ func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *Abstract
 		panic(new_IllegalStateException_0())
 	}
 	this.compiler_ = compiler
-	this.colorings = newTDeque_(tc_p_GraphColoring_p_Var__any_)
+	this.colorings = newTDeque_(jtc_p_GraphColoring_p_Var__any_)
 	this.liveAnalyses = newTDeque_(jtc_p_LiveVariablesAnalysis)
 	this.usePseudoNames = usePseudoNames
 	this.astFactory_ = compiler.createAstFactory()
@@ -343,13 +343,13 @@ type CoalesceVariableNames_LiveRangeChecker struct {
 	root             Node
 	state            *DataFlowAnalysis_LinearFlowState[any]
 	orderedVariables []*Var
-	isAssignToList   *JTList[any]
-	isReadFromList   *JTList[any]
+	isAssignToList   *TList[any]
+	isReadFromList   *TList[any]
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_LiveRangeChecker() {
-	this.isAssignToList = jnewTList_(tc_Integer)
-	this.isReadFromList = jnewTList_(tc_Integer)
+	this.isAssignToList = newTList_(tc_Integer)
+	this.isReadFromList = newTList_(tc_Integer)
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState[any]) {

@@ -24,7 +24,7 @@ func (this *ClosureReverseAbstractInterpreter) finit_ClosureReverseAbstractInter
 func (this *ClosureReverseAbstractInterpreter) init_ClosureReverseAbstractInterpreter(typeRegistry *JSTypeRegistry) {
 	this.ChainableReverseAbstractInterpreter.init_ChainableReverseAbstractInterpreter(typeRegistry)
 	this.finit_ClosureReverseAbstractInterpreter()
-	this.restricters = immutableMapOf1_[string, Function_base](jtc_string, tc_Function_base, "isObject", &Function_base_tfn_ClosureReverseAbstractInterpreter_TypeRestriction_any{func(p *ClosureReverseAbstractInterpreter_TypeRestriction) any {
+	this.restricters = immutableMapOf1_[string, Function_base](jtc_string, jtc_Function_base, "isObject", &Function_base_tfn_ClosureReverseAbstractInterpreter_TypeRestriction_any{func(p *ClosureReverseAbstractInterpreter_TypeRestriction) any {
 		if p.type__ == nil {
 			return func() any {
 				if p.outcome {

@@ -7,7 +7,7 @@ type CollectFileOverviewVisibility struct {
 }
 
 func (this *CollectFileOverviewVisibility) finit_CollectFileOverviewVisibility() {
-	this.builder = newTMapBuilder_(tce_StaticSourceFile, tc_p_JSDocInfo_Visibility)
+	this.builder = newTMapBuilder_(tce_StaticSourceFile, jtc_p_JSDocInfo_Visibility)
 }
 
 func (this *CollectFileOverviewVisibility) init_CollectFileOverviewVisibility(compiler *AbstractCompiler) {

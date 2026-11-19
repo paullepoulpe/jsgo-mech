@@ -209,8 +209,8 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 	return Outcome_base_ok_Object[Node](hookHead)
 }
 
-func (this *ReplaceMessages) buildMessageNode(msgParts *JTList[JsMessage_Part], options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderNodeProvider func(string) Node, isGenderedMsg bool) *Outcome_base[Node] {
-	var parts *JTList[JsMessage_Part] = ReplaceMessages_mergeStringParts(msgParts)
+func (this *ReplaceMessages) buildMessageNode(msgParts *TList[JsMessage_Part], options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderNodeProvider func(string) Node, isGenderedMsg bool) *Outcome_base[Node] {
+	var parts *TList[JsMessage_Part] = ReplaceMessages_mergeStringParts(msgParts)
 	if parts.isEmpty() {
 		return Outcome_base_ok_Object[Node](this.astFactory_.createString(""))
 	}
@@ -281,8 +281,8 @@ func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_Msg
 	return this.astFactory_.createString(s)
 }
 
-func ReplaceMessages_mergeStringParts(parts *JTList[JsMessage_Part]) *JTList[JsMessage_Part] {
-	var result *JTList[JsMessage_Part] = jnewTList_(jtc_JsMessage_Part)
+func ReplaceMessages_mergeStringParts(parts *TList[JsMessage_Part]) *TList[JsMessage_Part] {
+	var result *TList[JsMessage_Part] = newTList_(tc_JsMessage_Part)
 	it_1 := parts.each()
 	for it_1.next() {
 		var part JsMessage_Part = it_1.v
@@ -948,7 +948,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 		if partsRes.isErr() {
 			panic(new_IllegalStateException_String((sstr_(messageTextNode.getLocation()) + ": Placeholder incorrectly formatted: >" + sstr_(messageText.orElse("null")) + "<")))
 		}
-		jsMessageBuilder.appendParts(jtlistImm_(jtc_JsMessage_Part, partsRes.get()))
+		jsMessageBuilder.appendParts(tlistImm_(tc_JsMessage_Part, partsRes.get()))
 	}
 	var externalMessageId Optional[string] = JsMessageVisitor_getExternalMessageId(msgKey.get())
 	if externalMessageId.isPresent() {

@@ -14,7 +14,7 @@ type GlobalNamespace struct {
 	sourceKind                    GlobalNamespace_SourceKind
 	generated                     bool
 	decisionsLog                  *LogFile
-	globalNames                   *JTList[*GlobalNamespace_Name]
+	globalNames                   *TList[*GlobalNamespace_Name]
 	nameMap                       *JTMap[string, *GlobalNamespace_Name]
 	nameMapByModule               *SimpleTable[*ModuleMetadataMap_ModuleMetadata, string, *GlobalNamespace_Name]
 	shouldTraverseScript          func(any) bool
@@ -22,9 +22,9 @@ type GlobalNamespace struct {
 
 func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalRoot = IR_root([]Node{})
-	this.spreadSiblingCache = jnewTMap_(jtc_Node, tc_Boolean)
+	this.spreadSiblingCache = jnewTMap_(jtc_Node, jtc_Boolean)
 	this.generated = false
-	this.globalNames = jnewTList_(jtc_p_GlobalNamespace_Name)
+	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
 	this.nameMap = jnewTMap_(jtc_string, jtc_p_GlobalNamespace_Name)
 	this.nameMapByModule = SimpleTable_create[*ModuleMetadataMap_ModuleMetadata, string, *GlobalNamespace_Name]()
 	this.shouldTraverseScript = (&Predicate_tfn_Node{func(n Node) bool {
@@ -136,7 +136,7 @@ func (this *GlobalNamespace) ensureGenerated() {
 	}
 }
 
-func (this *GlobalNamespace) getNameForest() *JTList[*GlobalNamespace_Name] {
+func (this *GlobalNamespace) getNameForest() *TList[*GlobalNamespace_Name] {
 	this.ensureGenerated()
 	return this.globalNames
 }
@@ -1091,7 +1091,7 @@ type GlobalNamespace_Name struct {
 	outer_                                          *GlobalNamespace
 	baseName                                        string
 	parent                                          *GlobalNamespace_Name
-	props                                           *JTList[*GlobalNamespace_Name]
+	props                                           *TList[*GlobalNamespace_Name]
 	declaration_                                    *GlobalNamespace_Ref
 	initialization                                  *GlobalNamespace_Ref
 	refsForNode                                     any
@@ -1148,7 +1148,7 @@ func new_GlobalNamespace_Name(outer_ *GlobalNamespace, name string, parent *Glob
 
 func (this *GlobalNamespace_Name) addProperty(name string, sourceKind GlobalNamespace_SourceKind) *GlobalNamespace_Name {
 	if this.props == nil {
-		this.props = jnewTList_(jtc_p_GlobalNamespace_Name)
+		this.props = newTList_(tc_p_GlobalNamespace_Name)
 	}
 	var node *GlobalNamespace_Name = new_GlobalNamespace_Name(this.outer_, name, this, sourceKind)
 	this.props.add(node)

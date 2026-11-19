@@ -274,9 +274,9 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 	var tempVarName string = this.getTempVariableName()
 	var tempVarType AstFactory_Type = AstFactory_type_Node(objectPattern)
 	var restTempVarName Optional[string] = Optional_empty[string]()
-	var propsToDeleteForRest *JTList[Node] = nil
+	var propsToDeleteForRest *TList[Node] = nil
 	if objectPattern.hasChildren() && objectPattern.getLastChild().isRest() {
-		propsToDeleteForRest = jnewTList_(jtc_Node)
+		propsToDeleteForRest = newTList_(tc_Node)
 		restTempVarName = Optional_of[string](this.getTempVariableName())
 	} else if this.rewriteMode == Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST {
 		if !this.patternNestingStack.peekLast().hasNestedObjectRest {
@@ -399,7 +399,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 	t.reportCodeChange()
 }
 
-func (this *Es6RewriteDestructuring) objectPatternRestRHS(objectPattern Node, rest Node, restTempVarName string, statedProperties *JTList[Node]) Node {
+func (this *Es6RewriteDestructuring) objectPatternRestRHS(objectPattern Node, rest Node, restTempVarName string, statedProperties *TList[Node]) Node {
 	if objectPattern.getLastChild() != rest {
 		panic(new_IllegalArgumentException_0())
 	}

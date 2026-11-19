@@ -30,11 +30,11 @@ func (this *ImplicitNullabilityCheck) process_2(externs Node, root Node) {
 	NodeTraversal_traverseRoots(this.compiler_, NodeTraversal_Callback(this), externs, root)
 }
 
-func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t *NodeTraversal) *JTList[*ImplicitNullabilityCheck_Result] {
+func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t *NodeTraversal) *TList[*ImplicitNullabilityCheck_Result] {
 	if info == nil {
-		return jtlistEmptyImm_(jtc_p_ImplicitNullabilityCheck_Result)
+		return tlistEmptyImm_(tc_p_ImplicitNullabilityCheck_Result)
 	}
-	var builder *TListBuilder[*ImplicitNullabilityCheck_Result] = newTListBuilder_(jtc_p_ImplicitNullabilityCheck_Result)
+	var builder *ImmutableList_Builder[*ImplicitNullabilityCheck_Result] = immutableListBuilder_(tc_p_ImplicitNullabilityCheck_Result)
 	for typeRoot := range elemsBy_(info.getTypeNodes(), Node_of_) {
 		NodeUtil_visitPreOrder_Node_Visitor_Predicate(typeRoot, NodeUtil_Visitor(new_ImplicitNullabilityCheck_1(t, builder)), Predicates_alwaysTrue())
 	}
@@ -182,14 +182,14 @@ func (this *ImplicitNullabilityCheck_Result) getNode() Node {
 
 type ImplicitNullabilityCheck_1 struct {
 	cap_t       *NodeTraversal
-	cap_builder *TListBuilder[*ImplicitNullabilityCheck_Result]
+	cap_builder *ImmutableList_Builder[*ImplicitNullabilityCheck_Result]
 }
 
 func (this *ImplicitNullabilityCheck_1) init_ImplicitNullabilityCheck_1() {
 
 }
 
-func new_ImplicitNullabilityCheck_1(cap_t *NodeTraversal, cap_builder *TListBuilder[*ImplicitNullabilityCheck_Result]) *ImplicitNullabilityCheck_1 {
+func new_ImplicitNullabilityCheck_1(cap_t *NodeTraversal, cap_builder *ImmutableList_Builder[*ImplicitNullabilityCheck_Result]) *ImplicitNullabilityCheck_1 {
 	this := &ImplicitNullabilityCheck_1{}
 	this.cap_t = cap_t
 	this.cap_builder = cap_builder

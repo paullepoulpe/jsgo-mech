@@ -19,20 +19,20 @@ func (this *ComposeWarningsGuard) up_WarningsGuard() *WarningsGuard {
 }
 
 func (this *ComposeWarningsGuard) finit_ComposeWarningsGuard() {
-	this.orderOfAddition = jnewTMap_(jtc_p_WarningsGuard, tc_Integer)
+	this.orderOfAddition = jnewTMap_(jtc_p_WarningsGuard, jtc_Integer)
 	this.numberOfAdds = 0
 	this.guardComparator = new_ComposeWarningsGuard_GuardComparator(this.orderOfAddition)
 	this.demoteErrors = false
 	this.guards = newTSortedSetC_(jtc_p_WarningsGuard, this.guardComparator)
 }
 
-func (this *ComposeWarningsGuard) init_ComposeWarningsGuard(guards *JTList[*WarningsGuard]) {
+func (this *ComposeWarningsGuard) init_ComposeWarningsGuard(guards *TList[*WarningsGuard]) {
 	this.WarningsGuard.init_WarningsGuard()
 	this.finit_ComposeWarningsGuard()
 	this.addGuards(Iterable(guards.asList()))
 }
 
-func new_ComposeWarningsGuard(guards *JTList[*WarningsGuard]) *ComposeWarningsGuard {
+func new_ComposeWarningsGuard(guards *TList[*WarningsGuard]) *ComposeWarningsGuard {
 	this := &ComposeWarningsGuard{}
 	this.self_ = this
 	this.init_ComposeWarningsGuard(guards)
@@ -40,7 +40,7 @@ func new_ComposeWarningsGuard(guards *JTList[*WarningsGuard]) *ComposeWarningsGu
 }
 
 func ComposeWarningsGuard_createFromGuards(guards []*WarningsGuard) *ComposeWarningsGuard {
-	return new_ComposeWarningsGuard(jimmutableListCopyOfArr_(jtc_p_WarningsGuard, guards))
+	return new_ComposeWarningsGuard(immutableListCopyOfArr_(tc_p_WarningsGuard, guards))
 }
 
 func (this *ComposeWarningsGuard) addGuard(guard *WarningsGuard) {

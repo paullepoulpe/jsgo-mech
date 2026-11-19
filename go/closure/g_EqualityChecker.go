@@ -106,12 +106,12 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	if left.isUnionType() && right.isUnionType() {
 		return this.areUnionEqual(left.toMaybeUnionType(), right.toMaybeUnionType())
 	} else if left.isUnionType() {
-		var leftAlts *JTList[*JSType] = left.toMaybeUnionType().getAlternates()
+		var leftAlts *TList[*JSType] = left.toMaybeUnionType().getAlternates()
 		if leftAlts.size() == 1 {
 			return this.areEqualInternal(leftAlts.get(0), right)
 		}
 	} else if right.isUnionType() {
-		var rightAlts *JTList[*JSType] = right.toMaybeUnionType().getAlternates()
+		var rightAlts *TList[*JSType] = right.toMaybeUnionType().getAlternates()
 		if rightAlts.size() == 1 {
 			return this.areEqualInternal(left, rightAlts.get(0))
 		}
@@ -194,8 +194,8 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 }
 
 func (this *EqualityChecker) areUnionEqual(left *UnionType, right *UnionType) bool {
-	var leftAlternates *JTList[*JSType] = left.getAlternates()
-	var rightAlternates *JTList[*JSType] = right.getAlternates()
+	var leftAlternates *TList[*JSType] = left.getAlternates()
+	var rightAlternates *TList[*JSType] = right.getAlternates()
 	if (this.eqMethod == EqualityChecker_EqMethod_IDENTITY) && (leftAlternates.size() != rightAlternates.size()) {
 		return false
 	}
@@ -301,10 +301,10 @@ func (this *EqualityChecker) areRecordEqual(left *RecordType, right *RecordType)
 }
 
 func (this *EqualityChecker) areTypeMapEqual(left *TemplateTypeMap, right *TemplateTypeMap) bool {
-	var leftKeys *JTList[*TemplateType] = left.getTemplateKeys()
-	var leftValues *JTList[*JSType] = left.getTemplateValues()
-	var rightKeys *JTList[*TemplateType] = right.getTemplateKeys()
-	var rightValues *JTList[*JSType] = right.getTemplateValues()
+	var leftKeys *TList[*TemplateType] = left.getTemplateKeys()
+	var leftValues *TList[*JSType] = left.getTemplateValues()
+	var rightKeys *TList[*TemplateType] = right.getTemplateKeys()
+	var rightValues *TList[*JSType] = right.getTemplateValues()
 outer_:
 	for i := int32(0); i < leftKeys.size(); i++ {
 		var leftKey *TemplateType = leftKeys.get(i)

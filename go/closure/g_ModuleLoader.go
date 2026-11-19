@@ -6,7 +6,7 @@ import "strings"
 
 type ModuleLoader struct {
 	errorHandler    ErrorHandler
-	moduleRootPaths *JTList[string]
+	moduleRootPaths *TList[string]
 	pathResolver    ModuleLoader_PathResolver
 	pathEscaper     ModuleLoader_PathEscaper
 	moduleResolver  *ModuleResolver
@@ -64,7 +64,7 @@ func ModuleLoader_isPathIdentifier(name string) bool {
 	return JString_contains_s(name, ModuleLoader_MODULE_SLASH)
 }
 
-func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *JTList[string] {
+func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *TList[string] {
 	var result ImmutableSortedSet_BuilderOf[string] = new_ImmutableSortedSet_Builder(ModuleLoader_BEST_MATCH_PATH_ORDERING)
 	for root := range elemsBy_(roots, str_) {
 		var n string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(root))))
@@ -75,11 +75,11 @@ func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *JTList[stri
 			return strobj_(n)
 		}())
 	}
-	return jtlistImm_(jtc_string, result.build().asList())
+	return tlistImm_(tc_string, result.build().asList())
 }
 
 func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo_]) *JTSet[string] {
-	var sortedModulePaths *JTList[string] = jnewTList_(jtc_string)
+	var sortedModulePaths *TList[string] = newTList_(tc_string)
 	for input := range elemsBy_(inputs, icast_DependencyInfo_) {
 		var p string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(input.getName()))))
 		var n string = ModuleLoader_normalize(p, Iterable(this.moduleRootPaths.asList()))

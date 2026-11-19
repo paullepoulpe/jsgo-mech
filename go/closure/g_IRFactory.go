@@ -36,7 +36,7 @@ func (this *IRFactory) finit_IRFactory() {
 	this.closureUnawareCodeRanges = TreeRangeSet_as_RangeSet(TreeRangeSet_create())
 }
 
-func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *JTList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) {
+func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *TList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) {
 	this.finit_IRFactory()
 	this.jsdocTracker = new_IRFactory_CommentTracker(comments, (&Predicate_tfn_Comment{func(c *Comment) bool {
 		return (c.type__ == Comment_Type_JSDOC)
@@ -68,7 +68,7 @@ func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Confi
 	this.jsDocSourceKind = jsDocSourceKind
 }
 
-func new_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *JTList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) *IRFactory {
+func new_IRFactory(sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, comments *TList[*Comment], fileWithContent *SourceFile_parser, jsDocSourceKind JsDocInfoParser_JsDocSourceKind) *IRFactory {
 	this := &IRFactory{}
 	this.init_IRFactory(sourceFile, config, errorReporter, comments, fileWithContent, jsDocSourceKind)
 	return this
@@ -1514,7 +1514,7 @@ func (this *IRFactory_LineAndColumn) toString() string {
 }
 
 type IRFactory_CommentTracker struct {
-	source        *JTList[*Comment]
+	source        *TList[*Comment]
 	filter        func(any) bool
 	index_        int32
 	previousIndex int32
@@ -1525,14 +1525,14 @@ func (this *IRFactory_CommentTracker) finit_IRFactory_CommentTracker() {
 	this.previousIndex = -1
 }
 
-func (this *IRFactory_CommentTracker) init_IRFactory_CommentTracker(source *JTList[*Comment], filter func(any) bool) {
+func (this *IRFactory_CommentTracker) init_IRFactory_CommentTracker(source *TList[*Comment], filter func(any) bool) {
 	this.finit_IRFactory_CommentTracker()
 	this.source = source
 	this.filter = filter
 	this.advance()
 }
 
-func new_IRFactory_CommentTracker(source *JTList[*Comment], filter func(any) bool) *IRFactory_CommentTracker {
+func new_IRFactory_CommentTracker(source *TList[*Comment], filter func(any) bool) *IRFactory_CommentTracker {
 	this := &IRFactory_CommentTracker{}
 	this.init_IRFactory_CommentTracker(source, filter)
 	return this
@@ -1927,7 +1927,7 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 	var node Node = this.outer_.newNode_2(Token_rhino_CALL, this.outer_.transform(callNode.operand))
 	node.setTrailingComma(callNode.arguments.hasTrailingComma_)
 	var argumentsTree *ArgumentListTree = callNode.arguments
-	var zones *JTList[*SourcePosition_util] = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
+	var zones *TList[*SourcePosition_util] = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
 	var argCount int32 = 0
 	it_1 := callNode.arguments.arguments.each()
 	for it_1.next() {
@@ -1963,8 +1963,8 @@ func (this *IRFactory_TransformDispatcher) isNormalOrOptChainGet(n Node) bool {
 	return (((n.isGetProp() || n.isGetElem()) || n.isOptChainGetProp()) || n.isOptChainGetElem())
 }
 
-func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args *JTList[*ParseTree], commaPositions *JTList[*SourcePosition_util], argListEndPosition *SourcePosition_util) *JTList[*SourcePosition_util] {
-	var zones *TListBuilder[*SourcePosition_util] = newTListBuilder_(jtc_p_SourcePosition_util)
+func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args *TList[*ParseTree], commaPositions *TList[*SourcePosition_util], argListEndPosition *SourcePosition_util) *TList[*SourcePosition_util] {
+	var zones *ImmutableList_Builder[*SourcePosition_util] = immutableListBuilder_(tc_p_SourcePosition_util)
 	var commaCount int32 = 0
 	it_1 := args.each()
 	for it_1.next() {
@@ -2162,8 +2162,8 @@ func (this *IRFactory_TransformDispatcher) processFormalParameterList(tree *Form
 	if !this.checkParameters(tree) {
 		return params
 	}
-	var parameters *JTList[*ParseTree] = tree.parameters
-	var zones *JTList[*SourcePosition_util] = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
+	var parameters *TList[*ParseTree] = tree.parameters
+	var zones *TList[*SourcePosition_util] = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
 	var argCount int32 = 0
 	it_1 := tree.parameters.each()
 	for it_1.next() {
@@ -2560,7 +2560,7 @@ func (this *IRFactory_TransformDispatcher) processPropertyNameAssignment(tree *P
 
 func (this *IRFactory_TransformDispatcher) checkParenthesizedExpression(exprNode *ParenExpressionTree) {
 	if exprNode.expression.type__ == ParseTreeType_COMMA_EXPRESSION {
-		var commaNodes *JTList[*ParseTree] = exprNode.expression.asCommaExpression().expressions
+		var commaNodes *TList[*ParseTree] = exprNode.expression.asCommaExpression().expressions
 		var lastChild *ParseTree = to_ParseTree(Iterables_getLast(Iterable(commaNodes.asList())))
 		if lastChild.type__ == ParseTreeType_ITER_REST {
 			this.outer_.errorReporter.error("A rest parameter must be in a parameter list.", this.outer_.sourceName_, IRFactory_lineno(lastChild), IRFactory_charnoParseTree(lastChild))
@@ -3252,7 +3252,7 @@ func (this *IRFactory_TransformDispatcher) processImportMeta(tree *ImportMetaExp
 }
 
 func (this *IRFactory_TransformDispatcher) checkParameters(tree *FormalParameterListTree) bool {
-	var params *JTList[*ParseTree] = tree.parameters
+	var params *TList[*ParseTree] = tree.parameters
 	var good bool = true
 	for i := int32(0); i < params.size(); i++ {
 		var param *ParseTree = params.get(i)
@@ -3269,7 +3269,7 @@ func (this *IRFactory_TransformDispatcher) checkParameters(tree *FormalParameter
 	return good
 }
 
-func (this *IRFactory_TransformDispatcher) transformList(type_ Token_rhino, list *JTList[*ParseTree]) Node {
+func (this *IRFactory_TransformDispatcher) transformList(type_ Token_rhino, list *TList[*ParseTree]) Node {
 	var n Node = this.outer_.newNode(type_)
 	it_1 := list.each()
 	for it_1.next() {
@@ -3279,7 +3279,7 @@ func (this *IRFactory_TransformDispatcher) transformList(type_ Token_rhino, list
 	return n
 }
 
-func (this *IRFactory_TransformDispatcher) transformListOrEmpty(type_ Token_rhino, list *JTList[*ParseTree]) Node {
+func (this *IRFactory_TransformDispatcher) transformListOrEmpty(type_ Token_rhino, list *TList[*ParseTree]) Node {
 	if (list == nil) || list.isEmpty() {
 		return this.outer_.newNode(Token_rhino_EMPTY)
 	} else {

@@ -8,7 +8,7 @@ type JsMessage struct {
 	isAnonymous_                         bool
 	isExternal_                          bool
 	getId_                               string
-	getParts_                            *JTList[JsMessage_Part]
+	getParts_                            *TList[JsMessage_Part]
 	getGenderedMessagesMap_              *JTMap[JsMessage_GrammaticalGenderCase, *ErasedImmutableList]
 	getAlternateId_                      Optional[string]
 	getDesc_                             Optional[string]
@@ -24,7 +24,7 @@ func (this *JsMessage) zero_JsMessage() {
 	this.getId_ = nullstr_
 }
 
-func (this *JsMessage) init_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts *JTList[JsMessage_Part], getGenderedMessagesMap *JTMap[JsMessage_GrammaticalGenderCase, *ErasedImmutableList], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap *JTMap[string, string], getPlaceholderNameToOriginalCodeMap *JTMap[string, string], jsPlaceholderNames *JTSet[string], canonicalPlaceholderNames *JTSet[string]) {
+func (this *JsMessage) init_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts *TList[JsMessage_Part], getGenderedMessagesMap *JTMap[JsMessage_GrammaticalGenderCase, *ErasedImmutableList], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap *JTMap[string, string], getPlaceholderNameToOriginalCodeMap *JTMap[string, string], jsPlaceholderNames *JTSet[string], canonicalPlaceholderNames *JTSet[string]) {
 	if getParts.asList() == nil {
 		panic(new_NullPointerException_String("getParts"))
 	}
@@ -56,7 +56,7 @@ func (this *JsMessage) init_JsMessage(getSourceName Optional[string], getKey str
 	this.canonicalPlaceholderNames_ = canonicalPlaceholderNames
 }
 
-func new_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts *JTList[JsMessage_Part], getGenderedMessagesMap *JTMap[JsMessage_GrammaticalGenderCase, *ErasedImmutableList], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap *JTMap[string, string], getPlaceholderNameToOriginalCodeMap *JTMap[string, string], jsPlaceholderNames *JTSet[string], canonicalPlaceholderNames *JTSet[string]) *JsMessage {
+func new_JsMessage(getSourceName Optional[string], getKey string, isAnonymous bool, isExternal bool, getId string, getParts *TList[JsMessage_Part], getGenderedMessagesMap *JTMap[JsMessage_GrammaticalGenderCase, *ErasedImmutableList], getAlternateId Optional[string], getDesc Optional[string], getMeaning Optional[string], getPlaceholderNameToExampleMap *JTMap[string, string], getPlaceholderNameToOriginalCodeMap *JTMap[string, string], jsPlaceholderNames *JTSet[string], canonicalPlaceholderNames *JTSet[string]) *JsMessage {
 	this := &JsMessage{}
 	this.zero_JsMessage()
 	this.init_JsMessage(getSourceName, getKey, isAnonymous, isExternal, getId, getParts, getGenderedMessagesMap, getAlternateId, getDesc, getMeaning, getPlaceholderNameToExampleMap, getPlaceholderNameToOriginalCodeMap, jsPlaceholderNames, canonicalPlaceholderNames)
@@ -71,15 +71,15 @@ func (this *JsMessage) getPlaceholderExample(placeholderReference *JsMessage_Pla
 	return this.getPlaceholderNameToExampleMap().getOrDefault(placeholderReference.storedPlaceholderName(), "-")
 }
 
-func (this *JsMessage) getGenderedMessageParts(genderCase JsMessage_GrammaticalGenderCase) *JTList[JsMessage_Part] {
+func (this *JsMessage) getGenderedMessageParts(genderCase JsMessage_GrammaticalGenderCase) *TList[JsMessage_Part] {
 	if this.getGenderedMessagesMap().isEmpty() {
 		panic(new_UnsupportedOperationException_String("Message does not contain grammatical gendered variants."))
 	}
-	return jtlistImm_(jtc_JsMessage_Part, this.getGenderedMessagesMap().get(genderCase))
+	return tlistImm_(tc_JsMessage_Part, this.getGenderedMessagesMap().get(genderCase))
 }
 
-func (this *JsMessage) getGenderedMessageVariants() *JTList[JsMessage_GrammaticalGenderCase] {
-	return jtlistImm_(jtc_p_JsMessage_GrammaticalGenderCase, this.getGenderedMessagesMap().asImm().keySet().(*ErasedImmutableSet).asList())
+func (this *JsMessage) getGenderedMessageVariants() *TList[JsMessage_GrammaticalGenderCase] {
+	return tlistImm_(tc_p_JsMessage_GrammaticalGenderCase, this.getGenderedMessagesMap().asImm().keySet().(*ErasedImmutableSet).asList())
 }
 
 func (this *JsMessage) asJsMessageString() string {
@@ -227,7 +227,7 @@ func (this *JsMessage) getId() string {
 	return this.getId_
 }
 
-func (this *JsMessage) getParts() *JTList[JsMessage_Part] {
+func (this *JsMessage) getParts() *TList[JsMessage_Part] {
 	return this.getParts_
 }
 
@@ -583,7 +583,7 @@ type JsMessage_Builder struct {
 	isExternal_                      bool
 	id                               Optional[string]
 	alternateId                      Optional[string]
-	parts                            *JTList[JsMessage_Part]
+	parts                            *TList[JsMessage_Part]
 	genderedMessageMap               *JTMap[JsMessage_GrammaticalGenderCase, List]
 	jsPlaceholderNames_              *JTSet[string]
 	canonicalPlaceholderNames_       *JTSet[string]
@@ -600,8 +600,8 @@ func (this *JsMessage_Builder) finit_JsMessage_Builder() {
 	this.isExternal_ = false
 	this.id = Optional_empty[string]()
 	this.alternateId = Optional_empty[string]()
-	this.parts = jnewTList_(jtc_JsMessage_Part)
-	this.genderedMessageMap = jnewTMap_(jtc_p_JsMessage_GrammaticalGenderCase, tc_List)
+	this.parts = newTList_(tc_JsMessage_Part)
+	this.genderedMessageMap = jnewTMap_(jtc_p_JsMessage_GrammaticalGenderCase, jtc_List)
 	this.jsPlaceholderNames_ = jnewTSet_(jtc_string)
 	this.canonicalPlaceholderNames_ = jnewTSet_(jtc_string)
 	this.placeholderNameToExampleMap = jtmapEmptyImm_(jtc_string, jtc_string)
@@ -645,7 +645,7 @@ func (this *JsMessage_Builder) appendPart(part JsMessage_Part) *JsMessage_Builde
 	return this
 }
 
-func (this *JsMessage_Builder) appendParts(parts *JTList[JsMessage_Part]) *JsMessage_Builder {
+func (this *JsMessage_Builder) appendParts(parts *TList[JsMessage_Part]) *JsMessage_Builder {
 	it_1 := parts.each()
 	for it_1.next() {
 		var part JsMessage_Part = it_1.v
@@ -748,7 +748,7 @@ func (this *JsMessage_Builder) hasGenderedVariants() bool {
 	return !this.genderedMessageMap.isEmpty()
 }
 
-func (this *JsMessage_Builder) getParts() *JTList[JsMessage_Part] {
+func (this *JsMessage_Builder) getParts() *TList[JsMessage_Part] {
 	return this.parts
 }
 
@@ -765,14 +765,14 @@ func (this *JsMessage_Builder) build() *JsMessage {
 	if this.alternateId.isPresent() && Object_equals(this.alternateId.box_(), this.id.box_()) {
 		this.alternateId = Optional_empty[string]()
 	}
-	var immutableGenderedPartsBuilder *TMapBuilder[JsMessage_GrammaticalGenderCase, *ErasedImmutableList] = newTMapBuilder_(jtc_p_JsMessage_GrammaticalGenderCase, tc_p_ImmutableList)
+	var immutableGenderedPartsBuilder *TMapBuilder[JsMessage_GrammaticalGenderCase, *ErasedImmutableList] = newTMapBuilder_(jtc_p_JsMessage_GrammaticalGenderCase, jtc_p_ImmutableList)
 	it_1 := this.genderedMessageMap.eachEntry()
 	for it_1.next() {
 		var entry *TEntry[JsMessage_GrammaticalGenderCase, List] = it_1.entry()
 		immutableGenderedPartsBuilder.put(entry.getKey(), ImmutableList_copyOf(Collection(entry.getValue())))
 	}
 	var immutableGenderedMessageMap *JTMap[JsMessage_GrammaticalGenderCase, *ErasedImmutableList] = immutableGenderedPartsBuilder.buildOrThrow()
-	return new_JsMessage(this.sourceName_, this.key_.get(), this.isAnonymous_, this.isExternal_, this.id.get(), immutableListCopyOfT_(jtc_JsMessage_Part, this.parts), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, immutableSetCopyOfT_(jtc_string, this.jsPlaceholderNames_), immutableSetCopyOfT_(jtc_string, this.canonicalPlaceholderNames_))
+	return new_JsMessage(this.sourceName_, this.key_.get(), this.isAnonymous_, this.isExternal_, this.id.get(), immutableListCopyOfTP_(tc_JsMessage_Part, this.parts), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, immutableSetCopyOfT_(jtc_string, this.jsPlaceholderNames_), immutableSetCopyOfT_(jtc_string, this.canonicalPlaceholderNames_))
 }
 
 type JsMessage_Hash struct {
@@ -991,13 +991,13 @@ const JsMessage_Hash_SEED64 int64 = 3141592653589793238
 const JsMessage_Hash_CONSTANT64 int64 = -2266404186210603134
 
 type JsMessage_IdGenerator interface {
-	generateId(Optional[string], *JTList[JsMessage_Part]) string
+	generateId(Optional[string], *TList[JsMessage_Part]) string
 }
 
 type JsMessage_IdGenerator_fn struct {
-	f func(Optional[string], *JTList[JsMessage_Part]) string
+	f func(Optional[string], *TList[JsMessage_Part]) string
 }
 
-func (this *JsMessage_IdGenerator_fn) generateId(p0 Optional[string], p1 *JTList[JsMessage_Part]) string {
+func (this *JsMessage_IdGenerator_fn) generateId(p0 Optional[string], p1 *TList[JsMessage_Part]) string {
 	return this.f(p0, p1)
 }

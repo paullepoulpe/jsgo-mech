@@ -16,7 +16,7 @@ type ReferenceCollector struct {
 }
 
 func (this *ReferenceCollector) finit_ReferenceCollector() {
-	this.referenceMap = jnewTMap_(tce_p_Var, tc_p_ReferenceCollection)
+	this.referenceMap = jnewTMap_(tce_p_Var, jtc_p_ReferenceCollection)
 	this.blockStack = newTDeque_(jtc_p_BasicBlock)
 	this.callback = new_ReferenceCollector_CollectorCallback(this)
 	this.collectedHoistedFunctions = jnewTSet_(jtc_Node)

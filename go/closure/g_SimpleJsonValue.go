@@ -5,7 +5,7 @@ package closure
 type SimpleJsonValue struct {
 	tag   SimpleJsonValue_Kind
 	text  string
-	items *JTList[*SimpleJsonValue]
+	items *TList[*SimpleJsonValue]
 	named *JTMap[string, *SimpleJsonValue]
 }
 
@@ -14,8 +14,8 @@ func (this *SimpleJsonValue) zero_SimpleJsonValue() {
 }
 
 func (this *SimpleJsonValue) finit_SimpleJsonValue() {
-	this.items = jnewTList_(tc_p_SimpleJsonValue)
-	this.named = jnewTMap_(jtc_string, tc_p_SimpleJsonValue)
+	this.items = newTList_(tc_p_SimpleJsonValue)
+	this.named = jnewTMap_(jtc_string, jtc_p_SimpleJsonValue)
 }
 
 func (this *SimpleJsonValue) init_SimpleJsonValue(tag SimpleJsonValue_Kind, text string) {
@@ -68,7 +68,7 @@ func (this *SimpleJsonValue) members() *JTMap[string, *SimpleJsonValue] {
 	return this.named
 }
 
-func (this *SimpleJsonValue) elements() *JTList[*SimpleJsonValue] {
+func (this *SimpleJsonValue) elements() *TList[*SimpleJsonValue] {
 	return this.items
 }
 

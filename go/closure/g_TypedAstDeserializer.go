@@ -12,7 +12,7 @@ type TypedAstDeserializer struct {
 	typedAstFilesystem            ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]]
 	externProperties              *TSetBuilder[string]
 	runtimeLibraries_             *TSetBuilder[string]
-	syntheticExternsDeserializers *JTList[*ScriptNodeDeserializer]
+	syntheticExternsDeserializers *TList[*ScriptNodeDeserializer]
 }
 
 func (this *TypedAstDeserializer) finit_TypedAstDeserializer() {
@@ -21,7 +21,7 @@ func (this *TypedAstDeserializer) finit_TypedAstDeserializer() {
 	this.typedAstFilesystem = ConcurrentMap(new_ConcurrentHashMap())
 	this.externProperties = newTSetBuilder_(jtc_string)
 	this.runtimeLibraries_ = newTSetBuilder_(jtc_string)
-	this.syntheticExternsDeserializers = jnewTList_(jtc_p_ScriptNodeDeserializer)
+	this.syntheticExternsDeserializers = newTList_(tc_p_ScriptNodeDeserializer)
 }
 
 func (this *TypedAstDeserializer) init_TypedAstDeserializer(syntheticExterns *SourceFile_jscomp, existingColorPool Optional_baseOf[*ColorPool_Builder], requiredInputFiles Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]], mode TypedAstDeserializer_Mode, includeTypeInformation bool) {
@@ -86,7 +86,7 @@ func (this *TypedAstDeserializer) toDeserializedAst() *TypedAstDeserializer_Dese
 }
 
 func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
-	var fileShard *JTList[*SourceFile_jscomp] = this.toFileShard(typedAstProto)
+	var fileShard *TList[*SourceFile_jscomp] = this.toFileShard(typedAstProto)
 	if equalsId_(this.mode_, TypedAstDeserializer_Mode_FULL_AST) {
 		var containsRequiredInput bool = false
 		for lazyAst := range elemsAs_[*LazyAst](Iterables_concat(Iterable(typedAstProto.getExternAstList()), Iterable(typedAstProto.getCodeAstList()))) {
@@ -138,8 +138,8 @@ func (this *TypedAstDeserializer) findExistingFile(filename string) *SourceFile_
 	return this.filePoolBuilder.get(canonicalPath)
 }
 
-func (this *TypedAstDeserializer) toFileShard(typedAstProto *TypedAst) *JTList[*SourceFile_jscomp] {
-	var fileShardBuilder *TListBuilder[*SourceFile_jscomp] = newTListBuilder_(jtc_p_SourceFile_jscomp)
+func (this *TypedAstDeserializer) toFileShard(typedAstProto *TypedAst) *TList[*SourceFile_jscomp] {
+	var fileShardBuilder *ImmutableList_Builder[*SourceFile_jscomp] = immutableListBuilder_(tc_p_SourceFile_jscomp)
 	var protos ListOf[*SourceFileProto] = typedAstProto.getSourceFilePool().getSourceFileList()
 	for i := int32(0); i < protos.size(); i++ {
 		var p *SourceFileProto = cast_[*SourceFileProto](protos.get(i))
@@ -156,7 +156,7 @@ func (this *TypedAstDeserializer) toFileShard(typedAstProto *TypedAst) *JTList[*
 	return fileShardBuilder.build()
 }
 
-func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, fileShard *JTList[*SourceFile_jscomp], colorShard Optional_baseOf[*ColorPool_ShardView], stringShard *StringPool, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
+func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, fileShard *TList[*SourceFile_jscomp], colorShard Optional_baseOf[*ColorPool_ShardView], stringShard *StringPool, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
 	var file *SourceFile_jscomp = fileShard.get((lazyAst.getSourceFile() - 1))
 	if (this.requiredInputFiles.isPresent() && !cast_[*ErasedImmutableSet](this.requiredInputFiles.get()).contains(obj_(file))) && !JSCompObjects_identical(obj_(this.syntheticExterns), obj_(file)) {
 		return
@@ -295,15 +295,15 @@ func TypedAstDeserializer_Mode_clinit() {
 
 type TypedAstDeserializer_SyntheticExternsDeserializer struct {
 	syntheticExterns              *SourceFile_jscomp
-	syntheticExternsDeserializers *JTList[*ScriptNodeDeserializer]
+	syntheticExternsDeserializers *TList[*ScriptNodeDeserializer]
 }
 
-func (this *TypedAstDeserializer_SyntheticExternsDeserializer) init_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *SourceFile_jscomp, syntheticExternsDeserializers *JTList[*ScriptNodeDeserializer]) {
+func (this *TypedAstDeserializer_SyntheticExternsDeserializer) init_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *SourceFile_jscomp, syntheticExternsDeserializers *TList[*ScriptNodeDeserializer]) {
 	this.syntheticExterns = syntheticExterns
 	this.syntheticExternsDeserializers = syntheticExternsDeserializers
 }
 
-func new_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *SourceFile_jscomp, syntheticExternsDeserializers *JTList[*ScriptNodeDeserializer]) *TypedAstDeserializer_SyntheticExternsDeserializer {
+func new_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns *SourceFile_jscomp, syntheticExternsDeserializers *TList[*ScriptNodeDeserializer]) *TypedAstDeserializer_SyntheticExternsDeserializer {
 	this := &TypedAstDeserializer_SyntheticExternsDeserializer{}
 	this.init_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns, syntheticExternsDeserializers)
 	return this

@@ -368,7 +368,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	}
 	var style CssRenamingMap_Style = styleOrNull
 	if style == CssRenamingMap_Style_BY_PART {
-		var errors *JTList[string] = jnewTList_(jtc_string)
+		var errors *TList[string] = newTList_(tc_string)
 		it_3 := cssNames.eachKey()
 		for it_3.next() {
 			var key string = it_3.v
@@ -380,7 +380,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(errors.asList())}))
 		}
 	} else if style == CssRenamingMap_Style_BY_WHOLE {
-		var errors *JTList[string] = jnewTList_(jtc_string)
+		var errors *TList[string] = newTList_(tc_string)
 		it_5 := cssNames.eachEntry()
 		var getKeyU16 utf16_
 		for it_5.next() {

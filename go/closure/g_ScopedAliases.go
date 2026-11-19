@@ -41,9 +41,9 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 	var traversal *ScopedAliases_Traversal = new_ScopedAliases_Traversal(this)
 	NodeTraversal_traverse(this.compiler_, root, ScopedAliases_Traversal_as_NodeTraversal_Callback(traversal))
 	if !traversal.hasErrors() {
-		var aliasWorkQueue *JTList[*ScopedAliases_AliasUsage] = tlistCopy_(jtc_p_ScopedAliases_AliasUsage, traversal.getAliasUsages())
+		var aliasWorkQueue *TList[*ScopedAliases_AliasUsage] = tlistCopyT_(tc_p_ScopedAliases_AliasUsage, traversal.getAliasUsages())
 		for !aliasWorkQueue.isEmpty() {
-			var newQueue *JTList[*ScopedAliases_AliasUsage] = jnewTList_(jtc_p_ScopedAliases_AliasUsage)
+			var newQueue *TList[*ScopedAliases_AliasUsage] = newTList_(tc_p_ScopedAliases_AliasUsage)
 			it_2 := aliasWorkQueue.each()
 			for it_2.next() {
 				var aliasUsage *ScopedAliases_AliasUsage = it_2.v
@@ -428,9 +428,9 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias_impl(compiler *AbstractCom
 type ScopedAliases_Traversal struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                   *ScopedAliases
-	aliasDefinitionsToDelete *JTList[Node]
-	scopeCalls               *JTList[Node]
-	aliasUsages              *JTList[*ScopedAliases_AliasUsage]
+	aliasDefinitionsToDelete *TList[Node]
+	scopeCalls               *TList[Node]
+	aliasUsages              *TList[*ScopedAliases_AliasUsage]
 	aliases_                 *JTMap[string, *Var]
 	injectedDecls            *JTSet[Node]
 	deletedAliasVars         *JTSet[*Var]
@@ -448,9 +448,9 @@ func (this *ScopedAliases_Traversal) up_NodeTraversal_AbstractPostOrderCallback(
 }
 
 func (this *ScopedAliases_Traversal) finit_ScopedAliases_Traversal() {
-	this.aliasDefinitionsToDelete = jnewTList_(jtc_Node)
-	this.scopeCalls = jnewTList_(jtc_Node)
-	this.aliasUsages = jnewTList_(jtc_p_ScopedAliases_AliasUsage)
+	this.aliasDefinitionsToDelete = newTList_(tc_Node)
+	this.scopeCalls = newTList_(tc_Node)
+	this.aliasUsages = newTList_(tc_p_ScopedAliases_AliasUsage)
 	this.aliases_ = jnewTMap_(jtc_string, jtc_p_Var)
 	this.injectedDecls = jnewTSet_(jtc_Node)
 	this.deletedAliasVars = jnewTSet_(tce_p_Var)
@@ -477,11 +477,11 @@ func (this *ScopedAliases_Traversal) getAliasDefinitionsToDelete() CollectionOf[
 	return Collection(this.aliasDefinitionsToDelete.asList())
 }
 
-func (this *ScopedAliases_Traversal) getAliasUsages() *JTList[*ScopedAliases_AliasUsage] {
+func (this *ScopedAliases_Traversal) getAliasUsages() *TList[*ScopedAliases_AliasUsage] {
 	return this.aliasUsages
 }
 
-func (this *ScopedAliases_Traversal) getScopeCalls() *JTList[Node] {
+func (this *ScopedAliases_Traversal) getScopeCalls() *TList[Node] {
 	return this.scopeCalls
 }
 

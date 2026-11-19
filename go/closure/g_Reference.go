@@ -183,6 +183,6 @@ func Reference_clinit() {
 		return
 	}
 	Reference_clinit_done = true
-	Reference_DECLARATION_PARENTS = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_LET.enum_(), Token_rhino_CONST.enum_(), Token_rhino_PARAM_LIST.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_(), Token_rhino_CATCH.enum_()}))
+	Reference_DECLARATION_PARENTS = tsetImm_(jtc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_VAR.enum_(), []*Enum{Token_rhino_LET.enum_(), Token_rhino_CONST.enum_(), Token_rhino_PARAM_LIST.enum_(), Token_rhino_FUNCTION.enum_(), Token_rhino_CLASS.enum_(), Token_rhino_CATCH.enum_()}))
 
 }

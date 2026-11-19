@@ -6,7 +6,7 @@ import "strings"
 
 type CheckConformance struct {
 	compiler_       *AbstractCompiler
-	categories      *JTList[*CheckConformance_Category]
+	categories      *TList[*CheckConformance_Category]
 	mergedBehaviors *JTMap[*Requirement, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
 	ruleToBehavior  *JTMap[CheckConformance_Rule, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
 }
@@ -17,7 +17,7 @@ func (this *CheckConformance) finit_CheckConformance() {
 }
 
 func (this *CheckConformance) init_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) {
-	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, jtlistEmptyImm_(jtc_p_ConformanceConfig), 0)
+	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, tlistEmptyImm_(tc_p_ConformanceConfig), 0)
 }
 
 func new_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) *CheckConformance {
@@ -26,13 +26,13 @@ func new_CheckConformance_AbstractCompiler(compiler *AbstractCompiler) *CheckCon
 	return this
 }
 
-func (this *CheckConformance) init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) {
+func (this *CheckConformance) init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) {
 	this.finit_CheckConformance()
 	this.compiler_ = compiler
 	this.categories = this.initRules(compiler, configs, reportingMode)
 }
 
-func new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *CheckConformance {
+func new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *CheckConformance {
 	this := &CheckConformance{}
 	this.init_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, configs, reportingMode)
 	return this
@@ -65,15 +65,15 @@ func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
 	}
 }
 
-func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *JTList[*CheckConformance_Category] {
+func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) *TList[*CheckConformance_Category] {
 	var builder *SimpleSetMultimap[CheckConformance_Precondition, CheckConformance_Rule] = SimpleSetMultimap_createInsertionOrdered[CheckConformance_Precondition, CheckConformance_Rule]()
 	var isLibraryLevelReportingMode bool = ((reportingMode != 0) && equalsId_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG))
 	if isLibraryLevelReportingMode {
 		if !CheckConformance_validateBehaviorSettingOfConfigs(compiler, configs, reportingMode) {
-			return jtlistEmptyImm_(jtc_p_CheckConformance_Category)
+			return tlistEmptyImm_(tc_p_CheckConformance_Category)
 		}
 	}
-	var mergedRequirements *JTList[*Requirement] = this.mergeRequirements(compiler, configs, isLibraryLevelReportingMode)
+	var mergedRequirements *TList[*Requirement] = this.mergeRequirements(compiler, configs, isLibraryLevelReportingMode)
 	it_1 := mergedRequirements.each()
 	for it_1.next() {
 		var requirement *Requirement = it_1.v
@@ -88,14 +88,14 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs *JTL
 			this.ruleToBehavior.put(rule, behavior)
 		}
 	}
-	var result *TListBuilder[*CheckConformance_Category] = newTListBuilder_(jtc_p_CheckConformance_Category)
+	var result *ImmutableList_Builder[*CheckConformance_Category] = immutableListBuilder_(tc_p_CheckConformance_Category)
 	for e := range elemsBy_(builder.asMap().entrySet(), icast_Map_Entry) {
-		result.add(new_CheckConformance_Category(icast_CheckConformance_Precondition(e.getKey()), jimmutableListCopyOf_(jtc_CheckConformance_Rule, icast_Collection(e.getValue()))))
+		result.add(new_CheckConformance_Category(icast_CheckConformance_Precondition(e.getKey()), immutableListCopyOf_(tc_CheckConformance_Rule, icast_Collection(e.getValue()))))
 	}
 	return result.build()
 }
 
-func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
+func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], reportingMode CompilerOptions_ConformanceReportingMode) bool {
 	if !equalsId_(reportingMode, CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG) {
 		panic(new_IllegalStateException_0())
 	}
@@ -138,7 +138,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 	return true
 }
 
-func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs *JTList[*ConformanceConfig], isLibraryLevelConformanceReportingMode bool) *JTList[*Requirement] {
+func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], isLibraryLevelConformanceReportingMode bool) *TList[*Requirement] {
 	var rootRequirements *JTMap[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = jnewTMap_(tce_p_Requirement_Builder, jtc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 	var extendable *JTMap[string, *Requirement_Builder] = jnewTMap_(jtc_string, jtc_p_Requirement_Builder)
 	it_1 := configs.each()
@@ -188,7 +188,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 			}
 		}
 	}
-	var cleanedUpRootRequirements *JTList[*Requirement] = jnewTListN_(jtc_p_Requirement, rootRequirements.size())
+	var cleanedUpRootRequirements *TList[*Requirement] = newTListN_(tc_p_Requirement, rootRequirements.size())
 	it_9 := rootRequirements.eachEntry()
 	for it_9.next() {
 		var entry *TEntry[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = it_9.entry()
@@ -383,15 +383,15 @@ func lambda_CheckConformance_Precondition_clinit_1_(n Node) bool {
 
 type CheckConformance_Category struct {
 	precondition CheckConformance_Precondition
-	rules        *JTList[CheckConformance_Rule]
+	rules        *TList[CheckConformance_Rule]
 }
 
-func (this *CheckConformance_Category) init_CheckConformance_Category(precondition CheckConformance_Precondition, rules *JTList[CheckConformance_Rule]) {
+func (this *CheckConformance_Category) init_CheckConformance_Category(precondition CheckConformance_Precondition, rules *TList[CheckConformance_Rule]) {
 	this.precondition = precondition
 	this.rules = rules
 }
 
-func new_CheckConformance_Category(precondition CheckConformance_Precondition, rules *JTList[CheckConformance_Rule]) *CheckConformance_Category {
+func new_CheckConformance_Category(precondition CheckConformance_Precondition, rules *TList[CheckConformance_Rule]) *CheckConformance_Category {
 	this := &CheckConformance_Category{}
 	this.init_CheckConformance_Category(precondition, rules)
 	return this

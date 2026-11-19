@@ -54,10 +54,10 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 		this.libraries = jnewTSet_(jtc_string)
 		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, (&Consumer_tfn_PolyfillUsageFinder_PolyfillUsage{func(p0 *PolyfillUsageFinder_PolyfillUsage) { this.inject(p0) }}).accept)
 	}
-	var librariesToInject *JTList[string]
+	var librariesToInject *TList[string]
 	if this.injectPolyfillsNewerThan != 0 {
-		var polyfillsToInject *JTList[*PolyfillUsageFinder_Polyfill] = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
-		var librariesToInjectBuilder *TListBuilder[string] = newTListBuilder_(jtc_string)
+		var polyfillsToInject *TList[*PolyfillUsageFinder_Polyfill] = this.polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan)
+		var librariesToInjectBuilder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 		it_1 := polyfillsToInject.each()
 		for it_1.next() {
 			var p *PolyfillUsageFinder_Polyfill = it_1.v
@@ -67,7 +67,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 		}
 		librariesToInject = librariesToInjectBuilder.build()
 	} else {
-		librariesToInject = jimmutableListCopyOf_(jtc_string, Collection(this.libraries.asSet()))
+		librariesToInject = immutableListCopyOf_(tc_string, Collection(this.libraries.asSet()))
 	}
 	this.injectAll(Iterable(librariesToInject.asList()), (this.injectPolyfillsNewerThan != 0))
 }

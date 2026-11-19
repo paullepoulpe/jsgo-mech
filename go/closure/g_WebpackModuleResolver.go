@@ -21,12 +21,12 @@ func (this *WebpackModuleResolver) up_ModuleResolver() *ModuleResolver {
 	return &this.ModuleResolver
 }
 
-func (this *WebpackModuleResolver) init_WebpackModuleResolver(modulePaths *JTSet[string], moduleRootPaths *JTList[string], modulesById *JTMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
+func (this *WebpackModuleResolver) init_WebpackModuleResolver(modulePaths *JTSet[string], moduleRootPaths *TList[string], modulesById *JTMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.NodeModuleResolver.init_NodeModuleResolver(modulePaths, moduleRootPaths, nil, errorHandler, pathEscaper)
 	this.modulesById = immutableMapCopyOfT_(jtc_string, jtc_string, modulesById)
 }
 
-func new_WebpackModuleResolver(modulePaths *JTSet[string], moduleRootPaths *JTList[string], modulesById *JTMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *WebpackModuleResolver {
+func new_WebpackModuleResolver(modulePaths *JTSet[string], moduleRootPaths *TList[string], modulesById *JTMap[string, string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) *WebpackModuleResolver {
 	this := &WebpackModuleResolver{}
 	this.self_ = this
 	this.init_WebpackModuleResolver(modulePaths, moduleRootPaths, modulesById, errorHandler, pathEscaper)
@@ -74,7 +74,7 @@ func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[str
 		}
 		normalizedPathsById.put(moduleEntry.getKey(), canonicalizedPath)
 	}
-	return new_WebpackModuleResolver(tsetImm_(jtc_string, modulePaths), jtlistImm_(jtc_string, moduleRootPaths), normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
+	return new_WebpackModuleResolver(tsetImm_(jtc_string, modulePaths), tlistImm_(tc_string, moduleRootPaths), normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
 }
 
 // resolveJsModule: an object that is exactly a WebpackModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.

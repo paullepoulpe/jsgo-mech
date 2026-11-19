@@ -25,12 +25,12 @@ func (this *FeatureCollector) allFeatures() *FeatureSet {
 }
 
 func (this *FeatureCollector) visitScript(script Node) {
-	var emptyContext *JTList[FeatureCollector_FeatureContext] = jnewTList_(jtc_p_FeatureCollector_FeatureContext)
+	var emptyContext *TList[FeatureCollector_FeatureContext] = newTList_(tc_p_FeatureCollector_FeatureContext)
 	emptyContext.add(FeatureCollector_FeatureContext_NONE)
 	this.visitRecursive(emptyContext, script)
 }
 
-func (this *FeatureCollector) visitRecursive(contextStack *JTList[FeatureCollector_FeatureContext], node Node) {
+func (this *FeatureCollector) visitRecursive(contextStack *TList[FeatureCollector_FeatureContext], node Node) {
 	var newContext FeatureCollector_FeatureContext = this.visitSingleNode(contextStack, node)
 	contextStack.add(newContext)
 	{
@@ -42,7 +42,7 @@ func (this *FeatureCollector) visitRecursive(contextStack *JTList[FeatureCollect
 	contextStack.removeAt((contextStack.size() - 1))
 }
 
-func (this *FeatureCollector) visitSingleNode(contextStack *JTList[FeatureCollector_FeatureContext], node Node) FeatureCollector_FeatureContext {
+func (this *FeatureCollector) visitSingleNode(contextStack *TList[FeatureCollector_FeatureContext], node Node) FeatureCollector_FeatureContext {
 	if contextStack.size() < 1 {
 		panic(new_IllegalStateException_String(objstr_("The provided feature context stack was empty. It must have at least one element.")))
 	}
@@ -50,7 +50,7 @@ func (this *FeatureCollector) visitSingleNode(contextStack *JTList[FeatureCollec
 	return FeatureCollector_contextFor(contextStack, node)
 }
 
-func (this *FeatureCollector) recordScriptFeatures(contextStack *JTList[FeatureCollector_FeatureContext], node Node) {
+func (this *FeatureCollector) recordScriptFeatures(contextStack *TList[FeatureCollector_FeatureContext], node Node) {
 	var parentContext FeatureCollector_FeatureContext = cast_[FeatureCollector_FeatureContext](SequencedCollection_getLast(SequencedCollection(contextStack.asList())))
 	switch node.ns_().token {
 	case tokOrd1_FUNCTION:
@@ -191,7 +191,7 @@ func (this *FeatureCollector) recordScriptFeatures(contextStack *JTList[FeatureC
 	}
 }
 
-func (this *FeatureCollector) maybeAddTopLevelAwait(contextStack *JTList[FeatureCollector_FeatureContext]) {
+func (this *FeatureCollector) maybeAddTopLevelAwait(contextStack *TList[FeatureCollector_FeatureContext]) {
 	if !contextStack.asList().contains(obj_(FeatureCollector_FeatureContext_FUNCTION)) {
 		this.addScriptFeature(FeatureSet_Feature_TOP_LEVEL_AWAIT)
 	}
@@ -201,7 +201,7 @@ func (this *FeatureCollector) addScriptFeature(x FeatureSet_Feature) {
 	this.scriptFeatures = this.scriptFeatures.with(x)
 }
 
-func FeatureCollector_contextFor(contextStack *JTList[FeatureCollector_FeatureContext], node Node) FeatureCollector_FeatureContext {
+func FeatureCollector_contextFor(contextStack *TList[FeatureCollector_FeatureContext], node Node) FeatureCollector_FeatureContext {
 	return func() FeatureCollector_FeatureContext {
 		switch node.ns_().token {
 		case tokOrd1_PARAM_LIST:

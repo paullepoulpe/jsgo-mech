@@ -43,7 +43,7 @@ func ProductionInstrumentationReporter_readFile(filePath string) *Outcome_base[s
 }
 
 func (this *ProductionInstrumentationReporter) getAllExecutionResults(folder string) *Outcome_base[*ErasedImmutableList] {
-	var result *TListBuilder[Map] = newTListBuilder_(tc_Map)
+	var result *ImmutableList_Builder[Map] = immutableListBuilder_(tc_Map)
 	it_1 := foreach_(Io_listFiles(folder))
 	for it_1.next() {
 		var fileEntry string = str_(it_1.v)
@@ -66,7 +66,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 		return Outcome_base_err[Map](parsed.error())
 	}
 	var document *SimpleJsonValue = parsed.get()
-	var map_ *JTMap[string, any] = jnewTMap_(jtc_string, tc_Long)
+	var map_ *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Long)
 	if document.kind() == SimpleJsonValue_Kind_OBJECT {
 		it_1 := document.members().eachEntry()
 		for it_1.next() {
@@ -135,7 +135,7 @@ func (this *ProductionInstrumentationReporter) doMain(args []string) *Outcome_ba
 	if listOfExecutionResults.isErr() {
 		return Outcome_base_err[any](listOfExecutionResults.error())
 	}
-	return this.createFile(this.finalResultOutput, ProfilingReport_createTabSeparatedProfilingReport(mapping.get(), jtlistImm_(tc_Map, listOfExecutionResults.get())))
+	return this.createFile(this.finalResultOutput, ProfilingReport_createTabSeparatedProfilingReport(mapping.get(), tlistImm_(tc_Map, listOfExecutionResults.get())))
 }
 
 func (this *ProductionInstrumentationReporter) parseCmdLineArguments(args []string) {

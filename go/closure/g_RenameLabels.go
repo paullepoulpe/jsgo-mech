@@ -41,7 +41,7 @@ type RenameLabels_DefaultNameSupplier struct {
 }
 
 func (this *RenameLabels_DefaultNameSupplier) init_RenameLabels_DefaultNameSupplier() {
-	this.nameGenerator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(Set(new_LinkedHashSet()), "", jtsetEmptyImm_(tc_Character)))
+	this.nameGenerator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(Set(new_LinkedHashSet()), "", jtsetEmptyImm_(jtc_Character)))
 }
 
 func new_RenameLabels_DefaultNameSupplier() *RenameLabels_DefaultNameSupplier {
@@ -58,12 +58,12 @@ type RenameLabels_ProcessLabels struct {
 	outer_         *RenameLabels
 	markChanges    bool
 	namespaceStack *TDeque[*RenameLabels_LabelNamespace]
-	names_         *JTList[string]
+	names_         *TList[string]
 }
 
 func (this *RenameLabels_ProcessLabels) finit_RenameLabels_ProcessLabels() {
 	this.namespaceStack = newTDeque_(jtc_p_RenameLabels_LabelNamespace)
-	this.names_ = jnewTList_(jtc_string)
+	this.names_ = newTList_(tc_string)
 }
 
 func (this *RenameLabels_ProcessLabels) init_RenameLabels_ProcessLabels(markChanges bool) {
@@ -201,7 +201,7 @@ type RenameLabels_LabelNamespace struct {
 }
 
 func (this *RenameLabels_LabelNamespace) finit_RenameLabels_LabelNamespace() {
-	this.renameMap = jnewTMap_(jtc_string, tc_p_RenameLabels_LabelInfo)
+	this.renameMap = jnewTMap_(jtc_string, jtc_p_RenameLabels_LabelInfo)
 }
 
 func (this *RenameLabels_LabelNamespace) init_RenameLabels_LabelNamespace() {

@@ -8,7 +8,7 @@ type CheckSuper struct {
 }
 
 func (this *CheckSuper) finit_CheckSuper() {
-	this.contextStack = newTDeque_(tc_p_CheckSuper_Context)
+	this.contextStack = newTDeque_(jtc_p_CheckSuper_Context)
 }
 
 func (this *CheckSuper) init_CheckSuper(compiler *AbstractCompiler) {

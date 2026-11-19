@@ -5,7 +5,7 @@ package closure
 type CheckConstPrivateProperties struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_                 *AbstractCompiler
-	candidates                *JTList[Node]
+	candidates                *TList[Node]
 	modified                  *JTSet[string]
 	constructorsAndInterfaces *JTSet[string]
 }
@@ -18,7 +18,7 @@ func (this *CheckConstPrivateProperties) up_NodeTraversal_AbstractPostOrderCallb
 }
 
 func (this *CheckConstPrivateProperties) finit_CheckConstPrivateProperties() {
-	this.candidates = jnewTList_(jtc_Node)
+	this.candidates = newTList_(tc_Node)
 	this.modified = jnewTSet_(jtc_string)
 	this.constructorsAndInterfaces = jnewTSet_(jtc_string)
 }

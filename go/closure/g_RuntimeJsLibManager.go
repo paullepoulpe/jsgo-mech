@@ -46,15 +46,15 @@ func (this *RuntimeJsLibManager) hasInjectedLibrary(resourceName string) bool {
 	return this.injectedLibs.contains(resourceName)
 }
 
-func (this *RuntimeJsLibManager) getInjectedLibraries() *JTList[string] {
-	return jimmutableListCopyOf_(jtc_string, Collection(this.injectedLibs.asSet()))
+func (this *RuntimeJsLibManager) getInjectedLibraries() *TList[string] {
+	return immutableListCopyOf_(tc_string, Collection(this.injectedLibs.asSet()))
 }
 
-func (this *RuntimeJsLibManager) getExternedFields() *JTList[RuntimeJsLibManager_ExternedField] {
+func (this *RuntimeJsLibManager) getExternedFields() *TList[RuntimeJsLibManager_ExternedField] {
 	if this.mode_ != RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES {
-		return jtlistEmptyImm_(jtc_RuntimeJsLibManager_ExternedField)
+		return tlistEmptyImm_(tc_RuntimeJsLibManager_ExternedField)
 	}
-	var result *TListBuilder[RuntimeJsLibManager_ExternedField] = newTListBuilder_(jtc_RuntimeJsLibManager_ExternedField)
+	var result *ImmutableList_Builder[RuntimeJsLibManager_ExternedField] = immutableListBuilder_(tc_RuntimeJsLibManager_ExternedField)
 	it_1 := this.internedFields.eachValue()
 	for it_1.next() {
 		var field *RuntimeJsLibManager_InternalField = it_1.v
@@ -69,7 +69,7 @@ func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibMana
 	if fieldName == "" {
 		panic(new_IllegalArgumentException_String(objstr_(fieldName)))
 	}
-	var parts *JTList[string] = splitToListT_(jtc_string, Splitter_on('.'), strobj_(fieldName))
+	var parts *TList[string] = splitToListTP_(tc_string, Splitter_on('.'), strobj_(fieldName))
 	if parts.size() < 2 {
 		panic(new_IllegalArgumentException_String(Strings_lenientFormat("Field name must start with $jscomp., found %s", []any{fieldName})))
 	}
@@ -169,7 +169,7 @@ func (this *RuntimeJsLibManager) injectLibraryDependencies(ast Node, force bool)
 		var node Node = ast.getFirstChild()
 		for ; ((node != 0) && node.isExprResult()) && node.getFirstChild().isStringLit(); node = ast.getFirstChild() {
 			var directive string = node.getFirstChild().getString()
-			var words *JTList[string] = splitToListT_(jtc_string, Splitter_on(' ').limit(2), strobj_(directive))
+			var words *TList[string] = splitToListTP_(tc_string, Splitter_on(' ').limit(2), strobj_(directive))
 			switch words.get(0) {
 			case "use":
 			case "require":
@@ -288,7 +288,7 @@ func RuntimeJsLibManager_FieldsTable_loadFields() *JTMap[string, string] {
 	var transpilationLibsTxt string = ResourceLoader_loadTextResource((sstr_(ResourceLoader_JSCOMP) + "js/transpilation_libs.txt"))
 	var allFields *TMapBuilder[string, string] = newTMapBuilder_(jtc_string, jtc_string)
 	for line := range elemsBy_(Splitter_on('\n').omitEmptyStrings().split_s(transpilationLibsTxt), str_) {
-		var tokens *JTList[string] = splitToListT_(jtc_string, Splitter_on(',').limit(2), strobj_(line))
+		var tokens *TList[string] = splitToListTP_(tc_string, Splitter_on(',').limit(2), strobj_(line))
 		if ok_, a1_ := (tokens.size() == 2), tokens.asList(); !ok_ {
 			panic(new_IllegalStateException_String(objstr_(a1_)))
 		}

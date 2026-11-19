@@ -16,7 +16,7 @@ func (this *CheckEs6ModuleFileStructure) up_NodeTraversal_AbstractPreOrderCallba
 }
 
 func (this *CheckEs6ModuleFileStructure) finit_CheckEs6ModuleFileStructure() {
-	this.orderedStatements = newTSortedSet_(tc_p_CheckEs6ModuleFileStructure_OrderedStatement)
+	this.orderedStatements = newTSortedSet_(jtc_p_CheckEs6ModuleFileStructure_OrderedStatement)
 }
 
 func (this *CheckEs6ModuleFileStructure) init_CheckEs6ModuleFileStructure(compiler *AbstractCompiler) {

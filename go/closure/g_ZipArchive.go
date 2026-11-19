@@ -4,13 +4,13 @@ package closure
 
 type ZipArchive struct {
 	bytes      []int8
-	entryNames *JTList[string]
+	entryNames *TList[string]
 	records    *JTMap[string, any]
 }
 
 func (this *ZipArchive) finit_ZipArchive() {
-	this.entryNames = jnewTList_(jtc_string)
-	this.records = jnewTMap_(jtc_string, tc_Integer)
+	this.entryNames = newTList_(tc_string)
+	this.records = jnewTMap_(jtc_string, jtc_Integer)
 }
 
 func (this *ZipArchive) init_ZipArchive(bytes []int8) {
@@ -56,7 +56,7 @@ func ZipArchive_parse(bytes []int8) Optional[*ZipArchive] {
 	return Optional_of[*ZipArchive](archive)
 }
 
-func (this *ZipArchive) names() *JTList[string] {
+func (this *ZipArchive) names() *TList[string] {
 	return this.entryNames
 }
 

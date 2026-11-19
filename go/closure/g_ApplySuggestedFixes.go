@@ -42,15 +42,15 @@ func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedF
 	return Outcome_base_ok_0()
 }
 
-func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], fileNameToCodeMap *JTMap[string, string]) *JTList[*ErasedImmutableMap] {
+func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], fileNameToCodeMap *JTMap[string, string]) *TList[*ErasedImmutableMap] {
 	if Iterables_isEmpty(fixChoices) {
-		return jimmutableListOf_[*ErasedImmutableMap](tc_p_ImmutableMap, ImmutableMap_of())
+		return immutableListOf_[*ErasedImmutableMap](tc_p_ImmutableMap, ImmutableMap_of())
 	}
 	var alternativeCount int32 = Iterables_getFirst(fixChoices, nil).(*SuggestedFix).getAlternatives().size()
 	if !ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount) {
 		panic(new_IllegalArgumentException_String(objstr_("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense")))
 	}
-	var result *TListBuilder[*ErasedImmutableMap] = newTListBuilder_(tc_p_ImmutableMap)
+	var result *ImmutableList_Builder[*ErasedImmutableMap] = immutableListBuilder_(tc_p_ImmutableMap)
 	for i := int32(0); i < alternativeCount; i++ {
 		result.add(ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap).asImm())
 	}
@@ -69,11 +69,11 @@ func ApplySuggestedFixes_allHaveAlternativeCount(fixChoices IterableOf[*Suggeste
 }
 
 func ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices IterableOf[*SuggestedFix], choiceIndex int32, fileNameToCodeMap *JTMap[string, string]) *JTMap[string, string] {
-	var chosenFixesBuilder *TListBuilder[*SuggestedFix] = newTListBuilder_(jtc_p_SuggestedFix)
+	var chosenFixesBuilder *ImmutableList_Builder[*SuggestedFix] = immutableListBuilder_(tc_p_SuggestedFix)
 	for choices := range elemsAs_[*SuggestedFix](fixChoices) {
 		chosenFixesBuilder.add(choices.getAlternatives().get(choiceIndex))
 	}
-	var chosenFixes *JTList[*SuggestedFix] = chosenFixesBuilder.build()
+	var chosenFixes *TList[*SuggestedFix] = chosenFixesBuilder.build()
 	return ApplySuggestedFixes_applySuggestedFixesToCode(Iterable(chosenFixes.asList()), fileNameToCodeMap)
 }
 

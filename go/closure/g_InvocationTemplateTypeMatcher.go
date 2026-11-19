@@ -115,7 +115,7 @@ func (this *InvocationTemplateTypeMatcher) matchTemplateTypesRecursive(paramType
 		}
 		var argObjectType *JSType = argType.restrictByNotNullOrUndefined().collapseUnion()
 		var paramTypeMap *TemplateTypeMap = paramType.getTemplateTypeMap()
-		var keys *JTList[*TemplateType] = paramTypeMap.getTemplateKeys()
+		var keys *TList[*TemplateType] = paramTypeMap.getTemplateKeys()
 		var argTypeMap *TemplateTypeMap = argObjectType.getTemplateTypeMap()
 		for index := int32((keys.size() - keyCount)); index < keys.size(); index++ {
 			var key *TemplateType = keys.get(index)

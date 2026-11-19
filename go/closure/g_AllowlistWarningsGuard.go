@@ -102,7 +102,7 @@ func (this *AllowlistWarningsGuard) formatWarning_2(error_ *JSError, withMetaDat
 	if withMetaData {
 		sb.append_int(error_.getLineNumber())
 	}
-	var lines *JTList[string] = splitToListT_(jtc_string, AllowlistWarningsGuard_LINE_SPLITTER, strobj_(error_.description()))
+	var lines *TList[string] = splitToListTP_(tc_string, AllowlistWarningsGuard_LINE_SPLITTER, strobj_(error_.description()))
 	sb.append("  ").append(lines.get(0))
 	if withMetaData {
 		for i := int32(1); i < lines.size(); i++ {

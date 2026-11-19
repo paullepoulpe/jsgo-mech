@@ -226,7 +226,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) enterScope(t *Node
 		return
 	}
 	var scope *Scope = t.getScope()
-	var declaredVariablesBuilder *TListBuilder[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo] = newTListBuilder_(jtc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo)
+	var declaredVariablesBuilder *ImmutableList_Builder[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo] = immutableListBuilder_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo)
 	for var_ := range elemsAs_[*Var](scope.getVarIterable()) {
 		var variableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = this.createDeclaredVariableInfo(var_)
 		declaredVariablesBuilder.add(variableInfo)
@@ -296,7 +296,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createUndeclaredVa
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo struct {
 	outer_                   *MakeDeclaredNamesUnique_ContextualRenameInverter
-	referenceNodes           *JTList[Node]
+	referenceNodes           *TList[Node]
 	potentialShadowVariables *JTSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 	currentName              string
 	preferredName            string
@@ -308,7 +308,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) zero_
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo() {
-	this.referenceNodes = jnewTList_(jtc_Node)
+	this.referenceNodes = newTList_(tc_Node)
 	this.potentialShadowVariables = jnewTSet_(tce_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo)
 }
 
@@ -417,7 +417,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInf
 type MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext struct {
 	parent                *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext
 	scope_                *Scope
-	declaredVariableInfos *JTList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo]
+	declaredVariableInfos *TList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo]
 	referencedVariables   *JTSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 }
 
@@ -425,14 +425,14 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) finit
 	this.referencedVariables = jnewTSet_(tce_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo)
 }
 
-func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) init_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos *JTList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) {
+func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) init_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos *TList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) {
 	this.finit_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext()
 	this.scope_ = scope
 	this.declaredVariableInfos = declaredVariableInfos
 	this.parent = parent
 }
 
-func new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos *JTList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext {
+func new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos *TList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext {
 	this := &MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext{}
 	this.init_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope, declaredVariableInfos, parent)
 	return this
@@ -464,7 +464,7 @@ type MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap struc
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap() {
-	this.mapOfStacks = jnewTMap_(jtc_string, tc_Deque)
+	this.mapOfStacks = jnewTMap_(jtc_string, jtc_Deque)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) init_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap() {

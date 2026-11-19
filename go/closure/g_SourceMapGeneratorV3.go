@@ -8,7 +8,7 @@ import (
 )
 
 type SourceMapGeneratorV3 struct {
-	mappings             *JTList[*SourceMapGeneratorV3_Mapping]
+	mappings             *TList[*SourceMapGeneratorV3_Mapping]
 	sourceFileMap        *JTMap[string, any]
 	sourceFileContentMap *JTMap[string, string]
 	originalNameMap      *JTMap[string, any]
@@ -22,15 +22,15 @@ type SourceMapGeneratorV3 struct {
 }
 
 func (this *SourceMapGeneratorV3) finit_SourceMapGeneratorV3() {
-	this.mappings = jnewTList_(jtc_p_SourceMapGeneratorV3_Mapping)
-	this.sourceFileMap = jnewTMap_(jtc_string, tc_Integer)
+	this.mappings = newTList_(tc_p_SourceMapGeneratorV3_Mapping)
+	this.sourceFileMap = jnewTMap_(jtc_string, jtc_Integer)
 	this.sourceFileContentMap = jnewTMap_(jtc_string, jtc_string)
-	this.originalNameMap = jnewTMap_(jtc_string, tc_Integer)
+	this.originalNameMap = jnewTMap_(jtc_string, jtc_Integer)
 	this.lastSourceFile = Optional_empty[string]()
 	this.lastSourceFileIndex = -1
 	this.offsetPosition = new_FilePosition(0, 0)
 	this.prefixPosition = new_FilePosition(0, 0)
-	this.extensions = jnewTMap_(jtc_string, tc_Object)
+	this.extensions = jnewTMap_(jtc_string, jtc_Object)
 	this.sourceRootPath = Optional_empty[string]()
 }
 
@@ -239,7 +239,7 @@ func (this *SourceMapGeneratorV3) addSourceNameMap(out Appendable) {
 func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 	var found bool = false
 	var size int32 = this.sourceFileMap.size()
-	var contents *JTList[string] = jnewTListN_(jtc_string, size)
+	var contents *TList[string] = newTListN_(tc_string, size)
 	contents.asList().addAll(Collection(Collections_nCopies(size, "")))
 	it_1 := this.sourceFileMap.eachEntry()
 	for it_1.next() {
@@ -337,7 +337,7 @@ func (this *SourceMapGeneratorV3) prepMappings() int32 {
 	return (maxLine + this.prefixPosition.getLine())
 }
 
-func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, sections *JTList[*SourceMapSection]) {
+func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, sections *TList[*SourceMapSection]) {
 	Appendable_append_s(out, "{\n")
 	SourceMapGeneratorV3_appendFirstField(out, "version", "3")
 	SourceMapGeneratorV3_appendField(out, "file", SourceMapGeneratorV3_escapeString(name))

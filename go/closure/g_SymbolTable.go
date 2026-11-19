@@ -7,7 +7,7 @@ import "strings"
 type SymbolTable struct {
 	symbols                *SimpleTable[Node, string, *SymbolTable_Symbol]
 	scopes                 *JTMap[Node, *SymbolTable_SymbolScope]
-	docInfos               *JTList[Node]
+	docInfos               *TList[Node]
 	globalScope            *SymbolTable_SymbolScope
 	compiler_              *AbstractCompiler
 	registry               *JSTypeRegistry
@@ -21,7 +21,7 @@ type SymbolTable struct {
 func (this *SymbolTable) finit_SymbolTable() {
 	this.symbols = SimpleTable_create[Node, string, *SymbolTable_Symbol]()
 	this.scopes = jnewTMap_(jtc_Node, jtc_p_SymbolTable_SymbolScope)
-	this.docInfos = jnewTList_(jtc_Node)
+	this.docInfos = newTList_(tc_Node)
 	this.globalScope = nil
 	this.symbolThatDeclaresType = new_LinkedIdentityHashMap[*JSType, *SymbolTable_Symbol]()
 	this.sourceNameOrdering = Ordering_natural().nullsFirst()
@@ -46,12 +46,12 @@ func (this *SymbolTable) getReferences(symbol *SymbolTable_Symbol) IterableOf[*S
 	return Iterable(Collections_unmodifiableCollection(symbol.references.asMap().values()))
 }
 
-func (this *SymbolTable) getReferenceList(symbol *SymbolTable_Symbol) *JTList[*SymbolTable_Reference] {
-	return jimmutableListCopyOf_(jtc_p_SymbolTable_Reference, symbol.references.asMap().values())
+func (this *SymbolTable) getReferenceList(symbol *SymbolTable_Symbol) *TList[*SymbolTable_Reference] {
+	return immutableListCopyOf_(tc_p_SymbolTable_Reference, symbol.references.asMap().values())
 }
 
-func (this *SymbolTable) getAllSymbols() *JTList[*SymbolTable_Symbol] {
-	return jimmutableListCopyOf_(jtc_p_SymbolTable_Symbol, this.symbols.values())
+func (this *SymbolTable) getAllSymbols() *TList[*SymbolTable_Symbol] {
+	return immutableListCopyOf_(tc_p_SymbolTable_Symbol, this.symbols.values())
 }
 
 func (this *SymbolTable) getAllSymbolsSorted() ListOf[*SymbolTable_Symbol] {
@@ -202,12 +202,12 @@ func (this *SymbolTable) getSymbolForName(source Node, name Optional[string]) *S
 	return scope.getQualifiedSlot(name.get())
 }
 
-func (this *SymbolTable) getAllSymbolsForType(type_ *JSType) *JTList[*SymbolTable_Symbol] {
+func (this *SymbolTable) getAllSymbolsForType(type_ *JSType) *TList[*SymbolTable_Symbol] {
 	if type_ == nil {
-		return jtlistEmptyImm_(jtc_p_SymbolTable_Symbol)
+		return tlistEmptyImm_(tc_p_SymbolTable_Symbol)
 	}
 	if type_.isUnionType() {
-		var result *TListBuilder[*SymbolTable_Symbol] = newTListBuilder_(jtc_p_SymbolTable_Symbol)
+		var result *ImmutableList_Builder[*SymbolTable_Symbol] = immutableListBuilder_(tc_p_SymbolTable_Symbol)
 		it_1 := type_.toMaybeUnionType().getAlternates().each()
 		for it_1.next() {
 			var alt *JSType = it_1.v
@@ -219,11 +219,11 @@ func (this *SymbolTable) getAllSymbolsForType(type_ *JSType) *JTList[*SymbolTabl
 		return result.build()
 	}
 	var result *SymbolTable_Symbol = this.getSymbolForTypeHelper(type_, true)
-	return func() *JTList[*SymbolTable_Symbol] {
+	return func() *TList[*SymbolTable_Symbol] {
 		if result == nil {
-			return jtlistEmptyImm_(jtc_p_SymbolTable_Symbol)
+			return tlistEmptyImm_(tc_p_SymbolTable_Symbol)
 		}
-		return jimmutableListOf_[*SymbolTable_Symbol](jtc_p_SymbolTable_Symbol, result)
+		return immutableListOf_[*SymbolTable_Symbol](tc_p_SymbolTable_Symbol, result)
 	}()
 }
 
@@ -589,8 +589,8 @@ func (this *SymbolTable) fillNamespaceReferences() {
 }
 
 func (this *SymbolTable) fillPropertyScopes() {
-	var types *JTList[*SymbolTable_Symbol] = jnewTList_(jtc_p_SymbolTable_Symbol)
-	var exports *JTList[*SymbolTable_Symbol] = jnewTList_(jtc_p_SymbolTable_Symbol)
+	var types *TList[*SymbolTable_Symbol] = newTList_(tc_p_SymbolTable_Symbol)
+	var exports *TList[*SymbolTable_Symbol] = newTList_(tc_p_SymbolTable_Symbol)
 	it_1 := this.getAllSymbols().each()
 	for it_1.next() {
 		var sym *SymbolTable_Symbol = it_1.v
@@ -1560,7 +1560,7 @@ func (this *SymbolTable_PropertyRefCollector) visit_impl(t *NodeTraversal, n Nod
 type SymbolTable_ThisRefCollector struct {
 	NodeTraversal_AbstractScopedCallback
 	outer_    *SymbolTable
-	thisStack *JTList[*SymbolTable_Symbol]
+	thisStack *TList[*SymbolTable_Symbol]
 }
 
 func (this *SymbolTable_ThisRefCollector) up_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback {
@@ -1571,7 +1571,7 @@ func (this *SymbolTable_ThisRefCollector) up_NodeTraversal_AbstractScopedCallbac
 }
 
 func (this *SymbolTable_ThisRefCollector) finit_SymbolTable_ThisRefCollector() {
-	this.thisStack = jnewTList_(jtc_p_SymbolTable_Symbol)
+	this.thisStack = newTList_(tc_p_SymbolTable_Symbol)
 }
 
 func (this *SymbolTable_ThisRefCollector) init_SymbolTable_ThisRefCollector() {

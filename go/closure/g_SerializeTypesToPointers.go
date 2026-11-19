@@ -177,7 +177,7 @@ func (this *SerializeTypesToPointers_StreamObjectUuidsJson) writeJson(jsonWriter
 	for entry := range elemsBy_(this.allSerializedTypes.entrySet(), icast_Map_Entry) {
 		jsonWriter.name(str_(entry.getKey()))
 		jsonWriter.beginArray()
-		var jstypes *JTList[string] = jnewTList_(jtc_string)
+		var jstypes *TList[string] = newTList_(tc_string)
 		for jstype := range elemsBy_(icast_List(entry.getValue()), to_JSType) {
 			jstypes.add(jstype.toString())
 		}

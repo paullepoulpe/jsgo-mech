@@ -72,10 +72,10 @@ func JSTypeExpression_baseName(name string) string {
 	}()
 }
 
-func (this *JSTypeExpression) getAllTypeNodes() *JTList[Node] {
+func (this *JSTypeExpression) getAllTypeNodes() *TList[Node] {
 	var builder *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	JSTypeExpression_visitAllTypeNodes(this.root, (&Consumer_tfn_Node{func(p0 Node) { builder.add(p0) }}).accept)
-	return jtlistImm_(jtc_Node, builder.buildErased())
+	return tlistImm_(tc_Node, builder.buildErased())
 }
 
 func (this *JSTypeExpression) getAllTypeNames() *JTSet[string] {

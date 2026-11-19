@@ -9,7 +9,7 @@ type SimpleTable[R comparable, C comparable, V comparable] struct {
 func (this *SimpleTable[R, C, V]) isa_SimpleTable_() {}
 
 func (this *SimpleTable[R, C, V]) finit_SimpleTable() {
-	this.rows = jnewTMap_(tceT_[R](), tc_Map)
+	this.rows = jnewTMap_(tceT_[R](), jtc_Map)
 }
 
 func (this *SimpleTable[R, C, V]) init_SimpleTable() {

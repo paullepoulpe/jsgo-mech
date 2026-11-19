@@ -24,12 +24,12 @@ func new_ErrorToFixMapper(compiler *AbstractCompiler) *ErrorToFixMapper {
 	return this
 }
 
-func (this *ErrorToFixMapper) getFixesForJsError(error_ *JSError) *JTList[*SuggestedFix] {
+func (this *ErrorToFixMapper) getFixesForJsError(error_ *JSError) *TList[*SuggestedFix] {
 	var fix *SuggestedFix = this.getFixForJsError(error_)
 	if fix != nil {
-		return jimmutableListOf_[*SuggestedFix](jtc_p_SuggestedFix, fix)
+		return immutableListOf_[*SuggestedFix](tc_p_SuggestedFix, fix)
 	}
-	return jtlistImm_(jtc_p_SuggestedFix, func() *ImmutableList[*SuggestedFix] {
+	return tlistImm_(tc_p_SuggestedFix, func() *ImmutableList[*SuggestedFix] {
 		switch error_.type_().key_ {
 		case "JSC_IMPLICITLY_NONNULL_JSDOC", "JSC_IMPLICITLY_NULLABLE_JSDOC", "JSC_MISSING_NULLABILITY_MODIFIER_JSDOC", "JSC_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC":
 			return this.getFixesForImplicitNullabilityErrors(error_)
@@ -104,7 +104,7 @@ func (this *ErrorToFixMapper) getFixForRedeclaration(error_ *JSError) *Suggested
 	if parent.hasOneChild() {
 		return fix.replace(parent, assign, this.compiler_).build()
 	}
-	var childrenOfAddedVarStatement *JTList[Node] = jnewTList_(jtc_Node)
+	var childrenOfAddedVarStatement *TList[Node] = newTList_(tc_Node)
 	{
 		var n Node = parent.getFirstChild()
 		for ; n != 0; n = n.getNext() {

@@ -6,8 +6,8 @@ import "strings"
 
 type RenameVars struct {
 	compiler_                      *AbstractCompiler
-	globalNameNodes                *JTList[Node]
-	localNameNodes                 *JTList[Node]
+	globalNameNodes                *TList[Node]
+	localNameNodes                 *TList[Node]
 	originalNameByNode             *JTMap[Node, string]
 	pseudoNameMap                  *JTMap[Node, string]
 	externNames_                   *JTSet[string]
@@ -30,8 +30,8 @@ func (this *RenameVars) zero_RenameVars() {
 }
 
 func (this *RenameVars) finit_RenameVars() {
-	this.globalNameNodes = jnewTList_(jtc_Node)
-	this.localNameNodes = jnewTList_(jtc_Node)
+	this.globalNameNodes = newTList_(tc_Node)
+	this.localNameNodes = newTList_(tc_Node)
 	this.originalNameByNode = jnewTMap_(jtc_Node, jtc_string)
 	this.renameMap = jnewTMap_(jtc_string, jtc_string)
 	this.assignmentCount = 0
@@ -169,8 +169,8 @@ func (this *RenameVars) assignNames(varsToRename *JTSet[*RenameVars_Assignment])
 		}
 		return this.nameGenerator.clone(this.reservedNames, "", this.reservedCharacters)
 	}()
-	var pendingAssignments *JTList[*RenameVars_Assignment] = jnewTList_(jtc_p_RenameVars_Assignment)
-	var generatedNamesForAssignments *JTList[string] = jnewTList_(jtc_string)
+	var pendingAssignments *TList[*RenameVars_Assignment] = newTList_(tc_p_RenameVars_Assignment)
+	var generatedNamesForAssignments *TList[string] = newTList_(tc_string)
 	it_1 := varsToRename.each()
 	for it_1.next() {
 		var a *RenameVars_Assignment = it_1.v

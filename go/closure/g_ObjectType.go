@@ -83,8 +83,8 @@ func (this *ObjectType) getTypeOfThis_impl() *JSType {
 	return nil
 }
 
-func (this *ObjectType) getTemplateTypes_impl() *JTList[*JSType] {
-	return jtlistEmptyImm_(jtc_p_JSType)
+func (this *ObjectType) getTemplateTypes_impl() *TList[*JSType] {
+	return tlistEmptyImm_(tc_p_JSType)
 }
 
 func (this *ObjectType) getJSDocInfo_impl() *JSDocInfo {
@@ -654,7 +654,7 @@ func (this *ObjectType) getCtorExtendedInterfaces() Iterable {
 	return this.self_.getCtorExtendedInterfaces_impl()
 }
 
-func (this *ObjectType) getTemplateTypes() *JTList[*JSType] {
+func (this *ObjectType) getTemplateTypes() *TList[*JSType] {
 	return this.self_.getTemplateTypes_impl()
 }
 

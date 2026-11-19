@@ -10,7 +10,7 @@ type JSDocInfo struct {
 
 func (this *JSDocInfo) init_JSDocInfo(bits int64, props TreeMapOf[*JSDocInfo_Property, any]) {
 	var keys int64 = 0
-	var values *JTList[any] = jnewTList_(tc_Object)
+	var values *TList[any] = newTList_(tc_Object)
 	for entry := range elemsBy_(props.entrySet(), icast_Map_Entry) {
 		var prop *JSDocInfo_Property = to_JSDocInfo_Property(entry.getKey())
 		var value any = entry.getValue()
@@ -433,13 +433,13 @@ func (this *JSDocInfo) getDescription() Optional[string] {
 	return Optional_ofNullable[string](str_(JSDocInfo_DESCRIPTION.get(this)))
 }
 
-func (this *JSDocInfo) getTsTypes() *JTList[string] {
+func (this *JSDocInfo) getTsTypes() *TList[string] {
 	var types ListOf[string] = icast_List(JSDocInfo_TS_TYPES.get(this))
-	return func() *JTList[string] {
+	return func() *TList[string] {
 		if types != nil {
-			return jimmutableListCopyOf_(jtc_string, Collection(types))
+			return immutableListCopyOf_(tc_string, Collection(types))
 		}
-		return jtlistEmptyImm_(jtc_string)
+		return tlistEmptyImm_(tc_string)
 	}()
 }
 
@@ -681,13 +681,13 @@ func (this *JSDocInfo) getMarkers() CollectionOf[*JSDocInfo_Marker] {
 	}()
 }
 
-func (this *JSDocInfo) getTemplateTypeNames() *JTList[string] {
+func (this *JSDocInfo) getTemplateTypeNames() *TList[string] {
 	var map_ LinkedHashMapOf[string, *JSTypeExpression] = cast_[*LinkedHashMap](JSDocInfo_TEMPLATE_TYPE_NAMES.get(this))
-	return func() *JTList[string] {
+	return func() *TList[string] {
 		if map_ != nil {
-			return jimmutableListCopyOf_(jtc_string, Collection(map_.keySet()))
+			return immutableListCopyOf_(tc_string, Collection(map_.keySet()))
 		}
-		return jtlistEmptyImm_(jtc_string)
+		return tlistEmptyImm_(tc_string)
 	}()
 }
 
@@ -712,7 +712,7 @@ func (this *JSDocInfo) getTypeTransformations() *JTMap[string, Node] {
 }
 
 func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
-	var builder *TListBuilder[*JSTypeExpression] = newTListBuilder_(jtc_p_JSTypeExpression)
+	var builder *ImmutableList_Builder[*JSTypeExpression] = immutableListBuilder_(tc_p_JSTypeExpression)
 	var bits int64 = this.propertyKeysBitset
 	var index int32 = 0
 	for bits > 0 {
@@ -731,7 +731,7 @@ func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
 }
 
 func (this *JSDocInfo) getTypeNodes() CollectionOf[Node] {
-	var nodes *JTList[Node] = jnewTList_(jtc_Node)
+	var nodes *TList[Node] = newTList_(tc_Node)
 	for type_ := range elemsAs_[*JSTypeExpression](this.getTypeExpressions()) {
 		nodes.add(type_.getRoot())
 	}
@@ -792,7 +792,7 @@ func (this *JSDocInfo) getPropertyValueByIndex(index int32) any {
 	return this.propertyValues
 }
 
-func JSDocInfo_packPropertyValues(values *JTList[any]) any {
+func JSDocInfo_packPropertyValues(values *TList[any]) any {
 	return func() any {
 		if values.isEmpty() {
 			return nil
@@ -1114,8 +1114,8 @@ func (this *JSDocInfo_TypeProperty) equalValues_impl(left_ any, right_ any) bool
 	return left.isEquivalentTo(right)
 }
 
-func (this *JSDocInfo_TypeProperty) getTypeExpressions_Object_rImmutableList(type_ *JSTypeExpression) *JTList[*JSTypeExpression] {
-	return jimmutableListOf_[*JSTypeExpression](jtc_p_JSTypeExpression, type_)
+func (this *JSDocInfo_TypeProperty) getTypeExpressions_Object_rImmutableList(type_ *JSTypeExpression) *TList[*JSTypeExpression] {
+	return immutableListOf_[*JSTypeExpression](tc_p_JSTypeExpression, type_)
 }
 
 func (this *JSDocInfo_TypeProperty) getTypeExpressions_Object_impl(p0 any) Iterable {

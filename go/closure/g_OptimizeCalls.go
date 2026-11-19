@@ -4,17 +4,17 @@ package closure
 
 type OptimizeCalls struct {
 	compiler_       *AbstractCompiler
-	passes          *JTList[OptimizeCalls_CallGraphCompilerPass]
+	passes          *TList[OptimizeCalls_CallGraphCompilerPass]
 	considerExterns bool
 }
 
-func (this *OptimizeCalls) init_OptimizeCalls(compiler *AbstractCompiler, passes *JTList[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) {
+func (this *OptimizeCalls) init_OptimizeCalls(compiler *AbstractCompiler, passes *TList[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) {
 	this.compiler_ = compiler
 	this.passes = passes
 	this.considerExterns = considerExterns
 }
 
-func new_OptimizeCalls(compiler *AbstractCompiler, passes *JTList[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) *OptimizeCalls {
+func new_OptimizeCalls(compiler *AbstractCompiler, passes *TList[OptimizeCalls_CallGraphCompilerPass], considerExterns bool) *OptimizeCalls {
 	this := &OptimizeCalls{}
 	this.init_OptimizeCalls(compiler, passes, considerExterns)
 	return this
@@ -112,12 +112,12 @@ func (this *OptimizeCalls_CallGraphCompilerPass_fn) process_3(p0 Node, p1 Node, 
 
 type OptimizeCalls_Builder struct {
 	compiler_       *AbstractCompiler
-	passes          *TListBuilder[OptimizeCalls_CallGraphCompilerPass]
+	passes          *ImmutableList_Builder[OptimizeCalls_CallGraphCompilerPass]
 	considerExterns any
 }
 
 func (this *OptimizeCalls_Builder) finit_OptimizeCalls_Builder() {
-	this.passes = newTListBuilder_(jtc_OptimizeCalls_CallGraphCompilerPass)
+	this.passes = immutableListBuilder_(tc_OptimizeCalls_CallGraphCompilerPass)
 }
 
 func (this *OptimizeCalls_Builder) init_OptimizeCalls_Builder() {
@@ -160,8 +160,8 @@ type OptimizeCalls_ReferenceMap struct {
 }
 
 func (this *OptimizeCalls_ReferenceMap) finit_OptimizeCalls_ReferenceMap() {
-	this.names_ = jnewTMap_(jtc_string, tc_p_ArrayList)
-	this.props = jnewTMap_(jtc_string, tc_p_ArrayList)
+	this.names_ = jnewTMap_(jtc_string, jtc_p_ArrayList)
+	this.props = jnewTMap_(jtc_string, jtc_p_ArrayList)
 }
 
 func (this *OptimizeCalls_ReferenceMap) init_OptimizeCalls_ReferenceMap() {
@@ -209,15 +209,15 @@ func OptimizeCalls_ReferenceMap_getFunctionNodes(definitionSites ListOf[Node]) *
 	return result.immutableCopy()
 }
 
-func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) *JTList[Node] {
+func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) *TList[Node] {
 	if definitionSite.isGetterDef() || definitionSite.isSetterDef() {
-		return jtlistEmptyImm_(jtc_Node)
+		return tlistEmptyImm_(tc_Node)
 	}
 	var parent Node = definitionSite.getParent()
 	if parent == 0 {
-		return jtlistEmptyImm_(jtc_Node)
+		return tlistEmptyImm_(tc_Node)
 	}
-	var fns *TListBuilder[Node] = newTListBuilder_(jtc_Node)
+	var fns *ImmutableList_Builder[Node] = immutableListBuilder_(tc_Node)
 	switch parent.ns_().token {
 	case tokOrd1_CLASS:
 		if definitionSite.isFirstChildOf(parent) {
@@ -260,7 +260,7 @@ func OptimizeCalls_ReferenceMap_definitionFunctionNodesFor(definitionSite Node) 
 	return fns.build()
 }
 
-func OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns *TListBuilder[Node], n Node) {
+func OptimizeCalls_ReferenceMap_addValueFunctionNodes(fns *ImmutableList_Builder[Node], n Node) {
 	switch n.ns_().token {
 	case tokOrd1_CLASS:
 		{

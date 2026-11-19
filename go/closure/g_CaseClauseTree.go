@@ -5,7 +5,7 @@ package closure
 type CaseClauseTree struct {
 	ParseTree
 	expression *ParseTree
-	statements *JTList[*ParseTree]
+	statements *TList[*ParseTree]
 }
 
 func (this *CaseClauseTree) up_ParseTree() *ParseTree {
@@ -15,13 +15,13 @@ func (this *CaseClauseTree) up_ParseTree() *ParseTree {
 	return &this.ParseTree
 }
 
-func (this *CaseClauseTree) init_CaseClauseTree(location *SourceRange, expression *ParseTree, statements *JTList[*ParseTree]) {
+func (this *CaseClauseTree) init_CaseClauseTree(location *SourceRange, expression *ParseTree, statements *TList[*ParseTree]) {
 	this.ParseTree.init_ParseTree(ParseTreeType_CASE_CLAUSE, location)
 	this.expression = expression
 	this.statements = statements
 }
 
-func new_CaseClauseTree(location *SourceRange, expression *ParseTree, statements *JTList[*ParseTree]) *CaseClauseTree {
+func new_CaseClauseTree(location *SourceRange, expression *ParseTree, statements *TList[*ParseTree]) *CaseClauseTree {
 	this := &CaseClauseTree{}
 	this.self_ = this
 	this.init_CaseClauseTree(location, expression, statements)

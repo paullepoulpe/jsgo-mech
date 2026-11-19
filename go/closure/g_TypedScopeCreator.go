@@ -20,8 +20,8 @@ type TypedScopeCreator struct {
 	escapedVarNames              *JTSet[*ScopedName]
 	assignedVarNames             *SimpleMultiset[*ScopedName]
 	unknownType                  *ObjectType
-	weakImports                  *JTList[*TypedScopeCreator_WeakModuleImport]
-	unresolvedNodes              *JTList[Node]
+	weakImports                  *TList[*TypedScopeCreator_WeakModuleImport]
+	unresolvedNodes              *TList[Node]
 	undeclaredNamesForClosure    *JTSet[Node]
 	providedNamesFromCall        *SimpleSetMultimap[Node, *ProcessClosureProvidesAndRequires_ProvidedName]
 	stage                        TypedScopeCreator_Stage
@@ -72,8 +72,8 @@ func (this *TypedScopeCreator) report(error_ *JSError) {
 	this.compiler_.report(error_)
 }
 
-func (this *TypedScopeCreator) getReferences_StaticSlot_rImmutableList(var_ *TypedVar) *JTList[*TypedVar] {
-	return jimmutableListOf_[*TypedVar](jtc_p_TypedVar, var_)
+func (this *TypedScopeCreator) getReferences_StaticSlot_rImmutableList(var_ *TypedVar) *TList[*TypedVar] {
+	return immutableListOf_[*TypedVar](tc_p_TypedVar, var_)
 }
 
 func (this *TypedScopeCreator) getScope_StaticSlot_rTypedScope(var_ *TypedVar) *TypedScope {
@@ -81,7 +81,7 @@ func (this *TypedScopeCreator) getScope_StaticSlot_rTypedScope(var_ *TypedVar) *
 }
 
 func (this *TypedScopeCreator) getAllSymbols() IterableOf[*TypedVar] {
-	var vars *JTList[*TypedVar] = jnewTList_(jtc_p_TypedVar)
+	var vars *TList[*TypedVar] = newTList_(tc_p_TypedVar)
 	for s := range this.memoized.Values() {
 		Iterables_addAll(Collection(vars.asList()), s.getAllSymbols())
 	}
@@ -319,8 +319,8 @@ func (this *TypedScopeCreator) clearCommonState() {
 	this.functionsWithNonEmptyReturns = jnewTSet_(jtc_Node)
 	this.escapedVarNames = jnewTSet_(tce_p_ScopedName)
 	this.assignedVarNames = SimpleMultiset_create[*ScopedName]()
-	this.weakImports = jnewTList_(tc_p_TypedScopeCreator_WeakModuleImport)
-	this.unresolvedNodes = jnewTList_(jtc_Node)
+	this.weakImports = newTList_(tc_p_TypedScopeCreator_WeakModuleImport)
+	this.unresolvedNodes = newTList_(tc_Node)
 	this.undeclaredNamesForClosure = jnewTSet_(jtc_Node)
 	this.providedNamesFromCall = SimpleSetMultimap_createInsertionOrdered[Node, *ProcessClosureProvidesAndRequires_ProvidedName]()
 }
@@ -894,7 +894,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredTypeInAnnotation(
 	if !info.hasType() {
 		panic(new_IllegalArgumentException_String(objstr_(info)))
 	}
-	var ownerTypeKeys *JTList[*TemplateType] = this.findOwnerTypeKeys(node)
+	var ownerTypeKeys *TList[*TemplateType] = this.findOwnerTypeKeys(node)
 	var templateScope StaticTypedScope = func() StaticTypedScope {
 		if !ownerTypeKeys.isEmpty() {
 			return this.outer_.typeRegistry.createScopeWithTemplates(icast_StaticTypedScope(obj_(this.currentScope)), Iterable(ownerTypeKeys.asList()))
@@ -904,13 +904,13 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredTypeInAnnotation(
 	return info.getType().evaluate(templateScope, this.outer_.typeRegistry)
 }
 
-func (this *TypedScopeCreator_AbstractScopeBuilder) findOwnerTypeKeys(node Node) *JTList[*TemplateType] {
+func (this *TypedScopeCreator_AbstractScopeBuilder) findOwnerTypeKeys(node Node) *TList[*TemplateType] {
 	if ((node != 0) && !node.isStaticMember()) && node.getParent().isClassMembers() {
 		var classType *JSType = node.getGrandparent().getJSType()
 		if classType != nil {
 			return classType.toMaybeFunctionType().getTemplateTypeMap().getTemplateKeys()
 		}
-		return jtlistEmptyImm_(jtc_p_TemplateType)
+		return tlistEmptyImm_(tc_p_TemplateType)
 	}
 	var ownerNode Node = NodeUtil_getBestLValueOwner(node)
 	var ownerName Optional[string] = NodeUtil_getBestLValueName(ownerNode)
@@ -923,7 +923,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findOwnerTypeKeys(node Node)
 			}
 		}
 	}
-	return jtlistEmptyImm_(jtc_p_TemplateType)
+	return tlistEmptyImm_(tc_p_TemplateType)
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) assertDefinitionNode(n Node, type_ Token_rhino) {
@@ -1189,7 +1189,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createClassTypeFromNodes(cla
 		var ctorInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(constructor)
 		builder.inferConstructorParameters(constructor.getSecondChild(), ctorInfo)
 	} else if extendsClause.isEmpty() {
-		builder.inferImplicitConstructorParameters(jtlistEmptyImm_(jtc_p_FunctionType_Parameter))
+		builder.inferImplicitConstructorParameters(tlistEmptyImm_(tc_p_FunctionType_Parameter))
 	} else {
 		var extendsCtor *FunctionType = func() *FunctionType {
 			if baseType != nil {
@@ -1274,7 +1274,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) isGoogModuleGetProperty(exte
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(extendsNode Node) *JSType {
 	var call Node = extendsNode
-	var properties *JTList[string] = jnewTList_(jtc_string)
+	var properties *TList[string] = newTList_(tc_string)
 	for !call.isCall() {
 		properties.insert(0, call.getString())
 		call = call.getFirstChild()

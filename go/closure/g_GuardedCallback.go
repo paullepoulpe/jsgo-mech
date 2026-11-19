@@ -131,7 +131,7 @@ func GuardedCallback_clinit() {
 		return
 	}
 	GuardedCallback_clinit_done = true
-	GuardedCallback_CAN_HAVE_GUARDS = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_AND.enum_(), []*Enum{Token_rhino_OR.enum_(), Token_rhino_COALESCE.enum_(), Token_rhino_HOOK.enum_(), Token_rhino_IF.enum_(), Token_rhino_BLOCK.enum_(), Token_rhino_SCRIPT.enum_(), Token_rhino_OPTCHAIN_CALL.enum_(), Token_rhino_OPTCHAIN_GETELEM.enum_(), Token_rhino_OPTCHAIN_GETPROP.enum_()}))
+	GuardedCallback_CAN_HAVE_GUARDS = tsetImm_(jtc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_AND.enum_(), []*Enum{Token_rhino_OR.enum_(), Token_rhino_COALESCE.enum_(), Token_rhino_HOOK.enum_(), Token_rhino_IF.enum_(), Token_rhino_BLOCK.enum_(), Token_rhino_SCRIPT.enum_(), Token_rhino_OPTCHAIN_CALL.enum_(), Token_rhino_OPTCHAIN_GETELEM.enum_(), Token_rhino_OPTCHAIN_GETPROP.enum_()}))
 
 }
 

@@ -46,7 +46,7 @@ func Invalidation_undeclaredAccess(receiverType int32) *Invalidation {
 }
 
 func (this *Invalidation) toLogsGson_impl() any {
-	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
+	var json *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Object)
 	json.put("reason", obj_(this.reason))
 	return json.asMap()
 }
@@ -162,7 +162,7 @@ func new_Invalidation_WithReceiverType(reason Invalidation_Reason, receiverType 
 }
 
 func (this *Invalidation_WithReceiverType) toLogsGson_impl() any {
-	var json *JTMap[string, any] = jnewTMap_(jtc_string, tc_Object)
+	var json *JTMap[string, any] = jnewTMap_(jtc_string, jtc_Object)
 	json.put("receiverType", any(int32(this.receiverType_)))
 	json.put("reason", obj_(this.reason))
 	return json.asMap()

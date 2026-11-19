@@ -11,8 +11,8 @@ type Timeline[T comparable] struct {
 func (this *Timeline[T]) isa_Timeline_() {}
 
 func (this *Timeline[T]) finit_Timeline() {
-	this.eventsByTime = jnewTMap_(tce_p_Timeline_Time, tc_p_Timeline_Event)
-	this.eventsByValue = jnewTMap_(tceT_[T](), tc_p_Timeline_Event)
+	this.eventsByTime = jnewTMap_(tce_p_Timeline_Time, jtc_p_Timeline_Event)
+	this.eventsByValue = jnewTMap_(tceT_[T](), jtc_p_Timeline_Event)
 	this.headEvent = new_Timeline_Event[any](new_Timeline_Time("-beginning-"))
 }
 
@@ -49,7 +49,7 @@ func (this *Timeline[T]) mark(timeName string) {
 }
 
 func (this *Timeline[T]) getSince(timeName string) ListOf[T] {
-	var values *JTList[T] = jnewTList_(tcT_[T]())
+	var values *TList[T] = newTList_(tcT_[T]().t_())
 	var firstEvent *Timeline_Event[any] = this.eventsByTime.get(new_Timeline_Time(timeName))
 	if firstEvent == nil {
 		return nil

@@ -119,7 +119,7 @@ func (this *AbstractCompiler) isDebugLoggingEnabled() bool {
 	return this.self_.(*Compiler).isDebugLoggingEnabled_impl()
 }
 
-func (this *AbstractCompiler) getDebugLogFilterList() *JTList[string] {
+func (this *AbstractCompiler) getDebugLogFilterList() *TList[string] {
 	return this.self_.(*Compiler).getDebugLogFilterList_impl()
 }
 
@@ -251,7 +251,7 @@ func (this *AbstractCompiler) parseTestCode(p0 string) Node {
 	return this.self_.(*Compiler).parseTestCode_impl(p0)
 }
 
-func (this *AbstractCompiler) parseTestCodeImmutableList(p0 *JTList[string]) Node {
+func (this *AbstractCompiler) parseTestCodeImmutableList(p0 *TList[string]) Node {
 	return this.self_.(*Compiler).parseTestCodeImmutableList_impl(p0)
 }
 
@@ -491,7 +491,7 @@ func (this *AbstractCompiler) setAccessorSummary(p0 *AccessorSummary) {
 	this.self_.(*Compiler).setAccessorSummary_impl(p0)
 }
 
-func (this *AbstractCompiler) addComments(p0 string, p1 *JTList[*Comment]) {
+func (this *AbstractCompiler) addComments(p0 string, p1 *TList[*Comment]) {
 	this.self_.(*Compiler).addComments_impl(p0, p1)
 }
 

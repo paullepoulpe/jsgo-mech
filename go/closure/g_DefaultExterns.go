@@ -15,8 +15,8 @@ func new_DefaultExterns() *DefaultExterns {
 	return this
 }
 
-func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *JTMap[string, *SourceFile_jscomp]) *JTList[*SourceFile_jscomp] {
-	var out *JTList[*SourceFile_jscomp] = jnewTList_(jtc_p_SourceFile_jscomp)
+func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *JTMap[string, *SourceFile_jscomp]) *TList[*SourceFile_jscomp] {
+	var out *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 	it_1 := DefaultExterns_BUILTIN_LANG_EXTERNS.each()
 	for it_1.next() {
 		var key string = it_1.v
@@ -39,8 +39,8 @@ func DefaultExterns_prepareExterns(env CompilerOptions_Environment, externs *JTM
 	return out
 }
 
-var DefaultExterns_BUILTIN_LANG_EXTERNS *JTList[string]
-var DefaultExterns_BROWSER_EXTERN_DEP_ORDER *JTList[string]
+var DefaultExterns_BUILTIN_LANG_EXTERNS *TList[string]
+var DefaultExterns_BROWSER_EXTERN_DEP_ORDER *TList[string]
 
 var DefaultExterns_clinit_done bool
 
@@ -49,7 +49,7 @@ func DefaultExterns_clinit() {
 		return
 	}
 	DefaultExterns_clinit_done = true
-	DefaultExterns_BUILTIN_LANG_EXTERNS = jimmutableListOf_[string](jtc_string, "es3.js", "es5.js", "es6.js", "es6_typed_array.js", "es6_collections.js")
-	DefaultExterns_BROWSER_EXTERN_DEP_ORDER = jimmutableListOf_[string](jtc_string, "intl.js", "w3c_event.js", "w3c_event3.js", "gecko_event.js", "ie_event.js", "webkit_event.js", "w3c_device_sensor_event.js", "w3c_dom1.js", "w3c_dom2.js", "w3c_dom3.js", "w3c_dom4.js", "gecko_dom.js", "ie_dom.js", "webkit_dom.js", "w3c_css.js", "gecko_css.js", "ie_css.js", "webkit_css.js", "w3c_touch_event.js", "webstorage.js", "whatwg_console.js", "nonstandard_console.js", "w3c_rtc.js")
+	DefaultExterns_BUILTIN_LANG_EXTERNS = immutableListOf_[string](tc_string, "es3.js", "es5.js", "es6.js", "es6_typed_array.js", "es6_collections.js")
+	DefaultExterns_BROWSER_EXTERN_DEP_ORDER = immutableListOf_[string](tc_string, "intl.js", "w3c_event.js", "w3c_event3.js", "gecko_event.js", "ie_event.js", "webkit_event.js", "w3c_device_sensor_event.js", "w3c_dom1.js", "w3c_dom2.js", "w3c_dom3.js", "w3c_dom4.js", "gecko_dom.js", "ie_dom.js", "webkit_dom.js", "w3c_css.js", "gecko_css.js", "ie_css.js", "webkit_css.js", "w3c_touch_event.js", "webstorage.js", "whatwg_console.js", "nonstandard_console.js", "w3c_rtc.js")
 
 }

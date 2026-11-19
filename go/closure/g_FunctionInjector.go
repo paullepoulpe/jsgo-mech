@@ -19,7 +19,7 @@ type FunctionInjector struct {
 func (this *FunctionInjector) finit_FunctionInjector() {
 	this.knownConstantFunctions = jtsetEmptyImm_(jtc_string)
 	this.throwawayNameSupplier = Supplier(new_FunctionInjector_1(this))
-	this.referencesEvalCache = jnewTMap_(jtc_Node, tc_Boolean)
+	this.referencesEvalCache = jnewTMap_(jtc_Node, jtc_Boolean)
 	this.innerFunctionCache = jnewTMap_(jtc_Node, jtc_Node)
 }
 
@@ -335,7 +335,7 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	if cached != 0 {
 		return cached
 	}
-	var innerFns *JTList[Node] = jnewTList_(jtc_Node)
+	var innerFns *TList[Node] = newTList_(tc_Node)
 	NodeUtil_visitPreOrder_Node_Visitor(containerFn, &NodeUtil_Visitor_fn{func(n Node) {
 		if equalsId_(n, containerFn) {
 			return

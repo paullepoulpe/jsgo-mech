@@ -35,7 +35,7 @@ func new_ReplaceCssNames(compiler *AbstractCompiler, symbolMap CssRenamingMap, c
 
 func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ReplaceCssNames_FindSetCssNameTraversal(this)))
-	var getCssNameInstances *JTList[*ReplaceCssNames_GetCssNameInstance] = this.gatherGetCssNameInstances(root)
+	var getCssNameInstances *TList[*ReplaceCssNames_GetCssNameInstance] = this.gatherGetCssNameInstances(root)
 	it_1 := getCssNameInstances.each()
 	for it_1.next() {
 		var getCssNameInstance *ReplaceCssNames_GetCssNameInstance = it_1.v
@@ -51,7 +51,7 @@ func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, NodeTraversal_Callback(new_ReplaceCssNames_CountCssNamesBySymbol(this)))
 }
 
-func (this *ReplaceCssNames) gatherGetCssNameInstances(root Node) *JTList[*ReplaceCssNames_GetCssNameInstance] {
+func (this *ReplaceCssNames) gatherGetCssNameInstances(root Node) *TList[*ReplaceCssNames_GetCssNameInstance] {
 	var gatherCssNamesTraversal *ReplaceCssNames_GatherCssNamesTraversal = new_ReplaceCssNames_GatherCssNamesTraversal(this)
 	NodeTraversal_traverse(this.compiler_, root, ReplaceCssNames_GatherCssNamesTraversal_as_NodeTraversal_Callback(gatherCssNamesTraversal))
 	return gatherCssNamesTraversal.listOfCssNameInstances
@@ -232,12 +232,12 @@ func (this *ReplaceCssNames_FindSetCssNameTraversal) visit_impl(t *NodeTraversal
 
 type ReplaceCssNames_GatherCssNamesTraversal struct {
 	outer_                 *ReplaceCssNames
-	listOfCssNameInstances *JTList[*ReplaceCssNames_GetCssNameInstance]
+	listOfCssNameInstances *TList[*ReplaceCssNames_GetCssNameInstance]
 	traversalState         *ReplaceCssNames_GatherCssNamesTraversal_TraversalState
 }
 
 func (this *ReplaceCssNames_GatherCssNamesTraversal) finit_ReplaceCssNames_GatherCssNamesTraversal() {
-	this.listOfCssNameInstances = jnewTList_(jtc_p_ReplaceCssNames_GetCssNameInstance)
+	this.listOfCssNameInstances = newTList_(tc_p_ReplaceCssNames_GetCssNameInstance)
 	this.traversalState = new_ReplaceCssNames_GatherCssNamesTraversal_TraversalState()
 }
 

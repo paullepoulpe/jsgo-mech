@@ -18,9 +18,9 @@ func (this *ReplaceIdGenerators) init_ReplaceIdGenerators(compiler *AbstractComp
 	this.templateLiteralsAreTranspiled = templateLiteralsAreTranspiled
 	this.generatePseudoNames = generatePseudoNames
 	this.xidHashFunction = xidHashFunction
-	this.nameGenerators = jnewTMap_(jtc_string, tc_ReplaceIdGenerators_NameSupplier)
-	this.idGeneratorMaps = jnewTMap_(jtc_string, tc_Map)
-	this.consistNameMap = jnewTMap_(jtc_string, tc_Map)
+	this.nameGenerators = jnewTMap_(jtc_string, jtc_ReplaceIdGenerators_NameSupplier)
+	this.idGeneratorMaps = jnewTMap_(jtc_string, jtc_Map)
+	this.consistNameMap = jnewTMap_(jtc_string, jtc_Map)
 	var previousMap *JTMap[string, *SimpleBiMap[string, string]] = IdMappingUtil_parseSerializedIdMappings(previousMapSerialized)
 	this.previousMap = previousMap
 	if idGens != nil {
@@ -225,7 +225,7 @@ type ReplaceIdGenerators_ObfuscatedNameSupplier struct {
 
 func (this *ReplaceIdGenerators_ObfuscatedNameSupplier) init_ReplaceIdGenerators_ObfuscatedNameSupplier(renameStrategy ReplaceIdGenerators_RenameStrategy, previousMappings *SimpleBiMap[string, string]) {
 	this.previousMappings = previousMappings.inverse()
-	this.generator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(previousMappings.keySet(), "", jtsetEmptyImm_(tc_Character)))
+	this.generator = NameGenerator(new_DefaultNameGenerator_Set_String_Set(previousMappings.keySet(), "", jtsetEmptyImm_(jtc_Character)))
 	this.renameStrategy = renameStrategy
 }
 

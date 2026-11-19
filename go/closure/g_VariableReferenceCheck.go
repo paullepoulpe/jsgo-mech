@@ -28,7 +28,7 @@ func (this *VariableReferenceCheck) process_2(externs Node, root Node) {
 	new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, ReferenceCollector_Behavior(new_VariableReferenceCheck_ReferenceCheckingBehavior(this)), new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)).process_2(externs, root)
 }
 
-func (this *VariableReferenceCheck) lookForHoistedFunction(references *JTList[*Reference]) *Reference {
+func (this *VariableReferenceCheck) lookForHoistedFunction(references *TList[*Reference]) *Reference {
 	it_1 := references.each()
 	for it_1.next() {
 		var reference *Reference = it_1.v
@@ -197,7 +197,7 @@ func VariableReferenceCheck_clinit() {
 	VariableReferenceCheck_GOOG_REQUIRE = QualifiedName_of("goog.require")
 	VariableReferenceCheck_GOOG_REQUIRE_TYPE = QualifiedName_of("goog.requireType")
 	VariableReferenceCheck_GOOG_FORWARD_DECLARE = QualifiedName_of("goog.forwardDeclare")
-	VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS = tsetImm_(tc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_IF.enum_(), []*Enum{Token_rhino_FOR.enum_(), Token_rhino_FOR_IN.enum_(), Token_rhino_FOR_OF.enum_(), Token_rhino_FOR_AWAIT_OF.enum_(), Token_rhino_WHILE.enum_()}))
+	VariableReferenceCheck_BLOCKLESS_DECLARATION_FORBIDDEN_STATEMENTS = tsetImm_(jtc_p_Token_rhino, Sets_immutableEnumSet(Token_rhino_IF.enum_(), []*Enum{Token_rhino_FOR.enum_(), Token_rhino_FOR_IN.enum_(), Token_rhino_FOR_OF.enum_(), Token_rhino_FOR_AWAIT_OF.enum_(), Token_rhino_WHILE.enum_()}))
 	VariableReferenceCheck_GOOG_SCOPE = QualifiedName_of("goog.scope")
 
 }
@@ -247,7 +247,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(
 	NodeTraversal_traverse(this.outer_.compiler_, param.getParentNode().getSecondChild(), NodeTraversal_Callback(new_VariableReferenceCheck_ReferenceCheckingBehavior_1(this, varsInFunctionBody, scope)))
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references *JTList[*Reference]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references *TList[*Reference]) {
 	var maybeParam *Var = functionScope.getVar_String_rVar(v.getName())
 	if ((maybeParam != nil) && maybeParam.isParam()) && (maybeParam.getScope_rAbstractScope_rScope() == functionScope) {
 		it_1 := references.each()
@@ -275,7 +275,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkGoogModuleExp
 	}
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, references *JTList[*Reference]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, references *TList[*Reference]) {
 	this.outer_.blocksWithDeclarations.clear()
 	var hasSeenDeclaration bool = false
 	var hasErrors bool = false

@@ -7,7 +7,7 @@ import "strings"
 type ModuleResolver struct {
 	self_           ModuleResolver_I
 	modulePaths     *JTSet[string]
-	moduleRootPaths *JTList[string]
+	moduleRootPaths *TList[string]
 	errorHandler    ErrorHandler
 	pathEscaper     ModuleLoader_PathEscaper
 }
@@ -30,7 +30,7 @@ func (this *ModuleResolver) self() any {
 	return this.self_
 }
 
-func (this *ModuleResolver) init_ModuleResolver(modulePaths *JTSet[string], moduleRootPaths *JTList[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
+func (this *ModuleResolver) init_ModuleResolver(modulePaths *JTSet[string], moduleRootPaths *TList[string], errorHandler ErrorHandler, pathEscaper ModuleLoader_PathEscaper) {
 	this.modulePaths = modulePaths
 	this.moduleRootPaths = moduleRootPaths
 	this.errorHandler = errorHandler

@@ -11,7 +11,7 @@ type RandomNameGenerator struct {
 	prefix_U16       utf16_
 	nameCount        int32
 	shuffledFirst    string
-	shuffledNonFirst *JTList[string]
+	shuffledNonFirst *TList[string]
 }
 
 func (this *RandomNameGenerator) zero_RandomNameGenerator() {
@@ -22,7 +22,7 @@ func (this *RandomNameGenerator) zero_RandomNameGenerator() {
 
 func (this *RandomNameGenerator) init_RandomNameGenerator_Random(random *Random) {
 	this.random = random
-	this.reset(ImmutableSet_as_Set(ImmutableSet_of()), "", jtsetEmptyImm_(tc_Character))
+	this.reset(ImmutableSet_as_Set(ImmutableSet_of()), "", jtsetEmptyImm_(jtc_Character))
 }
 
 func new_RandomNameGenerator_Random(random *Random) *RandomNameGenerator {
@@ -65,8 +65,8 @@ func (this *RandomNameGenerator) reset_4(reservedNames SetOf[string], prefix str
 	this.prefix_ = prefix
 	this.prefix_U16 = utf16Kept_(this.prefix_)
 	this.nameCount = 0
-	this.firstChars = tsetImm_(tc_Character, Sets_difference(RandomNameGenerator_FIRST_CHAR.asSet(), reservedFirstCharacters.asSet()).immutableCopy())
-	this.nonFirstChars = tsetImm_(tc_Character, Sets_difference(RandomNameGenerator_NONFIRST_CHAR.asSet(), reservedNonFirstCharacters.asSet()).immutableCopy())
+	this.firstChars = tsetImm_(jtc_Character, Sets_difference(RandomNameGenerator_FIRST_CHAR.asSet(), reservedFirstCharacters.asSet()).immutableCopy())
+	this.nonFirstChars = tsetImm_(jtc_Character, Sets_difference(RandomNameGenerator_NONFIRST_CHAR.asSet(), reservedNonFirstCharacters.asSet()).immutableCopy())
 	this.checkPrefix(prefix)
 	this.shuffleAlphabets()
 }
@@ -78,9 +78,9 @@ func (this *RandomNameGenerator) clone(reservedNames *JTSet[string], prefix stri
 func RandomNameGenerator_asSet(chars []uint16) *JTSet[any] {
 	return func() *JTSet[any] {
 		if chars == nil {
-			return jtsetEmptyImm_(tc_Character)
+			return jtsetEmptyImm_(jtc_Character)
 		}
-		return jimmutableSetCopyOf_(tc_Character, Collection(Chars_asList(chars)))
+		return jimmutableSetCopyOf_(jtc_Character, Collection(Chars_asList(chars)))
 	}()
 }
 
@@ -98,14 +98,14 @@ func (this *RandomNameGenerator) checkPrefix(prefix string) {
 }
 
 func RandomNameGenerator_shuffleAndCopyAlphabet(input *JTSet[any], random *Random) string {
-	var shuffled *JTList[any] = jtlistFrom_(tc_Character, Collection(input.asSet()))
+	var shuffled *TList[any] = tlistFrom_(tc_Character, Collection(input.asSet()))
 	Collections_shuffle(shuffled.asList(), random)
 	return new_String(Chars_toArray(Collection(shuffled.asList())))
 }
 
 func (this *RandomNameGenerator) shuffleAlphabets() {
 	this.shuffledFirst = RandomNameGenerator_shuffleAndCopyAlphabet(this.firstChars, this.random)
-	var builder *TListBuilder[string] = newTListBuilder_(jtc_string)
+	var builder *ImmutableList_Builder[string] = immutableListBuilder_(tc_string)
 	for i := int32(0); i < RandomNameGenerator_NUM_SHUFFLES; i++ {
 		builder.add(RandomNameGenerator_shuffleAndCopyAlphabet(this.nonFirstChars, this.random))
 	}

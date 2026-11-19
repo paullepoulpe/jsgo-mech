@@ -86,14 +86,14 @@ func (this *StandardUnionFind[E]) elements() SetOf[E] {
 	return Collections_unmodifiableSet(this.elmap.asMap().keySet())
 }
 
-func (this *StandardUnionFind[E]) allEquivalenceClasses() *JTList[*ErasedImmutableSet] {
+func (this *StandardUnionFind[E]) allEquivalenceClasses() *TList[*ErasedImmutableSet] {
 	var groupsTmp *SimpleSetMultimap[*StandardUnionFind_Node[E], any] = SimpleSetMultimap_create[*StandardUnionFind_Node[E], any]()
 	it_1 := this.elmap.eachValue()
 	for it_1.next() {
 		var elem *StandardUnionFind_Node[E] = it_1.v
 		groupsTmp.put(this.findRoot(elem), boxT_(elem.element))
 	}
-	var result *TListBuilder[*ErasedImmutableSet] = newTListBuilder_(tc_p_ImmutableSet)
+	var result *ImmutableList_Builder[*ErasedImmutableSet] = immutableListBuilder_(tc_p_ImmutableSet)
 	for group := range elemsBy_(groupsTmp.asMap().values(), icast_Set) {
 		result.add(ImmutableSet_copyOf(Collection(group)))
 	}

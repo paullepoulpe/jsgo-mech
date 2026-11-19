@@ -5,7 +5,7 @@ package closure
 type JSChunk struct {
 	name_  string
 	inputs *JTMap[string, *CompilerInput]
-	deps   *JTList[*JSChunk]
+	deps   *TList[*JSChunk]
 	depth  int32
 	index_ int32
 }
@@ -16,7 +16,7 @@ func (this *JSChunk) zero_JSChunk() {
 
 func (this *JSChunk) finit_JSChunk() {
 	this.inputs = jnewTMap_(jtc_string, jtc_p_CompilerInput)
-	this.deps = jnewTList_(jtc_p_JSChunk)
+	this.deps = newTList_(tc_p_JSChunk)
 }
 
 func (this *JSChunk) init_JSChunk(name string) {
@@ -50,7 +50,7 @@ func (this *JSChunk) getHasNoCompileAnnotation() bool {
 }
 
 func (this *JSChunk) getRequires() ImmutableListOf[*DependencyInfo_Require] {
-	var builder *TListBuilder[*DependencyInfo_Require] = newTListBuilder_(jtc_p_DependencyInfo_Require)
+	var builder *ImmutableList_Builder[*DependencyInfo_Require] = immutableListBuilder_(tc_p_DependencyInfo_Require)
 	it_1 := this.deps.each()
 	for it_1.next() {
 		var chunk *JSChunk = it_1.v
@@ -114,12 +114,12 @@ func (this *JSChunk) removeAll() {
 	this.inputs.clear()
 }
 
-func (this *JSChunk) getDependencies() *JTList[*JSChunk] {
-	return immutableListCopyOfT_(jtc_p_JSChunk, this.deps)
+func (this *JSChunk) getDependencies() *TList[*JSChunk] {
+	return immutableListCopyOfTP_(tc_p_JSChunk, this.deps)
 }
 
-func (this *JSChunk) getSortedDependencyNames() *JTList[string] {
-	var names *JTList[string] = jnewTList_(jtc_string)
+func (this *JSChunk) getSortedDependencyNames() *TList[string] {
+	var names *TList[string] = newTList_(tc_string)
 	it_1 := this.getDependencies().each()
 	for it_1.next() {
 		var chunk *JSChunk = it_1.v
@@ -135,7 +135,7 @@ func (this *JSChunk) getAllDependencies() SetOf[*JSChunk] {
 	var stack *TDeque[*JSChunk] = tdequeFrom_(jtc_p_JSChunk, Collection(this.deps.asList()))
 	for !stack.isEmpty() {
 		var chunk *JSChunk = stack.pop()
-		var chunkDeps *JTList[*JSChunk] = chunk.deps
+		var chunkDeps *TList[*JSChunk] = chunk.deps
 		it_2 := chunkDeps.each()
 		for it_2.next() {
 			var dep *JSChunk = it_2.v

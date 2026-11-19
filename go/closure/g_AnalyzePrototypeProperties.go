@@ -82,7 +82,7 @@ func (this *AnalyzePrototypeProperties) process_2(externRoot Node, root Node) {
 }
 
 func (this *AnalyzePrototypeProperties) getAllNameInfo() CollectionOf[*AnalyzePrototypeProperties_NameInfo] {
-	var result *JTList[*AnalyzePrototypeProperties_NameInfo] = jtlistFrom_(jtc_p_AnalyzePrototypeProperties_NameInfo, this.propertyNameInfo.asMap().values())
+	var result *TList[*AnalyzePrototypeProperties_NameInfo] = tlistFrom_(tc_p_AnalyzePrototypeProperties_NameInfo, this.propertyNameInfo.asMap().values())
 	result.asList().addAll(this.varNameInfo.asMap().values())
 	return Collection(result.asList())
 }
@@ -731,7 +731,7 @@ func (this *AnalyzePrototypeProperties_NameInfo) zero_AnalyzePrototypeProperties
 
 func (this *AnalyzePrototypeProperties_NameInfo) finit_AnalyzePrototypeProperties_NameInfo() {
 	this.referenced = false
-	this.declarations = newTDeque_(tc_AnalyzePrototypeProperties_Symbol)
+	this.declarations = newTDeque_(jtc_AnalyzePrototypeProperties_Symbol)
 	this.deepestCommonChunkRef = nil
 	this.readClosureVariables = false
 	this.referencesSuperField = false
