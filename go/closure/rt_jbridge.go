@@ -263,3 +263,14 @@ func (l *TList[T]) forEachT(f func(T)) {
 		f(l.items[i])
 	}
 }
+
+// tEq_ is the post-flip conversion of a translator conversion that compares by equals
+// (byEquals) for an element type whose equals is Go's == (post-flip tool jfam -kind eqkeys
+// decides it from the program's classes, as rw.KeyMode does for the post-flip tools): the same
+// box, unbox and null, no hash and eq functions. One per conversion.
+func (c *jtconv_[T]) tEq_() *tconv_[T] {
+	if c.postEq == nil {
+		c.postEq = &tconv_[T]{box: c.box, unbox: c.unbox, null: c.null}
+	}
+	return c.postEq
+}
