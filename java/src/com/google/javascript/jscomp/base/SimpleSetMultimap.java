@@ -152,23 +152,23 @@ public final class SimpleSetMultimap<K, V> implements SimpleCollection, Serializ
     }
   }
 
-  public Set<V> get(@Nullable Object key) {
+  public Set<V> get(K key) {
     Set<V> values = map.get(key);
     return values == null ? ImmutableSet.of() : Collections.unmodifiableSet(values);
   }
 
-  public boolean containsKey(@Nullable Object key) {
+  public boolean containsKey(K key) {
     return map.containsKey(key);
   }
 
-  public boolean containsEntry(@Nullable Object key, @Nullable Object value) {
+  public boolean containsEntry(K key, V value) {
     Set<V> values = map.get(key);
     return values != null && values.contains(value);
   }
 
   /** Removes {@code key} and returns the values it had (empty if it was absent). */
   @CanIgnoreReturnValue
-  public Set<V> removeAll(@Nullable Object key) {
+  public Set<V> removeAll(K key) {
     checkState(!frozen, "immutable");
     Set<V> values = map.remove(key);
     if (values == null) {
@@ -176,7 +176,7 @@ public final class SimpleSetMultimap<K, V> implements SimpleCollection, Serializ
     }
     if (entryOrder != null) {
       for (V value : values) {
-        entryOrder.remove(new Entry<Object, Object>(key, value));
+        entryOrder.remove(new Entry<>(key, value));
       }
     }
     return Collections.unmodifiableSet(values);

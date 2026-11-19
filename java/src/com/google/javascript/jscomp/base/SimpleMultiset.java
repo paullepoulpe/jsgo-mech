@@ -150,12 +150,12 @@ public final class SimpleMultiset<E> implements Iterable<E>, SimpleCollection, S
     return changed;
   }
 
-  public int count(@Nullable Object element) {
+  public int count(E element) {
     Integer count = counts.get(element);
     return count == null ? 0 : count;
   }
 
-  public boolean contains(@Nullable Object element) {
+  public boolean contains(E element) {
     return counts.containsKey(element);
   }
 

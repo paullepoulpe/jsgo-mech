@@ -83,7 +83,7 @@ public final class SimpleBiMap<K, V> implements SimpleCollection, Serializable {
     return oldValue;
   }
 
-  public @Nullable V get(@Nullable Object key) {
+  public @Nullable V get(K key) {
     return forward.get(key);
   }
 
