@@ -25,22 +25,16 @@ func (this *LintPassConfig) up_PassConfig() *PassConfig {
 }
 
 func (this *LintPassConfig) finit_LintPassConfig() {
-	this.gatherModuleMetadataPass = PassFactory_builder().setName(PassNames_GATHER_MODULE_METADATA).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.gatherModuleMetadataPass = PassFactory_builder().setName(PassNames_GATHER_MODULE_METADATA).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_GatherModuleMetadata(compiler, compiler.getOptions().getProcessCommonJSModules(), compiler.getOptions().getModuleResolutionMode())
 	}}).build()
-	this.earlyLintChecks = PassFactory_builder().setName("earlyLintChecks").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.earlyLintChecks = PassFactory_builder().setName("earlyLintChecks").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_CombinedCompilerPass(compiler, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, new_CheckConstPrivateProperties(compiler), new_CheckConstantCaseNames(compiler), new_CheckDuplicateCase(compiler), new_CheckEmptyStatements(compiler), new_CheckEnums(compiler), new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove()), new_CheckGoogModuleTypeScriptName(compiler), new_CheckJSDocStyle(compiler), new_CheckJSDoc(compiler), new_CheckMissingSemicolon(compiler), new_CheckSuper(compiler), new_CheckPrimitiveAsObject(compiler), new_ClosureCheckModule(compiler, compiler.getModuleMetadataMap()), new_CheckNullabilityModifiers(compiler), new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT), new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT), new_CheckSideEffects(compiler, true, false), new_CheckTypeImportCodeReferences(compiler), new_CheckUnusedLabels(compiler), new_CheckUnusedPrivateProperties(compiler), new_CheckUselessBlocks(compiler), new_CheckVar(compiler)).items)
 	}}).build()
-	this.variableReferenceCheck = PassFactory_builder().setName("variableReferenceCheck").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_VariableReferenceCheck(to_AbstractCompiler(p0))
+	this.variableReferenceCheck = PassFactory_builder().setName("variableReferenceCheck").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_VariableReferenceCheck(p0)
 	}}).build()
-	this.lateLintChecks = PassFactory_builder().setName("lateLintChecks").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.lateLintChecks = PassFactory_builder().setName("lateLintChecks").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_CombinedCompilerPass(compiler, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, new_CheckInterfaces(compiler), new_CheckPrototypeProperties(compiler)).items)
 	}}).build()
 }

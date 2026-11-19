@@ -152,17 +152,13 @@ func (this *DefaultPassConfig) up_PassConfig() *PassConfig {
 
 func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.preprocessorSymbolTableFactory = new_PreprocessorSymbolTable_CachedInstanceFactory()
-	this.checkSideEffects = PassFactory_builder().setName("checkSideEffects").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.checkSideEffects = PassFactory_builder().setName("checkSideEffects").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_CheckSideEffects(compiler, this.options_.getCheckSuspiciousCode(), this.options_.shouldProtectHiddenSideEffects())
 	}}).build()
-	this.stripSideEffectProtection = PassFactory_builder().setName(PassNames_STRIP_SIDE_EFFECT_PROTECTION).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_CheckSideEffects_StripProtection(to_AbstractCompiler(p0))
+	this.stripSideEffectProtection = PassFactory_builder().setName(PassNames_STRIP_SIDE_EFFECT_PROTECTION).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_CheckSideEffects_StripProtection(p0)
 	}}).build()
-	this.suspiciousCode = PassFactory_builder().setName("suspiciousCode").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.suspiciousCode = PassFactory_builder().setName("suspiciousCode").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var sharedCallbacks []NodeTraversal_Callback = []NodeTraversal_Callback{}
 		if this.options_.getCheckSuspiciousCode() {
 			sharedCallbacks = append(sharedCallbacks, new_CheckSuspiciousCode())
@@ -176,24 +172,16 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		}
 		return DefaultPassConfig_combineChecks(compiler, sharedCallbacks)
 	}}).build()
-	this.extraRequires = PassFactory_builder().setName("checkExtraRequires").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.extraRequires = PassFactory_builder().setName("checkExtraRequires").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_CheckExtraRequires(compiler, this.options_.getUnusedImportsToRemove())
 	}}).build()
-	this.checkMissingRequires = PassFactory_builder().setName("checkMissingRequires").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.checkMissingRequires = PassFactory_builder().setName("checkMissingRequires").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_CheckMissingRequires(compiler, compiler.getModuleMetadataMap())
 	}}).build()
-	this.checkJsDocAndEs6Modules = PassFactory_builder().setName("checkJsDocAndEs6Modules").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.checkJsDocAndEs6Modules = PassFactory_builder().setName("checkJsDocAndEs6Modules").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return DefaultPassConfig_combineChecks(compiler, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, new_CheckJSDoc(compiler), new_Es6CheckModule(compiler)).items)
 	}}).build()
-	this.generateExports = PassFactory_builder().setName(PassNames_GENERATE_EXPORTS).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.generateExports = PassFactory_builder().setName(PassNames_GENERATE_EXPORTS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var convention CodingConvention = compiler.getCodingConvention()
 		var pass *GenerateExports = new_GenerateExports(compiler, this.options_.shouldExportLocalPropertyDefinitions(), Optional_of[string](convention.getExportSymbolFunction()).filterFn_(func(s string) bool {
 			return s != ""
@@ -202,15 +190,13 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		}))
 		return new_DefaultPassConfig_1(this, pass, compiler)
 	}}).build()
-	this.generateIjs = PassFactory_builder().setName("generateIjs").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_ConvertToTypedInterface(to_AbstractCompiler(p0))
+	this.generateIjs = PassFactory_builder().setName("generateIjs").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_ConvertToTypedInterface(p0)
 	}}).build()
-	this.removeExtraRequires = PassFactory_builder().setName("removeExtraRequires").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_ExtraRequireRemover(to_AbstractCompiler(p0))
+	this.removeExtraRequires = PassFactory_builder().setName("removeExtraRequires").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_ExtraRequireRemover(p0)
 	}}).build()
-	this.exportTestFunctions = PassFactory_builder().setName(PassNames_EXPORT_TEST_FUNCTIONS).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.exportTestFunctions = PassFactory_builder().setName(PassNames_EXPORT_TEST_FUNCTIONS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var convention CodingConvention = compiler.getCodingConvention()
 		if convention.getExportSymbolFunction() != "" {
 			return new_ExportTestFunctions(compiler, convention.getExportSymbolFunction(), convention.getExportPropertyFunction())
@@ -218,21 +204,15 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			return ErrorPass_createFromDiagnosticType(compiler, DefaultPassConfig_GENERATE_EXPORTS_ERROR)
 		}
 	}}).build()
-	this.gatherRawExports = PassFactory_builder().setName(PassNames_GATHER_RAW_EXPORTS).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.gatherRawExports = PassFactory_builder().setName(PassNames_GATHER_RAW_EXPORTS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var pass *GatherRawExports = new_GatherRawExports(compiler)
 		return new_DefaultPassConfig_2(this, pass, compiler)
 	}}).build()
-	this.closurePrimitives = PassFactory_builder().setName("closurePrimitives").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.closurePrimitives = PassFactory_builder().setName("closurePrimitives").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		this.preprocessorSymbolTableFactory.maybeInitialize(compiler)
 		return new_ProcessClosurePrimitives(compiler)
 	}}).build()
-	this.closureProvidesRequires = PassFactory_builder().setName("closureProvidesRequires").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.closureProvidesRequires = PassFactory_builder().setName("closureProvidesRequires").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		this.preprocessorSymbolTableFactory.maybeInitialize(compiler)
 		var pass *ProcessClosureProvidesAndRequires = new_ProcessClosureProvidesAndRequires(compiler, this.options_.shouldPreservesGoogProvidesAndRequires())
 		return &CompilerPass_fn{func(externs Node, root Node) {
@@ -240,71 +220,49 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			compiler.addExportedNames(pass.getExportedVariableNames())
 		}}
 	}}).build()
-	this.angularPass = PassFactory_builder().setName(PassNames_ANGULAR_PASS).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return new_AngularPass(to_AbstractCompiler(p0)) }}).build()
-	this.replaceMessagesForChrome = PassFactory_builder().setName(PassNames_REPLACE_MESSAGES).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.angularPass = PassFactory_builder().setName(PassNames_ANGULAR_PASS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass { return new_AngularPass(p0) }}).build()
+	this.replaceMessagesForChrome = PassFactory_builder().setName(PassNames_REPLACE_MESSAGES).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_ReplaceMessagesForChrome(compiler, new_GoogleJsMessageIdGenerator(Optional_of[string](this.options_.getTcProjectId())))
 	}}).build()
-	this.closureGoogScopeAliasesForIjs = PassFactory_builder().setName("closureGoogScopeAliasesForIjs").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.closureGoogScopeAliasesForIjs = PassFactory_builder().setName("closureGoogScopeAliasesForIjs").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return iup_CompilerPass(ScopedAliases_builder(compiler).build())
 	}}).build()
-	this.closureGoogScopeAliases = PassFactory_builder().setName("closureGoogScopeAliases").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.closureGoogScopeAliases = PassFactory_builder().setName("closureGoogScopeAliases").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		this.preprocessorSymbolTableFactory.maybeInitialize(compiler)
 		return iup_CompilerPass(ScopedAliases_builder(compiler).setPreprocessorSymbolTable(this.preprocessorSymbolTableFactory.getInstanceOrNull()).setModuleMetadataMap(compiler.getModuleMetadataMap()).setInvalidModuleGetHandling(ScopedAliases_InvalidModuleGetHandling_GIVE_UNIQUE_NAME).build())
 	}}).build()
-	this.injectRuntimeLibraries = PassFactory_builder().setName("InjectRuntimeLibraries").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.injectRuntimeLibraries = PassFactory_builder().setName("InjectRuntimeLibraries").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_InjectRuntimeLibraries(compiler, immutableSetCopyOf_(tc_string, iup_Collection(compiler.getOptions().getForceLibraryInjectionList().asImm())))
 	}}).build()
-	this.removeWeakSources = PassFactory_builder().setName("removeWeakSources").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_RemoveWeakSources(to_AbstractCompiler(p0))
+	this.removeWeakSources = PassFactory_builder().setName("removeWeakSources").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_RemoveWeakSources(p0)
 	}}).build()
-	this.declaredGlobalExternsOnWindow = PassFactory_builder().setName(PassNames_DECLARED_GLOBAL_EXTERNS_ON_WINDOW).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_DeclaredGlobalExternsOnWindow(to_AbstractCompiler(p0))
+	this.declaredGlobalExternsOnWindow = PassFactory_builder().setName(PassNames_DECLARED_GLOBAL_EXTERNS_ON_WINDOW).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_DeclaredGlobalExternsOnWindow(p0)
 	}}).build()
-	this.checkTypeImportCodeReferences = PassFactory_builder().setName("checkTypeImportCodeReferences").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_CheckTypeImportCodeReferences(to_AbstractCompiler(p0))
+	this.checkTypeImportCodeReferences = PassFactory_builder().setName("checkTypeImportCodeReferences").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_CheckTypeImportCodeReferences(p0)
 	}}).build()
-	this.closureCheckModule = PassFactory_builder().setName("closureCheckModule").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.closureCheckModule = PassFactory_builder().setName("closureCheckModule").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_ClosureCheckModule(compiler, compiler.getModuleMetadataMap())
 	}}).build()
-	this.closureRewriteModule = PassFactory_builder().setName("closureRewriteModule").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.closureRewriteModule = PassFactory_builder().setName("closureRewriteModule").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		this.preprocessorSymbolTableFactory.maybeInitialize(compiler)
 		return new_ClosureRewriteModule(compiler, this.preprocessorSymbolTableFactory.getInstanceOrNull(), compiler.getTopScope())
 	}}).build()
-	this.checkClosureImports = PassFactory_builder().setName("checkGoogRequires").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.checkClosureImports = PassFactory_builder().setName("checkGoogRequires").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_CheckClosureImports(compiler, compiler.getModuleMetadataMap())
 	}}).build()
-	this.rewriteGoogJsImports = PassFactory_builder().setName("rewriteGoogJsImports").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.rewriteGoogJsImports = PassFactory_builder().setName("rewriteGoogJsImports").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_RewriteGoogJsImports(compiler, RewriteGoogJsImports_Mode_LINT_AND_REWRITE, compiler.getModuleMap())
 	}}).build()
-	this.closureReplaceGetCssName = PassFactory_builder().setName("closureReplaceGetCssName").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.closureReplaceGetCssName = PassFactory_builder().setName("closureReplaceGetCssName").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_DefaultPassConfig_3(this, compiler)
 	}}).build()
-	this.createSyntheticBlocks = PassFactory_builder().setName("createSyntheticBlocks").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.createSyntheticBlocks = PassFactory_builder().setName("createSyntheticBlocks").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_CreateSyntheticBlocks(compiler, this.options_.getSyntheticBlockStartMarker().orElse(nullstr_), this.options_.getSyntheticBlockEndMarker().orElse(nullstr_))
 	}}).build()
-	this.earlyPeepholeOptimizations = PassFactory_builder().setName("earlyPeepholeOptimizations").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.earlyPeepholeOptimizations = PassFactory_builder().setName("earlyPeepholeOptimizations").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var useTypesForOptimization bool = compiler.getOptions().shouldUseTypesForLocalOptimization()
 		var peepholeOptimizations *[]*AbstractPeepholeOptimization = &[]*AbstractPeepholeOptimization{}
 		*peepholeOptimizations = append(*peepholeOptimizations, new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization())
@@ -313,9 +271,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		}
 		return new_PeepholeOptimizationsPass(compiler, "earlyPeepholeOptimizations", slicePtrView_(tc_p_AbstractPeepholeOptimization, peepholeOptimizations))
 	}}).build()
-	this.earlyInlineVariables = PassFactory_builder().setName("earlyInlineVariables").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.earlyInlineVariables = PassFactory_builder().setName("earlyInlineVariables").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var mode InlineVariables_Mode
 		if this.options_.shouldInlineVariables() {
 			mode = InlineVariables_Mode_ALL
@@ -326,58 +282,42 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		}
 		return new_InlineVariables(compiler, mode)
 	}}).build()
-	this.peepholeOptimizations = PassFactory_builder().setName(PassNames_PEEPHOLE_OPTIMIZATIONS).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.peepholeOptimizations = PassFactory_builder().setName(PassNames_PEEPHOLE_OPTIMIZATIONS).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return DefaultPassConfig_createPeepholeOptimizationsPass(compiler, PassNames_PEEPHOLE_OPTIMIZATIONS, true)
 	}}).build()
-	this.peepholeOptimizationsOnceNormalized = PassFactory_builder().setName(PassNames_PEEPHOLE_OPTIMIZATIONS).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.peepholeOptimizationsOnceNormalized = PassFactory_builder().setName(PassNames_PEEPHOLE_OPTIMIZATIONS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return DefaultPassConfig_createPeepholeOptimizationsPass(compiler, PassNames_PEEPHOLE_OPTIMIZATIONS, true)
 	}}).build()
-	this.peepholeOptimizationsOnceNonNormalized = PassFactory_builder().setName(PassNames_PEEPHOLE_OPTIMIZATIONS).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.peepholeOptimizationsOnceNonNormalized = PassFactory_builder().setName(PassNames_PEEPHOLE_OPTIMIZATIONS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return DefaultPassConfig_createPeepholeOptimizationsPass(compiler, PassNames_PEEPHOLE_OPTIMIZATIONS, false)
 	}}).build()
-	this.latePeepholeOptimizations = PassFactory_builder().setName("latePeepholeOptimizations").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.latePeepholeOptimizations = PassFactory_builder().setName("latePeepholeOptimizations").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var late bool = true
 		var useTypesForOptimization bool = this.options_.shouldUseTypesForLocalOptimization()
 		return PeepholeOptimizationsPass_createFromOptimizations(compiler, "latePeepholeOptimizations", []*AbstractPeepholeOptimization{new_StatementFusion().up_AbstractPeepholeOptimization(), new_PeepholeRemoveDeadCode().up_AbstractPeepholeOptimization(), new_PeepholeMinimizeConditions(late).up_AbstractPeepholeOptimization(), new_PeepholeSubstituteAlternateSyntax(late).up_AbstractPeepholeOptimization(), new_PeepholeReplaceKnownMethods(late, useTypesForOptimization).up_AbstractPeepholeOptimization(), new_PeepholeFoldConstants(late, useTypesForOptimization).up_AbstractPeepholeOptimization()})
 	}}).build()
-	this.checkVars_ = PassFactory_builder().setName(PassNames_CHECK_VARS).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_VarCheck_AbstractCompiler(to_AbstractCompiler(p0))
+	this.checkVars_ = PassFactory_builder().setName(PassNames_CHECK_VARS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_VarCheck_AbstractCompiler(p0)
 	}}).build()
-	this.inferConsts = PassFactory_builder().setName(PassNames_INFER_CONSTS).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return new_InferConsts(to_AbstractCompiler(p0)) }}).build()
-	this.checkRegExp = PassFactory_builder().setName(PassNames_CHECK_REG_EXP).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.inferConsts = PassFactory_builder().setName(PassNames_INFER_CONSTS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass { return new_InferConsts(p0) }}).build()
+	this.checkRegExp = PassFactory_builder().setName(PassNames_CHECK_REG_EXP).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var pass *CheckRegExp = new_CheckRegExp(compiler, this.options_.getAssumePropertiesAreStaticallyAnalyzable(), true)
 		return new_DefaultPassConfig_4(this, pass, compiler)
 	}}).build()
-	this.checkRegExpForOptimizations = PassFactory_builder().setName("checkRegExpForOptimizations").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.checkRegExpForOptimizations = PassFactory_builder().setName("checkRegExpForOptimizations").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var regExpCheck *CheckRegExp = new_CheckRegExp(compiler, this.options_.getAssumePropertiesAreStaticallyAnalyzable(), false)
 		return new_DefaultPassConfig_5(this, regExpCheck, compiler)
 	}}).build()
-	this.checkVariableReferences = PassFactory_builder().setName(PassNames_CHECK_VARIABLE_REFERENCES).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_VariableReferenceCheck(to_AbstractCompiler(p0))
+	this.checkVariableReferences = PassFactory_builder().setName(PassNames_CHECK_VARIABLE_REFERENCES).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_VariableReferenceCheck(p0)
 	}}).build()
-	this.checkSuper = PassFactory_builder().setName("checkSuper").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return new_CheckSuper(to_AbstractCompiler(p0)) }}).build()
-	this.clearTypedScopeCreatorPass = PassFactory_builder().setName("clearTypedScopeCreatorPass").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.checkSuper = PassFactory_builder().setName("checkSuper").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass { return new_CheckSuper(p0) }}).build()
+	this.clearTypedScopeCreatorPass = PassFactory_builder().setName("clearTypedScopeCreatorPass").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return &CompilerPass_fn{func(externs Node, root Node) {
 			compiler.clearTypedScopeCreator()
 		}}
 	}}).build()
-	this.clearTopTypedScopePass = PassFactory_builder().setName("clearTopTypedScopePass").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.clearTopTypedScopePass = PassFactory_builder().setName("clearTopTypedScopePass").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return &CompilerPass_fn{func(externs Node, root Node) {
 			compiler.setTopScope(nil)
 			for compilerInput := range elemsAs_[*CompilerInput](compiler.getInputsInOrder()) {
@@ -385,9 +325,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			}
 		}}
 	}}).build()
-	this.inferTypes = PassFactory_builder().setName(PassNames_INFER_TYPES).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.inferTypes = PassFactory_builder().setName(PassNames_INFER_TYPES).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return &CompilerPass_fn{func(unused Node, srcRoot Node) {
 			var globalRoot Node = srcRoot.getParent()
 			var inferencePass *TypeInferencePass = new_TypeInferencePass(compiler, compiler.getReverseAbstractInterpreter(), cast_[*TypedScopeCreator](compiler.getTypedScopeCreator()))
@@ -395,21 +333,17 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 			compiler.setTopScope(inferencePass.inferAllScopes(globalRoot))
 		}}
 	}}).build()
-	this.inferJsDocInfo = PassFactory_builder().setName("inferJsDocInfo").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_InferJSDocInfo(to_AbstractCompiler(p0))
+	this.inferJsDocInfo = PassFactory_builder().setName("inferJsDocInfo").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_InferJSDocInfo(p0)
 	}}).build()
-	this.checkTypes = PassFactory_builder().setName(PassNames_CHECK_TYPES).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.checkTypes = PassFactory_builder().setName(PassNames_CHECK_TYPES).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return &CompilerPass_fn{func(externs Node, root Node) {
 			var check *TypeCheck = new_TypeCheck_AbstractCompiler_ReverseAbstractInterpreter_JSTypeRegistry_TypedScope_TypedScopeCreator(compiler, compiler.getReverseAbstractInterpreter(), compiler.getTypeRegistry(), compiler.getTopScope(), cast_[*TypedScopeCreator](compiler.getTypedScopeCreator())).reportUnknownTypes(this.options_.enables(DiagnosticGroup_forType(TypeCheck_UNKNOWN_EXPR_TYPE))).reportMissingProperties(!this.options_.disables(DiagnosticGroup_forType(TypeCheck_INEXISTENT_PROPERTY)))
 			check.process_2(externs, root)
 			compiler.getErrorManager().setTypedPercent(check.getTypedPercent())
 		}}
 	}}).build()
-	this.checkControlFlow = PassFactory_builder().setName("checkControlFlow").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.checkControlFlow = PassFactory_builder().setName("checkControlFlow").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var callbacks []NodeTraversal_Callback = []NodeTraversal_Callback{}
 		if !this.options_.disables(DiagnosticGroups_CHECK_USELESS_CODE) {
 			callbacks = append(callbacks, new_CheckUnreachableCode(compiler))
@@ -419,29 +353,21 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		}
 		return DefaultPassConfig_combineChecks(compiler, callbacks)
 	}}).build()
-	this.checkAccessControls = PassFactory_builder().setName("checkAccessControls").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_CheckAccessControls(to_AbstractCompiler(p0))
+	this.checkAccessControls = PassFactory_builder().setName("checkAccessControls").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_CheckAccessControls(p0)
 	}}).build()
-	this.lintChecks = PassFactory_builder().setName(PassNames_LINT_CHECKS).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.lintChecks = PassFactory_builder().setName(PassNames_LINT_CHECKS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var callbacks ImmutableList_BuilderOf[NodeTraversal_Callback] = ImmutableList_builder().add(obj_(new_CheckConstPrivateProperties(compiler))).add(obj_(new_CheckConstantCaseNames(compiler))).add(obj_(new_CheckEmptyStatements(compiler))).add(obj_(new_CheckEnums(compiler))).add(obj_(new_CheckEs6ModuleFileStructure(compiler))).add(obj_(new_CheckEs6Modules(compiler))).add(obj_(new_CheckNoMutatedEs6Exports(compiler))).add(obj_(new_CheckGoogModuleTypeScriptName(compiler))).add(obj_(new_CheckInterfaces(compiler))).add(obj_(new_CheckJSDocStyle(compiler))).add(obj_(new_CheckMissingSemicolon(compiler))).add(obj_(new_CheckNullabilityModifiers(compiler))).add(obj_(new_CheckPrimitiveAsObject(compiler))).add(obj_(new_CheckPrototypeProperties(compiler))).add(obj_(new_CheckUnusedPrivateProperties(compiler))).add(obj_(new_CheckUnusedLabels(compiler))).add(obj_(new_CheckUselessBlocks(compiler))).add(obj_(new_CheckVar(compiler)))
 		return DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, callbacks.build()))
 	}}).build()
-	this.analyzerChecks = PassFactory_builder().setName(PassNames_ANALYZER_CHECKS).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.analyzerChecks = PassFactory_builder().setName(PassNames_ANALYZER_CHECKS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var callbacks *ImmutableList[NodeTraversal_Callback] = immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, new_CheckArrayWithGoogObject(compiler), new_ImplicitNullabilityCheck(compiler), new_CheckNestedNames(compiler))
 		return DefaultPassConfig_combineChecks(compiler, sliceImm_(tc_NodeTraversal_Callback, callbacks.asImm()))
 	}}).build()
-	this.checkRequiresAndProvidesSorted = PassFactory_builder().setName("checkRequiresAndProvidesSorted").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.checkRequiresAndProvidesSorted = PassFactory_builder().setName("checkRequiresAndProvidesSorted").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return DefaultPassConfig_combineChecks(compiler, immutableListOf_[NodeTraversal_Callback](tc_NodeTraversal_Callback, new_CheckProvidesSorted(CheckProvidesSorted_Mode_COLLECT_AND_REPORT), new_CheckRequiresSorted(CheckRequiresSorted_Mode_COLLECT_AND_REPORT)).items)
 	}}).build()
-	this.checkStrictMode = PassFactory_builder().setName("checkStrictMode").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.checkStrictMode = PassFactory_builder().setName("checkStrictMode").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var defaultLevel CheckLevel = func() CheckLevel {
 			if this.options_.expectStrictModeInput() {
 				return CheckLevel_ERROR
@@ -450,99 +376,71 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		}()
 		return new_StrictModeCheck(compiler, defaultLevel)
 	}}).build()
-	this.processTweaks = PassFactory_builder().setName("processTweaks").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.processTweaks = PassFactory_builder().setName("processTweaks").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_DefaultPassConfig_6(this, compiler)
 	}}).build()
 	this.processDefinesCheck = this.createProcessDefines(ProcessDefines_Mode_CHECK)
 	this.processDefinesOptimize = this.createProcessDefines(ProcessDefines_Mode_OPTIMIZE)
-	this.stripCode = PassFactory_builder().setName("stripCode").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.stripCode = PassFactory_builder().setName("stripCode").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_DefaultPassConfig_7(this, compiler)
 	}}).build()
-	this.checkConsts = PassFactory_builder().setName("checkConsts").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return new_ConstCheck(to_AbstractCompiler(p0)) }}).build()
-	this.rewriteCallerCodeLocation = PassFactory_builder().setName("rewriteCallerCodeLocation").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_RewriteCallerCodeLocation(to_AbstractCompiler(p0))
+	this.checkConsts = PassFactory_builder().setName("checkConsts").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass { return new_ConstCheck(p0) }}).build()
+	this.rewriteCallerCodeLocation = PassFactory_builder().setName("rewriteCallerCodeLocation").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_RewriteCallerCodeLocation(p0)
 	}}).build()
-	this.replaceToggles = PassFactory_builder().setName("replaceToggles").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_ReplaceToggles(to_AbstractCompiler(p0))
+	this.replaceToggles = PassFactory_builder().setName("replaceToggles").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_ReplaceToggles(p0)
 	}}).build()
-	this.replaceIdGenerators = PassFactory_builder().setName(PassNames_REPLACE_ID_GENERATORS).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.replaceIdGenerators = PassFactory_builder().setName(PassNames_REPLACE_ID_GENERATORS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_DefaultPassConfig_8(this, compiler)
 	}}).build()
-	this.replaceStrings = PassFactory_builder().setName("replaceStrings").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.replaceStrings = PassFactory_builder().setName("replaceStrings").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_DefaultPassConfig_9(this, compiler)
 	}}).build()
-	this.closureCodeRemoval = PassFactory_builder().setName("closureCodeRemoval").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.closureCodeRemoval = PassFactory_builder().setName("closureCodeRemoval").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_ClosureCodeRemoval(compiler, this.options_.shouldRemoveAbstractMethods(), this.options_.shouldRemoveClosureAsserts())
 	}}).build()
-	this.closureOptimizePrimitives = PassFactory_builder().setName("closureOptimizePrimitives").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.closureOptimizePrimitives = PassFactory_builder().setName("closureOptimizePrimitives").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_ClosureOptimizePrimitives(compiler, compiler.getOptions().getOutputFeatureSet().containsFeatureSet(FeatureSet_ES2015))
 	}}).build()
-	this.rescopeGlobalSymbols = PassFactory_builder().setName("rescopeGlobalSymbols").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.rescopeGlobalSymbols = PassFactory_builder().setName("rescopeGlobalSymbols").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_RescopeGlobalSymbols_AbstractCompiler_String_boolean_OptimizeLocalAccess(compiler, this.options_.getRenamePrefixNamespace().orElse(nullstr_), this.options_.assumeCrossChunkNamesForRenamePrefixNamespace(), this.options_.getOptimizeLocalAccessForGlobalSymbolNamespace())
 	}}).build()
-	this.convertChunksToESModules = PassFactory_builder().setName("convertChunksToESModules").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_ConvertChunksToESModules(to_AbstractCompiler(p0))
+	this.convertChunksToESModules = PassFactory_builder().setName("convertChunksToESModules").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_ConvertChunksToESModules(p0)
 	}}).build()
-	this.inlineAndCollapseProperties = PassFactory_builder().setName("inlineAndCollapseProperties").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.inlineAndCollapseProperties = PassFactory_builder().setName("inlineAndCollapseProperties").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return iup_CompilerPass(InlineAndCollapseProperties_builder(compiler).setPropertyCollapseLevel(this.options_.getPropertyCollapseLevel()).setChunkOutputType(this.options_.getChunkOutputType()).setHaveModulesBeenRewritten(this.options_.getProcessCommonJSModules()).setModuleResolutionMode(this.options_.getModuleResolutionMode()).build())
 	}}).setPreconditionCheck(&Function_tfn_CompilerOptions_PassFactory_PreconditionResult{func(options *CompilerOptions) *PassFactory_PreconditionResult {
 		return new_PassFactory_PreconditionResult(((options.getPropertyCollapseLevel() == CompilerOptions_PropertyCollapseLevel_NONE) || options.getAssumePropertiesAreStaticallyAnalyzable()), Optional_of[string]("requires assumePropertiesAreStaticallyAnalyzable to be enabled"))
 	}}).build()
-	this.collapseObjectLiterals = PassFactory_builder().setName(PassNames_COLLAPSE_OBJECT_LITERALS).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.collapseObjectLiterals = PassFactory_builder().setName(PassNames_COLLAPSE_OBJECT_LITERALS).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_InlineObjectLiterals(compiler, compiler.getUniqueNameIdSupplier())
 	}}).build()
-	this.disambiguateProperties_ = PassFactory_builder().setName(PassNames_DISAMBIGUATE_PROPERTIES).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.disambiguateProperties_ = PassFactory_builder().setName(PassNames_DISAMBIGUATE_PROPERTIES).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_DisambiguateProperties(compiler, this.options_.getPropertiesThatMustDisambiguate())
 	}}).setPreconditionCheck(&Function_tfn_CompilerOptions_PassFactory_PreconditionResult{func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
 		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
 	}}).build()
-	this.devirtualizeMethods = PassFactory_builder().setName(PassNames_DEVIRTUALIZE_METHODS).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.devirtualizeMethods = PassFactory_builder().setName(PassNames_DEVIRTUALIZE_METHODS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return iup_CompilerPass(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(new_DevirtualizeMethods(compiler)).build())
 	}}).setPreconditionCheck(&Function_tfn_CompilerOptions_PassFactory_PreconditionResult{func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
 		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
 	}}).build()
-	this.optimizeCalls = PassFactory_builder().setName(PassNames_OPTIMIZE_CALLS).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.optimizeCalls = PassFactory_builder().setName(PassNames_OPTIMIZE_CALLS).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return iup_CompilerPass(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(new_OptimizeReturns(compiler)).addPass(new_OptimizeParameters(compiler)).build())
 	}}).setPreconditionCheck(&Function_tfn_CompilerOptions_PassFactory_PreconditionResult{func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
 		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
 	}}).build()
-	this.optimizeConstructors = PassFactory_builder().setName("optimizeConstructors").setRunInFixedPointLoop(false).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.optimizeConstructors = PassFactory_builder().setName("optimizeConstructors").setRunInFixedPointLoop(false).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return iup_CompilerPass(OptimizeCalls_builder().setCompiler(compiler).setConsiderExterns(false).addPass(new_OptimizeConstructors(compiler)).build())
 	}}).build()
-	this.markPureFunctions = PassFactory_builder().setName("markPureFunctions").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_PureFunctionIdentifier_Driver(to_AbstractCompiler(p0))
+	this.markPureFunctions = PassFactory_builder().setName("markPureFunctions").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_PureFunctionIdentifier_Driver(p0)
 	}}).setPreconditionCheck(&Function_tfn_CompilerOptions_PassFactory_PreconditionResult{func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
 		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
 	}}).build()
-	this.inlineVariables = PassFactory_builder().setName(PassNames_INLINE_VARIABLES).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.inlineVariables = PassFactory_builder().setName(PassNames_INLINE_VARIABLES).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var mode InlineVariables_Mode
 		if this.options_.shouldInlineVariables() {
 			mode = InlineVariables_Mode_ALL
@@ -553,62 +451,48 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		}
 		return new_InlineVariables(compiler, mode)
 	}}).build()
-	this.inlineConstants = PassFactory_builder().setName("inlineConstants").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.inlineConstants = PassFactory_builder().setName("inlineConstants").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_InlineVariables(compiler, InlineVariables_Mode_CONSTANTS_ONLY)
 	}}).build()
-	this.inlineSimpleMethods = PassFactory_builder().setName("inlineSimpleMethods").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_InlineSimpleMethods(to_AbstractCompiler(p0))
+	this.inlineSimpleMethods = PassFactory_builder().setName("inlineSimpleMethods").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_InlineSimpleMethods(p0)
 	}}).setPreconditionCheck(&Function_tfn_CompilerOptions_PassFactory_PreconditionResult{func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
 		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
 	}}).build()
-	this.deadAssignmentsElimination = PassFactory_builder().setName(PassNames_DEAD_ASSIGNMENT_ELIMINATION).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_DeadAssignmentsElimination(to_AbstractCompiler(p0))
+	this.deadAssignmentsElimination = PassFactory_builder().setName(PassNames_DEAD_ASSIGNMENT_ELIMINATION).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_DeadAssignmentsElimination(p0)
 	}}).build()
-	this.deadPropertyAssignmentElimination = PassFactory_builder().setName("deadPropertyAssignmentElimination").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_DeadPropertyAssignmentElimination(to_AbstractCompiler(p0))
+	this.deadPropertyAssignmentElimination = PassFactory_builder().setName("deadPropertyAssignmentElimination").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_DeadPropertyAssignmentElimination(p0)
 	}}).setPreconditionCheck(&Function_tfn_CompilerOptions_PassFactory_PreconditionResult{func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
 		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
 	}}).build()
-	this.inlineFunctions = PassFactory_builder().setName(PassNames_INLINE_FUNCTIONS).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.inlineFunctions = PassFactory_builder().setName(PassNames_INLINE_FUNCTIONS).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_InlineFunctions(compiler, compiler.getUniqueNameIdSupplier(), this.options_.getInlineFunctionsLevel(), (this.options_.assumeStrictThis() || this.options_.expectStrictModeInput()), this.options_.getMaxFunctionSizeAfterInlining())
 	}}).build()
-	this.inlineProperties = PassFactory_builder().setName(PassNames_INLINE_PROPERTIES).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_InlineProperties(to_AbstractCompiler(p0))
+	this.inlineProperties = PassFactory_builder().setName(PassNames_INLINE_PROPERTIES).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_InlineProperties(p0)
 	}}).build()
-	this.isolatePolyfills = PassFactory_builder().setName("IsolatePolyfills").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_IsolatePolyfills_AbstractCompiler(to_AbstractCompiler(p0))
+	this.isolatePolyfills = PassFactory_builder().setName("IsolatePolyfills").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_IsolatePolyfills_AbstractCompiler(p0)
 	}}).build()
-	this.removeUnusedCode = PassFactory_builder().setName(PassNames_REMOVE_UNUSED_CODE).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.removeUnusedCode = PassFactory_builder().setName(PassNames_REMOVE_UNUSED_CODE).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return iup_CompilerPass(new_RemoveUnusedCode_Builder(compiler).removeLocalVars(this.options_.shouldRemoveUnusedLocalVariables()).removeGlobals(this.options_.shouldRemoveUnusedVariables()).preserveFunctionExpressionNames(false).removeUnusedPrototypeProperties(this.options_.shouldRemoveUnusedPrototypeProperties()).removeUnusedThisProperties(this.options_.isRemoveUnusedClassProperties()).removeUnusedObjectDefinePropertiesDefinitions(this.options_.isRemoveUnusedClassProperties()).removeUnusedPolyfills((this.options_.getForceLibraryInjectionList().isEmpty() && (this.options_.getInjectPolyfillsNewerThan() == 0))).assumeGettersArePure(this.options_.getAssumeGettersArePure()).disambiguateProperties(this.options_.shouldDisambiguateProperties()).build())
 	}}).build()
 	this.removeUnusedCodeOnce = this.removeUnusedCode.toBuilder().setRunInFixedPointLoop(false).build()
-	this.crossChunkCodeMotion = PassFactory_builder().setName(PassNames_CROSS_CHUNK_CODE_MOTION).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.crossChunkCodeMotion = PassFactory_builder().setName(PassNames_CROSS_CHUNK_CODE_MOTION).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_CrossChunkCodeMotion(compiler, compiler.getChunkGraph(), this.options_.getParentChunkCanSeeSymbolsDeclaredInChildren())
 	}}).build()
-	this.crossChunkMethodMotion = PassFactory_builder().setName(PassNames_CROSS_CHUNK_METHOD_MOTION).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.crossChunkMethodMotion = PassFactory_builder().setName(PassNames_CROSS_CHUNK_METHOD_MOTION).setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_CrossChunkMethodMotion(compiler, compiler.getCrossChunkIdGenerator(), false, this.options_.getCrossChunkCodeMotionNoStubMethods())
 	}}).build()
-	this.flowSensitiveInlineVariables = PassFactory_builder().setName(PassNames_FLOW_SENSITIVE_INLINE_VARIABLES).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_FlowSensitiveInlineVariables(to_AbstractCompiler(p0))
+	this.flowSensitiveInlineVariables = PassFactory_builder().setName(PassNames_FLOW_SENSITIVE_INLINE_VARIABLES).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_FlowSensitiveInlineVariables(p0)
 	}}).build()
-	this.coalesceVariableNames = PassFactory_builder().setName(PassNames_COALESCE_VARIABLE_NAMES).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.coalesceVariableNames = PassFactory_builder().setName(PassNames_COALESCE_VARIABLE_NAMES).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_CoalesceVariableNames(compiler, this.options_.shouldGeneratePseudoNames())
 	}}).build()
-	this.postNormalizePeephole = PassFactory_builder().setName(PassNames_POST_NORMALIZE_PEEPHOLE).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.postNormalizePeephole = PassFactory_builder().setName(PassNames_POST_NORMALIZE_PEEPHOLE).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var optimizations *ImmutableList_Builder[*AbstractPeepholeOptimization] = immutableListBuilder_(tc_p_AbstractPeepholeOptimization)
 		if this.options_.shouldCollapseVariableDeclarations() {
 			optimizations.add(new_ExploitAssigns().as_AbstractPeepholeOptimization())
@@ -618,12 +502,10 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		}
 		return new_PeepholeOptimizationsPass(compiler, PassNames_POST_NORMALIZE_PEEPHOLE, iup_List(optimizations.buildErased()))
 	}}).build()
-	this.collapseVariableDeclarations = PassFactory_builder().setName(PassNames_COLLAPSE_VARIABLE_DECLARATIONS).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_CollapseVariableDeclarations(to_AbstractCompiler(p0))
+	this.collapseVariableDeclarations = PassFactory_builder().setName(PassNames_COLLAPSE_VARIABLE_DECLARATIONS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_CollapseVariableDeclarations(p0)
 	}}).build()
-	this.extractPrototypeMemberDeclarations = PassFactory_builder().setName(PassNames_EXTRACT_PROTOTYPE_MEMBER_DECLARATIONS).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.extractPrototypeMemberDeclarations = PassFactory_builder().setName(PassNames_EXTRACT_PROTOTYPE_MEMBER_DECLARATIONS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var pattern ExtractPrototypeMemberDeclarations_Pattern = func() ExtractPrototypeMemberDeclarations_Pattern {
 			switch this.options_.getExtractPrototypeMemberDeclarationsMode() {
 			case CompilerOptions_ExtractPrototypeMemberDeclarationsMode_USE_GLOBAL_TEMP:
@@ -640,49 +522,39 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	}}).setPreconditionCheck(&Function_tfn_CompilerOptions_PassFactory_PreconditionResult{func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
 		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
 	}}).build()
-	this.rewriteFunctionExpressions = PassFactory_builder().setName(PassNames_REWRITE_FUNCTION_EXPRESSIONS).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_FunctionRewriter(to_AbstractCompiler(p0))
+	this.rewriteFunctionExpressions = PassFactory_builder().setName(PassNames_REWRITE_FUNCTION_EXPRESSIONS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_FunctionRewriter(p0)
 	}}).build()
-	this.collapseAnonymousFunctions = PassFactory_builder().setName(PassNames_COLLAPSE_ANONYMOUS_FUNCTIONS).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_CollapseAnonymousFunctions(to_AbstractCompiler(p0))
+	this.collapseAnonymousFunctions = PassFactory_builder().setName(PassNames_COLLAPSE_ANONYMOUS_FUNCTIONS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_CollapseAnonymousFunctions(p0)
 	}}).build()
-	this.rewriteGlobalDeclarationsForTryCatchWrapping = PassFactory_builder().setName("rewriteGlobalDeclarationsForTryCatchWrapping").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_RewriteGlobalDeclarationsForTryCatchWrapping(to_AbstractCompiler(p0))
+	this.rewriteGlobalDeclarationsForTryCatchWrapping = PassFactory_builder().setName("rewriteGlobalDeclarationsForTryCatchWrapping").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_RewriteGlobalDeclarationsForTryCatchWrapping(p0)
 	}}).build()
-	this.aliasStrings = PassFactory_builder().setName("aliasStrings").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.aliasStrings = PassFactory_builder().setName("aliasStrings").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_AliasStrings(compiler, compiler.getChunkGraph(), this.options_.shouldOutputJsStringUsage(), this.options_.getAliasStringsMode())
 	}}).build()
-	this.ambiguateProperties = PassFactory_builder().setName(PassNames_AMBIGUATE_PROPERTIES).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.ambiguateProperties = PassFactory_builder().setName(PassNames_AMBIGUATE_PROPERTIES).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_AmbiguateProperties(compiler, iup_Set(this.options_.getPropertyReservedNamingFirstChars()), iup_Set(this.options_.getPropertyReservedNamingNonFirstChars().asImm()), compiler.getExternProperties())
 	}}).setPreconditionCheck(&Function_tfn_CompilerOptions_PassFactory_PreconditionResult{func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
 		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
 	}}).build()
-	this.markUnnormalized = PassFactory_builder().setName("markUnnormalized").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.markUnnormalized = PassFactory_builder().setName("markUnnormalized").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_DefaultPassConfig_10(this, compiler)
 	}}).build()
-	this.normalize = PassFactory_builder().setName(PassNames_NORMALIZE).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return iup_CompilerPass(Normalize_createNormalizeForOptimizations(to_AbstractCompiler(p0)))
+	this.normalize = PassFactory_builder().setName(PassNames_NORMALIZE).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return iup_CompilerPass(Normalize_createNormalizeForOptimizations(p0))
 	}}).build()
-	this.externExports = PassFactory_builder().setName(PassNames_EXTERN_EXPORTS).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_ExternExportsPass(to_AbstractCompiler(p0))
+	this.externExports = PassFactory_builder().setName(PassNames_EXTERN_EXPORTS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_ExternExportsPass(p0)
 	}}).build()
-	this.denormalize = PassFactory_builder().setName("denormalize").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.denormalize = PassFactory_builder().setName("denormalize").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_Denormalize(compiler, this.options_.getOutputFeatureSet())
 	}}).build()
-	this.invertContextualRenaming = PassFactory_builder().setName("invertContextualRenaming").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return MakeDeclaredNamesUnique_getContextualRenameInverter(to_AbstractCompiler(p0))
+	this.invertContextualRenaming = PassFactory_builder().setName("invertContextualRenaming").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return MakeDeclaredNamesUnique_getContextualRenameInverter(p0)
 	}}).build()
-	this.renameProperties = PassFactory_builder().setName("renameProperties").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.renameProperties = PassFactory_builder().setName("renameProperties").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		if this.options_.getPropertyRenaming() != PropertyRenamingPolicy_ALL_UNQUOTED {
 			panic(new_IllegalStateException_0())
 		}
@@ -691,154 +563,122 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	}}).setPreconditionCheck(&Function_tfn_CompilerOptions_PassFactory_PreconditionResult{func(p0 *CompilerOptions) *PassFactory_PreconditionResult {
 		return DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(p0)
 	}}).build()
-	this.removePropertyRenamingCalls = PassFactory_builder().setName("removePropertyRenamingCalls").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_RemovePropertyRenamingCalls(to_AbstractCompiler(p0))
+	this.removePropertyRenamingCalls = PassFactory_builder().setName("removePropertyRenamingCalls").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_RemovePropertyRenamingCalls(p0)
 	}}).build()
-	this.renameVars = PassFactory_builder().setName("renameVars").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.renameVars = PassFactory_builder().setName("renameVars").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var prevVariableMap *VariableMap = this.options_.getInputVariableMap()
 		return new_DefaultPassConfig_12(this, compiler, prevVariableMap)
 	}}).build()
-	this.renameLabels = PassFactory_builder().setName("renameLabels").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_RenameLabels_AbstractCompiler(to_AbstractCompiler(p0))
+	this.renameLabels = PassFactory_builder().setName("renameLabels").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_RenameLabels_AbstractCompiler(p0)
 	}}).build()
-	this.convertToDottedProperties = PassFactory_builder().setName(PassNames_CONVERT_TO_DOTTED_PROPERTIES).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_ConvertToDottedProperties(to_AbstractCompiler(p0))
+	this.convertToDottedProperties = PassFactory_builder().setName(PassNames_CONVERT_TO_DOTTED_PROPERTIES).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_ConvertToDottedProperties(p0)
 	}}).build()
-	this.checkAstValidity = PassFactory_builder().setName("checkAstValidity").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_AstValidator_AbstractCompiler(to_AbstractCompiler(p0))
+	this.checkAstValidity = PassFactory_builder().setName("checkAstValidity").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_AstValidator_AbstractCompiler(p0)
 	}}).build()
-	this.varCheckValidity = PassFactory_builder().setName("varCheckValidity").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.varCheckValidity = PassFactory_builder().setName("varCheckValidity").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_VarCheck_AbstractCompiler_boolean(compiler, true)
 	}}).build()
-	this.instrumentForCodeCoverage = PassFactory_builder().setName("instrumentForCodeCoverage").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.instrumentForCodeCoverage = PassFactory_builder().setName("instrumentForCodeCoverage").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_CoverageInstrumentationPass_AbstractCompiler_CoverageReach_InstrumentOption_String(compiler, CoverageInstrumentationPass_CoverageReach_CONDITIONAL, this.options_.getInstrumentForCoverageOption(), this.options_.getProductionInstrumentationArrayName())
 	}}).build()
 	this.gatherExternPropertiesCheck = this.createGatherExternProperties(GatherExternProperties_Mode_CHECK)
 	this.gatherExternPropertiesOptimize = this.createGatherExternProperties(GatherExternProperties_Mode_OPTIMIZE)
-	this.polymerPass = PassFactory_builder().setName("polymerPass").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return new_PolymerPass(to_AbstractCompiler(p0)) }}).build()
-	this.chromePass = PassFactory_builder().setName("chromePass").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return new_ChromePass(to_AbstractCompiler(p0)) }}).build()
-	this.j2clConstantHoisterPass = PassFactory_builder().setName("j2clConstantHoisterPass").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_J2clConstantHoisterPass(to_AbstractCompiler(p0))
+	this.polymerPass = PassFactory_builder().setName("polymerPass").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass { return new_PolymerPass(p0) }}).build()
+	this.chromePass = PassFactory_builder().setName("chromePass").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass { return new_ChromePass(p0) }}).build()
+	this.j2clConstantHoisterPass = PassFactory_builder().setName("j2clConstantHoisterPass").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_J2clConstantHoisterPass(p0)
 	}}).build()
-	this.j2clClinitPass = PassFactory_builder().setName("j2clClinitPass").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.j2clClinitPass = PassFactory_builder().setName("j2clClinitPass").setRunInFixedPointLoop(true).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		var changedScopeNodes ListOf[Node] = compiler.getChangeTracker().getChangedScopeNodesForPass("j2clClinitPass")
 		return new_J2clClinitPrunerPass(compiler, changedScopeNodes)
 	}}).build()
-	this.j2clPropertyInlinerPass = PassFactory_builder().setName("j2clPropertyInlinerPass").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_J2clPropertyInlinerPass(to_AbstractCompiler(p0))
+	this.j2clPropertyInlinerPass = PassFactory_builder().setName("j2clPropertyInlinerPass").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_J2clPropertyInlinerPass(p0)
 	}}).build()
-	this.j2clPass = PassFactory_builder().setName("j2clPass").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass { return new_J2clPass(to_AbstractCompiler(p0)) }}).build()
-	this.j2clUtilGetDefineRewriterPass = PassFactory_builder().setName("j2clUtilGetDefineRewriterPass").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_J2clUtilGetDefineRewriterPass(to_AbstractCompiler(p0))
+	this.j2clPass = PassFactory_builder().setName("j2clPass").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass { return new_J2clPass(p0) }}).build()
+	this.j2clUtilGetDefineRewriterPass = PassFactory_builder().setName("j2clUtilGetDefineRewriterPass").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_J2clUtilGetDefineRewriterPass(p0)
 	}}).build()
-	this.j2clAssertRemovalPass = PassFactory_builder().setName("j2clAssertRemovalPass").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_J2clAssertRemovalPass(to_AbstractCompiler(p0))
+	this.j2clAssertRemovalPass = PassFactory_builder().setName("j2clAssertRemovalPass").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_J2clAssertRemovalPass(p0)
 	}}).build()
-	this.j2clSourceFileChecker = PassFactory_builder().setName("j2clSourceFileChecker").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_J2clSourceFileChecker(to_AbstractCompiler(p0))
+	this.j2clSourceFileChecker = PassFactory_builder().setName("j2clSourceFileChecker").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_J2clSourceFileChecker(p0)
 	}}).build()
-	this.j2clChecksPass = PassFactory_builder().setName("j2clChecksPass").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_J2clChecksPass(to_AbstractCompiler(p0))
+	this.j2clChecksPass = PassFactory_builder().setName("j2clChecksPass").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_J2clChecksPass(p0)
 	}}).build()
-	this.checkConformance_ = PassFactory_builder().setName(PassNames_CHECK_CONFORMANCE).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.checkConformance_ = PassFactory_builder().setName(PassNames_CHECK_CONFORMANCE).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_CheckConformance_AbstractCompiler_ImmutableList_ConformanceReportingMode(compiler, this.options_.getConformanceConfigs(), this.options_.getConformanceReportingMode())
 	}}).build()
-	this.removeCastNodes = PassFactory_builder().setName("removeCastNodes").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_RemoveCastNodes(to_AbstractCompiler(p0))
+	this.removeCastNodes = PassFactory_builder().setName("removeCastNodes").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_RemoveCastNodes(p0)
 	}}).build()
-	this.typesToColors = PassFactory_builder().setName("typesToColors").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.typesToColors = PassFactory_builder().setName("typesToColors").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return &CompilerPass_fn{func(externs Node, js Node) {
 			new_ConvertTypesToColors(compiler, SerializationOptions_builder().setIncludeDebugInfo(compiler.getOptions().shouldSerializeExtraDebugInfo()).build()).process_2(externs, js)
 			compiler.setLifeCycleStage(AbstractCompiler_LifeCycleStage_COLORS_AND_SIMPLIFIED_JSDOC)
 		}}
 	}}).build()
-	this.serializeTypedAst = PassFactory_builder().setName("serializeTypedAst").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.serializeTypedAst = PassFactory_builder().setName("serializeTypedAst").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return SerializeTypedAstPass_createFromPath(compiler, this.options_.getTypedAstOutputFile().orElse(nullstr_), SerializationOptions_builder().setIncludeDebugInfo(compiler.getOptions().shouldSerializeExtraDebugInfo()).setRuntimeLibraries(compiler.getRuntimeJsLibManager().getInjectedLibraries()).build())
 	}}).build()
-	this.removeUnnecessarySyntheticExterns = PassFactory_builder().setName("removeUnnecessarySyntheticExterns").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_RemoveUnnecessarySyntheticExterns(to_AbstractCompiler(p0))
+	this.removeUnnecessarySyntheticExterns = PassFactory_builder().setName("removeUnnecessarySyntheticExterns").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_RemoveUnnecessarySyntheticExterns(p0)
 	}}).build()
-	this.optimizeToEs6 = PassFactory_builder().setName("optimizeToEs6").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_SubstituteEs6Syntax(to_AbstractCompiler(p0))
+	this.optimizeToEs6 = PassFactory_builder().setName("optimizeToEs6").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_SubstituteEs6Syntax(p0)
 	}}).build()
-	this.whitespaceWrapGoogModules = PassFactory_builder().setName("whitespaceWrapGoogModules").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_WhitespaceWrapGoogModules(to_AbstractCompiler(p0))
+	this.whitespaceWrapGoogModules = PassFactory_builder().setName("whitespaceWrapGoogModules").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_WhitespaceWrapGoogModules(p0)
 	}}).build()
-	this.rewriteCommonJsModules = PassFactory_builder().setName(PassNames_REWRITE_COMMON_JS_MODULES).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_ProcessCommonJSModules(to_AbstractCompiler(p0))
+	this.rewriteCommonJsModules = PassFactory_builder().setName(PassNames_REWRITE_COMMON_JS_MODULES).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_ProcessCommonJSModules(p0)
 	}}).build()
-	this.rewriteScriptsToEs6Modules = PassFactory_builder().setName(PassNames_REWRITE_SCRIPTS_TO_ES6_MODULES).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_Es6RewriteScriptsToModules(to_AbstractCompiler(p0))
+	this.rewriteScriptsToEs6Modules = PassFactory_builder().setName(PassNames_REWRITE_SCRIPTS_TO_ES6_MODULES).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_Es6RewriteScriptsToModules(p0)
 	}}).build()
-	this.gatherModuleMetadataPass = PassFactory_builder().setName(PassNames_GATHER_MODULE_METADATA).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.gatherModuleMetadataPass = PassFactory_builder().setName(PassNames_GATHER_MODULE_METADATA).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		compiler.getSynthesizedExternsInput()
 		return new_GatherModuleMetadata(compiler, this.options_.getProcessCommonJSModules(), this.options_.getModuleResolutionMode())
 	}}).build()
-	this.createModuleMapPass = PassFactory_builder().setName(PassNames_CREATE_MODULE_MAP).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.createModuleMapPass = PassFactory_builder().setName(PassNames_CREATE_MODULE_MAP).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_ModuleMapCreator(compiler, compiler.getModuleMetadataMap())
 	}}).build()
-	this.gatherGettersAndSetters = PassFactory_builder().setName(PassNames_GATHER_GETTERS_AND_SETTERS).setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_GatherGetterAndSetterProperties(to_AbstractCompiler(p0))
+	this.gatherGettersAndSetters = PassFactory_builder().setName(PassNames_GATHER_GETTERS_AND_SETTERS).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_GatherGetterAndSetterProperties(p0)
 	}}).build()
-	this.addSyntheticScript = PassFactory_builder().setName("ADD_SYNTHETIC_SCRIPT").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.addSyntheticScript = PassFactory_builder().setName("ADD_SYNTHETIC_SCRIPT").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return &CompilerPass_fn{func(externs Node, js Node) {
 			compiler.initializeSyntheticCodeInput()
 		}}
 	}}).build()
-	this.removeSyntheticScript = PassFactory_builder().setName("REMOVE_SYNTHETIC_SCRIPT").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.removeSyntheticScript = PassFactory_builder().setName("REMOVE_SYNTHETIC_SCRIPT").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return &CompilerPass_fn{func(externs Node, js Node) {
 			compiler.removeSyntheticCodeInput()
 		}}
 	}}).build()
-	this.mergeSyntheticScript = PassFactory_builder().setName("MERGE_SYNTHETIC_SCRIPT").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.mergeSyntheticScript = PassFactory_builder().setName("MERGE_SYNTHETIC_SCRIPT").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return &CompilerPass_fn{func(externs Node, js Node) {
 			compiler.mergeSyntheticCodeInput()
 		}}
 	}}).build()
-	this.protectLocaleData = PassFactory_builder().setName("protectLocaleData").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.protectLocaleData = PassFactory_builder().setName("protectLocaleData").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return &CompilerPass_fn{func(externs Node, root Node) {
 			new_LocaleDataPasses_ProtectGoogLocale(compiler).process_2(externs, root)
 		}}
 	}}).build()
-	this.substituteLocaleData = PassFactory_builder().setName("SubstituteLocaleData").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.substituteLocaleData = PassFactory_builder().setName("SubstituteLocaleData").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_DefaultPassConfig_14(this, compiler)
 	}}).build()
-	this.transpileOnlyClosureUnaware = PassFactory_builder().setName("TranspileOnlyClosureUnaware").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.transpileOnlyClosureUnaware = PassFactory_builder().setName("TranspileOnlyClosureUnaware").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_TranspileAndOptimizeClosureUnaware(compiler, NestedCompilerRunner_Mode_TRANSPILE_ONLY)
 	}}).build()
-	this.transpileAndOptimizeClosureUnaware = PassFactory_builder().setName("TranspileAndOptimizeClosureUnaware").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	this.transpileAndOptimizeClosureUnaware = PassFactory_builder().setName("TranspileAndOptimizeClosureUnaware").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_TranspileAndOptimizeClosureUnaware(compiler, NestedCompilerRunner_Mode_TRANSPILE_AND_OPTIMIZE)
 	}}).build()
 }
@@ -1508,25 +1348,19 @@ func (this *DefaultPassConfig) assertValidOrderForOptimizations(optimizations *P
 }
 
 func (this *DefaultPassConfig) getFullReplaceMessagesPass() *PassFactory {
-	return PassFactory_builder().setName(PassNames_REPLACE_MESSAGES).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	return PassFactory_builder().setName(PassNames_REPLACE_MESSAGES).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_ReplaceMessages(compiler, this.options_.getMessageBundle(), this.options_.getStrictMessageReplacement()).getFullReplacementPass()
 	}}).build()
 }
 
 func (this *DefaultPassConfig) getProtectMessagesPass() *PassFactory {
-	return PassFactory_builder().setName("protectMessages").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	return PassFactory_builder().setName("protectMessages").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_ReplaceMessages(compiler, this.options_.getMessageBundle(), this.options_.getStrictMessageReplacement()).getMsgProtectionPass()
 	}}).build()
 }
 
 func (this *DefaultPassConfig) getReplaceProtectedMessagesPass() *PassFactory {
-	return PassFactory_builder().setName("replaceProtectedMessages").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	return PassFactory_builder().setName("replaceProtectedMessages").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_ReplaceMessages(compiler, this.options_.getMessageBundle(), this.options_.getStrictMessageReplacement()).getReplacementCompletionPass()
 	}}).build()
 }
@@ -1563,9 +1397,7 @@ func DefaultPassConfig_combineChecks(compiler *AbstractCompiler, callbacks []Nod
 }
 
 func (this *DefaultPassConfig) createProcessDefines(mode ProcessDefines_Mode) *PassFactory {
-	return PassFactory_builder().setName(("processDefines_" + sstr_(mode.name()))).setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	return PassFactory_builder().setName(("processDefines_" + sstr_(mode.name()))).setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return iup_CompilerPass(new_ProcessDefines_Builder(compiler).putReplacements(DefaultPassConfig_getAdditionalReplacements(this.options_)).putReplacements(tmapFrom_(tc_string, tc_Node, this.options_.getDefineReplacements().asImm(), true)).setMode(mode).setRecognizeClosureDefines(compiler.getOptions().getClosurePass()).setEnableZonesDefineName(this.options_.getEnableZonesDefineName()).setZoneInputPattern(this.options_.getZoneInputPattern()).setUnknownDefinesToIgnore(this.options_.getUnknownDefinesToIgnore()).build())
 	}}).build()
 }
@@ -1584,17 +1416,13 @@ func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, p
 }
 
 func (this *DefaultPassConfig) createGatherExternProperties(mode GatherExternProperties_Mode) *PassFactory {
-	return PassFactory_builder().setName("gatherExternProperties").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	return PassFactory_builder().setName("gatherExternProperties").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_GatherExternProperties(compiler, mode)
 	}}).build()
 }
 
 func (this *DefaultPassConfig) getCustomPasses(executionTime CustomPassExecutionTime) *PassFactory {
-	return PassFactory_builder().setName("runCustomPasses").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	return PassFactory_builder().setName("runCustomPasses").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return DefaultPassConfig_runInSerial(iup_Collection(this.options_.getCustomPassesAt(executionTime).asImm()))
 	}}).build()
 }
@@ -1635,12 +1463,10 @@ func DefaultPassConfig_clinit() {
 	DefaultPassConfig_clinit_done = true
 	DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN = Pattern_compile("^[a-zA-Z0-9$_]+$")
 	DefaultPassConfig_GENERATE_EXPORTS_ERROR = DiagnosticType_error("JSC_GENERATE_EXPORTS_ERROR", "Exports can only be generated if export symbol/property functions are set.")
-	DefaultPassConfig_forbidDynamicImportUsage = PassFactory_builder().setName("FORBID_DYNAMIC_IMPORT").setInternalFactory(&Function_tfn_any_CompilerPass{func(p0 any) CompilerPass {
-		return new_ForbidDynamicImportUsage(to_AbstractCompiler(p0))
+	DefaultPassConfig_forbidDynamicImportUsage = PassFactory_builder().setName("FORBID_DYNAMIC_IMPORT").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(p0 *AbstractCompiler) CompilerPass {
+		return new_ForbidDynamicImportUsage(p0)
 	}}).build()
-	DefaultPassConfig_rewriteDynamicImports = PassFactory_builder().setName("REWRITE_DYNAMIC_IMPORT").setInternalFactory(&Function_tfn_any_CompilerPass{func(compiler_ any) CompilerPass {
-		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
-		_ = compiler
+	DefaultPassConfig_rewriteDynamicImports = PassFactory_builder().setName("REWRITE_DYNAMIC_IMPORT").setInternalFactory(&Function_tfn_any_CompilerPass_cAbstractCompiler{func(compiler *AbstractCompiler) CompilerPass {
 		return new_RewriteDynamicImports(compiler, compiler.getOptions().getDynamicImportAlias(), compiler.getOptions().getChunkOutputType())
 	}}).build()
 

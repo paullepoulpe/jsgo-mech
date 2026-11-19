@@ -562,9 +562,7 @@ func ConvertToTypedInterface_SimplifyDeclarations_clinit() {
 	}
 	ConvertToTypedInterface_SimplifyDeclarations_clinit_done = true
 	ConvertToTypedInterface_SimplifyDeclarations_SHORT_TO_LONG = Comparator_comparing(&Function_tfn_string_any{func(p0 string) any { return any(int32(ConvertToTypedInterface_SimplifyDeclarations_countDots(p0))) }})
-	ConvertToTypedInterface_SimplifyDeclarations_DECLARATIONS_FIRST = Comparator_comparing(&Function_tfn_any_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel{func(decl_ any) ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
-		var decl *PotentialDeclaration = to_PotentialDeclaration(decl_)
-		_ = decl
+	ConvertToTypedInterface_SimplifyDeclarations_DECLARATIONS_FIRST = Comparator_comparing(&Function_tfn_any_ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_cPotentialDeclaration{func(decl *PotentialDeclaration) ConvertToTypedInterface_SimplifyDeclarations_TypingLevel {
 		var jsdoc *JSDocInfo = decl.getJsDoc()
 		if jsdoc == nil {
 			return ConvertToTypedInterface_SimplifyDeclarations_TypingLevel_NO_JSDOC
