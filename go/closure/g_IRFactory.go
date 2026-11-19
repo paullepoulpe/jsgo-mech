@@ -585,7 +585,7 @@ func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_u
 		return nil
 	}
 	var preCommentText string = String_substring(this.fileWithContent.contents, (tokenEnd.offset + 1), comment.location_.start_.offset)
-	if String_trim(preCommentText) != "" {
+	if strings.Trim(preCommentText, javaSpace_) != "" {
 		return nil
 	}
 	result.append(comment.value_)
