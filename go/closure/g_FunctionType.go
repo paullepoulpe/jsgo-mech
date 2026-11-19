@@ -111,7 +111,7 @@ func (this *FunctionType) init_FunctionType(builder *FunctionType_Builder) {
 			var typeOfThisBuilder *InstanceObjectType_Builder = InstanceObjectType_builderForCtor(this)
 			var ctorKeys *ImmutableSet[*TemplateType] = builder.constructorOnlyKeys
 			if !ctorKeys.IsEmpty() {
-				cast_[*InstanceObjectType_Builder](typeOfThisBuilder.setTemplateTypeMap(this.templateTypeMap.copyWithoutKeys(ctorKeys)).self()).setTemplateParamCount((this.getTemplateParamCount() - ctorKeys.Len()))
+				typeOfThisBuilder.setTemplateTypeMapT_(this.templateTypeMap.copyWithoutKeys(ctorKeys)).setTemplateParamCount((this.getTemplateParamCount() - ctorKeys.Len()))
 			}
 			this.typeOfThis = typeOfThisBuilder.build().up_JSType()
 		case FunctionType_Kind_ORDINARY:
@@ -505,7 +505,7 @@ func (this *FunctionType) getPropertyTypeKey_impl(name Property_Key) *JSType {
 func (this *FunctionType) getBindReturnType(argsToBind int32) *FunctionType {
 	var builder *FunctionType_Builder = FunctionType_builder(this.registry).withReturnType(this.getReturnType()).withTemplateKeysImmutableList(this.getTemplateTypeMap().getTemplateKeys())
 	if argsToBind < 0 {
-		return to_FunctionType(builder.build().self())
+		return builder.buildT_()
 	}
 	var origParams *ImmutableList[*FunctionType_Parameter] = this.call.getParameterList()
 	var params *TList[*FunctionType_Parameter] = tlistFrom_(tc_p_FunctionType_Parameter, iup_Collection(origParams.asImm()))
@@ -516,7 +516,7 @@ func (this *FunctionType) getBindReturnType(argsToBind int32) *FunctionType {
 		params.removeAt(0)
 	}
 	builder.withParameters_1(params)
-	return to_FunctionType(builder.build().self())
+	return builder.buildT_()
 }
 
 func (this *FunctionType) getCallOrBindSignature(isCall bool) *FunctionType {
@@ -550,7 +550,7 @@ func (this *FunctionType) getCallOrBindSignature(isCall bool) *FunctionType {
 		}
 	}
 	builder.withParameters_1(params)
-	return to_FunctionType(builder.build().self())
+	return builder.buildT_()
 }
 
 func (this *FunctionType) defineProperty_impl(name Property_Key, type_ *JSType, inferred bool, propertyNode Node) bool {
@@ -651,7 +651,7 @@ func (this *FunctionType) tryMergeFunctionPiecewise(other *FunctionType, leastSu
 		newTypeOfThis = maybeNewTypeOfThis
 	}
 	var newReturnTypeInferred bool = (this.call.returnTypeInferred || other.call.returnTypeInferred)
-	return to_FunctionType(FunctionType_builder(this.registry).withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, newParamsNode.asImm())).withReturnType_2(newReturnType, newReturnTypeInferred).withTypeOfThis(newTypeOfThis).build().self())
+	return FunctionType_builder(this.registry).withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, newParamsNode.asImm())).withReturnType_2(newReturnType, newReturnTypeInferred).withTypeOfThis(newTypeOfThis).buildT_()
 }
 
 func (this *FunctionType) getSuperClassConstructor_impl() *FunctionType {
@@ -964,7 +964,7 @@ func (this *FunctionType) acceptsArguments(argumentTypes []*JSType) bool {
 }
 
 func (this *FunctionType) forgetParameterAndReturnTypes() *FunctionType {
-	var result *FunctionType = to_FunctionType(FunctionType_builder(this.registry).withName(this.getReferenceName()).withSourceNode(this.source).withTypeOfThis(this.getInstanceType().up_JSType()).withKind(this.kind_).withCanonicalRepresentation(this).build().self())
+	var result *FunctionType = FunctionType_builder(this.registry).withName(this.getReferenceName()).withSourceNode(this.source).withTypeOfThis(this.getInstanceType().up_JSType()).withKind(this.kind_).withCanonicalRepresentation(this).buildT_()
 	result.setPrototypeBasedOn(this.getInstanceType())
 	return result
 }
@@ -1024,7 +1024,7 @@ func FunctionType_builder(registry *JSTypeRegistry) *FunctionType_Builder {
 }
 
 func (this *FunctionType) toBuilder() *FunctionType_Builder {
-	var builder *FunctionType_Builder = cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](FunctionType_builder(this.registry).setGoogModuleId(this.getGoogModuleId()).setName(this.getReferenceName()).self()).setNative(this.isNativeObjectType()).self()).setTemplateTypeMap(this.getTemplateTypeMap()).self()).withCanonicalRepresentation(this.getCanonicalRepresentation()).setIsKnownAmbiguous((this.constructorAmbiguity == FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR)).withClosurePrimitiveId(this.getClosurePrimitive()).withIsAbstract(this.isAbstract()).withKind(this.getKind()).withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.getParameters().asImm())).withReturnType_2(this.getReturnType(), this.isReturnTypeInferred()).withSourceNode(this.getSource()).withTypeOfThis(this.getTypeOfThis()).setTemplateParamCount(this.getTemplateParamCount()).self())
+	var builder *FunctionType_Builder = FunctionType_builder(this.registry).setGoogModuleId(this.getGoogModuleId()).setNameT_(this.getReferenceName()).setNativeT_(this.isNativeObjectType()).setTemplateTypeMapT_(this.getTemplateTypeMap()).withCanonicalRepresentation(this.getCanonicalRepresentation()).setIsKnownAmbiguous((this.constructorAmbiguity == FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR)).withClosurePrimitiveId(this.getClosurePrimitive()).withIsAbstract(this.isAbstract()).withKind(this.getKind()).withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.getParameters().asImm())).withReturnType_2(this.getReturnType(), this.isReturnTypeInferred()).withSourceNode(this.getSource()).withTypeOfThis(this.getTypeOfThis()).setTemplateParamCountT_(this.getTemplateParamCount())
 	if this.isConstructor() {
 		builder.withConstructorTemplateKeys(iup_Iterable(this.getConstructorOnlyTemplateParameters().asImm()))
 	}
@@ -1273,6 +1273,30 @@ type FunctionType_Builder struct {
 	canonicalRepresentation *FunctionType
 }
 
+// setNameT_ is setName for a FunctionType_Builder receiver: setName returns its receiver (Java's self type T = FunctionType_Builder), so the result is this (selftype).
+func (this *FunctionType_Builder) setNameT_(p0 Optional[string]) *FunctionType_Builder {
+	this.setName(p0)
+	return this
+}
+
+// setNativeT_ is setNative for a FunctionType_Builder receiver: setNative returns its receiver (Java's self type T = FunctionType_Builder), so the result is this (selftype).
+func (this *FunctionType_Builder) setNativeT_(p0 bool) *FunctionType_Builder {
+	this.setNative(p0)
+	return this
+}
+
+// setTemplateParamCountT_ is setTemplateParamCount for a FunctionType_Builder receiver: setTemplateParamCount returns its receiver (Java's self type T = FunctionType_Builder), so the result is this (selftype).
+func (this *FunctionType_Builder) setTemplateParamCountT_(p0 int32) *FunctionType_Builder {
+	this.setTemplateParamCount(p0)
+	return this
+}
+
+// setTemplateTypeMapT_ is setTemplateTypeMap for a FunctionType_Builder receiver: setTemplateTypeMap returns its receiver (Java's self type T = FunctionType_Builder), so the result is this (selftype).
+func (this *FunctionType_Builder) setTemplateTypeMapT_(p0 *TemplateTypeMap) *FunctionType_Builder {
+	this.setTemplateTypeMap(p0)
+	return this
+}
+
 func (this *FunctionType_Builder) up_PrototypeObjectType_Builder() *PrototypeObjectType_Builder {
 	if this == nil {
 		return nil
@@ -1317,7 +1341,7 @@ func new_FunctionType_Builder(registry *JSTypeRegistry) *FunctionType_Builder {
 }
 
 func (this *FunctionType_Builder) withName(name Optional[string]) *FunctionType_Builder {
-	return cast_[*FunctionType_Builder](this.setName(name).self())
+	return this.setNameT_(name)
 }
 
 func (this *FunctionType_Builder) withSourceNode(sourceNode Node) *FunctionType_Builder {
@@ -1371,7 +1395,7 @@ func (this *FunctionType_Builder) withTemplateKeysImmutableList(templateKeys *Im
 	if templateKeys == nil {
 		templateKeys = immutableListOf_(tc_p_TemplateType)
 	}
-	return cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](this.setTemplateTypeMap(this.registry.getEmptyTemplateTypeMap().copyWithExtension_2(templateKeys, []*JSType{})).self()).setTemplateParamCount(templateKeys.size()).self())
+	return this.setTemplateTypeMapT_(this.registry.getEmptyTemplateTypeMap().copyWithExtension_2(templateKeys, []*JSType{})).setTemplateParamCountT_(templateKeys.size())
 }
 
 func (this *FunctionType_Builder) withTemplateKeys(templateKeys []*TemplateType) *FunctionType_Builder {
@@ -1400,7 +1424,7 @@ func (this *FunctionType_Builder) forInterface() *FunctionType_Builder {
 }
 
 func (this *FunctionType_Builder) forNativeType() *FunctionType_Builder {
-	return cast_[*FunctionType_Builder](this.setNative(true).self())
+	return this.setNativeT_(true)
 }
 
 func (this *FunctionType_Builder) withIsAbstract(isAbstract bool) *FunctionType_Builder {
@@ -1428,7 +1452,8 @@ func (this *FunctionType_Builder) withCanonicalRepresentation(representation *Fu
 	return this
 }
 
-func (this *FunctionType_Builder) build_impl() *PrototypeObjectType {
+// buildT_ is build_impl with the class Java's override declares (a covariant result; selftype).
+func (this *FunctionType_Builder) buildT_() *FunctionType {
 	switch this.kind_ {
 	case FunctionType_Kind_CONSTRUCTOR, FunctionType_Kind_INTERFACE:
 	case FunctionType_Kind_NONE:
@@ -1455,11 +1480,16 @@ func (this *FunctionType_Builder) build_impl() *PrototypeObjectType {
 			panic(new_IllegalStateException_0())
 		}
 	}
-	return new_FunctionType(this).up_PrototypeObjectType()
+	return new_FunctionType(this)
+}
+
+// build_impl is the bridge with the overridden method's result (javac's).
+func (this *FunctionType_Builder) build_impl() *PrototypeObjectType {
+	return this.buildT_().up_PrototypeObjectType()
 }
 
 func (this *FunctionType_Builder) buildAndResolve() *FunctionType {
-	nn_1 := to_FunctionType(this.build().self()).toMaybeFunctionType()
+	nn_1 := this.buildT_().toMaybeFunctionType()
 	if nn_1 == nil {
 		panic(new_NullPointerException_0())
 	}

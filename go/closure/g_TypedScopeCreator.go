@@ -102,11 +102,12 @@ func (this *TypedScopeCreator) createScope(n Node) *TypedScope {
 		if s != nil {
 			return s
 		}
-		return cast_[*TypedScope](this.createScopeAbstractScope(n, this.createScope(NodeUtil_getEnclosingScopeRoot(n.getParent())).up_AbstractScope()).self())
+		return this.createScopeAbstractScopeT_(n, this.createScope(NodeUtil_getEnclosingScopeRoot(n.getParent())).up_AbstractScope())
 	}()
 }
 
-func (this *TypedScopeCreator) createScopeAbstractScope(root Node, parent *AbstractScope) *AbstractScope {
+// createScopeAbstractScopeT_ is createScopeAbstractScope with the class Java's override declares (a covariant result; selftype).
+func (this *TypedScopeCreator) createScopeAbstractScopeT_(root Node, parent *AbstractScope) *TypedScope {
 	if parent != nil && !is_[*TypedScope](parent.self()) {
 		panic(new_IllegalArgumentException_0())
 	}
@@ -120,7 +121,12 @@ func (this *TypedScopeCreator) createScopeAbstractScope(root Node, parent *Abstr
 		scope = this.createScopeInternal(root, typedParent)
 		this.memoized.Put(root, scope)
 	}
-	return scope.up_AbstractScope()
+	return scope
+}
+
+// createScopeAbstractScope is the bridge with the overridden method's result (javac's).
+func (this *TypedScopeCreator) createScopeAbstractScope(root Node, parent *AbstractScope) *AbstractScope {
+	return this.createScopeAbstractScopeT_(root, parent).up_AbstractScope()
 }
 
 func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *TypedScope) *TypedScope {
@@ -734,7 +740,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) shouldTraverse(t *NodeTraver
 	} else if n.isModuleBody() {
 		this.outer_.createScopeAbstractScope(n, this.currentScope.up_AbstractScope())
 	} else if NodeUtil_isBundledGoogModuleScopeRoot(n) {
-		var functionScope *TypedScope = cast_[*TypedScope](this.outer_.createScopeAbstractScope(parent, this.currentScope.up_AbstractScope()).self())
+		var functionScope *TypedScope = this.outer_.createScopeAbstractScopeT_(parent, this.currentScope.up_AbstractScope())
 		this.outer_.createScopeAbstractScope(n, functionScope.up_AbstractScope())
 	}
 	return false
@@ -1472,7 +1478,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createEnumTypeFromNodes(rVal
 		}
 	}
 	if enumType == nil {
-		enumType = cast_[*EnumType](cast_[*EnumType_Builder](EnumType_builder(this.outer_.typeRegistry).setName(this.getBestTypeName(lValue, name)).self()).setGoogModuleId(TypedScopeCreator_containingGoogModuleIdOf(this.currentScope).orElse("")).setSource(rValue).setElementType(info.getEnumParameterType().evaluate(iup_StaticTypedScope(this.currentScope), this.outer_.typeRegistry)).build().self())
+		enumType = EnumType_builder(this.outer_.typeRegistry).setNameT_(this.getBestTypeName(lValue, name)).setGoogModuleId(TypedScopeCreator_containingGoogModuleIdOf(this.currentScope).orElse("")).setSource(rValue).setElementType(info.getEnumParameterType().evaluate(iup_StaticTypedScope(this.currentScope), this.outer_.typeRegistry)).buildT_()
 		if (rValue != 0) && rValue.isObjectLit() {
 			var key Node = rValue.getFirstChild()
 			for key != 0 {

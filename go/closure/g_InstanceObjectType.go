@@ -45,7 +45,7 @@ func new_InstanceObjectType(builder *InstanceObjectType_Builder) *InstanceObject
 }
 
 func InstanceObjectType_builderForCtor(ctor *FunctionType) *InstanceObjectType_Builder {
-	return cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](cast_[*InstanceObjectType_Builder](new_InstanceObjectType_Builder(ctor.registry).setName(ctor.getReferenceName()).self().(*InstanceObjectType_Builder).setImplicitPrototype(nil).self()).setNative(ctor.isNativeObjectType()).self()).setAnonymous(ctor.isAnonymous()).self()).setTemplateTypeMap(ctor.getTemplateTypeMap()).self()).setTemplateParamCount(ctor.getTemplateParamCount()).self().(*InstanceObjectType_Builder).setConstructor(ctor)
+	return new_InstanceObjectType_Builder(ctor.registry).setNameT_(ctor.getReferenceName()).setImplicitPrototypeT_(nil).setNativeT_(ctor.isNativeObjectType()).setAnonymousT_(ctor.isAnonymous()).setTemplateTypeMapT_(ctor.getTemplateTypeMap()).setTemplateParamCountT_(ctor.getTemplateParamCount()).setConstructor(ctor)
 }
 
 func (this *InstanceObjectType) getTypeClass_impl() JSTypeClass {
@@ -185,6 +185,42 @@ func InstanceObjectType_clinit() {
 type InstanceObjectType_Builder struct {
 	PrototypeObjectType_Builder
 	constructor_ *FunctionType
+}
+
+// setAnonymousT_ is setAnonymous for a InstanceObjectType_Builder receiver: setAnonymous returns its receiver (Java's self type T = InstanceObjectType_Builder), so the result is this (selftype).
+func (this *InstanceObjectType_Builder) setAnonymousT_(p0 bool) *InstanceObjectType_Builder {
+	this.setAnonymous(p0)
+	return this
+}
+
+// setImplicitPrototypeT_ is setImplicitPrototype for a InstanceObjectType_Builder receiver: setImplicitPrototype returns its receiver (Java's self type T = InstanceObjectType_Builder), so the result is this (selftype).
+func (this *InstanceObjectType_Builder) setImplicitPrototypeT_(p0 *ObjectType) *InstanceObjectType_Builder {
+	this.setImplicitPrototype(p0)
+	return this
+}
+
+// setNameT_ is setName for a InstanceObjectType_Builder receiver: setName returns its receiver (Java's self type T = InstanceObjectType_Builder), so the result is this (selftype).
+func (this *InstanceObjectType_Builder) setNameT_(p0 Optional[string]) *InstanceObjectType_Builder {
+	this.setName(p0)
+	return this
+}
+
+// setNativeT_ is setNative for a InstanceObjectType_Builder receiver: setNative returns its receiver (Java's self type T = InstanceObjectType_Builder), so the result is this (selftype).
+func (this *InstanceObjectType_Builder) setNativeT_(p0 bool) *InstanceObjectType_Builder {
+	this.setNative(p0)
+	return this
+}
+
+// setTemplateParamCountT_ is setTemplateParamCount for a InstanceObjectType_Builder receiver: setTemplateParamCount returns its receiver (Java's self type T = InstanceObjectType_Builder), so the result is this (selftype).
+func (this *InstanceObjectType_Builder) setTemplateParamCountT_(p0 int32) *InstanceObjectType_Builder {
+	this.setTemplateParamCount(p0)
+	return this
+}
+
+// setTemplateTypeMapT_ is setTemplateTypeMap for a InstanceObjectType_Builder receiver: setTemplateTypeMap returns its receiver (Java's self type T = InstanceObjectType_Builder), so the result is this (selftype).
+func (this *InstanceObjectType_Builder) setTemplateTypeMapT_(p0 *TemplateTypeMap) *InstanceObjectType_Builder {
+	this.setTemplateTypeMap(p0)
+	return this
 }
 
 func (this *InstanceObjectType_Builder) up_PrototypeObjectType_Builder() *PrototypeObjectType_Builder {

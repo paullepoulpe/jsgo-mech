@@ -45,7 +45,7 @@ func (this *TypeInferencePass) inferAllScopes(inferenceRoot Node) *TypedScope {
 		if this.topScope != nil {
 			panic(new_IllegalStateException_0())
 		}
-		this.topScope = cast_[*TypedScope](this.scopeCreator.createScopeAbstractScope(inferenceRoot, nil).self())
+		this.topScope = this.scopeCreator.createScopeAbstractScopeT_(inferenceRoot, nil)
 		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(new_TypeInferencePass_FirstScopeBuildingCallback()).setScopeCreator(iup_ScopeCreator(this.scopeCreator)).traverseWithScope(inferenceRoot, this.topScope.up_AbstractScope())
 		this.scopeCreator.resolveWeakImportsPreResolution()
 	}()

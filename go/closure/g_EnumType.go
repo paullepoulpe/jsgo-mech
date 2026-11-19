@@ -165,6 +165,12 @@ type EnumType_Builder struct {
 	elementType  *JSType
 }
 
+// setNameT_ is setName for a EnumType_Builder receiver: setName returns its receiver (Java's self type T = EnumType_Builder), so the result is this (selftype).
+func (this *EnumType_Builder) setNameT_(p0 Optional[string]) *EnumType_Builder {
+	this.setName(p0)
+	return this
+}
+
 func (this *EnumType_Builder) up_PrototypeObjectType_Builder() *PrototypeObjectType_Builder {
 	if this == nil {
 		return nil
@@ -215,8 +221,14 @@ func (this *EnumType_Builder) setElementType(x *JSType) *EnumType_Builder {
 	return this
 }
 
+// buildT_ is build_impl with the class Java's override declares (a covariant result; selftype).
+func (this *EnumType_Builder) buildT_() *EnumType {
+	return new_EnumType(this)
+}
+
+// build_impl is the bridge with the overridden method's result (javac's).
 func (this *EnumType_Builder) build_impl() *PrototypeObjectType {
-	return new_EnumType(this).up_PrototypeObjectType()
+	return this.buildT_().up_PrototypeObjectType()
 }
 
 // getTypeClass: an object that is exactly a EnumType calls its getTypeClass_impl directly (post-flip); others dispatch.

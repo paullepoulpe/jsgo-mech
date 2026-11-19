@@ -614,7 +614,7 @@ func (this *FunctionTypeBuilder) buildAndRegister() *FunctionType {
 	} else if this.isInterface_ {
 		fnType = this.getOrCreateInterface()
 	} else {
-		fnType = to_FunctionType(this.createDefaultBuilder().withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.parameters.asImm())).withReturnType_2(this.returnType, this.returnTypeInferred).withTypeOfThis(this.thisType).withIsAbstract(this.isAbstract_).withClosurePrimitiveId(this.closurePrimitiveId).build().self())
+		fnType = this.createDefaultBuilder().withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.parameters.asImm())).withReturnType_2(this.returnType, this.returnTypeInferred).withTypeOfThis(this.thisType).withIsAbstract(this.isAbstract_).withClosurePrimitiveId(this.closurePrimitiveId).buildT_()
 		this.maybeSetBaseType(fnType)
 	}
 	if (this.implementedInterfaces != nil) && fnType.isConstructor() {
@@ -642,7 +642,7 @@ func (this *FunctionTypeBuilder) createDefaultBuilder() *FunctionType_Builder {
 }
 
 func (this *FunctionTypeBuilder) getOrCreateConstructor() *FunctionType {
-	var fnType *FunctionType = to_FunctionType(this.createDefaultBuilder().forConstructor().withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.parameters.asImm())).withReturnType(this.returnType).withConstructorTemplateKeys(iup_Iterable(this.constructorTemplateTypeNames.asImm())).withIsAbstract(this.isAbstract_).build().self())
+	var fnType *FunctionType = this.createDefaultBuilder().forConstructor().withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.parameters.asImm())).withReturnType(this.returnType).withConstructorTemplateKeys(iup_Iterable(this.constructorTemplateTypeNames.asImm())).withIsAbstract(this.isAbstract_).buildT_()
 	if this.makesStructs_ {
 		fnType.setStruct()
 	} else if this.makesDicts_ {
@@ -688,7 +688,7 @@ func (this *FunctionTypeBuilder) getOrCreateInterface() *FunctionType {
 		}
 	}
 	if fnType == nil {
-		fnType = to_FunctionType(this.createDefaultBuilder().forInterface().withParameters().build().self())
+		fnType = this.createDefaultBuilder().forInterface().withParameters().buildT_()
 		if this.makesStructs_ {
 			fnType.setStruct()
 		}
