@@ -387,3 +387,13 @@ capacity 1 each, as in Java; postflip5 has one-element arrays inside the node by
 type search of SerializeTypesToPointers (9.7M), strobj_ (7M), a Predicates_equalTo object per
 isConnectedInDirection (6.3M, as in Java; by hand in postflip5), LinkedIdentityHashMap entries
 (3.8M). The two largest are allocations Java makes too.
+
+### Chain replay of the bridge steps (19 Nov)
+
+`tools/postflip/reflip/replay-bridge.sh <scratch dir>` replays C1 to C34 as one chain: from the
+tree before C1, each step's patch or command with the tools of that step's commit, the tree
+carried forward, each intermediate go/ compared with the step's commit byte for byte
+(g_zconv_jfam*.go left out against the commits .gitignore kept it from, see steps.txt). Run on
+64826ba8: `CHAIN OK 34 steps, last tree builds`. Its first run stopped at C34 on a patch file
+left under an old hash; fixed in 64826ba8. This is the bridge only: the 191 replayed commits
+before C1 (reflip2-replayed) were checked by replay2.sh on 18 Nov and have not been re-run.
