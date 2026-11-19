@@ -237,7 +237,7 @@ func (this *LinkedFlowScope) hashCode() int32 {
 }
 
 func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, commonParent *TypedScope) PMap[*TypedScope, *LinkedFlowScope_OverlayScope] {
-	return linkedA.trimScopes(commonParent).reconcile(linkedB.trimScopes(commonParent), &PMap_Reconciler_fn[*TypedScope, *LinkedFlowScope_OverlayScope]{func(scopeKey *TypedScope, scopeA *LinkedFlowScope_OverlayScope, scopeB *LinkedFlowScope_OverlayScope) *LinkedFlowScope_OverlayScope {
+	return linkedA.trimScopes(commonParent).reconcile(linkedB.trimScopes(commonParent), PMap_Reconciler[*TypedScope, *LinkedFlowScope_OverlayScope](func(scopeKey *TypedScope, scopeA *LinkedFlowScope_OverlayScope, scopeB *LinkedFlowScope_OverlayScope) *LinkedFlowScope_OverlayScope {
 		var slotsA PMap[string, *LinkedFlowScope_OverlaySlot] = func() PMap[string, *LinkedFlowScope_OverlaySlot] {
 			if scopeA != nil {
 				return scopeA.slots
@@ -289,7 +289,7 @@ func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, co
 				return scopeB.scope_
 			}()
 		}()
-		return new_LinkedFlowScope_OverlayScope_TypedScope_PMap(bestScope, slotsA.reconcile(slotsB, &PMap_Reconciler_fn[string, *LinkedFlowScope_OverlaySlot]{func(slotKey string, slotA *LinkedFlowScope_OverlaySlot, slotB *LinkedFlowScope_OverlaySlot) *LinkedFlowScope_OverlaySlot {
+		return new_LinkedFlowScope_OverlayScope_TypedScope_PMap(bestScope, slotsA.reconcile(slotsB, PMap_Reconciler[string, *LinkedFlowScope_OverlaySlot](func(slotKey string, slotA *LinkedFlowScope_OverlaySlot, slotB *LinkedFlowScope_OverlaySlot) *LinkedFlowScope_OverlaySlot {
 			var name string = func() string {
 				if slotA != nil {
 					return slotA.getName()
@@ -355,8 +355,8 @@ func LinkedFlowScope_join(linkedA *LinkedFlowScope, linkedB *LinkedFlowScope, co
 				}
 				return new_LinkedFlowScope_OverlaySlot(name, joinedType)
 			}()
-		}}))
-	}})
+		})))
+	}))
 }
 
 func (this *LinkedFlowScope) lookupQualifiedName(p0 *QualifiedName) *JSType {
