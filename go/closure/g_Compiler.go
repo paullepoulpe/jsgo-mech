@@ -213,7 +213,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 		if this.outStream == nil {
 			this.setErrorManager(ErrorManager(new_LoggerErrorManager_MessageFormatter_Logger(this.createMessageFormatter(), Compiler_logger)))
 		} else {
-			var builder *ImmutableSet_Builder[SortingErrorManager_ErrorReportGenerator] = immutableSetBuilder_(tce_SortingErrorManager_ErrorReportGenerator.t_())
+			var builder *ImmutableSet_Builder[SortingErrorManager_ErrorReportGenerator] = immutableSetBuilder_(tc_SortingErrorManager_ErrorReportGenerator)
 			builder.add(SortingErrorManager_ErrorReportGenerator(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel()))).addAll(Iterable(sliceViewP_(tc_SortingErrorManager_ErrorReportGenerator, options.getExtraReportGenerators())))
 			this.setErrorManager(new_SortingErrorManager(builder.build()))
 		}

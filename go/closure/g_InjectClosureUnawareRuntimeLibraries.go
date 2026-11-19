@@ -73,7 +73,7 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClos
 }
 
 func InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(root Node, allKnownFields *TMap[string, RuntimeJsLibManager_ExternedField]) *TSet[RuntimeJsLibManager_ExternedField] {
-	var seen *TSet[RuntimeJsLibManager_ExternedField] = newTSet_(tce_RuntimeJsLibManager_ExternedField.t_())
+	var seen *TSet[RuntimeJsLibManager_ExternedField] = newTSet_(tc_RuntimeJsLibManager_ExternedField)
 	var visitor NodeUtil_Visitor = &NodeUtil_Visitor_fn{func(n Node) {
 		if !n.isName() {
 			return

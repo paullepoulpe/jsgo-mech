@@ -136,7 +136,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 }
 
 func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], isLibraryLevelConformanceReportingMode bool) []*Requirement {
-	var rootRequirements *TMap[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = newTMap_(tce_p_Requirement_Builder.t_(), tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	var rootRequirements *TMap[*Requirement_Builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = newTMap_(tc_p_Requirement_Builder, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
 	var extendable map[string]*Requirement_Builder = map[string]*Requirement_Builder{}
 	it_1 := configs.each()
 	for it_1.next() {
